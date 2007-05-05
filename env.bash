@@ -36,7 +36,22 @@
 env-i(){ [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash ; }
 
 
-env-wiki(){ trac-admin $SCM_FOLD/tracs/env wiki $* ; }
+env-wiki(){ 
+
+[ 1 == 2 ] && cat << EOD	
+   #	
+   #  usage examples :	
+   #
+   #	 env-wiki export WikiStart WikiStart
+   #           export the wiki page "WikiStart" to file  "WikiStart"
+   #   
+   #	 env-wiki import WikiStart WikiStart
+   #           import the file into the web app
+   #
+   #
+EOD
+	 trac-admin $SCM_FOLD/tracs/env wiki $* ; 
+}
 
 
 env-find(){
