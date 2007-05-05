@@ -1,7 +1,43 @@
+#
+#   cd $HOME
+#   svn co http://hfag.phys.ntu.edu.tw:6060/repos/env/trunk/ env
+#
+#   use 
+#      type name 
+#  to list a function definition
+#    http://www-128.ibm.com/developerworks/library/l-bash-test.html
+#
+#   use 
+#       set 
+#           to list all functions
+#
+#     unset -f name 
+#              to remove a function
+#
+#     typeset -F  
+#          lists just the names
+#
+#  http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
+#
+#
 
-ENV_BASE=env
+ ENV_BASE=env
+ DYW_DBG=0
+ BASE_DBG=0
+ 
+ [ -r ~/$ENV_BASE/base/base.bash  ] && . ~/$ENV_BASE/base/base.bash
+ [ -r ~/$ENV_BASE/scm/scm.bash  ]   && . ~/$ENV_BASE/scm/scm.bash
+ [ -r ~/$ENV_BASE/dyw/dyw.bash  ]   && . ~/$ENV_BASE/dyw/dyw.bash
+
+
+
+
 
 env-i(){ [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash ; }
+
+
+env-wiki(){ trac-admin $SCM_FOLD/tracs/env wiki $* ; }
+
 
 env-find(){
   q=${1:-dummy}

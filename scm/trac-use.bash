@@ -1,3 +1,21 @@
+#
+#
+#    trac-admin
+#         list the cmds
+#
+#    trac-admin /var/scm/tracs/env wiki list
+#          list pages
+#
+#    trac-admin /var/scm/tracs/env wiki export WikiStart
+#          dumps to stdout 
+#
+#
+#
+#
+#
+
+
+
 
 
 trac-use-authz(){
