@@ -1,0 +1,65 @@
+
+#    Notes :
+#    ========
+#
+#   I have succeeded to install and run G4dyb on pal with
+#   the OIX open inventor G4 graphics driver
+#   (5 working days this time !)
+#
+#   I couldnt get the openmotif or coin3d widgets to be visible
+#   remotely, but they seemed to all build and install fine so
+#   I think that it will work (you will need to make changes
+#   to  the main : G4dyb/app/dyw.cc  to check these , I've attached
+#   my dyw.cc to this mail)
+#
+#   The prerequisites are installed in /usr/local  (moving to $LOCAL_BASE)
+#
+
+#   The  commands that I used to download, configure ,
+#   build, install and setup the environment of all these packages
+#   can be found in :
+#         /home/sblyth/.bash_*
+#  .bash_profile sources all these sub scripts
+#  .bash_dayabay is special, defining more functions :
+#
+#
+#  For example .bash_clhep defines bash functions :
+#         clhep-get
+#         clhep-configure
+#         clhep-build
+#   as well as sets the needed environment.
+#
+#   In particular it sets "my" _CMT variable :
+#         export CLHEP_CMT="CLHEP_config:$CLHEP_FOLDER/bin/clhep-config"
+#
+#    which is used in .bash_dayabay to construct  DYW_CMT  
+#         export DYW_CMT="$BOOST_CMT $CERNLIB_CMT $CLHEP_CMT $GEANT_CMT $ROOT_CMT $XERCESC_CMT $VGM_CMT"
+#
+#    which is then used to create the requirements.$LOCAL_NODE file by my function
+#    dyw-requirements   (defined in .bash_dayabay)
+#
+#
+# I suggest you :
+#
+#     have a look at .bash_dayabay and then run :
+#
+#         dyw-get                 ## does CVS login and initial checkout
+#
+#         dyw-requirements        ##  constructs the requirements.$LOCAL_NODE file
+#         dyw-init
+#         dyw-build
+#   
+#        g4dyb             ## run G4dyb.exe
+#
+#
+#   It might also be a good idea to build and try the Geant4 examples
+#  (functions defined in .bash_geant4_use )
+#
+#       geant4-copy-examples
+#       _a01     ## builds example extended/analysis/A01
+#       a01      ## runs
+#
+#
+#
+###################################################################################
+#

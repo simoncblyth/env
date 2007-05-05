@@ -1,0 +1,91 @@
+####################################################################################
+#
+#      Environment setup for Dayabay software and prerequisites...
+#      =============================================================
+#
+#      Author:  Simon C. Blyth , NUU     (Feb 2007)
+#
+#      Usage :
+#
+#             0)
+#                  switch to bash shell (ypchsh) or get your adminstrator to 
+#                  change your shell to bash 
+#
+#             1)
+#                 unpack the dyw.tar.gz tarball into $HOME
+#                   cd $HOME 
+#                   tar ztvf dyw.tar.gz   ## look to see what is about to be overwritten
+#                   tar zxvf dyw.tar.gz   ## unpack, overwriting any preexisting files
+#                
+#             2)
+#                 review the node/user specific settings in .bash_dyw_use and edit if needed
+#                 include the below into .bash_profile
+#
+#                    [ -r ~/.bash_dyw_profile ]  && . ~/.bash_dyw_profile
+#
+#             3)
+#                 start a new shell, to pick up the environment in which many
+#                 bash functions to download, install, condigure the dayabay
+#                 sw and prerequisites are available
+#
+#             4) 
+#                 look at the .bash_* files , and check what the bash functions
+#                 are going to do before running them
+#
+#
+#    Utility functions :
+#
+#     dym-sync    syncronize macros from G to P
+#
+#
+#     Development cycle of this env setup :
+#
+#             0)  edit .bash_* scripts on source machine: g4pb
+#             1)  x-dyw-pkg    pack the scripts and copy to target machine TARGET_TAG
+#
+#
+# --------------------------------------------------------------------------------------------------------
+#
+#   env setup is split into two :
+#
+#      .bash_dyw_use        user + batchjob environment  
+#      .bash_dyw            admin config + installation env
+#
+#
+#      .bash_dyw_use   ( sourced for both interactive and batch sessions )
+#         
+#         sets the bulk of environment variables then invokes:
+#
+#               .bash_cmt_use
+#               .bash_condor_use
+#               .bash_dayabay_use
+#               .bash_dayabay_av_use
+#
+#      .bash_dyw    (only sourced for interactive sessions )
+#
+#          invokes the below, which provide bash functions for getting 
+#          configuring and building the below packages
+#
+#               .bash_cmt
+#               .bash_clhep
+#               .bash_cernlib
+#               .bash_agdd
+#               .bash_coin3d         ##  open inventor equivalent graphics
+#               .bash_openmotif      ##  GUI widgets
+#               .bash_soxt           ##  X11 glue for coin3d
+#               .bash_geant4
+#               .bash_geant4_use  ???? maybe needs to be moved
+#               .bash_dawn
+#               .bash_graxml
+#               .bash_root
+#               .bash_vgm
+#               .bash_xercesc
+#               .bash_boost              ## gets boostjam also, which is used to build boost
+#               .bash_dayabay
+#               .bash_dayabay_extra
+#               .bash_apache
+#               .bash_dayabay_av
+#               .bash_aida
+#
+#
+#

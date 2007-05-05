@@ -1,0 +1,83 @@
+
+#
+#    ISSUES:
+#
+#          - I am using the mod_wsgi frontend for trac ...
+#            with this I am unable to configure trac logins
+#           ... the normal basic dialog is thrown up and 
+#           bad ids result in rethrowing , 
+# 
+#   similar issue with mod_python
+#
+#       http://trac.edgewall.org/ticket/3821
+#
+#
+#   
+#
+#     http://trac.edgewall.org/browser/trunk/trac/versioncontrol/tests/svn_authz.py
+#     http://trac.edgewall.org/browser/trunk/trac/versioncontrol/svn_authz.py
+#
+#
+#            setup permissions control
+#                http://grid1.phys.ntu.edu.tw:6060/tracs/red/wiki/TracPermissions
+#
+#          - syntax coloring "Pygments"
+#          - real dyw imports 
+#          - connect cvs checkout to stamped folder to the scm-create
+#
+#
+#
+#    /tmp/scb/umbrella            SCM_FOLD
+#
+#                   ./repos       SVN_PARENT_PATH === SCM_FOLD/repos
+#                        repo1
+#                        repo2
+#                   ./tracs       TRAC_ENVFOLD    === SCM_FOLD/tracs
+#                        repo1
+#                        repo2
+#
+#    the names of the svn repositories and their corresponding "trac"ers   
+#    are tied together
+#
+#
+#
+#     scm-create name path
+#     scm-remove name 
+#
+#     scm-open   name
+#
+#        can access the current HEAD with URLs :
+#
+#            (raw content)
+#              http://grid1.phys.ntu.edu.tw:6060/repos/red/trunk/perl/SCB/Workflow/PATH.pm
+#
+#            (trac instrumented)
+#              http://grid1.phys.ntu.edu.tw:6060/tracs/red/browser/trunk/perl/SCB/Workflow/PATH.pm
+#
+#            (trac instrumented... pointing to a specific revision )
+#              http://grid1.phys.ntu.edu.tw:6060/tracs/red/browser/trunk/perl/SCB/Workflow/PATH.pm?rev=2
+#
+#
+#    with trac browser can target a particular revision and line ...
+#
+#         http://grid1.phys.ntu.edu.tw:6060/tracs/red/browser/trunk/perl/SCB/Workflow/PATH.pm?rev=1#L100
+#
+#
+#    %2F = /
+#    %40 = @ 
+#
+#      http://grid1.phys.ntu.edu.tw:6060/tracs/red/changeset?new=%2F%405&old=%2F%403
+#
+#   shows changes between rev 1 and 2
+#
+#  
+#      http://grid1.phys.ntu.edu.tw:6060/tracs/red/changeset?new=/@2&old=/@1
+#      http://grid1.phys.ntu.edu.tw:6060/tracs/red/changeset?new=@2&old=@1
+#      http://grid1.phys.ntu.edu.tw:6060/tracs/red/changeset?new=4&old=1
+#
+#   see 
+#       http://trac.edgewall.org/ticket/4612
+#
+#   more simply also :
+#      http://grid1.phys.ntu.edu.tw:6060/tracs/red/changeset/5
+#

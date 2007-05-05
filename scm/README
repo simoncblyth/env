@@ -1,0 +1,66 @@
+#
+#
+#   SCM is a major issue :
+#  ===========================
+#
+#    Xcode "dyw" project developments was based off an old version of HEAD 
+#    which have been keeping uptodate via Xcode cvs GUI commands
+#  
+#    in general to do most anything need to modify code, few things can be done
+#    just at macro level 
+#
+#    suggested approach
+#
+#    type of code modifications:
+#
+#      1) throwaway, user modifications ... changing geometry or something to see performance variation 
+#           ( needs to delta off of a well defined constant codebase, 
+#             preferably a particular release or if thats not available a time stamped full checkout or
+#             full update )
+#          the end product is some figures in a talk file
+# 
+#          updating the codebase during is probably not a high priority, unless it gets too old
+#          to still be relevant 
+#
+#      2) developmental, modifications that add functionality that could be useful
+#         for others ...  needs to check operation with the HEAD prior to commiting it back
+#         into the repository 
+#
+#         near continuous updating, comparing and testing to ensure modifications work with
+#         the current head are a requirement  ... but also need to test on multiple
+#         architectures ... so need to propagate from the dev machine to cluster machine 
+#
+#        
+#   can a local SVN + trac help with this
+#  =======================================
+#
+#       
+#
+#
+#
+#  
+#  grid1>
+#    
+#    /usr/bin/svn help    indicates 1.2.1
+#
+#  preferred svn for trac is 1.2.3
+#
+#
+#
+#  trac recommends SVN 1.4.0
+#
+#
+#  5.  Berkeley DB 4.X
+#
+#Berkeley DB is needed to build a Subversion server that supports
+#the bdb repository filesystem, or to access a bdb repository on
+#local disk.  If you will only use the fsfs repository filesystem,
+#or if you are building a Subversion client that will only speak
+#to remote (networked) repositories, you don't need it.
+#The current recommended version is 4.3.27. We *strongly* recommend
+#using 4.3 or 4.2 over 4.1 or 4.0.  Not only are these the fastest
+#and most stable we've seen, but they also enable Subversion
+#repositories to automatically clean up database journal files to
+#save disk space.
+#
+#

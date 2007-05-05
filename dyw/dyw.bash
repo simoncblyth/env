@@ -1,0 +1,71 @@
+           
+ DYW_BASE=env/dyw
+ export DYW_HOME=$HOME/$DYW_BASE
+
+ iwd=$(pwd)
+ cd $DYW_HOME
+
+ [ -r dyw_use.bash ] && . dyw_use.bash
+#return
+ [ -t 0 ] || return 
+ [ -r dyw_build.bash ] && . dyw_build.bash
+
+ cd $iwd
+
+
+## useful when cannot login due to disk hangs  , flipping the return commenting 
+dyw-x-off(){ ssh ${1:-$TARGET_TAG} "perl -pi -e 's/^#return/return/' $DYW_BASE/dyw.bash" ; }
+dyw-x-on(){  ssh ${1:-$TARGET_TAG} "perl -pi -e 's/^return/#return/' $DYW_BASE/dyw.bash" ; }
+
+## propagating the env to other machines
+dyw-x-pkg(){ 
+   cd $HOME 	
+   tar zcvf dyw.tar.gz $DYW_BASE/*
+   scp dyw.tar.gz ${1:-$TARGET_TAG}:; 
+   ssh ${1:-$TARGET_TAG} "tar zxvf dyw.tar.gz" 
+}
+
+dyw-x(){ scp $HOME/$DYW_BASE/dyw.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
+dyw-i(){ .   $HOME/$DYW_BASE/dyw.bash ; }
+
+dyw-vi(){
+	  iwd=$(pwd)    
+	  cd $HOME/$DYW_BASE 
+	  vi *
+	  cd $iwd
+}
+
+
+dyw-x-sync(){
+   X=${1:-$TARGET_TAG}
+   vname="DYW_$X"
+   eval DYW_X=\$$vname
+
+   if [ "X$DYW_X" == "X" ]; then
+	  echo "to syncronise to node $X must set up the $vname variable in $DYW_BASE/dyw_use.bash " 
+   else
+      echo "syncronise $DYW local copy of cvs repository to $X:$vname ie $DYW_X  ... first a dry run.. then the real thing "
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (  ssh $X mkdir -p $DYW_X ) || echo "cannot create macro folder $DYW_X on node $X " 
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (  echo rsync -avn -e ssh --exclude-from=$DYW/rsync-exclusion-list.txt $DYW/ $X:$DYW_X/   ) || echo "cannot dyw-sync on node $LOCAL_NODE " 
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (       rsync -av  -e ssh --exclude-from=$DYW/rsync-exclusion-list.txt $DYW/ $X:$DYW_X/   ) || echo "cannot dyw-sync on node $LOCAL_NODE " 
+   fi	  
+}
+
+
+dym-x-sync(){
+   X=${1:-$TARGET_TAG}
+   vname="DYM_$X"
+   eval DYM_X=\$$vname
+
+   if [ "X$DYM_X" == "X" ]; then
+	  echo "to syncronise to node $X must set up the $vname variable in .bash_dyw_env " 
+   else
+      echo "syncronise $DYM  local copy of macros   to $X:$vname ie $DYW_X  ... first a dry run.. then the real thing "
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (  ssh $X mkdir -p $DYM_X ) || echo "cannot create macro folder $DYM_X on node $X "
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (  echo rsync -avn -e ssh --exclude-from=$DYM/rsync-exclusion-list.txt $DYM/ $X:$DYM_X/   ) || echo "cannot dyw-sync on node $LOCAL_NODE " 
+      [ "$LOCAL_NODE" == "$SOURCE_NODE" ] && (       rsync -av  -e ssh --exclude-from=$DYM/rsync-exclusion-list.txt $DYM/ $X:$DYM_X/   ) || echo "cannot dyw-sync on node $LOCAL_NODE " 
+   fi 
+}
+
+
+
