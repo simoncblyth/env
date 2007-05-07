@@ -43,7 +43,7 @@ elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
    NODE_TAG="P"
 
-elif (       [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "grid1" ]); then
+elif [ "$LOCAL_NODE" == "grid1" ]; then
 
    NODE_TAG="G1"
    
