@@ -136,7 +136,7 @@ trac-apache2-conf(){
 #
 #
 
-trac-xmlrpc-plugin-get(){
+trac-xmlrpc-plugin-get-attempt-1(){
 
   cd $LOCAL_BASE/trac
   mkdir -p plugins && cd plugins
@@ -153,12 +153,26 @@ trac-xmlrpc-plugin-get(){
 #   ... but http://www.trac-hacks.org/wiki/XmlRpcPlugin
 #  suggests the below..   i assume the difference is egg positioning only 
 #
+#
+#   get ... 
+#      ExtractionError: Can't extract file(s) to egg cache
+#   [Errno 13] Permission denied: '/home/blyth/.python-eggs'
+#
+#
+}
+
+trac-xmlrpc-plugin-install(){
+
+  name=${1:-env}
+
+  cd $LOCAL_BASE/trac/plugins/xmlrpcplugin/0.10
+  
+  python setup.py bdist_egg
+  ls -alst dist/TracXMLRPC-0.1-py2.5.egg
+  cp dist/*.egg $SCM_HOME/tracs/$name/plugins/
+    
 # lay an egg ... makes dirs : build, TracXMLRPC.egg-info , dist   
 #
-#  python setup.py bdist_egg
-#  ls -alst dist/TracXMLRPC-0.1-py2.5.egg
-#  cp dist/*.egg /srv/trac/env/plugins
-# 
 
 }
 
@@ -166,20 +180,26 @@ trac-xmlrpc-plugin-get(){
 
 
 trac-xmlrpc-plugin-enable(){
-
- # todo : generalize
+ 
+ #
+ #  attempt for auto managing the trac.ini ...  
+ #    TODO : generalize
+ #
 
    name=${1:-env}
    tini=$SCM_FOLD/tracs/$name/conf/trac.ini
+
  #  cp -f $tini /tmp/
  #  tini=/tmp/trac.ini
 
    [ -f "$tini" ] || ( echo trac-enable-component ABORT trac config file $tini not found  && return 1 )
 
-   ## adds 
-   grep \\[components\\] $tini && echo components section in $tini already || ( sudo printf "\n[components]\n"  >> $tini )
-   grep "tracrpc.*"  $tini     && echo already || ( sudo printf "tracrpc.* = enabled \n" >> $tini )
-  
+   ## adds compenents section if not there already and appends some config ...
+   
+   grep \\[components\\] $tini && echo components section in $tini already || ( sudo bash -c "echo \"[components]\"         >> $tini " )
+   grep "tracrpc.*"      $tini && echo already                             || ( sudo bash -c "echo \"tracrpc.* = enabled \" >> $tini " )
+ 
+   ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
 }
 
 
