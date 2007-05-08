@@ -177,8 +177,8 @@ trac-xmlrpc-plugin-enable(){
    [ -f "$tini" ] || ( echo trac-enable-component ABORT trac config file $tini not found  && return 1 )
 
    ## adds 
-   grep \\[components\\] $tini && echo components section in $tini already || ( printf "\n[components]\n"  >> $tini )
-   grep "tracrpc.*"  $tini     && echo already || ( printf "tracrpc.* = enabled \n" >> $tini )
+   grep \\[components\\] $tini && echo components section in $tini already || ( $SUDO printf "\n[components]\n"  >> $tini )
+   grep "tracrpc.*"  $tini     && echo already || ( $SUDO printf "tracrpc.* = enabled \n" >> $tini )
   
 }
 
