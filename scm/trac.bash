@@ -162,10 +162,7 @@ trac-xmlrpc-plugin-get(){
 
 }
 
-trac-xmlrpc-plugin-config(){
 
-
-}
 
 
 trac-xmlrpc-plugin-enable(){
