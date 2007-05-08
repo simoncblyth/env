@@ -123,13 +123,48 @@ apache2-service-info(){
 
 apache2-service-setup(){
 #
-#   apache2-set User  apache
-#   apache2-set Group apache
+# considerations ...
+#    everything is coming thru apache ... svn + trac 
+#    sudo groups apache ... verified the "apache" group to exist 
+#	
+#	
+#  1) stop apache2 (running as blyth)...   
+#     	 apachectl stop
+#  2) ammend the httpd.conf 
+#        apache2-set User  apache
+#        apache2-set Group apache
+#  3) switch ownership:
+#   	sudo chown -R apache $SCM_FOLD
+#   	sudo chgrp -R apache $SCM_FOLD
+#	
+#  4) start apache2 ... NB must now use sudo as it needs to run as "apache"	
+#        sudo apachectl start 
 #
-#   sudo groups apache ... verified the "apache" group to exist 
+#    apache running OK and writing logs OK... but pysqlite problem
+#    condistent with lack of LD_LIBRARY_PATH containing $SQLITE_HOME/lib	
+#
+#  5) allow the "apache" user to find sqlite libs without fooling with
+#       LD_LIBRARY_PATH  of the "apache" user (is that possible ? they dony
+#      have a login)
+#	
+#            sudo vi  /etc/ld.so.conf
+#            add /data/usr/local/sqlite/sqlite-3.3.16/lib to /etc/ld.so.conf
+#        sudo /sbin/ldconfig
+#
+#  6)  
+#      	sudo apachectl stop
+#      	sudo apachectl start
+#
+#      succeeds to run apache2 as the apache user ... and  trac works 
+#	
+#   7)
+#      switch to apache2 as a service :
+#
+#          sudo apachectl stop
+#          apache2-service start 
 #
 #
-
+#
 
      [ -d /etc/init.d/ ] || ( echo "redhat specific ??  /sbin/service /etc/init.d wont work here " && return 1 )  
 	cd /etc/init.d && sudo rm -f apache2 && sudo ln -s $APACHE2_HOME/sbin/apachectl apache2 && pwd && ls -l ap* 
