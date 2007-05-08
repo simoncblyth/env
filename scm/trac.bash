@@ -118,6 +118,24 @@ trac-apache2-conf(){
 
 
 
+#
+#   python distribution primer ..
+#
+#      python setup.py   ... is the "standard" ? Distutils way of installing 
+#
+# [blyth@hfag 0.10]$ python setup.py bdist --help-formats
+# List of available distribution formats:
+#   --formats=rpm      RPM distribution
+#   --formats=gztar    gzip'ed tar file
+#   --formats=bztar    bzip2'ed tar file
+#	--formats=ztar     compressed tar file
+#	--formats=tar      tar file
+#	--formats=wininst  Windows executable installer
+#	--formats=zip      ZIP file
+#	--formats=egg      Python .egg file
+#
+#
+
 trac-xmlrpc-plugin-get(){
 
   cd $LOCAL_BASE/trac
@@ -127,6 +145,44 @@ trac-xmlrpc-plugin-get(){
   cd xmlrpcplugin/0.10
   python setup.py install
 
+  cd  $PYTHON_HOME/lib/python2.5/site-packages
+  ls -alst TracXMLRPC-0.1-py2.5.egg
+  cat easy-install.pth
+
+#  i used the above "install" method that puts the egg into site-packages 
+#   ... but http://www.trac-hacks.org/wiki/XmlRpcPlugin
+#  suggests the below..   i assume the difference is egg positioning only 
+#
+# lay an egg ... makes dirs : build, TracXMLRPC.egg-info , dist   
+#
+#  python setup.py bdist_egg
+#  ls -alst dist/TracXMLRPC-0.1-py2.5.egg
+#  cp dist/*.egg /srv/trac/env/plugins
+# 
+
+}
+
+trac-xmlrpc-plugin-config(){
+
+
+}
+
+
+trac-xmlrpc-plugin-enable(){
+
+ # todo : generalize
+
+   name=${1:-env}
+   tini=$SCM_FOLD/tracs/$name/conf/trac.ini
+ #  cp -f $tini /tmp/
+ #  tini=/tmp/trac.ini
+
+   [ -f "$tini" ] || ( echo trac-enable-component ABORT trac config file $tini not found  && return 1 )
+
+   ## adds 
+   grep \\[components\\] $tini && echo components section in $tini already || ( printf "\n[components]\n"  >> $tini )
+   grep "tracrpc.*"  $tini     && echo already || ( printf "tracrpc.* = enabled \n" >> $tini )
+  
 }
 
 
