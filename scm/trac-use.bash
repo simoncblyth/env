@@ -10,7 +10,7 @@
 #          dumps to stdout 
 #
 #
-#
+#   cat ~/.ssh/id_dsa.pub | ssh user@server "cat - >> ~/.ssh/authorized_keys""
 #
 #
 
