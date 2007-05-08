@@ -96,3 +96,23 @@ python-setuptools-get(){
 }
 
 
+
+python-crack-egg(){
+
+  path=${1:-dummy.egg}
+
+  [ -f "$path" ] || ( echo the path $path doesnt correspond to a file && return 1 )
+  [ -d "$path" ] && ( echo the egg $path is cracked already           && return 1 )
+
+  cd $(dirname $path)
+  base=$(basename $path)
+  
+  sudo mv $base $base.zip
+  sudo mkdir $base 
+  cd $base
+  sudo unzip ../$base.zip
+  sudo rm ../$base.zip 
+  
+
+}
+
