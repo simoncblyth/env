@@ -118,7 +118,16 @@ trac-apache2-conf(){
 
 
 
+trac-xmlrpc-plugin-get(){
 
+  cd $LOCAL_BASE/trac
+  mkdir -p plugins && cd plugins
+  svn co http://trac-hacks.org/svn/xmlrpcplugin 
+
+  cd xmlrpcplugin/0.10
+  python setup.py install
+
+}
 
 
 
