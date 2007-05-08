@@ -108,6 +108,17 @@ apache2-stop(){
 	$ASUDO $APACHE2_HOME/sbin/apachectl stop 
 }
 
+apache2-service-setup(){
+    [ test -d "/etc/init.d/" ] || echo "redhat specific ??  /sbin/service /etc/init.d wont work here " && return 1  
+	cd /etc/init.d && sudo rm -f apache2 && sudo ln -s $APACHE2_HOME/sbin/apachectl apache2 && pwd && ls -l ap* 
+}
+
+apache2-service(){
+	echo "commands are passed thru to apachectl running as a service ... so can: start stop restart configtest ... " 
+    sudo /sbin/service apache2 $* 	
+}
+
+
 apache2-error-log(){ tail -100 $APACHE2_HOME/var/apache2/log/error_log ; }
 apache2-access-log(){ tail -100 $APACHE2_HOME/var/apache2/log/access_log ; }
 
