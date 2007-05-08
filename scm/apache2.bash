@@ -81,6 +81,15 @@ apache2-install(){
    $ASUDO make install
 }
 
+apache2-set(){
+   qwn=${1:-dummy}
+   val=${2:-dummy}
+   regx="s/^($qwn\s*)(\S*)\$/\${1}$val/g"
+   echo set the quantity $qwn to value $val in $APACHE2_CONF ... $regx 
+   echo $ASUDO perl -pi.orig -e $regx  $APACHE2_CONF
+        $ASUDO perl -pi.orig -e $regx  $APACHE2_CONF
+   diff  $APACHE2_CONF{.orig,} 
+}
 
 apache2-setport(){
    port=${1:-$APACHE2_PORT}
@@ -108,12 +117,37 @@ apache2-stop(){
 	$ASUDO $APACHE2_HOME/sbin/apachectl stop 
 }
 
+apache2-service-info(){
+   cd /etc/init.d  && ls -alst ap*
+}
+
 apache2-service-setup(){
-    [ test -d "/etc/init.d/" ] || echo "redhat specific ??  /sbin/service /etc/init.d wont work here " && return 1  
+#
+#   apache2-set User  apache
+#   apache2-set Group apache
+#
+#   sudo groups apache ... verified the "apache" group to exist 
+#
+#
+
+
+     [ -d /etc/init.d/ ] || ( echo "redhat specific ??  /sbin/service /etc/init.d wont work here " && return 1 )  
 	cd /etc/init.d && sudo rm -f apache2 && sudo ln -s $APACHE2_HOME/sbin/apachectl apache2 && pwd && ls -l ap* 
+
+
 }
 
 apache2-service(){
+
+   ##
+   ##  normal "apachectl start" runs as "blyth" who owns /var/scm ... so no problem ..
+   ##
+   ##    
+   ##
+   ##
+   ## current apache2 config runs as "nobody" 
+   ##  giving permission problems to write to /var/scm/tracs/env/log/trac.log
+   ##  config s "User" "Group" in httpd.conf
 	echo "commands are passed thru to apachectl running as a service ... so can: start stop restart configtest ... " 
     sudo /sbin/service apache2 $* 	
 }
