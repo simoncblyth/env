@@ -1,6 +1,7 @@
 #
 #  TODO:
 #    integrate the wiki backup and restore scripts
+#    modify backup folder to handle multiple repositories
 #
 #
 #  prerequisites to trac :
@@ -34,6 +35,13 @@
 #
 #      trac-xmlrpc-wiki-backup  [pagenames]
 #      trac-xmlrpc-wiki-restore [pagenames]
+#
+#    eg   trac-xmlrpc-wiki-backup  WikiStart OtherPage      get the page(s) from the remote server to local $SCM_FOLD/wiki-backup
+#         trac-xmlrpc-wiki-restore WikiStart                put the page(s) from local $SCM_FOLD/wiki-backup to remote server
+#
+#             -   without arguments defaults to all wiki pages...
+#             -   allows local wiki editing
+#
 #
 #      trac-webadmin-plugin-get
 #      trac-pygments-plugin-get
