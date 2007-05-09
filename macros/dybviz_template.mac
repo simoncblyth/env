@@ -1,0 +1,32 @@
+##   
+##   constructed from dybviz_template.mac
+##   with parameters   
+##          detector : DETECTOR
+##          volume   : VOLUME
+##
+
+/dyw/detector/select DETECTOR
+
+#### Do NOT touch the following line.
+/run/initialize 
+
+####  Control the verbose
+#     verbose level: 0: the least printout, 2: most detailed information.
+/control/verbose 2
+
+/vis/open DAWNFILE
+
+/vis/viewer/reset 
+/vis/viewer/set/style          wireframe 
+/vis/viewer/zoom               1.1  
+
+## makes the invisible  world volume visible. 
+/vis/viewer/set/culling global false   
+
+/vis/viewer/set/viewpointThetaPhi  35 45 
+/vis/drawVolume                
+/vis/scene/add/axes            0 0 0 500 mm 
+#/vis/scene/add/text            0 0 0 mm  40 -100 -140  VOLUME 
+/vis/viewer/flush 
+
+

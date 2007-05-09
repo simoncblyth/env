@@ -1,0 +1,46 @@
+
+
+#/dyw/detector/select Aberdeen
+
+#### Do NOT touch the following line.
+/run/initialize 
+
+#/dyw/vgm/save agdd
+#/dyw/vgm/save gdml
+/dyw/vgm/save root 
+
+#
+###  
+#/vis/ASCIITree/verbose  13
+#/vis/drawTree
+#
+#
+####  Control the verbose
+#     verbose level: 0: the least printout, 2: most detailed information.
+#/control/verbose 2
+#
+#/vis/open DAWNFILE
+#
+#/vis/viewer/reset 
+#/vis/viewer/set/style          wireframe 
+#/vis/viewer/zoom               1.1  
+#/vis/viewer/set/viewpointThetaPhi  35 45 
+#/vis/drawVolume                steeltank 
+#/vis/scene/add/axes            0 0 0 500 mm 
+#/vis/scene/add/text            0 0 0 mm  40 -100 -140  steeltank 
+#/vis/viewer/flush 
+# 
+# Bird's-eye view of the whole detector components 
+#  * "/vis/viewer/set/culling global false" makes the invisible  
+#    world volume visible. 
+#    (The invisibility of the world volume is set  
+#     in ExN03DetectorConstruction.cc.) 
+# /vis/viewer/set/style     wireframe 
+# /vis/viewer/set/culling   global false 
+# /vis/drawVolume 
+# /vis/scene/add/axes       0 0 0 500 mm 
+# /vis/scene/add/text       0 0 0 mm 50 -50
+# /vis/viewer/flush 
+# 
+
+

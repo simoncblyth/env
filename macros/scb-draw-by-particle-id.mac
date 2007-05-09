@@ -1,0 +1,11 @@
+
+/vis/modeling/trajectories/create/drawByParticleID PIDModel 
+/vis/modeling/trajectories/PIDModel/set gamma red
+/vis/modeling/trajectories/PIDModel/set opticalphoton yellow
+/vis/modeling/trajectories/PIDModel/set e- green
+/vis/modeling/trajectories/select PIDModel
+
+
+/vis/scene/add/trajectories
+
+

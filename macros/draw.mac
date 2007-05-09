@@ -1,0 +1,15 @@
+
+/vis/open OIX
+
+/vis/drawVolume steeltank
+
+#/vis/scene/add/volume gdliquidscintillator
+#/vis/scene/add/volume acrylictank
+
+
+/vis/scene/add/axes
+
+
+
+
+

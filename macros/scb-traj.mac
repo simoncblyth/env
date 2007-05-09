@@ -1,0 +1,9 @@
+##
+## invoke with /control/execute ../scb-traj.mac
+##
+/vis/modeling/trajectories/create/drawByCharge testChargeModel
+/vis/modeling/trajectories/testChargeModel/set 1 red
+/vis/modeling/trajectories/testChargeModel/set -1 blue
+/vis/modeling/trajectories/testChargeModel/set 0 green
+/vis/modeling/trajectories/select testChargeModel
+

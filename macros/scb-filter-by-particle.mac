@@ -1,0 +1,11 @@
+
+
+# http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/Visualization/filtering.html
+
+/vis/filtering/trajectories/create/particleFilter pFilter 
+/vis/filtering/trajectories/pFilter/add opticalphoton 
+/vis/filtering/trajectories/pFilter/invert true    ## everything other than optical photons
+/vis/filtering/trajectories/pFilter/active true
+
+
+

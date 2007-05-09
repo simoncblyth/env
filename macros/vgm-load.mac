@@ -1,0 +1,13 @@
+#
+# /dyw/detector/select done in the main 
+#
+/dyw/vgm/folder  /home/sblyth/Work/dayabay/viz/detectors/Aberdeen
+/dyw/vgm/load_at_init root World
+/dyw/vgm/info
+
+#### Do NOT touch the following line.
+/run/initialize 
+
+/vis/open OIX
+/vis/drawVolume 
+

@@ -1,0 +1,7 @@
+# SCB::Geant4::Macro::autogui (set macro path with GQ_MACPATH, regenerate with the autogui alias )
+# invoke this with /control/execute /Users/blyth/Work/dayabay/macros/autogui.mac 
+# /Users/blyth/Work/dayabay/macros [macros]
+/gui/addMenu "macros" "macros" 
+/gui/addButton "macros" "add-trajectories" "/control/execute /Users/blyth/Work/dayabay/macros/add-trajectories.mac" 
+/gui/addButton "macros" "scb-traj" "/control/execute /Users/blyth/Work/dayabay/macros/scb-traj.mac" 
+/gui/addButton "macros" "test_aberdeen" "/control/execute /Users/blyth/Work/dayabay/macros/test_aberdeen.mac" 
