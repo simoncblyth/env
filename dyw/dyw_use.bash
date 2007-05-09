@@ -69,7 +69,7 @@ export DYM_L=$LOCAL_BASE_L/dayabay/macros     ## formerly $HOME/Work/dayabay
 export DYM_U=$LOCAL_BASE_U/dayabay/macros    
 
 export DYM_G=$USER_BASE_G/dayabay/macros
-export DYM_G1=$USER_BASE_G1/dayabay/macros    ## <<<<<< different behavior <<<<<<<<
+export DYM_G1=$HOME/$ENV_BASE/macros    ## <<<<<< different behavior <<<<<<<<
 
 vname=DYM_$NODE_TAG
 eval DYM=\$$vname
