@@ -1,4 +1,8 @@
 #
+#  TODO:
+#    integrate the wiki backup and restore scripts
+#
+#
 #  prerequisites to trac :
 #
 #      svn
@@ -28,6 +32,9 @@
 #                             frontend: modwsgi OR modpython
 #
 #
+#      trac-xmlrpc-wiki-backup  [pagenames]
+#      trac-xmlrpc-wiki-restore [pagenames]
+#
 #      trac-webadmin-plugin-get
 #      trac-pygments-plugin-get
 # 
@@ -39,7 +46,7 @@
 export TRAC_NAME=trac-0.10.4
 export TRAC_HOME=$LOCAL_BASE/trac
 TRAC_APACHE2_CONF=etc/apache2/trac.conf 
-
+export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/env/login/xmlrpc"
 
 
 trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
@@ -136,7 +143,32 @@ trac-apache2-conf(){
 #
 #
 
+
+#
+#  backup and restore of wiki pages via xmlrpc 
+#     - currently does all pages 
+#  
+
+trac-xmlrpc-wiki-backup(){
+  cd $SCM_FOLD
+  [ -d "$SCM_FOLD/wiki-backup" ] || ( mkdir -p $SCM_FOLD/wiki-backup || ( echo abort && return 1 ))
+  cd wiki-backup
+  python $HOME/$SCM_BASE/xmlrpc-wiki-backup.py $*
+}
+
+trac-xmlrpc-wiki-restore(){
+  cd $SCM_FOLD
+  [ -d "$SCM_FOLD/wiki-backup" ] || ( echo abort ... must backup before can restore  && return 1 )
+  cd wiki-backup
+  python $HOME/$SCM_BASE/xmlrpc-wiki-restore.py $*
+}
+
+
+
 trac-xmlrpc-plugin-get-attempt-1(){
+
+
+  ## http://www.trac-hacks.org/wiki/XmlRpcPlugin
 
   cd $LOCAL_BASE/trac
   mkdir -p plugins && cd plugins
@@ -154,7 +186,7 @@ trac-xmlrpc-plugin-get-attempt-1(){
 #  suggests the below..   i assume the difference is egg positioning only 
 #
 #
-#   get ... 
+#  nope get ... 
 #      ExtractionError: Can't extract file(s) to egg cache
 #   [Errno 13] Permission denied: '/home/blyth/.python-eggs'
 #
@@ -165,14 +197,18 @@ trac-xmlrpc-plugin-install(){
 
   name=${1:-env}
 
+  egg=TracXMLRPC-0.1-py2.5.egg
+
   cd $LOCAL_BASE/trac/plugins/xmlrpcplugin/0.10
   
   python setup.py bdist_egg
-  ls -alst dist/TracXMLRPC-0.1-py2.5.egg
-  cp dist/*.egg $SCM_HOME/tracs/$name/plugins/
-    
-# lay an egg ... makes dirs : build, TracXMLRPC.egg-info , dist   
-#
+  ls -alst dist/$egg
+  sudo cp dist/*.egg $SCM_FOLD/tracs/$name/plugins/
+
+  cd $SCM_FOLD/tracs/$name/plugins/
+
+## convert the egg file into a folder
+   python-crack-egg  $egg
 
 }
 
@@ -183,7 +219,10 @@ trac-xmlrpc-plugin-enable(){
  
  #
  #  attempt for auto managing the trac.ini ...  
- #    TODO : generalize
+ # 
+ #    TODO :
+ #           investigate trac-admin capabilities... dont wont to reimplement anything 
+ #           generalize
  #
 
    name=${1:-env}
@@ -202,6 +241,24 @@ trac-xmlrpc-plugin-enable(){
    ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
 }
 
+
+
+trac-xmlrpc-plugin-configure(){
+
+   name=${1:-env}
+   sudo trac-admin $SCM_FOLD/tracs/$name permission add blyth XML_RPC
+   sudo trac-admin $SCM_FOLD/tracs/$name permission list 
+
+## thence 
+
+}
+
+
+trac-xmlrpc-open(){
+
+   name=${1:-env}
+   open http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$name/login/xmlrpc
+}
 
 
 trac-webadmin-plugin-get(){
