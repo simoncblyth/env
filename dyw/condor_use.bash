@@ -181,11 +181,7 @@ cat << EOC
 export HOME=$HOME
 
 iwd=\$(pwd)
-
-[ -r ~/env/base/base.bash  ] && . ~/env/base/base.bash
-[ -r ~/env/scm/scm.bash    ] && . ~/env/scm/scm.bash
-[ -r ~/env/dyw/dyw.bash    ] && . ~/env/dyw/dyw.bash
-
+[ -r ~/env/env.bash ] && . ~/env/env.bash
 cd \$iwd
 
 cd $idir 
