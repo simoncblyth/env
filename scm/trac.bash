@@ -4,6 +4,16 @@
 #    modify backup folder to handle multiple repositories
 #
 #
+#  debugging the fatal python error...
+#
+#     python -v $(which trac-admin)
+#     python -v $(which trac-admin)  /var/scm/tracs/test initenv test sqlite:db/trac.db svn /var/scm/repos/test /usr/local/python/Python-2.5.1/share/trac/templates
+#
+#   
+#      python -vc "import libsvn.fs"
+#
+#
+#
 #  prerequisites to trac :
 #
 #      svn
@@ -31,6 +41,10 @@
 #
 #                                 name: name of repository
 #                             frontend: modwsgi OR modpython
+#      
+#           create the users file with "scm-add-user name" before doing this 
+#           do "svn-apache2-settings" to add the three modules to apache..
+#
 #
 #
 #      trac-xmlrpc-wiki-backup  [pagenames]
@@ -52,7 +66,10 @@
 
 
 export TRAC_NAME=trac-0.10.4
-export TRAC_HOME=$LOCAL_BASE/trac
+TRAC_NIK=trac
+
+export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
+
 TRAC_APACHE2_CONF=etc/apache2/trac.conf 
 export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/env/login/xmlrpc"
 
@@ -107,11 +124,11 @@ trac-apache2-conf(){
    userfile=$SVN_APACHE2_AUTH
 
    if [ "$frontend" == "modwsgi2" ]; then
-     $ASUDO modwsgi-tracs-conf2 $userfile  >  $conf
+     $ASUDO bash -lc "modwsgi-tracs-conf2 $userfile  >  $conf "
    elif [ "$frontend" == "modwsgi" ]; then	 
-     $ASUDO modwsgi-tracs-conf $userfile  >  $conf
+     $ASUDO bash -lc "modwsgi-tracs-conf $userfile  >  $conf "
    else	 
-     $ASUDO modpython-tracs-conf $userfile  >  $conf
+     $ASUDO bash -lc "modpython-tracs-conf $userfile  >  $conf "
    fi 
    
    echo =============== cat $conf
@@ -121,12 +138,12 @@ trac-apache2-conf(){
    cat $APACHE2_HOME/$userfile
 
    echo =============== connecting the conf file $conf to $APACHE2_CONF if not done already 
-   grep $TRAC_APACHE2_CONF $APACHE2_CONF  || $ASUDO echo "Include $TRAC_APACHE2_CONF"  >> $APACHE2_CONF  
+   grep $TRAC_APACHE2_CONF $APACHE2_CONF  || $ASUDO bash -c "echo \"Include $TRAC_APACHE2_CONF\"  >> $APACHE2_CONF "  
 
    # after this above restart apache2 , and then try trac-open
 
   [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
-  apachectl configtest && echo restarting apache2 && apachectl restart || echo apachectl configtest failed
+  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
 
    
 }
@@ -173,7 +190,7 @@ trac-xmlrpc-wiki-restore(){
 
 
 
-trac-xmlrpc-plugin-get-attempt-1(){
+trac-xmlrpc-plugin-get(){
 
 
   ## http://www.trac-hacks.org/wiki/XmlRpcPlugin
@@ -182,13 +199,13 @@ trac-xmlrpc-plugin-get-attempt-1(){
   mkdir -p plugins && cd plugins
   svn co http://trac-hacks.org/svn/xmlrpcplugin 
 
-  cd xmlrpcplugin/0.10
-  python setup.py install
-
-  cd  $PYTHON_HOME/lib/python2.5/site-packages
-  ls -alst TracXMLRPC-0.1-py2.5.egg
-  cat easy-install.pth
-
+#  cd xmlrpcplugin/0.10
+#  python setup.py install
+#
+#  cd  $PYTHON_HOME/lib/python2.5/site-packages
+#  ls -alst TracXMLRPC-0.1-py2.5.egg
+#  cat easy-install.pth
+#
 #  i used the above "install" method that puts the egg into site-packages 
 #   ... but http://www.trac-hacks.org/wiki/XmlRpcPlugin
 #  suggests the below..   i assume the difference is egg positioning only 
@@ -305,6 +322,20 @@ trac-pygments-plugin-get(){
 
 # Installed /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/TracPygments-0.3dev-py2.5.egg
 
+}
+
+
+trac-site-wipe(){
+
+  cd $PYTHON_SITE && sudo rm -rf trac && sudo rm -rf trac*.egg-info && ls -alst $PYTHON_SITE 
+}
+
+trac-wipe(){
+
+   nam=$TRAC_NAME
+   nik=$TRAC_NIK
+   cd $LOCAL_BASE/$nik
+   rm -rf build/$nam
 }
 
 

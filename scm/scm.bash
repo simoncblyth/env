@@ -1,4 +1,11 @@
 #
+#  ISSUES: 
+#      - what system user/group(s) should own  
+#            $SCM_FOLD/repos  <--- root for protection, all access goes thru svn interface 
+#            $SCM_FOLD/tracs  <--- www , to match apache
+#
+#        cd $SCM_FOLD && $SUDO chown $APACHE2_USER:$APACHE2_GROUP tracs
+#
 #
 #   NEXT:
 #          2) real dyw import 
@@ -121,6 +128,7 @@
  
 
 
+
 scm-vi(){
   iwd=$(pwd)	
   cd $HOME/$SCM_BASE 
@@ -193,9 +201,16 @@ scm-add-user(){
 
   name=${1:-$USER}
   [ "X$SCM_TAG" == "X" ] && ( echo ERROR ...  SCM_TAG must be defined in env/base/local.bash &&  return 1 )
-  
-  echo ssh $SCM_TAG "bash -lc \"svn-use-apache2-add-user $name\""
-       ssh $SCM_TAG "bash -lc \"svn-use-apache2-add-user $name\""
+
+  if [ "$NODE_TAG" == "$SCM_TAG" ]; then
+
+          $ASUDO bash -lc "svn-use-apache2-add-user $name "
+  else
+
+     echo ssh $SCM_TAG "bash -lc \"svn-use-apache2-add-user $name\""
+          ssh $SCM_TAG "bash -lc \"svn-use-apache2-add-user $name\""
+
+  fi
 
 }
 
@@ -213,13 +228,22 @@ scm-remove(){
   name=${1:-$(basename $(pwd))}
    
   echo ========== scm-remove on node $X name $name 
-  echo ssh $X "bash -lc \"scm-use-remove-local $name\""
+
+  if [ "$NODE_TAG" == "$SCM_TAG" ]; then
+     echo scm-use-remove-local $name
+  else	  
+     echo ssh $X "bash -lc \"scm-use-remove-local $name\""
+  fi 
    
    read -n 1 -p "========== enter \"Y\" to confirm : " confirm
 
    if [ "$confirm" == "Y" ]; then
 		echo " ================  OK proceeding as confirm is [$confirm] "
-        ssh $X "bash -lc \"scm-use-remove-local $name\""
+        if [ "$NODE_TAG" == "$SCM_TAG" ]; then
+           scm-use-remove-local $name
+        else
+           ssh $X "bash -lc \"scm-use-remove-local $name\""
+	    fi		
    else
 	    echo ================  you chickened out , as confirm is [$confirm] rather than Y
    fi
@@ -256,7 +280,12 @@ scm-create(){
 
   
    echo ========== scm-create targetting node $X fold $fold name $name 
-   echo ssh $X "bash -lc \"scm-use-create-local $name\""
+
+   if [ "$SCM_TAG" == "$NODE_TAG" ]; then
+     echo scm-use-create-local $name
+   else	 
+     echo ssh $X "bash -lc \"scm-use-create-local $name\""
+   fi
    
    read -n 1 -p "========== enter \"Y\" to confirm : " confirm
 
@@ -264,12 +293,19 @@ scm-create(){
 	    
 		echo " ================  OK proceeding as confirm is [$confirm] "
        
-	    ssh $X "bash -lc \"scm-use-create-local $name\""
+        if [ "$SCM_TAG" == "$NODE_TAG" ]; then
+           scm-use-create-local $name
+		else	
+	       ssh $X "bash -lc \"scm-use-create-local $name\""
+        fi
+		
+        sudo chown -R $APACHE2_USER:$APACHE2_USER $SCM_FOLD
 
-        
+        ##  this import goes thru apache ...
         scm-import $name $fold
 		scm-open   $name
-		
+
+
    else
 	    echo ================  you chickened out , as confirm is [$confirm] rather than Y
    fi
@@ -336,9 +372,9 @@ scm-import(){
  
   iwd=$(pwd)
   cd $(dirname $fold)
-  echo ======= contents of folder $fold is put under the trunk at $uurl , not the folder $fold itself
-  echo ======  svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password censored
-               svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user 
+  echo ======= contents of folder $fold is put under the trunk at $uurl , not the folder $fold itself === will prompt for password 
+  echo ======  svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $NON_SECURE_PASS
+               svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $NON_SECURE_PASS
 
   cd $iwd			   
 

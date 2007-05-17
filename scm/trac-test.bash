@@ -22,6 +22,9 @@ tracd-run(){
   #
   name=${1:-dummy}
 
+  ## switch ownership to self ... probably from www
+  sudo chown -R $USER:$USER $SCM_FOLD
+
   lld
   $PYTHON_HOME/bin/tracd --port $TRACD_PORT $SCM_FOLD/tracs/$name
 }
@@ -29,7 +32,20 @@ tracd-run(){
 tracd-open(){
    name=${1:-dummy}
    open http://$TRACD_HOST:$TRACD_PORT/$name
+
+## NB no /tracs prefix ... thats an apache-ism
 }
+
+
+
+
+
+
+
+
+
+
+
 
 trac-initenv-deprecated(){   ## now done in scm-create
 

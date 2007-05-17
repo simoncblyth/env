@@ -35,9 +35,10 @@ if [ "X${_CONDOR_SCRATCH_DIR}" != "X" ]; then
    USER=$(whoami)
 ## as it seems condor env has no USER
    
-elif (         [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "g4pb" ]); then
+elif [ "$LOCAL_NODE" == "g4pb" ]; then
 
    NODE_TAG="G"
+   SUDO="sudo"
    
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
@@ -92,7 +93,8 @@ export SUDO
 
 ########## SCM_* specify the source code repository coordinates #####################
 
- export SCM_TAG="H"       ##      blyth@hfag     admin level tasks .... yes as is a sudoer
+ #export SCM_TAG="H"       ##      blyth@hfag     admin level tasks .... yes as is a sudoer
+ export SCM_TAG="G"       ##      blyth@g4pb      trac testing
 
 if [ "$SCM_TAG" == "P" ]; then
 	
@@ -104,6 +106,14 @@ if [ "$SCM_TAG" == "P" ]; then
 elif [ "$SCM_TAG" == "H" ]; then 
 
    SCM_HOST=hfag.phys.ntu.edu.tw
+   SCM_PORT=6060
+   SCM_USER=$USER
+   SCM_PASS=$NON_SECURE_PASS
+
+elif [ "$SCM_TAG" == "G" ]; then 
+
+   ## trac testing 
+   SCM_HOST=localhost
    SCM_PORT=6060
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS

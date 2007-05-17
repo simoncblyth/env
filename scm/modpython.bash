@@ -40,16 +40,33 @@ modpython-apache2-configure(){
    apache2-add-module python
    
 }
+   
+#PythonPath 'sys.path'
+#PythonPath "sys.path + ['/path/to/trac']"
 
 modpython-tracs-conf(){
 userfile=$1
 cat << EOC
 
+<Location /mpinfo>
+   SetHandler mod_python
+   PythonHandler mod_python.testhandler
+</Location>
+
+<Directory $APACHE2_HTDOCS/test>
+   AddHandler mod_python .py
+   PythonHandler myscript
+   PythonDebug On
+</Directory>
+
+
 <Location /tracs>
    SetHandler mod_python
+   PythonPath "sys.path + ['/usr/local/python/Python-2.5.1/lib/python2.5/site-packages']"
    PythonHandler trac.web.modpython_frontend 
    PythonOption TracEnvParentDir $SCM_FOLD/tracs
    PythonOption TracUriRoot /tracs
+   PythonDebug On
 </Location>
 
 <LocationMatch "/tracs/[^/]+/login">

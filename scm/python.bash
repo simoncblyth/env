@@ -9,10 +9,36 @@
 #
 #    python-setuptools-get
 #    python-pygments-get
+#    python-crack-egg
 #
+
 
 python-x(){  scp $SCM_HOME/python.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }
 python-i(){ . $SCM_HOME/python.bash ; }
+
+
+
+python-mac-check(){
+
+   find $PYTHON_SITE -name '*.so' -exec otool -L {} \; | grep ython
+
+}
+
+#
+#   reveals that "libsvn" is hooked up to the wrong python ....
+#
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_client.so: /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_core.so:   /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_delta.so:  /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_fs.so:     /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_ra.so:     /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_repos.so:  /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/libsvn/_wc.so:     /System/Library/Frameworks/Python.framework/Versions/2.3/Python (compatibility version 2.3.0, current version 2.3.5)
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/mod_python/_psp.so:
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/neo_cgi.so:
+# /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/pysqlite2/_sqlite.so:
+#
+
 
 python-get(){
 
@@ -44,28 +70,6 @@ python-install(){
 	make install
 }
 
-
-python-pygments-get(){
-	
-   pygments_dir=$LOCAL_BASE/python/pygments
-   pygments_egg=Pygments-0.7.1-py2.5.egg
-   mkdir -p $pygments_dir && cd $pygments_dir
-   test -f  $pygments_egg  || curl -o $pygments_egg http://jaist.dl.sourceforge.net/sourceforge/pygments/$pygments_egg
-   $SUDO easy_install $pygments_egg 
-
-#Processing Pygments-0.7.1-py2.5.egg
-#creating /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/Pygments-0.7.1-py2.5.egg
-#Extracting Pygments-0.7.1-py2.5.egg to /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages
-#Adding Pygments 0.7.1 to easy-install.pth file
-#Installing pygmentize script to /disk/d4/dayabay/local/python/Python-2.5.1/bin
-#
-#Installed /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/Pygments-0.7.1-py2.5.egg
-#Processing dependencies for Pygments==0.7.1
-#
-
-}
-
-
 python-setuptools-get(){
 
   [ "$PYTHON_HOME/bin" == $(dirname $(which python)) ] || ( echo your path to python is incorrect aborting && return  )
@@ -94,6 +98,28 @@ python-setuptools-get(){
    which easy_install
  
 }
+
+
+python-pygments-get(){
+	
+   pygments_dir=$LOCAL_BASE/python/pygments
+   pygments_egg=Pygments-0.7.1-py2.5.egg
+   mkdir -p $pygments_dir && cd $pygments_dir
+   test -f  $pygments_egg  || curl -o $pygments_egg http://jaist.dl.sourceforge.net/sourceforge/pygments/$pygments_egg
+   $SUDO easy_install $pygments_egg 
+
+#Processing Pygments-0.7.1-py2.5.egg
+#creating /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/Pygments-0.7.1-py2.5.egg
+#Extracting Pygments-0.7.1-py2.5.egg to /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages
+#Adding Pygments 0.7.1 to easy-install.pth file
+#Installing pygmentize script to /disk/d4/dayabay/local/python/Python-2.5.1/bin
+#
+#Installed /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/Pygments-0.7.1-py2.5.egg
+#Processing dependencies for Pygments==0.7.1
+#
+
+}
+
 
 
 

@@ -27,6 +27,39 @@ SVN_NAME2=subversion-deps-1.4.0
 SVN_URLBASE=http://subversion.tigris.org/downloads
 export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
 
+
+svn-all(){
+
+  svn-wipe
+  svn-get
+  svn-deps-get
+  svn-configure
+  
+
+  svn-make
+  svn-install
+  svn-check
+
+  ## svn-kludge-py-bindings         needed on hfag+grid1 
+  svn-install-py-bindings
+
+  ## svn-copy-py-bindings-to-site-packages      replaced by svn-pth-connect
+  svn-pth-connect  
+  
+  svn-test-py-bindings
+
+}
+
+svn-wipe(){
+
+  n=$SVN_NAME
+  nik=$SVN_ABBREV
+  cd $LOCAL_BASE/$nik
+
+  rm -rf build/$n 
+}
+
+
 svn-get(){
 
   n=$SVN_NAME
@@ -66,15 +99,6 @@ svn-deps-get(){
 }
 
 
-svn-wipe(){
-
-  n=$SVN_NAME
-  nik=$SVN_ABBREV
-  cd $LOCAL_BASE/$nik
-
-  rm -rf build/$n 
-}
-
 
 svn-configure(){
 
@@ -82,22 +106,38 @@ svn-configure(){
 
   layout="--prefix=$SVN_HOME "
   ./configure -h
+  #./configure  $layout --with-apxs=$APACHE2_HOME/sbin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
   ./configure  $layout --with-apxs=$APACHE2_HOME/sbin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
 
+#  speifying PYTHON on the configure commandline is recommended in $SVN_BUILD/subversion/bindings/swig/INSTALL
 #
-#./configure 
-#       --disable-mod-activation 
-#       --enable-swig-bindings=python \
-#       --with-apr=/usr/local/apache2/bin/apr-config 
-#       --with-apr-util=/usr/local/apache2/bin/apu-config \
-#	    --with-apxs=/usr/local/apache2/bin/apxs 
-#       --without-berkeley-db 
-#       --with-zlib 
-#       --with-swig=/usr/local
 #
+# ==============> check at the end of the configure about regards python extensions, ensure are linking again the desired python
+# 
+# checking for inflate in -lz... yes
+# checking for /usr/local/python/Python-2.5.1/bin/python... /usr/local/python/Python-2.5.1/bin/python
+# checking for JDK... yes
+# checking for perl... /usr/bin/perl
+# checking for ruby... /usr/bin/ruby
+# can't find header files for ruby.
+# configure: WARNING: The detected Ruby is too old for Subversion to use
+# configure: WARNING: A Ruby which has rb_hash_foreach is required to use the
+# configure: WARNING: Subversion Ruby bindings
+# configure: WARNING: Upgrade to the official 1.8.2 release, or later
+# checking swig version... 1.3.29
+# configure: Configuring python swig binding
+# checking for Python includes... -I/usr/local/python/Python-2.5.1/include/python2.5
+# checking for compiling Python extensions... gcc -fno-strict-aliasing -Wno-long-double -no-cpp-precomp -mno-fused-madd -DNDEBUG -g -O3 -Wall -Wstrict-prototypes 
+# checking for linking Python extensions... gcc -bundle -undefined dynamic_lookup -bundle_loader /usr/local/python/Python-2.5.1/bin/python
+# checking for linking Python libraries... -bundle -undefined dynamic_lookup -bundle_loader /usr/local/python/Python-2.5.1/bin/python
+# 
+# 
+
 }
 
 svn-kludge-py-bindings(){
+
+  ## needed on hfag+grid1 ? seems not on OSX
 
   cd $SVN_BUILD
   perl -pi.orig -e 's|^(SVN_APR_LIBS.*)$|$1 -L/usr/kerberos/lib -lgssapi_krb5|' Makefile
@@ -194,7 +234,14 @@ svn-check(){
 # SKIP:  authz_tests.py 8: test authz for checkout and update
 # SKIP:  authz_tests.py 9: test authz for export with unreadable subfolder
 #
-  
+#
+#
+#  on g4pb get many failures...  $SVN_BUILD/tests.log
+#
+#
+#
+
+
 }
 
 
@@ -212,8 +259,11 @@ svn-check(){
 
 svn-swig-readme(){
   cd $SVN_BUILD/subversion/bindings/swig
-  cat README
+  cat INSTALL 
 }
+
+
+
 
 
 
@@ -223,30 +273,49 @@ svn-install-py-bindings(){
 #
 #    If Subversion was already installed without the SWIG bindings, on Unix you'll need to re-configure Subversion 
 #    and make swig-py, make install-swig-py
+#  see  $SVN_BUILD/subversion/bindings/swig/INSTALL
 #
   cd $SVN_BUILD
   make swig-py
   make install-swig-py
 }
 
+
+svn-pth-connect(){
+	
+ echo $SVN_HOME/lib/svn-python > $PYTHON_SITE/subversion.pth
+
+}
+
+
 svn-copy-py-bindings-to-site-packages(){
 
-  cp -r $SVN_HOME/lib/svn-python/svn    $PYTHON_HOME/lib/python2.5/site-packages/
-  cp -r $SVN_HOME/lib/svn-python/libsvn $PYTHON_HOME/lib/python2.5/site-packages/
+  echo this is replaced by svn-pth-connect
+
+  ##  this is done by the install-py-bindings 
+  ##
+  #cp -r $SVN_HOME/lib/svn-python/svn    $PYTHON_HOME/lib/python2.5/site-packages/
+  #cp -r $SVN_HOME/lib/svn-python/libsvn $PYTHON_HOME/lib/python2.5/site-packages/
 }
 
 
 
 svn-test-py-bindings(){
 
+  which python
+
   python << EOT
 from svn import core  
 print (core.SVN_VER_MAJOR, core.SVN_VER_MINOR, core.SVN_VER_MICRO, core.SVN_VER_PATCH )
 EOT
-
 #
 #  aiming for :
 # (1, 4, 0, 0)
+
+  python -c "from svn import client"
+
+#  no output is success
+#
 #
 #
 #  when have issues with the bindings :

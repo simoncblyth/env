@@ -73,9 +73,17 @@ svn-apache2-authzaccess-conf(){
 
   authzaccess=$APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS
   echo =============== writing svn-apache2-authzaccess output to $authzaccess
-  $ASUDO svn-apache2-authzaccess >  $authzaccess
+  $ASUDO bash -lc "svn-apache2-authzaccess >  $authzaccess"
   echo =============== cat $authzaccess
   cat $authzaccess
+
+}
+
+
+svn-apache2-connect(){
+
+  echo ============== add the Include of the $conf into $APACHE2_CONF if not there already
+  $ASUDO bash -lc "grep $SVN_APACHE2_CONF $APACHE2_CONF  || $ASUDO echo Include $SVN_APACHE2_CONF  >> $APACHE2_CONF  "
 
 }
 
@@ -85,7 +93,7 @@ svn-apache2-conf(){
 
   conf=$APACHE2_HOME/$SVN_APACHE2_CONF
   echo =============== writing svn-apache2-location output to $conf
-  $ASUDO svn-apache2-location  >  $conf
+  $ASUDO bash -lc "svn-apache2-location  >  $conf"
   echo =============== cat $conf 
   cat $conf 
 
@@ -94,15 +102,13 @@ svn-apache2-conf(){
 
   xslt=$APACHE2_HTDOCS/resources/xslt
   echo ============== placing stylesheets for raw SVN presentation into $xslt
-  mkdir -p $xslt 
-  cp -f $SVN_BUILD/tools/xslt/svnindex.* $xslt/ 
+  $ASUDO mkdir -p $xslt 
+  $ASUDO cp -f $SVN_BUILD/tools/xslt/svnindex.* $xslt/ 
 
   ## correct a braindead absolute path 
-  perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
+  $ASUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
 
-
-  echo ============== add the Include of the $conf into $APACHE2_CONF if not there already
-  grep $SVN_APACHE2_CONF $APACHE2_CONF  || $ASUDO echo "Include $SVN_APACHE2_CONF"  >> $APACHE2_CONF  
+  svn-apache2-connect 
 
 
   echo ============= tail -10 $APACHE2_CONF
@@ -113,7 +119,7 @@ svn-apache2-conf(){
 
   apache2-setport $SVN_PORT
 
-  apachectl configtest && echo restarting apache2 && apachectl restart || echo apachectl configtest failed
+  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
 
 
   #curl -o $APACHE2_HTDOCS/favicon.ico http://grid1.phys.ntu.edu.tw:6060/tracs/red/

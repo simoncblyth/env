@@ -81,7 +81,22 @@ apache2-install(){
    $ASUDO make install
 }
 
+
+
+apache2-setup(){
+  apache2-set User www
+  sudo chown -R www:www $APACHE2_HTDOCS
+}
+
+
+
 apache2-set(){
+  
+   #
+   # Usage example:
+   #      apache2-set User www
+   #
+   
    qwn=${1:-dummy}
    val=${2:-dummy}
    regx="s/^($qwn\s*)(\S*)\$/\${1}$val/g"
@@ -101,7 +116,7 @@ apache2-setport(){
 }
   
 apache2-settings(){ 
-  $ASUDO vi $APACHE2_HOME/etc/apache2/httpd.conf 
+  $ASUDO vi $APACHE2_HOME/etc/apache2/{httpd,trac,svn}.conf 
 }
 apache2-settings-cmd(){ 
   echo $ASUDO vi $APACHE2_HOME/etc/apache2/httpd.conf 
