@@ -28,6 +28,7 @@
  [ -r ~/$ENV_BASE/base/base.bash  ] && . ~/$ENV_BASE/base/base.bash
  [ -r ~/$ENV_BASE/scm/scm.bash  ]   && . ~/$ENV_BASE/scm/scm.bash
  [ -r ~/$ENV_BASE/dyw/dyw.bash  ]   && . ~/$ENV_BASE/dyw/dyw.bash
+ [ -r ~/$ENV_BASE/xml/xml.bash  ]   && . ~/$ENV_BASE/xml/xml.bash
 
 
 
