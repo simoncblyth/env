@@ -31,7 +31,10 @@
 #      trac-x
 #      trac-i
 #
-#      trac-perms
+#      trac-setup-perms      assigns permissions to :  anonymous, authenticated and admin users 
+#         trac-permission    set a single permission 
+#         trac-user-perms    assign all the permissions for a user , starts by wiping any preexisting permissions
+#
 #      trac-open
 #      trac-authz-check
 #      trac-log
@@ -63,6 +66,8 @@
 #      trac-get
 #      trac-install
 #
+#      trac-xmlrpc-plugin-permission
+#
 
 
 export TRAC_NAME=trac-0.10.4
@@ -71,28 +76,59 @@ TRAC_NIK=trac
 export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
 
 TRAC_APACHE2_CONF=etc/apache2/trac.conf 
-export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/env/login/xmlrpc"
+export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
+
+export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
+
 
 
 trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
 trac-i(){ . $SCM_HOME/trac.bash ; }
 
-
-trac-perms(){
-
-  name=${1:-dummy}
-
-  ## remove all permissions from anonymous , but then cannot even login !
-  trac-admin $SCM_FOLD/tracs/$name permission remove anonymous '*'
-  trac-admin $SCM_FOLD/tracs/$name permission add    anonymous WIKI_VIEW 
-  trac-admin $SCM_FOLD/tracs/$name permission add    anonymous BROWSER_VIEW 
-  trac-admin $SCM_FOLD/tracs/$name permission add    anonymous LOG_VIEW
-  trac-admin $SCM_FOLD/tracs/$name permission add    anonymous FILE_VIEW
-  trac-admin $SCM_FOLD/tracs/$name permission add    anonymous CHANGESET_VIEW
-  
-  trac-admin $SCM_FOLD/tracs/$name permission add    authenticated TICKET_MODIFY
-  trac-admin $SCM_FOLD/tracs/$name permission add    blyth TRAC_ADMIN
+trac-permission(){
+   name=${1:-$SCM_TRAC}
+   shift
+   echo $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
+        $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
 }
+
+trac-user-perms(){
+
+   name=${1:-$SCM_TRAC}
+   user=${2:-anonymous}
+   shift 
+   shift 
+   
+   ## remove all permissions first ... and then apply 
+
+   trac-permission $name remove $user  \'*\'
+   for perm in $*
+   do	   
+      trac-permission $name add $user $perm
+   done
+}
+
+trac-setup-perms(){
+
+    name=${1:-$SCM_TRAC}
+
+	views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW"	 
+    other="TIMELINE_VIEW SEARCH_VIEW"
+	hmmm="CONFIG_VIEW"
+    wiki="WIKI_CREATE WIKI_MODIFY WIKI_DELETE"
+	ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
+    milestone="MILESTONE_CREATE MILESTONE_MODIFY MILESTONE_DELETE"
+    report="REPORT_VIEW REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY REPORT_DELETE"
+ 
+    trac-user-perms $name anonymous     $views 
+	trac-user-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+    trac-user-perms $name admin TRAC_ADMIN 
+   
+   ## does TRAC_ADMIN include XML_RPC
+}
+
+
+
 
 
 trac-authz-check(){
@@ -102,8 +138,9 @@ trac-authz-check(){
 
 trac-log(){
 
-  name=${1:-dummy}
+  name=${1:-$SCM_TRAC}
   cat $SCM_FOLD/tracs/$name/log/trac.log
+  ls -alst  $SCM_FOLD/tracs/$name/log/trac.log
 
 }
 
@@ -173,6 +210,11 @@ trac-apache2-conf(){
 #  backup and restore of wiki pages via xmlrpc 
 #     - currently does all pages 
 #  
+#
+#  somehow getting permission error ... the log/trac.log becomes owned by root
+#
+
+
 
 trac-xmlrpc-wiki-backup(){
   cd $SCM_FOLD
@@ -189,6 +231,12 @@ trac-xmlrpc-wiki-restore(){
 }
 
 
+trac-xmlrpc-plugin-test(){
+
+  cd  /tmp && mkdir -p tractest && cd tractest
+  python $HOME/$SCM_BASE/xmlrpc-wiki-backup.py $*
+
+}
 
 trac-xmlrpc-plugin-get(){
 
@@ -218,59 +266,100 @@ trac-xmlrpc-plugin-get(){
 #
 }
 
+
+trac-xmlrpc-prepare(){
+
+   name=${1:-$SCM_TRAC}
+
+   trac-xmlrpc-plugin-install $name 
+   trac-xmlrpc-plugin-enable  $name
+   trac-xmlrpc-plugin-permission $name
+
+    #
+    # echo sleeping a while, prior to doing the test 
+	# sleep 10
+    #
+    # seems that if you test things too quickly after restart the log file becomes owned by
+	# "root" ... presumably the request is handled by the primary apache process , prior to it spawning 
+    # resulting in the rootified trac.log 
+    # 
+	#  can fix with : 
+    #       sudo chown www $SCM_FOLD/tracs/$name/log/trac.log
+    #
+    # trac-xmlrpc-plugin-test    
+    #
+
+}
+
+
 trac-xmlrpc-plugin-install(){
 
-  name=${1:-env}
+  name=${1:-$SCM_TRAC}
 
   egg=TracXMLRPC-0.1-py2.5.egg
 
-  cd $LOCAL_BASE/trac/plugins/xmlrpcplugin/0.10
   
-  python setup.py bdist_egg
-  ls -alst dist/$egg
-  sudo cp dist/*.egg $SCM_FOLD/tracs/$name/plugins/
+  if [ "$name" == "global" ]; then
+     plugins_dir=$TRAC_SHARE_FOLD/plugins
+  else	  
+     plugins_dir=$SCM_FOLD/tracs/$name/plugins
+  fi
+  
+  if [ -d "$plugins_dir/$egg" ]; then
+	 echo the plugin is already present in $plugins_dir/$egg
+	 ls -alst $plugins_dir
+	 ls -alst $plugins_dir/$egg
+  else
 
-  cd $SCM_FOLD/tracs/$name/plugins/
+     cd $LOCAL_BASE/trac/plugins/xmlrpcplugin/0.10
+     python setup.py bdist_egg
+     ls -alst dist/$egg
+     sudo cp dist/$egg $plugins_dir/
+     cd $plugins_dir && python-crack-egg  $egg    ## convert the egg file into a folder
 
-## convert the egg file into a folder
-   python-crack-egg  $egg
+  fi
 
 }
 
 
 
 
-trac-xmlrpc-plugin-enable(){
- 
- #
- #  attempt for auto managing the trac.ini ...  
- # 
- #    TODO :
- #           investigate trac-admin capabilities... dont wont to reimplement anything 
- #           generalize
- #
 
-   name=${1:-env}
+trac-plugin-enable(){
+
+   ## globally installed plugins need to be enabled ..
+
+   name=${1:-$SCM_TRAC}
+   plugin=${2:-dummy}
+   
    tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-
- #  cp -f $tini /tmp/
- #  tini=/tmp/trac.ini
 
    [ -f "$tini" ] || ( echo trac-enable-component ABORT trac config file $tini not found  && return 1 )
 
    ## adds compenents section if not there already and appends some config ...
    
    grep \\[components\\] $tini && echo components section in $tini already || ( sudo bash -c "echo \"[components]\"         >> $tini " )
-   grep "tracrpc.*"      $tini && echo already                             || ( sudo bash -c "echo \"tracrpc.* = enabled \" >> $tini " )
- 
+   grep "$plugin.*"      $tini && echo already                             || ( sudo bash -c "echo \"$plugin.* = enabled \" >> $tini " )
+
+   cat $tini
+
    ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
 }
 
 
 
-trac-xmlrpc-plugin-configure(){
+trac-xmlrpc-plugin-enable(){
+   
+   name=${1:-$SCM_TRAC}
+   trac-plugin-enable $name tracrpc
+   
+}
 
-   name=${1:-env}
+
+
+trac-xmlrpc-plugin-permission(){
+
+   name=${1:-$SCM_TRAC}
    sudo trac-admin $SCM_FOLD/tracs/$name permission add blyth XML_RPC
    sudo trac-admin $SCM_FOLD/tracs/$name permission list 
 
@@ -281,7 +370,7 @@ trac-xmlrpc-plugin-configure(){
 
 trac-xmlrpc-open(){
 
-   name=${1:-env}
+   name=${1:-$SCM_TRAC}
    open http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$name/login/xmlrpc
 }
 
@@ -298,6 +387,15 @@ trac-webadmin-plugin-get(){
 #   rev 5285 on grid1   
 #   rev 5324 on hfag
 }
+
+
+trac-webadmin-plugin-enable(){
+   
+   name=${1:-$SCM_TRAC}
+   trac-plugin-enable $name webadmin 
+   
+}
+
 
 
 trac-pygments-plugin-get(){
