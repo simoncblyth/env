@@ -102,6 +102,7 @@ if [ "$SCM_TAG" == "P" ]; then
    SCM_PORT=6060
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
+   SCM_TRAC=env
    
 elif [ "$SCM_TAG" == "H" ]; then 
 
@@ -109,6 +110,7 @@ elif [ "$SCM_TAG" == "H" ]; then
    SCM_PORT=6060
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
+   SCM_TRAC=env
 
 elif [ "$SCM_TAG" == "G" ]; then 
 
@@ -117,6 +119,7 @@ elif [ "$SCM_TAG" == "G" ]; then
    SCM_PORT=6060
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
+   SCM_TRAC=test
 
 else
 
