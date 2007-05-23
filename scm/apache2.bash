@@ -202,6 +202,11 @@ apache2-service(){
     sudo /sbin/service apache2 $* 	
 }
 
+apache-service(){
+	echo "commands are passed thru to apachectl running as a service ... so can: start stop restart configtest ... " 
+    sudo /sbin/service apache $* 	
+}
+
 
 apache2-error-log(){ tail -100 $APACHE2_HOME/var/apache2/log/error_log ; }
 apache2-access-log(){ tail -100 $APACHE2_HOME/var/apache2/log/access_log ; }
