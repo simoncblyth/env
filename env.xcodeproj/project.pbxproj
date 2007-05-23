@@ -1,0 +1,339 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXFileReference section */
+		F938A3E00C01F4EB00BB73FA /* alias.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = alias.bash; sourceTree = "<group>"; };
+		F938A3E10C01F4EB00BB73FA /* base.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = base.bash; sourceTree = "<group>"; };
+		F938A3E20C01F4EB00BB73FA /* local.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = local.bash; sourceTree = "<group>"; };
+		F938A3E30C01F4EB00BB73FA /* perl.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = perl.bash; sourceTree = "<group>"; };
+		F938A3E40C01F4EB00BB73FA /* ssh.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ssh.bash; sourceTree = "<group>"; };
+		F938A3E50C01F4EB00BB73FA /* tty.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = tty.bash; sourceTree = "<group>"; };
+		F938A3E90C01F4EB00BB73FA /* categories.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = categories.pbxbtree; sourceTree = "<group>"; };
+		F938A3EA0C01F4EB00BB73FA /* cdecls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = cdecls.pbxbtree; sourceTree = "<group>"; };
+		F938A3EB0C01F4EB00BB73FA /* decls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = decls.pbxbtree; sourceTree = "<group>"; };
+		F938A3EC0C01F4EB00BB73FA /* files.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = files.pbxbtree; sourceTree = "<group>"; };
+		F938A3ED0C01F4EB00BB73FA /* imports.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = imports.pbxbtree; sourceTree = "<group>"; };
+		F938A3EE0C01F4EB00BB73FA /* pbxindex.header */ = {isa = PBXFileReference; lastKnownFileType = file; path = pbxindex.header; sourceTree = "<group>"; };
+		F938A3EF0C01F4EB00BB73FA /* protocols.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = protocols.pbxbtree; sourceTree = "<group>"; };
+		F938A3F00C01F4EB00BB73FA /* refs.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = refs.pbxbtree; sourceTree = "<group>"; };
+		F938A3F20C01F4EB00BB73FA /* control */ = {isa = PBXFileReference; lastKnownFileType = file; path = control; sourceTree = "<group>"; };
+		F938A3F30C01F4EB00BB73FA /* strings */ = {isa = PBXFileReference; lastKnownFileType = file; path = strings; sourceTree = "<group>"; };
+		F938A3F40C01F4EB00BB73FA /* subclasses.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = subclasses.pbxbtree; sourceTree = "<group>"; };
+		F938A3F50C01F4EB00BB73FA /* symbols0.pbxsymbols */ = {isa = PBXFileReference; lastKnownFileType = file; path = symbols0.pbxsymbols; sourceTree = "<group>"; };
+		F938A3F70C01F4EB00BB73FA /* aida.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = aida.bash; sourceTree = "<group>"; };
+		F938A3F80C01F4EC00BB73FA /* apache.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = apache.bash; sourceTree = "<group>"; };
+		F938A3F90C01F4EC00BB73FA /* av.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = av.bash; sourceTree = "<group>"; };
+		F938A3FA0C01F4EC00BB73FA /* av_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = av_use.bash; sourceTree = "<group>"; };
+		F938A3FB0C01F4EC00BB73FA /* boost.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = boost.bash; sourceTree = "<group>"; };
+		F938A3FC0C01F4EC00BB73FA /* cernlib.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cernlib.bash; sourceTree = "<group>"; };
+		F938A3FD0C01F4EC00BB73FA /* clhep.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = clhep.bash; sourceTree = "<group>"; };
+		F938A3FE0C01F4EC00BB73FA /* cmt.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cmt.bash; sourceTree = "<group>"; };
+		F938A3FF0C01F4EC00BB73FA /* cmt_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cmt_use.bash; sourceTree = "<group>"; };
+		F938A4000C01F4EC00BB73FA /* coin3d.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = coin3d.bash; sourceTree = "<group>"; };
+		F938A4010C01F4EC00BB73FA /* condor_test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = condor_test.bash; sourceTree = "<group>"; };
+		F938A4020C01F4EC00BB73FA /* condor_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = condor_use.bash; sourceTree = "<group>"; };
+		F938A4030C01F4EC00BB73FA /* dawn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dawn.bash; sourceTree = "<group>"; };
+		F938A4040C01F4EC00BB73FA /* dayabay.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dayabay.bash; sourceTree = "<group>"; };
+		F938A4050C01F4EC00BB73FA /* dayabay_extra.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dayabay_extra.bash; sourceTree = "<group>"; };
+		F938A4060C01F4EC00BB73FA /* dyw.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw.bash; sourceTree = "<group>"; };
+		F938A4070C01F4EC00BB73FA /* dyw_build.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw_build.bash; sourceTree = "<group>"; };
+		F938A4080C01F4EC00BB73FA /* dyw_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw_use.bash; sourceTree = "<group>"; };
+		F938A4090C01F4EC00BB73FA /* g4dyb_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = g4dyb_use.bash; sourceTree = "<group>"; };
+		F938A40A0C01F4EC00BB73FA /* gdml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = gdml.bash; sourceTree = "<group>"; };
+		F938A40B0C01F4EC00BB73FA /* geant4.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = geant4.bash; sourceTree = "<group>"; };
+		F938A40C0C01F4EC00BB73FA /* geant4_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = geant4_use.bash; sourceTree = "<group>"; };
+		F938A40D0C01F4EC00BB73FA /* graxml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = graxml.bash; sourceTree = "<group>"; };
+		F938A40E0C01F4EC00BB73FA /* NOTES.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES.txt; sourceTree = "<group>"; };
+		F938A40F0C01F4EC00BB73FA /* NOTES_OLD.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES_OLD.txt; sourceTree = "<group>"; };
+		F938A4100C01F4EC00BB73FA /* openmotif.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = openmotif.bash; sourceTree = "<group>"; };
+		F938A4110C01F4EC00BB73FA /* README.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		F938A4120C01F4EC00BB73FA /* root.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = root.bash; sourceTree = "<group>"; };
+		F938A4130C01F4EC00BB73FA /* soxt.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = soxt.bash; sourceTree = "<group>"; };
+		F938A4140C01F4EC00BB73FA /* vgm.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = vgm.bash; sourceTree = "<group>"; };
+		F938A4150C01F4EC00BB73FA /* xercesc.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xercesc.bash; sourceTree = "<group>"; };
+		F938A4160C01F4EC00BB73FA /* xml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xml.bash; sourceTree = "<group>"; };
+		F938A4170C01F4EC00BB73FA /* env.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = env.bash; sourceTree = "<group>"; };
+		F938A4190C01F4EC00BB73FA /* Aberdeen.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Aberdeen.mac; sourceTree = "<group>"; };
+		F938A41A0C01F4EC00BB73FA /* add-trajectories.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "add-trajectories.mac"; sourceTree = "<group>"; };
+		F938A41B0C01F4EC00BB73FA /* autogui.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = autogui.mac; sourceTree = "<group>"; };
+		F938A41C0C01F4EC00BB73FA /* DebugAberdeen.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = DebugAberdeen.mac; sourceTree = "<group>"; };
+		F938A41D0C01F4EC00BB73FA /* draw.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = draw.mac; sourceTree = "<group>"; };
+		F938A41E0C01F4EC00BB73FA /* dybviz.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dybviz.mac; sourceTree = "<group>"; };
+		F938A41F0C01F4EC00BB73FA /* dybviz_template.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dybviz_template.mac; sourceTree = "<group>"; };
+		F938A4200C01F4EC00BB73FA /* NearSitePool.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NearSitePool.mac; sourceTree = "<group>"; };
+		F938A4210C01F4ED00BB73FA /* scb-draw-by-particle-id.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "scb-draw-by-particle-id.mac"; sourceTree = "<group>"; };
+		F938A4220C01F4ED00BB73FA /* scb-filter-by-particle.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "scb-filter-by-particle.mac"; sourceTree = "<group>"; };
+		F938A4230C01F4ED00BB73FA /* scb-traj.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "scb-traj.mac"; sourceTree = "<group>"; };
+		F938A4240C01F4ED00BB73FA /* test_aberdeen.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = test_aberdeen.mac; sourceTree = "<group>"; };
+		F938A4250C01F4ED00BB73FA /* vgm-dump.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "vgm-dump.mac"; sourceTree = "<group>"; };
+		F938A4260C01F4ED00BB73FA /* vgm-load.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "vgm-load.mac"; sourceTree = "<group>"; };
+		F938A4280C01F4ED00BB73FA /* .apache2.bash.swp */ = {isa = PBXFileReference; lastKnownFileType = file; path = .apache2.bash.swp; sourceTree = "<group>"; };
+		F938A4290C01F4ED00BB73FA /* apache-load-module.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = "apache-load-module.pl"; sourceTree = "<group>"; };
+		F938A42A0C01F4ED00BB73FA /* apache2.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = apache2.bash; sourceTree = "<group>"; };
+		F938A42B0C01F4ED00BB73FA /* clearsilver.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = clearsilver.bash; sourceTree = "<group>"; };
+		F938A42C0C01F4ED00BB73FA /* file.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = file.bash; sourceTree = "<group>"; };
+		F938A42D0C01F4ED00BB73FA /* modpython-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "modpython-test.bash"; sourceTree = "<group>"; };
+		F938A42E0C01F4ED00BB73FA /* modpython.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modpython.bash; sourceTree = "<group>"; };
+		F938A42F0C01F4ED00BB73FA /* modwsgi-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "modwsgi-use.bash"; sourceTree = "<group>"; };
+		F938A4300C01F4ED00BB73FA /* modwsgi.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modwsgi.bash; sourceTree = "<group>"; };
+		F938A4310C01F4ED00BB73FA /* NOTES */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES; sourceTree = "<group>"; };
+		F938A4320C01F4ED00BB73FA /* pysqlite.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = pysqlite.bash; sourceTree = "<group>"; };
+		F938A4330C01F4ED00BB73FA /* python.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = python.bash; sourceTree = "<group>"; };
+		F938A4340C01F4ED00BB73FA /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		F938A4350C01F4ED00BB73FA /* scm-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "scm-use.bash"; sourceTree = "<group>"; };
+		F938A4360C01F4ED00BB73FA /* scm.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = scm.bash; sourceTree = "<group>"; };
+		F938A4370C01F4ED00BB73FA /* sqlite.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = sqlite.bash; sourceTree = "<group>"; };
+		F938A4380C01F4ED00BB73FA /* svn-build.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-build.bash"; sourceTree = "<group>"; };
+		F938A4390C01F4ED00BB73FA /* svn-learn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-learn.bash"; sourceTree = "<group>"; };
+		F938A43A0C01F4ED00BB73FA /* svn-rp-crawl.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "svn-rp-crawl.py"; sourceTree = "<group>"; };
+		F938A43B0C01F4ED00BB73FA /* svn-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-test.bash"; sourceTree = "<group>"; };
+		F938A43C0C01F4ED00BB73FA /* svn-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-use.bash"; sourceTree = "<group>"; };
+		F938A43D0C01F4ED00BB73FA /* svn-wc-crawl.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "svn-wc-crawl.py"; sourceTree = "<group>"; };
+		F938A43E0C01F4ED00BB73FA /* svn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = svn.bash; sourceTree = "<group>"; };
+		F938A43F0C01F4ED00BB73FA /* svn2feed.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = svn2feed.py; sourceTree = "<group>"; };
+		F938A4400C01F4ED00BB73FA /* swig.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = swig.bash; sourceTree = "<group>"; };
+		F938A4410C01F4ED00BB73FA /* trac-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "trac-test.bash"; sourceTree = "<group>"; };
+		F938A4420C01F4ED00BB73FA /* trac-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "trac-use.bash"; sourceTree = "<group>"; };
+		F938A4430C01F4ED00BB73FA /* trac.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = trac.bash; sourceTree = "<group>"; };
+		F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-backup.py"; sourceTree = "<group>"; };
+		F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-restore.py"; sourceTree = "<group>"; };
+		F938A4460C01F4EE00BB73FA /* TODO */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
+		F938A4480C01F4EE00BB73FA /* conf.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = conf.xsl; sourceTree = "<group>"; };
+		F938A4490C01F4EE00BB73FA /* exist.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = exist.bash; sourceTree = "<group>"; };
+		F938A44A0C01F4EE00BB73FA /* jetty.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = jetty.xsl; sourceTree = "<group>"; };
+		F938A44B0C01F4EE00BB73FA /* modjk.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modjk.bash; sourceTree = "<group>"; };
+		F938A44C0C01F4EE00BB73FA /* workflow.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = workflow.bash; sourceTree = "<group>"; };
+		F938A44D0C01F4EE00BB73FA /* xml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xml.bash; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		F938A3D20C01F4A600BB73FA = {
+			isa = PBXGroup;
+			children = (
+				F938A3DF0C01F4EB00BB73FA /* base */,
+				F938A3E60C01F4EB00BB73FA /* build */,
+				F938A3F60C01F4EB00BB73FA /* dyw */,
+				F938A4170C01F4EC00BB73FA /* env.bash */,
+				F938A4180C01F4EC00BB73FA /* macros */,
+				F938A4270C01F4ED00BB73FA /* scm */,
+				F938A4460C01F4EE00BB73FA /* TODO */,
+				F938A4470C01F4EE00BB73FA /* xml */,
+			);
+			sourceTree = "<group>";
+		};
+		F938A3DF0C01F4EB00BB73FA /* base */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3E00C01F4EB00BB73FA /* alias.bash */,
+				F938A3E10C01F4EB00BB73FA /* base.bash */,
+				F938A3E20C01F4EB00BB73FA /* local.bash */,
+				F938A3E30C01F4EB00BB73FA /* perl.bash */,
+				F938A3E40C01F4EB00BB73FA /* ssh.bash */,
+				F938A3E50C01F4EB00BB73FA /* tty.bash */,
+			);
+			path = base;
+			sourceTree = "<group>";
+		};
+		F938A3E60C01F4EB00BB73FA /* build */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3E70C01F4EB00BB73FA /* env.build */,
+			);
+			path = build;
+			sourceTree = "<group>";
+		};
+		F938A3E70C01F4EB00BB73FA /* env.build */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3E80C01F4EB00BB73FA /* env.pbxindex */,
+			);
+			path = env.build;
+			sourceTree = "<group>";
+		};
+		F938A3E80C01F4EB00BB73FA /* env.pbxindex */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3E90C01F4EB00BB73FA /* categories.pbxbtree */,
+				F938A3EA0C01F4EB00BB73FA /* cdecls.pbxbtree */,
+				F938A3EB0C01F4EB00BB73FA /* decls.pbxbtree */,
+				F938A3EC0C01F4EB00BB73FA /* files.pbxbtree */,
+				F938A3ED0C01F4EB00BB73FA /* imports.pbxbtree */,
+				F938A3EE0C01F4EB00BB73FA /* pbxindex.header */,
+				F938A3EF0C01F4EB00BB73FA /* protocols.pbxbtree */,
+				F938A3F00C01F4EB00BB73FA /* refs.pbxbtree */,
+				F938A3F10C01F4EB00BB73FA /* strings.pbxstrings */,
+				F938A3F40C01F4EB00BB73FA /* subclasses.pbxbtree */,
+				F938A3F50C01F4EB00BB73FA /* symbols0.pbxsymbols */,
+			);
+			path = env.pbxindex;
+			sourceTree = "<group>";
+		};
+		F938A3F10C01F4EB00BB73FA /* strings.pbxstrings */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3F20C01F4EB00BB73FA /* control */,
+				F938A3F30C01F4EB00BB73FA /* strings */,
+			);
+			path = strings.pbxstrings;
+			sourceTree = "<group>";
+		};
+		F938A3F60C01F4EB00BB73FA /* dyw */ = {
+			isa = PBXGroup;
+			children = (
+				F938A3F70C01F4EB00BB73FA /* aida.bash */,
+				F938A3F80C01F4EC00BB73FA /* apache.bash */,
+				F938A3F90C01F4EC00BB73FA /* av.bash */,
+				F938A3FA0C01F4EC00BB73FA /* av_use.bash */,
+				F938A3FB0C01F4EC00BB73FA /* boost.bash */,
+				F938A3FC0C01F4EC00BB73FA /* cernlib.bash */,
+				F938A3FD0C01F4EC00BB73FA /* clhep.bash */,
+				F938A3FE0C01F4EC00BB73FA /* cmt.bash */,
+				F938A3FF0C01F4EC00BB73FA /* cmt_use.bash */,
+				F938A4000C01F4EC00BB73FA /* coin3d.bash */,
+				F938A4010C01F4EC00BB73FA /* condor_test.bash */,
+				F938A4020C01F4EC00BB73FA /* condor_use.bash */,
+				F938A4030C01F4EC00BB73FA /* dawn.bash */,
+				F938A4040C01F4EC00BB73FA /* dayabay.bash */,
+				F938A4050C01F4EC00BB73FA /* dayabay_extra.bash */,
+				F938A4060C01F4EC00BB73FA /* dyw.bash */,
+				F938A4070C01F4EC00BB73FA /* dyw_build.bash */,
+				F938A4080C01F4EC00BB73FA /* dyw_use.bash */,
+				F938A4090C01F4EC00BB73FA /* g4dyb_use.bash */,
+				F938A40A0C01F4EC00BB73FA /* gdml.bash */,
+				F938A40B0C01F4EC00BB73FA /* geant4.bash */,
+				F938A40C0C01F4EC00BB73FA /* geant4_use.bash */,
+				F938A40D0C01F4EC00BB73FA /* graxml.bash */,
+				F938A40E0C01F4EC00BB73FA /* NOTES.txt */,
+				F938A40F0C01F4EC00BB73FA /* NOTES_OLD.txt */,
+				F938A4100C01F4EC00BB73FA /* openmotif.bash */,
+				F938A4110C01F4EC00BB73FA /* README.txt */,
+				F938A4120C01F4EC00BB73FA /* root.bash */,
+				F938A4130C01F4EC00BB73FA /* soxt.bash */,
+				F938A4140C01F4EC00BB73FA /* vgm.bash */,
+				F938A4150C01F4EC00BB73FA /* xercesc.bash */,
+				F938A4160C01F4EC00BB73FA /* xml.bash */,
+			);
+			path = dyw;
+			sourceTree = "<group>";
+		};
+		F938A4180C01F4EC00BB73FA /* macros */ = {
+			isa = PBXGroup;
+			children = (
+				F938A4190C01F4EC00BB73FA /* Aberdeen.mac */,
+				F938A41A0C01F4EC00BB73FA /* add-trajectories.mac */,
+				F938A41B0C01F4EC00BB73FA /* autogui.mac */,
+				F938A41C0C01F4EC00BB73FA /* DebugAberdeen.mac */,
+				F938A41D0C01F4EC00BB73FA /* draw.mac */,
+				F938A41E0C01F4EC00BB73FA /* dybviz.mac */,
+				F938A41F0C01F4EC00BB73FA /* dybviz_template.mac */,
+				F938A4200C01F4EC00BB73FA /* NearSitePool.mac */,
+				F938A4210C01F4ED00BB73FA /* scb-draw-by-particle-id.mac */,
+				F938A4220C01F4ED00BB73FA /* scb-filter-by-particle.mac */,
+				F938A4230C01F4ED00BB73FA /* scb-traj.mac */,
+				F938A4240C01F4ED00BB73FA /* test_aberdeen.mac */,
+				F938A4250C01F4ED00BB73FA /* vgm-dump.mac */,
+				F938A4260C01F4ED00BB73FA /* vgm-load.mac */,
+			);
+			path = macros;
+			sourceTree = "<group>";
+		};
+		F938A4270C01F4ED00BB73FA /* scm */ = {
+			isa = PBXGroup;
+			children = (
+				F938A4280C01F4ED00BB73FA /* .apache2.bash.swp */,
+				F938A4290C01F4ED00BB73FA /* apache-load-module.pl */,
+				F938A42A0C01F4ED00BB73FA /* apache2.bash */,
+				F938A42B0C01F4ED00BB73FA /* clearsilver.bash */,
+				F938A42C0C01F4ED00BB73FA /* file.bash */,
+				F938A42D0C01F4ED00BB73FA /* modpython-test.bash */,
+				F938A42E0C01F4ED00BB73FA /* modpython.bash */,
+				F938A42F0C01F4ED00BB73FA /* modwsgi-use.bash */,
+				F938A4300C01F4ED00BB73FA /* modwsgi.bash */,
+				F938A4310C01F4ED00BB73FA /* NOTES */,
+				F938A4320C01F4ED00BB73FA /* pysqlite.bash */,
+				F938A4330C01F4ED00BB73FA /* python.bash */,
+				F938A4340C01F4ED00BB73FA /* README */,
+				F938A4350C01F4ED00BB73FA /* scm-use.bash */,
+				F938A4360C01F4ED00BB73FA /* scm.bash */,
+				F938A4370C01F4ED00BB73FA /* sqlite.bash */,
+				F938A4380C01F4ED00BB73FA /* svn-build.bash */,
+				F938A4390C01F4ED00BB73FA /* svn-learn.bash */,
+				F938A43A0C01F4ED00BB73FA /* svn-rp-crawl.py */,
+				F938A43B0C01F4ED00BB73FA /* svn-test.bash */,
+				F938A43C0C01F4ED00BB73FA /* svn-use.bash */,
+				F938A43D0C01F4ED00BB73FA /* svn-wc-crawl.py */,
+				F938A43E0C01F4ED00BB73FA /* svn.bash */,
+				F938A43F0C01F4ED00BB73FA /* svn2feed.py */,
+				F938A4400C01F4ED00BB73FA /* swig.bash */,
+				F938A4410C01F4ED00BB73FA /* trac-test.bash */,
+				F938A4420C01F4ED00BB73FA /* trac-use.bash */,
+				F938A4430C01F4ED00BB73FA /* trac.bash */,
+				F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */,
+				F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */,
+			);
+			path = scm;
+			sourceTree = "<group>";
+		};
+		F938A4470C01F4EE00BB73FA /* xml */ = {
+			isa = PBXGroup;
+			children = (
+				F938A4480C01F4EE00BB73FA /* conf.xsl */,
+				F938A4490C01F4EE00BB73FA /* exist.bash */,
+				F938A44A0C01F4EE00BB73FA /* jetty.xsl */,
+				F938A44B0C01F4EE00BB73FA /* modjk.bash */,
+				F938A44C0C01F4EE00BB73FA /* workflow.bash */,
+				F938A44D0C01F4EE00BB73FA /* xml.bash */,
+			);
+			path = xml;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		F938A3D40C01F4A600BB73FA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = F938A3D50C01F4A600BB73FA /* Build configuration list for PBXProject "env" */;
+			hasScannedForEncodings = 0;
+			mainGroup = F938A3D20C01F4A600BB73FA;
+			projectDirPath = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		F938A3D60C01F4A600BB73FA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		F938A3D70C01F4A600BB73FA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F938A3D50C01F4A600BB73FA /* Build configuration list for PBXProject "env" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F938A3D60C01F4A600BB73FA /* Debug */,
+				F938A3D70C01F4A600BB73FA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F938A3D40C01F4A600BB73FA /* Project object */;
+}
