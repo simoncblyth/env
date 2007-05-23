@@ -41,3 +41,20 @@
 	vi *.bash
 	cd $iwd
  }
+
+
+base-datestamp(){
+
+  if [ "$1" == "now" ]; then 
+     if [ "$(uname)" == "Darwin" ] ; then
+        timdef=$(perl -e 'print time')
+	    refdef=$(date -r $timdef +"%Y%m%d")  
+     else		
+	    refdef=$(date  +"%Y%m%d")
+     fi 
+  fi  
+
+  echo $refdef 
+}
+
+ 
