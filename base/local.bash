@@ -196,6 +196,7 @@ eval USER_BASE=\$$vname
 export USER_BASE
 
 
+[ -d "$USER_BASE" ] || mkdir -p $USER_BASE
 
 
 	
