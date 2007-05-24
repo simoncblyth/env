@@ -52,7 +52,9 @@ export DYW_L=${DYW_FOLDER_L}/dyw_last_20070411
 export DYW_U=${DYW_FOLDER_U}/dyw_last_20070411
 
 export DYW_G=${DYW_FOLDER_G}/dyw                   ## careful current source 
-export DYW_G1=${DYW_FOLDER_G1}/dyw_20070503_wc
+
+#export DYW_G1=${DYW_FOLDER_G1}/dyw_20070503_wc
+export DYW_G1=${DYW_FOLDER_G1}/dyw_release_2_5_wc
 
 vname=DYW_$NODE_TAG
 eval DYW=\$$vname
