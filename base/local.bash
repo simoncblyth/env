@@ -180,7 +180,12 @@ export LOCAL_BASE
 
 export USER_BASE_G=$HOME/Work
 export USER_BASE_P=/disk/d4/$USER
-export USER_BASE_G1=/disk/d4/$USER  
+
+
+##export USER_BASE_G1=/disk/d4/$USER  
+## i dont like setting this to 
+export USER_BASE_G1=/data/w/$USER/dayabay 
+
 export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_U=$LOCAL_BASE_U
 export USER_BASE_H=$LOCAL_BASE_H
