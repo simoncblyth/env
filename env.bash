@@ -33,6 +33,20 @@
 
 
 
+env-u(){ 
+  iwd=$(pwd)
+  
+  if [ "$NODE_TAG" == "$SOURCE_TAG" ]; then
+     echo env-u is prohibited on source machine 
+  else
+     cd $HOME/$ENV_BASE 
+     svn status -u
+     svn update
+     svn status -u
+     cd $iwd
+  fi
+}
+
 
 env-i(){ [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash ; }
 
