@@ -93,8 +93,8 @@ export SUDO
 
 ########## SCM_* specify the source code repository coordinates #####################
 
- #export SCM_TAG="H"       ##      blyth@hfag     admin level tasks .... yes as is a sudoer
- export SCM_TAG="G"       ##      blyth@g4pb      trac testing
+  export SCM_TAG="H"       ##      blyth@hfag      trac "production"  
+ #export SCM_TAG="G"       ##      blyth@g4pb      trac testing
 
 if [ "$SCM_TAG" == "P" ]; then
 	
@@ -196,7 +196,7 @@ eval USER_BASE=\$$vname
 export USER_BASE
 
 
-[ -d "$USER_BASE" ] || mkdir -p $USER_BASE
+[ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
 
 
 	
