@@ -50,6 +50,19 @@ EOM
 }
 
 
+inversebeta-build(){
+
+   dir=$DYW/Generators/InverseBeta/cmt
+   [ -d $dir ] || echo you need to install and set DYW $DYW first && return 1
+
+   cd $dir
+   cmt conf
+   . setup.sh
+   make
+
+}
+
+
 inversebeta-gen(){
 
   dir=$DYW/Generators/InverseBeta/$CMTCONFIG
