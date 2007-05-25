@@ -22,6 +22,7 @@
  [ -r ssh.bash ]         && . ssh.bash
  [ -r tty.bash ]         && . tty.bash
  [ -r cron.bash ]        && . cron.bash
+ [ -r service.bash ]     && . service.bash
 
  cd $iwd
 
