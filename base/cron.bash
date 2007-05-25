@@ -50,9 +50,11 @@ reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto st
 if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
    echo =========== initializing crontab for root to $tmp 
    cat $tmp 
-   sudo crontab -u root $tmp
+   sudo crontab -u root $tmp && sudo cp -f $tmp $crondir/crontab
+   
 else
-   echo cannot proceed as a crontab for root exists already, do  cron-delete / cron-list  first 
+   echo cannot proceed as a crontab for root exists already, must "cron-delete" first 
+   cron-list
 fi
 
      
