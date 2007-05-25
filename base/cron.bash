@@ -11,12 +11,12 @@ fi
 
 tmp=/tmp/$$crontab
 cat << EOF > $tmp
-
+#
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=blyth@hep1.phys.ntu.edu.tw
-HOME=
-
+HOME=/tmp
+#
 # Use the hash sign to prefix a comment
 # +---------------- minute (0 - 59)
 # |  +------------- hour (0 - 23)
@@ -25,9 +25,9 @@ HOME=
 # |  |  |  |  +---- day of week (0 - 7) (Sunday=0 or 7)
 # |  |  |  |  |
 # *  *  *  *  *  command to be executed
-
-50 22 25 5 * $cmd
-
+#
+15 23 24 5 * $cmd
+#
 EOF
 
 
