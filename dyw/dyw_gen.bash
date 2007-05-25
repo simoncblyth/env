@@ -31,23 +31,112 @@
 
 
 
-inversebeta-mac(){
+gen-lookup(){
+   local generator=${1:-inversebeta}
+   shift
+   if [ "$generator" == "inversebeta" ]; then
+       inversebeta-lookup $*
+   else
+       echo generator $generator not implemented in dyw_gen.bash
+   fi    
+}
 
+
+gen-mac(){
+
+
+ local generator=${1:-inversebeta}
+ shift
+ local  gentag=$(gen-lookup $generator gentag $*)
+ local genfile=$(gen-lookup $generator genfile $*) 
+ local   nevts=$(gen-lookup $generator nevts $*)
+
+cat << EOH
+#  sourced from dyw_gen.bash::gen-mac
+/files/output $gentag.root
+/dyw/detector/select SingleModule
+#
+EOH
+
+mac-boilerplate
+
+cat << EOG
+#
 # http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/PrimaryVertexGeneration
 # 
-
-hepevt=path-to-ascii-hepevt-file.txt
-
-cat << EOM
-
 /dyw/generator/select Generator2
 /dyw/generator2/main HEP event
-/dyw/generator2/hepevt $hepevt
+/dyw/generator2/hepevt $genfile
 # 
 /dyw/generator2/pos glg4 2000 0 0 fill liquidscintillator
+#
+EOG
 
-EOM
+echo "/run/beamOn $nevts "
+
+
 }
+
+
+
+
+
+mac-boilerplate(){
+
+cat << EOB
+#### Do NOT touch the following line.
+/run/initialize 
+
+####  Control the verbose
+#     verbose level: 0: the least printout, 2: most detailed information.
+/control/verbose 2
+/run/verbose 2
+/tracking/verbose 0
+/dyw/phys/verbose 0 
+
+####  Control the PMT Optical Model
+#     verbose level :  0: quiet;
+#                      1: minimal entrance/exit info;
+#                      2: +print verbose tracking info;
+#                      >=10:  lots of info on thin photocathode calcs.
+#     luxlevel: 0: No transmitting and relfection on photocathode.
+#               1: A simple model for transmitting and reflection.
+#               >=2: Full PMT optical model. The default value is 3.
+/PMTOpticalModel/verbose 0
+/PMTOpticalModel/luxlevel 3
+
+##### Physics process
+/process/list
+# /process/inactivate Cerenkov
+
+####  Set scinitillation yield of the liquid Scintillator .
+#     GdLS is for Gd-doped LS and LS is for normal LS in gamma catcher.
+/dyw/detector/ScintYield_GdLS 9000.0 
+/dyw/detector/ScintYield_LS 9000.0 
+
+
+EOB
+
+}
+
+
+gen-run(){
+
+ local generator=${1:-inversebeta}
+ shift
+ local gentag=$(gen-lookup $generator gentag $*)
+ local genfile=$(gen-lookup $generator genfile $*) 
+
+ if [ -f "$genfile" ]; then
+   printf "<info> hepevtfile $file exists </info>" 
+ else
+   printf "<error> hepevtfile $file does not exist must $generator-gen first </error> " 
+   return 1 
+ fi
+ 
+}
+
+
 
 
 inversebeta-build(){
@@ -67,34 +156,75 @@ inversebeta-build(){
 }
 
 
+inversebeta-lookup(){
+
+   local qwn=$1
+   shift
+
+   local generator="inversebeta"
+   local nevts=${1:-100}
+   local seed=${2:-0}
+   local neutrino_angle_in_deg=${3:-0}
+   
+   local gentag=generator-${generator}_seed-${seed}_angle-${neutrino_angle_in_deg}_nevts-${nevts}
+   local genfile=$gentag.txt
+   local gendir=$USER_BASE/dayabay/hepevt/$generator
+   local genxmlopen=$(printf "<gen name=\"%s\" seed=\"%s\" neutrino_angle_in_deg=\"%s\" nevts=\"%s\" gendir=\"%s\" gentag=\"%s\" file=\"%s\" >\n" $generator $seed $neutrino_angle_in_deg $nevts $gendir $gentag $file)
+   local gencmd="cd $gendir ; $exe -h ; $exe -seed $seed -o $genfile -n $nevts -angle $neutrino_angle_in_deg "
+   
+   ##  InverseBeta.exe [-seed seed] [-o outputfilename] [-n nevents] [-angle neutrino_angle_in_deg] [-eplus_only] [-neutron_only] [-debug]
+   
+   eval val=\$$qwn
+   echo $val
+}
+
+
 inversebeta-gen(){
 
-  generator="inversebeta"
-  dir=$DYW/Generators/InverseBeta/$CMTCONFIG
-  exe=$dir/InverseBeta.exe
-  gendir=$USER_BASE/dayabay/hepevt/$generator
-  [ -d $gendir ] || ( echo WARNING creating $gendir && mkdir -p $gendir ) 
+   #  TODO:
+   #      - timing 
+   #      - date stamping
+   #      - stamp run folder 
+
+  local generator="inversebeta"
+  local dir=$DYW/Generators/InverseBeta/$CMTCONFIG
+  local exe=$dir/InverseBeta.exe
   
-  nevts=${1:-100}
-  seed=${2:-0}
-  neutrino_angle_in_deg=${3:-0}
+  local gendir=$(inversebeta-lookup gendir $*)
+  [ -d $gendir ] || ( printf "<warning> WARNING creating $gendir </warning>\n" && mkdir -p $gendir ) 
   
-  hepevtfile=$gendir/inversebeta_${seed}_${neutrino_angle_in_deg}_${nevts}
+  local gentag=$(inversebeta-lookup gentag $*)
+  local xmlopen=$(inversebeta-lookup genxmlopen $*)
+  local cmd=$(inversebeta-lookup gencmd $*)
   
-  if [ -f $exe ]; then
-     printf "<gen name=\"%s\" seed=\"%s\" neutrino_angle_in_deg=\"%s\" nevts=\"%s\" hepevtfile=\"%s\" >\n" $generator $seed $neutrino_angle_in_deg $nevts $hepevtfile
+  echo $xmlopen     
+  local error=""
+  if [ -f "$exe" ]; then
+     printf "<exe>%s</exe>\n" $exe
   else
-     printf "<error> you need to build generator $exe first with inversebeta-build </error>"  && return 1
+     error="executable $exe doesnt exist , build it with $generator-build " 
   fi    
   
-  cd $dir
-  $exe -h
-  ##  InverseBeta.exe [-seed seed] [-o outputfilename] [-n nevents] [-angle neutrino_angle_in_deg] [-eplus_only] [-neutron_only] [-debug]
-  $exe -seed $seed -o $hepevtfile -n $nevts -angle $neutrino_angle_in_deg 
+  printf "<cmd>%s</cmd>\n"  $cmd
+ 
+  if [ "X$error" == "X" ]; then 
+     printf "<stdout>\n" 
+     xml-cdata-open
+     $cmd
+     xml-cdata-close 
+     printf "</stdout>\n"
+  else
+     printf "<error>%s</error>\n" $error
+  fi
   
+  printf "</gen>\n"
   
-  ##1:
+}
 
+  
+#   ============ looking at inversebeta.cc    ===================
+#
+#
 # in debug mode 
 #    canvas c1 , 3 plots   0..10
 #
@@ -135,5 +265,4 @@ inversebeta-gen(){
 #    inversebeta->Draw("neutron.energy:neutron.y")
 #
 
-}
 
