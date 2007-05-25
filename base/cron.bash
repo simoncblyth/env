@@ -17,7 +17,8 @@ cron-log(){
 cron-setup(){
 
    ## if not root , come back as root
-   if [ "$(id -u)" == "0" ]; then
+   id=$(id -u)
+   if [ "$id" == "0" ]; then
 
       crondir=/usr/local/cron
       [ -d $crondir ] || mkdir -p $crondir
