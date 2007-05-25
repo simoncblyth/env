@@ -1,7 +1,7 @@
 
 
 cron-delete(){
-   crontab-list
+   cron-list
    sudo crontab -u root -r -i 
 }
 
@@ -42,7 +42,8 @@ $(( $minute + 0 )) $hour $day_of_month $month $day_of_week /sbin/service apache2
 $(( $minute + 1 )) $hour $day_of_month $month $day_of_week /sbin/service apache  stop >>  $cronlog 2>&1
 $(( $minute + 2 )) $hour $day_of_month $month $day_of_week /sbin/service exist   stop >>  $cronlog 2>&1
 $(( $minute + 3 )) $hour $day_of_month $month $day_of_week /sbin/service tomcat  stop >>  $cronlog 2>&1
-$(( $minute + 4 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10       >>  $cronlog 2>&1
+$(( $minute + 4 )) $hour $day_of_month $month $day_of_week  ps -ef                    >>  $cronlog 2>&1
+$(( $minute + 5 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10 now   >>  $cronlog 2>&1
 #
 EOT
  
@@ -57,10 +58,12 @@ else
    cron-list
 fi
 
-     
- 
-
 }
+
+
+
+
+
 
 cron-test(){
 
