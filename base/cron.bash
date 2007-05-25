@@ -16,12 +16,8 @@ cron-log(){
 
 cron-setup(){
 
-   ## if not root , come back as root
-   id=$(id -u)
-   if [ "$id" == "0" ]; then
-
       crondir=/usr/local/cron
-      [ -d $crondir ] || mkdir -p $crondir
+      [ -d $crondir ] || sudo mkdir -p $crondir
   
       ## hfag is 20min before the real time ... so switch off one hr before 
       ## scheduled off  
@@ -33,8 +29,9 @@ cron-setup(){
       local  day_of_week="*" # (0 - 7) (Sunday=0 or 7)
 
       cronlog=$crondir/$$.log
+      tmp=/tmp/$$crontab 
 
-      cat << EOT > /usr/local/cron/crontab
+      cat << EOT > $tmp
 #
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -46,12 +43,19 @@ $(( $minute + 1 )) $hour $day_of_month $month $day_of_week /sbin/service apache 
 $(( $minute + 2 )) $hour $day_of_month $month $day_of_week /sbin/service exist   stop >>  $cronlog 2>&1
 $(( $minute + 3 )) $hour $day_of_month $month $day_of_week /sbin/service tomcat  stop >>  $cronlog 2>&1
 $(( $minute + 4 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10       >>  $cronlog 2>&1
-
+#
 EOT
  
-  else
-      sudo bash -lc cron-setup
-  fi
+reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
+if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
+   echo =========== initializing crontab for root to $tmp 
+   cat $tmp 
+   sudo crontab -u root $tmp
+else
+   echo cannot proceed as a crontab for root exists already, do  cron-delete / cron-list  first 
+fi
+
+     
  
 
 }
