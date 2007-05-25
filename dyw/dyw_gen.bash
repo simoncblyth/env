@@ -69,16 +69,30 @@ inversebeta-build(){
 
 inversebeta-gen(){
 
+  generator="inversebeta"
   dir=$DYW/Generators/InverseBeta/$CMTCONFIG
   exe=$dir/InverseBeta.exe
+  gendir=$USER_BASE/dayabay/hepevt/$generator
+  [ -d $gendir ] || ( echo WARNING creating $gendir && mkdir -p $gendir ) 
+  
+  nevts=${1:-100}
+  seed=${2:-0}
+  neutrino_angle_in_deg=${3:-0}
+  
+  hepevtfile=$gendir/inversebeta_${seed}_${neutrino_angle_in_deg}_${nevts}
+  
   if [ -f $exe ]; then
-     echo proceeding with generation using $exe  
+     printf "<gen name=\"%s\" seed=\"%s\" neutrino_angle_in_deg=\"%s\" nevts=\"%s\" hepevtfile=\"%s\" >\n" $generator $seed $neutrino_angle_in_deg $nevts $hepevtfile
   else
-     echo you need to build generator $exe first && return 1
+     printf "<error> you need to build generator $exe first with inversebeta-build </error>"  && return 1
   fi    
   
   cd $dir
   $exe -h
+  ##  InverseBeta.exe [-seed seed] [-o outputfilename] [-n nevents] [-angle neutrino_angle_in_deg] [-eplus_only] [-neutron_only] [-debug]
+  $exe -seed $seed -o $hepevtfile -n $nevts -angle $neutrino_angle_in_deg 
+  
+  
   ##1:
 
 # in debug mode 
