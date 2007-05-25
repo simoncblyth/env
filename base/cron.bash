@@ -22,9 +22,9 @@ local  day_of_week="*"
 
 
 if [ "$NODE_TAG" == "G" ]; then
-   cmd="$(which apachectl) configtest"
+   cmd="$(which apachectl) configtest > /tmp/crontest"
 else
-   cmd="/sbin/service apache2 configtest"
+   cmd="/sbin/service apache2 configtest > /tmp/crontest"
 fi
 
 
@@ -45,7 +45,7 @@ HOME=/tmp
 # |  |  |  |  |
 # *  *  *  *  *  command to be executed
 #
-$minute $hour $day_of_month $month $day_of_week $cmd
+$minute $hour $day_of_month $month $day_of_week $cmd 
 #
 EOF
 
