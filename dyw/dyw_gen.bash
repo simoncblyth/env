@@ -36,7 +36,7 @@ inversebeta-mac(){
 # http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/PrimaryVertexGeneration
 # 
 
-hepevt=
+hepevt=path-to-ascii-hepevt-file.txt
 
 cat << EOM
 
@@ -46,7 +46,7 @@ cat << EOM
 # 
 /dyw/generator2/pos glg4 2000 0 0 fill liquidscintillator
 
-EOM  
+EOM
 }
 
 
