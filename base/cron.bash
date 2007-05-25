@@ -16,21 +16,24 @@ cron-log(){
 
 cron-setup(){
 
-   crondir=/usr/local/cron
-   [ -d $crondir ] || sudo mkdir -p $crondir
+   ## if not root , come back as root
+   if [ "$(id -u)" == "0" ]; then
+
+      crondir=/usr/local/cron
+      [ -d $crondir ] || mkdir -p $crondir
   
-   ## hfag is 20min before the real time ... so switch off one hr before 
-   ## scheduled off  
+      ## hfag is 20min before the real time ... so switch off one hr before 
+      ## scheduled off  
    
-   local       minute=30  # (0 - 59)
-   local         hour=7   # (0 - 23)
-   local day_of_month=25  # (1 - 31)
-   local        month=5   # (1 - 12)
-   local  day_of_week="*" # (0 - 7) (Sunday=0 or 7)
+      local       minute=30  # (0 - 59)
+      local         hour=7   # (0 - 23)
+      local day_of_month=25  # (1 - 31)
+      local        month=5   # (1 - 12)
+      local  day_of_week="*" # (0 - 7) (Sunday=0 or 7)
 
-   cronlog=$crondir/$$.log
+      cronlog=$crondir/$$.log
 
-   cat << EOT > /usr/local/cron/crontab
+      cat << EOT > /usr/local/cron/crontab
 #
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -44,6 +47,10 @@ $(( $minute + 3 )) $hour $day_of_month $month $day_of_week /sbin/service tomcat 
 $(( $minute + 4 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10       >>  $cronlog 2>&1
 
 EOT
+ 
+  else
+      sudo bash -lc cron-setup
+  fi
  
 
 }
