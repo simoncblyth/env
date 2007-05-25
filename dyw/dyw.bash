@@ -6,6 +6,7 @@
  cd $DYW_HOME
 
  [ -r dyw_use.bash ] && . dyw_use.bash
+ [ -r dyw_gen.bash ] && . dyw_gen.bash
 #return
  [ -t 0 ] || return 
  [ -r dyw_build.bash ] && . dyw_build.bash
