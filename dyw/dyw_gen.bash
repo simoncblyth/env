@@ -54,7 +54,7 @@ inversebeta-gen(){
 
   dir=$DYW/Generators/InverseBeta/$CMTCONFIG
   exe=$fold/InverseBeta.exe
-  [ -d $dir && -f $exe ] || ( echo you need to build generator $exe first && exit 1 )
+  ([ -d $dir ] && [ -f $exe ]) || ( echo you need to build generator $exe first && exit 1 )
   
   cd $dir
   $exe -h
