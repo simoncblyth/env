@@ -21,6 +21,7 @@
  [ -r perl.bash ]        && . perl.bash
  [ -r ssh.bash ]         && . ssh.bash
  [ -r tty.bash ]         && . tty.bash
+ [ -r cron.bash ]        && . cron.bash
 
  cd $iwd
 
