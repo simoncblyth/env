@@ -105,9 +105,6 @@ fi
 }
 
 
-crontab-setup(){
 
-
-}
 
 
