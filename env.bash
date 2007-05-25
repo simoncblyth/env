@@ -29,8 +29,7 @@
  [ -r ~/$ENV_BASE/scm/scm.bash  ]   && . ~/$ENV_BASE/scm/scm.bash
  [ -r ~/$ENV_BASE/xml/xml.bash  ]   && . ~/$ENV_BASE/xml/xml.bash
  
- if [ "$NODE_TAG" == "H" ]; then
- else
+ if [ "$NODE_TAG" != "H" ]; then
      [ -r ~/$ENV_BASE/dyw/dyw.bash  ]   && . ~/$ENV_BASE/dyw/dyw.bash
  fi
  
