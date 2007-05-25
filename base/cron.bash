@@ -1,5 +1,12 @@
 
-crontab-file(){
+crontab-setup(){
+
+
+if [ "$NODE_TAG" == "G" ]; then
+   cmd="$(which apachectl) configtest"
+else
+   cmd="/sbin/service apache2 configtest"
+fi
 
 
 tmp=/tmp/$$crontab
@@ -19,15 +26,18 @@ HOME=
 # |  |  |  |  |
 # *  *  *  *  *  command to be executed
 
-50 22 25 5 * /sbin/service apache2 configtest
-50 22 25 5 * /sbin/service apache  configtest
+50 22 25 5 * $cmd
 
 EOF
 
-#sudo crontab -u root  
 
-sudo crontab -u root -l  > $
-sudo crontab -u root $tmp
+reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
+if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
+   sudo crontab -u root $tmp
+else
+   echo cannot proceed as a crontab for root exists already
+fi
+
 
 
 
