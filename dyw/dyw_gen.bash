@@ -53,7 +53,11 @@ EOM
 inversebeta-build(){
 
    dir=$DYW/Generators/InverseBeta/cmt
-   test -d $dir || ( echo you need to install and set DYW $DYW first && return 1 )
+   if [ -d $dir ]; then 
+     echo attempting to build/rebuild generator from $dir  
+   else
+     echo you need to install and set DYW $DYW first && return 1 
+   fi 
 
    cd $dir
    cmt conf
@@ -67,8 +71,10 @@ inversebeta-gen(){
 
   dir=$DYW/Generators/InverseBeta/$CMTCONFIG
   exe=$dir/InverseBeta.exe
-  if (![ -f $exe ];) then
-      echo you need to build generator $exe first && return 1 
+  if [ -f $exe ]; then
+     echo proceeding with generation using $exe  
+  else
+     echo you need to build generator $exe first && return 1
   fi    
   
   cd $dir
