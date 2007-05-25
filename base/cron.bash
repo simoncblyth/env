@@ -26,13 +26,14 @@ HOME=/tmp
 # |  |  |  |  |
 # *  *  *  *  *  command to be executed
 #
-15 23 24 5 * $cmd
+15 25 24 5 * $cmd
 #
 EOF
 
 
 reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
 if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
+   echo =========== initializing crontab for root to $tmp 
    sudo crontab -u root $tmp
 else
    echo cannot proceed as a crontab for root exists already
