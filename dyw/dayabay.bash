@@ -27,6 +27,9 @@ dayabay-x(){ scp $HOME/$DYW_BASE/dayabay.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 #
 #                5) localize your Geant4 requirements
 #                        dyw-g4-req  
+#                        cd $DYW ; svn commit  External/GEANT/cmt/requirements -m "localize "
+#                   (commit is done in order to be able to run from a clean revision )    
+#
 #
 #                  NB the version of Geant4 that you use 
 #                     and type : 
@@ -48,6 +51,8 @@ dayabay-x(){ scp $HOME/$DYW_BASE/dayabay.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 #                     provides a short enough list to be useful
 #            
 #
+#                  
+#                       
 #
 #
 #   usage :
@@ -352,7 +357,7 @@ dyw-checkout(){  ## checkout from the declared SVN repository
   fi
 
   dyw_wc=${dyw_tag}_wc
-  [ -d "$dyw_wc" ] && echo a folder called $dyw_wc exists already aborting dyw-checkout && return 1
+  [ -d "$dyw_wc" ] && echo a folder called $DYW_FOLDER/$dyw_wc exists already aborting dyw-checkout && return 1
  
   mkdir $dyw_wc
   cd $dyw_wc
@@ -513,6 +518,7 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   
 }
 
+#pragma mark dyw-requirements
 
 dyw-requirements(){   ## constructs the requirements.$LOCAL_NODE file from $DYW_CMT 
 
