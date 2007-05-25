@@ -4,6 +4,10 @@ crontab-delete(){
    sudo crontab -u root -r -i 
 }
 
+crontab-list(){
+   sudo crontab -u root -l
+}
+
 crontab-setup(){
 
 ## defaults to three minutes from now
@@ -22,9 +26,9 @@ local  day_of_week="*"
 
 
 if [ "$NODE_TAG" == "G" ]; then
-   cmd="$(which apachectl) configtest > /tmp/crontest"
+   cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="/sbin/service apache2 configtest > /tmp/crontest"
+   cmd="/sbin/service apache2 configtest > /tmp/crontest 2>&1"
 fi
 
 
