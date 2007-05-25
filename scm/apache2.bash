@@ -90,6 +90,7 @@ apache2-setup(){
 
 
 
+
 apache2-set(){
   
    #
@@ -184,8 +185,8 @@ apache2-service-setup(){
      [ -d /etc/init.d/ ] || ( echo "redhat specific ??  /sbin/service /etc/init.d wont work here " && return 1 )  
 	cd /etc/init.d && sudo rm -f apache2 && sudo ln -s $APACHE2_HOME/sbin/apachectl apache2 && pwd && ls -l ap* 
 
-
 }
+
 
 apache2-service(){
 
