@@ -1,10 +1,12 @@
 
 
 crontab-delete(){
+   crontab-list
    sudo crontab -u root -r -i 
 }
 
 crontab-list(){
+   date
    sudo crontab -u root -l
 }
 
@@ -60,7 +62,7 @@ if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab 
    cat $tmp 
    sudo crontab -u root $tmp
 else
-   echo cannot proceed as a crontab for root exists already
+   echo cannot proceed as a crontab for root exists already, do  crontab-delete / crontab-info  first 
 fi
 
 
