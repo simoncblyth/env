@@ -230,7 +230,7 @@ inversebeta-gen(){
   if [ "X$error" == "X" ]; then 
      printf "<stdout>\n" 
      xml-cdata-open
-     $cmd
+     eval $cmd
      xml-cdata-close 
      printf "</stdout>\n"
   else
