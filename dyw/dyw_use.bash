@@ -32,7 +32,9 @@ export CVSROOT=$DYW_CVSROOT
 ##
 ## ------------- 
 
-export DYW_FOLDER_P=$LOCAL_BASE_P/dayabay
+#export DYW_FOLDER_P=$LOCAL_BASE_P/dayabay
+export DYW_FOLDER_P=$USER_BASE_P/dayabay
+
 export DYW_FOLDER_L=$LOCAL_BASE_L/dayabay     ## formerly $HOME/Work/dayabay
 export DYW_FOLDER_U=$LOCAL_BASE_U/dayabay    
 
