@@ -214,7 +214,7 @@ inversebeta-gen(){
   
   local gentag=$(inversebeta-lookup gentag $*)
   local xmlopen=$(inversebeta-lookup genxmlopen $*)
-  local cmd="$(inversebeta-lookup gencmd $*)"
+  local cmd=$(inversebeta-lookup gencmd $*)
   
   echo $xmlopen     
   local error=""
@@ -224,7 +224,8 @@ inversebeta-gen(){
      error="executable $exe doesnt exist , build it with $generator-build " 
   fi    
   
-  printf "<cmd>%s</cmd>\n"  $cmd
+  ## without the quotes around $cmd gets whitespace split up 
+  printf "<cmd>%s</cmd>\n"  "$cmd"
  
   if [ "X$error" == "X" ]; then 
      printf "<stdout>\n" 
