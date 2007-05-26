@@ -45,6 +45,9 @@ vname=DYW_FOLDER_$NODE_TAG
 eval DYW_FOLDER=\$$vname
 export DYW_FOLDER
 
+[ -d "$DYW_FOLDER" ] || ( echo WARNING creating DYW_FOLDER $DYW_FOLDER && mkdir -p $DYW_FOLDER )
+
+
 ## ------------  the local copies of the dyw cvs repository 
 
 
