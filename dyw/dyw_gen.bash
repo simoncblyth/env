@@ -51,10 +51,29 @@ gen-mac(){
  local genfile=$(gen-lookup $generator genfile $*) 
  local   nevts=$(gen-lookup $generator nevts $*)
 
+ local start_event_number=1
+ local run_number=1
+ local override_hostid=1 
+
+
 cat << EOH
 #  sourced from dyw_gen.bash::gen-mac
 /files/output $gentag.root
 /dyw/detector/select SingleModule
+#
+#
+#  http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/EventReproducibility
+#
+#### for reproducibility of job.
+## To reproduce one event, set the right random seed and generate the right primary particle and primary vertex. 
+## To reproduce one run, set the right run number and host id.
+#
+/dyw/run/runNumber $run_number
+/dyw/run/hostID $override_hostid
+/dyw/event/startEventNumber $start_event_number
+#
+# this will override the three above settings
+#/dyw/run/randomSeed $override_seed
 #
 EOH
 
