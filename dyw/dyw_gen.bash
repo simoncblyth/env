@@ -214,7 +214,7 @@ inversebeta-gen(){
   
   local gentag=$(inversebeta-lookup gentag $*)
   local xmlopen=$(inversebeta-lookup genxmlopen $*)
-  local cmd=$(inversebeta-lookup gencmd $*)
+  local cmd="$(inversebeta-lookup gencmd $*)"
   
   echo $xmlopen     
   local error=""
