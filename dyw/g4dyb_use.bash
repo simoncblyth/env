@@ -169,7 +169,7 @@ g4dyb-use(){
     printf "<stdout>\n" 
 	xml-cdata-open
 	#( eval "$cmd" )  1>$func.exe.out 2>$func.exe.err
-	$cmd  1>$func.exe.out 2>$func.exe.err
+	#$cmd  1>$func.exe.out 2>$func.exe.err
 	eval $cmd 
 	xml-cdata-close
     printf "</stdout>\n" 
