@@ -83,6 +83,9 @@ scm-use-create-local(){
    #     $USER .. for remote access thru apache2 needs to belong to the
    #     APACHE2_USER 
    #
+   #     this flipping risks access to other repositories 
+   #     as the update is being made 
+   #     ... better to compartmentalize more 
    #
 
    name=${1:-dummy}     ## name of the repository and tracitory to create
