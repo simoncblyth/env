@@ -98,6 +98,8 @@ geant4-x(){ scp $HOME/$DYW_BASE/geant4.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 
 GQ_FOLDER=$LOCAL_BASE/geant4
 GQ_NAME="geant4.8.1.p01"
+#GQ_NAME="geant4.8.2.p01"
+
 GQ_TAG=.
 
 if [ "$NODE_TAG" == "L" ]; then   ## pal@nuu
@@ -212,6 +214,8 @@ geant4-get(){
    cd geant4
    tgz=$n.tar.gz
    url=http://geant4.web.cern.ch/geant4/support/source/$tgz
+
+
 
    echo geant4-get tgz $tgz 
    
