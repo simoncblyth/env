@@ -295,11 +295,13 @@ scm-create(){
        
         if [ "$SCM_TAG" == "$NODE_TAG" ]; then
            scm-use-create-local $name
+           
+           
 		else	
 	       ssh $X "bash -lc \"scm-use-create-local $name\""
         fi
 		
-        sudo chown -R $APACHE2_USER:$APACHE2_USER $SCM_FOLD
+       
 
         ##  this import goes thru apache ...
         scm-import $name $fold
