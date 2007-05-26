@@ -301,7 +301,9 @@ scm-create(){
 
         ##  this import goes thru apache ...
         scm-import $name $fold
-		scm-open   $name
+		
+        echo ============== check the repository by visiting http://$SCM_HOST:$SCM_PORT/tracs/$name/browser/trunk/
+        #scm-open   $name
 
 
    else
