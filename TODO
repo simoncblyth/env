@@ -1,6 +1,11 @@
 
 
 
+   this should be mostly removed .... go to trac ticketing system
+
+
+
+
   with apache2 running as "nobody" spawned from root 
   
     The user root requires read _and_ write permission to the database file
