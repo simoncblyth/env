@@ -189,6 +189,8 @@ inversebeta-lookup(){
    local genfile=$gentag.txt
    local gendir=$USER_BASE/dayabay/hepevt/$generator
    local genxmlopen=$(printf "<gen name=\"%s\" seed=\"%s\" neutrino_angle_in_deg=\"%s\" nevts=\"%s\" gendir=\"%s\" gentag=\"%s\" file=\"%s\" >\n" $generator $seed $neutrino_angle_in_deg $nevts $gendir $gentag $file)
+   local dir=$DYW/Generators/InverseBeta/$CMTCONFIG
+   local exe=$dir/InverseBeta.exe
    local gencmd="cd $gendir ; $exe -h ; $exe -seed $seed -o $genfile -n $nevts -angle $neutrino_angle_in_deg "
    
    ##  InverseBeta.exe [-seed seed] [-o outputfilename] [-n nevents] [-angle neutrino_angle_in_deg] [-eplus_only] [-neutron_only] [-debug]
@@ -206,9 +208,7 @@ inversebeta-gen(){
    #      - stamp run folder 
 
   local generator="inversebeta"
-  local dir=$DYW/Generators/InverseBeta/$CMTCONFIG
-  local exe=$dir/InverseBeta.exe
-  
+  local exe=$(inversebeta-lookup exe $*) 
   local gendir=$(inversebeta-lookup gendir $*)
   [ -d $gendir ] || ( printf "<warning> WARNING creating $gendir </warning>\n" && mkdir -p $gendir ) 
   
