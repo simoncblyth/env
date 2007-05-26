@@ -179,8 +179,9 @@ export LOCAL_BASE
 ## -------------- user specific base , for users macros and job outputs ----------
 
 export USER_BASE_G=$HOME/Work
-export USER_BASE_P=/disk/d4/$USER
 
+#export USER_BASE_P=/disk/d4/$USER
+export USER_BASE_P=/data/w/$USER
 
 ##export USER_BASE_G1=/disk/d4/$USER  
 ## i dont like setting this to 
