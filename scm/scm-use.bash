@@ -89,10 +89,10 @@ scm-use-create-local(){
    path=${2:-dummy}     ## directory path to import, if a valid directory path
    
    if [ -d "$SCM_FOLD" ]; then
-     echo =========  scm folder $SCM_FOLD exists already
+     echo =========  scm folder $SCM_FOLD exists already , temporarily adjusting ownership to USER $USER ... may need password
      sudo chown -R $USER:$USER $SCM_FOLD
    else
-     echo =========  creating scm folder $SCM_FOLD , owned by $USER ... will need password so that user $USER can make and/or chown $SCM_FOLD
+     echo =========  creating scm folder $SCM_FOLD , owned by $USER , temporarily adjusting ownership to USER $USER ... may need password
 	 sudo mkdir -p $SCM_FOLD
 	 sudo chown -R $USER:$USER $SCM_FOLD 
    fi
