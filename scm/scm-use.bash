@@ -31,7 +31,14 @@ export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
 
 APACHE2_NAME=httpd-2.0.59
 APACHE2_ABBREV=apache2
-APACHE2_USER=www
+
+if [ "$NODE_TAG" == "G" ]; then
+   APACHE2_USER=www
+elif [ "$NODE_TAG" == "H" ]; then
+   APACHE2_USER=apache
+else
+   APACHE2_USER=apache
+fi
 
 export APACHE2_HOME=$LOCAL_BASE/$APACHE2_ABBREV/$APACHE2_NAME
 APACHE2_ENV=$APACHE2_HOME/sbin/envvars
@@ -85,7 +92,7 @@ scm-use-create-local(){
      echo =========  scm folder $SCM_FOLD exists already
      sudo chown -R $USER:$USER $SCM_FOLD
    else
-     echo =========  creating scm folder $SCM_FOLD , owned by $USER
+     echo =========  creating scm folder $SCM_FOLD , owned by $USER ... will need password so that user $USER can make and/or chown $SCM_FOLD
 	 sudo mkdir -p $SCM_FOLD
 	 sudo chown -R $USER:$USER $SCM_FOLD 
    fi
@@ -149,10 +156,12 @@ scm-use-create-local(){
        modwsgi-use-app $name   >  $wsgi
    fi
 
-
-
    ## tweak the trac.ini for fine grained permissions
    trac-use-authz $name
+   
+   echo  ================= setting chownership of SCM_FOLD $SCM_FOLD on NODE_TAG $NODE_TAG to APACHE2_USER $APACHE2_USER 
+   echo  ================= this allows remote control of svn thru apache2 , may need the USER $USER password on node $NODE_TAG
+   sudo chown -R $APACHE2_USER:$APACHE2_USER $SCM_FOLD
 
 }
 
