@@ -42,6 +42,21 @@ gen-lookup(){
 }
 
 
+gen-mac-write(){
+  local generator=${1:-inversebeta}
+  shift
+  local  gentag=$(gen-lookup $generator gentag $*)  
+  [ -d $DYM ] || ( echo error DYM $DYM doesnt exist && return 1 )
+  mac=$DYM/${gentag}.mac 
+  echo "# writing macro to $mac "
+  gen-mac > $mac
+  cat $mac
+}
+
+
+
+
+
 gen-mac(){
 
 
