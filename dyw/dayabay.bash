@@ -340,7 +340,7 @@ dyw-grid1-rootcint-timefix(){
 
 dyw-checkout(){  ## checkout from the declared SVN repository
 
-  tag=${1:-release_2_5}
+  tag=${1:-release_2_8}
 
    [ -d "$DYW_FOLDER" ] || mkdir -p $DYW_FOLDER 
    cd $DYW_FOLDER
@@ -381,6 +381,11 @@ dyw-get(){  ## cvs login and initial get
   ##  see the list at 
   ##                     http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/SoftwareReleases
   ##
+
+  [ "$NODE_TAG" != "P" ] && echo "this is normally done from node P  dayabaysoft@grid1 " && return 1 
+  ##[ "$NODE_TAG" != "G1" ] && echo "this is normally done from node G1  blyth@grid1 " && return 1
+  ## actually it doesnt matter where this is done ... but clearer to use the same place each time
+
 
   tag=${1:-head}
 
