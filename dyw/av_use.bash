@@ -20,6 +20,26 @@
 #   see $DYW_BASE/av.bash for detailed description of what the autovalidation machinery is doing 
 #
 #
+#
+#   TODO:  extract the numbers from the root file in a script... for automated
+#          event reproducibility
+#
+# Hi jenarron,
+#
+# You should add two commands in the macro files of the Auto Validation job.
+# (eminus_1MeV.mac, gamma_1MeV.mac, muon_100GeV.mac and neutron_1keV.mac)
+# /dyw/run/runNumber number_1
+# /dyw/run/hostID    number_2
+# number_1 and number_2 can be found in the output root file.(runID and hostID)
+# As for where to insert the two commands, please refer to 
+# G4dyb/example/test_reproducibility.mac. 
+#
+# Best regards,
+# Liang Zhan
+# 2007-05-25
+#
+#
+
 
 av-use-sub(){
   
