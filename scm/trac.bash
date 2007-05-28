@@ -86,11 +86,12 @@ trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
 trac-i(){ . $SCM_HOME/trac.bash ; }
 
 trac-permission(){
-   name=${1:-$SCM_TRAC}
+   local name=${1:-$SCM_TRAC}
    shift
    echo $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
         $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
 }
+
 
 trac-user-perms(){
 
@@ -129,6 +130,45 @@ trac-setup-perms(){
 
 
 
+trac-components(){ 
+   local name=${1:-$SCM_TRAC}
+   shift
+   echo sudo trac-admin $SCM_FOLD/tracs/$name component $*
+        sudo trac-admin $SCM_FOLD/tracs/$name component $*
+}
+
+trac-setup-components(){
+
+    local name=${1:-$SCM_TRAC}
+    local pairs="red:admin green:admin blue:admin"
+
+    ## remove the default components 
+    trac-components $name remove component1
+    trac-components $name remove component2
+
+    for pair in $pairs
+    do
+	    local component=$(echo $pair | cut -f1 -d:)
+	    local     owner=$(echo $pair | cut -f2 -d:)
+        trac-components $name add $component $owner
+    done	   
+    trac-components $name list 
+}
+
+
+
+trac-conf-notification(){
+   echo simply make the following settings ... to get emails on ticket changes
+   echo the user settings should include the email address ... if doesnt correspond to default domain
+cat << EOX
+smtp_default_domain = hep1.phys.ntu.edu.tw
+smtp_enabled = true
+always_notify_owner = true
+always_notify_reporter = true
+always_notify_updater = true
+EOX
+   echo sudo vi $SCM_FOLD/tracs/env/conf/trac.ini
+}
 
 
 trac-authz-check(){
@@ -473,6 +513,5 @@ trac-install(){
   #      $PYTHON_HOME/bin/tracd
   #
 }
-
 
 
