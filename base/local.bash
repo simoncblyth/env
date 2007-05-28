@@ -197,6 +197,9 @@ eval USER_BASE=\$$vname
 export USER_BASE
 
 
+export DEFAULT_MACRO="generator-inversebeta_seed-0_angle-0_nevts-100"
+
+
 ## --------------  for job outputs 
 
 # export OUTPUT_BASE_G=/tmp
