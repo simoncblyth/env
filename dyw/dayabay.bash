@@ -878,7 +878,7 @@ g4dyb_(){    ## debug G4dyb.exe  by attaching to the G4dyb.exe process
 
 g4dyb__(){    ## direct executable debugging, sometimes it seems to give more detail than the attach to process technique
 
-    macro=${1:-test_aberdeen}
+    macro=${1:-$DEFAULT_MACRO}
 	cd   $DYM
 	perl -pi -e 's|^#\s*(/run/beamOn)\s*(\d*)\s*$|$1 1|' $macro.mac
     cat $macro.mac
@@ -925,7 +925,7 @@ g4dyb_env1(){
 
 g4dyb_s(){    ## run G4dyb in session mode, that is with the G4UIXm interface ... advantage is that can attach the debugger prior to launch 
 
-    macro=${1:-test_aberdeen}
+    macro=${1:-$DEFAULT_MACRO}
 	cd   $DYW_FOLDER/macros
 
     source $DYW/G4dyb/cmt/setup.sh
@@ -942,7 +942,7 @@ g4dyb_s(){    ## run G4dyb in session mode, that is with the G4UIXm interface ..
 
 g4dyb_i(){    ## run G4dyb in interactive mode
 
-    macro=${1:-test_aberdeen}
+    macro=${1:-$DEFAULT_MACRO}
 
 	cd   $DYM
 	perl -pi -e 's|^(/run/beamOn.*)$|# $1|' $macro.mac
