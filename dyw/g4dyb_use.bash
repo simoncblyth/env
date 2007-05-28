@@ -57,7 +57,7 @@ g4dyb-use-i(){ .   $HOME/$DYW_BASE/g4dyb_use.bash ; }
 g4dyb-use-sub(){
 
   func=g4dyb-use
-  macro=${1:-test_aberdeen} 
+  macro=${1:-$DEFAULT_MACRO} 
 
   [ "X$macro" == "X" ] && echo need macro name as argument && return
   path=jobs/$func/$macro
@@ -94,7 +94,7 @@ g4dyb-use(){
    
        func=g4dyb-use
 	exename=G4dybApp
-  macroname=${1:-test_aberdeen}
+  macroname=${1:-$DEFAULT_MACRO}
      shift
 
    version=$(svnversion $DYW)
