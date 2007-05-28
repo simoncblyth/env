@@ -184,9 +184,8 @@ export USER_BASE_G=$HOME/Work
 export USER_BASE_P=/data/w/$USER
 
 ##export USER_BASE_G1=/disk/d4/$USER  
-## i dont like setting this to 
-##export USER_BASE_G1=/data/w/$USER
-export USER_BASE_G1=/tmp/$USER
+  export USER_BASE_G1=/data/w/$USER
+##export USER_BASE_G1=/tmp/$USER
 
 export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_U=$LOCAL_BASE_U
@@ -198,8 +197,19 @@ eval USER_BASE=\$$vname
 export USER_BASE
 
 
-[ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
+## --------------  for job outputs 
 
+# export OUTPUT_BASE_G=/tmp
+# export OUTPUT_BASE_P=/tmp
+# export OUTPUT_BASE_G1=/tmp
+# vname=OUTPUT_BASE_$NODE_TAG
+# eval OUTPUT_BASE=\$$vname
+
+export OUTPUT_BASE=$USER_BASE
+
+
+[ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
+[ -d "$OUTPUT_BASE" ] || ( echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE )
 
 	
 base-info(){
