@@ -75,6 +75,9 @@ condor-use-lookup(){
 
 condor-use-prepfold(){
    
+   local  path=$1
+   local stamp=$2
+   
    iwd=$(pwd)
    
    ## parallel heirarchies, HOME is local and USER_BASE is network mounted
@@ -85,11 +88,8 @@ condor-use-prepfold(){
    local jobsbranch=$(condor-use-lookup jobsbranch $*) 
    local databranch=$(condor-use-lookup databranch $*)
    
-   ## NB assumes a 2 level branch 
-   local root=$(dirname $branch)
-   local leaf=$(basename $branch)
-   cd $data &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf
-   cd $jobs &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf 
+   cd $data &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
+   cd $jobs &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
    
    ## cross linking for convenience
    cd $databranch && ln -s $jobsbranch jobs
