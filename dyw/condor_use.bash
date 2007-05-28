@@ -62,8 +62,8 @@ condor-use-lookup(){
    local path=$1
    local stamp=$2
    
-   local jobs=$HOME
-   local data=$OUTPUT_BASE
+   local jobs=$HOME/jobs
+   local data=$OUTPUT_BASE/jobs
    local branch=$path/$stamp
    local databranch=$data/$branch
    local jobsbranch=$jobs/$branch
@@ -106,6 +106,7 @@ condor-use-submit(){
    local  path=$1
    local  func=$2
    local stamp=$(condor-use-timestamp)
+   echo =========== condor-use-submit path:$path func:$func stamp:$stamp 
 
    shift
 
