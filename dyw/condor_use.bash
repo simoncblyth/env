@@ -258,6 +258,11 @@ cat << EOS
 # Condor Submit description func:$func 
 # args:$@  
 ##########################################
+
+## attempt non shared filesystem 
+should_transfer_files = YES
+when_to_transfer_output = ON_EXIT_OR_EVICT
+
 Executable     = /bin/bash
 Arguments      = $func.sh
 Universe       = vanilla
