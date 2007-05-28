@@ -185,8 +185,8 @@ iwd=\$(pwd)
 [ -r ~/env/env.bash ] && . ~/env/env.bash
 cd \$iwd
 
-mkdir -p /tmp$idir 
-cd /tmp$idir 
+mkdir -p $idir 
+cd $idir 
 
 condor-use-logged-task $@
 
