@@ -87,7 +87,7 @@ condor-use-prepfold(){
    
    ## NB assumes a 2 level branch 
    local root=$(dirname $branch)
-   local leaf=$(basename $br
+   local leaf=$(basename $branch)
    cd $data &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf
    cd $jobs &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf 
    
