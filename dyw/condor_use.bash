@@ -180,11 +180,13 @@ cat << EOC
 #!/bin/bash 
 export HOME=$HOME
 
+
 iwd=\$(pwd)
 [ -r ~/env/env.bash ] && . ~/env/env.bash
 cd \$iwd
 
-cd $idir 
+mkdir -p /tmp$idir 
+cd /tmp$idir 
 
 condor-use-logged-task $@
 
