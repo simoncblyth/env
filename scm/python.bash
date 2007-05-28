@@ -142,3 +142,10 @@ python-crack-egg(){
 
 }
 
+python-sendmail-test(){
+
+    ## works on H amazingly ... 
+    python -c "import smtplib ; s=smtplib.SMTP('localhost'); s.sendmail('me@localhost','blyth@hep1.phys.ntu.edu.tw','test message');  "
+}
+
+
