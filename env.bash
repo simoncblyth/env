@@ -45,12 +45,14 @@ env-u(){
      echo env-u is prohibited on source machine 
   else
      cd $HOME/$ENV_BASE 
+     
+     echo ============= env-u : status before update ================
      svn status -u
      svn update
+     echo ============= env-u : status after update ================
      svn status -u
      cd $iwd
-     
-     echo sourcing the updated env
+     echo ============== env-u :  sourcing the updated env =============
      [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash  
   fi
 }
