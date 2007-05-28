@@ -62,8 +62,8 @@ condor-use-lookup(){
    local path=$1
    local stamp=$2
    
-   local jobs=$HOME/jobs
-   local data=$OUTPUT_BASE/jobs
+   local jobs=$HOME
+   local data=$OUTPUT_BASE
    local branch=$path/$stamp
    local databranch=$data/$branch
    local jobsbranch=$jobs/$branch
