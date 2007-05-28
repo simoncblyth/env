@@ -10,7 +10,7 @@ x-cmd-test(){
   x-cmd G1 logged-task g4dyb 
 
   ## CMT complaining ??? fixed by "set -- "
-  x-cmd G1 logged-task g4dyb test_aberdeen two three four five six seven
+  x-cmd G1 logged-task g4dyb $DEFAULT_MACRO two three four five six seven
 
 }
 
