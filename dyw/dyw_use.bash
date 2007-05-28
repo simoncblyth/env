@@ -48,18 +48,27 @@ export DYW_FOLDER
 [ -d "$DYW_FOLDER" ] || ( echo WARNING creating DYW_FOLDER $DYW_FOLDER && mkdir -p $DYW_FOLDER )
 
 
-## ------------  the local copies of the dyw cvs repository 
+## ------------  version string 
 
+#export DYW_VERSION_G="dyw"                    ## historical current source with VGM enhancements + inverse_beta.cc enhancements   
+ export DYW_VERSION_G="dyw_release_2_8_wc" 
+ export DYW_VERSION_P="dyw_last_20070411"
+ export DYW_VERSION_L="dyw_last_20070411"
+ export DYW_VERSION_U="dyw_last_20070411"
+#export DYW_VERSION_G1="dyw_20070503_wc"
+ export DYW_VERSION_G1="dyw_release_2_8_wc" 
 
+ vname=DYW_VERSION_$NODE_TAG
+ eval DYW_VERSION=\$$vname
+ export DYW_VERSION
 
-export DYW_P=${DYW_FOLDER_P}/dyw_last_20070411
-export DYW_L=${DYW_FOLDER_L}/dyw_last_20070411
-export DYW_U=${DYW_FOLDER_U}/dyw_last_20070411
+## ------------  the local copies of the dyw cvs repository
 
-export DYW_G=${DYW_FOLDER_G}/dyw                   ## careful current source 
-
-#export DYW_G1=${DYW_FOLDER_G1}/dyw_20070503_wc
-export DYW_G1=${DYW_FOLDER_G1}/dyw_release_2_8_wc
+export DYW_P=${DYW_FOLDER_P}/${DYW_VERSION_P}
+export DYW_L=${DYW_FOLDER_L}/${DYW_VERSION_L}
+export DYW_U=${DYW_FOLDER_U}/${DYW_VERSION_U}
+export DYW_G=${DYW_FOLDER_G}/${DYW_VERSION_G}                 
+export DYW_G1=${DYW_FOLDER_G1}/${DYW_VERSION_G1}
 
 vname=DYW_$NODE_TAG
 eval DYW=\$$vname
