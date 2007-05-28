@@ -49,6 +49,9 @@ env-u(){
      svn update
      svn status -u
      cd $iwd
+     
+     echo sourcing the updated env
+     [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash  
   fi
 }
 
