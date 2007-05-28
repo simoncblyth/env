@@ -88,6 +88,9 @@ condor-use-prepfold(){
    local jobsbranch=$(condor-use-lookup jobsbranch $*) 
    local databranch=$(condor-use-lookup databranch $*)
    
+   
+   echo ==== condor-use-prepfold jobs:$jobs data:$data branch:$branch jobsbranch:$jobsbranch databranch:$databranch
+   
    cd $data &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
    cd $jobs &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
    
@@ -115,8 +118,10 @@ condor-use-submit(){
  
    condor-use-prepfold $path $stamp
    
-   local jobsbranch=$(condor-use-lookup jobsbranch $*) 
-   local databranch=$(condor-use-lookup databranch $*)
+   local jobsbranch=$(condor-use-lookup jobsbranch $path $stamp) 
+   local databranch=$(condor-use-lookup databranch $path $stamp)
+      
+   echo ============ condor-use-submit jobsbranch:$jobsbranch databranch:$databranch    
       
    cd $jobsbranch
    condor-use-func $databranch "$@" > $func.sub
