@@ -64,14 +64,17 @@ condor-use-prepfold(){
    
    ## parallel heirarchies, HOME is local and USER_BASE is network mounted
    
-   cd $USER_BASE &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
-   cd $HOME      &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp 
+   local home=$HOME
+   local data=$USER_BASE
    
-   cd $USER_BASE/$path/$stamp && ln -s $HOME/$path/$stamp sub
-   cd $HOME/$path/$stamp      && ln -s $USER_BASE/$path/$stamp out 
+   cd $data &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
+   cd $home &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp 
+   
+   cd $data/$path/$stamp && ln -s $home/$path/$stamp sub
+   cd $home/$path/$stamp && ln -s $data/$path/$stamp out 
 
-   cd $HOME && rm -f last_sub && ln -s $HOME/$path/$stamp last_sub 
-   cd $HOME && rm -f last_out && ln -s $USER_BASE/$path/$stamp last_out 
+   cd $HOME && rm -f last_sub && ln -s $home/$path/$stamp last_sub 
+   cd $HOME && rm -f last_out && ln -s $data/$path/$stamp last_out 
 
    cd $iwd
 }
