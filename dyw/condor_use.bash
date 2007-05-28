@@ -55,26 +55,48 @@ condor-use-i(){ .   $HOME/$DYW_BASE/condor_use.bash ; }
 #
 
 
-condor-use-prepfold(){
+condor-use-lookup(){
 
+   local qwn=$1
+   shift
    local path=$1
    local stamp=$2
+   
+   local jobs=$HOME
+   local data=$OUTPUT_BASE
+   local branch=$path/$stamp
+   local databranch=$data/$branch
+   local jobsbranch=$jobs/$branch
+  
+   eval val=\$$qwn
+   echo $val
+}
+
+
+condor-use-prepfold(){
    
    iwd=$(pwd)
    
    ## parallel heirarchies, HOME is local and USER_BASE is network mounted
    
-   local home=$HOME
-   local data=$USER_BASE
+   local jobs=$(condor-use-lookup jobs $*) 
+   local data=$(condor-use-lookup data $*)
+   local branch=$(condor-use-lookup branch $*)
+   local jobsbranch=$(condor-use-lookup jobsbranch $*) 
+   local databranch=$(condor-use-lookup databranch $*)
    
-   cd $data &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp
-   cd $home &&  mkdir -p $path/$stamp  && cd $path && rm -f last && ln -s $stamp last && cd $stamp 
+   ## NB assumes a 2 level branch 
+   local root=$(dirname $branch)
+   local leaf=$(basename $br
+   cd $data &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf
+   cd $jobs &&  mkdir -p $branch  && cd $root && rm -f last && ln -s $leaf last && cd $leaf 
    
-   cd $data/$path/$stamp && ln -s $home/$path/$stamp sub
-   cd $home/$path/$stamp && ln -s $data/$path/$stamp out 
+   ## cross linking for convenience
+   cd $databranch && ln -s $jobsbranch jobs
+   cd $jobsbranch && ln -s $databranch data
 
-   cd $HOME && rm -f last_sub && ln -s $home/$path/$stamp last_sub 
-   cd $HOME && rm -f last_out && ln -s $data/$path/$stamp last_out 
+   cd $jobs && rm -f last_jobs && ln -s $jobsbranch last_jobs 
+   cd $jobs && rm -f last_data && ln -s $databranch last_data
 
    cd $iwd
 }
@@ -91,11 +113,12 @@ condor-use-submit(){
    [ "X$func" == "X" ] && echo must provide a function to call                 && return 
  
    condor-use-prepfold $path $stamp
-   idir=$USER_BASE/$path/$stamp
-   sdir=$HOME/$path/$stamp
-   cd $sdir
-
-   condor-use-func $idir "$@" > $func.sub
+   
+   local jobsbranch=$(condor-use-lookup jobsbranch $*) 
+   local databranch=$(condor-use-lookup databranch $*)
+      
+   cd $jobsbranch
+   condor-use-func $databranch "$@" > $func.sub
 
    condor_submit  $func.sub
 }
