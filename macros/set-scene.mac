@@ -1,4 +1,6 @@
 
+/control/execute gui.mac
+
 /vis/open OIX
 /vis/drawVolume gdliquidscintillator
 /vis/scene/add/volume liquidscintillator
