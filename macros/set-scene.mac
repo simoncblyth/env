@@ -1,0 +1,5 @@
+
+/vis/open OIX
+/vis/drawVolume gdliquidscintillator
+/vis/scene/add/volume liquidscintillator
+
