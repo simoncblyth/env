@@ -102,7 +102,11 @@ cat << EOG
 /dyw/generator2/main HEP event
 /dyw/generator2/hepevt $genfile
 # 
-/dyw/generator2/pos glg4 2000 0 0 fill liquidscintillator
+/dyw/generator2/pos glg4 1000 0 0 fill liquidscintillator
+#
+#   Warning: actual volume at (2000,0,0) is outacrylictank, not equal to expected volume liquidscintillator in GLG4PosGen_PointPaintFill.
+# 
+#
 #
 EOG
 
