@@ -64,6 +64,7 @@ gen-mac(){
  shift
  local  gentag=$(gen-lookup $generator gentag $*)
  local genfile=$(gen-lookup $generator genfile $*) 
+ local gendir=$(gen-lookup $generator gendir $*)
  local   nevts=$(gen-lookup $generator nevts $*)
 
  local start_event_number=1
@@ -100,12 +101,12 @@ cat << EOG
 # 
 /dyw/generator/select Generator2
 /dyw/generator2/main HEP event
-/dyw/generator2/hepevt $genfile
+/dyw/generator2/hepevt $gendir/$genfile
 # 
-/dyw/generator2/pos glg4 1000 0 0 fill liquidscintillator
+/dyw/generator2/pos glg4 1900 0 0 fill liquidscintillator
 #
-#   Warning: actual volume at (2000,0,0) is outacrylictank, not equal to expected volume liquidscintillator in GLG4PosGen_PointPaintFill.
-# 
+# Warning: actual volume at (2000,0,0) is outacrylictank, not equal to expected volume liquidscintillator in GLG4PosGen_PointPaintFill.
+# Warning: actual volume at (1000,0,0) is gdliquidscintillator, not equal to expected volume liquidscintillator in GLG4PosGen_PointPaintFill.
 #
 #
 EOG
