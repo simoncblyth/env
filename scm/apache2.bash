@@ -66,12 +66,24 @@ apache2-get(){
   test -d build/$n || tar -C build -zxvf $tgz 
 }
 
+
+## invoked with sudo bash -lc apache2-configure
+
 apache2-configure(){
    cd $APACHE2_BUILD
 
+   ##
+   ## http://www.devshed.com/c/a/Apache/Building-Apache-the-Way-You-Want-It/3/
+   ##
+
+   ## ooops this does not include mod_proxy
+   ##opts="--enable-mods-shared=most "
+   opts="--enable-mods-shared=all --enable-proxy=shared "
+
+
    $ASUDO ./configure --help
    layout="--prefix=$APACHE2_HOME --enable-layout=GNU "
-   opts="--enable-mods-shared=most "
+
    $ASUDO ./configure ${layout} ${opts}
 }
 
