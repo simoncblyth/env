@@ -5,3 +5,35 @@
 /vis/drawVolume gdliquidscintillator
 /vis/scene/add/volume liquidscintillator
 
+/vis/viewer/set/upVector 0 0 1
+/vis/viewer/set/viewpointVector 0 1 0.2
+/vis/scene/add/axes 0 0 1900 1000 mm 
+
+##  axes are colored x:y:z R:G:B
+
+
+#/track/verbose 1   
+#/event/verbose 1
+#/dyw/phys/verbose 1    
+#
+#   allowing any verbosity in an attempt to see whats happening
+#   results in each event taking forever (when using XMotif interface at least) 
+#   causing having to kill X11  
+#
+#  what are the stopping codes... usually 2 sometimes 4 
+#  
+### pop requested out of 2 stacked tracks.
+#Track (trackID 2, parentID 0) is processed with stopping code 2
+### pop requested out of 183 stacked tracks.
+#Track (trackID 184, parentID 2) is processed with stopping code 2
+### pop requested out of 187 stacked tracks.
+#Track (trackID 189, parentID 184) is processed with stopping code 2
+### pop requested out of 186 stacked tracks.
+#
+
+# refresh is the default
+/vis/scene/endOfEventAction accumulate
+#/vis/scene/endOfEventAction refresh       
+# 
+#  /dyw/cerenkov/meanPhotonsPerSecondary 
+#
