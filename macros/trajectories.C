@@ -1,6 +1,11 @@
 
 {
 
+ //
+ // gROOT->ProcessLine( Form(".x %s/DataStructure/MCEvent/cmt/load.C", gSystem->Getenv("DYW") ))
+ //
+
+
   TFile* f = new TFile("dummy.root","read");
   dywTrajectories* trajs = new dywTrajectories();
   TTree* traj_t = (TTree*)f->Get("trajectory_tree");
@@ -10,7 +15,7 @@
   branch->SetAddress( &trajs );
 
   Int_t nevent = traj_t->GetEntries();
-  cout << " nent " << nent << endl ;
+  cout << " nevent " << nevent << endl ;
 
   for( Int_t ievent=0 ; ievent < nevent ; ++ievent ){  
      branch->GetEntry(ievent);
