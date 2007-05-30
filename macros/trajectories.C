@@ -1,7 +1,7 @@
 
 {
 
- gROOT->ProcessLine( Form(".x %s/DataStructure/MCEvent/cmt/load.C", gSystem->Getenv("DYW") ))
+ gROOT->ProcessLine( Form(".x %s/DataStructure/MCEvent/cmt/load.C", gSystem->Getenv("DYW") ));
 
 
   TFile* f = new TFile("dummy.root","read");
