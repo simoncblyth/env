@@ -1,6 +1,7 @@
 
 {
 
+ // root:TColor
  gROOT->ProcessLine( Form(".x %s/DataStructure/MCEvent/cmt/load.C", gSystem->Getenv("DYW") ));
 
 
