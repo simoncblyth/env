@@ -45,7 +45,7 @@
              col = kBlack ;
 		}
 			
-        TString expr=Form("traj[%d].point.%s:traj[%d].point.%s",it,ax1,it,ax2); 
+        TString expr=Form("traj[%d].point.%s:traj[%d].point.%s",it,ax1.Data(),it,ax2.Data()); 
 		trajectory_tree->SetLineColor(col);    
 	    trajectory_tree->Draw(expr,"","LSAME") ;
         
