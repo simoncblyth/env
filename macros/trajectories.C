@@ -16,7 +16,7 @@
 
   TString ax1="x" ;
   TString ax2="y" ;
-  trajectory_tree->Draw(Form("traj.point.%s:traj.point.%s",ax1,ax2),"") ;
+  trajectory_tree->Draw(Form("traj.point.%s:traj.point.%s",ax1.Data(),ax2.Data()),"") ;
 
   for( Int_t ievent=0 ; ievent < nevent ; ++ievent ){  
   
