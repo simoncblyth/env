@@ -116,10 +116,13 @@ trac-setup-perms(){
 	views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW"	 
     other="TIMELINE_VIEW SEARCH_VIEW"
 	hmmm="CONFIG_VIEW"
-    wiki="WIKI_CREATE WIKI_MODIFY WIKI_DELETE"
+    wiki="WIKI_CREATE WIKI_MODIFY"
 	ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
-    milestone="MILESTONE_CREATE MILESTONE_MODIFY MILESTONE_DELETE"
-    report="REPORT_VIEW REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY REPORT_DELETE"
+    milestone="MILESTONE_CREATE MILESTONE_MODIFY"
+    report="REPORT_VIEW REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
+ 
+ 
+    ## remove WIKI_DELETE MILESTONE_DELETE REPORT_DELETE ... leave those to admin only
  
     trac-user-perms $name anonymous     "$views $other" 
 	trac-user-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
