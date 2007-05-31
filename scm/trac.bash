@@ -121,7 +121,7 @@ trac-setup-perms(){
     milestone="MILESTONE_CREATE MILESTONE_MODIFY MILESTONE_DELETE"
     report="REPORT_VIEW REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY REPORT_DELETE"
  
-    trac-user-perms $name anonymous     $views 
+    trac-user-perms $name anonymous     "$views $other" 
 	trac-user-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
     trac-user-perms $name admin TRAC_ADMIN 
    
