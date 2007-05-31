@@ -256,18 +256,30 @@ trac-apache2-conf(){
 
 
 
-trac-xmlrpc-wiki-backup(){
+trac-wiki-backup(){
+  
+  local name=${1:-$SCM_TRAC}
+  shift
+  
   cd $SCM_FOLD
-  [ -d "$SCM_FOLD/wiki-backup" ] || ( mkdir -p $SCM_FOLD/wiki-backup || ( echo abort && return 1 ))
-  cd wiki-backup
-  python $HOME/$SCM_BASE/xmlrpc-wiki-backup.py $*
+  [ -d backup ] || ( sudo mkdir backup && sudo chown $USER backup )
+  
+  dir="backup/tracs/$SCM_HOST/$name/wiki"
+  [ -d $dir ] || ( mkdir -p $dir || ( echo abort && return 1 ))
+  cd $dir  
+  python $HOME/$SCM_BASE/xmlrpc-wiki-backup.py $name $*
 }
 
-trac-xmlrpc-wiki-restore(){
+trac-wiki-restore(){
+  
+  local name=${1:-$SCM_TRAC}
+  shift
+  
   cd $SCM_FOLD
-  [ -d "$SCM_FOLD/wiki-backup" ] || ( echo abort ... must backup before can restore  && return 1 )
-  cd wiki-backup
-  python $HOME/$SCM_BASE/xmlrpc-wiki-restore.py $*
+  dir="backup/tracs/$SCM_HOST/$name/wiki"
+  [ -d $dir ] || ( echo abort ... must backup before can restore  && return 1 )
+  cd $dir
+  python $HOME/$SCM_BASE/xmlrpc-wiki-restore.py $name $*
 }
 
 
