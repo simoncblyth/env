@@ -16,3 +16,10 @@ file-dirlist(){
 }
 
 
+ini-edit(){
+   ## utility for editing INI files 
+   perl -e 'require "$ENV{'HOME'}/env/base/INI.pm" ; &INI::edit(@ARGV) ; ' $*
+}
+
+
+
