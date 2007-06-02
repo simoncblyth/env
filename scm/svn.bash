@@ -39,6 +39,9 @@
 export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
 
 
+
+
+
 svn-x(){ scp $SCM_HOME/svn.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
 
 svn-i(){ . $SCM_HOME/svn.bash ; }
@@ -69,38 +72,96 @@ EOS
 }
 
 
-svn-apache2-authzaccess-conf(){
 
-  authzaccess=$APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS
+
+
+
+
+
+
+
+
+
+
+svn-apache2-conf(){
+
+  ## raw SVN setup  
+
+  svn-apache2-repos-location-write $APACHE2_HOME/$SVN_APACHE2_CONF $*
+  apache2-conf-connect $SVN_APACHE2_CONF
+
+  svn-apache2-authzaccess-write $APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS dev
+
+  svn-apache2-xslt-write $APACHE2_HTDOCS/resources/xslt
+  
+
+  ## tracs 
+
+  svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF   
+  apache2-conf-connect $TRAC_APACHE2_CONF
+
+  ## restart  
+
+  [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
+
+  apache2-setport $SCM_PORT
+
+  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
+
+  #curl -o $APACHE2_HTDOCS/favicon.ico http://grid1.phys.ntu.edu.tw:6060/tracs/red/
+
+}
+
+
+svn-apache2-repos-location-write(){
+
+  local conf=${1:-dummy-location}
+  shift
+  
+  echo =============== writing svn-apache2-location output to $conf
+  $ASUDO bash -lc "svn-apache2-repos-location $*  >  $conf"
+  echo =============== cat $conf 
+  cat $conf 
+
+}
+
+
+
+
+
+
+
+svn-apache2-tracs-location-write(){
+
+  local conf=${1:-dummy-location}
+  shift
+  
+  echo =============== writing svn-apache2-tracs-location output to $conf
+  $ASUDO bash -lc "svn-apache2-tracs-location  >  $conf"
+  echo =============== cat $conf 
+  cat $conf 
+
+
+}
+
+
+
+svn-apache2-authzaccess-write(){
+
+  local authzaccess=${1:-dummy-authzaccess}
+  shift
+  
   echo =============== writing svn-apache2-authzaccess output to $authzaccess
-  $ASUDO bash -lc "svn-apache2-authzaccess >  $authzaccess"
+  $ASUDO bash -lc "svn-apache2-authzaccess $* >  $authzaccess"
   echo =============== cat $authzaccess
   cat $authzaccess
 
 }
 
 
-svn-apache2-connect(){
+svn-apache2-xslt-write(){
 
-  echo ============== add the Include of the $conf into $APACHE2_CONF if not there already
-  $ASUDO bash -lc "grep $SVN_APACHE2_CONF $APACHE2_CONF  || $ASUDO echo Include $SVN_APACHE2_CONF  >> $APACHE2_CONF  "
-
-}
-
-
-svn-apache2-conf(){
-
-
-  conf=$APACHE2_HOME/$SVN_APACHE2_CONF
-  echo =============== writing svn-apache2-location output to $conf
-  $ASUDO bash -lc "svn-apache2-location  >  $conf"
-  echo =============== cat $conf 
-  cat $conf 
-
-  svn-apache2-authzaccess-conf 
-
-
-  xslt=$APACHE2_HTDOCS/resources/xslt
+  local xslt=${1:-dummy-xslt}
   echo ============== placing stylesheets for raw SVN presentation into $xslt
   $ASUDO mkdir -p $xslt 
   $ASUDO cp -f $SVN_BUILD/tools/xslt/svnindex.* $xslt/ 
@@ -108,31 +169,70 @@ svn-apache2-conf(){
   ## correct a braindead absolute path 
   $ASUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
 
-  svn-apache2-connect 
-
-
-  echo ============= tail -10 $APACHE2_CONF
-  tail -10 $APACHE2_CONF 
-
-  [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
-  
-
-  apache2-setport $SVN_PORT
-
-  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
-
-
-  #curl -o $APACHE2_HTDOCS/favicon.ico http://grid1.phys.ntu.edu.tw:6060/tracs/red/
-
 }
 
 
 
 
-svn-apache2-location(){
-
+## formerly modpython-tracs-conf
+svn-apache2-tracs-location(){
 
 cat << EOC
+
+<Location /mpinfo>
+   SetHandler mod_python
+   PythonHandler mod_python.testhandler
+</Location>
+
+<Directory $APACHE2_HTDOCS/test>
+   AddHandler mod_python .py
+   PythonHandler myscript
+   PythonDebug On
+</Directory>
+
+
+<Location /tracs>
+   SetHandler mod_python
+   PythonPath "sys.path + ['$PYTHON_SITE']"
+   PythonHandler trac.web.modpython_frontend 
+   PythonOption TracEnvParentDir $SCM_FOLD/tracs
+   PythonOption TracUriRoot /tracs
+   PythonDebug On
+   
+   ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
+   # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
+   # 
+   #SVNParentPath $SVN_PARENT_PATH
+   #AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
+   
+</Location>
+
+# when using AccountManagerPlugin this needs to be removed 
+#<LocationMatch "/tracs/[^/]+/login">
+#    AuthType Basic
+#    AuthName "svn-tracs"
+#    AuthUserFile $SVN_APACHE2_AUTH
+#    Require valid-user
+#</LocationMatch>
+#
+#  before AccounManagerPlugin is setup removing this causes ... 
+# 500 Internal Server Error (Authentication information not available. 
+#  Please refer to the <a href="/tracs/hottest/wiki/TracInstall#ConfiguringAuthentication" title="Configuring Authentication">installation documentation</a>.)
+#
+
+
+EOC
+}
+
+
+
+
+svn-apache2-repos-location(){
+
+
+  local securitylevel=${1:-anon-or-real}
+
+cat << EOH
 #
 #      do not edit, created by svn.bash::svn-apache2-location 
 #       http://svnbook.red-bean.com/en/1.0/ch06s04.html
@@ -143,62 +243,172 @@ cat << EOC
 <Location /repos>
       DAV svn
       SVNParentPath $SVN_PARENT_PATH
+      ## allow raw apache+svn to provide a list of repositories
+      SVNListParentPath on
       SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
       AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
 
-      # try anonymous access first, resort to real 
-	  # authentication if necessary.
+      
+   
+      # securitylevel $securitylevel
+EOH
+   
+   
+  if [ "$securitylevel" == "anon-or-real" ]; then
+   
+      cat << EOS   
+      #  try anonymous access first, resort to real authentication if necessary.
       Satisfy Any
       Require valid-user
+EOS
+   
+  elif [ "$securitylevel" == "authenticated-only" ]; then
+      cat << EOS
+      # only authenticated users may access the repository
+      Require valid-user 
+EOS
 
+  else
+      cat << EOS
+      ## WARNING securitylevel not handled
+EOS
+  fi
+   
+  cat << EOT   
+  
       # how to authenticate a user
       AuthType Basic
       AuthName "svn-repos"
       # users file
       AuthUserFile $SVN_APACHE2_AUTH
-
+                  
 </Location>
-EOC
+EOT
 
 }
 
 
+svn-co-test(){
+
+   local n=${1:-newtest}
+   local u=${2:-admin}
+   local p=${3:-wrong}
+   
+   if ([ "$n" == "newtest" ] || [ "$n" == "hottest" ]) then
+      local cmd="cd /tmp ; rm -rf $n ; svn --username $u --password $p  co  http://localhost/repos/$n/ "   
+       echo $cmd
+       eval $cmd
+   else
+     echo name $n not accepted
+   fi
+}
+
 
 svn-apache2-authzaccess(){
+
+  local finelevel=${1:-dev}
+ 
+  # name of the environment repository 
+  local envbase=$ENV_BASE  
 
 cat << EOA
 #
 #      do not edit, created by svn.bash::svn-apache2-authzaccess, svn-apache2-conf
 #      http://svnbook.red-bean.com/en/1.0/ch06s04.html
+#
+#  securitylevel $securitylevel
 #   
 [groups]
-dyw-admin = dayabaysoft
-dyw-user = blyth, thho
-dyw-novice = simon 
+member = simon 
+user = blyth, thho
+admin = dayabaysoft, admin
 
+EOA
+
+if [ "$finelevel" == "example" ]; then
+
+cat << EOC
 #  read access for everyone
 [/]
 * = r
 
 [red:/trunk]
-@dyw-novice = r
-@dyw-user = rw
-@dyw-admin = rw
+@member = r
+@user = rw
+@admin = rw
 
 # caution this matches the path in every repository 
 [/trunk]
-@dyw-novice = r
-@dyw-user = rw
-@dyw-admin = rw
+@member = r
+@user = rw
+@admin = rw
+
+EOC
+
+elif [ "$finelevel" == "dev" ]; then
+
+cat << EOC
+# empty fine grained permissions gives no access to anyone !!!
+# 
+# read access to everyone and write access for admin and user groups
+# for repos : $envbase newtest  
+#
+# no access to everyone and readwrite acees for admin and 
+#
+
+#[/]
+#@admin = rw
+
+[$envbase:/]
+* = r
+@member = r
+@user = rw 
+@admin = rw
+
+
+# Nb this is declaring anyone can read the content of this repository ...
+# so must allow anonymous to get thru at the upper level ...
+[newtest:/]
+* = r
+@member = r
+@user = rw 
+@admin = rw
+
+
+# force authenticated 
+[hottest:/]
+@member = r
+@user = rw
+@admin = rw
+
+[dyw_release_2_8:/]
+@member = r
+@user = rw
+@admin = rw
+
+ 
+EOC
+
+else
+
+cat << EOC
+# WARNING securitylevel not handled
+EOC
+
+fi
 
 
 
-
-EOA
 
 }
+
+
+
+
+
+
 
 
 
