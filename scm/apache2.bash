@@ -250,6 +250,21 @@ apache2-add-module(){
   perl $SCM_HOME/apache-load-module.pl  $APACHE2_CONF $name add
 }
 
+apache2-conf-connect(){
+
+  local conf=${1:-dummy-connect} 
+
+  echo ============== add the Include of the $conf into $APACHE2_CONF if not there already
+  $ASUDO bash -lc "grep $conf $APACHE2_CONF  || $ASUDO echo Include $conf  >> $APACHE2_CONF  "
+
+  echo ============= tail -10 $APACHE2_CONF
+  tail -10 $APACHE2_CONF 
+
+}
+
+
+
+
 
 apache2-open(){
 
