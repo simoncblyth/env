@@ -22,6 +22,7 @@
 #
 
  ENV_BASE=env
+ export ENV_BASE
  DYW_DBG=0
  BASE_DBG=0
  
@@ -33,6 +34,9 @@
      [ -r ~/$ENV_BASE/dyw/dyw.bash  ]   && . ~/$ENV_BASE/dyw/dyw.bash
  fi
  
+ if [ "$NODE_TAG" == "G" ];  then
+     [ -r ~/$ENV_BASE/workflow/workflow.bash  ]   && .  ~/$ENV_BASE/workflow/workflow.bash
+ fi 	 
  
 
 
@@ -42,7 +46,7 @@ env-u(){
   iwd=$(pwd)
   
   if [ "$NODE_TAG" == "$SOURCE_TAG" ]; then
-     echo env-u is prohibited on source machine 
+     echo ============= env-u : no svn update is performed as on source node ================
   else
      cd $HOME/$ENV_BASE 
      
@@ -52,9 +56,10 @@ env-u(){
      echo ============= env-u : status after update ================
      svn status -u
      cd $iwd
-     echo ============== env-u :  sourcing the updated env =============
-     [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash  
+     
   fi
+  echo ============== env-u :  sourcing the env =============
+  [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash  
 }
 
 
