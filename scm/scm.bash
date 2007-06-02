@@ -100,7 +100,6 @@
 
  [ -t 0 ] || return 
 
-
  [ -r file.bash  ]          && . file.bash
 
  [ -r apache2.bash ]        && . apache2.bash
@@ -117,7 +116,8 @@
  [ -r modwsgi.bash ]        && . modwsgi.bash             ## even when not using, create the .wsgi files 
 
  [ -r clearsilver.bash ]    && . clearsilver.bash         
- [ -r trac.bash ]           && . trac.bash                ## depends on clearsilver  
+ [ -r trac.bash ]           && . trac.bash                  
+ [ -r trac-build.bash ]     && . trac-build.bash          ## depends on clearsilver  
 
 
 #[ -r trac-test.bash ]      && . trac-test.bash
