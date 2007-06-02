@@ -93,8 +93,13 @@ export SUDO
 
 ########## SCM_* specify the source code repository coordinates #####################
 
-  export SCM_TAG="H"       ##      blyth@hfag      trac "production"  
+ #export SCM_TAG="H"       ##      blyth@hfag      trac "production"  
  #export SCM_TAG="G"       ##      blyth@g4pb      trac testing
+
+ # if SCM_TAG is set already use that value, otherwise default to H
+ 
+SCM_TAG=${SCM_TAG:-H}
+export SCM_TAG 
 
 if [ "$SCM_TAG" == "P" ]; then
 	
@@ -116,10 +121,10 @@ elif [ "$SCM_TAG" == "G" ]; then
 
    ## trac testing 
    SCM_HOST=localhost
-   SCM_PORT=6060
+   SCM_PORT=80
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
-   SCM_TRAC=test
+   SCM_TRAC=hottest
 
 else
 
