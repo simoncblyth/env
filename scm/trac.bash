@@ -1,5 +1,12 @@
 #
 #  TODO:
+#
+#      To submit tickets or edit wiki pages, you need to register an account and log in. The 'Register' link can be found at the top of the page.
+#
+#
+#
+#
+#
 #    integrate the wiki backup and restore scripts
 #    modify backup folder to handle multiple repositories
 #
@@ -13,17 +20,6 @@
 #      python -vc "import libsvn.fs"
 #
 #
-#
-#  prerequisites to trac :
-#
-#      svn
-#      apache2
-#      sqlite
-#      pysqlite
-#      python
-#      swig
-#      modpython OR modwsgi
-#      clearsilver
 #
 #    
 #   usage:
@@ -103,10 +99,13 @@ trac-user-perms(){
    ## remove all permissions first ... and then apply 
 
    trac-permission $name remove $user  \'*\'
-   for perm in $*
-   do	   
-      trac-permission $name add $user $perm
-   done
+   
+   #for perm in $*
+   #do	   
+   #   trac-permission $name add $user $perm
+   #done
+   
+   trac-permission $name add $user $*
 }
 
 trac-setup-perms(){
@@ -189,45 +188,47 @@ trac-log(){
 }
 
 
-trac-apache2-conf(){
-	
-   name=${1:-dummy}
-   frontend=${2:-modpython}
 
-   ## name not used at the moment, but potentially will have different users per repository so keep it
-   #[ "$name" == "dummy" ] && echo need 1st argument corresponsing to repository name  && return
-
-
-   echo ============== trac-apache2-conf name:$name frontend:$frontend
-   conf=$APACHE2_HOME/$TRAC_APACHE2_CONF
-   
-   echo =============== creating trac config file for apache2 in $conf with userfile $userfile
-   userfile=$SVN_APACHE2_AUTH
-
-   if [ "$frontend" == "modwsgi2" ]; then
-     $ASUDO bash -lc "modwsgi-tracs-conf2 $userfile  >  $conf "
-   elif [ "$frontend" == "modwsgi" ]; then	 
-     $ASUDO bash -lc "modwsgi-tracs-conf $userfile  >  $conf "
-   else	 
-     $ASUDO bash -lc "modpython-tracs-conf $userfile  >  $conf "
-   fi 
-   
-   echo =============== cat $conf
-   cat $conf
-   
-   echo =============== cat \$APACHE2_HOME/$userfile
-   cat $APACHE2_HOME/$userfile
-
-   echo =============== connecting the conf file $conf to $APACHE2_CONF if not done already 
-   grep $TRAC_APACHE2_CONF $APACHE2_CONF  || $ASUDO bash -c "echo \"Include $TRAC_APACHE2_CONF\"  >> $APACHE2_CONF "  
-
-   # after this above restart apache2 , and then try trac-open
-
-  [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
-  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
-
-   
-}
+#  shifted to svn-apache2-conf
+#trac-apache2-conf(){
+#	
+#   name=${1:-dummy}
+#   frontend=${2:-modpython}
+#
+#   ## name not used at the moment, but potentially will have different users per repository so keep it
+#   #[ "$name" == "dummy" ] && echo need 1st argument corresponsing to repository name  && return
+#
+#
+#   echo ============== trac-apache2-conf name:$name frontend:$frontend
+#   conf=$APACHE2_HOME/$TRAC_APACHE2_CONF
+#   
+#   echo =============== creating trac config file for apache2 in $conf with userfile $userfile
+#   userfile=$SVN_APACHE2_AUTH
+#
+#   if [ "$frontend" == "modwsgi2" ]; then
+#     $ASUDO bash -lc "modwsgi-tracs-conf2 $userfile  >  $conf "
+#   elif [ "$frontend" == "modwsgi" ]; then	 
+#     $ASUDO bash -lc "modwsgi-tracs-conf $userfile  >  $conf "
+#   else	 
+#     $ASUDO bash -lc "modpython-tracs-conf $userfile  >  $conf "
+#   fi 
+#   
+#   echo =============== cat $conf
+#   cat $conf
+#   
+#   echo =============== cat \$APACHE2_HOME/$userfile
+#   cat $APACHE2_HOME/$userfile
+#
+#   echo =============== connecting the conf file $conf to $APACHE2_CONF if not done already 
+#   grep $TRAC_APACHE2_CONF $APACHE2_CONF  || $ASUDO bash -c "echo \"Include $TRAC_APACHE2_CONF\"  >> $APACHE2_CONF "  
+#
+#   # after this above restart apache2 , and then try trac-open
+#
+#  [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
+#  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
+#
+#   
+#}
 
 
 
@@ -239,8 +240,8 @@ trac-apache2-conf(){
 # [blyth@hfag 0.10]$ python setup.py bdist --help-formats
 # List of available distribution formats:
 #   --formats=rpm      RPM distribution
-#   --formats=gztar    gzip'ed tar file
-#   --formats=bztar    bzip2'ed tar file
+#   --formats=gztar    gziped tar file
+#   --formats=bztar    bzip2ed tar file
 #	--formats=ztar     compressed tar file
 #	--formats=tar      tar file
 #	--formats=wininst  Windows executable installer
@@ -488,6 +489,135 @@ trac-plugin-tracnav-install(){
 
 
 
+trac-plugin-accountmanager-get-and-install(){
+
+   easy_install http://trac-hacks.org/svn/accountmanagerplugin/0.10
+
+#Downloading http://trac-hacks.org/svn/accountmanagerplugin/0.10
+#Doing subversion checkout from http://trac-hacks.org/svn/accountmanagerplugin/0.10 to /tmp/easy_install-w9nwDp/0.10
+#Processing 0.10
+#Running setup.py -q bdist_egg --dist-dir /tmp/easy_install-w9nwDp/0.10/egg-dist-tmp-nT_2dV
+#Adding TracAccountManager 0.1.3dev-r2171 to easy-install.pth file
+#
+#Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/TracAccountManager-0.1.3dev_r2171-py2.5.egg
+#Processing dependencies for TracAccountManager==0.1.3dev-r2171
+#
+
+    #   in addition had to crack the egg ...
+    # 
+    # cd  /usr/local/python/Python-2.5.1/lib/python2.5/site-packages
+    # python-crack-egg TracAccountManager-0.1.3dev_r2171-py2.5.egg
+    # sudo chown blyth:blyth  TracAccountManager-0.1.3dev_r2171-py2.5.egg
+    #
+    # sudo apachectl restart
+    #  
+
+}
+
+
+trac-plugin-accountmanager-conf(){
+
+   local name=${1:-$SCM_TRAC} 
+   
+   local userfile=$APACHE2_HOME/$SVN_APACHE2_AUTH
+   
+   local comps="components:acct_mgr.admin.AccountManagerAdminPage:enabled components:acct_mgr.web_ui.AccountModule:enabled"  
+   local login="components:trac.web.auth.LoginModule:disabled components:acct_mgr.web_ui.LoginModule:enabled"
+  
+    ## disable registration as no checks
+   local regist="components:acct_mgr.web_ui.RegistrationModule:disabled"
+
+   ## password setup
+   local htdigest="components:acct_mgr.htfile.HtDigestStore:enabled  components:acct_mgr.htfile.HtPasswdStore:disabled account-manager:password_store:HtDigestStore account-manager:htdigest_realm:svn-realm"
+   local htpasswd="components:acct_mgr.htfile.HtDigestStore:disabled components:acct_mgr.htfile.HtPasswdStore:enabled  account-manager:password_store:HtPasswdStore"
+    local pass="$htpasswd account-manager:password_file:$userfile"
+   
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini "$comps $pass $login $regist"
+
+
+}
+
+
+trac-plugin-restrictedarea-install(){
+
+# http://www.trac-hacks.org/wiki/RestrictedAreaPlugin
+
+   easy_install -Z http://trac-hacks.org/svn/restrictedareaplugin/0.10/
+
+#
+# Downloading http://trac-hacks.org/svn/restrictedareaplugin/0.10/
+# Doing subversion checkout from http://trac-hacks.org/svn/restrictedareaplugin/0.10/ to /tmp/easy_install-pWMeO8/0.10
+# Processing 0.10
+# Running setup.py -q bdist_egg --dist-dir /tmp/easy_install-pWMeO8/0.10/egg-dist-tmp-3PlkWK
+# zip_safe flag not set; analyzing archive contents...
+# Adding TracRestrictedArea 1.0.0 to easy-install.pth file
+#
+# Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/TracRestrictedArea-1.0.0-py2.5.egg
+# Processing dependencies for TracRestrictedArea==1.0.0
+#
+#
+#[g4pb:/usr/local/python/Python-2.5.1/lib/python2.5/site-packages] blyth$ python-crack-egg TracRestrictedArea-1.0.0-py2.5.egg 
+#
+#   [g4pb:/usr/local/python/Python-2.5.1/lib/python2.5/site-packages] blyth$ sudo chown -R blyth:blyth TracRestrictedArea-1.0.0-py2.5.egg 
+#
+#
+#
+#   getting issues :
+#        ZipImportError: bad local file header in /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/TracRestrictedArea-1.0.0-py2.5.egg
+#   so remove the egg that I cracked ..
+#     cd $PYTHON_SITE ; rm -rf TracRestrictedArea-1.0.0-py2.5.egg
+#   and "easy_install -Z" it again,  the -Z cracks the egg automatically
+# 
+#
+# easy_install -Z http://trac-hacks.org/svn/restrictedareaplugin/0.10/
+# Downloading http://trac-hacks.org/svn/restrictedareaplugin/0.10/
+# Doing subversion checkout from http://trac-hacks.org/svn/restrictedareaplugin/0.10/ to /tmp/easy_install-UMPn4P/0.10
+# Processing 0.10
+# Running setup.py -q bdist_egg --dist-dir /tmp/easy_install-UMPn4P/0.10/egg-dist-tmp-bjg13j
+# zip_safe flag not set; analyzing archive contents...
+# Adding TracRestrictedArea 1.0.0 to easy-install.pth file
+#
+# Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/TracRestrictedArea-1.0.0-py2.5.egg
+# Processing dependencies for TracRestrictedArea==1.0.0
+#
+#
+#
+
+
+
+}
+
+
+trac-ini(){
+  local name=${1:-$SCM_TRAC}
+  $SUDO vi  $SCM_FOLD/tracs/$name/conf/trac.ini
+  }
+
+
+
+
+trac-plugin-restrictedarea-conf(){
+
+   local name=${1:-$SCM_TRAC}
+   
+   ##local perm="components:restrictedarea.filter:enabled" 
+   local perm="components:restrictedarea.filter.restrictedareafilter:enabled"
+   local restrict="restrictedarea:paths:/wiki/restricted,/wiki/secret"
+   
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini "$perm $restrict" 
+   
+   #  subsequently should see  RESTRICTED_AREA_ACCESS in the available actions
+   #   trac-permission $name list
+   #
+   #   trac-permission hottest add anonymous WIKI_VIEW
+   #   trac-permission hottest add authenticated RESTRICTED_AREA_ACCESS
+   #
+   #   have to put sensitive pages beneath restricted ["restricted/SecretPage"]
+   #
+   
+   
+}
+
 
 
 
@@ -516,56 +646,5 @@ trac-pygments-plugin-get(){
 
 }
 
-
-trac-site-wipe(){
-
-  cd $PYTHON_SITE && sudo rm -rf trac && sudo rm -rf trac*.egg-info && ls -alst $PYTHON_SITE 
-}
-
-trac-wipe(){
-
-   nam=$TRAC_NAME
-   nik=$TRAC_NIK
-   cd $LOCAL_BASE/$nik
-   rm -rf build/$nam
-}
-
-
-
-trac-get(){
-  
-  nam=$TRAC_NAME
-  tgz=$nam.tar.gz
-  url=http://ftp.edgewall.com/pub/trac/$tgz
-
-  cd $LOCAL_BASE
-  test -d trac || ( $SUDO mkdir trac && $SUDO chown $USER trac )
-  cd trac  
-
-  test -f $tgz || curl -o $tgz $url
-  test -d build || mkdir build
-  test -d build/$nam || tar -C build -zxvf $tgz 
-}
-
-trac-install(){
-
-  nam=$TRAC_NAME
-  cd $LOCAL_BASE/trac/build/$nam
-
-  $PYTHON_HOME/bin/python ./setup.py --help    ## not very helpful
-  $PYTHON_HOME/bin/python ./setup.py install --help   ## more helpful
-  $PYTHON_HOME/bin/python ./setup.py install 
-
-  #
-  # creates and installs into :
-  #
-  #      $PYTHON_HOME/lib/python2.5/site-packages/trac
-  #      $PYTHON_HOME/share/trac/templates
-  #      $PYTHON_HOME/share/trac/htdocs
-  #
-  #      $PYTHON_HOME/bin/trac-admin
-  #      $PYTHON_HOME/bin/tracd
-  #
-}
 
 
