@@ -8,7 +8,11 @@ export SCM_FOLD=/var/scm
 
 SVN_NAME=subversion-1.4.0
 SVN_ABBREV=svn
-SVN_APACHE2_CONF=etc/apache2/svn.conf 
+
+## just needed by svn.bash
+SVN_APACHE2_CONF=etc/apache2/svn.conf
+
+## these are needed by both SVN + Trac  
 SVN_APACHE2_AUTH=etc/apache2/svn-apache2-auth
 SVN_APACHE2_AUTHZACCESS=etc/apache2/svn-apache2-authzaccess
 export SVN_PARENT_PATH=$SCM_FOLD/repos
