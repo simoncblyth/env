@@ -154,6 +154,14 @@ cat << EOB
 /dyw/detector/ScintYield_LS 9000.0 
 
 
+#
+# hmm i am missing ... maybe it is defaulting to 0 ??
+# 
+#  /dyw/phys/cerenkovMaxPhotons 
+#
+
+
+
 EOB
 
 }
