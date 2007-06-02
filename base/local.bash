@@ -185,11 +185,11 @@ export LOCAL_BASE
 
 export USER_BASE_G=$HOME/Work
 
-#export USER_BASE_P=/disk/d4/$USER
-export USER_BASE_P=/data/w/$USER
+ export USER_BASE_P=/disk/d4/$USER
+#export USER_BASE_P=/data/w/$USER
 
-##export USER_BASE_G1=/disk/d4/$USER  
-  export USER_BASE_G1=/data/w/$USER
+ export USER_BASE_G1=/disk/d4/$USER  
+#export USER_BASE_G1=/data/w/$USER
 ##export USER_BASE_G1=/tmp/$USER
 
 export USER_BASE_L=$LOCAL_BASE_L
