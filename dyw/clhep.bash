@@ -17,8 +17,8 @@ alias p-clhep="scp $HOME/.bash_clhep P:"
 ## NB changing the clhep version means recompiling VGM, G4, ... etc
 ##
 ##
-CLHEP_VERS="1.9.2.3"   
-#CLHEP_VERS="2.0.3.1" 
+#CLHEP_VERS="1.9.2.3"   
+CLHEP_VERS="2.0.3.1" 
 CLHEP_NAME=clhep-$CLHEP_VERS
 
 CLHEP_FOLDER=$LOCAL_BASE/clhep/$CLHEP_NAME
