@@ -273,6 +273,8 @@ trac-wiki-backup(){
   [ -d $dir ] || ( mkdir -p $dir || ( echo abort && return 1 ))
   cd $dir  
   python $HOME/$SCM_BASE/xmlrpc-wiki-backup.py $name $*
+  
+  ls -alst $dir
 }
 
 trac-wiki-restore(){
@@ -286,6 +288,21 @@ trac-wiki-restore(){
   cd $dir
   python $HOME/$SCM_BASE/xmlrpc-wiki-restore.py $name $*
 }
+
+
+trac-wiki-ls(){
+
+  local name=${1:-$SCM_TRAC}
+  shift
+  
+  cd $SCM_FOLD
+  dir="backup/tracs/$SCM_HOST/$name/wiki"
+    
+   ls -alst $dir
+
+}
+
+
 
 
 trac-xmlrpc-plugin-test(){
