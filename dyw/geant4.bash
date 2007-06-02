@@ -161,11 +161,13 @@ geant4-cleanliness(){
 
 
 geant4-off(){
-  perl -pi -e 's/^\s(\[.*bash_geant4_use.*)$/#$1/g' $HOME/.bash_dyw
+  #perl -pi -e 's/^\s(\[.*bash_geant4_use.*)$/#$1/g' $HOME/.bash_dyw
+  perl -pi -e 's/^\s(\[.*geant4_use.*)$/#$1/g' $DYW_HOME/dyw_build.bash
 }
 
 geant4-on(){
-  perl -pi -e 's/^\#(\[.*bash_geant4_use.*)$/ $1/g' $HOME/.bash_dyw
+  #perl -pi -e 's/^\#(\[.*bash_geant4_use.*)$/ $1/g' $HOME/.bash_dyw
+  perl -pi -e 's/^\#(\[.*geant4_use.*)$/ $1/g' $DYW_HOME/dyw_build.bash
 }
 
 
