@@ -98,7 +98,7 @@ geant4-x(){ scp $HOME/$DYW_BASE/geant4.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 
 GQ_FOLDER=$LOCAL_BASE/geant4
 GQ_NAME="geant4.8.1.p01"
-#GQ_NAME="geant4.8.2.p01"
+#GQ_NAME="geant4.8.2.p01"   ## new june/2007 to be installed 
 
 GQ_TAG=.
 
