@@ -135,6 +135,9 @@ dayabay-x(){ scp $HOME/$DYW_BASE/dayabay.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 #
 #       g4dyb_s             run G4dybApp.exe without arguments, ie "session" mode
 #       g4dyb_i [macroname] run G4dybApp.exe with arguments :  macroname.mac interactive
+#                            verify your X11 setup first with  "xterm" , you might need to
+#                            "ssh -Y G1" and/or  export DISPLAY="localhost:19.0" or some such   
+#
 #
 #       g4dyb_              debug G4dybApp.exe by attaching gdb to the process
 #       g4dyb__             direct executable gdb debugging 
