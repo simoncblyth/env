@@ -1,5 +1,5 @@
            
- DYW_BASE=env/dyw
+ DYW_BASE=$ENV_BASE/dyw
  export DYW_HOME=$HOME/$DYW_BASE
 
  iwd=$(pwd)
