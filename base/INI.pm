@@ -1,306 +1,214 @@
+package INI ;
 
-package INI;
-# name change from Config::INI::Simple 
+=cut 
 
-use strict;
-use warnings;
+   edits ini files , preserves comments
 
-our $VERSION = '0.01';
+   started with Config::INI::Simple from CPAN , but found deficiencies (new
+   qtys could not be targeted to a specific block ) hence I rolled my own 
 
-sub new {
-	my $proto = shift;
-	my $class = ref($proto) || $proto || 'INI';
+  ./ini-edit.pl trac.ini block1:val1:qwn1 block1:val2:qwn block2:val3:qwn
+  .... block block1 key val1 val qwn1 
+  .... block block1 key val2 val qwn 
+  .... block block2 key val3 val qwn 
+  
+   diff trac.ini trac.ini.out
+	  114a115,122
+	  > 
+	  > [block1]
+	  > val2 = qwn
+	  > val1 = qwn1
+	  > 
+	  > [block2]
+	  > val3 = qwn
+	  > 
 
-	my $self = {
-		__file__    => undef,
-		__default__ => 'default',
-		__eol__     => "\n",
-		__append__  => 1,
-		@_,
-	};
+=cut
 
+
+
+sub EDIT {
+
+   my ( $file , @edits ) = @_ ;
+   my $ini = new INI ;
+   $ini->read( $file );
+   $ini->edit( @edits );
+   $ini->prepare();
+   
+   #$ini->write("$file.out" );
+   $ini->write("$file" );
+   #print Dumper( $ini );
+}
+
+
+sub new{
+    my $proto = shift;
+	my $class = ref($proto) || $proto || 'CONF';
+
+	$self->{'data'} = {} ;
+	$self->{'blockorder'} = [] ;
 	bless ($self,$class);
 	return $self;
 }
 
-sub reset {
-	my ($self) = @_;
+sub read{
 
-	$self = {
-		__file__    => $self->{__file__},
-		__default__ => $self->{__default__},
-		__eol__     => $self->{__eol__},
-		__append__  => $self->{__append__},
-	};
+   my ($self, $file ) = @_ ;
+
+   open(F,"<$file") || die "cannot open $file\n " ;
+   my @lines = <F> ;
+   chomp @lines ;
+   close F ;
+
+   my $data = {} ;
+   my $block = "___start___" ;
+
+   for my $line (@lines){
+      ## block specifier or content  	
+      if ( $line =~ m/\[(\S*)\]/ ){
+         $block = $1 ;
+	     push( @{ $self->{'blockorder'} } , $block );
+	     $self->{'blockline'}{$block} = $line ;
+		 
+      } else {
+	      push( @{ $self->{'data'}{$block}{'lines'} }, $line );
+		  my $pair = &interpline( $line );
+		  if( $#{ $pair } + 1 == 2 ){
+		     push( @{ $self->{'data'}{$block}{'keyorder'} }, ${ $pair }[0] ) ;
+		     $self->{'data'}{$block}{'content'}{${ $pair }[0]} = ${ $pair }[1] ;
+          } 
+       }   ## block or otherwise
+    }	
 }
 
-sub read {
-	my ($self,$file) = @_;
 
-	if (!defined $file) {
-		$file = $self->{__file__};
-		return unless defined $file;
+sub interpline{
+
+    my ( $line ) = @_ ;
+    if( length $line == 0 || $line =~ /^\s*\;/ || $line =~ /^\s*\#/ ){ 
+	    return [] ;
+	} elsif( $line =~ m/\s*(\S*)\s*=\s*(.*)\s*$/ ){
+		return [$1,$2] ;
+    } else {
+        print "ERROR unhandled line $line \n ";
+		return [] ;
 	}
-
-	return unless -e $file;
-
-	$self->{__file__} = $file;
-
-	open (FILE, $file);
-	my @lines = <FILE>;
-	close (FILE);
-	chomp @lines;
-
-	my $data = {};
-	my $block = $self->{__default__} || 'default';
-
-	foreach my $line (@lines) {
-		$line =~ s/\r//g;
-		$line =~ s/\n//g;
-		if ($line =~ /\s*\[(.*?)\]\s*/) {
-			$block = $1;
-			next;
-		}
-
-		next if $line =~ /^\s*\;/;
-		next if $line =~ /^\s*\#/;
-
-		next if length $line == 0;
-		my ($what,$is) = split(/=/, $line, 2);
-		$what =~ s/^\s*//g;
-		$what =~ s/\s*$//g;
-		$is =~ s/^\s*//g;
-		$is =~ s/\s*$//g;
-
-		$data->{$block}->{$what} = $is;
-	}
-
-	foreach my $block (keys %{$data}) {
-		$self->{$block} = $data->{$block};
-	}
-
-	return 1;
 }
 
-sub write {
-	my ($self,$file) = @_;
+sub formline{
+	my ( $key , $val ) = @_ ;
+	return  sprintf("%s = %s", $key, $val );
+}
 
-	if (!defined $file) {
-		$file = $self->{__file__};
-		return unless defined $file;
-	}
+sub formblock{
+	my ( $block ) = @_ ;
+	return  sprintf("[%s]", $block );
+}
 
-	return unless -e $file;
 
-	open (FILE, $file);
-	my @lines = <FILE>;
-	close (FILE);
-	chomp @lines;
+sub prepare{
 
-	my $block = $self->{__default__} || 'default';
-	my @new = ();
-	my $used = {};
+   push(@{ $self->{'edit'} }, $_) for (@{ $self->{'data'}{'___start___'}{'lines'} });
 
-    ## space before and after the equals 
-    my $blank = " ";
+   for my $block (@{ $self->{'blockorder'} }){
+       push(@{ $self->{'edit'} }, $self->{'blockline'}{$block} );
 
-	foreach my $line (@lines) {
-		if ($line =~ /\s*\[(.*?)\]\s*/) {
-			$block = $1;
-			$line =~ s/^\s*//g;
-			$line =~ s/\s*$//g;
-			push (@new, $line);
-			next;
-		}
+       for my $line (@{ $self->{'data'}{$block}{'lines'} }){
 
-		if ($line =~ /^\s*\;/ || $line =~ /^\s*\#/) {
-			push (@new, $line);
-			next;
-		}
+		 # print "$line\n"; 
+          my $pair = &interpline( $line );
+		  if( $#{ $pair } + 1 == 2 ){
+			  
+		       my $key = ${ $pair }[0] ;
+			   my $val = ${ $pair }[1] ;
+               
+			   ## no change in content, use original line ... otherwise form newline
+			   if( $self->{'data'}{$block}{'content'}{$key} eq $val ){
+			      push(@{ $self->{'edit'} }, $line); 
+               } else {
+			      push(@{ $self->{'edit'} }, &formline( $key, $val )); 
+			   }
 
-		if (length $line == 0) {
-			push (@new, '');
-			next;
-		}
-
-		my ($what,$is) = split(/=/, $line, 2);
-		$what =~ s/^\s*//g;
-		$what =~ s/\s*$//g;
-		$is =~ s/^\s*//g;
-		$is =~ s/\s*$//g;
-
-		if (exists $self->{$block}->{$what}) {
-			$line = join ("$blank=$blank", $what, $self->{$block}->{$what});
-			$used->{$block}->{$what} = 1;
-		}
-
-		push (@new, $line);
-	}
-
-	# Add new config variables?
-	if ($self->{__append__} == 1) {
-		foreach my $key (keys %{$self}) {
-			next if $key =~ /^__.*?__$/i;
-			print "Checking key $key (ref = " . ref($key) . ")\n";
-
-			if (!exists $used->{$key}) {
-				print "Block doesn't exist!\n";
-				push (@new, "");
-				push (@new, "[$key]");
-			}
-
-			foreach my $lab (keys %{$self->{$key}}) {
-				if (!exists $used->{$key}->{$lab}) {
-					print "Adding $lab=$self->{$key}->{$lab} to INI\n";
-					push (@new, "$lab$blank=$blank$self->{$key}->{$lab}");
+               ## check for last(at input) key in the block 
+			   if( $key eq ${ $self->{'data'}{$block}{'keyorder'} }[-1] ){
+                  $self->addkeys( $block );
 				}
-			}
+			
+          } else {
+              push(@{ $self->{'edit'} }, $line ); ## pass thru comments untouched
+		  }
+
+	   }	   
+
+   }
+
+   ## check for new blocks
+ 
+    my $lastblock = ${ $self->{'blockorder'} }[-1] ;
+	my $lastline = ${ $self->{'data'}{$lastblock}{'lines'} }[-1] ;
+ 
+    my $nadd = 0 ;
+    for my $addblock (keys %{ $self->{'data'} }){
+       if( grep( $addblock eq $_, @{ $self->{'blockorder'} }) == 0 && $addblock ne "___start___" ){
+
+           ## add a blank line before the new block if one not there already  
+           ++$nadd ; 
+		   if( $nadd == 1 && $lastline ne "" ){
+             push(@{ $self->{'edit'} }, "" ); 
+		   }
+
+		   
+           push(@{ $self->{'edit'} }, &formblock( $addblock) ); 
+           $self->addkeys( $addblock );
+           push(@{ $self->{'edit'} }, "" ); 
+	   } else {
+           #push(@{ $self->{'edit'} }, "#not new block $addblock  " );
+	   }
+    }
+
+}
+
+
+sub write{
+    my ( $self , $file ) = @_ ;
+    open(F,">$file");
+    for my $line (@{ $self->{'edit'} }){
+      printf F "%s\n", $line ; 
+    }
+    close F;
+}
+
+
+sub addkeys {
+
+   my ( $self , $block ) = @_ ;
+   #push(@{ $self->{'edit'} }, "#last key" );
+   for my $addkey (keys %{ $self->{'data'}{$block}{'content'} }){
+        ## check for new keys
+		if( grep( $addkey eq $_, @{ $self->{'data'}{$block}{'keyorder'} }) == 0 ){
+			 my $addval = $self->{'data'}{$block}{'content'}{$addkey} ;
+			 push(@{ $self->{'edit'} }, &formline( $addkey, $addval )); 
+		} else {
+		     #push(@{ $self->{'edit'} }, "#not new key $addkey " );
 		}
 	}
-
-	my $eol = $self->{__eol__} || "\r\n";
-	open (WRITE, ">$file");
-	print WRITE join ($eol, @new);
-	close (WRITE);
-
-	return 1;
 }
 
 
-sub edit {
 
-    my ( @args ) = @_ ; 
-	my $file = shift @args ;
-	my $ini = new INI ;
-	
-	print "INI inplace editing $file \n";
-	$ini->read($file);
-	
-	my ($sect,$qwn,$val);
-    for (@args){
-      ($sect,$qwn,$val) = split /:/ ;
-      print "  .... sect $sect qwn $qwn val $val \n" ;
-      $ini->{$sect}->{$qwn} = $val; 
-	}	 
-   # print Dumper($ini);
-   $ini->write($file);
+sub edit{
+
+   my ( $self , @args ) = @_ ;
+   my ($block,$key,$val) ;
+   for (@args){
+		($block,$key,$val) = split /:/ ;
+		print "  .... block $block key $key val $val \n" ;
+		$self->{'data'}{$block}{'content'}{$key} = $val;
+   }
+
 }
 
 
+
+	
 1;
-__END__
-
-=head1 NAME
-
-Config::INI::Simple - Simple reading and writing from an INI file--with preserved
-comments, too!
-
-=head1 SYNOPSIS
-
-  # in your INI file
-  ; The name of the server block to use
-  ; Use one of the blocks below.
-  server = Server01
-
-  ; All server blocks need a host and port.
-  ; These should be under each block.
-  [Server01]
-  host=foo.bar.com
-  port=7775
-
-  [Server02]
-  host=foobar.net
-  port=2235
-
-  # in your Perl script
-  use Config::INI::Simple;
-
-  my $conf = new Config::INI::Simple;
-
-  # Read the config file.
-  $conf->read ("settings.ini");
-
-  # Change the port from "Server02" block
-  $conf->{Server02}->{port} = 2236;
-
-  # Change the "server" to "Server02"
-  $conf->{default}->{server} = 'Server02';
-
-  # Write the changes.
-  $conf->write ("settings.ini");
-
-=head1 DESCRIPTION
-
-Config::INI::Simple is for very simplistic reading and writing of INI files. A new object must
-be created for each INI file (an object keeps all the data read in from an INI which is used
-on the write method to write to the INI). It also keeps all your comments and original order
-intact.
-
-=head1 INI FILE FORMAT
-
-A basic INI format is:
-
-  [Block1]
-  VAR1=Value1
-  VAR2=Value2
-  ...
-
-  [Block2]
-  VAR1=Value1
-  VAR2=Value2
-  ...
-
-Comments begin with either a ; or a # and must be on their own line. The object's hashref
-will contain the variables under their blocks. The default block is "default" (see B<new> for
-defaults). So, B<$conf->{Block2}->{VAR2} = Value2>
-
-=head1 METHODS
-
-=head2 new
-
-Creates a new Config::INI::Simple object. You can pass in certain settings here:
-
-B<__file__> - Sets the file path of the INI file to read. If this value is set, then B<read>
-and B<write> won't need the FILE parameter.
-
-B<__default__> - Sets the name of the default block. Defaults to 'default'
-
-B<__eol__> - Set the end-of-line characters for writing an INI file. Defaults to Win32's \n
-
-B<__append__> - Set to true and new hash keys will be appended to the file upon writing. If a
-new block is added to the hashref, that block will be appended to the end of the file followed
-by its data. Defaults to 1.
-
-=head2 read (FILE)
-
-Read data from INI file B<FILE>. The object's hashref will contain this INI file's contents.
-
-=head2 write (FILE)
-
-Writes to the INI file B<FILE>, inputting all the hashref variables found in the object.
-
-=head2 reset
-
-Resets the internal hashref of the INI reader object. The four settings specified with B<new>
-will be reset to what they were when you created the object. All other data is removed from
-memory.
-
-=head1 CHANGES
-
-  Version 0.01
-  - Initial release.
-
-=head1 AUTHOR
-
-C. J. Kirsle <kirsle -at- rainbowboi.com>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright (C) 2006 by A. U. Thor
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.8.7 or,
-at your option, any later version of Perl 5 you may have available.
-
-
-=cut
