@@ -381,13 +381,14 @@ geant4-get-data(){
    #  
 
    cd $G4INSTALL
+   local g4envsh=$G4INSTALL/env.sh 
 
-   if [ -f "env.sh" ]; then
+   if [ -f "$g4envsh" ]; then
 
       test -d data || mkdir  data
       cd data
    
-      for triplet in $(geant4-parse-env env.sh)
+      for triplet in $(geant4-parse-env $g4envsh)
       do
 	     nvar=`echo $triplet | cut -f1 -d:`  
 	     base=`echo $triplet | cut -f2 -d:`  
