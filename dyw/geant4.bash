@@ -118,8 +118,8 @@ elif ([ "$NODE_TAG" == "P" ]) ; then
 
 elif ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ]) ; then
 
-   #GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
-   GQ_TAG="dbg"     ##  debug flags + visualization
+   GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
+   #GQ_TAG="dbg"     ##  debug flags + visualization
    GQ_HOME=$GQ_FOLDER/$GQ_TAG/$GQ_NAME
    
 else   
@@ -402,7 +402,7 @@ geant4-get-data(){
          drn=$base$vers
          tgz=$prefix$base.$vers.tar.gz
 
-	     echo triplet $triplet nvar $nvar base $base vers $vers tgz $tgz drn $drn 
+	     echo triplet $triplet nvar $nvar base $base vers $vers tgz $tgz drn $drn prefix $prefix
 	     test -f "$tgz" && echo already downloaded $tgz || curl -o $tgz http://geant4.web.cern.ch/geant4/support/source/$tgz
 	     test -d "$drn" &&  echo already unpacked into $drn || tar zxvf $tgz
       done
