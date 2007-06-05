@@ -58,8 +58,12 @@ export DYW_FOLDER
 #export DYW_VERSION_G1="dyw_20070503_wc"
  export DYW_VERSION_G1="dyw_release_2_8_wc" 
 
- vname=DYW_VERSION_$NODE_TAG
- eval DYW_VERSION=\$$vname
+ if [ "X$DYW_VERSION" == "X" ]; then
+   vname=DYW_VERSION_$NODE_TAG
+   eval DYW_VERSION=\$$vname
+ else
+   echo WARNING honouring a preset DYW_VERSION setting    
+ fi
  export DYW_VERSION
 
 ## ------------  the local copies of the dyw cvs repository
