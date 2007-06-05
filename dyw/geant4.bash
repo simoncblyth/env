@@ -338,7 +338,7 @@ geant4-list-data(){
 
    g4envsh=$G4INSTALL/env.sh
    echo "geant4-list-data extracting data versions from $g4envsh "
-   triplets=`perl -n -e "m|^(\S*)=\"$G4INSTALL/data/(.*)(\d\.\d*)\"| && printf "%s:%s:%s ", $1,$2,$3 ; '  $g4envsh`
+   triplets=`perl -n -e "m|^(\S*)=\"$G4INSTALL/data/(.*)(\d\.\d*)\"| && printf \"%s:%s:%s \", $1,$2,$3 ; "  $g4envsh`
 
    for triplet in $triplets
       do
