@@ -374,6 +374,8 @@ geant4-get-data(){
    # avoid hardcoding all these versions and names , by extracting them from the environment file
    # (gives a chance that will work for the next Geant4 version, if the pattern stays the same)
    #
+   #  http://geant4.cern.ch/support/source/G4RadioactiveDecay.3.1.tar.gz
+   #  
 
    cd $G4INSTALL
 
@@ -390,10 +392,15 @@ geant4-get-data(){
 	     base=`echo $triplet | cut -f2 -d:`  
 	     vers=`echo $triplet | cut -f3 -d:`  
 		   
-	     tgz=$base.$vers.tar.gz
-	     drn=$base$vers
-
          ## the unpacked directory name doesnt match the tgz name, hence this shenanigans
+         if ([ "$base" == "RadioactiveDecay" ] && [ "$vers" == "3.1" ]) ;then
+            prefix="G4" 
+         else
+            prefix=""
+         fi
+         
+         drn=$base$vers
+         tgz=$prefix$base.$vers.tar.gz
 
 	     echo triplet $triplet nvar $nvar base $base vers $vers tgz $tgz drn $drn 
 	     test -f "$tgz" && echo already downloaded $tgz || curl -o $tgz http://geant4.web.cern.ch/geant4/support/source/$tgz
