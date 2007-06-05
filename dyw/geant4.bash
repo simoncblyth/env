@@ -333,22 +333,25 @@ geant4-liblist(){
 
 
 
+geant4-parse-env(){
+   local g4envsh=$1
+   perl -n -e "m|^(\S*)=\"$G4INSTALL/data/(.*)(\d\.\d*)\"| && printf \"%s:%s:%s \", \$1,\$2,\$3 ; "  $g4envsh
+}
+
+
 geant4-list-data(){
 
-
-   g4envsh=$G4INSTALL/env.sh
-   echo "geant4-list-data extracting data versions from $g4envsh "
-   triplets=`perl -n -e "m|^(\S*)=\"$G4INSTALL/data/(.*)(\d\.\d*)\"| && printf \"%s:%s:%s \", \$1,\$2,\$3 ; "  $g4envsh`
-
-   for triplet in $triplets
+   local g4envsh=$G4INSTALL/env.sh 
+   echo "geant4-list-data extracting data versions $g4envsh  "   
+   
+   for triplet in $(geant4-parse-env $g4envsh)
       do
 	     nvar=`echo $triplet | cut -f1 -d:`  
 	     base=`echo $triplet | cut -f2 -d:`  
 	     vers=`echo $triplet | cut -f3 -d:`  
 		 printf "%-30s %-20s %-10s \n" $nvar $base $vers 
 	  done
-	  
-	
+	  	
 }
 
 geant4-get-data(){
@@ -381,12 +384,10 @@ geant4-get-data(){
 
    if [ -f "env.sh" ]; then
 
-      triplets=`perl -n -e 'm|^(\S*)=\".*/data/(.*)(\d\.\d)\"| && printf "%s:%s:%s ", $1,$2,$3 ; '  env.sh`
-
       test -d data || mkdir  data
       cd data
    
-      for triplet in $triplets
+      for triplet in $(geant4-parse-env env.sh)
       do
 	     nvar=`echo $triplet | cut -f1 -d:`  
 	     base=`echo $triplet | cut -f2 -d:`  
