@@ -68,15 +68,15 @@ export DYW_FOLDER
 
 ## ------------  the local copies of the dyw cvs repository
 
-export DYW_P=${DYW_FOLDER_P}/${DYW_VERSION_P}
-export DYW_L=${DYW_FOLDER_L}/${DYW_VERSION_L}
-export DYW_U=${DYW_FOLDER_U}/${DYW_VERSION_U}
-export DYW_G=${DYW_FOLDER_G}/${DYW_VERSION_G}                 
-export DYW_G1=${DYW_FOLDER_G1}/${DYW_VERSION_G1}
+#export DYW_P=${DYW_FOLDER_P}/${DYW_VERSION_P}
+#export DYW_L=${DYW_FOLDER_L}/${DYW_VERSION_L}
+#export DYW_U=${DYW_FOLDER_U}/${DYW_VERSION_U}
+#export DYW_G=${DYW_FOLDER_G}/${DYW_VERSION_G}                 
+#export DYW_G1=${DYW_FOLDER_G1}/${DYW_VERSION_G1}
+#vname=DYW_$NODE_TAG
+#eval DYW=\$$vname
 
-vname=DYW_$NODE_TAG
-eval DYW=\$$vname
-export DYW
+export DYW=$DYW_FOLDER/$DYW_VERSION
 
 ## -------------- CMTPATH 
 
