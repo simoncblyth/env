@@ -115,9 +115,15 @@
  [ -r modpython.bash ]      && . modpython.bash           ## depends on python, apache2
  [ -r modwsgi.bash ]        && . modwsgi.bash             ## even when not using, create the .wsgi files 
 
- [ -r clearsilver.bash ]    && . clearsilver.bash         
- [ -r trac.bash ]           && . trac.bash                  
- [ -r trac-build.bash ]     && . trac-build.bash          ## depends on clearsilver  
+ [ -r clearsilver.bash ]                 && . clearsilver.bash         
+ 
+ [ -r trac.bash ]                        && . trac.bash     
+ [ -r trac-plugin-accountmanager.bash ]  && . trac-plugin-accountmanager.bash 
+ [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash 
+ [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
+ [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash     
+            
+ [ -r trac-build.bash ]                  && . trac-build.bash          ## depends on clearsilver  
 
 
 #[ -r trac-test.bash ]      && . trac-test.bash
