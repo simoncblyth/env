@@ -186,7 +186,7 @@ sub prepare{
 
 sub write{
     my ( $self , $file ) = @_ ;
-    open(F,">$file");
+    open(F,">$file") || die "cannot write to file $file \n";
     for my $line (@{ $self->{'edit'} }){
       printf F "%s\n", $line ; 
     }
