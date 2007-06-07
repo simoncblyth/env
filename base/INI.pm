@@ -23,6 +23,9 @@ package INI ;
 	  > val3 = qwn
 	  > 
 
+    Issues:
+	    command line block order (and qty order) is not preserved in output 
+
 =cut
 
 
