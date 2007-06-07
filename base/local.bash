@@ -56,6 +56,11 @@ elif (      [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
    SUDO="sudo"
+   
+elif (      [ "$USER" == "root" ] && [ "$LOCAL_NODE" == "hfag" ]); then
+
+   NODE_TAG="H"
+   SUDO=""
 
 elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-laptop" ]); then
 
