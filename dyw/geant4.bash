@@ -344,12 +344,13 @@ geant4-list-data(){
    local g4envsh=$G4INSTALL/env.sh 
    echo "geant4-list-data extracting data versions $g4envsh  "   
    
-   for triplet in $(geant4-parse-env $g4envsh)
+   for quad in $(geant4-parse-env $g4envsh)
       do
-	     nvar=`echo $triplet | cut -f1 -d:`  
-	     base=`echo $triplet | cut -f2 -d:`  
-	     vers=`echo $triplet | cut -f3 -d:`  
-		 printf "%-30s %-20s %-10s \n" $nvar $base $vers 
+	     nvar=`echo $quad | cut -f1 -d:`  
+	     base=`echo $quad | cut -f2 -d:`  
+	     vers=`echo $quad | cut -f3 -d:`
+         path=`echo $quad | cut -f4 -d:`  
+		 printf "%-30s %-20s %-10s %s \n" $nvar $base $vers $path
 	  done
 	  	
 }
@@ -388,12 +389,13 @@ geant4-get-data(){
       test -d data || mkdir  data
       cd data
    
-      for triplet in $(geant4-parse-env $g4envsh)
+      for quad in $(geant4-parse-env $g4envsh)
       do
-	     nvar=`echo $triplet | cut -f1 -d:`  
-	     base=`echo $triplet | cut -f2 -d:`  
-	     vers=`echo $triplet | cut -f3 -d:`  
-		   
+	     nvar=`echo $quad | cut -f1 -d:`  
+	     base=`echo $quad | cut -f2 -d:`  
+	     vers=`echo $quad | cut -f3 -d:`  
+		 path=`echo $quad | cut -f4 -d:`  
+           
          ## the unpacked directory name doesnt match the tgz name, hence this shenanigans
          if ([ "$base" == "RadioactiveDecay" ] && [ "$vers" == "3.1" ]) ;then
             prefix="G4" 
