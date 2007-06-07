@@ -97,7 +97,9 @@ svn-apache2-conf(){
 
   ## tracs 
 
-  svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF   
+  #access="httplogin" 
+  access="formlogin" 
+  svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF  $access 
   apache2-conf-connect $TRAC_APACHE2_CONF
 
   ## restart  
@@ -136,8 +138,8 @@ svn-apache2-tracs-location-write(){
   local conf=${1:-dummy-location}
   shift
   
-  echo =============== writing svn-apache2-tracs-location output to $conf
-  $ASUDO bash -lc "svn-apache2-tracs-location  >  $conf"
+  echo =============== writing svn-apache2-tracs-location output to $conf ... $*
+  $ASUDO bash -lc "svn-apache2-tracs-location $* >  $conf"
   echo =============== cat $conf 
   cat $conf 
 
@@ -177,10 +179,10 @@ svn-apache2-xslt-write(){
 ## formerly modpython-tracs-conf
 svn-apache2-tracs-location(){
 
-  local arg=${1:-authlogin}
-  if [ "$arg" == "authlogin" ]; then
+  local access=${1:-formlogin}
+  if [ "$access" == "httplogin" ]; then
      c="" 
-  else
+  else if [ "$access" == "formlogin" ]; then 
      c="#"
   fi      
 
