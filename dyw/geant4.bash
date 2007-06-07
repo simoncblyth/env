@@ -404,7 +404,12 @@ geant4-get-data(){
             prefix=""
          fi
          
-         #drn=$base$vers
+         ##
+         ## note the annoying irregular features :
+         ##    1) extra "." between base and vers
+         ##    2)  irregular prefix in one case 
+         ##
+          
          tgz=$(dirname $path)/$prefix$base.$vers.tar.gz
 
 	     echo  nvar:$nvar base:$base vers:$vers path:$path tgz:$tgz prefix:$prefix
