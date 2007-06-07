@@ -29,19 +29,21 @@ trac-plugin-accountmanager-get-and-install(){
 
 trac-plugin-accountmanager-conf(){
 
+   ## caution webadmin is a pre-requisite to accountmanager
+
    local name=${1:-$SCM_TRAC} 
    
    local userfile=$APACHE2_HOME/$SVN_APACHE2_AUTH
    
-   local comps="components:acct_mgr.admin.AccountManagerAdminPage:enabled components:acct_mgr.web_ui.AccountModule:enabled"  
-   local login="components:trac.web.auth.LoginModule:disabled components:acct_mgr.web_ui.LoginModule:enabled"
+   local comps="components:acct_mgr.admin.accountmanageradminpage:enabled components:acct_mgr.web_ui.accountmodule:enabled"  
+   local login="components:trac.web.auth.loginmodule:disabled components:acct_mgr.web_ui.loginmodule:enabled"
   
     ## disable registration as no checks
-   local regist="components:acct_mgr.web_ui.RegistrationModule:disabled"
+   local regist="components:acct_mgr.web_ui.registrationmodule:disabled"
 
    ## password setup
-   local htdigest="components:acct_mgr.htfile.HtDigestStore:enabled  components:acct_mgr.htfile.HtPasswdStore:disabled account-manager:password_store:HtDigestStore account-manager:htdigest_realm:svn-realm"
-   local htpasswd="components:acct_mgr.htfile.HtDigestStore:disabled components:acct_mgr.htfile.HtPasswdStore:enabled  account-manager:password_store:HtPasswdStore"
+   local htdigest="components:acct_mgr.htfile.htdigeststore:enabled  components:acct_mgr.htfile.htpasswdstore:disabled account-manager:password_store:htdigeststore account-manager:htdigest_realm:svn-realm"
+   local htpasswd="components:acct_mgr.htfile.htdigeststore:disabled components:acct_mgr.htfile.htpasswdstore:enabled  account-manager:password_store:htpasswdStore"
    local pass="$htpasswd account-manager:password_file:$userfile"
    
    
