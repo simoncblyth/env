@@ -20,6 +20,6 @@ trac-plugin-webadmin-install(){
 trac-plugin-webadmin-enable(){
    
    name=${1:-$SCM_TRAC}
-   trac-plugin-enable $name webadmin    
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:webadmin.\*:enabled
 }
 
