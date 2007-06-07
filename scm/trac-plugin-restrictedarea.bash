@@ -55,11 +55,11 @@ trac-plugin-restrictedarea-conf(){
 
    local name=${1:-$SCM_TRAC}
    
-   ##local perm="components:restrictedarea.filter:enabled" 
-   local perm="components:restrictedarea.filter.restrictedareafilter:enabled"
+   local perma="components:restrictedarea.filter:enabled" 
+   local permb="components:restrictedarea.filter.restrictedareafilter:enabled"
    local restrict="restrictedarea:paths:/wiki/restricted,/wiki/secret"
    
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini "$perm $restrict" 
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini "$perma $permb $restrict" 
    
    #  subsequently should see  RESTRICTED_AREA_ACCESS in the available actions
    #   trac-permission $name list
