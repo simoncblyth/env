@@ -44,8 +44,13 @@ trac-plugin-accountmanager-conf(){
    local htpasswd="components:acct_mgr.htfile.HtDigestStore:disabled components:acct_mgr.htfile.HtPasswdStore:enabled  account-manager:password_store:HtPasswdStore"
    local pass="$htpasswd account-manager:password_file:$userfile"
    
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini "$comps $pass $login $regist"
+   
+   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
+   cp $tini /tmp/trac.ini.orig   
+   
+   ini-edit $tini "$comps $pass $login $regist"
 
+   diff $tini /tmp/trac.ini.orig 
 
 }
 
