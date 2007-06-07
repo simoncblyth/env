@@ -81,114 +81,14 @@ export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
 trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
 trac-i(){ . $SCM_HOME/trac.bash ; }
 
-trac-permission(){
-   local name=${1:-$SCM_TRAC}
-   shift
-   echo $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
-        $SUDO trac-admin $SCM_FOLD/tracs/$name permission $*
-}
 
-
-
-trac-setup-perms(){
-
-    local name=${1:-$SCM_TRAC}
-    local level=${2:-$SCM_SECURITY_LEVEL}
-
-	views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
-    other="TIMELINE_VIEW SEARCH_VIEW"
-	hmmm="CONFIG_VIEW"
-    wiki="WIKI_CREATE WIKI_MODIFY"
-	ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
-    milestone="MILESTONE_CREATE MILESTONE_MODIFY"
-    report="REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
- 
- 
-    ## remove WIKI_DELETE MILESTONE_DELETE REPORT_DELETE ... leave those to admin only
-    ## allow unauth to REPORT_VIEW 
- 
-    if [ "$level" == "loose" ]; then
- 
-      trac-user-perms $name anonymous     "$views $other" 
-	  trac-user-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
-      trac-user-perms $name admin TRAC_ADMIN
- 
-    elif [ "$level" == "tight" ]; then
-    
-      trac-user-perms $name anonymous     "$views $other" 
-	  trac-user-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
-      trac-user-perms $name admin TRAC_ADMIN 
-      
-    else
-        echo "ERROR security level $level is no implemented "
-    fi            
-       
-             
-      
-    ## does TRAC_ADMIN include XML_RPC ? yes 
-
-}
-
-
-
-trac-components(){ 
-   local name=${1:-$SCM_TRAC}
-   shift
-   echo sudo trac-admin $SCM_FOLD/tracs/$name component $*
-        sudo trac-admin $SCM_FOLD/tracs/$name component $*
-}
-
-trac-setup-components(){
-
-    local name=${1:-$SCM_TRAC}
-    local pairs="red:admin green:admin blue:admin"
-
-    ## remove the default components 
-    trac-components $name remove component1
-    trac-components $name remove component2
-
-    for pair in $pairs
-    do
-	    local component=$(echo $pair | cut -f1 -d:)
-	    local     owner=$(echo $pair | cut -f2 -d:)
-        trac-components $name add $component $owner
-    done	   
-    trac-components $name list 
-}
-
-
-
-trac-conf-notification(){
-   echo simply make the following settings ... to get emails on ticket changes
-   echo the user settings should include the email address ... if doesnt correspond to default domain
-cat << EOX
-smtp_default_domain = hep1.phys.ntu.edu.tw
-smtp_enabled = true
-always_notify_owner = true
-always_notify_reporter = true
-always_notify_updater = true
-EOX
-   echo sudo vi $SCM_FOLD/tracs/env/conf/trac.ini
-}
-
-
-trac-authz-check(){
-  find $SCM_FOLD/tracs -name trac.ini -exec grep -H auth {} \;
-}
 
 
 trac-log(){
-
   name=${1:-$SCM_TRAC}
   cat $SCM_FOLD/tracs/$name/log/trac.log
   ls -alst  $SCM_FOLD/tracs/$name/log/trac.log
-
 }
-
-
-
-
-
 
 #
 #   python distribution primer ..
@@ -208,13 +108,9 @@ trac-log(){
 #
 #
 
+trac-plugin-enable-deprecated(){
 
-
-
-
-
-
-trac-plugin-enable(){
+    ##  DEPRECATED APPROACH USE ini-edit NOW 
 
    ## globally installed plugins need to be enabled ..
 
@@ -235,74 +131,10 @@ trac-plugin-enable(){
    ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 trac-ini(){
   local name=${1:-$SCM_TRAC}
   $SUDO vi  $SCM_FOLD/tracs/$name/conf/trac.ini
-  }
-
-
-
-
-
-
-
-
-
-trac-pygments-plugin-get(){
-
-## http://trac-hacks.org/wiki/TracPygmentsPluginA
-##
-##  
-
-   cd $LOCAL_BASE/trac
-   mkdir -p plugins && cd plugins
-   
-   nam=tracpygmentsplugin
-   zip=$nam.zip
-   test -f $zip || curl -o $zip "http://trac-hacks.org/changeset/latest/tracpygmentsplugin?old_path=/&filename=tracpygmentsplugin&format=zip"
-
-   unzip -l $zip
-   test -d $nam || unzip $zip
-   
-   cd $nam
-   cd 0.10
-   python setup.py install
-
-# Installed /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/TracPygments-0.3dev-py2.5.egg
-
 }
 
-trac-user-perms(){
-
-   name=${1:-$SCM_TRAC}
-   user=${2:-anonymous}
-   shift 
-   shift 
-   
-   ## remove all permissions first ... and then apply 
-
-   trac-permission $name remove $user  \'*\'
-   
-   #for perm in $*
-   #do	   
-   #   trac-permission $name add $user $perm
-   #done
-   
-   trac-permission $name add $user $*
-}
 
 
