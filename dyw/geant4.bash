@@ -335,7 +335,7 @@ geant4-liblist(){
 
 geant4-parse-env(){
    local g4envsh=$1
-   perl -n -e "m|^(\S*)=\"$G4INSTALL/data/(.*)(\d\.\d*)\"| && printf \"%s:%s:%s \", \$1,\$2,\$3 ; "  $g4envsh
+   perl -n -e "m|^(\S*)=\"$LOCAL_BASE/.*/data/(.*)(\d\.\d*)\"| && printf \"%s:%s:%s \", \$1,\$2,\$3 ; "  $g4envsh
 }
 
 
