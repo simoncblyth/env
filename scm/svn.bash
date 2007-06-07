@@ -378,7 +378,6 @@ cat << EOC
 @user = rw 
 @admin = rw
 
-
 # Nb this is declaring anyone can read the content of this repository ...
 # so must allow anonymous to get thru at the upper level ...
 [newtest:/]
@@ -389,12 +388,18 @@ cat << EOC
 
 
 # force authenticated 
-[hottest:/]
+
+[dyw_release_2_8:/]
 @member = r
 @user = rw
 @admin = rw
 
-[dyw_release_2_8:/]
+[dyw_release_2_9:/]
+@member = r
+@user = rw
+@admin = rw
+
+[dyw_release_2_5:/]
 @member = r
 @user = rw
 @admin = rw
