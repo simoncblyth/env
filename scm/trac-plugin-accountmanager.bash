@@ -35,6 +35,8 @@ trac-plugin-accountmanager-conf(){
    
    local userfile=$APACHE2_HOME/$SVN_APACHE2_AUTH
    
+   
+   local base="components:acct_mgr.api:enabled"
    local comps="components:acct_mgr.admin.accountmanageradminpage:enabled components:acct_mgr.web_ui.accountmodule:enabled"  
    local login="components:trac.web.auth.loginmodule:disabled components:acct_mgr.web_ui.loginmodule:enabled"
   
@@ -43,14 +45,14 @@ trac-plugin-accountmanager-conf(){
 
    ## password setup
    local htdigest="components:acct_mgr.htfile.htdigeststore:enabled  components:acct_mgr.htfile.htpasswdstore:disabled account-manager:password_store:htdigeststore account-manager:htdigest_realm:svn-realm"
-   local htpasswd="components:acct_mgr.htfile.htdigeststore:disabled components:acct_mgr.htfile.htpasswdstore:enabled  account-manager:password_store:htpasswdStore"
+   local htpasswd="components:acct_mgr.htfile.htdigeststore:disabled components:acct_mgr.htfile.htpasswdstore:enabled  account-manager:password_store:htpasswdstore"
    local pass="$htpasswd account-manager:password_file:$userfile"
    
    
    local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
    cp $tini /tmp/trac.ini.orig   
    
-   ini-edit $tini "$comps $pass $login $regist"
+   ini-edit $tini "$base $comps $pass $login $regist"
 
    diff $tini /tmp/trac.ini.orig 
 
