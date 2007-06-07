@@ -117,6 +117,8 @@ sub prepare{
    push(@{ $self->{'edit'} }, $_) for (@{ $self->{'data'}{'___start___'}{'lines'} });
 
    for my $block (@{ $self->{'blockorder'} }){
+       
+       print "preparing block $block \n";
        push(@{ $self->{'edit'} }, $self->{'blockline'}{$block} );
 
        for my $line (@{ $self->{'data'}{$block}{'lines'} }){
@@ -153,6 +155,8 @@ sub prepare{
     my $lastblock = ${ $self->{'blockorder'} }[-1] ;
 	my $lastline = ${ $self->{'data'}{$lastblock}{'lines'} }[-1] ;
  
+    print "checking for new blocks ... lastblock $lastblock lastline $lastline \n" ;
+    
     my $nadd = 0 ;
     for my $addblock (keys %{ $self->{'data'} }){
        if( grep( $addblock eq $_, @{ $self->{'blockorder'} }) == 0 && $addblock ne "___start___" ){
@@ -163,6 +167,7 @@ sub prepare{
              push(@{ $self->{'edit'} }, "" ); 
 		   }
 
+           
 		   
            push(@{ $self->{'edit'} }, &formblock( $addblock) ); 
            $self->addkeys( $addblock );
