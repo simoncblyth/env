@@ -35,15 +35,23 @@ sub EDIT {
 
    my ( $file , @edits ) = @_ ;
    
-    print "INI::EDIT reading $file \n" ; 
+   print "INI::EDIT reading $file \n" ; 
    my $ini = new INI ;
    $ini->read( $file );
    $ini->edit( @edits );
    $ini->prepare();
    
-   #$ini->write("$file.out" );
-   $ini->write("$file" );
-   print Dumper( $ini );
+   my $tmp="$file.$$" ;
+   $ini->write($tmp);
+   
+   my $cmd = "diff $file $tmp && mv $tmp $file ";
+   print "$cmd\n";
+   open(P,"$cmd|");
+   while(<P>){
+       print 
+   }
+   
+   #print Dumper( $ini );
 }
 
 
@@ -118,7 +126,7 @@ sub prepare{
 
    for my $block (@{ $self->{'blockorder'} }){
        
-       print "preparing block $block \n";
+       #print "preparing block $block \n";
        push(@{ $self->{'edit'} }, $self->{'blockline'}{$block} );
 
        for my $line (@{ $self->{'data'}{$block}{'lines'} }){
@@ -130,11 +138,14 @@ sub prepare{
 		       my $key = ${ $pair }[0] ;
 			   my $val = ${ $pair }[1] ;
                
+               my $newval = $self->{'data'}{$block}{'content'}{$key} ;
+               
 			   ## no change in content, use original line ... otherwise form newline
-			   if( $self->{'data'}{$block}{'content'}{$key} eq $val ){
+			   if( $newval eq $val ){
 			      push(@{ $self->{'edit'} }, $line); 
                } else {
-			      push(@{ $self->{'edit'} }, &formline( $key, $val )); 
+                  print "apply edit .. [$block|$key|$newval|$val] \n " ; 
+			      push(@{ $self->{'edit'} }, &formline( $key, $newval )); 
 			   }
 
                ## check for last(at input) key in the block 
@@ -155,7 +166,7 @@ sub prepare{
     my $lastblock = ${ $self->{'blockorder'} }[-1] ;
 	my $lastline = ${ $self->{'data'}{$lastblock}{'lines'} }[-1] ;
  
-    print "checking for new blocks ... lastblock $lastblock lastline $lastline \n" ;
+    #print "checking for new blocks ... lastblock $lastblock lastline $lastline \n" ;
     
     my $nadd = 0 ;
     for my $addblock (keys %{ $self->{'data'} }){    
