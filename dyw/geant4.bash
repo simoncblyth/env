@@ -97,38 +97,46 @@ geant4-x(){ scp $HOME/$DYW_BASE/geant4.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 ##### G4 definition ##############################
 
 GQ_FOLDER=$LOCAL_BASE/geant4
-#GQ_NAME="geant4.8.1.p01"
-GQ_NAME="geant4.8.2.p01"   ## new june/2007 to be installed 
 
-GQ_TAG=.
+if [ "X$GQ_NAME" == "X" ]; then
+  #GQ_NAME="geant4.8.1.p01"
+   GQ_NAME="geant4.8.2.p01"  
+else
+   echo honouring prior override GQ_NAME $GQ_NAME
+fi
 
-if [ "$NODE_TAG" == "L" ]; then   ## pal@nuu
-	
-   GQ_HOME=$GQ_FOLDER/$GQ_NAME
-   
+
+if [ "X$GQ_TAG" != "X" ]; then
+   echo honouring prior GQ_TAG setting $GQ_TAG
+
+elif [ "$NODE_TAG" == "L" ]; then   ## pal@nuu
+
+   GQ_TAG=.
+
 elif [ "$NODE_TAG" == "G" ]; then
 
-   GQ_HOME=$GQ_FOLDER/$GQ_NAME
+   GQ_TAG=.
    
 elif ([ "$NODE_TAG" == "P" ]) ; then
 
    #GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
    GQ_TAG="dbg"     ##  debug flags + visualization
-   GQ_HOME=$GQ_FOLDER/$GQ_TAG/$GQ_NAME
+  
 
 elif ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ]) ; then
 
    #GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
    GQ_TAG="dbg"     ##  debug flags + visualization
-   GQ_HOME=$GQ_FOLDER/$GQ_TAG/$GQ_NAME
+  
    
 else   
-	
-   GQ_HOME=$GQ_FOLDER/$GQ_NAME
+
+   	GQ_TAG="dbg"
 
 fi
 
-export GQ_HOME 
+
+export GQ_HOME=$GQ_FOLDER/$GQ_TAG/$GQ_NAME
 export GQ_MACPATH=$GQ_FOLDER/macros:$HOME/geant4/macros
 
 alias autogui="perl -MSCB::Geant4::Macro -e '&autogui();' "
