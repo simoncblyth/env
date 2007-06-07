@@ -332,7 +332,7 @@ cat << EOA
 #  securitylevel $securitylevel
 #   
 [groups]
-member = simon 
+member = simon, dayabay 
 user = blyth, thho
 admin = dayabaysoft, admin
 
