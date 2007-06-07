@@ -44,15 +44,19 @@ trac-conf-perms(){
  
     elif [ "$level" == "tight" ]; then
     
-      ## anonymous user can do nothing ... but can they login ? 
-      trac-conf-set-perms $name anonymous     "" 
-	  trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+      ## anonymous user can do nothing ... but can they login ?
+      ## use the restricted area access workaround to avoid the error on arrival issue
+      ## 
+      trac-conf-set-perms $name anonymous     "WIKI_VIEW"
+	  trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
       trac-conf-set-perms $name admin TRAC_ADMIN 
       
     else
         echo "ERROR security level $level is no implemented "
     fi            
-       
+     
+    trac-conf-perm $name list    
+           
     ## does TRAC_ADMIN include XML_RPC ? yes 
 }
 
