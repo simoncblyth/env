@@ -14,7 +14,7 @@ StringTest(){
   TH1F *h2[4];
   TH1F *h3[4][100];
   TH1F *h1 = new TH1F("h1","h1",500,0,1500);
-  char filename[201][201][201];
+  
     
 
   //loop over thicknesses
@@ -28,22 +28,11 @@ StringTest(){
 	{
           h3[runno][j-1] = new TH1F("h3","h3",500,0,1500);
 
-          //create string of the input filename
-	  char result1[100];
-	  char result2[100];
-	  strcat(filename[i][j], "neutron_root/neutron_i");
-	  sprintf(result1,"%d",i);
-	  strcat(filename[i][j], result1 );
-	  strcat(filename[i][j], result1 );
-	  sprintf(result2,"%d",j);
-	  strcat(filename[i][j], ".events_r");
-	  strcat(filename[i][j], result2 );
-	  strcat(filename[i][j], ".root");
-	  cout<<i<<" and " <<j<<endl;
-	  endl;
+            
+      TString filename = Form("neutron_root/neutron_i%d.events_r%d.root", i,j );
 	 
 	  //get correct tree
-	  TFile *f = new TFile(filename[i][j],"read");
+	  TFile *f = new TFile(filename.Data() ,"read");
 	  dywGLEvent* myevt = new dywGLEvent();	
 	  TTree *tree = (TTree*) f->Get("event_tree");
 	  tree->SetBranchAddress("dayabay_MC_event_output",&myevt);
