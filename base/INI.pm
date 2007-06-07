@@ -33,6 +33,8 @@ package INI ;
 sub EDIT {
 
    my ( $file , @edits ) = @_ ;
+   
+    print "INI::EDIT reading $file \n" ; 
    my $ini = new INI ;
    $ini->read( $file );
    $ini->edit( @edits );
