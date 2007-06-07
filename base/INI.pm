@@ -159,8 +159,12 @@ sub prepare{
     
     my $nadd = 0 ;
     for my $addblock (keys %{ $self->{'data'} }){
+        
+        
+    
        if( grep( $addblock eq $_, @{ $self->{'blockorder'} }) == 0 && $addblock ne "___start___" ){
 
+           push(@{ $self->{'edit'} }, "# new block $addblock  " ); 
            ## add a blank line before the new block if one not there already  
            ++$nadd ; 
 		   if( $nadd == 1 && $lastline ne "" ){
@@ -173,7 +177,7 @@ sub prepare{
            $self->addkeys( $addblock );
            push(@{ $self->{'edit'} }, "" ); 
 	   } else {
-           #push(@{ $self->{'edit'} }, "#not new block $addblock  " );
+           push(@{ $self->{'edit'} }, "#not new block $addblock  " );
 	   }
     }
 
