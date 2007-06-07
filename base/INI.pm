@@ -212,7 +212,14 @@ sub edit{
    my ($block,$key,$val) ;
    for (@args){
 		($block,$key,$val) = split /:/ ;
-		print "  .... block $block key $key val $val \n" ;
+       
+        if( defined $self->{'data'}{$block}{'content'}{$key} ){
+            my $old = $self->{'data'}{$block}{'content'}{$key} ;
+            print "  editing.... block[$block]key[$key]val[$val]  oldval[$old] \n" ;
+        } else {
+            print "  setting.... block[$block]key[$key]val[$val]  oldval[$old] \n" ; 
+        }
+           
 		$self->{'data'}{$block}{'content'}{$key} = $val;
    }
 
