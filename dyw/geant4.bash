@@ -388,6 +388,7 @@ geant4-get-data(){
 
       test -d data || mkdir  data
       cd data
+      ## NB generalized data positioning based on the below path , so may not be downloaded to pwd 
    
       for quad in $(geant4-parse-env $g4envsh)
       do
@@ -403,12 +404,13 @@ geant4-get-data(){
             prefix=""
          fi
          
-         drn=$base$vers
-         tgz=$prefix$base.$vers.tar.gz
+         #drn=$base$vers
+         tgz=$(dirname $path)/$prefix$base.$vers.tar.gz
 
-	     echo triplet $triplet nvar $nvar base $base vers $vers tgz $tgz drn $drn prefix $prefix
+	     echo  nvar:$nvar base:$base vers:$vers path:$path tgz:$tgz prefix:$prefix
+         
 	     test -f "$tgz" && echo already downloaded $tgz || curl -o $tgz http://geant4.web.cern.ch/geant4/support/source/$tgz
-	     test -d "$drn" &&  echo already unpacked into $drn || tar zxvf $tgz
+	     test -d "$path" &&  echo already unpacked into $path || tar zxvf $tgz
       done
 
    else
