@@ -44,7 +44,7 @@ sub EDIT {
    my $tmp="$file.$$" ;
    $ini->write($tmp);
    
-   my $cmd = "diff $file $tmp && mv $tmp $file ";
+   my $cmd = "$ENV{'SUDO'} diff $file $tmp && $ENV{'SUDO'} mv $tmp $file ";
    print "$cmd\n";
    open(P,"$cmd|");
    while(<P>){
