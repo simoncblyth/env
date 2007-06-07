@@ -182,8 +182,10 @@ svn-apache2-tracs-location(){
   local access=${1:-formlogin}
   if [ "$access" == "httplogin" ]; then
      c="" 
-  else if [ "$access" == "formlogin" ]; then 
+  elif [ "$access" == "formlogin" ]; then 
      c="#"
+  else
+     c="#ERROR access $access not handled "
   fi      
 
 cat << EOC
