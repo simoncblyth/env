@@ -42,7 +42,7 @@ sub EDIT {
    
    #$ini->write("$file.out" );
    $ini->write("$file" );
-   #print Dumper( $ini );
+   print Dumper( $ini );
 }
 
 
