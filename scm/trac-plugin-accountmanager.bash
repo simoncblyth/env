@@ -44,8 +44,8 @@ trac-plugin-accountmanager-conf(){
    local regist="components:acct_mgr.web_ui.registrationmodule:disabled"
 
    ## password setup
-   local htdigest="components:acct_mgr.htfile.htdigeststore:enabled  components:acct_mgr.htfile.htpasswdstore:disabled account-manager:password_store:htdigeststore account-manager:htdigest_realm:svn-realm"
-   local htpasswd="components:acct_mgr.htfile.htdigeststore:disabled components:acct_mgr.htfile.htpasswdstore:enabled  account-manager:password_store:htpasswdstore"
+   local htdigest="components:acct_mgr.htfile.htdigeststore:enabled  components:acct_mgr.htfile.htpasswdstore:disabled account-manager:password_store:HtDigestStore account-manager:htdigest_realm:svn-realm"
+   local htpasswd="components:acct_mgr.htfile.htdigeststore:disabled components:acct_mgr.htfile.htpasswdstore:enabled  account-manager:password_store:HtPasswdStore"
    local pass="$htpasswd account-manager:password_file:$userfile"
    
    
