@@ -177,6 +177,13 @@ svn-apache2-xslt-write(){
 ## formerly modpython-tracs-conf
 svn-apache2-tracs-location(){
 
+  local arg=${1:-authlogin}
+  if [ "$arg" == "authlogin" ]; then
+     c="" 
+  else
+     c="#"
+  fi      
+
 cat << EOC
 
 <Location /mpinfo>
@@ -208,13 +215,13 @@ cat << EOC
 </Location>
 
 # when using AccountManagerPlugin this needs to be removed 
-#<LocationMatch "/tracs/[^/]+/login">
-#    AuthType Basic
-#    AuthName "svn-tracs"
-#    AuthUserFile $SVN_APACHE2_AUTH
-#    Require valid-user
-#</LocationMatch>
-#
+$c<LocationMatch "/tracs/[^/]+/login">
+$c    AuthType Basic
+$c    AuthName "svn-tracs"
+$c    AuthUserFile $SVN_APACHE2_AUTH
+$c    Require valid-user
+$c</LocationMatch>
+$c
 #  before AccounManagerPlugin is setup removing this causes ... 
 # 500 Internal Server Error (Authentication information not available. 
 #  Please refer to the <a href="/tracs/hottest/wiki/TracInstall#ConfiguringAuthentication" title="Configuring Authentication">installation documentation</a>.)
