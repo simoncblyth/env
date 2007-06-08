@@ -48,12 +48,18 @@
 
 base-datestamp(){
 
-  if [ "$1" == "now" ]; then 
+   
+  local moment=${1:-"now"} 
+  local fmt=${2:-"%Y%m%d"}
+  
+  
+
+  if [ "$moment" == "now" ]; then 
      if [ "$(uname)" == "Darwin" ] ; then
         timdef=$(perl -e 'print time')
-	    refdef=$(date -r $timdef +"%Y%m%d")  
+	    refdef=$(date -r $timdef +$fmt )  
      else		
-	    refdef=$(date  +"%Y%m%d")
+	    refdef=$(date  +$fmt)
      fi 
   fi  
 
