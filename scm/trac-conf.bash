@@ -136,5 +136,10 @@ trac-conf-authz-check(){
 
 
 
+ini-edit(){
+   ## utility for editing INI files ... moved from base/file.bash as needs APACHE2_USER
+   $SUDO -u $APACHE2_USER perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $*
+}
+
 
 
