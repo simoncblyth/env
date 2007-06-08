@@ -207,7 +207,13 @@ eval USER_BASE=\$$vname
 export USER_BASE
 
 
-export DEFAULT_MACRO="generator-inversebeta_seed-0_angle-0_nevts-100"
+if [ "X$DEFAULT_MACRO" == "X" ]; then
+  DEFAULT_MACRO="generator-inversebeta_seed-0_angle-0_nevts-100"
+else
+  echo honouring override DEFAULT_MACRO $DEFAULT_MACRO
+fi
+export DEFAULT_MACRO
+
 
 
 ## --------------  for job outputs 
