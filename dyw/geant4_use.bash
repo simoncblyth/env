@@ -29,7 +29,8 @@ if [ -x "${GQ_HOME}/env.sh" ]; then
       #source ${GQ_HOME}/env.sh > $HOME/g4-env.log
       #source ${GQ_HOME}/env.sh > $GQ_HOME/env.log
 
-      # as are reusing the "dbg" datadir for all tags
+      # as are reusing the "dbg" datadir for all tags 
+      # NB assumes all the G4data is in one folder
       export GQ_DATA=$(dirname $G4LEDATA)
       export GEANT_CMT="GEANT_incdir:$GQ_HOME/include GEANT_libdir:$GQ_HOME/lib/$G4SYSTEM GEANT_datadir:$GQ_DATA OGLLIBS:newogl:set"
       export ENV2GUI_VARLIST="G4INSTALL:G4SYSTEM:$ENV2GUI_VARLIST"
