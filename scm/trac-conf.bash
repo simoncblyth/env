@@ -62,6 +62,31 @@ trac-conf-perms(){
 
 
 
+trac-conf-intertrac(){
+
+    local self=${1:-$SCM_TRAC}    
+    for path in $SCM_FOLD/tracs/*
+    do
+       local target=$(basename $path)
+       if ([ -d "$path" ] && [ "X$target" != "X$self" ]) then
+          local abbr=$(echo $target | perl -pe 's/_release//')
+          
+          if [ "X$abbr" == "$target" ]; then
+             echo skip non release
+          else   
+             local conf="intertrac:$abbr:$target intertrac:$target.title:$target intertrac:$target.url:/tracs/$target intertrac:$target.compat:false"
+             echo $target $conf
+             ini-edit $SCM_FOLD/tracs/$self/conf/trac.ini $conf
+          fi   
+       else
+          echo skip self $target
+       fi  
+    done
+
+}
+
+
+
 trac-conf-component(){ 
    local name=${1:-$SCM_TRAC}
    shift
