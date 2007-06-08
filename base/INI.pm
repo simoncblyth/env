@@ -220,10 +220,11 @@ sub addkeys {
 sub edit{
 
    my ( $self , @args ) = @_ ;
-   my ($block,$key,$val) ;
    for (@args){
      if(m/^(.*):(.*):(.*)/){ 
-        ($block,$key,$val) = ($1, $2, $3 );
+         my $block = $1 ;
+         my $key = $2 ;
+         my $val = $3 ;
         if( defined $self->{'data'}{$block}{'content'}{$key} ){
             my $old = $self->{'data'}{$block}{'content'}{$key} ;
             print "  editing.... block[$block]key[$key]val[$val]  oldval[$old] \n" ;
