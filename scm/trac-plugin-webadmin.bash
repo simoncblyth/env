@@ -18,6 +18,12 @@ trac-plugin-webadmin-install(){
 }
 
 trac-plugin-webadmin-enable(){
+
+   #
+   #  NB for the "Admin" tab to appear you need to login as a user with TRAC_ADMIN action 
+   #  so need to : 
+   #     1)  trac-conf-perms dyw_release_2_5 tight   
+   # 
    
    name=${1:-$SCM_TRAC}
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:webadmin.\*:enabled
