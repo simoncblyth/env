@@ -16,10 +16,6 @@ file-dirlist(){
 }
 
 
-ini-edit(){
-   ## utility for editing INI files 
-   $SUDO perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $*
-}
 
 
 
