@@ -222,8 +222,8 @@ sub edit{
    my ( $self , @args ) = @_ ;
    my ($block,$key,$val) ;
    for (@args){
-		($block,$key,$val) = split /:/ ;
-       
+     if(m/^(.*):(.*):(.*)/){ 
+        ($block,$key,$val) = ($1, $2, $3 );
         if( defined $self->{'data'}{$block}{'content'}{$key} ){
             my $old = $self->{'data'}{$block}{'content'}{$key} ;
             print "  editing.... block[$block]key[$key]val[$val]  oldval[$old] \n" ;
@@ -232,7 +232,7 @@ sub edit{
         }
            
 		$self->{'data'}{$block}{'content'}{$key} = $val;
-   }
+     }
 
 }
 
