@@ -93,7 +93,8 @@
  export SCM_HOME=$HOME/$SCM_BASE
  cd $SCM_HOME
 
- [ -r scm-use.bash ]        && . scm-use.bash 
+ [ -r scm-use.bash ]        && . scm-use.bash
+ [ -r scm-backup.bash ]     && . scm-backup.bash 
  [ -r svn-use.bash ]        && . svn-use.bash 
  [ -r trac-use.bash ]       && . trac-use.bash 
  [ -r modwsgi-use.bash ]    && . modwsgi-use.bash 
@@ -120,8 +121,11 @@
  [ -r trac.bash ]                        && . trac.bash     
  [ -r trac-conf.bash ]                   && . trac-conf.bash
       
+ ## caution webadmin is a prerequisite to accountmanager      
+      
+ [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash       
  [ -r trac-plugin-accountmanager.bash ]  && . trac-plugin-accountmanager.bash 
- [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash 
+
  [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
  [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
  [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
