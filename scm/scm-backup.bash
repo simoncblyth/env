@@ -21,6 +21,28 @@ scm-backup-all(){
 }
 
 
+scm-backup-rsync(){
+
+   # 
+   # rsync the local backup repository to an off box mirror on the paired $BACKUP_TAG node 
+   #   - have to set up ssh keys to allow non-interactive sshing 
+   # 
+
+   if [ "X$BACKUP_TAG" == "X" ]; then
+      echo no paired backup node has been defined for node $LOCAL_NODE
+   else
+
+      local source=$SCM_FOLD/backup/$LOCAL_NODE
+      local remote=$VAR_BASE_BACKUP/scm/backup 
+ 
+      ssh $BACKUP_TAG "mkdir -p  $remote"
+      rsync -razvt $source $BACKUP_TAG:$remote/ 
+
+   fi 
+}
+
+
+
 
 scm-backup-repo(){
 
