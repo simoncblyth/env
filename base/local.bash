@@ -173,7 +173,7 @@ base-node-info(){
 
 
 
-## --------------  the root for most everything ---------------------------
+## --------------  the software root for most everything ---------------------------
 ##  
 
 export LOCAL_BASE_G=/usr/local
@@ -187,6 +187,17 @@ export LOCAL_BASE_T=/usr/local/simon
 vname=LOCAL_BASE_$NODE_TAG
 eval LOCAL_BASE=\$$vname
 export LOCAL_BASE
+
+## ----------  for operational files, like backups
+
+export VAR_BASE_G1=/disk/d4/dayabay/var
+export VAR_BASE_U=/var
+
+## if a value for the node is defined then use that, otherwise use VAR_BASE_U
+vname=VAR_BASE_$NODE_TAG
+eval _VAR_BASE=\$$vname
+export VAR_BASE=${_VAR_BASE:-$VAR_BASE_U}
+
 
 ## -------------- user specific base , for users macros and job outputs ----------
 
