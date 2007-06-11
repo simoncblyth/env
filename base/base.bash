@@ -13,7 +13,15 @@
  iwd=$(pwd)
  cd $HOME/$BASE_BASE
 
+ 
+
+
  [ -r local.bash ]       && . local.bash 
+
+ SSH_INFOFILE=$HOME/.ssh-agent-info-$NODE_TAG
+ export SSH_INFOFILE
+ [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
+
 
  [ -t 0 ] || return 
 
