@@ -14,7 +14,8 @@ ssh--keygen(){
   [ -d "$HOME/$SSH_BASE" ] || ( mkdir $HOME/$SSH_BASE && chmod 700 $HOME/$SSH_BASE )
 
   echo generating keys on node $NODE_TAG
-  for typ in "rsa1 rsa dsa"
+  local types="rsa1 rsa dsa"
+  for typ in $types
   do	  
      case $typ in
        rsa1) keyname=identity ;;
