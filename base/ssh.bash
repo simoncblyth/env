@@ -65,6 +65,7 @@ ssh--infofile(){
 }
 
 ssh--agent-ok(){
+  ## hmm "no identities" gives error status
    (ssh-add -l >& /dev/null) && echo 1 || echo 0
 }
 
@@ -72,7 +73,15 @@ ssh--agent-ok(){
 ssh--agent-start(){
     local info=$(ssh--infofile)
     ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
+    
+    echo ===== sourcing the info for the agent $info
     . $info
+    
+    echo ===== adding identities to the agent 
+    ssh-add $HOME/.ssh/id{_dsa,_rsa,entity}
+    
+    echo ===== listing identities of the agent
+    ssh-add -l
 }
 
 
@@ -81,7 +90,7 @@ ssh--setup(){
   if [ $(ssh--agent-ok) == "1" ]; then
       echo agent is responding
   else
-     echo agent is not responding, try starting a new one
+     echo agent is not responding, trying to start a new one
      ssh--agent-start
   fi
 }
