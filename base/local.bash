@@ -169,16 +169,17 @@ base-node-info(){
 }
 
 
-
-
+#export DISK_G1=/data/w
+export DISK_G1=/disk/d4
+export DAYABAY_G1=$DISK_G1/dayabay
 
 
 ## --------------  the software root for most everything ---------------------------
 ##  
 
 export LOCAL_BASE_G=/usr/local
-export LOCAL_BASE_P=/disk/d4/dayabay/local   ## must match the setting in P:.bash_profile 
-export LOCAL_BASE_G1=/disk/d4/dayabay/local  ## must match the setting in P:.bash_profile 
+export LOCAL_BASE_P=$DAYABAY_G1/local   ## must match the setting in P:.bash_profile 
+export LOCAL_BASE_G1=$DAYABAY_G1/local  ## must match the setting in P:.bash_profile 
 export LOCAL_BASE_L=/usr/local               ## must match the setting in L:.bash_profile 
 export LOCAL_BASE_U=/usr/local               ## must match the setting in L:.bash_profile 
 export LOCAL_BASE_H=/data/usr/local          ## must match the setting in L:.bash_profile 
@@ -190,7 +191,7 @@ export LOCAL_BASE
 
 ## ----------  for operational files, like backups
 
-export VAR_BASE_G1=/disk/d4/dayabay/var
+export VAR_BASE_G1=$DAYABAY_G1/var
 export VAR_BASE_U=/var
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
@@ -203,12 +204,8 @@ export VAR_BASE=${_VAR_BASE:-$VAR_BASE_U}
 
 export USER_BASE_G=$HOME/Work
 
- export USER_BASE_P=/disk/d4/$USER
-#export USER_BASE_P=/data/w/$USER
-
- export USER_BASE_G1=/disk/d4/$USER  
-#export USER_BASE_G1=/data/w/$USER
-##export USER_BASE_G1=/tmp/$USER
+export USER_BASE_P=$DISK_G1/$USER
+export USER_BASE_G1=$DISK_G1/$USER  
 
 export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_U=$LOCAL_BASE_U
