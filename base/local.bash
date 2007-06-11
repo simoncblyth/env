@@ -200,6 +200,11 @@ eval _VAR_BASE=\$$vname
 export VAR_BASE=${_VAR_BASE:-$VAR_BASE_U}
 
 
+## ------------- path on remote backup machine 
+vname=VAR_BASE_$BACKUP_TAG 
+eval _VAR_BASE_BACKUP=\$$vname
+export VAR_BASE_BACKUP=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
+
 ## -------------- user specific base , for users macros and job outputs ----------
 
 export USER_BASE_G=$HOME/Work
