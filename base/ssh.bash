@@ -31,14 +31,8 @@ ssh--keygen(){
           echo ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph
                ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph   
 	  fi	  
-  done	
-	
+  done		
 }
-
-
-
-
-
 
 ssh--info(){
 
@@ -64,7 +58,7 @@ ssh--info(){
 
 
 ssh--infofile(){
-  echo $HOME/.ssh-agent-info-$NODE_TAG
+  echo $SSH_INFOFILE
 }
 
 ssh--agent-ok(){
@@ -118,18 +112,29 @@ ssh-x(){
 }
 
 
-ssh-putkey(){
+ssh--putkey(){
     X=${1:-$TARGET_TAG}
     cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys2"
 	ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
 
-   ## NB the permissions setting is crucial, without this the passwordless
-   ## connection fails, with no error message ... the keys are just silently ignored
-   ##
-   ##
-   ##  to setup passwordless from source to target need 
-   ##      1)  target> ssh-putkey source
-   ##      2)  
+   # NB the permissions setting is crucial, without this the passwordless
+   # connection fails, with no error message ... the keys are just silently ignored
+   #
+   #
+   #  to setup passwordless from source to target need :
+   #
+   #     create the keys on the source machine
+   #         source> ssh--keygen passphrase
+   #
+   #     copy the public keys to the target machine
+   #         source> ssh--putkey target
+   #
+   #      start the agent and give it the keys on the source machine,
+   #      the passphrase used at key creation will be prompted for 
+   #         source>  ssh--agent-start
+   #        
+   # 
+   #     
 }
 
 ssh--config(){
