@@ -1,12 +1,7 @@
 
 
-if [ "$NODE_TAG" == "G1" ]; then
-  SCM_FOLD=$LOCAL_BASE/scm
-else
-  SCM_FOLD=/var/scm
-fi  
+export SCM_FOLD=$VAR_BASE/scm
 
-export SCM_FOLD
 #
 #   after a change in SCM_FOLD in need to tell apache2 about the change with :
 #      svn-apache2-conf
