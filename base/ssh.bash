@@ -34,6 +34,63 @@ ssh--keygen(){
 
 
 
+
+
+
+ssh--info(){
+
+    local info=$(ssh--infofile)
+    local fpid
+    if [ -f "$info" ]; then
+       fpid=$(perl -lne 'm/SSH_AGENT_PID=(\d*)/ && print $1' $info)
+    else
+       fpid=0
+    fi
+   
+   if [ "X$SSH_AGENT_PID" == "X" ]; then
+      echo SSH_AGENT_PID is not defined
+   else
+      if [ "$SSH_AGENT_PID" == "$fpid" ]; then
+         echo SSH_AGENT_PID is defined and matches that of $info  
+      else
+         echo SSH_AGENT_PID $SSH_AGENT_PID does not match fpid $fpid 
+      fi 
+   fi
+}
+
+
+
+ssh--infofile(){
+  echo $HOME/.ssh-agent-info-$NODE_TAG
+}
+
+ssh--agent-ok(){
+   (ssh-add -l >& /dev/null) && echo 1 || echo 0
+}
+
+
+ssh--agent-start(){
+    local info=$(ssh--infofile)
+    ssh-agent > $info && perl -pi -e 's/echo/#echo/' $info && chmod 0600 $info 
+    . $info
+}
+
+
+ssh--setup(){
+
+  if [ $(ssh--agent-ok) == "1" ]; then
+      echo agent is responding
+  else
+     echo agent is not responding, try starting a new one
+     ssh--agent-start
+  fi
+}
+
+
+
+
+
+
 	   ## demo of running a multi argument command on a remote node 
 ssh-x(){
 	X=${1:-$TARGET_TAG}  
@@ -50,6 +107,11 @@ ssh-putkey(){
 
    ## NB the permissions setting is crucial, without this the passwordless
    ## connection fails, with no error message ... the keys are just silently ignored
+   ##
+   ##
+   ##  to setup passwordless from source to target need 
+   ##      1)  target> ssh-putkey source
+   ##      2)  
 }
 
 ssh--config(){
