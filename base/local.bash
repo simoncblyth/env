@@ -55,13 +55,13 @@ elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 elif (      [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
-   BACKUP_TAG="G1"
+   BACKUP_TAG="P"
    SUDO="sudo"
    
 elif (      [ "$USER" == "root" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
-   BACKUP_TAG="G1"
+   BACKUP_TAG="P"
    SUDO=""
 
 elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-laptop" ]); then
@@ -191,6 +191,7 @@ export LOCAL_BASE
 
 ## ----------  for operational files, like backups
 
+export VAR_BASE_P=$DAYABAY_G1/var
 export VAR_BASE_G1=$DAYABAY_G1/var
 export VAR_BASE_U=/var
 
