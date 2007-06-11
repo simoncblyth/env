@@ -85,7 +85,7 @@ host G1
 host P 
     hostname 140.112.102.250
     user dayabaysoft 
-$c	ForwardX11 yes
+	ForwardX11 yes
 $c	ForwardX11Trusted yes
 host T
     user blyth
@@ -100,7 +100,7 @@ host L
 	#user mahuang
 	user sblyth 
 	ForwardX11 yes
-	ForwardX11Trusted yes
+$c	ForwardX11Trusted yes
 EOC
 
 
