@@ -26,7 +26,9 @@ ssh--keygen(){
 	  if [ -f "$keyfile" ]; then
 		  echo keyfile $keyfile already exists 
 	  else	  
-          ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph   
+      
+          echo ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph
+               ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph   
 	  fi	  
   done	
 	
