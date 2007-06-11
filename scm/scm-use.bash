@@ -1,4 +1,12 @@
-export SCM_FOLD=/var/scm
+
+
+if [ "$NODE_TAG" == "G1" ]; then
+  SCM_FOLD=$LOCAL_BASE/scm
+else
+  SCM_FOLD=/var/scm
+fi  
+
+export SCM_FOLD
 #
 #   after a change in SCM_FOLD in need to tell apache2 about the change with :
 #      svn-apache2-conf
@@ -15,6 +23,7 @@ SVN_APACHE2_CONF=etc/apache2/svn.conf
 ## these are needed by both SVN + Trac  
 SVN_APACHE2_AUTH=etc/apache2/svn-apache2-auth
 SVN_APACHE2_AUTHZACCESS=etc/apache2/svn-apache2-authzaccess
+
 export SVN_PARENT_PATH=$SCM_FOLD/repos
 export SVN_HOME=$LOCAL_BASE/$SVN_ABBREV/$SVN_NAME
 
