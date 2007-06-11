@@ -54,6 +54,16 @@ ssh-putkey(){
 
 ssh--config(){
 
+[ -d $HOME/.ssh ] || mkdir $HOME/.ssh 
+
+
+## old versions of SSH do not like ForwardX11Trusted
+if [ "$NODE_TAG" == "H" ]; then
+  c="#"
+else
+  c=""
+fi    
+
 cat << EOC > $HOME/.ssh/config
 host I
     user blyth
@@ -75,8 +85,8 @@ host G1
 host P 
     hostname 140.112.102.250
     user dayabaysoft 
-	ForwardX11 yes
-	ForwardX11Trusted yes
+$c	ForwardX11 yes
+$c	ForwardX11Trusted yes
 host T
     user blyth
     hostname tersk.slac.stanford.edu
