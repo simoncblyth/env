@@ -1,5 +1,18 @@
 
 
+#
+#     header_logo:link:http://example.org/
+#     header_logo:src:common/trac_banner.png 
+#     project:descr:My Example Project
+#     project:icon:common/trac.ico
+#    
+#
+#      header_logo:link:http://$SCM_HOST:$SCM_PORT/tracs/env
+#
+
+
+
+
 
 trac-conf-perm(){
    local name=${1:-$SCM_TRAC}
