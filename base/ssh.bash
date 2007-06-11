@@ -65,7 +65,7 @@ ssh--infofile(){
 }
 
 ssh--agent-ok(){
-  ## hmm "no identities" gives error status
+  ## agent must be running and hold some identities to be "ok"
    (ssh-add -l >& /dev/null) && echo 1 || echo 0
 }
 
@@ -78,7 +78,13 @@ ssh--agent-start(){
     . $info
     
     echo ===== adding identities to the agent 
-    ssh-add $HOME/.ssh/id{_dsa,_rsa,entity}
+    
+    if ([ -f $HOME/.ssh/identity ] && [ -f $HOME/.ssh/id_dsa ] &&  [ -f $HOME/.ssh/id_rsa  ]); then 
+       ssh-add $HOME/.ssh/id{_dsa,_rsa,entity}
+    else
+       echo identities not generated ... first invoke .... ssh--keygen passphrase 
+    fi
+    
     
     echo ===== listing identities of the agent
     ssh-add -l
@@ -88,7 +94,7 @@ ssh--agent-start(){
 ssh--setup(){
 
   if [ $(ssh--agent-ok) == "1" ]; then
-      echo agent is responding
+      echo agent is responding and holds identities
   else
      echo agent is not responding, trying to start a new one
      ssh--agent-start
