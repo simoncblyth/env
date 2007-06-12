@@ -132,7 +132,7 @@ cron-test(){
    
      if [ "$user" == "root" ]; then
          
-         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-purge ; scm-backup-purge     ) > $cronlog 2>&1"
               
      elif [ "$user" == "blyth" ]; then
          
