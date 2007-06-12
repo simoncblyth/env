@@ -16,14 +16,13 @@ cron-log(){
 
 
 
-cron-setup-backup(){
+cron-root-setup(){
 
       crondir=/usr/local/cron
       [ -d $crondir ] || sudo mkdir -p $crondir
   
-      ## hfag is 20min before the real time ... so switch off one hr before 
-      ## scheduled off  
-   
+      ## hfag is 20min before the real time 
+         
       local       minute=30  # (0 - 59)
       local         hour=7   # (0 - 23)
       local day_of_month=25  # (1 - 31)
@@ -137,7 +136,7 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="(. /home/blyth/env/env.bash ; env ) > /tmp/crontest 2>&1"
+   cmd="(. env/env.bash ; env ) > /tmp/crontest 2>&1"
 fi
 
 ## the sudo environment is a little funny ... hence this test
@@ -149,7 +148,7 @@ cat << EOF > $tmp
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=blyth@hep1.phys.ntu.edu.tw
-HOME=/tmp
+HOME=$HOME
 #
 # +---------------- minute (0 - 59)
 # |  +------------- hour (0 - 23)
