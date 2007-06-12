@@ -38,25 +38,30 @@ scm-backup-purge(){
 
   local node=${1:-$LOCAL_NODE} 
   local nmax=2
+  local name
+  local tgzs
+  local itgz
+  local ntgz 
+  
+  ## the bash version on hfag dies, if this is inside the for loop
+  declare -a tgzs
+
 
   echo ======= scm-backup-purge =====   note deletions are not yet enabled
 
   for path in $SCM_FOLD/backup/$node/{tracs,repos}/* 
   do
      cd $path 
-     local name=$(basename $path)
-    
-     declare -a tgzs
-     local tgzs=($(find . -name '*.tar.gz'))
-     local ntgz=${#tgzs[@]}
+     
+     name=$(basename $path)
+     tgzs=($(find . -name '*.tar.gz'))
+     ntgz=${#tgzs[@]}
      
      echo path:$path name:$name ntgz:$ntgz nmax:$nmax
-     
      itgz=0
      while [ "$itgz" -lt "$ntgz" ]
      do    
         local tgz=${tgzs[$itgz]}
-    
         if [ $(( $ntgz - $itgz > $nmax )) == 1 ]; then 
            local container=$(dirname $tgz) 
            local cmd="rm -rf $container"
@@ -64,7 +69,6 @@ scm-backup-purge(){
         else
            echo retain $tgz
         fi 
-          
         let "itgz = $itgz + 1"
      done
      
