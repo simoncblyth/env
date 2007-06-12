@@ -26,19 +26,23 @@
  DYW_DBG=0
  BASE_DBG=0
  
- [ -r ~/$ENV_BASE/base/base.bash  ] && . ~/$ENV_BASE/base/base.bash
- [ -r ~/$ENV_BASE/scm/scm.bash  ]   && . ~/$ENV_BASE/scm/scm.bash
- [ -r ~/$ENV_BASE/xml/xml.bash  ]   && . ~/$ENV_BASE/xml/xml.bash
+ env_iwd=$(pwd)
+ cd $HOME/$ENV_BASE
+ 
+ [ -r base/base.bash  ] && . base/base.bash
+ [ -r scm/scm.bash  ]   && . scm/scm.bash
+ [ -r xml/xml.bash  ]   && . xml/xml.bash
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
-     [ -r ~/$ENV_BASE/dyw/dyw.bash  ]   && . ~/$ENV_BASE/dyw/dyw.bash
+     [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash
  fi
  
  if [ "$NODE_TAG" == "G" ];  then
-     [ -r ~/$ENV_BASE/workflow/workflow.bash  ]   && .  ~/$ENV_BASE/workflow/workflow.bash
+     [ -r workflow/workflow.bash  ]   && . workflow/workflow.bash
  fi 	 
  
 
+ cd $env_iwd
 
 
 
