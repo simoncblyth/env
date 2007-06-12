@@ -20,6 +20,16 @@ cron-log(){
 
 cron-setup-backup(){
 
+      #
+      #   to setup backup of the tracs and repos
+      #
+      #       cron-setup-backup root
+      #       cron-setup-backup blyth
+      #  
+      #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
+      #   set up for blyth
+      # 
+
       local user=${1:-root}
 
       local crondir=/usr/local/cron/$user
@@ -112,7 +122,7 @@ cron-test(){
     local        month=${4:-$def_month}
     local  day_of_week="*"
 
-    local cronlog=/tmp/crontest
+    local cronlog=/tmp/$user-crontest
     local  tmp=/tmp/$$crontab
 
     local cmd 
