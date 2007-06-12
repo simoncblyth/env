@@ -136,7 +136,7 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="(. env/env.bash ; env ) > /tmp/crontest 2>&1"
+   cmd="(. env/env.bash ; env ; type scm-backup-all) > /tmp/crontest 2>&1"
 fi
 
 ## the sudo environment is a little funny ... hence this test
