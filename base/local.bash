@@ -20,6 +20,7 @@ export SOURCE_TAG="G"
   
 SUDO=
 CLUSTER_TAG=
+BACKUP_TAG=U
 
 ##  set SUDO to "sudo" if sudo access is needed to create folders / change ownership 
 ##  in the relevant LOCAL_BASE
@@ -80,6 +81,7 @@ else
 fi
 
 export NODE_TAG
+export BACKUP_TAG
 export CLUSTER_TAG
 export SUDO
 
