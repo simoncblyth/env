@@ -85,7 +85,7 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="echo $HOME > /tmp/crontest 2>&1"
+   cmd="echo \$HOME > /tmp/crontest 2>&1"
 fi
 
 
