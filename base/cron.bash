@@ -23,11 +23,11 @@ cron-setup-backup(){
       #
       #   to setup backup of the tracs and repos
       #
-      #       cron-setup-backup root
-      #       cron-setup-backup blyth
+      #       H> cron-setup-backup root
+      #       H> cron-setup-backup blyth
       #  
       #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
-      #   set up for blyth
+      #   configured for blyth
       # 
 
       local user=${1:-root}
@@ -40,7 +40,7 @@ cron-setup-backup(){
   
       ## hfag is 20min before the real time 
          
-      local       minute=10   # (0 - 59)
+      local       minute=40   # (0 - 59)
       local         hour=18   # (0 - 23)
       local day_of_month="*"  # (1 - 31)
       local        month="*"  # (1 - 12)
@@ -57,7 +57,7 @@ cron-setup-backup(){
       elif [ "$user" == "blyth" ]; then
          
          cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
-         delta=30   
+         delta=15   
          
       else
          echo cron-setup-backup bad user $user && return 1 
