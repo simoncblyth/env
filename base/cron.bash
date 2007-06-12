@@ -23,8 +23,8 @@ cron-setup-backup(){
       #
       #   to setup backup of the tracs and repos
       #
-      #       H> cron-setup-backup root
-      #       H> cron-setup-backup blyth
+      #       H> sudo bash -lc cron-setup-backup root
+      #       H> sudo bash -lc cron-setup-backup blyth
       #  
       #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
       #   configured for blyth
