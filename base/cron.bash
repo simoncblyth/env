@@ -14,7 +14,7 @@ cron-log(){
    sudo cat /var/log/cron
 }
 
-cron-setup(){
+cron-setup-shutdown(){
 
       crondir=/usr/local/cron
       [ -d $crondir ] || sudo mkdir -p $crondir
@@ -85,7 +85,7 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="/sbin/service apache2 configtest > /tmp/crontest 2>&1"
+   cmd="echo $HOME > /tmp/crontest 2>&1"
 fi
 
 
