@@ -1,13 +1,15 @@
 
 
 cron-delete(){
-   cron-list
-   sudo crontab -u root -r -i 
+   local user=${1:-root}
+   cron-list $user
+   sudo crontab -u $user -r -i 
 }
 
 cron-list(){
+   local user=${1:-root}
    date
-   sudo crontab -u root -l
+   sudo crontab -u $user -l
 }
 
 cron-log(){
@@ -16,10 +18,15 @@ cron-log(){
 
 
 
-cron-root-setup(){
+cron-setup-backup(){
 
-      crondir=/usr/local/cron
+      local user=${1:-root}
+
+      local crondir=/usr/local/cron/$user
       [ -d $crondir ] || sudo mkdir -p $crondir
+      local cronlog=$crondir/$$.log
+      local     tmp=$crondir/$$crontab  
+  
   
       ## hfag is 20min before the real time 
          
@@ -28,11 +35,24 @@ cron-root-setup(){
       local day_of_month="*"  # (1 - 31)
       local        month="*"  # (1 - 12)
       local  day_of_week="*"  # (0 - 7) (Sunday=0 or 7)
+      
+      local     cmd
+      local   delta  
 
-      local cronlog=$crondir/$$.log
-      local     tmp=/tmp/$$crontab 
+      if [ "$user" == "root" ]; then
+         
+         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+         delta=0
+      
+      elsif [ "$user" == "blyth" ]; then
+         
+         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+         delta=30   
+         
+      else
+         echo cron-setup-backup bad user $user && return 1 
+      fi 
 
-      local     cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all) > $cronlog 2>&1"
 
       cat << EOT > $tmp
 #
@@ -41,20 +61,20 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=blyth@hep1.phys.ntu.edu.tw
 HOME=$HOME
 #
-$(( $minute + 0 )) $hour $day_of_month $month $day_of_week $cmd
+$(( $minute + $delta )) $hour $day_of_month $month $day_of_week $cmd
 #
 EOT
  
-reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
-if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
-   echo =========== initializing crontab for root to $tmp 
-   cat $tmp 
-   sudo crontab -u root $tmp && sudo cp -f $tmp $crondir/crontab
-   
-else
-   echo cannot proceed as a crontab for root exists already, must "cron-delete" first 
-   cron-list
-fi
+      local reply=$(sudo crontab -u $user -l 2>&1)      ## redirection sending stderr onto stdout
+      
+      if ([ "$reply" == "no crontab for $user" ] || [ "$reply" == "crontab: no crontab for $user" ])  then
+           echo =========== initializing crontab for user $user to $tmp 
+           cat $tmp 
+           sudo crontab -u $user $tmp && sudo cp -f $tmp $crondir/crontab
+      else
+           echo cannot proceed as a crontab for user $user exists already, must "cron-delete $user" first 
+           cron-list $user
+      fi
 
 }
 
@@ -118,31 +138,34 @@ cron-test(){
 ## defaults to three minutes from now
 ## note limitation : assumes not about to go into another hr, day, month etc..
 
-local       def_minute=$(( $(date +"%M") + 3 ))   
-local         def_hour=$(date +"%H")
-local def_day_of_month=$(date +"%d")
-local        def_month=$(date +"%m")
 
-local       minute=${1:-$def_minute}
-local         hour=${2:-$def_hour}
-local day_of_month=${3:-$def_day_of_month}
-local        month=${4:-$def_month}
-local  day_of_week="*"
+    local user=${1:-root}
 
+    local       def_minute=$(( $(date +"%M") + 3 ))   
+    local         def_hour=$(date +"%H")
+    local def_day_of_month=$(date +"%d")
+    local        def_month=$(date +"%m")
 
-if [ "$NODE_TAG" == "G" ]; then
-   cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
-else
-   cmd="(. env/env.bash ; env ; type scm-backup-all ; scm-backup-all ) > /tmp/crontest 2>&1"
-fi
-
-## seems must export variables for them to be visible on the above cron cmdline
-##
-## the sudo environment is a little funny ... hence this test
+    local       minute=${1:-$def_minute}
+    local         hour=${2:-$def_hour}
+    local day_of_month=${3:-$def_day_of_month}
+    local        month=${4:-$def_month}
+    local  day_of_week="*"
 
 
-tmp=/tmp/$$crontab
-cat << EOF > $tmp
+    if [ "$NODE_TAG" == "G" ]; then
+        cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
+    else
+        cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all ) > /tmp/crontest 2>&1"  
+    fi
+
+    ## seems must export variables for them to be visible on the above cron cmdline 
+    ##
+    ## the sudo environment is a little funny ... hence this test
+
+
+    tmp=/tmp/$$crontab
+    cat << EOF > $tmp
 #
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -162,14 +185,14 @@ $minute $hour $day_of_month $month $day_of_week $cmd
 EOF
 
 
-reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
-if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
-   echo =========== initializing crontab for root to $tmp 
-   cat $tmp 
-   sudo crontab -u root $tmp
-else
-   echo cannot proceed as a crontab for root exists already, do  crontab-delete / crontab-info  first 
-fi
+     reply=$(sudo crontab -u $user -l 2>&1)      ## redirection sending stderr onto stdout
+     if ([ "$reply" == "no crontab for $user" ] || [ "$reply" == "crontab: no crontab for $user" ])  then
+          echo =========== initializing crontab for $user to $tmp 
+          cat $tmp 
+          sudo crontab -u $user $tmp
+     else
+          echo cannot proceed as a crontab for user $user exists already, do  cron-delete $user / cron-list $user  first 
+     fi
 
 }
 
