@@ -85,8 +85,11 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="/home/blyth/env/env.bash ; env > /tmp/crontest 2>&1"
+   cmd="(/home/blyth/env/env.bash ; env ) > /tmp/crontest 2>&1"
 fi
+
+## the sudo environment is a little funny ... hence this test
+## sudo bash -c "(/home/blyth/env/env.bash ; env ) > /tmp/crontest 2>&1"
 
 
 tmp=/tmp/$$crontab
