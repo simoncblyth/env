@@ -1,6 +1,10 @@
 
-## invoke with :
-##     sudo bash -lc scm-backup-all
+# invoke with :
+#     sudo bash -lc scm-backup-all
+#
+#   need to do this in roots crontab ,  do as a script ?
+#
+#
 
 scm-backup-all(){
    
@@ -18,7 +22,55 @@ scm-backup-all(){
        local name=$(basename $path)
        scm-backup-trac $name $path $base $stamp        
    done
+   
+   
+   scm-backup-purge $LOCAL_NODE
 }
+
+
+scm-backup-purge(){
+
+  #
+  #   deletes backup tgz and containing stamp folders   
+  #   such that nmax remain 
+  #
+  #   bash array handling reference : http://tldp.org/LDP/abs/html/arrays.html
+  #
+
+  local node=${1:-$LOCAL_NODE} 
+  local nmax=2
+
+  for path in $SCM_FOLD/backup/$node/{tracs,repos}/* 
+  do
+     cd $path 
+     local name=$(basename $path)
+    
+     declare -a tgzs
+     local tgzs=($(find . -name '*.tar.gz'))
+     local ntgz=${#tgzs[@]}
+     
+     echo path:$path name:$name ntgz:$ntgz nmax:$nmax
+     
+     itgz=0
+     while [ "$itgz" -lt "$ntgz" ]
+     do    
+        local tgz=${tgzs[$itgz]}
+    
+        if [ $(( $ntgz - $itgz > $nmax )) == 1 ]; then 
+           local container=$(dirname $tgz) 
+           local cmd="rm -rf $container"
+           echo delete $tgz ... $cmd 
+        else
+           echo retain $tgz
+        fi 
+          
+        let "itgz = $itgz + 1"
+     done
+     
+  done
+}
+
+
 
 
 scm-backup-rsync(){
@@ -27,6 +79,8 @@ scm-backup-rsync(){
    # rsync the local backup repository to an off box mirror on the paired $BACKUP_TAG node 
    #   - have to set up ssh keys to allow non-interactive sshing 
    # 
+   #  hmm the passwordless ssh is not setup for "root" user , so have to do this as me, but the above backup as root
+   #
 
    if [ "X$BACKUP_TAG" == "X" ]; then
       echo no paired backup node has been defined for node $LOCAL_NODE
