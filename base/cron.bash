@@ -23,28 +23,25 @@ cron-root-setup(){
   
       ## hfag is 20min before the real time 
          
-      local       minute=30  # (0 - 59)
-      local         hour=7   # (0 - 23)
-      local day_of_month=25  # (1 - 31)
-      local        month=5   # (1 - 12)
-      local  day_of_week="*" # (0 - 7) (Sunday=0 or 7)
+      local       minute=30   # (0 - 59)
+      local         hour=18   # (0 - 23)
+      local day_of_month="*"  # (1 - 31)
+      local        month="*"  # (1 - 12)
+      local  day_of_week="*"  # (0 - 7) (Sunday=0 or 7)
 
-      cronlog=$crondir/$$.log
-      tmp=/tmp/$$crontab 
+      local cronlog=$crondir/$$.log
+      local     tmp=/tmp/$$crontab 
+
+      local     cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all) > $cronlog 2>&1"
 
       cat << EOT > $tmp
 #
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=blyth@hep1.phys.ntu.edu.tw
-HOME=/tmp
+HOME=$HOME
 #
-$(( $minute + 0 )) $hour $day_of_month $month $day_of_week /sbin/service apache2 stop  >  $cronlog 2>&1
-$(( $minute + 1 )) $hour $day_of_month $month $day_of_week /sbin/service apache  stop >>  $cronlog 2>&1
-$(( $minute + 2 )) $hour $day_of_month $month $day_of_week /sbin/service exist   stop >>  $cronlog 2>&1
-$(( $minute + 3 )) $hour $day_of_month $month $day_of_week /sbin/service tomcat  stop >>  $cronlog 2>&1
-$(( $minute + 4 )) $hour $day_of_month $month $day_of_week  ps -ef                    >>  $cronlog 2>&1
-$(( $minute + 5 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10 now   >>  $cronlog 2>&1
+$(( $minute + 0 )) $hour $day_of_month $month $day_of_week $cmd
 #
 EOT
  
@@ -136,9 +133,11 @@ local  day_of_week="*"
 if [ "$NODE_TAG" == "G" ]; then
    cmd="$(which apachectl) configtest > /tmp/crontest 2>&1"
 else
-   cmd="(. env/env.bash ; env ; type scm-backup-all) > /tmp/crontest 2>&1"
+   cmd="(. env/env.bash ; env ; type scm-backup-all ; scm-backup-all ) > /tmp/crontest 2>&1"
 fi
 
+## seems must export variables for them to be visible on the above cron cmdline
+##
 ## the sudo environment is a little funny ... hence this test
 
 
