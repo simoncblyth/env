@@ -23,8 +23,8 @@ cron-setup-backup(){
       #
       #   to setup backup of the tracs and repos
       #
-      #       H> sudo bash -lc cron-setup-backup root
-      #       H> sudo bash -lc cron-setup-backup blyth
+      #       H> sudo bash -lc "cron-setup-backup root"
+      #       H> sudo bash -lc "cron-setup-backup blyth"
       #  
       #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
       #   configured for blyth
@@ -33,15 +33,18 @@ cron-setup-backup(){
       local user=${1:-root}
 
       local crondir=/usr/local/cron/$user
-      [ -d $crondir ] || sudo mkdir -p $crondir
+      [ -d $crondir ] || sudo mkdir -p $crondir 
+      sudo chown $user $crondir 
       local cronlog=$crondir/$$.log
       local     tmp=$crondir/$$crontab  
+  
+      ## local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
   
   
       ## hfag is 20min before the real time 
          
       local       minute=40   # (0 - 59)
-      local         hour=18   # (0 - 23)
+      local         hour=04   # (0 - 23)
       local day_of_month="*"  # (1 - 31)
       local        month="*"  # (1 - 12)
       local  day_of_week="*"  # (0 - 7) (Sunday=0 or 7)
