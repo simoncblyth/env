@@ -7,10 +7,10 @@
 #
 
  BASE_NAME=base
- BASE_BASE=env/$BASE_NAME
+ BASE_BASE=$ENV_BASE/$BASE_NAME
  export BASE_BASE
 
- iwd=$(pwd)
+ base_iwd=$(pwd)
  cd $HOME/$BASE_BASE
 
  
@@ -33,7 +33,7 @@
  [ -r service.bash ]     && . service.bash
  [ -r file.bash ]        && . file.bash
 
- cd $iwd
+ cd $base_iwd
 
  base-x-pkg(){ 
    cd $HOME 	
