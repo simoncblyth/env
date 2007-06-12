@@ -14,6 +14,58 @@ cron-log(){
    sudo cat /var/log/cron
 }
 
+
+
+cron-setup-backup(){
+
+      crondir=/usr/local/cron
+      [ -d $crondir ] || sudo mkdir -p $crondir
+  
+      ## hfag is 20min before the real time ... so switch off one hr before 
+      ## scheduled off  
+   
+      local       minute=30  # (0 - 59)
+      local         hour=7   # (0 - 23)
+      local day_of_month=25  # (1 - 31)
+      local        month=5   # (1 - 12)
+      local  day_of_week="*" # (0 - 7) (Sunday=0 or 7)
+
+      cronlog=$crondir/$$.log
+      tmp=/tmp/$$crontab 
+
+      cat << EOT > $tmp
+#
+SHELL=/bin/bash
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+MAILTO=blyth@hep1.phys.ntu.edu.tw
+HOME=/tmp
+#
+$(( $minute + 0 )) $hour $day_of_month $month $day_of_week /sbin/service apache2 stop  >  $cronlog 2>&1
+$(( $minute + 1 )) $hour $day_of_month $month $day_of_week /sbin/service apache  stop >>  $cronlog 2>&1
+$(( $minute + 2 )) $hour $day_of_month $month $day_of_week /sbin/service exist   stop >>  $cronlog 2>&1
+$(( $minute + 3 )) $hour $day_of_month $month $day_of_week /sbin/service tomcat  stop >>  $cronlog 2>&1
+$(( $minute + 4 )) $hour $day_of_month $month $day_of_week  ps -ef                    >>  $cronlog 2>&1
+$(( $minute + 5 )) $hour $day_of_month $month $day_of_week /sbin/shutdown -t 10 now   >>  $cronlog 2>&1
+#
+EOT
+ 
+reply=$(sudo crontab -u root -l 2>&1)      ## redirection sending stderr onto stdout
+if ([ "$reply" == "no crontab for root" ] || [ "$reply" == "crontab: no crontab for root" ])  then
+   echo =========== initializing crontab for root to $tmp 
+   cat $tmp 
+   sudo crontab -u root $tmp && sudo cp -f $tmp $crondir/crontab
+   
+else
+   echo cannot proceed as a crontab for root exists already, must "cron-delete" first 
+   cron-list
+fi
+
+}
+
+
+
+
+
 cron-setup-shutdown(){
 
       crondir=/usr/local/cron
@@ -89,7 +141,7 @@ else
 fi
 
 ## the sudo environment is a little funny ... hence this test
-## sudo bash -c "(/home/blyth/env/env.bash ; env ) > /tmp/crontest 2>&1"
+## sudo bash -c "(. /home/blyth/env/env.bash ; env ) > /tmp/crontest 2>&1"
 
 
 tmp=/tmp/$$crontab
