@@ -23,7 +23,6 @@ scm-backup-all(){
        scm-backup-trac $name $path $base $stamp        
    done
    
-   
    scm-backup-purge $LOCAL_NODE
 }
 
@@ -32,13 +31,15 @@ scm-backup-purge(){
 
   #
   #   deletes backup tgz and containing stamp folders   
-  #   such that nmax remain 
+  #   such that nmax remain for each repository and tracitory
   #
   #   bash array handling reference : http://tldp.org/LDP/abs/html/arrays.html
   #
 
   local node=${1:-$LOCAL_NODE} 
   local nmax=2
+
+  echo ======= scm-backup-purge =====   note deletions are not yet enabled
 
   for path in $SCM_FOLD/backup/$node/{tracs,repos}/* 
   do
