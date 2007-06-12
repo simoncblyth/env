@@ -99,6 +99,7 @@ cron-test(){
     #
 
     local user=${1:-root}
+    shift
 
     local       def_minute=$(( $(date +"%M") + 3 ))   
     local         def_hour=$(date +"%H")
