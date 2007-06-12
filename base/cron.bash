@@ -30,7 +30,7 @@ cron-setup-backup(){
   
       ## hfag is 20min before the real time 
          
-      local       minute=30   # (0 - 59)
+      local       minute=10   # (0 - 59)
       local         hour=18   # (0 - 23)
       local day_of_month="*"  # (1 - 31)
       local        month="*"  # (1 - 12)
@@ -93,6 +93,10 @@ cron-test(){
     # defaults to three minutes from now
     # note limitation : assumes not about to go into another hr, day, month etc..
     #
+    #  Observations:
+    #  1) seems must export variables for them to be visible on the above cron cmdline 
+    #  2) the sudo environment is a little funny ... hence this test
+    #
 
     local user=${1:-root}
 
@@ -107,17 +111,24 @@ cron-test(){
     local        month=${4:-$def_month}
     local  day_of_week="*"
 
+    local cronlog=/tmp/crontest
+    local  tmp=/tmp/$$crontab
 
-    local cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all ) > /tmp/crontest 2>&1"  
+    local cmd 
    
-    #
-    # seems must export variables for them to be visible on the above cron cmdline 
-    #
-    # the sudo environment is a little funny ... hence this test
-    #
-
-    tmp=/tmp/$$crontab
-    cat << EOF > $tmp
+     if [ "$user" == "root" ]; then
+         
+         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+              
+     elif [ "$user" == "blyth" ]; then
+         
+         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+      
+     else
+         echo user $user not handled  && return 1                    
+     fi
+   
+     cat << EOF > $tmp
 #
 SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
@@ -137,7 +148,7 @@ $minute $hour $day_of_month $month $day_of_week $cmd
 EOF
 
 
-     reply=$(sudo crontab -u $user -l 2>&1)      ## redirection sending stderr onto stdout
+     local reply=$(sudo crontab -u $user -l 2>&1)      ## redirection sending stderr onto stdout
      if ([ "$reply" == "no crontab for $user" ] || [ "$reply" == "crontab: no crontab for $user" ])  then
           echo =========== initializing crontab for $user to $tmp 
           cat $tmp 
