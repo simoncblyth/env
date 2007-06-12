@@ -13,7 +13,21 @@
  base_iwd=$(pwd)
  cd $HOME/$BASE_BASE
 
- 
+
+## needed from cron cmdline so must be before the "-t 0" cutoff 
+base-datestamp(){
+  local moment=${1:-"now"} 
+  local fmt=${2:-"%Y%m%d"}
+  if [ "$moment" == "now" ]; then 
+     if [ "$(uname)" == "Darwin" ] ; then
+        timdef=$(perl -e 'print time')
+	    refdef=$(date -r $timdef +$fmt )  
+     else		
+	    refdef=$(date  +$fmt)
+     fi 
+  fi  
+  echo $refdef 
+}
 
 
  [ -r local.bash ]       && . local.bash 
@@ -54,24 +68,6 @@
  }
 
 
-base-datestamp(){
 
-   
-  local moment=${1:-"now"} 
-  local fmt=${2:-"%Y%m%d"}
-  
-  
-
-  if [ "$moment" == "now" ]; then 
-     if [ "$(uname)" == "Darwin" ] ; then
-        timdef=$(perl -e 'print time')
-	    refdef=$(date -r $timdef +$fmt )  
-     else		
-	    refdef=$(date  +$fmt)
-     fi 
-  fi  
-
-  echo $refdef 
-}
 
  
