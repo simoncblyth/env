@@ -83,7 +83,7 @@ EOT
       if ([ "$reply" == "no crontab for $user" ] || [ "$reply" == "crontab: no crontab for $user" ])  then
            echo =========== initializing crontab for user $user to $tmp 
            cat $tmp 
-           sudo crontab -u $user $tmp && sudo cp -f $tmp $crondir/crontab
+           sudo crontab -u $user $tmp && sudo cp -f $tmp $crondir/crontab && sudo rm -f $tmp 
       else
            echo cannot proceed as a crontab for user $user exists already, must "cron-delete $user" first 
            cron-list $user
