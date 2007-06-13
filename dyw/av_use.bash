@@ -43,12 +43,13 @@
 
 av-use-sub(){
   
-  func=autovalidation
+  local func=autovalidation
+  local path=jobs/av 
 
   if [ -d "$DYW_AVOUT" ]; then 
 
       cd $DYW_AVOUT
-      condor-use-submit $func "$@"
+      condor-use-submit $path $func "$@"
   else
       echo cannot submit the autovalidation as output folder DYW_AVOUT:[$DYW_AVOUT] doesnt exist ... do av-config first
   fi	  
