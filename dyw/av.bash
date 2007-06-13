@@ -148,10 +148,10 @@ av-getref(){
 	cd $DYW_AVOUT
 
     test -d $refday || mkdir $refday
-	ln -s $refday last-av-getref
+	rm -f last-av-getref && ln -s $refday last-av-getref
 	cd $refday
 
-    ## this extracts the jobs list that was entered above, by the av-setup
+    ## this extracts the jobs list that was entered above, by the av-config
     ##macs=`perl -e "require "$cnf" ; print \"\@jobs\" ; "`
     local macs=$(perl -e "require \"$cnf\" ; print \"@jobs\" ; ")
     local typs="events.root log summary gif pdf" 
@@ -172,6 +172,7 @@ av-getref(){
     ## this one contains all the hists from the jobs 
     hisfil=$refday.hists.root
 	hisurl=$refur/$hisfil
+    
 	echo $hisurl $hisfil
     test -f $hisfil && echo file $hisfil exists already || curl -o $hisfil $hisurl
 	
