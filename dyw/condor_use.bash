@@ -104,7 +104,14 @@ condor-use-prepfold(){
    cd $iwd
 }
 
+condor-use-test(){
 
+  ## invoke with condor-use-submit jobs/test condor-use-test
+  echo ====== condor-use-test ========= test function
+  pwd
+  ls -alst 
+
+}
 
 condor-use-submit(){
 
