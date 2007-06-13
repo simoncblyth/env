@@ -152,8 +152,9 @@ av-getref(){
 	cd $refday
 
     ## this extracts the jobs list that was entered above, by the av-setup
-    macs=`perl -e "require "$cnf" ; print \"\@jobs\" ; "`
-    typs="events.root log summary gif pdf" 
+    ##macs=`perl -e "require "$cnf" ; print \"\@jobs\" ; "`
+    local macs=$(perl -e "require \"$cnf\" ; print \"@jobs\" ; ")
+    local typs="events.root log summary gif pdf" 
 
     echo jobs: $macs pwd:$PWD
 
