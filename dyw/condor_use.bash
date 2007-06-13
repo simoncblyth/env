@@ -135,7 +135,10 @@ condor-use-submit(){
       
    echo ============ condor-use-submit jobsbranch:$jobsbranch databranch:$databranch    
       
-   cd $jobsbranch
+   ## getting 
+   ##  Error from starter on albert4.hepgrid: Failed to open standard output file '/disk/d4/blyth/jobs/test/20070613-160016/condor-use-test.out': Permission denied (errno 13)<   
+   ##cd $jobsbranch
+   cd $databranch
    condor-use-func $databranch "$@" > $func.sub
 
    echo ============ finally the real submission to condor  
