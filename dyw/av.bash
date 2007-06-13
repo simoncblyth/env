@@ -120,18 +120,28 @@ av-getref(){
     ##
     ##  grab reference root files for comparison with local ones..
     ##   usage 
-    ##       dyw-av-getref 2007-02-07
+    ##       av-getref 2007-02-07
     ##    (defaults to yesterday .. which is may be available )
     ##
 
-    refav=http://minimac1.phy.tufts.edu/~tagg/AutoValidation
 
-    refdef=$(av-yesterday)
-	refday=${1:-$refdef}
+    local cnf="$DYW/AutoValidation/scripts/av_config.pl"
+    
+    if [ -f "$cnf" ]; then
+       echo using cnf:$cnf
+    else
+       echo ERROR cnf:$cnf not found, you need to av-config first 
+       return 1
+    fi   
 
-	echo attempt to grab the reference files from day $refday , default is $refdef 
-    refur=$refav/$refday
 
+    local refav=http://minimac1.phy.tufts.edu/~tagg/AutoValidation
+    local refdef=$(av-yesterday)
+	local refday=${1:-$refdef}
+    local refur=$refav/$refday
+
+	echo ====== av-getref === attempt to grab the reference files from day $refday , default is $refdef 
+    
 	test -d $DYW_AVOUT || mkdir -p $DYW_AVOUT
 	cd $DYW_AVOUT
 
@@ -140,7 +150,7 @@ av-getref(){
 	cd $refday
 
     ## this extracts the jobs list that was entered above, by the av-setup
-    macs=`perl -e 'require "$ENV{DYW}/AutoValidation/scripts/av_config.pl" ; print "@jobs" ; '`
+    macs=`perl -e "require "$cnf" ; print \"\@jobs\" ; "`
     typs="events.root log summary gif pdf" 
 
     echo jobs: $macs pwd:$PWD
