@@ -66,11 +66,10 @@ av-config(){
 
     [ "$(pwd)" == "$DYW/AutoValidation/scripts" ] && ( echo running autovalidation from $(pwd) is prohibited ) && return
 
-   
-    # based on tcnf=$DYW/AutoValidation/scripts/av_config.pl
-	
-	cnf=av_config.pl
+	local cnf=av_config.pl
     rm -f $cnf   
+
+    echo ========== av-config writing cnf:$cnf 
 
     cat << EOC > $cnf
 #
@@ -97,6 +96,8 @@ av-config(){
 1;
    
 EOC
+
+   cat $cnf 
 
    ##rm -f $cnf &&  ln -s $cnfn $cnf  
 
