@@ -1,6 +1,6 @@
 
 
-loop(){
+scantrees(){
    
    //
    //  demo of looping over all root files in a directory looking for an
