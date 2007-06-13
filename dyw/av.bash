@@ -69,7 +69,7 @@ av-config(){
 	local cnf=av_config.pl
     rm -f $cnf   
 
-    echo ========== av-config writing cnf:$cnf 
+    echo ========== av-config writing cnf:$cnf into folder DYW_AVOUT $DYW_AVOUT
 
     cat << EOC > $cnf
 #
