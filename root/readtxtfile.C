@@ -1,4 +1,10 @@
-{
+readtxtfile(){
+    
+  //
+  //   read a text file, containing numbers separated by commas and parse them into a usable form
+  //   
+  //  
+    
   ifstream in("08A.ASC");
   char line[100];
   while( in.getline( line, 100  ) ){
