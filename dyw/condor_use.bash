@@ -104,10 +104,15 @@ condor-use-prepfold(){
    cd $iwd
 }
 
+
+
 condor-use-submit(){
 
-   local  path=$1
-   local  func=$2
+   ## this is the entry point for instrumented condor job submission 
+   
+   local  path=$1    ## relative path that acts as a classification string for the job
+   local  func=$2    ## bash function to be invoked
+   
    local stamp=$(condor-use-timestamp)
    echo =========== condor-use-submit path:$path func:$func stamp:$stamp 
 
@@ -125,6 +130,8 @@ condor-use-submit(){
       
    cd $jobsbranch
    condor-use-func $databranch "$@" > $func.sub
+
+   echo ============ finally the real submission to condor  
 
    condor_submit  $func.sub
 }
@@ -294,8 +301,8 @@ cat << EOS
 ##########################################
 
 ## attempt non shared filesystem 
-should_transfer_files = YES
-when_to_transfer_output = ON_EXIT_OR_EVICT
+#should_transfer_files = YES
+#when_to_transfer_output = ON_EXIT_OR_EVICT
 
 Executable     = /bin/bash
 Arguments      = $func.sh
