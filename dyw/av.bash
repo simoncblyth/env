@@ -66,10 +66,10 @@ av-config(){
 
     [ "$(pwd)" == "$DYW/AutoValidation/scripts" ] && ( echo running autovalidation from $(pwd) is prohibited ) && return
 
-	local cnf=av_config.pl
+	local cnf=$DYW_AVCNF
     rm -f $cnf   
 
-    echo ========== av-config writing cnf:$cnf into folder DYW_AVOUT $DYW_AVOUT
+    echo ========== av-config writing cnf:$cnf 
 
     cat << EOC > $cnf
 #
@@ -126,7 +126,8 @@ av-getref(){
     ##
 
 
-    local cnf="$DYW/AutoValidation/scripts/av_config.pl"
+    #local cnf="$DYW/AutoValidation/scripts/av_config.pl"
+    local cnf="$DYW_AVCNF"
     
     if [ -f "$cnf" ]; then
        echo using cnf:$cnf
