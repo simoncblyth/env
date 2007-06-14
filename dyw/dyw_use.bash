@@ -107,14 +107,19 @@ export DYW_AVOUT=$USER_BASE/jobs/autovalidation
 export DYW_AVCNF=$DYW_AVOUT/av_config.pl
 
 
- [ -r cmt_use.bash ]           && . cmt_use.bash
+ if [ "$NODE_TAG" != "N" ]; then
+    [ -r cmt_use.bash ]           && . cmt_use.bash
+ fi 
+ 
  [ -r xml.bash ]               && . xml.bash
- [ -r condor_use.bash ]        && . condor_use.bash
- [ -r condor_test.bash ]       && . condor_test.bash
+ 
+ if [ "$NODE_TAG" == "G1" ]; then
+    [ -r condor_use.bash ]        && . condor_use.bash
+    [ -r condor_test.bash ]       && . condor_test.bash
+ fi
 
  [ -r av_use.bash ]            && . av_use.bash
  [ -r g4dyb_use.bash ]         && . g4dyb_use.bash
-
 
 
 dyw-use-macros(){
