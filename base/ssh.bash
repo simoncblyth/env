@@ -121,6 +121,7 @@ ssh--putkeys(){
 
 ssh--putkey(){
     X=${1:-$TARGET_TAG}
+    ssh $X "mkdir .ssh"
     cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys2"
 	ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
 
@@ -157,6 +158,29 @@ else
 fi    
 
 cat << EOC > $HOME/.ssh/config
+#
+#   do not edit, this is sourced from $HOME/$ENV_BASE/base/ssh.bash
+#
+#
+host N
+    user blyth
+    hostname pdsf.nersc.gov
+host G3
+    hostname g3pb.ath.cx
+    protocol 2 
+host BP
+    hostname bpost.kek.jp
+	protocol 2
+host LX
+    hostname lxplus.cern.ch
+	protocol 2
+host X
+    hostname 140.112.101.48
+	user exist
+host G1 
+    hostname 140.112.102.250
+	ForwardX11 yes
+	ForwardX11Trusted yes
 host I
     user blyth
     hostname 140.112.101.199
@@ -171,9 +195,6 @@ host H
 host X
     hostname 140.112.101.48
 	user exist
-host G1 
-    user blyth
-    hostname 140.112.102.250
 host P 
     hostname 140.112.102.250
     user dayabaysoft 
