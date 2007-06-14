@@ -37,13 +37,13 @@ export DYW_FOLDER_P=$USER_BASE_P/dayabay
 
 export DYW_FOLDER_L=$LOCAL_BASE_L/dayabay     ## formerly $HOME/Work/dayabay
 export DYW_FOLDER_U=$LOCAL_BASE_U/dayabay    
-
 export DYW_FOLDER_G=$USER_BASE_G/dayabay
 export DYW_FOLDER_G1=$USER_BASE_G1/dayabay
+export DYW_FOLDER_N=$USER_BASE_N/dayabay
 
 vname=DYW_FOLDER_$NODE_TAG
-eval DYW_FOLDER=\$$vname
-export DYW_FOLDER
+eval _DYW_FOLDER=\$$vname
+export DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
 
 [ -d "$DYW_FOLDER" ] || ( echo WARNING creating DYW_FOLDER $DYW_FOLDER && mkdir -p $DYW_FOLDER )
 
@@ -56,7 +56,9 @@ export DYW_FOLDER
  export DYW_VERSION_L="dyw_last_20070411"
  export DYW_VERSION_U="dyw_last_20070411"
 #export DYW_VERSION_G1="dyw_20070503_wc"
- export DYW_VERSION_G1="dyw_release_2_8_wc" 
+ export DYW_VERSION_G1="dyw_release_2_8_wc"
+ export DYW_VERSION_N="dyw_release_2_9_wc" 
+ 
 
  if [ "X$DYW_VERSION" == "X" ]; then
    vname=DYW_VERSION_$NODE_TAG
@@ -90,10 +92,11 @@ export DYM_U=$LOCAL_BASE_U/dayabay/macros
 
 export DYM_G=$USER_BASE_G/dayabay/macros
 export DYM_G1=$HOME/$ENV_BASE/macros    ## <<<<<< different behavior <<<<<<<<
+export DYW_N=$HOME/$ENV_BASE/macros
 
 vname=DYM_$NODE_TAG
-eval DYM=\$$vname
-export DYM
+eval _DYM=\$$vname
+export DYM=${_DYM:-$DYM_U}
 
 
 ## autovalidation output folder 
