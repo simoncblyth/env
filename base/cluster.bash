@@ -5,5 +5,14 @@ cluster-nodes(){
 
 cluster-disks(){
 
-   echo "hello"
+   for node in $(cluster-nodes)
+   do
+      echo ========= $node ========================
+      
+      if [ "X$node" == "Xalbert11" ]; then
+         echo skip 
+      else   
+         ssh $node "ls -alst /disk/*"
+      fi    
+   done
 }
