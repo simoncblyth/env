@@ -53,6 +53,10 @@ elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then
    
    NODE_TAG="G1"
    
+elif  [ "${LOCAL_NODE:0:2}" == "pc" ]; then   
+   
+   NODE_TAG="N"   
+   
 elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 
    NODE_TAG="L"
