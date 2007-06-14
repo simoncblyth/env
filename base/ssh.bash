@@ -112,6 +112,13 @@ ssh-x(){
 }
 
 
+ssh--putkeys(){
+  for target in $*
+  do
+     ssh--putkey $target
+  done
+}
+
 ssh--putkey(){
     X=${1:-$TARGET_TAG}
     cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys2"
