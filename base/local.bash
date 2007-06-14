@@ -187,23 +187,25 @@ export DAYABAY_G1=$DISK_G1/dayabay
 ## --------------  the software root for most everything ---------------------------
 ##  
 
+export LOCAL_BASE_U=/tmp
 export LOCAL_BASE_G=/usr/local
-export LOCAL_BASE_P=$DAYABAY_G1/local   ## must match the setting in P:.bash_profile 
-export LOCAL_BASE_G1=$DAYABAY_G1/local  ## must match the setting in P:.bash_profile 
-export LOCAL_BASE_L=/usr/local               ## must match the setting in L:.bash_profile 
-export LOCAL_BASE_U=/usr/local               ## must match the setting in L:.bash_profile 
-export LOCAL_BASE_H=/data/usr/local          ## must match the setting in L:.bash_profile 
+export LOCAL_BASE_P=$DAYABAY_G1/local   
+export LOCAL_BASE_G1=$DAYABAY_G1/local  
+export LOCAL_BASE_L=/usr/local           
+export LOCAL_BASE_H=/data/usr/local          
 export LOCAL_BASE_T=/usr/local/simon
+export LOCAL_BASE_N=$HOME/local
 
 vname=LOCAL_BASE_$NODE_TAG
-eval LOCAL_BASE=\$$vname
-export LOCAL_BASE
+eval _LOCAL_BASE=\$$vname
+export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
 
 ## ----------  for operational files, like backups
 
+export VAR_BASE_U=/tmp
 export VAR_BASE_P=$DAYABAY_G1/var
 export VAR_BASE_G1=$DAYABAY_G1/var
-export VAR_BASE_U=/var
+export VAR_BASE_N=$HOME/var
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=VAR_BASE_$NODE_TAG
@@ -218,19 +220,23 @@ export VAR_BASE_BACKUP=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
 
 ## -------------- user specific base , for users macros and job outputs ----------
 
-export USER_BASE_G=$HOME/Work
 
+export USER_BASE_U=/tmp
+export USER_BASE_G=$HOME/Work
 export USER_BASE_P=$DISK_G1/$USER
 export USER_BASE_G1=$DISK_G1/$USER  
-
 export USER_BASE_L=$LOCAL_BASE_L
-export USER_BASE_U=$LOCAL_BASE_U
 export USER_BASE_H=$LOCAL_BASE_H
 export USER_BASE_T=$HOME/simon
+export USER_BASE_N=$HOME
 
+## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=USER_BASE_$NODE_TAG
-eval USER_BASE=\$$vname
-export USER_BASE
+eval _USER_BASE=\$$vname
+export USER_BASE=${_USER_BASE:-$USER_BASE_U}
+
+
+
 
 
 if [ "X$DEFAULT_MACRO" == "X" ]; then
