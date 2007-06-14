@@ -5,6 +5,8 @@
 
  export ENV2GUI_VARLIST="LOCAL_NODE" 
 
+ if [ "$NODE_TAG" != "N" ]; then 
+
  [ -r cmt.bash ]           && . cmt.bash
 
  [ -r clhep.bash ]         && . clhep.bash
@@ -30,6 +32,11 @@
  [ -r xercesc.bash ]       && . xercesc.bash
  [ -r boost.bash ]         && . boost.bash
 
+ [ -r aida.bash ]          && . aida.bash
+
+ fi 
+
+
  [ -r dayabay.bash ]       && . dayabay.bash
  [ -r dayabay_extra.bash ] && . dayabay_extra.bash
 
@@ -37,7 +44,7 @@
 #[ -r apache.bash ]        && . apache.bash            ## webserver setup, to see autovalidation results 
  [ -r av.bash ]            && . av.bash                ## local autovalidation setup
 
- [ -r aida.bash ]          && . aida.bash
+
 
 ###################################################
 
