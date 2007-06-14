@@ -228,7 +228,7 @@ export USER_BASE_G1=$DISK_G1/$USER
 export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_H=$LOCAL_BASE_H
 export USER_BASE_T=$HOME/simon
-export USER_BASE_N=/project/projectdirs/dayabay/scratch/blyth
+export USER_BASE_N=$HOME
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=USER_BASE_$NODE_TAG
@@ -256,7 +256,13 @@ export DEFAULT_MACRO
 # vname=OUTPUT_BASE_$NODE_TAG
 # eval OUTPUT_BASE=\$$vname
 
-export OUTPUT_BASE=$USER_BASE
+export OUTPUT_BASE_U=$USER_BASE
+export OUTPUT_BASE_N=/project/projectdirs/dayabay/scratch/blyth
+vname=OUTPUT_BASE_$NODE_TAG
+eval _OUTPUT_BASE=\$$vname
+export OUTPUT_BASE=${_OUTPUT_BASE:-$OUTPUT_BASE_U}
+
+
 
 
 [ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
