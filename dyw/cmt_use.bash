@@ -18,20 +18,29 @@ elif ( [ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$C
   CMT_VERS="v1r18p20061003"
   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
 
+
+elif [ "$NODE_TAG" == "N" ]; then
+
+  CMT_HOME="external"
+
 else
 	
   echo $DYW_BASE/cmt_use.bash NODE_TAG $NODE_TAG CLUSTER_TAG $CLUSTER_TAG not supported 	
 
 fi
 
-export CMT_HOME 
 
-if [ -f "$CMT_HOME/mgr/setup.sh" ]; then
-  source $CMT_HOME/mgr/setup.sh  > $USER_BASE/cmt-setup.log   
+if [ "$CMT_HOME" == "external" ]; then
+  echo echo cmt is setup externally  
 else
-  echo $DYW_BASE/cmt-use.bash it seems that CMT environment not setup, as cannot find $CMT_HOME/mgr/setup.sh CMT_HOME:${CMT_HOME:should-be-defined} 	 
-fi	
+  export CMT_HOME 
 
+  if [ -f "$CMT_HOME/mgr/setup.sh" ]; then
+    source $CMT_HOME/mgr/setup.sh  > $USER_BASE/cmt-setup.log   
+  else
+    echo $DYW_BASE/cmt-use.bash it seems that CMT environment not setup, as cannot find $CMT_HOME/mgr/setup.sh CMT_HOME:${CMT_HOME:should-be-defined} 	 
+  fi	
+fi
 
 
 
