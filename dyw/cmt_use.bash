@@ -30,9 +30,8 @@ else
 fi
 
 
-if [ "$CMT_HOME" == "external" ]; then
-  #echo  cmt is setup externally  
-else
+if [ "$CMT_HOME" != "external" ]; then
+ 
   export CMT_HOME 
 
   if [ -f "$CMT_HOME/mgr/setup.sh" ]; then
