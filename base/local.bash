@@ -49,6 +49,10 @@ elif  [ "$LOCAL_NODE" == "grid1" ]; then
 
    NODE_TAG="G1"
    
+elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then   
+   
+   NODE_TAG="G1"
+   
 elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 
    NODE_TAG="L"
