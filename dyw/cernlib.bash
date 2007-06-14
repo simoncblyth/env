@@ -37,6 +37,10 @@ elif [ "$NODE_TAG" == "T" ]  ; then
   CERNLIB_YEAR=2004
   CERNLIB_ARCH=slc3_ia32_gcc323
 
+elif [ "$NODE_TAG" == "N" ]; then
+
+  echo cernlib setup externally 
+
 else
 
   echo .bash_cernlib not setup for NODE_TAG $NODE_TAG CLUSTER_TAG $CLUSTER_TAG
