@@ -31,7 +31,7 @@ fi
 
 
 if [ "$CMT_HOME" == "external" ]; then
-  echo echo cmt is setup externally  
+  #echo  cmt is setup externally  
 else
   export CMT_HOME 
 
