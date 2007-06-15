@@ -22,7 +22,11 @@ elif ( [ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$C
 elif [ "$NODE_TAG" == "N" ]; then
 
   ## note the turn arcound, determine the varaibles from the path to cmt
-  unalias cmt    ## no worries is redefined by the setup.sh
+  
+  # if there is a "cmt" alias get rid of it in order to feel the path to cmt 
+  # it will be reset by the setup.sh below
+  #
+  ( alias cmt >& /dev/null )  && unalias cmt    
   CMT_HOME=$(dirname $(dirname $(which cmt)))
   CMT_VERS=$(basename $CMT_HOME)
   echo determine CMT_HOME $CMT_HOME CMT_VERS $CMT_VERS from path to cmt
