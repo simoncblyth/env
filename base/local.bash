@@ -21,6 +21,7 @@ export SOURCE_TAG="G"
 SUDO=
 CLUSTER_TAG=
 BACKUP_TAG=U
+NODE_NAME=
 
 ##  set SUDO to "sudo" if sudo access is needed to create folders / change ownership 
 ##  in the relevant LOCAL_BASE
@@ -56,6 +57,7 @@ elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then
 elif  [ "${LOCAL_NODE:0:2}" == "pc" ]; then   
    
    NODE_TAG="N"   
+   NODE_NAME="pdsf"
    
 elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 
@@ -92,7 +94,7 @@ export NODE_TAG
 export BACKUP_TAG
 export CLUSTER_TAG
 export SUDO
-
+export NODE_NAME
 
 
 
