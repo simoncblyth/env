@@ -190,7 +190,7 @@ svn-apache2-tracs-location(){
   fi      
 
 
-  local egg-cache=$TRAC_EGG_CACHE
+  local eggcache=$TRAC_EGG_CACHE
 
 cat << EOC
 
@@ -215,7 +215,7 @@ cat << EOC
    PythonDebug On
    
    ## observe stylesheets inaccessible with msg about the 
-   SetEnv PYTHON_EGG_CACHE $egg-cache
+   SetEnv PYTHON_EGG_CACHE $eggcache
    
    ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
