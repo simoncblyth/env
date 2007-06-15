@@ -526,7 +526,22 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   
 }
 
-#pragma mark dyw-requirements
+
+dyw-requirements-external(){
+
+  pushd $DYW_SITE
+  local req=requirements.$NODE_NAME
+  if [ -f "$req" ]; then
+    echo creating requirements link to $req
+    rm -f requirements && ln -s $req requirements 
+  else
+    echo doing nothing as $req does not exist on NODE_NAME [$NODE_NAME]
+  fi
+  ls -alst
+  
+  popd   
+}
+
 
 dyw-requirements(){   ## constructs the requirements.$LOCAL_NODE file from $DYW_CMT 
 
@@ -536,6 +551,8 @@ dyw-requirements(){   ## constructs the requirements.$LOCAL_NODE file from $DYW_
   rex=requirements.example
   #req=requirements.$LOCAL_NODE
   req=requirements.$NODE_TAG
+  
+  
   
   rm -f $req 
 
