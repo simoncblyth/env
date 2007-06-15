@@ -107,9 +107,9 @@ export DYW_AVOUT=$USER_BASE/jobs/autovalidation
 export DYW_AVCNF=$DYW_AVOUT/av_config.pl
 
 
- if [ "$NODE_TAG" != "N" ]; then
-    [ -r cmt_use.bash ]           && . cmt_use.bash
- fi 
+ ## tis needed on N too for the setup.sh
+ [ -r cmt_use.bash ]           && . cmt_use.bash
+  
  
  [ -r xml.bash ]               && . xml.bash
  
