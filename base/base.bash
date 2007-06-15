@@ -36,9 +36,13 @@ base-datestamp(){
  export SSH_INFOFILE
  [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
 
-
+ ## caution must exit in same directory as started in 
+ cd $base_iwd
  [ -t 0 ] || return 
 
+
+ cd $HOME/$BASE_BASE
+ 
  [ -r alias.bash  ]      && . alias.bash
  [ -r perl.bash ]        && . perl.bash
  [ -r ssh.bash ]         && . ssh.bash
