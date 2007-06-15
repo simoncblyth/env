@@ -46,6 +46,7 @@ base-datestamp(){
  [ -r cron.bash ]        && . cron.bash
  [ -r service.bash ]     && . service.bash
  [ -r file.bash ]        && . file.bash
+ [ -r batch.bash  ]      && . batch.bash
  
   if ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ]) then
      [ -r cluster.bash ] && . cluster.bash
