@@ -51,6 +51,7 @@ batch-submit(){
        
        local cmd="qsub -hard -e . -o . -l h_cpu=02:00:00 $name.batch"
        echo $cmd
+       eval $cmd
 
    fi 
 
