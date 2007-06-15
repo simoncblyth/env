@@ -191,6 +191,7 @@ svn-apache2-tracs-location(){
 
 
   local eggcache=$TRAC_EGG_CACHE
+  $ASUDO chown $APACHE2_USER $eggcache 
 
 cat << EOC
 
