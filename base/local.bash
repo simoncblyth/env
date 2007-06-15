@@ -212,6 +212,7 @@ export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
 export VAR_BASE_U=/tmp
 export VAR_BASE_P=$DAYABAY_G1/var
 export VAR_BASE_G1=$DAYABAY_G1/var
+export VAR_BASE_H=/var
 export VAR_BASE_N=$HOME/var
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
