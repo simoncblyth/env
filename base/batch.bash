@@ -1,6 +1,9 @@
 
 
-
+#
+#  example of testing...
+#      batch-submit test hello world
+#
 
 
 
@@ -43,7 +46,7 @@ batch-submit(){
         
    elif [ "$BATCH_TYPE" == "SGE" ]; then
 
-       batch-script "$@" > $name.batch 
+       batch-script $path "$@" > $name.batch 
        chmod 755 $name.batch
        
        local cmd="qsub -hard -e . -o . -l h_cpu=02:00:00 $name.batch"
@@ -110,14 +113,6 @@ batch-prepfold(){
 
 
 
-
-
-batch-script-write(){
-
-   local path=$1
-   local name=$2
-     
-}
 
 
 batch-script(){
