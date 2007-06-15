@@ -1,12 +1,148 @@
 
 
+
+
+
+
+
+
+batch-submit(){
+
+   ## this is the entry point for instrumented batch job submission 
+   
+   local  path=$1    ## relative path that acts as a classification string for the job
+   local  name=$2    ## name , eg function or script to be invoked
+   
+   local stamp=$(batch-timestamp)
+   echo =========== batch-submit path:$path name:$name stamp:$stamp 
+
+   shift
+
+   [ "X$path" == "X" ] && echo must provide a relative path for classification && return 
+   [ "X$name" == "X" ] && echo must provide a script or function to invoke     && return 
+ 
+   batch-prepfold $path $stamp
+   
+   ## relative branches including the timestamp
+   
+   local jobsbranch=$(batch-lookup jobsbranch $path $stamp) 
+   local databranch=$(batch-lookup databranch $path $stamp)
+      
+   echo ============ batch-submit jobsbranch:$jobsbranch databranch:$databranch    
+      
+   ## getting 
+   ##  Error from starter on albert4.hepgrid: Failed to open standard output file '/disk/d4/blyth/jobs/test/20070613-160016/condor-use-test.out': Permission denied (errno 13)<   
+   ##cd $jobsbranch
+   
+   cd $databranch   
+   
+   if [ "$BATCH_TYPE" == "condor" ] ; then
+   
+        condor-use-func $databranch "$@" > $name.sub
+        condor_submit  $name.sub
+        
+   elif [ "$BATCH_TYPE" == "SGE" ]; then
+
+       batch-script "$@" > $name.batch 
+       chmod 755 $name.batch
+       
+       local cmd="qsub -hard -e . -o . -l h_cpu=02:00:00 $name.batch"
+       echo $cmd
+
+   fi 
+
+   
+
+  
+}
+
+
+
+batch-lookup(){
+
+   local qwn=$1
+   shift
+   local path=$1
+   local stamp=$2
+   
+   local jobs=$HOME
+   local data=$OUTPUT_BASE
+   
+   local branch=$path/$stamp
+   local databranch=$data/$branch
+   local jobsbranch=$jobs/$branch
+  
+   eval val=\$$qwn
+   echo $val
+}
+
+batch-prepfold(){
+   
+   local  path=$1
+   local stamp=$2
+   
+   local iwd=$(pwd)
+   
+   ## parallel heirarchies, for job metadata and the data 
+   
+   local jobs=$(batch-lookup jobs $*) 
+   local data=$(batch-lookup data $*)
+   local branch=$(batch-lookup branch $*)
+   local jobsbranch=$(batch-lookup jobsbranch $*) 
+   local databranch=$(batch-lookup databranch $*)
+   
+   echo ==== batch-prepfold jobs:$jobs data:$data branch:$branch jobsbranch:$jobsbranch databranch:$databranch
+   
+   cd $data &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp 
+   cd $jobs &&  mkdir -p $branch  && cd $path && rm -f last && ln -s $stamp last && cd $stamp 
+   
+   ## cross linking for convenience
+   cd $databranch && ln -s $jobsbranch jobs
+   cd $jobsbranch && ln -s $databranch data
+
+   cd $jobs && rm -f last_jobs && ln -s $jobsbranch last_jobs 
+   cd $jobs && rm -f last_data && ln -s $databranch last_data
+
+   cd $iwd
+}
+
+
+
+
+
+
+
 batch-script-write(){
 
    local path=$1
-   local func=$2
-   
-   batch-script > $func.sh    
+   local name=$2
+     
 }
+
+
+batch-script(){
+
+#
+# convert arguments : 
+# 
+#      1) relative-path-classification
+#    2..)  command line (such as  a function invokation)
+#
+# into a script for batch submission
+# with xml logging 
+#
+#   -l means, behave like a login script
+cat << EOC
+#!/bin/bash -l
+batch-logged-task $*
+
+EOC
+
+}
+
+
+
+
 
 
 
@@ -32,9 +168,10 @@ batch-logged-task(){
 
    ## runs the arguments passed sandwiched between xml logging information
 
-   local name=$1
+   local path=$1    ## relative path describing  the task 
+   shift
 
-   printf "<task name=\"%s\"  >\n" $name 
+   printf "<task path=\"%s\"  >\n" $path 
    printf "<pwd>%s</pwd>\n" $(pwd)
    printf "<dirname>%s</dirname>\n" $(dirname $(pwd))
    printf "<basename>%s</basename>\n" $(basename $(pwd))
@@ -62,23 +199,4 @@ batch-logged-task(){
 
 
 
-batch-script(){
-
-   local path=$1
-   local func=$2
-   
-   [ "X$path" == "X" ] && echo need relative path that describes the task   && return 1
-   [ "X$func" == "X" ] && echo need func to perform                         && return 1 
-   
-   shift
-   shift
-
-#   -l means, behave like a login script
-cat << EOC
-#!/bin/bash -l
-$func $*
-
-EOC
-
-}
 
