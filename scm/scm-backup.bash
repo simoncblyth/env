@@ -37,7 +37,7 @@ scm-backup-purge(){
   #
 
   local node=${1:-$LOCAL_NODE} 
-  local nmax=2
+  local nmax=3
   local name
   local tgzs
   local itgz
@@ -47,7 +47,7 @@ scm-backup-purge(){
   declare -a tgzs
 
 
-  echo ======= scm-backup-purge =====   note deletions are not yet enabled
+  echo ======= scm-backup-purge =====   
 
   for path in $SCM_FOLD/backup/$node/{tracs,repos}/* 
   do
@@ -65,7 +65,8 @@ scm-backup-purge(){
         if [ $(( $ntgz - $itgz > $nmax )) == 1 ]; then 
            local container=$(dirname $tgz) 
            local cmd="rm -rf $container"
-           echo delete $tgz ... $cmd 
+           echo delete $tgz ... $cmd
+           eval $cmd 
         else
            echo retain $tgz
         fi 
