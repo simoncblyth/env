@@ -45,19 +45,23 @@ elif [ "$LOCAL_NODE" == "g4pb" ]; then
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
    NODE_TAG="P"
+   BATCH_TYPE="condor"
 
 elif  [ "$LOCAL_NODE" == "grid1" ]; then
 
    NODE_TAG="G1"
+   BATCH_TYPE="condor"
    
 elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then   
    
    NODE_TAG="G1"
+   BATCH_TYPE="condor"
    
 elif  [ "${LOCAL_NODE:0:2}" == "pc" ]; then   
    
    NODE_TAG="N"   
    NODE_NAME="pdsf"
+   BATCH_TYPE="SGE"
    
 elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 
@@ -95,6 +99,7 @@ export BACKUP_TAG
 export CLUSTER_TAG
 export SUDO
 export NODE_NAME
+export BATCH_TYPE
 
 
 
