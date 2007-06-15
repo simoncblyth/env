@@ -231,13 +231,14 @@ export HOME=$HOME
 
 
 iwd=\$(pwd)
-[ -r ~/env/env.bash ] && . ~/env/env.bash
-cd \$iwd
+#pushd $HOME/$ENV_BASE
+[ -r $ENV_BASE.bash ] && . $ENV_BASE.bash
+
 
 mkdir -p $idir 
 cd $idir 
 
-condor-use-logged-task $@
+batch-logged-task $@
 
 
 EOC
@@ -246,45 +247,12 @@ EOC
 
 
 
-condor-use-logged-task(){
-
-   ## runs the arguments passed sandwiched between xml logging information
-
-   func=${1:-condor-use-logged-task}
-
-   printf "<task func=\"%s\"  >\n" $func 
-   printf "<pwd>%s</pwd>\n" $(pwd)
-   printf "<dirname>%s</dirname>\n" $(dirname $(pwd))
-   printf "<basename>%s</basename>\n" $(basename $(pwd))
-   
-   printf "<args>\n" 
-   for arg in "$@"
-   do
-	  printf "<arg>%s</arg>\n" $arg   
-   done
-   printf "</args>\n" 
-   
-   start=$(date +'%s')
-   printf "<start stamp=\"%d\" time=\"%s\" />\n" $start $(condor-use-fmtime $start)  
-   printf "<body>\n" 
-   
-   eval "$@"
-   
-   printf "</body>\n" 
-   finish=$(date +'%s')
-   printf "<finish stamp=\"%d\" time=\"%s\" />\n" $finish $(condor-use-fmtime $finish)  
-   printf "</task>\n" 
-}
 
 
 
-condor-use-timestamp(){
-	perl -MPOSIX -e  "print strftime( '%Y%m%d-%H%M%S' , localtime(time()) );" 
-}
 
-condor-use-fmtime(){
-	perl -MPOSIX -e  "print strftime( '%Y%m%d-%H%M%S' , localtime($1) );" 
-}
+
+
 
 
 condor-use-subfile(){
