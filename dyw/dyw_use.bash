@@ -103,7 +103,9 @@ export DYM=${_DYM:-$DYM_U}
 
 #export DYW_AVOUT=$CMTPATH/AutoValidation/output	   
 #export DYW_AVOUT=$DYW_FOLDER/autovalidation/output	   
-export DYW_AVOUT=$USER_BASE/jobs/autovalidation
+#export DYW_AVOUT=$USER_BASE/jobs/autovalidation
+export DYW_AVOUT=$OUTPUT_BASE/jobs/autovalidation
+
 export DYW_AVCNF=$DYW_AVOUT/av_config.pl
 
 
