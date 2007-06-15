@@ -37,8 +37,7 @@
 
 
 export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
-
-
+export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
 
 
@@ -101,6 +100,8 @@ svn-apache2-conf(){
   access="formlogin" 
   svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF  $access 
   apache2-conf-connect $TRAC_APACHE2_CONF
+
+  mkdir -p $TRAC_EGG_CACHE
 
   ## restart  
 
@@ -188,6 +189,9 @@ svn-apache2-tracs-location(){
      c="#ERROR access $access not handled "
   fi      
 
+
+  local egg-cache=$TRAC_EGG_CACHE
+
 cat << EOC
 
 <Location /mpinfo>
@@ -209,6 +213,9 @@ cat << EOC
    PythonOption TracEnvParentDir $SCM_FOLD/tracs
    PythonOption TracUriRoot /tracs
    PythonDebug On
+   
+   ## observe stylesheets inaccessible with msg about the 
+   SetEnv PYTHON_EGG_CACHE $egg-cache
    
    ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
