@@ -10,6 +10,16 @@ batch-script-write(){
 
 
 
+hello(){
+  echo ========== hello $*
+  echo ========== pwd
+  pwd
+  echo ========== env
+  env 
+}
+
+
+
 batch-script(){
 
    local path=$1
