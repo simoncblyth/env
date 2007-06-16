@@ -6,4 +6,7 @@
   [ -t 0 ] && stty erase '^?'
 
 ## this is the bash equivalent of "bindkey -v"
-  set -o vi     # vi or emacs CLI editing 
+
+  if [ "$USER" == "blyth" ]; then
+    set -o vi     # vi or emacs CLI editing 
+  fi
