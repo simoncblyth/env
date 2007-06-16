@@ -86,6 +86,14 @@ svn-apache2-conf(){
 
   ## raw SVN setup  
 
+  local access=${1:-formlogin}
+  if ([ "$access" == "formlogin" ] || [ "$access" == "httplogin" ]) then
+     echo ======= svn-apache2-conf access $access ======= 
+  else
+    echo error access $access not handled
+    return 1 
+  fi
+
   svn-apache2-repos-location-write $APACHE2_HOME/$SVN_APACHE2_CONF $*
   apache2-conf-connect $SVN_APACHE2_CONF
 
@@ -96,8 +104,7 @@ svn-apache2-conf(){
 
   ## tracs 
 
-  #access="httplogin" 
-  access="formlogin" 
+  
   svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF  $access 
   apache2-conf-connect $TRAC_APACHE2_CONF
 
