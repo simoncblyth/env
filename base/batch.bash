@@ -2,7 +2,7 @@
 
 #
 #  example of testing...
-#      batch-submit test hello world
+#      batch-submit jobs/test hello world
 #
 
 
