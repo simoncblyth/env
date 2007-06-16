@@ -5,7 +5,14 @@
  iwd=$(pwd)
  cd $DYW_HOME
 
+  
  [ -r dyw_use.bash ] && . dyw_use.bash
+
+ ## setup the paths etc.. using the CMT everything setup.sh  
+ local setup=$DYW/Everything/cmt/setup.sh
+ [ -r $setup ]       && . $setup
+
+
  [ -r dyw_gen.bash ] && . dyw_gen.bash
 #return
  [ -t 0 ] || return 
