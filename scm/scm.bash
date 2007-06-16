@@ -1,4 +1,16 @@
 #
+#
+#
+#  STEPS TO BRING A FOLDER CALLED "name" UNDER MANAGEMENT
+# 
+#     1) cd /path/to/name 
+#     2) scm-create
+#     3) cd .. ; mv name name-safety
+#     4) svn co http://localhost/repos/name/trunk name
+#     5)  Xcode will notice the change      
+#
+#
+#
 #  ISSUES: 
 #      - what system user/group(s) should own  
 #            $SCM_FOLD/repos  <--- root for protection, all access goes thru svn interface 
