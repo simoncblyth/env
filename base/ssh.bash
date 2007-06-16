@@ -9,7 +9,7 @@ SSH_BASE=".ssh"
 
 ssh--keygen(){
 
-  passph=${1:-dummy}
+  local passph=${1:-dummy}
   [ "$passph" == "dummy" ] && echo "you must enter a passphrase as the argument " && return 
   [ -d "$HOME/$SSH_BASE" ] || ( mkdir $HOME/$SSH_BASE && chmod 700 $HOME/$SSH_BASE )
 
