@@ -37,9 +37,8 @@
      [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash
  fi
  
- if [ "$NODE_TAG" == "G" ];  then
-     [ -r workflow/workflow.bash  ]   && . workflow/workflow.bash
- fi 	 
+
+  	 
  
 
  cd $env_iwd
