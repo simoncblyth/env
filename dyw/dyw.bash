@@ -9,8 +9,8 @@
  [ -r dyw_use.bash ] && . dyw_use.bash
 
  ## setup the paths etc.. using the CMT everything setup.sh  
- local setup=$DYW/Everything/cmt/setup.sh
- [ -r $setup ]       && . $setup
+ ev_setup=$DYW/Everything/cmt/setup.sh
+ [ -r $ev_setup ]       && . $ev_setup
 
 
  [ -r dyw_gen.bash ] && . dyw_gen.bash
