@@ -200,7 +200,7 @@ export LOCAL_BASE_P=$DAYABAY_G1/local
 export LOCAL_BASE_G1=$DAYABAY_G1/local  
 export LOCAL_BASE_L=/usr/local           
 export LOCAL_BASE_H=/data/usr/local          
-export LOCAL_BASE_T=/usr/local/simon
+export LOCAL_BASE_T=/usr/local/dyw
 export LOCAL_BASE_N=$HOME/local
 
 vname=LOCAL_BASE_$NODE_TAG
@@ -235,7 +235,7 @@ export USER_BASE_P=$DISK_G1/$USER
 export USER_BASE_G1=$DISK_G1/$USER  
 export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_H=$LOCAL_BASE_H
-export USER_BASE_T=$HOME/simon
+export USER_BASE_T=$HOME/dybwork
 export USER_BASE_N=$HOME
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
