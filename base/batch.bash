@@ -6,7 +6,15 @@
 #
 
 
+batch-status(){
 
+  if [ "$BATCH_TYPE" == "condor" ]; then
+    condor_q
+  elif [ "$BATCH_TYPE" == "SGE" ]; then
+    qstat -u $USER
+  fi
+
+}
 
 
 batch-submit(){
