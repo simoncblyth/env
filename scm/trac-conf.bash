@@ -109,9 +109,13 @@ trac-conf-component(){
 
 trac-conf-components(){
 
+    # usage trac-conf-components name red:admin green:admin blue:admin
+    
     local name=${1:-$SCM_TRAC}
-    local pairs="red:admin green:admin blue:admin"
-
+    shift 
+    
+    local pairs=$*
+   
     ## remove the default components 
     trac-conf-component $name remove component1
     trac-conf-component $name remove component2
