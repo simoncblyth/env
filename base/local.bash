@@ -148,7 +148,7 @@ elif [ "$SCM_TAG" == "G" ]; then
    SCM_PORT=80
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
-   SCM_TRAC=hottest
+   SCM_TRAC=workflow
 
 else
 
