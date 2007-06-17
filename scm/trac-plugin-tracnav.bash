@@ -24,3 +24,11 @@ trac-plugin-tracnav-install(){
    
   ##  Installed /data/usr/local/python/Python-2.5.1/lib/python2.5/site-packages/TracNav-3.92-py2.5.egg
 }
+
+
+trac-plugin-tracnav-enable(){
+
+   name=${1:-$SCM_TRAC}
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tracnav.\*:enabled
+
+}
