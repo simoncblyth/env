@@ -146,7 +146,7 @@ env
 . $HOME/env/env.bash
 echo =========== functions ========
 #declare -f 
-typeset -f 
+typeset -F 
 echo ========== batch-logged-task ============
 batch-logged-task $*
 
