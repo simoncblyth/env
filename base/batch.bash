@@ -139,6 +139,8 @@ batch-script(){
 #   -l means, behave like a login script
 cat << EOC
 #!/bin/bash 
+## because condor forgets its home in job submission
+export HOME=$HOME
 echo ============= start ======  HOME \$HOME
 env 
 . $HOME/env/env.bash
