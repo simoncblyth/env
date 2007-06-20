@@ -37,7 +37,7 @@ scm-backup-purge(){
   #
 
   local node=${1:-$LOCAL_NODE} 
-  local nmax=3
+  local nmax=7
   local name
   local tgzs
   local itgz
@@ -102,8 +102,8 @@ scm-backup-rsync(){
       echo $cmd1
       eval $cmd1
       
-      echo =============== dry run   transfer $source to $BACKUP_TAG:$remote/ with delete-after 
-      local cmd2="rsync  -n --delete-after -razvt $source $BACKUP_TAG:$remote/ "
+      echo ===============  transfer $source to $BACKUP_TAG:$remote/ with delete-after 
+      local cmd2="rsync   --delete-after -razvt $source $BACKUP_TAG:$remote/ "
       echo $cmd2
       eval $cmd2
 
