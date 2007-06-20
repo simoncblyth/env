@@ -137,8 +137,16 @@ batch-script(){
 #
 #   -l means, behave like a login script
 cat << EOC
-#!/bin/bash -l
-batch-logged-task $*
+#!/bin/bash 
+echo ============= start ======  HOME \$HOME
+env 
+. $HOME/env/env.bash
+echo ============ after env setup ======
+env
+echo =========== functions ========
+declare -f 
+
+#batch-logged-task $*
 
 EOC
 
