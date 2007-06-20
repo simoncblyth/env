@@ -215,35 +215,7 @@ EOD
 
 
 
-condor-use-script(){
 
-   local idir=$1
-   [ "X$idir" == "X" ] && echo condor-use-script must provide a idir initial directory for the job && return 
-   shift
-#
-#  this dyb specific stuff should not be here ...
-#
-#   -l means, behave like a login script
-
-cat << EOC
-#!/bin/bash 
-export HOME=$HOME
-
-
-iwd=\$(pwd)
-#pushd $HOME/$ENV_BASE
-[ -r $ENV_BASE.bash ] && . $ENV_BASE.bash
-
-
-mkdir -p $idir 
-cd $idir 
-
-batch-logged-task $@
-
-
-EOC
-
-}
 
 
 
@@ -266,10 +238,14 @@ condor-use-subfile(){
 #  so move to generating script to run	
 #  
   local idir=$1
-  local func=$2 
+  local name=$2 
+  local script=$3
 
-  [ "X$idir" == "X" ] && echo condor-use-subfile must provide a idir initial directory for the job && return 
-  [ "X$func" == "X" ] && echo condor-use-subfile must provide a function to call                   && return 
+  [ "X$idir" == "X" ] && echo condor-use-subfile must provide a idir initial directory for the job && return 1
+  [ "X$name" == "X" ] && echo condor-use-subfile must provide a name                               && return 1
+  [ "X$script" == "X" ] && echo condor-use-subfile must provide a script                           && return 1           
+
+
 
   
 cat << EOS
@@ -283,13 +259,13 @@ cat << EOS
 #when_to_transfer_output = ON_EXIT_OR_EVICT
 
 Executable     = /bin/bash
-Arguments      = $func.sh
+Arguments      = $script
 Universe       = vanilla
 initialdir     = $idir
-Output         = $func.out
-Log            = $func.log
+Output         = $name.out
+Log            = $name.log
 Log_Xml        = True
-Error          = $func.err
+Error          = $name.err
 Queue 
 EOS
 }
