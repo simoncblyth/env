@@ -29,12 +29,12 @@
  env_iwd=$(pwd)
  cd $HOME/$ENV_BASE
  
- [ -r base/base.bash  ] && . base/base.bash
- [ -r scm/scm.bash  ]   && . scm/scm.bash
- [ -r xml/xml.bash  ]   && . xml/xml.bash
+ [ -r base/base.bash  ] && . base/base.bash  || echo ====== env.bash could not find base.bash
+ [ -r scm/scm.bash  ]   && . scm/scm.bash    || echo ====== env.bash could not find scm.bash 
+ [ -r xml/xml.bash  ]   && . xml/xml.bash    || echo ====== env.bash could not find xml.bash
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
-     [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash
+     [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash || echo ======= env.bash could not find dyw.bash
  fi
  
 
