@@ -148,8 +148,8 @@ echo ============ after env setup ======
 env
 echo =========== functions ========
 declare -f 
-
-#batch-logged-task $*
+echo ========== batch-logged-task ============
+batch-logged-task $*
 
 EOC
 
