@@ -44,6 +44,7 @@
  cd $env_iwd
 
 
+alias eu=env-u
 
 env-u(){ 
   iwd=$(pwd)
