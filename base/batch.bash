@@ -144,9 +144,9 @@ cat << EOC
 export HOME=$HOME
 echo ============= job environment prior to customization ======  HOME \$HOME
 env 
-. $HOME/env/env.bash
+## as PDSF needs the cmt setup first 
+. $HOME/.bash_profile
 echo =========== functions ========
-#declare -f 
 typeset -F 
 echo ========== batch-logged-task ============
 batch-logged-task $*
