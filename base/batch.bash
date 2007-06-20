@@ -5,6 +5,7 @@
 #      batch-submit jobs/test hello world
 #
 
+alias bs=batch-status
 
 batch-status(){
 
