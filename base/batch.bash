@@ -141,13 +141,12 @@ cat << EOC
 #!/bin/bash 
 ## because condor forgets its home in job submission
 export HOME=$HOME
-echo ============= start ======  HOME \$HOME
+echo ============= job environment prior to customization ======  HOME \$HOME
 env 
 . $HOME/env/env.bash
-echo ============ after env setup ======
-env
 echo =========== functions ========
-declare -f 
+#declare -f 
+typeset -f 
 echo ========== batch-logged-task ============
 batch-logged-task $*
 
