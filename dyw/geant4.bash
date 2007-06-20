@@ -125,8 +125,8 @@ elif ([ "$NODE_TAG" == "P" ]) ; then
 
 elif ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ]) ; then
 
-   #GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
-   GQ_TAG="dbg"     ##  debug flags + visualization
+   GQ_TAG="bat"    ##  no debug flags, no visualization ... for batch simulation runs
+   #GQ_TAG="dbg"     ##  debug flags + visualization
   
    
 else   

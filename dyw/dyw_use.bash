@@ -55,8 +55,11 @@ export DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
  export DYW_VERSION_P="dyw_last_20070411"
  export DYW_VERSION_L="dyw_last_20070411"
  export DYW_VERSION_U="dyw_last_20070411"
+
 #export DYW_VERSION_G1="dyw_20070503_wc"
- export DYW_VERSION_G1="dyw_release_2_8_wc"
+#export DYW_VERSION_G1="dyw_release_2_8_wc"
+ export DYW_VERSION_G1="dyw_release_2_9_wc"
+ 
  export DYW_VERSION_N="dyw_release_2_9_wc" 
  
 
