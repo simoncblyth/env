@@ -31,10 +31,12 @@ base-datestamp(){
 
 
  [ -r local.bash ]       && . local.bash 
+ [ -r batch.bash  ]      && . batch.bash
 
  SSH_INFOFILE=$HOME/.ssh-agent-info-$NODE_TAG
  export SSH_INFOFILE
  [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
+ 
 
  ## caution must exit in same directory as started in 
  cd $base_iwd
@@ -50,7 +52,7 @@ base-datestamp(){
  [ -r cron.bash ]        && . cron.bash
  [ -r service.bash ]     && . service.bash
  [ -r file.bash ]        && . file.bash
- [ -r batch.bash  ]      && . batch.bash
+
  
   if ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ]) then
      [ -r cluster.bash ] && . cluster.bash
