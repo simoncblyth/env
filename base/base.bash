@@ -41,8 +41,6 @@ base-datestamp(){
  ## caution must exit in same directory as started in 
  cd $base_iwd
  [ -t 0 ] || return 
-
-
  cd $HOME/$BASE_BASE
  
  [ -r alias.bash  ]      && . alias.bash
@@ -60,6 +58,8 @@ base-datestamp(){
  
 
  cd $base_iwd
+
+
 
  base-x-pkg(){ 
    cd $HOME 	

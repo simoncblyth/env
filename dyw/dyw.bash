@@ -1,24 +1,28 @@
-           
+     
+ dyw_iwd=$(pwd)          
+                       
  DYW_BASE=$ENV_BASE/dyw
  export DYW_HOME=$HOME/$DYW_BASE
 
- iwd=$(pwd)
  cd $DYW_HOME
 
-  
  [ -r dyw_use.bash ] && . dyw_use.bash
 
  ## setup the paths etc.. using the CMT everything setup.sh  
  ev_setup=$DYW/Everything/cmt/setup.sh
  [ -r $ev_setup ]       && . $ev_setup
-
-
  [ -r dyw_gen.bash ] && . dyw_gen.bash
-#return
+ 
+ 
+ ##  caution must exit with initial dir
+ cd $dyw_iwd
  [ -t 0 ] || return 
+ cd $DYW_HOME
+ 
  [ -r dyw_build.bash ] && . dyw_build.bash
 
- cd $iwd
+ ##  caution must exit with initial dir
+ cd $dyw_iwd
 
 
 ## useful when cannot login due to disk hangs  , flipping the return commenting 

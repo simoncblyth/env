@@ -99,9 +99,9 @@
 # svn: MKACTIVITY of '/repos/yellow/!svn/act/0b4101f1-fe2e-0410-b312-8d38c72169a9': 403 Forbidden (http://grid1.phys.ntu.edu.tw:6060)
 #
 #
- iwd=$(pwd)
+ scm_iwd=$(pwd)
 
- SCM_BASE=env/scm
+ SCM_BASE=$ENV_BASE/scm
  export SCM_HOME=$HOME/$SCM_BASE
  cd $SCM_HOME
 
@@ -111,7 +111,10 @@
  [ -r trac-use.bash ]       && . trac-use.bash 
  [ -r modwsgi-use.bash ]    && . modwsgi-use.bash 
 
+ ## caution must exit with initial directory 
+ cd $scm_iwd
  [ -t 0 ] || return 
+ cd $SCM_HOME
 
  [ -r file.bash  ]          && . file.bash
 
@@ -149,7 +152,8 @@
 #[ -r svn-learn.bash ]      && . svn-learn.bash
 #[ -r modpython-test.bash ] && . modpython-test.bash  
 
- cd $iwd
+ ## caution must exit with initial directory
+ cd $scm_iwd
  
 
 
