@@ -47,18 +47,19 @@ batch-submit(){
    
    cd $databranch   
    
-   batch-script $path "$@" > $name.batch 
-   chmod 755 $name.batch
+   local script=$name.batch
+   batch-script $path "$@" > $script 
+   chmod 755 $script
    
    local cmd 
    if [ "$BATCH_TYPE" == "condor" ] ; then
    
-       condor-use-subfile $(pwd) $name > $name.condorsub
+       condor-use-subfile $(pwd) $name $script > $name.condorsub
        cmd="condor_submit  $name.condorsub "
         
    elif [ "$BATCH_TYPE" == "SGE" ]; then
 
-       cmd="qsub -hard -e . -o . -l h_cpu=02:00:00 $name.batch"
+       cmd="qsub -hard -e . -o . -l h_cpu=02:00:00 $script"
        
    fi 
 
