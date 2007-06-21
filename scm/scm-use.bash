@@ -36,6 +36,10 @@ export PATH=$PYTHON_HOME/bin:$PATH
 SQLITE_NAME=sqlite-3.3.16
 export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
 export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
+if [ "$NODE_TAG" != "G" ]; then
+   export PATH=$SQLITE_HOME/bin:$PATH
+fi
+
 
 APACHE2_NAME=httpd-2.0.59
 APACHE2_ABBREV=apache2
