@@ -98,14 +98,14 @@ scm-backup-rsync(){
       ssh $BACKUP_TAG "mkdir -p  $remote"
       
       echo ============== transfer $source to $BACKUP_TAG:$remote/ 
-      local cmd1="rsync -razvt $source $BACKUP_TAG:$remote/ "
+      local cmd1="rsync --delete-after -razvt $source $BACKUP_TAG:$remote/ "
       echo $cmd1
       eval $cmd1
       
-      echo ===============  transfer $source to $BACKUP_TAG:$remote/ with delete-after 
-      local cmd2="rsync   --delete-after -razvt $source $BACKUP_TAG:$remote/ "
-      echo $cmd2
-      eval $cmd2
+      # echo ===============  transfer $source to $BACKUP_TAG:$remote/ with delete-after 
+      # local cmd2="rsync   --delete-after -razvt $source $BACKUP_TAG:$remote/ "
+      # echo $cmd2
+      # eval $cmd2
 
 
    fi 
