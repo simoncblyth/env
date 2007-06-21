@@ -165,6 +165,18 @@ cat << EOC > $HOME/.ssh/config
 host N
     user blyth
     hostname pdsf.nersc.gov
+    
+    
+host VT
+    #
+    user hmmm
+    hostname hmmm.bnl.gov
+    protocol 2
+    # NB the 127.0.0.1 is the callback ip on the remote side of the tunnel 
+    # this tunnels local trafic on 5901 to the remote 5901
+    LocalForward 5901 127.0.0.1:5901     
+    
+    
 host G3
     hostname g3pb.ath.cx
     protocol 2 
