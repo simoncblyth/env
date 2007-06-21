@@ -47,6 +47,7 @@ export APACHE2_BUILD=$LOCAL_BASE/$APACHE2_ABBREV/build/$APACHE2_NAME
 export APACHE2_CONF=$APACHE2_HOME/etc/apache2/httpd.conf
 export APACHE2_PORT=6060
 export APACHE2_HTDOCS=$APACHE2_HOME/share/apache2/htdocs
+export APACHE2_HTDOCS_H=$APACHE2_HOME_H/share/apache2/htdocs
 export APACHE2_XSLT=$APACHE2_HTDOCS/resources/xslt
 
 
