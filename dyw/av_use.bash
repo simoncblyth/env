@@ -146,7 +146,7 @@ av-use-sync(){
   else
      local cmd="ssh $SCM_TAG \"mkdir -p $htdocs/autovalidation/$NODE_NAME\" && rsync -n -razvt . $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
      echo $cmd
-     #eval $cmd 
+     eval $cmd 
   fi
 
 
