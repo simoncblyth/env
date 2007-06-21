@@ -135,3 +135,24 @@ av-use-cf(){
 }
 
 
+av-use-sync(){
+
+  cd $DYW_AVOUT
+  local vname=APACHE2_HTDOCS_$SCM_TAG
+  eval htdocs=\$$vname
+  
+  if [ "X$htdocs" == "X" ]; then 
+     echo ====== av-use-sync destination apache2 instance htdocs on node SCM_TAG $SCM_TAG not setup && return 1
+  else
+     local cmd="ssh $SCM_TAG \"mkdir -p $htdocs/autovalidation/$NODE_NAME\" && rsync -n -razvt . $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
+     echo $cmd
+     #eval $cmd 
+  fi
+
+
+
+
+}
+
+
+
