@@ -81,7 +81,7 @@ av-config(){
 \$replace=1; # 1=replace data, 0=make new version.
 #\$url="http://minimac1.phy.tufts.edu/~tagg/AutoValidation/";
 #\$url="";
-\$url="http://grid1.phys.ntu.edu.tw:8080/autovalidation";
+\$url="http://dayabay.phys.ntu.edu.tw/autovalidation/$NODE_NAME";
 ## unfortunately AutoValidate.pl does not utilize the advantages of relative
 ## links .. so have to go absolute to comply
 ##
