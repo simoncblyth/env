@@ -240,4 +240,19 @@ fi
 
 
 }
+
+#
+#   http://www.linuxjournal.com/node/6602/print 
+#   claims 
+#  ssh -L 9110:mail.example.net:110 shell.example.net
+#   is equivalent to
+#  ssh forwardpop 
+#  
+#   with the below in the config:
+#  
+# host forwardpop
+#     Hostname shell.example.net
+#     LocalForward 9110 mail.example.net:110 
+#
+
 	
