@@ -144,11 +144,14 @@ av-use-sync(){
   if [ "X$htdocs" == "X" ]; then 
      echo ====== av-use-sync destination apache2 instance htdocs on node SCM_TAG $SCM_TAG not setup && return 1
   else
+     
+     echo ===== creating directory on webserver to store av outputs for node $NODE_NAME
      local cmd1="ssh $SCM_TAG \"mkdir -p $htdocs/autovalidation/$NODE_NAME\" "
      echo $cmd1
      eval $cmd1 
      
-     local cmd2="rsync -n -razvt . $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
+     echo ===== rsyncing av outputs to the webserver 
+     local cmd2="rsync -e ssh  -razvt ./ $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
      echo $cmd2
      eval $cmd2
   fi
