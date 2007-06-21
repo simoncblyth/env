@@ -6,7 +6,8 @@
 
  cd $DYW_HOME
 
- [ -r dyw_use.bash ] && . dyw_use.bash
+ [ -r dyw_use.bash ]  && . dyw_use.bash
+ 
 
  ## setup the paths etc.. using the CMT everything setup.sh  
  ev_setup=$DYW/Everything/cmt/setup.sh
@@ -20,6 +21,7 @@
  cd $DYW_HOME
  
  [ -r dyw_build.bash ] && . dyw_build.bash
+ [ -r root_use.bash ]  && . root_use.bash
 
  ##  caution must exit with initial dir
  cd $dyw_iwd
