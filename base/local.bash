@@ -50,11 +50,13 @@ elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 elif  [ "$LOCAL_NODE" == "grid1" ]; then
 
    NODE_TAG="G1"
+   NODE_NAME="grid1"
    BATCH_TYPE="condor"
    
 elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then   
    
    NODE_TAG="G1"
+   NODE_NAME="grid1"
    BATCH_TYPE="condor"
    
 elif  [ "${LOCAL_NODE:0:2}" == "pc" ]; then   
