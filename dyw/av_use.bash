@@ -141,6 +141,10 @@ av-use-sync(){
   local vname=APACHE2_HTDOCS_$SCM_TAG
   eval htdocs=\$$vname
   
+  if [ "X$NODE_NAME" == "X" ]; then
+     echo ======  av-use-sync ABORTING,  NODE_NAME is not defined on NODE_TAG $NODE_TAG  && return 1 
+  fi
+  
   if [ "X$htdocs" == "X" ]; then 
      echo ====== av-use-sync destination apache2 instance htdocs on node SCM_TAG $SCM_TAG not setup && return 1
   else
@@ -151,7 +155,7 @@ av-use-sync(){
      eval $cmd1 
      
      echo ===== rsyncing av outputs to the webserver 
-     local cmd2="rsync -e ssh  -razvt ./ $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
+     local cmd2="rsync -e ssh --delete-after -razvt ./ $SCM_TAG:$htdocs/autovalidation/$NODE_NAME/ "
      echo $cmd2
      eval $cmd2
   fi
