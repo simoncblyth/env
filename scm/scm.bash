@@ -131,6 +131,8 @@
  [ -r modpython.bash ]      && . modpython.bash           ## depends on python, apache2
  [ -r modwsgi.bash ]        && . modwsgi.bash             ## even when not using, create the .wsgi files 
 
+ [ -r pymysql.bash ]        && . pymysql.bash
+
  [ -r clearsilver.bash ]                 && . clearsilver.bash         
  
  [ -r trac.bash ]                        && . trac.bash     
