@@ -11,9 +11,11 @@ int main(int argc,char** argv)
 {
     long hostID( gethostid() ); 
     long runID = 0 ;
-    long evtID = 1 ;
-    long seed = seed( hostID , runID , evtID );  
-    cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << seed << endl ; 
+    for( int j = 0 ; j <=10 ; ++j ){
+       long evtID((long)j) ;
+       long seed = seed( hostID , runID , evtID );  
+       cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << seed << endl ; 
+    }
 }
 			
 
