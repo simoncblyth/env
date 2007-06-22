@@ -86,15 +86,26 @@ av-use-run(){
  #
  #
 
-    cd $DYW_AVOUT 
-    start=$(av-use-today)
+    cd $DYW_AVOUT
+     
+    local today=$(av-use-today)
+    local start=${1:-$today} 
+    
 
     [ "$(pwd)" == "$DYW/AutoValidation/scripts" ] && ( echo running autovalidation from $(pwd) is prohibited ) && return
 
 	cnf=av_config.pl
     ok=0	
 	if [ -f "$cnf" ]; then
-
+      
+      #
+      # without "set --" the cmt setup.sh swallows the positional arguments, and complains about them
+	  # this removes the positional arguments , as the CMT setup script uses a $* as arguments to cmt 
+      # resulting in cmt getting the argumenst inadvertantly
+      #       http://tldp.org/LDP/abs/html/internalvariables.html#INCOMPAT
+	  #
+      local args="$@"
+      set -- 
 	  source $DYW/G4dyb/cmt/setup.sh
 
 	  xml-env-element
@@ -102,7 +113,7 @@ av-use-run(){
 	  
 	  xml-cdata-open
       echo DAYA_DATA_DIR:$DAYA_DATA_DIR
-	  $DYW/AutoValidation/scripts/AutoValidate.pl
+	  $DYW/AutoValidation/scripts/AutoValidate.pl "$args"
       xml-cdata-close		
 		
 	else   
@@ -115,7 +126,8 @@ av-use-run(){
 	#  from:
     #       http://grid1.phys.ntu.edu.tw:8080/autovalidation/ 
     #
-    chmod -R go+rx $start
+    # chmod -R go+rx $start
+    #   
 }
 
 av-use-today(){
