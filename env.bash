@@ -31,7 +31,8 @@
  
  [ -r base/base.bash  ] && . base/base.bash  
  [ -r scm/scm.bash  ]   && . scm/scm.bash    
- [ -r xml/xml.bash  ]   && . xml/xml.bash   
+ [ -r xml/xml.bash  ]   && . xml/xml.bash 
+ [ -r seed/seed.bash  ] && . seed/seed.bash   
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
      [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
