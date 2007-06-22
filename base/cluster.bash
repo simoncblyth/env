@@ -26,7 +26,7 @@ cluster-cmd(){
       if [ "X$node" == "Xalbert11" ]; then
          echo skip 
       else   
-         ssh $node "bash -lc $*"
+         ssh $node "bash -lc \"$*\""
       fi    
    done
 }
