@@ -81,7 +81,8 @@ export DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
 #vname=DYW_$NODE_TAG
 #eval DYW=\$$vname
 
-export DYW=$DYW_FOLDER/$DYW_VERSION
+## SCB June22 , introduce GQ_TAGed DYW folder ... to maintain bat and dbg executables 
+export DYW=$DYW_FOLDER/$GQ_TAG/$DYW_VERSION
 
 ## -------------- CMTPATH 
 
