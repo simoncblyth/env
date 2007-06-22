@@ -113,7 +113,9 @@ av-use-run(){
 	  
 	  xml-cdata-open
       echo DAYA_DATA_DIR:$DAYA_DATA_DIR
-	  $DYW/AutoValidation/scripts/AutoValidate.pl "$args"
+	  local cmd="$DYW/AutoValidation/scripts/AutoValidate.pl $args"
+      echo ==== $cmd ==== 
+      eval $cmd
       xml-cdata-close		
 		
 	else   
