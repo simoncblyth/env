@@ -34,7 +34,7 @@ int main(int argc,char** argv)
     long myseed( seed.to_ulong() );  
   
     
-    cout << "run/evt/host/seed" << runID << evtID << hostID << myseed << endl ;  
+    cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << myseed << endl ;  
     
     
 
