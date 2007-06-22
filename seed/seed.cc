@@ -11,7 +11,7 @@ int main(int argc,char** argv)
     
     long hostID( gethostid() );
 	long runID( 0 );
-    long eventID( 1 );
+    long evtID( 1 );
     
     std::bitset<32> run ( runID );
     std::bitset<32> site ( hostID );
