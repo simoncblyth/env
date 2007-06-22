@@ -16,3 +16,17 @@ cluster-disks(){
       fi    
    done
 }
+
+cluster-cmd(){
+  
+  for node in $(cluster-nodes)
+   do
+      echo ========= $node ========================
+      
+      if [ "X$node" == "Xalbert11" ]; then
+         echo skip 
+      else   
+         ssh $node "bash -lc $*"
+      fi    
+   done
+}
