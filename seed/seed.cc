@@ -5,20 +5,28 @@ using std::endl ;
 #include <unistd.h>
 #include <bitset>  
 
+long seed(  long hostID , long runID , long evtID );
+
 int main(int argc,char** argv)
 {
+    long hostID( gethostid() ); 
+    long runID = 0 ;
+    long evtID = 1 ;
+    long seed = seed( hostID , runID , evtID );  
+    cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << seed << endl ; 
+}
+			
+
+long seed( long hostID , long runID , long evtID ){
+     
     // extracting pieces from   dyw_2_9:dywPrimaryGeneratorAction.cc
     
-    long hostID( gethostid() );
-	long runID( 0 );
-    long evtID( 1 );
-    
-    std::bitset<32> run ( runID );
     std::bitset<32> site ( hostID );
+    std::bitset<32> run ( runID );
     std::bitset<32> evt ( evtID );
-    std::bitset<32> a ( (long) 0);
     
-    // loop over bits in run in reverse order and set bits in a
+     // loop over bits in run in reverse order and set bits in a
+    std::bitset<32> a ( (long) 0);
     for ( int i = 32-1; i >= 0 ; i-- )
     {
         if ( run.test(i) ) a.set(31-i) ;
@@ -30,14 +38,8 @@ int main(int argc,char** argv)
     // set highest bit to zero to avoid negative seed
     if ( seed.test(31) ) seed.reset(31) ; 
     
-        
-    long myseed( seed.to_ulong() );  
-  
-    
-    cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << myseed << endl ;  
-    
-    
-
+    return seed.to_ulong()  ;
 }
-								  
+
+
 
