@@ -282,28 +282,50 @@ scm-remove(){
 }
 
 
-scm-from-tgz(){
+scm-unpack(){
 
    #  TO IMPLEMENT :
    #
-   #    if passed the path to a tgz, then unpack it into a tmpdir and place the content of the tgz container folder
-   #    into a trunk,branches,tags heirarchy and import into the scm named after the tgz container folder
+   #    if passed the path to a package, then unpack it into a tmpdir and place the content of the package container folder
+   #    into a trunk,branches,tags heirarchy and import into the scm named after the package container folder
    #    then delete the tmpdir make a working copy directory and checkout the repository  
    #
- 
-   local X=$SCM_TAG
-   local tmpdir=/tmp/scm-from-tgz-$$
-   mkdir -p $tmpdir
-   local tld
-   
-   # will only succeed if there us a single container folder in the tgz    
-   if(  tld=$(file-tgz-topdir $tgz) ); then
-        mkdir -p $tmpdir/{unpack,trunk,branches,tags}  
-        tar -C $tmpdir/unpack -zxvf $tgz
-        cp -Rp $tmpdir/unpack/$tld/* $tmpdir/trunk/
-        rm -rf $tmpdir/unpack
-   fi 
 
+   local pkg=$1
+   [ -f "$pkg" ] || return 1
+    
+   local X=$SCM_TAG
+     
+   declare -a tlds
+   local tlds=($(file-package-topdir $pkg))
+   local ntld=${#tlds[@]}
+   [ "$ntld" != "1" ] && echo === scm-unpack ABORTING unpack of $pkg as are $ntld top level folders: ${tlds[@]} && return 1
+      
+   local tld=${tlds[0]}
+   echo === scm-unpack proceeding to unpack $pkg with single tld $tld === 
+               
+   local tmpdir=/tmp/scm-unpack/$$   
+   mkdir -p $tmpdir/{unpack,trunk,branches,tags}  
+       
+   if [ "${pkg:(-4):4}" == ".zip" ]; then
+      unzip -d $tmpdir/unpack $pkg
+   elif ([ "${pkg:(-7):7}" == ".tar.gz" ] || [ "${pkg:(-4):4}" == ".tgz" ]) then
+      tar -C $tmpdir/unpack -zxvf $pkg
+   else
+      echo unpacking $pkg is not supported && return 1
+   fi
+       
+   cp -Rp $tmpdir/unpack/$tld/* $tmpdir/trunk/
+   rm -rf $tmpdir/unpack
+      
+
+   local name=$tld 
+   scm-tracname-available $name && echo proceeding as tracname $name is available || ( echo a repository named $name exists already , cannot overwrite  && return 1  )
+   
+   
+   #local uurl=http://$SCM_HOST:$SCM_PORT
+   #svn import $tmpdir $uurl/repos/$name/trunk/  -m "initial scm-unpack " --username $SCM_USER --password $NON_SECURE_PASS
+   #svn checkout $uurl/repos/$name/trunk/ $name
 }
 
 
@@ -425,6 +447,7 @@ scm-import(){
   user=${3:-$SCM_USER}
   pass=${4:-$SCM_PASS}
   uurl=${5:-$turl}
+
   
   [ $name == "dummy" ] && ( echo argument1 should be a remote repository name at $uurl && return )
   [ -d "$fold" ]       || ( echo argument2 $fold should be a valid directory on local node && return )
