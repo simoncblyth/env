@@ -5,7 +5,7 @@ using std::endl ;
 #include <unistd.h>
 #include <bitset>  
 
-long seed(  long hostID , long runID , long evtID );
+long getseed(  long hostID , long runID , long evtID );
 
 int main(int argc,char** argv)
 {
@@ -13,13 +13,13 @@ int main(int argc,char** argv)
     long runID = 0 ;
     for( int j = 0 ; j <=10 ; ++j ){
        long evtID((long)j) ;
-       long seed = seed( hostID , runID , evtID );  
+       long seed = getseed( hostID , runID , evtID );  
        cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << seed << endl ; 
     }
 }
 			
 
-long seed( long hostID , long runID , long evtID ){
+long getseed( long hostID , long runID , long evtID ){
      
     // extracting pieces from   dyw_2_9:dywPrimaryGeneratorAction.cc
     
