@@ -146,6 +146,61 @@ python-sendmail-test(){
 
     ## works on H amazingly ... 
     python -c "import smtplib ; s=smtplib.SMTP('localhost'); s.sendmail('me@localhost','blyth@hep1.phys.ntu.edu.tw','test message');  "
+
 }
+
+python-sendmail(){
+  
+  # 
+  #   python-sendmail /path/to/text-message [subject] 
+  #
+  #        send the text file whose path is passed as a text email ,
+  #        if supplied the second argument becomes the subject of the message , 
+  #        otherwise the first line of the text file is used as the subject
+  #
+
+  local  me="blyth@hep1.phys.ntu.edu.tw"
+  local lme="me@localhost"
+  
+  local path=${1}
+  [ -f "$path" ] || ( echo python-sendmail path $path doesnt exist && return 1 )
+  local firstline=$(head -1 $path)
+  
+  local subject=${2:-$firstline} 
+  local to=${3:-$me}
+  local from=${4:-$lme}
+   
+
+   python << EOP
+import smtplib
+from email.mime.text import MIMEText
+
+# Open a plain text file for reading,  assume ASCII characters only
+fp = open( path , 'rb')
+# Create a text/plain message
+msg = MIMEText(fp.read())
+fp.close()
+
+msg['Subject'] = $subject
+msg['From'] = $from
+msg['To'] = $to
+
+# Send the message via our own SMTP server, but don't include the
+# envelope header.
+s = smtplib.SMTP()
+s.connect()
+s.sendmail($from, [$to], msg.as_string())
+s.close()
+
+EOP
+
+
+
+
+}
+
+
+
+
 
 
