@@ -147,6 +147,8 @@ scm-use-create-local(){
    fi
  
    
+   # this makes for a non-interesting revision 1, in the normal empty case
+   
    echo ======= import from tmpdir $tmpdir into file://$repo 
    svn import $tmpdir file://$repo -m "initial import from $path "
    rm -rf $tmpdir

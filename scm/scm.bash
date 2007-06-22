@@ -281,6 +281,33 @@ scm-remove(){
 
 }
 
+
+scm-from-tgz(){
+
+   #  TO IMPLEMENT :
+   #
+   #    if passed the path to a tgz, then unpack it into a tmpdir and place the content of the tgz container folder
+   #    into a trunk,branches,tags heirarchy and import into the scm named after the tgz container folder
+   #    then delete the tmpdir make a working copy directory and checkout the repository  
+   #
+ 
+   local X=$SCM_TAG
+   local tmpdir=/tmp/scm-from-tgz-$$
+   mkdir -p $tmpdir
+   local tld
+   
+   # will only succeed if there us a single container folder in the tgz    
+   if(  tld=$(file-tgz-topdir $tgz) ); then
+        mkdir -p $tmpdir/{unpack,trunk,branches,tags}  
+        tar -C $tmpdir/unpack -zxvf $tgz
+        cp -Rp $tmpdir/unpack/$tld/* $tmpdir/trunk/
+        rm -rf $tmpdir/unpack
+   fi 
+
+}
+
+
+
 scm-create(){
 
    #
@@ -291,11 +318,12 @@ scm-create(){
    #     create repository and tracitory on the SCM_TAG remote node 
    #     and upload the contents of the local folder [fold] into its
    #     trunk
-   #
+   # 
+   # 
    #     [fold] defaults to the pwd
    #     [name] defaults to the basename of fold 
    #
-   #
+     #
 
    X=$SCM_TAG
 
