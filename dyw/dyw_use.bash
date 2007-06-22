@@ -32,6 +32,8 @@ export CVSROOT=$DYW_CVSROOT
 ##
 ## ------------- 
 
+
+
 #export DYW_FOLDER_P=$LOCAL_BASE_P/dayabay
 export DYW_FOLDER_P=$USER_BASE_P/dayabay
 
@@ -43,7 +45,12 @@ export DYW_FOLDER_N=$USER_BASE_N/dayabay
 
 vname=DYW_FOLDER_$NODE_TAG
 eval _DYW_FOLDER=\$$vname
-export DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
+DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
+
+## SCB June22 , introduce GQ_NAME/GQ_TAGed DYW_FOLDER ... to maintain bat and dbg executables
+DYW_FOLDER=$DYW_FOLDER/$GQ_NAME/$GQ_TAG
+export DYW_FOLDER
+
 
 [ -d "$DYW_FOLDER" ] || ( echo WARNING creating DYW_FOLDER $DYW_FOLDER && mkdir -p $DYW_FOLDER )
 
@@ -81,8 +88,8 @@ export DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
 #vname=DYW_$NODE_TAG
 #eval DYW=\$$vname
 
-## SCB June22 , introduce GQ_NAME/GQ_TAGed DYW folder ... to maintain bat and dbg executables 
-export DYW=$DYW_FOLDER/$GQ_NAME/$GQ_TAG/$DYW_VERSION
+ 
+export DYW=$DYW_FOLDER/$DYW_VERSION
 
 ## -------------- CMTPATH 
 
