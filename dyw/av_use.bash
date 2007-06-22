@@ -128,8 +128,8 @@ av-use-run(){
 	#  from:
     #       http://grid1.phys.ntu.edu.tw:8080/autovalidation/ 
     #
-    # chmod -R go+rx $start
-    #   
+    chmod -R go+rx $start
+      
 }
 
 av-use-today(){

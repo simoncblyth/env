@@ -118,13 +118,34 @@ av-yesterday(){
 
 av-getref(){
 
-    ##
-    ##  grab reference root files for comparison with local ones..
-    ##   usage 
-    ##       av-getref 2007-02-07
-    ##    (defaults to yesterday .. which is may be available )
-    ##
+    #
+    #  grab reference root files for comparison with local ones..
+    #  usage 
+    #
+    #       av-getref orig_2007-02-07
+    #
+    #       av-getref tagg_2007-02-07
+    #       av-getref pdsf_2007-02-07
+    #
+    #
+    #    (defaults to yesterday .. which is may be available )
+    #
 
+    local refdef=orig_$(av-yesterday)
+    local refspec=${1:-$refdef}
+
+    ## the src is the part before the underscore, the "day" is the part after  
+    local refsrc=$(echo $refspec | cut -d_ -f1 )
+    local refday=$(echo $refspec | cut -d_ -f2 )
+    
+    local refav
+    if [ "$refsrc" == "orig" ]; then
+       refav=http://minimac1.phy.tufts.edu/~tagg/AutoValidation
+    else
+       refav=http://dayabay.phys.ntu.edu.tw/autovalidation/$refsrc
+    fi
+    local refur=$refav/$refday
+    
 
     #local cnf="$DYW/AutoValidation/scripts/av_config.pl"
     local cnf="$DYW_AVCNF"
@@ -137,19 +158,16 @@ av-getref(){
     fi   
 
 
-    local refav=http://minimac1.phy.tufts.edu/~tagg/AutoValidation
-    local refdef=$(av-yesterday)
-	local refday=${1:-$refdef}
-    local refur=$refav/$refday
-
 	echo ====== av-getref === attempt to grab the reference files from day $refday , default is $refdef 
     
 	test -d $DYW_AVOUT || mkdir -p $DYW_AVOUT
 	cd $DYW_AVOUT
 
-    test -d $refday || mkdir $refday
-	rm -f last-av-getref && ln -s $refday last-av-getref
-	cd $refday
+
+
+    test -d $refspec || mkdir $refspec
+	rm -f last-av-getref && ln -s $refspec last-av-getref
+	cd $refspec
 
     ## this extracts the jobs list that was entered above, by the av-config
     ##macs=`perl -e "require "$cnf" ; print \"\@jobs\" ; "`
@@ -169,12 +187,13 @@ av-getref(){
        done
     done	   
 
-    ## this one contains all the hists from the jobs 
-    hisfil=$refday.hists.root
-	hisurl=$refur/$hisfil
+    ## this one contains all the hists from the jobs , note the name change to match the folder name change
+    hisfila=$refday.hists.root
+    hisfilb=$refspec.hists.root
+	hisurl=$refur/$hisfila
     
-	echo $hisurl $hisfil
-    test -f $hisfil && echo file $hisfil exists already || curl -o $hisfil $hisurl
+	echo $hisurl $hisfila $hisfilb
+    test -f $hisfilb && echo file $hisfilb exists already || curl -o $hisfilb $hisurl
 	
 }
 
