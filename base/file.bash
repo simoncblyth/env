@@ -16,14 +16,33 @@ file-dirlist(){
 }
 
 
-file-tgz-topdir(){
+file-package-topdir(){
    #
-   # return the top directories present in a tarball, if only one such directory return with success status, otherwise return with error status
+   #  return the top directories present in a tar.gz or zip , 
+   #  if only one such directory return with success status, otherwise return with error status
    #
-   local tgz=${1:-dummy}
-   [ -f "$tgz"  ] ||  return 1 
-   tar -ztf  $tgz | perl -n -e 'BEGIN{ @n=(); }; m|(.*?)/.*| && do { push(@n,$1) if(grep($1 eq $_,@n)==0); } ; END{ print "@n " ; exit(1) if($#n + 1 != 1) ;} '
+   local pkg=${1:-dummy}
+   [ -f "$pkg"  ] ||  return 1 
+   
+   local cmd 
+   
+   if [ "${pkg:(-4):4}" == ".zip" ]; then
+   
+       cmd="unzip -l $pkg | perl -n -e 'BEGIN{ @n=();}; m|\s*\d*\s*[\d-]*\s*[\d:]*\s*(\S*?)/(\S*)\s*| && do { push(@n,\$1) if(grep(\$1 eq \$_,@n)==0); } ; END{ print \"\$_\\n\" for(@n);} '"
+       
+   elif ([ "${pkg:(-7):7}" == ".tar.gz" ] || [ "${pkg:(-4):4}" == ".tgz" ]) then
+   
+       cmd="tar -ztf $pkg | perl -n -e 'BEGIN{ @n=();}; m|(.*?)/.*| && do { push(@n,\$1) if(grep(\$1 eq \$_,@n)==0); } ; END{ print \"\$_\\n\" for(@n);}  '"
+   
+   else
+      return 1
+   fi
+
+   #echo $cmd
+   eval $cmd 
 }
+
+
 
 
 
