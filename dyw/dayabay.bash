@@ -343,7 +343,10 @@ dyw-grid1-rootcint-timefix(){
 
 dyw-checkout(){  ## checkout from the declared SVN repository
 
-  tag=${1:-release_2_8}
+
+  local t=${DYW_VERSION:4}   ## trim the dyw_  and _wc to get the tag string 
+  t=${t%_wc}                   
+  local tag=${1:-$t} 
 
    [ -d "$DYW_FOLDER" ] || mkdir -p $DYW_FOLDER 
    cd $DYW_FOLDER
