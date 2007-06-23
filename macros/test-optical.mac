@@ -70,6 +70,9 @@
 /gun/energy 3 eV
 /gun/position 0 0 0 m
 
+## random direction if do not specify
+/gun/direction 1 0 0 
+
 #### Number of Events to simulate.
 /run/beamOn 10
 
