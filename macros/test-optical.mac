@@ -1,0 +1,75 @@
+# generate 100 e- at center of single module detector
+# 31aug06 djaffe
+#
+# OPEN ROOT file at the very beginning
+####  Output File Name
+/files/output test-optical.root
+
+## Select detector optical property input file or adopt the default. 
+## E.g. FileName = MaterialPropertiesFile
+## <FileName> must be a tag in the file xml/control.xml and 
+## it's a child element of <controlParameters>   
+## /dyw/detector/input <FileName>
+
+####  select detector:
+#     "Prototype" for IHEP prototype.
+#     "SingleModule" for Daya Bay 20 ton detector.
+/dyw/detector/select SingleModule
+
+#### Do NOT touch the following line.
+/run/initialize 
+
+####  Control the verbose
+#     verbose level: 0: the least printout, 2: most detailed information.
+/control/verbose 2
+/run/verbose 2
+/tracking/verbose 0
+/dyw/phys/verbose 0 
+
+####  Control the PMT Optical Model
+#     verbose level :  0: quiet;
+#                      1: minimal entrance/exit info;
+#                      2: +print verbose tracking info;
+#                      >=10:  lots of info on thin photocathode calcs.
+#     luxlevel: 0: No transmitting and relfection on photocathode.
+#               1: A simple model for transmitting and reflection.
+#               >=2: Full PMT optical model. The default value is 3.
+/PMTOpticalModel/verbose 0
+/PMTOpticalModel/luxlevel 3
+
+##### Physics process
+/process/list
+# /process/inactivate Cerenkov
+
+####  Set scinitillation yield of the liquid Scintillator .
+#     GdLS is for Gd-doped LS and LS is for normal LS in gamma catcher.
+/dyw/detector/ScintYield_GdLS 0
+/dyw/detector/ScintYield_LS 0
+
+####  Visulization
+/vis/open OIX
+/vis/viewer/reset
+#
+# Create a viewer
+/vis/viewer/set/upVector 0 0 1
+/vis/viewer/set/viewpointVector 0 -1 0
+/vis/viewer/zoom 4
+
+# Draw scene
+/vis/drawVolume
+# for drawing the tracks
+# if too many tracks cause core dump => storeTrajectory 0
+/tracking/storeTrajectory 1
+/vis/scene/add/trajectories
+/vis/scene/endOfEventAction accumulate
+#
+
+#### Generator Option 1, should comment out the option 2.
+/dyw/generator/select Single
+/gun/particle opticalphoton
+/gun/energy 3 eV
+/gun/position 0 0 0 m
+
+#### Number of Events to simulate.
+/run/beamOn 10
+
