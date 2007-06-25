@@ -17,9 +17,11 @@ if [ -x "${GQ_HOME}/env.sh" ]; then
       ##	
       ## hmm is this needed at runtime ???
 	  if ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ] ); then  ## grid1 suffers from non-sync times so everything must reside on the same disk
-         export G4WORKDIR=$GQ_HOME/workdir
+         #export G4WORKDIR=$GQ_HOME/workdir
+         export G4WORKDIR=$USER_BASE/geant4/$GQ_NAME/$GQ_TAG/workdir
 	  else 	  
-         export G4WORKDIR=$HOME/geant4/$GQ_NAME 
+         ##export G4WORKDIR=$HOME/geant4/$GQ_NAME 
+         export G4WORKDIR=$USER_BASE/geant4/$GQ_NAME/$GQ_TAG/workdir
 	  fi
 	  
 	  test -d $G4WORKDIR || mkdir -p $G4WORKDIR
