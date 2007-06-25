@@ -54,6 +54,19 @@
 g4dyb-use-x(){ scp $HOME/$DYW_BASE/g4dyb_use.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 g4dyb-use-i(){ .   $HOME/$DYW_BASE/g4dyb_use.bash ; }
 
+
+
+g4dyb-use-branch(){
+
+  local release=${DYW_VERSION%_wc}
+  local fold="G4dyb"
+  local branch=${1:-dummy}
+  shift
+  
+  svn-branch $release $fold $branch "$*"
+}
+
+
 g4dyb-use-sub(){
 
   func=g4dyb-use
