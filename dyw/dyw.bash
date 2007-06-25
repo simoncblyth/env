@@ -9,9 +9,10 @@
  [ -r geant4-env.bash ]  && . geant4-env.bash
  [ -r dyw_use.bash ]     && . dyw_use.bash 
 
- ## setup the paths etc.. using the CMT everything setup.sh  
- ev_setup=$DYW/Everything/cmt/setup.sh
- [ -r $ev_setup ]       && . $ev_setup
+ ## setup the paths etc..  
+ g4dyb_setup=$DYW/G4dyb/cmt/setup.sh
+ 
+ [ -r $g4dyb_setup ] && . $g4dyb_setup
  [ -r dyw_gen.bash ] && . dyw_gen.bash
  
  
