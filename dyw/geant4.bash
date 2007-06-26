@@ -376,11 +376,14 @@ geant4-get-data(){
          ##    2)  irregular prefix in one case 
          ##
           
-         tgz=$(dirname $path)/$prefix$base.$vers.tar.gz
+         tgzname=$prefix$base.$vers.tar.gz
+         tgz=$(dirname $path)/$tgzname
 
-	     echo  nvar:$nvar base:$base vers:$vers path:$path tgz:$tgz prefix:$prefix
+	     echo  nvar:$nvar base:$base vers:$vers path:$path tgz:$tgz prefix:$prefix tgzname:$tgzname
          
-	     test -f "$tgz" && echo already downloaded $tgz || curl -o $tgz http://geant4.web.cern.ch/geant4/support/source/$tgz
+         local download="curl -o $tgz http://geant4.web.cern.ch/geant4/support/source/$tgzname"
+         
+	     test -f "$tgz" && echo already downloaded $tgz || ( echo $download && $download )
 	     test -d "$path" &&  echo already unpacked into $path || tar zxvf $tgz
       done
 
