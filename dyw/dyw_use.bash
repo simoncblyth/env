@@ -97,11 +97,13 @@ export CMTPATH=$DYW  ## inform cmt where to find the dayabay software, that was 
 
 ## ------------- macros   (currently mixed between user and admin ) 
 
+export DYM_U=$HOME/$ENV_BASE/macros 
 export DYM_P=$LOCAL_BASE_P/dayabay/macros
 export DYM_L=$LOCAL_BASE_L/dayabay/macros     ## formerly $HOME/Work/dayabay
-export DYM_U=$LOCAL_BASE_U/dayabay/macros    
 
-export DYM_G=$USER_BASE_G/dayabay/macros
+#export DYM_G=$USER_BASE_G/dayabay/macros
+export DYM_G=$HOME/$ENV_BASE/macros
+
 export DYM_G1=$HOME/$ENV_BASE/macros    ## <<<<<< different behavior <<<<<<<<
 export DYM_N=$HOME/$ENV_BASE/macros
 
