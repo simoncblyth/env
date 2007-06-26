@@ -27,6 +27,39 @@ scm-backup-all(){
 }
 
 
+
+scm-recover-all(){
+
+   # 
+   # recovers both svn repositories and corresponding tracitories, from backup tarballs 
+   #
+   
+   local fromnode=${1:-dummy}
+   [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
+   
+   local types="repos tracs"
+   for type in $types
+   do
+      
+      local base=$SCM_FOLD/backup/$fromnode/$type
+      local dest=$SCM_FOLD/$type
+      
+      for path in $base/*
+      do   
+          local name=$(basename $path)
+          scm-recover-repo $name $path $dest       
+      done
+      
+   done 
+
+}
+
+
+
+
+
+
+
 scm-backup-purge(){
 
   #
@@ -111,6 +144,62 @@ scm-backup-rsync(){
    fi 
 }
 
+
+scm-recover-repo(){
+
+   local name=${1:-dummy}   ## name of the repo
+   local path=${2:-dummy}   ## absolute path to the repo  
+   local dest=${3:-dummy}   ## destination folder, usually $SCM_FOLD/repos OR $SCM_FOLD/tracs 
+   
+   [ "$name" == "dummy" ] && ( echo the name must be given && return 1 )
+   [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
+   [ -d "$dest" ] || ( echo ERROR destination folder $dest does not exist && return 1 )
+   
+   cd $path
+   local stamp=$(readlink last)
+   local target_fold=$path/$stamp
+   cd $target_fold
+   
+   if [ "$?" == "1" ]; then
+      echo error target_fold $target_fold not found 
+   else
+   
+      declare -a tgzs
+      tgzs=($(ls -1 *.tar.gz))
+      local ntgz=${#tgzs[@]}
+
+      if [ "$ntgz" == "1" ]; then
+      
+         local tgz=${tgzs[0]} 
+         local tgzname=${tgz%.tar.gz}
+         local tgzpath=$target_fold/$tgzname.tar.gz
+      
+         cd $dest 
+         
+         if [ -d "$name" ]; then
+            echo === scm-recover-repo ===  the repository:$name is present already , must delete this before can recover 
+            echo stamp $stamp target_fold $target_fold ==== tgz $tgz ===== tgzname $tgzname
+         else
+             
+            echo === scm-recover-repo === recovering repository $name from tarball $tgzpath $tgzname into $(pwd)
+            sudo -u $APACHE2_USER cp $tgzpath .
+            sudo -u $APACHE2_USER tar zxvf $tgzname.tar.gz
+            
+            ## document the recovery via a link to the backup tarball
+            sudo -u $APACHE2_USER ln -s $tgzpath ${name}-scm-recover-repo
+            sudo rm -f $tgzname.tar.gz
+            
+            ## svn tarballs have the revision number appended to their names
+            if [ "$tgzname" != "$name" ]; then
+              sudo -u $APACHE2_USER mv $tgzname $name
+            fi
+            
+         fi      
+      else
+         echo scm-recover-repo ERROR there is not 1 tgz in target_fold $target_fold
+      fi 
+   fi
+}
 
 
 
