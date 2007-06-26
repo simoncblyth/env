@@ -47,13 +47,26 @@
 /dyw/detector/ScintYield_LS 0
 
 #### Generator Option 1, should comment out the option 2.
-/dyw/generator/select Single
+#/dyw/generator/select Single
+/dyw/generator/select Generator2
+/dyw/generator2/main GenericGun
+
 /gun/particle opticalphoton
 /gun/energy 3 eV
 /gun/position 0 0 0 m
 
-## random direction if do not specify
-/gun/direction 1 0 0 
+## direction is overridden when using "Single" so use "Generator2" and "GenericGun" but then need to implement the polariztion stuff 
+/gun/direction 1 1 0 
+
+# -360 or comment out to make random
+/dyw/generator2/optPhotonPol 90 deg 
+
+# The command below allows one to generate particle uniformly in Gd-LS volume 
+# /dyw/generator2/pos glg4 0 0 3000 fill World GdLiquidScintillator
+#
+# Or you could use below to generate particle from a single point, unit = mm
+/dyw/generator2/pos glg4 0 0 0 
+
 
 
 /control/execute set-scene.mac
