@@ -58,7 +58,7 @@ export DYW_FOLDER
 ## ------------  version string 
 
 #export DYW_VERSION_G="dyw"                    ## historical current source with VGM enhancements + inverse_beta.cc enhancements   
- export DYW_VERSION_G="dyw_release_2_8_wc" 
+ export DYW_VERSION_G="dyw_release_2_9_wc" 
  export DYW_VERSION_P="dyw_last_20070411"
  export DYW_VERSION_L="dyw_last_20070411"
  export DYW_VERSION_U="dyw_last_20070411"
