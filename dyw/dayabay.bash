@@ -346,7 +346,10 @@ dyw-checkout(){  ## checkout from the declared SVN repository
 
   local t=${DYW_VERSION:4}   ## trim the dyw_  and _wc to get the tag string 
   t=${t%_wc}                   
-  local tag=${1:-$t} 
+  
+  local branch=${1:-trunk}
+  local tag=${2:-$t} 
+   
 
    [ -d "$DYW_FOLDER" ] || mkdir -p $DYW_FOLDER 
    cd $DYW_FOLDER
@@ -369,7 +372,7 @@ dyw-checkout(){  ## checkout from the declared SVN repository
   cd $dyw_wc
  
   ## checkout 
-  scm-checkout $dyw_tag 
+  scm-checkout $dyw_tag $branch
 
 }
 
