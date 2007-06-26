@@ -210,9 +210,10 @@ scm-vi(){
 
 scm-checkout(){
 
-  name=${1:-dummy}
-  uurl=http://$SCM_HOST:$SCM_PORT/repos/${name}/trunk/	 
-
+  local name=${1:-dummy}
+  local branch=${2:-trunk}
+  
+  uurl=http://$SCM_HOST:$SCM_PORT/repos/${name}/${branch}/	 
 
   [ -d ".svn" ] && echo error this should be used for initial checkouts only && return 1 
 
