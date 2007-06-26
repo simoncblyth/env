@@ -19,9 +19,16 @@ svn-branch(){
    local base=http://$SCM_HOST:$SCM_PORT/repos/$repo
   
    ##svn copy http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/trunk http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/branches/sjp.issue.234 -m "Branch to resolve issue 234"
-   local command="svn copy $base/trunk/$fold $base/branches/$USER/$fold/$branch -m \"$comment\" "
+   
+   local command
+   if [ "X$fold" == "X" ]; then
+      command="svn copy $base/trunk       $base/branches/$USER/$branch       -m \"$comment\" " 
+   else
+      command="svn copy $base/trunk/$fold $base/branches/$USER/$fold/$branch -m \"$comment\" "
+   fi
    
    echo ===== svn-branch CAUTION, HIGH IMPACT COMMAND ... CHECK CAREFULLY BEFORE COPYING AND RUNNING THE BELOW =====
+   echo ===== also reread:  http://svnbook.red-bean.com/nightly/en/svn.branchmerge.using.html 
    echo $command
    
 }

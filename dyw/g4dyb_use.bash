@@ -59,7 +59,7 @@ g4dyb-use-i(){ .   $HOME/$DYW_BASE/g4dyb_use.bash ; }
 g4dyb-use-branch(){
 
   local release=${DYW_VERSION%_wc}
-  local fold="G4dyb"
+  local fold=""   ## "G4dyb"
   local branch=${1:-dummy}
   shift
   
