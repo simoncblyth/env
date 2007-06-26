@@ -18,7 +18,7 @@ svn-branch(){
   
    ##svn copy http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/trunk http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/branches/sjp.issue.234 -m "Branch to resolve issue 234"
    
-   local command="svn copy $base/trunk       $base/branches/$USER/$branch       -m \"$comment\" " 
+   local command="svn copy $base/trunk       $base/branches/${USER}-${branch}       -m \"$comment\" " 
    
    echo ===== svn-branch CAUTION, HIGH IMPACT COMMAND ... CHECK CAREFULLY BEFORE COPYING AND RUNNING THE BELOW =====
    echo ===== also reread:  http://svnbook.red-bean.com/nightly/en/svn.branchmerge.using.html 
