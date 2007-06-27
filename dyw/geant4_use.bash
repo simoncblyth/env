@@ -67,6 +67,7 @@ geant4-env(){
 
 geant4-copy-examples(){
 
+   mkdir -p $G4WORKDIR
    cd $G4WORKDIR
    pwd
    cp -rp $GQ_HOME/examples .
