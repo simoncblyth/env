@@ -58,8 +58,11 @@
 ## direction is overridden when using "Single" so use "Generator2" and "GenericGun" but then need to implement the polariztion stuff 
 /gun/direction 1 1 0 
 
-# -360 or comment out to make random
-/dyw/generator2/optPhotonPol 90 deg 
+# set polz angle
+/dyw/generator2/optPhotonPol 90 deg
+
+# makes random polz angle, when no angle specified  
+#/dyw/generator2/optPhotonPol 
 
 # The command below allows one to generate particle uniformly in Gd-LS volume 
 # /dyw/generator2/pos glg4 0 0 3000 fill World GdLiquidScintillator
