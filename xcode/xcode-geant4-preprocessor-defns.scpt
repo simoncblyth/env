@@ -1,10 +1,11 @@
 
 ----------------------   AN EASY WAY TO ENTER COMPLEX SETTINGS INTO THE XCODE GUI --------------------
 
-on run
+on run argv
 	
+	set the_target_name to item 1 of argv
 	set the_macros to my GetFlagString()
-	my SetBuildSetting("g4indx", "Debug", "GCC_PREPROCESSOR_DEFINITIONS", the_macros)
+	my SetBuildSetting( the_target_name , "Debug", "GCC_PREPROCESSOR_DEFINITIONS", the_macros)
 	
 end run
 
