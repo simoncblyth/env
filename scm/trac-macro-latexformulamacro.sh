@@ -1,9 +1,4 @@
-
-
-
-
-
-
+#!/bin/bash 
 
 trac-macro-latexformulamacro-install(){ 
 
@@ -29,3 +24,5 @@ trac-macro-latexformulamacro-install(){
    ini-edit $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
 
 }
+
+trac-macro-latexformulamacro-install $*
