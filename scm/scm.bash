@@ -146,7 +146,10 @@
  [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
  [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
  [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
-            
+    
+ [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash           
+                    
+                                    
  [ -r trac-build.bash ]                  && . trac-build.bash          ## depends on clearsilver  
 
 
