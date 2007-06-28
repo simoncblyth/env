@@ -37,12 +37,18 @@ trac-macro-latexformulamacro-install(){
    [ -d "$fold" ] || ( echo trac-macro-latexformulamacro-install error no folder $fold && exit 1 )
      
    cd $fold/wiki-macros  
-   cp -f $LOCAL_BASE/trac/wiki-macros/$macro/formula.py .  
-   
+   sudo -u $APACHE2_USER cp -f $LOCAL_BASE/trac/wiki-macros/$macro/formula.py .  
+     
+}
+
+trac-macro-latexformulamacro-conf(){
+
    local tmp=$SCM_FOLD/tmp
    mkdir -p $tmp 
-   $HOME/$ENV_BASE/base/ini-edit.pl $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
+   ##$HOME/$ENV_BASE/base/ini-edit.pl $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
+   ini-edit  $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
 
 }
 
-trac-macro-latexformulamacro-install $*
+
+#trac-macro-latexformulamacro-install $*
