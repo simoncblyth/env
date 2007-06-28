@@ -43,8 +43,12 @@ trac-macro-latexformulamacro-install(){
 
 trac-macro-latexformulamacro-conf(){
 
+   local name=${1:-dummy}
+   local fold=$SCM_FOLD/tracs/$name
+    [ "$name" == "dummy" ] && echo must provide the name of the environment && return 1
+
    local tmp=$SCM_FOLD/tmp
-   mkdir -p $tmp 
+   sudo -u $APACHE2_USER mkdir -p $tmp 
    ##$HOME/$ENV_BASE/base/ini-edit.pl $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
    ini-edit  $fold/conf/trac.ini latex:temp_dir:$tmp latex:fleqn:0 latex:fleqn_width:5% 
 
