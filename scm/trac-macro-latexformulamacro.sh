@@ -3,7 +3,7 @@
 trac-macro-latexformulamacro-install(){ 
 
    ## http://trac-hacks.org/wiki/LatexFormulaMacro
-   ## invoke with sudo -u $APACHE2_USER bash -lc "trac-macro-latexformulamacro-install"
+   ## invoke with sudo -u $APACHE2_USER $HOME/$ENV_BASE/scm/trac-macro-latexformulamacro.sh
  
    local name=${1:-dummy}
    [ "$name" == "dummy" ] && echo must provide the name of the environment && return 1
