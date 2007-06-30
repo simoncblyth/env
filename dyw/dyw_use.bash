@@ -35,18 +35,17 @@ export CVSROOT=$DYW_CVSROOT
 
 
 #export DYW_FOLDER_P=$LOCAL_BASE_P/dayabay
-export DYW_FOLDER_P=$USER_BASE_P/dayabay
+#export DYW_FOLDER_P=$USER_BASE_P/dayabay
+#export DYW_FOLDER_L=$LOCAL_BASE_L/dayabay     ## formerly $HOME/Work/dayabay
+#export DYW_FOLDER_U=$USER_BASE_U/dayabay    
+#export DYW_FOLDER_G=$USER_BASE_G/dayabay
+#export DYW_FOLDER_G1=$USER_BASE_G1/dayabay
+#export DYW_FOLDER_N=$USER_BASE_N/dayabay
+#vname=DYW_FOLDER_$NODE_TAG
+#eval _DYW_FOLDER=\$$vname
+#DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
 
-export DYW_FOLDER_L=$LOCAL_BASE_L/dayabay     ## formerly $HOME/Work/dayabay
-export DYW_FOLDER_U=$USER_BASE_U/dayabay    
-export DYW_FOLDER_G=$USER_BASE_G/dayabay
-export DYW_FOLDER_G1=$USER_BASE_G1/dayabay
-export DYW_FOLDER_N=$USER_BASE_N/dayabay
-
-
-vname=DYW_FOLDER_$NODE_TAG
-eval _DYW_FOLDER=\$$vname
-DYW_FOLDER=${_DYW_FOLDER:-$DYW_FOLDER_U}
+DYW_FOLDER=$USER_BASE/dayabay
 
 ## SCB June22 , introduce GQ_NAME/GQ_TAGed DYW_FOLDER ... to maintain bat and dbg executables
 DYW_FOLDER=$DYW_FOLDER/$GQ_NAME/$GQ_TAG
