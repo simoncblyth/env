@@ -211,7 +211,7 @@ export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
 
 ## ----------  for operational files, like backups
 
-export VAR_BASE_U=/tmp
+export VAR_BASE_U=/var
 export VAR_BASE_P=$DAYABAY_G1/var
 export VAR_BASE_G1=$DAYABAY_G1/var
 export VAR_BASE_H=/var
