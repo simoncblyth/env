@@ -192,7 +192,7 @@ host X
 host G1 
     hostname 140.112.102.250
 	ForwardX11 yes
-	ForwardX11Trusted yes
+$c	ForwardX11Trusted yes
 host I
     user blyth
     hostname 140.112.101.199
