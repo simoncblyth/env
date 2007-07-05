@@ -235,6 +235,10 @@ cat << EOS >> $HOME/.ssh/config
 host G
     hostname g4pb.ath.cx
 	user blyth
+host S
+    hostname simon.phys.ntu.edu.tw
+	user blyth    
+    
 EOS
 fi
 
