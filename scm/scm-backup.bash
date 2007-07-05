@@ -124,7 +124,7 @@ scm-backup-rsync(){
    local target_tag=${1:-$BACKUP_TAG}
    
    if [ "$target_tag" != "$BACKUP_TAG" ]; then 
-      local vname=VAR_BASE_$BACKUP_TAG 
+      local vname=VAR_BASE_$target_tag 
       eval _VAR_BASE_BACKUP=\$$vname
       target_var=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
       echo ======== scm-backup-rsync to non-default target_tag:$target_tag  target_var:$target_var
