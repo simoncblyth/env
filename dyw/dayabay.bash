@@ -942,16 +942,47 @@ x-env(){
 g4dyb_env1(){
 	cd   $DYM
 
-##  to see in a clean environment
-## http://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter04/settingenvironment.html
-## the PS1 seems essential, otherwise the terminal dies
-##
-##  exec env -i DYW=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
-##
-	exec env -i DYW=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env "
-##
-##  	
+#  to see in a clean environment
+# http://tldp.org/LDP/lfs/LFS-BOOK-6.1.1-HTML/chapter04/settingenvironment.html
+# the PS1 seems essential, otherwise the terminal dies
+#
+#  somehow exec kills the shell ...
+#  exec env -i DYW=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+#  exec env -i DYW=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env "
+#
+
+
+# just show the pristine controlled environment 
+ env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "env "
+    
+## cmt setup.sh is sourcing .bash_profile !!! and get whining as 
+# sh: line 1: system_profiler: command not found
+# #CMT> Warning: apply_tag with empty name [$(cmt_system_version)]
+# sh: line 1: system_profiler: command not found
+# sh: line 1: system_profiler: command not found
+# sh: line 1: system_profiler: command not found
+#
+env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env "
+
+## try to isolate this bad behaviour ... not here 
+env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' CMTROOT=$CMTROOT /bin/bash -c ". $CMTROOT/mgr/setup.sh ; env "
+
+## not here
+env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' CMTROOT=$CMTROOT /bin/bash -c ". $CMTROOT/mgr/setup.sh ; tempfile=`${CMTROOT}/mgr/cmt -quiet build temporary_name` ; echo $tempfile ; env "  
+
+## culprit identified   ${CMTROOT}/mgr/cmt  has a naked /bin/sh shebang line  
+env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' CMTROOT=$CMTROOT /bin/bash -c ". $CMTROOT/mgr/setup.sh ; tempfile=`${CMTROOT}/mgr/cmt -quiet build temporary_name` ; ${CMTROOT}/mgr/cmt setup -sh -pack=G4dyb -version=v0 -path=/Users/blyth/Work/dayabay/geant4.8.2.p01/dbg/dyw_release_2_9_wc  -no_cleanup $* >${tempfile}; cat ${tempfile} ; env "
+  	
 }
+
+
+
+g4dyb-pristine-env(){
+
+  env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env " 
+
+}
+
 
 
 g4dyb_s(){    ## run G4dyb in session mode, that is with the G4UIXm interface ... advantage is that can attach the debugger prior to launch 
