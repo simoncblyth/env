@@ -1,4 +1,5 @@
 
 /files/output dummy.root
-/run/beamOn 1
 
+/run/beamOn 100
+/vis/scene/add/hits

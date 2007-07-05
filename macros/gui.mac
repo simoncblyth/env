@@ -5,3 +5,4 @@
 /gui/addButton "macros" "scb-traj"         "/control/execute scb-traj.mac" 
 /gui/addButton "macros" "next-event"       "/control/execute next-event.mac" 
 /gui/addButton "macros" "color-particles"  "/control/execute scb-draw-by-particle-id.mac"
+/gui/addButton "macros" "/vis/geometry/list"  "/vis/geometry/list"
