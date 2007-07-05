@@ -121,25 +121,30 @@ scm-backup-rsync(){
    #  hmm the passwordless ssh is not setup for "root" user , so have to do this as me, but the above backup as root
    #
 
-   if [ "X$BACKUP_TAG" == "X" ]; then
+   local target_tag=${1:-$BACKUP_TAG}
+   
+   if [ "$target_tag" != "$BACKUP_TAG" ]; then 
+      local vname=VAR_BASE_$BACKUP_TAG 
+      eval _VAR_BASE_BACKUP=\$$vname
+      target_var=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
+      echo ======== scm-backup-rsync to non-default target_tag:$target_tag  target_var:$target_var
+   else
+      target_var=$VAR_BASE_BACKUP
+   fi
+
+   if [ "X$target_tag" == "X" ]; then
       echo no paired backup node has been defined for node $LOCAL_NODE
    else
 
       local source=$SCM_FOLD/backup/$LOCAL_NODE
-      local remote=$VAR_BASE_BACKUP/scm/backup 
+      local remote=$target_var/scm/backup 
  
-      ssh $BACKUP_TAG "mkdir -p  $remote"
+      ssh $target_tag "mkdir -p  $remote"
       
-      echo ============== transfer $source to $BACKUP_TAG:$remote/ 
-      local cmd1="rsync --delete-after -razvt $source $BACKUP_TAG:$remote/ "
+      echo ============== transfer $source to $target_tag:$remote/ 
+      local cmd1="rsync --delete-after -razvt $source $target_tag:$remote/ "
       echo $cmd1
       eval $cmd1
-      
-      # echo ===============  transfer $source to $BACKUP_TAG:$remote/ with delete-after 
-      # local cmd2="rsync   --delete-after -razvt $source $BACKUP_TAG:$remote/ "
-      # echo $cmd2
-      # eval $cmd2
-
 
    fi 
 }
