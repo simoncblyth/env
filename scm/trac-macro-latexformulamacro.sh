@@ -27,10 +27,8 @@ trac-macro-latexformulamacro-get(){
 
 trac-macro-latexformulamacro-install(){ 
 
-
    local name=${1:-dummy}
-   local macro=latexformulamacro
-   
+   local macro=latexformulamacro   
    [ "$name" == "dummy" ] && echo must provide the name of the environment && return 1
    
    local fold=$SCM_FOLD/tracs/$name
