@@ -13,7 +13,7 @@ cmt-x(){ scp $HOME/$DYW_BASE/cmt.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 ##
 ##        P>  ini           ( pick up the modified environment on target node )
 ##
-##        P>  cmt-info      ( list CMT env vars )
+##        P>  cmt-use-info  ( list CMT env vars )
 ##        P>  cmt-get       ( gets the CMT distro and unpacks )
 ##        P>  cmt-setup     ( compiles CMT )
 ##       
