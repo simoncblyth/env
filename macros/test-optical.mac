@@ -3,7 +3,7 @@
 #
 # OPEN ROOT file at the very beginning
 ####  Output File Name
-/files/output test-optical.root
+
 
 ## Select detector optical property input file or adopt the default. 
 ## E.g. FileName = MaterialPropertiesFile
@@ -18,14 +18,28 @@
 #/dyw/detector/select AcrylicSample1
 
 # SCB additional cmds
-/dyw/detector/edit/add sensitive_skin inacrylictank 
-/dyw/detector/edit/add sensitive_skin outacrylictank
-/dyw/detector/edit/add other red green blue
+#   /dyw/detector/edit/add  action targetvolume xmlpath 
+#      arguments :
+#         - editing action, eg "sensitive_skin"
+#         - target volume , the vicinity of which is being edited
+#         - relative path from DAYA_DATA_DIR to parameter xml file 
+#      
+#
+/dyw/detector/edit/add sensitive_skin inacrylictank xml/sensitiveskin.xml
+/dyw/detector/edit/add sensitive_skin outacrylictank xml/sensitiveskin.xml
+#/dyw/detector/edit/add other red green blue
 /dyw/detector/edit/list
 
 ## WARNING NOT FOR GENERAL USE ... SWITCHING OFF BITS OF PHYSICS
 ## leave only optical "Op"
 /dyw/phys/off General EM Had Ion ElectroNu
+
+#
+# moved here from the very start ... to allow dynamic tree creation based on the above
+#  /dyw/detector/edit/add commands
+#  after opening the file, the empty trees are created 
+#
+/files/output test-optical.root
 
 
 #### Do NOT touch the following line.
