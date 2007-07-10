@@ -3,11 +3,16 @@
 ##  SUDO removed ... set in base/local.bash
 
 CMT_FOLDER=$LOCAL_BASE/cmt
-if ([ "$NODE_TAG" == "G" ] || [ "$NODE_TAG" == "T"  ]); then
+if ([ "$NODE_TAG" == "G" ]); then
 	
   CMT_VERS="v1r18p20060606"
-# CMT_HOME=${CMT_FOLDER}/CMT${CMT_VERS}/CMT/${CMT_VERS}
+  CMT_HOME=${CMT_FOLDER}/CMT${CMT_VERS}/CMT/${CMT_VERS}
+
+elif [ "$NODE_TAG" == "T" ]; then
+
+  CMT_VERS="v1r18p20060606"
   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
+
   
 elif [ "$NODE_TAG" == "L" ]; then
 
