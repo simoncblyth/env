@@ -399,6 +399,14 @@ cat << EOC
 @user = rw 
 @admin = rw
 
+[heprez:/]
+* = r
+@member = r
+@user = rw 
+@admin = rw
+
+
+
 # Nb this is declaring anyone can read the content of this repository ...
 # so must allow anonymous to get thru at the upper level ...
 [newtest:/]
