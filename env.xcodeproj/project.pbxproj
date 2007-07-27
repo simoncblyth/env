@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		F938A3E00C01F4EB00BB73FA /* alias.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = alias.bash; sourceTree = "<group>"; };
-		F938A3E10C01F4EB00BB73FA /* base.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = base.bash; sourceTree = "<group>"; };
-		F938A3E20C01F4EB00BB73FA /* local.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = local.bash; sourceTree = "<group>"; };
-		F938A3E30C01F4EB00BB73FA /* perl.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = perl.bash; sourceTree = "<group>"; };
-		F938A3E40C01F4EB00BB73FA /* ssh.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = ssh.bash; sourceTree = "<group>"; };
-		F938A3E50C01F4EB00BB73FA /* tty.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = tty.bash; sourceTree = "<group>"; };
+		F913B3C10C3B90AC00A3FE55 /* set-executable-env-from-file.applescript */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.applescript; path = "set-executable-env-from-file.applescript"; sourceTree = "<group>"; };
+		F913BDA10C422E4900A3FE55 /* fake_hit_data_treeplot.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_treeplot.C; sourceTree = "<group>"; };
+		F913BDA60C42339B00A3FE55 /* fake_hit_data_treescan.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_treescan.C; sourceTree = "<group>"; };
+		F913CB0C0C43ADA300A3FE55 /* fake_hit_data_clonesarray.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_clonesarray.C; sourceTree = "<group>"; };
+		F938A3E00C01F4EB00BB73FA /* alias.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = alias.bash; sourceTree = "<group>"; };
+		F938A3E10C01F4EB00BB73FA /* base.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = base.bash; sourceTree = "<group>"; };
+		F938A3E20C01F4EB00BB73FA /* local.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = local.bash; sourceTree = "<group>"; };
+		F938A3E30C01F4EB00BB73FA /* perl.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = perl.bash; sourceTree = "<group>"; };
+		F938A3E40C01F4EB00BB73FA /* ssh.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = ssh.bash; sourceTree = "<group>"; };
+		F938A3E50C01F4EB00BB73FA /* tty.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = tty.bash; sourceTree = "<group>"; };
 		F938A3E90C01F4EB00BB73FA /* categories.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = categories.pbxbtree; sourceTree = "<group>"; };
 		F938A3EA0C01F4EB00BB73FA /* cdecls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = cdecls.pbxbtree; sourceTree = "<group>"; };
 		F938A3EB0C01F4EB00BB73FA /* decls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = decls.pbxbtree; sourceTree = "<group>"; };
@@ -25,39 +29,39 @@
 		F938A3F30C01F4EB00BB73FA /* strings */ = {isa = PBXFileReference; lastKnownFileType = file; path = strings; sourceTree = "<group>"; };
 		F938A3F40C01F4EB00BB73FA /* subclasses.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = subclasses.pbxbtree; sourceTree = "<group>"; };
 		F938A3F50C01F4EB00BB73FA /* symbols0.pbxsymbols */ = {isa = PBXFileReference; lastKnownFileType = file; path = symbols0.pbxsymbols; sourceTree = "<group>"; };
-		F938A3F70C01F4EB00BB73FA /* aida.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = aida.bash; sourceTree = "<group>"; };
-		F938A3F80C01F4EC00BB73FA /* apache.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = apache.bash; sourceTree = "<group>"; };
-		F938A3F90C01F4EC00BB73FA /* av.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = av.bash; sourceTree = "<group>"; };
-		F938A3FA0C01F4EC00BB73FA /* av_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = av_use.bash; sourceTree = "<group>"; };
-		F938A3FB0C01F4EC00BB73FA /* boost.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = boost.bash; sourceTree = "<group>"; };
-		F938A3FC0C01F4EC00BB73FA /* cernlib.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cernlib.bash; sourceTree = "<group>"; };
-		F938A3FD0C01F4EC00BB73FA /* clhep.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = clhep.bash; sourceTree = "<group>"; };
-		F938A3FE0C01F4EC00BB73FA /* cmt.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cmt.bash; sourceTree = "<group>"; };
-		F938A3FF0C01F4EC00BB73FA /* cmt_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = cmt_use.bash; sourceTree = "<group>"; };
-		F938A4000C01F4EC00BB73FA /* coin3d.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = coin3d.bash; sourceTree = "<group>"; };
-		F938A4010C01F4EC00BB73FA /* condor_test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = condor_test.bash; sourceTree = "<group>"; };
-		F938A4020C01F4EC00BB73FA /* condor_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = condor_use.bash; sourceTree = "<group>"; };
-		F938A4030C01F4EC00BB73FA /* dawn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dawn.bash; sourceTree = "<group>"; };
-		F938A4040C01F4EC00BB73FA /* dayabay.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dayabay.bash; sourceTree = "<group>"; };
-		F938A4050C01F4EC00BB73FA /* dayabay_extra.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dayabay_extra.bash; sourceTree = "<group>"; };
-		F938A4060C01F4EC00BB73FA /* dyw.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw.bash; sourceTree = "<group>"; };
-		F938A4070C01F4EC00BB73FA /* dyw_build.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw_build.bash; sourceTree = "<group>"; };
-		F938A4080C01F4EC00BB73FA /* dyw_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = dyw_use.bash; sourceTree = "<group>"; };
-		F938A4090C01F4EC00BB73FA /* g4dyb_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = g4dyb_use.bash; sourceTree = "<group>"; };
-		F938A40A0C01F4EC00BB73FA /* gdml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = gdml.bash; sourceTree = "<group>"; };
-		F938A40B0C01F4EC00BB73FA /* geant4.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = geant4.bash; sourceTree = "<group>"; };
-		F938A40C0C01F4EC00BB73FA /* geant4_use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = geant4_use.bash; sourceTree = "<group>"; };
-		F938A40D0C01F4EC00BB73FA /* graxml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = graxml.bash; sourceTree = "<group>"; };
+		F938A3F70C01F4EB00BB73FA /* aida.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = aida.bash; sourceTree = "<group>"; };
+		F938A3F80C01F4EC00BB73FA /* apache.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = apache.bash; sourceTree = "<group>"; };
+		F938A3F90C01F4EC00BB73FA /* av.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = av.bash; sourceTree = "<group>"; };
+		F938A3FA0C01F4EC00BB73FA /* av_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = av_use.bash; sourceTree = "<group>"; };
+		F938A3FB0C01F4EC00BB73FA /* boost.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = boost.bash; sourceTree = "<group>"; };
+		F938A3FC0C01F4EC00BB73FA /* cernlib.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = cernlib.bash; sourceTree = "<group>"; };
+		F938A3FD0C01F4EC00BB73FA /* clhep.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = clhep.bash; sourceTree = "<group>"; };
+		F938A3FE0C01F4EC00BB73FA /* cmt.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = cmt.bash; sourceTree = "<group>"; };
+		F938A3FF0C01F4EC00BB73FA /* cmt_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = cmt_use.bash; sourceTree = "<group>"; };
+		F938A4000C01F4EC00BB73FA /* coin3d.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = coin3d.bash; sourceTree = "<group>"; };
+		F938A4010C01F4EC00BB73FA /* condor_test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = condor_test.bash; sourceTree = "<group>"; };
+		F938A4020C01F4EC00BB73FA /* condor_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = condor_use.bash; sourceTree = "<group>"; };
+		F938A4030C01F4EC00BB73FA /* dawn.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dawn.bash; sourceTree = "<group>"; };
+		F938A4040C01F4EC00BB73FA /* dayabay.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dayabay.bash; sourceTree = "<group>"; };
+		F938A4050C01F4EC00BB73FA /* dayabay_extra.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dayabay_extra.bash; sourceTree = "<group>"; };
+		F938A4060C01F4EC00BB73FA /* dyw.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw.bash; sourceTree = "<group>"; };
+		F938A4070C01F4EC00BB73FA /* dyw_build.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw_build.bash; sourceTree = "<group>"; };
+		F938A4080C01F4EC00BB73FA /* dyw_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw_use.bash; sourceTree = "<group>"; };
+		F938A4090C01F4EC00BB73FA /* g4dyb_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = g4dyb_use.bash; sourceTree = "<group>"; };
+		F938A40A0C01F4EC00BB73FA /* gdml.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = gdml.bash; sourceTree = "<group>"; };
+		F938A40B0C01F4EC00BB73FA /* geant4.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = geant4.bash; sourceTree = "<group>"; };
+		F938A40C0C01F4EC00BB73FA /* geant4_use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = geant4_use.bash; sourceTree = "<group>"; };
+		F938A40D0C01F4EC00BB73FA /* graxml.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = graxml.bash; sourceTree = "<group>"; };
 		F938A40E0C01F4EC00BB73FA /* NOTES.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES.txt; sourceTree = "<group>"; };
 		F938A40F0C01F4EC00BB73FA /* NOTES_OLD.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES_OLD.txt; sourceTree = "<group>"; };
-		F938A4100C01F4EC00BB73FA /* openmotif.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = openmotif.bash; sourceTree = "<group>"; };
+		F938A4100C01F4EC00BB73FA /* openmotif.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = openmotif.bash; sourceTree = "<group>"; };
 		F938A4110C01F4EC00BB73FA /* README.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		F938A4120C01F4EC00BB73FA /* root.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = root.bash; sourceTree = "<group>"; };
-		F938A4130C01F4EC00BB73FA /* soxt.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = soxt.bash; sourceTree = "<group>"; };
-		F938A4140C01F4EC00BB73FA /* vgm.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = vgm.bash; sourceTree = "<group>"; };
-		F938A4150C01F4EC00BB73FA /* xercesc.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xercesc.bash; sourceTree = "<group>"; };
-		F938A4160C01F4EC00BB73FA /* xml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xml.bash; sourceTree = "<group>"; };
-		F938A4170C01F4EC00BB73FA /* env.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = env.bash; sourceTree = "<group>"; };
+		F938A4120C01F4EC00BB73FA /* root.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = root.bash; sourceTree = "<group>"; };
+		F938A4130C01F4EC00BB73FA /* soxt.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = soxt.bash; sourceTree = "<group>"; };
+		F938A4140C01F4EC00BB73FA /* vgm.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = vgm.bash; sourceTree = "<group>"; };
+		F938A4150C01F4EC00BB73FA /* xercesc.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = xercesc.bash; sourceTree = "<group>"; };
+		F938A4160C01F4EC00BB73FA /* xml.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = xml.bash; sourceTree = "<group>"; };
+		F938A4170C01F4EC00BB73FA /* env.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = env.bash; sourceTree = "<group>"; };
 		F938A4190C01F4EC00BB73FA /* Aberdeen.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Aberdeen.mac; sourceTree = "<group>"; };
 		F938A41A0C01F4EC00BB73FA /* add-trajectories.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "add-trajectories.mac"; sourceTree = "<group>"; };
 		F938A41B0C01F4EC00BB73FA /* autogui.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = autogui.mac; sourceTree = "<group>"; };
@@ -72,49 +76,90 @@
 		F938A4240C01F4ED00BB73FA /* test_aberdeen.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = test_aberdeen.mac; sourceTree = "<group>"; };
 		F938A4250C01F4ED00BB73FA /* vgm-dump.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "vgm-dump.mac"; sourceTree = "<group>"; };
 		F938A4260C01F4ED00BB73FA /* vgm-load.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "vgm-load.mac"; sourceTree = "<group>"; };
-		F938A4280C01F4ED00BB73FA /* .apache2.bash.swp */ = {isa = PBXFileReference; lastKnownFileType = file; path = .apache2.bash.swp; sourceTree = "<group>"; };
 		F938A4290C01F4ED00BB73FA /* apache-load-module.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = "apache-load-module.pl"; sourceTree = "<group>"; };
-		F938A42A0C01F4ED00BB73FA /* apache2.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = apache2.bash; sourceTree = "<group>"; };
-		F938A42B0C01F4ED00BB73FA /* clearsilver.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = clearsilver.bash; sourceTree = "<group>"; };
-		F938A42C0C01F4ED00BB73FA /* file.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = file.bash; sourceTree = "<group>"; };
-		F938A42D0C01F4ED00BB73FA /* modpython-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "modpython-test.bash"; sourceTree = "<group>"; };
-		F938A42E0C01F4ED00BB73FA /* modpython.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modpython.bash; sourceTree = "<group>"; };
-		F938A42F0C01F4ED00BB73FA /* modwsgi-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "modwsgi-use.bash"; sourceTree = "<group>"; };
-		F938A4300C01F4ED00BB73FA /* modwsgi.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modwsgi.bash; sourceTree = "<group>"; };
+		F938A42A0C01F4ED00BB73FA /* apache2.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = apache2.bash; sourceTree = "<group>"; };
+		F938A42B0C01F4ED00BB73FA /* clearsilver.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = clearsilver.bash; sourceTree = "<group>"; };
+		F938A42C0C01F4ED00BB73FA /* file.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = file.bash; sourceTree = "<group>"; };
+		F938A42D0C01F4ED00BB73FA /* modpython-test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "modpython-test.bash"; sourceTree = "<group>"; };
+		F938A42E0C01F4ED00BB73FA /* modpython.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = modpython.bash; sourceTree = "<group>"; };
+		F938A42F0C01F4ED00BB73FA /* modwsgi-use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "modwsgi-use.bash"; sourceTree = "<group>"; };
+		F938A4300C01F4ED00BB73FA /* modwsgi.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = modwsgi.bash; sourceTree = "<group>"; };
 		F938A4310C01F4ED00BB73FA /* NOTES */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = NOTES; sourceTree = "<group>"; };
-		F938A4320C01F4ED00BB73FA /* pysqlite.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = pysqlite.bash; sourceTree = "<group>"; };
-		F938A4330C01F4ED00BB73FA /* python.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = python.bash; sourceTree = "<group>"; };
+		F938A4320C01F4ED00BB73FA /* pysqlite.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = pysqlite.bash; sourceTree = "<group>"; };
+		F938A4330C01F4ED00BB73FA /* python.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = python.bash; sourceTree = "<group>"; };
 		F938A4340C01F4ED00BB73FA /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		F938A4350C01F4ED00BB73FA /* scm-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "scm-use.bash"; sourceTree = "<group>"; };
-		F938A4360C01F4ED00BB73FA /* scm.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = scm.bash; sourceTree = "<group>"; };
-		F938A4370C01F4ED00BB73FA /* sqlite.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = sqlite.bash; sourceTree = "<group>"; };
-		F938A4380C01F4ED00BB73FA /* svn-build.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-build.bash"; sourceTree = "<group>"; };
-		F938A4390C01F4ED00BB73FA /* svn-learn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-learn.bash"; sourceTree = "<group>"; };
+		F938A4350C01F4ED00BB73FA /* scm-use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "scm-use.bash"; sourceTree = "<group>"; };
+		F938A4360C01F4ED00BB73FA /* scm.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = scm.bash; sourceTree = "<group>"; };
+		F938A4370C01F4ED00BB73FA /* sqlite.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = sqlite.bash; sourceTree = "<group>"; };
+		F938A4380C01F4ED00BB73FA /* svn-build.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "svn-build.bash"; sourceTree = "<group>"; };
+		F938A4390C01F4ED00BB73FA /* svn-learn.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "svn-learn.bash"; sourceTree = "<group>"; };
 		F938A43A0C01F4ED00BB73FA /* svn-rp-crawl.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "svn-rp-crawl.py"; sourceTree = "<group>"; };
-		F938A43B0C01F4ED00BB73FA /* svn-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-test.bash"; sourceTree = "<group>"; };
-		F938A43C0C01F4ED00BB73FA /* svn-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "svn-use.bash"; sourceTree = "<group>"; };
+		F938A43B0C01F4ED00BB73FA /* svn-test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "svn-test.bash"; sourceTree = "<group>"; };
+		F938A43C0C01F4ED00BB73FA /* svn-use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "svn-use.bash"; sourceTree = "<group>"; };
 		F938A43D0C01F4ED00BB73FA /* svn-wc-crawl.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "svn-wc-crawl.py"; sourceTree = "<group>"; };
-		F938A43E0C01F4ED00BB73FA /* svn.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = svn.bash; sourceTree = "<group>"; };
+		F938A43E0C01F4ED00BB73FA /* svn.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = svn.bash; sourceTree = "<group>"; };
 		F938A43F0C01F4ED00BB73FA /* svn2feed.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = svn2feed.py; sourceTree = "<group>"; };
-		F938A4400C01F4ED00BB73FA /* swig.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = swig.bash; sourceTree = "<group>"; };
-		F938A4410C01F4ED00BB73FA /* trac-test.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "trac-test.bash"; sourceTree = "<group>"; };
-		F938A4420C01F4ED00BB73FA /* trac-use.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "trac-use.bash"; sourceTree = "<group>"; };
-		F938A4430C01F4ED00BB73FA /* trac.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = trac.bash; sourceTree = "<group>"; };
+		F938A4400C01F4ED00BB73FA /* swig.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = swig.bash; sourceTree = "<group>"; };
+		F938A4410C01F4ED00BB73FA /* trac-test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "trac-test.bash"; sourceTree = "<group>"; };
+		F938A4420C01F4ED00BB73FA /* trac-use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "trac-use.bash"; sourceTree = "<group>"; };
+		F938A4430C01F4ED00BB73FA /* trac.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = trac.bash; sourceTree = "<group>"; };
 		F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-backup.py"; sourceTree = "<group>"; };
 		F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-restore.py"; sourceTree = "<group>"; };
 		F938A4460C01F4EE00BB73FA /* TODO */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		F938A4480C01F4EE00BB73FA /* conf.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = conf.xsl; sourceTree = "<group>"; };
-		F938A4490C01F4EE00BB73FA /* exist.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = exist.bash; sourceTree = "<group>"; };
+		F938A4490C01F4EE00BB73FA /* exist.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = exist.bash; sourceTree = "<group>"; };
 		F938A44A0C01F4EE00BB73FA /* jetty.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = jetty.xsl; sourceTree = "<group>"; };
-		F938A44B0C01F4EE00BB73FA /* modjk.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = modjk.bash; sourceTree = "<group>"; };
-		F938A44C0C01F4EE00BB73FA /* workflow.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = workflow.bash; sourceTree = "<group>"; };
-		F938A44D0C01F4EE00BB73FA /* xml.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = xml.bash; sourceTree = "<group>"; };
+		F938A44B0C01F4EE00BB73FA /* modjk.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = modjk.bash; sourceTree = "<group>"; };
+		F938A44D0C01F4EE00BB73FA /* xml.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = xml.bash; sourceTree = "<group>"; };
+		F99098190C4CA94D00BDA883 /* trac-plugin-reposearch.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-reposearch.bash"; sourceTree = "<group>"; };
+		F99CFF3B0C058B170045B1E9 /* dyw_gen.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw_gen.bash; sourceTree = "<group>"; };
+		F99CFFAC0C05DAB80045B1E9 /* cron.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cron.bash; sourceTree = "<group>"; };
+		F9A27F580C0AC2D5009E89CF /* file.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = file.bash; sourceTree = "<group>"; };
+		F9A288000C0BEA82009E89CF /* gui.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = gui.mac; sourceTree = "<group>"; };
+		F9A288010C0BEA82009E89CF /* next-event.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "next-event.mac"; sourceTree = "<group>"; };
+		F9A288020C0BEA82009E89CF /* set-scene.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "set-scene.mac"; sourceTree = "<group>"; };
+		F9A289CA0C0FCDCD009E89CF /* trac-build.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-build.bash"; sourceTree = "<group>"; };
+		F9A91AA60C311DD500A1DFF4 /* xcode-geant4-preprocessor-defns.applescript */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.applescript; path = "xcode-geant4-preprocessor-defns.applescript"; sourceTree = "<group>"; };
+		F9A9BC970C1FC90D00A1DFF4 /* readtxtfile.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = readtxtfile.C; sourceTree = "<group>"; };
+		F9A9BC980C1FC90D00A1DFF4 /* scantrees.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = scantrees.C; sourceTree = "<group>"; };
+		F9A9BCA70C1FE63300A1DFF4 /* cluster.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cluster.bash; sourceTree = "<group>"; };
+		F9A9BD290C2150BF00A1DFF4 /* batch.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = batch.bash; sourceTree = "<group>"; };
+		F9A9C0FE0C2934C500A1DFF4 /* vnc.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = vnc.bash; sourceTree = "<group>"; };
+		F9A9C1130C29483900A1DFF4 /* root_use.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = root_use.bash; sourceTree = "<group>"; };
+		F9A9C1580C2A409600A1DFF4 /* pymysql.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = pymysql.bash; sourceTree = "<group>"; };
+		F9A9C1AD0C2A812B00A1DFF4 /* seed.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = seed.cc; sourceTree = "<group>"; };
+		F9A9C1AE0C2A814000A1DFF4 /* seed.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = seed.bash; sourceTree = "<group>"; };
+		F9A9C27E0C2BB8C400A1DFF4 /* geant4-env.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "geant4-env.bash"; sourceTree = "<group>"; };
+		F9A9C2830C2BC23300A1DFF4 /* test-optical.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "test-optical.mac"; sourceTree = "<group>"; };
+		F9B98AAF0C155F6300D1615E /* trac-plugin-accountmanager.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-accountmanager.bash"; sourceTree = "<group>"; };
+		F9B98AB40C15609E00D1615E /* trac-plugin-webadmin.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-webadmin.bash"; sourceTree = "<group>"; };
+		F9B98ABB0C15613400D1615E /* trac-plugin-tracnav.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-tracnav.bash"; sourceTree = "<group>"; };
+		F9B98AC00C1561BC00D1615E /* trac-plugin-restrictedarea.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-restrictedarea.bash"; sourceTree = "<group>"; };
+		F9B98AC50C15624C00D1615E /* trac-plugin-xmlrpc.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-xmlrpc.bash"; sourceTree = "<group>"; };
+		F9B98ACA0C15649900D1615E /* trac-wiki.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-wiki.bash"; sourceTree = "<group>"; };
+		F9B98ACE0C15943700D1615E /* trac-plugin-pygments.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-pygments.bash"; sourceTree = "<group>"; };
+		F9B98AD90C16A70A00D1615E /* trac-conf.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-conf.bash"; sourceTree = "<group>"; };
+		F9B98AE70C16AF7C00D1615E /* ini-edit.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = "ini-edit.pl"; sourceTree = "<group>"; };
+		F9B98AE80C16AF7C00D1615E /* INI.pm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = INI.pm; sourceTree = "<group>"; };
+		F9B98AE90C16AF7C00D1615E /* testINI.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = testINI.pl; sourceTree = "<group>"; };
+		F9B98B2E0C16E2AB00D1615E /* trac-plugin-all.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-all.bash"; sourceTree = "<group>"; };
+		F9B98B330C17BB7800D1615E /* getefficiency.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = getefficiency.C; sourceTree = "<group>"; };
+		F9B98B340C17BB9200D1615E /* trajectories.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = trajectories.C; sourceTree = "<group>"; };
+		F9B98B5B0C1816BA00D1615E /* scm-backup.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "scm-backup.bash"; sourceTree = "<group>"; };
+		F9F62E560C068E670089FCF9 /* service.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = service.bash; sourceTree = "<group>"; };
+		F9FA3BF40C33962B00B5472D /* trac-macro-latexformulamacro.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "trac-macro-latexformulamacro.sh"; sourceTree = "<group>"; };
+		F9FA3E930C361FD900B5472D /* trac-plugin-trac2latex.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-trac2latex.bash"; sourceTree = "<group>"; };
+		F9FFD8530C44CD3200FF2DA3 /* write_seedfile.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = write_seedfile.C; sourceTree = "<group>"; };
+		F9FFD85A0C44CF3500FF2DA3 /* no_fake_hits.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = no_fake_hits.mac; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		F938A3D20C01F4A600BB73FA = {
 			isa = PBXGroup;
 			children = (
+				F9A91AA50C311DD500A1DFF4 /* xcode */,
+				F9A9C1AC0C2A812B00A1DFF4 /* seed */,
+				F9A9BC960C1FC90D00A1DFF4 /* root */,
 				F938A3DF0C01F4EB00BB73FA /* base */,
 				F938A3E60C01F4EB00BB73FA /* build */,
 				F938A3F60C01F4EB00BB73FA /* dyw */,
@@ -129,12 +174,21 @@
 		F938A3DF0C01F4EB00BB73FA /* base */ = {
 			isa = PBXGroup;
 			children = (
+				F9B98AE70C16AF7C00D1615E /* ini-edit.pl */,
+				F9B98AE80C16AF7C00D1615E /* INI.pm */,
+				F9B98AE90C16AF7C00D1615E /* testINI.pl */,
+				F9A27F580C0AC2D5009E89CF /* file.bash */,
+				F9F62E560C068E670089FCF9 /* service.bash */,
 				F938A3E00C01F4EB00BB73FA /* alias.bash */,
 				F938A3E10C01F4EB00BB73FA /* base.bash */,
 				F938A3E20C01F4EB00BB73FA /* local.bash */,
 				F938A3E30C01F4EB00BB73FA /* perl.bash */,
 				F938A3E40C01F4EB00BB73FA /* ssh.bash */,
 				F938A3E50C01F4EB00BB73FA /* tty.bash */,
+				F99CFFAC0C05DAB80045B1E9 /* cron.bash */,
+				F9A9BCA70C1FE63300A1DFF4 /* cluster.bash */,
+				F9A9BD290C2150BF00A1DFF4 /* batch.bash */,
+				F9A9C0FE0C2934C500A1DFF4 /* vnc.bash */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -185,6 +239,7 @@
 		F938A3F60C01F4EB00BB73FA /* dyw */ = {
 			isa = PBXGroup;
 			children = (
+				F99CFF3B0C058B170045B1E9 /* dyw_gen.bash */,
 				F938A3F70C01F4EB00BB73FA /* aida.bash */,
 				F938A3F80C01F4EC00BB73FA /* apache.bash */,
 				F938A3F90C01F4EC00BB73FA /* av.bash */,
@@ -217,6 +272,8 @@
 				F938A4140C01F4EC00BB73FA /* vgm.bash */,
 				F938A4150C01F4EC00BB73FA /* xercesc.bash */,
 				F938A4160C01F4EC00BB73FA /* xml.bash */,
+				F9A9C1130C29483900A1DFF4 /* root_use.bash */,
+				F9A9C27E0C2BB8C400A1DFF4 /* geant4-env.bash */,
 			);
 			path = dyw;
 			sourceTree = "<group>";
@@ -224,6 +281,12 @@
 		F938A4180C01F4EC00BB73FA /* macros */ = {
 			isa = PBXGroup;
 			children = (
+				F9FFD85A0C44CF3500FF2DA3 /* no_fake_hits.mac */,
+				F9B98B340C17BB9200D1615E /* trajectories.C */,
+				F9B98B330C17BB7800D1615E /* getefficiency.C */,
+				F9A288000C0BEA82009E89CF /* gui.mac */,
+				F9A288010C0BEA82009E89CF /* next-event.mac */,
+				F9A288020C0BEA82009E89CF /* set-scene.mac */,
 				F938A4190C01F4EC00BB73FA /* Aberdeen.mac */,
 				F938A41A0C01F4EC00BB73FA /* add-trajectories.mac */,
 				F938A41B0C01F4EC00BB73FA /* autogui.mac */,
@@ -238,6 +301,7 @@
 				F938A4240C01F4ED00BB73FA /* test_aberdeen.mac */,
 				F938A4250C01F4ED00BB73FA /* vgm-dump.mac */,
 				F938A4260C01F4ED00BB73FA /* vgm-load.mac */,
+				F9A9C2830C2BC23300A1DFF4 /* test-optical.mac */,
 			);
 			path = macros;
 			sourceTree = "<group>";
@@ -245,7 +309,6 @@
 		F938A4270C01F4ED00BB73FA /* scm */ = {
 			isa = PBXGroup;
 			children = (
-				F938A4280C01F4ED00BB73FA /* .apache2.bash.swp */,
 				F938A4290C01F4ED00BB73FA /* apache-load-module.pl */,
 				F938A42A0C01F4ED00BB73FA /* apache2.bash */,
 				F938A42B0C01F4ED00BB73FA /* clearsilver.bash */,
@@ -275,6 +338,21 @@
 				F938A4430C01F4ED00BB73FA /* trac.bash */,
 				F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */,
 				F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */,
+				F9A289CA0C0FCDCD009E89CF /* trac-build.bash */,
+				F9B98AAF0C155F6300D1615E /* trac-plugin-accountmanager.bash */,
+				F9B98AB40C15609E00D1615E /* trac-plugin-webadmin.bash */,
+				F9B98ABB0C15613400D1615E /* trac-plugin-tracnav.bash */,
+				F9B98AC00C1561BC00D1615E /* trac-plugin-restrictedarea.bash */,
+				F9B98AC50C15624C00D1615E /* trac-plugin-xmlrpc.bash */,
+				F9B98ACA0C15649900D1615E /* trac-wiki.bash */,
+				F9B98ACE0C15943700D1615E /* trac-plugin-pygments.bash */,
+				F9B98AD90C16A70A00D1615E /* trac-conf.bash */,
+				F9B98B2E0C16E2AB00D1615E /* trac-plugin-all.bash */,
+				F9B98B5B0C1816BA00D1615E /* scm-backup.bash */,
+				F9A9C1580C2A409600A1DFF4 /* pymysql.bash */,
+				F9FA3BF40C33962B00B5472D /* trac-macro-latexformulamacro.sh */,
+				F9FA3E930C361FD900B5472D /* trac-plugin-trac2latex.bash */,
+				F99098190C4CA94D00BDA883 /* trac-plugin-reposearch.bash */,
 			);
 			path = scm;
 			sourceTree = "<group>";
@@ -286,10 +364,40 @@
 				F938A4490C01F4EE00BB73FA /* exist.bash */,
 				F938A44A0C01F4EE00BB73FA /* jetty.xsl */,
 				F938A44B0C01F4EE00BB73FA /* modjk.bash */,
-				F938A44C0C01F4EE00BB73FA /* workflow.bash */,
 				F938A44D0C01F4EE00BB73FA /* xml.bash */,
 			);
 			path = xml;
+			sourceTree = "<group>";
+		};
+		F9A91AA50C311DD500A1DFF4 /* xcode */ = {
+			isa = PBXGroup;
+			children = (
+				F913B3C10C3B90AC00A3FE55 /* set-executable-env-from-file.applescript */,
+				F9A91AA60C311DD500A1DFF4 /* xcode-geant4-preprocessor-defns.applescript */,
+			);
+			path = xcode;
+			sourceTree = "<group>";
+		};
+		F9A9BC960C1FC90D00A1DFF4 /* root */ = {
+			isa = PBXGroup;
+			children = (
+				F9A9BC970C1FC90D00A1DFF4 /* readtxtfile.C */,
+				F9A9BC980C1FC90D00A1DFF4 /* scantrees.C */,
+				F913BDA10C422E4900A3FE55 /* fake_hit_data_treeplot.C */,
+				F913BDA60C42339B00A3FE55 /* fake_hit_data_treescan.C */,
+				F913CB0C0C43ADA300A3FE55 /* fake_hit_data_clonesarray.C */,
+				F9FFD8530C44CD3200FF2DA3 /* write_seedfile.C */,
+			);
+			path = root;
+			sourceTree = "<group>";
+		};
+		F9A9C1AC0C2A812B00A1DFF4 /* seed */ = {
+			isa = PBXGroup;
+			children = (
+				F9A9C1AD0C2A812B00A1DFF4 /* seed.cc */,
+				F9A9C1AE0C2A814000A1DFF4 /* seed.bash */,
+			);
+			path = seed;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
