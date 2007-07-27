@@ -53,27 +53,39 @@ modjk-setup(){
 
   cd $APACHE2_HOME/etc/apache2
 
-  if [ $(id -u) == $(stat -f%u .) ]; then
+
+# huh going into infinite loop ? because didnt have -u $APACHE2_USER
+# but the APACHE2_USER cannot do much so have to invoke as root : 
+#  
+#     sudo bash -lc modjk-setup 
+#    
+# if [ $(id -u) == $(stat -f%u .) ]; then
+# 
 
       apache2-add-module jk
       modjk-umbrella           > umbrella.conf
       
 	  workers=$(exist-lookup workers)
       modjk-workers-properties "$workers"  > workers.properties 
+      sudo chown $APACHE2_USER:$APACHE2_USER workers.properties
 	  cat workers.properties
 
       for worker in $workers
 	  do	  
          exist-jkmount $worker  > $worker.conf 
+         sudo chown $APACHE2_USER:$APACHE2_USER $worker.conf
+         sudo chown 
          echo "Include etc/apache2/$worker.conf" >> umbrella.conf
 		 cat $worker.conf
 	  done	 
 	  cat umbrella.conf
+      sudo chown $APACHE2_USER:$APACHE2_USER umbrella.conf
 
 	  modjk-connect 
-  else 
-	  sudo bash -lc modjk-setup       ## if dont own the folder, come back as root  
-  fi	  
+
+# else 
+#	  sudo -u $APACHE2_USER bash -lc modjk-setup       ## if dont own the folder, come back as root  
+#  fi	  
 }
 
 modjk-umbrella(){
@@ -113,6 +125,21 @@ cat << EOU
 
 EOU
 }
+
+
+#
+#   factor out the common features of webapplications, 
+#   to form a webapp "class" to be implemented in sqlite3 table
+#
+#   webapp
+#       port       
+#       base (eg /chiba )
+#       name 
+#       startcmd
+#       stopcmd
+#       folder     
+#
+
 
 modjk-workers-properties(){
 
