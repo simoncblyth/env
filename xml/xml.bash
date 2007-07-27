@@ -1,3 +1,5 @@
+
+
  xml_iwd=$(pwd) 
  
  ## caution must exit with initial dir  
@@ -5,6 +7,8 @@
  
  XML_BASE=$ENV_BASE/xml
  export XML_HOME=$HOME/$XML_BASE
+
+ [ "$XML_DBG" == "1" ] && echo $XML_BASE/xml.bash
 
  cd $XML_HOME
  

@@ -6,9 +6,13 @@
 #
 #
 
+ 
+
  BASE_NAME=base
  BASE_BASE=$ENV_BASE/$BASE_NAME
  export BASE_BASE
+
+[ "$BASE_DBG" == "1" ] && echo $BASE_BASE.bash
 
  base_iwd=$(pwd)
  cd $HOME/$BASE_BASE

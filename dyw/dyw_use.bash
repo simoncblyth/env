@@ -1,5 +1,5 @@
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/dyw_use.bash start 
 
-[ "$DYW_DBG" == "1" ] && echo dyw_use.bash
 
 dyw-use-x(){ scp $HOME/$DYW_BASE/dyw_use.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 
@@ -155,5 +155,5 @@ dyw-use-env-info(){
 }
 
 
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/dyw_use.bash finished
  
