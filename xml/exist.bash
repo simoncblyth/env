@@ -1,5 +1,14 @@
 #
 #
+#   this is needs generalization to handle all webapps :
+#       - exist(jetty)
+#       - chiba(tomcat)
+#       - ..? 
+#   as they all share the namespace and portspace and apache2 config space
+#
+##############################################################################
+#
+#
 #   exist-get 
 #   exist-install     installs in duplicate
 #
@@ -286,17 +295,23 @@ exist-populate(){
 
 exist-ports(){
    wkr=${1:-workflow_0}
-   case $wkr in 
-         exist_0) ports="8080:8009" ;;
+   
+  #   exist_0) ports="8080:8009" ;;
+  #  workflow_1) ports="9090:9009" ;;
+  
+    case $wkr in 
+         chiba_0) ports="8080:8009" ;;
+         hfagc_0) ports="9090:9009" ;;
         legacy_0) ports="7070:7009" ;;
       workflow_0) ports="7070:7009" ;;
-      workflow_1) ports="9090:9009" ;;
     		   *) ports="?:?"       ;;
    esac	 
    echo $ports
 }
 
 exist-lookup(){
+
+   ## hmm would be easier to do this with an sqlite3 table
 
    local typ=${1:-port}
    local wkr=${2:-workflow_0}
@@ -306,17 +321,25 @@ exist-lookup(){
    
    if [ "$ctx" == "legacy" ]; then
        uctx="workflow"
+   elif [ "$ctx" == "chiba" ]; then
+       uctx="chiba"
+   elif [ "$ctx" == "hfagc" ]; then
+       uctx="hfagc"    
    fi	 
-
  
    if [ "$typ" == "workers" ]; then
-      echo "workflow_0 workflow_1 exist_0"
+      #echo "workflow_0 workflow_1 exist_0"
+      # this has to match the above manually, ughhh
+      echo "workflow_0 workflow_1 chiba_0 hfagc_0"
+      
    elif [ "$typ" == "context" ]; then
+      
       if [ "$ctx" == "legacy" ]; then
 		 echo "workflow"
 	  else	 
          echo $ctx 
-	  fi	 
+	  fi
+      	 
    elif [ "$typ" == "ucontext" ]; then
       echo $uctx 
    elif [ "$typ" == "index" ]; then
@@ -325,18 +348,25 @@ exist-lookup(){
    
       if [ "$ctx" == "legacy" ]; then
 		  echo  "/usr/local/jars/xist/live/eXist-snapshot-20060316/2/eXist-snapshot-20060316" 
-	  else
+	  elif [ "$ctx" == "hfagc" ]; then
+          echo "/usr/local/heprez/install/exist/eXist-snapshot-20051026/unpack/2"
+      else
           echo $EXIST_FOLD/$EXIST_NAME/1
       fi 		  
 
    elif [ "$typ" == "livedir" ]; then
+   
       if [ "$ctx" == "legacy" ]; then
-		  echo /usr/local/jars/workflow/live/2
-	  else	  
+		  echo "/usr/local/jars/workflow/live/2"
+	  elif [ "$ctx" == "hfagc" ]; then
+          echo "/tmp" 
+      else	  
 	     echo $LOCAL_BASE/exist/live/$ctx/$idx
       fi		 
+   
    elif ([ "$typ" == "port" ] || [ "$typ" == "jkport" ] || [ "$typ" == "uri" ] ); then
-	  local ports=$(exist-ports $wkr)
+	 
+      local ports=$(exist-ports $wkr)
       local port=$(echo $ports | cut -d : -f 1)
       local jkport=$(echo $ports | cut -d : -f 2)
 
