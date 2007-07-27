@@ -341,6 +341,23 @@ dyw-grid1-rootcint-timefix(){
 }
 
 
+dyw-branch-diff(){
+
+   local b1="branches/blyth-optical"
+   local b2="branches/thho-acrylic_sample"
+   local ba="http://dayabay.phys.ntu.edu.tw/repos/dyw_release_2_9"
+   
+   local cmd1="svn diff $ba/$b1 $ba/$b2 $*"
+   echo $cmd1
+   eval $cmd1
+   
+   local cmd2="svn diff $ba/$b2 $ba/$b1 $*"
+   echo $cmd2
+   eval $cmd2
+
+}
+
+
 dyw-checkout(){  ## checkout from the declared SVN repository
 
 

@@ -23,8 +23,12 @@
 
  ENV_BASE=env
  export ENV_BASE
- DYW_DBG=0
- BASE_DBG=0
+ 
+ BASE_DBG=1
+ SCM_DBG=1
+ XML_DBG=1
+ SEED_DBG=1
+ DYW_DBG=1
  
  env_iwd=$(pwd)
  cd $HOME/$ENV_BASE

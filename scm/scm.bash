@@ -101,8 +101,13 @@
 #
  scm_iwd=$(pwd)
 
+
+
+
  SCM_BASE=$ENV_BASE/scm
  export SCM_HOME=$HOME/$SCM_BASE
+[ "$SCM_DBG" == "1" ] && echo $SCM_BASE/scm.bash
+
  cd $SCM_HOME
 
  [ -r scm-use.bash ]        && . scm-use.bash
@@ -148,7 +153,8 @@
  [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
     
  [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash
- [ -r trac-plugin-trac2latex.bash ]       && . trac-plugin-trac2latex.bash           
+ [ -r trac-plugin-trac2latex.bash ]       && . trac-plugin-trac2latex.bash  
+ [ -r trac-plugin-reposearch.bash ]       && . trac-plugin-reposearch.bash           
                     
                                     
  [ -r trac-build.bash ]                   && . trac-build.bash          ## depends on clearsilver  

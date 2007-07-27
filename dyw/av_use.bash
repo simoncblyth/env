@@ -39,7 +39,7 @@
 # 2007-05-25
 #
 #
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/av_use.bash
 
 av-use-sub(){
   

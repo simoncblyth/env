@@ -1,5 +1,5 @@
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/cernlib.bash
 
-alias p-cernlib="scp $HOME/.bash_cernlib P:"
 
 ##
 ##

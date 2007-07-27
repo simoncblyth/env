@@ -1,6 +1,6 @@
 
 alias p-xercesc="scp $HOME/.bash_xercesc P:"
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/xercesc.bash
 ##
 ## Usage :
 ##        xercesc-get

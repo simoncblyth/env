@@ -1,4 +1,4 @@
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/geant4.bash
 geant4-x(){ scp $HOME/$DYW_BASE/geant4.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 
 #

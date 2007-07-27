@@ -1,4 +1,6 @@
-alias p-clhep="scp $HOME/.bash_clhep P:"
+
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/clhep.bash
+
 
 ##
 ##  NB compiling clhep is compulsory for G4dyb , as CMT gets the CLHEP info

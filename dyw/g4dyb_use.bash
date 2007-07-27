@@ -50,6 +50,7 @@
 #   /disk/d4/dywlog/thho
 #
 #
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/g4dyb_use.bash start 
 
 g4dyb-use-x(){ scp $HOME/$DYW_BASE/g4dyb_use.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 g4dyb-use-i(){ .   $HOME/$DYW_BASE/g4dyb_use.bash ; }
@@ -191,5 +192,5 @@ g4dyb-use(){
 
 }
 
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/g4dyb_use.bash finished 
 

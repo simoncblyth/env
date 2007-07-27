@@ -1,3 +1,4 @@
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/graxml.bash
 
 export GRAXML_NAME=GraXML-dist
 
