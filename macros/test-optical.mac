@@ -5,6 +5,9 @@
 ####  Output File Name
 
 
+#/dyw/run/randomSeedFile xml/no_fake_hits.xml
+
+
 ## Select detector optical property input file or adopt the default. 
 ## E.g. FileName = MaterialPropertiesFile
 ## <FileName> must be a tag in the file xml/control.xml and 
@@ -25,10 +28,12 @@
 #         - relative path from DAYA_DATA_DIR to parameter xml file 
 #      
 #
-/dyw/detector/edit/add sensitive_skin inacrylictank xml/sensitiveskin.xml
-/dyw/detector/edit/add sensitive_skin outacrylictank xml/sensitiveskin.xml
-#/dyw/detector/edit/add other red green blue
-/dyw/detector/edit/list
+/dyw/detector/edit/sensitive_skin inacrylictank innerskin xml/sensitiveskin.xml
+/dyw/detector/edit/sensitive_skin inacrylictank outerskin xml/sensitiveskin.xml
+/dyw/detector/edit/sensitive_skin outacrylictank innerskin xml/sensitiveskin.xml
+/dyw/detector/edit/sensitive_skin outacrylictank outerskin xml/sensitiveskin.xml
+
+#/dyw/detector/edit/list
 
 ## WARNING NOT FOR GENERAL USE ... SWITCHING OFF BITS OF PHYSICS
 ## leave only optical "Op"
@@ -113,6 +118,10 @@
 
 #/control/execute set-scene.mac
 
+# create the G4UIXm "macros" menu
+# "/control/execute gui.mac" does not work here ... have to wait for the G4UIXm window to be created 
+# so, create an alias instead ...  run it with {gui}
+/control/alias gui "/control/execute gui.mac"
 
 
 #### Number of Events to simulate.
