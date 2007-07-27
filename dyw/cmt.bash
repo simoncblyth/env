@@ -1,5 +1,5 @@
 
-[ "$DYW_DBG" == "1" ] && echo cmt.bash
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/cmt.bash
 
 [ "X$CMT_HOME" == "X" ] && ( echo .bash_cmt requires the enviroment setup of .bash_cmt_env including CMT_HOME && return )
 
