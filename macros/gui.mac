@@ -1,8 +1,9 @@
-# invoke this with /control/execute gui.mac 
+# invoke this with /control/execute gui.mac ... curiously the last seems not to appear
 /gui/addMenu "macros" "macros" 
 /gui/addButton "macros" "set-scene"        "/control/execute set-scene.mac" 
 /gui/addButton "macros" "add-trajectories" "/control/execute add-trajectories.mac" 
 /gui/addButton "macros" "scb-traj"         "/control/execute scb-traj.mac" 
-/gui/addButton "macros" "next-event"       "/control/execute next-event.mac" 
+/gui/addButton "macros" "next-events"       "/control/execute next-event.mac" 
 /gui/addButton "macros" "color-particles"  "/control/execute scb-draw-by-particle-id.mac"
-/gui/addButton "macros" "/vis/geometry/list"  "/vis/geometry/list"
+/gui/addButton "macros" "vis-geometry-list"  "/vis/geometry/list"
+/gui/addButton "macros" "vis-geometry-list"  "/vis/geometry/list"
