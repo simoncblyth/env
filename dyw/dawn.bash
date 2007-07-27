@@ -1,4 +1,4 @@
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/dawn.bash
 
 export DAWN_NAME=dawn_3_88a
 export DAWN_URLBASE=http://geant4.kek.jp/~tanaka/src

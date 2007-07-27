@@ -37,7 +37,7 @@ export ENV2GUI_VARLIST="ROOTSYS:$ENV2GUI_VARLIST"
 export PATH=$ROOTSYS/bin:$PATH
 export ROOT_CMT="ROOT_prefix:$ROOTSYS"
 
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/root.bash
 root-get(){
 
   n=$ROOT_NAME

@@ -17,7 +17,7 @@
 #
 #
 #
-
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/xml.bash
 
 xml-x(){ scp $HOME/$DYW_BASE/xml.bash ${1:-$TARGET_TAG}:$DYW_BASE; }
 

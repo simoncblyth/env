@@ -6,6 +6,9 @@
 #
 #=========================== JAIDA ==========================
 
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/aida.bash
+
+
 export JAIDA_HOME=$LOCAL_BASE/aida/jaida/jaida-3.3.0-1
 JAIDA_LOG=$JAIDA_HOME/aida-setup.log
 JAIDA_SH=./bin/aida-setup.sh

@@ -1,5 +1,5 @@
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/coin3d.bash
 
-x-coin(){ scp $HOME/.bash_coin3d ${1:-$TARGET_TAG}: ; }
 
 ##
 ##   

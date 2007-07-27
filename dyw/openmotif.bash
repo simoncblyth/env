@@ -1,3 +1,5 @@
+[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/openmotif.bash
+
 alias p-openmotif="scp $HOME/.bash_openmotif P:"
 
 ###### G4 override , as darwinports motif incompatible with Coin3d SoXt
