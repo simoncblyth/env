@@ -140,27 +140,7 @@
 
  [ -r clearsilver.bash ]                 && . clearsilver.bash         
  
- [ -r trac.bash ]                        && . trac.bash     
- [ -r trac-conf.bash ]                   && . trac-conf.bash
-      
- ## caution webadmin is a prerequisite to accountmanager      
-      
- [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash       
- [ -r trac-plugin-accountmanager.bash ]  && . trac-plugin-accountmanager.bash 
-
- [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
- [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
- [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
-    
- [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash
- [ -r trac-plugin-trac2latex.bash ]       && . trac-plugin-trac2latex.bash  
- [ -r trac-plugin-reposearch.bash ]       && . trac-plugin-reposearch.bash           
-                    
-                                    
- [ -r trac-build.bash ]                   && . trac-build.bash          ## depends on clearsilver  
-
-
-#[ -r trac-test.bash ]      && . trac-test.bash
+ [ -r trac/trac.bash ]                   && . trac/trac.bash     
 #[ -r svn-learn.bash ]      && . svn-learn.bash
 #[ -r modpython-test.bash ] && . modpython-test.bash  
 

@@ -81,6 +81,43 @@ export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
 trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
 trac-i(){ . $SCM_HOME/trac.bash ; }
 
+ trac_iwd=$(pwd)
+ TRAC_BASE=$SCM_BASE/trac
+ export TRAC_HOME=$SCM_HOME/$TRAC_NIK
+ cd $TRAC_HOME
+
+
+ [ -r trac-conf.bash ]                   && . trac-conf.bash
+      
+ ## caution webadmin is a prerequisite to accountmanager      
+      
+ [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash       
+ [ -r trac-plugin-accountmanager.bash ]  && . trac-plugin-accountmanager.bash 
+
+ [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
+ [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
+ [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
+    
+ [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash
+ [ -r trac-plugin-trac2latex.bash ]       && . trac-plugin-trac2latex.bash  
+ [ -r trac-plugin-reposearch.bash ]       && . trac-plugin-reposearch.bash           
+                    
+                                    
+ [ -r trac-build.bash ]                   && . trac-build.bash          ## depends on clearsilver  
+
+ ## new style... reduce env pollution and startup time 
+
+ silvercity(){ . $TRAC_HOME/silvercity.bash }
+
+
+
+
+
+#[ -r trac-test.bash ]      && . trac-test.bash
+
+ ## caution must exit with initial directory
+ cd $trac_iwd
+ 
 
 
 
