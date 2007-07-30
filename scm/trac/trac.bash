@@ -108,6 +108,8 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  ## new style... reduce env pollution and startup time 
 
  silvercity(){ . $TRAC_HOME/silvercity.bash ; }
+ docutils(){   . $TRAC_HOME/docutils.bash   ; }
+ 
 
 
 
