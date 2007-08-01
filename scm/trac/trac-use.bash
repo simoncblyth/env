@@ -21,6 +21,22 @@ trac-use-authz(){
    name=${1:-dummy}
    [ "$name" == "dummy" ] && echo must specify the repo/trac name as the single argument && return 
 
+   tini=$SCM_FOLD/tracs/$name/conf/trac.ini
+   [ -f "$tini" ] || ( echo ERROR $tini does not exist && return 1 )     
+
+   authzaccess="$APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS" 
+   local conf="logging:log_level:INFO logging:log_type:file trac:authz_file:$authzaccess trac:authz_module_name:$name"
+   
+   ini-edit  $tini $conf   
+}
+
+
+
+trac-use-authz-old(){
+
+   name=${1:-dummy}
+   [ "$name" == "dummy" ] && echo must specify the repo/trac name as the single argument && return 
+
    ## tweak the trac.ini for fineGrainedPermissions
    ## http://trac.edgewall.org/wiki/FineGrainedPermissions
    ##
