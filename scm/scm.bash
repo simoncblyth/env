@@ -113,7 +113,7 @@
  [ -r scm-use.bash ]        && . scm-use.bash
  [ -r scm-backup.bash ]     && . scm-backup.bash 
  [ -r svn-use.bash ]        && . svn-use.bash 
- [ -r trac-use.bash ]       && . trac-use.bash 
+ [ -r trac/trac-use.bash ]  && . trac/trac-use.bash 
  [ -r modwsgi-use.bash ]    && . modwsgi-use.bash 
 
  ## caution must exit with initial directory 
