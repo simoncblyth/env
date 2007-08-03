@@ -98,8 +98,7 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
  [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
     
- [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash
- [ -r trac-plugin-trac2latex.bash ]       && . trac-plugin-trac2latex.bash  
+ [ -r trac-macro-latexformulamacro.bash ] && . trac-macro-latexformulamacro.bash  
  [ -r trac-plugin-reposearch.bash ]       && . trac-plugin-reposearch.bash           
                     
                                     
@@ -109,6 +108,9 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
 
  silvercity(){ . $TRAC_HOME/silvercity.bash ; }
  docutils(){   . $TRAC_HOME/docutils.bash   ; }
+ 
+ trac2mediawiki(){ . $TRAC_HOME/trac2mediawiki.bash   ; }
+ trac2latex(){     . $TRAC_HOME/trac2latex.bash   ; }
  
 
 

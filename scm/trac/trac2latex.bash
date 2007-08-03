@@ -1,5 +1,5 @@
 
-trac-plugin-trac2latex-get(){
+trac2latex-get(){
 
    #  documented at 
    # http://trac-hacks.org/wiki/Trac2LatexPlugin
@@ -14,7 +14,7 @@ trac-plugin-trac2latex-get(){
 
 }
 
-trac-plugin-trac2latex-install(){
+trac2latex-install(){
 
     cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
     cd trac2latex/0.10/plugins
@@ -25,7 +25,7 @@ trac-plugin-trac2latex-install(){
     #python setup.py bdist_egg
 }
 
-trac-plugin-trac2latex-place-macros(){
+trac2latex-place-macros(){
  
      local name=${1:-dummy}
      local fold=$SCM_FOLD/tracs/$name
@@ -44,7 +44,7 @@ Password:
 }
 
 
-trac-plugin-trac2latex-enable(){
+trac2latex-enable(){
 
    name=${1:-$SCM_TRAC}
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:trac2latex.\*:enabled
