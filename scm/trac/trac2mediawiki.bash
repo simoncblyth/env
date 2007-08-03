@@ -16,6 +16,21 @@ trac2mediawiki-get(){
 }
 
 
+trac2mediawiki-update(){
+   
+   iwd=$(pwd)
+
+   cd $LOCAL_BASE/trac/plugins/trac2mediawiki
+   pwd
+   svn info
+   svn up 
+ 
+   cd $iwd 
+}
+
+
+
+
 
 trac2mediawiki-install(){
 
