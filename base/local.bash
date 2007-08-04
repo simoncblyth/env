@@ -142,6 +142,7 @@ if [ "$SCM_TAG" == "P" ]; then
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
    SCM_TRAC=env
+   SCM_GROUP=GRID1
    
 elif [ "$SCM_TAG" == "H" ]; then 
 
@@ -150,6 +151,7 @@ elif [ "$SCM_TAG" == "H" ]; then
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
    SCM_TRAC=env
+   SCM_GROUP=NTU
 
 elif [ "$SCM_TAG" == "G" ]; then 
 
@@ -159,6 +161,7 @@ elif [ "$SCM_TAG" == "G" ]; then
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
    SCM_TRAC=workflow
+   SCM_GROUP=DEV
 
 else
 
@@ -166,6 +169,7 @@ else
    SCM_PORT=	
    SCM_USER=
    SCM_PASS=
+   SCM_GROUP=
 
 fi
 

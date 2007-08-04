@@ -47,6 +47,8 @@ trac2mediawiki-install(){
 
 trac2mediawiki-place-macros(){
  
+     iwd=$(pwd)
+     
      local name=${1:-$SCM_TRAC}
      local fold=$SCM_FOLD/tracs/$name
      [ -d "$fold" ] || ( echo  error no folder $fold && exit 1 )
@@ -56,6 +58,8 @@ trac2mediawiki-place-macros(){
   
      echo === copying macros into plugins folder  not wiki-macros as you might expect ===
      sudo -u $APACHE2_USER cp -f wiki-macros/* $fold/plugins/
+    
+     cd $iwd  
 }
 
 
@@ -69,7 +73,8 @@ trac2mediawiki-enable(){
 trac2mediawiki-configure(){
 
    name=${1:-$SCM_TRAC}
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini trac2mediawiki:tmplname:NTU
+   group=${1:-$SCM_GROUP}
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini  trac2mediawiki:scmgroup:$group
 
 }
 
