@@ -29,19 +29,17 @@ trac2mediawiki-update(){
 }
 
 
-
-
-
 trac2mediawiki-install(){
 
     iwd=$(pwd)
     
-    which python
-    which apachectl  
-     
     cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
     cd trac2mediawiki/0.10/plugins
+    
+    echo === installing into site packages of $(which python) ===
     python setup.py install 
+    
+    echo === restarting apache using $(which apachectl) ===
     sudo apachectl restart
         
     cd $iwd  
@@ -49,20 +47,15 @@ trac2mediawiki-install(){
 
 trac2mediawiki-place-macros(){
  
-     local name=${1:-dummy}
+     local name=${1:-$SCM_TRAC}
      local fold=$SCM_FOLD/tracs/$name
      [ -d "$fold" ] || ( echo  error no folder $fold && exit 1 )
 
      cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
      cd trac2mediawiki/0.10
   
+     echo === copying macros into plugins folder (not wiki-macros as you might expect) ===
      sudo -u $APACHE2_USER cp -f wiki-macros/* $fold/plugins/
-   # sudo -u $APACHE2_USER cp -f wiki-macros/* $fold/wiki-macros/ 
-
-# [g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv wiki-macros/*.py plugins/
-# Password:
-# [g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv plugins/formula.py wiki-macros/
-
 }
 
 
