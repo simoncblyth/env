@@ -35,6 +35,9 @@ trac2mediawiki-update(){
 trac2mediawiki-install(){
 
     iwd=$(pwd)
+    
+    which python
+    which apachectl  
      
     cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
     cd trac2mediawiki/0.10/plugins
@@ -69,3 +72,11 @@ trac2mediawiki-enable(){
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:trac2mediawiki.\*:enabled
 
 }
+
+trac2mediawiki-configure(){
+
+   name=${1:-$SCM_TRAC}
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini trac2mediawiki:tmplname:NTU
+
+}
+
