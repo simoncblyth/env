@@ -175,6 +175,8 @@ fi
 
 export SCM_HOST
 export SCM_PORT
+export SCM_GROUP
+export SCM_TRAC
 
 ##################################################################################
 

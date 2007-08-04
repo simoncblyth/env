@@ -56,6 +56,7 @@ trac2mediawiki-place-macros(){
      cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
      cd trac2mediawiki/0.10
   
+     echo === name $name fold $fold === 
      echo === copying macros into plugins folder  not wiki-macros as you might expect ===
      sudo -u $APACHE2_USER cp -f wiki-macros/* $fold/plugins/
     
