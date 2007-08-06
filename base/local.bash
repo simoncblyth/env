@@ -40,6 +40,7 @@ if [ "X${_CONDOR_SCRATCH_DIR}" != "X" ]; then
 elif [ "$LOCAL_NODE" == "g4pb" ]; then
 
    NODE_TAG="G"
+   BACKUP_TAG="G3"
    SUDO="sudo"
    
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
@@ -228,6 +229,7 @@ export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
 export VAR_BASE_U=/var
 export VAR_BASE_P=$DAYABAY_G1/var
 export VAR_BASE_G1=$DAYABAY_G1/var
+export VAR_BASE_G3=/var
 export VAR_BASE_H=/var
 export VAR_BASE_G=/var
 export VAR_BASE_N=$HOME/var
