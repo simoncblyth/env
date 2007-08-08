@@ -439,6 +439,8 @@ scm-import(){
   pass=${4:-$SCM_PASS}
   uurl=${5:-$turl}
 
+  echo ======= scm/trac/scm.bash::scm-import starting ========= 
+
   
   [ $name == "dummy" ] && ( echo argument1 should be a remote repository name at $uurl && return )
   [ -d "$fold" ]       || ( echo argument2 $fold should be a valid directory on local node && return )
@@ -450,6 +452,9 @@ scm-import(){
                svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $NON_SECURE_PASS
 
   cd $iwd			   
+
+
+   echo ======= scm/trac/scm.bash::scm-import finished ========= 
 
 #
 #[g4pb:~] blyth$  svn import env http://hfag.phys.ntu.edu.tw:6060/repos/green/trunk/ -m 'initial scm-import ' 

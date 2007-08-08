@@ -105,6 +105,9 @@ scm-use-create-local(){
    name=${1:-dummy}     ## name of the repository and tracitory to create
    path=${2:-dummy}     ## directory path to import, if a valid directory path
    
+   
+   echo ====== scm/scm-use.bash::scm-use-create-local starting  ====
+   
    if [ -d "$SCM_FOLD" ]; then
      echo =========  scm folder $SCM_FOLD exists already , temporarily adjusting ownership to USER $USER ... may need password
      sudo chown -R $USER:$USER $SCM_FOLD
@@ -176,11 +179,17 @@ scm-use-create-local(){
    fi
 
    ## tweak the trac.ini for fine grained permissions
+   echo ================== invoke trac-use-authz $name =====
    trac-use-authz $name
+   echo ================== completed trac-use-authz $name =====
    
    echo  ================= setting chownership of SCM_FOLD $SCM_FOLD on NODE_TAG $NODE_TAG to APACHE2_USER $APACHE2_USER 
    echo  ================= this allows remote control of svn thru apache2 , may need the USER $USER password on node $NODE_TAG
    sudo chown -R $APACHE2_USER:$APACHE2_USER $SCM_FOLD
+
+
+   echo ====== scm/scm-use.bash::scm-use-create-local completed  ====
+
 
 }
 
