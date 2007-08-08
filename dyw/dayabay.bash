@@ -408,7 +408,7 @@ dyw-get(){  ## cvs login and initial get
   ##                     http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/SoftwareReleases
   ##
 
-  [ "$NODE_TAG" != "P" ] && echo "this is normally done from node P  dayabaysoft@grid1 " && return 1 
+  [ "$NODE_TAG" != "P" ] && echo "this is normally done from node P  dayabaysoft@grid1 " #&& return 1 
   ##[ "$NODE_TAG" != "G1" ] && echo "this is normally done from node G1  blyth@grid1 " && return 1
   ## actually it doesnt matter where this is done ... but clearer to use the same place each time
 
@@ -443,8 +443,8 @@ dyw-get(){  ## cvs login and initial get
      cvs -d $DYW_CVSROOT get -r $tag .   
   fi	  
 
-  echo =========== creating  remote repository called by the basename of the pwd , ie $dyw_tag with the contents of this pwd that was just got from CVS 
-  scm-create
+  #echo =========== creating  remote repository called by the basename of the pwd , ie $dyw_tag with the contents of this pwd that was just got from CVS 
+  #scm-create
 
 }
 
