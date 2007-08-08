@@ -107,7 +107,7 @@ a01(){
 
    ############# example running (must be from X11 terminal to work) 
 #   cd $HOME/geant4/$GQ_NAME/examples/extended/analysis/A01  
-   cd $G4WORKDIR/example.extended/analysis/A01
+   cd $G4WORKDIR/examples/extended/analysis/A01
    $G4WORKDIR/bin/$G4SYSTEM/A01app 
 }
 
