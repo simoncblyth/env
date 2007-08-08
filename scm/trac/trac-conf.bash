@@ -61,7 +61,9 @@ trac-conf-perms(){
       ## use the restricted area access workaround to avoid the error on arrival issue
       ## 
       trac-conf-set-perms $name anonymous     "WIKI_VIEW"
-	  trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
+	  ##trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
+      ## I think RESTRICTED_AREA_ACCESS is not being use, but is the workaround above alluding to smth I have forgotten ?
+      trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
       trac-conf-set-perms $name admin TRAC_ADMIN 
       
     else
