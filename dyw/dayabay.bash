@@ -413,25 +413,27 @@ dyw-get(){  ## cvs login and initial get
   ## actually it doesnt matter where this is done ... but clearer to use the same place each time
 
 
-  tag=${1:-head}
-
-  cd $DYW_FOLDER
- 
+  local tag=${1:-head}
   if [ "$tag" == "head" ]; then
      dyw_tag=dyw_$(dyw-datestamp "now")
   else
      dyw_tag=dyw_$tag
   fi
 
-  [ -d "$dyw_tag" ] && echo a folder called $dyw_tag exists already aborting dyw-get && return 1
+  local name=${2:-$dyw_tag}
 
-  mkdir ${dyw_tag}
+
+  cd $DYW_FOLDER
+
+  [ -d "$name" ] && echo a folder called $name exists already aborting dyw-get && return 1
+
+  mkdir ${name}
 
   if [ "$tag" == "head" ]; then
-    rm -f dyw_head && ln -s ${dyw_tag} dyw_head 
+    rm -f dyw_head && ln -s ${name} dyw_head 
   fi
   
-  cd ${dyw_tag}
+  cd ${name}
   pwd
 
   cvs -d $DYW_CVSROOT login     ##  (once only ... it asks for CVS password ... the usual one worked )
