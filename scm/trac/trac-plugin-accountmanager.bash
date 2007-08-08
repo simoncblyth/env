@@ -36,7 +36,7 @@ trac-plugin-accountmanager-conf(){
    local userfile=$APACHE2_HOME/$SVN_APACHE2_AUTH
    
    
-   local base="components:acct_mgr.api.accountmanager:enabled"
+   local base="components:acct_mgr.api.accountmanager:enabled  components:acct_mgr.api:enabled "
    local comps="components:acct_mgr.admin.accountmanageradminpage:enabled components:acct_mgr.web_ui.accountmodule:enabled"  
    local login="components:trac.web.auth.loginmodule:disabled components:acct_mgr.web_ui.loginmodule:enabled"
   
