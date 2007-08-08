@@ -335,6 +335,7 @@ fw = sys.stdout
 
 repos = sys.argv[1]
 paths = InterestingPaths(sys.argv[2:])
+print "paths... %s " % paths
 
 # Pass the dump-file header through unchanged.
 lump = read_lump(fr)
