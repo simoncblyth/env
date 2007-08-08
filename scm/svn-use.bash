@@ -14,7 +14,7 @@ svn-branch(){
    [ "$branch" == "dummy" ]  && echo svn-branch ERROR branch must be specified && return 1
    [ "$comment" == "dummy" ] && echo svn-branch ERROR comment  must be specified && return 1
 
-   local base=http://$SCM_HOST:$SCM_PORT/repos/$repo
+   local base=$SCM_URL/repos/$repo
   
    ##svn copy http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/trunk http://dayabay.ihep.ac.cn/svn/dybsvn/ldm/branches/sjp.issue.234 -m "Branch to resolve issue 234"
    

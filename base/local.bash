@@ -145,14 +145,21 @@ if [ "$SCM_TAG" == "P" ]; then
    SCM_TRAC=env
    SCM_GROUP=GRID1
    
+   SCM_URL=http://$SCM_HOST:$SCM_PORT
+   
 elif [ "$SCM_TAG" == "H" ]; then 
 
-   SCM_HOST=hfag.phys.ntu.edu.tw
-   SCM_PORT=6060
+   #SCM_HOST=hfag.phys.ntu.edu.tw
+   #SCM_PORT=6060
+   SCM_HOST=dayabay.phys.ntu.edu.tw
+   SCM_PORT=80
+   
    SCM_USER=$USER
    SCM_PASS=$NON_SECURE_PASS
    SCM_TRAC=env
    SCM_GROUP=NTU
+
+   SCM_URL=http://$SCM_HOST
 
 elif [ "$SCM_TAG" == "G" ]; then 
 
@@ -163,7 +170,9 @@ elif [ "$SCM_TAG" == "G" ]; then
    SCM_PASS=$NON_SECURE_PASS
    SCM_TRAC=workflow
    SCM_GROUP=DEV
-
+   
+   SCM_URL=http://$SCM_HOST
+   
 else
 
    SCM_HOST=	
@@ -174,6 +183,8 @@ else
 
 fi
 
+
+export SCM_URL
 export SCM_HOST
 export SCM_PORT
 export SCM_GROUP

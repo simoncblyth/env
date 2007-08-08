@@ -69,7 +69,7 @@ scm-use-tracurl(){
 	
    name=${1:-dummy}
     rev=${1:-0}	
-    turl="http://$SCM_HOST:$SCM_PORT/tracs/$name/browser/trunk"
+    turl="$SCM_URL/tracs/$name/browser/trunk"
 
     [ "$rev" == "0" ] && echo $turl || echo "$turl?rev=$rev"
 

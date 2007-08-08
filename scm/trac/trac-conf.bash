@@ -7,7 +7,7 @@
 #     project:icon:common/trac.ico
 #    
 #
-#      header_logo:link:http://$SCM_HOST:$SCM_PORT/tracs/env
+#      header_logo:link:$SCM_URL/tracs/env
 #
 
 

@@ -203,7 +203,7 @@ scm-checkout(){
   local name=${1:-dummy}
   local branch=${2:-trunk}
   
-  uurl=http://$SCM_HOST:$SCM_PORT/repos/${name}/${branch}/	 
+  uurl=$SCM_URL/repos/${name}/${branch}/	 
 
   [ -d ".svn" ] && echo error this should be used for initial checkouts only && return 1 
 
@@ -314,7 +314,7 @@ scm-unpack(){
    scm-tracname-available $name && echo proceeding as tracname $name is available || ( echo a repository named $name exists already , cannot overwrite  && return 1  )
    
    
-   #local uurl=http://$SCM_HOST:$SCM_PORT
+   #local uurl=$SCM_URL
    #svn import $tmpdir $uurl/repos/$name/trunk/  -m "initial scm-unpack " --username $SCM_USER --password $NON_SECURE_PASS
    #svn checkout $uurl/repos/$name/trunk/ $name
 }
@@ -374,7 +374,7 @@ scm-create(){
         ##  this import goes thru apache ...
         scm-import $name $fold
 		
-        echo ============== check the repository by visiting http://$SCM_HOST:$SCM_PORT/tracs/$name/browser/trunk/
+        echo ============== check the repository by visiting $SCM_URL/tracs/$name/browser/trunk/
         #scm-open   $name
 
 
@@ -410,9 +410,9 @@ scm-parse-traclist(){ perl -n -e 'm|href=\"/tracs/(\S*)\"| && print "$1 "' ${1:-
 
 scm-traclist-get(){
 
- turl="http://$SCM_HOST:$SCM_PORT"
+
  traclist=/tmp/traclist-$$.html
- lurl=$turl/tracs/
+ lurl=$SCM_URL/tracs/
 
  echo ======= access $lurl to discover the repositories already present 
  curl -o $traclist $lurl 
@@ -431,7 +431,7 @@ scm-traclist-get(){
 
 scm-import(){
 
-  turl="http://$SCM_HOST:$SCM_PORT"
+  turl="$SCM_URL"
   
   name=${1:-dummy}
   fold=${2:-dummy}
@@ -477,8 +477,8 @@ scm-open(){
 
    name=${1:-dummy}
 
-   ## open http://$SCM_HOST:$SCM_PORT/repos/$name/      # no-frills view of the "HEAD" being provided by the raw svn 
-   ## open http://$SCM_HOST:$SCM_PORT/repos/            # discovery is not allowed
+   ## open $SCM_URL/repos/$name/      # no-frills view of the "HEAD" being provided by the raw svn 
+   ## open $SCM_URL/repos/            # discovery is not allowed
 
    prefix=""
    if [ "$SOURCE_TAG" != "$NODE_TAG" ]; then
@@ -488,9 +488,9 @@ scm-open(){
    echo prefix : [$prefix]
 
    if [ "$name" == "dummy" ]; then
-       $prefix open http://$SCM_HOST:$SCM_PORT/tracs/   
+       $prefix open $SCM_URL/tracs/   
    else 	   
-       $prefix open http://$SCM_HOST:$SCM_PORT/tracs/$name/browser/trunk/         # frilly view provided by trac
+       $prefix open $SCM_URL/tracs/$name/browser/trunk/         # frilly view provided by trac
    fi	  
 
 }
