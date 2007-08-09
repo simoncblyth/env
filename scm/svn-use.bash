@@ -43,10 +43,21 @@ svn-load-branch(){
    echo ====== $loadcmd
    echo ======  DANGER ... ARE YOU SURE YOU WANT TO DO THAT ????  ===== enter YES to proceed
    
+
    read answer
    if [ "X$answer" == "XYES" ]; then
-      echo OK proceedinng
+   
+      echo =========  temporarily adjusting ownership of $repodir to USER $USER ... will need password
+      sudo chown -R $USER:$USER $repodir
+      
+         
+      echo ======== OK proceedinng to load the dumped reposititory commits 
       eval $loadcmd
+      
+      echo ========= resetting  ownership of $repodir to APACHE2_USER $APACHE2_USER 
+      sudo chown -R $APACHE2_USER:$APACHE2_USER $repodir
+      
+      
    else
       echo OK YOU CHICKENED OUT
    fi      
