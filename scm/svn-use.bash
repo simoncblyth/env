@@ -27,6 +27,74 @@ svn-branch(){
 }
 
 
+
+
+svn-load-branch(){
+
+   local name=${1:-dummy}   ## repository name   
+   local repodir=$SCM_FOLD/repos/$name
+   test -d $repodir || ( echo repodir $repodir not found && return 1 )
+   local youngest=$(svnlook youngest $repodir)
+   
+   local dumpfile=${2:-dummy}
+   echo === svn-load-branch from dumpfile $dumpfile into repository at $repodir $youngest ===== 
+
+   local loadcmd="svnadmin load $repodir < $dumpfile "
+   echo ====== $loadcmd
+   echo ======  DANGER ... ARE YOU SURE YOU WANT TO DO THAT ????  ===== enter YES to proceed
+   
+   read answer
+   if [ "X$answer" == "XYES" ]; then
+      echo OK proceedinng
+      eval $loadcmd
+   else
+      echo OK YOU CHICKENED OUT
+   fi      
+   
+}
+
+svn-dump-branch(){
+
+    
+   local name=${1:-dummy}     #  repository name  
+   
+   local repodir=$SCM_FOLD/repos/$name
+   test -d $repodir || ( echo repodir $repodir not found && return 1 )
+   local youngest=$(svnlook youngest $repodir) 
+   
+   local branch=${2:-dummy}    #  branch name, eg blyth-optical
+   local reva=${3:-0}
+   local revb=${4:-$youngest}
+   
+
+   local dir=$SCM_FOLD/svnadmin
+   test -d $dir || ( sudo mkdir -p $dir && sudo chown $USER $dir ) 
+   
+   local label=$name-$reva-$revb
+   
+   
+   
+   local fabel=$label-$branch   
+   cd $dir
+   
+   # cannot get this to work, suspect regexps
+   #local regexp="branches/$branch"
+   #local cmd="svnadmin dump $repodir | $HOME/$SCM_BASE/svndumpfilter2.sh $repodir $regexp  > $label.dump "
+   local dumpcmd="svnadmin dump $repodir -r $reva:$revb > $label.dump "
+   local filtercmd="cat $label.dump | svndumpfilter include branches/$branch  > $fabel.dump 2> $fabel.dump.err  "
+   
+   echo \"$dumpcmd\"
+   eval $dumpcmd
+
+  echo \"$filtercmd\"
+   eval $filtercmd
+
+
+
+}
+
+
+
 svn-use-apache2-add-user(){
 
    name=${1:-error}
