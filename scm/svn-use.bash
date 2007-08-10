@@ -120,7 +120,7 @@ svn-dump(){
   
    local reva=${2:-0}
    local revb=${3:-$youngest}
-   local label
+
 
    local dir=$SCM_FOLD/svnadmin
    test -d $dir || ( sudo mkdir -p $dir && sudo chown $USER $dir ) 
