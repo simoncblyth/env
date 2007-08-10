@@ -64,6 +64,49 @@ svn-load-branch(){
    
 }
 
+
+
+
+svn-add-from-cvs-wc(){
+
+  # following cvs-svn integration recipe from :
+  # http://www.cognovis.de/developer/en/subversion_cvs_integration
+  #  
+
+  ## construct empty repository 
+  
+  local name=${name}
+  #local repo=http://dayabay.phys.ntu.edu.tw/repos/$name
+  local repo=http://localhost/repos/$name
+  
+  # NEED TO CHECK THAT THE NAME IS AVAILABLE
+  # svn mkdir $repo $repo/trunk $repo/branches $repo/tags
+  
+  svn co $repo/trunk .
+  
+  #  add the folders from a cvs checkout to the svn repository excluding .svn and CVS folders
+  #  (hmm note that CVSROOT folder is not excluded) 
+  # 
+   find . -type d | grep -v "/CVS$" | grep -v ".svn" | grep -v "^\.$" | sed 's/^\.\//svn add --non-recursive \.\//' | sh
+
+  # we now tell all folders except the current working direoctry to ignore the CVS/ folder
+  # so that they are not included in our repository.
+
+  find . -type d | grep -v "/CVS$" | grep -v ".svn" | grep -v "^\.$" | sed 's/^\.\//svn propset svn:ignore *CVS \.\//' | sh
+
+
+
+  # Now, that we no add all the files to the repository (except the CVS control files of course)
+
+  find . -type f | grep -v -E "(/CVS|/CVS/Root|/CVS/Repository|/CVS/Entries|/CVS/Entries.Log|/CVS/Entries.Static|/CVS/Tag)$" | grep -v "\.svn\/" | sed 's/^\.\//svn add \.\//' | sh
+
+
+  svn commit -m "Adding CVS head to $repo/trunk with CVS control files skipped and ignored"
+
+
+}
+
+
 svn-dump-branch(){
 
     

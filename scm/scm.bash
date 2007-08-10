@@ -40,7 +40,7 @@
 #   scm-i
 #   scm-ls
 #
-#   scm-use-create-local  name [fold]  
+#   scm-use-create-local  name [fold] [init]  
 #
 #   scm-checkout name
 #                              check out remote repository into pwd
@@ -371,9 +371,15 @@ scm-create(){
 	       ssh $X "bash -lc \"scm-use-create-local $name\""
         fi
 
+
+         
         ##  this import goes thru apache ...
-        scm-import $name $fold
-		
+        if [ "X$fold" == "XEMPTY" ]; then
+            echo skip the import as fold is $fold
+        else
+            scm-import $name $fold
+		fi
+        
         echo ============== check the repository by visiting $SCM_URL/tracs/$name/browser/trunk/
         #scm-open   $name
 

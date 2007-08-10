@@ -86,12 +86,14 @@ scm-use-test(){
 scm-use-create-local(){
 
    #   usage:
-   #        scm-use-create-local name [path]
+   #        scm-use-create-local name [path] 
    #
    #        scm-use-create-local test Desktop/kambiu-ten-pages
+   #        scm-use-create-local test INIT
+   #        scm-use-create-local test
    #
    #     if the directory path is not specified, or is not a valid directory an empty repository 
-   #        ... with just the trunk branches tags structure will be created
+   #        ... with just the trunk branches tags structure will be created if INIT is supplied
    #
    #     note the ownership flipping ... for local access needs to belong to
    #     $USER .. for remote access thru apache2 needs to belong to the
@@ -103,10 +105,10 @@ scm-use-create-local(){
    #
 
    name=${1:-dummy}     ## name of the repository and tracitory to create
-   path=${2:-dummy}     ## directory path to import, if a valid directory path
+   path=${2:-EMPTY}      ## directory path to import, if a valid directory path
+                        ## or INIT to just initialize with branches, trunk, tags
    
-   
-   echo ====== scm/scm-use.bash::scm-use-create-local starting  ====
+   echo ====== scm/scm-use.bash::scm-use-create-local name:$name path:$path starting  ====
    
    if [ -d "$SCM_FOLD" ]; then
      echo =========  scm folder $SCM_FOLD exists already , temporarily adjusting ownership to USER $USER ... may need password
@@ -140,22 +142,28 @@ scm-use-create-local(){
    # svnadmin doesnt exit with an error when it should ... eg for permission denied issues
    # do a first import into the repository 
    
-   echo ======= copy sources to import into tmpdir $tmpdir
+   if ( [ "X$path" == "XEMPTY" ]  ); then
+       echo ====== path $path so making an empty repository, with revision zero 
+   else
    
-   tmpdir=/tmp/scb/toimp$$
-   mkdir -p $tmpdir/{branches,tags,trunk}
-
-   if [ -d "$path" ]; then
-      cp -r $path/ $tmpdir/trunk/
+      tmpdir=/tmp/scb/toimp$$
+      echo ======= create standard reposity layout beneath $tmpdir
+      mkdir -p $tmpdir/{branches,tags,trunk} 
+   
+      if [ -d "$path" ]; then
+         echo ======= copy sources to import into tmpdir $tmpdir 
+         cp -r $path/ $tmpdir/trunk/
+      else
+         echo ======= the path supplied does not exist 
+      fi
+      
+      echo ======= import from tmpdir $tmpdir into file://$repo 
+      svn import $tmpdir file://$repo -m "initial import from $path "
+      
+      rm -rf $tmpdir
+        
    fi
  
-   
-   # this makes for a non-interesting revision 1, in the normal empty case
-   
-   echo ======= import from tmpdir $tmpdir into file://$repo 
-   svn import $tmpdir file://$repo -m "initial import from $path "
-   rm -rf $tmpdir
-
   
    echo ======== create trac env to follow changes in the svn repository 
 
