@@ -443,7 +443,7 @@ blyth = rw
 [dyw:/]
 @member = r
 blyth = rw
-@user = r 
+@user = rw 
 @admin = rw
 
 
