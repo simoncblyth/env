@@ -29,6 +29,9 @@ svn-branch(){
 
 
 
+
+
+
 svn-load-branch(){
 
    local name=${1:-dummy}   ## repository name   
@@ -107,45 +110,61 @@ svn-add-from-cvs-wc(){
 }
 
 
-svn-dump-branch(){
+svn-dump(){
 
-    
    local name=${1:-dummy}     #  repository name  
    
    local repodir=$SCM_FOLD/repos/$name
    test -d $repodir || ( echo repodir $repodir not found && return 1 )
    local youngest=$(svnlook youngest $repodir) 
-   
-   local branch=${2:-dummy}    #  branch name, eg blyth-optical
-   local reva=${3:-0}
-   local revb=${4:-$youngest}
-   
+  
+   local reva=${2:-0}
+   local revb=${3:-$youngest}
+   local label
 
    local dir=$SCM_FOLD/svnadmin
    test -d $dir || ( sudo mkdir -p $dir && sudo chown $USER $dir ) 
    
-   local label=$name-$reva-$revb
-   
-   
-   
-   local fabel=$label-$branch   
+   local label=$name-$reva-$revb   
    cd $dir
-   
-   # cannot get this to work, suspect regexps
-   #local regexp="branches/$branch"
-   #local cmd="svnadmin dump $repodir | $HOME/$SCM_BASE/svndumpfilter2.sh $repodir $regexp  > $label.dump "
+
    local dumpcmd="svnadmin dump $repodir -r $reva:$revb > $label.dump "
-   local filtercmd="cat $label.dump | svndumpfilter include branches/$branch  > $fabel.dump 2> $fabel.dump.err  "
    
-   echo \"$dumpcmd\"
+   echo $dumpcmd 
    eval $dumpcmd
 
+}
+
+
+
+
+
+svn-filter-dump(){
+
+
+   local pabel=$(basename path)
+  local blank=""
+   local path=${2:-$blank}    #  relative path in the 
+
+   if [ "$pabel" == "/" ]; then
+     fabel = $label
+   else  
+     fabel=$label-$pabel
+   fi 
+   
+
+
+ # cannot get this to work, suspect regexps
+   #local regexp="branches/$branch"
+   #local cmd="svnadmin dump $repodir | $HOME/$SCM_BASE/svndumpfilter2.sh $repodir $regexp  > $label.dump "
+   local filtercmd="cat $label.dump | svndumpfilter include branches/$branch  > $fabel.dump 2> $fabel.dump.err  "
   echo \"$filtercmd\"
    eval $filtercmd
 
 
 
 }
+
 
 
 
