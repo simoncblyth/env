@@ -29,10 +29,7 @@ svn-branch(){
 
 
 
-
-
-
-svn-load-branch(){
+svn-load(){
 
    local name=${1:-dummy}   ## repository name   
    local repodir=$SCM_FOLD/repos/$name
@@ -40,7 +37,7 @@ svn-load-branch(){
    local youngest=$(svnlook youngest $repodir)
    
    local dumpfile=${2:-dummy}
-   echo === svn-load-branch from dumpfile $dumpfile into repository at $repodir $youngest ===== 
+   echo === svn-load from dumpfile $dumpfile into repository at $repodir $youngest ===== 
 
    local loadcmd="svnadmin load $repodir < $dumpfile "
    echo ====== $loadcmd
@@ -134,6 +131,7 @@ svn-dump(){
    eval $dumpcmd
 
 }
+
 
 
 
