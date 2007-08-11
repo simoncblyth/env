@@ -86,7 +86,7 @@ trac-conf-intertrac(){
        if ([ -d "$path" ] && [ "X$target" != "X$self" ]) then
           local abbr=$(echo $target | perl -pe 's/_release//')
           local conf
-          if [ "X$abbr" == "$target" ]; then
+          if [ "X$abbr" == "X$target" ]; then
              ## not a release , so do not abbreviate
              conf="intertrac:$target.title:$target intertrac:$target.url:/tracs/$target intertrac:$target.compat:false"
           else   
