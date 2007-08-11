@@ -85,14 +85,15 @@ trac-conf-intertrac(){
        local target=$(basename $path)
        if ([ -d "$path" ] && [ "X$target" != "X$self" ]) then
           local abbr=$(echo $target | perl -pe 's/_release//')
-          
+          local conf
           if [ "X$abbr" == "$target" ]; then
-             echo skip non release
+             ## not a release , so do not abbreviate
+             conf="intertrac:$target.title:$target intertrac:$target.url:/tracs/$target intertrac:$target.compat:false"
           else   
-             local conf="intertrac:$abbr:$target intertrac:$target.title:$target intertrac:$target.url:/tracs/$target intertrac:$target.compat:false"
-             echo $target $conf
-             ini-edit $SCM_FOLD/tracs/$self/conf/trac.ini $conf
-          fi   
+             conf="intertrac:$abbr:$target intertrac:$target.title:$target intertrac:$target.url:/tracs/$target intertrac:$target.compat:false"
+          fi  
+          echo $target $conf
+          ini-edit $SCM_FOLD/tracs/$self/conf/trac.ini $conf 
        else
           echo skip self $target
        fi  
