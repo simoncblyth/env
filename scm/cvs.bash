@@ -1,0 +1,1 @@
+alias cvs-st="cvs -n update 2> /dev/null" 

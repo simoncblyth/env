@@ -121,6 +121,7 @@
  [ -t 0 ] || return 
  cd $SCM_HOME
 
+ [ -r cvs.bash  ]           && . cvs.bash 
  [ -r file.bash  ]          && . file.bash
 
  [ -r apache2.bash ]        && . apache2.bash
