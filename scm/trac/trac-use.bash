@@ -53,7 +53,17 @@ ini-edit(){
 }
 
 
+trac-use-admin(){
 
+   local name=${1:-dummy}
+   shift
+   local tracdir=$SCM_FOLD/tracs/$name
+   test -d $tracdir || ( echo tracdir $tracdir does not exist && return 1 )
+
+   sudo chown -R $USER:$USER $tracdir
+   trac-admin $tracdir $*
+   sudo chown -R $APACHE2_USER:$APACHE2_USER $tracdir
+}
 
 
 trac-use-authz-old(){
