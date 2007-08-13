@@ -114,7 +114,7 @@ svn-apache2-conf(){
 
   [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
 
-  apache2-setport $SCM_PORT
+  apache2-setport 6060   ##  $SCM_PORT  this is 80 (for client usage) but not appropiate at this level 
 
   apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
 
