@@ -42,7 +42,26 @@ file-package-topdir(){
    eval $cmd 
 }
 
+file-diff(){
 
+   ##  opendiff is a Mac OS X commandline interface to the FileMerge GUI application 
+   
+   test -d "$DYW" || ( echo variable DYW $DYW does not point to a folder && return 1 )
+   local relpath=${1:-dummy}
+   local abspath=$PWD/$relpath 
+    
+   [ -f "$abspath" ] || ( echo no such path $abspath && return 1 )
+   
+   local path=${abspath#$DYW/}   ## make the absolute path relative to DYW
+   local iwd=$(pwd)
+   
+   local cmd="cd $DYW/.. && opendiff blyth-optical/$path dywcvs/$path -ancestor trunk/$path -merge dywcvs/$path.filemerge "
+   echo $cmd
+   eval $cmd
+
+   cd $iwd 
+
+}
 
 
 
