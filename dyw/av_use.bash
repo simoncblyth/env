@@ -58,7 +58,7 @@ av-use-sub(){
 
   if [ -d "$DYW_AVOUT" ]; then 
 
-      local cfhist = $DYW_AVOUT/$cfto/$cfto.hists.root
+      local cfhist=$DYW_AVOUT/$cfto/$cfto.hists.root
       test -f $cfhist || ( echo cfhist $cfhist does not exist && return 1 ) 
 
       cd $DYW_AVOUT
