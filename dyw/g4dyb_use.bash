@@ -83,7 +83,7 @@ g4dyb-use-sub(){
   ## creates timestamped folder and submits  NB this is not condor_submit 
 
   if [ "$clean" == "1" ]; then 
-    condor-use-submit $path $func "$@"
+    batch-submit $path $func "$@"
   else
 	cat << EOM  
 
