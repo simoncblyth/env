@@ -717,10 +717,10 @@ dyw-g4dyb-config(){ ##  do a global cmt config
   
   if [ "$GQ_TAG" == "dbg" ]; then
      echo === building with debug symbols, I hope
-     cmt br make CMTEXTRATAGS=debug
+     cmt br make CMTEXTRATAGS=debug TMP=tmp
   else
      echo === building without debug symbols
-     cmt br make 
+     cmt br make TMP=tmp
   fi
 
 }
