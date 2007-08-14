@@ -45,14 +45,24 @@ av-use-sub(){
   
   local func=autovalidation
   local path=jobs/av 
+  
   local jobstring=$(basename $DYW)-$(svnversion $DYW)       # name of the branch or tag and revision number 
-
+  
+  local def_cfto="2007-06-19-minimac1"
+  local cfto=${1:-$def_cfto}
+  
+  ## compare_to_date defaults to yesterday in AutoValidate.pl, 
+  ## in which case the jobstring is interpreted as a date, so to avoid that
+  ## provide the 2nd argument that resets the compareto to a valid 
+    
 
   if [ -d "$DYW_AVOUT" ]; then 
 
+      local cfhist = $DYW_AVOUT/$cfto/$cfto.hists.root
+      test -f $cfhist || ( echo cfhist $cfhist does not exist && return 1 ) 
+
       cd $DYW_AVOUT
-      ##condor-use-submit $path $func "$@"
-      batch-submit $path $func "$jobstring $@"
+      batch-submit $path $func "$jobstring $cfto $@"
       
   else
       echo cannot submit the autovalidation as output folder DYW_AVOUT:[$DYW_AVOUT] doesnt exist ... do av-config first
