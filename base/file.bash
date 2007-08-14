@@ -47,15 +47,21 @@ file-diff(){
    ##  opendiff is a Mac OS X commandline interface to the FileMerge GUI application 
    
    test -d "$DYW" || ( echo variable DYW $DYW does not point to a folder && return 1 )
-   local relpath=${1:-dummy}
-   local abspath=$PWD/$relpath 
+   
+   local rel=${1:-dummy}
+   local lhs=${2:-blyth-optical}
+   local rhs=${3:-dywcvs}
+   local anc=${4:-trunk}    ## the ancestor allows conflicts to be highlighted in red 
+   local mer=${5:-dywcvs}   ## branch for the resulting merged file 
+   
+   local abspath=$PWD/$rel 
     
    [ -f "$abspath" ] || ( echo no such path $abspath && return 1 )
    
    local path=${abspath#$DYW/}   ## make the absolute path relative to DYW
    local iwd=$(pwd)
    
-   local cmd="cd $DYW/.. && opendiff blyth-optical/$path dywcvs/$path -ancestor trunk/$path -merge dywcvs/$path.filemerge "
+   local cmd="cd $DYW/.. && opendiff $lhs/$path $rhs/$path -ancestor $anc/$path -merge $mer/$path.filemerge "
    echo $cmd
    eval $cmd
 
