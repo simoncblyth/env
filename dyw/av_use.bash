@@ -45,12 +45,14 @@ av-use-sub(){
   
   local func=autovalidation
   local path=jobs/av 
+  local jobstring=$(basename $DYW)-$(svnversion $DYW)       # name of the branch or tag and revision number 
+
 
   if [ -d "$DYW_AVOUT" ]; then 
 
       cd $DYW_AVOUT
       ##condor-use-submit $path $func "$@"
-      batch-submit $path $func "$@"
+      batch-submit $path $func "$jobstring $@"
       
   else
       echo cannot submit the autovalidation as output folder DYW_AVOUT:[$DYW_AVOUT] doesnt exist ... do av-config first
