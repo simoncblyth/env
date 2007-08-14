@@ -704,8 +704,9 @@ dyw-everything-build(){ ##  do a global cmt config
 
 dyw-g4dyb-config(){ ##  do a global cmt config  
 
+  local arg=${1}
 
-  echo CMTPATH:[$CMTPATH]
+  echo CMTPATH:[$CMTPATH] arg:[$arg]
   cd $DYW/G4dyb/cmt/
 
   ## rm -f setup.{sh,csh} cleanup.{sh,csh} Makefile    ## not needed but makes the action of the next step very clear 
@@ -717,13 +718,14 @@ dyw-g4dyb-config(){ ##  do a global cmt config
   
   if [ "$GQ_TAG" == "dbg" ]; then
      echo === building with debug symbols, I hope
-     cmt br make CMTEXTRATAGS=debug TMP=tmp
+     cmt br make $arg CMTEXTRATAGS=debug TMP=tmp
   else
      echo === building without debug symbols
-     cmt br make TMP=tmp
+     cmt br make $arg TMP=tmp
   fi
 
 }
+
 
 
 #
