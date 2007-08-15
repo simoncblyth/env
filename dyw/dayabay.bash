@@ -510,6 +510,9 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   ## start from the original , every time  
   # rm -f requirements && cp requirements.orig requirements 
   
+  ## must remove it otherwise cannot replace with a link 
+  rm -f requirements 
+  
   ## follow the site requirements link pattern  
 
   local rex=requirements.orig;
