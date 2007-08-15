@@ -773,6 +773,8 @@ dyw-reference-build(){
      cd $DYW_FOLDER/$branch
      svn ci ./External/GEANT/cmt/requirements ./External/ROOT/cmt/fragments/rootcint -m "localized for node $NODE_TAG "
      
+     # have to update in order to be at a clean svnversion
+     svn up
      
   fi
 
