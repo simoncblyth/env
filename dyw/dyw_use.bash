@@ -90,6 +90,7 @@ export DYW_FOLDER
 
  
 export DYW=$DYW_FOLDER/$DYW_VERSION
+export dyw=http://dayabay.phys.ntu.edu.tw/repos/dyw
 
 ## -------------- CMTPATH 
 
