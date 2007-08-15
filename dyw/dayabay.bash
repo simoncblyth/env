@@ -758,8 +758,14 @@ dyw-reference-build(){
      dyw-grid1-rootcint-timefix
      
      # remove the files that need to be localized , directly on the repository 
-     svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements -m "removed as needs to be localized"
-     svn rm $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
+     #svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements -m "removed as needs to be localized"
+     #svn rm $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
+     
+     # thats too extreme !
+     # 
+     #   
+     
+     
      
   fi
 
