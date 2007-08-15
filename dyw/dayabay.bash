@@ -335,8 +335,11 @@ dyw-grid1-rootcint-timefix(){
   
 
   cd $DYW/External/ROOT/cmt/fragments
+  
+  ## only copy the 1st time
+  test -f rootcint.orig || cp rootcint rootcint.orig
   perl -pi -e 's/^(.*rootcint_headers.*\$<\))$/$1 && touch \$@/' rootcint
-  cat rootcint
+  diff rootcint rootcint.orig
 
 }
 
@@ -736,6 +739,19 @@ dyw-reference-build(){
      svn up 
   else
      svn co $dyw/branches/$branch
+ 
+     # localize the site requirements file , this 
+     dyw-requirements
+  
+     # localize geant4 requirements , this changes  External/GEANT/cmt/requirements from a file to a link
+     dyw-g4-req
+  
+     #  grid1 fix 
+     dyw-grid1-rootcint-timefix
+     
+     # remove the files that need to be localized , directly on the repository 
+     svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
+     
   fi
 
   cd $DYW_FOLDER/$branch/G4dyb/cmt
@@ -747,15 +763,7 @@ dyw-reference-build(){
     flags="TMP=tmp" 
   fi
   
-  # localize the requirements file
-  dyw-requirements
-  
-  # localize geant4 requirements 
-  dyw-g4-req
-  
-  #  grid1 fix 
-  dyw-grid1-rootcint-timefix
-  
+
   cmt br cmt config 
   cmt br make clean $flags
   cmt br make $flags
