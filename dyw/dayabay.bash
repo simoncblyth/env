@@ -762,9 +762,10 @@ dyw-reference-build(){
      #svn rm $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
      
      # thats too extreme !
-     # 
-     #   
+     # for now live with committing them
      
+     cd $DYW
+     svn ci ./External/GEANT/cmt/requirements ./External/ROOT/cmt/fragments/rootcint -m "localized for node $NODE_TAG "
      
      
   fi
