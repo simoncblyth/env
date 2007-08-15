@@ -498,7 +498,9 @@ dyw-rootcint-kludge(){
 
 dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set" sticking in the G4 nominal values to be used
 
+  [ "X$NODE_TAG" == "X" ] && echo dyw-g4-req error NODE_TAG must be set in env/base/local.bash && return 1;
   cd $DYW/External/GEANT/cmt
+     
   pwd
   g4data_envs="NeutronHPCrossSections G4LEDATA G4LEVELGAMMADATA G4RADIOACTIVEDATA G4ELASTICDATA"
   
@@ -506,7 +508,16 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   test -f requirements.orig || cp requirements requirements.orig
   
   ## start from the original , every time  
-  rm -f requirements && cp requirements.orig requirements 
+  # rm -f requirements && cp requirements.orig requirements 
+  
+  ## follow the site requirements link pattern  
+
+  local rex=requirements.orig;
+  local req=requirements.$NODE_TAG;
+  rm -f $req;
+  test -f $req || cp $rex $req;
+  test -L requirements || ln -s $req requirements;
+  
   
   for g4data_env in $g4data_envs
   do
@@ -516,8 +527,8 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
       ## http://tldp.org/LDP/abs/html/ivr.html
 	  eval vval=\$$g4data_env   
 	  echo $vname $vval 
-      echo perl -pi -e "s|^(set\s*$vname\s*)(.*)$|\$1 $vval ##(SCB::dyw-g4req) from \$2 |" requirements 
-           perl -pi -e "s|^(set\s*$vname\s*)(.*)$|\$1 $vval ##(SCB::dyw-g4req) from \$2 |" requirements 
+      echo perl -pi -e "s|^(set\s*$vname\s*)(.*)$|\$1 $vval ##(SCB::dyw-g4req) from \$2 |" $req
+           perl -pi -e "s|^(set\s*$vname\s*)(.*)$|\$1 $vval ##(SCB::dyw-g4req) from \$2 |" $req 
   done	 
 
 
@@ -541,11 +552,11 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
      flags=' -I\${GEANT_incdir} -DG4UI_USE_XM -DG4VIS_USE -DG4VIS_USE_OPENGLX -DG4VIS_USE_OIX -DG4VIS_USE_OI  '
   fi	  
   
-  perl -pi -e "s|^(macro\s*GEANT_cppflags\s*\")(.*)(\".*)$|\$1$flags\$3|" requirements
+  perl -pi -e "s|^(macro\s*GEANT_cppflags\s*\")(.*)(\".*)$|\$1$flags\$3|" $req
 
   if [ "$GQ_TAG" != "bat" ]; then
-    echo path_append $name $SOXT_HOME/lib  >> requirements 
-    echo path_append $name $COIN_HOME/lib  >> requirements 
+    echo path_append $name $SOXT_HOME/lib  >> $req 
+    echo path_append $name $COIN_HOME/lib  >> $req 
   fi
   diff requirements.orig requirements
   
@@ -700,6 +711,58 @@ dyw-everything-build(){ ##  do a global cmt config
 
   
 }
+
+
+
+
+dyw-reference-build(){
+
+  local iwd=$PWD
+  local branch=${1:-$DYW_VERSION}
+  
+  #
+  # this parameter implies can just run on another branch, that has not been tested ..
+  # ... set DYW_VERSION in .bash_profile is the standard approach 
+  #
+  
+  echo ==== av-use-build building G4dybApp.exe from scratch with the latest from branch $dyw/branches/$branch
+  cd $DYW_FOLDER
+  
+  if [ -d "$branch" ]; then
+     cd $branch
+     svn up 
+  else
+     svn co $dyw/branches/$branch
+  fi
+
+  cd $DYW_FOLDER/$branch/G4dyb/cmt
+  
+  local flags
+  if [ "$GQ_TAG" == "dbg" ]; then
+    flags="CMTEXTRATAGS=debug TMP=tmp"
+  else
+    flags="TMP=tmp" 
+  fi
+  
+  # localize the requirements file
+  dyw-requirements
+  
+  # localize geant4 requirements 
+  dyw-g4-req
+  
+  #  grid1 fix 
+  dyw-grid1-rootcint-timefix
+  
+  cmt br cmt config 
+  cmt br make clean $flags
+  cmt br make $flags
+
+  cd $iwd
+}
+
+
+
+
 
 
 dyw-g4dyb-config(){ ##  do a global cmt config  
