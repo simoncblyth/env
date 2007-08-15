@@ -764,7 +764,7 @@ dyw-reference-build(){
      # thats too extreme !
      # for now live with committing them
      
-     cd $DYW
+     cd $DYW_FOLDER/$branch
      svn ci ./External/GEANT/cmt/requirements ./External/ROOT/cmt/fragments/rootcint -m "localized for node $NODE_TAG "
      
      
