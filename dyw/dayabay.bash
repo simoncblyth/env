@@ -517,7 +517,7 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   test -f requirements.orig || cp requirements requirements.orig
   
   ## start from the original , every time  
-  # rm -f requirements && cp requirements.orig requirements 
+  rm -f requirements && cp requirements.orig requirements 
   
   ## must remove it otherwise cannot replace with a link 
   #rm -f requirements 
