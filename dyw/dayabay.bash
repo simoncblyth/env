@@ -333,6 +333,7 @@ dyw-grid1-rootcint-timefix(){
   #  sources
   #
   
+  local iwd=$PWD
   echo ===== dyw-grid1-rootcint-timefix =====
 
   cd $DYW/External/ROOT/cmt/fragments
@@ -342,6 +343,7 @@ dyw-grid1-rootcint-timefix(){
   perl -pi -e 's/^(.*rootcint_headers.*\$<\))$/$1 && touch \$@/' rootcint
   diff rootcint rootcint.orig
 
+  cd $iwd
 }
 
 
@@ -518,15 +520,19 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   # rm -f requirements && cp requirements.orig requirements 
   
   ## must remove it otherwise cannot replace with a link 
-  rm -f requirements 
+  #rm -f requirements 
   
   ## follow the site requirements link pattern  
 
-  local rex=requirements.orig;
-  local req=requirements.$NODE_TAG;
-  rm -f $req;
-  test -f $req || cp $rex $req;
-  test -L requirements || ln -s $req requirements;
+  #local rex=requirements.orig;
+  #local req=requirements.$NODE_TAG;
+  #rm -f $req;
+  #test -f $req || cp $rex $req;
+  #test -L requirements || ln -s $req requirements;
+  
+  # back to original , svn disikes changing a file to a link 
+  
+  local req=requirements ;
   
   
   for g4data_env in $g4data_envs
