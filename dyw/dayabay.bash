@@ -333,6 +333,7 @@ dyw-grid1-rootcint-timefix(){
   #  sources
   #
   
+  echo ===== dyw-grid1-rootcint-timefix =====
 
   cd $DYW/External/ROOT/cmt/fragments
   
@@ -502,6 +503,9 @@ dyw-rootcint-kludge(){
 dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set" sticking in the G4 nominal values to be used
 
   [ "X$NODE_TAG" == "X" ] && echo dyw-g4-req error NODE_TAG must be set in env/base/local.bash && return 1;
+  
+  echo === dyw-g4-req start ==========
+  
   cd $DYW/External/GEANT/cmt
      
   pwd
@@ -566,6 +570,8 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   fi
   diff requirements.orig requirements
   
+  echo === dyw-g4-req finished ==========
+  
 }
 
 
@@ -628,6 +634,8 @@ dyw-xcconfig(){
 
 
 dyw-requirements(){   ## constructs the requirements.$LOCAL_NODE file from $DYW_CMT 
+
+  echo ===== dyw-requirements ===========
 
   cd $DYW_SITE 
   [ "X$NODE_TAG" == "X" ] && echo dyw-requirements error NODE_TAG must be set in env/base/local.bash && return 1
@@ -750,7 +758,8 @@ dyw-reference-build(){
      dyw-grid1-rootcint-timefix
      
      # remove the files that need to be localized , directly on the repository 
-     svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
+     svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements -m "removed as needs to be localized"
+     svn rm $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
      
   fi
 
