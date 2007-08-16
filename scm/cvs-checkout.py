@@ -4,8 +4,13 @@ import pexpect
 import os
 import sys
 
-def checkout( cvsroot , cvspass , cvstag=None ):
+def checkout( cvsroot=None , cvspass=None , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
+    if cvsroot==None: 
+        cvsroot=os.environ['DYW_CVSROOT_DAYABAY']  
+    if cvspass=None:  
+        cvspass=os.environ['DYW_PASS'] 
+    
     print " ==== cvs-checkout.py cvsroot:%s cvspass:%s cvstag:%s " % ( cvsroot , cvspass , cvstag ) 
     login(cvsroot,cvspass)
     if cvstag==None or cvstag=="head":
@@ -46,7 +51,6 @@ def login(cvsroot,cvspass):
 
 
 if __name__ == "__main__":
-    #checkout( os.environ['DYW_CVSROOT_DAYABAY']  ,  os.environ['DYW_PASS'] , sys.argv[1:] )
     checkout( sys.argv[1:] )
     
 
