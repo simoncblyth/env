@@ -755,12 +755,14 @@ dyw-reference-build(){
      dyw-get head $DYW_CVSROOT_DAYABAY 
      branch=$(basename $PWD) 
      echo === branch inferrred as $branch    
+     cd G4dyb/cmt  
         
   elif [ -d "$branch" ]; then
   
      cd $branch
      svn up 
-  
+     cd G4dyb/cmt
+      
   else
      svn co $dyw/branches/$branch
  
@@ -785,12 +787,13 @@ dyw-reference-build(){
      
      # have to update in order to be at a clean svnversion
      svn up
+     cd G4dyb/cmt
      
   fi
 
-  [ -d $DYW_FOLDER/$branch/G4dyb/cmt ] || ( echo ERROR error with the checkout/update && return 1 ) 
+  [ -f requirements ] || ( echo ERROR error $PWD with the checkout/update && return 1 ) 
 
-  cd $DYW_FOLDER/$branch/G4dyb/cmt
+  
   
   local flags
   if [ "$GQ_TAG" == "dbg" ]; then
