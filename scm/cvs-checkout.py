@@ -4,10 +4,14 @@ import pexpect
 import os
 import sys
 
-def checkout( cvsroot , cvspass ):
+def checkout( cvsroot , cvspass , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
     login(cvsroot,cvspass)
-    cmd = "cvs -d %s checkout . " % cvsroot
+    if cvstag==None:
+        cmdtag = ""
+    else
+        cmdtag = "-r %s" % cvstag 
+    cmd = "cvs -d %s checkout %s . " % ( cvsroot , cmdtag )
     try:
         print "invoke %s " % cmd 
         s = pexpect.spawn(cmd)
@@ -40,7 +44,8 @@ def login(cvsroot,cvspass):
     return 0
 
 
-checkout( os.environ['DYW_CVSROOT_DAYABAY']  ,  os.environ['DYW_PASS'])
+if __name__ == "__main__":
+    checkout( os.environ['DYW_CVSROOT_DAYABAY']  ,  os.environ['DYW_PASS'] , sys.argv[1:] )
 
 
 
