@@ -4,7 +4,7 @@ cron-delete(){
    local user=${1:-root}
    cron-list $user
    #sudo crontab -u $user -r -i 
-   sudo crontab -u $user -r -i
+   sudo crontab -u $user -r 
 }
 
 cron-list(){
