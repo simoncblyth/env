@@ -6,6 +6,7 @@ import sys
 
 def checkout( cvsroot , cvspass , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
+    print " ==== cvs-checkout.py cvsroot:%s cvspass:%s cvstag:%s " % ( cvsroot , cvspass , cvstag ) 
     login(cvsroot,cvspass)
     if cvstag==None || cvstag=="head":
         cmdtag = ""
@@ -45,7 +46,9 @@ def login(cvsroot,cvspass):
 
 
 if __name__ == "__main__":
-    checkout( os.environ['DYW_CVSROOT_DAYABAY']  ,  os.environ['DYW_PASS'] , sys.argv[1:] )
+    #checkout( os.environ['DYW_CVSROOT_DAYABAY']  ,  os.environ['DYW_PASS'] , sys.argv[1:] )
+    checkout( sys.argv[1:] )
+    
 
 
 
