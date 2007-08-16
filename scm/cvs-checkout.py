@@ -4,8 +4,11 @@ import pexpect
 import os
 import sys
 
-def checkout( cvsroot=None , cvspass=None , cvstag=None ):
+def checkout( args  ):
     ''' interact with CVS to allow automated check outs '''
+   
+    cvsroot, cvspass, cvstag = args
+    
     if cvsroot==None: 
         cvsroot=os.environ['DYW_CVSROOT_DAYABAY']  
     if cvspass==None:  
