@@ -755,13 +755,11 @@ dyw-reference-build(){
      dyw-get head $DYW_CVSROOT_DAYABAY 
      branch=$(basename $PWD) 
      echo === branch inferrred as $branch    
-     cd G4dyb/cmt  
         
   elif [ -d "$branch" ]; then
   
      cd $branch
      svn up 
-     cd G4dyb/cmt
       
   else
      svn co $dyw/branches/$branch
@@ -787,25 +785,31 @@ dyw-reference-build(){
      
      # have to update in order to be at a clean svnversion
      svn up
-     cd G4dyb/cmt
-     
+
   fi
 
+
+  local orig_cmtpath=$CMTPATH
+  CMTPATH=$DYW_FOLDER/$branch
+  cd $CMTPATH/G4dyb/cmt
+  
+  echo ==== warning temporary reset of CMTPATH from $orig_cmtpath to $CMTPATH  === PWD $PWD ===
+  
   [ -f requirements ] || ( echo ERROR error $PWD with the checkout/update && return 1 ) 
 
-  
-  
   local flags
   if [ "$GQ_TAG" == "dbg" ]; then
     flags="CMTEXTRATAGS=debug TMP=tmp"
   else
     flags="TMP=tmp" 
-  fi
-  
+  fi  
 
   cmt br cmt config 
   cmt br make clean $flags
   cmt br make $flags
+
+  CMTPATH=$orig_cmtpath  
+  echo ==== resetting CMTPATH to $CMTPATH === PWD $PWD
 
   cd $iwd
 }
