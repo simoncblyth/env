@@ -10,7 +10,7 @@ def checkout( cvsroot , cvspass , cvstag=None ):
     login(cvsroot,cvspass)
     if cvstag==None or cvstag=="head":
         cmdtag = ""
-    else
+    else:
         cmdtag = "-r %s" % cvstag 
     cmd = "cvs -d %s checkout %s . " % ( cvsroot , cmdtag )
     try:
