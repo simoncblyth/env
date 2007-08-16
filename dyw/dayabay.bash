@@ -347,7 +347,7 @@ dyw-checkout(){  ## checkout from the declared SVN repository
   # if specify head, then require to have the symbolic link to look up what daystamp
   # this corresponds to
   #
-  if [ "$tag" == "head" ]; then
+  if [ "$tag" == "HEAD" ]; then
      [ -L "dyw_head" ] || ( echo dyw_head must be a symbolic link && return 1 )
      dyw_tag=$(readlink dyw_head) 
   else
@@ -384,8 +384,8 @@ dyw-get(){  ## cvs login and initial get
   ##[ "$NODE_TAG" != "G1" ] && echo "this is normally done from node G1  blyth@grid1 " && return 1
   ## actually it doesnt matter where this is done ... but clearer to use the same place each time
 
-  local tag=${1:-head}
-  if [ "$tag" == "head" ]; then
+  local tag=${1:-HEAD}
+  if [ "$tag" == "HEAD" ]; then
      dyw_tag=dyw_$(dyw-datestamp "now")
   else
      dyw_tag=dyw_$tag
@@ -405,7 +405,7 @@ dyw-get(){  ## cvs login and initial get
       echo ==== dyw-get ====== proceeding to checkout from $cvsroot into $name ... tag $tag 
   
       mkdir ${name}
-      if [ "$tag" == "head" ]; then
+      if [ "$tag" == "HEAD" ]; then
          rm -f dyw_head && ln -s ${name} dyw_head 
       fi
       cd ${name}
@@ -826,7 +826,7 @@ dyw-build(){
   if [ "X$branch" == "XHEAD" ]; then
   
      echo ===  dayabay user checkout/update of CVS repository HEAD
-     dyw-get head $DYW_CVSROOT_DAYABAY 
+     dyw-get $branch $DYW_CVSROOT_DAYABAY 
      branch=$(basename $PWD) 
      
      echo === branch inferrred as $branch    

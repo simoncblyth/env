@@ -16,7 +16,7 @@ def checkout( args  ):
     
     print " ==== cvs-checkout.py cvsroot:%s cvspass:%s cvstag:%s " % ( cvsroot , cvspass , cvstag ) 
     login(cvsroot,cvspass)
-    if cvstag==None or cvstag=="head":
+    if cvstag==None or cvstag=="HEAD":
         cmdtag = ""
     else:
         cmdtag = "-r %s" % cvstag 
