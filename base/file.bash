@@ -44,16 +44,17 @@ file-package-topdir(){
 
 file-diff(){
 
-   ##  opendiff is a Mac OS X commandline interface to the FileMerge GUI application 
-   
-   # simplify file-diff arguments via defaults , ie can just specifiy a source and target branch together with the 
+   #  opendiff is a Mac OS X commandline interface to the FileMerge GUI application 
+   #
+   #  NB note this requires the path passed is within the current DYW, otherwise will fail with no such path 
+   #
    
    
    test -d "$DYW" || ( echo variable DYW $DYW does not point to a folder && return 1 )
    
    local rel=${1:-dummy}
-   local src=${2:-blyth-optical}
-   local tgt=${3:-dywcvs}
+   local src=${2:-blyth-optical}  ## source branch
+   local tgt=${3:-dywcvs}    ## target branch 
    local anc=${4:-trunk}    ## the ancestor allows conflicts to be highlighted in red
    local mer=${5:-$tgt}   ## branch for the resulting merged file
    
