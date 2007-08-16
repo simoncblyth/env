@@ -803,7 +803,7 @@ dyw-everything-build(){ ##  do a global cmt config
 
 
 
-dyw-reference-build(){
+dyw-build(){
 
   local iwd=$PWD
   local branch=${1:-$DYW_VERSION}
