@@ -753,7 +753,8 @@ dyw-reference-build(){
   
      echo ===  dayabay user checkout/update of CVS repository HEAD
      dyw-get head $DYW_CVSROOT_DAYABAY 
-       
+     branch=$(basename $PWD) 
+        
   elif [ -d "$branch" ]; then
   
      cd $branch
@@ -785,6 +786,8 @@ dyw-reference-build(){
      svn up
      
   fi
+
+  [ test -d $DYW_FOLDER/$branch/G4dyb/cmt ] || ( echo ERROR error with the checkout/update && return 1 ) 
 
   cd $DYW_FOLDER/$branch/G4dyb/cmt
   
