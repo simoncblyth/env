@@ -8,7 +8,7 @@ def checkout( cvsroot , cvspass , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
     print " ==== cvs-checkout.py cvsroot:%s cvspass:%s cvstag:%s " % ( cvsroot , cvspass , cvstag ) 
     login(cvsroot,cvspass)
-    if cvstag==None || cvstag=="head":
+    if cvstag==None or cvstag=="head":
         cmdtag = ""
     else
         cmdtag = "-r %s" % cvstag 
