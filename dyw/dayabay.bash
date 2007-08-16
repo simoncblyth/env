@@ -418,8 +418,6 @@ dyw-get(){  ## cvs login and initial get
   ##[ "$NODE_TAG" != "G1" ] && echo "this is normally done from node G1  blyth@grid1 " && return 1
   ## actually it doesnt matter where this is done ... but clearer to use the same place each time
 
-  
-
   local tag=${1:-head}
   if [ "$tag" == "head" ]; then
      dyw_tag=dyw_$(dyw-datestamp "now")
@@ -430,28 +428,31 @@ dyw-get(){  ## cvs login and initial get
   local name=$dyw_tag   ## used to be argument 2 
   local cvsroot=${2:-$DYW_CVSROOT_DAYABAY}   
 
-
   cd $DYW_FOLDER
 
-  [ -d "$name" ] && echo a folder called $name exists already aborting dyw-get && return 1
-
-  mkdir ${name}
-
-  if [ "$tag" == "head" ]; then
-    rm -f dyw_head && ln -s ${name} dyw_head 
-  fi
-  
-  cd ${name}
-  pwd
-
-  cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
- 
-  ## get the lot from the head or a particular tag
-  if [ "$tag" == "head" ]; then
-     cvs -d $cvsroot get .            
+  if [ -d "$name" ]; then
+      echo ==== dyw-get ======  a folder called $name exists already ... skipping checkout , updating instead
+      cd $name
+      cvs update -d
   else
-     cvs -d $cvsroot get -r $tag .   
-  fi	  
+      echo ==== dyw-get ====== proceeding to checkout from $cvsroot into $name ... tag $tag 
+  
+      mkdir ${name}
+      if [ "$tag" == "head" ]; then
+         rm -f dyw_head && ln -s ${name} dyw_head 
+      fi
+      cd ${name}
+      pwd
+      cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
+      ## get the lot from the head or a particular tag
+      if [ "$tag" == "head" ]; then
+         cvs -d $cvsroot get .            
+      else
+         cvs -d $cvsroot get -r $tag .   
+      fi	  
+  fi
+
+  echo ==== dyw-get completed ====
 
   #echo =========== creating  remote repository called by the basename of the pwd , ie $dyw_tag with the contents of this pwd that was just got from CVS 
   #scm-create
@@ -750,9 +751,9 @@ dyw-reference-build(){
   
   if [ "X$branch" == "XHEAD" ]; then
   
-     echo ===  dayabay user checkout of CVS repository HEAD, into date stamped folder $DYW_FOLDER/dyw_???? linked with $DYW_FOLDER/dyw_head
+     echo ===  dayabay user checkout/update of CVS repository HEAD
      dyw-get head $DYW_CVSROOT_DAYABAY 
-      
+       
   elif [ -d "$branch" ]; then
   
      cd $branch
