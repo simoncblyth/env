@@ -43,31 +43,6 @@
 
 
 
-av-use-build(){
-
-  local iwd=$PWD
-  local branch=${1:-$DYW_VERSION}
-  
-  echo ==== av-use-build building G4dybApp.exe from scratch with the latest from branch $dyw/branches/$branch
-  cd $DYW_FOLDER
-  
-  if [ -d "$branch" ]; then
-     cd $branch
-     svn up 
-  else
-     svn co $dyw/branches/$branch
-  fi
-
-  cd $DYW_FOLDER/$branch/G4dyb/cmt
-  
-  local flags="CMTEXTRATAGS=debug TMP=tmp"
-  
-  cmt br cmt config 
-  cmt br make clean $flags
-  cmt br make $flags
-
-  cd $iwd
-}
 
 
 av-use-sub(){
