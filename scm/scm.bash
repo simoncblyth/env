@@ -148,6 +148,7 @@
  ## caution must exit with initial directory
  cd $scm_iwd
  
+ pexpect(){ [ -r $SCM_HOME/pexpect.bash ] && . $SCM_HOME/pexpect.bash ; } 
 
 
 
