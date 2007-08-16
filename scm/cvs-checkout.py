@@ -8,7 +8,7 @@ def checkout( cvsroot=None , cvspass=None , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
     if cvsroot==None: 
         cvsroot=os.environ['DYW_CVSROOT_DAYABAY']  
-    if cvspass=None:  
+    if cvspass==None:  
         cvspass=os.environ['DYW_PASS'] 
     
     print " ==== cvs-checkout.py cvsroot:%s cvspass:%s cvstag:%s " % ( cvsroot , cvspass , cvstag ) 
