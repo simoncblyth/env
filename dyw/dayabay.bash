@@ -393,6 +393,7 @@ dyw-get(){  ## cvs login and initial get
 
   local name=$dyw_tag   ## used to be argument 2 
   local cvsroot=${2:-$DYW_CVSROOT_DAYABAY}   
+  local cvspass=${3:-$DYW_PASS}
 
   cd $DYW_FOLDER
 
@@ -410,7 +411,7 @@ dyw-get(){  ## cvs login and initial get
       cd ${name}
       pwd
       
-      $SCM_HOME/cvs-checkout.py $tag
+      $SCM_HOME/cvs-checkout.py $cvsroot $cvspass $tag
       
       #cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
       ## get the lot from the head or a particular tag
