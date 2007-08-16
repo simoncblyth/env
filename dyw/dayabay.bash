@@ -418,6 +418,7 @@ dyw-get(){  ## cvs login and initial get
   ##[ "$NODE_TAG" != "G1" ] && echo "this is normally done from node G1  blyth@grid1 " && return 1
   ## actually it doesnt matter where this is done ... but clearer to use the same place each time
 
+  
 
   local tag=${1:-head}
   if [ "$tag" == "head" ]; then
@@ -426,7 +427,8 @@ dyw-get(){  ## cvs login and initial get
      dyw_tag=dyw_$tag
   fi
 
-  local name=${2:-$dyw_tag}
+  local name=$dyw_tag   ## used to be argument 2 
+  local cvsroot=${2:-$DYW_CVSROOT_DAYABAY}   
 
 
   cd $DYW_FOLDER
@@ -442,13 +444,13 @@ dyw-get(){  ## cvs login and initial get
   cd ${name}
   pwd
 
-  cvs -d $DYW_CVSROOT login     ##  (once only ... it asks for CVS password ... the usual one worked )
+  cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
  
   ## get the lot from the head or a particular tag
   if [ "$tag" == "head" ]; then
-     cvs -d $DYW_CVSROOT get .            
+     cvs -d $cvsroot get .            
   else
-     cvs -d $DYW_CVSROOT get -r $tag .   
+     cvs -d $cvsroot get -r $tag .   
   fi	  
 
   #echo =========== creating  remote repository called by the basename of the pwd , ie $dyw_tag with the contents of this pwd that was just got from CVS 
@@ -733,8 +735,6 @@ dyw-everything-build(){ ##  do a global cmt config
 }
 
 
-
-
 dyw-reference-build(){
 
   local iwd=$PWD
@@ -748,9 +748,16 @@ dyw-reference-build(){
   echo ==== av-use-build building G4dybApp.exe from scratch with the latest from branch $dyw/branches/$branch
   cd $DYW_FOLDER
   
-  if [ -d "$branch" ]; then
+  if [ "X$branch" == "XHEAD" ]; then
+  
+     echo ===  dayabay user checkout of CVS repository HEAD, into date stamped folder $DYW_FOLDER/dyw_???? linked with $DYW_FOLDER/dyw_head
+     dyw-get head $DYW_CVSROOT_DAYABAY 
+      
+  elif [ -d "$branch" ]; then
+  
      cd $branch
      svn up 
+  
   else
      svn co $dyw/branches/$branch
  
