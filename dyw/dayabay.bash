@@ -409,13 +409,19 @@ dyw-get(){  ## cvs login and initial get
       fi
       cd ${name}
       pwd
-      cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
+      
+      $SCM_HOME/cvs-checkout.py $tag
+      
+      #cvs -d $cvsroot login     ##  (once only ... it asks for CVS password ... the usual one worked )
       ## get the lot from the head or a particular tag
-      if [ "$tag" == "head" ]; then
-         cvs -d $cvsroot get .            
-      else
-         cvs -d $cvsroot get -r $tag .   
-      fi	  
+      #if [ "$tag" == "head" ]; then
+      #   cvs -d $cvsroot get .            
+      #else
+      #   cvs -d $cvsroot get -r $tag .   
+      #fi
+      
+          
+              	  
   fi
 
   echo ==== dyw-get completed ====

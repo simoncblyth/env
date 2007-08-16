@@ -7,13 +7,13 @@ import sys
 def checkout( cvsroot , cvspass , cvstag=None ):
     ''' interact with CVS to allow automated check outs '''
     login(cvsroot,cvspass)
-    if cvstag==None:
+    if cvstag==None || cvstag=="head":
         cmdtag = ""
     else
         cmdtag = "-r %s" % cvstag 
     cmd = "cvs -d %s checkout %s . " % ( cvsroot , cmdtag )
     try:
-        print "invoke %s " % cmd 
+        print "invoke [%s] " % cmd 
         s = pexpect.spawn(cmd)
         s.logfile = sys.stdout
         s.interact()
@@ -28,7 +28,7 @@ def login(cvsroot,cvspass):
     """ login """
     cmd = 'cvs -d %s login ' % cvsroot
     try:
-        print "invoke %s " % cmd 
+        print "invoke [%s] " % cmd 
         s = pexpect.spawn(cmd)
         s.logfile = sys.stdout
         i = s.expect (['CVS password: '])
