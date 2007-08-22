@@ -55,12 +55,12 @@ cron-setup-backup(){
 
       if [ "$user" == "root" ]; then
          
-         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+         cmd="(. $HOME/$ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
          delta=0
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+         cmd="(. $HOME/$ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
          delta=15   
          
       else
