@@ -111,8 +111,7 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  
  trac2mediawiki(){ . $TRAC_HOME/trac2mediawiki.bash   ; }
  trac2latex(){     . $TRAC_HOME/trac2latex.bash   ; }
- 
-
+ traclxml(){       . $TRAC_HOME/traclxml.bash   ; } 
 
 
 
