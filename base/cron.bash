@@ -74,6 +74,7 @@ SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=blyth@hep1.phys.ntu.edu.tw
 HOME=$HOME
+NODE=$LOCAL_NODE
 #
 $(( $minute + $delta )) $hour $day_of_month $month $day_of_week $cmd
 #
