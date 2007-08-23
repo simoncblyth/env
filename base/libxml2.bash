@@ -89,6 +89,9 @@ libxml2-install(){
   
     libxml2-dir 
     make install
+    
+   # python bindings are placed at   
+   # /data/usr/local/libxml2/lib/python2.5/site-packages/libxml2.py
 }
 
 
@@ -97,6 +100,7 @@ libxml2-tests(){
     libxml2-dir
     make tests
     
+     ## see tests.log ... looks successful on HFAG  
     
     
 }

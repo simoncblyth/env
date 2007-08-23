@@ -50,7 +50,7 @@ libxslt-configure(){
 # http://jamesclarke.info/notes/libxml2
 
     libxslt-dir
-   ./configure \ 
+   ./configure \
      --with-python=$PYTHON_HOME \ 
      --prefix=$LIBXSLT_FOLD \
      --with-libxml-prefix=$LIBXML2_FOLD \
