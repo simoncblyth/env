@@ -3,7 +3,7 @@ libxslt-env(){
   libxml2-env
   
   local vers
-  if [ "$LIBXML2_VERSION" == "2.6.29" ] then
+  if [ "$LIBXML2_VERSION" == "2.6.29" ]; then
      vers=1.1.21
   else
      echo no matched version 
