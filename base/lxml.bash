@@ -32,12 +32,21 @@ lxml-install(){
 }
 
 
+lxml-env(){
+
+   export LXML_NAME=lxml-1.3.3
+   export LXML_FOLD=$LOCAL_BASE/python/lxml
+}
+
+
+
 lxml-get(){
 
-   local dir=$LOCAL_BASE/python/lxml
+   lxml-env
+   local dir=$LXML_FOLD
    mkdir -p $dir
    
-   local name=lxml-1.3.3
+   local name=$LXML_NAME
    local tgz=$name.tgz
    local url=http://codespeak.net/lxml/$tgz
    
@@ -45,6 +54,15 @@ lxml-get(){
    test -d $name || tar zxvf $tgz 
 
 }
+
+lxml-dir(){
+
+   lxml-env
+   local dir=$LXML_FOLD/$LXML_NAME
+   test -d $dir || ( echo no such dir $dir && return 1 ) 
+   cd $dir
+}
+
 
 
 
