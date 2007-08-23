@@ -51,7 +51,7 @@ libxslt-configure(){
 
     libxslt-dir
    ./configure \
-     --with-python=$PYTHON_HOME \ 
+     --with-python=$PYTHON_HOME \
      --prefix=$LIBXSLT_FOLD \
      --with-libxml-prefix=$LIBXML2_FOLD \
      --with-libxml-include-prefix=$LIBXML2_FOLD/include \
