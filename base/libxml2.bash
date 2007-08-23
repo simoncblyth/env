@@ -31,7 +31,7 @@ libxml2-configure(){
     
     test -d $dir || ( echo error no folder $dir && return 1 ) 
     cd $dir
-    ./configure --prefix=$LOCAL_BASE/libxml2 --with-python
+    ./configure --prefix=$LOCAL_BASE/libxml2 --with-python=$PYTHON_HOME
 
 # checking for python... /data/usr/local/python/Python-2.5.1/bin/python
 # Found Python version 2.5
