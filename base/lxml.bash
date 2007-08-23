@@ -50,6 +50,7 @@ lxml-get(){
    local tgz=$name.tgz
    local url=http://codespeak.net/lxml/$tgz
    
+    cd $dir
    test -f $tgz || curl -o $tgz $url
    test -d $name || tar zxvf $tgz 
 
