@@ -94,7 +94,8 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  [ -r trac-plugin-webadmin.bash ]        && . trac-plugin-webadmin.bash       
  [ -r trac-plugin-accountmanager.bash ]  && . trac-plugin-accountmanager.bash 
 
- [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
+#  move to new style...  [ -r trac-plugin-tracnav.bash ]         && . trac-plugin-tracnav.bash 
+
  [ -r trac-plugin-restrictedarea.bash ]  && . trac-plugin-restrictedarea.bash
  [ -r trac-plugin-pygments.bash ]        && . trac-plugin-pygments.bash     
     
@@ -109,6 +110,7 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  silvercity(){ . $TRAC_HOME/silvercity.bash ; }
  docutils(){   . $TRAC_HOME/docutils.bash   ; }
  
+ tracnav(){        . $TRAC_HOME/tracnav.bash   ; }
  trac2mediawiki(){ . $TRAC_HOME/trac2mediawiki.bash   ; }
  trac2latex(){     . $TRAC_HOME/trac2latex.bash   ; }
  traclxml(){       . $TRAC_HOME/traclxml.bash   ; } 

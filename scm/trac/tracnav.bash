@@ -1,7 +1,5 @@
 
-
-
-trac-plugin-tracnav-get(){
+tracnav-get(){
 
    #  documented at 
    # http://svn.ipd.uka.de/trac/javaparty/wiki/TracNav
@@ -16,7 +14,7 @@ trac-plugin-tracnav-get(){
 
 }
 
-trac-plugin-tracnav-install(){
+tracnav-install(){
 
     cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
     cd tracnav
@@ -26,7 +24,7 @@ trac-plugin-tracnav-install(){
 }
 
 
-trac-plugin-tracnav-enable(){
+tracnav-enable(){
 
    name=${1:-$SCM_TRAC}
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tracnav.\*:enabled
