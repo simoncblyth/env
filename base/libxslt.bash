@@ -96,14 +96,10 @@ libxslt-make(){
 }
 
 
-
-
-
 #
 #  libxslt-make tests > tests.log
 #     mostly successful
 #
-
 
 
 libxslt-install(){  libxslt-make install ; }
@@ -113,3 +109,8 @@ libxslt-py-pth(){
     echo $LIBXSLT_FOLD/lib/python2.5/site-packages  > $PYTHON_SITE/libxslt.pth
     
 }
+
+libxslt-py-test(){
+   python -c "import libxslt"
+}
+
