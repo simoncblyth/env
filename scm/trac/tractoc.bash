@@ -6,9 +6,11 @@ tractoc-get(){
 
    local macro=tocmacro
    mkdir -p $macro
-   #svn co http://trac-hacks.org/svn/$macro/0.9/ $macro
+   svn co http://trac-hacks.org/svn/$macro/0.10/ $macro
    
-   easy_install -Z http://trac-hacks.org/svn/$macro/0.10/
+   
+   # this works... but want to make a fix first 
+   #easy_install -Z http://trac-hacks.org/svn/$macro/0.10/
 
 #
 #Downloading http://trac-hacks.org/svn/tocmacro/0.10/
@@ -27,6 +29,49 @@ tractoc-get(){
 
 }
 
+
+tractoc-reinstall(){
+   
+   ## for a reinstallation after local changes to the source distro
+   
+   local macro=tocmacro
+   cd $LOCAL_BASE/trac/wiki-macros/$macro 
+   easy_install -Z .
+
+
+# Processing .
+# Running setup.py -q bdist_egg --dist-dir /usr/local/trac/wiki-macros/tocmacro/egg-dist-tmp-i7ylau
+# zip_safe flag not set; analyzing archive contents...
+# Adding Toc 1.0 to easy-install.pth file
+#
+# Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/Toc-1.0-py2.5.egg
+# Processing dependencies for Toc==1.0
+# Finished processing dependencies for Toc==1.0
+#
+
+}
+
+
+
+tractoc-remove(){
+
+  cd $PYTHON_SITE
+  rm -rf TracTocMacro-1.0-py2.5.egg
+}
+
+
+tractoc-fix(){
+
+  # allow the top level headings to be included without specifying the page name
+
+
+  #  cd $PYTHON_SITE 
+
+  local macro=tocmacro 
+  cd $LOCAL_BASE/trac/wiki-macros/$macro
+  perl -pi -e 's/(min_depth.*)2(\s*# Skip.*)/${1}1${2} fixed by tractoc-fix/' tractoc/macro.py
+
+}
 
 tractoc-enable(){
 
