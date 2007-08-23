@@ -42,6 +42,8 @@ cron-setup-backup(){
       ## local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
   
   
+      local env=$HOME/$ENV_BASE/$ENV_BASE.bash
+  
       ## hfag is 20min before the real time 
          
       local       minute=40   # (0 - 59)
@@ -55,12 +57,12 @@ cron-setup-backup(){
 
       if [ "$user" == "root" ]; then
          
-         cmd="(. $HOME/$ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
          delta=0
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="(. $HOME/$ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
          delta=15   
          
       else
