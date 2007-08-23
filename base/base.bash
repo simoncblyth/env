@@ -43,6 +43,7 @@ base-datestamp(){
  
  pylibxml2(){ [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylibxml2.bash ; } 
 libxml2(){    [ -r $HOME/$BASE_BASE/libxml2.bash ]   && . $HOME/$BASE_BASE/libxml2.bash ; }
+libxslt(){    [ -r $HOME/$BASE_BASE/libxslt.bash ]   && . $HOME/$BASE_BASE/libxslt.bash ; }
 
  ## caution must exit in same directory as started in 
  cd $base_iwd
