@@ -17,7 +17,7 @@ pylibxml2-get(){
     cd $dir
     
     local tgz=$name.tar.gz
-    local url= ftp://xmlsoft.org/libxml2/python/$tgz
+    local url=ftp://xmlsoft.org/libxml2/python/$tgz
    
     test -f $tgz || curl -o $tgz $url
     test -d $name || tar zxvf $tgz 
