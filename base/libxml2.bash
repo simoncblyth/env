@@ -24,36 +24,58 @@ libxml2-get(){
     test -d $name || tar zxvf $tgz 
 }
 
-libxml2-configure(){
+
+libxml2-dir(){
 
     libxml2-env
     local dir=$LOCAL_BASE/libxml2/$LIBXML2_NAME
-    
     test -d $dir || ( echo error no folder $dir && return 1 ) 
     cd $dir
+}
+
+libxml2-configure(){
+
+    libxml2-dir
     ./configure --prefix=$LOCAL_BASE/libxml2 --with-python=$PYTHON_HOME
 
+#
 # checking for python... /data/usr/local/python/Python-2.5.1/bin/python
 # Found Python version 2.5
 # could not find python2.5/Python.h
-
+#
+#
+# need to have the  --with-python=$PYTHON_HOME to find the python headers...
+#
+# Found python in /data/usr/local/python/Python-2.5.1/bin/python
+# Found Python version 2.5
+#
 
 }
+
+
 
 
 libxml2-make(){
-
-    local dir=$LOCAL_BASE/libxml2/$LIBXML2_NAME
-    
-    test -d $dir || ( echo error no folder $dir && return 1 ) 
-    cd $dir
-
-    
   
+    libxml2-dir 
+    make
+}
+
+libxml2-install(){
+  
+    libxml2-dir 
+    make install
 }
 
 
+
+
+
+
+
 libxml2-get-rpms(){
+
+  ## not pursued ... rpms are linux specific so prefer not to follow this route 
 
     libxml2-env
      
