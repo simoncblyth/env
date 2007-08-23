@@ -31,6 +31,17 @@ tracxsltmacro-install(){
 # Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/xslt-0.6-py2.5.egg
 # Processing dependencies for xslt==0.6
 # Finished processing dependencies for xslt==0.6
+#
+#
+# Processing .
+# Running setup.py -q bdist_egg --dist-dir /data/usr/local/trac/plugins/xsltmacro/egg-dist-tmp-3SrfA1
+# zip_safe flag not set; analyzing archive contents...
+# Adding xslt 0.6 to easy-install.pth file
+#
+# Installed /data/usr/local/python/Python-2.5.1/lib/python2.5/site-packages/xslt-0.6-py2.5.egg
+# Processing dependencies for xslt==0.6
+#
+#
 
 }
 
@@ -38,6 +49,9 @@ tracxsltmacro-install(){
 tracxsltmacro-test(){
 
   python -c "import xslt"
+
+#   fails on g4pb , succeeds on hfag
+#
 #
 # Traceback (most recent call last):
 #  File "<string>", line 1, in <module>
@@ -56,7 +70,7 @@ tracxsltmacro-test(){
 tracxsltmacro-enable(){
 
    local name=${1:-$SCM_TRAC}
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tractoc.\*:enabled
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:xslt.\*:enabled
 
 
 
