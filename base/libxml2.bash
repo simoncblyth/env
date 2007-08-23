@@ -31,8 +31,25 @@ libxml2-configure(){
     
     test -d $dir || ( echo error no folder $dir && return 1 ) 
     cd $dir
-    ./configure --prefix=$LOCAL_BASE/libxml2
+    ./configure --prefix=$LOCAL_BASE/libxml2 --with-python
 
+# checking for python... /data/usr/local/python/Python-2.5.1/bin/python
+# Found Python version 2.5
+# could not find python2.5/Python.h
+
+
+}
+
+
+libxml2-make(){
+
+    local dir=$LOCAL_BASE/libxml2/$LIBXML2_NAME
+    
+    test -d $dir || ( echo error no folder $dir && return 1 ) 
+    cd $dir
+
+    
+  
 }
 
 
