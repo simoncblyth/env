@@ -80,8 +80,36 @@ libxslt-make(){
   libxslt dir
   make $*
   
+# make[3]: Entering directory `/data/usr/local/libxslt/libxslt-1.1.21/python'
+# cd . && /data/usr/local/python/Python-2.5.1/bin/python generator.py
+# /data/usr/local/python/Python-2.5.1/lib/python2.5/xmllib.py:9: DeprecationWarning: The xmllib module is obsolete.  Use xml.sax instead.
+#   warnings.warn("The xmllib module is obsolete.  Use xml.sax instead.", DeprecationWarning)
+# Found 235 functions in libxslt-api.xml
+# Found 32 functions in libxslt-python-api.xml
+# Generated 139 wrapper functions, 96 failed, 32 skipped
+# 
+# Missing type converters:
+# xsltTopLevelFunction:2  xmlXPathObjectPtr:1  xsltDecimalFormatPtr:2  xmlChar **:2  xmlXPathCompExprPtr:4  xsltPreComputeFunction:1  xsltElemPreCompPtr:2  xsltDebugTraceCodes:2  xsltDocumentPtr:8  xsltSecurityPrefsPtr:11  xsltTemplatePtr:4  pythonObject *:5  ...:1  xsltNumberDataPtr:1  xmlHashTablePtr:1  xmlNodePtr *:3  xsltExtInitFunction:2  xsltCompilerCtxtPtr:2  char **:2  xmlXPathObjectPtr *:1  xmlNodeSetPtr:2  xmlXPathFunction:4  xsltTransformFunction:5  xsltCompMatchPtr:3  void *:13  xmlOutputBufferPtr:1  xsltPointerListPtr:4  xmlDictPtr:1  xsltSortFunc:2  xsltNsMapPtr:1  xsltStackElemPtr:3 
+#  touch  
+  
+  
 }
+
+
+
+
+
+#
+#  libxslt-make tests > tests.log
+#     mostly successful
+#
+
+
 
 libxslt-install(){  libxslt-make install ; }
 
-
+libxslt-py-pth(){
+    libxslt-env
+    echo $LIBXSLT_FOLD/lib/python2.5/site-packages  > $PYTHON_SITE/libxslt.pth
+    
+}
