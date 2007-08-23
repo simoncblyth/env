@@ -13,7 +13,7 @@ libxslt-env(){
      
   export LIBXSLT_VERSION=$vers
   export LIBXSLT_NAME=libxslt-$vers
-  
+  export LIBXSLT_FOLD=$LOCAL_BASE/libxslt
 
 }
 
