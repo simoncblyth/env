@@ -5,7 +5,9 @@ lxml-install(){
 
   #
   # on hfag this fails ... because of non-standard libxml2 and libxslt locations ...
-  # on OS X the framework magic prevents this (?)
+  # on OS X the ~/Library/Frameworks magic prevents this (?)
+  #   
+  # fix the issue below in lxml-build by setting options to python setup.py build_ext ... 
   #
 
 # [blyth@hfag blyth]$ easy_install lxml
@@ -28,6 +30,9 @@ lxml-install(){
 # src/lxml/etree.c:33:26: libxml/xmlIO.h: No such file or directory
 #...
 #
+
+
+
 
 }
 
@@ -64,6 +69,31 @@ lxml-dir(){
    cd $dir
 }
 
+lxml-build(){
+
+   libxml2
+   libxml2-env
+
+   libxslt
+   libxslt-env
+
+##  from doc/build.txt :
+##       python setup.py build_ext -i  -I $LIBXML2_FOLD
+##    
+##  looking at ez_setup.py seems that options are passed thru to setuptools...
+##      easy_install -Z . -I $LIBXML2_FOLD
+##      ... but doesnt work , says -I not recognized
+##
+  
+    python setup.py build_ext  --help   ## hit the mother lode
+    python setup.py build_ext --include-dirs=$LIBXML2_FOLD/include/libxml2:$LIBXSLT_FOLD/include --library-dirs=$LIBXML2_FOLD/lib:$LIBXSLT_FOLD/lib
+    python setup.py install   
 
 
+}
+
+lxml-test(){
+
+   python -c "import lxml"
+}
 
