@@ -41,9 +41,10 @@ base-datestamp(){
  export SSH_INFOFILE
  [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
  
- pylibxml2(){ [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylibxml2.bash ; } 
+pylibxml2(){  [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylibxml2.bash ; } 
 libxml2(){    [ -r $HOME/$BASE_BASE/libxml2.bash ]   && . $HOME/$BASE_BASE/libxml2.bash ; }
 libxslt(){    [ -r $HOME/$BASE_BASE/libxslt.bash ]   && . $HOME/$BASE_BASE/libxslt.bash ; }
+lxml(){       [ -r $HOME/$BASE_BASE/lxml.bash ]      && . $HOME/$BASE_BASE/lxml.bash ; }
 
  ## caution must exit in same directory as started in 
  cd $base_iwd
