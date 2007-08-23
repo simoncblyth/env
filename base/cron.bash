@@ -17,19 +17,21 @@ cron-log(){
    sudo cat /var/log/cron
 }
 
+cron-backup-reset(){
+
+  #  to setup backup of the tracs and repos
+
+  sudo bash -lc "cron-delete root  ; cron-setup-backup root"
+  sudo bash -lc "cron-delete blyth ; cron-setup-backup blyth"  
+   
+   #
+   #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
+   #   configured for blyth
+   # 
+}
 
 
 cron-setup-backup(){
-
-      #
-      #   to setup backup of the tracs and repos
-      #
-      #       H> sudo bash -lc "cron-delete root  ; cron-setup-backup root"
-      #       H> sudo bash -lc "cron-delete blyth ; cron-setup-backup blyth"
-      #  
-      #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
-      #   configured for blyth
-      # 
 
       local user=${1:-root}
 
