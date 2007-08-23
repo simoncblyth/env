@@ -1,6 +1,9 @@
 
 pylibxml2-get(){
 
+  #  did not pursue this method ... attempting to use the inplace libxml2 ..
+  #  but rather the py bindings were build while building libxml2 itself
+  #
 
     local dir=$LOCAL_BASE/python/pylibxml2
 
@@ -22,5 +25,9 @@ pylibxml2-get(){
     test -f $tgz || curl -o $tgz $url
     test -d $name || tar zxvf $tgz 
 
+   #
+   # python setup.py --help
+   # would suggest that the version of libxml2 on hfag is too old to be usable with the python in use 2.5.1
+   # 
 
 }

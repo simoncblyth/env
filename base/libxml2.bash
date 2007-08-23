@@ -95,6 +95,56 @@ libxml2-install(){
 }
 
 
+
+libxml2-pytest(){
+   env PYTHONPATH=/data/usr/local/libxml2/lib/python2.5/site-packages python -c "import libxml2"
+
+   ## the py bindings are present ... but how the avoid having to set PYTHONPATH
+}
+
+
+libxml2-py-pth(){
+
+  ## adding a .pth to PYTHON_SITE is sufficient 
+   
+  echo $LOCAL_BASE/libxml2/lib/python2.5/site-packages > $PYTHON_SITE/libxml2.pth
+
+  python -c "import libxml2"  
+
+}
+
+libxml2-pyinstall(){
+
+   # dont bother with this way ... 
+
+   libxml2-dir
+   cd python
+   python setup.py build 
+   
+# [blyth@hfag python]$ python setup.py build 
+# libxslt stub generator not found, libxslt not built
+# /data/usr/local/python/Python-2.5.1/lib/python2.5/distutils/dist.py:247: UserWarning: 'licence' distribution option is deprecated; use 'license'
+#   warnings.warn(msg)
+# running build
+# running build_py
+# running build_ext
+# building 'libxml2mod' extension
+# gcc -pthread -fno-strict-aliasing -DNDEBUG -g -O3 -Wall -Wstrict-prototypes -fPIC -D_REENTRANT=1 -I/usr/include/libxml2 -I/usr/include -I/data/usr/local/python/Python-2.5.1/include/python2.5 -c libxml2-py.c -o build/temp.linux-i686-2.5/libxml2-py.o
+#
+# libxml2-py.c: In function `libxml_xmlURISetQueryRaw':
+# libxml2-py.c:990: structure has no member named `query_raw'
+# libxml2-py.c:990: structure has no member named `query_raw'
+# libxml2-py.c:991: structure has no member named `query_raw'
+# libxml2-py.c:14084: structure has no member named `query_raw'
+# error: command 'gcc' failed with exit status 1   
+#
+#   .... this is trying to build with the stock (and ancient) libxml2 headers
+#
+  
+    
+}
+
+
 libxml2-tests(){
     
     libxml2-dir

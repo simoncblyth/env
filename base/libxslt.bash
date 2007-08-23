@@ -57,4 +57,31 @@ libxslt-configure(){
      --with-libxml-include-prefix=$LIBXML2_FOLD/include \
      --with-libxml-libs-prefix=$LIBXML2_FOLD/lib \
 
+#
+# Found python in /data/usr/local/python/Python-2.5.1/bin/python
+# PYTHON is pointing at /data/usr/local/python/Python-2.5.1/bin/python
+# Found Python version 2.5
+# Warning: Missing libxml2-python
+#
+#  after doing libxml2-py-pth ... can find libxml2
+#
+# Found python in /data/usr/local/python/Python-2.5.1/bin/python
+# PYTHON is pointing at /data/usr/local/python/Python-2.5.1/bin/python
+# Found Python version 2.5
+# Found libxml2-python module
+#
+
+
 }
+
+
+libxslt-make(){
+
+  libxslt dir
+  make $*
+  
+}
+
+libxslt-install(){  libxslt-make install ; }
+
+
