@@ -16,10 +16,10 @@ libxml2-get(){
     [ -d $dir ] || ( sudo mkdir -p $dir && sudo chown $USER $dir ) 
    
     local name=$LIBXML2_NAME
-    
     local tgz=$name.tar.gz
     local url=ftp://xmlsoft.org/libxml2/$tgz
     
+    cd $dir
     test -f $tgz || curl -o $tgz $url
     test -d $name || tar zxvf $tgz 
 }
