@@ -1,5 +1,6 @@
 libxslt-env(){
 
+  libxml2
   libxml2-env
   
   local vers
