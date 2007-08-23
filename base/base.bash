@@ -42,7 +42,7 @@ base-datestamp(){
  [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
  
  pylibxml2(){ [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylibxml2.bash ; } 
- 
+libxml2(){    [ -r $HOME/$BASE_BASE/libxml2.bash ]   && . $HOME/$BASE_BASE/libxml2.bash ; }
 
  ## caution must exit in same directory as started in 
  cd $base_iwd
