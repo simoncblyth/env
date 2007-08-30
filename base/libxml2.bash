@@ -26,6 +26,9 @@ libxml2-get(){
 }
 
 
+
+
+
 libxml2-dir(){
 
     libxml2-env
@@ -91,14 +94,13 @@ libxml2-install(){
     make install
     
    # python bindings are placed at   
-   # /data/usr/local/libxml2/lib/python2.5/site-packages/libxml2.py
+   # $LOCAL_BASE/libxml2/lib/python2.5/site-packages/libxml2.py
 }
 
 
 
 libxml2-pytest(){
-   env PYTHONPATH=/data/usr/local/libxml2/lib/python2.5/site-packages python -c "import libxml2"
-
+   env PYTHONPATH=$LOCAL_BASE/libxml2/lib/python2.5/site-packages python -c "import libxml2"
    ## the py bindings are present ... but how the avoid having to set PYTHONPATH
 }
 
@@ -106,12 +108,90 @@ libxml2-pytest(){
 libxml2-py-pth(){
 
   ## adding a .pth to PYTHON_SITE is sufficient 
-   
   echo $LOCAL_BASE/libxml2/lib/python2.5/site-packages > $PYTHON_SITE/libxml2.pth
-
   python -c "import libxml2"  
 
 }
+
+
+
+libxml2-tests(){
+    
+    libxml2-dir
+    make tests
+    
+     ## see tests.log ... looks successful on HFAG and G4PB 
+}
+
+
+# [g4pb:/usr/local/libxml2/libxml2-2.6.29] blyth$ libxml2-tests > tests.log
+# Parsing took 1210 ms
+# Parsing took 1296 ms
+# 100 iterations took 2363 ms
+# 100 iterations took 4626 ms
+# warning: failed to load external entity "./Tests/Metadata/NISTXMLSchemaDatatypes.testSet"
+# unable to parse ./Tests/Metadata/NISTXMLSchemaDatatypes.testSet
+# warning: failed to load external entity "./Tests/Metadata/MSXMLSchema1-0-20020116.testSet"
+# unable to parse ./Tests/Metadata/MSXMLSchema1-0-20020116.testSet
+# warning: failed to load external entity "./Tests/Metadata/SunXMLSchema1-0-20020116.testSet"
+# unable to parse ./Tests/Metadata/SunXMLSchema1-0-20020116.testSet
+
+
+
+
+
+libxml2-get-rpms(){
+
+  ## not pursued ... rpms are linux specific so prefer not to follow this route 
+
+    libxml2-env
+     
+    local vers=$LIBXML2_VERSION    
+    local name=$LIBXML2_NAME
+    local dame=libxml2-devel-$vers
+    
+    local srpm=$name-1.src.rpm
+    local drpm=$dame-1.i386.rpm
+    
+    # there is no devel rpm for that version ... so try the tgz route 
+    
+    cd $dir
+
+    local rpms="$srpm $drpm"
+    for rpm in $rpms
+    do
+        
+       local url=ftp://xmlsoft.org/libxml2/$rpm
+       echo === libxml2-get $url to $rpm 
+       test -f $rpm || curl -o $rpm $url
+    done
+
+}
+
+
+libxml2-xcode-get(){
+ 
+     #
+     # NOT PURSUED AS the links on 
+     #    http://www.explain.com.au/oss/libxml2xslt.html
+     # to these xcode projs are dud
+     #
+    
+    libxml2-env
+ 
+    local name=$LIBXML2_NAME
+    local tgz=${name}-xcode.tar.gz      
+    local url=http://www.explain.com.au/download/$tgz
+
+    cd $LIBXML2_FOLD
+    
+    local cmd="curl -o $tgz $url"
+    echo $cmd 
+    test -f $tgz || eval $cmd
+    test -d $name || tar zxvf $tgz
+
+}
+
 
 libxml2-pyinstall(){
 
@@ -145,49 +225,4 @@ libxml2-pyinstall(){
 }
 
 
-libxml2-tests(){
-    
-    libxml2-dir
-    make tests
-    
-     ## see tests.log ... looks successful on HFAG  
-    
-    
-}
-
-
-
-
-libxml2-get-rpms(){
-
-  ## not pursued ... rpms are linux specific so prefer not to follow this route 
-
-    libxml2-env
-     
-    local vers=$LIBXML2_VERSION    
-    local name=$LIBXML2_NAME
-    local dame=libxml2-devel-$vers
-    
-    local srpm=$name-1.src.rpm
-    local drpm=$dame-1.i386.rpm
-    
-    # there is no devel rpm for that version ... so try the tgz route 
-    
-    cd $dir
-
-    local rpms="$srpm $drpm"
-    for rpm in $rpms
-    do
-        
-       local url=ftp://xmlsoft.org/libxml2/$rpm
-       echo === libxml2-get $url to $rpm 
-       test -f $rpm || curl -o $rpm $url
-    done
-    
-  
-
-
-
-
-}
 

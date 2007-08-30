@@ -100,6 +100,11 @@ libxslt-make(){
 #  libxslt-make tests > tests.log
 #     mostly successful
 #
+#
+# [g4pb:/usr/local/libxslt/libxslt-1.1.21] blyth$ libxslt-make tests > tests.log
+# libtool: link: warning: `/usr/lib/gcc/powerpc-apple-darwin8/4.0.1/../../..//libiconv.la' seems to be moved
+#
+
 
 
 libxslt-install(){  libxslt-make install ; }

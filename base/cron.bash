@@ -31,6 +31,12 @@ cron-backup-reset(){
 }
 
 
+cron-backup-log(){
+
+    find /usr/local/cron/ -name '*.log' -exec ls -alst {} \;
+}
+
+
 cron-setup-backup(){
 
       local user=${1:-root}
