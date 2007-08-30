@@ -304,6 +304,7 @@ exist-ports(){
          hfagc_0) ports="9090:9009" ;;
         legacy_0) ports="7070:7009" ;;
       workflow_0) ports="7070:7009" ;;
+      workflow_1) ports="9090:9009" ;;
     		   *) ports="?:?"       ;;
    esac	 
    echo $ports
