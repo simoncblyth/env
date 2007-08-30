@@ -62,7 +62,7 @@ tracxsltmacro-test(){
 # ImportError: No module named libxml2  
 #
 # hmm on g4pb do not yet have libxml2 ... despite having lxml
-#  
+#   after using the standard approach to building libxml2 and libxslt and python bindings this succeeds on G4PB   
   
 }
 
@@ -72,6 +72,31 @@ tracxsltmacro-enable(){
    local name=${1:-$SCM_TRAC}
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:xslt.\*:enabled
 
+}
 
 
+tracxsltmacro-propagate-env(){
+ 
+   local name=${1:-$SCM_TRAC}
+   local ini=$SCM_FOLD/tracs/$name/conf/trac.ini
+   
+   if [ ! -f $ini ]; then
+        echo tracxsltmacro-propagate-env error no such trac.ini file $ini  
+        return 1 
+   fi
+   
+   local vars="APACHE_LOCAL_FOLDER APACHE_MODE HFAG_PREFIX"
+
+   for var in $vars
+   do 
+      eval vval=\$$var
+      if [ "X$vval" == "X" ]; then
+         echo tracxsltmacro-propagate-env error not defined $var
+      else   
+         local cmd="ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini xslt:$var:$vval"
+         echo $cmd
+         eval $cmd 
+      fi 
+   done
+         
 }

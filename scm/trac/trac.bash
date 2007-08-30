@@ -116,7 +116,8 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  traclxml(){       . $TRAC_HOME/traclxml.bash   ; } 
  tractoc(){        . $TRAC_HOME/tractoc.bash   ; } 
  tracxsltmacro(){  . $TRAC_HOME/tracxsltmacro.bash   ; }
-
+ traclegendbox(){     . $TRAC_HOME/traclegendbox.bash   ; }
+ tracincludemacro(){  . $TRAC_HOME/tracincludemacro.bash   ; }
 
 
 
