@@ -37,12 +37,15 @@ svn-load(){
    local youngest=$(svnlook youngest $repodir)
    
    local dumpfile=${2:-dummy}
+   shift
+   shift 
+   
    echo === svn-load from dumpfile $dumpfile into repository at $repodir $youngest ===== 
 
-   local loadcmd="svnadmin load $repodir < $dumpfile "
+   local loadcmd="svnadmin load $repodir $* < $dumpfile "
    echo ====== $loadcmd
    echo ======  DANGER ... ARE YOU SURE YOU WANT TO DO THAT ????  ===== enter YES to proceed
-   
+   echo ====== get help with :  svnadmin help load 
 
    read answer
    if [ "X$answer" == "XYES" ]; then
