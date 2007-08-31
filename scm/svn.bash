@@ -411,7 +411,11 @@ blyth = rw
 @user = r 
 @admin = rw
 
-
+[tracdev:/]
+* = r
+blyth = rw
+@user = r 
+@admin = rw
 
 
 # Nb this is declaring anyone can read the content of this repository ...
