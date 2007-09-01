@@ -7,20 +7,46 @@ tracxsltmacro-get(){
    [ -d "plugins" ] || mkdir -p plugins
    cd plugins
 
-   local macro=xsltmacro
-   mkdir -p $macro
-   svn co http://trac-hacks.org/svn/$macro/0.9/ $macro
+   local macro=xsltmacro-blyth
+   local base=${macro/-blyth/}    ## bash pattern substitution 
+  
+  if [ -d "$macro" ]; then
+     echo tracxsltmacro-get ERROR folder $macro exists already 
+     return 1
+  fi
+  
  
+   svn co http://dayabay.phys.ntu.edu.tw/repos/tracdev/$base/branches/$macro  $macro     
+
+    ## the original was from:    http://trac-hacks.org/svn/xsltmacro/0.9/ 
+}
+
+tracxsltmacro-update(){
+
+  local macro=xsltmacro-blyth
+  local dir=$LOCAL_BASE/trac/plugins/$macro
+  local cmd="svn update $dir "
+  
+  
+  if [ -d $dir ]; then
+      echo ===== tracxsltmacro-update proceededing to: $cmd  
+  else
+      echo tracxsltmacro-update ERROR $dir does not exist 
+      return 1 
+  fi
+
+  eval $cmd 
 
 }
+
 
 
 tracxsltmacro-install(){
    
    ## for a reinstallation after local changes to the source distro
    
-   local macro=xsltmacro
-   cd $LOCAL_BASE/trac/plugins/$macro 
+   local macro=xsltmacro-blyth
+   cd $LOCAL_BASE/trac/plugins/$macro
    easy_install -Z .
 
 # Processing .
