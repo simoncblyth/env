@@ -70,11 +70,13 @@ export TRAC_NAME=trac-0.10.4
 TRAC_NIK=trac
 
 export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
+export TRAC_COMMON=$TRAC_HOME/common
 
 TRAC_APACHE2_CONF=etc/apache2/trac.conf 
 export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
 
 export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
+
 
 
 
@@ -118,6 +120,8 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  tracxsltmacro(){  . $TRAC_HOME/tracxsltmacro.bash   ; }
  traclegendbox(){     . $TRAC_HOME/traclegendbox.bash   ; }
  tracincludemacro(){  . $TRAC_HOME/tracincludemacro.bash   ; }
+ db2trac(){           . $TRAC_HOME/db2trac.bash   ; }
+ tracenv(){           . $TRAC_HOME/tracenv.bash   ; }
 
 
 
