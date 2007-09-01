@@ -122,6 +122,7 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  tracincludemacro(){  . $TRAC_HOME/tracincludemacro.bash   ; }
  db2trac(){           . $TRAC_HOME/db2trac.bash   ; }
  tracenv(){           . $TRAC_HOME/tracenv.bash   ; }
+ hepreztrac(){        . $TRAC_HOME/hepreztrac.bash   ; }
 
 
 
