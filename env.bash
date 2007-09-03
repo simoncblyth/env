@@ -38,8 +38,11 @@
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
  
+ 
+ 
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
      [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
+     [ -r offline/offline.bash  ] && . offline/offline.bash 
  fi
  
 
