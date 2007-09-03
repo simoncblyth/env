@@ -148,8 +148,8 @@
  ## caution must exit with initial directory
  cd $scm_iwd
  
- pexpect(){ [ -r $SCM_HOME/pexpect.bash ] && . $SCM_HOME/pexpect.bash ; } 
-
+ pexpect(){  [ -r $SCM_HOME/pexpect.bash ] && . $SCM_HOME/pexpect.bash ; } 
+ svn-sync(){ [ -r $SCM_HOME/svn-sync.bash ] && . $SCM_HOME/svn-sync.bash ; } 
 
 
 scm-vi(){
