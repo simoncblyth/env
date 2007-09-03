@@ -450,7 +450,12 @@ blyth = rw
 @user = rw 
 @admin = rw
 
-
+[dybsvn:/]
+@member = r
+blyth = r
+dayabay = rw
+@user = r 
+@admin = r
 
  
 EOC
