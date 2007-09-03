@@ -347,6 +347,7 @@ cat << EOA
 #  securitylevel $securitylevel
 #   
 [groups]
+sync = dayabay
 member = simon, dayabay 
 user = blyth, thho
 admin = dayabaysoft, admin
@@ -451,9 +452,7 @@ blyth = rw
 @admin = rw
 
 [dybsvn:/]
-@member = r
-blyth = r
-dayabay = rw
+@sync = rw
 @user = r 
 @admin = r
 
