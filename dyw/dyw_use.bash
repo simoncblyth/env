@@ -14,11 +14,16 @@ dyw-use-x(){ scp $HOME/$DYW_BASE/dyw_use.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 
 DYW_CVSROOT_DAYABAY=":pserver:dayabay@dayawane.ihep.ac.cn:/home/dybcvs/cvsroot"
 
+
 if [ "$NODE_TAG" == "G" ]; then
    DYW_CVSROOT=":pserver:blyth@dayawane.ihep.ac.cn:/home/dybcvs/cvsroot" 
 else
    DYW_CVSROOT=DYW_CVSROOT_DAYABAY 
-fi   
+fi 
+
+
+DYBSVN=http://dayabay.ihep.ac.cn/svn/dybsvn
+export DYBSVN  
 
 ##
 ## editing access to repository only from source machine G,  read access otherwise
