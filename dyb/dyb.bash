@@ -9,6 +9,8 @@ export DYB_HOME=$HOME/$DYB_BASE
 [ -r $DYB_HOME/external/external.bash ] && .  $DYB_HOME/external/external.bash
 
 
+core(){     [ -r $DYB_HOME/core.bash ]          && .  $DYB_HOME/core.bash ; }
+lcgcmt(){   [ -r $DYB_HOME/lcgcmt/lcgcmt.bash ] && .  $DYB_HOME/lcgcmt/lcgcmt.bash ; }
 
 
 

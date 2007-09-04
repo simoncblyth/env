@@ -16,9 +16,26 @@ core-env(){
 
   export DYB_NAME=core-0.0.2
   export SITEROOT=$LOCAL_BASE/dyb/$DYB_NAME
+  export DYB_CONF=osx104_ppc_gcc401_dbg  
+  
+   ## lookup the conf string appropriate to your distro in LCG_Settings/cmt/requirements
 
 }
 
+
+wget-spoof(){
+   echo === spoofing wget with curl ====
+   local url=${1}
+   local file=$(basename $url)
+   local cmd="curl -o $file $url"
+   
+   echo $cmd
+   if [ -f $file ]; then
+      echo === wget skipping as already existing $file
+   else   
+      eval $cmd
+   fi    
+}
 
 core-get(){
 
@@ -42,6 +59,9 @@ core-requirements(){
   
   echo ==== core-requirements  writing cmt/requirements  
   
+  
+  
+  
 cat << EOF > cmt/requirements
 ### requirements ###
 # Top level dir holding everything else
@@ -50,7 +70,7 @@ set SITEROOT $SITEROOT
 # The platform name - this should match the tag that CMT decides for
 # you using values in LCG_Settings/cmt/requirements
 #set CMTCONFIG "debian_x86_gcc4"
-set CMTCONFIG "Darwin"
+set CMTCONFIG "$DYB_CONF"
 
 # The rest just as is
 set CMTEXTRATAGS "dayabay"
