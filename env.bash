@@ -44,6 +44,9 @@
      [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
      [ -r offline/offline.bash  ] && . offline/offline.bash 
      [ -r db/db.bash  ] && . db/db.bash 
+     
+     [ -r dyb/dyb.bash  ] && . dyb/dyb.bash 
+
  fi
  
 
