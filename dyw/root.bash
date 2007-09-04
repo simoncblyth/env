@@ -65,6 +65,22 @@ root-get(){
 
 
 
+root-mysql(){
+
+  ## https://wiki.bnl.gov/dayabay/index.php?title=Database
+  
+  cd $ROOTSYS
+  local cmd="./configure $(cat config.status) --enable-mysql --with-mysql-incdir=$MYSQL_HOME/include --with-mysql-libdir=$MYSQL_HOME/lib "
+  
+  echo $cmd
+  eval $cmd
+
+  make all-mysql
+
+
+}
+
+
 root-configure(){
 
   ## an environment controlled config

@@ -43,6 +43,7 @@
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
      [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
      [ -r offline/offline.bash  ] && . offline/offline.bash 
+     [ -r db/db.bash  ] && . db/db.bash 
  fi
  
 
