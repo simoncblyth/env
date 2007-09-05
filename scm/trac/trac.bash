@@ -123,6 +123,7 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  db2trac(){           . $TRAC_HOME/db2trac.bash   ; }
  tracenv(){           . $TRAC_HOME/tracenv.bash   ; }
  hepreztrac(){        . $TRAC_HOME/hepreztrac.bash   ; }
+ tractags(){          . $TRAC_HOME/tractags.bash   ; }
 
 
 
