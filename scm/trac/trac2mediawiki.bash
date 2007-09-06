@@ -10,7 +10,8 @@ trac2mediawiki-get(){
    [ -d "plugins" ] || mkdir -p plugins
    cd plugins
     
-   svn co http://dayabay.phys.ntu.edu.tw/repos/trac2mediawiki/trunk/ trac2mediawiki
+   #svn co http://dayabay.phys.ntu.edu.tw/repos/trac2mediawiki/trunk/ trac2mediawiki
+    svn co http://dayabay.phys.ntu.edu.tw/repos/tracdev/trac2mediawiki/trunk/ trac2mediawiki
    cd trac2mediawiki
 
 }
