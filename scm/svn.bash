@@ -453,6 +453,7 @@ blyth = rw
 
 [dybsvn:/]
 @sync = rw
+@member = r 
 @user = r 
 @admin = r
 
