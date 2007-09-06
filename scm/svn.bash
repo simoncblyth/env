@@ -347,7 +347,7 @@ cat << EOA
 #  securitylevel $securitylevel
 #   
 [groups]
-sync = dayabay
+sync = ntusync
 member = simon, dayabay 
 user = blyth, thho
 admin = dayabaysoft, admin
