@@ -351,6 +351,8 @@ sync = ntusync
 member = simon, dayabay 
 user = blyth, thho
 admin = dayabaysoft, admin
+heprezmember = simon
+heprezuser = blyth
 
 EOA
 
@@ -388,7 +390,7 @@ cat << EOC
 #[/]
 #@admin = rw
 
-[$envbase:/]
+[env:/]
 * = r
 @member = r
 @user = rw 
@@ -401,15 +403,8 @@ cat << EOC
 @admin = rw
 
 [heprez:/]
-* = r
-@member = r
-@user = rw 
-@admin = rw
-
-[trac2mediawiki:/]
-* = r
-blyth = rw
-@user = r 
+@heprezmember = r
+@heprezuser = rw 
 @admin = rw
 
 [tracdev:/]
@@ -430,20 +425,6 @@ blyth = rw
 
 # force authenticated 
 
-[dyw_release_2_8:/]
-@member = r
-@user = rw
-@admin = rw
-
-[dyw_release_2_9:/]
-@member = r
-@user = rw
-@admin = rw
-
-[dyw_release_2_5:/]
-@member = r
-@user = rw
-@admin = rw
 
 [dyw:/]
 @member = r
