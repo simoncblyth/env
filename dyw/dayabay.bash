@@ -371,6 +371,7 @@ dyw-get(){
 
    local defp="legacy/branches/$DYW_VERSION" 
    local path=${1:-$defp}
+   local user=${2:-$USER}
    local leaf=$(basename $path)
    local url=$DYBSVN/$path
    
@@ -382,7 +383,7 @@ dyw-get(){
       svn up
    else 
       echo ==== dyw-get ====== proceeding to initial checkout from $url into $leaf
-      svn co $url 
+      svn --username $user co $url 
    fi
 
    echo ==== dyw-get completed ====
