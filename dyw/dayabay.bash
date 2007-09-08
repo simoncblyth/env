@@ -366,7 +366,31 @@ dyw-checkout(){  ## checkout from the declared SVN repository
 }
 
 
-dyw-get(){  ## cvs login and initial get
+
+dyw-get(){
+
+   local defp="legacy/branches/$DYW_VERSION" 
+   local path=${1:-$defp}
+   local leaf=$(basename $path)
+   local url=$DYBSVN/$path
+   
+   cd $DYW_FOLDER      
+   
+   if [ -d "$leaf" ]; then
+      echo ==== dyw-get ======  a folder called $name exists already ... skipping checkout , updating instead
+      cd $leaf
+      svn up
+   else 
+      echo ==== dyw-get ====== proceeding to initial checkout from $url into $leaf
+      svn co $url 
+   fi
+
+   echo ==== dyw-get completed ====
+}
+
+
+
+dyw-get-deprecated-following-move-to-svn(){  ## cvs login and initial get
 
   ## 
   ## instructions from: http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/DayaBayCVS
