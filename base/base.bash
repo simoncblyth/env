@@ -34,6 +34,12 @@ base-datestamp(){
 }
 
 
+base-path(){
+   perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/PATH.pm" ; &PATH::present_var(@ARGV) ; ' $*
+}
+
+
+
  [ -r local.bash ]       && . local.bash 
  [ -r batch.bash  ]      && . batch.bash
 
