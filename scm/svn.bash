@@ -349,7 +349,7 @@ cat << EOA
 [groups]
 sync = ntusync
 member = simon, dayabay 
-user = blyth, thho
+user = blyth, thho, chwang
 admin = dayabaysoft, admin
 heprezmember = simon
 heprezuser = blyth
