@@ -9,15 +9,17 @@
  [ -r geant4-env.bash ]  && . geant4-env.bash
  [ -r dyw_use.bash ]     && . dyw_use.bash 
 
- ## setup the paths etc..  
- g4dyb_setup=$DYW/G4dyb/cmt/setup.sh
- 
+ dyw-setup(){ 
+     ## setup the paths etc.. 
+    [ "$DYW_DBG" == "1" ] && echo ======= dyw-setup invoked 
+    [ -r $DYW/G4dyb/cmt/setup.sh ] && . $DYW/G4dyb/cmt/setup.sh 
+    [ "$DYW_DBG" == "1" ] && echo ======= dyw-setup completed
+}
+
  if [ "$NODE_TAG" == "G" ]; then
-    [  "$DYW_DBG" == "1" ] && echo skipping $g4dyb_setup invokation on node $NODE_TAG
+    [  "$DYW_DBG" == "1" ] && echo skipping dyw-setup invokation on node $NODE_TAG
  else  
-    [ "$DYW_DBG" == "1" ] && echo $g4dyb_setup invoked 
-    [ -r $g4dyb_setup ] && . $g4dyb_setup
-    [ "$DYW_DBG" == "1" ] && echo $g4dyb_setup completed
+    dyw-setup 
  fi
  
  [ -r dyw_gen.bash ] && . dyw_gen.bash
