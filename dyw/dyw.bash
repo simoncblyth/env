@@ -35,6 +35,9 @@
  cd $dyw_iwd
 
 
+dyw-osx(){ [ -r $DYW_HOME/dyw-osx.bash ] && . $DYW_HOME/dyw-osx.bash ; }
+
+
 ## useful when cannot login due to disk hangs  , flipping the return commenting 
 dyw-x-off(){ ssh ${1:-$TARGET_TAG} "perl -pi -e 's/^#return/return/' $DYW_BASE/dyw.bash" ; }
 dyw-x-on(){  ssh ${1:-$TARGET_TAG} "perl -pi -e 's/^return/#return/' $DYW_BASE/dyw.bash" ; }
