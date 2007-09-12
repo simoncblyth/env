@@ -442,3 +442,57 @@ dyw-branch-diff(){
 
 
 
+
+dyw-requirements-external(){
+
+  pushd $DYW_SITE
+  local req=requirements.$NODE_NAME
+  if [ -f "$req" ]; then
+    echo creating requirements link to $req
+    rm -f requirements && ln -s $req requirements 
+  else
+    echo doing nothing as $req does not exist on NODE_NAME [$NODE_NAME]
+  fi
+  ls -alst
+  
+  popd   
+}
+
+
+
+dyw-diff-stamped(){
+
+    ## recursive comparison of versions of the checked put respository,
+	## ignoring temporary/derived files
+
+    stamp=$(dyw-datestamp)
+    cd $DYW_FOLDER
+    diff -r --brief dyw dyw_${stamp} | perl -n -e '( m/CVS/ || m/setup/ || m/cleanup/ || m/\.make/ || m/\.DS_Store/ || m/Makefile/ || m/load\.C/ || m/Darwin/ || m/dyw\.1/ || m/xcodeproj/ ) || print $_  '  | sort 
+
+}
+
+dyw-datestamp(){
+
+  if [ "$1" == "now" ]; then 
+     if [ "$CMTCONFIG" == "Darwin" ] ; then
+        timdef=$(perl -e 'print time')
+	    refdef=$(date -r $timdef +"%Y%m%d")  
+     else		
+	    refdef=$(date  +"%Y%m%d")
+     fi 
+  else
+     if [ "$LOCAL_NODE" == "grid1" ]; then
+		 refdef="20070411" 
+	 else
+		 refdef="not-setup-yet" 
+	 fi	 
+  fi
+  echo $refdef
+}
+
+
+
+
+
+
+

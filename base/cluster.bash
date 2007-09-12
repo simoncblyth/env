@@ -30,3 +30,22 @@ cluster-cmd(){
       fi    
    done
 }
+
+
+cluster-touch-disks(){
+
+   ## touching some disks to test time stamping
+   
+   dirs="$HOME /tmp /disk/d[3-4]" 
+   s=$(date +'%s')
+   
+   printf "%-20s %d[%s] \n"  "touch-disks  now:"  $s $(fmtime $s)  
+
+   f=stamp$$
+   for dir in $dirs
+   do
+	  cd $dir 
+	  touch $f && t=$(stat -c %Y $f) && rm -f $f && printf "%-20s %d[%s]  \n" $dir $t $(fmtime $t)   
+   done	   
+
+}

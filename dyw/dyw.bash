@@ -34,7 +34,7 @@
  ##  caution must exit with initial dir
  cd $dyw_iwd
 
-
+dyw(){     [ -r $DYW_HOME/dyw.bash ]     && . $DYW_HOME/dyw.bash ; }
 dyw-osx(){ [ -r $DYW_HOME/dyw-osx.bash ] && . $DYW_HOME/dyw-osx.bash ; }
 
 
