@@ -57,10 +57,10 @@ dyw-get(){
    else 
       echo ==== dyw-get ====== proceeding to initial checkout from $url into $branch
       svn --username $user co $url 
+      
+      cd $branch
+      dyw-localize $PWD
    fi
-
-   cd $branch
-   dyw-localize $PWD
 
    echo ==== dyw-get completed ====
 }
