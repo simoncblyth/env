@@ -1,14 +1,17 @@
 
 
-scantrees(){
+scantrees( const char* cmd ){
    
    //
    //  demo of looping over all root files in a directory looking for an
    //  object called event_tree and doing a scan when found 
    //
+   //  example argument : "ls *.root" 
+   // 
+    
    
    TString name("event_tree");
-   FILE* pipe = gSystem->OpenPipe("ls *.root" , "r" );
+   FILE* pipe = gSystem->OpenPipe( cmd , "r" );
    
    TString path ;
    TFile* f ;
