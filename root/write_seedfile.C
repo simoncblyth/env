@@ -7,7 +7,7 @@
 
 int write_seedfile(TString rootfile, TString xmlpath , Int_t nfake ){
     
-    gSystem->Load("$DYW/InstallArea/$CMTCONFIG/libMCEvent.so");
+    gSystem->Load("$DYW/InstallArea/$CMTCONFIG/lib/libMCEvent.so");
     dywGLEvent* evt = new dywGLEvent();
     
     TFile *f = new TFile( rootfile ,"read");
