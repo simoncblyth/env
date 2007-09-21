@@ -20,6 +20,9 @@ dyw-osx-xcconfig(){
 	  valu=`echo $pair | cut -f2 -d:`  
 	  type=`echo $pair | cut -f3 -d:`  
 	 
+      ## replace commas with spaces ... 
+      valu=$(echo $valu | perl -p -e 's/,/ /g')
+     
       echo "$name = $valu" >> $xcc
   done
   
