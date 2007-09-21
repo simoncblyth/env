@@ -37,6 +37,7 @@
  [ -r scm/scm.bash  ]   && . scm/scm.bash    
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
+ [ -r macros/macros.bash  ] && . macros/macros.bash  
  
  
  
