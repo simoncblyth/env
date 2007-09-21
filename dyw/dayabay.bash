@@ -217,11 +217,17 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
 	name=LD_LIBRARY_PATH
   fi
   
-  if [ "$GQ_TAG" == "bat" ]; then
-     flags=' -I\${GEANT_incdir} -DG4UI_USE_XM'
-  else
-     flags=' -I\${GEANT_incdir} -DG4UI_USE_XM -DG4VIS_USE -DG4VIS_USE_OPENGLX -DG4VIS_USE_OIX -DG4VIS_USE_OI  '
-  fi	  
+  #if [ "$GQ_TAG" == "bat" ]; then
+  #   flags=' -I\${GEANT_incdir} -DG4UI_USE_XM'
+  #else
+  #   flags=' -I\${GEANT_incdir} -DG4UI_USE_XM -DG4VIS_USE -DG4VIS_USE_OPENGLX -DG4VIS_USE_OIX -DG4VIS_USE_OI  '
+  #fi	  
+  
+  ## replace commas with spaces ... 
+  GEANT_ppflags=$(echo $GEANT_ppflags | perl -p -e 's/,/ /g')
+  
+  flags=' -I\${GEANT_incdir} ${GEANT_ppflags} '
+  
   
   perl -pi -e "s|^(macro\s*GEANT_cppflags\s*\")(.*)(\".*)$|\$1$flags\$3|" $req
 
@@ -280,84 +286,6 @@ dyw-grid1-rootcint-timefix(){
 
 
 
-dyw-build-deprecated(){
-
-
-  local iwd=$PWD
-  local defp="legacy/branches/$DYW_VERSION"
-  local path=${1:-$defp}
-  
-  dyw-get $path
-  local branch=$(basename $path)
-  
-  #
-  # this parameter implies can just run on another branch, that has not been tested ..
-  # ... set DYW_VERSION in .bash_profile is the standard approach 
-  #
-  
-  echo ==== dyw-build building G4dybApp.exe from scratch with the latest from branch $branch
-  cd $DYW_FOLDER
-  
-  
-  if [ "X$branch" == "XHEAD" ]; then
-  
-     echo ===  dayabay user checkout/update of CVS repository HEAD
-     dyw-get legacy/trunk 
-     branch=$(basename $PWD) 
-     
-     echo === branch inferrred as $branch    
-     dyw-localize $DYW_FOLDER/$branch   
-         
-           
-  elif [ -d "$branch" ]; then
-  
-     cd $branch
-     svn up 
-      
-  else
-     svn co $dyw/branches/$branch
-      
-     cd $branch
-     dyw-localize $PWD
- 
-     # remove the files that need to be localized , directly on the repository 
-     # svn rm $dyw/branches/$branch/External/GEANT/cmt/requirements -m "removed as needs to be localized"
-     # svn rm $dyw/branches/$branch/External/ROOT/cmt/fragments/rootcint -m "removed as needs to be localized"
-     # thats too extreme !
-     # for now live with committing them
-        
-     # have to commit and update in order to be at a clean svnversion   
-     svn ci ./External/GEANT/cmt/requirements ./External/ROOT/cmt/fragments/rootcint -m "localized for node $NODE_TAG "
-     svn up
-
-  fi
-
-
-  local orig_cmtpath=$CMTPATH
-  CMTPATH=$DYW_FOLDER/$branch
-  cd $CMTPATH/G4dyb/cmt
-  
-  echo ==== warning temporary reset of CMTPATH from $orig_cmtpath to $CMTPATH  === PWD $PWD ===
-  
-  [ -f requirements ] || ( echo ERROR error $PWD with the checkout/update && return 1 ) 
-
-  local flags
-  if [ "$GQ_TAG" == "dbg" ]; then
-    flags="CMTEXTRATAGS=debug TMP=tmp"
-  else
-    flags="TMP=tmp" 
-  fi  
-
-  cmt br cmt config 
-  cmt br make clean $flags
-  cmt br make $flags
-
-  CMTPATH=$orig_cmtpath  
-  echo ==== resetting CMTPATH to $CMTPATH === PWD $PWD
-
-  cd $iwd
-  
-}
 
 
 dyw-build(){
@@ -734,8 +662,9 @@ env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' CMTROOT=$CMTRO
 
 
 g4dyb-pristine-env(){
-
-  env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env " 
+  
+   ## added display as its needed in Xcode for debugging with G4UIXm active to work 
+  env -i DYW=$DYW CMTPATH=$DYW HOME=$HOME TERM=$TERM PS1='\u:\w\$ '  DISPLAY=:0.0 /bin/bash -c "source $DYW/G4dyb/cmt/setup.sh ; env " 
 
 }
 
