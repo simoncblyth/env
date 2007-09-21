@@ -16,20 +16,28 @@
 #/vis/geometry/list
 
 #                       logical_volname depth r g b opacity
-/vis/geometry/set/colour skin_inacrylictank_log 0 1 0 0 0.5
-/vis/geometry/set/forceSolid skin_inacrylictank_log 0 0
-/vis/geometry/set/forceWireframe skin_inacrylictank_log 0 0
-/vis/geometry/set/forceAuxEdgeVisible skin_inacrylictank_log 1 0 1
-/vis/scene/add/volume skin_inacrylictank
+#/vis/geometry/set/colour skin_inacrylictank_log 0 1 0 0 0.5
+#/vis/geometry/set/forceSolid skin_inacrylictank_log 0 0
+#/vis/geometry/set/forceWireframe skin_inacrylictank_log 0 0
+#/vis/geometry/set/forceAuxEdgeVisible skin_inacrylictank_log 1 0 1
+#/vis/scene/add/volume skin_inacrylictank
+#
+
+/vis/scene/add/volume drv_inacrylictank_innerskin
+/vis/scene/add/volume drv_inacrylictank_outerskin
+/vis/scene/add/volume drv_outacrylictank_innerskin
+/vis/scene/add/volume drv_outacrylictank_outerskin
+
+
 
 
 
 #                       logical_volname depth r g b opacity
-/vis/geometry/set/colour skin_outacrylictank_log 0 0 1 0 0.5
-/vis/geometry/set/forceSolid skin_outacrylictank_log 0 0
-/vis/geometry/set/forceWireframe skin_outacrylictank_log 0 0
-/vis/geometry/set/forceAuxEdgeVisible skin_outacrylictank_log 1 0 1
-/vis/scene/add/volume skin_outacrylictank
+#/vis/geometry/set/colour skin_outacrylictank_log 0 0 1 0 0.5
+#/vis/geometry/set/forceSolid skin_outacrylictank_log 0 0
+#/vis/geometry/set/forceWireframe skin_outacrylictank_log 0 0
+#/vis/geometry/set/forceAuxEdgeVisible skin_outacrylictank_log 1 0 1
+#/vis/scene/add/volume skin_outacrylictank
 
 ##
 ## forcing solid give the nasty line pattern
