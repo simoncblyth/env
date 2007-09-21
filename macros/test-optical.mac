@@ -28,10 +28,10 @@
 #         - relative path from DAYA_DATA_DIR to parameter xml file 
 #      
 #
-/dyw/detector/edit/sensitive_skin inacrylictank innerskin xml/sensitiveskin.xml
-/dyw/detector/edit/sensitive_skin inacrylictank outerskin xml/sensitiveskin.xml
-/dyw/detector/edit/sensitive_skin outacrylictank innerskin xml/sensitiveskin.xml
-/dyw/detector/edit/sensitive_skin outacrylictank outerskin xml/sensitiveskin.xml
+/dyw/detector/edit/sensitive_skin inacrylictank innerskin xml/edit/sensitive_skin.xml
+/dyw/detector/edit/sensitive_skin inacrylictank outerskin xml/edit/sensitive_skin.xml
+/dyw/detector/edit/sensitive_skin outacrylictank innerskin xml/edit/sensitive_skin.xml
+/dyw/detector/edit/sensitive_skin outacrylictank outerskin xml/edit/sensitive_skin.xml
 
 #/dyw/detector/edit/list
 
