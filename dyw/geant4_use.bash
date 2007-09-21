@@ -35,8 +35,16 @@ if [ -x "${GQ_HOME}/env.sh" ]; then
 
       # as are reusing the "dbg" datadir for all tags 
       # NB assumes all the G4data is in one folder
+      
+      ## need to get replace spaces with commas in order to survive the journey :    
+      if [ "$GQ_TAG" == "bat" ]; then
+         flags='-DG4UI_USE_XM'
+      else
+         flags='-DG4UI_USE_XM,-DG4VIS_USE,-DG4VIS_USE_OPENGLX,-DG4VIS_USE_OIX,-DG4VIS_USE_OI'
+      fi	  
+    
       export GQ_DATA=$(dirname $G4LEDATA)
-      export GEANT_CMT="GEANT_incdir:$GQ_HOME/include GEANT_libdir:$GQ_HOME/lib/$G4SYSTEM GEANT_datadir:$GQ_DATA OGLLIBS:newogl:set"
+      export GEANT_CMT="GEANT_incdir:$GQ_HOME/include GEANT_libdir:$GQ_HOME/lib/$G4SYSTEM GEANT_datadir:$GQ_DATA OGLLIBS:newogl:set GEANT_ppflags:$flags"
       export ENV2GUI_VARLIST="G4INSTALL:G4SYSTEM:$ENV2GUI_VARLIST"
   
 else
