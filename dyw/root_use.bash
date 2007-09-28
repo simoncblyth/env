@@ -42,6 +42,13 @@ cat << EOL
     CMTBIN = CMTBIN.Contains("Darwin") ? "Darwin" : CMTBIN ;
     cout << "$HOME/.rootlogon.C loading (created by root-use-rootlogon, invoked by root-use-conf, see env:trunk/dyw/root_use.bash ) " << endl ;
    
+    //
+    //  MUST LOAD libPhysics.so first (while still using older root) , to avoid the following error :
+    //
+    //  dlopen error: /disk/d4/blyth/dayabay/geant4.8.2.p01/dbg/legacy-blyth/InstallArea/Linux-i686/lib/libMCEvent.so: undefined symbol: _ZN8TVector3C1Eddd
+    //   Load Error: Failed to load Dynamic link library /disk/d4/blyth/dayabay/geant4.8.2.p01/dbg/legacy-blyth/InstallArea/Linux-i686/lib/libMCEvent.so
+    //
+    
     gSystem->Load("libPhysics.so" ) ;
     gSystem->Load( "$DYW/InstallArea/" + CMTBIN + "/lib/libMCEvent.so" );
     
