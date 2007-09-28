@@ -41,6 +41,8 @@ cat << EOL
     TString CMTBIN = gSystem->Getenv("CMTBIN") ;
     CMTBIN = CMTBIN.Contains("Darwin") ? "Darwin" : CMTBIN ;
     cout << "$HOME/.rootlogon.C loading (created by root-use-rootlogon, invoked by root-use-conf, see env:trunk/dyw/root_use.bash ) " << endl ;
+   
+    gSystem->Load("libPhysics.so" ) ;
     gSystem->Load( "$DYW/InstallArea/" + CMTBIN + "/lib/libMCEvent.so" );
     
     gStyle->SetOptStat(1111111);
