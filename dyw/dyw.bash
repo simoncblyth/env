@@ -31,11 +31,12 @@
  cd $DYW_HOME
  
  [ -r dyw_build.bash ] && . dyw_build.bash
- [ -r root_use.bash ]  && . root_use.bash
+ 
 
  ##  caution must exit with initial dir
  cd $dyw_iwd
 
+root-use(){ [ -r $DYW_HOME/root_use.bash ] && . $DYW_HOME/root_use.bash ; }
 dyw(){     [ -r $DYW_HOME/dyw.bash ]     && . $DYW_HOME/dyw.bash ; }
 dyw-osx(){ [ -r $DYW_HOME/dyw-osx.bash ] && . $DYW_HOME/dyw-osx.bash ; }
 
