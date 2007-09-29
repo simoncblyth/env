@@ -29,6 +29,9 @@
 /vis/scene/add/volume drv_outacrylictank_outerskin
 
 
+# /vis/geometry/set/forceSolid drv_inacrylictank_innerskin_log 0 0
+
+
 
 
 
