@@ -318,7 +318,22 @@ dyw-build(){
   cd $iwd
 }
 
+dyw-rebuild(){
 
+  local flags
+  if [ "$GQ_TAG" == "dbg" ]; then
+    flags="CMTEXTRATAGS=debug TMP=tmp"
+  else
+    flags="TMP=tmp" 
+  fi  
+
+  cd $DYW/G4dyb/cmt
+  cmd="make $flags "
+  
+  echo ===== dyw-rebuild  $cmd ======
+  eval $cmd 
+
+}
 
 
 
