@@ -42,7 +42,14 @@ dyw-env(){
 
 dyw-get(){
 
-   local defp="legacy/branches/$DYW_VERSION" 
+   local defp
+   if [ "$DYW_VERSION" == "trunk" ]; then
+      defp="legacy/$DYW_VERSION"
+   else 
+      defp="legacy/branches/$DYW_VERSION" 
+   fi
+   
+   
    local path=${1:-$defp}
    local user=${2:-$USER}
    local branch=$(basename $path)
