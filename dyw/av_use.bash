@@ -50,10 +50,20 @@ av-use-sub(){
   local func=autovalidation
   local path=jobs/av 
   
-  local jobstring=$(basename $DYW)-$(svnversion $DYW)       # name of the branch or tag and revision number 
+  local bjobstring=$(basename $DYW)-$(svnversion $DYW)       # name of the branch or tag and revision number 
   
+  # to break identical names... when the change is in local working copy only
+  # for example postmerge1
+  #
+  local def_jobx=""
+  local jobx=${1:-$def_jobx}
+  
+  # almost never change this on submission... as more convenient to set it in interactive running
   local def_cfto="2007-06-19-minimac1"
-  local cfto=${1:-$def_cfto}
+  local cfto=${2:-$def_cfto}
+  
+  local jobstring="$bjobstring$jobx"
+  
   
   ## compare_to_date defaults to yesterday in AutoValidate.pl, 
   ## in which case the jobstring is interpreted as a date, so to avoid that
