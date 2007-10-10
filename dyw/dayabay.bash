@@ -86,7 +86,7 @@ dyw-localize(){
    dyw-g4-req $base
   
    #  grid1 fix 
-   dyw-grid1-rootcint-timefix $base
+   # dyw-grid1-rootcint-timefix $base
 
    cd $iwd
    
