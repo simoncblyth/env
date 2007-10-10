@@ -297,16 +297,11 @@ dyw-grid1-rootcint-timefix(){
 
 dyw-build(){
 
+  local def_type="normal"
+  
+  local type=${1:-$def_type} 
   local iwd=$PWD
   local branch=$(basename $PWD)
-
-  local orig_cmtpath=$CMTPATH
-  CMTPATH=$DYW_FOLDER/$branch
-  cd $CMTPATH/G4dyb/cmt
-  
-  echo ==== warning temporary reset of CMTPATH from $orig_cmtpath to $CMTPATH  === PWD $PWD ===
-  
-  [ -f requirements ] || ( echo ERROR error $PWD with the checkout/update && return 1 ) 
 
   local flags
   if [ "$GQ_TAG" == "dbg" ]; then
@@ -315,9 +310,31 @@ dyw-build(){
     flags="TMP=tmp" 
   fi  
 
+
+  local orig_cmtpath=$CMTPATH
+  CMTPATH=$DYW_FOLDER/$branch
+  BASEPATH=$DYW_FOLDER/$branch  
+  
+  if [ "$type" == "full" ]; then
+      cd $BASEPATH/DataStructure/MCEvent/cmt
+          
+      cmt br cmt config 
+      cmt br make clean $flags
+      cmt br make $flags
+  fi
+  
+
+  cd $BASEPATH/G4dyb/cmt
+  
+  echo ==== warning temporary reset of CMTPATH from $orig_cmtpath to $CMTPATH  === PWD $PWD ===
+  
+  [ -f requirements ] || ( echo ERROR error $PWD with the checkout/update && return 1 ) 
+
   cmt br cmt config 
   cmt br make clean $flags
   cmt br make $flags
+
+
 
   CMTPATH=$orig_cmtpath  
   echo ==== resetting CMTPATH to $CMTPATH === PWD $PWD
