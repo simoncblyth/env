@@ -13,16 +13,22 @@ elif [ "$NODE_TAG" == "T" ]; then
   CMT_VERS="v1r18p20060606"
   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
 
-  
 elif [ "$NODE_TAG" == "L" ]; then
 
   CMT_VERS="v1r18p20061003"
   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
 
-elif ( [ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ] ); then
+elif ( [ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "OLDP" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ] ); then
 
   CMT_VERS="v1r18p20061003"
   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
+
+
+elif [ "$NODE_TAG" == "P" ]; then
+
+   CMT_FOLDER=$LOCAL_BASE/dyb
+   CMT_VERS="v1r20p20070720"
+   CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
 
 
 elif [ "$NODE_TAG" == "N" ]; then
