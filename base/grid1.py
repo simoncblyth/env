@@ -14,7 +14,7 @@ if not s.login("G1",  user , password="wrong" , terminal_type='ansi', original_p
     print str(s)
 else:
     print "SSH session login successful"
-    s.sendline ('ls -l')
+    s.sendline ('uname -a')
     print s
     s.prompt()         # match the prompt
     print s.before     # everything before the prompt.
