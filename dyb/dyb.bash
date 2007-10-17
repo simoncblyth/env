@@ -25,7 +25,7 @@ dyb-install(){
 
 
 dyb-sleep(){
-  sleep 30 && echo "dyb-sleep completed" > /tmp/dyb-sleep
+  sleep $* && echo "dyb-sleep completed $* " > /tmp/dyb-sleep
 }  
   
 
