@@ -3,10 +3,8 @@ import pxssh
 import os
 
 user=os.environ['USER']
-#prompt='\[%s@grid1 %s\]\$ ' % ( user , user )  
-prompt=r'\[.*\]\$$\Z' 
 
-print "prompt...%s..." % prompt 
+dbg=0
 
 s=pxssh.pxssh()
 if not s.login("G1",  user , password="wrong" , terminal_type='ansi', original_prompts=r"\[.*\]\$ ", login_timeout=3 ):
@@ -15,11 +13,17 @@ if not s.login("G1",  user , password="wrong" , terminal_type='ansi', original_p
 else:
     print "SSH session login successful"
     s.sendline ('uname -a')
-    print s
+    
+    if dbg > 0:
+        print s
+    
     s.prompt()         # match the prompt
     print s.before     # everything before the prompt.
+    
     s.logout()
-    print s
+    
+    if dbg>0:
+        print s
                                                                
                                                                
 
