@@ -18,8 +18,10 @@ dyb-get(){
 }
 
 dyb-install(){
+  local def_arg="all"
+  local arg=${1:-$def_arg}
   cd $LOCAL_BASE/dyb
-  ./dybinst all 
+  ./dybinst $arg
 }
 
 
