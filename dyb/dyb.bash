@@ -24,6 +24,14 @@ dyb-install(){
 }
 
 
+dyb-sleep(){
+  sleep 30 && echo "dyb-sleep completed" > /tmp/dyb-sleep
+}  
+  
+
+
+
+
 core(){     [ -r $DYB_HOME/core.bash ]          && .  $DYB_HOME/core.bash ; }
 lcgcmt(){   [ -r $DYB_HOME/lcgcmt/lcgcmt.bash ] && .  $DYB_HOME/lcgcmt/lcgcmt.bash ; }
 dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
