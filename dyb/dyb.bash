@@ -3,7 +3,7 @@ DYB_BASE=$ENV_BASE/dyb
 export DYB_HOME=$HOME/$DYB_BASE
 export DYB=$LOCAL_BASE/dyb
 
-
+dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
 
 dyb-get(){
    mkdir -p $LOCAL_BASE/dyb
@@ -44,9 +44,8 @@ dyb-log(){
 
 
 
-core(){     [ -r $DYB_HOME/core.bash ]          && .  $DYB_HOME/core.bash ; }
-lcgcmt(){   [ -r $DYB_HOME/lcgcmt/lcgcmt.bash ] && .  $DYB_HOME/lcgcmt/lcgcmt.bash ; }
-dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
 
-installation(){     [ -r $DYB_HOME/installation.bash ]          && .  $DYB_HOME/installation.bash ; }
+
+
+
 
