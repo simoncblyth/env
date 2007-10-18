@@ -15,7 +15,7 @@ dyb-get(){
 dyb-install-nohup(){
     cd $LOCAL_BASE/dyb
     rm -f nohup.out
-    nohup bash -lc dyb-install $*
+    nohup bash -lc "dyb-install $*"
 }
 
 dyb-install(){
