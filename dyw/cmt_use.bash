@@ -26,7 +26,7 @@ elif ( [ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "OLDP" ] || [ "$NODE_TAG" == 
 
 elif [ "$NODE_TAG" == "P" ]; then
 
-   CMT_FOLDER=$LOCAL_BASE/dyb
+   CMT_FOLDER=$LOCAL_BASE/dyb/external
    CMT_VERS="v1r20p20070720"
    CMT_HOME=${CMT_FOLDER}/CMT/${CMT_VERS}
 
