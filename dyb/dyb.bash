@@ -16,7 +16,15 @@ dyb-get(){
    svn export http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst
 }
 
+
+dyb-install-nohup(){
+    cd $LOCAL_BASE/dyb
+    rm -f nohup.out
+    nohup bash -lc dyb-install $*
+}
+
 dyb-install(){
+
   local def_arg="all"
   local arg=${1:-$def_arg}
   cd $LOCAL_BASE/dyb
@@ -28,6 +36,10 @@ dyb-sleep(){
   sleep $* && echo "dyb-sleep completed $* " > /tmp/dyb-sleep
 }  
   
+dyb-log(){
+  cd $LOCAL_BASE/dyb
+  tail -f dybinst.log
+}  
 
 
 
