@@ -36,6 +36,11 @@ dyb-sleep(){
   sleep $* && echo "dyb-sleep completed $* " > /tmp/dyb-sleep
 }  
   
+dyb-smry(){
+  cd $LOCAL_BASE/dyb
+  tail -f nohup.out
+}  
+  
 dyb-log(){
   cd $LOCAL_BASE/dyb
   tail -f dybinst.log
