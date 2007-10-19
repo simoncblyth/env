@@ -262,8 +262,9 @@ scm-backup-trac(){
    local 
    
    ## target_fold must NOT exist , but its parent should
-   
-   local cmd="mkdir -p $parent_fold && $PYTHON_HOME/bin/trac-admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
+   ## too many pythons around to rely on an external PYTHON_HOME
+   local python_home=$REFERENCE_PYTHON_HOME
+   local cmd="mkdir -p $parent_fold && $python_home/bin/trac-admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $cmd
    eval $cmd 
    
