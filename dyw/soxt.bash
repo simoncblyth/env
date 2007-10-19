@@ -26,8 +26,10 @@ fi
 
 SOXT_BUILD=$LOCAL_BASE/graphics/$SOXT_NAME
 
+## switch off my SOXT ... to see if OpenScientist can replace it 
+##export SOXT_HOME 
 
-export SOXT_HOME 
+
 export SOXT_BUILD
 
 
