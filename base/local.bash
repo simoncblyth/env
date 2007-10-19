@@ -215,7 +215,8 @@ base-node-info(){
 
 
 #export DISK_G1=/data/w
-export DISK_G1=/disk/d4
+#export DISK_G1=/disk/d4
+export DISK_G1=/disk/d5
 export DAYABAY_G1=$DISK_G1/dayabay
 
 
