@@ -21,6 +21,16 @@ pexpect-get(){
 
 
   
+
+}
+
+pexpect-install(){
+
+
+  python setup.py install
+  # on hfag
+  # Writing /data/usr/local/python/Python-2.5.1/lib/python2.5/site-packages/pexpect-2.1-py2.5.egg-info 
+
   # python setup.py install 
   # Writing /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/pexpect-2.1-py2.5.egg-info 
 
@@ -32,7 +42,8 @@ pexpect-get(){
   # Writing /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/pexpect-2.1-py2.5.egg-info
 
 
+
+
+
 }
-
-
 
