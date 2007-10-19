@@ -16,45 +16,48 @@ alias p-soxt="scp $HOME/.bash_soxt P:"
 ##
 
 
-SOXT_NAME=SoXt-1.2.2
 
-if ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ]); then
-	SOXT_HOME=$LOCAL_BASE/soxt/$SOXT_NAME
-else
-	SOXT_HOME=$LOCAL_BASE/soxt
-fi
+soxt-env(){
 
-SOXT_BUILD=$LOCAL_BASE/graphics/$SOXT_NAME
+   SOXT_NAME=SoXt-1.2.2
 
-## switch off my SOXT ... to see if OpenScientist can replace it 
-##export SOXT_HOME 
+   if ([ "$NODE_TAG" == "G1" ] || [ "$NODE_TAG" == "P" ] || [ "$NODE_TAG" == "$CLUSTER_TAG" ]); then
+	   SOXT_HOME=$LOCAL_BASE/soxt/$SOXT_NAME
+   else
+	   SOXT_HOME=$LOCAL_BASE/soxt
+   fi
 
+   SOXT_BUILD=$LOCAL_BASE/graphics/$SOXT_NAME
 
-export SOXT_BUILD
-
-
-if [ "$CMTCONFIG" == "Darwin" ]; then
-  export DYLD_LIBRARY_PATH=$SOXT_HOME/lib:${DYLD_LIBRARY_PATH}
-else
-  export   LD_LIBRARY_PATH=$SOXT_HOME/lib:${LD_LIBRARY_PATH}
-fi
-
-export OIVFLAGS="-I$COIN_HOME/include -I$SOXT_HOME/include"
-export OIVLIBS="-L$SOXT_HOME/lib -lSoXt -L$COIN_HOME/lib -lCoin"
+   ## switch off my SOXT ... to see if OpenScientist can replace it 
+   export SOXT_HOME 
+   export SOXT_BUILD
 
 
-if [ "$CMTCONFIG" == "amd64_linux26" ]; then
-   export OGLLIBS="-L/usr/X11R6/lib64 -lGLU -lGL"
-else
-   export OGLLIBS="-L/usr/X11R6/lib -lGLU -lGL"
-fi
+   if [ "$CMTCONFIG" == "Darwin" ]; then
+     export DYLD_LIBRARY_PATH=$SOXT_HOME/lib:${DYLD_LIBRARY_PATH}
+   else
+     export   LD_LIBRARY_PATH=$SOXT_HOME/lib:${LD_LIBRARY_PATH}
+   fi
 
-export ENV2GUI_VARLIST="OGLLIBS:SOXT_HOME:$ENV2GUI_VARLIST"
+   export OIVFLAGS="-I$COIN_HOME/include -I$SOXT_HOME/include"
+   export OIVLIBS="-L$SOXT_HOME/lib -lSoXt -L$COIN_HOME/lib -lCoin"
 
+   if [ "$CMTCONFIG" == "amd64_linux26" ]; then
+      export OGLLIBS="-L/usr/X11R6/lib64 -lGLU -lGL"
+   else
+      export OGLLIBS="-L/usr/X11R6/lib -lGLU -lGL"
+   fi
+
+   export ENV2GUI_VARLIST="OGLLIBS:SOXT_HOME:$ENV2GUI_VARLIST"
+
+}
 
 
 
 soxt-get(){
+
+  soxt-env 
 
   n=$SOXT_NAME
 
@@ -72,6 +75,7 @@ soxt-get(){
 
 soxt-help(){
 
+  soxt-env 
   cd $SOXT_BUILD || ( echo .bash_soxt ERROR must soxt-get first && exit ) 
   ./configure --help
 
@@ -79,7 +83,7 @@ soxt-help(){
 
 soxt-configure(){
 
-
+  soxt-env
   test -d $COIN_HOME      || ( echo .bash_soxt must setup coin3d first && exit  )
   test -d $OPENMOTIF_HOME || ( echo .bash_soxt must setup openmotif first && exit  )
   test -d $SOXT_HOME      || ( mkdir -p $SOXT_HOME )
@@ -104,6 +108,7 @@ soxt-configure(){
 
 
 soxt-install(){
+  soxt-env 
   cd $SOXT_BUILD || ( echo .bash_soxt ERROR must soxt-get and soxt-configure first && exit ) 
   make install
 }
@@ -111,6 +116,7 @@ soxt-install(){
 
 soxt-edit-libtool(){
 
+  soxt-env
   cd $SOXT_BUILD || ( echo .bash_soxt ERROR must soxt-get and soxt-configure first && exit ) 
 
   if [ "$CMTCONFIG" == "amd64_linux26" ]; then
