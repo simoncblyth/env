@@ -20,10 +20,13 @@ ipython-get(){
  # unix python OR MacPython 
  #
  # local py=python
-   local py="sudo /usr/local/bin/python"
+ #  local py="sudo /usr/local/bin/python"
  
-   $py -c "import sys;print sys.prefix"
-   $py setup.py install
+  echo === ipython-get installing into the python in your path $(which python) ===
+  which python 
+ 
+   python -c "import sys;print sys.prefix"
+   $SUDO python setup.py install
  
  #
  #  this simple python switch , isnt working tis sensitive to the environment ... so 
