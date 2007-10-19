@@ -316,6 +316,8 @@ dyw-build(){
   BASEPATH=$DYW_FOLDER/$branch  
   
   if [ "$type" == "full" ]; then
+  
+      echo ===== dyw-build type $type =================
       cd $BASEPATH/DataStructure/MCEvent/cmt
           
       cmt br cmt config 
