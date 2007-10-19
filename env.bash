@@ -38,6 +38,8 @@
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
  [ -r macros/macros.bash  ] && . macros/macros.bash  
+ [ -r python/python.bash  ] && . python/python.bash  
+ 
  
  
  
