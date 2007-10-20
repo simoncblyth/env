@@ -27,6 +27,16 @@ dyb-install(){
 }
 
 
+dyb-env(){
+   local dir=$PWD
+   cd $DYB
+   . sourceme.core
+   . core/dybgaudi/DybExamples/ExHelloWorld/cmt/setup.sh
+   which python
+   cd $dir
+}
+
+
 dyb-sleep(){
   sleep $* && echo "dyb-sleep completed $* " > /tmp/dyb-sleep
 }  
