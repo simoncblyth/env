@@ -48,6 +48,9 @@ void select_diff_nFake_and_other(TString rootfileinput, Int_t nf, Int_t codef){
 		const Int_t nFake = fha.GetEntries();
 		dywGLPhotonHitData* phd = NULL ;
 
+
+        Int_t eid = evt->eventID ;
+
 		//check the special case: nFake =0
 		/*Int_t nf0,nfeventID;
 		nf0 = 0;
