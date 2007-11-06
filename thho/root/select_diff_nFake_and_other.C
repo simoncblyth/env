@@ -62,8 +62,19 @@ void select_diff_nFake_and_other(TString rootfileinput, Int_t nf, Int_t codef){
 		}
 		*/
 
-		for(size_t ii=0; ii<nFake; ii++){
+
 			if(nFake == nf){
+				nfn++;
+			}
+		
+		if(nFake !=1 && nFake!=2 && nFake!=3 && nFake!=4 && nFake!=5 ){
+			cout << "nFake == 0, " << nFake << endl;
+		}
+
+
+
+
+		for(size_t ii=0; ii<nFake; ii++){
 				phd = (dywGLPhotonHitData*)fha[ii];
 				phd -> GetMomentum(pxf,pyf,pzf);
 				wf  = phd->GetWeight();
@@ -74,8 +85,7 @@ void select_diff_nFake_and_other(TString rootfileinput, Int_t nf, Int_t codef){
 				//codef = phd->GetHitCode();
 				//check the value, they should be the same. after check: yes, they are the same.
 				
-				nfn++;
-				
+			if( nFake == nf){				
 				if(ii == codef){
 					nfnc++;
 					if(wf > cfw && pxf > cfpx){
@@ -102,5 +112,5 @@ void select_diff_nFake_and_other(TString rootfileinput, Int_t nf, Int_t codef){
 	cout << "total entries with  weight > 0 and  px < 0  " <<  "  is   " << nfncwapb << endl;
 	cout << "total entries with  weight < 0 and  px > 0  " <<  "  is   " << nfncwbpa << endl;
 	cout << "total entries with  weight < 0 and  px < 0  " <<  "  is   " << nfncwbpb << endl;
-	cout << "no fake hits number is "<< nf0 << endl;
+//	cout << "no fake hits number is "<< nf0 << endl;
 }
