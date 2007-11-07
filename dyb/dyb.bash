@@ -13,7 +13,7 @@ dyb-get(){
    if [ "X$branch" == "Xtrunk" ]; then 
      url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst
    else
-     url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/branches/inst-rozz-$branch/dybinst/dybinst
+     url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/branches/inst-NuWa-$branch/dybinst/dybinst
    fi
    echo === dyb-get branch $branch url $url == see https://wiki.bnl.gov/dayabay/index.php?title=Offline_Release_rozz-0.0.4 ==
    svn export $url
