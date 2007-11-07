@@ -21,6 +21,17 @@ dyb-get(){
 }
 
 
+dyb-linklog(){
+
+  cd $LOCAL_BASE/dyb
+  rm -f dybinst.log
+  local log=$(ls -tr dybinst-*.log|tail -1)
+  local cmd="ln -s $log dybinst.log"
+  echo === dyb-linklog $cmd ===
+  eval $cmd 
+
+}
+
 dyb-install-nohup(){
     cd $LOCAL_BASE/dyb
     rm -f nohup.out
