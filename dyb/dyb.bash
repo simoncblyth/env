@@ -68,6 +68,7 @@ dyb-smry(){
   
 dyb-log(){
   cd $LOCAL_BASE/dyb
+  dyb-linklog
   tail -f dybinst.log
 }  
 
