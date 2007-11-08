@@ -45,6 +45,13 @@ dyb-install(){
 }
 
 
+dyb-source(){
+  local p=$PWD
+  cd $DYB
+  . sourceme.NuWa
+  cd $p
+}
+
 dyb-env(){
    local dir=$PWD
    cd $DYB
