@@ -9,7 +9,7 @@
 
 //void select(void*);
 
-void thho_write_seedfile_transmission(TString rootfile, TString xmlpath ){
+void thho_write_seedfile_transmission_nFake(TString rootfile, TString xmlpath ){
     
     gSystem->Load("$DYW/InstallArea/$CMTCONFIG/lib/libMCEvent.so");
     dywGLEvent* evt = new dywGLEvent();
@@ -55,25 +55,10 @@ void thho_write_seedfile_transmission(TString rootfile, TString xmlpath ){
   	const Int_t nFake = fha.GetEntries(); 
 	dywGLPhotonHitData* phd = NULL ;
   
-	for(size_t ii=0; ii<nFake; ii++){
-	  phd = (dywGLPhotonHitData*)fha[0];
-	  phd->GetPosition(xf,yf,zf);
-	  idf = phd->GetPMTID();
-	  tf  = phd->GetHitTime();
-  	  wf  = phd->GetWeight();
-  	
-/*	
-	
-	  //start select
-	  if( abs(xf-110.) < 2. ){
-	  //cout<<Form(" [%d](%.1f,%.1f,%.1f ; %.1f , %.3f )", idf , xf,yf,zf, tf , wf ) <<endl;
-*/
+	if(nFake == 2){
+
 	  o << Form("<seed n=\"%d\" >%d</seed>\n",n++, evt->ranSeed)  ;
-
-         //}
-
-	//	select(evt);
-    }
+}
 
 }
     cout << endl ;

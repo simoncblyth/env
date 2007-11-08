@@ -86,7 +86,7 @@ void calculatetrans(const char* filepath ){
 	  //idf = phd->GetPMTID();
 	  //tf  = phd->GetHitTime();
   	  //wf  = phd->GetWeight();
-  	}
+  	
 	
 	
 	  //start select
@@ -112,7 +112,7 @@ void calculatetrans(const char* filepath ){
 		  //cout << "outter" << mmm << endl;
 	  }
 }
-
+}
  writetrans(filepath,nn,mm,nnn,mmm,nevent,imax);
  delete f;
 }
