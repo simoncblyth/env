@@ -39,11 +39,9 @@ dyb-install-nohup(){
 }
 
 dyb-install(){
-
-  local def_arg="all"
-  local arg=${1:-$def_arg}
+  ## "all" if no argument given, otherwise propagate  
   cd $LOCAL_BASE/dyb
-  ./dybinst $arg
+  ./dybinst ${*:-all}
 }
 
 
