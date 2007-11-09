@@ -18,8 +18,17 @@ dyb-version(){
    echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
  fi
  
+ 
+ 
+ export DYB_OPTION=""
+ #export DYB_OPTION="_dbg"
+ 
  export DYB_VERSION
- export DYB=$LOCAL_BASE/dyb/$DYB_VERSION 
+ export DYB_FOLDER=$LOCAL_BASE/dyb
+ export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
+
+
+ ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
 
 }
@@ -76,6 +85,13 @@ dyb-install-nohup(){
     rm -f nohup.out
     nohup bash -lc "dyb-install $*"
 }
+
+
+dyb-install-screen(){
+   cd $DYB
+   screen bash -lc "dyb-install $*"
+}
+
 
 dyb-install(){
   ## "all" if no argument given, otherwise propagate  
