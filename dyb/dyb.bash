@@ -1,14 +1,22 @@
 
 DYB_BASE=$ENV_BASE/dyb
 export DYB_HOME=$HOME/$DYB_BASE
-export DYB=$LOCAL_BASE/dyb
+
+## this is the one and only place to set the version 
+#export DYB_VERSION=trunk
+export DYB_VERSION=0.0.4
+
+
+export DYB=$LOCAL_BASE/dyb/$DYB_VERSION
 
 dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
 
 dyb-get(){
-   local branch=${1:-trunk}
-   mkdir -p $LOCAL_BASE/dyb
-   cd $LOCAL_BASE/dyb
+   
+   ## get the branch from the operating directory 
+   mkdir -p $DYB
+   cd $DYB
+   local branch=$(basename $PWD)
    
    if [ "X$branch" == "Xtrunk" ]; then 
      url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst
@@ -21,9 +29,22 @@ dyb-get(){
 }
 
 
+dyb-check(){
+
+  cd $DYB
+  local version=$(basename $PWD)
+  
+  if [ "$version" == "$DYB_VERSION" ]; then
+     echo === dyb-check consistent versions $version ==
+  else
+     echo === dyb-check INCONSITENT VERSIONS ... DYB_VERSION $DYB_VERSION version $version DYB $DYW ===
+  fi
+}
+
+
 dyb-linklog(){
 
-  cd $LOCAL_BASE/dyb
+  cd $DYB
   rm -f dybinst.log
   local log=$(ls -tr dybinst-*.log|tail -1)
   local cmd="ln -s $log dybinst.log"
@@ -33,14 +54,14 @@ dyb-linklog(){
 }
 
 dyb-install-nohup(){
-    cd $LOCAL_BASE/dyb
+    cd $DYB
     rm -f nohup.out
     nohup bash -lc "dyb-install $*"
 }
 
 dyb-install(){
   ## "all" if no argument given, otherwise propagate  
-  cd $LOCAL_BASE/dyb
+  cd $DYB
   ./dybinst ${*:-all}
 }
 
@@ -67,12 +88,12 @@ dyb-sleep(){
 }  
   
 dyb-smry(){
-  cd $LOCAL_BASE/dyb
+  cd $DYB
   tail -f nohup.out
 }  
   
 dyb-log(){
-  cd $LOCAL_BASE/dyb
+  cd $DYB
   dyb-linklog
   tail -f dybinst.log
 }  
