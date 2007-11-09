@@ -1,13 +1,31 @@
 
+
 DYB_BASE=$ENV_BASE/dyb
 export DYB_HOME=$HOME/$DYB_BASE
 
-## this is the one and only place to set the version 
-#export DYB_VERSION=trunk
-export DYB_VERSION=0.0.4
 
 
-export DYB=$LOCAL_BASE/dyb/$DYB_VERSION
+dyb-version(){
+
+  # note, sensitivity to preset DYB_VERSION ... overrides the below setting
+  export DYB_VERSION_P=trunk
+  #export DYB_VERSION_P=0.0.4  
+  
+ if [ "X$DYB_VERSION" == "X" ]; then
+   vname=DYB_VERSION_$NODE_TAG
+   eval DYB_VERSION=\$$vname
+ else
+   echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
+ fi
+ 
+ export DYB_VERSION
+ export DYB=$LOCAL_BASE/dyb/$DYB_VERSION 
+
+
+}
+
+dyb-version
+
 
 dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
 
