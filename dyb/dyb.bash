@@ -120,12 +120,6 @@ dyb-info(){
 }
 
 
-dyb-run(){
-
-  
-
-
-}
 
 dyb-examples-run(){
 
