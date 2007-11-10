@@ -112,11 +112,6 @@ dyb-source(){
 }
 
 
-dyb-env(){
-
-}
-
-
 dyb-examples-run(){
 
   local example=${1:-ExHelloWorld}
