@@ -107,10 +107,25 @@ dyb-install(){
 dyb-source(){
   local pwd=$PWD
   cd $DYB
-  . sourceme.NuWa
+  . sourceme.$DYB_RELEASE
   cd $pwd
 }
 
+
+dyb-info(){
+
+  echo SITEROOT $SITEROOT
+  echo CMTPROJECTPATH $CMTPROJECTPATH
+  echo CMTEXTRATAGS $CMTEXTRATAGS
+}
+
+
+dyb-run(){
+
+  
+
+
+}
 
 dyb-examples-run(){
 
@@ -141,13 +156,69 @@ dyb-examples-setup(){
    local example=${1:-ExHelloWorld}
    local dir=$PWD
    
+   ## NB cmt gotcha avoided 
+   ##   ... have to cd to the directory and then source the setup
+   
    cd $DYB
    . sourceme.$DYB_RELEASE
-   . $DYB_RELEASE/dybgaudi/DybExamples/$example/cmt/setup.sh
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/DybExamples/$example/cmt
+   . setup.sh
    
    which python
    cd $dir
 }
+
+
+dyb-run(){
+
+  local dir=$PWD
+   
+   cd $DYB
+   . sourceme.$DYB_RELEASE
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt/
+   . setup.sh
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin
+   ./dyb.exe
+ 
+   cd $dir
+}
+
+
+dyb-runsim(){
+
+  local dir=$PWD
+  
+  
+   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup
+   cd $DYB
+   . sourceme.$DYB_RELEASE
+   
+   ## this succeeds to setup the path to get the appropriate python 
+   cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt
+   . setup.sh 
+   
+   # cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/cmt/
+   # . setup.sh
+   
+   # McTruthMaker not yet ready in NuWa-0.0.4
+   # cd $DYB/$DYB_RELEASE/dybgaudi/Event/
+   #
+   
+   which python
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/share/
+   python RunSimInPython.py
+
+   ##
+   ## would you avoid the environment dependency headache, by just plucking 
+   ## the appropriate python and letting it handle it ?
+   ##
+
+}
+
 
 
 dyb-sleep(){
