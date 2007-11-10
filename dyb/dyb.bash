@@ -27,6 +27,7 @@ dyb-version(){
  export DYB_FOLDER=$LOCAL_BASE/dyb
  export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
 
+ export DYB_RELEASE=NuWa-$DYB_VERSION
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
@@ -69,6 +70,9 @@ dyb-check(){
 }
 
 
+
+
+
 dyb-linklog(){
 
   cd $DYB
@@ -107,11 +111,45 @@ dyb-source(){
   cd $pwd
 }
 
+
 dyb-env(){
+
+}
+
+
+dyb-examples-run(){
+
+  local example=${1:-ExHelloWorld}
+  dyb-examples-setup $example
+  
+  case "$example" in
+     ExHelloWorld) invoker=HelloWorldInPython ;;
+                *) invoker=NONE ;;
+  esac
+  
+  if [ "X$invoker" == "XNONE" ]; then
+     echo === dyb-examples-run  example $example has no corresponding invoker  === 
+  else
+     which python
+     local dir=$PWD 
+     cd $DYB
+     local cmd="python $DYB_RELEASE/dybgaudi/DybExamples/$example/share/$invoker.py"
+     echo $cmd
+     eval $cmd
+     cd $dir 
+  fi  
+
+}
+
+dyb-examples-setup(){
+
+   local example=${1:-ExHelloWorld}
    local dir=$PWD
+   
    cd $DYB
-   . sourceme.core
-   . core/dybgaudi/DybExamples/ExHelloWorld/cmt/setup.sh
+   . sourceme.$DYB_RELEASE
+   . $DYB_RELEASE/dybgaudi/DybExamples/$example/cmt/setup.sh
+   
    which python
    cd $dir
 }
