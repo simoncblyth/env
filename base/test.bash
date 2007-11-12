@@ -3,6 +3,6 @@
 
 test-cp(){
 
-  python $BASE_BASE/test-cp.py   
+  python $HOME/$BASE_BASE/test-cp.py   
    
 }
