@@ -1,18 +1,40 @@
 #!/usr/bin/env python
-""" measureing the time to copy files ... eg 100MB for a reasonable measurement """
+""" 
+    measureing the time to copy files 
+        ... eg 100MB for a reasonable measurement
+
+    verified to be consistent with the "real" results from command line: 
+        time  cp 100m 100m.1  
+
+   OOPS mkfile seems to be an OS X thing 
+
+     usage :
+          cd ~/env/base
+          python test-cp.py
+
+ """
 
 import os
 import time
+import sys
 
 
 ## filesize in megabytes
 MB=100
 f="%sm" % MB 
 
+if sys.platform == "darwin" :
+    mmd = "mkfile %s %s" % ( f, f)
+elif sys.platform == "linux2" :
+    mmd = "dd if=/dev/zero of=%s bs=1024 count=%d " % ( f , 1024*MB )
+else:
+    mmd = "echo sorry platform %s not supported... will fail copy " % sys.platform
+
 os.chdir("/tmp")
 if not os.path.exists(f):
-    print "print creating testfile %s " % f  
-    os.system( "mkfile %s %s" % ( f, f))
+    print "print creating testfile with command: %s " % mmd  
+    os.system(mmd)
+
 
 p = "%s.%s" % ( f, "1" )
 if os.path.exists( p ):
