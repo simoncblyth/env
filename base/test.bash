@@ -1,13 +1,8 @@
+
+
+
 test-cp(){
 
-   cd /tmp 
-   local f=100m
-   [ -f $f ] || mkfile $f $f
+  python $BASE_BASE/test-cp.py   
    
-   rm -f $f.1
-   time cp $f $f.1
-   
-   
-
-
 }
