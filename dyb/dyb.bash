@@ -27,7 +27,11 @@ dyb-version(){
  export DYB_FOLDER=$LOCAL_BASE/dyb
  export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
 
- export DYB_RELEASE=NuWa-$DYB_VERSION
+ if [ "$DYB_VERSION" == "trunk" ]; then
+    export DYB_RELEASE=NuWa
+ else
+    export DYB_RELEASE=NuWa-$DYB_VERSION
+ fi 
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
