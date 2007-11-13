@@ -104,7 +104,7 @@ dyb-install-screen(){
 dyb-install(){
   ## "all" if no argument given, otherwise propagate  
   cd $DYB
-  ./dybinst ${*:-all}
+  ./dybinst $DYB_VERSION ${*:-all}
 }
 
 
@@ -178,8 +178,12 @@ dyb-run(){
    cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt/
    . setup.sh
    
-   cd $DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin
-   ./dyb.exe
+   
+   which dyb.exe
+   ##cd $DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/share/
+   dyb.exe SimuOptions.txt
  
    cd $dir
 }
