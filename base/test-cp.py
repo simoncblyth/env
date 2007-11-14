@@ -28,7 +28,7 @@ if sys.platform == "darwin" :
 elif sys.platform == "linux2" :
     mmd = "dd if=/dev/zero of=%s bs=1024 count=%d " % ( f , 1024*MB )
 else:
-    mmd = "echo sorry platform %s not supported... will fail copy " % sys.platform
+    mmd = "echo sorry platform %s not supported... cannot create test file  " % sys.platform
 
 os.chdir("/tmp")
 if not os.path.exists(f):
