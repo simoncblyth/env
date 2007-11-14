@@ -26,12 +26,7 @@ dyb-version(){
  export DYB_VERSION
  export DYB_FOLDER=$LOCAL_BASE/dyb
  export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
-
- if [ "$DYB_VERSION" == "trunk" ]; then
-    export DYB_RELEASE=NuWa
- else
-    export DYB_RELEASE=NuWa-$DYB_VERSION
- fi 
+ export DYB_RELEASE=NuWa-$DYB_VERSION
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
@@ -189,6 +184,17 @@ dyb-run(){
 }
 
 
+
+dyb-setup-proj(){
+
+   local proj=$1
+   cd $DYB/$DYB_RELEASE   
+   
+   ## need a case here ... to find the appropriate cmt folder for 
+   ##  gaudi + dybgaudi 
+
+}
+
 dyb-runsim(){
 
   local dir=$PWD
@@ -198,9 +204,16 @@ dyb-runsim(){
    cd $DYB
    . sourceme.$DYB_RELEASE
    
+   ## from https://wiki.bnl.gov/dayabay/index.php?title=G4dyb_in_DbyGaudi
+   cd $DYB/$DYB_RELEASE/gaudi/GaudiRelease/cmt
+   . setup.sh
+   ## dyb-setup-proj gaudi
+   
    ## this succeeds to setup the path to get the appropriate python 
    cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt
    . setup.sh 
+   ## dyb-setup-proj dybgaudi
+   
    
    # cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/cmt/
    # . setup.sh
