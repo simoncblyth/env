@@ -3,8 +3,6 @@
 DYB_BASE=$ENV_BASE/dyb
 export DYB_HOME=$HOME/$DYB_BASE
 
-
-
 dyb-version(){
 
   # note, sensitivity to preset DYB_VERSION ... overrides the below setting
@@ -18,8 +16,6 @@ dyb-version(){
    echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
  fi
  
- 
- 
  export DYB_OPTION=""
  #export DYB_OPTION="_dbg"
  
@@ -30,21 +26,17 @@ dyb-version(){
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
-
 }
 
 dyb-version
 
-
 dyb(){      [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; } 
 
 dyb-get(){
-   
    ## get the branch from the operating directory 
    mkdir -p $DYB
    cd $DYB
    local branch=$(basename $PWD)
-   
    if [ "X$branch" == "Xtrunk" ]; then 
      url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst
    else
@@ -52,15 +44,12 @@ dyb-get(){
    fi
    echo === dyb-get branch $branch url $url == see https://wiki.bnl.gov/dayabay/index.php?title=Offline_Release_rozz-0.0.4 ==
    svn export $url
-    
 }
 
 
 dyb-check(){
-
   cd $DYB
   local version=$(basename $PWD)
-  
   if [ "$version" == "$DYB_VERSION" ]; then
      echo === dyb-check consistent versions $version ==
   else
@@ -69,53 +58,31 @@ dyb-check(){
 }
 
 
-
-
-
 dyb-linklog(){
-
   cd $DYB
   rm -f dybinst.log
   local log=$(ls -tr dybinst-*.log|tail -1)
   local cmd="ln -s $log dybinst.log"
   echo === dyb-linklog $cmd ===
   eval $cmd 
-
 }
 
 dyb-install-nohup(){
+    echo === dyb-install-nohup has a known issue in failing to completely build Geant4, but has advantage of nohup.out summary file ===
     cd $DYB
     rm -f nohup.out
     nohup bash -lc "dyb-install $*"
 }
 
-
 dyb-install-screen(){
+   echo === dyb-install-screen completes the install, but no summary log ... yet === 
    cd $DYB
    screen bash -lc "dyb-install $*"
 }
 
-
 dyb-install(){
-  ## "all" if no argument given, otherwise propagate  
   cd $DYB
   ./dybinst $DYB_VERSION ${*:-all}
-}
-
-
-dyb-source(){
-  local pwd=$PWD
-  cd $DYB
-  . sourceme.$DYB_RELEASE
-  cd $pwd
-}
-
-
-dyb-info(){
-
-  echo SITEROOT $SITEROOT
-  echo CMTPROJECTPATH $CMTPROJECTPATH
-  echo CMTEXTRATAGS $CMTEXTRATAGS
 }
 
 
@@ -149,30 +116,17 @@ dyb-examples-setup(){
    local example=${1:-ExHelloWorld}
    local dir=$PWD
    
-   ## NB cmt gotcha avoided 
-   ##   ... have to cd to the directory and then source the setup
-   
-   cd $DYB
-   . sourceme.$DYB_RELEASE
-   
-   cd $DYB/$DYB_RELEASE/dybgaudi/DybExamples/$example/cmt
-   . setup.sh
-   
+   dyb_proj gaudi dybgaudi hello
+        
    which python
    cd $dir
 }
 
 
-dyb-run(){
+dyb-exe(){
 
-  local dir=$PWD
-   
-   cd $DYB
-   . sourceme.$DYB_RELEASE
-   
-   cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt/
-   . setup.sh
-   
+   local dir=$PWD
+   dyb_proj
    
    which dyb.exe
    ##cd $DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin
@@ -184,53 +138,72 @@ dyb-run(){
 }
 
 
-
-dyb-setup-proj(){
-
-   local proj=$1
-   cd $DYB/$DYB_RELEASE   
-   
-   ## need a case here ... to find the appropriate cmt folder for 
-   ##  gaudi + dybgaudi 
-
+dyb-sourceme(){
+   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
+   local pwd=$PWD
+   cd $DYB && . sourceme.$DYB_RELEASE || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
+   cd $pwd
 }
 
-dyb-runsim(){
+dyb-info(){
+  echo SITEROOT $SITEROOT
+  echo CMTPROJECTPATH $CMTPROJECTPATH
+  echo CMTEXTRATAGS $CMTEXTRATAGS
+  echo === which cmt $(which cmt) ===
+  echo === which python $(which python) ===
+}
 
-  local dir=$PWD
-  
-  
-   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup
-   cd $DYB
-   . sourceme.$DYB_RELEASE
-   
-   ## from https://wiki.bnl.gov/dayabay/index.php?title=G4dyb_in_DbyGaudi
-   cd $DYB/$DYB_RELEASE/gaudi/GaudiRelease/cmt
-   . setup.sh
-   ## dyb-setup-proj gaudi
-   
-   ## this succeeds to setup the path to get the appropriate python 
-   cd $DYB/$DYB_RELEASE/dybgaudi/DybRelease/cmt
-   . setup.sh 
-   ## dyb-setup-proj dybgaudi
-   
-   
-   # cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/cmt/
-   # . setup.sh
-   
-   # McTruthMaker not yet ready in NuWa-0.0.4
-   # cd $DYB/$DYB_RELEASE/dybgaudi/Event/
-   #
-   
-   which python
-   
-   cd $DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/share/
-   python RunSimInPython.py
+dyb-proj(){
 
+   ##
+   ## NB cmt gotcha avoided 
+   ##   ... have to cd to the directory and then source the setup
+   ##  sourcing remotely is not the same 
+   ##
+
+   dyb-sourceme
+
+   local default="gaudi dybgaudi"
+   local proj 
+   for proj in ${*:-$default}
+   do 
+      local rel, msg     
+      case "$proj" in
+          dybgaudi)    rel=dybgaudi/DybRelease         ; msg="this succeeds to setup the path to get the appropriate python "  ;;
+             gaudi)    rel=gaudi/GaudiRelease          ; msg="action unknown  "  ;; 
+           simualg)    rel=dybgaudi/Simulation/SimuAlg ; msg="untested" ;; 
+             hello)    rel=dybgaudi/DybExamples/ExHelloWorld ; msg="untested" ;;
+                 *)    rel=NONE ;;
+      esac
+
+      local dir=$DYB/$DYB_RELEASE/$rel/cmt
+      if [ -d "$dir" && -f "$dir/setup.sh" ]; then
+         local pwd=$PWD
+         echo === dyb-setup-proj $proj : $dir : $msg ==
+         cd $dir
+         . setup.sh
+         cd $pwd
+      else
+         echo === dyb-setup-proj error proj:$proj has no dir $dir or cmt setup file: $dir/setup.sh == 
+      fi 
+  done
+  
    ##
    ## would you avoid the environment dependency headache, by just plucking 
    ## the appropriate python and letting it handle it ?
    ##
+
+}
+
+dyb-sim(){
+
+   # https://wiki.bnl.gov/dayabay/index.php?title=G4dyb_in_DbyGaudi
+   
+   dyb-proj gaudi dybgaudi 
+   which python
+   
+   cd $DYB/$DYB_RELEASE/dybgaudi/InstallArea/jobOptions/SimuAlg/
+   ./RunG4dyb.py
 
 }
 
