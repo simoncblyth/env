@@ -24,6 +24,9 @@ dyb-version(){
  export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
  export DYB_RELEASE=NuWa-$DYB_VERSION
 
+ export DDR=$DYB/$DYB_RELEASE 
+
+
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
 }
@@ -153,8 +156,19 @@ dyb-exe(){
 
 
 
+dyb-show-path(){
+   echo ${1:-$CMTPATH} | perl -lne 'printf "%s\n",$_ for(split(/:/))'
+}
+
+dyb-cmtpath(){ echo === dyb-cmtpath ===  && dyb-show-path $CMTPATH ; }
+dyb-path(){    echo === dyb-path ===     && dyb-show-path $PATH ; }
+dyb-llp(){     echo === dyb-llp ===      && dyb-show-path $LD_LIBRARY_PATH ; }
+dyb-dlp(){     echo === dyb-dlp ===      && dyb-show-path $DYLD_LIBRARY_PATH ; }
+
+
 
 dyb-info(){
+  echo === dyb-info ===
   echo SITEROOT $SITEROOT
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
@@ -162,6 +176,8 @@ dyb-info(){
   echo === which python $(which python) ===
   
   dyb-cmtpath
+  dyb-path
+  dyb-llp
 }
 
 
@@ -229,9 +245,7 @@ dyb-setup(){
    cd $pwd
 }
 
-dyb-cmtpath(){
-  echo $CMTPATH | perl -lne 'printf "%s\n",$_ for(split(/:/))'
-}
+
 
 dyb-proj(){
 
@@ -252,6 +266,8 @@ dyb-proj(){
    dyb-unmake-setup
    dyb-make-setup
    dyb-setup
+
+   dyb-info
 
 
    local default="gaudi dybgaudi"
