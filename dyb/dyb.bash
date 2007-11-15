@@ -186,7 +186,9 @@ dyb-common(){
   ##
 
   local instdir=$DYB/installation/$DYB_VERSION/dybinst/scripts
-  export BASH_SOURCE=$instdir
+  export BASH_SOURCE=$instdir/virtual-dummy-script-for-interactive-usage-poiposes
+  
+  ## the dummy is removed by dirname 
   
   source $instdir/dybinst-common.sh
   relver=$DYB_VERSION
