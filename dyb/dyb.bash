@@ -152,16 +152,7 @@ dyb-exe(){
 }
 
 
-dyb-sourceme(){
-   
-   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
-   
-   local pwd=$PWD
-   
-   ## suspect that this MUST be invoked from $DYB
-   cd $DYB  && . $DYB_RELEASE/setup.sh || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
-   cd $pwd
-}
+
 
 dyb-info(){
   echo SITEROOT $SITEROOT
@@ -183,16 +174,6 @@ dyb-update(){
 }
 
 
-dyb-clear(){
-
-  echo === dyb-clear : attempting  to reset CMT for the project to ground zero 
-  cd $DYB
-  rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
-  unset SITEROOT
-  unset CMTPROJECTPATH
-  unset CMTEXTRATAGS
-  unset CMTPATH         ## suspect this is the critical one  
-}
 
 
 dyb-common(){
@@ -212,21 +193,43 @@ dyb-common(){
 
 }
 
-dyb-setup(){  
+dyb-make-setup(){  
   
   echo === dyb-setup : regenerate the setup directory and scripts in release folder   
   dyb-common
   local config_file=$(main_setup_file $relver sh)
   if [ ! -f $config_file ] ; then
-        make_setup $relver
+     echo === dyb-setup : creating config_file $config_file 
+     make_setup $relver
+  else
+     echo === dyb-setup : config_file $config_file exists already 
   fi  
 }
 
+dyb-unmake-setup(){
+
+  echo === dyb-clear : attempting  to reset CMT for the project to ground zero 
+  cd $DYB
+  rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
+  unset SITEROOT
+  unset CMTPROJECTPATH
+  unset CMTEXTRATAGS
+  unset CMTPATH         ## suspect this is the critical one  
+}
+
+dyb-setup(){
+   
+   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
+   
+   local pwd=$PWD
+   cd $DYB/$DYB_RELEASE
+   . setup.sh 
+   cd $pwd
+}
 
 dyb-cmtpath(){
   echo $CMTPATH | perl -lne 'printf "%s\n",$_ for(split(/:/))'
 }
-
 
 dyb-proj(){
 
@@ -244,9 +247,9 @@ dyb-proj(){
    ##
    ##
 
-   dyb-clear
+   dyb-unmake-setup
+   dyb-make-setup
    dyb-setup
-   dyb-sourceme
 
 
    local default="gaudi dybgaudi"
