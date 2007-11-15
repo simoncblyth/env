@@ -153,9 +153,13 @@ dyb-exe(){
 
 
 dyb-sourceme(){
+   
    ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
+   
    local pwd=$PWD
-   cd $DYB/$DYB_RELEASE && . setup.sh || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
+   
+   ## suspect that this MUST be invoked from $DYB
+   cd $DYB  && . $DYB_RELEASE/setup.sh || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
    cd $pwd
 }
 
@@ -176,6 +180,43 @@ dyb-update(){
 
 }
 
+
+dyb-clear(){
+
+  echo === dyb-clear : attempting  to reset CMT for the project to ground zero 
+  cd $DYB
+  rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
+  unset SITEROOT
+  unset CMTPROJECTPATH
+  unset CMTEXTRATAGS
+  unset CMTPATH         ## suspect this is the critical one  
+}
+
+
+dyb-common(){
+
+  local instdir=$DYB/installation/$DYB_VERSION/dybinst/scripts
+  source $instdir/dybinst-common.sh
+  relver=$DYB_VERSION
+
+}
+
+dyb-setup(){  
+  
+  echo === dyb-setup : regenerate the setup directory and scripts in release folder   
+  dyb-common
+  local config_file=$(main_setup_file $relver sh)
+  if [ ! -f $config_file ] ; then
+        make_setup $relver
+  fi  
+}
+
+
+dyb-cmtpath(){
+  echo $CMTPATH | perl -lne 'printf "%s\n",$_ for(split(/:/))'
+}
+
+
 dyb-proj(){
 
    ##
@@ -183,8 +224,19 @@ dyb-proj(){
    ##   ... have to cd to the directory and then source the setup
    ##  sourcing remotely is not the same DONT YOU JUST LOVE CMT 
    ##
+   ## 
+   ## hmmm after this are missing all the dependents :  
+   ##   echo $CMTPATH
+   ##   /disk/d4/dayabay/local/dyb/trunk/NuWa-trunk/dybgaudi:/disk/d4/dayabay/local/dyb/trunk/NuWa-trunk/gaudi
+   ##
+   ##  next : examine CMTPATH during the build and runtime preparation 
+   ##
+   ##
 
+   dyb-clear
+   dyb-setup
    dyb-sourceme
+
 
    local default="gaudi dybgaudi"
    local proj 
