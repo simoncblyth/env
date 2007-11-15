@@ -312,6 +312,9 @@ dyb-proj(){
          local pwd=$PWD
          echo === dyb-setup-proj $proj : $dir : $msg ==
          cd $dir
+         
+         ## get rid of the positional parameters, in order to avoid CMT complaint
+         set -- 
          cmt config
          . setup.sh
          cd $pwd
@@ -321,12 +324,6 @@ dyb-proj(){
   done
   
   dyb-info "after project setup "
-  
-   ##
-   ## would you avoid the environment dependency headache, by just plucking 
-   ## the appropriate python and letting it handle it ?
-   ##
-
 }
 
 dyb-sim(){
