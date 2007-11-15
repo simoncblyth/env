@@ -46,7 +46,6 @@ dyb-get(){
    svn export $url
 }
 
-
 dyb-check(){
   cd $DYB
   local version=$(basename $PWD)
@@ -57,7 +56,6 @@ dyb-check(){
   fi
 }
 
-
 dyb-linklog(){
   cd $DYB
   rm -f dybinst.log
@@ -67,12 +65,23 @@ dyb-linklog(){
   eval $cmd 
 }
 
+dyb-log(){
+  cd $DYB
+  dyb-linklog
+  tail -f dybinst.log
+}  
+
 dyb-install-nohup(){
     echo === dyb-install-nohup has a known issue in failing to completely build Geant4, but has advantage of nohup.out summary file ===
     cd $DYB
     rm -f nohup.out
     nohup bash -lc "dyb-install $*"
 }
+
+dyb-smry(){
+  cd $DYB
+  tail -f nohup.out
+}  
 
 dyb-install-screen(){
    echo === dyb-install-screen completes the install, but no summary log ... yet === 
@@ -84,6 +93,11 @@ dyb-install(){
   cd $DYB
   ./dybinst $DYB_VERSION ${*:-all}
 }
+
+
+  
+
+
 
 
 
@@ -141,7 +155,7 @@ dyb-exe(){
 dyb-sourceme(){
    ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
    local pwd=$PWD
-   cd $DYB && . sourceme.$DYB_RELEASE || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
+   cd $DYB/$DYB_RELEASE && . setup.sh || echo === dyb-sourceme ERROR folder DYB $DYB doesnt exist ? ===
    cd $pwd
 }
 
@@ -153,12 +167,21 @@ dyb-info(){
   echo === which python $(which python) ===
 }
 
+
+dyb-update(){
+
+  cd $DYB
+  svn up installation/$DYB_VERSION/dybinst
+  svn up $DYB_RELEASE
+
+}
+
 dyb-proj(){
 
    ##
    ## NB cmt gotcha avoided 
    ##   ... have to cd to the directory and then source the setup
-   ##  sourcing remotely is not the same 
+   ##  sourcing remotely is not the same DONT YOU JUST LOVE CMT 
    ##
 
    dyb-sourceme
@@ -214,16 +237,6 @@ dyb-sleep(){
   sleep $* && echo "dyb-sleep completed $* " > /tmp/dyb-sleep
 }  
   
-dyb-smry(){
-  cd $DYB
-  tail -f nohup.out
-}  
-  
-dyb-log(){
-  cd $DYB
-  dyb-linklog
-  tail -f dybinst.log
-}  
 
 
 
