@@ -195,7 +195,7 @@ dyb-common(){
 
 dyb-make-setup(){  
   
-  echo === dyb-setup : regenerate the setup directory and scripts in release folder   
+  echo === dyb-make-setup : regenerate the setup directory and scripts in release folder   
   dyb-common
   local config_file=$(main_setup_file $relver sh)
   if [ ! -f $config_file ] ; then
@@ -208,7 +208,7 @@ dyb-make-setup(){
 
 dyb-unmake-setup(){
 
-  echo === dyb-clear : attempting  to reset CMT for the project to ground zero 
+  echo === dyb-unmake-setup : attempting  to reset CMT for the project to ground zero 
   cd $DYB
   rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
   unset SITEROOT
