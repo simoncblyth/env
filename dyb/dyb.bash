@@ -169,6 +169,8 @@ dyb-info(){
   echo CMTEXTRATAGS $CMTEXTRATAGS
   echo === which cmt $(which cmt) ===
   echo === which python $(which python) ===
+  
+  dyb-cmtpath
 }
 
 
@@ -257,6 +259,7 @@ dyb-proj(){
          local pwd=$PWD
          echo === dyb-setup-proj $proj : $dir : $msg ==
          cd $dir
+         cmt config
          . setup.sh
          cd $pwd
       else
