@@ -167,7 +167,8 @@ dyb-proj(){
    local proj 
    for proj in ${*:-$default}
    do 
-      local rel, msg     
+      local rel
+      local msg     
       case "$proj" in
           dybgaudi)    rel=dybgaudi/DybRelease         ; msg="this succeeds to setup the path to get the appropriate python "  ;;
              gaudi)    rel=gaudi/GaudiRelease          ; msg="action unknown  "  ;; 
@@ -177,7 +178,7 @@ dyb-proj(){
       esac
 
       local dir=$DYB/$DYB_RELEASE/$rel/cmt
-      if [ -d "$dir" && -f "$dir/setup.sh" ]; then
+      if [ -d "$dir" -a  -f "$dir/setup.sh" ]; then
          local pwd=$PWD
          echo === dyb-setup-proj $proj : $dir : $msg ==
          cd $dir
