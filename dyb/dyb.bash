@@ -156,14 +156,39 @@ dyb-exe(){
 
 
 
-dyb-show-path(){
+dyb--path(){
    echo ${1:-$CMTPATH} | perl -lne 'printf "%s\n",$_ for(split(/:/))'
 }
 
-dyb-cmtpath(){ echo === dyb-cmtpath ===  && dyb-show-path $CMTPATH ; }
-dyb-path(){    echo === dyb-path ===     && dyb-show-path $PATH ; }
-dyb-llp(){     echo === dyb-llp ===      && dyb-show-path $LD_LIBRARY_PATH ; }
-dyb-dlp(){     echo === dyb-dlp ===      && dyb-show-path $DYLD_LIBRARY_PATH ; }
+dyb-cmtpath(){ echo === dyb-cmtpath ===  && dyb--path $CMTPATH ; }
+dyb-path(){    echo === dyb-path ===     && dyb--path $PATH ; }
+dyb-llp(){     echo === dyb-llp ===      && dyb--path $LD_LIBRARY_PATH ; }
+dyb-dlp(){     echo === dyb-dlp ===      && dyb--path $DYLD_LIBRARY_PATH ; }
+
+
+dyb-cmd(){
+  
+   ##
+   ## usage example
+   ##    cmd(){ pwd ; ls -alst ; }
+   ##    dyb-cmd cmd $PATH
+   ##    dyb-cmd cmd $LD_LIBRARY_PATH
+   ##
+  
+   local cmd=${1:-ls}
+   local dir=${2:-$PATH}
+   local pwd=$PWD
+   
+   for d in $(dyb--path $dir | grep $DYB)
+   do
+      if [ -d "$d" ]; then
+         cd $d 
+         $cmd 
+      fi
+   done
+   
+   cd $pwd
+}
 
 
 
@@ -172,8 +197,10 @@ dyb-info(){
   echo SITEROOT $SITEROOT
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
+  
   echo === which cmt $(which cmt) ===
   echo === which python $(which python) ===
+  echo === which root $(which root) ===
   
   dyb-cmtpath
   dyb-path
@@ -229,10 +256,15 @@ dyb-unmake-setup(){
   echo === dyb-unmake-setup : attempting  to reset CMT for the project to ground zero 
   cd $DYB
   rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
+  
   unset SITEROOT
   unset CMTPROJECTPATH
   unset CMTEXTRATAGS
   unset CMTPATH         ## suspect this is the critical one  
+  
+  ##
+  ## hmm maybe should cleanup PATH ... or can CMT be pursuaded to do that ?
+  ##
 }
 
 dyb-setup(){
@@ -254,21 +286,12 @@ dyb-proj(){
    ##   ... have to cd to the directory and then source the setup
    ##  sourcing remotely is not the same DONT YOU JUST LOVE CMT 
    ##
-   ## 
-   ## hmmm after this are missing all the dependents :  
-   ##   echo $CMTPATH
-   ##   /disk/d4/dayabay/local/dyb/trunk/NuWa-trunk/dybgaudi:/disk/d4/dayabay/local/dyb/trunk/NuWa-trunk/gaudi
-   ##
-   ##  next : examine CMTPATH during the build and runtime preparation 
-   ##
-   ##
 
    dyb-unmake-setup
    dyb-make-setup
    dyb-setup
 
-   dyb-info "prior to project setup "
-
+   #dyb-info "prior to project setup " 
 
    local default="gaudi dybgaudi"
    local proj 
