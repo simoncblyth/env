@@ -197,7 +197,16 @@ dyb-clear(){
 
 dyb-common(){
 
+  ## 
+  ## avoid interactive function/ script issue 
+  ##    dirname $0  
+  ##          -  gives "." when invoked from interactive bash script
+  ##          -  gives absolute path to the directory containing the script, when scripted
+  ##
+
   local instdir=$DYB/installation/$DYB_VERSION/dybinst/scripts
+  export BASH_SOURCE=$instdir
+  
   source $instdir/dybinst-common.sh
   relver=$DYB_VERSION
 
