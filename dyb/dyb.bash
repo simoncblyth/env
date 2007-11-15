@@ -168,7 +168,7 @@ dyb-dlp(){     echo === dyb-dlp ===      && dyb-show-path $DYLD_LIBRARY_PATH ; }
 
 
 dyb-info(){
-  echo === dyb-info ===
+  echo === dyb-info : $* ===
   echo SITEROOT $SITEROOT
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
@@ -267,7 +267,7 @@ dyb-proj(){
    dyb-make-setup
    dyb-setup
 
-   dyb-info
+   dyb-info "prior to project setup "
 
 
    local default="gaudi dybgaudi"
@@ -296,6 +296,8 @@ dyb-proj(){
          echo === dyb-setup-proj error proj:$proj has no dir $dir or cmt setup file: $dir/setup.sh == 
       fi 
   done
+  
+  dyb-info "after project setup "
   
    ##
    ## would you avoid the environment dependency headache, by just plucking 
