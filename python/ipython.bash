@@ -38,7 +38,12 @@ ipython-get(){
  
 }
 
+ipython-rm(){
 
+  local dir=$(dirname $(which ipython))
+  
+
+}
 
 
 
