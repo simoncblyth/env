@@ -224,7 +224,12 @@ dyb-py(){
    echo === dyb-py running in dir $dir on py file $nam ==
    
    cd $dir
-   ./$nam $*
+   if [ "X${nam:0:1}" == "Xi" ]; then
+      echo === using ipython interactive mode, as script name starts with i ===  
+      ipython $name $*
+   else
+      ./$nam $*
+   fi
  
    cd $iwd
    
