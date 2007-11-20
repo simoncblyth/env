@@ -226,7 +226,7 @@ dyb-py(){
    cd $dir
    if [ "X${nam:0:1}" == "Xi" ]; then
       echo === using ipython interactive mode, as script name starts with i ===  
-      ipython $name $*
+      ipython $nam $*
    else
       ./$nam $*
    fi
