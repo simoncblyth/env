@@ -71,7 +71,9 @@ dyb-override(){
 gaudi_extra=debug
 lhcb_extra=debug
 dybgaudi_extra=debug
+export ROOTBUILD="debug"
 EOO
+        cat $override
    else
       echo === dyb-override removing override file $override in folder DYB $DYB
       rm -f $override
