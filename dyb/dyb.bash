@@ -19,9 +19,14 @@ dyb-version(){
    echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
  fi
  
- export DYB_OPTION=""
- #export DYB_OPTION="_dbg"
+ if [ "X$DYB_OPTION" == "X" ]; then
+    DYB_OPTION=""
+   #DYB_OPTION="_dbg" 
+ else
+    echo WARNING honouring a preset DYB_OPTION $DYB_OPTION
+ fi
  
+ export DYB_OPTION
  export DYB_VERSION
  export DYB_FOLDER=$LOCAL_BASE/dyb
  export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 

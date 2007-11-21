@@ -57,8 +57,30 @@ dyb-install-screen(){
    screen bash -lc "dyb-install $*"
 }
 
+
+dyb-override(){
+   local iwd=$PWD
+   cd $DYB
+   local override=".dybinstrc"
+   if [ "$DYB_OPTION" == "_dbg" ]; then
+       echo === dyb-override creating override file $override in folder DYB $DYB
+       cat << EOO > $override
+# override file created by dyb-override       
+gaudi_extra=debug
+lhcb_extra=debug
+dybgaudi_extra=debug
+EOO
+   else
+      echo === dyb-override removing override file $override in folder DYB $DYB
+      rm -f $override
+   fi
+   cd $iwd
+}
+
+
 dyb-install(){
   cd $DYB
+  dyb-override
   ./dybinst $DYB_VERSION ${*:-all}
 }
 
