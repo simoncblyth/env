@@ -80,6 +80,10 @@ dyb-common(){
   source $instdir/dybinst-common.sh
   relver=$DYB_VERSION
 
+  for f in $(env_files $relver) ; do
+        source $f
+  done
+
 }
 
 dyb-make-setup(){  
