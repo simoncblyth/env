@@ -5,6 +5,7 @@ dyb-get(){
    mkdir -p $DYB
    cd $DYB
    local branch=$(basename $PWD)
+   branch=${branch%%_dbg}
    if [ "X$branch" == "Xtrunk" ]; then 
      url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst
    else
@@ -17,6 +18,7 @@ dyb-get(){
 dyb-check(){
   cd $DYB
   local version=$(basename $PWD)
+  version=${version%%_dbg}
   if [ "$version" == "$DYB_VERSION" ]; then
      echo === dyb-check consistent versions $version ==
   else
