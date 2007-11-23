@@ -47,6 +47,34 @@ ipython-rm(){
 
 
 
+ipython-check(){
+
+    local p=$(which python)
+    local i=$(which ipython)
+    
+    [ "$(dirname $p)" == "$(dirname $i)" ] && echo "1" || echo "0" 
+}
+
+ipython-fix(){
+
+   local chk=$(ipython-check)
+   if [ $chk == 1 ]; then
+       local i=$(which ipython)
+       echo === ipython-fix editing the ipython script $i 
+       perl -i.orig -pe '$. == 1 && s/#!.*/#!\/usr\/bin\/env python/; '  $i
+       diff $i.orig $i
+    else
+       echo === ipython-fix paths to python and ipython must be from the same folder 
+    fi
+
+
+
+}
+
+
+
+
+
 # WARNING: Readline services not available on this platform.
 # WARNING: The auto-indent feature requires the readline library
 # WARNING: Proper color support under MS Windows requires the pyreadline library.
