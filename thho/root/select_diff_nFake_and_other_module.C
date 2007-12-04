@@ -36,7 +36,7 @@ void select_diff_nFake_and_other_module(TString rootfileinput){
 
 	Int_t nevent = t->GetEntries();
 	Int_t imax = nevent ;
-	//imax = 1000;
+	imax = 1000;
 	
 
 
@@ -67,6 +67,8 @@ void select_diff_nFake_and_other_module(TString rootfileinput){
 	select(rootfileinput,countnfic,imax);
 }
 
+
+//function defined what to be select
 Int_t select(TString rootfileinput,Int_t countnfic,Int_t imax){
 
 	cout << "selecting....." << endl;
@@ -80,11 +82,6 @@ Int_t select(TString rootfileinput,Int_t countnfic,Int_t imax){
 	}
 	TTree* t = (TTree*) f->Get("event_tree");
 	t->SetBranchAddress("dayabay_MC_event_output",&evt);
-
-	Int_t nevent = t->GetEntries();
-	Int_t imax = nevent ;
-	//imax = 1000;
-
 	
 	Float_t cfw,cfpx;
 	cfw = 0;
@@ -111,6 +108,7 @@ Int_t select(TString rootfileinput,Int_t countnfic,Int_t imax){
 				}
 			}
 			cout << "no fake hits No. is " << nfn0 << endl;
+			save_selection_nf_zero(rootfileinput,nfn0);
 		}
 
 		
@@ -175,8 +173,71 @@ Int_t select(TString rootfileinput,Int_t countnfic,Int_t imax){
 	cout << "total entries with  weight > 0 and  px < 0  " <<  "  is   " << nfncwapb << endl;
 	cout << "total entries with  weight < 0 and  px > 0  " <<  "  is   " << nfncwbpa << endl;
 	cout << "total entries with  weight < 0 and  px < 0  " <<  "  is   " << nfncwbpb << endl;
+        cout << rootfileinput << endl;
+	
+	if( nf != 0 ) {
+	save_selection(rootfileinput,nf,codef,nfn,nfnc,nfncwapa,nfncwapb,nfncwbpa,nfncwbpb);
+	}
+	
 		}
 	}
 	return 0;
 }
+
+// function defined how to save the result per selection with an nFake and an fAke.code
+//
+
+Int_t save_selection_nf_zero(TString rootfileinput, Int_t nfn) {
+
+	TFile * h = new TFile("select.root","UPDATE");
+	if( h->IsZombie() ) {
+		cout << "ABORT cannot open " << rootfileoutput << endl;
+		return 1 ;
+	}
+
+	char dirname[50];
+
+	sprintf(dirname,"select%swith%iwithnohit",rootfileinput,nfn);
+	TDirectory *cdplane = h->mkdir(dirname);
+	cdplane->cd();
+	TNtuple *nt = new TNtuple("fakehits_select","fakehits_select","total");
+	nt->Fill(nfn);
+	h->Write();
+	delete h;
+
+	return 1;
+	
+}
+Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, Int_t nfnc, Int_t nfncwapa, Int_t nfncwapb, Int_t nfncwbpa, Int_t nfncwbpb){
+
+	TFile * h = new TFile("select.root","UPDATE");
+	if( h->IsZombie() ) {
+		cout << "ABORT cannot open " << rootfileoutput << endl;
+		return 1 ;
+	}
+
+	char dirname[50];
+
+	sprintf(dirname,"select%swith%i%i",rootfileinput,nf,codef);
+	TDirectory *cdplane = h->mkdir(dirname);
+	cdplane->cd();
+	TNtuple *nt = new TNtuple("fakehits_select","fakehits_select","total:code:wapa:wapb:wbpa:wbpb");
+	nt->Fill(nfn,nfnc,nfncwapa,nfncwapb,nfncwbpa,nfncwbpb);
+	h->Write();
+	delete h;
+
+	return 1;
+	
+}
+
+
+
+
+
+// function defined how to calculate T and R.
+// (and then plot) and write into an file.
+Int_t calcuTandR_write(TString outputfile){
+	
+}
+
 
