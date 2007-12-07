@@ -87,6 +87,9 @@ Int_t select(TString rootfileinput,Int_t countnfic,Int_t imax){
 	cfw = 0;
 	cfpx = 0;
 
+	// creat the histogram in order to record the select entries associated diff fake hits number etc.
+	hp0 = new TH1F("hpx","This is the px distribution",100,-4,4);
+
 
 	for(Int_t nf=0;nf<=countnfic;nf++){
 		
