@@ -254,7 +254,9 @@ geant4-not-pedantic(){
    ## ./Configure -d  -f oldconfig.sh -build -D CXXFLAGS="-Wall -ansi -Wno-non-virtual-dtor -Wno-long-long"
    ## doesnt work so modify the config file :
    
-   perl -pi -e 's/-pedantic//' $GQ_HOME/config/sys/$CMTCONFIG-g++.gmk
+  # perl -pi -e 's/-pedantic//' $GQ_HOME/config/sys/$CMTCONFIG-g++.gmk
+perl -pi -e 's/-pedantic//' $GQ_HOME/config/sys/$G4SYSTEM.gmk
+
 }
 
 geant4-make-env(){
