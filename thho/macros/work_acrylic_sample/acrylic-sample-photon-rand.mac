@@ -1,0 +1,135 @@
+# generate 100 e- at center of single module detector
+# 31aug06 djaffe
+#
+# OPEN ROOT file at the very beginning
+####  Output File Name
+
+/dyw/run/randomSeedFile xml/tmp-r0.xml
+
+
+## Select detector optical property input file or adopt the default. 
+## E.g. FileName = MaterialPropertiesFile
+## <FileName> must be a tag in the file xml/control.xml and 
+## it's a child element of <controlParameters>   
+## /dyw/detector/input <FileName>
+
+####  select detector:
+#     "Prototype" for IHEP prototype.
+#     "SingleModule" for Daya Bay 20 ton detector.
+#/dyw/detector/select SingleModule
+/dyw/detector/select AcrylicSample
+
+# SCB additional cmds
+#   /dyw/detector/edit/add  action targetvolume xmlpath 
+#      arguments :
+#         - editing action, eg "sensitive_skin"
+#         - target volume , the vicinity of which is being edited
+#         - relative path from DAYA_DATA_DIR to parameter xml file 
+#      
+#
+#/dyw/detector/edit/sensitive_skin inacrylictank innerskin xml/sensitiveskin.xml
+#/dyw/detector/edit/sensitive_skin inacrylictank outerskin xml/sensitiveskin.xml
+#/dyw/detector/edit/sensitive_skin outacrylictank innerskin xml/sensitiveskin.xml
+#/dyw/detector/edit/sensitive_skin outacrylictank outerskin xml/sensitiveskin.xml
+/dyw/detector/edit/sensitive_skin acrysample outerskin xml/thho-sensitiveskin.xml
+
+#/dyw/detector/edit/list
+
+## WARNING NOT FOR GENERAL USE ... SWITCHING OFF BITS OF PHYSICS
+## leave only optical "Op"
+/dyw/phys/off General EM Had Ion ElectroNu
+
+#
+# moved here from the very start ... to allow dynamic tree creation based on the above
+#  /dyw/detector/edit/add commands
+#  after opening the file, the empty trees are created 
+#
+/files/output 2.1eV-r0.root
+
+
+#### Do NOT touch the following line.
+/run/initialize 
+
+####  Control the verbose
+#     verbose level: 0: the least printout, 2: most detailed information.
+/control/verbose 2
+/run/verbose 2
+/tracking/verbose 0
+/dyw/phys/verbose 0 
+
+####  Control the PMT Optical Model
+#     verbose level :  0: quiet;
+#                      1: minimal entrance/exit info;
+#                      2: +print verbose tracking info;
+#                      >=10:  lots of info on thin photocathode calcs.
+#     luxlevel: 0: No transmitting and relfection on photocathode.
+#               1: A simple model for transmitting and reflection.
+#               >=2: Full PMT optical model. The default value is 3.
+#/PMTOpticalModel/verbose 0
+#/PMTOpticalModel/luxlevel 3
+
+##### Physics process
+/process/list
+# /process/inactivate Cerenkov
+
+####  Set scinitillation yield of the liquid Scintillator .
+#     GdLS is for Gd-doped LS and LS is for normal LS in gamma catcher.
+/dyw/detector/ScintYield_GdLS 0
+/dyw/detector/ScintYield_LS 0
+
+
+####  Visulization
+#/control/execute thho-set-scene2.mac
+
+
+#  ========= option 0 , any direction setting will be stomped on
+#/dyw/generator/select Single
+#/gun/particle opticalphoton
+#/gun/energy 3 eV
+#/gun/position 0 0 0 m
+
+# ========= option 1 , control the opticalphoton direction 
+#
+# GenericGun allows a direction to be set ... (it is stomped on if use "Single" without generator2 )
+# direction is overridden when using "Single" so use "Generator2" and "GenericGun" but then need to implement the polariztion stuff 
+#
+/dyw/generator/select Generator2
+/dyw/generator2/main GenericGun
+/gun/direction -10 1 0 
+/gun/particle opticalphoton
+/gun/energy 2.1 eV
+/dyw/generator2/pos glg4 2000 0 0
+#
+# SCB new command to set polz angle ,  random polz angle, when no angle specified
+/dyw/generator2/optPhotonPol 90 deg
+#
+# ======= option 2 , random direction 
+#
+#/dyw/generator/select Generator2
+#/dyw/generator2/main GenericGunRanMomentum
+#/gun/particle opticalphoton
+#/gun/energy 3 eV
+#
+#
+#
+# The command below allows one to generate particle uniformly in Gd-LS volume 
+# /dyw/generator2/pos glg4 0 0 3000 fill World GdLiquidScintillator
+#
+# Or you could use below to generate particle from a single point, unit = mm
+#/dyw/generator2/pos glg4 0 0 0 
+
+
+
+#/control/execute thho-set-scene2.mac
+
+# create the G4UIXm "macros" menu
+# "/control/execute gui.mac" does not work here ... have to wait for the G4UIXm window to be created 
+# so, create an alias instead ...  run it with {gui}
+#/control/alias gui "/control/execute gui.mac"
+#/control/execute gui.mac
+/tracking/storeTrajectory 1
+/files/saveTrajectoryPoints -1
+
+#### Number of Events to simulate.
+/run/beamOn 14
+
