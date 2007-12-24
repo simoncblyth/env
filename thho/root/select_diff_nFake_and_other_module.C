@@ -19,6 +19,7 @@
 // Nov.8 caculate T and R
 //
 //
+//Dec.16 begin use histogram instead of counting
 
 //input the file and nFake you want
 //void select_diff_nFake_and_other(TString rootfileinput, TString rootfileoutput, int_t nf){
