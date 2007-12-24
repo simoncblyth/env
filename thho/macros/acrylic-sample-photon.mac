@@ -1,10 +1,6 @@
-# generate 100 e- at center of single module detector
-# 31aug06 djaffe
-#
 # OPEN ROOT file at the very beginning
 ####  Output File Name
-
-#/dyw/run/randomSeedFile xml/no_fake_hits.xml
+/files/output 20.root
 
 
 ## Select detector optical property input file or adopt the default. 
@@ -44,7 +40,6 @@
 #  /dyw/detector/edit/add commands
 #  after opening the file, the empty trees are created 
 #
-/files/output 2.1eV.root
 
 
 #### Do NOT touch the following line.
@@ -79,7 +74,7 @@
 
 
 ####  Visulization
-#/control/execute thho-set-scene2.mac
+#/control/execute thho-set-scene.mac
 
 
 #  ========= option 0 , any direction setting will be stomped on
@@ -97,8 +92,8 @@
 /dyw/generator2/main GenericGun
 /gun/direction -1 0 0 
 /gun/particle opticalphoton
-/gun/energy 2.1 eV
-/dyw/generator2/pos glg4 200 0 0
+/gun/energy 2.0 eV
+/dyw/generator2/pos glg4 20 0 0
 #
 # SCB new command to set polz angle ,  random polz angle, when no angle specified
 /dyw/generator2/optPhotonPol 90 deg
@@ -120,13 +115,14 @@
 
 
 
-#/control/execute thho-set-scene2.mac
 
 # create the G4UIXm "macros" menu
 # "/control/execute gui.mac" does not work here ... have to wait for the G4UIXm window to be created 
 # so, create an alias instead ...  run it with {gui}
-/control/alias gui "/control/execute gui.mac"
-
+#/control/alias gui "/control/execute gui.mac"
+#/control/execute gui.mac
+/tracking/storeTrajectory 1
+/files/saveTrajectoryPoints -1
 
 #### Number of Events to simulate.
 /run/beamOn 100000
