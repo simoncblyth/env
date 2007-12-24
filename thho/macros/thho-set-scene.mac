@@ -2,37 +2,16 @@
 # G4UI:"_"
 
 
-#/control/execute gui.mac
 /vis/open OIX
-#
-#/vis/drawVolume gdliquidscintillator
-#/vis/scene/add/volume liquidscintillator
+/vis/drawVolume
 
-#/vis/drawVolume inacrylictank
-#/vis/scene/add/volume outacrylictank
-#/vis/scene/add/volume steeltankModule_1
-
-
-#/vis/scene/add/hits
-
-# list the vis attributes of all logical volumes
-#/vis/geometry/list
-
-#                       logical_volname depth r g b opacity
-#/vis/geometry/set/colour skin_inacrylictank_log 0 1 0 0 0.5
-#/vis/geometry/set/forceSolid skin_inacrylictank_log 0 0
-#/vis/geometry/set/forceWireframe skin_inacrylictank_log 0 0
-#/vis/geometry/set/forceAuxEdgeVisible skin_inacrylictank_log 1 0 1
 #/vis/scene/add/volume skin_inacrylictank
 
 
 
 #                       logical_volname depth r g b opacity
-#/vis/geometry/set/colour skin_outacrylictank_log 0 0 1 0 0.5
-#/vis/geometry/set/forceSolid skin_outacrylictank_log 0 0
-#/vis/geometry/set/forceWireframe skin_outacrylictank_log 0 0
-#/vis/geometry/set/forceAuxEdgeVisible skin_outacrylictank_log 1 0 1
-#/vis/scene/add/volume skin_outacrylictank
+/vis/geometry/set/colour thho_acrysample_outerskin_log 0 0 1 0 0.5
+/vis/scene/add/volume thho_acrysample_outerskin
 
 ##
 ## forcing solid give the nasty line pattern
@@ -58,29 +37,4 @@
 /vis/scene/add/hits
 /vis/scene/endOfEventAction accumulate
 
-
 #/track/verbose 1   
-#/event/verbose 1
-#/dyw/phys/verbose 1    
-#
-#   allowing any verbosity in an attempt to see whats happening
-#   results in each event taking forever (when using XMotif interface at least) 
-#   causing having to kill X11  
-#
-#  what are the stopping codes... usually 2 sometimes 4 
-#  
-### pop requested out of 2 stacked tracks.
-#Track (trackID 2, parentID 0) is processed with stopping code 2
-### pop requested out of 183 stacked tracks.
-#Track (trackID 184, parentID 2) is processed with stopping code 2
-### pop requested out of 187 stacked tracks.
-#Track (trackID 189, parentID 184) is processed with stopping code 2
-### pop requested out of 186 stacked tracks.
-#
-
-# refresh is the default
-#/vis/scene/endOfEventAction accumulate
-#/vis/scene/endOfEventAction refresh       
-# 
-#  /dyw/cerenkov/meanPhotonsPerSecondary 
-#
