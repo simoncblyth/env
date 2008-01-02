@@ -1,7 +1,7 @@
 # OPEN ROOT file at the very beginning
 ####  Output File Name
 /files/output beforePMT_table2.root
-
+/dyw/run/runNumber 1
 
 ## Select detector optical property input file or adopt the default. 
 ## E.g. FileName = MaterialPropertiesFile
