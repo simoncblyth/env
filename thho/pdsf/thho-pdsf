@@ -1,0 +1,54 @@
+# user.login
+
+#
+# This is the default .login provided to csh users on pdsf.
+# They are welcome to edit it to meet their own needs.
+#
+# The commands in this file are executed when a csh user first
+# logs in.  This file is processed after .cshrc.
+#
+echo stating honring thho-pdsf setting
+# First source the pdsf system login file
+if ( -e /home/users/startup/pdsf.login )  source /home/users/startup/pdsf.login
+
+# Determine the operating system
+set mach_os = `uname -s`
+
+# Set the default printer (local users may uncomment the next lines
+# and set <printer name> to their favorite printer).
+# setenv PRINTER <printer name>
+# setenv TCAT lpr
+
+# This is to force emacs to use backspace as delete even in terminal mode
+#tset -e "^?"
+
+# Set the default editor
+#setenv EDITOR vi
+#setenv EDITOR emacs
+
+# Uncomment the next line to get rid of coredumps
+limit coredumpsize 0
+
+module load subversion/1.4.0
+module load CMT/v1r18p20061003
+setenv APPS /project/projectdirs/dayabay/apps
+#setenv CMTPATH /home/thho/dayabay/geant4.8.2.p01/dbg/trunk
+#setenv CMTPATH /home/thho/dayabay/geant4.8.2.p01/dbg/legacy-acrylic-thho
+setenv CMTPATH /home/thho/g4dyb-2.14.1
+#setenv CVSROOT ":pserver:jliu@dayawane.ihep.ac.cn:/home/dybcvs/cvsroot"
+setenv PATH {$PATH}:{$APPS}/bin:
+setenv OGLLIBS "-lGLU -lGL -L/usr/X11R6/lib -lXmu"
+#source $CMTPATH/Everything/cmt/setup.csh
+
+
+##### personal setting ####
+
+setenv THHODATADIR "/project/projectdirs/dayabay/scratch/thho/"
+setenv ROOTSYS "/project/projectdirs/dayabay/apps/ROOT/5.12/root"
+setenv PATH {$PATH}:{$ROOTSYS}/bin:
+setenv LD_LIBRARY_PATH {$LD_LIBRARY_PATH}:$ROOTSYS/lib:
+
+
+echo honring thho-pdsf completly
+echo CMTPATH=${CMTPATH}
+
