@@ -3,4 +3,3 @@ alias cp 'cp -i'
 
 
 
-tset -e "^?"
