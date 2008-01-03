@@ -47,6 +47,9 @@ void plot(void){
 	TGraphErrors* gr9 = plotgac("10mm","15mm",0.05,8);
         gr9->SetLineColor(9);
 	gr9->Draw("L");
+	TGraphErrors* gr10 = plotgt("10mm",5);
+	gr10->SetLineColor(10);
+	gr10->Draw("L");
 	
 }
 
@@ -57,7 +60,7 @@ TGraphErrors* plotg(TString filewl, TString fileabs, Int_t we){
 	//find out how many data and specify the size of array for plotting
 	ifstream inxx;
 	inxx.open(filewl);
-	Float_t xx;
+	Double_t xx;
 	Int_t sizex(0);
 	while(1){
 		inxx >> xx;
@@ -67,7 +70,7 @@ TGraphErrors* plotg(TString filewl, TString fileabs, Int_t we){
 	cout << "sizex = " << sizex << endl;
 	ifstream inyy;
 	inyy.open(fileabs);
-	Float_t yy;
+	Double_t yy;
 	Int_t sizey(0);
 	while(1){
 		inyy >> yy;
@@ -91,7 +94,7 @@ TGraphErrors* plotg(TString filewl, TString fileabs, Int_t we){
 	iny.open(fileabs);
 	
 	Int_t ix = 0;
-	Float_t xxx,yyy;
+	Double_t xxx,yyy;
        	const Int_t n = sizex;
 	Double_t x[n];
 	Double_t y[n];
@@ -125,6 +128,57 @@ TGraphErrors* plotg(TString filewl, TString fileabs, Int_t we){
 
 }
 
+TGraphErrors* plotgt(TString file,Int_t we){
+
+	gROOT->Reset();
+
+	//find out how many data and specify the size of array for plotting
+	ifstream inxx;
+	inxx.open(file);
+	Double_t xx,yy;
+	Int_t sizex(0);
+	while(1){
+		inxx >> xx >> yy;
+		if ( !inxx.good()) break;
+		sizex++;
+	}
+	cout << "sizex = " << sizex << endl;
+
+	inxx.close();
+	
+	//starting plotting
+	ifstream inx;
+	inx.open(file);
+	
+	Int_t ix = 0;
+	Double_t xxx,yyy;
+       	const Int_t n = sizex;
+	Double_t x[n];
+	Double_t y[n];
+	Double_t ex[n];
+	Double_t ey[n];
+	while (1){
+		inx >> xxx >> yyy;
+		if (!inx.good()) break;
+		x[ix]=xxx;
+		y[ix]=yyy/we;
+		ex[ix] = 0;
+		ey[ix] = 0;
+		ix++;
+	}
+
+	gr = new TGraphErrors(n,x,y,ex,ey);
+
+	inx.close();
+
+	
+	return gr;
+	delete gr;
+
+}
+
+
+
 TGraphErrors* plotgac(TString ac1, TString ac2, Double_t th, Double_t rf){
 
 	gROOT->Reset();
@@ -132,8 +186,8 @@ TGraphErrors* plotgac(TString ac1, TString ac2, Double_t th, Double_t rf){
 	//find out how many data and specify the size of array for plotting
 	ifstream in1;
 	in1.open(ac1);
-	Float_t x1;
-	Float_t y1;
+	Double_t x1;
+	Double_t y1;
 	Int_t size1(0);
 	while(1){
 		in1 >> x1 >> y1;
@@ -143,8 +197,8 @@ TGraphErrors* plotgac(TString ac1, TString ac2, Double_t th, Double_t rf){
 	cout << "size1 = " << size1 << endl;
 	ifstream in2;
 	in2.open(ac2);
-	Float_t x2;
-	Float_t y2;
+	Double_t x2;
+	Double_t y2;
 	Int_t size2(0);
 	while(1){
 		in2 >> x2 >> y2;
@@ -216,7 +270,6 @@ TGraphErrors* plotgac(TString ac1, TString ac2, Double_t th, Double_t rf){
 		}
 		aex[ai]=0;
 		aey[ai]=0;
-		cout << "att is " << ay[ai] << endl;
 	}
 	gr = new TGraphErrors(n,ax,ay,aex,aey);
 
