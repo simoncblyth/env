@@ -40,8 +40,21 @@ public:
     void Load( const char* path = "../macros/test-optical.root" ,  const char* name = "PMTPositionTree" , Int_t nmax=1000  );
     void Dump();
 
+    // accessors to be added :
+    //Double_t GetX( Int_t id );
+    //Double_t GetY( Int_t id );
+    //Double_t GetZ( Int_t id );
+    //Double_t GetTheta( Int_t id );
+    //Double_t GetPhi( Int_t id );
+
+
     static void Test(const char* path);
 };
+
+
+// Double_t PMTMap::GetX( Int_t id ){
+//}
+
 
 void PMTMap::PMTMap(){
   fPMT = NULL ;
