@@ -1,0 +1,84 @@
+
+Dear Jimmy, (All,)  
+    
+   For now I focus on online visualization of hits using 1/2/3d histograms,
+   I expect the immediately needed functionality can be provided  
+   using midas/root/roody. 
+
+   In order to make these histos we need the additional ingredient of the positions
+   via a lookup from the IDs in the raw data. It would be good if you could 
+   document the raw data format and ID schemes in use. 
+
+   To avoid maintenance headaches I think it is essential to have a common 
+   source of positions for simulation , reconstruction/visualization.
+   An easy way to do this in the short term for the PMTs is to use the 
+   PMTPositionTree that dywConstructAberdeenLab 
+   writes into the output root files in G4dyb jobs for the PMTs.  
+
+   For the tracker (and possibly for PMTs too) I think that the best quick solution is to 
+   introspect the in memory G4 simulation geometry  constructed by 
+   dywConstructAberdeenLab. I will attempt to do this.
+   
+   Advantages of doing things this way :
+      - the coupling between the *Construct* code and position extraction is weaker
+        and hence more robust
+      - doesnt get in the way/complicate the construct code   
+      - more general/reusable approach
+
+   For the PMTs these links point to some demo code :
+       http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/aberdeen/PMTMap.C
+       http://dayabay.phys.ntu.edu.tw/repos/env/trunk/aberdeen/PMTMap.C
+
+   that extracts positions and IDs from the  PMTPositionTree into a PMTMap class 
+   that contains a pointer to an array of PMT structs,  allowing fast/convenient access  
+   for subsequent manipulations/plotting
+
+   Cint interactive test with : 
+
+     .L PMTMap.C
+      PMTMap* pm = new PMTMap 
+     pm->Load("path/to/g4dyb/rootfile/for/geometry/of/interest.root") ; 
+     pm->Dump()
+
+   It would be good if you could add some accessor methods, as commented in the code 
+   and use the 2/3d visualization documentation from 
+       ftp://root.cern.ch/root/doc/3Histograms.pdf
+   to devise some 2d/3d online PMT histos  
+
+   This should reveal if Roody suffers from any limitations 
+   that might get in the way of our approach.
+ 
+   For efficient collaboration, I think its best to use a repository for 
+   our developments even in the initial stages. To this end I have created a "jimmy" 
+   account for you on the NTU Trac/svn repository/wiki :
+        http://dayabay.phys.ntu.edu.tw/tracs/env       
+   please change the password (the initial one can be easily guessed!)
+  
+   This enables you to make changes in the repository and wiki, so you can 
+   checkout/modify/commit to subversion from : 
+      http://dayabay.phys.ntu.edu.tw/repos/env/trunk/aberdeen/PMTMap.C
+   and changes are logged at 
+      http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/aberdeen/PMTMap.C
+       
+   Once our developments have matured somewhat we could consider moving 
+   our developments into the IHEP repository.
+
+   Some introduction to the repository/wiki is on the frontpage .. a particularly
+   useful feature is the timeline of developments :
+       http://dayabay.phys.ntu.edu.tw/tracs/env/timeline
+          
+   Some notes on visualization are at :
+        http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/MidasViz 
+   
+
+Yours,  Simon 
+
+  
+> Dear all,
+> 
+> Attached is a brief note on what we have already, what can be done, and 
+> what we may need on the GUI and visualization. Please comment.
+> 
+> Regards,
+> Jimmy
+
