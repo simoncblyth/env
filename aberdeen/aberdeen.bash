@@ -14,5 +14,9 @@ roody
 rome
 abd
 
+
+#abd-env
+
+
 cd $aberdeen_iwd
 
