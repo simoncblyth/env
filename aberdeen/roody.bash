@@ -4,6 +4,8 @@ roody-env(){
   export ROODY_NAME=trunk 
   export ROODY_FOLDER=$LOCAL_BASE/roody/$ROODY_NAME
 
+  alias roody="$ROODY_FOLDER/bin/roody" 
+
 }
 
 roody-get(){
