@@ -17,12 +17,38 @@ midas-env(){
   #
   export MIDASSYS=$MIDAS_FOLDER
 
+
 }
+
+
+midas-path(){
+
+  midas-env
+
+  # only append the PATH if the path being appended is not there already 
+  local mbin=$MIDAS_FOLDER/darwin/bin
+  test $PATH == ${PATH/$mbin/} && PATH=$PATH:$mbin
+
+  local xbin=$MIDAS_FOLDER/examples/experiment 
+  test $PATH == ${PATH/$xbin/} && PATH=$PATH:$xbin
+  
+  echo $PATH | tr ":" "\n"
+  
+}
+
+
+
 
 midas-info(){
 
   echo MIDAS_EXPTAB $MIDAS_EXPTAB
   echo MIDASSYS $MIDASSYS
+
+  if [ -f "$MIDAS_EXPTAB" ]; then
+     cat $MIDAS_EXPTAB
+  else
+     echo midas-info ERROR ..... no MIDAS_EXPTAB file 
+  fi
 
 }
 
@@ -160,6 +186,18 @@ midas-expt-run(){
 
    
 }
+
+
+midas-expt(){
+
+  midas-env
+  cd $MIDAS_FOLDER/examples/experiment
+}
+
+
+ 
+  
+
 
 
 midas-expt-config(){

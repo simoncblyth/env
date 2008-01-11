@@ -18,7 +18,8 @@ midas
 
 
 roody-env
-
+midas-path > /dev/null
+roody-path > /dev/null
 
 cd $aberdeen_iwd
 
