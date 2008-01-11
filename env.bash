@@ -39,6 +39,7 @@
  [ -r seed/seed.bash  ] && . seed/seed.bash   
  [ -r macros/macros.bash  ] && . macros/macros.bash  
  [ -r python/python.bash  ] && . python/python.bash  
+
  
  
  
@@ -49,9 +50,14 @@
      [ -r db/db.bash  ] && . db/db.bash 
      
      [ -r dyb/dyb.bash  ] && . dyb/dyb.bash 
+     
+     [ -r aberdeen/aberdeen.bash  ] && . aberdeen/aberdeen.bash
 
  fi
  
+
+
+
 
   	 
  
