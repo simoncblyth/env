@@ -3,6 +3,9 @@ midas-env(){
   export MIDAS_NAME=midas-2.0.0 
   export MIDAS_FOLDER=$LOCAL_BASE/midas/$MIDAS_NAME
 
+  export MIDAS_UNAME=$(uname | tr "A-Z" "a-z") 
+
+
 
   # specifies where the exptab file is  
   #   documation incorrectly? implies that this points to the directory rather than the file
@@ -26,7 +29,7 @@ midas-path(){
   midas-env
 
   # only append the PATH if the path being appended is not there already 
-  local mbin=$MIDAS_FOLDER/darwin/bin
+  local mbin=$MIDAS_FOLDER/$MIDAS_UNAME/bin
   test $PATH == ${PATH/$mbin/} && PATH=$PATH:$mbin
 
   local xbin=$MIDAS_FOLDER/examples/experiment 
