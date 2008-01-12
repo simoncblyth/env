@@ -353,6 +353,7 @@ user = blyth, thho, chwang
 admin = dayabaysoft, admin
 heprezmember = simon
 heprezuser = blyth
+aberdeen = blyth, thho, jimmy
 
 EOA
 
@@ -437,6 +438,12 @@ blyth = rw
 @member = r 
 @user = r 
 @admin = r
+
+[aberdeen:/]
+@member = r
+@aberdeen = rw 
+@admin = rw
+
 
  
 EOC
