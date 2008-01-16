@@ -218,10 +218,6 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   done	 
 
 
-  ##
-  ## Geant4 flag change to allow visualization ...
-  ##
-  #flags=' -I\\${GEANT_incdir}  -DG4VIS_USE_OPENGLX '
 
 
   ## NB vis flags are distinct from UI flags 
@@ -232,17 +228,36 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
 	name=LD_LIBRARY_PATH
   fi
   
-  #if [ "$GQ_TAG" == "bat" ]; then
-  #   flags=' -I\${GEANT_incdir} -DG4UI_USE_XM'
-  #else
-  #   flags=' -I\${GEANT_incdir} -DG4UI_USE_XM -DG4VIS_USE -DG4VIS_USE_OPENGLX -DG4VIS_USE_OIX -DG4VIS_USE_OI  '
-  #fi	  
+
+  ## the variable GEANT_CMT carries the Geant environment, includeing
+  ##      GEANT_ppflags  :  the preprocessor directives 
+  ## 
+
+  local GEANT_ppflags
+  local GEANT_incdir
+
+  for pair in $GEANT_CMT
+  do
+	  echo $pair
+	  name=`echo $pair | cut -f1 -d:`  
+	  valu=`echo $pair | cut -f2 -d:`  
+	  type=`echo $pair | cut -f3 -d:`  
+ 
+      if [ "$name" == "GEANT_ppflags" ]; then
+          ## replace commas with spaces ... 
+         GEANT_ppflags=$(echo $valu | perl -p -e 's/,/ /g')
+      elif [ "$name" == "GEANT_incdir" ]; then
+         GEANT_incdir=$valu
+      fi
+ done
+
   
-  ## replace commas with spaces ... 
-  GEANT_ppflags=$(echo $GEANT_ppflags | perl -p -e 's/,/ /g')
+  local flags=' -I\${GEANT_incdir} ${GEANT_ppflags} '
   
-  flags=' -I\${GEANT_incdir} ${GEANT_ppflags} '
-  
+  echo GEANT_CMT     : $GEANT_CMT
+  echo GEANT_ppflags : $GEANT_ppflags
+  echo GEANT_incdir  : $GEANT_incdir
+  echo flags         : $flags
   
   perl -pi -e "s|^(macro\s*GEANT_cppflags\s*\")(.*)(\".*)$|\$1$flags\$3|" $req
 
