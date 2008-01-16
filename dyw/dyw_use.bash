@@ -81,7 +81,7 @@ export DYW_FOLDER
    vname=DYW_VERSION_$NODE_TAG
    eval DYW_VERSION=\$$vname
  else
-   echo WARNING honouring a preset DYW_VERSION setting    
+   echo WARNING honouring a preset DYW_VERSION: $DYW_VERSION    
  fi
  export DYW_VERSION
 

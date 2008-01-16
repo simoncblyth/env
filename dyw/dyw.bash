@@ -11,6 +11,9 @@
 
  dyw-setup(){ 
      ## setup the paths etc.. 
+     
+     soxt-env
+     
     [ "$DYW_DBG" == "1" ] && echo ======= dyw-setup invoked 
     [ -r $DYW/G4dyb/cmt/setup.sh ] && . $DYW/G4dyb/cmt/setup.sh 
     [ "$DYW_DBG" == "1" ] && echo ======= dyw-setup completed

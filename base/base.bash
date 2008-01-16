@@ -34,6 +34,22 @@ base-datestamp(){
 }
 
 
+base-check-nonzero(){
+    local nonzs="$*"
+    local err=""
+    local ok=""
+    for nonz in $nonzs
+    do
+       local vname=$nonz
+       eval vval=\$$nonz
+       test -z "$vval" && err="$err base-check-nonzero ERROR : $nonz is of zero length \\n"  || ok="$ok base-check-nonzero OK : $nonz is $vval \\n"
+    done
+    
+    echo $err
+}
+
+
+
 base-path(){
    perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/PATH.pm" ; &PATH::present_var(@ARGV) ; ' $*
 }

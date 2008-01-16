@@ -162,11 +162,19 @@ dyw-requirements(){   ## constructs the requirements.$LOCAL_NODE file from $DYW_
 
 
 
+
+    
+   
+
 dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set" sticking in the G4 nominal values to be used
 
   [ "X$NODE_TAG" == "X" ] && echo dyw-g4-req error NODE_TAG must be set in env/base/local.bash && return 1;
   
   echo === dyw-g4-req start ==========
+  
+  # check the variables are defined 
+  local err=$(base-check-nonzero SOXT_HOME COIN_HOME DYW)
+  test ! -z $err && echo $err && return 1 
   
   local base=${1:-$DYW}
   
@@ -239,6 +247,7 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   perl -pi -e "s|^(macro\s*GEANT_cppflags\s*\")(.*)(\".*)$|\$1$flags\$3|" $req
 
   if [ "$GQ_TAG" != "bat" ]; then
+    echo # added by dayabay.bash/dyw-g4-req
     echo path_append $name $SOXT_HOME/lib  >> $req 
     echo path_append $name $COIN_HOME/lib  >> $req 
   fi
