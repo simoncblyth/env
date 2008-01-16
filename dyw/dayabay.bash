@@ -173,7 +173,7 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
   echo === dyw-g4-req start ==========
   
   # check the variables are defined 
-  local err=$(base-check-nonzero SOXT_HOME COIN_HOME DYW)
+  local err=$(base-check-nonzero SOXT_HOME COIN_HOME DYW GEANT_CMT)
   test ! -z $err && echo $err && return 1 
   
   local base=${1:-$DYW}
@@ -222,12 +222,6 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
 
   ## NB vis flags are distinct from UI flags 
 
-  if [ "$CMTCONFIG" == "Darwin" ]; then
-    name=DYLD_LIBRARY_PATH
-  else
-	name=LD_LIBRARY_PATH
-  fi
-  
 
   ## the variable GEANT_CMT carries the Geant environment, includeing
   ##      GEANT_ppflags  :  the preprocessor directives 
@@ -252,7 +246,15 @@ dyw-g4-req(){   ## edits $DYW/External/GEANT/cmt/requirements modifying the "set
  done
 
   
-  local flags=' -I\${GEANT_incdir} ${GEANT_ppflags} '
+  local flags=' -I\${GEANT_incdir} '
+  flags="$flags $GEANT_ppflags"
+  
+  if [ "$CMTCONFIG" == "Darwin" ]; then
+    name=DYLD_LIBRARY_PATH
+  else
+	name=LD_LIBRARY_PATH
+  fi
+  
   
   echo GEANT_CMT     : $GEANT_CMT
   echo GEANT_ppflags : $GEANT_ppflags
