@@ -327,6 +327,14 @@ dyw-build(){
   
   local type=${1:-$def_type} 
   local iwd=$PWD
+  
+  if [ "$def_type" == "normal" ]; then
+     echo === dyw-build normal, so move to default DYW $DYW  
+     cd $DYW
+  else
+     echo === dyw-build non-normal $type ... so the PWD is taken as the branch location $PWD
+  fi
+  
   local branch=$(basename $PWD)
 
   local flags

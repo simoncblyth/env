@@ -12,7 +12,7 @@
  dyw-setup(){ 
      ## setup the paths etc.. 
      
-     soxt-env
+ 
      
     [ "$DYW_DBG" == "1" ] && echo ======= dyw-setup invoked 
     [ -r $DYW/G4dyb/cmt/setup.sh ] && . $DYW/G4dyb/cmt/setup.sh 
@@ -36,6 +36,9 @@
  cd $DYW_HOME
  
  [ -r dyw_build.bash ] && . dyw_build.bash
+ 
+ ## hmmm, needs to come after she soxt.bash call ...
+ soxt-env
  
 
  ##  caution must exit with initial dir
