@@ -314,11 +314,10 @@ dyw-grid1-rootcint-timefix(){
 
 
 
-
-
-
-
-
+dyw-build-screen(){
+   echo === dyw-build-screen === 
+   screen bash -lc "dyw-build $*"
+}
 
 
 dyw-build(){

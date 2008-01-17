@@ -22,7 +22,8 @@
  if [ "$NODE_TAG" == "G" ]; then
     [  "$DYW_DBG" == "1" ] && echo skipping dyw-setup invokation on node $NODE_TAG
  elif [ "$NODE_TAG" == "P" ]; then
-    echo "skipping dyw-setup on node $NODE_TAG as attempting dyb installation "
+    #echo "skipping dyw-setup on node $NODE_TAG as attempting dyb installation "
+    dyw-setup
  else  
     dyw-setup 
  fi
