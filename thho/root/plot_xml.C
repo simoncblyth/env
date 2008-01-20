@@ -1,10 +1,14 @@
-//input the x and y asci data file and then plot
+//
+//Purpose: input the x and y xml-type data file and then plot
 //
 //the only thing you should modify is the plot function
+//MakeGraph or plotg:
+//	plotg("file-contain-x-data","file-contain-y-data",weight value of y data)
+//	with fixed weight calue of x data (you can change x-weight via modifying xmap
 //
-//plotg("file-contain-x-data","file-contain-y-data",weight value of y data)
+//Please note in the codes we use XMLMap.C to Parse the xml-type data file.
+//G4dyb/data/xml/e.g. MaterialProperties.xml
 //
-//plotgac("xmm acrylic","ymm acrylic data",difference thick m,reflection fix %)
 #include "Riostream.h"
 TGraphErrors* plot(void){
 	gROOT->Reset();
