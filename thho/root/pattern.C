@@ -14,11 +14,11 @@ TMap* classify_events(TString rootfileinput ){
 	}
 	TTree* t = (TTree*) f->Get("event_tree");
 	t->SetBranchAddress("dayabay_MC_event_output",&evt);
-
+	
 	Int_t nevent = t->GetEntries();
 	Int_t imax = nevent ;
 	// constrain the No. of events to loop in order to save time when testing
-	imax = 1000;
+	//imax = 1000;
 	
         TMap* fMap = new TMap ;
 	
@@ -55,11 +55,12 @@ TMap* classify_events(TString rootfileinput ){
 	return fMap;
 }
 
-void dump_map( TMap* map ){
+void dump_map( TMap* map){
 
    //gross reflectance and transmittance counter
    Double_t gre(0);
-   Double_t gtr(0);	
+   Double_t gtr(0);
+   Double_t gab(0);
 
    TObjString* s = NULL ;
    TIter next(map);
@@ -78,17 +79,59 @@ void dump_map( TMap* map ){
         // EndsWith  BeginsWith
 
 	cout << " key " << sk << " " << vv << endl ;
-	if( sk.EndsWith("rth,") == 1){
-		cout << "reflected!!" << endl;
-		gre = gre + vv ;
-	} else if(sk.EndsWith("tru,") == 1){
-		cout << "transmittance!!" << endl;
-		gtr = gtr + vv ;
-	} else {cout << "sth. wrong in your key" << endl;
-	}
+
+	TObjArray * st = sk.Tokenize(",");
+	Int_t nf = st->GetEntries();
+
+		// starting counting. Note not to include the absorption in air.
+	
+		//reflectance counting
+		if( (sk.BeginsWith("rbo,") == 1) && (sk.EndsWith("rth,") == 1 && nf == 2)){
+			cout << "reflected!!" << endl;
+			cout << "main/first rebound!!!!!!!!" << endl;
+			cout << endl;
+			gre = gre + vv ;
+		} else if( (sk.BeginsWith("tru,") == 1) && (sk.EndsWith("rth,") == 1 && nf !=2)){
+			cout << "reflected!!" << endl;
+			cout << ((nf+1)/2) << " orders rebound!!!" << endl;
+			cout << endl;
+			gre = gre + vv ;
+		} //transmitance counting and 1 case of aborption
+		  else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("tru,") == 1 && nf == 2){
+			cout << nf << "transmittance!!" << endl;
+			cout << "main/first tran through!!!!!" << endl;
+			cout << endl;
+			gtr = gtr + vv ;
+		} else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("tru,") == 1 && nf !=2){
+			if(nf == 1){
+				cout << "absorbed in acrylc!!!!" << endl;
+				cout << "absorbed immediately entried acrylic" << endl;
+				cout << endl;
+				gab = gab + vv ;
+			} else {
+				cout << "transmittance!!" << endl;
+				cout << nf/2 << " orders tran through" << endl;
+				cout << endl;
+				gtr = gtr + vv ;
+			}
+		} // absorption counting
+		  else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("rbo,") == 1 ){
+			cout << "absorbed in acrylic" << endl;
+			cout << nf/2 << "th rebound and then absorbed in acrylic" << endl;
+			cout << endl;
+			gab = gab + vv ;
+		} else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("bou,") == 1 ){
+			cout << "absorbed in acrylic!!" << endl;
+			cout << ((nf+1)/2) << "th rebound and then absorbed in acrylic" << endl;
+			cout << endl;
+			gab = gab + vv ;
+		} else {cout << nf << " sth. wrong in your key" << endl; cout << endl;
+		}
+	
    }
-   cout << "gross reflectance is " << gre << endl;
-   cout << "gross reflectance is " << gtr << endl;
+   cout << "gross reflectance is   " << gre << endl;
+   cout << "gross transmittance is " << gtr << endl;
+   cout << "absorbed in acrylic    " << gab << endl;
 }
 
 
