@@ -1,0 +1,97 @@
+
+
+Following g4pb hd failure, need to setup a minimum on g3pb to tide over
+until g4pb is back in commission,
+
+== subversion ==
+
+{{{
+   g3pb> cd /usr/local ; 
+   g3pb> sudo ln -s /Volumes/SD1BackupAlpha/usr/local sd1ba 
+   g3pb> sudo cp -rp sd1ba/svn . 
+}}}
+     
+ * temporarily link to env, and modify env/base/local.bash to recognise g3pb as NODE_TAG G
+{{{  
+ g3pb>  ln -s /Volumes/SD1BackupAlpha/Users/blyth/env env
+}}}   
+ 
+ * then in a new window subversion is operational (only works because as using almost exactly the same system)
+{{{
+   g3pb>  cd $HOME ; rm -f env   ## get rid of the linked env ...
+   g3pb>  cd $HOME ; svn co http://dayabay.phys.ntu.edu.tw/repos/env/trunk env       
+}}}
+
+== ssh ==
+
+   copy over from .ssh, config and authorized_keys*
+
+== recover the workflow repos + tracitory from the nightly backup ==
+
+   * somehow tracs/2008/01/21/044002 tarball was lost due to permission problem
+   * after creating /va/scm/{tracs,repos} belonging to www $APACHE2_USER recover worked
+{{{
+  g3pb> scm-recover-all g4pb
+}}} 
+
+== getting trac operational ==
+
+=== python ===
+
+{{{
+g3pb:/usr/local blyth$ l
+total 8
+drwxr-xr-x   3 root   wheel  102 Sep 29 18:30 lib
+drwxr-xr-x   3 root   wheel  102 Oct 18 00:14 sbin
+lrwxr-xr-x   1 root   wheel   33 Jan 21 21:34 sd1ba -> /Volumes/SD1BackupAlpha/usr/local
+drwxr-xr-x   6 blyth  blyth  204 Apr 24  2007 svn
+g3pb:/usr/local blyth$ sudo cp -rp sd1ba/python .
+Password:
+cp: sd1ba/python/build/Python-2.5.1/build/temp.macosx-10.4-ppc-2.5/libffi/include/ffi_common.h: No such file or directory
+cp: sd1ba/python/build/Python-2.5.1/build/temp.macosx-10.4-ppc-2.5/libffi/include/ffitarget.h: No such file or directory
+cp: sd1ba/python/pyobjc/trunk/Examples/AppKit/iClass/dist/iClass.app/Contents/MacOS/python: No such file or directory
+cp: sd1ba/python/pyobjc/trunk/Examples/AppKit/iClass/dist/iClass.app/Contents/Resources/lib/python2.5/config: No such file or directory
+cp: sd1ba/python/pyobjc/trunk/Examples/AppKit/iClass/dist/iClass.app/Contents/Resources/English.lproj: No such file or directory
+cp: sd1ba/python/pyobjc/trunk/Examples/AppKit/iClass/dist/iClass.app/Contents/Resources/PythonApplet.icns: No such file or directory
+g3pb:/usr/local blyth$ 
+
+
+}}}
+
+ * python and ipython working...
+
+=== apache2 ===
+
+{{{
+g3pb:/usr/local blyth$ du -hs sd1ba/apache2/
+ 91M    sd1ba/apache2/
+g3pb:/usr/local blyth$ 
+g3pb:/usr/local blyth$ sudo cp -rp sd1ba/apache2 .
+sudo cp -rp sd1ba/apache2 .
+Password:
+cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/lightroom: No such file or directory
+cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/mib: No such file or directory
+cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/pyobjc: No such file or directory
+cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/pyrex: No such file or directory
+cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/xchm: No such file or directory
+
+}}}
+
+
+
+test config
+{{{
+apachectl configtest 
+}}}
+
+to get clean config comment out /usr/local/heprez dependency from /usr/local/apache2/httpd-2.0.59/etc/apache2/httpd.conf
+{{{
+#Include /usr/local/heprez/install/apache/customize/conf/cust2-b2charm.conf
+}}}
+
+after that http://localhost  works ...
+as does  http://localhost/tracs/workflow/ ....  the last item on the timeline is
+01/17/08 
+
+
+
