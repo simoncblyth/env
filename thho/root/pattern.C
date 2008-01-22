@@ -18,7 +18,7 @@ TMap* classify_events(TString rootfileinput ){
 	Int_t nevent = t->GetEntries();
 	Int_t imax = nevent ;
 	// constrain the No. of events to loop in order to save time when testing
-	//imax = 1000;
+	imax = 100;
 	
         TMap* fMap = new TMap ;
 	
@@ -28,7 +28,8 @@ TMap* classify_events(TString rootfileinput ){
 	   
 	   TClonesArray &fha = *(evt->GetFakeHitArray());
 	   const Int_t nFake = fha.GetEntries();
-	   
+	  
+	   //tag the fake hits pattern per event
 	   TString clevt = "" ;
 	   for(Int_t ii=0 ; ii<nFake ; ++ii){
 	      dywGLPhotonHitData* phd = (dywGLPhotonHitData*)fha[ii];
@@ -36,8 +37,10 @@ TMap* classify_events(TString rootfileinput ){
 	      clevt += clfake ;
 	      clevt += "," ;
            }	
+	   //comment out the below line to speed up selecting
 	   //cout << clevt << endl ;
 
+	   
 	   TObjString* prev = (TObjString*)fMap(clevt.Data()); 
 	   if( prev == NULL ){
 	       fMap->Add( new TObjString(clevt), new TObjString("1"));
@@ -50,12 +53,12 @@ TMap* classify_events(TString rootfileinput ){
 	   }   
 	}
 	
-        dump_map( fMap );
+        dump_map( fMap, imax );
 	
 	return fMap;
 }
 
-void dump_map( TMap* map){
+void dump_map( TMap* map, Int_t imax){
 
    //gross reflectance and transmittance counter
    Double_t gre(0);
@@ -129,9 +132,9 @@ void dump_map( TMap* map){
 		}
 	
    }
-   cout << "gross reflectance is   " << gre << endl;
-   cout << "gross transmittance is " << gtr << endl;
-   cout << "absorbed in acrylic    " << gab << endl;
+   cout << "gross reflectance is   " << gre/imax << " %" << endl;
+   cout << "gross transmittance is " << gtr/imax << " %" << endl;
+   cout << "absorbed in acrylic    " << gab/imax << " %" << endl;
 }
 
 
