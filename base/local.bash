@@ -42,6 +42,12 @@ elif [ "$LOCAL_NODE" == "g4pb" ]; then
    NODE_TAG="G"
    BACKUP_TAG="G3"
    SUDO="sudo"
+
+elif [ "$LOCAL_NODE" == "g3pb" ]; then
+
+   NODE_TAG="G"
+   BACKUP_TAG="U"
+   SUDO="sudo"
    
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
