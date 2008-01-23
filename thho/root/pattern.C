@@ -3,7 +3,7 @@
 // Caculate transmittance and reflection of acrylic sample
 //
 // 
-TMap* classify_events(TString rootfileinput ){
+void classify_events(TString rootfileinput ){
 	
 	cout << "selecting....." << endl;
 	dywGLEvent* evt = new dywGLEvent();
@@ -21,6 +21,7 @@ TMap* classify_events(TString rootfileinput ){
 	imax = 100;
 	
         TMap* fMap = new TMap ;
+	TMap* gMap = new TMap ;
 	
 	for(Int_t i=0;i<imax;i++){
 	   t->GetEntry(i);
@@ -40,10 +41,30 @@ TMap* classify_events(TString rootfileinput ){
 	   //comment out the below line to speed up selecting
 	   //cout << clevt << endl ;
 
+	   //generate different key....that is, cate the events with different way
+	   //
+	   //make sth. like key "tru,tru," into key "No.1,transmittance"
+	   //
+	   TString art = classify_pattern(clevt);
+	   TString pro = classify_process(art);
 	   
-	   TObjString* prev = (TObjString*)fMap(clevt.Data()); 
+	   //countting the diffrent patterns, types, or ways.......
+	   counting( fMap, art);
+	   counting( gMap, pro);
+	}
+	
+	// dumpping the results cate in different ways.
+	creat_asci(rootfileinput);
+	dump_map( gMap,imax );
+        dump_map( fMap,imax );
+	
+//	return fMap;
+}
+
+void counting( TMap* map, TString type){
+	   TObjString* prev = (TObjString*)map(type.Data()); 
 	   if( prev == NULL ){
-	       fMap->Add( new TObjString(clevt), new TObjString("1"));
+	       map->Add( new TObjString(type), new TObjString("1"));
 	   } else {
 	       TString s = prev->GetString();
                Double_t x = atof(s.Data());
@@ -51,22 +72,14 @@ TMap* classify_events(TString rootfileinput ){
                TString ns = Form("%f",x);
 	       prev->SetString(ns);
 	   }   
-	}
-	
-        dump_map( fMap, imax );
-	
-	return fMap;
 }
 
-void dump_map( TMap* map, Int_t imax){
 
-   //gross reflectance and transmittance counter
-   Double_t gre(0);
-   Double_t gtr(0);
-   Double_t gab(0);
-
+void dump_map( TMap* map, Int_t imax ){
+   
    TObjString* s = NULL ;
    TIter next(map);
+   Int_t check(0);
    while( (s = (TObjString*)next()) ){
 	TString sk = s->GetString();
         TObjString* v = ((TObjString*)map(sk.Data()))	;
@@ -79,65 +92,24 @@ void dump_map( TMap* map, Int_t imax){
 	   TString sv = v->GetString();
 	   vv = atof(sv.Data());
 	}
-        // EndsWith  BeginsWith
 
-	cout << " key " << sk << " " << vv << endl ;
-
-	TObjArray * st = sk.Tokenize(",");
-	Int_t nf = st->GetEntries();
-
-		// starting counting. Note not to include the absorption in air.
-	
-		//reflectance counting
-		if( (sk.BeginsWith("rbo,") == 1) && (sk.EndsWith("rth,") == 1 && nf == 2)){
-			cout << "reflected!!" << endl;
-			cout << "main/first rebound!!!!!!!!" << endl;
-			cout << endl;
-			gre = gre + vv ;
-		} else if( (sk.BeginsWith("tru,") == 1) && (sk.EndsWith("rth,") == 1 && nf !=2)){
-			cout << "reflected!!" << endl;
-			cout << ((nf+1)/2) << " orders rebound!!!" << endl;
-			cout << endl;
-			gre = gre + vv ;
-		} //transmitance counting and 1 case of aborption
-		  else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("tru,") == 1 && nf == 2){
-			cout << nf << "transmittance!!" << endl;
-			cout << "main/first tran through!!!!!" << endl;
-			cout << endl;
-			gtr = gtr + vv ;
-		} else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("tru,") == 1 && nf !=2){
-			if(nf == 1){
-				cout << "absorbed in acrylc!!!!" << endl;
-				cout << "absorbed immediately entried acrylic" << endl;
-				cout << endl;
-				gab = gab + vv ;
-			} else {
-				cout << "transmittance!!" << endl;
-				cout << nf/2 << " orders tran through" << endl;
-				cout << endl;
-				gtr = gtr + vv ;
-			}
-		} // absorption counting
-		  else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("rbo,") == 1 ){
-			cout << "absorbed in acrylic" << endl;
-			cout << nf/2 << "th rebound and then absorbed in acrylic" << endl;
-			cout << endl;
-			gab = gab + vv ;
-		} else if(sk.BeginsWith("tru,") == 1 && sk.EndsWith("bou,") == 1 ){
-			cout << "absorbed in acrylic!!" << endl;
-			cout << ((nf+1)/2) << "th rebound and then absorbed in acrylic" << endl;
-			cout << endl;
-			gab = gab + vv ;
-		} else {cout << nf << " sth. wrong in your key" << endl; cout << endl;
-		}
-	
+	Double_t ratio;
+	ratio = ((Double_t) vv / (Double_t) imax)*100;
+	cout << sk << " " << ratio << " %"<<endl ;
+	//output_table(map,sk,ratio);
+	check = check + vv;
    }
-   cout << "gross reflectance is   " << gre/imax << " %" << endl;
-   cout << "gross transmittance is " << gtr/imax << " %" << endl;
-   cout << "absorbed in acrylic    " << gab/imax << " %" << endl;
+   
+
+   if (check == imax){
+	   cout << "counting is O.K. No unexpected case" << endl;
+	   cout << endl;
+   } else{
+	   cout << "some unexpected cases may happen!!" << endl;
+	   return 1;
+   }
+   
 }
-
-
 
 TString classify_fake( void* pphd ){
 	
@@ -161,6 +133,116 @@ TString classify_fake( void* pphd ){
 	}
 	return s;
 }
+
+
+TString classify_pattern( TString clevt ){
+
+	   TString art = "";
+
+	   if( clevt == "" ){
+	        cout << "please check the codes" << endl;
+	   } else {
+
+		TObjArray * st = clevt.Tokenize(",");
+		Int_t nf = st->GetEntries();
+
+
+		// starting counting. Note not to include the absorption in air.
+	
+		//reflectance counting
+		if( (clevt.BeginsWith("rbo,") == 1) && (clevt.EndsWith("rth,") == 1 && nf == 2)){
+			//cout << "reflected!!" << endl;
+			//cout << "main/first rebound!!!!!!!!" << endl;
+			art = "No.1,reflectance  ";
+			//cout << art << endl;
+			//cout << endl;
+			//gre = gre + vv ;
+		} else if( (clevt.BeginsWith("tru,") == 1) && (clevt.EndsWith("rth,") == 1 && nf !=2)){
+			//cout << "reflected!!" << endl;
+			Int_t onf = ((nf+1)/2);
+			//cout << onf << " orders rebound!!!" << endl;
+			TString no = Form("No.%i",onf);
+			TString label = no;
+			label += ",reflectance  ";
+			art = label;
+			//cout << art << endl;
+			//cout << endl;
+			//gre = gre + vv ;
+		} //transmitance counting and 1 case of aborption
+		  else if(clevt.BeginsWith("tru,") == 1 && clevt.EndsWith("tru,") == 1 && nf == 2){
+			//cout << nf << "transmittance!!" << endl;
+			//cout << "main/first tran through!!!!!" << endl;
+			art = "No.1,transmittance";
+			//cout << art << endl;
+			//cout << endl;
+			//gtr = gtr + vv ;
+		} else if(clevt.BeginsWith("tru,") == 1 && clevt.EndsWith("tru,") == 1 && nf !=2){
+			if(nf == 1){
+				//cout << "absorbed in acrylc!!!!" << endl;
+				//cout << "absorbed immediately entried acrylic" << endl;
+				art = "No.1,absorption   ";
+				//cout << art << endl;
+				//cout << endl;
+				//gab = gab + vv ;
+			} else {
+				//cout << "transmittance!!" << endl;
+				Int_t onf = nf/2;
+				//cout << nf/2 << " orders tran through" << endl;
+				TString no = Form("No.%i",onf);
+				TString label = no;
+				label += ",transmittance";
+				art = label;
+				//cout << art << endl;
+				//cout << endl;
+				//gtr = gtr + vv ;
+			}
+		} // absorption counting
+		  else if(clevt.BeginsWith("tru,") == 1 && clevt.EndsWith("rbo,") == 1 ){
+			//cout << "absorbed in acrylic" << endl;
+			//cout << nf/2 << "th rebound and then absorbed in acrylic" << endl;
+			Int_t onf = nf/2;
+			TString no = Form("No.%i",onf);
+			TString label = no;
+			label += ",absorption   ";
+			art = label;
+			//cout << art << endl;
+			//cout << endl;
+			//gab = gab + vv ;
+		} else if(clevt.BeginsWith("tru,") == 1 && clevt.EndsWith("bou,") == 1 ){
+			//cout << "absorbed in acrylic!!" << endl;
+			//cout << ((nf+1)/2) << "th rebound and then absorbed in acrylic" << endl;
+			Int_t onf = ((nf+1)/2);
+			TString no = Form("No.%i",onf);
+			TString label = no;
+			label += ",absorption   ";
+			art = label;
+			//cout << art << endl;
+			//cout << endl;
+			//gab = gab + vv ;
+		} else {cout << nf << " sth. wrong in your key" << endl; cout << endl;
+		}
+	
+	   }
+	//return the pattern types
+	return art;
+
+}
+
+TString classify_process(TString art){
+
+	TString type = "";	
+	if( art.EndsWith("transmittance")){
+		type = "gross transmittance";
+	} else if( art.EndsWith("reflectance  ")){
+		type = "gross reflectance  ";
+	} else if( art.EndsWith("absorption   ")){
+		type = "gross absorption   ";
+	}
+
+	return type;
+
+}
+
 	
 
 // function defined how to save the result per selection with an nFake and an fAke.code
@@ -212,16 +294,62 @@ Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, In
 
 
 
-
-// function defined how to calculate T and R.
-Int_t calcuTandR_write(TString outputfile){
-	
-}
-
 //  function used to output the T and R result withLaTeX table
 //  
 
+void creat_asci(TString rootfile){
 
-Int_t output_table(TString pattern, Float_t counts){
+	    TString file = rootfile;
+	    file -= ".root";
+	    file += "_begin";
+
+	    ofstream o(file.Data());
+	    o << Form("\\documentclass{report}");
+	    o << Form("\\begin{document}");
+	    o << Form("\\begin{quote}");
+	    o << Form("\begin{tabular}{llll}");
+	    o << Form("\hline");
+	    o << Form("\$photon energy\$\&\$Process\$\&\$\\\%\$\\\\");
+	    o << Form("\hline");
+
+	    //out what do you want to be in the table
+	    output_table(sk,ratio);	
+	    
+	    o << Form("\\end{tabular}");
+	    o << Form("\\end{quote}");
+	    o << Form("\\end{document}");
+
+	    o.close;
+
+	    cout << "making " << file << " LaTex table sucessfully" << endl;
+	    
+}
+
+void output_table(TString rootfile, TString sk, Double_t ratio){
+
+	TString sratio = Form("%d",ratio);
 	
+Transmittance&1st&1893\\
+&2st&1897\\
+Reflectance&1st&1900\\
+Absorption&&1904\\
+&1st&1908
+}
+
+void close_asci(TString rootfile){
+
+	    TString file = rootfile;
+	    file -= ".root";
+	    file += "_end";
+
+	    ofstream o(file.Data());
+	    
+	    o << Form("\\end{tabular}");
+	    o << Form("\\end{quote}");
+	    o << Form("\\end{document}");
+
+	    o.close;
+
+	    cout << "making " << file << " LaTex table sucessfully" << endl;
+	    
 }
