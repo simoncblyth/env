@@ -70,7 +70,16 @@ modpython-configure(){
     nik=$MODPYTHON_NIK
 	cd $LOCAL_BASE/$nik/build/$nam
 	./configure -h
-	./configure --prefix=$LOCAL_BASE/$nik/$nam --with-apxs=$APACHE2_HOME/sbin/apxs  --with-python=$PYTHON_HOME/bin/python --with-python-src=$PYTHON_HOME
+	
+	if [ "$NODE_TAG" == "G" ]; then
+	  ./configure --prefix=$LOCAL_BASE/$nik/$nam --with-apxs=/usr/sbin/apxs  --with-python=/usr/bin/python 
+	  
+	  ## --with-python-src=DIR	Path to python sources - required if you want to generate the documenation
+	  ## so skip it   
+ 
+	else
+	  ./configure --prefix=$LOCAL_BASE/$nik/$nam --with-apxs=$APACHE2_HOME/sbin/apxs  --with-python=$PYTHON_HOME/bin/python --with-python-src=$PYTHON_HOME
+    fi 
 }
 
 modpython-install(){
@@ -82,6 +91,14 @@ modpython-install(){
 
 	ls -alst $APACHE2_HOME/libexec
 }
+
+
+# Leopard install against stock apache2 + python :
+#
+#	 installs mod_python.so into  /usr/libexec/apache2
+#    creating /Library/Python/2.5/site-packages/mod_python
+#  	  Writing /Library/Python/2.5/site-packages/mod_python-3.3.1-py2.5.egg-info
+#
 
 
 
