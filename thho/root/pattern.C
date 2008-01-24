@@ -14,6 +14,10 @@
 
 scantrees(){
 
+   TString doc = "ac_art_table";
+   doc +=".tex";
+   creat_asci(doc);
+	
    TString name("event_tree");
    FILE* pipe = gSystem->OpenPipe("ls *ev.root" , "r" );
 
@@ -30,17 +34,18 @@ scantrees(){
           } else {
                  cout << " found " << name << " in " << path << endl ;
                  //t->Scan("","","",10);
-                 classify_events(path);
+                 classify_events(path, doc);
           }
           f->Close();
    }
 
+   close_asci(path, doc);
    gSystem->Exit( gSystem->ClosePipe( pipe ));
 }
 
 
 
-void classify_events(TString rootfileinput ){
+void classify_events(TString rootfileinput, TString doc ){
 	
 	cout << "selecting....." << endl;
 	dywGLEvent* evt = new dywGLEvent();
@@ -91,10 +96,9 @@ void classify_events(TString rootfileinput ){
 	}
 	
 	// dumpping the results cate in different ways.
-	creat_asci(rootfileinput);
-	dump_map( rootfileinput, gMap,imax );
-        dump_map( rootfileinput, fMap,imax );
-	close_asci(rootfileinput);
+	creat_table(rootfileinput, doc);
+	dump_map( rootfileinput, gMap,imax, doc );
+        dump_map( rootfileinput, fMap,imax, doc );
 	
 //	return fMap;
 }
@@ -113,7 +117,7 @@ void counting( TMap* map, TString type){
 }
 
 
-void dump_map( TString rootfilepath, TMap* map, Int_t imax ){
+void dump_map( TString rootfilepath, TMap* map, Int_t imax, TString doc ){
    
    TObjString* s = NULL ;
    TIter next(map);
@@ -137,7 +141,7 @@ void dump_map( TString rootfilepath, TMap* map, Int_t imax ){
 	//output_table(map,sk,ratio);
 	check = check + vv;
 
-	output_table(rootfilepath,sk,ratio);
+	output_table(rootfilepath,sk,ratio,doc);
 	
    }
    
@@ -338,14 +342,9 @@ Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, In
 
 //  function used to output the T and R result withLaTeX table
 //  
-
-void creat_asci(TString rootfile){
-
-	    TString file = rootfile;
-	    //file -= ".root";
-	    file +=".tex";
+void creat_asci(TString doc){
 	    
-	    ofstream o(file.Data());
+	    ofstream o(doc.Data());
 	    o << Form("\\documentclass{report}\n");
 	    o << Form("\\begin{document}\n");
 	    o << Form("\\begin{quote}\n");
@@ -353,22 +352,33 @@ void creat_asci(TString rootfile){
 	    o << Form("\\hline\n");
 	    o << Form("$photon energy\$\&\$Process\$\&\$\\\%\$\\\\\n");
 	    o << Form("\\hline\n");
-  	    o << Form("%s\&\&\\\\\n", file.Data());
     
 	    o.close();
 
+	    //cout << "creating " << doc << " LaTex file sucessfully" << endl;
+	    
+}
+
+void creat_table(TString rootfile, TString doc){
+
+	    TString file = rootfile;
+	    //file -= ".root";
+	    
+	    ofstream o(doc.Data(),ios::app);
+  	    o << Form("%s\&\&\\\\\n", file.Data());
+    
+	    o.close();
 	    //cout << "creating " << file << " LaTex table sucessfully" << endl;
 	    
 }
 
-void output_table(TString rootfile, TString sk, Double_t ratio){
+void output_table(TString rootfile, TString sk, Double_t ratio, TString doc){
 
 	//TString sratio = Form("%f",ratio);
 	TString file = rootfile;
 	//file -= ".root";
-	file +=".tex";
 	
-	ofstream o(file.Data(),ios::app);
+	ofstream o(doc.Data(),ios::app);
 	
 	o << Form("\&%s\&%f\\\\\n", sk.Data(), ratio);
 
@@ -377,13 +387,12 @@ void output_table(TString rootfile, TString sk, Double_t ratio){
 	//cout << "writing " << file << " " << sk << "Latex table" << endl;
 }
 
-void close_asci(TString rootfile){
+void close_asci(TString rootfile, TString doc){
 
 	    TString file = rootfile;
 	    //file -= ".root";
-	    file +=".tex";
 	    
-	    ofstream o(file.Data(),ios::app);
+	    ofstream o(doc.Data(),ios::app);
 	    
 	    o << Form("\\end{tabular}\n");
 	    o << Form("\\end{quote}\n");
