@@ -1,6 +1,14 @@
 //
 // Propose:
-// Caculate transmittance and reflection of acrylic sample
+// Caculate transmittance, reflectance, and absorptance(if any) of acrylic sample with fake hits
+//
+// For scantrees() purpose, it is better to use the file name convention like
+// 20ev.root   ( means the optical photon with energy 2.1eV)
+//
+// and the codes will generate file   20ev.root.tex which is latex table form
+// use
+// shell> pdflatex 20ev.root.tex
+// to generate an pdf table
 //
 // 
 
@@ -135,8 +143,8 @@ void dump_map( TString rootfilepath, TMap* map, Int_t imax ){
    
 
    if (check == imax){
-	   cout << "counting is O.K. No unexpected case" << endl;
-	   cout << endl;
+	   //cout << "counting is O.K. No unexpected case" << endl;
+	   //cout << endl;
 	   
    } else{
 	   cout << "some unexpected cases may happen!!" << endl;
@@ -349,7 +357,7 @@ void creat_asci(TString rootfile){
     
 	    o.close();
 
-	    cout << "creating " << file << " LaTex table sucessfully" << endl;
+	    //cout << "creating " << file << " LaTex table sucessfully" << endl;
 	    
 }
 
@@ -366,7 +374,7 @@ void output_table(TString rootfile, TString sk, Double_t ratio){
 
 	o.close();
 
-	cout << "writing " << file << " " << sk << "Latex table" << endl;
+	//cout << "writing " << file << " " << sk << "Latex table" << endl;
 }
 
 void close_asci(TString rootfile){
@@ -383,6 +391,6 @@ void close_asci(TString rootfile){
 
 	    o.close();
 
-	    cout << "closing " << file << " LaTex table sucessfully" << endl;
+	    //cout << "closing " << file << " LaTex table sucessfully" << endl;
 	    
 }
