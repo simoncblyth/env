@@ -3,6 +3,7 @@
 // Caculate transmittance and reflection of acrylic sample
 //
 // 
+#include <cstdio>
 void classify_events(TString rootfileinput ){
 	
 	cout << "selecting....." << endl;
@@ -55,8 +56,9 @@ void classify_events(TString rootfileinput ){
 	
 	// dumpping the results cate in different ways.
 	creat_asci(rootfileinput);
-	dump_map( gMap,imax );
-        dump_map( fMap,imax );
+	dump_map( rootfileinput, gMap,imax );
+        dump_map( rootfileinput, fMap,imax );
+	close_asci(rootfileinput);
 	
 //	return fMap;
 }
@@ -75,7 +77,7 @@ void counting( TMap* map, TString type){
 }
 
 
-void dump_map( TMap* map, Int_t imax ){
+void dump_map( TString rootfilepath, TMap* map, Int_t imax ){
    
    TObjString* s = NULL ;
    TIter next(map);
@@ -98,12 +100,16 @@ void dump_map( TMap* map, Int_t imax ){
 	cout << sk << " " << ratio << " %"<<endl ;
 	//output_table(map,sk,ratio);
 	check = check + vv;
+
+	output_table(rootfilepath,sk,ratio);
+	
    }
    
 
    if (check == imax){
 	   cout << "counting is O.K. No unexpected case" << endl;
 	   cout << endl;
+	   
    } else{
 	   cout << "some unexpected cases may happen!!" << endl;
 	   return 1;
@@ -300,56 +306,55 @@ Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, In
 void creat_asci(TString rootfile){
 
 	    TString file = rootfile;
-	    file -= ".root";
-	    file += "_begin";
-
-	    ofstream o(file.Data());
-	    o << Form("\\documentclass{report}");
-	    o << Form("\\begin{document}");
-	    o << Form("\\begin{quote}");
-	    o << Form("\begin{tabular}{llll}");
-	    o << Form("\hline");
-	    o << Form("\$photon energy\$\&\$Process\$\&\$\\\%\$\\\\");
-	    o << Form("\hline");
-
-	    //out what do you want to be in the table
-	    output_table(sk,ratio);	
+	    //file -= ".root";
+	    file +=".tex";
 	    
-	    o << Form("\\end{tabular}");
-	    o << Form("\\end{quote}");
-	    o << Form("\\end{document}");
+	    ofstream o(file.Data());
+	    o << Form("\\documentclass{report}\n");
+	    o << Form("\\begin{document}\n");
+	    o << Form("\\begin{quote}\n");
+	    o << Form("\\begin{tabular}{lll}\n");
+	    o << Form("\\hline\n");
+	    o << Form("$photon energy\$\&\$Process\$\&\$\\\%\$\\\\\n");
+	    o << Form("\\hline\n");
+  	    o << Form("%s\&\&\\\\\n", file.Data());
+    
+	    o.close();
 
-	    o.close;
-
-	    cout << "making " << file << " LaTex table sucessfully" << endl;
+	    cout << "creating " << file << " LaTex table sucessfully" << endl;
 	    
 }
 
 void output_table(TString rootfile, TString sk, Double_t ratio){
 
-	TString sratio = Form("%d",ratio);
+	//TString sratio = Form("%f",ratio);
+	TString file = rootfile;
+	//file -= ".root";
+	file +=".tex";
 	
-Transmittance&1st&1893\\
-&2st&1897\\
-Reflectance&1st&1900\\
-Absorption&&1904\\
-&1st&1908
+	ofstream o(file.Data(),ios::app);
+	
+	o << Form("\&%s\&%f\\\\\n", sk.Data(), ratio);
+
+	o.close();
+
+	cout << "writing " << file << " " << sk << "Latex table" << endl;
 }
 
 void close_asci(TString rootfile){
 
 	    TString file = rootfile;
-	    file -= ".root";
-	    file += "_end";
-
-	    ofstream o(file.Data());
+	    //file -= ".root";
+	    file +=".tex";
 	    
-	    o << Form("\\end{tabular}");
-	    o << Form("\\end{quote}");
-	    o << Form("\\end{document}");
+	    ofstream o(file.Data(),ios::app);
+	    
+	    o << Form("\\end{tabular}\n");
+	    o << Form("\\end{quote}\n");
+	    o << Form("\\end{document}\n");
 
-	    o.close;
+	    o.close();
 
-	    cout << "making " << file << " LaTex table sucessfully" << endl;
+	    cout << "closing " << file << " LaTex table sucessfully" << endl;
 	    
 }
