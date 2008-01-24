@@ -3,7 +3,35 @@
 // Caculate transmittance and reflection of acrylic sample
 //
 // 
-#include <cstdio>
+
+scantrees(){
+
+   TString name("event_tree");
+   FILE* pipe = gSystem->OpenPipe("ls *ev.root" , "r" );
+
+   TString path ;
+   TFile* f ;
+   TTree* t ;
+
+   while( path.Gets(pipe) ){
+      cout << path << endl;
+      f = TFile::Open( path );
+          t = (TTree*)gROOT->FindObject(name);
+          if( t == NULL ){
+         cout << " no object called " << name << " in " << path << endl ;
+          } else {
+                 cout << " found " << name << " in " << path << endl ;
+                 //t->Scan("","","",10);
+                 classify_events(path);
+          }
+          f->Close();
+   }
+
+   gSystem->Exit( gSystem->ClosePipe( pipe ));
+}
+
+
+
 void classify_events(TString rootfileinput ){
 	
 	cout << "selecting....." << endl;
