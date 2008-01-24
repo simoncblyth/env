@@ -40,7 +40,7 @@ if [ -x "${GQ_HOME}/env.sh" ]; then
       if [ "$GQ_TAG" == "bat" ]; then
          flags='-DG4UI_USE_XM'
       else
-         flags='-DG4UI_USE_XM,-DG4VIS_USE,-DG4VIS_USE_OPENGLX,-DG4VIS_USE_OIX,-DG4VIS_USE_OI'
+         flags='-DG4UI_USE_XM,-DG4VIS_USE,-DG4VIS_USE_OPENGLX,-DG4VIS_USE_OIX,-DG4VIS_USE_OI,-DSCB_USE_VGM'
       fi	  
     
       export GQ_DATA=$(dirname $G4LEDATA)
