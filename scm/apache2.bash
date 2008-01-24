@@ -44,9 +44,21 @@ apache2-i(){ . $SCM_HOME/apache2.bash ; }
 
 
 export APACHE2_BUILD=$LOCAL_BASE/$APACHE2_ABBREV/build/$APACHE2_NAME
-export APACHE2_CONF=$APACHE2_HOME/etc/apache2/httpd.conf
+
+if [ "$NODE_APPROACH" == "stock" ]; then
+  APACHE2_CONF=/private/etc/apache2/httpd.conf
+  APACHE2_HTDOCS=/Library/WebServer/Documents
+  APACHE2_SO=libexec/apache2
+else
+  APACHE2_CONF=$APACHE2_HOME/etc/apache2/httpd.conf
+  APACHE2_HTDOCS=$APACHE2_HOME/share/apache2/htdocs
+  APACHE2_SO=libexec 
+fi
+
+export APACHE2_CONF
 export APACHE2_PORT=6060
-export APACHE2_HTDOCS=$APACHE2_HOME/share/apache2/htdocs
+
+export APACHE2_HTDOCS
 export APACHE2_HTDOCS_H=$APACHE2_HOME_H/share/apache2/htdocs
 export APACHE2_XSLT=$APACHE2_HTDOCS/resources/xslt
 
@@ -253,7 +265,16 @@ apache2-add-module(){
 
 apache2-conf-connect(){
 
-  local conf=${1:-dummy-connect} 
+  local pconf=${1:-dummy-connect} 
+
+  ## stock Leopard apache2 using absolute paths /etc/apache2/blah/blah/
+  ## but Tiger/Linux use relative starting with etc/apache2/blah..
+  ## 
+  if [ "$NODE_APPROACH" == "stock" ]; then
+     local conf=$APACHE2_BASE/$pconf
+  else
+     local conf=$pconf
+  fi 
 
   echo ============== add the Include of the $conf into $APACHE2_CONF if not there already
   $ASUDO bash -lc "grep $conf $APACHE2_CONF  || $ASUDO echo Include $conf  >> $APACHE2_CONF  "

@@ -57,9 +57,11 @@ EOI
 svn-apache2-settings(){
   echo ======= the below LoadModule directives are needed for svn 
   cat << EOS
-LoadModule dav_svn_module     libexec/mod_dav_svn.so
-LoadModule authz_svn_module   libexec/mod_authz_svn.so
-LoadModule wsgi_module        libexec/mod_wsgi.so
+LoadModule dav_svn_module     $APACHE2_SO/mod_dav_svn.so
+LoadModule authz_svn_module   $APACHE2_SO/mod_authz_svn.so
+#LoadModule wsgi_module        $APACHE2_SO/mod_wsgi.so
+LoadModule python_module   $APACHE2_SO/mod_python.so
+
 EOS
 
   apache2-add-module dav_svn 
@@ -67,7 +69,7 @@ EOS
  #apache2-add-module wsgi
   apache2-add-module python
 
-  echo $SUDO vi $APACHE2_HOME/etc/apache2/httpd.conf 
+  echo $SUDO vi $APACHE2_CONF 
 }
 
 
@@ -93,26 +95,32 @@ svn-apache2-conf(){
     echo error access $access not handled
     return 1 
   fi
+  
+  $SUDO mkdir -p $APACHE2_BASE/$APACHE2_LOCAL
 
-  svn-apache2-repos-location-write $APACHE2_HOME/$SVN_APACHE2_CONF $*
+  svn-apache2-repos-location-write $APACHE2_BASE/$SVN_APACHE2_CONF $*
   apache2-conf-connect $SVN_APACHE2_CONF
 
-  svn-apache2-authzaccess-write $APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS dev
+  svn-apache2-authzaccess-write $APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS dev
 
-  svn-apache2-xslt-write $APACHE2_HTDOCS/resources/xslt
+  svn-apache2-xslt-write $APACHE2_XSLT
   
 
   ## tracs 
 
   
-  svn-apache2-tracs-location-write $APACHE2_HOME/$TRAC_APACHE2_CONF  $access 
+  svn-apache2-tracs-location-write $APACHE2_BASE/$TRAC_APACHE2_CONF  $access 
   apache2-conf-connect $TRAC_APACHE2_CONF
 
   mkdir -p $TRAC_EGG_CACHE
 
   ## restart  
 
-  [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
+  if [ "$NODE_APPROACH" == "stock" ]; then
+     echo === skip the check  
+  else	 
+     [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
+  fi
 
   apache2-setport 6060   ##  $SCM_PORT  this is 80 (for client usage) but not appropiate at this level 
 
@@ -172,12 +180,31 @@ svn-apache2-authzaccess-write(){
 svn-apache2-xslt-write(){
 
   local xslt=${1:-dummy-xslt}
-  echo ============== placing stylesheets for raw SVN presentation into $xslt
-  $ASUDO mkdir -p $xslt 
-  $ASUDO cp -f $SVN_BUILD/tools/xslt/svnindex.* $xslt/ 
+  
+  local iwd=$PWD
+  
+  if [ "$NODE_APPROACH" == "stock" ]; then
+    echo === svn export the svn xslt for approach:  $NODE_APPROACH
+	
+	local resources_folder=$(dirname $xslt)
+	$ASUDO mkdir -p $resources_folder
+	
+	cd $resources_folder
+	$ASUDO rm -rf xslt
+	$ASUDO svn export http://svn.collab.net/repos/svn/trunk/tools/xslt/ 
+	
+  else
+  
+     echo ============== placing stylesheets for raw SVN presentation into $xslt
+     $ASUDO mkdir -p $xslt 
+     $ASUDO cp -f $SVN_BUILD/tools/xslt/svnindex.* $xslt/ 
 
+  fi
   ## correct a braindead absolute path 
   $ASUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
+
+
+  cd $iwd
 
 }
 
@@ -195,6 +222,15 @@ svn-apache2-tracs-location(){
   else
      c="#ERROR access $access not handled "
   fi      
+
+ if [ "$NODE_APPROACH" == "stock" ]; then
+    local confprefix="/private/"
+	c=""   ## uncomment for stock
+  else
+    local confprefix=""
+  fi 
+
+
 
 
   local eggcache=$TRAC_EGG_CACHE
@@ -237,7 +273,7 @@ cat << EOC
 $c<LocationMatch "/tracs/[^/]+/login">
 $c    AuthType Basic
 $c    AuthName "svn-tracs"
-$c    AuthUserFile $SVN_APACHE2_AUTH
+$c    AuthUserFile $confprefix$SVN_APACHE2_AUTH
 $c    Require valid-user
 $c</LocationMatch>
 $c
@@ -258,6 +294,13 @@ svn-apache2-repos-location(){
 
   local securitylevel=${1:-anon-or-real}
 
+  if [ "$NODE_APPROACH" == "stock" ]; then
+    local confprefix="/private/"
+  else
+    local confprefix=""
+  fi 
+   
+
 cat << EOH
 #
 #      do not edit, created by svn.bash::svn-apache2-location 
@@ -274,7 +317,7 @@ cat << EOH
       SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
-      AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
+      AuthzSVNAccessFile $confprefix$SVN_APACHE2_AUTHZACCESS
 
       
    
@@ -308,7 +351,7 @@ EOS
       AuthType Basic
       AuthName "svn-repos"
       # users file
-      AuthUserFile $SVN_APACHE2_AUTH
+      AuthUserFile $confprefix$SVN_APACHE2_AUTH
                   
 </Location>
 EOT

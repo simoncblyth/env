@@ -72,7 +72,7 @@ TRAC_NIK=trac
 export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
 export TRAC_COMMON=$TRAC_HOME/common
 
-TRAC_APACHE2_CONF=etc/apache2/trac.conf 
+TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
 export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
 
 export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac

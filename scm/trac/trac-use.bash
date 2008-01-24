@@ -18,15 +18,19 @@
 
 trac-use-authz(){
 
-   name=${1:-dummy}
+   local name=${1:-dummy}
    [ "$name" == "dummy" ] && echo must specify the repo/trac name as the single argument && return 
+
+   local authzaccess=${2:-dummy}
+   [ "$authzaccess" == "dummy" ] && echo must give path to apache2 config file setting up authz && return 
 
    tini=$SCM_FOLD/tracs/$name/conf/trac.ini
    [ -f "$tini" ] || ( echo ERROR $tini does not exist && return 1 )     
 
-   authzaccess="$APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS" 
    local conf="logging:log_level:INFO logging:log_type:file trac:authz_file:$authzaccess trac:authz_module_name:$name"
    
+   echo === trac-use-authz ==== invoke: ini-edit $tini $conf
+   type ini-edit 
    ini-edit  $tini $conf   
 }
 
@@ -34,7 +38,16 @@ trac-use-authz(){
 #  
 #alias ini-edit="sudo -u $APACHE2_USER $HOME/$ENV_BASE/base/ini-edit.pl" 
 
+
 ini-edit(){
+
+   local path=$1
+   shift
+ 
+   sudo $HOME/$ENV_BASE/base/ini-edit.pl $path $*  
+}
+
+ini-edit-prior(){
 
    # 
    # utility for editing INI files ... moved from base/file.bash as needs APACHE2_USER
@@ -46,9 +59,14 @@ ini-edit(){
   
    local path=$1
    shift 
-    
+   local pmpath=$HOME/$ENV_BASE/base/INI.pm 
+   #sudo perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $path $*
    sudo perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $path $*
    sudo chown $APACHE2_USER:$APACHE2_USER $path
+   
+   
+   
+   
    
 }
 
@@ -75,7 +93,7 @@ trac-use-authz-old(){
    ## http://trac.edgewall.org/wiki/FineGrainedPermissions
    ##
    tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-   authzaccess="$APACHE2_HOME/$SVN_APACHE2_AUTHZACCESS"
+   authzaccess="$APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS"
 
 
    if [ -f "$tini" ]; then

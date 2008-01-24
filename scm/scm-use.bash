@@ -12,31 +12,45 @@ export SCM_FOLD=$VAR_BASE/scm
 SVN_NAME=subversion-1.4.0
 SVN_ABBREV=svn
 
+export SVN_PARENT_PATH=$SCM_FOLD/repos
+
+if [ "$NODE_APPROACH" == "stock" ]; then 
+  export APACHE2_LOCAL=etc/apache2/local
+else
+  export APACHE2_LOCAL=etc/apache2
+  export SVN_HOME=$LOCAL_BASE/$SVN_ABBREV/$SVN_NAME
+  export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
+  export PATH=$SVN_HOME/bin:$PATH
+fi
+
+
 ## just needed by svn.bash
-SVN_APACHE2_CONF=etc/apache2/svn.conf
+SVN_APACHE2_CONF=$APACHE2_LOCAL/svn.conf
 
 ## these are needed by both SVN + Trac  
-SVN_APACHE2_AUTH=etc/apache2/svn-apache2-auth
-SVN_APACHE2_AUTHZACCESS=etc/apache2/svn-apache2-authzaccess
-
-export SVN_PARENT_PATH=$SCM_FOLD/repos
-export SVN_HOME=$LOCAL_BASE/$SVN_ABBREV/$SVN_NAME
-
-export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
-export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
-
-export PATH=$SVN_HOME/bin:$PATH
+SVN_APACHE2_AUTH=$APACHE2_LOCAL/svn-apache2-auth
+SVN_APACHE2_AUTHZACCESS=$APACHE2_LOCAL/svn-apache2-authzaccess
 
 
-PYTHON_NAME=Python-2.5.1
-export PYTHON_HOME=$LOCAL_BASE/python/$PYTHON_NAME
-
-## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
-export REFERENCE_PYTHON_HOME=$PYTHON_HOME
 
 
-export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
-export PATH=$PYTHON_HOME/bin:$PATH
+
+
+if [ "$NODE_APPROACH" == "stock" ]; then
+  export PYTHON_SITE=/Library/Python/2.5/site-packages
+else
+
+  PYTHON_NAME=Python-2.5.1
+  export PYTHON_HOME=$LOCAL_BASE/python/$PYTHON_NAME
+  export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
+  export PATH=$PYTHON_HOME/bin:$PATH
+  
+  ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
+  export REFERENCE_PYTHON_HOME=$PYTHON_HOME
+fi
+
+
 
 SQLITE_NAME=sqlite-3.3.16
 export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
@@ -60,11 +74,28 @@ fi
 export APACHE2_HOME=$LOCAL_BASE/$APACHE2_ABBREV/$APACHE2_NAME
 export APACHE2_HOME_H=$LOCAL_BASE_H/$APACHE2_ABBREV/$APACHE2_NAME
 
-APACHE2_ENV=$APACHE2_HOME/sbin/envvars
-export PATH=$APACHE2_HOME/sbin:$PATH
+##
+## due to use of stock Leopard apache2 need to divide :
+##     APACHE2_HOME : where apache was built
+##     APACHE2_BASE : where apache is configured from 
+##
+##  these are the same in the self-made apache case on Tiger/Linux
+##
 
-ASUDO=$SUDO
-export ASUDO=
+if [ "$NODE_APPROACH" == "stock" ]; then 
+  export APACHE2_BASE=/private
+  export APACHE2_LOCAL=etc/apache2/local
+  export ASUDO=$SUDO
+else
+  export APACHE2_BASE=$APACHE2_HOME
+  export APACHE2_LOCAL=etc/apache2 
+  export ASUDO=
+  export PATH=$APACHE2_HOME/sbin:$PATH
+  ##APACHE2_ENV=$APACHE2_HOME/sbin/envvars   not used ?
+fi
+
+
+
 
 
 
@@ -115,25 +146,38 @@ scm-use-create-local(){
    
    echo ====== scm/scm-use.bash::scm-use-create-local name:$name path:$path starting  ====
    
+    # on Leopard 
+   if [ "$NODE_APPROACH" == "stock" ]; then
+	  [ "/usr/bin"    == $(dirname $(which svnadmin)) ]   || ( echo check your path , svnadmin from non-controlled location .... ABORT && return ) 
+      [ "/usr/bin"    == $(dirname $(which svn)) ]        || ( echo check your path , svn from non-controlled location .... ABORT && return ) 
+	  [ "/usr/local/bin" == $(dirname $(which trac-admin)) ] || ( echo check your path , trac-admin from non-controlled location .... ABORT && return ) 
+	  tmpl=
+	  USER_GROUP=staff
+   else
+      [ "$SVN_HOME/bin"    == $(dirname $(which svnadmin)) ]   || ( echo check your path , svnadmin from non-controlled location .... ABORT && return ) 
+      [ "$SVN_HOME/bin"    == $(dirname $(which svn)) ]        || ( echo check your path , svn from non-controlled location .... ABORT && return ) 
+      [ "$PYTHON_HOME/bin" == $(dirname $(which trac-admin)) ] || ( echo check your path , trac-admin from non-controlled location .... ABORT && return ) 
+	  tmpl=$PYTHON_HOME/share/trac/templates
+      USER_GROUP=$USER
+   fi
+   
+   
    if [ -d "$SCM_FOLD" ]; then
      echo =========  scm folder $SCM_FOLD exists already , temporarily adjusting ownership to USER $USER ... may need password
-     sudo chown -R $USER:$USER $SCM_FOLD
+     sudo chown -R $USER:$USER_GROUP $SCM_FOLD
    else
      echo =========  creating scm folder $SCM_FOLD , owned by $USER , temporarily adjusting ownership to USER $USER ... may need password
 	 sudo mkdir -p $SCM_FOLD
-	 sudo chown -R $USER:$USER $SCM_FOLD 
+	 sudo chown -R $USER:$USER_GROUP $SCM_FOLD 
    fi
 	   
    
    [ "$SCM_FOLD/repos" == "$SVN_PARENT_PATH" ] || ( echo non-standard SCM layout ABORT && return )
 
-   [ "$SVN_HOME/bin"    == $(dirname $(which svnadmin)) ]   || ( echo check your path , svnadmin from non-controlled location .... ABORT && return ) 
-   [ "$SVN_HOME/bin"    == $(dirname $(which svn)) ]        || ( echo check your path , svn from non-controlled location .... ABORT && return ) 
-   [ "$PYTHON_HOME/bin" == $(dirname $(which trac-admin)) ] || ( echo check your path , trac-admin from non-controlled location .... ABORT && return ) 
 
+  
    repo=$SCM_FOLD/repos/$name
-   tmpl=$PYTHON_HOME/share/trac/templates
-
+  
    ## create the svn repository , owned by root if SUDO is set
  
    if [ -d "$repo" ]; then
@@ -174,6 +218,10 @@ scm-use-create-local(){
 
    ## cannot do this directly another user such as ... www...  as gives Fatal Python error 
 
+   #  Trac 0.11b1 ... the last tmpl argument is not there in this version (yep tis for clearsilver templates) 
+   # initenv <projectname> <db> <repostype> <repospath>
+   #	-- Create and initialize a new environment from arguments
+
    mkdir -p $SCM_FOLD/tracs
    echo trac-admin $SCM_FOLD/tracs/$name initenv $name sqlite:db/trac.db svn $repo $tmpl
         trac-admin $SCM_FOLD/tracs/$name initenv $name sqlite:db/trac.db svn $repo $tmpl
@@ -191,9 +239,24 @@ scm-use-create-local(){
        modwsgi-use-app $name   >  $wsgi
    fi
 
+
+  ## move the path setup for authzaccess from trac-use-authzaccess
+  ##
+  ##  on Tiger+Linux :
+  ##    APACHE2_HOME            /usr/local/apache2/httpd-2.0.59    
+  ##    SVN_APACHE2_AUTHZACCESS  etc/apache2/svn-apache2-authzaccess
+  ## 
+  ## on Leopard create a folder to hold local mods
+  ##       /private/etc/apache2/local/  
+  ## 
+    
+   authzaccess="$APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS" 
+ 
+
+
    ## tweak the trac.ini for fine grained permissions
-   echo ================== invoke trac-use-authz $name =====
-   trac-use-authz $name
+   echo ================== invoke trac-use-authz $name $authzaccess =====
+   trac-use-authz $name $authzaccess
    echo ================== completed trac-use-authz $name =====
    
    echo  ================= setting chownership of SCM_FOLD $SCM_FOLD on NODE_TAG $NODE_TAG to APACHE2_USER $APACHE2_USER 
