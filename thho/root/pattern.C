@@ -352,13 +352,25 @@ Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, In
 void create_tex(TString doc){
 	    doc += ".tex";
 	    ofstream o(doc.Data());
-	    o << Form("\\documentclass{report}\n");
+            o << Form("\%This is LaTex table contains optical process pattern\n");
+	    o << Form("\\documentclass{article}\n");
+            o << Form("\\usepackage{longtable}\n");
 	    o << Form("\\begin{document}\n");
-	    o << Form("\\begin{quote}\n");
-	    o << Form("\\begin{tabular}{llll}\n");
+	    o << Form("\\begin{longtable}{llll}\n");
+            o << Form("\\\caption{ optical process pattern }\\\\\n");
+	    o << Form("\\hline\n");
+            o << Form("$photon energy(eV)\$\&\$wave length(nm)\$\&\$Process\$\&\$\\\%\$\\\\\n");
+	    o << Form("\\hline\n");
+	    o << Form("\\endfirsthead\n");
 	    o << Form("\\hline\n");
 	    o << Form("$photon energy(eV)\$\&\$wave length(nm)\$\&\$Process\$\&\$\\\%\$\\\\\n");
 	    o << Form("\\hline\n");
+	    o << Form("\\endhead\n");
+	    o << Form("\\hline\n");
+//	    o << Form("\\multicolumn{4}{r}{Continued\\dots}\\\\");
+	    o << Form("\\endfoot\n");
+	    o << Form("\\endlastfoot\n");
+	    
 	    o.close();
 	    //cout << "creating " << doc << " LaTex file sucessfully" << endl;
 	    
@@ -383,8 +395,7 @@ void output_table(TString sk, Double_t ratio, TString doc){
 void close_tex(TString doc){
 	    doc += ".tex";
 	    ofstream o(doc.Data(),ios::app);
-	    o << Form("\\end{tabular}\n");
-	    o << Form("\\end{quote}\n");
+	    o << Form("\\end{longtable}\n");
 	    o << Form("\\end{document}\n");
 	    o.close();
 }
@@ -398,7 +409,7 @@ void create_data(TString doc,TString type){
 	doc +="_";
 	doc +=type;
 	doc +=".asc";
-	ofstream o(doc.Data());
+	ofstream o(doc.Data()); //make sure do not follow old data file, if any
 	o.close();
 /*	if(o){
 		ofstream o(doc.Data());
