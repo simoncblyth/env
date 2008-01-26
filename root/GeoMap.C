@@ -1,35 +1,95 @@
-
-
-
-
-// .L GeomMap.C
-// GeoMap* gm = new GeoMap ;
-// gm->Import("Aberdeen_World.root");
+//
+/ 
+//
+//  .L GeoMap.C                                     
+//
+// root [1]  GeoMap* gm = new GeoMap("Aberdeen_World.root");
+// Info: TGeoManager::Import : Reading geometry from file: Aberdeen_World.root
+// Info in <TGeoManager::CloseGeometry>: Geometry loaded from file...
+// Info in <TGeoManager::SetTopVolume>: Top volume is World. Master volume is World
+// Info in <TGeoManager::CloseGeometry>: Voxelization retrieved from file
+// Info in <TGeoManager::BuildCache>: --- Maximum geometry depth is 100
+// Info in <TGeoManager::CloseGeometry>: 286 nodes/ 20 volume UID's in VGM Root geometry
+// Info in <TGeoManager::CloseGeometry>: ----------------modeler ready----------------
+//
+// root [2] gm->GetVol("World_1")->Draw("ogle")
+// --- Drawing      143 nodes with 4 visible levels
+// <TCanvas::MakeDefCanvas>: created default TCanvas with name c1
+//
+//   regular expression controlled colouring 
+//
+// root [3] gm->SetLineColor("^.*Gas.*$", kRed )
+// root [4] gm->SetLineColor("^.*1\\.5.*$", kBlue )
+// root [5] gm->SetLineColor("^.*Tube.*$", kGreen )
+//
+//   and visibility ... play hide and seek :
+//
+//  gm->SetVisibility("^.*$",kFALSE)        // hide all volumes
+//
+//  gm->SetVisibility("^.*1\\.5.*", kTRUE ) // just the 1.5m 
+//  gm->SetVisibility("^.*Scin.*$",kTRUE)   // add Scintillators
+//  gm->SelectKeys("^.*Scin.*$")->ls()      // list the keys
+//
+//  Make volumes with duplication issues red and visible
+//
+//  gm->SetLineColor("^.*x$",kRed)
+//  gm->SetVisibility("^.*x$",kTRUE)
+// 
+//  Access individual volumes also :
+// 
+//  gm->GetVol("Door_0")->SetVisibility(kTRUE)
+//  gm->GetVol("Door_0")->SetLineColor(kGreen)
+//   
 //
 
 class GeoMap {
 
-
+public:
+   GeoMap(const char* path);
+   ~GeoMap();
    
-   void Import(TString filepath);
    Bool_t HasKey(TString key);
    TString UniqueKey(TString key);
+   TMap* GetMap();
+
+   // caution these are accessed by the key (usually the same as node name, but not when have dupes)
+   TGeoNode* GetNod( TString key );
+   TGeoVolume* GetVol( TString key );
+   TList* SelectVol( TString patn );
+
+   // the patn is a regular expression selection one or more (or no) volumes, see TRegexp for the syntax
+   void SetLineColor(TString patn , enum EColor col );
+   void SetVisibility(TString patn , Bool_t viz );
+
+   void Display(TString key);
+   void Dump(TGeoNode* node , TString path="");
+
+private:
+   void Import(TString filepath);
    void Walk( TGeoNode* node , TString path );
 
    TMap* fMap ;
 };
 
 
+GeoMap::GeoMap(const char* path){
+   fMap = new TMap ;
+   Import( path );
+}
 
+GeoMap::~GeoMap(){
+  delete fMap ;
+}
+
+TMap* GeoMap::GetMap(){ 
+    return fMap ; 
+}
 
 void GeoMap::Import(TString filepath){
 
-     TGeoManager::Import(   filepath);
-     
-    TGeoVolume* tv = gGeoManager->GetTopVolume();
+    TGeoManager::Import( filepath);
     TGeoNode* tn = gGeoManager->GetTopNode();
     Walk( tn , "" );
-
 }
 
 Bool_t GeoMap::HasKey( TString key ){
@@ -37,57 +97,101 @@ Bool_t GeoMap::HasKey( TString key ){
 }
 
 TString GeoMap::UniqueKey( TString key ){ 
+    // length check to stop recursive infinite loops 
      return key.Length() < 100 && !HasKey(key) ? key : UniqueKey( Form("%s%s", key.Data(), "x")); 
 }
 
 
+TGeoNode* GeoMap::GetNod( TString key ){
+   return (TGeoNode*)fMap(key);
+}
+
+TGeoVolume* GeoMap::GetVol( TString key ){
+   TGeoNode* node = GetNod(key);
+   return node==NULL ? NULL : node->GetVolume();
+}
+
+
+TList* GeoMap::SelectKeys( TString patn ){
+   
+   TRegexp re(patn);
+   TIter next(fMap);
+   TObjString* k = NULL ;
+   Ssiz_t* len = new Ssiz_t ; 
+
+   TList* sel = new TList ;
+
+   while((  k = (TObjString*)next() )){
+      TString key = k->GetString();
+      if( re.Index(key,len) != kNPOS ){
+           sel->Add( k ); 
+      } 
+   }
+
+   return sel ;
+}
+
+
+void GeoMap::SetVisibility(TString patn , Bool_t viz ){
+
+   TList* sel = SelectKeys(patn);
+   TIter next(sel);
+   TObjString* key = NULL ;
+
+   while(( key = (TObjString*)next() )){
+       TGeoVolume* v = GetVol(key->GetString());
+       v->SetVisibility( viz );
+   }
+
+}
+
+void GeoMap::SetLineColor(TString patn , enum EColor col ){
+
+   TList* sel = SelectKeys(patn);
+   TIter next(sel);
+   TObjString* key = NULL ;
+
+   while(( key = (TObjString*)next() )){
+       TGeoVolume* v = GetVol(key->GetString());
+       v->SetLineColor( col );
+   }
+
+}
+
+void GeoMap::Display( TString key ){
+
+   TGeoNode* node = GetNod(key);
+   Dump( node ); 
+}
+
+void GeoMap::Dump( TGeoNode* node , TString path ){
+
+   TString name=node->GetName();
+   cout << path << " [" << name << "]" << endl ;
+
+   TString p = Form("%s/%s", path.Data(),name.Data());
+   TGeoVolume* vol = node->GetVolume();
+   TObjArray* a  = vol->GetNodes() ;
+   Int_t nn = a == NULL ? 0 : a->GetEntries() ;
+   for(Int_t i=0 ; i < nn ; ++i ) Dump( vol->GetNode(i) , p ); 
+
+}
 
 void GeoMap::Walk( TGeoNode* node, TString path ){
 
-   TString p = Form("%s/%s", path.Data(),node->GetName());
+   // recursive tree walk, creating the map of nodes
+
+   TString name=node->GetName();
+   TString key = UniqueKey( name );
+   fMap->Add( new TObjString(key) , node );
+
+   TString p = Form("%s/%s", path.Data(),name.Data());
    TGeoVolume* vol = node->GetVolume();
    TObjArray* a  = vol->GetNodes() ;
    Int_t nn = a == NULL ? 0 : a->GetEntries() ;
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
-
-void careful_walk( TGeoNode* n ){
-
-  cout << " n:" ;
-  if( n == NULL ){
-     cout << "NULL" ;
-  } else { 
-
-     cout << n->GetName() ; 
-
-     cout << " v:" ;
-
-     TGeoVolume* v = n->GetVolume();
-     if( v == NULL ){
-        cout << "NULL" ;
-     } else {
-        cout << v->GetName() ;
-     }
-
-     TObjArray* a  = v->GetNodes() ;
-     Int_t nn = a == NULL ? 0 : a->GetEntries() ;
-  
-     cout << " nn:" << nn << endl ;
-
-     for(Int_t i=0 ; i < nn ; ++i ){
-
-       cout << " i:" << i ;
-       TGeoNode* ni = v->GetNode(i) ;
-       if ( ni == NULL ){
-          cout << " null " ;
-       } else { 
-          careful_walk( ni );
-       }
-     }
- }
-
-}
 
 
 
