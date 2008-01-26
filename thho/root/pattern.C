@@ -3,23 +3,22 @@
 // Caculate transmittance, reflectance, and absorptance(if any) of acrylic sample with fake hits
 //
 // For scantrees() purpose, it is better to use the file name convention like
-// 20ev.root   ( means the optical photon with energy 2.1eV)
+// 20.root   ( means the optical photon with energy 2.1eV)
 //
-// and the codes will generate file   20ev.root.tex which is latex table form
+// and the codes will generate file doc.tex which is latex table form
 // use
-// shell> pdflatex 20ev.root.tex
+// shell> pdflatex doc.tex
 // to generate an pdf table
 //
 // 
-
 scantrees(){
 
    TString doc = "ac_art_table";
-   doc +=".tex";
-   creat_asci(doc);
+   create_tex(doc);
+   create_data(doc,"transmittance");
 	
    TString name("event_tree");
-   FILE* pipe = gSystem->OpenPipe("ls *ev.root" , "r" );
+   FILE* pipe = gSystem->OpenPipe("ls *.root" , "r" );
 
    TString path ;
    TFile* f ;
@@ -39,7 +38,7 @@ scantrees(){
           f->Close();
    }
 
-   close_asci(path, doc);
+   close_tex(doc);
    gSystem->Exit( gSystem->ClosePipe( pipe ));
 }
 
@@ -63,7 +62,7 @@ void classify_events(TString rootfileinput, TString doc ){
 	imax = 100;
 	
         TMap* fMap = new TMap ;
-	TMap* gMap = new TMap ;
+	TMap* ffMap = new TMap ;
 	
 	for(Int_t i=0;i<imax;i++){
 	   t->GetEntry(i);
@@ -92,13 +91,16 @@ void classify_events(TString rootfileinput, TString doc ){
 	   
 	   //countting the diffrent patterns, types, or ways.......
 	   counting( fMap, art);
-	   counting( gMap, pro);
+	   counting( ffMap, pro);
 	}
 	
 	// dumpping the results cate in different ways.
-	creat_table(rootfileinput, doc);
-	dump_map( rootfileinput, gMap,imax, doc );
-        dump_map( rootfileinput, fMap,imax, doc );
+	TString ev = ((TObjString*)TString(rootfileinput).Tokenize(".")->At(0))->GetString();
+	Double_t evv = atof(ev.Data());
+	Double_t evvv = evv/10;
+	create_table(evvv, doc);
+	dump_map( evvv, ffMap,imax, doc );
+        dump_map( evvv, fMap,imax, doc );
 	
 //	return fMap;
 }
@@ -117,7 +119,7 @@ void counting( TMap* map, TString type){
 }
 
 
-void dump_map( TString rootfilepath, TMap* map, Int_t imax, TString doc ){
+void dump_map( Double_t evvv, TMap* map, Int_t imax, TString doc ){
    
    TObjString* s = NULL ;
    TIter next(map);
@@ -141,7 +143,11 @@ void dump_map( TString rootfilepath, TMap* map, Int_t imax, TString doc ){
 	//output_table(map,sk,ratio);
 	check = check + vv;
 
-	output_table(rootfilepath,sk,ratio,doc);
+	//output conponent
+
+	Double_t wl = 1200/evvv;
+	output_table(sk,ratio,doc);
+	output_data(wl,ratio,doc,"transmittance",sk);
 	
    }
    
@@ -199,7 +205,7 @@ TString classify_pattern( TString clevt ){
 		if( (clevt.BeginsWith("rbo,") == 1) && (clevt.EndsWith("rth,") == 1 && nf == 2)){
 			//cout << "reflected!!" << endl;
 			//cout << "main/first rebound!!!!!!!!" << endl;
-			art = "No.1,reflectance  ";
+			art = "No.1,reflectance";
 			//cout << art << endl;
 			//cout << endl;
 			//gre = gre + vv ;
@@ -209,7 +215,7 @@ TString classify_pattern( TString clevt ){
 			//cout << onf << " orders rebound!!!" << endl;
 			TString no = Form("No.%i",onf);
 			TString label = no;
-			label += ",reflectance  ";
+			label += ",reflectance";
 			art = label;
 			//cout << art << endl;
 			//cout << endl;
@@ -226,7 +232,7 @@ TString classify_pattern( TString clevt ){
 			if(nf == 1){
 				//cout << "absorbed in acrylc!!!!" << endl;
 				//cout << "absorbed immediately entried acrylic" << endl;
-				art = "No.1,absorption   ";
+				art = "No.1,absorption";
 				//cout << art << endl;
 				//cout << endl;
 				//gab = gab + vv ;
@@ -249,7 +255,7 @@ TString classify_pattern( TString clevt ){
 			Int_t onf = nf/2;
 			TString no = Form("No.%i",onf);
 			TString label = no;
-			label += ",absorption   ";
+			label += ",absorption";
 			art = label;
 			//cout << art << endl;
 			//cout << endl;
@@ -260,7 +266,7 @@ TString classify_pattern( TString clevt ){
 			Int_t onf = ((nf+1)/2);
 			TString no = Form("No.%i",onf);
 			TString label = no;
-			label += ",absorption   ";
+			label += ",absorption";
 			art = label;
 			//cout << art << endl;
 			//cout << endl;
@@ -278,11 +284,11 @@ TString classify_process(TString art){
 
 	TString type = "";	
 	if( art.EndsWith("transmittance")){
-		type = "gross transmittance";
-	} else if( art.EndsWith("reflectance  ")){
-		type = "gross reflectance  ";
-	} else if( art.EndsWith("absorption   ")){
-		type = "gross absorption   ";
+		type = "transmittance";
+	} else if( art.EndsWith("reflectance")){
+		type = "reflectance";
+	} else if( art.EndsWith("absorption")){
+		type = "absorption";
 	}
 
 	return type;
@@ -341,65 +347,78 @@ Int_t save_selection(TString rootfileinput, Int_t nf, Int_t codef, Int_t nfn, In
 
 
 //  function used to output the T and R result withLaTeX table
-//  
-void creat_asci(TString doc){
-	    
+//
+//  This part include four components: creat_tex, creat_table, output_table, and close_tex
+void create_tex(TString doc){
+	    doc += ".tex";
 	    ofstream o(doc.Data());
 	    o << Form("\\documentclass{report}\n");
 	    o << Form("\\begin{document}\n");
 	    o << Form("\\begin{quote}\n");
-	    o << Form("\\begin{tabular}{lll}\n");
+	    o << Form("\\begin{tabular}{llll}\n");
 	    o << Form("\\hline\n");
-	    o << Form("$photon energy\$\&\$Process\$\&\$\\\%\$\\\\\n");
+	    o << Form("$photon energy(eV)\$\&\$wave length(nm)\$\&\$Process\$\&\$\\\%\$\\\\\n");
 	    o << Form("\\hline\n");
-    
 	    o.close();
-
 	    //cout << "creating " << doc << " LaTex file sucessfully" << endl;
 	    
 }
 
-void creat_table(TString rootfile, TString doc){
-
-	    TString file = rootfile;
-	    //file -= ".root";
-	    
+void create_table(Double_t evvv, TString doc){
+	    doc += ".tex";
 	    ofstream o(doc.Data(),ios::app);
-  	    o << Form("%s\&\&\\\\\n", file.Data());
-    
+	    Double_t wl = 1200/evvv;
+  	    o << Form("%5.2f\&%5.2f\&\&\\\\\n", evvv, wl);
 	    o.close();
-	    //cout << "creating " << file << " LaTex table sucessfully" << endl;
-	    
 }
 
-void output_table(TString rootfile, TString sk, Double_t ratio, TString doc){
-
-	//TString sratio = Form("%f",ratio);
-	TString file = rootfile;
-	//file -= ".root";
-	
+void output_table(TString sk, Double_t ratio, TString doc){
+	doc += ".tex";
 	ofstream o(doc.Data(),ios::app);
-	
-	o << Form("\&%s\&%f\\\\\n", sk.Data(), ratio);
-
+	//o << Form("\&%s\&%f\\\\\n", sk.Data(), ratio);
+        o << Form("\&\&%s\&%5.2f\\\\\n", sk.Data(),ratio);
 	o.close();
-
-	//cout << "writing " << file << " " << sk << "Latex table" << endl;
 }
 
-void close_asci(TString rootfile, TString doc){
-
-	    TString file = rootfile;
-	    //file -= ".root";
-	    
+void close_tex(TString doc){
+	    doc += ".tex";
 	    ofstream o(doc.Data(),ios::app);
-	    
 	    o << Form("\\end{tabular}\n");
 	    o << Form("\\end{quote}\n");
 	    o << Form("\\end{document}\n");
-
 	    o.close();
+}
 
-	    //cout << "closing " << file << " LaTex table sucessfully" << endl;
-	    
+
+// Function define output data for plotting T,R,A-wl
+// This include 2 parts: creat_data and output_data
+//
+// type: output data, should be the same as one of the keys above.
+void create_data(TString doc,TString type){
+	doc +="_";
+	doc +=type;
+	doc +=".asc";
+	ofstream o(doc.Data());
+	o.close();
+/*	if(o){
+		ofstream o(doc.Data());
+		cout << endl;
+		cout << "file " << doc << " has existed. Please check it" << endl;
+		cout << endl;
+		o.close();
+		//return -1;
+	}else{
+		cout << "creating data asci file " << doc << endl;
+	}
+	*/
+}
+void output_data(Double_t wl, Double_t artv, TString doc,TString type, TString sk){
+	doc +="_";
+	doc +=type;
+	doc +=".asc";
+	if(type == sk){
+	ofstream o(doc.Data(),ios::app);
+	o << Form("%5.2f %5.2f\n",wl,artv);
+	o.close();
+	} 
 }
