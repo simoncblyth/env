@@ -1,7 +1,7 @@
 
 
-Following g4pb hd failure, need to setup a minimum on g3pb to tide over
-until g4pb is back in commission,
+Following g4pb hd failure (Mon 21st Jan mid-afternoon),
+need to setup a minimum on g3pb to tide over until g4pb is back in commission,
 
 == subversion ==
 
@@ -24,7 +24,20 @@ until g4pb is back in commission,
 
 == ssh ==
 
-   copy over from .ssh, config and authorized_keys*
+   copy over from .ssh, config and authorized_keys* and the identities :
+{{{
+g3pb:~ blyth$ cp sd1ba/.ssh/id_*sa .ssh/
+g3pb:~ blyth$ cp sd1ba/.ssh/id_*sa.pub .ssh/
+g3pb:~ blyth$ cp sd1ba/.ssh/identity .ssh/
+g3pb:~ blyth$ cp sd1ba/.ssh/identity.pub .ssh/
+}}}
+
+start the agent and add identies to it
+{{{
+ssh--agent-start
+ssh G1   ## allows passwordless access
+}}}
+
 
 == recover the workflow repos + tracitory from the nightly backup ==
 
@@ -78,7 +91,6 @@ cp: sd1ba/apache2/httpd-2.0.59/share/apache2/htdocs/xchm: No such file or direct
 }}}
 
 
-
 test config
 {{{
 apachectl configtest 
@@ -91,7 +103,56 @@ to get clean config comment out /usr/local/heprez dependency from /usr/local/apa
 
 after that http://localhost  works ...
 as does  http://localhost/tracs/workflow/ ....  the last item on the timeline is
-01/17/08 
+01/17/08 from last thursday (lost a day and a half of wiki editing)
+
+check out the recovered repository ...  (rev 168, no loss )
+{{{
+g3pb > cd $HOME ; svn co http://localhost/repos/workflow/trunk workflow
+Checked out revision 168.
+}}}
+
+== essential gui apps ==
+
+  || iterm || missing the iterm defaults setup ... ||
+  
+== thunderbird.app mail settings ==
+
+  give up on the bird ... twas a fileaccess  hog anyhow
+
+== Mail.app settings ==
+
+  have to fail in the wizard screens first and then modify the settings 
+  in the prefs later 
+{{{ 
+         incoming : hep1.phys.ntu.edu.tw
+         username : blyth
+         outgoing : (port:25, authentication:password, use-SSL:NO , user/pw: as expected )
+}}}
+
+== Organized mails lost ? ==
+
+== Safari setup ==
+
+{{{
+File > Import Bookmarks ...
+/Volumes/SD1BackupAlpha/Users/blyth/Library/Safari/Bookmarks.list 
+}}}
+
+== Copy Overs ==
+
+
+Note this includes 1.3GB of geant4 with the early developments... needs to be
+reviewed and put in repo. 
+
+{{{
+g3pb> cd $HOME 
+g3pb> cp -rp sd1ba/Work . 
+
+
+g3pb:/ blyth$ sudo cp -Rp sd1ba/work .
+g3pb:~ blyth$ cp -Rp sd1ba/Money .
+}}}
+
 
 
 

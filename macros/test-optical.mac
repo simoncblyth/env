@@ -124,6 +124,6 @@
 /control/alias gui "/control/execute gui.mac"
 
 
-#### Number of Events to simulate.
+# /run/beamOn 10
 #/run/beamOn 100
 
