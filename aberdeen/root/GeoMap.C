@@ -63,18 +63,19 @@ public:
 
    void Display(TString key);
    void Dump(TGeoNode* node , TString path="");
+   void ImportVolume(TString filepath, TString vname="World");
 
 private:
    void Import(TString filepath);
+   void CreateMap();
    void Walk( TGeoNode* node , TString path );
 
    TMap* fMap ;
 };
 
 
-GeoMap::GeoMap(const char* path){
-   fMap = new TMap ;
-   Import( path );
+GeoMap::GeoMap(const char* path) : fMap(NULL) {
+   if( path != NULL ) Import( path );
 }
 
 GeoMap::~GeoMap(){
@@ -88,11 +89,29 @@ TMap* GeoMap::GetMap(){
 void GeoMap::Import(TString filepath){
 
     TGeoManager::Import( filepath);
+    CreateMap();
+}
+
+
+void GeoMap::CreateMap(){
+    fMap = new TMap ;
     TGeoNode* tn = gGeoManager->GetTopNode();
     Walk( tn , "" );
 }
 
+
+void GeoMap::ImportVolume(TString filepath, TString vname ){
+
+    TGeoVolume* top = TGeoVolume::Import( filepath , vname );
+    gGeoManager->SetTopVolume( top );
+    gGeoManager->CloseGeometry();
+    CreateMap();
+}
+
+
+
 Bool_t GeoMap::HasKey( TString key ){
+   //cout << "HasKey[" << key << "]" << endl ;
    return fMap(key) != NULL ;
 }
 
@@ -181,7 +200,8 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
 
    // recursive tree walk, creating the map of nodes
 
-   TString name=node->GetName();
+   TString name=node == NULL ? "NULL" : node->GetName();
+   //cout << path << " [" << name << "]" << endl ;
    TString key = UniqueKey( name );
    fMap->Add( new TObjString(key) , node );
 
