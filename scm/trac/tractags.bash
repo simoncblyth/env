@@ -3,11 +3,13 @@ tractags-get(){
 
    # http://www.trac-hacks.org/wiki/TagsPlugin
 
-   cd $LOCAL_BASE/trac
+   cd $LOCAL_BASE/share/trac
    [ -d "plugins" ] || mkdir -p plugins
    cd plugins
 
-   local url=http://trac-hacks.org/svn/tagsplugin/tags/0.4.1/
+   #local ver=0.4.1
+   local ver=0.6 
+   local url=http://trac-hacks.org/svn/tagsplugin/tags/$ver   
    local macro=tractags
 
    svn co $url  $macro  
