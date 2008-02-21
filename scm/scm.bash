@@ -148,6 +148,10 @@
  ## caution must exit with initial directory
  cd $scm_iwd
  
+ 
+ 
+ svn-tools(){  [ -r $SCM_HOME/svn-tools.bash ] && . $SCM_HOME/svn-tools.bash ; }
+ 
  pexpect(){  [ -r $SCM_HOME/pexpect.bash ] && . $SCM_HOME/pexpect.bash ; } 
  svn-sync(){ [ -r $SCM_HOME/svn-sync.bash ] && . $SCM_HOME/svn-sync.bash ; } 
 
