@@ -11,8 +11,11 @@ svn-tools-get(){
 svn-tools-fill-tmpl(){
 
    cd $LOCAL_BASE/svn/tools/backup
-   perl -p -e 's/\@SVN_BINDIR\@/\/usr\/bin/g' hot-backup.py.in  > hot-backup.py
-   diff hot-backup.py.in hot-backup.py
+   
+   local name=hot-backup.py
+   perl -p -e 's/\@SVN_BINDIR\@/\/usr\/bin/g' $name.in  > $name
+   diff $name.in $name
+   chmod u+x $name
 
    which svnlook
    which svnadmin

@@ -243,7 +243,7 @@ scm-backup-repo(){
    # 
        
    local hot_backup		     
-   if [ "$NODE_APPROACH" == "stock" ]; then
+   if [ -f "$LOCAL_BASE/svn/tools/backup/hot-backup.py" ]; then
 	 hot_backup=$LOCAL_BASE/svn/tools/backup/hot-backup.py
    else
 	 hot_backup=$LOCAL_BASE/svn/build/subversion-1.4.0/tools/backup/hot-backup.py	
@@ -278,13 +278,13 @@ scm-backup-trac(){
    local source_fold=$path
    local target_fold=$base/tracs/$name/$stamp/$name
    local parent_fold=$(dirname $target_fold)
-   local 
+
    
    ## target_fold must NOT exist , but its parent should
    ## too many pythons around to rely on an external PYTHON_HOME
    
    local trac_admin
-   if [ "$NODE_APPROACH" == "stock" ]; then
+   if [ -x "/usr/local/bin/trac-admin" ]; then
       trac_admin=/usr/local/bin/trac-admin
    else 
 	  trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
