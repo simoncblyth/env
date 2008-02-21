@@ -47,8 +47,13 @@ scm-recover-all(){
       for path in $base/*
       do   
           local name=$(basename $path)
-          scm-recover-repo $name $path $dest       
-      done
+          scm-recover-repo $name $path $dest   
+		  #
+		  #  eg:
+		  #    name : "workflow" 
+		  #    path : /var/scm/backup/g4pb/tracs/workflow   or repos equivalent    
+          #    dest : /var/scm/tracs or /var/scm/repos 
+	  done
       
    done 
 
@@ -160,6 +165,11 @@ scm-recover-repo(){
    [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
    [ -d "$dest" ] || ( echo ERROR destination folder $dest does not exist && return 1 )
    
+   
+   #
+   #  hmm must be careful with copies of the tarballs to prevent collapsing the link
+   #
+   
    cd $path
    local stamp=$(readlink last)
    local target_fold=$path/$stamp
@@ -205,6 +215,8 @@ scm-recover-repo(){
       fi 
    fi
 }
+
+
 
 
 
