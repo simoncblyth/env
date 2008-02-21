@@ -241,8 +241,15 @@ scm-backup-repo(){
    # 
    #  inside $target_fold , which must exist
    # 
-           
-   local cmd="mkdir -p $target_fold &&  $LOCAL_BASE/svn/build/subversion-1.4.0/tools/backup/hot-backup.py --archive-type=gz $path $target_fold && cd $base/repos/$name && rm -f last && ln -s $stamp last "   
+       
+   local hot_backup		     
+   if [ "$NODE_APPROACH" == "stock" ]; then
+	 hot_backup=$LOCAL_BASE/svn/tools/backup/hot-backup.py
+   else
+	 hot_backup=$LOCAL_BASE/svn/build/subversion-1.4.0/tools/backup/hot-backup.py	
+   fi		
+			  	  
+   local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/repos/$name && rm -f last && ln -s $stamp last "   
    echo $cmd
    eval $cmd
    
@@ -275,8 +282,15 @@ scm-backup-trac(){
    
    ## target_fold must NOT exist , but its parent should
    ## too many pythons around to rely on an external PYTHON_HOME
-   local python_home=$REFERENCE_PYTHON_HOME
-   local cmd="mkdir -p $parent_fold && $python_home/bin/trac-admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
+   
+   local trac_admin
+   if [ "$NODE_APPROACH" == "stock" ]; then
+      trac_admin=/usr/local/bin/trac-admin
+   else 
+	  trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
+   fi	  
+   
+   local cmd="mkdir -p $parent_fold && $trac_admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $cmd
    eval $cmd 
    
