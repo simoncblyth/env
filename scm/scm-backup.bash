@@ -6,21 +6,34 @@
 #
 #
 
+
+scm-backup-du(){
+    find $SCM_FOLD -name '*.gz' -exec du -h {} \;
+}
+
 scm-backup-all(){
    
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
    
    for path in $SCM_FOLD/repos/*
-   do   
-       local name=$(basename $path)
-       scm-backup-repo $name $path $base $stamp        
+   do  
+       if [ -d $path ]; then 
+          local name=$(basename $path)
+          scm-backup-repo $name $path $base $stamp        
+       else
+	      echo === scm-backup-all repo === skip non-folder $path 
+	   fi
    done
    
    for path in $SCM_FOLD/tracs/*
-   do   
-       local name=$(basename $path)
-       scm-backup-trac $name $path $base $stamp        
+   do  
+       if [ -d $path ]; then 
+           local name=$(basename $path)
+           scm-backup-trac $name $path $base $stamp  
+		else
+		   echo === scm-backup-all trac === skip non-folder $path
+		fi
    done
    
    scm-backup-purge $LOCAL_NODE
@@ -45,9 +58,13 @@ scm-recover-all(){
       local dest=$SCM_FOLD/$type
       
       for path in $base/*
-      do   
-          local name=$(basename $path)
-          scm-recover-repo $name $path $dest   
+      do  
+	      if [ -d $path ]; then 
+             local name=$(basename $path)
+             scm-recover-repo $name $path $dest
+		  else
+		     echo === scm-recover-all skip non-folder $path ... UNTESTED IF ... ===
+		  fi   
 		  #
 		  #  eg:
 		  #    name : "workflow" 
@@ -227,6 +244,8 @@ scm-backup-repo(){
    local base=${3:-dummy}   ## backup folder
    local stamp=${4:-dummy}  ## date stamp
    
+   echo === scm-backup-repo name $name path $path base $base stamp $stamp ===
+   
    [ "$name" == "dummy" ] && ( echo the name must be given && return 1 )
    [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
    [ "$base" == "dummy" ] && ( echo the base must be given && return 1 )
@@ -243,7 +262,7 @@ scm-backup-repo(){
    # 
        
    local hot_backup		     
-   if [ -f "$LOCAL_BASE/svn/tools/backup/hot-backup.py" ]; then
+   if [ -x "$LOCAL_BASE/svn/tools/backup/hot-backup.py" ]; then
 	 hot_backup=$LOCAL_BASE/svn/tools/backup/hot-backup.py
    else
 	 hot_backup=$LOCAL_BASE/svn/build/subversion-1.4.0/tools/backup/hot-backup.py	
@@ -264,6 +283,8 @@ scm-backup-trac(){
    local path=${2:-dummy}     ## absolute path to the trac
    local base=${3:-dummy}     ## backup folder
    local stamp=${4:-dummy}  ## date stamp
+   
+   echo === scm-backup-trac name $name path $path base $base stamp $stamp ===
    
    #
    #  perhaps the stamp should be above the name, and have only one stamp 

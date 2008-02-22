@@ -50,13 +50,15 @@ libxslt-configure(){
 # http://jamesclarke.info/notes/libxml2
 
     libxslt-dir
-   ./configure \
-     --with-python=$PYTHON_HOME \
-     --prefix=$LIBXSLT_FOLD \
-     --with-libxml-prefix=$LIBXML2_FOLD \
-     --with-libxml-include-prefix=$LIBXML2_FOLD/include \
-     --with-libxml-libs-prefix=$LIBXML2_FOLD/lib \
-
+	
+   # ./configure \
+   #  --with-python=$PYTHON_HOME \
+   #  --prefix=$LIBXSLT_FOLD \
+   #  --with-libxml-prefix=$LIBXML2_FOLD \
+   #  --with-libxml-include-prefix=$LIBXML2_FOLD/include \
+   #  --with-libxml-libs-prefix=$LIBXML2_FOLD/lib \
+	 
+#   on unix :  
 #
 # Found python in /data/usr/local/python/Python-2.5.1/bin/python
 # PYTHON is pointing at /data/usr/local/python/Python-2.5.1/bin/python
@@ -70,6 +72,18 @@ libxslt-configure(){
 # Found Python version 2.5
 # Found libxml2-python module
 #
+#	
+#	
+#	
+#   for Leopard :	 
+#	  	    
+   ./configure \
+     --prefix=$LIBXSLT_FOLD \
+     --with-libxml-prefix=$LIBXML2_FOLD \
+     --with-libxml-include-prefix=$LIBXML2_FOLD/include \
+     --with-libxml-libs-prefix=$LIBXML2_FOLD/lib \
+	 
+	 
 
 
 }
@@ -91,6 +105,11 @@ libxslt-make(){
 # Missing type converters:
 # xsltTopLevelFunction:2  xmlXPathObjectPtr:1  xsltDecimalFormatPtr:2  xmlChar **:2  xmlXPathCompExprPtr:4  xsltPreComputeFunction:1  xsltElemPreCompPtr:2  xsltDebugTraceCodes:2  xsltDocumentPtr:8  xsltSecurityPrefsPtr:11  xsltTemplatePtr:4  pythonObject *:5  ...:1  xsltNumberDataPtr:1  xmlHashTablePtr:1  xmlNodePtr *:3  xsltExtInitFunction:2  xsltCompilerCtxtPtr:2  char **:2  xmlXPathObjectPtr *:1  xmlNodeSetPtr:2  xmlXPathFunction:4  xsltTransformFunction:5  xsltCompMatchPtr:3  void *:13  xmlOutputBufferPtr:1  xsltPointerListPtr:4  xmlDictPtr:1  xsltSortFunc:2  xsltNsMapPtr:1  xsltStackElemPtr:3 
 #  touch  
+  
+#
+#   Leopard build looks similar to above tiger/unix one 
+#
+#  
   
   
 }

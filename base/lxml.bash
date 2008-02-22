@@ -39,7 +39,8 @@ lxml-install(){
 
 lxml-env(){
 
-   export LXML_NAME=lxml-1.3.3
+   #export LXML_NAME=lxml-1.3.3
+   export LXML_NAME=lxml-2.0.1
    export LXML_FOLD=$LOCAL_BASE/python/lxml
 }
 
@@ -49,7 +50,7 @@ lxml-get(){
 
    lxml-env
    local dir=$LXML_FOLD
-   mkdir -p $dir
+   $SUDO mkdir -p $dir  && $SUDO chown -R $USER $dir 
    
    local name=$LXML_NAME
    local tgz=$name.tgz
