@@ -231,7 +231,10 @@ export DAYABAY_G1=$DISK_G1/dayabay
 
 export LOCAL_BASE_U=/tmp
 export LOCAL_BASE_G=/usr/local
-export LOCAL_BASE_P=/disk/d4/dayabay/local   ## rozz testing 
+
+## export LOCAL_BASE_P=/disk/d4/dayabay/local   ## rozz testing 
+export LOCAL_BASE_P=/disk/d3/dayabay/local
+
 export LOCAL_BASE_G1=$DAYABAY_G1/local  
 export LOCAL_BASE_L=/usr/local           
 export LOCAL_BASE_H=/data/usr/local          
