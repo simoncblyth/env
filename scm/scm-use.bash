@@ -18,7 +18,7 @@ if [ "$NODE_APPROACH" == "stock" ]; then
   export APACHE2_LOCAL=etc/apache2/local
 else
   export APACHE2_LOCAL=etc/apache2
-  export SVN_HOME=$LOCAL_BASE/$SVN_ABBREV/$SVN_NAME
+  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
   export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
   export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
   export PATH=$SVN_HOME/bin:$PATH

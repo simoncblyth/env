@@ -226,6 +226,10 @@ export DISK_G1=/disk/d4
 export DAYABAY_G1=$DISK_G1/dayabay
 
 
+
+
+
+
 ## --------------  the software root for most everything ---------------------------
 ##  
 
@@ -244,6 +248,17 @@ export LOCAL_BASE_N=$HOME/local
 vname=LOCAL_BASE_$NODE_TAG
 eval _LOCAL_BASE=\$$vname
 export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
+
+
+## --------------  the prequisite base for most everything, ie where to pick up subversion + 
+
+export SYSTEM_BASE_U=$LOCAL_BASE
+export SYSTEM_BASE_P=/disk/d4/dayabay/local
+
+vname=SYSTEM_BASE_$NODE_TAG
+eval _SYSTEM_BASE=\$$vname
+export SYSTEM_BASE=${_SYSTEM_BASE:-$SYSTEM_BASE_U}
+
 
 ## ----------  for operational files, like backups
 

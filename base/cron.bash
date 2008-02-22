@@ -47,7 +47,10 @@ cron-setup-backup(){
 	  
       [ -d $crondir ] || sudo mkdir -p $crondir 
       sudo chown $user $crondir 
-      local cronlog=$crondir/$$.log
+	  
+	  ## solidify the invoking pid like this makes little sense ... better to call the log something meaningful
+	  
+      ##local cronlog=$crondir/$$.log
       local     tmp=$crondir/$$crontab  
   
       ## local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
@@ -68,12 +71,12 @@ cron-setup-backup(){
 
       if [ "$user" == "root" ]; then
          
-         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-all ; scm-backup-all     ) > $cronlog 2>&1"
+         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-all ; scm-backup-all     ) > $crondir/scm-backup-all.log 2>&1"
          delta=0
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $crondir/scm-backup-rsync.log  2>&1"
          delta=15   
          
       else
