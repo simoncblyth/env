@@ -50,8 +50,9 @@
      [ -r db/db.bash  ] && . db/db.bash 
      
      [ -r dyb/dyb.bash  ] && . dyb/dyb.bash 
-     
+     echo === dyb done
      [ -r aberdeen/aberdeen.bash  ] && . aberdeen/aberdeen.bash
+	 echo === aberdeen done 
 
  fi
  
