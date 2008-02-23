@@ -45,12 +45,22 @@
  
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
-     [ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
-     [ -r offline/offline.bash  ] && . offline/offline.bash 
-     [ -r db/db.bash  ] && . db/db.bash 
+     
+	 
+	 ## legacy setup
+	 ##[ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
+	 
+	 ## dbi 
+     ##[ -r offline/offline.bash  ] && . offline/offline.bash 
+     
+	 ## mysql setup not pursued
+	 ##[ -r db/db.bash  ] && . db/db.bash 
      
      [ -r dyb/dyb.bash  ] && . dyb/dyb.bash 
-     # echo === dyb done
+     
+	 
+	 
+	 # echo === dyb done
      # [ -r aberdeen/aberdeen.bash  ] && . aberdeen/aberdeen.bash
 	 # echo === aberdeen done 
 
