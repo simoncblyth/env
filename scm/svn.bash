@@ -446,6 +446,12 @@ cat << EOC
 @user = rw 
 @admin = rw
 
+[ApplicationSupport:/]
+* = r
+@member = r
+@user = rw 
+@admin = rw
+
 [heprez:/]
 @heprezmember = r
 @heprezuser = rw 
