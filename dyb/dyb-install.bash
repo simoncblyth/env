@@ -60,6 +60,17 @@ dyb-install-screen(){
 }
 
 
+dyb-dbglink(){
+
+   local arch=uncharacterized_linux
+   local rootv=5.18.00
+   cd $DYB/external/root/$rootv &&  test -d $arch && ln -s $arch ${arch}_dbg || echo dyb-dbglink FAILED 
+
+}
+
+
+
+
 dyb-override(){
    local iwd=$PWD
    cd $DYB
