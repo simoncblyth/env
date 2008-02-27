@@ -105,19 +105,35 @@ dybr-unmake-setup(){
   ##
 }
 
-dybr-setup(){
+dybr-site-setup(){
    
-   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
+   ##
+   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS   
+   ## 
+   ##  CAUTION : 
+   ##      this is not a CMT generated setup.sh it is concocted by dybinst and does:
+   ##   
+   ##         1) generic CMT setup 
+   ##         2) "cmt config" based on  $DDR/setup/requirements : 
+   ##                set SITEROOT /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk
+   ##                set CMTPROJECTPATH $SITEROOT
+   ##                set CMTEXTRATAGS dayabay
+   ##                apply_tag dayabay
+   ##          3) sources the resulting setup.sh
+   ##  
+   ##     NB this may be a good place to add the "debug" to CMTEXTRATAGS
+   ##
    
    local pwd=$PWD
    cd $DYB/$DYB_RELEASE
-   . setup.sh 
+   . setup.sh     
    cd $pwd
+   
 }
 
 
 
-dybr-resetup(){
+dybr-site-init(){
 
    ##
    ## NB cmt gotcha avoided 
@@ -127,19 +143,29 @@ dybr-resetup(){
 
    dybr-unmake-setup
    dybr-make-setup
-   dybr-setup
+   dybr-site-setup
 
 }
 
 
 dybr-diff(){
-
-   dybr-info > /tmp/dybr-diff-before
+   local name="dybr-diff"
+   dybr-info > /tmp/$name-before
    $*
-   dybr-info > /tmp/dybr-diff-after
-   diff   /tmp/dybr-proj-before /tmp/dybr-proj-after
+   dybr-info > /tmp/$name-after
+   diff   /tmp/$name-before /tmp/$name-after
 
 }
+
+
+dybr-projs(){
+
+   
+  cd $DDR/gaudi/GaudiRelease  && dybr-proj
+  cd $DDR/dybgaudi/DybRelease  && dybr-proj 
+
+}
+
 
 dybr-proj(){
 
