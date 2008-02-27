@@ -4,8 +4,8 @@ dyb-env(){
   export DYB_HOME=$HOME/$DYB_BASE
 }
 
-dyb(){       [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; }
-dyb-test(){  [ -r $DYB_HOME/dyb-test.bash ]      && . $DYB_HOME/dyb-test.bash ; }
+
+
 
 dyb-version(){
 
@@ -38,16 +38,15 @@ dyb-version(){
 
 }
 
-dyb-subs(){
-  [ -r $DYB_HOME/dyb-install.bash ] && . $DYB_HOME/dyb-install.bash
-  [ -r $DYB_HOME/dyb-run.bash ]     && . $DYB_HOME/dyb-run.bash
-}
-
+dyb-(){   [ -r $DYB_HOME/dyb.bash ]  && . $DYB_HOME/dyb.bash ; }
+dybr-(){  [ -r $DYB_HOME/dybr.bash ] && . $DYB_HOME/dybr.bash ; }
+dybi-(){  [ -r $DYB_HOME/dybi.bash ] && . $DYB_HOME/dybi.bash ; }
+dybt-(){  [ -r $DYB_HOME/dybt.bash ] && . $DYB_HOME/dybt.bash ; }
 
 
 dyb-env
 dyb-version
-dyb-subs
+
 
 
 
