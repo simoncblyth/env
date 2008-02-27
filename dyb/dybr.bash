@@ -131,6 +131,16 @@ dybr-resetup(){
 
 }
 
+
+dybr-diff(){
+
+   dybr-info > /tmp/dybr-diff-before
+   $*
+   dybr-info > /tmp/dybr-diff-after
+   diff   /tmp/dybr-proj-before /tmp/dybr-proj-after
+
+}
+
 dybr-proj(){
 
    ## use the PWD as the crucial parameter 
@@ -138,7 +148,6 @@ dybr-proj(){
 
    if [ -d cmt ]; then
    
-		dybr-info > /tmp/dybr-proj-before
 		cd cmt
          
 		## get rid of the positional parameters, in order to avoid CMT complaint
@@ -147,9 +156,6 @@ dybr-proj(){
 		. setup.sh
 		
 		cd ..
-		
-		dybr-info > /tmp/dybr-proj-after
-	    diff   /tmp/dybr-proj-before /tmp/dybr-proj-after
 
 	else
 		echo === dybr-proj ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
