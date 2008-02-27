@@ -129,6 +129,19 @@ dybr-site-setup(){
    . setup.sh     
    cd $pwd
    
+   ##  emits a warning :
+   ## #CMT> The tag dayabay is not used in any tag expression. Please check spelling
+   ##  presumably as CMT knows nothing of this tag as yet 
+}
+
+dybr-site-info(){
+
+   echo SITEROOT $SITEROOT
+   echo CMTPROJECTPATH $CMTPROJECTPATH
+   echo CMTEXTRATAGS $CMTEXTRATAGS
+   which cmt
+   cmt show tags
+
 }
 
 
@@ -140,6 +153,9 @@ dybr-site-init(){
    ##   ... have to cd to the directory and then source the setup
    ##  sourcing remotely is not the same DONT YOU JUST LOVE CMT 
    ##
+   ## 
+   ## the point of the below may be to honor the overrides ?
+   ## 
 
    dybr-unmake-setup
    dybr-make-setup
@@ -160,6 +176,7 @@ dybr-diff(){
 
 dybr-projs(){
 
+  dybr-site-setup
    
   cd $DDR/gaudi/GaudiRelease  && dybr-proj
   cd $DDR/dybgaudi/DybRelease  && dybr-proj 
@@ -170,7 +187,7 @@ dybr-projs(){
 dybr-proj(){
 
    ## use the PWD as the crucial parameter 
-   dybr-setup 
+ 
 
    if [ -d cmt ]; then
    
