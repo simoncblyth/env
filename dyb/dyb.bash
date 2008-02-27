@@ -1,13 +1,11 @@
 
-dyb-env(){
-  DYB_BASE=$ENV_BASE/dyb
-  export DYB_HOME=$HOME/$DYB_BASE
-}
 
+## formerly dyb-env
 
+DYB_BASE=$ENV_BASE/dyb
+export DYB_HOME=$HOME/$DYB_BASE
 
-
-dyb-version(){
+## formerly dyb-version
 
   # note, sensitivity to preset DYB_VERSION ... overrides the below setting
  
@@ -36,16 +34,12 @@ dyb-version(){
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
-}
-
 dyb-(){   [ -r $DYB_HOME/dyb.bash ]  && . $DYB_HOME/dyb.bash ; }
 dybr-(){  [ -r $DYB_HOME/dybr.bash ] && . $DYB_HOME/dybr.bash ; }
 dybi-(){  [ -r $DYB_HOME/dybi.bash ] && . $DYB_HOME/dybi.bash ; }
 dybt-(){  [ -r $DYB_HOME/dybt.bash ] && . $DYB_HOME/dybt.bash ; }
 
 
-dyb-env
-dyb-version
 
 
 
