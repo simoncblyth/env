@@ -178,8 +178,8 @@ dybr-projs(){
 
   dybr-site-setup
    
- ## cd $DDR/gaudi/GaudiRelease  && dybr-cmt br config
-  cd $DDR/dybgaudi/DybRelease  && dybr-cmt br config
+ ## cd $DDR/gaudi/GaudiRelease  && dybr-cmt br cmt config
+  cd $DDR/dybgaudi/DybRelease  && dybr-cmt br cmt config
 
 }
 
