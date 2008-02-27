@@ -1,29 +1,29 @@
 
 
-dyb--path(){
+dybr--path(){
    echo ${1:-$CMTPATH} | perl -lne 'printf "%s\n",$_ for(split(/:/))'
 }
 
-dyb-cmtpath(){ echo === dyb-cmtpath ===  && dyb--path $CMTPATH ; }
-dyb-path(){    echo === dyb-path ===     && dyb--path $PATH ; }
-dyb-llp(){     echo === dyb-llp ===      && dyb--path $LD_LIBRARY_PATH ; }
-dyb-dlp(){     echo === dyb-dlp ===      && dyb--path $DYLD_LIBRARY_PATH ; }
+dybr-cmtpath(){ echo === dybr-cmtpath ===  && dybr--path $CMTPATH ; }
+dybr-path(){    echo === dybr-path ===     && dybr--path $PATH ; }
+dybr-llp(){     echo === dybr-llp ===      && dybr--path $LD_LIBRARY_PATH ; }
+dybr-dlp(){     echo === dybr-dlp ===      && dybr--path $DYLD_LIBRARY_PATH ; }
 
 
-dyb-cmd(){
+dybr-cmd(){
   
    ##
    ## usage example
    ##    cmd(){ pwd ; ls -alst ; }
-   ##    dyb-cmd cmd $PATH
-   ##    dyb-cmd cmd $LD_LIBRARY_PATH
+   ##    dybr-cmd cmd $PATH
+   ##    dybr-cmd cmd $LD_LIBRARY_PATH
    ##
   
    local cmd=${1:-ls}
    local dir=${2:-$PATH}
    local pwd=$PWD
    
-   for d in $(dyb--path $dir | grep $DYB)
+   for d in $(dybr--path $dir | grep $DYB)
    do
       if [ -d "$d" ]; then
          cd $d 
@@ -36,8 +36,8 @@ dyb-cmd(){
 
 
 
-dyb-info(){
-  echo === dyb-info : $* ===
+dybr-info(){
+  echo === dybr-info : $* ===
   echo SITEROOT $SITEROOT
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
@@ -46,24 +46,13 @@ dyb-info(){
   echo === which python $(which python) ===
   echo === which root $(which root) ===
   
-  dyb-cmtpath
-  dyb-path
-  dyb-llp
+  dybr-cmtpath
+  dybr-path
+  dybr-llp
 }
 
 
-dyb-update(){
-
-  cd $DYB
-  svn up installation/$DYB_VERSION/dybinst
-  svn up $DYB_RELEASE
-
-}
-
-
-
-
-dyb-common(){
+dybr-common(){
 
   ## 
   ## avoid interactive function/ script issue 
@@ -86,22 +75,23 @@ dyb-common(){
 
 }
 
-dyb-make-setup(){  
+
+dybr-make-setup(){  
   
   echo === dyb-make-setup : regenerate the setup directory and scripts in release folder   
-  dyb-common
+  dybr-common
   local config_file=$(main_setup_file $relver sh)
   if [ ! -f $config_file ] ; then
-     echo === dyb-setup : creating config_file $config_file 
+     echo === dybr-make-setup : creating config_file $config_file 
      make_setup $relver
   else
-     echo === dyb-setup : config_file $config_file exists already 
+     echo === dybr-make-setup : config_file $config_file exists already 
   fi  
 }
 
-dyb-unmake-setup(){
+dybr-unmake-setup(){
 
-  echo === dyb-unmake-setup : attempting  to reset CMT for the project to ground zero 
+  echo === dybr-unmake-setup : attempting  to reset CMT for the project to ground zero 
   cd $DYB
   rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
   
@@ -115,7 +105,7 @@ dyb-unmake-setup(){
   ##
 }
 
-dyb-setup(){
+dybr-setup(){
    
    ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS ... and does generic CMT setup   
    
@@ -127,7 +117,7 @@ dyb-setup(){
 
 
 
-dyb-proj(){
+dybr-resetup(){
 
    ##
    ## NB cmt gotcha avoided 
@@ -135,11 +125,44 @@ dyb-proj(){
    ##  sourcing remotely is not the same DONT YOU JUST LOVE CMT 
    ##
 
-   dyb-unmake-setup
-   dyb-make-setup
-   dyb-setup
+   dybr-unmake-setup
+   dybr-make-setup
+   dybr-setup
 
-   #dyb-info "prior to project setup " 
+}
+
+dybr-proj(){
+
+   ## use the PWD as the crucial parameter 
+   dybr-setup 
+
+   if [ -d cmt ]; then
+   
+		dybr-info > /tmp/dybr-proj-before
+		cd cmt
+         
+		## get rid of the positional parameters, in order to avoid CMT complaint
+		set -- 
+		cmt config
+		. setup.sh
+		
+		cd ..
+		
+		dybr-info > /tmp/dybr-proj-after
+	    diff   /tmp/dybr-proj-before /tmp/dybr-proj-after
+
+	else
+		echo === dybr-proj ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
+	fi 
+		
+}
+
+
+
+
+dybr-proj-old(){
+
+   dybr-reset
 
    local default="gaudi dybgaudi"
    local proj 
@@ -158,7 +181,7 @@ dyb-proj(){
       local dir=$DYB/$DYB_RELEASE/$rel/cmt
       if [ -d "$dir" -a  -f "$dir/setup.sh" ]; then
          local pwd=$PWD
-         echo === dyb-setup-proj $proj : $dir : $msg ==
+         echo === dybr-proj $proj : $dir : $msg ==
          cd $dir
          
          ## get rid of the positional parameters, in order to avoid CMT complaint
@@ -171,26 +194,27 @@ dyb-proj(){
       fi 
   done
   
-  dyb-info "after project setup "
+  dybr-info "after project setup "
 }
 
 
 
-dyb-exe-check(){
+dybr-xchk(){
   local exe=${1:-dyb.exe}
   local xdir=$(dirname $(which $exe))
    if [ "X$xdir" != "X$DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin" ]; then
-      echo === dyb-exe-check the path to $exe is unexpected $xdir 
+      echo === dybr-xchk the path to $exe is unexpected $xdir 
    else
-      echo === dyb-exe-check proceeding xdir $xdir 
+      echo === dybr-xchk proceeding xdir $xdir 
    fi
 }
 
 
-dyb-exe(){
+dybr-x(){
 
    local default=$DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/share/SimuOptions.txt
    local path=${1:-$default} 
+   
    shift
    local args=$* 
    local exe=dyb.exe
@@ -199,10 +223,12 @@ dyb-exe(){
    local nam=$(basename $path)
    local iwd=$PWD
    
-   dyb-proj gaudi dybgaudi
-   dyb-exe-check $exe
+   cd $DDR/dybgaudi/Simulation/SimuAlg
+   
+   dybr-proj gaudi dybgaudi
+   dybr-xchk $exe
     
-   echo === dyb-exe running $exe from dir $dir on options file $nam ==
+   echo === dybr-x running $exe from dir $dir on options file $nam ==
    
    cd $dir
    $exe $nam $args
@@ -211,7 +237,7 @@ dyb-exe(){
 }
 
 
-dyb-py(){
+dybr-py(){
 
    # https://wiki.bnl.gov/dayabay/index.php?title=G4dyb_in_DbyGaudi
    
@@ -223,9 +249,9 @@ dyb-py(){
    local nam=$(basename $path)
    local iwd=$PWD
 
-   dyb-proj gaudi dybgaudi 
+   dybr-proj  
       
-   echo === dyb-py running in dir $dir on py file $nam ==
+   echo === dybr-py running in dir $dir on py file $nam ==
    
    cd $dir
    if [ "X${nam:0:1}" == "Xi" ]; then

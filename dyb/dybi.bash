@@ -15,6 +15,14 @@ dybi-get(){
    svn export $url
 }
 
+dybi-update(){
+
+  cd $DYB
+  svn up installation/$DYB_VERSION/dybinst
+  svn up $DYB_RELEASE
+}
+
+
 dybi-check(){
   cd $DYB
   local version=$(basename $PWD)
