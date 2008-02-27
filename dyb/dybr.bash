@@ -178,30 +178,30 @@ dybr-projs(){
 
   dybr-site-setup
    
-  cd $DDR/gaudi/GaudiRelease  && dybr-proj
-  cd $DDR/dybgaudi/DybRelease  && dybr-proj 
+ ## cd $DDR/gaudi/GaudiRelease  && dybr-cmt br config
+  cd $DDR/dybgaudi/DybRelease  && dybr-cmt br config
 
 }
 
 
-dybr-proj(){
+dybr-cmt(){
 
    ## use the PWD as the crucial parameter 
- 
-
+   local args=$*
+   
    if [ -d cmt ]; then
    
 		cd cmt
          
 		## get rid of the positional parameters, in order to avoid CMT complaint
 		set -- 
-		cmt config
+		cmt $args
 		. setup.sh
 		
 		cd ..
 
 	else
-		echo === dybr-proj ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
+		echo === dybr-conf ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
 	fi 
 		
 }
