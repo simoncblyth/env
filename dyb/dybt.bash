@@ -13,4 +13,15 @@ dybt-helloworld(){
    
 }
 
+dybt-py-import(){
 
+  dybr-
+  dybr-projs
+  ipython -c "import $* "
+
+  ##
+  ##
+  ##   dybt-py-import PyCintex   fails  "No module named libPyROOT "
+  ##
+
+}
