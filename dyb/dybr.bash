@@ -178,8 +178,28 @@ dybr-projs(){
 
   dybr-site-setup
    
- ## cd $DDR/gaudi/GaudiRelease  && dybr-cmt br cmt config
-  cd $DDR/dybgaudi/DybRelease  && dybr-cmt br cmt config
+  echo === dybr-projs CMTPROJECTPATH $CMTPROJECTPATH 
+  
+  cd $DDR/lcgcmt/LCG_Release   
+  dybr-cmt br cmt config
+  
+  cd $DDR/gaudi/GaudiRelease   
+  dybr-cmt br cmt config
+  
+  cd $DDR/dybgaudi/DybRelease  
+  dybr-cmt br cmt config
+
+#
+#  re-running (not the 1st run)  emits : 
+#
+#CMT> Project lcgcmt  requested by dybgaudi not found in CMTPROJECTPATH
+#CMT> Project gaudi  requested by dybgaudi not found in CMTPROJECTPATH
+#CMT> Project lhcb  requested by dybgaudi not found in CMTPROJECTPATH
+#CMT> Project lcgcmt  requested by GAUDI not found in CMTPROJECTPATH
+#CMT> Project gaudi  requested by lhcb not found in CMTPROJECTPATH
+#CMT> Project lcgcmt  requested by lhcb not found in CMTPROJECTPATH
+#
+#
 
 }
 
@@ -189,6 +209,8 @@ dybr-cmt(){
    ## use the PWD as the crucial parameter 
    local args=$*
    
+   echo === dybr-cmt $args [ $PWD ] ===
+   
    if [ -d cmt ]; then
    
 		cd cmt
@@ -196,6 +218,9 @@ dybr-cmt(){
 		## get rid of the positional parameters, in order to avoid CMT complaint
 		set -- 
 		cmt $args
+        if [ ! -f setup.sh ]; then
+		   cmt config
+		fi
 		. setup.sh
 		
 		cd ..
