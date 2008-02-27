@@ -9,16 +9,14 @@ dyb(){  [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; }
 dyb-version(){
 
   # note, sensitivity to preset DYB_VERSION ... overrides the below setting
-  export DYB_VERSION_P=trunk
-  #export DYB_VERSION_P=0.0.4  
-  
+ 
  if [ "X$DYB_VERSION" == "X" ]; then
    vname=DYB_VERSION_$NODE_TAG
    eval DYB_VERSION=\$$vname
  else
    echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
  fi
- 
+  
  if [ "X$DYB_OPTION" == "X" ]; then
     DYB_OPTION=""
    #DYB_OPTION="_dbg" 
