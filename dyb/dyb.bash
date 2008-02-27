@@ -4,7 +4,8 @@ dyb-env(){
   export DYB_HOME=$HOME/$DYB_BASE
 }
 
-dyb(){  [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; }
+dyb(){       [ -r $DYB_HOME/dyb.bash ]           && . $DYB_HOME/dyb.bash ; }
+dyb-test(){  [ -r $DYB_HOME/dyb-test.bash ]      && . $DYB_HOME/dyb-test.bash ; }
 
 dyb-version(){
 
