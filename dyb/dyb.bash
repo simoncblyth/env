@@ -30,7 +30,9 @@ export DYB_HOME=$HOME/$DYB_BASE
  export DYB_RELEASE=NuWa-$DYB_VERSION
 
  export DDR=$DYB/$DYB_RELEASE 
-
+ 
+  ## should this be fixed at trunk ?
+ export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 

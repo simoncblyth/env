@@ -9,6 +9,8 @@ dybr-path(){    echo === dybr-path ===     && dybr--path $PATH ; }
 dybr-llp(){     echo === dybr-llp ===      && dybr--path $LD_LIBRARY_PATH ; }
 dybr-dlp(){     echo === dybr-dlp ===      && dybr--path $DYLD_LIBRARY_PATH ; }
 
+dybr-pypath(){  echo === dybr-pypath === && dybr--path $PYTHONPATH ; }
+
 
 dybr-cmd(){
   
@@ -42,11 +44,15 @@ dybr-info(){
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
   
-  echo === which cmt $(which cmt) ===
-  echo === which python $(which python) ===
-  echo === which root $(which root) ===
   
+  echo === which cmt $(which cmt) ===
   dybr-cmtpath
+   
+  echo === which python $(which python) ===
+  dybr-pypath
+  
+  echo === which root $(which root) === ROOTSYS $ROOTSYS
+  
   dybr-path
   dybr-llp
 }
