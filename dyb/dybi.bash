@@ -64,7 +64,7 @@ dybi-smry(){
 dybi-install-screen(){
    echo === dybi-install-screen completes the install, but no summary log ... yet === 
    cd $DYB
-   screen bash -lc "dybi-install $*"
+   screen bash -lc "dybi- ; dybi-install $*"
 }
 
 
