@@ -1,19 +1,17 @@
 
 
-dybr--path(){
-   echo ${1:-$CMTPATH} | perl -lne 'printf "%s\n",$_ for(split(/:/))'
-}
+dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | perl -lne 'printf "%s\n",$_ for(split(/:/))' ; }
 
-dybr-cmtpath(){ echo === dybr-cmtpath ===  && dybr--path $CMTPATH ; }
-dybr-path(){    echo === dybr-path ===     && dybr--path $PATH ; }
-dybr-llp(){     echo === dybr-llp ===      && dybr--path $LD_LIBRARY_PATH ; }
-dybr-dlp(){     echo === dybr-dlp ===      && dybr--path $DYLD_LIBRARY_PATH ; }
-
-dybr-pypath(){  echo === dybr-pypath === && dybr--path $PYTHONPATH ; }
-
+dybr-cmtpath(){ dybr--path "CMTPATH"           $CMTPATH           ; }
+dybr-path(){    dybr--path "PATH"              $PATH              ; }
+dybr-llp(){     dybr--path "LD_LIBRARY_PATH"   $LD_LIBRARY_PATH   ; }
+dybr-dlp(){     dybr--path "DYLD_LIBRARY_PATH" $DYLD_LIBRARY_PATH ; }
+dybr-pypath(){  dybr--path "PYTHONPATH"        $PYTHONPATH        ; }
 
 dybr-cmd(){
   
+   ##
+   ##  Do something in each directory (thats within $DYB) in the colon delimited string passed 
    ##
    ## usage example
    ##    cmd(){ pwd ; ls -alst ; }
@@ -39,12 +37,13 @@ dybr-cmd(){
 
 
 dybr-info(){
+  
   echo === dybr-info : $* ===
+  
   echo SITEROOT $SITEROOT
   echo CMTPROJECTPATH $CMTPROJECTPATH
   echo CMTEXTRATAGS $CMTEXTRATAGS
-  
-  
+    
   echo === which cmt $(which cmt) ===
   dybr-cmtpath
    
@@ -54,7 +53,11 @@ dybr-info(){
   echo === which root $(which root) === ROOTSYS $ROOTSYS
   
   dybr-path
+
   dybr-llp
+
+  test $(uname) = "Darwin" && dybr-dlp 
+
 }
 
 
@@ -95,53 +98,88 @@ dybr-make-setup(){
   fi  
 }
 
-dybr-unmake-setup(){
+dybr-rm-setup(){
 
-  echo === dybr-unmake-setup : attempting  to reset CMT for the project to ground zero 
+  echo === dybr-rm-setup ===
   cd $DYB
   rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
   
-  unset SITEROOT
-  unset CMTPROJECTPATH
-  unset CMTEXTRATAGS
-  unset CMTPATH         ## suspect this is the critical one  
-  
-  ##
-  ## hmm maybe should cleanup PATH ... or can CMT be pursuaded to do that ?
-  ##
 }
 
+
+dybr-site-unset(){
+
+   unset SITEROOT
+   unset CMTPROJECTPATH
+
+   unset CMTPATH 
+  #
+  # this avoids a warning on re-running cmt setups (not the 1st run) : 
+  #
+  #CMT> Project lcgcmt  requested by dybgaudi not found in CMTPROJECTPATH
+  #CMT> Project gaudi  requested by dybgaudi not found in CMTPROJECTPATH  
+  #CMT> Project lhcb  requested by dybgaudi not found in CMTPROJECTPATH
+  #CMT> Project lcgcmt  requested by GAUDI not found in CMTPROJECTPATH
+  #CMT> Project gaudi  requested by lhcb not found in CMTPROJECTPATH
+  #CMT> Project lcgcmt  requested by lhcb not found in CMTPROJECTPATH
+  #
+  #
+
+   unset CMTEXTRATAGS
+  #
+  #  this avoids a warning on re-running dybr-site-setup :
+  #CMT> The tag dayabay is not used in any tag expression. Please check spelling
+  # 
+	
+  # 	
+  # may be useful to unset or set to ground zero : 
+  #     PATH
+  #     DYLD_LIBRARY_PATH
+  #     LD_LIBRARY_PATH
+  #     PYTHONPATH	
+  #
+  # in extreme debugging cases
+  # 
+	
+	
+}
+
+
+dybr-ss(){ dybr-site-setup $* ; }
 dybr-site-setup(){
    
-   ##
-   ## this sets up SITEROOT, CMTPROJECTPATH and CMTEXTRATAGS   
-   ## 
-   ##  CAUTION : 
-   ##      this is not a CMT generated setup.sh it is concocted by dybinst and does:
-   ##   
-   ##         1) generic CMT setup 
-   ##         2) "cmt config" based on  $DDR/setup/requirements : 
-   ##                set SITEROOT /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk
-   ##                set CMTPROJECTPATH $SITEROOT
-   ##                set CMTEXTRATAGS dayabay
-   ##                apply_tag dayabay
-   ##          3) sources the resulting setup.sh
-   ##  
-   ##     NB this may be a good place to add the "debug" to CMTEXTRATAGS
-   ##
+   #
+   #  Site setup that needs to be done before most everything else (apart from "dybr-" ) 
+   # 
+   #     0) clean environment with dybr-site-unset to avoid CMT warnings 
+   #     1) generic CMT setup 
+   #     2) "cmt config" based on  $DDR/setup/requirements : 
+   #           set SITEROOT /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk
+   #           set CMTPROJECTPATH $SITEROOT
+   #           set CMTEXTRATAGS dayabay
+   #           apply_tag dayabay
+   #     3) sources the resulting CMT created $DDR/setup/setup.sh
+   #  
+   #  NB this may be a good place to add the "debug" to CMTEXTRATAGS
+   #
+ 
+   echo === dybr-site-setup ===
    
+   dybr-site-unset					   
+											   		   
    local pwd=$PWD
    cd $DYB/$DYB_RELEASE
+   
+   ## NB this is  concocted by dybinst, not a normal CMT generated from requirements setup.sh
    . setup.sh     
+   
    cd $pwd
    
-   ##  emits a warning :
-   ## #CMT> The tag dayabay is not used in any tag expression. Please check spelling
-   ##  presumably as CMT knows nothing of this tag as yet 
 }
 
 dybr-site-info(){
 
+   echo === dybr-site-info ===
    echo SITEROOT $SITEROOT
    echo CMTPROJECTPATH $CMTPROJECTPATH
    echo CMTEXTRATAGS $CMTEXTRATAGS
@@ -152,8 +190,9 @@ dybr-site-info(){
 
 
 
-dybr-site-init(){
+dybr-site-initialization(){
 
+   ## only needs doing once ?   as opposed to dybr-site-setup
    ##
    ## NB cmt gotcha avoided 
    ##   ... have to cd to the directory and then source the setup
@@ -163,7 +202,7 @@ dybr-site-init(){
    ## the point of the below may be to honor the overrides ?
    ## 
 
-   dybr-unmake-setup
+   dybr-rm-setup
    dybr-make-setup
    dybr-site-setup
 
@@ -182,40 +221,36 @@ dybr-diff(){
 
 dybr-projs(){
 
+  local default_incmt="echo"
+  local incmt=${1:-$default_incmt}
+  local pwd=$PWD
+
+  echo === dybr-projs [ $incmt ] ===
+
   dybr-site-setup
-   
-  echo === dybr-projs CMTPROJECTPATH $CMTPROJECTPATH 
+  dybr-site-info    
   
-  cd $DDR/lcgcmt/LCG_Release   
-  dybr-cmt br cmt config
-  
-  cd $DDR/gaudi/GaudiRelease   
-  dybr-cmt br cmt config
-  
-  cd $DDR/dybgaudi/DybRelease  
-  dybr-cmt br cmt config
+  cd $DDR/lcgcmt/LCG_Release   && dybr-cmt $incmt
+  cd $DDR/gaudi/GaudiRelease   && dybr-cmt $incmt
+  cd $DDR/dybgaudi/DybRelease  && dybr-cmt $incmt
 
-#
-#  re-running (not the 1st run)  emits : 
-#
-#CMT> Project lcgcmt  requested by dybgaudi not found in CMTPROJECTPATH
-#CMT> Project gaudi  requested by dybgaudi not found in CMTPROJECTPATH
-#CMT> Project lhcb  requested by dybgaudi not found in CMTPROJECTPATH
-#CMT> Project lcgcmt  requested by GAUDI not found in CMTPROJECTPATH
-#CMT> Project gaudi  requested by lhcb not found in CMTPROJECTPATH
-#CMT> Project lcgcmt  requested by lhcb not found in CMTPROJECTPATH
-#
-#
-
+  cd $pwd
 }
 
 
 dybr-cmt(){
 
    ## use the PWD as the crucial parameter 
-   local args=$*
+   local incmt=$*
    
-   echo === dybr-cmt $args [ $PWD ] ===
+   local cmtpath=${CMTPATH:-none}
+   local cmtextratags=${CMTEXTRATAGS:-none}
+   local path=${PATH:-none}
+   local dyld_library_path=${DYLD_LIBRARY_PATH:-none}
+   local ld_library_path=${LD_LIBRARY_PATH:-none}
+   local pythonpath=${PYTHONPATH:-none}
+   
+   echo === dybr-cmt doing [ $incmt ] and setup in the cmt folder beneath [ $PWD ] ===
    
    if [ -d cmt ]; then
    
@@ -223,7 +258,7 @@ dybr-cmt(){
          
 		## get rid of the positional parameters, in order to avoid CMT complaint
 		set -- 
-		cmt $args
+		$incmt
         if [ ! -f setup.sh ]; then
 		   cmt config
 		fi
@@ -232,12 +267,36 @@ dybr-cmt(){
 		cd ..
 
 	else
-		echo === dybr-conf ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
+		echo === dybr-cmt ERROR MUST INVOKE FROM FOLDER WITH A cmt FOLDER  == 
 	fi 
-		
+	
+	local msg="$PWD"
+	
+	dybr-checkvar "$msg CMTEXTRATAGS"      $cmtextratags      $CMTEXTRATAGS	
+	dybr-checkvar "$msg CMTPATH"           $cmtpath           $CMTPATH	
+	dybr-checkvar "$msg PATH"              $path              $PATH
+	dybr-checkvar "$msg DYLD_LIBRARY_PATH" $dyld_library_path $DYLD_LIBRARY_PATH
+	dybr-checkvar "$msg LD_LIBRARY_PATH"   $ld_library_path   $LD_LIBRARY_PATH
+	dybr-checkvar "$msg PYTHONPATH"        $pythonpath        $PYTHONPATH
+			
+							
 }
 
-
+dybr-checkvar(){
+   
+   local name=$1
+   local before=$2
+   local after=$3
+   
+   if [ "$before" == "$after" ]; then
+	      echo === $name did not change
+   else		   
+		  echo === $name CHANGED ==============				
+	      dybr--path "before" $before
+		  dybr--path "after"  $after
+		  echo 
+   fi 	
+}
 
 
 dybr-proj-old(){

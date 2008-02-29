@@ -36,6 +36,17 @@ export DYB_HOME=$HOME/$DYB_BASE
 
  ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
+ ##
+ ## dybi : installation 
+ ## dybr : run time environment setup 
+ ## dybt : testing
+ ## dybx : xecution 
+ ##
+
+
+
+dyb(){    dybr- ; dybr-site-setup ; cd $DDR ; }
+
 dyb-(){   [ -r $DYB_HOME/dyb.bash ]  && . $DYB_HOME/dyb.bash ; }
 dybr-(){  [ -r $DYB_HOME/dybr.bash ] && . $DYB_HOME/dybr.bash ; }
 dybi-(){  [ -r $DYB_HOME/dybi.bash ] && . $DYB_HOME/dybi.bash ; }
