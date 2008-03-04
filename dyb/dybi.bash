@@ -106,6 +106,62 @@ dybi-install(){
 }
 
 
+dybi-osc(){
+
+  local xpkg=${1:-CoinGL} 
+  local pwd=$PWD
+  
+  local ver=v16r1
+  local src=$DYB/external/OpenScientist/src/OpenScientist/$ver
+  local vis=$src/osc_vis/$ver/obuild  
+
+  if [ -d "$vis" ]; then
+     cd $vis
+     source setup.sh
+  else
+     echo === dybi-osc : ERROR openscientist version in dybi.bash is outdated $vis 	  
+  fi
+  
+  which obuild
+  
+  obuild -q | grep package | while read pkg colon what ver
+  do
+    
+     if [ "$xpkg" == "$what" ]; then
+	
+	     local dir=$src/$xpkg/$ver/obuild
+		 echo === dybi-osc : $what $pkg $ver : proceed : $dir === 
+	     
+		 
+		 if [ -d "$dir" ]; then
+		 
+		    cd $dir
+			
+			echo === dybi-osc : configuring in $dir
+			obuild
+			
+			echo === dybi-osc : building in $dir
+			./sh/build -v
+			
+			echo === dybi-osc : building for group Python in $dir
+			./sh/build -v -group Python
+			
+		 else
+		    echo === dybi-osc ERROR no folder $dir
+		 fi
+
+     else
+		 echo === dybi-osc : $what $pkg $ver : skip  ===	
+	 fi
+	 
+	 
+  done
+	 	 
+		 
+		 
+}
+
+
   
 
 

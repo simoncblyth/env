@@ -45,7 +45,43 @@ export DYB_HOME=$HOME/$DYB_BASE
 
 
 
-dyb(){    dybr- ; dybr-site-setup ; cd $DDR ; }
+dyb(){   
+    
+	dybr- 
+	dybr-site-setup 
+	cd $DDR  
+    local arg="$*"
+	# get rid of positional args to avoid a CMT warning 
+    set --
+	
+	if [ -n "$arg" ]; then
+	   echo === dyb : with non blank arg $arg
+	   if [ -d "$arg" ]; then
+	      echo === dyb : tis a folder
+	      cd $arg
+		elif [ -f "$arg"  ]; then
+		  echo === dyb : tis a file 
+		  cd $(dirname $arg)
+		fi
+	fi
+	
+	if [ "$(basename $PWD)" == "cmt" ]; then
+	  if [ ! -f "setup.sh" ]; then
+		 echo === dyb : doing cmt config as in cmt folder with no setup.sh
+		 cmt config
+	  fi
+	  if [ -f "setup.sh" ]; then
+	     echo === dyb : sourcing setup
+		 . setup.sh
+	  else
+	     echo === dyb : ERROR no setup.sh in cmt folder after cmt config
+	  fi
+	fi
+	
+	
+	pwd
+ }
+ 
 
 dyb-(){   [ -r $DYB_HOME/dyb.bash ]  && . $DYB_HOME/dyb.bash ; }
 dybr-(){  [ -r $DYB_HOME/dybr.bash ] && . $DYB_HOME/dybr.bash ; }
