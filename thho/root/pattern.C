@@ -59,14 +59,20 @@ void classify_events(TString rootfileinput, TString doc ){
 	Int_t nevent = t->GetEntries();
 	Int_t imax = nevent ;
 	// constrain the No. of events to loop in order to save time when testing
-	imax = 100;
+	//imax = 200;
 	
         TMap* fMap = new TMap ;
 	TMap* ffMap = new TMap ;
+
+
+	   // make sure there is such entry
+	   ffMap->Add( new TObjString("transmittance") , new TObjString("0") );
+	   ffMap->Add( new TObjString("reflectance") , new TObjString("0") );
+	   ffMap->Add( new TObjString("absorption") , new TObjString("0") );
 	
 	for(Int_t i=0;i<imax;i++){
 	   t->GetEntry(i);
-	   if( i%10000 == 0 ) cout << "The "<< i << "th event"<< ". All " << imax << " events."<< endl ;
+	   if( i%250 == 0 ) cout << "The "<< i << "th event"<< ". All " << imax << " events."<< endl ;
 	   
 	   TClonesArray &fha = *(evt->GetFakeHitArray());
 	   const Int_t nFake = fha.GetEntries();
@@ -88,7 +94,8 @@ void classify_events(TString rootfileinput, TString doc ){
 	   //
 	   TString art = classify_pattern(clevt);
 	   TString pro = classify_process(art);
-	   
+
+
 	   //countting the diffrent patterns, types, or ways.......
 	   counting( fMap, art);
 	   counting( ffMap, pro);
@@ -97,7 +104,7 @@ void classify_events(TString rootfileinput, TString doc ){
 	// dumpping the results cate in different ways.
 	TString ev = ((TObjString*)TString(rootfileinput).Tokenize(".")->At(0))->GetString();
 	Double_t evv = atof(ev.Data());
-	Double_t evvv = evv/10;
+	Double_t evvv = evv/100;
 	create_table(evvv, doc);
 	dump_map( evvv, ffMap,imax, doc );
         dump_map( evvv, fMap,imax, doc );
