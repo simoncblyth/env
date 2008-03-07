@@ -50,18 +50,21 @@ dyb(){
 	dybr- 
 	dybr-site-setup 
 	cd $DDR  
-    local arg="$*"
+    local loc="$1"
+	local qwn="$2"
+	
+	
 	# get rid of positional args to avoid a CMT warning 
     set --
 	
-	if [ -n "$arg" ]; then
-	   echo === dyb : with non blank arg $arg
-	   if [ -d "$arg" ]; then
+	if [ -n "$loc" ]; then
+	   echo === dyb : with non blank loc $loc
+	   if [ -d "$loc" ]; then
 	      echo === dyb : tis a folder
-	      cd $arg
-		elif [ -f "$arg"  ]; then
+	      cd $loc
+		elif [ -f "$loc"  ]; then
 		  echo === dyb : tis a file 
-		  cd $(dirname $arg)
+		  cd $(dirname $loc)
 		fi
 	fi
 	
@@ -78,8 +81,15 @@ dyb(){
 	  fi
 	fi
 	
+	if [ "$qwn" != "" ]; then
+	    echo === dyb : non blank qwn $qwn : [ cmt show value $qwn ] in $PWD
+	    cmt show macro_value $qwn 
+	else
+	    echo === dyb : blank qwn in $PWD 
+	fi
 	
-	pwd
+	
+	# pwd
  }
  
 

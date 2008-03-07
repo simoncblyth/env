@@ -109,6 +109,10 @@ dybi-install(){
 dybi-osc(){
 
   local xpkg=${1:-CoinGL} 
+  local opt="-v"  
+  
+  ## -l for "link only" not working... get no object files
+  
   local pwd=$PWD
   
   local ver=v16r1
@@ -138,13 +142,13 @@ dybi-osc(){
 		    cd $dir
 			
 			echo === dybi-osc : configuring in $dir
-			obuild
+			obuild 
 			
-			echo === dybi-osc : building in $dir
-			./sh/build -v
+			echo === dybi-osc : building in $dir : opt $opt :  -l link only -v verbose
+			./sh/build $opt 
 			
 			echo === dybi-osc : building for group Python in $dir
-			./sh/build -v -group Python
+			./sh/build $opt -group Python
 			
 		 else
 		    echo === dybi-osc ERROR no folder $dir
