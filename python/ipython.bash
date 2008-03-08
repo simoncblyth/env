@@ -1,6 +1,9 @@
 
 ipython-get(){
 
+
+  local msg="=== $FUNCNAME "
+
   local nik=ipython
   local nam=$nik-0.8.1
   local tgz=$nam.tar.gz
@@ -8,7 +11,9 @@ ipython-get(){
 
   local dir=$LOCAL_BASE/python/$nik   
    
-  mkdir -p $dir 
+   echo $msg 
+   
+  mkdir -p $dir || return 1
   cd $dir
   
   test -f $tgz || curl -o $tgz $url
@@ -22,7 +27,7 @@ ipython-get(){
  # local py=python
  #  local py="sudo /usr/local/bin/python"
  
-  echo === ipython-get installing into the python in your path $(which python) ===
+  echo $msg installing into the python in your path $(which python) ===
   which python 
  
    python -c "import sys;print sys.prefix"

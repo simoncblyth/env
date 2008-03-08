@@ -1,6 +1,7 @@
 
 
-dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | perl -lne 'printf "%s\n",$_ for(split(/:/))' ; }
+#dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | perl -lne 'printf "%s\n",$_ for(split(/:/))' ; }
+dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | tr ":" "\n" ; }
 
 dybr-cmtpath(){ dybr--path "CMTPATH"           $CMTPATH           ; }
 dybr-path(){    dybr--path "PATH"              $PATH              ; }

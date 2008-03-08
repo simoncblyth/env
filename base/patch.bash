@@ -13,6 +13,7 @@ patch-test(){
    local def_ball="/usr/local/dyb/trunk_dbg/external/OpenScientist/src/osc_source_v16r1.zip" 
    local def_top="OpenScientist"           ## no simple way to extract this from a ball ?
    local def_patch=/usr/local/dyb/trunk_dbg/installation/trunk/dybinst/patches/osc_source_v16r1.zip.patch
+   local def_opt="-r --brief"
 
    local ball=${1:-$def_ball}
    [ ! -f "$ball" ] && echo === $FUNCNAME no ball at path $ball && return 1
@@ -37,8 +38,11 @@ patch-test(){
    local prior="$tdir/$top"
    
    [ -d "$prior"  ] && echo $msg prior folder $prior exists cannot continue delete this and rerun && return 1 
-   [ "$type" == "zip" ] && test ! -d "$prior" && echo $msg unzipping $ball into $prior &&  unzip -d $tdir $ball 
-   
+#   [ "$type" == "zip" ] && test ! -d "$prior" && echo $msg unzipping $ball into $prior &&  unzip -d $tdir $ball 
+ 
+   test ! -d "$prior" && echo $msg copying original/$top into $tdir && cp -Rp original/$top $tdir/ 
+	 
+	     
    cd $tdir
    echo $msg patching with $patch && patch -p1 < $patch
    

@@ -138,14 +138,11 @@ dybi-osc-patch-test(){
   patch-test $(dybi-osc-zip) OpenScientist $(dybi-osc-patch-path) "$opt $(dybi-osc-xclude)"
 }
 
-
-
-
 dybi-osc-patch(){
   local def_opt="-Naur"
   local opt=${1:-$def_opt} 
- 
-   echo === $0/$FUNCNAME : writing patch to $path
+  local path=$(dybi-osc-patch-path)
+  echo === $0/$FUNCNAME : writing patch to $path
   dybi-osc-diff $opt > $path
 }
 

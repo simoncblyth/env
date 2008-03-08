@@ -54,7 +54,7 @@ fi
 
 SQLITE_NAME=sqlite-3.3.16
 export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
-export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
+#export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
 if [ "$NODE_TAG" != "G" ]; then
    export PATH=$SQLITE_HOME/bin:$PATH
 fi
