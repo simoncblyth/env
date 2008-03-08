@@ -106,6 +106,52 @@ dybi-install(){
 }
 
 
+
+
+dybi-osc-zip(){
+   local ver=v16r1   
+   echo  $DYB/external/OpenScientist/src/osc_source_$ver.zip    
+}
+
+dybi-osc-patch-path(){
+   local name=$(basename $(dybi-osc-zip))
+   local path=$DDI/../patches/$name.patch 
+   echo $path
+}
+
+dybi-osc-xclude(){
+   local xcl=" -x "*.sh" -x "*.csh" -x "*.bat" -x foreign -x sh -x bin_obuild -x .DS_Store "
+   echo $xcl 
+}
+
+dybi-osc-diff(){
+   local def_opt="-r --brief"
+   local opt=${1:-$def_opt}
+   patch-
+   patch-diff $(dybi-osc-zip) OpenScientist "$opt $(dybi-osc-xclude)"
+}
+
+dybi-osc-patch-test(){
+  local def_opt="-r --brief"
+  local opt=${1:-$def_opt}
+  patch-
+  patch-test $(dybi-osc-zip) OpenScientist $(dybi-osc-patch-path) "$opt $(dybi-osc-xclude)"
+}
+
+
+
+
+dybi-osc-patch(){
+  local def_opt="-Naur"
+  local opt=${1:-$def_opt} 
+ 
+   echo === $0/$FUNCNAME : writing patch to $path
+  dybi-osc-diff $opt > $path
+}
+
+
+
+
 dybi-osc(){
 
   local xpkg=${1:-CoinGL} 
