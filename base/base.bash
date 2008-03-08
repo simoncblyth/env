@@ -67,7 +67,11 @@ pylibxml2(){  [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylib
 libxml2(){    [ -r $HOME/$BASE_BASE/libxml2.bash ]   && . $HOME/$BASE_BASE/libxml2.bash ; }
 libxslt(){    [ -r $HOME/$BASE_BASE/libxslt.bash ]   && . $HOME/$BASE_BASE/libxslt.bash ; }
 lxml(){       [ -r $HOME/$BASE_BASE/lxml.bash ]      && . $HOME/$BASE_BASE/lxml.bash ; }
-test-(){       [ -r $HOME/$BASE_BASE/test.bash ]     && . $HOME/$BASE_BASE/test.bash ; }
+test-(){      [ -r $HOME/$BASE_BASE/test.bash ]     && . $HOME/$BASE_BASE/test.bash ; }
+patch-(){     [ -r $HOME/$BASE_BASE/patch.bash ]    && . $HOME/$BASE_BASE/patch.bash ; }
+
+
+patch-
 
 
  ## caution must exit in same directory as started in 
