@@ -44,3 +44,8 @@ trachttpauth-install(){
   
   fi
 }
+
+trachttpauth-enable(){
+   local name=${1:-$SCM_TRAC}
+   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:httpauth.\*:enabled
+}
