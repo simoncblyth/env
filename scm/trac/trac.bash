@@ -138,6 +138,14 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  cd $trac_iwd
  
 
+trac-wiki-macros(){
+  ls -alst  $SCM_FOLD/tracs/*/wiki-macros/
+}
+
+trac-plugins(){
+  ls -alst  $SCM_FOLD/tracs/*/plugins/
+}
+
 
 
 trac-log(){

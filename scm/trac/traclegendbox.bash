@@ -19,6 +19,9 @@ traclegendbox-get(){
 
 traclegendbox-place(){
 
+    local msg=" === $FUNCNAME : "
+	echo $msg no restart needed
+
     local name=${1:-$SCM_TRAC}
     local fold=$SCM_FOLD/tracs/$name
     [ -d "$fold" ] || ( echo  error no folder $fold && exit 1 )
