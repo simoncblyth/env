@@ -7,28 +7,20 @@
 	objects = {
 
 /* Begin PBXFileReference section */
+		F903BDD30D75165300F3F7C6 /* dybt.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dybt.bash; sourceTree = "<group>"; };
 		F913B3C10C3B90AC00A3FE55 /* set-executable-env-from-file.applescript */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.applescript; path = "set-executable-env-from-file.applescript"; sourceTree = "<group>"; };
 		F913BDA10C422E4900A3FE55 /* fake_hit_data_treeplot.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_treeplot.C; sourceTree = "<group>"; };
 		F913BDA60C42339B00A3FE55 /* fake_hit_data_treescan.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_treescan.C; sourceTree = "<group>"; };
 		F913CB0C0C43ADA300A3FE55 /* fake_hit_data_clonesarray.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fake_hit_data_clonesarray.C; sourceTree = "<group>"; };
+		F91D01BE0D81230000033CD2 /* patch.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = patch.bash; sourceTree = "<group>"; };
+		F91D01FA0D819BF800033CD2 /* ipython.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ipython.bash; sourceTree = "<group>"; };
+		F91D01FB0D819BF800033CD2 /* python.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = python.bash; sourceTree = "<group>"; };
 		F938A3E00C01F4EB00BB73FA /* alias.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = alias.bash; sourceTree = "<group>"; };
 		F938A3E10C01F4EB00BB73FA /* base.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = base.bash; sourceTree = "<group>"; };
 		F938A3E20C01F4EB00BB73FA /* local.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = local.bash; sourceTree = "<group>"; };
 		F938A3E30C01F4EB00BB73FA /* perl.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = perl.bash; sourceTree = "<group>"; };
 		F938A3E40C01F4EB00BB73FA /* ssh.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = ssh.bash; sourceTree = "<group>"; };
 		F938A3E50C01F4EB00BB73FA /* tty.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = tty.bash; sourceTree = "<group>"; };
-		F938A3E90C01F4EB00BB73FA /* categories.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = categories.pbxbtree; sourceTree = "<group>"; };
-		F938A3EA0C01F4EB00BB73FA /* cdecls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = cdecls.pbxbtree; sourceTree = "<group>"; };
-		F938A3EB0C01F4EB00BB73FA /* decls.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = decls.pbxbtree; sourceTree = "<group>"; };
-		F938A3EC0C01F4EB00BB73FA /* files.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = files.pbxbtree; sourceTree = "<group>"; };
-		F938A3ED0C01F4EB00BB73FA /* imports.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = imports.pbxbtree; sourceTree = "<group>"; };
-		F938A3EE0C01F4EB00BB73FA /* pbxindex.header */ = {isa = PBXFileReference; lastKnownFileType = file; path = pbxindex.header; sourceTree = "<group>"; };
-		F938A3EF0C01F4EB00BB73FA /* protocols.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = protocols.pbxbtree; sourceTree = "<group>"; };
-		F938A3F00C01F4EB00BB73FA /* refs.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = refs.pbxbtree; sourceTree = "<group>"; };
-		F938A3F20C01F4EB00BB73FA /* control */ = {isa = PBXFileReference; lastKnownFileType = file; path = control; sourceTree = "<group>"; };
-		F938A3F30C01F4EB00BB73FA /* strings */ = {isa = PBXFileReference; lastKnownFileType = file; path = strings; sourceTree = "<group>"; };
-		F938A3F40C01F4EB00BB73FA /* subclasses.pbxbtree */ = {isa = PBXFileReference; lastKnownFileType = file; path = subclasses.pbxbtree; sourceTree = "<group>"; };
-		F938A3F50C01F4EB00BB73FA /* symbols0.pbxsymbols */ = {isa = PBXFileReference; lastKnownFileType = file; path = symbols0.pbxsymbols; sourceTree = "<group>"; };
 		F938A3F70C01F4EB00BB73FA /* aida.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = aida.bash; sourceTree = "<group>"; };
 		F938A3F80C01F4EC00BB73FA /* apache.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = apache.bash; sourceTree = "<group>"; };
 		F938A3F90C01F4EC00BB73FA /* av.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = av.bash; sourceTree = "<group>"; };
@@ -78,7 +70,6 @@
 		F938A4260C01F4ED00BB73FA /* vgm-load.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "vgm-load.mac"; sourceTree = "<group>"; };
 		F938A4290C01F4ED00BB73FA /* apache-load-module.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = "apache-load-module.pl"; sourceTree = "<group>"; };
 		F938A42A0C01F4ED00BB73FA /* apache2.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = apache2.bash; sourceTree = "<group>"; };
-		F938A42B0C01F4ED00BB73FA /* clearsilver.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = clearsilver.bash; sourceTree = "<group>"; };
 		F938A42C0C01F4ED00BB73FA /* file.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = file.bash; sourceTree = "<group>"; };
 		F938A42D0C01F4ED00BB73FA /* modpython-test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "modpython-test.bash"; sourceTree = "<group>"; };
 		F938A42E0C01F4ED00BB73FA /* modpython.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = modpython.bash; sourceTree = "<group>"; };
@@ -100,25 +91,66 @@
 		F938A43E0C01F4ED00BB73FA /* svn.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = svn.bash; sourceTree = "<group>"; };
 		F938A43F0C01F4ED00BB73FA /* svn2feed.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = svn2feed.py; sourceTree = "<group>"; };
 		F938A4400C01F4ED00BB73FA /* swig.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = swig.bash; sourceTree = "<group>"; };
-		F938A4410C01F4ED00BB73FA /* trac-test.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "trac-test.bash"; sourceTree = "<group>"; };
-		F938A4420C01F4ED00BB73FA /* trac-use.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = "trac-use.bash"; sourceTree = "<group>"; };
-		F938A4430C01F4ED00BB73FA /* trac.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = trac.bash; sourceTree = "<group>"; };
-		F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-backup.py"; sourceTree = "<group>"; };
-		F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-restore.py"; sourceTree = "<group>"; };
 		F938A4460C01F4EE00BB73FA /* TODO */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		F938A4480C01F4EE00BB73FA /* conf.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = conf.xsl; sourceTree = "<group>"; };
 		F938A4490C01F4EE00BB73FA /* exist.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = exist.bash; sourceTree = "<group>"; };
 		F938A44A0C01F4EE00BB73FA /* jetty.xsl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = jetty.xsl; sourceTree = "<group>"; };
 		F938A44B0C01F4EE00BB73FA /* modjk.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = modjk.bash; sourceTree = "<group>"; };
 		F938A44D0C01F4EE00BB73FA /* xml.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = xml.bash; sourceTree = "<group>"; };
-		F99098190C4CA94D00BDA883 /* trac-plugin-reposearch.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-reposearch.bash"; sourceTree = "<group>"; };
+		F951BFFD0D46202900A4344F /* clearsilver.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = clearsilver.bash; sourceTree = "<group>"; };
+		F951BFFE0D46202900A4344F /* db2trac.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db2trac.bash; sourceTree = "<group>"; };
+		F951BFFF0D46202900A4344F /* docutils.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = docutils.bash; sourceTree = "<group>"; };
+		F951C0000D46202900A4344F /* hepreztrac.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = hepreztrac.bash; sourceTree = "<group>"; };
+		F951C0010D46202900A4344F /* silvercity.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = silvercity.bash; sourceTree = "<group>"; };
+		F951C0020D46202900A4344F /* trac-build.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-build.bash"; sourceTree = "<group>"; };
+		F951C0030D46202900A4344F /* trac-conf.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-conf.bash"; sourceTree = "<group>"; };
+		F951C0040D46202900A4344F /* trac-macro-latexformulamacro.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "trac-macro-latexformulamacro.sh"; sourceTree = "<group>"; };
+		F951C0050D46202900A4344F /* trac-plugin-accountmanager.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-accountmanager.bash"; sourceTree = "<group>"; };
+		F951C0060D46202900A4344F /* trac-plugin-all.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-all.bash"; sourceTree = "<group>"; };
+		F951C0070D46202900A4344F /* trac-plugin-pygments.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-pygments.bash"; sourceTree = "<group>"; };
+		F951C0080D46202900A4344F /* trac-plugin-reposearch.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-reposearch.bash"; sourceTree = "<group>"; };
+		F951C0090D46202900A4344F /* trac-plugin-restrictedarea.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-restrictedarea.bash"; sourceTree = "<group>"; };
+		F951C00A0D46202900A4344F /* trac-plugin-webadmin.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-webadmin.bash"; sourceTree = "<group>"; };
+		F951C00B0D46202900A4344F /* tracxmlrpc.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tracxmlrpc.bash; sourceTree = "<group>"; };
+		F951C00C0D46202900A4344F /* trac-test.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-test.bash"; sourceTree = "<group>"; };
+		F951C00D0D46202900A4344F /* trac-use.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-use.bash"; sourceTree = "<group>"; };
+		F951C00E0D46202900A4344F /* trac-wiki.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-wiki.bash"; sourceTree = "<group>"; };
+		F951C00F0D46202900A4344F /* trac.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trac.bash; sourceTree = "<group>"; };
+		F951C0100D46202900A4344F /* trac2latex.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trac2latex.bash; sourceTree = "<group>"; };
+		F951C0110D46202900A4344F /* trac2mediawiki.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trac2mediawiki.bash; sourceTree = "<group>"; };
+		F951C0120D46202900A4344F /* tracenv.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tracenv.bash; sourceTree = "<group>"; };
+		F951C0130D46202900A4344F /* tracincludemacro.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tracincludemacro.bash; sourceTree = "<group>"; };
+		F951C0140D46202900A4344F /* traclegendbox.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = traclegendbox.bash; sourceTree = "<group>"; };
+		F951C0150D46202900A4344F /* traclxml.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = traclxml.bash; sourceTree = "<group>"; };
+		F951C0160D46202900A4344F /* tracnav.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tracnav.bash; sourceTree = "<group>"; };
+		F951C0170D46202900A4344F /* tractags.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tractags.bash; sourceTree = "<group>"; };
+		F951C0180D46202900A4344F /* tractoc.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tractoc.bash; sourceTree = "<group>"; };
+		F951C0190D46202900A4344F /* tracxsltmacro.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tracxsltmacro.bash; sourceTree = "<group>"; };
+		F951C01A0D46202900A4344F /* xmlrpc-wiki-backup.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-backup.py"; sourceTree = "<group>"; };
+		F951C01B0D46202900A4344F /* xmlrpc-wiki-restore.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "xmlrpc-wiki-restore.py"; sourceTree = "<group>"; };
+		F951C0EE0D47651200A4344F /* g3pb-setup-from-backup.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "g3pb-setup-from-backup.txt"; sourceTree = "<group>"; };
+		F951C0F00D47652400A4344F /* abd.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = abd.bash; sourceTree = "<group>"; };
+		F951C0F10D47652400A4344F /* aberdeen.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aberdeen.bash; sourceTree = "<group>"; };
+		F951C0F20D47652400A4344F /* midas.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = midas.bash; sourceTree = "<group>"; };
+		F951C0F30D47652400A4344F /* online-viz-notes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "online-viz-notes.txt"; sourceTree = "<group>"; };
+		F951C0F60D47652400A4344F /* rome.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rome.bash; sourceTree = "<group>"; };
+		F951C0F70D47652400A4344F /* roody.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = roody.bash; sourceTree = "<group>"; };
+		F951C0F80D47655700A4344F /* psroc08.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = psroc08.txt; sourceTree = "<group>"; };
+		F951C1160D4C45E600A4344F /* XMLMap.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLMap.C; sourceTree = "<group>"; };
+		F951C1180D4C4E9D00A4344F /* Aberdeen_World.root */ = {isa = PBXFileReference; lastKnownFileType = file; path = Aberdeen_World.root; sourceTree = "<group>"; };
+		F951C1190D4C4E9D00A4344F /* GeoMap.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoMap.C; sourceTree = "<group>"; };
+		F951C11A0D4C4E9D00A4344F /* pmt_positions.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pmt_positions.C; sourceTree = "<group>"; };
+		F951C11B0D4C4E9D00A4344F /* PMTMap.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PMTMap.C; sourceTree = "<group>"; };
+		F951C11C0D4C4E9D00A4344F /* tgeo.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tgeo.C; sourceTree = "<group>"; };
+		F951C11D0D4C4E9D00A4344F /* tgeo_walk.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tgeo_walk.C; sourceTree = "<group>"; };
+		F996357A0D6D5C10003BD300 /* svn-tools.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "svn-tools.bash"; sourceTree = "<group>"; };
+		F997D4710D8565D100FE8820 /* trachttpauth.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trachttpauth.bash; sourceTree = "<group>"; };
 		F99CFF3B0C058B170045B1E9 /* dyw_gen.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw_gen.bash; sourceTree = "<group>"; };
 		F99CFFAC0C05DAB80045B1E9 /* cron.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cron.bash; sourceTree = "<group>"; };
 		F9A27F580C0AC2D5009E89CF /* file.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = file.bash; sourceTree = "<group>"; };
 		F9A288000C0BEA82009E89CF /* gui.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = gui.mac; sourceTree = "<group>"; };
 		F9A288010C0BEA82009E89CF /* next-event.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "next-event.mac"; sourceTree = "<group>"; };
 		F9A288020C0BEA82009E89CF /* set-scene.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = "set-scene.mac"; sourceTree = "<group>"; };
-		F9A289CA0C0FCDCD009E89CF /* trac-build.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-build.bash"; sourceTree = "<group>"; };
 		F9A91AA60C311DD500A1DFF4 /* xcode-geant4-preprocessor-defns.applescript */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.applescript; path = "xcode-geant4-preprocessor-defns.applescript"; sourceTree = "<group>"; };
 		F9A9BC970C1FC90D00A1DFF4 /* readtxtfile.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = readtxtfile.C; sourceTree = "<group>"; };
 		F9A9BC980C1FC90D00A1DFF4 /* scantrees.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = scantrees.C; sourceTree = "<group>"; };
@@ -131,37 +163,56 @@
 		F9A9C1AE0C2A814000A1DFF4 /* seed.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = seed.bash; sourceTree = "<group>"; };
 		F9A9C27E0C2BB8C400A1DFF4 /* geant4-env.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "geant4-env.bash"; sourceTree = "<group>"; };
 		F9A9C2830C2BC23300A1DFF4 /* test-optical.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "test-optical.mac"; sourceTree = "<group>"; };
-		F9B98AAF0C155F6300D1615E /* trac-plugin-accountmanager.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-accountmanager.bash"; sourceTree = "<group>"; };
-		F9B98AB40C15609E00D1615E /* trac-plugin-webadmin.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-webadmin.bash"; sourceTree = "<group>"; };
-		F9B98ABB0C15613400D1615E /* trac-plugin-tracnav.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-tracnav.bash"; sourceTree = "<group>"; };
-		F9B98AC00C1561BC00D1615E /* trac-plugin-restrictedarea.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-restrictedarea.bash"; sourceTree = "<group>"; };
-		F9B98AC50C15624C00D1615E /* trac-plugin-xmlrpc.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-xmlrpc.bash"; sourceTree = "<group>"; };
-		F9B98ACA0C15649900D1615E /* trac-wiki.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-wiki.bash"; sourceTree = "<group>"; };
-		F9B98ACE0C15943700D1615E /* trac-plugin-pygments.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-pygments.bash"; sourceTree = "<group>"; };
-		F9B98AD90C16A70A00D1615E /* trac-conf.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-conf.bash"; sourceTree = "<group>"; };
 		F9B98AE70C16AF7C00D1615E /* ini-edit.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = "ini-edit.pl"; sourceTree = "<group>"; };
 		F9B98AE80C16AF7C00D1615E /* INI.pm */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = INI.pm; sourceTree = "<group>"; };
 		F9B98AE90C16AF7C00D1615E /* testINI.pl */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.perl; path = testINI.pl; sourceTree = "<group>"; };
-		F9B98B2E0C16E2AB00D1615E /* trac-plugin-all.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-all.bash"; sourceTree = "<group>"; };
 		F9B98B330C17BB7800D1615E /* getefficiency.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = getefficiency.C; sourceTree = "<group>"; };
 		F9B98B340C17BB9200D1615E /* trajectories.C */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = trajectories.C; sourceTree = "<group>"; };
 		F9B98B5B0C1816BA00D1615E /* scm-backup.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "scm-backup.bash"; sourceTree = "<group>"; };
+		F9EC9EE70D6D951C004348CA /* grid1.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = grid1.py; sourceTree = "<group>"; };
+		F9EC9EE80D6D951C004348CA /* iterm-ssh.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "iterm-ssh.sh"; sourceTree = "<group>"; };
+		F9EC9EE90D6D951C004348CA /* libxml2.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = libxml2.bash; sourceTree = "<group>"; };
+		F9EC9EEA0D6D951C004348CA /* libxslt.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = libxslt.bash; sourceTree = "<group>"; };
+		F9EC9EEB0D6D951C004348CA /* lxml.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lxml.bash; sourceTree = "<group>"; };
+		F9EC9EEC0D6D951C004348CA /* PATH.pm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; path = PATH.pm; sourceTree = "<group>"; };
+		F9EC9EED0D6D951C004348CA /* terminal-test.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "terminal-test.bash"; sourceTree = "<group>"; };
+		F9EC9EEE0D6D951C004348CA /* test-cp.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = "test-cp.py"; sourceTree = "<group>"; };
+		F9EC9EEF0D6D951C004348CA /* test.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.bash; sourceTree = "<group>"; };
+		F9EC9EF10D6E7491004348CA /* dybi.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dybi.bash; sourceTree = "<group>"; };
+		F9EC9EF20D6E7491004348CA /* dybr.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dybr.bash; sourceTree = "<group>"; };
+		F9EC9EF30D6E7491004348CA /* dyb.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dyb.bash; sourceTree = "<group>"; };
+		F9EC9EF50D6EF0B8004348CA /* dbi.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dbi.bash; sourceTree = "<group>"; };
+		F9EC9EF60D6EF0B8004348CA /* offline.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = offline.bash; sourceTree = "<group>"; };
+		F9EC9EF80D6EF104004348CA /* db.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = db.bash; sourceTree = "<group>"; };
+		F9EC9EF90D6EF104004348CA /* mysql-.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "mysql-.bash"; sourceTree = "<group>"; };
 		F9F62E560C068E670089FCF9 /* service.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = service.bash; sourceTree = "<group>"; };
-		F9FA3BF40C33962B00B5472D /* trac-macro-latexformulamacro.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = "trac-macro-latexformulamacro.sh"; sourceTree = "<group>"; };
-		F9FA3E930C361FD900B5472D /* trac-plugin-trac2latex.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "trac-plugin-trac2latex.bash"; sourceTree = "<group>"; };
 		F9FFD8530C44CD3200FF2DA3 /* write_seedfile.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = write_seedfile.C; sourceTree = "<group>"; };
 		F9FFD85A0C44CF3500FF2DA3 /* no_fake_hits.mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = no_fake_hits.mac; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		F91D01F90D819BF800033CD2 /* python */ = {
+			isa = PBXGroup;
+			children = (
+				F91D01FA0D819BF800033CD2 /* ipython.bash */,
+				F91D01FB0D819BF800033CD2 /* python.bash */,
+			);
+			path = python;
+			sourceTree = "<group>";
+		};
 		F938A3D20C01F4A600BB73FA = {
 			isa = PBXGroup;
 			children = (
+				F91D01F90D819BF800033CD2 /* python */,
+				F9EC9EF70D6EF104004348CA /* db */,
+				F9EC9EF40D6EF0B8004348CA /* offline */,
+				F9EC9EF00D6E7491004348CA /* dyb */,
+				F951C0EF0D47652400A4344F /* aberdeen */,
+				F951C0ED0D47651200A4344F /* admin */,
 				F9A91AA50C311DD500A1DFF4 /* xcode */,
 				F9A9C1AC0C2A812B00A1DFF4 /* seed */,
 				F9A9BC960C1FC90D00A1DFF4 /* root */,
 				F938A3DF0C01F4EB00BB73FA /* base */,
-				F938A3E60C01F4EB00BB73FA /* build */,
 				F938A3F60C01F4EB00BB73FA /* dyw */,
 				F938A4170C01F4EC00BB73FA /* env.bash */,
 				F938A4180C01F4EC00BB73FA /* macros */,
@@ -174,6 +225,15 @@
 		F938A3DF0C01F4EB00BB73FA /* base */ = {
 			isa = PBXGroup;
 			children = (
+				F9EC9EE70D6D951C004348CA /* grid1.py */,
+				F9EC9EE80D6D951C004348CA /* iterm-ssh.sh */,
+				F9EC9EE90D6D951C004348CA /* libxml2.bash */,
+				F9EC9EEA0D6D951C004348CA /* libxslt.bash */,
+				F9EC9EEB0D6D951C004348CA /* lxml.bash */,
+				F9EC9EEC0D6D951C004348CA /* PATH.pm */,
+				F9EC9EED0D6D951C004348CA /* terminal-test.bash */,
+				F9EC9EEE0D6D951C004348CA /* test-cp.py */,
+				F9EC9EEF0D6D951C004348CA /* test.bash */,
 				F9B98AE70C16AF7C00D1615E /* ini-edit.pl */,
 				F9B98AE80C16AF7C00D1615E /* INI.pm */,
 				F9B98AE90C16AF7C00D1615E /* testINI.pl */,
@@ -189,51 +249,9 @@
 				F9A9BCA70C1FE63300A1DFF4 /* cluster.bash */,
 				F9A9BD290C2150BF00A1DFF4 /* batch.bash */,
 				F9A9C0FE0C2934C500A1DFF4 /* vnc.bash */,
+				F91D01BE0D81230000033CD2 /* patch.bash */,
 			);
 			path = base;
-			sourceTree = "<group>";
-		};
-		F938A3E60C01F4EB00BB73FA /* build */ = {
-			isa = PBXGroup;
-			children = (
-				F938A3E70C01F4EB00BB73FA /* env.build */,
-			);
-			path = build;
-			sourceTree = "<group>";
-		};
-		F938A3E70C01F4EB00BB73FA /* env.build */ = {
-			isa = PBXGroup;
-			children = (
-				F938A3E80C01F4EB00BB73FA /* env.pbxindex */,
-			);
-			path = env.build;
-			sourceTree = "<group>";
-		};
-		F938A3E80C01F4EB00BB73FA /* env.pbxindex */ = {
-			isa = PBXGroup;
-			children = (
-				F938A3E90C01F4EB00BB73FA /* categories.pbxbtree */,
-				F938A3EA0C01F4EB00BB73FA /* cdecls.pbxbtree */,
-				F938A3EB0C01F4EB00BB73FA /* decls.pbxbtree */,
-				F938A3EC0C01F4EB00BB73FA /* files.pbxbtree */,
-				F938A3ED0C01F4EB00BB73FA /* imports.pbxbtree */,
-				F938A3EE0C01F4EB00BB73FA /* pbxindex.header */,
-				F938A3EF0C01F4EB00BB73FA /* protocols.pbxbtree */,
-				F938A3F00C01F4EB00BB73FA /* refs.pbxbtree */,
-				F938A3F10C01F4EB00BB73FA /* strings.pbxstrings */,
-				F938A3F40C01F4EB00BB73FA /* subclasses.pbxbtree */,
-				F938A3F50C01F4EB00BB73FA /* symbols0.pbxsymbols */,
-			);
-			path = env.pbxindex;
-			sourceTree = "<group>";
-		};
-		F938A3F10C01F4EB00BB73FA /* strings.pbxstrings */ = {
-			isa = PBXGroup;
-			children = (
-				F938A3F20C01F4EB00BB73FA /* control */,
-				F938A3F30C01F4EB00BB73FA /* strings */,
-			);
-			path = strings.pbxstrings;
 			sourceTree = "<group>";
 		};
 		F938A3F60C01F4EB00BB73FA /* dyw */ = {
@@ -309,9 +327,9 @@
 		F938A4270C01F4ED00BB73FA /* scm */ = {
 			isa = PBXGroup;
 			children = (
+				F951BFFC0D46202900A4344F /* trac */,
 				F938A4290C01F4ED00BB73FA /* apache-load-module.pl */,
 				F938A42A0C01F4ED00BB73FA /* apache2.bash */,
-				F938A42B0C01F4ED00BB73FA /* clearsilver.bash */,
 				F938A42C0C01F4ED00BB73FA /* file.bash */,
 				F938A42D0C01F4ED00BB73FA /* modpython-test.bash */,
 				F938A42E0C01F4ED00BB73FA /* modpython.bash */,
@@ -333,26 +351,9 @@
 				F938A43E0C01F4ED00BB73FA /* svn.bash */,
 				F938A43F0C01F4ED00BB73FA /* svn2feed.py */,
 				F938A4400C01F4ED00BB73FA /* swig.bash */,
-				F938A4410C01F4ED00BB73FA /* trac-test.bash */,
-				F938A4420C01F4ED00BB73FA /* trac-use.bash */,
-				F938A4430C01F4ED00BB73FA /* trac.bash */,
-				F938A4440C01F4ED00BB73FA /* xmlrpc-wiki-backup.py */,
-				F938A4450C01F4EE00BB73FA /* xmlrpc-wiki-restore.py */,
-				F9A289CA0C0FCDCD009E89CF /* trac-build.bash */,
-				F9B98AAF0C155F6300D1615E /* trac-plugin-accountmanager.bash */,
-				F9B98AB40C15609E00D1615E /* trac-plugin-webadmin.bash */,
-				F9B98ABB0C15613400D1615E /* trac-plugin-tracnav.bash */,
-				F9B98AC00C1561BC00D1615E /* trac-plugin-restrictedarea.bash */,
-				F9B98AC50C15624C00D1615E /* trac-plugin-xmlrpc.bash */,
-				F9B98ACA0C15649900D1615E /* trac-wiki.bash */,
-				F9B98ACE0C15943700D1615E /* trac-plugin-pygments.bash */,
-				F9B98AD90C16A70A00D1615E /* trac-conf.bash */,
-				F9B98B2E0C16E2AB00D1615E /* trac-plugin-all.bash */,
 				F9B98B5B0C1816BA00D1615E /* scm-backup.bash */,
 				F9A9C1580C2A409600A1DFF4 /* pymysql.bash */,
-				F9FA3BF40C33962B00B5472D /* trac-macro-latexformulamacro.sh */,
-				F9FA3E930C361FD900B5472D /* trac-plugin-trac2latex.bash */,
-				F99098190C4CA94D00BDA883 /* trac-plugin-reposearch.bash */,
+				F996357A0D6D5C10003BD300 /* svn-tools.bash */,
 			);
 			path = scm;
 			sourceTree = "<group>";
@@ -369,6 +370,81 @@
 			path = xml;
 			sourceTree = "<group>";
 		};
+		F951BFFC0D46202900A4344F /* trac */ = {
+			isa = PBXGroup;
+			children = (
+				F951BFFD0D46202900A4344F /* clearsilver.bash */,
+				F951BFFE0D46202900A4344F /* db2trac.bash */,
+				F951BFFF0D46202900A4344F /* docutils.bash */,
+				F951C0000D46202900A4344F /* hepreztrac.bash */,
+				F951C0010D46202900A4344F /* silvercity.bash */,
+				F951C0020D46202900A4344F /* trac-build.bash */,
+				F951C0030D46202900A4344F /* trac-conf.bash */,
+				F951C0040D46202900A4344F /* trac-macro-latexformulamacro.sh */,
+				F951C0050D46202900A4344F /* trac-plugin-accountmanager.bash */,
+				F951C0060D46202900A4344F /* trac-plugin-all.bash */,
+				F951C0070D46202900A4344F /* trac-plugin-pygments.bash */,
+				F951C0080D46202900A4344F /* trac-plugin-reposearch.bash */,
+				F951C0090D46202900A4344F /* trac-plugin-restrictedarea.bash */,
+				F951C00A0D46202900A4344F /* trac-plugin-webadmin.bash */,
+				F951C00B0D46202900A4344F /* tracxmlrpc.bash */,
+				F951C00C0D46202900A4344F /* trac-test.bash */,
+				F951C00D0D46202900A4344F /* trac-use.bash */,
+				F951C00E0D46202900A4344F /* trac-wiki.bash */,
+				F951C00F0D46202900A4344F /* trac.bash */,
+				F951C0100D46202900A4344F /* trac2latex.bash */,
+				F951C0110D46202900A4344F /* trac2mediawiki.bash */,
+				F951C0120D46202900A4344F /* tracenv.bash */,
+				F951C0130D46202900A4344F /* tracincludemacro.bash */,
+				F951C0140D46202900A4344F /* traclegendbox.bash */,
+				F951C0150D46202900A4344F /* traclxml.bash */,
+				F951C0160D46202900A4344F /* tracnav.bash */,
+				F951C0170D46202900A4344F /* tractags.bash */,
+				F951C0180D46202900A4344F /* tractoc.bash */,
+				F951C0190D46202900A4344F /* tracxsltmacro.bash */,
+				F951C01A0D46202900A4344F /* xmlrpc-wiki-backup.py */,
+				F951C01B0D46202900A4344F /* xmlrpc-wiki-restore.py */,
+				F997D4710D8565D100FE8820 /* trachttpauth.bash */,
+			);
+			path = trac;
+			sourceTree = "<group>";
+		};
+		F951C0ED0D47651200A4344F /* admin */ = {
+			isa = PBXGroup;
+			children = (
+				F951C0EE0D47651200A4344F /* g3pb-setup-from-backup.txt */,
+				F951C0F80D47655700A4344F /* psroc08.txt */,
+			);
+			path = admin;
+			sourceTree = "<group>";
+		};
+		F951C0EF0D47652400A4344F /* aberdeen */ = {
+			isa = PBXGroup;
+			children = (
+				F951C1170D4C4E9D00A4344F /* root */,
+				F951C0F00D47652400A4344F /* abd.bash */,
+				F951C0F10D47652400A4344F /* aberdeen.bash */,
+				F951C0F20D47652400A4344F /* midas.bash */,
+				F951C0F30D47652400A4344F /* online-viz-notes.txt */,
+				F951C0F60D47652400A4344F /* rome.bash */,
+				F951C0F70D47652400A4344F /* roody.bash */,
+			);
+			path = aberdeen;
+			sourceTree = "<group>";
+		};
+		F951C1170D4C4E9D00A4344F /* root */ = {
+			isa = PBXGroup;
+			children = (
+				F951C1180D4C4E9D00A4344F /* Aberdeen_World.root */,
+				F951C1190D4C4E9D00A4344F /* GeoMap.C */,
+				F951C11A0D4C4E9D00A4344F /* pmt_positions.C */,
+				F951C11B0D4C4E9D00A4344F /* PMTMap.C */,
+				F951C11C0D4C4E9D00A4344F /* tgeo.C */,
+				F951C11D0D4C4E9D00A4344F /* tgeo_walk.C */,
+			);
+			path = root;
+			sourceTree = "<group>";
+		};
 		F9A91AA50C311DD500A1DFF4 /* xcode */ = {
 			isa = PBXGroup;
 			children = (
@@ -381,6 +457,7 @@
 		F9A9BC960C1FC90D00A1DFF4 /* root */ = {
 			isa = PBXGroup;
 			children = (
+				F951C1160D4C45E600A4344F /* XMLMap.C */,
 				F9A9BC970C1FC90D00A1DFF4 /* readtxtfile.C */,
 				F9A9BC980C1FC90D00A1DFF4 /* scantrees.C */,
 				F913BDA10C422E4900A3FE55 /* fake_hit_data_treeplot.C */,
@@ -400,15 +477,46 @@
 			path = seed;
 			sourceTree = "<group>";
 		};
+		F9EC9EF00D6E7491004348CA /* dyb */ = {
+			isa = PBXGroup;
+			children = (
+				F9EC9EF10D6E7491004348CA /* dybi.bash */,
+				F9EC9EF20D6E7491004348CA /* dybr.bash */,
+				F9EC9EF30D6E7491004348CA /* dyb.bash */,
+				F903BDD30D75165300F3F7C6 /* dybt.bash */,
+			);
+			path = dyb;
+			sourceTree = "<group>";
+		};
+		F9EC9EF40D6EF0B8004348CA /* offline */ = {
+			isa = PBXGroup;
+			children = (
+				F9EC9EF50D6EF0B8004348CA /* dbi.bash */,
+				F9EC9EF60D6EF0B8004348CA /* offline.bash */,
+			);
+			path = offline;
+			sourceTree = "<group>";
+		};
+		F9EC9EF70D6EF104004348CA /* db */ = {
+			isa = PBXGroup;
+			children = (
+				F9EC9EF80D6EF104004348CA /* db.bash */,
+				F9EC9EF90D6EF104004348CA /* mysql-.bash */,
+			);
+			path = db;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXProject section */
 		F938A3D40C01F4A600BB73FA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = F938A3D50C01F4A600BB73FA /* Build configuration list for PBXProject "env" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 0;
 			mainGroup = F938A3D20C01F4A600BB73FA;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 			);
 		};
