@@ -62,7 +62,7 @@
 #      trac-get
 #      trac-install
 #
-#      trac-xmlrpc-plugin-permission
+#      tracxmlrpc-permission
 #
 
 
@@ -109,21 +109,22 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
 
  ## new style... reduce env pollution and startup time 
 
- silvercity(){ . $TRAC_HOME/silvercity.bash ; }
- docutils(){   . $TRAC_HOME/docutils.bash   ; }
+ silvercity(){        . $TRAC_HOME/silvercity.bash ; }
+ docutils(){          . $TRAC_HOME/docutils.bash   ; }
  
- tracnav(){        . $TRAC_HOME/tracnav.bash   ; }
- trac2mediawiki(){ . $TRAC_HOME/trac2mediawiki.bash   ; }
- trac2latex(){     . $TRAC_HOME/trac2latex.bash   ; }
- traclxml(){       . $TRAC_HOME/traclxml.bash   ; } 
- tractoc(){        . $TRAC_HOME/tractoc.bash   ; } 
- tracxsltmacro(){  . $TRAC_HOME/tracxsltmacro.bash   ; }
+ tracnav(){           . $TRAC_HOME/tracnav.bash   ; }
+ trac2mediawiki(){    . $TRAC_HOME/trac2mediawiki.bash   ; }
+ trac2latex(){        . $TRAC_HOME/trac2latex.bash   ; }
+ traclxml(){          . $TRAC_HOME/traclxml.bash   ; } 
+ tractoc(){           . $TRAC_HOME/tractoc.bash   ; } 
+ tracxsltmacro(){     . $TRAC_HOME/tracxsltmacro.bash   ; }
  traclegendbox(){     . $TRAC_HOME/traclegendbox.bash   ; }
  tracincludemacro(){  . $TRAC_HOME/tracincludemacro.bash   ; }
  db2trac(){           . $TRAC_HOME/db2trac.bash   ; }
  tracenv(){           . $TRAC_HOME/tracenv.bash   ; }
  hepreztrac(){        . $TRAC_HOME/hepreztrac.bash   ; }
  tractags(){          . $TRAC_HOME/tractags.bash   ; }
+ tracxmlrpc(){        . $TRAC_HOME/tracxmlrpc.bash ; }
 
 
 
@@ -161,7 +162,7 @@ trac-log(){
 
 trac-plugin-enable-deprecated(){
 
-    ##  DEPRECATED APPROACH USE ini-edit NOW 
+  echo DEPRECATED APPROACH USE ini-edit NOW 
 
    ## globally installed plugins need to be enabled ..
 
