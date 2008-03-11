@@ -622,9 +622,9 @@
 				PBXFileTableDataSourceColumnWidthsKey = (
 					20,
 					20,
-					498,
+					510,
 					20,
-					48.1626,
+					48,
 					43,
 					43,
 					20,
@@ -1436,7 +1436,7 @@
 	F951C0140D46202900A4344F /* traclegendbox.bash */ = {
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {712, 716}}";
-			sepNavSelRange = "{499, 0}";
+			sepNavSelRange = "{22, 0}";
 			sepNavVisRange = "{0, 736}";
 		};
 	};
@@ -2717,6 +2717,41 @@
 		rType = 0;
 		vrLen = 1207;
 		vrLoc = 170;
+	};
+	F997D4B80D8572F200FE8820 /* thho-local */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {712, 716}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 37}";
+		};
+	};
+	F997D4BA0D8572F200FE8820 /* gui.mac */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {712, 716}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1070}";
+		};
+	};
+	F997D4BB0D8572F200FE8820 /* thho-set-scene.mac */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {712, 716}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 907}";
+		};
+	};
+	F997D4C50D8572F200FE8820 /* how_to_use_TChain.C */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {712, 716}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 220}";
+		};
+	};
+	F997D4D50D8572F200FE8820 /* thho-trans-plot-from-asci.C */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {3098, 1092}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 2235}";
+		};
 	};
 	F99CFF3B0C058B170045B1E9 /* dyw_gen.bash */ = {
 		uiCtxt = {

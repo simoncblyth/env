@@ -145,6 +145,35 @@
 		F951C11D0D4C4E9D00A4344F /* tgeo_walk.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tgeo_walk.C; sourceTree = "<group>"; };
 		F996357A0D6D5C10003BD300 /* svn-tools.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "svn-tools.bash"; sourceTree = "<group>"; };
 		F997D4710D8565D100FE8820 /* trachttpauth.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = trachttpauth.bash; sourceTree = "<group>"; };
+		F997D4B80D8572F200FE8820 /* thho-local */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "thho-local"; sourceTree = "<group>"; };
+		F997D4BA0D8572F200FE8820 /* gui.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = gui.mac; sourceTree = "<group>"; };
+		F997D4BB0D8572F200FE8820 /* thho-set-scene.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "thho-set-scene.mac"; sourceTree = "<group>"; };
+		F997D4BD0D8572F200FE8820 /* acrylic-sample-photon-rand.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "acrylic-sample-photon-rand.mac"; sourceTree = "<group>"; };
+		F997D4BE0D8572F200FE8820 /* acrylic-sample-photon.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "acrylic-sample-photon.mac"; sourceTree = "<group>"; };
+		F997D4BF0D8572F200FE8820 /* diff_acrylic_attenuation_single_module.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = diff_acrylic_attenuation_single_module.mac; sourceTree = "<group>"; };
+		F997D4C00D8572F200FE8820 /* diff_acrylic_attenuation_single_module_with_skin.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = diff_acrylic_attenuation_single_module_with_skin.mac; sourceTree = "<group>"; };
+		F997D4C20D8572F200FE8820 /* job1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.csh; path = job1; sourceTree = "<group>"; };
+		F997D4C30D8572F200FE8820 /* thho-pdsf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "thho-pdsf"; sourceTree = "<group>"; };
+		F997D4C50D8572F200FE8820 /* how_to_use_TChain.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = how_to_use_TChain.C; sourceTree = "<group>"; };
+		F997D4C80D8572F200FE8820 /* neutronCap.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = neutronCap.C; sourceTree = "<group>"; };
+		F997D4C90D8572F200FE8820 /* Parameter.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Parameter.C; sourceTree = "<group>"; };
+		F997D4CA0D8572F200FE8820 /* PEcut.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PEcut.C; sourceTree = "<group>"; };
+		F997D4CC0D8572F200FE8820 /* aClass.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = aClass.C; sourceTree = "<group>"; };
+		F997D4CE0D8572F200FE8820 /* aClass.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = aClass.C; sourceTree = "<group>"; };
+		F997D4CF0D8572F200FE8820 /* pattern.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pattern.C; sourceTree = "<group>"; };
+		F997D4D00D8572F200FE8820 /* plot.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plot.C; sourceTree = "<group>"; };
+		F997D4D10D8572F200FE8820 /* plot_xml.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = plot_xml.C; sourceTree = "<group>"; };
+		F997D4D20D8572F200FE8820 /* select_diff_nFake_and_other.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = select_diff_nFake_and_other.C; sourceTree = "<group>"; };
+		F997D4D30D8572F200FE8820 /* select_diff_nFake_and_other_module.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = select_diff_nFake_and_other_module.C; sourceTree = "<group>"; };
+		F997D4D40D8572F200FE8820 /* thho-calculate-trans.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "thho-calculate-trans.C"; sourceTree = "<group>"; };
+		F997D4D50D8572F200FE8820 /* thho-trans-plot-from-asci.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "thho-trans-plot-from-asci.C"; sourceTree = "<group>"; };
+		F997D4D60D8572F200FE8820 /* thho-trans-plot-from-root.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "thho-trans-plot-from-root.C"; sourceTree = "<group>"; };
+		F997D4D70D8572F200FE8820 /* thho_write_seedfile_transmission_nFake.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thho_write_seedfile_transmission_nFake.C; sourceTree = "<group>"; };
+		F997D4D80D8572F200FE8820 /* use_pmt_calculate_TandR.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = use_pmt_calculate_TandR.C; sourceTree = "<group>"; };
+		F997D4DB0D8573F900FE8820 /* latex_example.tex */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = latex_example.tex; sourceTree = "<group>"; };
+		F997D4DD0D85741E00FE8820 /* inversebeta.mac */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = inversebeta.mac; sourceTree = "<group>"; };
+		F997D4DE0D85744000FE8820 /* map.root */ = {isa = PBXFileReference; lastKnownFileType = file; path = map.root; sourceTree = "<group>"; };
+		F997D4DF0D85744000FE8820 /* XMLMap.C */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLMap.C; sourceTree = "<group>"; };
 		F99CFF3B0C058B170045B1E9 /* dyw_gen.bash */ = {isa = PBXFileReference; explicitFileType = text.script.sh; fileEncoding = 30; path = dyw_gen.bash; sourceTree = "<group>"; };
 		F99CFFAC0C05DAB80045B1E9 /* cron.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = cron.bash; sourceTree = "<group>"; };
 		F9A27F580C0AC2D5009E89CF /* file.bash */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = file.bash; sourceTree = "<group>"; };
@@ -203,6 +232,7 @@
 		F938A3D20C01F4A600BB73FA = {
 			isa = PBXGroup;
 			children = (
+				F997D4B60D8572F200FE8820 /* thho */,
 				F91D01F90D819BF800033CD2 /* python */,
 				F9EC9EF70D6EF104004348CA /* db */,
 				F9EC9EF40D6EF0B8004348CA /* offline */,
@@ -443,6 +473,130 @@
 				F951C11D0D4C4E9D00A4344F /* tgeo_walk.C */,
 			);
 			path = root;
+			sourceTree = "<group>";
+		};
+		F997D4B60D8572F200FE8820 /* thho */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4DA0D8573F900FE8820 /* LaTex */,
+				F997D4B70D8572F200FE8820 /* local */,
+				F997D4B90D8572F200FE8820 /* macros */,
+				F997D4C10D8572F200FE8820 /* pdsf */,
+				F997D4C40D8572F200FE8820 /* root */,
+			);
+			path = thho;
+			sourceTree = "<group>";
+		};
+		F997D4B70D8572F200FE8820 /* local */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4B80D8572F200FE8820 /* thho-local */,
+			);
+			path = local;
+			sourceTree = "<group>";
+		};
+		F997D4B90D8572F200FE8820 /* macros */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4DC0D85741E00FE8820 /* work_inverse_beta */,
+				F997D4BA0D8572F200FE8820 /* gui.mac */,
+				F997D4BB0D8572F200FE8820 /* thho-set-scene.mac */,
+				F997D4BC0D8572F200FE8820 /* work_acrylic_sample */,
+			);
+			path = macros;
+			sourceTree = "<group>";
+		};
+		F997D4BC0D8572F200FE8820 /* work_acrylic_sample */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4BD0D8572F200FE8820 /* acrylic-sample-photon-rand.mac */,
+				F997D4BE0D8572F200FE8820 /* acrylic-sample-photon.mac */,
+				F997D4BF0D8572F200FE8820 /* diff_acrylic_attenuation_single_module.mac */,
+				F997D4C00D8572F200FE8820 /* diff_acrylic_attenuation_single_module_with_skin.mac */,
+			);
+			path = work_acrylic_sample;
+			sourceTree = "<group>";
+		};
+		F997D4C10D8572F200FE8820 /* pdsf */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4C20D8572F200FE8820 /* job1 */,
+				F997D4C30D8572F200FE8820 /* thho-pdsf */,
+			);
+			path = pdsf;
+			sourceTree = "<group>";
+		};
+		F997D4C40D8572F200FE8820 /* root */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4DE0D85744000FE8820 /* map.root */,
+				F997D4DF0D85744000FE8820 /* XMLMap.C */,
+				F997D4C50D8572F200FE8820 /* how_to_use_TChain.C */,
+				F997D4C60D8572F200FE8820 /* others_root_analytic_macro */,
+				F997D4CF0D8572F200FE8820 /* pattern.C */,
+				F997D4D00D8572F200FE8820 /* plot.C */,
+				F997D4D10D8572F200FE8820 /* plot_xml.C */,
+				F997D4D20D8572F200FE8820 /* select_diff_nFake_and_other.C */,
+				F997D4D30D8572F200FE8820 /* select_diff_nFake_and_other_module.C */,
+				F997D4D40D8572F200FE8820 /* thho-calculate-trans.C */,
+				F997D4D50D8572F200FE8820 /* thho-trans-plot-from-asci.C */,
+				F997D4D60D8572F200FE8820 /* thho-trans-plot-from-root.C */,
+				F997D4D70D8572F200FE8820 /* thho_write_seedfile_transmission_nFake.C */,
+				F997D4D80D8572F200FE8820 /* use_pmt_calculate_TandR.C */,
+			);
+			path = root;
+			sourceTree = "<group>";
+		};
+		F997D4C60D8572F200FE8820 /* others_root_analytic_macro */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4C70D8572F200FE8820 /* AVthick_zhanl */,
+				F997D4CB0D8572F200FE8820 /* neutrino_zhanl */,
+				F997D4CD0D8572F200FE8820 /* neutron_zhanl */,
+			);
+			path = others_root_analytic_macro;
+			sourceTree = "<group>";
+		};
+		F997D4C70D8572F200FE8820 /* AVthick_zhanl */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4C80D8572F200FE8820 /* neutronCap.C */,
+				F997D4C90D8572F200FE8820 /* Parameter.C */,
+				F997D4CA0D8572F200FE8820 /* PEcut.C */,
+			);
+			path = AVthick_zhanl;
+			sourceTree = "<group>";
+		};
+		F997D4CB0D8572F200FE8820 /* neutrino_zhanl */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4CC0D8572F200FE8820 /* aClass.C */,
+			);
+			path = neutrino_zhanl;
+			sourceTree = "<group>";
+		};
+		F997D4CD0D8572F200FE8820 /* neutron_zhanl */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4CE0D8572F200FE8820 /* aClass.C */,
+			);
+			path = neutron_zhanl;
+			sourceTree = "<group>";
+		};
+		F997D4DA0D8573F900FE8820 /* LaTex */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4DB0D8573F900FE8820 /* latex_example.tex */,
+			);
+			path = LaTex;
+			sourceTree = "<group>";
+		};
+		F997D4DC0D85741E00FE8820 /* work_inverse_beta */ = {
+			isa = PBXGroup;
+			children = (
+				F997D4DD0D85741E00FE8820 /* inversebeta.mac */,
+			);
+			path = work_inverse_beta;
 			sourceTree = "<group>";
 		};
 		F9A91AA50C311DD500A1DFF4 /* xcode */ = {
