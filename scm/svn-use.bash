@@ -2,6 +2,23 @@
 export SVN_EDITOR="vi"
 
 
+svn-v(){
+   local dir=${1:-/tmp}
+   local v=$(svnversion $dir 2> /dev/null || echo NOT)
+   echo $v
+}
+
+
+svn-grab(){
+
+   local def_url=http://dayabay.phys.ntu.edu.tw/repos/env/trunk
+   local url=${1:-$def_url}
+   local dir=${2}
+   
+   ## check out or update 
+
+}
+
 
 svn-branch(){
 

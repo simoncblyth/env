@@ -125,6 +125,10 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
  hepreztrac(){        . $TRAC_HOME/hepreztrac.bash   ; }
  tractags(){          . $TRAC_HOME/tractags.bash   ; }
  tracxmlrpc(){        . $TRAC_HOME/tracxmlrpc.bash ; }
+ trachttpauth(){      . $TRAC_HOME/trachttpauth.bash ; }
+
+## confusing approach 
+## db2trac-(){  db2trac ;  [ -r $(db2trac-dir)/db2trac.bash ] && . $(db2trac-dir)/db2trac.bash ; }
 
 
 

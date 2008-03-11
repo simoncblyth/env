@@ -1,13 +1,25 @@
+
+
+db2trac-dir(){
+
+   if [ "$NODE_TAG" == "G" ]; then
+      echo $HOME/db2trac
+   else
+      echo $LOCAL_BASE/trac/common/db2trac
+   fi	  
+}
+
 db2trac-get(){
 
-   cd $LOCAL_BASE/trac
-   [ -d "common" ] || mkdir -p common
-   cd common
-
-   local name=db2trac
+   local dir=$(db2trac-dir)
+   local base=$(dirname $dir)
+   local name=$(basename $dir)
+   local msg="echo $FUNCNAME : "
+   
+   mkdir -p $base
   
    if [ -d "$name" ]; then
-      echo db2trac-get ERROR folder $name exists already 
+      $msg ERROR folder $name exists already 
       return 1
    fi
   
@@ -20,8 +32,7 @@ db2trac-get(){
 
 db2trac-update(){
 
-  local name=db2trac
-  local dir=$LOCAL_BASE/trac/common/$name
+  local dir=$(db2trac-dir)
   local cmd="svn update $dir "
   
   if [ -d $dir ]; then
@@ -33,4 +44,17 @@ db2trac-update(){
 
   eval $cmd 
 
+}
+
+db2trac-init(){
+
+   local pfx=${FUNCNAME/-init/} 
+   local msg="$FUNCNAME hooking up with the checkout ...   "
+   
+   if [ -f $(db2trac-dir)/$pfx.bash ]; then
+      . $(db2trac-dir)/$pfx.bash
+   else
+      echo $msg cannot proceed as no checkout found
+   fi   
+   
 }
