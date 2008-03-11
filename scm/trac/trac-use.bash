@@ -44,7 +44,16 @@ ini-edit(){
    local path=$1
    shift
  
-   sudo $HOME/$ENV_BASE/base/ini-edit.pl $path $*  
+   sudo perl $HOME/$ENV_BASE/base/ini-edit.pl $path $*  
+#
+#  
+#   on hfag machine ... skipping the perl causes error... 
+#   /usr/bin/env: perl -w: No such file or directory
+#
+#
+#
+
+
 }
 
 ini-edit-prior(){
