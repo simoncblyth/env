@@ -263,7 +263,7 @@ export SYSTEM_BASE=${_SYSTEM_BASE:-$SYSTEM_BASE_U}
 ## ----------  for operational files, like backups
 
 export VAR_BASE_U=/var
-export VAR_BASE_P=$DAYABAY_G1/var
+export VAR_BASE_P=/disk/d3/var
 export VAR_BASE_G1=/disk/d3/var
 export VAR_BASE_G3=/var
 export VAR_BASE_H=/var
