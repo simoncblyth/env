@@ -36,8 +36,11 @@ tractags-unconf(){
 
 tractags-conf(){
   
+   local msg="=== $FUNCNAME :"
    local name=${1:-$SCM_TRAC}
-   echo === tractags-conf CAUTION changing the trac:default_handler:TagsWikiModule from WikiModule
+   echo $msg CAUTION changing the trac:default_handler:TagsWikiModule from WikiModule
+   echo $msg this set up is for version 0.4 or 0.5 of tractags ... not the 0.6 version that is needed with 0.11 of trac 
+   echo $msg see http://trac-hacks.org/wiki/TagsPlugin/0.5/Installation 
    
    ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini trac:default_handler:TagsWikiModule components:trac.wiki.web_ui.wikimodule:disabled components:tractags.\*:enabled
 

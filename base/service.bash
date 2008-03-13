@@ -15,6 +15,9 @@ service-setup(){
    #  chkconfig management 
    #
 
+   local msg="=== $FUNCNAME :"
+   [ $(uname) == "Darwin" ] && echo $msg is a Linux thang && return 1  
+
    levels="345"
    start_priority="50"
    stop_priority="50"
@@ -60,6 +63,10 @@ service-setup(){
 
 
 service-list(){
+
+   local msg="=== $FUNCNAME :"
+   [ $(uname) == "Darwin" ] && echo $msg is a Linux thang && return 1  
+
    for item in /etc/init.d/*
    do
       if [ -L "$item" ]; then
@@ -78,6 +85,9 @@ service-act(){
    #  starts or stops services that are pointed to by symbolic links in /etc/init.d 
    #  based on the chkconfig runlevel settings and the current runlevel 
    # 
+
+   local msg="=== $FUNCNAME :"
+   [ $(uname) == "Darwin" ] && echo $msg is a Linux thang && return 1  
 
    for item in /etc/init.d/*
    do

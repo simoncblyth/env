@@ -69,6 +69,8 @@ libxslt(){    [ -r $HOME/$BASE_BASE/libxslt.bash ]   && . $HOME/$BASE_BASE/libxs
 lxml(){       [ -r $HOME/$BASE_BASE/lxml.bash ]      && . $HOME/$BASE_BASE/lxml.bash ; }
 test-(){      [ -r $HOME/$BASE_BASE/test.bash ]     && . $HOME/$BASE_BASE/test.bash ; }
 patch-(){     [ -r $HOME/$BASE_BASE/patch.bash ]    && . $HOME/$BASE_BASE/patch.bash ; }
+system-(){    [ -r $HOME/$BASE_BASE/system.bash ]   && . $HOME/$BASE_BASE/system.bash ; }
+network-(){    [ -r $HOME/$BASE_BASE/network.bash ] && . $HOME/$BASE_BASE/network.bash ; }
 
 
 patch-
