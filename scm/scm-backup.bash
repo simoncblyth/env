@@ -155,6 +155,7 @@ scm-backup-mail(){
   scm-backup-rls > $rls
   
   echo $msg sendmail $rls
+  python-
   python-sendmail $rls
 
 }
