@@ -141,9 +141,25 @@ scm-backup-rls(){
    
      local target_var=$(scm-backup-target $target_tag)
      local remote=$target_var/scm/backup 
-	 echo ssh $target_tag "find $remote -name '*.gz' -exec du -hs {} \;"
+	 ssh $target_tag "find $remote -name '*.gz' -exec du -hs {} \;"
   fi
 }
+
+
+scm-backup-mail(){
+
+  local msg="=== $FUNCNAME :"
+  local rls=/tmp/$FUNCNAME.txt
+  
+  echo $msg writing to $rls
+  scm-backup-rls > $rls
+  
+  echo $msg sendmail $rls
+  python-sendmail $rls
+
+}
+
+
 
 
 scm-backup-target(){

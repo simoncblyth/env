@@ -76,7 +76,7 @@ cron-setup-backup(){
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $crondir/scm-backup-rsync.log  2>&1"
+         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ; type scm-backup-mail ; scm-backup-mail ) > $crondir/scm-backup-rsync.log  2>&1"
          delta=15   
          
       else
