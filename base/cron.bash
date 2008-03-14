@@ -42,7 +42,8 @@ cron-setup-backup(){
       local user=${1:-root}
 
       ##local crondir=/usr/local/cron/$user
-	  local crondir=/var/log/cron/$user
+	  ##local crondir=/var/log/cron/$user
+	  local crondir=/var/log/cronlog/$user
 	  
 	  
       [ -d $crondir ] || sudo mkdir -p $crondir 
