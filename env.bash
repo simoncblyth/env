@@ -38,11 +38,16 @@
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
  [ -r macros/macros.bash  ] && . macros/macros.bash  
- [ -r python/python.bash  ] && . python/python.bash  
+
+# [ -r python/python.bash  ] && . python/python.bash  
 
  
+ PYTHON_BASE=$ENV_BASE/python
+ export PYTHON_ENV=$HOME/$PYTHON_BASE
+ python-(){       [ -r $PYTHON_ENV/python.bash ]           && . $PYTHON_ENV/python.bash ; }
+ ipython-(){      [ -r $PYTHON_ENV/ipython.bash ]           && . $PYTHON_ENV/ipython.bash ; }
  
- 
+
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
      
