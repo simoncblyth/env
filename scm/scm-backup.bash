@@ -131,7 +131,33 @@ scm-backup-purge(){
   done
 }
 
+scm-backup-rls(){
 
+   local target_tag=${1:-$BACKUP_TAG}
+   
+   if [ "X$target_tag" == "X" ]; then
+      echo no paired backup node has been defined for node $LOCAL_NODE
+   else
+   
+     local target_var=$(scm-backup-target $target_tag)
+     local remote=$target_var/scm/backup 
+	 echo ssh $target_tag "find $remote -name '*.gz' -exec du -hs {} \;"
+  fi
+}
+
+
+scm-backup-target(){
+   local target_tag=${1:-$BACKUP_TAG}
+   if [ "$target_tag" != "$BACKUP_TAG" ]; then 
+      local vname=VAR_BASE_$target_tag 
+      eval _VAR_BASE_BACKUP=\$$vname
+      target_var=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
+      #echo ======== scm-backup-rsync to non-default target_tag:$target_tag  target_var:$target_var
+   else
+      target_var=$VAR_BASE_BACKUP
+   fi
+   echo $target_var
+}
 
 
 scm-backup-rsync(){
@@ -143,29 +169,21 @@ scm-backup-rsync(){
    #  hmm the passwordless ssh is not setup for "root" user , so have to do this as me, but the above backup as root
    #
 
-   local target_tag=${1:-$BACKUP_TAG}
-   
-   if [ "$target_tag" != "$BACKUP_TAG" ]; then 
-      local vname=VAR_BASE_$target_tag 
-      eval _VAR_BASE_BACKUP=\$$vname
-      target_var=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
-      echo ======== scm-backup-rsync to non-default target_tag:$target_tag  target_var:$target_var
-   else
-      target_var=$VAR_BASE_BACKUP
-   fi
-
+   local msg="=== $FUNCNAME :" 
+   local target_tag=${1:-$BACKUP_TAG}   
+  
    if [ "X$target_tag" == "X" ]; then
       echo no paired backup node has been defined for node $LOCAL_NODE
    else
-
-      local source=$SCM_FOLD/backup/$LOCAL_NODE
-      local remote=$target_var/scm/backup 
+	  local target_var=$(scm-backup-target $target_tag)
+	  local remote=$target_var/scm/backup 
+	  local source=$SCM_FOLD/backup/$LOCAL_NODE
  
       ssh $target_tag "mkdir -p  $remote"
       
-      echo ============== transfer $source to $target_tag:$remote/ 
+      echo $msg transfer $source to $target_tag:$remote/ 
       local cmd1="rsync --delete-after -razvt $source $target_tag:$remote/ "
-      echo $cmd1
+      echo $msg $cmd1
       eval $cmd1
 
    fi 
