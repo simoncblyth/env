@@ -158,6 +158,7 @@ ssh--config(){
 
 [ -d $HOME/.ssh ] || mkdir $HOME/.ssh 
 
+local msg="=== $FUNCNAME:"
 
 ## old versions of SSH do not like ForwardX11Trusted
 if [ "$NODE_TAG" == "H" ]; then
@@ -165,6 +166,14 @@ if [ "$NODE_TAG" == "H" ]; then
 else
   c=""
 fi    
+
+local cfg=$HOME/.ssh/config
+local pfg=$cfg.prior
+
+if [ -f "$cfg" ]; then
+   echo $msg moving $cfg to $pfg
+   mv -f $cfg $pfg
+fi
 
 cat << EOC > $HOME/.ssh/config
 #
@@ -185,10 +194,19 @@ host VT
     # this tunnels local trafic on 5901 to the remote 5901
     LocalForward 5901 127.0.0.1:5901     
     
-    
-host G3
+host B
+    hostname gateway.phy.bnl.gov
+	protocol 2
+	
+	 	     
+host G3R
     hostname g3pb.ath.cx
     protocol 2 
+	
+host G3
+    hostname 10.0.1.103
+    protocol 2 
+	
 host BP
     hostname bpost.kek.jp
 	protocol 2
@@ -250,6 +268,13 @@ host S
     
 EOS
 fi
+
+  if [ -f "$pfg" ] && [ -f "$cfg" ]; then
+     echo $msg comparing config files
+	 ls -l $pfg $cfg
+	 diff $pfg $cfg
+  fi 
+
 
 
 }

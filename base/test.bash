@@ -3,6 +3,8 @@
 
 test-cp(){
 
-  python $HOME/$BASE_BASE/test-cp.py   
+  local msg="=== $FUNCNAME :"
+  echo $msg 
+  python $HOME/$BASE_BASE/test-cp.py  $* 
    
 }

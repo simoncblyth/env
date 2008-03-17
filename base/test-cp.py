@@ -19,6 +19,9 @@ import time
 import sys
 
 
+print sys.argc
+
+
 ## filesize in megabytes
 MB=100
 f="%sm" % MB 
