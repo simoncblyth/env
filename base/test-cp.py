@@ -43,8 +43,12 @@ p = "%s.%s" % ( f, "1" )
 if os.path.exists( p ):
     os.system("rm -f %s " % p )
 
+if sys.argv[1].startswith("/"):
+	todir=sys.argv[1]
+else:
+	todir="/tmp"
 
-cmd = "cp %s %s " % ( f, p )
+cmd = "cp %s %s/%s " % ( f, todir ,  p )
 
 print " timing command %s " % cmd 
 t0=time.time()
