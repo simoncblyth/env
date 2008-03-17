@@ -19,7 +19,7 @@ import time
 import sys
 
 
-print sys.argc
+print sys.argv
 
 
 ## filesize in megabytes
