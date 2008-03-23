@@ -38,6 +38,10 @@ perl-x-pkg(){
 	fi 
 }
 
+perl-strftime(){
+  perl -MPOSIX -e  'print strftime( "%Y%m%d-%H%M%S" , localtime($ARGV[0]) );' ${1:-0} 
+}
+
 
 ## this gives the same results as util:md5 in eXist XQuery 
 alias md5="perl -MDigest::MD5 -e 'use Digest::MD5 q(md5_hex); printf \"md5_hex[%s]=%s\n\", \$_,md5_hex(\$_) for(@ARGV) '" 
@@ -49,7 +53,7 @@ alias mp="perl -MSCB::Workflow::PATH -e '&manpath;' "
 alias pp="perl -MSCB::Workflow::PATH -e '&path;' "
 alias cmtdeps="perl -MSCB::Workflow::PATH -e '&cmtdeps(@ARGV);' "
 alias chkdeps="perl -MSCB::Workflow::PATH -e '&chkdeps(@ARGV);' "
-alias chkmtime="perl -MSCB::Workflow::PATH -e '&chkmtime(@ARGV);' "
-
-
+#alias chkmtime="perl -MSCB::Workflow::PATH -e '&chkmtime(@ARGV);' "
+alias chkmtime="PERL5LIB=$HOME/$BASE_BASE perl -MPATH -e '&chkmtime(@ARGV);' "
+alias ftime="perl -MPOSIX -e  'print strftime( '%Y%m%d-%H%M%S' , localtime($1) );'" 
 
