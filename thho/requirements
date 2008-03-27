@@ -1,0 +1,121 @@
+package SITE
+ 
+# Non-optional, don't remove this line:
+use AutoDoc
+
+#------------------------------------------------------------
+#
+# This file specifies where your external software is.  The external
+# packages are:
+# 
+# BOOST, Cernlib, CLHEP, Geant4, Root, VGM, Xerces-C
+# 
+# See the ExternalPackages wiki topic for more info:
+# 
+# http://www.dayabay.caltech.edu/cgi-bin/twiki/bin/view/Main/ExternalPackages
+#
+#------------------------------------------------------------
+
+
+#### Configure BOOST: ##################################################
+
+# What is the BOOST version string?
+#
+# Example "1_33_1"
+
+macro BOOST_version "1_34_1"
+
+# Which library type to use? This encodes:
+# - toolset, required (eg: "-gcc")
+# - if threading is used, optional (eg: "-mt")
+# - runtime, optional (eg: "-d" for debugging)
+# - BOOST version, required (eg: "-1_33_1")
+#
+# For example: "gcc-mt-d-1_33_1"
+
+macro BOOST_lib_type "-gcc"
+
+# Where is BOOST's include dir?  
+#
+# This is the directory holding boost/*.h.
+# 
+# If BOOST was installed as a system package you can leave it empty.
+#
+# An example:
+macro BOOST_include_dir "/usr/local/dyb/trunk_dbg/external/Boost/1.34.1/debian_x86_gcc4/include/boost-1_34_1"
+
+#macro BOOST_include_dir ""
+
+# Where are BOOST's libraries?
+# 
+# If BOOST is installed as a system package put "/usr/lib".
+#
+# An example: 
+# macro BOOST_library_dir "/usr/lib"
+macro BOOST_library_dir "/usr/local/dyb/trunk_dbg/external/Boost/1.34.1/debian_x86_gcc4/lib"
+
+#macro BOOST_library_dir ""
+
+
+#### Configure CERNLIB: ################################################
+
+# Where is CERNLIB installed?
+#
+# This is traditionally what the $CERN env. var. holds.  After
+# sourcing the setup.sh, CERN will be set to this.
+
+macro CERNLIB_prefix "/usr"
+
+# What "level" (eg "pro" or "new") to use?
+#
+# This is traditionally what the $CERN_LEVEL env var holds and it will
+# be set after sourcing setup.sh.
+
+macro CERNLIB_level "."
+
+#### Configure CLHEP: ################################################
+
+# What is the path to CLHEP's configuration script?
+
+macro CLHEP_config "/usr/local/dyb/trunk_dbg/external/clhep/1.9.3.1/debian_x86_gcc4/bin/clhep-config"
+
+
+#### Configure Geant4: ################################################
+#
+# Where are the includes?
+
+macro GEANT_incdir "/usr/local/dyb/trunk_dbg/external/geant4/4.9.1.p01/debian_x86_gcc4/include"
+
+# Where are the libraries?
+
+macro GEANT_libdir "/usr/local/dyb/trunk_dbg/external/geant4/4.9.1.p01/debian_x86_gcc4/lib"
+
+# Where is the data directory?
+
+macro GEANT_datadir "/usr/local/dyb/trunk_dbg/external/geant4/data"
+
+# If you want OpenGL visualization, note the use of "set", not "macro"
+
+## SCB set OGLLIBS "newogl"
+
+#### Configure ROOT: ################################################
+#
+# Where is ROOT installed?
+
+macro ROOT_prefix "/usr/local/dyb/trunk_dbg/external/root/5.18.00/debian_x86_gcc4/root"
+
+#### Configure Xerces-c: ################################################
+#
+# Where is Xerces-c installed?
+
+macro XERCES_prefix "/usr/local/dyb/trunk_dbg/external/XercesC/2.8.0/debian_x86_gcc4"
+
+#### Configure Virtual Geometry Model (VGM): #############################
+
+# Where is VGM installed?
+
+macro VGM_prefix "/usr/local/dyw/vgm/vgm.2.08.04"
+
+# What platform was it compiled for?
+
+macro VGM_system "Linux-g++"
