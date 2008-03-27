@@ -180,6 +180,12 @@ cat << EOC > $HOME/.ssh/config
 #   do not edit, this is sourced from $HOME/$ENV_BASE/base/ssh.bash
 #
 #
+# /home/aberdeen/Datafiles
+host A
+    user aberdeen
+	hostname aberdeentunnel.dyndns.org
+
+
 host N
     user blyth
     hostname pdsf.nersc.gov

@@ -396,7 +396,7 @@ user = blyth, thho, chwang
 admin = dayabaysoft, admin
 heprezmember = simon
 heprezuser = blyth
-aberdeen = blyth, thho, jimmy
+aberdeen = blyth, thho, jimmy, antony, soap
 
 EOA
 
