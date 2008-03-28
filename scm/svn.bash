@@ -163,6 +163,21 @@ svn-apache2-tracs-location-write(){
 }
 
 
+svn-apache2-authzaccess-update(){
+
+  local msg="=== $FUNCNAME :"
+  echo $msg this needs running after updating the users function 
+  ## hmm ... if i split of the users defining  function into a file i could auto detect the need to do this update
+  
+  local authz=$APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS
+  [ ! -f $authz ] && echo $msg ABORT no authz $authz &&  return 1 
+  
+  ls -l $authz
+  ASUDO=sudo svn-apache2-authzaccess-write $authz dev
+  ls -l $authz
+}
+
+
 
 svn-apache2-authzaccess-write(){
 
