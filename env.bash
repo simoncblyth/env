@@ -47,6 +47,9 @@
  python-(){       [ -r $PYTHON_ENV/python.bash ]           && . $PYTHON_ENV/python.bash ; }
  ipython-(){      [ -r $PYTHON_ENV/ipython.bash ]           && . $PYTHON_ENV/ipython.bash ; }
  
+ 
+ 
+ md-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; }
 
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
