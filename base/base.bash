@@ -81,6 +81,8 @@ patch-
  cd $HOME/$BASE_BASE
  
  [ -r alias.bash  ]      && . alias.bash
+ [ -r clui.bash  ]       && . clui.bash
+ 
  [ -r perl.bash ]        && . perl.bash
  [ -r ssh.bash ]         && . ssh.bash
  [ -r ssh-config.bash ]  && . ssh-config.bash
