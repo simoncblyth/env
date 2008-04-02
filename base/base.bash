@@ -59,9 +59,8 @@ base-path(){
  [ -r local.bash ]       && . local.bash 
  [ -r batch.bash  ]      && . batch.bash
 
- SSH_INFOFILE=$HOME/.ssh-agent-info-$NODE_TAG
- export SSH_INFOFILE
- [ -r $SSH_INFOFILE ]   && . $SSH_INFOFILE
+ 
+  [ -r ssh-infofile.bash ]  && . ssh-infofile.bash
  
 pylibxml2(){  [ -r $HOME/$BASE_BASE/pylibxml2.bash ] && . $HOME/$BASE_BASE/pylibxml2.bash ; } 
 libxml2(){    [ -r $HOME/$BASE_BASE/libxml2.bash ]   && . $HOME/$BASE_BASE/libxml2.bash ; }
@@ -84,6 +83,7 @@ patch-
  [ -r alias.bash  ]      && . alias.bash
  [ -r perl.bash ]        && . perl.bash
  [ -r ssh.bash ]         && . ssh.bash
+ [ -r ssh-config.bash ]  && . ssh-config.bash
  [ -r tty.bash ]         && . tty.bash
  [ -r cron.bash ]        && . cron.bash
  [ -r service.bash ]     && . service.bash
