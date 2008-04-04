@@ -7,4 +7,4 @@ alias lt="ls -lt"
 alias h='history'
 alias bh='cat ~/.bash_history'
 alias ini='. ~/.bash_profile'
-
+alias t='type'

@@ -43,6 +43,10 @@ elif [ "$LOCAL_NODE" == "g4pb" ]; then
    BACKUP_TAG="G3"
    SUDO="sudo"
 
+elif [ "$LOCAL_NODE" == "gateway" ]; then
+
+   NODE_TAG="B"
+
 elif [ "$LOCAL_NODE" == "g3pb" ]; then
 
    NODE_TAG="G"

@@ -33,7 +33,11 @@
  env_iwd=$(pwd)
  cd $HOME/$ENV_BASE
  
- [ -r base/base.bash  ] && . base/base.bash  
+  
+ base-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
+ base- 
+  
+  
  [ -r scm/scm.bash  ]   && . scm/scm.bash    
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
@@ -49,7 +53,7 @@
  
  
  
- md-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; }
+ md-(){   local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; }
 
  
  if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then

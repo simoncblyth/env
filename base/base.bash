@@ -49,6 +49,32 @@ base-check-nonzero(){
 }
 
 
+base-export(){
+
+  local msg="=== $FUNCNAME:"
+  local relp=${1:-base}
+  local node=${2:-B}
+  
+  
+  local tmp=/tmp/$ENV_BASE/$relp 
+  local fold=$(dirname $tmp)  
+  ##
+  ## cannot export without --force  if the leaf folder exists already , 
+  ## but the parent of the leaf must exist
+  ##
+  
+  mkdir -p $fold
+  
+  local cmd="svn export $HOME/$ENV_BASE/$relp $tmp"
+  echo $cmd
+  eval $cmd  
+  
+  
+  cmd="scp -r /tmp/$ENV_BASE $node:"
+  echo $msg try $cmd      this creates the $ENV_BASE folder at the other end 
+}
+
+
 
 base-path(){
    perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/PATH.pm" ; &PATH::present_var(@ARGV) ; ' $*
