@@ -106,7 +106,7 @@
 
  SCM_BASE=$ENV_BASE/scm
  export SCM_HOME=$HOME/$SCM_BASE
-[ "$SCM_DBG" == "1" ] && echo $SCM_BASE/scm.bash
+[ "$SCM_DBG" == "1" ] && echo $SCM_BASE/scm.bash BACKUP_TAG $BACKUP_TAG
 
  cd $SCM_HOME
 
@@ -118,7 +118,8 @@
 
  ## caution must exit with initial directory 
  cd $scm_iwd
- [ -t 0 ] || return 
+ [ -t 0 ]   || return 
+  [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
  cd $SCM_HOME
 
  [ -r cvs.bash  ]           && . cvs.bash 

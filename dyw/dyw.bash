@@ -33,7 +33,8 @@
  
  ##  caution must exit with initial dir
  cd $dyw_iwd
- [ -t 0 ] || return 
+ [ -t 0 ]   || return 
+ [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
  cd $DYW_HOME
  
  [ -r dyw_build.bash ] && . dyw_build.bash

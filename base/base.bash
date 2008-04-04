@@ -104,6 +104,7 @@ patch-
  ## caution must exit in same directory as started in 
  cd $base_iwd
  [ -t 0 ] || return 
+ [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
  cd $HOME/$BASE_BASE
  
  [ -r alias.bash  ]      && . alias.bash

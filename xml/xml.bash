@@ -3,7 +3,8 @@
  xml_iwd=$(pwd) 
  
  ## caution must exit with initial dir  
- [ -t 0 ] || return 
+ [ -t 0 ]    || return 
+ [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
  
  XML_BASE=$ENV_BASE/xml
  export XML_HOME=$HOME/$XML_BASE
