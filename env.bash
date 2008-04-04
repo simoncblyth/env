@@ -30,16 +30,24 @@
  SEED_DBG=0
  DYW_DBG=0
  
- TZERO_DBG=1   ## the interactive/non-interactive switch use for debugging cron/batch issues 
- 
+ TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
+
+ # 
+ #  a better way to debug [-t 0 ] issues is  
+ #  NB the single quotes to protech from "this" shell
+ #       env -i bash -c ' whatever '
+ #  env -i prevents the env from being passed along 
+ # 
+
  env_iwd=$(pwd)
  cd $HOME/$ENV_BASE
  
   
- base-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
- base- 
+ # the below 2 lines do not work in non-interactive running ??? 
+ # base-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
+ # base- 
   
-  
+ [ -r base/base.bash ] && . base/base.bash  
  [ -r scm/scm.bash  ]   && . scm/scm.bash    
  [ -r xml/xml.bash  ]   && . xml/xml.bash 
  [ -r seed/seed.bash  ] && . seed/seed.bash   
