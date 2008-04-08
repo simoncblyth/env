@@ -31,6 +31,11 @@ export DYB_HOME=$HOME/$DYB_BASE
 
  export DDR=$DYB/$DYB_RELEASE 
  
+ if [ "$NODE_TAG" == "C" ]; then
+    DDR=$HOME/Nuwa
+ fi
+ 
+ 
   ## should this be fixed at trunk ?
  export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts
 

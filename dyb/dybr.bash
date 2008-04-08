@@ -169,7 +169,7 @@ dybr-site-setup(){
    dybr-site-unset					   
 											   		   
    local pwd=$PWD
-   cd $DYB/$DYB_RELEASE
+   cd $DDR
    
    ## NB this is  concocted by dybinst, not a normal CMT generated from requirements setup.sh
    . setup.sh     
@@ -318,7 +318,7 @@ dybr-proj-old(){
                  *)    rel=NONE ;;
       esac
 
-      local dir=$DYB/$DYB_RELEASE/$rel/cmt
+      local dir=$DDR/$rel/cmt
       if [ -d "$dir" -a  -f "$dir/setup.sh" ]; then
          local pwd=$PWD
          echo === dybr-proj $proj : $dir : $msg ==
@@ -342,7 +342,7 @@ dybr-proj-old(){
 dybr-xchk(){
   local exe=${1:-dyb.exe}
   local xdir=$(dirname $(which $exe))
-   if [ "X$xdir" != "X$DYB/$DYB_RELEASE/dybgaudi/InstallArea/$CMTCONFIG/bin" ]; then
+   if [ "X$xdir" != "X$DDR/dybgaudi/InstallArea/$CMTCONFIG/bin" ]; then
       echo === dybr-xchk the path to $exe is unexpected $xdir 
    else
       echo === dybr-xchk proceeding xdir $xdir 
@@ -352,7 +352,7 @@ dybr-xchk(){
 
 dybr-x(){
 
-   local default=$DYB/$DYB_RELEASE/dybgaudi/Simulation/SimuAlg/share/SimuOptions.txt
+   local default=$DDR/dybgaudi/Simulation/SimuAlg/share/SimuOptions.txt
    local path=${1:-$default} 
    
    shift
@@ -381,7 +381,7 @@ dybr-py(){
 
    # https://wiki.bnl.gov/dayabay/index.php?title=G4dyb_in_DbyGaudi
    
-   local default=$DYB/$DYB_RELEASE/dybgaudi/InstallArea/jobOptions/SimuAlg/RunG4dyb.py
+   local default=$DDR/dybgaudi/InstallArea/jobOptions/SimuAlg/RunG4dyb.py
    local path=${1:-$default} 
    shift
    

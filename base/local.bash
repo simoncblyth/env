@@ -255,6 +255,8 @@ export LOCAL_BASE_L=/usr/local
 export LOCAL_BASE_H=/data/usr/local          
 export LOCAL_BASE_T=/usr/local/dyw
 export LOCAL_BASE_N=$HOME/local
+export LOCAL_BASE_C=$HOME
+
 
 vname=LOCAL_BASE_$NODE_TAG
 eval _LOCAL_BASE=\$$vname
