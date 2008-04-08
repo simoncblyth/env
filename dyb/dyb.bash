@@ -32,7 +32,7 @@ export DYB_HOME=$HOME/$DYB_BASE
  export DDR=$DYB/$DYB_RELEASE 
  
  if [ "$NODE_TAG" == "C" ]; then
-    DDR=$HOME/Nuwa
+    DDR=$HOME/NuWa-trunk
  fi
  
  
