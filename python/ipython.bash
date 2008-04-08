@@ -5,7 +5,8 @@ ipython-get(){
   local msg="=== $FUNCNAME "
 
   local nik=ipython
-  local nam=$nik-0.8.1
+  #local nam=$nik-0.8.1
+  local nam=$nik-0.8.2
   local tgz=$nam.tar.gz
   local url=http://ipython.scipy.org/dist/$tgz
 
