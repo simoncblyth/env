@@ -77,7 +77,7 @@ void PMTMap::Load( const char* path , const char* treename , Int_t nmax ){
   fEntries = nent ;
   fPMT = new PMT[nent] ;
 
-  static PMT pj ;
+  PMT pj ;
   ppt->SetBranchAddress("iPMT", &pj.id );
   ppt->SetBranchAddress("xPMT", &pj.x );
   ppt->SetBranchAddress("yPMT", &pj.y );
