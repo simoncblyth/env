@@ -65,6 +65,9 @@ public:
    void Dump(TGeoNode* node , TString path="");
    void ImportVolume(TString filepath, TString vname="World");
 
+   void SetPMTHit(TString pmtnos, Double_t hitsize);
+   void HitPattern(Double_t hitsize);
+   
 private:
    void Import(TString filepath);
    void CreateMap();
@@ -212,20 +215,50 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
-void GeoMap::SetPMTHit(Int_t pmtnos,Float_t hitsize ){
+void GeoMap::SetPMTHit(Int_t pmtnos,Double_t hitsize ){
 
 	// sets the size of box representing PMT response
 	
 	TString pmt="PMT_";
 	TString pmtno = Form("%i",pmtnos);
 	pmt += pmtno;
-	
-	TGeoVolume* v = GetVol(pmt);
-	v->SetLineColor(kGreen);
 
 	// How to add hitsize? create an small box( pixel) on PMT and accecss it the pixel
 	// The larger the hitsize, the more pixels.
+	HitPattern(pmt,hitsize);
+
 	
 }
 
+void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 
+	// sets the charge deposited in PMT
+
+	// represent the hit pattern in PMT with
+	// The more charges, the larger the box
+	//
+	// Max. hitsize is 5. and min. is 0
+	// In the future, we can use 5*(SPE charge)/(largest charge) to setting the max.
+	// The charge can be decided by the mim likelihood function:see DocDB by Jun.
+
+	TGeoVolume* pmtposition = GetVol(pmt);
+
+	Double_t sc = 0.1 ;
+	Double_t sx = hitsize ;
+	Double_t sy = 0.1 ;
+	Double_t sz = hitsize ;
+	//creat an square on the hited PMT
+	TGeoMaterial* mat = new TGeoMaterial("Vacuum",0,0,0);
+	TGeoMedium*   med = new TGeoMedium("Vacuum",1,mat);
+	TGeoVolume* hitpattern = gGeoManager->MakeBox("hitpattern",med, sx , 0.1 , sz );
+	pmtposition->AddNode(hitpattern,1,new TGeoTranslation(1,1,1));
+	hitpattern->SetLineColor(kGreen);
+}
+
+void refresh(TString world){
+
+	//refresh the display
+	TGeoVolume* top = GetVol(world);
+	top->Draw("ogle");
+	
+}
