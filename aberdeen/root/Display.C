@@ -11,10 +11,14 @@
   gm->SetVisibility("PMT", kTRUE );
   gm->SetVisibility("Tube", kTRUE );
 
-  gm->SetPMTHit( 0 , 0.5 );
+  //SetPMTHit(Int_t pmt_no,Double_t hitpattern size)
+  // 0 <= hitpattern size >= 5.
+  gm->SetPMTHit( 0 , 3 );
   
-
-
+  //  gm->refresh("World_1");
+  //refresh the display
+  gm->GetVol("World_1")->Draw("ogle");
+  
 }
 
 
