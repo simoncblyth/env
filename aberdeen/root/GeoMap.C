@@ -212,6 +212,20 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
+void GeoMap::SetPMTHit(Int_t pmtnos,Float_t hitsize ){
 
+	// sets the size of box representing PMT response
+	
+	TString pmt="PMT_";
+	TString pmtno = Form("%i",pmtnos);
+	pmt += pmtno;
+	
+	TGeoVolume* v = GetVol(pmt);
+	v->SetLineColor(kGreen);
+
+	// How to add hitsize? create an small box( pixel) on PMT and accecss it the pixel
+	// The larger the hitsize, the more pixels.
+	
+}
 
 
