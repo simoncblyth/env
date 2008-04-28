@@ -215,6 +215,20 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
+void GeoMap::ReplacePMT(TString pmt, Double_t sx, Double_t sy, Double_t sz, EColor color){
+
+	// Replace PMT geometry using ReplaceNode() method
+
+
+
+	TGeoVolume* world = GetVol("World_1");
+	TGeoNode* oldpmtnode = GetNod(pmt);
+	TGeoNode* newpmtnode = world->ReplaceNode(oldpmtnode, new TGeoBBox(sx,sy,sz));
+	TGeoVolume* newpmtvol = newpmtnode->GetVolume();
+	newpmtvol->SetLineColor(color);
+
+}
+
 void GeoMap::SetPMTHit(Int_t pmtnos,Double_t hitsize ){
 
 	// sets the size of box representing PMT response
@@ -230,6 +244,7 @@ void GeoMap::SetPMTHit(Int_t pmtnos,Double_t hitsize ){
 	
 }
 
+
 void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 
 	// sets the charge deposited in PMT
@@ -241,56 +256,60 @@ void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 	// In the future, we can use 5*(SPE charge)/(largest charge) to setting the max.
 	// The charge can be decided by the mim likelihood function:see DocDB by Jun.
 
-	TGeoVolume* pmtposition = GetVol(pmt);
-
-	Double_t sc = 0.1 ;
 	Double_t sx = hitsize ;
 	Double_t sy = 0.1 ;
 	Double_t sz = hitsize ;
-	//creat an square on the hited PMT
-	TGeoMaterial* mat = new TGeoMaterial("Vacuum",0,0,0);
-	TGeoMedium*   med = new TGeoMedium("Vacuum",1,mat);
-	TGeoVolume* hitpattern = gGeoManager->MakeBox("hitpattern",med, sx , 0.1 , sz );
-	pmtposition->AddNode(hitpattern,1,new TGeoTranslation(1,1,1));
-	hitpattern->SetLineColor(kGreen);
+	//replace an square of the hited PMT 
+	ReplacePMT(pmt,sx,sy,sz,kGreen);
+	//ReplacePMT(pmt,sx,sy,sz,kRed);
+	cout << "hit on " << pmt << "!!! The relative response to all PMTs is " << hitsize*20 << " %"<< endl;
 }
 
 void GeoMap::ResetPMT(void){
+
+	delete fMap;		// release the dynamic memory
+	CreateMap();		// make sure use the latest mapping. later
 	
 	// looping all PMTs and kill the volume inside them
 	// PMT_0 to PMT_15, so the Int_t i counter start from 0 and <16 below
 	for(Int_t i=0;i<16;i++){
 		TString pmt = "PMT_";
-		TString no = Form("%i",i);
-		pmt += no;
-		cout << pmt << endl;
-		TGeoNode* node = GetNod(pmt);
-		KillSubVolume(node);
-		cout << " ready to Dump() "<< endl;
-	}	
-}
+		TString pmtno = Form("%i",i);
+		pmt += pmtno;
+		//cout << "Resetting " << pmt << endl;
+		ReplacePMT(pmt,5,0.1,5,kMagenta);
+		//cout << " Reset "<< pmt << " already" << endl;
+	}
 
-void GeoMap::KillSubVolume(TGeoNode* node){
+	cout << "   Reset PMT already " << endl;
+	delete fMap;
+	CreateMap();		// make sure use the latest mapping in the future
+}
+/*
+void GeoMap::ResetSubVolume(TGeoNode* node){
 
 	//kill all the sub volumes
 	TGeoVolume* vol = node->GetVolume();
 	TObjArray* a = vol->GetNodes();
 	Int_t nn = a == NULL ? 0 : a->GetEntries();
 	for(Int_t i=0; i< nn ; i++) {
-		KillSubVolume(vol->GetNode(i));
+		TGeoVolume* world = GetVol("World_1");
+		ResetSubVolume(vol->GetNode(i));
 		cout <<"!!!!!!!!!!!D"<< endl;
 	}
-	//delete vol;
-	//delete node;
-	//vol = NULL;
 	cout << "!!!!!!!!!!!!E"<< endl;
 
 }
+*/
 
-void GeoMap::Refresh(TString world){
+
+// useless in Display.C after using ReplaceNode() method
+void GeoMap::Refresh(void){
 
 	//refresh the display
-	TGeoVolume* top = GetVol(world);
+	
+	//CreateMap();
+	TGeoVolume* top = GetVol("World_1");
 	top->Draw("ogle");
 	
 }
