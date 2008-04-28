@@ -1,4 +1,7 @@
 {
+
+//  gROOT->Reset(); // reset the previous pmt pattern
+	
   gROOT->ProcessLine(".L GeoMap.C");
   gm = new GeoMap();
   gm->ImportVolume("WorldWithPMTs.root","World");
@@ -13,12 +16,18 @@
 
   //SetPMTHit(Int_t pmt_no,Double_t hitpattern size)
   // 0 <= hitpattern size >= 5.
-  gm->SetPMTHit( 0 , 3 );
-  
-  //  gm->refresh("World_1");
-  //refresh the display
-  gm->GetVol("World_1")->Draw("ogle");
-  
+  gm->SetPMTHit( 1 , 3 );
+  gm->SetPMTHit( 2 , 5 );
+  gm->SetPMTHit( 3,  1 );
+  gm->Refresh("World_1");      //refresh the display
+
+
+  gm->ResetPMT();
+//  gm->SetPMTHit( 5 , 3 );
+//  gm->SetPMTHit( 6 , 5 );
+//  gm->SetPMTHit( 7,  1 ); 
+  gm->Refresh("World_1");
+
 }
 
 
