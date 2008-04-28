@@ -255,7 +255,11 @@ void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 	hitpattern->SetLineColor(kGreen);
 }
 
-void refresh(TString world){
+void GeoMap::ResetPMT(){
+	// useless temporary
+}
+
+void GeoMap::refresh(TString world){
 
 	//refresh the display
 	TGeoVolume* top = GetVol(world);
