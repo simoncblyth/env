@@ -255,11 +255,39 @@ void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 	hitpattern->SetLineColor(kGreen);
 }
 
-void GeoMap::ResetPMT(){
-	// useless temporary
+void GeoMap::ResetPMT(void){
+	
+	// looping all PMTs and kill the volume inside them
+	// PMT_0 to PMT_15, so the Int_t i counter start from 0 and <16 below
+	for(Int_t i=0;i<16;i++){
+		TString pmt = "PMT_";
+		TString no = Form("%i",i);
+		pmt += no;
+		cout << pmt << endl;
+		TGeoNode* node = GetNod(pmt);
+		KillSubVolume(node);
+		cout << " ready to Dump() "<< endl;
+	}	
 }
 
-void GeoMap::refresh(TString world){
+void GeoMap::KillSubVolume(TGeoNode* node){
+
+	//kill all the sub volumes
+	TGeoVolume* vol = node->GetVolume();
+	TObjArray* a = vol->GetNodes();
+	Int_t nn = a == NULL ? 0 : a->GetEntries();
+	for(Int_t i=0; i< nn ; i++) {
+		KillSubVolume(vol->GetNode(i));
+		cout <<"!!!!!!!!!!!D"<< endl;
+	}
+	//delete vol;
+	//delete node;
+	//vol = NULL;
+	cout << "!!!!!!!!!!!!E"<< endl;
+
+}
+
+void GeoMap::Refresh(TString world){
 
 	//refresh the display
 	TGeoVolume* top = GetVol(world);
