@@ -66,7 +66,10 @@ public:
    void ImportVolume(TString filepath, TString vname="World");
 
    void SetPMTHit(TString pmtnos, Double_t hitsize);
-   void HitPattern(Double_t hitsize);
+   void ResetBox(TString vkey, Double_t sx, Double_t sy, Double_t sz, EColor color);
+   void ResetPMT(void);
+
+   void Refresh(void);
    
 private:
    void Import(TString filepath);
@@ -215,17 +218,16 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
-void GeoMap::ReplacePMT(TString pmt, Double_t sx, Double_t sy, Double_t sz, EColor color){
+void GeoMap::ResetBox(TString vkey, Double_t sx, Double_t sy, Double_t sz, EColor color){
 
 	// Replace PMT geometry using ReplaceNode() method
 
 
 
-	TGeoVolume* world = GetVol("World_1");
-	TGeoNode* oldpmtnode = GetNod(pmt);
-	TGeoNode* newpmtnode = world->ReplaceNode(oldpmtnode, new TGeoBBox(sx,sy,sz));
-	TGeoVolume* newpmtvol = newpmtnode->GetVolume();
-	newpmtvol->SetLineColor(color);
+	TGeoVolume* v = GetVol(vkey);
+	TGeoBBox* newbox = v->GetShape();
+	newbox->SetBoxDimensions(sx,sy,sz);
+	v->SetLineColor(color);
 
 }
 
@@ -237,18 +239,11 @@ void GeoMap::SetPMTHit(Int_t pmtnos,Double_t hitsize ){
 	TString pmtno = Form("%i",pmtnos);
 	pmt += pmtno;
 
-	// How to add hitsize? create an small box( pixel) on PMT and accecss it the pixel
+	// How to add hitsize? re-dim an small box( pixel) on PMT and accecss it the pixel
 	// The larger the hitsize, the more pixels.
-	HitPattern(pmt,hitsize);
-
-	
-}
-
-
-void GeoMap::HitPattern(TString pmt, Float_t hitsize){
-
+	//
 	// sets the charge deposited in PMT
-
+	//
 	// represent the hit pattern in PMT with
 	// The more charges, the larger the box
 	//
@@ -260,50 +255,29 @@ void GeoMap::HitPattern(TString pmt, Float_t hitsize){
 	Double_t sy = 0.1 ;
 	Double_t sz = hitsize ;
 	//replace an square of the hited PMT 
-	ReplacePMT(pmt,sx,sy,sz,kGreen);
-	//ReplacePMT(pmt,sx,sy,sz,kRed);
+	ResetBox(pmt,sx,sy,sz,kGreen);
 	cout << "hit on " << pmt << "!!! The relative response to all PMTs is " << hitsize*20 << " %"<< endl;
 }
 
 void GeoMap::ResetPMT(void){
 
-	delete fMap;		// release the dynamic memory
-	CreateMap();		// make sure use the latest mapping. later
 	
-	// looping all PMTs and kill the volume inside them
+	// looping all PMTs and setting the dim of the PMT box to the default (5,0.1,5)
 	// PMT_0 to PMT_15, so the Int_t i counter start from 0 and <16 below
 	for(Int_t i=0;i<16;i++){
 		TString pmt = "PMT_";
 		TString pmtno = Form("%i",i);
 		pmt += pmtno;
 		//cout << "Resetting " << pmt << endl;
-		ReplacePMT(pmt,5,0.1,5,kMagenta);
+		ResetBox(pmt,5,0.1,5,kMagenta);
 		//cout << " Reset "<< pmt << " already" << endl;
 	}
-
+	Refresh();
 	cout << "   Reset PMT already " << endl;
-	delete fMap;
-	CreateMap();		// make sure use the latest mapping in the future
-}
-/*
-void GeoMap::ResetSubVolume(TGeoNode* node){
-
-	//kill all the sub volumes
-	TGeoVolume* vol = node->GetVolume();
-	TObjArray* a = vol->GetNodes();
-	Int_t nn = a == NULL ? 0 : a->GetEntries();
-	for(Int_t i=0; i< nn ; i++) {
-		TGeoVolume* world = GetVol("World_1");
-		ResetSubVolume(vol->GetNode(i));
-		cout <<"!!!!!!!!!!!D"<< endl;
-	}
-	cout << "!!!!!!!!!!!!E"<< endl;
 
 }
-*/
 
 
-// useless in Display.C after using ReplaceNode() method
 void GeoMap::Refresh(void){
 
 	//refresh the display
