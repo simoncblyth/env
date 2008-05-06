@@ -24,11 +24,12 @@
  ENV_BASE=env
  export ENV_BASE
  
- BASE_DBG=1
- SCM_DBG=1
+ BASE_DBG=0
+ SCM_DBG=0
  XML_DBG=0
  SEED_DBG=0
  DYW_DBG=0
+ DYB_DBG=0
  
  TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
 

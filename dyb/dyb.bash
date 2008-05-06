@@ -13,14 +13,14 @@ export DYB_HOME=$HOME/$DYB_BASE
    vname=DYB_VERSION_$NODE_TAG
    eval DYB_VERSION=\$$vname
  else
-   echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
+   [ "$DYB_DBG" == "1" ] && echo WARNING honouring a preset DYB_VERSION $DYB_VERSION     
  fi
   
  if [ "X$DYB_OPTION" == "X" ]; then
     DYB_OPTION=""
    #DYB_OPTION="_dbg" 
  else
-    echo WARNING honouring a preset DYB_OPTION $DYB_OPTION
+    [ "$DYB_DBG" == "1" ] && echo WARNING honouring a preset DYB_OPTION $DYB_OPTION
  fi
  
  export DYB_OPTION

@@ -353,7 +353,9 @@ scm-create(){
    #
    # access the list of repositories , to ensure not stamping on a preexisting one
    #
-   scm-tracname-available $name && echo proceeding as tracname $name is available || ( echo a repository named $name exists already , cannot overwrite  && return 1  )
+   echo http_proxy $http_proxy  WARNING NOT CHECKING TO SEE THAT THE NAME IS AVAILABLE
+   
+   #scm-tracname-available $name && echo proceeding as tracname $name is available || ( echo a repository named $name exists already , cannot overwrite  && return 1  )
    #
    # can access $? rather than doing it in a pipe
 

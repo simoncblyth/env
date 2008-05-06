@@ -47,7 +47,6 @@ elif [ "$LOCAL_NODE" == "g4pb" ]; then
 elif [ "$LOCAL_NODE" == "coop" ]; then
 
    NODE_TAG="C"
-    
 
 
 elif [ "$LOCAL_NODE" == "gateway" ]; then
