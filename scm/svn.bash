@@ -414,7 +414,7 @@ user = blyth, thho, chwang
 admin = dayabaysoft, admin
 heprezmember = simon
 heprezuser = blyth
-aberdeen = blyth, thho, jimmy, antony, soap
+aberdeen = blyth, thho, jimmy, antony, soap, bzhu, wei, adair, chwang
 
 EOA
 
@@ -457,6 +457,7 @@ cat << EOC
 @member = r
 @user = rw 
 @admin = rw
+@aberdeen = rw
 
 [workflow:/]
 * = r
