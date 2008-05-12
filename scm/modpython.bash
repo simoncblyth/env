@@ -25,14 +25,20 @@
 # PYTHON_NAME=Python-2.5.1
 #
 
-MODPYTHON_NAME=mod_python-3.3.1
-MODPYTHON_NIK=mod_python
-HOSTPORT=grid1.phys.ntu.edu.tw:6060
+
+modpython-env(){
+
+   local-
+   apache2-
+   python-
+   
+   MODPYTHON_NAME=mod_python-3.3.1
+   MODPYTHON_NIK=mod_python
+   HOSTPORT=grid1.phys.ntu.edu.tw:6060
+
+}
 
 
-
-modpython-x(){ scp $SCM_HOME/modpython.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
-modpython-i(){ . $SCM_HOME/modpython.bash ; }
 
 modpython-apache2-configure(){
   

@@ -35,9 +35,14 @@
 #
 #
 #
-modwsgi-x(){ scp $SCM_HOME/modwsgi.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
-modwsgi-i(){ . $SCM_HOME/modwsgi.bash ; }
 
+
+modwsgi-env(){
+
+   local-
+   apache2-
+   python-
+}
 
 
 

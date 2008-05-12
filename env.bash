@@ -5,8 +5,8 @@
 env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && env-env $* ; }
 local-(){    [ -r $ENV_HOME/base/local.bash ]       && . $ENV_HOME/base/local.bash && local-env $* ; } 
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
-dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]           && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
-
+dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
+scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
 python-(){   [ -r $ENV_HOME/python/python.bash ]    && . $ENV_HOME/python/python.bash ; }
 ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
@@ -17,6 +17,8 @@ macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offli
 db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; }
 aberdeen-(){ [ -r $ENV_HOME/aberdeen/aberdeen.bash ] && . $ENV_HOME/aberdeen/aberdeen.bash ; }
 xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
+
+
 
   
 # the below may not work in non-interactive running ???  
@@ -70,7 +72,7 @@ env-env(){
   cd $ENV_HOME
  
   base-  
-  [ -r scm/scm.bash  ]   && . scm/scm.bash    
+  scm-    
  
   dyb- 
  

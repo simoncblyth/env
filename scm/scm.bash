@@ -99,23 +99,28 @@
 # svn: MKACTIVITY of '/repos/yellow/!svn/act/0b4101f1-fe2e-0410-b312-8d38c72169a9': 403 Forbidden (http://grid1.phys.ntu.edu.tw:6060)
 #
 #
- scm_iwd=$(pwd)
+
+
+svn-(){       [ -r $ENV_HOME/scm/svn.bash ]     && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
+swig-(){      [ -r $ENV_HOME/scm/swig.bash ]    && . $ENV_HOME/scm/swig.bash && swig-env $* ; } 
+apache2-(){   [ -r $ENV_HOME/scm/apache2.bash ] && . $ENV_HOME/scm/apache2.bash && apache2-env $* ; } 
+modwsgi-(){   [ -r $ENV_HOME/scm/modwsgi.bash ] && . $ENV_HOME/scm/modwsgi.bash && modwsgi-env $* ; } 
+modpython-(){ [ -r $ENV_HOME/scm/modpython.bash ] && . $ENV_HOME/scm/modpython.bash && modpython-env $* ; } 
+pymysql-(){   [ -r $ENV_HOME/scm/pymysql.bash ]  && . $ENV_HOME/scm/pymysql.bash && pymysql-env $* ; }
+
+cvs-(){       [ -r $ENV_HOME/scm/cvs.bash ]     && . $ENV_HOME/scm/cvs.bash ; } 
+pexpect(){    [ -r $ENV_HOME/scm/pexpect.bash ] && . $ENV_HOME/scm/pexpect.bash ; } 
+svn-sync(){   [ -r $ENV_HOME/scm/svn-sync.bash ] && . $ENV_HOME/scm/svn-sync.bash ; } 
 
 
 
+scm-env(){
 
+  local iwd=$(pwd)
+  export SCM_HOME=$ENV_HOME/scm
+  [ "$SCM_DBG" == "1" ] && echo BACKUP_TAG $BACKUP_TAG
 
-
-
- export SCM_HOME=$ENV_HOME/scm
-[ "$SCM_DBG" == "1" ] && echo BACKUP_TAG $BACKUP_TAG
-
-svn-(){     [ -r $ENV_HOME/scm/svn.bash ]     && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
-swig-(){    [ -r $ENV_HOME/scm/swig.bash ]    && . $ENV_HOME/scm/swig.bash && swig-env $* ; } 
-apache2-(){ [ -r $ENV_HOME/scm/apache2.bash ] && . $ENV_HOME/scm/apache2.bash && apache2-env $* ; } 
-
-
- cd $ENV_HOME/scm
+  cd $SCM_HOME
 
  [ -r scm-use.bash ]        && . scm-use.bash
  [ -r scm-backup.bash ]     && . scm-backup.bash 
@@ -123,55 +128,40 @@ apache2-(){ [ -r $ENV_HOME/scm/apache2.bash ] && . $ENV_HOME/scm/apache2.bash &&
  [ -r trac/trac-use.bash ]  && . trac/trac-use.bash 
  [ -r modwsgi-use.bash ]    && . modwsgi-use.bash 
 
- ## caution must exit with initial directory 
- cd $scm_iwd
- [ -t 0 ]   || return 
+  ## caution must exit with initial directory 
+  cd $iwd
+  [ -t 0 ]   || return 
   [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
- cd $SCM_HOME
+  cd $SCM_HOME
 
- [ -r cvs.bash  ]           && . cvs.bash 
- [ -r file.bash  ]          && . file.bash
+  apache2- 
 
-# [ -r apache2.bash ]        && . apache2.bash
- apache2- 
+  [ -r python.bash ]         && . python.bash
+  [ -r sqlite.bash ]         && . sqlite.bash
 
- [ -r python.bash ]         && . python.bash
- [ -r sqlite.bash ]         && . sqlite.bash
-
-# [ -r swig.bash ]           && . swig.bash                ## depends on python 
- swig-
-
-# [ -r svn.bash ]            && . svn.bash                 ## depends on apache2, swig, python
- svn- 
+  swig-      ## depends on python                
+  svn-       ## depends on apache2, swig, python
 
  [ -r svn-build.bash ]      && . svn-build.bash           ## depends on apache2, swig, python
-#[ -r svn-test.bash ]       && . svn-test.bash           ## depends on apache2, swig, python
+#[ -r svn-test.bash ]       && . svn-test.bash            ## depends on apache2, swig, python
  
  [ -r pysqlite.bash ]       && . pysqlite.bash            ## depends on python, sqlite
- [ -r modpython.bash ]      && . modpython.bash           ## depends on python, apache2
- [ -r modwsgi.bash ]        && . modwsgi.bash             ## even when not using, create the .wsgi files 
 
- [ -r pymysql.bash ]        && . pymysql.bash
-
- [ -r clearsilver.bash ]                 && . clearsilver.bash         
  
- [ -r trac/trac.bash ]                   && . trac/trac.bash     
+ [ -r trac/trac.bash ]      && . trac/trac.bash     
 #[ -r svn-learn.bash ]      && . svn-learn.bash
 #[ -r modpython-test.bash ] && . modpython-test.bash  
 
  ## caution must exit with initial directory
- cd $scm_iwd
+ cd $iwd
  
- 
- 
+}
  
  
  
  svn-tools(){  [ -r $SCM_HOME/svn-tools.bash ] && . $SCM_HOME/svn-tools.bash ; }
  
- pexpect(){  [ -r $SCM_HOME/pexpect.bash ] && . $SCM_HOME/pexpect.bash ; } 
- svn-sync(){ [ -r $SCM_HOME/svn-sync.bash ] && . $SCM_HOME/svn-sync.bash ; } 
-
+ 
 
 scm-vi(){
   iwd=$(pwd)	
@@ -187,10 +177,6 @@ scm-x-pkg(){
    scp scm.tar.gz ${1:-$TARGET_TAG}:; 
    ssh ${1:-$TARGET_TAG} "tar zxvf scm.tar.gz" 
 }
-scm-x(){ scp $SCM_HOME/scm.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
-scm-i(){ .   $SCM_HOME/scm.bash  ; }
-
-
 
 
 scm-ls(){

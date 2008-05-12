@@ -18,17 +18,20 @@
 #
 #
 
-sqlite-x(){ scp $SCM_HOME/sqlite.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }
-sqlite-i(){ . $SCM_HOME/sqlite.bash ; }
+sqlite-env(){
+
+   local-
+
+}
 
 
 sqlite-get(){
 
   [ "$NODE" == "g4pb" ] && echo use the patched version of sqlite supplied  with OSX && return
 
-  nam=$SQLITE_NAME
-  tgz=$nam.tar.gz
-  url=http://www.sqlite.org/$tgz
+  local nam=$SQLITE_NAME
+  local tgz=$nam.tar.gz
+  local url=http://www.sqlite.org/$tgz
 
   cd $LOCAL_BASE
   test -d sqlite || ( $SUDO mkdir sqlite && $SUDO chown $USER sqlite )
@@ -41,7 +44,7 @@ sqlite-get(){
 
 sqlite-wipe(){
 
-  nam=$SQLITE_NAME
+  local nam=$SQLITE_NAME
   cd $LOCAL_BASE/sqlite
   rm -rf build/$nam
 
@@ -49,7 +52,7 @@ sqlite-wipe(){
 
 sqlite-install(){
 
-  nam=$SQLITE_NAME
+  local nam=$SQLITE_NAME
   cd $LOCAL_BASE/sqlite/build/$nam
 
   ./configure -h 

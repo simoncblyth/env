@@ -1,6 +1,6 @@
 
 
-export SCM_FOLD=$VAR_BASE/scm
+
 
 #
 #   after a change in SCM_FOLD in need to tell apache2 about the change with :

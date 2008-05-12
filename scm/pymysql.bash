@@ -6,8 +6,14 @@
 #
 #
 
+pymysql-env(){
 
-PYMYSQL_NAME=MySQL-python-1.2.2
+   local-
+   python-
+   PYMYSQL_NAME=MySQL-python-1.2.2
+
+}
+
 
 pymysql-get(){
   

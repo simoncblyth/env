@@ -229,6 +229,9 @@ export SCM_GROUP
 export SCM_TRAC
 
 
+
+
+
 }
 
 
@@ -290,6 +293,8 @@ vname=VAR_BASE_$NODE_TAG
 eval _VAR_BASE=\$$vname
 export VAR_BASE=${_VAR_BASE:-$VAR_BASE_U}
 
+export SCM_FOLD=$VAR_BASE/scm
+
 
 ## ------------- path on remote backup machine 
 vname=VAR_BASE_$BACKUP_TAG 
@@ -339,6 +344,7 @@ export OUTPUT_BASE_N=/project/projectdirs/dayabay/scratch/blyth
 vname=OUTPUT_BASE_$NODE_TAG
 eval _OUTPUT_BASE=\$$vname
 export OUTPUT_BASE=${_OUTPUT_BASE:-$OUTPUT_BASE_U}
+
 
 
 
