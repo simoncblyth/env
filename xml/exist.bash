@@ -104,6 +104,7 @@
 #
 
 
+exist-env(){
 
 EXIST_NIK=exist
 EXIST_REP=https://exist.svn.sourceforge.net/svnroot/exist
@@ -115,6 +116,9 @@ EXIST_NAME=eXist-1.1.1-newcore-build4311
 
 
 export EXIST_FOLD=$LOCAL_BASE/$EXIST_NIK
+
+}
+
 
 exist-ctx(){
 

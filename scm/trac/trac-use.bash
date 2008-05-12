@@ -16,6 +16,20 @@
 
 
 
+
+trac-use-usage(){
+cat << EOU
+
+trac-use-authz <name> <authz_file>                  edit the ini file for tracitory setting the authz_file
+init-edit      <path>  block1:var1:value1 ...       edit ini file based on arguments 
+trac-use-admin <name>  <...>                        invoke trac-admin tool          
+                           
+
+EOU
+
+}
+
+
 trac-use-authz(){
 
    local name=${1:-dummy}
@@ -87,7 +101,12 @@ trac-use-admin(){
    local tracdir=$SCM_FOLD/tracs/$name
    test -d $tracdir || ( echo tracdir $tracdir does not exist && return 1 )
 
-   sudo chown -R $USER:$USER $tracdir
+   local group=$(id -gn)
+
+   local cmd="sudo chown -R $USER:$group $tracdir"
+   echo $cmd
+   eval $cmd
+   
    trac-admin $tracdir $*
    sudo chown -R $APACHE2_USER:$APACHE2_USER $tracdir
 }

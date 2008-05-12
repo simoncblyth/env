@@ -1,105 +1,83 @@
+
+
+
+
+env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && env-env $* ; }
+local-(){    [ -r $ENV_HOME/base/local.bash ]       && . $ENV_HOME/base/local.bash && local-env $* ; } 
+base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
+dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]           && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
+
+
+python-(){   [ -r $ENV_HOME/python/python.bash ]    && . $ENV_HOME/python/python.bash ; }
+ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
+seed-(){     [ -r $ENV_HOME/seed/seed.bash ]        && . $ENV_HOME/seed/seed.bash ; }
+macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros.bash ; }
+dyw-(){      [ -r $ENV_HOME/dyw/dyw.bash ]          && . $ENV_HOME/dyw/dyw.bash ; }
+macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offline.bash ; }
+db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; }
+aberdeen-(){ [ -r $ENV_HOME/aberdeen/aberdeen.bash ] && . $ENV_HOME/aberdeen/aberdeen.bash ; }
+xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
+
+  
+# the below may not work in non-interactive running ???  
+md-(){  local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
+ 
+ 
+env-usage(){
+cat << EOU
 #
-#   cd $HOME
-#   svn co http://hfag.phys.ntu.edu.tw:6060/repos/env/trunk/ env
-#
-#   use 
-#      type name 
-#  to list a function definition
-#    http://www-128.ibm.com/developerworks/library/l-bash-test.html
-#
-#   use 
-#       set 
-#           to list all functions
-#
-#     unset -f name 
-#              to remove a function
-#
-#     typeset -F  
-#          lists just the names
+#     type name        list a function definition 
+#     set               list all functions
+#     unset -f name     to remove a function
+#     typeset -F        lists just the names
 #
 #  http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
+#  http://www-128.ibm.com/developerworks/library/l-bash-test.html
 #
 #
+#   debugging tip .. invoke with bash rather than . when debugging :
+# 
+#  g4pb:env blyth$ . base/base.bash
+#  -bash: [: missing `]'
+#  g4pb:env blyth$ bash base/base.bash 
+#  base/base.bash: line 100: [: missing `]'
+#
+#       CAUTION error reporting can be a line off
 
- ENV_BASE=env
- export ENV_BASE
+EOU
+}
+
+
+env-env(){
+  local msg="=== $FUNCNAME :"
  
- BASE_DBG=0
- SCM_DBG=0
- XML_DBG=0
- SEED_DBG=0
- DYW_DBG=0
- DYB_DBG=0
+  BASE_DBG=0
+  SCM_DBG=0
+  XML_DBG=0
+  SEED_DBG=0
+  DYW_DBG=0
+  DYB_DBG=0 
+  TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
+
+  # 
+  #  a better way to debug [-t 0 ] issues is  
+  #       env -i bash -c ' whatever '
+  #   * -i prevents the env from being passed along 
+  #   * single quotes to protech from "this" shell
+  #
+
+  local iwd=$(pwd)
+  cd $ENV_HOME
  
- TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
-
- # 
- #  a better way to debug [-t 0 ] issues is  
- #  NB the single quotes to protech from "this" shell
- #       env -i bash -c ' whatever '
- #  env -i prevents the env from being passed along 
- # 
-
- env_iwd=$(pwd)
- cd $HOME/$ENV_BASE
+  base-  
+  [ -r scm/scm.bash  ]   && . scm/scm.bash    
  
-  
- # the below 2 lines do not work in non-interactive running ??? 
- # base-(){ local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
- # base- 
-  
- [ -r base/base.bash ] && . base/base.bash  
- [ -r scm/scm.bash  ]   && . scm/scm.bash    
- [ -r xml/xml.bash  ]   && . xml/xml.bash 
- [ -r seed/seed.bash  ] && . seed/seed.bash   
- [ -r macros/macros.bash  ] && . macros/macros.bash  
-
-# [ -r python/python.bash  ] && . python/python.bash  
-
+  dyb- 
  
- PYTHON_BASE=$ENV_BASE/python
- export PYTHON_ENV=$HOME/$PYTHON_BASE
- python-(){       [ -r $PYTHON_ENV/python.bash ]           && . $PYTHON_ENV/python.bash ; }
- ipython-(){      [ -r $PYTHON_ENV/ipython.bash ]           && . $PYTHON_ENV/ipython.bash ; }
- 
- 
- 
- md-(){   local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; }
+  cd $iwd
+  alias eu=env-u
 
- 
- if ([ "$NODE_TAG" != "H" ] && [ "$NODE_TAG" != "U" ]) then
-     
-	 
-	 ## legacy setup
-	 ##[ -r dyw/dyw.bash  ]   && . dyw/dyw.bash 
-	 
-	 ## dbi 
-     ##[ -r offline/offline.bash  ] && . offline/offline.bash 
-     
-	 ## mysql setup not pursued
-	 ##[ -r db/db.bash  ] && . db/db.bash 
-     
-     [ -r dyb/dyb.bash  ] && . dyb/dyb.bash 
-     
-	 
-	 
-	 # echo === dyb done
-     # [ -r aberdeen/aberdeen.bash  ] && . aberdeen/aberdeen.bash
-	 # echo === aberdeen done 
-
- fi
- 
-
-
-
-
-  	 
- 
-
- cd $env_iwd
-
-
-alias eu=env-u
+}
 
 env-u(){ 
   iwd=$(pwd)
@@ -122,7 +100,7 @@ env-u(){
 }
 
 
-env-i(){ [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash ; }
+
 
 
 env-wiki(){ 
@@ -188,5 +166,5 @@ env-x-pkg-not-working(){
 }
 
 
-
+env-env
 

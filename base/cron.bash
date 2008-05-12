@@ -1,5 +1,10 @@
 
 
+cron-env(){
+   local msg="=== $FUNCNAME :"
+}
+
+
 cron-delete(){
    local user=${1:-root}
    cron-list $user

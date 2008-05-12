@@ -1,4 +1,4 @@
-#!/bin/bash 
+
 #
 #     http://trac-hacks.org/wiki/LatexFormulaMacro 
 #  allows writing latex formulas in wiki text, that get converted to images 

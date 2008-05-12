@@ -1,5 +1,15 @@
 
 
+tracenv-usage(){
+
+cat << EOU
+tracenv-propagate  <name>  ENV_NAME_1 ENV_NAME_2 ...        propagate env vars into the trac ini file             
+EOU
+
+}
+
+
+
 tracenv-propagate(){
  
    local name=${1:-$SCM_TRAC}

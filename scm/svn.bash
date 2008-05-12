@@ -35,9 +35,13 @@
 #
 
 
+svn-env(){
+
 
 export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
 export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+
+}
 
 
 
@@ -78,7 +82,16 @@ EOS
 
 
 
+svn-apache2-info(){
 
+    local msg="=== $FUNCNAME :"
+    echo $msg APACHE2_BASE $APACHE2_BASE
+	echo $msg APACHE2_LOCAL $APACHE2_LOCAL
+	echo $msg APACHE2_BASE/SVN_APACHE2_AUTHZACCESS $APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS
+
+
+
+}
 
 
 
@@ -229,7 +242,7 @@ svn-apache2-xslt-write(){
 
 
 
-## formerly modpython-tracs-conf
+
 svn-apache2-tracs-location(){
 
   local access=${1:-formlogin}
@@ -259,6 +272,13 @@ cat << EOC
 <Location /mpinfo>
    SetHandler mod_python
    PythonHandler mod_python.testhandler
+   AllowOverride None
+   Order Deny,Allow
+   #  all local requests come in on 10.0.1.1 so cannot distinguish
+   #Allow from 10.0.1.103
+   #Allow from 10.0.1.104
+   Allow from 10.0.1.1
+   Deny from all
 </Location>
 
 <Directory $APACHE2_HTDOCS/test>
@@ -281,9 +301,10 @@ cat << EOC
    
    ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
-   # 
-   #SVNParentPath $SVN_PARENT_PATH
-   #AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
+   #  
+   #	 
+   SVNParentPath $SVN_PARENT_PATH
+   AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
    
 </Location>
 
@@ -412,7 +433,7 @@ sync = ntusync
 member = simon, dayabay 
 user = blyth, thho, chwang
 admin = dayabaysoft, admin
-heprezmember = simon
+heprezmember = simon, cjl, tosi, cecilia
 heprezuser = blyth
 aberdeen = blyth, thho, jimmy, antony, soap, bzhu, wei, adair, chwang
 
@@ -472,7 +493,8 @@ cat << EOC
 @admin = rw
 
 [heprez:/]
-@heprezmember = r
+* = r
+@heprezmember = rw
 @heprezuser = rw 
 @admin = rw
 

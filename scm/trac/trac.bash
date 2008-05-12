@@ -107,6 +107,9 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
                                     
  [ -r trac-build.bash ]                   && . trac-build.bash          ## depends on clearsilver  
 
+## trac-build-(){  [ -r $TRAC_HOME/trac-build.bash ]  && . $TRAC_HOME/trac-build.bash ; }
+
+
  ## new style... reduce env pollution and startup time 
 
  silvercity(){        . $TRAC_HOME/silvercity.bash ; }

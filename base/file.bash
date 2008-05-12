@@ -1,4 +1,11 @@
 
+
+file-env(){
+
+   local msg="=== $FUNCNAME :"
+}
+
+
 file-dirlist(){
  
  local iwd=$(pwd)

@@ -1,27 +1,42 @@
 
-[ "$BASE_DBG" == "1" ] && echo local.bash
 
- ## if NODE is set use that otherwise determine from uname  
+local-env(){
 
-export LOCAL_ARCH=$(uname)
+   local dbg=${1:-0}
+   local msg="=== $FUNCNAME :"
+   
+   [ "$dbg" == "1" ] && echo $msg	 
+   ## if NODE is set use that otherwise determine from uname  
+   
+   export LOCAL_ARCH=$(uname)
+   if [ "X$NODE" == "X" ]; then
+       LOCAL_NODE=$(uname -a | cut -d " " -f 2 | cut -d "." -f 1)	 
+   else
+       LOCAL_NODE=$NODE
+   fi 	 
+   export LOCAL_NODE 
+   export SOURCE_NODE="g4pb"
+   export SOURCE_TAG="G"
 
-if [ "X$NODE" == "X" ]; then
-    LOCAL_NODE=$(uname -a | cut -d " " -f 2 | cut -d "." -f 1)	 
-else
-    LOCAL_NODE=$NODE
-fi 	 
-export LOCAL_NODE 
 
-export SOURCE_NODE="g4pb"
-export SOURCE_TAG="G"
+   local-nodetag    # glean where we are and define NODE_TAG and paired  BACKUP_TAG
+   local-scm        # assign coordinates of the SCM server for this node
+   local-layout     # define variables such as LOCAL_BASE, VAR_BASE, USER_BASE  
+   
+   
+   
+}
 
 
-## one letter code that represents the user and node
+local-nodetag(){
+
+
+   ## one letter code that represents the user and node
   
-SUDO=
-CLUSTER_TAG=
-BACKUP_TAG=U
-NODE_NAME=
+   SUDO=
+   CLUSTER_TAG=
+   BACKUP_TAG=U
+   NODE_NAME=
 
 ##  set SUDO to "sudo" if sudo access is needed to create folders / change ownership 
 ##  in the relevant LOCAL_BASE
@@ -142,6 +157,13 @@ export BATCH_TYPE
  export TARGET_TAG="G1"      ##      blyth@grid1    user level tasks ... job submission 
 
 
+}
+
+
+
+local-scm(){
+
+
 ########## SCM_* specify the source code repository coordinates #####################
 
  #export SCM_TAG="H"       ##      blyth@hfag      trac "production"  
@@ -206,39 +228,20 @@ export SCM_PORT
 export SCM_GROUP
 export SCM_TRAC
 
-##################################################################################
-
-
-
-
-
-base-node-info(){
-
-  tags="TAG PORT USER PASS"
-  prefixs="TARGET SCM"
-  
-  for p in $prefixs
-  do	  
-  for t in $tags
-  do
-    n="${p}_${t}"  
-	eval v=\$$n
-	printf " %-20s %s \n" $n $v 
-  done
-  done
 
 }
 
+
+
+
+
+
+local-layout(){
 
 #export DISK_G1=/data/w
 #export DISK_G1=/disk/d4
 export DISK_G1=/disk/d4
 export DAYABAY_G1=$DISK_G1/dayabay
-
-
-
-
-
 
 ## --------------  the software root for most everything ---------------------------
 ##  
@@ -343,8 +346,13 @@ export OUTPUT_BASE=${_OUTPUT_BASE:-$OUTPUT_BASE_U}
 [ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
 [ -d "$OUTPUT_BASE" ] || ( echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE )
 
+
+}
+
+
+
 	
-base-info(){
+local-nodeinfo(){
 
   tags="G P G1 L H U T"
   for t in $tags
@@ -369,4 +377,24 @@ base-info(){
 
 }
 
+	
+local-info(){
+
+  local tags="TAG PORT USER PASS"
+  local prefixs="TARGET SCM"
+  
+  for p in $prefixs
+  do	  
+  for t in $tags
+  do
+    n="${p}_${t}"  
+	eval v=\$$n
+	printf " %-20s %s \n" $n $v 
+  done
+  done
+
+}
+
+	
+	
 	

@@ -38,13 +38,13 @@ trac-conf-perms(){
     local name=${1:-$SCM_TRAC}
     local level=${2:-$SCM_SECURITY_LEVEL}
 
-	views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
-    other="TIMELINE_VIEW SEARCH_VIEW"
-	hmmm="CONFIG_VIEW"
-    wiki="WIKI_CREATE WIKI_MODIFY"
-	ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
-    milestone="MILESTONE_CREATE MILESTONE_MODIFY"
-    report="REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
+	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
+    local other="TIMELINE_VIEW SEARCH_VIEW"
+	local hmmm="CONFIG_VIEW"
+    local wiki="WIKI_CREATE WIKI_MODIFY"
+	local ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
+    local milestone="MILESTONE_CREATE MILESTONE_MODIFY"
+    local report="REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
   
     ## remove WIKI_DELETE MILESTONE_DELETE REPORT_DELETE ... leave those to admin only
     ## allow unauth to REPORT_VIEW 
@@ -65,7 +65,17 @@ trac-conf-perms(){
       ## I think RESTRICTED_AREA_ACCESS is not being use, but is the workaround above alluding to smth I have forgotten ?
       trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
       trac-conf-set-perms $name admin TRAC_ADMIN 
-      
+  
+    elif [ "$level" == "paranoid" ]; then	  
+		      
+	  trac-conf-set-perms $name anonymous     "WIKI_VIEW"
+	  ##trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
+      ## I think RESTRICTED_AREA_ACCESS is not being use, but is the workaround above alluding to smth I have forgotten ?
+      trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+      trac-conf-set-perms $name admin TRAC_ADMIN 
+	  
+			  
+			  
     else
         echo "ERROR security level $level is no implemented "
     fi            

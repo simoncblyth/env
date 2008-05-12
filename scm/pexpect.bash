@@ -1,13 +1,18 @@
 
+pexpect-env(){
+
+  local msg="=== $FUNCNAME :"
+}
+
 
 pexpect-get(){
 
    
-  nam=pexpect-2.1
-  nik=pexpect
-  tgz=$nam.tar.gz
+  local nam=pexpect-2.1
+  local nik=pexpect
+  local tgz=$nam.tar.gz
 
-  url=http://jaist.dl.sourceforge.net/sourceforge/pexpect/$tgz
+  local url=http://jaist.dl.sourceforge.net/sourceforge/pexpect/$tgz
 
   cd $LOCAL_BASE
   test -d $nik || ( $SUDO mkdir $nik && $SUDO chown $USER $nik )

@@ -104,11 +104,18 @@
 
 
 
- SCM_BASE=$ENV_BASE/scm
- export SCM_HOME=$HOME/$SCM_BASE
-[ "$SCM_DBG" == "1" ] && echo $SCM_BASE/scm.bash BACKUP_TAG $BACKUP_TAG
 
- cd $SCM_HOME
+
+
+ export SCM_HOME=$ENV_HOME/scm
+[ "$SCM_DBG" == "1" ] && echo BACKUP_TAG $BACKUP_TAG
+
+svn-(){     [ -r $ENV_HOME/scm/svn.bash ]     && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
+swig-(){    [ -r $ENV_HOME/scm/swig.bash ]    && . $ENV_HOME/scm/swig.bash && swig-env $* ; } 
+apache2-(){ [ -r $ENV_HOME/scm/apache2.bash ] && . $ENV_HOME/scm/apache2.bash && apache2-env $* ; } 
+
+
+ cd $ENV_HOME/scm
 
  [ -r scm-use.bash ]        && . scm-use.bash
  [ -r scm-backup.bash ]     && . scm-backup.bash 
@@ -125,12 +132,18 @@
  [ -r cvs.bash  ]           && . cvs.bash 
  [ -r file.bash  ]          && . file.bash
 
- [ -r apache2.bash ]        && . apache2.bash
+# [ -r apache2.bash ]        && . apache2.bash
+ apache2- 
+
  [ -r python.bash ]         && . python.bash
  [ -r sqlite.bash ]         && . sqlite.bash
 
- [ -r swig.bash ]           && . swig.bash                ## depends on python 
- [ -r svn.bash ]            && . svn.bash                 ## depends on apache2, swig, python
+# [ -r swig.bash ]           && . swig.bash                ## depends on python 
+ swig-
+
+# [ -r svn.bash ]            && . svn.bash                 ## depends on apache2, swig, python
+ svn- 
+
  [ -r svn-build.bash ]      && . svn-build.bash           ## depends on apache2, swig, python
 #[ -r svn-test.bash ]       && . svn-test.bash           ## depends on apache2, swig, python
  
@@ -148,6 +161,9 @@
 
  ## caution must exit with initial directory
  cd $scm_iwd
+ 
+ 
+ 
  
  
  

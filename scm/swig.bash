@@ -24,11 +24,11 @@
 #
 #
 
-SWIG_NAME=swig-1.3.29
-export SWIG_HOME=$LOCAL_BASE/swig/$SWIG_NAME
 
-swig-x(){ scp $SCM_HOME/swig.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }
-swig-i(){ . $SCM_HOME/swig.bash  ; }
+swig-env(){
+   local SWIG_NAME=swig-1.3.29
+   export SWIG_HOME=$LOCAL_BASE/swig/$SWIG_NAME
+}
 
 swig-get(){
  

@@ -36,10 +36,11 @@ trac2latex-place-macros(){
   
      sudo -u $APACHE2_USER cp -f wiki-macros/* $fold/wiki-macros/ 
 
-[g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv wiki-macros/*.py plugins/
-Password:
-[g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv plugins/formula.py wiki-macros/
-
+#
+# [g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv wiki-macros/*.py plugins/
+# Password:
+# [g4pb:/var/scm/tracs/workflow] blyth$ sudo -u www mv plugins/formula.py wiki-macros/
+#
 
 }
 

@@ -1,4 +1,9 @@
 
+[ "$NODE_TAG" == "H" ] && echo not needed here && return 1 
+[ "$NODE_TAG" == "U" ] &&  echo not needed here && return 1 
+
+
+dyb-env(){
 
 ## formerly dyb-env
 
@@ -47,6 +52,8 @@ export DYB_HOME=$HOME/$DYB_BASE
  ## dybt : testing
  ## dybx : xecution 
  ##
+
+}
 
 
 
@@ -98,7 +105,7 @@ dyb(){
  }
  
 
-dyb-(){   [ -r $DYB_HOME/dyb.bash ]  && . $DYB_HOME/dyb.bash ; }
+
 dybr-(){  [ -r $DYB_HOME/dybr.bash ] && . $DYB_HOME/dybr.bash ; }
 dybi-(){  [ -r $DYB_HOME/dybi.bash ] && . $DYB_HOME/dybi.bash ; }
 dybt-(){  [ -r $DYB_HOME/dybt.bash ] && . $DYB_HOME/dybt.bash ; }

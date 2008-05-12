@@ -1,21 +1,5 @@
 
 
- xml_iwd=$(pwd) 
- 
- ## caution must exit with initial dir  
- [ -t 0 ]    || return 
- [ "$TZERO_DBG" == "1" ]  && echo faked tzero  && return 
- 
- XML_BASE=$ENV_BASE/xml
- export XML_HOME=$HOME/$XML_BASE
-
- [ "$XML_DBG" == "1" ] && echo $XML_BASE/xml.bash
-
- cd $XML_HOME
- 
- [ -r exist.bash ] && . exist.bash
- [ -r modjk.bash ] && . modjk.bash
- 
- ## caution must exit with initial dir 
- cd $xml_iwd
+exist-(){   [ -r $ENV_HOME/xml/exist.bash ] && . $ENV_HOME/xml/exist.bash && exist-env $* ; }
+modjk-(){   [ -r $ENV_HOME/xml/modjk.bash ] && . $ENV_HOME/xml/modjk.bash && modjk-env $* ; }
 
