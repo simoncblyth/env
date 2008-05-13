@@ -7,8 +7,8 @@ dyb-env(){
 
 ## formerly dyb-env
 
-DYB_BASE=$ENV_BASE/dyb
-export DYB_HOME=$HOME/$DYB_BASE
+DYB_BASE=dyb
+export DYB_HOME=$ENV_HOME/$DYB_BASE
 
 ## formerly dyb-version
 
