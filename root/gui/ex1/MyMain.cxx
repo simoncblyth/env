@@ -8,6 +8,31 @@ MyMainFrame::MyMainFrame(const TGWindow *p, UInt_t w, UInt_t h)
 {
     // Create a main frame with a number of different buttons.
 
+
+   fMenuDock = new TGDockableFrame(this);
+   AddFrame(fMenuDock, new TGLayoutHints(kLHintsExpandX, 0, 0, 1, 0));
+   fMenuDock->SetWindowName("GuiTest Menu");
+
+   fMenuBarLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX);
+   fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
+   fMenuBarHelpLayout = new TGLayoutHints(kLHintsTop | kLHintsRight);
+
+   fMenuFile = new TGPopupMenu(fClient->GetRoot());
+   fMenuFile->AddEntry("&Open...", M_FILE_OPEN);
+
+
+   // Menu button messages are handled by the main frame (i.e. "this")
+   // ProcessMessage() method.
+   fMenuFile->Associate(this);
+
+    fMenuBar = new TGMenuBar(fMenuDock, 1, 1, kHorizontalFrame);
+   fMenuBar->AddPopup("&File", fMenuFile, fMenuBarItemLayout);
+   
+    fMenuDock->AddFrame(fMenuBar, fMenuBarLayout);
+
+
+
+
     fButton1 = new TGTextButton(this, "&Version", 1);
     fButton1->SetCommand("printf(\"This is ROOT version %s\\n\","
                           "gROOT->GetVersion());");

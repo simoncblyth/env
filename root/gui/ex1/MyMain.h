@@ -3,8 +3,30 @@
 
 #include <TGClient.h>
 #include <TGButton.h>
+
+#include <TGMenu.h>
+#include <TGFrame.h>
+#include <TGDockableFrame.h>
+#include <TGCanvas.h>
+
+
+#include <TCanvas.h>
+
+enum ETestCommandIdentifiers {
+   M_FILE_OPEN
+   };
+
+
 class MyMainFrame : public TGMainFrame {
 private:
+
+   TGDockableFrame    *fMenuDock;
+   TGCanvas           *fCanvasWindow;
+   TGMenuBar          *fMenuBar;
+   TGPopupMenu        *fMenuFile;
+   TGLayoutHints      *fMenuBarLayout, *fMenuBarItemLayout, *fMenuBarHelpLayout;
+
+
     TGTextButton    *fButton1, *fButton2;
     TGPictureButton *fPicBut;
     TGCheckButton   *fChkBut;
