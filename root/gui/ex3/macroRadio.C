@@ -116,6 +116,9 @@ class SubFrame {
 enum EMenuCommands {
    M_FILE,
    M_FILE_NEW,
+   M_FILE_QUIT,
+   M_MAC_1,
+   M_MAC_2,
 };
 
 //debug: print function names
@@ -139,13 +142,21 @@ MyFrame::MyFrame(const TGWindow *window, UInt_t w, UInt_t h)
 // Create menus
    CreateMenuBar();
 
+
+
+
+
 // Basic frame layout
    fLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY);
-   fHF1 = new TGHorizontalFrame(fMain, 20, 20);
-   fMain->AddFrame(fHF1, fLayout);
+//   fHF1 = new TGHorizontalFrame(fMain, 20, 20);
+//   fMain->AddFrame(fHF1, fLayout);
 
 // Create subframe
-   CreateSubFrame(fHF1);
+//   CreateSubFrame(fHF1);
+
+// Create canvas widget, for containing Event Displat result
+   fEcanvas = new TRootEmbeddedCanvas("Ecanvas",fMain,200,200);
+   fMain->AddFrame(fEcanvas, fLayout);
 
 // Main settings
    fMain->SetWindowName("RadioGui");
@@ -168,6 +179,8 @@ MyFrame::~MyFrame()
 
    delete fLayout;
 
+   delete fEcanvas;
+
    fTrash->Delete();
    delete fTrash;
 }//Destructor
@@ -180,7 +193,10 @@ void MyFrame::CreateMenuBar()
 // File menu
    fMenuFile = new TGPopupMenu(gClient->GetRoot());
    fMenuFile->AddEntry("&New...",  M_FILE_NEW);
-
+   fMenuFile->AddEntry("&Quit...",  M_FILE_QUIT);
+   fMenuMac = new TGPopupMenu(gClient->GetRoot());
+   fMenuMac->AddEntry("&Test...", M_MAC_1);
+   fMenuMac->AddEntry("&SecTest...", M_MAC_2);
 // Create menubar layout hints
    fMenuBarLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1);
    fMenuBarItemLayout = new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0);
@@ -189,6 +205,7 @@ void MyFrame::CreateMenuBar()
 // Add menus to MenuBar
    fMenuBar = new TGMenuBar(fMain, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File",        fMenuFile, fMenuBarItemLayout);
+   fMenuBar->AddPopup("&Macro",fMenuMac, fMenuBarItemLayout);
 
    fMain->AddFrame(fMenuBar, fMenuBarLayout);
 
@@ -197,7 +214,40 @@ void MyFrame::CreateMenuBar()
    fLineLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX);
    fMain->AddFrame(fLineH1, fLineLayout);
    fLineH1->DrawBorder();
+
+// Handle the messages
+   fMenuFile->Connect("Activated(Int_t)", "MyFrame", this,"HandleMenu(Int_t)");
+   fMenuMac->Connect("Activated(Int_t)", "MyFrame", this,"HandleMenu(Int_t)");
+
 }//CreateMenuBar
+
+//------------------------------------------------------------------------------
+void MyFrame::HandleMenu(Int_t id)
+{
+   // Handle the menu items
+   switch (id) {
+
+
+         case M_FILE_QUIT:
+            CloseWindow();   // terminate theApp no need to use SendCloseMessage()
+            break;
+
+	 case M_MAC_1:
+	    cout << " Testing macro #1" << endl;
+	    break;
+
+         default:
+            printf("Menu item %d selected\n", id);
+            break;
+   }
+}
+
+//------------------------------------------------------------------------------
+void MyFrame::CloseWindow()
+{
+   // Got close message for this MainFrame. Terminates the application.
+   gApplication->Terminate();
+}
 
 //______________________________________________________________________________
 void MyFrame::DeleteMenuBar()
@@ -207,6 +257,7 @@ void MyFrame::DeleteMenuBar()
    delete fLineH1; 
    delete fMenuBar;
    delete fMenuFile; 
+   delete fMenuMac;
 
    delete fMenuBarLayout;
    delete fMenuBarItemLayout;
@@ -410,9 +461,14 @@ void SubFrame::DoClickRadio(Int_t id)
    }//switch
 }//DoClickRadio
 
+//------------------------------------------------------------------------------
+
+
+
 //______________________________________________________________________________
 void macroRadio()
 {
+
    new MyFrame(gClient->GetRoot(), 400, 220);
 }
 
