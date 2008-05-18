@@ -58,7 +58,7 @@ ini-edit(){
    local path=$1
    shift
  
-   sudo perl $HOME/$ENV_BASE/base/ini-edit.pl $path $*  
+   sudo perl $ENV_HOME/base/ini-edit.pl $path $*  
 #
 #  
 #   on hfag machine ... skipping the perl causes error... 

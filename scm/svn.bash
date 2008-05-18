@@ -1,53 +1,66 @@
-#
-#      svn-x
-#      svn-i
-#      svn-s
 
-#  ...  apache2 connection ....
-#
-#      svn-apache2-settings                      add the LoadModule lines to httpd.conf .. for mod_dav_svn mod_authz_svn and mod_python 
-#
-#      svn-apache2-conf                          write the location into SVN_APACHE2_CONF and plant the Include to it in httpd.conf
-#        svn-apache2-location                    location "element" for httpd.conf to stdout
-#        svn-apache2-authzaccess
-#
-#      svn-apache2-add-user name                 add a user to the htpasswd file , or change an existing users password
-#      svn-apache2-open
-#
-#    svn-apache2-location-simpleauth-deprecated
-#
-#    ---------------
-#
-#     "svn status -u" from the working copy path of interest     
-#           should show a single line :  "Status against revision:      8"
-# 
-#     test that the working copy is a clean revision with smth like:
-#
-#
-# 
-#
-#    oops preferred version for trac is 1.2.3   ????  http://trac.edgewall.org/wiki/TracSubversion
-#
-
-
+svn-env(){
 #
 # runtime settings including defining and adding SVN_HOME to the PATH are in scm_use.bash
 #
+   export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
+   export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+}
 
 
-svn-env(){
+svn-usage(){
+  cat << EOU
+  
+svn-apache2-conf    
+                         pull together the below funcs with coordinated paths
 
 
-export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
-export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+ASUDO= svn-apache2-conf-   
+                          generate the conf fragments into /tmp to verify before doing above
+
+
+
+svn-apache2-settings                            
+                          top level svn thru apache requirements 
+						  add the LoadModule lines to httpd.conf .. for mod_dav_svn mod_authz_svn and mod_python 
+
+svn-apache2-repos-location-write <path> <param>     
+                          write the repos location by invoking the below
+
+svn-apache2-repos-location  <anon-or-real|authenticated-only>    
+					      emit the block  
+
+svn-apache2-xslt-write <path>                  
+                          get and place the xsl needed by raw svn viewing
+
+
+svn-apache2-tracs-location-write <path>        
+                          write the tracs location by invoking the below 
+
+svn-apache2-tracs-location <httplogin|formlogin>               
+
+svn-apache2-authzaccess-write  <path> <mode>   
+
+svn-apache2-authzaccess
+                          emit the fine grained permissions file with users and groups defintions
+
+ 
+svn-apache2-authzaccess-update        
+                           needs running after updating users function  
+   
+
+
+# svn-apache2-add-user name                
+#                        add a user to the htpasswd file , or change an existing users password
+
+	
+	  
+EOU
 
 }
 
 
 
-svn-x(){ scp $SCM_HOME/svn.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
-
-svn-i(){ . $SCM_HOME/svn.bash ; }
 
 svn-info(){
   cat << EOI
@@ -76,56 +89,60 @@ EOS
   echo $SUDO vi $APACHE2_CONF 
 }
 
-
-
-
-
-
-
 svn-apache2-info(){
 
     local msg="=== $FUNCNAME :"
     echo $msg APACHE2_BASE $APACHE2_BASE
 	echo $msg APACHE2_LOCAL $APACHE2_LOCAL
 	echo $msg APACHE2_BASE/SVN_APACHE2_AUTHZACCESS $APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS
+}
 
+
+
+svn-apache2-conf-(){
+
+	local msg="=== $FUNCNAME:"
+    local access=${1:-formlogin}
+	local base=${2:-/tmp/$FUNCNAME}
+	
+	shift 
+	shift
+	
+	case $access in
+	  formlogin)  echo $msg $access $base ;; 
+	  httplogin)  echo $msg $access $base ;;
+	          *)  echo $msg access $access not supported && return 1 ;;
+	esac
+	
+	## raw SVN setup
+	
+	$ASUDO mkdir -p $base/$APACHE2_LOCAL
+	
+	svn-apache2-repos-location-write $base/$SVN_APACHE2_CONF $*
+	svn-apache2-authzaccess-write    $base/$SVN_APACHE2_AUTHZACCESS dev
+	
+	## tracs 
+    svn-apache2-tracs-location-write $base/$TRAC_APACHE2_CONF  $access 
 
 
 }
 
 
 
-
-
 svn-apache2-conf(){
 
-  ## raw SVN setup  
-
   local access=${1:-formlogin}
-  if ([ "$access" == "formlogin" ] || [ "$access" == "httplogin" ]) then
-     echo ======= svn-apache2-conf access $access ======= 
-  else
-    echo error access $access not handled
-    return 1 
-  fi
   
-  $SUDO mkdir -p $APACHE2_BASE/$APACHE2_LOCAL
+  svn-apache2-conf- $access $APACHE2_BASE 
 
-  svn-apache2-repos-location-write $APACHE2_BASE/$SVN_APACHE2_CONF $*
-  apache2-conf-connect $SVN_APACHE2_CONF
-
-  svn-apache2-authzaccess-write $APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS dev
-
+ ## the files are already Included curtesy of heprez-/apache-/apache-conf-heprez
+ ## apache2-conf-connect $SVN_APACHE2_CONF
+ ## apache2-conf-connect $TRAC_APACHE2_CONF
+ 
   svn-apache2-xslt-write $APACHE2_XSLT
   
-
-  ## tracs 
-
-  
-  svn-apache2-tracs-location-write $APACHE2_BASE/$TRAC_APACHE2_CONF  $access 
-  apache2-conf-connect $TRAC_APACHE2_CONF
-
   mkdir -p $TRAC_EGG_CACHE
+  $ASUDO chown $APACHE2_USER $eggcache 
 
   ## restart  
 
@@ -135,12 +152,9 @@ svn-apache2-conf(){
      [ "$APACHE2_HOME/sbin" == $(dirname $(which apachectl)) ] || (  echo your PATH to apache2 executables is not setup correctly  && return ) 
   fi
 
-  apache2-setport 6060   ##  $SCM_PORT  this is 80 (for client usage) but not appropiate at this level 
-
-  apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
-
+  ##apache2-setport 6060   ##  $SCM_PORT  this is 80 (for client usage) but not appropiate at this level 
+  ##apachectl configtest && echo restarting apache2 && $ASUDO apachectl restart || echo apachectl configtest failed
   #curl -o $APACHE2_HTDOCS/favicon.ico http://grid1.phys.ntu.edu.tw:6060/tracs/red/
-
 }
 
 
@@ -155,12 +169,6 @@ svn-apache2-repos-location-write(){
   cat $conf 
 
 }
-
-
-
-
-
-
 
 svn-apache2-tracs-location-write(){
 
@@ -245,6 +253,7 @@ svn-apache2-xslt-write(){
 
 svn-apache2-tracs-location(){
 
+  local msg="# === $FUNCNAME : " 
   local access=${1:-formlogin}
   if [ "$access" == "httplogin" ]; then
      c="" 
@@ -256,17 +265,15 @@ svn-apache2-tracs-location(){
 
  if [ "$NODE_APPROACH" == "stock" ]; then
     local confprefix="/private/"
-	c=""   ## uncomment for stock
+	#c=""   ## uncomment for stock
   else
     local confprefix=""
   fi 
 
+  echo $msg access:[$access] c:[$c] NODE_APPROACH:[$NODE_APPROACH]
 
 
-
-  local eggcache=$TRAC_EGG_CACHE
-  $ASUDO chown $APACHE2_USER $eggcache 
-
+ 
 cat << EOC
 
 <Location /mpinfo>
@@ -297,14 +304,14 @@ cat << EOC
    PythonDebug On
    
    ## observe stylesheets inaccessible with msg about the 
-   SetEnv PYTHON_EGG_CACHE $eggcache
+   SetEnv PYTHON_EGG_CACHE $TRAC_EGG_CACHE
    
    ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
    #  
    #	 
-   SVNParentPath $SVN_PARENT_PATH
-   AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
+   ## SVNParentPath $SVN_PARENT_PATH
+   ## AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
    
 </Location>
 
@@ -416,10 +423,8 @@ svn-co-test(){
 
 svn-apache2-authzaccess(){
 
-  local finelevel=${1:-dev}
- 
-  # name of the environment repository 
-  local envbase=$ENV_BASE  
+  local tw="thho, bhzu, wei, adiar, chwang"
+  local hk="jimmy, antony, soap"
 
 cat << EOA
 #
@@ -429,19 +434,107 @@ cat << EOA
 #  securitylevel $securitylevel
 #   
 [groups]
-sync = ntusync
-member = simon, dayabay 
-user = blyth, thho, chwang
-admin = dayabaysoft, admin
-heprezmember = simon, cjl, tosi, cecilia
-heprezuser = blyth
-aberdeen = blyth, thho, jimmy, antony, soap, bzhu, wei, adair, chwang
 
+sync = ntusync
+dyuser = blyth, $tw, $hk, dayabay
+
+evuser = simon, dayabay
+evdev = blyth, $tw, $hk 
+evadmin = blyth, dayabaysoft, admin 
+
+abuser = simon, dayabay
+abdev = blyth, $tw, $hk
+abadmin = blyth
+
+hzuser = simon, cjl, tosi, cecilia
+hzdev = blyth
+hzadmin = blyth
+
+tduser = simon
+tddev = blyth
+tdadmin = blyth
+
+wfuser = simon
+wfdev = blyth
+wfadmin = blyth
+
+
+# force authenticated 
+[dybsvn:/]
+@sync = rw
+@dyuser = r 
+
+[env:/]
+* = r
+@evuser = r
+@evdev = rw 
+@evadmin = rw
+
+[aberdeen:/]
+@abuser = r
+@abdev = rw 
+@abadmin = rw
+
+[heprez:/]
+* = r
+@hzuser = rw
+@hzdev = rw 
+@hzadmin = rw
+
+[tracdev:/]
+* = r
+@tduser = r
+@tddev = rw 
+@tdadmin = rw
+
+[workflow:/]
+@wfuser = r
+@wfdev = rw 
+@wfadmin = rw
+
+[ApplicationSupport:/]
+@wfuser = r
+@wfdev = rw 
+@wfadmin = rw
+ 
 EOA
 
-if [ "$finelevel" == "example" ]; then
+
+}
+
+
+
+svn-apache2-authzaccess-example(){
+
+
+
 
 cat << EOC
+
+
+# empty fine grained permissions gives no access to anyone !!!
+# 
+# read access to everyone and write access for admin and user groups
+# for repos : $envbase newtest  
+#
+# no access to everyone and readwrite acees for admin and 
+#
+
+#[/]
+#@admin = rw
+
+
+# Nb this is declaring anyone can read the content of this repository ...
+# so must allow anonymous to get thru at the upper level ...
+[newtest:/]
+* = r
+@member = r
+@user = rw 
+@admin = rw
+
+
+
+
 #  read access for everyone
 [/]
 * = r
@@ -459,101 +552,9 @@ cat << EOC
 
 EOC
 
-elif [ "$finelevel" == "dev" ]; then
-
-cat << EOC
-# empty fine grained permissions gives no access to anyone !!!
-# 
-# read access to everyone and write access for admin and user groups
-# for repos : $envbase newtest  
-#
-# no access to everyone and readwrite acees for admin and 
-#
-
-#[/]
-#@admin = rw
-
-[env:/]
-* = r
-@member = r
-@user = rw 
-@admin = rw
-@aberdeen = rw
-
-[workflow:/]
-* = r
-@member = r
-@user = rw 
-@admin = rw
-
-[ApplicationSupport:/]
-* = r
-@member = r
-@user = rw 
-@admin = rw
-
-[heprez:/]
-* = r
-@heprezmember = rw
-@heprezuser = rw 
-@admin = rw
-
-[tracdev:/]
-* = r
-blyth = rw
-@user = r 
-@admin = rw
-
-
-# Nb this is declaring anyone can read the content of this repository ...
-# so must allow anonymous to get thru at the upper level ...
-[newtest:/]
-* = r
-@member = r
-@user = rw 
-@admin = rw
-
-
-# force authenticated 
-
-
-[dyw:/]
-@member = r
-blyth = rw
-@user = rw 
-@admin = rw
-
-[dybsvn:/]
-@sync = rw
-@member = r 
-@user = r 
-@admin = r
-
-[aberdeen:/]
-@member = r
-@aberdeen = rw 
-@admin = rw
-
-
- 
-EOC
-
-else
-
-cat << EOC
-# WARNING securitylevel not handled
-EOC
-
-fi
-
-
 
 
 }
-
-
-
-
 
 
 

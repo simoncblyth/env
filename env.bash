@@ -7,6 +7,7 @@ local-(){    [ -r $ENV_HOME/base/local.bash ]       && . $ENV_HOME/base/local.ba
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
 dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
 scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
+svn-(){      [ -r $ENV_HOME/scm/svn.bash ]          && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 
 python-(){   [ -r $ENV_HOME/python/python.bash ]    && . $ENV_HOME/python/python.bash ; }
 ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
@@ -18,6 +19,8 @@ db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; 
 aberdeen-(){ [ -r $ENV_HOME/aberdeen/aberdeen.bash ] && . $ENV_HOME/aberdeen/aberdeen.bash ; }
 xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
 
+
+authzpolicy-(){   . $ENV_HOME/scm/trac/authzpolicy.bash && authzpolicy-env $* ; }
 
 
   

@@ -324,8 +324,8 @@ export USER_BASE=${_USER_BASE:-$USER_BASE_U}
 
 if [ "X$DEFAULT_MACRO" == "X" ]; then
   DEFAULT_MACRO="generator-inversebeta_seed-0_angle-0_nevts-100"
-else
-  echo honouring override DEFAULT_MACRO $DEFAULT_MACRO
+#else
+#  echo honouring override DEFAULT_MACRO $DEFAULT_MACRO
 fi
 export DEFAULT_MACRO
 
