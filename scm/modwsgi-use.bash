@@ -1,5 +1,14 @@
 
 
+modwsgi-use-env(){
+
+   elocal-
+   trac-
+   python-
+
+}
+
+
 modwsgi-use-app(){
    
    name=${1:-dummy}

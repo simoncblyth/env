@@ -16,6 +16,12 @@
 
 
 
+trac-use-env(){
+
+   elocal-
+}
+
+
 
 trac-use-usage(){
 cat << EOU

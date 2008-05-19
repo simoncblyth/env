@@ -104,20 +104,39 @@
 svn-(){       [ -r $ENV_HOME/scm/svn.bash ]     && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 swig-(){      [ -r $ENV_HOME/scm/swig.bash ]    && . $ENV_HOME/scm/swig.bash && swig-env $* ; } 
 apache2-(){   [ -r $ENV_HOME/scm/apache2.bash ] && . $ENV_HOME/scm/apache2.bash && apache2-env $* ; } 
-modwsgi-(){   [ -r $ENV_HOME/scm/modwsgi.bash ] && . $ENV_HOME/scm/modwsgi.bash && modwsgi-env $* ; } 
 modpython-(){ [ -r $ENV_HOME/scm/modpython.bash ] && . $ENV_HOME/scm/modpython.bash && modpython-env $* ; } 
 pymysql-(){   [ -r $ENV_HOME/scm/pymysql.bash ]  && . $ENV_HOME/scm/pymysql.bash && pymysql-env $* ; }
 
+
 cvs-(){       [ -r $ENV_HOME/scm/cvs.bash ]     && . $ENV_HOME/scm/cvs.bash ; } 
 pexpect(){    [ -r $ENV_HOME/scm/pexpect.bash ] && . $ENV_HOME/scm/pexpect.bash ; } 
-svn-sync(){   [ -r $ENV_HOME/scm/svn-sync.bash ] && . $ENV_HOME/scm/svn-sync.bash ; } 
 
+svn-sync-(){     . $ENV_HOME/scm/svn-sync.bash && svn-sync-env $* ; } 
+svn-tools-(){    . $ENV_HOME/scm/svn-tools.bash && svn-tools-env $* ; }
+svn-build-(){    . $ENV_HOME/scm/svn-build.bash && svn-build-env $* ; } 
+pysqlite-(){     . $ENV_HOME/scm/pysqlite.bash  && pysqlite-env  $* ; }
+
+scm-use-(){      . $ENV_HOME/scm/scm-use.bash && scm-use-env $* ; } 
+scm-backup-(){   . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
+trac-use-(){     . $ENV_HOME/scm/trac/trac-use.bash && trac-use-env $* ; } 
+
+modwsgi-use-(){  . $ENV_HOME/scm/modwsgi-use.bash && modwsgi-use-env $* ; } 
+modwsgi-(){      . $ENV_HOME/scm/modwsgi.bash && modwsgi-env $* ; } 
 
 
 scm-env(){
 
+   elocal-
+   scm-use-
+
+ 
+}
+
+
+scm-kitchensink(){
+  
   local iwd=$(pwd)
-  export SCM_HOME=$ENV_HOME/scm
+
   [ "$SCM_DBG" == "1" ] && echo BACKUP_TAG $BACKUP_TAG
 
   cd $SCM_HOME
@@ -135,54 +154,28 @@ scm-env(){
   cd $SCM_HOME
 
   apache2- 
-
-  [ -r python.bash ]         && . python.bash
-  [ -r sqlite.bash ]         && . sqlite.bash
-
-  swig-      ## depends on python                
-  svn-       ## depends on apache2, swig, python
-
- [ -r svn-build.bash ]      && . svn-build.bash           ## depends on apache2, swig, python
-#[ -r svn-test.bash ]       && . svn-test.bash            ## depends on apache2, swig, python
- 
- [ -r pysqlite.bash ]       && . pysqlite.bash            ## depends on python, sqlite
-
  
  [ -r trac/trac.bash ]      && . trac/trac.bash     
-#[ -r svn-learn.bash ]      && . svn-learn.bash
-#[ -r modpython-test.bash ] && . modpython-test.bash  
 
- ## caution must exit with initial directory
+
  cd $iwd
- 
-}
- 
- 
- 
- svn-tools(){  [ -r $SCM_HOME/svn-tools.bash ] && . $SCM_HOME/svn-tools.bash ; }
- 
- 
 
-scm-vi(){
-  iwd=$(pwd)	
-  cd $HOME/$SCM_BASE 
-  vi *
-  cd $iwd
 }
 
 
-scm-x-pkg(){ 
-   cd $HOME 	
-   tar zcvf scm.tar.gz $SCM_BASE/*
-   scp scm.tar.gz ${1:-$TARGET_TAG}:; 
-   ssh ${1:-$TARGET_TAG} "tar zxvf scm.tar.gz" 
+scm-base(){
+
+    export SCM_HOME=$ENV_HOME/scm
+
 }
 
+
+ 
+ 
 
 scm-ls(){
      ls  -l $SCM_FOLD/{tracs,repos}
 }
-
 
 
 scm-cmd-x(){
@@ -199,38 +192,12 @@ scm-cmd(){
 
 
 
-scm-vi(){
-  iwd=$(pwd)	
-  cd $HOME/$SCM_BASE 
-  vi *.bash
-  cd $iwd
-}
 
-
-scm-checkout(){
-
-  local name=${1:-dummy}
-  local branch=${2:-trunk}
-  
-  uurl=$SCM_URL/repos/${name}/${branch}/	 
-
-  [ -d ".svn" ] && echo error this should be used for initial checkouts only && return 1 
-
-  ## count the number of items in the pwd
-  declare -a dirs
-  dirs=($(ls -1))
-  [ ${#dirs[@]} -gt 0 ] && echo must checkout into an empty directory && return 1
-
-
-  echo ======== checkout $uurl into empty directory $(pwd)
-  svn checkout $uurl .
-
-}
 
 
 scm-add-user(){
 
-  name=${1:-$USER}
+  local name=${1:-$USER}
   [ "X$SCM_TAG" == "X" ] && ( echo ERROR ...  SCM_TAG must be defined in env/base/local.bash &&  return 1 )
 
   if [ "$NODE_TAG" == "$SCM_TAG" ]; then
@@ -255,8 +222,8 @@ scm-remove(){
    #     the pwd
    #
 
-  X=$SCM_TAG
-  name=${1:-$(basename $(pwd))}
+  local X=$SCM_TAG
+  local name=${1:-$(basename $(pwd))}
    
   echo ========== scm-remove on node $X name $name 
 

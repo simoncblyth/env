@@ -21,15 +21,19 @@
 sqlite-env(){
 
    elocal-
-
-   local SQLITE_NAME=sqlite-3.3.16
-   export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
-   #export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
+   sqlite-base
    
    if [ "$NODE_TAG" != "G" ]; then
       sqlite-path
    fi
+}
 
+
+sqlite-base(){
+
+   local SQLITE_NAME=sqlite-3.3.16
+   export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
+   #export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
 }
 
 

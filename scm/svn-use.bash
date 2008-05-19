@@ -1,5 +1,11 @@
 
-export SVN_EDITOR="vi"
+
+svn-use-env(){
+
+  elocal- 
+  export SVN_EDITOR="vi"
+
+}
 
 
 svn-v(){

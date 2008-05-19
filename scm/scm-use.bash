@@ -15,7 +15,10 @@ scm-use-env(){
    elocal-
    svn-
    apache2-
+   python-
    sqlite-
+   
+   trac-use-
 
 }
 
@@ -28,9 +31,9 @@ scm-use-env(){
 
 scm-use-tracurl(){
 	
-   name=${1:-dummy}
-    rev=${1:-0}	
-    turl="$SCM_URL/tracs/$name/browser/trunk"
+    local name=${1:-dummy}
+    local rev=${1:-0}	
+    local turl="$SCM_URL/tracs/$name/browser/trunk"
 
     [ "$rev" == "0" ] && echo $turl || echo "$turl?rev=$rev"
 
@@ -65,7 +68,8 @@ scm-use-create-local(){
    #     ... better to compartmentalize more 
    #
 
-   name=${1:-dummy}     ## name of the repository and tracitory to create
+   local name=${1:-dummy}     ## name of the repository and tracitory to create
+   local 
    path=${2:-EMPTY}      ## directory path to import, if a valid directory path
                         ## or INIT to just initialize with branches, trunk, tags
    
@@ -161,7 +165,8 @@ scm-use-create-local(){
  
       wsgi=$SCM_FOLD/tracs/$name/apache/$name.wsgi 
       echo writing wsgi $wsgi python app 
-       modwsgi-use-app $name   >  $wsgi
+      
+	  modwsgi-use-app $name   >  $wsgi
    fi
 
 

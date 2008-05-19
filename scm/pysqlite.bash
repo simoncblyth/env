@@ -5,11 +5,21 @@
 #
 #
 
+pysqlite-env(){
 
-export PYSQLITE_NAME=pysqlite-2.3.3
+    elocal-
+	python-
+    sqlite-
+	
+	pysqlite-base
+}
 
-pysqlite-x(){ scp $SCM_HOME/pysqlite.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }
-pysqlite-i(){ . $SCM_HOME/pysqlite.bash ; }
+
+pysqlite-base(){
+
+   export PYSQLITE_NAME=pysqlite-2.3.3
+}
+
 
 pysqlite-get(){
   

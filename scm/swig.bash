@@ -26,9 +26,20 @@
 
 
 swig-env(){
+
+   elocal-
+   python-
+
+   swig-base
+}
+
+
+swig-base(){
    local SWIG_NAME=swig-1.3.29
    export SWIG_HOME=$LOCAL_BASE/swig/$SWIG_NAME
 }
+
+
 
 swig-get(){
  

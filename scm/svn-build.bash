@@ -23,34 +23,53 @@
 #
 #
 
-SVN_NAME2=subversion-deps-1.4.0
-SVN_URLBASE=http://subversion.tigris.org/downloads
-export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
+svn-build-env(){
 
+   elocal-
+   
+   svn-
+   apache2-
+   swig- 
+   python-
+   
 
-svn-all(){
-
-  svn-wipe
-  svn-get
-  svn-deps-get
-  svn-configure
-  
-
-  svn-make
-  svn-install
-  svn-check
-
-  ## svn-kludge-py-bindings         needed on hfag+grid1 
-  svn-install-py-bindings
-
-  ## svn-copy-py-bindings-to-site-packages      replaced by svn-pth-connect
-  svn-pth-connect  
-  
-  svn-test-py-bindings
+   svn-build-base
 
 }
 
-svn-wipe(){
+
+svn-build-base(){
+
+   local SVN_NAME2=subversion-deps-1.4.0
+   local SVN_URLBASE=http://subversion.tigris.org/downloads
+   export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
+
+}
+
+
+svn-build-all(){
+
+  svn-build-wipe
+  svn-build-get
+  svn-build-deps-get
+  svn-build-configure
+  
+
+  svn-build-make
+  svn-build-install
+  svn-build-check
+
+  ## svn-build-kludge-py-bindings         needed on hfag+grid1 
+  svn-build-install-py-bindings
+
+  ## svn-build-copy-py-bindings-to-site-packages      replaced by svn-pth-connect
+  svn-build-pth-connect  
+  
+  svn-build-test-py-bindings
+
+}
+
+svn-build-wipe(){
 
   n=$SVN_NAME
   nik=$SVN_ABBREV
@@ -60,7 +79,7 @@ svn-wipe(){
 }
 
 
-svn-get(){
+svn-build-get(){
 
   n=$SVN_NAME
   tgz=$n.tar.gz
@@ -78,7 +97,7 @@ svn-get(){
 }
 
 
-svn-deps-get(){
+svn-build-deps-get(){
 
   n=$SVN_NAME2
   tgz=$n.tar.gz
@@ -100,7 +119,7 @@ svn-deps-get(){
 
 
 
-svn-configure(){
+svn-build-configure(){
 
   cd $SVN_BUILD
 
@@ -135,7 +154,7 @@ svn-configure(){
 
 }
 
-svn-kludge-py-bindings(){
+svn-build-kludge-py-bindings(){
 
   ## needed on hfag+grid1 ? seems not on OSX
 
@@ -185,13 +204,13 @@ svn-kludge-py-bindings(){
 # more faire to call it a subversion bug.
 #
 
-svn-make(){
+svn-build-make(){
   cd $SVN_BUILD
   make
 }
 
 
-svn-install(){
+svn-build-install(){
 
   cd $SVN_BUILD
   $SUDO make install
@@ -210,7 +229,7 @@ svn-install(){
 
 
 
-svn-check(){
+svn-build-check(){
 
   cd $SVN_BUILD
   make check
@@ -257,7 +276,7 @@ svn-check(){
 #  meet the requirements for locking etc..
 #
 
-svn-swig-readme(){
+svn-build-swig-readme(){
   cd $SVN_BUILD/subversion/bindings/swig
   cat INSTALL 
 }
@@ -269,7 +288,7 @@ svn-swig-readme(){
 
 
 
-svn-install-py-bindings(){
+svn-build-install-py-bindings(){
 #
 #    If Subversion was already installed without the SWIG bindings, on Unix you'll need to re-configure Subversion 
 #    and make swig-py, make install-swig-py
@@ -281,14 +300,14 @@ svn-install-py-bindings(){
 }
 
 
-svn-pth-connect(){
+svn-build-pth-connect(){
 	
  echo $SVN_HOME/lib/svn-python > $PYTHON_SITE/subversion.pth
 
 }
 
 
-svn-copy-py-bindings-to-site-packages(){
+svn-build-copy-py-bindings-to-site-packages(){
 
   echo this is replaced by svn-pth-connect
 
@@ -300,7 +319,7 @@ svn-copy-py-bindings-to-site-packages(){
 
 
 
-svn-test-py-bindings(){
+svn-build-test-py-bindings(){
 
   which python
 
@@ -342,7 +361,7 @@ EOT
 
 }
 
-svn-ldd(){
+svn-build-ldd(){
    ldd $(which svn)
    ldd $(which python)
    ldd $APACHE2_HOME/sbin/httpd

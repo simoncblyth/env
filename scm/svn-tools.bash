@@ -1,3 +1,11 @@
+
+
+svn-tools-env(){
+
+   elocal-
+   svn-
+}
+
 svn-tools-get(){
 
    local dir=$LOCAL_BASE/svn

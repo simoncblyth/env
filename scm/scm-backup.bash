@@ -7,6 +7,11 @@
 #
 
 
+scm-backup-env(){
+   elocal-
+}
+
+
 scm-backup-du(){
     find $SCM_FOLD -name '*.gz' -exec du -h {} \;
 }

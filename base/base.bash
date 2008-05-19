@@ -27,7 +27,7 @@ base-env(){
  
    cd $ENV_HOME/base
 
-   local-
+   elocal-
    
    
    [ -r ssh-infofile.bash ]  && . ssh-infofile.bash
