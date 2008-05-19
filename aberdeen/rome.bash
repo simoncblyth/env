@@ -13,7 +13,6 @@ rome-env(){
 
 rome-make(){
 
-  rome-env
   cd $ROMESYS
   make
    
@@ -22,7 +21,6 @@ rome-make(){
 rome-get(){
    
 
-   rome-env
    
    local nik=rome
    local name=$ROME_NAME

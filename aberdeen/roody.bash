@@ -1,6 +1,7 @@
 
 roody-env(){
    
+  local- 
   export ROODY_NAME=trunk 
   export ROODY_FOLDER=$LOCAL_BASE/roody/$ROODY_NAME
 
@@ -11,7 +12,6 @@ roody-env(){
 
 roody-path(){
 
-  roody-env
    
   local rbin=$ROODY_FOLDER/bin
   test $PATH == ${PATH/$rbin/} && PATH=$PATH:$rbin
@@ -22,7 +22,7 @@ roody-path(){
 
 roody-get(){
 
-  roody-env
+
 
   local dir=$LOCAL_BASE/roody
   $SUDO mkdir -p $dir && $SUDO chown $USER $dir
@@ -41,7 +41,6 @@ roody-get(){
 
 
 roody-make(){
-  roody-env
   
   cd $ROODY_FOLDER
   make

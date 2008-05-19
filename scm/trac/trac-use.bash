@@ -50,7 +50,7 @@ trac-use-authz(){
 
 
 #  
-#alias ini-edit="sudo -u $APACHE2_USER $HOME/$ENV_BASE/base/ini-edit.pl" 
+#alias ini-edit="sudo -u $APACHE2_USER $ENV_HOME/base/ini-edit.pl" 
 
 
 ini-edit(){
@@ -82,9 +82,8 @@ ini-edit-prior(){
   
    local path=$1
    shift 
-   local pmpath=$HOME/$ENV_BASE/base/INI.pm 
-   #sudo perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $path $*
-   sudo perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $path $*
+   local pmpath=$ENV_HOME/base/INI.pm 
+   sudo perl -e 'require "$ENV{'ENV_HOME'}/base/INI.pm" ; &INI::EDIT(@ARGV) ; ' $path $*
    sudo chown $APACHE2_USER:$APACHE2_USER $path
    
    

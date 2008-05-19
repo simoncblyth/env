@@ -9,6 +9,10 @@ dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash 
 scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 svn-(){      [ -r $ENV_HOME/scm/svn.bash ]          && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 
+aberdeen-(){ . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+
+
+
 python-(){   [ -r $ENV_HOME/python/python.bash ]    && . $ENV_HOME/python/python.bash ; }
 ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
 seed-(){     [ -r $ENV_HOME/seed/seed.bash ]        && . $ENV_HOME/seed/seed.bash ; }
@@ -16,7 +20,7 @@ macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros
 dyw-(){      [ -r $ENV_HOME/dyw/dyw.bash ]          && . $ENV_HOME/dyw/dyw.bash ; }
 macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offline.bash ; }
 db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; }
-aberdeen-(){ [ -r $ENV_HOME/aberdeen/aberdeen.bash ] && . $ENV_HOME/aberdeen/aberdeen.bash ; }
+
 xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
 
 
@@ -90,7 +94,7 @@ env-u(){
   if [ "$NODE_TAG" == "$SOURCE_TAG" ]; then
      echo ============= env-u : no svn update is performed as on source node ================
   else
-     cd $HOME/$ENV_BASE 
+     cd $ENV_HOME 
      
      echo ============= env-u : status before update ================
      svn status -u
@@ -101,7 +105,7 @@ env-u(){
      
   fi
   echo ============== env-u :  sourcing the env =============
-  [ -r $HOME/$ENV_BASE/env.bash ] && . $HOME/$ENV_BASE/env.bash  
+  [ -r $ENV_HOME/env.bash ] && . $ENV_HOME/env.bash  
 }
 
 
@@ -128,7 +132,7 @@ EOD
 
 env-find(){
   q=${1:-dummy}
-  cd $HOME/$ENV_BASE
+  cd $ENV_HOME
   find . -name '*.*' -exec grep -H $q {} \;
 }
 
@@ -157,7 +161,7 @@ env-x-pkg-not-working(){
   X=${1:-$TARGET_TAG}
 
   iwd=$(pwd)
-  cd $HOME/$ENV_BASE
+  cd $ENV_HOME
   dirs=$(ls -1)
   for d in $dirs
   do

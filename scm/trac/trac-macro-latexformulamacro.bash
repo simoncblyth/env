@@ -5,9 +5,9 @@
 #
 #  install with the below three steps 
 #
-#    1) . ~/$ENV_BASE/scm/trac-macro-latexformulamacro.sh 
+#    1) . $ENV_HOME/scm/trac-macro-latexformulamacro.sh 
 #    2) trac-macro-latexformulamacro-get 
-#    3) sudo -u $APACHE2_USER $HOME/$ENV_BASE/scm/trac-macro-latexformulamacro.sh env
+#    3) sudo -u $APACHE2_USER $ENV_HOME/scm/trac-macro-latexformulamacro.sh env
 #
 #
 

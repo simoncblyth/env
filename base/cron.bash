@@ -62,7 +62,7 @@ cron-setup-backup(){
       ## local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
   
   
-      local env=$HOME/$ENV_BASE/$ENV_BASE.bash
+      local env=$ENV_HOME/env.bash
   
       ## hfag is 20min before the real time 
          
@@ -156,11 +156,11 @@ cron-test(){
    
      if [ "$user" == "root" ]; then
          
-         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-purge ; scm-backup-purge     ) > $cronlog 2>&1"
+         cmd="(. $ENV_HOME/env.bash ; env ; type scm-backup-purge ; scm-backup-purge     ) > $cronlog 2>&1"
               
      elif [ "$user" == "blyth" ]; then
          
-         cmd="(. $ENV_BASE/$ENV_BASE.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
+         cmd="(. $ENV_HOME/env.bash ; env ; type scm-backup-rsync ; scm-backup-rsync ) > $cronlog 2>&1"
       
      else
          echo user $user not handled  && return 1                    

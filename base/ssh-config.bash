@@ -23,7 +23,7 @@ fi
 
 cat << EOC > $HOME/.ssh/config
 #
-#   do not edit, this is sourced from $HOME/$ENV_BASE/base/ssh.bash
+#   do not edit, this is sourced from $ENV_HOME/base/ssh.bash
 #
 #
 # /home/aberdeen/Datafiles

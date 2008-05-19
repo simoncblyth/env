@@ -1,5 +1,7 @@
 midas-env(){
    
+  local- 
+   
   export MIDAS_NAME=midas-2.0.0 
   export MIDAS_FOLDER=$LOCAL_BASE/midas/$MIDAS_NAME
 
@@ -33,7 +35,6 @@ midas-env(){
 
 midas-path(){
 
-  midas-env
 
   # only append the PATH if the path being appended is not there already 
   local mbin=$MIDAS_FOLDER/$MIDAS_UNAME/bin
@@ -45,8 +46,6 @@ midas-path(){
   echo $PATH | tr ":" "\n"
   
 }
-
-
 
 
 midas-info(){
@@ -66,8 +65,6 @@ midas-info(){
 
 midas-get(){
 
-  midas-env
-
   local dir=$LOCAL_BASE/midas
   $SUDO mkdir -p $dir && $SUDO chown $USER $dir
   local tgz=$MIDAS_NAME.tar.gz
@@ -82,7 +79,7 @@ midas-get(){
 
 
 midas-make(){
-  midas-env
+  
   
   cd $MIDAS_FOLDER
   make
@@ -116,7 +113,7 @@ midas-make(){
 
 midas-expt-make(){
 
-  midas-env
+ 
   cd $MIDAS_FOLDER/examples/experiment
   
   make 
@@ -165,7 +162,6 @@ midas-expt-make(){
 midas-expt-run(){
 
 
-   midas-env
    cd $MIDAS_FOLDER/examples/experiment
    
    ./frontend
@@ -200,7 +196,7 @@ midas-expt-run(){
 
 midas-expt(){
 
-  midas-env
+
   cd $MIDAS_FOLDER/examples/experiment
 }
 
@@ -212,7 +208,6 @@ midas-expt(){
 
 midas-expt-config(){
   
-   midas-env
    
    cd $MIDAS_FOLDER/examples/experiment
    mkdir -p expts/test
@@ -241,7 +236,6 @@ EOC
 
 midas-install(){
 
-  midas-env
   
   cd $MIDAS_DIR
   sudo make PREFIX=$LOCAL_BASE/midas install

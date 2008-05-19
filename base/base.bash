@@ -92,7 +92,7 @@ base-check-nonzero(){
 
 
 base-path(){
-   perl -e 'require "$ENV{'HOME'}/$ENV{'ENV_BASE'}/base/PATH.pm" ; &PATH::present_var(@ARGV) ; ' $*
+   perl -e 'require "$ENV{'ENV_HOME'}/base/PATH.pm" ; &PATH::present_var(@ARGV) ; ' $*
 }
 
 
