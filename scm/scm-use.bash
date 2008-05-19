@@ -9,90 +9,15 @@
 #      
 #
 
-SVN_NAME=subversion-1.4.0
-SVN_ABBREV=svn
 
-export SVN_PARENT_PATH=$SCM_FOLD/repos
+scm-use-env(){
 
-if [ "$NODE_APPROACH" == "stock" ]; then 
-  export APACHE2_LOCAL=etc/apache2/local
-else
-  export APACHE2_LOCAL=etc/apache2
-  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
-  export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
-  export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
-  export PATH=$SVN_HOME/bin:$PATH
-fi
+   elocal-
+   svn-
+   apache2-
+   sqlite-
 
-
-## just needed by svn.bash
-SVN_APACHE2_CONF=$APACHE2_LOCAL/svn.conf
-
-## these are needed by both SVN + Trac  
-SVN_APACHE2_AUTH=$APACHE2_LOCAL/svn-apache2-auth
-SVN_APACHE2_AUTHZACCESS=$APACHE2_LOCAL/svn-apache2-authzaccess
-
-
-
-
-
-
-if [ "$NODE_APPROACH" == "stock" ]; then
-  export PYTHON_SITE=/Library/Python/2.5/site-packages
-else
-
-  PYTHON_NAME=Python-2.5.1
-  export PYTHON_HOME=$LOCAL_BASE/python/$PYTHON_NAME
-  export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
-  export PATH=$PYTHON_HOME/bin:$PATH
-  
-  ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
-  export REFERENCE_PYTHON_HOME=$PYTHON_HOME
-fi
-
-
-
-SQLITE_NAME=sqlite-3.3.16
-export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
-#export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
-if [ "$NODE_TAG" != "G" ]; then
-   export PATH=$SQLITE_HOME/bin:$PATH
-fi
-
-
-APACHE2_NAME=httpd-2.0.59
-APACHE2_ABBREV=apache2
-
-if [ "$NODE_TAG" == "G" ]; then
-   APACHE2_USER=www
-elif [ "$NODE_TAG" == "H" ]; then
-   APACHE2_USER=apache
-else
-   APACHE2_USER=apache
-fi
-
-export APACHE2_HOME=$LOCAL_BASE/$APACHE2_ABBREV/$APACHE2_NAME
-export APACHE2_HOME_H=$LOCAL_BASE_H/$APACHE2_ABBREV/$APACHE2_NAME
-
-##
-## due to use of stock Leopard apache2 need to divide :
-##     APACHE2_HOME : where apache was built
-##     APACHE2_BASE : where apache is configured from 
-##
-##  these are the same in the self-made apache case on Tiger/Linux
-##
-
-if [ "$NODE_APPROACH" == "stock" ]; then 
-  export APACHE2_BASE=/private
-  export APACHE2_LOCAL=etc/apache2/local
-  export ASUDO=$SUDO
-else
-  export APACHE2_BASE=$APACHE2_HOME
-  export APACHE2_LOCAL=etc/apache2 
-  export ASUDO=
-  export PATH=$APACHE2_HOME/sbin:$PATH
-  ##APACHE2_ENV=$APACHE2_HOME/sbin/envvars   not used ?
-fi
+}
 
 
 

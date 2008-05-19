@@ -46,6 +46,43 @@ EOU
 
 apache2-env(){
 
+   elocal-
+
+   local APACHE2_NAME=httpd-2.0.59
+   local APACHE2_ABBREV=apache2
+
+   case $NODE_TAG in 
+      G) APACHE2_USER=www ;;
+	  H) APACHE2_USER=apache ;;
+      *) APACHE2_USER=apache ;;
+	esac
+
+    export APACHE2_USER	  
+    export APACHE2_HOME=$LOCAL_BASE/$APACHE2_ABBREV/$APACHE2_NAME
+    export APACHE2_HOME_H=$LOCAL_BASE_H/$APACHE2_ABBREV/$APACHE2_NAME
+
+   ##
+   ## due to use of stock Leopard apache2 need to divide :
+   ##     APACHE2_HOME : where apache was built
+   ##     APACHE2_BASE : where apache is configured from 
+   ##
+   ##  these are the same in the self-made apache case on Tiger/Linux
+   ##
+
+
+
+
+   if [ "$NODE_APPROACH" == "stock" ]; then 
+      export APACHE2_BASE=/private
+      export APACHE2_LOCAL=etc/apache2/local
+      export ASUDO=$SUDO
+   else
+      export APACHE2_BASE=$APACHE2_HOME
+      export APACHE2_LOCAL=etc/apache2 
+      export ASUDO=
+      export PATH=$APACHE2_HOME/sbin:$PATH
+      ##APACHE2_ENV=$APACHE2_HOME/sbin/envvars   not used ?
+   fi
 
    export APACHE2_BUILD=$LOCAL_BASE/$APACHE2_ABBREV/build/$APACHE2_NAME
 

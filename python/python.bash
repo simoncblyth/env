@@ -13,6 +13,34 @@
 #
 
 
+python-env(){
+
+   elocal-
+
+   if [ "$NODE_APPROACH" == "stock" ]; then
+      export PYTHON_SITE=/Library/Python/2.5/site-packages
+   else
+
+      local PYTHON_NAME=Python-2.5.1
+      export PYTHON_HOME=$LOCAL_BASE/python/$PYTHON_NAME
+      export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
+      
+      python-path
+  
+     ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
+      export REFERENCE_PYTHON_HOME=$PYTHON_HOME
+   fi
+}
+
+
+python-path(){
+
+  [ -z $PYTHON_HOME ] && echo $msg skip as no PYTHON_HOME && return 1  
+  export PATH=$PYTHON_HOME/bin:$PATH
+
+}
+
+
 python-x(){  scp $SCM_HOME/python.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }
 python-i(){ . $SCM_HOME/python.bash ; }
 

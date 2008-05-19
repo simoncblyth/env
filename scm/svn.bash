@@ -3,9 +3,47 @@ svn-env(){
 #
 # runtime settings including defining and adding SVN_HOME to the PATH are in scm_use.bash
 #
-   export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
+
+ 
+  elocal-
+  local SVN_NAME=subversion-1.4.0
+  local SVN_ABBREV=svn
+  
+  if [ "$NODE_APPROACH" != "stock" ]; then
+	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
+	  export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
+      svn-path
+  fi	  
+
+  export SVN_PARENT_PATH=$SCM_FOLD/repos
+
+  ## just needed by svn.bash
+  SVN_APACHE2_CONF=$APACHE2_LOCAL/svn.conf
+
+  ## these are needed by both SVN + Trac  
+  SVN_APACHE2_AUTH=$APACHE2_LOCAL/svn-apache2-auth
+  SVN_APACHE2_AUTHZACCESS=$APACHE2_LOCAL/svn-apache2-authzaccess
+   
    export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+   
 }
+
+
+svn-path(){
+
+  local msg="=== $FUNCNAME :"
+  if [ -z $SVN_HOME ]; then 
+     echo $msg skipping as no SVN_HOME
+  else
+	 export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
+     export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
+     export PATH=$SVN_HOME/bin:$PATH
+  fi
+
+}
+
+
+
 
 
 svn-usage(){

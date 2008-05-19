@@ -3,17 +3,21 @@
 
 
 env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && env-env $* ; }
-local-(){    [ -r $ENV_HOME/base/local.bash ]       && . $ENV_HOME/base/local.bash && local-env $* ; } 
+ 
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
 dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
 scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
-svn-(){      [ -r $ENV_HOME/scm/svn.bash ]          && . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 
+svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
+sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
 aberdeen-(){ . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+python-(){   . $ENV_HOME/python/python.bash && python-env $* ; }
 
 
+local-(){    . $ENV_HOME/base/local.bash && local-env $* ; }
+elocal-(){   . $ENV_HOME/base/local.bash && local-env $* ; }   ## avoid name clash 
 
-python-(){   [ -r $ENV_HOME/python/python.bash ]    && . $ENV_HOME/python/python.bash ; }
+
 ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
 seed-(){     [ -r $ENV_HOME/seed/seed.bash ]        && . $ENV_HOME/seed/seed.bash ; }
 macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros.bash ; }
