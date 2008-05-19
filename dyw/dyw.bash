@@ -1,9 +1,7 @@
      
  dyw_iwd=$(pwd)          
                        
- DYW_BASE=$ENV_BASE/dyw
- export DYW_HOME=$HOME/$DYW_BASE
-
+ export DYW_HOME=$ENV_HOME/dyw
  cd $DYW_HOME
 
  [ -r geant4-env.bash ]  && . geant4-env.bash

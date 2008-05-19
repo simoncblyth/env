@@ -1,4 +1,61 @@
 
+svn-usage(){
+  cat << EOU
+  
+    CAUTION WHILE DOING THIS ... IF YOU GET THE CONFIG WRONG SUCH THAT IT MAKES YOU LOOSE PERMISSION
+	TO THE REPOSITORY THEN YOU WILL NOT BE ABLE TO COMMIT CHANGES ...SEE   svn-tmp-cp IF IN A PINCH 
+  
+  
+ASUDO=sudo svn-apache2-conf    
+                         pull together the below funcs with coordinated paths
+
+
+ASUDO= svn-apache2-conf-   
+                          generate the conf fragments into /tmp to verify before doing above, also allows them
+						  to save the day on subsequent screwup with svn-tmp-cp
+
+
+svn-apache2-settings                            
+                          top level svn thru apache requirements 
+						  add the LoadModule lines to httpd.conf ..  mod_dav_svn mod_authz_svn and mod_python 
+
+svn-apache2-repos-location-write <path> <param>     
+                          write the repos location by invoking the below
+
+svn-apache2-repos-location  <anon-or-real|authenticated-only>    
+					      emit the block  
+
+svn-apache2-xslt-write <path>                  
+                          get and place the xsl needed by raw svn viewing
+
+
+svn-apache2-tracs-location-write <path>        
+                          write the tracs location by invoking the below 
+
+svn-apache2-tracs-location <httplogin|formlogin>               
+
+svn-apache2-authzaccess-write  <path> <mode>   
+
+svn-apache2-authzaccess
+                          emit the fine grained permissions file with users and groups defintions
+
+ 
+svn-apache2-authzaccess-update        
+                           needs running after updating users function  
+   
+
+
+# svn-apache2-add-user name                
+#                        add a user to the htpasswd file , or change an existing users password
+
+	
+	  
+EOU
+
+}
+
+
+
 svn-env(){
 #
 # runtime settings including defining and adding SVN_HOME to the PATH are in scm_use.bash
@@ -54,56 +111,6 @@ svn-path(){
 
 
 
-svn-usage(){
-  cat << EOU
-  
-svn-apache2-conf    
-                         pull together the below funcs with coordinated paths
-
-
-ASUDO= svn-apache2-conf-   
-                          generate the conf fragments into /tmp to verify before doing above
-
-
-
-svn-apache2-settings                            
-                          top level svn thru apache requirements 
-						  add the LoadModule lines to httpd.conf .. for mod_dav_svn mod_authz_svn and mod_python 
-
-svn-apache2-repos-location-write <path> <param>     
-                          write the repos location by invoking the below
-
-svn-apache2-repos-location  <anon-or-real|authenticated-only>    
-					      emit the block  
-
-svn-apache2-xslt-write <path>                  
-                          get and place the xsl needed by raw svn viewing
-
-
-svn-apache2-tracs-location-write <path>        
-                          write the tracs location by invoking the below 
-
-svn-apache2-tracs-location <httplogin|formlogin>               
-
-svn-apache2-authzaccess-write  <path> <mode>   
-
-svn-apache2-authzaccess
-                          emit the fine grained permissions file with users and groups defintions
-
- 
-svn-apache2-authzaccess-update        
-                           needs running after updating users function  
-   
-
-
-# svn-apache2-add-user name                
-#                        add a user to the htpasswd file , or change an existing users password
-
-	
-	  
-EOU
-
-}
 
 
 
@@ -214,7 +221,7 @@ svn-apache2-repos-location-write(){
   shift
   
   echo =============== writing svn-apache2-location output to $conf
-  $ASUDO bash -lc "svn-apache2-repos-location $*  >  $conf"
+  $ASUDO bash -lc "env- && svn- && svn-apache2-repos-location $*  >  $conf"
   echo =============== cat $conf 
   cat $conf 
 
@@ -226,7 +233,7 @@ svn-apache2-tracs-location-write(){
   shift
   
   echo =============== writing svn-apache2-tracs-location output to $conf ... $*
-  $ASUDO bash -lc "svn-apache2-tracs-location $* >  $conf"
+  $ASUDO bash -lc "env- && svn- && svn-apache2-tracs-location $* >  $conf"
   echo =============== cat $conf 
   cat $conf 
 

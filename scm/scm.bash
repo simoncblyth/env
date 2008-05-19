@@ -111,10 +111,16 @@ pymysql-(){   [ -r $ENV_HOME/scm/pymysql.bash ]  && . $ENV_HOME/scm/pymysql.bash
 cvs-(){       [ -r $ENV_HOME/scm/cvs.bash ]     && . $ENV_HOME/scm/cvs.bash ; } 
 pexpect(){    [ -r $ENV_HOME/scm/pexpect.bash ] && . $ENV_HOME/scm/pexpect.bash ; } 
 
-svn-sync-(){     . $ENV_HOME/scm/svn-sync.bash && svn-sync-env $* ; } 
+svn-sync-(){     . $ENV_HOME/scm/svn-sync.bash  && svn-sync-env  $* ; } 
 svn-tools-(){    . $ENV_HOME/scm/svn-tools.bash && svn-tools-env $* ; }
 svn-build-(){    . $ENV_HOME/scm/svn-build.bash && svn-build-env $* ; } 
+svn-tmp-(){      . $ENV_HOME/scm/svn-tmp.bash   && svn-tmp-env   $* ; } 
+
+
 pysqlite-(){     . $ENV_HOME/scm/pysqlite.bash  && pysqlite-env  $* ; }
+
+
+
 
 scm-use-(){      . $ENV_HOME/scm/scm-use.bash && scm-use-env $* ; } 
 scm-backup-(){   . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 

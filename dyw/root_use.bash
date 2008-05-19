@@ -28,7 +28,7 @@ cat << EOC
 # do not edit $HOME/.rootrc  , see source:/trunk/dyw/root_use.bash
 # $ROOTSYS/etc/system.rootrc for details
 #
-Unix.*.Root.MacroPath: .:\$(ROOTSYS)/macros:$HOME/$ENV_BASE/root:$HOME/$ENV_BASE/$USER/root
+Unix.*.Root.MacroPath: .:\$(ROOTSYS)/macros:$ENV_HOME/root:$ENV_HOME/$USER/root
 EOC
 
 }

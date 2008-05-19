@@ -105,15 +105,15 @@ export CMTPATH=$DYW  ## inform cmt where to find the dayabay software, that was 
 
 ## ------------- macros   (currently mixed between user and admin ) 
 
-export DYM_U=$HOME/$ENV_BASE/macros 
+export DYM_U=$ENV_HOME/macros 
 export DYM_P=$LOCAL_BASE_P/dayabay/macros
 export DYM_L=$LOCAL_BASE_L/dayabay/macros     ## formerly $HOME/Work/dayabay
 
 #export DYM_G=$USER_BASE_G/dayabay/macros
-export DYM_G=$HOME/$ENV_BASE/macros
+export DYM_G=$ENV_HOME/macros
 
-export DYM_G1=$HOME/$ENV_BASE/macros    ## <<<<<< different behavior <<<<<<<<
-export DYM_N=$HOME/$ENV_BASE/macros
+export DYM_G1=$ENV_HOME/macros    ## <<<<<< different behavior <<<<<<<<
+export DYM_N=$ENV_HOME/macros
 
 vname=DYM_$NODE_TAG
 eval _DYM=\$$vname
