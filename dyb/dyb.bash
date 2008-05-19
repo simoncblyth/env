@@ -1,11 +1,6 @@
 
-[ "$NODE_TAG" == "H" ] && echo not needed here && return 1 
-[ "$NODE_TAG" == "U" ] &&  echo not needed here && return 1 
-
 
 dyb-env(){
-
-## formerly dyb-env
 
 DYB_BASE=dyb
 export DYB_HOME=$ENV_HOME/$DYB_BASE

@@ -77,7 +77,7 @@ env-env(){
   base-  
   scm-    
  
-  dyb- 
+  [ "$NODE_TAG" == "H" -o "$NODE_TAG" == "U" ] && export MSG="$msg skipped dyb- on node $NODE_TAG " || dyb- 
  
   cd $iwd
   alias eu=env-u
