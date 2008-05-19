@@ -264,7 +264,7 @@ svn-apache2-authzaccess-write(){
   
   echo =============== writing svn-apache2-authzaccess output to $authzaccess as root
   ## cannot use ASUDO="sudo -u $APACHE2_USER" directly as apache cannot access my .bash_profile
-  $ASUDO bash -lc "svn-apache2-authzaccess $* >  $authzaccess"
+  $ASUDO bash -lc "env- && svn- && svn-apache2-authzaccess $* >  $authzaccess"
   $ASUDO chown $APACHE2_USER $authzaccess
    ls -l $authzaccess
    echo =============== cat $authzaccess
