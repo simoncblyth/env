@@ -15,7 +15,9 @@ authzpolicy-get  <name>
 authzpolicy-conf <name> <path-to-policy-file>
 
 
-   see trac-conf.bash for the CoarseGrained policy setup that this hones 
+   see trac-conf.bashtrac-conf.bash for the CoarseGrained policy setup that this hones 
+  
+    and workflow:wiki:TracConfPerms for background
 
 
 EOU
