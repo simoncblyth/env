@@ -6,14 +6,9 @@ svn-env(){
 
  
   elocal-
-  local SVN_NAME=subversion-1.4.0
-  local SVN_ABBREV=svn
   
-  if [ "$NODE_APPROACH" != "stock" ]; then
-	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
-	  export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
-      svn-path
-  fi	  
+  svn-base
+  apache2-
 
   export SVN_PARENT_PATH=$SCM_FOLD/repos
 
@@ -28,6 +23,19 @@ svn-env(){
    
 }
 
+
+svn-base(){
+
+  local SVN_NAME=subversion-1.4.0
+  local SVN_ABBREV=svn
+  
+  if [ "$NODE_APPROACH" != "stock" ]; then
+	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
+	  export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
+      svn-path
+  fi	  
+
+}
 
 svn-path(){
 
@@ -169,7 +177,10 @@ svn-apache2-conf-(){
 
 svn-apache2-conf(){
 
+  local msg="=== $FUNCNAME :"
   local access=${1:-formlogin}
+  
+  [ -z $APACHE2_BASE ] && echo $msg ABORT no APACHE2_BASE && return 1
   
   svn-apache2-conf- $access $APACHE2_BASE 
 
@@ -179,7 +190,8 @@ svn-apache2-conf(){
  
   svn-apache2-xslt-write $APACHE2_XSLT
   
-  mkdir -p $TRAC_EGG_CACHE
+  local eggcache=$TRAC_EGG_CACHE
+  mkdir -p  $eggcache
   $ASUDO chown $APACHE2_USER $eggcache 
 
   ## restart  
