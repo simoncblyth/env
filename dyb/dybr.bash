@@ -67,6 +67,11 @@ EOU
 }
 
 
+dybr-env(){
+
+   elocal-
+   dyb-
+}
 
 
 #dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | perl -lne 'printf "%s\n",$_ for(split(/:/))' ; }
@@ -105,11 +110,6 @@ dybr-cmd(){
 }
 
 
-dybr-env(){
-
-   elocal-
-
-}
 
 
 

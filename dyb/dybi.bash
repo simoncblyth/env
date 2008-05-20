@@ -41,7 +41,7 @@ EOU
 dybi-env(){
 
    elocal-
-
+   dyb-
 }
 
 
