@@ -26,27 +26,21 @@
 svn-build-env(){
 
    elocal-
-   svn-build-base
-
-}
-
-
-svn-build-local-env(){
-
    svn-
    apache2-
    swig- 
    python-
 
-}
+   
+   svn-build-base
 
+}
 
 
 svn-build-base(){
 
    local SVN_NAME2=subversion-deps-1.4.0
-   local SVN_URLBASE=http://subversion.tigris.org/downloads
-   export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
+   local SVN_URLBASE=http://subversion.tigris.org/downloads 
 
 }
 

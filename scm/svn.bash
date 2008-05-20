@@ -63,12 +63,11 @@ svn-env(){
 
  
   elocal-
-  
   apache2-
   trac-
-  svn-build-
 
   svn-base 
+
 }
 
 
@@ -76,6 +75,8 @@ svn-base(){
 
   local SVN_NAME=subversion-1.4.0
   local SVN_ABBREV=svn
+  
+  export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
   
   if [ "$NODE_APPROACH" != "stock" ]; then
 	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
