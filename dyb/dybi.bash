@@ -1,5 +1,13 @@
 
 
+dybi-env(){
+
+   elocal-
+
+}
+
+
+
 dybi-get(){
    ## get the branch from the operating directory 
    mkdir -p $DYB

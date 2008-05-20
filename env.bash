@@ -6,6 +6,13 @@ env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && e
  
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
 dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
+
+
+dybi-(){      . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
+dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
+dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
+
+
 scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
 trac-(){       . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 

@@ -49,6 +49,24 @@ svn-apache2-authzaccess-update
 #                        add a user to the htpasswd file , or change an existing users password
 
 	
+	
+Typical Usage .. when setting SVN permissions of users  :
+
+env-
+svn-
+svn-usage
+
+## test the setup ... writing to /tmp
+ASUDO= svn-apache2-conf-   
+
+## if they look OK then ... 
+ASUDO=sudo svn-apache2-conf
+ls -l $APACHE__LOCAL/	
+	
+	
+NOTE THIS DOES NOT ADD THE USERS 
+... DO THAT THRU THE webadmin INTERFACE MANAGING THE  svn-apache2-auth FILE	
+	
 	  
 EOU
 

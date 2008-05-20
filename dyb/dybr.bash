@@ -36,6 +36,13 @@ dybr-cmd(){
 }
 
 
+dybr-env(){
+
+   elocal-
+
+}
+
+
 
 dybr-info(){
   

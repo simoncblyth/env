@@ -1,5 +1,13 @@
 
 
+dybt-env(){
+
+   elocal-
+
+}
+
+
+
 dybt-make(){
 
   test -d cmt && cd cmt && cmt config && . setup.sh && make || echo dybt-make FAILED from $PWD
