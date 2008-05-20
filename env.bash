@@ -5,9 +5,9 @@
 env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && env-env $* ; }
  
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
-dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
 
 
+dyb-(){       . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){      . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }

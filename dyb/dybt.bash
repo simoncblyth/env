@@ -1,5 +1,22 @@
 
 
+dybt-usage(){
+
+cat << EOU
+
+   scratch pad ...
+   
+
+
+
+EOU
+
+
+
+}
+
+
+
 dybt-env(){
 
    elocal-

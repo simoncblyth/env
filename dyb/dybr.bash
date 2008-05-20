@@ -1,5 +1,74 @@
 
 
+dybr-usage(){
+
+cat << EOU
+
+
+  
+  dybr--path 
+  dybr-cmtpath/path/llp/dlp/pypath  
+		   dumping paths
+
+  dybr-cmd                          
+           do cmd in multiple directories in the colon delimited path
+		   
+  dybr-info
+           dump the envvars and paths used in these functions
+		   
+  dybr-common 
+           hook into dybinst internals, plucking functions : make_setup_file,make_setup,
+		   
+  dybr-make-setup
+            regenerate the setup directory and scripts in release folder
+
+  dybr-rm-setup
+  
+  dybr-site-unset
+  
+  dybr-site-setup
+  
+  dybr-site-info
+  
+  dybr-site-initialization
+     
+  dybr-diff 
+  
+  dybr-projs 
+            kitchensink approach to environment setup ... DEPRECATED
+
+
+  dybr-cmt
+            run a cmt command monitoring changes to the paths 
+   
+
+  dybr-checkvar
+            used by dybr-cmt
+			
+			  
+  dybr-proj-old
+  
+  dybr-xchk
+          executable path checking 
+
+  dybr-x
+          executable invokation ... uses deprecated dybr-projs
+		  
+  dybr-py
+          ??? using ipython when a script starts with i ???
+		  
+  dybr-go
+           this is invoked by dyb ... convenienc path setup 
+     
+
+EOU
+
+
+}
+
+
+
+
 #dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | perl -lne 'printf "%s\n",$_ for(split(/:/))' ; }
 dybr--path(){ echo === dybr--path : $1 ===  &&  echo $2 | tr ":" "\n" ; }
 
@@ -229,11 +298,13 @@ dybr-diff(){
 
 dybr-projs(){
 
+  local msg="=== $FUNCNAME :"
   local default_incmt="echo"
   local incmt=${1:-$default_incmt}
   local pwd=$PWD
 
-  echo === dybr-projs [ $incmt ] ===
+  echo $msg  [ $incmt ]
+  echo $msg  kitchensink approach to environment setup ... DEPRECATED
 
   dybr-site-setup
   dybr-site-info    
@@ -412,5 +483,57 @@ dybr-py(){
    
    #  why did this not land in the path ?
 }
+
+
+
+
+dybr-go(){   
+    
+	dybr-site-setup
+	 
+	cd $DDR  
+    local loc="$1"
+	local qwn="$2"
+	
+	# get rid of positional args to avoid a CMT warning 
+    set --
+	
+	if [ -n "$loc" ]; then
+	   echo === dyb : with non blank loc $loc
+	   if [ -d "$loc" ]; then
+	      echo === dyb : tis a folder
+	      cd $loc
+		elif [ -f "$loc"  ]; then
+		  echo === dyb : tis a file 
+		  cd $(dirname $loc)
+		fi
+	fi
+	
+	if [ "$(basename $PWD)" == "cmt" ]; then
+	  if [ ! -f "setup.sh" ]; then
+		 echo === dyb : doing cmt config as in cmt folder with no setup.sh
+		 cmt config
+	  fi
+	  if [ -f "setup.sh" ]; then
+	     echo === dyb : sourcing setup
+		 . setup.sh
+	  else
+	     echo === dyb : ERROR no setup.sh in cmt folder after cmt config
+	  fi
+	fi
+	
+	if [ "$qwn" != "" ]; then
+	    echo === dyb : non blank qwn $qwn : [ cmt show value $qwn ] in $PWD
+	    cmt show macro_value $qwn 
+	else
+	    echo === dyb : blank qwn in $PWD 
+	fi
+	
+	
+	# pwd
+ }
+
+
+
 
 
