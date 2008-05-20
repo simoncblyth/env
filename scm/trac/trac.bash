@@ -90,7 +90,7 @@
 trac-env(){
 
    elocal-
-   apache-
+   apache2-
    python-
    
    trac-base
