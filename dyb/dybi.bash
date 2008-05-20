@@ -1,9 +1,58 @@
 
 
+dybi-usage(){
+
+cat << EOU
+
+   dybi-info            :   dump envvars used in these functions
+   dybi-get             :   export dybinst script into $DYB
+   dybi-update          :   update the installation and release 
+   dybi-check           :   version check between DYB and DYB_VERSION
+   
+   dybi-log             :   do the -linklog and follow the installation tail 
+      dybi-linklog      :   link the installation log ... now done automatically ?
+   
+   dybi-nohup           :   nohuped invokation of dybi-install 
+                            has a known issue in failing to completely build Geant4, 
+						    but has advantage of nohup.out summary file
+   dybi-nohup-tail
+   
+   dybi-install-screen  :  the install thru screen for disconnection immunity  
+   
+   dybi-install         :  run dybinst 
+   
+   dybi-dbglink         :  create the link needed for debug installs ... ? did i automate this ?
+   dybi-override        :  create the "_extra" files that switch on debug 
+
+   dybi-osc-zip         :  zip path   
+   dybi-osc-patch-path  :  patch path  
+   dybi-osc-xclude      :  detritus exclusion 
+   dybi-osc-diff        :  diff to stdout 
+   dybi-osc-patch-test  :  
+   dybi-osc-patch       :  uses dybi-osc-diff to write the patch
+   dybi-osc             :  allows building sub packages of OpenScientist 
+   
+EOU
+
+}
+
+
+
 dybi-env(){
 
    elocal-
 
+}
+
+
+dybi-info(){
+
+   echo DYB $DYB
+   echo DDR $DDR
+   echo DDI $DDI
+   echo DYB_VERSION $DYB_VERSION 
+   echo DYB_RELEASE $DYB_RELEASE 
+   echo DYB_OPTION $DYB_OPTION
 }
 
 
@@ -58,13 +107,13 @@ dybi-log(){
 }  
 
 dybi-nohup(){
-    echo === dyb-install-nohup has a known issue in failing to completely build Geant4, but has advantage of nohup.out summary file ===
+    echo === dyb-install-nohup  ===
     cd $DYB
     rm -f nohup.out
-    nohup bash -lc "dyb-ins-install $*"
+    nohup bash -lc "dybi-install $*"
 }
 
-dybi-smry(){
+dybi-nohup-tail(){
   cd $DYB
   tail -f nohup.out
 }  
