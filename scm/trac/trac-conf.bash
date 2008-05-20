@@ -22,6 +22,16 @@ cat << EOU
    trac-conf-notification 
                      guided editing to enable email notification on ticket changes
 
+
+
+Typical Usage :  setting heprez permissions to the default for it ... tight  
+
+   env-
+   trac-conf-
+   trac-conf-perms heprez 
+
+
+
 EOU
 
 
@@ -70,10 +80,23 @@ trac-conf-set-perms(){
 trac-conf-perms(){
 
     local name=${1:-$SCM_TRAC}
-    local level=${2:-$SCM_SECURITY_LEVEL}
+	
+	local dlev
+	case $name in
+	       env) dlev="loose" ;;
+	   tracdev) dlev="loose" ;;
+	    heprez) dlev="tight" ;;
+	  aberdeen) dlev="tight" ;;
+	    dybsvn) dlev="tight" ;;
+	  workflow) dlev="paranoid" ;;
+	esac 
+	
+    ##local level=${2:-$SCM_SECURITY_LEVEL}
+	local level=${2:-$dlev}
 
 	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
     local other="TIMELINE_VIEW SEARCH_VIEW"
+	
 	local hmmm="CONFIG_VIEW"
     local wiki="WIKI_CREATE WIKI_MODIFY"
 	local ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
@@ -88,35 +111,28 @@ trac-conf-perms(){
       trac-conf-set-perms $name anonymous     "$views $other" 
 	  trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
       trac-conf-set-perms $name admin TRAC_ADMIN
- 
+	
     elif [ "$level" == "tight" ]; then
     
-      ## anonymous user can do nothing ... but can they login ?
-      ## use the restricted area access workaround to avoid the error on arrival issue
-      ## 
+      # anonymous user can only WIKI_VIEW ... but make sure they can they login ?
+	
       trac-conf-set-perms $name anonymous     "WIKI_VIEW"
-	  ##trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
-      ## I think RESTRICTED_AREA_ACCESS is not being use, but is the workaround above alluding to smth I have forgotten ?
       trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
       trac-conf-set-perms $name admin TRAC_ADMIN 
   
     elif [ "$level" == "paranoid" ]; then	  
 		      
 	  trac-conf-set-perms $name anonymous     "WIKI_VIEW"
-	  ##trac-conf-set-perms $name authenticated "RESTRICTED_AREA_ACCESS $views $other $hmmm $wiki $ticket $milestone $report"
-      ## I think RESTRICTED_AREA_ACCESS is not being use, but is the workaround above alluding to smth I have forgotten ?
       trac-conf-set-perms $name authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
-	  trac-conf-set-perms $name blyth TRAC_ADMIN
-	  
-			  
-			  
+		
     else
-        echo "ERROR security level $level is no implemented "
+        echo "ERROR security level $level is not implemented "
     fi            
      
+	trac-conf-set-perms $name blyth TRAC_ADMIN 
     trac-conf-perm $name list    
            
-    ## does TRAC_ADMIN include XML_RPC ? yes 
+    ## TRAC_ADMIN means all permisssions 
 }
 
 
