@@ -504,7 +504,7 @@ abuser = simon, dayabay
 abdev = blyth, $tw, $hk
 abadmin = blyth
 
-hzuser = simon, cjl, tosi, cecilia
+hzuser = simon, cjl, tosi, cecilia, b2c
 hzdev = blyth
 hzadmin = blyth
 

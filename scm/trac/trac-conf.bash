@@ -79,6 +79,7 @@ trac-conf-set-perms(){
 
 trac-conf-perms(){
 
+    local msg="=== $FUNCNAME :"
     local name=${1:-$SCM_TRAC}
 	
 	local dlev
@@ -93,6 +94,8 @@ trac-conf-perms(){
 	
     ##local level=${2:-$SCM_SECURITY_LEVEL}
 	local level=${2:-$dlev}
+
+    echo $msg setting perms for name:[$name] to level:[$level]
 
 	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
     local other="TIMELINE_VIEW SEARCH_VIEW"
