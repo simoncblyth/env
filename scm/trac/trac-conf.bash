@@ -1,7 +1,7 @@
 
 trac-conf-usage(){
 
-
+cat << EOU
 
    trac-conf-perm <name> list/add/remove/...   <perms>     
                      use trac-admin to manipulate permissions for the <name> tracitory 
@@ -22,6 +22,7 @@ trac-conf-usage(){
    trac-conf-notification 
                      guided editing to enable email notification on ticket changes
 
+EOU
 
 
 }
