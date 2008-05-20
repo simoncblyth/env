@@ -26,16 +26,20 @@
 svn-build-env(){
 
    elocal-
-   
+   svn-build-base
+
+}
+
+
+svn-build-local-env(){
+
    svn-
    apache2-
    swig- 
    python-
-   
-
-   svn-build-base
 
 }
+
 
 
 svn-build-base(){

@@ -66,6 +66,7 @@ svn-env(){
   
   apache2-
   trac-
+  svn-build-
 
   svn-base 
 }
