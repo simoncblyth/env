@@ -1,4 +1,32 @@
 
+trac-conf-usage(){
+
+
+
+   trac-conf-perm <name> list/add/remove/...   <perms>     
+                     use trac-admin to manipulate permissions for the <name> tracitory 
+
+   trac-conf-set-perms  <name> <username> PERM1 PERM2 ..
+                     remove all permissions then add the listed perms
+   
+   trac-conf-perms  <name> <loose|tight|paranoid>
+   
+   trac-conf-intertrac 
+
+   trac-conf-component <name> <list|add|..>
+                     use trac-admin to manipulate the components 
+					 	
+   trac-conf-components <name> red:admin green:admin blue:admin
+
+
+   trac-conf-notification 
+                     guided editing to enable email notification on ticket changes
+
+
+
+}
+
+
 
 #
 #     header_logo:link:http://example.org/
@@ -11,6 +39,11 @@
 #
 
 
+trac-conf-env(){
+
+   elocal-
+   trac-
+}
 
 
 
@@ -23,8 +56,8 @@ trac-conf-perm(){
 
 
 trac-conf-set-perms(){
-   name=${1:-$SCM_TRAC}
-   user=${2:-anonymous}
+   local name=${1:-$SCM_TRAC}
+   local user=${2:-anonymous}
    shift 
    shift    
    ## remove all permissions first ... and then apply 
@@ -122,7 +155,7 @@ trac-conf-component(){
 
 trac-conf-components(){
 
-    # usage trac-conf-components name red:admin green:admin blue:admin
+ 
     
     local name=${1:-$SCM_TRAC}
     shift 
