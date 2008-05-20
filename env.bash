@@ -8,6 +8,7 @@ base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bas
 dyb-(){      [ -r $ENV_HOME/dyb/dyb.bash ]          && . $ENV_HOME/dyb/dyb.bash && dyb-env $* ; }
 scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
+trac-(){     . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
 svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
 aberdeen-(){ . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }

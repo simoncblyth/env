@@ -66,28 +66,64 @@
 #
 
 
-export TRAC_NAME=trac-0.10.4
-TRAC_NIK=trac
+ ## new style... reduce env pollution and startup time 
 
-export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
-export TRAC_COMMON=$TRAC_HOME/common
+ silvercity-(){        . $ENV_HOME/scm/trac/silvercity.bash ; }
+ docutils-(){          . $ENV_HOME/scm/trac/docutils.bash   ; }
+ tracnav-(){           . $ENV_HOME/scm/trac/tracnav.bash   ; }
+ trac2mediawiki-(){    . $ENV_HOME/scm/trac/trac2mediawiki.bash   ; }
+ trac2latex-(){        . $ENV_HOME/scm/trac/trac2latex.bash   ; }
+ traclxml-(){          . $ENV_HOME/scm/trac/traclxml.bash   ; } 
+ tractoc-(){           . $ENV_HOME/scm/trac/tractoc.bash   ; } 
+ tracxsltmacro-(){     . $ENV_HOME/scm/trac/tracxsltmacro.bash   ; }
+ traclegendbox-(){     . $ENV_HOME/scm/trac/traclegendbox.bash   ; }
+ tracincludemacro-(){  . $ENV_HOME/scm/trac/tracincludemacro.bash   ; }
+ db2trac-(){           . $ENV_HOME/scm/trac/db2trac.bash   ; }
+ tracenv-(){           . $ENV_HOME/scm/trac/tracenv.bash   ; }
+ hepreztrac-(){        . $ENV_HOME/scm/trac/hepreztrac.bash   ; }
+ tractags-(){          . $ENV_HOME/scm/trac/tractags.bash   ; }
+ tracxmlrpc-(){        . $ENV_HOME/scm/trac/tracxmlrpc.bash ; }
+ trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
 
-TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
-export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
-
-export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
 
 
+trac-env(){
+
+   elocal-
+   apache-
+   python-
+   
+   trac-base
+
+}
+
+trac-base(){
+
+  export TRAC_NAME=trac-0.10.4
+  TRAC_NIK=trac
+
+  export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
+  export TRAC_COMMON=$TRAC_HOME/common
+
+  export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
+  export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+
+  export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
+
+  export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
 
 
-trac-x(){ scp $SCM_HOME/trac.bash ${1:-$TARGET_TAG}:$SCM_BASE; }
-trac-i(){ . $SCM_HOME/trac.bash ; }
 
- trac_iwd=$(pwd)
- TRAC_BASE=$SCM_BASE/trac
- export TRAC_HOME=$SCM_HOME/$TRAC_NIK
- cd $TRAC_HOME
 
+}
+
+
+
+trac-kitchensink(){
+
+ local trac_iwd=$(pwd)
+ 
+ cd $ENV_HOME/scm/trac
 
  [ -r trac-conf.bash ]                   && . trac-conf.bash
       
@@ -110,25 +146,6 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
 ## trac-build-(){  [ -r $TRAC_HOME/trac-build.bash ]  && . $TRAC_HOME/trac-build.bash ; }
 
 
- ## new style... reduce env pollution and startup time 
-
- silvercity(){        . $TRAC_HOME/silvercity.bash ; }
- docutils(){          . $TRAC_HOME/docutils.bash   ; }
- 
- tracnav(){           . $TRAC_HOME/tracnav.bash   ; }
- trac2mediawiki(){    . $TRAC_HOME/trac2mediawiki.bash   ; }
- trac2latex(){        . $TRAC_HOME/trac2latex.bash   ; }
- traclxml(){          . $TRAC_HOME/traclxml.bash   ; } 
- tractoc(){           . $TRAC_HOME/tractoc.bash   ; } 
- tracxsltmacro(){     . $TRAC_HOME/tracxsltmacro.bash   ; }
- traclegendbox(){     . $TRAC_HOME/traclegendbox.bash   ; }
- tracincludemacro(){  . $TRAC_HOME/tracincludemacro.bash   ; }
- db2trac(){           . $TRAC_HOME/db2trac.bash   ; }
- tracenv(){           . $TRAC_HOME/tracenv.bash   ; }
- hepreztrac(){        . $TRAC_HOME/hepreztrac.bash   ; }
- tractags(){          . $TRAC_HOME/tractags.bash   ; }
- tracxmlrpc(){        . $TRAC_HOME/tracxmlrpc.bash ; }
- trachttpauth(){      . $TRAC_HOME/trachttpauth.bash ; }
 
 ## confusing approach 
 ## db2trac-(){  db2trac ;  [ -r $(db2trac-dir)/db2trac.bash ] && . $(db2trac-dir)/db2trac.bash ; }
@@ -139,6 +156,9 @@ trac-i(){ . $SCM_HOME/trac.bash ; }
 
  ## caution must exit with initial directory
  cd $trac_iwd
+ 
+} 
+ 
  
 
 trac-wiki-macros(){

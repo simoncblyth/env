@@ -64,20 +64,10 @@ svn-env(){
  
   elocal-
   
-  svn-base
   apache2-
+  trac-
 
-  export SVN_PARENT_PATH=$SCM_FOLD/repos
-
-  ## just needed by svn.bash
-  SVN_APACHE2_CONF=$APACHE2_LOCAL/svn.conf
-
-  ## these are needed by both SVN + Trac  
-  SVN_APACHE2_AUTH=$APACHE2_LOCAL/svn-apache2-auth
-  SVN_APACHE2_AUTHZACCESS=$APACHE2_LOCAL/svn-apache2-authzaccess
-   
-   export TRAC_EGG_CACHE=/tmp/trac-egg-cache
-   
+  svn-base 
 }
 
 
@@ -90,7 +80,16 @@ svn-base(){
 	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
 	  export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
       svn-path
-  fi	  
+  fi	
+  
+  export SVN_PARENT_PATH=$SCM_FOLD/repos
+
+  ## just needed by svn.bash
+  SVN_APACHE2_CONF=$APACHE2_LOCAL/svn.conf
+
+  ## these are needed by both SVN + Trac  
+  SVN_APACHE2_AUTH=$APACHE2_LOCAL/svn-apache2-auth
+  SVN_APACHE2_AUTHZACCESS=$APACHE2_LOCAL/svn-apache2-authzaccess	
 
 }
 
