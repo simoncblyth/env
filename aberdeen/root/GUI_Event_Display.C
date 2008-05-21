@@ -67,6 +67,8 @@ class MyFrame {
    // Macro
       void Import();
       void DoDraw();
+      void ResetPMT();
+      void ViewPoint(Float_t theta, Float_t phi, Float_t radius);
       void Reset();
 
    // Func
@@ -129,6 +131,7 @@ enum EMenuCommands {
 
    M_IMPORT,
    M_DISPLAY,
+   M_ResetPMT,
 
    M_MAC_1,
    M_MAC_2,
@@ -198,6 +201,8 @@ void MyFrame::CreateMenuBar()
    fMenuDisplay = new TGPopupMenu(gClient->GetRoot());
    fMenuDisplay->AddEntry("&Import...", M_IMPORT);
    fMenuDisplay->AddEntry("&Dsplay", M_DISPLAY);
+   fMenuDisplay->AddEntry("&ResetPMT", M_ResetPMT);
+
 
    fMenuMac = new TGPopupMenu(gClient->GetRoot());
    fMenuMac->AddEntry("&Test...", M_MAC_1);
@@ -252,6 +257,10 @@ void MyFrame::HandleMenu(Int_t id)
 	    DoDraw();
 	    break;
 
+	 case M_ResetPMT:
+	    ResetPMT();
+	    break;
+
 	 case M_MAC_1:
 	    cout << " Testing macro #1" << endl;
 	    break;
@@ -301,7 +310,7 @@ void MyFrame::Import() {
 //  gROOT->ProcessLine(".L GeoMap.C");
   if(importb){
 	gGeoManager->CloseGeometry();
-	cout << " Closing exsiting Geometry and import new one" << endl;
+	cout << "Closing exsiting Geometry and import new one" << endl;
 //	gm(gClient->GetRoot(), 400, 220);
 	gROOT->ProcessLine(".x GUI_Import.C");
   } else
@@ -318,6 +327,11 @@ void MyFrame::Import() {
 
 void MyFrame::DoDraw() {
   gROOT->ProcessLine(".x GUI_Display.C");
+  CanvasUpdate(this->fEcanvas);
+}
+
+void MyFrame::ResetPMT() {
+  gROOT->ProcessLine(".x GUI_ResetPMT.C");
   CanvasUpdate(this->fEcanvas);
 }
 
