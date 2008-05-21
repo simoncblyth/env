@@ -27,13 +27,16 @@
 #include "TString.h"
 //#endif
 #include <Riostream.h>
+#include "GeoMap.C"
 
+Bool_t importb = 0;
 
 class MyFrame {
 
    RQ_OBJECT("MyFrame")
 
-   private:
+//   private:
+	public:
       TGMainFrame        *fMain;
       TRootEmbeddedCanvas *fEcanvas;
 
@@ -65,6 +68,9 @@ class MyFrame {
       void Import();
       void DoDraw();
       void Reset();
+
+   // Func
+      void CanvasUpdate(TRootEmbeddedCanvas* fEc);
 
    private:
       void CreateMenuBar();
@@ -256,13 +262,6 @@ void MyFrame::HandleMenu(Int_t id)
    }
 }
 
-//------------------------------------------------------------------------------
-void MyFrame::CloseWindow()
-{
-   // Got close message for this MainFrame. Terminates the application.
-   gApplication->Terminate();
-}
-
 //______________________________________________________________________________
 void MyFrame::DeleteMenuBar()
 {
@@ -280,6 +279,13 @@ void MyFrame::DeleteMenuBar()
    delete fLineLayout;
 }//DeleteMenuBar
 
+//------------------------------------------------------------------------------
+void MyFrame::CloseWindow()
+{
+   // Got close message for this MainFrame. Terminates the application.
+   gApplication->Terminate();
+}
+
 //______________________________________________________________________________
 void MyFrame::DoCloseWindow()
 {
@@ -292,20 +298,46 @@ void MyFrame::DoCloseWindow()
 //------------------------------------------------------------------------------
 void MyFrame::Import() {
 //  gROOT->Reset();
-  gROOT->ProcessLine(".L GeoMap.C");
+//  gROOT->ProcessLine(".L GeoMap.C");
+  if(importb){
+	gGeoManager->CloseGeometry();
+	cout << " Closing exsiting Geometry and import new one" << endl;
+//	gm(gClient->GetRoot(), 400, 220);
+	gROOT->ProcessLine(".x GUI_Import.C");
+  } else
   gROOT->ProcessLine(".x GUI_Import.C");
+  CanvasUpdate(this->fEcanvas);
+  
+//  TCanvas* canvas = this->fEcanvas->GetCanvas();
+//  TRootEmbeddedCanvas* c=this->fEcanvas;
+//  TCanvas* canvas = c->GetCanvas();
+//  canvas->Update();
+
+  importb = 1;
 }
 
 void MyFrame::DoDraw() {
   gROOT->ProcessLine(".x GUI_Display.C");
+  CanvasUpdate(this->fEcanvas);
 }
 
 void MyFrame::Reset() {
   gROOT->ProcessLine(".x GUI_Import.C");
+  CanvasUpdate(this->fEcanvas);
 }
 
 //______________________________________________________________________________
-void GUI_Event_Display()
+
+void MyFrame::CanvasUpdate(TRootEmbeddedCanvas* fEc)
+{
+  TCanvas* c = fEc->GetCanvas();
+  c->Update();
+
+}
+
+//______________________________________________________________________________
+/*void GUI_Event_Display()
 {
    new MyFrame(gClient->GetRoot(), 400, 220);
 }
+*/
