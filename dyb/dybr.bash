@@ -492,7 +492,9 @@ dybr-go(){
 	dybr-site-setup
 	 
 	cd $DDR  
-    local loc="$1"
+	
+	local def=dybgaudi/DybRelease/cmt
+    local loc=${1:-$def}
 	local qwn="$2"
 	
 	# get rid of positional args to avoid a CMT warning 
