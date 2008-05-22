@@ -75,7 +75,7 @@ class MyFrame {
       void CanvasUpdate(TRootEmbeddedCanvas* fEc);
 
    private:
-      void CreateMenuBar();
+      void CreateMenuBar(TGMainFrame* main);
       void DeleteMenuBar();
 
 
@@ -155,7 +155,7 @@ MyFrame::MyFrame(const TGWindow *window, UInt_t w, UInt_t h)
    fMain->Connect("CloseWindow()", "MyFrame", this, "DoCloseWindow()");
 
 // Create menus
-   CreateMenuBar();
+   CreateMenuBar(fMain);
 
 // Basic frame layout
    fLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX | kLHintsExpandY);
@@ -189,22 +189,23 @@ MyFrame::~MyFrame()
 }//Destructor
 
 //______________________________________________________________________________
-void MyFrame::CreateMenuBar()
+void MyFrame::CreateMenuBar(TGMainFrame*  main)
 {
    if(kCS) cout << "------MyFrame::CreateMenuBar------" << endl;
 
+   TGWindow* root = gClient->GetRoot();
+
 // File menu
-   fMenuFile = new TGPopupMenu(gClient->GetRoot());
+   fMenuFile = new TGPopupMenu(root);
    fMenuFile->AddEntry("&New...",  M_FILE_NEW);
    fMenuFile->AddEntry("&Quit...",  M_FILE_QUIT);
 
-   fMenuDisplay = new TGPopupMenu(gClient->GetRoot());
+   fMenuDisplay = new TGPopupMenu(root);
    fMenuDisplay->AddEntry("&Import...", M_IMPORT);
    fMenuDisplay->AddEntry("&Dsplay", M_DISPLAY);
    fMenuDisplay->AddEntry("&ResetPMT", M_ResetPMT);
 
-
-   fMenuMac = new TGPopupMenu(gClient->GetRoot());
+   fMenuMac = new TGPopupMenu(root);
    fMenuMac->AddEntry("&Test...", M_MAC_1);
    fMenuMac->AddEntry("&SecTest...", M_MAC_2);
 
@@ -214,17 +215,17 @@ void MyFrame::CreateMenuBar()
    fMenuBarHelpLayout = new TGLayoutHints(kLHintsTop | kLHintsRight);
 
 // Add menus to MenuBar
-   fMenuBar = new TGMenuBar(fMain, 1, 1, kHorizontalFrame);
+   fMenuBar = new TGMenuBar( main, 1, 1, kHorizontalFrame);
    fMenuBar->AddPopup("&File",        fMenuFile, fMenuBarItemLayout);
    fMenuBar->AddPopup("&Geometry",	fMenuDisplay, fMenuBarItemLayout);
    fMenuBar->AddPopup("&Macro",fMenuMac, fMenuBarItemLayout);
 
-   fMain->AddFrame(fMenuBar, fMenuBarLayout);
+   main->AddFrame(fMenuBar, fMenuBarLayout);
 
 // Line to separate menubar
-   fLineH1 = new TGHorizontal3DLine(fMain);
+   fLineH1 = new TGHorizontal3DLine(main);
    fLineLayout = new TGLayoutHints(kLHintsTop | kLHintsExpandX);
-   fMain->AddFrame(fLineH1, fLineLayout);
+   main->AddFrame(fLineH1, fLineLayout);
    fLineH1->DrawBorder();
 
 // Handle the messages
