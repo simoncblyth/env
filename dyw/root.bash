@@ -1,68 +1,73 @@
-alias p-root="scp $HOME/.bash_root P:"
 
-#   usage:
-#            root-get
-#            root-configure
-#            root-build
-#
-#
+
+root-usage(){
+cat << EOU
+
+  root-           :  hook into these functions invoking root-env
+  root-get        :  download and unpack
+  root-configure  :     
+  root-build      :
+
+
 # Qt BNL and Qt GSI ????  (both are currently for Qt 3.xx , not 4.x that I have)
 #            --with-qtgsi \
 #  the BNL one looks more mature ??? 
 # http://www-linux.gsi.de/~go4/qtroot/html/qtroot.html 
-#
 
 
-alias root="root -l"
-alias rh="tail -100 $HOME/.root_hist"
-
-export ROOT_FOLDER=$LOCAL_BASE/root
-export ROOT_NAME=root_v5.14.00b
-
-if [ "$LOCAL_NODE" == "pal" ]; then
-	     ## prior to extreme versioning 
-  export ROOTSYS=$ROOT_FOLDER/root
-else
-  export ROOTSYS=$ROOT_FOLDER/$ROOT_NAME/root
-fi
-	
-if [ "$CMTCONFIG" == "Darwin" ]; then
-  export DYLD_LIBRARY_PATH=$ROOTSYS/lib:$DYLD_LIBRARY_PATH
-else
-  export   LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
-fi
-
-
-export ENV2GUI_VARLIST="ROOTSYS:$ENV2GUI_VARLIST"
-export PATH=$ROOTSYS/bin:$PATH
-export ROOT_CMT="ROOT_prefix:$ROOTSYS"
-
-[ "$DYW_DBG" == "1" ] && echo $DYW_BASE/root.bash
-root-get(){
-
-  n=$ROOT_NAME
-  cd $LOCAL_BASE
-  test -d root || ( $SUDO mkdir root && $SUDO chown $USER root )
-  cd root
-
-  tgz=$n.source.tar.gz
-
-  if [ "$LOCAL_NODE" == "pal" ]; then
-     test -f $tgz || scp S:/usr/local/root/$tgz .
-  
-     ## direct way doesnt work on pal... "curl: (19) Security: Bad IP connecting."
-     ##  IS PAL A BLACKLISTED MACHINE ? OR NO DNS RECORD ?
-
-  else
-     test -f $tgz || curl -o $tgz ftp://root.cern.ch/root/$tgz
-  fi
- 
-  ## using prior knowledge that the unpacked creates a folder called "root"
-  test -d $n/root || ( mkdir $n && tar -C $n -zxvf $tgz  )
-
+EOU
 
 }
 
+
+root-env(){
+
+  alias root="root -l"
+  alias rh="tail -100 $HOME/.root_hist"
+
+  export ROOT_FOLDER=$LOCAL_BASE/root
+  #export ROOT_NAME=root_v5.14.00b
+  export ROOT_NAME="root_v5.19.04"
+
+  if [ "$LOCAL_NODE" == "pal" ]; then
+	     ## prior to extreme versioning 
+    export ROOTSYS=$ROOT_FOLDER/root
+  else
+	export ROOTSYS=$ROOT_FOLDER/$ROOT_NAME/root
+  fi
+	
+  if [ "$(uname)" == "Darwin" ]; then
+     export DYLD_LIBRARY_PATH=$ROOTSYS/lib:$DYLD_LIBRARY_PATH
+  else
+     export   LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
+  fi
+
+  export ENV2GUI_VARLIST="ROOTSYS:$ENV2GUI_VARLIST"
+  export PATH=$ROOTSYS/bin:$PATH
+  export ROOT_CMT="ROOT_prefix:$ROOTSYS"
+
+  [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/root.bash
+}
+
+
+root-get(){
+
+  local n=$ROOT_NAME
+  cd $LOCAL_BASE
+  [ ! -d root ] && $SUDO mkdir root && $SUDO chown $USER root
+  cd root
+
+  local tgz=$n.source.tar.gz
+  local url=ftp://root.cern.ch/root/$tgz
+  [ ! -f $tgz  ]   && curl -O $url
+  [ ! -d $n/root ] && mkdir $n && tar -C $n -zxvf $tgz  
+  
+  ## using prior knowledge that the unpacked creates another folder called "root"
+}
+
+
+## test -f $tgz || scp S:/usr/local/root/$tgz .   
+## direct way doesnt work on pal... "curl: (19) Security: Bad IP connecting."
 
 
 root-mysql(){

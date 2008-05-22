@@ -39,6 +39,24 @@ dyb-env(){
 }
 
 
+dyb-find(){
+   local msg="=== $FUNCNAME :"
+   local cmd="mdfind -onlyin $DDR $* | grep -v .svn"
+   echo $msg $cmd  ... suspect this fails to look inside requirements files 
+   eval $cmd
+}
+
+dyb-rfind(){
+
+   local msg="=== $FUNCNAME :"
+   local cmd="find $DDR -name requirements -exec grep -H $* {} \; "
+   echo $cmd
+   eval $cmd 
+
+}
+
+
+
 dyb-params(){
 
     # 

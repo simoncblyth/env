@@ -32,6 +32,14 @@ cat << EOU
    dybi-osc-patch       :  uses dybi-osc-diff to write the patch
    dybi-osc             :  allows building sub packages of OpenScientist 
    
+   
+   dybi-external        :  dybinst-external build 
+                             name must correspond to the script name ... all lowercase
+                                  dybi-;dybi-external qmtest 
+                
+        
+   
+   
 EOU
 
 }
@@ -42,6 +50,22 @@ dybi-env(){
 
    elocal-
    dyb-
+}
+
+
+
+dybi-external(){
+
+   local iwd=$PWD
+   
+   dybr-
+   dybr-ss
+   
+   logfile=/dev/null
+   $DYB/installation/trunk/dybinst/scripts/dybinst-external $DYB_VERSION $*
+   
+   cd $iwd
+
 }
 
 

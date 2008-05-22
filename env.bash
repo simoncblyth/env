@@ -7,6 +7,9 @@ env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && e
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
 
 
+root-(){       . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
+qmtest-(){     . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
+
 dyb-(){       . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){      . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
@@ -39,6 +42,9 @@ xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash
 
 
 authzpolicy-(){   . $ENV_HOME/scm/trac/authzpolicy.bash && authzpolicy-env $* ; }
+
+unittest-(){      . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
+
 
 
   
