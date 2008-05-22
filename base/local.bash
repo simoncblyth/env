@@ -1,5 +1,34 @@
 
 
+local-usage(){
+
+cat << EOU
+
+  These are used by most functions... and rarely need to be invoked directly by the user
+
+   local-nodetag   : glean which machine we are on and define a NODE_TAG and paired backup node BACKUP_TAG
+   local-scm       : define the SCM_* coordinates of source code management node supporting the current node
+   local-layout    : set standard disk location variables 
+   
+                            LOCAL_BASE
+							SYSTEM_BASE
+							VAR_BASE
+							USER_BASE
+							OUTPUT_BASE 
+                                
+
+
+
+EOU
+
+
+
+
+
+}
+
+
+
 local-env(){
 
    local dbg=${1:-0}
@@ -243,7 +272,8 @@ local-layout(){
 
 #export DISK_G1=/data/w
 #export DISK_G1=/disk/d4
-export DISK_G1=/disk/d4
+#export DISK_G1=/disk/d4
+export DISK_G1=/disk/d3
 export DAYABAY_G1=$DISK_G1/dayabay
 
 ## --------------  the software root for most everything ---------------------------
