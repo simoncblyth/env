@@ -9,6 +9,7 @@ base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bas
 
 root-(){       . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
 qmtest-(){     . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
+nose-(){       . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
 
 dyb-(){       . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){      . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
