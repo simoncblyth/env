@@ -288,7 +288,7 @@ export LOCAL_BASE_P=/disk/d3/dayabay/local
 export LOCAL_BASE_G1=$DAYABAY_G1/local  
 export LOCAL_BASE_L=/usr/local           
 export LOCAL_BASE_H=/data/usr/local          
-export LOCAL_BASE_T=/usr/local/dyw
+export LOCAL_BASE_T=/usr/local
 export LOCAL_BASE_N=$HOME/local
 export LOCAL_BASE_C=$HOME
 
