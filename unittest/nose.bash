@@ -18,15 +18,66 @@ EOU
 }
 
 
+nose-env(){
+
+  elocal-
+  
+  #export NOSE_NAME=nose-0.9.3
+  export NOSE_NAME=nose-0.10.2
+  export NOSE_HOME=$LOCAL_BASE/nose/$NOSE_NAME
+
+
+  local pp=$NOSE_HOME/lib/python2.5/site-packages 
+  local p=$NOSE_HOME/bin
+  
+  if [ -z $PYTHONPATH ]; then
+     PYTHONPATH=$pp
+  else
+     echo $PYTHONPATH | grep $pp > /dev/null || PYTHONPATH=$pp:$PYTHONPATH
+  fi
+  export PYTHONPATH
+
+  if [ -z $PATH ]; then
+     PATH=$p
+  else
+     echo $PATH | grep $p > /dev/null || PATH=$p:$PATH
+  fi
+  export PATH
+
+}
+
+
+nose-plugin-install(){
+
+  local msg="=== $FUNCNAME :"
+  local name=${1:-xml_plugin}
+  local iwd=$PWD
+  
+  local dir=$ENV_HOME/unittest/nose/$name
+  
+  [ ! -d $dir ] && echo $msg ERROR no such dir $dir && return 1
+  
+  cd $dir
+  python setup.py install --prefix=$NOSE_HOME
+
+  cd $iwd
+}
+
+
+
+
+
+
 
 nose-plugin-get(){
 
   cd $NOSE_HOME
   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
   cd $tmp
-  local name=html_plugin
-  local home=$NOSE_HOME
   
+  local def=html_plugin
+  local name=${1:-$def}
+  local home=$NOSE_HOME
   
   [ ! -d $name ] && svn export http://python-nose.googlecode.com/svn/trunk/examples/$name
 
@@ -54,18 +105,6 @@ nose-plugin-test(){
 
 
 
-nose-env(){
-
-  elocal-
-  
-  #export NOSE_NAME=nose-0.9.3
-  export NOSE_NAME=nose-0.10.2
-  export NOSE_HOME=$LOCAL_BASE/nose/$NOSE_NAME
-
-  export PYTHONPATH=$NOSE_HOME/lib/python2.5/site-packages:$PYTHONPATH
-  export PATH=$NOSE_HOME/bin:$PATH  
-
-}
 
 nose-src(){
   cd $LOCAL_BASE/nose/unpack/$NOSE_NAME 
