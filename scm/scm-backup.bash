@@ -1,11 +1,62 @@
 
-# invoke with :
-#     sudo bash -lc scm-backup-all
-#
-#   need to do this in roots crontab ,  do as a script ?
-#
-#
 
+
+scm-backup-usage(){
+cat << EOU
+
+   \$SCM_FOLD   : $SCM_FOLD
+   \$BACKUP_TAG : $BACKUP_TAG
+
+   scm-backup-du   :   local  backup .gz sizes  in \$SCM_FOLD 
+   scm-backup-rls  :   remote ls the .gz on the paired backup node $BACKUP_TAG
+   scm-backup-mail :   send mail with the remote list  
+    
+    
+   scm-backup-all-as-root :   does the below as root ... as done in the crontab
+    
+   scm-backup-all :   invokes the below 
+      scm-backup-repo
+      scm-backup-trac
+      scm-backup-purge   : retain the backups from the last 7 days only
+      
+   scm-recover-all
+  
+   scm-backup-rsync :   to the paired node   
+
+
+  Common issues ...
+  
+  Investigate stopped backups :
+    
+    compare :
+        scm-backup-du
+        scm-backup-rls
+    check base/cron.bash ... usually some environment change has broken the env setup for cron
+    after modifications reset the cron backups..
+    
+       cron-
+       cron-usage
+       cron-backup-reset
+       cron-list root
+       cron-list blyth
+    
+  Do an emergency backup and rsync, with :
+  
+    scm-backup-all-as-root 
+    scm-backup-rsync       
+    scm-backup-rls      ## check the remote tgz
+
+
+  TODO : 
+  
+     1) divided reposnsibilities between here and cron.bash is a mess
+     2) not easy to add things to crontab because of this morass 
+
+
+
+EOU
+
+}
 
 scm-backup-env(){
    elocal-
@@ -15,6 +66,15 @@ scm-backup-env(){
 scm-backup-du(){
     find $SCM_FOLD -name '*.gz' -exec du -h {} \;
 }
+
+
+scm-backup-all-as-root(){
+
+  sudo bash -lc "scm-backup- && scm-backup-all  "
+
+}
+
+
 
 scm-backup-all(){
    

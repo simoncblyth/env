@@ -1,33 +1,62 @@
 
 
+
+cron-usage(){
+cat << EOU
+
+   cron-list <username>   : list the crontab for the user   , note in particular the path to the logfiles  
+   cron-delete <username> : 
+
+  
+   cron-backup-reset           : invoke the below 
+     cron-setup-backup blyth   : setup of rsyncing the backups off box
+     cron-setup-backup root    : setup of doing the backups 
+
+   cron-log                  : ls /var/log/cron
+
+
+
+
+EOU
+
+}
+
+
+
 cron-env(){
    local msg="=== $FUNCNAME :"
 }
 
 
 cron-delete(){
+   local msg="=== $FUNCNAME :"
    local user=${1:-root}
    cron-list $user
    #sudo crontab -u $user -r -i 
-   sudo crontab -u $user -r 
+   local cmd="sudo crontab -u $user -r "
+   echo $msg $cmd
+   eval $cmd
 }
 
 cron-list(){
+   local msg="=== $FUNCNAME :"
    local user=${1:-root}
    date
-   sudo crontab -u $user -l
+   local cmd="sudo crontab -u $user -l"
+   echo $msg $cmd
+   eval $cmd
 }
 
 cron-log(){
-   sudo cat /var/log/cron
+   ls -Rl  /var/log/cron
 }
 
 cron-backup-reset(){
 
   #  to setup backup of the tracs and repos
 
-  sudo bash -lc "cron-delete root  ; cron-setup-backup root"
-  sudo bash -lc "cron-delete blyth ; cron-setup-backup blyth"  
+  sudo bash -lc "cron- ; cron-delete root  ; cron-setup-backup root"
+  sudo bash -lc "cron- ; cron-delete blyth ; cron-setup-backup blyth"  
    
    #
    #   root does the backups and blyth does the rsyncing , as the passwordless ssh is
@@ -39,6 +68,10 @@ cron-backup-reset(){
 cron-backup-log(){
 
     find /usr/local/cron/ -name '*.log' -exec ls -alst {} \;
+}
+
+cron-backup-env-cmd(){
+  echo "export HOME=$HOME && export ENV_HOME=$HOME/env && . $ENV_HOME/env.bash && env- && scm-backup- "
 }
 
 
@@ -61,9 +94,7 @@ cron-setup-backup(){
   
       ## local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
   
-  
-      local env=$ENV_HOME/env.bash
-  
+
       ## hfag is 20min before the real time 
          
       local       minute=40   # (0 - 59)
@@ -75,14 +106,17 @@ cron-setup-backup(){
       local     cmd
       local   delta  
 
+
+      local env=$(cron-backup-env-cmd) 
+
       if [ "$user" == "root" ]; then
          
-         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-all ; scm-backup-all     ) > $crondir/scm-backup-all.log 2>&1"
+         cmd="($env && scm-backup-all ) > $crondir/scm-backup-all.log 2>&1"
          delta=0
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="(export HOME=$HOME ; . $env ; env ; type scm-backup-rsync ; scm-backup-rsync ; type scm-backup-mail ; scm-backup-mail ) > $crondir/scm-backup-rsync.log  2>&1"
+         cmd="($env && scm-backup-rsync &&  scm-backup-mail ) > $crondir/scm-backup-rsync.log  2>&1"
          delta=15   
          
       else

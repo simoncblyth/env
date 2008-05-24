@@ -17,10 +17,13 @@ dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 
 
-scm-(){      [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
+scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
-trac-(){       . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
-trac-conf-(){  . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
+scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
+cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
+
+trac-(){        . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
+trac-conf-(){   . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
 
 svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
