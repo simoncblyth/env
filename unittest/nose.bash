@@ -65,7 +65,26 @@ nose-plugin-install(){
 
 
 
+nose-plugin-test(){
 
+  local msg="=== $FUNCNAME :"
+  local name=${1:-xml-output}
+  shift
+  
+  local iwd=$PWD
+  cd $ENV_HOME/unittest/roman
+
+   local out=${name}-out.html
+  local cmd="nosetests --with-$name $*  2> $out"
+  echo $msg $cmd
+  eval $cmd 
+  
+ 
+  cat $out
+  open $out
+
+  cd $iwd
+}
 
 
 
@@ -91,16 +110,13 @@ nose-plugin-get(){
 #   --with-html-output    Enable plugin HtmlOutput: Output test results as ugly,
 #                         unstyled html.  [NOSE_WITH_HTML_OUTPUT]
 
+#
+#
+#     nosetests --with-html-output $ENV_HOME/unittest/romantest.py 2> out.html
+#
+
 }
 
-
-nose-plugin-test(){
-
-   nosetests --with-html-output $ENV_HOME/unittest/romantest.py 2> out.html
- 
-   
- 
-}
 
 
 
