@@ -20,6 +20,12 @@ class XmlOutput(Plugin):
     """Output test results as XML
        how to test : 
         python xmlplug.py ../../roman/roman_test.py:FromRomanBadInput.testTooManyRepeatedNumerals --with-xml-output
+        
+        ISSUES ..
+             - avoid absolute paths in the output 
+             - access the source for a method or function rather than the whole test class
+        
+        
     """
     name = 'xml-output'
     score = 2 # run late
@@ -57,20 +63,23 @@ class XmlOutput(Plugin):
             n = ctx.__name__
         except AttributeError:
             n = str(ctx).replace('<', '').replace('>', '')
-        self.xml.append("<context name=\"%s\">" % n )
+        nctx = " name=\"%s\" " % n
+        
         try:
             path = ctx.__file__.replace('.pyc', '.py')
-            self.xml.append("<path><![CDATA[%s]]></path>" %  path ) 
+            pctx = " path=\"%s\" " % path 
         except AttributeError:
+            pctx = ""
             pass
-
+        self.xml.append( "<context %s %s >"  % ( nctx  , pctx ) )
+        
     def stopContext(self, ctx ):
         self.xml.append("</context>")
         
     def startTest(self,test):
         file, module, call = test.address()
-        self.file = file
-        self.xml.append('<test id=\"%s\" file=\"%s\" module=\"%s\" call=\"%s\"  >' % ( test.id() , file , module , call ) )
+        self.file = file.replace('.pyc','.py') 
+        self.xml.append('<test id=\"%s\" file=\"%s\" module=\"%s\" call=\"%s\"  >' % ( test.id() , self.file , module , call ) )
         tt = type(test.test)
         self.xml.append('<type><![CDATA[%s]]></type>' %  tt ) 
         self.xml.append('<description><![CDATA[%s]]></description>' % test.shortDescription() or str(test) )
@@ -81,14 +90,15 @@ class XmlOutput(Plugin):
     def addSuccess(self,test):
         name = "success"
         self.xml.append("<%s id=\"%s\" >" % ( name , test.id() ) )
+        self.lines = []
         self.source( test )
         self.xml.append("</%s>" % name )
         
     def addError(self,test,err):
         name = "error"
         self.xml.append("<%s id=\"%s\" >" %  ( name , test.id() ) )
-        self.stack( err )
-        self.source( test , self.lines )
+        highlight = self.stack( err )
+        self.source( test , highlight )
         self.error( err )
         self.detailed( err )
         self.xml.append("</%s>" % name )
@@ -96,42 +106,44 @@ class XmlOutput(Plugin):
     def addFailure(self,test,err):
         name = "failure"
         self.xml.append("<%s id=\"%s\" >" % ( name , test.id() ) )
-        self.stack( err )
-        self.source( test , self.lines )
+        highlight = self.stack( err )
+        self.source( test , highlight  )
         self.error( err )
         self.detailed( err )
         self.xml.append("</%s>" % name )    
         
 
-    def source( self , test , highlight=[] ):
+    def source( self , test , highlight ):
         ## gets the source for the test class ... hmm what happens with functions/generators ??
         tt = type(test.test)
-        lines, nline = getsourcelines( tt  )
-        self.xml.append('<source id=\"%s\" >' % test.id() )
+        lines, offset = getsourcelines( tt  )
+        self.xml.append('<source id=\"%s\" highlight=\"%s\" >' % ( test.id() , " ".join([str(h) for h in highlight ])   ) )
         for i in range(len(lines)):
             line = lines[i]
             if line and line[-1] == '\n':
                 line = line[:-1]
-            if i in highlight:
+            if offset + i in highlight:
                 mark = 1
             else:
                 mark = 0
-            self.xml.append('<line n=\"%d\" mark=\"%d\" ><![CDATA[%s]]></line>' % ( nline + i , mark ,  line )  )
+            self.xml.append('<line n=\"%d\" mark=\"%d\" ><![CDATA[%s]]></line>' % ( offset + i , mark ,  line )  )
         self.xml.append('</source>')
 
     def stack( self , err  ):
         ec, ev, tb = err
         self.xml.append('<stack>')
-        self.lines = []
+ 
+        highlight = []
         for tb in tb_iter(tb):
             tbf = tb_filename(tb)
             tbl = tb.tb_lineno
             mark = 0
             if tbf == self.file: 
-                self.lines.append(tbl)
+                highlight.append(tbl)
                 mark = 1
             self.xml.append('<call ln=\"%d\" mark=\"%d\" >%s</call>' % ( tbl, mark , tbf ))
         self.xml.append('</stack>')
+        return highlight 
 
     def detailed(self , err ):
         """ from the FailureDetail Plugin   formatFailure ... but pretty trivial, so dont try to get plugins working togther..
