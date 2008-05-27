@@ -157,6 +157,20 @@ TList* GeoMap::SelectKeys( TString patn ){
 }
 
 
+TList* GeoMap::ListVisible( Bool_t viz=kTRUE ){
+    
+        
+}
+
+TList* GeoMap::ListLineColor( enum  EColor col ){
+    
+    
+}
+
+
+
+
+
 void GeoMap::SetVisibility(TString patn , Bool_t viz ){
 
    TList* sel = SelectKeys(patn);
