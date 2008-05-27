@@ -1,0 +1,12 @@
+
+################### prompt ############################
+set prompt='%~'
+set prompt='%/'
+set prompt='%c'
+
+################### alias setting #####################
+alias rm 'rm -i'
+alias cp 'cp -i'
+alias ll 'ls -alh --color'
+alias ls 'ls --color'
+
