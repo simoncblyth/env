@@ -1,9 +1,15 @@
 
-################### prompt ############################
-set prompt='%~'
-set prompt='%/'
-set prompt='%c'
-
+################### prompt etc. setting ############################
+#set prompt='%~'
+#set prompt='%/'
+#set prompt='%c'
+if ( $?tcsh ) then
+	set prompt="%m:%~%# "       # "gate:~> " or "gate:~# " for root
+	set symlinks=ignore         # keep the symbolic link path
+	set autolist                # TAB key to list ambiguity names
+	set autoexpand              # TAB key to expand "!cmd" in history list
+	unset autologout            # disable autologout
+endif
 ################### alias setting #####################
 alias rm 'rm -i'
 alias cp 'cp -i'
