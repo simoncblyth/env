@@ -12,7 +12,7 @@ cat << EOU
      cron-setup-backup blyth   : setup of rsyncing the backups off box
      cron-setup-backup root    : setup of doing the backups 
 
-   cron-log                  : ls /var/log/cron
+   cron-log                  : ls \$CRON_LOGDIR $CRON_LOGDIR  
 
 
 
@@ -25,6 +25,8 @@ EOU
 
 cron-env(){
    local msg="=== $FUNCNAME :"
+   elocal-
+   export CRON_LOGDIR=$VAR_BASE/log/cronlog
 }
 
 
@@ -48,7 +50,7 @@ cron-list(){
 }
 
 cron-log(){
-   ls -Rl  /var/log/cron
+   ls -Rl  $CRON_LOGDIR
 }
 
 cron-backup-reset(){
@@ -67,7 +69,7 @@ cron-backup-reset(){
 
 cron-backup-log(){
 
-    find /usr/local/cron/ -name '*.log' -exec ls -alst {} \;
+    find $CRON_LOGDIR -name '*.log' -exec ls -alst {} \;
 }
 
 cron-backup-env-cmd(){
@@ -79,9 +81,8 @@ cron-setup-backup(){
 
       local user=${1:-root}
 
-      ##local crondir=/usr/local/cron/$user
-	  ##local crondir=/var/log/cron/$user
-	  local crondir=/var/log/cronlog/$user
+
+	  local crondir=$CRON_LOGDIR/$user
 	  
 	  
       [ -d $crondir ] || sudo mkdir -p $crondir 

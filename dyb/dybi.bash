@@ -9,6 +9,13 @@ cat << EOU
    dybi-update          :   update the installation and release 
    dybi-check           :   version check between DYB and DYB_VERSION
    
+   dybi-common          :   invoke the installation/scripts/common.sh providing
+                                   cmt_macro <pkg> <macro>
+                                        exports a macro value into macro
+                                   check_pkg  <pkg>     
+                                        checks existance of $SITEROOT/lcgcmt/LCG_Interfaces/$pkg/cmt/requirements
+   
+   
    dybi-log             :   do the -linklog and follow the installation tail 
       dybi-linklog      :   link the installation log ... now done automatically ?
    
@@ -64,6 +71,19 @@ dybi-external(){
    logfile=/dev/null
    $DYB/installation/trunk/dybinst/scripts/dybinst-external $DYB_VERSION $*
    
+   cd $iwd
+
+}
+
+
+dybi-common(){
+
+   local iwd=$PWD
+   
+   dybr-
+   dybr-ss
+   
+   . $DYB/installation/trunk/dybinst/scripts/common.sh
    cd $iwd
 
 }

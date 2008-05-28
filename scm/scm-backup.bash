@@ -11,6 +11,8 @@ cat << EOU
    scm-backup-rls  :   remote ls the .gz on the paired backup node $BACKUP_TAG
    scm-backup-mail :   send mail with the remote list  
     
+   scm-backup-postfix-start  
+    
     
    scm-backup-all-as-root :   does the below as root ... as done in the crontab
     
@@ -26,7 +28,7 @@ cat << EOU
 
   Common issues ...
   
-  Investigate stopped backups :
+     1) backups stopped :
     
     compare :
         scm-backup-du
@@ -39,7 +41,19 @@ cat << EOU
        cron-backup-reset
        cron-list root
        cron-list blyth
-    
+   
+    2) backups done but not synced off box
+     
+     
+     Probably the agent needs restarting.. this is needs to be done manually after a reboot
+     see 
+        ssh--usage
+        ssh--agent-start
+     then check offbox passwordless access with
+        scm-backup-
+        scm-backup-rls
+      
+         
   Do an emergency backup and rsync, with :
   
     scm-backup-all-as-root 
@@ -72,6 +86,11 @@ scm-backup-all-as-root(){
 
   sudo bash -lc "scm-backup- && scm-backup-all  "
 
+}
+
+scm-backup-postfix-start(){
+
+  sudo postfix start 
 }
 
 
