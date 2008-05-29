@@ -34,7 +34,21 @@ def pass_func_test():
     present(ctx(globals()))
     pass
  
-    
+
+
+# nose supports test functions and methods that are generators
+#  http://www.somethingaboutorange.com/mrl/projects/nose/
+#
+#  this results in  4 tests.. with different arguments
+def test_evens():
+    for i in range(0, 5):
+        yield check_even, i, i*3
+
+test_evens.__test__=fails
+
+def check_even(n, nn):
+    assert n % 2 == 0 or nn % 2 == 0      
+
                         
 class module_class:
     """ module_class docstring """

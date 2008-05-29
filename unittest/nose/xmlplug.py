@@ -101,8 +101,7 @@ class XmlOutput(Plugin):
     def addSuccess(self,test):
         name = "success"
         self.xml.append("<%s id=\"%s\" >" % ( name , test.id() ) )
-        self.lines = []
-        self.source( test )
+        #self.source( test , [] )
         self.xml.append("</%s>" % name )
         
     def addError(self,test,err):

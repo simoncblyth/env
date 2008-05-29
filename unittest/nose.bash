@@ -26,6 +26,8 @@ nose-env(){
   export NOSE_NAME=nose-0.10.2
   export NOSE_HOME=$LOCAL_BASE/nose/$NOSE_NAME
 
+  alias nosed="python $ENV_HOME/unittest/nose/nosed.py"
+
 
   local pp=$NOSE_HOME/lib/python2.5/site-packages 
   local p=$NOSE_HOME/bin
