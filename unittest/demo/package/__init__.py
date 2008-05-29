@@ -5,7 +5,18 @@ import os
 import sys
 sys.path.append(os.path.join(os.environ['ENV_HOME'], "unittest/context" ) )
 
+from context import ctx as ctx
+from context import present as present 
 
-from context import whereami as whereami
-whereami(globals())
+present(ctx(globals()))
+
+def setup():
+    present(ctx(globals()))
+    
+def teardown():
+    present(ctx(globals()))
+
+
+
+
 

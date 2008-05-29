@@ -2,36 +2,86 @@
   subpkg/submod.py docstring
 """
 
-from context import whereami as whereami
-whereami(globals())
+from context import ctx as ctx
+from context import present as present 
 
+present(ctx(globals()))
 
+import unittest
+import sys
+
+fails = False
+
+def setup():
+    present(ctx(globals()))
+def teardown():
+    present(ctx(globals()))
 def fail_func_test():
+    present(ctx(globals()))
     assert False
-    
+fail_func_test.__test__=fails
 def pass_func_test():
+    present(ctx(globals()))
     pass
     
 class submod_class:
-    """ submod_class docstring """
+    """ submod_class docstring 
+        these tests are not run due to the name of the class not including _test
+    """
     def __init__(self):
-        whereami(globals())
+        present(ctx(self))
     def fail_method_test(self):
         assert False
+    fail_method_test.__test__=fails
     def pass_method_test(self):
         pass
 
+# doing the below does not trick nosetests ... need the full defn 
+#submod_class_test=submod_class
 
-submod_class_test=submod_class
+class submod_class_test:
+    """ submod_class_test docstring """
+    def __init__(self):
+        present(ctx(self))
+    def fail_method_test(self):
+        present(ctx(self))
+        assert False
+    fail_method_test.__test__=fails
+    def pass_method_test(self):
+        present(ctx(self))
+        pass
 
-#class submod_class_test:
-#    """ moda_class_test docstring """
-#    def __init__(self):
-#        whereami(globals())
-#    def fail_method_test(self):
-#        assert False
-#    def pass_method_test(self):
-#        pass
+
+class submod_class_unit(unittest.TestCase):
+    """  these tests are run despite the name due to  the TestCase subclassing """
+    
+    #def __init__(self):
+    #    """ this fails with ...  
+    #         TypeError: __init__() takes exactly 1 argument (2 given)
+    #    """
+    #    unittest.TestCase.__init__(self)
+    
+    def __init__(self, *args):
+        """ add some boilerplate to pass args """
+        unittest.TestCase.__init__(self, *args)
+        present(ctx(self))
+    def setup(self):
+        """ this does not run the name must be setUp """
+        present(ctx(self))
+    def setUp(self):
+        present(ctx(self))
+    def teardown(self):
+        """ this does not run the name must be tearDown """
+        present(ctx(self))
+    def tearDown(self):
+        present(ctx(self))
+    def test_fail_method(self): 
+        present(ctx(self))
+        assert False
+    test_fail_method.__test__=fails
+    def test_pass_method(self): 
+        present(ctx(self))
+        pass
 
 
 
