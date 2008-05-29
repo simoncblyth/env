@@ -24,8 +24,13 @@ def main(args):
     
     choices=["test","summarize"]
     op.add_option("--action"  ,   default="test" , choices=choices , help="choose one of: %s   default:[%%default] " % ", ".join(choices) )
-    op.add_option("--searchdir" , default=os.environ['PWD'], type="string" , help="starting directory from which to look for tests, default:[%default] ")
+   
+    
+    # 
+    #op.add_option("--searchdir" , default=os.environ['PWD'], type="string" , help="starting directory from which to look for tests, default:[%default] ")
+    
     op.add_option("--tofile"    , default=False                           , help="write outputs to file rather than stdout, default:[%default] " ) 
+    
     op.add_option("--reportdir" , default="tests/nose"     , type="string" , help="absolute or relative to searchdir path to store output, default:[%default]  ")   
    
     op.add_option("--dryrun",     action="store_true" ,  help="discover and report tests found but do not run them, default:[%default] ")    
@@ -43,8 +48,10 @@ def main(args):
     # would be nicer to avoid this script knowing anything about Dyb 
     #op.add_option("--siteroot" , default=os.environ['SITEROOT'] )
        
-    op.add_option("-v","--verbose",  action="store_true",  dest="verbose")
-    op.add_option("-q","--quiet"  ,  action="store_false", dest="verbose")    
+    #op.add_option("-v","--verbose",  action="store_true",  dest="verbose")
+    #op.add_option("-q","--quiet"  ,  action="store_false", dest="verbose")    
+    # the standard is fine
+    
     op.set_defaults( verbose=True )     
          
            
