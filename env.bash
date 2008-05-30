@@ -19,6 +19,9 @@ dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 
 scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
+bitten-(){      . $ENV_HOME/bitten/bitten.bash  && . $ENV_HOME/bitten/bitten.bash $* ; }
+
+
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
 cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
 
