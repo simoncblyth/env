@@ -1,4 +1,4 @@
-"""subpkg __init__ docstring """
+"""subpkg__init__@example docstring """
 
 from context import ctx as ctx
 from context import present as present 

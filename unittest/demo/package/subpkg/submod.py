@@ -1,4 +1,4 @@
-"""subpkg/submod.py docstring"""
+"""subpkg_submod_py@example docstring   double_test@example """
 
 from context import ctx as ctx
 from context import present as present 
@@ -17,12 +17,12 @@ def setup():
 def teardown():
     present(ctx(globals()))
 def fail_func_test():
-    """ fail_func_test docstring """
+    """ fail_func_test@example docstring """
     present(ctx(globals()))
     assert False
 fail_func_test.__test__=fails
 def pass_func_test():
-    """ pass_func_test docstring """
+    """ pass_func_test@example docstring """
     present(ctx(globals()))
     pass
     
@@ -33,33 +33,33 @@ class submod_class:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
-        """ fail_method_test docstring """
+        """ fail_method_test@example docstring """
         assert False
     fail_method_test.__test__=fails
     def pass_method_test(self):
-        """ pass_method_test docstring """
+        """ pass_method_test@example docstring """
         pass
 
 # doing the below does not trick nosetests ... need the full defn 
 #submod_class_test=submod_class
 
 class submod_class_test:
-    """ submod_class_test docstring """
+    """ submod_class_test@example docstring """
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
-        """ fail_method_test docstring"""
+        """ fail_method_test@example docstring"""
         present(ctx(self))
         assert False
     fail_method_test.__test__=fails
     def pass_method_test(self):
-        """ pass_method_test docstring """
+        """ pass_method_test@example docstring """
         present(ctx(self))
         pass
 
 
 class submod_class_unit(unittest.TestCase):
-    """  these tests are run despite the name due to  the TestCase subclassing """
+    """  submod_class_unit@example these tests are run despite the name due to  the TestCase subclassing """
     
     #def __init__(self):
     #    """ this fails with ...  
@@ -82,12 +82,12 @@ class submod_class_unit(unittest.TestCase):
     def tearDown(self):
         present(ctx(self))
     def test_fail_method(self): 
-        """ test_fail_method docstring """
+        """ test_fail_method@example docstring """
         present(ctx(self))
         assert False
     test_fail_method.__test__=fails
     def test_pass_method(self): 
-        """ test_pass_method docstring """
+        """ test_pass_method@example docstring """
         present(ctx(self))
         pass
 

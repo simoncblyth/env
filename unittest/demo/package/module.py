@@ -1,4 +1,4 @@
-"""module docstring """
+"""module@example docstring """
 
 import unittest
 
@@ -27,13 +27,13 @@ def teardown():
     present(ctx(globals()))
 
 def fail_func_test():
-    """ fail func test docstring """
+    """ fail_func_test@example docstring """
     present(ctx(globals()))
     assert False
 fail_func_test.__test__ = fails
     
 def pass_func_test():
-    """ pass_func_test docstring """
+    """ pass_func_test@example docstring """
     present(ctx(globals()))
     pass
  
@@ -42,33 +42,39 @@ def pass_func_test():
 # nose supports test functions and methods that are generators
 #  http://www.somethingaboutorange.com/mrl/projects/nose/
 #
-#  this results in  4 tests.. with different arguments
+#  this results in multiple tests.. with different arguments
 def test_evens():
-    for i in range(0, 5):
+    """ test_evens@example """
+    for i in range(0,5,2):
         yield check_even, i, i*3
 
-test_evens.__test__=fails
+def test_odds():
+    """ test_odds@example """
+    for i in range(1,6,2):
+        yield check_even, i, i*3
+
+#test_evens.__test__=fails
 
 def check_even(n, nn):
     assert n % 2 == 0 or nn % 2 == 0      
 
                         
 class module_class:
-    """ module_class docstring """
+    """ module_class@example docstring """
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
-        """ fail_method_test docstring """
+        """ fail_method_test@example docstring """
         present(ctx(self))
         assert False
     fail_method_test.__test__ = fails
     def pass_method_test(self):
-        """ pass_method_test docstring """
+        """ pass_method_test@example docstring """
         present(ctx(self))
         pass
 
 class module_class_test:
-    """ module_class_test docstring """
+    """ module_class_test@example docstring """
     
     def setup(self):
         present(ctx(self))
@@ -77,19 +83,19 @@ class module_class_test:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
-        """ fail_method_test docstring """
+        """ fail_method_test@example docstring """
         present(ctx(self))
         assert False
     fail_method_test.__test__ = fails
         
     def pass_method_test(self):
-        """ pass_method_test docstring """
+        """ pass_method_test@example docstring """
         present(ctx(self))
         pass
 
 
 class module_class_unit(unittest.TestCase):
-    """ module_class_unit docstring """
+    """ module_class_unit@example docstring """
     #def __init__(self):
     #    """ this fails with ...  
     #         TypeError: __init__() takes exactly 1 argument (2 given)
@@ -115,14 +121,14 @@ class module_class_unit(unittest.TestCase):
  
     
     def test_fail_method(self):
-        """ test_fail_method docstring """
+        """ test_fail_method@example docstring """
         present(ctx(self))
         assert False
         
     test_fail_method.__test__ = fails
         
     def test_pass_method(self):
-        """ test_pass_method docstring """
+        """ test_pass_method@example docstring """
         present(ctx(self))
         pass
 

@@ -20,6 +20,7 @@ Provides test results in simple XML with full stack traces and source code of fa
 """
 import sys
 import os
+import re
 import traceback
 import logging
 from optparse import OptionGroup
@@ -68,6 +69,9 @@ def classify_ctx( ctx ):
         return "unknown"
 
 
+emailpatn = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+genpatn = re.compile(r'(\w*)(\(.*\))')
+
 class Stack:
     def __init__(self):
         self.ctxs = []
@@ -87,49 +91,91 @@ class Stack:
         return c
 
     def name(self,lev=-1):
-        ctx = self.ctx(lev)
+        _ctx = self.ctx(lev)
         try:
-            n = ctx.__name__
+            n = _ctx.__name__
         except AttributeError:
-            n = str(ctx).replace('<', '').replace('>', '')
-        return name
+            n = str(_ctx).replace('<', '').replace('>', '')
+        return n
     
     def file(self,lev=-1):
-        ctx = self.ctx(lev)
+        _ctx = self.ctx(lev)
         try:
-            path = ctx.__file__.replace('.pyc', '.py')
+            path = _ctx.__file__.replace('.pyc', '.py')
         except AttributeError:
             path = ""
         return path
           
     def callable(self,name,lev=-1):
-        ctx = self.ctx(lev)
-        try:
-            c = ctx.__dict__[name]
-        except Exception,ev:
-            print "failed to get callable for %s %s " % ( name , ev )
-            c = None
+        """ is the name is of the form hello(1,2) then assume a generator and call again with hello """
+        gen=genpatn.match(name)
+        if gen!=None:
+            log.info("callable name looks like a genrator %s " % name )
+            base = gen.group(1)
+            return self.callable(base,lev)
+        else:
+            _ctx = self.ctx(lev)
+            try:
+                c = _ctx.__dict__[name]
+            except Exception,ev:
+                print "failed to get callable for %s %s at level %d " % ( name , ev , lev )
+                c = None
         return c
-       
+             
+    def xml_responsible(self, name ):
+        """ the test and stack context doc strings are traversed backwards, 
+            the first level to yield contacts becomes the victims """
+        callable = self.callable(name)
+        docs = []
+        if callable != None:
+            docs.append(callable.__doc__)
+        nctx = len(self.ctxs)
+        for ic in range(nctx-1,-1,-1):
+            docs.append( self.doc(ic) )
+        
+        victim=[]
+        y=[]
+        for i in range(len(docs)):
+            if docs[i]==None:
+                d = ""
+            else:
+                d=docs[i]
+            resp = emailpatn.findall(d)
+            if len(resp)>0 and len(victim)==0:
+                victim = resp
+            y.append("<doc n=\"%d\" resp=\"%s\" >%s</doc>" % ( i, " ".join(resp),  d ) ) 
+        
+        x=["<responsible victim=\"%s\" >" % " ".join(victim)  ] 
+        x.extend(y)
+        x.append("</responsible>")
+        return x
+    
     def doc(self, lev=-1):
-        ctx = self.ctx(lev)
+        _ctx = self.ctx(lev)
         try:
-            d = ctx.__doc__
+            d = _ctx.__doc__
         except Exception,ev :
             print "failed to get doc %s " % ev
             d = None
         return d
-                                                                               
-    def xml_open(self,lev=-1):
-        ctx = self.ctxs[lev]
+          
+    def dump(self):
         x=[]
-        x.append("<context name=\"%s\"  type=\"%s\"  >" %  ( self.name(ctx) , classify_ctx(ctx) ))
-        x.append( "<doc>%s</doc>" % cdata(ctx.__doc__) )
+        x.append("<dump>")
+        for i in range(len(self.ctxs)):
+            x.extend(self.xml_context(i))
+        x.append("</dump>")
+        return x                                                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                              
+    def xml_context(self,lev=-1):
+        _ctx = self.ctxs[lev]
+        x=[]
+        x.append("<context name=\"%s\"  type=\"%s\" />" %  ( self.name(lev) , classify_ctx(_ctx) ))
+        #x.append( "<doc>%s</doc>" % cdata(_ctx.__doc__) )
+        #x.append("</context>")
         return x
         
-    def xml_close(self):
-        return "</context>"
-
+ 
 
 
 class XmlOutput(Plugin):
@@ -222,10 +268,16 @@ class XmlOutput(Plugin):
         tid = test.id()
         name = tid.split(".")[-1]
         callable = self.stack.callable(name)
+        
+        
+        
         path, module, call = test.address()
         path = path.replace('.pyc','.py') 
         x = []
         x.append("<test name=\"%s\" outcome=\"%s\" id=\"%s\" >" % ( name , outcome , tid ))
+        
+        x.extend(self.stack.dump())
+        x.extend(self.stack.xml_responsible(name))
         
         y = []
         if err==None:
@@ -251,6 +303,9 @@ class XmlOutput(Plugin):
         self.xml.extend(y)
         self.xml.extend(z)
 
+
+    
+
     def xml_result(self, result):
         x = []
         if not result.wasSuccessful():
@@ -264,7 +319,7 @@ class XmlOutput(Plugin):
         """ gets the source for the test class ... hmm what happens with functions/generators ?? """
         x=[]
         if obj==None:
-            return x
+            return x, -1
         lines, offset = inspect.getsourcelines( obj   )
         x.append('<source highlight=\"%s\" >' % (  " ".join([str(h) for h in highlight ])   ) )
         for i in range(len(lines)):
