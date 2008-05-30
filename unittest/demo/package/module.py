@@ -1,8 +1,9 @@
-"""
-module docstring 
-"""
+"""module docstring """
 
 import unittest
+
+from . import log 
+
 
 
 # these 3 are needed for main running not for use a part of package as this is done in the __init__.py 
@@ -26,11 +27,13 @@ def teardown():
     present(ctx(globals()))
 
 def fail_func_test():
+    """ fail func test docstring """
     present(ctx(globals()))
     assert False
 fail_func_test.__test__ = fails
     
 def pass_func_test():
+    """ pass_func_test docstring """
     present(ctx(globals()))
     pass
  
@@ -55,10 +58,12 @@ class module_class:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
+        """ fail_method_test docstring """
         present(ctx(self))
         assert False
     fail_method_test.__test__ = fails
     def pass_method_test(self):
+        """ pass_method_test docstring """
         present(ctx(self))
         pass
 
@@ -72,17 +77,19 @@ class module_class_test:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
+        """ fail_method_test docstring """
         present(ctx(self))
         assert False
     fail_method_test.__test__ = fails
         
     def pass_method_test(self):
+        """ pass_method_test docstring """
         present(ctx(self))
         pass
 
 
 class module_class_unit(unittest.TestCase):
-    
+    """ module_class_unit docstring """
     #def __init__(self):
     #    """ this fails with ...  
     #         TypeError: __init__() takes exactly 1 argument (2 given)
@@ -108,16 +115,18 @@ class module_class_unit(unittest.TestCase):
  
     
     def test_fail_method(self):
+        """ test_fail_method docstring """
         present(ctx(self))
         assert False
         
     test_fail_method.__test__ = fails
         
     def test_pass_method(self):
+        """ test_pass_method docstring """
         present(ctx(self))
         pass
 
-print "=====> instantiating module_class "
+log.debug("=====> instantiating module_class ")
 mc = module_class()
 
 

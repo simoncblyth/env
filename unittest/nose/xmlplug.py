@@ -1,12 +1,45 @@
 """
-Based on the html_plugin example
+Provides test results in simple XML with full stack traces and source code of failing tests.
+
+  Get help :
+       python xmlplug.py -h     
+       
+  Invoke a single test :
+       python xmlplug.py ../../roman/roman_test.py:FromRomanBadInput.testTooManyRepeatedNumerals --with-xml-output
+
+
+  NB 
+      Once developments of this plugin stabilise it will be installed into NOSE_HOME allowing usage with the 
+      standard nosetests entry point  
+
+  TODO :        
+         - avoid absolute paths in the output 
+         - access the source for a method or function rather than the whole test class
+    
+
 """
 import sys
+import os
 import traceback
-from inspect import getsourcelines
+import logging
+from optparse import OptionGroup
+
+import inspect
+
 from nose.plugins import Plugin
 from nose.inspector import inspect_traceback
-from nose.plugins.plugintest import run_buffered as run
+#from nose.plugins.plugintest import run_buffered as run
+from nose.core import run
+
+
+logging.basicConfig(level=logging.INFO)
+log =  logging.getLogger(__name__)
+
+
+
+def cdata(s):
+    return "<![CDATA[%s]]>" % s
+
 
 def tb_filename(tb):
     return tb.tb_frame.f_code.co_filename
@@ -16,28 +49,116 @@ def tb_iter(tb):
         yield tb
         tb = tb.tb_next
 
+def classify_ctx( ctx ):
+    if inspect.ismodule(ctx):
+        return "module"
+    elif inspect.isclass(ctx):
+        return "class"
+    elif inspect.ismethod(ctx):
+        return "method"
+    elif inspect.isfunction(ctx):
+        return "function"
+    elif inspect.iscode(ctx):
+        return "code"
+    elif inspect.isbuiltin(ctx):
+        return "builtin"
+    elif inspect.isroutine(ctx):
+        return "routine"
+    else:
+        return "unknown"
+
+
+class Stack:
+    def __init__(self):
+        self.ctxs = []
+
+    def push(self, ctx):
+        self.ctxs.append(ctx)
+
+    def pop(self):
+        return self.ctxs.pop()
+    
+    def ctx(self,lev=-1):
+        try:
+            c = self.ctxs[lev]
+        except IndexError,ie:
+            log.error("failed to get the context for " )
+            c = None
+        return c
+
+    def name(self,lev=-1):
+        ctx = self.ctx(lev)
+        try:
+            n = ctx.__name__
+        except AttributeError:
+            n = str(ctx).replace('<', '').replace('>', '')
+        return name
+    
+    def file(self,lev=-1):
+        ctx = self.ctx(lev)
+        try:
+            path = ctx.__file__.replace('.pyc', '.py')
+        except AttributeError:
+            path = ""
+        return path
+          
+    def callable(self,name,lev=-1):
+        ctx = self.ctx(lev)
+        try:
+            c = ctx.__dict__[name]
+        except Exception,ev:
+            print "failed to get callable for %s %s " % ( name , ev )
+            c = None
+        return c
+       
+    def doc(self, lev=-1):
+        ctx = self.ctx(lev)
+        try:
+            d = ctx.__doc__
+        except Exception,ev :
+            print "failed to get doc %s " % ev
+            d = None
+        return d
+                                                                               
+    def xml_open(self,lev=-1):
+        ctx = self.ctxs[lev]
+        x=[]
+        x.append("<context name=\"%s\"  type=\"%s\"  >" %  ( self.name(ctx) , classify_ctx(ctx) ))
+        x.append( "<doc>%s</doc>" % cdata(ctx.__doc__) )
+        return x
+        
+    def xml_close(self):
+        return "</context>"
+
+
+
 class XmlOutput(Plugin):
     """Output test results as XML
-       how to test : 
-        python xmlplug.py ../../roman/roman_test.py:FromRomanBadInput.testTooManyRepeatedNumerals --with-xml-output
-        
-        ISSUES ..
-             - avoid absolute paths in the output 
-             - access the source for a method or function rather than the whole test class
-        
-        
     """
     name = 'xml-output'
     score = 2 # run late
     def __init__(self):
         super(XmlOutput, self).__init__()
         self.xml = ['<report>']
-        self.file = None
+        self.path = None
+        self.stack = Stack()
+
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)
+        group = OptionGroup(parser, "%s plugin " % self.__class__.name,  "Output test results in XML with full stack traces and source code of failing tests. "  )
+        group.add_option("--xml-outfile"   , default=os.environ.get('NOSE_XML_OUTFILE')  , type="string" , help="path to write xml test results to, rather than stdout, default:[%default] " ) 
+        group.add_option("--xml-basepath"  , default=os.environ.get('NOSE_XML_BASEPATH')  , type="string" , help="absolute base path to be removed from paths reported in the output, default:[%default]  ")  
+        group.add_option("--xml-baseprefix", default=os.environ.get('NOSE_XML_BASEPREFIX')  , type="string" , help="replace the basepath specified in --xml-basepath with this prefix, default:[%default] ")
+        parser.add_option_group(group)
+        
+    def configure(self, options, config):
+        log.debug("XmlOut configure")
+        Plugin.configure(self, options, config)
+        self.config = config
+        self.options = options        
 
     def setOutputStream(self, stream):
-        # grab for own use
         self.stream = stream        
-        # return dummy stream
         class dummy:
             def write(self, *arg):
                 pass
@@ -47,87 +168,105 @@ class XmlOutput(Plugin):
         return d
         
     def finalize(self , result ):
-        self.xml.append('<finalize tests=\"%d\" failures=\"%d\" errors=\"%d\" > ' %  ( result.testsRun, len(result.failures), len(result.errors) ))
+        self.xml.extend( self.xml_result( result ) )
+        self.xml.append('</report>')
+        if self.options.xml_outfile!=None:
+            self.write_out( self.options.xml_outfile )
+        else:
+            for l in self.xml:
+                self.stream.writeln(l)
+        
+    def write_out( self , path ):
+        try:
+            dir = os.path.dirname( path )
+            if not(os.path.exists(dir)):
+                os.makedirs( dir )
+            f = open(path,"w")
+            for l in self.xml:
+                f.write(l)
+                f.write("\n")  
+        except IOError, (errno, strerror):
+            print "I/O error(%s): %s" % (errno, strerror)
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+        else:
+            f.close()
+    def present_path( self , path ):
+        base = self.options.xml_basepath
+        pfx = self.options.xml_baseprefix
+        if base!=None:
+            if pfx!=None:
+                nath = path.replace(base,pfx)
+            else:
+                nath = path.replace(os.path.join(base,"/"),"")
+        else:
+            nath = path
+        return nath
+                
+    def startContext( self, ctx ):
+        self.stack.push(ctx)
+    def stopContext(self, ctx ):
+        self.stack.pop() 
+    def startTest(self,test):
+        pass
+    def stopTest(self,test):
+        pass
+    def addSuccess(self,test):
+        self.xml_test( test , "SUCCESS"  )
+    def addError(self,test,err):
+        self.xml_test( test , "ERROR" , err )
+    def addFailure(self,test,err):
+        self.xml_test( test , "FAIL" , err )
+    def xml_test(self, test , outcome , err=None ):        
+        tid = test.id()
+        name = tid.split(".")[-1]
+        callable = self.stack.callable(name)
+        path, module, call = test.address()
+        path = path.replace('.pyc','.py') 
+        x = []
+        x.append("<test name=\"%s\" outcome=\"%s\" id=\"%s\" >" % ( name , outcome , tid ))
+        
+        y = []
+        if err==None:
+            xml, offset = self.xml_source( callable , [] )
+            y.extend(xml)
+        else:
+            xml, highlight = self.xml_stack( err )
+            x.extend( xml )
+            xml, offset = self.xml_source( callable , highlight )
+            y.extend( xml )
+            y.extend( self.xml_traceback( err ))
+            y.extend( self.xml_detailed( err ))
+        
+        ppath = self.present_path(path)
+        
+        href = "%s#L%d" % ( ppath , offset )
+        x.append("<address path=\"%s\" offset=\"%d\" module=\"%s\" call=\"%s\"  href=\"%s\" />" % ( ppath , offset , module , call, href ) )
+        x.append("<doc>%s</doc>" % cdata( callable.__doc__ ) )
+        
+        z = ["</test>"]
+        
+        self.xml.extend(x)
+        self.xml.extend(y)
+        self.xml.extend(z)
+
+    def xml_result(self, result):
+        x = []
         if not result.wasSuccessful():
-            conc = "FAILED"
+            conc = "FAIL"
         else:
             conc = "OK"
-        self.xml.append('<conclusion>%s</conclusion>' % conc )
-        self.xml.append('</finalize>')
-        self.xml.append('</report>')
-        for l in self.xml:
-            self.stream.writeln(l)
-        
-    def startContext( self, ctx ):
-        """
-        
-           hmm what does nose traverse :
-        
-            package : directory containing the __init__.py file
-               module : the __name__.py file which is __file__
-                  generator 
-                  function
-                  class
-                     method
-        """
-        try:
-            n = ctx.__name__
-        except AttributeError:
-            n = str(ctx).replace('<', '').replace('>', '')
-        nctx = " name=\"%s\" " % n
-        
-        try:
-            path = ctx.__file__.replace('.pyc', '.py')
-            pctx = " path=\"%s\" " % path 
-        except AttributeError:
-            pctx = ""
-            pass
-        self.xml.append( "<context %s %s >"  % ( nctx  , pctx ) )
-        
-    def stopContext(self, ctx ):
-        self.xml.append("</context>")
-        
-    def startTest(self,test):
-        file, module, call = test.address()
-        self.file = file.replace('.pyc','.py') 
-        self.xml.append('<test id=\"%s\" file=\"%s\" module=\"%s\" call=\"%s\"  >' % ( test.id() , self.file , module , call ) )
-        tt = type(test.test)
-        self.xml.append('<type><![CDATA[%s]]></type>' %  tt ) 
-        self.xml.append('<description><![CDATA[%s]]></description>' % test.shortDescription() or str(test) )
-    
-    def stopTest(self,test):
-        self.xml.append('</test>')
-    
-    def addSuccess(self,test):
-        name = "success"
-        self.xml.append("<%s id=\"%s\" >" % ( name , test.id() ) )
-        #self.source( test , [] )
-        self.xml.append("</%s>" % name )
-        
-    def addError(self,test,err):
-        name = "error"
-        self.xml.append("<%s id=\"%s\" >" %  ( name , test.id() ) )
-        highlight = self.stack( err )
-        self.source( test , highlight )
-        self.error( err )
-        self.detailed( err )
-        self.xml.append("</%s>" % name )
-    
-    def addFailure(self,test,err):
-        name = "failure"
-        self.xml.append("<%s id=\"%s\" >" % ( name , test.id() ) )
-        highlight = self.stack( err )
-        self.source( test , highlight  )
-        self.error( err )
-        self.detailed( err )
-        self.xml.append("</%s>" % name )    
-        
+        x.append('<result tests=\"%d\" failures=\"%d\" errors=\"%d\" >%s</result> ' %  ( result.testsRun, len(result.failures), len(result.errors),conc ))
+        return x
 
-    def source( self , test , highlight ):
-        ## gets the source for the test class ... hmm what happens with functions/generators ??
-        tt = type(test.test)
-        lines, offset = getsourcelines( tt  )
-        self.xml.append('<source id=\"%s\" highlight=\"%s\" >' % ( test.id() , " ".join([str(h) for h in highlight ])   ) )
+    def xml_source( self , obj , highlight ):
+        """ gets the source for the test class ... hmm what happens with functions/generators ?? """
+        x=[]
+        if obj==None:
+            return x
+        lines, offset = inspect.getsourcelines( obj   )
+        x.append('<source highlight=\"%s\" >' % (  " ".join([str(h) for h in highlight ])   ) )
         for i in range(len(lines)):
             line = lines[i]
             if line and line[-1] == '\n':
@@ -136,39 +275,50 @@ class XmlOutput(Plugin):
                 mark = 1
             else:
                 mark = 0
-            self.xml.append('<line n=\"%d\" mark=\"%d\" ><![CDATA[%s]]></line>' % ( offset + i , mark ,  line )  )
-        self.xml.append('</source>')
+            x.append('<line n=\"%d\" mark=\"%d\" ><![CDATA[%s]]></line>' % ( offset + i , mark ,  line )  )
+        x.append('</source>')
+        return x, offset
 
-    def stack( self , err  ):
+    def xml_stack( self , err  ):
+        x=[]
+        if err==None:
+            return x
         ec, ev, tb = err
-        self.xml.append('<stack>')
- 
+        x.append('<stack>')
         highlight = []
         for tb in tb_iter(tb):
             tbf = tb_filename(tb)
             tbl = tb.tb_lineno
             mark = 0
-            if tbf == self.file: 
+            if tbf == self.path: 
                 highlight.append(tbl)
                 mark = 1
-            self.xml.append('<call ln=\"%d\" mark=\"%d\" >%s</call>' % ( tbl, mark , tbf ))
-        self.xml.append('</stack>')
-        return highlight 
+            x.append('<call ln=\"%d\" mark=\"%d\" >%s</call>' % ( tbl, mark , self.present_path(tbf) ))
+        x.append('</stack>')
+        return (x, highlight) 
 
-    def detailed(self , err ):
+    def xml_detailed(self , err ):
         """ from the FailureDetail Plugin   formatFailure ... but pretty trivial, so dont try to get plugins working togther..
             Add detail from traceback inspection to error message of a failure."""
+        x=[]
+        if err==None:
+            return x
         ec, ev, tb = err
         tbinfo = inspect_traceback(tb)
-        self.xml.append('<detailed>')
-        self.xml.append('<exception><![CDATA[%s]]></exception>' % str(ec) )
-        self.xml.append('<exvalue><![CDATA[%s]]></exvalue>' % str(ev) )
-        self.xml.append('<traceback><![CDATA[%s]]></traceback>' % tbinfo )
-        self.xml.append('</detailed>')    
+        x.append('<detailed>')
+        x.append('<exception><![CDATA[%s]]></exception>' % str(ec) )
+        x.append('<exvalue><![CDATA[%s]]></exvalue>' % str(ev) )
+        x.append('<traceback><![CDATA[%s]]></traceback>' % tbinfo )
+        x.append('</detailed>')    
+        return x
 
-    def error(self, err):
+    def xml_traceback(self, err):
         ec, ev, tb = err
-        self.xml.append('<error><![CDATA[%s]]></error>' %  '\n'.join(traceback.format_exception(ec, ev, tb)))        
+        x=[]
+        if err==None:
+            return x
+        x.append('<traceback><![CDATA[%s]]></traceback>' %  '\n'.join(traceback.format_exception(ec, ev, tb)))        
+        return x
 
 
 

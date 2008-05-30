@@ -1,6 +1,4 @@
-"""
-subpkg __init__ docstring 
-"""
+"""subpkg __init__ docstring """
 
 from context import ctx as ctx
 from context import present as present 

@@ -26,7 +26,7 @@ nose-env(){
   export NOSE_NAME=nose-0.10.2
   export NOSE_HOME=$LOCAL_BASE/nose/$NOSE_NAME
 
-  alias nosed="python $ENV_HOME/unittest/nose/nosed.py"
+  
 
 
   local pp=$NOSE_HOME/lib/python2.5/site-packages 
@@ -45,6 +45,40 @@ nose-env(){
      echo $PATH | grep $p > /dev/null || PATH=$p:$PATH
   fi
   export PATH
+
+}
+
+
+nose-xp(){
+
+  local cmd="python $ENV_HOME/unittest/nose/xmlplug.py --with-xml-output --xml-outfile tests/nose/results.xml --xml-basepath $ENV_HOME --xml-baseprefix=http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk $*"
+  echo $cmd
+  eval $cmd
+  
+}
+
+nose-xp-run(){
+
+   local iwd=$PWD
+   cd $ENV_HOME/unittest/demo
+   
+   nose-xp
+   local cmd="cp tests/nose/results.xml $ENV_HOME/unittest/nose/html/results.xml"
+   echo $cmd
+   eval $cmd
+   
+   cd $iwd
+}
+
+nose-xp-tran(){
+ 
+    local iwd=$PWD
+    cd $ENV_HOME/unittest/nose/html
+    
+    xsltproc nose.xsl results.xml > results.html
+    open results.html
+    
+    cd $iwd
 
 }
 

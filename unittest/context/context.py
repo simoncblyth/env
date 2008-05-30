@@ -1,6 +1,10 @@
 
 #import inspect
 
+import logging
+log =  logging.getLogger(__name__)
+log.setLevel(logging.INFO)
+
 
 def whereami(gbls):
     #print gbls
@@ -85,8 +89,8 @@ def ctx(g):
     return "/".join(pos)
 
 def present(place):
-    print "\n%s" % place
-
+    #print "\n%s" % place
+    log.debug(place)
 
 
 

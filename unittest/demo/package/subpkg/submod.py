@@ -1,9 +1,9 @@
-"""
-  subpkg/submod.py docstring
-"""
+"""subpkg/submod.py docstring"""
 
 from context import ctx as ctx
 from context import present as present 
+
+from .. import log 
 
 present(ctx(globals()))
 
@@ -17,10 +17,12 @@ def setup():
 def teardown():
     present(ctx(globals()))
 def fail_func_test():
+    """ fail_func_test docstring """
     present(ctx(globals()))
     assert False
 fail_func_test.__test__=fails
 def pass_func_test():
+    """ pass_func_test docstring """
     present(ctx(globals()))
     pass
     
@@ -31,9 +33,11 @@ class submod_class:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
+        """ fail_method_test docstring """
         assert False
     fail_method_test.__test__=fails
     def pass_method_test(self):
+        """ pass_method_test docstring """
         pass
 
 # doing the below does not trick nosetests ... need the full defn 
@@ -44,10 +48,12 @@ class submod_class_test:
     def __init__(self):
         present(ctx(self))
     def fail_method_test(self):
+        """ fail_method_test docstring"""
         present(ctx(self))
         assert False
     fail_method_test.__test__=fails
     def pass_method_test(self):
+        """ pass_method_test docstring """
         present(ctx(self))
         pass
 
@@ -76,19 +82,21 @@ class submod_class_unit(unittest.TestCase):
     def tearDown(self):
         present(ctx(self))
     def test_fail_method(self): 
+        """ test_fail_method docstring """
         present(ctx(self))
         assert False
     test_fail_method.__test__=fails
     def test_pass_method(self): 
+        """ test_pass_method docstring """
         present(ctx(self))
         pass
 
 
 
-print "=====> instantiating submod_class "
+log.debug("=====> instantiating submod_class ")
 smc = submod_class()
 
-print "=====> instantiating submod_class_test "
+log.debug("=====> instantiating submod_class_test ")
 smct = submod_class_test()
 
 
