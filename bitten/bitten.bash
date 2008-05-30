@@ -106,3 +106,9 @@ bitten-trac-perms(){
      
 }
 
+bitten-slave-run(){
+
+   local name=$BITTEN_ENV
+   bitten-slave $SCM_URL/tracs/$name/builds
+
+}
