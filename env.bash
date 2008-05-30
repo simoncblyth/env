@@ -19,7 +19,7 @@ dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 
 scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
-bitten-(){      . $ENV_HOME/bitten/bitten.bash  && . $ENV_HOME/bitten/bitten.bash $* ; }
+bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
 
 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
@@ -27,6 +27,7 @@ cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; }
 
 trac-(){        . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
 trac-conf-(){   . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
+trac-ini-(){    . $ENV_HOME/scm/trac/trac-ini.bash  && trac-ini-env  $* ; } 
 
 svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
