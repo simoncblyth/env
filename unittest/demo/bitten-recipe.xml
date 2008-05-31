@@ -1,20 +1,11 @@
-<?xml version="1.0" ?>
 <build 
     xmlns:python="http://bitten.cmlenz.net/tools/python" 
     xmlns:svn="http://bitten.cmlenz.net/tools/svn" 
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
-
-  <!--
-      normally the recipe is held on the master ...
-      but it is handy to have it locally on the slave machine for debugging/testing 
-
-     to that end tis a pitty the seems no easy way to set ,,, path config build revision locally 
-   -->
-
   
   <step id="update" description="svn update" >
-        <svn:update revision="${repository.revision}"/>
+        <svn:update revision="${revision}"/>
   </step>
 
   <!--step id="test" description="Run unit tests">
@@ -22,18 +13,22 @@
     <python:unittest file="build/test-results.xml"/>
   </step-->
 
-  <step id="env" description="Dump env for debugging" >
+  <step id="env" description="Dump context that the master provides along with this recipe " >
       <sh:exec executable="echo" output="echo.txt" args=" path ${path} config ${config} build ${build} revision ${revision}     " />
   </step>
 
-  <step id="test" description="Run unit tests">
+  
+  
+ <step id="test" description="Run unit tests">
      <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
-     <sh:exec executable="bash"  output="nose.xml"  args=" -c  &quot; python $ENV_HOME/unittest/nose/xmlplug.py $ENV_HOME/unittest/demo  --with-xml-output  &quot;  "  />
+     <sh:exec executable="bash"  
+         output="nose.xml"  
+         args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//} --with-xml-output  &quot;  "  />
   </step>
 
-  
+
+
+
+
 
 </build>
-
-
-
