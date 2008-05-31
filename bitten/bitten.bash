@@ -60,7 +60,6 @@ bitten-env(){
   export BITTEN_ENV=$env
 }
 
-
 bitten-get(){
   local iwd=$PWD
   mkdir -p $(dirname $BITTEN_HOME)
@@ -93,8 +92,6 @@ bitten-trac-admin(){
    local name=$BITTEN_ENV
    $SUDO trac-admin $SCM_FOLD/tracs/$name $*
 }
-
-
 
 bitten-trac-perms(){
  
