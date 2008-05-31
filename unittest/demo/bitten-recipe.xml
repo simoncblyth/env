@@ -13,13 +13,20 @@
     <python:unittest file="build/test-results.xml"/>
   </step-->
 
-  <step id="env" description="Dump context that the master provides along with this recipe " >
+  <step id="env" description="Dump env for debugging" >
       <sh:exec executable="echo" output="echo.txt" args=" path ${path} config ${config} build ${build} revision ${revision}     " />
   </step>
 
   
+<step id="txttest" description="Run unit tests with txt output ">
+     <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
+     <sh:exec executable="bash"  
+         output="nose.txt"  
+         args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//}     &quot;  "  />
+  </step>
+
   
- <step id="test" description="Run unit tests">
+ <step id="xmltest" description="Run unit tests with xml output ">
      <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
      <sh:exec executable="bash"  
          output="nose.xml"  
