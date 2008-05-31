@@ -3,12 +3,6 @@
     xmlns:svn="http://bitten.cmlenz.net/tools/svn" 
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
-
-  <!--
-       this is here to document the edits done in the master
-
-   -->
-
   
   <step id="update" description="svn update" >
         <svn:update revision="${revision}"/>
@@ -39,6 +33,9 @@
      <sh:exec executable="bash"  
          output="nose.xml"  
          args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//} --with-xml-output  &quot;  "  />
+
+     <report category="test" file="nose.xml"/>
+
   </step>
 
 

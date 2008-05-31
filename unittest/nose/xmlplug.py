@@ -186,7 +186,7 @@ class XmlOutput(Plugin):
     score = 2 # run late
     def __init__(self):
         super(XmlOutput, self).__init__()
-        self.xml = ['<report category="test">']
+        self.xml = ['<report category="test" generator="http://bitten.cmlenz.net/tools/python#unittest"  >']
         self.path = None
         self.stack = Stack()
 
