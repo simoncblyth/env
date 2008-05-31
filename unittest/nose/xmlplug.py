@@ -186,7 +186,7 @@ class XmlOutput(Plugin):
     score = 2 # run late
     def __init__(self):
         super(XmlOutput, self).__init__()
-        self.xml = ['<report>']
+        self.xml = ['<report category="test">']
         self.path = None
         self.stack = Stack()
 
@@ -260,12 +260,35 @@ class XmlOutput(Plugin):
     def stopTest(self,test):
         pass
     def addSuccess(self,test):
-        self.xml_test( test , "SUCCESS"  )
+        self.xml_test( test , "success"  )
     def addError(self,test,err):
-        self.xml_test( test , "ERROR" , err )
+        self.xml_test( test , "error" , err )
     def addFailure(self,test,err):
-        self.xml_test( test , "FAIL" , err )
-    def xml_test(self, test , outcome , err=None ):        
+        self.xml_test( test , "failure" , err )
+    def xml_test(self, test , status , err=None ):        
+        """
+       
+        Adopt the bitten format 
+             http://bitten.edgewall.org/wiki/ReportFormats
+             http://groups.google.com/group/bitten/browse_thread/thread/537d240d0124cde0 
+          
+        duration: float duration of test 
+          status: string "success" or "failure" or "error" 
+            name: string name of the test 
+         fixture: string name of the test fixture 
+            file: path to test file relative to the base path for the build 
+                 configuration 
+          stdout: The output from the test 
+       traceback: The traceback from any error or failure. 
+       
+       examples...
+         fixture="bitten.tests.model.BuildConfigTestCase"
+         name="test_config_update_name" 
+         file="bitten/tests/model.py"
+        
+        """
+        
+        
         tid = test.id()
         name = tid.split(".")[-1]
         callable = self.stack.callable(name)
@@ -275,28 +298,40 @@ class XmlOutput(Plugin):
         path, module, call = test.address()
         path = path.replace('.pyc','.py') 
         x = []
-        x.append("<test name=\"%s\" outcome=\"%s\" id=\"%s\" >" % ( name , outcome , tid ))
+        x.append("<test>")
         
-        x.extend(self.stack.dump())
-        x.extend(self.stack.xml_responsible(name))
+        duration = 0.1
+        stdout = " stdout "
+       
+        x.append("<id>%s</id>" % tid )
+        x.append("<duration>%f</duration>" % duration )
+        x.append("<status>%s</status>" % status ) 
+        x.append("<name>%s</name>" % name )
+        x.append("<fixture>%s</fixture>" % path )
+        x.append("<file>%s</file>" % path )
+        x.append("<stdout>%s</stdout>" % stdout )
+       
+
+        #x.extend(self.stack.dump())
+        #x.extend(self.stack.xml_responsible(name))
         
         y = []
         if err==None:
             xml, offset = self.xml_source( callable , [] )
-            y.extend(xml)
+            #y.extend(xml)
         else:
             xml, highlight = self.xml_stack( err )
-            x.extend( xml )
+            #x.extend( xml )
             xml, offset = self.xml_source( callable , highlight )
-            y.extend( xml )
+            #y.extend( xml )
             y.extend( self.xml_traceback( err ))
-            y.extend( self.xml_detailed( err ))
+            #y.extend( self.xml_detailed( err ))
         
         ppath = self.present_path(path)
         
         href = "%s#L%d" % ( ppath , offset )
-        x.append("<address path=\"%s\" offset=\"%d\" module=\"%s\" call=\"%s\"  href=\"%s\" />" % ( ppath , offset , module , call, href ) )
-        x.append("<doc>%s</doc>" % cdata( callable.__doc__ ) )
+        #x.append("<address path=\"%s\" offset=\"%d\" module=\"%s\" call=\"%s\"  href=\"%s\" />" % ( ppath , offset , module , call, href ) )
+        #x.append("<doc>%s</doc>" % cdata( callable.__doc__ ) )
         
         z = ["</test>"]
         

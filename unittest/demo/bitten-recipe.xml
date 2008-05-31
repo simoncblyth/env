@@ -27,7 +27,9 @@
 
   
  <step id="xmltest" description="Run unit tests with xml output ">
+    <!--
      <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
+     -->
      <sh:exec executable="bash"  
          output="nose.xml"  
          args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//} --with-xml-output  &quot;  "  />
