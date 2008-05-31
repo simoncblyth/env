@@ -34,9 +34,9 @@ from nose.inspector import inspect_traceback
 from nose.core import run
 
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 log =  logging.getLogger(__name__)
-
+log.setLevel(logging.INFO)
 
 
 def cdata(s):
@@ -111,7 +111,7 @@ class Stack:
         """ is the name is of the form hello(1,2) then assume a generator and call again with hello """
         gen=genpatn.match(name)
         if gen!=None:
-            log.info("callable name looks like a genrator %s " % name )
+            log.debug("callable name looks like a genrator %s " % name )
             base = gen.group(1)
             return self.callable(base,lev)
         else:

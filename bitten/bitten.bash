@@ -128,6 +128,46 @@ bitten-slave-run(){
 }
 
 
+bitten-slave-minimal(){
+
+   ## the less smarts the slave needs the better 
+
+   local msg="=== $FUNCNAME :"
+   local cfg=$ENV_HOME/bitten/$LOCAL_NODE.cfg
+
+   [ ! -f $cfg ] && echo $msg ERROR no bitten config file $file for LOCAL_NODE $LOCAL_NODE && return 1
+
+   local iwd=$PWD
+   local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
+   cd $tmp
+   
+   bitten-slave $* -v --dump-reports -f $cfg  $SCM_URL/tracs/env/builds
+   
+   cd $iwd
+}
+
+
+bitten-slave-remote(){
+
+    cd $ENV_HOME/unittest/demo
+
+    local cmd=$(cat << EOC
+     bitten-slave -v $* 
+         --dump-reports 
+          --work-dir=.
+         --build-dir=
+         --keep-files 
+         -f bitten-recipe.cfg 
+            $SCM_URL/tracs/env/builds
+EOC)
+  echo $cmd
+  eval $cmd
+
+
+
+}
+
+
 bitten-slave-test(){
 
   local config=demo
