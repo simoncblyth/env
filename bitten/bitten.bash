@@ -40,6 +40,13 @@ cat << EOU
        ## and the web interface has a "Build Status" tab 
 
 
+
+    bitten-extras-get  : for nose xml plugin and bitten mods to present results
+        ##  see  http://bitten.edgewall.org/ticket/147
+
+
+
+
     which bitten-slave : $(which bitten-slave)
 
 EOU
@@ -48,7 +55,9 @@ EOU
 
 bitten-env(){
   elocal-
-  export BITTEN_HOME=$HOME/bitten
+  export BITTEN_FOLD=$HOME/bitten
+  export BITTEN_HOME=$BITTEN_FOLD/bitten
+ 
   
   local env
   case $NODE_TAG in
@@ -62,10 +71,12 @@ bitten-env(){
 
 bitten-get(){
   local iwd=$PWD
-  mkdir -p $(dirname $BITTEN_HOME)
-  cd $(dirname $BITTEN_HOME)
+  mkdir -p $BITTEN_FOLD
+  cd $BITTEN_FOLD
   [ ! -d bitten ] && svn co http://svn.edgewall.org/repos/bitten/trunk bitten
   cd bitten
+  [ "$PWD" != "$BITTEN_HOME" ] && echo $msg BITTEN_HOME $BITTEN_HOME inconsistency && return 1 
+  
   svn info
   svn up
   cd $iwd
@@ -95,9 +106,15 @@ bitten-trac-admin(){
 
 bitten-trac-perms(){
  
-  bitten-trac-admin permission add anonymous BUILD_EXEC
-  bitten-trac-admin permission add anonymous BUILD_VIEW
+  #bitten-trac-admin permission add anonymous BUILD_EXEC
+  #bitten-trac-admin permission add anonymous BUILD_VIEW
+  
   bitten-trac-admin permission add blyth BUILD_ADMIN
+  bitten-trac-admin permission add blyth BUILD_VIEW
+  bitten-trac-admin permission add blyth BUILD_EXEC
+  
+  ## TODO: fix up a slave user to do this kind of stuff
+  bitten-trac-admin permission add slave BUILD_EXEC
 
   bitten-trac-admin permission list
      
@@ -109,3 +126,36 @@ bitten-slave-run(){
    bitten-slave $SCM_URL/tracs/$name/builds
 
 }
+
+
+bitten-slave-test(){
+
+  local config=demo
+  local build=6
+  local build_dir=build_${config}_${build}
+  local work_dir=$PWD
+
+  local cmd=$(cat << EOC
+     bitten-slave -v -n --dump-reports 
+         --work-dir=${work_dir}
+         --build-dir=${build_dir}
+         --keep-files 
+         -f bitten-recipe.cfg 
+            bitten-recipe.xml  
+EOC)
+  echo $cmd
+  eval $cmd
+}
+
+bitten-extras-get(){
+
+   ## 
+
+   mkdir -p $BITTEN_FOLD
+   cd $BITTEN_FOLD
+
+   svn co http://bitten.ufsoft.org/svn/BittenExtraTrac/trunk/  bittentrac
+   svn co http://bitten.ufsoft.org/svn/BittenExtraNose/trunk/  nosebitten
+}
+
+

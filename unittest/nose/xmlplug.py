@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Provides test results in simple XML with full stack traces and source code of failing tests.
 
