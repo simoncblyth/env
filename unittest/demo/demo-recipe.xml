@@ -3,6 +3,12 @@
     xmlns:svn="http://bitten.cmlenz.net/tools/svn" 
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
+
+  <!--
+       this is here to document the edits done in the master
+
+   -->
+
   
   <step id="update" description="svn update" >
         <svn:update revision="${revision}"/>
