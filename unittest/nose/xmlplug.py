@@ -196,6 +196,8 @@ class XmlOutput(Plugin):
         group.add_option("--xml-outfile"   , default=os.environ.get('NOSE_XML_OUTFILE')  , type="string" , help="path to write xml test results to, rather than stdout, default:[%default] " ) 
         group.add_option("--xml-basepath"  , default=os.environ.get('NOSE_XML_BASEPATH')  , type="string" , help="absolute base path to be removed from paths reported in the output, default:[%default]  ")  
         group.add_option("--xml-baseprefix", default=os.environ.get('NOSE_XML_BASEPREFIX')  , type="string" , help="replace the basepath specified in --xml-basepath with this prefix, default:[%default] ")
+        fmts = ['debug','bitten']
+        group.add_option("--xml-format"  ,   default=fmts[-1]  , choices=fmts , help="choose one of: %s   default:[%%default] " % ", ".join(fmts) )
         parser.add_option_group(group)
         
     def configure(self, options, config):
@@ -276,8 +278,7 @@ class XmlOutput(Plugin):
           status: string "success" or "failure" or "error" 
             name: string name of the test 
          fixture: string name of the test fixture 
-            file: path to test file relative to the base path for the build 
-                 configuration 
+            file: path to test file relative to the base path for the build configuration 
           stdout: The output from the test 
        traceback: The traceback from any error or failure. 
        
@@ -286,14 +287,21 @@ class XmlOutput(Plugin):
          name="test_config_update_name" 
          file="bitten/tests/model.py"
         
+        http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/unittest/demo/Users/blyth/env/unittest/demo/package/module_test.py
+        http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/unittest/demo/Users/blyth/env/unittest/demo/package/subpkg/submod_test.py
+        
+        the file should be relative to 
+                              /Users/blyth/env/unittest/demo
+                 
+            the path for the config is   trunk/unittest/demo     
+                 
         """
         
+        dbg = self.options.xml_format=='debug'
         
         tid = test.id()
         name = tid.split(".")[-1]
         callable = self.stack.callable(name)
-        
-        
         
         path, module, call = test.address()
         path = path.replace('.pyc','.py') 
@@ -303,29 +311,31 @@ class XmlOutput(Plugin):
         duration = 0.1
         stdout = " stdout "
        
-        x.append("<id>%s</id>" % tid )
+        if dbg: x.append("<id>%s</id>" % tid )
         x.append("<duration>%f</duration>" % duration )
         x.append("<status>%s</status>" % status ) 
         x.append("<name>%s</name>" % name )
-        x.append("<fixture>%s</fixture>" % path )
+        x.append("<fixture>%s</fixture>" % tid )
         x.append("<file>%s</file>" % path )
         x.append("<stdout>%s</stdout>" % stdout )
        
-
-        #x.extend(self.stack.dump())
-        #x.extend(self.stack.xml_responsible(name))
+ 
+       
+        if dbg: 
+            x.extend(self.stack.dump())
+            x.extend(self.stack.xml_responsible(name))
         
         y = []
         if err==None:
             xml, offset = self.xml_source( callable , [] )
-            #y.extend(xml)
+            y.extend(xml)
         else:
             xml, highlight = self.xml_stack( err )
-            #x.extend( xml )
+            if dbg: x.extend( xml )
             xml, offset = self.xml_source( callable , highlight )
-            #y.extend( xml )
+            if dbg: y.extend( xml )
             y.extend( self.xml_traceback( err ))
-            #y.extend( self.xml_detailed( err ))
+            if dbg: y.extend( self.xml_detailed( err ))
         
         ppath = self.present_path(path)
         

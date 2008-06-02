@@ -30,10 +30,8 @@
     <!--
      <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
      -->
-     <sh:exec executable="bash"  
-         output="nose.xml"  
-         args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//} --with-xml-output  &quot;  "  />
-
+     <sh:exec executable="bash"  output="nose.xml"  
+         args=" -c  &quot; ${repository.home}/bitten/noserun.sh ${path} ${config} ${build} ${revision} &quot;  "  />
      <report category="test" file="nose.xml"/>
 
   </step>

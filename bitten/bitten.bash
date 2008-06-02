@@ -138,7 +138,7 @@ bitten-slave-minimal(){
    [ ! -f $cfg ] && echo $msg ERROR no bitten config file $file for LOCAL_NODE $LOCAL_NODE && return 1
 
    local iwd=$PWD
-   local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
    cd $tmp
    
    bitten-slave $* -v --dump-reports -f $cfg  $SCM_URL/tracs/env/builds
@@ -147,24 +147,42 @@ bitten-slave-minimal(){
 }
 
 
+bitten-fluff(){
+
+    local msg="=== $FUNCNAME: $* "
+    local fluff=$ENV_HOME/unittest/demo/fluff.txt
+    date >> $fluff
+    local cmd="svn ci $fluff -m \"$msg\" "
+    echo $cmd
+    eval $cmd
+}
+
+
 bitten-slave-remote(){
 
-    cd $ENV_HOME/unittest/demo
+    local def="--dry-run"
+    local arg=${1:-$def}
+    
+    local iwd=$PWD
+    local msg="=== $FUNCNAME :"
+    local cfg=$ENV_HOME/bitten/$LOCAL_NODE.cfg
+     [ ! -f $cfg ] && echo $msg ERROR no bitten config file $file for LOCAL_NODE $LOCAL_NODE && return 1
 
+    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+    cd $tmp
+    
     local cmd=$(cat << EOC
-     bitten-slave -v $* 
+     bitten-slave -v $arg  -f $cfg 
          --dump-reports 
           --work-dir=.
          --build-dir=
          --keep-files 
-         -f bitten-recipe.cfg 
             $SCM_URL/tracs/env/builds
 EOC)
-  echo $cmd
-  eval $cmd
+    echo $cmd
+    eval $cmd
 
-
-
+    cd $iwd
 }
 
 
