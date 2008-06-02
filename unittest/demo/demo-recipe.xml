@@ -4,41 +4,25 @@
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
   
-  <step id="update" description="svn update" >
+<step id="update" description="svn update" >
         <svn:update revision="${revision}"/>
-  </step>
+</step>
 
-  <!--step id="test" description="Run unit tests">
-    <python:distutils command="unittest"/>
-    <python:unittest file="build/test-results.xml"/>
-  </step-->
-
-  <step id="env" description="Dump env for debugging" >
+<step id="env" description="Dump env for debugging" >
       <sh:exec executable="echo" output="echo.txt" args=" path ${path} config ${config} build ${build} revision ${revision}     " />
-  </step>
-
+</step>
   
 <step id="txttest" description="Run unit tests with txt output ">
      <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
      <sh:exec executable="bash"  
          output="nose.txt"  
          args=" -c  &quot; p=${path} ; python ${repository.home}/unittest/nose/xmlplug.py ${repository.home}/${p/${repository.strip}\//}     &quot;  "  />
-  </step>
+</step>
 
-  
- <step id="xmltest" description="Run unit tests with xml output ">
-    <!--
-     <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
-     -->
-     <sh:exec executable="bash"  output="nose.xml"  
+<step id="xmltest" description="Run unit tests with xml output ">
+     <sh:exec executable="bash"  output="noserun.xml"  
          args=" -c  &quot; ${repository.home}/bitten/noserun.sh ${path} ${config} ${build} ${revision} &quot;  "  />
-     <report category="test" file="nose.xml"/>
-
-  </step>
-
-
-
-
-
-
+     <report category="test" file="noserun.xml"/>
+</step>
+  
 </build>

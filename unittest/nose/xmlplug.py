@@ -316,7 +316,7 @@ class XmlOutput(Plugin):
         x.append("<status>%s</status>" % status ) 
         x.append("<name>%s</name>" % name )
         x.append("<fixture>%s</fixture>" % tid )
-        x.append("<file>%s</file>" % path )
+        x.append("<file>%s</file>" % self.present_path(path) )
         x.append("<stdout>%s</stdout>" % stdout )
        
  
@@ -328,7 +328,7 @@ class XmlOutput(Plugin):
         y = []
         if err==None:
             xml, offset = self.xml_source( callable , [] )
-            y.extend(xml)
+            if dbg: y.extend(xml)
         else:
             xml, highlight = self.xml_stack( err )
             if dbg: x.extend( xml )

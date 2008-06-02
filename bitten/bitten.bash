@@ -182,28 +182,20 @@ EOC)
     echo $cmd
     eval $cmd
 
+   #
+   #  the build-dir is by default created within the work-dir with a name like 
+   #   build_${config}_${build}   setting it to "" is a convenience for testing
+   #  which MUST go together with "--keep-files" to avoid potentially deleting bits of working copy  
+   #
+
+
     cd $iwd
 }
 
 
-bitten-slave-test(){
 
-  local config=demo
-  local build=6
-  local build_dir=build_${config}_${build}
-  local work_dir=$PWD
 
-  local cmd=$(cat << EOC
-     bitten-slave -v -n --dump-reports 
-         --work-dir=${work_dir}
-         --build-dir=${build_dir}
-         --keep-files 
-         -f bitten-recipe.cfg 
-            bitten-recipe.xml  
-EOC)
-  echo $cmd
-  eval $cmd
-}
+
 
 bitten-extras-get(){
 
