@@ -153,7 +153,9 @@ elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-desktop" ]); then
    NODE_TAG="T"
    SUDO="sudo"
 
+elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "localhost" ]); then
 
+   NODE_TAG="HKVME"
 
 elif (      [ "$USER" == "exist" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
