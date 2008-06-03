@@ -20,6 +20,7 @@ dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
 bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
+macros-(){      . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
 
 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 

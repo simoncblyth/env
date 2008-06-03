@@ -125,7 +125,11 @@ noserun_cmt(){
 $msg 
    ERROR nosetests not available, 
    change/add private block of $basepath/cmt/requirements to : 
-      use DybTestPolicy   
+   
+   private
+   use DybTestPolicy
+   end_private
+      
 $esg 
 EOC
 
