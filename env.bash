@@ -6,6 +6,7 @@ env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && e
  
 base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
 
+caen-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/caen/caen.bash && caen-env $* ; }
 
 root-(){       . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
 qmtest-(){     . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
