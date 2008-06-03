@@ -179,7 +179,7 @@ dybr-rm-setup(){
 
   echo === dybr-rm-setup ===
   cd $DYB
-  rm -rf $DYB_RELEASE/setup $DYB_RELEASE/setup.{sh,csh}
+  rm -rf $DYB__RELEASE/setup $DYB__RELEASE/setup.{sh,csh}
   
 }
 

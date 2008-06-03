@@ -95,7 +95,7 @@ dybi-info(){
    echo DDR $DDR
    echo DDI $DDI
    echo DYB_VERSION $DYB_VERSION 
-   echo DYB_RELEASE $DYB_RELEASE 
+   echo DYB__RELEASE $DYB__RELEASE 
    echo DYB_OPTION $DYB_OPTION
 }
 
@@ -120,7 +120,7 @@ dybi-update(){
 
   cd $DYB
   svn up installation/$DYB_VERSION/dybinst
-  svn up $DYB_RELEASE
+  svn up $DYB__RELEASE
 }
 
 

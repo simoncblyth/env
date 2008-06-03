@@ -1,15 +1,36 @@
 #!/bin/sh
-#
-#   invoke from bitten recipe with 
-#       bash /path/to/noserun.sh $path $config $build $revision 
-#   
-#
-#
 
-noserun(){
+noserun_usage(){
+
+cat << EOU
+
+    Designed to be invoked from a bitten recipe with :
+    
+         bash /path/to/noserun.sh $path $config $build $revision 
+
+    For test usage
+        . ~/env/bitten/noserun.sh
+
+    noserun_     <home> <path> <config> <build> <revision> 
+    noserun_cmt  <home> <path> <config> <build> <revision>
+
+    <home> is set by virtue of the fixed depth of this script within the repository
+    the others are passed as args, only path is needed when doing local tests           
+
+    noserun_cmt $DDR dybgaudi/trunk/Simulation/GenTools
+
+EOU
+
+}
+
+noserun_(){
 
   local msg="<!-- $FUNCNAME :"
   local esg=" -->"
+
+  local home=$1 
+  shift
+  local branch=trunk
 
   ## these four come down from the master    
   local path=$1
@@ -17,10 +38,6 @@ noserun(){
   local build=$3
   local revision=$4
 
-  local home=$5
-  local branch=trunk
-  
-  
   echo $msg path $path config ${config} build ${build} revision ${revision}  nargs $# $esg
   [ $# != 5 ] && echo $msg ERROR wrong number of arguments $esg && return 3 
   
@@ -53,5 +70,83 @@ noserun(){
 }
 
 
+
+noserun_cmt(){
+
+  local msg="<!-- $FUNCNAME :"
+  local esg=" -->"
+
+  local home=$1
+  local branch=trunk
+  shift 
+
+  ## these four come down from the master  but for local testing just need path 
+   
+  local path=$1
+  local config=$2
+  local build=$3
+  local revision=$4
+
+  ## remove the positionals to void confusing CMT 
+  set --
+
+  ## assuming working copy is a checkout of a single branch, usually "trunk" 
+  ##  this does nothing to unittest/demo but removes trunk from trunk/unittest/demo 
+  local strip=${path/$branch\//}
+  
+  ## absolute path to test base, in which tests are looked for
+  local basepath=$home/$strip
+
+  echo $msg home $home branch $branch strip $strip basepath $basepath $esg  
+
+  local setup=$home/setup.sh
+  [ ! -f $setup ] && echo $msg ERROR no setup $setup   $esg && return 1
+
+  ## avoid CMT warnings by starting clean 
+  CMTEXTRATAGS=
+  CMTPATH=
+   
+  . $home/setup.sh 
+
+  [ ! -d $basepath ] && echo $msg ERROR no basepath $basepath $esg && return  2
+  
+  cd $basepath
+  cd cmt
+  
+  [ ! -f setup.sh ] && cmt config
+  . setup.sh
+  
+  cd $basepath
+  
+  local nosetests=$(which nosetests)
+  
+  if [ "$nosetests" == "" ]; then 
+     cat << EOC
+$msg 
+   ERROR nosetests not available, 
+   change/add private block of $basepath/cmt/requirements to : 
+      use DybTestPolicy   
+$esg 
+EOC
+
+     return 3
+  fi
+  
+  [ ! -x $nosetests ] && echo $msg ERROR nosetests $nosetests not found $esg && return 4
+  
+  # when the xmlplug is installed into NOSE_HOME
+  #   nosetests  --with-xml-output --xml-format=bitten --xml-basepath=$basepath/ --xml-baseprefix= 
+  #
+  # this does not really belong in cmt fragments, given my move to minimizing CMT usage
+  #  local xmlplug=$home/../installation/trunk/dybtest/scripts/xmlplug.py 
+  #
+   local xmlplug=$ENV_HOME/unittest/nose/xmlplug.py 
+   python $xmlplug --with-xml-output --xml-format=bitten --xml-basepath=$basepath/ --xml-baseprefix=
+ 
+}
+
+
+
 ## assumes depth of this script in the repository 
-noserun $* $(dirname $(dirname $0))
+#noserun_     $(dirname $(dirname $0)) $*
+#noserun_cmt  $(dirname $(dirname $0)) $*

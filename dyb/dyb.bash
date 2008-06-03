@@ -11,10 +11,38 @@ cat << EOU
    dybt : testing
    dybx : xecution 
  
+   dyb-bv-setup   : define Bretts dyb function allowing rapid jumping into CMT env
+                     eg     
+                            dyb GenTools 
+                            dyb TrigSim
+                            dyb ElecSim 
+ 
 EOU
 
 
 }
+
+
+dyb-bv-setup(){
+
+   local rc=$HOME/.dybrc
+   
+   if [ ! -f $rc ]; then
+      cat << EOR > $rc
+## caution this DYB_RELEASE is the full path not the same as my DYB__RELEASE which moved from DYB_RELEASE to avoid name clash
+export DYB_RELEASE=$DDR
+do_setup=yes
+EOR
+       echo $msg created $rc 
+   else
+       echo $msg using preexisting $rc   > /dev/null
+   fi
+   #cat $rc
+
+   . $DDR/dybgaudi/Utilities/Shell/bash/dyb.sh 
+
+}
+
 
 
 dyb-env(){
@@ -26,8 +54,8 @@ dyb-env(){
 
    export DYB_FOLDER=$LOCAL_BASE/dyb
    export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
-   export DYB_RELEASE=NuWa-$DYB_VERSION
-   export DDR=$DYB/$DYB_RELEASE 
+   export DYB__RELEASE=NuWa-$DYB_VERSION
+   export DDR=$DYB/$DYB__RELEASE 
  
    [ "$NODE_TAG" == "C" ] && DDR=$HOME/NuWa-trunk
    
@@ -35,6 +63,9 @@ dyb-env(){
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
+
+
+   dyb-bv-setup
 
 }
 
@@ -101,7 +132,10 @@ dyb-params(){
 
 
 
-dyb(){
+
+dyb--(){
+
+   echo $msg THIS IS DEPRECATED USE BRETTS ONE ... ITS MUCH BETTER  
    dybr-
    dybr-go $*
 }
