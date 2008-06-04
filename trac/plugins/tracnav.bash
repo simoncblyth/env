@@ -14,6 +14,8 @@ tracnav-usage(){
     tracnav-url      :  $(tracnav-url)
     tracnav-dir      :  $(tracnav-dir)
     tracnav-egg      :  $(tracnav-egg)
+        NB IN _cust CASE THIS FUNC AND setup.py need to be edited in parallel
+
 
     tracnav-get
           svn co the -url into the -dir
@@ -46,13 +48,13 @@ EOU
 tracnav-env(){
    elocal-
    python-
-   export TRACNAV_NAME=TracNav
+
    export TRACNAV_BRANCH=tracnav-0.11
    #export TRACNAV_BRANCH=tracnav
 }
 
 tracnav-basename(){ echo $TRACNAV_BRANCH ; }
-tracnav-dir(){      echo $LOCAL_BASE/env/trac/plugins/$(tracnav-basename) ;}
+tracnav-dir(){      echo $LOCAL_BASE/env/trac/plugins/tracnav/$(tracnav-basename) ;}
 tracnav-url(){      
    local b=$TRACNAV_BRANCH  
    ## if the branch ends with _cust then strip this in forming the url   
@@ -64,6 +66,7 @@ tracnav-egg(){
    local eggver
    case $b in 
       tracnav-0.11) eggver=4.0pre6 ;;
+ tracnav-0.11_cust) eggver=4.0pre6_cust ;;
            tracnav) eggver=3.92    ;;
                  *) eggver=$b      ;; 
    esac
@@ -73,9 +76,10 @@ tracnav-egg(){
 
 tracnav-get(){
    local dir=$(tracnav-dir)
-   mkdir -p $(dirname $dir)
-   cd $(dirname $dir)   
-   svn co $(tracnav-url) $(basename $dir) 
+   local pir=$(dirname $dir)
+   mkdir -p $pir
+   cd $pir   
+   svn co $(tracnav-url) $(tracnav-basename) 
 }
 
 tracnav-install(){
