@@ -1,16 +1,40 @@
 
-#
-#    python-x
-#    python-i
-#
-#    python-get
-#    python-configure 
-#    python-install
-#
-#    python-setuptools-get
-#    python-pygments-get
-#    python-crack-egg
-#
+
+python-usage(){
+
+cat << EOU
+
+
+    PYTHON_SITE : $PYTHON_SITE
+
+    python-get
+    python-configure 
+    python-install
+
+    python-setuptools-get
+    python-pygments-get
+    python-crack-egg
+
+
+    python-uninstall <name>
+         invoke python-unegg and python-uneasy
+
+    python-uneasy <name>  
+         remove the name entry from  $PYTHON_SITE/easy-install.pth
+
+    python-unegg  <name>
+         delete the egg directory from $PYTHON_SITE
+    
+    python-pth
+         cat the easy-install.pth 
+
+
+EOU
+
+
+
+
+}
 
 
 python-env(){
@@ -31,6 +55,67 @@ python-env(){
       export REFERENCE_PYTHON_HOME=$PYTHON_HOME
    fi
 }
+
+
+python-pth(){
+  cat $PYTHON_SITE/easy-install.pth
+}
+
+
+
+python-uneasy(){
+
+   local name=$1
+   local pth=$PYTHON_SITE/easy-install.pth
+   local cmd="$SUDO perl -pi -e \"s/^\.\/$name.*\n$//\" $pth "
+   
+   echo $msg removing the $name entry from $pth
+   echo $cmd
+   eval $cmd
+   
+   python-pth
+    
+}
+
+
+python-unegg(){
+
+   local msg="=== $FUNCNAME :"
+   local eggname=$1
+   
+   local egg=$PYTHON_SITE/$eggname
+   [ ! -d $egg ] && echo $msg ERROR cannot find egg folder $egg && return 1
+   
+   local cmd="$SUDO rm -rf $egg " 
+   echo $msg proceeding with: $cmd
+   eval $cmd
+}
+
+
+python-uninstall(){
+
+  local msg="=== $FUNCNAME :"  
+  local eggname=$1
+  
+  echo $msg delete the egg directory and remove entry from easy-install.pth ... enter YES to proceed
+  read answer
+   
+  if [ "$answer" == "YES" ]; then
+     echo $msg proceeding...
+     python-unegg $eggname
+     python-uneasy $eggname
+  else
+     echo $msg skipped
+  fi
+
+}
+
+
+
+
+
+
+
 
 
 python-path(){

@@ -2,6 +2,6 @@
      
 
 
- dbi(){  && . $ENV_HOME/offline/dbi.bash ; }
+# dbi(){  && . $ENV_HOME/offline/dbi.bash ; }
  
 

@@ -81,9 +81,12 @@
  db2trac-(){           . $ENV_HOME/scm/trac/db2trac.bash   ; }
  tracenv-(){           . $ENV_HOME/scm/trac/tracenv.bash   ; }
  hepreztrac-(){        . $ENV_HOME/scm/trac/hepreztrac.bash   ; }
- tractags-(){          . $ENV_HOME/scm/trac/tractags.bash   ; }
+
  tracxmlrpc-(){        . $ENV_HOME/scm/trac/tracxmlrpc.bash ; }
  trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
+
+
+ tractags-(){          . $ENV_HOME/scm/trac/tractags.bash  && tractags-env $* ; }
 
 
 

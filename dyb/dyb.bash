@@ -27,6 +27,10 @@ dyb-bv-setup(){
 
    local rc=$HOME/.dybrc
    
+   local dybsh=$DDR/dybgaudi/Utilities/Shell/bash/dyb.sh 
+   [ ! -f $dybsh ] && return 
+
+   
    if [ ! -f $rc ]; then
       cat << EOR > $rc
 ## caution this DYB_RELEASE is the full path not the same as my DYB__RELEASE which moved from DYB_RELEASE to avoid name clash
@@ -39,7 +43,7 @@ EOR
    fi
    #cat $rc
 
-   . $DDR/dybgaudi/Utilities/Shell/bash/dyb.sh 
+   . $dybsh 
 
 }
 

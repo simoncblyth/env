@@ -18,6 +18,9 @@ dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 
 
+caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; } 
+
+
 scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
 bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
@@ -43,9 +46,9 @@ elocal-(){   . $ENV_HOME/base/local.bash && local-env $* ; }   ## avoid name cla
 
 ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
 seed-(){     [ -r $ENV_HOME/seed/seed.bash ]        && . $ENV_HOME/seed/seed.bash ; }
-macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros.bash ; }
+#macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros.bash ; }
 dyw-(){      [ -r $ENV_HOME/dyw/dyw.bash ]          && . $ENV_HOME/dyw/dyw.bash ; }
-macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offline.bash ; }
+#macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offline.bash ; }
 db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; }
 
 xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
@@ -203,6 +206,12 @@ env-x-pkg-not-working(){
   done
 
 }
+
+env-local-dir(){
+   sudo mkdir -p $LOCAL_BASE/env 
+   sudo chown $USER $LOCAL_BASE/env
+}
+
 
 
 env-env
