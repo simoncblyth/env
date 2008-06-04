@@ -13,12 +13,19 @@ tractags-usage(){
    
    tractags-egg    : $(tractags-egg)
    tractags-url    : $(tractags-url) 
+      if the branch ends with _cust this is stripped  in forming the url
    tractags-dir    : $(tractags-dir)
+
 
 
    tractags-get  :  
         checkout from $(tractags-url) into $(tractags-dir)
+        edit the setup.py/version to correspond to the branch for egg correspondence
 
+   tractags-customize :
+       copy in changed files sourced in env for safety
+     ... this is intended for minor customizations, anything major should
+       be housed in tracdev repo
  
    Usage :
        trac-
@@ -56,6 +63,18 @@ tractags-usage(){
     NB this flexibility is implemented by having everything that depends on TRACTAGS_BRANCH dynamic
 
 EOU
+
+}
+
+
+tractags-customize(){
+
+  local dir=$(tractags-dir)
+  cd $ENV_HOME/trac/plugins/tractags
+  
+  #cp setup.py  $dir/
+  cp macros.py $dir/tractags/
+
 
 }
 
@@ -115,22 +134,20 @@ tractags-egg(){
  trunk_cust) eggver=trunk_cust ;;
           *) eggver=$ver ;;
   esac
-  
-  echo ${TRACTAGS_NAME}-$eggver-py2.5.egg 
+  echo TracTags-$eggver-py2.5.egg 
 }
 
 tractags-basename(){ 
-   echo $TRACTAGS_NAME-$(basename $TRACTAGS_BRANCH) 
+   echo $(basename $TRACTAGS_BRANCH) 
 }
 
 tractags-dir(){ 
-   echo $LOCAL_BASE/env/trac/plugins/$(tractags-basename)  
+   echo $LOCAL_BASE/env/trac/plugins/tractags/$(tractags-basename)  
 }
 
 tractags-url(){ 
-  ## a branch starting with trunk is converted into trunk
-  local b  
-  ## if the branch ends with _cust then strip this in forming the url  
+  local b=$TRACTAGS_BRANCH  
+    
   [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
   echo http://trac-hacks.org/svn/tagsplugin/$b 
 }
@@ -138,10 +155,10 @@ tractags-url(){
 
 tractags-get(){
    local dir=$(tractags-dir)
-   mkdir -p $(dirname $dir)
-   cd $(dirname $dir)   
-   local url=$(tractags-url)  
-   svn co $url  $(basename $dir) 
+   local pir=$(dirname $dir)
+   mkdir -p $pir
+   cd $pir   
+   svn co $(tractags-url)  $(tractags-basename) 
 }
 
 

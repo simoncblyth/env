@@ -8,6 +8,7 @@ tracnav-usage(){
     tracnav- precursor is defined in trac/plugins/plugins.bash via tplugins- precursor
     
     Functions of TRACNAV_BRANCH : $TRACNAV_BRANCH
+    use a branch name with _cust appended for local customizing 
     
     tracnav-basename : $(tracnav-basename)
     tracnav-url      :  $(tracnav-url)
@@ -30,6 +31,12 @@ tracnav-usage(){
     Usage :
         tplugins-
         tracnav-usage
+
+     Get a branch ready for customization 
+        TRACNAV_BRANCH=tracnav-0.11_cust tracnav-get
+
+     Check the dynamics 
+         TRACNAV_BRANCH=tracnav-0.11_cust tracnav-usage
 
 
 EOU
