@@ -1,0 +1,93 @@
+
+tracnav-usage(){
+
+   cat << EOU
+
+      http://svn.ipd.uka.de/trac/javaparty/wiki/TracNav
+   
+    tracnav- precursor is defined in trac/plugins/plugins.bash via tplugins- precursor
+    
+    Functions of TRACNAV_BRANCH : $TRACNAV_BRANCH
+    
+    tracnav-basename : $(tracnav-basename)
+    tracnav-url      :  $(tracnav-url)
+    tracnav-dir      :  $(tracnav-dir)
+    tracnav-egg      :  $(tracnav-egg)
+
+    tracnav-get
+          svn co the -url into the -dir
+
+    tracnav-install  :
+           easy install into PYTHON_SITE $PYTHON_SITE
+           
+    tracnav-uninstall :
+           remove the -egg and easy-install.pth reference
+           
+    tracnav-reinstall :
+        uninstall then reinstall ... eg to propagate customizations 
+
+
+    Usage :
+        tplugins-
+        tracnav-usage
+
+
+EOU
+
+}
+
+tracnav-env(){
+   elocal-
+   python-
+   export TRACNAV_NAME=TracNav
+   export TRACNAV_BRANCH=tracnav-0.11
+   #export TRACNAV_BRANCH=tracnav
+}
+
+tracnav-basename(){ echo $TRACNAV_BRANCH ; }
+tracnav-dir(){      echo $LOCAL_BASE/env/trac/plugins/$(tracnav-basename) ;}
+tracnav-url(){      
+   local b=$TRACNAV_BRANCH  
+   ## if the branch ends with _cust then strip this in forming the url   
+   [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
+   echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$b 
+}
+tracnav-egg(){      
+   local b=$TRACNAV_BRANCH
+   local eggver
+   case $b in 
+      tracnav-0.11) eggver=4.0pre6 ;;
+           tracnav) eggver=3.92    ;;
+                 *) eggver=$b      ;; 
+   esac
+   echo TracNav-$eggver-py2.5.egg
+}
+
+
+tracnav-get(){
+   local dir=$(tracnav-dir)
+   mkdir -p $(dirname $dir)
+   cd $(dirname $dir)   
+   svn co $(tracnav-url) $(basename $dir) 
+}
+
+tracnav-install(){
+   cd $(tracnav-dir)
+   $SUDO easy_install -Z .   
+}
+
+tracnav-uninstall(){
+   python-uninstall $(tracnav-egg)
+}
+
+tracnav-reinstall(){
+  tracnav-uninstall $*
+  tracnav-install $*
+}
+
+
+tracnav-enable(){
+   local name=${1:-$SCM_TRAC}
+   trac-ini-
+   trac-ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tracnav.\*:enabled
+}

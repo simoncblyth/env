@@ -70,7 +70,7 @@
 
  silvercity-(){        . $ENV_HOME/scm/trac/silvercity.bash ; }
  docutils-(){          . $ENV_HOME/scm/trac/docutils.bash   ; }
- tracnav-(){           . $ENV_HOME/scm/trac/tracnav.bash   ; }
+
  trac2mediawiki-(){    . $ENV_HOME/scm/trac/trac2mediawiki.bash   ; }
  trac2latex-(){        . $ENV_HOME/scm/trac/trac2latex.bash   ; }
  traclxml-(){          . $ENV_HOME/scm/trac/traclxml.bash   ; } 
@@ -85,8 +85,6 @@
  tracxmlrpc-(){        . $ENV_HOME/scm/trac/tracxmlrpc.bash ; }
  trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
 
-
- tractags-(){          . $ENV_HOME/trac/plugins/tractags.bash  && tractags-env $* ; }
 
 
 

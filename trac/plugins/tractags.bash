@@ -129,13 +129,10 @@ tractags-dir(){
 
 tractags-url(){ 
   ## a branch starting with trunk is converted into trunk
-  local branch  
-  if [ "${TRACTAGS_BRANCH:0:5}" == "trunk" ]; then
-     branch=trunk 
-  else    
-     branch=$TRACTAGS_BRANCH 
-  fi   
-  echo http://trac-hacks.org/svn/tagsplugin/$branch 
+  local b  
+  ## if the branch ends with _cust then strip this in forming the url  
+  [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
+  echo http://trac-hacks.org/svn/tagsplugin/$b 
 }
 
 

@@ -24,8 +24,8 @@ caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; }
 scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 
 bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
-macros-(){      . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
-
+tmacros-(){      . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
+tplugins-(){     . $ENV_HOME/trac/plugins/plugins.bash && plugins-env $* ; } 
 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
 cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
@@ -33,6 +33,9 @@ cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; }
 trac-(){        . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
 trac-conf-(){   . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
 trac-ini-(){    . $ENV_HOME/scm/trac/trac-ini.bash  && trac-ini-env  $* ; } 
+
+
+
 
 svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
 sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
