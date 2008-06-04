@@ -8,9 +8,10 @@ tractags-usage(){
   # http://www.trac-hacks.org/wiki/TagsPlugin
 
    TRACTAGS_BRANCH : $TRACTAGS_BRANCH
-   TRACTAGS_EGG    : $TRACTAGS_EGG
+
    PYTHON_SITE     : $PYTHON_SITE
    
+   tractags-egg    : $(tractags-egg)
    tractags-url    : $(tractags-url) 
    tractags-dir    : $(tractags-dir)
 
@@ -32,19 +33,33 @@ tractags-usage(){
    
        tractags-uninstall
        TRACTAGS_BRANCH=trunk tractags-install  
+       
+    Get the trunk ready for local customizations 
+       TRACTAGS_BRANCH=trunk_cust  tractags-get
 
-
+    Check the dynamic qtys then do the uninstall   
+        TRACTAGS_BRANCH=trunk tractags-usage
+        TRACTAGS_BRANCH=trunk tractags-uninstall
+ 
+    Install the customized trunk
+         TRACTAGS_BRANCH=trunk_cust tractags-install
+        ## Installed /Library/Python/2.5/site-packages/TracTags-trunk_cust-py2.5.egg
+ 
+    Reinstall the customized trunk
+          TRACTAGS_BRANCH=trunk_cust tractags-reinstall 
+ 
+    To see the effect of changes...
+          sudo apachectl restart
+ 
+ 
+ 
+    NB this flexibility is implemented by having everything that depends on TRACTAGS_BRANCH dynamic
 
 EOU
 
 }
 
 
-tractags-ls(){
-
-   ls -l $PYTHON_SITE/
-
-}
 
 
 tractags-diff(){
@@ -57,9 +72,14 @@ tractags-diff(){
 }
 
 
+tractags-reinstall(){
+  tractags-uninstall $*
+  tractags-install $*
+}
+
 
 tractags-uninstall(){
-   python-uninstall $TRACTAGS_EGG
+   python-uninstall $(tractags-egg)
 }
 
 
@@ -73,34 +93,49 @@ tractags-env(){
    #export TRACTAGS_BRANCH=tags/0.5
    #export TRACTAGS_BRANCH=tags/0.6
    #export TRACTAGS_BRANCH=trunk
-   export TRACTAGS_BRANCH=trunk-cust
+   export TRACTAGS_BRANCH=trunk_cust
    
-   export TRACTAGS_BASENAME=$TRACTAGS_NAME-$(basename $TRACTAGS_BRANCH)
-   
-   local ver=$(basename $TRACTAGS_BRANCH)
-   
+   # using names like trunk-cust ... mysteriously result in egg names with trunk_cust 
+   #  ... so start with the underscored
+}
+
+
+tractags-egg(){   
+  
    #
    # the name of the egg depends on what is in the setup.py ... 
    # ... it does not correspond to the branch ... although it should do
    #
-   
-   local eggver
-   case $ver in
+  
+  local ver=$(basename $TRACTAGS_BRANCH)
+  
+  local eggver
+  case $ver in
       trunk) eggver=0.6 ;;
- trunk-cust) eggver=trunk-cust ;;
+ trunk_cust) eggver=trunk_cust ;;
           *) eggver=$ver ;;
-    esac
-    
-    export TRACTAGS_EGG=${TRACTAGS_NAME}-$eggver-py2.5.egg
-   
+  esac
+  
+  echo ${TRACTAGS_NAME}-$eggver-py2.5.egg 
 }
 
-tractags-dir(){ echo $LOCAL_BASE/env/trac/plugins/${TRACTAGS_BASENAME} ; }
-tractags-url(){ 
+tractags-basename(){ 
+   echo $TRACTAGS_NAME-$(basename $TRACTAGS_BRANCH) 
+}
 
-  local branch=$TRACTAGS_BRANCH 
+tractags-dir(){ 
+   echo $LOCAL_BASE/env/trac/plugins/$(tractags-basename)  
+}
+
+tractags-url(){ 
+  ## a branch starting with trunk is converted into trunk
+  local branch  
+  if [ "${TRACTAGS_BRANCH:0:5}" == "trunk" ]; then
+     branch=trunk 
+  else    
+     branch=$TRACTAGS_BRANCH 
+  fi   
   echo http://trac-hacks.org/svn/tagsplugin/$branch 
-   
 }
 
 

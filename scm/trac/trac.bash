@@ -86,7 +86,7 @@
  trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
 
 
- tractags-(){          . $ENV_HOME/scm/trac/tractags.bash  && tractags-env $* ; }
+ tractags-(){          . $ENV_HOME/trac/plugins/tractags.bash  && tractags-env $* ; }
 
 
 

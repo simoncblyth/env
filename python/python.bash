@@ -27,7 +27,9 @@ cat << EOU
     
     python-pth
          cat the easy-install.pth 
-
+    
+    python-ls
+         ls -l $PYTHON_SITE/
 
 EOU
 
@@ -35,6 +37,16 @@ EOU
 
 
 }
+
+
+
+python-ls(){
+
+   ls -l $PYTHON_SITE/
+
+}
+
+
 
 
 python-env(){
