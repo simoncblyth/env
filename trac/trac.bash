@@ -107,10 +107,7 @@ trac-names(){
    cd $ENV_HOME/trac/package   
    for bash in *.bash
    do
-      local name=${bash/.bash/}
-      if [ "$name" != "package" ]; then
-         echo $name
-      fi
+      echo ${bash/.bash/}
    done
    cd $iwd
 }

@@ -25,7 +25,7 @@ scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bas
 
 bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
 tmacros-(){      . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
-tplugins-(){     . $ENV_HOME/trac/plugins/plugins.bash && plugins-env $* ; } 
+tpackage-(){     . $ENV_HOME/trac/package.bash        && package-env $* ; } 
 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
 cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
