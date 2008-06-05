@@ -33,7 +33,7 @@ cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; }
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
 
 
-otrac-(){        . $ENV_HOME/scm/trac/otrac.bash && otrac-env $* ; } 
+otrac-(){        . $ENV_HOME/scm/otrac/otrac.bash && otrac-env $* ; } 
 
 
 
@@ -43,7 +43,10 @@ trac-ini-(){    . $ENV_HOME/scm/trac/trac-ini.bash  && trac-ini-env  $* ; }
 
 
 
-svn-(){      . $ENV_HOME/scm/svn.bash && svn-env $* ; } 
+svn-(){          . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
+svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+
+
 sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
 aberdeen-(){ . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
 python-(){   . $ENV_HOME/python/python.bash && python-env $* ; }

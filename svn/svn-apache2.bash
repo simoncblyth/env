@@ -89,19 +89,10 @@ svn-apache2-env(){
 }
 
 
-svn-base(){
+svn-apache2-base(){
 
-  local SVN_NAME=subversion-1.4.0
-  local SVN_ABBREV=svn
   
-  export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
-  
-  if [ "$NODE_APPROACH" != "stock" ]; then
-	  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
-	  export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
-      svn-path
-  fi	
-  
+   
   export SVN_PARENT_PATH=$SCM_FOLD/repos
 
   ## just needed by svn.bash
@@ -113,34 +104,11 @@ svn-base(){
 
 }
 
-svn-path(){
-
-  local msg="=== $FUNCNAME :"
-  if [ -z $SVN_HOME ]; then 
-     echo $msg skipping as no SVN_HOME
-  else
-	 export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/svn:$DYLD_LIBRARY_PATH
-     export DYLD_LIBRARY_PATH=$SVN_HOME/lib/svn-python/libsvn:$DYLD_LIBRARY_PATH
-     export PATH=$SVN_HOME/bin:$PATH
-  fi
-
-}
 
 
 
 
 
-
-
-
-
-svn-info(){
-  cat << EOI
-  LOCAL_BASE $LOCAL_BASE
-  SVN_NAME $SVN_NAME
-  SVN_ABBREV $SVN_ABBREV
-EOI
-}
 
 
 svn-apache2-settings(){
@@ -482,7 +450,8 @@ EOT
 }
 
 
-svn-co-test(){
+
+svn-apache2-checkout-test(){
 
    local n=${1:-newtest}
    local u=${2:-admin}
@@ -496,6 +465,9 @@ svn-co-test(){
      echo name $n not accepted
    fi
 }
+
+
+
 
 
 svn-apache2-authzaccess(){
@@ -662,28 +634,6 @@ EOC
 }
 
 
-
-svn-global-ignores(){
-
-cat << EOI
-#  uncomment global-ignores in [miscellany] section of
-#     $HOME/.subversion/config
-#  setting it to : 
-#
-global-ignores = setup.sh setup.csh cleanup.sh cleanup.csh Linux-i686* Darwin* InstallArea Makefile load.C
-#
-#    NB there is no whitespace before "global-ignores"
-# 
-#  after this   
-#        svn status -u 
-#  should give a short enough report to be useful
-#
-EOI
-
-echo vi $HOME/.subversion/config
-
-
-}
 
 
 
