@@ -10,7 +10,7 @@ cat << EOU
 
    Considerations...
       0) all packages including plugins to be installed by a standard procedure
-      1) must kickstart the tracitory from a prior backup 
+      1) do i need to kickstart the tracitory from a prior backup 
 
 
 
@@ -23,6 +23,8 @@ tractags-(){          . $ENV_HOME/trac/plugins/tractags.bash  && tractags-env $*
 tracnav-(){           . $ENV_HOME/trac/plugins/tracnav.bash   && tracnav-env  $* ; }
 tractoc-(){           . $ENV_HOME/trac/plugins/tractoc.bash   && tractoc-env  $* ; }
 accountmanager-(){    . $ENV_HOME/trac/plugins/accountmanager.bash    && accountmanager-env   $* ; }
+bitten-(){            . $ENV_HOME/trac/plugins/bitten.bash    && bitten-env   $* ; }
+
 
 ## these are not plugins .. hmm package would be a better name
 tractrac-(){          . $ENV_HOME/trac/plugins/tractrac.bash  && tractrac-env $* ; }
@@ -55,6 +57,19 @@ trac-logpath(){
   echo $SCM_FOLD/tracs/$name/log/trac.log
 }
 
+
+trac-admin-(){
+   local name=$TRAC_INSTANCE
+   $SUDO trac-admin $SCM_FOLD/tracs/$name $*
+}
+
+trac-configure(){
+   local name=$TRAC_INSTANCE
+   shift
+   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini 
+   trac-ini-
+   trac-ini-edit $tini $*
+}
 
 
 

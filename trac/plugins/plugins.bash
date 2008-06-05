@@ -25,10 +25,15 @@ cat << EOU
     $name-dir       : $($name-dir)
     $name-eggver    : $($name-eggver)
        this is the egg version which must be manually edited to 
-       match that from the original setup.py, this never has _cust appended
+       match that from the original setup.py, this never has cust_ prepended
+    
+    $name-setver   : ...  mostly not yet implemented ...
+       this is the version in the setup.py file .. its only needed
+       when doing local cust 
+    
     
     $name-egg       : $($name-egg)
-        the version embedded in the name will have _cust appended if the 
+        the version embedded in the name will have cust_ prepended if the 
         branch name ends with _cust
      
     $name-cust      :
@@ -174,7 +179,7 @@ plugins-egg(){
    local branch=$($name-branch)
    local eggver=$($name-eggver)
    local eggbas=$($name-eggbas)
-   plugins-is-cust $branch && eggver=${eggver}_cust 
+   plugins-is-cust $branch && eggver=cust_${eggver}
    echo $eggbas-$eggver-py2.5.egg
 }
 
@@ -253,16 +258,12 @@ plugins-reinstall(){
 plugins-enable(){
 
    local pame=$1
-   local name=${2:-$SCM_TRAC}
-   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini 
   
   ## NB the appropriate string is the python package name ...
   ##  test with  eg  python -c "import tractoc" 
   
-   local modn=$($pame-package)
-  
-   trac-ini-
-   trac-ini-edit $tini components:$modn.\*:enabled
+   local pkgn=$($pame-package)
+   trac-configure components:$pkgn.\*:enabled
 }
 
 plugins-test(){
@@ -276,8 +277,11 @@ plugins-setup-cust(){
     local name=$1
     local msg="=== $FUNCNAME :"
     local dir=$($name-dir)
-    local ver=$($name-eggver)
-    echo $msg $dir editing setup.py to change $ver to ${ver}_cust 
+    local ver=$($name-setver)
+    
+    ## can setver be derived from the eggver ???
+    
+    echo $msg $dir editing setup.py to change $ver to cust_$ver
    
     local iwd=$PWD   
     cd $dir
@@ -285,7 +289,7 @@ plugins-setup-cust(){
     
     ## start with repo original in case of rerunning  
     svn revert setup.py
-    perl -pi -e "s/(version\s*=\s*)(.)($ver)(.)(.*)$/\$1\$2\$3_cust\$4\$5/" setup.py
+    perl -pi -e "s/(version\s*=\s*)(.)($ver)(.)(.*)$/\$1\$2cust_\$3\$4\$5/" setup.py
     svn diff setup.py
 
     cd $iwd
