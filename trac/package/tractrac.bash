@@ -1,5 +1,5 @@
 tractrac-usage(){
-   plugins-usage  ${FUNCNAME/-*/}
+   package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
    
@@ -15,7 +15,7 @@ EOU
 
 tractrac-env(){
   elocal-
-  tplugins-
+  tpackage-
   
   #export TRACTRAC_BRANCH=tags/trac-0.10.4 
   #export TRACTRAC_BRANCH=tags/trac-0.11b1
@@ -45,20 +45,20 @@ tractrac-fix(){
 }
 
 
-tractrac-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
-tractrac-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
-tractrac-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
-tractrac-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
-tractrac-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
-tractrac-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
-tractrac-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
-tractrac-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
-tractrac-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
-tractrac-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
-tractrac-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
+tractrac-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+tractrac-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
+tractrac-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
+tractrac-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+tractrac-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
+tractrac-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+tractrac-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+tractrac-install(){   package-install   ${FUNCNAME/-*/} $* ; }
+tractrac-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
+tractrac-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
+tractrac-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 
-tractrac-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
-tractrac-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
-tractrac-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; } 
+tractrac-status(){    package-status    ${FUNCNAME/-*/} $* ; }
+tractrac-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
+tractrac-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
 
 

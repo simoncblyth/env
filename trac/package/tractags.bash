@@ -1,5 +1,5 @@
 tractags-usage(){
-   plugins-usage tractags
+   package-usage tractags
    cat << EOU
 # http://www.trac-hacks.org/wiki/TagsPlugin
    
@@ -13,7 +13,7 @@ EOU
 
 tractags-env(){
    elocal-
-   tplugins-
+   tpackage-
    
    #export TRACTAGS_BRANCH=tags/0.4.1
    #export TRACTAGS_BRANCH=tags/0.5
@@ -40,27 +40,27 @@ tractags-eggver(){
 
 tractags-fix(){
   local dir=$(tractags-dir)
-  cd $ENV_HOME/trac/plugins/tractags  
+  cd $ENV_HOME/trac/package/tractags  
   #cp setup.py  $dir/
   cp macros.py $dir/tractags/
 
 }
 
-tractags-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
-tractags-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
-tractags-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
-tractags-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
-tractags-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
-tractags-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
-tractags-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
-tractags-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
-tractags-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
-tractags-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
-tractags-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
+tractags-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+tractags-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
+tractags-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
+tractags-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+tractags-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
+tractags-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+tractags-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+tractags-install(){   package-install   ${FUNCNAME/-*/} $* ; }
+tractags-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
+tractags-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
+tractags-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 
-tractags-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
-tractags-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
-tractags-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; }
+tractags-status(){    package-status    ${FUNCNAME/-*/} $* ; }
+tractags-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
+tractags-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 
 
 

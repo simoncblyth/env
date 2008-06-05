@@ -9,7 +9,7 @@ cat << EOU
       http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/LeopardTrac
 
    Considerations...
-      0) all packages including plugins to be installed by a standard procedure
+      0) all packages including package to be installed by a standard procedure
       1) do i need to kickstart the tracitory from a prior backup 
 
 
@@ -18,10 +18,12 @@ cat << EOU
     trac-admin- <name>     ## NB trailing dash
     trac-inipath <name>    
     trac-inicat  <name>
+           utilities targeted to the named instance, defaulting to TRAC_INSTANCE
 
-        utilities targeted to the named instance, defaulting to TRAC_INSTANCE
-
-
+    trac-inheritpath 
+           trac.ini for individual instances can use an inherit:file:<path> block to use
+           a common conf file
+         
     trac-configure  <block:qty:valu> ... 
            applies edits to  trac.ini by means of triplet arguments
            targetted to the default instance , use TRAC_INSTANCE=other trac-configure to override
@@ -38,21 +40,24 @@ EOU
 }
 
 
-tractags-(){          . $ENV_HOME/trac/plugins/tractags.bash  && tractags-env $* ; }
-tracnav-(){           . $ENV_HOME/trac/plugins/tracnav.bash   && tracnav-env  $* ; }
-tractoc-(){           . $ENV_HOME/trac/plugins/tractoc.bash   && tractoc-env  $* ; }
-accountmanager-(){    . $ENV_HOME/trac/plugins/accountmanager.bash    && accountmanager-env   $* ; }
-bitten-(){            . $ENV_HOME/trac/plugins/bitten.bash    && bitten-env   $* ; }
+tractags-(){          . $ENV_HOME/trac/package/tractags.bash  && tractags-env $* ; }
+tracnav-(){           . $ENV_HOME/trac/package/tracnav.bash   && tracnav-env  $* ; }
+tractoc-(){           . $ENV_HOME/trac/package/tractoc.bash   && tractoc-env  $* ; }
+accountmanager-(){    . $ENV_HOME/trac/package/accountmanager.bash    && accountmanager-env   $* ; }
+bitten-(){            . $ENV_HOME/trac/package/bitten.bash    && bitten-env   $* ; }
 
 
-## these are not plugins .. hmm package would be a better name
-tractrac-(){          . $ENV_HOME/trac/plugins/tractrac.bash  && tractrac-env $* ; }
-genshi-(){            . $ENV_HOME/trac/plugins/genshi.bash    && genshi-env   $* ; }
+## these are not package .. hmm package would be a better name
+tractrac-(){          . $ENV_HOME/trac/package/tractrac.bash  && tractrac-env $* ; }
+genshi-(){            . $ENV_HOME/trac/package/genshi.bash    && genshi-env   $* ; }
 
+
+
+trac-inheritpath(){   echo  $SCM_FOLD/conf/trac.ini ; }  ## is inherit 0.11 only ?  
 
 trac-env(){
    elocal-
-   tplugins-
+   tpackage-
    
    case $NODE_TAG in
      G) export TRAC_INSTANCE=workflow ;;
@@ -99,11 +104,11 @@ trac-configure(){
 
 trac-names(){
    local iwd=$PWD
-   cd $ENV_HOME/trac/plugins   
+   cd $ENV_HOME/trac/package   
    for bash in *.bash
    do
       local name=${bash/.bash/}
-      if [ "$name" != "plugins" ]; then
+      if [ "$name" != "package" ]; then
          echo $name
       fi
    done

@@ -1,5 +1,5 @@
 bitten-usage(){
-   plugins-usage  ${FUNCNAME/-*/}
+   package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
    
@@ -21,7 +21,7 @@ EOU
 
 bitten-env(){
   elocal-
-  tplugins-
+  tpackage-
   
   export BITTEN_BRANCH=branches/experimental/trac-0.11_cust
   #export BITTEN_BRANCH=trunk   ## this is for 0.10.4 ?
@@ -48,23 +48,23 @@ bitten-fix(){
 }
 
 
-bitten-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
-bitten-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
-bitten-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
-bitten-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
-bitten-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
-bitten-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
-bitten-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
-bitten-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
-bitten-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
-bitten-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
-bitten-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
+bitten-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+bitten-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
+bitten-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
+bitten-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+bitten-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
+bitten-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+bitten-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+bitten-install(){   package-install   ${FUNCNAME/-*/} $* ; }
+bitten-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
+bitten-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
+bitten-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 
-bitten-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
-bitten-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
-bitten-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; } 
-bitten-rev(){       plugins-rev       ${FUNCNAME/-*/} $* ; } 
-bitten-cd(){        plugins-cd        ${FUNCNAME/-*/} $* ; }
+bitten-status(){    package-status    ${FUNCNAME/-*/} $* ; }
+bitten-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
+bitten-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
+bitten-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+bitten-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 bitten-perms(){
 

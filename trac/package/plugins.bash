@@ -1,4 +1,4 @@
-plugins-env(){
+package-env(){
   elocal-
   python-
 }
@@ -8,13 +8,13 @@ plugins-env(){
 
 
 
-plugins-usage(){
+package-usage(){
     local name=$1
-    local bn=$(plugins-branchname $name)
+    local bn=$(package-branchname $name)
     local ob=$($name-obranch)
     
 cat << EOU
-    Precursor "${name}-" is defined in trac/plugins/plugins.bash with precursor "tplugins-"
+    Precursor "${name}-" is defined in trac/package/package.bash with precursor "tpackage-"
 
     Functions of the branch ... 
    
@@ -54,7 +54,7 @@ cat << EOU
         uninstall then reinstall ... eg to propagate customizations 
 
     Usage :
-        tplugins-
+        tpackage-
         $name-
         $name-usage
 
@@ -80,33 +80,33 @@ EOU
 
 
 
-plugins-diff(){
+package-diff(){
   local name=$1
   local dir=$($name-dir)
   svn diff $dir 
 }
 
-plugins-rev(){
+package-rev(){
   local name=$1
   local dir=$($name-dir)
   svnversion $dir 
 }
 
-plugins-cd(){
+package-cd(){
   local name=$1
   local dir=$($name-dir)
   cd $dir 
 }
 
 
-plugins-auto(){
+package-auto(){
 
    local name=$1
    shift
    local msg="=== $FUNCNAME :"
-   plugins-status- $name
+   package-status- $name
    local s=$?
-   local act=$(plugins-action- $s) 
+   local act=$(package-action- $s) 
    
    case $act in 
      skip) echo $msg $name ===\> $act ... nothing to do             ;;
@@ -117,17 +117,17 @@ plugins-auto(){
    esac
 }
 
-plugins-status(){
+package-status(){
    local msg="=== $FUNCNAME :"
-   plugins-status- $*
+   package-status- $*
    local s=$?
-   local a=$(plugins-action- $s)
-   echo $msg [$s] $(plugins-status-- $s) ===\> $a 
+   local a=$(package-action- $s)
+   echo $msg [$s] $(package-status-- $s) ===\> $a 
    return $s
 }
 
 
-plugins-action-(){
+package-action-(){
   case $1 in 
      0) echo skip ;;
      1) echo get  ;;
@@ -136,7 +136,7 @@ plugins-action-(){
   esac
 }
 
-plugins-status--(){
+package-status--(){
   case $1 in 
     0) echo installed ;;
     1) echo not downloaded ;;
@@ -146,7 +146,7 @@ plugins-status--(){
 }
 
 
-plugins-status-(){
+package-status-(){
 
   local msg="=== $FUNCNAME :"
   local name=$1
@@ -161,31 +161,31 @@ plugins-status-(){
 }
 
 
-plugins-dir(){
+package-dir(){
   local n=$1
-  local b=$(plugins-basename $n)
-  echo $LOCAL_BASE/env/trac/plugins/$n/$b
+  local b=$(package-basename $n)
+  echo $LOCAL_BASE/env/trac/package/$n/$b
 }
 
-plugins-basename(){
+package-basename(){
    local name=$1
    local branch=$($name-branch)
    echo $(basename $branch)
 }
 
 
-plugins-egg(){
+package-egg(){
    local name=$1
    local branch=$($name-branch)
    local eggver=$($name-eggver)
    local eggbas=$($name-eggbas)
-   plugins-is-cust $branch && eggver=cust_${eggver}
+   package-is-cust $branch && eggver=cust_${eggver}
    echo $eggbas-$eggver-py2.5.egg
 }
 
 
 
-plugins-get(){
+package-get(){
    local msg="=== $FUNCNAME :"
    local name=$1
    local dir=$($name-dir)
@@ -198,10 +198,10 @@ plugins-get(){
    echo $msg checkout $url into $pir with basename $bnm
    svn co $url $bnm
    
-   plugins-look-version $bnm
+   package-look-version $bnm
 }
 
-plugins-look-version(){
+package-look-version(){
    local msg="=== $FUNCNAME :"
    local dir=$1
    local setup=$dir/setup.py
@@ -215,7 +215,7 @@ plugins-look-version(){
 }
 
 
-plugins-install(){
+package-install(){
    local name=$1
    
    local msg="=== $FUNCNAME :"
@@ -238,7 +238,7 @@ plugins-install(){
 
 
 
-plugins-uninstall(){
+package-uninstall(){
    local msg="=== $FUNCNAME :"
    local name=$1
    local egg=$($name-egg)
@@ -246,7 +246,7 @@ plugins-uninstall(){
    python-uninstall $egg
 }
 
-plugins-reinstall(){
+package-reinstall(){
    local name=$1
    shift
    $($name-uninstall $*)
@@ -255,7 +255,7 @@ plugins-reinstall(){
 
 
 
-plugins-enable(){
+package-enable(){
 
    local pame=$1
   
@@ -266,13 +266,13 @@ plugins-enable(){
    trac-configure components:$pkgn.\*:enabled
 }
 
-plugins-test(){
+package-test(){
     local pame=$1
     python -c "import $pame" 
 }
 
 
-plugins-setup-cust(){
+package-setup-cust(){
 
     local name=$1
     local msg="=== $FUNCNAME :"
@@ -297,31 +297,31 @@ plugins-setup-cust(){
 }
 
 
-plugins-cust(){
+package-cust(){
 
    local msg="=== $FUNCNAME :"
    local name=$1
    echo $msg $name 
    local base=$($name-basename)
-   plugins-is-cust $base &&  plugins-setup-cust $name
+   package-is-cust $base &&  package-setup-cust $name
 }
 
 
-plugins-branch(){
-   local bn=$(plugins-branchname $*) 
+package-branch(){
+   local bn=$(package-branchname $*) 
    local bv
    eval bv=\$$bn
    echo $bv
 }
 
-plugins-branchname(){
+package-branchname(){
    local name=$1
    local NAME=$(echo $name | tr "[a-z]" "[A-Z]")
    local bn=${NAME}_BRANCH
    echo $bn
 }
 
-plugins-obranch(){
+package-obranch(){
    local name=$1
    local b=$($name-branch)
    [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
@@ -329,7 +329,7 @@ plugins-obranch(){
 }
 
 
-plugins-is-cust(){
+package-is-cust(){
     local b=$1
     [ "${b:$((${#b}-5))}" == "_cust" ]  && return 0 || return 1
 }

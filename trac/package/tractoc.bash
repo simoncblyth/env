@@ -1,5 +1,5 @@
 tractoc-usage(){
-   plugins-usage  ${FUNCNAME/-*/}
+   package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
     tractoc-fix :
@@ -12,7 +12,7 @@ EOU
 
 tractoc-env(){
   elocal-
-  tplugins-
+  tpackage-
   
   export TRACTOC_BRANCH=0.11_cust
   #export TRACTOC_BRANCH=0.10  
@@ -38,21 +38,21 @@ tractoc-fix(){
 }
 
 
-tractoc-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
-tractoc-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
-tractoc-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
-tractoc-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
-tractoc-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
-tractoc-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
-tractoc-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
-tractoc-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
-tractoc-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
-tractoc-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
-tractoc-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
+tractoc-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+tractoc-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
+tractoc-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
+tractoc-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+tractoc-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
+tractoc-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+tractoc-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+tractoc-install(){   package-install   ${FUNCNAME/-*/} $* ; }
+tractoc-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
+tractoc-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
+tractoc-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 
-tractoc-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
-tractoc-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
-tractoc-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; } 
+tractoc-status(){    package-status    ${FUNCNAME/-*/} $* ; }
+tractoc-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
+tractoc-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
 
 
 
