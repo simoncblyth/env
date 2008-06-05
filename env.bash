@@ -1,74 +1,61 @@
 
+env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 
+dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }
+root-(){        . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
 
-
-env-(){      [ -r $ENV_HOME/env.bash ]              && . $ENV_HOME/env.bash && env-env $* ; }
- 
-base-(){     [ -r $ENV_HOME/base/base.bash ]        && . $ENV_HOME/base/base.bash && base-env $* ; } 
-
-caen-(){     [ -r $ENV_HOME/caen/caen.bash ]        && . $ENV_HOME/caen/caen.bash && caen-env $* ; }
-
-root-(){       . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
-qmtest-(){     . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
-nose-(){       . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
-
-dyb-(){       . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
-dybi-(){      . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
-dybr-(){      . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
-dybt-(){      . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
-
+dyb-(){         . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
+dybi-(){        . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
+dybr-(){        . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
+dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 
 caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; } 
 
+base-(){        . $ENV_HOME/base/base.bash    && base-env $* ; } 
+local-(){       . $ENV_HOME/base/local.bash   && local-env $* ; }
+elocal-(){      . $ENV_HOME/base/local.bash   && local-env $* ; }   ## avoid name clash 
+cron-(){        . $ENV_HOME/base/cron.bash    && cron-env $* ; } 
 
-scm-(){        [ -r $ENV_HOME/scm/scm.bash ]          && . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
-
-bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
-tmacros-(){      . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
-tpackage-(){     . $ENV_HOME/trac/package.bash        && package-env $* ; } 
-
+scm-(){         . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
-cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
+
+unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
+qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
+nose-(){        . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
+bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
+tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
+tpackage-(){    . $ENV_HOME/trac/package.bash        && package-env $* ; } 
+
+otrac-(){       . $ENV_HOME/otrac/otrac.bash     && otrac-env $* ; } 
+trac-conf-(){   . $ENV_HOME/otrac/trac-conf.bash && trac-conf-env $* ; } 
+trac-ini-(){    . $ENV_HOME/otrac/trac-ini.bash  && trac-ini-env  $* ; } 
+authzpolicy-(){ . $ENV_HOME/otrac/authzpolicy.bash && authzpolicy-env $* ; }
+
+svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
+svn-apache2-(){ . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
 
 
-otrac-(){        . $ENV_HOME/scm/otrac/otrac.bash && otrac-env $* ; } 
+sqlite-(){      . $ENV_HOME/db/sqlite.bash && sqlite-env $* ; } 
+db-(){          . $ENV_HOME/db/db.bash     && db-env $*     ; }
+
+
+aberdeen-(){    . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+
+python-(){      . $ENV_HOME/python/python.bash  && python-env $*  ; }
+ipython-(){     . $ENV_HOME/python/ipython.bash && ipython-env $* ; }
 
 
 
-trac-conf-(){   . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
-trac-ini-(){    . $ENV_HOME/scm/trac/trac-ini.bash  && trac-ini-env  $* ; } 
+seed-(){        . $ENV_HOME/seed/seed.bash && seed-env $* ; }
+macros-(){      . $ENV_HOME/macros/macros.bash && macros-env $* ; }
+offline-(){     . $ENV_HOME/offline/offline.bash && offline-env $* ; }
 
 
+xml-(){         . $ENV_HOME/xml/xml.bash ; }
 
 
-svn-(){          . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
-svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
-
-
-sqlite-(){   . $ENV_HOME/scm/sqlite.bash && sqlite-env $* ; } 
-aberdeen-(){ . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
-python-(){   . $ENV_HOME/python/python.bash && python-env $* ; }
-
-
-local-(){    . $ENV_HOME/base/local.bash && local-env $* ; }
-elocal-(){   . $ENV_HOME/base/local.bash && local-env $* ; }   ## avoid name clash 
-
-
-ipython-(){  [ -r $ENV_HOME/python/ipython.bash ]   && . $ENV_HOME/python/ipython.bash ; }
-seed-(){     [ -r $ENV_HOME/seed/seed.bash ]        && . $ENV_HOME/seed/seed.bash ; }
-#macros-(){   [ -r $ENV_HOME/macros/macros.bash ]    && . $ENV_HOME/macros/macros.bash ; }
-dyw-(){      [ -r $ENV_HOME/dyw/dyw.bash ]          && . $ENV_HOME/dyw/dyw.bash ; }
-#macros-(){   [ -r $ENV_HOME/offline/offline.bash ]  && . $ENV_HOME/offline/offline.bash ; }
-db-(){       [ -r $ENV_HOME/db/db.bash ]            && . $ENV_HOME/db/db.bash ; }
-
-xml-(){      [ -r $ENV_HOME/xml/xml.bash ]           && . $ENV_HOME/xml/xml.bash ; }
-
-
-authzpolicy-(){   . $ENV_HOME/scm/trac/authzpolicy.bash && authzpolicy-env $* ; }
-
-unittest-(){      . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 
 
 
