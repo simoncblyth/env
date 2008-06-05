@@ -61,7 +61,8 @@ tractags-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 tractags-status(){    package-status    ${FUNCNAME/-*/} $* ; }
 tractags-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
 tractags-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
-
+tractags-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+tractags-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 
 tractags-unconf(){
@@ -109,11 +110,6 @@ tractags-conf(){
 
 
 
-tractags-env-upgrade(){
-    local name=${1:-$SCM_TRAC}
-    local env=$SCM_FOLD/tracs/$name
-    sudo trac-admin $env upgrade
-}
 
 
 

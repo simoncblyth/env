@@ -1,7 +1,7 @@
 
-svn-usage(){
+svn-apache2-usage(){
   cat << EOU
-  
+ 
     CAUTION WHILE DOING THIS ... IF YOU GET THE CONFIG WRONG SUCH THAT IT MAKES YOU LOOSE PERMISSION
 	TO THE REPOSITORY THEN YOU WILL NOT BE ABLE TO COMMIT CHANGES ...SEE   svn-tmp-cp IF IN A PINCH 
   
@@ -53,8 +53,8 @@ svn-apache2-authzaccess-update
 Typical Usage .. when setting SVN permissions of users  :
 
 env-
-svn-
-svn-usage
+svn-apache2-
+svn-apache2-usage
 
 ## test the setup ... writing to /tmp
 ASUDO= svn-apache2-conf-   
@@ -74,7 +74,7 @@ EOU
 
 
 
-svn-env(){
+svn-apache2-env(){
 #
 # runtime settings including defining and adding SVN_HOME to the PATH are in scm_use.bash
 #
@@ -84,7 +84,7 @@ svn-env(){
   apache2-
   trac-
 
-  svn-base 
+  svn-apache2-base 
 
 }
 
@@ -361,6 +361,7 @@ cat << EOC
    #Allow from 10.0.1.103
    #Allow from 10.0.1.104
    Allow from 10.0.1.1
+   Allow from 140.112.102.77
    Deny from all
 </Location>
 

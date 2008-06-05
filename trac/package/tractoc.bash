@@ -53,7 +53,8 @@ tractoc-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 tractoc-status(){    package-status    ${FUNCNAME/-*/} $* ; }
 tractoc-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
 tractoc-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-
+tractoc-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+tractoc-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 
 

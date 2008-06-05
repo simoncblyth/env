@@ -15,23 +15,44 @@ cat << EOU
 
     trac-tail <name>  
     trac-logpath <name>
-    trac-admin- <name>     ## NB trailing dash
+
+        
+    
+    
     trac-inipath <name>    
     trac-inicat  <name>
            utilities targeted to the named instance, defaulting to TRAC_INSTANCE
 
+
+   
+
+
+
     trac-inheritpath 
            trac.ini for individual instances can use an inherit:file:<path> block to use
            a common conf file
+    
+   
+               
+               
+   Utilities targeted to the default instance for the NODE_TAG , to use another :
+       TRAC_INSTANCE=another  trac-blah blah      
          
+    trac-admin-                 ## NB trailing dash
+              trac-admin-      ... into interactive mode
+              trac-admin- upgrade        ## db upgrade for new schema   
+              trac-admin- permission list 
+           
     trac-configure  <block:qty:valu> ... 
            applies edits to  trac.ini by means of triplet arguments
-           targetted to the default instance , use TRAC_INSTANCE=other trac-configure to override
+           
 
 
-    trac-names  : names of all packages 
-    trac-auto   : \$name-auto for all the names 
-    trac-status : \$name-status for all the names
+    Distributed commands over the packages... 
+
+       trac-names  : names of all packages 
+       trac-auto   : \$name-auto 
+       trac-status : \$name-status 
     
     
  
@@ -58,13 +79,25 @@ trac-inheritpath(){   echo  $SCM_FOLD/conf/trac.ini ; }  ## is inherit 0.11 only
 trac-env(){
    elocal-
    tpackage-
+  
    
    case $NODE_TAG in
-     G) export TRAC_INSTANCE=workflow ;;
-     H) export TRAC_INSTANCE=env ;;
+     G) export TRAC_INSTANCE=workflow ; export TRAC_VERSION=0.11rc1 ;;
+     H) export TRAC_INSTANCE=env      ; export TRAC_VERSION=0.10.4  ;;
      *) export TRAC_INSTANCE=    ;;
    esac
+
+   ## these settings are used by svn-apache-* for apache2 config 
+   apache2-
+   export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
+   export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+
 }
+
+
+
+
+trac-major(){  echo ${TRAC_VERSION:0:4} ; }
 
 
 trac-tail(){ tail -f $(trac-logpath $*) ; }
@@ -83,6 +116,7 @@ trac-inipath(){
 trac-inicat(){
   cat $(trac-inipath $*) 
 }
+
 
 
 

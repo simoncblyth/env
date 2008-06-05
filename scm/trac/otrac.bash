@@ -1,69 +1,6 @@
-#
-#  TODO:
-#
-#      To submit tickets or edit wiki pages, you need to register an account and log in. The 'Register' link can be found at the top of the page.
-#
-#
-#
-#
-#
-#    integrate the wiki backup and restore scripts
-#    modify backup folder to handle multiple repositories
-#
-#
-#  debugging the fatal python error...
-#
-#     python -v $(which trac-admin)
-#     python -v $(which trac-admin)  /var/scm/tracs/test initenv test sqlite:db/trac.db svn /var/scm/repos/test /usr/local/python/Python-2.5.1/share/trac/templates
-#
-#   
-#      python -vc "import libsvn.fs"
-#
-#
-#
-#    
-#   usage:
-#
-#      trac-x
-#      trac-i
-#
-#      trac-setup-perms      assigns permissions to :  anonymous, authenticated and admin users 
-#         trac-permission    set a single permission 
-#         trac-user-perms    assign all the permissions for a user , starts by wiping any preexisting permissions
-#
-#      trac-open
-#      trac-authz-check
-#      trac-log
-#      trac-authz
-#
-#      trac-apache2-conf  frontend
-#
-#                                 name: name of repository
-#                             frontend: modwsgi OR modpython
-#      
-#           create the users file with "scm-add-user name" before doing this 
-#           do "svn-apache2-settings" to add the three modules to apache..
-#
-#
-#
-#      trac-xmlrpc-wiki-backup  [pagenames]
-#      trac-xmlrpc-wiki-restore [pagenames]
-#
-#    eg   trac-xmlrpc-wiki-backup  WikiStart OtherPage      get the page(s) from the remote server to local $SCM_FOLD/wiki-backup
-#         trac-xmlrpc-wiki-restore WikiStart                put the page(s) from local $SCM_FOLD/wiki-backup to remote server
-#
-#             -   without arguments defaults to all wiki pages...
-#             -   allows local wiki editing
-#
-#
-#      trac-webadmin-plugin-get
-#      trac-pygments-plugin-get
-# 
-#      trac-get
-#      trac-install
-#
-#      tracxmlrpc-permission
-#
+
+
+ ## DEPRECATED THIS IS BEING MIGRATED TO trac/trac.bash 
 
 
  ## new style... reduce env pollution and startup time 
@@ -86,15 +23,13 @@
  trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
 
 
-
-
 otrac-env(){
 
    elocal-
    apache2-
    python-
    
-   trac-base
+   otrac-base
 
 }
 
@@ -106,8 +41,8 @@ otrac-base(){
   export TRAC_HOME=$LOCAL_BASE/$TRAC_NIK
   export TRAC_COMMON=$TRAC_HOME/common
 
-  export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
-  export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+ # export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
+ # export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
   export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
 
@@ -162,62 +97,7 @@ otrac-kitchensink(){
  
  
 
-otrac-wiki-macros(){
-  ls -alst  $SCM_FOLD/tracs/*/wiki-macros/
-}
 
-otrac-plugins(){
-  ls -alst  $SCM_FOLD/tracs/*/plugins/
-}
-
-
-
-otrac-log(){
-  name=${1:-$SCM_TRAC}
-  cat $SCM_FOLD/tracs/$name/log/trac.log
-  ls -alst  $SCM_FOLD/tracs/$name/log/trac.log
-}
-
-#
-#   python distribution primer ..
-#
-#      python setup.py   ... is the "standard" ? Distutils way of installing 
-#
-# [blyth@hfag 0.10]$ python setup.py bdist --help-formats
-# List of available distribution formats:
-#   --formats=rpm      RPM distribution
-#   --formats=gztar    gziped tar file
-#   --formats=bztar    bzip2ed tar file
-#	--formats=ztar     compressed tar file
-#	--formats=tar      tar file
-#	--formats=wininst  Windows executable installer
-#	--formats=zip      ZIP file
-#	--formats=egg      Python .egg file
-#
-#
-
-otrac-plugin-enable-deprecated(){
-
-  echo DEPRECATED APPROACH USE ini-edit NOW 
-
-   ## globally installed plugins need to be enabled ..
-
-   name=${1:-$SCM_TRAC}
-   plugin=${2:-dummy}
-   
-   tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-
-   [ -f "$tini" ] || ( echo trac-enable-component ABORT trac config file $tini not found  && return 1 )
-
-   ## adds compenents section if not there already and appends some config ...
-   
-   grep \\[components\\] $tini && echo components section in $tini already || ( sudo bash -c "echo \"[components]\"         >> $tini " )
-   grep "$plugin.*"      $tini && echo already                             || ( sudo bash -c "echo \"$plugin.* = enabled \" >> $tini " )
-
-   cat $tini
-
-   ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
-}
 
 otrac-ini(){
   local name=${1:-$SCM_TRAC}

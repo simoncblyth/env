@@ -17,11 +17,20 @@ tractrac-env(){
   elocal-
   tpackage-
   
-  #export TRACTRAC_BRANCH=tags/trac-0.10.4 
-  #export TRACTRAC_BRANCH=tags/trac-0.11b1
-  export TRACTRAC_BRANCH=tags/trac-0.11rc1
-  #export TRACTRAC_BRANCH=trunk
+  export TRACTRAC_BRANCH=$(tractrac-version2branch $TRAC_VERSION)
+}
 
+
+tractrac-version2branch(){
+  local version=$1
+  local branch
+  case $version in 
+      0.11b1) branch=tags/trac-0.11b1  ;;
+     0.11rc1) branch=tags/trac-0.11rc1 ;; 
+      0.10.4) branch=tags/trac-0.10.4  ;;
+       trunk) branch=trunk ;;
+  esac
+  echo $branch
 }
 
 tractrac-url(){     echo http://svn.edgewall.org/repos/trac/$(tractrac-obranch) ;}
@@ -60,5 +69,6 @@ tractrac-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 tractrac-status(){    package-status    ${FUNCNAME/-*/} $* ; }
 tractrac-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
 tractrac-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-
+tractrac-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+tractrac-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 

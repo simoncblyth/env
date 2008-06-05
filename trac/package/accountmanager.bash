@@ -2,6 +2,14 @@ accountmanager-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
+   Complication in configuration due to need to coordinate with :
+      \$TRAC_APACHE2_CONF       : $TRAC_APACHE2_CONF
+      \$APACHE2_LOCAL/trac.conf : $APACH2_LOCAL/trac.conf
+   
+     
+     
+     
+     
      
 EOU
 
@@ -11,9 +19,14 @@ accountmanager-env(){
   elocal-
   tpackage-
   
- #export ACCOUNTMANAGER_BRANCH=0.10
-  export ACCOUNTMANAGER_BRANCH=trunk
-
+  local branch
+  case $(trac-major) in 
+     0.10) branch=0.10 ;;
+     0.11) branch=trunk ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  
+  export ACCOUNTMANAGER_BRANCH=$branch
 }
 
 accountmanager-docurl(){  echo http://trac-hacks.org/wiki/AccountManagerPlugin ;}
@@ -51,6 +64,7 @@ accountmanager-status(){    package-status    ${FUNCNAME/-*/} $* ; }
 accountmanager-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
 accountmanager-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
 accountmanager-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+accountmanager-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 
 

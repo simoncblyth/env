@@ -54,3 +54,5 @@ tracnav-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 tracnav-status(){    package-status    ${FUNCNAME/-*/} $* ; }
 tracnav-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
 tracnav-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
+tracnav-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+tracnav-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
