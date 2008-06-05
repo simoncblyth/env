@@ -1,4 +1,10 @@
 
+#
+#  this is not sustainable 
+#    ... move to putting top level precursors here only 
+#        with the sub precursors defined  in the name/name.bash file
+#
+
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 
 dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }
@@ -8,6 +14,9 @@ dyb-(){         . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){        . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){        . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
+
+
+apache2-(){     . $ENV_HOME/apache/apache2.bash && apache2-env $* ; } 
 
 caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; } 
 
@@ -34,7 +43,9 @@ trac-ini-(){    . $ENV_HOME/otrac/trac-ini.bash  && trac-ini-env  $* ; }
 authzpolicy-(){ . $ENV_HOME/otrac/authzpolicy.bash && authzpolicy-env $* ; }
 
 svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
-svn-apache2-(){ . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+
+
+cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
 
 
 sqlite-(){      . $ENV_HOME/db/sqlite.bash && sqlite-env $* ; } 

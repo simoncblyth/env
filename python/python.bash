@@ -39,6 +39,9 @@ EOU
 }
 
 
+pexpect(){       . $ENV_HOME/python/pexpect.bash ; } 
+
+
 
 python-ls(){
 

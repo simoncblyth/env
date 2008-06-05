@@ -11,7 +11,7 @@ ASUDO=sudo svn-apache2-conf
 
 
 ASUDO= svn-apache2-conf-   
-                          generate the conf fragments into /tmp to verify before doing above, also allows them
+                          generate the conf fragments into /tmp/env/ to verify before doing above, also allows them
 						  to save the day on subsequent screwup with svn-tmp-cp
 
 
@@ -50,22 +50,21 @@ svn-apache2-authzaccess-update
 
 	
 	
-Typical Usage .. when setting SVN permissions of users  :
+ Typical Usage .. when setting SVN permissions of users  :
 
-env-
-svn-apache2-
-svn-apache2-usage
+   env-
+   svn-apache2-
+   svn-apache2-usage
 
-## test the setup ... writing to /tmp
-ASUDO= svn-apache2-conf-   
+ Test the setup ... writing to /tmp/env
+          ASUDO= svn-apache2-conf-   
 
-## if they look OK then ... 
-ASUDO=sudo svn-apache2-conf
-ls -l $APACHE__LOCAL/	
+  If they look OK then ... 
+          ASUDO=sudo svn-apache2-conf
+          ls -l $APACHE__LOCAL/	
 	
-	
-NOTE THIS DOES NOT ADD THE USERS 
-... DO THAT THRU THE webadmin INTERFACE MANAGING THE  svn-apache2-auth FILE	
+      NOTE THIS DOES NOT ADD THE USERS 
+       ... DO THAT THRU THE webadmin INTERFACE MANAGING THE  svn-apache2-auth FILE	
 	
 	  
 EOU
@@ -143,7 +142,7 @@ svn-apache2-conf-(){
 
 	local msg="=== $FUNCNAME:"
     local access=${1:-formlogin}
-	local base=${2:-/tmp/$FUNCNAME}
+	local base=${2:-/tmp/env/$FUNCNAME}
 	
 	shift 
 	shift
@@ -208,7 +207,7 @@ svn-apache2-repos-location-write(){
   shift
   
   echo =============== writing svn-apache2-location output to $conf
-  $ASUDO bash -lc "env- && svn- && svn-apache2-repos-location $*  >  $conf"
+  $ASUDO bash -lc "env- && svn- && svn-apache2- && svn-apache2-repos-location $*  >  $conf"
   echo =============== cat $conf 
   cat $conf 
 
@@ -220,7 +219,7 @@ svn-apache2-tracs-location-write(){
   shift
   
   echo =============== writing svn-apache2-tracs-location output to $conf ... $*
-  $ASUDO bash -lc "env- && svn- && svn-apache2-tracs-location $* >  $conf"
+  $ASUDO bash -lc "env- && svn- && svn-apache2- && svn-apache2-tracs-location $* >  $conf"
   echo =============== cat $conf 
   cat $conf 
 
@@ -251,7 +250,7 @@ svn-apache2-authzaccess-write(){
   
   echo =============== writing svn-apache2-authzaccess output to $authzaccess as root
   ## cannot use ASUDO="sudo -u $APACHE2_USER" directly as apache cannot access my .bash_profile
-  $ASUDO bash -lc "env- && svn- && svn-apache2-authzaccess $* >  $authzaccess"
+  $ASUDO bash -lc "env- && svn- && svn-apache2- && svn-apache2-authzaccess $* >  $authzaccess"
   $ASUDO chown $APACHE2_USER $authzaccess
    ls -l $authzaccess
    echo =============== cat $authzaccess

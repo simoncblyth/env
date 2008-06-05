@@ -10,11 +10,24 @@ svn-usage(){
          handholding only
          
      
+  Precursors to other functionality...
+  
+        svn-apache2-
+        svn-sync-
+        svn-tools-   
     
 EOU
 
-
 }
+
+
+swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
+
+svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
+svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
+svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 
+svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
 
 
 svn-env(){

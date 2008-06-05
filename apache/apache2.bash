@@ -44,6 +44,13 @@ EOU
 }
 
 
+
+modpython-(){    . $ENV_HOME/apache/modpython.bash && modpython-env $* ; } 
+modwsgi-use-(){  . $ENV_HOME/apache/modwsgi-use.bash && modwsgi-use-env $* ; } 
+modwsgi-(){      . $ENV_HOME/apache/modwsgi.bash && modwsgi-env $* ; } 
+
+
+
 apache2-env(){
 
    elocal-
