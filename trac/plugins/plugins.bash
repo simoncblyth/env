@@ -105,12 +105,15 @@ plugins-enable(){
 
    local pame=$1
    local name=${2:-$SCM_TRAC}
+   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini 
   
   ## NB the appropriate string is the python package name ...
   ##  test with  eg  python -c "import tractoc" 
   
+   local modn=$($pame-package)
+  
    trac-ini-
-   trac-ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:$pame.\*:enabled
+   trac-ini-edit $tini components:$modn.\*:enabled
 }
 
 plugins-test(){
@@ -149,12 +152,17 @@ plugins-cust(){
 
 
 plugins-branch(){
-   local name=$1
-   local NAME=$(echo $name | tr "[a-z]" "[A-Z]")
-   local bn=${NAME}_BRANCH
+   local bn=$(plugins-branchname $*) 
    local bv
    eval bv=\$$bn
    echo $bv
+}
+
+plugins-branchname(){
+   local name=$1
+   local NAME=$(echo $name | tr "[a-z]" "[A-Z]")
+   local bn=${NAME}_BRANCH
+   echo $bn
 }
 
 plugins-obranch(){
@@ -177,23 +185,18 @@ plugins-is-cust(){
 
 plugins-usage(){
     local name=$1
-    
-    local bn=${NAME}_BRANCH
-    local bv
-    eval bv=\$$bn
-    
-    local bs=$(plugins-strip-cust $bv)
-    
+    local bn=$(plugins-branchname $name)
+    local ob=$($name-obranch)
     
 cat << EOU
     Precursor "${name}-" is defined in trac/plugins/plugins.bash with precursor "tplugins-"
 
-    Functions of ${NAME}_BRANCH : $bv  (use a branch name with _cust appended for local customizing)     
-    PYTHON_SITE     : $PYTHON_SITE
+    Functions of the branch ... 
+   
+    $name-branch    : $($name-branch)    branch names ending _cust for  local customizing
+    $name-obranch   : $($name-obranch)   with _cust stripped
     $name-basename  : $($name-basename)
     $name-url       : $($name-url)
-         if the branch ends with _cust this is stripped  in forming the url
-    plugins-strip-cust \$$bn  : $bs      
     $name-dir       : $($name-dir)
     $name-eggver    : $($name-eggver)
        this is the egg version which must be manually edited to 
@@ -225,9 +228,9 @@ cat << EOU
         $name-
         $name-usage
 
-     Get a branch ready for customization  : $bn=${bs}_cust $name-get
-     Check the dynamics                    : $bn=${bs}_cust $name-usage
-     Install the default cust version      : $bn=${bs}_cust $name-install
+     Get a branch ready for customization  : $bn=${ob}_cust $name-get
+     Check the dynamics                    : $bn=${ob}_cust $name-usage
+     Install the default cust version      : $bn=${ob}_cust $name-install
        
      To see the effect of changes...       : sudo apachectl restart
 

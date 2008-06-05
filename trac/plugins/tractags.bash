@@ -27,7 +27,7 @@ tractags-env(){
 }
 
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-obranch) ; }
-tractags-module(){  echo tractags ; }
+tractags-package(){ echo tractags ; }
 tractags-eggbas(){  echo TracTags ; }
 
 tractags-eggver(){

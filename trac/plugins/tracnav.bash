@@ -17,7 +17,7 @@ tracnav-env(){
 
 
 tracnav-url(){      echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$(tracnav-obranch) ;}
-tracnav-module(){   echo tracnav ; }
+tracnav-package(){   echo tracnav ; }
 tracnav-eggbas(){   echo TracNav ; }
 
 tracnav-eggver(){

@@ -18,19 +18,17 @@ tractoc-env(){
   #export TRACTOC_BRANCH=0.10  
 }
 
-tractoc-branch(){  echo $TRACTOC_BRANCH ; }
-tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(plugins-strip-cust $TRACTOC_BRANCH) ;}
-tractoc-module(){  echo tractoc ; }
+tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(tractoc-obranch) ;}
+tractoc-package(){ echo tractoc ; }
 tractoc-eggbas(){  echo TracTocMacro ; }
 
 tractoc-eggver(){
-    local bs=$(plugins-strip-cust $TRACTOC_BRANCH)
-    case $bs in 
-       0.10) v=1.0       ;;
-       0.11) v=11.0.0.3  ;;
-          *) v=$bs ;;
+    local ob=$(tractoc-obranch)
+    case $ob in 
+       0.10) echo 1.0       ;;
+       0.11) echo 11.0.0.3  ;;
+          *) echo $ob       ;;
     esac
-    echo $v
 }
 
 tractoc-fix(){
@@ -40,7 +38,8 @@ tractoc-fix(){
 }
 
 
-
+tractoc-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
+tractoc-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
 tractoc-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
 tractoc-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
 tractoc-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
