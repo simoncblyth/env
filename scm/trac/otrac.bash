@@ -88,7 +88,7 @@
 
 
 
-trac-env(){
+otrac-env(){
 
    elocal-
    apache2-
@@ -98,7 +98,7 @@ trac-env(){
 
 }
 
-trac-base(){
+otrac-base(){
 
   export TRAC_NAME=trac-0.10.4
   TRAC_NIK=trac
@@ -120,7 +120,7 @@ trac-base(){
 
 
 
-trac-kitchensink(){
+otrac-kitchensink(){
 
  local trac_iwd=$(pwd)
  
@@ -162,17 +162,17 @@ trac-kitchensink(){
  
  
 
-trac-wiki-macros(){
+otrac-wiki-macros(){
   ls -alst  $SCM_FOLD/tracs/*/wiki-macros/
 }
 
-trac-plugins(){
+otrac-plugins(){
   ls -alst  $SCM_FOLD/tracs/*/plugins/
 }
 
 
 
-trac-log(){
+otrac-log(){
   name=${1:-$SCM_TRAC}
   cat $SCM_FOLD/tracs/$name/log/trac.log
   ls -alst  $SCM_FOLD/tracs/$name/log/trac.log
@@ -196,7 +196,7 @@ trac-log(){
 #
 #
 
-trac-plugin-enable-deprecated(){
+otrac-plugin-enable-deprecated(){
 
   echo DEPRECATED APPROACH USE ini-edit NOW 
 
@@ -219,7 +219,7 @@ trac-plugin-enable-deprecated(){
    ## NB the "sudo bash -c" construct is in order for the redirection to be done with root privilege
 }
 
-trac-ini(){
+otrac-ini(){
   local name=${1:-$SCM_TRAC}
   $SUDO vi  $SCM_FOLD/tracs/$name/conf/trac.ini
 }

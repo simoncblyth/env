@@ -58,12 +58,11 @@ tractags-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
 tractags-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
 tractags-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
 
+tractags-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
+tractags-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
+tractags-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; }
 
-tractags-diff(){
-    local dir=$(tractags-dir)
-    cd $(dirname $dir)    
-    diff -r --brief $TRACTAGS_BASENAME TracTags-trunk | grep -v .svn
-}
+
 
 tractags-unconf(){
 

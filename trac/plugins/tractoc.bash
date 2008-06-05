@@ -50,7 +50,9 @@ tractoc-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
 tractoc-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
 tractoc-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
 
-
+tractoc-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
+tractoc-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
+tractoc-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; } 
 
 
 

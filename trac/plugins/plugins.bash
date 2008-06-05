@@ -1,13 +1,153 @@
-
 plugins-env(){
- elocal-
+  elocal-
+  python-
 }
 
-tractags-(){          . $ENV_HOME/trac/plugins/tractags.bash  && tractags-env $* ; }
-tracnav-(){           . $ENV_HOME/trac/plugins/tracnav.bash   && tracnav-env  $* ; }
-tractoc-(){           . $ENV_HOME/trac/plugins/tractoc.bash   && tractoc-env  $* ; }
 
 
+
+
+
+plugins-usage(){
+    local name=$1
+    local bn=$(plugins-branchname $name)
+    local ob=$($name-obranch)
+    
+cat << EOU
+    Precursor "${name}-" is defined in trac/plugins/plugins.bash with precursor "tplugins-"
+
+    Functions of the branch ... 
+   
+    $name-branch    : $($name-branch)    branch names ending _cust for  local customizing
+    $name-obranch   : $($name-obranch)   with _cust stripped
+    $name-basename  : $($name-basename)
+    $name-url       : $($name-url)
+    $name-dir       : $($name-dir)
+    $name-eggver    : $($name-eggver)
+       this is the egg version which must be manually edited to 
+       match that from the original setup.py, this never has _cust appended
+    
+    $name-egg       : $($name-egg)
+        the version embedded in the name will have _cust appended if the 
+        branch name ends with _cust
+     
+    $name-cust      :
+          if the branch name ends in _cust then this attempts to edit the version in the setup.py,
+          for this to work the $name-eggver function must have the original version   
+        
+    $name-get       :
+          svn co the $($name-url) into $($name-dir)  
+
+    $name-install  :
+          invoke $name-cust then 
+          easy install into PYTHON_SITE $PYTHON_SITE
+           
+    $name-uninstall :
+           remove the $($name-egg) and easy-install.pth reference
+           
+    $name-reinstall :
+        uninstall then reinstall ... eg to propagate customizations 
+
+    Usage :
+        tplugins-
+        $name-
+        $name-usage
+
+     Get a branch ready for customization  : $bn=${ob}_cust $name-get
+     Check the dynamics                    : $bn=${ob}_cust $name-usage
+     Install the default cust version      : $bn=${ob}_cust $name-install
+       
+     To see the effect of changes...       : sudo apachectl restart
+
+    python-ls :   list the eggs in \$PYTHON_SITE : $PYTHON_SITE
+    python-pth :  cat the $PYTHON_SITE/easy-install.pth
+    
+    python-uninstall <eggname>
+         manual uninstallation removing the egg dir and the easy-install.pth reference
+          ... needed for to remove a prior version not "reachable" 
+         by $name-egg 
+
+    NB this flexibility is implemented by having everything that depends on $bn dynamic
+        
+EOU
+
+}
+
+
+
+plugins-diff(){
+  local name=$1
+  local dir=$($name-dir)
+  svn diff $dir 
+}
+
+plugins-rev(){
+  local name=$1
+  local dir=$($name-dir)
+  svnversion $dir 
+}
+
+
+plugins-auto(){
+
+   local name=$1
+   shift
+   local msg="=== $FUNCNAME :"
+   plugins-status- $name
+   local s=$?
+   local act=$(plugins-action- $s) 
+   
+   case $act in 
+     skip) echo $msg $name ===\> $act ... nothing to do             ;;
+      get) $name-get     ;;
+  install) $name-install ;;  
+    abort) echo $msg $name ===\> $act ... ABORTING && sleep 10000000 ;;
+        *) echo $msg $name ===\> $act ... ERROR act not handled && sleep 10000000 ;;
+   esac
+}
+
+plugins-status(){
+   local msg="=== $FUNCNAME :"
+   plugins-status- $*
+   local s=$?
+   local a=$(plugins-action- $s)
+   echo $msg [$s] $(plugins-status-- $s) ===\> $a 
+   return $s
+}
+
+
+plugins-action-(){
+  case $1 in 
+     0) echo skip ;;
+     1) echo get  ;;
+     2) echo install ;;
+     3) echo abort ;;
+  esac
+}
+
+plugins-status--(){
+  case $1 in 
+    0) echo installed ;;
+    1) echo not downloaded ;;
+    2) echo not installed  ;;
+    3) echo the egg is not a directory ... non standard installation used ... delete and try again ;;
+  esac 
+}
+
+
+plugins-status-(){
+
+  local msg="=== $FUNCNAME :"
+  local name=$1
+  local egg=$PYTHON_SITE/$($name-egg)
+  local dir=$($name-dir)
+  echo $msg $name $egg $dir
+  
+  [ -f $egg   ] && return 3 
+  [ ! -d $dir ] && return 1 
+  [ ! -d $egg ] && return 2
+  return 0
+}
 
 
 plugins-dir(){
@@ -67,8 +207,11 @@ plugins-look-version(){
 plugins-install(){
    local name=$1
    
+   local msg="=== $FUNCNAME :"
+   echo $msg $name 
    
-   $($name-cust)
+   $name-cust
+   $name-fix
    
    local dir=$($name-dir)
    cd $dir
@@ -145,7 +288,10 @@ plugins-setup-cust(){
 
 
 plugins-cust(){
+
+   local msg="=== $FUNCNAME :"
    local name=$1
+   echo $msg $name 
    local base=$($name-basename)
    plugins-is-cust $base &&  plugins-setup-cust $name
 }
@@ -181,72 +327,6 @@ plugins-is-cust(){
 
 
 
-
-
-plugins-usage(){
-    local name=$1
-    local bn=$(plugins-branchname $name)
-    local ob=$($name-obranch)
-    
-cat << EOU
-    Precursor "${name}-" is defined in trac/plugins/plugins.bash with precursor "tplugins-"
-
-    Functions of the branch ... 
-   
-    $name-branch    : $($name-branch)    branch names ending _cust for  local customizing
-    $name-obranch   : $($name-obranch)   with _cust stripped
-    $name-basename  : $($name-basename)
-    $name-url       : $($name-url)
-    $name-dir       : $($name-dir)
-    $name-eggver    : $($name-eggver)
-       this is the egg version which must be manually edited to 
-       match that from the original setup.py, this never has _cust appended
-    
-    $name-egg       : $($name-egg)
-        the version embedded in the name will have _cust appended if the 
-        branch name ends with _cust
-     
-    $name-cust      :
-          if the branch name ends in _cust then this attempts to edit the version in the setup.py,
-          for this to work the $name-eggver function must have the original version   
-        
-    $name-get       :
-          svn co the $($name-url) into $($name-dir)  
-
-    $name-install  :
-          invoke $name-cust then 
-          easy install into PYTHON_SITE $PYTHON_SITE
-           
-    $name-uninstall :
-           remove the $($name-egg) and easy-install.pth reference
-           
-    $name-reinstall :
-        uninstall then reinstall ... eg to propagate customizations 
-
-    Usage :
-        tplugins-
-        $name-
-        $name-usage
-
-     Get a branch ready for customization  : $bn=${ob}_cust $name-get
-     Check the dynamics                    : $bn=${ob}_cust $name-usage
-     Install the default cust version      : $bn=${ob}_cust $name-install
-       
-     To see the effect of changes...       : sudo apachectl restart
-
-    python-ls :   list the eggs in \$PYTHON_SITE : $PYTHON_SITE
-    python-pth :  cat the $PYTHON_SITE/easy-install.pth
-    
-    python-uninstall <eggname>
-         manual uninstallation removing the egg dir and the easy-install.pth reference
-          ... needed for to remove a prior version not "reachable" 
-         by $name-egg 
-
-    NB this flexibility is implemented by having everything that depends on $bn dynamic
-        
-EOU
-
-}
 
 
 

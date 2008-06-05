@@ -30,7 +30,13 @@ tplugins-(){     . $ENV_HOME/trac/plugins/plugins.bash && plugins-env $* ; }
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
 cron-(){        . $ENV_HOME/base/cron.bash      && cron-env $* ; } 
 
-trac-(){        . $ENV_HOME/scm/trac/trac.bash && trac-env $* ; } 
+trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
+
+
+otrac-(){        . $ENV_HOME/scm/trac/otrac.bash && otrac-env $* ; } 
+
+
+
 trac-conf-(){   . $ENV_HOME/scm/trac/trac-conf.bash && trac-conf-env $* ; } 
 trac-ini-(){    . $ENV_HOME/scm/trac/trac-ini.bash  && trac-ini-env  $* ; } 
 

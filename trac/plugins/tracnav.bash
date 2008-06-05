@@ -11,7 +11,7 @@ tracnav-env(){
    elocal-
    python-
 
-   export TRACNAV_BRANCH=tracnav-0.11
+   export TRACNAV_BRANCH=tracnav-0.11_cust
    #export TRACNAV_BRANCH=tracnav
 }
 
@@ -32,6 +32,12 @@ tracnav-eggver(){
 }
 
 
+tracnav-fix(){
+   local msg="=== $FUNCNAME :"
+   echo $msg no fix needed
+}
+
+
 
 tracnav-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
 tracnav-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
@@ -45,6 +51,6 @@ tracnav-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
 tracnav-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
 tracnav-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
 
-
-
- 
+tracnav-status(){    plugins-status    ${FUNCNAME/-*/} $* ; }
+tracnav-auto(){      plugins-auto      ${FUNCNAME/-*/} $* ; }
+tracnav-diff(){      plugins-diff      ${FUNCNAME/-*/} $* ; } 
