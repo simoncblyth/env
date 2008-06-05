@@ -87,6 +87,12 @@ plugins-rev(){
   svnversion $dir 
 }
 
+plugins-cd(){
+  local name=$1
+  local dir=$($name-dir)
+  cd $dir 
+}
+
 
 plugins-auto(){
 
