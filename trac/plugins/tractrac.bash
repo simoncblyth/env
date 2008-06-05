@@ -2,6 +2,12 @@ tractrac-usage(){
    plugins-usage  ${FUNCNAME/-*/}
    cat << EOU
    
+   
+    addendum to tractrac-install
+   
+         In addition to installing the package into PYTHON_SITE this 
+         also installs the trac-admin and tracd entry points by default 
+         to /usr/local/bin/{trac-admin,tracd}  
      
 EOU
 

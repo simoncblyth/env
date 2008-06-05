@@ -5,7 +5,16 @@ bitten-usage(){
    
    bitten-setver
        the version in the setup.py file ... this is needed when cust is necessary 
+   
      
+   addendum to bitten-install
+       
+      In addition to installing the package into PYTHON_SITE this 
+      also installs the bitten-slave entry point by default 
+      to /usr/local/bin/bitten-slave
+     
+             
+                 
 EOU
 
 }

@@ -13,7 +13,26 @@ cat << EOU
       1) do i need to kickstart the tracitory from a prior backup 
 
 
+    trac-tail <name>  
+    trac-logpath <name>
+    trac-admin- <name>     ## NB trailing dash
+    trac-inipath <name>    
+    trac-inicat  <name>
 
+        utilities targeted to the named instance, defaulting to TRAC_INSTANCE
+
+
+    trac-configure  <block:qty:valu> ... 
+           applies edits to  trac.ini by means of triplet arguments
+           targetted to the default instance , use TRAC_INSTANCE=other trac-configure to override
+
+
+    trac-names  : names of all packages 
+    trac-auto   : \$name-auto for all the names 
+    trac-status : \$name-status for all the names
+    
+    
+ 
 EOU
 
 }
@@ -43,19 +62,24 @@ trac-env(){
 }
 
 
-trac-tail(){
-  tail -f $(trac-logpath $*)
-}
-
-trac-log(){
-  cd $(dirname $(trac-logpath $*))
-  ls -l 
-}
+trac-tail(){ tail -f $(trac-logpath $*) ; }
+trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 
 trac-logpath(){
   local name=${1:-$TRAC_INSTANCE}
   echo $SCM_FOLD/tracs/$name/log/trac.log
 }
+
+trac-inipath(){
+  local name=${1:-$TRAC_INSTANCE}
+  echo $SCM_FOLD/tracs/$name/conf/trac.ini
+}
+
+trac-inicat(){
+  cat $(trac-inipath $*) 
+}
+
+
 
 
 trac-admin-(){
