@@ -1,4 +1,68 @@
-tractoc-get(){
+tractoc-usage(){
+   plugins-usage  ${FUNCNAME/-*/}
+   cat << EOU
+   
+    tractoc-fix :
+        inplace edit to allow the top level headings to be listed
+        without having to specify the page name in the [[TOC]]    
+   
+EOU
+
+}
+
+tractoc-env(){
+  elocal-
+  tplugins-
+  
+  export TRACTOC_BRANCH=0.11_cust
+  #export TRACTOC_BRANCH=0.10  
+}
+
+tractoc-branch(){  echo $TRACTOC_BRANCH ; }
+tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(plugins-strip-cust $TRACTOC_BRANCH) ;}
+tractoc-module(){  echo tractoc ; }
+tractoc-eggbas(){  echo TracTocMacro ; }
+
+tractoc-eggver(){
+    local bs=$(plugins-strip-cust $TRACTOC_BRANCH)
+    case $bs in 
+       0.10) v=1.0       ;;
+       0.11) v=11.0.0.3  ;;
+          *) v=$bs ;;
+    esac
+    echo $v
+}
+
+tractoc-fix(){
+   cd $(tractoc-dir)   
+   perl -pi -e 's/(min_depth.*)2(\s*# Skip.*)/${1}1${2} fixed by tractoc-fix/' tractoc/macro.py
+   svn diff tractoc/macro.py
+}
+
+
+
+tractoc-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
+tractoc-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
+tractoc-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
+tractoc-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
+tractoc-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
+tractoc-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
+tractoc-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
+tractoc-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
+tractoc-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
+
+
+
+
+
+
+
+
+
+
+
+
+deprecated-tractoc-get(){
 
    cd $LOCAL_BASE/trac
    [ -d "wiki-macros" ] || mkdir -p wiki-macros
@@ -7,7 +71,6 @@ tractoc-get(){
    local macro=tocmacro
    mkdir -p $macro
    svn co http://trac-hacks.org/svn/$macro/0.10/ $macro
-   
    
    # this works... but want to make a fix first 
    #easy_install -Z http://trac-hacks.org/svn/$macro/0.10/
@@ -30,7 +93,7 @@ tractoc-get(){
 }
 
 
-tractoc-reinstall(){
+deprecated-tractoc-reinstall(){
    
    ## for a reinstallation after local changes to the source distro
    
@@ -53,42 +116,18 @@ tractoc-reinstall(){
 
 
 
-tractoc-remove(){
+deprecated-tractoc-remove(){
 
   cd $PYTHON_SITE
   rm -rf TracTocMacro-1.0-py2.5.egg
 }
 
 
-tractoc-fix(){
-
-  # allow the top level headings to be included without specifying the page name
-
-
-  #  cd $PYTHON_SITE 
-
-  local macro=tocmacro 
-  cd $LOCAL_BASE/trac/wiki-macros/$macro
-  perl -pi -e 's/(min_depth.*)2(\s*# Skip.*)/${1}1${2} fixed by tractoc-fix/' tractoc/macro.py
-
-}
-
-tractoc-enable(){
-
-## NB the appropriate string is the python package name ...
-##  test with  python -c "import tractoc" 
-##
-   local name=${1:-$SCM_TRAC}
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tractoc.\*:enabled
-}
-
-tractoc-test(){
-    python -c "import tractoc" 
-}
 
 
 
-tractoc-install(){
+
+deprecated-tractoc-install(){
 
   local macro=tocmacro
   cd $LOCAL_BASE/trac/wiki-macros/$macro

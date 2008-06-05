@@ -1,190 +1,69 @@
 tractags-usage(){
-
+   plugins-usage tractags
    cat << EOU
-
-   Precursor "tractags-" is defined in scm/trac/trac.bash with precursor "trac-"
-
-
-  # http://www.trac-hacks.org/wiki/TagsPlugin
-
-   TRACTAGS_BRANCH : $TRACTAGS_BRANCH
-
-   PYTHON_SITE     : $PYTHON_SITE
+# http://www.trac-hacks.org/wiki/TagsPlugin
    
-   tractags-egg    : $(tractags-egg)
-   tractags-url    : $(tractags-url) 
-      if the branch ends with _cust this is stripped  in forming the url
-   tractags-dir    : $(tractags-dir)
-
-
-
-   tractags-get  :  
-        checkout from $(tractags-url) into $(tractags-dir)
-        edit the setup.py/version to correspond to the branch for egg correspondence
-
-   tractags-customize :
+   tractags-fix :
        copy in changed files sourced in env for safety
-     ... this is intended for minor customizations, anything major should
-       be housed in tracdev repo
+     ... this is intended for minor customizations, anything major should be housed in tracdev repo
  
-   Usage :
-       trac-
-       tractags-
-       tractags-usage
-
-   Get the default version and the trunk version for comparison :  
-       tractags-get
-       TRACTAGS_BRANCH=trunk tractags-get
-
-   Uninstall the default version, and install the trunk version in its place
-   
-       tractags-uninstall
-       TRACTAGS_BRANCH=trunk tractags-install  
-       
-    Get the trunk ready for local customizations 
-       TRACTAGS_BRANCH=trunk_cust  tractags-get
-
-    Check the dynamic qtys then do the uninstall   
-        TRACTAGS_BRANCH=trunk tractags-usage
-        TRACTAGS_BRANCH=trunk tractags-uninstall
- 
-    Install the customized trunk
-         TRACTAGS_BRANCH=trunk_cust tractags-install
-        ## Installed /Library/Python/2.5/site-packages/TracTags-trunk_cust-py2.5.egg
- 
-    Reinstall the customized trunk
-          TRACTAGS_BRANCH=trunk_cust tractags-reinstall 
- 
-    To see the effect of changes...
-          sudo apachectl restart
- 
- 
- 
-    NB this flexibility is implemented by having everything that depends on TRACTAGS_BRANCH dynamic
-
 EOU
 
 }
 
-
-tractags-customize(){
-
-  local dir=$(tractags-dir)
-  cd $ENV_HOME/trac/plugins/tractags
-  
-  #cp setup.py  $dir/
-  cp macros.py $dir/tractags/
-
-
-}
-
-
-
-
-tractags-diff(){
-
-    local dir=$(tractags-dir)
-    cd $(dirname $dir)
-    
-    diff -r --brief $TRACTAGS_BASENAME TracTags-trunk | grep -v .svn
-
-}
-
-
-tractags-reinstall(){
-  tractags-uninstall $*
-  tractags-install $*
-}
-
-
-tractags-uninstall(){
-   python-uninstall $(tractags-egg)
-}
-
-
 tractags-env(){
    elocal-
-   python-
-   
-   export TRACTAGS_NAME=TracTags
+   tplugins-
    
    #export TRACTAGS_BRANCH=tags/0.4.1
    #export TRACTAGS_BRANCH=tags/0.5
    #export TRACTAGS_BRANCH=tags/0.6
    #export TRACTAGS_BRANCH=trunk
+   
    export TRACTAGS_BRANCH=trunk_cust
    
    # using names like trunk-cust ... mysteriously result in egg names with trunk_cust 
    #  ... so start with the underscored
 }
 
+tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-obranch) ; }
+tractags-module(){  echo tractags ; }
+tractags-eggbas(){  echo TracTags ; }
 
-tractags-egg(){   
-  
-   #
-   # the name of the egg depends on what is in the setup.py ... 
-   # ... it does not correspond to the branch ... although it should do
-   #
-  
-  local ver=$(basename $TRACTAGS_BRANCH)
-  
-  local eggver
-  case $ver in
-      trunk) eggver=0.6 ;;
- trunk_cust) eggver=trunk_cust ;;
-          *) eggver=$ver ;;
-  esac
-  echo TracTags-$eggver-py2.5.egg 
+tractags-eggver(){
+    local ob=$(tractags-obranch)
+    case $ob in 
+       trunk) echo 0.6 ;;
+           *) echo $ob ;;
+    esac
 }
 
-tractags-basename(){ 
-   echo $(basename $TRACTAGS_BRANCH) 
-}
-
-tractags-dir(){ 
-   echo $LOCAL_BASE/env/trac/plugins/tractags/$(tractags-basename)  
-}
-
-tractags-url(){ 
-  local b=$TRACTAGS_BRANCH  
-    
-  [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
-  echo http://trac-hacks.org/svn/tagsplugin/$b 
-}
-
-
-tractags-get(){
-   local dir=$(tractags-dir)
-   local pir=$(dirname $dir)
-   mkdir -p $pir
-   cd $pir   
-   svn co $(tractags-url)  $(tractags-basename) 
-}
-
-
-tractags-install(){
-      
-   cd $(tractags-dir)
-   $SUDO easy_install -Z .
+tractags-fix(){
+  local dir=$(tractags-dir)
+  cd $ENV_HOME/trac/plugins/tractags  
+  #cp setup.py  $dir/
+  cp macros.py $dir/tractags/
 
 }
 
-
-#  argh ... the name of the egg depends on whats in the setup.py ...
-# in this case the trunk version still has 0.6 
-#
-# Running setup.py -q bdist_egg --dist-dir /usr/local/env/trac/plugins/TracTags-trunk/egg-dist-tmp-HAe2ER
-# zip_safe flag not set; analyzing archive contents...
-# Adding TracTags 0.6 to easy-install.pth file
-#
-# Installed /Library/Python/2.5/site-packages/TracTags-0.6-py2.5.egg
-# Processing dependencies for TracTags==0.6
-# Finished processing dependencies for TracTags==0.6
-#
-#
+tractags-obranch(){   plugins-obranch   ${FUNCNAME/-*/} $* ; }
+tractags-branch(){    plugins-branch    ${FUNCNAME/-*/} $* ; }
+tractags-basename(){  plugins-basename  ${FUNCNAME/-*/} $* ; }
+tractags-dir(){       plugins-dir       ${FUNCNAME/-*/} $* ; } 
+tractags-egg(){       plugins-egg       ${FUNCNAME/-*/} $* ; }
+tractags-get(){       plugins-get       ${FUNCNAME/-*/} $* ; }
+tractags-cust(){      plugins-cust      ${FUNCNAME/-*/} $* ; }
+tractags-install(){   plugins-install   ${FUNCNAME/-*/} $* ; }
+tractags-uninstall(){ plugins-uninstall ${FUNCNAME/-*/} $* ; }
+tractags-reinstall(){ plugins-reinstall ${FUNCNAME/-*/} $* ; }
+tractags-enable(){    plugins-enable    ${FUNCNAME/-*/} $* ; }
 
 
-
+tractags-diff(){
+    local dir=$(tractags-dir)
+    cd $(dirname $dir)    
+    diff -r --brief $TRACTAGS_BASENAME TracTags-trunk | grep -v .svn
+}
 
 tractags-unconf(){
 
@@ -227,19 +106,14 @@ tractags-conf(){
     
         echo $msg ERROR branch $TRACTAGS_BRANCH not handled
     fi
-
-
-
 }
 
 
-tractags-env-upgrade(){
 
+tractags-env-upgrade(){
     local name=${1:-$SCM_TRAC}
     local env=$SCM_FOLD/tracs/$name
-
     sudo trac-admin $env upgrade
-
 }
 
 
