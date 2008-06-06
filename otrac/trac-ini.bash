@@ -31,6 +31,8 @@ trac-ini-edit(){
    shift
  
    sudo perl $ENV_HOME/base/ini-edit.pl $path $*  
+   sudo chown $APACHE2_USER:$APACHE2_USER $path
+   
 #
 #  
 #   on hfag machine ... skipping the perl causes error... 

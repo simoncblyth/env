@@ -71,7 +71,11 @@ bitten-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 bitten-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
 bitten-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
+
+
 bitten-perms(){
+
+  ## NB the name of the target instance is hidden in TRAC_INSTANCE 
 
   trac-admin- permission add blyth BUILD_ADMIN
   trac-admin- permission add blyth BUILD_VIEW
@@ -86,8 +90,8 @@ bitten-perms(){
 
 bitten-prepare(){
 
-   bitten-enable
-   bitten-perms
+   bitten-enable $*
+   bitten-perms $*
 
 }
 

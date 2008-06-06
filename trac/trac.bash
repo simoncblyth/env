@@ -66,12 +66,9 @@ tracnav-(){           . $ENV_HOME/trac/package/tracnav.bash   && tracnav-env  $*
 tractoc-(){           . $ENV_HOME/trac/package/tractoc.bash   && tractoc-env  $* ; }
 accountmanager-(){    . $ENV_HOME/trac/package/accountmanager.bash    && accountmanager-env   $* ; }
 bitten-(){            . $ENV_HOME/trac/package/bitten.bash    && bitten-env   $* ; }
-
-
-## these are not package .. hmm package would be a better name
 tractrac-(){          . $ENV_HOME/trac/package/tractrac.bash  && tractrac-env $* ; }
 genshi-(){            . $ENV_HOME/trac/package/genshi.bash    && genshi-env   $* ; }
-
+trac2mediawiki-(){    . $ENV_HOME/trac/package/trac2mediawiki.bash    && trac2mediawiki-env   $* ; }
 
 
 trac-inheritpath(){   echo  $SCM_FOLD/conf/trac.ini ; }  ## is inherit 0.11 only ?  
@@ -127,11 +124,15 @@ trac-admin-(){
 }
 
 trac-configure(){
+   local msg="=== $FUNCNAME :"
    local name=$TRAC_INSTANCE
    shift
    local tini=$SCM_FOLD/tracs/$name/conf/trac.ini 
    trac-ini-
+   
+   echo $msg editing $tini with $*
    trac-ini-edit $tini $*
+   
 }
 
 
@@ -146,6 +147,14 @@ trac-names(){
    done
    cd $iwd
 }
+
+trac-diff(){
+  for name in $(trac-names)
+  do
+      $name-diff
+  done
+}
+
 
 trac-auto(){
   local msg="=== $FUNCNAME :"

@@ -53,6 +53,15 @@ cat << EOU
     $name-reinstall :
         uninstall then reinstall ... eg to propagate customizations 
 
+
+    $name-reldir    : $($name-reldir)
+
+    package-odir-  <name>
+
+         the dir into which the checkout is done ... normally also the one with the setup.py 
+         unless a non blank $name-reldir is defined 
+
+
     Usage :
         tpackage-
         $name-
@@ -122,7 +131,7 @@ package-status(){
    package-status- $*
    local s=$?
    local a=$(package-action- $s)
-   echo $msg [$s] $(package-status-- $s) ===\> $a 
+   printf "%130s %-20s %-20s\n" "$(package-smry $1)" "$(package-status-- $s)" "==> $a "
    return $s
 }
 
@@ -148,6 +157,14 @@ package-status--(){
 }
 
 
+package-smry(){
+  local name=$1
+  local egg=$($name-egg)
+  local branch=$($name-branch)
+  local dir=$($name-dir)
+  printf "%-15s %-40s %-50s %-70s" $name $branch $egg $dir
+}
+
 package-status-(){
 
   local msg="=== $FUNCNAME :"
@@ -155,7 +172,7 @@ package-status-(){
   local egg=$PYTHON_SITE/$($name-egg)
   local branch=$($name-branch)
   local dir=$($name-dir)
-  echo $msg $name $egg $dir
+  #echo $msg $name $egg $dir
   
   [ "$branch" == "SKIP" ] && return 4
   [ -f $egg   ] && return 3 
@@ -165,10 +182,31 @@ package-status-(){
 }
 
 
+
+package-odir-(){
+
+  ## the dir into which the checkout is done
+  ## ... normally also the one with the setup.py 
+  ## unless $name-reldir is defined 
+  
+  local name=$1
+  local base=$(package-basename $name)
+  local dir=$LOCAL_BASE/env/trac/package/$name/$base
+  echo $dir
+}
+
 package-dir(){
-  local n=$1
-  local b=$(package-basename $n)
-  echo $LOCAL_BASE/env/trac/package/$n/$b
+ 
+  local name=$1
+  ## if a reldir is provided it should get from the 
+  ## checked out folder to the folder with the setup.py 
+  
+  local dir=$(package-odir- $name)
+  local reld=$($name-reldir 2> /dev/null || "" )
+  
+  [ "$reld" != "" ] && dir="$dir/$reld" 
+  
+  echo $dir
 }
 
 package-basename(){
@@ -192,10 +230,15 @@ package-egg(){
 package-get(){
    local msg="=== $FUNCNAME :"
    local name=$1
+   
+   local odir=$(package-odir- $name)
    local dir=$($name-dir)
+   
+   [ "$odir" != "$dir" ] && echo $msg WARNING using relative dir shift odir $odir dir $dir 
+   
    local url=$($name-url)
-   local pir=$(dirname $dir)
-   local bnm=$(basename $dir) 
+   local pir=$(dirname $odir)
+   local bnm=$(basename $odir) 
    mkdir -p $pir
    cd $pir   
    
