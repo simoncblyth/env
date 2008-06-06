@@ -23,8 +23,13 @@ bitten-env(){
   elocal-
   tpackage-
   
-  export BITTEN_BRANCH=branches/experimental/trac-0.11_cust
-  #export BITTEN_BRANCH=trunk   ## this is for 0.10.4 ?
+  local branch
+  case $(trac-major) in 
+     0.10) branch=trunk ;;
+     0.11) branch=branches/experimental/trac-0.11 ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  export BITTEN_BRANCH=$branch
 
 }
 

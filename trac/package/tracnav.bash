@@ -11,8 +11,13 @@ tracnav-env(){
    elocal-
    python-
 
-   export TRACNAV_BRANCH=tracnav-0.11_cust
-   #export TRACNAV_BRANCH=tracnav
+  local branch
+  case $(trac-major) in 
+     0.10) branch=tracnav      ;;
+     0.11) branch=tracnav-0.11 ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  export TRACNAV_BRANCH=$branch
 }
 
 tracnav-docurl(){   echo http:// ; }

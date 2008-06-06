@@ -141,7 +141,8 @@ trac-names(){
    cd $ENV_HOME/trac/package   
    for bash in *.bash
    do
-      echo ${bash/.bash/}
+      local name=${bash/.bash/}
+      echo $name
    done
    cd $iwd
 }

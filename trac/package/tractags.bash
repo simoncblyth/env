@@ -6,7 +6,7 @@ tractags-usage(){
    tractags-fix :
        copy in changed files sourced in env for safety
      ... this is intended for minor customizations, anything major should be housed in tracdev repo
- 
+  
 EOU
 
 }
@@ -15,15 +15,15 @@ tractags-env(){
    elocal-
    tpackage-
    
-   #export TRACTAGS_BRANCH=tags/0.4.1
-   #export TRACTAGS_BRANCH=tags/0.5
-   #export TRACTAGS_BRANCH=tags/0.6
-   #export TRACTAGS_BRANCH=trunk
+    
+  local branch
+  case $(trac-major) in 
+     0.10) branch=tags/0.6  ;;
+     0.11) branch=trunk     ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  export TRACTAGS_BRANCH=$branch
    
-   export TRACTAGS_BRANCH=trunk_cust
-   
-   # using names like trunk-cust ... mysteriously result in egg names with trunk_cust 
-   #  ... so start with the underscored
 }
 
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-obranch) ; }

@@ -2,8 +2,12 @@ genshi-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
- after installing genshi tags/0.4.4 ... ListTagged doesnt work   
-   
+     not needed for TRAC 0.10 
+          ... but it would do no harm
+            
+     tags/0.4.4  ... does not work with TracTags ListTagged ... so use trunk
+     trunk
+
    
      
 EOU
@@ -14,9 +18,17 @@ genshi-env(){
   elocal-
   tpackage-
   
- #export GENSHI_BRANCH=tags/0.4.4
-  export GENSHI_BRANCH=trunk
-
+  local branch
+  local tm=$(trac-major)
+  case $tm in 
+     0.10) branch=SKIP         ;;
+     0.11) branch=trunk        ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  
+  #echo $msg trac-major $tm branch $branch  
+  export GENSHI_BRANCH=$branch
+  
 }
 
  

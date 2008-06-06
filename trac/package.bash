@@ -133,6 +133,7 @@ package-action-(){
      1) echo get  ;;
      2) echo install ;;
      3) echo abort ;;
+     4) echo skip ;;
   esac
 }
 
@@ -142,6 +143,7 @@ package-status--(){
     1) echo not downloaded ;;
     2) echo not installed  ;;
     3) echo the egg is not a directory ... non standard installation used ... delete and try again ;;
+    4) echo branch is SKIP, this package is not needed for this trac version ;; 
   esac 
 }
 
@@ -151,9 +153,11 @@ package-status-(){
   local msg="=== $FUNCNAME :"
   local name=$1
   local egg=$PYTHON_SITE/$($name-egg)
+  local branch=$($name-branch)
   local dir=$($name-dir)
   echo $msg $name $egg $dir
   
+  [ "$branch" == "SKIP" ] && return 4
   [ -f $egg   ] && return 3 
   [ ! -d $dir ] && return 1 
   [ ! -d $egg ] && return 2
@@ -308,8 +312,22 @@ package-cust(){
 
 
 package-branch(){
-   local bn=$(package-branchname $*) 
+   local name=$1
+   local bn=$(package-branchname $name) 
    local bv
+   
+   ## sometimes the NAME-env updates the NAME_BRANCH on the basis
+   ## of TRAC_VERSION ... so must update here to feel that 
+   ##
+   ##  $name-env
+   ##
+   ## do not do that ... it prevents NAME_BRANCH being an input 
+   ## ... the use case for 
+   ##    TRAC_VERSION=0.10.4 name-blah 
+   ##  is marginal anyhow 
+   ##
+   
+   
    eval bv=\$$bn
    echo $bv
 }

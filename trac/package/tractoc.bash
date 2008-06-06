@@ -14,8 +14,14 @@ tractoc-env(){
   elocal-
   tpackage-
   
-  export TRACTOC_BRANCH=0.11_cust
-  #export TRACTOC_BRANCH=0.10  
+  local branch
+  case $(trac-major) in 
+     0.10) branch=0.10 ;;
+     0.11) branch=0.11 ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  export TRACTOC_BRANCH=$branch
+
 }
 
 tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(tractoc-obranch) ;}
