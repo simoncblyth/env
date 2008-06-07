@@ -13,11 +13,45 @@ bitten-usage(){
       also installs the bitten-slave entry point by default 
       to /usr/local/bin/bitten-slave
      
-             
-                 
+                                
 EOU
 
 }
+
+
+bitten-notes(){
+
+cat << EON
+
+   bitten-get   :   svn co/up of trunk is recommended, rather than releases 
+      ## on hfag ... svn: SSL is not supported  with /data/usr/local/svn/subversion-1.4.0/bin/svn
+      ##  BUT the chekout seems OK
+
+   bitten-install :
+      ##  g4pb: 
+      ##       Installed /Library/Python/2.5/site-packages/Bitten-0.6dev_r547-py2.5.egg
+      ##
+      ##  hfag:  use "SUDO= bitten-install" 
+      ##       Installed /data/usr/local/python/Python-2.5.1/lib/python2.5/site-packages/Bitten-0.6dev_r547-py2.5.egg    
+      ##
+   
+   bitten-test :
+      ##   g4pb:
+      ##           Ran 202 tests in 22.584s  FAILED (errors=13)
+      ##           failures from lack of figleaf / clearsilver ...
+      ##
+      ##    hfag:
+      ##          after excluding "report"
+      ##         Ran 193 tests in 11.074s  FAILED (errors=64)  
+      ##
+      ##
+EON
+
+
+
+}
+
+
 
 bitten-env(){
   elocal-
@@ -84,5 +118,17 @@ bitten-prepare(){
    bitten-perms $*
 
 }
+
+
+bitten-extras-get(){
+
+   ## 
+
+  cd /tmp
+
+   svn co http://bitten.ufsoft.org/svn/BittenExtraTrac/trunk/  bittentrac
+   svn co http://bitten.ufsoft.org/svn/BittenExtraNose/trunk/  nosebitten
+}
+
 
 

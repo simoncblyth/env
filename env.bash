@@ -31,7 +31,7 @@ scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; }
 unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
 nose-(){        . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
-bitten-(){      . $ENV_HOME/bitten/bitten.bash  && bitten-env $* ; }
+bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
 tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
