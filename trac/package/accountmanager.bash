@@ -6,11 +6,6 @@ accountmanager-usage(){
       \$TRAC_APACHE2_CONF       : $TRAC_APACHE2_CONF
       \$APACHE2_LOCAL/trac.conf : $APACH2_LOCAL/trac.conf
    
-     
-     
-     
-     
-     
 EOU
 
 }
@@ -32,15 +27,6 @@ accountmanager-env(){
 accountmanager-docurl(){  echo http://trac-hacks.org/wiki/AccountManagerPlugin ;}
 accountmanager-url(){     echo http://trac-hacks.org/svn/accountmanagerplugin/$(accountmanager-obranch) ;}
 accountmanager-package(){ echo accountmanager ; }
-accountmanager-eggbas(){  echo TracAccountManager ; }
-
-accountmanager-eggver(){
-    local ob=$(accountmanager-obranch)
-    case $ob in 
-             trunk) echo 0.2.1dev_r3734   ;;     
-                 *) echo $ob              ;;
-    esac
-}
 
 accountmanager-fix(){
    cd $(accountmanager-dir)   
@@ -54,7 +40,7 @@ accountmanager-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 accountmanager-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
 accountmanager-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
 accountmanager-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-accountmanager-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+
 accountmanager-install(){   package-install   ${FUNCNAME/-*/} $* ; }
 accountmanager-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
 accountmanager-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
@@ -66,5 +52,5 @@ accountmanager-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 accountmanager-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
 accountmanager-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
-
+accountmanager-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 

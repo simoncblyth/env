@@ -90,6 +90,9 @@ trac2mediawiki-place-macros(){
 trac2mediawiki-remove-macros(){
    local instance=${1:-$TRAC_INSTANCE}
    local msg="=== $FUNCNAME :"
+   
+   [ "$(trac-major)" != "0.10" ] && echo $msg not needed for non 0.10 trac-major && return 1
+   
    local ifold=$SCM_FOLD/tracs/$instance
    echo $msg  
    local cmd="$SUDO -u $APACHE2_USER rm -f $ifold/plugins/MW* $ifold/plugins/Latex*  "

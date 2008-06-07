@@ -34,16 +34,6 @@ genshi-env(){
  
 genshi-url(){     echo http://svn.edgewall.org/repos/genshi/$(genshi-obranch) ;}
 genshi-package(){ echo genshi ; }
-genshi-eggbas(){  echo Genshi ; }
-
-genshi-eggver(){
-    local ob=$(genshi-obranch)
-    case $ob in 
-        tags/0.4.4) echo 0.4.4 ;;
-             trunk) echo 0.5dev_r858 ;;     
-                 *) echo $ob   ;;
-    esac
-}
 
 genshi-fix(){
    cd $(genshi-dir)   
@@ -64,7 +54,7 @@ genshi-egg(){
      esac
 }
 genshi-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-genshi-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+
 genshi-install(){   package-install   ${FUNCNAME/-*/} $* ; }
 genshi-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
 genshi-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
@@ -76,5 +66,5 @@ genshi-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 genshi-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
 genshi-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
-
+genshi-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 

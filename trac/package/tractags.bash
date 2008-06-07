@@ -28,15 +28,6 @@ tractags-env(){
 
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-obranch) ; }
 tractags-package(){ echo tractags ; }
-tractags-eggbas(){  echo TracTags ; }
-
-tractags-eggver(){
-    local ob=$(tractags-obranch)
-    case $ob in 
-       trunk) echo 0.6 ;;
-           *) echo $ob ;;
-    esac
-}
 
 tractags-fix(){
   local dir=$(tractags-dir)
@@ -52,7 +43,7 @@ tractags-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 tractags-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
 tractags-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
 tractags-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-tractags-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+
 tractags-install(){   package-install   ${FUNCNAME/-*/} $* ; }
 tractags-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
 tractags-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
@@ -64,6 +55,7 @@ tractags-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 tractags-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
 tractags-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
+tractags-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 
 tractags-unconf(){
 

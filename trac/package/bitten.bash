@@ -35,17 +35,6 @@ bitten-env(){
 
 bitten-url(){     echo http://svn.edgewall.org/repos/bitten/$(bitten-obranch) ;}
 bitten-package(){ echo bitten ; }
-bitten-eggbas(){  echo Bitten ; }
-
-bitten-setver(){  echo 0.6 ; }  
-bitten-eggver(){
-    local ob=$(bitten-obranch)
-    case $ob in 
-                                 trunk) echo 0.6dev_r547 ;;
-       branches/experimental/trac-0.11) echo 0.6dev_r542 ;;
-                                     *) echo $ob         ;;
-    esac
-}
 
 bitten-fix(){
    cd $(bitten-dir)   
@@ -59,7 +48,7 @@ bitten-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 bitten-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
 bitten-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
 bitten-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-bitten-cust(){      package-cust      ${FUNCNAME/-*/} $* ; }
+
 bitten-install(){   package-install   ${FUNCNAME/-*/} $* ; }
 bitten-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
 bitten-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
@@ -71,6 +60,7 @@ bitten-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
 bitten-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
 bitten-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
+bitten-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 
 
 bitten-perms(){
