@@ -4,6 +4,34 @@ package-env(){
 }
 
 
+package-notes(){
+cat << EON
+
+  http://svn.python.org/projects/sandbox/branches/setuptools-0.6/
+  http://svn.python.org/projects/sandbox/trunk/distutils_refactor/distutils/
+  
+  setup = distutils.core.setup
+     which returns a Distribution object 
+
+  http://svn.python.org/projects/sandbox/branches/setuptools-0.6/setuptools/command/bdist_egg.py
+
+  
+  class bdist_egg(Command)
+      after finalize_options  this has egg_output   which is whats needed
+
+
+  BINGO :
+     http://svn.python.org/projects/distutils/trunk/misc/get_metadata.py
+
+
+
+
+EON
+
+
+
+
+}
 
 
 
@@ -38,11 +66,14 @@ cat << EOU
        <name>-<version> string from setup.py --fullname , used to predict the egg name
     
     
-    $name-egg       : $($name-egg)
+    $name-egg-deprecated  : $(package-egg-deprecated $name)
         name of the egg, NB if there are native extensions you will need to append to this in an override 
         TODO : glean native egg names from the setup to avoid the need to override 
      
-        
+    $name-egg          :   $($name-egg)
+         gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
+         ... which works correctly even with native eggs ... but not very quick 
+          
     $name-get       :
           svn co the $($name-url) into $($name-dir)  
 
@@ -237,9 +268,18 @@ package-fullname(){
     echo $full
 }
 
-
-
 package-egg(){
+   local name=$1
+   local dir=$($name-dir)
+   local iwd=$PWD
+   
+   ## curios seems necessary to cd there .. cannot do from afar ??
+   cd $dir
+   python $ENV_HOME/python/pkgmeta.py setup.py
+   cd $iwd  
+}
+
+package-egg-deprecated(){
 
    local name=$1
    local full=$($name-fullname)
@@ -284,6 +324,10 @@ package-look-version(){
       echo $msg WARNING no setup $setup 
    fi
 }
+
+
+
+
 
 
 package-install(){
