@@ -56,8 +56,11 @@ python-env(){
 
    elocal-
 
+    export PYTHON_MAJOR=2.5
+
    if [ "$NODE_APPROACH" == "stock" ]; then
       export PYTHON_SITE=/Library/Python/2.5/site-packages
+     
    else
 
       local PYTHON_NAME=Python-2.5.1
@@ -111,9 +114,14 @@ python-uninstall(){
 
   local msg="=== $FUNCNAME :"  
   local eggname=$1
-  
-  echo $msg delete the egg directory and remove entry from easy-install.pth ... enter YES to proceed
-  read answer
+  local answer 
+  if [ -z "$PYTHON_UNINSTALL_DIRECTLY" ]; then
+     echo $msg delete the egg directory and remove entry from easy-install.pth ... enter YES to proceed
+     read answer
+  else
+     answer=YES
+     echo $msg without asking ...  as PYTHON_UNINSTALL_DIRECTLY is defined
+  fi
    
   if [ "$answer" == "YES" ]; then
      echo $msg proceeding...
