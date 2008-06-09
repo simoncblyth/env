@@ -16,7 +16,7 @@ EOU
 
 genshi-env(){
   elocal-
-  tpackage-
+  package-
   
   local branch
   local tm=$(trac-major)

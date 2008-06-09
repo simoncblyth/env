@@ -12,7 +12,7 @@ EOU
 
 tractrac-env(){
   elocal-
-  tpackage-
+  package-
   
   export TRACTRAC_BRANCH=$(tractrac-version2branch $TRAC_VERSION)
 }

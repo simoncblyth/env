@@ -55,7 +55,7 @@ EON
 
 bitten-env(){
   elocal-
-  tpackage-
+  package-
   
   local branch
   case $(trac-major) in 

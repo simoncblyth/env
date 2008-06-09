@@ -10,6 +10,7 @@ EOU
 tracnav-env(){
    elocal-
    python-
+   package-
 
   local branch
   case $(trac-major) in 

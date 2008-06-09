@@ -13,7 +13,7 @@ EOU
 
 tractags-env(){
    elocal-
-   tpackage-
+   package-
    
     
   local branch

@@ -15,7 +15,7 @@ EOU
 
 trac2mediawiki-env(){
   elocal-
-  tpackage-
+  package-
   
   local branch
   case $(trac-major) in 
