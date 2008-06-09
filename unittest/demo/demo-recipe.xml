@@ -21,7 +21,7 @@
 
 <step id="xmltest" description="Run unit tests with xml output ">
      <sh:exec executable="bash"  output="noserun.xml"  
-         args=" -c  &quot; ${repository.home}/bitten/noserun.sh ${path} ${config} ${build} ${revision} &quot;  "  />
+         args=" -c  &quot; ${repository.home}/bitrun/noserun.sh ${path} ${config} ${build} ${revision} &quot;  "  />
      <report category="test" file="noserun.xml"/>
 </step>
   

@@ -298,6 +298,8 @@ svn-apache2-tracs-location(){
 
   local msg="# === $FUNCNAME : " 
   local access=${1:-formlogin}
+  
+  local c
   if [ "$access" == "httplogin" ]; then
      c="" 
   elif [ "$access" == "formlogin" ]; then 
@@ -305,6 +307,9 @@ svn-apache2-tracs-location(){
   else
      c="#ERROR access $access not handled "
   fi      
+
+  local b=""
+
 
  if [ "$NODE_APPROACH" == "stock" ]; then
     local confprefix="/private/"
@@ -358,6 +363,23 @@ cat << EOC
    ## AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
    
 </Location>
+
+
+# when not using bitten this should be removed 
+$b<LocationMatch "/tracs/[^/]+/builds">
+$b    AuthType Basic
+$b    AuthName "svn-tracs"
+$b    AuthUserFile $confprefix$SVN_APACHE2_AUTH
+$b    Require valid-user
+$b</LocationMatch>
+$b
+
+
+
+
+
+
+
 
 # when using AccountManagerPlugin this needs to be removed 
 $c<LocationMatch "/tracs/[^/]+/login">

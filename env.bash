@@ -35,7 +35,7 @@ bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
 tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
-tpackage-(){    . $ENV_HOME/trac/package.bash        && package-env $* ; } 
+package-(){     . $ENV_HOME/python/package.bash      && package-env $* ; } 
 
 otrac-(){       . $ENV_HOME/otrac/otrac.bash     && otrac-env $* ; } 
 trac-conf-(){   . $ENV_HOME/otrac/trac-conf.bash && trac-conf-env $* ; } 

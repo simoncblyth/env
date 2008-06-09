@@ -18,7 +18,7 @@ from distutils.core import run_setup
 class Setup:
     def __init__(self, path ):
         self.path = path
-        self.dist = run_setup( path, script_args=[], stop_after="commandline")
+        self.dist = run_setup( path, script_args=[], stop_after="init")
             
     def dump(self):
         dist = self.dist
@@ -37,6 +37,8 @@ licence:
     def egg_name(self):
         """
             http://svn.python.org/projects/sandbox/branches/setuptools-0.6/setuptools/command/bdist_egg.py  
+        
+           unfortunately does not do the right thing with native eggs
         """
         cmd = self.dist.get_command_obj("bdist_egg")
         cmd.dist_dir=""

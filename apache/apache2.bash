@@ -21,6 +21,11 @@
 apache2-usage(){
 
 cat << EOU
+
+  TODO...  look in the right place for logs on OSX
+      /var/log/apache2
+
+
 #   usage:
 #
 #   apache2-get

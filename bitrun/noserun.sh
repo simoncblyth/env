@@ -9,7 +9,7 @@ cat << EOU
          bash /path/to/noserun.sh $path $config $build $revision 
 
     For test usage
-        . ~/env/bitten/noserun.sh
+        . ~/env/bitrun/noserun.sh
 
     noserun_     <home> <path> <config> <build> <revision> 
     noserun_cmt  <home> <path> <config> <build> <revision>
@@ -32,6 +32,7 @@ noserun_(){
   shift
   local branch=trunk
 
+
   ## these four come down from the master    
   local path=$1
   local config=$2
@@ -39,15 +40,16 @@ noserun_(){
   local revision=$4
 
   echo $msg path $path config ${config} build ${build} revision ${revision}  nargs $# $esg
-  [ $# != 5 ] && echo $msg ERROR wrong number of arguments $esg && return 3 
+  [ $# != 4 ] && echo $msg ERROR wrong number of arguments $esg && return 3 
   
   ## assuming working copy is a checkout of a single branch, usually "trunk" 
   ##  this does nothing to unittest/demo but removes trunk from trunk/unittest/demo 
   local strip=${path/$branch\//}
   
   ## absolute path to test base, in which tests are looked for
-  local basepath=$home/$strip
-  echo $msg home $home branch $branch strip $strip basepath $basepath $esg  
+  local runhome=/Users/blyth/workflow
+  local basepath=$runhome/$strip
+  echo $msg home $home runhome $runhome branch $branch strip $strip basepath $basepath $esg  
   
   ## in real usage will pluck "nosetests" from path of CMT managed env, the xmlplug having been installed into
   ## NOSE_HOME
@@ -152,5 +154,5 @@ EOC
 
 
 ## assumes depth of this script in the repository 
-#noserun_     $(dirname $(dirname $0)) $*
+noserun_     $(dirname $(dirname $0)) $*
 #noserun_cmt  $(dirname $(dirname $0)) $*

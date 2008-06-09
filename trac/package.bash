@@ -73,6 +73,8 @@ cat << EOU
     $name-egg          :   $($name-egg)
          gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
          ... which works correctly even with native eggs ... but not very quick 
+          NOPE .. still have to override and append to get native eggs correct
+          
           
     $name-get       :
           svn co the $($name-url) into $($name-dir)  
@@ -120,6 +122,23 @@ cat << EOU
         
 EOU
 
+}
+
+
+package-fn(){
+
+   local msg="=== $FUNCNAME :"
+   
+   local fnc=$1
+   shift
+   
+   local pkg=${fnc/-*/}
+   local cmd=${fnc/*-/}
+   
+   local cal="package-$cmd $pkg $*"
+   echo $msg fn $fn pn $pn cn $cn cal [$cal]
+   eval $cal
+   
 }
 
 
