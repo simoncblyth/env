@@ -47,9 +47,9 @@ cat << EOU
     ENHANCEMENT IDEA ...  
        allow auto sensing that customizations are done and not propagaated
 
+    See examples of usage of this in trac/package/ with precursors defined 
+    in trac/trac.bash
 
-
-    Precursor "${name}-" is defined in trac/package/package.bash with precursor "tpackage-"
 
     Functions of the branch ... 
    

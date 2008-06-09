@@ -32,6 +32,7 @@ unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
 nose-(){        . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
 bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
+annobit-(){     . $ENV_HOME/annobit/annobit.bash  && annobit-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
 tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
