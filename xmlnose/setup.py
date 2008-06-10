@@ -13,7 +13,7 @@ setup(
     packages = ['xmlnose'],
     entry_points = {
         'nose.plugins.0.10': [
-            'xmlnose = xmlnose'
+            'xmlout = xmlnose:XmlOutput'
             ]
         }
 

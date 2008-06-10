@@ -10,7 +10,7 @@ xmlnose-env(){
   export XMLNOSE_BRANCH=trunk/xmlnose
 }
 
-xmlnose-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/env ; }
+xmlnose-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/env/$(xmlnose-branch) ; }
 xmlnose-package(){ echo xmlnose ; }
 
 xmlnose-fix(){
@@ -18,7 +18,6 @@ xmlnose-fix(){
    echo no fixes
 }
 
-xmlnose-obranch(){   package-fn $FUNCNAME $* ; }
 xmlnose-branch(){    package-fn $FUNCNAME $* ; }
 xmlnose-basename(){  package-fn $FUNCNAME $* ; }
 xmlnose-dir(){       package-fn $FUNCNAME $* ; } 

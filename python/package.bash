@@ -58,9 +58,11 @@ cat << EOU
                                           these are always the same now though
     
     $name-basename  : $($name-basename)   name of the leaf folder of the branch
-    $name-url       : $($name-url)
     $name-dir       : $($name-dir)
-
+    $name-url       : $($name-url)       
+        the setup.py should be in the resulting checked out folder or if not a relative path from
+        the checked out folder to the folder with the setup.py must be echoed by 
+        an $name-reldir function  
 
     $name-fullname  : $($name-fullname)
        <name>-<version> string from setup.py --fullname , used to predict the egg name
