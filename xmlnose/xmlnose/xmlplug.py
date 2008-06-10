@@ -30,6 +30,7 @@ from nose.inspector import inspect_traceback
 from nose.core import run
 
 from stack import Stack, tb_iter, tb_filename
+import inspect
 
 
 log =  logging.getLogger(__name__)
