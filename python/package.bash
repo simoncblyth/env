@@ -124,7 +124,7 @@ package-fn(){
    local cmd=${fnc/*-/}
    
    local cal="package-$cmd $pkg $*"
-   echo $msg fn $fn pn $pn cn $cn cal [$cal]
+   #echo $msg fnc $fnc pkg $pkg cmd $cmd cal [$cal]
    eval $cal
    
 }
@@ -279,11 +279,18 @@ package-egg(){
    local name=$1
    local dir=$($name-dir)
    local iwd=$PWD
+   local setup=setup.py
    
    ## curios seems necessary to cd there .. cannot do from afar ??
+   
+   [ ! -d $dir ] && echo "" && return 1
+   
    cd $dir
-   python $ENV_HOME/python/pkgmeta.py setup.py
+   [ ! -f $setup ] && echo "" && return 2 
+   PYTHONPATH=. python $ENV_HOME/python/pkgmeta.py $setup
+   local stat=$?
    cd $iwd  
+   return $stat
 }
 
 
@@ -336,7 +343,7 @@ package-install(){
    local msg="=== $FUNCNAME :"
    echo $msg $name 
    
-   $name-cust
+ #  $name-cust
    $name-fix
    
    local dir=$($name-dir)

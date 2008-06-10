@@ -30,8 +30,12 @@ scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; }
 
 unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
-nose-(){        . $ENV_HOME/unittest/nose.bash  && nose-env  $* ; }
+
 bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
+
+nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
+
+_nose-(){       . $ENV_HOME/unittest/nose.bash  && _nose-env  $* ; }
 _annobit-(){    . $ENV_HOME/annobit/annobit.bash  && _annobit-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
