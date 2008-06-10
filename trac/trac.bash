@@ -60,7 +60,7 @@ EOU
 
 }
 
-
+annobit-(){           . $ENV_HOME/trac/package/annobit.bash   && annobit-env  $* ; }
 tractags-(){          . $ENV_HOME/trac/package/tractags.bash  && tractags-env $* ; }
 tracnav-(){           . $ENV_HOME/trac/package/tracnav.bash   && tracnav-env  $* ; }
 tractoc-(){           . $ENV_HOME/trac/package/tractoc.bash   && tractoc-env  $* ; }
@@ -75,7 +75,7 @@ trac-inheritpath(){   echo  $SCM_FOLD/conf/trac.ini ; }  ## is inherit 0.11 only
 
 trac-env(){
    elocal-
-   tpackage-
+   package-
   
    
    case $NODE_TAG in
@@ -126,7 +126,7 @@ trac-admin-(){
 trac-configure(){
    local msg="=== $FUNCNAME :"
    local name=$TRAC_INSTANCE
-   shift
+   #shift
    local tini=$SCM_FOLD/tracs/$name/conf/trac.ini 
    trac-ini-
    

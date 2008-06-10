@@ -65,10 +65,6 @@ cat << EOU
     $name-fullname  : $($name-fullname)
        <name>-<version> string from setup.py --fullname , used to predict the egg name
     
-    
-    $name-egg-deprecated  : $(package-egg-deprecated $name)
-        name of the egg, NB if there are native extensions you will need to append to this in an override 
-        TODO : glean native egg names from the setup to avoid the need to override 
      
     $name-egg          :   $($name-egg)
          gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
@@ -87,28 +83,20 @@ cat << EOU
            remove the $($name-egg) and easy-install.pth reference
            
     $name-reinstall :
-        uninstall then reinstall ... eg to propagate customizations 
-
-
-    $name-reldir    : $($name-reldir)
-
+        uninstall then reinstall then restart apache2 ... eg to propagate customizations 
+        
     package-odir-  <name>
 
          the dir into which the checkout is done ... normally also the one with the setup.py 
          unless a non blank $name-reldir is defined 
 
-
-
     Usage :
-        tpackage-
+        env-
+        trac-
         $name-
         $name-usage
 
-     Get a branch ready for customization  : $bn=${ob}_cust $name-get
-     Check the dynamics                    : $bn=${ob}_cust $name-usage
-     Install the default cust version      : $bn=${ob}_cust $name-install
-       
-     To see the effect of changes...       : sudo apachectl restart
+    To see the effect of changes...       : sudo apachectl restart
 
     python-ls :   list the eggs in \$PYTHON_SITE : $PYTHON_SITE
     python-pth :  cat the $PYTHON_SITE/easy-install.pth
@@ -296,13 +284,6 @@ package-egg(){
    cd $dir
    python $ENV_HOME/python/pkgmeta.py setup.py
    cd $iwd  
-}
-
-package-egg-deprecated(){
-
-   local name=$1
-   local full=$($name-fullname)
-   echo $full-py$PYTHON_MAJOR.egg
 }
 
 

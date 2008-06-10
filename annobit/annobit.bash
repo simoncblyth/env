@@ -1,25 +1,30 @@
 
-annobit-usage(){
+_annobit-usage(){
 
 cat << EOU
 
   Exploring the SQL needed to access the annotation info needed
   from the bitten_report* tables
 
-   annobit-getdb  :
+   _annobit-getdb  :
        get a copy of the trac datbase from the last backup tarball  
 
-   annobit-sql    :
+   _annobit-sql    :
        run some short quoted sql against the db,  eg:  
-           annobit-sql  "select * from bitten_report ; " 
-           annobit-sql  "$(cat q.sql)"
+           _annobit-sql  "select * from bitten_report ; " 
+           _annobit-sql  "$(cat q.sql)"
  
  
-    annobit-sql-  :
+    _annobit-sql-  :
         unquoted invokation for piping in a file of commands
-          annobit-sql- < q.sql
+          _annobit-sql- < q.sql
  
-          annobit-sql- 
+          _annobit-sql- 
+ 
+ 
+    _annobit-boost-bitten :
+         establish the correspondence between boost-bitten and bittem
+ 
  
  
  
@@ -28,21 +33,21 @@ EOU
 }
 
 
-annobit-env(){
+_annobit-env(){
   elocal-
   export ANNOBIT_OPT="-column -header"
 }
 
 
-annobit-opt(){
+_annobit-opt(){
   echo $ANNOBIT_OPT
 }
 
-annobit-db(){
+_annobit-db(){
   echo /tmp/env/annobit-getdb/workflow/db/trac.db
 }
 
-annobit-getdb(){
+_annobit-getdb(){
 
   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
   local iwd=$PWD
@@ -57,17 +62,17 @@ annobit-getdb(){
 
 }
 
-annobit-sql-(){
-  sqlite3 $(annobit-opt)  $(annobit-db) $*
+_annobit-sql-(){
+  sqlite3 $(_annobit-opt)  $(_annobit-db) $*
 }
 
-annobit-sql(){
-  sqlite3 $(annobit-opt) $(annobit-db)  "$*" 
+_annobit-sql(){
+  sqlite3 $(_annobit-opt) $(_annobit-db)  "$*" 
 }
 
-annobit-sql-demo(){
+_annobit-sql-demo(){
 
-  annobit-sql-  << EOD
+  _annobit-sql-  << EOD
   
 select * from bitten_report ;
 select * from bitten_report_item ;
@@ -77,7 +82,7 @@ EOD
 
 }
 
-annobit-sql-hmm(){
+_annobit-sql-hmm(){
 
 
 #
@@ -122,11 +127,35 @@ EOQ
 
   cat $tmp
 
-  annobit-sql- < $tmp
+  _annobit-sql- < $tmp
 
 
 
 }
+
+
+_annobit-boost-bitten(){
+
+  
+
+  local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
+  
+  cd $tmp
+  svn co https://svn.boost-consulting.com/boost/bitten/  boost-bitten
+  svn co http://svn.edgewall.org/repos/bitten/trunk bitten-trunk
+  
+  
+  svn co -r 2654 https://svn.boost-consulting.com/boost/bitten/  boost-bitten-r2654
+  svn co -r 516 http://svn.edgewall.org/repos/bitten/trunk bitten-trunk-r516 
+   
+  diff -r --brief boost-bitten bitten-trunk | grep -v .svn 
+   
+   
+
+}
+
+
+
 
 
 
