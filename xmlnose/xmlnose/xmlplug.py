@@ -31,7 +31,7 @@ from nose.core import run
 
 from stack import Stack, tb_iter, tb_filename
 import inspect
-
+import traceback
 
 log =  logging.getLogger(__name__)
 log.setLevel(logging.INFO)

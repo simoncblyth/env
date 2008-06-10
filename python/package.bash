@@ -72,8 +72,9 @@ cat << EOU
          gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
          ... which works correctly even with native eggs ... but not very quick 
           NOPE .. still have to override and append to get native eggs correct
+        
           
-          
+           
     $name-get       :
           svn co the $($name-url) into $($name-dir)  
 
@@ -84,8 +85,12 @@ cat << EOU
     $name-uninstall :
            remove the $($name-egg) and easy-install.pth reference
            
+    $name-update    :
+          invoke $name-get, $name-uninstall and $name-install
+
     $name-reinstall :
         uninstall then reinstall then restart apache2 ... eg to propagate customizations 
+        TODO : make the restarting apache2 configurable ... tis only relevant to trac plugins
         
     package-odir-  <name>
 
@@ -382,6 +387,22 @@ package-reinstall(){
    echo $msg restarting apache
    sudo apachectl restart
 }
+
+
+package-update(){
+
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   shift
+
+   PYTHON_UNINSTALL_DIRECTLY=yep $name-uninstall $*
+   
+   $name-get $*
+   $name-install $* 
+
+}
+
+
 
 
 

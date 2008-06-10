@@ -36,3 +36,4 @@ xmlnose-rev(){       package-fn $FUNCNAME $* ; }
 xmlnose-cd(){        package-fn $FUNCNAME $* ; }
 
 xmlnose-fullname(){  package-fn $FUNCNAME $* ; }
+xmlnose-update(){    package-fn $FUNCNAME $* ; }
