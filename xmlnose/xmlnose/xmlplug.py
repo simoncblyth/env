@@ -29,7 +29,7 @@ from nose.plugins import Plugin
 from nose.inspector import inspect_traceback
 from nose.core import run
 
-from stack import Stack
+from stack import Stack, tb_iter, tb_filename
 
 
 log =  logging.getLogger(__name__)
