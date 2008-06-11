@@ -1,6 +1,6 @@
 """module@example docstring """
 
-
+import time
 import unittest
 
 from . import log 
@@ -19,7 +19,7 @@ from context import present as present
 present(ctx(globals()))
 
 
-fails = False
+fails = True
 
 def setup():
     present(ctx(globals()))
@@ -47,16 +47,19 @@ def pass_func_test():
 def test_evens():
     """ test_evens@example """
     for i in range(0,5,2):
+        present(ctx(globals()))
         yield check_even, i, i*3
 
 def test_odds():
     """ test_odds@example """
     for i in range(1,6,2):
+        present(ctx(globals()))
         yield check_even, i, i*3
 
 #test_evens.__test__=fails
 
 def check_even(n, nn):
+    present(ctx(globals()))
     assert n % 2 == 0 or nn % 2 == 0      
 
                         
@@ -66,6 +69,7 @@ class module_class:
         present(ctx(self))
     def fail_method_test(self):
         """ fail_method_test@example docstring """
+ 
         present(ctx(self))
         assert False
     fail_method_test.__test__ = fails
@@ -86,6 +90,9 @@ class module_class_test:
     def fail_method_test(self):
         """ fail_method_test@example docstring """
         present(ctx(self))
+        print "some stdout to see if captured "
+        print "sleepinf... "
+        time.sleep(3)
         assert False
     fail_method_test.__test__ = fails
         

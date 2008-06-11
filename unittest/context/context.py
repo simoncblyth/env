@@ -3,7 +3,7 @@
 
 import logging
 log =  logging.getLogger(__name__)
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 
 
 def whereami(gbls):
@@ -89,8 +89,8 @@ def ctx(g):
     return "/".join(pos)
 
 def present(place):
-    #print "\n%s" % place
-    log.debug(place)
+    print place
+    #log.debug(place)
 
 
 

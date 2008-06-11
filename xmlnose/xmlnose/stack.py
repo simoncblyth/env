@@ -17,6 +17,29 @@ def tb_iter(tb):
         yield tb
         tb = tb.tb_next
 
+def exception_lines(err , path ):
+    """ examine the traceback to obtain list of lines that are in path """
+    x=[]
+    if err==None:
+        return x
+    ec, ev, tb = err
+    for tb in tb_iter(tb):
+        tbf = tb_filename(tb)
+        tbl = tb.tb_lineno
+        if tbf == path: 
+            x.append(tbl)
+    return x 
+
+   
+def source_range( callable ):
+    """ inspect the source code of the callable to determine unity based line range in the file  """
+    lines, offset = inspect.getsourcelines( callable )
+    return "%d-%d" % ( offset , offset+len(lines) )
+
+
+
+
+
 def classify_ctx( ctx ):
     if inspect.ismodule(ctx):
         return "module"
