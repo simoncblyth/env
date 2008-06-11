@@ -320,6 +320,7 @@ export VAR_BASE_G3=/var
 export VAR_BASE_H=/var
 export VAR_BASE_G=/var
 export VAR_BASE_N=$HOME/var
+export VAR_BASE_C=$HOME/var
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=VAR_BASE_$NODE_TAG
