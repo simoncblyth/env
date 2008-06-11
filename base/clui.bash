@@ -19,6 +19,8 @@ clui-alias(){
    alias l='ls -l '
    alias ll='ls -la '
    alias lt="ls -lt"
+   alias st="svn st"
+   alias stu="svn st -u"
    alias h='history'
    alias bh='cat ~/.bash_history'
    alias ini='. ~/.bash_profile'

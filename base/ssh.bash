@@ -4,7 +4,17 @@
 #       pal@nuu "L"
 #
 
-SSH_BASE=".ssh"
+
+
+ssh--config-(){   . $ENV_HOME/base/ssh-config.bash    && ssh--config-env $* ; }
+
+
+ssh--env(){
+   
+   elocal-
+   export SSH_BASE=".ssh"
+}
+
 
 
 ssh--usage(){

@@ -1,5 +1,12 @@
 
 
+
+ssh--config-env(){
+
+   elocal-
+}
+
+
 ssh--config(){
 
 [ -d $HOME/.ssh ] || mkdir $HOME/.ssh 
@@ -23,7 +30,7 @@ fi
 
 cat << EOC > $HOME/.ssh/config
 #
-#   do not edit, this is sourced from $ENV_HOME/base/ssh.bash
+#   do not edit, this is sourced from $ENV_HOME/base/ssh-config.bash
 #
 #
 # /home/aberdeen/Datafiles
@@ -50,7 +57,9 @@ host B
     hostname gateway.phy.bnl.gov
 	protocol 2
 	
-	 	     
+host C
+    hostname 140.112.101.190
+              	     
 host G3R
     hostname g3pb.ath.cx
     protocol 2 

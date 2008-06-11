@@ -17,7 +17,7 @@ perl-(){      [ -r $ENV_HOME/base/perl.bash ]       && . $ENV_HOME/base/perl.bas
 batch-(){     [ -r $ENV_HOME/base/batch.bash ]      && . $ENV_HOME/base/batch.bash   && batch-env $* ; }
 file-(){      [ -r $ENV_HOME/base/file.bash ]       && . $ENV_HOME/base/file.bash    && file-env $* ; }
 
- 
+ssh-(){        . $ENV_HOME/base/ssh.bash    && ssh--env $* ; }
  
 
 base-env(){
@@ -29,7 +29,8 @@ base-env(){
 
    elocal-
    
-   
+   ## do not need the ssh- funcs when non-interactive but do need the connection to the agent 
+   ##  so this is better separate from the ssh-
    [ -r ssh-infofile.bash ]  && . ssh-infofile.bash
 
    ## caution must exit in same directory as started in 
@@ -41,9 +42,7 @@ base-env(){
    cd $ENV_HOME/base
    
    clui-
-
-   [ -r ssh.bash ]         && . ssh.bash
-   [ -r ssh-config.bash ]  && . ssh-config.bash
+   ssh-
  
    cd $iwd
 }
