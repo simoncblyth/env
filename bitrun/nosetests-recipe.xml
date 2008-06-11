@@ -1,0 +1,29 @@
+<build
+    xmlns:python="http://bitten.cmlenz.net/tools/python"
+    xmlns:svn="http://bitten.cmlenz.net/tools/svn"
+    xmlns:sh="http://bitten.cmlenz.net/tools/sh"
+  >
+
+<step id="update" description="svn update" >
+        <svn:update revision="${revision}"/>
+</step>
+
+<step id="env" description="Dump env for debugging" >
+      <sh:exec executable="echo" output="echo.txt" args=" path ${path} config ${config} build ${build} revision ${revision}     " />
+      <sh:exec executable="bash" output="pwd.txt" 
+        args=" -c &quot; pwd ; p=${path} ; cd ${workflow.home} ; cd .${p/trunk/} ; pwd  &quot; " />
+</step>
+
+<step id="txttest" description="Run unit tests with txt output ">
+     <sh:exec executable="bash"  output="bash.out"  args=" -c  &quot; pwd ; echo $PATH &quot;     " />
+     <sh:exec executable="bash"   output="nosetests.txt"
+         args=" -c  &quot; pwd ; p=${path} ;  cd ${workflow.home} ; cd  .${p/${workflow.strip}/} ;  pwd ; nosetests ; echo it returned $?  &quot;  "  />
+</step>
+
+<step id="xmltest" description="Run unit tests with xml output ">
+     <sh:exec executable="bash"  output="nosetests.log"
+         args=" -c  &quot;  pwd ; iwd=$PWD ; p=${path} ; cd ${workflow.home} ; cd  .${p/${workflow.strip}/} ;  pwd ; nosetests --with-xml-output --xml-outfile=$iwd/nosetests.xml ; echo it returned $?  &quot;  "  />
+     <report category="test" file="nosetests.xml"/>
+</step>
+
+</build>

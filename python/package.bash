@@ -39,7 +39,7 @@ EON
 package-usage(){
     local name=$1
     local bn=$(package-branchname $name)
-    local ob=$($name-obranch)
+
     
 cat << EOU
 
@@ -53,11 +53,10 @@ cat << EOU
 
     Functions of the branch ... 
    
-    $name-branch    : $($name-branch)     formerly : used branch names ending _cust for  local customizing
-    $name-obranch   : $($name-obranch)    formerly : with _cust stripped
-                                          these are always the same now though
-    
+    $name-branch    : $($name-branch)    
     $name-basename  : $($name-basename)   name of the leaf folder of the branch
+          ... possibly should mangle the branch changing / to _ for example as it
+          is possible that the leaf name is not sufficiently distinctive 
     $name-dir       : $($name-dir)
     $name-url       : $($name-url)       
         the setup.py should be in the resulting checked out folder or if not a relative path from
@@ -452,7 +451,7 @@ package-branchname(){
    echo $bn
 }
 
-package-obranch(){
+package-obranch-deprecated(){
    local name=$1
    local b=$($name-branch)
    [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
