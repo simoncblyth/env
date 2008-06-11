@@ -133,7 +133,8 @@ elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 elif (      [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
-   BACKUP_TAG="P"
+   #BACKUP_TAG="P"
+   BACKUP_TAG="C"
    SUDO="sudo"
    
 elif (      [ "$USER" == "root" ] && [ "$LOCAL_NODE" == "hfag" ]); then

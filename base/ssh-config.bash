@@ -1,10 +1,7 @@
 
 
 
-ssh--config-env(){
 
-   elocal-
-}
 
 
 ssh--config(){
