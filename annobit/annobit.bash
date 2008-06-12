@@ -138,7 +138,7 @@ _annobit-boost-bitten(){
 
   
 
-  local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
+  local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
   
   cd $tmp
   svn co https://svn.boost-consulting.com/boost/bitten/  boost-bitten
@@ -150,7 +150,37 @@ _annobit-boost-bitten(){
    
   diff -r --brief boost-bitten bitten-trunk | grep -v .svn 
    
+  diff -r --brief boost-bitten bitten-trunk | grep -v .svn  | grep Files | perl -p -e 's/Files (\S*) and (\S*) differ/opendiff $1 $2/' - 
    
+
+#opendiff boost-bitten/bitten/build/ctools.py bitten-trunk/bitten/build/ctools.py            ## trunk autoconf addition
+#opendiff boost-bitten/bitten/build/pythontools.py bitten-trunk/bitten/build/pythontools.py  ## trunk figleaf addition
+#opendiff boost-bitten/bitten/build/tests/pythontools.py bitten-trunk/bitten/build/tests/pythontools.py  ## figleaf
+#opendiff boost-bitten/bitten/build/shtools.py bitten-trunk/bitten/build/shtools.py          ## dir_ addition to exec
+#opendiff boost-bitten/bitten/build/tests/api.py bitten-trunk/bitten/build/tests/api.py       ## minor trunk fixes
+#opendiff boost-bitten/bitten/master.py bitten-trunk/bitten/master.py         ## minor trunk fixes
+#opendiff boost-bitten/bitten/report/coverage.py bitten-trunk/bitten/report/coverage.py   ## trunk addition of 0.11 testcoverage annotator
+#opendiff boost-bitten/bitten/report/tests/coverage.py bitten-trunk/bitten/report/tests/coverage.py     ## truck stub set up enhancement
+#opendiff boost-bitten/bitten/slave.py bitten-trunk/bitten/slave.py      ## trunk minor fixes
+#opendiff boost-bitten/bitten/tests/admin.py bitten-trunk/bitten/tests/admin.py   ## trunk permission fixes
+#opendiff boost-bitten/bitten/tests/master.py bitten-trunk/bitten/tests/master.py   ## trunk wrong slave enhancement
+#opendiff boost-bitten/bitten/util/testrunner.py bitten-trunk/bitten/util/testrunner.py  ## trunk figleaf addition and filtering 
+#opendiff boost-bitten/doc/commands.txt bitten-trunk/doc/commands.txt  ## this is generated documentation 
+#opendiff boost-bitten/setup.py bitten-trunk/setup.py
+
+#opendiff boost-bitten/bitten/queue.py bitten-trunk/bitten/queue.py           ## build deletion ... some divergence  ... looks like that patch
+
+#opendiff boost-bitten/bitten/templates/bitten_build.cs bitten-trunk/bitten/templates/bitten_build.cs   ## *** boost addition .. all_steps checkbox
+#opendiff boost-bitten/bitten/templates/bitten_config.cs bitten-trunk/bitten/templates/bitten_config.cs  ## *** boost addition ... build progress
+#opendiff boost-bitten/bitten/templates/bitten_summary_tests.cs bitten-trunk/bitten/templates/bitten_summary_tests.cs  ## *** boost addition ... view output_href
+#opendiff boost-bitten/bitten/htdocs/bitten.css bitten-trunk/bitten/htdocs/bitten.css      ## ***boost addition ... progress table
+#opendiff boost-bitten/bitten/report/testing.py bitten-trunk/bitten/report/testing.py     ## *** boost addition ... stdout in tables and DetailsComponent 
+#opendiff boost-bitten/bitten/web_ui.py bitten-trunk/bitten/web_ui.py   ## **** boost additions
+
+#
+#Only in bitten-trunk/bitten/htdocs: bitten_coverage.css
+#Only in boost-bitten/bitten/templates: bitten_test_details.html
+#
 
 }
 
