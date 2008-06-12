@@ -70,6 +70,11 @@ tractrac-(){          . $ENV_HOME/trac/package/tractrac.bash  && tractrac-env $*
 genshi-(){            . $ENV_HOME/trac/package/genshi.bash    && genshi-env   $* ; }
 trac2mediawiki-(){    . $ENV_HOME/trac/package/trac2mediawiki.bash    && trac2mediawiki-env   $* ; }
 
+silvercity-(){        . $ENV_HOME/trac/package/silvercity.bash && silvercity-env   $* ; }
+pygments-(){          . $ENV_HOME/trac/package/pygments.bash   && pygments-env   $* ; }
+docutils-(){          . $ENV_HOME/trac/package/docutils.bash   && docutils-env   $* ; }
+textile-(){           . $ENV_HOME/trac/package/textile.bash    && textile-env   $* ; }
+
 
 trac-inheritpath(){   echo  $SCM_FOLD/conf/trac.ini ; }  ## is inherit 0.11 only ?  
 

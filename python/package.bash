@@ -241,7 +241,7 @@ package-odir-(){
   ## unless $name-reldir is defined 
   
   local name=$1
-  local base=$(package-basename $name)
+  local base=$($name-basename)
   local dir=$LOCAL_BASE/env/trac/package/$name/$base
   echo $dir
 }
@@ -263,7 +263,12 @@ package-dir(){
 package-basename(){
    local name=$1
    local branch=$($name-branch)
-   echo $(basename $branch)
+
+   local bnm=$(basename $branch)   ## leaf of the branch 
+   local  pkt=$(package-type $bnm)
+   local tba=$(package-typebase $bnm $pkt)
+   
+   echo $tba
 }
 
 
@@ -301,6 +306,31 @@ package-egg(){
 
 
 
+package-type(){
+   local b=$1
+   if [ "${b:$((${#b}-7))}" == ".tar.gz" ]; then
+      echo tar.gz
+   elif [ "${b:$((${#b}-4))}" == ".zip" ]; then
+      echo zip
+   elif [ "${b:$((${#b}-4))}" == ".tgz" ]; then
+      echo tgz
+   else
+      echo svn
+   fi
+}
+
+package-typebase(){
+   local b=$1
+   local t=$2
+   case $t in 
+   tar.gz) echo ${b:0:$((${#b}-7))} ;;
+      tgz) echo ${b:0:$((${#b}-4))} ;;
+      zip) echo ${b:0:$((${#b}-4))} ;;
+      svn) echo $b ;;
+   esac
+}
+
+
 package-get(){
    local msg="=== $FUNCNAME :"
    local name=$1
@@ -312,26 +342,71 @@ package-get(){
    
    local url=$($name-url)
    local pir=$(dirname $odir)
+   
    local bnm=$(basename $odir) 
    mkdir -p $pir
    cd $pir   
+
+   ## http://peak.telecommunity.com/DevCenter/EasyInstall#downloading-and-installing-a-package
+
+   if [ "${url:0:7}" != "http://" -a "${url:0:6}" != "ftp://"  ]; then
+       ## is this how easy_install -eb  always calls its downloads  ???
+       local eznam=$(echo $bnm | tr "[A-Z]" "[a-z]")
+       [ ! -d "$eznam" ] && easy_install --editable -b . $bnm || echo $msg already ez installed to $eznam 
+        return
+   fi
+
+
+
+   ## need to original branchname to see the tgz/zip 
+   local brn=$(basename $($name-branch))
+   local  pkt=$(package-type $brn)
+   local tba=$(package-typebase $brn $pkt)
    
-   echo $msg checkout $url into $pir with basename $bnm
-   svn co $url $bnm
+   echo $msg brn:$brn bnm:$bnm pkt:$pkt tba:$tba url:$url
+
+
+
    
-   package-look-version $bnm
+   if [ "$pkt" == "tgz" -o "$pkt" == "tar.gz" ]; then
+   
+      [ ! -f $brn ] && curl -L -O $url  || echo $msg already downloaded $brn 
+      [ ! -d $tba ] && tar zxvf $brn || echo $msg already unpacked $tba
+   
+   elif [ "${b:$((${#b}-4))}" == ".zip" ]; then
+     
+      echo $msg caution unzip not tested
+       
+      [ ! -f $brn ] && curl -L -O $url
+      [ ! -d $tba ] && unzip $brn 
+       
+   else 
+      echo $msg svn checkout $url into $pir with basename $bnm
+      svn co $url $bnm
+      
+      
+   fi
+   
+    package-look-version $bnm
+  
 }
+
+
 
 package-look-version(){
 
    ## deprecated... as not doing _cust fiddling any more  
 
    local msg="=== $FUNCNAME :"
+   local iwd=$PWD
    local dir=$1
    local setup=$dir/setup.py
-   local vers=$(python $setup --version)
    
    if [ -f $setup ]; then
+      cd $dir
+      ## cannot use setup.py from afar 
+      local vers=$(python setup.py --version) 
+      cd $iwd
       echo $msg version in the setup $setup $vers
    else
       echo $msg WARNING no setup $setup 
@@ -350,7 +425,7 @@ package-install(){
    echo $msg $name 
    
  #  $name-cust
-   $name-fix
+   $name-fix 2> /dev/null
    
    local dir=$($name-dir)
    cd $dir
@@ -451,69 +526,10 @@ package-branchname(){
    echo $bn
 }
 
-package-obranch-deprecated(){
-   local name=$1
-   local b=$($name-branch)
-   [ "${b:$((${#b}-5))}" == "_cust" ] && b=${b/_cust/} 
-   echo $b
-}
 
 
 
 
-
-
-package-setup-cust-deprecated(){
-
-    local name=$1
-    local msg="=== $FUNCNAME :"
-    local dir=$($name-dir)
-    local ver=$($name-setver)
-    
-    
-    echo $msg $dir editing setup.py to change $ver to cust_$ver
-   
-    local iwd=$PWD   
-    cd $dir
-    [ ! -f setup.py ] && echo $msg ERROR setup.py in $dir not found && return 1 
-    
-    ## start with repo original in case of rerunning  
-    svn revert setup.py
-    perl -pi -e "s/(version\s*=\s*)(.)($ver)(.)(.*)$/\$1\$2cust_\$3\$4\$5/" setup.py
-    svn diff setup.py
-
-    cd $iwd
-
-}
-
-package-cust-deprecated(){
-
-   local msg="=== $FUNCNAME :"
-   local name=$1
-   echo $msg $name 
-   local base=$($name-basename)
-   package-is-cust $base &&  package-setup-cust $name
-}
-
-
-package-is-cust-deprecated(){
-    local b=$1
-    [ "${b:$((${#b}-5))}" == "_cust" ]  && return 0 || return 1
-}
-
-package-egg-deprecated(){
-
-  
-   local name=$1
-   local branch=$($name-branch)
-   
-   local eggver=$($name-eggver)
-   local eggbas=$($name-eggbas)
-    
-   package-is-cust $branch && eggver=cust_${eggver}
-   echo $eggbas-$eggver-py2.5.egg
- 
-}
 
 
 
