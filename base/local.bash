@@ -52,9 +52,17 @@ local-env(){
    local-scm        # assign coordinates of the SCM server for this node
    local-layout     # define variables such as LOCAL_BASE, VAR_BASE, USER_BASE  
    
-   
+   local-userprefs
    
 }
+
+
+local-userprefs(){
+   case $USER in 
+     blyth) export SVN_EDITOR=vi ;;
+   esac
+}
+
 
 
 local-nodetag(){

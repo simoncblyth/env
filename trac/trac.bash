@@ -60,7 +60,7 @@ EOU
 
 }
 
-annobit-(){           . $ENV_HOME/trac/package/annobit.bash   && annobit-env  $* ; }
+bitextra-(){          . $ENV_HOME/trac/package/bitextra.bash  && bitextra-env  $* ; }
 tractags-(){          . $ENV_HOME/trac/package/tractags.bash  && tractags-env $* ; }
 tracnav-(){           . $ENV_HOME/trac/package/tracnav.bash   && tracnav-env  $* ; }
 tractoc-(){           . $ENV_HOME/trac/package/tractoc.bash   && tractoc-env  $* ; }

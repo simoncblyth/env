@@ -83,6 +83,9 @@ python-pth(){
 
 python-uneasy(){
 
+  ## maybe "easy_install -m  " can do this without the perl ... to investigate
+
+
    local name=$1
    local pth=$PYTHON_SITE/easy-install.pth
    local cmd="$SUDO perl -pi -e \"s/^\.\/$name.*\n$//\" $pth "
