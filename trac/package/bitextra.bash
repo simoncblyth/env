@@ -11,10 +11,10 @@ EOU
 bitextra-env(){
   elocal-
   package-
-  export ANNOBIT_BRANCH=trunk
+  export BITEXTRA_BRANCH=trunk
 }
 
-bitextra-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/bitextra/$(bitextra-obranch) ;}
+bitextra-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/bitextra/$(bitextra-branch) ;}
 bitextra-package(){ echo bitextra ; }
 
 bitextra-fix(){
@@ -23,7 +23,7 @@ bitextra-fix(){
 }
 
 
-bitextra-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 bitextra-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 bitextra-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 bitextra-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

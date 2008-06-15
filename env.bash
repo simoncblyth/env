@@ -4,6 +4,7 @@
 #    ... move to putting top level precursors here only 
 #        with the sub precursors defined  in the name/name.bash file
 #
+env-home(){       echo $(dirname $BASH_SOURCE) ; }
 
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 
@@ -24,6 +25,7 @@ base-(){        . $ENV_HOME/base/base.bash    && base-env $* ; }
 local-(){       . $ENV_HOME/base/local.bash   && local-env $* ; }
 elocal-(){      . $ENV_HOME/base/local.bash   && local-env $* ; }   ## avoid name clash 
 cron-(){        . $ENV_HOME/base/cron.bash    && cron-env $* ; } 
+bash-(){        . $ENV_HOME/base/bash.bash    && bash-env $* ; }
 
 scm-(){         . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
@@ -34,13 +36,17 @@ qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
 bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
 
 nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
+nosebit-(){      . $ENV_HOME/nosebit/nosebit.bash    && nosebit-env $* ; }
 
 _nose-(){       . $ENV_HOME/unittest/nose.bash  && _nose-env  $* ; }
 _annobit-(){    . $ENV_HOME/annobit/annobit.bash  && _annobit-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
 tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
+
 package-(){     . $ENV_HOME/python/package.bash      && package-env $* ; } 
+pkg-(){         . $ENV_HOME/python/pkg.bash          && pkg-env $* ; }
+pypi-(){        . $ENV_HOME/python/pypi.bash         && pypi-env $* ; }
 
 otrac-(){       . $ENV_HOME/otrac/otrac.bash     && otrac-env $* ; } 
 trac-conf-(){   . $ENV_HOME/otrac/trac-conf.bash && trac-conf-env $* ; } 

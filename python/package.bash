@@ -4,6 +4,9 @@ package-env(){
 }
 
 
+package-installed-(){ python -c "import $1" 2> /dev/null ; }
+
+
 package-notes(){
 cat << EON
 
@@ -69,10 +72,11 @@ cat << EOU
      
     $name-egg          :   $($name-egg)
          gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
-         ... which works correctly even with native eggs ... but not very quick 
-          NOPE .. still have to override and append to get native eggs correct
-        
+         BUT :
+            tis getting the name wrong with dev and native eggs 
           
+         ... but the reinstall still works 
+               easy_install just replaces the prior egg ...   
            
     $name-get       :
           svn co the $($name-url) into $($name-dir)  

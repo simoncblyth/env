@@ -2,11 +2,7 @@ bitten-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
-   
-   bitten-setver
-       the version in the setup.py file ... this is needed when cust is necessary 
-   
-     
+      
    addendum to bitten-install
        
       In addition to installing the package into PYTHON_SITE this 
@@ -67,7 +63,7 @@ bitten-env(){
 
 }
 
-bitten-url(){     echo http://svn.edgewall.org/repos/bitten/$(bitten-obranch) ;}
+bitten-url(){     echo http://svn.edgewall.org/repos/bitten/$(bitten-branch) ;}
 bitten-package(){ echo bitten ; }
 
 bitten-fix(){
@@ -76,7 +72,7 @@ bitten-fix(){
 }
 
 
-bitten-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 bitten-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 bitten-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 bitten-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

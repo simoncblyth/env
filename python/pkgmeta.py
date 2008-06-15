@@ -9,6 +9,20 @@
    distribution meta-data.
 
    And try to find the name of the egg
+   
+        possible approach 
+             python setup.py egg_info --egg-base /tmp
+             and then parse  /tmp/Bitten.egg-info/PKG-INFO  
+          tis ridiculous need a 
+              python setup.py --eggname  
+           http://dir.gmane.org/gmane.comp.python.distutils.devel
+           http://article.gmane.org/gmane.comp.python.distutils.devel/5230/match=egg+name
+           
+           https://contrib.exoweb.net/browser/egg/
+           http://contrib.exoweb.net/svn/egg/
+           
+   
+   
 
 """
 
