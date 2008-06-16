@@ -5,6 +5,9 @@ pypi-usage(){
   cat << EOU
 
      http://pypi.python.org/pypi/pypicache/0.2
+     http://pypi.python.org/pypi/EggBasket
+                 uses genshi/turbogears to provide webapp to manage a package index
+
 
    pypicache ... does not do what i want, it is designed to set up an index for easy_install -i 
    egg distribution via apache mod_rewrite rules..  however its templates can be reused

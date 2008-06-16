@@ -1,10 +1,8 @@
-import sys
 
-## is setuptools standard with py2.5 ?
 from setuptools import setup
 
 setup(
-    name='Nose XML output plugin',
+    name='XMLNose',
     version='0.1',
     author='Simon C Blyth',
     author_email = 'blyth@hep1.phys.ntu.edu.tw',

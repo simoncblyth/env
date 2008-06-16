@@ -1,6 +1,6 @@
 
 pkg-env(){
-   # making minimum usage of environment in order to
+   # making minimum usage of environment for transportability
    echo -n
 }
 
@@ -19,15 +19,47 @@ pkg-usage(){
 
        pkg-eggname-  <pkgname>
              determine the name of the egg from path reported by pkgname.__file__ 
-              
+          
+       pkg-eggrev   <pkgname>
+             determine the svn revision for an egg, if the pkg is not found or does not
+             have a revision return a blank
+                  
+                          
        pkg-ezsetup 
              download and run th ez_setup.py script making setuptools available
              to the python in your path, the invoking directory is used as the working
              directory
              
        pkg-install <pkgname> <url> <revision> .. <pkgname2> <url2>  <rev2> ...
-             subversion checkout and easy install   
-              
+             subversion checkout and easy install using the invoking directory as the working directory
+             to house svn checkouts/tarballs etc..  
+       
+       pkg-uninstall <eggname>
+           remove the egg and easy-install.pth reference 
+         
+           
+       pkg-site
+            path of python site-packages 
+            
+       pkg-ls 
+            ls of site-packages
+
+
+
+     TODO :
+         auto determine the site-packages folder in order to provide a listing         
+                          
+      ENHANCEMENT IDEAS:
+      
+          use "svnversion -c" to compare the last change revision cf that of the egg
+          in order to shortcircuit the slow easy_install
+          
+          add support to tgz/zip urls ... not just svn checkouts ?
+          
+          uninstallation ?
+                                                 
+                          
+                                      
 EOU
 
 }
@@ -37,27 +69,73 @@ pkg-importable-(){  python -c "import $1" 2> /dev/null ; }
 
 pkg-eggname-(){    
 
-   local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
+   #local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
    
-   #
-   # the python gives relative paths when done from the source directory containing the package 
+   # python gives relative paths when done from the source directory containing the package 
    # ... hence the tmp shenanigans
-   #
       
-   cd $tmp
-   local iwd=$PWD
-   python -c "import $1 as _ ; eggs=[egg for egg in _.__file__.split('/') if egg.endswith('.egg')] ; print eggs[0] " 
-   cd $iwd
+   #cd $tmp
+   #local iwd=$PWD
+   python -c "import os ; os.chdir('/tmp') ; import $1 as _ ; eggs=[egg for egg in _.__file__.split('/') if egg.endswith('.egg')] ; print eggs[0] " 
+   #cd $iwd
+}
+
+
+pkg-eggrev2-(){
+  echo -n
+  
+}
+
+
+
+pkg-eggrev-(){
+  python -c "import pkg_resources as pr ; d=pr.get_distribution(\"$1\") ; v=d.version ; p=v.index('dev-r') ; print v[p+5:] ; "
+}
+
+pkg-eggrev(){
+   pkg-eggrev- $* 2> /dev/null || echo -n 
+}
+
+
+pkg-lastrev(){
+   ## env -i shields perl from the environment to avoid libutil problem
+   svn info $1 | env -i perl -n -e 'm/^Last Changed Rev:\s*(\S*)\s*$/ && print $1 ' -
+}
+
+
+pkg-site(){
+  python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+}
+
+pkg-ls(){
+  ls -l $(pkg-site)
+}
+
+
+
+
+
+pkg-entry-check(){
+ for name in $*
+  do
+     printf "%-20s : %s \n" $name $(which $name)
+  done   
+}
+
+pkg-info(){
+   cat << EOI
+   
+      eggrev  : $(pkg-eggrev $1)
+      lastrev : $(pkg-lastrev $1)
+EOI
 }
 
 
 
 pkg-install(){  
 
+   local workdir=$PWD
    pkg-ezsetup
-
-   local workdir=/tmp/env/$FUNCNAME && mkdir -p $workdir
-   local iwd=$PWD
    
    while [ $# -gt 0 ]
    do
@@ -74,7 +152,7 @@ pkg-install(){
      
    done
    
-   #cd $iwd
+   cd $workdir
 }
 
 
