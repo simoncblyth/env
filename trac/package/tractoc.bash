@@ -24,17 +24,20 @@ tractoc-env(){
 
 }
 
-tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(tractoc-obranch) ;}
+tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(tractoc-branch) ;}
 tractoc-package(){ echo tractoc ; }
 
 tractoc-fix(){
+   local msg="=== $FUNCNAME :"
    cd $(tractoc-dir)   
-   perl -pi -e 's/(min_depth.*)2(\s*# Skip.*)/${1}1${2} fixed by tractoc-fix/' tractoc/macro.py
-   svn diff tractoc/macro.py
+  # perl -pi -e 's/(min_depth.*)2(\s*# Skip.*)/${1}1${2} fixed by tractoc-fix/' tractoc/macro.py
+  # svn diff tractoc/macro.py
+  echo $msg now done with the auto patch 
+
 }
 
 
-tractoc-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 tractoc-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 tractoc-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 tractoc-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

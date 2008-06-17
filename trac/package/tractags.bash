@@ -26,18 +26,19 @@ tractags-env(){
    
 }
 
-tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-obranch) ; }
+tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-branch) ; }
 tractags-package(){ echo tractags ; }
 
 tractags-fix(){
+  local msg="=== $FUNCNAME :"
   local dir=$(tractags-dir)
-  cd $ENV_HOME/trac/package/tractags  
+  #cd $ENV_HOME/trac/package/tractags  
   #cp setup.py  $dir/
-  cp macros.py $dir/tractags/
+  #cp macros.py $dir/tractags/
 
+  echo $msg ... manual copying is replaced by the auto patching   
 }
 
-tractags-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
 tractags-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 tractags-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 tractags-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

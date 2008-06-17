@@ -3,7 +3,7 @@ bittennotify-usage(){
    cat << EOU
  
       provides email notification ... 
-      developed for trac 0.10 ... attempting port to 0.11
+      developed for trac 0.10 ... ported to 0.11 in the patch 
    
      http://trac.3dbits.de/bittennotify/wiki
    
@@ -19,7 +19,7 @@ bittennotify-env(){
 }
 
 bittennotify-url(){     echo http://svn.3dbits.de/bittennotify/$(bittennotify-branch) ;}
-bittennotify-package(){ echo bittennotify ; }
+
 
 bittennotify-fix(){
    cd $(bittennotify-dir)   

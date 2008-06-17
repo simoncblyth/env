@@ -91,9 +91,18 @@ cat << EOU
           svn co the $($name-url) into $($name-dir)  
 
     $name-install  :
-          invoke $name-cust then 
+          invokes -applypatch which will do so if one exists 
+          invoke $name-fix then 
           easy install into PYTHON_SITE $PYTHON_SITE
-           
+     
+    package-applypatch $name
+          patches are identified by the branch basename and checkout revision
+          so following updates from upstream an appropriately named patch will not be found
+          ... so to incoporate upstream mods do a manual svn update into the
+          patched working copy and investigate problems/conflicts before making a 
+          new patch              
+                       
+                                   
     PACKAGE_INSTALL_OPT=develop $name-install  :
           develop mode installation, allowing availability on sys.path to other
           packages direct from the source directories without creating eggs 
@@ -583,7 +592,8 @@ package-install(){
    local msg="=== $FUNCNAME :"
    echo $msg $name 
    
- #  $name-cust
+   
+   package-applypatch $name 
    $name-fix 2> /dev/null
    
    local dir=$($name-dir)

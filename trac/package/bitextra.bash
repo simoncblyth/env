@@ -15,7 +15,7 @@ bitextra-env(){
 }
 
 bitextra-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/bitextra/$(bitextra-branch) ;}
-bitextra-package(){ echo bitextra ; }
+
 
 bitextra-fix(){
    cd $(bitextra-dir)   

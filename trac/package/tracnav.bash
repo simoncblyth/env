@@ -22,7 +22,7 @@ tracnav-env(){
 }
 
 
-tracnav-url(){      echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$(tracnav-obranch) ;}
+tracnav-url(){      echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$(tracnav-branch) ;}
 tracnav-package(){  echo tracnav ; }
 
 tracnav-fix(){
@@ -32,7 +32,7 @@ tracnav-fix(){
 
 
 
-tracnav-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 tracnav-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 tracnav-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 tracnav-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

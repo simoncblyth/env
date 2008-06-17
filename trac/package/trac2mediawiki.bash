@@ -28,7 +28,7 @@ trac2mediawiki-env(){
 }
 
 
-trac2mediawiki-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/trac2mediawiki/$(trac2mediawiki-obranch) ;}
+trac2mediawiki-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/trac2mediawiki/$(trac2mediawiki-branch) ;}
 trac2mediawiki-package(){ echo trac2mediawiki ; }
 
 trac2mediawiki-reldir(){
@@ -47,7 +47,7 @@ trac2mediawiki-fix(){
 
 
 
-trac2mediawiki-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 trac2mediawiki-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 trac2mediawiki-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 trac2mediawiki-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

@@ -54,3 +54,7 @@ accountmanager-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 accountmanager-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 
+
+
+
+

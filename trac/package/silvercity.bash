@@ -38,10 +38,6 @@ silvercity-url(){
    echo http://nchc.dl.sourceforge.net/sourceforge/silvercity/$(silvercity-branch)
 }
 
-#silvercity-egg(){
-#   ## override as the  auto egg name finding not working with distutils setup.py
-#   echo SilverCity-0.9.7-py2.5-macosx-10.5-ppc.egg
-#}
 
 
 silvercity-pkgname(){
