@@ -1,0 +1,58 @@
+Index: /usr/local/env/trac/package/tractags/trunk/tractags/macros.py
+===================================================================
+--- /usr/local/env/trac/package/tractags/trunk/tractags/macros.py	(revision 3768)
++++ /usr/local/env/trac/package/tractags/trunk/tractags/macros.py	(working copy)
+@@ -13,6 +13,8 @@
+ from tractags.api import TagSystem
+ from genshi.builder import tag as builder
+ 
++from trac.wiki import model
++import re
+ 
+ def render_cloud(env, req, cloud, renderer=None):
+     """Render a tag cloud
+@@ -70,6 +72,20 @@
+ 
+ 
+ class ListTaggedMacro(WikiMacroBase):
++
++    first_head = re.compile('=\s+([^=]*)=')
++
++    def wikipage_first_heading(self, page):
++        from trac.wiki import model
++        page = model.WikiPage(self.env, page)
++        title = ''
++        if page.exists:
++            ret = self.__class__.first_head.search(page.text)
++            title = ret and ret.group(1) or ''
++
++        return title
++
++
+     def expand_macro(self, formatter, name, content):
+         req = formatter.req
+         query_result = TagSystem(self.env).query(req, content)
+@@ -83,15 +99,21 @@
+         for resource, tags in sorted(query_result,
+                                      key=lambda r: str(r[0].id)):
+             tags = sorted(tags)
++
++	    if resource.realm == 'wiki':
++                desc = ' ' + self.wikipage_first_heading(resource.id)
++            else:
++                desc = ''
++
+             if tags:
+                 rendered_tags = [
+                     link(resource('tag', tag))
+                     for tag in tags
+                     ]
+-                li = builder.li(link(resource), ' (', rendered_tags[0],
++                li = builder.li(link(resource), desc,' (', rendered_tags[0],
+                                 [(' ', tag) for tag in rendered_tags[1:]],
+                                 ')')
+             else:
+-                li = builder.li(link(resource))
++                li = builder.li(link(resource), desc )
+             ul(li, '\n')
+         return ul

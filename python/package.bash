@@ -180,26 +180,51 @@ package-patchpath(){
   local dir=$($name-dir)
   local irev=$(package-initial-rev $name) 
   local patchname=$name-$basename-$irev 
-  local patchdir=$ENV_HOME/trac/package/$name
+  local patchdir=$ENV_HOME/trac/patch/$name
   echo $patchdir/$patchname.patch  
 }
 
 package-makepatch(){
    local msg="=== $FUNCNAME :"
    local name=$1
+   
+   local pris=$(package-ispristine $name)
+   
+   if [ "$pris" == "not-svn" -o "$pris" == "pristine" ]; then
+      echo $msg $name $pris so skip making patch ...
+      return 
+   fi
+   
+   
    local patchpath=$(package-patchpath $name)
    local patchdir=$(dirname $patchpath)
    mkdir -p $patchdir
    echo $msg writing \"svn diff\" to patchpath $patchpath ... remember to svn add and ci for safekeeping 
-   package-diff $name > $patchpath
+   package-diff $name > $patchpath  || echo $msg ERROR while creating patch  
    
 }
 
 package-ispristine-(){
    local name=$1
-   local dir=$($name-dir)
+   local dir=$($name-dir)   
+   [ ! -d "$dir/.svn" ] && return 3 
    [ "$(svn diff $dir)" = "" ] && return 0 || return 1   
 }
+
+package-ispristine-msg(){
+    case $1 in 
+       0) echo pristine    ;;
+       1) echo local-mods  ;;
+       3) echo not-svn ;;
+       *) echo ERROR ;;
+    esac  
+}
+
+package-ispristine(){
+   package-ispristine- $*
+   package-ispristine-msg $?
+}
+
 
 package-applypatch(){
 
@@ -334,8 +359,8 @@ package-smry(){
   #local egg=$($name-egg)
   local egg=$(package-egg $name)
   local branch=$($name-branch)
-  local dir=$($name-dir)
-  printf "%-15s %-40s %-40s %-70s" $name $branch $egg $dir
+  local pris=$(package-ispristine $name)
+  printf "%-15s %-35s %-45s %-70s" $name $branch $egg $pris
 }
 
 package-summary(){

@@ -160,6 +160,7 @@ trac-names(){
 trac-diff(){      trac-f diff ; }
 trac-status(){    trac-f status ; }
 trac-summary(){   trac-f summary ;  }
+trac-makepatch(){ trac-f makepatch ;  }
 
 trac-f(){
   local msg="=== $FUNCNAME :"

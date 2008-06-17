@@ -1,0 +1,22 @@
+Index: /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py
+===================================================================
+--- /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py	(revision 3783)
++++ /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py	(working copy)
+@@ -130,7 +130,7 @@
+             elif arg == 'noheading':
+                 default_heading = ''
+             elif arg == 'notitle':
+-                params['min_depth'] = 2     # Skip page title
++                params['min_depth'] = 1     # Skip page title fixed by tractoc-fix
+             elif (arg == 'titleindex') or (arg == 'sectionindex'):
+                 # sectionindex is a page-context sensitive titleindex
+                 if arg == 'sectionindex':
+@@ -161,7 +161,7 @@
+             else:
+                 pagenames.append(current_page)
+                 params['root'] = ''
+-                params['min_depth'] = 2     # Skip page title
++                params['min_depth'] = 1     # Skip page title fixed by tractoc-fix
+         # Check for wildcards and expand lists
+         temp_pagenames = []
+         for pagename in pagenames:

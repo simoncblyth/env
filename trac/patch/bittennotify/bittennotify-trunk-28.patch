@@ -1,0 +1,79 @@
+Index: /usr/local/env/trac/package/bittennotify/trunk/setup.py
+===================================================================
+--- /usr/local/env/trac/package/bittennotify/trunk/setup.py	(revision 28)
++++ /usr/local/env/trac/package/bittennotify/trunk/setup.py	(working copy)
+@@ -16,7 +16,7 @@
+     packages = find_packages(exclude=['*.tests*']),
+     test_suite = 'bittennotify.tests.suite',
+     package_data = {
+-        'bittennotify': ['templates/*.cs']
++        'bittennotify': ['templates/*.txt']
+     },
+     entry_points = {
+         'distutils.commands': [
+Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py
+===================================================================
+--- /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py	(revision 28)
++++ /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py	(working copy)
+@@ -95,6 +95,7 @@
+         dict.__init__(self)
+         self.build = build
+         self.env = env
++        self['project_name'] = self.env.project_name
+         self['id'] = self.build.id
+         self['status'] = self.readable_states[self.build.status]
+         self['link'] = self.env.abs_href.build(self.build.config, 
+@@ -152,21 +153,24 @@
+ class BittenNotifyEmail(NotifyEmail):
+     """Notification of failed builds."""
+ 
++    template_name = 'bitten_notify_email.txt'
+     from_email = 'bitten@localhost'
+     
+     def __init__(self, env):
+         NotifyEmail.__init__(self, env)
+-        self.template_name = 'bitten_notify_email.cs'
+ 
+     def notify(self, build_info):
+         self.build_info = build_info
+-        self.hdf['build'] = self.build_info
++        self.data = self.build_info
+         subject = '[%s Build] %s [%s] %s' % (self.build_info.status,
+                 self.env.project_name, 
+                 self.build_info.changeset, 
+                 self.build_info.config)
+-        self.env.log.debug('notification: %s' % 
+-                self.hdf.render(self.template_name))
++
++        stream = self.template.generate(**self.data)
++        body = stream.render('text')
++
++        self.env.log.debug('notification: %s' % body )
+         NotifyEmail.notify(self, self.build_info.id, subject)
+ 
+     def get_recipients(self, resid):
+Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt
+===================================================================
+--- /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt	(revision 0)
++++ /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt	(revision 0)
+@@ -0,0 +1,14 @@
++  ${status} build of ${project_name} [${changeset}]
++---------------------------------------------------------------------
++
++  Changeset:             ${changeset}  -  <${changesetlink}>
++  Committed by:          ${author}
++
++  Build Configuration:   ${config}
++  Build Slave:           ${slave}
++  Build Number:          ${id}  -  <${link}>
++
++  Failed Steps:          ${errors}
++  Failure Log:           
++  
++${faillog}
+
+Property changes on: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt
+___________________________________________________________________
+Name: svn:executable
+   + *
+
