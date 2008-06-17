@@ -47,5 +47,17 @@ bash-create-func-with-a-func(){
 }
 
 
+bash-slash-count(){
+   local s=$1
+   local ifs=$IFS
+   IFS=/
+   bash-nargs $s 
+   IFS=$ifs
+   
+}
+
+bash-nargs(){
+   echo $# 
+}
 
 

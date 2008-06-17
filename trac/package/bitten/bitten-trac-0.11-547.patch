@@ -1,0 +1,105 @@
+Index: /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py
+===================================================================
+--- /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py	(revision 547)
++++ /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py	(working copy)
+@@ -27,6 +27,7 @@
+                             add_link, add_stylesheet, add_ctxtnav, \
+                             prevnext_nav, add_script
+ from trac.wiki import wiki_to_html, wiki_to_oneliner
++from trac.versioncontrol.api import NoSuchNode
+ from bitten.api import ILogFormatter, IReportChartGenerator, IReportSummarizer
+ from bitten.model import BuildConfig, TargetPlatform, Build, BuildStep, \
+                          BuildLog, Report
+@@ -581,30 +582,57 @@
+ 
+     _fileref_re = re.compile('(?P<path>[\w.-]+(?:/[\w.-]+)+)(?P<line>(:\d+))?')
+ 
+-    def get_formatter(self, req, build):
++    def get_formatter(self, req, build, **kw):
+         """Return the log message formatter function."""
+         config = BuildConfig.fetch(self.env, name=build.config)
++        self.log.debug("get_formatter config.path %s build.rev %s " % (config.path,build.rev) )
+         repos = self.env.get_repository(req.authname)
+         href = req.href.browser
+-        cache = {}
++        repocache = {}
++        filecache = {}
+ 
++        def _pathsearch( filepath ):
++            """ grow the path backwards from the leaf """
++            parts = filepath.split('/')
++            parts.reverse()         
++            path = None        
++            for part in parts:
++                path = path and posixpath.join( part , path ) or part
++                repopath = posixpath.join(config.path, path)
++                self.log.debug("try repopath %s " %  repopath)
++                if repopath not in repocache:
++                    try: 
++                        repos.get_node( repopath , build.rev)
++                        repocache[repopath] = True
++                        self.log.debug("non-cache repopath %s %s " %  (repopath,repocache[repopath]) )
++                        return repopath
++                    except NoSuchNode, e:
++                        repocache[repopath] = False
++                        self.log.debug("non-cache repopath %s %s " %  (repopath,repocache[repopath]) )
++                    except:
++                        self.log.error("other exception ")
++                else:
++                    self.log.debug("from-cache repopath %s %s " %  (repopath,repocache[repopath]) ) 
++            return None
++
++
++
+         def _replace(m):
++            self.log.debug("_replace %s  " % (m.groupdict())  )
+             filepath = posixpath.normpath(m.group('path').replace('\\', '/'))
+-            if not cache.get(filepath) is True:
+-                parts = filepath.split('/')
+-                path = ''
+-                for part in parts:
+-                    path = posixpath.join(path, part)
+-                    if path not in cache:
+-                        try:
+-                            repos.get_node(posixpath.join(config.path, path),
+-                                           build.rev)
+-                            cache[path] = True
+-                        except TracError:
+-                            cache[path] = False
+-                    if cache[path] is False:
+-                        return m.group(0)
+-            link = href(config.path, filepath)
++            repopath = None
++            
++            if filecache.has_key(filepath) :
++                repopath = filecache[filepath]
++            else:
++                repopath = filecache[filepath] = _pathsearch( filepath )   
++           
++            if repopath is None:
++                self.log.debug("miss filepath %s " % (filepath) )
++                return m.group(0)
++                    
++            link = href( repopath , **kw )
++            self.log.debug("hit filepath %s " %  ( filepath ) )
+             if m.group('line'):
+                 link += '#L' + m.group('line')[1:]
+             return Markup(tag.a(m.group(0), href=link))
+@@ -612,14 +640,16 @@
+         def _formatter(step, type, level, message):
+             buf = []
+             offset = 0
++            self.log.debug("bitten formatter start")
+             for mo in self._fileref_re.finditer(message):
+                 start, end = mo.span()
++                #self.log.debug("found %s " % message[offset:start])
+                 if start > offset:
+                     buf.append(message[offset:start])
+                 buf.append(_replace(mo))
+                 offset = end
+             if offset < len(message):
+                 buf.append(message[offset:])
+-            return Markup("").join(buf)
++            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
+ 
+         return _formatter

@@ -25,7 +25,7 @@ base-(){        . $ENV_HOME/base/base.bash    && base-env $* ; }
 local-(){       . $ENV_HOME/base/local.bash   && local-env $* ; }
 elocal-(){      . $ENV_HOME/base/local.bash   && local-env $* ; }   ## avoid name clash 
 cron-(){        . $ENV_HOME/base/cron.bash    && cron-env $* ; } 
-bash-(){        . $ENV_HOME/base/bash.bash    && bash-env $* ; }
+ebash-(){       . $ENV_HOME/base/bash.bash    && bash-env $* ; }
 
 scm-(){         . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
 scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 

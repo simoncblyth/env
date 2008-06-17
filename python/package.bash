@@ -47,6 +47,10 @@ package-usage(){
     
 cat << EOU
 
+    pkg.bash is the "for distribution" variant of this $BASH_SOURCE 
+    that focusses on portability ... wherease this focusses on development convenience
+    and is tied to a directory structure 
+
 
     ENHANCEMENT IDEA ...  
        allow auto sensing that customizations are done and not propagaated
@@ -111,6 +115,14 @@ cat << EOU
          the dir into which the checkout is done ... normally also the one with the setup.py 
          unless a non blank $name-reldir is defined 
 
+    package-initial-rev  <name>
+         the checked out revision number as parsed from svn info 
+
+    package-patchcmd  <name>
+        the patch command to apply from a checked out folder, accounting for the right 
+        number of slashes to be stripped from the svn diff patch file in the -pn
+
+
     Usage :
         env-
         trac-
@@ -151,6 +163,76 @@ package-fn(){
 }
 
 
+package-patchpath(){
+  local name=$1
+  local basename=$($name-basename)
+  local dir=$($name-dir)
+  local irev=$(package-initial-rev $name) 
+  local patchname=$name-$basename-$irev 
+  local patchdir=$ENV_HOME/trac/package/$name
+  echo $patchdir/$patchname.patch  
+}
+
+package-makepatch(){
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   local patchpath=$(package-patchpath $name)
+   local patchdir=$(dirname $patchpath)
+   mkdir -p $patchdir
+   echo $msg writing \"svn diff\" to patchpath $patchpath ... remember to svn add and ci for safekeeping 
+   package-diff $name > $patchpath
+   
+}
+
+package-ispristine-(){
+   local name=$1
+   local dir=$($name-dir)
+   [ "$(svn diff $dir)" = "" ] && return 0 || return 1   
+}
+
+package-applypatch(){
+
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   local patchpath=$(package-patchpath $name)
+   
+   [ ! -f $patchpath ]    && echo $msg ERROR there is no patch file $patchpath && return 1 
+   ! package-ispristine- $name && echo $msg ERROR there are local modifications ... cannot apply patch && return 1 
+
+
+   local dir=$($name-dir)
+   
+   echo $msg applying patch $patchpath to pristine checkout from checkout folder $dir
+   cd $dir
+ 
+   local cmd=$(package-patchcmd $name)
+   echo cmd
+   eval $cmd
+   
+   
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+   local chk=$tmp/check.patch
+   svn diff > $chk
+   
+   echo $msg checking the svn diff after applying the patch with the patch ... should be just path context diffs
+   diff $chk $patchpath
+      
+}
+
+package-patchcmd(){
+  
+   local name=$1
+   
+   local dir=$($name-dir)
+   ebash-
+   local bsc=$(bash-slash-count $dir)
+   local patchpath=$(package-patchpath $name)
+
+   local cmd="patch -p$bsc < $patchpath "
+   echo $cmd
+
+}
+
 
 package-diff(){
   local name=$1
@@ -163,6 +245,12 @@ package-rev(){
   local dir=$($name-dir)
   svnversion $dir 
 }
+
+package-initial-rev(){
+  local name=$1
+  svn info  $($name-dir) | env -i perl -n -e 'm/^Revision: (\d*)/ && print $1 ' -
+}
+
 
 package-cd(){
   local name=$1
