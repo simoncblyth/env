@@ -1,6 +1,7 @@
 package-env(){
   elocal-
   python-
+  export PACKAGE_INSTALL_OPT=""
 }
 
 
@@ -84,6 +85,16 @@ cat << EOU
     $name-install  :
           invoke $name-cust then 
           easy install into PYTHON_SITE $PYTHON_SITE
+           
+    PACKAGE_INSTALL_OPT=develop $name-install  :
+          develop mode installation, allowing availability on sys.path to other
+          packages direct from the source directories without creating eggs 
+          
+          Done with \$PYTHON_SITE/distname.egg-link containing the 
+          directory path back to the source directory and putting this directory 
+          into \$PYTHON_SITE/easy_install.pth also 
+           ... this replaces existing normal installs appropriately,       
+           
            
     $name-uninstall :
            remove the $($name-egg) and easy-install.pth reference
@@ -433,7 +444,12 @@ package-install(){
    
    local dir=$($name-dir)
    cd $dir
-   $SUDO easy_install -Z .   
+
+   if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
+      $SUDO python setup.py develop
+   else
+      $SUDO easy_install -Z .  
+   fi
    
    # Note it is possible to install direct from a URL ... but 
    # that gives no opportunity for customization..
@@ -441,6 +457,7 @@ package-install(){
    #  easy_install -Z http://trac-hacks.org/svn/$macro/0.10/
    
 }
+
 
 
 

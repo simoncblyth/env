@@ -7,24 +7,41 @@ nosebit-dir(){
   echo $(dirname $BASH_SOURCE) 
 }
 
-
-
-
 nosebit-usage(){
 cat << EOU
 
     nosebit-dir : $(nosebit-dir)
     
-    Exploring how to distribute the packages needed for client testing ...
+    Installation of packages needed for xml enhanced nosetests and
+    bitten-slave automated test/build running.
+      
       nosebit-install :
-          supplies the package name and urls to pkg-install which does the 
-          checkouts and easy_install
-          invoking directory is used as the working directory for checkouts 
+          does svn checkouts and installations into the site-packages of
+          the python in the path, the invoking directory is used 
+          as the working directory for checkouts 
           
       nosebit-install-test :
            install using temporary directory as working directory 
           
-          
+   TODO :
+    
+     * how to hookup nosebit to nuwa installation ?
+    
+     * where to put the nosebit working dir ? 
+     
+     * incorporate the parts of bitrun needed for slave running,
+      
+        - consider where to keep the slave cfg files 
+        - what to put in them, how to auto create the .cfg files      
+        - maybe something like :                   
+        
+          [nuwa]
+          siteroot = /absolute/path/to/siteroot               
+          release = trunk
+          builds = False
+          tests = True
+             
+                   
 EOU
    pkg-usage
 }
