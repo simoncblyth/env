@@ -74,13 +74,20 @@ pkg-eggname-(){
    
    # python gives relative paths when done from the source directory containing the package 
    # ... hence the tmp move
+   #
+   #  hmmm when in development mode 
+   #    bitten.__file__  points back to the source folder
+   #      '/usr/local/env/trac/package/bitten/trac-0.11/bitten/__init__.pyc'
+   #
+
 
 python -c "$(cat << EOC
 import os ; 
 os.chdir('/tmp') ; 
 import $1 as _ ; 
 eggs=[egg for egg in _.__file__.split('/') if egg.endswith('.egg')] ; 
-print eggs[0] 
+report = len(eggs) > 0 and eggs[0] or "no-egg" ;
+print report
 EOC)"
  
 }

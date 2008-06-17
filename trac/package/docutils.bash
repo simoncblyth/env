@@ -36,10 +36,10 @@ docutils-basename(){
    echo docutils
 }
 
-docutils-egg(){
-  ## override the egg as the setup.py is not handled 
-  echo  docutils-0.5-py2.5.egg
-}
+#docutils-egg(){
+#  ## override the egg as the setup.py is not handled 
+#  echo  docutils-0.5-py2.5.egg
+#}
 
 
 docutils-branch(){    package-fn $FUNCNAME $* ; }

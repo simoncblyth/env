@@ -30,7 +30,7 @@ tractrac-version2branch(){
 }
 
 tractrac-url(){     echo http://svn.edgewall.org/repos/trac/$(tractrac-obranch) ;}
-tractrac-package(){ echo trac ; }
+tractrac-pkgname(){ echo trac ; }
 
 tractrac-fix(){
    cd $(tractrac-dir)   

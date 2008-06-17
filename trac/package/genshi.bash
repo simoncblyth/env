@@ -45,14 +45,14 @@ genshi-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
 genshi-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 genshi-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 genshi-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-genshi-egg(){       
-     ## override needed due to native optimizations resulting in native egg name
-     local egg=$(package-egg       ${FUNCNAME/-*/} $*) 
-     case $NODE_TAG in 
-        G) echo ${egg/.egg/}-macosx-10.5-ppc.egg ;;
-        *) echo $egg ;;
-     esac
-}
+#genshi-egg(){       
+#     ## override needed due to native optimizations resulting in native egg name
+#     local egg=$(package-egg       ${FUNCNAME/-*/} $*) 
+#     case $NODE_TAG in 
+#        G) echo ${egg/.egg/}-macosx-10.5-ppc.egg ;;
+#        *) echo $egg ;;
+#     esac
+#}
 genshi-get(){       package-get       ${FUNCNAME/-*/} $* ; }
 
 genshi-install(){   package-install   ${FUNCNAME/-*/} $* ; }

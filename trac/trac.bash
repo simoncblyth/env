@@ -157,31 +157,23 @@ trac-names(){
    cd $iwd
 }
 
-trac-diff(){
-  for name in $(trac-names)
-  do
-      $name-diff
-  done
-}
+trac-diff(){      trac-f diff ; }
+trac-status(){    trac-f status ; }
+trac-summary(){   trac-f summary ;  }
 
-
-trac-auto(){
+trac-f(){
   local msg="=== $FUNCNAME :"
+  local f=$1
   for name in $(trac-names)
   do
       $name-   ||  (  echo $msg ABORT you must define the precursor $name- in trac/trac.bash && sleep 100000 )
-      $name-auto
+      package-$f $name
   done
 }
 
-trac-status(){
-  local msg="=== $FUNCNAME :"
-  for name in $(trac-names)
-  do
-      $name-  || (  echo $msg ABORT you must define the precursor $name- in trac/trac.bash && sleep 100000 )
-      $name-status
-  done
-}
+
+
+
 
 
 trac-notify-conf(){

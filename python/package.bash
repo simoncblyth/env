@@ -1,6 +1,7 @@
 package-env(){
   elocal-
   python-
+  pkg-
   export PACKAGE_INSTALL_OPT=""
 }
 
@@ -37,7 +38,10 @@ EON
 
 }
 
-
+package-pkgname(){
+  local name=$1
+  $name-pkgname 2> /dev/null || echo $name
+}
 
 
 package-usage(){
@@ -121,6 +125,13 @@ cat << EOU
     package-patchcmd  <name>
         the patch command to apply from a checked out folder, accounting for the right 
         number of slashes to be stripped from the svn diff patch file in the -pn
+
+    package-pkgname <name>
+        defers to $name-pkgname if defined to override the default of <name>
+        allowing the cases where the script name does not corresponds to the 
+        python packagename to be handled
+        
+
 
 
     Usage :
@@ -235,8 +246,12 @@ package-patchcmd(){
 
 
 package-diff(){
+  local msg="=== $FUNCNAME :"
   local name=$1
   local dir=$($name-dir)
+  
+  [ ! -d $dir/.svn ] && echo $msg $dir is not working copy && return 1
+  
   svn diff $dir 
 }
 
@@ -307,14 +322,26 @@ package-status--(){
   esac 
 }
 
+package-egg(){
+   local name=$1
+   local pkgname=$(package-pkgname $name)
+   local egg=$(pkg-eggname $pkgname)
+   echo $egg
+}
 
 package-smry(){
   local name=$1
-  local egg=$($name-egg)
+  #local egg=$($name-egg)
+  local egg=$(package-egg $name)
   local branch=$($name-branch)
   local dir=$($name-dir)
-  printf "%-15s %-40s %-50s %-70s" $name $branch $egg $dir
+  printf "%-15s %-40s %-40s %-70s" $name $branch $egg $dir
 }
+
+package-summary(){
+  printf "%130s \n" "$(package-smry $1)"
+}
+
 
 package-status-(){
 
@@ -389,7 +416,11 @@ package-fullname(){
     echo $full
 }
 
-package-egg(){
+
+
+
+
+package-egg-deprecated(){
    local name=$1
    local dir=$($name-dir)
    local iwd=$PWD

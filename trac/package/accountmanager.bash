@@ -26,7 +26,7 @@ accountmanager-env(){
 
 accountmanager-docurl(){  echo http://trac-hacks.org/wiki/AccountManagerPlugin ;}
 accountmanager-url(){     echo http://trac-hacks.org/svn/accountmanagerplugin/$(accountmanager-obranch) ;}
-accountmanager-package(){ echo accountmanager ; }
+accountmanager-pkgname(){ echo acct_mgr ; }
 
 accountmanager-fix(){
    cd $(accountmanager-dir)   

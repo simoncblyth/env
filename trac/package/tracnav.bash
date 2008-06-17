@@ -21,7 +21,7 @@ tracnav-env(){
   export TRACNAV_BRANCH=$branch
 }
 
-tracnav-docurl(){   echo http:// ; }
+
 tracnav-url(){      echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$(tracnav-obranch) ;}
 tracnav-package(){  echo tracnav ; }
 
