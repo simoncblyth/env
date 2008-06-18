@@ -1,5 +1,8 @@
 
 dyb__usage(){
+
+ [ -z $BASH_SOURCE ] && echo oops : your bash lacks BASH_SOURCE ... its too old to play well with these functions 
+
 cat << EOU
 
     Define the below functions with :

@@ -10,11 +10,11 @@ cat << EOU
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
    local-layout    : set standard disk location variables 
    
-                            LOCAL_BASE
-							SYSTEM_BASE
-							VAR_BASE
-							USER_BASE
-							OUTPUT_BASE 
+                            LOCAL_BASE    : $LOCAL_BASE
+							SYSTEM_BASE   : $SYSTEM_BASE     system tools like svn 
+							VAR_BASE      : $VAR_BASE 
+							USER_BASE     : $USER_BASE
+							OUTPUT_BASE   : $OUTPUT_BASE
                                 
 
 
@@ -311,8 +311,11 @@ export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
 
 ## --------------  the prequisite base for most everything, ie where to pick up subversion + 
 
+local grid1_system_base=/disk/d4/dayabay/local
+
 export SYSTEM_BASE_U=$LOCAL_BASE
-export SYSTEM_BASE_P=/disk/d4/dayabay/local
+export SYSTEM_BASE_P=$grid1_system_base
+export SYSTEM_BASE_G1=$grid1_system_base
 
 vname=SYSTEM_BASE_$NODE_TAG
 eval _SYSTEM_BASE=\$$vname
