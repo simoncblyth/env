@@ -61,13 +61,16 @@ dyb-env(){
    export DYB__RELEASE=NuWa-$DYB_VERSION
    export DDR=$DYB/$DYB__RELEASE 
  
+
    [ "$NODE_TAG" == "C" ] && DDR=$HOME/NuWa-trunk
    
-   
+   export DDU=$DYB/   
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
+   local dyb__=$DDR/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+   [ -f $dyb__ ] && . $dyb__
 
    dyb-bv-setup
 
