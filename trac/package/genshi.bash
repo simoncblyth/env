@@ -1,5 +1,5 @@
 genshi-usage(){
-   package-usage  ${FUNCNAME/-*/}
+   package-fn  $FUNCNAME $*
    cat << EOU
    
      not needed for TRAC 0.10 
@@ -42,22 +42,22 @@ genshi-fix(){
 
 
 
-genshi-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-genshi-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-genshi-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+genshi-branch(){    package-fn  $FUNCNAME $* ; }
+genshi-basename(){  package-fn  $FUNCNAME $* ; }
+genshi-dir(){       package-fn  $FUNCNAME $* ; } 
+genshi-egg(){       package-fn  $FUNCNAME $* ; }
+genshi-get(){       package-fn  $FUNCNAME $* ; }
 
-genshi-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+genshi-install(){   package-fn  $FUNCNAME $* ; }
+genshi-uninstall(){ package-fn  $FUNCNAME $* ; }
+genshi-reinstall(){ package-fn  $FUNCNAME $* ; }
+genshi-enable(){    package-fn  $FUNCNAME $* ; }
 
-genshi-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-genshi-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-genshi-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-genshi-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
+genshi-status(){    package-fn  $FUNCNAME $* ; }
+genshi-auto(){      package-fn  $FUNCNAME $* ; }
+genshi-diff(){      package-fn  $FUNCNAME $* ; } 
+genshi-rev(){       package-fn  $FUNCNAME $* ; } 
+genshi-cd(){        package-fn  $FUNCNAME $* ; }
 
-genshi-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-genshi-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-genshi-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-genshi-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-genshi-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
-
-genshi-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+genshi-fullname(){  package-fn  $FUNCNAME $* ; }
 

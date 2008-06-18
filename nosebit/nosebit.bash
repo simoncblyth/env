@@ -55,7 +55,7 @@ nosebit-install-test(){
 
 
 nosebit-install(){ 
- pkg-install $(cat << EOT
+ pkg_install $(cat << EOT
      nose    http://python-nose.googlecode.com/svn/tags/0.10.3-release              524
    xmlnose   http://dayabay.phys.ntu.edu.tw/repos/env/trunk/xmlnose                 HEAD
    bitten    http://svn.edgewall.org/repos/bitten/branches/experimental/trac-0.11   547
@@ -63,7 +63,7 @@ EOT)
 }
 
 nosebit-entry-check(){
-  pkg-entry-check easy_install nosetests bitten-slave
+  pkg_entry_check easy_install nosetests bitten-slave
 }
 
 

@@ -24,6 +24,8 @@ cat << EOU
            utilities targeted to the named instance, defaulting to TRAC_INSTANCE
 
 
+     trac-status 
+         report the 
    
 
 

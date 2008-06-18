@@ -75,11 +75,11 @@ cat << EOU
         the checked out folder to the folder with the setup.py must be echoed by 
         an $name-reldir function  
 
-    $name-fullname  : $($name-fullname)
+    $name-fullname  : \$($name-fullname)
        <name>-<version> string from setup.py --fullname , used to predict the egg name
     
      
-    $name-egg          :   $($name-egg)
+    $name-egg          :   \$($name-egg)
          gleaned using \$ENV_HOME/python/pkgmeta.py examination of setup.py
          BUT :
             tis getting the name wrong with dev and native eggs 
@@ -114,7 +114,7 @@ cat << EOU
            
            
     $name-uninstall :
-           remove the $($name-egg) and easy-install.pth reference
+           remove the \$($name-egg) and easy-install.pth reference
            
     $name-update    :
           invoke $name-get, $name-uninstall and $name-install

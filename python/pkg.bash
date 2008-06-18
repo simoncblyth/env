@@ -1,57 +1,60 @@
 
-pkg-env(){
+pkg_env(){
    # making minimum usage of environment for transportability
    echo -n
 }
 
-pkg-usage(){
+pkg_usage(){
 
    cat << EOU
 
+       All functions are wrt to the python in your path ... 
+       so make sure its the desired one :
+
        \$(which python) : $(which python)
 
-       pkg-importable-  <pkgname>
+       pkg_importable_  <pkgname>
              detect package by attempting to import ... caution this is 
              dependant on the directory you run it from as well as PYTHONPATH 
              eg :
-                 pkg-importable- bitten && echo yep || echo nope
+                 pkg_importable_ bitten && echo yep || echo nope
 
 
-       pkg-eggname-  <pkgname>
+       pkg_eggname_  <pkgname>
              determine the name of the egg from path reported by pkgname.__file__ 
-       pkg-eggname <pkgname>
+       pkg_eggname <pkgname>
              invokes pkg-eggname- returning a blank in case of any error
            
-       pkg-eggrev-  <pkgname>
+       pkg_eggrev_  <pkgname>
              determine the svn revision for an egg, if the pkg is not found or does not
              have a revision return a blank
-       pkg-eggrev  <pkgname>
-             invokes pkg-eggrev- returning a blank in case of any error          
+       pkg_eggrev  <pkgname>
+             invokes pkg_eggrev_ returning a blank in case of any error          
                                 
            
                           
-       pkg-lastrev <pkgname>
+       pkg_lastrev <pkgname>
              parses svn info for the working copy at relative path <pkgname>
              plucking the last changed revision reported                                  
                                                         
                                                                                       
-       pkg-ezsetup 
+       pkg_ezsetup 
              download and run th ez_setup.py script making setuptools available
              to the python in your path, the invoking directory is used as the working
              directory
              
-       pkg-install <pkgname> <url> <revision> .. <pkgname2> <url2>  <rev2> ...
+       pkg_install <pkgname> <url> <revision> .. <pkgname2> <url2>  <rev2> ...
              subversion checkout and easy install using the invoking directory as the working directory
              to house svn checkouts/tarballs etc..  
        
-       pkg-uninstall <pkgname>
+       pkg_uninstall <pkgname>
            determine eggname, remove the egg and easy-install.pth reference 
          
            
-       pkg-site
+       pkg_site  : $(pkg_site)
             path of python site-packages 
             
-       pkg-ls 
+       pkg_ls 
             ls of site-packages
 
                           
@@ -68,9 +71,9 @@ EOU
 }
 
 
-pkg-importable-(){  python -c "import $1" 2> /dev/null ; }
+pkg_importable_(){  python -c "import $1" 2> /dev/null ; }
 
-pkg-eggname-(){    
+pkg_eggname_(){    
    
    # python gives relative paths when done from the source directory containing the package 
    # ... hence the tmp move
@@ -92,12 +95,12 @@ EOC)"
  
 }
 
-pkg-eggname(){
-  pkg-eggname- $* 2> /dev/null || echo -n 
+pkg_eggname(){
+  pkg_eggname_ $* 2> /dev/null || echo -n 
 }
 
 
-pkg-eggrev-(){
+pkg_eggrev_(){
 python -c "$(cat << EOC 
 import os ; 
 os.chdir('/tmp') ; 
@@ -109,11 +112,11 @@ print re.compile('dev_r(\d*)-').search(e).group(1)
 EOC)"
 }
 
-pkg-eggrev(){
-   pkg-eggrev- $* 2> /dev/null || echo -n 
+pkg_eggrev(){
+   pkg_eggrev_ $* 2> /dev/null || echo -n 
 }
 
-pkg-eggrev-deprecated-(){
+pkg_eggrev_deprecated_(){
   ## relies on knowing the distribution name ... not the package name ... so better to use other means
 python -c "$(cat << EOC
 import pkg_resources as pr ; 
@@ -133,16 +136,18 @@ EOC)"
 
 
 
-pkg-uninstall(){
+pkg_uninstall(){
 
    local msg="=== $FUNCNAME :"
    
+   
    local name=$1
-   local eggname=$(pkg-eggname- $name)
-   local site=$(pkg-site)
+   local eggname=$(pkg_eggname_ $name)
+   local site=$(pkg_site)
    local eggpath=$site/$eggname
    local pth=$site/easy-install.pth
    local cmd
+   local ans
    
    [ ! -f $pth ] && echo $msg ERROR no pth $pth && return 1
    
@@ -150,11 +155,13 @@ pkg-uninstall(){
       
       cmd="$SUDO rm -irf $eggpath "
       echo $cmd
-      eval $cmd
+      read -p "proceed with this command ?  enter YES to continue " ans 
+      [ "$ans" == "YES" ] && eval $cmd || echo $msg skipped 
       
       cmd="$SUDO env -i perl -pi -e \"s/^\.\/$eggname.*\n$//\" $pth "    
       echo $cmd
-      eval $cmd
+      read -p "proceed with this command ?  enter YES to continue " ans
+      [ "$ans" == "YES" ] && eval $cmd || echo $msg skipped 
     
    fi
    
@@ -163,45 +170,41 @@ pkg-uninstall(){
 
 
 
-pkg-lastrev(){
+pkg_lastrev(){
    ## env -i shields perl from the environment to avoid libutil problem
-   #svn info $1 > /dev/stderr
    svn info $1 | env -i perl -n -e 'm/^Last Changed Rev:\s*(\S*)\s*$/ && print $1 ' -
 }
 
 
-pkg-site(){
+pkg_site(){
   python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
 }
 
-pkg-ls(){
-  ls -l $(pkg-site)
+pkg_ls(){
+  ls -l $(pkg_site)
 }
 
 
-
-
-
-pkg-entry-check(){
+pkg_entry_check(){
  for name in $*
   do
      printf "%-20s : %s \n" $name $(which $name)
   done   
 }
 
-pkg-info(){
+pkg_info(){
    cat << EOI   
-      eggrev  : $(pkg-eggrev $1)
-      lastrev : $(pkg-lastrev $1)
+      eggrev  : $(pkg_eggrev $1)
+      lastrev : $(pkg_lastrev $1)
 EOI
 }
 
 
 
-pkg-install(){  
+pkg_install(){  
 
    local workdir=$PWD
-   pkg-ezsetup
+   pkg_ezsetup
    
    while [ $# -gt 0 ]
    do
@@ -211,9 +214,9 @@ pkg-install(){
      shift 3
      
      cd $workdir 
-     pkg-svnget $name $url $rev 
+     pkg_svnget $name $url $rev 
      
-     pkg-install- $name $rev
+     pkg_install_ $name $rev
     
    done
    
@@ -222,7 +225,7 @@ pkg-install(){
 
 
 
-pkg-install-(){
+pkg_install_(){
 
     local msg="=== $FUNCNAME :"
     local name=$1
@@ -232,9 +235,9 @@ pkg-install-(){
    
     if [ "$rev" == "HEAD" ]; then
       
-      pkg-info $name
-      local eggrev=$(pkg-eggrev $name)
-      local lastrev=$(pkg-lastrev $name) 
+      pkg_info $name
+      local eggrev=$(pkg_eggrev $name)
+      local lastrev=$(pkg_lastrev $name) 
       
       if [ "$eggrev" == "$lastrev" ]; then
          echo $msg the revision of the installed egg $eggrev matches the last changed revision so nothing to do 
@@ -245,7 +248,7 @@ pkg-install-(){
       fi
     
     else
-        pkg-importable- $name && echo $msg package $name is already importable uninstall it with \"pkg-uninstall $name\" to force reinstallation || easy_install .
+        pkg_importable_ $name && echo $msg package $name is already importable uninstall it with \"pkg_uninstall $name\" to force reinstallation || easy_install .
     
     fi
     cd $workdir
@@ -255,7 +258,7 @@ pkg-install-(){
 
 
 
-pkg-svnget(){
+pkg_svnget(){
 
    local msg="=== $FUNCNAME :"
    
@@ -286,20 +289,20 @@ pkg-svnget(){
 
 
 
-pkg-ezsetup(){
+pkg_ezsetup(){
 
     local msg="=== $FUNCNAME :"
-    pkg-importable- setuptools && echo $msg setuptools is already present && return 0 
+    pkg_importable_ setuptools && echo $msg setuptools is already present && return 0 
      
     local ezpy=ez_setup.py
-    [ ! -f $ezpy ] && pkg-download http://peak.telecommunity.com/dist/$ezpy
+    [ ! -f $ezpy ] && pkg_download http://peak.telecommunity.com/dist/$ezpy
   
     python $ezpy     
   
 }
 
 
-pkg-download () {
+pkg_download () {
     if [ -x "`which wget 2> /dev/null `" ] ; then
         echo "Downloading: wget $@"
         wget -nv $@

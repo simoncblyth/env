@@ -11,6 +11,7 @@ env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }
 root-(){        . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
 
+_dyb__(){       . $ENV_HOME/dyb/dyb__.sh              $* ; }
 dyb-(){         . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){        . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){        . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }

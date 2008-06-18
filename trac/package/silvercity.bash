@@ -53,7 +53,7 @@ silvercity-test(){
 silvercity-branch(){    package-fn $FUNCNAME $* ; }
 silvercity-basename(){  package-fn $FUNCNAME $* ; }
 silvercity-dir(){       package-fn $FUNCNAME $* ; } 
-
+silvercity-egg(){       package-fn $FUNCNAME $* ; }
 silvercity-get(){       package-fn $FUNCNAME $* ; }
 
 silvercity-install(){   package-fn $FUNCNAME $* ; }

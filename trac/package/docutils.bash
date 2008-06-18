@@ -42,7 +42,7 @@ docutils-basename(){
 docutils-branch(){    package-fn $FUNCNAME $* ; }
 
 docutils-dir(){       package-fn $FUNCNAME $* ; } 
-
+docutils-egg(){       package-fn $FUNCNAME $* ; }
 docutils-get(){       package-fn $FUNCNAME $* ; }
 
 docutils-install(){   package-fn $FUNCNAME $* ; }
