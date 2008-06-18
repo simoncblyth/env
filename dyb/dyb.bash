@@ -70,7 +70,12 @@ dyb-env(){
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
    local dyb__=$DDR/dybgaudi/Utilities/Shell/bash/dyb__.sh 
-   [ -f $dyb__ ] && . $dyb__
+   if [ -f $dyb__ ]; then
+      . $dyb__
+      ## workaround for older bash  
+      [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $DDR ; }
+   fi 
+
 
    dyb-bv-setup
 
