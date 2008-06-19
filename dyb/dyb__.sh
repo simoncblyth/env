@@ -17,12 +17,10 @@ cat << EOU
           local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
           if [ -f $dyb__ ]; then
              . $dyb__
-             [ -z $BASH_SOURCE ] && dyb__source(){ echo $dyb__ ; }     ## workaround for older bash 
+             [ -z $BASH_SOURCE ] &&  eval "function dyb__source(){ echo $dyb__ ; }"     ## workaround for older bash 
           fi 
       }     
       
-
-         
 
     dyb__  <relpath> :  
          default $(dyb__default)
@@ -44,16 +42,9 @@ cat << EOU
             ... these functions however are more suited to automated usage 
 
     dyb__siteroot :  $(dyb__siteroot)
-        siteroot obtained from the known depth of $BASH_SOURCE within the checkout
+        siteroot obtained from the known depth of $(dyb__source) within the checkout
         unfortunately this needs a newer bash version to work ... as a workaround
         
-        
-           
-  
-
-
-
-
     dyb__site  :
          invoke the site bootstrap setup.sh 
 
@@ -117,21 +108,21 @@ dyb__cmt(){
 
 dyb__(){   
     
-	dyb__site
-	 	
+    dyb__site
+         
     local msg="=== $FUNCNAME :"        
     local rel=${1:-$(dyb__default)}
-	local bas=$(basename $rel)
+    local bas=$(basename $rel)
     
-	# get rid of positional args to avoid a CMT warning 
+    # get rid of positional args to avoid a CMT warning 
     set --
-	
+    
     [ ! -d "$rel" ] && echo $msg ERROR argument rel $rel, no such directory && return 1 
     
     cd $rel
-	
-	if [ "$bas" == "cmt" ]; then
-	  	dyb__cmt
+    
+    if [ "$bas" == "cmt" ]; then
+        dyb__cmt
     elif [ -d "cmt" ]; then
         cd cmt 
         dyb__cmt
@@ -139,8 +130,8 @@ dyb__(){
     else
         echo $msg ERROR the relative path must end with the targeted cmt or its parent && return 1 
     fi
-	
-	# pwd
+    
+    # pwd
 }
 
 
