@@ -64,8 +64,9 @@ dyb-env(){
 
    [ "$NODE_TAG" == "C" ] && DDR=$HOME/NuWa-trunk
    
-   export DDU=$DYB/   
+      
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
+   export DDU=$DDR/dybgaudi/Utilities/Shell/bash
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
@@ -81,7 +82,9 @@ dyb-env(){
 dyb_hookup(){
 
     local ddr=$1
+    
     local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+    
     if [ -f $dyb__ ]; then
         . $dyb__
         [ -z $BASH_SOURCE ] && eval "function dyb__source(){  echo $dyb__ ; }"      ## workaround for older bash  
