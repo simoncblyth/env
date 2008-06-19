@@ -84,7 +84,7 @@ dyb_hookup(){
     local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
     if [ -f $dyb__ ]; then
         . $dyb__
-        [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $ddr ; }     ## workaround for older bash 
+        [ -z $BASH_SOURCE ] && dyb__source(){  echo $dyb__ ; }     ## workaround for older bash  
     fi 
 }
 

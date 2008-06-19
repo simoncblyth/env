@@ -1,9 +1,11 @@
 
-[ -z $BASH_SOURCE ] && BASH_SOURCE=$0
+
+
+dyb__source(){ echo $BASH_SOURCE ; }
 
 dyb__usage(){
 
- [ -z $BASH_SOURCE ] && echo oops : your bash lacks BASH_SOURCE ... its too old to play well with these functions 
+ [ -z $BASH_SOURCE ] && echo oops : your bash lacks BASH_SOURCE ... you will need the below workaround 
 
 cat << EOU
 
@@ -15,7 +17,7 @@ cat << EOU
           local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
           if [ -f $dyb__ ]; then
              . $dyb__
-             [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $ddr ; }     ## workaround for older bash 
+             [ -z $BASH_SOURCE ] && dyb__source(){ echo $dyb__ ; }     ## workaround for older bash 
           fi 
       }     
       
@@ -71,7 +73,7 @@ EOU
 
 dyb__test(){
    [ -z $ORIGINAL_PATH ] && echo $FUNCNAME depends on ORIGINAL_PATH && return 1 
-   env -i PATH=$ORIGINAL_PATH bash -noprofile -norc -c ". $BASH_SOURCE && dyb__ $* "
+   env -i PATH=$ORIGINAL_PATH bash -noprofile -norc -c ". $(dyb__source) && dyb__ $* "
 }
 
 
@@ -97,7 +99,7 @@ dyb__site(){
 }
 
 dyb__siteroot(){
-    echo $(dirname $(dirname $(dirname $(dirname $(dirname $BASH_SOURCE)))))
+    echo $(dirname $(dirname $(dirname $(dirname $(dirname $(dyb__source))))))
 }
 
 dyb__default(){
