@@ -1,4 +1,6 @@
 
+[ -z $BASH_SOURCE ] && BASH_SOURCE=$0
+
 dyb__usage(){
 
  [ -z $BASH_SOURCE ] && echo oops : your bash lacks BASH_SOURCE ... its too old to play well with these functions 
@@ -31,6 +33,7 @@ cat << EOU
          eg 
               dyb__ lcgcmt/LCG_Interfaces/ROOT/cmt  
               dyb__ lcgcmt/LCG_Interfaces/ROOT
+              
               dyb__ dybgaudi/DybRelease
 
          NB the function "dyb" from dybgaudi/Utilities/Shell/bash/dyb.sh
@@ -137,6 +140,7 @@ dyb__(){
 	
 	# pwd
 }
+
 
 
 #dyb__ $*
