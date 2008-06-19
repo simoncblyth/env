@@ -16,6 +16,7 @@ dyb-(){         . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){        . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){        . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
+dybpy-(){       . $ENV_HOME/dybpy/dybpy.bash && dybpy-env $* ; }
 
 
 apache2-(){     . $ENV_HOME/apache/apache2.bash && apache2-env $* ; } 
