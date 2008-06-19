@@ -85,7 +85,8 @@ dyb_hookup(){
     if [ -f $dyb__ ]; then
         . $dyb__
         [ -z $BASH_SOURCE ] && eval "function dyb__source(){  echo $dyb__ ; }"      ## workaround for older bash  
-    fi 
+        dyb__default(){ echo dybgaudi/Simulation/GenTools ; } 
+     fi 
 }
 
 

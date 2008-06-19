@@ -64,7 +64,11 @@ EOU
 
 dyb__test(){
    [ -z $ORIGINAL_PATH ] && echo $FUNCNAME depends on ORIGINAL_PATH && return 1 
-   env -i PATH=$ORIGINAL_PATH bash -noprofile -norc -c ". $(dyb__source) && dyb__ $* "
+   env -i PATH=$ORIGINAL_PATH bash -noprofile -norc -c "$(cat << EOC
+     . $(dyb__source) ;
+      [ -z \"$BASH_SOURCE\" ] &&  eval \"function dyb__source(){ echo $(dyb__source) ; }\"  ;  
+      dyb__ $* 
+     EOC)"
 }
 
 

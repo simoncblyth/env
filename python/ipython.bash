@@ -1,4 +1,10 @@
 
+
+ipython-env(){
+  elocal-
+}
+
+
 ipython-get(){
 
 
@@ -74,6 +80,75 @@ ipython-fix(){
     fi
 
 
+
+}
+
+
+
+ipython-readline(){
+
+   # recipe from http://ipython.scipy.org/moin/InstallationOSXLeopard 
+   # BUT turns out that the egg is in pypi already so can use the ez solution
+   #     http://pypi.python.org/pypi/readline/2.5.1
+   #
+
+   local iwd=$PWD
+   local dir=$LOCAL_BASE/env/ipython && mkdir -p $dir
+    cd $dir
+   
+   local nam=python-readline-leopard
+   local tgz=$nam-011808.tar.gz
+   local url=http://ipython.scipy.org/moin/InstallationOSXLeopard?action=AttachFile\&do=get\&target=$tgz
+  
+   [ ! -f $tgz ] && curl -o $tgz $url
+   [ ! -d $nam ] && tar zxvf $tgz
+   
+   cd $nam
+   tgz=readline-5.2.tar.gz
+   url=http://ftp.gnu.org/gnu/readline/$tgz
+   
+   egg=readline-2.5.1-py2.5-macosx-10.5-fat.egg
+   
+   [ ! -f $tgz ] && curl -o $tgz $url
+   [ ! -f $egg ] && ./build.sh
+
+   #cd $iwd
+}
+
+ipython-readline-ez(){
+   easy_install readline==2.5.1
+}
+
+
+ipython-easyinstall-log(){
+
+   # hmm seem to have double egged the pudding ?
+
+cat << EOL
+
+ easy_install readline-2.5.1-py2.5-macosx-10.5-fat.egg 
+Processing readline-2.5.1-py2.5-macosx-10.5-fat.egg
+creating /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages/readline-2.5.1-py2.5-macosx-10.5-fat.egg
+Extracting readline-2.5.1-py2.5-macosx-10.5-fat.egg to /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages
+Adding readline 2.5.1 to easy-install.pth file
+
+Installed /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages/readline-2.5.1-py2.5-macosx-10.5-fat.egg
+Processing dependencies for readline==2.5.1
+Searching for readline==2.5.1
+Reading http://pypi.python.org/simple/readline/
+Reading http://www.python.org/
+Best match: readline 2.5.1
+Downloading http://pypi.python.org/packages/2.5/r/readline/readline-2.5.1-py2.5-macosx-10.5-ppc.egg#md5=25ebe33023a003c8bb8ba7507944f29c
+Processing readline-2.5.1-py2.5-macosx-10.5-ppc.egg
+creating /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages/readline-2.5.1-py2.5-macosx-10.5-ppc.egg
+Extracting readline-2.5.1-py2.5-macosx-10.5-ppc.egg to /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages
+Removing readline 2.5.1 from easy-install.pth file
+Adding readline 2.5.1 to easy-install.pth file
+
+Installed /usr/local/dyb/trunk_dbg/external/Python/2.5/osx105_ppc_gcc401/lib/python2.5/site-packages/readline-2.5.1-py2.5-macosx-10.5-ppc.egg
+Finished processing dependencies for readline==2.5.1
+
+EOL
 
 }
 
