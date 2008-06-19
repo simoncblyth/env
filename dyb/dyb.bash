@@ -69,17 +69,26 @@ dyb-env(){
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
-   local dyb__=$DDR/dybgaudi/Utilities/Shell/bash/dyb__.sh 
-   if [ -f $dyb__ ]; then
-      . $dyb__
-      ## workaround for older bash  
-      [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $DDR ; }
-   fi 
+   
+   dyb_hookup $DDR
 
 
    dyb-bv-setup
 
 }
+
+
+dyb_hookup(){
+
+    local ddr=$1
+    local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+    if [ -f $dyb__ ]; then
+        . $dyb__
+        [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $ddr ; }     ## workaround for older bash 
+    fi 
+}
+
+
 
 
 dyb-find(){

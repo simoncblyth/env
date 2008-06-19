@@ -47,6 +47,13 @@ pkg_usage(){
              subversion checkout and easy install using the invoking directory as the working directory
              to house svn checkouts/tarballs etc..  
        
+       
+       pkg_svnget <pkgname> <pkgurl> <revision>
+             checkout or update, if the working copy is already at the specified revision 
+             (determined with svnversion) then skip the update unless a revision of HEAD is
+             specified
+       
+       
        pkg_uninstall <pkgname>
            determine eggname, remove the egg and easy-install.pth reference 
          

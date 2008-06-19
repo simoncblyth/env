@@ -5,9 +5,20 @@ dyb__usage(){
 
 cat << EOU
 
-    Define the below functions with :
-         . $BASH_SOURCE     
-        
+
+    Hookup the sourcing of this script into your environment with a function like :
+    
+      dyb_hookup(){
+          local ddr=$1
+          local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+          if [ -f $dyb__ ]; then
+             . $dyb__
+             [ -z $BASH_SOURCE ] && dyb__siteroot(){ echo $ddr ; }     ## workaround for older bash 
+          fi 
+      }     
+      
+
+         
 
     dyb__  <relpath> :  
          default $(dyb__default)
@@ -29,6 +40,14 @@ cat << EOU
 
     dyb__siteroot :  $(dyb__siteroot)
         siteroot obtained from the known depth of $BASH_SOURCE within the checkout
+        unfortunately this needs a newer bash version to work ... as a workaround
+        
+        
+           
+  
+
+
+
 
     dyb__site  :
          invoke the site bootstrap setup.sh 
