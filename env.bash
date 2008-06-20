@@ -237,5 +237,21 @@ env-local-dir(){
 
 
 
+env-rsync(){
+
+   local fold=${1:-dybpy}
+   local target=${2:-P}
+   
+   local cmd="rsync  -raztv $ENV_HOME/$fold/ $target:env/$fold/ --exclude '*.pyc' --exclude '.svn'  "
+    
+   echo $cmd 
+   eval $cmd
+
+}
+
+
+
+
+
 env-env
 
