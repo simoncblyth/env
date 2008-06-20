@@ -2,14 +2,15 @@
 import gaudimodule
 from gaudimodule import PyAlgorithm
 
-app = gaudimodule.AppMgr()
-evt = app.evtsvc()
-app.EvtSel = "NONE"
+#app = gaudimodule.AppMgr()
+#evt = app.evtsvc()
+#app.EvtSel = "NONE"
 
+import ROOT
 from PyCintex import *
-loadDictionary("libBaseEventDict")
+#loadDictionary("libBaseEventDict")
 loadDictionary("libGenEventDict")
-loadDictionary("libSimEventDict")
+#loadDictionary("libSimEventDict")
 loadDictionary("libHepMCRflx")
 loadDictionary("libCLHEPRflx")
 
@@ -31,12 +32,14 @@ class GenEventLook():
         self.xddc = xmldetdesc.XmlDetDescConfig()
     
         import gentools
-        self.gtc =gentools.GenToolsConfig(volume="/dd/Geometry/Pool/lvFarPoolIWS")
-    
+        self.gtc = gentools.GenToolsConfig(volume="/dd/Geometry/Pool/lvFarPoolIWS")
+        self.app = self.gtc.app
+        self.app.EvtSel = "NONE"
+        self.evt  = self.app.evtsvc()
+
 
     def run(self, n=1 ):
-        #app.run(self.gtc.nevents)
-        app.run(1)
+        self.app.run(self.gtc.nevents)
         self.dump()
         self.introspect()
 
@@ -50,10 +53,10 @@ class GenEventLook():
         /Event/Gen
         /Event/Gen/HepMCEvents
         """
-        evt.dump()
+        self.evt.dump()
         
     def introspect(self):
-        self.keyedcontainer = evt['/Event/Gen/HepMCEvents']
+        self.keyedcontainer = self.evt['/Event/Gen/HepMCEvents']
         e = self.hepmcevent = self.keyedcontainer[0]
         print "  generatorName %s " % ( e.generatorName() )
  
