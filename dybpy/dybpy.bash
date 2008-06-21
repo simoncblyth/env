@@ -3,6 +3,8 @@
 dybpy-env(){
   elocal-
   dyb-
+  
+  alias dpg="dybpy-;dybpy-gel"
 }
 
 dybpy-usage(){
@@ -119,7 +121,7 @@ dybpy-icmd(){
 
 dybpy-gel(){
    local i=${1:-i}
-   local cmd="dybpy-${i}cmd 'from dybpy import * ;gel = GenEventLook() ;gel.run() ;esv=gel.esv ;app=gel.app ;'"
+   local cmd="dybpy-${i}cmd 'from dybpy import * ;self = GenEventLook() ;self.run() ;esv=self.esv ;gen=self.gen ;hme=self.hme ;evt=self.evt ;prt=self.prt '"
    ## anti glob quotes
    echo "$cmd"
    eval "$cmd"
