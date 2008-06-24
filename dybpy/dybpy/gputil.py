@@ -1,6 +1,76 @@
+"""
+    This module provides the machinery for dressing of classes ... 
+    by adding/replacing the __repr__ methods, to get the classes to be 
+    more amenable interactively and adding a __props__ method to 
+    represent instances as simple dicts 
+    
+       http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/EventIntrospection
+   
+    Useful slides from Thomas Ruf :
+    
+       http://lhcb-reconstruction.web.cern.ch/lhcb-reconstruction/Python/GaudiPython_and_RawData.pdf 
+       http://lhcb-reconstruction.web.cern.ch/lhcb-reconstruction/Python/Dst_as_Ntuple_files/frame.htm
+      
+    libMathCore is loaded as a workaround for
+           http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/42
 
+    TODO:
+        the default repr provides the address of the object 
+        ... this should also be given in the replacement  ???
+  
+          
+     methods to check for useful output
+              StreamBuffer& KeyedObject<int>::serialize(StreamBuffer& s)
+                          
+"""
 
+import ROOT
+ROOT.gSystem.Load("libMathCore")  
 import GaudiPython as gp 
+import PyCintex as pc
+
+
+def __repr__(self):
+    """ pretty print a dict of the properties of the object 
+        if an __props__ method that returns the dict has been provided by 
+        or added to the class  
+    """
+    if hasattr(self,"__props__"):
+        return format_(self.__props__())
+    else:
+        return "<%s customized __repr__ not available due to lack of __props__ method  >" % self.__class__.__name__ 
+
+def __str__(self):
+    """ invokes the print or fillstream methods of the object if they have them 
+        to see this with newlines honoured use "print obj" rather than "str(obj)"
+    """
+    s = []
+    s.append( "<%s >" % self.__class__.__name__ )
+    pr = print_(self)
+    if pr:
+        s.append( pr )
+    fs = fillStream_(self)
+    if fs:
+        s.append( fs )
+    return "\n".join(s)
+
+                                    
+def dress_classes( klasses ):
+    """ replace the repr str methods of the classes """
+    for kln,prp in klasses.items(): 
+        kls = pc.makeClass(kln)
+        kls.__props__ = prp
+        kls.__repr__  = __repr__
+        kls.__str__   = __str__
+
+
+    
+def hdr_(self):
+    """ how to access the address of the object on the C++ side ?? """
+    d = {}
+    d.update( _class=self.__class__.__name__ )    
+    return d
+
 
 
 class irange(object):

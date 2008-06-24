@@ -26,6 +26,7 @@ class LookAlg(GaudiPython.PyAlgorithm):
         if hasattr(kco,"__props__"):
             self.items[len(self)]=kco.__props__()
         print kco
+        print repr(kco)
         return True
             
     def __repr__(self):
