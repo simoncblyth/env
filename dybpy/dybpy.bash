@@ -5,6 +5,7 @@ dybpy-env(){
   dyb-
   
   alias dpg="dybpy-;dybpy-gel"
+  alias dpt="dybpy-;dybpy-tst"
 }
 
 dybpy-usage(){
@@ -119,9 +120,18 @@ dybpy-icmd(){
 
 
 
+dybpy-tst(){
+   local i=${1:-i}
+   local cmd="dybpy-${i}cmd 'from dybpy import * ;unittest.main(module=\"dybpy\") '"
+   ## anti glob quotes
+   echo "$cmd"
+   eval "$cmd"
+}
+
+
 dybpy-gel(){
    local i=${1:-i}
-   local cmd="dybpy-${i}cmd 'from dybpy import * ;self = GenEventLook() ;self.run() ;esv=self.esv ;gen=self.gen ;hme=self.hme ;evt=self.evt ;prt=self.prt '"
+   local cmd="dybpy-${i}cmd 'from dybpy import * ;self = main([]) ;esv=self.esv ;gen=self.gen ;hme=self.hme ;evt=self.evt ;prt=self.prt '"
    ## anti glob quotes
    echo "$cmd"
    eval "$cmd"
