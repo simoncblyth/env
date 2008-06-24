@@ -52,11 +52,45 @@ class GenToolsTestConfig(object):
     def classname(self):
         return self.__tesmap__[self.location()]
 
+    def __digest__(self):
+        """ string of length 32, containing only hexadecimal digits ... 
+            that can be used to represent the identity of this object so long as 
+            all pertinent properties are included in the repr 
+        """
+        import md5
+        return md5.new(repr(self)).hexdigest()
+
+    def __props__(self):
+        """ most of the properties are auditing/operational things that will not
+            change the events generated ... so cannot automate the choice of properties 
+            that constitute the identity of the "run" 
+            
+            TODO: ? need to control the formatting of numbers to properly ignore 
+              architecture differences / rounding errors ...
+            
+        """
+ 
+        d = {}
+        for gtp in ["Location","GenName"]:
+            d[gtp] = getattr(self.gen, gtp )
+        
+        for gtn in self.gen.GenTools:
+            tool = g.property("ToolSvc.%s" % gtn)
+            d[gtn] = {}
+            for k,v in tool.properties().items():
+                d[gtn][k] = v.value()
+        return d
+        
+    def __repr__(self):
+        import pprint
+        return pprint.pformat( self.__props__() )
+        
+
     def identity(self):
         """  
            need to introspect all the properties that go into defining the run and digest it down 
            to an identity that provides the context for the events and their tests
         """
-        return "klop"   
+        return self.__digest__()  
 
 

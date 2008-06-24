@@ -1,6 +1,5 @@
 """
-
-
+ 
 """
 
 import unittest
@@ -49,8 +48,8 @@ def _configure():
 
 
 class GenEventLook():
-    """ looking into the result of dybgaudi/InstallArea/python/gentools.py  
-      
+    """ 
+         looking into the result of dybgaudi/InstallArea/python/gentools.py  
          this is now primarily to provide some objs for interactive inspection
     """
     def __init__(self,conf):
@@ -62,7 +61,9 @@ class GenEventLook():
         return self
 
     def discovery(self):
-        """ all the assertions are done by genrepr when printing kco  ... still here mainly to provide objs for interactive examination """
+        """ all the assertions are done by genrepr when printing kco  
+          ... still here mainly to provide objs for interactive examination 
+        """
         
         self.esv = g.evtsvc()
         kco = self.kco = self.esv[self.conf.location()]
