@@ -2,9 +2,22 @@
 import GaudiPython
 import unittest
 import pyutil
+import consistency 
 
-from gtconfig import gttc
+import gtconfig
 g = GaudiPython.AppMgr()
+gttc = None 
+
+def _configure():
+    global gttc
+    if gttc:
+        print "_configure reusing gttc "
+        return gttc
+    else:
+        print "_configure instantiating gttc "
+        alg = consistency.ConsistencyAlg()
+        gttc = gtconfig.GenToolsTestConfig(alg,volume="/dd/Geometry/Pool/lvFarPoolIWS")
+        return gttc
 
 
 class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
@@ -14,18 +27,18 @@ class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
     
     def setUp(self):
         self.log("setUp")  
-        global gttc
-        self.conf = gttc
+        self.conf = _configure()
+        self.alg = self.conf.algs['ConsistencyAlg']
+        assert issubclass(self.alg.__class__, GaudiPython.PyAlgorithm ) 
         
     def tearDown(self):
-        self.log("tearDown ... skip cleanup")
-        #self.conf.cleanup()
+        self.log("tearDown")
+        self.alg.reset()
         
     def testConsistencyOne(self):
         """ 
              testConsistencyOne
         """
-        
         
         self.log("testConsistencyOne")
         assert self.conf.location() == '/Event/Gen/HepMCEvents'
@@ -33,9 +46,8 @@ class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
         global g
         g.run(self.conf.nevents())
 
-        alg = self.conf.alg
-        alg.compare()
-        alg.save()
+        self.alg.compare()
+        self.alg.save()
 
 
     def testConsistencyTwo(self):
@@ -48,13 +60,10 @@ class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
         global g
         g.run(self.conf.nevents())
 
-        alg = self.conf.alg
-        alg.compare()
-        alg.save()
-
+        self.alg.compare()
+        self.alg.save()
 
 suite = unittest.makeSuite(ConsistencyTestCase,'test')
-
 
 def simple():
     g.run(gttc.nevents())

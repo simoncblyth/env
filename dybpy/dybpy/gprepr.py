@@ -18,12 +18,11 @@ def __repr__(self):
     assert self.__class__.__name__ in ['GaudiPython.Bindings.AppMgr','AppMgr'], "invalid classname %s " % repr(self.__class__.__name__)
     
     d = []
-    d.append("State... %s" % self.state() ) 
+    d.append("<%s> [%s] state:%s " % (self.__class__.__name__ , id(self) , self.state() ))
     d.append("TopAlg... [%s] " % len(self.TopAlg) ) 
-    
     for a in self.TopAlg:
         d.append(a)
-    return "\n".join(d)
+    return " ".join(d)
 
 
 #def __str__

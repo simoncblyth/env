@@ -1,8 +1,8 @@
 
-
 import GaudiPython
 import pyutil
-import pprint
+g = GaudiPython.AppMgr()
+
 
 class ConsistencyAlg(GaudiPython.PyAlgorithm, pyutil.PrintLogger):
     
@@ -10,12 +10,16 @@ class ConsistencyAlg(GaudiPython.PyAlgorithm, pyutil.PrintLogger):
         self.conf = conf
         self.esv = g.evtsvc()
         self.esv.dump()
+        self.reset()
+        return self
+    
+    def reset(self):
         self.log("reset items ")
         self.items = []
         self.log("after reset " , len=len(self.items) )
-        return self
     
     def report(self, a , b ):
+        import pprint
         return "\n".join( ["",pprint.pformat( a ) ," -------------- compared to ------------------ ", pprint.pformat( b )  ])
     
     def execute(self):

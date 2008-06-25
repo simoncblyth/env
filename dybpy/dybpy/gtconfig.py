@@ -5,7 +5,7 @@ import gprepr
 import pprint
 import os
 import pyutil
-import consistency 
+
 
 
 class GenToolsTestConfig(object,pyutil.PrintLogger):
@@ -19,13 +19,7 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
     
     __singleton = None
     
-    @classmethod
-    def configure(cls):
-        print "_configure "
-        print "instantiating gttc "
-        gttc = GenToolsTestConfig(volume="/dd/Geometry/Pool/lvFarPoolIWS")
-        return gttc
-    
+     
     def __new__(cls, *args, **kwargs):
         """
              ensure the instantiation of the conf only gets done once ...
@@ -41,29 +35,42 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         print "returning singleton "
         return cls.__singleton
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         if self.__class__.__singleton:
             self.log("skipping __init__ ")
             return
         self.log( "proceeding to  __init__ " )
-        self.config(**kwargs)
+        self.config(*args, **kwargs)
 
-    def config(self, **atts):
-    
+
+    def att_split(self, **atts):
+        gtc_att = {}
+        app_att = {}
+        for k,v in atts.items():
+            if k in ['volume']:
+                gtc_att[k] = v
+            else:
+                app_att[k] = v
+        return gtc_att, app_att
+
+
+    def config(self, *args, **atts):
+
+        gtc_att,app_att = self.att_split(**atts)
+        ol = 'outputlevel' in app_att and app_att['outputlevel'] or 5
+        app_att.update( outputlevel=ol )
+        
+        self.algs = {}
+        
         global g
-        
-        ol = 'outputlevel' in atts and atts['outputlevel'] or 5
-        
-        g = GaudiPython.AppMgr(outputlevel=ol)        
-        g.EvtSel = "NONE"
-        
-        self.log( "appmgr before config %s " % repr(g) , ol=ol ) 
+        g = GaudiPython.AppMgr(**app_att)        
+        g.EvtSel = "NONE"        
+        self.log( "appmgr before config %s " % repr(g) , **app_att ) 
         
         import xmldetdesc
         xddc = xmldetdesc.XmlDetDescConfig()
         import gentools
-        self.conf = gentools.GenToolsConfig(**atts)
-        
+        self.conf = gentools.GenToolsConfig(**gtc_att)
         self.gen = gen = g.algorithm("Generator")
         
         ## modify the config after the fact
@@ -75,15 +82,21 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         gun.OutputLevel = ol
     
         print g 
-        
         print "instanciate and init the alg  "
-        self.alg = consistency.ConsistencyAlg().init(self)
-        print "addAlgorithm %s " % repr(self.alg)
-        g.addAlgorithm(self.alg)
-       
+        
+        for arg in args:
+            if issubclass(arg.__class__,GaudiPython.PyAlgorithm):
+                alg = arg
+                print "adding alg %s " % repr(alg)
+                alg.init(self)
+                g.addAlgorithm(alg)
+                self.algs[alg.name()] = alg
+            else:
+                print "skipping arg %s " % arg
+        
         self.log( "appmgr after config %s " % repr(g) )
          
-                   
+    
         
     def cleanup(self):
         """ otherwise accumulate algs """
@@ -174,10 +187,6 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
             return o
         return None
         
-
-
-
-gttc = GenToolsTestConfig.configure()
 
 
 
