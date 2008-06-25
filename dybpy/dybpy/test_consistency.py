@@ -1,88 +1,67 @@
 
 import GaudiPython
 import unittest
+import pyutil
 
-class ConsistencyAlg(GaudiPython.PyAlgorithm):
-    
-    def init(self, conf ):
-        self.conf = conf
-        self.esv = g.evtsvc()
-        self.esv.dump()
-        self.items = {}
-        return self
-    
-    def execute(self):
-        """ add a comparison to a persisted repr here maybe in kls __cmp__ ??  """
-        loc = self.conf.location()
-        print "<%s %s>" % (self.__class__.__name__ , loc )
-    
-        kco = self.esv[loc]
-        assert kco.__class__.__name__ == self.conf.classname()
-        if hasattr(kco,"__props__"):
-            self.items[len(self)]=kco.__props__()
-        print kco
-        return True
-            
-    def __repr__(self):
-        return "<%s>" % self.__class__.__name__
-    def __getitem__(self,key):
-        return key in self.items and self.items[key] or None
-    def __len__(self):
-        return len(self.items)
-        
+from gtconfig import gttc
+g = GaudiPython.AppMgr()
 
 
-
-def _configure():
-    import gtconfig
-    conf = gtconfig.GenToolsTestConfig( volume="/dd/Geometry/Pool/lvFarPoolIWS" )
-    global g
-    g = conf.g
-    alg = ConsistencyAlg().init(conf)
-    g.addAlgorithm(alg)
-    return conf
-
-
-
-class ConsistencyTestCase(unittest.TestCase):
+class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
     """ 
           incompleteness of cleanup means setup/teardown can not be used much                            
     """
     
     def setUp(self):
-        self.conf = _configure()
-
+        self.log("setUp")  
+        global gttc
+        self.conf = gttc
+        
     def tearDown(self):
-        pass
+        self.log("tearDown ... skip cleanup")
+        #self.conf.cleanup()
         
     def testConsistencyOne(self):
-        """ assertions in the execute method of the alg will be triggered if constraints are violated """
+        """ 
+             testConsistencyOne
+        """
         
-        print "run test "
+        
+        self.log("testConsistencyOne")
         assert self.conf.location() == '/Event/Gen/HepMCEvents'
         assert self.conf.nevents() == 10
+        global g
         g.run(self.conf.nevents())
+
+        alg = self.conf.alg
+        alg.compare()
+        alg.save()
 
 
     def testConsistencyTwo(self):
-        """ assertions in the execute method of the alg will be triggered if constraints are violated """
-        
+        """ 
+             testConsistencyTwo 
+        """
+        self.log("testConsistencyTwo> " )
         assert self.conf.location() == '/Event/Gen/HepMCEvents'
         assert self.conf.nevents() == 10
+        global g
         g.run(self.conf.nevents())
 
-
+        alg = self.conf.alg
+        alg.compare()
+        alg.save()
 
 
 suite = unittest.makeSuite(ConsistencyTestCase,'test')
 
 
-if __name__ == '__main__':
-    #unittest.TextTestRunner(verbosity=2).run(suite)
-
-    conf =  _configure()
-    g.run(conf.nevents())
+def simple():
+    g.run(gttc.nevents())
     g.exit()
+
+if __name__ == '__main__':
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 
 

@@ -1,8 +1,14 @@
 
-
 import GaudiPython
+import genrepr 
+import gprepr 
+import pprint
+import os
+import pyutil
+import consistency 
 
-class GenToolsTestConfig(object):
+
+class GenToolsTestConfig(object,pyutil.PrintLogger):
     """ 
          intermediary to present a standard interface for disparate configs to the tests 
     """
@@ -13,38 +19,79 @@ class GenToolsTestConfig(object):
     
     __singleton = None
     
+    @classmethod
+    def configure(cls):
+        print "_configure "
+        print "instantiating gttc "
+        gttc = GenToolsTestConfig(volume="/dd/Geometry/Pool/lvFarPoolIWS")
+        return gttc
+    
     def __new__(cls, *args, **kwargs):
         """
-            ensure the instantiation of the conf only gets done once ...
-            forced by incomplete GaudiPython cleanup
+             ensure the instantiation of the conf only gets done once ...
+             forced by incomplete GaudiPython cleanup
         """
-        if not cls.__singleton:
+        if cls.__singleton==None:
+            print "instanciating singleton "
             obj = object.__new__( cls, *args, **kwargs )
+            print "calling __init__ "
             cls.__init__(obj, *args, **kwargs)
+            print "__init_ done "
             cls.__singleton = obj
+        print "returning singleton "
         return cls.__singleton
 
+    def __init__(self, **kwargs):
+        if self.__class__.__singleton:
+            self.log("skipping __init__ ")
+            return
+        self.log( "proceeding to  __init__ " )
+        self.config(**kwargs)
+
+    def config(self, **atts):
     
-    def __init__(self, **atts ):
-        """
-                http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/43             
-        """
-        
         global g
-        self.g = g = GaudiPython.AppMgr(outputlevel=5)        
-        #g.initialize()      http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/44
+        
+        ol = 'outputlevel' in atts and atts['outputlevel'] or 5
+        
+        g = GaudiPython.AppMgr(outputlevel=ol)        
         g.EvtSel = "NONE"
+        
+        self.log( "appmgr before config %s " % repr(g) , ol=ol ) 
         
         import xmldetdesc
         xddc = xmldetdesc.XmlDetDescConfig()
         import gentools
         self.conf = gentools.GenToolsConfig(**atts)
         
-        g.initialize()
-        import genrepr 
         self.gen = gen = g.algorithm("Generator")
         
+        ## modify the config after the fact
         
+        g.removeAlgorithm('GtHepMCDumper/Dumper')
+        msv = g.service("MessageSvc")
+        msv.OutputLevel = ol
+        gun = g.property("ToolSvc.GtGunGenTool")
+        gun.OutputLevel = ol
+    
+        print g 
+        
+        print "instanciate and init the alg  "
+        self.alg = consistency.ConsistencyAlg().init(self)
+        print "addAlgorithm %s " % repr(self.alg)
+        g.addAlgorithm(self.alg)
+       
+        self.log( "appmgr after config %s " % repr(g) )
+         
+                   
+        
+    def cleanup(self):
+        """ otherwise accumulate algs """
+        for alg in self.g.TopAlg:
+            self.log("cleanup removeAlgoritm %s " % alg )
+            self.g.removeAlgorithm(alg)
+    
+                    
     def nevents(self):
         return self.conf.nevents
     def location(self):
@@ -78,11 +125,11 @@ class GenToolsTestConfig(object):
             tool = g.property("ToolSvc.%s" % gtn)
             d[gtn] = {}
             for k,v in tool.properties().items():
-                d[gtn][k] = v.value()
+                if k not in ['OutputLevel']:
+                    d[gtn][k] = v.value()
         return d
         
     def __repr__(self):
-        import pprint
         return pprint.pformat( self.__props__() )
         
 
@@ -92,5 +139,46 @@ class GenToolsTestConfig(object):
            to an identity that provides the context for the events and their tests
         """
         return self.__digest__()  
+
+
+    def path(self, n ):
+        """   relative based on the identity of the configuration """
+        #return "%s/%s/%s.py" % ( self.identity() , self.location().lstrip("/") , n ) 
+        name = n == -1 and "conf" or "%0.3d" % n 
+        return "%s/%s.py" % ( self.identity() , name ) 
+        
+    def save(self, n , obj):
+        """ 
+           persist the repr of the object 
+           for n of zero the repr of the conf is also saved 
+        """
+        
+        assert type(n) == int and n > -2
+        if n==0:
+            self.save( -1, self)
+        
+        p = self.path(n)
+        #print "saving to %s " % p
+        pp = os.path.dirname(p)
+        if not(os.path.exists(pp)):
+            os.makedirs(pp)
+        file(p,"w").write(pprint.pformat(obj)+"\n")
+
+    def load(self, n ):
+        """ revivify the repr with eval ... assumes it is a valid expression """  
+        p = self.path(n)
+        #print "loading from %s " % p 
+        if os.path.exists(p):
+            r = file(p).read()
+            o = eval(r)
+            return o
+        return None
+        
+
+
+
+gttc = GenToolsTestConfig.configure()
+
+
 
 
