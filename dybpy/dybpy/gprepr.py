@@ -38,6 +38,9 @@ def iProperty__repr__(self):
 
 
 
+
+
+
 GaudiPython.Bindings.AppMgr.__repr__=AppMgr__repr__
 #GaudiPython.Bindings.iAlgTool.__repr__ = iAlgTool__repr__
 GaudiPython.Bindings.iProperty.__repr__ = iProperty__repr__

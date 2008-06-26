@@ -17,9 +17,9 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
          intermediary to present a standard interface for disparate configs to the tests 
     """
     __tesmap__={ 
-          '/Event/Gen/HepMCEvents':
-               'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >' 
-               }
+          '/Event/Gen/HepMCEvents':'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >', 
+            '/Event/Gen/GenHeader':'DayaBay::GenHeader'
+                 }
     
     __singleton = None
     
@@ -47,17 +47,7 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         self.config(*args, **kwargs)
 
 
-    def att_split(self, **atts):
-        gtc_att = {}
-        app_att = {}
-        for k,v in atts.items():
-            if k in ['volume']:
-                gtc_att[k] = v
-            else:
-                app_att[k] = v
-        return gtc_att, app_att
-
-
+   
     def config(self, *args, **atts):
         """        
            seems g.EvtSel must be NONE for generator case ??
@@ -70,33 +60,55 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
            working 
    
         """
-        gtc_att,app_att = self.att_split(**atts)
-        ol = 'outputlevel' in app_att and app_att['outputlevel'] or 5
-        app_att.update( outputlevel=ol )
+       
+        ol = 'outputlevel' in atts and atts['outputlevel'] or 5
         
-        self.algs = {}
-        
+        self.algs = {}        
         global g
-        g = GaudiPython.AppMgr(**app_att)    
-        g.EvtSel = "NONE"         ## removing this prevents any gen events ...  
-        self.log( "appmgr before config %s " % repr(g) , **app_att ) 
+        g = GaudiPython.AppMgr(**atts)     
+        self.log( "appmgr before config %s " % repr(g) , **atts ) 
         
-            
         import gentools
-        
+        #
         #  comment the app.run(10) 
         #  !vi /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi/InstallArea/python/gentools.py
-              
+        #  modify the config after the fact
+                    
         self.gen = gen = g.algorithm("GenAlg")
+        gsq = g.algorithm("GenSeq")
         
-        ## modify the config after the fact
+        dmp = "GtHepMCDumper/GenDump"
+        if dmp in gsq.Members:
+            g.removeAlgorithm(dmp)
+
+        print "reset the positioner tool volume " 
+        #volume = '/dd/Geometry/AD/lvAD'
+        #volume = '/dd/Structure/steel-2/water-2'
+        #volume = '/dd/Structure/Pool/la-iws'
+        volume = '/dd/Structure/AD/la-gds1'
         
-        #g.removeAlgorithm("GtHepMCDumper/GenDump")
-        g.removeAlgorithm("GenDump")
-        msv = g.service("MessageSvc")
-        msv.OutputLevel = ol
-        gun = g.property("ToolSvc.GtGunGenTool")
-        gun.OutputLevel = ol
+        poser = g.property("ToolSvc.GtPositionerTool")
+        poser.Volume = volume
+        trans = g.property("ToolSvc.GtTransformTool")
+        trans.Volume = volume
+        
+        
+        gen = g.algorithm("GenAlg")
+#gen.OutputLevel = 1
+        gen.GenTools = [ "GtGunGenTool", "GtTimeratorTool" ]
+        ## get rid of position and tranform tools as they are not finding the detector element
+        
+        
+        #pot = g.toolsvc().create("GtPositionerTool")
+        #trt = g.toolsvc().create("GtTransformTool")
+        #trt.Volume = pot.Volume = None
+    
+    
+
+        #msv = g.service("MessageSvc")
+        #msv.OutputLevel = ol
+        #gun = g.property("ToolSvc.GtGunGenTool")
+        #gun.OutputLevel = ol
     
         print g 
         print "instanciate and init the alg  "

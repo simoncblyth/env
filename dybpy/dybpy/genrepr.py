@@ -15,6 +15,7 @@
 import gputil
 from gputil import hdr_ as _hdr
 
+import ROOT
 import PyCintex as pc
 
 #pc.loadDictionary("libBaseEventDict")
@@ -83,6 +84,38 @@ def _DayaBay__HepMCEvent(self):
 
     
         
+def _DayaBay_GenHeader(self):
+    assert self.__class__.__name__ == 'DayaBay::GenHeader'
+    from gputil import hdr_ as _hdr
+    d = _hdr(self)
+    
+    skips = ['serialize','fillStream','inputHeaders','linkMgr','randomState','registry']
+    times = [ 'earliest','latest','timeStamp' ]
+   
+    
+    meths = [x for x in dir(self) if callable(getattr(self,x))]
+    for meth in meths:
+        if meth[0:3] not in ['add','set'] and meth not in skips and not meth[0].isupper() and not meth[0] == "_" :
+            if meth == "event":
+                d[meth] = _HepMC__GenEvent( self.event() )
+            elif meth in times:
+                if 0:
+                    its = ROOT.TimeStamp()
+                    its = getattr(self,meth)()
+                    d[meth] = its.AsString()
+                    del its
+            else:
+                r = getattr(self , meth )()
+                d[meth]=repr(r) 
+    return d
+          
+ 
+def _TimeStamp(self):
+    assert self.__class__.__name__ == 'TimeStamp'
+    d = _hdr(self)
+    return d
+                                    
+        
 def _KeyedContainer_DayaBay__HepMCEvent(self):
     assert self.__class__.__name__ == 'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >'
     d = _hdr(self)
@@ -106,6 +139,7 @@ gputil.dress_classes(
  'CLHEP::HepLorentzVector':_CLHEP__HepLorentzVector,
      'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >':
                _KeyedContainer_DayaBay__HepMCEvent,
+        'DayaBay::GenHeader':_DayaBay_GenHeader ,
    }
 )
 

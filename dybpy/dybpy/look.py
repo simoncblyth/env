@@ -2,11 +2,12 @@
  
 """
 import GaudiPython
+
 import genrepr
 import gtconfig
 import gputil
 
-g = GaudiPython.AppMgr()
+from GaudiPython import AppMgr ; g = AppMgr()
 
 
 def reload_():
@@ -43,32 +44,33 @@ def _configure():
     else:
         print "_configure instantiating gttc "
         alg = LookAlg()
-        gttc = gtconfig.GenToolsTestConfig(alg,volume="/dd/Geometry/Pool/lvFarPoolIWS")
+        gttc = gtconfig.GenToolsTestConfig(alg)
         return gttc
 
 
 if __name__ == '__main__':
 
     conf = _configure()
-    g.run(conf.nevents())
+    g.run(3)
     
     esv = g.evtsvc()
     kco = esv[conf.location()]
   
-    assert kco.__class__.__name__ == 'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >'
-    print "\nkco", kco
+    ##assert kco.__class__.__name__ == 'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >'
+    #assert kco.__class__.__name__ == 'DayaBay::GenHeader'
+    #print "\nkco", kco
        
-    hme =  kco[0]
-    assert hme.__class__.__name__ == 'DayaBay::HepMCEvent'
+    #hme =  kco[0]
+    #assert hme.__class__.__name__ == 'DayaBay::HepMCEvent'
      
-    evt = hme.event()
-    assert evt.__class__.__name__ == 'HepMC::GenEvent'
-    assert evt.particles_size() == 1
+    #evt = hme.event()
+    #assert evt.__class__.__name__ == 'HepMC::GenEvent'
+    #assert evt.particles_size() == 1
         
-    pdg_ids=[]
-    for prt in gputil.irange(evt.particles_begin(),evt.particles_end()):
-        assert prt.__class__.__name__ == 'HepMC::GenParticle'
-        pdg_ids.append(prt.pdg_id())      
+    #pdg_ids=[]
+    #for prt in gputil.irange(evt.particles_begin(),evt.particles_end()):
+    #    assert prt.__class__.__name__ == 'HepMC::GenParticle'
+    #    pdg_ids.append(prt.pdg_id())      
 
     
  
