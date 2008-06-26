@@ -10,8 +10,13 @@
 
 
 import GaudiPython 
+import pprint 
 
-def __repr__(self):
+def hdr(self):
+    return "<%s> [0x%08X] " % ( self.__class__.__name__ , id(self) )
+
+
+def AppMgr__repr__(self):
     """
         huh sometimes class name if AppMgr 
     """
@@ -25,8 +30,19 @@ def __repr__(self):
     return " ".join(d)
 
 
-#def __str__
+def iProperty__repr__(self):
+    d = {}
+    for k,v in self.properties().items():
+        d[k] = v.value()
+    return "\n".join([hdr(self),pprint.pformat(d)])
 
 
 
-GaudiPython.Bindings.AppMgr.__repr__=__repr__
+GaudiPython.Bindings.AppMgr.__repr__=AppMgr__repr__
+#GaudiPython.Bindings.iAlgTool.__repr__ = iAlgTool__repr__
+GaudiPython.Bindings.iProperty.__repr__ = iProperty__repr__
+
+
+def reload_():
+    import sys
+    reload(sys.modules[__name__])

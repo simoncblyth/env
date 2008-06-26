@@ -4,6 +4,11 @@ import pyutil
 g = GaudiPython.AppMgr()
 
 
+def reload_():
+    import sys
+    reload(sys.modules[__name__])
+
+
 class ConsistencyAlg(GaudiPython.PyAlgorithm, pyutil.PrintLogger):
     
     def init(self, conf ):
@@ -21,6 +26,12 @@ class ConsistencyAlg(GaudiPython.PyAlgorithm, pyutil.PrintLogger):
     def report(self, a , b ):
         import pprint
         return "\n".join( ["",pprint.pformat( a ) ," -------------- compared to ------------------ ", pprint.pformat( b )  ])
+    
+    def initialize(self):
+        self.log("initialize ")
+        
+    def finalize(self):
+        self.log("finalize")
     
     def execute(self):
         """

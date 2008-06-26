@@ -30,8 +30,9 @@ import GaudiPython as gp
 import PyCintex as pc
 
 
-
-
+def reload_():
+    import sys
+    reload(sys.modules[__name__])
 
 def __repr__(self):
     """ pretty print a dict of the properties of the object 
@@ -67,6 +68,21 @@ def dress_classes( klasses ):
         kls.__str__   = __str__
 
 
+def undress_classes( klasses ):
+    """ may be unneeded ...
+        call the base repr like so 
+           object.__repr__(obj)
+    """
+    for kln,prp in klasses.items(): 
+        kls = pc.makeClass(kln)
+        if hasattr(kls,'__props__'):
+            del kls.__props__ 
+        if hasattr(kls,'__repr__'):
+            del kls.__repr__ 
+        if hasattr(kls,'__str__'):
+            del kls.__str__ 
+    
+    
     
 def hdr_(self):
     """ how to access the address of the object on the C++ side ?? """

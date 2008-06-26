@@ -7,6 +7,10 @@ import os
 import pyutil
 
 
+def reload_():
+    import sys
+    reload(sys.modules[__name__])
+
 
 class GenToolsTestConfig(object,pyutil.PrintLogger):
     """ 
@@ -55,7 +59,17 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
 
 
     def config(self, *args, **atts):
+        """        
+           seems g.EvtSel must be NONE for generator case ??
+           looking at   gaudi/GaudiSvc/src/EventSelector/EventSelector.cpp
+           indicates the g.evtsel() is a stream handler, i dont think the 
+           generators are hooked into this ?  
 
+           so this means no hope of
+                  g.evtsel().rewind()
+           working 
+   
+        """
         gtc_att,app_att = self.att_split(**atts)
         ol = 'outputlevel' in app_att and app_att['outputlevel'] or 5
         app_att.update( outputlevel=ol )
@@ -63,8 +77,8 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         self.algs = {}
         
         global g
-        g = GaudiPython.AppMgr(**app_att)        
-        g.EvtSel = "NONE"        
+        g = GaudiPython.AppMgr(**app_att)    
+        g.EvtSel = "NONE"         ## removing this prevents any gen events ...  
         self.log( "appmgr before config %s " % repr(g) , **app_att ) 
         
         import xmldetdesc
@@ -96,7 +110,6 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         
         self.log( "appmgr after config %s " % repr(g) )
          
-    
         
     def cleanup(self):
         """ otherwise accumulate algs """

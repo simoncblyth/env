@@ -16,8 +16,9 @@ cat << EOU
                                         checks existance of $SITEROOT/lcgcmt/LCG_Interfaces/$pkg/cmt/requirements
    
    
-   dybi-log             :   do the -linklog and follow the installation tail 
-      dybi-linklog      :   link the installation log ... now done automatically ?
+   #dybi-log             :   do the -linklog and follow the installation tail 
+   #dybi-linklog         :   link the installation log ... now done automatically ?
+   #
    
    dybi-nohup           :   nohuped invokation of dybi-install 
                             has a known issue in failing to completely build Geant4, 
@@ -27,6 +28,7 @@ cat << EOU
    dybi-install-screen  :  the install thru screen for disconnection immunity  
    
    dybi-install         :  run dybinst 
+   dybi-tail            :  tail -f on the dybinst-recent.log  
    
    dybi-dbglink         :  create the link needed for debug installs ... ? did i automate this ?
    dybi-override        :  create the "_extra" files that switch on debug 
@@ -135,19 +137,19 @@ dybi-check(){
   fi
 }
 
-dybi-linklog(){
-  cd $DYB
-  rm -f dybinst.log
-  local log=$(ls -tr dybinst-*.log|tail -1)
-  local cmd="ln -s $log dybinst.log"
-  echo === dybi-linklog $cmd ===
-  eval $cmd 
-}
+#dybi-linklog(){
+#  cd $DYB
+#  rm -f dybinst.log
+#  local log=$(ls -tr dybinst-*.log|tail -1)
+#  local cmd="ln -s $log dybinst.log"
+#  echo === dybi-linklog $cmd ===
+#  eval $cmd 
+#}
 
-dybi-log(){
+dybi-tail(){
   cd $DYB
-  dybi-linklog
-  tail -f dybinst.log
+  #dybi-linklog
+  tail -f dybinst-recent.log
 }  
 
 dybi-nohup(){

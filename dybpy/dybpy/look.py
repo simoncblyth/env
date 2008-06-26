@@ -8,6 +8,11 @@ import gputil
 
 g = GaudiPython.AppMgr()
 
+
+def reload_():
+    import sys
+    reload(sys.modules[__name__])
+
 class LookAlg(GaudiPython.PyAlgorithm):
     
     def init(self, conf ):

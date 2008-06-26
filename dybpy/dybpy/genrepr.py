@@ -23,6 +23,10 @@ pc.loadDictionary("libGenEventDict")
 pc.loadDictionary("libHepMCRflx")
 pc.loadDictionary("libCLHEPRflx")
 
+def reload_():
+    import sys
+    reload(sys.modules[__name__])
+
 
 def _CLHEP__HepLorentzVector(self):
     assert self.__class__.__name__ == 'CLHEP::HepLorentzVector'
