@@ -81,15 +81,18 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         g.EvtSel = "NONE"         ## removing this prevents any gen events ...  
         self.log( "appmgr before config %s " % repr(g) , **app_att ) 
         
-        import xmldetdesc
-        xddc = xmldetdesc.XmlDetDescConfig()
+            
         import gentools
-        self.conf = gentools.GenToolsConfig(**gtc_att)
-        self.gen = gen = g.algorithm("Generator")
+        
+        #  comment the app.run(10) 
+        #  !vi /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi/InstallArea/python/gentools.py
+              
+        self.gen = gen = g.algorithm("GenAlg")
         
         ## modify the config after the fact
         
-        g.removeAlgorithm('GtHepMCDumper/Dumper')
+        #g.removeAlgorithm("GtHepMCDumper/GenDump")
+        g.removeAlgorithm("GenDump")
         msv = g.service("MessageSvc")
         msv.OutputLevel = ol
         gun = g.property("ToolSvc.GtGunGenTool")

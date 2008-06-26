@@ -90,6 +90,11 @@ dybpy-cmd(){
     python $* -c $cmd       
 }
 
+dybpy-cd(){
+   cd $ENV_HOME/dybpy/dybpy
+}
+
+
 dybpy-icmd(){
     local msg="=== $FUNCNAME :"
     local cmd=$1
@@ -135,6 +140,13 @@ dybpy-gel(){
    ## anti glob quotes
    echo "$cmd"
    eval "$cmd"
+}
+
+
+dybpy-look(){
+   dyb__ dybgaudi/Simulation/GenTools  
+   cd $ENV_HOME/dybpy/dybpy
+   ipython look.py
 }
 
 
