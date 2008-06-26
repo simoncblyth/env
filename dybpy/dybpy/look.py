@@ -26,12 +26,12 @@ class LookAlg(GaudiPython.PyAlgorithm):
     def execute(self):
         loc = self.conf.location()
         print "<%s %s>" % (self.__class__.__name__ , loc )    
-        kco = self.esv[loc]
-        assert kco.__class__.__name__ == self.conf.classname()
-        if hasattr(kco,"__props__"):
-            self.items.append(kco.__props__())
-        print kco
-        print repr(kco)
+        #kco = self.esv[loc]
+        #assert kco.__class__.__name__ == self.conf.classname()
+        #if hasattr(kco,"__props__"):
+        #    self.items.append(kco.__props__())
+        #print kco
+        #print repr(kco)
         return True
             
 
@@ -51,7 +51,7 @@ def _configure():
 if __name__ == '__main__':
 
     conf = _configure()
-    g.run(3)
+    g.run(10)
     
     esv = g.evtsvc()
     kco = esv[conf.location()]

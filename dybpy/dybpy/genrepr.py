@@ -89,7 +89,7 @@ def _DayaBay_GenHeader(self):
     from gputil import hdr_ as _hdr
     d = _hdr(self)
     
-    skips = ['serialize','fillStream','inputHeaders','linkMgr','randomState','registry']
+    skips = ['serialize','fillStream','inputHeaders','linkMgr','randomState','registry','clID','version']
     times = [ 'earliest','latest','timeStamp' ]
    
     

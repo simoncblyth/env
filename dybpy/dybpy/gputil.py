@@ -34,6 +34,12 @@ def reload_():
     import sys
     reload(sys.modules[__name__])
 
+
+def docs_(kls):
+    docs = [getattr(kls,d).__doc__  for d in dir(kls)]
+    return docs
+
+
 def __repr__(self):
     """ pretty print a dict of the properties of the object 
         if an __props__ method that returns the dict has been provided by 
