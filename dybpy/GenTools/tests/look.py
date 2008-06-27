@@ -8,13 +8,13 @@ import genrepr
 import DybTest.gputil as gputil
 from GaudiPython import AppMgr, PyAlgorithm 
 import config
-from config import cid as cid
 g = AppMgr()
+
+loc = '/Event/Gen/GenHeader'
 
 class LookAlg(PyAlgorithm):
     def execute(self):
-        global cid
-        loc = cid['location']
+        global loc
         self.print_(loc)  
         global g
         esv = g.evtsvc()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     g.run(g.EvtMax)    
     esv = g.evtsvc()
-    kco = esv[cid['location']]
+    kco = esv[loc]
   
     assert kco.__class__.__name__ == 'DayaBay::GenHeader'
     print "\nkco", kco

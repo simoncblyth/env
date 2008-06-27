@@ -4,6 +4,17 @@
 
     Do this by interposing __props__ methods on classes that comprise
     the identity of this configuration and instanciate the ConfigIdentity with them
+    
+    
+    <iAlgorithm> [0xB6F433CC] 
+{'GenName': 'Bang Bang',
+ 'GenTools': ['GtGunGenTool', 'GtTimeratorTool'],
+ 'OutputFilePath': '/file1/gen',
+ 'OutputLevel': 1}
+    
+    
+    hmm where has location gone ???
+    
 
 """
 
@@ -77,8 +88,11 @@ gen.__class__.__props__ = _gen__props__
 
 
 from DybTest import ConfigIdentity
-cid = ConfigIdentity( gen=gen , location=gen.Location )
+cid = ConfigIdentity( gen=gen )
     
+if hasattr(gen, "Location"):
+    cid.update( location=gen.Location )
+
         
         
 
