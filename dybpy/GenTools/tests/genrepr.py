@@ -91,7 +91,7 @@ def _DayaBay_GenHeader(self):
     """
         introspective method calling can be dangerous !!
         ... hitting the "release" method decrements the ref count causing the 
-        count down to segmentation problem 
+        count down to segmentation problem #49
               
               dybgaudi/InstallArea/include/Event/HepMCEvent.h
               gaudi/GaudiKernel/GaudiKernel/KeyedObject.h
