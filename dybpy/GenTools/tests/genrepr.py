@@ -88,10 +88,19 @@ def _DayaBay__HepMCEvent(self):
     
         
 def _DayaBay_GenHeader(self):
+    """
+        introspective method calling can be dangerous !!
+        ... hitting the "release" method decrements the ref count causing the 
+        count down to segmentation problem 
+              
+              dybgaudi/InstallArea/include/Event/HepMCEvent.h
+              gaudi/GaudiKernel/GaudiKernel/KeyedObject.h
+    """
     assert self.__class__.__name__ == 'DayaBay::GenHeader'
     d = _hdr(self)
     
-    skips = ['serialize','fillStream','inputHeaders','linkMgr','randomState','registry','clID','version']
+    prior_skips = [ 'randomState','registry','clID','version']
+    skips = ['serialize','fillStream','inputHeaders','linkMgr' , 'release' ]
     times = [ 'earliest','latest','timeStamp' ]
    
     
@@ -101,11 +110,10 @@ def _DayaBay_GenHeader(self):
             if meth == "event":
                 d[meth] = _HepMC__GenEvent( self.event() )
             elif meth in times:
-                if 0:
-                    its = ROOT.TimeStamp()
-                    its = getattr(self,meth)()
-                    d[meth] = its.AsString()
-                    del its
+                its = ROOT.TimeStamp()
+                its = getattr(self,meth)()
+                d[meth] = its.AsString()
+                del its
             else:
                 r = getattr(self , meth )()
                 d[meth]=repr(r) 
