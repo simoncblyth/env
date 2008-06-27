@@ -34,15 +34,12 @@ if __name__ == '__main__':
 
     g.run(g.EvtMax)    
     esv = g.evtsvc()
-    kco = esv[loc]
+    ghr = esv[loc]
   
-    assert kco.__class__.__name__ == 'DayaBay::GenHeader'
-    print "\nkco", kco
+    assert ghr.__class__.__name__ == 'DayaBay::GenHeader'
+    print "\nghr", ghr
        
-    hme =  kco[0]
-    assert hme.__class__.__name__ == 'DayaBay::HepMCEvent'
-     
-    evt = hme.event()
+    evt = ghr.event()
     assert evt.__class__.__name__ == 'HepMC::GenEvent'
     assert evt.particles_size() == 1
         
