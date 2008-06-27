@@ -3,7 +3,7 @@
 
    want to find where the default repr is coming from and put that in the str
    to have access to the address ... but have yet to find where thats done, possibly
-   is python builtin 
+   is method of object base class 
 
 """
 

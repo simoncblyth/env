@@ -11,8 +11,7 @@ def reload_():
     import sys
     reload(sys.modules[__name__])
 
-
-class GenToolsTestConfig(object,pyutil.PrintLogger):
+class ConfigWrapper(DybTest.PersistableRepr):
     """ 
          intermediary to present a standard interface for disparate configs to the tests 
     """
@@ -20,32 +19,10 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
           '/Event/Gen/HepMCEvents':'KeyedContainer<DayaBay::HepMCEvent,Containers::KeyedObjectManager<Containers::hashmap> >', 
             '/Event/Gen/GenHeader':'DayaBay::GenHeader'
                  }
-    
-    __singleton = None
-    
      
-    def __new__(cls, *args, **kwargs):
-        """
-             ensure the instantiation of the conf only gets done once ...
-             forced by incomplete GaudiPython cleanup
-        """
-        if cls.__singleton==None:
-            print "instanciating singleton "
-            obj = object.__new__( cls, *args, **kwargs )
-            print "calling __init__ "
-            cls.__init__(obj, *args, **kwargs)
-            print "__init_ done "
-            cls.__singleton = obj
-        print "returning singleton "
-        return cls.__singleton
-
     def __init__(self, *args, **kwargs):
-        if self.__class__.__singleton:
-            self.log("skipping __init__ ")
-            return
         self.log( "proceeding to  __init__ " )
         self.config(*args, **kwargs)
-
 
    
     def config(self, *args, **atts):
@@ -116,19 +93,11 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
             self.g.removeAlgorithm(alg)
     
                     
-
     def location(self):
         return self.gen.Location
     def classname(self):
         return self.__tesmap__[self.location()]
 
-    def __digest__(self):
-        """ string of length 32, containing only hexadecimal digits ... 
-            that can be used to represent the identity of this object so long as 
-            all pertinent properties are included in the repr 
-        """
-        import md5
-        return md5.new(repr(self)).hexdigest()
 
     def __props__(self):
         """ most of the properties are auditing/operational things that will not
@@ -156,47 +125,8 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         return pprint.pformat( self.__props__() )
         
 
-    def identity(self):
-        """  
-           need to introspect all the properties that go into defining the run and digest it down 
-           to an identity that provides the context for the events and their tests
-        """
-        return self.__digest__()  
+        
 
-
-    def path(self, n ):
-        """   relative based on the identity of the configuration """
-        #return "%s/%s/%s.py" % ( self.identity() , self.location().lstrip("/") , n ) 
-        name = n == -1 and "conf" or "%0.3d" % n 
-        return "%s/%s.py" % ( self.identity() , name ) 
-        
-    def save(self, n , obj):
-        """ 
-           persist the repr of the object 
-           for n of zero the repr of the conf is also saved 
-        """
-        
-        assert type(n) == int and n > -2
-        if n==0:
-            self.save( -1, self)
-        
-        p = self.path(n)
-        #print "saving to %s " % p
-        pp = os.path.dirname(p)
-        if not(os.path.exists(pp)):
-            os.makedirs(pp)
-        file(p,"w").write(pprint.pformat(obj)+"\n")
-
-    def load(self, n ):
-        """ revivify the repr with eval ... assumes it is a valid expression """  
-        p = self.path(n)
-        #print "loading from %s " % p 
-        if os.path.exists(p):
-            r = file(p).read()
-            o = eval(r)
-            return o
-        return None
-        
 
 
 

@@ -132,7 +132,17 @@ def fillStream_(o):
         return ss.str()
     return None
 
-
 def format_(o):
     import pprint
     return pprint.pformat(o)
+
+
+class PrintLogger:
+    def hdr(self):
+        return "<%s [0x%08X] > " % ( self.__class__.__name__ , id(self) )
+    def log(self, *args , **kwargs ):
+        import pprint
+        print "%s %s %s" % ( self.hdr() , " ".join(args),  pprint.pformat(kwargs) )
+
+
+

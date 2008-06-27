@@ -7,9 +7,8 @@
 
 """
 
-from GaudiPython import AppMgr ; g = AppMgr()
 _run_inhibit  = 1
-_run_original = AppMgr.run
+_run_original = None
 
 def _control_run(self,nevt):
     """ this prevents g.run(n) from doing so """ 
@@ -27,7 +26,17 @@ def _control_run(self,nevt):
         self.__class__.run = _run_original
         print "_control_run replace original run %s nevt %s _run_inhibit %s  " % ( self, nevt, _run_inhibit )
         self.run(nevt)
-            
-g.__class__.run = _control_run
+
+def inhibit_run(n=1):
+
+    from GaudiPython import AppMgr 
+    global _run_original
+    _run_original = AppMgr.run  
+    AppMgr.run = _control_run
+        
+    global _run_inhibit
+    _run_inhibit = n
+    
+    
 
 

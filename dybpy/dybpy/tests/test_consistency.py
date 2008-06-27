@@ -3,7 +3,6 @@ from GaudiPython import AppMgr
 g = AppMgr()
 
 import unittest
-import pyutil
 import consistency 
 import gtconfig
 
