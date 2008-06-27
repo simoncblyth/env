@@ -8,9 +8,7 @@ from config import cid as cid
 
 
 class ConsistencyAlg(PyAlgorithm):
-    def log(self, msg ):
-        print "%s %s " % ( self.__class__.__name__ , msg )
-    
+
     def init(self, cid):
         self.cid = cid
         self.esv = g.evtsvc()
@@ -64,6 +62,13 @@ class ConsistencyAlg(PyAlgorithm):
                                                                                                                                             
     def __repr__(self):
         return self.hdr()
+
+    def hdr(self):
+        return "<%s [0x%08X] > "  % ( self.__class__.__name__ , id(self) )
+
+    def log(self, *args , **kwargs):
+        import pprint
+        return  "%s  %s " % ( self.hdr(), " ".join(args), pprint.pformat(kwargs)   )
 
 
 
