@@ -5,7 +5,8 @@
    invoke with
          ipython look.py
      
-        
+   also contains a test to attempt to ensure that this stays operational
+         nosetests test_look.py  
      
 """
 import genrepr
@@ -31,7 +32,7 @@ class LookAlg(PyAlgorithm):
         return True
     def execute(self):
         global loc
-        self.print_(loc)  
+        self.print_("execute")  
         global g
         esv = g.evtsvc()
         kco = esv[loc]
@@ -50,21 +51,26 @@ msv.OutputLevel = 5
 gen = g.algorithm("GenAlg")
 gen.OutputLevel = 5 
 
-
-if __name__ == '__main__':
-
+def test_look():
     g.run(g.EvtMax)    
     esv = g.evtsvc()
     ghr = esv[loc]
-  
     assert ghr.__class__.__name__ == 'DayaBay::GenHeader'
-    print "\nghr", ghr
-       
+    print "\nghr\n", ghr
     evt = ghr.event()
     assert evt.__class__.__name__ == 'HepMC::GenEvent'
     assert evt.particles_size() == 1
-        
-    pdg_ids=[]
+    for prt in gputil.irange(evt.particles_begin(),evt.particles_end()):
+        assert prt.__class__.__name__ == 'HepMC::GenParticle'
+
+if __name__ == '__main__':
+    import sys
+    print sys.modules[__name__].__doc__
+    g.run(g.EvtMax)    
+    esv = g.evtsvc()
+    ghr = esv[loc]
+    print "\nghr\n", ghr
+    evt = ghr.event()
     for prt in gputil.irange(evt.particles_begin(),evt.particles_end()):
         assert prt.__class__.__name__ == 'HepMC::GenParticle'
         pdg_ids.append(prt.pdg_id())      
