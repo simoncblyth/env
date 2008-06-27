@@ -13,6 +13,14 @@ g = AppMgr()
 loc = '/Event/Gen/GenHeader'
 
 class LookAlg(PyAlgorithm):
+    def beginRun(self):
+        self.print_("beginRun")
+    def endRun(self):
+        self.print_("endRun")
+    def initialize(self):
+        self.print_("initialize")
+    def finalize(self):
+        self.print_("finalize")
     def execute(self):
         global loc
         self.print_(loc)  
@@ -29,6 +37,9 @@ class LookAlg(PyAlgorithm):
             
 g.EvtMax = 5
 g.addAlgorithm(LookAlg()) 
+msv = g.service("MessageSvc")
+msv.OutputLevel = 5
+
 
 if __name__ == '__main__':
 
