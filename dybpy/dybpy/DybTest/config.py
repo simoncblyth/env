@@ -53,14 +53,20 @@ class PersistableRepr(object):
         
 class ConfigIdentity(PersistableRepr):
 
-    def __init__(self, *objs ):
-        self.objs = objs 
+    def __init__(self, **atts ):
+        self.atts = atts
         
     def __props__(self):
-        d = []
-        for obj in objs:
-            d.append( obj.__props__() )
+        d = {}
+        for k,v in self.atts.items():
+            d[k]=v.__props__() 
         return d
+    
+    def update(self, **xtts ):
+        self.atts.update( **xtts )
+    
+    def __getitem__( self , k ):
+        return self.atts[k]
     
     def __repr__(self):
         import pprint 

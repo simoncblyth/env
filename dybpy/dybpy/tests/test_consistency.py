@@ -1,53 +1,92 @@
+
 import GaudiPython
-from GaudiPython import AppMgr 
+from GaudiPython import AppMgr, PyAlgorithm 
 g = AppMgr()
 
-import unittest
-import consistency 
-import gtconfig
+import config
+from config import cid as cid
 
-gttc = None 
 
-def reload_():
-    import sys
-    reload(sys.modules[__name__])
+class ConsistencyAlg(PyAlgorithm):
+    def log(self, msg ):
+        print "%s %s " % ( self.__class__.__name__ , msg )
     
-def _configure():
-    global gttc
-    if gttc:
-        print "_configure reusing gttc"
-        return gttc
-    else:
-        print "_configure instantiating gttc "
-        alg = consistency.ConsistencyAlg()
-        g.EvtMax = 5
-        gttc = gtconfig.GenToolsTestConfig(alg)
-        return gttc
+    def init(self, cid):
+        self.cid = cid
+        self.esv = g.evtsvc()
+        self.esv.dump()
+        self.reset()
+        return self
+    
+    def reset(self):
+        self.log("reset items ")
+        self.items = []
+    
+    def report(self, a , b ):
+        import pprint
+        return "\n".join( ["",pprint.pformat( a ) ," -------------- compared to ------------------ ", pprint.pformat( b )  ])
+    
+    def initialize(self):
+        self.log("initialize ")
         
-class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
+    def finalize(self):
+        self.log("finalize")
+    
+    def execute(self):
+        """
+            this is called by the gaudi eventloop machinery
+            assertions in here are swallowed by gaudi, and they 
+            do not surface as errors/fails but the eventloop gets stopped
+        """
+        n = len(self.items)
+        loc = self.cid['gen'].Location
+        self.log("execute ", loc=loc , n=n)
+        kco = self.esv[loc]
+        assert hasattr(kco,"__props__")
+        self.items.append( kco.__props__() )                           
+        return True
+    
+             
+    def compare(self):
+        self.log("comparing ... ", items=len(self.items) )
+        for n,itm in enumerate(self.items):
+            prior = self.cid.load(n)
+            if prior==None:
+                self.log("skip comparison %s as no prior" % n)
+            else:
+                assert prior == itm , " inconsistent event [%s] properties prior/current :  %s " % (n , self.report( prior, itm ))
+     
+    def save(self):
+        self.log( "saving props %d to file " %  len(self.items) )
+        for n,itm in enumerate(self.items):
+            self.log("save item %s " % n) 
+            self.cid.save(n,itm)
+                                                                                                                                            
+    def __repr__(self):
+        return self.hdr()
+
+
+
+alg = ConsistencyAlg().init(cid)
+g.EvtMax = 5
+g.addAlgorithm(alg) 
+    
+
+import unittest
+                                                            
+class ConsistencyTestCase(unittest.TestCase):
     def setUp(self):
-        """
-            previously when were doing double initialize the py algorithm instance  
-            after the 2nd initialize was out of step , gaudi clinging on to the initial instance
-            note that the PyAlgorithm is not the same as the gaudi side algorithm     
-        """
-        self.log("setUp %s" % g )
-        self.conf = _configure()
-        name = "ConsistencyAlg"
-        self.alg = self.conf.algs[name]
+        self.alg = g.algorithm("ConsistencyAlg")
         assert issubclass( self.alg.__class__, GaudiPython.PyAlgorithm )
         assert issubclass( g.algorithm(name).__class__ , GaudiPython.Bindings.iAlgorithm)
-        assert not(self.alg is g.algorithm(name)), " alg consistent %s cf %s " % ( self.alg , g.algorithm(name) )
     
     def testConsistencyOne(self):
-        self.log("testConsistencyOne")
         global g
         g.run(g.EvtMax)
         self.alg.compare()
         self.alg.save()
     
     def testConsistencyTwo(self):
-        self.log("testConsistencyTwo> " )
         global g
         g.run(g.EvtMax)
         self.alg.compare()
@@ -56,16 +95,11 @@ class ConsistencyTestCase(unittest.TestCase, pyutil.PrintLogger):
     testConsistencyTwo.__test__ = False
          
     def tearDown(self):
-        self.log("tearDown %s " % g )
-        self.log("alg reset %s " % self.alg )
         self.alg.reset()
         
 
-
 suite = unittest.makeSuite(ConsistencyTestCase,'test')
-def simple():
-    g.run(gttc.nevents())
-    g.exit()
+
 if __name__ == '__main__':
     unittest.TextTestRunner(verbosity=2).run(suite)
 
