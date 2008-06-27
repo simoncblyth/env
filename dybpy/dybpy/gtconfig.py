@@ -49,18 +49,7 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
 
    
     def config(self, *args, **atts):
-        """        
-           seems g.EvtSel must be NONE for generator case ??
-           looking at   gaudi/GaudiSvc/src/EventSelector/EventSelector.cpp
-           indicates the g.evtsel() is a stream handler, i dont think the 
-           generators are hooked into this ?  
-
-           so this means no hope of
-                  g.evtsel().rewind()
-           working 
-   
-        """
-       
+        
         ol = 'outputlevel' in atts and atts['outputlevel'] or 5
         
         self.algs = {}        
@@ -68,11 +57,8 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         g = GaudiPython.AppMgr(**atts)     
         self.log( "appmgr before config %s " % repr(g) , **atts ) 
         
+        import inhibit_run
         import gentools
-        #
-        #  comment the app.run(10) 
-        #  !vi /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi/InstallArea/python/gentools.py
-        #  modify the config after the fact
                     
         self.gen = gen = g.algorithm("GenAlg")
         gsq = g.algorithm("GenSeq")
@@ -85,6 +71,7 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         #volume = '/dd/Geometry/AD/lvAD'
         #volume = '/dd/Structure/steel-2/water-2'
         #volume = '/dd/Structure/Pool/la-iws'
+        #volume="/dd/Geometry/Pool/lvFarPoolIWS"
         volume = '/dd/Structure/AD/la-gds1'
         
         poser = g.property("ToolSvc.GtPositionerTool")
@@ -98,13 +85,9 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
         gen.GenTools = [ "GtGunGenTool", "GtTimeratorTool" ]
         ## get rid of position and tranform tools as they are not finding the detector element
         
-        
         #pot = g.toolsvc().create("GtPositionerTool")
         #trt = g.toolsvc().create("GtTransformTool")
         #trt.Volume = pot.Volume = None
-    
-    
-
         #msv = g.service("MessageSvc")
         #msv.OutputLevel = ol
         #gun = g.property("ToolSvc.GtGunGenTool")
@@ -133,8 +116,7 @@ class GenToolsTestConfig(object,pyutil.PrintLogger):
             self.g.removeAlgorithm(alg)
     
                     
-    def nevents(self):
-        return self.conf.nevents
+
     def location(self):
         return self.gen.Location
     def classname(self):

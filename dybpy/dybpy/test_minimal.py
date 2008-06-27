@@ -1,26 +1,26 @@
 """
+   This is meant to be run by nosetests with commands such as :
+      
+      nosetests minimal.py 
+      nosetests minimal.py --with-xml-output --xml-outfile=out.xml
+
    test setup notes
-       1) keep simple short tests
+       1) keep tests simple and short 
        2) let the test runner catch exceptions..
-       3) keeping differnt flavors of nose tests in separate modules
-          makes the order in which they are run more predictable
-                functional
-                doctest
-                classbased    
+       3) keeping different flavors of nose tests (functional,doctest,classbased) 
+          in separate modules makes the order in which they are run more predictable
   
-    nosetests minimal.py --with-xml-output --xml-outfile=out.xml
-
 """
-
-# workaround for GaudiPython issue   "class _global_cpp has no attribute 'stringstream'"
-import ROOT
-ROOT.gSystem.Load("libMathCore")
-
 
 g = None
 gen = None
 evt = None
 
+
+def test_workaround():
+    """ workaround for GaudiPython issue   "class _global_cpp has no attribute 'stringstream'" """
+    import ROOT
+    ROOT.gSystem.Load("libMathCore")
 
 def test_entry():
     from GaudiPython import AppMgr
@@ -60,8 +60,9 @@ def test_repr():
     global evt
     for i in range(10):
         print i, repr(evt)
-  
-test_repr.__test__ = False
+ 
+ 
+test_repr.__test__ = False    # tests can be switched off
    
 def test_exit():
     global g
@@ -70,6 +71,7 @@ def test_exit():
     
 
 if __name__=='__main__':
-    print " this is desiged to be run by the nosetests test runner "
+    import sys
+    print sys.modules[__name__].__doc__
 
 
