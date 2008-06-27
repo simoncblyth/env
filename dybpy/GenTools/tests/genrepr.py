@@ -99,10 +99,17 @@ def _DayaBay_GenHeader(self):
     assert self.__class__.__name__ == 'DayaBay::GenHeader'
     d = _hdr(self)
     
-    prior_skips = [ 'randomState','registry','clID','version']
-    skips = ['serialize','fillStream','inputHeaders','linkMgr' , 'release' ]
+    skips = { 
+                'serialize':"too complex",
+               'fillStream':"handeled in str ",
+             'inputHeaders':"too complex",
+                  'linkMgr':"too complex" , 
+                  'release':"causes decrement of ref count ... countdown to segmentation error" ,
+                 'earliest':"prevents consistency", 
+                   'latest':"prevents consistency" ,
+            }
+                
     times = [ 'earliest','latest','timeStamp' ]
-   
     
     meths = [x for x in dir(self) if callable(getattr(self,x))]
     for meth in meths:
