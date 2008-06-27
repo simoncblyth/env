@@ -40,6 +40,22 @@ trans.Volume = volume
 
 
 def _gen__props__(self):
+    """
+        StartTime may need to be coordinated for separate runs to be comparable
+        
+       [dayabaysoft@grid1 tests]$ l */conf.py
+-rw-r--r--    1 dayabaysoft dayabay      2958 Jun 26 21:09 829087e9703a05e86287ff82dac0de76/conf.py
+-rw-r--r--    1 dayabaysoft dayabay      2958 Jun 26 21:09 a82eaf8bd03e4fefef8006a7e03058c2/conf.py
+[dayabaysoft@grid1 tests]$ diff */conf.py
+43c43
+<                              'StartTime': 3461733009L,
+---
+>                              'StartTime': 7450269933L, 
+         
+            HUH VERY DIFFERENT ??
+         
+           
+    """
     global g
     assert self.__class__.__name__ == 'iAlgorithm', "wrong class name %s " % self.__class__.__name__
     assert self.name() == "GenAlg" , "wrong instance name %s " % self.name()
@@ -52,7 +68,7 @@ def _gen__props__(self):
         tool = g.toolsvc().create(t)
         d[t] = {}
         for k,v in tool.properties().items():
-            if k not in ['OutputLevel']:
+            if k not in ['OutputLevel','StartTime']:
                 d[t][k] = v.value()
 
     return d
