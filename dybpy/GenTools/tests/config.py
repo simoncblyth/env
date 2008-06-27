@@ -41,8 +41,8 @@ trans.Volume = volume
 
 def _gen__props__(self):
     global g
-    assert self.__class__.__name__ == 'GaudiPython.PyAlgorithm', "wrong classname %s " % self.__class__.__name__
-    assert self.name() == "GenAlg"
+    assert self.__class__.__name__ == 'iAlgorithm', "wrong class name %s " % self.__class__.__name__
+    assert self.name() == "GenAlg" , "wrong instance name %s " % self.name()
     d = {}
     for p in ["Location","GenName","GenTools"]:
         d[p] = getattr(self, p )
