@@ -77,7 +77,7 @@ gen.__class__.__props__ = _gen__props__
 
 
 from DybTest import ConfigIdentity
-cid = ConfigIdentity( gen=gen )
+cid = ConfigIdentity( gen=gen , location=gen.Location )
     
         
         

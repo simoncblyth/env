@@ -1,12 +1,25 @@
+"""
+   ideas : 
+      detect invalidated repr "schema" by the keys that are present ? 
+      .... include keys names in the confid ?  
+
+   todo:
+      handle these to allow consistency between runs
+       'randomState': '<ROOT.vector<unsigned long> object at 0xa225c9c>',
+          'registry': '<ROOT.IRegistry object at 0xa2230a0>',
+
+
+"""
+
 
 import GaudiPython
 from GaudiPython import AppMgr, PyAlgorithm 
 g = AppMgr()
+import genrepr
 
 import config
 from config import cid as cid
 
-import genrepr
 
 
 class ConsistencyAlg(PyAlgorithm):
@@ -39,7 +52,7 @@ class ConsistencyAlg(PyAlgorithm):
             do not surface as errors/fails but the eventloop gets stopped
         """
         n = len(self.items)
-        loc = self.cid['gen'].Location
+        loc = self.cid['location']
         self.log("execute ", loc=loc , n=n)
         kco = self.esv[loc]
         assert hasattr(kco,"__props__")
