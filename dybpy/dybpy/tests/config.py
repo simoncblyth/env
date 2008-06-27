@@ -36,7 +36,7 @@ trans.Volume = volume
 
 def _gen__props__(self):
     global g
-    assert self.__class__.__name__ = 'PyAlgorithm'
+    assert self.__class__.__name__ == 'PyAlgorithm'
     assert self.name() == "GenAlg"
     d = {}
     for p in ["Location","GenName","GenTools"]:
