@@ -3,7 +3,8 @@
    and demonstrate a PyAlgorithm 
    
    invoke with
-         ipython look.py
+         ipython look.py         #### HIGHLY RECOMMENDED ####
+    OR   python -i look.py
      
    also contains a test to attempt to ensure that this stays operational
          nosetests test_look.py 
@@ -76,7 +77,7 @@ if __name__ == '__main__':
     evt = ghr.event()
     for prt in gputil.irange(evt.particles_begin(),evt.particles_end()):
         assert prt.__class__.__name__ == 'HepMC::GenParticle'
-        pdg_ids.append(prt.pdg_id())      
+             
 
     
  
