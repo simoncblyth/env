@@ -1,7 +1,11 @@
 """
    The point of this is to provide objects for interactive inspection ...
+   and demonstrate a PyAlgorithm 
+   
    invoke with
-       ipython look.py
+         ipython look.py
+     
+        
      
 """
 import genrepr
@@ -15,12 +19,16 @@ loc = '/Event/Gen/GenHeader'
 class LookAlg(PyAlgorithm):
     def beginRun(self):
         self.print_("beginRun")
+        return True
     def endRun(self):
         self.print_("endRun")
+        return True
     def initialize(self):
         self.print_("initialize")
+        return True
     def finalize(self):
         self.print_("finalize")
+        return True
     def execute(self):
         global loc
         self.print_(loc)  
@@ -32,13 +40,15 @@ class LookAlg(PyAlgorithm):
         return True
 
     def print_(self, *msg):
-        print  "<%s %s>" % (self.__class__.__name__, " ".join(msg) )
+        print  ">>>>>>>>>>   <%s %s>" % (self.__class__.__name__, " ".join(msg) )
 
             
-g.EvtMax = 5
+g.EvtMax = 3
 g.addAlgorithm(LookAlg()) 
 msv = g.service("MessageSvc")
 msv.OutputLevel = 5
+gen = g.algorithm("GenAlg")
+gen.OutputLevel = 5 
 
 
 if __name__ == '__main__':
