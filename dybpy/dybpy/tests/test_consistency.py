@@ -73,12 +73,13 @@ g.addAlgorithm(alg)
     
 
 import unittest
-                                                            
+                                                    
 class ConsistencyTestCase(unittest.TestCase):
     def setUp(self):
-        self.alg = g.algorithm("ConsistencyAlg")
+        global alg
+        self.alg = alg
         assert issubclass( self.alg.__class__, GaudiPython.PyAlgorithm )
-        assert issubclass( g.algorithm(name).__class__ , GaudiPython.Bindings.iAlgorithm)
+        assert issubclass( g.algorithm('ConsistencyAlg').__class__ , GaudiPython.Bindings.iAlgorithm)
     
     def testConsistencyOne(self):
         global g
