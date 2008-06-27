@@ -1,3 +1,11 @@
+"""
+    Following the messy configuration ... 
+    establish an identity for the configuation, for use as a persistency context
+
+    Do this by interposing __props__ methods on classes that comprise
+    the identity of this configuration and instanciate the ConfigIdentity with them
+
+"""
 
 
 from GaudiPython import AppMgr
@@ -29,10 +37,7 @@ poser.Volume = volume
 trans = g.property("ToolSvc.GtTransformTool")
 trans.Volume = volume
         
-"""
-   interpose __props__ methods on classes that comprise the identity of this configuration
-   and instanciate the ConfigIdentity with them
-"""
+
 
 def _gen__props__(self):
     global g
@@ -56,7 +61,7 @@ gen.__class__.__props__ = _gen__props__
 
 
 from DybTest import ConfigIdentity
-cid = ConfigIdentity( gen=g.gen )
+cid = ConfigIdentity( gen=gen )
     
         
         
