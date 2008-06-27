@@ -6,7 +6,15 @@
          ipython look.py         #### HIGHLY RECOMMENDED ####
     OR   python -i look.py
      
-   also contains a test to attempt to ensure that this stays operational
+   Then examine the objects in your scope :  
+     
+     >>> locals().keys()
+['genrepr', 'loc', 'PyAlgorithm', 'ghr', 'g', 'test_look', '__builtins__', 
+ 'msv', '__file__', 'gen', 'sys', 'evt', 'esv', 'prt', '__name__', 'AppMgr', 
+ 'config', '__doc__', 'LookAlg', 'gputil']
+     
+     
+   Also contains a test to attempt to ensure that this stays operational
          nosetests test_look.py 
          nosetests test_look.py -s    
                 use option -s or  --nocapture to see stdout 
