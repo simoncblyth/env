@@ -1,8 +1,23 @@
 """
    This is meant to be run by nosetests with commands such as :
       
-      nosetests minimal.py 
-      nosetests minimal.py --with-xml-output --xml-outfile=out.xml
+         nosetests           
+                     sniffs out tests in cwd and beneath
+                         
+         nosetests minimal.py
+                         restrict to a module
+       
+   useful options :
+       -s --no-capture    : allows to see the stdout from tests 
+       --help             : long list of options 
+       -v / -vv / -vvv    : verbosity control 
+       -p                 : list of plugins
+         
+   
+   for automated running from project directory something like 
+   the below is used 
+       nosetests  --with-xml-output --xml-outfile=out.xml
+
 
    test setup notes
        1) keep tests simple and short 
@@ -65,7 +80,7 @@ def test_repr():
         print i, repr(evt)
  
  
-test_repr.__test__ = False    # tests can be switched off
+test_repr.__test__ = True    # tests can be switched off
    
 def test_exit():
     global g
