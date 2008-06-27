@@ -6,8 +6,11 @@
          ipython look.py
      
    also contains a test to attempt to ensure that this stays operational
-         nosetests test_look.py  
-     
+         nosetests test_look.py 
+         nosetests test_look.py -s    
+                use option -s or  --nocapture to see stdout 
+   
+         nosetests --help   
 """
 import genrepr
 import DybTest.gputil as gputil
