@@ -11,7 +11,7 @@
 from GaudiPython import AppMgr
 g = AppMgr()
         
-from DybTest import inhibit_run
+from DybTest.gputil import inhibit_run
 inhibit_run(1)
 import gentools
  
