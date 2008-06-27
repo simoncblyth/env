@@ -1,5 +1,6 @@
 
 
 from confid import ConfigIdentity
-from gputil import *
-from gprepr import *
+
+import gputil
+import gprepr

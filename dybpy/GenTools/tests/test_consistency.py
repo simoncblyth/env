@@ -6,6 +6,8 @@ g = AppMgr()
 import config
 from config import cid as cid
 
+import genrepr
+
 
 class ConsistencyAlg(PyAlgorithm):
 

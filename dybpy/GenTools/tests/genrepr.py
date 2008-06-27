@@ -12,8 +12,8 @@
 """
 
 
-import gputil
-from gputil import hdr_ as _hdr
+import DybTest.gputil as gputil
+
 
 import ROOT
 import PyCintex as pc
@@ -27,6 +27,9 @@ pc.loadDictionary("libCLHEPRflx")
 def reload_():
     import sys
     reload(sys.modules[__name__])
+
+def _hdr(self):
+    return { _class=self.__class__.__name__ }
 
 
 def _CLHEP__HepLorentzVector(self):
