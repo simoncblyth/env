@@ -61,7 +61,7 @@ dybpy-rsync(){  env-rsync ${FUNCNAME/-*} ${1:-P} ;  }
 
 dybpy-setup(){
   local iwd=$PWD 
-  cd $ENV_HOME/dybpy
+  cd $ENV_HOME/dybpy/DybTest
   python setup.py develop
   cd $iwd
 }
