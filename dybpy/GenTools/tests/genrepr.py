@@ -29,7 +29,7 @@ def reload_():
     reload(sys.modules[__name__])
 
 def _hdr(self):
-    return { _class=self.__class__.__name__ }
+    return { '_class':self.__class__.__name__ }
 
 
 def _CLHEP__HepLorentzVector(self):
