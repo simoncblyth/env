@@ -89,7 +89,6 @@ def _DayaBay__HepMCEvent(self):
         
 def _DayaBay_GenHeader(self):
     assert self.__class__.__name__ == 'DayaBay::GenHeader'
-    from gputil import hdr_ as _hdr
     d = _hdr(self)
     
     skips = ['serialize','fillStream','inputHeaders','linkMgr','randomState','registry','clID','version']
