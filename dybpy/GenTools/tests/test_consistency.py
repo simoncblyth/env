@@ -68,7 +68,7 @@ class ConsistencyAlg(PyAlgorithm):
 
     def log(self, *args , **kwargs):
         import pprint
-        return  "%s  %s " % ( self.hdr(), " ".join(args), pprint.pformat(kwargs)   )
+        return  "%s %s %s" % ( self.hdr(), " ".join(args), pprint.pformat(kwargs)   )
 
 
 
