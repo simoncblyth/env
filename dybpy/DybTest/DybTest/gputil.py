@@ -29,6 +29,8 @@ ROOT.gSystem.Load("libMathCore")
 import GaudiPython as gp 
 import PyCintex as pc
 
+## you need these 4 lines for gp.gbl.stringstream() to work it seems
+
 
 def reload_():
     import sys

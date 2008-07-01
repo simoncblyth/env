@@ -8,6 +8,41 @@ dybpy-env(){
   alias dpt="dybpy-;dybpy-tst"
 }
 
+
+dybpy-notes(){
+   cat << EON
+   
+   The only python packages in InstallArea (gleaned from the __init__.py ) are coming
+   from the configuables installation fragment : 
+      gaudi/GaudiPolicy/cmt/fragments/genconfig_header
+
+   
+
+   XmlDetDescGen
+
+
+  export from within the package as do not need setup.py in nuwa env...
+  
+
+   [dayabaysoft@grid1 DybTest]$ svn export . /disk/d3/dayabay/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi/DybTest/dybtest
+
+
+  
+
+   gaudi/GaudiPolicy/cmt/requirements
+   gaudi/GaudiPolicy/doc/release.notes
+
+   
+EON
+
+
+
+
+
+}
+
+
+
 dybpy-usage(){
 
 cat  << EOU
@@ -91,7 +126,7 @@ dybpy-cmd(){
 }
 
 dybpy-cd(){
-   cd $ENV_HOME/dybpy/dybpy
+   cd $ENV_HOME/dybpy/GenTools/tests
 }
 
 

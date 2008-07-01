@@ -64,7 +64,7 @@ python-env(){
    else
 
       local PYTHON_NAME=Python-2.5.1
-      export PYTHON_HOME=$LOCAL_BASE/python/$PYTHON_NAME
+      export PYTHON_HOME=$SYSTEM_BASE/python/$PYTHON_NAME
       export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
       
       python-path

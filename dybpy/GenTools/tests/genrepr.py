@@ -12,7 +12,7 @@
 """
 
 
-import DybTest.gputil as gputil
+import dybtest.gputil as gputil
 
 
 import ROOT
@@ -58,7 +58,7 @@ def _HepMC__GenParticle(self):
 
 
 def _HepMC__GenEvent(self):
-    assert self.__class__.__name__ == 'HepMC::GenEvent'
+    assert self.__class__.__name__ == 'HepMC::GenEvent', "got %s " % self.__class__.__name__
     d = _hdr(self)
     d.update( event_number=self.event_number() )
     

@@ -60,4 +60,4 @@ bash-nargs(){
    echo $# 
 }
 
-echo BASH_SOURCE $BASH_SOURCE 
+#echo BASH_SOURCE $BASH_SOURCE 

@@ -1,34 +1,53 @@
 """
-simon:fork blyth$ nosetests configiter.py  -v
-configiter.test_config('base', {'red': 'red'}) ... ok
-configiter.test_config('cust', {'green': 'green', 'red': 'red'}) ... ok
-configiter.test_config('cust2', {'blue': 'blue', 'green': 'green', 'red': 'red'}) ... ok
+    DEVELOPMENT ABANDONED DUE TO DISCOVERY OF "InsulateRunner" NOSE PLUGIN
 
-----------------------------------------------------------------------
-Ran 3 tests in 0.008s
+   This was a stab at a forking test runner 
+      ... it works when all tests succeed !
+      
+   Unfortunately when there are failures, it is severely buggered with 
+   recursive forking and overreporting ... the reports being 
+   triggered by the exits of the children
+   Plus ..   the inner nose reports status correctly ???
+   the outer one sees everything OK
 
-OK
-                 nosetests configiter.py  -v -s       TO SEE STDOUT
+       # config     # runs        # reports 
+          1           1 r              2
+          2           3 r/rg/rg        4  
+          3           7                8
+              r/rg/rgb/rgb/rg/rgb/rgb
+  
+    Looking for a plugin that has solved these problems already, find...
+  
+  **nosepipe** gives "--with-process-isolation" , but it gets confused by generative tests
+
+         nosetests configiter.py -v --with-process-isolation -s --with-xml-output --xml-outfile out.xml
+        
+  **InsulateRunner**  gives "--with-insulate" ,  yep it looks good... using master/slave pattern over socket
+                                
+         nosetests configiter.py -v -s --with-insulate --with-xml-output --xml-outfile=out.xml
+ 
 """
 
 import pprint
+import os
+import time
+
 g = None
 
+#import runner
 
 def payload(*args,**kwargs):
     print "payload\n" + "\n".join([repr(a) for a in args]) + pprint.pformat(kwargs)
     print "global\n" + pprint.pformat(g)
+    if "blue" in g:
+        import gibberish
+    print "payload sleeping " 
+    time.sleep(1)
     return 0 
 
-def simple_runner(*args,**kwargs):
-    assert callable(args[0])
-    return args[0](args[1:])
+#def run(*args,**kwargs):
+#    runner.forking_runner( payload, *args, **kwargs)
 
-def _cfg(*yrgs):
-    """ helper func for consistent yielding a structure acceptable for nosetest running """ 
-    r = [simple_runner,payload]
-    r.extend(yrgs)
-    return r
 
 def configiter():
     """ this is a generator function returning multiple variations 
@@ -39,17 +58,17 @@ def configiter():
     global g
     g = {}
     g['red'] = "red"
-    yield  _cfg("base" , g)  
+    yield  (payload,"base" , g)  
     g['green'] = "green"
-    yield  _cfg("cust",  g) 
+    yield  (payload,"cust",  g) 
     g['blue' ] = "blue"
-    yield  _cfg("cust2",  g)  
+    yield  (payload,"cust2",  g)  
     
-def test_config():
-    ## the callables yielded are run by the nose testrunner
-    for cfg in configiter():
-        print "test_config %s " % repr(cfg)
-        yield cfg
+
+def test_conf():
+    for cnf in configiter():
+        yield cnf
+
 
 def confloop(cit):
     """ not used by the testing """
@@ -57,10 +76,9 @@ def confloop(cit):
     for cfg in cit:
         print "cfg... %s " % repr(cfg)
         assert callable(cfg[0])  , "1st in tuple must be callable  " 
-        assert callable(cfg[1])  , "2nd in tuple must be callable  "
-        assert cfg[3] is g , " %s is not g " % repr(cfg[3])
-        cfg[0](cfg[1],cfg[2:])
+        assert cfg[2] is g , " %s is not g " % repr(cfg[2])
+        cfg[0](cfg[1:])
 
 if __name__=='__main__':
-    confloop(configiter())
+    confloop(test_configiter())
         

@@ -1,7 +1,7 @@
 package-env(){
   elocal-
   python-
-  pkg-
+  #pkg-
   export PACKAGE_INSTALL_OPT=""
 }
 
@@ -28,7 +28,8 @@ cat << EON
   BINGO :
      http://svn.python.org/projects/distutils/trunk/misc/get_metadata.py
 
-
+ 
+  
 
 
 EON
@@ -112,7 +113,11 @@ cat << EOU
           into \$PYTHON_SITE/easy_install.pth also 
            ... this replaces existing normal installs appropriately,       
            
-           
+    
+    $name-develop :
+         a reimplementation 
+                  
+                                
     $name-uninstall :
            remove the \$($name-egg) and easy-install.pth reference
            
@@ -264,7 +269,17 @@ package-applypatch(){
       
 }
 
-package-patchcmd(){
+package-patchcmd-absolu(){
+   
+   ##
+   ## this only gets the correct when the repo is at the same slash depth
+   ##   may be could avoid the issue by a perl -pi on the svn diff output   
+   ##   to make it relative
+   ##
+   ##
+   ##   did like this because my svn diff were erroneously absolute
+   ##
+  
   
    local name=$1
    
@@ -273,7 +288,21 @@ package-patchcmd(){
    local bsc=$(bash-slash-count $dir)
    local patchpath=$(package-patchpath $name)
 
+   local pbsc=${2:-$bsc}
+
    local cmd="patch -p$bsc < $patchpath "
+   echo $cmd
+
+}
+
+package-patchcmd(){
+
+   local name=$1
+   local dir=$($name-dir)
+   local patchpath=$(package-patchpath $name)
+
+   cd $dir
+   local cmd="patch -p0 < $patchpath "
    echo $cmd
 
 }
@@ -286,7 +315,13 @@ package-diff(){
   
   [ ! -d $dir/.svn ] && echo $msg $dir is not working copy && return 1
   
-  svn diff $dir 
+  local iwd=$PWD
+  cd $dir
+  svn diff 
+  cd $iwd 
+     
+  ## duh ... do the diff from the dir to get relative paths    
+     
 }
 
 package-rev(){
@@ -450,6 +485,23 @@ package-fullname(){
     echo $full
 }
 
+
+
+package-develop(){
+
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    local dir=$($name-dir)
+    local iwd=$PWD
+
+    cd $dir
+    [ ! -f setup.py ] && echo "$msg no setup" && return 2 
+    
+    $SUDO python setup.py develop
+   
+    cd $iwd
+
+}
 
 
 

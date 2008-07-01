@@ -54,13 +54,21 @@ class PersistableRepr(object):
         
 class ConfigIdentity(PersistableRepr):
 
-    def __init__(self, **atts ):
+    def __init__(self, *args, **atts ):
+        self.args = args
         self.atts = atts
+        
+    def name(self):
+        return self.args[0] or "noname"
         
     def __props__(self):
         d = {}
+        d['args'] = self.args
         for k,v in self.atts.items():
-            d[k]=v.__props__() 
+            if hasattr(v,'__props__'):
+                d[k]=v.__props__()
+            else:
+                d[k]=v
         return d
     
     def update(self, **xtts ):
@@ -70,5 +78,8 @@ class ConfigIdentity(PersistableRepr):
         return self.atts[k]
     
     def __repr__(self):
+        return self.name()
+    
+    def old__repr__(self):
         import pprint 
         return pprint.pformat( self.__props__() )

@@ -46,7 +46,7 @@ def test_entry():
 def test_configure():
     global g
     
-    from DybTest.gputil import inhibit_run
+    from dybtest.gputil import inhibit_run
     inhibit_run(1)
     
     import gentools    

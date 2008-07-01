@@ -22,7 +22,7 @@
          nosetests --help   
 """
 import genrepr
-import DybTest.gputil as gputil
+import dybtest.gputil as gputil
 from GaudiPython import AppMgr, PyAlgorithm 
 import config
 g = AppMgr()
