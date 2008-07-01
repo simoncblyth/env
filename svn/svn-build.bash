@@ -23,6 +23,23 @@
 #
 #
 
+
+svn-build-usage(){
+
+   cat << EOU
+
+    
+
+
+   
+EOU
+
+
+}
+
+
+
+
 svn-build-env(){
 
    elocal-
