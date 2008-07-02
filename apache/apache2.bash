@@ -119,48 +119,6 @@ apache2-env(){
 
 
 
-apache2-get(){
-
-  n=$APACHE2_NAME
-  a=$APACHE2_ABBREV
-
-  tgz=$n.tar.gz
-  url=http://ftp.mirror.tw/pub/apache/httpd/$tgz
-
-  cd $LOCAL_BASE
-  test -d $a || ( $SUDO mkdir $a && $SUDO chown $USER $a )
-  cd $a 
-  test -f $tgz || curl -o $tgz $url
-  test -d build || mkdir build
-  test -d build/$n || tar -C build -zxvf $tgz 
-}
-
-
-## invoked with sudo bash -lc apache2-configure
-
-apache2-configure(){
-   cd $APACHE2_BUILD
-
-   ##
-   ## http://www.devshed.com/c/a/Apache/Building-Apache-the-Way-You-Want-It/3/
-   ##
-
-   ## ooops this does not include mod_proxy
-   ##opts="--enable-mods-shared=most "
-   opts="--enable-mods-shared=all --enable-proxy=shared "
-
-
-   $ASUDO ./configure --help
-   layout="--prefix=$APACHE2_HOME --enable-layout=GNU "
-
-   $ASUDO ./configure ${layout} ${opts}
-}
-
-apache2-install(){
-   cd $APACHE2_BUILD
-   $ASUDO make
-   $ASUDO make install
-}
 
 
 

@@ -23,7 +23,8 @@
 <step id="xmltest" description="Run unit tests with xml output ">
      <sh:exec executable="bash"  output="nosetests.log"
          args=" -c  &quot;  pwd ; iwd=$PWD ; p=${path} ; cd ${workflow.home} ; cd  .${p/${workflow.strip}/} ;  pwd ; nosetests --with-xml-output --xml-outfile=$iwd/nosetests.xml ; echo it returned $?  &quot;  "  />
-     <report category="test" file="nosetests.xml"/>
+     <!-- <report category="test" file="nosetests.xml"/> -->
+     <python:unittest file="nosetests.xml" /> 
 </step>
 
 </build>

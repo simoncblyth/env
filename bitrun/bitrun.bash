@@ -92,17 +92,27 @@ bitrun-start(){
     ! bitrun-check      && echo $msg ABORT create a $HOME/.bitrunrc with the needed config && return 1
     [ ! -f $cfg ]       && echo $msg ERROR cfg file $cfg does not exist && return 1 
 
+    local log=${FUNCNAME/-*}.log
+
     local iwd=$PWD
-    local tmp=/tmp/$name/${FUNCNAME/-*/} && mkdir -p $tmp
+    local tmp=$(bitrun-dir) && mkdir -p $tmp
     cd $tmp
-    local cmd="bitten-slave --verbose --config=$cfg --dump-reports --work-dir=. --build-dir=  --keep-files $* --user=$user --password=$pass $url"
-    echo $cmd
+    local cmd="bitten-slave --verbose --config=$cfg --dump-reports --work-dir=. --build-dir=  --keep-files $* --user=$user --password=$pass --log=$log  $url"
+    #echo $cmd
     eval "$cmd"  
     cd $iwd
 }
 
 
+bitrun-dir(){
+   . $(bitrun-rc)
+   local tmp=/tmp/$name/${FUNCNAME/-*/} 
+   echo $tmp
+}
 
+bitrun-cd(){
+  cd $(bitrun-dir)
+}
 
 
 
