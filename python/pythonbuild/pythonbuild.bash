@@ -5,6 +5,9 @@ pythonbuild-usage(){
   
    separate off build related funcs for modularity ...
    
+   
+     PYTHON_NAME :  $PYTHON_NAME
+   
      pythonbuild-get
          download and unpack 
          
@@ -43,16 +46,18 @@ pythonbuild-cd(){
 
 pythonbuild-get(){
 
+    local msg="=== $FUNCNAME :" 
 	local nam=$PYTHON_NAME
 	local tgz=$nam.tgz
-    local ver=${PYTHON_NAME/*-/}
+    local ver=${nam/*-/}
     local url=http://www.python.org/ftp/python/$ver/$tgz
 
-    cd $SYSTEM_BASE
-    
-	test -d python || ( $SUDO mkdir python && $SUDO chown $USER python )
-	cd python
+    local dir=$(dirname $(pythonbuild-dir))
 
+    mkdir -p $dir
+    cd $SYSTEM_BASE/python
+    echo $msg nam $nam tgz $tgz ver $ver url $url dir $dir
+ 
     test -f $tgz || curl -L -O $url
     test -d build || mkdir build
     test -d build/$nam || tar -C build -zxvf $tgz 

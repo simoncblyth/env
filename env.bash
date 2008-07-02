@@ -35,7 +35,7 @@ scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; }
 unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
 
-bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash  && bitrun-env $* ; }
+bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash   ; }  ## has been potablized
 
 nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
 nosebit-(){      . $ENV_HOME/nosebit/nosebit.bash    && nosebit-env $* ; }
@@ -56,7 +56,7 @@ trac-ini-(){    . $ENV_HOME/otrac/trac-ini.bash  && trac-ini-env  $* ; }
 authzpolicy-(){ . $ENV_HOME/otrac/authzpolicy.bash && authzpolicy-env $* ; }
 
 svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
-
+svnbuild-(){    . $ENV_HOME/svn/svnbuild/svnbuild.bash && svnbuild-env $* ; }
 
 cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
 
@@ -108,6 +108,18 @@ cat << EOU
 #  base/base.bash: line 100: [: missing `]'
 #
 #       CAUTION error reporting can be a line off
+
+
+
+
+     env-rsync        top-level-fold <target-node>
+           propagate a top-level-folder without svn, caution can
+           leave SVN wc state awry ... usually easiest to delete working
+           copy and "svn up" when want to come clean and go back to SVN
+     
+     env-rsync-all    <target-node>
+           bootstrapping a node that does not have svn 
+
 
 EOU
 }
@@ -249,6 +261,13 @@ env-rsync(){
 
 }
 
+env-rsync-all(){
+   local target=${1:-C}
+   local cmd="rsync  -raztv $ENV_HOME/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
+   echo $cmd 
+   eval $cmd
+
+}
 
 
 

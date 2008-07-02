@@ -98,8 +98,11 @@ elif [ "$LOCAL_NODE" == "g4pb" ]; then
 
 elif [ "$LOCAL_NODE" == "coop" ]; then
 
-   NODE_TAG="C"
+   NODE_TAG="CO"
 
+elif [ "$LOCAL_NODE" == "cms01" ]; then
+
+   NODE_TAG="C"
 
 elif [ "$LOCAL_NODE" == "gateway" ]; then
 
@@ -301,7 +304,7 @@ export LOCAL_BASE_L=/usr/local
 export LOCAL_BASE_H=/data/usr/local          
 export LOCAL_BASE_T=/usr/local
 export LOCAL_BASE_N=$HOME/local
-export LOCAL_BASE_C=$HOME
+export LOCAL_BASE_C=/data/env/local
 
 
 vname=LOCAL_BASE_$NODE_TAG
@@ -316,6 +319,9 @@ local grid1_system_base=/disk/d4/dayabay/local
 export SYSTEM_BASE_U=$LOCAL_BASE
 export SYSTEM_BASE_P=$grid1_system_base
 export SYSTEM_BASE_G1=$grid1_system_base
+export SYSTEM_BASE_C=/data/env/system
+
+
 
 vname=SYSTEM_BASE_$NODE_TAG
 eval _SYSTEM_BASE=\$$vname

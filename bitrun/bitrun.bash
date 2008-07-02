@@ -1,31 +1,54 @@
 
+
+bitrun-rc(){ echo $HOME/.bitrunrc ; }
+
 bitrun-usage(){
 
+   . $(bitrun-rc)
+      
 cat << EOU
 
-    bitrun-url   : $(bitrun-url)
-    bitrun-cfg   : $(bitrun-cfg)
-    bitrun-path  : $(bitrun-path)
-         its better for the slave not to need to know this 
+   These bitrun-* functions provide the standard ways of invoking 
+   the bitten-slave, to preform automated tests/builds.
 
-    BITRUN_OPT   : $BITRUN_OPT
-    TRAC_INSTANCE : $TRAC_INSTANCE
-
-    which bitten-slave : $(which bitten-slave)
-
-
-    bitrun-dumb    :   pure default running 
-            
-    bitrun-start :
-     
-       the build-dir is by default created within the work-dir with a name like 
-       build_${config}_${build}   setting it to "" as used here  is a convenience for testing
-       which MUST go together with "--keep-files" to avoid potentially deleting bits 
-       of working copy      
+    bitrun-rc       : $(bitrun-rc)
+              absolute path to basic configuration file, which should be read protected 
     
+    == basic config parameters ==
+    
+    bitrun-name     : $(bitrun-name)
+    bitrun-url      : $(bitrun-url)
+              url of the controlling "master" trac instance with which to communicate          
+     
+    bitrun-cfg      : $(bitrun-cfg)
+              absolute path to the configuration file of the local slave node, exactly what should
+              appear in the depends on the recipes that this slave is going to cook ... could 
+              contain things such as the absolute path to the repository 
+    
+    == checks ==  
+       
+    which bitten-slave : $(which bitten-slave)
+              if the above is blank then you need to install nosebit and get python
+              into you path     
+              
+    == commands ==
+
+    bitrun-start :
+              start the slave , it will contact the master to find if there are any pending
+              tasks that this slave is able to perform
+      
+    == notes ==
 
 
-    recipe tips
+     Bitten slave option notes :    
+          
+              the build-dir is by default created within the work-dir with a name like 
+              build_${config}_${build}   setting it to "" as used here  is a convenience for testing
+              which MUST go together with "--keep-files" to avoid potentially deleting bits 
+              of working copy      
+    
+    Recipe tips :
+    
        -  shield the slave from non-zero return codes with "echo $?" for example 
        -  escaping backslashes in xml is problematic, why ?
               when doing ${p/trunk\//} it somehow becomes  ${p/trunk\\//} which doesnt work
@@ -36,148 +59,42 @@ cat << EOU
                the files it is creating ???
                ... but the explicit report needs a path 
                
-               Failed to read test report at /private/tmp/env/bitrun-start/nosetests.xml          
-        
-
-     bitrun-hotcopy <name> :
-           make a hotcopy of the trac database                        
-                                                
-     bitrun-sqlite 
-           connect to the hotcopied database
-
-     the new stuff is getting into the database...  but not appearing in annotation 
-           
-
-1|10|type|test
-1|11|status|failure
-1|11|name|test_odds(5, 15)
-1|11|stdout|Traceback (most recent call last):
-
-  File "/System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/unittest.py", line 260, in run
-    testMethod()
-
-  File "/Library/Python/2.5/site-packages/nose-0.10.3-py2.5.egg/nose/case.py", line 182, in runTest
-    self.test(*self.arg)
-
-  File "/Users/blyth/workflow/demo/package/module_test.py", line 60, in check_even
-    assert n % 2 == 0 or nn % 2 == 0
-
-AssertionError
-
-1|11|lines|60
-1|11|fixture|package.module_test.test_odds(5, 15)
-1|11|range|52-56
-1|11|file|package/module_test.py
-1|11|duration|0.000236
-1|11|type|test
-1|12|failures|3
-1|12|tests|12                
-                                                         
-                                                                                                       
-                                                                                                                                               
-
+                                                                                                                                                                                                                                                                                           
 EOU
 }
 
+  
 
-bitrun-hotcopy(){
-   local name=${1:-$TRAC_INSTANCE}
-   shift
-   local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp   
-   local cmd="cd $tmp && rm -rf hotcopy && sudo trac-admin $SCM_FOLD/tracs/$name hotcopy hotcopy && sudo chown -R $USER hotcopy"
-   
-   echo $cmd
-   eval $cmd 
-   
+  
+bitrun-check(){
+   . $(bitrun-rc)
+   local msg="=== $FUNCNAME :"
+   [ -z $name ] && echo $msg no name && return 1
+   [ -z $url  ] && echo $msg no url && return 1
+   [ -z $user ] && echo $msg no user  && return 1
+   [ -z $pass ] && echo $msg no pass && return 1
+   [ -z $cfg  ] && echo $msg no cfg   && return 1
+   return 0
 }
-
-bitrun-sqlite(){
-   local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp 
-   cd $tmp
-   
-   sqlite3 hotcopy/db/trac.db
-
-}
-
-
-bitrun-env(){
-  elocal-
-  trac-    ## pick up TRAC_INSTANCE for the node 
-  export BITRUN_OPT="--dry-run"
-}
-
-bitrun-url(){
-   local url
-   
-   local name=${1:-workflow}
-   case $name in
-     workflow) url=http://localhost/tracs/$name/builds ;;
-          env) url=http://dayabay.phys.ntu.edu.tw/tracs/$name/builds ;;
-            *) url=
-   esac
-   echo $url
-}
-
-bitrun-path(){
-   case ${1:-workflow} in
-     workflow) echo trunk/demo ;;
-          env) echo trunk/unittest/demo ;;
-            *) echo error-$FUNCNAME ;;
-   esac
-}
-
-bitrun-cfg(){
-    echo $ENV_HOME/bitrun/$LOCAL_NODE.cfg
-}
-
-bitrun-fluff(){
-    local msg="=== $FUNCNAME: $* "
-    local fluff=$WORKFLOW_HOME/demo/fluff.txt
-    date >> $fluff
-    local cmd="svn ci $fluff -m \"$msg\" "
-    echo $cmd
-    eval $cmd
-}
-
-
-
-
-
-
-
-bitrun-dumb(){
-   bitten-slave $(bitrun-url $*)
-}
-
-
-
-bitrun-cmd-(){
-   local name=$1
-   shift
-   local cmd=$(cat << EOC
-      bitten-slave -v -f $(bitrun-cfg) --dump-reports -u blyth -p $NON_SECURE_PASS $* $(bitrun-url $name)
-EOC)
-    echo $cmd
-}
-
-
+ 
+bitrun-name(){ . $(bitrun-rc) ; echo $name ; } 
+bitrun-url(){  . $(bitrun-rc) ; echo $url ; }
+bitrun-cfg(){  . $(bitrun-rc) ; echo $cfg ; } 
+ 
 bitrun-start(){
 
-    local name=${1:-$TRAC_INSTANCE}
-    shift
+    . $(bitrun-rc)
+    local msg="=== $FUNCNAME :"
+    [ "$(which bitten-slave)" == "" ] && echo $msg no bitten-slave in your path  && return 1
+    ! bitrun-check      && echo $msg ABORT create a $HOME/.bitrunrc with the needed config && return 1
+    [ ! -f $cfg ]       && echo $msg ERROR cfg file $cfg does not exist && return 1 
 
     local iwd=$PWD
-    local msg="=== $FUNCNAME :"
-
-    [ ! -f $cfg ] && echo $msg ERROR no bitten config file $file for LOCAL_NODE $LOCAL_NODE && return 1
-
-    local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp
+    local tmp=/tmp/$name/${FUNCNAME/-*/} && mkdir -p $tmp
     cd $tmp
-    
-    local cmd=$(bitrun-cmd- $name  --work-dir=. --build-dir=  --keep-files) 
+    local cmd="bitten-slave --verbose --config=$cfg --dump-reports --work-dir=. --build-dir=  --keep-files $* --user=$user --password=$pass $url"
     echo $cmd
-    eval $cmd
-  
+    eval "$cmd"  
     cd $iwd
 }
 
