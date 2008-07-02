@@ -1,7 +1,104 @@
-Index: /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py
+Index: bitten/admin.py
 ===================================================================
---- /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py	(revision 547)
-+++ /usr/local/env/trac/package/bitten/trac-0.11/bitten/web_ui.py	(working copy)
+--- bitten/admin.py	(revision 547)
++++ bitten/admin.py	(working copy)
+@@ -235,6 +235,22 @@
+             config.delete(db=db)
+         db.commit()
+ 
++
++    def _resolve_recipe(self, recipe_xml , authname ):
++        """ CAUTION : this is duplicated in master.py """
++        if recipe_xml.startswith('source:'):
++            self.log.info("_resolve_recipe using repopath as source of the recipe %s " % recipe_xml )
++            repos = self.env.get_repository(authname)
++            recipe_path = recipe_xml[7:]
++            try: 
++                node = repos.get_node( recipe_path )
++                recipe_xml = node.get_content().read()
++                self.log.info("_resolve_recipe got recipe_xml %s " % recipe_xml )
++            except (AssertionError, TracError), e:
++                raise TracError(unicode(e), 'Invalid Repository Path')
++        return recipe_xml
++
++
+     def _update_config(self, req, config):
+         req.perm.assert_permission('BUILD_MODIFY')
+ 
+@@ -259,8 +275,9 @@
+             except TracError, e:
+                 raise TracError(unicode(e), 'Invalid Oldest Revision')
+ 
+-        recipe_xml = req.args.get('recipe', '')
+-        if recipe_xml:
++        recipe_arg = req.args.get('recipe', '')
++        if recipe_arg:
++            recipe_xml = self._resolve_recipe(recipe_arg, req.authname )
+             try:
+                 Recipe(xmlio.parse(recipe_xml)).validate()
+             except xmlio.ParseError, e:
+@@ -271,7 +288,7 @@
+ 
+         config.name = name
+         config.path = repos.normalize_path(path)
+-        config.recipe = recipe_xml
++        config.recipe = recipe_arg
+         config.min_rev = req.args.get('min_rev')
+         config.max_rev = req.args.get('max_rev')
+         config.label = req.args.get('label', config.name)
+Index: bitten/master.py
+===================================================================
+--- bitten/master.py	(revision 547)
++++ bitten/master.py	(working copy)
+@@ -158,6 +158,24 @@
+         req.write('')
+         raise RequestDone
+ 
++
++    def _resolve_recipe(self, recipe_xml , authname ):
++        """ minor fix to allow entry of source:/trunk/etc/recipe.xml paths rather than the actual xml 
++             CAUTION : this code is duplicated in master.py and admin.py 
++        """ 
++        if recipe_xml.startswith('source:'):
++            self.log.info("_resolve_recipe using repopath as source of the recipe %s " % recipe_xml )
++            repos = self.env.get_repository(authname)
++            recipe_path = recipe_xml[7:]
++            try:
++                node = repos.get_node( recipe_path )
++                recipe_xml = node.get_content().read()
++                self.log.info("_resolve_recipe got recipe_xml %s " % recipe_xml )
++            except (AssertionError, TracError), e:
++                raise TracError(unicode(e), 'Invalid Repository Path')
++        return recipe_xml
++                            
++                                            
+     def _process_build_initiation(self, req, config, build):
+         self.log.info('Build slave %r initiated build %d', build.slave,
+                       build.id)
+@@ -167,7 +185,8 @@
+         for listener in BuildSystem(self.env).listeners:
+             listener.build_started(build)
+ 
+-        xml = xmlio.parse(config.recipe)
++        recipe_xml = self._resolve_recipe(config.recipe, req.authname)
++        xml = xmlio.parse(recipe_xml)
+         xml.attr['path'] = config.path
+         xml.attr['revision'] = build.rev
+         xml.attr['config'] = config.name
+@@ -201,7 +220,8 @@
+         if step:
+             raise HTTPConflict('Build step already exists')
+ 
+-        recipe = Recipe(xmlio.parse(config.recipe))
++        recipe_xml = self._resolve_recipe(config.recipe, req.authname)
++        recipe = Recipe(xmlio.parse(recipe_xml))
+         index = None
+         current_step = None
+         for num, recipe_step in enumerate(recipe):
+Index: bitten/web_ui.py
+===================================================================
+--- bitten/web_ui.py	(revision 547)
++++ bitten/web_ui.py	(working copy)
 @@ -27,6 +27,7 @@
                              add_link, add_stylesheet, add_ctxtnav, \
                              prevnext_nav, add_script
