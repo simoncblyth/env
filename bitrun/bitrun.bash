@@ -8,6 +8,9 @@ bitrun-usage(){
       
 cat << EOU
 
+   For example hookup to your environment and invoke with
+       . path/to/bitrun.bash && bitrun-start
+
    These bitrun-* functions provide the standard ways of invoking 
    the bitten-slave, to preform automated tests/builds.
 
@@ -43,16 +46,16 @@ cat << EOU
      Bitten slave option notes :    
           
               the build-dir is by default created within the work-dir with a name like 
-              build_${config}_${build}   setting it to "" as used here  is a convenience for testing
+              build_\${config}_\${build}   setting it to "" as used here  is a convenience for testing
               which MUST go together with "--keep-files" to avoid potentially deleting bits 
               of working copy      
     
     Recipe tips :
     
-       -  shield the slave from non-zero return codes with "echo $?" for example 
+       -  shield the slave from non-zero return codes with "echo \$?" for example 
        -  escaping backslashes in xml is problematic, why ?
-              when doing ${p/trunk\//} it somehow becomes  ${p/trunk\\//} which doesnt work
-              avoid the issue by using   .${p/trunk/} 
+              when doing \${p/trunk\//} it somehow becomes  \${p/trunk\\//} which doesnt work
+              avoid the issue by using   .\${p/trunk/} 
        - be aware of the different directories in use
              - the invokation context in /tmp/env/bitrun-start/etc..
              - it seems that sh:exec gets along fine with that ... or pehaps its just capturing stdout and ignoring 

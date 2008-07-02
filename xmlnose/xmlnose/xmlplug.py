@@ -86,7 +86,8 @@ class XmlOutput(Plugin):
         return d
         
     def finalize(self , result ):
-        self.xml.extend( self.xml_result( result ) )
+        # this causes python:unittest to report one too many tests
+        #self.xml.extend( self.xml_result( result ) )
         self.xml.append('</report>')
         if self.options.xml_outfile!=None:
             outpath = os.path.abspath(self.options.xml_outfile)
@@ -180,19 +181,24 @@ class XmlOutput(Plugin):
                
         path, module, call = test.address()
         path = path.replace('.pyc','.py') 
+        
         x = []
-        x.append("<test>")
-        x.append("<name>%s</name>" % name )
+        if self.options.xml_format=='bitten0':
+            x.append("<test>")
+            x.append("<name>%s</name>" % name )
+            x.append("<status>%s</status>" % status )
+            x.append("<file>%s</file>" % self.present_path(path) )
+            x.append("<duration>%f</duration>" %  dur )  
+        elif self.options.xml_format=='bitten':
+            x.append("<test name=\"%s\" status=\"%s\" file=\"%s\" duration=\"%f\" >" % ( name , status ,  self.present_path(path) , dur ) )
+        else:
+            assert False,  "xmlformat not allowed %s " % self.options.xml_format
         x.append("<fixture>%s</fixture>" % tid )
-        x.append("<duration>%f</duration>" %  dur )        
-        x.append("<status>%s</status>" % status ) 
-        x.append("<file>%s</file>" % self.present_path(path) )
         x.append("<range>%s</range>" % source_range( callable ))
         if  err!=None:      
             x.append("<stdout><![CDATA[%s]]></stdout>" % '\n'.join(traceback.format_exception(*err))  )        
             x.append("<lines>%s</lines>" %  " ".join([str(l) for l in exception_lines(err,path)]))
-       
-        x.append("</test>")
+        x.append("</test>")            
         self.xml.extend(x)
 
     def xml_result(self, result):

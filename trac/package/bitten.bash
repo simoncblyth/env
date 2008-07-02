@@ -72,25 +72,28 @@ bitten-fix(){
 }
 
 
+bitten-makepatch(){  package-fn $FUNCNAME $* ; }
+bitten-applypatch(){ package-fn $FUNCNAME $* ; }
 
-bitten-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-bitten-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-bitten-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-bitten-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
-bitten-get(){       package-get       ${FUNCNAME/-*/} $* ; }
 
-bitten-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-bitten-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-bitten-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-bitten-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
+bitten-branch(){    package-fn $FUNCNAME $* ; }
+bitten-basename(){  package-fn $FUNCNAME $* ; }
+bitten-dir(){       package-fn $FUNCNAME $* ; } 
+bitten-egg(){       package-fn $FUNCNAME $* ; }
+bitten-get(){       package-fn $FUNCNAME $* ; }
 
-bitten-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-bitten-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-bitten-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-bitten-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-bitten-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
+bitten-install(){   package-fn $FUNCNAME $* ; }
+bitten-uninstall(){ package-fn $FUNCNAME $* ; }
+bitten-reinstall(){ package-fn $FUNCNAME $* ; }
+bitten-enable(){    package-fn $FUNCNAME $* ; }
 
-bitten-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+bitten-status(){    package-fn $FUNCNAME $* ; }
+bitten-auto(){      package-fn $FUNCNAME $* ; }
+bitten-diff(){      package-fn $FUNCNAME $* ; } 
+bitten-rev(){       package-fn $FUNCNAME $* ; } 
+bitten-cd(){        package-fn $FUNCNAME $* ; }
+
+bitten-fullname(){  package-fn $FUNCNAME $* ; }
 
 
 bitten-perms(){
