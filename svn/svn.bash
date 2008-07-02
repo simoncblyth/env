@@ -9,25 +9,21 @@ svn-usage(){
      svn-global-ignores :  
          handholding only
          
-     
-  Precursors to other functionality...
-  
-        svn-apache2-
-        svn-sync-
-        svn-tools-   
-    
 EOU
 
 }
 
 
-swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
 
-svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
-svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
-svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
-svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 
-svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
+#swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
+#svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+#svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
+#svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
+#svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 
+#svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
+
+
+svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env   $* ; } 
 
 
 svn-env(){
@@ -35,17 +31,18 @@ svn-env(){
   elocal-
 
   [ "$NODE_APPROACH" == "stock" ] && return 0
+
+  #local SVN_NAME=subversion-1.4.0
+  export SVN_NAME=subversion-1.4.2
+  export SVN_NAME2=subversion-deps-1.4.2  
+    
+    
+  #export SVN_BUILD=$SYSTEM_BASE/svn/build/$SVN_NAME
+  export SVN_HOME=$SYSTEM_BASE/svn/$SVN_NAME
   
-  
-  local SVN_NAME=subversion-1.4.0
-  local SVN_ABBREV=svn
-  
-  export SVN_BUILD=$LOCAL_BASE/$SVN_ABBREV/build/$SVN_NAME
-  export SVN_HOME=$SYSTEM_BASE/$SVN_ABBREV/$SVN_NAME
   export PYTHON_PATH=$SVN_HOME/lib/svn-python:$PYTHON_PATH
   
   svn-path
-  	
 }
 
 

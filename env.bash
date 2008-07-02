@@ -56,7 +56,10 @@ trac-ini-(){    . $ENV_HOME/otrac/trac-ini.bash  && trac-ini-env  $* ; }
 authzpolicy-(){ . $ENV_HOME/otrac/authzpolicy.bash && authzpolicy-env $* ; }
 
 svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
-svnbuild-(){    . $ENV_HOME/svn/svnbuild/svnbuild.bash && svnbuild-env $* ; }
+
+
+swig-(){        . $ENV_HOME/swig/swig.bash       && swig-env $* ; } 
+
 
 cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
 
@@ -249,10 +252,12 @@ env-local-dir(){
 
 
 
+
+
 env-rsync(){
 
    local fold=${1:-dybpy}
-   local target=${2:-P}
+   local target=${2:-C}
    
    local cmd="rsync  -raztv $ENV_HOME/$fold/ $target:env/$fold/ --exclude '*.pyc' --exclude '.svn'  "
     

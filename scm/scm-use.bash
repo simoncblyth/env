@@ -14,7 +14,9 @@ scm-use-env(){
 
    elocal-
    svn-
-   apache2-
+   #apache2-
+   apache-
+   
    python-
    sqlite-
    

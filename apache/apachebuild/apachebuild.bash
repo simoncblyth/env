@@ -16,6 +16,9 @@ apachebuild-usage(){
       apachebuild-configure
       apachebuild-install
 
+      apachebuild-dir  : $(apachebuild-dir)
+      apachebuild-home : $(apachebuild-home)
+
 
 EOU
 
@@ -29,7 +32,7 @@ apachebuild-get(){
   local url=http://ftp.mirror.tw/pub/apache/httpd/$tgz
 
   cd $SYSTEM_BASE
-  test -d apache 
+  mkdir -p apache
   cd apache 
   
   [ ! -f $tgz ]   && curl -O $url
@@ -38,28 +41,39 @@ apachebuild-get(){
 }
 
 
+apachebuild-home(){
+  #echo $SYSTEM_BASE/apache/$APACHE_NAME
+  echo $APACHE_HOME
+}
+
+apachebuild-dir(){
+   echo $SYSTEM_BASE/apache/build/$APACHE_NAME
+}
+
+apachebuild-cd(){
+   cd $(apachebuild-dir)
+}
+
+
+
 ## invoked with sudo bash -lc apache2-configure
 
 apachebuild-configure(){
-   cd $APACHE2_BUILD
+   cd $(apachebuild-dir)
 
    ##
    ## http://www.devshed.com/c/a/Apache/Building-Apache-the-Way-You-Want-It/3/
    ##
-
    ## ooops this does not include mod_proxy
-   ##opts="--enable-mods-shared=most "
-   opts="--enable-mods-shared=all --enable-proxy=shared "
+   ## opts="--enable-mods-shared=most "
+   ## local opts="--enable-mods-shared=all --enable-proxy=shared "
 
-
-   $ASUDO ./configure --help
-   layout="--prefix=$APACHE2_HOME --enable-layout=GNU "
-
-   $ASUDO ./configure ${layout} ${opts}
+   $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared=max 
 }
 
 apachebuild-install(){
-   cd $APACHE2_BUILD
+   cd $(apachebuild-dir)
+   
    $ASUDO make
    $ASUDO make install
 }
