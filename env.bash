@@ -275,6 +275,42 @@ env-rsync-all(){
 }
 
 
+env-path(){
+   echo $PATH | tr ":" "\n"
+}
+
+env-prepend(){
+  local add=$1 
+  echo $PATH | grep -v $add - > /dev/null  && export PATH=$add:$PATH 
+}
+
+env-append(){
+  local add=$1 
+  echo $PATH | grep -v $add - > /dev/null && export PATH=$PATH:$add 
+}
+
+env-llp-prepend(){
+  local add=$1 
+  
+  if [ "$(uname)" == "Darwin" ]; then
+    echo $DYLD_LIBRARY_PATH | grep -v $add - > /dev/null && export DYLD_LIBRARY_PATH=$add:$DYLD_LIBRARY_PATH
+  else  
+    echo $LD_LIBRARY_PATH | grep -v $add - > /dev/null && export LD_LIBRARY_PATH=$add:$LD_LIBRARY_PATH 
+  fi
+}
+
+
+
+env-llp(){
+   if [ "$(uname)" == "Darwin" ]; then
+      echo $DYLD_LIBRARY_PATH | tr ":" "\n"
+   else
+      echo $LD_LIBRARY_PATH | tr ":" "\n"
+   fi    
+}
+
+
+
 
 
 env-env

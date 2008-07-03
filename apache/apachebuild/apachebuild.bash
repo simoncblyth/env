@@ -1,4 +1,7 @@
 
+
+
+
 apachebuild-env(){
    elocal-
    apache-
@@ -15,9 +18,31 @@ apachebuild-usage(){
       apachebuild-get
       apachebuild-configure
       apachebuild-install
-
+               make and install
+               
+      apachebuild-cd
       apachebuild-dir  : $(apachebuild-dir)
       apachebuild-home : $(apachebuild-home)
+     
+
+ 
+      apachebuild-wipe  :
+             deletes the build folder ... for a fresh start
+      apachebuild-wipe-install
+             wipes the $APACHE_NAME installation
+             
+      apachebuild-get
+             unpacks again 
+      apachebuild-buildconf 
+             issue with modpython forcing to buildconf.. creating a new "configure"
+             in order to use a newer libtool
+  
+      apachebuild-configure
+      apachebuild-install
+             
+
+      $(type apachebuild-again)
+
 
 
 EOU
@@ -68,7 +93,9 @@ apachebuild-configure(){
    ## opts="--enable-mods-shared=most "
    ## local opts="--enable-mods-shared=all --enable-proxy=shared "
 
-   $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared=max 
+   # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
+   $ASUDO ./configure --prefix=$(apachebuild-home) 
+   
 }
 
 apachebuild-install(){
@@ -76,6 +103,38 @@ apachebuild-install(){
    
    $ASUDO make
    $ASUDO make install
+}
+
+apachebuild-wipe(){
+   cd $SYSTEM_BASE/apache
+   [ -d build ] && rm -rf build
+}
+
+apachebuild-wipe-install(){
+
+   cd $SYSTEM_BASE/apache
+   [ "${APACHE_NAME:0:5}" != "httpd" ] && echo cannot proceed bad name $APACHE_NAME && return 1
+   [ -d $APACHE_NAME ] && rm -rf $APACHE_NAME
+}
+
+
+apachebuild-buildconf(){
+
+   cd $(apachebuild-dir)
+   ./buildconf
+   
+}
+
+apachebuild-again(){
+
+   apachebuild-wipe
+   apachebuild-wipe-install
+   
+   apachebuild-get
+   apachebuild-configure
+   apachebuild-install
+
+
 }
 
 

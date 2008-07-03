@@ -8,19 +8,38 @@ pythonbuild-usage(){
    
      PYTHON_NAME :  $PYTHON_NAME
    
-     pythonbuild-get
-         download and unpack 
-         
-     pythonbuild-configure
-     pythonbuild-install
-     pythonbuild-setuptools-get
-
      pythonbuild-dir     :  $(pythonbuild-dir)
      pythonbuild-prefix  :  $(pythonbuild-prefix)
                    installation prefix
      pythonbuild-cd      :
                     to \$(pythonbuild-dir)  
+
    
+     pythonbuild-get
+         download and unpack 
+         
+     pythonbuild-configure
+         note the the --enable-shared is required to create 
+         ./Python-2.5.1/lib/libpython2.5.so
+     
+     pythonbuild-install
+     
+     pythonbuild-wipe  :
+            delete the build dir
+     pythonbuild-wipe-install :
+            delete the install dir called $PYTHON_NAME
+     
+    
+    == redo the lot ==
+    
+    $(type pythonbuild-again)
+                
+                
+     == extras ==         
+               
+     pythonbuild-setuptools-get 
+                           
+  
   
 EOU
 
@@ -66,7 +85,7 @@ pythonbuild-get(){
 pythonbuild-configure(){
 
 	cd $(pythonbuild-dir)
-	./configure --prefix=$(pythonbuild-prefix)
+	./configure --prefix=$(pythonbuild-prefix) --enable-shared 
 }
 
 pythonbuild-install(){
@@ -75,6 +94,35 @@ pythonbuild-install(){
 	make
 	make install
 }
+
+
+pythonbuild-wipe(){
+    cd $SYSTEM_BASE/python
+    rm -rf build
+}
+
+pythonbuild-wipe-install(){
+
+   cd $SYSTEM_BASE/python
+   [ "${PYTHON_NAME:0:6}" != "Python" ] && echo bad PYTHON_NAME cannot proceed && return 1
+   rm -rf $PYTHON_NAME
+}
+
+
+pythonbuild-again(){
+
+    pythonbuild-wipe
+    pythonbuild-wipe-install
+    
+    pythonbuild-get
+    pythonbuild-configure
+    pythonbuild-install
+
+}
+
+
+
+
 
 pythonbuild-setuptools-get(){
 

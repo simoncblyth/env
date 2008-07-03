@@ -41,7 +41,8 @@ sqlite-path(){
 
   local msg="=== $FUNCNAME :"
   [ -z $SQLITE_HOME ] && echo $msg skipping as no SQLITE_HOME && return 1
-  export PATH=$SQLITE_HOME/bin:$PATH
+  
+  env-prepend $SQLITE_HOME/bin
 
 }
 

@@ -68,6 +68,20 @@ python-env(){
    fi
 }
 
+python-path(){
+
+  [ -z $PYTHON_HOME ] && echo $msg skip as no PYTHON_HOME && return 1  
+
+  env-prepend $PYTHON_HOME/bin
+  env-llp-prepend $PYTHON_HOME/lib
+  
+
+}
+
+
+
+
+
 
 python-pth(){
   cat $PYTHON_SITE/easy-install.pth
@@ -138,12 +152,6 @@ python-uninstall(){
 
 
 
-python-path(){
-
-  [ -z $PYTHON_HOME ] && echo $msg skip as no PYTHON_HOME && return 1  
-  export PATH=$PYTHON_HOME/bin:$PATH
-
-}
 
 
 python-x(){  scp $SCM_HOME/python.bash ${1:-$TARGET_TAG}:$SCM_BASE ; }

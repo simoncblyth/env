@@ -51,14 +51,11 @@ svn-path(){
   local dirs="$SVN_HOME/lib/svn-python/svn $SVN_HOME/lib/svn-python/libsvn"
   for dir in $dirs
   do 
-       if [ "$LOCAL_ARCH" == "Darwin" ]; then 
-          export DYLD_LIBRARY_PATH=$dir:$DYLD_LIBRARY_PATH
-       else
-          export LD_LIBRARY_PATH=$dir:$LD_LIBRARY_PATH
-       fi
+     env-llp-prepend $dir
   done
   
-  export PATH=$SVN_HOME/bin:$PATH
+
+  env-prepend $SVN_HOME/bin
   
 }
 

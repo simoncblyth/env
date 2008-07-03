@@ -1,9 +1,8 @@
 
 
-#
-#  modpython-mpinfo
-#  modpython-mpinfo-location
-#
+
+
+
 #
 #  modpython-apache2-test-run 
 #  modpython-apache2-test-prepare
@@ -21,24 +20,6 @@
 
 
 
-modpython-mpinfo(){
-   name=python	
-   modpython-mpinfo-location > $APACHE2_HOME/etc/apache2/$name.conf
-   apachectl configtest && apachectl restart 
-## && open http://$HOSTPORT/mpinfo
-}
-
-
-modpython-mpinfo-location(){
-cat << EOL
-<Location /mpinfo>
-   SetHandler mod_python
-   PythonHandler mod_python.testhandler
-</Location>
-EOL
-}
-
-
 
 modpython-apache2-test-run(){
    echo open http://grid1.phys.ntu.edu.tw:6060/test-modpython/hello.py
@@ -46,7 +27,8 @@ modpython-apache2-test-run(){
 
 modpython-apache2-test-prepare(){
    handler=hello
-   modpython-apache2-test-directory $handler  > $APACHE2_HOME/etc/apache2/python.conf
+   modpython-apache2-test-directory $handler  > $(apache-confdir)/python.conf
+   
    mkdir -p $APACHE2_HTDOCS/test-modpython
    modpython-apache2-test-script    > $APACHE2_HTDOCS/test-modpython/$handler.py
    apachectl configtest && apachectl restart
@@ -56,7 +38,7 @@ modpython-apache2-test-directory(){
     handler=$1
 	cat << EOT
 #  http://www.modpython.org/live/mod_python-3.3.1/doc-html/inst-testing.html
-<Directory $APACHE2_HTDOCS/test-modpython>
+<Directory $(apache-htdocs)/test-modpython>
 	AddHandler mod_python .py
 	PythonHandler $handler
 	PythonDebug On

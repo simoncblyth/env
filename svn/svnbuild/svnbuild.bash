@@ -26,6 +26,13 @@ svnbuild-usage(){
        svnbuild-make
        svnbuild-install
               note this writes into APACHE as well
+    
+              suspect the below addition was made to httpd.conf
+             
+              # LoadModule foo_module modules/mod_foo.so
+              LoadModule dav_svn_module     modules/mod_dav_svn.so
+              LoadModule authz_svn_module   modules/mod_authz_svn.so
+       
        
        svnbuild-swigpy
               NB must do after svnbuild-install and the LD_LIBRARY_PATH must be setup 
