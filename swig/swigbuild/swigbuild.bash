@@ -20,12 +20,19 @@ swigbuild-usage(){
      mixed messages re versions http://trac.edgewall.org/wiki/TracSubversion
      trying : 
                 SWIG_NAME : $SWIG_NAME
+                SWIG_HOME : $SWIG_HOME
 
      swigbuild-get
      swigbuild-configure
      swigbuild-install
      swigbuild-check
+     
+     should report:
+          SWIG Version 1.3.29
+          Compiled with g++ [i686-pc-linux-gnu] 
+          Please see http://www.swig.org for reporting bugs and further information
 
+    
 EOU
 
 }
@@ -82,10 +89,4 @@ swigbuild-check(){
 }
 
 
-# reports:
-#
-# SWIG Version 1.3.29
-#
-# Compiled with g++ [i686-pc-linux-gnu]
-# Please see http://www.swig.org for reporting bugs and further information
 

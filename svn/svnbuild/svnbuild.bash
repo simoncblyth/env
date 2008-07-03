@@ -15,10 +15,26 @@ svnbuild-usage(){
 
        svnbuild-configure :
             configure depends on ...
+                 SVN_HOME    : $SVN_HOME
                  APACHE_HOME : $APACHE_HOME
                  SWIG_HOME   : $SWIG_HOME
                  PYTHON_HOME : $PYTHON_HOME
 
+            Following recommendations in 
+                $(svnbuild-dir)/subversion/bindings/swig/INSTALL
+
+       svnbuild-make
+       svnbuild-install
+              note this writes into APACHE as well
+       
+       svnbuild-swigpy
+              NB must do after svnbuild-install and the LD_LIBRARY_PATH must be setup 
+       
+       svnbuild-pth
+               writes $PYTHON_SITE/subversion.pth  
+
+       svnbuild-swigpy-test
+             
 
 
 
@@ -38,10 +54,10 @@ EOU
 
 
 svnbuild-env(){
-
-   elocal-
    svn-
-  
+   apache-
+   swig-
+   python-
 }
 
 
@@ -65,10 +81,6 @@ svnbuild-get(){
    svnbuild-get- $SVN_NAME2
 }
 
-
-
-
-
 svnbuild-dir(){
    echo $SYSTEM_BASE/svn/build/$SVN_NAME
 }
@@ -79,13 +91,40 @@ svnbuild-cd(){
 
 
 svnbuild-configure(){
-
    
-  ./configure  --prefix=$SVN_HOME --with-apxs=$APACHE_HOME/sbin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
+  cd  $(svnbuild-dir)
+  ./configure  --prefix=$SVN_HOME --with-apxs=$APACHE_HOME/bin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
 
-  #  speifying PYTHON on the configure commandline is recommended in $SVN_BUILD/subversion/bindings/swig/INSTALL
-#
+}
 
+svnbuild-make(){
+  cd  $(svnbuild-dir)
+  $SUDO make
+}
+
+svnbuild-install(){
+  cd  $(svnbuild-dir)
+  $SUDO make install
+}
+
+svnbuild-swigpy(){
+  cd $(svnbuild-dir)
+  make swig-py
+  make install-swig-py
+}
+
+svnbuild-pth(){	
+  echo $SVN_HOME/lib/svn-python > $PYTHON_SITE/subversion.pth
+}
+
+svnbuild-swigpy-test(){
+
+  python -c "from svn import client"
+  
+  python << EOT
+from svn import core  
+print (core.SVN_VER_MAJOR, core.SVN_VER_MINOR, core.SVN_VER_MICRO, core.SVN_VER_PATCH )
+EOT
 
 }
 

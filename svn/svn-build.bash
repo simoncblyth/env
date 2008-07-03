@@ -28,9 +28,8 @@ svn-build-usage(){
 
    cat << EOU
 
-    
-
-
+   NB A LATER ENCARNATION OF THIS CAN BE FOUND AT svn/svnbuild/svnbuild.bash
+   THIS IS RETAINED FOR DOCUMENTATION ONLY 
    
 EOU
 
@@ -321,16 +320,6 @@ svn-build-pth-connect(){
 
 }
 
-
-svn-build-copy-py-bindings-to-site-packages(){
-
-  echo this is replaced by svn-pth-connect
-
-  ##  this is done by the install-py-bindings 
-  ##
-  #cp -r $SVN_HOME/lib/svn-python/svn    $PYTHON_HOME/lib/python2.5/site-packages/
-  #cp -r $SVN_HOME/lib/svn-python/libsvn $PYTHON_HOME/lib/python2.5/site-packages/
-}
 
 
 
