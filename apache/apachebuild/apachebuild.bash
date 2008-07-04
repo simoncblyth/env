@@ -39,7 +39,6 @@ apachebuild-usage(){
   
       apachebuild-configure
       apachebuild-install
-             
 
       $(type apachebuild-again)
 
@@ -103,6 +102,9 @@ apachebuild-install(){
    
    $ASUDO make
    $ASUDO make install
+
+ 
+
 }
 
 apachebuild-wipe(){
@@ -134,8 +136,9 @@ apachebuild-again(){
    apachebuild-configure
    apachebuild-install
 
+   apacheconf-
+   apacheconf-original---
 
 }
-
 
 

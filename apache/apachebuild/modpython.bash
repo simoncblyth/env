@@ -6,6 +6,7 @@ modpython-usage(){
     cat << EOU
     
      http://www.modpython.org/live/mod_python-3.3.1/doc-html/inst-prerequisites.html
+     http://www.modpython.org/live/mod_python-3.3.1/doc-html/modpython.html
 
      mod_python-3.3.1
          Python 2.3.4 or later. Python versions less than 2.3 will not work.

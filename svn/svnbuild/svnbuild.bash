@@ -43,6 +43,9 @@ svnbuild-usage(){
        svnbuild-swigpy-test
              
 
+       svnbuild-again
+              wipes and rebuilds the lot 
+
 
 
    issues ...
@@ -134,4 +137,40 @@ print (core.SVN_VER_MAJOR, core.SVN_VER_MINOR, core.SVN_VER_MICRO, core.SVN_VER_
 EOT
 
 }
+
+
+svnbuild-wipe(){
+  cd $SYSTEM_BASE/svn
+  [ -d build ] && rm -rf build
+}
+
+svnbuild-wipe-install(){
+   
+  cd $SYSTEM_BASE/svn
+  [ "${SVN_NAME:0:3}" != "subversion" ] && echo bad name $SVN_NAME && return 1
+  [ -d $SVN_NAME ] && rm -rf "$SVN_NAME"
+}
+
+
+
+svnbuild-again(){
+
+   svnbuild-wipe
+   svnbuild-wipe-install
+   
+   svnbuild-get
+   svnbuild-configure
+   svnbuild-make
+   svnbuild-install
+   svn-path      ## sets PATH and LD_LIBRARY_PATH needed by client builds
+   
+   svnbuild-swigpy
+   svnbuild-pth
+   
+   svnbuild-swigpy-test
+
+   
+
+}
+
 

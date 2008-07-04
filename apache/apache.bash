@@ -56,9 +56,6 @@ apache-htdocs(){
   echo $APACHE_HOME/htdocs 
 }
 
-apache-vi(){
-  vi $APACHE_HOME/conf/httpd.conf
-}
 
 apache-logs(){
   cd $APACHE_HOME/logs

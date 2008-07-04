@@ -20,6 +20,7 @@ dybpy-(){       . $ENV_HOME/dybpy/dybpy.bash && dybpy-env $* ; }
 
 
 apache-(){      . $ENV_HOME/apache/apache.bash && apache-env $* ; } 
+apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; } 
 
 caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; } 
 
