@@ -11,11 +11,14 @@ apache-usage(){
        which apachectl : $(which apachectl) 
 
       apache-ls
-                ls libexec
+                ls dso modules
+      apache-logs 
+                ls logs 
    
+      apache-envvars  : $(apache-envvars)
+      
       apache-again
            wipes and builds both apache and modpython
-           
            CAUTION:  this wipes installations and rebuilds from the tarball
    
 EOU
@@ -43,9 +46,17 @@ apache-env(){
 }
 
 
+
+
+
 apache-target(){
   echo http://cms01.phys.ntu.edu.tw
 }
+
+apache-envvars(){
+   echo $APACHE_HOME/bin/envvars
+}
+
 
 apache-confdir(){
   #echo $APACHE_HOME/etc/apache2
@@ -56,12 +67,14 @@ apache-htdocs(){
   echo $APACHE_HOME/htdocs 
 }
 
-
 apache-logs(){
   cd $APACHE_HOME/logs
   ls -l 
 }
 
+apache-modulesdir(){
+   echo $APACHE_HOME/modules
+}
 apache-ls(){
-   ls -alst $APACHE_HOME/libexec
+   ls -alst $(apache-modulesdir)
 }

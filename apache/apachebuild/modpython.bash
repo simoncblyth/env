@@ -45,6 +45,10 @@ modpython-usage(){
         modpython-configure
         modpython-install
         
+        modpython-ldd
+             if this does not have a python line the python is statically linked in
+             ... check pythonbuild-solibfix and http://code.google.com/p/modwsgi/wiki/InstallationIssues
+        
         
         
      do it all again from scratch    
@@ -119,6 +123,11 @@ modpython-dir(){
 }
 
 
+modpython-cd(){
+  cd $(modpython-dir)
+}
+
+
 modpython-configure(){
 
     cd $(modpython-dir)
@@ -174,10 +183,17 @@ modpython-again(){
     modpython-install
 
 
+    modpython-ldd
 }
 
 
 
+
+
+
+modpython-ldd(){
+    ldd $(apache-modulesdir)/mod_python.so
+}
 
 
 

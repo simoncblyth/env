@@ -30,6 +30,13 @@ pythonbuild-usage(){
             delete the install dir called $PYTHON_NAME
      
     
+     pythonbuild-solibfix
+            place a link in python config dir to the libpython2.5.so two levels up
+            to keep modpython nice an slim ... 
+               http://code.google.com/p/modwsgi/wiki/InstallationIssues
+    
+    
+    
     == redo the lot ==
     
     $(type pythonbuild-again)
@@ -118,7 +125,23 @@ pythonbuild-again(){
     pythonbuild-configure
     pythonbuild-install
 
+    pythonbuild-solibfix
+
 }
+
+
+pythonbuild-solibfix(){
+
+    local iwd=$PWD
+    cd $PYTHON_HOME/lib/python2.5/config
+    
+    [ ! -L libpython2.5.so ] && ln -s ../../libpython2.5.so .
+    ls -l 
+    cd $iwd
+
+}
+
+
 
 
 

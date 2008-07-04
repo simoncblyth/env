@@ -3,8 +3,11 @@ apacheconf-usage(){
   
    cat << EOU
 
+     apacheconf-dir       :  $(apacheconf-dir)
      apacheconf-path      :  $(apacheconf-path)
      apacheconf-patchpath :  $(apacheconf-patchpath)
+
+     apacheconf-cd 
 
      apacheconf-makepatch 
             create patch from diff of original httpd.conf and current
@@ -33,8 +36,17 @@ apacheconf-env(){
   apache-
 }
 
+
+apacheconf-dir(){
+  echo $APACHE_HOME/conf
+}
+
+apacheconf-cd(){
+  cd $(apacheconf-dir)
+}
+
 apacheconf-path(){
-  echo $APACHE_HOME/conf/httpd.conf
+  echo $(apacheconf-dir)/httpd.conf
 }
 
 apacheconf-patchpath(){
