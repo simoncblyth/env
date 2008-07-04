@@ -32,10 +32,14 @@ svn-env(){
 
   [ "$NODE_APPROACH" == "stock" ] && return 0
 
-  #local SVN_NAME=subversion-1.4.0
-  export SVN_NAME=subversion-1.4.2
-  export SVN_NAME2=subversion-deps-1.4.2  
-    
+  local ver
+  case $NODE_TAG in 
+    C) ver=1.4.2 ;;
+    *) ver=1.4.0 ;;
+  esac
+  
+  export SVN_NAME=subversion-$ver
+  export SVN_NAME2=subversion-deps-$ver  
     
   #export SVN_BUILD=$SYSTEM_BASE/svn/build/$SVN_NAME
   export SVN_HOME=$SYSTEM_BASE/svn/$SVN_NAME
