@@ -151,7 +151,8 @@ env-env(){
   cd $ENV_HOME
  
   base-  
-  scm-    
+  svn-
+  #scm-    
  
   [ "$NODE_TAG" == "H" -o "$NODE_TAG" == "U" ] && export MSG="$msg skipped dyb- on node $NODE_TAG " || dyb- 
  
