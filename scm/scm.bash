@@ -1,14 +1,28 @@
-#
-#
-#
-#  STEPS TO BRING A FOLDER CALLED "name" UNDER MANAGEMENT
-# 
-#     1) cd /path/to/name 
-#     2) scm-create
-#     3) cd .. ; mv name name-safety
-#     4) svn co http://localhost/repos/name/trunk name
-#     5)  Xcode will notice the change      
-#
+
+
+scm-usage(){
+
+  cat << EOU
+
+
+
+EOU
+
+}
+
+scm-notes(){
+
+  cat << EON
+  
+
+   STEPS TO BRING A FOLDER CALLED "name" UNDER MANAGEMENT
+ 
+     1) cd /path/to/name 
+     2) scm-create
+     3) cd .. ; mv name name-safety
+     4) svn co http://localhost/repos/name/trunk name
+    
+
 #
 #
 #  ISSUES: 
@@ -100,6 +114,9 @@
 #
 #
 
+EON
+
+}
 
  
 
