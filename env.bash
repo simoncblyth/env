@@ -115,6 +115,9 @@ cat << EOU
 #       CAUTION error reporting can be a line off
 
 
+     ff(){ local a="hello" ; local ; }   list locals 
+
+
 
 
      env-rsync        top-level-fold <target-node>
@@ -124,6 +127,12 @@ cat << EOU
      
      env-rsync-all    <target-node>
            bootstrapping a node that does not have svn 
+
+     env-again
+           delete working copy and checkout again 
+     env-u
+           update the working copy ... aliased to "eu" 
+           
 
 
 EOU
@@ -314,7 +323,10 @@ env-llp(){
 
 env-again(){
 
-  [ -z $ENV_HOME ] && echo ABORT no ENV_HOME && return 1 
+  local msg="=== $FUNCNAME :"
+
+  [ -z $ENV_HOME ] && echo $msg ABORT no ENV_HOME && return 1 
+  [ -z $SCM_URL  ] && echo $msg ABORT no SCM_URL  && return 1
   
   local dir=$(dirname $ENV_HOME)
   local name=$(basename $ENV_HOME)
@@ -323,8 +335,7 @@ env-again(){
   read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
   [ "$answer" != "YES" ] && echo $msg skipping && return 1 
   
-  rm -rf $name
-  svn co $url $name
+  cd $dir && rm -rf $name && svn co $url $name
 
 }
 
