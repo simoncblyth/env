@@ -312,6 +312,21 @@ env-llp(){
    fi    
 }
 
+env-again(){
+
+  [ -z $ENV_HOME ] && echo ABORT no ENV_HOME && return 1 
+  
+  local dir=$(dirname $ENV_HOME)
+  local name=$(basename $ENV_HOME)
+  local url=$SCM_URL/repos/env
+  
+  read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
+  [ "$answer" != "YES" ] && echo $msg skipping && return 1 
+  
+  rm -rf $name
+  svn co $url $name
+
+}
 
 
 
