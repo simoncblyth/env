@@ -27,10 +27,13 @@ swigbuild-usage(){
      swigbuild-install
      swigbuild-check
      
-     should report:
-          SWIG Version 1.3.29
-          Compiled with g++ [i686-pc-linux-gnu] 
-          Please see http://www.swig.org for reporting bugs and further information
+        should report:
+             SWIG Version 1.3.29
+             Compiled with g++ [i686-pc-linux-gnu] 
+             Please see http://www.swig.org for reporting bugs and further information
+
+
+     $(type swigbuild-again)
 
     
 EOU
@@ -82,6 +85,36 @@ swigbuild-install(){
    make install
 
 }
+
+
+swigbuild-wipe(){
+   local iwd=$PWD
+   cd $SYSTEM_BASE/swig
+   [ -d build ] && rm -rf build
+   cd $iwd
+}
+
+swigbuild-wipe-install(){
+   local iwd=$PWD
+   cd $SYSTEM_BASE/swig
+   [ "${SWIG_NAME:0:4}" != "swig" ] && echo bad name $SWIG_NAME cannot proceed && return 1
+   [ -d $SWIG_NAME ] && rm -rf $SWIG_NAME
+   cd $iwd
+}
+
+
+swigbuild-again(){
+
+  swigbuild-wipe
+  swigbuild-wipe-install
+  
+  swigbuild-get
+  swigbuild-configure
+  swigbuild-install
+
+  swigbuild-check
+}
+
 
 
 swigbuild-check(){

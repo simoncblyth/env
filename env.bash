@@ -45,6 +45,7 @@ _nose-(){       . $ENV_HOME/unittest/nose.bash  && _nose-env  $* ; }
 _annobit-(){    . $ENV_HOME/annobit/annobit.bash  && _annobit-env $* ; }
 
 trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
+tracpreq-(){    . $ENV_HOME/trac/tracpreq.bash && tracpreq-env $* ; } 
 tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
 
 package-(){     . $ENV_HOME/python/package.bash      && package-env $* ; } 

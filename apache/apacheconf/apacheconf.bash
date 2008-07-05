@@ -20,8 +20,11 @@ apacheconf-usage(){
    
      apacheconf-diff
            diff to stdout 
-           
-           
+        
+     apacheconf-envvars-add <dir>
+           add a directory to the *LD_LIBRARY_PATH felt by apachectl , directories are only added
+           if not present already 
+              
      apacheconf-original---
            copy the original httpd.conf to httpd.conf.original ... is invoked by the 
             apachebuild  NOT FOR USER USAGE 
@@ -49,9 +52,46 @@ apacheconf-path(){
   echo $(apacheconf-dir)/httpd.conf
 }
 
+apacheconf-bindir(){
+  echo $APACHE_HOME/bin
+}
+
+
 apacheconf-patchpath(){
   echo  $ENV_HOME/apache/$APACHE_NAME.conf.patch
 }
+
+
+
+
+apacheconf-envvars-path(){
+  echo $(apacheconf-bindir)/envvars
+}
+
+apacheconf-envvars-match-(){
+   local add=$1
+   local path=$(apacheconf-envvars-path)
+   grep -qs $add $path 
+}
+
+apacheconf-envvars-add(){
+   local add=$1
+   local path=$(apacheconf-envvars-path)
+   local msg="=== $FUNCNAME :"
+   apacheconf-envvars-match- $add && echo $msg already has $add  present in envvars || apacheconf-envvars-add- $add
+   grep _LIBRARY_PATH $path
+}
+
+apacheconf-envvars-add-(){
+   local add=$1
+   local msg="=== $FUNCNAME :"
+   local path=$(apacheconf-envvars-path)
+   echo $msg adding $add to envvars $path
+   perl -pi -e "m/^(\S*_LIBRARY_PATH=\")(\S*)(\:\\$\S*_LIBRARY_PATH\")$/ && print \"\$1$add:\$2\$3 \" " $path
+}
+
+
+
 
 
 apacheconf-original---(){
@@ -59,6 +99,7 @@ apacheconf-original---(){
   local conf=$(apacheconf-path)
   [ ! -f $conf ] && echo $msg ERROR no conf $conf && sleep 10000000000
   $ASUDO cp $conf $conf.original  
+
 }
 
 

@@ -65,24 +65,6 @@ modpython-notes(){
 
 cat << EON
 
-Performing DSO installation.
-
-/usr/bin/install -c -d /data/env/system/apache/httpd-2.0.63/modules
-/usr/bin/install -c src/mod_python.so /data/env/system/apache/httpd-2.0.63/modules
-/usr/bin/install: cannot stat `src/mod_python.so': No such file or directory
-make[1]: *** [install_dso] Error 1
-make[1]: Leaving directory `/data/env/system/mod_python/build/mod_python-3.3.1'
-make[1]: Entering directory `/data/env/system/mod_python/build/mod_python-3.3.1'
-cd dist && make install_py_lib
-make[2]: Entering directory `/data/env/system/mod_python/build/mod_python-3.3.1/dist'
-make[3]: Entering directory `/data/env/system/mod_python/build/mod_python-3.3.1/src'
-make[3]: `psp_parser.c' is up to date.
-make[3]: Leaving directory `/data/env/system/mod_python/build/mod_python-3.3.1/src'
-if test -z "" ; then \
-        /data/env/system/python/Python-2.5.1/bin/python setup.py install --optimize 2 --force ; \
-else \
-        /data/env/system/python/Python-2.5.1/bin/python setup.py install --optimize 2 --force --root  ; \
-fi
 
 EON
 
@@ -175,6 +157,8 @@ modpython-wipe-install(){
 
 modpython-again(){
 
+   local msg="=== $FUNCNAME :"
+
     modpython-wipe
     modpython-wipe-install
     
@@ -182,8 +166,13 @@ modpython-again(){
     modpython-configure
     modpython-install
 
-
     modpython-ldd
+
+
+    echo $msg without this additon to the apachectl LD_LIBRARY_PATH get  libpython2.5.so not found when try to apachectl     
+    apacheconf-
+    apacheconf-envvars-add $PYTHON_HOME/lib
+    
 }
 
 

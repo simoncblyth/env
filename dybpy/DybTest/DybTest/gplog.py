@@ -44,7 +44,9 @@ if __name__=='__main__':
     ost = gp.gbl.ostream(buf)
     msv = g.service("MessageSvc", "IMessageSvc")
     ori = msv.defaultStream()
+    
     msv.setDefaultStream(ost)
+    
     g.initialize()
         
     msv.setDefaultStream(ori)
