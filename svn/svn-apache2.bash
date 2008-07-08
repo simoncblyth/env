@@ -237,6 +237,9 @@ svn-apache2-authzaccess-update(){
   local authz=$APACHE2_BASE/$SVN_APACHE2_AUTHZACCESS
   [ ! -f $authz ] && echo $msg ABORT no authz $authz &&  return 1 
   
+  
+  
+  
   ls -l $authz
   ASUDO=sudo svn-apache2-authzaccess-write $authz dev
   ls -l $authz
@@ -251,7 +254,7 @@ svn-apache2-authzaccess-write(){
   
   echo =============== writing svn-apache2-authzaccess output to $authzaccess as root
   ## cannot use ASUDO="sudo -u $APACHE2_USER" directly as apache cannot access my .bash_profile
-  $ASUDO bash -lc "env- && svn- && svn-apache2- && svn-apache2-authzaccess $* >  $authzaccess"
+  $ASUDO bash -lc "env- ; svn- ; svn-apache2- ; svn-apache2-authzaccess $* >  $authzaccess"
   $ASUDO chown $APACHE2_USER $authzaccess
    ls -l $authzaccess
    echo =============== cat $authzaccess
