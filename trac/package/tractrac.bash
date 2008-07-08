@@ -30,7 +30,7 @@ tractrac-version2branch(){
   echo $branch
 }
 
-tractrac-url(){     echo http://svn.edgewall.org/repos/trac/$(tractrac-obranch) ;}
+tractrac-url(){     echo http://svn.edgewall.org/repos/trac/$(tractrac-branch) ;}
 tractrac-pkgname(){ echo trac ; }
 
 tractrac-fix(){
@@ -38,7 +38,7 @@ tractrac-fix(){
    echo no fixes
 }
 
-tractrac-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 tractrac-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 tractrac-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 tractrac-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
