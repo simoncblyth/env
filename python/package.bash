@@ -286,7 +286,7 @@ package-applypatch(){
    cd $dir
  
    local cmd=$(package-patchcmd $name)
-   echo cmd
+   echo $cmd
    eval $cmd
    
    
@@ -378,17 +378,25 @@ package-auto(){
    local name=$1
    shift
    local msg="=== $FUNCNAME :"
-   package-status- $name
-   local s=$?
-   local act=$(package-action- $s) 
    
-   case $act in 
-     skip) echo $msg $name ===\> $act ... nothing to do             ;;
-      get) $name-get     ;;
-  install) $name-install ;;  
-    abort) echo $msg $name ===\> $act ... ABORTING && sleep 10000000 ;;
-        *) echo $msg $name ===\> $act ... ERROR act not handled && sleep 10000000 ;;
-   esac
+   local steps="one two"
+   for step in steps
+   do
+       echo $msg $name step $step
+       
+       package-status- $name
+       local s=$?
+       local act=$(package-action- $s) 
+   
+       case $act in 
+           skip) echo $msg $name ===\> $act ... nothing to do  && return 0  ;;
+            get) $name-get     ;;
+        install) $name-install ;;  
+          abort) echo $msg $name ===\> $act ... ABORTING && sleep 10000000 ;;
+              *) echo $msg $name ===\> $act ... ERROR act not handled && sleep 10000000 ;;
+       esac
+   done
+
 }
 
 package-status(){

@@ -93,7 +93,8 @@ trac-env(){
      G) export TRAC_INSTANCE=workflow ; export TRAC_VERSION=0.11rc1 ;;
      H) export TRAC_INSTANCE=env      ; export TRAC_VERSION=0.10.4  ;;
      P) export TRAC_INSTANCE=dybsvn   ; export TRAC_VERSION=0.11    ;;
-     *) export TRAC_INSTANCE=    ;;
+     C) export TRAC_INSTANCE=dybsvn   ; export TRAC_VERSION=0.11    ;;
+     *) export TRAC_INSTANCE=env      ; export TRAC_VERSION=0.11    ;;
    esac
 
    ## these settings are used by svn-apache-* for apache2 config 

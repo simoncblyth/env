@@ -10,7 +10,7 @@ nosenose-env(){
   export NOSENOSE_BRANCH=tags/0.10.3-release
 }
 
-nosenose-url(){     echo http://python-nose.googlecode.com/svn/$(nosenose-obranch) ; }
+nosenose-url(){     echo http://python-nose.googlecode.com/svn/$(nosenose-branch) ; }
 nosenose-package(){ echo nose ; }
 
 nosenose-fix(){
@@ -18,7 +18,7 @@ nosenose-fix(){
    echo no fixes
 }
 
-nosenose-obranch(){   package-fn $FUNCNAME $* ; }
+
 nosenose-branch(){    package-fn $FUNCNAME $* ; }
 nosenose-basename(){  package-fn $FUNCNAME $* ; }
 nosenose-dir(){       package-fn $FUNCNAME $* ; } 
