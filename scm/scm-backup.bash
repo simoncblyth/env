@@ -74,6 +74,7 @@ EOU
 
 scm-backup-env(){
    elocal-
+   python-
 }
 
 
