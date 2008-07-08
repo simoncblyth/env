@@ -22,7 +22,7 @@ genshi-env(){
   local tm=$(trac-major)
   case $tm in 
      0.10) branch=SKIP         ;;
-     0.11) branch=trunk        ;;
+     0.11) branch=tags/0.5.0        ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   

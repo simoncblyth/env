@@ -101,6 +101,11 @@ trac-env(){
    export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
    export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
+
+   ## when packages need to be installed in a particular order arrange
+   ## them here ... the rest will be added to the end in alphabetical order
+   
+   export TRAC_NAMES_="genshi tractrac bitten" 
 }
 
 
@@ -148,8 +153,31 @@ trac-configure(){
 }
 
 
+trac-has(){
+   local nam=$1
+   for has in $TRAC_NAMES
+   do
+      [ "$has" == "$nam" ] && return 0
+   done
+   return 1
+}
+
+trac-upush(){
+   local nam=$1
+   ! trac-has $nam && export TRAC_NAMES="$TRAC_NAMES $nam"
+}
 
 trac-names(){
+   export TRAC_NAMES=$TRAC_NAMES_
+   for name in $(trac-names-auto)
+   do
+      trac-upush $name
+   done
+   echo $TRAC_NAMES 
+}
+
+
+trac-names-auto(){
    local iwd=$PWD
    cd $ENV_HOME/trac/package   
    for bash in *.bash
