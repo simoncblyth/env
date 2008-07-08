@@ -25,7 +25,7 @@ accountmanager-env(){
 }
 
 accountmanager-docurl(){  echo http://trac-hacks.org/wiki/AccountManagerPlugin ;}
-accountmanager-url(){     echo http://trac-hacks.org/svn/accountmanagerplugin/$(accountmanager-obranch) ;}
+accountmanager-url(){     echo http://trac-hacks.org/svn/accountmanagerplugin/$(accountmanager-branch) ;}
 accountmanager-pkgname(){ echo acct_mgr ; }
 
 accountmanager-fix(){
@@ -34,7 +34,7 @@ accountmanager-fix(){
 }
 
 
-accountmanager-obranch(){   package-obranch   ${FUNCNAME/-*/} $* ; }
+
 accountmanager-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 accountmanager-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
 accountmanager-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 

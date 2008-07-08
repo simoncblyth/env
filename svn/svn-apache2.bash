@@ -493,7 +493,7 @@ svn-apache2-checkout-test(){
 
 svn-apache2-authzaccess(){
 
-  local tw="thho, bhzu, wei, adiar, chwang"
+  local tw="thho, bzhu, wei, adiar, chwang"
   local hk="jimmy, antony, soap"
 
 cat << EOA

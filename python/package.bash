@@ -66,6 +66,13 @@ cat << EOU
 
     Functions of the branch ... 
    
+    $name-status    :
+           if not installed by the package- machiney the egg info may be 
+           incorrect ... workaround : uninstall and reinstall with the standard
+           ez machinery with egg directories in the site-packages
+           see ... python-ls 
+   
+   
     $name-branch    : $($name-branch)    
     $name-basename  : $($name-basename)   name of the leaf folder of the branch
           ... possibly should mangle the branch changing / to _ for example as it
@@ -87,6 +94,14 @@ cat << EOU
           
          ... but the reinstall still works 
                easy_install just replaces the prior egg ...   
+           
+    package-eggname-  <pkgname>
+             determine the name of the egg from path reported by pkgname.__file__ 
+    package-eggname <pkgname>
+             invokes package-eggname- returning a blank in case of any error
+
+           
+           
            
     $name-get       :
           svn co the $($name-url) into $($name-dir)  
@@ -145,6 +160,10 @@ cat << EOU
         allowing the cases where the script name does not corresponds to the 
         python packagename to be handled
         
+
+
+
+
 
 
 
@@ -378,6 +397,7 @@ package-action-(){
      2) echo install ;;
      3) echo abort ;;
      4) echo skip ;;
+     5) echo install ;;
   esac
 }
 
@@ -388,29 +408,9 @@ package-status--(){
     2) echo not installed  ;;
     3) echo the egg is not a directory ... non standard installation used ... delete and try again ;;
     4) echo branch is SKIP, this package is not needed for this trac version ;; 
+    5) echo eggname is blank , package not installed ?? ;;
   esac 
 }
-
-package-egg(){
-   local name=$1
-   local pkgname=$(package-pkgname $name)
-   local egg=$(pkg-eggname $pkgname)
-   echo $egg
-}
-
-package-smry(){
-  local name=$1
-  #local egg=$($name-egg)
-  local egg=$(package-egg $name)
-  local branch=$($name-branch)
-  local pris=$(package-ispristine $name)
-  printf "%-15s %-35s %-45s %-70s" $name $branch $egg $pris
-}
-
-package-summary(){
-  printf "%130s \n" "$(package-smry $1)"
-}
-
 
 package-status-(){
 
@@ -421,14 +421,50 @@ package-status-(){
   [ "$branch" == "SKIP" ] && return 4
   
   local dir=$($name-dir)
-  #echo $msg $name $egg $dir
-  
   [ ! -d $dir ] && return 1 
   
-  local egg=$PYTHON_SITE/$($name-egg)
+  local eggname=$($name-egg)
+  #echo $msg name:$name eggname:$eggname dir:$dir
+  
+  [ "$eggname" == "" ] && return 5
+  
+  local egg=$PYTHON_SITE/$eggname
+  
   [ -f $egg   ] && return 3 
   [ ! -d $egg ] && return 2
   return 0
+}
+
+
+
+
+
+
+
+
+
+package-egg(){
+   local name=$1
+   local pkgname=$(package-pkgname $name)
+   local egg=$(package-eggname $pkgname)
+   echo $egg
+}
+
+
+
+
+
+package-smry(){
+  local name=$1
+  #local egg=$($name-egg)
+  local egg=$(package-egg $name)
+  local branch=$($name-branch)
+  local pris=$(package-ispristine $name)
+  printf "%-15s %-35s %-45s %-70s" $name $branch ${egg:--} $pris
+}
+
+package-summary(){
+  printf "%130s \n" "$(package-smry $1)"
 }
 
 
@@ -503,6 +539,35 @@ package-develop(){
 
 }
 
+
+
+package-eggname-(){    
+   
+   # python gives relative paths when done from the source directory containing the package 
+   # ... hence the tmp move
+   #
+   #  hmmm when in development mode 
+   #    bitten.__file__  points back to the source folder
+   #      '/usr/local/env/trac/package/bitten/trac-0.11/bitten/__init__.pyc'
+   #
+
+
+python -c "$(cat << EOC
+import os ; 
+os.chdir('/tmp') ; 
+import $1 as _ ; 
+eggs=[egg for egg in _.__file__.split('/') if egg.endswith('.egg')] ; 
+report = len(eggs) > 0 and eggs[0] or "no-egg" ;
+print report
+EOC)"
+ 
+}
+
+
+
+package-eggname(){
+  package-eggname- $* 2> /dev/null || echo -n 
+}
 
 
 
