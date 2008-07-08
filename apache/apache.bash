@@ -61,6 +61,13 @@ apache-envvars(){
    echo $APACHE_HOME/bin/envvars
 }
 
+apache-user(){
+   case $NODE_TAG in 
+     G) echo www ;;
+     *) echo apache ;;
+   esac
+}
+
 
 apache-confdir(){
   local dir

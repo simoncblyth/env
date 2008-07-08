@@ -275,7 +275,7 @@ scm-backup-rsync(){
    local target_tag=${1:-$BACKUP_TAG}   
   
    if [ "X$target_tag" == "X" ]; then
-      echo no paired backup node has been defined for node $LOCAL_NODE
+      echo $msg ERROR no paired backup node has been defined for node $LOCAL_NODE
    else
 	  local target_var=$(scm-backup-target $target_tag)
 	  local remote=$target_var/scm/backup 
@@ -294,14 +294,18 @@ scm-backup-rsync(){
 
 scm-recover-repo(){
 
+   local msg="=== $FUNCNAME :"
    local name=${1:-dummy}   ## name of the repo
    local path=${2:-dummy}   ## absolute path to the repo  
    local dest=${3:-dummy}   ## destination folder, usually $SCM_FOLD/repos OR $SCM_FOLD/tracs 
    
-   [ "$name" == "dummy" ] && ( echo the name must be given && return 1 )
-   [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
-   [ -d "$dest" ] || ( echo ERROR destination folder $dest does not exist && return 1 )
+   [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
+   [ ! -d "$path" ]       && echo $msg ERROR path $path does not exist && return 1 
+   [ ! -d "$dest" ]       && echo $msg ERROR destination folder $dest does not exist && return 1 
    
+   apache-
+   local user=$(apache-user)
+   [ -z $user ] && echo $msg ERROR apache-user not defined && return 1 
    
    #
    #  hmm must be careful with copies of the tarballs to prevent collapsing the link
@@ -313,7 +317,7 @@ scm-recover-repo(){
    cd $target_fold
    
    if [ "$?" == "1" ]; then
-      echo error target_fold $target_fold not found 
+      echo $msg error target_fold $target_fold not found 
    else
    
       declare -a tgzs
@@ -329,26 +333,26 @@ scm-recover-repo(){
          cd $dest 
          
          if [ -d "$name" ]; then
-            echo === scm-recover-repo ===  the repository:$name is present already , must delete this before can recover 
-            echo stamp $stamp target_fold $target_fold ==== tgz $tgz ===== tgzname $tgzname
+            echo $msg the repository:$name is present already , must delete this before can recover 
+            echo $msg stamp $stamp target_fold $target_fold ==== tgz $tgz ===== tgzname $tgzname
          else
              
-            echo === scm-recover-repo === recovering repository $name from tarball $tgzpath $tgzname into $(pwd)
-            sudo -u $APACHE2_USER cp $tgzpath .
-            sudo -u $APACHE2_USER tar zxvf $tgzname.tar.gz
+            echo $msg recovering repository $name from tarball $tgzpath $tgzname into $(pwd)
+            sudo -u $user cp $tgzpath .
+            sudo -u $user tar zxvf $tgzname.tar.gz
             
             ## document the recovery via a link to the backup tarball
-            sudo -u $APACHE2_USER ln -s $tgzpath ${name}-scm-recover-repo
+            sudo -u $user ln -s $tgzpath ${name}-scm-recover-repo
             sudo rm -f $tgzname.tar.gz
             
             ## svn tarballs have the revision number appended to their names
             if [ "$tgzname" != "$name" ]; then
-              sudo -u $APACHE2_USER mv $tgzname $name
+              sudo -u $user mv $tgzname $name
             fi
             
          fi      
       else
-         echo scm-recover-repo ERROR there is not 1 tgz in target_fold $target_fold
+         echo $msg  ERROR there is not 1 tgz in target_fold $target_fold
       fi 
    fi
 }
@@ -359,17 +363,18 @@ scm-recover-repo(){
 
 scm-backup-repo(){
 
+   local msg="=== $FUNCNAME :" 
    local name=${1:-dummy}   ## name of the repo
    local path=${2:-dummy}   ## absolute path to the repo  
    local base=${3:-dummy}   ## backup folder
    local stamp=${4:-dummy}  ## date stamp
    
-   echo === scm-backup-repo name $name path $path base $base stamp $stamp ===
+   echo $msg name $name path $path base $base stamp $stamp ===
    
-   [ "$name" == "dummy" ] && ( echo the name must be given && return 1 )
-   [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
-   [ "$base" == "dummy" ] && ( echo the base must be given && return 1 )
-   [ "$stamp" == "dummy" ] && ( echo the stamp must be given && return 1 )
+   [ "$name" == "dummy" ]  &&  echo $msg ERROR the name must be given && return 1 
+   [ ! -d "$path" ]        &&  echo $msg ERROR path $path does not exist && return 1 
+   [ "$base" == "dummy" ]  &&  echo $msg ERROR the base must be given && return 1 
+   [ "$stamp" == "dummy" ] &&  echo $msg ERROR the stamp must be given && return 1 
    
    local target_fold=$base/repos/$name/$stamp
    #   
@@ -399,21 +404,22 @@ scm-backup-repo(){
 
 scm-backup-trac(){
 
+   local msg="=== $FUNCNAME :" 
    local name=${1:-dummy}     ## name of the trac
    local path=${2:-dummy}     ## absolute path to the trac
    local base=${3:-dummy}     ## backup folder
    local stamp=${4:-dummy}  ## date stamp
    
-   echo === scm-backup-trac name $name path $path base $base stamp $stamp ===
+   echo $msg name $name path $path base $base stamp $stamp ===
    
    #
    #  perhaps the stamp should be above the name, and have only one stamp 
    #
    
-   [ "$name" == "dummy" ] && ( echo the name must be given && return 1 )
-   [ -d "$path" ] || ( echo ERROR path $path does not exist && return 1 )
-   [ "$base" == "dummy" ] && ( echo the base must be given && return 1 )
-   [ "$stamp" == "dummy" ] && ( echo the stamp must be given && return 1 )
+   [ "$name" == "dummy" ] &&  echo the name must be given && return 1 
+   [ ! -d "$path" ]       &&  echo ERROR path $path does not exist && return 1 
+   [ "$base" == "dummy" ] &&  echo the base must be given && return 1 
+   [ "$stamp" == "dummy" ] &&  echo the stamp must be given && return 1 
    
    
    local source_fold=$path

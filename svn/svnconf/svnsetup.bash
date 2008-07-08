@@ -13,7 +13,9 @@ svnsetup-usage(){
 
      test with
         ASUDO= svnsetup-apache
-
+     use with ... 
+        ASUDO=     svnsetup-apache $(apache-confdir)
+     or ASUDO=sudo svnsetup-apache $(apache-confdir)
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
@@ -111,6 +113,8 @@ svnsetup-location-(){
   
   [ -z $path ] && return 0
   
+
+
   echo $msg $flavor copying tmp $tmp to $path with ASUDO [$ASUDO]
   $ASUDO cp $tmp $path
   ls -l $path
@@ -140,7 +144,6 @@ cat << EOC
 #   \$(python-site)           :  $(python-site)
 #   \$(apache-confdir)        :  $(apache-confdir)
 #   \$SCM_FOLD                :  $SCM_FOLD
-#   \$TRAC_EGG_CACHE          :  $TRAC_EGG_CACHE
 #
 #
 
@@ -173,7 +176,7 @@ cat << EOC
    PythonDebug On
    
    ## observe stylesheets inaccessible with msg about the 
-   SetEnv PYTHON_EGG_CACHE $TRAC_EGG_CACHE
+   SetEnv PYTHON_EGG_CACHE /tmp/trac-egg-cache
    
    ## recent addition, reading between lines from http://trac.edgewall.org/wiki/TracMultipleProjectsSVNAccess
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
