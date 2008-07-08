@@ -18,6 +18,7 @@ apache-usage(){
       NODE_TAG           : $NODE_TAG
       
       apache-name        : $(apache-name)
+      apache-user        : $(apache-user)
       apache-home        : $(apache-home)
       apache-envvars     : $(apache-envvars)
       apache-target      : $(apache-target)
@@ -102,13 +103,15 @@ apache-confdir(){
 apache-htdocs(){
   case $NODE_TAG in 
     G) echo /Library/WebServer/Documents ;;
-    *) echo  $APACHE_HOME/htdocs  ;;
+    H) echo $APACHE_HOME/share/apache2/htdocs ;;
+    *) echo $APACHE_HOME/htdocs  ;;
   esac  
 }
 
 apache-modulesdir(){
   case $NODE_TAG in 
      G) echo /usr/libexec/apache2 ;;
+     H) echo $APACHE_HOME/libexec ;;
      *) echo $APACHE_HOME/modules ;;
   esac    
 }
@@ -116,16 +119,20 @@ apache-modulesdir(){
 apache-logdir(){
    case $NODE_TAG in 
       G) echo /var/log/apache2 ;;
-      H) echo $APACHE_HOME/logs ;;
+      H) echo $APACHE_HOME/var/apache2/log ;;
       *) echo $APACHE_HOME/logs ;;
    esac   
 }   
+   
+   
+   
+   
+   
    
 apache-logs(){
   cd $(apache-logdir)
   ls -l 
 }
-
 
 apache-ls(){
    ls -alst $(apache-modulesdir)
