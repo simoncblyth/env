@@ -7,15 +7,19 @@ svnsetup-usage(){
 
      For infrequently used setup of svn + apache ...  
 
-     svnsetup-apache <path/to/apache/conf/folder>
-                defaults to $(svnsetup-tmp) invokes the below funcs
+     svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svnsetup-tmp)  
+                invokes the below funcs
                 to create the apache conf files
+
+     test with
+        ASUDO= svnsetup-apache
+
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
      svnsetup-authz <path/to/authz.conf>
      
-           writes to /tmp/svnsetup/{tracs,repos,authz}.conf 
+           writes to /tmp/env/svnsetup/{tracs,repos,authz}.conf 
            if a path is given then copies the temporary to it using 
            ASUDO:$ASUDO
            
@@ -27,12 +31,22 @@ svnsetup-usage(){
      svnsetup-location-
             used internally by the above funcs
 
+
+
+
+
      svnsetup-modules 
            add the requisite modules for apache+svn runninf to httpd.conf 
            THIS IS NOW HANDLED IN APACHEBUILD ???     
          
      svnsetup-xslt
-              
+           get the xsl/css for prettier raw svn               
+
+
+    TODO : 
+       ownership...
+            $ASUDO chown $APACHE2_USER $authzaccess
+
 
 
 
@@ -106,14 +120,6 @@ svnsetup-location-(){
 }
 
 
-svnsetup-confprefix(){
-  local confprefix
-  case $NODE_APPROACH in
-    stock) confprefix="/private/" ;;
-        *) confprefix=""
-  esac
-  echo $confprefix
-}
 
 
 svnsetup-tracs-(){
@@ -128,14 +134,13 @@ cat << EOC
 #
 #    $msg $BASH_SOURCE  $(date)
 #
-#     c:[$c] b:[$b] confprefix:[$confprefix]
+#     c:[$c] b:[$b] 
 #   
 #   \$(apache-htdocs)         :  $(apache-htdocs) 
 #   \$(python-site)           :  $(python-site)
+#   \$(apache-confdir)        :  $(apache-confdir)
 #   \$SCM_FOLD                :  $SCM_FOLD
 #   \$TRAC_EGG_CACHE          :  $TRAC_EGG_CACHE
-#   \$SVN_APACHE2_AUTHZACCESS :  $SVN_APACHE2_AUTHZACCESS 
-#   \$SVN_APACHE2_AUTH        :  $SVN_APACHE2_AUTH 
 #
 #
 
@@ -174,8 +179,8 @@ cat << EOC
    # ... hmmm ... this is not the correct place ... should be in conf/trac.ini , or perhaps in global equivalent 
    #  
    #	 
-   ## SVNParentPath $SVN_PARENT_PATH
-   ## AuthzSVNAccessFile $SVN_APACHE2_AUTHZACCESS
+   ## SVNParentPath \$SVN_PARENT_PATH
+   ## AuthzSVNAccessFile \$SVN_APACHE2_AUTHZACCESS
    
 </Location>
 
@@ -184,7 +189,7 @@ cat << EOC
 $b<LocationMatch "/tracs/[^/]+/builds">
 $b    AuthType Basic
 $b    AuthName "svn-tracs"
-$b    AuthUserFile $confprefix$SVN_APACHE2_AUTH
+$b    AuthUserFile $(apache-confdir)/users.conf
 $b    Require valid-user
 $b</LocationMatch>
 $b
@@ -194,7 +199,7 @@ $b
 $c<LocationMatch "/tracs/[^/]+/login">
 $c    AuthType Basic
 $c    AuthName "svn-tracs"
-$c    AuthUserFile $confprefix$SVN_APACHE2_AUTH
+$c    AuthUserFile $(apache-confdir)/users.conf
 $c    Require valid-user
 $c</LocationMatch>
 $c
@@ -220,28 +225,24 @@ cat << EOH
 #
 #    $msg $BASH_SOURCE  $(date)
 #
-#     securitylevel:[$securitylevel] confprefix:[$confprefix]
+#     securitylevel:[$securitylevel] 
 #
-#     \$SVN_PARENT_PATH          : $SVN_PARENT_PATH
-#     \$SVN_APACHE2_AUTHZACCESS  : $SVN_APACHE2_AUTHZACCESS
-#     \$SVN_APACHE2_AUTH         : $SVN_APACHE2_AUTH
+#     \$SCM_FOLD                 : $SCM_FOLD
+#     \$(apache-confdir)         : $(apache-confdir)
 #
-#
-#
-#   
 #    http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #     NB no need to restart apache2 on creating new repositories
 #
 #
 <Location /repos>
       DAV svn
-      SVNParentPath $SVN_PARENT_PATH
+      SVNParentPath $SCM_FOLD/repos
       ## allow raw apache+svn to provide a list of repositories
       SVNListParentPath on
       SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
-      AuthzSVNAccessFile $confprefix$SVN_APACHE2_AUTHZACCESS
+      AuthzSVNAccessFile $(apache-confdir)/authz.conf
 
       # securitylevel $securitylevel
 EOH
@@ -273,7 +274,7 @@ EOS
       AuthType Basic
       AuthName "svn-repos"
       # users file
-      AuthUserFile $confprefix$SVN_APACHE2_AUTH
+      AuthUserFile $(apache-confdir)/users.conf
                   
 </Location>
 EOT

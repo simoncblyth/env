@@ -63,8 +63,12 @@ apache-envvars(){
 
 
 apache-confdir(){
-  #echo $APACHE_HOME/etc/apache2
-  echo $APACHE_HOME/conf
+  local dir
+  case $NODE_APPROACH in
+    stock) dir="/private/etc/apache2" ;;
+        *) dir="$APACHE_HOME/conf"
+  esac
+  echo $dir
 }
 
 apache-htdocs(){
