@@ -8,6 +8,7 @@ apacheconf-usage(){
      apacheconf-patchpath :  $(apacheconf-patchpath)
 
      apacheconf-cd 
+            to apacheconf-dir
 
      apacheconf-makepatch 
             create patch from diff of original httpd.conf and current

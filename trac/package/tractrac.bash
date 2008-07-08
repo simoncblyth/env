@@ -21,6 +21,7 @@ tractrac-version2branch(){
   local version=$1
   local branch
   case $version in 
+        0.11) branch=tags/trac-0.11    ;;
       0.11b1) branch=tags/trac-0.11b1  ;;
      0.11rc1) branch=tags/trac-0.11rc1 ;; 
       0.10.4) branch=tags/trac-0.10.4  ;;

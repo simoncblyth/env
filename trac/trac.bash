@@ -92,6 +92,7 @@ trac-env(){
    case $NODE_TAG in
      G) export TRAC_INSTANCE=workflow ; export TRAC_VERSION=0.11rc1 ;;
      H) export TRAC_INSTANCE=env      ; export TRAC_VERSION=0.10.4  ;;
+     P) export TRAC_INSTANCE=dybsvn   ; export TRAC_VERSION=0.11    ;;
      *) export TRAC_INSTANCE=    ;;
    esac
 
@@ -163,6 +164,8 @@ trac-diff(){      trac-f diff ; }
 trac-status(){    trac-f status ; }
 trac-summary(){   trac-f summary ;  }
 trac-makepatch(){ trac-f makepatch ;  }
+trac-auto(){      trac-f auto ;  }
+
 
 trac-f(){
   local msg="=== $FUNCNAME :"

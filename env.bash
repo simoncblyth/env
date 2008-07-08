@@ -93,6 +93,8 @@ xml-(){         . $ENV_HOME/xml/xml.bash ; }
 md-(){  local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
  
  
+ee(){ cd $ENV_HOME/$1 ; }
+ 
 env-usage(){
 cat << EOU
 #

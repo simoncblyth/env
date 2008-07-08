@@ -15,7 +15,11 @@ apache-usage(){
       apache-logs 
                 ls logs 
    
-      apache-envvars  : $(apache-envvars)
+      apache-envvars     : $(apache-envvars)
+      apache-target      : $(apache-target)
+      apache-confdir     : $(apache-confdir)
+      apache-modulesdir  : $(apache-modulesdir)
+      apache-htdocs      : $(apache-htdocs)
       
       apache-again
            wipes and builds both apache and modpython
@@ -67,14 +71,16 @@ apache-htdocs(){
   echo $APACHE_HOME/htdocs 
 }
 
+apache-modulesdir(){
+   echo $APACHE_HOME/modules
+}
+
 apache-logs(){
   cd $APACHE_HOME/logs
   ls -l 
 }
 
-apache-modulesdir(){
-   echo $APACHE_HOME/modules
-}
+
 apache-ls(){
    ls -alst $(apache-modulesdir)
 }
