@@ -24,6 +24,7 @@ tractoc-env(){
 
 }
 
+tractoc-revision(){ echo 3783 ; }
 tractoc-url(){     echo http://trac-hacks.org/svn/tocmacro/$(tractoc-branch) ;}
 tractoc-package(){ echo tractoc ; }
 

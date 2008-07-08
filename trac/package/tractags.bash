@@ -26,6 +26,7 @@ tractags-env(){
    
 }
 
+tractags-revision(){ echo 3768 ; }
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-branch) ; }
 tractags-package(){ echo tractags ; }
 

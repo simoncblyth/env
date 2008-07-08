@@ -63,13 +63,15 @@ bitten-env(){
 
 }
 
-bitten-url(){     echo http://svn.edgewall.org/repos/bitten/$(bitten-branch) ;}
-bitten-package(){ echo bitten ; }
+bitten-revision(){  echo 547 ; }
+bitten-url(){       echo http://svn.edgewall.org/repos/bitten/$(bitten-branch) ;}
+bitten-package(){   echo bitten ; }
 
 bitten-fix(){
    cd $(bitten-dir)   
    echo no fixes
 }
+
 
 
 bitten-makepatch(){  package-fn $FUNCNAME $* ; }

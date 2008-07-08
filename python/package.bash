@@ -45,6 +45,12 @@ package-pkgname(){
 }
 
 
+package-revision(){
+   local name=$1
+   $name-revision 2> /dev/null || echo "" 
+}
+
+
 package-usage(){
     local name=$1
     local bn=$(package-branchname $name)
@@ -78,6 +84,11 @@ cat << EOU
           ... possibly should mangle the branch changing / to _ for example as it
           is possible that the leaf name is not sufficiently distinctive 
     $name-dir       : $($name-dir)
+    
+    \$(package-revision $name) : $(package-revision $name)
+           if a particular revision is required ... in order to match a patch for example
+           then implement a $name-revision method for the package 
+    
     $name-url       : $($name-url)       
         the setup.py should be in the resulting checked out folder or if not a relative path from
         the checked out folder to the folder with the setup.py must be echoed by 
@@ -459,8 +470,10 @@ package-smry(){
   #local egg=$($name-egg)
   local egg=$(package-egg $name)
   local branch=$($name-branch)
+  local rev=$(package-revision $name)
+  
   local pris=$(package-ispristine $name)
-  printf "%-15s %-35s %-45s %-70s" $name $branch ${egg:--} $pris
+  printf "%-15s %-5s %-35s %-45s %-70s" $name ${rev:-HEAD} $branch ${egg:--} $pris
 }
 
 package-summary(){
@@ -626,6 +639,7 @@ package-get(){
    [ "$odir" != "$dir" ] && echo $msg WARNING using relative dir shift odir $odir dir $dir 
    
    local url=$($name-url)
+   local rev=$(package-revision $name)
    local pir=$(dirname $odir)
    
    local bnm=$(basename $odir) 
@@ -666,9 +680,9 @@ package-get(){
       [ ! -d $tba ] && unzip $brn 
        
    else 
-      echo $msg svn checkout $url into $pir with basename $bnm
-      svn co $url $bnm
-      
+   
+      echo $msg svn checkout $url rev ${rev:-HEAD}   into $pir with basename $bnm
+      svn co $url $bnm --revision ${rev:-HEAD}
       
    fi
    

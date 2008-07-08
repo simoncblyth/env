@@ -18,6 +18,7 @@ bittennotify-env(){
   export BITTENNOTIFY_BRANCH=trunk
 }
 
+bittennotify-revision(){  echo 28 ; }
 bittennotify-url(){     echo http://svn.3dbits.de/bittennotify/$(bittennotify-branch) ;}
 
 
