@@ -276,7 +276,7 @@ package-applypatch(){
    local name=$1
    local patchpath=$(package-patchpath $name)
    
-   [ ! -f $patchpath ]    && echo $msg ERROR there is no patch file $patchpath && return 1 
+   [ ! -f $patchpath ]    && echo $msg there is no patch file $patchpath && return 1 
    ! package-ispristine- $name && echo $msg ERROR there are local modifications ... cannot apply patch && return 1 
 
 
@@ -683,6 +683,7 @@ package-get(){
    
       echo $msg svn checkout $url rev ${rev:-HEAD}   into $pir with basename $bnm
       svn co $url $bnm --revision ${rev:-HEAD}
+      [ ! -d $bnm ] && echo $msg ABORT failed to checkout ... && sleep 10000000000
       
    fi
    
