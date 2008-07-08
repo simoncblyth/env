@@ -60,6 +60,10 @@ apache2-env(){
 
    elocal-
 
+
+   ## THIS IS BEING REPLACED BY apache/apache.bash 
+
+
    local APACHE2_NAME=httpd-2.0.59
    local APACHE2_ABBREV=apache2
 

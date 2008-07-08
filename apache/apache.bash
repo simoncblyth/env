@@ -24,6 +24,7 @@ apache-usage(){
       apache-confdir     : $(apache-confdir)
       apache-modulesdir  : $(apache-modulesdir)
       apache-htdocs      : $(apache-htdocs)
+      apache-logdir      : $(apache-logdir)
       
       apache-again
            wipes and builds both apache and modpython
@@ -76,7 +77,10 @@ apache-target(){
 }
 
 apache-envvars(){
-   echo $APACHE_HOME/bin/envvars
+  case $NODE_TAG in 
+   H) echo $APACHE_HOME/sbin/envvars ;;
+   *) echo $APACHE_HOME/bin/envvars ;;
+  esac 
 }
 
 apache-user(){
@@ -86,26 +90,39 @@ apache-user(){
    esac
 }
 
-
 apache-confdir(){
-  local dir
-  case $NODE_APPROACH in
-    stock) dir="/private/etc/apache2" ;;
-        *) dir="$APACHE_HOME/conf"
+  case $NODE_TAG in
+        G) echo /private/etc/apache2 ;;
+        H) echo $APACHE_HOME/etc/apache2 ;;
+        C) echo $APACHE_HOME/conf ;;
+        *) echo $APACHE_HOME/conf ;;
   esac
-  echo $dir
 }
 
 apache-htdocs(){
-  echo $APACHE_HOME/htdocs 
+  case $NODE_TAG in 
+    G) echo /Library/WebServer/Documents ;;
+    *) echo  $APACHE_HOME/htdocs  ;;
+  esac  
 }
 
 apache-modulesdir(){
-   echo $APACHE_HOME/modules
+  case $NODE_TAG in 
+     G) echo /usr/libexec/apache2 ;;
+     *) echo $APACHE_HOME/modules ;;
+  esas    
 }
 
+apache-logdir(){
+   case $NODE_TAG in 
+      G) echo /var/log/apache2 ;;
+      H) echo $APACHE_HOME/logs ;;
+      *) echo $APACHE_HOME/logs ;;
+   esac   
+}   
+   
 apache-logs(){
-  cd $APACHE_HOME/logs
+  cd $(apache-logdir)
   ls -l 
 }
 
