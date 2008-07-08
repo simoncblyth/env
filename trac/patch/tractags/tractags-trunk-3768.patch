@@ -1,7 +1,7 @@
-Index: /usr/local/env/trac/package/tractags/trunk/tractags/macros.py
+Index: tractags/macros.py
 ===================================================================
---- /usr/local/env/trac/package/tractags/trunk/tractags/macros.py	(revision 3768)
-+++ /usr/local/env/trac/package/tractags/trunk/tractags/macros.py	(working copy)
+--- tractags/macros.py	(revision 3768)
++++ tractags/macros.py	(working copy)
 @@ -13,6 +13,8 @@
  from tractags.api import TagSystem
  from genshi.builder import tag as builder

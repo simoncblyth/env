@@ -1,7 +1,7 @@
-Index: /usr/local/env/trac/package/bittennotify/trunk/setup.py
+Index: setup.py
 ===================================================================
---- /usr/local/env/trac/package/bittennotify/trunk/setup.py	(revision 28)
-+++ /usr/local/env/trac/package/bittennotify/trunk/setup.py	(working copy)
+--- setup.py	(revision 28)
++++ setup.py	(working copy)
 @@ -16,7 +16,7 @@
      packages = find_packages(exclude=['*.tests*']),
      test_suite = 'bittennotify.tests.suite',
@@ -11,10 +11,10 @@ Index: /usr/local/env/trac/package/bittennotify/trunk/setup.py
      },
      entry_points = {
          'distutils.commands': [
-Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py
+Index: bittennotify/main.py
 ===================================================================
---- /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py	(revision 28)
-+++ /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py	(working copy)
+--- bittennotify/main.py	(revision 28)
++++ bittennotify/main.py	(working copy)
 @@ -95,6 +95,7 @@
          dict.__init__(self)
          self.build = build
@@ -52,10 +52,10 @@ Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/main.py
          NotifyEmail.notify(self, self.build_info.id, subject)
  
      def get_recipients(self, resid):
-Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt
+Index: bittennotify/templates/bitten_notify_email.txt
 ===================================================================
---- /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt	(revision 0)
-+++ /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt	(revision 0)
+--- bittennotify/templates/bitten_notify_email.txt	(revision 0)
++++ bittennotify/templates/bitten_notify_email.txt	(revision 0)
 @@ -0,0 +1,14 @@
 +  ${status} build of ${project_name} [${changeset}]
 +---------------------------------------------------------------------
@@ -72,7 +72,7 @@ Index: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bit
 +  
 +${faillog}
 
-Property changes on: /usr/local/env/trac/package/bittennotify/trunk/bittennotify/templates/bitten_notify_email.txt
+Property changes on: bittennotify/templates/bitten_notify_email.txt
 ___________________________________________________________________
 Name: svn:executable
    + *

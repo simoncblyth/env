@@ -1,7 +1,7 @@
-Index: /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py
+Index: tractoc/macro.py
 ===================================================================
---- /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py	(revision 3783)
-+++ /usr/local/env/trac/package/tractoc/0.11/tractoc/macro.py	(working copy)
+--- tractoc/macro.py	(revision 3783)
++++ tractoc/macro.py	(working copy)
 @@ -130,7 +130,7 @@
              elif arg == 'noheading':
                  default_heading = ''
