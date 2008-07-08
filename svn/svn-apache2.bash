@@ -255,7 +255,7 @@ svn-apache2-authzaccess-write(){
   $ASUDO chown $APACHE2_USER $authzaccess
    ls -l $authzaccess
    echo =============== cat $authzaccess
-  cat $authzaccess
+  #cat $authzaccess
 
 }
 
