@@ -332,7 +332,7 @@ env-again(){
   
   local dir=$(dirname $ENV_HOME)
   local name=$(basename $ENV_HOME)
-  local url=$SCM_URL/repos/env
+  local url=$SCM_URL/repos/env/trunk
   
   read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
   [ "$answer" != "YES" ] && echo $msg skipping && return 1 
