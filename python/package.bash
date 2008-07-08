@@ -380,7 +380,7 @@ package-auto(){
    local msg="=== $FUNCNAME :"
    
    local steps="one two"
-   for step in steps
+   for step in $steps
    do
        echo $msg $name step $step
        
