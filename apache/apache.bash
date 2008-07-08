@@ -15,6 +15,10 @@ apache-usage(){
       apache-logs 
                 ls logs 
    
+      NODE_TAG           : $NODE_TAG
+      
+      apache-name        : $(apache-name)
+      apache-home        : $(apache-home)
       apache-envvars     : $(apache-envvars)
       apache-target      : $(apache-target)
       apache-confdir     : $(apache-confdir)
@@ -39,19 +43,33 @@ apache-again(){
 apache-env(){
 
    elocal-
-   ##export APACHE_NAME="httpd-2.0.59"    ## known to work with svn bindings for Trac usage
-   ##export APACHE_NAME="httpd-2.0.61"      ## nearest version on the mirror    
-   export APACHE_NAME="httpd-2.0.63"      ## nearest version on the mirror    
-
-   export APACHE_HOME=$SYSTEM_BASE/apache/$APACHE_NAME
-
+   export APACHE_NAME=$(apache-name)
+   export APACHE_HOME=$(apache-home)
+   
    [ -d $APACHE_HOME ] && env-prepend $APACHE_HOME/bin
 
 }
 
+apache-home(){
+   case $NODE_TAG in 
+     H) echo $LOCAL_BASE/apache2/$APACHE_NAME ;;
+     *) echo $SYSTEM_BASE/apache/$APACHE_NAME ;;
+   esac
+}
 
+apache-name(){
 
+ #
+ # httpd-2.0.59  known to work with svn bindings for Trac usage
+ # httpd-2.0.61  nearest version on the mirror    
+ # httpd-2.0.63  nearest version on the mirror    
+ #
 
+   case $NODE_TAG in 
+      H) echo httpd-2.0.59 ;;
+      *) echo httpd-2.0.63 ;;
+   esac
+}
 
 apache-target(){
   echo http://cms01.phys.ntu.edu.tw
