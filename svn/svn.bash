@@ -30,7 +30,7 @@ EOU
 
 
 #swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
-#svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
 #svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
 #svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
 #svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 

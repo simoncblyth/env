@@ -19,6 +19,7 @@ dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 dybpy-(){       . $ENV_HOME/dybpy/dybpy.bash && dybpy-env $* ; }
 
 
+apache2-(){     . $ENV_HOME/apache/apache2.bash && apache2-env $* ; } 
 apache-(){      . $ENV_HOME/apache/apache.bash && apache-env $* ; } 
 apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; } 
 

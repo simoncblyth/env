@@ -80,7 +80,8 @@ svn-apache2-env(){
 
  
   elocal-
-  apache2-
+  #apache2-
+  apache-
   trac-
 
   svn-apache2-base 
