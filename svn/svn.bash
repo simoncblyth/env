@@ -37,7 +37,8 @@ svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
 #svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
 
 
-svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env   $* ; } 
+svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; } 
+svnsetup-(){      . $ENV_HOME/svn/svnconf/svnsetup.bash    && svnsetup-env $* ; }
 
 
 svn-env(){

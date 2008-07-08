@@ -68,6 +68,12 @@ python-env(){
    fi
 }
 
+
+python-site(){
+    echo $PYTHON_SITE
+}
+
+
 python-path(){
 
   [ -z $PYTHON_HOME ] && echo $msg skip as no PYTHON_HOME && return 1  

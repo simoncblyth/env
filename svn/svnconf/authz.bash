@@ -1,0 +1,86 @@
+
+authz(){
+
+  local tw="thho, bzhu, wei, adiar, chwang"
+  local hk="jimmy, antony, soap"
+
+cat << EOA
+#
+#   $msg $BASH_SOURCE  $(date)
+#
+#     tw:[$tw]
+#     hk:[$hk]
+#     
+#   http://svnbook.red-bean.com/en/1.0/ch06s04.html
+#   
+#
+[groups]
+
+sync = ntusync
+dyuser = blyth, $tw, $hk, dayabay
+
+evuser = simon, dayabay
+evdev = blyth, $tw, $hk 
+evadmin = blyth, dayabaysoft, admin 
+
+abuser = simon, dayabay
+abdev = blyth, $tw, $hk
+abadmin = blyth
+
+hzuser = simon, cjl, tosi, cecilia, b2c
+hzdev = blyth
+hzadmin = blyth
+
+tduser = simon
+tddev = blyth
+tdadmin = blyth
+
+wfuser = simon
+wfdev = blyth
+wfadmin = blyth
+
+
+# force authenticated 
+[dybsvn:/]
+@sync = rw
+@dyuser = r 
+
+[env:/]
+* = r
+@evuser = r
+@evdev = rw 
+@evadmin = rw
+
+[aberdeen:/]
+@abuser = r
+@abdev = rw 
+@abadmin = rw
+
+[heprez:/]
+* = r
+@hzuser = rw
+@hzdev = rw 
+@hzadmin = rw
+
+[tracdev:/]
+* = r
+@tduser = r
+@tddev = rw 
+@tdadmin = rw
+
+[workflow:/]
+@wfuser = r
+@wfdev = rw 
+@wfadmin = rw
+
+[ApplicationSupport:/]
+@wfuser = r
+@wfdev = rw 
+@wfadmin = rw
+ 
+EOA
+
+
+}
+
+
