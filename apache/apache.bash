@@ -110,7 +110,7 @@ apache-modulesdir(){
   case $NODE_TAG in 
      G) echo /usr/libexec/apache2 ;;
      *) echo $APACHE_HOME/modules ;;
-  esas    
+  esac    
 }
 
 apache-logdir(){
