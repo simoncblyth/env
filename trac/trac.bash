@@ -107,11 +107,27 @@ trac-version(){
 }
 
 
+trac-baseurl(){
+   case ${1:-$NODE_TAG} in 
+      G) echo http://localhost ;;
+      H) echo http://dayabay.phys.ntu.edu.tw ;;
+      P) echo http://grid1.phys.ntu.edu.tw ;;
+      C) echo http://cms01.phys.ntu.edu.tw ;;
+      *) echo http://localhost ;;
+   esac
+}
+
+
+trac-url(){
+   echo $(trac-baseurl)/tracs/${1:-$TRAC_INSTANCE}/
+} 
+ 
+
+
 trac-env(){
    elocal-
    package-
    
-  
    export TRAC_INSTANCE=$(trac-instance)
    export TRAC_VERSION=$(trac-version)
    export TRAC_USER=$(trac-user)
@@ -302,8 +318,8 @@ trac-upgrade(){
     local msg="=== $FUNCNAME :"
     local user=$TRAC_USER
     
-    svn-
-    local authz=$(svn-authzpath)
+    
+    
     for name in $(trac-instances)
     do
        local path=$(trac-inipath $name)
@@ -311,11 +327,29 @@ trac-upgrade(){
        sudo perl -pi -e "s,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
        sudo chown $user:$user $path
        
-       TRAC_INSTANCE=$name trac-configure trac:repository_dir:$(TRAC_INSTANCE=$name trac-repopath) trac:authz_file:$authz
+       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)
        
     done
 }
 
+trac-triplets(){
+
+   local name=${1:-$TRAC_INSTANCE}
+   svn-
+   local authz=$(svn-authzpath)
+   local users=$(svn-userspath)
+   local url=$(TRAC_INSTANCE=$name trac-url)
+   local repo=$(TRAC_INSTANCE=$name trac-repopath)
+   
+   cat << EOT
+      trac:authz_file:$authz
+      trac:repository_dir:$repo
+      account-manager:password_file:$users
+      header_logo:link:$url
+      project:url:$url
+EOT
+
+}
 
 
 
