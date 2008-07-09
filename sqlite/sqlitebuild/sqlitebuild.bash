@@ -29,8 +29,25 @@ sqlitebuild-get(){
     [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
 }
 
+
+sqlitebuild-copy-to-node(){
+
+   local msg="=== $FUNCNAME :"
+   local t=${1:-C}
+   local cmd="scp $(sqlite-home).tar.gz $t:$(NODE_TAG=$t sqlite-home).tar.gz"
+   echo $msg $cmd
+   eval $cmd
+
+}
+
+
+
+
 sqlitebuild-dir(){
-   echo $SYSTEM_BASE/sqlite/build/$SQLITE_NAME
+   case $NODE_TAG in 
+      H) echo $(local-base)/sqlite/build/$(sqlite-name) ;;
+      *) echo $(system-base)/sqlite/build/$(sqlite-name) ;;
+   esac
 }
 
 

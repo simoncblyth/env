@@ -15,12 +15,21 @@ EOU
 
 }
 
+
+sqlite-name(){
+   echo sqlite-3.3.16
+}
+
+sqlite-home(){
+   echo $(system-base)/sqlite/$(sqlite-name)
+}
+
 sqlite-env(){
 
    elocal-
    
-   export SQLITE_NAME=sqlite-3.3.16
-   export SQLITE_HOME=$LOCAL_BASE/sqlite/$SQLITE_NAME
+   export SQLITE_NAME=$(sqlite-name)
+   export SQLITE_HOME=$(sqlite-home)
    
    #export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
     
