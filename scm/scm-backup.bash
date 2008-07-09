@@ -135,12 +135,17 @@ scm-recover-all(){
    local fromnode=${1:-dummy}
    [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
    
+   apache-
+   
    local types="repos tracs"
    for type in $types
    do
       
       local base=$SCM_FOLD/backup/$fromnode/$type
       local dest=$SCM_FOLD/$type
+      local user=$(apache-user)
+      
+      [ ! -d $dest ] && sudo mkdir -p $dest && sudo chown $user:$user $dest       
       
       for path in $base/*
       do  
