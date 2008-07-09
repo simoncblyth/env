@@ -1,5 +1,6 @@
 
 sqlitebuild-(){ . $ENV_HOME/sqlite/sqlitebuild/sqlitebuild.bash && sqlitebuild-env $* ; }
+pysqlite-(){    . $ENV_HOME/sqlite/sqlitebuild/pysqlite.bash    && pysqlite-env $* ; }
 
 sqlite-usage(){
 

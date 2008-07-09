@@ -1,73 +1,94 @@
-#
-#  pysqlite-get
-#  pysqlite-install
-#  pysqlite-test
-#
-#
+
+pysqlite-usage(){
+
+  cat << EOU
+
+     pysqlite-get
+     pysqlite-install
+     pysqlite-test
+
+EOU
+
+}
 
 pysqlite-env(){
-
     elocal-
-	python-
-    sqlite-
 	
-	pysqlite-base
+}
+
+pysqlite-name(){
+    echo pysqlite-2.3.3
 }
 
 
-pysqlite-base(){
-
-   export PYSQLITE_NAME=pysqlite-2.3.3
-}
 
 
 pysqlite-get(){
   
-  nam=$PYSQLITE_NAME
-  tgz=$nam.tar.gz
-  url=http://initd.org/pub/software/pysqlite/releases/2.3/2.3.3/$tgz
+  local nam=$(pysqlite-name)
+  local tgz=$nam.tar.gz
+  local url=http://initd.org/pub/software/pysqlite/releases/2.3/2.3.3/$tgz
   
-  cd $LOCAL_BASE
-  test -d pysqlite || ( $SUDO mkdir pysqlite && $SUDO chown $USER pysqlite )
+  cd $SYSTEM_BASE
+  mkdir -p pysqlite
   cd pysqlite 
 
-  test -f $tgz || curl -o $tgz $url
-  test -d build || mkdir build
+  test -f $tgz || curl -O $url
+  mkdir -p  build
   test -d build/$nam || tar -C build -zxvf $tgz 
 }
+
+pysqlite-home(){
+   case $NODE_TAG in 
+      H) echo $(local-base)/pysqlite/$(pysqlite-name) ;;
+      *) echo $(system-base)/pysqlite/$(pysqlite-name) ;;
+   esac
+}
+
+
+pysqlite-builddir(){
+    case $NODE_TAG in 
+       H) echo $(local-base)/pysqlite/build/$(pysqlite-name) ;;
+       *) echo $(system-base)/pysqlite/build/$(pysqlite-name) ;;
+    esac
+}
+
 
 pysqlite-install(){
 
    # http://initd.org/pub/software/pysqlite/doc/install-source.html
-   # NB the default python in path is too old: 2.2
-
-   nam=$PYSQLITE_NAME
-   cd $LOCAL_BASE/pysqlite/build/$nam
+ 
+   sqlite-
+   [ -z $SQLITE_HOME ] && echo $msg ABORT no SQLITE_HOME && sleep 1000000
+ 
+   cd $(pysqlite-builddir)
 
    perl -pi -e "s|^(include_dirs=)(.*)$|\$1$SQLITE_HOME/include|g" setup.cfg
    perl -pi -e "s|^(library_dirs=)(.*)$|\$1$SQLITE_HOME/lib|g"     setup.cfg
 
-  # doesnt work with this version of python 
-  #   /usr/bin/python2.4 setup.py build
+   python-
+   python setup.py install 
 
-   $PYTHON_HOME/bin/python setup.py build
-   $PYTHON_HOME/bin/python setup.py install 
-
-   # installs as a site-package into the installed python at
-   #      $PYTHON_HOME/lib/python2.5/site-packages/pysqlite2
-   #
 }
+
 
 pysqlite-test(){
 
     # need to run the test from a directory other than the build directory
     #  otherwise it fails with
     #   ImportError: No module named _sqlite
-    cd 
-    $PYTHON_HOME/bin/python << EOP
+    
+    local iwd=$PWD
+    cd /tmp
+    
+    python-
+    python << EOP
 from pysqlite2 import test
 test.test()
 EOP
+
+    cd $iwd
+
 
    #
    # before setting LD_LIBRARY_PATH to include $SQLITE_HOME/lib  
