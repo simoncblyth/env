@@ -15,6 +15,7 @@ tractags-env(){
    elocal-
    package-
    
+   trac- 
     
   local branch
   case $(trac-major) in 
@@ -25,6 +26,17 @@ tractags-env(){
   export TRACTAGS_BRANCH=$branch
    
 }
+
+
+tractags-upgradeconf(){
+
+   local msg="=== $FUNCNAME :"
+   [ "$(trac-major)" != "0.11" ] && echo $msg this is only relevant to 0.11 && return 1
+
+   
+
+}
+
 
 tractags-revision(){ echo 3768 ; }
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-branch) ; }

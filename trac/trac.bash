@@ -36,7 +36,12 @@ cat << EOU
     trac-log     <name>
     trac-inicat  <name>
            
-           
+      
+    trac-instances  : $(trac-instances)
+          names of all the instances from looking in $SCM_FOLD/tracs
+        
+                
+                          
     For the above the names default to the TRAC_INSTANCE, for the 
     below utilities that take arguments a non default instance must be
     specified thru the environment with eg 
@@ -136,7 +141,7 @@ trac-inheritpath(){ echo $SCM_FOLD/conf/trac.ini ; }
 trac-tail(){ tail -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
-
+trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 
 trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
 trac-configure(){ trac-ini-edit $(trac-inipath) $*   ; }
@@ -147,6 +152,130 @@ trac-notify-conf(){
 
   local domain=localhost
   trac-configure notification:smtp_default_domain:$domain notification:smtp_enabled:true
+
+}
+
+
+trac-instances(){
+   local iwd=$PWD
+   cd $SCM_FOLD/tracs
+   for name in $(ls -1)
+   do
+      [ -d $name ] && echo $name
+   done
+   cd $iwd
+}
+
+
+
+trac-inherit-setup(){
+
+   [ "$(trac-major)" != "0.11" ] && echo $msg this is only relevant to 0.11 && return 1
+   
+    local msg="=== $FUNCNAME :"
+    local inherit=$(trac-inheritpath)
+    local dir=$(dirname $inherit)
+    
+    [ ! -d $dir ] && echo $msg creating dir $dir for global inherited conf && $SUDO mkdir -p $dir
+    
+    echo $msg planting the inherit reference in all the instances 
+    for name in $(trac-instances)
+    do
+       TRAC_INSTANCE=$name trac-configure inherit:file:$inherit
+    done
+    
+    [ ! -f $inherit ] && echo $msg bootstraping global config $inherit && trac-inherit 
+    
+
+}
+
+
+trac-inherit(){
+
+   local live=$(trac-inheritpath)
+   local path=${1:-$live}
+   local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp
+   local name=$(basename $path)
+   
+   trac-inherit- > $tmp/$name
+   
+   if [ "$path" == "$live" ]; then
+      $SUDO cp $tmp/$name $live 
+   fi
+
+}
+
+
+trac-inherit-(){
+ 
+   cat << EOI
+
+##  http://trac-hacks.org/wiki/TagsPlugin
+
+[components]
+tractags.* = enabled
+acct_mgr.admin.accountmanageradminpage = enabled
+acct_mgr.api.accountmanager = enabled
+acct_mgr.htfile.htdigeststore = disabled
+acct_mgr.htfile.htpasswdstore = enabled
+acct_mgr.web_ui.accountmodule = enabled
+acct_mgr.web_ui.loginmodule = enabled
+acct_mgr.web_ui.registrationmodule = disabled
+includemacro.* = enabled
+latexdummy.* = enabled
+latexmacro.* = enabled
+mwimagemacro.* = enabled
+mwmediawikicmdmacro.* = enabled
+mwmediawikienddocmacro.* = enabled
+mwmediawikigetresmacro.* = enabled
+mwmediawikimacro.* = enabled
+mwmediawikispecialcharmacro.* = enabled
+mwmediawikitablemacro.* = enabled
+mwmediawikitimestampmacro.* = enabled
+mwtracnavmacro.* = enabled
+other.* = enabled
+teximagemacro.* = enabled
+texlatexbasicheadersmacro.* = enabled
+texlatexbegindocmacro.* = enabled
+texlatexcmdmacro.* = enabled
+texlatexdocclsmacro.* = enabled
+texlatexenddocmacro.* = enabled
+texlatexgetresmacro.* = enabled
+texlatexmacro.* = enabled
+texlatexspecialcharmacro.* = enabled
+texlatextablemacro.* = enabled
+texlatexusepkgmacro.* = enabled
+textimestampmacro.* = enabled
+trac.web.auth.loginmodule = disabled
+##
+##remove for tractags 0.6 
+##trac.wiki.web_ui.wikimodule = disabled
+##
+trac2latex.* = enabled
+trac2mediawiki.* = enabled
+tracnav.* = enabled
+tracreposearch.* = enabled
+tractoc.* = enabled
+webadmin.* = enabled
+xslt.* = enabled
+
+
+
+   
+   
+EOI
+
+}
+
+
+
+
+
+
+trac-upgradeconf(){
+
+    tractags-
+    tractags-upgradeconf
 
 }
 
