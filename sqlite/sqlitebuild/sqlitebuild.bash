@@ -4,6 +4,16 @@ sqlitebuild-usage(){
    cat << EOU
 
    
+      sqlitebuild-dir   :   $(sqlitebuild-dir) 
+   
+      sqlitebuild-get/configure/install/wipe/wipe-install
+      
+      sqlitebuild-copy-to-node  <node-tag>
+              copy the tarball to another node
+
+
+      $(type sqlitebuild-again)
+
 
 
 EOU
@@ -55,7 +65,7 @@ sqlitebuild-configure(){
 
   cd $(sqlitebuild-dir)
   ./configure -h 
-  ./configure --prefix=$SQLITE_HOME --disable-tcl
+  ./configure --prefix=$(sqlite-home) --disable-tcl
   
 }
 
