@@ -30,7 +30,10 @@ sqlite-name(){
 }
 
 sqlite-home(){
-   echo $(system-base)/sqlite/$(sqlite-name)
+   case $NODE_TAG in 
+      H) echo $(local-base)/sqlite/$(sqlite-name) ;;
+      *) echo $(system-base)/sqlite/$(sqlite-name) ;;
+   esac
 }
 
 sqlite-env(){
@@ -64,6 +67,15 @@ sqlite-ldconfig(){
   env-ldconfig $(sqlite-home)/lib 
 
 }
+
+sqlite-test(){
+
+  # http://trac.edgewall.org/wiki/PySqlite#DetermineactualSQLiteandPySqliteversion
+   python -c "import trac.db.sqlite_backend as test ; print test._ver ; print test.have_pysqlite ; print test.sqlite.version ; from pysqlite2 import dbapi2 as sqlite "
+
+}
+
+
 
 
 
