@@ -110,9 +110,11 @@ trac-version(){
 trac-env(){
    elocal-
    package-
+   
   
    export TRAC_INSTANCE=$(trac-instance)
    export TRAC_VERSION=$(trac-version)
+   export TRAC_USER=$(trac-user)
   
    # these settings ?were? used by svn-apache-* for apache2 config 
    # apache-
@@ -124,8 +126,14 @@ trac-env(){
    #
    export TRAC_NAMES_BASE="genshi tractrac bitten" 
    
-   trac-ini-
    
+   
+}
+
+
+trac-user(){
+   apache-
+   echo $(apache-user)
 }
 
 
@@ -144,8 +152,16 @@ trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 
 trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
-trac-configure(){ trac-ini-edit $(trac-inipath) $*   ; }
+trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
+trac-edit-ini(){
 
+   local path=$1
+   local user=$TRAC_USER
+   shift
+ 
+   sudo perl $ENV_HOME/base/ini-edit.pl $path $*  
+   sudo chown $user:$user $path
+}
 
 
 trac-notify-conf(){
@@ -175,8 +191,9 @@ trac-inherit-setup(){
     local msg="=== $FUNCNAME :"
     local inherit=$(trac-inheritpath)
     local dir=$(dirname $inherit)
+    local user=$TRAC_USER
     
-    [ ! -d $dir ] && echo $msg creating dir $dir for global inherited conf && $SUDO mkdir -p $dir
+    [ ! -d $dir ] && echo $msg creating dir $dir for global inherited conf && sudo mkdir -p $dir && sudo chown $user:$user $dir
     
     echo $msg planting the inherit reference in all the instances 
     for name in $(trac-instances)
@@ -196,11 +213,13 @@ trac-inherit(){
    local path=${1:-$live}
    local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp
    local name=$(basename $path)
+   local user=$TRAC_USER
    
    trac-inherit- > $tmp/$name
    
    if [ "$path" == "$live" ]; then
-      $SUDO cp $tmp/$name $live 
+      sudo cp $tmp/$name $live 
+      sudo chown $user:$user $live
    fi
 
 }
