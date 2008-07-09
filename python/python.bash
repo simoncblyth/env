@@ -24,6 +24,12 @@ cat << EOU
     
     python-ls
          ls -l $PYTHON_SITE/
+         
+    python-ldconfig
+        does no harm to run this more that once ...
+        === env-ldconfig : the dir /data/env/system/python/Python-2.5.1/lib is already there /etc/ld.so.conf
+         
+         
 
 EOU
 
@@ -83,6 +89,14 @@ python-path(){
   
 
 }
+
+python-ldconfig(){
+
+   env-ldconfig  $PYTHON_HOME/lib
+
+
+}
+
 
 
 python-libdir(){

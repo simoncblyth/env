@@ -62,12 +62,13 @@ svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; }
 
 
 swig-(){        . $ENV_HOME/swig/swig.bash       && swig-env $* ; } 
+sqlite-(){      . $ENV_HOME/sqlite/sqlite.bash && sqlite-env $* ; } 
 
 
 cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
 
 
-sqlite-(){      . $ENV_HOME/db/sqlite.bash && sqlite-env $* ; } 
+
 db-(){          . $ENV_HOME/db/db.bash     && db-env $*     ; }
 
 
