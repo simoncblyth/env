@@ -184,6 +184,15 @@ trac-instances(){
 
 
 
+trac-prepare(){
+
+   trac-inherit-setup
+   trac-upgrade
+
+}
+
+
+
 trac-inherit-setup(){
 
    [ "$(trac-major)" != "0.11" ] && echo $msg this is only relevant to 0.11 && return 1
@@ -205,7 +214,6 @@ trac-inherit-setup(){
     
 
 }
-
 
 trac-inherit(){
 
@@ -288,14 +296,13 @@ EOI
 
 
 
-
-
-
-trac-upgradeconf(){
-
-    tractags-
-    tractags-upgradeconf
-
+trac-upgrade(){
+    for name in $(trac-instances)
+    do
+       local path=$(trac-inipath $name)
+       sudo perl -pi -e 's,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  ' $path
+       sudo chown $user:$user $path
+    done
 }
 
 
