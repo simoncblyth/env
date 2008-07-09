@@ -82,11 +82,11 @@ svnsetup-apache(){
 
    local def=$SVNSETUP_DIR
    local base=${1:-$def}
-   local user=$(apache-user)
+   
 
    if [ "$base" == "$def" ]; then
       $ASUDO mkdir -p $base 
-      $ASUDO chown $user $base
+      svnsetup-chown $base 
    fi
 
    svnsetup-tracs $base/tracs.conf 
@@ -96,6 +96,18 @@ svnsetup-apache(){
    
 }
 
+
+svnsetup-chown(){
+   local path=$1
+   shift
+   local user=$(apache-user)
+   
+   case $NODE_TAG in 
+     G) $ASUDO chown $* $user:$user $path ;;
+     *) $ASUDO chown $* $user $path ;;
+   esac
+    
+}
 
 
 
@@ -135,7 +147,7 @@ svnsetup-location-(){
   
   local user=$(apache-user)   
   echo $msg $flavor setting ownership to $user   
-  $ASUDO chown $user:$user $path
+  svnsetup-chown $path
      
   ls -l $path
   #cat $path 
