@@ -136,7 +136,17 @@ apache-logdir(){
 }   
    
    
-   
+apache-addline(){
+
+  local line=$1
+  local conf=$(apache-confdir)/httpd.conf
+  local user=$(apache-user)
+
+  grep -q "$line" $conf && echo $msg line \"$line\" already present in $conf  || sudo -u $user echo "$line" >> $conf  
+
+
+
+}
    
    
    

@@ -37,6 +37,13 @@ svnsetup-usage(){
 
 
 
+     svnsetup-put-users-to-node target-node 
+     svnsetup-get-users-from-h 
+    
+    
+
+
+
      svnsetup-modules 
            add the requisite modules for apache+svn runninf to httpd.conf 
            THIS IS NOW HANDLED IN APACHEBUILD ???     
@@ -76,11 +83,20 @@ svnsetup-tmp(){
 
 svnsetup-put-users-to-node(){
 
-  local target=${1:-C}
+  local t=${1:-C}
   local msg="=== $FUNCNAME :"
   [ "$NODE_TAG" != "H" ] && echo $msg ABORT only applicable on H not  NODE_TAG $NODE_TAG && return 1 
   
-  local cmd="scp $(apache-confdir)/svn-apache2-auth $target:$(NODE_TAG=$target svnsetup-dir)/users.conf" 
+  local tmp=/tmp/env/svnsetup
+  local user=$(NODE_TAG=$t apache-user)
+  local conf=$(NODE_TAG=$t svnsetup-dir)/users.conf
+  
+  local cmd=$(cat << EOC 
+      ssh $t "mkdir -p $tmp" ;  
+      scp $(apache-confdir)/svn-apache2-auth $t:$tmp/users.conf ; 
+      ssh $t "sudo cp $tmp/users.conf $conf ; sudo chown $user:$user $conf  " 
+EOC)
+        
   echo $cmd
   eval $cmd 
 
@@ -104,7 +120,7 @@ svnsetup-get-users-from-h(){
 svnsetup-apache(){
 
    local msg="=== $FUNCNAME :"
-   local def=$SVNSETUP_DIR
+   local def=$(svnsetup-dir)
    local base=${1:-$def}
    
 
@@ -112,14 +128,24 @@ svnsetup-apache(){
       echo $msg setting ownership of $base
       $ASUDO mkdir -p $base 
       svnsetup-chown $base 
+      
+      apache-
+      apache-addline "Include $base/setup.conf"
+      
    fi
 
    svnsetup-tracs $base/tracs.conf 
    svnsetup-repos $base/repos.conf
+   svnsetup-setup $base/setup.conf
+   
    svnsetup-authz $base/authz.conf
    
    
+   
 }
+
+
+
 
 
 svnsetup-chown(){
@@ -139,6 +165,8 @@ svnsetup-chown(){
 svnsetup-tracs(){ svnsetup-location- $FUNCNAME $* ; }
 svnsetup-repos(){ svnsetup-location- $FUNCNAME $* ; }
 svnsetup-authz(){ svnsetup-location- $FUNCNAME $* ; }
+svnsetup-setup(){ svnsetup-location- $FUNCNAME $* ; }
+
 
 
 svnsetup-location-(){
@@ -178,6 +206,27 @@ svnsetup-location-(){
   #cat $path 
      
 }
+
+
+svnsetup-setup-(){
+
+  local msg="=== $FUNCNAME : "
+  local dir=$(svnsetup-dir)
+
+cat << EOU 
+#
+#  $msg $BASH_SOURCE $(date)
+#
+#   \$(svnsetup-dir)     :  $(svnsetup-dir)
+#
+Include $dir/repos.conf
+Include $dir/tracs.conf
+
+EOU
+
+
+}
+
 
 
 
