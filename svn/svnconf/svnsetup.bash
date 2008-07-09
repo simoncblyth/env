@@ -75,16 +75,29 @@ svnsetup-tmp(){
   echo /tmp/env/${FUNCNAME/-*/}/apache
 }
 
+svnsetup-get-users-from-h(){
 
+   local msg="=== $FUNCNAME :"
+   [ "$NODE_TAG" == "H" ] && echo $msg ABORT not applicable on NODE_TAG $NODE_TAG && return 1 
+   
+   local users=$(svnsetup-dir)/users.conf
+   local cmd="scp H:$(NODE_TAG=H apache-confdir)/svn-apache2-auth $users"
+   echo $msg $cmd
+   eval $cmd
+
+   svnsetup-chown $users
+}
 
 
 svnsetup-apache(){
 
+   local msg="=== $FUNCNAME :"
    local def=$SVNSETUP_DIR
    local base=${1:-$def}
    
 
    if [ "$base" == "$def" ]; then
+      echo $msg setting ownership of $base
       $ASUDO mkdir -p $base 
       svnsetup-chown $base 
    fi

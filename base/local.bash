@@ -306,10 +306,14 @@ export LOCAL_BASE_T=/usr/local
 export LOCAL_BASE_N=$HOME/local
 export LOCAL_BASE_C=/data/env/local
 
+local-base(){
+   local tag=${1:-$NODE_TAG} 
+   local vname=LOCAL_BASE_$tag
+   eval _LOCAL_BASE=\$$vname
+   echo ${_LOCAL_BASE:-$LOCAL_BASE_U}
+}
 
-vname=LOCAL_BASE_$NODE_TAG
-eval _LOCAL_BASE=\$$vname
-export LOCAL_BASE=${_LOCAL_BASE:-$LOCAL_BASE_U}
+export LOCAL_BASE=$(local-base)
 
 
 ## --------------  the prequisite base for most everything, ie where to pick up subversion + 
@@ -321,11 +325,15 @@ export SYSTEM_BASE_P=$grid1_system_base
 export SYSTEM_BASE_G1=$grid1_system_base
 export SYSTEM_BASE_C=/data/env/system
 
+system-base(){
+   local tag=${1:-$NODE_TAG} 
+   local vname=SYSTEM_BASE_$tag
+   eval _SYSTEM_BASE=\$$vname
+   echo ${_SYSTEM_BASE:-$SYSTEM_BASE_U}
+}
 
 
-vname=SYSTEM_BASE_$NODE_TAG
-eval _SYSTEM_BASE=\$$vname
-export SYSTEM_BASE=${_SYSTEM_BASE:-$SYSTEM_BASE_U}
+export SYSTEM_BASE=$(system-base)
 
 
 ## ----------  for operational files, like backups

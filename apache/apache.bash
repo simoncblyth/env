@@ -17,6 +17,15 @@ apache-usage(){
    
       NODE_TAG           : $NODE_TAG
       
+      NB where it is likely to be useful to grab the 
+      value for another node ... its best to implement 
+      in a fully functional manner.. allowing simple access
+      like 
+          remval=$(NODE_TAG=R apache-confdir)
+      
+      rather than fooling with apache- to set the exports 
+      
+      
       apache-name        : $(apache-name)
       apache-user        : $(apache-user)
       apache-home        : $(apache-home)
@@ -54,8 +63,8 @@ apache-env(){
 
 apache-home(){
    case $NODE_TAG in 
-     H) echo $LOCAL_BASE/apache2/$APACHE_NAME ;;
-     *) echo $SYSTEM_BASE/apache/$APACHE_NAME ;;
+     H) echo $(local-base)/apache2/$(apache-name) ;;
+     *) echo $(system-base)/apache/$(apache-name) ;;
    esac
 }
 
@@ -95,17 +104,18 @@ apache-user(){
 apache-confdir(){
   case $NODE_TAG in
         G) echo /private/etc/apache2 ;;
-        H) echo $APACHE_HOME/etc/apache2 ;;
-        C) echo $APACHE_HOME/conf ;;
-        *) echo $APACHE_HOME/conf ;;
+        H) echo $(apache-home)/etc/apache2 ;;
+        C) echo $(apache-home)/conf ;;
+        *) echo $(apache-home)/conf ;;
   esac
 }
 
 apache-htdocs(){
+  
   case $NODE_TAG in 
     G) echo /Library/WebServer/Documents ;;
-    H) echo $APACHE_HOME/share/apache2/htdocs ;;
-    *) echo $APACHE_HOME/htdocs  ;;
+    H) echo $(apache-home)/share/apache2/htdocs ;;
+    *) echo $(apache-home)/htdocs  ;;
   esac  
 }
 
