@@ -12,10 +12,10 @@ svnsetup-usage(){
                 to create the apache conf files
 
      test with
-        ASUDO= svnsetup-apache
+        ASUDO= svnsetup-apache /tmp/env/svnsetup/apache
+        
      use with ... 
-        ASUDO=     svnsetup-apache $(apache-confdir)
-     or ASUDO=sudo svnsetup-apache $(apache-confdir)
+         ASUDO=sudo svnsetup-apache 
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
@@ -121,7 +121,7 @@ svnsetup-location-(){
   svnsetup-$flavor- $* >  $tmp 
   echo $msg $flavor wrote tmp $tmp 
   ls -l $tmp
-  cat $tmp
+  #cat $tmp
   
   [ -z $path ] && return 0
   
