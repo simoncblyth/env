@@ -168,7 +168,7 @@ trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 
-trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
+trac-admin-(){   sudo trac-admin $(trac-envpath) $* ; }
 trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
 trac-edit-ini(){
 
@@ -315,22 +315,31 @@ EOI
 
 trac-upgrade(){
 
-    local msg="=== $FUNCNAME :"
-    local user=$TRAC_USER
-    
-    
-    
     for name in $(trac-instances)
     do
-       local path=$(trac-inipath $name)
-       echo $msg commenting default_handler TagsWikiModule setting from $path user $user
-       sudo perl -pi -e "s,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
-       sudo chown $user:$user $path
+       trac-comment $name "default_handler = TagsWikiModule"
+       trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
        
-       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)
-       
+       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)       
     done
 }
+
+
+
+trac-comment(){
+
+   local msg="=== $FUNCNAME :"
+   local name=${1:-$TRAC_INSTANCE}
+   local skip="$2"
+   local path=$(trac-inipath $name)
+   local user=$TRAC_USER
+   
+   echo $msg commenting "$skip" from $path user $user
+   sudo perl -pi -e "s,^($skip),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
+   sudo chown $user:$user $path
+
+}
+
 
 trac-triplets(){
 
