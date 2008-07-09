@@ -21,6 +21,15 @@ pysqlite-name(){
 }
 
 
+pysqlite-again(){
+
+   echo NOTE no wiping implemented ye  ... perhaps could be easy installed ? BUT do need a cfg change 
+
+   pysqlite-get
+   pysqlite-install
+
+}
+
 
 
 pysqlite-get(){

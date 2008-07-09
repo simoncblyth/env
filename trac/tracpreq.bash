@@ -37,8 +37,7 @@ tracpreq-again(){
    svnbuild-again
 
    sqlite-
-   sqlitebuild-
-   sqlitebuild-again 
+   sqlite-again 
 
 
 }

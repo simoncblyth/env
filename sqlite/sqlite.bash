@@ -26,6 +26,17 @@ EOU
 }
 
 
+sqlite-again(){
+
+   sqlitebuild-
+   sqlitebuild-again
+   
+   pysqlite-
+   pysqlite-again
+
+}
+
+
 sqlite-name(){
    echo sqlite-3.3.16
 }
