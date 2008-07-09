@@ -7,9 +7,10 @@ svnsetup-usage(){
 
      For infrequently used setup of svn + apache ...  
 
-     svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svnsetup-tmp)  
+     svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svnsetup-dir)  
                 invokes the below funcs
-                to create the apache conf files
+                to create the apache conf files and hooks them up to httpd.conf
+                by appending an Include 
 
      test with
         ASUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
@@ -81,41 +82,6 @@ svnsetup-tmp(){
 }
 
 
-svnsetup-put-users-to-node(){
-
-  local t=${1:-C}
-  local msg="=== $FUNCNAME :"
-  [ "$NODE_TAG" != "H" ] && echo $msg ABORT only applicable on H not  NODE_TAG $NODE_TAG && return 1 
-  
-  local tmp=/tmp/env/svnsetup
-  local user=$(NODE_TAG=$t apache-user)
-  local conf=$(NODE_TAG=$t svnsetup-dir)/users.conf
-  
-  local cmd=$(cat << EOC 
-      ssh $t "mkdir -p $tmp" ;  
-      scp $(apache-confdir)/svn-apache2-auth $t:$tmp/users.conf ; 
-      ssh $t "sudo cp $tmp/users.conf $conf ; sudo chown $user:$user $conf  " 
-EOC)
-        
-  echo $cmd
-  eval $cmd 
-
-}
-
-
-svnsetup-get-users-from-h(){
-
-   local msg="=== $FUNCNAME :"
-   [ "$NODE_TAG" == "H" ] && echo $msg ABORT not applicable on NODE_TAG $NODE_TAG && return 1 
-   
-   local users=$(svnsetup-dir)/users.conf
-   local cmd="scp H:$(NODE_TAG=H apache-confdir)/svn-apache2-auth $users"
-   echo $msg $cmd
-   eval $cmd
-
-   svnsetup-chown $users
-}
-
 
 svnsetup-apache(){
 
@@ -178,6 +144,7 @@ svnsetup-location-(){
     tracs) echo -n ;;
     repos) echo -n ;;
     authz) echo -n ;;
+    setup) echo -n ;;
         *) echo $msg ABORT this should be invoked by svnsetup-tracs/repos .. && return 1
   esac
   
@@ -464,6 +431,43 @@ svnsetup-xslt(){
   $ASUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
 
   cd $iwd
+}
+
+
+
+svnsetup-put-users-to-node(){
+
+  local t=${1:-C}
+  local msg="=== $FUNCNAME :"
+  [ "$NODE_TAG" != "H" ] && echo $msg ABORT only applicable on H not  NODE_TAG $NODE_TAG && return 1 
+  
+  local tmp=/tmp/env/svnsetup
+  local user=$(NODE_TAG=$t apache-user)
+  local conf=$(NODE_TAG=$t svnsetup-dir)/users.conf
+  
+  local cmd=$(cat << EOC 
+      ssh $t "mkdir -p $tmp" ;  
+      scp $(apache-confdir)/svn-apache2-auth $t:$tmp/users.conf ; 
+      ssh $t "sudo cp $tmp/users.conf $conf ; sudo chown $user:$user $conf  " 
+EOC)
+        
+  echo $cmd
+  eval $cmd 
+
+}
+
+
+svnsetup-get-users-from-h(){
+
+   local msg="=== $FUNCNAME :"
+   [ "$NODE_TAG" == "H" ] && echo $msg ABORT not applicable on NODE_TAG $NODE_TAG && return 1 
+   
+   local users=$(svnsetup-dir)/users.conf
+   local cmd="scp H:$(NODE_TAG=H apache-confdir)/svn-apache2-auth $users"
+   echo $msg $cmd
+   eval $cmd
+
+   svnsetup-chown $users
 }
 
 
