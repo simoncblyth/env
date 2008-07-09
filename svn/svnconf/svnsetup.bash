@@ -47,7 +47,7 @@ svnsetup-usage(){
 
     TODO : 
        ownership...
-            $ASUDO chown $APACHE2_USER $authzaccess
+           
 
 
 
@@ -62,9 +62,14 @@ EOU
 svnsetup-env(){
   elocal-
   python-
-  apache2-
+  apache-
+  
+  export SVNSETUP_DIR=$(apache-confdir)/svnsetup
 }
 
+svnsetup-dir(){
+  echo $SVNSETUP_DIR 
+}
 
 svnsetup-tmp(){
   echo /tmp/env/${FUNCNAME/-*/}/apache
@@ -72,12 +77,19 @@ svnsetup-tmp(){
 
 svnsetup-apache(){
 
-   local tmp=$(svnsetup-tmp) && mkdir -p $tmp
-   local base=${1:-$tmp}
+   local def=$SVNSETUP_DIR
+   local base=${1:-$def}
+   local user=$(apache-user)
+
+   if [ "$base" == "$def" ]; then
+      $ASUDO mkdir -p $base 
+      $ASUDO chown $user:$user $base
+   fi
 
    svnsetup-tracs $base/tracs.conf 
    svnsetup-repos $base/repos.conf
    svnsetup-authz $base/authz.conf
+   
    
 }
 
@@ -117,9 +129,13 @@ svnsetup-location-(){
 
   echo $msg $flavor copying tmp $tmp to $path with ASUDO [$ASUDO]
   $ASUDO cp $tmp $path
-  ls -l $path
-  cat $path
+  
+  local user=$(apache-user)   
+  echo $msg $flavor setting ownership to $user   
+  $ASUDO chown $user:$user $path
      
+  ls -l $path
+  #cat $path 
      
 }
 
@@ -132,7 +148,6 @@ svnsetup-tracs-(){
  
  local c="#"
  local b=""
- local confprefix=$(svnsetup-confprefix)
   
 cat << EOC
 #
@@ -142,7 +157,7 @@ cat << EOC
 #   
 #   \$(apache-htdocs)         :  $(apache-htdocs) 
 #   \$(python-site)           :  $(python-site)
-#   \$(apache-confdir)        :  $(apache-confdir)
+#   \$(svnsetup-dir)          :  $(svnsetup-dir)
 #   \$SCM_FOLD                :  $SCM_FOLD
 #
 #
@@ -192,7 +207,7 @@ cat << EOC
 $b<LocationMatch "/tracs/[^/]+/builds">
 $b    AuthType Basic
 $b    AuthName "svn-tracs"
-$b    AuthUserFile $(apache-confdir)/users.conf
+$b    AuthUserFile $(svnsetup-dir)/users.conf
 $b    Require valid-user
 $b</LocationMatch>
 $b
@@ -202,7 +217,7 @@ $b
 $c<LocationMatch "/tracs/[^/]+/login">
 $c    AuthType Basic
 $c    AuthName "svn-tracs"
-$c    AuthUserFile $(apache-confdir)/users.conf
+$c    AuthUserFile $(svnsetup-dir)/users.conf
 $c    Require valid-user
 $c</LocationMatch>
 $c
@@ -221,7 +236,6 @@ EOC
 svnsetup-repos-(){
 
   local securitylevel=${1:-anon-or-real}
-  local confprefix=$(svnsetup-confprefix) 
    
 cat << EOH
 
@@ -231,7 +245,7 @@ cat << EOH
 #     securitylevel:[$securitylevel] 
 #
 #     \$SCM_FOLD                 : $SCM_FOLD
-#     \$(apache-confdir)         : $(apache-confdir)
+#     \$(svnsetup-dir)           : $(svnsetup-dir)
 #
 #    http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #     NB no need to restart apache2 on creating new repositories
@@ -245,7 +259,7 @@ cat << EOH
       SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
-      AuthzSVNAccessFile $(apache-confdir)/authz.conf
+      AuthzSVNAccessFile $(svnsetup-dir)/authz.conf
 
       # securitylevel $securitylevel
 EOH
@@ -277,7 +291,7 @@ EOS
       AuthType Basic
       AuthName "svn-repos"
       # users file
-      AuthUserFile $(apache-confdir)/users.conf
+      AuthUserFile $(svnsetup-dir)/users.conf
                   
 </Location>
 EOT
@@ -306,7 +320,7 @@ svnsetup-authz-(){
 
 
 
-svnsetup-modules(){
+svnsetup-modules-deprecated(){
   echo ======= the below LoadModule directives are needed for svn 
   cat << EOS
 LoadModule dav_svn_module     $APACHE2_SO/mod_dav_svn.so
