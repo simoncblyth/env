@@ -100,7 +100,7 @@ trac-env(){
    ## these settings are used by svn-apache-* for apache2 config 
    apache-
    export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
-   export TRAC_EGG_CACHE=/tmp/trac-egg-cache
+   #export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
 
    ## when packages need to be installed in a particular order arrange
