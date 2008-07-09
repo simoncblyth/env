@@ -127,6 +127,10 @@ host S
 EOS
 fi
 
+
+  echo $msg restricting access with chmod ...  needed for newer ssh ??
+  chmod go-rw $cfg
+
   if [ -f "$pfg" ] && [ -f "$cfg" ]; then
      echo $msg comparing config files
 	 ls -l $pfg $cfg

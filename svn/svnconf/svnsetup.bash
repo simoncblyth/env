@@ -63,17 +63,29 @@ svnsetup-env(){
   elocal-
   python-
   apache-
-  
-  export SVNSETUP_DIR=$(apache-confdir)/svnsetup
 }
 
 svnsetup-dir(){
-  echo $SVNSETUP_DIR 
+  echo $(apache-confdir)/svnsetup 
 }
 
 svnsetup-tmp(){
   echo /tmp/env/${FUNCNAME/-*/}/apache
 }
+
+
+svnsetup-put-users-to-node(){
+
+  local target=${1:-C}
+  local msg="=== $FUNCNAME :"
+  [ "$NODE_TAG" != "H" ] && echo $msg ABORT only applicable on H not  NODE_TAG $NODE_TAG && return 1 
+  
+  local cmd="scp $(apache-confdir)/svn-apache2-auth $target:$(NODE_TAG=$target svnsetup-dir)/users.conf" 
+  echo $cmd
+  eval $cmd 
+
+}
+
 
 svnsetup-get-users-from-h(){
 
