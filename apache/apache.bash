@@ -87,6 +87,7 @@ apache-envvars(){
 apache-user(){
    case $NODE_TAG in 
      G) echo www ;;
+     C) echo nobody ;;
      *) echo apache ;;
    esac
 }

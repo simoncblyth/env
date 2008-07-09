@@ -104,7 +104,7 @@ svnsetup-chown(){
    
    case $NODE_TAG in 
      G) $ASUDO chown $* $user:$user $path ;;
-     *) $ASUDO chown $* $user $path ;;
+     *) $ASUDO chown $* $user:$user $path ;;
    esac
     
 }
