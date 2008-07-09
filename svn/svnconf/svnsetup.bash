@@ -312,7 +312,7 @@ cat << EOH
       SVNParentPath $SCM_FOLD/repos
       ## allow raw apache+svn to provide a list of repositories
       SVNListParentPath on
-      SVNIndexXSLT /resources/xslt/svnindex.xsl
+      ##SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
       AuthzSVNAccessFile $(svnsetup-dir)/authz.conf
