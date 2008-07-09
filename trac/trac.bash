@@ -311,7 +311,7 @@ trac-upgrade(){
        sudo perl -pi -e "s,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
        sudo chown $user:$user $path
        
-       TRAC_INSTANCE=$name trac-configure trac:repository_dir:$(trac-repopath) trac:authz_file:$authz
+       TRAC_INSTANCE=$name trac-configure trac:repository_dir:$(TRAC_INSTANCE=$name trac-repopath) trac:authz_file:$authz
        
     done
 }
