@@ -12,7 +12,7 @@ svnsetup-usage(){
                 to create the apache conf files
 
      test with
-        ASUDO= svnsetup-apache /tmp/env/svnsetup/apache
+        ASUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
         
      use with ... 
          ASUDO=sudo svnsetup-apache 
@@ -75,6 +75,9 @@ svnsetup-tmp(){
   echo /tmp/env/${FUNCNAME/-*/}/apache
 }
 
+
+
+
 svnsetup-apache(){
 
    local def=$SVNSETUP_DIR
@@ -83,7 +86,7 @@ svnsetup-apache(){
 
    if [ "$base" == "$def" ]; then
       $ASUDO mkdir -p $base 
-      $ASUDO chown $user:$user $base
+      $ASUDO chown $user $base
    fi
 
    svnsetup-tracs $base/tracs.conf 
