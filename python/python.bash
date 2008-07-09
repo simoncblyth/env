@@ -85,7 +85,9 @@ python-path(){
 }
 
 
-
+python-libdir(){
+   echo $PYTHON_HOME/lib
+}
 
 
 

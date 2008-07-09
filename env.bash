@@ -324,6 +324,30 @@ env-llp(){
    fi    
 }
 
+
+env-ldconfig(){
+
+   local msg="=== $FUNCNAME :"
+   local dir=$1
+   
+   local conf=/etc/ld.so.conf
+   
+   [ ! -d $dir  ]                && echo $msg ABORT no dir $dir && return 1
+   [ ! -f $conf ]                && echo $msg ABORT no $conf && return 1
+   [ "$(which ldconfig)" == "" ] && echo $msg ABORT no ldconfig in your path && return 1
+   
+   grep -q $dir $conf && echo $msg the dir $dir is already there $conf && return 0
+   
+   echo $msg appending $dir to $conf
+   sudo bash -c "echo $dir >> $conf  " 
+
+   cat $conf
+   sudo ldconfig
+   
+}
+
+
+
 env-again(){
 
   local msg="=== $FUNCNAME :"
