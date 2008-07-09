@@ -119,7 +119,7 @@ trac-baseurl(){
 
 
 trac-url(){
-   echo $(trac-baseurl)/tracs/${1:-$TRAC_INSTANCE}/
+   echo $(trac-baseurl)/tracs/${1:-$TRAC_INSTANCE}
 } 
  
 
@@ -219,18 +219,18 @@ trac-inherit-setup(){
     local dir=$(dirname $inherit)
     local user=$TRAC_USER
     
-    [ ! -d $dir ] && echo $msg creating dir $dir for global inherited conf && sudo mkdir -p $dir && sudo chown $user:$user $dir
-    
-    echo $msg planting the inherit reference in all the instances 
-    for name in $(trac-instances)
-    do
-       TRAC_INSTANCE=$name trac-configure inherit:file:$inherit
-    done
-    
-    [ ! -f $inherit ] && echo $msg bootstraping global config $inherit && trac-inherit 
-    
-
+    if [ ! -d $dir ]; then
+        echo $msg creating dir $dir for global inherited conf 
+        sudo mkdir -p $dir 
+        sudo chown $user:$user $dir
+    fi
+       
+    if [ ! -f $inherit ]; then 
+        echo $msg bootstraping global config $inherit
+        trac-inherit 
+    fi
 }
+
 
 trac-inherit(){
 
@@ -295,10 +295,10 @@ trac.web.auth.loginmodule = disabled
 ##remove for tractags 0.6 
 ##trac.wiki.web_ui.wikimodule = disabled
 ##
-trac2latex.* = enabled
+#trac2latex.* = enabled
 trac2mediawiki.* = enabled
 tracnav.* = enabled
-tracreposearch.* = enabled
+#tracreposearch.* = enabled
 tractoc.* = enabled
 webadmin.* = enabled
 xslt.* = enabled
@@ -349,11 +349,14 @@ trac-triplets(){
    local users=$(svn-userspath)
    local url=$(TRAC_INSTANCE=$name trac-url)
    local repo=$(TRAC_INSTANCE=$name trac-repopath)
+   local inherit=$(trac-inheritpath)
    
    cat << EOT
+      inherit:file:$inherit
       trac:authz_file:$authz
       trac:repository_dir:$repo
       account-manager:password_file:$users
+      trac:base_url:$url
       header_logo:link:$url
       project:url:$url
 EOT
