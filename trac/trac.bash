@@ -304,7 +304,7 @@ trac-upgrade(){
     do
        local path=$(trac-inipath $name)
        echo $msg commenting default_handler TagsWikiModule setting from $path user $user
-       sudo perl -pi -e 's,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  ' $path
+       sudo perl -pi -e "s,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
        sudo chown $user:$user $path
     done
 }
