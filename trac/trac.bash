@@ -139,6 +139,7 @@ trac-user(){
 
 trac-major(){   echo ${TRAC_VERSION:0:4} ; }
 trac-envpath(){ echo $SCM_FOLD/tracs/${1:-$TRAC_INSTANCE} ; }
+trac-repopath(){ echo $SCM_FOLD/repos/${1:-$TRAC_INSTANCE} ; }
 trac-logpath(){ echo $(trac-envpath $*)/log/trac.log ; }
 trac-inipath(){ echo $(trac-envpath $*)/conf/trac.ini ; }
 trac-pkgpath(){ echo $ENV_HOME/trac/package ; }
@@ -300,12 +301,18 @@ trac-upgrade(){
 
     local msg="=== $FUNCNAME :"
     local user=$TRAC_USER
+    
+    svn-
+    local authz=$(svn-authzpath)
     for name in $(trac-instances)
     do
        local path=$(trac-inipath $name)
        echo $msg commenting default_handler TagsWikiModule setting from $path user $user
        sudo perl -pi -e "s,^(default_handler = TagsWikiModule),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
        sudo chown $user:$user $path
+       
+       TRAC_INSTANCE=$name trac-configure trac:repository_dir:$(trac-repopath) trac:authz_file:$authz
+       
     done
 }
 

@@ -6,6 +6,12 @@ svn-usage(){
   For global settings that are above the details of building and
   configuring 
 
+
+     svn-setupdir  : $(svn-setupdir)
+     svn-authzpath : $(svn-authzpath)
+     svn-userspath : $(svn-userspath)
+
+
      svn-global-ignores :  
          handholding only
      
@@ -41,9 +47,29 @@ svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; 
 svnsetup-(){      . $ENV_HOME/svn/svnconf/svnsetup.bash    && svnsetup-env $* ; }
 
 
+svn-setupdir(){
+  echo $(apache-confdir)/svnsetup 
+}
+
+svn-authzpath(){ 
+  case ${1:-$NODE_TAG} in
+     H)  echo $(apache-confdir)/svn-apache2-authzaccess ;;
+     *)  echo $(svn-setupdir)/authz.conf ;;
+  esac    
+}
+
+svn-userspath(){ 
+  case ${1:-$NODE_TAG} in
+     H) echo $(apache-confdir)/svn-apache2-auth ;;
+     *) echo $(svn-setupdir)/users.conf         ;; 
+  esac   
+}
+
+
 svn-env(){
 
   elocal-
+  apache- 
 
   [ "$NODE_APPROACH" == "stock" ] && return 0
 

@@ -74,7 +74,7 @@ svnsetup-env(){
 }
 
 svnsetup-dir(){
-  echo $(apache-confdir)/svnsetup 
+  echo $(apache-confdir)/svnsetup-deprecated-use-svn-setupdir 
 }
 
 svnsetup-tmp(){
@@ -86,7 +86,7 @@ svnsetup-tmp(){
 svnsetup-apache(){
 
    local msg="=== $FUNCNAME :"
-   local def=$(svnsetup-dir)
+   local def=$(svn-setupdir)
    local base=${1:-$def}
    
 
@@ -104,8 +104,8 @@ svnsetup-apache(){
    svnsetup-repos $base/repos.conf
    svnsetup-setup $base/setup.conf
    
-   svnsetup-authz $base/authz.conf
-   
+   local authz=$(svn-authzpath)
+   svnsetup-authz $base/$(basename $authz)
    
    
 }
@@ -178,13 +178,13 @@ svnsetup-location-(){
 svnsetup-setup-(){
 
   local msg="=== $FUNCNAME : "
-  local dir=$(svnsetup-dir)
+  local dir=$(svn-setupdir)
 
 cat << EOU 
 #
 #  $msg $BASH_SOURCE $(date)
 #
-#   \$(svnsetup-dir)     :  $(svnsetup-dir)
+#   \$(svn-setupdir)     :  $(svn-setupdir)
 #
 Include $dir/repos.conf
 Include $dir/tracs.conf
@@ -213,7 +213,7 @@ cat << EOC
 #   
 #   \$(apache-htdocs)         :  $(apache-htdocs) 
 #   \$(python-site)           :  $(python-site)
-#   \$(svnsetup-dir)          :  $(svnsetup-dir)
+#   \$(svn-userspath)         :  $(svn-userspath)
 #   \$SCM_FOLD                :  $SCM_FOLD
 #
 #
@@ -263,7 +263,7 @@ cat << EOC
 $b<LocationMatch "/tracs/[^/]+/builds">
 $b    AuthType Basic
 $b    AuthName "svn-tracs"
-$b    AuthUserFile $(svnsetup-dir)/users.conf
+$b    AuthUserFile $(svn-userspath)
 $b    Require valid-user
 $b</LocationMatch>
 $b
@@ -273,7 +273,7 @@ $b
 $c<LocationMatch "/tracs/[^/]+/login">
 $c    AuthType Basic
 $c    AuthName "svn-tracs"
-$c    AuthUserFile $(svnsetup-dir)/users.conf
+$c    AuthUserFile $(svn-userspath)
 $c    Require valid-user
 $c</LocationMatch>
 $c
@@ -301,7 +301,8 @@ cat << EOH
 #     securitylevel:[$securitylevel] 
 #
 #     \$SCM_FOLD                 : $SCM_FOLD
-#     \$(svnsetup-dir)           : $(svnsetup-dir)
+#     \$(svn-authzpath)          : $(svn-authzpath)
+#     \$(svn-userspath)          : $(svn-userspath)
 #
 #    http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #     NB no need to restart apache2 on creating new repositories
@@ -315,7 +316,7 @@ cat << EOH
       ##SVNIndexXSLT /resources/xslt/svnindex.xsl
 
       # access policy file
-      AuthzSVNAccessFile $(svnsetup-dir)/authz.conf
+      AuthzSVNAccessFile $(svn-authzpath)
 
       # securitylevel $securitylevel
 EOH
@@ -347,7 +348,7 @@ EOS
       AuthType Basic
       AuthName "svn-repos"
       # users file
-      AuthUserFile $(svnsetup-dir)/users.conf
+      AuthUserFile $(svn-userspath)
                   
 </Location>
 EOT
@@ -441,14 +442,14 @@ svnsetup-put-users-to-node(){
   local msg="=== $FUNCNAME :"
   [ "$NODE_TAG" != "H" ] && echo $msg ABORT only applicable on H not  NODE_TAG $NODE_TAG && return 1 
   
-  local tmp=/tmp/env/svnsetup
   local user=$(NODE_TAG=$t apache-user)
-  local conf=$(NODE_TAG=$t svnsetup-dir)/users.conf
+  local conf=$(NODE_TAG=$t svn-userspath)  
+  local tmp=/tmp/env/svnsetup/$(basename $conf)
   
   local cmd=$(cat << EOC 
-      ssh $t "mkdir -p $tmp" ;  
-      scp $(apache-confdir)/svn-apache2-auth $t:$tmp/users.conf ; 
-      ssh $t "sudo cp $tmp/users.conf $conf ; sudo chown $user:$user $conf  " 
+      ssh $t "mkdir -p $(dirname $tmp)" ;  
+      scp $(svn-userspath) $t:$tmp ; 
+      ssh $t "sudo cp $tmp $conf ; sudo chown $user:$user $conf  " 
 EOC)
         
   echo $cmd
@@ -462,8 +463,7 @@ svnsetup-get-users-from-h(){
    local msg="=== $FUNCNAME :"
    [ "$NODE_TAG" == "H" ] && echo $msg ABORT not applicable on NODE_TAG $NODE_TAG && return 1 
    
-   local users=$(svnsetup-dir)/users.conf
-   local cmd="scp H:$(NODE_TAG=H apache-confdir)/svn-apache2-auth $users"
+   local cmd="scp H:$(NODE_TAG=H svn-userspath) $(svn-userspath)"
    echo $msg $cmd
    eval $cmd
 
