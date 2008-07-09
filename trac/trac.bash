@@ -297,6 +297,8 @@ EOI
 
 
 trac-upgrade(){
+
+    local user=$TRAC_USER
     for name in $(trac-instances)
     do
        local path=$(trac-inipath $name)
