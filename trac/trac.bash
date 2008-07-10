@@ -338,6 +338,17 @@ trac-upgrade(){
 }
 
 
+trac-upgrade-instances(){
+
+    for name in $(trac-instances)
+    do 
+        TRAC_INSTANCE=$name trac-admin- upgrade
+    done
+
+}
+
+
+
 
 trac-comment(){
 
