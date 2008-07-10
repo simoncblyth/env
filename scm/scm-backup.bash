@@ -145,7 +145,7 @@ scm-recover-all(){
       local dest=$SCM_FOLD/$type
       local user=$(apache-user)
       
-      [ ! -d $dest ] && sudo mkdir -p $dest && sudo chown $user:$user $dest       
+      [ ! -d $dest ] && $SUDO mkdir -p $dest && [ "$SUDO" != "" ] && $SUDO chown $user:$user $dest       
       
       for path in $base/*
       do  
@@ -297,6 +297,23 @@ scm-backup-rsync(){
 }
 
 
+scm-backup-sudouser(){
+
+   local msg="=== $FUNCNAME :"
+   apache-
+   local user=$(apache-user)
+   [ -z $user ] && echo $msg ERROR apache-user not defined && return 1 
+
+   local sudouser
+   if [ "$SUDO" == "" ]; then
+      sudouser=""
+    else
+      sudouse="$SUDO -u $user"
+    fi
+    echo $sudouser
+}
+
+
 scm-recover-repo(){
 
    local msg="=== $FUNCNAME :"
@@ -308,9 +325,7 @@ scm-recover-repo(){
    [ ! -d "$path" ]       && echo $msg ERROR path $path does not exist && return 1 
    [ ! -d "$dest" ]       && echo $msg ERROR destination folder $dest does not exist && return 1 
    
-   apache-
-   local user=$(apache-user)
-   [ -z $user ] && echo $msg ERROR apache-user not defined && return 1 
+   local sudouser=$(scm-backup-sudouser)
    
    #
    #  hmm must be careful with copies of the tarballs to prevent collapsing the link
@@ -342,17 +357,18 @@ scm-recover-repo(){
             echo $msg stamp $stamp target_fold $target_fold ==== tgz $tgz ===== tgzname $tgzname
          else
              
-            echo $msg recovering repository $name from tarball $tgzpath $tgzname into $(pwd)
-            sudo -u $user cp $tgzpath .
-            sudo -u $user tar zxvf $tgzname.tar.gz
+            echo $msg recovering repository $name from tarball $tgzpath $tgzname into $(pwd) sudouser:[$sudouser]
+            $sudouser cp $tgzpath .
+            $sudouser tar zxvf $tgzname.tar.gz
             
             ## document the recovery via a link to the backup tarball
-            sudo -u $user ln -s $tgzpath ${name}-scm-recover-repo
-            sudo rm -f $tgzname.tar.gz
+            $sudouser ln -s $tgzpath ${name}-scm-recover-repo
+            
+            $SUDO rm -f $tgzname.tar.gz
             
             ## svn tarballs have the revision number appended to their names
             if [ "$tgzname" != "$name" ]; then
-              sudo -u $user mv $tgzname $name
+              $sudouser mv $tgzname $name
             fi
             
          fi      

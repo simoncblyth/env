@@ -134,7 +134,15 @@ apache-logdir(){
       *) echo $APACHE_HOME/logs ;;
    esac   
 }   
-   
+ 
+apache-conf(){
+   echo $(apache-confdir)/httpd.conf
+}   
+     
+apache-vi(){
+   vi $(apache-conf)
+}
+         
    
 apache-addline(){
 
