@@ -43,6 +43,18 @@ EON
 
 
 
+dybpy-diff(){
+
+   diff -r --brief $ENV_HOME/dybpy/DybTest/DybTest $DYBSVN_HOME/dybgaudi/DybTest/python/dybtest | grep -v .svn
+##Only in /home/dayabaysoft/env/dybpy/DybTest/DybTest: gplog.py
+
+}
+
+
+
+
+
+
 dybpy-usage(){
 
 cat  << EOU
