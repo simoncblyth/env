@@ -127,6 +127,8 @@ pythonbuild-again(){
 
     pythonbuild-solibfix
 
+    pythonbuild-setuptools-get
+
 }
 
 

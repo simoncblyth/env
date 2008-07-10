@@ -1,10 +1,13 @@
 """
-   bring the Gaudi message svc under python logger control
+    Attempting to bring the Gaudi message svc under python logger control
 
- assign the below __call__ method as a callback stream buf 
+     assign the below __call__ method as a callback stream buf 
             and set the default stream of the message service to this
             ... this means that all gaudi messages go thru the below 
             call method allowing them to be directed to logfiles or whateve
+
+
+    CURRENTLY SEGMENTING WITH ABANDON 
 
 """
 
@@ -12,8 +15,6 @@ import ROOT
 ROOT.gSystem.Load("libMathCore")  
 import GaudiPython as gp 
 import PyCintex as pc
-
-
 
 
 

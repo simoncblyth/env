@@ -3,8 +3,18 @@ pysqlite-usage(){
 
   cat << EOU
 
+     pysqlite-name     :  $(pysqlite-name)
+     pysqlite-home     :  $(pysqlite-home)
+     pysqlite-builddir : $(pysqlite-builddir)
+     
+     $(type pysqlite-again)
+    
+           NOTE no wiping implemented ye  ... perhaps could be easy installed ? BUT do need a cfg change
+
      pysqlite-get
+
      pysqlite-install
+
      pysqlite-test
 
 EOU
@@ -13,18 +23,30 @@ EOU
 
 pysqlite-env(){
     elocal-
-	
 }
 
 pysqlite-name(){
     echo pysqlite-2.3.3
 }
 
+pysqlite-home(){
+   case $NODE_TAG in 
+      H) echo $(local-base)/pysqlite/$(pysqlite-name) ;;
+      *) echo $(system-base)/pysqlite/$(pysqlite-name) ;;
+   esac
+}
+
+pysqlite-builddir(){
+    case $NODE_TAG in 
+       H) echo $(local-base)/pysqlite/build/$(pysqlite-name) ;;
+       *) echo $(system-base)/pysqlite/build/$(pysqlite-name) ;;
+    esac
+}
+
 
 pysqlite-again(){
 
    echo NOTE no wiping implemented ye  ... perhaps could be easy installed ? BUT do need a cfg change 
-
    pysqlite-get
    pysqlite-install
 
@@ -47,20 +69,6 @@ pysqlite-get(){
   test -d build/$nam || tar -C build -zxvf $tgz 
 }
 
-pysqlite-home(){
-   case $NODE_TAG in 
-      H) echo $(local-base)/pysqlite/$(pysqlite-name) ;;
-      *) echo $(system-base)/pysqlite/$(pysqlite-name) ;;
-   esac
-}
-
-
-pysqlite-builddir(){
-    case $NODE_TAG in 
-       H) echo $(local-base)/pysqlite/build/$(pysqlite-name) ;;
-       *) echo $(system-base)/pysqlite/build/$(pysqlite-name) ;;
-    esac
-}
 
 
 pysqlite-install(){

@@ -1,5 +1,9 @@
 
 
+iptables-env(){
+  return 0
+}
+
 
 iptables-usage(){
 

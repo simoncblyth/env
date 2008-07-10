@@ -12,13 +12,30 @@ sqlite-usage(){
 
      i believe pysqlite is included in python 2.5
 
+      ---------------------------------------------
+
 
             sqlite-name :  $(sqlite-name)
             sqlite-home :  $(sqlite-home)
             
 
-            sqlite-ldconfig :
-                   make available without diddling with llp
+            sqlite-env :
+                   invoked by precursor
+                   sets up the PATH and LD_LIBRARY_PATH or ldconfig
+
+
+
+            $(type sqlite-again)
+
+            sqlite-test 
+            
+            
+            Precursors...
+            
+              sqlitebuild-
+              pysqlite-
+            
+
 
 
 EOU
@@ -35,7 +52,6 @@ sqlite-again(){
    pysqlite-again
 
 }
-
 
 sqlite-name(){
    echo sqlite-3.3.16
@@ -55,30 +71,20 @@ sqlite-env(){
    export SQLITE_NAME=$(sqlite-name)
    export SQLITE_HOME=$(sqlite-home)
    
-   #export LD_LIBRARY_PATH=$SQLITE_HOME/lib:$LD_LIBRARY_PATH
-    
    [ "$NODE_TAG" == "G" ] && return 0
+   [ ! -d $SQLITE_HOME ]  && return 0
    
-   sqlite-path
+   env-prepend $SQLITE_HOME/bin
+
+   if [ "$NODE_TAG" == "P" ]; then
+      env-llp-prepend $SQLITE_HOME/lib 
+   else
+      ##  make available without diddling with llp
+      env-ldconfig $SQLITE_HOME/lib 
+   fi
    
 }
 
-sqlite-path(){
-
-  local msg="=== $FUNCNAME :"
-  [ -z $SQLITE_HOME ] && echo $msg skipping as no SQLITE_HOME && return 1  
-  
-  env-prepend $SQLITE_HOME/bin
-  
-  
-}
-
-
-sqlite-ldconfig(){
-
-  env-ldconfig $(sqlite-home)/lib 
-
-}
 
 sqlite-test(){
 

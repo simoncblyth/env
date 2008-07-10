@@ -45,6 +45,7 @@ EON
 
 dybpy-diff(){
 
+   dybsvn-
    diff -r --brief $ENV_HOME/dybpy/DybTest/DybTest $DYBSVN_HOME/dybgaudi/DybTest/python/dybtest | grep -v .svn
 ##Only in /home/dayabaysoft/env/dybpy/DybTest/DybTest: gplog.py
 

@@ -339,6 +339,7 @@ trac-upgrade(){
 
     for name in $(trac-instances)
     do
+       trac-comment $name "tracrpc.* = enabled"
        trac-comment $name "default_handler = TagsWikiModule"
        trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
        

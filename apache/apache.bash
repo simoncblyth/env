@@ -1,8 +1,12 @@
 
 
 apachebuild-(){ . $ENV_HOME/apache/apachebuild/apachebuild.bash && apachebuild-env $* ; } 
-modpython-(){   . $ENV_HOME/apache/apachebuild/modpython.bash && modpython-env $* ; }
+apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash   && apacheconf-env $* ; } 
+modpython-(){   . $ENV_HOME/apache/apachebuild/modpython.bash   && modpython-env $* ; }
 mpinfo-(){      . $ENV_HOME/apache/apachebuild/mpinfo.bash      && mpinfo-env $* ; } 
+iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env $* ; }
+
+
 
 apache-usage(){
 
@@ -41,6 +45,18 @@ apache-usage(){
       apache-again
            wipes and builds both apache and modpython
            CAUTION:  this wipes installations and rebuilds from the tarball
+   
+   
+      Precursors ...
+      
+         apachebuild-
+         apacheconf-
+         modpython-
+         mpinfo-
+         iptables-
+         
+     
+   
    
 EOU
 
