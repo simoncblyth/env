@@ -5,21 +5,36 @@ iptables-usage(){
 
    cat << EOU
 
-http://www.yolinux.com/TUTORIALS/LinuxTutorialIptablesNetworkGateway.html
-http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
-
+     http://www.yolinux.com/TUTORIALS/LinuxTutorialIptablesNetworkGateway.html
+     http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
+     http://www.cae.wisc.edu/site/public/?title=liniptables
 
      iptables-record
           leave them wallowing in working copy ... as do not want to publish them 
      
      iptables-webopen
+          open port 80 to allow web access
            
-       TODO:
-           make this persistent across reboots ...  
+     iptables-persist
+          
+          make iptables settings persistent across reboots ...  
+         > [blyth@cms01 log]$ iptables-persist
+         > sudo /sbin/service iptables save
+         > Saving firewall rules to /etc/sysconfig/iptables:          [  OK  
+     
+         > [blyth@cms01 log]$ sudo service iptables
+         > Usage: /etc/init.d/iptables {start|stop|restart|condrestart|status|panic|save}
 
 
 EOU
 
+}
+
+
+iptables-persist(){
+  local cmd="sudo /sbin/service iptables save"
+  echo $cmd
+  eval $cmd
 }
 
 
