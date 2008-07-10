@@ -38,6 +38,15 @@ svn-usage(){
      
           delete the repository called <name>
                          
+                         
+                         
+     Precursors...
+     
+        svnbuild-
+        svnsetup-
+        svnsync-
+                         
+                         
 EOU
 
 }
@@ -57,6 +66,8 @@ EOU
 
 svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; } 
 svnsetup-(){      . $ENV_HOME/svn/svnconf/svnsetup.bash    && svnsetup-env $* ; }
+svnsync-(){       . $ENV_HOME/svn/svnsync/svnsync.bash     && svnsync-env  $* ; }
+
 
 
 svn-setupdir(){
