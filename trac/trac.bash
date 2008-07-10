@@ -59,6 +59,9 @@ cat << EOU
    
  
  
+    
+ 
+ 
  
     
  
@@ -66,6 +69,9 @@ cat << EOU
     
     
     
+    trac-admin-upgrade
+         do trac-admin "upgrade" and "wiki upgrade" to 
+         bring 0.10.4 instances up to 0.11 usage
     
     
     trac-inherit-setup
@@ -338,11 +344,12 @@ trac-upgrade(){
 }
 
 
-trac-upgrade-instances(){
+trac-admin-upgrade(){
 
     for name in $(trac-instances)
     do 
         TRAC_INSTANCE=$name trac-admin- upgrade
+        TRAC_INSTANCE=$name trac-admin- wiki upgrade
     done
 
 }
