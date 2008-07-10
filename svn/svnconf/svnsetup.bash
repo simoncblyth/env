@@ -92,7 +92,7 @@ svnsetup-apache(){
 
    if [ "$base" == "$def" ]; then
       echo $msg setting ownership of $base
-      $ASUDO mkdir -p $base 
+      $SUDO mkdir -p $base 
       svnsetup-chown $base 
       
       apache-
@@ -120,7 +120,7 @@ svnsetup-chown(){
 
    local path=$1
    local msg="=== $FUNCNAME :"
-   [ "$ASUDO" == "" ] && echo $msg not a sudoer skipping && return 1
+   [ "$SUDO" == "" ] && echo $msg not a sudoer skipping && return 1
    
    shift
    local user=$(apache-user)

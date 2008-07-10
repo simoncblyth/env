@@ -200,12 +200,6 @@ trac-edit-ini(){
 }
 
 
-trac-notify-conf(){
-
-  local domain=localhost
-  trac-configure notification:smtp_default_domain:$domain notification:smtp_enabled:true
-
-}
 
 
 trac-instances(){
@@ -379,6 +373,13 @@ trac-triplets(){
       header_logo:link:$url
       project:url:$url
 EOT
+
+}
+
+trac-notify-conf(){
+
+  local domain=localhost
+  trac-configure notification:smtp_default_domain:$domain notification:smtp_enabled:true
 
 }
 

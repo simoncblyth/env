@@ -36,6 +36,8 @@ apache-usage(){
       apache-htdocs      : $(apache-htdocs)
       apache-logdir      : $(apache-logdir)
       
+      apache-sudouser    : $(apache-sudouser)
+      
       apache-again
            wipes and builds both apache and modpython
            CAUTION:  this wipes installations and rebuilds from the tarball
@@ -143,16 +145,20 @@ apache-vi(){
    vi $(apache-conf)
 }
          
-   
+  
+apache-sudouser(){
+  local user=$(apache-user)
+  [ -n "$SUDO" ] && echo $SUDO -u $user || echo ""
+}
+     
 apache-addline(){
 
+  local msg="=== $FUNCNAME :"
   local line=$1
-  local conf=$(apache-confdir)/httpd.conf
-  local user=$(apache-user)
+  local conf=$(apache-conf)
+  local sudouser=$(apache-sudouser)
 
-  grep -q "$line" $conf && echo $msg line \"$line\" already present in $conf  || sudo -u $user echo "$line" >> $conf  
-
-
+  grep -q "$line" $conf && echo $msg line \"$line\" already present in $conf  || $sudouser echo "$line" >> $conf  
 
 }
    
