@@ -11,16 +11,16 @@ Index: tractags/macros.py
  
  def render_cloud(env, req, cloud, renderer=None):
      """Render a tag cloud
-@@ -54,7 +56,7 @@
- 
- 
+@@ -56,6 +58,8 @@
  class TagCloudMacro(WikiMacroBase):
--    def expand_macro(self, formatter, name, content):
-+    def expand_macro(self, formatter, name, content="-Dummy"):
+     def expand_macro(self, formatter, name, content):
          req = formatter.req
++        if content==None: 
++            content='-Dummy'
          query_result = TagSystem(self.env).query(req, content)
          all_tags = {}
-@@ -70,6 +72,20 @@
+         # Find tag counts
+@@ -70,6 +74,20 @@
  
  
  class ListTaggedMacro(WikiMacroBase):
@@ -41,7 +41,7 @@ Index: tractags/macros.py
      def expand_macro(self, formatter, name, content):
          req = formatter.req
          query_result = TagSystem(self.env).query(req, content)
-@@ -83,15 +99,21 @@
+@@ -83,15 +101,21 @@
          for resource, tags in sorted(query_result,
                                       key=lambda r: str(r[0].id)):
              tags = sorted(tags)
