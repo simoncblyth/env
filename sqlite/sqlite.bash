@@ -5,6 +5,36 @@ pysqlite-(){    . $ENV_HOME/sqlite/sqlitebuild/pysqlite.bash    && pysqlite-env 
 sqlite-usage(){
 
    cat << EOU
+ 
+     sqlite-name   :  $(sqlite-name)
+     sqlite-home   :  $(sqlite-home)
+     which sqlite3 :  $(which sqlite3)       
+            
+     sqlite-env :
+                   invoked by precursor
+                   sets up the PATH and LD_LIBRARY_PATH or ldconfig
+
+     $(type sqlite-again)
+
+     sqlite-test 
+     
+                   
+     Precursors...
+            
+     sqlitebuild-
+     pysqlite-
+
+
+
+EOU
+
+}
+
+
+
+sqlite-notes(){
+
+   cat << EOU
    
    prerequisites to trac 
       SQLite, version 3.3.4 and above preferred.
@@ -12,33 +42,8 @@ sqlite-usage(){
 
      i believe pysqlite is included in python 2.5
 
-      ---------------------------------------------
-
-
-            sqlite-name :  $(sqlite-name)
-            sqlite-home :  $(sqlite-home)
-            
-
-            sqlite-env :
-                   invoked by precursor
-                   sets up the PATH and LD_LIBRARY_PATH or ldconfig
-
-
-
-            $(type sqlite-again)
-
-            sqlite-test 
-            
-            
-            Precursors...
-            
-              sqlitebuild-
-              pysqlite-
-            
-
-
-
 EOU
+
 
 }
 

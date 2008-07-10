@@ -386,6 +386,8 @@ trac-triplets(){
    local repo=$(TRAC_INSTANCE=$name trac-repopath)
    local inherit=$(trac-inheritpath)
    
+   
+   
    cat << EOT
       inherit:file:$inherit
       trac:authz_file:$authz
@@ -398,10 +400,12 @@ EOT
 
 }
 
-trac-notify-conf(){
+trac-notify-triplets(){
 
-  local domain=localhost
-  trac-configure notification:smtp_default_domain:$domain notification:smtp_enabled:true
+   ## hmm how to set up the config that is distinct for build nodes ?
+   ##
+  local notify="notification:smtp_default_domain:localhost notification:smtp_enabled:true"
+  trac-configure $notify 
 
 }
 

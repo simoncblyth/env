@@ -29,6 +29,14 @@ apacheconf-usage(){
      apacheconf-original---
            copy the original httpd.conf to httpd.conf.original ... is invoked by the 
             apachebuild  NOT FOR USER USAGE 
+
+
+
+
+     apacheconf-sqlite
+           add sqlite lib dir to the apachectl envvars
+
+
    
 EOU
 
@@ -93,7 +101,12 @@ apacheconf-envvars-add-(){
 
 
 
+apacheconf-sqlite(){
 
+   sqlite-
+   apacheconf-envvars-add $(sqlite-home)/lib
+
+}
 
 apacheconf-original---(){
   local msg="=== $FUNCNAME :"

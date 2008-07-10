@@ -16,6 +16,10 @@ pysqlite-usage(){
      pysqlite-install
 
      pysqlite-test
+         1/173 fails on grid1
+         cannot run on cms01 due to lack of bz2 
+         (python build on cms01 missing the module)
+
 
 EOU
 
