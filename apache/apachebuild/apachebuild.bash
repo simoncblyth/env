@@ -94,7 +94,7 @@ apachebuild-configure(){
 
    # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
    
-   $SUDO ./configure --prefix=$(apachebuild-home) 
+   $SUDO ./configure --prefix=$(apachebuild-home) --enable-dav
    
 }
 
