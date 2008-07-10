@@ -3,22 +3,12 @@ svn-usage(){
   
    cat << EOU
 
-  For global settings that are above the details of building and
-  configuring 
-
+    For global settings that are above the details of building and
+    configuring 
 
      svn-setupdir  : $(svn-setupdir)
      svn-authzpath : $(svn-authzpath)
      svn-userspath : $(svn-userspath)
-
-
-     svnsetup-
-         precursor to functions that hookup svn and trac with apache 
-     
-     svnbuild-
-          
-
-
 
 
      svn-global-ignores :  
@@ -32,20 +22,16 @@ svn-usage(){
           create the branches/tags/trunk structure 
                  
           issues for apache presentation ... the repository should be owned by APACHE_USER       
-       
-                 
+                        
      svn-wipe <name>
      
           delete the repository called <name>
                          
-                         
-                         
      Precursors...
      
         svnbuild-
-        svnsetup-
-        svnsync-
-                         
+        svnsetup-   :  hookup svn and trac with apache   
+        svnsync-    :  mirroring setup
                          
 EOU
 

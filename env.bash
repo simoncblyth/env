@@ -173,8 +173,22 @@ env-env(){
  
   cd $iwd
   alias eu=env-u
+  
+  
+  
+  
 
 }
+
+sss(){
+   local msg="=== $FUNCNAME :"
+   [ "$NODE_TAG" != "C" ] && echo $msg only on C && return 1
+   
+   svn-
+   svnsync-
+   svnsync-synchronize
+}
+
 
 env-u(){ 
   iwd=$(pwd)

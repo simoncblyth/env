@@ -1,24 +1,33 @@
 svnsync-usage(){
    cat << EOU
 
-       IT SEEMS ...    
-   
+       IT SEEMS ...   
           this is not the way to do a quick sync from 
           the 0.10.4 mirror to my new 0.11 instance as have to 
           go all the way back to revision zero...
        
        BUT ...
-       
           The 0.11 instance was created via a backup + restore of
-          the 0.10.4 mirror so i think it already knowns 
-          that it is a mirror SO maybe I can just 
+          the 0.10.4 mirror so i think it already knows that it 
+          is a mirror SO maybe I can just 
+          "svnsync-syncronise" from C ?
           
-             "svnsync-syncronise" from C ?
-             
-          probably run into repository UUID problems ??
+             *  probably run into repository UUID problems ??  
+             *  NOPE it JUST WORKED  
+    
+            [blyth@cms01 ~]$ svnsync-syncronise
+            Committed revision 3786.
+            Copied properties for revision 3786.
+            Committed revision 3787.
+            Copied properties for revision 3787.
+            ...
+            Copied properties for revision 3808.
+            Committed revision 3809.
+            Copied properties for revision 3809.
+            Committed revision 3810.
+            Copied properties for revision 3810.
+    
        
-       
-   
             SVN_SYNC_USER : $SVN_SYNC_USER
             NODE_TAG      : $NODE_TAG
    
@@ -47,10 +56,8 @@ svnsync-usage(){
                 
         svnsync-syncronize-cmd : $(svnsync-syncronize-cmd)
         svnsync-syncronize
-        
-             invoke the above command, that tells the mirror \"desturl\" to update itself
-             with respect to its \"sourceurl\"    
-        
+             invoke the above command, that tells the mirror "desturl" to update itself
+             with respect to its "sourceurl"    
 
 EOU
 
@@ -59,6 +66,7 @@ EOU
 
 svnsync-env(){
    elocal-  
+   
 }
 svnsync-sourceurl(){
   case ${1:-$NODE_TAG} in

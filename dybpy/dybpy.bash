@@ -12,6 +12,7 @@ dybpy-env(){
 dybpy-notes(){
    cat << EON
    
+   
    The only python packages in InstallArea (gleaned from the __init__.py ) are coming
    from the configuables installation fragment : 
       gaudi/GaudiPolicy/cmt/fragments/genconfig_header

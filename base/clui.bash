@@ -7,6 +7,8 @@ clui-env(){
    
    [ "$dbg" == "1" ] && echo $msg
    
+   export EDITOR=vi
+   
    clui-alias
    clui-tty
     
