@@ -7,6 +7,11 @@ tractags-usage(){
        copy in changed files sourced in env for safety
      ... this is intended for minor customizations, anything major should be housed in tracdev repo
   
+  
+  Note that TagCloud has changed ... 
+  
+  
+  
 EOU
 
 }

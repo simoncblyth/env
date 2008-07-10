@@ -58,6 +58,7 @@ cat << EOU
            applies edits to  trac.ini by means of triplet arguments
    
  
+ 
 EOU
 
 }
