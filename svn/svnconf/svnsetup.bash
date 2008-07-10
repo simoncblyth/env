@@ -365,7 +365,7 @@ EOT
 
 svnsetup-authz-(){
 
-  local authz_=$(dirname $BASH_SOURCE)/authz.bash
+  local authz_=$ENV_HOME/svn/svnconf/authz.bash
   [ ! -f $authz_ ] && echo $msg ABORT no authz $authz_ && sleep 10000000000000
   . $authz_
   authz
