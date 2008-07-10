@@ -113,10 +113,7 @@ svnbuild-configure(){
   cd  $(svnbuild-dir)
   ./configure  --prefix=$SVN_HOME --with-apxs=$APACHE_HOME/bin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
 
-  if [ "$NODE_TAG" == "P" ]; then
-     svnbuild-kludge-py-bindings
-  fi 
-
+ 
 
 }
 
@@ -145,6 +142,11 @@ svnbuild-install(){
 
 svnbuild-swigpy(){
   cd $(svnbuild-dir)
+  
+  if [ "$NODE_TAG" == "P" ]; then
+     svnbuild-kludge-py-bindings
+  fi 
+  
   make swig-py
   make install-swig-py
 }
