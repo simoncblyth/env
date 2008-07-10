@@ -144,7 +144,7 @@ svnbuild-swigpy(){
   cd $(svnbuild-dir)
   
   if [ "$NODE_TAG" == "P" ]; then
-     svnbuild-kludge-py-bindings
+     svnbuild-krb-gssapi-kludge
   fi 
   
   make swig-py
