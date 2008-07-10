@@ -120,9 +120,11 @@ svnbuild-configure(){
 
 }
 
-svnbuild-kludge-py-bindings(){
+
+svnbuild-krb-gssapi-kludge(){
 
   ## needed on hfag+grid1 ? seems not on OSX
+  
   cd $(svnbuild-dir)
   perl -pi.orig -e 's|^(SVN_APR_LIBS.*)$|$1 -L/usr/kerberos/lib -lgssapi_krb5|' Makefile
   diff Makefile{.orig,}
