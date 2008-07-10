@@ -308,7 +308,7 @@ scm-backup-sudouser(){
    if [ "$SUDO" == "" ]; then
       sudouser=""
     else
-      sudouse="$SUDO -u $user"
+      sudouser="$SUDO -u $user"
     fi
     echo $sudouser
 }
