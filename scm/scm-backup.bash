@@ -75,6 +75,7 @@ EOU
 scm-backup-env(){
    elocal-
    python-
+   apache-
 }
 
 
@@ -135,7 +136,7 @@ scm-recover-all(){
    local fromnode=${1:-dummy}
    [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
    
-   apache-
+   
    
    local types="repos tracs"
    for type in $types
@@ -300,7 +301,7 @@ scm-backup-rsync(){
 scm-backup-sudouser(){
 
    local msg="=== $FUNCNAME :"
-   apache-
+   
    local user=$(apache-user)
    [ -z $user ] && echo $msg ERROR apache-user not defined && return 1 
 

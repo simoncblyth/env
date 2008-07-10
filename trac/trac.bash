@@ -169,7 +169,7 @@ trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 
-trac-admin-(){   sudo trac-admin $(trac-envpath) $* ; }
+trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
 trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
 trac-edit-ini(){
 
@@ -177,8 +177,8 @@ trac-edit-ini(){
    local user=$TRAC_USER
    shift
  
-   sudo perl $ENV_HOME/base/ini-edit.pl $path $*  
-   sudo chown $user:$user $path
+   $SUDO perl $ENV_HOME/base/ini-edit.pl $path $*  
+   [ -n "$SUDO" ] && $SUDO chown $user:$user $path
 }
 
 
@@ -222,8 +222,8 @@ trac-inherit-setup(){
     
     if [ ! -d $dir ]; then
         echo $msg creating dir $dir for global inherited conf 
-        sudo mkdir -p $dir 
-        sudo chown $user:$user $dir
+        $SUDO mkdir -p $dir 
+        [ -n "$SUDO" ] && $SUDO chown $user:$user $dir
     fi
        
     if [ ! -f $inherit ]; then 
@@ -244,8 +244,8 @@ trac-inherit(){
    trac-inherit- > $tmp/$name
    
    if [ "$path" == "$live" ]; then
-      sudo cp $tmp/$name $live 
-      sudo chown $user:$user $live
+      $SUDO cp $tmp/$name $live 
+      [ -n "$SUDO" ] && $SUDO chown $user:$user $live
    fi
 
 }
@@ -336,8 +336,8 @@ trac-comment(){
    local user=$TRAC_USER
    
    echo $msg commenting "$skip" from $path user $user
-   sudo perl -pi -e "s,^($skip),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
-   sudo chown $user:$user $path
+   $SUDO perl -pi -e "s,^($skip),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
+   [ -n "$SUDO" ] && $SUDO chown $user:$user $path
 
 }
 
