@@ -347,6 +347,16 @@ env-ldconfig(){
    
 }
 
+env-ldconf(){
+
+   local conf=/etc/ld.so.conf
+   cat $conf 
+   
+
+
+}
+
+
 
 
 env-again(){

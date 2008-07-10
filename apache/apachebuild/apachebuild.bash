@@ -93,15 +93,16 @@ apachebuild-configure(){
    ## local opts="--enable-mods-shared=all --enable-proxy=shared "
 
    # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
-   $ASUDO ./configure --prefix=$(apachebuild-home) 
+   
+   $SUDO ./configure --prefix=$(apachebuild-home) 
    
 }
 
 apachebuild-install(){
    cd $(apachebuild-dir)
    
-   $ASUDO make
-   $ASUDO make install
+   $SUDO make
+   $SUDO make install
 
  
 

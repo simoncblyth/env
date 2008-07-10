@@ -192,6 +192,7 @@ trac-tail(){ tail -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
+trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
 
 trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
 trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }

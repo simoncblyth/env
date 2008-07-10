@@ -48,8 +48,13 @@ EOU
 }
 
 apache-again(){
+    
+    apachebuild-
     apachebuild-again
+    
+    modpython-
     modpython-again
+
 }
 
 

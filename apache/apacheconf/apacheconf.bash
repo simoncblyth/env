@@ -88,7 +88,7 @@ apacheconf-envvars-add-(){
    local msg="=== $FUNCNAME :"
    local path=$(apacheconf-envvars-path)
    echo $msg adding $add to envvars $path
-   perl -pi -e "m/^(\S*_LIBRARY_PATH=\")(\S*)(\:\\$\S*_LIBRARY_PATH\")$/ && print \"\$1$add:\$2\$3 \" " $path
+   perl -pi -e "s,^(\S*_LIBRARY_PATH=\")(\S*)(\:\\$\S*_LIBRARY_PATH\")$,\$1$add:\$2\$3," $path
 }
 
 
