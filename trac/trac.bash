@@ -37,7 +37,7 @@ cat << EOU
     trac-inicat  <name>
            
       
-    trac-instances  : $(trac-instances)
+    trac-instances  : "$(trac-instances)"
           names of all the instances from looking in $SCM_FOLD/tracs
         
                 
@@ -57,6 +57,24 @@ cat << EOU
     trac-configure  <block:qty:valu> ... 
            applies edits to  trac.ini by means of triplet arguments
    
+ 
+ 
+ 
+    
+ 
+    $(type trac-prepare)
+    
+    
+    
+    
+    
+    trac-inherit-setup
+         boottrap the global trac conf $(trac-inheritpath) 
+    
+    trac-upgrade
+         edit the trac.ini from all the instances making changes to 
+         work with trac 0.11
+ 
  
  
 EOU
@@ -112,7 +130,7 @@ trac-baseurl(){
    case ${1:-$NODE_TAG} in 
       G) echo http://localhost ;;
       H) echo http://dayabay.phys.ntu.edu.tw ;;
-      P) echo http://grid1.phys.ntu.edu.tw ;;
+      P) echo http://grid1.phys.ntu.edu.tw:8080 ;;
       C) echo http://cms01.phys.ntu.edu.tw ;;
       *) echo http://localhost ;;
    esac
