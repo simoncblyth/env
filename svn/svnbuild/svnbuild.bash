@@ -23,6 +23,14 @@ svnbuild-usage(){
             Following recommendations in 
                 $(svnbuild-dir)/subversion/bindings/swig/INSTALL
 
+
+       svnbuild-krb-gssapi-kludge
+             see svn/svn-build.bash for the details... does an inplace edit 
+             of Makefile to avoid issue...
+              
+              ImportError: /disk/d4/dayabay/local/svn/subversion-1.4.0/lib/libsvn_ra_dav-1.so.0: undefined symbol: gss_delete_sec_context
+              
+ 
        svnbuild-make
        svnbuild-install
               note this writes into APACHE as well
@@ -105,7 +113,23 @@ svnbuild-configure(){
   cd  $(svnbuild-dir)
   ./configure  --prefix=$SVN_HOME --with-apxs=$APACHE_HOME/bin/apxs --with-swig=$SWIG_HOME/bin/swig PYTHON=$PYTHON_HOME/bin/python
 
+  if [ "$NODE_TAG" == "P" ]; then
+     svnbuild-kludge-py-bindings
+  fi 
+
+
 }
+
+svnbuild-kludge-py-bindings(){
+
+  ## needed on hfag+grid1 ? seems not on OSX
+  cd $(svnbuild-dir)
+  perl -pi.orig -e 's|^(SVN_APR_LIBS.*)$|$1 -L/usr/kerberos/lib -lgssapi_krb5|' Makefile
+  diff Makefile{.orig,}
+}
+
+
+
 
 svnbuild-make(){
   cd  $(svnbuild-dir)

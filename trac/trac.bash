@@ -35,7 +35,9 @@ cat << EOU
     trac-tail    <name>  
     trac-log     <name>
     trac-inicat  <name>
-           
+    trac-vi      <name>   
+           for name of ".." this edits the common inherited config  
+                
       
     trac-instances  : "$(trac-instances)"
           names of all the instances from looking in $SCM_FOLD/tracs

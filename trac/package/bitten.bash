@@ -2,6 +2,26 @@ bitten-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
    
+    
+   Setting up an instance to use bitten...   
+          
+     1) set the trac config and permissions
+      
+         trac-
+         bitten-
+         SUDO=sudo TRAC_INSTANCE=dybsvn  bitten-prepare  
+     
+     2) check status of http://cms01.phys.ntu.edu.tw/tracs/dybsvn
+        should inform that upgrade needed
+        
+     3) perform the upgrade with
+          SUDO=sudo TRAC_INSTANCE=dybsvn trac-admin- upgrade 
+        
+     4) check again  http://cms01.phys.ntu.edu.tw/tracs/dybsvn
+        there should be an extra "builds" tab if you are logged in 
+        as a user with permission to see it 
+      
+      
       
    addendum to bitten-install
        
