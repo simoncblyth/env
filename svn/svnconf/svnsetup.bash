@@ -7,7 +7,7 @@ svnsetup-usage(){
 
      For infrequently used setup of svn + apache ...  
 
-     svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svnsetup-dir)  
+     svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svn-setupdir)  
                 invokes the below funcs
                 to create the apache conf files and hooks them up to httpd.conf
                 by appending an Include 
@@ -97,7 +97,9 @@ svnsetup-apache(){
       
       apache-
       apache-addline "Include $base/setup.conf"
-      
+   
+   else
+      mkdir -p $base
    fi
 
    svnsetup-tracs $base/tracs.conf 
@@ -115,7 +117,11 @@ svnsetup-apache(){
 
 
 svnsetup-chown(){
+
    local path=$1
+   local msg="=== $FUNCNAME :"
+   [ "$ASUDO" == "" ] && echo $msg not a sudoer skipping && return 1
+   
    shift
    local user=$(apache-user)
    

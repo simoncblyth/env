@@ -154,6 +154,12 @@ cat << EOU
         uninstall then reinstall then restart apache2 ... eg to propagate customizations 
         TODO : make the restarting apache2 configurable ... tis only relevant to trac plugins
         
+        NOTE ... on changing a patch the new patch fails to be applied with :
+            "=== package-applypatch : ERROR there are local modifications ... cannot apply patch"
+            workaround this by manually reverting before doing the reinstall
+        
+        
+        
     package-odir-  <name>
 
          the dir into which the checkout is done ... normally also the one with the setup.py 

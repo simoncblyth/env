@@ -12,6 +12,15 @@ svn-usage(){
      svn-userspath : $(svn-userspath)
 
 
+     svnsetup-
+         precursor to functions that hookup svn and trac with apache 
+     
+     svnbuild-
+          
+
+
+
+
      svn-global-ignores :  
          handholding only
      
@@ -34,13 +43,16 @@ EOU
 }
 
 
-
-#swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
-svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
-#svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
-#svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
-#svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 
-#svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
+#
+#  these precursors and content are mostly deprecated 
+#
+# swig-(){         . $ENV_HOME/svn/swig.bash      && swig-env $* ; } 
+# svn-apache2-(){  . $ENV_HOME/svn/svn-apache2.bash && svn-apache2-env $* ; }
+# svn-sync-(){     . $ENV_HOME/svn/svn-sync.bash  && svn-sync-env  $* ; } 
+# svn-tools-(){    . $ENV_HOME/svn/svn-tools.bash && svn-tools-env $* ; }
+# svn-build-(){    . $ENV_HOME/svn/svn-build.bash && svn-build-env $* ; } 
+# svn-tmp-(){      . $ENV_HOME/svn/svn-tmp.bash   && svn-tmp-env   $* ; } 
+#
 
 
 svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; } 
