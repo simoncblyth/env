@@ -28,6 +28,7 @@ dyb-bv-setup(){
    local rc=$HOME/.dybrc
    
    local dybsh=$DDR/dybgaudi/Utilities/Shell/bash/dyb.sh 
+   
    [ ! -f $dybsh ] && return 
 
    
@@ -83,7 +84,8 @@ dyb_hookup(){
 
     local ddr=$1
     
-    local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+    #local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
+    local dyb__=$ddr/dybgaudi/DybTest/scripts/dyb__.sh
     
     if [ -f $dyb__ ]; then
         . $dyb__

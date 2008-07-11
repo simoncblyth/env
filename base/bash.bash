@@ -38,6 +38,20 @@ bash-funcdef(){
 }
 
 
+bash-positional-args(){
+
+  local msg="=== $FUNCNAME :"
+  echo $msg initially $* 
+  local args=$* 
+  set -- 
+  echo $msg after set $* 
+  set $args 
+  echo $msg after reset $* 
+
+
+}
+
+
 bash-create-func-with-a-func(){
 
    local def=$(bash-funcdef $(dirname $0))
