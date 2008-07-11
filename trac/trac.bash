@@ -118,7 +118,7 @@ trac-instance(){
      G) echo workflow ;;
      H) echo env      ;;
      P) echo env      ;;
-     C) echo env      ;;
+     C) echo dybsvn   ;;
      *) echo env      ;;
    esac
 }
