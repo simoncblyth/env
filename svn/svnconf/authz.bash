@@ -17,7 +17,7 @@ cat << EOA
 [groups]
 
 sync = ntusync
-dyuser = blyth, $tw, $hk, dayabay
+dyuser = blyth, $tw, $hk, dayabay, slave
 
 evuser = simon, dayabay
 evdev = blyth, $tw, $hk 

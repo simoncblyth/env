@@ -128,6 +128,7 @@ bitten-perms(){
   
   ## TODO: fix up a slave user to do this kind of stuff
   trac-admin- permission add slave BUILD_EXEC
+  trac-admin- permission add slave BUILD_VIEW
   trac-admin- permission list
 
 }
