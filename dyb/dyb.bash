@@ -68,6 +68,8 @@ dyb-env(){
       
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
    export DDU=$DDR/dybgaudi/Utilities/Shell/bash
+   export DDT=$DDR/dybgaudi/DybTest
+   
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
