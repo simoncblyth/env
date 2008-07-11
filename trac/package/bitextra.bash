@@ -23,6 +23,7 @@ bitextra-fix(){
 }
 
 
+bitextra-package(){   echo bitextra ; }
 
 bitextra-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 bitextra-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
@@ -53,6 +54,7 @@ bitextra-prepare(){
 
 
    ## disable the default test summarizer in order for my modified one to take its place    
+   
    trac-configure components:bitten.report.testing.TestResultsSummarizer:disabled
 
    ## verify http://localhost/tracs/workflow/admin/general/plugin
