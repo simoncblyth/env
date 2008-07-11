@@ -70,6 +70,8 @@ dyb-env(){
    export DDU=$DDR/dybgaudi/Utilities/Shell/bash
    export DDT=$DDR/dybgaudi/DybTest
    
+   export REPO_HOME=$DDR
+
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
