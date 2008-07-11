@@ -13,10 +13,14 @@ svnsetup-usage(){
                 by appending an Include 
 
      test with
-        ASUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
+        SUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
         
      use with ... 
-         ASUDO=sudo svnsetup-apache 
+         SUDO=sudo svnsetup-apache 
+
+     Or for just authz updates ... the usual change
+         SUDO=sudo svnsetup-authz-update
+
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
@@ -24,7 +28,7 @@ svnsetup-usage(){
      
            writes to /tmp/env/svnsetup/{tracs,repos,authz}.conf 
            if a path is given then copies the temporary to it using 
-           ASUDO:$ASUDO
+           SUDO:$SUDO
            
      svnsetup-tracs-
      svnsetup-repos-
@@ -83,6 +87,16 @@ svnsetup-tmp(){
 
 
 
+svnsetup-authz-update(){
+
+  local msg="=== $FUNCNAME :"
+  local authz=$(svn-authzpath)
+  echo $msg updating $authz
+  svnsetup-authz $authz
+
+}
+
+
 svnsetup-apache(){
 
    local msg="=== $FUNCNAME :"
@@ -126,8 +140,8 @@ svnsetup-chown(){
    local user=$(apache-user)
    
    case $NODE_TAG in 
-     G) $ASUDO chown $* $user:$user $path ;;
-     *) $ASUDO chown $* $user:$user $path ;;
+     G) $SUDO chown $* $user:$user $path ;;
+     *) $SUDO chown $* $user:$user $path ;;
    esac
     
 }
@@ -168,8 +182,8 @@ svnsetup-location-(){
   
 
 
-  echo $msg $flavor copying tmp $tmp to $path with ASUDO [$ASUDO]
-  $ASUDO cp $tmp $path
+  echo $msg $flavor copying tmp $tmp to $path with SUDO [$SUDO]
+  $SUDO cp $tmp $path
   
   local user=$(apache-user)   
   echo $msg $flavor setting ownership to $user   
@@ -415,10 +429,10 @@ svnsetup-xslt(){
   
     echo $msg svn export the svn xslt for NODE_APPROACH:$NODE_APPROACH
 	local resources_folder=$(dirname $xslt)
-	$ASUDO mkdir -p $resources_folder
+	$SUDO mkdir -p $resources_folder
 	cd $resources_folder
-	$ASUDO rm -rf xslt
-	$ASUDO svn export http://svn.collab.net/repos/svn/trunk/tools/xslt/ 
+	$SUDO rm -rf xslt
+	$SUDO svn export http://svn.collab.net/repos/svn/trunk/tools/xslt/ 
 	
   else
   
@@ -428,14 +442,14 @@ svnsetup-xslt(){
      local build=$(svnbuild-dir)/tools/xslt
      [ ! -d $build ] && echo $msg ABORT no build $build && return 1
            
-     $ASUDO mkdir -p $xslt 
-     $ASUDO cp -f $build/svnindex.* $xslt/ 
+     $SUDO mkdir -p $xslt 
+     $SUDO cp -f $build/svnindex.* $xslt/ 
      
   fi
   
   ## correct a braindead absolute path 
   
-  $ASUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
+  $SUDO perl -pi -e 's|/svnindex.css|/resources/xslt/svnindex.css|' $xslt/svnindex.xsl 
 
   cd $iwd
 }
