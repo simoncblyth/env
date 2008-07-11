@@ -90,12 +90,18 @@ dyb_hookup(){
     
     #local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
     local dyb__=$ddr/dybgaudi/DybTest/scripts/dyb__.sh
+    local bitrun=$ddr/dybgaudi/DybTest/scripts/bitrun.bash
     
     if [ -f $dyb__ ]; then
         . $dyb__
         [ -z $BASH_SOURCE ] && eval "function dyb__source(){  echo $dyb__ ; }"      ## workaround for older bash  
         dyb__default(){ echo dybgaudi/Simulation/GenTools ; } 
      fi 
+     
+    if [ -f $bitrun ]; then
+       . $bitrun
+    fi
+     
 }
 
 
