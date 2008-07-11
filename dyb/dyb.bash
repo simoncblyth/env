@@ -62,15 +62,18 @@ dyb-env(){
    export DYB__RELEASE=NuWa-$DYB_VERSION
    export DDR=$DYB/$DYB__RELEASE 
  
-
-   [ "$NODE_TAG" == "C" ] && DDR=$HOME/NuWa-trunk
+   [ "$NODE_TAG" == "COOP" ] && DDR=$HOME/NuWa-trunk
    
-      
+    
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
    export DDU=$DDR/dybgaudi/Utilities/Shell/bash
    export DDT=$DDR/dybgaudi/DybTest
    
-   export REPO_HOME=$DDR
+   case $NODE_TAG in 
+     P) export NUWA_HOME=$DDR ;;
+    G1) export NUWA_HOME=$DDR ;;
+     *) echo -n ;;
+   esac  
 
 
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 

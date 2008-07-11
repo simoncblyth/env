@@ -38,7 +38,9 @@ scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; }
 unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
 qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
 
-bitrun-(){      . $ENV_HOME/bitrun/bitrun.bash   ; }  ## has been potablized
+bitrun-(){      
+  [ -n "$NUWA_HOME" ] && . $NUWA_HOME/dybgaudi/DybTest/scripts/bitrun.bash || .  $ENV_HOME/bitrun/bitrun.bash  
+} 
 
 nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
 nosebit-(){      . $ENV_HOME/nosebit/nosebit.bash    && nosebit-env $* ; }
