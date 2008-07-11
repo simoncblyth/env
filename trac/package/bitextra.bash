@@ -3,6 +3,10 @@ bitextra-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
  
+    Switch on the extras ... annotation and test summarizer with :
+       SUDO=sudo bitextra-prepare
+   
+
    
 EOU
 
