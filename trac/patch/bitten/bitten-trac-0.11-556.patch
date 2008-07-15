@@ -1,0 +1,202 @@
+Index: bitten/admin.py
+===================================================================
+--- bitten/admin.py	(revision 556)
++++ bitten/admin.py	(working copy)
+@@ -235,6 +235,22 @@
+             config.delete(db=db)
+         db.commit()
+ 
++
++    def _resolve_recipe(self, recipe_xml , authname ):
++        """ CAUTION : this is duplicated in master.py """
++        if recipe_xml.startswith('source:'):
++            self.log.info("_resolve_recipe using repopath as source of the recipe %s " % recipe_xml )
++            repos = self.env.get_repository(authname)
++            recipe_path = recipe_xml[7:]
++            try: 
++                node = repos.get_node( recipe_path )
++                recipe_xml = node.get_content().read()
++                self.log.info("_resolve_recipe got recipe_xml %s " % recipe_xml )
++            except (AssertionError, TracError), e:
++                raise TracError(unicode(e), 'Invalid Repository Path')
++        return recipe_xml
++
++
+     def _update_config(self, req, config):
+         req.perm.assert_permission('BUILD_MODIFY')
+ 
+@@ -259,8 +275,9 @@
+             except TracError, e:
+                 raise TracError(unicode(e), 'Invalid Oldest Revision')
+ 
+-        recipe_xml = req.args.get('recipe', '')
+-        if recipe_xml:
++        recipe_arg = req.args.get('recipe', '')
++        if recipe_arg:
++            recipe_xml = self._resolve_recipe(recipe_arg, req.authname )
+             try:
+                 Recipe(xmlio.parse(recipe_xml)).validate()
+             except xmlio.ParseError, e:
+@@ -271,7 +288,7 @@
+ 
+         config.name = name
+         config.path = repos.normalize_path(path)
+-        config.recipe = recipe_xml
++        config.recipe = recipe_arg
+         config.min_rev = req.args.get('min_rev')
+         config.max_rev = req.args.get('max_rev')
+         config.label = req.args.get('label', config.name)
+Index: bitten/master.py
+===================================================================
+--- bitten/master.py	(revision 556)
++++ bitten/master.py	(working copy)
+@@ -160,6 +160,24 @@
+         req.write('')
+         raise RequestDone
+ 
++
++    def _resolve_recipe(self, recipe_xml , authname ):
++        """ minor fix to allow entry of source:/trunk/etc/recipe.xml paths rather than the actual xml 
++             CAUTION : this code is duplicated in master.py and admin.py 
++        """ 
++        if recipe_xml.startswith('source:'):
++            self.log.info("_resolve_recipe using repopath as source of the recipe %s " % recipe_xml )
++            repos = self.env.get_repository(authname)
++            recipe_path = recipe_xml[7:]
++            try:
++                node = repos.get_node( recipe_path )
++                recipe_xml = node.get_content().read()
++                self.log.info("_resolve_recipe got recipe_xml %s " % recipe_xml )
++            except (AssertionError, TracError), e:
++                raise TracError(unicode(e), 'Invalid Repository Path')
++        return recipe_xml
++                            
++                                            
+     def _process_build_initiation(self, req, config, build):
+         self.log.info('Build slave %r initiated build %d', build.slave,
+                       build.id)
+@@ -169,7 +187,8 @@
+         for listener in BuildSystem(self.env).listeners:
+             listener.build_started(build)
+ 
+-        xml = xmlio.parse(config.recipe)
++        recipe_xml = self._resolve_recipe(config.recipe, req.authname)
++        xml = xmlio.parse(recipe_xml)
+         xml.attr['path'] = config.path
+         xml.attr['revision'] = build.rev
+         xml.attr['config'] = config.name
+@@ -205,7 +224,8 @@
+         if step:
+             raise HTTPConflict('Build step already exists')
+ 
+-        recipe = Recipe(xmlio.parse(config.recipe))
++        recipe_xml = self._resolve_recipe(config.recipe, req.authname)
++        recipe = Recipe(xmlio.parse(recipe_xml))
+         index = None
+         current_step = None
+         for num, recipe_step in enumerate(recipe):
+Index: bitten/web_ui.py
+===================================================================
+--- bitten/web_ui.py	(revision 556)
++++ bitten/web_ui.py	(working copy)
+@@ -27,6 +27,7 @@
+                             add_link, add_stylesheet, add_ctxtnav, \
+                             prevnext_nav, add_script
+ from trac.wiki import wiki_to_html, wiki_to_oneliner
++from trac.versioncontrol.api import NoSuchNode
+ from bitten.api import ILogFormatter, IReportChartGenerator, IReportSummarizer
+ from bitten.model import BuildConfig, TargetPlatform, Build, BuildStep, \
+                          BuildLog, Report
+@@ -582,30 +583,57 @@
+ 
+     _fileref_re = re.compile('(?P<path>[\w.-]+(?:/[\w.-]+)+)(?P<line>(:\d+))?')
+ 
+-    def get_formatter(self, req, build):
++    def get_formatter(self, req, build, **kw):
+         """Return the log message formatter function."""
+         config = BuildConfig.fetch(self.env, name=build.config)
++        self.log.debug("get_formatter config.path %s build.rev %s " % (config.path,build.rev) )
+         repos = self.env.get_repository(req.authname)
+         href = req.href.browser
+-        cache = {}
++        repocache = {}
++        filecache = {}
+ 
++        def _pathsearch( filepath ):
++            """ grow the path backwards from the leaf """
++            parts = filepath.split('/')
++            parts.reverse()         
++            path = None        
++            for part in parts:
++                path = path and posixpath.join( part , path ) or part
++                repopath = posixpath.join(config.path, path)
++                self.log.debug("try repopath %s " %  repopath)
++                if repopath not in repocache:
++                    try: 
++                        repos.get_node( repopath , build.rev)
++                        repocache[repopath] = True
++                        self.log.debug("non-cache repopath %s %s " %  (repopath,repocache[repopath]) )
++                        return repopath
++                    except NoSuchNode, e:
++                        repocache[repopath] = False
++                        self.log.debug("non-cache repopath %s %s " %  (repopath,repocache[repopath]) )
++                    except:
++                        self.log.error("other exception ")
++                else:
++                    self.log.debug("from-cache repopath %s %s " %  (repopath,repocache[repopath]) ) 
++            return None
++
++
++
+         def _replace(m):
++            self.log.debug("_replace %s  " % (m.groupdict())  )
+             filepath = posixpath.normpath(m.group('path').replace('\\', '/'))
+-            if not cache.get(filepath) is True:
+-                parts = filepath.split('/')
+-                path = ''
+-                for part in parts:
+-                    path = posixpath.join(path, part)
+-                    if path not in cache:
+-                        try:
+-                            repos.get_node(posixpath.join(config.path, path),
+-                                           build.rev)
+-                            cache[path] = True
+-                        except TracError:
+-                            cache[path] = False
+-                    if cache[path] is False:
+-                        return m.group(0)
+-            link = href(config.path, filepath)
++            repopath = None
++            
++            if filecache.has_key(filepath) :
++                repopath = filecache[filepath]
++            else:
++                repopath = filecache[filepath] = _pathsearch( filepath )   
++           
++            if repopath is None:
++                self.log.debug("miss filepath %s " % (filepath) )
++                return m.group(0)
++                    
++            link = href( repopath , **kw )
++            self.log.debug("hit filepath %s " %  ( filepath ) )
+             if m.group('line'):
+                 link += '#L' + m.group('line')[1:]
+             return Markup(tag.a(m.group(0), href=link))
+@@ -613,14 +641,16 @@
+         def _formatter(step, type, level, message):
+             buf = []
+             offset = 0
++            self.log.debug("bitten formatter start")
+             for mo in self._fileref_re.finditer(message):
+                 start, end = mo.span()
++                #self.log.debug("found %s " % message[offset:start])
+                 if start > offset:
+                     buf.append(message[offset:start])
+                 buf.append(_replace(mo))
+                 offset = end
+             if offset < len(message):
+                 buf.append(message[offset:])
+-            return Markup("").join(buf)
++            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
+ 
+         return _formatter
