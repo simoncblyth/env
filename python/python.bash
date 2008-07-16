@@ -45,7 +45,7 @@ pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-
 
 python-ls(){
 
-   ls -l $PYTHON_SITE/
+   ls -l $(python-site)/
 
 }
 
@@ -75,10 +75,19 @@ python-env(){
 }
 
 
+
 python-site(){
-    echo $PYTHON_SITE
+  case $NODE_TAG in 
+    G) echo /Library/Python/2.5/site-packages ;;
+    *) python-site- ;;
+  esac
 }
 
+python-site-(){
+    local python=$(which python)
+    local archdir=$(dirname $(dirname $python))
+    echo $archdir/lib/python2.5/site-packages
+}
 
 python-path(){
 
