@@ -59,20 +59,20 @@ void ScanData(dataPara *pd){
 
 void plot_hist_xy(void) {
 
-	TCanvas *canvas = new TCanvas("canvas","ccc",200,10,700,500);
-	//TH1F *frame = canvas->DrawFrame(0,0,200,3500);
-	//frame->SetYTitle("Counts");
-	//frame->SetXTitle("ns");
+	TCanvas *canvas = new TCanvas("canvas","counts v.s. input",200,10,700,500);
+	TH1F *frame = canvas->DrawFrame(0,0,300,4500);
+	frame->SetYTitle("Counts");
+	frame->SetXTitle("ns");
 
+	gStyle->SetOptFit(0111);
 	//TFile* file = new TFile("tmp.root", "recreate");
-	TGraphErrors *gra = ReadAndPlot();
-	gra->SetLineColor(3);
-	gra->SetMarkerStyle(3);
-	gra->Draw("AP");
+	ReadAndPlot();
+
+
 	
 }
 
-TGraphErrors *ReadAndPlot(void) {
+void ReadAndPlot(void) {
 
 	dataPara pdata;
 	
@@ -81,10 +81,11 @@ TGraphErrors *ReadAndPlot(void) {
 	Float_t scopeData[PLOTPOINT], scopeDataRMS[PLOTPOINT];
 	ReadScopeData(scopeData,scopeDataRMS);
 	
-	cout << "DDDDDDDDDDDD"<< endl;
 	TGraphErrors *gr = new TGraphErrors(7,scopeData,pdata.mean,scopeDataRMS,pdata.rms);
 	gr->Fit("pol1");
-	cout << "EEEEEEEEEEEEEEEEE"<< endl;
+	gr->SetLineColor(3);
+	gr->SetMarkerStyle(3);
+	gr->Draw("P");
 	return gr;
 
 }
@@ -136,12 +137,9 @@ void ReadScopeData(Float_t scopeData[], Float_t scopeDataRMS[]) {
 	scopeData[3] = 158;
 	scopeData[4] = 96;
 	scopeData[5] = 64;
-	cout << "AAAAAAAAAAAA"<< endl;
 	scopeData[6] = 32.8;
-	cout << "BBBBBBBBBBB"<< endl;
 
 	for(Int_t i=0;i<7;i++) {
 	scopeDataRMS[i] = 0;
 	}
-	cout << "CCCCCCCCCCCCC"<< endl;
 }
