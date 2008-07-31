@@ -168,13 +168,16 @@ EOT
 
 
 svnbuild-wipe(){
-  cd $SYSTEM_BASE/svn
+  local dir=$SYSTEM_BASE/svn
+  [ ! -d $dir ] && return 0 
+  cd $dir
   [ -d build ] && rm -rf build
 }
 
 svnbuild-wipe-install(){
-   
-  cd $SYSTEM_BASE/svn
+  local dir=$SYSTEM_BASE/svn
+  [ ! -d $dir ] && return 0 
+  cd $dir 
   [ "${SVN_NAME:0:3}" != "subversion" ] && echo bad name $SVN_NAME && return 1
   [ -d $SVN_NAME ] && rm -rf "$SVN_NAME"
 }

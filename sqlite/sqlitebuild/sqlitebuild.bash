@@ -79,14 +79,18 @@ sqlitebuild-install(){
 
 sqlitebuild-wipe(){
    local iwd=$PWD
-   cd $SYSTEM_BASE/sqlite
+   local dir=$SYSTEM_BASE/sqlite
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ -d build ] && rm -rf build
    cd $iwd
 }
 
 sqlitebuild-wipe-install(){
    local iwd=$PWD
-   cd $SYSTEM_BASE/sqlite
+   local dir=$SYSTEM_BASE/sqlite
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ "${SQLITE_NAME:0:6}" != "sqlite" ] && echo bad name $SQLITE_NAME cannot proceed && return 1
    [ -d $SQLITE_NAME ] && rm -rf $SQLITE_NAME
    cd $iwd

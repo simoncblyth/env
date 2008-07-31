@@ -138,7 +138,9 @@ modpython-install(){
 
 modpython-wipe(){
 
-  cd $SYSTEM_BASE/mod_python
+  local dir=$SYSTEM_BASE/mod_python
+  [ ! -d $dir ] && return 0
+  cd $dir
   rm -rf build
 
 }
@@ -146,7 +148,9 @@ modpython-wipe(){
 
 modpython-wipe-install(){
 
-  cd $SYSTEM_BASE/mod_python
+  local dir=$SYSTEM_BASE/mod_python
+  [ ! -d $dir ] && return 0
+  cd $dir
   
   [ "${MODPYTHON_NAME:0:10}" != "mod_python" ] && echo bad name $MODPYTHON_NAME cannot proceed && return 1
   

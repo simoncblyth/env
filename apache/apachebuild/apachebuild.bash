@@ -109,13 +109,16 @@ apachebuild-install(){
 }
 
 apachebuild-wipe(){
-   cd $SYSTEM_BASE/apache
+   local dir=$SYSTEM_BASE/apache
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ -d build ] && rm -rf build
 }
 
 apachebuild-wipe-install(){
-
-   cd $SYSTEM_BASE/apache
+   local dir=$SYSTEM_BASE/apache
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ "${APACHE_NAME:0:5}" != "httpd" ] && echo cannot proceed bad name $APACHE_NAME && return 1
    [ -d $APACHE_NAME ] && rm -rf $APACHE_NAME
 }

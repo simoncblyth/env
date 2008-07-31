@@ -89,14 +89,18 @@ swigbuild-install(){
 
 swigbuild-wipe(){
    local iwd=$PWD
-   cd $SYSTEM_BASE/swig
+   local dir=$SYSTEM_BASE/swig
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ -d build ] && rm -rf build
    cd $iwd
 }
 
 swigbuild-wipe-install(){
    local iwd=$PWD
-   cd $SYSTEM_BASE/swig
+   local dir=$SYSTEM_BASE/swig
+   [ ! -d $dir ] && return 0
+   cd $dir
    [ "${SWIG_NAME:0:4}" != "swig" ] && echo bad name $SWIG_NAME cannot proceed && return 1
    [ -d $SWIG_NAME ] && rm -rf $SWIG_NAME
    cd $iwd

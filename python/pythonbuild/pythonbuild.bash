@@ -104,13 +104,18 @@ pythonbuild-install(){
 
 
 pythonbuild-wipe(){
-    cd $SYSTEM_BASE/python
+    
+    local dir=$SYSTEM_BASE/python
+    [ ! -d $dir ] && return 0 
+    cd $dir
     rm -rf build
 }
 
 pythonbuild-wipe-install(){
 
-   cd $SYSTEM_BASE/python
+   local dir=$SYSTEM_BASE/python
+   [ ! -d $dir ] && return 0 
+   cd $dir
    [ "${PYTHON_NAME:0:6}" != "Python" ] && echo bad PYTHON_NAME cannot proceed && return 1
    rm -rf $PYTHON_NAME
 }
