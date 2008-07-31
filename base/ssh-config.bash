@@ -10,12 +10,14 @@ ssh--config(){
 
 local msg="=== $FUNCNAME:"
 
-## old versions of SSH do not like ForwardX11Trusted
-if [ "$NODE_TAG" == "H" ]; then
-  c="#"
-else
-  c=""
-fi    
+ ## old versions of SSH do not like ForwardX11Trusted
+ ##   /home/blyth/.ssh/config: line 57: Bad configuration option: ForwardX11Trusted
+ local c
+ case $NODE_TAG in 
+   H|XT) c="#" ;;
+      *) c=""  ;;
+ esac     
+
 
 local cfg=$HOME/.ssh/config
 local pfg=$cfg.prior

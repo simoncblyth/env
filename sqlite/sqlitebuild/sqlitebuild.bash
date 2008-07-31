@@ -11,6 +11,9 @@ sqlitebuild-usage(){
       sqlitebuild-copy-to-node  <node-tag>
               copy the tarball to another node
 
+      sqlitebuild-copy-from-node  <node-tag>
+              copy the tarball from another node
+
 
       $(type sqlitebuild-again)
 
