@@ -73,7 +73,7 @@ cron-backup-log(){
 }
 
 cron-backup-env-cmd(){
-  echo "export HOME=$HOME && export ENV_HOME=$HOME/env && . $ENV_HOME/env.bash && env- && scm-backup- "
+  echo "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- "
 }
 
 
@@ -112,12 +112,12 @@ cron-setup-backup(){
 
       if [ "$user" == "root" ]; then
          
-         cmd="($env && scm-backup-all ) > $crondir/scm-backup-all.log 2>&1"
+         cmd="($env ; scm-backup-all ) > $crondir/scm-backup-all.log 2>&1"
          delta=0
       
       elif [ "$user" == "blyth" ]; then
          
-         cmd="($env && scm-backup-rsync &&  scm-backup-mail ) > $crondir/scm-backup-rsync.log  2>&1"
+         cmd="($env ; scm-backup-rsync ; scm-backup-mail ) > $crondir/scm-backup-rsync.log  2>&1"
          delta=15   
          
       else

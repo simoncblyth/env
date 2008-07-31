@@ -40,7 +40,12 @@ host N
     user blyth
     hostname pdsf.nersc.gov
     
-    
+# IHEP     
+host I
+    user blyth
+    hostname lxslc05.ihep.ac.cn
+    protocol 2 
+          
 host VT
     #
     user hmmm

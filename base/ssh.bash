@@ -40,6 +40,12 @@ cat << EOU
             source>  ssh--agent-start
            
 
+
+
+     ssh--info
+          dump agent pid etc..
+
+
 EOU
 
 }

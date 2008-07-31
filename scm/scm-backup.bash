@@ -86,7 +86,7 @@ scm-backup-du(){
 
 scm-backup-all-as-root(){
 
-  sudo bash -lc "scm-backup- && scm-backup-all  "
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-all  "
 
 }
 
