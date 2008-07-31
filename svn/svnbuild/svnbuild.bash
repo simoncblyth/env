@@ -143,9 +143,10 @@ svnbuild-install(){
 svnbuild-swigpy(){
   cd $(svnbuild-dir)
   
-  if [ "$NODE_TAG" == "P" ]; then
-     svnbuild-krb-gssapi-kludge
-  fi 
+  case $NODE_TAG in 
+     P|H|XT) svnbuild-krb-gssapi-kludge ;;
+          *) echo -n ;;
+  esac
   
   make swig-py
   make install-swig-py
