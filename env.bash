@@ -113,12 +113,8 @@ cat << EOU
 #  http://www-128.ibm.com/developerworks/library/l-bash-test.html
 #
 #
-#   debugging tip .. invoke with bash rather than . when debugging :
-# 
-#  g4pb:env blyth$ . base/base.bash
-#  -bash: [: missing `]'
-#  g4pb:env blyth$ bash base/base.bash 
-#  base/base.bash: line 100: [: missing `]'
+#   debugging tip .. invoke with bash rather than . when debugging 
+#    as it reports the line numbers of errors
 #
 #       CAUTION error reporting can be a line off
 

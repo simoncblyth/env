@@ -172,7 +172,12 @@ elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "hkvme" ]); then
 elif (      [ "$USER" == "exist" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="X"
+ 
      
+elif (     [ "$(uname -n)" == "localhost.localdomain" ]); then
+
+   NODE_TAG = "XT" 
+                 
 else
 	
    NODE_TAG="U"
@@ -305,6 +310,7 @@ export LOCAL_BASE_H=/data/usr/local
 export LOCAL_BASE_T=/usr/local
 export LOCAL_BASE_N=$HOME/local
 export LOCAL_BASE_C=/data/env/local
+export LOCAL_BASE_XT=/home/blyth/local
 
 local-base(){
    local tag=${1:-$NODE_TAG} 
@@ -324,6 +330,7 @@ export SYSTEM_BASE_U=$LOCAL_BASE
 export SYSTEM_BASE_P=$grid1_system_base
 export SYSTEM_BASE_G1=$grid1_system_base
 export SYSTEM_BASE_C=/data/env/system
+export SYSTEM_BASE_XT=/home/blyth/system
 
 system-base(){
    local tag=${1:-$NODE_TAG} 
@@ -346,6 +353,7 @@ export VAR_BASE_H=/var
 export VAR_BASE_G=/var
 export VAR_BASE_N=$HOME/var
 export VAR_BASE_C=/var
+export VAR_BASE_XT=/home/blyth/var
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=VAR_BASE_$NODE_TAG
@@ -371,6 +379,7 @@ export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_H=$LOCAL_BASE_H
 export USER_BASE_T=$HOME/dybwork
 export USER_BASE_N=$HOME
+export USER_BASE_XT=$HOME
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=USER_BASE_$NODE_TAG
