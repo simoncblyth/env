@@ -176,7 +176,7 @@ elif (      [ "$USER" == "exist" ] && [ "$LOCAL_NODE" == "hfag" ]); then
      
 elif (     [ "$(uname -n)" == "localhost.localdomain" ]); then
 
-   NODE_TAG = "XT" 
+   NODE_TAG="XT" 
                  
 else
 	
