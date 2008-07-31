@@ -26,6 +26,7 @@ sqlitebuild-env(){
 
 sqlitebuild-get(){
  
+    local msg="=== $FUNCNAME :"
     local nam=$SQLITE_NAME
     local tgz=$nam.tar.gz
     local url=http://www.sqlite.org/$tgz
@@ -35,6 +36,10 @@ sqlitebuild-get(){
     cd sqlite
 
     [ ! -f $tgz ] && curl -O $url
+    
+    file-
+    file-size-lt $tgz 100 && echo $msg ABORT tgz $tgz is too small ... sleeping && sleep 10000000000
+    
     mkdir -p  build
     [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
 }
@@ -49,6 +54,17 @@ sqlitebuild-copy-to-node(){
    eval $cmd
 
 }
+
+sqlitebuild-copy-from-node(){
+
+   local msg="=== $FUNCNAME :"
+   local t=${1:-C}
+   local cmd="scp  $t:$(NODE_TAG=$t sqlite-home).tar.gz $(sqlite-home).tar.gz"
+   echo $msg $cmd
+   eval $cmd
+
+}
+
 
 
 

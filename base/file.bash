@@ -104,6 +104,27 @@ file-diff(){
 }
 
 
+file-first(){
+  for arg in $*
+  do
+     echo $arg 
+     return 0
+  done
+}
+
+file-size-lt(){
+
+  local path=$1 
+  local ksize=${2:-100}
+  local duk=$(du -k $path) 
+  local size=$(file-first $duk)
+
+  [ $size -lt $ksize ] && return 0 || return 1
+
+}
+
+
+
 
 
 
