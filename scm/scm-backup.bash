@@ -309,15 +309,22 @@ scm-backup-dybsvn-from-node(){
      
    local loc=$(scm-backup-dir $NODE_TAG)  
    local rem=$(scm-backup-dir $tag)
-   local pat=$rem/$orig/{repos,tracs}/$name/$stamp/$name*.tar.gz
-   local reps=$(ssh $tag "ls -1 $pat ")
+   local reps=$(ssh $tag "ls -1 $rem/$orig/{repos,tracs}/$name/$stamp/$name*.tar.gz ")
+   
+   echo reps $reps
    
    for rep in $reps
    do
+     
       local rel=${rep/$rem\//}
       local tgz=$loc/$rel
+      
+      echo rep $rep rel $rel tgz $tgz 
       mkdir -p $(dirname $tgz)
-      scp $tag:$rep $tgz
+      
+      local cmd="scp $tag:$rep $tgz"
+      echo $cmd
+      eval $cmd
    done
 
    cd $loc/$orig

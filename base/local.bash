@@ -355,7 +355,7 @@ export SYSTEM_BASE=$(local-system-base)
 ## ----------  for operational files, like backups
 
 local-var-base(){
-   case ${1:-U} in 
+   case ${1:-$NODE_TAG} in 
       U) echo /var ;;
       P) echo /disk/d3/var ;;
      G1) echo /disk/d3/var ;;
