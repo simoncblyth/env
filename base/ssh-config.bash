@@ -47,7 +47,24 @@ host I
     user blyth
     hostname lxslc05.ihep.ac.cn
     protocol 2 
-          
+ 
+#
+#  open tunnel session with  
+#       G> ssh -vvv -L 8080:192.168.37.177:22 I
+#   then  connect to the internal IP thru the tunnel
+#       G> ssh -vvv XT 
+#
+#   ... this works without having to setup passwordless 
+#    BUT how to do this for web packets ??? so that requests from
+#    Safari take the trip thru the tunnel and ask apache on the internal machine port 8080
+# 
+#
+host XT
+    user blyth
+    hostname localhost
+    port 8080
+                   
+                                     
 host VT
     #
     user hmmm
