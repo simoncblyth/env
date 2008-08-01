@@ -75,7 +75,7 @@ sqlitebuild-copy-from-node(){
 sqlitebuild-dir(){
    case $NODE_TAG in 
       H) echo $(local-base)/sqlite/build/$(sqlite-name) ;;
-      *) echo $(system-base)/sqlite/build/$(sqlite-name) ;;
+      *) echo $(local-system-base)/sqlite/build/$(sqlite-name) ;;
    esac
 }
 

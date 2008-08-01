@@ -119,7 +119,7 @@ trac-instance(){
      H) echo env      ;;
      P) echo env      ;;
      C) echo dybsvn   ;;
-     *) echo env      ;;
+     *) echo dybsvn   ;;
    esac
 }
 

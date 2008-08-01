@@ -113,16 +113,13 @@ cat << EOU
 #  http://www-128.ibm.com/developerworks/library/l-bash-test.html
 #
 #
-#   debugging tip .. invoke with bash rather than . when debugging 
-#    as it reports the line numbers of errors
-#
-#       CAUTION error reporting can be a line off
 
 
      ff(){ local a="hello" ; local ; }   list locals 
 
-
-
+     env-dbg
+           invoke with bash rather than . when debugging to see 
+           line numbers of errors, CAUTION error reporting can be a line off
 
      env-rsync        top-level-fold <target-node>
            propagate a top-level-folder without svn, caution can
@@ -142,6 +139,9 @@ cat << EOU
 EOU
 }
 
+env-dbg(){
+   bash $ENV_HOME/env.bash
+}
 
 env-env(){
   local msg="=== $FUNCNAME :"

@@ -26,6 +26,10 @@ cat << EOU
    scm-backup-rsync :   to the paired node   
 
 
+   scm-backup-rsync-from-node : 
+                   rsync the backups from a remote node 
+
+
   Common issues ...
   
      1) backups stopped :
@@ -265,6 +269,32 @@ scm-backup-target(){
       target_var=$VAR_BASE_BACKUP
    fi
    echo $target_var
+}
+
+
+scm-backup-dir(){
+   local tag=${1:-H}
+   local node=$(local-tag2node $tag)
+   local dir=$(local-scm-fold $tag)/backup/$node  
+   echo $dir
+}
+
+
+scm-backup-rsync-from-node(){
+
+   local msg="# === $FUNCNAME : "
+   local tag=$1
+   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
+   
+   local src=$(scm-backup-dir $tag)
+   local tgt=$(scm-backup-dir $NODE_TAG)
+   local tgp=$(dirname $tgt)
+   
+   [ "$src" == "$tgt" ] && echo $msg ABORT cannot rsync to self && 
+   
+   local cmd="rsync --delete-after -razvt $tag:$src/ $tgp
+   echo $cmd
+
 }
 
 

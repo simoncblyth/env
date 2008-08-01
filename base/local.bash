@@ -192,7 +192,6 @@ export NODE_NAME
 export BATCH_TYPE
 
 
-
 ########## TARGET_* specify the remote machine coordinates #####################
 #    
 #     used as defaults for commands dealing with a remote machine, 
@@ -206,6 +205,16 @@ export BATCH_TYPE
 
 
 }
+
+
+local-tag2node(){
+  case $1 in 
+     H) echo hfag ;;
+     C) echo cms01 ;;
+     *) echo unknown ;; 
+  esac
+}
+
 
 
 
@@ -332,7 +341,7 @@ export SYSTEM_BASE_G1=$grid1_system_base
 export SYSTEM_BASE_C=/data/env/system
 export SYSTEM_BASE_XT=/home/blyth/system
 
-system-base(){
+local-system-base(){
    local tag=${1:-$NODE_TAG} 
    local vname=SYSTEM_BASE_$tag
    eval _SYSTEM_BASE=\$$vname
@@ -340,27 +349,29 @@ system-base(){
 }
 
 
-export SYSTEM_BASE=$(system-base)
+export SYSTEM_BASE=$(local-system-base)
 
 
 ## ----------  for operational files, like backups
 
-export VAR_BASE_U=/var
-export VAR_BASE_P=/disk/d3/var
-export VAR_BASE_G1=/disk/d3/var
-export VAR_BASE_G3=/var
-export VAR_BASE_H=/var
-export VAR_BASE_G=/var
-export VAR_BASE_N=$HOME/var
-export VAR_BASE_C=/var
-export VAR_BASE_XT=/home/blyth/var
+local-var-base(){
+   case ${1:-U} in 
+      U) echo /var ;;
+      P) echo /disk/d3/var ;;
+     G1) echo /disk/d3/var ;;
+      N) echo $HOME/var ;;
+     XT) echo $HOME/var ;; 
+      *) echo /var ;; 
+   esac
+}
 
-## if a value for the node is defined then use that, otherwise use VAR_BASE_U
-vname=VAR_BASE_$NODE_TAG
-eval _VAR_BASE=\$$vname
-export VAR_BASE=${_VAR_BASE:-$VAR_BASE_U}
+export VAR_BASE=$(local-var-base)
 
-export SCM_FOLD=$VAR_BASE/scm
+local-scm-fold(){
+   echo $(local-var-base $*)/scm
+}
+
+export SCM_FOLD=$(local-scm-fold)
 
 
 ## ------------- path on remote backup machine 
@@ -422,6 +433,7 @@ export OUTPUT_BASE=${_OUTPUT_BASE:-$OUTPUT_BASE_U}
 
 
 }
+
 
 
 
