@@ -29,6 +29,9 @@ cat << EOU
    scm-backup-rsync-from-node : 
                    rsync the backups from a remote node 
 
+   scm-backup-dybsvn-from-node : 
+                  copy over the reps for a specific day 
+
 
   Common issues ...
   
@@ -292,6 +295,38 @@ scm-backup-rsync-from-node(){
    echo $cmd
 
 }
+
+scm-backup-dybsvn-from-node(){
+
+   local msg="# === $FUNCNAME : "
+   local tag=${1:-C}
+   local dstamp="2008/07/31/122149"
+   local stamp=${2:-$dstamp}
+   local name="dybsvn"
+   
+   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
+     
+   local loc=$(scm-backup-dir $NODE_TAG)  
+   local rem=$(scm-backup-dir $tag)
+   local pat=$rem/hfag/{repos,tracs}/$name/$stamp/$name*.tar.gz
+   local reps=$(ssh $tag "ls -1 $pat ")
+   
+   for rep in $reps
+   do
+      local rel=${rep/$rem\//}
+      local tgz=$loc/$rel
+      mkdir -p $(dirname $tgz)
+      scp $tag:$rep $tgz
+   done
+
+   cd $loc/$name
+   ln -sf $stamp last 
+
+   
+}
+
+
+
 
 
 scm-backup-rsync(){
