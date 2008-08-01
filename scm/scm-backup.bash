@@ -292,7 +292,7 @@ scm-backup-rsync-from-node(){
    
    [ "$src" == "$tgt" ] && echo $msg ABORT cannot rsync to self && 
    
-   local cmd="rsync --delete-after -razvt $tag:$src/ $tgp
+   local cmd="rsync --delete-after -razvt $tag:$src/ $tgp "
    echo $cmd
 
 }
