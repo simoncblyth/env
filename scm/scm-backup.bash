@@ -286,7 +286,7 @@ scm-backup-rsync-from-node(){
    local tag=$1
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
-   local cmd="rsync --delete-after -razvt $tag:$(scm-backup-dir $tag)/ $(scm-backup-dir $NODE_TAG)/ "
+   local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/ $(scm-backup-dir $NODE_TAG)/ "
    echo $cmd
 
 }
