@@ -275,7 +275,7 @@ scm-backup-target(){
 scm-backup-dir(){
    local tag=${1:-H}
    local node=$(local-tag2node $tag)
-   local dir=$(local-scm-fold $tag)/backup/$node  
+   local dir=$(local-scm-fold $tag)/backup  
    echo $dir
 }
 
@@ -286,10 +286,7 @@ scm-backup-rsync-from-node(){
    local tag=$1
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
-   local src=$(scm-backup-dir $tag)
-   local tgt=$(scm-backup-dir $NODE_TAG)
-   local tgp=$(dirname $tgt)
-   local cmd="rsync --delete-after -razvt $tag:$src/ $tgp "
+   local cmd="rsync --delete-after -razvt $tag:$(scm-backup-dir $tag)/ $(scm-backup-dir $NODE_TAG)/ "
    echo $cmd
 
 }
