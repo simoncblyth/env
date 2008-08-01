@@ -479,11 +479,18 @@ EOC)
 
 
 svnsetup-get-users-from-h(){
+   svnsetup-get-users-from-node H
+}
 
+svnsetup-get-users-from-node(){
+
+   local tag=${1:-H}
+   
    local msg="=== $FUNCNAME :"
    [ "$NODE_TAG" == "H" ] && echo $msg ABORT not applicable on NODE_TAG $NODE_TAG && return 1 
    
-   local cmd="scp H:$(NODE_TAG=H svn-userspath) $(svn-userspath)"
+   
+   local cmd="scp $tag:$(NODE_TAG=$tag svn-userspath) $(svn-userspath)"
    echo $msg $cmd
    eval $cmd
 

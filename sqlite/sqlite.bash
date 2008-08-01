@@ -63,7 +63,7 @@ sqlite-name(){
 }
 
 sqlite-home(){
-   case $NODE_TAG in 
+   case ${1:-$NODE_TAG} in 
       H) echo $(local-base)/sqlite/$(sqlite-name) ;;
       *) echo $(local-system-base)/sqlite/$(sqlite-name) ;;
    esac
