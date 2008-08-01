@@ -3,9 +3,11 @@ apacheconf-usage(){
   
    cat << EOU
 
-     apacheconf-dir       :  $(apacheconf-dir)
-     apacheconf-path      :  $(apacheconf-path)
-     apacheconf-patchpath :  $(apacheconf-patchpath)
+     apacheconf-dir          :  $(apacheconf-dir)
+     apacheconf-path         :  $(apacheconf-path)
+     apacheconf-patchpath    :  $(apacheconf-patchpath)
+     apacheconf-envvars-path :  $(apacheconf-envvars-path)
+   
 
      apacheconf-cd 
             to apacheconf-dir
