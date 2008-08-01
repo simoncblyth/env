@@ -303,12 +303,13 @@ scm-backup-dybsvn-from-node(){
    local dstamp="2008/07/31/122149"
    local stamp=${2:-$dstamp}
    local name="dybsvn"
+   local orig="hfag"
    
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
      
    local loc=$(scm-backup-dir $NODE_TAG)  
    local rem=$(scm-backup-dir $tag)
-   local pat=$rem/hfag/{repos,tracs}/$name/$stamp/$name*.tar.gz
+   local pat=$rem/$orig/{repos,tracs}/$name/$stamp/$name*.tar.gz
    local reps=$(ssh $tag "ls -1 $pat ")
    
    for rep in $reps
@@ -319,8 +320,12 @@ scm-backup-dybsvn-from-node(){
       scp $tag:$rep $tgz
    done
 
-   cd $loc/$name
-   ln -sf $stamp last 
+   cd $loc/$orig
+   for dir in "tracs/$name repos/$name"
+   do 
+      ln -sf $stamp last 
+   done
+   
 
    
 }
