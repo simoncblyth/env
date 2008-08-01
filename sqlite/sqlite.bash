@@ -65,7 +65,7 @@ sqlite-name(){
 sqlite-home(){
    case $NODE_TAG in 
       H) echo $(local-base)/sqlite/$(sqlite-name) ;;
-      *) echo $(system-base)/sqlite/$(sqlite-name) ;;
+      *) echo $(local-system-base)/sqlite/$(sqlite-name) ;;
    esac
 }
 
@@ -81,13 +81,10 @@ sqlite-env(){
    
    env-prepend $SQLITE_HOME/bin
 
-   if [ "$NODE_TAG" == "P" ]; then
-      env-llp-prepend $SQLITE_HOME/lib 
-   else
-      ##  make available without diddling with llp
-      env-ldconfig $SQLITE_HOME/lib 
-   fi
-   
+   case $NODE_TAG in
+     P|XT) env-llp-prepend $SQLITE_HOME/lib ;;
+        *) env-ldconfig $SQLITE_HOME/lib    ;;   ##  make available without diddling with llp
+   esac     
 }
 
 
