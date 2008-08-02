@@ -124,12 +124,10 @@ bitten-perms(){
   ## NB the name of the target instance is hidden in TRAC_INSTANCE 
 
   trac-admin- permission add blyth BUILD_ADMIN
-  trac-admin- permission add blyth BUILD_VIEW
-  trac-admin- permission add blyth BUILD_EXEC
   
-  ## TODO: fix up a slave user to do this kind of stuff
-  trac-admin- permission add slave BUILD_EXEC
-  trac-admin- permission add slave BUILD_VIEW
+  trac-admin- permission add authenticated BUILD_VIEW
+  trac-admin- permission add authenticated BUILD_EXEC
+  
   trac-admin- permission list
 
 }
