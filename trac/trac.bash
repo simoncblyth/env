@@ -83,7 +83,10 @@ cat << EOU
          edit the trac.ini from all the instances making changes to 
          work with trac 0.11
  
+         this is poorly named trac-configure-all would be more appropriate
  
+ 
+  
  
 EOU
 
@@ -149,6 +152,9 @@ trac-url(){
    echo $(trac-baseurl)/tracs/${1:-$TRAC_INSTANCE}
 } 
  
+
+
+
 
 
 trac-env(){
@@ -337,13 +343,16 @@ EOI
 
 trac-upgrade(){
 
+    local msg="=== $FUNCNAME :"
+    echo $msg this is poorly named configure-all would be more appropriate
+
     for name in $(trac-instances)
     do
        trac-comment $name "tracrpc.* = enabled"
        trac-comment $name "default_handler = TagsWikiModule"
        trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
        
-       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)       
+       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)    $(trac-enscript $name)   
     done
 }
 
@@ -376,6 +385,15 @@ trac-comment(){
    $SUDO perl -pi -e "s,^($skip),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
    [ -n "$SUDO" ] && $SUDO chown $user:$user $path
 
+}
+
+
+trac-enscript(){
+   enscript-
+   local path=$(enscript-dir)/bin/enscript
+   if [ -x "$path" ]; then
+      echo mimeviewer:enscript_path:$path
+   fi
 }
 
 
