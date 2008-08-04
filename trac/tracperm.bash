@@ -114,7 +114,7 @@ tracperm-prepare(){
 tracperm-bitten(){
 
   bitten-
-  bitten-enable 
+  SUDO=$SUDO bitten-enable 
 
   trac-admin- permission add blyth BUILD_ADMIN
   trac-admin- permission add authenticated BUILD_VIEW
@@ -129,8 +129,8 @@ tracperm-prepare-all(){
 
    for name in $(trac-instances)
    do
-      TRAC_INSTANCE=$name tracperm-prepare
-      TRAC_INSTANCE=$name trac-admin- permission list 
+      SUDO=$SUDO TRAC_INSTANCE=$name tracperm-prepare
+      SUDO=$SUDO TRAC_INSTANCE=$name trac-admin- permission list 
    done
 
 }
