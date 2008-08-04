@@ -121,14 +121,16 @@ bitten-fullname(){  package-fn $FUNCNAME $* ; }
 
 bitten-perms(){
 
-  ## NB the name of the target instance is hidden in TRAC_INSTANCE 
+ local msg="=== $FUNCNAME :"
+ 
+ ## NB the name of the target instance is hidden in TRAC_INSTANCE 
 
-  trac-admin- permission add blyth BUILD_ADMIN
-  
-  trac-admin- permission add authenticated BUILD_VIEW
-  trac-admin- permission add authenticated BUILD_EXEC
-  
-  trac-admin- permission list
+ echo $msg for consistency these are now done in trac/tracperm.bash  
+ 
+ # trac-admin- permission add blyth BUILD_ADMIN
+ # trac-admin- permission add authenticated BUILD_VIEW
+ # trac-admin- permission add authenticated BUILD_EXEC
+ # trac-admin- permission list
 
 }
 

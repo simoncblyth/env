@@ -20,8 +20,7 @@ tracperm-usage(){
        tracperm-prepare 
              sets permissions for a single instance, namely TRAC_INSTANCE
              target non default instance with eg:
-                 TRAC_INSTANCE=aberdeen tracperm-prepare
-  
+                 SUDO=sudo TRAC_INSTANCE=aberdeen tracperm-prepare
   
        tracperm-level <name defaults to TRAC_INSTANCE> 
              security level for the named instance
@@ -102,10 +101,23 @@ tracperm-prepare(){
     fi            
      
     tracperm-set blyth TRAC_ADMIN   ## TRAC_ADMIN means all permisssions 
-    trac-admin- permission list    
-           
+        
+    case $TRAC_INSTANCE in        
+       env|dybsvn|workflow) tracperm-bitten ;;
+                         *)   echo -n       ;;
+    esac
     
 }
+
+
+tracperm-bitten(){
+
+  trac-admin- permission add blyth BUILD_ADMIN
+  trac-admin- permission add authenticated BUILD_VIEW
+  trac-admin- permission add authenticated BUILD_EXEC
+
+}
+
 
 
 
@@ -114,6 +126,7 @@ tracperm-prepare-all(){
    for name in $(trac-instances)
    do
       TRAC_INSTANCE=$name tracperm-prepare
+      TRAC_INSTANCE=$name trac-admin- permission list 
    done
 
 }
