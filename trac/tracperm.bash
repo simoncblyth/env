@@ -9,12 +9,19 @@ tracperm-usage(){
         TRAC_INSTANCE : $TRAC_INSTANCE
         tracperm-level : $(tracperm-level) 
   
+      NB despite first appearances, to target a non-default instance 
+      you must use TRAC_INSTANCE=whatever prefix , due to usage
+      of trac-admin- under the covers which requires this 
+   
   
        tracperm-prepare-all
              sets the permissions for all the instances    
   
-       tracperm-prepare <name defaults to TRAC_INSTANCE>
-             sets permissions for a single instances defaulting to TRAC_INSTANCE
+       tracperm-prepare 
+             sets permissions for a single instance, namely TRAC_INSTANCE
+             target non default instance with eg:
+                 TRAC_INSTANCE=aberdeen tracperm-prepare
+  
   
        tracperm-level <name defaults to TRAC_INSTANCE> 
              security level for the named instance
@@ -56,10 +63,9 @@ tracperm-level(){
 tracperm-prepare(){
 
     local msg="=== $FUNCNAME :"
-    local name=${1:-$TRAC_INSTANCE}
-	local level=$(tracperm-level $name)
+	local level=$(tracperm-level $TRAC_INSTANCE)
 
-    echo $msg setting perms for name:[$name] to level:[$level]
+    echo $msg setting perms for TRAC_INSTANCE:[$TRAC_INSTANCE] to level:[$level]
 
 	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
     local other="TIMELINE_VIEW SEARCH_VIEW"
