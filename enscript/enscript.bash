@@ -53,7 +53,7 @@ enscript-get(){
    [ ! -f $tgz ] && curl -O $(enscript-url)
    
    mkdir -p build
-   [ ! -d build/$nam ] && tar -C build zxvf $tgz
+   [ ! -d build/$nam ] && tar -C build -zxvf $tgz
 
    cd $iwd
 }
