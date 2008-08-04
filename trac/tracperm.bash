@@ -45,6 +45,8 @@ tracperm-set(){
   local user=${1:-anonymous}
   shift 
 
+  echo $msg TRAC_INSTANCE:[$TRAC_INSTANCE] SUDO:[$SUDO] user:[$user] perms [$*]  
+
   trac-admin- permission remove $user \'*\'
   trac-admin- permission add    $user $* 
 }
@@ -65,7 +67,7 @@ tracperm-prepare(){
     local msg="=== $FUNCNAME :"
 	local level=$(tracperm-level $TRAC_INSTANCE)
 
-    echo $msg setting perms for TRAC_INSTANCE:[$TRAC_INSTANCE] to level:[$level]
+    echo $msg setting perms for TRAC_INSTANCE:[$TRAC_INSTANCE] to level:[$level] SUDO:[$SUDO]
 
 	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
     local other="TIMELINE_VIEW SEARCH_VIEW"
@@ -108,13 +110,15 @@ tracperm-prepare(){
                          *)   echo -n       ;;
     esac
     
+    trac-admin- permission list 
+    
 }
 
 
 tracperm-bitten(){
 
-  bitten-
-  SUDO=$SUDO bitten-enable 
+ 
+  trac-configure components:bitten.\*:enabled
 
   trac-admin- permission add blyth BUILD_ADMIN
   trac-admin- permission add authenticated BUILD_VIEW
@@ -129,8 +133,7 @@ tracperm-prepare-all(){
 
    for name in $(trac-instances)
    do
-      SUDO=$SUDO TRAC_INSTANCE=$name tracperm-prepare
-      SUDO=$SUDO TRAC_INSTANCE=$name trac-admin- permission list 
+      TRAC_INSTANCE=$name tracperm-prepare
    done
 
 }
