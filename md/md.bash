@@ -15,6 +15,10 @@ cat << EOU
        eg:
             md-typ tex -onlyin $HOME  
   
+  
+  md-betwixt
+        time range selection
+  
 
 EOU
 
@@ -23,6 +27,24 @@ EOU
 }
 
 
+
+md-betwixt(){
+
+  local x1="12:22:00"
+  local x2="12:25:00"
+
+  local tt="CreationDate"  
+  local day="2008-08-03"
+  local tz="+0800"
+
+  local t1="$day $x1 $tz"
+  local t2="$day $x2 $tz"
+  
+  local cmd="mdfind 'kMDItemFS$tt >= \$time.iso(\"$t1\") && kMDItemFS$tt <= \$time.iso(\"$t2\") '"
+  echo $cmd
+  eval $cmd
+
+}
 
 md-s(){
  
