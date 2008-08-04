@@ -13,13 +13,45 @@ enscript-usage(){
       
       enscript-cd/get/configure/make/install
 
+
+  Installing from source as yum not cooperating ...
+  
+
+
+== message from the configure ==
+   
+Enscript is now configured to your system with the following
+user-definable options.  Please, check that they are correct and
+match to your system's properties.
+
+Option     Change with configure's option   Current value
+---------------------------------------------------------
+Media      --with-media=MEDIA               A4
+Spooler    --with-spooler=SPOOLER           lpr
+PS level   --with-ps-level=LEVEL            2 
+      
+
+
 EOU
 
 }
 
 enscript-env(){
  elocal-
+ enscript-path
 }
+
+
+enscript-path(){
+  local bin=$(enscript-dir)/bin
+  [ -d $bin ] && env-prepend $bin
+}
+
+enscript-test(){
+  which enscript
+  enscript --help
+}
+
 
 enscript-name(){
   echo enscript-1.6.1
