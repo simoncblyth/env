@@ -16,6 +16,7 @@ tracperm-usage(){
   
        tracperm-prepare-all
              sets the permissions for all the instances    
+                 SUDO=sudo tracperm-prepare-all
   
        tracperm-prepare 
              sets permissions for a single instance, namely TRAC_INSTANCE
@@ -111,6 +112,9 @@ tracperm-prepare(){
 
 
 tracperm-bitten(){
+
+  bitten-
+  bitten-enable 
 
   trac-admin- permission add blyth BUILD_ADMIN
   trac-admin- permission add authenticated BUILD_VIEW
