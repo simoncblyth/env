@@ -121,7 +121,7 @@ trac-instance(){
      G) echo workflow ;;
      H) echo env      ;;
      P) echo env      ;;
-     C) echo dybsvn   ;;
+     C) echo env      ;;
      *) echo dybsvn   ;;
    esac
 }
@@ -142,7 +142,7 @@ trac-baseurl(){
       G) echo http://localhost ;;
       H) echo http://dayabay.phys.ntu.edu.tw ;;
       P) echo http://grid1.phys.ntu.edu.tw:8080 ;;
-      C) echo http://cms01.phys.ntu.edu.tw ;;
+      C) echo http://dayabay.phys.ntu.edu.tw ;;
       *) echo http://localhost ;;
    esac
 }
