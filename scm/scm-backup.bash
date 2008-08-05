@@ -19,9 +19,14 @@ cat << EOU
    scm-backup-all :   invokes the below 
       scm-backup-repo
       scm-backup-trac
+      scm-backup-folder   for the apache-confdir   
       scm-backup-purge   : retain the backups from the last 7 days only
       
    scm-recover-all
+   
+      NB the apache-confdir is not recovered, as is installation
+      specific, nevertheless tis important that the users file is
+      backed up
   
    scm-backup-rsync :   to the paired node   
 
@@ -129,6 +134,7 @@ scm-backup-all(){
 		fi
    done
    
+   scm-backup-folder conf $(apache-confdir) $base $stamp
    scm-backup-purge $LOCAL_NODE
 }
 
@@ -202,7 +208,7 @@ scm-backup-purge(){
 
   echo ======= scm-backup-purge =====   
 
-  for path in $SCM_FOLD/backup/$node/{tracs,repos}/* 
+  for path in $SCM_FOLD/backup/$node/{tracs,repos,folders}/* 
   do
      cd $path 
      
@@ -480,16 +486,12 @@ scm-backup-repo(){
    # 
    #  inside $target_fold , which must exist
    # 
-   #
-   #   $SYSTEM_BASE/svn/build/subversion-1.4.2/tools/backup/
-   #
-    
-       
+     
    local hot_backup=$(svn-hotbackuppath)      
    [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
                   			  	  
    local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/repos/$name && rm -f last && ln -s $stamp last "   
-   echo $cmd
+   echo $msg $cmd
    eval $cmd
    
    
@@ -532,8 +534,10 @@ scm-backup-trac(){
 	  trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
    fi	  
    
+   [ ! -x $trac_admin ] && echo $msg ABORT no trac_admin at $trac_admin && return 1
+   
    local cmd="mkdir -p $parent_fold && $trac_admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
-   echo $cmd
+   echo $msg $cmd
    eval $cmd 
    
    #
@@ -545,4 +549,31 @@ scm-backup-trac(){
    #    > .dump            dumps the database as SQL statements 
    # 
 }
+
+
+scm-backup-folder(){
+
+   local msg="=== $FUNCNAME :"
+      
+   local name=${1:-dummy}     ## 
+   local path=${2:-dummy}     ## absolute path of folder to be backed up 
+   local base=${3:-dummy}     ## backup folder
+   local stamp=${4:-dummy}    ## date stamp
+   
+   echo $msg name $name path $path base $base stamp $stamp ===
+   
+   [ "$name" == "dummy" ] &&  echo the name must be given && return 1 
+   [ ! -d "$path" ]       &&  echo ERROR path $path does not exist && return 1 
+   [ "$base" == "dummy" ] &&  echo the base must be given && return 1 
+   [ "$stamp" == "dummy" ] &&  echo the stamp must be given && return 1 
+   
+   local source_fold=$path
+   local target_fold=$base/folders/$name/$stamp
+
+   local cmd="mkdir -p $target_fold ; cd $source_fold ; rm -f $name.tar.gz ; tar -zcvf $name.tar.gz .  ; cp $name.tar.gz $target_fold/ && cd $base/folders/$name && rm -f last && ln -s $stamp last "
+   echo $msg $cmd
+   eval $cmd
+ 
+}
+
 
