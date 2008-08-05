@@ -100,6 +100,19 @@ svn-env(){
 }
 
 
+
+
+svn-hotbackuppath(){
+  svnbuild-
+  case ${1:-$NODE_TAG} in
+     G) echo $(local-base)/svn/tools/backup/hot-backup.py  ;;  ## as stock svn doesnt come with the tools
+     *) echo $(svnbuild-dir)/tools/backup/hot-backup.py    ;;
+  esac
+}
+
+
+
+
 svn-path(){
 
   local dirs="$SVN_HOME/lib/svn-python/svn $SVN_HOME/lib/svn-python/libsvn"

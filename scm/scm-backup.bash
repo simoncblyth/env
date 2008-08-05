@@ -480,14 +480,14 @@ scm-backup-repo(){
    # 
    #  inside $target_fold , which must exist
    # 
+   #
+   #   $SYSTEM_BASE/svn/build/subversion-1.4.2/tools/backup/
+   #
+    
        
-   local hot_backup		     
-   if [ -x "$LOCAL_BASE/svn/tools/backup/hot-backup.py" ]; then
-	 hot_backup=$LOCAL_BASE/svn/tools/backup/hot-backup.py
-   else
-	 hot_backup=$LOCAL_BASE/svn/build/subversion-1.4.0/tools/backup/hot-backup.py	
-   fi		
-			  	  
+   local hot_backup=$(svn-hotbackuppath)      
+   [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
+                  			  	  
    local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/repos/$name && rm -f last && ln -s $stamp last "   
    echo $cmd
    eval $cmd
