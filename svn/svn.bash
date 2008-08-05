@@ -54,25 +54,30 @@ svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; 
 svnsetup-(){      . $ENV_HOME/svn/svnconf/svnsetup.bash    && svnsetup-env $* ; }
 svnsync-(){       . $ENV_HOME/svn/svnsync/svnsync.bash     && svnsync-env  $* ; }
 
-
-
 svn-setupdir(){
-  echo $(apache-confdir)/svnsetup 
+  case ${1:-$NODE_TAG} in 
+     H) echo  $(apache-confdir)          ;;
+     G) echo  $(apache-confdir)/local    ;;
+     *) echo  $(apache-confdir)/svnsetup ;;
+  esac
 }
 
-svn-authzpath(){ 
+svn-authzname(){ 
   case ${1:-$NODE_TAG} in
-     H)  echo $(apache-confdir)/svn-apache2-authzaccess ;;
-     *)  echo $(svn-setupdir)/authz.conf ;;
+     H|G)  echo svn-apache2-authzaccess ;;
+       *)  echo authz.conf              ;;
   esac    
 }
 
-svn-userspath(){ 
+svn-usersname(){ 
   case ${1:-$NODE_TAG} in
-     H) echo $(apache-confdir)/svn-apache2-auth ;;
-     *) echo $(svn-setupdir)/users.conf         ;; 
+     H|G) echo svn-apache2-auth ;;
+       *) echo users.conf       ;; 
   esac   
 }
+
+svn-authzpath(){ echo $(svn-setupdir $*)/$(svn-authzname $*) ; }
+svn-userspath(){ echo $(svn-setupdir $*)/$(svn-usersname $*) ; }
 
 
 svn-env(){

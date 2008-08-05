@@ -120,8 +120,8 @@ scm-backup-all(){
           local name=$(basename $path)
           scm-backup-repo $name $path $base $stamp        
        else
-	      echo === scm-backup-all repo === skip non-folder $path 
-	   fi
+  	      echo === scm-backup-all repo === skip non-folder $path 
+  	   fi
    done
    
    for path in $SCM_FOLD/tracs/*
@@ -129,12 +129,17 @@ scm-backup-all(){
        if [ -d $path ]; then 
            local name=$(basename $path)
            scm-backup-trac $name $path $base $stamp  
-		else
-		   echo === scm-backup-all trac === skip non-folder $path
-		fi
+  		else
+  		   echo === scm-backup-all trac === skip non-folder $path
+  		fi
    done
    
-   scm-backup-folder conf $(apache-confdir) $base $stamp
+   svn-
+   
+   local dir=$(svn-setupdir)
+   local name=$(basename $dir)
+   scm-backup-folder $name $dir $base $stamp
+   
    scm-backup-purge $LOCAL_NODE
 }
 
@@ -167,7 +172,7 @@ scm-recover-all(){
              local name=$(basename $path)
              scm-recover-repo $name $path $dest
 		  else
-		     echo === scm-recover-all skip non-folder $path ... UNTESTED IF ... ===
+		     echo === scm-recover-all skip non-folder $path 
 		  fi   
 		  #
 		  #  eg:
@@ -181,6 +186,38 @@ scm-recover-all(){
 }
 
 
+scm-recover-folders(){
+  
+   local msg="=== $FUNCNAME :"
+   local fromnode=${1:-dummy}
+   [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1
+   
+   local base=$SCM_FOLD/backup/$fromnode/folders
+   for path in $base/*
+   do
+      if [ -d $path ]; then
+         local name=$(basename $path)
+         local dest=$(scm-recover-destination $name)
+         [ -z $dest ]   && echo $msg ABORT no destination for name $name path $path && return 1
+         
+             mkdir -p $dest   ## TESTING ONLY
+             
+         [ ! -d $dest ] && echo $msg ABORT dest $dest does not exist    && return 1  
+     
+         scm-recover-repo $name $path $dest 
+      else
+         echo $msg  skip non-folder $path  
+      fi
+  done
+
+}
+
+scm-recover-destination(){
+  case $1 in 
+         local|svnsetup|apache2) echo /tmp/$FUNCNAME/$(dirname $(svn-setupdir)) ;;
+  esac  
+  ## local name still in use on G, apache2 on H,  svnsetup elsewhere 
+}
 
 
 
@@ -397,8 +434,8 @@ scm-backup-sudouser(){
 scm-recover-repo(){
 
    local msg="=== $FUNCNAME :"
-   local name=${1:-dummy}   ## name of the repo
-   local path=${2:-dummy}   ## absolute path to the repo  
+   local name=${1:-dummy}   ## name of the backup
+   local path=${2:-dummy}   ## absolute path to backup folder containing the last link  
    local dest=${3:-dummy}   ## destination folder, usually $SCM_FOLD/repos OR $SCM_FOLD/tracs 
    
    [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
@@ -433,23 +470,27 @@ scm-recover-repo(){
          cd $dest 
          
          if [ -d "$name" ]; then
-            echo $msg the repository:$name is present already , must delete this before can recover 
+            echo $msg the repository/folder:$name is present already in dest $dest , must delete the $name folder before can recover 
             echo $msg stamp $stamp target_fold $target_fold ==== tgz $tgz ===== tgzname $tgzname
          else
              
-            echo $msg recovering repository $name from tarball $tgzpath $tgzname into $(pwd) sudouser:[$sudouser]
-            $sudouser cp $tgzpath .
-            $sudouser tar zxvf $tgzname.tar.gz
+            echo $msg recovering repository/folder $name from tarball $tgzpath $tgzname into $(pwd) sudouser:[$sudouser] SUDO:[$SUDO]
+            $SUDO cp $tgzpath .
+            $SUDO tar zxvf $tgzname.tar.gz
             
             ## document the recovery via a link to the backup tarball
-            $sudouser ln -s $tgzpath ${name}-scm-recover-repo
+            $SUDO ln -s $tgzpath ${name}-scm-recover-repo
             
             $SUDO rm -f $tgzname.tar.gz
             
+    
             ## svn tarballs have the revision number appended to their names
             if [ "$tgzname" != "$name" ]; then
-              $sudouser mv $tgzname $name
+              $SUDO mv $tgzname $name
             fi
+            
+            local user=$(apache-user)
+            $SUDO chown -R $user $tgzname 
             
          fi      
       else
@@ -457,6 +498,7 @@ scm-recover-repo(){
       fi 
    fi
 }
+
 
 
 
@@ -569,11 +611,15 @@ scm-backup-folder(){
    
    local source_fold=$path
    local target_fold=$base/folders/$name/$stamp
-
-   local cmd="mkdir -p $target_fold ; cd $source_fold ; rm -f $name.tar.gz ; tar -zcvf $name.tar.gz .  ; cp $name.tar.gz $target_fold/ && cd $base/folders/$name && rm -f last && ln -s $stamp last "
-   echo $msg $cmd
+   
+   local cmd="mkdir -p $target_fold ; cd $(dirname $source_fold) ; rm -f $name.tar.gz ; tar -zcvf $name.tar.gz $(basename $source_fold)  ; cp $name.tar.gz $target_fold/ && cd $base/folders/$name && rm -f last && ln -s $stamp last "
+   echo $msg "$cmd"
    eval $cmd
  
 }
+
+
+
+
 
 
