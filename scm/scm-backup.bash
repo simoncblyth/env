@@ -22,11 +22,18 @@ cat << EOU
       scm-backup-folder   for the apache-confdir   
       scm-backup-purge   : retain the backups from the last 7 days only
       
-   scm-recover-all
+   scm-recover-all  <fromnode>
    
-      NB the apache-confdir is not recovered, as is installation
+      NB the folders are not recovered by this, as is installation
       specific, nevertheless tis important that the users file is
       backed up
+  
+   scm-recover-folders <fromnode>
+       still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
+       
+       recovers the users and permissions files from the last backup
+  
+  
   
    scm-backup-rsync :   to the paired node   
 
@@ -397,7 +404,7 @@ scm-backup-rsync(){
    local target_tag=${1:-$BACKUP_TAG}   
   
    if [ "X$target_tag" == "X" ]; then
-      echo $msg ERROR no paired backup node has been defined for node $LOCAL_NODE
+      echo $msg ERROR no paired backup node has been defined for NODE_TAG $NODE_TAG do so in base/local.bash::local-backup-tag
    else
 	  local target_var=$(scm-backup-target $target_tag)
 	  local remote=$target_var/scm/backup 

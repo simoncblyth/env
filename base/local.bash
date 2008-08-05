@@ -6,15 +6,24 @@ cat << EOU
 
   These are used by most functions... and rarely need to be invoked directly by the user
 
-   local-nodetag   : glean which machine we are on and define a NODE_TAG and paired backup node BACKUP_TAG
+   local-nodetag     :  $(local-nodetag)
+   local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
+   local-backup-tag  :  $(local-backup-tag)      paired backup node
+   local-system-base :  $(local-system-base)      
+   local-base        :  $(local-base)
+   local-var-base    :  $(local-var-base)
+   local-scm-fold    :  $(local-scm-fold)
+   local-tag2node    :  $(local-tag2node)
+   
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
    local-layout    : set standard disk location variables 
    
-                            LOCAL_BASE    : $LOCAL_BASE
-							SYSTEM_BASE   : $SYSTEM_BASE     system tools like svn 
-							VAR_BASE      : $VAR_BASE 
-							USER_BASE     : $USER_BASE
-							OUTPUT_BASE   : $OUTPUT_BASE
+     NODE_TAG      : $NODE_TAG
+     LOCAL_BASE    : $LOCAL_BASE
+     SYSTEM_BASE   : $SYSTEM_BASE     system tools like svn
+     VAR_BASE      : $VAR_BASE 
+     USER_BASE     : $USER_BASE
+     OUTPUT_BASE   : $OUTPUT_BASE
                                 
 
 
@@ -35,9 +44,10 @@ local-env(){
    local msg="=== $FUNCNAME :"
    
    [ "$dbg" == "1" ] && echo $msg	 
-   ## if NODE is set use that otherwise determine from uname  
    
    export LOCAL_ARCH=$(uname)
+   
+    ## if NODE is set use that otherwise determine from uname 
    if [ "X$NODE" == "X" ]; then
        LOCAL_NODE=$(uname -a | cut -d " " -f 2 | cut -d "." -f 1)	 
    else
@@ -48,7 +58,10 @@ local-env(){
    export SOURCE_TAG="G"
 
 
-   local-nodetag    # glean where we are and define NODE_TAG and paired  BACKUP_TAG
+   export NODE_TAG=$(local-nodetag)       # glean where we are and define NODE_TAG
+   export BACKUP_TAG=$(local-backup-tag)  # paired backup for the NODE_TAG 
+   export SUDO=$(local-sudo)
+
    local-scm        # assign coordinates of the SCM server for this node
    local-layout     # define variables such as LOCAL_BASE, VAR_BASE, USER_BASE  
    
@@ -64,8 +77,66 @@ local-userprefs(){
 }
 
 
-
 local-nodetag(){
+
+  case ${1:-$LOCAL_NODE} in
+         g4pb) echo G ;;
+        grid1) echo G1 ;;
+         coop) echo CO ;;
+        cms01) echo C ;;
+      gateway) echo B ;;
+         g3pb) echo G ;;
+          pal) echo L ;;
+         hfag) local-nodetag-hfag $USER ;;
+  thho-laptop) echo T ;;
+ thho-desktop) echo T ;;
+        hkvme) echo HKVME ;;
+        grid1) local-nodetag-grid1 $USER ;;
+            *) local-nodetag-other $(uname -n) ;;
+  esac
+
+}
+
+
+local-nodetag-hfag(){
+   case ${1:-$USER} in
+      blyth) echo H ;;
+      exist) echo X ;;
+          *) echo U ;;
+   esac
+}
+
+local-nodetag-grid1(){
+   case ${1:-$USER} in 
+     dayabaysoft) echo P ;;
+               *) echo G1 ;;
+   esac
+}
+
+local-nodetag-other(){
+   local host=${1:-$(uname -n)}
+   if  [ "${host:0:6}" == "albert" ]; then   
+        echo G1
+   elif [ "${host:0:2}" == "pc" ]; then   
+       echo N 
+   elif [ "$host" == "localhost.localdomain" ]; then
+       local-nodetag-xinchun    
+   else
+       echo U
+   fi
+}
+
+local-nodetag-xinchun(){
+   case $USER in
+     blyth) echo XT ;;
+         *) echo XX ;;
+   esac
+}
+
+
+
+
+local-nodetag-deprecated(){
 
 
    ## one letter code that represents the user and node
@@ -92,9 +163,6 @@ if [ "X${_CONDOR_SCRATCH_DIR}" != "X" ]; then
 elif [ "$LOCAL_NODE" == "g4pb" ]; then
 
    NODE_TAG="G"
-   BACKUP_TAG="G3"
-   SUDO="sudo"
-
 
 elif [ "$LOCAL_NODE" == "coop" ]; then
 
@@ -111,8 +179,6 @@ elif [ "$LOCAL_NODE" == "gateway" ]; then
 elif [ "$LOCAL_NODE" == "g3pb" ]; then
 
    NODE_TAG="G"
-   BACKUP_TAG="U"
-   SUDO="sudo"
    
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
@@ -144,26 +210,18 @@ elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
 elif (      [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
-   #BACKUP_TAG="P"
-   BACKUP_TAG="C"
-   SUDO="sudo"
    
 elif (      [ "$USER" == "root" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="H"
-   BACKUP_TAG="P"
-   SUDO=""
 
 elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-laptop" ]); then
 
    NODE_TAG="T"
-   SUDO="sudo"
-
 
 elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-desktop" ]); then
 
    NODE_TAG="T"
-   SUDO="sudo"
 
 elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "hkvme" ]); then
 
@@ -173,7 +231,6 @@ elif (      [ "$USER" == "exist" ] && [ "$LOCAL_NODE" == "hfag" ]); then
 
    NODE_TAG="X"
  
-     
 elif (     [ "$(uname -n)" == "localhost.localdomain" ]); then
 
    NODE_TAG="XT" 
@@ -184,12 +241,17 @@ else
 
 fi
 
-export NODE_TAG
-export BACKUP_TAG
+
+## these are deprecated
 export CLUSTER_TAG
-export SUDO
 export NODE_NAME
 export BATCH_TYPE
+
+## these are in heavy usage
+export NODE_TAG
+export BACKUP_TAG=$(local-backup-tag)
+export SUDO=$(local-sudo)
+
 
 
 ########## TARGET_* specify the remote machine coordinates #####################
@@ -207,10 +269,32 @@ export BATCH_TYPE
 }
 
 
+local-sudo(){
+  case ${1:-$NODE_TAG} in
+  G|H|T) echo sudo ;;
+      *) echo -n ;
+  esac
+}
+
+
+local-backup-tag(){
+   case ${1:-$NODE_TAG} in 
+      G) echo G3 ;;
+      H) echo C  ;;
+      C) echo P  ;;
+      *) echo U ;;
+   esac  
+}
+
+
+
 local-tag2node(){
-  case $1 in 
-     H) echo hfag ;;
+  case ${1:-$NODE_TAG} in 
+     H) echo hfag  ;;
      C) echo cms01 ;;
+     P) echo grid1 ;;
+    G3) echo g3pb ;;
+     G) echo g4pb ;; 
      *) echo unknown ;; 
   esac
 }
