@@ -81,6 +81,7 @@ host B
 	
 host C
     hostname 140.112.101.190
+    protocol 2 
               	     
 host G3R
     hostname g3pb.ath.cx

@@ -280,17 +280,9 @@ scm-backup-purge(){
 }
 
 scm-backup-rls(){
-
-   local target_tag=${1:-$BACKUP_TAG}
-   
-   if [ "X$target_tag" == "X" ]; then
-      echo no paired backup node has been defined for node $LOCAL_NODE
-   else
-   
-     local target_var=$(scm-backup-target $target_tag)
-     local remote=$target_var/scm/backup 
-	 ssh $target_tag "find $remote -name '*.gz' -exec du -hs {} \;"
-  fi
+   local tag=${1:-$BACKUP_TAG}
+   [ -z $tag ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
+   ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \;"
 }
 
 
@@ -323,6 +315,9 @@ scm-backup-target(){
    fi
    echo $target_var
 }
+
+
+
 
 
 scm-backup-dir(){
@@ -406,8 +401,7 @@ scm-backup-rsync(){
    if [ "X$target_tag" == "X" ]; then
       echo $msg ERROR no paired backup node has been defined for NODE_TAG $NODE_TAG do so in base/local.bash::local-backup-tag
    else
-	  local target_var=$(scm-backup-target $target_tag)
-	  local remote=$target_var/scm/backup 
+      local remote=$(local-scm-fold $target_tag)/backup 
 	  local source=$SCM_FOLD/backup/$LOCAL_NODE
  
       ssh $target_tag "mkdir -p  $remote"
