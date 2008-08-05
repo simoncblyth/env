@@ -62,10 +62,10 @@ host I
 host XT
     user blyth
     hostname localhost
+    protocol 2 
     port 8080
     
-                                                
-                                     
+            
 host VT
     #
     user hmmm
@@ -114,13 +114,15 @@ host H1
 	hostname 140.112.101.41
 host H
     user blyth
+    protocol 2 
     hostname 140.112.101.48
 host X
     hostname 140.112.101.48
 	user exist
 host P 
     hostname 140.112.102.250
-    user dayabaysoft 
+    user dayabaysoft
+    protocol 2 
 	ForwardX11 yes
 $c	ForwardX11Trusted yes
 host T
