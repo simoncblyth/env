@@ -301,32 +301,9 @@ scm-backup-mail(){
 }
 
 
-
-
-scm-backup-target(){
-   local target_tag=${1:-$BACKUP_TAG}
-   if [ "$target_tag" != "$BACKUP_TAG" ]; then 
-      local vname=VAR_BASE_$target_tag 
-      eval _VAR_BASE_BACKUP=\$$vname
-      target_var=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
-      #echo ======== scm-backup-rsync to non-default target_tag:$target_tag  target_var:$target_var
-   else
-      target_var=$VAR_BASE_BACKUP
-   fi
-   echo $target_var
-}
-
-
-
-
-
 scm-backup-dir(){
-   local tag=${1:-H}
-   local node=$(local-tag2node $tag)
-   local dir=$(local-scm-fold $tag)/backup  
-   echo $dir
+   echo $(local-scm-fold ${1:-$NODE_TAG})/backup  
 }
-
 
 scm-backup-rsync-from-node(){
 
@@ -396,22 +373,20 @@ scm-backup-rsync(){
    #
 
    local msg="=== $FUNCNAME :" 
-   local target_tag=${1:-$BACKUP_TAG}   
+   local tag=${1:-$BACKUP_TAG}   
   
-   if [ "X$target_tag" == "X" ]; then
-      echo $msg ERROR no paired backup node has been defined for NODE_TAG $NODE_TAG do so in base/local.bash::local-backup-tag
-   else
-      local remote=$(local-scm-fold $target_tag)/backup 
-	  local source=$SCM_FOLD/backup/$LOCAL_NODE
+   [ -z $tag ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+  
+   local remote=$(scm-backup-dir $tag) 
+   local source=$(scm-backup-dir)/$LOCAL_NODE
  
-      ssh $target_tag "mkdir -p  $remote"
-      
-      echo $msg transfer $source to $target_tag:$remote/ 
-      local cmd1="rsync --delete-after -razvt $source $target_tag:$remote/ "
-      echo $msg $cmd1
-      eval $cmd1
+   ssh $tag "mkdir -p  $remote"
+   echo $msg transfer $source to $tag:$remote/ 
+   local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
+   echo $msg $cmd
+   eval $cmd
 
-   fi 
 }
 
 
