@@ -18,8 +18,21 @@ svnsetup-usage(){
      use with ... 
          SUDO=sudo svnsetup-apache 
 
-     Or for just authz updates ... the usual change
-         SUDO=sudo svnsetup-authz-update
+     Or for just authz updates ... the usual change on adding new users :
+     
+        1) modify svn/svnconf/authz.bash giving appropriate permissions to the new
+           usernames
+        2) update the authz file
+              svn-
+              svnsetup-
+              SUDO=sudo svnsetup-authz-update
+        3) add corresponding users thru the trac AccountManager  
+
+
+
+
+
+
 
 
      svnsetup-tracs <path/to/tracs.conf>
@@ -29,6 +42,22 @@ svnsetup-usage(){
            writes to /tmp/env/svnsetup/{tracs,repos,authz}.conf 
            if a path is given then copies the temporary to it using 
            SUDO:$SUDO
+           
+           
+           authz could potentially be managed by a trac plugin
+           
+            (extremely simple approach, just editing file thru web interface
+              ... so simple almost not worth doing, just edit the file with 
+              the function is more traceable
+            )
+               http://www.trac-hacks.org/wiki/TracSvnAuthzPlugin
+            (involved approach, must be parsing the file
+              .... to get it working on 0.11 would have to diddle with multiple
+              patches
+              )    
+               http://www.trac-hacks.org/wiki/SvnAuthzAdminPlugin            
+           
+           
            
      svnsetup-tracs-
      svnsetup-repos-
