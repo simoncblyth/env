@@ -156,10 +156,17 @@ echo vi $HOME/.subversion/config
 }
 
 
+svn-repo-dirname(){
+  case ${1:-$NODE_TAG} in
+     XX) echo svn ;;
+      *) echo repos ;;
+  esac    
+}
+
 
 svn-repo-path(){
    local name=${1:-dummy}
-   echo $SCM_FOLD/repos/$name
+   echo $SCM_FOLD/$(svn-repo-dirname)/$name
 }
 
 svn-create(){

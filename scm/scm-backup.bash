@@ -495,7 +495,7 @@ scm-backup-repo(){
    [ "$base" == "dummy" ]  &&  echo $msg ERROR the base must be given && return 1 
    [ "$stamp" == "dummy" ] &&  echo $msg ERROR the stamp must be given && return 1 
    
-   local target_fold=$base/repos/$name/$stamp
+   local target_fold=$base/$(svn-repo-dirname)/$name/$stamp
    #   
    #  
    # hot-copy.py creates tgzs like : 
@@ -508,7 +508,7 @@ scm-backup-repo(){
    local hot_backup=$(svn-hotbackuppath)      
    [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
                   			  	  
-   local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/repos/$name && rm -f last && ln -s $stamp last "   
+   local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/$(svn-repo-dirname)/$name && rm -f last && ln -s $stamp last "   
    echo $msg $cmd
    eval $cmd
    
