@@ -189,7 +189,12 @@ trac-user(){
 
 trac-major(){   echo ${TRAC_VERSION:0:4} ; }
 trac-envpath(){ echo $SCM_FOLD/tracs/${1:-$TRAC_INSTANCE} ; }
-trac-repopath(){ echo $SCM_FOLD/repos/${1:-$TRAC_INSTANCE} ; }
+trac-repopath(){ 
+   case $NODE_TAG in 
+      XX) echo $SCM_FOLD/svn/${1:-$TRAC_INSTANCE} ;; 
+       *) echo $SCM_FOLD/repos/${1:-$TRAC_INSTANCE} ;; 
+   esac
+}
 trac-logpath(){ echo $(trac-envpath $*)/log/trac.log ; }
 trac-inipath(){ echo $(trac-envpath $*)/conf/trac.ini ; }
 trac-pkgpath(){ echo $ENV_HOME/trac/package ; }

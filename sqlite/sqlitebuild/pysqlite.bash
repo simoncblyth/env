@@ -36,6 +36,7 @@ pysqlite-name(){
 pysqlite-home(){
    case $NODE_TAG in 
       H) echo $(local-base)/pysqlite/$(pysqlite-name) ;;
+     XX) echo $(local-system-base)/pysqlite/$(pysqlite-name) ;;
       *) echo $(local-system-base)/pysqlite/$(pysqlite-name) ;;
    esac
 }
@@ -43,6 +44,7 @@ pysqlite-home(){
 pysqlite-builddir(){
     case $NODE_TAG in 
        H) echo $(local-base)/pysqlite/build/$(pysqlite-name) ;;
+      XX) echo $(local-system-base)/pysqlite/build/$(pysqlite-name) ;;
        *) echo $(local-system-base)/pysqlite/build/$(pysqlite-name) ;;
     esac
 }

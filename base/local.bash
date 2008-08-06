@@ -18,6 +18,9 @@ cat << EOU
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
    local-layout    : set standard disk location variables 
    
+
+    NODE_TAG_OVERRIDE : $NODE_TAG_OVERRIDE
+     
      NODE_TAG      : $NODE_TAG
      LOCAL_BASE    : $LOCAL_BASE
      SYSTEM_BASE   : $SYSTEM_BASE     system tools like svn
@@ -77,8 +80,20 @@ local-userprefs(){
 }
 
 
-local-nodetag(){
 
+local-tag2node(){
+  case ${1:-$NODE_TAG} in 
+     H) echo hfag  ;;
+     C) echo cms01 ;;
+     P) echo grid1 ;;
+    G3) echo g3pb ;;
+     G) echo g4pb ;; 
+     *) echo unknown ;; 
+  esac
+}
+
+local-nodetag(){
+  [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
          g4pb) echo G ;;
         grid1) echo G1 ;;
@@ -96,6 +111,8 @@ local-nodetag(){
   esac
 
 }
+
+
 
 
 local-nodetag-hfag(){
@@ -288,16 +305,6 @@ local-backup-tag(){
 
 
 
-local-tag2node(){
-  case ${1:-$NODE_TAG} in 
-     H) echo hfag  ;;
-     C) echo cms01 ;;
-     P) echo grid1 ;;
-    G3) echo g3pb ;;
-     G) echo g4pb ;; 
-     *) echo unknown ;; 
-  esac
-}
 
 
 
@@ -424,6 +431,7 @@ export SYSTEM_BASE_P=$grid1_system_base
 export SYSTEM_BASE_G1=$grid1_system_base
 export SYSTEM_BASE_C=/data/env/system
 export SYSTEM_BASE_XT=/home/blyth/system
+export SYSTEM_BASE_XX=/usr/local
 
 local-system-base(){
    local tag=${1:-$NODE_TAG} 
@@ -445,6 +453,7 @@ local-var-base(){
      G1) echo /disk/d3/var ;;
       N) echo $HOME/var ;;
      XT) echo $HOME/var ;; 
+     XX) echo /home ;; 
       *) echo /var ;; 
    esac
 }
