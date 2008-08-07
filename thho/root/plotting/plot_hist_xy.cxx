@@ -30,69 +30,70 @@
 //gROOT->Reset();
 
 // the input data readout channel No.
-#define CHANNEL 0
-#define PLOTPOINT 7
+//#define CHANNEL 0
+#define PLOTPOINT 6
 
 using namespace std;
 
 struct dataPara {
 Int_t iset;
-Float_t rms[7];
-Float_t mean[7];
+Float_t rms[PLOTPOINT];
+Float_t mean[PLOTPOINT];
 };
 
-void ScanData(dataPara *pd){
+void ScanData(dataPara *pd, Int_t channelcheck){
 
-   FILE* pipe = gSystem->OpenPipe("ls TDC*00" , "r" );
+   FILE* pipe = gSystem->OpenPipe("ls TDC*" , "r" );
 
    TString path ;
 
    Int_t i = 0;
    while( path.Gets(pipe) ){
 	  cout << endl << path << endl;
-	  ReadData(path,i,pd);
+	  ReadData(path,i,pd,channelcheck);
 	  i++;
    }
 
    //gSystem->Exit( gSystem->ClosePipe( pipe ));
 }
 
-void plot_hist_xy(void) {
+void plot_hist_xy(Int_t channelcheck) {
 
 	TCanvas *canvas = new TCanvas("canvas","counts v.s. input",200,10,700,500);
-	TH1F *frame = canvas->DrawFrame(0,0,300,4500);
+	TH1F *frame = canvas->DrawFrame(0,0,500,4500);
 	frame->SetYTitle("Counts");
 	frame->SetXTitle("ns");
 
 	gStyle->SetOptFit(0111);
 	//TFile* file = new TFile("tmp.root", "recreate");
-	ReadAndPlot();
+	ReadAndPlot(channelcheck);
 
 
 	
 }
 
-void ReadAndPlot(void) {
+void ReadAndPlot(Int_t channelcheck) {
 
 	dataPara pdata;
 	
-	ScanData(&pdata);
+	ScanData(&pdata, channelcheck);
 
 	Float_t scopeData[PLOTPOINT], scopeDataRMS[PLOTPOINT];
 	ReadScopeData(scopeData,scopeDataRMS);
 	
-	TGraphErrors *gr = new TGraphErrors(7,scopeData,pdata.mean,scopeDataRMS,pdata.rms);
+	TGraphErrors *gr = new TGraphErrors(PLOTPOINT,scopeData,pdata.mean,scopeDataRMS,pdata.rms);
 	gr->Fit("pol1");
-	gr->SetLineColor(3);
+	gr->SetLineColor(1);
+	gr->SetMarkerColor(3);
 	gr->SetMarkerStyle(3);
 	gr->Draw("P");
-	return gr;
+	//return gr;
 
 }
 
-void ReadData(TString file, Int_t ifile, dataPara *pdata) {
+void ReadData(TString file, Int_t ifile, dataPara *pdata, Int_t channelcheck) {
 
-	TH1F *h = new TH1F("h","channel",3501,0,3500);
+	TH1F *h = new TH1F("h","channel",4001,0,4000);
 	
 	ifstream inputSizeFile,inputDataFile;
 	inputSizeFile.open(file);
@@ -115,7 +116,7 @@ void ReadData(TString file, Int_t ifile, dataPara *pdata) {
 	while(1) {
 		Float_t i,j;
 		inputDataFile >> i >> j;
-		if(i==CHANNEL) h->Fill(j);
+		if(i==channelcheck) h->Fill(j);
 		if(!inputDataFile.good()) break;
 	}
 	inputDataFile.close();
@@ -131,15 +132,16 @@ void ReadData(TString file, Int_t ifile, dataPara *pdata) {
 }
 
 void ReadScopeData(Float_t scopeData[], Float_t scopeDataRMS[]) {	
-	scopeData[0] = 174;
-	scopeData[1] = 142;
-	scopeData[2] = 126;
-	scopeData[3] = 158;
-	scopeData[4] = 96;
-	scopeData[5] = 64;
-	scopeData[6] = 32.8;
+	scopeData[0] = 250;
+	scopeData[1] = 300;
+	scopeData[2] = 350;
+	scopeData[3] = 400;
+	scopeData[4] = 450;
+	scopeData[5] = 200;
 
-	for(Int_t i=0;i<7;i++) {
+	Int_t ini = PLOTPOINT;
+	
+	for(Int_t i=0;i<ini;i++) {
 	scopeDataRMS[i] = 0;
 	}
 }
