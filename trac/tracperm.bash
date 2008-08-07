@@ -103,7 +103,7 @@ tracperm-prepare(){
         echo "ERROR security level $level is not implemented "
     fi            
      
-    tracperm-set blyth TRAC_ADMIN   ## TRAC_ADMIN means all permisssions 
+    tracperm-set $(trac-administrator) TRAC_ADMIN   ## TRAC_ADMIN means all permisssions 
         
     case $TRAC_INSTANCE in        
        env|dybsvn|workflow) tracperm-bitten ;;
@@ -120,7 +120,9 @@ tracperm-bitten(){
  
   trac-configure components:bitten.\*:enabled
 
-  trac-admin- permission add blyth BUILD_ADMIN
+ 
+
+  trac-admin- permission add $(trac-administrator) BUILD_ADMIN
   trac-admin- permission add authenticated BUILD_VIEW
   trac-admin- permission add authenticated BUILD_EXEC
 

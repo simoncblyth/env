@@ -202,6 +202,14 @@ trac-pkgpath(){ echo $ENV_HOME/trac/package ; }
 trac-inheritpath(){ echo $SCM_FOLD/conf/trac.ini ; }  
 
 
+trac-administrator(){
+   case $NODE_TAG in 
+      XX) echo tianxc ;;
+       *) echo blyth ;;
+   esac
+}
+
+
 trac-tail(){ tail -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
