@@ -398,7 +398,7 @@ export DAYABAY_G1=$DISK_G1/dayabay
 ## --------------  the software root for most everything ---------------------------
 ##  
 
-export LOCAL_BASE_U=/tmp
+export LOCAL_BASE_U=/usr/local
 export LOCAL_BASE_G=/usr/local
 
 ## export LOCAL_BASE_P=/disk/d4/dayabay/local   ## rozz testing 

@@ -144,7 +144,7 @@ svnbuild-swigpy(){
   cd $(svnbuild-dir)
   
   case $NODE_TAG in 
-     P|H|XT) svnbuild-krb-gssapi-kludge ;;
+     P|H|XT|XX) svnbuild-krb-gssapi-kludge ;;
           *) echo -n ;;
   esac
   
