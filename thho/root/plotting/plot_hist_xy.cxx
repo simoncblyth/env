@@ -14,14 +14,20 @@
 //					
 //			> root
 //			.L plot_hist_x_y.C
-//			.x main( the x value of x-y)
+//			plot_hist_x_y.C( the channel value)
 //			
+//
 //			then root will plot input data
-//			histogram and x-y graph. y derived
-//			from the histogram
+//			histogram and x-y graph by scanning the dir.
+//			 y derived from the histogram
+//
+//			 once the channel value is what you want,
+//			 counts would be y value.
+//			 specify x value with modifying ReadScopeData
 //
 //			What shold be modified:
 //				CHANNEL
+//				PLOTPOINT
 //				TGraphErrors *gra = ReadAndPlot("00");
 //				void ReadScopeData
 //
