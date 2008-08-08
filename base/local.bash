@@ -136,7 +136,7 @@ local-nodetag-other(){
         echo G1
    elif [ "${host:0:2}" == "pc" ]; then   
        echo N 
-   elif [ "$host" == "localhost.localdomain" ]; then
+   elif [ "$host" == "dayabay.ihep.ac.cn" ]; then
        local-nodetag-xinchun    
    else
        echo U
@@ -197,6 +197,10 @@ elif [ "$LOCAL_NODE" == "g3pb" ]; then
 
    NODE_TAG="G"
    
+elif [ "$LOCAL_NODE" == "dayabay" ]; then
+
+   NODE_TAG="XX"
+
 elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
 
    NODE_TAG="P"

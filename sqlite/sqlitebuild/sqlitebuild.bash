@@ -32,7 +32,7 @@ sqlitebuild-get(){
     local msg="=== $FUNCNAME :"
     local nam=$SQLITE_NAME
     local tgz=$nam.tar.gz
-    local url=http://www.sqlite.org/$tgz
+    local url=http://www.sqlite.com.cn/Upfiles/sqlite/$tgz
 
     cd $SYSTEM_BASE
     mkdir -p sqlite
