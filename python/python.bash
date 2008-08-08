@@ -78,8 +78,11 @@ python-env(){
 }
 
 
-
 python-site(){
+  python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+}
+
+python-site-deprecated(){
   case $NODE_TAG in 
     G) echo /Library/Python/2.5/site-packages ;;
     *) python-site- ;;

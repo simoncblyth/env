@@ -74,4 +74,76 @@ bash-nargs(){
    echo $# 
 }
 
+
+
+bash-getopts-wierdness(){
+
+
+cat <<  EOW
+
+In a fresh shell this works once only ....
+
+simon:base blyth$ . bash.bash  
+simon:base blyth$ bash-getopts -r -x red greed blu
+OPTFIND
+after opt parsing red greed blu
+dummy=-x
+rebuild=-r
+
+
+simon:base blyth$ bash-getopts -r -x red greed blu
+OPTFIND
+after opt parsing red greed blu
+dummy=
+rebuild=
+
+EOW
+
+}
+
+
+
+bash-getopts(){
+
+   # http://www.linux.com/articles/113836
+
+   #
+   #  The options must come first ...
+   #       bash-getopts -r red green blue
+   # 
+   #  otherwise they are ignored 
+   #        bash-getopts red green blue -r 
+   #
+
+
+   echo raw args \$@:$@  \$*:$* 
+
+
+   local rebuild=""
+   local dummy=""
+
+
+   ## leading colon causes error messages not ro be skipped
+   local o
+   while getopts "rx" o ; do      
+      case $o in
+        r) rebuild="-r";;
+        x) dummy="-x" ;;
+      esac
+   done
+
+
+
+   echo OPTFIND $OPTFIND
+   shift $((${OPTIND}-1))
+
+   env | grep OPT
+
+   echo after opt parsing   $@
+   local
+}
+
+
+
+
 #echo BASH_SOURCE $BASH_SOURCE 
