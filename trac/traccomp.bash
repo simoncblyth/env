@@ -58,6 +58,7 @@ traccomp-add(){
         local field=0
         local name=""
         local owner=""
+       
         
         for wd in $line ; do 
            if [ "$wd" == ":" ]; then
@@ -71,6 +72,9 @@ traccomp-add(){
            fi 
         done
         [ -z "$owner" ] && owner=$(traccomp-default-owner)
+        
+         echo $msg $line ===\> owner [$owner] name [$name]
+        
         [ -z "$name" -o "$name" == " " ] ||  \
               $SUDO trac-admin $(TRAC_INSTANCE=dybsvn trac-envpath) component add  "$name" $owner
         

@@ -7,7 +7,8 @@ nuwacomp-usage(){
             an owner
             
                 nuwacomp-list $SITEROOT >  nuwacomp.txt
-                traccomp-add nuwacomp.txt
+                
+                 SUDO=sudo traccomp-add nuwacomp.txt 
                 
                
 EOU
