@@ -75,6 +75,36 @@ traccomp-add(){
         SUDO=sudo trac-admin- component add "$name" $owner
    done 
 
-   
+}
+
+
+traccomp-owner(){
+   local owner=$(svn propget owner $1 2>/dev/null) 
+   [ -n "$owner" ] && owner=": $owner"
+   echo $owner
+}
+
+traccomp-from-wc(){
+
+    local path=$1
+    local proj=$(basename $path)
+    
+    echo 
+    echo $proj / $(traccomp-owner $path) 
+    [ -n "$TRACCOMP_BRIEF" ] && return 0
+    
+    local iwd=$PWD
+    cd $path
+    for name in $(ls -1) ; do
+           case $name in 
+     cmt|InstallArea)  echo -n  ;;
+                   *) [ -d $name ]  && echo $proj / $name $(traccomp-owner $name)   ;; 
+            
+           esac
+    done
+    cd $iwd
 
 }
+
+
+
