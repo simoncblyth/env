@@ -7,13 +7,11 @@ nuwacomp-usage(){
             an owner
             
                 nuwacomp-list $SITEROOT >  nuwacomp.txt
-            
-            
-   
+                traccomp-add nuwacomp.txt
+                
+               
 EOU
 
-
- 
 
 }
 
@@ -25,7 +23,7 @@ nuwacomp-env(){
 
 nuwacomp-list(){
 
-  local base=${1:-$NUWA_HOME}
+  local base=${1:-$SITEROOT}
 
   cat << EOH
 
@@ -56,7 +54,7 @@ EOH
 
 
 nuwacomp-projs(){
-   local home=${1:-$NUWA_HOME}
+   local home=${1:-$SITEROOT}
    local iwd=$PWD
    cd $home
    local name

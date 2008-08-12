@@ -71,8 +71,7 @@ traccomp-add(){
            fi 
         done
         [ -z "$owner" ] && owner=$(traccomp-default-owner)
-        
-        SUDO=sudo trac-admin- component add "$name" $owner
+        [ -z "$name" -o "$name" == " " ] && echo skip || SUDO=sudo TRAC_INSTANCE=dybsvn trac-admin- component add "$name" $owner
    done 
 
 }
