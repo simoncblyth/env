@@ -90,8 +90,6 @@ dyb-env(){
 dyb_hookup(){
 
     local ddr=$1
-    
-    #local dyb__=$ddr/dybgaudi/Utilities/Shell/bash/dyb__.sh 
     local dyb__=$ddr/dybgaudi/DybTest/scripts/dyb__.sh
     local bitrun=$ddr/dybgaudi/DybTest/scripts/bitrun.bash
     
