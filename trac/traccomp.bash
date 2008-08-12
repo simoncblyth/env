@@ -79,10 +79,6 @@ traccomp-add(){
 
 }
 
-traccomp-addcomp(){
-
-    
-}
 
 traccomp-owner(){
    local owner=$(svn propget owner $1 2>/dev/null) 
