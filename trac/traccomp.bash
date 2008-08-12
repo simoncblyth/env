@@ -71,11 +71,18 @@ traccomp-add(){
            fi 
         done
         [ -z "$owner" ] && owner=$(traccomp-default-owner)
-        [ -z "$name" -o "$name" == " " ] && echo skip || SUDO=sudo TRAC_INSTANCE=dybsvn trac-admin- component add "$name" $owner
+        [ -z "$name" -o "$name" == " " ] ||  \
+              $SUDO trac-admin $(TRAC_INSTANCE=dybsvn trac-envpath) component add  "$name" $owner
+        
+        ## trac-admin- and arguments with spaces cause problems 
    done 
 
 }
 
+traccomp-addcomp(){
+
+    
+}
 
 traccomp-owner(){
    local owner=$(svn propget owner $1 2>/dev/null) 
