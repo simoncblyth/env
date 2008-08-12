@@ -1,0 +1,80 @@
+
+General /
+
+Infrastructure / 
+Infrastructure / Mailing Lists : cetull
+Infrastructure / Official IHEP Web Site : mwang
+Infrastructure / BNL Wikis : bv
+Infrastructure / SVN : tianxc
+Infrastructure / Trac : blyth
+
+Installation /
+Installation / Debian : bv
+Installation / Mac OS X : dandwyer
+Installation / Scientific Linux : patton
+
+
+dybgaudi /
+dybgaudi / Control
+dybgaudi / Database
+dybgaudi / DataModel
+dybgaudi / Detector
+dybgaudi / Digitization
+dybgaudi / Documentation
+dybgaudi / DybExamples
+dybgaudi / DybKernel
+dybgaudi / DybPolicy
+dybgaudi / DybRelease
+dybgaudi / DybSvc
+dybgaudi / DybTest : blyth
+dybgaudi / Event
+dybgaudi / External
+dybgaudi / Generators
+dybgaudi / RootIO
+dybgaudi / Simulation
+dybgaudi / Utilities
+dybgaudi / Validation
+
+gaudi /
+gaudi / Gaudi
+gaudi / GaudiAlg
+gaudi / GaudiAud
+gaudi / GaudiExamples
+gaudi / GaudiGSL
+gaudi / GaudiKernel
+gaudi / GaudiMonitor
+gaudi / GaudiObjDesc
+gaudi / GaudiPolicy
+gaudi / GaudiPoolDb
+gaudi / GaudiPython
+gaudi / GaudiRelease
+gaudi / GaudiSiteSvc
+gaudi / GaudiSvc
+gaudi / GaudiSys
+gaudi / GaudiUtils
+gaudi / HbookCnv
+gaudi / PartPropSvc
+gaudi / RootHistCnv
+
+lcgcmt /
+
+ldm /
+
+lhcb /
+lhcb / Det
+lhcb / Dyb
+lhcb / DybDetRelease
+lhcb / Event
+lhcb / GaudiConf
+lhcb / GaudiObjDesc
+lhcb / GaussSys
+lhcb / Kernel
+lhcb / LHCbSys
+lhcb / PanoramixSys
+lhcb / Sim
+lhcb / Tools
+lhcb / Vis
+
+relax /
+
+tutorial /
