@@ -86,6 +86,23 @@ cat << EOU
          this is poorly named trac-configure-all would be more appropriate
  
  
+ 
+    trac-setbanner  <path-to-banner>    
+          Path defaults to \$(trac-bannerpath) : $(trac-bannerpath)
+          
+          Copies the banner to the environment htdocs directory, 
+          and configures trac.ini to use it via the header_logo block
+          using a "site" url prefix which refers to the environment 
+          htdocs dir.
+          
+          The default banner is  common/trac_banner.png  236x73 pixels
+ 
+          Target non-default instance with :
+              TRAC_INSTANCE=dybsvn trac-setbanner
+ 
+   
+ 
+ 
   
  
 EOU
@@ -440,7 +457,6 @@ trac-triplets(){
    local inherit=$(trac-inheritpath)
    
    
-   
    cat << EOT
       inherit:file:$inherit
       trac:authz_file:$authz
@@ -461,6 +477,37 @@ trac-notify-triplets(){
   trac-configure $notify 
 
 }
+
+
+trac-bannerpath(){
+   local path=$ENV_HOME/logo/theta13_offline_software.png
+   [ -f $path ] && echo $path || echo -n
+} 
+
+
+trac-setbanner(){
+
+   local msg="=== $FUNCNAME :" 
+   local path=${1:-$(trac-bannerpath)}
+   [ ! -f "$path" ] && echo $msg no such path $path && return 1
+   
+   local cmd="$SUDO cp -f $path $(trac-envpath)/htdocs/"
+   echo $msg $cmd
+   eval $cmd
+   
+   
+   local name=$(basename $path)
+   local banner="site/$name"
+   
+    
+   
+   trac-configure header_logo:src:$banner
+  
+}
+
+
+
+
 
 
 
