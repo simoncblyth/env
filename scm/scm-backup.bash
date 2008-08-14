@@ -455,7 +455,7 @@ scm-recover-repo(){
             $SUDO tar zxvf $tgzname.tar.gz
             
             ## document the recovery via a link to the backup tarball
-            $SUDO ln -s $tgzpath ${name}-scm-recover-repo
+            $SUDO ln -sf $tgzpath ${name}-scm-recover-repo
             
             $SUDO rm -f $tgzname.tar.gz
             
