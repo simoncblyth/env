@@ -48,6 +48,8 @@ bitextra-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 bitextra-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 
+bitextra-update(){    package-update    ${FUNCNAME/-*/} $* ; }
+
 
 bitextra-prepare(){
 

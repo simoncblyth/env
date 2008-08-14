@@ -102,7 +102,10 @@ cat << EOU
  
    
  
- 
+    trac-db  <name>     defaults to TRAC_INSTANCE : $TRAC_INSTANCVE
+          echo command for direct access to the trac database with sqlite3 ... it is
+          not advisable to do this on a production database, i do it on recoverd backup 
+          databases on non-production machines
   
  
 EOU
@@ -248,6 +251,11 @@ trac-edit-ini(){
    $SUDO perl $ENV_HOME/base/ini-edit.pl $path $*  
    [ -n "$SUDO" ] && $SUDO chown $user:$user $path
 }
+
+trac-db(){
+   echo sqlite3 $(trac-envpath $*)/db/trac.db
+}
+
 
 
 
