@@ -257,7 +257,7 @@ scm-backup-purge(){
      cd $path 
      
      name=$(basename $path)
-     tgzs=($(find . -name '*.tar.gz'))
+     tgzs=($(find . -name '*.tar.gz' | sort ))
      ntgz=${#tgzs[@]}
      
      echo path:$path name:$name ntgz:$ntgz nmax:$nmax
