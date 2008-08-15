@@ -32,6 +32,17 @@ genshi-env(){
 }
 
  
+genshi-branch2revision(){
+   case $1 in 
+      tags/0.5.0) echo 873 ;;
+               *) echo HEAD ;;
+   esac             
+} 
+ 
+genshi-revision(){
+   echo $(genshi-branch2revision $(genshi-branch))
+} 
+ 
 genshi-url(){     echo http://svn.edgewall.org/repos/genshi/$(genshi-branch) ;}
 genshi-package(){ echo genshi ; }
 

@@ -153,7 +153,8 @@ trac-instance(){
 
 trac-version(){
    case ${1:-$NODE_TAG} in
-     G) echo 0.11rc1 ;;
+  ## G) echo 0.11rc1 ;;
+     G) echo 0.11 ;;
      H) echo 0.10.4  ;;
      P) echo 0.11    ;;
      C) echo 0.11    ;;

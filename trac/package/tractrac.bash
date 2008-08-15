@@ -6,6 +6,20 @@ tractrac-usage(){
          In addition to installing the package into PYTHON_SITE this 
          also installs the trac-admin and tracd entry points by default 
          to /usr/local/bin/{trac-admin,tracd}  
+         
+         
+    tractrac-branch2revision :
+         note the revision moniker on cms01 was formerly incorrectly 
+         the head revision at the time of installation 7326, 
+         should use the revision at creation of the tag 
+         ...  for patch name matching between machines
+         NB makes no difference to the actual code, but would prevent patches
+         from being found
+         
+            
+         
+         
+         
 EOU
 
 }
@@ -18,16 +32,24 @@ tractrac-env(){
 }
 
 tractrac-version2branch(){
-  local version=$1
-  local branch
-  case $version in 
-        0.11) branch=tags/trac-0.11    ;;
-      0.11b1) branch=tags/trac-0.11b1  ;;
-     0.11rc1) branch=tags/trac-0.11rc1 ;; 
-      0.10.4) branch=tags/trac-0.10.4  ;;
-       trunk) branch=trunk ;;
+  case $1 in 
+        0.11) echo tags/trac-0.11    ;;
+      0.11b1) echo tags/trac-0.11b1  ;;
+     0.11rc1) echo tags/trac-0.11rc1 ;; 
+      0.10.4) echo tags/trac-0.10.4  ;;
+       trunk) echo trunk ;;
   esac
-  echo $branch
+}
+
+tractrac-branch2revision(){
+   case $1 in 
+      tags/trac-0.11) echo 7236 ;;   
+                   *) echo HEAD ;;
+   esac
+}
+
+tractrac-revision(){
+   echo $(tractrac-branch2revision $(tractrac-version2branch $TRAC_VERSION))
 }
 
 tractrac-url(){     echo http://svn.edgewall.org/repos/trac/$(tractrac-branch) ;}
