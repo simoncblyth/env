@@ -1,5 +1,6 @@
 import sys
 import trac.env
+from trac.versioncontrol.api import NoSuchNode, NoSuchChangeset
 
 """
 
@@ -19,9 +20,7 @@ import trac.env
             dybgaudi/trunk/Simulation/ElecSim 
 
         "trunk" need to be walked but then skipped in component name
-       others need to be ignored
-           act=walk/run/skip
-           
+               
 
     can control where to walk, via svn property 
       ... ie only walk into folders with an "owner" property defined
@@ -33,7 +32,7 @@ import trac.env
 
 """
 
-from trac.versioncontrol.api import NoSuchNode, NoSuchChangeset
+
 
 class entry(object):
     __slots__ = 'name rev kind isdir path content_length'.split()
