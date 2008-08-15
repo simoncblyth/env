@@ -130,9 +130,7 @@ trac2mediawiki-(){    . $ENV_HOME/trac/package/trac2mediawiki.bash    && trac2me
 
 silvercity-(){        . $ENV_HOME/trac/package/silvercity.bash && silvercity-env   $* ; }
 pygments-(){          . $ENV_HOME/trac/package/pygments.bash   && pygments-env   $* ; }
-docutils-(){          . $ENV_HOME/trac/package/docutils.ba
-
-sh   && docutils-env   $* ; }
+docutils-(){          . $ENV_HOME/trac/package/docutils.bash   && docutils-env   $* ; }
 textile-(){           . $ENV_HOME/trac/package/textile.bash    && textile-env   $* ; }
 
 bittennotify-(){      . $ENV_HOME/trac/package/bittennotify.bash && bittennotify-env   $* ; }

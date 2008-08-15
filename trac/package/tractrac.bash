@@ -60,6 +60,8 @@ tractrac-fix(){
    echo no fixes
 }
 
+tractrac-update(){   package-fn $FUNCNAME $* ; } 
+
 
 tractrac-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
 tractrac-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
