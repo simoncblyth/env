@@ -748,7 +748,7 @@ package-install(){
    if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
       $SUDO python setup.py develop
    else
-      $SUDO easy_install -Z .  
+      $SUDO easy_install -Z --no-deps .  
    fi
    
    # Note it is possible to install direct from a URL ... but 

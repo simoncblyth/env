@@ -160,6 +160,9 @@ pythonbuild-setuptools-get(){
 
   cd $SYSTEM_BASE/python 
   test -f ez_setup.py || curl -O  http://peak.telecommunity.com/dist/ez_setup.py
+
+  mkdir -p $(python-site)    ##  perhaps need to use the lowtech one ?? python-site-
+
   python  ez_setup.py
 
 #

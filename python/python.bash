@@ -148,13 +148,18 @@ python-unegg(){
 
    local msg="=== $FUNCNAME :"
    local eggname=$1
+   [ -z "$eggname" ]          && echo $msg ABORT null eggname [$eggname] cannot proceed && return 1 
+   [ ${#PYTHON_SITE} -lt 10 ] && echo $msg ABORT length of PYTHON_SITE [$PYTHON_SITE] is too short... cannot proceed && return 1 
    
-   local egg=$PYTHON_SITE/$eggname
-   [ ! -d $egg ] && echo $msg ERROR cannot find egg folder $egg && return 1
+   local iwd=$PWD
+   cd $PYTHON_SITE
+   [ ! -d $eggname ] && echo $msg ERROR cannot find egg folder $eggname in PYTHON_SITE $PYTHON_SITE && return 1
    
-   local cmd="$SUDO rm -rf $egg " 
+   local cmd="$SUDO rm -rf $eggname " 
    echo $msg proceeding with: $cmd
    eval $cmd
+   
+   cd $iwd
 }
 
 
