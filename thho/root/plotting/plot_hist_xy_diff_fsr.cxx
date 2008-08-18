@@ -29,15 +29,14 @@
 //
 //			 What shold be modified:
 //				PLOTPOINT  (how many data points?)
-//				jj = (148/jj); // the constant depend on the input signal
-//				jj would be the LSB, or say, the resolution
+//				
 //
 //////////////////////////////////////////////////////////////
 
 //gROOT->Reset();
 
 // the input data readout channel No.
-#define PLOTPOINT 14
+#define PLOTPOINT 15
 
 using namespace std;
 
@@ -50,7 +49,7 @@ Float_t mean[PLOTPOINT];
 
 void ScanData(dataPara *pd, Int_t channelcheck){
 
-   FILE* pipe = gSystem->OpenPipe("ls 000*" , "r" );
+   FILE* pipe = gSystem->OpenPipe("ls 00*" , "r" );
 
    TString path ;
 
@@ -66,6 +65,7 @@ void ScanData(dataPara *pd, Int_t channelcheck){
 
 void plot_hist_xy_diff_fsr(Int_t channelcheck) {
 
+	TFile *f = new TFile("test.root","RECREATE");
 	TCanvas *canvas = new TCanvas("fsrchannel","LSB v.s. Full Scale Range Register setting",200,10,700,500);
 	TH1F *frame = canvas->DrawFrame(0,0,200,0.6);
 	frame->SetYTitle("LSB");
@@ -75,7 +75,7 @@ void plot_hist_xy_diff_fsr(Int_t channelcheck) {
 	//TFile* file = new TFile("tmp.root", "recreate");
 	ReadAndPlot(channelcheck);
 
-
+	canvas->Write();
 	
 }
 
@@ -96,6 +96,7 @@ void ReadAndPlot(Int_t channelcheck) {
 	gr->SetMarkerStyle(3);
 	gr->Draw("P");
 	//return gr;
+
 
 }
 
@@ -163,7 +164,7 @@ void ReadData(TString file, dataPara *pdata, Int_t channelcheck) {
 			Float_t ii, jj;
 			ii = atof(i.Data());
 			jj = atof(j.Data());
-			jj = (148/jj); // the constant depend on the input signal
+			jj = (148/jj);
 			if(ii==channelcheck) h->Fill(jj);
 		}
 	}
