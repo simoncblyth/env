@@ -29,7 +29,8 @@
 //
 //			 What shold be modified:
 //				PLOTPOINT  (how many data points?)
-//				
+//				jj = (148/jj); // the constant depend on the input signal
+//				jj would be the LSB, or say, the resolution
 //
 //////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ void ReadAndPlot(Int_t channelcheck) {
 	TGraphErrors *gr = new TGraphErrors(PLOTPOINT,pdata.fsr,pdata.mean,pdata.fsrrms,pdata.rms);
 	TF1 *func = new TF1("fit",fitf,0,200,1);
 	func->SetParameter(0,9);
-	func->SetParNames("Constant ");
+	func->SetParNames("Constant");
 	gr->Fit("fit");
 	gr->SetLineColor(1);
 	gr->SetMarkerColor(3);
@@ -162,7 +163,7 @@ void ReadData(TString file, dataPara *pdata, Int_t channelcheck) {
 			Float_t ii, jj;
 			ii = atof(i.Data());
 			jj = atof(j.Data());
-			jj = (148/jj);
+			jj = (148/jj); // the constant depend on the input signal
 			if(ii==channelcheck) h->Fill(jj);
 		}
 	}
