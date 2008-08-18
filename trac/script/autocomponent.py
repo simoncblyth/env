@@ -9,6 +9,11 @@
     OWNER property, and the paths of all folders with owners are recorded in 
     a list. 
 
+
+    Ownwer properties are read ony ...
+
+
+
     Then need to keep 2 trees in sync ...
        distinguish components that are under auto management from 
        hand crafted components by a double slash "//" in the name of the auto ones
@@ -16,138 +21,27 @@
      usage ... ON NON PRODUCTION NODE WITH RECOVERED ENVIRONMENT ONLY      
        sudo python $ENV_HOME/trac/script/autocomponent.py $SCM_FOLD/tracs/dybsvn blyth
 
+
+
+
+   component manipulation is fast ... so avoid the duplication of maintaining 
+    the component state in Env, go direct to the component model ????
+
+
+
 """
 
 import sys
 import os
 
-from trac.admin.console import TracAdmin
-from trac.ticket.model import *
-
 import trac.env
+
+from trac.admin.console import TracAdmin
+from trac.ticket.model import Component
+from trac.resource import ResourceNotFound
 from trac.versioncontrol.api import NoSuchNode, NoSuchChangeset
 
-AUTOMARK = '//'   ## marker that distinguishes an automanaged component
-OWNER_PROPNAME = 'owner'
-DEFAULT_OWNER = 'offline'
-
-def path2compname(path):
-    """  
-       Map a repository path to a component name
-           dybgaudi/trunk/Simulation/GenTools 
-           dybgaudi//Simulation/GenTools
-    """
-    elem = [ e for e in path.split('/') if e != 'trunk' ]
-    if len(elem)>1:
-        return elem[0] + AUTOMARK + '/'.join(elem[1:])
-    else:
-        return elem[0] + AUTOMARK
-
-
-def compname2path(name):
-    """
-          Map a component name to a repository path
-             dybgaudi//Simulation/GenTools
-             dybgaudi/trunk/Simulation/GenTools
-   
-           This attempts to be independent of what characters are used in the AUTOMARK
-        
-            BUT theres a whacking great assumption concerning repository path layout 
-           
-    """    
-    pair = name.split(AUTOMARK)
-    if len(pair)==2:
-        elem = [ e for e in  pair[0].split('/') + pair[1].split('/') if e != '']
-        return '/'.join([ elem[0] ,'trunk' ] + elem[1:])  
-    else:
-        return name
-
-
-
-class Comp:
-
-    @classmethod
-    def cf(cls, a, b ):
-        if a == b:
-            return "Comp.cf match %s %s " % ( a , b )
-        else:
-            return "Comp.cf MISMATCH %s %s " % ( a, b )
-
-    @classmethod
-    def from_node(cls, node):
-        """ from a repository node to a tuple with the component name and owner """
-        if node==None:
-            return None
-        props = node.get_properties()
-        owner = props.get(OWNER_PROPNAME, None)
-        name = path2compname(node.path)
-        #print "Comp.from_node node.path %s name %s owner %s " % ( node.path, name, owner )         
-        return Comp( name, owner, node )
-
-    def __init__(self, name, owner, node=None):
-        self.name = name
-        self.owner = owner
-        self.node = node
-        
-    def __eq__(self, other):
-        return other != None and self.name == other.name and self.owner == other.owner
-    def __ne__(self,other):
-        return not( self.__eq__(other) )
-        
-    def path(self):
-        return compname2path(self.name)
-          
-    def pathcheck(self):
-        if self.node!=None:
-            if self.node.path == self.path():
-                return "ok"
-            else:
-                return " **** PATHCHECK FAILS node.path %s path() %s " % ( self.node.path , self.path() )  
-        else:
-            return ""
-
-        
-    def __repr__(self):
-        return "<Comp %s:%s    %s:%s >" % ( self.name,  self.owner ,  self.pathcheck(), self.path() )
-
-
-
-class Env:
-    """  component list """
-    def __init__(self, envdir ):
-        admin = TracAdmin()
-        admin.env_set(envdir) 
-        self.admin = admin
-        self.comps = []
-        self._get_components()
-        
-    def _get_components( self ):
-        for c in Component.select(self.admin.env_open()):
-            if c.name.find(AUTOMARK)>-1:
-                self.comps.append( Comp(c.name,c.owner) )
-
-    def print_comps(self):
-        for c in self.comps:
-            print c
-
-    def find_comp(self, name):
-        """ returns the first component with matching name or None if not found """
-        for c in self.comps:
-            if c.name == name:
-                return c
-        return None
-
-    def add_comp(self, comp ):
-        """ 
-              adding a component at depth also adds the intervening containing components 
-              ... if not already existing, with owner set to a default value 
-            
-        """
-        pass
-
-
-    def __repr__(self):
-        return "<Env ncomp %s>" % len(self.comps)
+from scheme import SubTrunkAutoComponent, BaseTrunkAutoComponent
 
 
 
@@ -163,9 +57,10 @@ class entry(object):
 
 class Repository:
     """   repository tree """
-    def __init__(self, envdir, authname):
+    def __init__(self, envdir, authname, schema):
         trac_env = trac.env.open_environment(envdir)
         repos = trac_env.get_repository(authname)
+        self.schema = schema
         self.repos = repos
         self.select = []
 
@@ -183,9 +78,28 @@ class Repository:
         return node
     
     def walk(self, path='/'):
+        """ selects directory nodes that have owner property set and their parent directories """
         print "Repository.walk path %s " % path
         node = self.current_node(path)
         self._walk(node)
+        
+    def is_selected(self,path):
+        for node in self.select:
+            if node.path == path:
+                return True
+        return False
+    
+    def parent_select(self, path):
+        """  expand selection to cover the parent of a node , if not already selected """
+        elem = path.split('/')
+        if len(elem)==0:
+            return
+        for i in range(len(elem)-1,0,-1):
+            pp = '/'.join(elem[0:i])
+            if not(self.is_selected(pp)):
+                pnode = self.current_node(pp) 
+                if pnode.isdir:
+                    self.select.append(pnode)
     
     def _walk(self, node):
         """ recursive tree walker ... sticking to directories and not following branches or tags 
@@ -193,12 +107,15 @@ class Repository:
         """
         if not(node):
             return
+            
         if node.name in ['branches','tags']:
             return
         if node.isdir:
             props = node.get_properties()
-            if props.has_key(OWNER_PROPNAME):
+            if self.schema.prop_select( props ):
                 self.select.append(node)
+                self.parent_select(node.path)
+        
         if node.isdir:
             for n in node.get_entries():
                 self._walk(n)
@@ -207,14 +124,16 @@ class Repository:
         for node in self.select:
             props = node.get_properties()
             enode = entry(node)
-            print "%s %s " % ( enode , props[OWNER_PROPNAME] )
+            print enode
 
 
 
 
 
+def Component__repr__(self):
+    return "<Component %s:%s >" % (self.name, self.owner )
 
-
+Component.__repr__ = Component__repr__
 
 
 def autocomp(args):
@@ -223,47 +142,71 @@ def autocomp(args):
         and are walked picking up all owned folder nodes
         ... in this way the state of the repository is gleaned
          
-           
     """
-    
     envdir = args[0]
     authname = args[1]
     
-    
-    print "===> initial auto component list (containing %s )  " % AUTOMARK 
-    env = Env(envdir)
-    env.print_comps()
+      
+    admin = TracAdmin()
+    admin.env_set(envdir) 
 
-    print "===> use seed components (ending in %s) to direct the repository walk, selecting owned nodes " % AUTOMARK
-    repos = Repository(envdir, authname)
-    for c in env.comps:
-        if c.name.endswith(AUTOMARK):
-            repos.walk( c.path() )
+
+    if envdir.endswith("dybsvn"):
+        acs = SubTrunkAutoComponent(  "owner", "offline" , "//" )
+    else:
+        acs = BaseTrunkAutoComponent( "owner" , "blyth" , "//" )
+
+    print acs
+
+
+    print "===> use seed components to direct the repository walk, selecting owned nodes .. and their parents "
+    repos = Repository(envdir, authname, acs)
+    for c in Component.select(admin.env_open()):
+        if acs.is_seedcomp(c.name):
+            print "walk seed comp %s " % c
+            repos.walk( acs.compname2path(c.name) )
+        else:
+            print "skip non seed comp %s " % c
+                    
     repos.print_selected()
         
-    print "===> checking if %s owned folders are represented in the auto components " % len(repos.select) 
+    print "===> elevating %s owned folders to components or updating owners " % len(repos.select) 
     for node in repos.select:
         #print node   ## trac.versioncontrol.svn_fs.SubversionNode
-        cn = Comp.from_node( node )
+        props = node.get_properties()
+        owner = props.get( acs.name, acs.default )
+        name = acs.path2compname(node.path)
         
-        name = path2compname( node.path )
-        comp = env.find_comp( name )
-        if comp==None:
-            print " comp that needs adding ... %s  " % ( cn )
-        else:
-            print " cn vs comp %s " % Comp.cf(cn,comp)
-            
-    
-    print "===> checking %s auto components to see if corresponding repository paths still exist " % len(env.comps)
-    for c in env.comps:
-        node = repos.current_node( c.path() )
-        cn = Comp.from_node( node )
-        if node==None:
-            print "orphaned component %s path not in repository " % ( cn )
-        else:
-            print " cn vs comp %s " % Comp.cf(cn,c)
-    
+        try:
+            c = Component( admin.env_open(), name)
+            if c.owner == owner:
+                print "owner remains same : %s " % c 
+            else:
+                print "owner changed to %s : formerly %s " % ( owner , c ) 
+                c.owner = owner
+                c.update()
+        except ResourceNotFound:
+            c = Component( admin.env_open() )
+            c.name = name
+            c.owner = owner
+            print "inserting component %s  " % ( c )
+            c.insert()        
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            raise
+              
 
+    print "===> purge auto components without corresponding repository paths  " 
+    for c in Component.select(admin.env_open()):
+        if acs.is_autocomp(c.name):
+            path = acs.compname2path( c.name )
+            node = repos.current_node( path )
+            if node==None:
+                print "orphaned component %s  path %s not in repository ... delete " % ( c , path )
+                c.delete()
+            else:
+                print "component %s is valid " % c 
+    
 
 
 
