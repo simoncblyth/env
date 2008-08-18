@@ -1,32 +1,56 @@
 """
-    Defining a set of components using inputs of preexisting components
-    with particular name features and the svn properties on directories
-    in the repository.
+   
+    This script allows semi-automated management of a subset of the 
+    Trac ticket components by means of setting svn properties on the directories
+    in the repository.  The directories to walk in the repository are 
+    controlled by special characteristics of the component names and similarly 
+    components are identified as being under management (and thus susceptable to 
+    edits/deletion) by characteristics of the name.
     
-    Components with names that end "//" are taken as bases to launch recursive
-    walks from, nodes named "tags" or "branches" are not followed, otherwise
-    all folder type child nodes are traversed.  Each folder is checked for an
-    OWNER property, and the paths of all folders with owners are recorded in 
-    a list. 
+    These specific characteristics and the mappings between repository paths and
+    component names are specified the the AutoComponent scheme class. With the scheme in 
+    force depending on the basename of the environment directory passed.
+      
+    Usage :
+        1) manually create seed "components" in the web interface 
+               http://localhost/tracs/env/admin/ticket/components
+           with names based on repository paths that will be selected as seeds, 
+           these directories will be walked looking for folders with 
+           owner properties set. Such directories and their parent directories are selected.
+           
+            eg creating components :
+                   "//dybpy" ("BaseTrunk" scheme used in env repo)
+                "dybgaudi//"  ("SubTrunk" scheme used in dybsvn repo)
+           
+        2) run the script on the target trac environment directory 
+           
+              sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/env blyth
+              sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/dybsvn blyth
+              sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/dybsvn ntusync
+             OR more simply 
+               trac-; autocomp-; autocomp-sync <name-defaulting-to-TRAC_INSTANCE>  
+           
+            sudo is needed as the trac log file is written to 
+    
+           The tree of paths selected is used to update the list of trac ticket components
+           with additions of new components, deletion of components which no longer have associated
+           repo paths, and ownership changes.
+            
+               
+        3) examine the component list in the web interface   
+                http://localhost/tracs/env/admin/ticket/components
+           or in the pull down menu on creating/editing a ticket
+   
+    
+    NB 
+       a)  Owner properties are treated read ony , they are never written by this script
+       b)  only components with names fulfiling the managed component criteria (ofter containing "//" )
+           are touched by this script 
 
 
-    Ownwer properties are read ony ...
 
-
-
-    Then need to keep 2 trees in sync ...
-       distinguish components that are under auto management from 
-       hand crafted components by a double slash "//" in the name of the auto ones
-
-     usage ... ON NON PRODUCTION NODE WITH RECOVERED ENVIRONMENT ONLY      
-       sudo python $ENV_HOME/trac/script/autocomponent.py $SCM_FOLD/tracs/dybsvn blyth
-
-
-
-
-   component manipulation is fast ... so avoid the duplication of maintaining 
-    the component state in Env, go direct to the component model ????
-
+    WHILE TESTING ... USE ON NON PRODUCTION NODE WITH RECOVERED ENVIRONMENT ONLY      
+          sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/dybsvn blyth
 
 
 """
@@ -90,7 +114,10 @@ class Repository:
         return False
     
     def parent_select(self, path):
-        """  expand selection to cover the parent of a node , if not already selected """
+        """  
+           expand selection to cover the parents of a node , if not already selected ... selecting 
+           back up to the seed node
+        """
         elem = path.split('/')
         if len(elem)==0:
             return
@@ -100,6 +127,12 @@ class Repository:
                 pnode = self.current_node(pp) 
                 if pnode.isdir:
                     self.select.append(pnode)
+                
+                name = self.schema.path2compname(pp)
+                if self.schema.is_seedcomp(name):
+                    print "%s parent_select [%s] [%s] stop selection above this seed node " % ( self, pp , name ) 
+                    return
+    
     
     def _walk(self, node):
         """ recursive tree walker ... sticking to directories and not following branches or tags 
@@ -111,9 +144,10 @@ class Repository:
         if node.name in ['branches','tags']:
             return
         if node.isdir:
+            print "_walk %s " % node.path
             props = node.get_properties()
             if self.schema.prop_select( props ):
-                self.select.append(node)
+                self.select.append( node )
                 self.parent_select(node.path)
         
         if node.isdir:
@@ -134,6 +168,11 @@ def Component__repr__(self):
     return "<Component %s:%s >" % (self.name, self.owner )
 
 Component.__repr__ = Component__repr__
+
+
+
+
+
 
 
 def autocomp(args):
@@ -160,17 +199,22 @@ def autocomp(args):
 
 
     print "===> use seed components to direct the repository walk, selecting owned nodes .. and their parents "
-    repos = Repository(envdir, authname, acs)
-    for c in Component.select(admin.env_open()):
-        if acs.is_seedcomp(c.name):
-            print "walk seed comp %s " % c
-            repos.walk( acs.compname2path(c.name) )
-        else:
-            print "skip non seed comp %s " % c
+    seed_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_seedcomp(c.name) ]
+    print "seed_comps: %s " % seed_comps 
+    
+    repos = Repository(envdir, authname, acs)    
+    for name in seed_comps:
+        print "walk seed comp %s " % name
+        repos.walk( acs.compname2path(name) )
                     
     repos.print_selected()
         
     print "===> elevating %s owned folders to components or updating owners " % len(repos.select) 
+    
+    to_update = []
+    to_insert = []
+    to_delete = []
+    
     for node in repos.select:
         #print node   ## trac.versioncontrol.svn_fs.SubversionNode
         props = node.get_properties()
@@ -184,29 +228,43 @@ def autocomp(args):
             else:
                 print "owner changed to %s : formerly %s " % ( owner , c ) 
                 c.owner = owner
-                c.update()
+                to_update.append( c )
         except ResourceNotFound:
             c = Component( admin.env_open() )
             c.name = name
             c.owner = owner
             print "inserting component %s  " % ( c )
-            c.insert()        
+            to_insert.append(c)
         except:
             print "Unexpected error:", sys.exc_info()[0]
             raise
-              
 
+
+    print "===> make %s updates " % len(to_update)
+    for c in to_update:
+        c.update()
+        
+    print "===> make %s insertions " % len(to_insert)
+    for c in to_insert:
+        c.insert()
+         
     print "===> purge auto components without corresponding repository paths  " 
-    for c in Component.select(admin.env_open()):
-        if acs.is_autocomp(c.name):
-            path = acs.compname2path( c.name )
-            node = repos.current_node( path )
-            if node==None:
-                print "orphaned component %s  path %s not in repository ... delete " % ( c , path )
-                c.delete()
-            else:
-                print "component %s is valid " % c 
     
+    auto_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_autocomp(c.name) ]
+    for name in auto_comps:
+        path = acs.compname2path( name )
+        node = repos.current_node( path )
+        if node==None:
+            print "orphaned component %s  path %s not in repository ... delete " % ( c , path )
+            to_delete.append(c)
+        else:
+            print "component %s is valid " % c 
+    
+    print "===> make %s deletions " % len(to_delete)
+    for c in to_delete:
+        c.delete()
+
+
 
 
 

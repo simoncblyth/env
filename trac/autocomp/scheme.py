@@ -97,7 +97,7 @@ class BaseTrunkAutoComponent(AutoComponent):
     def compname2path(self, name):
         assert self.is_autocomp(name),  " for name [%s][%s] " % ( name , self.mark )
         elem = self.name2elem(name)
-        path =  '/'.join( [ 'trunk' + elem ] )
+        path =  '/'.join( [ 'trunk' ] + elem )
         return path
         
     def is_autocomp(self, name):

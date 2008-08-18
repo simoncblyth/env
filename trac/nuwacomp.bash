@@ -2,6 +2,9 @@ nuwacomp-usage(){
  
    cat << EOU
 
+    THIS IS DEPRECATED BY PYTHON BASED SYNCING OF svn owner properties trac/autocomp/autocomp.bash 
+
+
       nuwacomp-list <dir-comntaing-dybgaudi-etc..>
             list of components to stdout, the svn property "owner" is examined to assign 
             an owner
@@ -44,12 +47,14 @@ Installation / Scientific Linux : patton
 
 EOH
  
-  for proj in $(nuwacomp-projs $base) ; do 
-     case $proj in 
-        relax|tutorial|lcgcmt|ldm) TRACCOMP_BRIEF=1 traccomp-from-wc $base/$proj ;; 
-                                *)                  traccomp-from-wc $base/$proj ;;
-     esac                       
-  done 
+# 
+#  for proj in $(nuwacomp-projs $base) ; do 
+#     case $proj in 
+#        relax|tutorial|lcgcmt|ldm) TRACCOMP_BRIEF=1 traccomp-from-wc $base/$proj ;; 
+#                                *)                  traccomp-from-wc $base/$proj ;;
+#     esac                       
+#  done 
+#
      
 }
 

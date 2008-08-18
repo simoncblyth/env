@@ -117,6 +117,8 @@ tracbuild-(){         . $ENV_HOME/trac/tracbuild.bash  && tracbuild-env  $* ; }
 tracperm-(){          . $ENV_HOME/trac/tracperm.bash   && tracperm-env   $* ; }
 traccomp-(){          . $ENV_HOME/trac/traccomp.bash   && traccomp-env   $* ; }
 nuwacomp-(){          . $ENV_HOME/trac/nuwacomp.bash   && nuwacomp-env   $* ; }
+autocomp-(){          . $ENV_HOME/trac/autocomp/autocomp.bash   && autocomp-env   $* ; }
+
 
 bitextra-(){          . $ENV_HOME/trac/package/bitextra.bash  && bitextra-env  $* ; }
 tractags-(){          . $ENV_HOME/trac/package/tractags.bash  && tractags-env $* ; }

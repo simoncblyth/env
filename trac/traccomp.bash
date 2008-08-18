@@ -3,6 +3,9 @@
 traccomp-usage(){
    cat << EOU
    
+     THIS IS DEPRECATED BY PYTHON BASED SYNCING OF svn owner properties trac/autocomp/autocomp.bash 
+   
+   
       traccomp-add <path>   defaulting to $(traccomp-path)
       
             add components/owners to trac instance using trac-admin- 
