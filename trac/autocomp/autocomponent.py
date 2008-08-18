@@ -108,8 +108,8 @@ class Repository:
         self._walk(node)
         
     def is_selected(self,path):
-        for node in self.select:
-            if node.path == path:
+        for s_path,s_owner in self.select:
+            if s_path == path:
                 return True
         return False
     
@@ -126,13 +126,16 @@ class Repository:
             if not(self.is_selected(pp)):
                 pnode = self.current_node(pp) 
                 if pnode.isdir:
-                    self.select.append(pnode)
-                
+                    self.select_node( pnode )
                 name = self.schema.path2compname(pp)
                 if self.schema.is_seedcomp(name):
                     print "%s parent_select [%s] [%s] stop selection above this seed node " % ( self, pp , name ) 
                     return
     
+    
+    def select_node(self, node):
+        props = node.get_properties()
+        self.select.append( (node.path , self.schema.prop_get( props ) ))
     
     def _walk(self, node):
         """ recursive tree walker ... sticking to directories and not following branches or tags 
@@ -144,10 +147,10 @@ class Repository:
         if node.name in ['branches','tags']:
             return
         if node.isdir:
-            print "_walk %s " % node.path
+            #print "_walk %s " % node.path
             props = node.get_properties()
             if self.schema.prop_select( props ):
-                self.select.append( node )
+                self.select_node( node )
                 self.parent_select(node.path)
         
         if node.isdir:
@@ -155,10 +158,8 @@ class Repository:
                 self._walk(n)
 
     def print_selected(self):
-        for node in self.select:
-            props = node.get_properties()
-            enode = entry(node)
-            print enode
+        for path,owner in self.select:
+            print "%s:%s" % (path, owner )
 
 
 
@@ -184,19 +185,15 @@ def autocomp(args):
     """
     envdir = args[0]
     authname = args[1]
-    
-      
+          
     admin = TracAdmin()
     admin.env_set(envdir) 
-
 
     if envdir.endswith("dybsvn"):
         acs = SubTrunkAutoComponent(  "owner", "offline" , "//" )
     else:
         acs = BaseTrunkAutoComponent( "owner" , "blyth" , "//" )
-
     print acs
-
 
     print "===> use seed components to direct the repository walk, selecting owned nodes .. and their parents "
     seed_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_seedcomp(c.name) ]
@@ -215,54 +212,47 @@ def autocomp(args):
     to_insert = []
     to_delete = []
     
-    for node in repos.select:
-        #print node   ## trac.versioncontrol.svn_fs.SubversionNode
-        props = node.get_properties()
-        owner = props.get( acs.name, acs.default )
-        name = acs.path2compname(node.path)
-        
-        try:
-            c = Component( admin.env_open(), name)
-            if c.owner == owner:
-                print "owner remains same : %s " % c 
-            else:
-                print "owner changed to %s : formerly %s " % ( owner , c ) 
-                c.owner = owner
-                to_update.append( c )
-        except ResourceNotFound:
-            c = Component( admin.env_open() )
-            c.name = name
-            c.owner = owner
-            print "inserting component %s  " % ( c )
-            to_insert.append(c)
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            raise
+    for path,owner in repos.select:
+        name = acs.path2compname(path)
+        match_comps = [ (c.name,c.owner) for c in Component.select(admin.env_open()) if c.name == name ]        
+        nmatch = len(match_comps)
 
+        msg = ""
+        if nmatch == 0 :
+            to_insert.append( (name,owner) )
+            msg = "insert"    
+        elif nmatch == 1 :
+            c_name, c_owner = match_comps[0]
+            if c_owner == owner:
+                msg = "same" 
+            else:
+                msg = "update former owner %s " % ( c_owner ) 
+                to_update.append( (name, owner) )
+        else:
+            msg = "ERROR to many matching components "
+       
+        print "[%-3s] %-15s %-100s %-100s %s " % ( nmatch, owner , path , name , msg )                      
+        
 
     print "===> make %s updates " % len(to_update)
-    for c in to_update:
-        c.update()
+    for name, owner in to_update:
+        admin._do_component_set_owner( name, owner )
         
     print "===> make %s insertions " % len(to_insert)
-    for c in to_insert:
-        c.insert()
+    for name, owner in to_insert:
+        admin._do_component_add( name, owner )
          
     print "===> purge auto components without corresponding repository paths  " 
     
     auto_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_autocomp(c.name) ]
     for name in auto_comps:
         path = acs.compname2path( name )
-        node = repos.current_node( path )
-        if node==None:
-            print "orphaned component %s  path %s not in repository ... delete " % ( c , path )
-            to_delete.append(c)
-        else:
-            print "component %s is valid " % c 
-    
+        if not(repos.repos.has_node(path)):
+            to_delete.append(name)
+      
     print "===> make %s deletions " % len(to_delete)
-    for c in to_delete:
-        c.delete()
+    for name in to_delete:
+        admin._do_component_remove( name )
 
 
 
