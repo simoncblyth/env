@@ -76,7 +76,7 @@ void plot_hist_xy_diff_fsr(Int_t channelcheck) {
 	ReadAndPlot(channelcheck);
 
 	canvas->Write();
-	
+	f->Close();	
 }
 
 void ReadAndPlot(Int_t channelcheck) {
