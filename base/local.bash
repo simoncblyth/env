@@ -414,7 +414,7 @@ export LOCAL_BASE_H=/data/usr/local
 export LOCAL_BASE_T=/usr/local
 export LOCAL_BASE_N=$HOME/local
 export LOCAL_BASE_C=/data/env/local
-export LOCAL_BASE_XT=/home/blyth/local
+export LOCAL_BASE_XT=/home/tianxc
 
 local-base(){
    local tag=${1:-$NODE_TAG} 
@@ -434,7 +434,7 @@ export SYSTEM_BASE_U=$LOCAL_BASE
 export SYSTEM_BASE_P=$grid1_system_base
 export SYSTEM_BASE_G1=$grid1_system_base
 export SYSTEM_BASE_C=/data/env/system
-export SYSTEM_BASE_XT=/home/blyth/system
+export SYSTEM_BASE_XT=/home/tianxc/system
 export SYSTEM_BASE_XX=/usr/local
 
 local-system-base(){
@@ -456,7 +456,7 @@ local-var-base(){
       P) echo /disk/d3/var ;;
      G1) echo /disk/d3/var ;;
       N) echo $HOME/var ;;
-     XT) echo $HOME/var ;; 
+     XT) echo /home/tianxc ;; 
      XX) echo /home ;; 
       *) echo /var ;; 
    esac
@@ -487,7 +487,7 @@ export USER_BASE_L=$LOCAL_BASE_L
 export USER_BASE_H=$LOCAL_BASE_H
 export USER_BASE_T=$HOME/dybwork
 export USER_BASE_N=$HOME
-export USER_BASE_XT=$HOME
+export USER_BASE_XT=/home/tianxc
 
 ## if a value for the node is defined then use that, otherwise use VAR_BASE_U
 vname=USER_BASE_$NODE_TAG

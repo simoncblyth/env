@@ -121,9 +121,10 @@ scm-backup-all(){
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
    
-   for path in $SCM_FOLD/repos/*
+   for path in $SCM_FOLD/svn/*
    do  
        if [ -d $path ]; then 
+          python-
           local name=$(basename $path)
           scm-backup-repo $name $path $base $stamp        
        else
@@ -134,6 +135,7 @@ scm-backup-all(){
    for path in $SCM_FOLD/tracs/*
    do  
        if [ -d $path ]; then 
+	   python-
            local name=$(basename $path)
            scm-backup-trac $name $path $base $stamp  
   		else
@@ -252,7 +254,7 @@ scm-backup-purge(){
 
   echo ======= scm-backup-purge =====   
 
-  for path in $SCM_FOLD/backup/$node/{tracs,repos,folders}/* 
+  for path in $SCM_FOLD/backup/$node/{tracs,svn,folders}/* 
   do
      cd $path 
      
