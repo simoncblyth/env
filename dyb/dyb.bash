@@ -70,9 +70,8 @@ dyb-env(){
    export DDT=$DDR/dybgaudi/DybTest
    
    case $NODE_TAG in 
-     P) export NUWA_HOME=$DDR ;;
-    G1) export NUWA_HOME=$DDR ;;
-     *) echo -n ;;
+     P|G1|G|C) export NUWA_HOME=$DDR ;;
+            *) echo -n ;;
    esac  
 
 
