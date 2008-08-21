@@ -158,7 +158,7 @@ echo vi $HOME/.subversion/config
 
 svn-repo-dirname(){
   case ${1:-$NODE_TAG} in
-     XX) echo svn ;;
+  XX|XT) echo svn ;;
       *) echo repos ;;
   esac    
 }

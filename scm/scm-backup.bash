@@ -120,8 +120,9 @@ scm-backup-all(){
    
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
+   local repos=$(svn-repo-dirname)
    
-   for path in $SCM_FOLD/svn/*
+   for path in $SCM_FOLD/$repos/*
    do  
        if [ -d $path ]; then 
           python-
@@ -163,9 +164,8 @@ scm-recover-all(){
    local fromnode=${1:-dummy}
    [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
    
-   
-   
-   local types="repos tracs"
+   local repos=$(svn-repo-dirname)
+   local types="$repos tracs"
    for type in $types
    do
       
@@ -254,7 +254,8 @@ scm-backup-purge(){
 
   echo ======= scm-backup-purge =====   
 
-  for path in $SCM_FOLD/backup/$node/{tracs,svn,folders}/* 
+  local repos=$(svn-repo-dirname)
+  for path in $SCM_FOLD/backup/$node/{tracs,$repos,folders}/* 
   do
      cd $path 
      
@@ -331,9 +332,11 @@ scm-backup-dybsvn-from-node(){
    
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
      
+     
+   local repos=$(svn-repo-dirname)  
    local loc=$(scm-backup-dir $NODE_TAG)  
    local rem=$(scm-backup-dir $tag)
-   local reps=$(ssh $tag "ls -1 $rem/$orig/{repos,tracs}/$name/$stamp/$name*.tar.gz ")
+   local reps=$(ssh $tag "ls -1 $rem/$orig/{$repos,tracs}/$name/$stamp/$name*.tar.gz ")
    
    echo reps $reps
    
@@ -352,7 +355,7 @@ scm-backup-dybsvn-from-node(){
    done
 
    cd $loc/$orig
-   for dir in "tracs/$name repos/$name"
+   for dir in "tracs/$name $repos/$name"
    do 
       ln -sf $stamp last 
    done
