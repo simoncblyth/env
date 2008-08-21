@@ -8,6 +8,8 @@ env-home(){       echo $(dirname $BASH_SOURCE) ; }
 
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 
+private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
+
 dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }
 root-(){        . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
 
