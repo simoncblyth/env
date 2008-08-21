@@ -1,4 +1,6 @@
 svnsync-usage(){
+   
+   private-
    cat << EOU
 
        IT SEEMS ...   
@@ -28,7 +30,7 @@ svnsync-usage(){
             Copied properties for revision 3810.
     
        
-            SVN_SYNC_USER : $SVN_SYNC_USER
+            SVN_SYNC_USER : $(private-val SVN_SYNC_USER)
             NODE_TAG      : $NODE_TAG
    
         For simplicity the source/destination URLs are tied 
@@ -85,7 +87,8 @@ svnsync-desturl(){
   esac
 }
 svnsync-creds(){
-  echo --username $SVN_SYNC_USER --password $SVN_SYNC_PASS 
+  private-
+  echo --username $(private-val SVN_SYNC_USER) --password $(private-val SVN_SYNC_PASS) 
 }
 
 svnsync-init-cmd(){

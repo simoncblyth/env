@@ -44,7 +44,7 @@ private-val(){
   !  private-check- $(ls -l $path) ] && echo $msg ABORT inappropriate permissions on path:$path > /dev/stderr && return 1
   [ -f "$path" ] && . $path
  
-  echo $msg determining $name from $path > /dev/stderr
+  # echo $msg determining $name from $path > /dev/stderr
   eval local valu=\$$name
   echo $valu
   return 0
