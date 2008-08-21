@@ -220,7 +220,7 @@ local-scm-fold(){
 local-user-base(){
    case ${1:-$NODE_TAG} in
       G) echo $HOME/Work ;;
-   P|G1) echo /disk/g3/$USER ;;
+   P|G1) echo /disk/d3/$USER ;;
       L) echo $(local-base L) ;;
       H) echo $(local-base H) ;;
       T) echo $HOME/dybwork ;;
