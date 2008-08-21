@@ -6,20 +6,26 @@ cat << EOU
 
   These are used by most functions... and rarely need to be invoked directly by the user
 
+   local-node        :  $(local-node)
    local-nodetag     :  $(local-nodetag)
-   local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
+   local-tag2node    :  $(local-tag2node)
    local-backup-tag  :  $(local-backup-tag)      paired backup node
+ 
+   local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
+   
    local-system-base :  $(local-system-base)      
    local-base        :  $(local-base)
    local-var-base    :  $(local-var-base)
    local-scm-fold    :  $(local-scm-fold)
-   local-tag2node    :  $(local-tag2node)
+   local-user-base   :  $(local-user-base)
+   local-output-base :  $(local-output-base)
+   
+   
    
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
-   local-layout    : set standard disk location variables 
+    
    
-
-    NODE_TAG_OVERRIDE : $NODE_TAG_OVERRIDE
+     NODE_TAG_OVERRIDE : $NODE_TAG_OVERRIDE
      
      NODE_TAG      : $NODE_TAG
      LOCAL_BASE    : $LOCAL_BASE
@@ -28,18 +34,9 @@ cat << EOU
      USER_BASE     : $USER_BASE
      OUTPUT_BASE   : $OUTPUT_BASE
                                 
-
-
-
 EOU
 
-
-
-
-
 }
-
-
 
 local-env(){
 
@@ -47,38 +44,46 @@ local-env(){
    local msg="=== $FUNCNAME :"
    
    [ "$dbg" == "1" ] && echo $msg	 
-   
-   export LOCAL_ARCH=$(uname)
-   
-    ## if NODE is set use that otherwise determine from uname 
-   if [ "X$NODE" == "X" ]; then
-       LOCAL_NODE=$(uname -a | cut -d " " -f 2 | cut -d "." -f 1)	 
-   else
-       LOCAL_NODE=$NODE
-   fi 	 
-   export LOCAL_NODE 
+          
    export SOURCE_NODE="g4pb"
    export SOURCE_TAG="G"
 
-
+   export LOCAL_ARCH=$(uname)
+   export LOCAL_NODE=$(local-node)
    export NODE_TAG=$(local-nodetag)       # glean where we are and define NODE_TAG
    export BACKUP_TAG=$(local-backup-tag)  # paired backup for the NODE_TAG 
    export SUDO=$(local-sudo)
 
    local-scm        # assign coordinates of the SCM server for this node
-   local-layout     # define variables such as LOCAL_BASE, VAR_BASE, USER_BASE  
-   
-   local-userprefs
-   
+ 
+   export SYSTEM_BASE=$(local-system-base) ## prequisite base for most everything, ie where to pick up subversion +
+   export LOCAL_BASE=$(local-base)
+   export VAR_BASE=$(local-var-base)    ## operational files, like backups
+   export SCM_FOLD=$(local-scm-fold)
+   export VAR_BASE_BACKUP=$(local-var-base $BACKUP_TAG)
+   export USER_BASE=$(local-user-base)
+   export OUTPUT_BASE=$(local-output-base)
+
+   [ ! -d "$USER_BASE" ]   && echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE 
+   [ ! -d "$OUTPUT_BASE" ] && echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE 
+
+    local-userprefs
+
 }
 
+
+local-node(){
+   case $NODE in 
+     "") echo $(uname -a | cut -d " " -f 2 | cut -d "." -f 1) ;;
+      *) echo $NODE ;;
+    esac
+}
 
 local-userprefs(){
    case $USER in 
      blyth) export SVN_EDITOR=vi ;;
    esac
 }
-
 
 
 local-tag2node(){
@@ -111,9 +116,6 @@ local-nodetag(){
   esac
 
 }
-
-
-
 
 local-nodetag-hfag(){
    case ${1:-$USER} in
@@ -150,153 +152,12 @@ local-nodetag-xinchun(){
    esac
 }
 
-
-
-
-local-nodetag-deprecated(){
-
-
-   ## one letter code that represents the user and node
-  
-   SUDO=
-   CLUSTER_TAG=
-   BACKUP_TAG=U
-   NODE_NAME=
-
-##  set SUDO to "sudo" if sudo access is needed to create folders / change ownership 
-##  in the relevant LOCAL_BASE
-##
-##     G(blyth@g4pb)   is different as its the source machine
-##     G1(blyth@grid1) is different as are trying to run code belonging to dayabaysoft aka "P"
-#
-
-if [ "X${_CONDOR_SCRATCH_DIR}" != "X" ]; then
-	
-   NODE_TAG="G1"
-   CLUSTER_TAG="G1" 
-   USER=$(whoami)
-## as it seems condor env has no USER
-   
-elif [ "$LOCAL_NODE" == "g4pb" ]; then
-
-   NODE_TAG="G"
-
-elif [ "$LOCAL_NODE" == "coop" ]; then
-
-   NODE_TAG="CO"
-
-elif [ "$LOCAL_NODE" == "cms01" ]; then
-
-   NODE_TAG="C"
-
-elif [ "$LOCAL_NODE" == "gateway" ]; then
-
-   NODE_TAG="B"
-
-elif [ "$LOCAL_NODE" == "g3pb" ]; then
-
-   NODE_TAG="G"
-   
-elif [ "$LOCAL_NODE" == "dayabay" ]; then
-
-   NODE_TAG="XX"
-
-elif ( [ "$USER" == "dayabaysoft" ] && [ "$LOCAL_NODE" == "grid1" ]); then
-
-   NODE_TAG="P"
-   BATCH_TYPE="condor"
-
-elif  [ "$LOCAL_NODE" == "grid1" ]; then
-
-   NODE_TAG="G1"
-   NODE_NAME="grid1"
-   BATCH_TYPE="condor"
-   
-elif  [ "${LOCAL_NODE:0:6}" == "albert" ]; then   
-   
-   NODE_TAG="G1"
-   NODE_NAME="grid1"
-   BATCH_TYPE="condor"
-   
-elif  [ "${LOCAL_NODE:0:2}" == "pc" ]; then   
-   
-   NODE_TAG="N"   
-   NODE_NAME="pdsf"
-   BATCH_TYPE="SGE"
-   
-elif (      [ "$USER" == "sblyth" ] && [ "$LOCAL_NODE" == "pal" ]); then
-
-   NODE_TAG="L"
-
-elif (      [ "$USER" == "blyth" ] && [ "$LOCAL_NODE" == "hfag" ]); then
-
-   NODE_TAG="H"
-   
-elif (      [ "$USER" == "root" ] && [ "$LOCAL_NODE" == "hfag" ]); then
-
-   NODE_TAG="H"
-
-elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-laptop" ]); then
-
-   NODE_TAG="T"
-
-elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "thho-desktop" ]); then
-
-   NODE_TAG="T"
-
-elif (      [ "$USER" == "thho" ] && [ "$LOCAL_NODE" == "hkvme" ]); then
-
-   NODE_TAG="HKVME"
-
-elif (      [ "$USER" == "exist" ] && [ "$LOCAL_NODE" == "hfag" ]); then
-
-   NODE_TAG="X"
- 
-elif (     [ "$(uname -n)" == "localhost.localdomain" ]); then
-
-   NODE_TAG="XT" 
-                 
-else
-	
-   NODE_TAG="U"
-
-fi
-
-
-## these are deprecated
-export CLUSTER_TAG
-export NODE_NAME
-export BATCH_TYPE
-
-## these are in heavy usage
-export NODE_TAG
-export BACKUP_TAG=$(local-backup-tag)
-export SUDO=$(local-sudo)
-
-
-
-########## TARGET_* specify the remote machine coordinates #####################
-#    
-#     used as defaults for commands dealing with a remote machine, 
-#     define a default remote tag 
-#
-#
-#export TARGET_TAG="P"       ## dayabaysoft@grid1   admin level tasks
-#export TARGET_TAG="H"       ##      blyth@hfag     admin level tasks .... yes as is a sudoer
-#export TARGET_TAG="X"       ##      exist@hfag     webserver running ....  (not a sudoer)
- export TARGET_TAG="G1"      ##      blyth@grid1    user level tasks ... job submission 
-
-
-}
-
-
 local-sudo(){
   case ${1:-$NODE_TAG} in
   G|H|T) echo sudo ;;
       *) echo -n ;
   esac
 }
-
 
 local-backup-tag(){
    case ${1:-$NODE_TAG} in 
@@ -313,6 +174,78 @@ local-backup-tag(){
 
 
 
+
+
+local-base(){
+    case ${1:-$NODE_TAG} in 
+       G) echo /usr/local ;;
+      G1) echo /disk/d3/local ;;    ## used to be :  /data/w  then /disk/d4
+       P) echo /disk/d3/dayabay/local ;;
+       L) echo /usr/local ;;
+       H) echo /data/usr/local ;;
+       T) echo /usr/local ;;
+       N) echo $HOME/local ;;
+       C) echo /data/env/local ;;
+      XT) echo /home/tianxc ;;   
+       *) echo /usr/local ;;
+   esac
+}
+
+local-system-base(){
+   case ${1:-$NODE_TAG} in 
+      P|G1) echo /disk/d4/dayabay/local ;;
+         C) echo /data/env/system ;;
+        XT) echo /home/tianxc/system ;;
+        XX) echo /usr/local ;;
+         *) echo $(local-base $*) ;;
+   esac
+}
+
+local-var-base(){
+   case ${1:-$NODE_TAG} in 
+      U) echo /var ;;
+      P) echo /disk/d3/var ;;
+     G1) echo /disk/d3/var ;;
+      N) echo $HOME/var ;;
+     XT) echo /home/tianxc ;; 
+     XX) echo /home ;; 
+      *) echo /var ;; 
+   esac
+}
+
+local-scm-fold(){
+   echo $(local-var-base $*)/scm
+}
+
+local-user-base(){
+   case ${1:-$NODE_TAG} in
+      G) echo $HOME/Work ;;
+   P|G1) echo /disk/g3/$USER ;;
+      L) echo $(local-base L) ;;
+      H) echo $(local-base H) ;;
+      T) echo $HOME/dybwork ;;
+      N) echo $HOME ;;
+     XT) echo /home/tianxc ;;  
+      *) echo /tmp ;;
+   esac
+}
+
+local-output-base(){
+   case ${1:-$NODE_TAG} in
+      N) echo /project/projectdirs/dayabay/scratch/$USER ;;
+      *) echo $(local-user-base $*) ;;
+   esac
+}
+
+
+
+
+	
+	
+	
+	
+    
+    
 local-scm(){
 
 
@@ -385,199 +318,7 @@ export SCM_TRAC
 
 
 }
-
-
-
-
-
-
-local-layout(){
-
-#export DISK_G1=/data/w
-#export DISK_G1=/disk/d4
-#export DISK_G1=/disk/d4
-export DISK_G1=/disk/d3
-export DAYABAY_G1=$DISK_G1/dayabay
-
-## --------------  the software root for most everything ---------------------------
-##  
-
-export LOCAL_BASE_U=/usr/local
-export LOCAL_BASE_G=/usr/local
-
-## export LOCAL_BASE_P=/disk/d4/dayabay/local   ## rozz testing 
-export LOCAL_BASE_P=/disk/d3/dayabay/local
-
-export LOCAL_BASE_G1=$DAYABAY_G1/local  
-export LOCAL_BASE_L=/usr/local           
-export LOCAL_BASE_H=/data/usr/local          
-export LOCAL_BASE_T=/usr/local
-export LOCAL_BASE_N=$HOME/local
-export LOCAL_BASE_C=/data/env/local
-export LOCAL_BASE_XT=/home/tianxc
-
-local-base(){
-   local tag=${1:-$NODE_TAG} 
-   local vname=LOCAL_BASE_$tag
-   eval _LOCAL_BASE=\$$vname
-   echo ${_LOCAL_BASE:-$LOCAL_BASE_U}
-}
-
-export LOCAL_BASE=$(local-base)
-
-
-## --------------  the prequisite base for most everything, ie where to pick up subversion + 
-
-local grid1_system_base=/disk/d4/dayabay/local
-
-export SYSTEM_BASE_U=$LOCAL_BASE
-export SYSTEM_BASE_P=$grid1_system_base
-export SYSTEM_BASE_G1=$grid1_system_base
-export SYSTEM_BASE_C=/data/env/system
-export SYSTEM_BASE_XT=/home/tianxc/system
-export SYSTEM_BASE_XX=/usr/local
-
-local-system-base(){
-   local tag=${1:-$NODE_TAG} 
-   local vname=SYSTEM_BASE_$tag
-   eval _SYSTEM_BASE=\$$vname
-   echo ${_SYSTEM_BASE:-$SYSTEM_BASE_U}
-}
-
-
-export SYSTEM_BASE=$(local-system-base)
-
-
-## ----------  for operational files, like backups
-
-local-var-base(){
-   case ${1:-$NODE_TAG} in 
-      U) echo /var ;;
-      P) echo /disk/d3/var ;;
-     G1) echo /disk/d3/var ;;
-      N) echo $HOME/var ;;
-     XT) echo /home/tianxc ;; 
-     XX) echo /home ;; 
-      *) echo /var ;; 
-   esac
-}
-
-export VAR_BASE=$(local-var-base)
-
-local-scm-fold(){
-   echo $(local-var-base $*)/scm
-}
-
-export SCM_FOLD=$(local-scm-fold)
-
-
-## ------------- path on remote backup machine 
-vname=VAR_BASE_$BACKUP_TAG 
-eval _VAR_BASE_BACKUP=\$$vname
-export VAR_BASE_BACKUP=${_VAR_BASE_BACKUP:-$VAR_BASE_U}
-
-## -------------- user specific base , for users macros and job outputs ----------
-
-
-export USER_BASE_U=/tmp
-export USER_BASE_G=$HOME/Work
-export USER_BASE_P=$DISK_G1/$USER
-export USER_BASE_G1=$DISK_G1/$USER  
-export USER_BASE_L=$LOCAL_BASE_L
-export USER_BASE_H=$LOCAL_BASE_H
-export USER_BASE_T=$HOME/dybwork
-export USER_BASE_N=$HOME
-export USER_BASE_XT=/home/tianxc
-
-## if a value for the node is defined then use that, otherwise use VAR_BASE_U
-vname=USER_BASE_$NODE_TAG
-eval _USER_BASE=\$$vname
-export USER_BASE=${_USER_BASE:-$USER_BASE_U}
-
-
-
-
-
-if [ "X$DEFAULT_MACRO" == "X" ]; then
-  DEFAULT_MACRO="generator-inversebeta_seed-0_angle-0_nevts-100"
-#else
-#  echo honouring override DEFAULT_MACRO $DEFAULT_MACRO
-fi
-export DEFAULT_MACRO
-
-
-
-## --------------  for job outputs 
-
-# export OUTPUT_BASE_G=/tmp
-# export OUTPUT_BASE_P=/tmp
-# export OUTPUT_BASE_G1=/tmp
-# vname=OUTPUT_BASE_$NODE_TAG
-# eval OUTPUT_BASE=\$$vname
-
-export OUTPUT_BASE_U=$USER_BASE
-export OUTPUT_BASE_N=/project/projectdirs/dayabay/scratch/blyth
-vname=OUTPUT_BASE_$NODE_TAG
-eval _OUTPUT_BASE=\$$vname
-export OUTPUT_BASE=${_OUTPUT_BASE:-$OUTPUT_BASE_U}
-
-
-
-
-
-[ -d "$USER_BASE" ] || ( echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE )
-[ -d "$OUTPUT_BASE" ] || ( echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE )
-
-
-}
-
-
-
-
-	
-local-nodeinfo(){
-
-  tags="G P G1 L H U T"
-  for t in $tags
-  do
-     ln=LOCAL_BASE_$t
-     un=USER_BASE_$t
-
-	 if [ "$t" == "$NODE_TAG" ]; then
-		 mark="==========current=node" 
-     elif [ "$t" == "$TARGET_TAG" ]; then
-		 mark="==========target=node" 
-     else
-		 mark="=="
-     fi		 
-		 
-	 eval vln=\$$ln
-	 eval vun=\$$un
-
-	 printf "  %-25s  %-50s %-30s %s \n" $t $vln $vun $mark  
-  done	  
-
-
-}
-
-	
-local-info(){
-
-  local tags="TAG PORT USER PASS"
-  local prefixs="TARGET SCM"
-  
-  for p in $prefixs
-  do	  
-  for t in $tags
-  do
-    n="${p}_${t}"  
-	eval v=\$$n
-	printf " %-20s %s \n" $n $v 
-  done
-  done
-
-}
-
-	
-	
-	
+    
+    
+    
+    
