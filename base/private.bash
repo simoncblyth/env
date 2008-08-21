@@ -15,6 +15,8 @@ private-usage(){
       
        returns blank if not defined or if the permissions on the file are 
        not "-rw-------"
+       
+       returns silently if the file doesnt exist 
    
 EOU
 
@@ -38,6 +40,7 @@ private-val(){
   local name=${1:-PRIVATE_VARIABLE}
   local path=${2:-$(private-path)}
   
+  [ ! -f "$path" ] && return 1
   !  private-check- $(ls -l $path) ] && echo $msg ABORT inappropriate permissions on path:$path > /dev/stderr && return 1
   [ -f "$path" ] && . $path
  
