@@ -101,7 +101,6 @@ local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
          g4pb) echo G ;;
-        grid1) echo G1 ;;
          coop) echo CO ;;
         cms01) echo C ;;
       gateway) echo B ;;
@@ -179,7 +178,7 @@ local-backup-tag(){
 local-base(){
     case ${1:-$NODE_TAG} in 
        G) echo /usr/local ;;
-      G1) echo /disk/d3/local ;;    ## used to be :  /data/w  then /disk/d4
+      G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
        P) echo /disk/d3/dayabay/local ;;
        L) echo /usr/local ;;
        H) echo /data/usr/local ;;
