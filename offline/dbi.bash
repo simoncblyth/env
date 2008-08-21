@@ -50,7 +50,8 @@ dbi-build(){
 
 
 dbi-mysql(){
-  $LOCAL_BASE/mysql/bin/mysql -u root -p$NON_SECURE_PASS 
+  private-
+  $LOCAL_BASE/mysql/bin/mysql -u root -p$(private-val NON_SECURE_PASS) 
 }
 
 dbi-mysql-databases(){

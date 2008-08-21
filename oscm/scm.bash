@@ -290,7 +290,7 @@ scm-unpack(){
    
    
    #local uurl=$SCM_URL
-   #svn import $tmpdir $uurl/repos/$name/trunk/  -m "initial scm-unpack " --username $SCM_USER --password $NON_SECURE_PASS
+   #svn import $tmpdir $uurl/repos/$name/trunk/  -m "initial scm-unpack " --username $SCM_USER --password $(private-val NON_SECURE_PASS)
    #svn checkout $uurl/repos/$name/trunk/ $name
 }
 
@@ -430,9 +430,11 @@ scm-import(){
  
   iwd=$(pwd)
   cd $(dirname $fold)
+  
+  private-
   echo ======= contents of folder $fold is put under the trunk at $uurl , not the folder $fold itself === will prompt for password 
-  echo ======  svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $NON_SECURE_PASS
-               svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $NON_SECURE_PASS
+  echo ======  svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $(private-val NON_SECURE_PASS)
+               svn import $(basename $fold) $uurl/repos/$name/trunk/  -m "initial scm-import " --username $user --password $(private-val NON_SECURE_PASS)
 
   cd $iwd			   
 

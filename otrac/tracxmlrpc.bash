@@ -110,7 +110,8 @@ tracxmlrpc-permission(){
 
 tracxmlrpc-open(){
    local name=${1:-$SCM_TRAC}
-   open http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$name/login/xmlrpc
+   private-
+   open http://$USER:$(private-val NON_SECURE_PASS)@$SCM_HOST:$SCM_PORT/tracs/$name/login/xmlrpc
 }
 
 

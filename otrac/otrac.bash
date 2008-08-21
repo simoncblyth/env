@@ -44,7 +44,7 @@ otrac-base(){
  # export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
  # export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
-  export TRAC_ENV_XMLRPC="http://$USER:$NON_SECURE_PASS@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
+  export TRAC_ENV_XMLRPC="http://$USER:$(private-val NON_SECURE_PASS)@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
 
   export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
 

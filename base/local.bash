@@ -256,6 +256,8 @@ local-scm(){
 
  # if SCM_TAG is set already use that value, otherwise default to H
  
+ private-
+ 
 SCM_TAG=${SCM_TAG:-H}
 export SCM_TAG 
 
@@ -264,7 +266,7 @@ if [ "$SCM_TAG" == "P" ]; then
    SCM_HOST=grid1.phys.ntu.edu.tw
    SCM_PORT=6060
    SCM_USER=$USER
-   SCM_PASS=$NON_SECURE_PASS
+   SCM_PASS=$(private-val NON_SECURE_PASS)
    SCM_TRAC=env
    SCM_GROUP=GRID1
    
@@ -278,7 +280,7 @@ elif [ "$SCM_TAG" == "H" ]; then
    SCM_PORT=80
    
    SCM_USER=$USER
-   SCM_PASS=$NON_SECURE_PASS
+   SCM_PASS=$(private-val NON_SECURE_PASS)
    SCM_TRAC=env
    SCM_GROUP=NTU
 
@@ -290,7 +292,7 @@ elif [ "$SCM_TAG" == "G" ]; then
    SCM_HOST=localhost
    SCM_PORT=80
    SCM_USER=$USER
-   SCM_PASS=$NON_SECURE_PASS
+   SCM_PASS=$(private-val NON_SECURE_PASS)
    SCM_TRAC=workflow
    SCM_GROUP=DEV
    
