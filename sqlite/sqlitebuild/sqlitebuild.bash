@@ -27,12 +27,20 @@ sqlitebuild-env(){
    sqlite-
 }
 
+
+sqlitebuild-urlbase(){
+   case $NODE_TAG in
+     XT|XX) echo http://www.sqlite.com.cn/Upfiles/sqlite ;;
+         *) echo http://www.sqlite.com ;; 
+   esac
+}  
+
 sqlitebuild-get(){
  
     local msg="=== $FUNCNAME :"
     local nam=$SQLITE_NAME
     local tgz=$nam.tar.gz
-    local url=http://www.sqlite.com.cn/Upfiles/sqlite/$tgz
+    local url=$(sqlitebuild-urlbase)/$tgz
 
     cd $SYSTEM_BASE
     mkdir -p sqlite
