@@ -21,7 +21,7 @@ EOU
 }
 
 private-env(){
-   elocal-
+   echo -n
 }
 
 private-path(){
