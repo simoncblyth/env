@@ -208,11 +208,8 @@ dybi-install(){
   ./dybinst $DYB_VERSION ${*:-all}
 }
 
-
-
-
 dybi-osc-zip(){
-   local ver=v16r1   
+   local ver=$(dybi-osc-ver)
    echo  $DYB/external/OpenScientist/src/osc_source_$ver.zip    
 }
 
@@ -249,7 +246,10 @@ dybi-osc-patch(){
   dybi-osc-diff $opt > $path
 }
 
-
+dybi-osc-ver(){
+   #echo v16r1
+   echo v16r2
+}
 
 
 dybi-osc(){
@@ -261,7 +261,7 @@ dybi-osc(){
   
   local pwd=$PWD
   
-  local ver=v16r1
+  local ver=$(dybi-osc-ver)
   local src=$DYB/external/OpenScientist/src/OpenScientist/$ver
   local vis=$src/osc_vis/$ver/obuild  
 
