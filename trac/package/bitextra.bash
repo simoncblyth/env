@@ -29,27 +29,6 @@ bitextra-fix(){
 
 bitextra-package(){   echo bitextra ; }
 
-bitextra-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-bitextra-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-bitextra-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-bitextra-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
-bitextra-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-
-bitextra-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-bitextra-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-bitextra-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-bitextra-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
-
-bitextra-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-bitextra-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-bitextra-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-bitextra-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-bitextra-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
-
-bitextra-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
-
-bitextra-update(){    package-update    ${FUNCNAME/-*/} $* ; }
-
 
 bitextra-prepare(){
 
@@ -69,5 +48,31 @@ bitextra-prepare(){
 
 
 }
+
+
+
+
+
+
+bitextra-branch(){    package-fn  $FUNCNAME $* ; }
+bitextra-basename(){  package-fn  $FUNCNAME $* ; }
+bitextra-dir(){       package-fn  $FUNCNAME $* ; }  
+bitextra-egg(){       package-fn  $FUNCNAME $* ; }
+bitextra-get(){       package-fn  $FUNCNAME $* ; }    
+
+bitextra-install(){   package-fn  $FUNCNAME $* ; }
+bitextra-uninstall(){ package-fn  $FUNCNAME $* ; } 
+bitextra-reinstall(){ package-fn  $FUNCNAME $* ; }
+bitextra-enable(){    package-fn  $FUNCNAME $* ; }  
+
+bitextra-status(){    package-fn  $FUNCNAME $* ; } 
+bitextra-auto(){      package-fn  $FUNCNAME $* ; } 
+bitextra-diff(){      package-fn  $FUNCNAME $* ; } 
+bitextra-rev(){       package-fn  $FUNCNAME $* ; } 
+bitextra-cd(){        package-fn  $FUNCNAME $* ; } 
+
+bitextra-fullname(){  package-fn  $FUNCNAME $* ; } 
+bitextra-update(){    package-fn  $FUNCNAME $* ; } 
+
 
 

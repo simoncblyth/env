@@ -95,28 +95,7 @@ bitten-fix(){
 
 
 
-bitten-makepatch(){  package-fn $FUNCNAME $* ; }
-bitten-applypatch(){ package-fn $FUNCNAME $* ; }
 
-
-bitten-branch(){    package-fn $FUNCNAME $* ; }
-bitten-basename(){  package-fn $FUNCNAME $* ; }
-bitten-dir(){       package-fn $FUNCNAME $* ; } 
-bitten-egg(){       package-fn $FUNCNAME $* ; }
-bitten-get(){       package-fn $FUNCNAME $* ; }
-
-bitten-install(){   package-fn $FUNCNAME $* ; }
-bitten-uninstall(){ package-fn $FUNCNAME $* ; }
-bitten-reinstall(){ package-fn $FUNCNAME $* ; }
-bitten-enable(){    package-fn $FUNCNAME $* ; }
-
-bitten-status(){    package-fn $FUNCNAME $* ; }
-bitten-auto(){      package-fn $FUNCNAME $* ; }
-bitten-diff(){      package-fn $FUNCNAME $* ; } 
-bitten-rev(){       package-fn $FUNCNAME $* ; } 
-bitten-cd(){        package-fn $FUNCNAME $* ; }
-
-bitten-fullname(){  package-fn $FUNCNAME $* ; }
 
 
 bitten-perms(){
@@ -152,6 +131,41 @@ bitten-extras-get(){
    svn co http://bitten.ufsoft.org/svn/BittenExtraTrac/trunk/  bittentrac
    svn co http://bitten.ufsoft.org/svn/BittenExtraNose/trunk/  nosebitten
 }
+
+
+
+
+
+
+
+bitten-makepatch(){  package-fn $FUNCNAME $* ; }
+bitten-applypatch(){ package-fn $FUNCNAME $* ; }
+
+
+
+
+
+bitten-branch(){    package-fn $FUNCNAME $* ; }
+bitten-basename(){  package-fn $FUNCNAME $* ; }
+bitten-dir(){       package-fn $FUNCNAME $* ; } 
+bitten-egg(){       package-fn $FUNCNAME $* ; }
+bitten-get(){       package-fn $FUNCNAME $* ; }
+
+bitten-install(){   package-fn $FUNCNAME $* ; }
+bitten-uninstall(){ package-fn $FUNCNAME $* ; }
+bitten-reinstall(){ package-fn $FUNCNAME $* ; }
+bitten-enable(){    package-fn $FUNCNAME $* ; }
+
+bitten-status(){    package-fn $FUNCNAME $* ; }
+bitten-auto(){      package-fn $FUNCNAME $* ; }
+bitten-diff(){      package-fn $FUNCNAME $* ; } 
+bitten-rev(){       package-fn $FUNCNAME $* ; } 
+bitten-cd(){        package-fn $FUNCNAME $* ; }
+
+bitten-fullname(){  package-fn $FUNCNAME $* ; }
+bitten-update(){    package-fn $FUNCNAME $* ; }
+
+
 
 
 

@@ -7,7 +7,6 @@ bittennotify-usage(){
    
      http://trac.3dbits.de/bittennotify/wiki
    
-   
 EOU
 
 }
@@ -21,11 +20,22 @@ bittennotify-env(){
 bittennotify-revision(){  echo 28 ; }
 bittennotify-url(){     echo http://svn.3dbits.de/bittennotify/$(bittennotify-branch) ;}
 
-
 bittennotify-fix(){
    cd $(bittennotify-dir)   
    echo no fix
 }
+
+bittennotify-conf(){
+   trac-notify-conf
+   trac-configure notification:notify_on_failed_build:true
+   trac-configure notification:notify_on_successful_build:true
+}
+
+bittennotify-prepare(){
+   bittennotify-enable $*
+   bittennotify-conf
+}
+
 
 
 
@@ -51,21 +61,4 @@ bittennotify-update(){    package-fn $FUNCNAME $* ; }
 
 
 
-bittennotify-conf(){
-
-   trac-notify-conf
-   trac-configure notification:notify_on_failed_build:true
-   trac-configure notification:notify_on_successful_build:true
-
-}
-
-
-
-
-bittennotify-prepare(){
-
-   bittennotify-enable $*
-   bittennotify-conf
-
-}
 

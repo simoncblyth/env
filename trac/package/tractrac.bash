@@ -60,26 +60,37 @@ tractrac-fix(){
    echo no fixes
 }
 
-tractrac-update(){   package-fn $FUNCNAME $* ; } 
+tractrac-makepatch(){  package-fn $FUNCNAME $* ; }
+tractrac-applypatch(){ package-fn $FUNCNAME $* ; }
 
 
-tractrac-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-tractrac-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-tractrac-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-tractrac-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
-tractrac-get(){       package-get       ${FUNCNAME/-*/} $* ; }
 
-tractrac-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-tractrac-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-tractrac-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-tractrac-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
 
-tractrac-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-tractrac-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-tractrac-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-tractrac-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-tractrac-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
-tractrac-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+
+tractrac-branch(){    package-fn  $FUNCNAME $* ; }
+tractrac-basename(){  package-fn  $FUNCNAME $* ; }
+tractrac-dir(){       package-fn  $FUNCNAME $* ; }  
+tractrac-egg(){       package-fn  $FUNCNAME $* ; }
+tractrac-get(){       package-fn  $FUNCNAME $* ; }    
+
+tractrac-install(){   package-fn  $FUNCNAME $* ; }
+tractrac-uninstall(){ package-fn  $FUNCNAME $* ; } 
+tractrac-reinstall(){ package-fn  $FUNCNAME $* ; }
+tractrac-enable(){    package-fn  $FUNCNAME $* ; }  
+
+tractrac-status(){    package-fn  $FUNCNAME $* ; } 
+tractrac-auto(){      package-fn  $FUNCNAME $* ; } 
+tractrac-diff(){      package-fn  $FUNCNAME $* ; } 
+tractrac-rev(){       package-fn  $FUNCNAME $* ; } 
+tractrac-cd(){        package-fn  $FUNCNAME $* ; } 
+
+tractrac-fullname(){  package-fn  $FUNCNAME $* ; } 
+tractrac-update(){    package-fn  $FUNCNAME $* ; } 
+
+
+
+
+
 
 

@@ -44,31 +44,6 @@ trac2mediawiki-fix(){
 }
 
 
-
-
-
-
-trac2mediawiki-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-trac2mediawiki-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-get(){       package-get       ${FUNCNAME/-*/} $* ; }
-
-trac2mediawiki-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
-
-trac2mediawiki-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-trac2mediawiki-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-trac2mediawiki-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-trac2mediawiki-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
-
-trac2mediawiki-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
-
-
-
 trac2mediawiki-place-macros(){
 
    local instance=${1:-$TRAC_INSTANCE}
@@ -115,4 +90,32 @@ trac2mediawiki-prepare(){
     trac2mediawiki-enable $*
 
 }
+
+
+
+trac2mediawiki-branch(){    package-fn  $FUNCNAME $* ; }
+trac2mediawiki-basename(){  package-fn  $FUNCNAME $* ; }
+trac2mediawiki-dir(){       package-fn  $FUNCNAME $* ; }  
+trac2mediawiki-egg(){       package-fn  $FUNCNAME $* ; }
+trac2mediawiki-get(){       package-fn  $FUNCNAME $* ; }    
+
+trac2mediawiki-install(){   package-fn  $FUNCNAME $* ; }
+trac2mediawiki-uninstall(){ package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-reinstall(){ package-fn  $FUNCNAME $* ; }
+trac2mediawiki-enable(){    package-fn  $FUNCNAME $* ; }  
+
+trac2mediawiki-status(){    package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-auto(){      package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-diff(){      package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-rev(){       package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-cd(){        package-fn  $FUNCNAME $* ; } 
+
+trac2mediawiki-fullname(){  package-fn  $FUNCNAME $* ; } 
+trac2mediawiki-update(){    package-fn  $FUNCNAME $* ; } 
+
+
+
+
+
+
 

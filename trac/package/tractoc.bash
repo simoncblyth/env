@@ -39,24 +39,30 @@ tractoc-fix(){
 
 
 
-tractoc-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
-tractoc-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
-tractoc-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
-tractoc-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
-tractoc-get(){       package-get       ${FUNCNAME/-*/} $* ; }
 
-tractoc-install(){   package-install   ${FUNCNAME/-*/} $* ; }
-tractoc-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
-tractoc-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
-tractoc-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
+tractoc-makepatch(){  package-fn $FUNCNAME $* ; }
+tractoc-applypatch(){ package-fn $FUNCNAME $* ; }
 
-tractoc-status(){    package-status    ${FUNCNAME/-*/} $* ; }
-tractoc-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
-tractoc-diff(){      package-diff      ${FUNCNAME/-*/} $* ; } 
-tractoc-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
-tractoc-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
-tractoc-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+tractoc-branch(){    package-fn  $FUNCNAME $* ; }
+tractoc-basename(){  package-fn  $FUNCNAME $* ; }
+tractoc-dir(){       package-fn  $FUNCNAME $* ; }  
+tractoc-egg(){       package-fn  $FUNCNAME $* ; }
+tractoc-get(){       package-fn  $FUNCNAME $* ; }    
+
+tractoc-install(){   package-fn  $FUNCNAME $* ; }
+tractoc-uninstall(){ package-fn  $FUNCNAME $* ; } 
+tractoc-reinstall(){ package-fn  $FUNCNAME $* ; }
+tractoc-enable(){    package-fn  $FUNCNAME $* ; }  
+
+tractoc-status(){    package-fn  $FUNCNAME $* ; } 
+tractoc-auto(){      package-fn  $FUNCNAME $* ; } 
+tractoc-diff(){      package-fn  $FUNCNAME $* ; } 
+tractoc-rev(){       package-fn  $FUNCNAME $* ; } 
+tractoc-cd(){        package-fn  $FUNCNAME $* ; } 
+
+tractoc-fullname(){  package-fn  $FUNCNAME $* ; } 
+tractoc-update(){    package-fn  $FUNCNAME $* ; } 
 
 
 
