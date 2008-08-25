@@ -121,7 +121,7 @@ python-libdir(){
 
 
 python-pth(){
-  cat $PYTHON_SITE/easy-install.pth
+  cat $(python-site)/easy-install.pth
 }
 
 
@@ -132,7 +132,7 @@ python-uneasy(){
 
 
    local name=$1
-   local pth=$PYTHON_SITE/easy-install.pth
+   local pth=$(python-site)/easy-install.pth
    local cmd="$SUDO perl -pi -e \"s/^\.\/$name.*\n$//\" $pth "
    
    echo $msg removing the $name entry from $pth
@@ -148,12 +148,14 @@ python-unegg(){
 
    local msg="=== $FUNCNAME :"
    local eggname=$1
+   local site=$(python-site)
+   
    [ -z "$eggname" ]          && echo $msg ABORT null eggname [$eggname] cannot proceed && return 1 
-   [ ${#PYTHON_SITE} -lt 10 ] && echo $msg ABORT length of PYTHON_SITE [$PYTHON_SITE] is too short... cannot proceed && return 1 
+   [ ${#site} -lt 10 ]        && echo $msg ABORT length of site [$site] is too short... cannot proceed && return 1 
    
    local iwd=$PWD
-   cd $PYTHON_SITE
-   [ ! -d $eggname ] && echo $msg ERROR cannot find egg folder $eggname in PYTHON_SITE $PYTHON_SITE && return 1
+   cd $site
+   [ ! -d $eggname ] && echo $msg ERROR cannot find egg folder $eggname in site $site && return 1
    
    local cmd="$SUDO rm -rf $eggname " 
    echo $msg proceeding with: $cmd
@@ -203,7 +205,7 @@ python-i(){ . $SCM_HOME/python.bash ; }
 
 python-mac-check(){
 
-   find $PYTHON_SITE -name '*.so' -exec otool -L {} \; | grep ython
+   find $(python-site) -name '*.so' -exec otool -L {} \; | grep ython
 
 }
 

@@ -32,18 +32,22 @@ tractrac-env(){
 }
 
 tractrac-version2branch(){
+
+  ## http://trac.edgewall.org/browser/tags
   case $1 in 
-        0.11) echo tags/trac-0.11    ;;
-      0.11b1) echo tags/trac-0.11b1  ;;
-     0.11rc1) echo tags/trac-0.11rc1 ;; 
-      0.10.4) echo tags/trac-0.10.4  ;;
        trunk) echo trunk ;;
+      0.11.1) echo tags/trac-0.11.1  ;;
+        0.11) echo tags/trac-0.11    ;;
+     0.11rc1) echo tags/trac-0.11rc1 ;; 
+      0.11b1) echo tags/trac-0.11b1  ;;
+      0.10.4) echo tags/trac-0.10.4  ;;
   esac
 }
 
 tractrac-branch2revision(){
    case $1 in 
-      tags/trac-0.11) echo 7236 ;;   
+      tags/trac-0.11) echo 7236 ;; 
+    tags/trac-0.11.1) echo 7451 ;;    
                    *) echo HEAD ;;
    esac
 }
