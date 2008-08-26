@@ -26,10 +26,23 @@ autocomp-env(){
 
 
 autocomp-sync(){
-   local cmd="$SUDO python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $*) $(trac-administrator)"
+   local cmd="python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $*) $(trac-administrator)"
    echo $cmd
    eval $cmd
+   
+   #  on cms01 when using direct $SUDO approacg run into
+   #    /data/env/system/python/Python-2.5.1/bin/python: 
+   #       error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
+   #
+   
 }
+
+
+autocomp-sudosync(){
+   $SUDO bash -lc "trac- ; autocomp- ; autocomp-sync "
+}
+
+
 
 autocomp-help(){
 
