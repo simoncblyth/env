@@ -2,6 +2,7 @@
 
 apachebuild-(){ . $ENV_HOME/apache/apachebuild/apachebuild.bash && apachebuild-env $* ; } 
 apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash   && apacheconf-env $* ; } 
+apachepriv-(){  . $ENV_HOME/apache/apacheconf/apachepriv.bash   && apachepriv-env $* ; } 
 modpython-(){   . $ENV_HOME/apache/apachebuild/modpython.bash   && modpython-env $* ; }
 mpinfo-(){      . $ENV_HOME/apache/apachebuild/mpinfo.bash      && mpinfo-env $* ; } 
 iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env $* ; }
@@ -36,6 +37,7 @@ apache-usage(){
       apache-envvars     : $(apache-envvars)
       apache-target      : $(apache-target)
       apache-confdir     : $(apache-confdir)
+      apache-fragmentpath demo :  $(apache-fragmentpath demo)    
       apache-modulesdir  : $(apache-modulesdir)
       apache-htdocs      : $(apache-htdocs)
       apache-logdir      : $(apache-logdir)
@@ -133,6 +135,11 @@ apache-confdir(){
   esac
 }
 
+apache-fragmentpath(){
+   echo $(apache-confdir)/${1:-fragment}.conf
+}
+
+
 apache-htdocs(){
   
   case $NODE_TAG in 
@@ -161,9 +168,12 @@ apache-logdir(){
 apache-conf(){
    echo $(apache-confdir)/httpd.conf
 }   
+
+
+
      
 apache-vi(){
-   vi $(apache-conf)
+   $SUDO vi $(apache-conf)
 }
          
   
