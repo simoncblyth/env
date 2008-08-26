@@ -26,6 +26,8 @@ autocomp-env(){
 
 
 autocomp-sync(){
+   
+   sqlite-
    local cmd="python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $*) $(trac-administrator)"
    echo $cmd
    eval $cmd
