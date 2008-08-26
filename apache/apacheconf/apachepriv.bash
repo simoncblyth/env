@@ -3,6 +3,9 @@ apachepriv-usage(){
 
   cat << EOU
 
+    CAUTION NOT YET FULLY TESTED 
+
+
       apachepriv-url demo      : $(apachepriv-url demo)
                NB the trailing slash is required
 
