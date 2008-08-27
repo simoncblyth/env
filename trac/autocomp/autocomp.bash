@@ -9,6 +9,18 @@ autocomp-usage(){
              sync the components (names and owners) as specified by the owner
              properties on directories in the repository with the component list used for ticket creation 
 
+            on cms01 when using direct $SUDO approacg run into
+              /data/env/system/python/Python-2.5.1/bin/python: 
+              error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
+   
+                 see #e111
+
+
+
+    autocomp-sudosync  <env-name>  
+              as the script writes to the trac log ... this sudo form is usally needed 
+
+
      autocomp-help           
      
              pydoc of the autocomponent module 
@@ -27,21 +39,18 @@ autocomp-env(){
 
 autocomp-sync(){
    
+   local name=${1:-$TRAC_INSTANCE}
    sqlite-
-   local cmd="python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $*) $(trac-administrator)"
+   local cmd="python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $name) $(trac-administrator)"
    echo $cmd
    eval $cmd
    
-   #  on cms01 when using direct $SUDO approacg run into
-   #    /data/env/system/python/Python-2.5.1/bin/python: 
-   #       error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
-   #
-   
+     
 }
 
 
 autocomp-sudosync(){
-   $SUDO bash -lc "trac- ; autocomp- ; autocomp-sync "
+   sudo bash -lc "trac- ; autocomp- ; autocomp-sync $* "
 }
 
 

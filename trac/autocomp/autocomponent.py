@@ -28,7 +28,7 @@
               sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/dybsvn blyth
               sudo python $ENV_HOME/trac/autocomp/autocomponent.py $SCM_FOLD/tracs/dybsvn ntusync
              OR more simply 
-               trac-; autocomp-; autocomp-sync <name-defaulting-to-TRAC_INSTANCE>  
+               trac-; autocomp-; autocomp-sudosync <name-defaulting-to-TRAC_INSTANCE>  
            
             sudo is needed as the trac log file is written to 
     
@@ -124,13 +124,13 @@ class Repository:
         for i in range(len(elem)-1,0,-1):
             pp = '/'.join(elem[0:i])
             if not(self.is_selected(pp)):
-                pnode = self.current_node(pp) 
-                if pnode.isdir:
-                    self.select_node( pnode )
                 name = self.schema.path2compname(pp)
+                pnode = self.current_node(pp) 
                 if self.schema.is_seedcomp(name):
                     print "%s parent_select [%s] [%s] stop selection above this seed node " % ( self, pp , name ) 
                     return
+                if pnode.isdir:
+                    self.select_node( pnode )
     
     
     def select_node(self, node):
@@ -224,7 +224,7 @@ def autocomp(args):
         elif nmatch == 1 :
             c_name, c_owner = match_comps[0]
             if c_owner == owner:
-                msg = "same" 
+                msg = "same owner -- no action" 
             else:
                 msg = "update former owner %s " % ( c_owner ) 
                 to_update.append( (name, owner) )
