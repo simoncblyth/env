@@ -34,8 +34,26 @@ cat << EOU
        recovers the users and permissions files from the last backup
   
   
+   scm-recover-lastlinks  <typ>     
+      
+      <typ> defaults to tar.gz
+      
+       this must be run from the backup folder that should contain
+       the "last" link eg :
+            /var/scm/backup/cms01/tracs/env
+                    last -> 2008/08/14/174749
+     
+       if the "last" link exists then exit without doing anything, 
+       however if the last link has been collapsed into a folder 
+       (eg by web transfers or non-careful copying) 
+       then delete that folder and attempt to recreate the 
+       "last" link to the directory containing the last file of type
+       
   
-   scm-backup-rsync :   to the paired node   
+  
+   scm-backup-rsync :   to the paired node
+         to override and send the backup to non-standard destination:    
+             BACKUP_TAG=G3R scm-backup-rsync
 
 
    scm-backup-rsync-from-node : 
@@ -155,6 +173,9 @@ scm-backup-all(){
 
 
 
+
+
+
 scm-recover-all(){
 
    # 
@@ -164,8 +185,8 @@ scm-recover-all(){
    local fromnode=${1:-dummy}
    [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
    
-   local repos=$(svn-repo-dirname)
-   local types="$repos tracs"
+   #local repos=$(svn-repo-dirname)
+   local types="repos tracs svn"
    for type in $types
    do
       
@@ -412,6 +433,44 @@ scm-backup-sudouser(){
 }
 
 
+
+scm-recover-lastlinks(){
+
+   local msg="=== $FUNCNAME :"
+   local typ=${1:-tar.gz}
+   
+   [ -L last ] && echo $msg last links in path $path already present ... nothing to do && return 0
+   [ -d last -a ! -L last ] && echo $msg deleting directory && rm -rf last
+
+   local lst=$(scm-backup-last-of-type $typ)
+   local dst=$(dirname $lst)
+
+   [   -z $dst ] && echo $msg ERROR no last $typ found     && return 1
+   [ ! -d $dst ] && echo $msg ERROR no such directory $dst && return 2
+
+   echo $msg planting last link to dst $dst in $PWD 
+   ln -sf $dst last 
+   
+}
+
+
+scm-backup-last-of-type(){
+   
+   local typ=${1:-tar.gz}
+   declare -a list
+   list=($(find . -name "*.$typ" | sort)) 
+   local n=${#list[@]}
+   local m=$(($n - 1))
+      
+   if [ $m -gt -1 ]; then
+      local last=${list[$m]}
+      echo $last
+   else
+      echo -n
+   fi
+}
+
+
 scm-recover-repo(){
 
    local msg="=== $FUNCNAME :"
@@ -425,11 +484,11 @@ scm-recover-repo(){
    
    local sudouser=$(scm-backup-sudouser)
    
-   #
-   #  hmm must be careful with copies of the tarballs to prevent collapsing the link
-   #
-   
    cd $path
+   
+   # recover collapsed links
+   scm-recover-lastlinks tar.gz
+   
    local stamp=$(readlink last)
    local target_fold=$path/$stamp
    cd $target_fold
