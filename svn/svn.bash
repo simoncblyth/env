@@ -57,21 +57,21 @@ svnsync-(){       . $ENV_HOME/svn/svnsync/svnsync.bash     && svnsync-env  $* ; 
 svn-setupdir(){
   case ${1:-$NODE_TAG} in 
      H) echo  $(apache-confdir)          ;;
-     G) echo  $(apache-confdir)/local    ;;
+ old-G) echo  $(apache-confdir)/local    ;;
      *) echo  $(apache-confdir)/svnsetup ;;
   esac
 }
 
 svn-authzname(){ 
   case ${1:-$NODE_TAG} in
-     H|G)  echo svn-apache2-authzaccess ;;
+ H|old-G)  echo svn-apache2-authzaccess ;;
        *)  echo authz.conf              ;;
   esac    
 }
 
 svn-usersname(){ 
   case ${1:-$NODE_TAG} in
-     H|G) echo svn-apache2-auth ;;
+ H|old-G) echo svn-apache2-auth ;;
        *) echo users.conf       ;; 
   esac   
 }

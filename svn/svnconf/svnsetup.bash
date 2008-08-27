@@ -37,6 +37,7 @@ svnsetup-usage(){
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
+     svnsetup-svn   <path/to/svn.conf>    ## for IHEP svn topfold of /svn
      svnsetup-authz <path/to/authz.conf>
      
            writes to /tmp/env/svnsetup/{tracs,repos,authz}.conf 
@@ -138,6 +139,7 @@ svnsetup-apache(){
       $SUDO mkdir -p $base 
       svnsetup-chown $base 
       
+      echo addline... Include $base/setup.conf
       apache-
       apache-addline "Include $base/setup.conf"
    
@@ -146,7 +148,8 @@ svnsetup-apache(){
    fi
 
    svnsetup-tracs $base/tracs.conf 
-   svnsetup-repos $base/repos.conf
+   svnsetup-repos $base/repos.conf anon-or-real repos
+   svnsetup-svn   $base/svn.conf   anon-or-real svn      ## for recovered IHEP repositories
    svnsetup-setup $base/setup.conf
    
    local authz=$(svn-authzpath)
@@ -179,9 +182,9 @@ svnsetup-chown(){
 
 svnsetup-tracs(){ svnsetup-location- $FUNCNAME $* ; }
 svnsetup-repos(){ svnsetup-location- $FUNCNAME $* ; }
+svnsetup-svn(){   svnsetup-location- $FUNCNAME $* ; }
 svnsetup-authz(){ svnsetup-location- $FUNCNAME $* ; }
 svnsetup-setup(){ svnsetup-location- $FUNCNAME $* ; }
-
 
 
 svnsetup-location-(){
@@ -191,7 +194,7 @@ svnsetup-location-(){
   shift
   case $flavor in 
     tracs) echo -n ;;
-    repos) echo -n ;;
+repos|svn) echo -n ;;
     authz) echo -n ;;
     setup) echo -n ;;
         *) echo $msg ABORT this should be invoked by svnsetup-tracs/repos .. && return 1
@@ -236,6 +239,7 @@ cat << EOU
 #   \$(svn-setupdir)     :  $(svn-setupdir)
 #
 Include $dir/repos.conf
+Include $dir/svn.conf
 Include $dir/tracs.conf
 
 EOU
@@ -335,12 +339,14 @@ EOC
 
 }
 
-
-
+svnsetup-svn-(){
+  svnsetup-repos- $*  
+}
 
 svnsetup-repos-(){
 
   local securitylevel=${1:-anon-or-real}
+  local topfold=${2:-repos} 
    
 cat << EOH
 
@@ -348,6 +354,7 @@ cat << EOH
 #    $msg $BASH_SOURCE  $(date)
 #
 #     securitylevel:[$securitylevel] 
+#     topfold : [$topfold]
 #
 #     \$SCM_FOLD                 : $SCM_FOLD
 #     \$(svn-authzpath)          : $(svn-authzpath)
@@ -357,9 +364,9 @@ cat << EOH
 #     NB no need to restart apache2 on creating new repositories
 #
 #
-<Location /repos>
+<Location /$topfold>
       DAV svn
-      SVNParentPath $SCM_FOLD/repos
+      SVNParentPath $SCM_FOLD/$topfold
       ## allow raw apache+svn to provide a list of repositories
       SVNListParentPath on
       ##SVNIndexXSLT /resources/xslt/svnindex.xsl

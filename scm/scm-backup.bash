@@ -522,15 +522,15 @@ scm-recover-repo(){
             $SUDO ln -sf $tgzpath ${name}-scm-recover-repo
             
             $SUDO rm -f $tgzname.tar.gz
-            
-    
+        
             ## svn tarballs have the revision number appended to their names
             if [ "$tgzname" != "$name" ]; then
               $SUDO mv $tgzname $name
             fi
-            
             local user=$(apache-user)
-            $SUDO chown -R $user $tgzname 
+            $SUDO chown -R $user $name
+            
+            
             
          fi      
       else

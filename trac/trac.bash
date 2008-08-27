@@ -215,10 +215,16 @@ trac-user(){
 trac-major(){   echo ${TRAC_VERSION:0:4} ; }
 trac-envpath(){ echo $SCM_FOLD/tracs/${1:-$TRAC_INSTANCE} ; }
 trac-repopath(){ 
-   case $NODE_TAG in 
-      XX) echo $SCM_FOLD/svn/${1:-$TRAC_INSTANCE} ;; 
-       *) echo $SCM_FOLD/repos/${1:-$TRAC_INSTANCE} ;; 
-   esac
+   local name=${1:-$TRAC_INSTANCE}
+   
+   ## special case for recoverd dybsvn on G 
+   if [ "$NODE_TAG" == "G" -a "$name" == "dybsvn" ]; then
+      utag="XX"
+   else
+      utag=$NODE_TAG   
+   fi
+   svn-
+   echo $SCM_FOLD/$(svn-repo-dirname $utag)/$name 
 }
 trac-logpath(){ echo $(trac-envpath $*)/log/trac.log ; }
 trac-inipath(){ echo $(trac-envpath $*)/conf/trac.ini ; }
@@ -390,10 +396,10 @@ EOI
 
 
 
-trac-upgrade(){
+trac-configure-all(){
 
     local msg="=== $FUNCNAME :"
-    echo $msg this is poorly named configure-all would be more appropriate
+    echo $msg this is re-named from upgrade as configure-all is more appropriate
 
     for name in $(trac-instances)
     do
