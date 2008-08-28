@@ -7,6 +7,8 @@
 env-home(){       echo $(dirname $BASH_SOURCE) ; }
 
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
+scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
+
 
 private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
 
@@ -44,8 +46,8 @@ enscript-(){    . $ENV_HOME/enscript/enscript.bash  && enscript-env  $* ; }
 
 
 
-bitrun-(){      
-  [ -n "$NUWA_HOME" ] && . $NUWA_HOME/dybgaudi/DybTest/scripts/bitrun.bash || .  $ENV_HOME/bitrun/bitrun.bash  
+slave-(){      
+  [ -n "$NUWA_HOME" ] && . $NUWA_HOME/dybgaudi/DybTest/scripts/slave.bash || .  $ENV_HOME/bitrun/bitrun.bash  
 } 
 
 nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
