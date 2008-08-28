@@ -3,9 +3,11 @@
 traccomp-usage(){
    cat << EOU
    
-     THIS IS DEPRECATED BY PYTHON BASED SYNCING OF svn owner properties trac/autocomp/autocomp.bash 
+     NB this is just for the "manual" components ... the components that 
+     are closely related to repository paths are managed via the autocomponent
+     machinery that uses svn "owner" properties in the repository 
    
-   
+     
       traccomp-add <path>   defaulting to $(traccomp-path)
       
             add components/owners to trac instance using trac-admin- 
@@ -29,26 +31,20 @@ traccomp-env(){
    trac-
 }
 
-traccomp-prepare(){
-   traccomp-clear
-   traccomp-add
-}
 
-
-traccomp-clear(){
-   SUDO=sudo trac-admin- component remove component1
-   SUDO=sudo trac-admin- component remove component2
+traccomp-remove(){
+   for c in $* ; do
+      SUDO=sudo trac-admin- component remove $c
+   done
 }
 
 traccomp-path(){
    echo $ENV_HOME/trac/nuwacomp.txt
 }
 
-
 traccomp-default-owner(){
    echo offline
 }
-
 
 traccomp-add(){
 
@@ -62,7 +58,6 @@ traccomp-add(){
         local name=""
         local owner=""
        
-        
         for wd in $line ; do 
            if [ "$wd" == ":" ]; then
               field=$(($field + 1))
@@ -87,33 +82,6 @@ traccomp-add(){
 }
 
 
-traccomp-owner(){
-   local owner=$(svn propget owner $1 2>/dev/null) 
-   [ -n "$owner" ] && owner=": $owner"
-   echo $owner
-}
-
-traccomp-from-wc(){
-
-    local path=$1
-    local proj=$(basename $path)
-    
-    echo 
-    echo $proj / $(traccomp-owner $path) 
-    [ -n "$TRACCOMP_BRIEF" ] && return 0
-    
-    local iwd=$PWD
-    cd $path
-    for name in $(ls -1) ; do
-           case $name in 
-     cmt|InstallArea)  echo -n  ;;
-                   *) [ -d $name ]  && echo $proj / $name $(traccomp-owner $name)   ;; 
-            
-           esac
-    done
-    cd $iwd
-
-}
 
 
 
