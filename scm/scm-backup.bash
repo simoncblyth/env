@@ -52,7 +52,8 @@ cat << EOU
   
   
    scm-backup-rsync :   to the paired node
-         to override and send the backup to non-standard destination:    
+         to override and send the backup to non-standard destination,
+        eg while not inside home internal network need to use G3R
              BACKUP_TAG=G3R scm-backup-rsync
 
 
@@ -311,8 +312,9 @@ scm-backup-purge(){
 
 scm-backup-rls(){
    local tag=${1:-$BACKUP_TAG}
+   local day=$(base-datestamp now %Y/%m/%d)
    [ -z $tag ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
-   ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \;"
+   ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"
 }
 
 
@@ -321,7 +323,7 @@ scm-backup-mail(){
   local msg="=== $FUNCNAME :"
   local rls=/tmp/$FUNCNAME.txt
   
-  echo $msg writing to $rls
+  echo $msg writing to $rls    
   scm-backup-rls > $rls
   
   echo $msg sendmail $rls
