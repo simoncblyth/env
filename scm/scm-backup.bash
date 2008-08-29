@@ -136,30 +136,36 @@ scm-backup-postfix-start(){
 
 scm-backup-all(){
    
+   local msg="=== $FUNCNAME :"
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
    local repos=$(svn-repo-dirname)
    
-   for path in $SCM_FOLD/$repos/*
-   do  
-       if [ -d $path ]; then 
-          python-
-          local name=$(basename $path)
-          scm-backup-repo $name $path $base $stamp        
-       else
-  	      echo === scm-backup-all repo === skip non-folder $path 
-  	   fi
-   done
+   python-
+   sqlite-
    
-   for path in $SCM_FOLD/tracs/*
-   do  
-       if [ -d $path ]; then 
-	   python-
-           local name=$(basename $path)
-           scm-backup-trac $name $path $base $stamp  
-  		else
-  		   echo === scm-backup-all trac === skip non-folder $path
-  		fi
+   local typs="$repos tracs"
+   for typ in $typs
+   do
+       for path in $SCM_FOLD/$typ/*
+       do  
+           if [ -d $path ]; then 
+               local name=$(basename $path)
+               local inhibiter=$(dirname $path)/${name}-scm-recover-repo
+               if [ -L $inhibiter ]; then
+                    echo $msg INHIBIT BACKUP of recovered environment, delete the inhibiter $inhibiter to backup this environment $path
+               else
+                    echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD
+                    case $typ in 
+                         tracs) scm-backup-trac $name $path $base $stamp  ;;
+                     repos|svn) scm-backup-repo $name $path $base $stamp  ;;
+                             *) echo $msg ERROR unhandled typ $typ ;;
+                    esac           
+  		       fi
+           else
+  		       echo $msg $typ === skip non-folder $path
+  		   fi
+       done
    done
    
    svn-
