@@ -480,6 +480,7 @@ trac-triplets(){
       trac:base_url:$url
       header_logo:link:$url
       project:url:$url
+      ticket:restrict_owner:true
 EOT
 
 }
@@ -488,7 +489,7 @@ trac-notify-triplets(){
 
    ## hmm how to set up the config that is distinct for build nodes ?
    ##
-  local notify="notification:smtp_default_domain:localhost notification:smtp_enabled:true"
+  local notify="notification:smtp_default_domain:localhost notification:smtp_enabled:true notification:use_public_cc:true"
   trac-configure $notify 
 
 }
