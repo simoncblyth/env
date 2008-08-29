@@ -82,14 +82,12 @@ host B
 host C
     hostname 140.112.101.190
     protocol 2 
-              	     
-host G3R
-    hostname g3pb.ath.cx
+     
+host S
+    hostname 140.112.101.190
     protocol 2 
-	
-host G3
-    hostname 10.0.1.103
-    protocol 2 
+    user dayabayscp                                 
+                                                              	     
 	
 host BP
     hostname bpost.kek.jp
@@ -155,6 +153,9 @@ host S
 EOS
 fi
 
+
+  [ -f $HOME/.ssh/local-config ] && cat $HOME/.ssh/local-config  >> $HOME/.ssh/config
+  
 
   echo $msg restricting access with chmod ...  needed for newer ssh ??
   chmod go-rw $cfg

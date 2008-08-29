@@ -33,15 +33,62 @@ scponly-usage(){
          
                                      
       Manual steps ..
-         1)  add $(scponly-bin)  to /etc/shells
-         2)  useradd -d /home/tianxc -s $(scponly-bin) tianxc                                                                                    
+         1)  introduce the scponly shell to the system 
+         
+                 cat /etc/shells
+                 sudo bash -c "echo $(scponly-bin) >> /etc/shells "
+         
+         2)  add user http://www.linfo.org/useradd.html
+
+                  cat /etc/passwd 
+                  sudo  /usr/sbin/useradd -d $(dirname $HOME)/dayabayscp -s $(scponly-bin) dayabayscp                                                                                    
+                 
+         3) set the passwrd
+         
+                 sudo passwd dayabayscp
+Password:
+Changing password for user dayabayscp.
+New UNIX password: 
+Retype new UNIX password: 
+passwd: all authentication tokens updated successfully. 
                 
+        4) change ownership of /home/dayabayscp
+                 
+               sudo chown root:root /home/dayabayscp             
+               
+            from scponly README/INSTALL :
                 It is very important that the user's home directory 
                 be unwritable by the user, as a writable homedir 
                 will make it possible for users to subvert scponly 
                 by modifying ssh configuration files.                                                                                                                                     
                
-             sudo chown root /home/tianxc  
+        
+               
+        test scp to /tmp
+        
+    simon:~ blyth$ scp yum.list dayabayscp@cms01.phys.ntu.edu.tw:/tmp/
+The authenticity of host 'cms01.phys.ntu.edu.tw (140.112.101.190)' can't be established.
+RSA key fingerprint is c2:3f:91:87:91:21:98:1b:91:fe:c2:c4:1f:5b:de:6c.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'cms01.phys.ntu.edu.tw' (RSA) to the list of known hosts.
+Scientific Linux CERN SLC release 4.6 (Beryllium)
+dayabayscp@cms01.phys.ntu.edu.tw's password: 
+Could not chdir to home directory /home/dayabayscp: Permission denied
+yum.list            
+        
+                                    
+          test login attempt                           
+                                    
+               
+        simon:~ blyth$ ssh S
+Scientific Linux CERN SLC release 4.6 (Beryllium)
+dayabayscp@140.112.101.190's password: 
+Could not chdir to home directory /home/dayabayscp: Permission denied
+Connection to 140.112.101.190 closed.  
+                    
+               
+               
+         next ... key setup     
                
                
                    
