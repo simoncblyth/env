@@ -143,7 +143,7 @@ bittennotify-(){      . $ENV_HOME/trac/package/bittennotify.bash && bittennotify
 
 trac-instance(){
     case ${1:-$NODE_TAG} in
-     G) echo workflow ;;
+     G) echo dybsvn   ;;
      H) echo env      ;;
      P) echo env      ;;
      C) echo env      ;;
