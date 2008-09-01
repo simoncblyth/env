@@ -15,6 +15,22 @@ EOU
 
 
 
+root-name(){
+  case ${1:-$NODE_TAG} in 
+    old) echo "root_v5.14.00b" ;;
+      C) echo "root_v5.21.02" ;;
+      *) echo "root_v5.19.04" ;; 
+  esac 
+}
+
+root-rootsys(){
+  case ${1:-$NODE_TAG} in 
+     *) echo $(local-base $1)/root/$(root-name $1)/root  ;;
+  esac
+}
+
+
+
 
 
 root-env(){
@@ -24,10 +40,9 @@ root-env(){
   alias root="root -l"
   alias rh="tail -100 $HOME/.root_hist"
  
-  #export ROOT_NAME=root_v5.14.00b
-  #export ROOT_NAME="root_v5.19.04"
-  export ROOT_NAME="root_v5.21.02"
-  export ROOTSYS=$LOCAL_BASE/root/$ROOT_NAME/root
+
+  export ROOT_NAME=$(root-name)
+  export ROOTSYS=$(root-rootsys)
   
   ## pre-nuwa ... to be dropped      	
   export ROOT_CMT="ROOT_prefix:$ROOTSYS"
