@@ -416,13 +416,12 @@ scm-backup-rsync(){
    [ -z $tag ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
   
-   local remote=$(scm-backup-dir $tag) 
+   local remote=cms01.phys.ntu.edu.tw:/var/scm/backup/dayabay/ 
    local source=$(scm-backup-dir)/$LOCAL_NODE
  
    if [	"$tag" == "IHEP" ] ; then
-     mkdir -p $remote
      echo $msg transfer $source to $remote/
-     local cmd="rsync --delete-after -razvt $source $remote/ "    
+     local cmd="scp -r $source dayabayscp@$remote/ "    
      eval $cmd
    else
      ssh $tag "mkdir -p  $remote"
