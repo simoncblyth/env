@@ -164,3 +164,12 @@ scponly-permissions(){
 }
 
 
+scponly-target(){
+
+   local user=$(scponly-user)
+   local dir=$SCM_FOLD/backup/dayabay
+   
+   sudo mkdir -p $dir
+   sudo chown -R $user:$user $dir
+
+}

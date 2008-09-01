@@ -9,45 +9,42 @@ cat << EOU
   root-build      :
 
 
-# Qt BNL and Qt GSI ????  (both are currently for Qt 3.xx , not 4.x that I have)
-#            --with-qtgsi \
-#  the BNL one looks more mature ??? 
-# http://www-linux.gsi.de/~go4/qtroot/html/qtroot.html 
-
-
 EOU
 
 }
 
 
+
+
+
 root-env(){
+
+  elocal-
 
   alias root="root -l"
   alias rh="tail -100 $HOME/.root_hist"
-
-  export ROOT_FOLDER=$LOCAL_BASE/root
+ 
   #export ROOT_NAME=root_v5.14.00b
-  export ROOT_NAME="root_v5.19.04"
-
-  if [ "$LOCAL_NODE" == "pal" ]; then
-	     ## prior to extreme versioning 
-    export ROOTSYS=$ROOT_FOLDER/root
-  else
-	export ROOTSYS=$ROOT_FOLDER/$ROOT_NAME/root
-  fi
-	
-  if [ "$(uname)" == "Darwin" ]; then
-     export DYLD_LIBRARY_PATH=$ROOTSYS/lib:$DYLD_LIBRARY_PATH
-  else
-     export   LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
-  fi
-
-  export ENV2GUI_VARLIST="ROOTSYS:$ENV2GUI_VARLIST"
-  export PATH=$ROOTSYS/bin:$PATH
+  #export ROOT_NAME="root_v5.19.04"
+  export ROOT_NAME="root_v5.21.02"
+  export ROOTSYS=$LOCAL_BASE/root/$ROOT_NAME/root
+  
+  ## pre-nuwa ... to be dropped      	
   export ROOT_CMT="ROOT_prefix:$ROOTSYS"
 
-  [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/root.bash
+  root-path
 }
+
+
+
+root-path(){
+
+  [ ! -d $ROOTSYS ] && return 0
+  
+  env-prepend $ROOTSYS/bin
+  env-llp-prepend $ROOTSYS/lib
+}
+
 
 
 root-get(){
