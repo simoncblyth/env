@@ -314,7 +314,11 @@ scm-backup-rls(){
    local tag=${1:-$BACKUP_TAG}
    local day=$(base-datestamp now %Y/%m/%d)
    [ -z $tag ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
-   ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"
+   if [ "$tag" == "IHEP" ] ; then
+      find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day
+   else
+     ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"
+   fi
 }
 
 
@@ -415,12 +419,18 @@ scm-backup-rsync(){
    local remote=$(scm-backup-dir $tag) 
    local source=$(scm-backup-dir)/$LOCAL_NODE
  
-   ssh $tag "mkdir -p  $remote"
-   echo $msg transfer $source to $tag:$remote/ 
-   local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
-   echo $msg $cmd
-   eval $cmd
-
+   if [	"$tag" == "IHEP" ] ; then
+     mkdir -p $remote
+     echo $msg transfer $source to $remote/
+     local cmd="rsync --delete-after -razvt $source $remote/ "    
+     eval $cmd
+   else
+     ssh $tag "mkdir -p  $remote"
+     echo $msg transfer $source to $tag:$remote/ 
+     local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
+     echo $msg $cmd
+     eval $cmd
+  fi
 }
 
 

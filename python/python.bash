@@ -285,9 +285,14 @@ python-sendmail(){
   #        otherwise the first line of the text file is used as the subject
   #
 
-  local  me="blyth@hep1.phys.ntu.edu.tw"
-  local lme="me@localhost"
-  
+  if [ "$tag" == "IHEP" ]; then
+    local  me="tianxc@ihep.ac.cn"
+    local lme="root@dayabay.ihep.ac.cn"
+  else
+    local  me="blyth@hep1.phys.ntu.edu.tw"
+    local lme="me@localhost"
+  fi
+
   local path=${1}
   [ -f "$path" ] || ( echo python-sendmail path $path doesnt exist && return 1 )
   local firstline=$(head -1 $path)
@@ -328,7 +333,7 @@ python-sendmail-html(){
 
   local  me="blyth@hep1.phys.ntu.edu.tw"
   local lme="me@localhost"
-  
+
   local path=${1}
   [ -f "$path" ] || ( echo python-sendmail path $path doesnt exist && return 1 )
   local firstline=$(head -1 $path)
