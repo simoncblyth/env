@@ -24,74 +24,27 @@ scponly-usage(){
               configure: WARNING: read the SECURITY document before enabling rsync compatibility
        
 
-          copy with setting of owner and group to that for root 
-              /usr/bin/install -c  -o 0 -g 0 scponly $LOCAL_BASE/env/scponly/bin/scponly
-       
-        ${INSTALL} -o 0 -g 0 scponly ${DESTDIR}${bindir}/scponly
-                   
-                         
+   
+         scponly-user    : $(scponly-user)    
+         scponly-chown <username>   
+             set ownership of the users home directory, default to the user during setup,
+             lockdown with
+                   scponly-chown root
+             
+                                                                
+         scponly-chsh  <shell-path>
+              set the shell, default to $(scponly-bin)
+              open up with 
+                    scponly-chsh /bin/bash
          
-                                     
-      Manual steps ..
-         1)  introduce the scponly shell to the system 
          
-                 cat /etc/shells
-                 sudo bash -c "echo $(scponly-bin) >> /etc/shells "
-         
-         2)  add user http://www.linfo.org/useradd.html
+                                                 
+         scponly-permissions
+              root ownership for lockdown to prevent subverting scponly via copy in
+              of .ssh command files but then must open up a bit to allow ssh to read the keys
 
-                  cat /etc/passwd 
-                  sudo  /usr/sbin/useradd -d $(dirname $HOME)/dayabayscp -s $(scponly-bin) dayabayscp                                                                                    
-                 
-         3) set the passwrd
-         
-                 sudo passwd dayabayscp
-Password:
-Changing password for user dayabayscp.
-New UNIX password: 
-Retype new UNIX password: 
-passwd: all authentication tokens updated successfully. 
-                
-        4) change ownership of /home/dayabayscp
-                 
-               sudo chown root:root /home/dayabayscp             
-               
-            from scponly README/INSTALL :
-                It is very important that the user's home directory 
-                be unwritable by the user, as a writable homedir 
-                will make it possible for users to subvert scponly 
-                by modifying ssh configuration files.                                                                                                                                     
-               
-        
-               
-        test scp to /tmp
-        
-    simon:~ blyth$ scp yum.list dayabayscp@cms01.phys.ntu.edu.tw:/tmp/
-The authenticity of host 'cms01.phys.ntu.edu.tw (140.112.101.190)' can't be established.
-RSA key fingerprint is c2:3f:91:87:91:21:98:1b:91:fe:c2:c4:1f:5b:de:6c.
-Are you sure you want to continue connecting (yes/no)? yes
-Warning: Permanently added 'cms01.phys.ntu.edu.tw' (RSA) to the list of known hosts.
-Scientific Linux CERN SLC release 4.6 (Beryllium)
-dayabayscp@cms01.phys.ntu.edu.tw's password: 
-Could not chdir to home directory /home/dayabayscp: Permission denied
-yum.list            
-        
-                                    
-          test login attempt                           
-                                    
-               
-        simon:~ blyth$ ssh S
-Scientific Linux CERN SLC release 4.6 (Beryllium)
-dayabayscp@140.112.101.190's password: 
-Could not chdir to home directory /home/dayabayscp: Permission denied
-Connection to 140.112.101.190 closed.  
-                    
-               
-               
-         next ... key setup     
-               
-               
-                   
+                                                                                                                                                                                                                          
+                                                                               
                
 EOU
 
@@ -110,6 +63,10 @@ scponly-dir(){  echo $LOCAL_BASE/env/scponly ; }
 scponly-builddir(){ echo $(scponly-dir)/build/$(scponly-name) ; }
 scponly-cd(){ cd $(scponly-builddir); }
 scponly-bin(){  echo $(scponly-dir)/bin/scponly ; }
+
+
+scponly-user(){  echo dayabayscp ; }
+
 
 
 scponly-get(){
@@ -162,11 +119,48 @@ scponly-wipe(){
 }
 
 
-scponly-addshell(){
 
+scponly-ls(){
+
+  local user=$(scponly-user) 
+
+  sudo ls -la  /home/$user
+  sudo ls -la  /home/$user/.ssh
+
+}
+
+scponly-chown(){
+
+   local user=$(scponly-user) 
+   local sser=${1:-$user}
+   local cmd="sudo chown -R $sser:$sser $(dirname $HOME)/$user"
+   echo $cmd
+   eval $cmd
+
+}
+
+
+scponly-chsh(){
+    local shell=${1:-$(scponly-bin)}
+    local cmd="sudo chsh -s $shell $(scponly-user)"
+    echo $cmd
+    eval $cmd
+}
+
+
+scponly-permissions(){
+
+   local user=$(scponly-user)
    
-   grep -v $bin /etc/shells 
+   ## must lock down to prevent subventing scponly via copyin of .ssh command files
+   sudo chown -R root:root  /home/$user
+
+   ## but must open up a bit to allow ssh to read the keys
+   
+   sudo chmod 755 /home/$user
+   sudo chmod 755 /home/$user/.ssh
 
 
 }
+
 
