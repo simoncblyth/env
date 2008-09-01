@@ -285,9 +285,14 @@ python-sendmail(){
   #        otherwise the first line of the text file is used as the subject
   #
 
+   local tag=${2:-$BACKUP_TAG};
+  
+   [ -z $tag ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+
   if [ "$tag" == "IHEP" ]; then
     local  me="tianxc@ihep.ac.cn"
-    local lme="root@dayabay.ihep.ac.cn"
+    local lme="me@localhost"
   else
     local  me="blyth@hep1.phys.ntu.edu.tw"
     local lme="me@localhost"
@@ -300,7 +305,6 @@ python-sendmail(){
   local subject=${2:-$firstline} 
   local to=${3:-$me}
   local from=${4:-$lme}
-   
 
    python << EOP
 import smtplib
@@ -320,7 +324,8 @@ msg['To'] = "$to"
 # envelope header.
 s = smtplib.SMTP()
 s.connect()
-s.sendmail("$from", ["$to"], msg.as_string())
+s.sendmail("$from", "$to", msg.as_string())
+#s.sendmail("root@dayabay.ihep.ac.cn","tianxc@ihep.ac.cn", msg.as_string())
 s.close()
 
 EOP
