@@ -209,7 +209,7 @@ local-var-base(){
       N) echo $HOME/var ;;
      XT) echo /home/tianxc ;; 
      XX) echo /home ;; 
-   IHEP) echo /data ;; 
+   IHEP) echo /home ;;
       *) echo /var ;; 
    esac
 }
