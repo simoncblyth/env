@@ -163,7 +163,7 @@ local-backup-tag(){
       G) echo G3 ;;
       H) echo C  ;;
       C) echo P  ;;
-     XX) echo IHEP  ;;
+     XX) echo C  ;;
       *) echo U ;;
    esac  
 }
