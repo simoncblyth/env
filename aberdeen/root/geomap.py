@@ -6,7 +6,8 @@ import ROOT
 
 class geomap:
     def __init__(self, path=None):
-        self.map = None
+        self.map = {}
+        self.sel = []
         if path != None:
             self.import_(path)
     
@@ -27,11 +28,11 @@ class geomap:
         else:
             return self.unique_key( "%sx" % key )
              
-    def nod(self,key):
+    def node(self,key):
         return self.map.get(key, None)
     
-    def vol(self,key):
-        n = self.nod( key )
+    def volume(self,key):
+        n = self.node( key )
         if n != None: return n.GetVolume()
         return None
             
@@ -55,10 +56,50 @@ class geomap:
             for n in nodes:
                 self.walk( n , "%s/%s" % ( path , name ) )
         
+        
+    def select(self, patn=None ):
+        """ control the selection by the regexp pattern """
+        if patn==None:
+            self.sel = sel.map.keys()
+            return
+            
+        p = re.compile( patn )
+        for k in self.map.keys():
+            if p.match(k):
+                self.sel.append(k) 
+        
+    def apply_to_v(self, func=lambda v:v ):
+        for k in self.sel:
+            v = self.vol(k)
+            if v != None:
+                func(v)
+        
+    def set_line_color(self, patn,  col ):
+        self.select(patn)
+        self.apply_to_v( lambda v:v.SetLineColor(col) )
+       
+    def set_visibility(self, patn , viz ): 
+        self.select(patn)
+        self.apply_to_v( lambda v:v.SetVisibility( viz ) )
     
 if __name__=='__main__':
     src = "$ENV_HOME/aberdeen/root/WorldWithPMTs.root"
     gm = geomap()
     gm.import_volume( src , "World")
+    
+    tn = gm.nod("World_1")
+    etn = ROOT.TEveGeoTopNode(ROOT.gGeoManager, tn )
+
+    ROOT.TEveManager.Create()  ## put up the GUI
+    from ROOT import gEve      ## this only works after creation 
+    
+    gEve.AddGlobalElement(etn);
+    gEve.Redraw3D(True)
+
+    gm.set_visibility( None, False )
+    gm.set_visibility( "Tube" , True )      
+    
+
+    
     
     
