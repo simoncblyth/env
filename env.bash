@@ -336,6 +336,14 @@ env-llp-prepend(){
   fi
 }
 
+env-pp-prepend(){
+  local add=$1 
+  echo $PYTHONPATH | grep -v $add - > /dev/null && export PYTHONPATH=$add:$PYTHONPATH
+}
+
+env-pp(){
+  echo $PYTHONPATH | tr ":" "\n" 
+}
 
 
 env-llp(){

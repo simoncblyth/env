@@ -3,17 +3,27 @@
 root-usage(){
 cat << EOU
 
+
+  root-name       : $(root-name)
+  root-rootsys    : $(root-rootsys)
+
   root-           :  hook into these functions invoking root-env
   root-get        :  download and unpack
   root-configure  :     
   root-build      :
 
 
+  root-path       :
+        invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
+
+
 EOU
 
 }
 
-
+root-cd(){
+   cd $(root-rootsys)
+}
 
 root-name(){
   case ${1:-$NODE_TAG} in 
@@ -28,8 +38,6 @@ root-rootsys(){
      *) echo $(local-base $1)/root/$(root-name $1)/root  ;;
   esac
 }
-
-
 
 
 
@@ -58,6 +66,13 @@ root-path(){
   
   env-prepend $ROOTSYS/bin
   env-llp-prepend $ROOTSYS/lib
+  env-pp-prepend $ROOTSYS/lib
+}
+
+
+root-pycheck(){
+  python -c "import ROOT as _ ; print _.__file__ "
+
 }
 
 
