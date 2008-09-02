@@ -416,7 +416,7 @@ scm-backup-rsync(){
    [ -z $tag ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
   
-   local remote=cms01.phys.ntu.edu.tw:/var/scm/backup/dayabay/ 
+   local remote=cms01.phys.ntu.edu.tw:/var/scm/backup/ 
    local source=$(scm-backup-dir)/$LOCAL_NODE
  
    if [	"$tag" == "IHEP" ] ; then
