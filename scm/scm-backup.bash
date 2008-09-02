@@ -401,7 +401,44 @@ scm-backup-dybsvn-from-node(){
 
 
 
+
+
 scm-backup-rsync(){
+
+   # 
+   # rsync the local backup repository to an off box mirror on the paired $BACKUP_TAG node 
+   #   - have to set up ssh keys to allow non-interactive sshing 
+   # 
+   #  hmm the passwordless ssh is not setup for "root" user , so have to do this as me, but the above backup as root
+   #
+
+   local msg="=== $FUNCNAME :" 
+   local tags=${1:-$BACKUP_TAG}   
+   [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+ 
+   local tag 
+   for tag in $tags ; do
+ 
+       [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+  
+       local remote=$(scm-backup-dir $tag)
+       local source=$(scm-backup-dir)/$LOCAL_NODE
+ 
+       ## have to skip from XX as do not have permission to ssh 
+       [ $NODE_TAG != "XX" ] && ssh $tag "mkdir -p  $remote"
+       echo $msg transfer $source to $tag:$remote/ 
+       local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
+       echo $msg $cmd
+       eval $cmd
+
+  done 
+
+}
+
+
+
+
+scm-backup-rsync-xinchun(){
 
    # 
    # rsync the local backup repository to an off box mirror on the paired $BACKUP_TAG node 
