@@ -38,12 +38,17 @@ scponly-usage(){
                     scponly-chsh /bin/bash
          
          
+         scponly-log 
+                tail the system log 
+         
                                                  
          scponly-permissions
               root ownership for lockdown to prevent subverting scponly via copy in
               of .ssh command files but then must open up a bit to allow ssh to read the keys
 
+          
                                                                                                                                                                                                                           
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
                                                                                
                
 EOU
@@ -161,6 +166,11 @@ scponly-permissions(){
    sudo chmod 755 /home/$user/.ssh
 
 
+}
+
+
+scponly-log(){
+   sudo tail -f /var/log/messages
 }
 
 
