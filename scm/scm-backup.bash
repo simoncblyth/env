@@ -432,7 +432,7 @@ scm-backup-rsync(){
        ## have to skip from XX as do not have permission to ssh 
        [ $NODE_TAG != "XX" ] && ssh $tag "mkdir -p  $remote"
        echo $msg transfer $source to $tag:$remote/ 
-       local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
+       local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ "
        echo $msg $cmd
        eval $cmd
 
@@ -468,7 +468,7 @@ scm-backup-rsync-xinchun(){
    else
      ssh $tag "mkdir -p  $remote"
      echo $msg transfer $source to $tag:$remote/ 
-     local cmd="rsync --delete-after -razvt $source $tag:$remote/ "
+     local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ "
      echo $msg $cmd
      eval $cmd
   fi
