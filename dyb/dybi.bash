@@ -115,7 +115,9 @@ dybi-get(){
      url=http://dayabay.ihep.ac.cn/svn/dybsvn/installation/branches/inst-NuWa-$branch/dybinst/dybinst
    fi
    echo === dybi-get branch $branch url $url == see https://wiki.bnl.gov/dayabay/index.php?title=Offline_Release_rozz-0.0.4 ==
-   svn export $url
+   
+   [ -f ".dybinstrc" ] && . .dybinstrc
+   svn  $dybinst_svn_options export $url
 }
 
 dybi-update(){
