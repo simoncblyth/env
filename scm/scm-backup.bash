@@ -318,7 +318,7 @@ scm-backup-rls(){
    local tag
    for tag in $tags ; do
       [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1  
-      if [ "$tag" == "IHEP" ] ; then
+      if [ "$tag" == "IHEP" -o "$tag" == "C" ] ; then
           find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day
       else
           ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"

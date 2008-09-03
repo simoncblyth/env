@@ -285,18 +285,20 @@ python-sendmail(){
   #        otherwise the first line of the text file is used as the subject
   #
 
-   local tag=${2:-$BACKUP_TAG};
+   local tags=${2:-$BACKUP_TAG};
   
-   [ -z $tag ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
-   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
-
-  if [ "$tag" == "IHEP" ]; then
-    local  me="tianxc@ihep.ac.cn"
-    local lme="me@localhost"
-  else
-    local  me="blyth@hep1.phys.ntu.edu.tw"
-    local lme="me@localhost"
-  fi
+   [ -z "$tags" ] && echo $msg ABORT no backup node for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+   local tag;    
+   for tag in $tags; do
+       [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+       if [ "$tag" == "IHEP" -o "$tag" == "C" ]; then
+           local  me="tianxc@ihep.ac.cn"
+           local lme="me@localhost"
+       else
+           local  me="blyth@hep1.phys.ntu.edu.tw"
+           local lme="me@localhost"
+        fi
+    done
 
   local path=${1}
   [ -f "$path" ] || ( echo python-sendmail path $path doesnt exist && return 1 )
