@@ -204,7 +204,7 @@ EOO
 
 dybi-install(){
   cd $DYB
-  dybi-override
+  #dybi-override
   ./dybinst $DYB_VERSION ${*:-all}
 }
 
