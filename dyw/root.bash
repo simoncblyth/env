@@ -17,6 +17,14 @@ cat << EOU
         invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
 
 
+  root-pycheck
+
+
+
+   http://root.cern.ch/root/HowtoPyROOT.html
+
+
+
 EOU
 
 }
