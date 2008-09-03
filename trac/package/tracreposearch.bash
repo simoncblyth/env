@@ -23,6 +23,7 @@ tracreposearch-env(){
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   export TRACREPOSEARCH_BRANCH=$branch
+  #export TRACREPOSEARCH_BRANCH=branches/pyndexter
    
 }
 
@@ -55,44 +56,62 @@ tracreposearch-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 tracreposearch-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 
-tracreposearch-unconf(){
-
-   local msg="=== $FUNCNAME :"
-   local name=${1:-$SCM_TRAC}
-   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-   local ver=$(basename $TRACTAGS_BRANCH)
-   
-   if [ "$ver" == "0.6" -o "$ver" == "trunk" ]; then
-      echo $msg this is only relevant to pre 0.6 versions
-   else
-      trac-ini-
-      trac-ini-edit $tini trac:default_handler:WikiModule
-   fi
-
-}
 
 tracreposearch-conf(){
-  
    local msg="=== $FUNCNAME :"
-   trac-configure repo-search:include:\*.py:\*.h:\*.cxx:\*.xml repo-search:exclude:\*.png
-
-
+   trac-configure repo-search:include:\*.py:\*.h:\*.cxx:\*.xml repo-search:exclude:\*.png repo-search:index:$(tracreposearch-indexdir)
 }
-
-
-
-
-
-
-
-
-
-
-
 
 tracreposearch-permission(){
-
    trac-admin- permission add authenticated REPO_SEARCH
    trac-admin- permission list
-   
 }
+
+tracreposearch-prepare(){
+
+   tracreposearch-enable 
+   tracreposearch-conf
+   tracreposearch-permission
+   tracreposearch-prepindex
+}
+
+
+tracreposearch-indexdir(){
+  case $NODE_TAG in 
+     G) echo /tmp/env/index ;;
+     *) echo /tmp/env/tracreposearch/$TRAC_INSTANCE/index ;;
+   esac   
+}
+
+tracreposearch-prepindex(){
+
+   local dir=$(tracreposearch-indexdir)
+   mkdir -p $dir
+   apache-
+   local user=$(apache-user)
+   $SUDO chown -R  $user:$user $dir
+
+}
+
+
+tracreposearch-reindex(){
+
+   $SUDO $(tracreposearch-dir)/update-index $(trac-envpath) 
+   tracreposearch-prepindex
+    
+}
+
+
+tracreposearch-wipeindex(){
+  
+  local dir=$(tracreposearch-indexdir)
+  [ "${dir:0:4}" != "/tmp" ] && echo $msg skipping && return 1 
+ 
+  sudo apachectl stop
+  sudo rm -rf $dir/*
+  sudo apachectl start   
+
+  tracreposearch-prepindex
+
+}
+
