@@ -105,7 +105,7 @@ dybi-info(){
 
 dybi-get(){
    ## get the branch from the operating directory 
-   sudo mkdir -p $DYB
+   mkdir -p $DYB
    cd $DYB
    local branch=$(basename $PWD)
    branch=${branch%%_dbg}
