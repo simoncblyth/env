@@ -1,46 +1,98 @@
-trac-plugin-reposearch-get(){
 
-   #  documented at 
-   #  http://www.trac-hacks.org/wiki/RepoSearchPlugin
-   #
 
-   local rame=reposearchplugin
-   local name=tracreposearch
-
-   cd $LOCAL_BASE/trac
-   [ -d "plugins" ] || mkdir -p plugins
-   cd plugins
-    
-   svn co http://trac-hacks.org/svn/$rame $name
-   cd $name
+tracreposearch-usage(){
+   package-usage tracreposearch
+   cat << EOU
+  
+      http://www.trac-hacks.org/wiki/RepoSearchPlugin
+  
+  
+EOU
 
 }
 
-trac-plugin-reposearch-install(){
-
-    local name=tracreposearch
+tracreposearch-env(){
+   elocal-
+   package-
+   
+   trac- 
     
-    cd $LOCAL_BASE/trac/plugins || ( echo error no plugins folder && return 1 ) 
-    cd $name/0.10
-    python setup.py install 
-
-#Installing update-index script to /usr/local/python/Python-2.5.1/bin
-#Installed /usr/local/python/Python-2.5.1/lib/python2.5/site-packages/tracreposearch-0.2-py2.5.egg
+  local branch
+  case $(trac-major) in 
+     0.11) branch=0.11     ;;
+        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  esac
+  export TRACREPOSEARCH_BRANCH=$branch
    
 }
 
 
-trac-plugin-reposearch-enable(){
+tracreposearch-revision(){ echo 4139 ; }
+tracreposearch-url(){     echo http://trac-hacks.org/svn/reposearchplugin/$(tracreposearch-branch) ; }
+tracreposearch-package(){ echo tracreposearch ; }
 
+tracreposearch-fix(){
+  local msg="=== $FUNCNAME :"
+  echo $msg ... no fix 
+}
+
+tracreposearch-branch(){    package-branch    ${FUNCNAME/-*/} $* ; }
+tracreposearch-basename(){  package-basename  ${FUNCNAME/-*/} $* ; }
+tracreposearch-dir(){       package-dir       ${FUNCNAME/-*/} $* ; } 
+tracreposearch-egg(){       package-egg       ${FUNCNAME/-*/} $* ; }
+tracreposearch-get(){       package-get       ${FUNCNAME/-*/} $* ; }
+
+tracreposearch-install(){   package-install   ${FUNCNAME/-*/} $* ; }
+tracreposearch-uninstall(){ package-uninstall ${FUNCNAME/-*/} $* ; }
+tracreposearch-reinstall(){ package-reinstall ${FUNCNAME/-*/} $* ; }
+tracreposearch-enable(){    package-enable    ${FUNCNAME/-*/} $* ; }
+
+tracreposearch-status(){    package-status    ${FUNCNAME/-*/} $* ; }
+tracreposearch-auto(){      package-auto      ${FUNCNAME/-*/} $* ; }
+tracreposearch-diff(){      package-diff      ${FUNCNAME/-*/} $* ; }
+tracreposearch-rev(){       package-rev       ${FUNCNAME/-*/} $* ; } 
+tracreposearch-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
+
+tracreposearch-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+
+tracreposearch-unconf(){
+
+   local msg="=== $FUNCNAME :"
    local name=${1:-$SCM_TRAC}
-   ini-edit $SCM_FOLD/tracs/$name/conf/trac.ini components:tracreposearch.\*:enabled
+   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
+   local ver=$(basename $TRACTAGS_BRANCH)
+   
+   if [ "$ver" == "0.6" -o "$ver" == "trunk" ]; then
+      echo $msg this is only relevant to pre 0.6 versions
+   else
+      trac-ini-
+      trac-ini-edit $tini trac:default_handler:WikiModule
+   fi
 
 }
 
-trac-plugin-reposearch-permission(){
+tracreposearch-conf(){
+  
+   local msg="=== $FUNCNAME :"
+   trac-configure repo-search:include:\*.py:\*.h:\*.cxx:\*.xml repo-search:exclude:\*.png
 
-   local name=${1:-$SCM_TRAC}
-   trac-conf-perm $name add authenticated REPO_SEARCH
-   trac-conf-perm $name list 
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+tracreposearch-permission(){
+
+   trac-admin- permission add authenticated REPO_SEARCH
+   trac-admin- permission list
    
 }
