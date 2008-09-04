@@ -1,7 +1,14 @@
 import re
 
+checks = {
+  '.*FATAL':1,
+  '.*ERROR':2,
+}
+ 
+
 class Matcher:
     def __init__(self, patterns , verbose=False ):
+        self.patterns = patterns
         self.patns={}
         self.verbose = verbose
         for pt,rc in patterns.items():
@@ -21,10 +28,13 @@ class Matcher:
              if self.patns[pt][0].match(line)>-1:
                   return self.patns[pt][1]
         return 0     
+
+    def __repr__(self):
+        import pprint
+        return "<Matcher %s >" % pprint.pformat( self.patterns )
                  
 
 if __name__=='__main__':
-    checks = { '.*FATAL':1 }
     m = Matcher(checks, verbose=True )
     assert m("hello\n") == 0  
     assert m("hello FATAL \n") == 1  

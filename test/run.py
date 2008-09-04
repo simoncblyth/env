@@ -18,7 +18,7 @@
 import subprocess, datetime, os, time, signal
 
 class Run:
-    def __init__(self, command , parser=None ):
+    def __init__(self, command , parser=None , timeout=300, verbose=True):
         """
            http://code.pui.ch/2007/02/19/set-timeout-for-a-shell-command-in-python/
 
@@ -27,10 +27,17 @@ class Run:
         """
         self.command = command
         self.rc = None
-        self.timeout = None
+        self.timeout = timeout
         self.start = None
         self.dur = None
         self.parser = parser
+        self.prc = 0
+        self.verbose = verbose 
+
+    def assert_(self):
+        assert self.rc  == 0 , self
+        assert self.prc == 0 , self
+
 
     def overtime(self):
         self.dur =  (datetime.datetime.now() - self.start).seconds
@@ -43,7 +50,6 @@ class Run:
         """
         process = self.process
         while process.poll() is None:
-            time.sleep(0.2)
             if self.overtime() > 0:
                 self.rc = -666
                 if self.verbose: print "timeout exceeded, killing process %s for %s " % ( process.pid , self )
@@ -56,22 +62,21 @@ class Run:
                 if self.parser==None:
                     print output
                 else:
-                    self.parser(output)
-                if self.verbose: print "continuing process %s for %s " % ( process.pid , self )
+                    prc = self.parser(output)
+                    self.prc = max( self.prc, prc )
+                #if self.verbose: print "continuing process %s for %s " % ( process.pid , self )
+            time.sleep(0.2)
         self.rc = process.returncode
 
     def __repr__(self):
-        return "<Run \"%s\" rc:%s timeout:%s dur:%s >" % ( self.command , self.rc, self.timeout, self.dur )
+        return "<Run \"%s\" prc:%s rc:%s timeout:%s dur:%s parser:%s  >" % ( self.command , self.prc, self.rc, self.timeout, self.dur , self.parser )
 
 
-    def __call__(self, timeout=100 , verbose=True  ):
+    def __call__(self):
         """
                   shell=True    for shell expansion of variables like $HOME in the cmdline
                     but seems to prevent running 
-
         """
-        self.timeout = timeout
-        self.verbose = verbose 
         self.start = datetime.datetime.now()
         cmd = self.command.split(" ")
         
@@ -79,9 +84,7 @@ class Run:
         if self.verbose: print "forked process %s for %s  " % ( process.pid , self   )
         self.read()
         if self.verbose: print " completed  %s " % self
-
-
-
+        return self
 
 if __name__=='__main__':
     """
@@ -89,8 +92,7 @@ if __name__=='__main__':
  
     """
     import sys
-    run = Run(sys.argv[1]) 
-    p = run(timeout=int(sys.argv[2]))
-    #print p.stdout.readlines()
+    r = Run(sys.argv[1], timeout=int(sys.argv[2]) )
+    p = r()
 
 
