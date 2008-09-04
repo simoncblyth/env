@@ -22,8 +22,8 @@ tracreposearch-env(){
      0.11) branch=0.11     ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
-  export TRACREPOSEARCH_BRANCH=$branch
-  #export TRACREPOSEARCH_BRANCH=branches/pyndexter
+  #export TRACREPOSEARCH_BRANCH=$branch
+  export TRACREPOSEARCH_BRANCH=branches/pyndexter
    
 }
 
