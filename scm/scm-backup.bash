@@ -311,14 +311,14 @@ scm-backup-purge(){
 }
 
 scm-backup-rls(){
+   local msg="=== $FUNCNAME :"
    local tags=${1:-$BACKUP_TAG}
    local day=$(base-datestamp now %Y/%m/%d)
    [ -z "$tags" ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
 
    local tag
    for tag in $tags ; do
-      [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1  
-      if [ "$tag" == "IHEP" -o "$tag" == "C" ] ; then
+      if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
           find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day
       else
           ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"
