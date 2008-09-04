@@ -168,12 +168,12 @@ local-backup-tag(){
    esac  
 }
 
-
-
-
-
-
-
+local-email(){
+   case ${1:-$NODE_TAG} in
+     XX) echo tianxc@ihep.ac.cn ;;
+      *) echo blyth@hep1.phys.ntu.edu.tw ;;
+   esac
+}
 
 
 local-base(){
