@@ -1,8 +1,8 @@
 import re
 
 checks = {
-  '.*FATAL':1,
-  '.*ERROR':2,
+  '.*FATAL':2,
+  '.*ERROR':1,
 }
  
 

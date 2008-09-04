@@ -1,18 +1,25 @@
 """
+    Runs a command in a subprocess :
+      * if a timeout is exceeded the subprocess is killed 
+        and a negative return code is set
+      * stdout from the subprocess is handed over to a parser line-by-line 
+        The parser yields return codes "prc" for each line, the maximum such 
+        code is stored in the Run instance
+      * an assert_ method allows nosetests to be setup with minimal code,
+        see runner.py for examples  
+          
+          
+     Example :
+        python run.py "python count.py 10" 1
 
-   issues with Run :
+    issues with Run :
  
-      1)  with shell=True, the subprocess seems not to run ... just reaches timeout 
+      1)  with shell=True, the subprocess seems not to run 
+          ... just reaches timeout 
       
-      2)  when timeout is reached, all output is lost 
-           eg with 
-                python run.py "python count.py 10" 1
-
-          resolved this via readline... in the poll loop
-
-      3) the output comes all at the end
-                python run.py "python count.py 10" 10
-
+      2)  stderr is currently being ignored ...
+         
+    
 """
 
 import subprocess, datetime, os, time, signal
@@ -37,7 +44,7 @@ class Run:
     def assert_(self):
         assert self.rc  == 0 , self
         assert self.prc == 0 , self
-
+        return self
 
     def overtime(self):
         self.dur =  (datetime.datetime.now() - self.start).seconds
@@ -71,12 +78,7 @@ class Run:
     def __repr__(self):
         return "<Run \"%s\" prc:%s rc:%s timeout:%s dur:%s parser:%s  >" % ( self.command , self.prc, self.rc, self.timeout, self.dur , self.parser )
 
-
     def __call__(self):
-        """
-                  shell=True    for shell expansion of variables like $HOME in the cmdline
-                    but seems to prevent running 
-        """
         self.start = datetime.datetime.now()
         cmd = self.command.split(" ")
         
@@ -87,12 +89,7 @@ class Run:
         return self
 
 if __name__=='__main__':
-    """
-        python run.py "cat run.py" 10 
- 
-    """
     import sys
-    r = Run(sys.argv[1], timeout=int(sys.argv[2]) )
-    p = r()
-
+    r = Run(sys.argv[1], timeout=int(sys.argv[2]) )().assert_()
+   
 
