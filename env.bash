@@ -7,6 +7,7 @@
 env-home(){       echo $(dirname $BASH_SOURCE) ; }
 
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
+test-(){        . $ENV_HOME/test/test.bash       && test-env $* ; }
 scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
 
 

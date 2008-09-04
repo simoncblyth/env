@@ -4,7 +4,7 @@ pylibxml2-(){ [ -r $ENV_HOME/base/pylibxml2.bash ] && . $ENV_HOME/base/pylibxml2
 libxml2-(){   [ -r $ENV_HOME/base/libxml2.bash ]   && . $ENV_HOME/base/libxml2.bash ; }
 libxslt-(){   [ -r $ENV_HOME/base/libxslt.bash ]   && . $ENV_HOME/base/libxslt.bash ; }
 lxml-(){      [ -r $ENV_HOME/base/lxml.bash ]      && . $ENV_HOME/base/lxml.bash ; }
-test-(){      [ -r $ENV_HOME/base/test.bash ]      && . $ENV_HOME/base/test.bash ; }
+
 patch-(){     [ -r $ENV_HOME/base/patch.bash ]     && . $ENV_HOME/base/patch.bash ; }
 system-(){    [ -r $ENV_HOME/base/system.bash ]    && . $ENV_HOME/base/system.bash ; }
 network-(){   [ -r $ENV_HOME/base/network.bash ]   && . $ENV_HOME/base/network.bash ; }
