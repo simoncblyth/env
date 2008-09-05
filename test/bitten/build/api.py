@@ -63,6 +63,8 @@ class CommandLine(object):
         self.arguments = [str(arg) for arg in args]
         self.input = input
         self.cwd = cwd
+        self.duration = None
+        self.killed = False
         if self.cwd:
             assert os.path.isdir(self.cwd)
         self.returncode = None
@@ -135,7 +137,7 @@ class CommandLine(object):
 
     else: # posix
 
-        def execute(self, timeout=None):
+        def execute(self, timeout=None, maxtime=None ):
             """Execute the command, and return a generator for iterating over
             the output written to the standard output and error streams.
             
@@ -147,8 +149,11 @@ class CommandLine(object):
                 old_cwd = os.getcwd()
                 os.chdir(self.cwd)
 
+            import datetime
+            self.start = datetime.datetime.now()
+
             log.debug('Executing %s', [self.executable] + self.arguments)
-            pipe = popen2.Popen3([self.executable] + self.arguments,
+            self.pipe = pipe = popen2.Popen3([self.executable] + self.arguments,
                                  capturestderr=True)
             if self.input:
                 if isinstance(self.input, basestring):
@@ -188,12 +193,19 @@ class CommandLine(object):
                         err_data.append(data)
                     else:
                         err_eof = True
+                if maxtime:
+                    self.duration =  (datetime.datetime.now() - self.start).seconds
+                    if self.duration > maxtime:
+                        self.kill()
                 out_lines = self._extract_lines(out_data)
                 err_lines = self._extract_lines(err_data)
                 for out_line, err_line in _combine(out_lines, err_lines):
                     yield out_line, err_line
                 time.sleep(.1)
-            self.returncode = pipe.wait()
+            if self.killed:
+                self.returncode = -1
+            else:
+                self.returncode = pipe.wait()
             log.debug('%s exited with code %s', self.executable,
                       self.returncode)
 
@@ -221,6 +233,21 @@ class CommandLine(object):
         data[:] = [buf] * bool(buf)
 
         return [line.rstrip() for line in extracted]
+
+
+    def kill(self):
+        import signal, os
+        if not(self.pipe):
+            return
+        pid = self.pipe.pid
+        
+        try:
+            os.kill( pid, signal.SIGKILL)
+            os.waitpid(-1, os.WNOHANG)
+            self.killed = True
+        except OSError:
+            pass    ## it might complete before get here 
+
 
 
 class FileSet(object):
