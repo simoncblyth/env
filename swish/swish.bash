@@ -57,13 +57,13 @@ sqlite-again(){
 }
 
 swish-name(){
-   echo swish-2.4.5
+   echo swish-e-2.4.5
 }
 
 swish-home(){
    case ${1:-$NODE_TAG} in 
-      H) echo $(local-base)/swish/$(swish-name) ;;
-      *) echo $(local-system-base)/swish/$(swish-name) ;;
+      H) echo $(local-base)/swish-e/$(swish-name) ;;
+      *) echo $(local-system-base)/swish-e/$(swish-name) ;;
    esac
 }
 
