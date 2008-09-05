@@ -68,15 +68,6 @@ class Run:
             prc = self.parser(out)
             self.prc = max( self.prc, prc )
 
-
-"""
-    def read_1(self):
-        process = self.process
-        alive = True
-        while alive:
-            out = select.select...
-"""        
-
     def read(self):
         """
             documentation suggests that process.returncode should be -signum for a signalled process
@@ -127,10 +118,10 @@ class Run:
         sto = self.opts['select_timeout']
         if sto<0.:
             sto = None
-        for out, err in cmdline.execute(timeout=sto):
+        for out, err in cmdline.execute(timeout=sto, maxtime=self.opts['timeout'] ):
             self.parse(out)
             self.parse(err)
-            if self.opts['verbose']: print " continuing  %s " % cmdline
+            #if self.opts['verbose']: print " continuing  %s " % cmdline
         self.dur =  (datetime.datetime.now() - self.start).seconds
         self.rc = cmdline.returncode
         if self.opts['verbose']: print " completed  %s " % cmdline

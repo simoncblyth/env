@@ -1,4 +1,11 @@
 
+
+I already have patches against bits of bitten for use on the server side...
+this re-use of part of the slave can be included with that patch once 
+working.
+
+
+
 simon:test blyth$ svn info $(bitten-dir)/bitten/build/
 Path: /usr/local/env/trac/package/bitten/trac-0.11/bitten/build
 URL: http://svn.edgewall.org/repos/bitten/branches/experimental/trac-0.11/bitten/build
