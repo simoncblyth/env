@@ -76,6 +76,7 @@ svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; }
 swig-(){        . $ENV_HOME/swig/swig.bash       && swig-env $* ; } 
 sqlite-(){      . $ENV_HOME/sqlite/sqlite.bash && sqlite-env $* ; } 
 
+swish-(){       . $ENV_HOME/swish/swish.bash && swish-env $* ; } 
 
 cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
 

@@ -87,8 +87,7 @@ swish-env(){
 
 
 swish-test(){
-
-
+ echo -n
 }
 
 
