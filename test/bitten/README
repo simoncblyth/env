@@ -1,0 +1,15 @@
+
+simon:test blyth$ svn info $(bitten-dir)/bitten/build/
+Path: /usr/local/env/trac/package/bitten/trac-0.11/bitten/build
+URL: http://svn.edgewall.org/repos/bitten/branches/experimental/trac-0.11/bitten/build
+Repository Root: http://svn.edgewall.org/repos/bitten
+Repository UUID: 2d6df8db-84f7-0310-ba0f-a4c632ebc3b5
+Revision: 556
+Node Kind: directory
+Schedule: normal
+Last Changed Author: cmlenz
+Last Changed Rev: 553
+Last Changed Date: 2008-07-08 22:42:56 +0800 (Tue, 08 Jul 2008)
+
+
+

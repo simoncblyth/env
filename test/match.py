@@ -19,7 +19,7 @@ class Matcher:
             provide a status code for the provided line 
         """
         rc = self.match(line)
-        if self.verbose: print "[%-1s] %s" % ( rc, line ),
+        if self.verbose: print "[%-1s] %s\n" % ( rc, line.rstrip('\n') ),
         return rc
 
     def match( self , line ):
