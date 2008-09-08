@@ -11,6 +11,8 @@ class TimeoutError(Exception):
 class CommandLine:
     """
         Simplification of CommandLine from  bitten/build/api.py 
+        http://bitten.edgewall.org/browser/branches/experimental/trac-0.11/bitten/build/api.py
+
     """
     def __init__(self , command  ):
         self.command = command
@@ -18,10 +20,14 @@ class CommandLine:
         self.killed = False
         self.returncode = None
         
+    def assert_(self):
+        assert self.returncode  == 0 , self    
+        return self
+        
     def __repr__(self):
         kmsg = ""
         if self.killed: kmsg = "KILLED" 
-        return "<CommandLine \"%s\" %s %s %s  >" % (self.command, self.returncode , self.duration , kmsg )
+        return "<CommandLine \"%s\" rc:%s duration:%s [%s] >" % (self.command, self.returncode , self.duration , kmsg )
         
     def __call__(self, **attr ):
         self.execute(**attr)
@@ -31,12 +37,14 @@ class CommandLine:
         """ 
              Use of "stderr=subprocess.STDOUT" means that stderr is merged into stdout 
              
-        select.select :
-            When the timeout argument is omitted (or None) the function blocks until at least one file descriptor is ready. 
-            A time-out value of zero specifies a poll and never blocks. The return value is a triple of lists
-            of objects that are ready: subsets of the first three arguments. 
-            When the time-out is reached without a file descriptor becoming ready, three empty lists are returned. 
+        select.select :    http://docs.python.org/lib/module-select.html
+           
+             When the timeout argument is omitted (or None) the function blocks until at least one file descriptor is ready. 
+                 0.  indicates a poll, never blocking ...  returns a triple of lists that are ready 
+                >0.  when timeout in seconds is reached with nothing ready return empties
+               None  blocks until ready ... sneak this in by supplying a -ve 
              
+                                     
         """
         self.bufsize = bufsize
         self.timeout = timeout 
@@ -61,10 +69,10 @@ class CommandLine:
                     out.append(data)
                 else:
                     readable.remove(process.stdout)
+            self.duration =  (datetime.datetime.now() - self.start).seconds
             if self.maxtime:
-                self.duration =  (datetime.datetime.now() - self.start).seconds
                 if self.duration > self.maxtime:
-                    print "over allowed maxtime killing " 
+                    print "over allowed maxtime %s killing " % self.maxtime 
                     self.kill()
             lines = self._extract_lines( out )
             for line in lines:

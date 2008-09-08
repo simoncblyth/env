@@ -25,3 +25,14 @@
     def overtime(self):
         self.dur =  (datetime.datetime.now() - self.start).seconds
         return self.dur - self.opts['timeout']
+
+
+
+
+      if self.opts['slow']==True:
+             from command import CommandLine
+             cmdline = CommandLine( self.command )
+        else:
+            from bitten.build import CommandLine
+            cmd = self.command.split(" ")
+            cmdline = CommandLine( cmd[0] , cmd[1:]  )
