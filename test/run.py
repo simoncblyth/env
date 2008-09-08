@@ -56,9 +56,6 @@ class Run:
         assert self.prc == 0 , self
         return self
 
-    def overtime(self):
-        self.dur =  (datetime.datetime.now() - self.start).seconds
-        return self.dur - self.opts['timeout']
 
     def parse(self, out ):
         if out==None: return
@@ -68,35 +65,8 @@ class Run:
             prc = self.parser(out)
             self.prc = max( self.prc, prc )
 
-    def read(self):
-        """
-            documentation suggests that process.returncode should be -signum for a signalled process
-            but seems not to be so ... getting None
-        """
-        process = self.process
-        while process.poll() is None:
-            if self.overtime() > 0:
-                self.rc = -666
-                if self.opts['verbose']: print "timeout exceeded, killing process %s for %s " % ( process.pid , self )
-                os.kill(process.pid, signal.SIGKILL)
-                os.waitpid(-1, os.WNOHANG)
-                #self.rc = process.returncode  
-                return process
-            else:
-                out = process.stdout.readline()
-                self.parse(out)
-               #if self.verbose: print "continuing process %s for %s " % ( process.pid , self )
-            time.sleep(0.2)
-        self.rc = process.returncode
-
-    def run_slow(self):
-        cmd = self.command.split(" ")
-        self.start = datetime.datetime.now()
-        self.process = process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
-        if self.opts['verbose']: print "forked process %s for %s  " % ( process.pid , self   )
-        self.read()
-
-    def run_fast(self):
+ 
+    def run(self):
         """
             "timeout" for select.select is not the same as my  "time to live"  ...
                 http://docs.python.org/lib/module-select.html
@@ -109,10 +79,17 @@ class Run:
             time-to-live like timeout 
              
         """
-        from bitten.build import CommandLine
-        cmd = self.command.split(" ")
-        self.start = datetime.datetime.now()
-        cmdline = CommandLine( cmd[0] , cmd[1:]  )
+
+        self.start = datetime.datetime.now()        
+        cmdline = None
+        if self.opts['slow']==True:
+             from command import CommandLine
+             cmdline = CommandLine( self.command )
+        else:
+            from bitten.build import CommandLine
+            cmd = self.command.split(" ")
+            cmdline = CommandLine( cmd[0] , cmd[1:]  )
+        
         if self.opts['verbose']: print "forked commandline %s   " % ( cmdline )
         
         sto = self.opts['select_timeout']
@@ -130,15 +107,12 @@ class Run:
         return "<Run \"%s\" opts:%s prc:%s rc:%s  dur:%s parser:%s  >" % ( self.command , pp(self.opts), self.prc, self.rc , self.dur , self.parser )
 
     def __call__(self):
-        if self.opts['slow']==True:
-            self.run_slow()
-        else:
-            self.run_fast()
+        self.run()
         return self
 
 
 if __name__=='__main__':
     import sys
-    r = Run( sys.argv[1] )().assert_()
+    r = Run( sys.argv[1] , opts={'slow':True , 'verbose':True , 'select_timeout':None , 'timeout':10 } )().assert_()
    
 
