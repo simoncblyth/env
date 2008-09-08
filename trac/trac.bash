@@ -61,10 +61,9 @@ cat << EOU
    
  
  
-    
- 
- 
- 
+    trac-notify-triplets <email>   
+            notification config.. see wiki:TracNotification
+
     
  
     $(type trac-prepare)
@@ -489,6 +488,10 @@ trac-notify-triplets(){
 
    ## hmm how to set up the config that is distinct for build nodes ?
    ##
+  
+  local email=$1
+  local always=""
+  [ -n "$email" ] && always=notification:smtp_always_cc:$email
  
   trac-configure $(cat << EON 
      notification:smtp_default_domain:localhost 
@@ -497,6 +500,7 @@ trac-notify-triplets(){
      notification:always_notify_owner:true
      notification:always_notify_reporter:true
      notification:always_notify_updater:true
+     $always
 EON)
 
 }
