@@ -26,7 +26,7 @@ def pp(d):
     return pprint.pformat(d)
 
 
-defaults = { 'slow':False , 'maxtime':5 , 'verbose':True , 'timeout':-1. }
+defaults = {  'maxtime':5 , 'verbose':True , 'timeout':-1. }
 
 class Run:
     def __init__(self, command , parser=None ,  opts=None ):

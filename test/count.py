@@ -2,20 +2,25 @@ import time
 import sys
 
 
-sys.stderr.write("count starting \n")
-for i in range(int(sys.argv[1])):
-    time.sleep(0.2)
-
-
-    if i == 5:
+def msg(i):
+    if i == 3: 
+        xsg = "#1 "	
+    elif i == 5:
         xsg = "... FATAL"
     elif i == 7:
         xsg = "... ERROR"
+    elif i == 8:
+        xsg = " *** Break *** segmentation violation"
     else:
         xsg = ""
-    msg = "counting %s %s \n" % ( i , xsg ) 
+    return "%s %s \n" % ( xsg , i  ) 
+   
 
-    sys.stdout.write(msg)
+
+sys.stderr.write("count starting \n")
+for i in range(int(sys.argv[1])):
+    time.sleep(0.2)
+    sys.stdout.write(msg(i))
     sys.stdout.flush()
 
 sys.stderr.write("count done\n")

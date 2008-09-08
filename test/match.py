@@ -3,9 +3,10 @@ import re
 checks = {
   '.*FATAL':2,
   '.*ERROR':1,
+  '.*\*\*\* Break \*\*\* segmentation violation':3, 
+  '^\#\d':None 
 }
  
-
 class Matcher:
     def __init__(self, patterns , verbose=False ):
         self.patterns = patterns
@@ -19,7 +20,10 @@ class Matcher:
             provide a status code for the provided line 
         """
         rc = self.match(line)
-        if self.verbose: print "[%-1s] %s\n" % ( rc, line.rstrip('\n') ),
+        if rc == None: 
+            print "[-] %s\n" % ( line.rstrip('\n') ),
+        elif rc != 0 or self.verbose == True:
+            print "[%-1s] %s\n" % ( rc, line.rstrip('\n') ),
         return rc
 
     def match( self , line ):

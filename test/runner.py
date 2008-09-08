@@ -13,7 +13,7 @@
 from match import Matcher, checks
 from run import Run
 
-opts={'maxtime':5 , 'verbose':True } 
+opts={'maxtime':5 , 'verbose':False } 
 
 m = Matcher( checks, verbose=opts['verbose'] )
 
@@ -33,8 +33,9 @@ if __name__=='__main__':
     (conf , args) = opr.parse_args(sys.argv[1:])    
      
     if len(args)<1:
-        print sys.modules[__name__].__doc__
-        sys.exit(1)
+        args = ["python count.py 10"]
+        #print sys.modules[__name__].__doc__
+        #sys.exit(1)
     
     r = Run( args[0] , parser=m , opts=conf.__dict__ )().assert_()        
 
