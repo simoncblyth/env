@@ -35,6 +35,8 @@ def pp(d):
     return pprint.pformat(d)
 
 
+defaults = { 'slow':False , 'timeout':5 , 'verbose':True , 'select_timeout':-1. }
+
 class Run:
     def __init__(self, command , parser=None ,  opts=None ):
         """
@@ -49,7 +51,9 @@ class Run:
         self.dur = None
         self.parser = parser
         self.prc = 0
-        self.opts = opts
+        self.opts = defaults
+        if opts:
+            self.opts.update( **opts )
 
     def assert_(self):
         assert self.rc  == 0 , self
