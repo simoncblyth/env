@@ -19,7 +19,9 @@ class CommandLine:
         self.returncode = None
         
     def __repr__(self):
-        return "<CommandLine \"%s\" %s  >" % (self.command, self.returncode  )
+        kmsg = ""
+        if self.killed: kmsg = "KILLED" 
+        return "<CommandLine \"%s\" %s %s %s  >" % (self.command, self.returncode , self.duration , kmsg )
         
     def __call__(self, **attr ):
         self.execute(**attr)
@@ -62,6 +64,7 @@ class CommandLine:
             if self.maxtime:
                 self.duration =  (datetime.datetime.now() - self.start).seconds
                 if self.duration > self.maxtime:
+                    print "over allowed maxtime killing " 
                     self.kill()
             lines = self._extract_lines( out )
             for line in lines:
@@ -72,7 +75,7 @@ class CommandLine:
             self.returncode = -1
         else:
             self.returncode = process.wait()   ## block until completion
-        print "after the yield ... %s " % self         
+        print "subprocess returned ... % " % self  
     
     def _extract_lines(self, data):
         """
