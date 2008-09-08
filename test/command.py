@@ -75,7 +75,7 @@ class CommandLine:
             self.returncode = -1
         else:
             self.returncode = process.wait()   ## block until completion
-        print "subprocess returned ... % " % self  
+        print "subprocess returned ... %s " % self  
     
     def _extract_lines(self, data):
         """
