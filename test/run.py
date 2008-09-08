@@ -20,12 +20,14 @@
 
 import subprocess, datetime, os, time, signal
 from command import CommandLine
+from cleaner import Cleaner
         
 def pp(d):
     import pprint
     return pprint.pformat(d)
 
 
+cleaner_ = Cleaner()
 defaults = {  'maxtime':5 , 'verbose':True , 'timeout':-1. }
 
 class Run:
@@ -48,6 +50,7 @@ class Run:
 
     def parse(self, out ):
         if out==None: return
+        out = cleaner_(out)
         if self.parser==None:
             print out
         else:

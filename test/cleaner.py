@@ -1,6 +1,7 @@
 """
-   python cleaner.py < cleaner.py
-
+      python cleaner.py < cleaner.py
+      python ~/env/test/cleaner.py < test-rootio.xml > out.xml
+      xmllint --noout out.xml
 
 """
 
@@ -26,10 +27,15 @@ class Cleaner:
             \033[01;35m - light magenta
             \033[01;36m - light cyan
             \033[01;37m - white
+            
+            
+            Note also matches, the end of escape (?) sequence :
+            \033[m
+            
 
         """
         import re
-        self.rm= re.compile("\033\[[0-9;]+m") 
+        self.rm= re.compile("\033\[[0-9;]*m") 
 
     def __call__(self, data ):
         """  replaces all matches of the regexp in data with an empty string  """
