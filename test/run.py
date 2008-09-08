@@ -35,7 +35,7 @@ def pp(d):
     return pprint.pformat(d)
 
 
-defaults = { 'slow':False , 'timeout':5 , 'verbose':True , 'select_timeout':-1. }
+defaults = { 'slow':False , 'maxtime':5 , 'verbose':True , 'timeout':-1. }
 
 class Run:
     def __init__(self, command , parser=None ,  opts=None ):
@@ -96,10 +96,11 @@ class Run:
         
         if self.opts['verbose']: print "forked commandline %s   " % ( cmdline )
         
-        sto = self.opts['select_timeout']
-        if sto<0.:
-            sto = None
-        for out, err in cmdline.execute(timeout=sto, maxtime=self.opts['timeout'] ):
+        timeout = self.opts['timeout']
+        if timeout<0.:
+            timeout = None
+            
+        for out, err in cmdline.execute(timeout=timeout, maxtime=self.opts['maxtime'] ):
             self.parse(out)
             self.parse(err)
             #if self.opts['verbose']: print " continuing  %s " % cmdline
@@ -117,6 +118,6 @@ class Run:
 
 if __name__=='__main__':
     import sys
-    r = Run( sys.argv[1] , opts={'slow':True , 'verbose':True , 'select_timeout':None , 'timeout':10 } )().assert_()
+    r = Run( sys.argv[1] , opts={'slow':True , 'verbose':True , 'timeout':-1 , 'maxtime':10 } )().assert_()
    
 
