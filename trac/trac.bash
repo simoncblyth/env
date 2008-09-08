@@ -495,6 +495,8 @@ trac-notify-triplets(){
      notification:smtp_enabled:true 
      notification:use_public_cc:true
      notification:always_notify_owner:true
+     notification:always_notify_reporter:true
+     notification:always_notify_updater:true
 EON)
 
 }
