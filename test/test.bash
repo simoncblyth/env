@@ -13,7 +13,7 @@ EOU
 
 test-env(){ elocal- ; }
 test-rel(){ echo dybgaudi/DybTest/python/dybtest ; }
-test-pys(){ echo match.py run.py runner.py count.py command.py ; }
+test-pys(){ echo match.py run.py runner.py count.py command.py cleaner.py ; }
 
 test-deploy(){
 
