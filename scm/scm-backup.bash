@@ -349,12 +349,14 @@ scm-backup-dir(){
 scm-backup-rsync-from-node(){
 
    local msg="# === $FUNCNAME : "
-   local tag=$1
+   local tag=${1:-C}
+   local node=${2:-dayabay/}
+   
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
    local tgt=$(scm-backup-dir $NODE_TAG)
    mkdir -p $tgt
-   local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/ $tgt/ "
+   local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/$node $tgt/$node "
    echo $cmd
 
 }
