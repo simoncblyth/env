@@ -64,7 +64,15 @@ cat << EOU
     trac-notify-triplets <email>   
             notification config.. see wiki:TracNotification
 
-    
+            eg 
+               trac-notify-triplets theta13-offline@lists.lbl.gov
+
+    trac-logging 
+          this relies on local patch mods, see 
+            http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/TracTweaking#traclogs    
+ 
+ 
+ 
  
     $(type trac-prepare)
     
@@ -457,6 +465,20 @@ trac-enscript(){
    if [ -x "$path" ]; then
       echo mimeviewer:enscript_path:$path
    fi
+}
+
+
+trac-logging(){
+    
+    local mbytes=1
+    local count=10
+    
+    trac-configure $(cat << EON 
+        logging:log_maxsize:$mbytes
+        logging:log_maxcount:$count
+    )
+
+
 }
 
 
