@@ -24,6 +24,7 @@ dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
 dybpy-(){       . $ENV_HOME/dybpy/dybpy.bash && dybpy-env $* ; }
 dybsvn-(){      . $ENV_HOME/dyb/dybsvn.bash && dybsvn-env $* ; }
 
+dtracebuild-(){  . $ENV_HOME/dtrace/dtracebuild.bash && dtracebuild-env $* ; }
 
 apache2-(){     . $ENV_HOME/apache/apache2.bash && apache2-env $* ; } 
 apache-(){      . $ENV_HOME/apache/apache.bash && apache-env $* ; } 
