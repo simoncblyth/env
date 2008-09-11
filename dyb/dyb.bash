@@ -78,7 +78,7 @@ dyb-env(){
    ## next time distinguish the options (particulary debug on or off status) via the folder name also 
 
    
-   dyb_hookup $DDR
+   dyb_hookup $DYB
 
 
    dyb-bv-setup
@@ -86,11 +86,14 @@ dyb-env(){
 }
 
 
+dyb_scripts(){ echo installation/trunk/dybtest/scripts ; }
+
+
 dyb_hookup(){
 
-    local ddr=$1
-    local dyb__=$ddr/dybgaudi/DybTest/scripts/dyb__.sh
-    local bitrun=$ddr/dybgaudi/DybTest/scripts/bitrun.bash
+    local base=$1
+    local dyb__=$base/$(dyb_scripts)/dyb__.sh
+    local slave=$base/$(dyb_scripts)/slave.bash
     
     if [ -f $dyb__ ]; then
         . $dyb__
@@ -98,8 +101,8 @@ dyb_hookup(){
         dyb__default(){ echo dybgaudi/Simulation/GenTools ; } 
      fi 
      
-    if [ -f $bitrun ]; then
-       . $bitrun
+    if [ -f $slave ]; then
+       . $slave
     fi
      
 }
