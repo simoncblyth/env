@@ -67,7 +67,7 @@ dyb-env(){
     
    export DDI=$DYB/installation/$DYB_VERSION/dybinst/scripts   ## should this be fixed at trunk ?
    export DDU=$DDR/dybgaudi/Utilities/Shell/bash
-   export DDT=$DDR/dybgaudi/DybTest
+   export DDT=$DYB/installation/$DYB_VERSION/dybtest 
    
    case $NODE_TAG in 
      P|G1|G|C) export NUWA_HOME=$DDR ;;
