@@ -95,6 +95,22 @@ Index: bitten/master.py
          index = None
          current_step = None
          for num, recipe_step in enumerate(recipe):
+@@ -250,6 +270,7 @@
+             build_log.insert(db=db)
+ 
+         # Collect report data from the request body
++        self.log.info("collecting report data for build.id %s  step %s " % (build.id, stepname ))
+         for report_elem in elem.children('report'):
+             report = Report(self.env, build=build.id, step=stepname,
+                             category=report_elem.attr.get('category'),
+@@ -260,6 +281,7 @@
+                 for child_elem in item_elem.children():
+                     item[child_elem.name] = child_elem.gettext()
+                 report.items.append(item)
++                self.log.info("collected item %s " % item )
+             report.insert(db=db)
+ 
+         # If this was the last step in the recipe we mark the build as
 Index: bitten/web_ui.py
 ===================================================================
 --- bitten/web_ui.py	(revision 556)
