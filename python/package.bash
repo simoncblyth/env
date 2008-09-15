@@ -177,9 +177,10 @@ cat << EOU
         allowing the cases where the script name does not corresponds to the 
         python packagename to be handled
         
-
-
-
+    package-patchstatus <name>
+        compare the patchfile with the current output of svn diff, there should
+        be no difference if the patchfile is uptodate... if not must recreate it with
+        package-makepatch
 
 
 
@@ -253,6 +254,23 @@ package-makepatch(){
    package-diff $name > $patchpath  || echo $msg ERROR while creating patch  
    
 }
+
+package-patchstatus(){
+
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+   local pp=$(package-patchpath $name)
+   local df=$tmp/$name.diff
+   package-diff $name > $df
+   
+   echo $msg comparing patch and svn diff output 
+   echo $msg      patch : $(wc $pp)
+   echo $msg   svn diff : $(wc $df)
+   diff $pp $df
+
+}
+
 
 package-ispristine-(){
    local name=$1
