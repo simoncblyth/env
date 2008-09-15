@@ -84,7 +84,8 @@ bitten-env(){
 }
 
 #bitten-revision(){  echo 547 ; }
-bitten-revision(){  echo 556 ; }
+#bitten-revision(){  echo 556 ; }
+bitten-revision(){  echo 561 ; }
 bitten-url(){       echo http://svn.edgewall.org/repos/bitten/$(bitten-branch) ;}
 bitten-package(){   echo bitten ; }
 
