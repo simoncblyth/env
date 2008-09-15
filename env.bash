@@ -48,10 +48,6 @@ enscript-(){    . $ENV_HOME/enscript/enscript.bash  && enscript-env  $* ; }
 
 
 
-slave-(){      
-  [ -n "$NUWA_HOME" ] && . $NUWA_HOME/dybgaudi/DybTest/scripts/slave.bash || .  $ENV_HOME/bitrun/bitrun.bash  
-} 
-
 nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
 nosebit-(){      . $ENV_HOME/nosebit/nosebit.bash    && nosebit-env $* ; }
 

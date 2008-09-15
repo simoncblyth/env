@@ -23,6 +23,7 @@ clui-alias(){
    alias lt="ls -lt"
    alias st="svn st"
    alias stu="svn st -u"
+   alias up="svn up"
    alias ci="svn ci"
    alias h='history'
    alias bh='cat ~/.bash_history'

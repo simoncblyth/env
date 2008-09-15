@@ -3,11 +3,14 @@ dtracebuild-usage(){
 
    cat << EOU
 
+    http://www.crisp.demon.co.uk/blog/index.html
+
+
         dtracebuild-name : $(dtracebuild-name)
         dtracebuild-url  : $(dtracebuild-url)
         dtracebuild-dir  : $(dtracebuild-dir) 
 
-        dtracebuild-get/configure/install
+        dtracebuild-get/make/install
 
 
 EOU
@@ -36,11 +39,15 @@ dtracebuild-get(){
     cd $(dirname $(dirname $dir))
 
     [ ! -f $ball ] && curl -O $url
-    [ ! -d build/$nam ] && ( cd build ; bunzip2 $ball ) 
+    [ ! -d build/$nam ] && bzcat $ball | ( cd build ; tar xfp - ) 
 }
 
 
+dtracebuild-make(){
 
+   dtracebuild-cd
+   make all
+}
 
 
 
