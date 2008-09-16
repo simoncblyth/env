@@ -88,8 +88,9 @@ tracinter-triplets(){
 
 
 tracinter-conf(){
+   local name=${1:-$TRAC_INSTANCE}
    trac-
-   trac-configure $(tracinter-triplets)
+   SUDO=$SUDO TRAC_INSTANCE=$name trac-configure $(tracinter-triplets)
 }
 
 
