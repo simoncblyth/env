@@ -119,7 +119,7 @@ EOU
 
 }
 
-
+tracinter-(){         . $ENV_HOME/trac/tracinter.bash  && tracinter-env  $* ; }
 tracbuild-(){         . $ENV_HOME/trac/tracbuild.bash  && tracbuild-env  $* ; }
 tracperm-(){          . $ENV_HOME/trac/tracperm.bash   && tracperm-env   $* ; }
 traccomp-(){          . $ENV_HOME/trac/traccomp.bash   && traccomp-env   $* ; }
@@ -476,7 +476,7 @@ trac-logging(){
     trac-configure $(cat << EON 
         logging:log_maxsize:$mbytes
         logging:log_maxcount:$count
-    )
+EON)
 
 
 }
