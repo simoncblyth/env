@@ -574,7 +574,7 @@ trac-timeline-conf(){
 
   trac-configure $(cat << EOC
      timeline:ticket_show_details:true 
-     timeline:changeset_show_files:true
+     timeline:changeset_show_files:-1
 EOC)
 
 }
