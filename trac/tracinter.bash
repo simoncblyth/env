@@ -18,8 +18,14 @@ $(tracinter-triplets)
       
         
      Usage may require SUDO / TRAC_INSTANCE overrides :
-      eg:       
+     
+     Old way with override issues, to to resetting in elocal-     
           TRAC_INSTANCE=env SUDO=sudo tracinter-conf
+     
+     
+          trac-
+          TRAC_INSTANCE=env SUDO=sudo trac-intertrac-conf
+   
    
      Check the config by visiting wiki:InterTrac on the target instance
    
@@ -88,6 +94,7 @@ tracinter-triplets(){
 
 
 tracinter-conf(){
+   echo $msg DEPRECATED USE trac-intertrac-conf due to SUDO complications 
    local name=${1:-$TRAC_INSTANCE}
    trac-
    SUDO=$SUDO TRAC_INSTANCE=$name trac-configure $(tracinter-triplets)

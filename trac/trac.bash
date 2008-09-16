@@ -558,7 +558,10 @@ trac-setbanner(){
 
 
 
-
+trac-intertrac-conf(){
+   tracinter-
+   trac-configure $(tracinter-triplets)
+}
 
 
 
