@@ -108,6 +108,13 @@ cat << EOU
               TRAC_INSTANCE=dybsvn trac-setbanner
  
    
+   
+    trac-intertrac-conf
+    trac-timeline-conf
+        see TracIni for the options  
+   
+   
+   
  
     trac-db  <name>     defaults to TRAC_INSTANCE : $TRAC_INSTANCVE
           echo command for direct access to the trac database with sqlite3 ... it is
@@ -563,7 +570,14 @@ trac-intertrac-conf(){
    trac-configure $(tracinter-triplets)
 }
 
+trac-timeline-conf(){
 
+  trac-configure $(cat << EOC
+     timeline:ticket_show_details:true 
+     timeline:changeset_show_files:true
+EOC)
+
+}
 
 
 
