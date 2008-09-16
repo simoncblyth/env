@@ -59,6 +59,7 @@ tracinter-url2name(){
   case $1 in 
      http://bitten.edgewall.org) echo bitten ;;
        http://trac.edgewall.org) echo trac ;;
+          http://trac-hacks.org) echo trachacks ;;
                               *) echo $(basename $1) ;;
   esac
 }
@@ -70,6 +71,7 @@ tracinter-triplets-(){
    m  mirror    http://dayabay.phys.ntu.edu.tw/tracs/dybsvn
    b  bitten    http://bitten.edgewall.org
    tr trac      http://trac.edgewall.org
+   th trachacks http://trac-hacks.org
    t  tracdev   http://dayabay.phys.ntu.edu.tw/tracs/tracdev
    w  workflow  http://localhost/tracs/workflow
 EOT
