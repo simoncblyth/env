@@ -79,8 +79,16 @@ tracinter-triplets-(){
    tr trac      http://trac.edgewall.org
    th trachacks http://trac-hacks.org
    t  tracdev   http://dayabay.phys.ntu.edu.tw/tracs/tracdev
-   w  workflow  http://localhost/tracs/workflow
 EOT
+
+if [ "$NODE_TAG" != "XX" ]; then
+   cat << EOT 
+   w  workflow     http://localhost/tracs/workflow
+   bn bittennotify http://trac.3dbits.de/bittennotify
+   gs genshi       http://genshi.edgewall.org
+EOT
+fi
+
 }
 
 
