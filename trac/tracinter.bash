@@ -64,6 +64,7 @@ EOI
 tracinter-url2name(){
   case $1 in 
      http://bitten.edgewall.org) echo bitten ;;
+     http://genshi.edgewall.org) echo genshi ;;
        http://trac.edgewall.org) echo trac ;;
           http://trac-hacks.org) echo trachacks ;;
                               *) echo $(basename $1) ;;
