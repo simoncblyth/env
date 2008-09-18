@@ -118,18 +118,43 @@ cat << EOU
           svn co the $($name-url) into $($name-dir)  
 
     $name-install  :
-          invokes -applypatch which will do so if one exists 
-          invoke $name-fix then 
-          easy install into PYTHON_SITE $PYTHON_SITE
+    
+          When PACKAGE_INSTALL_OPT is not "develop" then applies patch by 
+          invoking -applypatch which will do so if one exists
+          THIS MEANS WORKING COPY MODS WILL BE LOST       
+             * this is used for patch based development against repositories
+               that cannot write to  
+             * you must use $name-makepatch and commit the resulting patchfile 
+               to preserve mods when working in this mode
+            
+          When using repositories that can write to OR where wish to develop
+          with working copy as the source (eg during preparation of patches) 
+          use the PACKAGE_INSTALL_OPT=develop mode, which plants an egg link 
+          from the working copy 
+           
      
     package-applypatch $name
+
+          Reverts to the standard revision for the package
+          and then applies the patch. 
+    
           patches are identified by the branch basename and checkout revision
           so following updates from upstream an appropriately named patch will not be found
           ... so to incoporate upstream mods do a manual svn update into the
           patched working copy and investigate problems/conflicts before making a 
           new patch              
-                       
-                                   
+    
+    package-isdevelop- $name
+           Sense if a package is in develop mode ...
+              package-isdevelop- bitten  && echo y || echo n
+           by looking at egglinked directories                                
+      
+    $name-develop :
+         plant the egglink to furnish the package directory on the 
+         sys.path of the python in the path  
+         Only needs to be done once
+
+                  
     PACKAGE_INSTALL_OPT=develop $name-install  :
           develop mode installation, allowing availability on sys.path to other
           packages direct from the source directories without creating eggs 
@@ -140,9 +165,7 @@ cat << EOU
            ... this replaces existing normal installs appropriately,       
            
     
-    $name-develop :
-         a reimplementation 
-                  
+                   
                                 
     $name-uninstall :
            remove the \$($name-egg) and easy-install.pth reference
@@ -182,8 +205,9 @@ cat << EOU
         be no difference if the patchfile is uptodate... if not must recreate it with
         package-makepatch
 
-
-
+    package-revert <name>
+        do a recursive revert back to the defined revision of the package 
+        prompts for confirmation unless PACKAGE_REVERT_DIRECTLY is defined
 
     Usage :
         env-
@@ -267,7 +291,9 @@ package-patchstatus(){
    echo $msg comparing patch and svn diff output 
    echo $msg      patch : $(wc $pp)
    echo $msg   svn diff : $(wc $df)
-   diff $pp $df
+   local cmd="diff $pp $df "
+   echo $msg $cmd  ... standard patch compared with current working copy diff
+   eval $cmd
 
 }
 
@@ -301,7 +327,15 @@ package-applypatch(){
    local patchpath=$(package-patchpath $name)
    
    [ ! -f $patchpath ]    && echo $msg there is no patch file $patchpath && return 1 
+   
+   
+   
+   
    ! package-ispristine- $name && echo $msg ERROR there are local modifications ... cannot apply patch && return 1 
+
+
+   package-revert $name
+
 
 
    local dir=$($name-dir)
@@ -431,6 +465,16 @@ package-status(){
    printf "%130s %-20s %-20s\n" "$(package-smry $1)" "$(package-status-- $s)" "==> $a "
    return $s
 }
+
+package-ezdir(){
+   grep $(package-dir $1) $(python-site)/easy-install.pth
+}
+
+package-isdevelop-(){
+   local ezdir=$(package-ezdir $1)
+   [ -z "$ezdir" ] && return 1 || python-isdevelopdir- $ezdir
+}
+
 
 
 package-action-(){
@@ -766,6 +810,10 @@ package-install(){
    if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
       $SUDO python setup.py develop
    else
+   
+   
+   
+   
       $SUDO easy_install -Z --no-deps .  
    fi
    
@@ -777,7 +825,30 @@ package-install(){
 }
 
 
+package-revert(){
 
+  local msg="=== $FUNCNAME :"
+  local name=$1
+  local dir=$($name-dir)
+  
+  local cmd="svn --recursive revert $dir "
+  
+  local answer
+  if [ -z "$PACKAGE_REVERT_DIRECTLY" ]; then
+     read -p "$msg [$cmd]  ... enter YES to proceed : " answer
+  else
+     answer=YES
+     echo $msg [$cmd] without asking ...  as PACKAGE_REVERT_DIRECTLY is defined
+  fi
+  
+  case $answer in 
+    YES) eval $cmd ;;
+      *) echo $msg skipping as you answered [$answer] ;;
+  esac
+  
+  
+  
+}
 
 
 package-uninstall(){

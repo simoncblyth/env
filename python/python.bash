@@ -22,6 +22,9 @@ cat << EOU
     python-pth
          cat the easy-install.pth 
     
+    python-isdevelopdir- <dir>
+        return code indicates if the passed directory is egglinked into python syspath 
+    
     python-ls
          ls -l $PYTHON_SITE/
          
@@ -142,6 +145,14 @@ python-uneasy(){
    python-pth
     
 }
+
+
+
+python-isdevelopdir-(){
+   cat $(python-site)/*.egg-link | grep $1 > /dev/null
+}
+
+
 
 
 python-unegg(){
