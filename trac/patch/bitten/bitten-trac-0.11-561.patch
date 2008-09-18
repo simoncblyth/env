@@ -120,6 +120,15 @@ Index: bitten/web_ui.py
  from bitten.api import ILogFormatter, IReportChartGenerator, IReportSummarizer
  from bitten.model import BuildConfig, TargetPlatform, Build, BuildStep, \
                           BuildLog, Report
+@@ -383,7 +384,7 @@
+         add_link(req, 'up', req.href.build(build.config),
+                  'Build Configuration')
+         status2title = {Build.SUCCESS: 'Success', Build.FAILURE: 'Failure',
+-                        Build.IN_PROGRESS: 'In Progress'}
++                        Build.IN_PROGRESS: 'In Progress', Build.PENDING:'Pending' }
+         data = {'title': 'Build %s - %s' % (build_id,
+                                             status2title[build.status]),
+                 'page_mode': 'view_build',
 @@ -582,30 +583,57 @@
  
      _fileref_re = re.compile('(?P<path>[\w.-]+(?:/[\w.-]+)+)(?P<line>(:\d+))?')
@@ -213,3 +222,114 @@ Index: bitten/web_ui.py
 +            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
  
          return _formatter
+Index: bitten/queue.py
+===================================================================
+--- bitten/queue.py	(revision 561)
++++ bitten/queue.py	(working copy)
+@@ -33,7 +33,47 @@
+ log = logging.getLogger('bitten.queue')
+ 
+ 
+-def collect_changes(repos, config, db=None):
++
++
++
++def changeset_location(chgset):
++    """ common prefix of all the new paths in the changeset """
++    paths = []
++    for path, kind, change, base_path, base_rev in chgset.get_changes():
++        paths.append(path)
++    return commonprefix( paths )
++
++def commonprefix(paths):
++    import os
++    return '/'.join(os.path.commonprefix([p.split('/') for p in paths]))
++
++def is_contained( loc , paths ):
++    """
++        is_contained( "a/b"     ,     ["a/b/c" , "x/y/z" ] ) == False
++        is_contained( "a/b/c"   ,     ["a/b/c" , "x/y/z" ] ) == True
++        is_contained( "a/b/cc" ,      ["a/b/c" , "x/y/z" ] ) == False
++        is_contained( "a/b/c/d" ,     ["a/b/c" , "x/y/z" ] ) == True
++        is_contained( "x/y/z" ,       ["a/b/c" , "x/y/z" ] ) == True
++        is_contained( "x/y/z/z" ,     ["a/b/c" , "x/y/z" ] ) == True
++         
++    """    
++    return len([ p for p in paths if commonprefix( [ p , loc ] ) == p ]) > 0
++
++def include_( path , include="" ):
++    return include == "" or  is_contained( path , include.split(",") )
++    
++def exclude_( path , exclude="" ):
++    return exclude != "" and is_contained( path , exclude.split(",") )
++
++def accept_( path , include , exclude ):
++    incl = include_( path , include )
++    excl = exclude_( path , exclude )
++    acpt = incl and not(excl)
++    msg = "accept_ %s incl:%s [%s] excl:%s [%s] " % ( acpt , incl , include , excl , exclude )
++    return acpt, msg
++    
++
++def collect_changes(repos, config, db=None ):
+     """Collect all changes for a build configuration that either have already
+     been built, or still need to be built.
+     
+@@ -140,6 +180,7 @@
+         build = None
+         builds_to_delete = []
+         for build in Build.select(self.env, status=Build.PENDING, db=db):
++            self.log.info('Considering build %d for deletion', build.id)
+             if self.should_delete_build(build, repos):
+                 self.log.info('Scheduling build %d for deletion', build.id)
+                 builds_to_delete.append(build)
+@@ -216,8 +257,14 @@
+ 
+         db = self.env.get_db_cnx()
+         builds = []
+-
++        cfg = self.env.config['bitten']
++     
+         for config in BuildConfig.select(self.env, db=db):
++            
++            exclude_paths = cfg.get('%s.exclude_paths' % config.name )
++            include_paths = cfg.get('%s.include_paths' % config.name )
++            self.log.info('populate... %s exclude %s include %s ', config.name , exclude_paths , include_paths )
++            
+             platforms = []
+             for platform, rev, build in collect_changes(repos, config, db):
+ 
+@@ -230,7 +277,19 @@
+ 
+                 platforms.append(platform.id)
+ 
++                chgset = repos.get_changeset(rev)
++                location = changeset_location( chgset )
++                accept, msg = accept_( location , include_paths , exclude_paths )
++                self.log.info('Considering changeset %s by %s at %s for doing %s ... %s ', rev, chgset.author, location , config.name , msg )
++            
+                 if build is None:
++    
++                    if not(accept):
++                        self.log.info('Enqueuing inhibited for changeset at location %s ... %s' , location , msg )
++                        continue
++                    else:
++                        self.log.info('Enqueing accepted for changeset at location %s ... %s ', location , msg )
++                    
+                     self.log.info('Enqueuing build of configuration "%s" at '
+                                   'revision [%s] on %s', config.name, rev,
+                                   platform.name)
+@@ -292,10 +351,12 @@
+         # Ignore pending builds for deactived build configs
+         config = BuildConfig.fetch(self.env, build.config)
+         if not config.active:
++            plat = TargetPlatform.fetch(self.env, build.platform)
++            platname = plat and plat.name or "ERROR-NO-PLATFORM"  
+             log.info('Dropping build of configuration "%s" at '
+                      'revision [%s] on "%s" because the configuration is '
+                      'deactivated', config.name, build.rev,
+-                     TargetPlatform.fetch(self.env, build.platform).name)
++                      platname )
+             return True
+ 
+         # Stay within the revision limits of the build config
