@@ -1,0 +1,104 @@
+Index: insulate/insulate.py
+===================================================================
+--- insulate/insulate.py	(revision 38)
++++ insulate/insulate.py	(working copy)
+@@ -46,6 +46,8 @@
+     name = 'insulate'
+     restart_after_crash = True
+     show_slave_output = False
++    discard_master_output = False
++    every_test = False
+     enableOpt = 'insulate'
+     testCount = 0
+     testSlave = None
+@@ -71,7 +73,18 @@
+                           dest='show_slave_output',
+                           action="store_true",
+                           default=False)
+-
++                          
++        parser.add_option('--insulate-discard-master-output',
++                          dest='discard_master_output',
++                          action="store_false",
++                          default=False)
++                          
++        parser.add_option('--insulate-every-test',
++                          dest='every_test',
++                          action="store_true",
++                          default=False)
++                          
++                          
+     def configure(self, options, conf):
+         super(Insulate, self).configure(options, conf)
+         if getattr(options, 'insulateslave', None):
+@@ -83,6 +96,8 @@
+             self.in_slave = options.in_slave[:]
+ 
+             self.show_slave_output = options.show_slave_output
++            self.discard_master_output = options.discard_master_output
++            self.every_test = options.every_test
+ 
+             # Always enabled in slave
+             self.in_slave.append('--nocapture')
+@@ -102,6 +117,8 @@
+         args.extend(self.in_slave)
+         self.testSlave = TestSlave(self.restart_after_crash,
+                                    self.show_slave_output,
++                                   self.every_test,
++                                   self.discard_master_output,
+                                    args)
+ 
+     def finalize(self, result):
+@@ -230,13 +247,14 @@
+ class TestSlave(object):
+     "The test slave class for running tests in a separate process."
+ 
+-    def __init__(self, restart_after_crash, show_slave_output, args):
++    def __init__(self, restart_after_crash, show_slave_output, every_test, discard_master_output, args):
+         """
+         Initialise the object, starting a 'slave' nosetest (or whatever
+         the program was called) object in a separate process.
+ 
+         Arguments: restart_after_crash - restart the slave after a crash
+                    show_slave_output - show slave stdout, err
++                   every_test - retire the slave after every test 
+                    args - argument list
+         Returns:   None
+         """
+@@ -244,6 +262,8 @@
+ 
+         self.restart_after_crash = restart_after_crash
+         self.show_slave_output = show_slave_output
++        self.discard_master_output = discard_master_output
++        self.every_test = every_test
+         self.fromSlave = None
+         self.toSlave = None
+         self.noseSlave = None
+@@ -309,6 +329,7 @@
+             self.fromSlave.close()
+             self.toSlave = self.fromSlave = None
+         self.hasCrashed = True
++        
+ 
+ 
+     def sendToSlave(self, count):
+@@ -344,8 +365,17 @@
+             if func_dict is not None:
+                 orgtest.test.func_dict.update(func_dict)
+             
+-            sys.stdout.write(stdout)
+-            sys.stderr.write(stderr)
++            if not self.discard_master_output:
++                sys.stdout.write(stdout)
++                sys.stderr.write(stderr)
++            else:
++                sys.stdout.write( ">>>>>>>>>>>>>>>>>>>>>>>>>  discarded master output" )
++            
++            if self.every_test:
++                sys.stdout.write( ">>>>>>>>>>>>>>>>>>>>>>>>>  dropping slave" )
++                self.dropSlave()
++            
++            
+             return status, exc
+ 
+         except (EOFError, IOError, socket.error), e:

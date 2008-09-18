@@ -30,7 +30,7 @@ clui-alias(){
    alias ini='. ~/.bash_profile'
    alias t='type'
    alias f='typeset -F'   ## list functions 
-   
+   alias e='cd $ENV_HOME'
 
 }
 
