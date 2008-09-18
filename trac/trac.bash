@@ -113,7 +113,7 @@ cat << EOU
     trac-timeline-conf
         see TracIni for the options  
    
-   
+       SUDO=sudo TRAC_INSTANCE=dybsvn trac-timeline-conf
    
  
     trac-db  <name>     defaults to TRAC_INSTANCE : $TRAC_INSTANCVE
@@ -575,6 +575,7 @@ trac-timeline-conf(){
   trac-configure $(cat << EOC
      timeline:ticket_show_details:true 
      timeline:changeset_show_files:-1
+     timeline:changeset_long_messages:true
 EOC)
 
 }
