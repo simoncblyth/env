@@ -91,18 +91,25 @@ dyb_scripts(){ echo installation/trunk/dybtest/scripts ; }
 
 dyb_hookup(){
 
+    local msg="=== $FUNCNAME : "
     local base=$1
     local dyb__=$base/$(dyb_scripts)/dyb__.sh
     local slave=$base/$(dyb_scripts)/slave.bash
+    
+    #echo $msg base $base dyb__ $dyb__ slave $slave 
     
     if [ -f $dyb__ ]; then
         . $dyb__
         [ -z $BASH_SOURCE ] && eval "function dyb__source(){  echo $dyb__ ; }"      ## workaround for older bash  
         dyb__default(){ echo dybgaudi/Simulation/GenTools ; } 
-     fi 
+    else
+        echo $msg no dyb__ $dyb__
+    fi 
      
     if [ -f $slave ]; then
        . $slave
+    else
+       echo $msg no slave $slave 
     fi
      
 }
