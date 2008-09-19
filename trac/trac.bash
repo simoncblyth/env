@@ -60,12 +60,6 @@ cat << EOU
            applies edits to  trac.ini by means of triplet arguments
    
  
- 
-    trac-notify-triplets <email>   
-            notification config.. see wiki:TracNotification
-
-            eg 
-               trac-notify-triplets theta13-offline@lists.lbl.gov
 
     trac-logging 
           this relies on local patch mods, see 
@@ -110,11 +104,27 @@ cat << EOU
    
    
     trac-intertrac-conf
+         see InterTrac to check it worked
+             SUDO=sudo TRAC_INSTANCE=.. trac-intertrac-conf
+         targetting ".." will put the config in the inherited ini file, used by 
+         all instances on the server
+    
     trac-timeline-conf
         see TracIni for the options  
    
        SUDO=sudo TRAC_INSTANCE=dybsvn trac-timeline-conf
    
+  
+    trac-notification-conf <email>   
+         see wiki:TracNotification
+         eg :   
+               trac-notification-conf theta13-offline@lists.lbl.gov
+
+          includes conf used by bittennotify, if that is enabled :
+             notification:notify_on_failed_build:true
+             notification:notify_on_successful_build:true
+ 
+ 
  
     trac-db  <name>     defaults to TRAC_INSTANCE : $TRAC_INSTANCVE
           echo command for direct access to the trac database with sqlite3 ... it is
@@ -513,27 +523,6 @@ EOT
 
 }
 
-trac-notify-triplets(){
-
-   ## hmm how to set up the config that is distinct for build nodes ?
-   ##
-  
-  local email=$1
-  local always=""
-  [ -n "$email" ] && always=notification:smtp_always_cc:$email
- 
-  trac-configure $(cat << EON 
-     notification:smtp_default_domain:localhost 
-     notification:smtp_enabled:true 
-     notification:use_public_cc:true
-     notification:always_notify_owner:true
-     notification:always_notify_reporter:true
-     notification:always_notify_updater:true
-     $always
-EON)
-
-}
-
 
 
 trac-bannerpath(){
@@ -571,26 +560,39 @@ trac-intertrac-conf(){
 }
 
 trac-timeline-conf(){
-
   trac-configure $(cat << EOC
      timeline:ticket_show_details:true 
      timeline:changeset_show_files:-1
      timeline:changeset_long_messages:true
 EOC)
-
 }
-
-
 
 trac-bitten-conf(){
   trac-configure $(cat << EOC
      bitten:debug.exclude_paths:dybspade,people
 EOC)
-  
 }
 
+trac-notification-conf(){
 
+  local email=$1
+  local always=""
+  [ -n "$email" ] && always=notification:smtp_always_cc:$email
 
+  trac-configure $(cat << EOC
+     notification:smtp_default_domain:localhost 
+     notification:smtp_enabled:true 
+     notification:use_public_cc:true
+     notification:always_notify_owner:true
+     notification:always_notify_reporter:true
+     notification:always_notify_updater:true
+     $always
+     components:bittennotify.\*:enabled
+     notification:notify_on_failed_build:true
+     notification:notify_on_successful_build:true
+EOC)
+
+}
 
 
 
