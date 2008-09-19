@@ -137,7 +137,7 @@ cat << EOU
 
           Reverts to the standard revision for the package
           and then applies the patch. 
-    
+              LOOSING WORKING COPY MODS ... SO THE PATCH IS THE SOURCE
           patches are identified by the branch basename and checkout revision
           so following updates from upstream an appropriately named patch will not be found
           ... so to incoporate upstream mods do a manual svn update into the
@@ -328,15 +328,12 @@ package-applypatch(){
    
    [ ! -f $patchpath ]    && echo $msg there is no patch file $patchpath && return 1 
    
+   local answer=YES
+   read -p "$msg CAUTION REVERTING WC MODS ... YOU HAVE 5 SECONDS TO ABORT " -t 5 answer
+   [ "$answer" != "YES" ] && echo $msg EXITING && return 1
    
-   
-   
-   ! package-ispristine- $name && echo $msg ERROR there are local modifications ... cannot apply patch && return 1 
-
-
-   package-revert $name
-
-
+   package-revert $name   
+   ! package-ispristine- $name && echo $msg ERROR, AFTER REVERTING there are local modifications ... cannot apply patch && return 1 
 
    local dir=$($name-dir)
    
