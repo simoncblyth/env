@@ -25,15 +25,9 @@ bittennotify-fix(){
    echo no fix
 }
 
-bittennotify-conf(){
-   trac-notify-conf
-   trac-configure notification:notify_on_failed_build:true
-   trac-configure notification:notify_on_successful_build:true
-}
 
 bittennotify-prepare(){
    bittennotify-enable $*
-   bittennotify-conf
 }
 
 

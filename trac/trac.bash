@@ -577,7 +577,8 @@ trac-notification-conf(){
 
   local email=$1
   local always=""
-  [ -n "$email" ] && always=notification:smtp_always_cc:$email
+  local build=""
+  [ -n "$email" ] && always=notification:smtp_always_cc:$email && build=notification:bitten_build_cc:$email
 
   trac-configure $(cat << EOC
      notification:smtp_default_domain:localhost 
@@ -587,9 +588,10 @@ trac-notification-conf(){
      notification:always_notify_reporter:true
      notification:always_notify_updater:true
      $always
-     components:bittennotify.\*:enabled
+     components:bittennotify.*:enabled
      notification:notify_on_failed_build:true
      notification:notify_on_successful_build:true
+     $build
 EOC)
 
 }
