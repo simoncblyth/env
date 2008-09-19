@@ -226,11 +226,10 @@ Index: bitten/queue.py
 ===================================================================
 --- bitten/queue.py	(revision 561)
 +++ bitten/queue.py	(working copy)
-@@ -33,7 +33,47 @@
+@@ -33,6 +33,46 @@
  log = logging.getLogger('bitten.queue')
  
  
--def collect_changes(repos, config, db=None):
 +
 +
 +
@@ -271,55 +270,52 @@ Index: bitten/queue.py
 +    return acpt, msg
 +    
 +
-+def collect_changes(repos, config, db=None ):
+ def collect_changes(repos, config, db=None):
      """Collect all changes for a build configuration that either have already
      been built, or still need to be built.
-     
-@@ -140,6 +180,7 @@
-         build = None
-         builds_to_delete = []
-         for build in Build.select(self.env, status=Build.PENDING, db=db):
-+            self.log.info('Considering build %d for deletion', build.id)
-             if self.should_delete_build(build, repos):
-                 self.log.info('Scheduling build %d for deletion', build.id)
-                 builds_to_delete.append(build)
-@@ -216,8 +257,14 @@
- 
+@@ -217,8 +257,16 @@
          db = self.env.get_db_cnx()
          builds = []
--
+ 
++        # trac ini access for include/exclude paths for the config 
 +        cfg = self.env.config['bitten']
-+     
++        
          for config in BuildConfig.select(self.env, db=db):
-+            
+             platforms = []
++    
 +            exclude_paths = cfg.get('%s.exclude_paths' % config.name )
 +            include_paths = cfg.get('%s.include_paths' % config.name )
-+            self.log.info('populate... %s exclude %s include %s ', config.name , exclude_paths , include_paths )
++            self.log.info('populate ... config: %s config.path: %s exclude: %s include: %s ', config.name , config.path, exclude_paths , include_paths )
 +            
-             platforms = []
              for platform, rev, build in collect_changes(repos, config, db):
  
-@@ -230,7 +277,19 @@
- 
+                 if not self.build_all and platform.id in platforms:
+@@ -231,6 +279,24 @@
                  platforms.append(platform.id)
  
-+                chgset = repos.get_changeset(rev)
-+                location = changeset_location( chgset )
-+                accept, msg = accept_( location , include_paths , exclude_paths )
-+                self.log.info('Considering changeset %s by %s at %s for doing %s ... %s ', rev, chgset.author, location , config.name , msg )
-+            
                  if build is None:
-+    
-+                    if not(accept):
-+                        self.log.info('Enqueuing inhibited for changeset at location %s ... %s' , location , msg )
-+                        continue
-+                    else:
-+                        self.log.info('Enqueing accepted for changeset at location %s ... %s ', location , msg )
++                
++                    #
++                    #  Use location of the changeset for include/exclude filtering
++                    #  for NEW BUILDS ONLY
++                    #    ... collect_changes is called from multiple places including web_ui, so 
++                    #   cannot put this in there, as want to just filter new builds without making
++                    #   orphans of old builds
++                    #
 +                    
++                    chgset = repos.get_changeset(rev)
++                    location = changeset_location(chgset)
++                    ok, msg = accept_(location , include_paths , exclude_paths)
++                    if ok:
++                        self.log.info('accepting Enqueing chgset %s %s .. %s ', rev, location, msg)
++                    else:
++                        self.log.info('rejecting Enqueing chgset %s %s .. %s ', rev, location, msg)
++                        continue
++                
                      self.log.info('Enqueuing build of configuration "%s" at '
                                    'revision [%s] on %s', config.name, rev,
                                    platform.name)
-@@ -292,10 +351,12 @@
+@@ -292,10 +358,12 @@
          # Ignore pending builds for deactived build configs
          config = BuildConfig.fetch(self.env, build.config)
          if not config.active:
