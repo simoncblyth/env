@@ -15,7 +15,37 @@ Index: bittennotify/main.py
 ===================================================================
 --- bittennotify/main.py	(revision 28)
 +++ bittennotify/main.py	(working copy)
-@@ -95,6 +95,7 @@
+@@ -9,7 +9,7 @@
+ 
+ from trac.core import *
+ from trac.web.chrome import ITemplateProvider
+-from trac.config import BoolOption
++from trac.config import BoolOption, Option
+ from trac.notification import NotifyEmail
+ from bitten.api import IBuildListener
+ from bitten.model import Build, BuildStep, BuildLog
+@@ -18,8 +18,8 @@
+ CONFIG_SECTION = 'notification'
+ NOTIFY_ON_FAILURE = 'notify_on_failed_build'
+ NOTIFY_ON_SUCCESS = 'notify_on_successful_build'
++BITTEN_BUILD_CC = 'bitten_build_cc'
+ 
+-
+ class BittenNotify(Component):
+     notify_on_failure = BoolOption(CONFIG_SECTION, NOTIFY_ON_FAILURE, 'true',
+             """Notify if bitten build fails.""")
+@@ -27,6 +27,10 @@
+     notify_on_success = BoolOption(CONFIG_SECTION, NOTIFY_ON_SUCCESS, 'false',
+             """Notify if bitten build succeeds.""")
+ 
++    bitten_build_cc = Option(CONFIG_SECTION, BITTEN_BUILD_CC , '',
++            """ Email address to notify in addition to changeset author.""")
++
++
+     def __init__(self):
+         self.log.debug('Initializing BittenNotify plugin')
+ 
+@@ -95,6 +99,7 @@
          dict.__init__(self)
          self.build = build
          self.env = env
@@ -23,7 +53,7 @@ Index: bittennotify/main.py
          self['id'] = self.build.id
          self['status'] = self.readable_states[self.build.status]
          self['link'] = self.env.abs_href.build(self.build.config, 
-@@ -152,21 +153,24 @@
+@@ -152,21 +157,24 @@
  class BittenNotifyEmail(NotifyEmail):
      """Notification of failed builds."""
  
@@ -52,28 +82,13 @@ Index: bittennotify/main.py
          NotifyEmail.notify(self, self.build_info.id, subject)
  
      def get_recipients(self, resid):
-Index: bittennotify/templates/bitten_notify_email.txt
-===================================================================
---- bittennotify/templates/bitten_notify_email.txt	(revision 0)
-+++ bittennotify/templates/bitten_notify_email.txt	(revision 0)
-@@ -0,0 +1,14 @@
-+  ${status} build of ${project_name} [${changeset}]
-+---------------------------------------------------------------------
-+
-+  Changeset:             ${changeset}  -  <${changesetlink}>
-+  Committed by:          ${author}
-+
-+  Build Configuration:   ${config}
-+  Build Slave:           ${slave}
-+  Build Number:          ${id}  -  <${link}>
-+
-+  Failed Steps:          ${errors}
-+  Failure Log:           
-+  
-+${faillog}
-
-Property changes on: bittennotify/templates/bitten_notify_email.txt
-___________________________________________________________________
-Name: svn:executable
-   + *
-
+@@ -177,6 +185,9 @@
+             author = users[author]
+         torecipients = [author]
+         ccrecipients = []
++	cc = self.env.config.get(BITTEN_BUILD_CC,'')
++	if cc!='':
++		ccrecipients.extend(cc)
+         return (torecipients, ccrecipients)
+ 
+     def send(self, torcpts, ccrcpts, mime_headers={}):
