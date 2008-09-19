@@ -67,6 +67,7 @@ tracinter-url2name(){
      http://genshi.edgewall.org) echo genshi ;;
        http://trac.edgewall.org) echo trac ;;
           http://trac-hacks.org) echo trachacks ;;
+      https://trac.macports.org) echo macports ;;
                               *) echo $(basename $1) ;;
   esac
 }
@@ -80,6 +81,7 @@ tracinter-triplets-(){
    tr trac      http://trac.edgewall.org
    th trachacks http://trac-hacks.org
    t  tracdev   http://dayabay.phys.ntu.edu.tw/tracs/tracdev
+   mp macports  https://trac.macports.org 
 EOT
 
 if [ "$NODE_TAG" != "XX" ]; then
