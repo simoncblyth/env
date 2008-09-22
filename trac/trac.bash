@@ -118,7 +118,9 @@ cat << EOU
     trac-notification-conf <email>   
          see wiki:TracNotification
          eg :   
-               trac-notification-conf theta13-offline@lists.lbl.gov
+               trac-notification-conf theta13-offline@lists.lbl.gov offline
+           the 2nd argument is a username/email to be used for bitten notification,
+           of failed builds 
 
           includes conf used by bittennotify, if that is enabled :
              notification:notify_on_failed_build:true
@@ -576,9 +578,10 @@ EOC)
 trac-notification-conf(){
 
   local email=$1
+  local bmail=${2:-$email}
   local always=""
   local build=""
-  [ -n "$email" ] && always=notification:smtp_always_cc:$email && build=notification:bitten_build_cc:$email
+  [ -n "$email" ] && always=notification:smtp_always_cc:$email && build=notification:bitten_build_cc:$bmail
 
   trac-configure $(cat << EOC
      notification:smtp_default_domain:localhost 
