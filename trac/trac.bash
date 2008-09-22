@@ -569,7 +569,7 @@ EOC)
 
 trac-bitten-conf(){
   trac-configure $(cat << EOC
-     bitten:debug.exclude_paths:dybspade,people
+     bitten:dybinst.exclude_paths:dybspade,people,groups,vendor
 EOC)
 }
 
