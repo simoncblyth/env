@@ -593,7 +593,7 @@ trac-notification-conf(){
      $always
      components:bittennotify.*:enabled
      notification:notify_on_failed_build:true
-     notification:notify_on_successful_build:true
+     notification:notify_on_successful_build:false
      $build
 EOC)
 
