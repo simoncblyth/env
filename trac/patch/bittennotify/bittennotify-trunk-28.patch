@@ -82,13 +82,15 @@ Index: bittennotify/main.py
          NotifyEmail.notify(self, self.build_info.id, subject)
  
      def get_recipients(self, resid):
-@@ -177,6 +185,9 @@
+@@ -177,6 +185,11 @@
              author = users[author]
          torecipients = [author]
          ccrecipients = []
 +	cc = self.env.config.get(BITTEN_BUILD_CC,'')
 +	if cc!='':
-+		ccrecipients.extend(cc)
++            if(cc in users.keys() and users[cc]):
++                cc = users[cc]
++	    ccrecipients.extend(cc)
          return (torecipients, ccrecipients)
  
      def send(self, torcpts, ccrcpts, mime_headers={}):
