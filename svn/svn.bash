@@ -32,6 +32,12 @@ svn-usage(){
         svnbuild-
         svnsetup-   :  hookup svn and trac with apache   
         svnsync-    :  mirroring setup
+        
+        
+        
+    svn-lastrev  <dir1> ... 
+        svn-lastrev $SITEROOT/lcgcmt $SITEROOT/../installation/trunk/dybinst    
+        
                          
 EOU
 
@@ -219,7 +225,16 @@ svn-wipe(){
 
 
 
+svn-lastrev-(){
+  svn info $1 | env -i perl -n -e 'm/^Last Changed Rev: (\d*)$/ && print "$1\n" '
+}
 
+svn-lastrev(){
+  while [ $# -gt 0 ] ; do
+     svn-lastrev- $1
+     shift 1
+  done 
+}
 
 
 
