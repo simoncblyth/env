@@ -571,7 +571,7 @@ EOC)
 
 trac-bitten-conf(){
   trac-configure $(cat << EOC
-     bitten:dybinst.exclude_paths:dybspade,people,groups,vendor
+     bitten:dybinst.exclude_paths:dybspade,people,groups,vendor,installation/branches,NuWa,dybgaudi/branches,tutorial/branches,relax/branches,lhcb/branches,lcgcmt/branches,ldm/branches
 EOC)
 }
 
