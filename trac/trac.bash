@@ -569,9 +569,28 @@ trac-timeline-conf(){
 EOC)
 }
 
+
+trac-bitten-exclude(){
+  local x=$(cat << EOX | tr "\n" "," 
+dybspade
+people
+groups
+vendor
+NuWa
+installation/branches
+dybgaudi/branches
+tutorial/branches
+relax/branches
+lhcb/branches
+lcgcmt/branches
+ldm/branches
+EOX)
+ echo ${x:0:$((${#x}-1))}   ## just to remove the trailing comma
+}
+
 trac-bitten-conf(){
   trac-configure $(cat << EOC
-     bitten:dybinst.exclude_paths:dybspade,people,groups,vendor,installation/branches,NuWa,dybgaudi/branches,tutorial/branches,relax/branches,lhcb/branches,lcgcmt/branches,ldm/branches
+     bitten:dybinst.exclude_paths:$(trac-bitten-exclude)
 EOC)
 }
 
