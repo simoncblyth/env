@@ -329,3 +329,18 @@ Index: bitten/queue.py
              return True
  
          # Stay within the revision limits of the build config
+@@ -305,10 +373,13 @@
+                                                     build.rev)):
+             # This minimum and/or maximum revision has changed since
+             # this build was enqueued, so drop it
++
++            plat = TargetPlatform.fetch(self.env, build.platform)
++            platname = plat and plat.name or "ERROR-NO-PLATFORM"  
+             log.info('Dropping build of configuration "%s" at revision [%s] on '
+                      '"%s" because it is outside of the revision range of the '
+                      'configuration', config.name, build.rev,
+-                     TargetPlatform.fetch(self.env, build.platform).name)
++                     platname)
+             return True
+ 
+         return False
