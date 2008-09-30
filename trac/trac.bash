@@ -579,6 +579,7 @@ vendor
 NuWa
 installation/branches
 dybgaudi/branches
+dybgaudi/tags
 tutorial/branches
 relax/branches
 lhcb/branches
