@@ -155,6 +155,8 @@ bitten-(){            . $ENV_HOME/trac/package/bitten.bash    && bitten-env   $*
 tractrac-(){          . $ENV_HOME/trac/package/tractrac.bash  && tractrac-env $* ; }
 genshi-(){            . $ENV_HOME/trac/package/genshi.bash    && genshi-env   $* ; }
 trac2mediawiki-(){    . $ENV_HOME/trac/package/trac2mediawiki.bash    && trac2mediawiki-env   $* ; }
+trac2latex-(){        . $ENV_HOME/trac/package/trac2latex.bash    && trac2latex-env   $* ; }
+
 
 silvercity-(){        . $ENV_HOME/trac/package/silvercity.bash && silvercity-env   $* ; }
 pygments-(){          . $ENV_HOME/trac/package/pygments.bash   && pygments-env   $* ; }
@@ -165,9 +167,8 @@ bittennotify-(){      . $ENV_HOME/trac/package/bittennotify.bash && bittennotify
 tracreposearch-(){    . $ENV_HOME/trac/package/tracreposearch.bash && tracreposearch-env   $* ; }
 
 
-
-
 trac-instance(){
+    [ -n "$TRAC_INSTANCE_OVERRIDE" ] && echo $TRAC_INSTANCE_OVERRIDE && return 1  
     case ${1:-$NODE_TAG} in
      G) echo dybsvn   ;;
      H) echo env      ;;
@@ -176,6 +177,7 @@ trac-instance(){
      *) echo dybsvn   ;;
    esac
 }
+
 
 trac-version(){
    case ${1:-$NODE_TAG} in
