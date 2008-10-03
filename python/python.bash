@@ -331,6 +331,20 @@ EOP
 
 }
 
+python-mail(){      cat - | python $(dirname $BASH_SOURCE)/pipemail.py $* ; }
+python-mail-test(){ python-cat | python-mail `local-email` ; }
+
+python-cat(){
+  cat << EOC
+the subject line
+the first message line
+the second message line
+the last message line
+EOC
+}
+
+
+
 
 
 python-sendmail-html(){
