@@ -63,7 +63,39 @@ EON
 }
 
 
+trac2latex-convert(){
 
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   local path=$1
+   local dir=$(dirname $path)
+   local name=$(basename $path)
+   local base=$(echo $name | cut -d "." -f 1)
+   local ftyp=$(echo $name | cut -d "." -f 2)
+   
+   
+   
+   [ "$ftyp" != "txt" ] && echo $msg ABORT unexpected file type $path && return 1
+   
+   cd $dir
+   
+   local cmd="python `trac2latex-py` $base.txt > $base.tex "
+   echo $msg from $dir perform : "$cmd"
+   eval $cmd    
+   
+   
+   
+   
+}
+
+trac2latex-py(){
+   echo `trac2latex-dir`/trac2latex/trac2latex.py
+}
+
+trac2latex-test(){
+   cd `trac2latex-dir`/trac2latex
+   python trac2latex.py WikiStart.txt > WikiStart.tex
+}
 
 
 trac2latex-env(){

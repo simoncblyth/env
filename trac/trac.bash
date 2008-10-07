@@ -138,6 +138,7 @@ EOU
 
 }
 
+tscript-(){           . $ENV_HOME/trac/script/tscript.bash  && tscript-env  $* ; }
 tracinter-(){         . $ENV_HOME/trac/tracinter.bash  && tracinter-env  $* ; }
 tracbuild-(){         . $ENV_HOME/trac/tracbuild.bash  && tracbuild-env  $* ; }
 tracperm-(){          . $ENV_HOME/trac/tracperm.bash   && tracperm-env   $* ; }
@@ -269,7 +270,7 @@ trac-administrator(){
 }
 
 
-trac-tail(){ tail -f $(trac-logpath $*) ; }
+trac-tail(){ tail -n 50 -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
