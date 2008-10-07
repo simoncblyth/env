@@ -1,3 +1,110 @@
+Index: trac/env.py
+===================================================================
+--- trac/env.py	(revision 7236)
++++ trac/env.py	(working copy)
+@@ -156,6 +156,21 @@
+ 
+          (since 0.10.5)""")
+ 
++
++    log_maxsize = IntOption('logging','log_maxsize', 0,
++        """When not 0, file logs will be rotated after ''X'' Mbytes.
++
++        (local customization by patch)""")
++
++    log_maxcount = IntOption('logging','log_maxcount', 1,
++        """When rotating logs, how many files should be kept.
++
++        (local customization by patch)""")
++
++
++
++
++
+     def __init__(self, path, create=False, options=[]):
+         """Initialize the Trac environment.
+         
+@@ -365,7 +380,9 @@
+                      .replace('%(basename)s', os.path.basename(self.path)) \
+                      .replace('%(project)s', self.project_name)
+         self.log = logger_factory(logtype, logfile, self.log_level, self.path,
+-                                  format=format)
++                                  format=format,
++                                  maxsize=self.log_maxsize,
++                                  maxcount=self.log_maxcount)
+ 
+     def get_known_users(self, cnx=None):
+         """Generator that yields information about all known users, i.e. users
+Index: trac/versioncontrol/web_ui/browser.py
+===================================================================
+--- trac/versioncontrol/web_ui/browser.py	(revision 7236)
++++ trac/versioncontrol/web_ui/browser.py	(working copy)
+@@ -482,24 +482,29 @@
+ 
+         # Eventually send the file directly
+         format = req.args.get('format')
+-        if format in ('raw', 'txt'):
+-            req.send_response(200)
+-            req.send_header('Content-Type',
++        if format:
++            if format in ('raw','txt'):
++                req.send_response(200)
++                req.send_header('Content-Type',
+                             format == 'txt' and 'text/plain' or mime_type)
+-            req.send_header('Content-Length', node.content_length)
+-            req.send_header('Last-Modified', http_date(node.last_modified))
+-            if not self.render_unsafe_content:
+-                # Force browser to download files instead of rendering
+-                # them, since they might contain malicious code enabling 
+-                # XSS attacks
+-                req.send_header('Content-Disposition', 'attachment')
+-            req.end_headers()
++                req.send_header('Content-Length', node.content_length)
++                req.send_header('Last-Modified', http_date(node.last_modified))
++                if not self.render_unsafe_content:
++                    # Force browser to download files instead of rendering
++                    # them, since they might contain malicious code enabling 
++                    # XSS attacks
++                    req.send_header('Content-Disposition', 'attachment')
++                req.end_headers()
+ 
+-            while 1:
+-                if not chunk:
+-                    raise RequestDone
+-                req.write(chunk)
+-                chunk = content.read(CHUNK_SIZE)
++                while 1:
++                    if not chunk:
++                        raise RequestDone
++                    req.write(chunk)
++                    chunk = content.read(CHUNK_SIZE)
++            else:
++                mimeview.send_converted(req, 'text/x-trac-wiki',
++                                                  node.get_content().read(),
++                                                  format, node.name)
+         else:
+             # The changeset corresponding to the last change on `node` 
+             # is more interesting than the `rev` changeset.
+@@ -516,6 +521,19 @@
+             add_link(req, 'alternate', raw_href, _('Original Format'),
+                      mime_type)
+ 
++            # Add registered converters ... SCB try to use this from web_ui
++            if mime_type=='text/x-trac-wiki':
++     
++                for conversion in Mimeview(self.env).get_supported_conversions(
++                                             'text/x-trac-wiki'):
++                    conversion_href = req.href.browser(node.path, rev=rev,
++                                            format=conversion[0])
++                    add_link(req, 'alternate', conversion_href, conversion[1],
++                        conversion[3])
++                
++
++
++
+             self.log.debug("Rendering preview of node %s@%s with mime-type %s"
+                            % (node.name, str(rev), mime_type))
+ 
 Index: trac/search/web_ui.py
 ===================================================================
 --- trac/search/web_ui.py	(revision 7236)
@@ -13,3 +120,27 @@ Index: trac/search/web_ui.py
              if noquickjump:
                  return {'href': quickjump_href, 'name': tag.EM(name),
                          'description': description}
+Index: trac/log.py
+===================================================================
+--- trac/log.py	(revision 7236)
++++ trac/log.py	(working copy)
+@@ -20,11 +20,17 @@
+ import sys
+ 
+ def logger_factory(logtype='syslog', logfile=None, level='WARNING',
+-                   logid='Trac', format=None):
++                   logid='Trac', format=None , maxsize=0, maxcount=2 ):
+     logger = logging.getLogger(logid)
+     logtype = logtype.lower()
+     if logtype == 'file':
+-        hdlr = logging.FileHandler(logfile)
++        if maxsize > 0 and maxcount > 0:
++            # we get Mbytes as parameter, but RotatingFileHandler wants bytes.
++            hdlr = logging.handlers.RotatingFileHandler( 
++                logfile, maxBytes=maxsize * 1024 * 1024, backupCount=maxcount)
++        else:
++            hdlr = logging.FileHandler(logfile)
++    
+     elif logtype in ('winlog', 'eventlog', 'nteventlog'):
+         # Requires win32 extensions
+         hdlr = logging.handlers.NTEventLogHandler(logid,
