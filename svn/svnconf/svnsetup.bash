@@ -321,6 +321,13 @@ $b    Require valid-user
 $b</LocationMatch>
 $b
 
+<Location /logs>
+    AuthType Basic
+    AuthName "svn-tracs"
+    AuthUserFile  $(svn-userspath)
+    Require valid-user
+</Location>
+
 
 # when using AccountManagerPlugin this needs to be removed 
 $c<LocationMatch "/tracs/[^/]+/login">
