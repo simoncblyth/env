@@ -31,7 +31,7 @@ clui-alias(){
    alias t='type'
    alias f='typeset -F'   ## list functions 
    alias e='cd $ENV_HOME'
-
+   alias vip='vi ~/.bash_profile'
 }
 
 
