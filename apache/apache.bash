@@ -165,6 +165,25 @@ apache-logdir(){
    esac   
 }   
  
+ 
+apache-publish-logdir(){
+   local msg="=== $FUNCNAME :" 
+   local dir=$1
+   local name=${2:-$(basename $dir)}
+   [ ! -d $dir ] && echo $msg ABORT no such dir $dir && return 1
+   local iwd=$PWD
+   cd `apache-htdocs`
+   [ ! -d logs ] && mkdir -p logs
+   cd logs
+   echo $msg creating link in $PWD, from $dir to $name 
+   ln -sf $dir $name
+   cd $iwd
+}
+ 
+ 
+ 
+ 
+ 
 apache-conf(){
    echo $(apache-confdir)/httpd.conf
 }   
