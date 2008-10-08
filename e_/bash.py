@@ -1,6 +1,5 @@
 """
-  This function gives access to the "env" repository bash functions from python :
-    
+   
      import e
      dir = e.bash("apache-", "apache-logdir") 
      dir = e.bash("apache- apache-logdir")
