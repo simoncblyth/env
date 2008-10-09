@@ -43,3 +43,4 @@ class SVNInfo(dict):
 if __name__=='__main__':
     si = SVNInfo('/Users/blyth/env')
     print si
+
