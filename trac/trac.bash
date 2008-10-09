@@ -270,6 +270,17 @@ trac-administrator(){
 }
 
 
+trac-iheplog(){
+
+   local url=http://dayabay.ihep.ac.cn/log/trac.log
+   local dir=/tmp/env/trac
+   mkdir -p $dir
+   cd $dir
+   private-
+   curl -u $(private-val IHEP_TRACLOG_USER):$(private-val IHEP_TRACLOG_PASS) -O $url
+
+}
+
 trac-tail(){ tail -n 50 -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }

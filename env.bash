@@ -406,6 +406,68 @@ env-again(){
 }
 
 
+env-egglink(){
+
+   cat << DELIB
+   
+   setuptools needs layout .,..
+   
+       EnvDistro
+          setup.py
+          env/
+             __init__.py 
+             trac/
+                __init__.py
+   
+   
+   
+DELIB
+
+  local msg="=== $FUNCNAME :" 
+  local dir=$(dirname $ENV_HOME)
+  cd $dir
+  local setup="setup.py"
+  [ -f "$setup" ] && echo $msg a $setup exists already in $dir, delete $setup and rerun && return 1
+
+  env-egglink-setup > $setup
+
+  echo $msg proceed to egglink using setuptools develop mode
+  which python
+  python setup.py develop
+  
+
+}
+
+
+env-egglink-setup(){
+
+   local tlpkgs="$*"
+   cat << EOS
+"""
+   This was sourced from $BASH_SOURCE:$FUNCNAME at $(date)
+
+   The find_packages is going to be very user specific... 
+   as it depends on what exists above $ENV_HOME
+
+"""
+from setuptools import setup, find_packages
+
+pkgs = find_packages(exclude=['hz*','e','e.*','w','w.*'])
+print "egglinking the packages.. %s " % pkgs
+
+setup(
+      name='Env',
+      version='0.1',
+      packages = pkgs ,
+      )
+   
+   
+EOS
+
+}
+
+
+
 
 
 env-env

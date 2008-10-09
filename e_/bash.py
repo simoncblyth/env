@@ -1,17 +1,17 @@
 """
    
-     import e
-     dir = e.bash("apache-", "apache-logdir") 
-     dir = e.bash("apache- apache-logdir")
+     import e_
+     dir = e_.bash_("apache-", "apache-logdir") 
+     dir = e_.bash_("apache- apache-logdir")
      
   For more control use :   
-     fd = e.bash_("apache- apache-logdir")
+     fd = e_.bash__("apache- apache-logdir")
 
 """
 
 env = ". $ENV_HOME/env.bash ; env- "
 
-def bash_(*argv):
+def bash__(*argv):
     if len(argv) == 1: 
         if type(argv[0])==str:
             import re
@@ -27,14 +27,14 @@ def bash_(*argv):
     return os.popen("bash -c \" %s ; %s \" " % ( env , ";".join(args))  )
 
 
-def bash(*argv):
-    return bash_(*argv).read().strip()
+def bash_(*argv):
+    return bash__(*argv).read().strip()
 
 
 if __name__=='__main__':
-    dir1 = bash("apache- apache-logdir")
-    dir2 = bash(["apache-", "apache-logdir"])
-    dir3 = bash("apache-","apache-logdir")
+    dir1 = bash_("apache- apache-logdir")
+    dir2 = bash_(["apache-", "apache-logdir"])
+    dir3 = bash_("apache-","apache-logdir")
     
     assert dir1 == dir2 == dir3 
     assert dir1 != ""
