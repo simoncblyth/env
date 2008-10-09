@@ -16,7 +16,7 @@
 """
 
 class Bash:
-    def __init__(self, env=". $ENV_HOME/env.bash ; env-" )
+    def __init__(self, env=". $ENV_HOME/env.bash ; env-" ):
         self.env = env
         
     def cmd( self, *argv):

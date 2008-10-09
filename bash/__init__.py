@@ -1,7 +1,7 @@
 """
-  This function gives access to the "env" repository bash functions from python :
+  Access to bash functions from python
  
 """
 
-from cmd import Bash
+from env.bash.cmd import Bash
 
