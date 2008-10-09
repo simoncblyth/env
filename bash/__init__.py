@@ -3,5 +3,5 @@
  
 """
 
-from bash import bash_
+from cmd import Bash
 

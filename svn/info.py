@@ -1,7 +1,7 @@
 class SVNInfo(dict):
     """
         Access to svn info attributes for a working copy directory, usage
-            from svn_ import SVNInfo
+            from env.svn import SVNInfo
             si = SVNInfo("/Users/blyth/env")
             si['URL']
             
@@ -10,8 +10,9 @@ class SVNInfo(dict):
             si('url') == None
             
         This access from anywhere requires :    
-            * egglinking the env into sys.path in your targetted python 
-            * python package arrangement with __init__.py files in ~/env and ~/env/svn_   
+            * egglinking the env python package into sys.path into your targetted python 
+              see env.bash/env-egglink
+            * python package arrangement with __init__.py files in ~/env and ~/env/svn
             
         
     """
