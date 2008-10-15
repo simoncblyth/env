@@ -1,8 +1,11 @@
-class SVNInfo(dict):
+
+from env.structure import PerDict
+
+class SVNInfo(PerDict):
     """
         Access to svn info attributes for a working copy directory, usage
             from env.svn import SVNInfo
-            si = SVNInfo("/Users/blyth/env")
+            si = SVNInfo(dir="/Users/blyth/env")
             si['URL']
             
         The call form, avoids key errors in case of problems, like not working copy dir
@@ -16,10 +19,11 @@ class SVNInfo(dict):
             
         
     """
-    def __init__(self, dir ):
-        """
-            Note potential for non english locale to mess this up 
-        """
+    def __init__(self, dir='/Users/blyth/env' ):
+        self.parse(dir)
+        self.psave(self,dir=dir)  ## all ctor args must be fed to psave/pget 
+        
+    def parse(self, dir):
         import subprocess
         prc = subprocess.Popen('svn info %s' % dir , shell=True , stdout=subprocess.PIPE , stderr=subprocess.PIPE  )
         out, err = prc.communicate()
@@ -42,6 +46,6 @@ class SVNInfo(dict):
 
 
 if __name__=='__main__':
-    si = SVNInfo('/Users/blyth/env')
+    si = SVNInfo.pget(dir='/Users/blyth/env')
     print si
 

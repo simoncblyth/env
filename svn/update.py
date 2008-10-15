@@ -1,9 +1,11 @@
 class SVNUpdate(dict):
     """
      
-        from env.svn import SVN
-        s = SVNUpdate("/Users/blyth/env")
-        s.update()
+        from env.svn import SVNUpdate
+        up = SVNUpdate("/Users/blyth/env")
+        up.update()
+        for p in up("A"):
+            print p
         
             
     """
@@ -114,11 +116,32 @@ Updated to revision 4343.
     def categories(self):
         return list(set(self.values()))
     
-    def paths(self, s ):
-        return sorted([p for p in self.keys() if self[p] == s])
+    def paths(self, s , absolute=False, onlydir=False, onlyfile=False ):
+        """
+            note if onlydir and onlyfile are True, the onlydir wins 
+        """
+        import os
+        iwd = os.getcwd()
+        os.chdir( self.dir )
+        
+        if absolute:
+            prep = lambda p:os.path.join(self.dir, p)
+        else:
+            prep = lambda p:p
+            
+        if onlydir:
+            sele = lambda p:os.path.isdir(p)
+        elif onlyfile:
+            sele = lambda p:os.path.isfile(p)
+        else:
+            sele = lambda p:True
+            
+        l = sorted([prep(p) for p in self.keys() if self[p] == s and sele(p)])
+        os.chdir( iwd )
+        return l
 
-    def __call__(self, c ):
-        return self.paths(c)
+    def __call__(self, c , **kwa ):
+        return self.paths(c, **kwa)
         
 
 if __name__=='__main__':
@@ -126,13 +149,14 @@ if __name__=='__main__':
     if len(sys.argv)>1:
         log = file(sys.argv[1]).readlines()
     
-    su = SVNUpdate('/usr/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi')
-    su.update(rev=4343)   ## give a rev to reread prior log
-    #su.update()     ## default ... do the update
+    up = SVNUpdate('/usr/local/dyb/trunk_dbg/NuWa-trunk/dybgaudi')
+    up.update(rev=4343)   ## give a rev to reread prior log
+    #up.update()     ## default ... do the update
     
-    print su
-    for c in su.categories():
-        print "=== category %s " % c
-        for p in su(c):
-            print "%s " % p 
+    print up
+    for c in up.categories():
+        for onlydir in (False,True):
+            print "=== category %s  onlydir %s " % (c, onlydir)
+            for p in up(c, absolute=False, onlydir=onlydir ):
+                print "%s " % p 
     

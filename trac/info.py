@@ -1,50 +1,23 @@
 """
-   Provide vital statistics of the trac instances to python 
+   Provide vital statistics of the trac instances to python, using the 
+   intertrac triplet source accessed from bash calls
 
-
-   Whats a good way to factor out this persistency stuff ?
-
+   A persistent dict is used to avoid needless rerunning of 
+   the expensive bash call 
+   
 """
 
-import cPickle as pickle
-import os
 
+import os
 
 class TracInstance(dict):
     def __init__(self, **kwa):self.update(kwa)
-     
-                           
-class TracInfo(dict):
-    pfile = '/tmp/TracInfo.p'
-    
-    @classmethod
-    def get(cls):
-        ti = TracInfo.load()
-        if ti:
-             print "providing pickled"
-             return ti
-        else:
-            return TracInfo()
-    
-    @classmethod
-    def save(cls, obj ):
-        f = TracInfo.pfile
-        print "saving to %s " % f
-        pickle.dump( obj , file(f,'w') )
-    
-    @classmethod
-    def load(cls):
-        f = TracInfo.pfile
-        if os.path.exists(f):
-            print "loading from %s " % f
-            return pickle.load(file(f))
-        else:
-            print "failed to load from %s " % f
-            return None
-    
+ 
+from env.structure import PerDict
+class TracInfo(PerDict):
     def __init__(self):
         self.parse()
-        self.save(self)
+        self.psave(self)
 
     def parse(self):
         from env.bash import Bash
@@ -62,5 +35,5 @@ class TracInfo(dict):
 
 if __name__=='__main__':
     from env.trac import TracInfo
-    ti = TracInfo.get()
+    ti = TracInfo.pget()
     print ti
