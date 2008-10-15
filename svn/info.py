@@ -46,6 +46,10 @@ class SVNInfo(PerDict):
 
 
 if __name__=='__main__':
+    from env.svn import SVNInfo
     si = SVNInfo.pget(dir='/Users/blyth/env')
+    ## possibly can control the __new__ in the PerDict to avoid this messy pget , 
+    ## and still get the cached/or not instance depending if it exists
+    ## ... will need a standard argument to "force" a re-parse
     print si
 

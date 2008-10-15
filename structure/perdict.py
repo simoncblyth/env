@@ -51,4 +51,10 @@ class PerDict(dict):
             print "failed to load from %s " % pp
             return None
 
+"""
+    def __new__ ( cls, *args, **kwargs ):
+        newobj = object.__new__( cls, *args, **kwargs )
+        cls.__init__(newobj, *args, **kwargs)
+"""
+
 
