@@ -102,7 +102,12 @@ class Persistent(object):
         
         # still dont find it ... so make it and save it 
         it = object.__new__(cls)
-        it.init(*args, **kwds)
+        
+        if hasattr(it, 'init'):
+            it.init(*args, **kwds)
+        else:
+            print "skipping init method ... as you didnt implement one "
+            
         cls._save(it, *args, **kwds)
     
         cls.__it__ = it
@@ -118,8 +123,11 @@ class Persistent(object):
 class NonSingletonExample(Persistent):
     """
           Using remake=True will inhibit loading of a persisted version 
+          
+          if an init method is implemented it will be invoked once only for the type
+          hence... when not wanting singleton operation, it is clearer not to implement 
+          said method
     """
-    def init(self, *args, **kwds):pass
     def __init__(self, *args, **kwds):
         self.args = args
         self.kwds = kwds  
