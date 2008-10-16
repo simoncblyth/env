@@ -1,7 +1,7 @@
 
-from env.structure import PerDict
+from env.structure import Persistent
 
-class SVNInfo(PerDict):
+class SVNInfo(Persistent):
     """
         Access to svn info attributes for a working copy directory, usage
             from env.svn import SVNInfo
@@ -20,8 +20,8 @@ class SVNInfo(PerDict):
         
     """
     def __init__(self, dir='/Users/blyth/env' ):
+        self.info = {}
         self.parse(dir)
-        self.psave(self,dir=dir)  ## all ctor args must be fed to psave/pget 
         
     def parse(self, dir):
         import subprocess
@@ -34,22 +34,24 @@ class SVNInfo(PerDict):
             for line in lines:
                 m = att.match(line)
                 if m:
-                    self[m.group('k')] = m.group('v')
+                    self.info[m.group('k')] = m.group('v')
         else:
-            self['returncode'] = prc.returncode 
-            self['out'] = out
-            self['error'] = err
+            self.info['returncode'] = prc.returncode 
+            self.info['out'] = out
+            self.info['error'] = err
 
     def __call__(self, k , default=None ):
-        return self.get(k, default )
+        return self.info.get(k, default )
         
+    def __repr__(self):
+        import pprint
+        return pprint.pformat(self.info)
 
 
 if __name__=='__main__':
     from env.svn import SVNInfo
-    si = SVNInfo.pget(dir='/Users/blyth/env')
-    ## possibly can control the __new__ in the PerDict to avoid this messy pget , 
-    ## and still get the cached/or not instance depending if it exists
-    ## ... will need a standard argument to "force" a re-parse
-    print si
+    e = SVNInfo(dir='/Users/blyth/env')
+    w = SVNInfo(dir='/Users/blyth/workflow') 
+    print e
+    print w
 
