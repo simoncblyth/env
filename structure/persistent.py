@@ -11,7 +11,25 @@ import os
 
 class Persistent(object):
     """
-     Two keys have special meaning :
+    
+     Subclasses of Persistent should implement a general form of __init__ method :
+          __init__(*args, **kwargs)
+    
+     When using the singleton form, the __init__ method should be :
+     
+          def __init__(self, *args, **kwa ):pass
+       POSSIBILITES : enforce this somehow ?
+     
+     
+     and the state of the object should be set up in an init method, eg: 
+     
+         def init(self, *args, **kwa ):self.parse() ## or whatever 
+     
+     If you do not do this you miss out on the singleton benefits 
+     of only doing the state setup once only.
+    
+     The identity of persisted files is based on the kwargs only 
+     Two of the kwargs have special meaning :
     
          singleton=True  : 
                   operate in singleton manner, ie try to use a preexisting 
@@ -22,6 +40,9 @@ class Persistent(object):
        In singleton mode you should set the state of the object in the init method and
        leave the __init__ as pass, otherwise set the state in the __init__ method and leave 
        the init as pass
+
+
+    
 
     """
     
