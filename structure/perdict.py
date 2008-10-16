@@ -1,6 +1,19 @@
 """ 
    Attempt to factor out pickling of persistent dicts 
 
+   
+   Found something similar ...
+        http://www.mems-exchange.org/software/durus/
+        http://www.mems-exchange.org/software/durus/Durus-3.7.tar.gz/Durus-3.7/persistent_dict.py
+        http://www.mems-exchange.org/software/durus/Durus-3.7.tar.gz/Durus-3.7/persistent.py
+
+   Zope also has a persistent dict 
+        http://pypi.python.org/pypi/zope.app.keyreference/3.5.0b2
+
+
+   When getting serious... best to use SQLAlchemy approach, but for now just want 
+   something simple/lightweight for smallish dicts.
+
 """
 
 import cPickle as pickle
@@ -51,10 +64,38 @@ class PerDict(dict):
             print "failed to load from %s " % pp
             return None
 
-"""
-    def __new__ ( cls, *args, **kwargs ):
-        newobj = object.__new__( cls, *args, **kwargs )
-        cls.__init__(newobj, *args, **kwargs)
-"""
+    def __new__ ( cls, *args, **kwa ):
+        obj = super(PerDict,cls).__new__( cls, *args, **kwa )
+        obj['trace'] = [] 
+        obj['trace'].append('PerDict::__new__ after birth of obj %s' %  type(obj) ) 
+        cls.__init__(obj, *args, **kwa )
+        obj['trace'].append('PerDict::__new__ exit') 
+        return obj
 
+    def __init__(self, **kwa ):
+        self['trace'].append('PerDict::__init__') 
+
+    def init(self, **kwa):
+        
+
+
+
+class Test(PerDict):
+    def __init__(self, **kwa ):
+        super(Test, self).__init__(**kwa)
+        self['trace'].append('Test::__init__')      
+ 
+ 
+ 
+    def parse(self):
+        self['hello'] = 'world'
+
+
+
+
+if __name__=='__main__':
+    print "--------"
+    t1 = Test(mango='chutney')
+    t1.parse() 
+    print t1
 
