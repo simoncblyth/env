@@ -8,8 +8,9 @@ import os,sys
 print "\tBuilding detector\n"
 import xmldetdesc
 xmldetdesc.config()
+print "\tFinish importing detector module\t"
 
-from GaudiPython import AppMgr
+from  GaudiPython import AppMgr
 app = AppMgr()
 app.TopAlg = []
 app.EvtSel = "NONE"
@@ -46,6 +47,7 @@ gun = app.property("ToolSvc.GtGunGenTool")
 gun.ParticlesPerEvent = 1
 #gun.ParticleName = "opticalphoton"
 gun.ParticleName = "e+"
+print 'Particle is ', gun.ParticleName
 #gun.Momentum = 6*units.eV   # try to enhance rayleigh scattering
 gun.Momentum = 2.5*units.eV
 gun.MomentumMode = "Fixed"
@@ -67,7 +69,7 @@ trans.Volume = volume
 app.TopAlg += [ "GaudiSequencer/GenSeq" ]
 genseq = app.algorithm("GenSeq")
 genseq.Members = [ "GtGenerator/GenAlg", "GtHepMCDumper/GenDump" ]
-
+print 'app.TopAlg is',app.TopAlg
 
 gen = app.algorithm("GenAlg")
 #gen.OutputLevel = 1
@@ -291,4 +293,4 @@ for i in range(len(energy)):
 
 
 
-
+print 'app.TopAlg is',app.TopAlg

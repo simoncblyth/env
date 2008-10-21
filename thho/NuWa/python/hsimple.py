@@ -31,6 +31,8 @@ c1.GetFrame().SetBorderMode( -1 )
 hfile = gROOT.FindObject( 'hsimple.root' )
 if hfile:
    hfile.Close()
+   print 'hfile.Close() la~~~!!!!'
+
 hfile = TFile( 'hsimple.root', 'RECREATE', 'Demo ROOT file with histograms' )
 
 # Create some histograms, a profile histogram and an ntuple
@@ -42,20 +44,28 @@ ntuple = TNtuple( 'ntuple', 'Demo ntuple', 'px:py:pz:random:i' )
 # Set canvas/frame attributes.
 hpx.SetFillColor( 48 )
 
-gBenchmark.Start( 'hsimple' )
+#gBenchmark.Start( 'hsimple' )
 
 # Initialize random number generator.
 gRandom.SetSeed()
 rannor, rndm = gRandom.Rannor, gRandom.Rndm
+print 'rannor is ', rannor
+print 'rndm is ', rndm
+aaaaa, bbbbb = 11111, 22222
+print 'aaaaa is ', 11111
+print 'bbbbb is ', 22222
+
 
 # For speed, bind and cache the Fill member functions,
 histos = [ 'hpx', 'hpxpy', 'hprof', 'ntuple' ]
 for name in histos:
    exec '%sFill = %s.Fill' % (name,name)
+# Python note: replacing %s with name. % is a string-formatting operator
+# Both single or double quote would work (?)
 
 # Fill histograms randomly.
 px, py = Double(), Double()
-kUPDATE = 1000
+kkk = 100
 for i in xrange( 25000 ):
  # Generate random values.
    rannor( px, py )
@@ -68,9 +78,9 @@ for i in xrange( 25000 ):
    hprofFill( px, pz )
    ntupleFill( px, py, pz, random, i )
 
- # Update display every kUPDATE events.
-   if i and i%kUPDATE == 0:
-      if i == kUPDATE:
+ # Update display every kkk events.
+   if i and i%kkk == 0:
+      if i == kkk:
          hpx.Draw()
 
       c1.Modified()
@@ -84,14 +94,14 @@ for name in histos:
    exec 'del %sFill' % name
 del histos
 
-gBenchmark.Show( 'hsimple' )
+#gBenchmark.Show( 'hsimple' )
 
 # Save all objects in this file.
 hpx.SetFillColor( 0 )
 hfile.Write()
 hpx.SetFillColor( 48 )
-c1.Modified()
-c1.Update()
+#c1.Modified()
+#c1.Update()
   
 # Note that the file is automatically closed when application terminates
 # or when the file destructor is called.

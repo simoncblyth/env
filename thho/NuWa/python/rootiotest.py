@@ -4,6 +4,7 @@ import PyCintex
 
 input = False
 output = not input
+#output = True
 use_aes = True
 
 import GaudiPython as gp

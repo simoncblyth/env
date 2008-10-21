@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+
 volume = "/dd/Structure/Pool/la-iws"
 
+print "THHO TESTING"
 print "\tConfiguring geometry\n"
 import xmldetdesc
 xmldetdesc.config()
@@ -10,6 +12,10 @@ from  GaudiPython import AppMgr
 from GaudiKernel import SystemOfUnits as units
 
 app = AppMgr()
+
+eds = app.service("EventDataSvc")
+eds.ForceLeaves = True
+
 app.TopAlg = []
 
 # Set up timerator
@@ -69,21 +75,65 @@ gen.GenName = "Bang Bang"
 #gen.OutputFilePath = "/file1/gen"
 gen.OutputLevel = 1
 
-histsvc = app.service("THistSvc")
-histsvc.Output = [ "file1 DATAFILE='gentools.root' OPT='RECREATE' TYP='ROOT'" ]
+#histsvc = app.service("THistSvc")
+#histsvc.Output = [ "file1 DATAFILE='gentools.root' OPT='RECREATE' TYP='ROOT'" ]
 
 #print " GtDumper"
 gendump = app.algorithm("GenDump")
-
+print "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
 
 
 app.EvtSel = "NONE"
-
+print "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC"
 from PyCintex import *
 loadDictionary("libBaseEventDict")
 loadDictionary("libGenEventDict")
 loadDictionary("libHepMCRflx")
 loadDictionary("libCLHEPRflx")
+print "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"
+#app.run(1)
+print "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"
 
-app.run(10)
+
+
+#loc = gen.Location 
+#esv = None
+#dgh = None
+#
+#def test_genrepr():
+#    import DybPython.Interactive 
+#
+#def test_evtsvc():
+#    global app
+#    global esv
+#    esv = app.evtsvc()
+#    print str(esv)
+#    print repr(esv)
+#    assert esv.__class__.__name__ == 'iDataSvc'
+#
+#def test_header_access():
+#    global loc
+#    global esv
+#    global dgh
+#    assert loc == '/Event/Gen/GenHeader'
+#    assert esv != None
+#    dgh = esv[loc]
+#    assert dgh.__class__.__name__ == 'DayaBay::GenHeader'
+#
+#def test_header_repr():
+#    global dgh
+#    print str(dgh)
+#    print repr(dgh)
+#
+#
+#if '__main__'==__name__:
+#    test_genrepr()
+#    test_evtsvc()
+#    test_header_access()
+#    test_header_repr()
+#
+#
+#
+#
+#
