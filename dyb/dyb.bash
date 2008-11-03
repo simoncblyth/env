@@ -61,7 +61,7 @@ dyb-env(){
       export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
    else
       ## base active version on a single envvar NUWA_HOME ... set in .bash_profile 
-      export DYB=$NUWA_HOME
+      export DYB=$(dirname $NUWA_HOME)
       export DYB_VERSION=${NUWA_VERSION:-trunk}
       export DYB_FOLDER=$(dirname $DYB)
    fi
