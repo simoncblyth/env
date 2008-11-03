@@ -95,7 +95,7 @@ dyb-env(){
 }
 
 
-dyb_scripts(){ echo installation/trunk/dybtest/scripts ; }
+dyb_scripts(){ echo installation/${DYB_VERSION}/dybtest/scripts ; }
 
 
 dyb_hookup(){
