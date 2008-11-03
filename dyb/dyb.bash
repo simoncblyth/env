@@ -56,11 +56,20 @@ dyb-env(){
    export DYB_HOME=$ENV_HOME/$DYB_BASE
 
    dyb-params
-
-   export DYB_FOLDER=$LOCAL_BASE/dyb
-   export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
+   if [ -z "$NUWA_HOME" ]; then
+      export DYB_FOLDER=$LOCAL_BASE/dyb
+      export DYB=$DYB_FOLDER/$DYB_VERSION$DYB_OPTION 
+   else
+      ## base active version on a single envvar NUWA_HOME ... set in .bash_profile 
+      export DYB=$NUWA_HOME
+      export DYB_VERSION=${NUWA_VERSION:-trunk}
+      export DYB_FOLDER=$(dirname $DYB)
+   fi
+ 
    export DYB__RELEASE=NuWa-$DYB_VERSION
    export DDR=$DYB/$DYB__RELEASE 
+ 
+ 
  
    [ "$NODE_TAG" == "COOP" ] && DDR=$HOME/NuWa-trunk
    
