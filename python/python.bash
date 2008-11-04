@@ -66,6 +66,9 @@ python-env(){
 
    if [ "$NODE_APPROACH" == "stock" ]; then
       export PYTHON_SITE=/Library/Python/2.5/site-packages
+
+      #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
+
      
    else
 

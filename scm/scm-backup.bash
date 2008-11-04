@@ -313,15 +313,16 @@ scm-backup-purge(){
 scm-backup-rls(){
    local msg="=== $FUNCNAME :"
    local tags=${1:-$BACKUP_TAG}
+   local inst=${2:-""}
    local day=$(base-datestamp now %Y/%m/%d)
    [ -z "$tags" ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
 
    local tag
    for tag in $tags ; do
       if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
-          find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day
+          find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day
       else
-          ssh $tag "find $(local-scm-fold $tag)/backup -name '*.gz' -exec du -hs {} \; | grep $day"
+          ssh $tag "find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day"
       fi
    done
 }
