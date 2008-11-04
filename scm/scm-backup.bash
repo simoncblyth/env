@@ -340,7 +340,24 @@ scm-backup-mail(){
   python-
   python-sendmail $rls
 
+  if [ "$NODE_TAG" == "C" ]; then
+     rls=/tmp/${FUNCNAME}_dayabay.txt
+     cat << EOM > $rls
+   Parasitic monitoring of the dayabay tarballs that are 
+   nightly sent from IHEP to cms01 at NTU by 
+        $BASH_SOURCE::$FUNCNAME @ $(date)
+        
+    ... $rls    
+EOM
+     scm-backup-rls C dayabay >> $rls
+     python-sendmail $rls
+  fi  
+
 }
+
+
+
+
 
 
 scm-backup-dir(){
