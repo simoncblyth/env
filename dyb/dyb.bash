@@ -102,6 +102,7 @@ dyb_hookup(){
 
     local msg="=== $FUNCNAME : "
     local base=$1
+    shift 1
     local dyb__=$base/$(dyb_scripts)/dyb__.sh
     local slave=$base/$(dyb_scripts)/slave.bash
     
