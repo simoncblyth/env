@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+#
+# Almost the same as the tutorial/Simulation/SimHistsExample/python/__init__.py @ release 1.0.0-rc01
+# for initilizing settings of GenTools and DetSim
+#
+
 __all__ = ['Configure']
 
 import GaudiKernel.SystemOfUnits as units
@@ -57,9 +62,9 @@ class Configure:
         histsvc.Output =["file1 DATAFILE='genhists.root' OPT='RECREATE' TYP='ROOT' "]
         print '... THistSvc config done.'
 
-        # Get the app so we can add to TopAlg
-        from Gaudi.Configuration import ApplicationMgr
-        theApp = ApplicationMgr()
+#        Get the app so we can add to TopAlg
+#        from Gaudi.Configuration import ApplicationMgr
+#        theApp = ApplicationMgr()
 
 #        print 'Configure the GenHists alg...'
 #        from SimHistsExample.SimHistsExampleConf import GenHists
