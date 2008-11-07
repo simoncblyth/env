@@ -1,9 +1,15 @@
+#!/usr/bin/env python
+
+#
+# An example shows adding algorithm with PyAlgorithm instead of C++ codes
+#
+# usage: prompt:> python myalg.py
+#
+
 from GaudiPython import PyAlgorithm
 
 class MyAlg(PyAlgorithm):
     def execute(self):
-#	print gentools.gun.Momentum
-#	import myhis
 	from ROOT import TCanvas, TFile, TH1F
 	from ROOT import gROOT, gRandom, gSystem, Double
 	
@@ -27,8 +33,6 @@ class MyAlg(PyAlgorithm):
 	# Automatically file close
 	hfile.Write()
 	
-	
-	print "OOOOOOOOOOOOOOOOOKKKKKKKKKKKKKKKKKKKKKKKKK"
         return True
 
 if __name__=="__main__":
@@ -36,5 +40,5 @@ if __name__=="__main__":
     from GaudiPython import AppMgr
     app = AppMgr()
     app.addAlgorithm(MyAlg())
-#    app.run(10) 
+    app.run(1) 
 
