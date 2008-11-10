@@ -6,6 +6,11 @@ class MyAlg(PyAlgorithm):
 		print 'Starting customizing algorithm!'
 		return True
 
+
+
+def run(*args):
+	pass
+
 def configure():
 	from GaudiPython import AppMgr
 	app = AppMgr()
