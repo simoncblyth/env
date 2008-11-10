@@ -53,7 +53,75 @@ Index: bittennotify/main.py
          self['id'] = self.build.id
          self['status'] = self.readable_states[self.build.status]
          self['link'] = self.env.abs_href.build(self.build.config, 
-@@ -152,21 +157,24 @@
+@@ -106,6 +111,7 @@
+         self['author'] = self.get_author(build)
+         self['errors'] = self.get_errors(build)
+         self['faillog'] = self.get_faillog(build)
++        self['summary'] = self.get_summary(build)
+         
+     def get_author(self, build):
+         if build and build.rev:
+@@ -119,23 +125,51 @@
+         return build_steps
+         
+     def get_errors(self, build):
+-        errors = ''
++        errors = ['']
+         for step in self.get_failed_steps(build):
+-            errors += ', '.join(['%s: %s' % (step.name, error) \
+-                    for error in step.errors])
+-        return errors
++            errors.append( ', '.join(['%s: %s' % (step.name, error) \
++                    for error in step.errors]))
++        return '\n'.join(errors+[''])
+                                
+     def get_faillog(self, build):
+-        faillog = ''
++        faillog = ['']
+         for step in self.get_failed_steps(build):
+             build_logs = BuildLog.select(self.env, 
+                     build=build.id, 
+                     step=step.name)
+             for log in build_logs:
+-                faillog += '\n'.join(['%5s: %s' % (level, msg) \
+-                        for level, msg in log.messages])
+-        return faillog
++                faillog.append( '\n'.join(['%5s: %s' % (level, msg) \
++                        for level, msg in log.messages]))
++        return '\n'.join(faillog+[''])
++    
+                                
++    def get_summary(self, build ):
++        """
++            Summary based on the bitten timeline summary in 
++                bitten/web_ui.py
++        """
++        steps = []
++        for step in self.get_failed_steps(build):
++            if step.name not in steps:
++                steps.append(step.name)
++        
++        if len(steps) == 0:
++            message = 'Succeeded'
++        elif len(steps) < 2:
++            message = steps[0]
++        elif len(steps) == 2:
++            message = ' and '.join(steps)
++        elif len(steps) > 2:
++            message = ', '.join(steps[:-1]) + ', and ' + \
++                                  steps[-1]
++        
++        message = 'Step%s %s failed' % (
++                        len(steps) != 1 and 's' or '', message
++                    )
++        return message
++        
++        
++                                                                                                            
+     def __getattr__(self, attr):
+         return dict.__getitem__(self,attr)
+     
+@@ -152,21 +186,27 @@
  class BittenNotifyEmail(NotifyEmail):
      """Notification of failed builds."""
  
@@ -67,10 +135,16 @@ Index: bittennotify/main.py
      def notify(self, build_info):
          self.build_info = build_info
 -        self.hdf['build'] = self.build_info
+-        subject = '[%s Build] %s [%s] %s' % (self.build_info.status,
+-                self.env.project_name, 
+-                self.build_info.changeset, 
 +        self.data = self.build_info
-         subject = '[%s Build] %s [%s] %s' % (self.build_info.status,
-                 self.env.project_name, 
-                 self.build_info.changeset, 
++        
++        status = self.build_info.status
++        author = self.build_info.author
++        summary = self.build_info.summary
++        subject = '%s r%s [%s] %s/%s' % ( author, self.build_info.changeset, summary,
++                self.env.project_name,
                  self.build_info.config)
 -        self.env.log.debug('notification: %s' % 
 -                self.hdf.render(self.template_name))
@@ -82,7 +156,7 @@ Index: bittennotify/main.py
          NotifyEmail.notify(self, self.build_info.id, subject)
  
      def get_recipients(self, resid):
-@@ -177,6 +185,11 @@
+@@ -177,6 +217,11 @@
              author = users[author]
          torecipients = [author]
          ccrecipients = []
