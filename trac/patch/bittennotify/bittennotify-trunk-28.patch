@@ -168,3 +168,29 @@ Index: bittennotify/main.py
          return (torecipients, ccrecipients)
  
      def send(self, torcpts, ccrcpts, mime_headers={}):
+Index: bittennotify/templates/bitten_notify_email.txt
+===================================================================
+--- bittennotify/templates/bitten_notify_email.txt	(revision 0)
++++ bittennotify/templates/bitten_notify_email.txt	(revision 0)
+@@ -0,0 +1,15 @@
++  ${status} build of ${project_name} [${changeset}]
++---------------------------------------------------------------------
++
++  Summary  :             ${summary}      
++  Changeset:             ${changeset}  -  <${changesetlink}>
++  Committed by:          ${author}
++
++  Build Configuration:   ${config}
++  Build Slave:           ${slave}
++  Build Number:          ${id}  -  <${link}>
++
++  Failed Steps:          ${errors}
++  Failure Log:           
++  
++${faillog}
+
+Property changes on: bittennotify/templates/bitten_notify_email.txt
+___________________________________________________________________
+Name: svn:executable
+   + *
+
