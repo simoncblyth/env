@@ -43,7 +43,9 @@ tractags-upgradeconf(){
 }
 
 
-tractags-revision(){ echo 3768 ; }
+#tractags-revision(){ echo 3768 ; }
+tractags-revision(){ echo 3882 ; }
+
 tractags-url(){     echo http://trac-hacks.org/svn/tagsplugin/$(tractags-branch) ; }
 tractags-package(){ echo tractags ; }
 

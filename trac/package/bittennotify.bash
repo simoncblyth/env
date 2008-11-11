@@ -32,6 +32,9 @@ bittennotify-prepare(){
 
 
 
+bittennotify-makepatch(){  package-fn $FUNCNAME $* ; }
+
+
 
 bittennotify-branch(){    package-fn $FUNCNAME $* ; }
 bittennotify-basename(){  package-fn $FUNCNAME $* ; }
