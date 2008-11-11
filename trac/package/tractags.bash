@@ -77,6 +77,7 @@ tractags-rev(){       package-rev       ${FUNCNAME/-*/} $* ; }
 tractags-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 
 tractags-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
+tractags-update(){    package-fn $FUNCNAME $* ; }
 
 tractags-unconf(){
 
