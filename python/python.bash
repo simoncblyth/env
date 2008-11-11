@@ -137,11 +137,11 @@ python-uneasy(){
   ## maybe "easy_install -m  " can do this without the perl ... to investigate
 
 
-   local name=$1
+   local eggname=$1
    local pth=$(python-site)/easy-install.pth
-   local cmd="$SUDO perl -pi -e \"s/^\.\/$name.*\n$//\" $pth "
+   local cmd="$SUDO perl -pi -e \"s/^\.\/$eggname\n$//\" $pth "
    
-   echo $msg removing the $name entry from $pth
+   echo $msg removing the $eggname entry from $pth
    echo $cmd
    eval $cmd
    
