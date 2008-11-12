@@ -30,6 +30,7 @@ nuwa-usage(){
 
             nuwa-exports <v>
                 export convenience variables
+                NB NUWA_HOME is never exported, that is regarded as an input only 
 
        
    Example of usage in .bash_profile :
@@ -37,6 +38,17 @@ nuwa-usage(){
         env-     ## defines the nuwa- precursor , so must come before "nuwa-"
         #export NUWA_HOME=whatever/1.0.0rc02/NuWa-1.0.0rc02  ## define NUWA_HOME prior to invoking the "nuwa-" precursor 
         nuwa-   ## defines the functions and exports      
+             
+             
+    To temporarily jump into another release :
+        
+        nuwa- 1.0.0-rc01          ( OR  trunk ) 
+        nuwa-info    
+        
+     ## NB the dynamics will still be based using the version from NUWA_HOME, but the 
+        exports and function paths should now show they hail from the chosen release
+        
+                
              
                    
 EOU
@@ -53,6 +65,11 @@ nuwa-info(){
   local v=$1
   cat << EOI
   
+   Dynamically derived quantities for version provided $v 
+   If no version argument is given determine the quantities based
+   in the value of  NUWA_HOME : $NUWA_HOME 
+   OR a default if that is not defined 
+  
           nuwa-home $v    :  $(nuwa-home $v)
           nuwa-release $v :  $(nuwa-release $v)
           nuwa-version $v :  $(nuwa-version $v)
@@ -61,11 +78,21 @@ nuwa-info(){
           nuwa-dyb__ $v   :  $(nuwa-dyb__ $v)   
           nuwa-slave $v   :  $(nuwa-slave $v)  
   
-          nuwa-ddr $v     :  $(nuwa-ddr $v)         DDR : $DDR
-          nuwa-ddi $v     :  $(nuwa-ddi $v)         DDI : $DDI
-          nuwa-ddt $v     :  $(nuwa-ddt $v)         DDT : $DDT
+          nuwa-ddr $v     :  $(nuwa-ddr $v)       
+          nuwa-ddi $v     :  $(nuwa-ddi $v)        
+          nuwa-ddt $v     :  $(nuwa-ddt $v)       
   
+    Exported into environment :
         
+            DDR : $DDR
+            DDI : $DDI
+            DDT : $DDT
+            
+    Source paths reported by the functions hooked up into the environment :
+    
+         dyb__source : $(dyb__source)
+         slave-path  : $(slave-path) 
+            
          
           
   
