@@ -110,6 +110,7 @@ nuwa-functions(){
     local slave=$(nuwa-slave $*)
     
     if [ -f $dyb__ ]; then
+        set --
         . $dyb__
         [ -z $BASH_SOURCE ] && eval "function dyb__source(){  echo $dyb__ ; }"      ## workaround for older bash  
         dyb__default(){ echo dybgaudi/Simulation/GenTools ; } 
