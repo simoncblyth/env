@@ -5,7 +5,7 @@ nuwa-env(){
    local v=$(nuwa-version $*)
    if [ "$(nuwa-isinstalled $*)" == "NO" ]; then
       [ "$v" == "trunk" ] && echo $msg ABORT trunk is not installed && return 1
-      echo $msg WARNING nuwa IS NOT installed based on "$*" OR NUWA_HOME : $NUWA_HOME , attempt to use trunk version
+      echo $msg WARNING nuwa IS NOT installed based on "$*" OR NUWA_HOME : $NUWA_HOME , attempt fallback to trunk 
       nuwa- trunk
    else
       nuwa-functions $*
@@ -115,13 +115,14 @@ nuwa-info(){
             DDR : $DDR
             DDI : $DDI
             DDT : $DDT
+            NUWA_VERSION : $NUWA_VERSION   ... oops this used in dyb__verison 
             
     Source paths reported by the functions hooked up into the environment :
     
          dyb__source : $(dyb__source)
          slave-path  : $(slave-path) 
             
-    Checking to see if nuwa for version "$v" is installed already based on existance of the dyb__.sh      
+    Checking to see if nuwa for version \"$v\" is installed already based on existance of the dyb__.sh      
   
          nuwa-isinstalled $v : $(nuwa-isinstalled $v)
   
@@ -165,6 +166,9 @@ nuwa-exports(){
    export DDT=$(nuwa-ddt $*)
    export DDI=$(nuwa-ddi $*)
    export DDR=$(nuwa-ddr $*)
+   
+   
+   export NUWA_VERSION=$(nuwa-version $*) 
 }
 
 nuwa-functions(){     
