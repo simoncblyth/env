@@ -4,7 +4,7 @@ nuwa-env(){
    local msg="=== $FUNCNAME :"
    local v=$(nuwa-version $*)
    if [ "$(nuwa-isinstalled $*)" == "NO" ]; then
-      [ "$v" == "trunk" ] && echo $msg ABORT trunk is not installed && return 1
+      [ "$v" == "trunk" ] && echo $msg ABORT trunk is not installed .. infinite recursion avoidance && return 1
       echo $msg WARNING nuwa IS NOT installed based on "$*" OR NUWA_HOME : $NUWA_HOME , attempt fallback to trunk 
       nuwa- trunk
    else
@@ -70,6 +70,18 @@ nuwa-usage(){
      ## NB the dynamics will still be based using the version from NUWA_HOME, but the 
         exports and function paths should now show they hail from the chosen release
         
+
+
+    THOUGHTS :
+         nuwa- trunk
+    
+       tiz very useful to be able to use latest improvements to functions from trunk 
+       while acting on behind the times releases ... so the functions should be 
+       setup with this in mind, namely the envvar controlled version selection
+       takes priority over the BASH_SOURCE determined one 
+      
+
+
 
 EOU
 

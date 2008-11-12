@@ -6,6 +6,8 @@ cat << EOU
 
   root-name       : $(root-name)
   root-rootsys    : $(root-rootsys)
+  root-base       : $(root-base)
+
 
   root-           :  hook into these functions invoking root-env
   root-get        :  download and unpack
@@ -37,14 +39,20 @@ root-name(){
   case ${1:-$NODE_TAG} in 
     old) echo "root_v5.14.00b" ;;
       C) echo "root_v5.21.02" ;;
-      *) echo "root_v5.19.04" ;; 
+   ##   *) echo "root_v5.19.04" ;; 
+      *) echo "root_v5.21.04" ;; 
   esac 
 }
 
 root-rootsys(){
   case ${1:-$NODE_TAG} in 
+     G) echo $(local-base $1)/env/root/$(root-name $1)/root  ;;
      *) echo $(local-base $1)/root/$(root-name $1)/root  ;;
   esac
+}
+
+root-base(){
+   echo $(dirname $(dirname $(root-rootsys $*)))
 }
 
 
@@ -88,9 +96,14 @@ root-pycheck(){
 root-get(){
 
   local n=$ROOT_NAME
-  cd $LOCAL_BASE
-  [ ! -d root ] && $SUDO mkdir root && $SUDO chown $USER root
-  cd root
+  local msg="=== $FUNCNAME :" 
+  local base=$(root-base)
+
+  [ "$(basename $base)" != "root" ] && echo $msg ABORT invalid base $base && return 1
+  [ ! -d "$base" ]  && $SUDO mkdir -p $base && $SUDO chown $USER $base
+
+  cd $base
+
 
   local tgz=$n.source.tar.gz
   local url=ftp://root.cern.ch/root/$tgz

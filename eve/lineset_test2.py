@@ -4,6 +4,8 @@
       https://savannah.cern.ch/bugs/?40942
   
    Fixed by PyRoot change circa 2008-09-24 19:04
+     http://root.cern.ch/viewcvs?view=rev&revision=25518
+
 
 """
 import sys
@@ -11,7 +13,7 @@ import ROOT
 if hasattr(ROOT.PyConfig,'GUIThreadScheduleOnce'):
     ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 else:
-    print "you need to get a more recent ROOT to run this "
+    print "you need to get a more recent ROOT to run this, at least  root_v5.21.04 "
     sys.exit(1)
 
 def lineset_test(nlines = 40, nmarkers = 4):
