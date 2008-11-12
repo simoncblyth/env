@@ -9,7 +9,7 @@ env-home(){       echo $(dirname $BASH_SOURCE) ; }
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 test-(){        . $ENV_HOME/test/test.bash       && test-env $* ; }
 scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
-
+nuwa-(){        . $ENV_HOME/nuwa/nuwa.bash       && nuwa-env $* ; }
 
 private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
 
@@ -174,7 +174,7 @@ env-env(){
   svn-
   #scm-    
  
-  [ "$NODE_TAG" == "H" -o "$NODE_TAG" == "U" ] && export MSG="$msg skipped dyb- on node $NODE_TAG " || dyb- 
+ ## [ "$NODE_TAG" == "H" -o "$NODE_TAG" == "U" ] && export MSG="$msg skipped dyb- on node $NODE_TAG " || dyb- 
  
   cd $iwd
   alias eu=env-u
