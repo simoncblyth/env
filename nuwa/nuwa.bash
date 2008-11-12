@@ -58,17 +58,23 @@ nuwa-usage(){
      ## NB the dynamics will still be based using the version from NUWA_HOME, but the 
         exports and function paths should now show they hail from the chosen release
         
-                
-             
-                   
+
 EOU
 
    nuwa-info
-   nuwa-info trunk
-   nuwa-info 1.0.0rc01
-   nuwa-info 1.0.0rc02
+
 
 }
+
+nuwa-dump(){
+
+   nuwa-info
+   nuwa-info trunk
+   nuwa-info 1.0.0-rc01
+   nuwa-info 1.0.0-rc02
+
+}
+
 
 
 nuwa-info(){
