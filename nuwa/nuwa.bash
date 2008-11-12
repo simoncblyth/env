@@ -51,8 +51,8 @@ nuwa-usage(){
         env-     
         
         ## comment the below two lines to use the default of "trunk"
-        nuwa_version=1.0.0-rc02
-        export NUWA_HOME=whatever/$nuwa_version/NuWa-$nuwa_version   ## NB prior to invoking "nuwa-" precursor 
+        export NUWA_VERSION=1.0.0-rc02 ... used by dyb__version function for dybinst option setting 
+        export NUWA_HOME=whatever/$NUWA_VERSION/NuWa-$NUWA_VERSION   ## NB prior to invoking "nuwa-" precursor 
         
         ## defines the functions and exports  
         nuwa-       
@@ -96,6 +96,11 @@ nuwa-info(){
    Dynamically derived quantities for version provided $v 
    If no version argument is given determine the quantities based
    in the value of  NUWA_HOME : $NUWA_HOME 
+   
+   NB unfortunately dyb__* functions have some dependency on NUWA_VERSION too
+       NUWA_VERSION : $NUWA_VERSION  
+   
+   
    OR a default if that is not defined 
   
           nuwa-home $v    :  $(nuwa-home $v)
@@ -115,7 +120,7 @@ nuwa-info(){
             DDR : $DDR
             DDI : $DDI
             DDT : $DDT
-            NUWA_VERSION : $NUWA_VERSION   ... oops this used in dyb__verison 
+            
             
     Source paths reported by the functions hooked up into the environment :
     
