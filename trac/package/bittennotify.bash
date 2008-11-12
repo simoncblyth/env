@@ -20,6 +20,19 @@ bittennotify-env(){
 bittennotify-revision(){  echo 28 ; }
 bittennotify-url(){     echo http://svn.3dbits.de/bittennotify/$(bittennotify-branch) ;}
 
+
+bittennotify-unpatch(){
+  local msg="=== $FUNCNAME :"
+  echo $msg this is needed for a full \"revert\" because the patch adds a file to wc that is not in the repository 
+  
+  local path=bittennotify/templates/bitten_notify_email.txt
+  [ ! -f "$path" ] && echo $msg no file at $path && return 1
+  rm -rf "$path"   && echo $msg removed file at $path  
+
+}
+
+
+
 bittennotify-fix(){
    cd $(bittennotify-dir)   
    echo no fix

@@ -838,6 +838,8 @@ package-revert(){
      echo $msg [$cmd] without asking ...  as PACKAGE_REVERT_DIRECTLY is defined
   fi
   
+  package-isdefined- $name-unpatch && $name-unpatch
+  
   case $answer in 
     YES) eval $cmd ;;
       *) echo $msg skipping as you answered [$answer] ;;
@@ -845,6 +847,12 @@ package-revert(){
   
   
   
+}
+
+
+package-isdefined-(){
+  local name=$1
+  type $name >& /dev/null
 }
 
 
