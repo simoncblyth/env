@@ -171,9 +171,6 @@ nuwa-exports(){
    export DDT=$(nuwa-ddt $*)
    export DDI=$(nuwa-ddi $*)
    export DDR=$(nuwa-ddr $*)
-   
-   
-   export NUWA_VERSION=$(nuwa-version $*) 
 }
 
 nuwa-functions(){     
