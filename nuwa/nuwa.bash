@@ -1,8 +1,20 @@
 
 nuwa-env(){ 
    elocal- 
-   nuwa-functions $*
-   nuwa-exports $*   
+   local msg="=== $FUNCNAME :"
+   local v=$(nuwa-version $*)
+   if [ "$(nuwa-isinstalled $*)" == "NO" ]; then
+      [ "$v" == "trunk" ] && echo $msg ABORT trunk is not installed && return 1
+      echo $msg WARNING nuwa IS NOT installed based on "$*" OR NUWA_HOME : $NUWA_HOME , attempt to use trunk version
+      nuwa- trunk
+   else
+      nuwa-functions $*
+      nuwa-exports $*   
+   fi
+
+   
+   
+  
 }
 
 
@@ -16,7 +28,7 @@ nuwa-usage(){
 
    
    If defined the NUWA_HOME must follow a standard layout for its last 2 levels, eg 
-        /whatever/prefix/is/desired/1.0.0rc02/NuWa-1.0.0rc02
+        /whatever/prefix/is/desired/1.0.0-rc02/NuWa-1.0.0-rc02
    if not defined a default is used
 
 
@@ -109,8 +121,9 @@ nuwa-info(){
          dyb__source : $(dyb__source)
          slave-path  : $(slave-path) 
             
-         
-          
+    Checking to see if nuwa for version "$v" is installed already based on existance of the dyb__.sh      
+  
+         nuwa-isinstalled $v : $(nuwa-isinstalled $v)
   
 EOI
 }
@@ -178,4 +191,11 @@ nuwa-functions(){
 
 }
 
+nuwa-isinstalled(){
+   nuwa-isinstalled- $* && echo YES || echo NO
+}
 
+nuwa-isinstalled-(){
+    local dyb__=$(nuwa-dyb__ $*)
+    [ -f "$dyb__" ] && return 0 || return 1
+}
