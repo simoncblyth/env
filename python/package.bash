@@ -825,10 +825,12 @@ package-install(){
 package-revert(){
 
   local msg="=== $FUNCNAME :"
+  local iwd=$PWD
   local name=$1
   local dir=$($name-dir)
+  cd $dir
   
-  local cmd="svn --recursive revert $dir "
+  local cmd="svn --recursive revert . "
   
   local answer
   if [ -z "$PACKAGE_REVERT_DIRECTLY" ]; then
@@ -846,7 +848,7 @@ package-revert(){
      echo $msg skipping as you answered [$answer]
   fi
   
-  
+  cd $iwd
   
 }
 
