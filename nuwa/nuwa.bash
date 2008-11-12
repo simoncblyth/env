@@ -61,6 +61,14 @@ nuwa-info(){
           nuwa-dyb__ $v   :  $(nuwa-dyb__ $v)   
           nuwa-slave $v   :  $(nuwa-slave $v)  
   
+          nuwa-ddr $v     :  $(nuwa-ddr $v)         DDR : $DDR
+          nuwa-ddi $v     :  $(nuwa-ddi $v)         DDI : $DDI
+          nuwa-ddt $v     :  $(nuwa-ddt $v)         DDT : $DDT
+  
+        
+         
+          
+  
 EOI
 }
 
