@@ -1,8 +1,8 @@
 
 nuwa-env(){ 
    elocal- 
-   nuwa-functions
-   nuwa-exports   
+   nuwa-functions $*
+   nuwa-exports $*   
 }
 
 
