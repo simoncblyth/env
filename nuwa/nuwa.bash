@@ -35,9 +35,19 @@ nuwa-usage(){
        
    Example of usage in .bash_profile :
    
-        env-     ## defines the nuwa- precursor , so must come before "nuwa-"
-        #export NUWA_HOME=whatever/1.0.0rc02/NuWa-1.0.0rc02  ## define NUWA_HOME prior to invoking the "nuwa-" precursor 
-        nuwa-   ## defines the functions and exports      
+        ## defines the nuwa- precursor , so must come before that 
+        env-     
+        
+        ## comment the below two lines to use the default of "trunk"
+        nuwa_version=1.0.0-rc02
+        export NUWA_HOME=whatever/$nuwa_version/NuWa-$nuwa_version   ## NB prior to invoking "nuwa-" precursor 
+        
+        ## defines the functions and exports  
+        nuwa-       
+             
+        ## setup a default location for operations : building/testing      
+        export BUILD_PATH=dybgaudi/${nuwa_version:-trunk}/RootIO/RootIOTest
+             
              
              
     To temporarily jump into another release :
