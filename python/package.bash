@@ -838,12 +838,13 @@ package-revert(){
      echo $msg [$cmd] without asking ...  as PACKAGE_REVERT_DIRECTLY is defined
   fi
   
-  package-isdefined- $name-unpatch && $name-unpatch
   
-  case $answer in 
-    YES) eval $cmd ;;
-      *) echo $msg skipping as you answered [$answer] ;;
-  esac
+  if [ "$answer" == "YES" ];  then 
+     eval $cmd 
+     package-isdefined- $name-unpatch && $name-unpatch
+  else
+     echo $msg skipping as you answered [$answer]
+  fi
   
   
   
