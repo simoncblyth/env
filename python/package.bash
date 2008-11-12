@@ -331,6 +331,7 @@ package-applypatch(){
    local answer=YES
    read -p "$msg CAUTION REVERTING WC MODS ... YOU HAVE 5 SECONDS TO ABORT " -t 5 answer
    [ "$answer" != "YES" ] && echo $msg EXITING && return 1
+   echo $msg proceeding 
    
    package-revert $name   
    ! package-ispristine- $name && echo $msg ERROR, AFTER REVERTING there are local modifications ... cannot apply patch && return 1 
