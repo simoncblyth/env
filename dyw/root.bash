@@ -38,8 +38,9 @@ root-cd(){
 root-name(){
   case ${1:-$NODE_TAG} in 
     old) echo "root_v5.14.00b" ;;
-      C) echo "root_v5.21.02" ;;
-   ##   *) echo "root_v5.19.04" ;; 
+    ##C) echo "root_v5.21.02" ;;
+      C) echo "root_v5.21.04" ;;
+   ## *) echo "root_v5.19.04" ;; 
       *) echo "root_v5.21.04" ;; 
   esac 
 }

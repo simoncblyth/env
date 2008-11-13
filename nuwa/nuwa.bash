@@ -129,6 +129,7 @@ nuwa-info(){
   
     Exported into environment :
         
+            DYB : $DYB
             DDR : $DDR
             DDI : $DDI
             DDT : $DDT
@@ -174,12 +175,14 @@ nuwa-base(){          echo $(dirname $(nuwa-home $*)) ; }
 nuwa-dyb__(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/dyb__.sh ; }
 nuwa-slave(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/slave.bash ; }
 
+nuwa-dyb(){           echo $(nuwa-base $*) ; } 
 nuwa-ddr(){           echo $(nuwa-home $*) ; } 
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
 
 
 nuwa-exports(){
+   export DYB=$(nuwa-dyb $*)
    export DDT=$(nuwa-ddt $*)
    export DDI=$(nuwa-ddi $*)
    export DDR=$(nuwa-ddr $*)
