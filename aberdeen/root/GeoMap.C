@@ -55,48 +55,64 @@ OBJ: TList      TList   Doubly linked list : 0
 
 */
 
-
+class TGeoNode ;
 
 class GeoMap {
 
+   static TGeoNode* Import( const TString& filepath , const TString& vname ); 
+
 public:
-   GeoMap(const char* path);
+   GeoMap(TGeoNode* top=NULL);
    ~GeoMap();
    
-   Bool_t HasKey(TString key);
-   TString UniqueKey(TString key);
+   Bool_t HasKey(const TString& key);
+   const char* UniqueKey(const TString& key);
    TMap* GetMap();
 
    // caution these are accessed by the key (usually the same as node name, but not when have dupes)
-   TGeoNode* GetNod( TString key );
-   TGeoVolume* GetVol( TString key );
-   TList* SelectVol( TString patn );
+   TGeoNode* GetNod( const TString& key );
+   TGeoVolume* GetVol( const TString& key );
+
+   TList* SelectVol( const TString& patn );
+   TList* SelectKeys( const TString& patn );
+   TList* SelectKeys( const TString& patn, Bool_t viz );
+   TList* SelectKeys( const TString& patn, enum EColor col );
 
    // the patn is a regular expression selection one or more (or no) volumes, see TRegexp for the syntax
-   void SetLineColor(TString patn , enum EColor col );
-   void SetVisibility(TString patn , Bool_t viz );
+   void SetLineColor(const TString& patn , enum EColor col );
+   void SetVisibility(const TString& patn , Bool_t viz );
+   void SetTransparency(const TString& patn , Char_t transparency );
 
-   void Display(TString key);
-   void Dump(TGeoNode* node , TString path="");
-   void ImportVolume(TString filepath, TString vname="World");
+   void Display(const TString& key);
+   void Dump(TGeoNode* node , const TString& path="");
+//   void ImportVolume(TString filepath, TString vname="World");
 
-   void SetPMTHit(TString pmtnos, Double_t hitsize);
-   void ResetBox(TString vkey, Double_t sx, Double_t sy, Double_t sz, EColor color);
+   void SetPMTHit(const TString& pmtnos, Double_t hitsize);
+   void ResetBox(const TString& vkey, Double_t sx, Double_t sy, Double_t sz, EColor color);
    void ResetPMT(void);
 
    void Refresh(void);
    
 private:
-   void Import(TString filepath);
-   void CreateMap();
-   void Walk( TGeoNode* node , TString path );
+  // void Import(TString filepath);
+   void Walk( TGeoNode* node , const TString& path="" );
 
    TMap* fMap ;
 };
 
 
-GeoMap::GeoMap(const char* path) : fMap(NULL) {
-   if( path != NULL ) Import( path );
+
+GeoMap* GeoMap::Import( const TString& filepath ){
+    TGeoManager::Import( filepath);
+    TGeoNode* tn = gGeoManager->GetTopNode();
+    return new GeoMap( tn );
+}
+
+
+GeoMap::GeoMap(TGeoNode* top ) : fMap(NULL) {
+    TGeoNode* node = top == NULL ?  gGeoManager->GetNode(0) : top ;
+    fMap = new TMap ;
+    Walk( node );
 }
 
 GeoMap::~GeoMap(){
@@ -104,55 +120,45 @@ GeoMap::~GeoMap(){
 }
 
 TMap* GeoMap::GetMap(){ 
-    return fMap ; 
+  return fMap ; 
 }
 
-void GeoMap::Import(TString filepath){
-
-    TGeoManager::Import( filepath);
-    CreateMap();
-}
-
-
-void GeoMap::CreateMap(){
-    fMap = new TMap ;
-    TGeoNode* tn = gGeoManager->GetTopNode();
-    Walk( tn , "" );
-}
-
-
+/*
 void GeoMap::ImportVolume(TString filepath, TString vname ){
-
     TGeoVolume* top = TGeoVolume::Import( filepath , vname );
     gGeoManager->SetTopVolume( top );
     gGeoManager->CloseGeometry();
     CreateMap();
 }
+*/
 
-
-
-Bool_t GeoMap::HasKey( TString key ){
+Bool_t GeoMap::HasKey( const TString& key ){
    //cout << "HasKey[" << key << "]" << endl ;
    return fMap(key) != NULL ;
 }
 
-TString GeoMap::UniqueKey( TString key ){ 
+const char* GeoMap::UniqueKey( const TString& key ){ 
     // length check to stop recursive infinite loops 
-     return key.Length() < 100 && !HasKey(key) ? key : UniqueKey( Form("%s%s", key.Data(), "x")); 
+     if ( key.Length() < 100 && !HasKey(key)){
+        return key.Data() ;
+     } else {
+        TString nk = Form("%s%s" , key.Data(), "x" );
+        return  UniqueKey( nk ); 
+     }
 }
 
 
-TGeoNode* GeoMap::GetNod( TString key ){
+TGeoNode* GeoMap::GetNod( const TString& key ){
    return (TGeoNode*)fMap(key);
 }
 
-TGeoVolume* GeoMap::GetVol( TString key ){
+TGeoVolume* GeoMap::GetVol( const TString& key ){
    TGeoNode* node = GetNod(key);
    return node==NULL ? NULL : node->GetVolume();
 }
 
 
-TList* GeoMap::SelectKeys( TString patn ){
+TList* GeoMap::SelectKeys( const TString& patn ){
    
    TRegexp re(patn);
    TIter next(fMap);
@@ -172,22 +178,45 @@ TList* GeoMap::SelectKeys( TString patn ){
    return sel ;
 }
 
+TList* GeoMap::SelectVol( const TString& patn ){
 
-TList* GeoMap::ListVisible( Bool_t viz=kTRUE ){
-    
-        
+   TList* sel = SelectKeys(patn);
+   TIter next(sel);
+   TObjString* k = NULL ;
+
+   TList* vs = new TList ;
+   while((  k = (TObjString*)next() )){
+       TGeoVolume* v = GetVol(k->GetString());
+       vs->Add( v ); 
+   }
+   return vs ;
 }
 
-TList* GeoMap::ListLineColor( enum  EColor col ){
+
+TList* GeoMap::SelectKeys( const TString& patn, Bool_t viz ){
+    
+   TList* sel = SelectKeys(patn);
+   TIter next(sel);
+   TObjString* k = NULL ;
+
+   TList* nel = new TList ;
+   while((  k = (TObjString*)next() )){
+       TGeoVolume* v = GetVol(k->GetString());
+       if( v->IsVisible() == viz ){
+          nel->Add( k ); 
+       } 
+   }
+
+   nel->Sort();
+   return nel ;
+}
+
+TList* GeoMap::SelectKeys( const TString& patn , enum  EColor col ){
     
     
 }
 
-
-
-
-
-void GeoMap::SetVisibility(TString patn , Bool_t viz ){
+void GeoMap::SetVisibility(const TString& patn , Bool_t viz ){
 
    TList* sel = SelectKeys(patn);
    TIter next(sel);
@@ -200,7 +229,7 @@ void GeoMap::SetVisibility(TString patn , Bool_t viz ){
 
 }
 
-void GeoMap::SetLineColor(TString patn , enum EColor col ){
+void GeoMap::SetLineColor(const TString& patn , enum EColor col ){
 
    TList* sel = SelectKeys(patn);
    TIter next(sel);
@@ -210,16 +239,29 @@ void GeoMap::SetLineColor(TString patn , enum EColor col ){
        TGeoVolume* v = GetVol(key->GetString());
        v->SetLineColor( col );
    }
+}
+
+void GeoMap::SetTransparency(const TString& patn , Char_t tran ){
+
+   TList* sel = SelectKeys(patn);
+   TIter next(sel);
+   TObjString* key = NULL ;
+
+   while(( key = (TObjString*)next() )){
+       TGeoVolume* v = GetVol(key->GetString());
+       v->SetTransparency( tran );
+   }
 
 }
 
-void GeoMap::Display( TString key ){
+
+void GeoMap::Display( const TString& key ){
 
    TGeoNode* node = GetNod(key);
    Dump( node ); 
 }
 
-void GeoMap::Dump( TGeoNode* node , TString path ){
+void GeoMap::Dump( TGeoNode* node , const TString& path ){
 
    TString name=node->GetName();
    cout << path << " [" << name << "]" << endl ;
@@ -232,7 +274,7 @@ void GeoMap::Dump( TGeoNode* node , TString path ){
 
 }
 
-void GeoMap::Walk( TGeoNode* node, TString path ){
+void GeoMap::Walk( TGeoNode* node, const TString& path ){
 
    // recursive tree walk, creating the map of nodes
 
@@ -248,7 +290,7 @@ void GeoMap::Walk( TGeoNode* node, TString path ){
    for(Int_t i=0 ; i < nn ; ++i ) Walk( vol->GetNode(i) , p ); 
 }
 
-void GeoMap::ResetBox(TString vkey, Double_t sx, Double_t sy, Double_t sz, EColor color){
+void GeoMap::ResetBox(const TString& vkey, Double_t sx, Double_t sy, Double_t sz, EColor color){
 
 	// Replace PMT geometry using ReplaceNode() method
 
