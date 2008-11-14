@@ -1,5 +1,5 @@
-//
-// 
+/*
+ 
 //
 //  .L GeoMap.C                                     
 //
@@ -40,7 +40,22 @@
 //  gm->GetVol("Door_0")->SetVisibility(kTRUE)
 //  gm->GetVol("Door_0")->SetLineColor(kGreen)
 //   
-//
+
+
+   PMT names should be renamed for simpler sorting ... PMT_00 etc..
+
+root [2] gm->SelectKeys("PMT.*")->ls() 
+OBJ: TList      TList   Doubly linked list : 0
+ OBJ: TObjString        PMT_0   Collectable string class : 0 at: 0xa16d7f8
+ OBJ: TObjString        PMT_1   Collectable string class : 0 at: 0xa1191b0
+ OBJ: TObjString        PMT_10  Collectable string class : 0 at: 0xa119150
+ OBJ: TObjString        PMT_11  Collectable string class : 0 at: 0xa16bae8
+ OBJ: TObjString        PMT_12  Collectable string class : 0 at: 0xa16e810
+ OBJ: TObjString        PMT_13  Collectable string class : 0 at: 0xa16d778
+
+*/
+
+
 
 class GeoMap {
 
@@ -153,6 +168,7 @@ TList* GeoMap::SelectKeys( TString patn ){
       } 
    }
 
+   sel->Sort();
    return sel ;
 }
 
