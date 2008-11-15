@@ -1,0 +1,10 @@
+#
+# source the file for setting up my ubuntu to be default setting
+# vi /etc/rc.local
+# source PATH_TO_THIS_FILE
+
+# firewall settings
+/home/thho/thho_local_code_script/firewall.sh
+# turn off the annoying x window bee sound
+xset b off
+
