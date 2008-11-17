@@ -1,4 +1,3 @@
-/*
  
 //
 //  .L GeoMap.C                                     
@@ -40,20 +39,24 @@
 //  gm->GetVol("Door_0")->SetVisibility(kTRUE)
 //  gm->GetVol("Door_0")->SetLineColor(kGreen)
 //   
+//
+//  NB TRegexp is very basic ... even \d is not supported... but can do  :
+//   gm->SelectKeys("2m_Proportional_Tube_[0-9]*$")->ls() 
+//   gm->SelectKeys("2m_Proportional_Tube_[0-9]*$")->ls() 
+//
+//
+//
+//   PMT names should be renamed for simpler sorting ... PMT_00 etc..
+//
+//root [2] gm->SelectKeys("PMT.*")->ls() 
+//OBJ: TList      TList   Doubly linked list : 0
+// OBJ: TObjString        PMT_0   Collectable string class : 0 at: 0xa16d7f8
+// OBJ: TObjString        PMT_1   Collectable string class : 0 at: 0xa1191b0
+// OBJ: TObjString        PMT_10  Collectable string class : 0 at: 0xa119150
+// OBJ: TObjString        PMT_11  Collectable string class : 0 at: 0xa16bae8
+// OBJ: TObjString        PMT_12  Collectable string class : 0 at: 0xa16e810
+// OBJ: TObjString        PMT_13  Collectable string class : 0 at: 0xa16d778
 
-
-   PMT names should be renamed for simpler sorting ... PMT_00 etc..
-
-root [2] gm->SelectKeys("PMT.*")->ls() 
-OBJ: TList      TList   Doubly linked list : 0
- OBJ: TObjString        PMT_0   Collectable string class : 0 at: 0xa16d7f8
- OBJ: TObjString        PMT_1   Collectable string class : 0 at: 0xa1191b0
- OBJ: TObjString        PMT_10  Collectable string class : 0 at: 0xa119150
- OBJ: TObjString        PMT_11  Collectable string class : 0 at: 0xa16bae8
- OBJ: TObjString        PMT_12  Collectable string class : 0 at: 0xa16e810
- OBJ: TObjString        PMT_13  Collectable string class : 0 at: 0xa16d778
-
-*/
 
 class TGeoNode ;
 
@@ -95,7 +98,7 @@ public:
    
 private:
   // void Import(TString filepath);
-   void Walk( TGeoNode* node , const TString& path="" );
+   void Walk( TGeoNode* node , const TString& path );
 
    TMap* fMap ;
 };
@@ -112,7 +115,9 @@ GeoMap* GeoMap::Import( const TString& filepath ){
 GeoMap::GeoMap(TGeoNode* top ) : fMap(NULL) {
     TGeoNode* node = top == NULL ?  gGeoManager->GetNode(0) : top ;
     fMap = new TMap ;
-    Walk( node );
+
+    const TString base = ""  ;
+    Walk( node , base );
 }
 
 GeoMap::~GeoMap(){
@@ -139,12 +144,14 @@ Bool_t GeoMap::HasKey( const TString& key ){
 
 const char* GeoMap::UniqueKey( const TString& key ){ 
     // length check to stop recursive infinite loops 
-     if ( key.Length() < 100 && !HasKey(key)){
-        return key.Data() ;
-     } else {
-        TString nk = Form("%s%s" , key.Data(), "x" );
-        return  UniqueKey( nk ); 
-     }
+    
+   TString lkey(key);
+   if ( lkey.Length() < 100 && fMap(lkey) == NULL ){
+        return lkey.Data() ;
+   }    
+
+   lkey += "x" ;
+   return  UniqueKey( lkey ); 
 }
 
 
@@ -277,10 +284,18 @@ void GeoMap::Dump( TGeoNode* node , const TString& path ){
 void GeoMap::Walk( TGeoNode* node, const TString& path ){
 
    // recursive tree walk, creating the map of nodes
+   //  one key is corrupted somehow ?
+   //  OBJ: TObjString        X8hX8hic_Scintillator_log_132x  Collectable string class : 0 at: 0xb25f780
 
-   TString name=node == NULL ? "NULL" : node->GetName();
-   //cout << path << " [" << name << "]" << endl ;
-   TString key = UniqueKey( name );
+   TString name = "NULL";
+   if(node!=NULL){
+       name = node->GetName();
+   }
+
+   cout << path << " [" << name << "]" << endl ;
+   
+   const char* k =  UniqueKey( name );
+   TString key(k);
    fMap->Add( new TObjString(key) , node );
 
    TString p = Form("%s/%s", path.Data(),name.Data());

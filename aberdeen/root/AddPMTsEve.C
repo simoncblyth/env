@@ -22,15 +22,28 @@
    gGeoManager->CloseGeometry();
 
    TGeoNode* tn = top->GetNode(0) ;  // Worldneutron_log_0 
+   gNav = gGeoManager->GetCurrentNavigator();
 
+
+   cout << "loading GeoMap.. " << endl ;
    gROOT->ProcessLine(".L GeoMap.C");
    gm = new GeoMap(tn) ;
 
-   gm->SetVisibility("steeltank_log_0", kFALSE );
-   gm->SetVisibility("TF*",kFALSE);
-   gm->SetVisibility(".*Door",kFALSE);
-   gm->SelectKeys(".*",kFALSE)->ls();
+//   gm->SetVisibility("steeltank_log_0", kFALSE );
 
+   gm->SetLineColor("1m_Plastic_Scintillator_log_[0-9]*", kRed );
+   gm->SetLineColor("2m_Proportional_Tube_Gas_[0-9]*", kGreen );
+   gm->SetLineColor("1.5m_Plastic_Scintillator_log_[0-9]*", kBlue );
+//   gm->SetLineColor("2m_Proportional_Tube_Gas_[0-9]*", kCyan );
+   gm->SetLineColor("2m_Plastic_Scintillator_log_[0-9]*", kMagenta );
+
+   gm->SetVisibility("logicMovalbeTF_0", kFALSE );
+   gm->SetVisibility("logicMovalbeTF_0x", kFALSE );
+
+   gm->SetVisibility("Door_0",kFALSE);
+   gm->SetVisibility("LeadPlateTop_0", kFALSE);
+   gm->SetVisibility("LeadPlateBottom_0", kFALSE);
+  
    gm->SetTransparency("outer_log_0", 50 ) ;
 
 
@@ -40,11 +53,11 @@
 
    gStyle->SetPalette(1, 0);
 
-   TEveRGBAPalette* pal = new TEveRGBAPalette(0, 130);
-   TEveBoxSet* cones = new TEveBoxSet("ConeSet");
-   cones->SetPalette(pal);
-   cones->Reset(TEveBoxSet::kBT_Cone, kFALSE, 64);
-  
+   TEveCompound* cmp = new TEveCompound;
+   cmp->SetMainColor(kGreen);
+   gEve->AddElement(cmp);
+   cmp->OpenCompound();
+
    TEveVector dir, pos;
 
   // add some cones to represent the PMTs 
@@ -53,11 +66,18 @@
    Double_t val = rad ;
    Double_t height = 10 ;
    Double_t sc = 0.1 ; 
+   
+   TEveRGBAPalette* pal = new TEveRGBAPalette(0, 130);
 
    PMT* pj = NULL ;
    for( Int_t j = 0 ; j < pm->fEntries ; j++ ){
        pj = pm->fPMT[j] ;
 
+       // this is inside in order to be able to select the PMTs indiviually 
+       TEveBoxSet* cones = new TEveBoxSet(Form("PMT%0.2d",j));
+       cones->SetPalette(pal);
+       cones->Reset(TEveBoxSet::kBT_Cone, kFALSE, 64);
+ 
        Double_t  phi = TMath::RadToDeg()*TMath::ATan2(  pj->y , pj->x );  
        Double_t theta = 0.; 
        cout << Form(" %d %f %f %f %f (deg) " , pj->id , pj->x , pj->y , pj->z , phi ) << endl ;
@@ -69,36 +89,20 @@
 
        cones->AddCone(pos, dir, rad);
        cones->DigitValue(val );
-  }
+      //  TEveDigitSet::RefitPlex  Instruct underlying memory allocator to regroup itself into a contiguous memory chunk.
+       cones->RefitPlex();
+       
+     //  gEve->AddElement(cones);
+       cmp->AddElement(cones); 
+ }
 
-   cones->RefitPlex();
-   TEveTrans& t = cones->RefMainTrans(); 
-   t.SetPos(0, 0, 0);
+ cmp->CloseCompound();
+
+ //  TEveElement::RefMainTrans   Return reference to main transformation. It is created if not yet existing.
+ //  TEveTrans& t = cones->RefMainTrans(); 
+ //  t.SetPos(0, 0, 0);
   
-   gEve->AddElement(cones);
-   gEve->Redraw3D(kTRUE);
-
-   
-  // Retain flexibility by exporting the modified world volume rather than the manager..
-  // ... this way subsequent code can just access the volume 
-  //  without concern for this nasty  PMT fix 
-  //  
-  // top->Export("WorldWithPMTs.root");
-  //
-  // See the below from the TGeo expert :
-  //      http://root.cern.ch/root/roottalk/roottalk03/5255.html
-  //   To represent PMT response, you could add some more boxes whose size/color/visibility
-  //   you change for each event. 
-  //   NB : create the heirarchy of volumes in the beginning and subsequently 
-  //       just change sizes/attributes 
-  //         ... more efficient plus will avoid memory management problems
-  //
-  //  Continue manipulations with :
-  //  TGeoVolume* top = TGeoVolume::Import("WorldWithPMTs.root", "World"); 
-  //  gGeoManager->SetTopVolume( top )
-  //  gGeoManager->CloseGeometry()
-  //  top->Draw("ogle")
-  //
+ gEve->Redraw3D(kTRUE);
 
 
 }
