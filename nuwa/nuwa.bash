@@ -180,6 +180,8 @@ nuwa-ddr(){           echo $(nuwa-home $*) ; }
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
 nuwa-ddp(){           echo $(nuwa-home $*)/dybgaudi/DybPython/python/DybPython ; }
+nuwa-ddx(){           echo $(nuwa-home $*)/tutorial/Simulation/SimHistsExample/tests ; }
+
 
 nuwa-exports(){
    export DYB=$(nuwa-dyb $*)
@@ -187,6 +189,7 @@ nuwa-exports(){
    export DDP=$(nuwa-ddp $*)
    export DDI=$(nuwa-ddi $*)
    export DDR=$(nuwa-ddr $*)
+   export DDX=$(nuwa-ddx $*)
 }
 
 nuwa-functions(){     
