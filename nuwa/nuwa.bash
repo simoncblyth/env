@@ -179,11 +179,12 @@ nuwa-dyb(){           echo $(nuwa-base $*) ; }
 nuwa-ddr(){           echo $(nuwa-home $*) ; } 
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
-
+nuwa-ddp(){           echo $(nuwa-home $*)/dybgaudi/DybPython/python/DybPython ; }
 
 nuwa-exports(){
    export DYB=$(nuwa-dyb $*)
    export DDT=$(nuwa-ddt $*)
+   export DDP=$(nuwa-ddp $*)
    export DDI=$(nuwa-ddi $*)
    export DDR=$(nuwa-ddr $*)
 }
