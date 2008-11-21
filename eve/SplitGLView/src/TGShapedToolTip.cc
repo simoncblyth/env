@@ -1,6 +1,6 @@
 // gcc -c -I$ROOTSYS/include TGShapedToolTip.cc
 
-#include "TGShapedToolTip.h"
+#include "SplitGLView/TGShapedToolTip.h"
 
 #include "TString.h"
 

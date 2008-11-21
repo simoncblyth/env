@@ -1,6 +1,6 @@
 //  gcc -c -I$ROOTSYS/include SplitGLView.cc
 
-#include "SplitGLView.h"
+#include "SplitGLView/SplitGLView.h"
 
 
 #include "TApplication.h"
@@ -51,9 +51,9 @@
 #include "TH1F.h"
 
 
-#include "HtmlSummary.h"
-#include "HtmlObjTable.h"
-#include "TGShapedToolTip.h"
+#include "SplitGLView/HtmlSummary.h"
+#include "SplitGLView/HtmlObjTable.h"
+#include "SplitGLView/TGShapedToolTip.h"
 
 
 

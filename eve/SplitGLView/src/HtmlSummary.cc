@@ -1,8 +1,8 @@
 
 //  gcc -c -I$ROOTSYS/include HtmlSummary.cc
 
-#include "HtmlSummary.h"
-#include "HtmlObjTable.h"
+#include "SplitGLView/HtmlSummary.h"
+#include "SplitGLView/HtmlObjTable.h"
 
 
 //______________________________________________________________________________

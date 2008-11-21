@@ -1,0 +1,50 @@
+package ROOT
+version v52104
+
+#use LCG_Settings v*
+#use GCCXML v* LCG_Interfaces -no_auto_imports
+#use LCG_Configuration v*
+
+macro ROOT_home "/data/env/local/root/root_v5.21.04/root"
+macro ROOT_base "$(ROOT_home)"
+
+include_path none
+include_dirs $(ROOT_home)/include
+
+macro ROOT_linkopts "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread -ldl" \
+      WIN32         "/LIBPATH:$(ROOT_home)/lib libCore.lib libCint.lib libTree.lib " \
+      osx103&gcc-3.3 "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread -u _G__cpp_setup_initializerG__Tree "
+
+macro ROOT_Reflex_linkopts "-L$(ROOT_home)/lib -lReflex" \
+      WIN32                "/LIBPATH:$(ROOT_home)/lib libReflex.lib "
+
+macro_append ROOT_linkopts "" ROOT_GE_5_15&WIN32 " libRIO.lib" ROOT_GE_5_15 " -lRIO"
+
+set ROOTSYS $(ROOT_home)
+
+macro ROOT_name "root"
+
+apply_pattern set_lib_path
+
+apply_pattern set_bin_path
+
+apply_pattern set_man_path
+
+path_append MANPATH "$(ROOT_base)/src/root/man" WIN32  "" 
+
+path_remove  PYTHONPATH "/root/"            WIN32 "\root\"     
+path_prepend PYTHONPATH "$(ROOT_home)/lib"  WIN32 "$(ROOT_home)\bin"        
+
+macro rootcint '"$(ROOT_home)/bin/rootcint"' 
+make_fragment rootcint -header=rootcint_header -trailer=rootcint_trailer
+
+macro genmap_cmd $(ROOTSYS)/bin/genmap
+make_fragment genmap -header=genmap_header
+
+macro ROOT_export_paths " $(ROOT_home) "
+
+#-----make fragments for dictionary generation---------------------------------------------------------------
+make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_header \
+              -trailer=reflex_dictionary_generator_trailer -dependencies
+
+

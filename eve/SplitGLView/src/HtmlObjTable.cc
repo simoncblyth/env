@@ -1,6 +1,6 @@
 //   gcc -c -I$ROOTSYS/include HtmlObjTable.cc 
 
-#include "HtmlObjTable.h"
+#include "SplitGLView/HtmlObjTable.h"
 
 //______________________________________________________________________________
 HtmlObjTable::HtmlObjTable(const char *name, Int_t nfields, Int_t nvals, Bool_t exp) : 
