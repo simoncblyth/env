@@ -37,12 +37,14 @@ class MyAlg(PyAlgorithm):
         m_hpxy = TH2F ('hpxy', 'Primary Vertices, X-Y',100,-3,3,100,-3,3)
         m_hpyz = TH2F ('hpyz', 'Primary Vertices, Y-Z',100,-3,3,100,-3,3)
         m_hpxz = TH2F ('hpxz', 'Primary Vertices, Z-X',100,-3,3,100,-3,3)
+        m_hkp = TH1F('hkp', 'Total number of primaries', 100, 0, 200)
 #        self.c1 = c1
         self.hfile = hfile
         self.hpe = m_hpe
         self.hpxy = m_hpxy
         self.hpyz = m_hpyz
         self.hpxz = m_hpxz
+        self.hkp = m_hkp
 
         ga = GaudiAlgo("MyAlg")
         self.ga = ga
@@ -60,6 +62,9 @@ class MyAlg(PyAlgorithm):
         app = AppMgr()
         esv = app.evtsvc()
         esv.dump()
+
+
+        ############# Genhist plotting ###########################
         egh = esv['/Event/Gen/GenHeader']
         ee = egh.event()
 
@@ -68,7 +73,9 @@ class MyAlg(PyAlgorithm):
         for pax in irange(ee.particles_begin(),ee.particles_end()):
             pme = pax.momentum().e()
             pmeu = pme/units_energy # unit:MeV
+            kpar = pax.production_vertex().particles_out_size()
             self.hpe.Fill(pmeu)
+            self.hkp.Fill(kpar)
 
         # accessing the geometry
         det = self.ga.getDet("/dd/Structure/AD/far-oil1")
@@ -102,6 +109,31 @@ class MyAlg(PyAlgorithm):
             self.hpxz.Fill(lpx,lpz)
 
 
+        ###########  simhist plotting ######################
+
+        sh = esv['/Event/Sim/SimHeader']
+        shh = sh.hits()
+        sc = shh.hitCollection()
+        print 'The size of hitCollection is ',sc.size()
+        ########## magic number 1026....see the c++ implement #########
+        #### The number seems to has relation with the detector type? ##
+        #### Here is /dd/Structure/AD/far-oil1 ##
+        #
+        #
+        # import GaudiPython
+        # det = GaudiPython.ROOT.DayaBay.Detector(0x04,2) # far, AD2
+        # det.siteDetPackedData()
+        # Out[6]: 1026
+        #
+        #
+        [i for i in range(1026) if sc[i] != None ]
+        print 'The index i is ',i
+        print 'The size of hitCollection is ',sc.size()
+        scv = sc[i]
+        scc = scv.collection()
+        hitcols = scc.size()
+        ##################  not yet finishing ##########################
+
 
         return True
 
@@ -114,6 +146,7 @@ class MyAlg(PyAlgorithm):
         del self.hpxy
         del self.hpyz
         del self.hpxz
+        del self.hkp
         print 'Histograms Ready!!'
         return True
     def beginRun(self) : return 1
