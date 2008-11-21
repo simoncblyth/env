@@ -28,7 +28,7 @@ public:
    void           Reset(Option_t *option="");
    TString        Html() const { return fHtml; }
 
-   ClassDef(HtmlSummary, 0);
+//   ClassDef(HtmlSummary, 0);
 };
 
 

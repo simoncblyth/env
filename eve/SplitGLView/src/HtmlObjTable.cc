@@ -2,6 +2,8 @@
 
 #include "SplitGLView/HtmlObjTable.h"
 
+//ClassImp(HtmlObjTable)
+
 //______________________________________________________________________________
 HtmlObjTable::HtmlObjTable(const char *name, Int_t nfields, Int_t nvals, Bool_t exp) : 
    fName(name), fNValues(nvals), fNFields(nfields), fExpand(exp)
@@ -109,5 +111,4 @@ void HtmlObjTable::BuildTable()
 }
 
 
-ClassImp(HtmlObjTable)
 

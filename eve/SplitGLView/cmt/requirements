@@ -1,6 +1,15 @@
 package SplitGLView
 
-#  piggy back off your NuWa installation by :  export CMTPROJECTPATH=$ENV_HOME/eve:$CMTPROJECTPATH 
+#  piggy back off your NuWa installation by :  
+#    export CMTPROJECTPATH=$ENV_HOME/eve:$CMTPROJECTPATH 
+#    export VERBOSE=1     ... to see the commands CMT is running 
+#
+#  NB due to the need to use a more recent root  ... the piggybacking is
+#     somewhat unholy 
+#
+#  
+#
+
 use DybPolicy 
 
 # a very recent ROOT is required
@@ -12,6 +21,7 @@ apply_pattern install_more_includes more="SplitGLView"
 library SplitGLViewLib *.cc
 
 apply_pattern  linker_library library=SplitGLViewLib
+apply_pattern ld_library_path
 
 apply_pattern reflex_dictionary dictionary=SplitGLView \
                                 selectionfile=${SPLITGLVIEWROOT}/dict/classes.xml \
@@ -20,6 +30,7 @@ apply_pattern reflex_dictionary dictionary=SplitGLView \
 
 # for TSocket.
 #macro_append ROOT_linkopts " -lNet "
+macro_append ROOT_linkopts "  -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lGui -pthread  -lEve -lRGL -lHtml -lGuiHtml -lGeom -lHist "
 
 
 

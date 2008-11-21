@@ -28,7 +28,7 @@ public:
    void     SetValue(Int_t col, Int_t row, Float_t val) { fValues[col].SetAt(val, row); }
    TString  Html() const { return fHtml; }
 
-   ClassDef(HtmlObjTable, 0);
+//   ClassDef(HtmlObjTable, 0);
 };
 
 

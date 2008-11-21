@@ -4,6 +4,7 @@
 #include "SplitGLView/HtmlSummary.h"
 #include "SplitGLView/HtmlObjTable.h"
 
+//ClassImp(HtmlSummary)
 
 //______________________________________________________________________________
 HtmlSummary::HtmlSummary(const char *title) : fNTables(0), fTitle(title)
@@ -100,5 +101,4 @@ void HtmlSummary::MakeFooter()
 }
 
 
-ClassImp(HtmlSummary)
 

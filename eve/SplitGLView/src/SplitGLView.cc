@@ -55,6 +55,7 @@
 #include "SplitGLView/HtmlObjTable.h"
 #include "SplitGLView/TGShapedToolTip.h"
 
+//ClassImp(SplitGLView)
 
 
 #ifdef WIN32
@@ -81,7 +82,6 @@ const char *rcfiletypes[] = {
 TEveProjectionManager *gRPhiMgr = 0;
 TEveProjectionManager *gRhoZMgr = 0;
 
-ClassImp(SplitGLView)
 
 HtmlSummary *SplitGLView::fgHtmlSummary = 0;
 TGHtml *SplitGLView::fgHtml = 0;

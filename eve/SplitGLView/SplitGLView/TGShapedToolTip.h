@@ -41,7 +41,7 @@ public:
    void           SetTextAttributes(Int_t tx, Int_t ty, Int_t th, const char *col=0);
    void           Show(Int_t x, Int_t y, const char *text = 0, TH1 *hist = 0);
 
-   ClassDef(TGShapedToolTip, 0) // Shaped composite frame
+//   ClassDef(TGShapedToolTip, 0) // Shaped composite frame
 };
 
 
