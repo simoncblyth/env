@@ -48,6 +48,8 @@ class MyAlg(PyAlgorithm):
         self.ga = ga
 
         return ga.initialize()
+#        ga.initialize()
+#        return 1
 
     def execute(self):
         print 'Starting customizing algorithm!'
@@ -88,13 +90,16 @@ class MyAlg(PyAlgorithm):
             vtxzm = vtxz/units_meter
             gp = Gaudi.XYZPoint(vtxx,vtxy,vtxz)
             lp = gi.toLocal(gp)
-            print '!!!!!!!!!!!!!!!!!!!!!!!lpx is ', lp.x()
-            print '!!!!!!!!!!!!!!!!!!!!!!!lpy is ', lp.y()
-            print '!!!!!!!!!!!!!!!!!!!!!!!lpz is ', lp.z()
+            lpx = lp.x()/units_meter
+            lpy = lp.y()/units_meter
+            lpz = lp.z()/units_meter
+            print '!!!!!!!!!!!!!!!!!!!!!!!lpx is ', lpx
+            print '!!!!!!!!!!!!!!!!!!!!!!!lpy is ', lpy
+            print '!!!!!!!!!!!!!!!!!!!!!!!lpz is ', lpz
 
-#            self.hpxy.Fill(vtxxm,vtxym)
-#            self.hpyz.Fill(vtxym,vtxzm)
-#            self.hpxz.Fill(vtxx,vtxz)
+            self.hpxy.Fill(lpx,lpy)
+            self.hpyz.Fill(lpy,lpz)
+            self.hpxz.Fill(lpx,lpz)
 
 
 
