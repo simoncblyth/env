@@ -33,14 +33,14 @@ hephaestus-files(){
 }
 
 hephaestus-get(){
+  local msg="=== $FUNCNAME :"
   for base in $(hephaestus-bases) ; do
     for dir in $(hephaestus-files $base DIRS) ; do
        for file in $(hephaestus-files $base $dir) ; do
           local url=$(hephaestus-url $base/$dir $file)
           local path=$base/$dir/$file
-          echo url $url path $path 
           mkdir -p $(dirname $path)
-          curl -o $path $url
+          [ ! -f $path ] && echo $msg $url $path && curl -o $path $url || echo $msg skip preexisting $path 
        done
     done
   done
