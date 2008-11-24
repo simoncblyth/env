@@ -67,7 +67,7 @@ tmacros-place(){
        esac  
        
        if [ "$copy" == "1" ]; then
-          local cmd="sudo -u $APACHE2_USER cp $py $plugins/$py "
+          local cmd="sudo cp $py $plugins/$py ; sudo chown $(trac-user) $plugins/$py "
           echo $cmd
           eval $cmd
       fi 
