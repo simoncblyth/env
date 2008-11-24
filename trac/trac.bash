@@ -139,6 +139,7 @@ EOU
 }
 
 tscript-(){           . $ENV_HOME/trac/script/tscript.bash  && tscript-env  $* ; }
+tmacros-(){           . $ENV_HOME/trac/macros/macros.bash   && tmacros-env  $* ; }
 tracinter-(){         . $ENV_HOME/trac/tracinter.bash  && tracinter-env  $* ; }
 tracbuild-(){         . $ENV_HOME/trac/tracbuild.bash  && tracbuild-env  $* ; }
 tracperm-(){          . $ENV_HOME/trac/tracperm.bash   && tracperm-env   $* ; }

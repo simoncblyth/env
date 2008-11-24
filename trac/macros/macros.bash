@@ -1,5 +1,5 @@
 
-macros-usage(){
+tmacros-usage(){
 
 cat << EOU
 
@@ -21,17 +21,17 @@ EOU
 }
 
 
-macros-env(){
+tmacros-env(){
 
   export TRAC_MACROS_DIR=$ENV_HOME/trac/macros
   elocal-
 }
 
 
-macros-status(){
+tmacros-status(){
 
    local name=$1
-   local plugins=$(macros-plugins $name)
+   local plugins=$(tmacros-plugins $name)
    local py=$2
    
    [ ! -f $plugins/$py ]    && return 1
@@ -40,17 +40,17 @@ macros-status(){
 }
 
 
-macros-plugins(){
+tmacros-plugins(){
    local name=$1
    echo $SCM_FOLD/tracs/$name/plugins
 }
 
 
-macros-place(){
+tmacros-place(){
 
   local msg="=== $FUNCNAME :"
   local name=$1
-  local plugins=$(macros-plugins $name)
+  local plugins=$(tmacros-plugins $name)
   local iwd=$PWD
   
   local dir=$ENV_HOME/trac/macros
@@ -58,7 +58,7 @@ macros-place(){
   for py in *.py
   do
       local copy=0
-      macros-status $name $py
+      tmacros-status $name $py
       case $? in
          0) echo $msg $py is uptodate ;;
          1) echo $msg first copy of $py && copy=1 ;;
