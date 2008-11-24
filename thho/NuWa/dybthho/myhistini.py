@@ -30,38 +30,27 @@ class MyAlg(PyAlgorithm):
         from ROOT import TCanvas, TFile, TH1F, TH2F, TH1I
         from ROOT import gROOT, gRandom, gSystem, Double
         gROOT.Reset()
-#        c1 = TCanvas( 'c1', 'Dynamic Filling Example', 200, 10, 700, 500 )
-        hfile = TFile( 'pyhsit.root', 'RECREATE', 'Make histograms from TES' )
-        m_hpe = TH1F('kineEnergy', 'Particle energy (MeV)', 100,0 ,5 )
-        m_ht = TH1F('kineVtxTime','Times of vertices (seconds)',1500,0,15*60)
-        m_hpxy = TH2F ('kineVertexXY', 'Primary Vertices, X-Y',100,-3,3,100,-3,3)
-        m_hpyz = TH2F ('kineVertexYZ', 'Primary Vertices, Y-Z',100,-3,3,100,-3,3)
-        m_hpxz = TH2F ('kineVertexXZ', 'Primary Vertices, Z-X',100,-3,3,100,-3,3)
-        m_hkp = TH1F('nKineParts', 'Total number of primaries', 10, 0, 500)
-        m_nc = TH1I('nHitCollections','Number of Hit Collections', 15, 0, 15)
-        m_hnd = TH2F('nHitByDetector', 'Number of hits in each detector',16, -2,14,100,0,99)
-#        self.c1 = c1
-        self.hfile = hfile
-        self.hpe = m_hpe
-        self.ht = m_ht
-        self.hpxy = m_hpxy
-        self.hpyz = m_hpyz
-        self.hpxz = m_hpxz
-        self.hkp = m_hkp
-        self.nc = m_nc
-        self.hnd = m_hnd
-
+        #c1 = TCanvas( 'c1', 'Dynamic Filling Example', 200, 10, 700, 500 )
+        self.hfile = TFile( 'pyhsit.root', 'RECREATE', 'Make histograms from TES' )
+        self.hpe = TH1F('kineEnergy', 'Particle energy (MeV)', 100,0 ,5 )
+        self.ht = TH1F('kineVtxTime','Times of vertices (seconds)',1500,0,15*60)
+        self.hpxy = TH2F ('kineVertexXY', 'Primary Vertices, X-Y',100,-3,3,100,-3,3)
+        self.hpyz = TH2F ('kineVertexYZ', 'Primary Vertices, Y-Z',100,-3,3,100,-3,3)
+        self.hpxz = TH2F ('kineVertexXZ', 'Primary Vertices, Z-X',100,-3,3,100,-3,3)
+        self.hkp = TH1F('nKineParts', 'Total number of primaries', 10, 0, 500)
+        self.nc = TH1I('nHitCollections','Number of Hit Collections', 15, 0, 15)
+        self.hnd = TH2F('nHitByDetector', 'Number of hits in each detector',16, -2,14,100,0,99)
+        #self.c1 = c1
         # booking the detector bins. Not a fully complete..............
         dets= {1025:"FarAD1"}
 
-        ga = GaudiAlgo("MyAlg")
-        self.ga = ga
+        self.ga = GaudiAlgo("gaalg")
 
         self.units_energy = units.eV
         self.units_meter = units.meter
         self.units_sec = units.second
 
-        return ga.initialize()
+        return self.ga.initialize()
 #        ga.initialize()
 #        return 1
 
@@ -97,19 +86,14 @@ class MyAlg(PyAlgorithm):
         # accessing vertex info
         for vtx in irange(ee.vertices_begin(),ee.vertices_end()):
             vtxt = vtx.position().t()
-            print vtxt
-            vtxx = vtx.position().x()
-            print vtxx
-            vtxy = vtx.position().y()
-            vtxz = vtx.position().z()
+            vtxx, vtxy, vtxz = vtx.position().x(), vtx.position().y(), vtx.position().z()
             vtxts = vtxt/self.units_sec
-            print vtxts
             gp = Gaudi.XYZPoint(vtxx,vtxy,vtxz)
             lp = gi.toLocal(gp)
             lpx = lp.x()/self.units_meter
-            print lpx
             lpy = lp.y()/self.units_meter
             lpz = lp.z()/self.units_meter
+            print '!!!!!!!!!!!!!!!!!!!!!',vtxt,vtxts,vtxx,vtxts,lpx
 
             self.ht.Fill(vtxts)
             self.hpxy.Fill(lpx,lpy)
@@ -120,8 +104,7 @@ class MyAlg(PyAlgorithm):
         ###########  simhist plotting ######################
 
         sh = esv['/Event/Sim/SimHeader']
-        shh = sh.hits()
-        sc = shh.hitCollection()
+        sc = sh.hits().hitCollection()
         scs = sc.size()
         print 'The size of hitCollection is ',sc.size()
         #### Here is /dd/Structure/AD/far-oil1 ##
