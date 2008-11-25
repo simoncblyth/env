@@ -28,6 +28,10 @@ accountmanager-docurl(){  echo http://trac-hacks.org/wiki/AccountManagerPlugin ;
 accountmanager-url(){     echo http://trac-hacks.org/svn/accountmanagerplugin/$(accountmanager-branch) ;}
 accountmanager-pkgname(){ echo acct_mgr ; }
 
+#accountmanager-revision(){ echo 3981 ; }
+accountmanager-revision(){  echo 4117 ; }
+
+
 accountmanager-fix(){
    cd $(accountmanager-dir)   
    echo no fixes
