@@ -2,26 +2,19 @@
 
 #
 # An additional algorithm to make histograms.
-# The algorithm does the same thing as what the c++ source codes
-# dybgaudi/trunk/tutorial/Simulation/SimHistsExample @ release1.0.0-rc01
-# do.
 #
-# usage: nuwa.py -n XX share/simhist.py myhistini
+# usage: nuwa.py -n XX share/simhist.py SimHistsExample.pyhist
 #
-#
-# ToDo:     1. We don't need all the DybPython.Interactive but part of supplying
-#              dictionary for class HepMC::GenEvent
-#           2. The bin label associated with detectors has not yet fully completed
 #
 
-import GaudiKernel.SystemOfUnits as units
-import DybPython.Interactive
+
 from GaudiPython import PyAlgorithm
 from GaudiPython import AppMgr
 from DybPython.Util import irange
-# import these issues to access the geometry info
 from GaudiPython.GaudiAlgs import GaudiAlgo
 import PyCintex
+import GaudiKernel.SystemOfUnits as units
+import DybPython.Interactive
 Gaudi = PyCintex.makeNamespace('Gaudi')
 
 class MyAlg(PyAlgorithm):
@@ -41,8 +34,8 @@ class MyAlg(PyAlgorithm):
         self.nc = TH1I('nHitCollections','Number of Hit Collections', 15, 0, 15)
         self.hnd = TH2F('nHitByDetector', 'Number of hits in each detector',16, -2,14,100,0,99)
         #self.c1 = c1
-        # booking the detector bins. Not a fully complete..............
-        dets= {1025:"FarAD1"}
+        # booking the detector bins. Not complete
+        #dets= {1025:"FarAD1"}
 
         self.ga = GaudiAlgo("gaalg")
 
@@ -51,14 +44,11 @@ class MyAlg(PyAlgorithm):
         self.units_sec = units.second
 
         return self.ga.initialize()
-#        ga.initialize()
-#        return 1
+        #ga.initialize()
+        #return 1
 
     def execute(self):
-        print 'Starting customizing algorithm!'
-
-        print '!!!!!!!!!!!!!!!!units_meter is ', units.meter
-        print 'Accessing info from TES.......'
+        print 'Executing customizing algorithm......'
         app = AppMgr()
         esv = app.evtsvc()
         esv.dump()
@@ -93,7 +83,6 @@ class MyAlg(PyAlgorithm):
             lpx = lp.x()/self.units_meter
             lpy = lp.y()/self.units_meter
             lpz = lp.z()/self.units_meter
-            print '!!!!!!!!!!!!!!!!!!!!!',vtxt,vtxts,vtxx,vtxts,lpx
 
             self.ht.Fill(vtxts)
             self.hpxy.Fill(lpx,lpy)
@@ -106,40 +95,33 @@ class MyAlg(PyAlgorithm):
         sh = esv['/Event/Sim/SimHeader']
         sc = sh.hits().hitCollection()
         scs = sc.size()
-        print 'The size of hitCollection is ',sc.size()
         #### Here is /dd/Structure/AD/far-oil1 ##
         import GaudiPython
         det = GaudiPython.ROOT.DayaBay.Detector(0x04,1) # far, AD1
         detsitepd = det.siteDetPackedData()
-        print 'detsitepd is ', detsitepd
         # Out[6]: 1025
         #
         self.nc.Fill(scs)
         if scs != 0:
             [i for i in range(detsitepd+1) if sc[i] != None ]
-            print 'The index i is ',i
-            print 'The size of hitCollection is ',sc.size()
             scv = sc[i]
             scc = scv.collection()
             hitcols = scc.size()
-            print '!!!!!!!!!hits no. is ', hitcols
-            #### bin labels for a detector. not yet complete for all detector.... ####
+            #### bin labels for a detector. not yet completing for all detector
+            ### Here is a kind of "cheating"
             if hitcols == 0:
-                print '!!!!!!!!!!!!!!! hitcols is 0!!!!!!!!!!!!!'
                 self.hnd.Fill(-1.5,hitcols)
             if detsitepd == 1025:
                 self.hnd.Fill(11.5,hitcols)
             else:
                 self.hnd.Fill(-0.5,hitcols)
-                print '!!!!!!!!!!!hits on other detectors!!!!!!!'
-        print '!!!!!!!!!!!!!!!!no hits and scs is ',scs
 
         return True
 
     def finalize(self):
-#        c1 = self.c1
-#        c1.Modified()
-#        c1.Update()
+        #c1 = self.c1
+        #c1.Modified()
+        #c1.Update()
         self.hfile.Write()
         del self.hpe
         del self.ht
@@ -160,7 +142,7 @@ def run(*args):
     pass
 
 def configure():
-#   from GaudiPython import AppMgr
+    #from GaudiPython import AppMgr
     app = AppMgr()
     print 'Adding customizing algorithm'
     app.addAlgorithm(MyAlg())
