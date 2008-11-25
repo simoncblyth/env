@@ -1,12 +1,17 @@
 #!/usr/bin/env python
-
+#
 #
 # An additional algorithm to make histograms.
+# This python script will make histograms as what the c++ of package tutorial/SimHistsExample does.
 #
-# usage: nuwa.py -n XX share/simhist.py SimHistsExample.pyhist
+# usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
 #
-#
+# 
 
+'''
+    Don't run this script independently.
+    Usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
+'''
 
 from GaudiPython import PyAlgorithm
 from GaudiPython import AppMgr
@@ -18,6 +23,12 @@ import DybPython.Interactive
 Gaudi = PyCintex.makeNamespace('Gaudi')
 
 class MyAlg(PyAlgorithm):
+
+    '''
+    Repeat share/simhist making histograms part.
+    Using this class the add histogram algorithm into each executing cycle.
+
+    '''
     def initialize(self):
         print 'Using PyRoot to make histogram!'
         from ROOT import TCanvas, TFile, TH1F, TH2F, TH1I
@@ -51,7 +62,7 @@ class MyAlg(PyAlgorithm):
         print 'Executing customizing algorithm......'
         app = AppMgr()
         esv = app.evtsvc()
-        esv.dump()
+        #esv.dump()
 
 
         ############# Genhist plotting ###########################
@@ -97,8 +108,8 @@ class MyAlg(PyAlgorithm):
         scs = sc.size()
         #### Here is /dd/Structure/AD/far-oil1 ##
         import GaudiPython
-        det = GaudiPython.ROOT.DayaBay.Detector(0x04,1) # far, AD1
-        detsitepd = det.siteDetPackedData()
+        ddet = GaudiPython.ROOT.DayaBay.Detector(0x04,1) # far, AD1
+        detsitepd = ddet.siteDetPackedData()
         # Out[6]: 1025
         #
         self.nc.Fill(scs)
@@ -107,7 +118,7 @@ class MyAlg(PyAlgorithm):
             scv = sc[i]
             scc = scv.collection()
             hitcols = scc.size()
-            #### bin labels for a detector. not yet completing for all detector
+            ### bin labels for a detector. not yet completing for all detectors
             ### Here is a kind of "cheating"
             if hitcols == 0:
                 self.hnd.Fill(-1.5,hitcols)
@@ -131,7 +142,6 @@ class MyAlg(PyAlgorithm):
         del self.hkp
         del self.nc
         del self.hnd
-        print 'Histograms Ready!!'
         return True
     def beginRun(self) : return 1
     def endRun(self) : return 1
@@ -144,9 +154,11 @@ def run(*args):
 def configure():
     #from GaudiPython import AppMgr
     app = AppMgr()
-    print 'Adding customizing algorithm'
+    print 'Adding customizing histogram algorithm'
     app.addAlgorithm(MyAlg())
-    print 'Run!! Go Fight Go!!'
+    print 'Customizing histogram algorithm gets ready to use'
     return
 pass
 
+if '__main__' == __name__:
+    print __doc__
