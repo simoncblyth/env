@@ -11,10 +11,53 @@ usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
 from GaudiPython import PyAlgorithm
 from GaudiPython import AppMgr
 from DybPython.Util import irange
+import GaudiPython as gp
 import PyCintex
 import GaudiKernel.SystemOfUnits as units
 import DybPython.Interactive
 Gaudi = PyCintex.makeNamespace('Gaudi')
+
+class detSiteDidMap:
+    '''
+    Establishing a "map" between Site and DetectorId with dict
+    '''
+    def __init__(self):
+
+        deti = gp.ROOT.DayaBay.Detector
+        sis = gp.gbl.Site.FromString
+        di = gp.gbl.DetectorId
+
+        detsdm = [deti(sis("DayaBay"),di.kAD1),
+                  deti(sis("DayaBay"),di.kAD2),
+                  deti(sis("DayaBay"),di.kOWS),
+                  deti(sis("DayaBay"),di.kIWS),
+                  deti(sis("DayaBay"),di.kRPC),
+                  deti(sis("LingAo"),di.kAD1),
+                  deti(sis("LingAo"),di.kAD2),
+                  deti(sis("LingAo"),di.kOWS),
+                  deti(sis("LingAo"),di.kIWS),
+                  deti(sis("LingAo"),di.kRPC),
+                  deti(sis("Far"),di.kAD1),
+                  deti(sis("Far"),di.kAD2),
+                  deti(sis("Far"),di.kAD3),
+                  deti(sis("Far"),di.kAD4),
+                  deti(sis("Far"),di.kOWS),
+                  deti(sis("Far"),di.kIWS),
+                  deti(sis("Far"),di.kRPC),
+                 ]
+
+        detbins = {}
+        for ind in range(17):
+            detbins = {detsdm[ind].siteDetPackedData():ind+1}
+
+        self.deti = deti
+        self.sis = sis
+        self.di = di
+        self.detsdm = detsdm
+        self.detbins = detbins
+
+        pass
+
 
 class MyAlg(PyAlgorithm):
 
@@ -44,6 +87,8 @@ class MyAlg(PyAlgorithm):
         self.units_energy = units.eV
         self.units_meter = units.meter
         self.units_sec = units.second
+
+        self.dsdm = detSiteDidMap()
 
         return 1
 
@@ -95,26 +140,19 @@ class MyAlg(PyAlgorithm):
         sh = esv['/Event/Sim/SimHeader']
         sc = sh.hits().hitCollection()
         scs = sc.size()
-        #### Here is /dd/Structure/AD/far-oil1 ##
-        import GaudiPython
-        ddet = GaudiPython.ROOT.DayaBay.Detector(0x04,1) # far, AD1
-        detsitepd = ddet.siteDetPackedData()
-        # Out[6]: 1025
-        #
         self.nc.Fill(scs)
         if scs != 0:
-            [i for i in range(detsitepd+1) if sc[i] != None ]
-            scv = sc[i]
-            scc = scv.collection()
-            hitcols = scc.size()
-            ### bin labels for a detector. not yet completing for all detectors
-            ### Here is a kind of "cheating"
-            if hitcols == 0:
-                self.hnd.Fill(-1.5,hitcols)
-            if detsitepd == 1025:
-                self.hnd.Fill(11.5,hitcols)
-            else:
-                self.hnd.Fill(-0.5,hitcols)
+            for detsitepd in range(1031):
+                try:
+                    kdet = [i for i in range(detsitepd+1) if sc[i] != None ]
+                except IndexError:
+                    for kd in kdet:
+                        scv = sc[kd]
+                        scc = scv.collection()
+                        hitcols = scc.size()
+                        bin = self.dsdm.detbins[detsitepd]
+                        self.hnd.Fill(bin, hitcols)
+                        assert len(kdet) == scs                   
 
         return True
 
@@ -148,6 +186,11 @@ def configure():
     print 'Customizing histogram algorithm gets ready to use'
     return
 pass
+
+def checkSitepd():
+    #name = self.deti(1<<k,j).detName()
+    #return self.deti.siteDetPackedFromString(name)
+    pass
 
 if '__main__' == __name__:
     print __doc__
