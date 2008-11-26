@@ -55,7 +55,7 @@
 #include "SplitGLView/HtmlObjTable.h"
 #include "SplitGLView/TGShapedToolTip.h"
 
-//ClassImp(SplitGLView)
+ClassImp(SplitGLView)
 
 
 #ifdef WIN32

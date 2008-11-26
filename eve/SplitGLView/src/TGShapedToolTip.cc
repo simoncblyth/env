@@ -11,7 +11,7 @@
 #include "TCanvas.h"
 
 
-//ClassImp(TGShapedToolTip)
+ClassImp(TGShapedToolTip)
 
 //______________________________________________________________________________
 TGShapedToolTip::TGShapedToolTip(const char *pname, Int_t cx, Int_t cy, Int_t cw, 

@@ -2,7 +2,7 @@
 
 #include "SplitGLView/HtmlObjTable.h"
 
-//ClassImp(HtmlObjTable)
+ClassImp(HtmlObjTable)
 
 //______________________________________________________________________________
 HtmlObjTable::HtmlObjTable(const char *name, Int_t nfields, Int_t nvals, Bool_t exp) : 

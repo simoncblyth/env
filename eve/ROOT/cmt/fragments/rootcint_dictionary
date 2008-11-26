@@ -1,0 +1,20 @@
+$(dictdir)/${CONSTITUENT}.rootcint_dictionary : $(dictdir)/${CONSTITUENT}Dict.cpp
+	@echo $@
+
+gensrcdict=$(dictdir)/${CONSTITUENT}Dict.cc
+
+
+${CONSTITUENT} ::  $(gensrcdict)
+	@:
+
+
+$(gensrcdict) : ${FULLNAME}
+	@echo Generating ROOT Dictionary $@ 
+	@-mkdir -p $(dictdir) 
+	$(rootcint) -f $(dictdir)/${CONSTITUENT}Dict.cc -c \
+                   ${${package}_cintflags} $(pp_cppflags) \
+		   $(includes) $(use_pp_cppflags) ${FULLNAME} \
+		   $(${package}_rootcint_linkdef_file)
+
+
+

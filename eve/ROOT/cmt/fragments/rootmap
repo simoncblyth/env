@@ -1,0 +1,44 @@
+dictdir = $(PACKAGE_ROOT)/$(tag)/rootcint
+
+## The rootmap
+ifdef ${package}_rootmap
+  rootmapname=${package}Dict.rootmap
+  rootmapdict=$(dictdir)/${rootmapname}
+  rootmaplib=$(PACKAGE_ROOT)/$(tag)/$(library_prefix)${package}Dict.$(shlibsuffix)
+  rootmapopts=-output-library $(rootmapdict) -input-library $(rootmaplib)
+else
+  rootmapdict=
+endif
+
+${CONSTITUENT} ::  $(rootmapdict) MergeRootMap
+	@:
+
+ifdef  ${package}_rootmap
+
+$(rootmapdict) : ${package}Dict
+	$(genmap_cmd) $(rootmapopts)
+
+
+mergedrootmapdir=$(dir $(${package}_rootmap))
+mergedrootmap=$(${package}_rootmap)
+stamprootmap=$(mergedrootmapdir)/$(rootmapname).stamp
+
+MergeRootMap :: $(stamprootmap) $(mergedrootmap)
+	@:
+
+$(stamprootmap) $(mergedrootmap) :: $(rootmapdict)
+	@echo "Running merge_rootmap  ${CONSTITUENT}" 
+	@touch $(mergedrootmap)
+	$(merge_rootmap_cmd) --do-merge --input-file $(rootmapdict) --merged-file $(mergedrootmap)
+
+${CONSTITUENT}clean ::
+	@echo "Un-merging rootmap"
+	@$(merge_rootmap_cmd) --un-merge --input-file $(rootmapdict) --merged-file $(mergedrootmap)
+	@$(uninstall_command) $(stamprootmap)
+
+else
+
+MergeRootMap ::
+	@:
+
+endif

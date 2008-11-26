@@ -1,0 +1,6 @@
+dictdir = $(PACKAGE_ROOT)/$(tag)/rootcint
+
+${CONSTITUENT}_output = $(dictdir)
+
+${CONSTITUENT} :: ${OBJS}
+	@echo "------> ${CONSTITUENT} ok"

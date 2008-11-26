@@ -12,25 +12,30 @@ package SplitGLView
 
 use DybPolicy 
 
+use Reflex       v*   LCG_Interfaces
+
 # a very recent ROOT is required
 use ROOT v52104
 
 include_dirs $(SPLITGLVIEWROOT)
-apply_pattern install_more_includes more="SplitGLView"
 
-library SplitGLViewLib *.cc
+#apply_pattern install_more_includes more="SplitGLView"
+#
+#library SplitGLViewLib *.cc
+#
+#apply_pattern  linker_library library=SplitGLViewLib
+#apply_pattern ld_library_path
 
-apply_pattern  linker_library library=SplitGLViewLib
-apply_pattern ld_library_path
-
-apply_pattern reflex_dictionary dictionary=SplitGLView \
-                                selectionfile=${SPLITGLVIEWROOT}/dict/classes.xml \
-                                  headerfiles=${SPLITGLVIEWROOT}/dict/headers.h
+#apply_pattern reflex_dictionary dictionary=SplitGLView \
+#                                selectionfile=${SPLITGLVIEWROOT}/dict/classes.xml \
+#                                  headerfiles=${SPLITGLVIEWROOT}/dict/headers.h
 
 
 # for TSocket.
 #macro_append ROOT_linkopts " -lNet "
 macro_append ROOT_linkopts "  -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lGui -pthread  -lEve -lRGL -lHtml -lGuiHtml -lGeom -lHist "
 
+
+apply_pattern rootcint_dictionary headerfiles=../${package}/*.h 
 
 

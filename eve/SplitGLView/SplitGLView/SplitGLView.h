@@ -71,7 +71,7 @@ public:
    TEveProjectionManager *GetRPhiMgr() const { return fRPhiMgr; }
    TEveProjectionManager *GetRhoZMgr() const { return fRhoZMgr; }
 
-//   ClassDef(SplitGLView, 0)
+   ClassDef(SplitGLView, 0)
 };
 
 

@@ -1,8 +1,8 @@
 package ROOT
 version v52104
 
-#use LCG_Settings v*
-#use GCCXML v* LCG_Interfaces -no_auto_imports
+use LCG_Settings v*
+use GCCXML v* LCG_Interfaces -no_auto_imports
 #use LCG_Configuration v*
 
 macro ROOT_home "/data/env/local/root/root_v5.21.04/root"
@@ -46,5 +46,44 @@ macro ROOT_export_paths " $(ROOT_home) "
 #-----make fragments for dictionary generation---------------------------------------------------------------
 make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_header \
               -trailer=reflex_dictionary_generator_trailer -dependencies
+
+
+#
+#  purloined from DybPolicy/cmt/requirements
+#
+#  cp $DDR/dybgaudi/DybPolicy/cmt/fragments/rootcint_dictionary{,_header,_trailer}  fragments/
+#  cp $DDR/dybgaudi/DybPolicy/cmt/fragments/rootmap{,_header,_trailer}  fragments/
+#
+#  NB prior to this caper, there was already some rootcint fragments... 
+# -rwxrwxr-x  1 blyth blyth  248 Nov 21 18:15 rootcint
+# -rwxrwxr-x  1 blyth blyth  131 Nov 21 18:15 rootcint_header
+# -rwxrwxr-x  1 blyth blyth  195 Nov 21 18:15 rootcint_trailer
+#
+#
+#
+# Pattern to let a dictionary be built and used.  Use like:
+# rootcint_dictionary_headers headers="Header1.h Header2.h"
+# Don't inlcude LinkDef.h which should be in src/
+use ROOT v* LCG_Interfaces
+macro rootmap_name "rootmap" ROOT_GE_5_15 "reflex.rootmap"
+pattern rootcint_dictionary \
+        public ; \
+        apply_pattern ld_library_path ; \
+        apply_pattern public_package_include ; \
+        private ; \
+        apply_pattern private_package_include ; \
+	macro <package>_rootmap $(<PACKAGE>ROOT)/$(tag)/$(rootmap_name) \
+	      <project>_with_installarea $(CMTINSTALLAREA)/$(tag)/lib/$(rootmap_name) ;\
+        macro_append <package>_rootcint_source ../$(tag)/rootcint/*Dict.cc ; \
+        macro rootcint_dict_suffix Dict ; \
+	macro <package>_rootcint_linkdef_file <linkdeffile> ; \
+        document rootcint_dictionary <package>_cint <headerfiles> ; \
+	document rootmap <package>_rootmap ; \
+        public  
+make_fragment rootcint_dictionary -header=rootcint_dictionary_header -trailer=rootcint_dictionary_trailer
+make_fragment rootmap -header=rootmap_header -trailer=rootmap_trailer
+	
+
+
 
 

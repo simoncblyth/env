@@ -3,6 +3,7 @@
    gSystem->Load("libEve");
    gSystem->ListLibraries();
    gSystem->Load("$ENV_HOME/eve/InstallArea/$CMTCONFIG/lib/libSplitGLViewLib.so");
+   gSystem->Load("$ENV_HOME/eve/InstallArea/$CMTCONFIG/lib/libSplitGLViewDict.so");
    gSystem->ListLibraries();
 }
 
