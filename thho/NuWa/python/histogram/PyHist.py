@@ -1,22 +1,16 @@
 #!/usr/bin/env python
-#
-#
-# An additional algorithm to make histograms.
-# This python script will make histograms as what the c++ of package tutorial/SimHistsExample does.
-#
-# usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
-#
-# 
 
 '''
-    Don't run this script independently.
-    Usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
+An additional algorithm to make histograms.
+This python script will make histograms as what the c++ of package tutorial/SimHistsExample does.
+
+usage: nuwa.py -n XX share/simhist.py SimHistsExample.PyHist
+
 '''
 
 from GaudiPython import PyAlgorithm
 from GaudiPython import AppMgr
 from DybPython.Util import irange
-from GaudiPython.GaudiAlgs import GaudiAlgo
 import PyCintex
 import GaudiKernel.SystemOfUnits as units
 import DybPython.Interactive
@@ -25,17 +19,16 @@ Gaudi = PyCintex.makeNamespace('Gaudi')
 class MyAlg(PyAlgorithm):
 
     '''
-    Repeat share/simhist making histograms part.
-    Using this class the add histogram algorithm into each executing cycle.
+    Translation of src/GenHists.cc and src/SimHists.cc histograms making by using PyAlgorithm
 
     '''
     def initialize(self):
         print 'Using PyRoot to make histogram!'
         from ROOT import TCanvas, TFile, TH1F, TH2F, TH1I
         from ROOT import gROOT, gRandom, gSystem, Double
-        gROOT.Reset()
+        #gROOT.Reset()
         #c1 = TCanvas( 'c1', 'Dynamic Filling Example', 200, 10, 700, 500 )
-        self.hfile = TFile( 'pyhsit.root', 'RECREATE', 'Make histograms from TES' )
+        self.hfile = TFile( 'pyhist.root', 'RECREATE', 'Make histograms from TES' )
         self.hpe = TH1F('kineEnergy', 'Particle energy (MeV)', 100,0 ,5 )
         self.ht = TH1F('kineVtxTime','Times of vertices (seconds)',1500,0,15*60)
         self.hpxy = TH2F ('kineVertexXY', 'Primary Vertices, X-Y',100,-3,3,100,-3,3)
@@ -48,15 +41,11 @@ class MyAlg(PyAlgorithm):
         # booking the detector bins. Not complete
         #dets= {1025:"FarAD1"}
 
-        self.ga = GaudiAlgo("gaalg")
-
         self.units_energy = units.eV
         self.units_meter = units.meter
         self.units_sec = units.second
 
-        return self.ga.initialize()
-        #ga.initialize()
-        #return 1
+        return 1
 
     def execute(self):
         print 'Executing customizing algorithm......'
@@ -81,8 +70,8 @@ class MyAlg(PyAlgorithm):
             self.hpe.Fill(pmeu)
 
         # accessing the geometry
-        det = self.ga.getDet("/dd/Structure/AD/far-oil1")
-        print det.name()
+        dsv = app.detSvc()
+        det = dsv['/dd/Structure/AD/far-oil1']
         gi = det.geometry()
         # accessing vertex info
         for vtx in irange(ee.vertices_begin(),ee.vertices_end()):
