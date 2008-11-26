@@ -19,7 +19,7 @@ Gaudi = PyCintex.makeNamespace('Gaudi')
 
 class detSiteDidMap:
     '''
-    Establishing a "map" between Site and DetectorId with dict
+    Establishing a "map" of Site and DetectorId with dict
     '''
     def __init__(self):
 
@@ -47,14 +47,17 @@ class detSiteDidMap:
                  ]
 
         detbins = {}
+        detsitelist = []
         for ind in range(17):
-            detbins = {detsdm[ind].siteDetPackedData():ind+1}
+            detbins[detsdm[ind].siteDetPackedData()] = ind+1
+            detsitelist.append(detsdm[ind].siteDetPackedData())
 
         self.deti = deti
         self.sis = sis
         self.di = di
         self.detsdm = detsdm
         self.detbins = detbins
+        self.detsitelist = detsitelist
 
         pass
 
@@ -71,7 +74,7 @@ class MyAlg(PyAlgorithm):
         from ROOT import gROOT, gRandom, gSystem, Double
         #gROOT.Reset()
         #c1 = TCanvas( 'c1', 'Dynamic Filling Example', 200, 10, 700, 500 )
-        self.hfile = TFile( 'pyhist.root', 'RECREATE', 'Make histograms from TES' )
+        self.hfile = TFile( 'pyhists.root', 'RECREATE', 'Make histograms from TES' )
         self.hpe = TH1F('kineEnergy', 'Particle energy (MeV)', 100,0 ,5 )
         self.ht = TH1F('kineVtxTime','Times of vertices (seconds)',1500,0,15*60)
         self.hpxy = TH2F ('kineVertexXY', 'Primary Vertices, X-Y',100,-3,3,100,-3,3)
@@ -142,17 +145,18 @@ class MyAlg(PyAlgorithm):
         scs = sc.size()
         self.nc.Fill(scs)
         if scs != 0:
-            for detsitepd in range(1031):
+            for detsitepd in self.dsdm.detsitelist:
                 try:
                     kdet = [i for i in range(detsitepd+1) if sc[i] != None ]
-                except IndexError:
                     for kd in kdet:
                         scv = sc[kd]
                         scc = scv.collection()
                         hitcols = scc.size()
-                        bin = self.dsdm.detbins[detsitepd]
-                        self.hnd.Fill(bin, hitcols)
-                        assert len(kdet) == scs                   
+                        bin = self.dsdm.detbins[kd]
+                        self.hnd.Fill(bin+0.5, hitcols)
+                        assert len(kdet) == scs
+                except IndexError:
+                    pass
 
         return True
 
