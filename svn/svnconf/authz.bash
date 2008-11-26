@@ -4,6 +4,7 @@ authz(){
   local tw="thho, bzhu, wei, adiar, chwang"
   local hk="jimmy, antony, soap"
   local cn="tianxc"
+  local us="littlejohn"
 
 cat << EOA
 #
@@ -11,6 +12,8 @@ cat << EOA
 #
 #     tw:[$tw]
 #     hk:[$hk]
+#     cn:[$cn]
+#     us:[$us]
 #     
 #   http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #  
@@ -19,10 +22,10 @@ cat << EOA
 [groups]
 
 sync = ntusync
-dyuser = blyth, $tw, $hk, $cn, dayabay, slave,
+dyuser = blyth, $tw, $hk, $cn, $us, dayabay, slave,
 
 evuser = simon, dayabay
-evdev = blyth, $tw, $hk, $cn 
+evdev = blyth, $tw, $hk, $cn, $us 
 evadmin = blyth, dayabaysoft, admin 
 
 abuser = simon, dayabay
