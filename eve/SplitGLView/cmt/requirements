@@ -10,9 +10,9 @@ package SplitGLView
 #  
 #
 
-use DybPolicy 
+#use DybPolicy 
 
-use Reflex       v*   LCG_Interfaces
+#use Reflex       v*   LCG_Interfaces
 
 # a very recent ROOT is required
 use ROOT v52104

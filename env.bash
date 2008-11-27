@@ -11,6 +11,7 @@ test-(){        . $ENV_HOME/test/test.bash       && test-env $* ; }
 scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
 nuwa-(){        . $ENV_HOME/nuwa/nuwa.bash       && nuwa-env $* ; }
 memcheck-(){    . $ENV_HOME/memcheck/memcheck.bash  && memcheck-env $* ; }
+eve-(){         . $ENV_HOME/eve/eve.bash && eve-env $* ; }
 
 private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
 

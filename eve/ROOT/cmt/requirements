@@ -64,7 +64,7 @@ make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_he
 # Pattern to let a dictionary be built and used.  Use like:
 # rootcint_dictionary_headers headers="Header1.h Header2.h"
 # Don't inlcude LinkDef.h which should be in src/
-use ROOT v* LCG_Interfaces
+#use ROOT v* LCG_Interfaces
 macro rootmap_name "rootmap" ROOT_GE_5_15 "reflex.rootmap"
 pattern rootcint_dictionary \
         public ; \
