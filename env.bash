@@ -12,6 +12,7 @@ scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
 nuwa-(){        . $ENV_HOME/nuwa/nuwa.bash       && nuwa-env $* ; }
 memcheck-(){    . $ENV_HOME/memcheck/memcheck.bash  && memcheck-env $* ; }
 eve-(){         . $ENV_HOME/eve/eve.bash && eve-env $* ; }
+sglv-(){        . $ENV_HOME/eve/SplitGLView/sglv.bash && sglv-env $* ; }
 cmt-(){         . $ENV_HOME/cmt-/cmt-.bash && cmt-env $* ; }
 
 private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
@@ -183,7 +184,7 @@ env-env(){
   alias eu=env-u
   
   
-  
+  cmt-  
   
 
 }
@@ -482,6 +483,7 @@ env-cmtpp(){
    echo $CMTPROJECTPATH | grep -v $add - > /dev/null && export CMTPROJECTPATH=$add:$CMTPROJECTPATH
 }
 env-cmt(){
+  local msg="=== $FUNCNAME :"
   local cmtsetup=$(env-cmtsetup)
   [ ! -f "$cmtsetup" ] && echo $msg ERROR no cmtsetup $cmtsetup && return 1 
   . $cmtsetup
@@ -491,6 +493,7 @@ env-cmt(){
 
 env-cmtstandalone(){
   export CMTPROJECTPATH=$(env-home)
+  export VERBOSE=1
 }
 
 

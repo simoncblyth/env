@@ -1,8 +1,8 @@
 package ROOT
 version v52104
 
-use LCG_Settings v*
-use GCCXML v* LCG_Interfaces -no_auto_imports
+use settings v*
+#use GCCXML v* LCG_Interfaces -no_auto_imports
 #use LCG_Configuration v*
 
 macro ROOT_home "/data/env/local/root/root_v5.21.04/root"
@@ -15,8 +15,8 @@ macro ROOT_linkopts "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread -ldl" \
       WIN32         "/LIBPATH:$(ROOT_home)/lib libCore.lib libCint.lib libTree.lib " \
       osx103&gcc-3.3 "-L$(ROOT_home)/lib -lCore -lCint -lTree -lpthread -u _G__cpp_setup_initializerG__Tree "
 
-macro ROOT_Reflex_linkopts "-L$(ROOT_home)/lib -lReflex" \
-      WIN32                "/LIBPATH:$(ROOT_home)/lib libReflex.lib "
+#macro ROOT_Reflex_linkopts "-L$(ROOT_home)/lib -lReflex" \
+#      WIN32                "/LIBPATH:$(ROOT_home)/lib libReflex.lib "
 
 macro_append ROOT_linkopts "" ROOT_GE_5_15&WIN32 " libRIO.lib" ROOT_GE_5_15 " -lRIO"
 
@@ -44,12 +44,13 @@ make_fragment genmap -header=genmap_header
 macro ROOT_export_paths " $(ROOT_home) "
 
 #-----make fragments for dictionary generation---------------------------------------------------------------
-make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_header \
-              -trailer=reflex_dictionary_generator_trailer -dependencies
-
+#make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_header \
+#              -trailer=reflex_dictionary_generator_trailer -dependencies
+#
 
 #
-#  purloined from DybPolicy/cmt/requirements
+#  purloined "rootcint_dictionary" from DybPolicy/cmt/requirements
+#  BUT ..  cannot find public/private_package_include
 #
 #  cp $DDR/dybgaudi/DybPolicy/cmt/fragments/rootcint_dictionary{,_header,_trailer}  fragments/
 #  cp $DDR/dybgaudi/DybPolicy/cmt/fragments/rootmap{,_header,_trailer}  fragments/
@@ -65,6 +66,7 @@ make_fragment reflex_dictionary_generator -header=reflex_dictionary_generator_he
 # rootcint_dictionary_headers headers="Header1.h Header2.h"
 # Don't inlcude LinkDef.h which should be in src/
 #use ROOT v* LCG_Interfaces
+
 macro rootmap_name "rootmap" ROOT_GE_5_15 "reflex.rootmap"
 pattern rootcint_dictionary \
         public ; \

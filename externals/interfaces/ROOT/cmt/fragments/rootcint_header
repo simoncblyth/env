@@ -3,4 +3,4 @@ dict = $(PACKAGE_ROOT)/$(tag)/dict/
 ${CONSTITUENT}_output = $(dict)
 
 ${CONSTITUENT} :: ${OBJS}
-	@echo "------> ${CONSTITUENT} ok"
+	@echo "fragments/rootcint_header ${OBJS} ------> ${CONSTITUENT} ok"

@@ -3,4 +3,4 @@ dictdir = $(PACKAGE_ROOT)/$(tag)/rootcint
 ${CONSTITUENT}_output = $(dictdir)
 
 ${CONSTITUENT} :: ${OBJS}
-	@echo "------> ${CONSTITUENT} ok"
+	@echo "------> ${CONSTITUENT} ok from fragment:rootcint_dictionary_header "

@@ -1,0 +1,32 @@
+package EnvPolicy
+version v0
+
+
+macro  cpp           "g++" \
+       slc4&gcc323   "gcc32" \
+       Darwin        "c++"
+
+# LCG_Policy/cmt/requirements 
+macro cppflags  " -Df2cFortran -fPIC -D_GNU_SOURCE -Dlinux -Dunix -pipe -ansi -Wall -W -pthread " \
+      Darwin    "  -pipe -ansi -pedantic -W -Wall -Wno-non-virtual-dtor -Wno-long-long -Wno-long-double -Wwrite-strings -Wpointer-arith -Woverloaded-virtual -ftemplate-depth-512 -fmessage-length=0 -g "\
+      Solaris   " -KPIC -features=no%anachronisms" \
+      WIN32     '$(includes) /D "WIN32" /D "_MBCS"  /D "_WINDOWS" /FD /c /nologo /W3 /GX /MD /GR /Zm500 /GF /GS'
+
+
+
+# GaudiPolicy/cmt/requirements
+pattern ld_library_path \
+    path_remove LD_LIBRARY_PATH "/<package>/" WIN32 "" ; \
+    path_append LD_LIBRARY_PATH ""\
+        <project>_without_installarea&Unix   "${<package>_root}/${<package>_tag}" ; \
+    path_remove PATH "" WIN32  "\<package>\" ; \
+    path_prepend PATH "" \
+        <project>_without_installarea&WIN32   "${<package>_root}/${<package>_tag}" ; \
+    path_remove DYLD_LIBRARY_PATH "" Darwin "/<package>/" ; \
+    path_append DYLD_LIBRARY_PATH "" \
+        <project>_without_installarea&Darwin "${<package>_root}/${<package>_tag}"
+
+
+
+
+

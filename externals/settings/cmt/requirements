@@ -1,0 +1,57 @@
+package settings
+
+## lcgcmt/LCG_Settings/cmt/requirements ... used by ROOT
+
+pattern set_lib_path \
+    apply_pattern set_ext_lib_path windir=lib unixdir=lib ;
+
+pattern clean_path \
+    path_remove LD_LIBRARY_PATH "/<package>/" WIN32 "" ;\
+    path_remove LD_LIBRARY_PATH "/$(<package>_name)/" WIN32 "" ;\
+    path_remove DYLD_LIBRARY_PATH "" Darwin "/<package>/" WIN32 "" ;\
+    path_remove DYLD_LIBRARY_PATH "" Darwin "/$(<package>_name)/" WIN32 "" ;\
+    path_remove PATH "/<package>/" ;\
+    path_remove PATH "" WIN32 "\<package>\" ;\
+    path_remove PATH "/$(<package>_name)/" ;\
+    path_remove PATH "" WIN32 "\$(<package>_name)\"  ;
+     
+
+pattern set_ext_lib_path \
+    apply_pattern declare_installed_libraries dir=$(<package>_home)/<unixdir> ;\
+    apply_pattern clean_path ;\
+    path_prepend LD_LIBRARY_PATH "$(<package>_home)/<unixdir>"  \
+                 WIN32 "" \
+                 <project>_without_installarea&Unix "$(<package>_home)/<unixdir>" \
+                 <project>_with_installarea&Unix "" ;\
+    path_prepend PATH "" \
+                 WIN32 "$(<package>_home)\<windir>" ;\
+    path_prepend DYLD_LIBRARY_PATH "" \
+                 <project>_without_installarea&Darwin "$(<package>_home)/<unixdir>" \
+                 <project>_with_installarea&Darwin "" \
+                 Darwin "$(<package>_home)/<unixdir>"
+
+# At the moment symbolic links for binaries/exectutables are not setup 
+# for the InstallArea so the external package  /bin directory is used
+# for all configurations.
+pattern set_bin_path \
+    path_prepend PATH "$(<package>_home)/bin" \
+        <project>_without_installarea&Unix   "$(<package>_home)/bin" \
+        <project>_without_installarea&Darwin "$(<package>_home)/bin" \
+         WIN32                               "$(<package>_home)/bin" \
+        <project>_with_installarea&Unix      "$(<package>_home)/bin" \
+        <project>_with_installarea&Darwin    "$(<package>_home)/bin" ;
+
+# sets up the man path (on unix only)
+pattern set_man_path \
+    path_remove MANPATH "/<package>/" \
+         WIN32          "" ;\
+    path_append MANPATH "$(<package>_home)/man" \
+        <project>_without_installarea&Unix   "$(<package>_home)/man" \
+        <project>_without_installarea&Darwin "$(<package>_home)/man" \
+         WIN32                               "" \
+        <project>_with_installarea&Unix      "$(<package>_home)/man" \
+        <project>_with_installarea&Darwin    "$(<package>_home)/man" ;
+
+
+
+

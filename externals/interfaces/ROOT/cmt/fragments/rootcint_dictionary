@@ -9,7 +9,11 @@ ${CONSTITUENT} ::  $(gensrcdict)
 
 
 $(gensrcdict) : ${FULLNAME}
-	@echo Generating ROOT Dictionary $@ 
+	@echo fragments/rootcint_dictionary Generating ROOT Dictionary $@ 
+	@echo fragments/rootcint_dictionary dictdir  $(dictdir)
+	@echo fragments/rootcint_dictionary includes $(includes)
+	@echo fragments/rootcint_dictionary CONSTITUENT ${CONSTITUENT}
+	@echo fragments/rootcint_dictionary FULLNAME    ${FULLNAME}
 	@-mkdir -p $(dictdir) 
 	$(rootcint) -f $(dictdir)/${CONSTITUENT}Dict.cc -c \
                    ${${package}_cintflags} $(pp_cppflags) \

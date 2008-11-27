@@ -2,7 +2,7 @@ clean :: ${CONSTITUENT}clean
 	@cd .
 
 ${CONSTITUENT}clean ::
-	echo constituent is ${CONSTITUENT}.
+	echo fragments/rootcint_dictionary_trailer constituent is ${CONSTITUENT}.
 	$(cleanup_echo) ROOT dictionary
 	rm -f $(dict)*~;\
 	rm -f $(dict)${CONSTITUENT}*;\
