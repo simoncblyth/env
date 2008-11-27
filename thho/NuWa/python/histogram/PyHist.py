@@ -64,7 +64,7 @@ class MyAlg(PyAlgorithm):
                                                   DetectorId.kOWS,
                                                   DetectorId.kIWS,
                                                   DetectorId.kRPC ) ]
-        detector_bins = [(0,"unknown")]
+        detector_bins = [(0,0,"Unknown",0)]
         detector_bins.extend(map(lambda x:(x.site(),x.detectorId(),x.detName(),x.siteDetPackedData()), dets))
         self.dets = dets
         self.detector_bins = detector_bins
@@ -125,22 +125,22 @@ class MyAlg(PyAlgorithm):
                 detsitepd = idet.siteDetPackedData()
                 try:
                     kdet = [i for i in range(detsitepd+1) if sc[i] != None ]
-                    hit_detectors(self,kdet,sc,idet)
+                    self.hit_detectors(kdet,sc,idet,scs)
                 except IndexError:
                     pass
 
         return True
 
-    def hit_detectors(self,kdet,sc,idet):
+    def hit_detectors(self,kdet,sc,idet,scs):
         for kd in kdet:
                 scv = sc[kd]
                 scc = scv.collection()
-                for ind in range(len(self.detector_bins))
-                    if kd == self.detector_bins[ind][3]
+                for ind in range(len(self.detector_bins)):
+                    if kd == self.detector_bins[ind][3]:
                         self.hnd.Fill(ind+0.5, scc.size())
                 assert len(kdet) == scs
-                assert kd == idet.siteDetPackedDate()
-                assert scc.siteDetPackedData() = idet.siteDetPackedDate()
+                assert kd == idet.siteDetPackedData()
+                assert scv.detector().siteDetPackedData() == idet.siteDetPackedData()
         return 1
 
     def finalize(self):
