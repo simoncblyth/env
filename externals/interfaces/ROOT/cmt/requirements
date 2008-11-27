@@ -5,7 +5,7 @@ package ROOT
 # To use this package you must define the standard ROOT environment
 # variable ROOTSYS to point to where ROOT is installed.
 
-use SITE * External
+use site v*
 
 include_path none
 
