@@ -15,7 +15,9 @@ package SplitGLView
 #use Reflex       v*   LCG_Interfaces
 
 # a very recent ROOT is required
-use ROOT v52104
+
+#use eve
+use ROOT v* externals
 
 include_dirs $(SPLITGLVIEWROOT)
 
