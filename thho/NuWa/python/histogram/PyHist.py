@@ -17,50 +17,6 @@ import GaudiKernel.SystemOfUnits as units
 import DybPython.Interactive
 Gaudi = PyCintex.makeNamespace('Gaudi')
 
-class detSiteDidMap:
-    '''
-    Establishing a "map" of Site and DetectorId with dict
-    '''
-    def __init__(self):
-
-        deti = gp.ROOT.DayaBay.Detector
-        sis = gp.gbl.Site.FromString
-        di = gp.gbl.DetectorId
-
-        detsdm = [deti(sis("DayaBay"),di.kAD1),
-                  deti(sis("DayaBay"),di.kAD2),
-                  deti(sis("DayaBay"),di.kOWS),
-                  deti(sis("DayaBay"),di.kIWS),
-                  deti(sis("DayaBay"),di.kRPC),
-                  deti(sis("LingAo"),di.kAD1),
-                  deti(sis("LingAo"),di.kAD2),
-                  deti(sis("LingAo"),di.kOWS),
-                  deti(sis("LingAo"),di.kIWS),
-                  deti(sis("LingAo"),di.kRPC),
-                  deti(sis("Far"),di.kAD1),
-                  deti(sis("Far"),di.kAD2),
-                  deti(sis("Far"),di.kAD3),
-                  deti(sis("Far"),di.kAD4),
-                  deti(sis("Far"),di.kOWS),
-                  deti(sis("Far"),di.kIWS),
-                  deti(sis("Far"),di.kRPC),
-                 ]
-
-        detbins = {}
-        detsitelist = []
-        for ind in range(17):
-            detbins[detsdm[ind].siteDetPackedData()] = ind+1
-            detsitelist.append(detsdm[ind].siteDetPackedData())
-
-        self.deti = deti
-        self.sis = sis
-        self.di = di
-        self.detsdm = detsdm
-        self.detbins = detbins
-        self.detsitelist = detsitelist
-
-        pass
-
 
 class MyAlg(PyAlgorithm):
 
@@ -84,14 +40,34 @@ class MyAlg(PyAlgorithm):
         self.nc = TH1I('nHitCollections','Number of Hit Collections', 15, 0, 15)
         self.hnd = TH2F('nHitByDetector', 'Number of hits in each detector',16, -2,14,100,0,99)
         #self.c1 = c1
-        # booking the detector bins. Not complete
-        #dets= {1025:"FarAD1"}
 
+        # units
         self.units_energy = units.eV
         self.units_meter = units.meter
         self.units_sec = units.second
 
-        self.dsdm = detSiteDidMap()
+        # detector list and bins
+        Detector = gp.gbl.DayaBay.Detector
+        Site = gp.gbl.Site
+        DetectorId = gp.gbl.DetectorId
+        dets = [Detector(s,d) for s in (Site.kDayaBay,
+                                        Site.kLingAo)
+                              for d in (DetectorId.kAD1, 
+                                        DetectorId.kAD2, 
+                                        DetectorId.kOWS, 
+                                        DetectorId.kIWS,
+                                        DetectorId.kRPC ) ]
+        dets += [Detector(Site.kFar,d)  for d in (DetectorId.kAD1,
+                                                  DetectorId.kAD2,
+                                                  DetectorId.kAD3,
+                                                  DetectorId.kAD4,
+                                                  DetectorId.kOWS,
+                                                  DetectorId.kIWS,
+                                                  DetectorId.kRPC ) ]
+        detector_bins = [(0,"unknown")]
+        detector_bins.extend(map(lambda x:(x.site(),x.detectorId(),x.detName(),x.siteDetPackedData()), dets))
+        self.dets = dets
+        self.detector_bins = detector_bins
 
         return 1
 
@@ -145,20 +121,27 @@ class MyAlg(PyAlgorithm):
         scs = sc.size()
         self.nc.Fill(scs)
         if scs != 0:
-            for detsitepd in self.dsdm.detsitelist:
+            for idet in self.dets:
+                detsitepd = idet.siteDetPackedData()
                 try:
                     kdet = [i for i in range(detsitepd+1) if sc[i] != None ]
-                    for kd in kdet:
-                        scv = sc[kd]
-                        scc = scv.collection()
-                        hitcols = scc.size()
-                        bin = self.dsdm.detbins[kd]
-                        self.hnd.Fill(bin+0.5, hitcols)
-                        assert len(kdet) == scs
+                    hit_detectors(self,kdet,sc,idet)
                 except IndexError:
                     pass
 
         return True
+
+    def hit_detectors(self,kdet,sc,idet):
+        for kd in kdet:
+                scv = sc[kd]
+                scc = scv.collection()
+                for ind in range(len(self.detector_bins))
+                    if kd == self.detector_bins[ind][3]
+                        self.hnd.Fill(ind+0.5, scc.size())
+                assert len(kdet) == scs
+                assert kd == idet.siteDetPackedDate()
+                assert scc.siteDetPackedData() = idet.siteDetPackedDate()
+        return 1
 
     def finalize(self):
         #c1 = self.c1
