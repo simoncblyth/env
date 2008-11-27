@@ -472,33 +472,6 @@ EOS
 
 
 
-## purloin the NuWa CMT as identified by NUWA_HOME
-
-env-cmtver(){   echo v1r20p20080222 ; }
-env-cmtsetup(){ echo $(env-external)/CMT/$(env-cmtver)/mgr/setup.sh ; }
-## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
-env-external(){ echo $(dirname $NUWA_HOME)/external ; }  
-env-cmtpp(){
-   local add=$1;
-   echo $CMTPROJECTPATH | grep -v $add - > /dev/null && export CMTPROJECTPATH=$add:$CMTPROJECTPATH
-}
-env-cmt(){
-  local msg="=== $FUNCNAME :"
-  local cmtsetup=$(env-cmtsetup)
-  [ ! -f "$cmtsetup" ] && echo $msg ERROR no cmtsetup $cmtsetup && return 1 
-  . $cmtsetup
-  
-  env-cmtstandalone
-}
-
-env-cmtstandalone(){
-  export CMTPROJECTPATH=$(env-home)
-  export VERBOSE=1
-}
-
-
-
-
 
 env-env
 

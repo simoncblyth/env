@@ -36,7 +36,7 @@ apply_pattern ld_library_path
 macro_append ROOT_linkopts "  -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -lGui -pthread  -lEve -lRGL -lHtml -lGuiHtml -lGeom -lHist "
 
 
-apply_pattern rootcint_dictionary headerfiles="../${package}/*.h" linkdeffile=../src/LinkDef.h -dependencies
+apply_pattern rootcint_dictionary
 
 
 
