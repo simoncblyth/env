@@ -1,8 +1,0 @@
-$(dict)${NAME}.rootcint : $(dict)${NAME}Dict.cpp
-	@echo $@
-
-$(dict)${NAME}Dict.cpp : ${FULLNAME}
-	@echo fragments/rootcint ... Generating  ROOT Dictionary $@  ... using directory dict $(dict)
-	@-mkdir -p $(dict) 
-	$(rootcint) -f $(dict)${NAME}Dict.cpp -c ${${NAME}_cintflags} ${FULLNAME} $(src)LinkDef.h
-

@@ -1,9 +1,0 @@
-clean :: ${CONSTITUENT}clean
-	@cd .
-
-${CONSTITUENT}clean ::
-	echo fragments/rootcint_dictionary_trailer constituent is ${CONSTITUENT}.
-	$(cleanup_echo) ROOT dictionary
-	rm -f $(dict)*~;\
-	rm -f $(dict)${CONSTITUENT}*;\
-	rm -f $(bin)${CONSTITUENT}*
