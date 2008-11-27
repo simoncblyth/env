@@ -1,0 +1,15 @@
+# A -*- makefile -*- fragment to operate on each Class_LinkDef file
+# 
+
+$(dict)${NAME}.rootcint : $(dict)$(patsubst %_LinkDef,%_${rootcint_dict_suffix},${NAME}).cc
+	@touch $@
+
+
+# $(source) += $(dict)$(patsubst %_LinkDef,%_${rootcint_dict_suffix},${NAME}).cc
+
+
+${NAME}_header = ${FILEPATH}/$(patsubst %_LinkDef,%,${NAME}).hh
+$(dict)$(patsubst %_LinkDef,%_${rootcint_dict_suffix},${NAME}).cc : ${FULLNAME} $(${NAME}_header)
+	echo "Generating ROOT Dictionary for " ${FULLNAME} $(${NAME}_header)
+	if [ ! -d $(dict) ]; then mkdir $(dict); fi ;
+	$(rootcint) -f $@ -c -p $(includes) $(cppflags)  $(filter-out $<,$(wildcard $(rootcint_headers))) $(filter-out %~,$<) && touch $@

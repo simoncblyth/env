@@ -1,0 +1,4 @@
+${CONSTITUENT}_output = $(dict)
+
+${CONSTITUENT} :: $(filter %_LinkDef.rootcint,${OBJS})
+	@echo "------> ${CONSTITUENT} ok"

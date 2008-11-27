@@ -1,0 +1,11 @@
+clean :: ${CONSTITUENT}clean
+	@cd .
+
+${CONSTITUENT}clean ::
+	$(cleanup_echo) ROOT dictionary
+	rm -f $(dict)*~
+	rm $(dict)*_${rootcint_dict_suffix}.cc
+	rm $(dict)*_${rootcint_dict_suffix}.h
+	rm $(dict)*.rootcint
+	rm -f $(dict)${CONSTITUENT}.*
+

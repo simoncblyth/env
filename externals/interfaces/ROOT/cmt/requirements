@@ -1,0 +1,80 @@
+package ROOT
+
+# This is the interface package to glue in ROOT to CMT.
+
+# To use this package you must define the standard ROOT environment
+# variable ROOTSYS to point to where ROOT is installed.
+
+use SITE * External
+
+include_path none
+
+set ROOTSYS ${ROOT_prefix}
+macro ROOT_config "${ROOT_prefix}/bin/root-config"
+
+macro ROOT_incdir "`${ROOT_config} --incdir`"
+include_dirs "${ROOT_incdir}"
+
+ignore_pattern package_stamps
+
+macro ROOT_bindir "`${ROOT_config} --bindir`"
+#path_remove PATH "${ROOT_bindir}"
+path_append PATH "${ROOT_bindir}"
+
+
+
+# Set the default ROOT libraries and linker options.
+# 
+# Don't add all possible ROOT libs here.  If you have an Application
+# package that needs additional ROOT libs you can add them to its
+# cmt/requirements file by doing something like:
+#
+# macro_append MyApplication_linkopts -lMinuit
+#
+macro ROOT_linkopts "`${ROOT_config} --libs`"
+macro ROOT_cppflags "`${ROOT_config} --cflags` -Wno-long-long"
+
+path_append LD_LIBRARY_PATH "`${ROOT_config} --libdir`"
+
+
+# The rootcint executable
+macro rootcint "${ROOT_bindir}/rootcint"
+
+# The make chunks to handle rootcint related things
+make_fragment rootcint -header=rootcint_header -trailer=rootcint_trailer
+
+# Where to put rootcint output
+macro dict "../$(tag)/"
+macro tdict "../$(tag)/tdict/"
+
+
+# Pattern to let a dictionary be built and used.  Use like:
+# rootcint_dictionary_headers headers="Header1.h Header2.h"
+# Don't inlcude LinkDef.h which should be in src/
+pattern rootcint_dictionary_headers \
+	public ; \
+	apply_pattern ld_library_path ; \
+	apply_pattern public_package_include ; \
+	private ; \
+	apply_pattern private_package_include ; \
+	macro rootcint_headers <headers> ; \
+	macro_append source $(dict)/*_Dict.cc ; \
+	macro rootcint_dict_suffix Dict ; \
+	document rootcint <package>_cint *_LinkDef.hh ; \
+	public 	
+
+# Like above, but try to guess at the headers
+pattern rootcint_dictionary \
+	apply_pattern rootcint_dictionary_headers headers="../include/*.hh"
+
+# Like above, but do things in the test-bin directory.
+pattern rootcint_dictionary_test-bin \
+	public ; \
+	apply_pattern ld_library_path ; \
+	apply_pattern public_package_include ; \
+	private ; \
+	apply_pattern private_package_include ; \
+	macro_append <package>_test_app_source "$(tdict)/*_tDict.cc" ; \
+	document rootcint <package>_test_cint -s=../test-bin *_LinkDef.hh \
+	   rootcint_headers="../test-bin/*.hh" rootcint_dict_suffix="tDict" dict="$(tdict)" ; \	  
+	public 	
