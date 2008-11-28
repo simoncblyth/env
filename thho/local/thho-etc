@@ -5,6 +5,4 @@
 
 # firewall settings
 /home/thho/thho_local_code_script/firewall.sh
-# turn off the annoying x window bee sound
-xset b off
 
