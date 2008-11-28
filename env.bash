@@ -15,6 +15,7 @@ eve-(){         . $ENV_HOME/eve/eve.bash && eve-env $* ; }
 sglv-(){        . $ENV_HOME/eve/SplitGLView/sglv.bash && sglv-env $* ; }
 cmt-(){         . $ENV_HOME/cmt-/cmt-.bash && cmt-env $* ; }
 
+legacy-(){      . $ENV_HOME/legacy/legacy.bash && legacy-env $* ; }
 private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
 
 dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }

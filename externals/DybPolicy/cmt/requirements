@@ -1,0 +1,35 @@
+package DybPolicy
+version v0
+
+# 
+# The Main Policy file.  This mostly pulls in others
+# 
+
+# Whom to blame for this mess:
+author Brett Viren <bv@bnl.gov>
+
+# Don't just leave products of the build in the Package directory
+build_strategy with_installarea
+
+# Keep the environment clean
+# setup_strategy no_root no_config
+
+# No default include paths
+pattern -global include_path include_path none
+
+# Use the standard CMTEXTRATAG stuff once to prevent idiotic error messages
+# New CMT tags should be listed here to keep the 'please check spelling' messages.
+macro DUMMYMACRO "dummy" \
+    clhep_system "dummy"\
+    clhep_config_script "dummy"\
+    geant_config_script "dummy"\
+    xerces_install "dummy"\
+    cernlib_config_script "dummy"
+
+
+
+# The rest of the policies
+use AutoDoc  -no_auto_imports
+use DybPatternPolicy v0 DybPolicy -no_auto_imports
+use DybArchPolicy v0 DybPolicy -no_auto_imports
+

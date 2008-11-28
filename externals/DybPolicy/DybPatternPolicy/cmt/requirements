@@ -1,0 +1,222 @@
+package DybPatternPolicy
+version v0
+
+use AutoDoc
+
+# 
+# Policy patterns that govern how we lay out things in the build area.
+# 
+
+author Brett Viren <bv@bnl.gov>
+
+# By default no include path to src directory of each package
+include_path none
+
+# Use script as it seems to go faster than built in cmt.exe's methods
+macro	build_dependencies "$(CMTPATH)/DybPolicy/DybPatternPolicy/cmt/cmt_build_deps.sh"
+
+# Access a package's runtime files (libs and bins)
+#
+# formerly "<path>/lib/${tag}" but libraries have moved <blyth@hep1.phys.ntu.edu.tw> 
+#
+pattern ld_library_path \
+	path_remove LD_LIBRARY_PATH	"$(CMTINSTALLAREA)/${tag}/lib" ; \
+	path_append LD_LIBRARY_PATH	"$(CMTINSTALLAREA)/${tag}/lib" ; \
+	path_remove DYLD_LIBRARY_PATH   "" Darwin "$(CMTINSTALLAREA)/${tag}/lib" ; \
+	path_append DYLD_LIBRARY_PATH   "" Darwin "$(CMTINSTALLAREA)/${tag}/lib" ;
+
+
+#
+# formerly "<path>/bin/${tag}" but executables have moved <blyth@hep1.phys.ntu.edu.tw>
+#
+pattern executable_path \
+	path_remove PATH		"$(CMTINSTALLAREA)/${tag}/bin" ; \
+	path_append PATH		"$(CMTINSTALLAREA)/${tag}/bin" ; 
+
+
+# Locate header file directories
+pattern  public_include include_dirs ${<package>_cmtpath}/include
+pattern private_include include_dirs ../include
+
+#
+# --------------- Public Headers ------------------------
+#
+#  -group=inst \
+# installing public headers
+pattern install_includes_auto \
+        macro install_command "ln -sf " ; \
+        document installer install_includes_auto \
+                 -s=${<package>_root}/include "*.hh *.tpl" -x="CVS" \
+                 install_dir=${<package>_cmtpath}/include/<package>
+
+
+#
+# --------------- Shared Library ------------------------
+#
+# Use if your package builds a shared library that will be accessible
+# to other pakages.  This assumes:
+# 
+# Public headers in Package/include/
+# Source .cc and private .hh headers in Package/src/
+# 
+
+pattern old_shared_library \
+	public ; \
+	apply_pattern ld_library_path ; \
+	apply_pattern public_include ; \
+	macro <package>_linkopts "-l<package>" ; \
+	private ; \
+	apply_pattern private_include ; \
+	macro_prepend source " ${<package>_root}/src/[a-zA-Z]*.cc " ; \
+	library <package> $(source) ; \
+	macro_append <package>_libraries <package> ; \
+	public
+
+pattern shared_library \
+     public ; \
+     apply_pattern ld_library_path ; \
+     macro <package>_linkopts "-l<package>" ; \
+     private ; \
+     apply_pattern private_include ; \
+     macro_prepend source " ${<package>_root}/src/*.cc " ; \
+     library <package> $(source) ; \
+     macro_append <package>_libraries <package> ; \
+     public ; \
+     apply_pattern public_include ; \
+     apply_pattern library_postinstall ; \
+     apply_pattern lib_macro
+  
+pattern shared_library_no_export \
+        public ; \
+        apply_pattern ld_library_path ; \
+        private ; \
+        macro <package>_linkopts "-l<package>" ; \
+        apply_pattern private_include ; \
+        macro_prepend source " ${<package>_root}/src/*.cc " ; \
+        library <package> $(source) ; \
+        macro_append <package>_libraries <package> ; \
+        public ; \
+        apply_pattern public_include ; \
+        apply_pattern library_postinstall
+
+# ---------- Unit Test ----------
+# 
+# Use this if your package has a unit test library.  See UnitTest
+# topic in the wiki.
+
+pattern unit_test_library \
+	public ; \
+	macro_append unit_test_linkopts " -l<package>UnitTest " ; \ 	
+        private ; \
+        macro_prepend <package>_unit_test_source " ${<package>_root}/unit-test/*.cc " ; \
+        library <package>UnitTest $(<package>_unit_test_source) ; \
+        public ; \
+        apply_pattern library_postinstall
+
+
+#
+# --------------- Monolithic Application ------------------------
+#
+# Use if your package builds an application and has no parts exported.
+# This assumes:
+#
+# All source is in src/
+# Private headers can be in include/ or src/
+
+pattern monolithic_application \
+	public ; \
+	apply_pattern executable_path ; \
+	private ; \
+	apply_pattern private_include ; \
+	apply_pattern public_include ; \
+	macro_prepend monolithic_app_source " ${<package>_root}/src/*.cc ${<package>_root}/app/*.cc ${<package>_root}/src/*.f" ; \
+	application <package> ${monolithic_app_source}	
+
+#
+# --------------- Dynamic Application ------------------------
+#
+# Use if your package builds an application.
+#
+# This assumes:
+# All source for the executable is in app/*.cc
+#
+# If you also build a dynamic library, the library is linked in.
+#
+# The constructed executable is PackageApp.exe
+
+pattern dynamic_application \
+        public ; \
+        apply_pattern executable_path ; \
+        private ; \
+        apply_pattern private_include ; \
+        apply_pattern public_include ; \
+        macro dynamic_app_source " ${<package>_root}/app/*.cc ${<package>_root}/app/*.f" ; \
+        application <package>App ${dynamic_app_source}  
+
+
+#
+# --------------- Test Application ------------------------
+#
+# Use if your package builds a standalone test application.
+# This assumes:  All source for the executable is in test-bin/
+# It builds PackageTest.exe
+
+# 
+pattern test_application \
+        public ; \
+        apply_pattern executable_path ; \
+        private ; \
+        apply_pattern public_include ; \
+        macro_prepend <package>_test_app_source " ${<package>_root}/test-bin/*.cc " ; \
+        application <package>Test ${<package>_test_app_source} 
+
+
+
+#
+# --------------- Data Installation ------------------------
+#
+# Use this if your package has some sort of data files that you want
+# accessible to the jobs.  Put all your data in the data/
+# subdirectory, and then add apply_pattern install_data_auto to your
+# requirements file.  The data will be put InstallArea/<system>/data/
+# Note that *.* actually matches "*" as a shell command.. stupid
+# CMT...
+
+pattern install_data_auto \
+        macro install_command "ln -sf " ; \
+        document installer data_installation \
+                 -s=${<package>_root}/data "*.*" -x="CVS" \
+                install_dir=${<package>_cmtpath}/${cmt_installarea_prefix}/${tag}/data
+
+
+#
+# --------------- Library Postinstallation  ------------------------
+#
+#
+# This pattern is intended for use with Mac OSX.  On the mac, dlload()
+# doesn't work for ".dylib" libraries, which is part of the OS.
+# However, if we build them the way we do, then simply renaming them
+# will let them work.  We do this by simply symlinking the .dylib
+# binary to a .so binary.  This document results in no output on a
+# non-Darwin system.
+#
+make_fragment darwin_symlink_library_header
+make_fragment darwin_symlink_library -header=darwin_symlink_library_header
+
+pattern library_postinstall \
+	public ; \
+       document darwin_symlink_library library_postinstallation 
+
+#
+# --------------- ROOT load library macro ------------------------
+#
+# This creates a ROOT macro called 'load.C' in your cmt/ directory.
+# This macro automagically loads all the libraries required for the
+# current package, including dependencies.
+#
+make_fragment libmacro_header
+make_fragment libmacro -header=libmacro_header
+
+pattern lib_macro \
+	macro createlibmacro "perl ${DybPatternPolicy_root}/cmt/createLibMacro.pl" ; \
+	document libmacro lib_macro libmacroname=${<package>_root}/cmt/load.C ; 

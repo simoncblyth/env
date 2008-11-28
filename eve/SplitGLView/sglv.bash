@@ -12,7 +12,6 @@ EOU
 
 sglv-env(){
   elocal-
-  env-cmt   
   cmt-
   
   sglv-cd

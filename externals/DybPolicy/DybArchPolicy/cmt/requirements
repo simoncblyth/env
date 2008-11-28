@@ -1,0 +1,20 @@
+package DybArchPolicy
+version 0
+
+use AutoDoc
+
+# 
+# Override default CMT macros with platform specific things.
+# 
+
+macro preproc "g++" \
+      Darwin "g++ -E"
+author Brett Viren <bv@bnl.gov>
+
+macro_append fflags " -fno-automatic -w -Wno-globals -fdebug-kludge "
+
+macro_append cppflags          "" \
+             x86_64      " -fPIC" \
+	     Darwin      " -pedantic "			 
+
+

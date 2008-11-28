@@ -1,0 +1,11 @@
+#===================== libmacro ==========================
+#==== For generating root .C macro to load libraries ====
+${CONSTITUENT} :: $(libmacroname)
+
+# expand everything:
+libmacro_lib_flags=$(shell echo $(use_linkopts) )
+libmacro_lib_filter=$(shell echo $(ROOT_linkopts) )
+
+$(libmacroname) : requirements $(use_requirements)
+	@echo $(filter-out $(libmacro_lib_filter),$(libmacro_lib_flags)) | $(createlibmacro) $@
+

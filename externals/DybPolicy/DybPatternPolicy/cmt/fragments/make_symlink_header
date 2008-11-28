@@ -1,0 +1,17 @@
+#-- start of make_symlink header ------
+
+${CONSTITUENT} :: ${symlink_tofile}
+	@echo ${symlink_fromfile} ${symlink_tofile}
+	@echo "${CONSTITUENT} done"
+
+${symlink_tofile} : ${symlink_fromfile}
+	if test ! -d $(dir ${symlink_tofile}) ; then mkdir -p $(dir ${symlink_tofile}); fi
+	if test -r "${symlink_fromfile}" ; then \
+	        echo "Symlink ${symlink_fromfile} -> ${symlink_tofile}" ;\	        
+		${symlink_command} ${symlink_fromfile} ${symlink_tofile} ;\
+	fi
+
+${CONSTITUENT}clean ::
+	rm -f ${symlink_tofile}
+
+#-- end of make_symlink header ------

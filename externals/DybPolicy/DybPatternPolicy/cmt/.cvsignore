@@ -1,0 +1,8 @@
+Linux.make
+Darwin.make
+Makefile
+cleanup.csh
+cleanup.sh
+setup.csh
+setup.sh
+.config

@@ -1,0 +1,7 @@
+#-- start of darwin_symlink_library header ------
+${CONSTITUENT} :: 	
+	@if test "${tag}" = "Darwin" ; then  \
+	echo "Symlinking ${CMTINSTALLAREA}/${tag}/lib/lib${package}.dylib -> ${CMTINSTALLAREA}/${tag}/lib/lib${package}.so " ; \
+	ln -sf ${CMTINSTALLAREA}/${tag}/lib/lib${package}.dylib ${CMTINSTALLAREA}/${tag}/lib/lib${package}.so ;\
+	fi
+#-- end of darwin_symlink_library header ------
