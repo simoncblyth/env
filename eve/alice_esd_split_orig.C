@@ -333,10 +333,7 @@ void make_gui()
 {
    // Create minimal GUI for event navigation.
 
-   //gROOT->ProcessLine(".L SplitGLView.C+");
-   //gROOT->ProcessLine(".L SplitGLView.C");
-   gSystem->Load("$ENV_HOME/eve/InstallArea/$CMTCONFIG/lib/libSplitGLView.so");
-   
+   gROOT->ProcessLine(".L SplitGLView.C+");
 
    TEveBrowser* browser = gEve->GetBrowser();
 

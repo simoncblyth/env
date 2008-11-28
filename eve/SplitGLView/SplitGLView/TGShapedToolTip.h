@@ -1,3 +1,5 @@
+#ifndef ROOT_TGShapedToolTip
+#define ROOT_TGShapedToolTip
 
 #include "TGShapedFrame.h"
 #include "TString.h"
@@ -44,4 +46,4 @@ public:
    ClassDef(TGShapedToolTip, 0) // Shaped composite frame
 };
 
-
+#endif

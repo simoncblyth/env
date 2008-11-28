@@ -1,4 +1,7 @@
 
+#ifndef ROOT_HtmlSummary
+#define ROOT_HtmlSummary
+
 #include "TOrdCollection.h"
 #include "TString.h"
 
@@ -32,4 +35,4 @@ public:
 };
 
 
-
+#endif

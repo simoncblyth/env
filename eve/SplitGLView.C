@@ -1,7 +1,3 @@
-//  gcc -c -I$ROOTSYS/include SplitGLView.cc
-
-#include "SplitGLView/SplitGLView.h"
-
 
 #include "TApplication.h"
 #include "TSystem.h"
@@ -23,8 +19,8 @@
 #include "Riostream.h"
 #include "TEnv.h"
 #include "TGListTree.h"
-//#include "TOrdCollection.h"
-//#include "TArrayF.h"
+#include "TOrdCollection.h"
+#include "TArrayF.h"
 #include "TGHtml.h"
 #include "TPRegexp.h"
 
@@ -37,6 +33,7 @@
 #include "TEveTrack.h"
 #include "TEveSelection.h"
 
+#include "TRootEmbeddedCanvas.h"
 #include "TGSplitFrame.h"
 #include "TGLOverlayButton.h"
 #include "TGLEmbeddedViewer.h"
@@ -44,19 +41,12 @@
 #include "TGShapedFrame.h"
 #include "TGButton.h"
 #include "TGTab.h"
+#include "TEnv.h"
 
 #include "TCanvas.h"
 #include "TFormula.h"
 #include "TF1.h"
 #include "TH1F.h"
-
-
-#include "SplitGLView/HtmlSummary.h"
-#include "SplitGLView/HtmlObjTable.h"
-#include "SplitGLView/TGShapedToolTip.h"
-
-ClassImp(SplitGLView)
-
 
 #ifdef WIN32
 #include <TWin32SplashThread.h>
@@ -74,16 +64,552 @@ const char *rcfiletypes[] = {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
+class TGShapedToolTip : public TGShapedFrame {
 
-// globals
-TEveProjectionManager *gRPhiMgr = 0 ;
-TEveProjectionManager *gRhoZMgr = 0 ;
+private:
+   TGShapedToolTip(const TGShapedToolTip&); // Not implemented
+   TGShapedToolTip& operator=(const TGShapedToolTip&); // Not implemented
+
+protected:
+   Int_t                 fTextX, fTextY, fTextH;
+   TString               fTextCol;
+
+   TRootEmbeddedCanvas  *fEc;       // embedded canvas for histogram
+   TH1                  *fHist;     // user histogram
+   TString               fText;     // info (as tool tip) text
+
+   virtual void          DoRedraw() {}
+
+public:
+   TGShapedToolTip(const char *picname, Int_t cx=0, Int_t cy=0, Int_t cw=0, 
+                   Int_t ch=0, Int_t tx=0, Int_t ty=0, Int_t th=0, 
+                   const char *col="#ffffff");
+   virtual ~TGShapedToolTip();
+
+   virtual void   CloseWindow();
+   void           CreateCanvas(Int_t cx, Int_t cy, Int_t cw, Int_t ch);
+   void           CreateCanvas(Int_t cw, Int_t ch, TGLayoutHints *hints);
+   TH1           *GetHisto() const { return fHist; }
+   const char    *GetText() const { return fText.Data(); }
+   void           Refresh();
+   void           SetHisto(TH1 *hist);
+   void           SetText(const char *text);
+   void           SetTextColor(const char *col);
+   void           SetTextAttributes(Int_t tx, Int_t ty, Int_t th, const char *col=0);
+   void           Show(Int_t x, Int_t y, const char *text = 0, TH1 *hist = 0);
+
+   ClassDef(TGShapedToolTip, 0) // Shaped composite frame
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class HtmlObjTable : public TObject {
+public:                     // make them public for shorter code
+
+   TString   fName;
+   Int_t     fNValues;      // number of values
+   Int_t     fNFields;      // number of fields
+   TArrayF  *fValues;
+   TString  *fLabels;
+   Bool_t    fExpand;
+
+   TString   fHtml;         // HTML output code
+
+   void Build();
+   void BuildTitle();
+   void BuildLabels();
+   void BuildTable();
+
+public:
+   HtmlObjTable(const char *name, Int_t nfields, Int_t nvals, Bool_t exp=kTRUE);
+   virtual ~HtmlObjTable();
+
+   void     SetLabel(Int_t col, const char *label) { fLabels[col] = label; }
+   void     SetValue(Int_t col, Int_t row, Float_t val) { fValues[col].SetAt(val, row); }
+   TString  Html() const { return fHtml; }
+
+   ClassDef(HtmlObjTable, 0);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class HtmlSummary {
+public:                           // make them public for shorter code
+   Int_t           fNTables;
+   TOrdCollection *fObjTables;    // ->array of object tables
+   TString         fHtml;         // output HTML string
+   TString         fTitle;        // page title
+   TString         fHeader;       // HTML header
+   TString         fFooter;       // HTML footer
+
+   void     MakeHeader();
+   void     MakeFooter();
+
+public:
+   HtmlSummary(const char *title);
+   virtual ~HtmlSummary();
+
+   HtmlObjTable  *AddTable(const char *name, Int_t nfields, Int_t nvals, 
+                           Bool_t exp=kTRUE, Option_t *opt="");
+   HtmlObjTable  *GetTable(Int_t at) const { return (HtmlObjTable *)fObjTables->At(at); }
+   void           Build();
+   void           Clear(Option_t *option="");
+   void           Reset(Option_t *option="");
+   TString        Html() const { return fHtml; }
+
+   ClassDef(HtmlSummary, 0);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+class SplitGLView : public TGMainFrame {
+
+public:
+   enum EMyCommands {
+      kFileOpen, kFileExit, kFileLoadConfig, kFileSaveConfig,
+      kHelpAbout, kGLPerspYOZ, kGLPerspXOZ, kGLPerspXOY, kGLXOY,
+      kGLXOZ, kGLZOY, kGLOrthoRotate, kGLOrthoDolly, kSceneUpdate, 
+      kSceneUpdateAll, kSummaryUpdate
+   };
+
+private:
+   TEvePad               *fPad;           // pad used as geometry container
+   TGSplitFrame          *fSplitFrame;    // main (first) split frame
+   TGLEmbeddedViewer     *fViewer0;       // main GL viewer
+   TGLEmbeddedViewer     *fViewer1;       // first GL viewer
+   TGLEmbeddedViewer     *fViewer2;       // second GL viewer
+   TGLEmbeddedViewer     *fActViewer;     // actual (active) GL viewer
+   static HtmlSummary    *fgHtmlSummary;  // summary HTML table
+   static TGHtml         *fgHtml;
+   TGMenuBar             *fMenuBar;       // main menu bar
+   TGPopupMenu           *fMenuFile;      // 'File' popup menu
+   TGPopupMenu           *fMenuHelp;      // 'Help' popup menu
+   TGPopupMenu           *fMenuCamera;    // 'Camera' popup menu
+   TGPopupMenu           *fMenuScene;     // 'Scene' popup menu
+   TGStatusBar           *fStatusBar;     // status bar
+   TGShapedToolTip       *fShapedToolTip; // shaped tooltip
+   Bool_t                 fIsEmbedded;
+
+   TEveViewer            *fViewer[3];
+   TEveProjectionManager *fRPhiMgr;
+   TEveProjectionManager *fRhoZMgr;
+
+public:
+   SplitGLView(const TGWindow *p=0, UInt_t w=800, UInt_t h=600, Bool_t embed=kFALSE);
+   virtual ~SplitGLView();
+
+   void           ItemClicked(TGListTreeItem *item, Int_t btn, Int_t x, Int_t y);
+   void           HandleMenu(Int_t id);
+   void           OnClicked(TObject *obj);
+   void           OnMouseIdle(TGLPhysicalShape *shape, UInt_t posx, UInt_t posy);
+   void           OnMouseOver(TGLPhysicalShape *shape);
+   void           OnViewerActivated();
+   void           OpenFile(const char *fname);
+   void           SwapToMainView(TGLViewerBase *viewer);
+   void           ToggleOrthoRotate();
+   void           ToggleOrthoDolly();
+   void           UnDock(TGLViewerBase *viewer);
+   void           LoadConfig(const char *fname);
+   void           SaveConfig(const char *fname);
+   static void    UpdateSummary();
+
+   TEveProjectionManager *GetRPhiMgr() const { return fRPhiMgr; }
+   TEveProjectionManager *GetRhoZMgr() const { return fRhoZMgr; }
+
+   ClassDef(SplitGLView, 0)
+};
+
+TEveProjectionManager *gRPhiMgr = 0;
+TEveProjectionManager *gRhoZMgr = 0;
+
+ClassImp(TGShapedToolTip)
+ClassImp(HtmlObjTable)
+ClassImp(HtmlSummary)
+ClassImp(SplitGLView)
 
 HtmlSummary *SplitGLView::fgHtmlSummary = 0;
 TGHtml *SplitGLView::fgHtml = 0;
+
+//______________________________________________________________________________
+TGShapedToolTip::TGShapedToolTip(const char *pname, Int_t cx, Int_t cy, Int_t cw, 
+                             Int_t ch, Int_t tx, Int_t ty, Int_t th, 
+                             const char *col) : 
+   TGShapedFrame(pname, gClient->GetDefaultRoot(), 400, 300, kTempFrame | 
+                 kHorizontalFrame), fEc(0), fHist(0)
+{
+   // Shaped window constructor
+
+   fTextX = tx; fTextY = ty; fTextH = th;
+   if (col)
+      fTextCol = col;
+   else
+      fTextCol = "0x000000";
+
+   // create the embedded canvas
+   if ((cx > 0) && (cy > 0) && (cw > 0) && (ch > 0)) {
+      Int_t lhRight  = fWidth-cx-cw;
+      Int_t lhBottom = fHeight-cy-ch;
+      fEc = new TRootEmbeddedCanvas("ec", this, cw, ch, 0);
+      AddFrame(fEc, new TGLayoutHints(kLHintsTop | kLHintsLeft, cx, 
+                                      lhRight, cy, lhBottom));
+   }
+   MapSubwindows();
+   Resize();
+   Resize(fBgnd->GetWidth(), fBgnd->GetHeight());
+}
+
+//______________________________________________________________________________
+TGShapedToolTip::~TGShapedToolTip() 
+{
+   // Destructor.
+
+   if (fHist)
+      delete fHist;
+   if (fEc)
+      delete fEc;
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::CloseWindow() 
+{
+   // Close shaped window.
+   
+   DeleteWindow();
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::Refresh()
+{
+   // Redraw the window with current attributes.
+
+   const char *str = fText.Data();
+   char *string = strdup(str);
+   Int_t nlines = 0, size = fTextH;
+   TString fp = gEnv->GetValue("Root.TTFontPath", "");
+   TString ar = fp + "/arial.ttf";
+   char *s = strtok((char *)string, "\n");
+   TImage *img = (TImage*)fImage->Clone("img");
+   img->DrawText(fTextX, fTextY+(nlines*size), s, size, fTextCol, ar);
+   while ((s = strtok(0, "\n"))) {
+      nlines++;
+      img->DrawText(fTextX, fTextY+(nlines*size), s, size, fTextCol, ar);
+   }
+   img->PaintImage(fId, 0, 0, 0, 0, 0, 0, "opaque");
+   free(string);
+   delete img;
+   gVirtualX->Update();
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::CreateCanvas(Int_t cx, Int_t cy, Int_t cw, Int_t ch)
+{
+
+   // create the embedded canvas
+   Int_t lhRight  = fWidth-cx-cw;
+   Int_t lhBottom = fHeight-cy-ch;
+   fEc = new TRootEmbeddedCanvas("ec", this, cw, ch, 0);
+   AddFrame(fEc, new TGLayoutHints(kLHintsTop | kLHintsLeft, cx, 
+                                   lhRight, cy, lhBottom));
+   MapSubwindows();
+   Resize();
+   Resize(fBgnd->GetWidth(), fBgnd->GetHeight());
+   if (IsMapped()) {
+      Refresh();
+   }
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::CreateCanvas(Int_t cw, Int_t ch, TGLayoutHints *hints)
+{
+   // Create the embedded canvas.
+
+   fEc = new TRootEmbeddedCanvas("ec", this, cw, ch, 0);
+   AddFrame(fEc, hints);
+   MapSubwindows();
+   Resize();
+   Resize(fBgnd->GetWidth(), fBgnd->GetHeight());
+   if (IsMapped()) {
+      Refresh();
+   }
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::SetHisto(TH1 *hist)
+{
+   // Set which histogram has to be displayed in the embedded canvas.
+
+   if (hist) {
+      if (fHist) {
+         delete fHist;
+         if (fEc)
+            fEc->GetCanvas()->Clear();
+      }
+      fHist = (TH1 *)hist->Clone();
+      if (fEc) {
+         fEc->GetCanvas()->SetBorderMode(0);
+         fEc->GetCanvas()->SetFillColor(10);
+         fEc->GetCanvas()->cd();
+         fHist->Draw();
+         fEc->GetCanvas()->Update();
+      }
+   }
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::SetText(const char *text)
+{
+   // Set which text has to be displayed.
+
+   if (text) {
+      fText = text;
+   }
+   if (IsMapped())
+      Refresh();
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::SetTextColor(const char *col)
+{
+   // Set text color.
+
+   fTextCol = col;
+   if (IsMapped())
+      Refresh();
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::SetTextAttributes(Int_t tx, Int_t ty, Int_t th, 
+                                        const char *col)
+{
+   // Set text attributes (position, size and color).
+
+   fTextX = tx; fTextY = ty; fTextH = th;
+   if (col)
+      fTextCol = col;
+   if (IsMapped())
+      Refresh();
+}
+
+//______________________________________________________________________________
+void TGShapedToolTip::Show(Int_t x, Int_t y, const char *text, TH1 *hist)
+{
+   // Show (popup) the shaped window at location x,y and possibly
+   // set the text and histogram to be displayed.
+
+   Move(x, y);
+   MapWindow();
+
+   if (text)
+      SetText(text);
+   if (hist)
+      SetHisto(hist);
+   // end of demo code -------------------------------------------
+   if (fHist) {
+      fEc->GetCanvas()->SetBorderMode(0);
+      fEc->GetCanvas()->SetFillColor(10);
+      fEc->GetCanvas()->cd();
+      fHist->Draw();
+      fEc->GetCanvas()->Update();
+   }
+   Refresh();
+}
+
+//______________________________________________________________________________
+HtmlObjTable::HtmlObjTable(const char *name, Int_t nfields, Int_t nvals, Bool_t exp) : 
+   fName(name), fNValues(nvals), fNFields(nfields), fExpand(exp)
+{
+   // Constructor.
+
+   fValues = new TArrayF[fNFields];
+   for (int i=0;i<fNFields;i++)
+      fValues[i].Set(nvals);
+   fLabels = new TString[fNFields];
+}
+
+//______________________________________________________________________________
+HtmlObjTable::~HtmlObjTable()
+{
+   // Destructor.
+
+   delete [] fValues;
+   delete [] fLabels;
+}
+
+//______________________________________________________________________________
+void HtmlObjTable::Build()
+{
+   // Build HTML code.
+
+   fHtml = "<table width=100% border=1 cellspacing=0 cellpadding=0 bgcolor=f0f0f0> ",
+
+   BuildTitle();
+   if (fExpand && (fNFields > 0) && (fNValues > 0)) {
+      BuildLabels();
+      BuildTable();
+   }
+
+   fHtml += "</table>";
+}
+
+//______________________________________________________________________________
+void HtmlObjTable::BuildTitle()
+{
+   // Build table title.
+   
+   fHtml += "<tr><td colspan=";
+   fHtml += Form("%d>", fNFields+1);
+   fHtml += "<table width=100% border=0 cellspacing=2 cellpadding=0 bgcolor=6e6ea0>";
+   fHtml += "<tr><td align=left>";
+   fHtml += "<font face=Verdana size=3 color=ffffff><b><i>";
+   fHtml += fName;
+   fHtml += "</i></b></font></td>";
+   fHtml += "<td>";
+   fHtml += "<td align=right> ";
+   fHtml += "<font face=Verdana size=3 color=ffffff><b><i>";
+   fHtml += Form("Size = %d", fNValues);
+   fHtml += "</i></b></font></td></tr>";
+   fHtml += "</table>";
+   fHtml += "</td></tr>";
+}
+
+//______________________________________________________________________________
+void HtmlObjTable::BuildLabels()
+{
+   // Build table labels.
+
+   Int_t i;
+   fHtml += "<tr bgcolor=c0c0ff>";
+   fHtml += "<th> </th>"; // for the check boxes
+   for (i=0;i<fNFields;i++) {
+      fHtml += "<th> ";
+      fHtml += fLabels[i];
+      fHtml += " </th>"; // for the check boxes
+   }
+   fHtml += "</tr>";
+}
+
+//______________________________________________________________________________
+void HtmlObjTable::BuildTable()
+{
+   // Build part of table with values.
+
+   for (int i = 0; i < fNValues; i++) {
+      if (i%2)
+         fHtml += "<tr bgcolor=e0e0ff>";
+      else
+         fHtml += "<tr bgcolor=ffffff>";
+      
+      TString name = fName;
+      name.ReplaceAll(" ", "_");
+      // checkboxes
+      fHtml += "<td bgcolor=d0d0ff align=\"center\">";
+      fHtml += "<input type=\"checkbox\" name=\"";
+      fHtml += name;
+      fHtml += Form("[%d]\">",i);
+      fHtml += "</td>";
+
+      for (int j = 0; j < fNFields; j++) {
+         fHtml += "<td width=";
+         fHtml += Form("%d%%", 100/fNFields);
+         fHtml += " align=\"center\"";
+         fHtml += ">";
+         fHtml += Form("%1.4f", fValues[j][i]);
+         fHtml += "</td>";
+      }
+      fHtml += "</tr> ";
+   }
+}
+
+//______________________________________________________________________________
+HtmlSummary::HtmlSummary(const char *title) : fNTables(0), fTitle(title)
+{
+   // Constructor.
+
+   fObjTables = new TOrdCollection();
+}
+
+//______________________________________________________________________________
+HtmlSummary::~HtmlSummary()
+{
+   // Destructor.
+
+   Reset();
+}
+
+//______________________________________________________________________________
+HtmlObjTable *HtmlSummary::AddTable(const char *name, Int_t nfields, Int_t nvals,
+                                    Bool_t exp, Option_t *option)
+{
+   // Add a new table in our list of tables.
+
+   TString opt = option;
+   opt.ToLower();
+   HtmlObjTable *table = new HtmlObjTable(name, nfields, nvals, exp);
+   fNTables++;
+   if (opt.Contains("first"))
+      fObjTables->AddFirst(table);
+   else
+      fObjTables->Add(table);
+   return table;
+}
+
+//______________________________________________________________________________
+void HtmlSummary::Clear(Option_t *option)
+{
+   // Clear the table list.
+
+   if (option && option[0] == 'D')
+      fObjTables->Delete(option);
+   else
+      fObjTables->Clear(option);
+   fNTables = 0;
+}
+
+//______________________________________________________________________________
+void HtmlSummary::Reset(Option_t *)
+{
+   // Reset (delete) the table list;
+
+   delete fObjTables; fObjTables = 0;
+   fNTables = 0;
+}
+
+//______________________________________________________________________________
+void HtmlSummary::Build()
+{
+   // Build the summary.
+
+   MakeHeader();
+   for (int i=0;i<fNTables;i++) {
+      GetTable(i)->Build();
+      fHtml += GetTable(i)->Html();
+   }
+   MakeFooter();
+}
+
+//______________________________________________________________________________
+void HtmlSummary::MakeHeader()
+{
+   // Make HTML header.
+
+   fHeader  = "<html><head><title>";
+   fHeader += fTitle;
+   fHeader += "</title></head><body>";
+   fHeader += "<center><h2><font color=#2222ee><i>";
+   fHeader += fTitle;
+   fHeader += "</i></font></h2></center>";
+   fHtml    = fHeader;
+}
+
+//______________________________________________________________________________
+void HtmlSummary::MakeFooter()
+{
+   // Make HTML footer.
+
+   fFooter  = "<br><p><br><center><strong><font size=2 color=#2222ee>";
+   fFooter += "Example of using Html widget to display tabular data";
+   fFooter += "<br>";
+   fFooter += "© 2007-2008 Bertrand Bellenot";
+   fFooter += "</font></strong></center></body></html>";  
+   fHtml   += fFooter;
+}
 
 //______________________________________________________________________________
 SplitGLView::SplitGLView(const TGWindow *p, UInt_t w, UInt_t h, Bool_t embed) :

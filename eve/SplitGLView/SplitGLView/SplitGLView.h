@@ -1,5 +1,7 @@
-#include "TGFrame.h"
+#ifndef ROOT_SplitGLView
+#define ROOT_SplitGLView
 
+#include "TGFrame.h"
 
 class TEvePad;
 class TGSplitFrame;
@@ -74,4 +76,8 @@ public:
    ClassDef(SplitGLView, 0)
 };
 
+// copying TSystem.h 
+R__EXTERN TEveProjectionManager *gRPhiMgr ;
+R__EXTERN TEveProjectionManager *gRhoZMgr ;
 
+#endif

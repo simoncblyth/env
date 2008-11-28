@@ -1,4 +1,7 @@
 
+#ifndef ROOT_HtmlObjTable
+#define ROOT_HtmlObjTable
+
 #include "TObject.h"
 #include "TString.h"
 #include "TArrayF.h"
@@ -32,5 +35,5 @@ public:
 };
 
 
-
+#endif
 

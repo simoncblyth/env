@@ -10,7 +10,8 @@ package SplitGLView
 #  
 #
 
-use policy v*  
+#use policy v*  
+use DybPolicy v*  
 
 #use Reflex       v*   LCG_Interfaces
 
@@ -36,7 +37,7 @@ macro_append ROOT_linkopts "  -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript 
 
 apply_pattern rootcint_dictionary_headers headers=../SplitGLView/*.h
 
-library SplitGLViewLib *.cc
-#apply_pattern  shared_library 
+#library SplitGLViewLib *.cc
+apply_pattern  shared_library 
 
 
