@@ -1,7 +1,7 @@
 package DybArchPolicy
 version 0
 
-use AutoDoc
+#use AutoDoc
 
 # 
 # Override default CMT macros with platform specific things.

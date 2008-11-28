@@ -29,7 +29,9 @@ nuwa-utils(){
         also parse "cmt show projects" ... allowing to make more sense of the path 
         allowing for example the BUILD_PATH in .bash_profile to be derived from a project name
 
-        factor out the cmt parsing ... as it is in fact not nuwa specific 
+        factor out the cmt parsing ... 
+            as it is in fact not nuwa specific and can be rehomed into cmt- for 
+            usage in any cmt ensemble
 
 
 EOU

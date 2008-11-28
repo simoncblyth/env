@@ -127,7 +127,7 @@ TGHProgressBar *gProgress;
 /******************************************************************************/
 
 //______________________________________________________________________________
-void alice_esd_split()
+void alice_esd_split_orig()
 {
    // Main function, initializes the application.
    //

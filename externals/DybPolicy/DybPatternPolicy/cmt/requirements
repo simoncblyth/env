@@ -1,7 +1,7 @@
 package DybPatternPolicy
 version v0
 
-use AutoDoc
+#use AutoDoc
 
 # 
 # Policy patterns that govern how we lay out things in the build area.

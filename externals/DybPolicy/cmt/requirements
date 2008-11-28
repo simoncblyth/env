@@ -29,7 +29,7 @@ macro DUMMYMACRO "dummy" \
 
 
 # The rest of the policies
-use AutoDoc  -no_auto_imports
+#use AutoDoc  -no_auto_imports
 use DybPatternPolicy v0 DybPolicy -no_auto_imports
 use DybArchPolicy v0 DybPolicy -no_auto_imports
 

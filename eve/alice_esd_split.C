@@ -1,84 +1,21 @@
 /*
-  alice_esd_split.C - a simple event-display for ALICE ESD tracks and clusters
-                      version with several windows in the same workspace
-
-  ------------------------------------------------------------------------
-  ------------------------------------------------------------------------
-
-  Only standard ROOT is used to process the ALICE ESD files.
-
-  No ALICE code is needed, only four simple coordinate-transformation
-  functions declared in this macro.
-
-  A simple geometry of 10KB, extracted from the full TGeo-geometry, is
-  used to outline the central detectors of ALICE.
-
-  All files are access from the web by using the "CACHEREAD" option.
-
-  ------------------------------------------------------------------------
-  ------------------------------------------------------------------------
-
-  1. Automatic building of ALICE ESD class declarations and dictionaries.
-  ------------------------------------------------------------------------
-
-  ALICE ESD is a TTree containing tracks and other event-related
-  information with one entry per event. All these classes are part of
-  the AliROOT offline framework and are not available to standard
-  ROOT.
-
-  To be able to access the event data in a natural way, by using
-  data-members of classes and object containers, the header files and
-  class dictionaries are automatically generated from the
-  TStreamerInfo classes stored in the ESD file by using the
-  TFile::MakeProject() function. The header files and a shared library
-  is created in the aliesd/ directory and can be loaded dynamically
-  into the ROOT session.
-
-  See alice_esd_loadlib().
-  
-
-  2. Creation of simple GUI for event navigation.
-  ------------------------------------------------------------------------
-
-  Most common use of the event-display is to browse through a
-  collection of events. Thus a simple GUI allowing this is created in
-  the function make_gui().
-
-  Eve uses the configurable ROOT-browser as its main window and so we
-  create an extra tab in the left working area of the browser and
-  provide backward/forward buttons.
-
-
-  3. Event-navigation functions.
-  ------------------------------------------------------------------------
-
-  As this is a simple macro, we store the information about the
-  current event in the global variable 'Int_t esd_event_id'. The
-  functions for event-navigation simply modify this variable and call
-  the load_event() function which does the following:
-  1. drop the old visualization objects;
-  2. retrieve given event from the ESD tree;
-  3. call alice_esd_read() function to create visualization objects
-     for the new event.
-
-
-  4. Reading of ALICE data and creation of visualization objects.
-  ------------------------------------------------------------------------
-
-  This is performed in alice_esd_read() function, with the following
-  steps:
-  1. create the track container object - TEveTrackList;
-  2. iterate over the ESD tracks, create TEveTrack objects and append
-     them to the container;
-  3. instruct the container to extrapolate the tracks and set their
-     visual attributes.
+   This is based on 
+       $ROOTSYS/tutorials/eve/alice_esd_split.C
+   see the introductory text there
 
 */
 
 
+// the globals that the Evd namespace class herds ...
 R__EXTERN TEveProjectionManager *gRPhiMgr;
 R__EXTERN TEveProjectionManager *gRhoZMgr;
 TEveGeoShape *gGeoShape;
+TGTextEntry *gTextEntry;
+TGHProgressBar *gProgress;
+
+
+
+
 
 // Forward declarations.
 
@@ -88,9 +25,7 @@ class AliESDtrack;
 class AliExternalTrackParam;
 
 Bool_t     alice_esd_loadlib(const char* file, const char* project);
-void       make_gui();
 void       load_event();
-void       update_projections();
 
 void       alice_esd_read();
 TEveTrack* esd_make_track(TEveTrackPropagator* trkProp, Int_t index, AliESDtrack* at,
@@ -103,12 +38,7 @@ Double_t   trackGetP(AliExternalTrackParam* tp);
 
 // Configuration and global variables.
 
-const char* esd_file_name         = "http://root.cern.ch/files/alice_ESDs.root";
-const char* esd_friends_file_name = "http://root.cern.ch/files/alice_ESDfriends.root";
-const char* esd_geom_file_name    = "http://root.cern.ch/files/alice_ESDgeometry.root";
 
-TFile *esd_file          = 0;
-TFile *esd_friends_file  = 0;
 
 TTree *esd_tree          = 0;
 
@@ -118,9 +48,6 @@ AliESDfriend *esd_friend = 0;
 Int_t esd_event_id       = 0; // Current event id.
 
 TEveTrackList *track_list = 0;
-
-TGTextEntry *gTextEntry;
-TGHProgressBar *gProgress;
 
 /******************************************************************************/
 // Initialization and steering functions
@@ -139,6 +66,7 @@ void alice_esd_split()
 
    TFile::SetCacheFileDir(".");
 
+   const char* esd_file_name         = "http://root.cern.ch/files/alice_ESDs.root";
    if (!alice_esd_loadlib(esd_file_name, "aliesd"))
    {
       Error("alice_esd", "Can not load project libraries.");
@@ -146,11 +74,14 @@ void alice_esd_split()
    }
 
    printf("*** Opening ESD ***\n");
+   TFile *esd_file          = 0;
    esd_file = TFile::Open(esd_file_name, "CACHEREAD");
    if (!esd_file)
       return;
 
    printf("*** Opening ESD-friends ***\n");
+   const char* esd_friends_file_name = "http://root.cern.ch/files/alice_ESDfriends.root";
+   TFile *esd_friends_file  = 0;
    esd_friends_file = TFile::Open(esd_friends_file_name, "CACHEREAD");
    if (!esd_friends_file)
       return;
@@ -178,54 +109,15 @@ void alice_esd_split()
       }
    }
 
-   TEveManager::Create();
 
-   // Adapt the main frame to the screen size...
-   Int_t qq; 
-   UInt_t ww, hh;
-   gVirtualX->GetWindowSize(gVirtualX->GetDefaultRootWindow(), qq, qq, ww, hh);
-   Float_t screen_ratio = (Float_t)ww/(Float_t)hh;
-   if (screen_ratio > 1.5) {
-      gEve->GetBrowser()->MoveResize(100, 50, ww - 300, hh - 100);
-      //gEve->GetBrowser()->SetWMPosition(100, 50);
-   }
-   else {
-      gEve->GetBrowser()->Move(50, 50);
-      //gEve->GetBrowser()->SetWMPosition(50, 50);
-   }
-
-
-   { // Simple geometry
-      TFile* geom = TFile::Open(esd_geom_file_name, "CACHEREAD");
-      if (!geom)
-         return;
-      TEveGeoShapeExtract* gse = (TEveGeoShapeExtract*) geom->Get("Gentle");
-      gGeoShape = TEveGeoShape::ImportShapeExtract(gse, 0);
-      geom->Close();
-      delete geom;
-      gEve->AddGlobalElement(gGeoShape);
-   }
-
-   make_gui();
-
-   // import the geometry in the projection managers
-   if (gRPhiMgr) {
-      TEveProjectionAxes* a = new TEveProjectionAxes(gRPhiMgr);
-      a->SetNdivisions(3);
-      gEve->GetScenes()->FindChild("R-Phi Projection")->AddElement(a);
-      gRPhiMgr->ImportElements(gGeoShape);
-   }
-   if (gRhoZMgr) {
-      TEveProjectionAxes* a = new TEveProjectionAxes(gRhoZMgr);
-      a->SetNdivisions(3);
-      gEve->GetScenes()->FindChild("Rho-Z Projection")->AddElement(a);
-      gRhoZMgr->ImportElements(gGeoShape);
-   }
+   EvDisp::EvDisp();
+   gROOT->ProcessLine(".x evd_geometry.C");
+   EvDisp::make_gui();
+   EvDisp::import_projection_geometry();
 
    load_event();
 
-   update_projections();
-   
+   EvDisp::update_projections();
    gEve->Redraw3D(kTRUE); // Reset camera after the first event has been shown.
 }
 
@@ -264,7 +156,7 @@ void load_event()
 
    esd_tree->GetEntry(esd_event_id);
 
-   alice_esd_read();
+   alice_esd_read();  // updates the track_list
 
    gEve->Redraw3D(kFALSE, kTRUE);
    gTextEntry->SetTextColor(0x000000);
@@ -273,31 +165,138 @@ void load_event()
 }
 
 //______________________________________________________________________________
-void update_projections()
+
+
+
+
+//
+// namespace class to start tidy up/structuring 
+// ... the idea being to factor all non-expt specifics into here 
+//
+// what is the state of an event display ... (mile high view )
+//      .. event id
+//
+
+class EvDisp
 {
-   // cleanup then import geometry and event 
-   // in the projection managers
+public:
+   void EvDisp(){
+       if(gEve == NULL){ 
+           TEveManager::Create();
+           FitToScreen();
+       }
+   }
+
+   void FitToScreen()
+   {
+       // Adapt the main frame to the screen size...
+       Int_t qq; 
+       UInt_t ww, hh;
+       gVirtualX->GetWindowSize(gVirtualX->GetDefaultRootWindow(), qq, qq, ww, hh);
+       Float_t screen_ratio = (Float_t)ww/(Float_t)hh;
+       if (screen_ratio > 1.5) {
+           gEve->GetBrowser()->MoveResize(100, 50, ww - 300, hh - 100);
+           //gEve->GetBrowser()->SetWMPosition(100, 50);
+       } else {
+           gEve->GetBrowser()->Move(50, 50);
+           //gEve->GetBrowser()->SetWMPosition(50, 50);
+       }
+   }
+
+
+   void import_projection_geometry()
+   {
+       if (gRPhiMgr) {
+          TEveProjectionAxes* a = new TEveProjectionAxes(gRPhiMgr);
+          a->SetNdivisions(3);
+          const TString rpp = "R-Phi Projection" ;
+          gEve->GetScenes()->FindChild(rpp)->AddElement(a);
+          gRPhiMgr->ImportElements(gGeoShape);
+       }
+       if (gRhoZMgr) {
+          TEveProjectionAxes* a = new TEveProjectionAxes(gRhoZMgr);
+          a->SetNdivisions(3);
+          const TString rzp = "Rho-Z Projection" ;
+          gEve->GetScenes()->FindChild(rzp)->AddElement(a);
+          gRhoZMgr->ImportElements(gGeoShape);
+       }
+   }
+
+
+   void update_projections()
+   {
+       // cleanup then import geometry and event 
+       // in the projection managers
    
-   TEveElement* top = gEve->GetCurrentEvent();
-   if (gRPhiMgr && top) {
-      gRPhiMgr->DestroyElements();
-      gRPhiMgr->ImportElements(gGeoShape);
-      gRPhiMgr->ImportElements(top);
+       TEveElement* top = gEve->GetCurrentEvent();
+       if (gRPhiMgr && top) {
+          gRPhiMgr->DestroyElements();
+          gRPhiMgr->ImportElements(gGeoShape);
+          gRPhiMgr->ImportElements(top);
+       }
+       if (gRhoZMgr && top) {
+          gRhoZMgr->DestroyElements();
+          gRhoZMgr->ImportElements(gGeoShape);
+          gRhoZMgr->ImportElements(top);
+       }
    }
-   if (gRhoZMgr && top) {
-      gRhoZMgr->DestroyElements();
-      gRhoZMgr->ImportElements(gGeoShape);
-      gRhoZMgr->ImportElements(top);
-   }
-}
 
-/******************************************************************************/
-// GUI
-/******************************************************************************/
+   void make_gui()
+   {
+      // Create minimal GUI for event navigation.
 
-//______________________________________________________________________________
-// 
-// EvNavHandler class is needed to connect GUI signals.
+      //gROOT->ProcessLine(".L SplitGLView.C+");
+      //gROOT->ProcessLine(".L SplitGLView.C");
+      gSystem->Load("$ENV_HOME/eve/InstallArea/$CMTCONFIG/lib/libSplitGLView.so");
+   
+
+      TEveBrowser* browser = gEve->GetBrowser();
+      browser->ExecPlugin("SplitGLView", 0, "new SplitGLView(gClient->GetRoot(), 600, 450, kTRUE)");
+
+      browser->StartEmbedding(TRootBrowser::kLeft);
+
+      TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1000, 600);
+      frmMain->SetWindowName("XX GUI");
+      frmMain->SetCleanup(kDeepCleanup);
+
+      TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
+      {
+      
+          TString icondir( Form("%s/icons/", gSystem->Getenv("ROOTSYS")) );
+          TGPictureButton* b = 0;
+          EvNavHandler    *fh = new EvNavHandler;
+
+          b = new TGPictureButton(hf, gClient->GetPicture(icondir + "GoBack.gif"));
+          hf->AddFrame(b, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 10, 2, 10, 10));
+          b->Connect("Clicked()", "EvNavHandler", fh, "Bck()");
+
+          b = new TGPictureButton(hf, gClient->GetPicture(icondir + "GoForward.gif"));
+          hf->AddFrame(b, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 10, 10, 10));
+          b->Connect("Clicked()", "EvNavHandler", fh, "Fwd()");
+
+          gTextEntry = new TGTextEntry(hf);
+          gTextEntry->SetEnabled(kFALSE);
+          hf->AddFrame(gTextEntry, new TGLayoutHints(kLHintsLeft | kLHintsCenterY  | 
+                       kLHintsExpandX, 2, 10, 10, 10));
+       }
+       frmMain->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandX,0,0,20,0));
+
+       gProgress = new TGHProgressBar(frmMain, TGProgressBar::kFancy, 100);
+       gProgress->ShowPosition(kTRUE, kFALSE, "%.0f tracks");
+       gProgress->SetBarColor("green");
+       frmMain->AddFrame(gProgress, new TGLayoutHints(kLHintsExpandX, 10, 10, 5, 5));
+
+       frmMain->MapSubwindows();
+       frmMain->Resize();
+       frmMain->MapWindow();
+
+       browser->StopEmbedding();
+       browser->SetTabTitle("Event Control", 0);
+    }
+
+};
+
+
 
 class EvNavHandler
 {
@@ -307,7 +306,7 @@ public:
       if (esd_event_id < esd_tree->GetEntries() - 1) {
          ++esd_event_id;
          load_event();
-         update_projections();
+         Evd::update_projections();
       } else {
          gTextEntry->SetTextColor(0xff0000);
          gTextEntry->SetText("Already at last event");
@@ -319,7 +318,7 @@ public:
       if (esd_event_id > 0) {
          --esd_event_id;
          load_event();
-         update_projections();
+         Evd::update_projections();
       } else {
          gTextEntry->SetTextColor(0xff0000);
          gTextEntry->SetText("Already at first event");
@@ -327,61 +326,6 @@ public:
       }
    }
 };
-
-//______________________________________________________________________________
-void make_gui()
-{
-   // Create minimal GUI for event navigation.
-
-   //gROOT->ProcessLine(".L SplitGLView.C+");
-   //gROOT->ProcessLine(".L SplitGLView.C");
-   gSystem->Load("$ENV_HOME/eve/InstallArea/$CMTCONFIG/lib/libSplitGLView.so");
-   
-
-   TEveBrowser* browser = gEve->GetBrowser();
-
-   browser->ExecPlugin("SplitGLView", 0, "new SplitGLView(gClient->GetRoot(), 600, 450, kTRUE)");
-
-   browser->StartEmbedding(TRootBrowser::kLeft);
-
-   TGMainFrame* frmMain = new TGMainFrame(gClient->GetRoot(), 1000, 600);
-   frmMain->SetWindowName("XX GUI");
-   frmMain->SetCleanup(kDeepCleanup);
-
-   TGHorizontalFrame* hf = new TGHorizontalFrame(frmMain);
-   {
-      
-      TString icondir( Form("%s/icons/", gSystem->Getenv("ROOTSYS")) );
-      TGPictureButton* b = 0;
-      EvNavHandler    *fh = new EvNavHandler;
-
-      b = new TGPictureButton(hf, gClient->GetPicture(icondir + "GoBack.gif"));
-      hf->AddFrame(b, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 10, 2, 10, 10));
-      b->Connect("Clicked()", "EvNavHandler", fh, "Bck()");
-
-      b = new TGPictureButton(hf, gClient->GetPicture(icondir + "GoForward.gif"));
-      hf->AddFrame(b, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 2, 10, 10, 10));
-      b->Connect("Clicked()", "EvNavHandler", fh, "Fwd()");
-
-      gTextEntry = new TGTextEntry(hf);
-      gTextEntry->SetEnabled(kFALSE);
-      hf->AddFrame(gTextEntry, new TGLayoutHints(kLHintsLeft | kLHintsCenterY  | 
-                   kLHintsExpandX, 2, 10, 10, 10));
-   }
-   frmMain->AddFrame(hf, new TGLayoutHints(kLHintsTop | kLHintsExpandX,0,0,20,0));
-
-   gProgress = new TGHProgressBar(frmMain, TGProgressBar::kFancy, 100);
-   gProgress->ShowPosition(kTRUE, kFALSE, "%.0f tracks");
-   gProgress->SetBarColor("green");
-   frmMain->AddFrame(gProgress, new TGLayoutHints(kLHintsExpandX, 10, 10, 5, 5));
-
-   frmMain->MapSubwindows();
-   frmMain->Resize();
-   frmMain->MapWindow();
-
-   browser->StopEmbedding();
-   browser->SetTabTitle("Event Control", 0);
-}
 
 
 /******************************************************************************/
