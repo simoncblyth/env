@@ -1,0 +1,20 @@
+sampleNo {
+display:block;
+font-size:16px;
+color:#0000ff;
+font-weight:bold;
+font-family:verdana,arial
+}
+
+sampleCode,waveLength,shineAgingTest {
+font-size:11px;
+color:#555555;
+font-weight:bold;
+font-family:verdana,arial
+}
+
+acrylicTable,sample {
+font-size:11px;
+color:#555555;
+font-family:verdana,arial
+}

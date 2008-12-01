@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<?xml-stylesheet type="text/css" href="dybacrylic.css" ?>
+
+<acrylicTable>
+
+    <sample>
+        <sampleNo>sampleNo</sampleNo>
+        <sampleCode>sampleCode</sampleCode>
+        <testNo>testNo</testNo>
+        <dateRec>Date_Rec'd</dateRec>
+        <dimensionsMm>Dimensions_(mm)</dimensionsMm>
+        <measurementLocation>Measurement_Location</measurementLocation>
+        <treatment>Treatment</treatment>
+        <waveLength>
+            <t360>TransmittanceAt360nm</t360>
+            <t380>TransmittanceAt380nm</t380>
+            <t400>TransmittanceAt400nm</t400>
+            <t500>TransmittanceAt500nm</t500>
+        </waveLength>
+        <productionComments>production_comments</productionComments>
+        <history>history</history>
+        <usedFor>used_for_which_part_of_which_AV</usedFor>
+        <shineAgingTest>
+            <normalizeToASTM>Solar_Energy_Absorbed_(J/cm^2)_Normalized_to_ASTM_Standard</normalizeToASTM>
+            <errorASTM>error_from_ASTM</errorASTM>
+            <nnSolarAbsCumuASTM>Non-Norm._Solar_Energy_Absorbed</nnSolarAbsCumuASTM>
+            <cumulativeASTM>Cumulative(ASTM)</cumulativeASTM>
+            <cumulativeEnonASTM>Cumulative_E(non-ASTM)</cumulativeEnonASTM>
+            <cumulativeEASTMnonASTMError>Cumulative_E(ASTM_And_Non-ASTM)</cumulativeEASTMnonASTMError>
+            <cumulativeError>Cumulative_Error</cumulativeError>
+        </shineAgingTest>
+    </sample>
+
+    <sample>
+        <sampleNo>1</sampleNo>
+        <sampleCode>4-12-RCUB-01</sampleCode>
+        <testNo>1</testNo>
+        <dateRec>23-May-08</dateRec>
+        <dimensionsCm>9.5x45x12</dimensionsCm>
+        <measurementLocation>IHEP</measurementLocation>
+        <treatment> </treatment>
+        <waveLength>
+            <t360>84.86</t360>
+            <t380>87.74</t380>
+            <t400>88.96</t400>
+            <t500>90.62</t500>
+        </waveLength>
+        <productionComments>Polished by UW machine shop; samples 1-18 all cut/polished in one batch</productionComments>
+        <history>Brought to China w/ Bryce, July-August 2008</history>
+        <usedFor> </usedFor>
+        <shineAgingTest>
+            <normalizeToASTM> </normalizeToASTM>
+            <errorASTM> </errorASTM>
+            <nnSolarAbsCumuASTM> </nnSolarAbsCumuASTM>
+            <cumulativeASTM> </cumulativeASTM>
+            <cumulativeEnonASTM> </cumulativeEnonASTM>
+            <cumulativeEASTMnonASTMError> </cumulativeEASTMnonASTMError>
+            <cumulativeError> </cumulativeError>
+        </shineAgingTest>
+    </sample>
+
+</acrylicTable>
