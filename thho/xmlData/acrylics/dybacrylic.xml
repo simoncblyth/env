@@ -7,7 +7,7 @@
         <sampleNo>sample_No</sampleNo>
         <sampleCode>sampleCode</sampleCode>
         <testNo>test_No</testNo>
-        <dataNo>data<dataNo>
+        <dataNo>data</dataNo>
         <people>who_do_this_measurement</people>
         <dateRec>Date_Rec'd</dateRec>
         <dimensionsMm>Dimensions_(mm)</dimensionsMm>
