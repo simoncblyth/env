@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+
+    <sample id="0">
+        <author>who_create_this_sample</author>
+        <sampleNo>sample_No</sampleNo>
+        <usedFor>used_for_which_part_of_which_AV</usedFor>
+        <dimensionsMm>Dimensions_(mm)</dimensionsMm>
+        <productionComments>production_comments</productionComments>
+        <pieces>pieces.xml</pieces>
+    </sample>
+
+    <sample id="1">
+        <author>Taihisnag</author>
+        <sampleNo>1</sampleNo>
+        <usedFor>fakeAV1</usedFor>
+        <dimensionsMm>12</dimensionsMm>
+        <productionComments>bad</productionComments>
+        <pieces>samples1/pieces.xml</pieces>
+    </sample>
+
+    <sample id="2">
+        <author>Taihisnag</author>
+        <sampleNo>2</sampleNo>
+        <usedFor>fakeAV2</usedFor>
+        <dimensionsMm>12</dimensionsMm>
+        <productionComments>good</productionComments>
+        <pieces>samples2/pieces.xml</pieces>
+    </sample>
+
+</acrylicTable>
