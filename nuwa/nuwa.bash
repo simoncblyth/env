@@ -50,7 +50,7 @@ nuwa-env(){
       echo $msg WARNING nuwa IS NOT installed based on "$*" OR NUWA_HOME : $NUWA_HOME , attempt fallback to trunk 
       nuwa- trunk
    else
-      nuwa-functions $*
+      [ -z "$NUWA_NOFUNC" ] && nuwa-functions $*
       nuwa-exports $*   
       nuwa-defpkgdir
    fi
