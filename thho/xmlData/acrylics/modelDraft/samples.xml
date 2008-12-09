@@ -2,7 +2,7 @@
 
 <acrylicTable>
 
-    <sample id="0">
+    <sample id="0" testid="testid0">
         <author>who_create_this_sample</author>
         <sampleNo>sample_No</sampleNo>
         <usedFor>used_for_which_part_of_which_AV</usedFor>

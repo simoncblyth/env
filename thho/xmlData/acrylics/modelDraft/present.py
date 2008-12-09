@@ -10,6 +10,8 @@ for sample in ti:
     para = ET.SubElement(body, "p")
     sampleName = sample.tag
     sampleId = sample.attrib.get("id")
+    sampletestId = sample.attrib.get("testid")
+    print 'sampletest Id', sampletestId
     sampleFull = sampleName+sampleId
     para.text = sampleFull
 
