@@ -1,9 +1,9 @@
 
 authz(){
 
-  local tw="thho, bzhu, wei, adiar, chwang"
-  local hk="jimmy, antony, soap"
-  local cn="tianxc"
+  local tw="thho, bzhu, wei, adiar, chwang, glin"
+  local hk="jimmy, antony, soap, talent"
+  local cn="tianxc, maqm"
   local us="littlejohn"
 
 cat << EOA
