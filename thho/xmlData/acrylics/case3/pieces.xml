@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+
+        <testPiece sampleId="0" pieceId="1">
+            <author>who_create_this_sample_piece</author>
+            <sampleCode>sample_piece_code</sampleCode>
+            <dimensionsMm>Dimensions_(mm)</dimensionsMm>
+            <history>history</history>
+            <measurement href="measurement_0_1.html" meaId="1">Treatment and measurements of this pieces</measurement>
+        </testPiece>
+
+        <testPiece sampleId="0" pieceId="2">
+            <author>me</author>
+            <sampleCode>mmm</sampleCode>
+            <dimensionsMm>11</dimensionsMm>
+            <history></history>
+            <measurement href="measurement_0_2.html" meaId="1">Treatment and measurements of this pieces</measurement>
+        </testPiece>
+
+        <testPiece sampleId="1" pieceId="1">
+            <author>she</author>
+            <sampleCode>ssss</sampleCode>
+            <dimensionsMm>12</dimensionsMm>
+            <history>sun shine 3 days</history>
+            <measurement href="measurement_1_1.html" meaId="1">Treatment and measurements of this pieces</measurement>
+        </testPiece>
+
+</acrylicTable>

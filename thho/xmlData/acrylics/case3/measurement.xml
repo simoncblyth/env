@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+
+            <treatmentMeasurement id="0">
+                <people>who_do_this_measurement</people>
+                <dateRec>Date_Rec'd</dateRec>
+                <testNo>test_No</testNo>
+                <dataNo>data_No</dataNo>
+                <dataLocation>path_to_get_the_data_file</dataLocation>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <file>
+                    <filePath> </filePath>
+                </file>
+            </treatmentMeasurement>
+
+            <treatmentMeasurement id="1">
+                <people>me</people>
+                <dateRec>20080101</dateRec>
+                <testNo>1</testNo>
+                <dataNo>1</dataNo>
+                <dataLocation>path_to_get_the_data_file</dataLocation>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <file>
+                    <filePath> </filePath>
+                </file>
+            </treatmentMeasurement>
+
+            <treatmentMeasurement id="2">
+                <people>me</people>
+                <dateRec>Date_Rec'd</dateRec>
+                <testNo>test_No</testNo>
+                <dataNo>data_No</dataNo>
+                <dataLocation>path_to_get_the_data_file</dataLocation>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <file>
+                    <filePath> </filePath>
+                </file>
+            </treatmentMeasurement>
+
+</acrylicTable>
