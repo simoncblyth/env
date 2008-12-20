@@ -2,7 +2,7 @@
 
 <acrylicTable>
 
-            <treatmentMeasurement id="0">
+            <measurement sampleId="0" pieceId="1" measurementId="1">
                 <people>who_do_this_measurement</people>
                 <dateRec>Date_Rec'd</dateRec>
                 <testNo>test_No</testNo>
@@ -15,25 +15,10 @@
                 <file>
                     <filePath> </filePath>
                 </file>
-            </treatmentMeasurement>
+            </measurement>
 
-            <treatmentMeasurement id="1">
-                <people>me</people>
-                <dateRec>20080101</dateRec>
-                <testNo>1</testNo>
-                <dataNo>1</dataNo>
-                <dataLocation>path_to_get_the_data_file</dataLocation>
-                <measurementLocation>Measurement_Location</measurementLocation>
-                <instrument>instrument</instrument>
-                <treatment>Treatment</treatment>
-                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
-                <file>
-                    <filePath> </filePath>
-                </file>
-            </treatmentMeasurement>
-
-            <treatmentMeasurement id="2">
-                <people>me</people>
+            <measurement sampleId="0" pieceId="1" measurementId="2">
+                <people>who_do_this_measurement</people>
                 <dateRec>Date_Rec'd</dateRec>
                 <testNo>test_No</testNo>
                 <dataNo>data_No</dataNo>
@@ -45,6 +30,41 @@
                 <file>
                     <filePath> </filePath>
                 </file>
-            </treatmentMeasurement>
+            </measurement>
+
+            <measurement sampleId="0" pieceId="2" measurementId="1">
+                <people>who_do_this_measurement</people>
+                <dateRec>Date_Rec'd</dateRec>
+                <testNo>test_No</testNo>
+                <dataNo>data_No</dataNo>
+                <dataLocation>path_to_get_the_data_file</dataLocation>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <file>
+                    <filePath> </filePath>
+                </file>
+            </measurement>
+
+            <measurement sampleId="0" pieceId="2" measurementId="2">
+                <people>who_do_this_measurement</people>
+                <dateRec>Date_Rec'd</dateRec>
+                <testNo>test_No</testNo>
+                <dataNo>data_No</dataNo>
+                <dataLocation>path_to_get_the_data_file</dataLocation>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <file>
+                    <filePath> </filePath>
+                </file>
+            </measurement>
+
+
+
+
+
 
 </acrylicTable>

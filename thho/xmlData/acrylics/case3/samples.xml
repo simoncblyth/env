@@ -2,31 +2,32 @@
 
 <acrylicTable>
 
-    <sample id="0" testid="testid0">
+    <sample sampleId="0">
         <author>who_create_this_sample</author>
         <sampleNo>sample_No</sampleNo>
         <usedFor>used_for_which_part_of_which_AV</usedFor>
         <dimensionsMm>Dimensions_(mm)</dimensionsMm>
         <productionComments>production_comments</productionComments>
-        <piecesLocation href="sample0_pieces.html">The measurement for each pieces of this sample</piecesLocation>
+        <piece pieceId="1" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
+            <measurement measurementId="1">the_measurement_date</measurement>
+        </piece>
+        <piece pieceId="2" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
+            <measurement measurementId="1">the_measurement_date</measurement>
+        </piece>
     </sample>
 
-    <sample id="1">
-        <author>Taihisnag</author>
-        <sampleNo>1</sampleNo>
-        <usedFor>fakeAV1</usedFor>
-        <dimensionsMm>12</dimensionsMm>
-        <productionComments>bad</productionComments>
-        <piecesLocation href="sample1_pieces.html">The measurement for each pieces of this sample</piecesLocation>
-    </sample>
-
-    <sample id="2">
-        <author>Taihisnag</author>
-        <sampleNo>2</sampleNo>
-        <usedFor>fakeAV2</usedFor>
-        <dimensionsMm>12</dimensionsMm>
-        <productionComments>good</productionComments>
-        <piecesLocation href="sample2_pieces.html">The measurement for each pieces of this sample</piecesLocation>
+    <sample sampleId="1">
+        <author>who_create_this_sample</author>
+        <sampleNo>sample_No</sampleNo>
+        <usedFor>used_for_which_part_of_which_AV</usedFor>
+        <dimensionsMm>Dimensions_(mm)</dimensionsMm>
+        <productionComments>production_comments</productionComments>
+        <piece pieceId="1" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
+            <measurement measurementId="1">the_measurement_date</measurement>
+        </piece>
+        <piece pieceId="2" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
+            <measurement measurementId="1">the_measurement_date</measurement>
+        </piece>
     </sample>
 
 </acrylicTable>
