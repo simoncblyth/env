@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+        <piece sampleId="0" pieceId="0">
+            <pieceAuthor>who_create_this_sample_piece</pieceAuthor>
+            <pieceDimensions unit="mm^3">Dimensions_(mm)</pieceDimensions>
+            <history>history</history>
+            <detailTreatment>detail_description_of_this_treatmenat_and_measurement</detailTreatment>
+            <measurement measurementId="0">brief_description_of_this_measurement_(option)</measurement>
+        </piece>
+</acrylicTable>

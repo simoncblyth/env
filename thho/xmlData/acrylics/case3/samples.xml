@@ -1,33 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <acrylicTable>
-
     <sample sampleId="0">
-        <author>who_create_this_sample</author>
-        <sampleNo>sample_No</sampleNo>
-        <usedFor>used_for_which_part_of_which_AV</usedFor>
-        <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-        <productionComments>production_comments</productionComments>
-        <piece pieceId="1" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
-            <measurement measurementId="1">the_measurement_date</measurement>
-        </piece>
-        <piece pieceId="2" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
-            <measurement measurementId="1">the_measurement_date</measurement>
-        </piece>
+        <sampleAuthor>Taihsiang</sampleAuthor>
+        <usedFor>3m_vessel_barrel_No1</usedFor>
+        <sampleDimensions unit="mm^3">10*600*600</sampleDimensions>
+        <manufactor>YaNan</manufactor>
+        <productionComments>This is fake one to be an example using these xml and python. Acrylic sheets supplied by Nakano</productionComments>
+        <piece pieceId="1">2008230_used_for_sunshine_aging_test</piece>
+        <piece pieceId="2"></piece>
     </sample>
-
-    <sample sampleId="1">
-        <author>who_create_this_sample</author>
-        <sampleNo>sample_No</sampleNo>
-        <usedFor>used_for_which_part_of_which_AV</usedFor>
-        <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-        <productionComments>production_comments</productionComments>
-        <piece pieceId="1" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
-            <measurement measurementId="1">the_measurement_date</measurement>
-        </piece>
-        <piece pieceId="2" spCode="the_sample_pieces_code_eg_4-12-RCUB-01">
-            <measurement measurementId="1">the_measurement_date</measurement>
-        </piece>
-    </sample>
-
 </acrylicTable>

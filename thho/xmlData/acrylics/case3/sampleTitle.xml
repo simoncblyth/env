@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+    <sample sampleId="0">
+        <sampleAuthor>who_create_this_sample_info</sampleAuthor>
+        <usedFor>used_for_which_part_of_which_AV</usedFor>
+        <sampleDimensions unit="mm^3">Dimensions_(mm)</sampleDimensions>
+        <manufactor>who_is_the_manufactor</manufactor>
+        <productionComments>production_comments</productionComments>
+        <piece pieceId="0">glance_info_of_this_piece_eg_yyyymmdd</piece>
+    </sample>
+</acrylicTable>

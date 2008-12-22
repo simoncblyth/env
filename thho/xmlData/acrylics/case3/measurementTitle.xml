@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<acrylicTable>
+            <measurement sampleId="0" pieceId="0" measurementId="0">
+                <measurementAuthor>who_do_this_measurement</measurementAuthor>
+                <dateRec>Date_Rec'd</dateRec>
+                <measurementLocation>Measurement_Location</measurementLocation>
+                <instrument>instrument</instrument>
+                <treatment>Treatment</treatment>
+                <transmissionPathLength unit="mm">transmissionPathLength</transmissionPathLength>
+                <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
+                <rowData rowDataId="0">quick_glance_description_of_this_rowData1</rowData>
+                <otherFile fileName="fileName">any_other_files_except_ascii_row_data_and_put_description_here</otherFile>
+            </measurement>
+</acrylicTable>

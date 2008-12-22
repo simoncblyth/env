@@ -1,71 +1,52 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <acrylicTable>
-
             <measurement sampleId="0" pieceId="1" measurementId="1">
-                <people>who_do_this_measurement</people>
-                <dateRec>Date_Rec'd</dateRec>
-                <testNo>test_No</testNo>
-                <dataNo>data_No</dataNo>
-                <dataLocation>path_to_get_the_data_file</dataLocation>
-                <measurementLocation>Measurement_Location</measurementLocation>
-                <instrument>instrument</instrument>
+                <measurementAuthor>Taihsiang</measurementAuthor>
+                <dateRec>20080230</dateRec>
+                <measurementLocation>NTU</measurementLocation>
+                <instrument>Perkin Elmer Lambda650</instrument>
                 <treatment>Treatment</treatment>
+                <transmissionPathLength unit="mm">10</transmissionPathLength>
                 <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
-                <rowData> rrr</rowData>
-                <file>
-                    <filePath> </filePath>
-                </file>
+                <rowData rowDataId="1">sunshine 3hr</rowData>
+                <rowData rowDataId="2">sunshine 3hr</rowData>
+                <otherFile fileName="0-1-1-1">curve of transmission of file A</otherFile>
             </measurement>
-
             <measurement sampleId="0" pieceId="1" measurementId="2">
-                <people>who_do_this_measurement</people>
-                <dateRec>Date_Rec'd</dateRec>
-                <testNo>test_No</testNo>
-                <dataNo>data_No</dataNo>
-                <dataLocation>path_to_get_the_data_file</dataLocation>
-                <measurementLocation>Measurement_Location</measurementLocation>
-                <instrument>instrument</instrument>
+                <measurementAuthor>Taihsiang</measurementAuthor>
+                <dateRec>20080230</dateRec>
+                <measurementLocation>NTU</measurementLocation>
+                <instrument>Perkin Elmer Lambda650</instrument>
                 <treatment>Treatment</treatment>
+                <transmissionPathLength unit="mm">10</transmissionPathLength>
                 <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
-                <file>
-                    <filePath> </filePath>
-                </file>
+                <rowData rowDataId="1">sunshine 6hr</rowData>
+                <rowData rowDataId="2">sunshine 6hr</rowData>
+                <otherFile fileName="0-1-2-1">curve of transmission of file A</otherFile>
             </measurement>
-
             <measurement sampleId="0" pieceId="2" measurementId="1">
-                <people>who_do_this_measurement</people>
-                <dateRec>Date_Rec'd</dateRec>
-                <testNo>test_No</testNo>
-                <dataNo>data_No</dataNo>
-                <dataLocation>path_to_get_the_data_file</dataLocation>
-                <measurementLocation>Measurement_Location</measurementLocation>
-                <instrument>instrument</instrument>
+                <measurementAuthor>Taihsiang</measurementAuthor>
+                <dateRec>20080230</dateRec>
+                <measurementLocation>NTU</measurementLocation>
+                <instrument>Perkin Elmer Lambda650</instrument>
                 <treatment>Treatment</treatment>
+                <transmissionPathLength unit="mm">10</transmissionPathLength>
                 <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
-                <file>
-                    <filePath> </filePath>
-                </file>
+                <rowData rowDataId="1">no treatment,pure acrylic sheet for QA</rowData>
+                <rowData rowDataId="2">no treatment,pure acrylic sheet for QA</rowData>
+                <otherFile fileName="0-2-1-1">curve of transmission of file A</otherFile>
             </measurement>
-
             <measurement sampleId="0" pieceId="2" measurementId="2">
-                <people>who_do_this_measurement</people>
-                <dateRec>Date_Rec'd</dateRec>
-                <testNo>test_No</testNo>
-                <dataNo>data_No</dataNo>
-                <dataLocation>path_to_get_the_data_file</dataLocation>
-                <measurementLocation>Measurement_Location</measurementLocation>
-                <instrument>instrument</instrument>
+                <measurementAuthor>Taihsiang</measurementAuthor>
+                <dateRec>20080230</dateRec>
+                <measurementLocation>NTU</measurementLocation>
+                <instrument>Perkin Elmer Lambda650</instrument>
                 <treatment>Treatment</treatment>
+                <transmissionPathLength unit="mm">10</transmissionPathLength>
                 <characterized_p1>characterized_measurement_transmittance_curve_parameter1</characterized_p1>
-                <file>
-                    <filePath> </filePath>
-                </file>
+                <rowData rowDataId="1">no treatment,pure acrylic sheet for QA</rowData>
+                <rowData rowDataId="2">no treatment,pure acrylic sheet for QA. measuring another position</rowData>
+                <otherFile fileName="0-2-2-1">curve of transmission of file A</otherFile>
             </measurement>
-
-
-
-
-
-
 </acrylicTable>

@@ -1,37 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
 
 <acrylicTable>
-
         <piece sampleId="0" pieceId="1">
-            <author>who_create_this_sample_piece</author>
-            <sampleCode>sample_piece_code</sampleCode>
-            <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-            <history>history</history>
-            <measurement measurementId="1">Treatment and measurements of this pieces</measurement>
+            <pieceAuthor>Taihsiang</pieceAuthor>
+            <pieceDimensions unit="mm^3">10*60*40</pieceDimensions>
+            <history>polishing by myself</history>
+            <detailTreatment>exposure under the sunshine when it is clear</detailTreatment>
+            <measurement measurementId="1">sunshine 3hr</measurement>
+            <measurement measurementId="2">sunshine 6hr</measurement>
         </piece>
-
         <piece sampleId="0" pieceId="2">
-            <author>who_create_this_sample_piece</author>
-            <sampleCode>sample_piece_code</sampleCode>
-            <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-            <history>history</history>
-            <measurement measurementId="1">Treatment and measurements of this pieces</measurement>
+            <pieceAuthor>Taihsiang</pieceAuthor>
+            <pieceDimensions unit="mm^3">10*60*30</pieceDimensions>
+            <history>polishing by Nakano</history>
+            <detailTreatment>no treatmeant, just cutting a huge acrylic sheet and get it</detailTreatment>
+            <measurement measurementId="1">no treatment</measurement>
+            <measurement measurementId="2"></measurement>
         </piece>
-
-        <piece sampleId="1" pieceId="1">
-            <author>who_create_this_sample_piece</author>
-            <sampleCode>sample_piece_code</sampleCode>
-            <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-            <history>history</history>
-            <measurement measurementId="1">Treatment and measurements of this pieces</measurement>
-        </piece>
-
-        <piece sampleId="1" pieceId="2">
-            <author>who_create_this_sample_piece</author>
-            <sampleCode>sample_piece_code</sampleCode>
-            <dimensionsMm>Dimensions_(mm)</dimensionsMm>
-            <history>history</history>
-            <measurement measurementId="1">Treatment and measurements of this pieces</measurement>
-        </piece>
-
 </acrylicTable>
