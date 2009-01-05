@@ -59,6 +59,18 @@ cat << EOU
     trac-configure  <block:qty:valu> ... 
            applies edits to  trac.ini by means of triplet arguments
    
+    trac-configure-instance <name>
+           applies a standard set of config triplets to the named 
+           instance         
+           ... may need to upgrade the environment after doing this 
+ 
+ 
+    trac-configure-all   (formerly poorly named as "trac-upgrade")
+           invokes trac-configure-instance for all instances
+           edits the trac.ini from all the instances making changes to 
+           work with trac 0.11 and the standard set of plugins
+ 
+    
  
 
     trac-logging 
@@ -80,12 +92,7 @@ cat << EOU
     trac-inherit-setup
          boottrap the global trac conf $(trac-inheritpath) 
     
-    trac-upgrade
-         edit the trac.ini from all the instances making changes to 
-         work with trac 0.11
- 
-         this is poorly named trac-configure-all would be more appropriate
- 
+   
  
  
     trac-setbanner  <path-to-banner>    
@@ -293,7 +300,28 @@ trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
 
 trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
 trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
+
+
 trac-edit-ini(){
+   local path=$1
+   local user=$TRAC_USER
+   shift
+   
+   local tmp=/tmp/env/trac/$FUNCNAME && mkdir -p $tmp
+   local tpath=$tmp/$(basename $path)
+   
+   local cmd="cp $path $tpath "
+   eval $cmd
+   
+   python $ENV_HOME/base/ini.py $tpath $*  
+   
+   diff $path $tpath 
+   [ -n "$SUDO" ] && $SUDO cp $tpath $path && $SUDO chown $user:$user $path
+
+}
+
+
+trac-edit-ini-deprecated(){
 
    local path=$1
    local user=$TRAC_USER
@@ -326,11 +354,19 @@ trac-instances(){
 trac-prepare(){
 
    trac-inherit-setup
-   trac-upgrade
+   trac-configure-all
 
 }
 
+trac-prepare-instance(){
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   [ -z "$name" ] && echo $msg the name of an instance must be provided && return 1
+   
+   trac-configure-instance $name
+   TRAC_INSTANCE=$name trac-admin- upgrade
 
+}
 
 trac-inherit-setup(){
 
@@ -360,9 +396,11 @@ trac-inherit(){
    local path=${1:-$live}
    local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp
    local name=$(basename $path)
-   local user=$TRAC_USER
+   apache-
+   local user=$(apache-user)
    
-   trac-inherit- > $tmp/$name
+   #trac-inherit- > $tmp/$name
+   cat $ENV_HOME/trac/common.ini > $tmp/$name
    
    if [ "$path" == "$live" ]; then
       $SUDO cp $tmp/$name $live 
@@ -371,8 +409,7 @@ trac-inherit(){
 
 }
 
-
-trac-inherit-(){
+trac-inherit-deprecated-(){
  
    cat << EOI
 
@@ -440,6 +477,21 @@ EOI
 
 
 
+
+trac-configure-instance(){
+
+  local msg="=== $FUNCNAME :"
+  local name=${1:-$TRAC_INSTANCE}
+  
+  [ -z "$name" ] && echo $msg the name of the instance is required && return 1
+  
+  trac-comment $name "tracrpc.* = enabled"
+  trac-comment $name "default_handler = TagsWikiModule"
+  trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
+       
+  TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)    $(trac-enscript $name)   
+}
+
 trac-configure-all(){
 
     local msg="=== $FUNCNAME :"
@@ -447,11 +499,7 @@ trac-configure-all(){
 
     for name in $(trac-instances)
     do
-       trac-comment $name "tracrpc.* = enabled"
-       trac-comment $name "default_handler = TagsWikiModule"
-       trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
-       
-       TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)    $(trac-enscript $name)   
+       trac-configure-instance $name
     done
 }
 
