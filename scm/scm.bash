@@ -15,6 +15,27 @@ scm-usage(){
            the default leave the repository at revision 0
 
    
+          there is no "trac-create" ? 
+          
+        
+            
+                  
+                        
+                                    
+        NOTES ...
+           * transition from old to new is as yet incomplete          
+           * old way is overly complicated by attempting to support remote creation ...
+        
+          OLD STRUCTURE
+          ================                                      
+                      
+              the initenv is done in   
+                   oscm/scm-use.bash::scm-use-create-local
+              which is called from 
+                    oscm/scm.bash::scm-create
+   
+   
+            
 EOU
 
 }

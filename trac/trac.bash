@@ -144,6 +144,7 @@ tracinter-(){         . $ENV_HOME/trac/tracinter.bash  && tracinter-env  $* ; }
 tracbuild-(){         . $ENV_HOME/trac/tracbuild.bash  && tracbuild-env  $* ; }
 tracperm-(){          . $ENV_HOME/trac/tracperm.bash   && tracperm-env   $* ; }
 traccomp-(){          . $ENV_HOME/trac/traccomp.bash   && traccomp-env   $* ; }
+tracinit-(){          . $ENV_HOME/trac/tracinit.bash   && tracinit-env   $* ; }
 nuwacomp-(){          . $ENV_HOME/trac/nuwacomp.bash   && nuwacomp-env   $* ; }
 autocomp-(){          . $ENV_HOME/trac/autocomp/autocomp.bash   && autocomp-env   $* ; }
 
@@ -256,6 +257,8 @@ trac-repopath(){
    svn-
    echo $SCM_FOLD/$(svn-repo-dirname $utag)/$name 
 }
+
+
 trac-logpath(){ echo $(trac-envpath $*)/log/trac.log ; }
 trac-inipath(){ echo $(trac-envpath $*)/conf/trac.ini ; }
 trac-pkgpath(){ echo $ENV_HOME/trac/package ; }
