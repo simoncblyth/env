@@ -11,7 +11,13 @@
       
         < ticket_subject_template = $prefix #$ticket.id: $summary
         > ticket_subject_template = $prefix#$ticket.id: $summary
+   
       
+     2)
+       Match failure... hyphen non alpha-numeric
+       ERROR skipping triplet account-manager:password_file:/private/etc/apache2/svnsetup/users.conf      
+            
+                  
 """
 
 import re
@@ -27,7 +33,7 @@ class Edit:
             extraeous space additions / blanks becoming ""
             
     """
-    tripat = re.compile("(?P<blk>\w*):(?P<key>\w*):(?P<val>.*)")
+    tripat = re.compile("(?P<blk>[\w\-]*):(?P<key>[\w\-]*):(?P<val>.*)")
     
     def __init__(self, *args, **kwargs ):
         from configobj import ConfigObj
