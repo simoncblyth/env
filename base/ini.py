@@ -13,11 +13,6 @@
         > ticket_subject_template = $prefix#$ticket.id: $summary
    
       
-     2)
-       Match failure... hyphen non alpha-numeric
-       ERROR skipping triplet account-manager:password_file:/private/etc/apache2/svnsetup/users.conf      
-            
-                  
 """
 
 import re
@@ -26,7 +21,7 @@ class Edit:
     
     """
         NB
-            the triplet pattern only matches alphanumeric block/key names in
+            the triplet pattern only matches alphanumeric (or hyphen) block/key names in
             order to correctly handle values that incorporate a ":"
             
             "list_values=False, write_empty_values=True" is used to prevent 

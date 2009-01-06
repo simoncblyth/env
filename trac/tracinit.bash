@@ -20,7 +20,17 @@ tracinit-env(){
 }
 
 
+tracinit-prepare(){
+    local msg="=== $FUNCNAME :"
+    local name=${1:-newtest}
+    [ -z "$name" ] && echo $msg the name of a trac environment is a required argument && return 1
 
+    TRACINIT_CREATE_NOPROMPT=yep tracinit-create $name
+    trac-
+    trac-configure-instance $name
+
+    tracinit-upgrade $name
+}
 
 
 tracinit-create(){
@@ -41,9 +51,14 @@ tracinit-create(){
   if [ -d "$envp" ]; then
      echo $msg a trac environmnent called \"$name\" exists already at $envp 
      ls -l "$envp"
-     local answer
-     read -p "$msg ARE YOU SURE YOU WANT TO WIPE the \"$name\" trac enviroment from $envp  to allow INITENV ? YES to proceed " answer
-     [ "$answer" != "YES" ] &&  echo $msg skipping && return 1     
+     
+     if [ -z "$TRACINIT_CREATE_NOPROMPT" ]; then 
+        local answer
+        read -p "$msg ARE YOU SURE YOU WANT TO WIPE the \"$name\" trac enviroment from $envp  to allow INITENV ? YES to proceed " answer
+        [ "$answer" != "YES" ] &&  echo $msg skipping && return 1
+     else
+        echo $msg proceeding directly as TRACINIT_CREATE_NOPROMPT is defined 
+     fi     
      [ ${#name} -lt 3 ]     && echo $msg name $name is too short not proceeding && return 1
      local dir=$(dirname $envp)
      cd $dir
@@ -63,5 +78,17 @@ tracinit-create(){
   ls -l "$envp" 
 
   cd $iwd 
+}
+
+
+tracinit-upgrade(){
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    [ -z "$name" ] && echo $msg the name of a trac environment is a required argument && return 1
+    trac-
+    local envp=$(trac-envpath $name)
+    local cmd="$SUDO trac-admin $envp upgrade "
+    echo $msg $cmd
+    eval $cmd    
 }
 

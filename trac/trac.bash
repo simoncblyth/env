@@ -386,6 +386,9 @@ trac-inherit-setup(){
     if [ ! -f $inherit ]; then 
         echo $msg bootstraping global config $inherit
         trac-inherit 
+    else
+        echo $msg inherited file $inherit exists already, delete this and rerun to change it
+        ls -l $inherit
     fi
 }
 
@@ -583,6 +586,7 @@ trac-triplets(){
       trac:authz_file:$authz
       trac:repository_dir:$repo
       account-manager:password_file:$users
+      account-manager:password_store:HtPasswdStore
       trac:base_url:$url
       header_logo:link:$url
       project:url:$url

@@ -56,6 +56,18 @@ wfadmin = blyth
 @evdev = rw 
 @evadmin = rw
 
+[newtest:/]
+* = r
+@evuser = r
+@evdev = rw 
+@evadmin = rw
+
+[data:/]
+* = r
+@evuser = r
+@evdev = rw 
+@evadmin = rw
+
 [aberdeen:/]
 @abuser = r
 @abdev = rw 
