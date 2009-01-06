@@ -28,6 +28,8 @@ tracinit-prepare(){
     TRACINIT_CREATE_NOPROMPT=yep tracinit-create $name
     trac-
     trac-configure-instance $name
+    trac-inherit-setup
+
 
     tracinit-upgrade $name
 }

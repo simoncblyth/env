@@ -589,6 +589,9 @@ trac-triplets(){
       account-manager:password_store:HtPasswdStore
       trac:base_url:$url
       header_logo:link:$url
+      header_logo:alt:
+      header_logo:src:common/trac_banner.png
+      logging::
       project:url:$url
       ticket:restrict_owner:true
 EOT
