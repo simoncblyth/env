@@ -42,6 +42,8 @@ tracinit-prepare(){
 
 
     tracinit-upgrade $name
+    
+    
 }
 
 
@@ -105,5 +107,27 @@ tracinit-upgrade(){
     local cmd="$SUDO trac-admin $envp upgrade "
     echo $msg $cmd
     eval $cmd    
+    
+  
+    
 }
+
+tracinit-logchown(){
+ 
+    ## suspect the upgrade causes the trac.log to become owned by root ...
+    ## causing failure for suibsequrnt apache running
+ 
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    [ -z "$name" ] && echo $msg the name of a trac environment is a required argument && return 1
+    trac-
+    local envp=$(trac-envpath $name)
+    local user=$(apache- ; apache-user)
+    local cmd="$SUDO chown $user:$user $envp/log/$(trac-logname)"
+    echo $msg $cmd
+    eval $cmd
+}
+
+
+
 

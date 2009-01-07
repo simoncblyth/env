@@ -299,7 +299,19 @@ trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
 
-trac-admin-(){   $SUDO trac-admin $(trac-envpath) $* ; }
+trac-logname(){ echo trac.log ; }
+
+trac-admin--(){
+   sudo bash -c ". $ENV_HOME/env.bash ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+}
+
+trac-admin-(){   
+   python-
+   sqlite-
+   trac-admin $(trac-envpath) $* 
+}
+
+
 trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
 
 
