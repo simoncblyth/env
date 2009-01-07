@@ -1,5 +1,5 @@
 
-
+python-source(){ echo $BASH_SOURCE ; }
 python-usage(){
 
 cat << EOU

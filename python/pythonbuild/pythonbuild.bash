@@ -48,6 +48,40 @@ pythonbuild-usage(){
                            
   
   
+  
+    Improvements ...
+    
+       to avoid a common problem ... "sudo python" not finding libpython2.5.so 
+       when the python is in a different place than the system python...
+       due to the LD_LIBRARY_PATH not being set in root users environment , can use LD_RUN_PATH when 
+       building python according to ...
+          http://www.modpython.org/pipermail/mod_python/2007-March/023309.html
+  
+       this embeds the location of the libs into the python executable, avoiding the need
+       to manage LD_LIBRARY_PATH henceforth by doing the library search at link time rather 
+       than at run time
+  
+       when building must ..
+         "set the environment variable LD_RUN_PATH to be the
+          directory where the library will eventually be installed "
+
+  
+    Other approaches...
+    
+       1) control the environment
+  
+    without such a setup need to do fiddly management of 
+    the environment of the root 
+    
+       sudo bash -c ". $ENV_HOME/env.bash ; python- ; python " 
+  
+    making env.bash executable and putting ENV_HOME into the path can do ... 
+       sudo bash -c ". env.bash ; python- ; python " 
+  
+  
+       2)  use ldconfig   ... inflexible when have multiple pythons
+  
+  
 EOU
 
 }

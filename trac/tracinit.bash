@@ -80,7 +80,7 @@ tracinit-create(){
 
   apache-
   local user=$(apache-user)
-  local omd="sudo chown -R $user:$user $envp"
+  local omd="$SUDO chown -R $user:$user $envp"
   echo $msg $omd
   eval $omd
   ls -l "$envp" 
