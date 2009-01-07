@@ -11,14 +11,16 @@ tracinit-usage(){
   
         for testing new instance creation on C : 
   
-         sudo bash -c ". $ENV_HOME/env.bash ; trac- ; tracinit- ;  tracinit-prepare newtest "
-  
-  
     tracinit-create name
     
         create trac instance, the corresponding SVN repository must already exist
         ... if an instance of that name exists already prompt for confirmation before 
         deleting it and creating a new one 
+  
+  
+    tracinit-newtest 
+     
+        test creation + config of a new instance called "newtest"
   
   
 EOU
@@ -28,6 +30,12 @@ EOU
 tracinit-env(){
   elocal-
 }
+
+
+tracinit-newtest(){
+   sudo bash -c ". $ENV_HOME/env.bash ; trac- ; tracinit- ;  tracinit-prepare newtest "
+}
+
 
 
 tracinit-prepare(){

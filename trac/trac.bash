@@ -574,6 +574,7 @@ trac-triplets(){
       header_logo:alt:
       header_logo:src:common/trac_banner.png
       logging::
+      wiki::
       project:url:$url
       ticket:restrict_owner:true
 EOT
