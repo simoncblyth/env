@@ -303,6 +303,7 @@ trac-logname(){ echo trac.log ; }
 
 trac-admin--(){
    sudo bash -c ". $ENV_HOME/env.bash ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+  ## huh this did not change ownership of the trac.log ??
 }
 
 trac-admin-(){   
@@ -564,6 +565,7 @@ trac-triplets(){
    cat << EOT
       inherit:file:$inherit
       trac:authz_file:$authz
+      trac:authz_module_name:$name
       trac:repository_dir:$repo
       account-manager:password_file:$users
       account-manager:password_store:HtPasswdStore
