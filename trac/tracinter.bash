@@ -1,4 +1,4 @@
-
+tracinter-source(){ echo $BASH_SOURCE ; }
 tracinter-usage(){
    cat << EOU
    
@@ -61,6 +61,27 @@ EOI
 }
 
 
+tracinter-inifrag(){
+
+   local abbrev=$1
+   local tag=$2
+   local url=$3
+   local name=$(tracinter-url2name $url)
+   local title
+   [ "$name" != "$tag" ] && title=${tag}_${name}_instance || title=${tag}_instance 
+
+cat << EOI
+$abbrev = $tag 
+$tag.compat = false  
+$tag.title = $title 
+$tag.url = $url
+
+EOI
+   
+}
+
+
+
 tracinter-url2name(){
   case $1 in 
      http://bitten.edgewall.org) echo bitten ;;
@@ -102,6 +123,19 @@ tracinter-triplets(){
       tracinter-triplet $triplet
    done
 }
+
+tracinter-ini(){
+   local triplet
+cat << EOH
+# constructed by $(tracinter-source)::$FUNCNAME 
+[intertrac]
+EOH
+   tracinter-triplets- | while read triplet ; do
+      tracinter-inifrag $triplet
+   done
+}
+
+
 
 
 

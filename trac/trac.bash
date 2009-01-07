@@ -1,5 +1,5 @@
 
-
+trac-source(){ echo $BASH_SOURCE ; }
 trac-usage(){
 cat << EOU
 
@@ -383,32 +383,61 @@ trac-inherit-setup(){
         $SUDO mkdir -p $dir 
         [ -n "$SUDO" ] && $SUDO chown $user:$user $dir
     fi
-       
-    if [ ! -f $inherit ]; then 
-        echo $msg bootstraping global config $inherit
-        trac-inherit 
-    else
-        echo $msg inherited file $inherit exists already, delete this and rerun to change it
-        ls -l $inherit
-    fi
+        
+    trac-inherit 
+}
+
+
+trac-inherit-(){
+
+
+   cat << EOH
+#
+#  this was created by $(trac-source)::$FUNCNAME 
+#
+EOH
+
+    cat $ENV_HOME/trac/common.ini
+    tracinter-
+    tracinter-ini
+
 }
 
 
 trac-inherit(){
 
+   local msg="=== $FUNCNAME :"
    local live=$(trac-inheritpath)
    local path=${1:-$live}
    local tmp=/tmp/env/${FUNCNAME/-*/} && mkdir -p $tmp
-   local name=$(basename $path)
+   local tpath=$tmp/$(basename $path)
+   
    apache-
    local user=$(apache-user)
    
-   #trac-inherit- > $tmp/$name
-   cat $ENV_HOME/trac/common.ini > $tmp/$name
+   trac-inherit- > $tpath
+ 
+   local dmd="diff $live $tpath"
+   $dmd > /dev/null
+   local rc=$?
+ 
+   if [ "$rc" == "0" ]; then
+      echo $msg proposed inherit config $tpath is the same as the current one $live
+   else
+      echo $msg a changed inherit config $tpath is proposed ...
+      echo $msg $dmd
+      $dmd
    
-   if [ "$path" == "$live" ]; then
-      $SUDO cp $tmp/$name $live 
-      [ -n "$SUDO" ] && $SUDO chown $user:$user $live
+      local ans
+      read -p "install the new config ? Enter YES to do so :" ans 
+      if [ "$ans" == "YES" ]; then
+         $SUDO cp $tpath $live 
+         [ -n "$SUDO" ] && $SUDO chown $user:$user $live
+      else
+         echo $msg skipping new config 
+      fi
+      
+      
    fi
 
 }

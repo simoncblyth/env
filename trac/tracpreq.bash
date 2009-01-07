@@ -1,5 +1,4 @@
-
-
+tracpreq-source(){ echo $BASH_SOURCE ; }
 tracpreq-usage(){
 
   cat << EOU
