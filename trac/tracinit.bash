@@ -40,10 +40,8 @@ tracinit-prepare(){
     trac-configure-instance $name
     trac-inherit-setup
 
-
     tracinit-upgrade $name
-    
-    
+    tracinit-logchown $name
 }
 
 
