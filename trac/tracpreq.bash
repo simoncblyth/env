@@ -25,6 +25,10 @@ tracpreq-again(){
    pythonbuild-
    pythonbuild-again
    
+   configobj-
+   configobj-get
+   
+   
    swig-
    swigbuild-
    swigbuild-again

@@ -43,7 +43,8 @@ EOU
 }
 
 
-pexpect(){       . $ENV_HOME/python/pexpect.bash ; } 
+pexpect-(){      . $ENV_HOME/python/pexpect.bash   && pexpect-env   $* ; } 
+configobj-(){    . $ENV_HOME/python/configobj.bash && configobj-env $* ; }
 pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-env $* ; } 
 
 
