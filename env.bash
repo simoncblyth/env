@@ -4,7 +4,7 @@
 #    ... move to putting top level precursors here only 
 #        with the sub precursors defined  in the name/name.bash file
 #
-env-home(){       echo $(dirname $BASH_SOURCE) ; }
+env-home(){     [ -n "$BASH_SOURCE" ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 
 env-(){         . $ENV_HOME/env.bash && env-env $* ; }
 test-(){        . $ENV_HOME/test/test.bash       && test-env $* ; }
