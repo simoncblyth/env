@@ -33,7 +33,7 @@ tracinit-env(){
 
 
 tracinit-newtest(){
-   sudo bash -c ". $ENV_HOME/env.bash ; trac- ; tracinit- ;  tracinit-prepare newtest "
+   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; trac- ; tracinit- ;  tracinit-prepare newtest "
 }
 
 

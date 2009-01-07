@@ -6,100 +6,100 @@
 #
 env-home(){     [ -n "$BASH_SOURCE" ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 
-env-(){         . $ENV_HOME/env.bash && env-env $* ; }
-test-(){        . $ENV_HOME/test/test.bash       && test-env $* ; }
-scponly-(){     . $ENV_HOME/scponly/scponly.bash && scponly-env $* ; }
-nuwa-(){        . $ENV_HOME/nuwa/nuwa.bash       && nuwa-env $* ; }
-memcheck-(){    . $ENV_HOME/memcheck/memcheck.bash  && memcheck-env $* ; }
-eve-(){         . $ENV_HOME/eve/eve.bash && eve-env $* ; }
-sglv-(){        . $ENV_HOME/eve/SplitGLView/sglv.bash && sglv-env $* ; }
-cmt-(){         . $ENV_HOME/cmt-/cmt-.bash && cmt-env $* ; }
+env-(){         . $(env-home)/env.bash && env-env $* ; }
+test-(){        . $(env-home)/test/test.bash       && test-env $* ; }
+scponly-(){     . $(env-home)/scponly/scponly.bash && scponly-env $* ; }
+nuwa-(){        . $(env-home)/nuwa/nuwa.bash       && nuwa-env $* ; }
+memcheck-(){    . $(env-home)/memcheck/memcheck.bash  && memcheck-env $* ; }
+eve-(){         . $(env-home)/eve/eve.bash && eve-env $* ; }
+sglv-(){        . $(env-home)/eve/SplitGLView/sglv.bash && sglv-env $* ; }
+cmt-(){         . $(env-home)/cmt-/cmt-.bash && cmt-env $* ; }
 
-legacy-(){      . $ENV_HOME/legacy/legacy.bash && legacy-env $* ; }
-private-(){     . $ENV_HOME/base/private.bash && private-env $* ; }
+legacy-(){      . $(env-home)/legacy/legacy.bash && legacy-env $* ; }
+private-(){     . $(env-home)/base/private.bash && private-env $* ; }
 
-dyw-(){         . $ENV_HOME/dyw/dyw.bash   && dyw-env   $* ; }
-root-(){        . $ENV_HOME/dyw/root.bash  && root-env  $* ; }
+dyw-(){         . $(env-home)/dyw/dyw.bash   && dyw-env   $* ; }
+root-(){        . $(env-home)/dyw/root.bash  && root-env  $* ; }
 
-_dyb__(){       . $ENV_HOME/dyb/dyb__.sh              $* ; }
-dyb-(){         . $ENV_HOME/dyb/dyb.bash  && dyb-env  $* ; }
-dybi-(){        . $ENV_HOME/dyb/dybi.bash && dybi-env $* ; }
-dybr-(){        . $ENV_HOME/dyb/dybr.bash && dybr-env $* ; }
-dybt-(){        . $ENV_HOME/dyb/dybt.bash && dybt-env $* ; }
-dybpy-(){       . $ENV_HOME/dybpy/dybpy.bash && dybpy-env $* ; }
-dybsvn-(){      . $ENV_HOME/dyb/dybsvn.bash && dybsvn-env $* ; }
+_dyb__(){       . $(env-home)/dyb/dyb__.sh              $* ; }
+dyb-(){         . $(env-home)/dyb/dyb.bash  && dyb-env  $* ; }
+dybi-(){        . $(env-home)/dyb/dybi.bash && dybi-env $* ; }
+dybr-(){        . $(env-home)/dyb/dybr.bash && dybr-env $* ; }
+dybt-(){        . $(env-home)/dyb/dybt.bash && dybt-env $* ; }
+dybpy-(){       . $(env-home)/dybpy/dybpy.bash && dybpy-env $* ; }
+dybsvn-(){      . $(env-home)/dyb/dybsvn.bash && dybsvn-env $* ; }
 
-dtracebuild-(){  . $ENV_HOME/dtrace/dtracebuild.bash && dtracebuild-env $* ; }
+dtracebuild-(){  . $(env-home)/dtrace/dtracebuild.bash && dtracebuild-env $* ; }
 
-apache2-(){     . $ENV_HOME/apache/apache2.bash && apache2-env $* ; } 
-apache-(){      . $ENV_HOME/apache/apache.bash && apache-env $* ; } 
-apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; } 
+apache2-(){     . $(env-home)/apache/apache2.bash && apache2-env $* ; } 
+apache-(){      . $(env-home)/apache/apache.bash && apache-env $* ; } 
+apacheconf-(){  . $(env-home)/apache/apacheconf/apacheconf.bash && apacheconf-env $* ; } 
 
-caen-(){        . $ENV_HOME/caen/caen.bash      && caen-env $* ; } 
+caen-(){        . $(env-home)/caen/caen.bash      && caen-env $* ; } 
 
-base-(){        . $ENV_HOME/base/base.bash    && base-env $* ; } 
-local-(){       . $ENV_HOME/base/local.bash   && local-env $* ; }
-elocal-(){      . $ENV_HOME/base/local.bash   && local-env $* ; }   ## avoid name clash 
-cron-(){        . $ENV_HOME/base/cron.bash    && cron-env $* ; } 
-ebash-(){       . $ENV_HOME/base/bash.bash    && bash-env $* ; }
-mail-(){        . $ENV_HOME/mail/mail.bash    && mail-env $* ; }
+base-(){        . $(env-home)/base/base.bash    && base-env $* ; } 
+local-(){       . $(env-home)/base/local.bash   && local-env $* ; }
+elocal-(){      . $(env-home)/base/local.bash   && local-env $* ; }   ## avoid name clash 
+cron-(){        . $(env-home)/base/cron.bash    && cron-env $* ; } 
+ebash-(){       . $(env-home)/base/bash.bash    && bash-env $* ; }
+mail-(){        . $(env-home)/mail/mail.bash    && mail-env $* ; }
 
-scm-(){         . $ENV_HOME/scm/scm.bash && scm-env $* ; } 
-scm-backup-(){  . $ENV_HOME/scm/scm-backup.bash && scm-backup-env $* ; } 
+scm-(){         . $(env-home)/scm/scm.bash && scm-env $* ; } 
+scm-backup-(){  . $(env-home)/scm/scm-backup.bash && scm-backup-env $* ; } 
 
-unittest-(){    . $ENV_HOME/unittest/unittest.bash && unittest-env $* ; }
-qmtest-(){      . $ENV_HOME/unittest/qmtest.bash  && qmtest-env  $* ; }
-enscript-(){    . $ENV_HOME/enscript/enscript.bash  && enscript-env  $* ; }
-
-
-
-nose-(){         . $ENV_HOME/nose/nose.bash    && nose-env $* ; }
-nosebit-(){      . $ENV_HOME/nosebit/nosebit.bash    && nosebit-env $* ; }
-
-_nose-(){       . $ENV_HOME/unittest/nose.bash  && _nose-env  $* ; }
-_annobit-(){    . $ENV_HOME/annobit/annobit.bash  && _annobit-env $* ; }
-
-trac-(){        . $ENV_HOME/trac/trac.bash && trac-env $* ; } 
-tracpreq-(){    . $ENV_HOME/trac/tracpreq.bash && tracpreq-env $* ; } 
-tmacros-(){     . $ENV_HOME/trac/macros/macros.bash  && macros-env $* ; }
-
-package-(){     . $ENV_HOME/python/package.bash      && package-env $* ; } 
-pkg-(){         . $ENV_HOME/python/pkg.bash          && pkg-env $* ; }
-pypi-(){        . $ENV_HOME/python/pypi.bash         && pypi-env $* ; }
-
-otrac-(){       . $ENV_HOME/otrac/otrac.bash     && otrac-env $* ; } 
-trac-conf-(){   . $ENV_HOME/otrac/trac-conf.bash && trac-conf-env $* ; } 
-trac-ini-(){    . $ENV_HOME/otrac/trac-ini.bash  && trac-ini-env  $* ; } 
-authzpolicy-(){ . $ENV_HOME/otrac/authzpolicy.bash && authzpolicy-env $* ; }
-
-svn-(){         . $ENV_HOME/svn/svn.bash         && svn-env $* ; } 
-
-
-swig-(){        . $ENV_HOME/swig/swig.bash       && swig-env $* ; } 
-sqlite-(){      . $ENV_HOME/sqlite/sqlite.bash && sqlite-env $* ; } 
-
-swish-(){       . $ENV_HOME/swish/swish.bash && swish-env $* ; } 
-
-cvs-(){          . $ENV_HOME/cvs/cvs.bash && cvs-env $* ; } 
+unittest-(){    . $(env-home)/unittest/unittest.bash && unittest-env $* ; }
+qmtest-(){      . $(env-home)/unittest/qmtest.bash  && qmtest-env  $* ; }
+enscript-(){    . $(env-home)/enscript/enscript.bash  && enscript-env  $* ; }
 
 
 
-db-(){          . $ENV_HOME/db/db.bash     && db-env $*     ; }
+nose-(){         . $(env-home)/nose/nose.bash    && nose-env $* ; }
+nosebit-(){      . $(env-home)/nosebit/nosebit.bash    && nosebit-env $* ; }
+
+_nose-(){       . $(env-home)/unittest/nose.bash  && _nose-env  $* ; }
+_annobit-(){    . $(env-home)/annobit/annobit.bash  && _annobit-env $* ; }
+
+trac-(){        . $(env-home)/trac/trac.bash && trac-env $* ; } 
+tracpreq-(){    . $(env-home)/trac/tracpreq.bash && tracpreq-env $* ; } 
+tmacros-(){     . $(env-home)/trac/macros/macros.bash  && macros-env $* ; }
+
+package-(){     . $(env-home)/python/package.bash      && package-env $* ; } 
+pkg-(){         . $(env-home)/python/pkg.bash          && pkg-env $* ; }
+pypi-(){        . $(env-home)/python/pypi.bash         && pypi-env $* ; }
+
+otrac-(){       . $(env-home)/otrac/otrac.bash     && otrac-env $* ; } 
+trac-conf-(){   . $(env-home)/otrac/trac-conf.bash && trac-conf-env $* ; } 
+trac-ini-(){    . $(env-home)/otrac/trac-ini.bash  && trac-ini-env  $* ; } 
+authzpolicy-(){ . $(env-home)/otrac/authzpolicy.bash && authzpolicy-env $* ; }
+
+svn-(){         . $(env-home)/svn/svn.bash         && svn-env $* ; } 
 
 
-aberdeen-(){    . $ENV_HOME/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+swig-(){        . $(env-home)/swig/swig.bash       && swig-env $* ; } 
+sqlite-(){      . $(env-home)/sqlite/sqlite.bash && sqlite-env $* ; } 
 
-python-(){      . $ENV_HOME/python/python.bash  && python-env $*  ; }
-ipython-(){     . $ENV_HOME/python/ipython.bash && ipython-env $* ; }
+swish-(){       . $(env-home)/swish/swish.bash && swish-env $* ; } 
 
-
-
-seed-(){        . $ENV_HOME/seed/seed.bash && seed-env $* ; }
-macros-(){      . $ENV_HOME/macros/macros.bash && macros-env $* ; }
-offline-(){     . $ENV_HOME/offline/offline.bash && offline-env $* ; }
+cvs-(){         . $(env-home)/cvs/cvs.bash && cvs-env $* ; } 
 
 
-xml-(){         . $ENV_HOME/xml/xml.bash ; }
+
+db-(){          . $(env-home)/db/db.bash     && db-env $*     ; }
+
+
+aberdeen-(){    . $(env-home)/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+
+python-(){      . $(env-home)/python/python.bash  && python-env $*  ; }
+ipython-(){     . $(env-home)/python/ipython.bash && ipython-env $* ; }
+
+
+
+seed-(){        . $(env-home)/seed/seed.bash && seed-env $* ; }
+macros-(){      . $(env-home)/macros/macros.bash && macros-env $* ; }
+offline-(){     . $(env-home)/offline/offline.bash && offline-env $* ; }
+
+
+xml-(){         . $(env-home)/xml/xml.bash ; }
 
 
 
@@ -107,10 +107,10 @@ xml-(){         . $ENV_HOME/xml/xml.bash ; }
 
   
 # the below may not work in non-interactive running ???  
-md-(){  local f=${FUNCNAME/-} && local p=$ENV_HOME/$f/$f.bash && [ -r $p ] && . $p ; } 
+md-(){  local f=${FUNCNAME/-} && local p=$(env-home)/$f/$f.bash && [ -r $p ] && . $p ; } 
  
  
-ee(){ cd $ENV_HOME/$1 ; }
+ee(){ cd $(env-home)/$1 ; }
  
 env-usage(){
 cat << EOU
@@ -151,7 +151,7 @@ EOU
 }
 
 env-dbg(){
-   bash $ENV_HOME/env.bash
+   bash $(env-home)/env.bash
 }
 
 env-env(){
@@ -173,7 +173,7 @@ env-env(){
   #
 
   local iwd=$(pwd)
-  cd $ENV_HOME
+  cd $(env-home)
  
   base-  
   svn-
@@ -206,7 +206,7 @@ env-u(){
   if [ "$NODE_TAG" == "$SOURCE_TAG" ]; then
      echo ============= env-u : no svn update is performed as on source node ================
   else
-     cd $ENV_HOME 
+     cd $(env-home) 
      
      echo ============= env-u : status before update ================
      svn status -u
@@ -217,7 +217,7 @@ env-u(){
      
   fi
   echo ============== env-u :  sourcing the env =============
-  [ -r $ENV_HOME/env.bash ] && . $ENV_HOME/env.bash  
+  [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
 }
 
 
@@ -244,7 +244,7 @@ EOD
 
 env-find(){
   q=${1:-dummy}
-  cd $ENV_HOME
+  cd $(env-home)
   find . -name '*.*' -exec grep -H $q {} \;
 }
 
@@ -273,7 +273,7 @@ env-x-pkg-not-working(){
   X=${1:-$TARGET_TAG}
 
   iwd=$(pwd)
-  cd $ENV_HOME
+  cd $(env-home)
   dirs=$(ls -1)
   for d in $dirs
   do
@@ -300,7 +300,7 @@ env-rsync(){
    local fold=${1:-dybpy}
    local target=${2:-C}
    
-   local cmd="rsync  -raztv $ENV_HOME/$fold/ $target:env/$fold/ --exclude '*.pyc' --exclude '.svn'  "
+   local cmd="rsync  -raztv $(env-home)/$fold/ $target:env/$fold/ --exclude '*.pyc' --exclude '.svn'  "
     
    echo $cmd 
    eval $cmd
@@ -309,7 +309,7 @@ env-rsync(){
 
 env-rsync-all(){
    local target=${1:-C}
-   local cmd="rsync  -raztv $ENV_HOME/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
+   local cmd="rsync  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
    echo $cmd 
    eval $cmd
 
@@ -396,11 +396,11 @@ env-again(){
 
   local msg="=== $FUNCNAME :"
 
-  [ -z $ENV_HOME ] && echo $msg ABORT no ENV_HOME && return 1 
+  [ -z $(env-home) ] && echo $msg ABORT no $(env-home) && return 1 
   [ -z $SCM_URL  ] && echo $msg ABORT no SCM_URL  && return 1
   
-  local dir=$(dirname $ENV_HOME)
-  local name=$(basename $ENV_HOME)
+  local dir=$(dirname $(env-home))
+  local name=$(basename $(env-home))
   local url=$SCM_URL/repos/env/trunk
   
   read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
@@ -429,7 +429,7 @@ env-egglink(){
 DELIB
 
   local msg="=== $FUNCNAME :" 
-  local dir=$(dirname $ENV_HOME)
+  local dir=$(dirname $(env-home))
   cd $dir
   local setup="setup.py"
   [ -f "$setup" ] && echo $msg a $setup exists already in $dir, delete $setup and rerun && return 1
@@ -452,7 +452,7 @@ env-egglink-setup(){
    This was sourced from $BASH_SOURCE:$FUNCNAME at $(date)
 
    The find_packages is going to be very user specific... 
-   as it depends on what exists above $ENV_HOME
+   as it depends on what exists above $(env-home)
 
 """
 from setuptools import setup, find_packages

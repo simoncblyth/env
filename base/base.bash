@@ -9,15 +9,15 @@ patch-(){     [ -r $ENV_HOME/base/patch.bash ]     && . $ENV_HOME/base/patch.bas
 system-(){    [ -r $ENV_HOME/base/system.bash ]    && . $ENV_HOME/base/system.bash ; }
 network-(){   [ -r $ENV_HOME/base/network.bash ]   && . $ENV_HOME/base/network.bash ; }
 
-clui-(){      [ -r $ENV_HOME/base/clui.bash ]       && . $ENV_HOME/base/clui.bash    && clui-env $* ; }
-cron-(){      [ -r $ENV_HOME/base/cron.bash ]       && . $ENV_HOME/base/cron.bash    && cron-env $* ; }
-service-(){   [ -r $ENV_HOME/base/service.bash ]    && . $ENV_HOME/base/service.bash && service-env $* ; }
-cluster-(){   [ -r $ENV_HOME/base/cluster.bash ]    && . $ENV_HOME/base/cluster.bash && cluster-env $* ; }
-perl-(){      [ -r $ENV_HOME/base/perl.bash ]       && . $ENV_HOME/base/perl.bash    && perl-env $* ; }
-batch-(){     [ -r $ENV_HOME/base/batch.bash ]      && . $ENV_HOME/base/batch.bash   && batch-env $* ; }
-file-(){      [ -r $ENV_HOME/base/file.bash ]       && . $ENV_HOME/base/file.bash    && file-env $* ; }
+clui-(){      . $(env-home)/base/clui.bash    && clui-env $* ; }
+cron-(){      . $(env-home)/base/cron.bash    && cron-env $* ; }
+service-(){   . $ENV_HOME/base/service.bash && service-env $* ; }
+cluster-(){   . $ENV_HOME/base/cluster.bash && cluster-env $* ; }
+perl-(){      . $ENV_HOME/base/perl.bash    && perl-env $* ; }
+batch-(){     . $ENV_HOME/base/batch.bash   && batch-env $* ; }
+file-(){      . $ENV_HOME/base/file.bash    && file-env $* ; }
 
-ssh-(){        . $ENV_HOME/base/ssh.bash    && ssh--env $* ; }
+ssh-(){        . $(env-home)/base/ssh.bash    && ssh--env $* ; }
  
 
 base-env(){
@@ -25,9 +25,10 @@ base-env(){
   local dbg=${1:-0}
   local iwd=$(pwd)
  
-   cd $ENV_HOME/base
 
+   cd $(env-home)/base
    elocal-
+ 
    
    ## do not need the ssh- funcs when non-interactive but do need the connection to the agent 
    ##  so this is better separate from the ssh-
@@ -39,7 +40,7 @@ base-env(){
    [ -t 0 ] || return 
    [ "$dbg" == "t0fake" ]  && echo faked tzero  && return 
  
-   cd $ENV_HOME/base
+   cd $(env-home)/base
    
    clui-
    ssh-

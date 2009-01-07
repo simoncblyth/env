@@ -16,7 +16,7 @@ ssh--env(){
 }
 
 ## makes more sense to treat the config as part of the ssh-- that happens to live in a different file
-. $ENV_HOME/base/ssh-config.bash
+. $(env-home)/base/ssh-config.bash
 
 ssh--usage(){
 
