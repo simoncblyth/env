@@ -74,6 +74,9 @@ tracinit-create(){
      $SUDO rm -rf "$name"
   fi
            
+  python-
+  sqlite-
+           
   local cmd="$SUDO trac-admin $envp initenv $name sqlite:db/trac.db svn $repo "
   echo $msg $cmd
   eval $cmd    
