@@ -1,4 +1,4 @@
-
+nuwa-source(){ echo $BASH_SOURCE ; }
 nuwa-utils(){
   cat << EOU
 
@@ -32,6 +32,12 @@ nuwa-utils(){
         factor out the cmt parsing ... 
             as it is in fact not nuwa specific and can be rehomed into cmt- for 
             usage in any cmt ensemble
+
+
+        reposition the warning about no case function defined .. to when you want to use it
+        rather than every new session
+
+
 
 
 EOU
@@ -130,7 +136,7 @@ nuwa-genpkgdir(){
 
 nuwa-defpkgdir(){
   local gen=$(nuwa-genpath)
-  [ ! -f "$gen" ] &&  echo $msg ERROR you need to generate \"$gen\" which should contain the func nuwa-pkgdir with nuwa-genpkgdir && return 1
+  [ ! -f "$gen" ] &&  echo $msg $(nuwa-source) : ERROR you need to generate \"$gen\" which should contain the func nuwa-pkgdir with nuwa-genpkgdir && return 1
   . "$gen" 
 }
 

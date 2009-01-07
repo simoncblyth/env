@@ -1,3 +1,5 @@
+
+cmt-source(){ echo $BASH_SOURCE ; }
 cmt-usage(){
    cat << EOU
 
@@ -59,6 +61,7 @@ EOU
 }
 
 
+
 cmt-env(){ 
    elocal-
    cmt-cmt
@@ -96,8 +99,11 @@ cmt--(){
 ## purloin the NuWa CMT as identified by NUWA_HOME
 
 cmt-ver(){      echo v1r20p20080222 ; }
-cmt-setup(){    echo $(cmt-external)/CMT/$(cmt-ver)/mgr/setup.sh ; }
-cmt-external(){ echo $(dirname $NUWA_HOME)/external ; }   ## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
+cmt-setup(){    
+   local ext=$(cmt-external) 
+   [ -n "$ext" ] && echo $(cmt-external)/CMT/$(cmt-ver)/mgr/setup.sh || echo "" 
+}
+cmt-external(){ [ -n "$NUWA_HOME" ] && echo $(dirname $NUWA_HOME)/external || echo "" ; }   ## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
 
 cmt-addpp(){
    local add=$1;
@@ -108,7 +114,7 @@ cmt-addpp(){
 cmt-itself(){
   local msg="=== $FUNCNAME :"
   local cmtsetup=$(cmt-setup)
-  [ ! -f "$cmtsetup" ] && echo $msg ERROR no cmtsetup $cmtsetup && return 1 
+  [ ! -f "$cmtsetup" ] && echo $msg $(cmt-source) : ERROR no cmtsetup $cmtsetup && return 1 
   . $cmtsetup
 } 
 
