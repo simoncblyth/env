@@ -153,7 +153,7 @@ local-nodetag-xinchun(){
 
 local-sudo(){
   case ${1:-$NODE_TAG} in
-  G|H|T) echo sudo ;;
+  G|H|T|C|P) echo sudo ;;
       *) echo -n ;
   esac
 }

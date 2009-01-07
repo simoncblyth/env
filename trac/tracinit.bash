@@ -4,6 +4,12 @@ tracinit-usage(){
   
     tracinit-source  : $(tracinit-source)
   
+    tracinit-prepare name
+    
+        creates and configures an instance from scratch ... only requiring a 
+        pre-existing repository of the same name 
+  
+  
     tracinit-create name
     
         create trac instance, the corresponding SVN repository must already exist
