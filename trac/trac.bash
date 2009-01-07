@@ -305,19 +305,25 @@ trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
 
 trac-edit-ini(){
    local path=$1
-   local user=$TRAC_USER
    shift
    
+   local user=$TRAC_USER
    local tmp=/tmp/env/trac/$FUNCNAME && mkdir -p $tmp
    local tpath=$tmp/$(basename $path)
    
+   ## edit a temporary copy of the ini file
    local cmd="cp $path $tpath "
    eval $cmd
-   
    python $ENV_HOME/base/ini.py $tpath $*  
    
-   diff $path $tpath 
-   [ -n "$SUDO" ] && $SUDO cp $tpath $path && $SUDO chown $user:$user $path
+   
+   local dmd="diff $path $tpath" 
+   echo $msg $dmd
+   $dmd
+   
+   
+   $SUDO cp $tpath $path 
+   sudo chown $user:$user $path
 
 }
 

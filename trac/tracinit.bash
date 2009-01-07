@@ -9,6 +9,10 @@ tracinit-usage(){
         creates and configures an instance from scratch ... only requiring a 
         pre-existing repository of the same name 
   
+        for testing new instance creation on C : 
+  
+         sudo bash -c ". $ENV_HOME/env.bash ; trac- ; tracinit- ;  tracinit-prepare newtest "
+  
   
     tracinit-create name
     
