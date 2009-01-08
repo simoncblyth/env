@@ -1,5 +1,5 @@
 
-
+tracperm-source(){ echo $BASH_SOURCE ; }
 tracperm-usage(){
 
   cat << EOU
@@ -13,15 +13,24 @@ tracperm-usage(){
       you must use TRAC_INSTANCE=whatever prefix , due to usage
       of trac-admin- under the covers which requires this 
    
+       tracperm--  args
+            run the args in a "sudo bash -c" sub-environment 
   
        tracperm-prepare-all
              sets the permissions for all the instances    
+                 tracperm-- tracperm-prepare-all
+                 
+             former approach :    
                  SUDO=sudo tracperm-prepare-all
   
        tracperm-prepare 
              sets permissions for a single instance, namely TRAC_INSTANCE
              target non default instance with eg:
+                 tracperm-- TRAC_INSTANCE=newtest tracperm-prepare
+                 
+             former approach giving "sudo python" troubles ... see #111    
                  SUDO=sudo TRAC_INSTANCE=aberdeen tracperm-prepare
+                 
   
        tracperm-level <name defaults to TRAC_INSTANCE> 
              security level for the named instance
@@ -37,7 +46,11 @@ EOU
 }
 
 tracperm-env(){
-  trac-
+  echo -n
+}
+
+tracperm--(){
+   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; trac- ; tracperm- ; $* "
 }
 
 tracperm-set(){
@@ -54,10 +67,10 @@ tracperm-set(){
 
 tracperm-level(){
     case ${1:-$TRAC_INSTANCE} in 
-                  env|tracdev) echo loose ;;
-       heprez|aberdeen|dybsvn) echo tight ;;   
-                     workflow) echo paranoid ;;
-                            *) echo paranoid ;;
+                               env|tracdev) echo loose ;;
+       heprez|aberdeen|dybsvn|data|newtest) echo tight ;;   
+                                  workflow) echo paranoid ;;
+                                         *) echo paranoid ;;
     esac
 }
 

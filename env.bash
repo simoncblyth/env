@@ -42,6 +42,7 @@ local-(){       . $(env-home)/base/local.bash   && local-env $* ; }
 elocal-(){      . $(env-home)/base/local.bash   && local-env $* ; }   ## avoid name clash 
 cron-(){        . $(env-home)/base/cron.bash    && cron-env $* ; } 
 ebash-(){       . $(env-home)/base/bash.bash    && bash-env $* ; }
+sudo-(){        . $(env-home)/base/sudo.bash    && sudo-env $* ; }
 mail-(){        . $(env-home)/mail/mail.bash    && mail-env $* ; }
 
 scm-(){         . $(env-home)/scm/scm.bash && scm-env $* ; } 

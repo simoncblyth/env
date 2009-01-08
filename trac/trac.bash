@@ -56,6 +56,16 @@ cat << EOU
               trac-admin- upgrade        ## db upgrade for new schema   
               trac-admin- permission list 
            
+           
+    trac-admin-- <args> 
+            invokation of trac-admin- <args> from within "sudo bash -c" with the
+            environment hooked up   
+           
+    trac--  <args>
+        for sudo bash usage of "trac-*" functions, eg 
+            trac-- TRAC_INSTANCE=newtest trac-admin- permission list
+           
+                             
     trac-configure  <block:qty:valu> ... 
            applies edits to  trac.ini by means of triplet arguments
    
@@ -175,6 +185,13 @@ textile-(){           . $ENV_HOME/trac/package/textile.bash    && textile-env   
 
 bittennotify-(){      . $ENV_HOME/trac/package/bittennotify.bash && bittennotify-env   $* ; }
 tracreposearch-(){    . $ENV_HOME/trac/package/tracreposearch.bash && tracreposearch-env   $* ; }
+
+
+
+
+trac--(){
+   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; trac- ; $* "
+}
 
 
 trac-instance(){
@@ -302,7 +319,7 @@ trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
 trac-logname(){ echo trac.log ; }
 
 trac-admin--(){
-   sudo bash -c ". $ENV_HOME/env.bash ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
   ## huh this did not change ownership of the trac.log ??
 }
 
