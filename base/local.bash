@@ -1,5 +1,5 @@
 
-
+local-source(){ echo $BASH_SOURCE ; }
 local-usage(){
 
 cat << EOU
@@ -72,11 +72,23 @@ local-env(){
 }
 
 
-local-node(){
+local-node-deprecated(){
    case $NODE in 
      "") echo $(uname -a | cut -d " " -f 2 | cut -d "." -f 1) ;;
       *) echo $NODE ;;
     esac
+}
+
+local-host(){
+   local h=$(hostname)
+   echo ${h/.*/}
+}
+
+local-node(){
+   case $NODE in 
+     "" ) local-host ;;
+       *) echo $NODE ;;
+   esac    
 }
 
 local-userprefs(){
@@ -100,7 +112,7 @@ local-tag2node(){
 local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
-         g4pb) echo G ;;
+   g4pb|simon) echo G ;;
          coop) echo CO ;;
         cms01) echo C ;;
       gateway) echo B ;;
