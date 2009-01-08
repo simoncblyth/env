@@ -196,10 +196,6 @@ svn-exists(){
    return 1
 }
 
-svn-provenance(){
-   local fn=$1
-   echo
-}
 
 svn-create(){
     local iwd=$PWD
@@ -229,7 +225,7 @@ svn-create(){
     esac  
        
     local tmp=$(svn-tmpdir)   
-    local imd="$SUDO svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) $fn on $(date) with argument $arg \" "
+    local imd="$SUDO svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
     echo $msg $imd
     eval $imd
        
