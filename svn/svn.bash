@@ -112,7 +112,9 @@ svn-env(){
   svn-path
 }
 
-
+svn--(){
+   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; svn- ; $* "
+}
 
 
 svn-hotbackuppath(){
@@ -206,16 +208,27 @@ svn-create(){
     svn-exists $name   && echo $msg ABORT a repository with name \"$name\" exists already && return  1 
     
     local arg=${2:-EMPTY}  
-                              
+                            
     [ -z $SCM_FOLD ] && echo $msg ABORT no SCM_FOLD && return 1
 
+    svn-- svn-create- $name $arg
+
+    cd $iwd
+}
+
+
+svn-create-(){
+
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    local arg=$2
     local repo=$(svn-repo-path $name)
     local dir=$(dirname $repo) 
     
-    [ ! -d "$dir" ] && echo $msg creating dir $dir && $SUDO mkdir -p "$dir"
+    [ ! -d "$dir" ] && echo $msg creating dir $dir && mkdir -p "$dir"
     cd $dir
     
-    local cmd="$SUDO svnadmin create $name"
+    local cmd="svnadmin create $name"
     [ ! -d $name ] && echo $msg $cmd && eval $cmd
 
     case $arg in 
@@ -225,12 +238,12 @@ svn-create(){
     esac  
        
     local tmp=$(svn-tmpdir)   
-    local imd="$SUDO svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
+    local imd="svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
     echo $msg $imd
     eval $imd
-       
-    cd $iwd
+
 }
+
 
 svn-tmpdir(){ echo /tmp/env/$FUNCNAME/$$  ; }
 
