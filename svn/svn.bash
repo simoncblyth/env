@@ -241,7 +241,21 @@ svn-create-(){
     local imd="svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
     echo $msg $imd
     eval $imd
+    
+    svn-chown $name
+    
 
+}
+
+svn-chown(){
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    [ -z "$name" ] && echo $msg the name of an svn repository is a required argument && return 1  
+    local repo=$(svn-repo-path $name)
+    local user=$(apache- ; apache-user)
+    local cmd="$SUDO chown -R $user:$user $repo/"
+    echo $msg $cmd
+    eval $cmd
 }
 
 
