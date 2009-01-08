@@ -1,4 +1,5 @@
-
+svn-source(){ echo $BASH_SOURCE ; }
+svn-sourcelink(){ env-sourcelink $(svn-source) ; }
 svn-usage(){
   
    cat << EOU
@@ -175,10 +176,39 @@ svn-repo-path(){
    echo $SCM_FOLD/$(svn-repo-dirname)/$name
 }
 
+
+svn-repos(){
+   local iwd=$PWD
+   cd $SCM_FOLD/$(svn-repo-dirname)
+   for name in $(ls -1)
+   do
+      [ -d $name ] && echo $name
+   done
+   cd $iwd
+}
+
+svn-exists(){
+   local name=$1
+   local repo
+   for repo in $(svn-repos) ; do
+      [ "$name" == "$repo" ] && return 0
+   done
+   return 1
+}
+
+svn-provenance(){
+   local fn=$1
+   echo
+}
+
 svn-create(){
     local iwd=$PWD
     local msg="=== $FUNCNAME :"
     local name=${1:-dummy}  
+    
+    [ -z "$name" ]     && echo $msg an instance name must be provided && return 1
+    svn-exists $name   && echo $msg ABORT a repository with name \"$name\" exists already && return  1 
+    
     local arg=${2:-EMPTY}  
                               
     [ -z $SCM_FOLD ] && echo $msg ABORT no SCM_FOLD && return 1
@@ -186,19 +216,34 @@ svn-create(){
     local repo=$(svn-repo-path $name)
     local dir=$(dirname $repo) 
     
-    $SUDO mkdir -p $dir
+    [ ! -d "$dir" ] && echo $msg creating dir $dir && $SUDO mkdir -p "$dir"
     cd $dir
-    [ ! -d $name ] && $SUDO svnadmin create $name
+    
+    local cmd="$SUDO svnadmin create $name"
+    [ ! -d $name ] && echo $msg $cmd && eval $cmd
 
-    if [ "$arg" == "EMPTY" ]; then
-       echo $msg leaving empty repository 
-    else
-       local tmp=/tmp/$FUNCNAME/$$  && mkdir -p $tmp/{branches,tags,trunk}
-       [ -d $arg ] && cp -r $arg $tmp/trunk/  || echo $msg no such path $arg
-       svn import $tmp file://$repo -m "initial import from $arg "
-    fi
+    case $arg in 
+      EMPTY) echo $msg leaving empty repository ;;
+       INIT) svn-populate       ;;
+          *) svn-populate $arg  ;;     
+    esac  
+       
+    local tmp=$(svn-tmpdir)   
+    local imd="$SUDO svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) $fn on $(date) with argument $arg \" "
+    echo $msg $imd
+    eval $imd
+       
     cd $iwd
 }
+
+svn-tmpdir(){ echo /tmp/env/$FUNCNAME/$$  ; }
+
+svn-populate(){
+   local dir=$1
+   local tmp=$(svn-tmpdir)  && mkdir -p $tmp/{branches,tags,trunk}
+   [ -n "$dir" -a -d "$dir" ] && cp -r $dir $tmp/trunk/  || echo $msg starting with just branches/tags/trunk 
+}
+
 
 svn-wipe(){
 
@@ -207,18 +252,22 @@ svn-wipe(){
    local name=$1
    [ -z $SCM_FOLD ] && echo $msg ABORT no SCM_FOLD && return 1
    
+   ! svn-exists $name && echo $msg ABORT no such repository exists with name \"$name\" && return 1
+   
    local repo=$(svn-repo-path $name)
    local dir=$(dirname $repo) 
    
    cd $dir
-   [ ! -d $name ] && echo $msg repo $name does not exist && return 1
+   [ ! -d $name ] && echo $msg ABORT repo $name does not exist && return 1
    
    local answer
    read -p "$msg are you sure you want to wipe the repository \"$name\" from $dir ? YES to proceed " answer
    [ "$answer" != "YES" ] && echo $msg skipping && return 1
    [ ${#name} -lt 3 ]  && echo $msg name $name is too short not proceeding && return 1
    
-   $SUDO rm -rf $name
+   local cmd="$SUDO rm -rf \"$name\""
+   echo $msg $cmd 
+   eval $cmd
 
    cd $iwd
 }

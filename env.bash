@@ -5,6 +5,20 @@
 #        with the sub precursors defined  in the name/name.bash file
 #
 env-home(){     [ -n "$BASH_SOURCE" ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
+env-lastrev(){  svn- ; svn-lastrev $(env-home) ; }
+env-rel(){
+  local src=$1
+  local rel=${src/$(env-home)\//}
+  [ "$rel" == "$src" ] && rel=$(env-home)/
+  echo $rel
+}
+
+env-sourcelink(){
+   local src=${1:-$(env-home)/}
+   svn-
+   echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
+}
+
 
 env-(){         . $(env-home)/env.bash && env-env $* ; }
 test-(){        . $(env-home)/test/test.bash       && test-env $* ; }

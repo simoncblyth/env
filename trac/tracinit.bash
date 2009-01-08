@@ -5,12 +5,15 @@ tracinit-usage(){
     tracinit-source  : $(tracinit-source)
   
     tracinit-prepare name
-    
+
+        CAUTION DO NOT INVOKE DIRECTLTY ... DO SO THRU trac-create 
+        FOR EXTRA CHECKING TO AVOID STOMPING ON PREEXISTING INSTANCES
+
         creates and configures an instance from scratch ... only requiring a 
-        pre-existing repository of the same name 
+        pre-existing SVN repository of the same name 
   
-        for testing new instance creation on C : 
-  
+    
+    
     tracinit-create name
     
         create trac instance, the corresponding SVN repository must already exist
@@ -19,7 +22,6 @@ tracinit-usage(){
   
   
     tracinit-newtest 
-     
         test creation + config of a new instance called "newtest"
   
   
@@ -41,6 +43,10 @@ tracinit-newtest(){
 
 
 tracinit-prepare(){
+    
+    ## CAUTION IT IS BETTER TO INVOKE THIS THRU trac-create FOR EXTRA CHECKING TO AVOID STOMPING 
+    ## PREEXISTING INSTANCES
+    
     local msg="=== $FUNCNAME :"
     local name=${1:-newtest}
     [ -z "$name" ] && echo $msg the name of a trac environment is a required argument && return 1

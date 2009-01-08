@@ -372,8 +372,25 @@ trac-db(){
    echo sqlite3 $(trac-envpath $*)/db/trac.db
 }
 
+trac-create(){
+   local msg="=== $FUNCNAME :" 
+   local name=$1
+   [ -z "$name" ]     && echo $msg an instance name must be provided && return 1
+   trac-exists $name  && echo $msg ABORT an instance with name \"$name\" exists already && return  1 
+   
+   tracinit-
+   tracinit--  tracinit-prepare $name
+  
+}
 
-
+trac-exists(){
+   local name=$1
+   local inst
+   for inst in $(trac-instances) ; do
+      [ "$name" == "$inst" ] && return 0
+   done
+   return 1
+}
 
 
 trac-instances(){
@@ -385,6 +402,40 @@ trac-instances(){
    done
    cd $iwd
 }
+
+
+trac-wipe(){
+
+   local iwd=$PWD
+   local msg="=== $FUNCNAME :"
+   local name=$1
+   [ -z $SCM_FOLD ] && echo $msg ABORT no SCM_FOLD && return 1
+   
+   ! trac-exists $name && echo $msg ABORT no such instance exists with name \"$name\" && return 1
+   
+   local inst=$(trac-envpath $name)
+   local dir=$(dirname $inst) 
+   
+   cd $dir
+   [ ! -d "$name" ] && echo $msg ABORT instance \"$name\" does not exist && return 1
+   
+   local answer
+   read -p "$msg are you sure you want to wipe the instance \"$name\" from $dir ? YES to proceed " answer
+   [ "$answer" != "YES" ] && echo $msg skipping && return 1
+   [ ${#name} -lt 3 ]  && echo $msg name $name is too short not proceeding && return 1
+   
+   local cmd="$SUDO rm -rf \"$name\""
+   echo $msg $cmd 
+   eval $cmd
+
+   cd $iwd
+}
+
+
+
+
+
+
 
 
 

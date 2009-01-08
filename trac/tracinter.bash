@@ -99,6 +99,7 @@ tracinter-triplets-(){
    e  env       http://dayabay.phys.ntu.edu.tw/tracs/env
    m  mirror    http://dayabay.phys.ntu.edu.tw/tracs/dybsvn
    a  aberdeen  http://dayabay.phys.ntu.edu.tw/tracs/aberdeen
+   d  data      http://dayabay.phys.ntu.edu.tw/tracs/data
    b  bitten    http://bitten.edgewall.org
    tr trac      http://trac.edgewall.org
    th trachacks http://trac-hacks.org

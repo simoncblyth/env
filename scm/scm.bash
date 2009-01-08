@@ -14,11 +14,17 @@ scm-usage(){
            if <arg> is INIT then just create the branches/tags/trunk or if EMPTY
            the default leave the repository at revision 0
 
-   
-          there is no "trac-create" ? 
-          
-        
-            
+           For example : 
+                scm-create data INIT         ## with branches/tags/trunk at revision 1
+                scm-create data EMPTY        ## at revision 0 
+                scm-create data /path/to/directory/to/put/into/trunk
+                
+
+      scm-wipe <name>
+      
+           Delete the repository + trac instance called <name>
+                  
+                  
                   
                         
                                     
@@ -47,11 +53,35 @@ scm-env(){
 
 scm-create(){
 
+  local msg="=== $FUNCNAME :" 
+  local name=$1
+  shift 
+  [ -z "$name" ]     && echo $msg an instance name must be provided && return 1
+
   svn-
-  svn-create $*
+  svn-create $name $*
   
   trac-
-  trac-create $*
+  trac-create $name 
    
 
 }
+
+
+scm-wipe(){
+  local msg="=== $FUNCNAME :" 
+  local name=$1
+  shift 
+  [ -z "$name" ]     && echo $msg an instance name must be provided && return 1
+
+
+  svn-
+  svn-wipe $name
+  
+  trac-
+  trac-wipe $name    
+
+
+}
+
+
