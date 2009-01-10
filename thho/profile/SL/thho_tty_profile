@@ -2,10 +2,3 @@
 # make my color of Scientific Linux tty profile directory easy to look
 export LS_COLORS="${LS_COLORS}di=01;34:"
 
-# my alias
-alias lh='ls -alh'
-alias ll='ls -al'
-alias vi='vim'
-alias rm='rm -i'
-alias cp='cp -i'
-alias mv='mv -i'
