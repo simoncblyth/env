@@ -19,7 +19,7 @@ env-
 ###################################################################
 nuwa_version=${NUWA_VERSION:-trunk}
 echo The hooking up NuWa version is $nuwa_version now
-export NUWA_HOME=/usr/local/dyb/$nuwa_version/NuWa-$nuwa_version
+export NUWA_HOME=/data/dyb/NuWa/$nuwa_version/NuWa-$nuwa_version
 ################## Blyth's env script ##########################
 
 
@@ -47,7 +47,3 @@ export BUILD_PATH=tutorial/$nuwa_version/Simulation/SimHistsExample
 
 #DYB_VERSION=trunk dyb_hookup /usr/local/dyb/trunk_dbg
 #export DYB_CHECK=nope
-###################THHO CUSTOM SETTING#############################
-if [ -f ~/.thho_local ]; then
-    . ~/.thho_local
-fi
