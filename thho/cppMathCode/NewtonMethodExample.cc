@@ -3,8 +3,6 @@
 //   also demonstrates use of a function template                             //
 
 #include <iostream>
-#include <iomanip>
-#include <math.h>
 #include <complex>
 
 using namespace std;
