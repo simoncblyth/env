@@ -1,13 +1,4 @@
 ###################################################################
-######################### hook up env #############################
-export ENV_HOME=$HOME/env
-env-(){  . $ENV_HOME/env.bash  && env-env $* ; }
-env-
-###################################################################
-
-
-
-###################################################################
 ###################################################################
 ########### hook up the custom env for Dayabay SW #################
 ###################################################################
@@ -21,21 +12,13 @@ nuwa_version=${NUWA_VERSION:-trunk}
 echo The hooking up NuWa version is $nuwa_version now
 export NUWA_HOME=/data/dyb/NuWa/$nuwa_version/NuWa-$nuwa_version
 ################## Blyth's env script ##########################
-
-
 export ENV_HOME=$HOME/env
-
 env-(){  . $ENV_HOME/env.bash  && env-env $* ; }
 env-
-
 ###############################################################
-
 nuwa-
-
 ################################################################
-
 export DYB__OPEN_COMMAND=firefox
-
 ######### comment out the package you would like to use ###########
 #export BUILD_PATH=dybgaudi/$nuwa_version/Simulation/GenTools
 #export BUILD_PATH=dybgaudi/$nuwa_version/RootIO/RootIOTest
