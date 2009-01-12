@@ -21,7 +21,7 @@
 
 #define PI 3.1415926
 #define DELTA 1.0e-10
-#define g_MAXLOOP 12
+#define g_MAXLOOP 99
 #define g_ACCURACY 1.0e-6
 
 using namespace std;
@@ -71,10 +71,10 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
                                 del,newn,newk,dn,dk);
         cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
             <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
-        cout << "accuracy for n is " << fabs(dn/n) << " for k is "
-                << fabs(dk/k) << "\n" << endl;
+        cout << "accuracy for n is " << fabs(dn) << " for k is "
+                << fabs(dk) << "\n" << endl;
         }
-    while(fabs(dn/n) >= accuracy && fabs(dk/k) >= accuracy && (--maxLoop));
+    while(fabs(dn) >= accuracy && fabs(dk) >= accuracy && (--maxLoop));
 
     // return the maxLoop as the flag to express finding
     // a root successfully
@@ -173,14 +173,20 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
 //////// Fresnel relationship //////////////////////////////////////////////
 Double_t GetFR(Double_t n, Double_t k) {
 
-    Double_t FR = ((n-1)*(n-1)+k*k)/((n+1)*(n+1)+k*k);
+    // simple formula to check the code
+    Double_t FR = n+2;
+
+    //Double_t FR = ((n-1)*(n-1)+k*k)/((n+1)*(n+1)+k*k);
     return FR;
 
 }
 
 Double_t GetIT(Double_t k, Double_t d, Double_t lambda) {
 
-    Double_t IT = exp((-4*PI*k*d)/lambda);
+    // simple formula to check the code
+    Double_t IT = k+5;
+
+    //Double_t IT = exp((-4*PI*k*d)/lambda);
     return IT;
 
 }
@@ -191,7 +197,7 @@ Double_t GetOpticalModelRValue(Double_t Tmc, Double_t IT, Double_t FR) {
     // simple relation to check the code
     Double_t y = FR;
 
-    //Double_t y = FR*(1+IT*(Tmc));
+    //Double_t y = FR*(1+IT*Tmc);
     return y;
 
 }
