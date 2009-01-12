@@ -52,6 +52,13 @@ void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
 
     if(RunNewtonTwoD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
         cout<< " \n successfully finding the root!" << endl;
+        ////////////////////////////////////////////
+        /////////// wrong!!!!!!!!!!!!!!!!!!!!!!!!!
+        ////////////////////////////////////////////
+        Double_t FinalTmc = GetIT(k,d,lambda);
+        Double_t FinalRmc = GetFR(n,k);
+        cout<<"\n the model T is " << FinalTmc
+            <<" and the model R is " << FinalRmc << endl;
     } else {
         cout << "\nfailed to find root " << endl;
     }
