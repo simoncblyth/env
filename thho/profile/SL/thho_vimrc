@@ -1,6 +1,4 @@
-" copy this file to
-" ~/.vimrc
-" to get my custom vim settings
 set softtabstop=4
 set expandtab
-set background=dark
+"set background=dark
+hi Comment ctermfg=blue
