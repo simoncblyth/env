@@ -21,8 +21,7 @@
 
 #define PI 3.1415926
 #define DELTA 1.0e-10
-#define THICKNESS 10
-#define g_MAXLOOP 7
+#define g_MAXLOOP 12
 #define g_ACCURACY 1.0e-6
 
 using namespace std;
@@ -34,29 +33,16 @@ void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
     cout.setf(ios::fixed | ios::showpoint);
     cout.precision(5);
 
-    // initial Tmc and Rmc
-    Double_t Tmc=0;
-    Double_t Rmc=0;
-
-    GetOpticalModelValue(Tmc, Rmc, GetIT(k,d,lambda), GetFR(n,k));
-    printf("\nTm\tRm\tTmc\tRmc\t\n");
-    printf("%f\t%f\t%f\t%f\n",Tm,Rm,Tmc,Rmc);
-
     cout << "\nStarting using Newton method..........\n" << endl;
-
-//    if(RunNewtonOneD(n, k, 7, 1.0e-6,Rm))
-//       cout << "\nroot n = " << n << ", test of f(x) = " << RFunc(n,k,Rm);
-//    else cout << "\nfailed to find root ";
-
-    cout<<"  loop       n       k       TFunc       RFunc         dx\          dy" << endl;
+    cout<<"  loop       n       k       TFunc       RFunc         dx\
+        dy" << endl;
 
     if(RunNewtonTwoD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
         cout<< " \n successfully finding the root!" << endl;
-        ////////////////////////////////////////////
-        /////////// wrong!!!!!!!!!!!!!!!!!!!!!!!!!
-        ////////////////////////////////////////////
-        Double_t FinalTmc = GetIT(k,d,lambda);
-        Double_t FinalRmc = GetFR(n,k);
+        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda),
+                            GetFR(n,k));
+        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
+                            GetIT(k,d,lambda),GetFR(n,k));
         cout<<"\n the model T is " << FinalTmc
             <<" and the model R is " << FinalRmc << endl;
     } else {
@@ -69,30 +55,11 @@ void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
 //////// Newton method /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-// 1D Newton method to check whether the result is resonable or not
-Int_t RunNewtonOneD(Double_t &x, const Double_t k, Int_t max_loop,
-                const Double_t accuracy, const Double_t Rm) {
-    Double_t term;
-    do
-        {
-         // calculate next term f(x) / f'(x) then subtract from current root
-         term = RFunc(x, k, Rm) / RFdiv(x, k, Rm);
-         x = x - term;// new root
-         cout << "new n is " << x << "\taccu is " << fabs(term/x) << endl;
-         
-        }
-    // check if term is within required accuracy or loop limit is exceeded
-    while ((fabs(term / x) > accuracy) && (--max_loop));
-    cout << "final max_loop " << max_loop << endl;
-    return max_loop;
-}
-
 // 2D Newton method
 Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
                 const Double_t accuracy, const Double_t Tm, 
                 const Double_t Rm, const Double_t d,
                 const Double_t lambda) {
-    Double_t term;
     Double_t Tmf(0), Rmf(0), Tmn(0), Rmn(0), Tmk(0), Rmk(0);
     Double_t del(0), newn(0), newk(0), dn(0), dk(0);
     Int_t i(0);
@@ -116,47 +83,51 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
 }
 
 // constrain of R
-Double_t RFunc(Double_t n, Double_t k, Double_t Rm) {
+Double_t RFunc(Double_t n, Double_t k, Double_t d, Double_t lambda,
+                Double_t Tmc, Double_t Rm) {
 
-    // wrong!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    return GetFR(n,k) - Rm;
-
-}
-
-Double_t RFdiv(Double_t n, Double_t k, Double_t Tm) {
-
-    return RFpartialn(n,k,Tm);
-
-}
-
-Double_t RPartialn(Double_t n, Double_t k, Double_t Tm) {
-
-    Double_t y = (RFunc(n+DELTA/2,k,Tm)-RFunc(n-DELTA/2,k,Tm))/DELTA;
+    Double_t y = GetOpticalModelRValue(Tmc, GetIT(k,d,lambda), GetFR(n,k))
+                    - Rm;
     return y;
 
 }
 
-Double_t RPartialk(Double_t n, Double_t k, Double_t Tm) {
+Double_t RPartialn(Double_t n, Double_t k, Double_t d, Double_t lambda,
+                Double_t Tmc, Double_t Rm) {
 
-    Double_t y = (RFunc(n,k+DELTA/2,Tm)-RFunc(n,k-DELTA/2,Tm))/DELTA;
-    return y;
-}
-
-// wrong !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-Double_t TFunc(Double_t n, Double_t k, Double_t d, Double_t lambda, Double_t Tm) {
-
-    return GetIT(k, d, lambda) -Tm;
-
-}
-
-Double_t TPartialn(Double_t k,const Double_t d, const Double_t lambda) {
-
-    Double_t y = 0;
+    Double_t y = (RFunc(n+DELTA/2,k,d,lambda,Tmc,Rm)
+                -RFunc(n-DELTA/2,k,d,lambda,Tmc,Rm))/DELTA;
     return y;
 
 }
 
-Double_t TPartialk(Double_t n, Double_t k,const Double_t d,
+Double_t RPartialk(Double_t n, Double_t k, Double_t d, Double_t lambda,
+                Double_t Tmc, Double_t Rm) {
+
+    Double_t y = (RFunc(n+DELTA/2,k,d,lambda,Tmc,Rm)
+                -RFunc(n-DELTA/2,k,d,lambda,Tmc,Rm))/DELTA;
+
+    return y;
+}
+// constrain of T
+Double_t TFunc(Double_t n, Double_t k, Double_t d,
+                Double_t lambda, Double_t Tm) {
+
+    Double_t y = GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)) - Tm;
+    return y;
+
+}
+
+Double_t TPartialn(Double_t n, Double_t k, const Double_t d,
+                    const Double_t lambda, const Double_t Tm) {
+
+    Double_t y = (TFunc(n+DELTA/2,k,d,lambda,Tm)
+                - TFunc(n-DELTA/2,k,d,lambda,Tm)) / DELTA;
+    return y;
+
+}
+
+Double_t TPartialk(Double_t n, Double_t k, const Double_t d,
                     const Double_t lambda, const Double_t Tm) {
 
     Double_t y = (TFunc(n,k+DELTA/2,d,lambda,Tm)
@@ -170,13 +141,15 @@ void InitializeFunc(Double_t &n, Double_t &k,const Double_t d,
                 Double_t &Tmf, Double_t &Rmf, Double_t &Tmn, Double_t &Rmn,
                 Double_t &Tmk, Double_t &Rmk, const Double_t lambda) {
 
-        // wrong!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         Tmf = TFunc(n,k,d,lambda,Tm);
-        Rmf = RFunc(n,k,Rm);
-        Tmn = TPartialn(k,THICKNESS,lambda);
-        Rmn = RPartialn(n,k,Tm);
-        Tmk = TPartialk(n,k,THICKNESS,lambda,Tm);
-        Rmk = RPartialk(n,k,Rm);
+        Rmf = RFunc(n,k,d,lambda,
+                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
+        Tmn = TPartialn(n,k,d,lambda,Tm);
+        Tmk = TPartialk(n,k,d,lambda,Tm);
+        Rmn = RPartialn(n,k,d,lambda,
+                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
+        Rmk = RPartialk(n,k,d,lambda,
+                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
 
 }
 
@@ -213,27 +186,23 @@ Double_t GetIT(Double_t k, Double_t d, Double_t lambda) {
 }
 ////////////////////////////////////////////////////////////////////////////
 //////// Optical Model /////////////////////////////////////////////////////
-void GetOpticalModelRValue(Double_t &Tmc, Double_t &Rmc,
-                Double_t IT, Double_t FR) {
+Double_t GetOpticalModelRValue(Double_t Tmc, Double_t IT, Double_t FR) {
 
-    Rmc = FR*(1+IT*(Tmc));
+    // simple relation to check the code
+    Double_t y = FR;
 
-}
-
-void GetOpticalModelTValue(Double_t &Tmc, Double_t IT, Double_t FR) {
-
-    Tmc = ((1-FR)*(1-FR)*IT)/(1-FR*FR*IT*IT);
+    //Double_t y = FR*(1+IT*(Tmc));
+    return y;
 
 }
 
-void GetOpticalModelValue(Double_t &Tmc, Double_t &Rmc, Double_t IT, Double_t FR) {
+Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
 
-    GetOpticalModelTValue(Tmc, IT, FR);
-    GetOpticalModelRValue(Tmc, Rmc, IT, FR);
+    // simple relation to check the code
+    Double_t y = IT;
+
+    //Double_t y = ((1-FR)*(1-FR)*IT)/(1-FR*FR*IT*IT);
+    return y;
 
 }
-////////////////////////////////////////////////////////////////////////////
-
-
-
 
