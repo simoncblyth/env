@@ -224,6 +224,15 @@ nuwa-usage(){
         
 
 
+
+    dybinst release 1.0.1 testing ... where the trunk externals are re-used
+    
+       1) Set NUWA_HOME in .bash_profile corresponding to release 1.0.1
+       2) from that environment  
+            NUWA_DYBINST_OPTIONS="-e $(nuwa-external trunk)" nuwa-dybinst     
+
+
+
     THOUGHTS :
          nuwa- trunk
     
@@ -268,6 +277,7 @@ nuwa-info(){
    OR a default if that is not defined 
   
           nuwa-home $v    :  $(nuwa-home $v)
+          nuwa-base $v    :  $(nuwa-base $v)
           nuwa-release $v :  $(nuwa-release $v)
           nuwa-version $v :  $(nuwa-version $v)
           nuwa-base $v    :  $(nuwa-base $v) 
@@ -275,6 +285,7 @@ nuwa-info(){
           nuwa-dyb__ $v   :  $(nuwa-dyb__ $v)   
           nuwa-slave $v   :  $(nuwa-slave $v)  
   
+      
           nuwa-ddr $v     :  $(nuwa-ddr $v)       
           nuwa-ddi $v     :  $(nuwa-ddi $v)        
           nuwa-ddt $v     :  $(nuwa-ddt $v)       
@@ -285,6 +296,15 @@ nuwa-info(){
             DDR : $DDR
             DDI : $DDI
             DDT : $DDT
+            
+
+
+    For dybinst/release testing .. 
+            
+          nuwa-dybinst-options $v : $(nuwa-dybinst-options $v)  
+          nuwa-dybinst-cmd $v     : $(nuwa-dybinst-cmd $v)
+ 
+            
             
             
     Source paths reported by the functions hooked up into the environment :
@@ -324,11 +344,13 @@ nuwa-release(){       echo $(basename $(nuwa-home $*)); }
 nuwa-version(){       local rel=$(nuwa-release $*) ; echo ${rel/NuWa-/} ; }
 nuwa-scripts(){       echo installation/$(nuwa-version $*)/dybtest/scripts ; }
 nuwa-base(){          echo $(dirname $(nuwa-home $*)) ; } 
+
 nuwa-dyb__(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/dyb__.sh ; }
 nuwa-slave(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/slave.bash ; }
 
 nuwa-dyb(){           echo $(nuwa-base $*) ; } 
 nuwa-ddr(){           echo $(nuwa-home $*) ; } 
+nuwa-external(){      echo $(nuwa-base $*)/external ; } 
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
 nuwa-ddp(){           echo $(nuwa-home $*)/dybgaudi/DybPython/python/DybPython ; }
@@ -376,3 +398,34 @@ nuwa-isinstalled-(){
     local dyb__=$(nuwa-dyb__ $*)
     [ -f "$dyb__" ] && return 0 || return 1
 }
+
+
+
+nuwa-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
+nuwa-dybinst-cmd(){     echo ./dybinst $(nuwa-dybinst-options $*) $(nuwa-version $*) all ; }
+nuwa-dybinst-options(){ echo ${NUWA_DYBINST_OPTIONS:-""} ; }
+nuwa-dybinst(){
+
+    local msg="=== $FUNCNAME :"
+    local base=$(nuwa-base)
+    [ ! -d "$base" ] && echo $msg creating base directory $base 
+    
+    mkdir -p "$base"
+    cd "$base"
+    
+    local url=$(nuwa-dybinst-url)
+    [ ! -f dybinst ] && echo $msg exporting $url && svn export $url
+    
+    local cmd=$(nuwa-dybinst-cmd)
+    local ans
+    read -p "$msg from $PWD proceed with : [ $cmd ]  enter YES to proceed : " ans     
+    [ "$ans" != "YES" ] && echo $msg skipped ... && return 1
+    
+    echo $msg proceeding ...
+    eval $cmd
+    
+
+}
+
+
+
