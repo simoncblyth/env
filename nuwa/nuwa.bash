@@ -66,7 +66,7 @@ nuwa-env(){
   
 }
 
-
+nuwa--(){     screen bash -lc "nuwa- ; $*" ; } 
 
 nuwa-first(){  echo $1 ; }
 nuwa-second(){ echo $2 ; }
@@ -230,6 +230,10 @@ nuwa-usage(){
        1) Set NUWA_HOME in .bash_profile corresponding to release 1.0.1
        2) from that environment  
             NUWA_DYBINST_OPTIONS="-e $(nuwa-external trunk)" nuwa-dybinst     
+
+    to do this thru screen ... export NUWA_DYBINST_OPTIONS in the .bash_profile 
+
+
 
 
 
@@ -402,8 +406,8 @@ nuwa-isinstalled-(){
 
 
 nuwa-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
-nuwa-dybinst-cmd(){     echo ./dybinst $(nuwa-dybinst-options $*) $(nuwa-version $*) all ; }
-nuwa-dybinst-options(){ echo ${NUWA_DYBINST_OPTIONS:-""} ; }
+nuwa-dybinst-cmd(){     echo ./dybinst "$(nuwa-dybinst-options $*)" $(nuwa-version $*) all ; }
+nuwa-dybinst-options(){ echo "${NUWA_DYBINST_OPTIONS:-""}" ; }
 nuwa-dybinst(){
 
     local msg="=== $FUNCNAME :"
