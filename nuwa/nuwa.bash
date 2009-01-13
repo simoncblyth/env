@@ -301,7 +301,7 @@ nuwa-info(){
 
     For dybinst/release testing .. 
             
-          nuwa-dybinst-options $v : $(nuwa-dybinst-options $v)  
+          nuwa-dybinst-options $v : $(nuwa-dybinst-options $v)    NUWA_DYBINST_OPTIONS : $NUWA_DYBINST_OPTIONS
           nuwa-dybinst-cmd $v     : $(nuwa-dybinst-cmd $v)
  
             
