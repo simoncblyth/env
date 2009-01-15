@@ -9,19 +9,19 @@
 
 using namespace std;
 
-void OpticalModelPlotting(Double_t nmin, Double_t nmax, 
+void OpticalModelPlotting3D(Double_t nmin, Double_t nmax, 
                             Double_t kmin, Double_t kmax, Double_t d,
                             Double_t lambda,
-                            Double_t rtmin, Double_t rtmax, Int_t par) {
+                            Double_t rtmin, Double_t rtmax,
+                            Int_t parNo) {
 
     TF3 *tt = new
         TF3("TRansmittance", GetTFormula,
-                nmin,nmax,kmin,kmax,rtmin,rtmax,par);
+                nmin,nmax,kmin,kmax,rtmin,rtmax,parNo);
     tt->SetParameters(d,lambda);
-
     TF3 *rr = new
         TF3("Reflectance", GetRFormula,
-                nmin,nmax,kmin,kmax,rtmin,rtmax,par);
+                nmin,nmax,kmin,kmax,rtmin,rtmax,parNo);
     rr->SetParameters(d,lambda);
 
 
@@ -32,19 +32,18 @@ void OpticalModelPlotting(Double_t nmin, Double_t nmax,
 
 Double_t GetTFormula(Double_t *x, Double_t *par) {
 
-    return GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),
-                GetFR(x[0],x[1]))
-            -x[2];
+    return GetOpticalModelTValue(
+                GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1]))
+                - x[2];
 
 }
 
 Double_t GetRFormula(Double_t *x, Double_t *par) {
 
     return GetOpticalModelRValue(
-            GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),
-                                    GetFR(x[0],x[1])),
-                GetIT(x[1],par[0],par[1]),
-                GetFR(x[0],x[1]))
+        GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1])),
+        GetIT(x[1],par[0],par[1]),
+        GetFR(x[0],x[1]))
             - x[2];
 
 }
