@@ -13,19 +13,20 @@
 
 using namespace std;
 
-void OpticalModelPlotting(Double_t nmin, Double_t nmax, 
+void OpticalModelPlotting2D(Double_t nmin, Double_t nmax, 
                             Double_t kmin, Double_t kmax, Double_t d,
                             Double_t lambda,
-                            Double_t Tm, Double_t Rm, Int_t par) {
+                            const Double_t Tm, const Double_t Rm,
+                            Int_t parNo) {
 
     
 
     TF2 *tt = new
-        TF2("TRansmittance", GetTFormula,nmin,nmax,kmin,kmax,par);
+        TF2("TRansmittance", GetTFormula,nmin,nmax,kmin,kmax,parNo);
     tt->SetParameters(d,lambda,Tm,Rm);
 
     TF2 *rr = new
-        TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,par);
+        TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,parNo);
     rr->SetParameters(d,lambda,Tm,Rm);
 
 
@@ -58,23 +59,6 @@ Double_t RFunc(Double_t n, Double_t k, Double_t d, Double_t lambda,
 
 }
 
-Double_t RPartialn(Double_t n, Double_t k, Double_t d, Double_t lambda,
-                Double_t Tmc, Double_t Rm) {
-
-    Double_t y = (RFunc(n+DELTA/2,k,d,lambda,Tmc,Rm)
-                -RFunc(n-DELTA/2,k,d,lambda,Tmc,Rm))/DELTA;
-    return y;
-
-}
-
-Double_t RPartialk(Double_t n, Double_t k, Double_t d, Double_t lambda,
-                Double_t Tmc, Double_t Rm) {
-
-    Double_t y = (RFunc(n+DELTA/2,k,d,lambda,Tmc,Rm)
-                -RFunc(n-DELTA/2,k,d,lambda,Tmc,Rm))/DELTA;
-
-    return y;
-}
 // constrain of T
 Double_t TFunc(Double_t n, Double_t k, Double_t d,
                 Double_t lambda, Double_t Tm) {
@@ -82,57 +66,6 @@ Double_t TFunc(Double_t n, Double_t k, Double_t d,
     Double_t y = GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)) - Tm;
     return y;
 
-}
-
-Double_t TPartialn(Double_t n, Double_t k, const Double_t d,
-                    const Double_t lambda, const Double_t Tm) {
-
-    Double_t y = (TFunc(n+DELTA/2,k,d,lambda,Tm)
-                - TFunc(n-DELTA/2,k,d,lambda,Tm)) / DELTA;
-    return y;
-
-}
-
-Double_t TPartialk(Double_t n, Double_t k, const Double_t d,
-                    const Double_t lambda, const Double_t Tm) {
-
-    Double_t y = (TFunc(n,k+DELTA/2,d,lambda,Tm)
-                - TFunc(n,k-DELTA/2,d,lambda,Tm)) / DELTA;
-    return y;
-
-}
-
-void InitializeFunc(Double_t &n, Double_t &k,const Double_t d,
-                const Double_t Tm, const Double_t Rm,
-                Double_t &Tmf, Double_t &Rmf, Double_t &Tmn, Double_t &Rmn,
-                Double_t &Tmk, Double_t &Rmk, const Double_t lambda) {
-
-        Tmf = TFunc(n,k,d,lambda,Tm);
-        Rmf = RFunc(n,k,d,lambda,
-                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
-        Tmn = TPartialn(n,k,d,lambda,Tm);
-        Tmk = TPartialk(n,k,d,lambda,Tm);
-        Rmn = RPartialn(n,k,d,lambda,
-                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
-        Rmk = RPartialk(n,k,d,lambda,
-                GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)),Rm);
-
-}
-
-void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
-            Double_t &Tmf, Double_t &Rmf, Double_t &Tmn, Double_t &Rmn,
-            Double_t &Tmk, Double_t &Rmk, Double_t &del, Double_t &newn,
-            Double_t &newk, Double_t &dn, Double_t &dk) {
-
-    del = Tmn*Rmk - Tmk*Rmn;
-    dn = (Tmk*Rmf - Tmn*Rmf)/del;
-    dk = (Tmf*Rmn - Tmn*Rmf)/del;
-    newn = n + dn;
-    newk = k + dk;
-
-    n = newn;
-    k = newk;
-    
 }
 
 ////////////////////////////////////////////////////////////////////////////
