@@ -1,72 +1,70 @@
+//
+// Quick drawing to see the pattern of an acrylic optical model
+// given n and k.
+//
+// usage:
+//  shell prompt> root
+//  root cint> .L OpticalModelPlotting_2D
+//  root cint> OpticalModelPlotting2D(1.1,2.0, 0.0,2.0, 10,400,2)
+//
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
 //
-
-#include <iostream>
-#include <iomanip>
-#include <complex>
-
 #define PI 3.1415926
-#define DELTA 1.0e-10
-#define g_MAXLOOP 99
-#define g_ACCURACY 1.0e-6
 
 using namespace std;
 
 void OpticalModelPlotting2D(Double_t nmin, Double_t nmax, 
                             Double_t kmin, Double_t kmax, Double_t d,
                             Double_t lambda,
-                            const Double_t Tm, const Double_t Rm,
                             Int_t parNo) {
 
-    
+    TCanvas *c1 = new TCanvas(
+        "c1","Optical Model T and R",200,10,700,900);
+    title = new TPaveText(.2,0.96,.8,.995);
+    title->AddText("Optical Model T and R");
+    title->Draw();
+
+    pad1 = new TPad("pad1","TransmittancePad",0.03,0.50,0.98,0.95,21);
+    pad2 = new TPad("pad2","ReflectancePad",0.03,0.02,0.98,0.48,21);
+    pad1->Draw();
+    pad2->Draw();
 
     TF2 *tt = new
         TF2("TRansmittance", GetTFormula,nmin,nmax,kmin,kmax,parNo);
-    tt->SetParameters(d,lambda,Tm,Rm);
+    pad1->cd();
+    pad1->SetPhi(-80);
+    tt->SetParameters(d,lambda);
+    // color mesh
+    tt->Draw("surf1");
+    // gouraud shading
+    //tt->Draw("surf4");
+
 
     TF2 *rr = new
         TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,parNo);
-    rr->SetParameters(d,lambda,Tm,Rm);
-
-
-    tt->Draw();
-    rr->Draw();
+    pad2->cd();
+    rr->SetParameters(d,lambda);
+    rr->Draw("surf1");
 
 }
 
 Double_t GetTFormula(Double_t *x, Double_t *par) {
 
-    return TFunc(x[0],x[1],par[0],par[1],par[2]);
+    return GetOpticalModelTValue(
+                GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1]));
 
 }
 
 Double_t GetRFormula(Double_t *x, Double_t *par) {
 
-    return RFunc(x[0],x[1],par[0],par[1],
+    return GetOpticalModelRValue(
         GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1])),
-        par[3]);
+        GetIT(x[1],par[0],par[1]),
+        GetFR(x[0],x[1]));
+
 }
 /////////////////////////////////////////////////////////////////////////
-
-// constrain of R
-Double_t RFunc(Double_t n, Double_t k, Double_t d, Double_t lambda,
-                Double_t Tmc, Double_t Rm) {
-
-    Double_t y = GetOpticalModelRValue(Tmc, GetIT(k,d,lambda), GetFR(n,k))
-                    - Rm;
-    return y;
-
-}
-
-// constrain of T
-Double_t TFunc(Double_t n, Double_t k, Double_t d,
-                Double_t lambda, Double_t Tm) {
-
-    Double_t y = GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k)) - Tm;
-    return y;
-
-}
 
 ////////////////////////////////////////////////////////////////////////////
 //////// Fresnel relationship //////////////////////////////////////////////
@@ -118,4 +116,3 @@ Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
     return y;
 
 }
-
