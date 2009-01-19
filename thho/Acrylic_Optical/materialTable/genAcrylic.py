@@ -12,52 +12,35 @@ Usage:
 
 import xml.etree.ElementTree as ET
 import math as ma
-import decimal as dm
-
 
 # decide the file format
 pageFormat = ".xml"
-model = "ModelB"
+model = "ModelA"
 
 def GenTable(model):
 
-    #tree = ET.parse("acrylic.xml")
-
-    root = ET.Element("DDDB")
-    catalogTab = ET.SubElement(root, "catalog", \
-name="AcrylicProperties")
-    absTab = ET.SubElement(catalogTab, "tabproperty", \
-name="AcrylicAbsorptionLength",\
-type="ABSLENGTH",\
-xunit="eV",\
-yunit="mm",\
-xaxis="PhotonEnergy",\
-yaxis="AbsorptionLength")
-
-    absNum = GenAbsNum(model)
-    absTab.text = absNum
-
-    refTab = ET.SubElement(catalogTab, "tabproperty", \
-name="AcrylicRefractionIndex",\
-type="RINDEX",\
-xunit="eV",\
-yunit="",\
-xaxis="PhotonEnergy",\
-yaxis="IndexOfRefraction")
-
-    refNum = GenRefNum(model)
-    refTab.text = refNum
-
-    outputTree = ET.ElementTree(root)
-    outputTree.write("fake_acrylic.xml")
+    print "\nUsing\t", model, " to generate the material xml"
+    tree = ET.parse("acrylic.xml")
+    for ele in tree.getiterator("tabproperty"):
+        if(ele.attrib["name"]=="AcrylicAbsorptionLength"):
+            DumpFindingTab(ele)
+            ele.text=GenAbsNum(model)
+        elif(ele.attrib["name"]=="AcrylicRefractionIndex"):
+            DumpFindingTab(ele)
+            ele.text=GenRefNum(model)
+        else: print "Ooops! More Property??????"
+    filename = model + "_acrylic.xml"
+    tree.write(filename, encoding='UTF-8')
+    print "\nDone! Output file name is\t" ,filename
     pass
 
 
 def GenAbsNum(model):
     if(model=="ModelA"):
-        absNum = ModelAbsA()
+        absNum = ModelAbsA(0.2,200.,3.,300.)
     elif(model=="ModelB"):
-        absNum = ModelAbsB(0.2,200.,3.,300.)
+        #absNum = ModelAbsB()
+        pass
     else:
         print "Please specify a correct model name"
     return absNum
@@ -67,47 +50,32 @@ def GenRefNum(model):
     if(model=="ModelA"):
         refNum = ModelRefA()
     elif(model=="ModelB"):
-        refNum = ModelRefB()
+        #refNum = ModelRefB()
+        pass
     else:
         print "Please specify a correct model name"
     return refNum
 
-
-#################################################################
-# simple output string to check the writting format
-def ModelAbsA():
-    absNum=""
-    for i in range(1,11):
-        if i%2 == 0:
-            absNum = absNum + str(i) + "\n"
-        else: absNum = absNum + str(i) + " "
-    return absNum
-
-
-def ModelRefA():
-    refNum=""
-    for i in range(1,11):
-        if i%2 == 0:
-            refNum = refNum + str(i) + "\n"
-        else: refNum = refNum + str(i) + " "
-    return refNum
-#################################################################
+def DumpFindingTab(ele):
+    print "Parsing tab\t", ele.tag, " ,attrib\t", ele.attrib["name"]
+    pass
 
 #################################################################
 # ModelAbs using the formula 2 in DocDB2570v3
-def ModelAbsB(a1,a2,delta,cutting):
+def ModelAbsA(a1,a2,delta,cutting):
     absNum=""
     for wl in range(200,801):
         pev = float(1200)/float(wl)
         l = AbsEq(a1,a2,delta,wl,cutting)
         absNum = absNum + str(l) + " " + str(pev) +"\n"
-    print absNum
-
     return absNum
 
-# preseving the original G4dyb one....not complete
-def ModelRefB():
-    return ModelRefA()
+def ModelRefA():
+    RefNum=""
+    for wl in range(200,801):
+        pev = float(1200)/float(wl)
+        RefNum = RefNum + str(1.5) + " " + str(pev) +"\n"
+    return RefNum
 #################################################################
 
 #################################################################
@@ -122,6 +90,6 @@ def AbsEq(a1,a2,delta,wl,cutting):
 #################################################################
 
 if '__main__' == __name__:
-    print __doc__
+    #print __doc__
     GenTable(model)
     pass
