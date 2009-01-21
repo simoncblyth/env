@@ -43,7 +43,7 @@ def GenTable(model):
 
 def GenAbsNum(model):
     if(model=="ModelA"):
-        absNum = ModelAbsA(0.2,200.,3.,300.)
+        absNum = ModelAbsA(2.,2000.,3.,300.)
     elif(model=="ModelB"):
         #absNum = ModelAbsB()
         pass
@@ -72,10 +72,10 @@ def DumpFindingTab(ele):
 # ModelAbs using the formula 2 in DocDB2570v3
 def ModelAbsA(a1,a2,delta,cutting):
     absNum=""
-    for wl in range(200,801):
+    for wl in range(190,801):
         pev = float(1200)/float(wl)
         l = AbsEq(a1,a2,delta,wl,cutting)
-        absNum = absNum + str(l) + " " + str(pev) +"\n"
+        absNum = absNum + str(pev) + " " + str(l) +"\n"
     return absNum
 # preserve the original G4dyb value
 def ModelRefA():
