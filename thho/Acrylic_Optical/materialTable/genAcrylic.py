@@ -14,7 +14,6 @@ import xml.etree.ElementTree as ET
 import math as ma
 
 # decide the file format
-pageFormat = ".xml"
 model = "ModelA"
 
 def GenTable(model):
@@ -29,19 +28,16 @@ def GenTable(model):
             DumpFindingTab(ele)
             ele.text=GenRefNum(model)
         else: print "Ooops! More Property??????"
-    filename = model + "_acrylic.xml"
-    tree.write(filename)
 
     # using a "cheatting" way to deal with the doctype issues
-    input = file(filename).read()
-    rootEle = unserialize(input)
+    filename = model + "_acrylic.xml"
     f = open(filename,"w")
     f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     f.write('<!DOCTYPE DDDB SYSTEM "../DTD/geometry.dtd">\n')
-    f.write(ET.tostring(rootEle))
+    f.write(ET.tostring(tree.getroot()))
     f.close()
     
-    print "\nDone! Output file name is\t" ,filename
+    print "\nDone! Output file name is\t" ,filename, "\n"
     pass
 
 
@@ -70,11 +66,6 @@ def DumpFindingTab(ele):
     print "Parsing tab\t", ele.tag, " ,attrib\t", ele.attrib["name"]
     pass
 
-def unserialize(text):
-    import StringIO
-    file = StringIO.StringIO(text)
-    tree = ET.parse(file)
-    return tree.getroot()
 
 #################################################################
 # ModelAbs using the formula 2 in DocDB2570v3
