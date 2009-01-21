@@ -1,0 +1,37 @@
+host ihep
+   hostname lxslc10.ihep.ac.cn
+   ForwardX11 yes
+host grid1
+   hostname grid1.phys.ntu.edu.tw
+   ForwardX11 yes
+host hep1
+   hostname hep1.phys.ntu.edu.tw
+   ForwardX11 yes
+host hep6
+   hostname hep6.phys.ntu.edu.tw
+   ForwardX11 yes
+host dorm
+   hostname 140.112.230.223
+   ForwardX11 yes
+host pdsf
+   hostname pdsf.nersc.gov
+   ForwardX11 yes
+host abttunnel
+   hostname aberdeentunnel.dyndns.org
+   ForwardX11 yes
+host vme
+   hostname dayabayvme.no-ip.org
+   ForwardX11 yes
+host abt
+   hostname dayabay8core.no-ip.org
+   ForwardX11 yes
+host nuu
+   hostname belle7.nuu.edu.tw
+   ForwardX11 yes
+host nctu
+   hostname 140.113.145.65
+   ForwardX11 yes
+host hku
+   hostname dayabay8core.no-ip.org
+   ForwardX11 yes
+
