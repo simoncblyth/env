@@ -55,6 +55,7 @@ def GenAbsNum(model):
 def GenRefNum(model):
     if(model=="ModelA"):
         refNum = ModelRefA()
+        pass
     elif(model=="ModelB"):
         #refNum = ModelRefB()
         pass
@@ -76,12 +77,18 @@ def ModelAbsA(a1,a2,delta,cutting):
         l = AbsEq(a1,a2,delta,wl,cutting)
         absNum = absNum + str(l) + " " + str(pev) +"\n"
     return absNum
-
+# preserve the original G4dyb value
 def ModelRefA():
-    RefNum=""
-    for wl in range(200,801):
-        pev = float(1200)/float(wl)
-        RefNum = RefNum + str(1.5) + " " + str(pev) +"\n"
+    RefNum='''
+                        1.55                  1.4878
+                     1.79505                  1.4895
+                     2.10499                  1.4925
+                     2.27077                  1.4946
+                     2.55111                  1.4986
+                     2.84498                  1.5022
+                     3.06361                  1.5065
+                     4.13281                  1.5358
+                        6.20                  1.6279'''
     return RefNum
 #################################################################
 
