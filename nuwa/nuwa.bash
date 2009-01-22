@@ -303,10 +303,14 @@ nuwa-info(){
             
 
 
-    For dybinst/release testing .. 
+    For dybinst/release testing ..  (NB quoting caution, as echo swallows -e )
             
-          nuwa-dybinst-options $v : $(nuwa-dybinst-options $v)    NUWA_DYBINST_OPTIONS : $NUWA_DYBINST_OPTIONS
+          NUWA_DYBINST_OPTIONS    : $NUWA_DYBINST_OPTIONS  
+          nuwa-dybinst-options $v : $(nuwa-dybinst-options $v)    
           nuwa-dybinst-cmd $v     : $(nuwa-dybinst-cmd $v)
+ 
+    For screen protection :
+         nuwa-- nuwa-dybinst
  
             
             
@@ -359,7 +363,8 @@ nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybin
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
 nuwa-ddp(){           echo $(nuwa-home $*)/dybgaudi/DybPython/python/DybPython ; }
 nuwa-ddx(){           echo $(nuwa-home $*)/tutorial/Simulation/SimHistsExample/tests ; }
-
+nuwa-log(){           echo $(nuwa-base $*)/dybinst-recent.log ; }
+nuwa-tail(){          tail -f $(nuwa-log $*) ; }
 
 nuwa-exports(){
    export DYB=$(nuwa-dyb $*)
