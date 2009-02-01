@@ -45,11 +45,11 @@ Finished processing dependencies for ThhoNuWa==0.0.1
 from setuptools import setup
 
 setup(
-    name='ThhoNuWa',
+    name='ThhoSimHist',
     version='0.0.1',
     author='Taihsiang',
     author_email = 'thho@hep1.phys.ntu.edu.tw',
     description = 'Thho Dayabay NuWa utilities',
     license = 'None',
-    packages = ['dybthho']
+    packages = ['ThhoSimHist']
     )
