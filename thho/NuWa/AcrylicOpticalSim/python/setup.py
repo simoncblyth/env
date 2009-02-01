@@ -25,7 +25,7 @@ Finished processing dependencies for ThhoNuWa==0.0.1
 from setuptools import setup
 
 setup(
-    name='ThhoNuWa',
+    name='AcrylicOpticalSim',
     version='0.0.1',
     author='Taihsiang',
     author_email = 'thho@hep1.phys.ntu.edu.tw',
