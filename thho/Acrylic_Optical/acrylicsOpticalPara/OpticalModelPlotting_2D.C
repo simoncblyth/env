@@ -1,4 +1,5 @@
 //
+// 1.
 // Quick drawing to see the pattern of an acrylic optical model
 // given n and k.
 //
@@ -6,6 +7,15 @@
 //  shell prompt> root
 //  root cint> .L OpticalModelPlotting_2D
 //  root cint> OpticalModelPlotting2D(1.1,2.0, 0.0,2.0, 10,400,2)
+//
+// 2.
+// Quick comfirm measured T and R with known n and k
+//
+// usage:
+//  shell prompt> root
+//  root cint> .L OpticalModelPlotting_2D
+//  root cint> .L GetMeasureValue(alpha-cm^-1,n,d-cm,lambda-nm)
+//
 //
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
@@ -46,6 +56,25 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     pad2->cd();
     rr->SetParameters(d,lambda);
     rr->Draw("surf1");
+
+}
+
+void GetMeasureValue(Double_t alpha, Double_t n,
+                    Double_t d, Double_t lambda) {
+
+    Double_t lambda = lambda*(1.0/1000000000.0); // nm --> cm
+    Double_t k = (alpha*lambda)/(4.*PI);
+    Double_t Tmc = GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k));
+    Double_t Rmc = GetOpticalModelRValue(Tmc, GetIT(k,d,lambda),GetFR(n,k));
+
+    cout << endl;
+    cout << "k\t\t" << "n\t" << "d\t" << "lambda\t" << endl;
+    cout << k << "\t" << n << "\t" << d << "\t" << lambda << "\t" << endl;
+    cout << "---------------------" << endl;
+    cout << "IT\t" << GetIT(k,d,lambda) << endl;
+    cout << "FR\t" << GetFR(n,k) << endl;
+    cout << "Tmc\t" << Tmc << endl;
+    cout << "Rmc\t" << Rmc << "\tTmc+Rmc\t" << Tmc+Rmc << endl;
 
 }
 
