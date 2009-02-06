@@ -11,6 +11,9 @@
 // with the measured reflectance, transmittance within their
 // experimental uncertainties.
 //
+// shell prompt> root
+// root cint> .L FresnelAnalysis.C
+// root cint> FresnelAnalysis(1.5,0.2,10,400,0.91,0.05)
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
 //
@@ -51,9 +54,59 @@ void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
 
 }
 
+void FresnelAnalysisOneD(Double_t n, Double_t k, Double_t d,
+            Double_t lambda, Double_t Tm, Double_t Rm) {
+
+    // some printing out and value precision stuff
+    cout.setf(ios::fixed | ios::showpoint);
+    cout.precision(5);
+
+    cout << "\nStarting using Newton method..........\n" << endl;
+    cout<<"  loop       n       k       TFunc       RFunc         dx\
+        dy" << endl;
+
+    if(RunNewtonOneD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
+        cout<< " \n successfully finding the root!" << endl;
+        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda),
+                            GetFR(n,k));
+        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
+                            GetIT(k,d,lambda),GetFR(n,k));
+        cout<<"\n the model T is " << FinalTmc
+            <<" and the model R is " << FinalRmc << endl;
+    } else {
+        cout << "\nfailed to find root " << endl;
+    }
+
+}
+
 ////////////////////////////////////////////////////////////////////////////
 //////// Newton method /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
+
+// 1D Newton method with fixed n value for testing
+Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop,
+                const Double_t accuracy, const Double_t Tm, 
+                const Double_t Rm, const Double_t d,
+                const Double_t lambda) {
+    Double_t Tmf(0), Rmf(0), Tmn(0), Rmn(0), Tmk(0), Rmk(0);
+    Double_t del(0), newn(0), newk(0), dn(0), dk(0);
+    Int_t i(0);
+    do
+        {
+        i++;
+        InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda);
+        dk = - Tmf/Tmk;
+        k = k + dk;
+        cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
+            <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
+        }
+    while(fabs(dk) >= accuracy && (--maxLoop));
+
+    // return the maxLoop as the flag to express finding
+    // a root successfully
+    return maxLoop;
+
+}
 
 // 2D Newton method
 Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
@@ -71,8 +124,6 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
                                 del,newn,newk,dn,dk);
         cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
             <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
-        cout << "accuracy for n is " << fabs(dn) << " for k is "
-                << fabs(dk) << "\n" << endl;
         }
     while(fabs(dn) >= accuracy && fabs(dk) >= accuracy && (--maxLoop));
 
@@ -159,6 +210,7 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
             Double_t &newk, Double_t &dn, Double_t &dk) {
 
     del = Tmn*Rmk - Tmk*Rmn;
+    cout << Tmn << "\t" << Rmk << "\t" << Tmk << "\t" << Rmn << "\t" << endl;
     dn = (Tmk*Rmf - Tmn*Rmf)/del;
     dk = (Tmf*Rmn - Tmn*Rmf)/del;
     newn = n + dn;
@@ -174,9 +226,9 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
 Double_t GetFR(Double_t n, Double_t k) {
 
     // simple formula to check the code
-    Double_t FR = n+2;
+    //Double_t FR = n+2;
 
-    //Double_t FR = ((n-1)*(n-1)+k*k)/((n+1)*(n+1)+k*k);
+    Double_t FR = ((n-1)*(n-1)+k*k)/((n+1)*(n+1)+k*k);
     return FR;
 
 }
@@ -184,9 +236,9 @@ Double_t GetFR(Double_t n, Double_t k) {
 Double_t GetIT(Double_t k, Double_t d, Double_t lambda) {
 
     // simple formula to check the code
-    Double_t IT = k+5;
+    //Double_t IT = k+5;
 
-    //Double_t IT = exp((-4*PI*k*d)/lambda);
+    Double_t IT = exp((-4*PI*k*d)/lambda);
     return IT;
 
 }
@@ -195,8 +247,12 @@ Double_t GetIT(Double_t k, Double_t d, Double_t lambda) {
 Double_t GetOpticalModelRValue(Double_t Tmc, Double_t IT, Double_t FR) {
 
     // simple relation to check the code
-    Double_t y = FR;
+    //Double_t y = FR;
 
+    // Model 1
+    Double_t y = FR*(1+IT*Tmc);
+
+    // Model 2
     //Double_t y = FR*(1+IT*Tmc);
     return y;
 
@@ -205,9 +261,13 @@ Double_t GetOpticalModelRValue(Double_t Tmc, Double_t IT, Double_t FR) {
 Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
 
     // simple relation to check the code
-    Double_t y = IT;
+    //Double_t y = IT;
 
-    //Double_t y = ((1-FR)*(1-FR)*IT)/(1-FR*FR*IT*IT);
+    // Model 1
+    Double_t y = ((1-FR)*(1-FR)*IT)/(1-FR*FR*IT*IT);
+
+    // Model 2
+    //Double_t y = (1 -FR)*IT;
     return y;
 
 }
