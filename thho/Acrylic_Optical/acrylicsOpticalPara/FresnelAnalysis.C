@@ -4,37 +4,59 @@
 // the extinction coefficient k with the methoed like Ref 1.
 //
 // Usage:
-//   Input the initial n, k, the thickness of sample d, the
-// wavelength lambda, the measured reflectance R and the measured
-// transmittance T and then the program will use Newton method
+//   Input
+//
+// the initial n,
+// absorption coefficient alpha,
+// the thickness of sample d,
+// the wavelength lambda,
+// the measured reflectance R
+// and the measured transmittance T.
+//
+// Then the program will use Newton method
 // to give you the optimized n and k which are consistent
 // with the measured reflectance, transmittance within their
 // experimental uncertainties.
 //
 // shell prompt> root
 // root cint> .L FresnelAnalysis.C
-// root cint> FresnelAnalysis(1.5,0.2,10,400,0.91,0.05)
+// root cint> FresnelAnalysis(1.448,0.0009,25,405,0.914336,0.0634325)
+//
+// FresnelAnalysis(index of refraction, alpha--cm-1,
+//                  thickness--mm, wavelength--nm,
+//                  transmittance, reflectance)
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
 //
+//
+// Author: Taihsiang Ho
+// Contact: thho@hep1.phys.ntu.edu.tw
+// Date: 2009.Jan
+//
+
 
 #include <iostream>
 #include <iomanip>
 #include <complex>
 
 #define PI 3.1415926
-#define DELTA 1.0e-10
+#define DELTA 1.0e-11
 #define g_MAXLOOP 99
 #define g_ACCURACY 1.0e-6
 
 using namespace std;
 
-void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
+void FresnelAnalysis(Double_t n, Double_t alpha, Double_t d,
             Double_t lambda, Double_t Tm, Double_t Rm) {
 
     // some printing out and value precision stuff
-    cout.setf(ios::fixed | ios::showpoint);
-    cout.precision(5);
+    //cout.setf(ios::fixed | ios::showpoint);
+    //cout.precision(5);
+
+    // unit staff
+    lambda = lambda*1.0e-6; // unit: nm->mm
+    alpha = alpha*0.1; // unit: cm-1 -> mm-1
+    Double_t k = (lambda*alpha)/(4*PI);
 
     cout << "\nStarting using Newton method..........\n" << endl;
     cout<<"  loop       n       k       TFunc       RFunc         dx\
@@ -53,60 +75,9 @@ void FresnelAnalysis(Double_t n, Double_t k, Double_t d,
     }
 
 }
-
-void FresnelAnalysisOneD(Double_t n, Double_t k, Double_t d,
-            Double_t lambda, Double_t Tm, Double_t Rm) {
-
-    // some printing out and value precision stuff
-    cout.setf(ios::fixed | ios::showpoint);
-    cout.precision(5);
-
-    cout << "\nStarting using Newton method..........\n" << endl;
-    cout<<"  loop       n       k       TFunc       RFunc         dx\
-        dy" << endl;
-
-    if(RunNewtonOneD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
-        cout<< " \n successfully finding the root!" << endl;
-        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda),
-                            GetFR(n,k));
-        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
-                            GetIT(k,d,lambda),GetFR(n,k));
-        cout<<"\n the model T is " << FinalTmc
-            <<" and the model R is " << FinalRmc << endl;
-    } else {
-        cout << "\nfailed to find root " << endl;
-    }
-
-}
-
 ////////////////////////////////////////////////////////////////////////////
 //////// Newton method /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
-
-// 1D Newton method with fixed n value for testing
-Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop,
-                const Double_t accuracy, const Double_t Tm, 
-                const Double_t Rm, const Double_t d,
-                const Double_t lambda) {
-    Double_t Tmf(0), Rmf(0), Tmn(0), Rmn(0), Tmk(0), Rmk(0);
-    Double_t del(0), newn(0), newk(0), dn(0), dk(0);
-    Int_t i(0);
-    do
-        {
-        i++;
-        InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda);
-        dk = - Tmf/Tmk;
-        k = k + dk;
-        cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
-            <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
-        }
-    while(fabs(dk) >= accuracy && (--maxLoop));
-
-    // return the maxLoop as the flag to express finding
-    // a root successfully
-    return maxLoop;
-
-}
 
 // 2D Newton method
 Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
@@ -115,6 +86,7 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
                 const Double_t lambda) {
     Double_t Tmf(0), Rmf(0), Tmn(0), Rmn(0), Tmk(0), Rmk(0);
     Double_t del(0), newn(0), newk(0), dn(0), dk(0);
+
     Int_t i(0);
     do
         {
@@ -210,7 +182,6 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
             Double_t &newk, Double_t &dn, Double_t &dk) {
 
     del = Tmn*Rmk - Tmk*Rmn;
-    cout << Tmn << "\t" << Rmk << "\t" << Tmk << "\t" << Rmn << "\t" << endl;
     dn = (Tmk*Rmf - Tmn*Rmf)/del;
     dk = (Tmf*Rmn - Tmn*Rmf)/del;
     newn = n + dn;
@@ -223,6 +194,7 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
 
 ////////////////////////////////////////////////////////////////////////////
 //////// Fresnel relationship //////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 Double_t GetFR(Double_t n, Double_t k) {
 
     // simple formula to check the code
@@ -244,6 +216,7 @@ Double_t GetIT(Double_t k, Double_t d, Double_t lambda) {
 }
 ////////////////////////////////////////////////////////////////////////////
 //////// Optical Model /////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 Double_t GetOpticalModelRValue(Double_t Tmc, Double_t IT, Double_t FR) {
 
     // simple relation to check the code
