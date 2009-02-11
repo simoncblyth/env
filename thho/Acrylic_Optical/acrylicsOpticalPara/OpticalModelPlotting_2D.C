@@ -14,7 +14,7 @@
 // usage:
 //  shell prompt> root
 //  root cint> .L OpticalModelPlotting_2D
-//  root cint> .L GetMeasureValue(alpha-cm^-1,n,d-cm,lambda-nm)
+//  root cint> .L GetMeasureValue(alpha-cm^-1,n,d-mm,lambda-nm)
 //
 //
 // Ref:
@@ -59,10 +59,12 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
 
 }
 
+// simple caculate with given n and alpha
 void GetMeasureValue(Double_t alpha, Double_t n,
                     Double_t d, Double_t lambda) {
 
-    Double_t lambda = lambda*(1.0/1000000000.0); // nm --> cm
+    lambda = lambda*1.0e-6; // nm --> mm
+    alpha = alpha*0.1; //cm-1 --> mm
     Double_t k = (alpha*lambda)/(4.*PI);
     Double_t Tmc = GetOpticalModelTValue(GetIT(k,d,lambda),GetFR(n,k));
     Double_t Rmc = GetOpticalModelRValue(Tmc, GetIT(k,d,lambda),GetFR(n,k));
