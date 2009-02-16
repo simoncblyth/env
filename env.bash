@@ -23,6 +23,7 @@ env-sourcelink(){
 env-(){         . $(env-home)/env.bash && env-env $* ; }
 test-(){        . $(env-home)/test/test.bash       && test-env $* ; }
 scponly-(){     . $(env-home)/scponly/scponly.bash && scponly-env $* ; }
+invenio-(){     . $(env-home)/invenio/invenio.bash && invenio-env $* ; }
 nuwa-(){        . $(env-home)/nuwa/nuwa.bash       && nuwa-env $* ; }
 memcheck-(){    . $(env-home)/memcheck/memcheck.bash  && memcheck-env $* ; }
 eve-(){         . $(env-home)/eve/eve.bash && eve-env $* ; }
