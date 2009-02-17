@@ -650,9 +650,15 @@ EOT
 }
 
 
+trac-bannerpath-(){
+    case $TRAC_INSTANCE in 
+       dybsvn) echo $ENV_HOME/logo/theta13_offline_software.png ;;
+            *) echo $ENV_HOME/logo/trac_bannar_${TRAC_INSTANCE}.png ;;
+    esac        
+}
 
 trac-bannerpath(){
-   local path=$ENV_HOME/logo/theta13_offline_software.png
+   local path=$(trac-bannerpath-)
    [ -f $path ] && echo $path || echo -n
 } 
 
