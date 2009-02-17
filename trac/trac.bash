@@ -116,8 +116,10 @@ cat << EOU
           The default banner is  common/trac_banner.png  236x73 pixels
  
           Target non-default instance with :
-              TRAC_INSTANCE=dybsvn trac-setbanner
- 
+              SUDO=sudo TRAC_INSTANCE=dybsvn   trac-setbanner
+              SUDO=sudo TRAC_INSTANCE=env      trac-setbanner
+              SUDO=sudo TRAC_INSTANCE=aberdeen trac-setbanner
+   
    
    
     trac-intertrac-conf
