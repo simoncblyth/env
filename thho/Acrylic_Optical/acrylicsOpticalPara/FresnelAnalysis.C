@@ -3,6 +3,16 @@
 // A root code for evaluating the index of refaction n and
 // the extinction coefficient k with the methoed like Ref 1.
 //
+// Then the program will use Newton method
+// to give you the optimized n and k which are consistent
+// with the measured reflectance, transmittance within their
+// experimental uncertainties. The algorithm to optimize
+// for n is RT method and for k is RTT' method.
+//
+// RT finds out the optimized n and k with 2D Newton method.
+// Set previous optimized n as initial n parameter for RTT'
+// method and then RTT' finds out k with 1D Newton method.
+//
 // Usage:
 //   Input
 //
@@ -13,18 +23,19 @@
 // the measured reflectance R
 // and the measured transmittance T.
 //
-// Then the program will use Newton method
-// to give you the optimized n and k which are consistent
-// with the measured reflectance, transmittance within their
-// experimental uncertainties.
 //
 // shell prompt> root
 // root cint> .L FresnelAnalysis.C
-// root cint> FresnelAnalysis(1.448,0.0009,25,405,0.914336,0.0634325)
+// root cint> SucApp(1.505,0.009,405.0,
+//                      10.14,0.92253096,0.07979050,
+//                      14.80,0.92029215,0.08033188)
 //
-// FresnelAnalysis(index of refraction, alpha--cm-1,
-//                  thickness--mm, wavelength--nm,
-//                  transmittance, reflectance)
+// SucApp(index of refraction, alpha--cm-1, wavelength--nm,
+//          thickness of thinner one -- mm,
+//          thinner one transmittance, thinner one reflectance
+//          thickness of thicker one -- mm,
+//          thicker one transmittance, thicker one reflectance)
+//
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
 //
@@ -32,6 +43,13 @@
 // Author: Taihsiang Ho
 // Contact: thho@hep1.phys.ntu.edu.tw
 // Date: 2009.Jan
+//
+// TODO: 1. A function processes successive approach with different
+//          searching initial value of n or k
+//          when the Newton method find a phsical meaningless n or k
+//       2. Check the consistent n and k for thin and thick sample.
+//       3. Stopping when finding process failed not compeletely defined.
+//
 //
 
 
@@ -46,8 +64,99 @@
 
 using namespace std;
 
-void FresnelAnalysis(Double_t n, Double_t alpha, Double_t d,
-            Double_t lambda, Double_t Tm, Double_t Rm) {
+// n and alpha value container
+typedef struct nacon
+{
+    Double_t n;
+    Double_t alpha;
+};
+
+// successive approach
+void SucApp(Double_t n, Double_t alpha, Double_t lambda,
+            Double_t thin, Double_t thinTm, Double_t thinRm,
+            Double_t thick, Double_t thickTm, Double_t thickRm ) {
+
+    nacon nac;
+    Int_t maxLoop = g_MAXLOOP;
+    Double_t deltan(0);
+    Double_t deltaalpha(0);
+    Double_t thinn(0);
+    Double_t thickn(0)
+    Double_t deltaalpha(0);
+    Double_t thinalpha(0);
+    Double_t thickalpha(0);
+
+    do
+        {
+        FresnelAnalysisnk(n,alpha, thin, lambda, thinTm, thinRm, &nac);
+        thinn = nac.n;
+        thinalpha = nac.alpha;
+        FresnelAnalysisk(n,nac.alpha, thick,lambda,thickTm, thickRm, &nac);
+        thickn = nac.n;
+        thinalpha = nac.alpha;
+
+        deltan = thinn - thickn;
+        deltaalpha = thinalpha - thickalpha;
+
+        cout << endl << "****************************************" << endl;
+        cout << endl << "****************************************" << endl;
+        cout << endl << "****************************************" << endl;
+        cout << endl << "FINAL RESULT" << endl;
+        cout << "   n         alpha            delta-n        delta-alpha"
+            << endl;
+        cout << setw(8) << nac.n << setw(16)
+            << nac.alpha << setw(16)
+            << deltan << setw(16)
+            << deltaalpha << endl;
+        cout << endl << "****************************************" << endl;
+        cout << endl << "****************************************" << endl;
+        cout << endl << "****************************************" << endl;
+
+
+        }
+    while((nac.n<1 || nac.n==1 || fabs(deltan) > 0.01 || nac.alpha<0 || nac.alpha==0 || fabs(deltaalpha) > 0.001) && (--maxLoop));
+
+
+
+}
+
+void FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d, 
+            Double_t lambda, Double_t Tm, Double_t Rm, nacon* nac) { 
+ 
+    // some printing out and value precision stuff 
+    //cout.setf(ios::fixed | ios::showpoint); 
+    //cout.precision(5); 
+
+    // unit staff
+    lambda = lambda*1.0e-6; // unit: nm->mm
+    alpha = alpha*0.1; // unit: cm-1 -> mm-1
+    Double_t k = (lambda*alpha)/(4*PI); 
+
+    cout << endl << "---------------------------------------" << endl;
+    cout << "\nStarting using 1D Newton method for k only...\n" << endl; 
+    cout<<"  loop       n       k       TFunc       RFunc         dx\ 
+        dy" << endl; 
+ 
+    if(RunNewtonOneD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) { 
+        cout<< " \n successfully finding the root!" << endl; 
+        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda), 
+                            GetFR(n,k)); 
+        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
+                            GetIT(k,d,lambda),GetFR(n,k)); 
+        cout<<"\n the model T is " << FinalTmc 
+            <<" and the model R is " << FinalRmc << endl; 
+    } else { 
+        cout << "\nfailed to find root " << endl; 
+    } 
+    cout << endl << "---------------------------------------" << endl;
+
+    nac->n = n;
+    nac->alpha = (k*4.0*PI)/(lambda);
+ 
+} 
+
+void FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
+            Double_t lambda, Double_t Tm, Double_t Rm, nacon* nac) {
 
     // some printing out and value precision stuff
     //cout.setf(ios::fixed | ios::showpoint);
@@ -58,7 +167,8 @@ void FresnelAnalysis(Double_t n, Double_t alpha, Double_t d,
     alpha = alpha*0.1; // unit: cm-1 -> mm-1
     Double_t k = (lambda*alpha)/(4*PI);
 
-    cout << "\nStarting using Newton method..........\n" << endl;
+    cout << endl << "---------------------------------------" << endl;
+    cout << "\nStarting using 2D Newton method for n and k...\n" << endl;
     cout<<"  loop       n       k       TFunc       RFunc         dx\
         dy" << endl;
 
@@ -73,11 +183,40 @@ void FresnelAnalysis(Double_t n, Double_t alpha, Double_t d,
     } else {
         cout << "\nfailed to find root " << endl;
     }
+    cout << endl << "---------------------------------------" << endl;
+
+    nac->n = n;
+    nac->alpha = (k*4.0*PI)/(lambda);
 
 }
 ////////////////////////////////////////////////////////////////////////////
 //////// Newton method /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
+
+// 1D Newton method with fixed n value for testing 
+Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop, 
+                const Double_t accuracy, const Double_t Tm,  
+                const Double_t Rm, const Double_t d, 
+                const Double_t lambda) { 
+    Double_t Tmf(0), Rmf(0), Tmn(0), Rmn(0), Tmk(0), Rmk(0); 
+    Double_t del(0), newn(0), newk(0), dn(0), dk(0); 
+    Int_t i(0); 
+    do 
+        { 
+        i++; 
+        InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda); 
+        dk = - Tmf/Tmk; 
+        k = k + dk; 
+        cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12) 
+            <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl; 
+        } 
+    while(fabs(dk) > accuracy && (--maxLoop)); 
+ 
+    // return the maxLoop as the flag to express finding 
+    // a root successfully 
+    return maxLoop; 
+ 
+}
 
 // 2D Newton method
 Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
@@ -97,7 +236,7 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
         cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
             <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
         }
-    while(fabs(dn) >= accuracy && fabs(dk) >= accuracy && (--maxLoop));
+    while((fabs(dn) > accuracy || fabs(dk) > accuracy) && (--maxLoop));
 
     // return the maxLoop as the flag to express finding
     // a root successfully
