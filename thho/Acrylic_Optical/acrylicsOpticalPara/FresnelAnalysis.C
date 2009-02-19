@@ -69,11 +69,132 @@ typedef struct nacon
 {
     Double_t n;
     Double_t alpha;
+
 };
 
 
+
+// read in data and analyzing it
+//
+// data format
+//
+// wl(nm) TorT
+// 800.0  0.920
+// 790.0  0.915
+//
+
+void AnalyzData(TString tfile, TString rfile,
+                TString thtfile, TString thrfile,
+                Double_t n, Double_t alpha,
+                Double_t thin,Double_t thick) {
+
+    Double_t wldataContainer[601]={0.0};
+    Double_t tdataContainer[601]={0.0};
+    Double_t rdataContainer[601]={0.0};
+    Double_t thtdataContainer[601]={0.0};
+    Double_t thrdataContainer[601]={0.0};
+    ReadData(tfile, wldataContainer, tdataContainer);
+    //ReadData(rfile,&rdataContainer);
+    //ReadData(thtfile,&thtdataContainer);
+    //ReadData(thrfile,&thrdataContainer);
+
+    //Fakedata(wldataContainer, tdataContainer, rdataContainer, thtdataContainer, thrdataContainer);
+    //if(CheckDataFormate(tdataContainer,rdataContainer,thtdataContainer,thrdataContainer)==0) {
+    if(2>1){
+        for(Int_t i=0;i<601;i++){
+            if(SucApp(n, alpha, wldataContainer[i],
+                    thin, tdataContainer[i], rdataContainer[i],
+                    thick, thtdataContainer[i], thrdataContainer[i])==0) {
+                cout << "YES!!" << endl;
+            } else break;
+        }
+    } else break;
+
+}
+
+void Fakedata(Double_t a[], Double_t b[],Double_t c[],Double_t d[],Double_t e[]) {
+    for(Int_t i=0;i<601;i++){
+            a[i]=10;
+            b[i]=10;
+            b[i]=10;
+            d[i]=10;
+            e[i]=10;
+    }
+}
+
+/*
+Int_t CheckDataFormat(Double_t tdataContainerSize[], Double_t rdataContainer[],
+                        Double_t thtdataContainerSize[], Double_t thrdataContainer[]) {
+
+    if((tdataContainer == rdataContainer)
+        && (rdataContainer == thtdataContainer)
+        && (thtdataContainer == thrdataContainer)) {
+        cout << "The numbers between files are consistent." << endl;
+    } else {
+        cout << "The numbers between files are different." << endl;
+        break;
+    }
+
+    return 0;
+
+}
+*/
+// return the size of array to contain data
+Int_t CheckDataSize(TString file) {
+
+    ifstream inputSizeFile;
+    inputSizeFile.open(file);
+
+    Int_t inputSizeCount(0);
+    while(1) {
+        Double_t i,j;
+        inputSizeFile >> i >> j;
+            if(!inputSizeFile.good()) break;
+            inputSizeCount++;
+        }
+    inputSizeFile.close();
+    return inputSizeCount;
+
+}
+void ReadData(TString file, Double_t wl[], Double_t data[]){
+
+    ifstream inputDataFile;
+
+    //Int_t tmpsize = CheckDataSize(file);
+    const Int_t inputSize = 601;
+
+    //cout << "size is " << inputSizeCount << endl;
+    //cout << "size is " << inputSize << endl;
+
+    Double_t wlContain[inputSize];
+    Double_t trContain[inputSize];
+
+    Int_t fillingCounter(0);
+    inputDataFile.open(file);
+        while(1) {
+            Double_t i,j;
+            inputDataFile >> i >> j;
+            wlContain[fillingCounter] = i;
+            trContain[fillingCounter] = j;
+            if(!inputDataFile.good()) break;
+            fillingCounter++;
+        }
+    inputDataFile.close();
+
+    CopyArray(wlContain,wl,inputSize);
+    CopyArray(trContain,data,inputSize);
+}
+
+// copy a array A to another array b
+void CopyArray(Double_t a[], Double_t b[], Int_t size) {
+    for(Int_t i=0;i<size;i++) {
+        b[i] = a[i];
+    }
+    cout << "ok " << endl;
+} 
+
 // successive approach
-void SucApp(Double_t n, Double_t alpha, Double_t lambda,
+Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             Double_t thin, Double_t thinTm, Double_t thinRm,
             Double_t thick, Double_t thickTm, Double_t thickRm ) {
 
@@ -131,6 +252,8 @@ void SucApp(Double_t n, Double_t alpha, Double_t lambda,
     cout << "*****************************************************" << endl;
     cout << "*****************************************************" << endl;
     cout << "*****************************************************\n\n\n" << endl;
+
+    return 0;
 }
 
 void FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d, 
