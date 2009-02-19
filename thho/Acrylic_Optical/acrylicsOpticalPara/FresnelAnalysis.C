@@ -94,12 +94,13 @@ void AnalyzData(TString tfile, TString rfile,
     Double_t thtdataContainer[601]={0.0};
     Double_t thrdataContainer[601]={0.0};
     ReadData(tfile, wldataContainer, tdataContainer);
-    //ReadData(rfile,&rdataContainer);
-    //ReadData(thtfile,&thtdataContainer);
-    //ReadData(thrfile,&thrdataContainer);
+    ReadData(rfile, wldataContainer, rdataContainer);
+    ReadData(thtfile, wldataContainer, thtdataContainer);
+    ReadData(thrfile, wldataContainer, thrdataContainer);
 
     //Fakedata(wldataContainer, tdataContainer, rdataContainer, thtdataContainer, thrdataContainer);
     //if(CheckDataFormate(tdataContainer,rdataContainer,thtdataContainer,thrdataContainer)==0) {
+    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     if(2>1){
         for(Int_t i=0;i<601;i++){
             if(SucApp(n, alpha, wldataContainer[i],
@@ -174,15 +175,19 @@ void ReadData(TString file, Double_t wl[], Double_t data[]){
         while(1) {
             Double_t i,j;
             inputDataFile >> i >> j;
-            wlContain[fillingCounter] = i;
-            trContain[fillingCounter] = j;
             if(!inputDataFile.good()) break;
+            wlContain[fillingCounter] = i;
+            trContain[fillingCounter] = j*0.01; // xx.xx% -> 0.xxxx
             fillingCounter++;
         }
     inputDataFile.close();
 
     CopyArray(wlContain,wl,inputSize);
     CopyArray(trContain,data,inputSize);
+
+
+    cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
+
 }
 
 // copy a array A to another array b
@@ -190,7 +195,6 @@ void CopyArray(Double_t a[], Double_t b[], Int_t size) {
     for(Int_t i=0;i<size;i++) {
         b[i] = a[i];
     }
-    cout << "ok " << endl;
 } 
 
 // successive approach
