@@ -71,6 +71,7 @@ typedef struct nacon
     Double_t alpha;
 };
 
+
 // successive approach
 void SucApp(Double_t n, Double_t alpha, Double_t lambda,
             Double_t thin, Double_t thinTm, Double_t thinRm,
@@ -86,38 +87,50 @@ void SucApp(Double_t n, Double_t alpha, Double_t lambda,
     Double_t thinalpha(0);
     Double_t thickalpha(0);
 
+    // unit staff -- units should unite.
+    lambda = lambda*1.0e-6; // unit: nm->mm
+    alpha = alpha*0.1; // unit: cm-1 -> mm-1
+
     do
         {
         FresnelAnalysisnk(n,alpha, thin, lambda, thinTm, thinRm, &nac);
         thinn = nac.n;
         thinalpha = nac.alpha;
-        FresnelAnalysisk(n,nac.alpha, thick,lambda,thickTm, thickRm, &nac);
+        //cout << "1 n " << nac.n << " k " << (lambda*nac.alpha)/(4*PI)
+        //<< " alpha  " << nac.alpha/0.1<<"cm-1" <<endl;
+        FresnelAnalysisk(thinn,nac.alpha, thick,lambda,thickTm, thickRm, &nac);
         thickn = nac.n;
-        thinalpha = nac.alpha;
+        thickalpha = nac.alpha;
+        //cout << "1 n " << nac.n << " k " << (lambda*nac.alpha)/(4*PI)
+        //<<" alpha  " << nac.alpha/0.1<<"cm-1" << endl;
 
         deltan = thinn - thickn;
         deltaalpha = thinalpha - thickalpha;
 
-        cout << endl << "****************************************" << endl;
-        cout << endl << "****************************************" << endl;
-        cout << endl << "****************************************" << endl;
-        cout << endl << "FINAL RESULT" << endl;
+        cout << "\n*****************************************************" << endl;
+        cout << "*****************************************************" << endl;
+        cout << "*****************************************************" << endl;
+        cout << "\nFINAL RESULT" << endl;
         cout << "   n         alpha            delta-n        delta-alpha"
             << endl;
         cout << setw(8) << nac.n << setw(16)
             << nac.alpha << setw(16)
             << deltan << setw(16)
-            << deltaalpha << endl;
-        cout << endl << "****************************************" << endl;
-        cout << endl << "****************************************" << endl;
-        cout << endl << "****************************************" << endl;
-
+            << deltaalpha << endl << endl;
+        PrintTandR(nac.n,nac.alpha,thin,lambda);
+        PrintTandR(nac.n,nac.alpha,thick,lambda);
 
         }
     while((nac.n<1 || nac.n==1 || fabs(deltan) > 0.01 || nac.alpha<0 || nac.alpha==0 || fabs(deltaalpha) > 0.001) && (--maxLoop));
 
-
-
+    if(maxLoop){        
+        cout << "\n\n\nSUCCESSESSFULLY FINDING A CONSISTENT N AND K!!! :)\n\n\n" << endl;
+    } else {
+        cout << "\n\n\nFAILED TO FIND A COSISTENT N AND K!!! :(\n\n\n" << endl;
+    }
+    cout << "*****************************************************" << endl;
+    cout << "*****************************************************" << endl;
+    cout << "*****************************************************\n\n\n" << endl;
 }
 
 void FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d, 
@@ -127,31 +140,23 @@ void FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d,
     //cout.setf(ios::fixed | ios::showpoint); 
     //cout.precision(5); 
 
-    // unit staff
-    lambda = lambda*1.0e-6; // unit: nm->mm
-    alpha = alpha*0.1; // unit: cm-1 -> mm-1
     Double_t k = (lambda*alpha)/(4*PI); 
 
     cout << endl << "---------------------------------------" << endl;
     cout << "\nStarting using 1D Newton method for k only...\n" << endl; 
-    cout<<"  loop       n       k       TFunc       RFunc         dx\ 
-        dy" << endl; 
+    cout<<"  loop       n       k       TFunc       RFunc         dx     dy" << endl; 
  
     if(RunNewtonOneD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) { 
-        cout<< " \n successfully finding the root!" << endl; 
-        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda), 
-                            GetFR(n,k)); 
-        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
-                            GetIT(k,d,lambda),GetFR(n,k)); 
-        cout<<"\n the model T is " << FinalTmc 
-            <<" and the model R is " << FinalRmc << endl; 
+        cout<< " \n successfully finding the root!\n" << endl;
+        alpha = (k*4.0*PI)/(lambda);
+        PrintTandR(n,alpha,d,lambda);
     } else { 
         cout << "\nfailed to find root " << endl; 
     } 
     cout << endl << "---------------------------------------" << endl;
 
     nac->n = n;
-    nac->alpha = (k*4.0*PI)/(lambda);
+    nac->alpha = alpha;
  
 } 
 
@@ -162,9 +167,6 @@ void FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
     //cout.setf(ios::fixed | ios::showpoint);
     //cout.precision(5);
 
-    // unit staff
-    lambda = lambda*1.0e-6; // unit: nm->mm
-    alpha = alpha*0.1; // unit: cm-1 -> mm-1
     Double_t k = (lambda*alpha)/(4*PI);
 
     cout << endl << "---------------------------------------" << endl;
@@ -173,20 +175,16 @@ void FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
         dy" << endl;
 
     if(RunNewtonTwoD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
-        cout<< " \n successfully finding the root!" << endl;
-        Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda),
-                            GetFR(n,k));
-        Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
-                            GetIT(k,d,lambda),GetFR(n,k));
-        cout<<"\n the model T is " << FinalTmc
-            <<" and the model R is " << FinalRmc << endl;
+        cout<< " \n successfully finding the root!\n" << endl;
+        alpha = (k*4.0*PI)/(lambda);
+        PrintTandR(n,alpha,d,lambda);
     } else {
         cout << "\nfailed to find root " << endl;
     }
     cout << endl << "---------------------------------------" << endl;
 
     nac->n = n;
-    nac->alpha = (k*4.0*PI)/(lambda);
+    nac->alpha = alpha;
 
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -381,6 +379,28 @@ Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
     // Model 2
     //Double_t y = (1 -FR)*IT;
     return y;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+/////////// Print T and R info //////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+void PrintTandR(Double_t n, Double_t alpha, Double_t d, Double_t lambda){
+
+    //lambda = lambda/1.0e-6; // unit: mm->nm
+    //alpha = alpha/0.1; // unit: mm-1 -> cm-1
+    Double_t k = (lambda*alpha)/(4*PI);
+
+    Double_t FinalTmc = GetOpticalModelTValue(GetIT(k,d,lambda),
+                            GetFR(n,k));
+    Double_t FinalRmc = GetOpticalModelRValue(FinalTmc,
+                            GetIT(k,d,lambda),GetFR(n,k));
+
+    cout << "  d     wl(nm)          n         k          alpha(cm-1)\
+          T         R" << endl;
+    cout <<setw(3)<<d<<setw(8)<<lambda/1.0e-6<<setw(12)<<n<<setw(12)<<k<<setw(12)<<alpha/0.1
+            <<FinalTmc <<setw(12)<<FinalRmc<<endl<< endl;
+
 
 }
 
