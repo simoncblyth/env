@@ -1,18 +1,25 @@
+/*
 
+  IEvReader 
+       abstract base class defining the interface that all Event Readers 
+       must provide
 
-//
-//  abstract base class 
-//  defining the interface that all Event Readers 
-//  must provide
-//
+  EvReader 
+       factory class for IEvReader
+
+*/
 
 
 class IEvReader
 {
   public:
      virtual void Read() = 0 ;
-     virtual Bool_t LoadProject(const char* file, const char* project) = 0 ;
-     virtual Bool_t InitProject(const char* file, const char* project) = 0 ;
+     virtual Bool_t LoadGeometry(const char* file, const char* shape  ) = 0 ;
+     virtual Bool_t LoadProject( const char* file, const char* project) = 0 ;
+     virtual Bool_t InitProject( const char* file, const char* project) = 0 ;
+
+     virtual Bool_t LoadGeometry() = 0 ;
+     virtual Bool_t InitProject() = 0 ;
 
      virtual ~IEvReader() ;
      ClassDef(IEvReader, 1 )     

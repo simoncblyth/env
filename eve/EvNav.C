@@ -1,3 +1,10 @@
+/*
+
+    EvNav 
+        uses EvDisp and EvReader
+
+
+*/
 
 class EvNav
 {
@@ -39,7 +46,7 @@ void EvNav::Fwd()
 {
       if (esd_event_id < esd_tree->GetEntries() - 1) {
          ++esd_event_id;
-         EvNav::load_event();
+         load_event();
 
          evd = EvDisp::GetEvDisp();
          evd->update_projections();
@@ -55,7 +62,7 @@ void EvNav::Bck()
 {
       if (esd_event_id > 0) {
          --esd_event_id;
-         EvNav::load_event();
+         load_event();
 
          evd = EvDisp::GetEvDisp();
          evd->update_projections();
@@ -81,9 +88,11 @@ void EvNav::load_event()
       IEvReader* er = EvReader::GetEvReader();
 
       if (track_list){
-           printf("load_event clearing track_list " );
+           printf("EvNav::load_event clearing track_list " );
            track_list->DestroyElements();
-      } 
+      } else {
+           printf("EvNav::load_event NOT clearing track_list " );
+      }
 
       esd_tree->GetEntry(esd_event_id);
       er->Read();

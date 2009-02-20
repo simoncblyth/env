@@ -1,6 +1,10 @@
+/*
+     Alice Event Reader 
 
+     Handy one liners for debugging from cint :
+         AliEvReader* aer = (AliEvReader*)EvReader::GetEvReader(EvReader::kAlice);
 
-// Alice Event Reader 
+*/
 
 class AliESDEvent;
 class AliESDfriend;
@@ -26,17 +30,20 @@ class AliEvReader : public IEvReader
       };
 
 
-     void AliEvReader() 
-     {
-         esd = 0 ;
-         esd_friend = 0 ;
-     }
+     void AliEvReader();
 
-     void Read();   // updates the track_list
+     // methods demanded my the interface
+
+     void Read();        // updates the track_list
      Bool_t LoadProject(const char* file , const char* project);
      Bool_t InitProject(const char* file , const char* project);
+     Bool_t LoadGeometry(const char* file , const char* shape);
 
-//  i do not like TEve* in here ...
+     Bool_t InitProject();
+     Bool_t LoadGeometry();
+
+     // internal expt specific methods 
+     //       i do not like TEve* in here ...
 
      TEveTrack* esd_make_track(TEveTrackPropagator* trkProp, Int_t index, AliESDtrack* at, AliExternalTrackParam* tp=0);
      Double_t trackGetP(AliExternalTrackParam* tp);
@@ -44,9 +51,16 @@ class AliEvReader : public IEvReader
      void     trackGetPos(AliExternalTrackParam* tp, Double_t r[3]);
      Bool_t   trackIsOn(AliESDtrack* t, Int_t mask);
 
+     // constants 
+
      static const char* esd_file_name ;
      static const char* esd_friends_file_name ;
-     static const char* project_name ;
+     static const char* esd_project_name ;
+
+     static const char* esd_geom_file_name ;
+     static const char* esd_geom_name ;
+
+     // state : convenience pointers 
 
      AliESDEvent* esd  ;
      AliESDfriend *esd_friend ;
@@ -55,7 +69,24 @@ class AliEvReader : public IEvReader
 
 const char* AliEvReader::esd_file_name         = "http://root.cern.ch/files/alice_ESDs.root";
 const char* AliEvReader::esd_friends_file_name = "http://root.cern.ch/files/alice_ESDfriends.root";
-const char* AliEvReader::project_name          = "aliesd" ;
+const char* AliEvReader::esd_project_name      = "aliesd" ;
+
+const char* AliEvReader::esd_geom_file_name    = "http://root.cern.ch/files/alice_ESDgeometry.root";
+const char* AliEvReader::esd_geom_name         = "Gentle" ;
+
+
+
+void AliEvReader::AliEvReader()
+{
+         esd = 0 ;
+         esd_friend = 0 ;
+}
+
+
+Bool_t AliEvReader::InitProject()
+{
+     InitProject( esd_file_name , esd_project_name );
+}
 
 Bool_t AliEvReader::InitProject(const char* file , const char* project )
 {
@@ -152,6 +183,30 @@ Bool_t AliEvReader::LoadProject(const char* file, const char* project)
 }
 
 
+Bool_t AliEvReader::LoadGeometry()
+{
+    LoadGeometry( esd_geom_file_name , esd_geom_name );
+}
+
+
+Bool_t AliEvReader::LoadGeometry(const char* file , const char* shape )
+{
+
+     // Simple geometry
+      TFile::SetCacheFileDir(".");
+      printf("AliEvReader::LoadGeometry %s %s \n" , file, shape );
+
+      TFile* geom = TFile::Open( file , "CACHEREAD");
+      if (!geom)
+         return;
+      TEveGeoShapeExtract* gse = (TEveGeoShapeExtract*) geom->Get(shape);
+      gGeoShape = TEveGeoShape::ImportShapeExtract(gse, 0);
+      geom->Close();
+      delete geom;
+      gEve->AddGlobalElement(gGeoShape);
+}
+
+
 
 //______________________________________________________________________________
 void AliEvReader::Read()   
@@ -180,7 +235,11 @@ void AliEvReader::Read()
       track_list->SetMarkerSize(0.5);
 
       gEve->AddElement(track_list);
+   } else {
+      printf("AliEvReader::Read reusing track_list " );
    }
+
+
 
    TEveTrackPropagator* trkProp = track_list->GetPropagator();
    trkProp->SetMagField( 0.1 * esdrun->fMagneticField ); // kGaus to Tesla
