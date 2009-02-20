@@ -13,7 +13,7 @@ class EvDisp
 {
 
 public:
-   static EvDisp* GetDisplay();
+   static EvDisp* GetEvDisp();
    static EvDisp* gEvDisp ; 
 
    void EvDisp();
@@ -21,12 +21,13 @@ public:
    void import_projection_geometry();
    void update_projections();
    void make_gui();
+   void load_event();
 private:
  
 };
 
 
-EvDisp* EvDisp::GetDisplay(){
+EvDisp* EvDisp::GetEvDisp(){
     if(gEvDisp == 0) gEvDisp = new EvDisp ;
     return gEvDisp ;
 }
@@ -94,6 +95,12 @@ void EvDisp::update_projections()
        }
 }
 
+void EvDisp::load_event()
+{
+     EvNav* evn = EvNav::GetEvNav() ;
+     evn->load_event();
+}
+
 
 void EvDisp::make_gui()
 {
@@ -118,7 +125,7 @@ void EvDisp::make_gui()
       
           TString icondir( Form("%s/icons/", gSystem->Getenv("ROOTSYS")) );
           TGPictureButton* b = 0;
-          EvNav    *fh = EvNav::GetGlobal() ;
+          EvNav    *fh = EvNav::GetEvNav() ;
 
           b = new TGPictureButton(hf, gClient->GetPicture(icondir + "GoBack.gif"));
           hf->AddFrame(b, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 10, 2, 10, 10));
