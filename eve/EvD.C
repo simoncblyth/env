@@ -6,18 +6,43 @@
 //      .. event id
 //
 
-class EvD
-{
-public:
-   void EvD(){
-       if(gEve == NULL){ 
-           TEveManager::Create();
-           FitToScreen();
-       }
-   }
+class EvDisp ;
+EvDisp* EvDisp::gEvDisp = 0 ;
 
-   void FitToScreen()
-   {
+class EvDisp
+{
+
+public:
+   static EvDisp* GetDisplay();
+   static EvDisp* gEvDisp ; 
+
+   void EvDisp();
+   void FitToScreen();
+   void import_projection_geometry();
+   void update_projections();
+   void make_gui();
+private:
+ 
+};
+
+
+EvDisp* EvDisp::GetDisplay(){
+    if(gEvDisp == 0) gEvDisp = new EvDisp ;
+    return gEvDisp ;
+}
+
+
+void EvDisp::EvDisp()
+{
+    if(gEve == NULL){ 
+        TEveManager::Create();
+        FitToScreen();
+     }
+}
+
+
+void EvDisp::FitToScreen()
+{
        // Adapt the main frame to the screen size...
        Int_t qq; 
        UInt_t ww, hh;
@@ -30,11 +55,11 @@ public:
            gEve->GetBrowser()->Move(50, 50);
            //gEve->GetBrowser()->SetWMPosition(50, 50);
        }
-   }
+}
 
 
-   void import_projection_geometry()
-   {
+void EvDisp::import_projection_geometry()
+{
        if (gRPhiMgr) {
           TEveProjectionAxes* a = new TEveProjectionAxes(gRPhiMgr);
           a->SetNdivisions(3);
@@ -49,11 +74,10 @@ public:
           gEve->GetScenes()->FindChild(rzp)->AddElement(a);
           gRhoZMgr->ImportElements(gGeoShape);
        }
-   }
+}
 
-
-   void update_projections()
-   {
+void EvDisp::update_projections()
+{
        // cleanup then import geometry and event 
        // in the projection managers
    
@@ -68,10 +92,11 @@ public:
           gRhoZMgr->ImportElements(gGeoShape);
           gRhoZMgr->ImportElements(top);
        }
-   }
+}
 
-   void make_gui()
-   {
+
+void EvDisp::make_gui()
+{
       // Create minimal GUI for event navigation.
 
       //gROOT->ProcessLine(".L SplitGLView.C+");
@@ -121,9 +146,5 @@ public:
 
        browser->StopEmbedding();
        browser->SetTabTitle("Event Control", 0);
-    }
-
-};
-
-
+}
 
