@@ -80,26 +80,31 @@ void EvNav::load_event()
    // Load event specified in global esd_event_id.
    // The contents of previous event are removed.
 
-      printf("Loading event %d.\n", esd_event_id);
+
+      Int_t eid          = GetEventId();
+      TEveTrackList* tkl = GetTrackList();
+      
+      printf("Loading event %d %x .\n", eid, tkl );
       gTextEntry->SetTextColor(0xff0000);
-      gTextEntry->SetText(Form("Loading event %d...",esd_event_id));
+      gTextEntry->SetText(Form("Loading event %d %x...\n",eid, tkl));
       gSystem->ProcessEvents();
 
       IEvReader* er = EvReader::GetEvReader();
 
-      if (track_list){
-           printf("EvNav::load_event clearing track_list " );
-           track_list->DestroyElements();
+
+      if (tkl == 0){
+           printf("EvNav::load_event NOT clearing tkl %x \n", tkl );
       } else {
-           printf("EvNav::load_event NOT clearing track_list " );
+           printf("EvNav::load_event clearing tkl %x \n", tkl );
+           tkl->DestroyElements();
       }
 
-      esd_tree->GetEntry(esd_event_id);
+      esd_tree->GetEntry(eid);
       er->Read();
 
       gEve->Redraw3D(kFALSE, kTRUE);
       gTextEntry->SetTextColor(0x000000);
-      gTextEntry->SetText(Form("Event %d loaded",esd_event_id));
+      gTextEntry->SetText(Form("Event %d loaded",eid));
       gROOT->ProcessLine("SplitGLView::UpdateSummary()");
 }
 
@@ -108,9 +113,18 @@ TEveTrackList* EvNav::GetTrackList(){
        return track_list ; 
 }
 
+void EvNav::SetTrackList( TEveTrackList* tkl ){ 
+       track_list = tkl ; 
+}
+
+
+
 Int_t EvNav::GetEventId(){            
        return esd_event_id ;  
 }
+
+
+
 
 
 

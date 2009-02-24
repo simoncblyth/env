@@ -223,25 +223,25 @@ void AliEvReader::Read()
 
 
    EvNav* evn = EvNav::GetEvNav();
-   TEveTrackList* track_list = evn->GetTrackList() ;
+   TEveTrackList* tkl = evn->GetTrackList() ;
 
-   if (track_list == 0) {
-      printf("AliEvReader::Read creating new track_list " );
-      track_list = new TEveTrackList("ESD Tracks"); 
-      track_list->SetMainColor(6);
-      //track_list->SetLineWidth(2);
-      track_list->SetMarkerColor(kYellow);
-      track_list->SetMarkerStyle(4);
-      track_list->SetMarkerSize(0.5);
+   if (tkl == 0) {
+      printf("AliEvReader::Read creating new tkl \n" );
+      tkl = new TEveTrackList("ESD Tracks"); 
+      tkl->SetMainColor(6);
+      //tkl->SetLineWidth(2);
+      tkl->SetMarkerColor(kYellow);
+      tkl->SetMarkerStyle(4);
+      tkl->SetMarkerSize(0.5);
+      evn->SetTrackList( tkl );
 
-      gEve->AddElement(track_list);
+      gEve->AddElement(tkl);
    } else {
-      printf("AliEvReader::Read reusing track_list " );
+      printf("AliEvReader::Read reusing tkl \n" );
    }
 
 
-
-   TEveTrackPropagator* trkProp = track_list->GetPropagator();
+   TEveTrackPropagator* trkProp = tkl->GetPropagator();
    trkProp->SetMagField( 0.1 * esdrun->fMagneticField ); // kGaus to Tesla
 
    gProgress->Reset();
@@ -257,8 +257,8 @@ void AliEvReader::Read()
       }
 
       TEveTrack* track = esd_make_track(trkProp, n, at, tp);
-      track->SetAttLineAttMarker(track_list);
-      gEve->AddElement(track, track_list);
+      track->SetAttLineAttMarker(tkl);
+      gEve->AddElement(track, tkl);
 
       // This needs further investigation. Clusters not shown.
       // if (frnd)
@@ -269,7 +269,7 @@ void AliEvReader::Read()
       gProgress->Increment(1);
    }
 
-   track_list->MakeTracks();
+   tkl->MakeTracks();
 }
 
 //______________________________________________________________________________
