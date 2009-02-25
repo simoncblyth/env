@@ -349,6 +349,7 @@ scm-backup-parasitic(){
    local msg="=== $FUNCNAME :"
    local tmp=/tmp/${FUNCNAME}_dayabay.txt
    if [ "$NODE_TAG" == "C" ]; then
+        echo $msg monitoring to $tmp and sending mail 
         scm-backup-parasitic- > $tmp
         python-sendmail $tmp
    else
@@ -361,7 +362,7 @@ scm-backup-parasitic-(){
 
    cat << EOP
     $BASH_SOURCE::$FUNCNAME 
-        Running at : @ ($date)
+        Running at : $(date)
         Monitoring the rsync transfer of backups to node C (cms01 at NTU)
    
 EOP
