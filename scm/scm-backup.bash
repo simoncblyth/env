@@ -340,21 +340,34 @@ scm-backup-mail(){
   python-
   python-sendmail $rls
 
-  if [ "$NODE_TAG" == "C" ]; then
-     rls=/tmp/${FUNCNAME}_dayabay.txt
-     cat << EOM > $rls
-   Parasitic monitoring of the dayabay tarballs that are 
-   nightly sent from IHEP to cms01 at NTU by 
-        $BASH_SOURCE::$FUNCNAME @ $(date)
-        
-    ... $rls    
-EOM
-     scm-backup-rls C dayabay >> $rls
-     python-sendmail $rls
-  fi  
-
+  scm-backup-parasitic 
+  
 }
 
+
+scm-backup-parasitic(){
+   local msg="=== $FUNCNAME :"
+   local tmp=/tmp/${FUNCNAME}_dayabay.txt
+   if [ "$NODE_TAG" == "C" ]; then
+        scm-backup-parasitic- > $tmp
+        python-sendmail $tmp
+   else
+        echo $msg only needed on C
+   fi 
+}
+
+
+scm-backup-parasitic-(){
+
+   cat << EOP
+    $BASH_SOURCE::$FUNCNAME 
+        Running at : @ ($date)
+        Monitoring the rsync transfer of backups to node C (cms01 at NTU)
+   
+EOP
+   scm-backup-rls C dayabay
+   
+}
 
 
 
