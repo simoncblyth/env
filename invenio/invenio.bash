@@ -25,13 +25,10 @@ invenio-dir(){  echo $LOCAL_BASE/env/invenio ; }
 invenio-cd(){   cd $(invenio-dir) ; }
 
 invenio-get(){
-  local dir=$(invenio-dir)
-  mkdir -p $dir
-  cd $dir   
-  local name=$(invenio-basename)
-  [ ! -f "$name" ] && curl -O $(invenio-url)
-
-
+  mkdir -p $(invenio-dir)
+  invenio-cd
+  [ ! -f "$(invenio-basename)" ] && curl -O  $(invenio-url)
+  [ ! -d "$(invenio-name)"     ] && tar zxvf "$(invenio-basename)" 
 
 }
 
