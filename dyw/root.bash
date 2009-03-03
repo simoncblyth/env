@@ -36,12 +36,15 @@ root-cd(){
 }
 
 root-name(){
+
+  local default="root_v5.21.04"
+  local jimmy="root_v5.22.00"
   case ${1:-$NODE_TAG} in 
     old) echo "root_v5.14.00b" ;;
     ##C) echo "root_v5.21.02" ;;
-      C) echo "root_v5.21.04" ;;
+      C) echo $jimmy  ;;
    ## *) echo "root_v5.19.04" ;; 
-      *) echo "root_v5.21.04" ;; 
+      *) echo $jimmy ;; 
   esac 
 }
 
