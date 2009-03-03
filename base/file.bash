@@ -6,6 +6,32 @@ file-env(){
 }
 
 
+file-usage(){
+
+   cat << EOU
+   
+   
+     file-exts path-or-name
+     
+        Returns list of extensions strings (excluding .mine and .merge)
+        to the given name-or-path for existing files eg, if   
+          
+          ls glmodule.c.*
+             glmodule.c.mine 
+             glmodule.c.r790 
+            glmodule.c.r833
+   
+          echo $(file-exts glmodule.c)
+             r790 r833
+      
+EOU
+
+}
+
+
+
+
+
 #
 #  put/get to same place in file heirarchy on remote node, assuming it exists
 #
@@ -104,13 +130,74 @@ file-diff(){
 }
 
 
-file-first(){
-  for arg in $*
-  do
-     echo $arg 
-     return 0
+
+file-exts(){
+
+  local msg="=== $FUNCNAME :"
+  local arg=$1
+  local iwd=$PWD
+  local dir=$(dirname $arg) 
+  
+  #echo $msg $dir  
+  cd $dir
+  local namebase=$(basename $arg)
+  local f
+  local t
+  for n in $(ls -1 $namebase.*) ; do
+     t=${n/$namebase./}
+     if [ "$t" == "mine" -o "$t" == "merge" ]; then
+       echo -n
+     else
+       echo $t     
+     fi
   done
+  cd $iwd
 }
+
+
+
+
+
+file-merge(){
+
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   
+   local path=$1
+   local mine="$path.mine"
+   
+   [ ! -f "$mine" ] && echo $msg no .mine file at: $mine ... abort && return 1 
+   
+   local ext=$(file-exts $path)
+   local ancestor=$(file-first $ext)
+   local head=$(file-second $ext)
+   
+   [ ! -f "$path.$head" ]     && echo $msg no     head file $path.$head      ... abort && return 1
+   [ ! -f "$path.$ancestor" ] && echo $msg no ancestor file $path.$ancestor  ... abort && return 1
+   
+   local cmd="opendiff $path.mine $path.$head -ancestor $path.$ancestor -merge $path.merge"
+
+
+   echo $msg comparing divergences from a common ancestor  $path.$ancestor between local changes $path.mine and repository changes $path.$head
+   echo $msg use arrow keys to pick which mods relative to the common ancestor to use for the merged file 
+   echo $msg $cmd
+   
+   eval $cmd
+
+}
+
+
+file-first(){ echo $1 ; }
+file-second(){ echo $2 ; }
+
+
+#file-first(){
+#  for arg in $*
+#  do
+#     echo $arg 
+#     return 0
+#  done
+#}
 
 file-size-lt(){
 
