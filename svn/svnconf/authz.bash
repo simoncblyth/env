@@ -1,7 +1,7 @@
 
 authz(){
 
-  local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui"
+  local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui, wunsyonghe"
   local hk="jimmy, antony, soap, talent"
   local cn="tianxc, maqm"
   local us="littlejohn"
