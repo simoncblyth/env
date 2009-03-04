@@ -1,34 +1,63 @@
 
+root-info(){
+
+  cat << EOI
+
+   root-mode     : $(root-mode $*)
+      if not "binary" source is assumed
+
+   root-version  : $(root-version $*)
+   root-name     : $(root-name $*)
+   root-nametag  : $(root-nametag $*)
+   root-url      : $(root-url $*)
+   root-rootsys  : $(root-rootsys $*)
+   root-base     : $(root-base $*) 
+ 
+
+    ROOTSYS    : $ROOTSYS
+    which root : $(which root)
+
+    After changing the root version you will need to run :
+        cmt-gensitereq
+
+    This informs CMT of the change via re-generation of
+     the non-managed :
+         $ENV_HOME/externals/site/cmt/requirements
+    containing the ROOT_prefix variable 
+
+    This works via the ROOT_CMT envvar that is set by root-env, such as: 
+       env | grep _CMT
+       ROOT_CMT=ROOT_prefix:/data/env/local/root/root_v5.21.04.source/root
+
+   Changing root version will require rebuilding libs that are 
+   linked against the old root version, that includes dynamically created libs
+
+
+   root-           :  hook into these functions invoking root-env
+   root-get        :  download and unpack
+   root-configure  :     
+   root-build      :
+
+
+   root-path       :
+         invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
+
+   root-pycheck
+         http://root.cern.ch/root/HowtoPyROOT.html
+
+   root-evetest
+
+   root-ps         : list root.exe processes
+   root-killall    : kill root.exe processes
+
+
+
+EOI
+
+}
 
 root-usage(){
-cat << EOU
-
-
-  root-name       : $(root-name)
-  root-rootsys    : $(root-rootsys)
-  root-base       : $(root-base)
-
-
-  root-           :  hook into these functions invoking root-env
-  root-get        :  download and unpack
-  root-configure  :     
-  root-build      :
-
-
-  root-path       :
-        invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
-
-
-  root-pycheck
-
-
-
-   http://root.cern.ch/root/HowtoPyROOT.html
-
-
-
-EOU
-
+   root-info
 }
 
 
@@ -90,29 +119,7 @@ root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
 root-cd(){ cd $(root-rootsys) ; }
 
 
-root-info(){
 
-  cat << EOI
-
-
-   root-mode     : $(root-mode $*)
-           "binary" otherwise source is assumed
-
-   root-version  : $(root-version $*)
-   root-name     : $(root-name $*)
-   root-nametag  : $(root-nametag $*)
-   root-url      : $(root-url $*)
-   root-rootsys  : $(root-rootsys $*)
-   root-base     : $(root-base $*) 
- 
-
-    ROOTSYS    : $ROOTSYS
-    which root : $(which root)
-
-
-EOI
-
-}
 
 
 
