@@ -31,33 +31,149 @@ EOU
 
 }
 
-root-cd(){
-   cd $(root-rootsys)
+
+root-ps(){
+  ps aux | grep root.exe
 }
 
-root-name(){
+root-killall(){
+   killall root.exe
+}
 
-  local def="v5.21.04"
-  local jmy="v5.22.00"   ## has eve X11 issues 
-  local new="v5.23.02"
+root-archtag(){
 
+   [ "$(root-mode)" != "binary" ] && echo "source" && return 0 
+
+   case ${1:-$NODE_TAG} in 
+      C) echo Linux-slc4-gcc3.4 ;;
+      G) echo macosx-powerpc-gcc-4.0 ;;
+      *) echo Linux-slc4-gcc3.4 ;;
+   esac
+}
+
+root-nametag(){ 
+   echo $(root-name $*).$(root-archtag $*) 
+}
+
+
+root-get(){
+
+   local msg="=== $FUNCNAME :"
+   
+   local base=$(root-base)
+   [ ! -d "$base" ] && $SUDO mkdir -p $base && $SUDO chown $USER $base
+   cd $base  ## 2 levels above ROOTSYS , the 
+   local n=$(root-nametag)
+   [ ! -f $n.tar.gz ] && curl -O $(root-url)
+   [ ! -d $n/root   ] && mkdir $n && tar  -C $n -zxvf $n.tar.gz 
+ 
+   ## unpacked tarballs create folder called "root"
+}
+
+root-version(){
+  local def="5.21.04"
+  local jmy="5.22.00"   ## has eve X11 issues 
+  local new="5.23.02" 
   case ${1:-$NODE_TAG} in 
-      C) echo root_$def  ;;
-      *) echo root_$def ;; 
-  esac 
+     C) echo $def ;;
+     *) echo $def ;;
+  esac
 }
+
+#root-mode(){    echo binary  ; }
+root-mode(){    echo -n  ; }
+root-name(){    echo root_v$(root-version $*) ; }
+root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
+root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
+root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
+
+root-cd(){ cd $(root-rootsys) ; }
 
 
 root-info(){
 
   cat << EOI
 
-  ROOTSYS    : $ROOTSYS
-  which root : $(which root)
+
+   root-mode     : $(root-mode $*)
+           "binary" otherwise source is assumed
+
+   root-version  : $(root-version $*)
+   root-name     : $(root-name $*)
+   root-nametag  : $(root-nametag $*)
+   root-url      : $(root-url $*)
+   root-rootsys  : $(root-rootsys $*)
+   root-base     : $(root-base $*) 
+ 
+
+    ROOTSYS    : $ROOTSYS
+    which root : $(which root)
+
 
 EOI
 
 }
+
+
+
+
+
+root-env(){
+
+  elocal-
+
+  alias root="root -l"
+  alias rh="tail -100 $HOME/.root_hist"
+ 
+  export ROOT_NAME=$(root-name)
+  export ROOTSYS=$(root-rootsys)
+  
+  ## pre-nuwa ... to be dropped      	
+  export ROOT_CMT="ROOT_prefix:$ROOTSYS"
+
+  root-path
+}
+
+
+
+root-path(){
+
+  [ ! -d $ROOTSYS ] && return 0
+  
+  env-prepend $ROOTSYS/bin
+  env-llp-prepend $ROOTSYS/lib
+  env-pp-prepend $ROOTSYS/lib
+}
+
+
+
+
+
+
+
+
+
+
+
+root-pycheck(){
+  python -c "import ROOT as _ ; print _.__file__ "
+
+}
+
+
+
+
+
+
+## test -f $tgz || scp S:/usr/local/root/$tgz .   
+## direct way doesnt work on pal... "curl: (19) Security: Bad IP connecting."
+
+
+
+
+
+
+
 
 
 root-evetest(){
@@ -83,80 +199,6 @@ root-evetest(){
 
 }
 
-
-
-root-rootsys(){
-  case ${1:-$NODE_TAG} in 
-     G) echo $(local-base $1)/env/root/$(root-name $1)/root  ;;
-     *) echo $(local-base $1)/root/$(root-name $1)/root  ;;
-  esac
-}
-
-root-base(){
-   echo $(dirname $(dirname $(root-rootsys $*)))
-}
-
-
-
-root-env(){
-
-  elocal-
-
-  alias root="root -l"
-  alias rh="tail -100 $HOME/.root_hist"
- 
-
-  export ROOT_NAME=$(root-name)
-  export ROOTSYS=$(root-rootsys)
-  
-  ## pre-nuwa ... to be dropped      	
-  export ROOT_CMT="ROOT_prefix:$ROOTSYS"
-
-  root-path
-}
-
-
-
-root-path(){
-
-  [ ! -d $ROOTSYS ] && return 0
-  
-  env-prepend $ROOTSYS/bin
-  env-llp-prepend $ROOTSYS/lib
-  env-pp-prepend $ROOTSYS/lib
-}
-
-
-root-pycheck(){
-  python -c "import ROOT as _ ; print _.__file__ "
-
-}
-
-
-
-root-get(){
-
-  local n=$ROOT_NAME
-  local msg="=== $FUNCNAME :" 
-  local base=$(root-base)
-
-  [ "$(basename $base)" != "root" ] && echo $msg ABORT invalid base $base && return 1
-  [ ! -d "$base" ]  && $SUDO mkdir -p $base && $SUDO chown $USER $base
-
-  cd $base
-
-
-  local tgz=$n.source.tar.gz
-  local url=ftp://root.cern.ch/root/$tgz
-  [ ! -f $tgz  ]   && curl -O $url
-  [ ! -d $n/root ] && mkdir $n && tar -C $n -zxvf $tgz  
-  
-  ## using prior knowledge that the unpacked creates another folder called "root"
-}
-
-
-## test -f $tgz || scp S:/usr/local/root/$tgz .   
-## direct way doesnt work on pal... "curl: (19) Security: Bad IP connecting."
 
 
 root-mysql(){
