@@ -37,16 +37,45 @@ root-cd(){
 
 root-name(){
 
-  local default="root_v5.21.04"
-  local jimmy="root_v5.22.00"
+  local def="v5.21.04"
+  local jmy="v5.22.00"   ## has eve X11 issues 
+  local new="v5.23.02"
+
   case ${1:-$NODE_TAG} in 
-    old) echo "root_v5.14.00b" ;;
-    ##C) echo "root_v5.21.02" ;;
-      C) echo $jimmy  ;;
-   ## *) echo "root_v5.19.04" ;; 
-      *) echo $jimmy ;; 
+      C) echo root_$def  ;;
+      *) echo root_$def ;; 
   esac 
 }
+
+
+root-info(){
+
+  cat << EOI
+
+  ROOTSYS    : $ROOTSYS
+  which root : $(which root)
+
+EOI
+
+}
+
+
+root-evetest(){
+
+  local msg="=== $FUNCNAME :"
+  [ "$1" == "" ] && echo $msg requires an argument naming the test && type $FUNCNAME && return 1
+  local tmpd=/tmp/env/$FUNCNAME/$1 ; 
+  mkdir -p $tmpd
+  cd $tmpd 
+
+  root-info
+  local cmd="root $ROOTSYS/tutorials/eve/alice_esd_split.C"
+  echo $msg $cmd
+  eval $cmd
+
+}
+
+
 
 root-rootsys(){
   case ${1:-$NODE_TAG} in 
