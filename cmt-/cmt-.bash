@@ -88,10 +88,11 @@ cmt--(){
    local msg="=== $FUNCNAME :"
 
    [ -d "cmt" ]      && echo $msg cd ==\> $PWD/cmt    &&  cd cmt
-   [ -d "../cmt" ]   && echo $msg cd ==\> $PWD/../cmt &&  cd ../cmt
+   [ "$(basename $PWD)" != "cmt" -a -d "../cmt" ]   && echo $msg cd ==\> $PWD/../cmt &&  cd ../cmt
    [ $(basename $PWD) != "cmt" ] && echo $msg ERROR this only works from cmt package directories, or siblings/parents of such dirs && return 1 
-   [ ! -f setup.sh ] && cmt config
+   [ ! -f setup.sh ] && echo $msg doing cmt config as no setup.sh && cmt config
    [ ! -f setup.sh ] && echo $msg ERROR failed to create setup.sh && return 1
+   echo $msg getting into cmt environment at $PWD   try : cmt show macro whatever
    . setup.sh 
 }
 
@@ -123,10 +124,16 @@ cmt-cmt(){
   cmt-itself
   cmt-preq
   local sitereq=$(cmt-sitereq)
-  [ ! -f "$sitereq" ] && echo $msg WARNING generating sitereq $sitereq && cmt-gensitereq > $sitereq
+  [ ! -f "$sitereq" ] && cmt-upsite
 
 }
 
+cmt-upsite(){
+   local msg="=== $FUNCNAME :"
+   local sitereq=$(cmt-sitereq)
+   echo $msg WARNING \(re\)generating sitereq $sitereq 
+   cmt-gensitereq > $sitereq
+}
 
 
 cmt-sitereq(){
