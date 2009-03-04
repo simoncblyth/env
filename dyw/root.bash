@@ -68,10 +68,18 @@ root-evetest(){
   mkdir -p $tmpd
   cd $tmpd 
 
+  local dir=$ROOTSYS/tutorials/eve
+  local sglv=$dir/SplitGLView.C
+  [ ! -f SplitGLView.C ] && echo copying $sglv && cp $sglv . 
   root-info
+  ls -l 
   local cmd="root $ROOTSYS/tutorials/eve/alice_esd_split.C"
   echo $msg $cmd
   eval $cmd
+
+# Running from afar does not work ... 
+# Error in <TRint::ProcessLine>: macro SplitGLView.C not found in path .:/data/env/local/root/root_v5.21.04/root/macros:
+
 
 }
 
