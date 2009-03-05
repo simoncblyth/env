@@ -23,7 +23,7 @@
 // the measured reflectance R
 // and the measured transmittance T.
 //
-//
+// // analyzing at single wavelength
 // shell prompt> root
 // root cint> .L FresnelAnalysis.C
 // root cint> SucApp(1.505,0.009,405.0,
@@ -35,6 +35,22 @@
 //          thinner one transmittance, thinner one reflectance
 //          thickness of thicker one -- mm,
 //          thicker one transmittance, thicker one reflectance)
+//
+// // analyzing a wavelength range
+// shell prompt> root
+// root cint> .L FresnelAnalysis.C
+// root cint> main("1-1-1-1.csv","1-1-2-1.csv",
+//                      "2-1-1-1.csv","2-1-2-1.csv",
+//                      1.505,0.009,10.14,14.80)
+//
+// main(transmission data of the thin sample,
+//      reflection data of the thin sample,
+//      transmission data of the thick sample,
+//      reflection data of the thick sample,
+//      initial index of refraction value for Newton method,
+//      initial alpha value for Newton method,
+//      thin sample thickness,
+//      thick sample thickness)
 //
 // Ref:
 // 1. Applied Optics / Vol.20.No.22 / 1 August 1990
@@ -61,6 +77,8 @@
 #define DELTA 1.0e-11
 #define g_MAXLOOP 99
 #define g_ACCURACY 1.0e-6
+#define DATASIZE 601
+#define ANANO 601
 
 using namespace std;
 
@@ -83,38 +101,47 @@ typedef struct nacon
 // 790.0  0.915
 //
 
-void AnalyzData(TString tfile, TString rfile,
-                TString thtfile, TString thrfile,
-                Double_t n, Double_t alpha,
-                Double_t thin,Double_t thick) {
+// the main
+void main(TString tfile, TString rfile,
+            TString thtfile, TString thrfile,
+            Double_t n, Double_t alpha,
+            Double_t thin,Double_t thick) {
 
-    Double_t wldataContainer[601]={0.0};
-    Double_t tdataContainer[601]={0.0};
-    Double_t rdataContainer[601]={0.0};
-    Double_t thtdataContainer[601]={0.0};
-    Double_t thrdataContainer[601]={0.0};
+    Double_t wldataContainer[DATASIZE]={0.0};
+    Double_t tdataContainer[DATASIZE]={0.0};
+    Double_t rdataContainer[DATASIZE]={0.0};
+    Double_t thtdataContainer[DATASIZE]={0.0};
+    Double_t thrdataContainer[DATASIZE]={0.0};
     ReadData(tfile, wldataContainer, tdataContainer);
     ReadData(rfile, wldataContainer, rdataContainer);
     ReadData(thtfile, wldataContainer, thtdataContainer);
     ReadData(thrfile, wldataContainer, thrdataContainer);
 
+    Double_t resultn[DATASIZE]={0.0};
+    Double_t resultk[DATASIZE]={0.0};
+    Double_t resultatt[DATASIZE]={0.0};
+
     //Fakedata(wldataContainer, tdataContainer, rdataContainer, thtdataContainer, thrdataContainer);
     //if(CheckDataFormate(tdataContainer,rdataContainer,thtdataContainer,thrdataContainer)==0) {
     cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     if(2>1){
-        for(Int_t i=0;i<601;i++){
+        for(Int_t i=0;i<ANANO;i++){
             if(SucApp(n, alpha, wldataContainer[i],
                     thin, tdataContainer[i], rdataContainer[i],
-                    thick, thtdataContainer[i], thrdataContainer[i])==0) {
+                    thick, thtdataContainer[i], thrdataContainer[i],
+                    resultn[i], resultk[i], resultatt[i])==0) {
                 cout << "YES!!" << endl;
             } else break;
         }
     } else break;
 
+    Histonandk(DATASIZE,wldataContainer,resultn,resultk,resultatt);
+
 }
 
+//////////  check the input data format legal or not /////////////////////////////
 void Fakedata(Double_t a[], Double_t b[],Double_t c[],Double_t d[],Double_t e[]) {
-    for(Int_t i=0;i<601;i++){
+    for(Int_t i=0;i<ANANO;i++){
             a[i]=10;
             b[i]=10;
             b[i]=10;
@@ -140,6 +167,9 @@ Int_t CheckDataFormat(Double_t tdataContainerSize[], Double_t rdataContainer[],
 
 }
 */
+//////////////////////////////////////////////////////////////////////////////
+
+////////// some array, data stream handling /////////////////////////////////
 // return the size of array to contain data
 Int_t CheckDataSize(TString file) {
 
@@ -162,7 +192,7 @@ void ReadData(TString file, Double_t wl[], Double_t data[]){
     ifstream inputDataFile;
 
     //Int_t tmpsize = CheckDataSize(file);
-    const Int_t inputSize = 601;
+    const Int_t inputSize = DATASIZE;
 
     //cout << "size is " << inputSizeCount << endl;
     //cout << "size is " << inputSize << endl;
@@ -181,7 +211,6 @@ void ReadData(TString file, Double_t wl[], Double_t data[]){
             fillingCounter++;
         }
     inputDataFile.close();
-
     CopyArray(wlContain,wl,inputSize);
     CopyArray(trContain,data,inputSize);
 
@@ -196,11 +225,15 @@ void CopyArray(Double_t a[], Double_t b[], Int_t size) {
         b[i] = a[i];
     }
 } 
+/////////////////////////////////////////////////////////////////
+
+
 
 // successive approach
 Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             Double_t thin, Double_t thinTm, Double_t thinRm,
-            Double_t thick, Double_t thickTm, Double_t thickRm ) {
+            Double_t thick, Double_t thickTm, Double_t thickRm,
+            Double_t &resultn, Double_t &resultk, Double_t &resultatt) {
 
     nacon nac;
     Int_t maxLoop = g_MAXLOOP;
@@ -244,6 +277,10 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             << deltaalpha << endl << endl;
         PrintTandR(nac.n,nac.alpha,thin,lambda);
         PrintTandR(nac.n,nac.alpha,thick,lambda);
+
+        resultn = nac.n;
+        resultk = ((nac.alpha)/(-4.0*PI))*lambda; // unitless
+        resultatt = (1.0/(nac.alpha))/1000.0; // unit mm -> meter
 
         }
     while((nac.n<1 || nac.n==1 || fabs(deltan) > 0.01 || nac.alpha<0 || nac.alpha==0 || fabs(deltaalpha) > 0.001) && (--maxLoop));
@@ -318,7 +355,7 @@ void FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
 //////// Newton method /////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-// 1D Newton method with fixed n value for testing 
+// 1D Newton method with fixed n value 
 Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop, 
                 const Double_t accuracy, const Double_t Tm,  
                 const Double_t Rm, const Double_t d, 
@@ -510,8 +547,63 @@ Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-/////////// Print T and R info //////////////////////////////////////////////
+/////////// Print and draw T and R info /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
+void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t att[]) {
+
+    TCanvas *c1 = new TCanvas(
+        "c1","Optical Model T and R",200,10,700,900);
+    title = new TPaveText(.2,0.96,.8,.995);
+    title->AddText("Optical Parameters");
+    title->Draw();
+
+    pad1 = new TPad("pad1","Index of Refration",0.03,0.50,0.98,0.95,21);
+    pad2 = new TPad("pad2","Extinction Coeffition",0.03,0.02,0.98,0.48,21);
+    pad3 = new TPad("pad3","Attenuation Length",0.03,0.50,0.98,0.95,21);
+    pad1->Draw();
+    pad2->Draw();
+    pad3->Draw();
+
+    for(Int_t i=0;i<ANANO;i++) {
+        cout << i << "\t" << n[i] << "\t" << k[i] << endl;
+    }
+
+    grn = new TGraph(size, wl, n);
+    pad1->cd();
+    grn->SetLineColor(2);
+    grn->SetLineWidth(4);
+    grn->SetMarkerColor(4);
+    grn->SetMarkerStyle(21);
+    grn->SetTitle("Index of Refraction V.S. Wavelength");
+    grn->GetXaxis()->SetTitle("nm");
+    grn->GetYaxis()->SetTitle("n");
+    grn->Draw("ACP");
+
+    grk = new TGraph(size, wl, k);
+    pad2->cd();
+    grk->SetLineColor(2);
+    grk->SetLineWidth(4);
+    grk->SetMarkerColor(4);
+    grk->SetMarkerStyle(21);
+    grk->SetTitle("Extinction Coeffition V.S. Wavelength");
+    grk->GetXaxis()->SetTitle("nm");
+    grk->GetYaxis()->SetTitle("k");
+    grk->Draw("ACP");
+
+    gratt = new TGraph(size, wl, att);
+    pad3->cd();
+    gratt->SetLineColor(2);
+    gratt->SetLineWidth(4);
+    gratt->SetMarkerColor(4);
+    gratt->SetMarkerStyle(21);
+    gratt->SetTitle("Attenuation Length V.S. Wavelength");
+    gratt->GetXaxis()->SetTitle("nm");
+    gratt->GetYaxis()->SetTitle("meter");
+    gratt->Draw("ACP");
+
+}
+//void Histon(TH1D *nvswl
+
 void PrintTandR(Double_t n, Double_t alpha, Double_t d, Double_t lambda){
 
     //lambda = lambda/1.0e-6; // unit: mm->nm
