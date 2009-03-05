@@ -10,7 +10,7 @@ cat << EOU
    local-nodetag     :  $(local-nodetag)
    local-tag2node    :  $(local-tag2node)
    local-backup-tag  :  $(local-backup-tag)      paired backup node
- 
+   local-mbackup-tag :  $(local-mbackup-tag)      locally mounted backup ... usually eg for C get .. BKP_C
    local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
    
    local-system-base :  $(local-system-base)      
@@ -180,6 +180,8 @@ local-backup-tag(){
    esac  
 }
 
+
+
 local-email(){
    case ${1:-$NODE_TAG} in
      XX) echo tianxc@ihep.ac.cn ;;
@@ -188,44 +190,70 @@ local-email(){
 }
 
 
-local-base(){
-    case ${1:-$NODE_TAG} in 
-       G) echo /usr/local ;;
-      G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
-       P) echo /disk/d3/dayabay/local ;;
-       L) echo /usr/local ;;
-       H) echo /data/usr/local ;;
-       T) echo /usr/local ;;
-       N) echo $HOME/local ;;
-       C) echo /data/env/local ;;
-      XT) echo /home/tianxc ;;   
-       *) echo /usr/local ;;
+local-mbackup-disk(){
+   case ${1:-$NODE_TAG} in 
+     C|MBACKUP_C) echo /mnt/disk1 ;;
+               *) echo NO_MBACKUP_DISK_DEFINED ;;
    esac
 }
 
+local-base(){
+    local t=${1:-$NODE_TAG}
+    case $t in 
+        G) echo /usr/local ;;
+       G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
+        P) echo /disk/d3/dayabay/local ;;
+        L) echo /usr/local ;;
+        H) echo /data/usr/local ;;
+        T) echo /usr/local ;;
+        N) echo $HOME/local ;;
+        C) echo                         /data/env/local ;;
+MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
+       XT) echo /home/tianxc ;;   
+        *) echo /usr/local ;;
+   esac
+}
+
+
+
+
 local-system-base(){
-   case ${1:-$NODE_TAG} in 
+
+   local t=${1:-$NODE_TAG}
+   case $t in 
       P|G1) echo /disk/d4/dayabay/local ;;
-         C) echo /data/env/system ;;
+         C) echo                         /data/env/system ;;
+ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/system ;;
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
          *) echo $(local-base $*) ;;
    esac
 }
 
+
+
+
+
 local-var-base(){
-   case ${1:-$NODE_TAG} in 
-      U) echo /var ;;
-      P) echo /disk/d3/var ;;
-     G1) echo /disk/d3/var ;;
-      N) echo $HOME/var ;;
-     XT) echo /home/tianxc ;; 
-     XX) echo /home ;; 
-   IHEP) echo /home ;;  
-      C) echo /var ;;
-      *) echo /var ;; 
+   local t=${1:-$NODE_TAG}
+   case $t in 
+        U) echo /var ;;
+        P) echo /disk/d3/var ;;
+       G1) echo /disk/d3/var ;;
+        N) echo $HOME/var ;;
+       XT) echo /home/tianxc ;; 
+       XX) echo /home ;; 
+     IHEP) echo /home ;;  
+        C) echo /var ;;
+MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
+       *) echo  /var ;; 
    esac
 }
+
+
+
+
+
 
 local-scm-fold(){
    echo $(local-var-base $*)/scm
@@ -252,11 +280,40 @@ local-output-base(){
 }
 
 
+local-mbackup(){
+   local msg="=== $FUNCNAME :"
+   local t=${1:-$NODE_TAG} 
+   local locations="local-base local-system-base local-scm-fold"
+   for loc in $locations ; do
+      local-mbackup- "$(eval $loc $t)" "$(eval $loc MBACKUP_$t)" 
+   done
+}
 
 
-	
-	
-	
+local-mbackup-(){
+   local msg="=== $FUNCNAME :"
+   local src=$1
+   local dst=$2
+   [ "$src" == "" ] && echo $msg ABORT src not defined for tag $t && return 1
+   [ "$dst" == "" ] && echo $msg ABORT dst not defined for tag $t && return 1
+   [ ! -d "$src" ]  && echo $msg ABORT src directory $src does not exist $t && return 1 
+   [ ! -d "$dst" ]  && echo $msg WARNING creating destination directory $dst && $SUDO mkdir -p "$dst" && $SUDO chown $USER "$dst"
+
+   local sudo
+   [ "$src" == "/var/scm" ] && sudo=sudo
+
+   local cmd="$sudo rsync --delete-after -razvt $src/ $dst/ " 
+   echo $msg $(date) starting backup from src $src to dst $dst with cmd : $cmd 
+   eval $cmd
+   echo $msg $(date) completed
+
+}
+
+local-mbackup--(){
+  screen bash -lc "local-mbackup- " 
+} 
+
+
 	
     
     
