@@ -310,7 +310,7 @@ local-mbackup-(){
 }
 
 local-mbackup--(){
-  screen bash -lc "local-mbackup- " 
+  screen bash -lc "local-mbackup " 
 } 
 
 
