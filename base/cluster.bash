@@ -1,3 +1,25 @@
+cluster-src(){    echo base/cluster.bash ; }
+cluster-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(cluster-src)} ; }
+cluster-vi(){     vi $(cluster-source) ; }
+cluster-srcurl(){ echo $(env-localserver)/repos/env/trunk/$(cluster-src) ; }
+cluster-usage(){
+   cat << EOU
+
+        cluster-src    : $(cluster-src)
+        cluster-source : $(cluster-source)
+        cluster-srcurl : $(cluster-srcurl)
+
+     cluster-touch-disks
+           touching some disks to test time stamping
+
+EOU
+
+}
+
+
+cluster-fmtime(){
+   perl -MPOSIX -e  "print strftime( '%Y%m%d-%H%M%S' , localtime($1) );" 
+}
 
 
 cluster-env(){
@@ -38,19 +60,20 @@ cluster-cmd(){
 
 
 cluster-touch-disks(){
+  cluster-touch-disks- $HOME /tmp /disk/d[3-4]
+}
 
-   ## touching some disks to test time stamping
-   
-   dirs="$HOME /tmp /disk/d[3-4]" 
-   s=$(date +'%s')
-   
-   printf "%-20s %d[%s] \n"  "touch-disks  now:"  $s $(fmtime $s)  
+cluster-touch-disks-(){
 
-   f=stamp$$
-   for dir in $dirs
+   local msg="=== $FUNCNAME :"
+   local s=$(date +'%s')
+   printf "$msg %-20s %d[%s] \n"  "touch-disks  now:"  $s $(cluster-fmtime $s)  
+   local f=stamp$$
+   local dir
+   for dir in $*
    do
 	  cd $dir 
-	  touch $f && t=$(stat -c %Y $f) && rm -f $f && printf "%-20s %d[%s]  \n" $dir $t $(fmtime $t)   
+	  touch $f && t=$(stat -c %Y $f) && rm -f $f && printf "%-20s %d[%s]  \n" $dir $t $(cluster-fmtime $t)   
    done	   
 
 }

@@ -1,4 +1,5 @@
-svn-source(){ echo $BASH_SOURCE ; }
+svn-source(){ echo ${BASH_SOURCE:-$ENV_HOME/svn/svn.bash} ; }
+svn-vi(){        vi $(svn-source) ; }
 svn-sourcelink(){ env-sourcelink $(svn-source) ; }
 svn-usage(){
   
@@ -38,11 +39,180 @@ svn-usage(){
         
     svn-lastrev  <dir1> ... 
         svn-lastrev $SITEROOT/lcgcmt $SITEROOT/../installation/trunk/dybinst    
-        
+  
+
+    == CMDS FOR "WC AS SOURCE" DEGRADED USAGE ==
+
+       Workaround during times of server troubles ... when it is prudent not
+       to commit into the repository.   Designate the repository 
+       working copy on a particular node as '''THE ONE''' source and propagate
+       changes made to this WC via patch transfers over scp.
+
+       Use consistent WC folder naming convention ... to remind you and to act as
+       input to these commands, eg for node P as the source working copy in folder "P:env.P"
+       name WC folders on "child" nodes to "env.P"   
+
+       svn-hometag   : $(svn-hometag)      tag of source WC, assuming directory naming convention
+       svn-patchtag  : $(svn-patchtag) 
+       svn-patchname : $(svn-pathname)     name for patch files 
+       svn-patchloc  : $(svn-patchloc)     scp coordinates of the patch file 
+
+       svn-makepatch    
+            creates a patch in \$ENV_HOME with standard name
+
+
+       svn-getpatch 
+            scp the patch file to local WC
+
+       svn-revert 
+            recursive revert the \$ENV_HOME working copy to a pristine state 
+            iff a corresponding patch file with the correct revision exists
+
+       svn-applypatch
+            apply the patch to the \$ENV_HOME working copy  
+     
+       svn-checkpatch
+            compare the result of "svn diff" with the patch file ... to verify that the patching 
+            worked correctly
+
+
+       svn-autopatch 
+            do all 4 prior steps 
+
+  Set up "child" working copy, naming convention defines '''THE SOURCE''' :
+      G>   cd \$HOME
+      G>   svn checkout \$(env-url) env.P     ## using node P WC at ssh location P:env.P
+
+  After developments on node P 
+      P>  svn-makepatch 
+
+  Propagate to "child" WC such as G with :
+      G>   svn-getpatch         
+      G>   svn-revert          
+      G>   svn-applypatch      
+      G>   svn-checkpatch
+
+   OR 
+      G>  svn-autopatch     
+      
+   ISSUES 
+         Do patches fully capture deletion and additions correctly ??
+
+
                          
 EOU
 
 }
+
+
+svn-revert-(){ svn --recursive revert . ; }
+svn-hometag(){   echo ${ENV_HOME/*./} ; }
+svn-patchtag(){  echo $(svn-lastrev- ${1:-$PWD}) ; }
+svn-patchname(){ echo $(svn-patchtag $PWD).patch ; }
+svn-patchpath(){ echo $ENV_HOME/$(svn-patchname) ; }
+svn-patchloc(){  echo $(svn-hometag):$(basename $ENV_HOME)/$(svn-patchname) ; }
+
+svn-ispristine-(){
+  local dir=$1
+  local lastrev=$(svn-lastrev $dir)
+  local version=$(svnversion $dir)
+  [ "$lastrev" == "$version" ] && return 0 || return 1
+}
+
+svn-revert(){
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   [ ! -f "$(svn-patchpath)" ] && echo $msg ABORT patch file $(svn-patchpath) does not exist cannot revert $PWD && return 1 
+   cd $ENV_HOME
+   svn-revert-
+   cd $iwd
+}
+
+svn-makepatch(){
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   cd $ENV_HOME
+   local name=$(svn-patchname)
+   [ "X$1" != "X" ] && name="$name.$1"
+   echo $msg creating patch $name in $PWD 
+   svn diff . > $name
+   cd $iwd
+}
+
+svn-getpatch(){
+  local msg="=== $FUNCNAME :"
+
+  local tag=$(svn-hometag)
+  [ "$tag" == "" ]          && echo $msg svn-hometag indicates ENV_HOME : $ENV_HOME is not using the degraded convention to identify source WC eg : env.P ... ABORTING && return 1
+  [ "$tag" == "$NODE_TAG" ] && echo $msg fromtag $tag must NOT be same as current tag $NODE_TAG && return 1
+  [ ! -d "$ENV_HOME" ]      && echo $msg ENV_HOME $ENV_HOME does not exist ... ABORT && return 1 
+
+  local iwd=$PWD
+  cd $ENV_HOME
+  local cmd="scp $(svn-patchloc) . "
+  local ans
+  read  -p " $msg from $PWD perform: $cmd  , enter YES to proceed " ans
+  if [ "$ans" == "YES" ]; then
+     echo $msg OK, PROCEEDING 
+     $cmd
+  else
+     echo $msg OK, SKIPPING
+  fi
+  cd $iwd 
+}
+
+svn-applypatch(){
+   local msg="=== $FUNCNAME :"
+
+   local tag=$(svn-hometag)
+   [ "$tag" == "" ]          && echo $msg svn-hometag indicates ENV_HOME : $ENV_HOME is not using the degraded convention to identify source WC eg : env.P ... ABORTING && return 1
+   [ "$tag" == "$NODE_TAG" ] && echo $msg fromtag $tag must NOT be same as current tag $NODE_TAG && return 1
+   [ ! -d "$ENV_HOME" ]      && echo $msg ENV_HOME $ENV_HOME does not exist ... ABORT && return 1 
+   
+   local iwd=$PWD
+   cd $ENV_HOME
+
+   ! svn-ispristine- $PWD    && echo $msg ABORT $PWD is not pristine working copy ... consider doing recursive revert eg with : svn-revert    && return 1
+   local name=$(svn-patchname)   
+   [ ! -f "$name" ]          && echo $msg ABORT no patch file exists with name $name : try  svn-getpatch  && return 1
+
+   local cmd="patch -p0 < $name"
+   local ans
+   read -p "$msg proceed with patch command : $cmd ... enter YES to proceed "  ans
+
+   if [ "$ans" == "YES" ]; then
+     echo $msg proceeding ...
+     eval $cmd
+   else
+     echo $msg skipping...
+   fi
+
+}
+
+svn-checkpatch(){
+    local msg="=== $FUNCNAME :"
+    local name=$(svn-patchname)   
+    svn-ispristine- $PWD && echo $msg ABORT $PWD IS PRISTINE working copy ... nothing to compare   && return 1
+    [ ! -f "$name" ]     && echo $msg ABORT no patch file exists with name $name && return 1
+    svn-makepatch- check 
+    [ ! -f "$name.check" ] && echo $msg ABORT no patch check file exists with name $name.check && return 1
+    echo $msg compare the patch file $name that was applied with $name.check    
+
+    local cmd="diff $name $name.check"
+    echo $msg cmd $cmd
+    eval $cmd
+}
+
+
+svn-autopatch(){
+
+   svn-getpatch
+   svn-revert 
+   svn-applypatch
+   svn-checkpatch
+
+}
+
 
 
 #

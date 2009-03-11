@@ -1,3 +1,5 @@
+package-source(){ echo ${BASH_SOURCE:-$ENV_HOME/python/package.bash} ; }
+package-vi(){ vi $(package-source) ; }
 package-env(){
   elocal-
   python-
@@ -413,12 +415,14 @@ package-diff(){
 package-rev(){
   local name=$1
   local dir=$($name-dir)
-  svnversion $dir 
+  [ -d "$dir" ] && svnversion $dir  || echo -1
 }
 
 package-initial-rev(){
   local name=$1
-  svn info  $($name-dir) | env -i perl -n -e 'm/^Revision: (\d*)/ && print $1 ' -
+  local dir=$($name-dir)
+  [ ! -d "$dir/.svn" ] && echo -1 && return 
+  svn info $dir  | env -i perl -n -e 'm/^Revision: (\d*)/ && print $1 ' -
 }
 
 
@@ -552,6 +556,24 @@ package-smry(){
 
 package-summary(){
   printf "%130s \n" "$(package-smry $1)"
+}
+
+package-revs-(){
+  local name=$1
+  local revision=$(package-revision $name)
+  local irev=$(package-initial-rev $name) 
+  local rev=$(package-rev $name) 
+  local pris=$(package-ispristine $name)
+  local ppat=$(package-patchpath $name)
+  local pnam=$(basename $ppat) 
+  local psmy=""
+  [ -f "$ppat" ] && psmy=$(basename $ppat) || psmy="-"
+
+  printf "%-20s %-10s %-10s %-10s %-15s %-40s" $name ${revision:-NONE} ${irev:-NONE} ${rev:-NONE} $pris $psmy
+}
+
+package-revs(){
+  printf "%130s \n" "$(package-revs- $1)"
 }
 
 

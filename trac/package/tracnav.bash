@@ -14,14 +14,13 @@ tracnav-env(){
 
   local branch
   case $(trac-major) in 
-     0.10) branch=tracnav      ;;
      0.11) branch=tracnav-0.11 ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   export TRACNAV_BRANCH=$branch
 }
 
-
+tracnav-revision(){ echo 3247 ; }
 tracnav-url(){      echo http://svn.ipd.uka.de/repos/javaparty/JP/trac/plugins/$(tracnav-branch) ;}
 tracnav-package(){  echo tracnav ; }
 

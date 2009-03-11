@@ -1,5 +1,7 @@
-
-cmt-source(){ echo $BASH_SOURCE ; }
+cmt-vi(){     vi $(cmt-source) ; }
+cmt-src(){    echo cmt-/cmt-.bash ; }
+cmt-url(){    echo $(env-url)/$(cmt-src) ; }
+cmt-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(cmt-src)} ; }
 cmt-usage(){
    cat << EOU
 
@@ -110,6 +112,22 @@ cmt-addpp(){
    local add=$1;
    echo $CMTPROJECTPATH | grep -v $add - > /dev/null && export CMTPROJECTPATH=$add:$CMTPROJECTPATH
 }
+
+
+cmt-info(){
+  cat << EOI
+
+     cmt-ver      : $(cmt-ver)
+     cmt-external : $(cmt-external)
+     cmt-setup    : $(cmt-setup)
+   
+
+
+EOI
+}
+
+
+
 
 
 cmt-itself(){

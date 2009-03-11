@@ -122,9 +122,20 @@ apache-user(){
    case $NODE_TAG in 
      G) echo www ;;
      C) echo nobody ;;
+  P|G1) echo dayabaysoft ;;
      *) echo apache ;;
    esac
 }
+
+apache-group(){
+   case $NODE_TAG in 
+  P|G1) echo dayabay ;;
+     *) echo $(apache-user) ;;
+   esac
+}
+
+
+
 
 apache-confdir(){
   case $NODE_TAG in

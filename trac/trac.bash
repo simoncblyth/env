@@ -247,7 +247,7 @@ trac-env(){
    
    export TRAC_INSTANCE=$(trac-instance)
    export TRAC_VERSION=$(trac-version)
-   export TRAC_USER=$(trac-user)
+   export TRAC_USER=$(trac-user)  ## DEPRECATED DO NOT USE 
   
    # these settings ?were? used by svn-apache-* for apache2 config 
    # apache-
@@ -264,10 +264,19 @@ trac-env(){
 }
 
 
+trac-localserver(){ 
+  env-localserver
+}
+
 trac-user(){
    apache-
    echo $(apache-user)
 }
+trac-group(){
+   apache-
+   echo $(apache-group)
+}
+
 
 
 trac-major(){   echo ${TRAC_VERSION:0:4} ; }
@@ -339,7 +348,7 @@ trac-edit-ini(){
    local path=$1
    shift
    
-   local user=$TRAC_USER
+   local user=$(trac-user)
    local tmp=/tmp/env/trac/$FUNCNAME && mkdir -p $tmp
    local tpath=$tmp/$(basename $path)
    
@@ -355,7 +364,7 @@ trac-edit-ini(){
    
    
    $SUDO cp $tpath $path 
-   sudo chown $user:$user $path
+   [ "$user" != "$USER" ] &&  $SUDO chown $user:$user $path
 
 }
 
@@ -363,7 +372,7 @@ trac-edit-ini(){
 trac-edit-ini-deprecated(){
 
    local path=$1
-   local user=$TRAC_USER
+   local user=$(trac-user)
    shift
  
    $SUDO perl $ENV_HOME/base/ini-edit.pl $path $*  
@@ -465,12 +474,13 @@ trac-inherit-setup(){
     local msg="=== $FUNCNAME :"
     local inherit=$(trac-inheritpath)
     local dir=$(dirname $inherit)
-    local user=$TRAC_USER
+    local user=$(trac-user)
+    local group=$(trac-group)
     
     if [ ! -d $dir ]; then
         echo $msg creating dir $dir for global inherited conf 
         $SUDO mkdir -p $dir 
-        [ -n "$SUDO" ] && $SUDO chown $user:$user $dir
+        [ -n "$SUDO" ] && $SUDO chown $user:$group $dir
     fi
         
     trac-inherit 
@@ -487,6 +497,9 @@ trac-inherit-(){
 EOH
 
     cat $ENV_HOME/trac/common.ini
+
+    trac-enscript-inherited
+
     tracinter-
     tracinter-ini
 
@@ -542,8 +555,9 @@ trac-configure-instance(){
   trac-comment $name "tracrpc.* = enabled"
   trac-comment $name "default_handler = TagsWikiModule"
   trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
+  trac-comment $name "enscript_path = .*"
        
-  TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)    $(trac-enscript $name)   
+  TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)  
 }
 
 trac-configure-all(){
@@ -589,21 +603,37 @@ trac-comment(){
    local name=${1:-$TRAC_INSTANCE}
    local skip="$2"
    local path=$(trac-inipath $name)
-   local user=$TRAC_USER
+   local user=$(trac-user)
+   local group=$(trac-group)
    
    echo $msg commenting "$skip" from $path user $user
    $SUDO perl -pi -e "s,^($skip),#\$1 ## removed by $BASH_SOURCE::$FUNCNAME ,  " $path
-   [ -n "$SUDO" ] && $SUDO chown $user:$user $path
+   [ -n "$SUDO" ] && $SUDO chown $user:$group $path
 
 }
 
 
-trac-enscript(){
+trac-enscript-deprecated(){
    enscript-
    local path=$(enscript-dir)/bin/enscript
    if [ -x "$path" ]; then
       echo mimeviewer:enscript_path:$path
    fi
+}
+
+trac-enscript-inherited(){
+  enscript-
+  local path=$(enscript-dir)/bin/enscript
+  [ ! -x "$path" ] && echo "## $FUNCNAME $(date) .. WARNING : NO enscript AT $path " && return 0
+  
+  cat << EOI
+
+## constructed by : $FUNCNAME 
+[mimeviewer]
+enscript_path = $path
+
+EOI
+
 }
 
 

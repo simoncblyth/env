@@ -1,5 +1,7 @@
 
-local-source(){ echo $BASH_SOURCE ; }
+local-src(){    echo base/local.bash ; }
+local-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(local-src)} ; }
+local-vi(){     vi $(local-source) ; }
 local-usage(){
 
 cat << EOU
@@ -175,6 +177,7 @@ local-backup-tag(){
       G) echo G3 ;;
       H) echo C  ;;
       C) echo P  ;;
+      P) echo H1  ;;
      XX) echo IHEP C ;;
       *) echo U ;;
    esac  
@@ -197,6 +200,15 @@ local-mbackup-disk(){
    esac
 }
 
+local-root(){
+   case ${1:-$NODE_TAG} in
+      C) echo /mnt/disk1 ;;
+     H1) echo /home/hep/blyth ;;
+     *) echo -n ;;
+   esac
+}
+
+
 local-base(){
     local t=${1:-$NODE_TAG}
     case $t in 
@@ -205,10 +217,12 @@ local-base(){
         P) echo /disk/d3/dayabay/local ;;
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
+       H1) echo $(local-root $t)/local ;;
         T) echo /usr/local ;;
         N) echo $HOME/local ;;
-        C) echo                         /data/env/local ;;
+    OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
+        C) echo         $(local-root $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         *) echo /usr/local ;;
    esac
@@ -222,8 +236,10 @@ local-system-base(){
    local t=${1:-$NODE_TAG}
    case $t in 
       P|G1) echo /disk/d4/dayabay/local ;;
-         C) echo                         /data/env/system ;;
+     OLD_C) echo                         /data/env/system ;;
  MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/system ;;
+         C) echo $(local-root $t)/data/env/system ;;
+        H1) echo $(local-root $t)/system ;;
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
          *) echo $(local-base $*) ;;
@@ -244,9 +260,11 @@ local-var-base(){
        XT) echo /home/tianxc ;; 
        XX) echo /home ;; 
      IHEP) echo /home ;;  
-        C) echo /var ;;
+    OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
-       *) echo  /var ;; 
+        C) echo $(local-root $t)/var ;;
+       H1) echo $(local-root $t)/var ;;
+        *) echo  /var ;; 
    esac
 }
 
@@ -285,7 +303,8 @@ local-mbackup(){
    local t=${1:-$NODE_TAG} 
    local locations="local-base local-system-base local-scm-fold"
    for loc in $locations ; do
-      local-mbackup- "$(eval $loc $t)" "$(eval $loc MBACKUP_$t)" 
+      local-mbackup-     "$(eval $loc $t)" "$(eval $loc MBACKUP_$t)" 
+      local-mbackup-chk- "$(eval $loc $t)" "$(eval $loc MBACKUP_$t)" 
    done
 }
 
@@ -312,6 +331,16 @@ local-mbackup-(){
 local-mbackup--(){
   screen bash -lc "local-mbackup " 
 } 
+
+
+local-mbackup-chk-(){
+    local msg="=== $FUNCNAME :"
+    local src=$1
+    local dst=$2
+    du -hs "$src"
+    du -hs "$dst"
+}
+
 
 
 	

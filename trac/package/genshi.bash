@@ -34,7 +34,8 @@ genshi-env(){
  
 genshi-branch2revision(){
    case $1 in 
-      tags/0.5.0) echo 873 ;;
+  ##  tags/0.5.0) echo 873 ;;
+      tags/0.5.0) echo 896 ;;
                *) echo HEAD ;;
    esac             
 } 

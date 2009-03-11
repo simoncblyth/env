@@ -19,6 +19,10 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
+#env-localserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
+env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
+env-url(){  echo $(env-localserver)/repos/env/trunk ; }
+
 
 env-(){         . $(env-home)/env.bash && env-env $* ; }
 test-(){        . $(env-home)/test/test.bash       && test-env $* ; }

@@ -18,7 +18,11 @@ bitextra-env(){
   export BITEXTRA_BRANCH=trunk
 }
 
-bitextra-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/annobit/$(bitextra-branch) ;}
+bitextra-url(){     
+   trac-
+   echo $(trac-localserver)/repos/tracdev/annobit/$(bitextra-branch) 
+}
+bitextra-revision(){ echo 92 ; }
 
 
 bitextra-fix(){
@@ -48,7 +52,6 @@ bitextra-prepare(){
 
 
 }
-
 
 
 

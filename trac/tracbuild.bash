@@ -77,6 +77,7 @@ tracbuild-status(){      tracbuild-f status ; }
 tracbuild-summary(){     tracbuild-f summary ;  }
 tracbuild-makepatch(){   tracbuild-f makepatch ;  }
 tracbuild-auto(){        tracbuild-f auto ;  }
+tracbuild-revs(){        tracbuild-f revs ;  }
 
 
 

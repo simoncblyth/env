@@ -112,8 +112,15 @@ trac2latex-version2branch(){
   esac
 }
 
+trac2latex-revision(){
+  echo 108
+}
 
-trac2latex-url(){      echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/trac2latex/$(trac2latex-branch) ; }
+
+trac2latex-url(){      
+   trac-
+   echo $(trac-localserver)/repos/tracdev/trac2latex/$(trac2latex-branch) ; 
+}
 trac2latex-package(){  echo trac2latex ; }
 trac2latex-fix(){      echo -n ; }
 

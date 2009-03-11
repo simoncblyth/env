@@ -94,16 +94,19 @@ tracinter-url2name(){
 }
 
 tracinter-triplets-(){
+
+   #local lsv=http://dayabay.phys.ntu.edu.tw
+   local lsv=$(trac- ; trac-localserver)
    cat << EOT
    i  ihep      http://dayabay.ihep.ac.cn/tracs/dybsvn
-   e  env       http://dayabay.phys.ntu.edu.tw/tracs/env
-   m  mirror    http://dayabay.phys.ntu.edu.tw/tracs/dybsvn
-   a  aberdeen  http://dayabay.phys.ntu.edu.tw/tracs/aberdeen
-   d  data      http://dayabay.phys.ntu.edu.tw/tracs/data
+   e  env       $lsv/tracs/env
+   m  mirror    $lsv/tracs/dybsvn
+   a  aberdeen  $lsv/tracs/aberdeen
+   d  data      $lsv/tracs/data
    b  bitten    http://bitten.edgewall.org
    tr trac      http://trac.edgewall.org
    th trachacks http://trac-hacks.org
-   t  tracdev   http://dayabay.phys.ntu.edu.tw/tracs/tracdev
+   t  tracdev   $lsv/tracs/tracdev
    mp macports  https://trac.macports.org 
 EOT
 

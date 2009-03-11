@@ -1,5 +1,8 @@
 
-python-source(){ echo $BASH_SOURCE ; }
+python-src(){   echo python/python.bash ; }
+python-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(python-src)} ; }
+python-vi(){     vi $(python-source) ; }
+python-url(){    echo $(env-url)/$python-src ; }
 python-usage(){
 
 cat << EOU

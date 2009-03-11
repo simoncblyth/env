@@ -19,7 +19,6 @@ trac2mediawiki-env(){
   
   local branch
   case $(trac-major) in 
-     0.10) branch=trunk/0.10 ;;
      0.11) branch=trunk/0.11 ;;  ## give it a go
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
@@ -28,7 +27,14 @@ trac2mediawiki-env(){
 }
 
 
-trac2mediawiki-url(){     echo http://dayabay.phys.ntu.edu.tw/repos/tracdev/trac2mediawiki/$(trac2mediawiki-branch) ;}
+trac2mediawiki-revision(){
+   echo 82   
+}
+
+trac2mediawiki-url(){     
+   trac-
+   echo $(trac-localserver)/repos/tracdev/trac2mediawiki/$(trac2mediawiki-branch) 
+}
 trac2mediawiki-package(){ echo trac2mediawiki ; }
 
 trac2mediawiki-reldir(){
