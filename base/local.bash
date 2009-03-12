@@ -116,6 +116,7 @@ local-nodetag(){
   case ${1:-$LOCAL_NODE} in
    g4pb|simon) echo G ;;
          coop) echo CO ;;
+         hep1) echo H1 ;;
         cms01) echo C ;;
       gateway) echo B ;;
          g3pb) echo G ;;

@@ -330,7 +330,7 @@ env-rsync(){
 }
 
 env-rsync-all(){
-   local target=${1:-C}
+   local target=${1:-H1}
    local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
    echo $cmd 
    eval $cmd
