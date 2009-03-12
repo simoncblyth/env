@@ -21,9 +21,10 @@ env-sourcelink(){
 
 #env-localserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
 env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
-env-url(){  echo $(env-localserver)/repos/env/trunk ; }
+env-url(){         echo $(env-localserver)/repos/env/trunk ; }
+env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
-
+cronline-(){    . $(env-home)/base/cronline.bash && cronline-env $* ; }
 env-(){         . $(env-home)/env.bash && env-env $* ; }
 test-(){        . $(env-home)/test/test.bash       && test-env $* ; }
 scponly-(){     . $(env-home)/scponly/scponly.bash && scponly-env $* ; }
@@ -329,10 +330,9 @@ env-rsync(){
 
 env-rsync-all(){
    local target=${1:-C}
-   local cmd="rsync  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
+   local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
    echo $cmd 
    eval $cmd
-
 }
 
 
