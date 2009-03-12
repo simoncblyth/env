@@ -1,5 +1,7 @@
-
-
+cron-src(){    echo base/cron.bash ; }
+cron-source(){ echo $(env-home)/$(cron-src) ; }
+cron-url(){    echo  $(env-url)/$(cron-src) ; }
+cron-vi(){     vi $(cron-source) ; }
 
 cron-usage(){
 cat << EOU
