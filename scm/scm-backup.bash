@@ -1,5 +1,7 @@
-
-
+scm-backup-src(){ echo scm/scm-backup.bash ; }
+scm-backup-source(){  echo $(env-home)/$(scm-backup-src) ; }
+scm-backup-url(){     echo $(env-url)/$(scm-backup-src) ; }
+scm-backup-vi(){      vi $(scm-backup-source) ; }
 
 scm-backup-usage(){
 cat << EOU
@@ -317,11 +319,14 @@ scm-backup-rls(){
    local day=$(base-datestamp now %Y/%m/%d)
    [ -z "$tags" ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
 
+
    local tag
    for tag in $tags ; do
       if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
+          echo $msg local monitoring on $tag ... $LOCAL_NODE
           find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day
       else
+          echo $msg monitoring from $NODE_TAG to $tag ... $LOCAL_NODE
           ssh $tag "find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day"
       fi
    done

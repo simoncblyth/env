@@ -5,6 +5,7 @@
 #        with the sub precursors defined  in the name/name.bash file
 #
 env-home(){     [ -n "$BASH_SOURCE" ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
+env-vi(){       vi $(env-home)/env.bash ; }
 env-lastrev(){  svn- ; svn-lastrev $(env-home) ; }
 env-rel(){
   local src=$1

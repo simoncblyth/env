@@ -17,20 +17,34 @@ cat << EOU
 
 
       cronline-logdir      : $(cronline-logdir)
-
-
+      cronline-l 
+           list current crontab
+      cronline-e    
+           edit crontab of the current user
 
 
    Usage example , to setup the crontabs for doing backup on grid1 by the dayabaysoft user
    ...  prepare the cronlines to be added to the command line.
 
+
         1) the backup :
-                           cronline-cronline  scm-backup-all 
+                           cronline-cronline " scm-backup- ; scm-backup-all " 
 
         2) 25mins later the rsyncing offbox
 
-         CRONLINE_DELTA=25 cronline-cronline " scm-backup-rsync ; scm-backup-mail "
+         CRONLINE_DELTA=25 cronline-cronline " scm-backup- ; scm-backup-rsync ; scm-backup-mail "
                    NB usage of quotes when a semi-colon is needed
+
+     NB cronline-cronline just prepares the line needed it is up to you to
+        put that into the relevant crontab with "crontab -e "
+
+
+       Cron tips :
+          1) Ensure that the logdir can be written to by the relevant user
+          2) Setting "SHELL=/bin/bash" at the start of the crontab is needed for the environment line to work
+          3) When testing ... best to set ahead 2 mins, otherwise seems to miss ?
+
+
 
 EOU
 
@@ -61,7 +75,8 @@ cat << EOT
 EOT
 }
 
-
+cronline-l(){ crontab -l ; }
+cronline-e(){ crontab -e ; }
 
 cronline-cmd(){
      local cmd1=${1:-cronline-cmd-expects-arguments}
@@ -77,7 +92,12 @@ cat << EOC
 EOC
 }
 
-
+cronline-log(){
+  local msg="=== $FUNCNAME :"
+  cd $(cronline-logdir)
+  echo $msg $PWD
+  ls -l
+}
 
 
 
