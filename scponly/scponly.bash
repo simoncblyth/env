@@ -1,4 +1,7 @@
-
+scponly-src(){     echo scponly/scponly.bash ; }
+scponly-source(){  echo $(env-home)/$(scponly-src) ; }
+scponly-srcurl(){     echo $(env-url)/$(scponly-src) ; }
+scponly-vi(){      vi $(scponly-source) ; }
 scponly-usage(){
 
   cat << EOU
@@ -132,6 +135,14 @@ scponly-ls(){
   sudo ls -la  /home/$user
   sudo ls -la  /home/$user/.ssh
 
+}
+
+
+
+scponly-adduser(){
+   local user=$(scponly-user) 
+   which useradd
+   echo sudo useradd -d $(dirname $HOME)/$user -s $(scponly-bin) $user 
 }
 
 scponly-chown(){
