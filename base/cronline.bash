@@ -46,6 +46,14 @@ cat << EOU
 
 
 
+   Consolidated the  cronline to avoid 2 party uncertainties :
+
+  SHELL=/bin/bash
+ 25 04 * * *  ( export HOME=/home/dayabaysoft ; export NODE=grid1 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/dayabaysoft/env ; . /home/dayabaysoft/env/env.bash ; env-  ; scm-backup- ; scm-backup-nightly ) > /disk/d3/var/log/scm-backup-nightly.log 2>&1
+
+
+
+
 EOU
 
 }

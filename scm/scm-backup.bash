@@ -442,6 +442,25 @@ scm-backup-dybsvn-from-node(){
 }
 
 
+scm-backup-nightly(){
+
+   local msg="=== $FUNCNAME :"
+
+    echo
+    echo $msg $(date)  @@@ scm-backup-all 
+    scm-backup-all 
+    
+    echo
+    echo $msg $(date)  @@@ scm-backup-rsync
+    SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
+    
+    echo
+    echo $msg $(date)  @@@ scm-backup-mail
+    scm-backup-mail
+
+}
+
+
 
 scm-backup-rsync-opts(){
   echo ${SCM_BACKUP_RSYNC_OPTS:-}
