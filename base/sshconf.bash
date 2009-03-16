@@ -50,9 +50,20 @@ cat << EOC > $HOME/.ssh/config
 # /home/aberdeen/Datafiles
 host A
     user aberdeen
-	hostname aberdeentunnel.dyndns.org
+    hostname aberdeentunnel.dyndns.org
 
-
+host AR
+    user root 
+    hostname aberdeentunnel.dyndns.org
+ 
+host V
+    hostname valiant.phys.vt.edu
+    user dmohapat
+ 
+host L
+    user blyth
+    hostname simon.phys.ntu.edu.tw
+ 
 host N
     user blyth
     hostname pdsf.nersc.gov
