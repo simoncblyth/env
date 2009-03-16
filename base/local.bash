@@ -104,6 +104,7 @@ local-tag2node(){
   case ${1:-$NODE_TAG} in 
      H) echo hfag  ;;
      C) echo cms01 ;;
+    C2) echo cms02 ;;
      P) echo grid1 ;;
     G3) echo g3pb ;;
      G) echo g4pb ;; 
@@ -118,6 +119,7 @@ local-nodetag(){
          coop) echo CO ;;
          hep1) echo H1 ;;
         cms01) echo C ;;
+        cms02) echo C2 ;;
       gateway) echo B ;;
          g3pb) echo G ;;
           pal) echo L ;;
@@ -224,6 +226,7 @@ local-base(){
     OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         C) echo         $(local-root $t)/data/env/local ;;
+       C2) echo         $(local-root $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         *) echo /usr/local ;;
    esac
@@ -240,6 +243,7 @@ local-system-base(){
      OLD_C) echo                         /data/env/system ;;
  MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/system ;;
          C) echo $(local-root $t)/data/env/system ;;
+        C2) echo $(local-root $t)/data/env/system ;;
         H1) echo $(local-root $t)/system ;;
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
@@ -264,6 +268,7 @@ local-var-base(){
     OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
         C) echo $(local-root $t)/var ;;
+       C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
         *) echo  /var ;; 
    esac
