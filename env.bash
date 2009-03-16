@@ -37,6 +37,7 @@ sglv-(){        . $(env-home)/eve/SplitGLView/sglv.bash && sglv-env $* ; }
 cmt-(){         . $(env-home)/cmt-/cmt-.bash && cmt-env $* ; }
 
 legacy-(){      . $(env-home)/legacy/legacy.bash && legacy-env $* ; }
+sshconf-(){     . $(env-home)/base/sshconf.bash && sshconf-env $* ; }
 private-(){     . $(env-home)/base/private.bash && private-env $* ; }
 
 dyw-(){         . $(env-home)/dyw/dyw.bash   && dyw-env   $* ; }

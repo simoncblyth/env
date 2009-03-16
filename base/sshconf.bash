@@ -1,10 +1,25 @@
 
+sshconf-usage(){
+  cat << EOU
+
+   sshconf-gen
+       generate the .ssh/config from 
 
 
+EOU
 
 
+}
 
-ssh--config(){
+sshconf-env(){
+   elocal-
+}
+
+sshconf-src(){   echo base/sshconf.bash ; }
+sshconf-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(sshconf-src)} ; }
+sshconf-vi(){     vi $(sshconf-source) ; }
+
+sshconf-gen(){
 
 [ -d $HOME/.ssh ] || mkdir $HOME/.ssh 
 
@@ -78,10 +93,18 @@ host VT
 host B
     hostname gateway.phy.bnl.gov
 	protocol 2
-	
+
+# cms01	
 host C
     hostname 140.112.101.190
     protocol 2 
+
+# cms02
+host C2
+    hostname 140.112.101.191
+    protocol 2 
+
+
      
 host S
     hostname 140.112.101.190
