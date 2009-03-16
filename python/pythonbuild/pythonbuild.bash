@@ -1,4 +1,6 @@
-
+pythonbuild-src(){    echo python/pythonbuild/pythonbuild.bash ; }
+pythonbuild-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(pythonbuild-src)} ; }
+pythonbuild-vi(){     vi $(pythonbuild-source) ; }
 pythonbuild-usage(){
 
   cat << EOU

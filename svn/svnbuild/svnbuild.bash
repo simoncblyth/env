@@ -1,4 +1,6 @@
-
+svnbuild-src(){    echo svn/svnbuild/svnbuild.bash ; }
+svnbuild-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(svnbuild-src)} ; } 
+svnbuild-vi(){     vi $(svnbuild-source) ; }
 svnbuild-usage(){
  
   cat << EOU
@@ -144,7 +146,7 @@ svnbuild-swigpy(){
   cd $(svnbuild-dir)
   
   case $NODE_TAG in 
-     P|H|XT|XX) svnbuild-krb-gssapi-kludge ;;
+     P|H|XT|XX|C2) svnbuild-krb-gssapi-kludge ;;
           *) echo -n ;;
   esac
   
