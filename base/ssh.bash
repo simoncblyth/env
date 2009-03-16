@@ -15,8 +15,6 @@ ssh--env(){
    export SSH_BASE=".ssh"
 }
 
-## makes more sense to treat the config as part of the ssh-- that happens to live in a different file
-. $(env-home)/base/ssh-config.bash
 
 ssh--usage(){
 
@@ -44,6 +42,11 @@ cat << EOU
 
      ssh--info
           dump agent pid etc..
+
+
+    Related function precursors ..
+        sshconf-     ## used for generating the .ssh/config file
+
 
 
 EOU
