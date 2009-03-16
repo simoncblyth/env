@@ -38,6 +38,21 @@ cat << EOU
     python-cd     
        cd $(python-site)  
 
+
+    python-mail 
+           echo hello testing python-mail  | python-mail `local-email` 
+
+    python-mail-test
+
+           python-mail-test
+           >  Attempting to send email to recipient:[blyth@hep1.phys.ntu.edu.tw] from:[me@localhost] message lines:[4] 
+
+        NB for the mailing to work, a mailer needs to be running, eg on G :
+            sudo postfix start
+            > postfix/postfix-script: starting the Postfix mail system
+
+
+
 EOU
 
 
@@ -338,7 +353,7 @@ EOP
 
 }
 
-python-mail(){      cat - | python $(dirname $BASH_SOURCE)/pipemail.py $* ; }
+python-mail(){      cat - | python $(dirname $(python-source))/pipemail.py $* ; }
 python-mail-test(){ python-cat | python-mail `local-email` ; }
 
 python-cat(){
