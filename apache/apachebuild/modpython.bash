@@ -66,8 +66,11 @@ modpython-apacheconf(){
      local msg="=== $FUNCNAME :"
      local conf=$(apache-conf)
      local tmp=/tmp/env/$FUNCNAME/$(basename $conf) && mkdir -p $(dirname $tmp)
+
+     grep -q "^LoadModule python_module" $conf && echo $msg already done ... skipping && return  0
+
      cp $conf $tmp
-     perl -pi -e 's,# LoadModule foo_module modules/mod_foo.so,LoadModule python_module      modules/mod_python.so, ' $tmp
+     perl -pi -e 's,(# LoadModule foo_module modules/mod_foo.so),$1\nLoadModule python_module      modules/mod_python.so, ' $tmp
      echo $msg adding LoadModule line for modpython to $conf 
      diff $conf $tmp
      $SUDO cp $tmp $conf
