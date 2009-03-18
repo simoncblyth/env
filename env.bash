@@ -352,7 +352,7 @@ env-rsync-all(){
 env-rsync-all-(){
    local msg="=== $FUNCNAME :"
    local target=${1:-H2}
-   local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn' --exclude '.xcodeproj'  "
+   local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn' --exclude '*.xcodeproj'  "
    echo $cmd 
    [ "$NODE_TAG" == "$target" ] && echo $msg ABORT cannot rsync to self && return 1
    eval $cmd

@@ -644,6 +644,7 @@ scm-recover-repo(){
    local name=${1:-dummy}   ## name of the backup
    local path=${2:-dummy}   ## absolute path to backup folder containing the last link  
    local dest=${3:-dummy}   ## destination folder, usually $SCM_FOLD/repos OR $SCM_FOLD/tracs 
+   local type=$(basename $dest)
    
    [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
    [ ! -d "$path" ]       && echo $msg ERROR path $path does not exist && return 1 
@@ -697,7 +698,14 @@ scm-recover-repo(){
             local user=$(apache-user)
             $SUDO chown -R $user $name
             
-            
+          
+            if [ "$type" == "tracs" ]; then
+               echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
+               trac-
+               SUDO=$SUDO trac-configure-instance $name
+            fi
+
+
             
          fi      
       else
