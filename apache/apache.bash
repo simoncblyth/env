@@ -1,4 +1,6 @@
-
+apache-src(){    echo apache/apache.bash ; }
+apache-source(){ echo $ENV_HOME/$(apache-src) ; }
+apache-svi(){    vi $(apache-source) ; }
 
 apachebuild-(){ . $ENV_HOME/apache/apachebuild/apachebuild.bash && apachebuild-env $* ; } 
 apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash   && apacheconf-env $* ; } 
@@ -12,6 +14,10 @@ iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env 
 apache-usage(){
 
    cat << EOU
+ 
+     apache-src      : $(apache-src)
+     apache-svi
+
 
        which apachectl : $(which apachectl) 
 

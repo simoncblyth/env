@@ -1,4 +1,6 @@
-
+modpython-src(){  echo apache/apachebuild/modpython.bash ; }
+modpython-source(){ echo $(env-home)/$(modpython-src) ; }
+modpython-vi(){      vi $(modpython-source) ; }
 
 modpython-usage(){
 
@@ -58,6 +60,17 @@ modpython-usage(){
 
 EOU
 
+}
+
+modpython-apacheconf(){
+     local msg="=== $FUNCNAME :"
+     local conf=$(apache-conf)
+     local tmp=/tmp/env/$FUNCNAME/$(basename $conf) && mkdir -p $(dirname $tmp)
+     cp $conf $tmp
+     perl -pi -e 's,# LoadModule foo_module modules/mod_foo.so,LoadModule python_module      modules/mod_python.so, ' $tmp
+     echo $msg adding LoadModule line for modpython to $conf 
+     diff $conf $tmp
+     $SUDO cp $tmp $conf
 }
 
 
@@ -176,7 +189,10 @@ modpython-again(){
     echo $msg without this additon to the apachectl LD_LIBRARY_PATH get  libpython2.5.so not found when try to apachectl     
     apacheconf-
     apacheconf-envvars-add $PYTHON_HOME/lib
-    
+   
+
+    modpython-apacheconf
+ 
 }
 
 

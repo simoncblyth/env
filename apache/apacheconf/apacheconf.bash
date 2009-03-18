@@ -1,7 +1,14 @@
 
+apacheconf-src(){ echo apache/apacheconf/apacheconf.bash ; }
+apacheconf-source(){ echo $ENV_HOME/$(apacheconf-src) ; }
+apacheconf-svi(){    vi $(apacheconf-source) ; }
+
 apacheconf-usage(){
   
    cat << EOU
+
+     apacheconf-src          : $(apacheconf-src)
+     apacheconf-svi
 
      apacheconf-dir          :  $(apacheconf-dir)
      apacheconf-path         :  $(apacheconf-path)
