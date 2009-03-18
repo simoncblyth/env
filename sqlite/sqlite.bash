@@ -1,5 +1,6 @@
-
-sqlite-source(){ echo $BASH_SOURCE ; }
+sqlite-src(){    echo sqlite/sqlite.bash ; }
+sqlite-source(){ echo ${BASH_SOURCE:-$(env-home)/$(sqlite-src)} ; }
+sqlite-vi(){     vi $(sqlite-source) ; }
 sqlitebuild-(){ . $ENV_HOME/sqlite/sqlitebuild/sqlitebuild.bash && sqlitebuild-env $* ; }
 pysqlite-(){    . $ENV_HOME/sqlite/sqlitebuild/pysqlite.bash    && pysqlite-env $* ; }
 
@@ -56,6 +57,9 @@ sqlite-again(){
    
    pysqlite-
    pysqlite-again
+
+   apacheconf-
+   apacheconf-envvars-add $(sqlite-home)/lib
 
 }
 

@@ -229,7 +229,8 @@ apache-addline(){
 
 }
    
-   
+apache-etail(){ tail -f $(apache-logdir)/error_log ; }   
+apache-atail(){ tail -f $(apache-logdir)/access_log ; }   
    
 apache-logs(){
   cd $(apache-logdir)

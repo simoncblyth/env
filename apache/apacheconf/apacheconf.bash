@@ -112,8 +112,9 @@ apacheconf-envvars-add-(){
 
 apacheconf-sqlite(){
 
-   sqlite-
-   apacheconf-envvars-add $(sqlite-home)/lib
+   local msg="=== $FUNCNAME :"
+   echo $msg THIS FUNCATIONALITY HAS BEEN MOVED TO  sqlite-again  
+   sleep 100000000000000  && echo $msg SLEEPING UNTIL YOU FIX THIS 
 
 }
 
