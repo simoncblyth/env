@@ -22,6 +22,8 @@ cat << EOU
    local-user-base   :  $(local-user-base)
    local-output-base :  $(local-output-base)
    
+   local-initialize 
+       create the base folders
    
    
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
@@ -37,6 +39,24 @@ cat << EOU
      OUTPUT_BASE   : $OUTPUT_BASE
                                 
 EOU
+
+}
+
+local-info(){
+
+   local t=${1:-$NODE_TAG}
+   cat << EOI
+
+   For tag $t   (actual node is $NODE_TAG) 
+
+   local-system-base :  $(local-system-base $t)
+   local-base        :  $(local-base $t)
+   local-var-base    :  $(local-var-base $t)
+   local-scm-fold    :  $(local-scm-fold $t)
+   local-user-base   :  $(local-user-base $t)
+   local-output-base :  $(local-output-base $t)
+
+EOI
 
 }
 
@@ -428,5 +448,18 @@ export SCM_TRAC
 }
     
     
-    
+local-initialize(){
+
+   local msg="=== $FUNCNAME :"
+   local names="local-base local-system-base local-scm-fold"
+   echo $msg initializing dirs ... $names , check em with local-info
+   local name
+   for name in $names ; do 
+      local dir=$(eval $name)
+      echo $msg $name : $dir 
+      $SUDO mkdir -p $dir
+      $SUDO chown $USER $dir
+   done
+
+} 
     

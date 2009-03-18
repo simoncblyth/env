@@ -331,9 +331,18 @@ env-rsync(){
 }
 
 env-rsync-all(){
+  local msg="=== $FUNCNAME :"
+  echo $msg to SVNless nodes 
+  local tag
+  for tag in $* ; do
+    env-rsync-all- $tag
+  done
+}
+
+env-rsync-all-(){
    local msg="=== $FUNCNAME :"
-   local target=${1:-H1}
-   local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn'  "
+   local target=${1:-H2}
+   local cmd="rsync -e ssh  -raztv $(env-home)/ $target:env/ --exclude '*.pyc' --exclude '.svn' --exclude '.xcodeproj'  "
    echo $cmd 
    [ "$NODE_TAG" == "$target" ] && echo $msg ABORT cannot rsync to self && return 1
    eval $cmd
