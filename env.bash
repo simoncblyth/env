@@ -167,7 +167,8 @@ cat << EOU
            delete working copy and checkout again 
      env-u
            update the working copy ... aliased to "eu" 
-           
+          
+          
 
 
 EOU
@@ -268,8 +269,17 @@ EOD
 env-find(){
   q=${1:-dummy}
   cd $(env-home)
-  find . -name '*.*' -exec grep -H $q {} \;
+
+  if [ "$(uname)" == "Darwin" ]; then
+     mdfind -onlyin . $q
+  else
+     find . -name '*.*' -exec grep -H $q {} \;
+  fi
 }
+
+
+
+
 
 env-x-pkg(){
 
@@ -430,11 +440,10 @@ env-again(){
   local msg="=== $FUNCNAME :"
 
   [ -z $(env-home) ] && echo $msg ABORT no $(env-home) && return 1 
-  [ -z $SCM_URL  ] && echo $msg ABORT no SCM_URL  && return 1
   
   local dir=$(dirname $(env-home))
   local name=$(basename $(env-home))
-  local url=$SCM_URL/repos/env/trunk
+  local url=$(env-url)
   
   read -p "$msg are you sure you want to wipe $name from $dir and then checkout again from $url  ? answer YES to proceed "  answer
   [ "$answer" != "YES" ] && echo $msg skipping && return 1 

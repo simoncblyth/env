@@ -16,6 +16,11 @@ cat << EOU
    scm-backup-postfix-start  
     
     
+   scm-backup-bootstrap   <no arguments>
+          rsync the tarballs from the backup node of the designated server node
+          for this node and recover from them
+
+
    scm-backup-all-as-root :   does the below as root ... as done in the crontab
     
    scm-backup-all :   invokes the below 
@@ -34,7 +39,6 @@ cat << EOU
        still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
        
        recovers the users and permissions files from the last backup
-  
   
    scm-recover-lastlinks  <typ>     
       
@@ -181,19 +185,57 @@ scm-backup-all(){
 }
 
 
+scm-backup-info(){
+
+   local t=${1:-$NODE_TAG}
+   cat << EOI
+
+   local-server-tag   : $(local-server-tag  $t)
+        the tag of the node on which the primary server currently resides
+        
+   local-tag2node \$(local-server-tag)  : $(local-tag2node $(local-server-tag $t)) 
+
+   local-restore-tag  : $(local-restore-tag $t)
+        the tag of the node that is housing the backup tarballs from the primary server
+
+   local-tag2node \$(local-restore-tag)  : $(local-tag2node $(local-restore-tag $t)) 
 
 
+
+EOI
+
+}
+
+scm-backup-bootstrap(){
+
+   local msg="=== $FUNCNAME :"
+
+   local restore_tag=$(local-restore-tag)
+   local server_tag=$(local-server-tag)
+   local server_node=$(local-tag2node $server_tag)
+
+   scm-backup-info
+
+   [ -z "$restore_tag" ] && echo $msg ABORT no restore_tag && return 1
+   [ -z "$server_tag"  ] && echo $msg ABORT no server_tag && return 1
+   [ -z "$server_node" ] && echo $msg ABORT no server_node && return 1
+
+   scm-backup-rsync-from-node $restore_tag "$server_node/"
+   scm-recover-all $server_node
+}
 
 
 scm-recover-all(){
 
-   # 
-   # recovers both svn repositories and corresponding tracitories, from backup tarballs 
-   #
+   local msg="=== $FUNCNAME :"
+   local fromnode=$1
+   [ "$fromnode" == "" ] && echo scm-recover-all needs a fromnode  && return 1 
    
-   local fromnode=${1:-dummy}
-   [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1 
-   
+   local ans
+   read -p "$msg using tarballs from node $fromnode ? Enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg ABORTing && return  1
+
+
    #local repos=$(svn-repo-dirname)
    local types="repos tracs svn"
    for type in $types
@@ -386,8 +428,11 @@ scm-backup-dir(){
 scm-backup-rsync-from-node(){
 
    local msg="# === $FUNCNAME : "
-   local tag=${1:-C}
-   local node=${2:-dayabay/}
+   local tag=$1
+   local node=$2
+   ## defaults could be dangerous
+   ##local tag=${1:-C}
+   ##local node=${2:-dayabay/}
    
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
    
@@ -396,6 +441,10 @@ scm-backup-rsync-from-node(){
    local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/$node $tgt/$node "
    echo $cmd
 
+   read -p "$msg Enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg ABORTed && return 1
+   echo $msg proveeding ...
+   eval $cmd
 }
 
 scm-backup-dybsvn-from-node(){

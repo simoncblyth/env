@@ -12,6 +12,7 @@ cat << EOU
    local-nodetag     :  $(local-nodetag)
    local-tag2node    :  $(local-tag2node)
    local-backup-tag  :  $(local-backup-tag)      paired backup node
+   local-restore-tag :  $(local-restore-tag)     designated node to restore from  
    local-mbackup-tag :  $(local-mbackup-tag)      locally mounted backup ... usually eg for C get .. BKP_C
    local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
    
@@ -48,6 +49,10 @@ local-info(){
    cat << EOI
 
    For tag $t   (actual node is $NODE_TAG) 
+
+   local-server-tag  : $(local-server-tag $t)   node designated as the source node holding the repository
+   local-restore-tag : $(local-restore-tag $t)  node holding the backup tarballs of the designated server node 
+   local-backup-tag  : $(local-backup-tag $t)   paired node to which backups are sent from $t  
 
    local-system-base :  $(local-system-base $t)
    local-base        :  $(local-base $t)
@@ -125,6 +130,8 @@ local-tag2node(){
      H) echo hfag  ;;
      C) echo cms01 ;;
     C2) echo cms02 ;;
+    H1) echo hep1 ;;
+     N) echo belle7 ;;
      P) echo grid1 ;;
     G3) echo g3pb ;;
      G) echo g4pb ;; 
@@ -140,6 +147,7 @@ local-nodetag(){
          hep1) echo H1 ;;
         cms01) echo C ;;
         cms02) echo C2 ;;
+       belle7) echo N ;;
       gateway) echo B ;;
          g3pb) echo G ;;
           pal) echo L ;;
@@ -200,13 +208,23 @@ local-backup-tag(){
       G) echo G3 ;;
       H) echo C  ;;
       C) echo P  ;;
+     C2) echo N  ;;
       P) echo H1  ;;
      XX) echo IHEP C ;;
       *) echo U ;;
    esac  
 }
 
+local-server-tag(){
+   case ${1:-$NODE_TAG} in
+      *) echo P ;;  
+   esac
+}
 
+local-restore-tag(){
+   local tag=${1:-$NODE_TAG}
+   echo $(local-backup-tag $(local-server-tag $t))
+}
 
 local-email(){
    case ${1:-$NODE_TAG} in
