@@ -59,6 +59,11 @@ host AR
 host V
     hostname valiant.phys.vt.edu
     user dmohapat
+
+host N
+    hostname belle7.nuu.edu.tw
+    user blyth
+
  
 host L
     user blyth
@@ -116,12 +121,19 @@ host C2
     protocol 2 
 
 
-     
+# cms01     
 host S
     hostname 140.112.101.190
     protocol 2 
     user dayabayscp                                 
-                                                              	     
+
+# testing sending to locked down account on grid1
+host S2
+    hostname 140.112.102.250
+    protocol 2 
+    user dayabayscp                                 
+    ForwardX11 no
+                                                               	     
 	
 host BP
     hostname bpost.kek.jp
