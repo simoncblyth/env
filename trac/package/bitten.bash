@@ -1,3 +1,8 @@
+bitten-src(){    echo trac/package/bitten.bash ; }
+bitten-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(bitten-source)} ; }
+bitten-vi(){     vi  $(bitten-source) ; }
+
+
 bitten-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
@@ -75,8 +80,7 @@ bitten-env(){
   
   local branch
   case $(trac-major) in 
-     0.10) branch=trunk ;;
-     0.11) branch=branches/experimental/trac-0.11 ;;
+     0.11) branch=trunk ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   export BITTEN_BRANCH=$branch
