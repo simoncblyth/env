@@ -112,11 +112,13 @@ host B
 
 # cms01	
 host C
+    user blyth
     hostname 140.112.101.190
     protocol 2 
 
 # cms02
 host C2
+    user blyth
     hostname 140.112.101.191
     protocol 2 
 
