@@ -8,7 +8,7 @@ ssh--src(){ echo base/ssh.bash ; }
 ssh--source(){ echo $(env-home)/$(ssh--src) ; }
 ssh--vi(){ vi $(ssh--source) ; }
 ssh--env(){ elocal- ; }
-
+ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
 
 ssh--usage(){
 
@@ -181,11 +181,12 @@ ssh--createdir(){
 
    local msg="=== $FUNCNAME :"
    local home=$1
+   local user=$(basename $home)
    [ "$home" == "$HOME" ] && echo $msg THIS ONLY WORKS FOR OTHER USERS ... NOT YOURSELF && return 1
 
    local dir="$home/.ssh"
-   sudo mkdir $dir
-   sudo chmod 700 $dir 
+   sudo -u $user mkdir $dir
+   sudo -u $user chmod 700 $dir 
 
 }
 

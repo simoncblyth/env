@@ -12,6 +12,48 @@ scponly-usage(){
        http://sublimation.org/scponly/wiki/index.php/Main_Page
        https://lists.ccs.neu.edu/pipermail/scponly/
         
+
+
+    PROCEDURE  
+
+       0) node tagging 
+
+           Create a tag for the new locked down node, eg S S2
+           in sshconf-vi and generate the .ssh/config on the needed scp 
+           source nodes
+ 
+
+        
+       1) create a new user initially without restrictios
+
+            On the fresh node...  in an unrestricted sudoer account
+               scponly-
+               scponly-useradd     
+                     create new user and set the password, initially with /bin/bash
+
+               scponly-passkeys    
+                     create .ssh for the user and pass them the keys 
+
+                 
+       2) verify passwordless login and scp from remote node (the pubkey of which was passed)
+
+               ssh SC2
+               scponly-test SC2
+
+       3)  lockdown : switch to restricted shell and permissions
+
+               scponly-lockdown
+                      switch the shell and permissions 
+
+
+       4)  test that logins fails and scps still work passwordlessly 
+
+               ssh SC2  ... should fail 
+               scponly-test SC2
+
+
+
+
      
     CONFIG 
 
@@ -106,29 +148,6 @@ dayabayscp:x:45052:45052::/home/hep/dayabayscp:/disk/d3/dayabay/local/env/scponl
 
 
 
-       procedure on a fresh node...  done from an unrestricted sudoer account
-
-             create a tag for the new locked down node, eg S S2
-             update sshconf-vi 
-
-
-            scponly-
-            scponly-useradd     
-                  create new user , initially with bash shell
-
-            scponly-passkeys    
-                  create .ssh for the user and pass them the keys 
-
-            scponly-test ??
-                  test a transfer from a remote node, whose pubkey was passed
-                  .. verify passwordless ssh works
-
-            scponly-lockdown
-                   switch the shell and permissions 
-
-            scponly-test 
-
-
 
 EOU
 
@@ -197,6 +216,7 @@ scponly-test(){
 
 
 scponly-lockdown(){
+    scponly-addshell
     scponly-chsh $(scponly-bin)
     scponly-permissions
 }
@@ -207,6 +227,8 @@ scponly-passkeys(){
     
     ssh--createdir $(scponly-home)
     sudo bash -c "cat $HOME/.ssh/authorized_keys2 >> $(scponly-home)/.ssh/authorized_keys2 " 
+
+
 }
 
 
@@ -215,14 +237,19 @@ scponly-passkeys(){
 scponly-useradd(){
    local msg="=== $FUNCNAME :"
    [ -d "$(scponly-home)" ] && echo $msg ABORT users home $(scponly-home) exists already && return 1
-   local cmd="sudo /usr/sbin/useradd -d $(scponly-home) -s $(scponly-bin) $(scponly-user)  "
+   local cmd="sudo /usr/sbin/useradd -d $(scponly-home) -s /bin/bash $(scponly-user)  "
    echo $msg $cmd
    eval $cmd
+
+   local cme="sudo passwd $(scponly-user)"
+   echo $msg $cme   NB ... the password for the new account ... not for sudo access 
+   eval $cme
+
 }
 
 scponly-userdel(){
    local msg="=== $FUNCNAME :"
-   local cmd="sudo /usr/sbin/userdel "
+   local cmd="sudo /usr/sbin/userdel -r $(scponly-user) "
    echo $msg $cmd
    eval $cmd
 }
@@ -251,8 +278,6 @@ scponly-chsh(){
 
 scponly-permissions(){
 
-   local user=$(scponly-user)
-   mkdir -p $(scponly-home)/.ssh
  
    ## must lock down to prevent subventing scponly via copyin of .ssh command files
    scponly-chown root
@@ -350,6 +375,18 @@ scponly-wipe(){
  
 }
 
+scponly-addshell(){
+   local msg="=== $FUNCNAME :"
+   local sh=$(scponly-bin)
+   grep $sh /etc/shells && echo $msg shell $sh is already present && return 0
 
+   local cmd=$(cat << EOC
+sudo bash -c "echo $sh >> /etc/shells" 
+EOC)
+
+   echo $msg $cmd
+   eval $cmd
+   tail  /etc/shells
+}
 
 
