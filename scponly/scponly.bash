@@ -6,27 +6,14 @@ scponly-usage(){
 
   cat << EOU
 
+
+    REFERENCE
+      
        http://sublimation.org/scponly/wiki/index.php/Main_Page
        https://lists.ccs.neu.edu/pipermail/scponly/
-       
-       
-         scponly-name     : $(scponly-name)  
-         scponly-url      : $(scponly-url)  
-         scponly-dir      : $(scponly-dir)  
-         scponly-builddir : $(scponly-builddir)
         
-         scponly-cd       : to builddir
-         scponly-get/configure/install :
-             
-       
-         scponly-configure :
-               using options
-                  scponly-opts :  $(scponly-opts)
-              
-              
-              configure: WARNING: read the SECURITY document before enabling rsync compatibility
-       
-
+     
+    CONFIG 
    
          scponly-user    : $(scponly-user)    
          scponly-chown <username>   
@@ -36,11 +23,9 @@ scponly-usage(){
              
                                                                 
          scponly-chsh  <shell-path>
-              set the shell, default to $(scponly-bin)
-              open up with 
+                    scponly-chsh               # default sets shell to $(scponly-bin)
                     scponly-chsh /bin/bash
-         
-         
+        
          scponly-log 
                 tail the system log 
          
@@ -49,94 +34,56 @@ scponly-usage(){
               root ownership for lockdown to prevent subverting scponly via copy in
               of .ssh command files but then must open up a bit to allow ssh to read the keys
 
-          
-                                                                                                                                                                                                                          
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
-                                                                               
-               
+         scponly-info
+              scponly-ls
+              grep /etc/passwd $(scponly-user)
+
+
+
+
+       BUILD RELATED 
+
+         scponly-name     : $(scponly-name)  
+         scponly-url      : $(scponly-url)  
+         scponly-dir      : $(scponly-dir)  
+         scponly-builddir : $(scponly-builddir)
+        
+         scponly-cd       : to builddir
+ 
+         scponly-get/configure/install :
+         scponly-configure :
+               using options
+                  scponly-opts :  $(scponly-opts)
+              
+              
+              configure: WARNING: read the SECURITY document before enabling rsync compatibility
+ 
+
 EOU
 
 
 }
 
 
-scponly-env(){
-   elocal-  
-}
-
-scponly-name(){ echo scponly-4.8 ;}
-scponly-tgz(){  echo $(scponly-name).tgz ; }
-scponly-url(){  echo http://nchc.dl.sourceforge.net/sourceforge/scponly/$(scponly-tgz) ; }
-scponly-dir(){  echo $LOCAL_BASE/env/scponly ; }
-scponly-builddir(){ echo $(scponly-dir)/build/$(scponly-name) ; }
-scponly-cd(){ cd $(scponly-builddir); }
-scponly-bin(){  echo $(scponly-dir)/bin/scponly ; }
-
-
+scponly-env(){   elocal-  ; }
 scponly-user(){  echo dayabayscp ; }
-
-
-
-scponly-get(){
-
-    local dir=$(scponly-dir)
-    local nam=$(basename $dir)
-    cd $(dirname $dir)
-    $SUDO mkdir -p $nam
-    $SUDO chown $USER $nam
-    cd $nam
-    
-   local tgz=$(scponly-tgz)
-
-    [ ! -f $tgz ] && curl -O $(scponly-url)
-    mkdir -p  build
-    [ ! -d build/$(scponly-name) ] && tar -C build -zxvf $tgz  
+scponly-home(){
+   local t=${1:-$NODE_TAG}
+   case $t in
+            G1) echo /home/hep/$(scponly-user $t) ;;
+           C|S) echo /home/$(scponly-user $t) ;;
+         C2|S2) echo /home/$(scponly-user $t) ;;
+          N|SN) echo /home/$(scponly-user $t) ;;
+             *) echo /home/$(scponly-user $t) ;;
+   esac
 }
 
 
-
-scponly-opts(){
-   echo  --enable-chrooted-binary  --disable-winscp-compat --disable-sftp   --enable-scp-compat   --enable-rsync-compat  
+scponly-info(){
+   sudo ls -la  $(scponly-home)
+   sudo ls -la  $(scponly-home)/.ssh
+   grep /etc/passwd $(scponly-user)
 }
-
-scponly-configure(){
-
-   scponly-cd
-
-   ./configure -h
-   ./configure --prefix=$(scponly-dir) $(scponly-opts)
-
-}
-
-scponly-install(){
-   
-   scponly-cd
-   make 
-   sudo make install
-
-}
-
-scponly-wipe(){
-   local msg="=== $FUNCNAME :"
-   cd $(scponly-dir)  
-   [ ! -f $(scponly-tgz) ] && echo $msg no tgz smth wrong && return 1
-   
-   rm -rf build man etc bin 
-   
- 
-}
-
-
-
-scponly-ls(){
-
-  local user=$(scponly-user) 
-
-  sudo ls -la  /home/$user
-  sudo ls -la  /home/$user/.ssh
-
-}
-
 
 
 scponly-adduser(){
@@ -194,3 +141,72 @@ scponly-target(){
    sudo chown -R $user:$user $dir
 
 }
+
+
+
+
+
+## BUILD RELATED 
+
+
+scponly-name(){ echo scponly-4.8 ;}
+scponly-tgz(){  echo $(scponly-name).tgz ; }
+scponly-url(){  echo http://nchc.dl.sourceforge.net/sourceforge/scponly/$(scponly-tgz) ; }
+scponly-dir(){  echo $LOCAL_BASE/env/scponly ; }
+scponly-builddir(){ echo $(scponly-dir)/build/$(scponly-name) ; }
+scponly-cd(){ cd $(scponly-builddir); }
+scponly-bin(){  echo $(scponly-dir)/bin/scponly ; }
+
+
+scponly-get(){
+
+    local dir=$(scponly-dir)
+    local nam=$(basename $dir)
+    cd $(dirname $dir)
+    $SUDO mkdir -p $nam
+    $SUDO chown $USER $nam
+    cd $nam
+    
+   local tgz=$(scponly-tgz)
+
+    [ ! -f $tgz ] && curl -O $(scponly-url)
+    mkdir -p  build
+    [ ! -d build/$(scponly-name) ] && tar -C build -zxvf $tgz  
+}
+
+
+
+scponly-opts(){
+   echo  --enable-chrooted-binary  --disable-winscp-compat --disable-sftp   --enable-scp-compat   --enable-rsync-compat  
+}
+
+scponly-configure(){
+
+   scponly-cd
+
+   ./configure -h
+   ./configure --prefix=$(scponly-dir) $(scponly-opts)
+
+}
+
+scponly-install(){
+   
+   scponly-cd
+   make 
+   sudo make install
+
+}
+
+scponly-wipe(){
+   local msg="=== $FUNCNAME :"
+   cd $(scponly-dir)  
+   [ ! -f $(scponly-tgz) ] && echo $msg no tgz smth wrong && return 1
+   
+   rm -rf build man etc bin 
+   
+ 
+}
+
+
+
+

@@ -125,9 +125,9 @@ apache-envvars(){
 }
 
 apache-user(){
-   case $NODE_TAG in 
+   case ${1:-$NODE_TAG} in 
      G) echo www ;;
-     C) echo nobody ;;
+C|C2|N) echo nobody ;;
   P|G1) echo dayabaysoft ;;
      *) echo apache ;;
    esac
