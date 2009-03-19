@@ -52,6 +52,10 @@ scponly-usage(){
                scponly-test SC2
 
 
+       5)  setup backup target dirs 
+               scponly-backup-targets
+
+
 
 
      
@@ -183,13 +187,41 @@ EOI
 
 
 
+scponly-put-ihepkey(){
+  local tag=$1
+  [ "$NODE_TAG" != "C" ] && echo $msg the key resides on node C .. not $NODE_TAG && return 1
+  head -1 $(scponly-home)/.ssh/authorized_keys2 | ssh $tag "cat - >> ~/.ssh/authorized_keys2";
+}
+
+
+
 scponly-check(){
+
+   local msg="=== $FUNCNAME :"
+
+   echo $msg scponly-bin $(scponly-bin)
    sudo ls -la  $(scponly-bin)
+   echo $msg scponly-home : $(scponly-home)
    sudo ls -la  $(scponly-home)
+   echo $msg scponly-home/.ssh : $(scponly-home)/.ssh
    sudo ls -la  $(scponly-home)/.ssh
+
+   echo $msg check for user $(scponly-user) in /etc/passwd
    grep $(scponly-user) /etc/passwd
-   echo $msg scponly-bin should appear in the list
+
+   echo $msg restricted scponly shell $(scponly-bin) should appear in the list
    tail -5 /etc/shells
+
+   echo $msg target dirs for backup tarballs should exist and be owned by $(scponly-user)
+   local target
+   for target in $(scponly-target-list) ; do  
+      echo $msg looking at target $target 
+      sudo ls -la  $target
+   done 
+
+
+   scponly-keys
+
 }
 
 
@@ -218,21 +250,26 @@ scponly-test(){
 scponly-lockdown(){
     scponly-addshell
     scponly-chsh $(scponly-bin)
-    scponly-permissions
+    scponly-permissions root
 }
+
+scponly-openup(){
+    scponly-chsh /bin/bash
+    scponly-permissions $(scponly-user)
+}
+
+
 
 scponly-passkeys(){
     local msg="=== $FUNCNAME :"
     [ "$HOME" == "$(scponly-home)" ] && echo $msg ABORT ... this is not to be done by the restricted user && return 1
-    
     ssh--createdir $(scponly-home)
     sudo bash -c "cat $HOME/.ssh/authorized_keys2 >> $(scponly-home)/.ssh/authorized_keys2 " 
-
-
 }
 
-
-
+scponly-keys(){
+    sudo cat $(scponly-home)/.ssh/authorized_keys2
+}
 
 scponly-useradd(){
    local msg="=== $FUNCNAME :"
@@ -255,15 +292,6 @@ scponly-userdel(){
 }
 
 
-scponly-chown(){
-   local msg="=== $FUNCNAME :"
-   local user=$(scponly-user) 
-   local sser=${1:-$user}
-   local cmd="sudo chown -R $sser:$sser $(scponly-home)"
-   echo $msg $cmd
-   eval $cmd
-}
-
 scponly-chsh(){
     local shell=${1:-$(scponly-bin)}
     local cmd="sudo chsh -s $shell $(scponly-user)"
@@ -278,9 +306,10 @@ scponly-chsh(){
 
 scponly-permissions(){
 
- 
+   local user=${1:-root} 
+
    ## must lock down to prevent subventing scponly via copyin of .ssh command files
-   scponly-chown root
+   sudo chown -R $user:$user $(scponly-home)
 
    ## but must open up a bit to allow ssh to read the keys
 
@@ -300,14 +329,30 @@ scponly-log(){
 }
 
 
-scponly-target(){
 
+scponly-target-list(){
+  cat << EOT
+$(local-scm-fold)/backup/dayabay 
+EOT
+}
+
+scponly-setup-targets(){
+   local target
+   for target in $(scponly-target-list) ; do  
+      scponly-target $target
+   done 
+}
+
+
+
+
+scponly-target(){
+   local msg="=== $FUNCNAME :" 
    local user=$(scponly-user)
-   local dir=$SCM_FOLD/backup/dayabay
-   
+   local dir=$1
+   echo $msg setup target dir $dir  to catch scp backup tarballs 
    sudo mkdir -p $dir
    sudo chown -R $user:$user $dir
-
 }
 
 
