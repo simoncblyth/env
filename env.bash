@@ -25,6 +25,7 @@ env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
 env-url(){         echo $(env-localserver)/repos/env/trunk ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
+phpbb-(){       . $(env-home)/phpbb/phpbb.bash    && phpbb-env $* ; }
 cronline-(){    . $(env-home)/base/cronline.bash && cronline-env $* ; }
 env-(){         . $(env-home)/env.bash && env-env $* ; }
 test-(){        . $(env-home)/test/test.bash       && test-env $* ; }
