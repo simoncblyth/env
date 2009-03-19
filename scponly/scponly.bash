@@ -14,6 +14,13 @@ scponly-usage(){
         
      
     CONFIG 
+
+
+         scponly-create
+
+              
+
+
    
          scponly-user    : $(scponly-user)    
          scponly-chown <username>   
@@ -99,6 +106,29 @@ dayabayscp:x:45052:45052::/home/hep/dayabayscp:/disk/d3/dayabay/local/env/scponl
 
 
 
+       procedure on a fresh node...  done from an unrestricted sudoer account
+
+             create a tag for the new locked down node, eg S S2
+             update sshconf-vi 
+
+
+            scponly-
+            scponly-useradd     
+                  create new user , initially with bash shell
+
+            scponly-passkeys    
+                  create .ssh for the user and pass them the keys 
+
+            scponly-test ??
+                  test a transfer from a remote node, whose pubkey was passed
+                  .. verify passwordless ssh works
+
+            scponly-lockdown
+                   switch the shell and permissions 
+
+            scponly-test 
+
+
 
 EOU
 
@@ -121,19 +151,32 @@ scponly-home(){
 
 
 scponly-info(){
-  
+
+   cat << EOI
+
+     scponly-bin   : $(scponly-bin)
+     scponly-home  : $(scponly-home)
+
+
+EOI
+
+}
+
+
+
+scponly-check(){
    sudo ls -la  $(scponly-bin)
    sudo ls -la  $(scponly-home)
    sudo ls -la  $(scponly-home)/.ssh
    grep $(scponly-user) /etc/passwd
+   echo $msg scponly-bin should appear in the list
+   tail -5 /etc/shells
 }
 
 
 
 scponly-testexit(){
-
    ls -al $(scponly-bin)
-
    local msg="=== $FUNCNAME : "
    sudo -u $(scponly-user)  $(scponly-bin) 
    [ "$?" == "1" ] && echo $msg expected behaviour || echo $msg UNEXPECTED rc 
@@ -141,41 +184,58 @@ scponly-testexit(){
 
 
 scponly-test(){
-
    local t=$1 
    local msg="=== $FUNCNAME :"
-
    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
    cd $tmp
-
    local name=$FUNCNAME.txt
-
    echo $msg to target tag $t  > $name
    local cmd="scp $name $t:/tmp/$name"
    echo $msg $cmd
-
    eval $cmd 
+}
 
+
+scponly-lockdown(){
+    scponly-chsh $(scponly-bin)
+    scponly-permissions
+}
+
+scponly-passkeys(){
+    local msg="=== $FUNCNAME :"
+    [ "$HOME" == "$(scponly-home)" ] && echo $msg ABORT ... this is not to be done by the restricted user && return 1
+    
+    ssh--createdir $(scponly-home)
+    sudo bash -c "cat $HOME/.ssh/authorized_keys2 >> $(scponly-home)/.ssh/authorized_keys2 " 
 }
 
 
 
-scponly-adduser(){
-   local user=$(scponly-user) 
-   which useradd
-   echo sudo useradd -d $(dirname $HOME)/$user -s $(scponly-bin) $user 
+
+scponly-useradd(){
+   local msg="=== $FUNCNAME :"
+   [ -d "$(scponly-home)" ] && echo $msg ABORT users home $(scponly-home) exists already && return 1
+   local cmd="sudo /usr/sbin/useradd -d $(scponly-home) -s $(scponly-bin) $(scponly-user)  "
+   echo $msg $cmd
+   eval $cmd
 }
+
+scponly-userdel(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo /usr/sbin/userdel "
+   echo $msg $cmd
+   eval $cmd
+}
+
 
 scponly-chown(){
-
+   local msg="=== $FUNCNAME :"
    local user=$(scponly-user) 
    local sser=${1:-$user}
-   local cmd="sudo chown -R $sser:$sser $(dirname $HOME)/$user"
-   echo $cmd
+   local cmd="sudo chown -R $sser:$sser $(scponly-home)"
+   echo $msg $cmd
    eval $cmd
-
 }
-
 
 scponly-chsh(){
     local shell=${1:-$(scponly-bin)}
@@ -185,20 +245,27 @@ scponly-chsh(){
 }
 
 
+
+
+
+
 scponly-permissions(){
 
    local user=$(scponly-user)
-   
+   mkdir -p $(scponly-home)/.ssh
+ 
    ## must lock down to prevent subventing scponly via copyin of .ssh command files
-   sudo chown -R root:root  $(scponly-home)
+   scponly-chown root
 
    ## but must open up a bit to allow ssh to read the keys
+
+   ## chmod u+rwx,go+rx 
    
    sudo chmod 755 $(scponly-home)
    sudo chmod 755 $(scponly-home)/.ssh
    sudo chmod go+r $(scponly-home)/.ssh/authorized_keys2
 
-   scponly-info
+   scponly-check
 
 }
 

@@ -110,11 +110,18 @@ host B
     hostname gateway.phy.bnl.gov
 	protocol 2
 
+
+
 # cms01	
 host C
     user blyth
     hostname 140.112.101.190
     protocol 2 
+host S
+    user dayabayscp                                 
+    hostname 140.112.101.190
+    protocol 2 
+
 
 # cms02
 host C2
@@ -122,12 +129,13 @@ host C2
     hostname 140.112.101.191
     protocol 2 
 
-
-# cms01     
-host S
-    hostname 140.112.101.190
+host SC2
+    user dayabayscp 
+    hostname 140.112.101.191
     protocol 2 
-    user dayabayscp                                 
+    ForwardX11 no
+
+
 
 # testing sending to locked down account on grid1
 host S2

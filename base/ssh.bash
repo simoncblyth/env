@@ -4,16 +4,10 @@
 #       pal@nuu "L"
 #
 
-
-
-
-
-
-ssh--env(){
-   
-   elocal-
-   export SSH_BASE=".ssh"
-}
+ssh--src(){ echo base/ssh.bash ; }
+ssh--source(){ echo $(env-home)/$(ssh--src) ; }
+ssh--vi(){ vi $(ssh--source) ; }
+ssh--env(){ elocal- ; }
 
 
 ssh--usage(){
@@ -58,7 +52,7 @@ ssh--keygen(){
 
   local passph=${1:-dummy}
   [ "$passph" == "dummy" ] && echo "you must enter a passphrase as the argument " && return 
-  [ -d "$HOME/$SSH_BASE" ] || ( mkdir $HOME/$SSH_BASE && chmod 700 $HOME/$SSH_BASE )
+  [ -d "$HOME/.ssh" ] || ( mkdir $HOME/.ssh && chmod 700 $HOME/.ssh )
 
   echo generating keys on node $NODE_TAG
   local types="rsa1 rsa dsa"
@@ -70,7 +64,7 @@ ssh--keygen(){
 	   dsa)  keyname=id_dsa   ;;
 	     *)  keyname=error    ;;
 	  esac    
-	  keyfile="$HOME/$SSH_BASE/$keyname"
+	  keyfile="$HOME/.ssh/$keyname"
 	  if [ -f "$keyfile" ]; then
 		  echo keyfile $keyfile already exists 
 	  else	  
@@ -182,6 +176,19 @@ ssh--putkey(){
 	ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
 
 }
+
+ssh--createdir(){
+
+   local msg="=== $FUNCNAME :"
+   local home=$1
+   [ "$home" == "$HOME" ] && echo $msg THIS ONLY WORKS FOR OTHER USERS ... NOT YOURSELF && return 1
+
+   local dir="$home/.ssh"
+   sudo mkdir $dir
+   sudo chmod 700 $dir 
+
+}
+
 
 
 	
