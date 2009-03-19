@@ -35,9 +35,16 @@ scponly-usage(){
               of .ssh command files but then must open up a bit to allow ssh to read the keys
 
          scponly-info
-              scponly-ls
-              grep /etc/passwd $(scponly-user)
 
+
+
+
+       NOTES 
+
+           Cannot "ssh--putkey" to a locked down account ... so transfer from an account on 
+           the same node like :
+                sudo bash -c "cat .ssh/authorized_keys2 >> ../dayabayscp/.ssh/authorized_keys2 "
+                sudo cat  ../dayabayscp/.ssh/authorized_keys2  
 
 
 
@@ -58,6 +65,40 @@ scponly-usage(){
               
               configure: WARNING: read the SECURITY document before enabling rsync compatibility
  
+
+
+        scponly-test 
+               the restricted user generally does not have permission to write into 
+               their home directory
+
+               but they must have permission to read the public keys in $HOME/.ssh/authorized_keys2              
+
+
+
+       to locked down account on cms01 ...
+
+simon:scponly-test blyth$ scponly-test S
+=== scponly-test : scp scponly-test.txt S:/tmp/scponly-test.txt
+Scientific Linux CERN SLC release 4.7 (Beryllium)
+scponly-test.txt                                                                                                                     100%   35     0.0KB/s   00:00    
+
+
+       to locked down account on grid1 ...
+    
+simon:scponly-test blyth$ scponly-test S2
+=== scponly-test : scp scponly-test.txt S2:/tmp/scponly-test.txt
+Scientific Linux CERN Release 3.0.8 (SL)
+/disk/d3/dayabay/local/env/scponly/bin/scponly: Permission denied
+lost connection
+
+      the locked down user on grid1 has a ginormous uid ... due to horrible number of users on grid1 :
+dayabayscp:x:45052:45052::/home/hep/dayabayscp:/disk/d3/dayabay/local/env/scponly/bin/scponly
+[blyth@grid1 blyth]$ 
+[blyth@grid1 blyth]$ cat /etc/passwd | wc
+   1053    5941   77391
+
+
+
 
 EOU
 
@@ -80,10 +121,43 @@ scponly-home(){
 
 
 scponly-info(){
+  
+   sudo ls -la  $(scponly-bin)
    sudo ls -la  $(scponly-home)
    sudo ls -la  $(scponly-home)/.ssh
-   grep /etc/passwd $(scponly-user)
+   grep $(scponly-user) /etc/passwd
 }
+
+
+
+scponly-testexit(){
+
+   ls -al $(scponly-bin)
+
+   local msg="=== $FUNCNAME : "
+   sudo -u $(scponly-user)  $(scponly-bin) 
+   [ "$?" == "1" ] && echo $msg expected behaviour || echo $msg UNEXPECTED rc 
+}
+
+
+scponly-test(){
+
+   local t=$1 
+   local msg="=== $FUNCNAME :"
+
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+   cd $tmp
+
+   local name=$FUNCNAME.txt
+
+   echo $msg to target tag $t  > $name
+   local cmd="scp $name $t:/tmp/$name"
+   echo $msg $cmd
+
+   eval $cmd 
+
+}
+
 
 
 scponly-adduser(){
@@ -116,13 +190,15 @@ scponly-permissions(){
    local user=$(scponly-user)
    
    ## must lock down to prevent subventing scponly via copyin of .ssh command files
-   sudo chown -R root:root  /home/$user
+   sudo chown -R root:root  $(scponly-home)
 
    ## but must open up a bit to allow ssh to read the keys
    
-   sudo chmod 755 /home/$user
-   sudo chmod 755 /home/$user/.ssh
+   sudo chmod 755 $(scponly-home)
+   sudo chmod 755 $(scponly-home)/.ssh
+   sudo chmod go+r $(scponly-home)/.ssh/authorized_keys2
 
+   scponly-info
 
 }
 
