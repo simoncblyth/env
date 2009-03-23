@@ -56,8 +56,8 @@ iptables-record(){
    mkdir -p $dir 
    cd $dir   
    local name=$(iptables-name)
-   sudo iptables --line-numbers --list $name   > $name.list 
-   sudo iptables-save > iptables-save.txt
+   sudo /sbin/iptables --line-numbers --list $name   > $name.list 
+   sudo /sbin/iptables-save > iptables-save.txt
 
 }
 
@@ -65,7 +65,7 @@ iptables-record(){
 iptables-webopen(){
 
    local name=$(iptables-name)
-   sudo iptables -I $name 9 -p tcp -i eth0 --dport 80 --sport 1024:65535 -m state --state NEW -j ACCEPT
+   sudo /sbin/iptables -I $name 9 -p tcp -i eth0 --dport 80 --sport 1024:65535 -m state --state NEW -j ACCEPT
 
 }
 
