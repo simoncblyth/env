@@ -1,7 +1,9 @@
-
+iptables-src(){ echo apache/apacheconf/iptables.bash ; }
+iptables-source(){ echo $(env-home)/$(iptables-src) ; }
+iptables-vi(){  vi $(iptables-source) ; }
 
 iptables-env(){
-  return 0
+  elocal-
 }
 
 
@@ -41,6 +43,8 @@ iptables-persist(){
   eval $cmd
 }
 
+
+iptables-ls(){   ls -l $(iptables-dir) ; }
 
 iptables-dir(){  echo $ENV_HOME/apache/apacheconf/iptables ; }
 
