@@ -776,6 +776,9 @@ scm-recover-repo(){
                echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
                trac-
                SUDO=$SUDO trac-configure-instance $name
+
+               echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
+               TRAC_INSTANCE=$name trac-admin-- resync
             fi
 
 

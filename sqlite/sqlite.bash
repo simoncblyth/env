@@ -87,8 +87,8 @@ sqlite-env(){
    env-prepend $SQLITE_HOME/bin
 
    case $NODE_TAG in
-     P|XT|C) env-llp-prepend $SQLITE_HOME/lib ;;
-          *) env-ldconfig $SQLITE_HOME/lib    ;;   ##  make available without diddling with llp
+     P|XT|C|C2|N) env-llp-prepend $SQLITE_HOME/lib ;;
+               *) env-ldconfig $SQLITE_HOME/lib    ;;   ##  make available without diddling with llp
    esac     
 }
 

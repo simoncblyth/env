@@ -122,7 +122,7 @@ svnbuild-configure(){
 
 svnbuild-gssapidir(){
    case ${1:-$NODE_TAG} in 
-     C2) echo /usr/lib ;;
+   C2|N) echo /usr/lib ;;
       *) echo /usr/kerberos/lib ;;
    esac
 }
@@ -153,7 +153,7 @@ svnbuild-swigpy(){
   cd $(svnbuild-dir)
   
   case $NODE_TAG in 
-     P|H|XT|XX|C2) svnbuild-krb-gssapi-kludge ;;
+     P|H|XT|XX|C2|N) svnbuild-krb-gssapi-kludge ;;
           *) echo -n ;;
   esac
   
