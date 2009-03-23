@@ -354,25 +354,33 @@ scm-backup-purge(){
   done
 }
 
+scm-backup-rls-(){
+  local tag=${1:-$BACKUP_TAG}
+  local inst=${2:-""}
+  local bkpdir=$(local-scm-fold $tag)/backup/$inst
+  local smry=" node $tag ($(local-tag2node $tag)) $bkpdir  invoked from $NODE_TAG ($LOCAL_NODE)"
+  if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
+     echo $msg local $smry
+     find $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day
+  else
+     echo $msg remote $smry
+     ssh $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
+  fi
+}
+
 scm-backup-rls(){
    local msg="=== $FUNCNAME :"
    local tags=${1:-$BACKUP_TAG}
-   local inst=${2:-""}
+   local inst=${2:-$(local-node)}
    local day=$(base-datestamp now %Y/%m/%d)
    [ -z "$tags" ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
-
-
+   local tmpd=/tmp/$FUNCNAME && mkdir -p $tmpd
+   python-
    local tag
    for tag in $tags ; do
-      local bkpdir=$(local-scm-fold $tag)/backup/$inst
-      local smry="monitoring backup dir $bkpdir on node $tag ($(local-tag2node $tag))  invoked from $NODE_TAG ($LOCAL_NODE)"
-      if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
-          echo $msg local $smry
-          find $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day
-      else
-          echo $msg remote $smry
-          ssh $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
-      fi
+       local tmp=$tmpd/${tag}.txt
+       scm-backup-rls- $tag $inst > $tmp
+       python-sendmail $tmp
    done
 }
 
@@ -380,15 +388,8 @@ scm-backup-rls(){
 scm-backup-mail(){
 
   local msg="=== $FUNCNAME :"
-  local rls=/tmp/$FUNCNAME.txt
-  
-  echo $msg writing to $rls    
-  scm-backup-rls > $rls
-  
-  echo $msg sendmail $rls
-  python-
-  python-sendmail $rls
-
+  echo $msg DEPRECATED ... USE scm-backup-rls DIRECTLY
+  scm-backup-rls 
   
 }
 
@@ -518,8 +519,8 @@ scm-backup-nightly(){
     scm-backup-rsync  
     
     echo
-    echo $msg $(date)  @@@ scm-backup-mail
-    scm-backup-mail
+    echo $msg $(date)  @@@ scm-backup-rls
+    scm-backup-rls
 
     echo
     echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
