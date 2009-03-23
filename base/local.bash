@@ -130,6 +130,7 @@ local-tag2node(){
      H) echo hfag  ;;
      C) echo cms01 ;;
     C2) echo cms02 ;;
+    XX) echo dayabay ;;
     H1) echo hep1 ;;
      N) echo belle7 ;;
      P) echo grid1 ;;
@@ -147,6 +148,7 @@ local-nodetag(){
          hep1) echo H1 ;;
         cms01) echo C ;;
         cms02) echo C2 ;;
+      dayabay) echo XX ;;
        belle7) echo N ;;
       gateway) echo B ;;
          g3pb) echo G ;;

@@ -364,12 +364,14 @@ scm-backup-rls(){
 
    local tag
    for tag in $tags ; do
+      local bkpdir=$(local-scm-fold $tag)/backup/$inst
+      local smry="monitoring backup dir $bkpdir on node $tag ($(local-tag2node $tag))  invoked from $NODE_TAG ($LOCAL_NODE)"
       if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
-          echo $msg local monitoring on $tag ... $LOCAL_NODE
-          find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day
+          echo $msg local $smry
+          find $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day
       else
-          echo $msg monitoring from $NODE_TAG to $tag ... $LOCAL_NODE
-          ssh $tag "find $(local-scm-fold $tag)/backup/$inst -name '*.gz' -exec du -hs {} \; | grep $day"
+          echo $msg remote $smry
+          ssh $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
       fi
    done
 }
@@ -387,33 +389,39 @@ scm-backup-mail(){
   python-
   python-sendmail $rls
 
-  scm-backup-parasitic 
   
 }
 
 
 scm-backup-parasitic(){
+
+   local server=$1
+   local backup=$2
+
    local msg="=== $FUNCNAME :"
-   local tmp=/tmp/${FUNCNAME}_dayabay.txt
-   if [ "$NODE_TAG" == "C" ]; then
-        echo $msg monitoring to $tmp and sending mail 
-        scm-backup-parasitic- > $tmp
-        python-sendmail $tmp
-   else
-        echo $msg only needed on C
-   fi 
+   local tmp=/tmp/${FUNCNAME}_${server}_${backup}.txt
+
+   echo $msg monitoring to $tmp and sending mail 
+   scm-backup-parasitic- $server $backup > $tmp
+   python-sendmail $tmp
 }
 
 
 scm-backup-parasitic-(){
-
+   local msg="=== $FUNCNAME :"
+   local smry="$msg $server $(local-tag2node $server) -> $backup $(local-tag2node $backup) : rsync transfer monitoring   "
+   local server="$1"
+   local backup="$2"
    cat << EOP
-    $BASH_SOURCE::$FUNCNAME 
-        Running at : $(date)
-        Monitoring the rsync transfer of backups to node C (cms01 at NTU)
+$smry
+Running at : $(date)
+Monitoring the rsync transfer from server to backup :
+   server : $server $(local-tag2node $server) 
+   backup : $backup $(local-tag2node $backup) 
    
 EOP
-   scm-backup-rls C dayabay
+   ##scm-backup-rls C dayabay
+   scm-backup-rls $backup $(local-tag2node $server)
    
 }
 
@@ -501,11 +509,20 @@ scm-backup-nightly(){
     
     echo
     echo $msg $(date)  @@@ scm-backup-rsync
-    SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
+    #SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
+    scm-backup-rsync  
     
     echo
     echo $msg $(date)  @@@ scm-backup-mail
     scm-backup-mail
+
+    echo
+    echo $msg $(date)  @@@ scm-backup-parasitic
+    case $NODE_TAG in 
+       P) scm-backup-parasitic XX C2 ;;
+       G) scm-backup-parasitic G  G3 ;;
+       *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
+    esac
 
 }
 
