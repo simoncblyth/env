@@ -91,8 +91,8 @@ local-env(){
    export USER_BASE=$(local-user-base)
    export OUTPUT_BASE=$(local-output-base)
 
-   [ ! -d "$USER_BASE" ]   && echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE 
-   [ ! -d "$OUTPUT_BASE" ] && echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE 
+   # [ ! -d "$USER_BASE" ]   && echo "WARNING creating folder USER_BASE $USER_BASE" &&   mkdir -p $USER_BASE 
+   # [ ! -d "$OUTPUT_BASE" ] && echo "WARNING creating folder OUTPUT_BASE $OUTPUT_BASE" &&   mkdir -p $OUTPUT_BASE 
 
     local-userprefs
 
@@ -246,6 +246,7 @@ local-mbackup-disk(){
 local-root(){
    case ${1:-$NODE_TAG} in
       C) echo /mnt/disk1 ;;
+      N) echo /data1 ;;
      H1) echo /home/hep/blyth ;;
      *) echo -n ;;
    esac
@@ -262,7 +263,7 @@ local-base(){
         H) echo /data/usr/local ;;
        H1) echo $(local-root $t)/local ;;
         T) echo /usr/local ;;
-        N) echo $HOME/local ;;
+        N) echo $(local-root $t)/env/local ;;
     OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         C) echo         $(local-root $t)/data/env/local ;;
@@ -284,6 +285,7 @@ local-system-base(){
  MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/system ;;
          C) echo $(local-root $t)/data/env/system ;;
         C2) echo $(local-root $t)/data/env/system ;;
+         N) echo $(local-root $t)/env/system ;;
         H1) echo $(local-root $t)/system ;;
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
@@ -301,7 +303,7 @@ local-var-base(){
         U) echo /var ;;
         P) echo /disk/d3/var ;;
        G1) echo /disk/d3/var ;;
-        N) echo $HOME/var ;;
+        N) echo /var ;;
        XT) echo /home/tianxc ;; 
        XX) echo /home ;; 
      IHEP) echo /home ;;  
