@@ -33,7 +33,21 @@ cat << EOU
    
       NB the folders are not recovered by this, as is installation
       specific, nevertheless tis important that the users file is
-      backed up
+      backed up...
+
+      BUT it does invoke scm-recover-users 
+
+   scm-recover-users <fromnode>
+
+      extract the users file from the last svnsetup tarball, 
+      called by scm-recover-all
+      NB the other svnsetup files are sourced from the repository 
+      and contain system specific paths ... so more direct to re-generate 
+      them rather than using the backups  
+
+      The users file is different because it is edited thru the webadmin 
+      interface     
+
   
    scm-recover-folders <fromnode>
        still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
@@ -264,7 +278,44 @@ scm-recover-all(){
       
    done 
 
+   scm-recover-users $fromnode
+
 }
+
+
+
+scm-recover-users(){
+
+  local msg="=== $FUNCNAME :"
+  local fromnode=${1:-dummy}
+  [ "$fromnode" == "dummy" ] && echo scm-recover-users needs a fromnode argument && return 1
+  local iwd=$PWD
+  local tmp=/tmp/$FUNCNAME && mkdir $tmp
+  local usr=svnsetup/users.conf
+  local tgz=`local-scm-fold`/backup/$fromnode/folders/svnsetup/last/svnsetup.tar.gz
+  echo $msg recovering $usr from tgz $tgz into $tmp
+  
+  cd $tmp
+  tar zxvf $tgz $usr 
+  cd $iwd
+
+  local cur=`apache-confdir`/$usr
+  local rec=$tmp/$usr
+  local ans 
+  if [ -f "$cur" ]; then
+      diff $cur $rec 
+      read -p "Replace existing users file $cur with recovered one $rec , YES to proceed " ans
+  else
+      read -p "Recover users file $rec , YES to proceed " ans
+  fi
+
+  [ "$ans" != "YES" ] && echo $msg SKIPPING && return 1
+
+  local cmd="cp $rec $cur"
+  echo $cmd
+  eval $cmd
+}
+
 
 
 scm-recover-folders(){
@@ -706,7 +757,7 @@ scm-recover-repo(){
              
             echo $msg recovering repository/folder $name from tarball $tgzpath $tgzname into $(pwd) sudouser:[$sudouser] SUDO:[$SUDO]
             $SUDO cp $tgzpath .
-            $SUDO tar zxvf $tgzname.tar.gz
+            $SUDO tar zxf $tgzname.tar.gz
             
             ## document the recovery via a link to the backup tarball
             $SUDO ln -sf $tgzpath ${name}-scm-recover-repo
