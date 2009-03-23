@@ -395,6 +395,11 @@ scm-backup-mail(){
 
 scm-backup-parasitic(){
 
+   ##
+   ## this is called parasitic because it is used to monitor transfers that i do not have control off ...
+   ## ...  i just receive the tarballs
+   ##
+
    local server=$1
    local backup=$2
 
@@ -508,7 +513,7 @@ scm-backup-nightly(){
     scm-backup-all 
     
     echo
-    echo $msg $(date)  @@@ scm-backup-rsync
+    echo $msg $(date)  @@@ scm-backup-rsync  ... performing transfers that i control 
     #SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
     scm-backup-rsync  
     
@@ -517,10 +522,9 @@ scm-backup-nightly(){
     scm-backup-mail
 
     echo
-    echo $msg $(date)  @@@ scm-backup-parasitic
+    echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
     case $NODE_TAG in 
        P) scm-backup-parasitic XX C2 ;;
-       G) scm-backup-parasitic G  G3 ;;
        *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
     esac
 
