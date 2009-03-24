@@ -1,5 +1,6 @@
-
-
+tracbuild-src(){    echo trac/tracbuild.bash ; }
+tracbuild-source(){ echo ${BASH_SOURCE:-$(env-home)/$(tracbuild-src)} ; }
+tracbuild-vi(){     vi $(tracbuild-source) ; }
 tracbuild-usage(){
 
    cat << EOU
@@ -76,7 +77,13 @@ tracbuild-diff(){        tracbuild-f diff ; }
 tracbuild-status(){      tracbuild-f status ; }
 tracbuild-summary(){     tracbuild-f summary ;  }
 tracbuild-makepatch(){   tracbuild-f makepatch ;  }
-tracbuild-auto(){        tracbuild-f auto ;  }
+tracbuild-auto(){        
+   tracbuild-f auto 
+
+   ## do the common config used for all instances
+   trac-
+   trac-inherit-setup 
+}
 tracbuild-revs(){        tracbuild-f revs ;  }
 
 
