@@ -290,7 +290,7 @@ scm-recover-users(){
   local fromnode=${1:-dummy}
   [ "$fromnode" == "dummy" ] && echo scm-recover-users needs a fromnode argument && return 1
   local iwd=$PWD
-  local tmp=/tmp/$FUNCNAME && mkdir $tmp
+  local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
   local usr=svnsetup/users.conf
   local tgz=`local-scm-fold`/backup/$fromnode/folders/svnsetup/last/svnsetup.tar.gz
   echo $msg recovering $usr from tgz $tgz into $tmp
@@ -773,9 +773,13 @@ scm-recover-repo(){
             
           
             if [ "$type" == "tracs" ]; then
+            
+
                echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
                trac-
+               $SUDO chmod go+rx $(trac-envpath $name)/conf
                SUDO=$SUDO trac-configure-instance $name
+               
 
                echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
                TRAC_INSTANCE=$name trac-admin-- resync

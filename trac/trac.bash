@@ -1,5 +1,6 @@
-
-trac-source(){ echo $BASH_SOURCE ; }
+trac-src(){    echo trac/trac.bash ; }
+trac-source(){ echo ${BASH_SOURCE:-$(env-home)/$(trac-src)} ; }
+trac-svi(){    vi $(trac-source) ; }
 trac-usage(){
 cat << EOU
 
@@ -200,11 +201,10 @@ trac-instance(){
     ## the override should be set in .bash_profile for a temporary change to the default instance
     [ -n "$TRAC_INSTANCE_OVERRIDE" ] && echo $TRAC_INSTANCE_OVERRIDE && return 1  
     case ${1:-$NODE_TAG} in
-     G) echo dybsvn   ;;
-     H) echo env      ;;
-     P) echo env      ;;
-     C) echo env      ;;
-     *) echo dybsvn   ;;
+              G) echo workflow ;;
+     C|C2|N|P|H) echo env      ;;
+             XX) echo dybsvn   ;;
+              *) echo env      ;;
    esac
 }
 
@@ -676,6 +676,8 @@ trac-triplets(){
       logging::
       wiki::
       project:url:$url
+      project:name:$name
+      project:descr:$name
       ticket:restrict_owner:true
 EOT
 
