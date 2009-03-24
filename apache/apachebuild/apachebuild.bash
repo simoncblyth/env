@@ -1,4 +1,6 @@
-
+apachebuild-src(){    echo apache/apachebuild/apachebuild.bash ; }
+apachebuild-source(){ echo ${BASH_SOURCE:-$(env-home)/$(apachebuild-src)} ; }
+apachebuild-vi(){     vi $(apachebuild-source) ; }
 
 
 
@@ -94,7 +96,8 @@ apachebuild-configure(){
 
    # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
    
-   $SUDO ./configure --prefix=$(apachebuild-home) --enable-dav --enable-ssl
+   #$SUDO ./configure --prefix=$(apachebuild-home) --enable-dav --enable-ssl
+   $SUDO ./configure --prefix=$(apachebuild-home) --enable-dav 
    
 }
 

@@ -158,7 +158,7 @@ svnbuild-swigpy(){
   esac
   
   make swig-py
-  make install-swig-py
+  $SUDO make install-swig-py
 }
 
 svnbuild-pth(){	

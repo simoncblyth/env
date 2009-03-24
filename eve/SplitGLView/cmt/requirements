@@ -17,6 +17,7 @@ use DybPolicy v*
 
 # a very recent ROOT is required
 use ROOT v* interfaces
+#use ROOT v* 
 
 include_dirs $(SPLITGLVIEWROOT)
 
