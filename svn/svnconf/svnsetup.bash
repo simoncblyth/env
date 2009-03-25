@@ -1,4 +1,8 @@
 
+svnsetup-src(){ echo svn/svnconf/svnsetup.bash ; }
+svnsetup-source(){ echo ${BASH_SOURCE:-$(env-home)/$(svnsetup-src) ; }
+svnsetup-vi(){    vi $(svnsetup-source) ; }
+
 svnsetup-usage(){
 
   cat << EOU 
@@ -155,7 +159,11 @@ svnsetup-apache(){
    local authz=$(svn-authzpath)
    svnsetup-authz $base/$(basename $authz)
    
-   
+  
+   ## do the common config used for all instances
+   trac-
+   trac-inherit-setup  
+
 }
 
 

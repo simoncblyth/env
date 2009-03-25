@@ -79,10 +79,6 @@ tracbuild-summary(){     tracbuild-f summary ;  }
 tracbuild-makepatch(){   tracbuild-f makepatch ;  }
 tracbuild-auto(){        
    tracbuild-f auto 
-
-   ## do the common config used for all instances
-   trac-
-   trac-inherit-setup 
 }
 tracbuild-revs(){        tracbuild-f revs ;  }
 
