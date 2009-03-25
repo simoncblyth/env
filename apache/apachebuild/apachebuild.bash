@@ -97,15 +97,15 @@ apachebuild-configure(){
    # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
    
    #$SUDO ./configure --prefix=$(apachebuild-home) --enable-dav --enable-ssl
-   $SUDO ./configure --prefix=$(apachebuild-home) --enable-dav 
+   $ASUDO ./configure --prefix=$(apachebuild-home) --enable-dav 
    
 }
 
 apachebuild-install(){
    cd $(apachebuild-dir)
    
-   $SUDO make
-   $SUDO make install
+   $ASUDO make
+   $ASUDO make install
 
  
 

@@ -11,7 +11,25 @@ tracpreq-usage(){
             
             ensure any build and install directory customisations 
             are safety tucked away in patches before doing this   
-  
+ 
+
+     This is the first use of the env-log machinery ...
+     twould be muchmore convenient for env-log calls not
+     to have to pass their top level "context" , FUNCNAME in the below
+     in order that the env-log calls could be reused 
+
+     Could do that via a symbolic link that on doing an initlog points to 
+     the context ...
+        /tmp/env/logs/
+            lasttopfunc -> tracpreq-again
+ 
+     Then subsequent log calls can write via 2 symbolic links to  
+       /tmp/env/logs/lasttopfunc/last.log
+     this allows env-log calls to only need to report their immediate context
+     ... so can be used thru multi levels of calls 
+
+
+ 
 EOU
 
 }

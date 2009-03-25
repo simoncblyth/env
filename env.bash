@@ -25,6 +25,7 @@ env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
 env-url(){         echo $(env-localserver)/repos/env/trunk ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
+log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
 phpbb-(){       . $(env-home)/phpbb/phpbb.bash    && phpbb-env $* ; }
 cronline-(){    . $(env-home)/base/cronline.bash && cronline-env $* ; }
 env-(){         . $(env-home)/env.bash && env-env $* ; }
@@ -432,53 +433,6 @@ env-ldconf(){
 
 
 }
-
-env-logd(){
-    local name=${1:-$FUNCNAME}
-    local logd=/tmp/env/logs/$name && mkdir -p $logd
-    echo $logd
-}
-env-logname(){ echo last.log ; }
-env-logpath(){ echo $(env-logd $*)/$(env-logname) ; }
-env-stamp(){ date +%Y%m%d-%H%M%S ; }
-env-initlog(){
-    local msg="=== $FUNCNAME :"
-    local iwd=$PWD
-    local name=${1:-$FUNCNAME}
-    local logd=$(env-logd $*)
-    cd $logd
-    local logn=$(env-stamp).log
-    cat << EOI
-$msg initializing a log $logn at $logd 
-  ... write to the log via symbolic link 
-               \$(env-logpath \$name) : $(env-logpath $name)
-  ... or by piping to 
-           some command | env-log \$name
-
-  follow the stdout from another term with 
-          env-logtail $name
-          env-catlog  $name
-
-EOI
-    ln -sf $logn $(env-logname)
-    echo $msg $* logd $logd $(date) > $logn   # prime/truncate
-    cd $iwd
-}
-
-env-log(){
-   local msg="=== $FUNCNAME :"
-   local name=$1
-   local path=$(env-logpath $name)
-   shift
-   local smry="$msg $* logging to $path $(date)"
-   echo $smry 
-   echo $smry >> $path
-   cat      - >> $path
-}
-
-env-catlog(){   cat $(env-logpath $*) ; }
-env-logtail(){  tail -f $(env-logpath $*) ; } 
-
 
 
 env-again(){

@@ -141,12 +141,12 @@ svnbuild-krb-gssapi-kludge(){
 
 svnbuild-make(){
   cd  $(svnbuild-dir)
-  $SUDO make
+  $SSUDO make
 }
 
 svnbuild-install(){
   cd  $(svnbuild-dir)
-  $SUDO make install
+  $SSUDO make install
 }
 
 svnbuild-swigpy(){
@@ -158,7 +158,7 @@ svnbuild-swigpy(){
   esac
   
   make swig-py
-  $SUDO make install-swig-py
+  $SSUDO make install-swig-py
 }
 
 svnbuild-pth(){	
@@ -188,7 +188,7 @@ svnbuild-wipe-install(){
   local dir=$SYSTEM_BASE/svn
   [ ! -d $dir ] && return 0 
   cd $dir 
-  [ "${SVN_NAME:0:3}" != "subversion" ] && echo bad name $SVN_NAME && return 1
+  [ "${SVN_NAME:0:10}" != "subversion" ] && echo bad name $SVN_NAME && return 1
   [ -d $SVN_NAME ] && rm -rf "$SVN_NAME"
 }
 

@@ -23,6 +23,7 @@ modpython-usage(){
              PYTHON_NAME    : $PYTHON_NAME
              PYTHON_HOME    : $PYTHON_HOME
              SUDO           : $SUDO
+             ASUDO          : $ASUDO
     
         modpython-dir  : $(modpython-dir)
     
@@ -73,7 +74,7 @@ modpython-apacheconf(){
      perl -pi -e 's,(# LoadModule foo_module modules/mod_foo.so),$1\nLoadModule python_module      modules/mod_python.so, ' $tmp
      echo $msg adding LoadModule line for modpython to $conf 
      diff $conf $tmp
-     $SUDO cp $tmp $conf
+     $ASUDO cp $tmp $conf
 }
 
 
@@ -146,7 +147,7 @@ modpython-install(){
    
     cd $(modpython-dir)
     make
-	$SUDO make install
+	$ASUDO make install
 
 }
 

@@ -105,7 +105,7 @@ apacheconf-envvars-add-(){
    local msg="=== $FUNCNAME :"
    local path=$(apacheconf-envvars-path)
    echo $msg adding $add to envvars $path
-   $SUDO perl -pi -e "s,^(\S*_LIBRARY_PATH=\")(\S*)(\:\\$\S*_LIBRARY_PATH\")$,\$1$add:\$2\$3," $path
+   $ASUDO perl -pi -e "s,^(\S*_LIBRARY_PATH=\")(\S*)(\:\\$\S*_LIBRARY_PATH\")$,\$1$add:\$2\$3," $path
 }
 
 
@@ -122,7 +122,7 @@ apacheconf-original---(){
   local msg="=== $FUNCNAME :"
   local conf=$(apacheconf-path)
   [ ! -f $conf ] && echo $msg ERROR no conf $conf && sleep 10000000000
-  $SUDO cp $conf $conf.original  
+  $ASUDO cp $conf $conf.original  
 
 }
 

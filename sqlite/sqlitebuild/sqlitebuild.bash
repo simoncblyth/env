@@ -1,4 +1,6 @@
-
+sqlitebuild-src(){    echo sqlite/sqlitebuild/sqlitebuild.bash ; }
+sqlitebuild-source(){ echo ${BASH_SOURCE:-$(env-home)/$(sqlitebuild-src)} ; }
+sqlitebuild-vi(){     vi $(sqlitebuild-source) ; }
 sqlitebuild-usage(){
   
    cat << EOU
