@@ -17,6 +17,9 @@ iptables-usage(){
      http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
      http://www.cae.wisc.edu/site/public/?title=liniptables
 
+     iptables-list
+         list the chain 
+
      iptables-record
           leave them wallowing in working copy ... as do not want to publish them 
      
