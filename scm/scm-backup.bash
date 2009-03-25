@@ -238,6 +238,13 @@ scm-backup-bootstrap(){
    scm-recover-all $server_node
 }
 
+scm-recover-exclude(){
+  case $1 in
+    dyw) echo "YES" ;;
+      *) echo "NO"  ;; 
+  esac
+}
+
 
 scm-recover-all(){
 
@@ -263,12 +270,16 @@ scm-recover-all(){
       
       for path in $base/*
       do  
-	      if [ -d $path ]; then 
-             local name=$(basename $path)
-             scm-recover-repo $name $path $dest
-		  else
-		     echo === scm-recover-all skip non-folder $path 
-		  fi   
+	     if [ -d $path ]; then 
+                local name=$(basename $path)
+	        if [ "$(scm-recover-exclude $name)" != "YES"  ]; then 
+                     scm-recover-repo $name $path $dest
+                else
+		     echo === scm-recover-all skip excluded, see ... scm-recover-exclude $name : $(scm-recover-exclude $name)
+                fi
+	     else
+		     echo === scm-recover-all skip non-folder $path  
+	     fi   
 		  #
 		  #  eg:
 		  #    name : "workflow" 
