@@ -299,7 +299,10 @@ scm-recover-users(){
   tar zxvf $tgz $usr 
   cd $iwd
 
-  local cur=`apache-confdir`/$usr
+  local dir=`apache-confdir`
+  [ ! -d "$dir" ] && echo $msg ERROR no apache-confdir $dir && return 1 
+
+  local cur=$dir/$usr
   local rec=$tmp/$usr
   local ans 
   if [ -f "$cur" ]; then
