@@ -11,7 +11,7 @@ iptables-usage(){
 
    cat << EOU
 
-     $(env-wikiurl CMS02Firewall)
+     $(env-wikiurl)/CMS02Firewall
 
      http://www.yolinux.com/TUTORIALS/LinuxTutorialIptablesNetworkGateway.html
      http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
@@ -111,7 +111,10 @@ iptables-webclose(){
 
 
 iptables-ip(){
-   ifconfig eth0 | perl -n -e 'm,inet addr:(\S*), && print $1 ' 
+  case $(uname) in
+     Darwin) ifconfig en0  | perl -n -e 'm,inet (\S*), && print $1 '  ;;
+          *) ifconfig eth0 | perl -n -e 'm,inet addr:(\S*), && print $1 '  ;;
+  esac
 }
 
 iptables-webopen-ip(){

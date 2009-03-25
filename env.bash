@@ -20,10 +20,18 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
-#env-localserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
-env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
-env-url(){         echo $(env-localserver)/repos/env/trunk ; }
-env-wikiurl(){     echo $(env-localserver)/tracs/env/wiki/$1 ; }
+env-localserver(){ 
+  case ${1:-P} in 
+     P) echo http://grid1.phys.ntu.edu.tw:8080 ;;
+  #  C) echo http://dayabay.phys.ntu.edu.tw ;;
+     C) echo http://cms01.phys.ntu.edu.tw ;;
+    C2) echo http://cms02.phys.ntu.edu.tw ;;
+    XX) echo http://dayabay.ihep.ac.cn ;;
+  esac  
+}
+
+env-url(){         echo $(env-localserver $1)/repos/env/trunk ; }
+env-wikiurl(){     echo $(env-localserver $1)/tracs/env/wiki ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
@@ -522,6 +530,22 @@ env-curl(){
   eval $cmd
   [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD : SLEEPING && sleep 10000000000000  
 }
+
+env-ab(){
+
+  local msg="=== $FUNCNAME :"
+  apache-
+  local tags="P C C2"
+  local tag
+  for tag in $tags ; do 
+     local url=$(env-wikiurl $tag)
+     local cmd="ab -v 2 -n 10 $url "   
+     echo $msg tag $tag ... $cmd
+     eval $cmd
+  done
+
+}
+
 
 
 env-env
