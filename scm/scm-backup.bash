@@ -409,6 +409,7 @@ scm-backup-rls-(){
   local tag=${1:-$BACKUP_TAG}
   local inst=${2:-""}
   local bkpdir=$(local-scm-fold $tag)/backup/$inst
+  local day=$(base-datestamp now %Y/%m/%d)
   local smry=" node $tag ($(local-tag2node $tag)) $bkpdir  invoked from $NODE_TAG ($LOCAL_NODE)"
   if [ "$tag" == "IHEP" -o "$tag" == "$NODE_TAG" ] ; then
      echo $msg local $smry
@@ -423,7 +424,6 @@ scm-backup-rls(){
    local msg="=== $FUNCNAME :"
    local tags=${1:-$BACKUP_TAG}
    local inst=${2:-$(local-node)}
-   local day=$(base-datestamp now %Y/%m/%d)
    [ -z "$tags" ] && echo $msg ABORT no backup node has been defined for node $LOCAL_NODE && return 1
    local tmpd=/tmp/$FUNCNAME && mkdir -p $tmpd
    python-
@@ -478,7 +478,7 @@ Monitoring the rsync transfer from server to backup :
    
 EOP
    ##scm-backup-rls C dayabay
-   scm-backup-rls $backup $(local-tag2node $server)
+   scm-backup-rls- $backup $(local-tag2node $server)
    
 }
 
