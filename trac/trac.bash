@@ -103,23 +103,28 @@ cat << EOU
     trac-inherit-setup
          boottrap the global trac conf $(trac-inheritpath) 
     
-   
- 
- 
-    trac-setbanner  <path-to-banner>    
+    
+    trac-placebanner  <path-to-banner>    
           Path defaults to \$(trac-bannerpath) : $(trac-bannerpath)
-          
           Copies the banner to the environment htdocs directory, 
-          and configures trac.ini to use it via the header_logo block
-          using a "site" url prefix which refers to the environment 
-          htdocs dir.
+
+          Configuring trac.ini to use it is done by trac-configure
+          via the trac-banner-triplet
           
+    trac-banner-triplet
+          supplies the triplet for the banner based on file existence
+          when a non-default banner is present supplies a "site" 
+          url prefix which refers to the environment htdocs dir.
+ 
+
+  
+         
           The default banner is  common/trac_banner.png  236x73 pixels
  
           Target non-default instance with :
-              SUDO=sudo TRAC_INSTANCE=dybsvn   trac-setbanner
-              SUDO=sudo TRAC_INSTANCE=env      trac-setbanner
-              SUDO=sudo TRAC_INSTANCE=aberdeen trac-setbanner
+              SUDO=sudo TRAC_INSTANCE=dybsvn   trac-placebanner
+              SUDO=sudo TRAC_INSTANCE=env      trac-placebanner
+              SUDO=sudo TRAC_INSTANCE=aberdeen trac-placebanner
    
    
    
@@ -558,7 +563,7 @@ trac-configure-instance(){
   trac-comment $name "enscript_path = .*"
 
   ## this is needed to do copies of logos ... into htdocs
-  SUDO=sudo TRAC_INSTANCE=$name   trac-setbanner 
+  SUDO=sudo TRAC_INSTANCE=$name   trac-placebanner 
   TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)  
 }
 
@@ -674,7 +679,7 @@ trac-triplets(){
       trac:base_url:$url
       header_logo:link:$url
       header_logo:alt:
-      $(trac-banner-triplet)
+      $(TRAC_INSTANCE=$name trac-banner-triplet)
       logging::
       wiki::
       project:url:$url
@@ -699,24 +704,32 @@ trac-bannerpath(){
 } 
 
 trac-banner-triplet(){
+   local msg="=== $FUNCNAME :"
    local default="header_logo:src:common/trac_banner.png"
    local path=$(trac-bannerpath)
    local name=$(basename $path)
    local htpath=$(trac-envpath)/htdocs/$name
-   # echo path $path name $name htpath $htpath 
+   if [ -n "$TRAC_BANNER_TRIPLET_DEBUG" ]; then
+      echo $msg this is screwed up if the permissions on the untarred dirs do not allow other access
+      echo $msg path $path name $name
+      ls -al $(dirname $path)
+      echo $msg htpath $htpath
+      ls -al $(dirname $htpath)
+   fi
    [ ! -f "$path" ]   && echo $default && return 0   
    [ ! -f "$htpath" ] && echo $default && return 0 
    echo header_logo:src:site/$name
 }
 
-trac-setbanner(){
+trac-placebanner(){
    local msg="=== $FUNCNAME :" 
    local path=${1:-$(trac-bannerpath)}
    [ ! -f "$path" ] && echo $msg no such path $path && return 1
    local cmd="$SUDO cp -f $path $(trac-envpath)/htdocs/"
    echo $msg $cmd
    eval $cmd
-   trac-configure $(trac-banner-triplet)
+   # tis confusing to have multiple configure calls ...
+   #trac-configure $(trac-banner-triplet)
 }
 
 

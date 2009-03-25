@@ -784,7 +784,9 @@ scm-recover-repo(){
 
                echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
                trac-
-               $SUDO chmod go+rx $(trac-envpath $name)/conf
+
+               ## setting permissions 
+               $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
                SUDO=$SUDO trac-configure-instance $name
                
 
