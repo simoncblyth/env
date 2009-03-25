@@ -23,6 +23,7 @@ env-sourcelink(){
 #env-localserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
 env-localserver(){ echo http://grid1.phys.ntu.edu.tw:8080 ; }
 env-url(){         echo $(env-localserver)/repos/env/trunk ; }
+env-wikiurl(){     echo $(env-localserver)/tracs/env/wiki/$1 ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }

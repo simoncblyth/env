@@ -11,6 +11,8 @@ iptables-usage(){
 
    cat << EOU
 
+     $(env-wikiurl CMS02Firewall)
+
      http://www.yolinux.com/TUTORIALS/LinuxTutorialIptablesNetworkGateway.html
      http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
      http://www.cae.wisc.edu/site/public/?title=liniptables
@@ -20,6 +22,12 @@ iptables-usage(){
      
      iptables-webopen
           open port 80 to allow web access
+
+     iptables-webopenprivate <ip>
+          open port 80 to allow web access
+
+     iptables-webclose
+          close web access
            
      iptables-persist
           
@@ -61,14 +69,33 @@ iptables-record(){
 
 }
 
-
-iptables-webopen(){
-
-   local name=$(iptables-name)
-   sudo /sbin/iptables -I $name 9 -p tcp -i eth0 --dport 80 --sport 1024:65535 -m state --state NEW -j ACCEPT
-
+iptables-webaccept(){
+  echo -p tcp -i eth0 --dport 80 --sport 1024:65535 -m state --state NEW -j ACCEPT
 }
 
+iptables-list(){
+   sudo /sbin/iptables --line-numbers --list $(iptables-name)
+}
 
+iptables-webopen(){
+   local msg="=== $FUNCNAME :"
+   local name=$(iptables-name)
+   local cmd="sudo /sbin/iptables -I $name 9 $(iptables-webaccept)"
+   echo $msg $cmd
+   eval $cmd
+   iptables-list
+}
 
+iptables-webclose(){
+   local msg="=== $FUNCNAME :"
+   local name=$(iptables-name)
+   local cmd="sudo /sbin/iptables -D $name $(iptables-webaccept)"
+   echo $msg $cmd
+   eval $cmd
+   iptables-list
+}
+
+iptables-webopenprivate(){
+   echo -n
+}
 
