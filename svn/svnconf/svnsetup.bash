@@ -1,6 +1,6 @@
 
 svnsetup-src(){ echo svn/svnconf/svnsetup.bash ; }
-svnsetup-source(){ echo ${BASH_SOURCE:-$(env-home)/$(svnsetup-src) ; }
+svnsetup-source(){ echo ${BASH_SOURCE:-$(env-home)/$(svnsetup-src)} ; }
 svnsetup-vi(){    vi $(svnsetup-source) ; }
 
 svnsetup-usage(){
@@ -170,7 +170,7 @@ svnsetup-apache(){
 
 
 
-svnsetup-chown(){
+svnsetup-chown-deprecated(){
 
    local path=$1
    local msg="=== $FUNCNAME :"
@@ -178,10 +178,11 @@ svnsetup-chown(){
    
    shift
    local user=$(apache-user)
+   local group=$(apache-group)
    
    case $NODE_TAG in 
-     G) $SUDO chown $* $user:$user $path ;;
-     *) $SUDO chown $* $user:$user $path ;;
+     G) $SUDO chown $* $user:$group $path ;;
+     *) $SUDO chown $* $user:$group $path ;;
    esac
     
 }
@@ -225,9 +226,9 @@ repos|svn) echo -n ;;
   echo $msg $flavor copying tmp $tmp to $path with SUDO [$SUDO]
   $SUDO cp $tmp $path
   
-  local user=$(apache-user)   
+  #local user=$(apache-user)   
   echo $msg $flavor setting ownership to $user   
-  svnsetup-chown $path
+  apache-chown $path
      
   ls -l $path
   #cat $path 

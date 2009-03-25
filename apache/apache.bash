@@ -140,7 +140,17 @@ apache-group(){
    esac
 }
 
+apache-chown(){
 
+  local msg="=== $FUNCNAME :"
+  local path=$1
+  shift
+  local opts=$*
+  local cmd="sudo chown $opts $(apache-user):$(apache-group) $path "
+  echo $msg $cmd
+  eval $cmd
+
+}
 
 
 apache-confdir(){

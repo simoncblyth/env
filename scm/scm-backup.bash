@@ -314,9 +314,12 @@ scm-recover-users(){
 
   [ "$ans" != "YES" ] && echo $msg SKIPPING && return 1
 
-  local cmd="cp $rec $cur"
+  
+
+  local cmd="sudo cp $rec $cur "
   echo $cmd
   eval $cmd
+  apache-chown $cur
 }
 
 
