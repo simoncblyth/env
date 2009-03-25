@@ -23,11 +23,25 @@ iptables-usage(){
      iptables-webopen
           open port 80 to allow web access
 
-     iptables-webopenprivate <ip>
-          open port 80 to allow web access
-
      iptables-webclose
           close web access
+          NB when testing to see if really closed there seems to be some timeout that must 
+          have elapsed of order 10s
+
+     iptables-ip   : $(iptables-ip)
+          the ip address that will be used for the web{open/close}private of none is specified
+
+     iptables-webopen-ip <ip>
+          open to only the invoking/specified ip
+
+          eg when want to restrict access ... 
+                 iptables-webopen-ip 140.112.102.77
+             regularize the table with 
+                 iptables-webclose-ip 140.112.102.77
+
+
+     iptables-webclose-ip <ip>
+          open to only the invoking/specified ip
            
      iptables-persist
           
@@ -80,7 +94,7 @@ iptables-list(){
 iptables-webopen(){
    local msg="=== $FUNCNAME :"
    local name=$(iptables-name)
-   local cmd="sudo /sbin/iptables -I $name 9 $(iptables-webaccept)"
+   local cmd="sudo /sbin/iptables -I $name 9 $(iptables-webaccept) $*"
    echo $msg $cmd
    eval $cmd
    iptables-list
@@ -89,13 +103,27 @@ iptables-webopen(){
 iptables-webclose(){
    local msg="=== $FUNCNAME :"
    local name=$(iptables-name)
-   local cmd="sudo /sbin/iptables -D $name $(iptables-webaccept)"
+   local cmd="sudo /sbin/iptables -D $name $(iptables-webaccept) $*"
    echo $msg $cmd
    eval $cmd
    iptables-list
 }
 
-iptables-webopenprivate(){
-   echo -n
+
+iptables-ip(){
+   ifconfig eth0 | perl -n -e 'm,inet addr:(\S*), && print $1 ' 
 }
 
+iptables-webopen-ip(){
+   local msg="=== $FUNCNAME :"
+   local ip=${1:-$(iptables-ip)}
+   [ -z "$ip" ] && echo $msg ABORT ip not specified/determined && return 1
+   iptables-webopen -s $ip
+}
+
+iptables-webclose-ip(){
+   local msg="=== $FUNCNAME :"
+   local ip=${1:-$(iptables-ip)}
+   [ -z "$ip" ] && echo $msg ABORT ip not specified/determined && return 1
+   iptables-webclose -s $ip
+}
