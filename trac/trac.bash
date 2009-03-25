@@ -556,7 +556,9 @@ trac-configure-instance(){
   trac-comment $name "default_handler = TagsWikiModule"
   trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
   trac-comment $name "enscript_path = .*"
-       
+
+  ## this is needed to do copies of logos ... into htdocs
+  SUDO=sudo TRAC_INSTANCE=$name   trac-setbanner 
   TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)  
 }
 
@@ -672,7 +674,7 @@ trac-triplets(){
       trac:base_url:$url
       header_logo:link:$url
       header_logo:alt:
-      header_logo:src:common/trac_banner.png
+      $(trac-banner-triplet)
       logging::
       wiki::
       project:url:$url
@@ -696,25 +698,25 @@ trac-bannerpath(){
    [ -f $path ] && echo $path || echo -n
 } 
 
+trac-banner-triplet(){
+   local default="header_logo:src:common/trac_banner.png"
+   local path=$(trac-bannerpath)
+   local name=$(basename $path)
+   local htpath=$(trac-envpath)/htdocs/$name
+   # echo path $path name $name htpath $htpath 
+   [ ! -f "$path" ]   && echo $default && return 0   
+   [ ! -f "$htpath" ] && echo $default && return 0 
+   echo header_logo:src:site/$name
+}
 
 trac-setbanner(){
-
    local msg="=== $FUNCNAME :" 
    local path=${1:-$(trac-bannerpath)}
    [ ! -f "$path" ] && echo $msg no such path $path && return 1
-   
    local cmd="$SUDO cp -f $path $(trac-envpath)/htdocs/"
    echo $msg $cmd
    eval $cmd
-   
-   
-   local name=$(basename $path)
-   local banner="site/$name"
-   
-    
-   
-   trac-configure header_logo:src:$banner
-  
+   trac-configure $(trac-banner-triplet)
 }
 
 

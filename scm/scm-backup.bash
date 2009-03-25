@@ -774,9 +774,10 @@ scm-recover-repo(){
             if [ "$tgzname" != "$name" ]; then
               $SUDO mv $tgzname $name
             fi
-            local user=$(apache-user)
-            $SUDO chown -R $user $name
-            
+
+            apache-chown $name -R
+            #local user=$(apache-user)
+            #$SUDO chown -R $user $name
           
             if [ "$type" == "tracs" ]; then
             
