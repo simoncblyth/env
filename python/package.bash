@@ -331,11 +331,11 @@ package-applypatch(){
    [ ! -f $patchpath ]    && echo $msg there is no patch file $patchpath && return 1 
    
    local answer=YES
-   read -p "$msg CAUTION REVERTING WC MODS ... YOU HAVE 5 SECONDS TO ABORT " -t 5 answer
+   read -p "$msg CAUTION REVERTING WC MODS ... YOU HAVE 5 SECONDS TO ABORT BY ENTERING ANYTHING OTHER THAN YES  " -t 5 answer
    [ "$answer" != "YES" ] && echo $msg EXITING && return 1
    echo $msg proceeding 
    
-   package-revert $name   
+   PACKAGE_REVERT_DIRECTLY=yep package-revert $name   
    ! package-ispristine- $name && echo $msg ERROR, AFTER REVERTING there are local modifications ... cannot apply patch && return 1 
 
    local dir=$($name-dir)
@@ -642,7 +642,7 @@ package-develop(){
     cd $dir
     [ ! -f setup.py ] && echo "$msg no setup" && return 2 
     
-    $SUDO python setup.py develop
+    $ASUDO python setup.py develop
    
     cd $iwd
 
@@ -828,13 +828,13 @@ package-install(){
    cd $dir
 
    if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
-      $SUDO python setup.py develop
+      $ASUDO python setup.py develop
    else
    
    
    
    
-      $SUDO easy_install -Z --no-deps .  
+      $ASUDO easy_install -Z --no-deps .  
    fi
    
    # Note it is possible to install direct from a URL ... but 
