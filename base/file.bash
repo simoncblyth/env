@@ -1,5 +1,6 @@
-
-
+file-src(){ echo base/file.bash ; }
+file-source(){ echo ${BASH_SOURCE:-$(env-home)/$(file-src)} ; }
+file-vi(){     vi $(file-source) ; }
 file-env(){
 
    local msg="=== $FUNCNAME :"

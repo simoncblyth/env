@@ -40,30 +40,30 @@ tracpreq-env(){
 
 tracpreq-again(){
 
-
-   env-initlog $FUNCNAME   
+   log-
+   log-init $FUNCNAME   
 
    python- 
    pythonbuild-       
-   pythonbuild-again   | env-log $FUNCNAME pythonbuild-again
+   pythonbuild-again   | log-- $FUNCNAME pythonbuild-again
    
    configobj-          
-   configobj-get       | env-log $FUNCNAME configobj-get 
+   configobj-get       | log-- $FUNCNAME configobj-get 
    
    
    swig-               
    swigbuild-           
-   swigbuild-again     | env-log $FUNCNAME swigbuild-again
+   swigbuild-again     | log-- $FUNCNAME swigbuild-again
    
    apache-
-   apache-again        | env-log $FUNCNAME apache-again
+   apache-again        | log-- $FUNCNAME apache-again
    
    svn-
    svnbuild-
-   svnbuild-again      | env-log $FUNCNAME svnbuild-again
+   svnbuild-again      | log-- $FUNCNAME svnbuild-again
 
    sqlite-
-   sqlite-again        | env-log $FUNCNAME sqlite-again
+   sqlite-again        | log-- $FUNCNAME sqlite-again
 
 
 }

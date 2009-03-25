@@ -513,7 +513,14 @@ EOS
 
 }
 
-
+env-curl(){
+  local msg="=== $FUNCNAME "
+  local url=$1
+  local cmd="curl -O $url "
+  echo $msg $cmd $PWD
+  eval $cmd
+  [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD : SLEEPING && sleep 10000000000000  
+}
 
 
 env-env

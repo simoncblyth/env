@@ -37,18 +37,19 @@ sqlitebuild-urlbase(){
    esac
 }  
 
+sqlitebuild-tgz(){ echo $SQLITE_NAME.tar.gz ; }
+sqlitebuild-url(){ echo $(sqlitebuild-urlbase)/$(sqlitebuild-tgz) ; }
 sqlitebuild-get(){
  
     local msg="=== $FUNCNAME :"
     local nam=$SQLITE_NAME
-    local tgz=$nam.tar.gz
-    local url=$(sqlitebuild-urlbase)/$tgz
+    local tgz=$(sqlitebuild-tgz)
 
     cd $SYSTEM_BASE
     mkdir -p sqlite
     cd sqlite
 
-    [ ! -f $tgz ] && curl -O $url
+    [ ! -f $tgz ] && env-curl $(sqlitebuild-url)
     
     file-
     file-size-lt $tgz 100 && echo $msg ABORT tgz $tgz is too small ... sleeping && sleep 10000000000
