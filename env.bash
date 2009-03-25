@@ -451,7 +451,7 @@ env-initlog(){
     cat << EOI
 $msg initializing a log $logn at $logd 
   ... write to the log via symbolic link 
-               \$\(env-logpath \$name\) : $(env-logpath $name)
+               \$(env-logpath \$name) : $(env-logpath $name)
   ... or by piping to 
            some command | env-log \$name
 
@@ -460,7 +460,7 @@ $msg initializing a log $logn at $logd
           env-catlog  $name
 
 EOI
-    ln -s $logn $(env-logname)
+    ln -sf $logn $(env-logname)
     echo $msg $* logd $logd $(date) > $logn   # prime/truncate
     cd $iwd
 }
@@ -470,8 +470,10 @@ env-log(){
    local name=$1
    local path=$(env-logpath $name)
    shift
-   echo $msg $* logging to $path 
-   cat - >> $path
+   local smry="$msg $* logging to $path $(date)"
+   echo $smry 
+   echo $smry >> $path
+   cat      - >> $path
 }
 
 env-catlog(){   cat $(env-logpath $*) ; }
