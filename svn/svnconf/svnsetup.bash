@@ -2,6 +2,7 @@
 svnsetup-src(){ echo svn/svnconf/svnsetup.bash ; }
 svnsetup-source(){ echo ${BASH_SOURCE:-$(env-home)/$(svnsetup-src)} ; }
 svnsetup-vi(){    vi $(svnsetup-source) ; }
+authz-(){ . $(env-home)/svn/svnconf/authz.bash && authz-env $* ; }
 
 svnsetup-usage(){
 

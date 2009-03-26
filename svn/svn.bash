@@ -466,6 +466,8 @@ svn-rename(){
    local authz=$(svn-authzpath)
    local tmpz=$tmpd/$(basename $authz)
 
+   echo $msg CAUTION THIS IS EDITING A DERIVED FILE USE svnsetup- authz- authz-vi to look at the generator  
+
    perl -p -e "s,$oldname:,$newname:,"  $authz > $tmpz
    diff $authz $tmpz
    local zmd="cp $tmpz $authz "

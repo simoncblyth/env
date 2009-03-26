@@ -18,6 +18,9 @@ cat << EOU
 
     trac-version  : $(trac-version)
     trac-instance : $(trac-instance)    the default instance for the node    
+    trac-collection : $(trac-collection)    
+         dayabay .. for dybsvn and toysvn instances otherwise NTU , 
+         used for distinguiishing IHEP/NTU layout differences 
     
     TRAC_VERSION  : $TRAC_VERSION
     TRAC_INSTANCE : $TRAC_INSTANCE    
@@ -285,15 +288,22 @@ trac-group(){
    echo $(apache-group)
 }
 
+trac-collection(){
+  case ${1:-$TRAC_INSTANCE} in
+     dybsvn) echo dayabay ;;
+     toysvn) echo dayabay ;;
+    mdybsvn) echo ntu ;;
+          *) echo ntu ;;
+  esac
+}
 
 
 trac-major(){   echo ${TRAC_VERSION:0:4} ; }
 trac-envpath(){ echo $SCM_FOLD/tracs/${1:-$TRAC_INSTANCE} ; }
 trac-repopath(){ 
    local name=${1:-$TRAC_INSTANCE}
-   
-   ## special case for recoverd dybsvn on G 
-   if [ "$NODE_TAG" == "G" -a "$name" == "dybsvn" ]; then
+   ## special case for recovered instances from IHEP  
+   if [ "$(trac-collection $name)" == "dayabay" ]; then
       utag="XX"
    else
       utag=$NODE_TAG   

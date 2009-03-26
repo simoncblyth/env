@@ -1,4 +1,7 @@
-
+authz-env(){    elocal- ; }
+authz-src(){    echo svn/svnconf/authz.bash ; }
+authz-source(){ echo ${BASH_SOURCE:-$(env-home)/$(authz-src)} ; }
+authz-vi(){     vi $(authz-source) ; }
 authz(){
 
   local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui, wunsyonghe, cjchen"
@@ -45,10 +48,23 @@ wfdev = blyth
 wfadmin = blyth
 
 
-# force authenticated 
-[dybsvn:/]
+# force authenticated  for the mirror
+[mdybsvn:/]
 @sync = rw
 @dyuser = r 
+
+
+# readonly for instances recovered from IHEP
+[dybsvn:/]
+@dyuser = r 
+
+# readonly for instances recovered from IHEP
+[toysvn:/]
+@dyuser = r 
+
+
+
+
 
 [env:/]
 * = r
