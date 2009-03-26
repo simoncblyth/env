@@ -347,16 +347,26 @@ svn-repo-dirname(){
   esac    
 }
 
+svn-repo-dirname-forsite(){
+   case ${1:-ntu} in 
+        ihep) echo svn ;;
+         ntu) echo repos ;;
+           *) echo repos ;;
+   esac 
+}
 
 svn-repo-path(){
    local name=${1:-dummy}
-   echo $SCM_FOLD/$(svn-repo-dirname)/$name
+   trac-
+   local site=$(trac-site $name)
+   echo $SCM_FOLD/$(svn-repo-dirname-forsite $site)/$name
 }
 
 
 svn-repos(){
+   local site=${1:-ntu}
    local iwd=$PWD
-   cd $SCM_FOLD/$(svn-repo-dirname)
+   cd $SCM_FOLD/$(svn-repo-dirname-forsite $site)
    for name in $(ls -1)
    do
       [ -d $name ] && echo $name
@@ -366,8 +376,10 @@ svn-repos(){
 
 svn-exists(){
    local name=$1
+   trac-
+   local site=$(trac-site $name)
    local repo
-   for repo in $(svn-repos) ; do
+   for repo in $(svn-repos $site) ; do
       [ "$name" == "$repo" ] && return 0
    done
    return 1

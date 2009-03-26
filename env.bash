@@ -286,7 +286,7 @@ env-find(){
   if [ "$(uname)" == "Darwin" ]; then
      mdfind -onlyin . $q
   else
-     find . -name '*.*' -exec grep -H $q {} \;
+     find . -name '*.*' -exec grep -H $q {} \;  | grep -v /.svn
   fi
 }
 
