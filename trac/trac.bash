@@ -232,7 +232,7 @@ trac-version(){
 }
 
 
-trac-baseurl(){
+trac-baseurl-deprecated-use-env-localserver(){
    case ${1:-$NODE_TAG} in 
       G) echo http://localhost ;;
       H) echo http://dayabay.phys.ntu.edu.tw ;;
@@ -244,7 +244,7 @@ trac-baseurl(){
 
 
 trac-url(){
-   echo $(trac-baseurl)/tracs/${1:-$TRAC_INSTANCE}
+   echo $(env-localserver)/tracs/${1:-$TRAC_INSTANCE}
 } 
  
 
