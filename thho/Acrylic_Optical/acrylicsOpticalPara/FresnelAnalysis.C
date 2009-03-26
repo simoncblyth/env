@@ -74,7 +74,7 @@
 #include <complex>
 
 #define PI 3.1415926
-#define DELTA 1.0e-11
+#define DELTA 1.0e-9
 #define g_MAXLOOP 99
 #define g_ACCURACY 1.0e-6
 #define DATASIZE 601
@@ -87,7 +87,9 @@ typedef struct nacon
 {
     Double_t n;
     Double_t alpha;
-
+    Double_t deltat;
+    Double_t deltar;
+    Int_t status; // flag to show process succesful(1) or not(0)
 };
 
 
@@ -112,6 +114,7 @@ void main(TString tfile, TString rfile,
     Double_t rdataContainer[DATASIZE]={0.0};
     Double_t thtdataContainer[DATASIZE]={0.0};
     Double_t thrdataContainer[DATASIZE]={0.0};
+    cout << "Reading in data......." << endl;
     ReadData(tfile, wldataContainer, tdataContainer);
     ReadData(rfile, wldataContainer, rdataContainer);
     ReadData(thtfile, wldataContainer, thtdataContainer);
@@ -120,22 +123,34 @@ void main(TString tfile, TString rfile,
     Double_t resultn[DATASIZE]={0.0};
     Double_t resultk[DATASIZE]={0.0};
     Double_t resultatt[DATASIZE]={0.0};
+    Int_t resultstatus[DATASIZE];
+    for(Int_t i=0;i<DATASIZE;i++) {
+        resultstatus[i]=0;
+        //cout << resultatt[i] << " ";
+    }
+
+    cout << "wl(nm)\tn\tk\tatt(m)\tLoops\tFind n and k?" << endl;
 
     //Fakedata(wldataContainer, tdataContainer, rdataContainer, thtdataContainer, thrdataContainer);
     //if(CheckDataFormate(tdataContainer,rdataContainer,thtdataContainer,thrdataContainer)==0) {
-    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
     if(2>1){
         for(Int_t i=0;i<ANANO;i++){
-            if(SucApp(n, alpha, wldataContainer[i],
+            // avoid to deal with the data which is smaller than machine precision
+            if(tdataContainer[i] < 0.0011 || thtdataContainer[i] < 0.0011) {
+                resultstatus[i] =0;
+            } else {
+                if(SucApp(n, alpha, wldataContainer[i],
                     thin, tdataContainer[i], rdataContainer[i],
                     thick, thtdataContainer[i], thrdataContainer[i],
-                    resultn[i], resultk[i], resultatt[i])==0) {
-                cout << "YES!!" << endl;
-            } else break;
+                    resultn[i], resultk[i], resultatt[i], resultstatus[i]) != 0 ) {
+                    resultstatus[i] = 0;
+                    }
+            }
         }
     } else break;
 
-    Histonandk(DATASIZE,wldataContainer,resultn,resultk,resultatt);
+    HistonandkFilter(DATASIZE,wldataContainer,resultn,resultk,resultatt,resultstatus);
+    cout << "done!!";
 
 }
 
@@ -214,9 +229,6 @@ void ReadData(TString file, Double_t wl[], Double_t data[]){
     CopyArray(wlContain,wl,inputSize);
     CopyArray(trContain,data,inputSize);
 
-
-    cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" << endl;
-
 }
 
 // copy a array A to another array b
@@ -233,7 +245,7 @@ void CopyArray(Double_t a[], Double_t b[], Int_t size) {
 Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             Double_t thin, Double_t thinTm, Double_t thinRm,
             Double_t thick, Double_t thickTm, Double_t thickRm,
-            Double_t &resultn, Double_t &resultk, Double_t &resultatt) {
+            Double_t &resultn, Double_t &resultk, Double_t &resultatt, Int_t &resultstatus) {
 
     nacon nac;
     Int_t maxLoop = g_MAXLOOP;
@@ -245,6 +257,7 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
     Double_t thinalpha(0);
     Double_t thickalpha(0);
 
+    cout << lambda;
     // unit staff -- units should unite.
     lambda = lambda*1.0e-6; // unit: nm->mm
     alpha = alpha*0.1; // unit: cm-1 -> mm-1
@@ -264,7 +277,7 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
 
         deltan = thinn - thickn;
         deltaalpha = thinalpha - thickalpha;
-
+/*
         cout << "\n*****************************************************" << endl;
         cout << "*****************************************************" << endl;
         cout << "*****************************************************" << endl;
@@ -277,79 +290,107 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             << deltaalpha << endl << endl;
         PrintTandR(nac.n,nac.alpha,thin,lambda);
         PrintTandR(nac.n,nac.alpha,thick,lambda);
-
+*/
         resultn = nac.n;
-        resultk = ((nac.alpha)/(-4.0*PI))*lambda; // unitless
+
+        resultk = ((nac.alpha)/(4.0*PI))*lambda; // unitless
         resultatt = (1.0/(nac.alpha))/1000.0; // unit mm -> meter
 
         }
     while((nac.n<1 || nac.n==1 || fabs(deltan) > 0.01 || nac.alpha<0 || nac.alpha==0 || fabs(deltaalpha) > 0.001) && (--maxLoop));
-
-    if(maxLoop){        
-        cout << "\n\n\nSUCCESSESSFULLY FINDING A CONSISTENT N AND K!!! :)\n\n\n" << endl;
+    // some k is really close to 0 but it's negative. regard it as 0 
+    if((nac.alpha<0) && ((-1)*((nac.alpha)/(4.0*PI))*lambda < 1.0e-6)) {
+        nac.alpha = (-1)*nac.alpha;
+        Double_t smallk = (nac.alpha*lambda)/(4*PI);
+        Double_t deltathinTm = thinTm - GetOpticalModelTValue(GetIT(smallk,thin,lambda),GetFR(n,smallk));
+        Double_t deltathinRm = thinRm - GetOpticalModelRValue(thinTm,GetIT(smallk,thin,lambda),GetFR(n,smallk));
+        Double_t deltathickTm = thickTm - GetOpticalModelTValue(GetIT(smallk,thick,lambda),GetFR(n,smallk));
+        Double_t deltathickRm = thickRm - GetOpticalModelRValue(thickTm,GetIT(smallk,thick,lambda),GetFR(n,smallk));
+        if(deltathinTm>0.001 || deltathinRm>0.01 || deltathickTm>0.001 || deltathickRm>0.01 || maxLoop) {
+            // TODO.......how to skip this value??
+            //nac.alpha = (4.*PI*1.0e-8)/lambda;
+            nac.alpha = 1.;
+            resultstatus = 0;
+            cout << " N/A       N/A     N/A     " << g_MAXLOOP - maxLoop + 1 << "\tFAILED!!!!!!! :(" << endl;
+        }
     } else {
-        cout << "\n\n\nFAILED TO FIND A COSISTENT N AND K!!! :(\n\n\n" << endl;
+        cout << " " << resultn << "  " << resultk << "  " << resultatt << "   " << g_MAXLOOP - maxLoop + 1;
+
+        if(maxLoop){        
+            cout << "\tSUCCESSESSFUL :)" << endl;
+            resultstatus = 1;
+        } else {
+            cout << "\tFAILED!!!!!!! :(" << endl;
+            resultstatus = 0;
+        }
     }
-    cout << "*****************************************************" << endl;
-    cout << "*****************************************************" << endl;
-    cout << "*****************************************************\n\n\n" << endl;
+    //cout << "*****************************************************" << endl;
+    //cout << "*****************************************************" << endl;
+    //cout << "*****************************************************\n\n\n" << endl;
 
     return 0;
 }
 
-void FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d, 
+Int_t FresnelAnalysisk(Double_t n, Double_t alpha, Double_t d, 
             Double_t lambda, Double_t Tm, Double_t Rm, nacon* nac) { 
- 
+
+    Int_t status(-1); 
     // some printing out and value precision stuff 
     //cout.setf(ios::fixed | ios::showpoint); 
     //cout.precision(5); 
 
     Double_t k = (lambda*alpha)/(4*PI); 
 
-    cout << endl << "---------------------------------------" << endl;
-    cout << "\nStarting using 1D Newton method for k only...\n" << endl; 
-    cout<<"  loop       n       k       TFunc       RFunc         dx     dy" << endl; 
+    //cout << endl << "---------------------------------------" << endl;
+    //cout << "\nStarting using 1D Newton method for k only...\n" << endl; 
+    //cout<<"  loop       n       k       TFunc       RFunc         dx     dy" << endl; 
  
     if(RunNewtonOneD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) { 
-        cout<< " \n successfully finding the root!\n" << endl;
+        //cout<< " \tsuccessful";
         alpha = (k*4.0*PI)/(lambda);
-        PrintTandR(n,alpha,d,lambda);
+        //PrintTandR(n,alpha,d,lambda);
+        status = 0;
     } else { 
-        cout << "\nfailed to find root " << endl; 
+        //cout << "\tfailed";
     } 
-    cout << endl << "---------------------------------------" << endl;
+    //cout << endl << "---------------------------------------" << endl;
 
     nac->n = n;
     nac->alpha = alpha;
- 
+
+    return status;
+
 } 
 
-void FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
+Int_t FresnelAnalysisnk(Double_t n, Double_t alpha, Double_t d,
             Double_t lambda, Double_t Tm, Double_t Rm, nacon* nac) {
 
+    Int_t status(-1);
     // some printing out and value precision stuff
     //cout.setf(ios::fixed | ios::showpoint);
     //cout.precision(5);
 
     Double_t k = (lambda*alpha)/(4*PI);
 
-    cout << endl << "---------------------------------------" << endl;
-    cout << "\nStarting using 2D Newton method for n and k...\n" << endl;
-    cout<<"  loop       n       k       TFunc       RFunc         dx\
-        dy" << endl;
+    //cout << endl << "---------------------------------------" << endl;
+    //cout << "\nStarting using 2D Newton method for n and k...\n" << endl;
+    //cout<<"  loop       n       k       TFunc       RFunc         dx\
+    //    dy" << endl;
 
     if(RunNewtonTwoD(n,k,g_MAXLOOP,g_ACCURACY,Tm,Rm,d,lambda)) {
-        cout<< " \n successfully finding the root!\n" << endl;
+        //cout<< " \tsuccessful";
         alpha = (k*4.0*PI)/(lambda);
-        PrintTandR(n,alpha,d,lambda);
+        //PrintTandR(n,alpha,d,lambda);
+        status = 0;
     } else {
-        cout << "\nfailed to find root " << endl;
+        //cout << "\tfailed";
     }
-    cout << endl << "---------------------------------------" << endl;
+    //cout << endl << "---------------------------------------" << endl;
 
     nac->n = n;
     nac->alpha = alpha;
 
+    return status;
 }
 ////////////////////////////////////////////////////////////////////////////
 //////// Newton method /////////////////////////////////////////////////////
@@ -366,11 +407,15 @@ Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop,
     do 
         { 
         i++; 
-        InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda); 
-        dk = - Tmf/Tmk; 
+        InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda);
+        if(Tmk==0 || k>1e20) {
+            break; } else {
+            dk = - Tmf/Tmk;
+            if(lambda==277) cout << Tmk;
+        }
         k = k + dk; 
-        cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12) 
-            <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl; 
+        //cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12) 
+        //    <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl; 
         } 
     while(fabs(dk) > accuracy && (--maxLoop)); 
  
@@ -395,11 +440,11 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
         InitializeFunc(n,k,d,Tm,Rm,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,lambda);
         GetCoupledJacobianFunc(n,k,Tmf,Rmf,Tmn,Rmn,Tmk,Rmk,
                                 del,newn,newk,dn,dk);
-        cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
-            <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
+        //cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12)
+        //    <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
         }
     while((fabs(dn) > accuracy || fabs(dk) > accuracy) && (--maxLoop));
-
+    cout << newn << " " << newk << "YAYAYA" << endl;
     // return the maxLoop as the flag to express finding
     // a root successfully
     return maxLoop;
@@ -549,10 +594,43 @@ Double_t GetOpticalModelTValue(Double_t IT, Double_t FR) {
 /////////////////////////////////////////////////////////////////////////////
 /////////// Print and draw T and R info /////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
+void HistonandkFilter(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t att[], Int_t status[]) {
+
+    Int_t successfulcount(0);
+    Int_t fillingcount(0);
+
+    for(Int_t i=0;i<size;i++) {
+        if(status[i]==1) {
+            successfulcount++;
+            //cout << successfulcount << " ";
+        }
+    }
+
+    const Int_t newsize = successfulcount;
+    Double_t newwl[newsize]={0.};
+    Double_t newn[newsize]={0.};
+    Double_t newk[newsize]={0.};
+    Double_t newatt[newsize]={0.};
+
+    for(Int_t i=0;i<size;i++) {
+        if(status[i]==1) {
+            newwl[fillingcount] = wl[i];
+            newn[fillingcount] = n[i];
+            newk[fillingcount] = k[i];
+            newatt[fillingcount] = att[i];
+            //cout << fillingcount << "\t" << newwl[fillingcount] << "\t" << newn[fillingcount] << "\t" << newk[fillingcount] << endl;
+            fillingcount++;
+        }
+    }
+
+    Histonandk(successfulcount,newwl,newn,newk,newatt);
+
+}
+
 void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t att[]) {
 
     TCanvas *c1 = new TCanvas(
-        "c1","Optical Model T and R",200,10,700,900);
+        "c1","Acrylic Optical Parameters",200,10,700,900);
     title = new TPaveText(.2,0.96,.8,.995);
     title->AddText("Optical Parameters");
     title->Draw();
@@ -564,42 +642,42 @@ void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t 
     pad2->Draw();
     pad3->Draw();
 
-    for(Int_t i=0;i<ANANO;i++) {
-        cout << i << "\t" << n[i] << "\t" << k[i] << endl;
-    }
+    //for(Int_t i=0;i<ANANO;i++) {
+    //    cout << i << "\t" << n[i] << "\t" << k[i] << endl;
+    //}
 
     grn = new TGraph(size, wl, n);
     pad1->cd();
-    grn->SetLineColor(2);
-    grn->SetLineWidth(4);
-    grn->SetMarkerColor(4);
-    grn->SetMarkerStyle(21);
+    //grn->SetLineColor(2);
+    //grn->SetLineWidth(4);
+    //grn->SetMarkerColor(4);
+    //grn->SetMarkerStyle(21);
     grn->SetTitle("Index of Refraction V.S. Wavelength");
     grn->GetXaxis()->SetTitle("nm");
     grn->GetYaxis()->SetTitle("n");
-    grn->Draw("ACP");
+    grn->Draw("A*");
 
     grk = new TGraph(size, wl, k);
     pad2->cd();
-    grk->SetLineColor(2);
-    grk->SetLineWidth(4);
-    grk->SetMarkerColor(4);
-    grk->SetMarkerStyle(21);
+    //grk->SetLineColor(2);
+    //grk->SetLineWidth(4);
+    //grk->SetMarkerColor(4);
+    //grk->SetMarkerStyle(21);
     grk->SetTitle("Extinction Coeffition V.S. Wavelength");
     grk->GetXaxis()->SetTitle("nm");
     grk->GetYaxis()->SetTitle("k");
-    grk->Draw("ACP");
+    grk->Draw("A*");
 
     gratt = new TGraph(size, wl, att);
     pad3->cd();
-    gratt->SetLineColor(2);
-    gratt->SetLineWidth(4);
-    gratt->SetMarkerColor(4);
-    gratt->SetMarkerStyle(21);
+    //gratt->SetLineColor(2);
+    //gratt->SetLineWidth(4);
+    //gratt->SetMarkerColor(4);
+    //gratt->SetMarkerStyle(21);
     gratt->SetTitle("Attenuation Length V.S. Wavelength");
     gratt->GetXaxis()->SetTitle("nm");
     gratt->GetYaxis()->SetTitle("meter");
-    gratt->Draw("ACP");
+    gratt->Draw("A*");
 
 }
 //void Histon(TH1D *nvswl
