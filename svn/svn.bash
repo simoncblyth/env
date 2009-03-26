@@ -28,7 +28,12 @@ svn-usage(){
      svn-wipe <name>
      
           delete the repository called <name>
-                         
+
+     svn-rename <oldname> <newname>
+         rename a repo and edits the svn-authzpath file accordingly  
+         ... should be done in parallel to the instance using scm-rename          
+
+               
      Precursors...
      
         svnbuild-
@@ -435,6 +440,45 @@ svn-populate(){
    local dir=$1
    local tmp=$(svn-tmpdir)  && mkdir -p $tmp/{branches,tags,trunk}
    [ -n "$dir" -a -d "$dir" ] && cp -r $dir $tmp/trunk/  || echo $msg starting with just branches/tags/trunk 
+}
+
+
+svn-rename(){
+
+   local iwd=$PWD
+   local msg="=== $FUNCNAME :"
+   local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
+   local oldname=$1
+   local newname=$2
+   [ -z $SCM_FOLD ] && echo $msg ABORT no SCM_FOLD && return 1
+ 
+   ! svn-exists $oldname && echo $msg ABORT no such repository exists with name \"$oldname\" && return 1
+   svn-exists $newname   && echo $msg ABORT a repository exists already with name \"$newname\" && return 1
+    
+   local oldrepo=$(svn-repo-path $oldname)
+   local dir=$(dirname $oldrepo)
+   cd $dir
+
+   local cmd="sudo mv $oldname $newname"
+   echo $msg $cmd
+   eval $cmd
+
+   local authz=$(svn-authzpath)
+   local tmpz=$tmpd/$(basename $authz)
+
+   perl -p -e "s,$oldname:,$newname:,"  $authz > $tmpz
+   diff $authz $tmpz
+   local zmd="cp $tmpz $authz "
+   local ans
+   read -p "$msg proposes to change the authz file $authz ... with $zmd ... , to proceed enter YES " ans
+   if [ "$ans" == "YES" ]; then
+      echo $msg proceeding
+      eval $zmd
+   else
+      echo $msg skipping 
+   fi 
+
+   cd $iwd
 }
 
 

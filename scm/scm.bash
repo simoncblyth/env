@@ -1,4 +1,6 @@
-
+scm-src(){ echo scm/scm.bash  ;}
+scm-source(){ echo ${BASH_SOURCE:-$(env-home)/$(scm-src)} ; }
+scm-vi(){    vi $(scm-source) ; }
 scm-usage(){
   
    cat << EOU
@@ -25,8 +27,10 @@ scm-usage(){
            Delete the repository + trac instance called <name>
                   
                   
-                  
-                        
+      scm-rename <oldname> <newname>                  
+
+
+                     
                                     
         NOTES ...
            * transition from old to new is as yet incomplete          
@@ -80,6 +84,25 @@ scm-wipe(){
   
   trac-
   trac-wipe $name    
+
+
+}
+
+
+
+scm-rename(){
+
+  local msg="=== $FUNCNAME :" 
+  local oldname=$1
+  local newname=$2
+  [ -z "$oldname" ]     && echo $msg an existing instance name must be provided && return 1
+  [ -z "$newname" ]     && echo $msg an existing instance name must be provided && return 1
+
+  svn-
+  svn-rename $oldname $newname
+  
+  trac-
+  trac-rename $oldname $newname    
 
 
 }

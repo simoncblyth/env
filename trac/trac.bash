@@ -38,7 +38,10 @@ cat << EOU
     trac-inicat  <name>
     trac-vi      <name>   
            for name of ".." this edits the common inherited config  
-                
+           
+    trac-rename <oldname> <newname>
+           renames the instance and redoes the trac-configure-instance in the newly named one 
+           ... this should only be done in parallel to the svn-rename preferably to using scm-rename
       
     trac-instances  : "$(trac-instances)"
           names of all the instances from looking in $SCM_FOLD/tracs
@@ -387,6 +390,31 @@ trac-edit-ini-deprecated(){
 trac-db(){
    echo sqlite3 $(trac-envpath $*)/db/trac.db
 }
+
+trac-rename(){
+
+   local msg="=== $FUNCNAME :" 
+   local oldname=$1
+   local newname=$2
+   [ -z "$oldname" ]     && echo $msg an existing instance name must be provided as the one to rename && return 1
+   [ -z "$newname" ]     && echo $msg an non-existing instance name must be provided as the newname   && return 1
+   ! trac-exists $oldname  && echo $msg ABORT an no instance with name \"$oldname\" exists  && return  1 
+   trac-exists $newname    && echo $msg ABORT an instance with name \"$newname\" exists already && return  1 
+     
+   local iwd=$PWD
+   local oldrepo=$(trac-repopath $oldname);
+   local dir=$(dirname $oldrepo);
+   cd $dir;
+   local cmd="sudo mv $oldname $newname";
+   echo $msg $cmd;
+   eval $cmd;
+
+   trac-configure-instance $newname 
+
+   cd $iwd
+}
+
+
 
 trac-create(){
    local msg="=== $FUNCNAME :" 
