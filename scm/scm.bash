@@ -95,8 +95,8 @@ scm-rename(){
   local msg="=== $FUNCNAME :" 
   local oldname=$1
   local newname=$2
-  [ -z "$oldname" ]     && echo $msg an existing instance name must be provided && return 1
-  [ -z "$newname" ]     && echo $msg an existing instance name must be provided && return 1
+  [ -z "$oldname" ]     && echo $msg an existing instance name must be provided for oldname     && return 1
+  [ -z "$newname" ]     && echo $msg an non-existing instance name must be provided for newname && return 1
 
   svn-
   svn-rename $oldname $newname

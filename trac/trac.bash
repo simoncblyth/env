@@ -41,7 +41,7 @@ cat << EOU
            
     trac-rename <oldname> <newname>
            renames the instance and redoes the trac-configure-instance in the newly named one 
-           ... this should only be done in parallel to the svn-rename preferably to using scm-rename
+           ... this should only be done in parallel to the svn-rename preferably by using scm-rename
       
     trac-instances  : "$(trac-instances)"
           names of all the instances from looking in $SCM_FOLD/tracs
@@ -402,14 +402,22 @@ trac-rename(){
    trac-exists $newname    && echo $msg ABORT an instance with name \"$newname\" exists already && return  1 
      
    local iwd=$PWD
-   local oldrepo=$(trac-repopath $oldname);
-   local dir=$(dirname $oldrepo);
+   local oldenv=$(trac-envpath $oldname);
+   local dir=$(dirname $oldenv);
    cd $dir;
    local cmd="sudo mv $oldname $newname";
    echo $msg $cmd;
    eval $cmd;
 
    trac-configure-instance $newname 
+
+   echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner;
+   TRAC_INSTANCE=$newname trac-admin-- resync
+
+   echo $msg ensure everything in the newenv path is accessible to apache ... have observed trac.log converting to root somehow
+   apache-
+   sudo find $(trac-envpath $newname) -group root -exec chown $(apache-user):$(apache-group) {} \; 
+
 
    cd $iwd
 }
@@ -582,8 +590,9 @@ trac-configure-instance(){
 
   local msg="=== $FUNCNAME :"
   local name=${1:-$TRAC_INSTANCE}
-  
+
   [ -z "$name" ] && echo $msg the name of the instance is required && return 1
+  [ ! -d "$(trac-envpath $name)" ] && echo $msg ABORT no such trac environment $(trac-envpath $name) && return 1
   
   trac-comment $name "tracrpc.* = enabled"
   trac-comment $name "default_handler = TagsWikiModule"
@@ -721,8 +730,8 @@ EOT
 
 trac-bannerpath-(){
     case $TRAC_INSTANCE in 
-       dybsvn) echo $ENV_HOME/logo/theta13_offline_software.png ;;
-            *) echo $ENV_HOME/logo/trac_bannar_${TRAC_INSTANCE}.png ;;
+ dybsvn|mdybsvn) echo $ENV_HOME/logo/theta13_offline_software.png ;;
+              *) echo $ENV_HOME/logo/trac_bannar_${TRAC_INSTANCE}.png ;;
     esac        
 }
 
@@ -735,6 +744,7 @@ trac-banner-triplet(){
    local msg="=== $FUNCNAME :"
    local default="header_logo:src:common/trac_banner.png"
    local path=$(trac-bannerpath)
+   path=${path:-dummy}
    local name=$(basename $path)
    local htpath=$(trac-envpath)/htdocs/$name
    if [ -n "$TRAC_BANNER_TRIPLET_DEBUG" ]; then
