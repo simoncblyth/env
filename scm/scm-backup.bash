@@ -289,7 +289,11 @@ scm-recover-all(){
       
    done 
 
-   scm-recover-users $fromnode
+   if [ "$fromnode" == "dayabay" ]; then
+      echo $msg auto mated usersfile recovery is not possible from $fromnode ... you will need to manually merge usersfiles, see $(env-wikiurl)/ServerHistory 
+   else
+      scm-recover-users $fromnode
+   fi
 
 }
 
