@@ -160,12 +160,11 @@ scm-backup-all(){
    local msg="=== $FUNCNAME :"
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
-   local repos=$(svn-repo-dirname)
    
    python-
    sqlite-
    
-   local typs="$repos tracs"
+   local typs="svn repos tracs"
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
@@ -257,8 +256,7 @@ scm-recover-all(){
    [ "$ans" != "YES" ] && echo $msg ABORTing && return  1
 
 
-   #local repos=$(svn-repo-dirname)
-   local types="repos tracs svn"
+   local types="repos svn tracs"
    for type in $types
    do
       
@@ -398,8 +396,7 @@ scm-backup-purge(){
 
   echo ======= scm-backup-purge =====   
 
-  local repos=$(svn-repo-dirname)
-  for path in $SCM_FOLD/backup/$node/{tracs,$repos,folders}/* 
+  for path in $SCM_FOLD/backup/$node/{tracs,repos,svn,folders}/* 
   do
      cd $path 
      
@@ -540,15 +537,16 @@ scm-backup-dybsvn-from-node(){
    local dstamp="2008/07/31/122149"
    local stamp=${2:-$dstamp}
    local name="dybsvn"
+   local site=$(trac- ; trac-site $name)
+   local repos=$(svn-repo-dirname-forsite $site)  
    local orig="hfag"
    
    [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
      
      
-   local repos=$(svn-repo-dirname)  
    local loc=$(scm-backup-dir $NODE_TAG)  
    local rem=$(scm-backup-dir $tag)
-   local reps=$(ssh $tag "ls -1 $rem/$orig/{$repos,tracs}/$name/$stamp/$name*.tar.gz ")
+   local reps=$(ssh $tag "ls -1 $rem/$orig/{repos,svn,tracs}/$name/$stamp/$name*.tar.gz ")
    
    echo reps $reps
    
@@ -804,13 +802,14 @@ scm-recover-repo(){
                $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
                SUDO=$SUDO trac-configure-instance $name
                
-
                echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
                TRAC_INSTANCE=$name trac-admin-- resync
+
+               echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
+               apache-
+               sudo find $(trac-envpath $name) -group root -exec chown $(apache-user):$(apache-group) {} \; 
+
             fi
-
-
-            
          fi      
       else
          echo $msg  ERROR there is not 1 tgz in target_fold $target_fold
@@ -830,15 +829,16 @@ scm-backup-repo(){
    local path=${2:-dummy}   ## absolute path to the repo  
    local base=${3:-dummy}   ## backup folder
    local stamp=${4:-dummy}  ## date stamp
+   local site=$(trac- ; trac-site $name)
    
-   echo $msg name $name path $path base $base stamp $stamp ===
+   echo $msg name $name path $path base $base stamp $stamp site $site ===
    
    [ "$name" == "dummy" ]  &&  echo $msg ERROR the name must be given && return 1 
    [ ! -d "$path" ]        &&  echo $msg ERROR path $path does not exist && return 1 
    [ "$base" == "dummy" ]  &&  echo $msg ERROR the base must be given && return 1 
    [ "$stamp" == "dummy" ] &&  echo $msg ERROR the stamp must be given && return 1 
    
-   local target_fold=$base/$(svn-repo-dirname)/$name/$stamp
+   local target_fold=$base/$(svn-repo-dirname-forsite $site)/$name/$stamp
    #   
    #  
    # hot-copy.py creates tgzs like : 
@@ -851,7 +851,7 @@ scm-backup-repo(){
    local hot_backup=$(svn-hotbackuppath)      
    [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
                   			  	  
-   local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/$(svn-repo-dirname)/$name && rm -f last && ln -s $stamp last "   
+   local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/$(svn-repo-dirname-forsite $site)/$name && rm -f last && ln -s $stamp last "   
    echo $msg $cmd
    eval $cmd
    
