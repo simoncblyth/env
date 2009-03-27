@@ -36,6 +36,7 @@ env-url(){         echo $(env-localserver $1)/repos/env/trunk ; }
 env-wikiurl(){     echo $(env-localserver $1)/tracs/env/wiki ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
+mysql-(){       . $(env-home)/mysql/mysql.bash    && mysql-env $* ; }
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
 phpbb-(){       . $(env-home)/phpbb/phpbb.bash    && phpbb-env $* ; }
 cronline-(){    . $(env-home)/base/cronline.bash && cronline-env $* ; }

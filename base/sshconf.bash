@@ -121,6 +121,7 @@ host S
     user dayabayscp                                 
     hostname 140.112.101.190
     protocol 2 
+    ForwardX11 no
 
 
 # cms02
