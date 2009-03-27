@@ -1,3 +1,8 @@
+svnsync-src(){    echo svn/svnsync/svnsync.bash ; }
+svnsync-source(){ echo ${BASH_SOURCE:-$(env-home)/$(svnsync-src)} ; }
+svnsync-vi(){     vi $(svnsync-source); }
+
+
 svnsync-usage(){
    
    private-
@@ -70,6 +75,11 @@ svnsync-env(){
    elocal-  
    
 }
+
+
+
+
+
 svnsync-sourceurl(){
   case ${1:-$NODE_TAG} in
     H) echo http://dayabay.ihep.ac.cn/svn/dybsvn ;;

@@ -362,6 +362,10 @@ svn-repo-path(){
    echo $SCM_FOLD/$(svn-repo-dirname-forsite $site)/$name
 }
 
+svn-postcommit-path(){
+   local name=${1:-dummy}
+   echo $(svn-repo-path $name)/hooks/post-commit
+}
 
 svn-repos(){
    local site=${1:-ntu}
