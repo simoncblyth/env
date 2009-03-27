@@ -11,6 +11,45 @@ mysql-usage(){
         http://dev.mysql.com/doc/refman/4.1/en/
 
 
+   invenio requires some specific settings in my.cnf
+       max_allowed_packet at least 4M
+       default-character-set=utf8     (multiple places ?)
+
+
+
+[blyth@cms02 ~]$ cat /etc/my.cnf
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+user=mysql
+# Default to using old password format for compatibility with mysql 3.x
+# clients (those using the mysqlclient10 compatibility package).
+old_passwords=1
+
+[mysqld_safe]
+err-log=/var/log/mysqld.log
+pid-file=/var/run/mysqld/mysqld.pid
+
+
+[blyth@cms02 ~]$ cat  /var/lib/mysql/my.cnf
+cat: /var/lib/mysql/my.cnf: No such file or directory
+
+
+
+[blyth@cms02 ~]$ l /var/lib/mysql/
+total 20552
+-rw-rw----  1 mysql mysql 10485760 Mar 27 14:10 ibdata1
+-rw-rw----  1 mysql mysql  5242880 Mar 27 14:10 ib_logfile0
+-rw-rw----  1 mysql mysql  5242880 Mar 27 14:10 ib_logfile1
+drwx------  2 mysql mysql     4096 Mar 27 14:10 mysql
+srwxrwxrwx  1 mysql mysql        0 Mar 27 14:10 mysql.sock
+drwx------  2 mysql mysql     4096 Mar 27 14:10 test
+[blyth@cms02 ~]$ 
+
+
+
+
+
 EOU
 
 
