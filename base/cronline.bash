@@ -66,7 +66,7 @@ cronline-environment(){
   echo "export HOME=$HOME ; export NODE=$LOCAL_NODE ; export MAILTO=$(env-email) ; export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- "
 }
 
-cronline-logdir(){ echo $(local-var-base)/log ; }
+cronline-logdir(){ echo $(local-var-base)/env/log ; }
 cronline-delta(){  echo ${CRONLINE_DELTA:-0}    ; }  # 0 .. CRONLINE_MINUTE - CRONLINE_DELTA  
 cronline-minute(){ echo ${CRONLINE_MINUTE:-30} ; }   # 0-59 
 cronline-hour(){   echo ${CRONLINE_HOUR:-04}   ; }   # 0-23 
@@ -96,6 +96,7 @@ EOC
 
 cronline-cronline(){
 cat << EOC
+SHELL = /bin/bash
    $(cronline-time)  $(cronline-cmd $*)  
 EOC
 }

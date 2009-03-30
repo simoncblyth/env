@@ -21,6 +21,7 @@ cat << EOU
           for this node and recover from them
 
 
+   scm-backup-nightly-as-root :   does it as root ... as done in the crontab
    scm-backup-all-as-root :   does the below as root ... as done in the crontab
     
    scm-backup-all :   invokes the below 
@@ -145,6 +146,12 @@ scm-backup-du(){
 scm-backup-all-as-root(){
 
   sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-all  "
+
+}
+
+scm-backup-nightly-as-root(){
+
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-nightly  "
 
 }
 
@@ -897,7 +904,7 @@ scm-backup-trac(){
    
    [ ! -x $trac_admin ] && echo $msg ABORT no trac_admin at $trac_admin && return 1
    
-   local cmd="mkdir -p $parent_fold && $trac_admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcvf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
+   local cmd="mkdir -p $parent_fold && $trac_admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $msg $cmd
    eval $cmd 
    

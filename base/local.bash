@@ -205,6 +205,7 @@ local-sudo(){
   esac
 }
 
+
 local-backup-tag(){
    case ${1:-$NODE_TAG} in 
       G) echo G3 ;;
@@ -233,6 +234,16 @@ local-email(){
      XX) echo tianxc@ihep.ac.cn ;;
       *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
+}
+
+local-sshkeyholder(){
+  case ${1:-$NODE_TAG} in
+  C|C2|G|G1|N) echo blyth ;;
+            P) echo dayabaysoft ;;
+           XX) echo root ;;
+            *) echo blyth ;;
+  esac
+
 }
 
 
