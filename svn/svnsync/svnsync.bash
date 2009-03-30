@@ -90,9 +90,9 @@ svnsync-sourceurl(){
 }
 svnsync-desturl(){
   case ${1:-$NODE_TAG} in
-    H) echo http://dayabay.phys.ntu.edu.tw/repos/dybsvn ;;  
-    C) echo http://cms01.phys.ntu.edu.tw/repos/dybsvn ;;
-    P) echo http://grid1.phys.ntu.edu.tw/repos/dybsvn ;;
+    H) echo http://dayabay.phys.ntu.edu.tw/repos/mdybsvn ;;  
+    C) echo http://cms01.phys.ntu.edu.tw/repos/mdybsvn ;;
+    P) echo http://grid1.phys.ntu.edu.tw/repos/mdybsvn ;;
     *) echo -n ;;
   esac
 }
