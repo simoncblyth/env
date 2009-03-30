@@ -209,7 +209,7 @@ local-backup-tag(){
    case ${1:-$NODE_TAG} in 
       G) echo G3 ;;
       H) echo C  ;;
-      C) echo P  ;;
+      C) echo H1 C2 P ;;
      C2) echo N  ;;
       P) echo H1 C2 C ;;
      XX) echo SC2 ;;

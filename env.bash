@@ -20,13 +20,13 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
-env-designated(){ echo ${ENV_DESIGNATED:-P} ; }
+env-designated(){ echo ${ENV_DESIGNATED:-C} ; }
 env-localserver(){ 
   case ${1:-$(env-designated)} in 
      G) echo http://localhost ;;
      P) echo http://grid1.phys.ntu.edu.tw:8080 ;;
-  #  C) echo http://dayabay.phys.ntu.edu.tw ;;
-     C) echo http://cms01.phys.ntu.edu.tw ;;
+     C) echo http://dayabay.phys.ntu.edu.tw ;;
+  #  C) echo http://cms01.phys.ntu.edu.tw ;;
     C2) echo http://cms02.phys.ntu.edu.tw ;;
     XX) echo http://dayabay.ihep.ac.cn ;;
   esac  
