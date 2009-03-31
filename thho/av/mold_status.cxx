@@ -17,6 +17,10 @@ typedef struct
 
 }FitLinesParas;
 
+typedef struct
+{
+    double points[TOTALRINGNO];
+}LineData;
 
 void initializeHypotenuse(double radiusPoints[]) {
 
@@ -28,12 +32,14 @@ void initializeHypotenuse(double radiusPoints[]) {
     radiusPoints[5] = 1563.0;
 
 }
-/*
-void drawDiff(double radiusPoints[],double line[], FitLinesParas* fitLinesParas) {
+
+void drawDiff(double radiusPoints[], LineData* lineData, FitLinesParas* fitLinesParas) {
 
     for(int i=0;i<TOTALPOINTNOONRING;i++) {
         for(int j=0;j<TOTALRINGNO;j++) {
-            fitLinesParas[i].diff[j] = line[j] - (fitLinesParas[i].fitParas[0]+fitLinesParas[i].fitParas[1]*radiusPoints[j]);
+            fitLinesParas[i].diff[j] = lineData[i].points[j] - (fitLinesParas[i].fitParas[0]+fitLinesParas[i].fitParas[1]*radiusPoints[j]);
+            // Debug.
+            //cout << fitLinesParas[i].diff[j] << endl;
         }
         stringstream ss;
         ss << i;
@@ -44,92 +50,58 @@ void drawDiff(double radiusPoints[],double line[], FitLinesParas* fitLinesParas)
         c += ss.str();
         TCanvas* cv = new TCanvas(c.data(),s.data(),200,10,700,500);
         TGraph* graph = new TGraph(TOTALRINGNO, radiusPoints, &fitLinesParas[i].diff[0]);
+        graph->Draw("ACP");
+        graph->SetMarkerColor(kBlue);
     }
 
 }
-*/
-TGraph* drawFitLine(double radiusPoints[], double line[], int lineNo, FitLinesParas* fitLinesParas) {
 
-    stringstream ss;
-    ss << lineNo;
-    string s = "Line ";
-    s += ss.str();
-    s += " Slop";
-    string c = "cv";
-    c += ss.str();
-    // Debug.
-    //cout << s << endl;
-    //cout << c << endl;
-    //cout << "line address " << line << endl;
-    TCanvas* cv = new TCanvas(c.data(),s.data(),200,10,700,500);
-    TGraph* graph = new TGraph(TOTALRINGNO, radiusPoints, line);
-    graph->Draw("a*");
-    graph->SetMarkerColor(kBlue);
-    graph->Fit("pol1");
+void drawFitLine(double radiusPoints[], LineData* lineData, FitLinesParas* fitLinesParas) {
 
-    TF1* fitFunc = (TF1*) graph->GetFunction("pol1");
-    fitFunc->GetParameters(fitLinesParas[lineNo].fitParas);
-    // Debug.
-    //cout << fitLinesParas << endl;
-    //cout << fitLinesParas[lineNo].fitParas[1] << endl;
-    //cout << "The angle is(degree) " << atan(fitLinesParas[lineNo].fitParas[1])*(180.0/PI) << endl;
-
-
-
-
-    return graph;
-
-}
-
-void fillLine(double measurements[TOTALRINGNO][TOTALPOINTNOONRING], double line[], int lineNo) {
-
-    for(int i=0;i<TOTALRINGNO;i++) { 
-        line[i] = measurements[i][lineNo];
+    for(int lineNo=0;lineNo<TOTALPOINTNOONRING;lineNo++) { 
+        stringstream ss;
+        ss << lineNo;
+        string s = "Line ";
+        s += ss.str();
+        s += " Slop";
+        string c = "cv";
+        c += ss.str();
         // Debug.
-        //cout << line[i] << " ";
+        //cout << s << endl;
+        //cout << c << endl;
+        TCanvas* cv = new TCanvas(c.data(),s.data(),200,10,700,500);
+        TGraph* graph = new TGraph(TOTALRINGNO, radiusPoints, &lineData[lineNo].points[0]);
+        graph->Draw("a*");
+        graph->SetMarkerColor(kBlue);
+        graph->Fit("pol1");
+    
+        TF1* fitFunc = (TF1*) graph->GetFunction("pol1");
+        fitFunc->GetParameters(fitLinesParas[lineNo].fitParas);
+        // Debug.
+        //cout << fitLinesParas << endl;
+        //cout << fitLinesParas[lineNo].fitParas[1] << endl;
+        //cout << "The angle is(degree) " << atan(fitLinesParas[lineNo].fitParas[1])*(180.0/PI) << endl;
     }
-    // Debug.
-    //cout << endl;
+
 
 }
 
 void mold_status() {
 
+    // read in measurement data, storing in them in lines
     ifstream fin;
     fin.open("mold.dat");
-
-    double measurements[TOTALRINGNO][TOTALPOINTNOONRING];
     double radiusPoints[TOTALRINGNO];
     initializeHypotenuse(radiusPoints);
-
-    for(int i=0;i<TOTALPOINTNOONRING;i++) {
-        // Debug.
-        //cout << i << " ";
-        for(int j=0;j<TOTALRINGNO;j++) {
-            fin >> measurements[j][i];
-            // Debug.
-            //cout << i << " " << j << " ";
-            //cout << measurements[j][i] << " ";
-        }
-        // Debug.
-        //cout << endl;
-    }
-
     FitLinesParas fitLinesParas[TOTALPOINTNOONRING];
-    // Debug.
-    //cout << "address of fitLinesParas " << fitLinesParas << endl;
-
+    LineData lineData[TOTALPOINTNOONRING];
     for(int i=0;i<TOTALPOINTNOONRING;i++) {
-        double noLine[TOTALRINGNO];
-        // Debug.
-        //cout << "address of noLine " << noLine << endl;
-        fillLine(measurements, noLine, i);
-        TGraph* gr = drawFitLine(radiusPoints, noLine, i, fitLinesParas);
-        // Debug.
-        //cout << "address of fitLinesParas in " << &fitLinesParas[0] << endl;
-        // Debug.
-        //cout << i << "th Line" << endl;
+        for(int j=0;j<TOTALRINGNO;j++) {
+            fin >> lineData[i].points[j];
+        }
     }
+
+    drawFitLine(radiusPoints, lineData, fitLinesParas);
 
     TCanvas* fitSlopCv = new TCanvas("fitSlop");
     TH1D* fitSlop = new TH1D("fitSlop","Fit Slops",30,2.7,3.0);
@@ -140,6 +112,6 @@ void mold_status() {
     }
     fitSlop->Draw();
 
-    //drawDiff(radiusPoints, fitLinesParas);
+    drawDiff(radiusPoints, lineData, fitLinesParas);
 
 }
