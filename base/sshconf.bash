@@ -136,8 +136,6 @@ host SC2
     protocol 2 
     ForwardX11 no
 
-
-
 # testing sending to locked down account on grid1
 host S2
     hostname 140.112.102.250

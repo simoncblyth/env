@@ -131,6 +131,7 @@ local-tag2node(){
      C) echo cms01 ;;
     C2) echo cms02 ;;
     XX) echo dayabay ;;
+    YY) echo dyb1 ;;
     H1) echo hep1 ;;
      N) echo belle7 ;;
      P) echo grid1 ;;
@@ -149,6 +150,7 @@ local-nodetag(){
         cms01) echo C ;;
         cms02) echo C2 ;;
       dayabay) echo XX ;;
+         dyb1) echo YY ;;
        belle7) echo N ;;
       gateway) echo B ;;
          g3pb) echo G ;;
@@ -213,13 +215,15 @@ local-backup-tag(){
       C) echo H1 C2 P ;;
      C2) echo N  ;;
       P) echo H1 C2 C ;;
-     XX) echo SC2 ;;
-      *) echo U ;;
+#     XX) echo SC2 ;;
+     XX) echo YY ;;
+     *) echo U ;;
    esac  
 }
 
 local-server-tag(){
    case ${1:-$NODE_TAG} in
+     YY) echo XX ;;
       *) echo P ;;  
    esac
 }
@@ -231,7 +235,8 @@ local-restore-tag(){
 
 local-email(){
    case ${1:-$NODE_TAG} in
-     XX) echo tianxc@ihep.ac.cn ;;
+     XX) echo maqm@ihep.ac.cn ;;
+     YY) echo maqm@ihep.ac.cn ;;
       *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
 }
@@ -241,7 +246,8 @@ local-sshkeyholder(){
   C|C2|G|G1|N) echo blyth ;;
             P) echo dayabaysoft ;;
            XX) echo root ;;
-            *) echo blyth ;;
+           YY) echo maqm ;; 
+           *) echo blyth ;;
   esac
 
 }
@@ -300,6 +306,7 @@ local-system-base(){
         H1) echo $(local-root $t)/system ;;
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
+        YY) echo /usr/local ;;
          *) echo $(local-base $*) ;;
    esac
 }
@@ -317,6 +324,7 @@ local-var-base(){
         N) echo /var ;;
        XT) echo /home/tianxc ;; 
        XX) echo /home ;; 
+       YY) echo /home ;;
      IHEP) echo /home ;;  
     OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;

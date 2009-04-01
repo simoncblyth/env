@@ -273,6 +273,7 @@ svn-env(){
   case $NODE_TAG in 
     C) ver=1.4.2 ;;
    XX) ver=1.4.3 ;; 
+   YY) ver=1.4.3 ;;
     *) ver=1.4.0 ;;
   esac
   
