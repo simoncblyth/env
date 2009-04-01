@@ -1,4 +1,6 @@
-
+clui-src(){ echo base/clui.bash ; }
+clui-source(){ echo ${BASH_SOURCE:-$(env-home)/$(clui-src)} ; }
+clui-vi(){     vi $(clui-source) ;}
 
 clui-env(){
    
@@ -14,13 +16,21 @@ clui-env(){
     
 }
 
+clui-se(){
+   case ${1:-$NODE_TAG} in
+     C2|N) echo "-Z"  ;; 
+        *) echo ""    ;;
+    esac    
+}
 
 clui-alias(){
 
    alias x='exit'
-   alias l='ls -l '
-   alias ll='ls -la '
-   alias lt="ls -lt"
+   local se=$(clui-se)
+   alias l="ls -l $se "
+   alias ll="ls -la $se"
+   alias lt="ls -lt $se "
+   alias p="ps aux $se"
    alias st="svn st"
    alias stu="svn st -u"
    alias up="svn up"
