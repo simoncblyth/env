@@ -1,5 +1,9 @@
+//
 // A simple root script to analyze the status of IAV top lid steel mold
-
+//
+// Author: Taihsiang
+// Date: 2009,Apr,01
+//
 
 #define TOTALRINGNO 6
 #define TOTALPOINTNOONRING 12
