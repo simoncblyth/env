@@ -163,7 +163,7 @@ invenio-apacheconf-deprecated(){
 
 }
 
-
+invenio-sitepkgs(){   echo /usr/lib/python2.3/site-packages ; }
 invenio-serverroot(){ echo /etc/httpd ; }
 invenio-docroot(){    echo $(invenio-installdir)/var/www ; }
 invenio-logdir(){     echo logs ; }
@@ -261,6 +261,8 @@ invenio-seprep(){
    cat << EOC
 # the below should probably be tightened ?
 sudo chcon -R -u system_u -t httpd_sys_content_t $d
+sudo chcon -h -u system_u -t lib_t $(invenio-sitepkgs)/invenio   # the link
+sudo chcon -R -u system_u -t httpd_sys_content_t $(invenio-installdir)/lib/python/invenio  # target of the link
 EOC
 
 
