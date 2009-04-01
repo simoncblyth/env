@@ -153,6 +153,14 @@ apache-chown(){
 
 }
 
+apache-se-content(){
+   local path=$1
+   sudo chcon -R -h -t httpd_sys_content_t $path
+}
+
+
+
+
 
 apache-confdir(){
   case $NODE_TAG in
