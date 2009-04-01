@@ -163,6 +163,20 @@ invenio-apacheconf-deprecated(){
 
 }
 
+invenio-errname(){ echo invenio_err.log ; }
+invenio-logname(){ echo invenio.log ; }
+invenio-abspath(){    
+  case ${1:0:1} in
+    "/") echo $1 ;;
+      *) echo $(invenio-serverroot)/$1 ;;
+  esac
+}
+
+invenio-logpath(){  invenio-abspath $(invenio-logdir)/$(invenio-logname) ; }
+invenio-errpath(){  invenio-abspath $(invenio-logdir)/$(invenio-errname) ; }
+invenio-ltail(){    sudo tail -f $(invenio-logpath) ; }
+invenio-etail(){    sudo tail -f $(invenio-errpath) ; }
+
 invenio-sitepkgs(){   echo /usr/lib/python2.3/site-packages ; }
 invenio-serverroot(){ echo /etc/httpd ; }
 invenio-docroot(){    echo $(invenio-installdir)/var/www ; }
@@ -204,9 +218,9 @@ NameVirtualHost *:80
            Order allow,deny
            allow from all
         </Directory>
-        ErrorLog $(invenio-logdir)/invenio_err.log
+        ErrorLog $(invenio-logdir)/$(invenio-errname)
         LogLevel warn
-        CustomLog $(invenio-logdir)/invenio.log combined
+        CustomLog $(invenio-logdir)/$(invenio-logname) combined
         DirectoryIndex index.en.html index.html
         <LocationMatch "^(/+$|/index|/collection|/record|/author|/search|/browse|/youraccount|/youralerts|/yourbaskets|/yourmessages|/yourgroups|/submit|/getfile|/comments|/error|/oai2d|/rss|/help|/journal|/openurl|/stats)">
            SetHandler python-program
