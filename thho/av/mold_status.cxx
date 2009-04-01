@@ -37,7 +37,9 @@ void initializeHypotenuse(double radiusPoints[]) {
 
 }
 
+
 void drawDiff(double radiusPoints[], LineData* lineData, FitLinesParas* fitLinesParas) {
+
 
     for(int i=0;i<TOTALPOINTNOONRING;i++) {
         for(int j=0;j<TOTALRINGNO;j++) {
@@ -113,9 +115,34 @@ void mold_status() {
         fitSlop->Fill(atan(fitLinesParas[i].fitParas[1])*(180.0/PI));
         // Debug.
         //cout << "fitLinesParas[i].fitParas[1] " << fitLinesParas[i].fitParas[1] << endl;
+        cout << "Line No " << i << ", Angle(degree) " << atan(fitLinesParas[i].fitParas[1])*(180.0/PI) << endl;
     }
     fitSlop->Draw();
 
+
     drawDiff(radiusPoints, lineData, fitLinesParas);
+
+    TCanvas* moldContourCv = new TCanvas("moldContourCv");
+    TH2D* moldContour = new TH2D("moldContour","Mold Contour",TOTALRINGNO,0,TOTALRINGNO,TOTALPOINTNOONRING,0,TOTALPOINTNOONRING);
+    for(int i=0;i<TOTALPOINTNOONRING;i++) {
+        for(int j=0;j<TOTALRINGNO;j++) {
+            moldContour->SetBinContent(j+1,i+1,fitLinesParas[i].diff[j]);
+            //moldContour->SetBinContent(j,i,lineData[i].points[j]);
+            //moldContour->SetBinContent(1,1,-1);
+        }
+    }
+    /*
+    gStyle->SetPalette(1);
+    double contours[6];
+    contours[0] = -1.0;
+    contours[1] = -0.5;
+    contours[2] = -0.1;
+    contours[3] =  0.1;
+    contours[4] =  0.5;
+    contours[5] =  1.0;
+    moldContour->SetContour(6, contours);
+    */
+    //moldContour->Draw("CONT Z LIST");
+    moldContour->Draw("lego2");
 
 }
