@@ -12,7 +12,8 @@ cat << EOU
    local-nodetag     :  $(local-nodetag)
    local-tag2node    :  $(local-tag2node)
    local-backup-tag  :  $(local-backup-tag)      paired backup node
-   local-restore-tag :  $(local-restore-tag)     designated node to restore from  
+   local-restore-tags:  $(local-restore-tags)    nodes that could be restored from  
+   local-restore-tag :  $(local-restore-tag)     designated node (the first in the backup list) to restore from  
    local-mbackup-tag :  $(local-mbackup-tag)      locally mounted backup ... usually eg for C get .. BKP_C
    local-sudo        :  $(local-sudo)            is set on nodes which use system tools mostly
    
@@ -215,7 +216,7 @@ local-backup-tag(){
       C) echo H1 C2 P ;;
      C2) echo N  ;;
       P) echo H1 C2 C ;;
-     XX) echo SC2 YY ;;
+     XX) echo YY SC2 ;;
      *) echo U ;;
    esac  
 }
@@ -227,10 +228,12 @@ local-server-tag(){
    esac
 }
 
-local-restore-tag(){
+local-restore-tags(){
    local tag=${1:-$NODE_TAG}
-   echo $(local-backup-tag $(local-server-tag $t))
+   echo $(local-backup-tag $(local-server-tag $tag))
 }
+local-restore-tag(){ local-first $(local-restore-tags $*) ; }
+local-first(){        echo $1 ; }
 
 local-email(){
    case ${1:-$NODE_TAG} in
