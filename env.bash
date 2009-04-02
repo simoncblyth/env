@@ -20,7 +20,15 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
-env-designated(){ echo ${ENV_DESIGNATED:-C} ; }
+env-designated(){ 
+  [ -n "$ENV_DESIGNATED" ] && echo $ENV_DESIGNATED && return 0
+  ## the below are for test servers 
+  case ${1:-$NODE_TAG} in
+    YY) echo YY ;;
+     *) echo C ;;
+  esac
+}
+
 env-localserver(){ 
   case ${1:-$(env-designated)} in 
      G) echo http://localhost ;;
@@ -29,6 +37,7 @@ env-localserver(){
   #  C) echo http://cms01.phys.ntu.edu.tw ;;
     C2) echo http://cms02.phys.ntu.edu.tw ;;
     XX) echo http://dayabay.ihep.ac.cn ;;
+    YY) echo http://dyb1.ihep.ac.cn ;;
   esac  
 }
 
