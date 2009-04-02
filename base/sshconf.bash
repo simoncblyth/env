@@ -143,7 +143,16 @@ host S2
     user dayabayscp                                 
     ForwardX11 no
                                                                	     
-	
+host YY 
+    user maqm
+    hostname dyb1.ihep.ac.cn
+    protocol 2
+
+host XX 
+    user maqm
+    hostname dayabay.ihep.ac.cn
+    protocol 2
+		
 host BP
     hostname bpost.kek.jp
 	protocol 2
