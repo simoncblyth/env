@@ -77,23 +77,28 @@ python-cd(){
    cd $(python-site)
 }
 
+python-mode(){ echo ${PYTHON_MODE:-source} ; }
+python-name(){ echo Python-2.5.1 ; }
+python-major(){ echo 2.5 ; }
+python-home(){
+   if [ "$(python-mode)" == "source" ]; then
+       echo $(local-system-base)/python/$(python-name)
+   else
+       echo unused-?
+   fi
+}
+
 python-env(){
 
    elocal-
-
-    export PYTHON_MAJOR=2.5
-
-   if [ "$NODE_APPROACH" == "stock" ]; then
-      export PYTHON_SITE=/Library/Python/2.5/site-packages
-
+   export PYTHON_MAJOR=$(python-major)
+   if [ "$(python-mode)" == "system" ]; then
+      export PYTHON_SITE=/Library/Python/$(python-major)/site-packages
       #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
-
-     
    else
-
-      export PYTHON_NAME=Python-2.5.1
-      export PYTHON_HOME=$SYSTEM_BASE/python/$PYTHON_NAME
-      export PYTHON_SITE=$PYTHON_HOME/lib/python2.5/site-packages
+      export PYTHON_NAME=$(python-name)
+      export PYTHON_HOME=$(python-home)
+      export PYTHON_SITE=$(python-home)/lib/python$(python-major)/site-packages
       
       python-path
   

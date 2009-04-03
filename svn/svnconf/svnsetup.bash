@@ -132,6 +132,25 @@ svnsetup-authz-update(){
 }
 
 
+
+svnsetup-selinux-(){
+  cat << EOC
+sudo chcon -R -t httpd_config_t $(APACHE_MODE=source apache-confdir)
+sudo chcon -R -t httpd_sys_content_t $(python-home)/bin
+sudo chcon -R -t httpd_sys_content_t $(local-scm-fold)/repos
+EOC
+}
+
+
+svnsetup-selinux(){
+   local cmd
+   svnsetup-selinux- | while read cmd ; do 
+      echo $cmd
+      eval $cmd
+   done
+}
+
+
 svnsetup-apache(){
 
    local msg="=== $FUNCNAME :"

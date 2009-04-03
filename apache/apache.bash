@@ -40,6 +40,9 @@ apache-usage(){
       apache-name        : $(apache-name)
       apache-user        : $(apache-user)
       apache-home        : $(apache-home)
+      apache-mode        : $(apache-mode)
+              system or source
+
       apache-envvars     : $(apache-envvars)
       apache-target      : $(apache-target)
       apache-confdir     : $(apache-confdir)
@@ -92,12 +95,21 @@ apache-env(){
 
 }
 
+apache-mode(){ echo ${APACHE_MODE:-source} ; }
+
 apache-home(){
-   case $NODE_TAG in 
-     H) echo $(local-base)/apache2/$(apache-name) ;;
-    C2invenio) echo /etc/httpd ;; 
-     *) echo $(local-system-base)/apache/$(apache-name) ;;
-   esac
+   local tag=${1:-$NODE_TAG}
+   local mode=$(apache-mode)
+   if [ "$mode" == "system" ]; then
+      case $tag in 
+        *) echo /etc/httpd ;; 
+      esac
+   else
+      case $tag in 
+        H) echo $(local-base)/apache2/$(apache-name) ;;
+        *) echo $(local-system-base)/apache/$(apache-name) ;;
+      esac
+   fi
 }
 
 apache-name(){
