@@ -138,6 +138,7 @@ svnsetup-selinux-(){
 sudo chcon -R -t httpd_config_t $(APACHE_MODE=source apache-confdir)
 sudo chcon -R -t httpd_sys_content_t $(python-home)/bin
 sudo chcon -R -t httpd_sys_content_t $(local-scm-fold)/repos
+sudo chcon -R -t httpd_sys_content_t $(local-scm-fold)/tracs
 EOC
 }
 
