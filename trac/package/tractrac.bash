@@ -1,3 +1,7 @@
+tractrac-src(){    echo trac/package/tractrac.bash  ; }
+tractrac-source(){ echo ${BASH_SOURCE:-$(env-home)/$(tractrac-src)} ; }
+tractrac-vi(){     vi $(tractrac-source) ; }
+
 tractrac-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
@@ -41,6 +45,7 @@ tractrac-version2branch(){
      0.11rc1) echo tags/trac-0.11rc1 ;; 
       0.11b1) echo tags/trac-0.11b1  ;;
       0.10.4) echo tags/trac-0.10.4  ;;
+      0.11.4) echo tags/trac-0.11.4  ;;
   esac
 }
 
