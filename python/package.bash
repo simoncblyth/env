@@ -777,8 +777,9 @@ package-get(){
        
    else 
    
-      echo $msg svn checkout $url rev ${rev:-HEAD}   into $pir with basename $bnm
-      svn co $url $bnm --revision ${rev:-HEAD}
+      local urev=${rev:-HEAD}
+      echo $msg svn checkout $url rev $urev  into $pir with basename $bnm
+      svn co $url@$urev $bnm 
       [ ! -d $bnm ] && echo $msg ABORT failed to checkout ... && sleep 10000000000
       
    fi
