@@ -80,7 +80,8 @@ bitten-env(){
   
   local branch
   case $(trac-major) in 
-     0.11) branch=trunk ;;
+     0.11) branch=trac-0.11 ;;
+    # 0.11) branch=trunk ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   export BITTEN_BRANCH=$branch
