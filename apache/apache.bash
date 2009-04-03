@@ -95,7 +95,7 @@ apache-env(){
 apache-home(){
    case $NODE_TAG in 
      H) echo $(local-base)/apache2/$(apache-name) ;;
-    C2) echo /etc/httpd ;; 
+    C2invenio) echo /etc/httpd ;; 
      *) echo $(local-system-base)/apache/$(apache-name) ;;
    esac
 }
