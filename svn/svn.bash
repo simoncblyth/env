@@ -262,12 +262,15 @@ svn-authzpath(){ echo $(svn-setupdir $*)/$(svn-authzname $*) ; }
 svn-userspath(){ echo $(svn-setupdir $*)/$(svn-usersname $*) ; }
 
 
+svn-mode(){ echo ${SVN_MODE:-source} ; }
+
 svn-env(){
 
   elocal-
   apache- 
 
   [ "$NODE_APPROACH" == "stock" ] && return 0
+  [ "$(svn-mode)" == "system" ]   && return 0
 
   local ver
   case $NODE_TAG in 

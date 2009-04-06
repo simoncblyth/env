@@ -85,13 +85,22 @@ apache-again(){
 }
 
 
+
+
 apache-env(){
 
    elocal-
-   export APACHE_NAME=$(apache-name)
-   export APACHE_HOME=$(apache-home)
+
+   if [ "$(apache-mode)" == "system" ]; then
+      env-prepend /usr/sbin
+   else
+
+      export APACHE_NAME=$(apache-name)
+      export APACHE_HOME=$(apache-home)
    
-   [ -d $APACHE_HOME ] && env-prepend $APACHE_HOME/bin
+      [ -d $APACHE_HOME ] && env-prepend $APACHE_HOME/bin
+
+  fi
 
 }
 
@@ -260,8 +269,16 @@ apache-addline(){
 
 }
    
-apache-etail(){ tail -f $(apache-logdir)/error_log ; }   
-apache-atail(){ tail -f $(apache-logdir)/access_log ; }   
+apache-sudo(){
+   case $(apache-mode) in 
+     source) echo -n ;; 
+          *) echo sudo ;;
+   esac
+}
+
+
+apache-etail(){ $(apache-sudo) tail -f $(apache-logdir)/error_log ; }   
+apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }   
    
 apache-logs(){
   cd $(apache-logdir)

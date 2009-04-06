@@ -25,7 +25,7 @@ env-designated(){
   ## the below are for test servers 
   case ${1:-$NODE_TAG} in
     YY) echo YY ;;
-     *) echo C ;;
+     *) echo C2 ;;
   esac
 }
 

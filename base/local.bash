@@ -66,6 +66,14 @@ EOI
 
 }
 
+local-logpath(){
+   case ${1:-$NODE_TAG} in
+      *) echo /var/log/messages ;;
+   esac
+}
+local-tail(){ sudo tail -f $(local-logpath)  ; }
+
+
 local-env(){
 
    local dbg=${1:-0}
@@ -214,7 +222,7 @@ local-backup-tag(){
       G) echo G3 ;;
       H) echo C  ;;
       C) echo H1 C2 P ;;
-     C2) echo N  ;;
+     C2) echo H1 P ;;
       P) echo H1 C2 C ;;
      XX) echo YY SC2 ;;
      *) echo U ;;
