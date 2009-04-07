@@ -151,8 +151,29 @@ svnsetup-selinux(){
    done
 }
 
+svnsetup-sysapache(){
+
+   local msg="=== $FUNCTION : "
+   apache-
+   [ "$(apache-mode)" != "system" ] && echo $msg ABORT this is for system apache only && return 1
+
+   local base=$(apache-confd)
+   [ ! -d "$base" ] && echo $msg ABORT apache-confd $base does not exist && return 2    
+
+   svnsetup-tracs $base/tracs.conf 
+   svnsetup-repos $base/repos.conf anon-or-real repos
+   svnsetup-svn   $base/svn.conf   anon-or-real svn      ## for recovered IHEP repositories
+
+   local authz=$(svn-authzpath)
+   svnsetup-authz $(dirname $authz)/$(basename $authz)
+  
+}
 
 svnsetup-apache(){
+
+
+   apache-   
+   [ "$(apache-mode)" != "source" ] && echo $msg this is for source apache only && return 1
 
    local msg="=== $FUNCNAME :"
    local def=$(svn-setupdir)
@@ -387,7 +408,7 @@ svnsetup-repos-(){
    
 cat << EOH
 
-#
+
 #    $msg $BASH_SOURCE  $(date)
 #
 #     securitylevel:[$securitylevel] 

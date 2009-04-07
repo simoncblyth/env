@@ -336,7 +336,7 @@ scm-recover-users(){
 
   
 
-  local cmd="sudo cp $rec $cur "
+  local cmd="sudo mkdir -p $(dirname $cur) ; sudo cp $rec $cur "
   echo $cmd
   eval $cmd
   apache-chown $cur

@@ -46,6 +46,7 @@ apache-usage(){
       apache-envvars     : $(apache-envvars)
       apache-target      : $(apache-target)
       apache-confdir     : $(apache-confdir)
+      apache-confd       : $(apache-confd)
       apache-fragmentpath demo :  $(apache-fragmentpath demo)    
       apache-modulesdir  : $(apache-modulesdir)
       apache-htdocs      : $(apache-htdocs)
@@ -146,11 +147,21 @@ apache-envvars(){
   esac 
 }
 
+apache-confd(){
+   ## used by svnsetup-sysapache
+   case ${1:-$NODE_TAG} in 
+      N) echo /etc/httpd/conf.d ;;
+      *) echo /etc/httpd/conf.d ;;
+   esac
+}
+
+
 apache-user(){
    case ${1:-$NODE_TAG} in 
      G) echo www ;;
-C|C2|N) echo nobody ;;
+  C|C2) echo nobody ;;
   P|G1) echo dayabaysoft ;;
+     N) echo apache ;;
      *) echo apache ;;
    esac
 }
@@ -216,6 +227,7 @@ apache-modulesdir(){
 
 apache-logdir(){
    case $NODE_TAG in 
+      N) echo /var/log/httpd ;;
       G) echo /var/log/apache2 ;;
       H) echo $APACHE_HOME/var/apache2/log ;;
       *) echo $APACHE_HOME/logs ;;
