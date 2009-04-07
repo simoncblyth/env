@@ -29,9 +29,10 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    FresnelData fresnelData(FILENAME_THIN_TRANSMITTANCE, FILENAME_THIN_REFLECTANCE);
+    FresnelData fresnelData(FILENAME_THIN_TRANSMITTANCE, FILENAME_THIN_REFLECTANCE,
+                            FILENAME_THICK_TRANSMITTANCE, FILENAME_THICK_REFLECTANCE);
     // Initialize index of refraction, extinction coefficient, and thickness
-    fresnelData.setInitialParas(1.5,1.0e-6,THIN_THICKNESS);
+    fresnelData.setInitialParas(1.5,1.0e-6,THIN_THICKNESS, THICK_THICKNESS);
 
     /*
     for(int i=0;i<TOTALDATANO;i++) {
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
     */
 
     // Debug.
-    fresnelData.newtonMethod(WHICH_WAVELENGTH);
+    fresnelData.newtonMethodRTRTT(WHICH_WAVELENGTH);
     fresnelData.dumpSingleWavelengthNK(WHICH_WAVELENGTH);
 
     return 0;

@@ -30,6 +30,8 @@
 #define TOTALDATANO 601
 // how many loops when iterating Newton / RT / RTT' method
 #define MAXLOOP 100
+// how precise when approaching with Newton method
+#define ACCURACY 1.0e-6
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
@@ -54,22 +56,35 @@ class FresnelData {
         void dump(int dataNo);
         int dumpSingleWavelengthNK(double wavelengthValue);
         void set(double *indexOfRefraction, double *extinctionCoefficient, double thickness);
-        void setInitialParas(double indexOfRefraction, double extinctionCoefficient, double thickness);
         void get(double *indexOfRefraction, double *extinctionCoefficient, double thickness);
+
+        double evalInternalTransmittance(int dataNo);
+        double evalFrontSurfacePrimaryRelectance(int dataNo);
+        double evalCaculatedGrossTransmittance(int dataNo);
+        double evalCaculatedGrossReflectance(int dataNo);
+        void evalJacobian(int dataNo);
+        void setInitialParas(double indexOfRefraction, double extinctionCoefficient, double thinThickness, double thickThickness);
+        void setKToRetry(int dataNo, int loopNo);
+        void setNKToRetry(int dataNo, int loopNo);
         void newtonMethodRTRTT(int dataNo); // combine RT and RTT' and try different initial parameters till being successful.
         void newtonMethodOneDForK(int dataNo); // RT method
         void newtonMethodTwoDForNK(int dataNo); // RTT' method
 
     private:
-        double transmittance_[TOTALDATANO];
-        double reflectance_[TOTALDATANO];
-        double wavelengthTransmittance_[TOTALDATANO];
-        double wavelengthReflectance_[TOTALDATANO];
+        int effectiveTotalDataNo_; // how many data points were read in
+
+        double thinTransmittance_[TOTALDATANO];
+        double thinReflectance_[TOTALDATANO];
+        double thickTransmittance_[TOTALDATANO];
+        double thickReflectance_[TOTALDATANO];
         double wavelength_[TOTALDATANO];
         double indexOfRefraction_[TOTALDATANO];
         double extinctionCoefficient_[TOTALDATANO];
-        double numericalStatus_[TOTALDATANO];
-        double thickness_;
+        double thinThickness_;
+        double thickThickness_;
+
+        int numericalStatus_[TOTALDATANO];
+        double newtonParas_[6]; // Constraint of T and R, T partial n and k, R partial n and k
 
 };
 #endif
