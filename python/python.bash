@@ -88,14 +88,26 @@ python-home(){
    fi
 }
 
+python-sudo(){
+   case $(python-mode) in 
+     system) echo sudo ;;
+     source) echo -n   ;;
+          *) echo -n   ;;
+   esac
+}
+
+
 python-env(){
 
    elocal-
-   export PYTHON_MAJOR=$(python-major)
+
+   export PYTHON_SUDO=$(python-sudo)
+
    if [ "$(python-mode)" == "system" ]; then
-      export PYTHON_SITE=/Library/Python/$(python-major)/site-packages
+      export PYTHON_SITE=$(python-site)
       #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
    else
+      export PYTHON_MAJOR=$(python-major)
       export PYTHON_NAME=$(python-name)
       export PYTHON_HOME=$(python-home)
       export PYTHON_SITE=$(python-home)/lib/python$(python-major)/site-packages

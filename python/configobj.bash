@@ -1,5 +1,6 @@
 
 configobj-source(){ echo ${BASH_SOURCE:-$(env-home)/python/configobj.bash} ; }
+configobj-vi(){     vi $(configobj-source) ; }
 configobj-env(){
    elocal-
 }
@@ -21,7 +22,9 @@ EOU
 
 configobj-get(){
    python-
-   easy_install configobj 
+   local cmd="$(local-sudo) easy_install configobj "
+   echo $cmd 
+   eval $cmd
 }
 
 configobj-check(){

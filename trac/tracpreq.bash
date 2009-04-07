@@ -38,7 +38,25 @@ tracpreq-env(){
    echo -n
 }
 
+
+tracpreq-mode(){ echo ${TRACPREQ_MODE:-source} ; }
+
+
+tracpreq-sysagain(){
+   [ "$(tracpreq-mode)" != "system" ] && echo $msg ABORT this is for tracpreq-mode:system  only, maybe you want to use tracpreq-again && return 1
+
+   ezsetup-
+   ezsetup-get
+
+   configobj-          
+   configobj-get   
+
+}
+
+
 tracpreq-again(){
+
+   [ "$(tracpreq-mode)" != "source" ] && echo $msg ABORT this is for tracpreq-mode:source only, maybe you want to use tracpreq-sysagain && return 1
 
    log-
    log-init $FUNCNAME   

@@ -5,6 +5,7 @@ package-env(){
   python-
   #pkg-
   export PACKAGE_INSTALL_OPT=""
+  export PSUDO=$(python-sudo)
 }
 
 
@@ -642,7 +643,7 @@ package-develop(){
     cd $dir
     [ ! -f setup.py ] && echo "$msg no setup" && return 2 
     
-    $ASUDO python setup.py develop
+    $PSUDO python setup.py develop
    
     cd $iwd
 
@@ -829,13 +830,13 @@ package-install(){
    cd $dir
 
    if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
-      $ASUDO python setup.py develop
+      $PSUDO python setup.py develop
    else
    
    
    
    
-      $ASUDO easy_install -Z --no-deps .  
+      $PSUDO easy_install -Z --no-deps .  
    fi
    
    # Note it is possible to install direct from a URL ... but 

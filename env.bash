@@ -45,6 +45,7 @@ env-url(){         echo $(env-localserver $1)/repos/env/trunk ; }
 env-wikiurl(){     echo $(env-localserver $1)/tracs/env/wiki ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
+ezsetup-(){     . $(env-home)/python/ezsetup.bash && ezsetup-env $* ; }
 mysql-(){       . $(env-home)/mysql/mysql.bash    && mysql-env $* ; }
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
 phpbb-(){       . $(env-home)/phpbb/phpbb.bash    && phpbb-env $* ; }
