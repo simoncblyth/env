@@ -71,8 +71,8 @@ local-logpath(){
       *) echo /var/log/messages ;;
    esac
 }
-local-tail(){ sudo tail -f $(local-logpath)  ; }
-
+local-tail(){   sudo tail -f $(local-logpath)  ; }
+local-atail(){  sudo tail -f  /var/log/audit/audit.log ; }
 
 local-env(){
 
