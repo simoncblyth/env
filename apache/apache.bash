@@ -290,7 +290,9 @@ apache-sudo(){
 
 
 apache-etail(){ $(apache-sudo) tail -f $(apache-logdir)/error_log ; }   
+apache-evi(){   $(apache-sudo) vi $(apache-logdir)/error_log ; }   
 apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }   
+apache-avi(){   $(apache-sudo) vi $(apache-logdir)/access_log ; }   
    
 apache-logs(){
   cd $(apache-logdir)

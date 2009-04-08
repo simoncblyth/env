@@ -336,6 +336,7 @@ trac-iheplog(){
 
 trac-tail(){ tail -n 50 -f $(trac-logpath $*) ; }
 trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
+trac-lvi(){  vi $(trac-logpath $*) ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
 trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
