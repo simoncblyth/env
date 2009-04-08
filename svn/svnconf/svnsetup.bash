@@ -160,7 +160,7 @@ svnsetup-sysapache(){
 
    local msg="=== $FUNCTION : "
    apache-
-   [ "$(apache-mode)" != "system" ] && echo $msg ABORT this is for system apache only && return 1
+   [ "$(apache-mode)" != "system" ] && echo $msg ABORT this is for system apache only ... perhaps you should use svnsetup-apache && return 1
 
    local base=$(apache-confd)
    [ ! -d "$base" ] && echo $msg ABORT apache-confd $base does not exist && return 2    
@@ -177,10 +177,10 @@ svnsetup-sysapache(){
 svnsetup-apache(){
 
 
-   apache-   
-   [ "$(apache-mode)" != "source" ] && echo $msg this is for source apache only && return 1
-
    local msg="=== $FUNCNAME :"
+   apache-   
+   [ "$(apache-mode)" != "source" ] && echo $msg ABORT this is for source apache only ... perhaps you should use svnsetup-sysapache && return 1
+
    local def=$(svn-setupdir)
    local base=${1:-$def}
    
@@ -330,7 +330,6 @@ cat << EOC
 <Location /mpinfo>
    SetHandler mod_python
    PythonHandler mod_python.testhandler
-   AllowOverride None
    Order Deny,Allow
    #  all local requests come in on 10.0.1.1 so cannot distinguish
    #Allow from 10.0.1.103
