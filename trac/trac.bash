@@ -598,7 +598,10 @@ trac-configure-instance(){
 
   [ -z "$name" ] && echo $msg the name of the instance is required && return 1
   [ ! -d "$(trac-envpath $name)" ] && echo $msg ABORT no such trac environment $(trac-envpath $name) && return 1
-  
+ 
+  local inherit=$(trac-inheritpath)
+  [ ! -f "$inherit" ] && echo $msg ABORT ... sleeping ... there is no trac-inheritpath : $inherit ... do trac-inherit-setup elsewhere then ctrl-C out of the sleep to continue && sleep 100000000
+ 
   trac-comment $name "tracrpc.* = enabled"
   trac-comment $name "default_handler = TagsWikiModule"
   trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"

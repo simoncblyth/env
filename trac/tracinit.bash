@@ -1,4 +1,5 @@
 tracinit-source(){ echo $BASH_SOURCE ; }
+tracinit-vi(){  vi $(tracinit-source) ; }
 tracinit-usage(){
   cat << EOU
   
