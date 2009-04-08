@@ -131,6 +131,26 @@ svnsetup-authz-update(){
 
 }
 
+
+svnsetup-selinux-persist-(){
+	cat << EOC
+
+	sudo /sbin/restorecon -F -r -n -vv $(local-scm-fold)      ## dry run
+	sudo /sbin/restorecon -F -r    -vv $(local-scm-fold)      ## standardize labels
+
+        sudo /usr/sbin/semanage fcontext -a -t httpd_sys_content_t "$(local-scm-fold)/repos(/.*)?"       ## change the standard labels
+        sudo /usr/sbin/semanage fcontext -a -t httpd_sys_content_t "$(local-scm-fold)/tracs(/.*)?" 
+        sudo /usr/sbin/semanage fcontext -a -t httpd_sys_content_t "$(local-scm-fold)/svn(/.*)?" 
+        sudo /usr/sbin/semanage fcontext -a -t httpd_sys_content_t "$(local-scm-fold)/conf(/.*)?" 
+
+        sudo /sbin/restorecon -F -r -n -vv $(local-scm-fold)      ## dry run ... see what labels are going to change 
+	sudo /sbin/restorecon -F -r    -vv $(local-scm-fold)      ## apply the change in standardization 
+
+
+EOC
+}
+
+
 svnsetup-selinux-(){
   cat << EOC
 sudo chcon -R -t httpd_sys_content_t $(local-scm-fold)/repos
@@ -147,6 +167,13 @@ EOC
 
 }
 
+svnsetup-selinux-persist(){
+   local cmd
+   svnsetup-selinux-persist- | while read cmd ; do
+      echo $cmd
+      eval $cmd
+   done
+}
 
 svnsetup-selinux(){
    local cmd
