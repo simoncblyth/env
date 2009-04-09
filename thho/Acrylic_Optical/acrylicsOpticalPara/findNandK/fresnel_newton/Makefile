@@ -3,9 +3,8 @@ CC   = gcc
 OBJ  = main.o findNKNewton.o
 LINKOBJ  = main.o findNKNewton.o
 LIBS =
-INCS =
 BIN  = findNKNewton
-CFLAGS = $(INCS)
+CFLAGS = -g
 RM = rm -f
 
 #-----------------------------------------

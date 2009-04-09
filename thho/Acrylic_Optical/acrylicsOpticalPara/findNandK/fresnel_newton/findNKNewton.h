@@ -31,7 +31,10 @@
 // how many loops when iterating Newton / RT / RTT' method
 #define MAXLOOP 100
 // how precise when approaching with Newton method
-#define ACCURACY 1.0e-6
+#define ACCURACY 1.0e-5
+// small amount to access differentiation
+#define DELTA 1.0e-15
+#define DELTAEC 1.0e-20
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
@@ -50,25 +53,40 @@ class FresnelData {
     public:
         FresnelData();
         ~FresnelData();
-        FresnelData(string transmittanceFilename, string reflectanceFilename);
+        FresnelData(string thinTransmittanceFilename, string thinReflectanceFilename,
+                    string thickTransmittanceFilename, string thickReflectanceFilename);
         void resetAllPrivate();
-        int loadFromFile(string transmittanceFilename, string reflectanceFilename);
+        int loadFromFile(   string thinTransmittanceFilename, string thinReflectanceFilename,
+                            string thickTransmittanceFilename, string thickReflectanceFilename);
         void dump(int dataNo);
         int dumpSingleWavelengthNK(double wavelengthValue);
-        void set(double *indexOfRefraction, double *extinctionCoefficient, double thickness);
-        void get(double *indexOfRefraction, double *extinctionCoefficient, double thickness);
+        void set(double *indexOfRefraction, double *extinctionCoefficient);
+        void get(double *indexOfRefraction, double *extinctionCoefficient);
 
         double evalInternalTransmittance(int dataNo);
         double evalFrontSurfacePrimaryRelectance(int dataNo);
         double evalCaculatedGrossTransmittance(int dataNo);
         double evalCaculatedGrossReflectance(int dataNo);
+        double evalTransmittanceConstrain(int dataNo);
+        double evalReflectanceConstrain(int dataNo);
         void evalJacobian(int dataNo);
         void setInitialParas(double indexOfRefraction, double extinctionCoefficient, double thinThickness, double thickThickness);
         void setKToRetry(int dataNo, int loopNo);
         void setNKToRetry(int dataNo, int loopNo);
+        int setNewtonParas(int dataNo, int thickFlag);
         void newtonMethodRTRTT(int dataNo); // combine RT and RTT' and try different initial parameters till being successful.
+        int newtonMethodRTRTTSingleWavelength(double wavelengthValue);
         void newtonMethodOneDForK(int dataNo); // RT method
         void newtonMethodTwoDForNK(int dataNo); // RTT' method
+
+        // Debug.
+        void setECToAlpha(int dataNo);
+        void setAlphaToEC(int dataNo);
+        // Unit Test
+        void setNewtonParasForTwoDUnitTest(int dataNo);
+        double evalUnitTestFormulaOne(int dataNo);
+        double evalUnitTestFormulaTwo(int dataNo);
+        void dumpUnitTest(int dataNo);
 
     private:
         int effectiveTotalDataNo_; // how many data points were read in
@@ -80,8 +98,12 @@ class FresnelData {
         double wavelength_[TOTALDATANO];
         double indexOfRefraction_[TOTALDATANO];
         double extinctionCoefficient_[TOTALDATANO];
+        double transmittance_[TOTALDATANO];
+        double reflectance_[TOTALDATANO];
+        double thickness_;
         double thinThickness_;
         double thickThickness_;
+        double thinThickFlag_; // 0 for thin sample and 1 for thick sample
 
         int numericalStatus_[TOTALDATANO];
         double newtonParas_[6]; // Constraint of T and R, T partial n and k, R partial n and k
