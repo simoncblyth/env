@@ -29,15 +29,18 @@ env-designated(){
   esac
 }
 
+
+env-ihep(){  echo http://$1.ihep.ac.cn ; }
+env-ntu(){   echo http://$1.phys.ntu.edu.tw ; }
+
 env-localserver(){ 
   case ${1:-$(env-designated)} in 
      G) echo http://localhost ;;
-     P) echo http://grid1.phys.ntu.edu.tw:8080 ;;
-     C) echo http://dayabay.phys.ntu.edu.tw ;;
-  #  C) echo http://cms01.phys.ntu.edu.tw ;;
-    C2) echo http://cms02.phys.ntu.edu.tw ;;
-    XX) echo http://dayabay.ihep.ac.cn ;;
-    YY) echo http://dyb1.ihep.ac.cn ;;
+     P) echo $(env-ntu grid1):8080 ;;
+     C) echo $(env-ntu cms01) ;;
+    C2) echo $(env-ntu dayabay) ;;
+    XX) echo $(env-ihep dayabay) ;;
+    YY) echo $(env-ihep dyb1) ;;
   esac  
 }
 
