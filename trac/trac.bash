@@ -190,6 +190,7 @@ tractrac-(){          . $ENV_HOME/trac/package/tractrac.bash  && tractrac-env $*
 genshi-(){            . $ENV_HOME/trac/package/genshi.bash    && genshi-env   $* ; }
 trac2mediawiki-(){    . $ENV_HOME/trac/package/trac2mediawiki.bash    && trac2mediawiki-env   $* ; }
 trac2latex-(){        . $ENV_HOME/trac/package/trac2latex.bash    && trac2latex-env   $* ; }
+fullblog-(){          . $ENV_HOME/trac/package/fullblog.bash    && fullblog-env   $* ; }
 
 
 silvercity-(){        . $ENV_HOME/trac/package/silvercity.bash && silvercity-env   $* ; }

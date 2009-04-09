@@ -72,7 +72,7 @@ class IniEdit:
     def __call__(self, triplet ):
         r = self.tripat.match(triplet)
         if r == None:
-            print "ERROR skipping triplet %s as failed to match pattern " % triplet 
+            print "env/base/ini.py::IniEdit ERROR skipping triplet %s as failed to match pattern " % triplet 
         else:
             blk = r.group('blk')
             key = r.group('key')

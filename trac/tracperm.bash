@@ -1,5 +1,6 @@
 
 tracperm-source(){ echo $BASH_SOURCE ; }
+tracperm-vi(){     vi $(tracperm-source) ; }
 tracperm-usage(){
 
   cat << EOU
@@ -82,15 +83,19 @@ tracperm-prepare(){
 
     echo $msg setting perms for TRAC_INSTANCE:[$TRAC_INSTANCE] to level:[$level] SUDO:[$SUDO]
 
-	local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
+    local views="WIKI_VIEW TICKET_VIEW BROWSER_VIEW LOG_VIEW FILE_VIEW CHANGESET_VIEW MILESTONE_VIEW ROADMAP_VIEW REPORT_VIEW"	 
     local other="TIMELINE_VIEW SEARCH_VIEW"
 	
-	local hmmm="CONFIG_VIEW"
+    local hmmm="CONFIG_VIEW"
     local wiki="WIKI_CREATE WIKI_MODIFY"
-	local ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
+    local ticket="TICKET_CREATE TICKET_APPEND TICKET_CHGPROP TICKET_MODIFY"
     local milestone="MILESTONE_CREATE MILESTONE_MODIFY"
     local report="REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
-  
+    local fullblog=""
+    case $NODE_TAG in 
+      N)  fullblog="BLOG_VIEW BLOG_CREATE BLOG_MODIFY_OWN" ;;
+    esac
+
     ## remove WIKI_DELETE MILESTONE_DELETE REPORT_DELETE ... leave those to admin only
     ## allow unauth to REPORT_VIEW 
  
@@ -98,19 +103,19 @@ tracperm-prepare(){
     if [ "$level" == "loose" ]; then
  
       tracperm-set anonymous     "$views $other" 
-	  tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+      tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report $fullblog"
       
     elif [ "$level" == "tight" ]; then
     
       # anonymous user can only WIKI_VIEW ... but make sure they can they login ?
 	
       tracperm-set anonymous     "WIKI_VIEW"
-      tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+      tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report $fullblog "
   
     elif [ "$level" == "paranoid" ]; then	  
 		      
-	  tracperm-set anonymous     "WIKI_VIEW"
-      tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report"
+      tracperm-set anonymous     "WIKI_VIEW"
+      tracperm-set authenticated "$views $other $hmmm $wiki $ticket $milestone $report $fullblog "
 		
     else
         echo "ERROR security level $level is not implemented "
