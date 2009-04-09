@@ -135,6 +135,7 @@ void main(TString tfile, TString rfile,
     //if(CheckDataFormate(tdataContainer,rdataContainer,thtdataContainer,thrdataContainer)==0) {
     if(2>1){
         for(Int_t i=0;i<ANANO;i++){
+            cout << "The " << i << " th data" << endl;
             // avoid to deal with the data which is smaller than machine precision
             if(tdataContainer[i] < 0.0011 || thtdataContainer[i] < 0.0011) {
                 resultstatus[i] =0;
@@ -242,6 +243,26 @@ void CopyArray(Double_t a[], Double_t b[], Int_t size) {
 
 
 // successive approach
+Int_t reSucApp(Double_t n, Double_t alpha, Double_t lambda,
+            Double_t thin, Double_t thinTm, Double_t thinRm,
+            Double_t thick, Double_t thickTm, Double_t thickRm,
+            Double_t &resultn, Double_t &resultk, Double_t &resultatt, Int_t &resultstatus) {
+
+    Int_t maxLoop = g_MAXLOOP*2;
+    Int_t oddEven(0);
+    do
+    {
+    SucApp(n, alpha, lambda,
+            thin, thinTm, thinRm,
+            thick, thickTm, thickRm,
+            resultn, resultk, resultatt, resultstatus);
+    if(oddEven%2 ==0) { n += n*0.01; } else { alpha += alpha*0.01;}
+    } while(resultstatus!=1 && --maxLoop);
+
+    if(resultstatus==1) {return 0;} else {return -1;}
+
+}
+
 Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             Double_t thin, Double_t thinTm, Double_t thinRm,
             Double_t thick, Double_t thickTm, Double_t thickRm,
@@ -257,7 +278,7 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
     Double_t thinalpha(0);
     Double_t thickalpha(0);
 
-    cout << lambda;
+    //cout << lambda;
     // unit staff -- units should unite.
     lambda = lambda*1.0e-6; // unit: nm->mm
     alpha = alpha*0.1; // unit: cm-1 -> mm-1
@@ -311,16 +332,15 @@ Int_t SucApp(Double_t n, Double_t alpha, Double_t lambda,
             //nac.alpha = (4.*PI*1.0e-8)/lambda;
             nac.alpha = 1.;
             resultstatus = 0;
-            cout << " N/A       N/A     N/A     " << g_MAXLOOP - maxLoop + 1 << "\tFAILED!!!!!!! :(" << endl;
+            //cout << " N/A       N/A     N/A     " << g_MAXLOOP - maxLoop + 1 << "\tFAILED!!!!!!! :(" << endl;
         }
     } else {
         cout << " " << resultn << "  " << resultk << "  " << resultatt << "   " << g_MAXLOOP - maxLoop + 1;
-
         if(maxLoop){        
-            cout << "\tSUCCESSESSFUL :)" << endl;
+            //cout << "\tSUCCESSESSFUL :)" << endl;
             resultstatus = 1;
         } else {
-            cout << "\tFAILED!!!!!!! :(" << endl;
+            //cout << "\tFAILED!!!!!!! :(" << endl;
             resultstatus = 0;
         }
     }
@@ -411,7 +431,7 @@ Int_t RunNewtonOneD(Double_t &n, Double_t &k, Int_t maxLoop,
         if(Tmk==0 || k>1e20) {
             break; } else {
             dk = - Tmf/Tmk;
-            if(lambda==277) cout << Tmk;
+            if(lambda==277) ;//cout << Tmk;
         }
         k = k + dk; 
         //cout<<setw(3)<<i<<setw(12)<<n<<setw(12)<<k<<setw(12)<<setw(12) 
@@ -444,7 +464,7 @@ Int_t RunNewtonTwoD(Double_t &n, Double_t &k, Int_t maxLoop,
         //    <<Tmf<<setw(12)<<Rmf<<setw(12)<<dn<<setw(12)<<dk<<endl;
         }
     while((fabs(dn) > accuracy || fabs(dk) > accuracy) && (--maxLoop));
-    cout << newn << " " << newk << "YAYAYA" << endl;
+    //cout << newn << " " << newk << "YAYAYA" << endl;
     // return the maxLoop as the flag to express finding
     // a root successfully
     return maxLoop;
@@ -470,11 +490,12 @@ Double_t RPartialn(Double_t n, Double_t k, Double_t d, Double_t lambda,
 
 }
 
+// Bug!!!
 Double_t RPartialk(Double_t n, Double_t k, Double_t d, Double_t lambda,
                 Double_t Tmc, Double_t Rm) {
 
-    Double_t y = (RFunc(n+DELTA/2,k,d,lambda,Tmc,Rm)
-                -RFunc(n-DELTA/2,k,d,lambda,Tmc,Rm))/DELTA;
+    Double_t y = (RFunc(n,k+DELTA/2,d,lambda,Tmc,Rm)
+                -RFunc(n,k-DELTA/2,d,lambda,Tmc,Rm))/DELTA;
 
     return y;
 }
@@ -528,7 +549,9 @@ void GetCoupledJacobianFunc(Double_t &n,Double_t &k,
             Double_t &newk, Double_t &dn, Double_t &dk) {
 
     del = Tmn*Rmk - Tmk*Rmn;
-    dn = (Tmk*Rmf - Tmn*Rmf)/del;
+    if(del==0) del = g_ACCURACY;
+    dn = (Tmk*Rmf - Tmf*Rmk)/del;
+    // need Confirm... Debug.
     dk = (Tmf*Rmn - Tmn*Rmf)/del;
     newn = n + dn;
     newk = k + dk;
@@ -631,23 +654,26 @@ void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t 
 
     TCanvas *c1 = new TCanvas(
         "c1","Acrylic Optical Parameters",200,10,700,900);
-    title = new TPaveText(.2,0.96,.8,.995);
-    title->AddText("Optical Parameters");
-    title->Draw();
-
+//    title = new TPaveText(.2,0.96,.8,.995);
+//    title->AddText("Optical Parameters");
+//    title->Draw();
+    c1->Divide(2,2);
+/*
     pad1 = new TPad("pad1","Index of Refration",0.03,0.50,0.98,0.95,21);
     pad2 = new TPad("pad2","Extinction Coeffition",0.03,0.02,0.98,0.48,21);
     pad3 = new TPad("pad3","Attenuation Length",0.03,0.50,0.98,0.95,21);
     pad1->Draw();
     pad2->Draw();
     pad3->Draw();
-
+*/
     //for(Int_t i=0;i<ANANO;i++) {
     //    cout << i << "\t" << n[i] << "\t" << k[i] << endl;
     //}
 
+
+    c1->cd(1);
     grn = new TGraph(size, wl, n);
-    pad1->cd();
+//    pad1->cd();
     //grn->SetLineColor(2);
     //grn->SetLineWidth(4);
     //grn->SetMarkerColor(4);
@@ -657,8 +683,9 @@ void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t 
     grn->GetYaxis()->SetTitle("n");
     grn->Draw("A*");
 
+    c1->cd(2);
     grk = new TGraph(size, wl, k);
-    pad2->cd();
+//    pad2->cd();
     //grk->SetLineColor(2);
     //grk->SetLineWidth(4);
     //grk->SetMarkerColor(4);
@@ -668,8 +695,9 @@ void Histonandk(Int_t size, Double_t wl[], Double_t n[], Double_t k[], Double_t 
     grk->GetYaxis()->SetTitle("k");
     grk->Draw("A*");
 
+    c1->cd(3);
     gratt = new TGraph(size, wl, att);
-    pad3->cd();
+//    pad3->cd();
     //gratt->SetLineColor(2);
     //gratt->SetLineWidth(4);
     //gratt->SetMarkerColor(4);
