@@ -6,9 +6,32 @@ bitextra-usage(){
  
     Switch on the extras ... annotation and test summarizer with :
        SUDO=sudo bitextra-prepare
-   
 
-   
+
+
+ 
+    If you find the test result table links from eg 
+        http://belle7.nuu.edu.tw/tracs/env/build/demo/18 
+
+    are of the original form :
+        http://belle7.nuu.edu.tw/tracs/env/browser/trunk/unittest/demo/package/module_test.py
+
+    rather than :
+        http://belle7.nuu.edu.tw/tracs/env/browser/trunk/unittest/demo/package/module_test.py?annotate=bit&rev=1025 
+
+    
+    Then you are missing some trac config switching of the TestResultsSummarizer to be smth like :
+
+[components]
+bitten.* = enabled
+bitten.report.testing.TestResultsSummarizer = disabled
+bitextra.* = enabled
+
+
+    Also see $(env-wikiurl)/Belle7TracFromScratch 
+
+
+ 
 EOU
 
 }
