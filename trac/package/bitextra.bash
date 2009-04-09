@@ -1,4 +1,5 @@
-
+bitextra-source(){ echo $BASH_SOURCE ; }
+bitextra-vi(){     vi $(bitextra-source) ; }
 bitextra-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
@@ -22,7 +23,7 @@ bitextra-url(){
    trac-
    echo $(trac-localserver)/repos/tracdev/annobit/$(bitextra-branch) 
 }
-bitextra-revision(){ echo 92 ; }
+bitextra-revision(){ echo 111 ; }
 
 
 bitextra-fix(){
