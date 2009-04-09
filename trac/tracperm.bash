@@ -93,7 +93,7 @@ tracperm-prepare(){
     local report="REPORT_SQL_VIEW REPORT_CREATE REPORT_MODIFY"
     local fullblog=""
     case $NODE_TAG in 
-      N)  fullblog="BLOG_VIEW BLOG_CREATE BLOG_MODIFY_OWN" ;;
+      N)  fullblog="BLOG_VIEW BLOG_CREATE BLOG_MODIFY_OWN BLOG_COMMENT" ;;
     esac
 
     ## remove WIKI_DELETE MILESTONE_DELETE REPORT_DELETE ... leave those to admin only
