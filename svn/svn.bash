@@ -304,7 +304,50 @@ svn-hotbackuppath(){
   esac
 }
 
+svn-dumpload-incremental(){
+   case ${1:0:1} in
+      0) echo -n ;;
+      *) echo --incremental ;;
+   esac 
+}
 
+
+svn-dumpload(){
+
+   local msg="=== $FUNCNAME :"
+   local repo=svn/dybsvn
+   local rngs="0:1000 1001:2000 2001:3000 3001:4000 4001:5000 5001:5902 5904:5934"
+
+   local iwd=$PWD 
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+   cat << EOC
+       mkdir -p $tmp
+       cd $tmp 
+EOC
+
+   local rng
+   local inc
+   for rng in $rngs ; do
+       cat << EOC
+       echo $msg \$(date)  dumping $rng
+       svnadmin dump `local-scm-fold`/$repo --revision $rng $(svn-dumpload-incremental $rng) > $rng.txt
+EOC
+   done 
+   cat << EOC
+       mkdir -p $(dirname $tmp/$repo)
+       svnadmin create $tmp/$repo
+EOC
+
+   for rng in $rngs ; do 
+       cat << EOC
+       echo $msg \$(date)  loading $rng
+       svnadmin load $tmp/$repo < $rng.txt
+EOC
+   done
+   #cd $iwd
+  
+
+}
 
 
 svn-path(){
