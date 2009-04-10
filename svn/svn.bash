@@ -312,11 +312,14 @@ svn-dumpload-incremental(){
 }
 
 
+svn-dumpload-rngs(){ 
+  echo "0:1000 1001:2000 2001:3000 3001:4000 4001:5000 5001:5902 5904:5934"
+}
+
 svn-dumpload(){
 
    local msg="=== $FUNCNAME :"
    local repo=svn/dybsvn
-   local rngs="0:1000 1001:2000 2001:3000 3001:4000 4001:5000 5001:5902 5904:5934"
 
    local iwd=$PWD 
    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
@@ -327,7 +330,7 @@ EOC
 
    local rng
    local inc
-   for rng in $rngs ; do
+   for rng in $(svn-dumpload-rngs) ; do
        cat << EOC
        echo $msg \$(date)  dumping $rng
        svnadmin dump `local-scm-fold`/$repo --revision $rng $(svn-dumpload-incremental $rng) > $rng.txt
@@ -338,7 +341,7 @@ EOC
        svnadmin create $tmp/$repo
 EOC
 
-   for rng in $rngs ; do 
+   for rng in $(svn-dumpload-rngs) ; do 
        cat << EOC
        echo $msg \$(date)  loading $rng
        svnadmin load $tmp/$repo < $rng.txt
@@ -348,6 +351,35 @@ EOC
   
 
 }
+
+
+svn-pdumpload(){
+
+   local msg="=== $FUNCNAME :"
+   local repo=svn/dybsvn
+
+   local iwd=$PWD 
+   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+
+   cat << EOC
+       mkdir -p $(dirname $tmp/$repo)
+       svnadmin create $tmp/$repo
+EOC
+
+   local rng
+   for rng in $(svn-dumpload-rngs) ; do
+       cat << EOC
+       echo $msg \$(date)  dumping and loading $rng
+       svnadmin dump `local-scm-fold`/$repo --revision $rng $(svn-dumpload-incremental $rng) | svnadmin load $tmp/$repo
+EOC
+   done 
+
+   #cd $iwd
+  
+}
+
+
+
 
 
 svn-path(){
