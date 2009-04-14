@@ -7,7 +7,7 @@
 \****************************************************************************/
 
 // Input a wavelength value (nm) to find the numerical solution
-#define WHICH_WAVELENGTH 405.0
+#define WHICH_WAVELENGTH 800.0
 // Input the thickness of the thiner sample (mm)
 #define THIN_THICKNESS 10.14
 // Input filename of transmittance of a thin sample
@@ -33,8 +33,8 @@ int main(int argc, char *argv[]) {
     FresnelData fresnelData(FILENAME_THIN_TRANSMITTANCE, FILENAME_THIN_REFLECTANCE,
                             FILENAME_THICK_TRANSMITTANCE, FILENAME_THICK_REFLECTANCE);
     // Initialize index of refraction, extinction coefficient, and thickness
+    //fresnelData.setInitialParas(1.505,0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI),THIN_THICKNESS, THICK_THICKNESS);
     fresnelData.setInitialParas(1.505,0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI),THIN_THICKNESS, THICK_THICKNESS);
-    //fresnelData.setInitialParas(1.505,0.009,THIN_THICKNESS, THICK_THICKNESS);
     cout << "initial alpha is " << 0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI) << endl;
 
     /*

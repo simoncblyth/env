@@ -31,10 +31,10 @@
 // how many loops when iterating Newton / RT / RTT' method
 #define MAXLOOP 100
 // how precise when approaching with Newton method
-#define ACCURACY 1.0e-5
+#define ACCURACY 1.0e-6
 // small amount to access differentiation
-#define DELTA 1.0e-15
-#define DELTAEC 1.0e-20
+#define DELTA 1.0e-9
+#define DELTAEC 1.0e-15
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
@@ -73,7 +73,7 @@ class FresnelData {
         void setInitialParas(double indexOfRefraction, double extinctionCoefficient, double thinThickness, double thickThickness);
         void setKToRetry(int dataNo, int loopNo);
         void setNKToRetry(int dataNo, int loopNo);
-        int setNewtonParas(int dataNo, int thickFlag);
+        int setNewtonParas(int dataNo, int thickFlag, int methodDimensionFlag);
         void newtonMethodRTRTT(int dataNo); // combine RT and RTT' and try different initial parameters till being successful.
         int newtonMethodRTRTTSingleWavelength(double wavelengthValue);
         void newtonMethodOneDForK(int dataNo); // RT method
@@ -83,10 +83,15 @@ class FresnelData {
         void setECToAlpha(int dataNo);
         void setAlphaToEC(int dataNo);
         // Unit Test
+        // 1D unit test
+        void setNewtonParasForOneDUnitTest(int dataNo);
+        double evalOneDUnitTestFormula(int dataNo);
+        void dumpOneDUnitTest(int dataNo);
+        // 2D unit test
         void setNewtonParasForTwoDUnitTest(int dataNo);
-        double evalUnitTestFormulaOne(int dataNo);
-        double evalUnitTestFormulaTwo(int dataNo);
-        void dumpUnitTest(int dataNo);
+        double evalTwoDUnitTestFormulaOne(int dataNo);
+        double evalTwoDUnitTestFormulaTwo(int dataNo);
+        void dumpTwoDUnitTest(int dataNo);
 
     private:
         int effectiveTotalDataNo_; // how many data points were read in
