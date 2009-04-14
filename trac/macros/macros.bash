@@ -1,4 +1,4 @@
-
+tmacros-vi(){   vi $BASH_SOURCE ; }
 tmacros-usage(){
 
 cat << EOU
@@ -8,9 +8,14 @@ cat << EOU
      TRAC_MACROS_DIR : $TRAC_MACROS_DIR
      APACHE2_USER    : $APACHE2_USER
 
-     macros-place  <name>    :   
+     tmacros-place  <name>    :   
           propagate all updated wiki macros from \$TRAC_MACROS_DIR into the plugins 
           folder of the named tracitory
+
+
+
+    
+
 
 
 EOU
@@ -27,6 +32,11 @@ tmacros-env(){
   elocal-
 }
 
+
+tmacros-getlegendbox(){
+  curl -o $TRAC_MACROS_DIR/LegendBox.py -L http://trac.edgewall.org/raw-attachment/wiki/ProcessorBazaar/LegendBox-0.10.py
+
+}
 
 tmacros-status(){
 
@@ -67,6 +77,7 @@ tmacros-place(){
        esac  
        
        if [ "$copy" == "1" ]; then
+          trac-
           local cmd="sudo cp $py $plugins/$py ; sudo chown $(trac-user) $plugins/$py "
           echo $cmd
           eval $cmd

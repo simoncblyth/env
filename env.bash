@@ -111,7 +111,7 @@ _annobit-(){    . $(env-home)/annobit/annobit.bash  && _annobit-env $* ; }
 
 trac-(){        . $(env-home)/trac/trac.bash && trac-env $* ; } 
 tracpreq-(){    . $(env-home)/trac/tracpreq.bash && tracpreq-env $* ; } 
-tmacros-(){     . $(env-home)/trac/macros/macros.bash  && macros-env $* ; }
+tmacros-(){     . $(env-home)/trac/macros/macros.bash  && tmacros-env $* ; }
 
 package-(){     . $(env-home)/python/package.bash      && package-env $* ; } 
 pkg-(){         . $(env-home)/python/pkg.bash          && pkg-env $* ; }
