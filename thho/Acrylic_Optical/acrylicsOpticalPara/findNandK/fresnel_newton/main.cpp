@@ -37,16 +37,18 @@ int main(int argc, char *argv[]) {
     fresnelData.setInitialParas(1.505,0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI),THIN_THICKNESS, THICK_THICKNESS);
     cout << "initial alpha is " << 0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI) << endl;
 
-    /*
-    for(int i=0;i<TOTALDATANO;i++) {
-        fresnelData.newtonMethod(i);
+    // Debug.
+    for(int i=0;i<20;i++) {
+    
+    //for(int i=0;i<TOTALDATANO;i++) {
+        fresnelData.newtonMethodRTRTT(i);
         fresnelData.dump(i);
     }
-    */
+    
 
     // Debug.
-    fresnelData.newtonMethodRTRTTSingleWavelength(WHICH_WAVELENGTH*1.0e-6);
-    fresnelData.dumpSingleWavelengthNK(WHICH_WAVELENGTH*1.0e-6);
+    //fresnelData.newtonMethodRTRTTSingleWavelength(WHICH_WAVELENGTH*1.0e-6);
+    //fresnelData.dumpSingleWavelengthNK(WHICH_WAVELENGTH*1.0e-6);
 
     return 0;
 
