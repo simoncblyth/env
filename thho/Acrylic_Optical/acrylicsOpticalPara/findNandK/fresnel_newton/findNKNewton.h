@@ -38,8 +38,8 @@
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
-#define MINEC 0.0
-#define MAXEC 1.0e-6
+#define MINEC 1.0e-8
+#define MAXEC 1.0e-4
 
 
 #define NK_SUCCESS 0
@@ -81,6 +81,7 @@ class FresnelData {
         void newtonMethodTwoDForNK(int dataNo); // RTT' method
 
         int validateValue(int dataNo);
+        int validateNumericalRange(int dataNo);
 
         // Debug.
         void setECToAlpha(int dataNo);

@@ -111,6 +111,14 @@ int FresnelData::loadFromFile(  string thinTransmittanceFilename, string thinRef
     finThickTransmittance.close();
     finThickReflectance.close();
 
+
+    // Debug
+    // and try the 8 degrees reflection incident angle deviation
+    //for(int i=0;i<0;i++) {
+    //    thinReflectance_[i] = thinReflectance_[i] - 0.01;
+    //    thickReflectance_[i] = thickReflectance_[i] - 0.01;
+    //}
+
     return NK_SUCCESS;
 
 }
@@ -122,9 +130,9 @@ void FresnelData::dump(int dataNo) {
         << "\t" << extinctionCoefficient_[dataNo]
         << "\tSUCCESS!!" << endl;
     } else if(numericalStatus_[dataNo] == 1) {
-        cout << 1000000.0*wavelength_[dataNo] << "N/A\t\tN/A\tFAILED!!" << endl;
+        cout << 1000000.0*wavelength_[dataNo] << "\tN/A\tN/A\tFAILED!!" << endl;
     } else {
-        cout << 1000000.0*wavelength_[dataNo] << "N/A\t\tN/A\tERROR/UNKNOWN" << endl;
+        cout << 1000000.0*wavelength_[dataNo] << "\tN/A\tN/A\tERROR/UNKNOWN" << endl;
     }
 
 
@@ -272,21 +280,25 @@ double FresnelData::evalCaculatedGrossReflectance(int dataNo) {
 
 void FresnelData::newtonMethodRTRTT(int dataNo) {
 
-    //cout << "Starting Newton method..." << endl << endl;
+    //cout << "Starting Newton method..." ;
 
     int maxLoop = MAXLOOP;
     do
     {
+        //cout << "Loop..." << maxLoop << " ";
         if(maxLoop != MAXLOOP) setNKToRetry(dataNo, maxLoop);
         newtonMethodTwoDForNK(dataNo);
+        //if(maxLoop%MAXLOOP == 0) cout << "RT...";
         if(numericalStatus_[dataNo] == NK_SUCCESS) {
             //cout << "RT is successful, try now RTT'"<< endl;
             newtonMethodOneDForK(dataNo);
+            //if(maxLoop%MAXLOOP == 0) cout << "RTT..." ;
             int maxLoopTmp = MAXLOOP;
-            while(numericalStatus_[dataNo]!=0 && (--maxLoopTmp))
+            while(numericalStatus_[dataNo]!=0 && (maxLoopTmp--))
             {
                 setKToRetry(dataNo, maxLoopTmp);
                 newtonMethodOneDForK(dataNo);
+                //if(maxLoopTmp%MAXLOOP == 0) cout << "Retry RTT...";
             }
         } else {
             numericalStatus_[dataNo] = NK_ERROR;
@@ -294,7 +306,7 @@ void FresnelData::newtonMethodRTRTT(int dataNo) {
     }
     while(numericalStatus_[dataNo]!=0 && (--maxLoop));
 
-    //cout << "Newton method finish..." << endl;
+    //cout << "Newton method finish!!!" << endl;
 
 }
 
@@ -345,12 +357,12 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
                 extinctionCoefficient_[dataNo] -= newtonParas_[0]/newtonParas_[3];
             } else {
                 //cout << "newtonParas_[3] is 0" << endl;
-                maxLoop = 1; // forcing to stop
-                numericalStatus_[dataNo] = 1;
+                maxLoop = NK_ERROR; // forcing to stop
+                numericalStatus_[dataNo] = NK_ERROR;
             }
         } else {
             //cout << "ASKING maxLoop to be 0" << endl;
-            maxLoop = 1;
+            maxLoop = NK_ERROR;
         }
     }
     while(fabs(newtonParas_[0]/newtonParas_[3]) > ACCURACY && (--maxLoop));
@@ -358,7 +370,7 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
     // Debug
     //cout << "dataNo is " << dataNo << endl;
 
-    if(maxLoop > 0) {
+    if((maxLoop > 0) && (validateValue(dataNo) == 0)) {
         numericalStatus_[dataNo] = NK_SUCCESS;
         //cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
     } else {
@@ -400,11 +412,11 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
     //cout << endl;
 
     if(maxLoop > 0) {
-        numericalStatus_[dataNo] = 0;
+        numericalStatus_[dataNo] = NK_SUCCESS;
         //cout << "FresnelData::newtonMethodTwoDForNK success!!" << endl;
         //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
     } else {
-        numericalStatus_[dataNo] = 1;
+        numericalStatus_[dataNo] = NK_ERROR;
         //cout << "FresnelData::newtonMethodTwoDForNK failed!!" << endl;
     }
 
@@ -449,7 +461,7 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 #ifndef UNITTESTONED
 #ifndef UNITTESTTWOD
 
-    if(validateValue(dataNo) == NK_SUCCESS) {
+    if(validateNumericalRange(dataNo) == NK_SUCCESS) {
 
         // Debug.
         //cout << "Caculating T partial k" << endl;
@@ -508,6 +520,7 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
         }
         return NK_SUCCESS;
     } else {
+        numericalStatus_[dataNo] = 1;
         return NK_ERROR;
     }
 
@@ -616,12 +629,23 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 
 }
 
-// validate value not to be nan or inf
-// 0 for o.k. 1 for invalid
+// validate value physically legal or not
 int FresnelData::validateValue(int dataNo) {
 
+    if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && ( extinctionCoefficient_[dataNo] > 0.0) && (extinctionCoefficient_[dataNo] < 1.0e-4)) {
+        return NK_SUCCESS;
+    } else {
+        return NK_ERROR;
+    }
+
+}
+
+// validate value not to be nan or inf
+// 0 for o.k. 1 for invalid
+int FresnelData::validateNumericalRange(int dataNo) {
+
     //cout << "Validation of parameters " << endl;
-    //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
+    //if(dataNo == 590) cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
     if(fabs(indexOfRefraction_[dataNo]) > 10000.0 || fabs(extinctionCoefficient_[dataNo]) > 1.0e-4) {
         //cout << "Values are invalid!" << endl;
         return NK_ERROR;
