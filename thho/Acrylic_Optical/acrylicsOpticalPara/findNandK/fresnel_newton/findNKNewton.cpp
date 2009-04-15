@@ -181,7 +181,7 @@ void FresnelData::set(double *indexOfRefraction, double *extinctionCoefficient) 
 
 void FresnelData::setKToRetry(int dataNo, int loopNo) {
 
-    cout << "void FresnelData::setKToRetry(int dataNo, int loopNo) is called" << endl;
+    //cout << "void FresnelData::setKToRetry(int dataNo, int loopNo) is called" << endl;
     double range = MAXEC - MINEC;
     double ratio = double(loopNo)/double(MAXLOOP);
     extinctionCoefficient_[dataNo] = MINEC + range*ratio;
@@ -190,7 +190,7 @@ void FresnelData::setKToRetry(int dataNo, int loopNo) {
 
 void FresnelData::setNKToRetry(int dataNo, int loopNo) {
 
-    cout << "void FresnelData::setNKToRetry(int dataNo, int loopNo)" << endl;
+    //cout << "void FresnelData::setNKToRetry(int dataNo, int loopNo)" << endl;
     double rangeIOR = MAXIOR - MINIOR;
     double rangeEC = MAXEC - MINEC;
     double ratio = double(loopNo)/double(MAXLOOP);
@@ -322,7 +322,7 @@ int FresnelData::newtonMethodRTRTTSingleWavelength(double wavelengthValue) {
 
 void FresnelData::newtonMethodOneDForK(int dataNo) {
 
-    cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
+    //cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
 
 #ifdef UNITTESTONED
         setNewtonParasForOneDUnitTest(dataNo);
@@ -336,17 +336,13 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
             // Debug.
             //cout << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << thickness_ << " " << transmittance_[dataNo] << " " << reflectance_[dataNo] << endl;
             //cout << "Hello" << endl;
-            cout << maxLoop << endl;
+            //cout << maxLoop << endl;
             if(newtonParas_[3] != 0) {
     
                 // Debug.
-                cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
-                cout << "newtonParas_[1]/newtonParas_[3] " << newtonParas_[1]/newtonParas_[3] << endl;
-                cout << "EC is " << extinctionCoefficient_[dataNo] << endl;
-
+                //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
+                //cout << "newtonParas_[0]/newtonParas_[3] " << newtonParas_[0]/newtonParas_[3] << endl;
                 extinctionCoefficient_[dataNo] -= newtonParas_[0]/newtonParas_[3];
-
-                cout << "EC is " << extinctionCoefficient_[dataNo] << endl;
             } else {
                 //cout << "newtonParas_[3] is 0" << endl;
                 maxLoop = 1; // forcing to stop
@@ -354,7 +350,7 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
             }
         } else {
             //cout << "ASKING maxLoop to be 0" << endl;
-            maxLoop = 0;
+            maxLoop = 1;
         }
     }
     while(fabs(newtonParas_[0]/newtonParas_[3]) > ACCURACY && (--maxLoop));
@@ -364,17 +360,17 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
 
     if(maxLoop > 0) {
         numericalStatus_[dataNo] = NK_SUCCESS;
-        cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
+        //cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
     } else {
         numericalStatus_[dataNo] = NK_ERROR;
-        cout << "FresnelData::newtonMethodOneDForK failed!!" << endl;
+        //cout << "FresnelData::newtonMethodOneDForK failed!!" << endl;
     }
 
 }
 
 void FresnelData::newtonMethodTwoDForNK(int dataNo) {
 
-    cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
+    //cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
 
 #ifdef UNITTESTTWOD
     // Debug. Unit test
@@ -388,7 +384,7 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
         if(setNewtonParas(dataNo,0,2) == NK_SUCCESS) {
             evalJacobian(dataNo);
             delta = newtonParas_[2]*newtonParas_[5] - newtonParas_[3]*newtonParas_[4];
-            if(delta == 0) maxLoop = 0; // forcing to stop
+            if(delta == 0) maxLoop = 1; // forcing to stop
             tmpDeltaIOR = (newtonParas_[3]*newtonParas_[1] - newtonParas_[0]*newtonParas_[5])/delta;
             tmpDeltaEC = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
             //cout << "Loop\tn\tk\tdT\tdR" << endl;
@@ -396,7 +392,7 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
             //cout << "shift n\tshitf k" << endl;
             //cout << tmpDeltaIOR << "\t" << tmpDeltaEC << endl;
         } else {
-            maxLoop = 0;
+            maxLoop = 1;
         }
     }
     while((fabs(newtonParas_[0] > ACCURACY) || (fabs(newtonParas_[1]) > ACCURACY)) && (--maxLoop));
