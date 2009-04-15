@@ -117,17 +117,28 @@ int FresnelData::loadFromFile(  string thinTransmittanceFilename, string thinRef
 
 void FresnelData::dump(int dataNo) {
 
-    cout << "wavelength\tn value\tk value\tstatus" << endl;
     if(numericalStatus_[dataNo] == 0) {
-        cout << wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
+        cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
         << "\t" << extinctionCoefficient_[dataNo]
         << "\tSUCCESS!!" << endl;
     } else if(numericalStatus_[dataNo] == 1) {
-        cout << wavelength_[dataNo] << "N/A\tN/A\tFAILED!!" << endl;
+        cout << 1000000.0*wavelength_[dataNo] << "N/A\t\tN/A\tFAILED!!" << endl;
     } else {
-        cout << wavelength_[dataNo] << "N/A\tN/A\tERROR/UNKNOWN" << endl;
+        cout << 1000000.0*wavelength_[dataNo] << "N/A\t\tN/A\tERROR/UNKNOWN" << endl;
     }
 
+
+}
+
+void FresnelData::dumpToFile() {
+
+    ofstream fout;
+    fout.open("paras.dat");
+
+    for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
+        fout << 1000000.0*wavelength_[dataNo] << " " << indexOfRefraction_[dataNo]
+        << " " << extinctionCoefficient_[dataNo] << endl;
+    }
 
 }
 
@@ -170,6 +181,7 @@ void FresnelData::set(double *indexOfRefraction, double *extinctionCoefficient) 
 
 void FresnelData::setKToRetry(int dataNo, int loopNo) {
 
+    cout << "void FresnelData::setKToRetry(int dataNo, int loopNo) is called" << endl;
     double range = MAXEC - MINEC;
     double ratio = double(loopNo)/double(MAXLOOP);
     extinctionCoefficient_[dataNo] = MINEC + range*ratio;
@@ -178,6 +190,7 @@ void FresnelData::setKToRetry(int dataNo, int loopNo) {
 
 void FresnelData::setNKToRetry(int dataNo, int loopNo) {
 
+    cout << "void FresnelData::setNKToRetry(int dataNo, int loopNo)" << endl;
     double rangeIOR = MAXIOR - MINIOR;
     double rangeEC = MAXEC - MINEC;
     double ratio = double(loopNo)/double(MAXLOOP);
@@ -266,12 +279,17 @@ void FresnelData::newtonMethodRTRTT(int dataNo) {
     {
         if(maxLoop != MAXLOOP) setNKToRetry(dataNo, maxLoop);
         newtonMethodTwoDForNK(dataNo);
-        if(numericalStatus_[dataNo] == 0) newtonMethodOneDForK(dataNo);
-        int maxLoopTmp = MAXLOOP;
-        while(numericalStatus_[dataNo]!=0 && (--maxLoopTmp))
-        {
-            setKToRetry(dataNo, maxLoopTmp);
+        if(numericalStatus_[dataNo] == NK_SUCCESS) {
+            //cout << "RT is successful, try now RTT'"<< endl;
             newtonMethodOneDForK(dataNo);
+            int maxLoopTmp = MAXLOOP;
+            while(numericalStatus_[dataNo]!=0 && (--maxLoopTmp))
+            {
+                setKToRetry(dataNo, maxLoopTmp);
+                newtonMethodOneDForK(dataNo);
+            }
+        } else {
+            numericalStatus_[dataNo] = NK_ERROR;
         }
     }
     while(numericalStatus_[dataNo]!=0 && (--maxLoop));
@@ -282,7 +300,7 @@ void FresnelData::newtonMethodRTRTT(int dataNo) {
 
 int FresnelData::newtonMethodRTRTTSingleWavelength(double wavelengthValue) {
 
-    cout << "Run for single wavelength Newton method...." << endl;
+    //cout << "Run for single wavelength Newton method...." << endl;
 
     int dataNo(-1);
     for(int i=0;i<TOTALDATANO;i++) {
@@ -313,31 +331,39 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
     int maxLoop = MAXLOOP;
     do
     {
-        setNewtonParas(dataNo,1,1);
-
-        // Debug.
-        //cout << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << thickness_ << " " << transmittance_[dataNo] << " " << reflectance_[dataNo] << endl;
-
-        if(newtonParas_[3] != 0) {
+        if(setNewtonParas(dataNo,1,1) == NK_SUCCESS) {
 
             // Debug.
-            //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
-            //cout << newtonParas_[1]/newtonParas_[3] << endl;
-
-            extinctionCoefficient_[dataNo] -= newtonParas_[0]/newtonParas_[3];
+            //cout << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << thickness_ << " " << transmittance_[dataNo] << " " << reflectance_[dataNo] << endl;
+    
+            if(newtonParas_[3] != 0) {
+    
+                // Debug.
+                //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
+                //cout << newtonParas_[1]/newtonParas_[3] << endl;
+    
+                extinctionCoefficient_[dataNo] -= newtonParas_[0]/newtonParas_[3];
+            } else {
+                //cout << "newtonParas_[3] is 0" << endl;
+                maxLoop = 0; // forcing to stop
+                numericalStatus_[dataNo] = 1;
+            }
+            //cout << maxLoop << endl;
         } else {
-            maxLoop = 0; // forcing to stop
-            numericalStatus_[dataNo] = 1;
+            //cout << "ASKING maxLoop to be 0" << endl;
+            maxLoop = 0;
         }
-        //cout << maxLoop << endl;
     }
     while(fabs(newtonParas_[0]/newtonParas_[3]) > ACCURACY && --maxLoop);
 
+    // Debug
+    //cout << "dataNo is " << dataNo << endl;
+
     if(maxLoop > 0) {
-        numericalStatus_[dataNo] = 0;
+        numericalStatus_[dataNo] = NK_SUCCESS;
         //cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
     } else {
-        numericalStatus_[dataNo] = 1;
+        numericalStatus_[dataNo] = NK_ERROR;
         //cout << "FresnelData::newtonMethodOneDForK failed!!" << endl;
     }
 
@@ -356,20 +382,23 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
     double delta(0), tmpDeltaIOR(0), tmpDeltaEC(0);
     do
     {
-        setNewtonParas(dataNo,0,2);
-        evalJacobian(dataNo);
-        delta = newtonParas_[2]*newtonParas_[5] - newtonParas_[3]*newtonParas_[4];
-        if(delta == 0) maxLoop = 0; // forcing to stop
-        tmpDeltaIOR = (newtonParas_[3]*newtonParas_[1] - newtonParas_[0]*newtonParas_[5])/delta;
-        tmpDeltaEC = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
-        //cout << "Loop\tn\tk\tdT\tdR" << endl;
-        //cout << maxLoop << "\t" << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << newtonParas_[0] << " " << newtonParas_[1] << endl;
-        //cout << "shift n\tshitf k" << endl;
-        //cout << tmpDeltaIOR << "\t" << tmpDeltaEC << endl;
+        if(setNewtonParas(dataNo,0,2) == NK_SUCCESS) {
+            evalJacobian(dataNo);
+            delta = newtonParas_[2]*newtonParas_[5] - newtonParas_[3]*newtonParas_[4];
+            if(delta == 0) maxLoop = 0; // forcing to stop
+            tmpDeltaIOR = (newtonParas_[3]*newtonParas_[1] - newtonParas_[0]*newtonParas_[5])/delta;
+            tmpDeltaEC = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
+            //cout << "Loop\tn\tk\tdT\tdR" << endl;
+            //cout << maxLoop << "\t" << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << newtonParas_[0] << " " << newtonParas_[1] << endl;
+            //cout << "shift n\tshitf k" << endl;
+            //cout << tmpDeltaIOR << "\t" << tmpDeltaEC << endl;
+        } else {
+            maxLoop = 0;
+        }
     }
     while((fabs(newtonParas_[0] > ACCURACY) || (fabs(newtonParas_[1]) > ACCURACY)) && (--maxLoop));
 
-    cout << endl;
+    //cout << endl;
 
     if(maxLoop > 0) {
         numericalStatus_[dataNo] = 0;
@@ -420,60 +449,69 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 
 #ifndef UNITTESTONED
 #ifndef UNITTESTTWOD
-    newtonParas_[0] = evalTransmittanceConstrain(dataNo);
-    newtonParas_[1] = evalReflectanceConstrain(dataNo);
 
-    if(methodDimensionFlag == 2) {
-    // T partial n
-    indexOfRefraction_[dataNo] += DELTA;
-    atmpFuncValue = evalTransmittanceConstrain(dataNo);
-    indexOfRefraction_[dataNo] = tmpIOR;
-    indexOfRefraction_[dataNo] -= DELTA;
-    btmpFuncValue = evalTransmittanceConstrain(dataNo);
-    indexOfRefraction_[dataNo] = tmpIOR;
-    newtonParas_[2] = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
-    //cout << "atmpFuncValue " << atmpFuncValue << endl;
-    //cout << "btmpFuncValue " << btmpFuncValue << endl;
-    //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
-    } 
+    if(validateValue(dataNo) == NK_SUCCESS) {
 
-    // T partial k
-    extinctionCoefficient_[dataNo] += DELTAEC;
-    atmpFuncValue = evalTransmittanceConstrain(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    extinctionCoefficient_[dataNo] -= DELTAEC;
-    btmpFuncValue = evalTransmittanceConstrain(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    newtonParas_[3] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
-    //cout << "atmpFuncValue " << atmpFuncValue << endl;
-    //cout << "btmpFuncValue " << btmpFuncValue << endl;
-    //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+        // Debug.
+        //cout << "Caculating T partial k" << endl;
+
+        newtonParas_[0] = evalTransmittanceConstrain(dataNo);
+        newtonParas_[1] = evalReflectanceConstrain(dataNo);
  
-    if(methodDimensionFlag == 2) {
-    // R partial n
-    indexOfRefraction_[dataNo] += DELTA;
-    atmpFuncValue = evalReflectanceConstrain(dataNo);
-    indexOfRefraction_[dataNo] = tmpIOR;
-    indexOfRefraction_[dataNo] -= DELTA;
-    btmpFuncValue = evalReflectanceConstrain(dataNo);
-    indexOfRefraction_[dataNo] = tmpIOR;
-    newtonParas_[4] = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
-    //cout << "atmpFuncValue " << atmpFuncValue << endl;
-    //cout << "btmpFuncValue " << btmpFuncValue << endl;
-    //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
- 
-    // R partial k
-    extinctionCoefficient_[dataNo] += DELTAEC;
-    atmpFuncValue = evalReflectanceConstrain(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    extinctionCoefficient_[dataNo] -= DELTAEC;
-    btmpFuncValue = evalReflectanceConstrain(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    newtonParas_[5] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
-    //cout << "atmpFuncValue " << atmpFuncValue << endl;
-    //cout << "btmpFuncValue " << btmpFuncValue << endl;
-    //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+        // T partial k
+        extinctionCoefficient_[dataNo] += DELTAEC;
+        atmpFuncValue = evalTransmittanceConstrain(dataNo);
+        extinctionCoefficient_[dataNo] = tmpEC;
+        extinctionCoefficient_[dataNo] -= DELTAEC;
+        btmpFuncValue = evalTransmittanceConstrain(dataNo);
+        extinctionCoefficient_[dataNo] = tmpEC;
+        newtonParas_[3] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
+        //cout << "atmpFuncValue " << atmpFuncValue << endl;
+        //cout << "btmpFuncValue " << btmpFuncValue << endl;
+        //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+     
+        if(methodDimensionFlag == 2) {
+        // T partial n
+        indexOfRefraction_[dataNo] += DELTA;
+        atmpFuncValue = evalTransmittanceConstrain(dataNo);
+        indexOfRefraction_[dataNo] = tmpIOR;
+        indexOfRefraction_[dataNo] -= DELTA;
+        btmpFuncValue = evalTransmittanceConstrain(dataNo);
+        indexOfRefraction_[dataNo] = tmpIOR;
+        newtonParas_[2] = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
+        //cout << "atmpFuncValue " << atmpFuncValue << endl;
+        //cout << "btmpFuncValue " << btmpFuncValue << endl;
+        //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+
+        // R partial n
+        indexOfRefraction_[dataNo] += DELTA;
+        atmpFuncValue = evalReflectanceConstrain(dataNo);
+        indexOfRefraction_[dataNo] = tmpIOR;
+        indexOfRefraction_[dataNo] -= DELTA;
+        btmpFuncValue = evalReflectanceConstrain(dataNo);
+        indexOfRefraction_[dataNo] = tmpIOR;
+        newtonParas_[4] = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
+        //cout << "atmpFuncValue " << atmpFuncValue << endl;
+        //cout << "btmpFuncValue " << btmpFuncValue << endl;
+        //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+     
+        // R partial k
+        extinctionCoefficient_[dataNo] += DELTAEC;
+        atmpFuncValue = evalReflectanceConstrain(dataNo);
+        extinctionCoefficient_[dataNo] = tmpEC;
+        extinctionCoefficient_[dataNo] -= DELTAEC;
+        btmpFuncValue = evalReflectanceConstrain(dataNo);
+        extinctionCoefficient_[dataNo] = tmpEC;
+        newtonParas_[5] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
+        //cout << "atmpFuncValue " << atmpFuncValue << endl;
+        //cout << "btmpFuncValue " << btmpFuncValue << endl;
+        //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
+        }
+        return NK_SUCCESS;
+    } else {
+        return NK_ERROR;
     }
+
 
 #endif
 #endif
@@ -504,6 +542,7 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 
     dumpOneDUnitTest(dataNo);
 
+    return NK_SUCCESS;
 #endif
 
 #ifdef UNITTESTTWOD
@@ -567,6 +606,7 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 
     dumpTwoDUnitTest(dataNo);
 
+    return NK_SUCCESS;
 #endif
 
 
@@ -574,7 +614,22 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
     //for(int i=0;i<6;i++) cout << newtonParas_[i] << "\t";
     //cout << endl;
 
-    return NK_SUCCESS;
+
+}
+
+// validate value not to be nan or inf
+// 0 for o.k. 1 for invalid
+int FresnelData::validateValue(int dataNo) {
+
+    //cout << "Validation of parameters " << endl;
+    cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
+    if(fabs(indexOfRefraction_[dataNo]) > 10000.0 || fabs(extinctionCoefficient_[dataNo]) > 1.0e-5) {
+        //cout << "Values are invalid!" << endl;
+        return NK_ERROR;
+    } else {
+        //cout << "values are valid" << endl;
+        return NK_SUCCESS;
+    }
 
 }
 

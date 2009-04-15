@@ -59,6 +59,7 @@ class FresnelData {
         int loadFromFile(   string thinTransmittanceFilename, string thinReflectanceFilename,
                             string thickTransmittanceFilename, string thickReflectanceFilename);
         void dump(int dataNo);
+        void dumpToFile();
         int dumpSingleWavelengthNK(double wavelengthValue);
         void set(double *indexOfRefraction, double *extinctionCoefficient);
         void get(double *indexOfRefraction, double *extinctionCoefficient);
@@ -78,6 +79,8 @@ class FresnelData {
         int newtonMethodRTRTTSingleWavelength(double wavelengthValue);
         void newtonMethodOneDForK(int dataNo); // RT method
         void newtonMethodTwoDForNK(int dataNo); // RTT' method
+
+        int validateValue(int dataNo);
 
         // Debug.
         void setECToAlpha(int dataNo);
