@@ -322,7 +322,7 @@ int FresnelData::newtonMethodRTRTTSingleWavelength(double wavelengthValue) {
 
 void FresnelData::newtonMethodOneDForK(int dataNo) {
 
-    //cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
+    cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
 
 #ifdef UNITTESTONED
         setNewtonParasForOneDUnitTest(dataNo);
@@ -335,43 +335,46 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
 
             // Debug.
             //cout << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << " " << thickness_ << " " << transmittance_[dataNo] << " " << reflectance_[dataNo] << endl;
-    
+            //cout << "Hello" << endl;
+            cout << maxLoop << endl;
             if(newtonParas_[3] != 0) {
     
                 // Debug.
-                //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
-                //cout << newtonParas_[1]/newtonParas_[3] << endl;
-    
+                cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
+                cout << "newtonParas_[1]/newtonParas_[3] " << newtonParas_[1]/newtonParas_[3] << endl;
+                cout << "EC is " << extinctionCoefficient_[dataNo] << endl;
+
                 extinctionCoefficient_[dataNo] -= newtonParas_[0]/newtonParas_[3];
+
+                cout << "EC is " << extinctionCoefficient_[dataNo] << endl;
             } else {
                 //cout << "newtonParas_[3] is 0" << endl;
-                maxLoop = 0; // forcing to stop
+                maxLoop = 1; // forcing to stop
                 numericalStatus_[dataNo] = 1;
             }
-            //cout << maxLoop << endl;
         } else {
             //cout << "ASKING maxLoop to be 0" << endl;
             maxLoop = 0;
         }
     }
-    while(fabs(newtonParas_[0]/newtonParas_[3]) > ACCURACY && --maxLoop);
+    while(fabs(newtonParas_[0]/newtonParas_[3]) > ACCURACY && (--maxLoop));
 
     // Debug
     //cout << "dataNo is " << dataNo << endl;
 
     if(maxLoop > 0) {
         numericalStatus_[dataNo] = NK_SUCCESS;
-        //cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
+        cout << "FresnelData::newtonMethodOneDForK success!!" << endl;
     } else {
         numericalStatus_[dataNo] = NK_ERROR;
-        //cout << "FresnelData::newtonMethodOneDForK failed!!" << endl;
+        cout << "FresnelData::newtonMethodOneDForK failed!!" << endl;
     }
 
 }
 
 void FresnelData::newtonMethodTwoDForNK(int dataNo) {
 
-    //cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
+    cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
 
 #ifdef UNITTESTTWOD
     // Debug. Unit test
@@ -622,8 +625,8 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 int FresnelData::validateValue(int dataNo) {
 
     //cout << "Validation of parameters " << endl;
-    cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
-    if(fabs(indexOfRefraction_[dataNo]) > 10000.0 || fabs(extinctionCoefficient_[dataNo]) > 1.0e-5) {
+    //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
+    if(fabs(indexOfRefraction_[dataNo]) > 10000.0 || fabs(extinctionCoefficient_[dataNo]) > 1.0e-4) {
         //cout << "Values are invalid!" << endl;
         return NK_ERROR;
     } else {
