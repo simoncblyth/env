@@ -35,7 +35,7 @@ abuser = simon, dayabay
 abdev = blyth, $tw, $hk
 abadmin = blyth
 
-hzuser = simon, cjl, tosi, cecilia, b2c
+hzuser = simon, cjl, tosi, cecilia, b2c, andrzej
 hzdev = blyth
 hzadmin = blyth
 
