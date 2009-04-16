@@ -25,7 +25,7 @@
 using namespace std;
 
 void OpticalModelPlotting2D(Double_t nmin, Double_t nmax, 
-                            Double_t kmin, Double_t kmax, Double_t d,
+                            Double_t alphamin, Double_t alphamax, Double_t d,
                             Double_t lambda,
                             Int_t parNo) {
 
@@ -41,7 +41,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     pad2->Draw();
 
     TF2 *tt = new
-        TF2("TRansmittance", GetTFormula,nmin,nmax,kmin,kmax,parNo);
+        TF2("TRansmittance", GetTFormula,nmin,nmax,alphamin,alphamax,parNo);
     pad1->cd();
     pad1->SetPhi(-80);
     tt->SetParameters(d,lambda);
@@ -52,7 +52,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
 
 
     TF2 *rr = new
-        TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,parNo);
+        TF2("Reflectance", GetRFormula,nmin,nmax,alphamin,alphamax,parNo);
     pad2->cd();
     rr->SetParameters(d,lambda);
     rr->Draw("surf1");
