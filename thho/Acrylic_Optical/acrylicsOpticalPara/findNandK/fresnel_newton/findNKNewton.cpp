@@ -737,7 +737,7 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 int FresnelData::retryNegativeK(int dataNo) {
 
     // Debug
-    cout << "int FresnelData::retryNegativeK(int dataNo) is called!!" << endl;
+    //cout << "int FresnelData::retryNegativeK(int dataNo) is called!!" << endl;
 
     long double alphatmp = -(alpha_[dataNo]);
     alpha_[dataNo] = alphatmp;
@@ -759,18 +759,18 @@ int FresnelData::validateFinalValue(int dataNo) {
     if((alpha_[dataNo] < 0.0)) {
         if(retryNegativeK(dataNo) == NK_SUCCESS) {
             // different wavelength should has different validation...phsics
-            if(dataNo < 400) {
+            if(dataNo < CUTOFF) {
                 if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
                     return NK_SUCCESS;
                 } else {
-                    //cout << "Beyond physics requirement" << endl;
+                    //cout << "Beyond physics requirement at int FresnelData::validateFinalValue(int dataNo) < dataNo 400, alpha < 0" << endl;
                     return NK_ERROR;
                 }
             } else {
                 if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 5.0e-4)) {
                     return NK_SUCCESS;
                 } else {
-                    //cout << "Beyond physics requirement" << endl;
+                    //cout << "Beyond physics requirement at int FresnelData::validateFinalValue(int dataNo) >= dataNo 400, alpha < 0" << endl;
                     return NK_ERROR;
                 }
             }
@@ -779,18 +779,18 @@ int FresnelData::validateFinalValue(int dataNo) {
         }
     } else {
         // different wavelength should has different validation...phsics
-        if(dataNo < 400) {
+        if(dataNo < CUTOFF) {
             if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
                 return NK_SUCCESS;
             } else {
-                //cout << "Beyond physics requirement" << endl;
+                //cout << "Beyond physics requirement at int FresnelData::validateFinalValue(int dataNo) < dataNo 400" << endl;
                 return NK_ERROR;
             }
         } else {
             if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 5.0e-4)) {
                 return NK_SUCCESS;
             } else {
-                //cout << "Beyond physics requirement" << endl;
+                //cout << "Beyond physics requirement at int FresnelData::validateFinalValue(int dataNo) > dataNo 400" << endl;
                 return NK_ERROR;
             }
         }
@@ -802,7 +802,7 @@ int FresnelData::validateFinalValue(int dataNo) {
 int FresnelData::validateValue(int dataNo) {
 
     // different wavelength should has different validation...phsics
-    if(dataNo < 400) {
+    if(dataNo < CUTOFF) {
         if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
             return NK_SUCCESS;
         } else {

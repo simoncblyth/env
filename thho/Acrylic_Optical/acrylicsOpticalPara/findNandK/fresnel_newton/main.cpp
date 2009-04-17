@@ -7,7 +7,7 @@
 \****************************************************************************/
 
 // Input a wavelength value (nm) to find the numerical solution
-#define WHICH_WAVELENGTH 799.0
+#define WHICH_WAVELENGTH 400.0
 // Input the thickness of the thiner sample (mm)
 #define THIN_THICKNESS 10.14
 // Input filename of transmittance of a thin sample
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 
     // Debug.
     //for(int i=0;i<520;i++) {
-    
+ 
     for(int i=0;i<TOTALDATANO;i++) {
         fresnelData.newtonMethodRTRTT(i);
         fresnelData.dump(i);
@@ -63,7 +63,6 @@ int main(int argc, char *argv[]) {
     }
 
     fresnelData.dumpToFile("paras3.dat");
-    
 
     // Debug.
     //fresnelData.newtonMethodRTRTTSingleWavelength(WHICH_WAVELENGTH*1.0e-6);

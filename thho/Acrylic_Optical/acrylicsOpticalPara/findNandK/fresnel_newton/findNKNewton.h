@@ -48,10 +48,14 @@
 #define DELTAEC 1.0e-14
 // presion to compare numbers
 #define NUMBER_EQUAL 1.0e-10
+// the famous cut-off edge starting at which wavelength...dataNo as indicating index
+// 800 - wavelength(nm) = dataNo
+// so it should be integer
+#define CUTOFF 450
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
-#define MINEC 1.0e-4
+#define MINEC 1.0e-5
 #define MAXEC 1.0e-1
 
 
@@ -135,6 +139,10 @@ class FresnelData {
         long double thickThickness_; // mm
         long double thinThickFlag_; // 0 for thin sample and 1 for thick sample
 
+        long double thinTransmittanceConstrain_[TOTALDATANO];
+        long double thickTransmittanceConstrain_[TOTALDATANO];
+        long double thinReflectanceConstrain_[TOTALDATANO];
+        long double thickReflectanceConstrain_[TOTALDATANO];
         int numericalStatus_[TOTALDATANO];
         long double newtonParas_[8]; // Constraint of T and R, T partial n and k, R partial n and k, dn and dk
 
