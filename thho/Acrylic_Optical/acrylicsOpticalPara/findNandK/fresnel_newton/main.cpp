@@ -36,11 +36,8 @@ int main(int argc, char *argv[]) {
     //fresnelData.setInitialParas(1.505,0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI),THIN_THICKNESS, THICK_THICKNESS);
     fresnelData.setInitialParas(1.505,0.009,THIN_THICKNESS, THICK_THICKNESS);
 
-    cout << "wavelen\tn value\talpha\t\tstatus\t\tdT\tdR" << endl;
+    cout << "wavelen\tn value\talpha\t\tstatus" << endl;
 
-    // Debug.
-    //for(int i=0;i<520;i++) {
- 
     for(int i=0;i<TOTALDATANO;i++) {
         fresnelData.newtonMethodRTRTT(i);
         fresnelData.dump(i);
@@ -48,6 +45,7 @@ int main(int argc, char *argv[]) {
 
     fresnelData.dumpToFile("paras1.dat");
 
+    /*
     fresnelData.setSecondInitialParas();
 
     for(int i=0;i<TOTALDATANO;i++) {
@@ -63,6 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     fresnelData.dumpToFile("paras3.dat");
+    */
 
     // Debug.
     //fresnelData.newtonMethodRTRTTSingleWavelength(WHICH_WAVELENGTH*1.0e-6);

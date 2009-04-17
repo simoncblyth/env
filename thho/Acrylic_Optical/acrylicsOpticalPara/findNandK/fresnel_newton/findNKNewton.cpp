@@ -131,7 +131,6 @@ void FresnelData::dump(int dataNo) {
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
         << "\t" << alpha_[dataNo]
         << "\tSUCCESS!!\t"
-        << " " << evalTransmittanceConstrain(dataNo) << "\t" << evalReflectanceConstrain(dataNo)
         << endl;
     } else if(numericalStatus_[dataNo] == NK_ERROR) {
         //cout << 1000000.0*wavelength_[dataNo] << "nm\tN/A\tN/A\tFAILED!!\t"
@@ -155,8 +154,9 @@ void FresnelData::dumpToFile(string outputFilename) {
 
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
         fout << 1000000.0*wavelength_[dataNo] << " " << indexOfRefraction_[dataNo]
-        << " " << alpha_[dataNo] << " "
-        << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo)
+        << " " << alpha_[dataNo]
+        << " " << thinTransmittanceConstrain_[dataNo] << " " << thinReflectanceConstrain_[dataNo]
+        << " " << thickTransmittanceConstrain_[dataNo] << " " << thickReflectanceConstrain_[dataNo]
         << " " << numericalStatus_[dataNo]
         << endl;
     }
@@ -460,7 +460,7 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
             numericalStatus_[dataNo] = NK_ERROR;
         }
     }
-    while((fabs(newtonParas_[7]) > KACCURACY) && ((evalTransmittanceConstrain(dataNo) > TACCURACY) || (evalReflectanceConstrain(dataNo) > RACCURACY)) && (--maxLoop));
+    while((fabs(newtonParas_[7]) > KACCURACY) && evalConstrain(dataNo)  && (--maxLoop));
 
     // Debug
     //cout << "dataNo is " << dataNo << endl;
@@ -508,7 +508,7 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
             maxLoop = NK_ERROR;
         }
     }
-    while((((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY)) && ((evalTransmittanceConstrain(dataNo) > TACCURACY) || (evalReflectanceConstrain(dataNo)) > RACCURACY)) && (--maxLoop));
+    while(((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY)) && evalConstrain(dataNo) && (--maxLoop));
 
     //cout << endl;
 
@@ -742,7 +742,7 @@ int FresnelData::retryNegativeK(int dataNo) {
     long double alphatmp = -(alpha_[dataNo]);
     alpha_[dataNo] = alphatmp;
 
-    if((fabs(evalTransmittanceConstrain(dataNo)) < TACCURACY) && (fabs(evalReflectanceConstrain(dataNo)) < RACCURACY)) {
+    if(evalConstrain(dataNo) == NK_SUCCESS) {
         return NK_SUCCESS;
     } else { 
         return NK_ERROR;
@@ -854,6 +854,27 @@ void FresnelData::evalJacobian(int dataNo) {
         numericalStatus_[dataNo] = NK_SUCCESS;
     }
 
+}
+
+int FresnelData::evalConstrain(int dataNo) {
+
+    long double thicknessTmp = thickness_;
+
+    thickness_ = thinThickness_;
+    thinTransmittanceConstrain_[dataNo] = evalTransmittanceConstrain(dataNo);
+    thinReflectanceConstrain_[dataNo] = evalReflectanceConstrain(dataNo);
+
+    thickness_ = thickThickness_;
+    thickTransmittanceConstrain_[dataNo] = evalTransmittanceConstrain(dataNo);
+    thickReflectanceConstrain_[dataNo] = evalReflectanceConstrain(dataNo);
+
+    thickness_ = thicknessTmp;
+
+    if((fabs(thinReflectanceConstrain_[dataNo]) < TACCURACY) && (fabs(thickTransmittanceConstrain_[dataNo]) < TACCURACY) && (fabs(thinReflectanceConstrain_[dataNo]) < RACCURACY) && (fabs(thickReflectanceConstrain_[dataNo]) < RACCURACY)) {
+        return NK_SUCCESS;
+    } else {
+        return NK_ERROR;
+    }
 }
 
 

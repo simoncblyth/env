@@ -86,6 +86,7 @@ class FresnelData {
         long double evalFrontSurfacePrimaryRelectance(int dataNo);
         long double evalCaculatedGrossTransmittance(int dataNo);
         long double evalCaculatedGrossReflectance(int dataNo);
+        int evalConstrain(int dataNo);
         long double evalTransmittanceConstrain(int dataNo);
         long double evalReflectanceConstrain(int dataNo);
         void evalJacobian(int dataNo);
