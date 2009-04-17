@@ -32,19 +32,27 @@
 #define MAXLOOP 100
 // how precise caculated T and R is when approaching with Newton method, in order to make
 // sure a solution is meaningful
-#define ACCURACY 1.0e-4
+// because of the uncertainty of different instrucment
+// between R and T, there should be different tolerance..
+// tolerance of transmittance
+#define TACCURACY 1.0e-2
+// tolerance of reflectance
+#define RACCURACY 1.0e-2
 // how precise n is when approaching with Newton method, in order to make sure a local min/max
 #define NACCURACY 1.0e-3
-// how precise k is when approaching with Newton method, in order to make sure a local min/max
-#define KACCURACY 1.0e-8
+// how precise alpha is when approaching with Newton method, in order to make sure a local min/max
+// Please note it now means how precise alpha is.. not k
+#define KACCURACY 1.0e-3
 // small amount to access differentiation
 #define DELTA 1.0e-9
-#define DELTAEC 1.0e-15
+#define DELTAEC 1.0e-14
+// presion to compare numbers
+#define NUMBER_EQUAL 1.0e-10
 // the try-and-error initial IOR and EC range when first initial IOR and EC failed
 #define MINIOR 1.4
 #define MAXIOR 1.6
-#define MINEC 1.0e-8
-#define MAXEC 1.0e-4
+#define MINEC 1.0e-4
+#define MAXEC 1.0e-1
 
 
 #define NK_SUCCESS 0
@@ -69,8 +77,7 @@ class FresnelData {
         void set(long double *indexOfRefraction, long double *extinctionCoefficient);
         void get(long double *indexOfRefraction, long double *extinctionCoefficient);
 
-        void ktoAlpha(int dataNo);
-        void Alphatok(int dataNo);
+        long double AlphaTok(int dataNo);
         long double evalInternalTransmittance(int dataNo);
         long double evalFrontSurfacePrimaryRelectance(int dataNo);
         long double evalCaculatedGrossTransmittance(int dataNo);
@@ -78,22 +85,26 @@ class FresnelData {
         long double evalTransmittanceConstrain(int dataNo);
         long double evalReflectanceConstrain(int dataNo);
         void evalJacobian(int dataNo);
+
         void setInitialParas(long double indexOfRefraction, long double extinctionCoefficient, long double thinThickness, long double thickThickness);
+        void setAlphaToEC(int dataNo);
         int setSecondInitialParas(void);
         void setKToRetry(int dataNo, int loopNo);
         void setNKToRetry(int dataNo, int loopNo);
         int setNewtonParas(int dataNo, int thickFlag, int methodDimensionFlag);
+
+        int retryNegativeK(int dataNo);
+
         void newtonMethodRTRTT(int dataNo); // combine RT and RTT' and try different initial parameters till being successful.
         int newtonMethodRTRTTSingleWavelength(long double wavelengthValue);
         void newtonMethodOneDForK(int dataNo); // RT method
         void newtonMethodTwoDForNK(int dataNo); // RTT' method
 
+        int validateFinalValue(int dataNo);
         int validateValue(int dataNo);
         int validateNumericalRange(int dataNo);
 
         // Debug.
-        void setECToAlpha(int dataNo);
-        void setAlphaToEC(int dataNo);
         // Unit Test
         // 1D unit test
         void setNewtonParasForOneDUnitTest(int dataNo);
@@ -115,7 +126,7 @@ class FresnelData {
         long double thickReflectance_[TOTALDATANO];
         long double wavelength_[TOTALDATANO]; // mm
         long double indexOfRefraction_[TOTALDATANO];
-        long double extinctionCoefficient_[TOTALDATANO];
+        //long double extinctionCoefficient_[TOTALDATANO];
         long double alpha_[TOTALDATANO]; // 1/mm
         long double transmittance_[TOTALDATANO];
         long double reflectance_[TOTALDATANO];

@@ -61,7 +61,7 @@ void FresnelData::resetAllPrivate() {
         thickReflectance_[i] = -1;
         wavelength_[i] = -1;
         indexOfRefraction_[i] = -1;
-        extinctionCoefficient_[i] = -1;
+        alpha_[i] = -1;
         numericalStatus_[i] = -1;
     }
     thinThickness_ = -1;
@@ -97,8 +97,10 @@ int FresnelData::loadFromFile(  string thinTransmittanceFilename, string thinRef
             // unit %->0.01 nm->mm
             thinTransmittance_[i] = thinTransmittance_[i]*0.01;
             thinReflectance_[i] = thinReflectance_[i]*0.01;
+            //thinReflectance_[i] = thinReflectance_[i]*0.01/0.99;
             thickTransmittance_[i] = thickTransmittance_[i]*0.01;
             thickReflectance_[i] = thickReflectance_[i]*0.01;
+            //thickReflectance_[i] = thickReflectance_[i]*0.01/0.99;
             wavelength_[i] = thinWT*1.0e-6;
             effectiveTotalDataNo++;
         }
@@ -127,19 +129,19 @@ void FresnelData::dump(int dataNo) {
 
     if(numericalStatus_[dataNo] == NK_SUCCESS) {
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
-        << "\t" << extinctionCoefficient_[dataNo]
+        << "\t" << alpha_[dataNo]
         << "\tSUCCESS!!\t"
         << " " << evalTransmittanceConstrain(dataNo) << "\t" << evalReflectanceConstrain(dataNo)
         << endl;
     } else if(numericalStatus_[dataNo] == NK_ERROR) {
         //cout << 1000000.0*wavelength_[dataNo] << "nm\tN/A\tN/A\tFAILED!!\t"
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
-        << "\t" << extinctionCoefficient_[dataNo] << "\tFAILED!!\t"
+        << "\t" << alpha_[dataNo] << "\tFAILED!!\t"
         << evalTransmittanceConstrain(dataNo) << "\t" << evalReflectanceConstrain(dataNo) << endl;
     } else {
         //cout << 1000000.0*wavelength_[dataNo] << "nm\tN/A\tN/A\tERROR/UNKNOWN\t"
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
-        << "\t" << extinctionCoefficient_[dataNo] << "\tFAILED/UNKNOEN!!\t"
+        << "\t" << alpha_[dataNo] << "\tFAILED/UNKNOEN!!\t"
         << evalTransmittanceConstrain(dataNo) << "\t" << evalReflectanceConstrain(dataNo) << endl;
     }
 
@@ -153,8 +155,10 @@ void FresnelData::dumpToFile(string outputFilename) {
 
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
         fout << 1000000.0*wavelength_[dataNo] << " " << indexOfRefraction_[dataNo]
-        << " " << extinctionCoefficient_[dataNo] << " "
-        << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo) << endl;
+        << " " << alpha_[dataNo] << " "
+        << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo)
+        << " " << numericalStatus_[dataNo]
+        << endl;
     }
 
 }
@@ -165,20 +169,20 @@ int FresnelData::dumpSingleWavelengthNK(long double wavelengthValue) {
     for(int i=0;i<TOTALDATANO;i++) {
         // Debug.
         //cout << wavelength_[i] << " " << wavelengthValue << endl;
-        if(wavelength_[i] == wavelengthValue) dataNo = i;
+        if((fabs(wavelength_[i] - wavelengthValue)) < NUMBER_EQUAL) dataNo = i;
     }
 
-    if(dataNo == -1 && dataNo < -1) {
+    if(dataNo == -1 && dataNo < 0) {
         cout << "No such wavelength value, STOP!" << endl;
         return EXIT_FAILURE;
     }
 
     if(numericalStatus_[dataNo] == NK_SUCCESS) {
         cout << wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
-        << "\t" << extinctionCoefficient_[dataNo]
+        << "\t" << alpha_[dataNo]
         << "\tSUCCESS!!" << endl;
     } else if(numericalStatus_[dataNo] == NK_ERROR) {
-        cout << wavelength_[dataNo] << "\tFAILED!!" << endl;
+        cout << wavelength_[dataNo] << "\tFAILED!!\t\tStage:FresnelData::dumpSingleWavelengthNK" << endl;
     } else {
         cout << wavelength_[dataNo] << "\tERROR/UNKNOWN" << endl;
     }
@@ -187,11 +191,11 @@ int FresnelData::dumpSingleWavelengthNK(long double wavelengthValue) {
 
 }
 
-void FresnelData::set(long double *indexOfRefraction, long double *extinctionCoefficient) {
+void FresnelData::set(long double *indexOfRefraction, long double *alpha) {
 
     for(int i=0;i<TOTALDATANO;i++) {
         indexOfRefraction_[i] = indexOfRefraction[i];
-        extinctionCoefficient_[i] = extinctionCoefficient[i];
+        alpha_[i] = alpha[i];
     }
 
 }
@@ -201,7 +205,7 @@ void FresnelData::setKToRetry(int dataNo, int loopNo) {
     //if(dataNo == 12) cout << "void FresnelData::setKToRetry(int dataNo, int loopNo) is called" << endl;
     long double range = MAXEC - MINEC;
     long double ratio = (long double)(loopNo)/(long double)(MAXLOOP);
-    extinctionCoefficient_[dataNo] = MINEC + range*ratio;
+    alpha_[dataNo] = MINEC + range*ratio;
 
 }
 
@@ -212,16 +216,16 @@ void FresnelData::setNKToRetry(int dataNo, int loopNo) {
     long double rangeEC = MAXEC - MINEC;
     long double ratio = (long double)(loopNo)/(long double)(MAXLOOP);
     indexOfRefraction_[dataNo] = MINIOR + ratio*rangeIOR;
-    extinctionCoefficient_[dataNo] = MINEC + ratio*rangeEC;
+    alpha_[dataNo] = MINEC + ratio*rangeEC;
 
 }
 
-void FresnelData::setInitialParas(  long double indexOfRefraction, long double extinctionCoefficient,
+void FresnelData::setInitialParas(  long double indexOfRefraction, long double alpha,
                                     long double thinThickness, long double thickThickness) {
 
     for(int i=0;i<TOTALDATANO;i++) {
         indexOfRefraction_[i] = indexOfRefraction;
-        extinctionCoefficient_[i] = extinctionCoefficient;
+        alpha_[i] = alpha;
     }
     thinThickness_ = thinThickness;
     thickThickness_ = thickThickness;
@@ -230,16 +234,19 @@ void FresnelData::setInitialParas(  long double indexOfRefraction, long double e
 
 int FresnelData::setSecondInitialParas(void) {
 
+
     int successCounter(0);
+
+/*
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
         //if (numericalStatus_[data] == 0) { return EXIT_FAILURE;}
         if((numericalStatus_[dataNo] != NK_SUCCESS) && numericalStatus_[dataNo-1] == NK_SUCCESS && (dataNo !=0)) {
             indexOfRefraction_[dataNo] = indexOfRefraction_[dataNo-1];
-            extinctionCoefficient_[dataNo] = extinctionCoefficient_[dataNo-1];
+            alpha_[dataNo] = alpha_[dataNo-1];
             numericalStatus_[dataNo] = NK_SUCCESS; // reactive the status for next one using
             successCounter++;
             // Debug
-            //cout << wavelength_[dataNo] << " " << indexOfRefraction_[dataNo] << " " << extinctionCoefficient_[dataNo] << endl;
+            //cout << wavelength_[dataNo] << " " << indexOfRefraction_[dataNo] << " " << alpha_[dataNo] << endl;
         }
 
         if(dataNo < 400) {
@@ -247,8 +254,8 @@ int FresnelData::setSecondInitialParas(void) {
                 indexOfRefraction_[dataNo] = indexOfRefraction_[dataNo-1];
             }
         } else {
-            if((numericalStatus_[dataNo-1] == NK_SUCCESS) && (((fabs(extinctionCoefficient_[dataNo]/extinctionCoefficient_[dataNo-1])) < 0.08) || ((fabs(extinctionCoefficient_[dataNo]/extinctionCoefficient_[dataNo-1])) > 8.0))) {
-            extinctionCoefficient_[dataNo] = extinctionCoefficient_[dataNo-1];
+            if((numericalStatus_[dataNo-1] == NK_SUCCESS) && (((fabs(alpha_[dataNo]/alpha_[dataNo-1])) < 0.08) || ((fabs(alpha_[dataNo]/alpha_[dataNo-1])) > 8.0))) {
+            alpha_[dataNo] = alpha_[dataNo-1];
             }
         }
     }
@@ -256,6 +263,15 @@ int FresnelData::setSecondInitialParas(void) {
     // initialize numerical status again
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
         numericalStatus_[dataNo] = -1;
+    }
+*/
+
+    for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
+        if((numericalStatus_[dataNo] != NK_SUCCESS) && alpha_[dataNo] < 0) {
+            alpha_[dataNo] = (-alpha_[dataNo]);
+        } else {
+            successCounter++;
+        }
     }
 
 
@@ -267,22 +283,23 @@ int FresnelData::setSecondInitialParas(void) {
 
 }
 
-void FresnelData::get( long double *indexOfRefraction, long double *extinctionCoefficient) {
+void FresnelData::get( long double *indexOfRefraction, long double *alpha) {
 
     for(int i=0;i<TOTALDATANO;i++) {
         indexOfRefraction[i] = indexOfRefraction_[i];
-        extinctionCoefficient[i] = extinctionCoefficient_[i];
+        alpha[i] = alpha_[i];
     }
 
 }
 
 long double FresnelData::evalInternalTransmittance(int dataNo) {
 
-    AlphaTok(dataNo);
+    long double extinctionCoefficient = AlphaTok(dataNo);
+    //cout << "IT K " << extinctionCoefficient << endl;
 
     long double internalTransmittance(-1);
     // How do I choose thickness?
-    internalTransmittance = exp((-4.0*M_PI*extinctionCoefficient_[dataNo]*thickness_)/wavelength_[dataNo]);
+    internalTransmittance = exp((-4.0*M_PI*extinctionCoefficient*thickness_)/wavelength_[dataNo]);
 
     return internalTransmittance;
 
@@ -290,15 +307,16 @@ long double FresnelData::evalInternalTransmittance(int dataNo) {
 
 long double FresnelData::evalFrontSurfacePrimaryRelectance(int dataNo) {
 
-    AlphaTok(dataNo);
+    long double extinctionCoefficient = AlphaTok(dataNo);
+    //cout << "FSR K" << extinctionCoefficient << endl;
 
     long double frontSurfacePrimaryRelectance(-1);
     long double numerator(0);
     long double denominator(0);
     numerator = (indexOfRefraction_[dataNo] - 1.0)*(indexOfRefraction_[dataNo] - 1.0)
-                + extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo];
+                + extinctionCoefficient*extinctionCoefficient;
     denominator =   (indexOfRefraction_[dataNo] + 1.0)*(indexOfRefraction_[dataNo] + 1.0)
-                    + extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo];
+                    + extinctionCoefficient*extinctionCoefficient;
     frontSurfacePrimaryRelectance = numerator/denominator;
 
     // Debug.
@@ -350,14 +368,29 @@ void FresnelData::newtonMethodRTRTT(int dataNo) {
             {
                 //cout << "maxLoop tmp " << maxLoopTmp << endl;
                 setKToRetry(dataNo, maxLoopTmp);
+
                 newtonMethodOneDForK(dataNo);
+
                 //if(maxLoopTmp%MAXLOOP == 0) cout << "Retry RTT...";
             }
         } else {
             numericalStatus_[dataNo] = NK_ERROR;
         }
+
     }
     while(numericalStatus_[dataNo] != NK_SUCCESS && (--maxLoop));
+
+    if((maxLoop > 0) && (validateValue(dataNo) == NK_SUCCESS)) {
+        // passing validateValue() and validateFinalValue()
+        numericalStatus_[dataNo] = NK_SUCCESS;
+    } else if ((maxLoop == 0) && (validateFinalValue(dataNo) == NK_SUCCESS)) {
+        // do not passing validateValue() but that might because the k
+        // is negative and really close to 0 and small enough to be reasonable
+        // try it after changing signs...
+        numericalStatus_[dataNo] = NK_SUCCESS;
+    } else {
+        numericalStatus_[dataNo] = NK_ERROR;
+    }
 
     //cout << "Newton method finish!!!" << endl;
 
@@ -371,7 +404,7 @@ int FresnelData::newtonMethodRTRTTSingleWavelength(long double wavelengthValue) 
     for(int i=0;i<TOTALDATANO;i++) {
         // Debug.
         //cout << wavelength_[i] << " " << wavelengthValue << endl;
-        if(wavelength_[i] == wavelengthValue) dataNo = i;
+        if(fabs(wavelength_[i] - wavelengthValue) < NUMBER_EQUAL) dataNo = i;
     }
 
     if(dataNo == -1 && dataNo < -1) {
@@ -406,12 +439,12 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
                 //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
                 //cout << "newtonParas_[0]/newtonParas_[3] " << newtonParas_[0]/newtonParas_[3] << endl;
                 newtonParas_[6] = newtonParas_[0]/newtonParas_[3];
-                extinctionCoefficient_[dataNo] -= newtonParas_[6];
+                alpha_[dataNo] -= newtonParas_[6];
 
 
                 // Debug.
                 //if(dataNo == 12) {
-                //cout << maxLoop << " " << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << extinctionCoefficient_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo) << endl;
+                //cout << maxLoop << " " << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << alpha_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo) << endl;
                 //}
 
 
@@ -427,7 +460,7 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
             numericalStatus_[dataNo] = NK_ERROR;
         }
     }
-    while((fabs(newtonParas_[7]) > KACCURACY || (evalTransmittanceConstrain(dataNo) > ACCURACY) || (evalReflectanceConstrain(dataNo) > ACCURACY)) && (--maxLoop));
+    while((fabs(newtonParas_[7]) > KACCURACY) && ((evalTransmittanceConstrain(dataNo) > TACCURACY) || (evalReflectanceConstrain(dataNo) > RACCURACY)) && (--maxLoop));
 
     // Debug
     //cout << "dataNo is " << dataNo << endl;
@@ -458,12 +491,16 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
         if(setNewtonParas(dataNo,0,2) == NK_SUCCESS) {
             evalJacobian(dataNo);
             delta = newtonParas_[2]*newtonParas_[5] - newtonParas_[3]*newtonParas_[4];
-            if(delta == 0) maxLoop = NK_ERROR; // forcing to stop
+            if(delta == 0) {
+                //cout << "delta is 0"; 
+                maxLoop = NK_ERROR; // forcing to stop
+            }
+            //cout << maxLoop << endl;
             //tmpDeltaIOR = (newtonParas_[3]*newtonParas_[1] - newtonParas_[0]*newtonParas_[5])/delta;
             //tmpDeltaEC = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
             //if(dataNo == 12) {
-            //    cout << "Loop\tn\tdn\tk\tdk\tdT\tdR" << endl;
-            //    cout << maxLoop << "\t" << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << extinctionCoefficient_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo)  << " " << evalReflectanceConstrain(dataNo) << endl;
+            //    cout << "Loop\tn\tdn\ta\tda\tdT\tdR" << endl;
+            //    cout << maxLoop << "\t" << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << alpha_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo)  << " " << evalReflectanceConstrain(dataNo) << endl;
             //}
             //cout << "shift n\tshitf k" << endl;
             //cout << tmpDeltaIOR << "\t" << tmpDeltaEC << endl;
@@ -471,14 +508,14 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
             maxLoop = NK_ERROR;
         }
     }
-    while(((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY) || (evalTransmittanceConstrain(dataNo) > ACCURACY) || (evalReflectanceConstrain(dataNo) > ACCURACY)) && (--maxLoop));
+    while((((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY)) && ((evalTransmittanceConstrain(dataNo) > TACCURACY) || (evalReflectanceConstrain(dataNo)) > RACCURACY)) && (--maxLoop));
 
     //cout << endl;
 
     if(maxLoop > 0) {
         numericalStatus_[dataNo] = NK_SUCCESS;
         //cout << "FresnelData::newtonMethodTwoDForNK success!!" << endl;
-        //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
+        //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << alpha_[dataNo] << endl;
     } else {
         numericalStatus_[dataNo] = NK_ERROR;
         //cout << "FresnelData::newtonMethodTwoDForNK failed!!" << endl;
@@ -519,14 +556,15 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
     for(int i=0;i<6;i++) newtonParas_[i] = 0; // reset/initialize
 
     long double tmpIOR = indexOfRefraction_[dataNo];
-    long double tmpEC = extinctionCoefficient_[dataNo];
+    long double tmpEC = alpha_[dataNo];
     long double atmpFuncValue(0);
     long double btmpFuncValue(0);
 
 #ifndef UNITTESTONED
 #ifndef UNITTESTTWOD
 
-    if(validateNumericalRange(dataNo) == NK_SUCCESS) {
+
+    if(validateNumericalRange(dataNo) == NK_SUCCESS) { // avoid nan and inf
 
         // Debug.
         //cout << "Caculating T partial k" << endl;
@@ -535,12 +573,12 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
         newtonParas_[1] = evalReflectanceConstrain(dataNo);
  
         // T partial k
-        extinctionCoefficient_[dataNo] += DELTAEC;
+        alpha_[dataNo] += DELTAEC;
         atmpFuncValue = evalTransmittanceConstrain(dataNo);
-        extinctionCoefficient_[dataNo] = tmpEC;
-        extinctionCoefficient_[dataNo] -= DELTAEC;
+        alpha_[dataNo] = tmpEC;
+        alpha_[dataNo] -= DELTAEC;
         btmpFuncValue = evalTransmittanceConstrain(dataNo);
-        extinctionCoefficient_[dataNo] = tmpEC;
+        alpha_[dataNo] = tmpEC;
         newtonParas_[3] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
         //cout << "atmpFuncValue " << atmpFuncValue << endl;
         //cout << "btmpFuncValue " << btmpFuncValue << endl;
@@ -572,12 +610,12 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
         //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
      
         // R partial k
-        extinctionCoefficient_[dataNo] += DELTAEC;
+        alpha_[dataNo] += DELTAEC;
         atmpFuncValue = evalReflectanceConstrain(dataNo);
-        extinctionCoefficient_[dataNo] = tmpEC;
-        extinctionCoefficient_[dataNo] -= DELTAEC;
+        alpha_[dataNo] = tmpEC;
+        alpha_[dataNo] -= DELTAEC;
         btmpFuncValue = evalReflectanceConstrain(dataNo);
-        extinctionCoefficient_[dataNo] = tmpEC;
+        alpha_[dataNo] = tmpEC;
         newtonParas_[5] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
         //cout << "atmpFuncValue " << atmpFuncValue << endl;
         //cout << "btmpFuncValue " << btmpFuncValue << endl;
@@ -607,12 +645,12 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
     newtonParas_[0] = evalOneDUnitTestFormula(dataNo);
 
     // T partial k
-    extinctionCoefficient_[dataNo] += DELTAEC;
+    alpha_[dataNo] += DELTAEC;
     atmpFuncValue = evalOneDUnitTestFormula(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    extinctionCoefficient_[dataNo] -= DELTAEC;
+    alpha_[dataNo] = tmpEC;
+    alpha_[dataNo] -= DELTAEC;
     btmpFuncValue = evalOneDUnitTestFormula(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
+    alpha_[dataNo] = tmpEC;
     newtonParas_[3] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
     //cout << "atmpFuncValue " << atmpFuncValue << endl;
     //cout << "btmpFuncValue " << btmpFuncValue << endl;
@@ -647,12 +685,12 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
     newtonParas_[2] = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
 
     // T partial k
-    extinctionCoefficient_[dataNo] += DELTAEC;
+    alpha_[dataNo] += DELTAEC;
     atmpFuncValue = evalTwoDUnitTestFormulaOne(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    extinctionCoefficient_[dataNo] -= DELTAEC;
+    alpha_[dataNo] = tmpEC;
+    alpha_[dataNo] -= DELTAEC;
     btmpFuncValue = evalTwoDUnitTestFormulaOne(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
+    alpha_[dataNo] = tmpEC;
     newtonParas_[3] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
     //cout << "atmpFuncValue " << atmpFuncValue << endl;
     //cout << "btmpFuncValue " << btmpFuncValue << endl;
@@ -671,12 +709,12 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
     //cout << "atmpFuncValue - btmpFuncValue = " << atmpFuncValue - btmpFuncValue << endl;
 
     // R partial k
-    extinctionCoefficient_[dataNo] += DELTAEC;
+    alpha_[dataNo] += DELTAEC;
     atmpFuncValue = evalTwoDUnitTestFormulaTwo(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
-    extinctionCoefficient_[dataNo] -= DELTAEC;
+    alpha_[dataNo] = tmpEC;
+    alpha_[dataNo] -= DELTAEC;
     btmpFuncValue = evalTwoDUnitTestFormulaTwo(dataNo);
-    extinctionCoefficient_[dataNo] = tmpEC;
+    alpha_[dataNo] = tmpEC;
     newtonParas_[5] = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
     //cout << "atmpFuncValue " << atmpFuncValue << endl;
     //cout << "btmpFuncValue " << btmpFuncValue << endl;
@@ -695,23 +733,92 @@ int FresnelData::setNewtonParas(int dataNo, int thickFlag, int methodDimensionFl
 
 }
 
-// validate value physically legal or not
-int FresnelData::validateValue(int dataNo) {
+// some k/alpha is negative but really close to 0 (small enough to be reasonable), try...
+int FresnelData::retryNegativeK(int dataNo) {
 
-    // different wavelength should has different validation...phsics
-    if(dataNo < 400) {
-        if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && ( extinctionCoefficient_[dataNo] > 0.0) && (extinctionCoefficient_[dataNo] < 1.0e-7)) {
-            return NK_SUCCESS;
+    // Debug
+    cout << "int FresnelData::retryNegativeK(int dataNo) is called!!" << endl;
+
+    long double alphatmp = -(alpha_[dataNo]);
+    alpha_[dataNo] = alphatmp;
+
+    if((fabs(evalTransmittanceConstrain(dataNo)) < TACCURACY) && (fabs(evalReflectanceConstrain(dataNo)) < RACCURACY)) {
+        return NK_SUCCESS;
+    } else { 
+        return NK_ERROR;
+    }
+
+}
+
+// 1.validate value physically legal or not
+//      n shold be 1~2, alpha should be positive and attenuation length DONT be larger than 20m
+// 2.final decision to accept the result of not
+int FresnelData::validateFinalValue(int dataNo) {
+
+    // some k/alpha is negative but really close to 0 (small enough to be reasonable), try...
+    if((alpha_[dataNo] < 0.0)) {
+        if(retryNegativeK(dataNo) == NK_SUCCESS) {
+            // different wavelength should has different validation...phsics
+            if(dataNo < 400) {
+                if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
+                    return NK_SUCCESS;
+                } else {
+                    //cout << "Beyond physics requirement" << endl;
+                    return NK_ERROR;
+                }
+            } else {
+                if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 5.0e-4)) {
+                    return NK_SUCCESS;
+                } else {
+                    //cout << "Beyond physics requirement" << endl;
+                    return NK_ERROR;
+                }
+            }
         } else {
             return NK_ERROR;
         }
     } else {
-        if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && ( extinctionCoefficient_[dataNo] > 0.0) && (extinctionCoefficient_[dataNo] < 1.0e-4)) {
+        // different wavelength should has different validation...phsics
+        if(dataNo < 400) {
+            if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
+                return NK_SUCCESS;
+            } else {
+                //cout << "Beyond physics requirement" << endl;
+                return NK_ERROR;
+            }
+        } else {
+            if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 5.0e-4)) {
+                return NK_SUCCESS;
+            } else {
+                //cout << "Beyond physics requirement" << endl;
+                return NK_ERROR;
+            }
+        }
+    }
+
+
+}
+
+int FresnelData::validateValue(int dataNo) {
+
+    // different wavelength should has different validation...phsics
+    if(dataNo < 400) {
+        if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 1.0e-5)) {
             return NK_SUCCESS;
         } else {
+            //cout << "Beyond physics requirement" << endl;
+            return NK_ERROR;
+        }
+    } else {
+        if((indexOfRefraction_[dataNo] > 1.0) && (indexOfRefraction_[dataNo] < 2.0) && (alpha_[dataNo] > 5.0e-4)) {
+            return NK_SUCCESS;
+        } else {
+            //cout << "Beyond physics requirement" << endl;
             return NK_ERROR;
         }
     }
+
+
 }
 
 // validate value not to be nan or inf
@@ -719,8 +826,8 @@ int FresnelData::validateValue(int dataNo) {
 int FresnelData::validateNumericalRange(int dataNo) {
 
     //cout << "Validation of parameters ";
-    //if(dataNo < 30) cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << extinctionCoefficient_[dataNo] << endl;
-    if(fabs(indexOfRefraction_[dataNo]) > 10.0 || fabs(extinctionCoefficient_[dataNo]) > 1.0) {
+    //if(dataNo < 30) cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << alpha_[dataNo] << endl;
+    if(fabs(indexOfRefraction_[dataNo]) > 10.0 || fabs(alpha_[dataNo]) > 1.0) {
         //cout << "Values are invalid! " << endl;
         return NK_ERROR;
     } else {
@@ -730,20 +837,6 @@ int FresnelData::validateNumericalRange(int dataNo) {
 
 }
 
-void FresnelData::setECToAlpha(int dataNo) {
-
-    cout << "Before FresnelData::setECToAlpha(int dataNo), EC is " << extinctionCoefficient_[dataNo] << endl;
-    cout << "wavelenhth is " << wavelength_[dataNo] << endl;
-    extinctionCoefficient_[dataNo] = (extinctionCoefficient_[dataNo]*(4.0)*M_PI)/wavelength_[dataNo];
-    cout << "Alpha " << extinctionCoefficient_[dataNo] << endl;
-
-}
-
-void FresnelData::setAlphaToEC(int dataNo) {
-
-    extinctionCoefficient_[dataNo] = wavelength_[dataNo]*extinctionCoefficient_[dataNo]/((4.0)*M_PI);
-
-}
 
 void FresnelData::evalJacobian(int dataNo) {
 
@@ -756,8 +849,8 @@ void FresnelData::evalJacobian(int dataNo) {
         indexOfRefraction_[dataNo] += newtonParas_[6];
         //cout << "indexOfRefraction_[dataNo] " << indexOfRefraction_[dataNo] << endl;
         newtonParas_[7] = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
-        extinctionCoefficient_[dataNo] += newtonParas_[7];
-        //cout << "extinctionCoefficient_[dataNo] " << extinctionCoefficient_[dataNo] << endl;
+        alpha_[dataNo] += newtonParas_[7];
+        //cout << "alpha_[dataNo] " << alpha_[dataNo] << endl;
         numericalStatus_[dataNo] = NK_SUCCESS;
     }
 
@@ -776,15 +869,9 @@ long double FresnelData::evalReflectanceConstrain(int dataNo) {
 
 }
 
-void FresnelData::kToAlpha(int dataNo){
+long double FresnelData::AlphaTok(int dataNo) {
 
-    alpha_[dataNo] = wavelength_[dataNo]/(4.0*M_PI*extinctionCoefficient_[dataNo]);
-
-}
-
-void FresnelData::AlphaTok(int dataNo) {
-
-    extinctionCoefficient_[dataNo] = (4.0*M_PI*alpha_[dataNo])/wavelength_[dataNo];
+    return (alpha_[dataNo]*wavelength_[dataNo])/(4.0*M_PI);
 
 }
 
@@ -800,7 +887,7 @@ void FresnelData::AlphaTok(int dataNo) {
 /*
 void FresnelData::setNewtonParasForOneDUnitTest(int dataNo) {
 
-    extinctionCoefficient_[dataNo] = 8.3;
+    alpha_[dataNo] = 8.3;
 
     dumpOneDUnitTest(dataNo);
 
@@ -808,7 +895,7 @@ void FresnelData::setNewtonParasForOneDUnitTest(int dataNo) {
 
 long double FresnelData::evalOneDUnitTestFormula(int dataNo) {
 
-    return 9.0*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo] + 78.0 - 3165.0;
+    return 9.0*alpha_[dataNo]*alpha_[dataNo]*alpha_[dataNo] + 78.0 - 3165.0;
 
 }
 
@@ -817,7 +904,7 @@ void FresnelData::dumpOneDUnitTest(int dataNo) {
     cout << "The parameters should be ......" << endl;
     cout << "f\tfx" << endl;
     cout << evalOneDUnitTestFormula(dataNo) << "\t"
-    << 27.0*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo] << endl;
+    << 27.0*alpha_[dataNo]*alpha_[dataNo] << endl;
 
 }
 */
@@ -836,7 +923,7 @@ void FresnelData::dumpOneDUnitTest(int dataNo) {
 void FresnelData::setNewtonParasForTwoDUnitTest(int dataNo) {
 
     indexOfRefraction_[dataNo] = 5.0;
-    extinctionCoefficient_[dataNo] = 8.3;
+    alpha_[dataNo] = 8.3;
 
     dumpTwoDUnitTest(dataNo);
 
@@ -844,13 +931,13 @@ void FresnelData::setNewtonParasForTwoDUnitTest(int dataNo) {
 
 long double FresnelData::evalTwoDUnitTestFormulaOne(int dataNo) {
 
-    return 3.0*indexOfRefraction_[dataNo]*indexOfRefraction_[dataNo] + extinctionCoefficient_[dataNo] - 115.0;
+    return 3.0*indexOfRefraction_[dataNo]*indexOfRefraction_[dataNo] + alpha_[dataNo] - 115.0;
 
 }
 
 long double FresnelData::evalTwoDUnitTestFormulaTwo(int dataNo) {
 
-    return 4.0*indexOfRefraction_[dataNo]+5.0*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo] - 1739.0;
+    return 4.0*indexOfRefraction_[dataNo]+5.0*alpha_[dataNo]*alpha_[dataNo]*alpha_[dataNo] - 1739.0;
 
 }
 
@@ -860,7 +947,7 @@ void FresnelData::dumpTwoDUnitTest(int dataNo) {
     cout << "f\tg\tfx\tfy\tgx\tgy" << endl;
     cout << evalTwoDUnitTestFormulaOne(dataNo) << "\t" << evalTwoDUnitTestFormulaTwo(dataNo) << "\t"
     << 6.0*indexOfRefraction_[dataNo] << "\t1\t4\t"
-    << 15.0*extinctionCoefficient_[dataNo]*extinctionCoefficient_[dataNo] << endl;
+    << 15.0*alpha_[dataNo]*alpha_[dataNo] << endl;
 
 }
 */
