@@ -76,6 +76,7 @@ class FresnelData {
         int loadFromFile(   string thinTransmittanceFilename, string thinReflectanceFilename,
                             string thickTransmittanceFilename, string thickReflectanceFilename);
         void dump(int dataNo);
+        void dumpBasicInfo(int dataNo);
         void dumpToFile(string outputFilename);
         int dumpSingleWavelengthNK(long double wavelengthValue);
         void set(long double *indexOfRefraction, long double *extinctionCoefficient);

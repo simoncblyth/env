@@ -25,6 +25,7 @@
 
 //#define UNITTESTONED
 //#define UNITTESTTWOD
+#define DEBUGMODE
 
 #include <cmath>
 #include <cfloat>
@@ -147,6 +148,17 @@ void FresnelData::dump(int dataNo) {
 
 }
 
+void FresnelData::dumpBasicInfo(int dataNo) {
+
+    cout << 1000000*wavelength_[dataNo] << "nm " << indexOfRefraction_[dataNo] << " " << alpha_[dataNo];
+
+    evalConstrain(dataNo);
+
+    cout << "\t" << thinTransmittanceConstrain_[dataNo] << " " << thinReflectanceConstrain_[dataNo];
+    cout << "\t" << thickTransmittanceConstrain_[dataNo] << " " << thickReflectanceConstrain_[dataNo] << endl;
+
+}
+
 void FresnelData::dumpToFile(string outputFilename) {
 
     ofstream fout;
@@ -165,6 +177,8 @@ void FresnelData::dumpToFile(string outputFilename) {
 
 int FresnelData::dumpSingleWavelengthNK(long double wavelengthValue) {
 
+    cout << "FresnelData::dumpSingleWavelengthNK(long double wavelengthValue)\t is called" << endl;
+
     int dataNo(-1);
     for(int i=0;i<TOTALDATANO;i++) {
         // Debug.
@@ -178,9 +192,8 @@ int FresnelData::dumpSingleWavelengthNK(long double wavelengthValue) {
     }
 
     if(numericalStatus_[dataNo] == NK_SUCCESS) {
-        cout << wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
-        << "\t" << alpha_[dataNo]
-        << "\tSUCCESS!!" << endl;
+        dumpBasicInfo(dataNo);
+        cout << "\t\tSUCCESS!!" << endl;
     } else if(numericalStatus_[dataNo] == NK_ERROR) {
         cout << wavelength_[dataNo] << "\tFAILED!!\t\tStage:FresnelData::dumpSingleWavelengthNK" << endl;
     } else {
@@ -381,6 +394,7 @@ void FresnelData::newtonMethodRTRTT(int dataNo) {
     while(numericalStatus_[dataNo] != NK_SUCCESS && (--maxLoop));
 
     if((maxLoop > 0) && (validateValue(dataNo) == NK_SUCCESS)) {
+        //cout << "RTRTT Loop No:" << maxLoop << endl;
         // passing validateValue() and validateFinalValue()
         numericalStatus_[dataNo] = NK_SUCCESS;
     } else if ((maxLoop == 0) && (validateFinalValue(dataNo) == NK_SUCCESS)) {
@@ -420,7 +434,9 @@ int FresnelData::newtonMethodRTRTTSingleWavelength(long double wavelengthValue) 
 
 void FresnelData::newtonMethodOneDForK(int dataNo) {
 
-    //cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
+#ifdef DEBUGMODE
+    cout << endl << "FresnelData::newtonMethodOneDForK(int dataNo)" << endl;
+#endif
 
 #ifdef UNITTESTONED
         setNewtonParasForOneDUnitTest(dataNo);
@@ -438,17 +454,14 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
                 // Debug.
                 //cout << "newtonParas_[0] " << newtonParas_[0] << " ,newtonParas_[3] " << newtonParas_[3];
                 //cout << "newtonParas_[0]/newtonParas_[3] " << newtonParas_[0]/newtonParas_[3] << endl;
-                newtonParas_[6] = newtonParas_[0]/newtonParas_[3];
-                alpha_[dataNo] -= newtonParas_[6];
-
+                newtonParas_[7] = newtonParas_[0]/newtonParas_[3];
+                alpha_[dataNo] -= newtonParas_[7];
 
                 // Debug.
-                //if(dataNo == 12) {
-                //cout << maxLoop << " " << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << alpha_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo) << " " << evalReflectanceConstrain(dataNo) << endl;
-                //}
-
-
-
+#ifdef DEBUGMODE
+                cout << maxLoop  << "th\t " << newtonParas_[7] << endl;
+                dumpBasicInfo(dataNo);
+#endif
             } else {
                 //cout << "newtonParas_[3] is 0" << endl;
                 maxLoop = NK_ERROR; // forcing to stop
@@ -477,7 +490,9 @@ void FresnelData::newtonMethodOneDForK(int dataNo) {
 
 void FresnelData::newtonMethodTwoDForNK(int dataNo) {
 
-    //cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
+#ifdef DEBUGMODE
+    cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
+#endif
 
 #ifdef UNITTESTTWOD
     // Debug. Unit test
@@ -495,13 +510,14 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
                 //cout << "delta is 0"; 
                 maxLoop = NK_ERROR; // forcing to stop
             }
-            //cout << maxLoop << endl;
             //tmpDeltaIOR = (newtonParas_[3]*newtonParas_[1] - newtonParas_[0]*newtonParas_[5])/delta;
             //tmpDeltaEC = (newtonParas_[0]*newtonParas_[4] - newtonParas_[2]*newtonParas_[1])/delta;
-            //if(dataNo == 12) {
-            //    cout << "Loop\tn\tdn\ta\tda\tdT\tdR" << endl;
-            //    cout << maxLoop << "\t" << indexOfRefraction_[dataNo] << " " << newtonParas_[6] << " " << alpha_[dataNo] << " " << newtonParas_[7] << " " << evalTransmittanceConstrain(dataNo)  << " " << evalReflectanceConstrain(dataNo) << endl;
-            //}
+
+            // Debug.
+#ifdef DEBUGMODE
+            cout << maxLoop << "th " << newtonParas_[6] << " " << newtonParas_[7] << endl;
+            dumpBasicInfo(dataNo);
+#endif
             //cout << "shift n\tshitf k" << endl;
             //cout << tmpDeltaIOR << "\t" << tmpDeltaEC << endl;
         } else {
@@ -870,7 +886,14 @@ int FresnelData::evalConstrain(int dataNo) {
 
     thickness_ = thicknessTmp;
 
-    if((fabs(thinReflectanceConstrain_[dataNo]) < TACCURACY) && (fabs(thickTransmittanceConstrain_[dataNo]) < TACCURACY) && (fabs(thinReflectanceConstrain_[dataNo]) < RACCURACY) && (fabs(thickReflectanceConstrain_[dataNo]) < RACCURACY)) {
+    // Debug
+    //cout << "evalConstrain(int dataNo)\t" << thinTransmittanceConstrain_[dataNo] << " " << thinReflectanceConstrain_[dataNo];
+    //cout << "\t" << thickTransmittanceConstrain_[dataNo] << " " << thickReflectanceConstrain_[dataNo] << endl;
+
+
+    if((fabs(thinTransmittanceConstrain_[dataNo]) < TACCURACY) && (fabs(thickTransmittanceConstrain_[dataNo]) < TACCURACY) && (fabs(thinReflectanceConstrain_[dataNo]) < RACCURACY) && (fabs(thickReflectanceConstrain_[dataNo]) < RACCURACY)) {
+        //cout << endl << "fabs " << thinReflectanceConstrain_[dataNo]  << " fabs" << endl;
+        //cout << "evalConstrain(int dataNo): true" << endl;
         return NK_SUCCESS;
     } else {
         return NK_ERROR;
