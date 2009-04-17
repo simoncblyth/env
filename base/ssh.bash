@@ -31,11 +31,11 @@ cat << EOU
          the passphrase used at key creation will be prompted for 
             source>  ssh--agent-start
            
-
-
-
      ssh--info
           dump agent pid etc..
+
+     ssh--tunnel <tag:N> <port:8080>
+          tunnel remote port onto local machine
 
 
     Related function precursors ..
@@ -46,6 +46,33 @@ cat << EOU
 EOU
 
 }
+
+
+
+ssh--tunnel(){
+  local tag=${1:-N} 
+  local port=${2:-8080}
+
+  local cmd="ssh -fND localhost:$port $tag "
+
+  cat << EON
+
+     -D Specifies a local ``dynamic'' application-level port forwarding.  This works by allocating a socket to listen to port on the local side, optionally bound to the specified bind_address. 
+     -N no remote command, just forward
+     -f go to background 
+  
+
+   kill the process to stop the tunnel 
+
+EON
+
+ echo $msg opening ...  $cmd 
+ eval $cmd 
+ sleep 1 
+ ps aux | grep ssh
+
+}
+
 
 
 ssh--keygen(){
