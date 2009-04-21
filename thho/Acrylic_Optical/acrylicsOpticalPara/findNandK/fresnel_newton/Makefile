@@ -26,5 +26,5 @@ $(BIN): $(OBJ)
 main.o: main.cpp
 	$(CPP) -c main.cpp -o main.o $(CFLAGS)
 
-findNKNewton.o: findNKNewton.cpp
+findNKNewton.o: findNKNewton.cpp findNKNewton.h
 	$(CPP) -c findNKNewton.cpp -o findNKNewton.o $(CFLAGS)
