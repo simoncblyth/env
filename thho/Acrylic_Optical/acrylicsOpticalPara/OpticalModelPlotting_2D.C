@@ -31,7 +31,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
 
     TCanvas *c1 = new TCanvas(
         "c1","Optical Model T and R",200,10,700,900);
-    c1->Divide(2,3);
+    c1->Divide(2,1);
     //title = new TPaveText(.2,0.96,.8,.995);
     //title->AddText("Optical Model T and R");
     //title->Draw();
@@ -41,12 +41,23 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     //pad1->Draw();
     //pad2->Draw();
 
+    ostringstream buffer;
+    string titleString;
+    buffer << "thickness " << d << ", lambda " << lambda;
+    titleString = buffer.str();
+
     c1->cd(1);
     TF2 *tt = new
         TF2("Transmittance", GetTFormula,nmin,nmax,kmin,kmax,parNo);
     //pad1->cd();
     //pad1->SetPhi(-80);
     tt->SetParameters(d,lambda);
+    string tmpTitle = "Transmittance(n,K), "+titleString;
+    tt->SetTitle(tmpTitle.data());
+    tt->GetHistogram()->GetXaxis()->SetTitle("index of refraction, n");
+    tt->GetHistogram()->GetYaxis()->SetTitle("extinction coefficient, K");
+    tt->GetHistogram()->GetXaxis()->SetTitleOffset(1.4);
+    tt->GetHistogram()->GetYaxis()->SetTitleOffset(2.0);
     // color mesh
     tt->Draw("surf1");
     // gouraud shading
@@ -57,8 +68,15 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
         TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,parNo);
     //pad2->cd();
     rr->SetParameters(d,lambda);
+    tmpTitle = "Reflectance(n,K), "+ titleString;
+    rr->SetTitle(tmpTitle.data());
+    rr->GetHistogram()->GetXaxis()->SetTitle("index of refraction, n");
+    rr->GetHistogram()->GetYaxis()->SetTitle("extinction coefficient, K");
+    rr->GetHistogram()->GetXaxis()->SetTitleOffset(1.4);
+    rr->GetHistogram()->GetYaxis()->SetTitleOffset(2.0);
+ 
     rr->Draw("surf1");
-
+/*
     c1->cd(3);
     TF1 *ttk = new
         TF1("Transmittance of fix n",GetTFormulaK,kmin,kmax,parNo+1);
@@ -82,7 +100,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
         TF1("Reflectance of fix k",GetRFormulaN,nmin,nmax,parNo+1);
     rrn->SetParameters(d,lambda,kfix);
     rrn->Draw();
-
+*/
 
 
 }
