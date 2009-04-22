@@ -146,7 +146,6 @@ void FresnelData::dumpToFile(string outputFilename) {
     ofstream fout;
     fout.open(outputFilename.data());
 
-    cout << "sup?? " << endl;
 
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
         fout << 1000000.0*wavelength_[dataNo] << " " << indexOfRefraction_[dataNo]
@@ -156,7 +155,6 @@ void FresnelData::dumpToFile(string outputFilename) {
         << endl;
     }
 
-    cout << "YEAH" << endl;
 
 }
 
@@ -246,12 +244,12 @@ void FresnelData::newtonMethodRT(int dataNo) {
         //cout << "BIG LOOP " << maxLoop << endl;
         if(maxLoop != MAXLOOP) setNKToRetry(dataNo, maxLoop);
         newtonMethodTwoDForNK(dataNo);
-        //setCandidatePerEvent(dataNo, MAXLOOP - maxLoop);
+        setCandidatePerEvent(dataNo, MAXLOOP - maxLoop);
     }
-    while(numericalStatus_[dataNo] != NK_SUCCESS && (--maxLoop));
-    //while((--maxLoop));
+    //while(numericalStatus_[dataNo] != NK_SUCCESS && (--maxLoop));
+    while((--maxLoop));
 
-    //setCandidate(dataNo, MAXLOOP - maxLoop);
+    setCandidate(dataNo, MAXLOOP - maxLoop);
 
     if((validateFinalValue(dataNo) == NK_SUCCESS)) {
         numericalStatus_[dataNo] = NK_SUCCESS;
@@ -294,7 +292,8 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
             maxLoop = NK_ERROR;
         }
     }
-    while(((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY) || evalConstrain(dataNo)) && (--maxLoop));
+    //while(((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY) || evalConstrain(dataNo)) && (--maxLoop));
+    while(((fabs(newtonParas_[6]) > NACCURACY) || (fabs(newtonParas_[7]) > KACCURACY)) && (--maxLoop));
 
     //cout << endl;
 
@@ -431,6 +430,7 @@ void FresnelData::setCandidate(int dataNo, int loop) {
             chiConstrainTmp = (fabs(thinTransmittanceConstrain_[dataNo]) + fabs(thinReflectanceConstrain_[dataNo]));
             if(chiConstrain_ > chiConstrainTmp) {
                 chiConstrain_ = chiConstrainTmp;
+                //if((dataNo%10) == 4) cout <<  chiConstrain_ << " i  " << i << " " << indexOfRefraction_[dataNo] << " " << alpha_[dataNo] << endl;
                 bestCandidateDataNo = i;
             }
         }
