@@ -1,4 +1,6 @@
-nuwa-source(){ echo $BASH_SOURCE ; }
+nuwa-src(){    echo nuwa/nuwa.bash ; }
+nuwa-source(){ echo ${BASH_SOURCE:-$(env-home)/$(nuwa-src)} ; }
+nuwa-vi(){     vi $(nuwa-source) ; }
 nuwa-utils(){
   cat << EOU
 
@@ -310,7 +312,7 @@ nuwa-info(){
           nuwa-dybinst-cmd $v     : $(nuwa-dybinst-cmd $v)
  
     For screen protection :
-         nuwa-- nuwa-dybinst
+         nuwa-- nuwa-dybinst projects dybgaudi
  
             
             
@@ -411,7 +413,7 @@ nuwa-isinstalled-(){
 
 
 nuwa-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
-nuwa-dybinst-cmd(){     echo ./dybinst "$(nuwa-dybinst-options $*)" $(nuwa-version $*) all ; }
+nuwa-dybinst-cmd(){     echo ./dybinst "$(nuwa-dybinst-options)" $(nuwa-version)  ; }
 nuwa-dybinst-options(){ echo "${NUWA_DYBINST_OPTIONS:-""}" ; }
 nuwa-dybinst(){
 
@@ -425,7 +427,7 @@ nuwa-dybinst(){
     local url=$(nuwa-dybinst-url)
     [ ! -f dybinst ] && echo $msg exporting $url && svn export $url
     
-    local cmd=$(nuwa-dybinst-cmd)
+    local cmd=$(nuwa-dybinst-cmd) $*
     local ans
     read -p "$msg from $PWD proceed with : [ $cmd ]  enter YES to proceed : " ans     
     [ "$ans" != "YES" ] && echo $msg skipped ... && return 1
