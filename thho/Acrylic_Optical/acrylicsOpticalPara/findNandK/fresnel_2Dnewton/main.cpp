@@ -10,13 +10,11 @@
 #define WHICH_WAVELENGTH 279.0
 // Input the thickness of the thiner sample (mm)
 //#define THIN_THICKNESS 10.14
-#define THIN_THICKNESS 14.80
+#define THIN_THICKNESS 10.14
 // Input filename of transmittance of a thin sample
-//#define FILENAME_THIN_TRANSMITTANCE "1-1-1-1.csv"
-#define FILENAME_THIN_TRANSMITTANCE "2-1-1-1.csv"
+#define FILENAME_THIN_TRANSMITTANCE "1-1-1-1.csv"
 // Input filename of reflectance of a thin sample
-//#define FILENAME_THIN_REFLECTANCE "1-1-2-1.csv"
-#define FILENAME_THIN_REFLECTANCE "2-1-2-1.csv"
+#define FILENAME_THIN_REFLECTANCE "1-1-2-1.csv"
 // Input the thickness of the thicker sample (mm)
 #define THICK_THICKNESS 14.80
 // Input filename of transmittance of a thick sample
@@ -33,11 +31,10 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    FresnelData fresnelData(FILENAME_THIN_TRANSMITTANCE, FILENAME_THIN_REFLECTANCE,
-                            FILENAME_THICK_TRANSMITTANCE, FILENAME_THICK_REFLECTANCE);
+    FresnelData fresnelData(FILENAME_THIN_TRANSMITTANCE, FILENAME_THIN_REFLECTANCE);
     // Initialize index of refraction, extinction coefficient, and thickness
     //fresnelData.setInitialParas(1.505,0.009*WHICH_WAVELENGTH*1.0e-6/(4.0*M_PI),THIN_THICKNESS, THICK_THICKNESS);
-    fresnelData.setInitialParas(1.505,0.009,THIN_THICKNESS, THICK_THICKNESS);
+    fresnelData.setInitialParas(1.505,0.009,THIN_THICKNESS);
 
     cout << "wavelen\tn value\talpha\t\tstatus" << endl;
 
@@ -49,6 +46,20 @@ int main(int argc, char *argv[]) {
     }
 
     fresnelData.dumpToFile("paras1.dat");
+
+
+
+    FresnelData fresnelDataThick(FILENAME_THICK_TRANSMITTANCE, FILENAME_THICK_REFLECTANCE);
+    fresnelDataThick.setInitialParas(1.505,0.009,THICK_THICKNESS);
+
+    for(int i=0;i<TOTALDATANO;i++) {
+        //fresnelData.newtonMethodRTRTT(i);
+        fresnelDataThick.newtonMethodRT(i);
+        fresnelDataThick.dump(i);
+    }
+
+    fresnelDataThick.dumpToFile("paras2.dat");
+
 
 
     /*
