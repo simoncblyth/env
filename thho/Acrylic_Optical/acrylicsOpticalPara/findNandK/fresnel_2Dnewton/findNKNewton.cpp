@@ -243,7 +243,7 @@ void FresnelData::newtonMethodRT(int dataNo) {
     {
         //cout << "BIG LOOP " << maxLoop << endl;
         if(maxLoop != MAXLOOP) setNKToRetry(dataNo, maxLoop);
-        newtonMethodTwoDForNK(dataNo);
+        newtonMethodTwoDForNK(dataNo, MAXLOOP - maxLoop);
         setCandidatePerEvent(dataNo, MAXLOOP - maxLoop);
     }
     //while(numericalStatus_[dataNo] != NK_SUCCESS && (--maxLoop));
@@ -260,7 +260,7 @@ void FresnelData::newtonMethodRT(int dataNo) {
 }
 
 
-void FresnelData::newtonMethodTwoDForNK(int dataNo) {
+void FresnelData::newtonMethodTwoDForNK(int dataNo, int loop) {
 
 #ifdef DEBUGMODE
 //    cout << "FresnelData::newtonMethodTwoDForNK(int dataNo)" << endl;
@@ -299,10 +299,12 @@ void FresnelData::newtonMethodTwoDForNK(int dataNo) {
 
     if(maxLoop > 0) {
         numericalStatus_[dataNo] = NK_SUCCESS;
+        loopStatus_[loop] = NK_SUCCESS;
         //cout << "FresnelData::newtonMethodTwoDForNK success!!" << endl;
         //cout << "n is " << indexOfRefraction_[dataNo] << " ,k is " << alpha_[dataNo] << endl;
     } else {
         numericalStatus_[dataNo] = NK_ERROR;
+        loopStatus_[loop] = NK_ERROR;
         //cout << "FresnelData::newtonMethodTwoDForNK failed!!" << endl;
     }
 
@@ -425,7 +427,7 @@ void FresnelData::setCandidate(int dataNo, int loop) {
     for(int i=0;i<loop;i++) {
         indexOfRefraction_[dataNo] = candidatesPerEvent_[i][0];
         alpha_[dataNo] = candidatesPerEvent_[i][1];
-        if(validateFinalValue(dataNo) == NK_SUCCESS) {
+        if(validateFinalValue(dataNo) == NK_SUCCESS && loopStatus_[loop] == NK_SUCCESS) {
             evalConstrain(dataNo);
             chiConstrainTmp = (fabs(thinTransmittanceConstrain_[dataNo]) + fabs(thinReflectanceConstrain_[dataNo]));
             if(chiConstrain_ > chiConstrainTmp) {
