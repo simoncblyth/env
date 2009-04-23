@@ -35,7 +35,7 @@
 // because of the uncertainty of different instrucment
 // between R and T, there should be different tolerance..
 // tolerance of transmittance
-#define TACCURACY 5.0e-3
+#define TACCURACY 1.0e-2
 // tolerance of reflectance
 #define RACCURACY 1.0e-3
 // how precise n is when approaching with Newton method, in order to make sure a local min/max
@@ -60,11 +60,11 @@
 // define reasonable n and alpha value range
 #define N_MIN 1.1
 #define N_MAX 1.9
-#define ALPHA_RED_MIN 1.0e-5
+#define ALPHA_RED_MIN 5.0e-5
 #define ALPHA_BLUE_MIN 5.0e-4
 // reasonable/local range when using newton method
 #define NEWTON_N 10.0
-#define NEWTON_ALPHA 1.0
+#define NEWTON_ALPHA 0.5
 
 
 #define NK_SUCCESS 0
@@ -106,7 +106,7 @@ class FresnelData {
         int retryNegativeK(int dataNo);
 
         void newtonMethodRT(int dataNo);
-        void newtonMethodTwoDForNK(int dataNo); // RT method
+        void newtonMethodTwoDForNK(int dataNo, int loop); // RT method
 
         int validateFinalValue(int dataNo);
         int validateValue(int dataNo);
@@ -128,6 +128,7 @@ class FresnelData {
         long double thinThickFlag_; // 0 for thin sample and 1 for thick sample
         long double candidatesPerEvent_[MAXLOOP][2];
         long double chiConstrain_;
+        int loopStatus_[MAXLOOP];
 
         long double thinTransmittanceConstrain_[TOTALDATANO];
         long double thinReflectanceConstrain_[TOTALDATANO];
