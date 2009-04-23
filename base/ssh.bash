@@ -38,6 +38,24 @@ cat << EOU
           tunnel remote port onto local machine
 
 
+     ssh--appendkey <tag> <path-to-key>
+
+        Usage example :
+           cd /tmp  ; scp N:.ssh/id_rsa.pub id_rsa.pub   ## grab the key of the new node
+           ssh--appendkey H id_rsa.pub                   ## append it on the target 
+           rm id_rsa.pub
+
+        This is useful to extend access to a node that accepts login only via key 
+        to a new node, via transferring the nodes key via a
+        node that already has keyed access. 
+
+    ssh--appendtag <target-tag> <new-tag> 
+        NOT YET IMPLEMENTED
+        
+        Automate the key grabbing and cleanup of the above example allowing : 
+            ssh--appendtag H N
+
+
     Related function precursors ..
         sshconf-     ## used for generating the .ssh/config file
 
@@ -203,6 +221,21 @@ ssh--putkey(){
 	ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
 
 }
+
+ssh--appendkey(){
+   local msg="=== $FUNCNAME :"
+   local tag=${1:-$TARGET_TAG}
+   local key=${2}
+   [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
+ 
+   local name=$(basename $key)
+   case $name in
+     id_dsa.pub|id_rsa.pub) cat $key | ssh $tag "cat - >> ~/.ssh/authorized_keys2"               ;;
+                         *) echo $msg ERROR expecting key with basename id_dsa.pub or id_rsa.pub ;;
+   esac
+}
+
+
 
 ssh--createdir(){
 
