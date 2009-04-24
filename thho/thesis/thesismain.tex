@@ -1,0 +1,67 @@
+%
+% This format is based on a class, ociamthesis.cls, from Mathematical Institute
+% of University of Oxford web page and was written by K.A. Gillow
+%
+% http://www.maths.ox.ac.uk/help/faqs/latex/thesisclass
+%
+%
+% Author: Taihsaing
+% Date: April 24, 2009
+%
+
+
+%input macros (i.e. write your own macros file called macpap2.tex)
+%\include{macpap2}
+
+\documentclass[12pt]{ociamthesis}
+
+%\usepackage{amssymb,epsfig}
+
+%setup a default path to search for graphics
+%\graphicspath{{./}{Figs/}{Plots/}}
+
+\title{Neutron Detectors for\\Dayabay Neutrino and\\Aberdeen Cosmic Ray Experiment}
+\author{Taihsiang Ho}
+\college{Department of Physics}
+%\renewcommand{\submittedtext}{change the default text here if needed}
+\degree{Master}
+\degreedate{April 24, 2009}
+%uncomment line below to change from traditional crest to belt crest
+%\renewcommand{\crest}{\beltcrest}
+
+\begin{document}
+
+\baselineskip=18pt plus1pt
+
+%set the number of sectioning levels that get number and appear in the contents
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+\maketitle
+\include{./contents/dedi}
+\include{./contents/ackno}
+\include{./contents/abst}
+\begin{romanpages}
+\tableofcontents
+\listoffigures
+\end{romanpages}
+
+\include{./contents/chapter1}
+\include{./contents/chapter2}
+\include{./contents/chapter3}
+\include{./contents/chapter4}
+\include{./contents/chapter5}
+%\include{conclusions}
+
+%\appendix
+%\include{appendix1}
+%\include{appendix2}
+
+%next line adds the Bibliography to the contents page
+%\addcontentsline{toc}{chapter}{Bibliography}
+%uncommnent next line to change bibliography name to references
+%\renewcommand{\bibname}{References}
+%\bibliography{refs}
+%\bibliographystyle{gillow}
+
+\end{document}
