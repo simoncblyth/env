@@ -29,6 +29,29 @@ env-designated(){
   esac
 }
 
+env-urlwc(){ svn info $(env-home) | perl -n -e 'm,URL: (\S*), && print $1 ' -  ; }
+
+env-relocate(){
+  local msg="=== $FUNCNAME :"
+  local tag=$1
+  local url=$(env-localserver $tag)/repos/env/trunk
+  local urlwc=$(env-urlwc)
+  local dtag=$(env-designated)
+
+  [ "$tag" != "$dtag" ]  && echo $msg WARNING the designated tag $dtag differes from what you are relocating to 
+  [ "$url" == "$urlwc" ] && echo $msg url of env-home working copy  $urlwc  already matches that of tag $tag ... skipping && return 0 
+
+  local cmd="svn switch --relocate $urlwc $url "
+  echo $msg $cmd
+  local ans
+  read -p "Switch source repository URL for WC ? enter YES to proceed "  ans
+  [ "$ans" != "YES" ] && echo $msg skipping ... && return 0
+
+  echo $msg proceeding...
+  eval $cmd  
+
+}
+
 
 env-ihep(){  echo http://$1.ihep.ac.cn ; }
 env-ntu(){   echo http://$1.phys.ntu.edu.tw ; }
