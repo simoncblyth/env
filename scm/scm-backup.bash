@@ -806,23 +806,8 @@ scm-recover-repo(){
             #$SUDO chown -R $user $name
           
             if [ "$type" == "tracs" ]; then
-            
-
-               echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
-               trac-
-
-               ## setting permissions 
-               $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
-               SUDO=$SUDO trac-configure-instance $name
-               
-               echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
-               TRAC_INSTANCE=$name trac-admin-- resync
-
-               echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
-               apache-
-               sudo find $(trac-envpath $name) -group root -exec chown $(apache-user):$(apache-group) {} \; 
-
-            fi
+                 scm-backup-synctrac $name
+             fi
          fi      
       else
          echo $msg  ERROR there is not 1 tgz in target_fold $target_fold
@@ -831,7 +816,26 @@ scm-recover-repo(){
 }
 
 
+scm-backup-synctrac(){
+  
+     local msg="=== $FUNCNAME :"
+     local name=${1:dummy}
+     [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
+     echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
+     trac-
 
+     ## setting permissions 
+     $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
+     SUDO=$SUDO trac-configure-instance $name
+               
+     echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
+     TRAC_INSTANCE=$name trac-admin-- resync
+
+     echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
+     apache-
+     sudo find $(trac-envpath $name) -group root -exec chown $(apache-user):$(apache-group) {} \; 
+
+}
 
 
 

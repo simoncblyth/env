@@ -36,7 +36,7 @@ env-urlwc(){ svn info $(env-home) | perl -n -e 'm,URL: (\S*), && print $1 ' -  ;
 env-relocate(){
   local msg="=== $FUNCNAME :"
   local tag=$1
-  local url=$(env-localserver $tag)/repos/env/trunk
+  local url=$(env-url $tag)
   local urlwc=$(env-urlwc)
   local dtag=$(env-designated)
 
