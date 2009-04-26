@@ -219,15 +219,17 @@ file-testcp(){
   #         creates a file of 100Mb and copies it, timing the action
   #
   #   with argument (note no tailing slash):
-  #          test-cp /tmp/tt
-  #          test-cp /Volumes/Hello 
+  #          file-testcp /tmp/tt
+  #          file-testcp /Volumes/Hello 
   #
   #              copies the test file to the provided directory path (that is assumed to exist) 
   #
 
+  local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+  local dir=${1:-$tmp} 
   local msg="=== $FUNCNAME :"
-  echo $msg 
-  python $HOME/$BASE_BASE/test-cp.py  $* 
+  echo $msg testing speed to copy to $dir
+  python $(env-home)/base/test-cp.py  $dir
    
 }
 

@@ -1,4 +1,5 @@
-
+test-source(){ echo $BASH_SOURCE ; }
+test-vi(){     vi $(test-source) ; }
 test-usage(){
 
  cat << EOU
