@@ -38,6 +38,9 @@ cat << EOU
           NB the entries indicate nodes/accounts from which this one can be 
              accessed via ssh key ... should be kept to the minimum needed 
 
+     ssh--tags : $(ssh--tags)
+     ssh--rlskey 
+         list keys in all the remote nodes
 
  
      ssh--rmkey <type> <name> <node>
@@ -259,10 +262,7 @@ ssh--appendkey(){
    [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
  
    local name=$(basename $key)
-   case $name in
-     id_dsa.pub|id_rsa.pub) cat $key | ssh $tag "cat - >> ~/.ssh/authorized_keys2"               ;;
-                         *) echo $msg ERROR expecting key with basename id_dsa.pub or id_rsa.pub ;;
-   esac
+   cat $key | ssh $tag "cat - >> ~/.ssh/authorized_keys2"              
 }
 
 
@@ -272,9 +272,34 @@ ssh--lskey(){
 }
 
 
+ssh--tags(){
+   cat << EOT
+H1 
+P 
+C 
+N 
+G1
+H
+EOT
+  
+}
+
 ssh--rlskey(){
+   ## need tags for root ???
+   echo $msg list keys on remote nodes : $tags
+   local tag
+   for tag in $(ssh--tags) ; do 
+      echo ""
+      ssh--rlskey- $tag
+   done
+
+}
+
+ssh--rlskey-(){
   local tag=${1:-P}
-  ssh $tag "bash -lc \"  ssh-;ssh--lskey     \""
+  local msg="=== $FUNCNAME :"
+  echo $msg $tag  
+  ssh $tag "bash -lc \"  ssh-;ssh--lskey; ls -alst ~/.ssh/     \""
 }
 
 ssh--selectkey(){
@@ -330,6 +355,33 @@ ssh--createdir(){
 ssh--rebuild(){
    sshconf-
    sshconf-gen   
+}
+
+ssh--designated-distribute(){
+
+   local msg="=== $FUNCNAME :"
+   local dtag=$(env-designated)
+   local tags=$(local-backup-tag $dtag)
+
+   local ans
+   read -p "$msg the pub key from $dtag to its backup nodes : $tags , enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 1
+
+   [ "$NODE_TAG" != "G" ] && echo $msg this needed to be run from hub node G && return 0
+   [ "$dtag" == "G" ] && echo $msg ABORT designated node can not be the nub node && return 1
+
+   echo $msg grab public key from designated node
+   local drsa=$HOME/.ssh/$dtag.id_rsa.pub
+   [ ! -f $drsa ] && scp $dtag:~/.ssh/id_rsa.pub $drsa
+   [ ! -f $drsa ] && echo $msg FAILED to grab $drsa from env-designated : $dtag ... you need to ssh--keygen on $dtag  && return 1
+
+   echo $msg distribute public key to the backup nodes of the designated node
+   local tag
+   for tag in $tags ; do
+      echo $msg ... $tag $drsa
+      ssh--appendkey  $tag $drsa
+   done
+
 }
 
 	

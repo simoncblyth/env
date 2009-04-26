@@ -43,6 +43,7 @@ env-relocate(){
   [ "$tag" != "$dtag" ]  && echo $msg WARNING the designated tag $dtag differes from what you are relocating to 
   [ "$url" == "$urlwc" ] && echo $msg url of env-home working copy  $urlwc  already matches that of tag $tag ... skipping && return 0 
 
+  cd $(env-home)
   local cmd="svn switch --relocate $urlwc $url "
   echo $msg $cmd
   local ans
