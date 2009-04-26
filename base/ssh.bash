@@ -22,7 +22,7 @@ cat << EOU
      to setup passwordless from source to target need :
    
         create the keys on the source machine
-            source> ssh--keygen passphrase
+            source> ssh--keygen 
    
         copy the public keys to the target machine
             source> ssh--putkey target
@@ -106,31 +106,32 @@ EON
 }
 
 
-
 ssh--keygen(){
-
-  local passph=${1:-dummy}
-  [ "$passph" == "dummy" ] && echo "you must enter a passphrase as the argument " && return 
+  local msg="=== $FUNCNAME :"
+  local passph
+  read -p "$msg Enter passphrase:" passph
+ 
+  [ "$passph" == "dummy" -o "$passph" == "" ] && echo "you must enter a non blank passphrase " && return 
   [ -d "$HOME/.ssh" ] || ( mkdir $HOME/.ssh && chmod 700 $HOME/.ssh )
 
   echo generating keys on node $NODE_TAG
-  local types="rsa1 rsa dsa"
+  local types="rsa dsa"
   for typ in $types
   do	  
      case $typ in
-       rsa1) keyname=identity ;;
+           rsa1) keyname=identity ;;
 	   rsa)  keyname=id_rsa   ;;
 	   dsa)  keyname=id_dsa   ;;
 	     *)  keyname=error    ;;
-	  esac    
-	  keyfile="$HOME/.ssh/$keyname"
-	  if [ -f "$keyfile" ]; then
-		  echo keyfile $keyfile already exists 
-	  else	  
-      
-          echo ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph
-               ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph   
-	  fi	  
+     esac    
+     keyfile="$HOME/.ssh/$keyname"
+     if [ -f "$keyfile" ]; then
+	 echo keyfile $keyfile already exists 
+     else	  
+         local cmd="ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph "
+         echo $cmd
+         eval $cmd
+     fi	  
   done		
 }
 
