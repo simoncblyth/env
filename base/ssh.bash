@@ -18,6 +18,7 @@ cat << EOU
    
         create the keys on the source machine
             source> ssh--keygen 
+        remember to skill the agent if a prior one is running 
    
         copy the public keys to the target machine
             source> ssh--putkey target
@@ -62,6 +63,12 @@ cat << EOU
         This is useful to extend access to a node that accepts login only via key 
         to a new node, via transferring the nodes key via a
         node that already has keyed access. 
+
+     ssh--inikey <tag> <path-to-key>
+
+         Like appendkey but scrub prior authorized_keys2 entries 
+
+
 
     ssh--appendtag <target-tag> <new-tag> 
         NOT YET IMPLEMENTED
@@ -265,6 +272,16 @@ ssh--appendkey(){
    cat $key | ssh $tag "cat - >> ~/.ssh/authorized_keys2"              
 }
 
+ssh--inikey(){
+   local msg="=== $FUNCNAME :"
+   local tag=${1:-$TARGET_TAG}
+   local key=${2}
+   [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
+ 
+   local name=$(basename $key)
+   cat $key | ssh $tag "cat - > ~/.ssh/authorized_keys2"              
+}
+
 
 
 ssh--lskey(){
@@ -352,35 +369,74 @@ ssh--createdir(){
 }
 
 
-ssh--rebuild(){
-   sshconf-
-   sshconf-gen   
+
+ssh--local-key(){      echo $HOME/.ssh/id_rsa.pub ; }
+ssh--designated-key(){ echo $HOME/.ssh/$(env-designated).id_rsa.pub ; }
+
+ssh--grab-key(){
+   local msg="=== $FUNCNAME :"
+   local path=${1:-$(ssh--designated-key)}
+   local name=$(basename $path)
+   local dtag=${name/.*/}
+   local n=$(( ${#dtag} + 1 ))
+   local base=${name:$n}
+
+   echo $msg path $path name $name dtag $dtag n $n base $base 
+   [ -f $path ] && echo $msg $path is already present && return 0
+   [ ! -f $path ] && scp $dtag:~/.ssh/$base $path  
+   [ ! -f $path ] && echo $msg FAILED to grab $path from $tag ... you need to ssh--keygen on $dtag  && return 1
 }
 
-ssh--designated-distribute(){
+
+ssh--initialize-keys(){
+   local msg="=== $FUNCNAME :"
+
+   local ans
+   read -p "$msg this wipes all authorized keys on ssh--tags $(ssh--tags) and refreshes with the G key,  enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 1
+
+   local hrsa=$HOME/.ssh/id_rsa.pub
+   [ ! -f $hrsa ] && echo $msg ERROR no hrsa $hrsa ... you need to ssh--keygen on G && return 1
+   local tag
+   for tag in $(ssh--tags) ; do 
+      case $tag in 
+        G) echo $msg skipping tag $tag ;; 
+        H) echo $msg skipping tag $tag until debugged ... to avoid lockout  ;; 
+        *) ssh--inikey $tag $hrsa     ;;
+      esac
+   done
+ 
+}
+
+ssh--distribute-key(){
 
    local msg="=== $FUNCNAME :"
-   local dtag=$(env-designated)
+   local path=${1:-$(ssh--designated-key)}
+   local name=$(basename $path)
+   local dtag=${name/.*/}
+   local n=$(( ${#dtag} + 1 ))
+   local base=${name:$n}
    local tags=$(local-backup-tag $dtag)
 
    local ans
-   read -p "$msg the pub key from $dtag to its backup nodes : $tags , enter YES to proceed " ans
-   [ "$ans" != "YES" ] && echo $msg skipping && return 1
+   read -p "$msg $path from $dtag to nodes : $tags , enter YES to proceed " ans
+   [ "$ans" != "YES" ]    && echo $msg skipping && return 1
+   [ "$NODE_TAG" != "G" ] && echo $msg this must be run from hub node G && return 0
 
-   [ "$NODE_TAG" != "G" ] && echo $msg this needed to be run from hub node G && return 0
-   [ "$dtag" == "G" ] && echo $msg ABORT designated node can not be the nub node && return 1
-
-   echo $msg grab public key from designated node
-   local drsa=$HOME/.ssh/$dtag.id_rsa.pub
-   [ ! -f $drsa ] && scp $dtag:~/.ssh/id_rsa.pub $drsa
-   [ ! -f $drsa ] && echo $msg FAILED to grab $drsa from env-designated : $dtag ... you need to ssh--keygen on $dtag  && return 1
-
-   echo $msg distribute public key to the backup nodes of the designated node
    local tag
    for tag in $tags ; do
-      echo $msg ... $tag $drsa
-      ssh--appendkey  $tag $drsa
+      echo $msg ... $tag $path
+      ssh--appendkey  $tag $path
    done
+}
+
+
+ssh--setup-authkeys(){
+
+  local drsa=$(ssh--designated-key)
+  ssh--grab-key $drsa                   || return 1 
+  ssh--initialize-keys                  || return 1 
+  ssh--distribute-key $drsa             || return 1
 
 }
 
