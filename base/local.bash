@@ -184,8 +184,8 @@ local-nodetag-hfag(){
 
 local-nodetag-grid1(){
    case ${1:-$USER} in 
-     dayabaysoft) echo P ;;
-               *) echo G1 ;;
+     dayabaysoft|root) echo P ;;
+                    *) echo G1 ;;
    esac
 }
 
