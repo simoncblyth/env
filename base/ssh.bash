@@ -1,9 +1,4 @@
 
-#
-#   machines that are currently resisting arrest:
-#       pal@nuu "L"
-#
-
 ssh--src(){ echo base/ssh.bash ; }
 ssh--source(){ echo $(env-home)/$(ssh--src) ; }
 ssh--vi(){ vi $(ssh--source) ; }
@@ -43,6 +38,7 @@ cat << EOU
           NB the entries indicate nodes/accounts from which this one can be 
              accessed via ssh key ... should be kept to the minimum needed 
 
+
  
      ssh--rmkey <type> <name> <node>
           delete keys from local authorized_keys2
@@ -50,6 +46,7 @@ cat << EOU
          
              ssh--rmkey ".*" ".*" "pal.nuu.edu.tw"
              ssh--rmkey "..." "blyth" "al14"            
+             ssh--rmkey  ".*" "blyth" "C2" 
 
 
      ssh--appendkey <tag> <path-to-key>
@@ -105,6 +102,14 @@ EON
 
 }
 
+ssh--mvkey-(){
+  local path=$1
+  local stamp=$(base-pathstamp $path)
+  cat << EOC
+mv $path          $path.$stamp 
+mv $path.pub  $path.pub.$stamp
+EOC
+}
 
 ssh--keygen(){
   local msg="=== $FUNCNAME :"
@@ -126,14 +131,23 @@ ssh--keygen(){
      esac    
      keyfile="$HOME/.ssh/$keyname"
      if [ -f "$keyfile" ]; then
-	 echo keyfile $keyfile already exists 
-     else	  
-         local cmd="ssh-keygen -t $typ -f $keyfile  -C "$typ from $NODE_TAG "  -N $passph "
-         echo $cmd
-         eval $cmd
-     fi	  
+	 echo "$msg keyfile $keyfile already exists ...  " 
+         ssh--mvkey- $keyfile         
+         local ans
+         read -p "$msg proceed to move them aside ? enter YES to proceed " ans
+         [ "$ans" != "YES" ] && $msg aborting && return 1
+         local mmd
+         ssh--mvkey- $keyfile | while read mmd ; do
+            echo $mmd
+            eval $mmd
+         done
+     fi
+     ssh-keygen -t $typ -f $keyfile  -C "$USER@$NODE_TAG "  -N $passph 
   done		
 }
+
+
+
 
 ssh--info(){
 
@@ -223,7 +237,8 @@ ssh-x(){
 
 
 ssh--putkeys(){
-  for target in $*
+  local tags="${1:-$BACKUP_TAG}"
+  for target in $tags
   do
      ssh--putkey $target
   done
@@ -253,18 +268,25 @@ ssh--appendkey(){
 
 
 ssh--lskey(){
-   cat $HOME/.ssh/authorized_keys2 | perl -n -e 's,^ssh-(\S*) (\S*) (\S*)@(\S*)$, $1   $3 $4 , && print ' -  
+     cat $HOME/.ssh/authorized_keys2 | perl -n -e 's,^ssh-(\S*) (\S*) (.*)$, $1 $3  , && print ' -  
+}
+
+
+ssh--rlskey(){
+  local tag=${1:-P}
+  ssh $tag "bash -lc \"  ssh-;ssh--lskey     \""
 }
 
 ssh--selectkey(){
     local type=${1:-dss}
     local name=${2:-sblyth}
     local node=${3:-pal.nuu.edu.tw}
-    perl -n -e "s,^(ssh-($type).*($name\@$node))\$,\$1, && print " $HOME/.ssh/authorized_keys2
+    echo $type
+    perl -n -e "s,^ssh-($type).*($name\@$node)\$,\$1 \$2, && print " $(ssh--ak2)
 }
 
 ssh--ak2(){ echo $HOME/.ssh/authorized_keys2 ; }
-
+ssh--kvi(){ vi $(ssh--ak2) ; }
 ssh--rmkey(){
     local msg="=== $FUNCNAME :"
     local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
@@ -273,7 +295,7 @@ ssh--rmkey(){
     local node=${3:-pal.nuu.edu.tw}
     local sak=$(ssh--ak2)
     local tak=$tmp/$(basename $sak)
-    perl -p -e "s,^ssh-($type).*($name\@$node)\n,,s  " $sak >  $tak
+    perl -p -e "s,^ssh-($type).*($name\@$node)\n,,s" $sak >  $tak
     cat << EOM
 $msg  
   type : $type  
@@ -299,12 +321,15 @@ ssh--createdir(){
    local user=$(basename $home)
    [ "$home" == "$HOME" ] && echo $msg THIS ONLY WORKS FOR OTHER USERS ... NOT YOURSELF && return 1
 
-   local dir="$home/.ssh"
+   local dir=$home/.ssh
    sudo -u $user mkdir $dir
    sudo -u $user chmod 700 $dir 
-
 }
 
 
+ssh--rebuild(){
+   sshconf-
+   sshconf-gen   
+}
 
 	

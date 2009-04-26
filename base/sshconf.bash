@@ -219,6 +219,7 @@ fi
 
 
   [ -f $HOME/.ssh/local-config ] && cat $HOME/.ssh/local-config  >> $HOME/.ssh/config
+  [ -f $HOME/.ssh-local-config ] && cat $HOME/.ssh-local-config  >> $HOME/.ssh/config
   
 
   echo $msg restricting access with chmod ...  needed for newer ssh ??

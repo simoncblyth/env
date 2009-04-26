@@ -1,4 +1,4 @@
-
+base-vi(){ vi $(env-home)/base/base.bash ; }
 
 pylibxml2-(){ [ -r $ENV_HOME/base/pylibxml2.bash ] && . $ENV_HOME/base/pylibxml2.bash ; } 
 libxml2-(){   [ -r $ENV_HOME/base/libxml2.bash ]   && . $ENV_HOME/base/libxml2.bash ; }
@@ -19,6 +19,18 @@ file-(){      . $ENV_HOME/base/file.bash    && file-env $* ; }
 
 ssh-(){        . $(env-home)/base/ssh.bash    && ssh--env $* ; }
  
+
+base-usage(){
+   cat << EOB
+
+       base-datestamp
+       base-pathstamp 
+
+EOB
+
+
+}
+
 
 base-env(){
 
@@ -67,7 +79,24 @@ base-datestamp(){
   echo $refdef 
 }
 
+base-stat(){
+   local path=$1
+   case $(uname) in
+     Darwin) stat -f "%m" $path ;; 
+      Linux) stat -c "%Z" $path ;;
+   esac
+}
 
+
+base-pathstamp(){
+   local path=$1
+   local fmt=${2:-"%Y%m%d"}
+   [ ! -f $path ] && return 0
+   case $(uname) in 
+      Darwin) date -r $(base-stat $path) +$fmt  ;;
+       Linux) date -r $path +$fmt ;;
+   esac
+}
 
 
 
