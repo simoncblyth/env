@@ -20,12 +20,14 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
+env-sourcetag(){ echo P ; }
+
 env-designated(){ 
   [ -n "$ENV_DESIGNATED" ] && echo $ENV_DESIGNATED && return 0
   ## the below are for test servers 
   case ${1:-$NODE_TAG} in
     YY) echo YY ;;
-     *) echo C2 ;;
+     *) echo $(env-sourcetag) ;;
   esac
 }
 
@@ -71,7 +73,6 @@ env-url(){         echo $(env-localserver $1)/repos/env/trunk ; }
 env-wikiurl(){     echo $(env-localserver $1)/tracs/env/wiki ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
-so-(){          . $(env-home)/so/so.bash          && so-env $* ; }
 ezsetup-(){     . $(env-home)/python/ezsetup.bash && ezsetup-env $* ; }
 mysql-(){       . $(env-home)/mysql/mysql.bash    && mysql-env $* ; }
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
