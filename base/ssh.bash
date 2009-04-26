@@ -37,6 +37,20 @@ cat << EOU
      ssh--tunnel <tag:N> <port:8080>
           tunnel remote port onto local machine
 
+     ssh--lskey 
+          list keys in local authorized_keys2
+      
+          NB the entries indicate nodes/accounts from which this one can be 
+             accessed via ssh key ... should be kept to the minimum needed 
+
+ 
+     ssh--rmkey <type> <name> <node>
+          delete keys from local authorized_keys2
+          things that fit into a perlre can be used ie
+         
+             ssh--rmkey ".*" ".*" "pal.nuu.edu.tw"
+             ssh--rmkey "..." "blyth" "al14"            
+
 
      ssh--appendkey <tag> <path-to-key>
 
@@ -236,6 +250,46 @@ ssh--appendkey(){
 }
 
 
+
+ssh--lskey(){
+   cat $HOME/.ssh/authorized_keys2 | perl -n -e 's,^ssh-(\S*) (\S*) (\S*)@(\S*)$, $1   $3 $4 , && print ' -  
+}
+
+ssh--selectkey(){
+    local type=${1:-dss}
+    local name=${2:-sblyth}
+    local node=${3:-pal.nuu.edu.tw}
+    perl -n -e "s,^(ssh-($type).*($name\@$node))\$,\$1, && print " $HOME/.ssh/authorized_keys2
+}
+
+ssh--ak2(){ echo $HOME/.ssh/authorized_keys2 ; }
+
+ssh--rmkey(){
+    local msg="=== $FUNCNAME :"
+    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+    local type=${1:-dss}
+    local name=${2:-sblyth}
+    local node=${3:-pal.nuu.edu.tw}
+    local sak=$(ssh--ak2)
+    local tak=$tmp/$(basename $sak)
+    perl -p -e "s,^ssh-($type).*($name\@$node)\n,,s  " $sak >  $tak
+    cat << EOM
+$msg  
+  type : $type  
+  name : $name 
+  node : $node
+EOM
+    local cmd="diff $sak $tak"
+    echo $msg $cmd
+    eval $cmd
+    local ans
+    read -p "$msg proceed with this key removal ? YES to proceed " ans
+    [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+    cp $tak $sak
+    chmod 600 $sak
+    rm -rf $tmp
+}
 
 ssh--createdir(){
 
