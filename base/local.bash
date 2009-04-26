@@ -223,7 +223,7 @@ local-backup-tag(){
       H) echo C  ;;
       C) echo H1 C2 P ;;
      C2) echo H1 P N ;;
-      P) echo H1 C ;;
+      P) echo H1 C H N ;;
      XX) echo YY SC2 ;;
      *) echo U ;;
    esac  
@@ -339,6 +339,7 @@ local-var-base(){
     OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
         C) echo /data/var ;;
+        H) echo /data/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
         *) echo  /var ;; 

@@ -816,6 +816,38 @@ scm-recover-repo(){
 }
 
 
+
+scm-backup-uninhibit-(){
+   cat << EOC
+rm  $SCM_FOLD/tracs/*-scm-recover-repo
+rm  $SCM_FOLD/svn/*-scm-recover-repo
+rm  $SCM_FOLD/repos/*-scm-recover-repo
+EOC
+
+}
+
+scm-backup-uninhibit(){
+    local msg="=== $FUNCNAME :"
+    echo $msg SCM_FOLD $SCM_FOLD NODE_TAG $NODE_TAG
+
+    ls -alst $SCM_FOLD/{tracs,repos,svn}/*-scm-recover-repo
+    echo $msg proceed with removal of inhibitors ....
+    scm-backup-uninhibit-
+    local ans
+
+    read -p "$msg enter YES to proceed " ans
+    [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+    local cmd
+    scm-backup-uninhibit-  | while read cmd ; do 
+       echo $cmd
+       eval $cmd
+    done 
+
+
+}
+
+
 scm-backup-synctrac(){
   
      local msg="=== $FUNCNAME :"
