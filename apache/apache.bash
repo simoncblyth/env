@@ -67,6 +67,10 @@ apache-usage(){
          mpinfo-
          iptables-
          
+
+     When attempting use of system apache, will need to
+         sudo yum install httpd
+         sudo yum install httpd-devel   ## for apxs
      
    
    
