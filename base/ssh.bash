@@ -31,7 +31,10 @@ cat << EOU
           dump agent pid etc..
 
      ssh--tunnel <tag:N> <port:8080>
-          tunnel remote port onto local machine
+          tunnel remote port onto local machine ...
+          remember yiou will probably also need to edit 
+          ~/e/proxy/socks.pac and reload it in 
+          Firefox > Preferences > 
 
      ssh--lskey 
           list keys in local authorized_keys2
@@ -443,6 +446,9 @@ ssh--setup-authkeys(){
   ssh--grab-key $drsa                   || return 1 
   ssh--initialize-keys                  || return 1 
   ssh--distribute-key $drsa             || return 1
+
+  ## need designation of scponly endpoints in order that 
+  ## requisite keys are in the right place  
 
 }
 
