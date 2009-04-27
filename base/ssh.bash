@@ -124,8 +124,14 @@ EOC
 ssh--keygen(){
   local msg="=== $FUNCNAME :"
   local passph
-  read -p "$msg Enter passphrase:" passph
+  read -s -p "$msg Enter passphrase:" passph
  
+  local passph2
+  read -s -p "$msg Enter passphrase again to confirm :" passph2
+
+  [ "$passph" != "$passph2" ] && echo $msg ABORT the passphrases do not match .. && return 1
+
+
   [ "$passph" == "dummy" -o "$passph" == "" ] && echo "you must enter a non blank passphrase " && return 
   [ -d "$HOME/.ssh" ] || ( mkdir $HOME/.ssh && chmod 700 $HOME/.ssh )
 
