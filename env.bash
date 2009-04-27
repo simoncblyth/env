@@ -31,27 +31,52 @@ env-designated(){
   esac
 }
 
-env-urlwc(){ svn info $(env-home) | perl -n -e 'm,URL: (\S*), && print $1 ' -  ; }
+env-urlwc(){ svn info $1 | perl -n -e 'm,URL: (\S*), && print $1 ' -  ; }
+
 
 env-relocate(){
+   local msg="=== $FUNCNAME :"
+   local tag=${1:-$(env-designated)}
+   local reps="heprez env tracdev data aberdeen"
+   local rep
+   for rep in $reps ; do
+   local wcd
+     local wcd=$HOME/$rep
+     if [ ! -d "$wcd" ] ; then
+        echo -n
+     elif [ ! -d "$wcd/.svn" ] ; then
+        echo $msg skipping $wcd as not working copy 
+     else
+        env-relocate- $tag $wcd
+     fi
+   done
+}
+
+
+env-relocate-(){
   local msg="=== $FUNCNAME :"
   local tag=$1
-  local url=$(env-url $tag)
-  local urlwc=$(env-urlwc)
+  local wcd=${2:-$(env-home)}
+
+  local url=$(env-url $tag $(basename $wcd))
+  local urlwc=$(env-urlwc $wcd)
   local dtag=$(env-designated)
 
   [ "$tag" != "$dtag" ]  && echo $msg WARNING the designated tag $dtag differes from what you are relocating to 
-  [ "$url" == "$urlwc" ] && echo $msg url of env-home working copy  $urlwc  already matches that of tag $tag ... skipping && return 0 
+  [ "$url" == "$urlwc" ] && echo $msg url of $wcd working copy  $urlwc  already matches that of tag $tag ... skipping && return 0 
 
-  cd $(env-home)
+  local iwd=$PWD
+  cd $wcd
   local cmd="svn switch --relocate $urlwc $url "
-  echo $msg $cmd
+  echo $msg from $PWD ... $cmd 
   local ans
   read -p "Switch source repository URL for WC ? enter YES to proceed "  ans
   [ "$ans" != "YES" ] && echo $msg skipping ... && return 0
 
   echo $msg proceeding...
   eval $cmd  
+
+  cd $iwd
 
 }
 
@@ -70,8 +95,8 @@ env-localserver(){
   esac  
 }
 
-env-url(){         echo $(env-localserver $1)/repos/env/trunk ; }
-env-wikiurl(){     echo $(env-localserver $1)/tracs/env/wiki ; }
+env-url(){         echo $(env-localserver $1)/repos/${2:-env}/trunk ; }
+env-wikiurl(){     echo $(env-localserver $1)/tracs/${2:-env}/wiki ; }
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
 ezsetup-(){     . $(env-home)/python/ezsetup.bash && ezsetup-env $* ; }
