@@ -287,7 +287,7 @@ local-backup-tag(){
       C) echo H1 C2 P ;;
      C2) echo H1 P N ;;
       P) echo H1 C H N ;;
-     XX) echo YY SC2 ;;
+     XX) echo YY S ;;
      *) echo U ;;
    esac  
 }
