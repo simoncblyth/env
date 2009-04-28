@@ -40,7 +40,7 @@ cat << EOU
           list keys in local authorized_keys2
       
           NB the entries indicate nodes/accounts from which this one can be 
-             accessed via ssh key ... should be kept to the minimum needed 
+             accessed vi  ssh key ... should be kept to the minimum needed 
 
      ssh--tags : $(ssh--tags)
      ssh--rlskey 
@@ -56,11 +56,19 @@ cat << EOU
              ssh--rmkey  ".*" "blyth" "C2" 
 
 
-     ssh--appendkey <tag> <path-to-key>
+
+
+     ssh--delkey <tag> <path-to-key>
+           delete remote pubkey entry in authorized_keys{,2}           
+
+     ssh--haskey <tag> <path-to-key>
+           remote grep of authorized_keys{,2} to see if pubkey is present 
+
+     ssh--addkey <tag> <path-to-key>
 
         Usage example :
            cd /tmp  ; scp N:.ssh/id_rsa.pub id_rsa.pub   ## grab the key of the new node
-           ssh--appendkey H id_rsa.pub                   ## append it on the target 
+           ssh--addkey H id_rsa.pub                   ## append it on the target 
            rm id_rsa.pub
 
         This is useful to extend access to a node that accepts login only via key 
@@ -69,7 +77,30 @@ cat << EOU
 
      ssh--inikey <tag> <path-to-key>
 
-         Like appendkey but scrub prior authorized_keys2 entries 
+         Like addkey but scrub prior authorized_keys{,2} entries 
+
+
+
+
+
+     ssh--key2base <path-to-key>
+     ssh--key2tag  <path-to-key>
+          extract the tag and base when the key name conforms to convention 
+          eg for name P.id_rsa ... would return base id_rsa and tag P
+
+      ssh--designated-key : $(ssh--designated-key) 
+      ssh--distribute-key  <path-to-key> tag1 tag2 ...
+          distribute the public key into the authorized_keys2 on the 
+          destination tags 
+          NB no checking for duplicates 
+
+
+
+  
+
+
+
+
 
 
 
@@ -271,24 +302,70 @@ ssh--putkey(){
 
 }
 
-ssh--appendkey(){
+ssh--key2ak(){
+   local name=$(basename $1)
+   case $name in 
+          *.id_rsa.pub) echo authorized_keys2 ;;
+          *.id_dsa.pub) echo authorized_keys2 ;;
+            id_rsa.pub) echo authorized_keys2 ;;
+            id_dsa.pub) echo authorized_keys2 ;;
+          identity.pub) echo authorized_keys  ;;
+        *.identity.pub) echo authorized_keys  ;;
+                     *) echo ERROR ;;
+   esac
+}
+
+ssh--addkey(){
    local msg="=== $FUNCNAME :"
    local tag=${1:-$TARGET_TAG}
    local key=${2}
+   ! ssh--oktag- && echo $msg skipping excluded tag $tag && return 1 
    [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
- 
-   local name=$(basename $key)
-   cat $key | ssh $tag "cat - >> ~/.ssh/authorized_keys2"              
+   local ak=$(ssh--key2ak $key)
+   [ "$ak" == "ERROR" ] && echo $msg ABORT key name of $key is not supported && return 2
+   [ "$(ssh--haskey $tag $key)" == "YES" ] && echo $msg tag $tag already has key $key ... skipping  && return 0
+
+   cat $key | ssh $tag "cat - >> ~/.ssh/$ak"              
+}
+
+ssh--haskey(){
+   local tag=$1
+   local key=$2
+   local ak=$(ssh--key2ak $key)
+   [ "$ak" == "ERROR" ] && return 1
+
+   cat $key | ssh $tag "grep \"$(cat -)\" ~/.ssh/$ak > /dev/null && echo YES || echo NO"  2> /dev/null
+}
+
+ssh--delkey(){
+   local msg="=== $FUNCNAME :"
+   local tag=$1
+   local key=$2
+   ! ssh--oktag- && echo $msg skipping excluded tag $tag && return 1 
+   local ak=$(ssh--key2ak $key)
+   [ "$ak" == "ERROR" ] && echo $msg ABORT key name of $key is not supported && return 2
+   [ "$(ssh--haskey $tag $key)" == "NO" ] && echo $msg tag $tag does not have key $key ... skipping deletion  && return 0
+
+   cat $key | ssh $tag "cd .ssh && cp $ak $ak.tmp && grep -v \"$(cat -)\" $ak.tmp > $ak && rm $ak.tmp  "
+}
+
+ssh--oktag-(){
+   local tag=$1
+   case $tag in
+      H|G) return 1  ;;
+   esac
 }
 
 ssh--inikey(){
    local msg="=== $FUNCNAME :"
    local tag=${1:-$TARGET_TAG}
    local key=${2}
+   ! ssh--oktag- && echo $msg skipping excluded tag $tag && return 1 
    [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
+   local ak=$(ssh--key2ak $key)
+   [ "$ak" == "ERROR" ] && echo $msg ABORT key name of $key is not supported && return 2
  
-   local name=$(basename $key)
-   cat $key | ssh $tag "cat - > ~/.ssh/authorized_keys2"              
+   cat $key | ssh $tag "cat - > ~/.ssh/$ak"              
 }
 
 
@@ -381,74 +458,94 @@ ssh--createdir(){
 
 ssh--local-key(){      echo $HOME/.ssh/id_rsa.pub ; }
 ssh--designated-key(){ echo $HOME/.ssh/$(env-designated).id_rsa.pub ; }
+ssh--hub-key(){        echo $HOME/.ssh/id_rsa.pub ; }
+
 
 ssh--grab-key(){
+   local msg="=== $FUNCNAME :"
+   
+   local path=${1:-$(ssh--designated-key)}
+   local tag=$(ssh--key2tag $path)
+   local base=$(ssh--key2base $path)
+
+   echo $msg path $path tag $tag base $base 
+   [ -f $path    ] && echo $msg $path is already present && return 0
+   [ ! -f $path ]  && scp $tag:~/.ssh/$base $path  
+   [ ! -f $path ]  && echo $msg FAILED to grab $path from $tag ... you need to ssh--keygen on $tag  && return 1
+}
+
+
+
+ssh--key2tag(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$(ssh--designated-key)}
    local name=$(basename $path)
    local dtag=${name/.*/}
+   echo $dtag 
+}
+
+ssh--key2base(){
+   local msg="=== $FUNCNAME :"
+   local path=${1:-$(ssh--designated-key)}
+   local name=$(basename $path)
+   local dtag=$(ssh--key $path)
    local n=$(( ${#dtag} + 1 ))
    local base=${name:$n}
-
-   echo $msg path $path name $name dtag $dtag n $n base $base 
-   [ -f $path ] && echo $msg $path is already present && return 0
-   [ ! -f $path ] && scp $dtag:~/.ssh/$base $path  
-   [ ! -f $path ] && echo $msg FAILED to grab $path from $tag ... you need to ssh--keygen on $dtag  && return 1
+   echo $base
 }
 
-
-ssh--initialize-keys(){
-   local msg="=== $FUNCNAME :"
-
-   local ans
-   read -p "$msg this wipes all authorized keys on ssh--tags $(ssh--tags) and refreshes with the G key,  enter YES to proceed " ans
-   [ "$ans" != "YES" ] && echo $msg skipping && return 1
-
-   local hrsa=$HOME/.ssh/id_rsa.pub
-   [ ! -f $hrsa ] && echo $msg ERROR no hrsa $hrsa ... you need to ssh--keygen on G && return 1
-   local tag
-   for tag in $(ssh--tags) ; do 
-      case $tag in 
-        G) echo $msg skipping tag $tag ;; 
-        H) echo $msg skipping tag $tag until debugged ... to avoid lockout  ;; 
-        *) ssh--inikey $tag $hrsa     ;;
-      esac
-   done
- 
-}
+ssh--ishub-(){ [ "$NODE_TAG" == "$(ssh--hubtag)" ] && return 0 || return 1 ; }
+ssh--hubtag(){  echo G ; }
 
 ssh--distribute-key(){
 
    local msg="=== $FUNCNAME :"
+   ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
+
    local path=${1:-$(ssh--designated-key)}
-   local name=$(basename $path)
-   local dtag=${name/.*/}
-   local n=$(( ${#dtag} + 1 ))
-   local base=${name:$n}
-   local tags=$(local-backup-tag $dtag)
+   shift
+   local tags=$*
 
    local ans
-   read -p "$msg $path from $dtag to nodes : $tags , enter YES to proceed " ans
+   read -p "$msg $path to nodes : $tags , enter YES to proceed " ans
    [ "$ans" != "YES" ]    && echo $msg skipping && return 1
-   [ "$NODE_TAG" != "G" ] && echo $msg this must be run from hub node G && return 0
 
    local tag
    for tag in $tags ; do
       echo $msg ... $tag $path
-      ssh--appendkey  $tag $path
+      case ${SSH__DISTRIBUTE_KEY:-add} in 
+          INI) ssh--inikey  $tag $path ;;
+          add) ssh--addkey  $tag $path ;;
+      esac
    done
 }
 
 
+
+
 ssh--setup-authkeys(){
 
-  local drsa=$(ssh--designated-key)
-  ssh--grab-key $drsa                   || return 1 
-  ssh--initialize-keys                  || return 1 
-  ssh--distribute-key $drsa             || return 1
+   local msg="=== $FUNCNAME :"
+   ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
 
-  ## need designation of scponly endpoints in order that 
-  ## requisite keys are in the right place  
+   ## distribute the hub public key to all nodes
+
+   local hubkey=$(ssh--hub-key)
+   SSH__DISTRIBUTE_KEY=INI ssh--distribute-key $hubkey $(ssh--tags) 
+
+   ## distribute the server public key to its backup nodes
+
+   local serverkey=$(ssh--designated-key)
+   ssh--grab-key $serverkey                   || return 1 
+   local dtag=$(ssh--key2tag $serverkey)
+   local tags=$(local-backup-tag $dtag)
+
+   ssh--distribute-key $serverkey $tags       || return 1
+
+
+   ## need designation of scponly endpoints in order that 
+   ## requisite keys are in the right place  
+
 
 }
 
