@@ -574,4 +574,30 @@ ssh--cmd(){
   ssh $tag "bash -c \" $*  \" > /dev/null && echo YES || echo NO  "  2> /dev/null	
 }
 
+ssh--pwauth(){
 
+  local pwauth=${1:-no}
+
+  local msg="=== $FUNCNAME :"
+  local cfg=/etc/ssh/sshd_config
+  local tmp=/tmp/$FUNCNAME/env && mkdir -p $tmp  
+  local tfg=$tmp/$(basename $cfg)
+
+  echo $msg ... password needed for access to $cfg ...
+  type $FUNCNAME
+
+  sudo cp $cfg $tfg
+  sudo perl -pi -e "s,^(PasswordAuthentication) (\S*),\$1 $pwauth," $tfg   
+  sudo diff $cfg $tfg 
+
+  local ans
+  read -p "$msg proceed with this config change to $cfg ? YES to continue " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && sudo rm $tfg && return 0
+ 
+  sudo cp $tfg $cfg
+  sudo rm $tfg
+
+  sudo /sbin/service sshd reload
+
+
+}
