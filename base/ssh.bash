@@ -298,9 +298,12 @@ ssh--putkey(){
     X=${1:-$TARGET_TAG}
     ssh $X "mkdir .ssh"
     cat ~/.ssh/id_{d,r}sa.pub | ssh $X "cat - >> ~/.ssh/authorized_keys2"
-	ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
+    ssh $X "chmod 700 .ssh ; chmod 700 .ssh/authorized_keys*" 
 
 }
+
+
+
 
 ssh--key2ak(){
    local name=$(basename $1)
@@ -318,7 +321,7 @@ ssh--key2ak(){
 ssh--addkey(){
    local msg="=== $FUNCNAME :"
    local tag=${1:-$TARGET_TAG}
-   local key=${2}
+   local key=${2:-$(ssh--local-key)}
    ! ssh--oktag- && echo $msg skipping excluded tag $tag && return 1 
    [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
    local ak=$(ssh--key2ak $key)
@@ -359,13 +362,13 @@ ssh--oktag-(){
 ssh--inikey(){
    local msg="=== $FUNCNAME :"
    local tag=${1:-$TARGET_TAG}
-   local key=${2}
+   local key=${2:-$(ssh--local-key)}
    ! ssh--oktag- && echo $msg skipping excluded tag $tag && return 1 
    [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
    local ak=$(ssh--key2ak $key)
    [ "$ak" == "ERROR" ] && echo $msg ABORT key name of $key is not supported && return 2
- 
-   cat $key | ssh $tag "cat - > ~/.ssh/$ak"              
+
+   cat $key | ssh $tag "mkdir -p .ssh ; chmod 700 .ssh ; cat - > .ssh/$ak ; chmod 600 .ssh/$ak "              
 }
 
 
