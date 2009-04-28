@@ -405,56 +405,6 @@ ssh--rlskey-(){
   ssh $tag "bash -lc \"  ssh-;ssh--lskey; ls -alst ~/.ssh/     \""
 }
 
-ssh--selectkey(){
-    local type=${1:-dss}
-    local name=${2:-sblyth}
-    local node=${3:-pal.nuu.edu.tw}
-    echo $type
-    perl -n -e "s,^ssh-($type).*($name\@$node)\$,\$1 \$2, && print " $(ssh--ak2)
-}
-
-ssh--ak2(){ echo $HOME/.ssh/authorized_keys2 ; }
-ssh--kvi(){ vi $(ssh--ak2) ; }
-ssh--rmkey(){
-    local msg="=== $FUNCNAME :"
-    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
-    local type=${1:-dss}
-    local name=${2:-sblyth}
-    local node=${3:-pal.nuu.edu.tw}
-    local sak=$(ssh--ak2)
-    local tak=$tmp/$(basename $sak)
-    perl -p -e "s,^ssh-($type).*($name\@$node)\n,,s" $sak >  $tak
-    cat << EOM
-$msg  
-  type : $type  
-  name : $name 
-  node : $node
-EOM
-    local cmd="diff $sak $tak"
-    echo $msg $cmd
-    eval $cmd
-    local ans
-    read -p "$msg proceed with this key removal ? YES to proceed " ans
-    [ "$ans" != "YES" ] && echo $msg skipping && return 0
-
-    cp $tak $sak
-    chmod 600 $sak
-    rm -rf $tmp
-}
-
-ssh--createdir(){
-
-   local msg="=== $FUNCNAME :"
-   local home=$1
-   local user=$(basename $home)
-   [ "$home" == "$HOME" ] && echo $msg THIS ONLY WORKS FOR OTHER USERS ... NOT YOURSELF && return 1
-
-   local dir=$home/.ssh
-   sudo -u $user mkdir $dir
-   sudo -u $user chmod 700 $dir 
-}
-
-
 
 ssh--local-key(){      echo $HOME/.ssh/id_rsa.pub ; }
 ssh--designated-key(){ echo $HOME/.ssh/$(env-designated).id_rsa.pub ; }
@@ -521,19 +471,38 @@ ssh--distribute-key(){
 }
 
 
+ssh--initialize-authkeys(){
+
+   local msg="=== $FUNCNAME :"
+   ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
+   local hubkey=$(ssh--hub-key)
+   local tags=$(ssh--tags)
+
+   cat << EOM
+$msg CAUTION : this scrubs ALL authkeys on ALL NODES : $tags 
+$msg and then distributes the hub public key $hubkey to them , 
+
+THIS RISKS LOCKOUT FROM KEY ONLY NODES ... LIKE : H  
+HAVE AN ACTIVE CONNECTION ON THESE NODES BEFORE RUNNING THIS 
+AND TEST CONNECTIVITY  AFTER DOING SO
 
 
-ssh--setup-authkeys(){
+EOM
+
+   local ans
+   read -p "$msg enter YES to proceed "  ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+   SSH__DISTRIBUTE_KEY=INI ssh--distribute-key $hubkey $tags 
+}
+
+
+ssh--server-authkeys(){
 
    local msg="=== $FUNCNAME :"
    ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
 
-   ## distribute the hub public key to all nodes
-
-   local hubkey=$(ssh--hub-key)
-   SSH__DISTRIBUTE_KEY=INI ssh--distribute-key $hubkey $(ssh--tags) 
-
-   ## distribute the server public key to its backup nodes
+   echo $msg distribute the server public key to its backup nodes
 
    local serverkey=$(ssh--designated-key)
    ssh--grab-key $serverkey                   || return 1 
@@ -542,11 +511,64 @@ ssh--setup-authkeys(){
 
    ssh--distribute-key $serverkey $tags       || return 1
 
-
    ## need designation of scponly endpoints in order that 
    ## requisite keys are in the right place  
 
-
 }
 
-	
+ssh--selectkey(){
+    local type=${1:-dss}
+    local name=${2:-sblyth}
+    local node=${3:-pal.nuu.edu.tw}
+    echo $type
+    perl -n -e "s,^ssh-($type).*($name\@$node)\$,\$1 \$2, && print " $(ssh--ak2)
+}
+
+ssh--ak2(){ echo $HOME/.ssh/authorized_keys2 ; }
+ssh--kvi(){ vi $(ssh--ak2) ; }
+ssh--rmkey(){
+    local msg="=== $FUNCNAME :"
+    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+    local type=${1:-dss}
+    local name=${2:-sblyth}
+    local node=${3:-pal.nuu.edu.tw}
+    local sak=$(ssh--ak2)
+    local tak=$tmp/$(basename $sak)
+    perl -p -e "s,^ssh-($type).*($name\@$node)\n,,s" $sak >  $tak
+    cat << EOM
+$msg  
+  type : $type  
+  name : $name 
+  node : $node
+EOM
+    local cmd="diff $sak $tak"
+    echo $msg $cmd
+    eval $cmd
+    local ans
+    read -p "$msg proceed with this key removal ? YES to proceed " ans
+    [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+    cp $tak $sak
+    chmod 600 $sak
+    rm -rf $tmp
+}
+
+ssh--createdir(){
+
+   local msg="=== $FUNCNAME :"
+   local home=$1
+   local user=$(basename $home)
+   [ "$home" == "$HOME" ] && echo $msg THIS ONLY WORKS FOR OTHER USERS ... NOT YOURSELF && return 1
+
+   local dir=$home/.ssh
+   sudo -u $user mkdir $dir
+   sudo -u $user chmod 700 $dir 
+}
+
+ssh--cmd(){
+  local tag=$1
+  shift 
+  ssh $tag "bash -c \" $*  \" > /dev/null && echo YES || echo NO  "  2> /dev/null	
+}
+
+

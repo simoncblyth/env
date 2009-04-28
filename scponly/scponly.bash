@@ -90,6 +90,13 @@ scponly-usage(){
          scponly-info
 
 
+         scponly-lstags
+              loop over ssh--tags : $(ssh--tags) greping /etc/shells for scponly 
+
+
+                  
+
+
 
 
        NOTES 
@@ -235,13 +242,12 @@ scponly-testexit(){
 
 
 scponly-test(){
-   local t=$1 
+   local tag=$1 
    local msg="=== $FUNCNAME :"
    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
-   cd $tmp
-   local name=$FUNCNAME.txt
-   echo $msg to target tag $t  > $name
-   local cmd="scp $name $t:/tmp/$name"
+   local name=$FUNCNAME-from-${NODE_TAG}-to-$tag.txt
+   echo $name > $tmp/$name
+   local cmd="scp $tmp/$name $tag:/tmp/$name"
    echo $msg $cmd
    eval $cmd 
 }
@@ -432,6 +438,38 @@ EOC)
    echo $msg $cmd
    eval $cmd
    tail  /etc/shells
+}
+
+scponly-has-shell(){ ssh--cmd $1 grep scponly /etc/shells ; }
+scponly-has-user(){  ssh--cmd $1 grep scponly /etc/passwd ; }
+
+scponly-lstags(){
+   local tag
+   for tag in $(ssh--tags) ; do
+       printf " %4s %s %s \n" $tag $(scponly-has-shell $tag) $(scponly-has-user $tag)  
+   done
+}
+
+scponly-tags(){  echo SC2 S2 S ; }
+
+
+scponly-sshconf-(){
+   local tag=$1
+   cat << EOC
+
+host $tag
+    user $(local-tag2user $tag) 
+    hostname $(local-tag2ip $tag)
+    protocol 2
+    ForwardX11 no
+EOC
+}
+
+scponly-sshconf(){
+   local tag
+   for tag in $(scponly-tags) ; do 
+      scponly-sshconf- $tag
+   done
 }
 
 

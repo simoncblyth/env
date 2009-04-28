@@ -136,19 +136,65 @@ local-userprefs(){
 
 local-tag2node(){
   case ${1:-$NODE_TAG} in 
-     H) echo hfag  ;;
-     C) echo cms01 ;;
-    C2) echo cms02 ;;
-    XX) echo dayabay ;;
-    YY) echo dyb1 ;;
-    H1) echo hep1 ;;
-     N) echo belle7 ;;
-     P) echo grid1 ;;
-    G3) echo g3pb ;;
-     G) echo g4pb ;; 
-     *) echo unknown ;; 
+      H) echo hfag  ;;
+    C|S) echo cms01 ;;
+ C2|SC2) echo cms02 ;;
+     XX) echo dayabay ;;
+     YY) echo dyb1 ;;
+     H1) echo hep1 ;;
+      N) echo belle7 ;;
+S2|P|G1) echo grid1 ;;
+     G3) echo g3pb ;;
+      G) echo g4pb ;; 
+      *) echo unknown ;; 
   esac
 }
+
+local-tag2user(){
+  case ${1:-$NODE_TAG} in
+    SC2|S2|S) echo dayabayscp ;;
+           A) echo aberdeen ;;
+          AR) echo root ;;
+           X) echo exist ;;
+           P) echo dayabaysoft ;;
+           L) echo sblyth ;;
+       YY|XX) echo maqm ;;
+           *) echo $USER ;;
+  esac 
+}
+
+local-tags(){
+   case ${1:-$USER} in 
+        maqm) echo XX YY ;;
+       blyth) echo A AR N NE I B C C2 H H1 X P G1 T LX  ;;
+        thho) echo A AR C C2 H1 ;;
+   esac
+}
+
+
+local-tag2ip(){
+  case ${1:-$NODE_TAG} in
+        A|AR) echo aberdeentunnel.dyndns.org ;;
+         C|S) echo 140.112.101.190 ;; 
+      C2|SC2) echo 140.112.101.191 ;;
+     S2|G1|P) echo 140.112.102.250 ;;
+           N) echo belle7.nuu.edu.tw ;;
+          NE) echo pdsf.nersc.gov ;;
+           I) echo lxslc05.ihep.ac.cn ;;
+          II) echo 140.112.101.199 ;;
+           B) echo gateway.phy.bnl.gov ;;
+         H|X) echo 140.112.101.48 ;;
+          H1) echo 140.112.101.41 ;;
+          BP) echo bpost.kek.jp ;; 
+          LX) echo lxplus.cern.ch ;; 
+           T) echo tersk.slac.stanford.edu ;;
+           L) echo pal.nuu.edu.tw ;;
+          YY) echo dyb1.ihep.ac.cn ;;
+          XX) echo dayabay.ihep.ac.cn ;;
+  esac 
+}
+
+
 
 local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
