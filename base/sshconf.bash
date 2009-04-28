@@ -49,6 +49,7 @@ EOC
 
    case $tag in
       G1|L|P) echo "    ForwardX11 yes" ;; 
+    S|SC2|S2) echo "    ForwardX11 no" ;; 
    esac
    case $tag in
       G1|L|P) echo "$c   ForwardX11Trusted yes" ;;
@@ -65,7 +66,10 @@ EOC
 sshconf-gen-(){
    local msg="=== $FUNCNAME :"
    local tags=$(local-tags $*)
-   echo $msg $* tags : $tags   
+
+   cat << EOH
+# $msg $* tags : $tags   
+EOH
    local tag
    for tag in $(local-tags $*) ; do
       sshconf-tag- $tag

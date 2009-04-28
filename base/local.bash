@@ -134,6 +134,21 @@ local-userprefs(){
 }
 
 
+local-taginfo(){
+   local tag=$1
+   cat << EOI
+
+    local-tag2node : $(local-tag2node $tag)
+    local-tag2user : $(local-tag2user $tag)
+    local-tag2ip   : $(local-tag2ip $tag)
+
+
+EOI
+
+
+}
+
+
 local-tag2node(){
   case ${1:-$NODE_TAG} in 
       H) echo hfag  ;;
@@ -163,10 +178,12 @@ local-tag2user(){
   esac 
 }
 
+
+local-scponly-tags(){   echo S SC2 S2 ; }
 local-tags(){
    case ${1:-$USER} in 
-        maqm) echo XX YY ;;
-       blyth) echo A AR N NE I B C C2 H H1 X P G1 T LX  ;;
+        maqm) echo XX YY $(local-scponly-tags)  ;;
+       blyth) echo A AR N NE I B C C2 H H1 X P G1 T LX  $(local-scponly-tags) ;;
         thho) echo A AR C C2 H1 ;;
    esac
 }
@@ -385,6 +402,7 @@ local-var-base(){
     OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
         C) echo /data/var ;;
+        S) echo /data/var ;;
         H) echo /data/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;

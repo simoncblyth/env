@@ -19,12 +19,11 @@ scponly-usage(){
        0) node tagging 
 
            Create a tag for the new locked down node, eg S S2
-           in sshconf-vi and generate the .ssh/config on the needed scp 
+           in sshconf-vi/local-vi and generate the .ssh/config on the needed scp 
            source nodes
- 
 
         
-       1) create a new user initially without restrictios
+       1) create a new user initially without restrictions
 
             On the fresh node...  in an unrestricted sudoer account
                scponly-
@@ -33,7 +32,6 @@ scponly-usage(){
 
                scponly-passkeys    
                      create .ssh for the user and pass them the keys 
-
                  
        2) verify passwordless login and scp from remote node (the pubkey of which was passed)
 
@@ -45,17 +43,18 @@ scponly-usage(){
                scponly-lockdown
                       switch the shell and permissions 
 
-
        4)  test that logins fails and scps still work passwordlessly 
 
                ssh SC2  ... should fail 
                scponly-test SC2
 
-
        5)  setup backup target dirs 
-               scponly-backup-targets
-
-
+               
+               on the target node from unrestricted sudoer account ... 
+                   scm-backup-
+                   dir=`scm-backup-dir`/dayabay # for backup tarballs originating from dayabay 
+                   sudo mkdir -p $dir      
+                   sudo chown dayabayscp.dayabayscp $dir
 
 
      
@@ -64,10 +63,7 @@ scponly-usage(){
 
          scponly-create
 
-              
-
-
-   
+                 
          scponly-user    : $(scponly-user)    
          scponly-chown <username>   
              set ownership of the users home directory, default to the user during setup,
@@ -250,6 +246,23 @@ scponly-test(){
    local cmd="scp $tmp/$name $tag:/tmp/$name"
    echo $msg $cmd
    eval $cmd 
+}
+
+
+scponly-test-all(){
+
+  local msg="=== $FUNCNAME :"
+  local tag
+  for tag in $(local-scponly-tags) ; do
+
+     echo $msg for tag $tag 
+     local-taginfo $tag
+
+     case $tag in
+       SC2) echo $msg skipping $tag ;;
+         *) scponly-test $tag       ;;
+     esac
+  done
 }
 
 
@@ -450,26 +463,9 @@ scponly-lstags(){
    done
 }
 
-scponly-tags(){  echo SC2 S2 S ; }
 
 
-scponly-sshconf-(){
-   local tag=$1
-   cat << EOC
 
-host $tag
-    user $(local-tag2user $tag) 
-    hostname $(local-tag2ip $tag)
-    protocol 2
-    ForwardX11 no
-EOC
-}
 
-scponly-sshconf(){
-   local tag
-   for tag in $(scponly-tags) ; do 
-      scponly-sshconf- $tag
-   done
-}
 
 
