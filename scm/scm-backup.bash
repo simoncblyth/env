@@ -12,7 +12,10 @@ cat << EOU
    scm-backup-du   :   local  backup .gz sizes  in \$SCM_FOLD 
    scm-backup-rls  :   remote ls the .gz on the paired backup node $BACKUP_TAG
    scm-backup-mail :   send mail with the remote list  
-    
+
+   scm-backup-check :  find tarballs on all backup nodes
+   scm-backup-df    :  check freespace on server and all backup nodes
+
    scm-backup-postfix-start  
     
     
@@ -989,24 +992,25 @@ scm-backup-folder(){
 
 scm-backup-check(){
    local msg="=== $FUNCNAME :"
-   local svhub=${1:-$(local-server-tag)}
-   local bktags=$(local-backup-tag $svhub)
-   local bktag
-   for bktag in $bktags ; do
-      echo;echo $msg  backups from $svhub on $bktag
-      ssh $bktag "find $(scm-backup-dir $bktag)/$(local-tag2node $svhub) -name '*.tar.gz' -exec du -hs {} \; "
+   local sv=${1:-$(local-server-tag)}
+   local bks=$(local-backup-tag $sv)
+   local bk ; for bk in $bks ; do
+      echo;echo $msg  backups from $sv on $bk
+      ssh $bk "find $(scm-backup-dir $bk)/$(local-tag2node $sv) -name '*.tar.gz' -exec du -hs {} \; "
    done
 }
 
 
 scm-backup-df(){
    local msg="=== $FUNCNAME :"
-   local svhub=${1:-$(local-server-tag)}
-   local bktags=$(local-backup-tag $svhub)
-   local bktag
-   for bktag in $bktags ; do
-      echo;echo $msg  $svhub -\> $bktag   local-var-base : $(local-var-base $bktag)
-      ssh $bktag "df -h "
+   local sv=${1:-$(local-server-tag)}
+   local bks=$(local-backup-tag $sv)
+   echo;echo $msg on the server $sv local-var-base : $(local-var-base $sv)
+   ssh $sv "df -h "
+   
+   local bk ; for bk in $bks ; do
+      echo;echo $msg  $sv -\> $bk   local-var-base : $(local-var-base $bk)
+      ssh $bk "df -h "
    done
 
 }

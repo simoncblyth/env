@@ -249,7 +249,21 @@ trac-url(){
 } 
  
 
+trac-build(){
 
+
+   ## create the base folders
+   local-
+   local-initialize
+
+   tracpreq-
+   tracpreq-again
+
+   tracbuild-
+   tracbuild-auto 
+
+
+}
 
 
 
