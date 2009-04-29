@@ -51,6 +51,7 @@ apache-usage(){
       apache-modulesdir  : $(apache-modulesdir)
       apache-htdocs      : $(apache-htdocs)
       apache-logdir      : $(apache-logdir)
+      apache-downloadsdir  : $(apache-downloadsdir)
       
       apache-sudouser    : $(apache-sudouser)
       
@@ -213,16 +214,26 @@ apache-fragmentpath(){
 
 
 apache-htdocs(){
-  
-  case $NODE_TAG in 
+  case ${1:-$NODE_TAG} in 
     G) echo /Library/WebServer/Documents ;;
     H) echo $(apache-home)/share/apache2/htdocs ;;
     *) echo $(apache-home)/htdocs  ;;
   esac  
 }
 
+apache-downloadsdir(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+    *) echo $(apache-htdocs $tag)/downloads  ;;
+  esac  
+}
+
+
+
+
+
 apache-modulesdir(){
-  case $NODE_TAG in 
+  case ${1:-$NODE_TAG} in 
      G) echo /usr/libexec/apache2 ;;
      H) echo $APACHE_HOME/libexec ;;
      *) echo $APACHE_HOME/modules ;;
@@ -230,7 +241,7 @@ apache-modulesdir(){
 }
 
 apache-logdir(){
-   case $NODE_TAG in 
+   case ${1:-$NODE_TAG} in 
       N) echo /var/log/httpd ;;
       G) echo /var/log/apache2 ;;
       H) echo $APACHE_HOME/var/apache2/log ;;
