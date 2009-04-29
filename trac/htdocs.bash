@@ -19,14 +19,19 @@ htdocs-usage(){
       env-designated : $(env-designated)
       TRAC_INSTANCE : $TRAC_INSTANCE
 
-      htdocs-upcat  <path> <on-server-htdocs-rel-path>
-          usage example
-             TRAC_INSTANCE=heprez htdocs-scp $(htdocs-source)
+      htdocs-up  <path> <on-server-htdocs-rel-path>
+          usage examples :
+             TRAC_INSTANCE=heprez htdocs-up $(htdocs-source)
+             TRAC_INSTANCE=heprez htdocs-up $(htdocs-source) $(htdocs-privat)
 
       Download with 
           curl -O  $(TRAC_INSTANCE=heprez htdocs-url)/on/server/relative/name.whatever
 
       htdocs-test
+
+      htdocs-privat 
+           the contents are not listable but nevertheless some mimimal
+           protection can be advantageous sometimes 
 
 
 EOU
@@ -44,7 +49,7 @@ htdocs-rpath(){
    echo $(htdocs-dir)/$rel$(basename $path) 
 }
 
-htdocs-upcat(){    
+htdocs-up(){    
    local msg="=== $FUNCNAME :"
    local path=$1
    local rpath=$(htdocs-rpath $*)
@@ -52,6 +57,8 @@ htdocs-upcat(){
 
    cat $path | ssh $(env-designated) "mkdir -p $(dirname $rpath) && cat - > $rpath "     
 }
+
+htdocs-privat(){ echo $(private- ; private-val HTDOCS_PRIVAT) ; }
 
 htdocs-test(){
 
