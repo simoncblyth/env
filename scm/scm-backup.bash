@@ -987,7 +987,28 @@ scm-backup-folder(){
 }
 
 
+scm-backup-check(){
+   local msg="=== $FUNCNAME :"
+   local svhub=${1:-$(local-server-tag)}
+   local bktags=$(local-backup-tag $svhub)
+   local bktag
+   for bktag in $bktags ; do
+      echo;echo $msg  backups from $svhub on $bktag
+      ssh $bktag "find $(scm-backup-dir $bktag)/$(local-tag2node $svhub) -name '*.tar.gz' -exec du -hs {} \; "
+   done
+}
 
 
+scm-backup-df(){
+   local msg="=== $FUNCNAME :"
+   local svhub=${1:-$(local-server-tag)}
+   local bktags=$(local-backup-tag $svhub)
+   local bktag
+   for bktag in $bktags ; do
+      echo;echo $msg  $svhub -\> $bktag   local-var-base : $(local-var-base $bktag)
+      ssh $bktag "df -h "
+   done
+
+}
 
 

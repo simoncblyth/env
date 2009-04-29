@@ -7,18 +7,18 @@ ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for prec
 
 ssh--usage(){
 
-
 cat << EOU
+
+    == Basic Setup ==
 
     NB the permissions setting is crucial, without this the passwordless
     connection fails, with no error message ... the keys are just silently ignored
-   
    
      to setup passwordless from source to target need :
    
         create the keys on the source machine
             source> ssh--keygen 
-        remember to skill the agent if a prior one is running 
+        remember to kill the agent if a prior one is running 
    
         copy the public keys to the target machine
             source> ssh--putkey target
@@ -27,6 +27,28 @@ cat << EOU
          the passphrase used at key creation will be prompted for 
             source>  ssh--agent-start
            
+
+     == Server/Backup Management ==
+
+         
+     ssh--designated-key  : $(ssh--designated-key)
+           the pubkey for the node that is currently the designated server
+
+     ssh--designated-tags : $(ssh--designated-tags)
+           tags of the backup nodes for the designated server 
+
+     ssh--server-authkeys
+           Grabs the designated key, is not already present and distributes 
+           it to the backup nodes that need it. 
+
+           This needs to be rerun 
+              * after changing backup tags or designated server
+              
+           OR can be re-run just to check the keys  are inplace 
+              
+
+     == User Level Utilities ==
+
      ssh--info
           dump agent pid etc..
 
@@ -46,6 +68,9 @@ cat << EOU
      ssh--rlskey 
          list keys in all the remote nodes
 
+
+     == Deprecated early incarnation ==
+
  
      ssh--rmkey <type> <name> <node>
           delete keys from local authorized_keys2
@@ -57,6 +82,7 @@ cat << EOU
 
 
 
+     == Basis functions for key management ==  
 
      ssh--delkey <tag> <path-to-key>
            delete remote pubkey entry in authorized_keys{,2}           
@@ -79,30 +105,23 @@ cat << EOU
 
          Like addkey but scrub prior authorized_keys{,2} entries 
 
-
-
-
-
-     ssh--key2base <path-to-key>
-     ssh--key2tag  <path-to-key>
-          extract the tag and base when the key name conforms to convention 
-          eg for name P.id_rsa ... would return base id_rsa and tag P
-
-      ssh--designated-key : $(ssh--designated-key) 
-      ssh--distribute-key  <path-to-key> tag1 tag2 ...
+     ssh--distribute-key  <path-to-key> tag1 tag2 ...
           distribute the public key into the authorized_keys2 on the 
           destination tags 
           NB no checking for duplicates 
 
 
+    == Functions depending/supporting a key naming convention ==  
 
+     ssh--designated-key : $(ssh--designated-key) 
+     ssh--key2base <path-to-key>
+     ssh--key2tag  <path-to-key>
+          extract the tag and base when the key name conforms to convention 
+          eg for name P.id_rsa ... would return base id_rsa and tag P
+
+
+    == Ideas ==
   
-
-
-
-
-
-
 
     ssh--appendtag <target-tag> <new-tag> 
         NOT YET IMPLEMENTED
@@ -111,9 +130,13 @@ cat << EOU
             ssh--appendtag H N
 
 
-    Related function precursors ..
-        sshconf-     ## used for generating the .ssh/config file
+    == Related ==
 
+     Related function precursors ..
+          sshconf-     ## used for generating the .ssh/config file
+          
+     The details of the specific nodes etc... are in :
+          local-vi
 
 
 EOU
@@ -421,7 +444,7 @@ ssh--grab-key(){
    local tag=$(ssh--key2tag $path)
    local base=$(ssh--key2base $path)
 
-   echo $msg path $path tag $tag base $base 
+   #echo $msg path $path tag $tag base $base 
    [ -f $path    ] && echo $msg $path is already present && return 0
    [ ! -f $path ]  && scp $tag:~/.ssh/$base $path  
    [ ! -f $path ]  && echo $msg FAILED to grab $path from $tag ... you need to ssh--keygen on $tag  && return 1
@@ -441,7 +464,7 @@ ssh--key2base(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$(ssh--designated-key)}
    local name=$(basename $path)
-   local dtag=$(ssh--key $path)
+   local dtag=$(ssh--key2tag $path)
    local n=$(( ${#dtag} + 1 ))
    local base=${name:$n}
    echo $base
@@ -465,7 +488,7 @@ ssh--distribute-key(){
 
    local tag
    for tag in $tags ; do
-      echo $msg ... $tag $path
+      #echo $msg ... $tag $path
       case ${SSH__DISTRIBUTE_KEY:-add} in 
           INI) ssh--inikey  $tag $path ;;
           add) ssh--addkey  $tag $path ;;
@@ -499,6 +522,13 @@ EOM
    SSH__DISTRIBUTE_KEY=INI ssh--distribute-key $hubkey $tags 
 }
 
+ssh--designated-tags(){
+   local serverkey=${1:-$(ssh--designated-key)}
+   local dtag=$(ssh--key2tag $serverkey)
+   local tags=$(local-backup-tag $dtag)
+   echo $tags
+}
+
 
 ssh--server-authkeys(){
 
@@ -510,7 +540,7 @@ ssh--server-authkeys(){
    local serverkey=$(ssh--designated-key)
    ssh--grab-key $serverkey                   || return 1 
    local dtag=$(ssh--key2tag $serverkey)
-   local tags=$(local-backup-tag $dtag)
+   local tags=$(ssh--designated-tags $serverkey)
 
    ssh--distribute-key $serverkey $tags       || return 1
 
