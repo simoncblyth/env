@@ -1,4 +1,6 @@
-
+private-src(){  echo base/private.bash ; }
+private-source(){ echo ${BASH_SOURCE:-$(env-home)/$(private-src)} ; }
+private-vi(){     vi $(private-source) ; }
 private-usage(){
 
    cat << EOU

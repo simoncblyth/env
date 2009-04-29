@@ -97,6 +97,8 @@ env-localserver(){
 
 env-url(){         echo $(env-localserver $1)/repos/${2:-env}/trunk ; }
 env-wikiurl(){     echo $(env-localserver $1)/tracs/${2:-env}/wiki ; }
+
+
 env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
 ezsetup-(){     . $(env-home)/python/ezsetup.bash && ezsetup-env $* ; }
@@ -161,6 +163,7 @@ _nose-(){       . $(env-home)/unittest/nose.bash  && _nose-env  $* ; }
 _annobit-(){    . $(env-home)/annobit/annobit.bash  && _annobit-env $* ; }
 
 trac-(){        . $(env-home)/trac/trac.bash && trac-env $* ; } 
+htdocs-(){      . $(env-home)/trac/htdocs.bash && htdocs-env $* ; } 
 tracpreq-(){    . $(env-home)/trac/tracpreq.bash && tracpreq-env $* ; } 
 tmacros-(){     . $(env-home)/trac/macros/macros.bash  && tmacros-env $* ; }
 
@@ -345,17 +348,21 @@ EOD
 
 
 env-find(){
-  q=${1:-dummy}
+  local q=${1:-dummy}
   cd $(env-home)
-
-  if [ "$(uname)" == "Darwin" ]; then
-     mdfind -onlyin . $q
-  else
-     find . -name '*.*' -exec grep -H $q {} \;  | grep -v /.svn
-  fi
+  find . -name '*.*' -exec grep -H $q {} \;  | grep -v /.svn
 }
 
+env-dfind(){
+  local q=${1:-dummy}
 
+  if [ "$(uname)" == "Darwin" ]; then
+     cd $(env-home)
+     mdfind -onlyin . $q
+  else
+     env-find $*
+  fi
+}
 
 
 
