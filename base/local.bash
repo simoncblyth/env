@@ -337,7 +337,7 @@ local-mbackup-disk(){
 
 local-root(){
    case ${1:-$NODE_TAG} in
-      C) echo /mnt/disk1 ;;
+      C) echo -n ;;
       N) echo /data1 ;;
      H1) echo /home/hep/blyth ;;
      *) echo -n ;;
