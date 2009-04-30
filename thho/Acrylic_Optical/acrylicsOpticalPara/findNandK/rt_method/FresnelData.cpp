@@ -148,8 +148,23 @@ void FresnelData::dumpToFile(string outputFilename) {
 
 
     for(int dataNo=0;dataNo<TOTALDATANO;dataNo++) {
-        fout << 1000000.0*wavelength_[dataNo] << " " << indexOfRefraction_[dataNo]
+
+        if(numericalStatus_[dataNo] == NK_SUCCESS) {
+            evalError(dataNo);
+        } else {
+            indexOfRefractionErrorUp_[dataNo] = NK_ERROR;
+            alphaErrorUp_[dataNo] = NK_ERROR;
+            indexOfRefractionErrorLow_[dataNo] = NK_ERROR;
+            alphaErrorLow_[dataNo] = NK_ERROR;
+        }
+
+        fout << 1000000.0*wavelength_[dataNo]
+        << " " << indexOfRefraction_[dataNo]
+        << " " << indexOfRefractionErrorUp_[dataNo]
+        //<< " " << indexOfRefractionErrorLow_[dataNo]
         << " " << alpha_[dataNo]
+        << " " << alphaErrorUp_[dataNo]
+        //<< " " << alphaErrorLow_[dataNo]
         << " " << thinTransmittanceConstrain_[dataNo] << " " << thinReflectanceConstrain_[dataNo]
         << " " << numericalStatus_[dataNo]
         << endl;
@@ -536,4 +551,63 @@ long double FresnelData::AlphaTok(int dataNo) {
 
 }
 
+void FresnelData::evalError(int dataNo) {
 
+    long double tmpIOR = indexOfRefraction_[dataNo];
+    long double tmpEC = alpha_[dataNo];
+    long double atmpFuncValue(0);
+    long double btmpFuncValue(0);
+
+    long double tk(0), tn(0), rk(0), rn(0);
+
+
+    // T partial k
+    alpha_[dataNo] += DELTAEC;
+    atmpFuncValue = evalCaculatedGrossTransmittance(dataNo);
+    alpha_[dataNo] = tmpEC;
+    alpha_[dataNo] -= DELTAEC;
+    btmpFuncValue = evalCaculatedGrossTransmittance(dataNo);
+    alpha_[dataNo] = tmpEC;
+    tk = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
+
+    // T partial n
+    indexOfRefraction_[dataNo] += DELTA;
+    atmpFuncValue = evalCaculatedGrossTransmittance(dataNo);
+    indexOfRefraction_[dataNo] = tmpIOR;
+    indexOfRefraction_[dataNo] -= DELTA;
+    btmpFuncValue = evalCaculatedGrossTransmittance(dataNo);
+    indexOfRefraction_[dataNo] = tmpIOR;
+    tn = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
+
+    // R partial k
+    alpha_[dataNo] += DELTAEC;
+    atmpFuncValue = evalCaculatedGrossReflectance(dataNo);
+    alpha_[dataNo] = tmpEC;
+    alpha_[dataNo] -= DELTAEC;
+    btmpFuncValue = evalCaculatedGrossReflectance(dataNo);
+    alpha_[dataNo] = tmpEC;
+    rk = (atmpFuncValue - btmpFuncValue)/ (2*DELTAEC);
+
+    // R partial n
+    indexOfRefraction_[dataNo] += DELTA;
+    atmpFuncValue = evalCaculatedGrossReflectance(dataNo);
+    indexOfRefraction_[dataNo] = tmpIOR;
+    indexOfRefraction_[dataNo] -= DELTA;
+    btmpFuncValue = evalCaculatedGrossReflectance(dataNo);
+    indexOfRefraction_[dataNo] = tmpIOR;
+    rn = (atmpFuncValue - btmpFuncValue)/ (2*DELTA);
+
+    // find extreme in Cramer's rule
+    if((TERROR*rk)*(RERROR*tk) > 0) {
+        if(fabs(TERROR*rk) > fabs(RERROR*tk)) {
+            indexOfRefractionErrorUp_[dataNo] = (TERROR*rk)/(tn*rk-tk*rn);
+        } else { indexOfRefractionErrorUp_[dataNo] = (-tk*RERROR)/(tn*rk-tk*rn);}
+    } else { indexOfRefractionErrorUp_[dataNo] = (TERROR*rk-tk*RERROR)/(tn*rk-tk*rn);}
+
+    if((tn*RERROR)*(TERROR*rn) > 0) {
+        if(fabs(RERROR*tn) > fabs(TERROR*rn)) {
+            alphaErrorUp_[dataNo] = (tn*RERROR)/(tn*rk-tk*rn);
+        } else { alphaErrorUp_[dataNo] = (-TERROR*rn)/(tn*rk-tk*rn);
+    } else { alphaErrorUp_[dataNo] = (tn*RERROR-TERROR*rn)/(tn*rk-tk*rn);}
+
+}
