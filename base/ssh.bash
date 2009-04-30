@@ -58,6 +58,15 @@ cat << EOU
           ~/e/proxy/socks.pac and reload it in 
           Firefox > Preferences > 
 
+          An issue with this is that privileged ports can only be
+          forwarded by root ... but the nodes that would want to tunnel
+          to usually would have password access switched off so that means
+          would have to setup ssh keys for root ... 
+
+          So probably easier to prick holes in the iptables for specific ips
+          while testing 
+
+
      ssh--lskey 
           list keys in local authorized_keys2
       

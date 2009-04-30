@@ -203,6 +203,7 @@ local-tag2ip(){
            B) echo gateway.phy.bnl.gov ;;
          H|X) echo 140.112.101.48 ;;
           H1) echo 140.112.101.41 ;;
+           G) echo 140.112.102.77 ;;
           BP) echo bpost.kek.jp ;; 
           LX) echo lxplus.cern.ch ;; 
            T) echo tersk.slac.stanford.edu ;;
