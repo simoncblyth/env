@@ -606,6 +606,21 @@ env-curl(){
   [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD : SLEEPING && sleep 10000000000000  
 }
 
+env-mcurl(){
+  local msg="=== $FUNCNAME "
+  local url
+  for url in $* ; do
+     local cmd="curl -O $url "
+     echo $msg $cmd $PWD
+     eval $cmd
+     [ "$?" != "0" ] && echo $msg FAILED : $cmd $PWD ...
+  done 
+  local name=$(basename $1)
+  [ ! -f "$name" ] && echo $msg FAILED TO GET $name FROM ANY URL : SLEEPING && sleep 100000000000
+}
+
+
+
 env-ab(){
 
   local msg="=== $FUNCNAME :"

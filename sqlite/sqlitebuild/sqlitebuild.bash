@@ -63,7 +63,7 @@ sqlitebuild-get(){
     mkdir -p $(basename $dir)
     cd $dir 
 
-    [ ! -f $tgz ] && env-curl $(sqlitebuild-url)
+    [ ! -f $tgz ] && env-mcurl $(sqlitebuild-url) $(sqlitebuild-htdocs-url)
     
     file-
     file-size-lt $tgz 100 && echo $msg ABORT tgz $tgz is too small ... sleeping && sleep 10000000000
