@@ -249,6 +249,8 @@ trac-url(){
 } 
  
 
+
+trac-build--(){     screen bash -lc "trac-;trac-build" ; }
 trac-build(){
 
 

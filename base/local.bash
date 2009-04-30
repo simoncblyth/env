@@ -574,8 +574,12 @@ local-initialize(){
    for name in $names ; do 
       local dir=$(eval $name)
       echo $msg $name : $dir 
-      $SUDO mkdir -p $dir
-      $SUDO chown $USER $dir
+      if [ -d $dir ]; then 
+         echo $msg $dir exists already 
+      else 
+         $SUDO mkdir -p $dir
+         $SUDO chown $USER $dir
+      fi
    done
 
 } 
