@@ -264,6 +264,17 @@ trac-build(){
    tracbuild-
    tracbuild-auto 
 
+   # do this in local-initialize 
+   #trac-inherit-setup
+
+}
+
+
+trac-check(){
+
+   local msg="=== $FUNCNAME :"
+   configobj-
+   ! configobj-check && echo $msg configobj-check FAILED ... SLEEPING && sleep 100000000000000 
 
 }
 
@@ -694,7 +705,7 @@ trac-enscript-deprecated(){
 trac-enscript-inherited(){
   enscript-
   local path=$(enscript-dir)/bin/enscript
-  [ ! -x "$path" ] && echo "## $FUNCNAME $(date) .. WARNING : NO enscript AT $path " && return 0
+  [ ! -x "$path" ] && echo "## $FUNCNAME .. WARNING : NO enscript AT $path " && return 0
   
   cat << EOI
 

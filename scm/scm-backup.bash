@@ -257,6 +257,8 @@ scm-recover-exclude(){
 
 scm-recover-all(){
 
+
+
    local msg="=== $FUNCNAME :"
    local fromnode=$1
    [ "$fromnode" == "" ] && echo scm-recover-all needs a fromnode  && return 1 
@@ -265,6 +267,9 @@ scm-recover-all(){
    read -p "$msg using tarballs from node $fromnode ? Enter YES to proceed " ans
    [ "$ans" != "YES" ] && echo $msg ABORTing && return  1
 
+   ## checking trac installation 
+   trac-
+   trac-check
 
    local types="repos svn tracs"
    for type in $types

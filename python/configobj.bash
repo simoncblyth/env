@@ -14,19 +14,37 @@ configobj-usage(){
                         
          configobj-get
               easy install into python
+
+
  
          configobj-check
                try to import 
+
+
+     Beware of the sudo python chestnut :
+         /data/env/system/python/Python-2.5.1/bin/python: 
+            error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
+
+
 EOU
 }
 
+configobj-build(){
+  
+   local msg="=== $FUNCNAME :"
+   configobj-get
+   ! configobj-check && echo $msg FAILED sleeping && sleep 1000000000000
+}
+
+
 configobj-get(){
    python-
-   local cmd="$(local-sudo) easy_install configobj "
+   local cmd="easy_install configobj "
    echo $cmd 
    eval $cmd
 }
 
 configobj-check(){
+   python-
    python -c "import configobj"
 }

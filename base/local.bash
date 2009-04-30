@@ -25,7 +25,7 @@ cat << EOU
    local-output-base :  $(local-output-base)
    
    local-initialize 
-       create the base folders
+       create the base folders + invoke trac-inherit-setup
    
    
    local-scm       : define the SCM_* coordinates of source code management node supporting the current node
@@ -581,6 +581,9 @@ local-initialize(){
          $SUDO chown $USER $dir
       fi
    done
+
+   ## do here as it needs sudo pw too
+   trac-inherit-setup
 
 } 
     
