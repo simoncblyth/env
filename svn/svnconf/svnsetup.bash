@@ -215,7 +215,7 @@ svnsetup-apache(){
    if [ "$base" == "$def" ]; then
       echo $msg setting ownership of $base
       $SUDO mkdir -p $base 
-      svnsetup-chown $base 
+      apache-chown $base 
       
       echo addline... Include $base/setup.conf
       apache-
