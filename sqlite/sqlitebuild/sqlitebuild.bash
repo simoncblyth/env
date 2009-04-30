@@ -39,15 +39,29 @@ sqlitebuild-urlbase(){
 
 sqlitebuild-tgz(){ echo $SQLITE_NAME.tar.gz ; }
 sqlitebuild-url(){ echo $(sqlitebuild-urlbase)/$(sqlitebuild-tgz) ; }
+sqlitebuild-htdocs-url(){  echo $(TRAC_INSTANCE=heprez htdocs-url)/$(sqlitebuild-tgz) ; }
+
+sqlitebuild-fold(){ echo $(local-system-base)/sqlite ; }
+
+sqlitebuild-upload(){
+   local msg="=== $FUNCNAME: "
+   htdocs-
+   local path=$(sqlitebuild-fold)/$(sqlitebuild-tgz)
+   [ ! -f $path ] && echo $msg ERROR no $path && return 1
+   TRAC_INSTANCE=heprez htdocs-up $path 
+}
+
+
 sqlitebuild-get(){
  
     local msg="=== $FUNCNAME :"
     local nam=$SQLITE_NAME
     local tgz=$(sqlitebuild-tgz)
 
-    cd $SYSTEM_BASE
-    mkdir -p sqlite
-    cd sqlite
+    local dir=$(sqlitebuild-fold)
+    cd $(dirname $dir)
+    mkdir -p $(basename $dir)
+    cd $dir 
 
     [ ! -f $tgz ] && env-curl $(sqlitebuild-url)
     
