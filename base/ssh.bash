@@ -119,15 +119,33 @@ cat << EOU
           extract the tag and base when the key name conforms to convention 
           eg for name P.id_rsa ... would return base id_rsa and tag P
 
+     ssh--grab-key <local-path-to-key>
+           Copy the key from remote node and store at the specified path, the 
+           form of the basename must follow the naming convention in order to identify 
+           which node to get it from and which type of key to get
+             eg:
+                ssh--grab-key $HOME/.ssh/YY.id_rsa.pub
+
+                would get  YY:.ssh/id_rsa.pub
+
 
     == Ideas ==
   
-
     ssh--appendtag <target-tag> <new-tag> 
         NOT YET IMPLEMENTED
         
         Automate the key grabbing and cleanup of the above example allowing : 
             ssh--appendtag H N
+
+
+    == How to handle scponly nodes + roots keys ?  ==
+
+        Need to identify same node neibour tag which is sudoer  
+        and manipulate from there ...         
+  
+            sudo bash -c "cat .ssh/authorized_keys2 >> ../dayabayscp/.ssh/authorized_keys2 "
+
+
 
 
     == Related ==
@@ -353,6 +371,27 @@ ssh--addkey(){
 
    cat $key | ssh $tag "cat - >> ~/.ssh/$ak"              
 }
+
+ssh--neighbour-addkey(){
+   local msg="=== $FUNCNAME :"
+   local tag=$1
+   local key=$2
+
+   [ ! -f "$key" ] && echo $msg ABORT key $key does not exist && return 1
+   [ "$(local-tag2node $NODE_TAG)" != "$(local-tag2node $tag)" ] && echo $msg ABORT this can only be done to $tag from node-neighbour sudoer && return 1   
+
+   local user=$(local-tag2user $tag)
+   ## hmm nasty assumption of home dir position ... lookup in /etc/passwd ?
+   local akpath=$HOME/../$user/.ssh/$(ssh--key2ak $key)
+  
+   local haskey=$(sudo grep "$(cat $key)" $akpath > /dev/null && echo YES || echo NO)
+   case $haskey in
+     YES) echo $msg $key is already placed in   $akpath && return 0 ;;
+      NO) echo $msg proceeding to append key to $akpath && sudo bash -c "cat $key >> $akpath "   ;;
+   esac
+
+}
+
 
 ssh--haskey(){
    local tag=$1

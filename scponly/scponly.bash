@@ -57,6 +57,37 @@ scponly-usage(){
                    sudo chown dayabayscp.dayabayscp $dir
 
 
+
+    STEPS TO PASS KEYS TO SCPONLY ACCOUNT + AND GET RSYNC TRANSFER TO IT WORKING 
+
+        From hub G transfer to the unrestricted neibour C
+             G> ssh--grab-key $HOME/.ssh/YY.id_rsa.pub 
+             G> scp .ssh/YY.id_rsa.pub C:.ssh/
+
+        From the neibour C
+             C> ssh--neighbour-addkey S .ssh/YY.id_rsa.pub 
+             === ssh--neighbour-addkey : proceeding to append key to /home/blyth/../dayabayscp/.ssh/authorized_keys2
+             C> ssh--neighbour-addkey S .ssh/YY.id_rsa.pub 
+             === ssh--neighbour-addkey : .ssh/YY.id_rsa.pub is already placed in /home/blyth/../dayabayscp/.ssh/authorized_keys2
+
+        Also need to create destination folder with appropriate ownership :
+             C> dir=$(local-scm-fold)/backup/$(local-tag2node YY)
+             C> user=$(local-tag2user S)
+             C> mkdir -p $dir
+             C> sudo chown $user.$user $dir
+
+        [blyth@cms01 ~]$ l `local-scm-fold`/backup/
+        drwxr-xr-x  5 dayabayscp dayabayscp 4096 Aug 11  2008 dayabay
+        drwxrwxr-x  2 dayabayscp dayabayscp 4096 Apr 30 10:52 dyb1
+        drwxr-x---  5 blyth      blyth      4096 Apr 26 19:33 grid1
+
+        Ensure 
+             "$(local-backup-tag YY)" ==  "S"
+
+        Test the rsync 
+             YY> scm-backup-rsync
+
+
      
     CONFIG 
 
