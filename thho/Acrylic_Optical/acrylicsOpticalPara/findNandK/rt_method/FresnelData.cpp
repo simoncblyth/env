@@ -158,14 +158,28 @@ void FresnelData::dumpToFile(string outputFilename) {
             alphaErrorLow_[dataNo] = NK_ERROR;
         }
 
+        long double att, attUp, attLow;
+        att = 1.0/alpha_[dataNo];
+        attLow = 1.0/(alpha_[dataNo] + alphaErrorUp_[dataNo]);
+        if((alpha_[dataNo] - alphaErrorUp_[dataNo]) > 0) {
+            attUp = 1.0/(alpha_[dataNo] - alphaErrorUp_[dataNo]);
+        } else { 
+            attUp = att;
+            //numericalStatus_[dataNo] = NK_ERROR; // reject solutions which error domains too much
+        }
+
         fout << 1000000.0*wavelength_[dataNo]
         << " " << indexOfRefraction_[dataNo]
         << " " << indexOfRefractionErrorUp_[dataNo]
         //<< " " << indexOfRefractionErrorLow_[dataNo]
         << " " << alpha_[dataNo]
         << " " << alphaErrorUp_[dataNo]
+        << " " << att
+        << " " << attUp - att
+        << " " << att - attLow
         //<< " " << alphaErrorLow_[dataNo]
-        << " " << thinTransmittanceConstrain_[dataNo] << " " << thinReflectanceConstrain_[dataNo]
+        << " " << thinTransmittanceConstrain_[dataNo] 
+        << " " << thinReflectanceConstrain_[dataNo]
         << " " << numericalStatus_[dataNo]
         << endl;
     }
@@ -607,7 +621,10 @@ void FresnelData::evalError(int dataNo) {
     if((tn*RERROR)*(TERROR*rn) > 0) {
         if(fabs(RERROR*tn) > fabs(TERROR*rn)) {
             alphaErrorUp_[dataNo] = (tn*RERROR)/(tn*rk-tk*rn);
-        } else { alphaErrorUp_[dataNo] = (-TERROR*rn)/(tn*rk-tk*rn);
+        } else { alphaErrorUp_[dataNo] = (-TERROR*rn)/(tn*rk-tk*rn);}
     } else { alphaErrorUp_[dataNo] = (tn*RERROR-TERROR*rn)/(tn*rk-tk*rn);}
+
+    indexOfRefractionErrorUp_[dataNo] = fabs(indexOfRefractionErrorUp_[dataNo]);
+    alphaErrorUp_[dataNo] = fabs(alphaErrorUp_[dataNo]);
 
 }
