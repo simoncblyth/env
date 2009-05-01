@@ -65,7 +65,9 @@
 // reasonable/local range when using newton method
 #define NEWTON_N 10.0
 #define NEWTON_ALPHA 0.5
-
+// instrument measurement error
+#define TERROR 0.003 // system error by integrating sphere 0.002 + reproducibility 0.001
+#define RERROR 0.0152 // Spectrlon 0.015 + reproducibility 0.0002
 
 #define NK_SUCCESS 0
 #define NK_ERROR 1
@@ -95,6 +97,7 @@ class FresnelData {
         long double evalTransmittanceConstrain(int dataNo);
         long double evalReflectanceConstrain(int dataNo);
         void evalJacobian(int dataNo);
+        void evalError(int dataNo);
 
         void setInitialParas(long double indexOfRefraction, long double extinctionCoefficient, long double thickness);
         void setAlphaToEC(int dataNo);
@@ -119,8 +122,12 @@ class FresnelData {
         long double thinReflectance_[TOTALDATANO];
         long double wavelength_[TOTALDATANO]; // mm
         long double indexOfRefraction_[TOTALDATANO];
+        long double indexOfRefractionErrorUp_[TOTALDATANO];
+        long double indexOfRefractionErrorLow_[TOTALDATANO];
         //long double extinctionCoefficient_[TOTALDATANO];
         long double alpha_[TOTALDATANO]; // 1/mm
+        long double alphaErrorUp_[TOTALDATANO];
+        long double alphaErrorLow_[TOTALDATANO];
         long double transmittance_[TOTALDATANO];
         long double reflectance_[TOTALDATANO];
         long double thickness_; // mm
