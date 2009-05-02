@@ -1,6 +1,6 @@
 void csvToData(void) {
 
-    FILE* pipe = gSystem->OpenPipe("ls *.cvs" , "r" );
+    FILE* pipe = gSystem->OpenPipe("ls *.csv" , "r" );
     TString finname;
     while(finname.Gets(pipe)) {
     cout << finname << endl;
@@ -26,7 +26,8 @@ void convertFormat(TString inputFile, TString outputFile) {
         if(!fin.good()) break;
         fin >> col_1 >> col_2;
         if(col_1 != "nm," && col_2 != "%T") {
-            //col_1.replace(col_1.find(comma),comma.length(),"");
+            Int_t colEnd = col_1.Length();
+            col_1.Remove(colEnd-1);
             fout << col_1 << " " << col_2 << endl;
         }
     }
