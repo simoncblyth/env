@@ -1,20 +1,26 @@
 void csvToData(void) {
 
-    convertFormat("test","test_out");
+    FILE* pipe = gSystem->OpenPipe("ls *.cvs" , "r" );
+    TString finname;
+    while(finname.Gets(pipe)) {
+    cout << finname << endl;
+    TString foutname = "compartment_" + finname;
+    convertFormat(finname,foutname);
+    }
 
 }
 
-void convertFormat(string inputFile, string outputFile) {
+void convertFormat(TString inputFile, TString outputFile) {
 
 
     ifstream fin;
-    fin.open(inputFile.data());
+    fin.open(inputFile.Data());
 
     ofstream fout;
-    fout.open(outputFile.data());
+    fout.open(outputFile.Data());
 
-    string col_1, col_2;
-    string comma=",";
+    TString col_1, col_2;
+    TString comma=",";
 
     while(1) {
         if(!fin.good()) break;
