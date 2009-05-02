@@ -26,7 +26,6 @@ void convertFormat(TString inputFile, TString outputFile) {
 
     TString col_1, col_2;
 
-    cout << "1" << endl;
 
     while(1) {
         fin >> col_1 >> col_2;
@@ -39,7 +38,6 @@ void convertFormat(TString inputFile, TString outputFile) {
         }
     }
 
-    cout << "2" << endl;
 
     fin.close();
     fout.close();
