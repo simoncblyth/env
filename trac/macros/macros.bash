@@ -1,4 +1,8 @@
+
+tmacros-src(){  echo trac/macros/macros.bash ; }
+tmacros-source(){ echo ${BASH_SOURCE:-$(env-home)/$(tmacros-src)} ; }
 tmacros-vi(){   vi $BASH_SOURCE ; }
+
 tmacros-usage(){
 
 cat << EOU
@@ -59,7 +63,7 @@ tmacros-plugins(){
 tmacros-place(){
 
   local msg="=== $FUNCNAME :"
-  local name=$1
+  local name=${1:-$TRAC_INSTANCE}
   local plugins=$(tmacros-plugins $name)
   local iwd=$PWD
   

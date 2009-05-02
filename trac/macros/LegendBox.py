@@ -16,31 +16,39 @@ You can modify the default COLOR, LEGEND and the STYLE in this plugin file.
 
 '''
 
-from trac.wiki import wiki_to_html, wiki_to_oneliner
+from trac.wiki.macros import WikiMacroBase
+from trac.wiki.formatter import format_to_html
+from genshi.builder import tag 
 
 STYLE  = 'margin-top: 2px; color:black; background-color:%s; '\
          'border: solid black 1px'
 COLOR  = 'white'
 LEGEND = 'Items'
 
-def execute(hdf, txt, env):
-    lines  = txt.split('\n')
-    color  = COLOR
-    legend = LEGEND
-    offset = 0
-    for l in lines[:2]:
-        if l.startswith('#!color'):
-            color = l.split(':',1)[-1]
-            offset += 1
-        elif l.startswith('#!legend'):
-            legend = l.split(':',1)[-1]
-            offset += 1
-    
-    return _build_field_set(hdf, '\n'.join(lines[offset:]), env, legend, color)
+class LegendBoxMacro(WikiMacroBase):
+    def expand_macro(self, formatter, name, args):
+        """Return some output that will be displayed in the Wiki content.
 
-def _build_field_set(hdf, txt, env, legend, color):
-    style = STYLE % color
-    html = '<fieldset style="%s"><legend style="%s">' \
-           '%s</legend>%s</fieldset>' % \
-	  (style,style,wiki_to_oneliner(legend,env),wiki_to_html(txt,env,None))
-    return html
+        `name` is the actual name of the macro 
+        `args` is the text enclosed in parenthesis at the call of the macro.
+          Note that if there are ''no'' parenthesis (like in, e.g.
+          [[HelloWorld]]), then `args` is `None`.
+        """
+
+        lines  = args.split('\n')
+        color  = COLOR
+        legend = LEGEND
+        offset = 0
+        for l in lines[:2]:
+            if l.startswith('#!color'):
+                color = l.split(':',1)[-1]
+                offset += 1
+            elif l.startswith('#!legend'):
+                legend = l.split(':',1)[-1]
+                offset += 1
+
+        style = STYLE % color
+        return tag.fieldset(style=style)( tag.legend(style=style)(legend), format_to_html(self.env, formatter.context, "\n".join(lines[offset:]) ) )        
+  
+
+
