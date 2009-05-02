@@ -2,11 +2,16 @@ void csvToData(void) {
 
     FILE* pipe = gSystem->OpenPipe("ls *.csv" , "r" );
     TString finname;
+    TString foutname;
     while(finname.Gets(pipe)) {
-    cout << finname << endl;
-    TString foutname = "compartment_" + finname;
-    convertFormat(finname,foutname);
+        foutname = "compartment_" + finname;
+        cout << finname << " " << foutname << endl;
+        convertFormat(finname,foutname);
     }
+
+    gSystem->Exit( gSystem->ClosePipe( pipe ));
+
+
 
 }
 
@@ -20,17 +25,21 @@ void convertFormat(TString inputFile, TString outputFile) {
     fout.open(outputFile.Data());
 
     TString col_1, col_2;
-    TString comma=",";
+
+    cout << "1" << endl;
 
     while(1) {
-        if(!fin.good()) break;
         fin >> col_1 >> col_2;
-        if(col_1 != "nm," && col_2 != "%T") {
+        if(!fin.good()) break;
+        if((col_1 != "nm,") && (col_2 != "%T")) {
             Int_t colEnd = col_1.Length();
-            col_1.Remove(colEnd-1);
+            colEnd -= 1;
+            col_1.Remove(colEnd);
             fout << col_1 << " " << col_2 << endl;
         }
     }
+
+    cout << "2" << endl;
 
     fin.close();
     fout.close();
