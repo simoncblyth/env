@@ -168,6 +168,7 @@ local-tag2node(){
 local-tag2user(){
   case ${1:-$NODE_TAG} in
     SC2|S2|S) echo dayabayscp ;;
+ H1|C|H|N|C2) echo blyth ;;
            A) echo aberdeen ;;
           AR) echo root ;;
          C2R) echo root ;;
@@ -193,7 +194,7 @@ local-tag2ip(){
   case ${1:-$NODE_TAG} in
         A|AR) echo aberdeentunnel.dyndns.org ;;
          C|S) echo 140.112.101.190 ;; 
-      C2|SC2) echo 140.112.101.191 ;;
+  C2|SC2|C2R) echo 140.112.101.191 ;;
      S2|G1|P) echo 140.112.102.250 ;;
            N) echo belle7.nuu.edu.tw ;;
           NE) echo pdsf.nersc.gov ;;
@@ -221,7 +222,7 @@ local-nodetag(){
          coop) echo CO ;;
          hep1) echo H1 ;;
         cms01) echo C ;;
-        cms02) echo C2 ;;
+        cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo XX ;;
          dyb1) echo YY ;;
        belle7) echo N ;;
@@ -242,6 +243,14 @@ local-nodetag-hfag(){
    case ${1:-$USER} in
       blyth) echo H ;;
       exist) echo X ;;
+          *) echo U ;;
+   esac
+}
+
+local-nodetag-cms02(){
+   case ${1:-$USER} in
+      blyth) echo C2 ;;
+       root) echo C2R ;;
           *) echo U ;;
    esac
 }
