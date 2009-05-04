@@ -68,7 +68,7 @@ sshconf-gen-(){
    local tags=$(local-tags $*)
 
    cat << EOH
-# $msg $* tags : $tags   
+# $msg $* local-tags : $tags  normally based on local-backup-tag : $(local-backup-tag)   
 EOH
    local tag
    for tag in $(local-tags $*) ; do

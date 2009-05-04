@@ -151,17 +151,17 @@ EOI
 
 local-tag2node(){
   case ${1:-$NODE_TAG} in 
-      H) echo hfag  ;;
-    C|S) echo cms01 ;;
- C2|SC2) echo cms02 ;;
-     XX) echo dayabay ;;
-     YY) echo dyb1 ;;
-     H1) echo hep1 ;;
-      N) echo belle7 ;;
-S2|P|G1) echo grid1 ;;
-     G3) echo g3pb ;;
-      G) echo g4pb ;; 
-      *) echo unknown ;; 
+          H) echo hfag  ;;
+        C|S) echo cms01 ;;
+ C2|SC2|C2R) echo cms02 ;;
+         XX) echo dayabay ;;
+         YY) echo dyb1 ;;
+         H1) echo hep1 ;;
+          N) echo belle7 ;;
+    S2|P|G1) echo grid1 ;;
+         G3) echo g3pb ;;
+          G) echo g4pb ;; 
+          *) echo unknown ;; 
   esac
 }
 
@@ -170,6 +170,7 @@ local-tag2user(){
     SC2|S2|S) echo dayabayscp ;;
            A) echo aberdeen ;;
           AR) echo root ;;
+         C2R) echo root ;;
            X) echo exist ;;
            P) echo dayabaysoft ;;
            L) echo sblyth ;;
@@ -181,11 +182,9 @@ local-tag2user(){
 
 local-scponly-tags(){   echo S SC2 S2 ; }
 local-tags(){
-   case ${1:-$USER} in 
-        root) local-backup-tag ;;
-        maqm) echo XX YY $(local-scponly-tags)  ;;
-       blyth) echo A AR N NE I B C C2 H H1 X P G1 T LX  $(local-scponly-tags) ;;
-        thho) echo A AR C C2 H1 ;;
+   case ${1:-$NODE_TAG} in 
+           G) echo A AR N NE I B C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
+           *) local-backup-tag ;;
    esac
 }
 

@@ -145,6 +145,10 @@ scm-backup-du(){
     find $SCM_FOLD -name '*.gz' -exec du -h {} \;
 }
 
+scm-backup--(){
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; $*  "
+}
+
 
 scm-backup-all-as-root(){
 

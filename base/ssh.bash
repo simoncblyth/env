@@ -392,9 +392,9 @@ ssh--neighbour-addkey(){
    [ "$(local-tag2node $NODE_TAG)" != "$(local-tag2node $tag)" ] && echo $msg ABORT this can only be done to $tag from node-neighbour sudoer && return 1   
 
    local user=$(local-tag2user $tag)
-   ## hmm nasty assumption of home dir position ... lookup in /etc/passwd ?
-   local akpath=$HOME/../$user/.ssh/$(ssh--key2ak $key)
-  
+   etc-
+   local akpath=$(etc-home $user)/.ssh/$(ssh--key2ak $key)
+   sudo mkdir -p $(dirname $akpath)
    local haskey=$(sudo grep "$(cat $key)" $akpath > /dev/null && echo YES || echo NO)
    case $haskey in
      YES) echo $msg $key is already placed in   $akpath && return 0 ;;
