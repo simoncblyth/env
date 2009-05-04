@@ -23,9 +23,9 @@ void drawNITD_Int(void) {
         diffMEAN_1[i] = MEANArray_1[i] - MEANArray_2[i];
         diffMEAN_2[i] = MEANArray_3[i] - MEANArray_2[i];
         diffMEAN_3[i] = MEANArray_4[i] - MEANArray_2[i];
-        diffRMS_1[i] = RMSArray_1[i]*RMSArray_1[i] + RMSArray_2[i]*RMSArray_2[i] - 2.0*RMSArray_1[i]*RMSArray_2[i];
-        diffRMS_2[i] = RMSArray_3[i]*RMSArray_3[i] + RMSArray_2[i]*RMSArray_2[i] - 2.0*RMSArray_3[i]*RMSArray_2[i];
-        diffRMS_3[i] = RMSArray_4[i]*RMSArray_4[i] + RMSArray_2[i]*RMSArray_2[i] - 2.0*RMSArray_4[i]*RMSArray_2[i];
+        diffRMS_1[i] = RMSArray_1[i]*RMSArray_1[i] + RMSArray_2[i]*RMSArray_2[i];
+        diffRMS_2[i] = RMSArray_3[i]*RMSArray_3[i] + RMSArray_2[i]*RMSArray_2[i];
+        diffRMS_3[i] = RMSArray_4[i]*RMSArray_4[i] + RMSArray_2[i]*RMSArray_2[i];
 
 
         wlError[i] = 0.06;
