@@ -270,6 +270,7 @@ scm-recover-all(){
    ## checking trac installation 
    trac-
    trac-check
+   trac-inherit-setup
 
    local types="repos svn tracs"
    for type in $types

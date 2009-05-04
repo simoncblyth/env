@@ -20,7 +20,7 @@ env-sourcelink(){
    echo env:source:/trunk/$(env-rel $src)@$(svn-lastrev $src)
 }
 
-env-sourcetag(){ echo P ; }
+env-sourcetag(){ echo C2 ; }
 
 env-designated(){ 
   [ -n "$ENV_DESIGNATED" ] && echo $ENV_DESIGNATED && return 0
