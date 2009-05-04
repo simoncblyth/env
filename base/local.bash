@@ -367,7 +367,7 @@ local-base(){
     OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         C) echo         $(local-root $t)/data/env/local ;;
-       C2) echo         $(local-root $t)/data/env/local ;;
+   C2|C2R) echo         $(local-root $t)/data/env/local ;;
        XT) echo /home/tianxc ;;   
         *) echo /usr/local ;;
    esac
@@ -384,7 +384,7 @@ local-system-base(){
      OLD_C) echo                         /data/env/system ;;
  MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/system ;;
          C) echo $(local-root $t)/data/env/system ;;
-        C2) echo $(local-root $t)/data/env/system ;;
+    C2|C2R) echo $(local-root $t)/data/env/system ;;
          N) echo $(local-root $t)/env/system ;;
         H1) echo $(local-root $t)/system ;;
         XT) echo /home/tianxc/system ;;
