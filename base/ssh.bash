@@ -117,7 +117,9 @@ cat << EOU
      ssh--distribute-key  <path-to-key> tag1 tag2 ...
           distribute the public key into the authorized_keys2 on the 
           destination tags 
-          NB no checking for duplicates 
+
+     ssh--retract-key  <path-to-key> tag1 tag2 ...
+          delete the public key from the authorized keys of the destination tags 
 
 
     == Functions depending/supporting a key naming convention ==  
@@ -544,6 +546,25 @@ ssh--distribute-key(){
    done
 }
 
+ssh--retract-key(){
+
+   local msg="=== $FUNCNAME :"
+   ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
+
+   local path=$1
+   shift
+   local tags=$*
+
+   local ans
+   read -p "$msg $path to nodes : $tags , enter YES to proceed " ans
+   [ "$ans" != "YES" ]    && echo $msg skipping && return 1
+
+   local tag
+   for tag in $tags ; do
+      #echo $msg ... $tag $path
+      ssh--delkey  $tag $path 
+   done
+}
 
 ssh--initialize-authkeys(){
 
@@ -583,14 +604,20 @@ ssh--server-authkeys(){
    local msg="=== $FUNCNAME :"
    ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
 
-   echo $msg distribute the server public key to its backup nodes
 
    local serverkey=$(ssh--designated-key)
-   ssh--grab-key $serverkey                   || return 1 
    local dtag=$(ssh--key2tag $serverkey)
    local tags=$(ssh--designated-tags $serverkey)
 
-   ssh--distribute-key $serverkey $tags       || return 1
+   local ans
+   read -p "$msg grab + distribute server public key $serverkey to server backup nodes $tags ... YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 0
+   echo $msg proceeding 
+
+   ssh--grab-key $serverkey    
+   [ ! -f "$serverkey" ] && echo $msg ABORT : FAILED TO GRAB KEY ... && return 1
+
+   ssh--distribute-key $serverkey $tags 
 
    ## need designation of scponly endpoints in order that 
    ## requisite keys are in the right place  
