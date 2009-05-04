@@ -43,6 +43,7 @@ clui-alias(){
    alias e='cd $ENV_HOME'
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
+   alias eu="env-u"
 }
 
 

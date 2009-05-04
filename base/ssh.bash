@@ -3,7 +3,7 @@ ssh--src(){ echo base/ssh.bash ; }
 ssh--source(){ echo $(env-home)/$(ssh--src) ; }
 ssh--vi(){ vi $(ssh--source) ; }
 ssh--env(){ elocal- ; }
-ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
+#ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
 
 ssh--usage(){
 
@@ -283,6 +283,29 @@ ssh--agent-ok(){
    (ssh-add -l >& /dev/null) && echo 1 || echo 0
 }
 
+ssh--agent-check(){
+  [ -z "$SSH_AGENT_PID" ]  && return 1
+  [ -z "$SSH_AUTH_SOCK" ]  && return 2 
+  return 0
+}
+
+ssh--envdump(){
+  local msg="=== $FUNCNAME :"
+  cat << EOD
+$msg
+
+    USER     $USER
+    HOME     $HOME
+    NODE     $NODE 
+    NODE_TAG $NODE_TAG
+
+    SSH_INFOFILE  : $SSH_INFOFILE
+    SSH_AGENT_PID : $SSH_AGENT_PID
+    SSH_AUTH_SOCK : $SSH_AUTH_SOCK
+EOD
+
+}
+
 
 ssh--agent-start(){
     local info=$(ssh--infofile)
@@ -402,6 +425,9 @@ ssh--neighbour-addkey(){
    esac
 
 }
+
+
+
 
 
 ssh--haskey(){

@@ -18,6 +18,7 @@ batch-(){     . $ENV_HOME/base/batch.bash   && batch-env $* ; }
 file-(){      . $ENV_HOME/base/file.bash    && file-env $* ; }
 
 ssh-(){        . $(env-home)/base/ssh.bash    && ssh--env $* ; }
+ssh--(){       . $(env-home)/base/ssh.bash    && ssh--env $* ; }
  
 
 base-usage(){
@@ -45,6 +46,9 @@ base-env(){
    ## do not need the ssh- funcs when non-interactive but do need the connection to the agent 
    ##  so this is better separate from the ssh-
    [ -r ssh-infofile.bash ]  && . ssh-infofile.bash
+   
+
+   ssh--
 
    ## caution must exit in same directory as started in 
    cd $iwd
@@ -55,7 +59,6 @@ base-env(){
    cd $(env-home)/base
    
    clui-
-   ssh-
  
    cd $iwd
 }

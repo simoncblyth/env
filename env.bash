@@ -265,12 +265,6 @@ env-dbg(){
 env-env(){
   local msg="=== $FUNCNAME :"
  
-  BASE_DBG=0
-  SCM_DBG=0
-  XML_DBG=0
-  SEED_DBG=0
-  DYW_DBG=0
-  DYB_DBG=0 
   TZERO_DBG=0   ## the interactive/non-interactive switch use for debugging cron/batch issues 
 
   # 
@@ -285,13 +279,9 @@ env-env(){
  
   base-  
   svn-
-  #scm-    
  
- ## [ "$NODE_TAG" == "H" -o "$NODE_TAG" == "U" ] && export MSG="$msg skipped dyb- on node $NODE_TAG " || dyb- 
  
   cd $iwd
-  alias eu=env-u
-  
   
   cmt-  
   
@@ -309,26 +299,17 @@ sss(){
 
 
 env-u(){ 
-  iwd=$(pwd)
-  
-  if [ "$NODE_TAG" == "$SOURCE_TAG" ]; then
-     echo ============= env-u : no svn update is performed as on source node ================
-  else
-     cd $(env-home) 
-     
-     echo ============= env-u : status before update ================
-     svn status -u
-     svn update
-     echo ============= env-u : status after update ================
-     svn status -u
-     cd $iwd
-     
-  fi
+  local iwd=$(pwd)
+  cd $(env-home) 
+  echo ============= env-u : status before update ================
+  svn status -u
+  svn update
+  echo ============= env-u : status after update ================
+  svn status -u
+  cd $iwd
   echo ============== env-u :  sourcing the env =============
   [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
 }
-
-
 
 
 

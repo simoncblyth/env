@@ -644,6 +644,11 @@ scm-backup-rsync(){
    #
 
    local msg="=== $FUNCNAME :" 
+
+   ssh--
+   ! ssh--agent-check && echo $msg ABORT ssh--agent-check FAILED : seems that you are not hooked up to your ssh-agent : possible NODE mischaracterization &&  ssh--envdump && return 1
+
+
    local tags=${1:-$BACKUP_TAG}   
    [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
  
