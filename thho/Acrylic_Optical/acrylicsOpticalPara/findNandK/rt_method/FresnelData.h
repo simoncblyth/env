@@ -66,8 +66,8 @@
 #define NEWTON_N 10.0
 #define NEWTON_ALPHA 0.5
 // instrument measurement error
-#define TERROR 0.003 // system error by integrating sphere 0.002 + reproducibility 0.001
-#define RERROR 0.0152 // Spectrlon 0.015 + reproducibility 0.0002
+#define TERROR 0.0023 // system error by integrating sphere 0.002 + reproducibility 0.0003
+#define RERROR 0.00145 // Spectrlon 0.075*0.015 + reproducibility 0.00025
 
 #define NK_SUCCESS 0
 #define NK_ERROR 1
