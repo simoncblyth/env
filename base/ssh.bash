@@ -512,6 +512,9 @@ ssh--local-key(){      echo $HOME/.ssh/id_rsa.pub ; }
 ssh--designated-key(){ echo $HOME/.ssh/$(env-designated).id_rsa.pub ; }
 ssh--hub-key(){        echo $HOME/.ssh/id_rsa.pub ; }
 
+ssh--short-key(){      echo $HOME/.ssh/$1.id_rsa.pub ; }
+ssh--short-len(){      echo 6 ; }
+
 
 ssh--grab-key(){
    local msg="=== $FUNCNAME :"
@@ -527,24 +530,42 @@ ssh--grab-key(){
 }
 
 
-
 ssh--key2tag(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$(ssh--designated-key)}
-   local name=$(basename $path)
-   local dtag=${name/.*/}
-   echo $dtag 
+   if [ ${#path} -lt $(ssh--short-len) ] ; then
+      echo $path
+   else 
+      local name=$(basename $path)
+      local dtag=${name/.*/}
+      echo $dtag
+   fi 
 }
 
 ssh--key2base(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$(ssh--designated-key)}
-   local name=$(basename $path)
-   local dtag=$(ssh--key2tag $path)
-   local n=$(( ${#dtag} + 1 ))
-   local base=${name:$n}
-   echo $base
+   if [ ${#path} -lt $(ssh--short-len) ] ; then
+      echo $(ssh--key2base $(ssh--short-key $path))
+   else 
+      local name=$(basename $path)
+      local dtag=$(ssh--key2tag $path)
+      local n=$(( ${#dtag} + 1 ))
+      local base=${name:$n}
+      echo $base
+  fi 
 }
+
+ssh--key2path(){
+   local msg="=== $FUNCNAME :"
+   local path=${1:-$(ssh--designated-key)}
+   if [ ${#path} -lt $(ssh--short-len) ] ; then
+      echo $(ssh--short-key $path)
+   else
+      echo $path
+   fi 
+}
+
 
 ssh--ishub-(){ [ "$NODE_TAG" == "$(ssh--hubtag)" ] && return 0 || return 1 ; }
 ssh--hubtag(){  echo G ; }
@@ -555,12 +576,22 @@ ssh--distribute-key(){
    ! ssh--ishub- && echo $msg ABORT this must be run from hub node $(ssh--hubtag) && return 1 
 
    local path=${1:-$(ssh--designated-key)}
+   if [ ${#path} -lt $(ssh--short-len) ]; then
+      path=$(ssh--key2path $path)
+   fi
+
    shift
    local tags=$*
 
    local ans
    read -p "$msg $path to nodes : $tags , enter YES to proceed " ans
    [ "$ans" != "YES" ]    && echo $msg skipping && return 1
+  
+   if [ ! -f "$path" ]; then
+      echo $msg key $path does not exist ... attempting to grab it 
+      ssh--grab-key $path    
+      [ ! -f "$path" ] && echo $msg ABORT : FAILED TO GRAB KEY ... && return 1
+   fi
 
    local tag
    for tag in $tags ; do
