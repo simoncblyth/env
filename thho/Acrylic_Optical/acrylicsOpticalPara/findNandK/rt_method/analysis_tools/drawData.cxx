@@ -3,14 +3,12 @@ void drawData(void) {
 
 
 
-    double RMSArray_1[TOTALDATANO], RMSArray_2[TOTALDATANO], RMSArray_3[TOTALDATANO], RMSArray_4[TOTALDATANO];
-    double MEANArray_1[TOTALDATANO],MEANArray_2[TOTALDATANO],MEANArray_3[TOTALDATANO],MEANArray_4[TOTALDATANO];
+    double RMSArray_1[TOTALDATANO], RMSArray_2[TOTALDATANO];
+    double MEANArray_1[TOTALDATANO],MEANArray_2[TOTALDATANO];
     double wl[TOTALDATANO];
 
-    drawFromFile("1-1-1-1.csv","1-1-1-2.csv","1-1-1-3.csv",RMSArray_1,MEANArray_1, wl);
-    drawFromFile("1-1-2-1.csv","1-1-2-2.csv","1-1-2-3.csv",RMSArray_2,MEANArray_2,wl);
-    //drawFromFile("2-1-1-1.csv","2-1-1-2.csv","2-1-1-3.csv",RMSArray_3,MEANArray_3,wl);
-    //drawFromFile("2-1-2-1.csv","2-1-2-2.csv","2-1-2-3.csv",RMSArray_4,MEANArray_4,wl);
+    drawFromFile("1-1-1-1.csv","1-1-1-2.csv","1-1-1-3.csv", RMSArray_1, MEANArray_1, wl);
+    //drawFromFile("1-1-2-1.csv","1-1-2-2.csv","1-1-2-3.csv",RMSArray_2,MEANArray_2,wl);
 
 
 
@@ -71,44 +69,42 @@ void drawData(void) {
 
 }
 
-void drawFromFile(string file1, string file2, string file3, double RMSArray[], double MEANArray[], double wl[]) {
+void drawFromFile(string file1, string file2, string file3, string file4, string file5, double RMSArray[], double MEANArray[], double wl[]) {
 
-    ifstream fin1, fin2, fin3;
-    double wl1[TOTALDATANO], wl2[TOTALDATANO], wl3[TOTALDATANO];
-    double data1[TOTALDATANO], data2[TOTALDATANO], data3[TOTALDATANO];
+    ifstream fin1, fin2, fin3, fin4, fin5;
+    double wl1[TOTALDATANO], wl2[TOTALDATANO], wl3[TOTALDATANO], wl4[TOTALDATANO], wl5[TOTALDATANO];
+    double data1[TOTALDATANO], data2[TOTALDATANO], data3[TOTALDATANO], data4[TOTALDATANO], data5[TOTALDATANO];
 
 
 
     fin1.open(file1.data());
     fin2.open(file2.data());
     fin3.open(file3.data());
-
-    //TCanvas *c1 = new TCanvas(file1.data(),"reproducibitity",200,10,700,900);
-    //c1->Divide(1,2);
-
-    //double RMSArray[TOTALDATANO];
-    //double MEANArray[TOTALDATANO];
+    fin4.open(file4.data());
+    fin5.open(file5.data());
 
     for(int i=0;i<TOTALDATANO;i++) {
 
-    TH1D *h = new TH1D("h","htitle",1000,0,100);
-    fin1 >> wl1[i] >> data1[i];
-    fin2 >> wl2[i] >> data2[i];
-    fin3 >> wl3[i] >> data3[i];
-//        if(i==lookWL) {
-            //cout << data1[i] << " " << data2[i] << " " << data3[i] << endl;
-            h->Fill(data1[i]);
-            h->Fill(data2[i]);
-            h->Fill(data3[i]);
-            RMSArray[i] = h->GetRMS();
-            MEANArray[i] = h->GetMean();
-            //cout << RMSArray[i] << endl;
-//        }
-    delete h;
+        TH1D *h = new TH1D("h","htitle",1000,0,100);
+        fin1 >> wl1[i] >> data1[i];
+        fin2 >> wl2[i] >> data2[i];
+        fin3 >> wl3[i] >> data3[i];
+        fin4 >> wl4[i] >> data4[i];
+        fin5 >> wl5[i] >> data5[i];
+        h->Fill(data1[i]);
+        h->Fill(data2[i]);
+        h->Fill(data3[i]);
+        h->Fill(data4[i]);
+        h->Fill(data5[i]);
+        RMSArray[i] = h->GetRMS();
+        MEANArray[i] = h->GetMean();
+        delete h;
     }
     fin1.close();
     fin2.close();
     fin3.close();
+    fin4.close();
+    fin5.close();
 
 
     for(int i=0;i<TOTALDATANO;i++) wl[i] = wl1[i];
