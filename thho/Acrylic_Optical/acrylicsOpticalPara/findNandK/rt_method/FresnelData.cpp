@@ -114,18 +114,23 @@ void FresnelData::dump(int dataNo) {
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
         << "\t" << alpha_[dataNo]
         << "\tSUCCESS!!\t"
-        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo]
-        << endl;
+        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo];
+        if(transmittance_[dataNo] + reflectance_[dataNo] > 1.0) cout << "\t Y";
+        cout << endl;
     } else if(numericalStatus_[dataNo] == NK_ERROR) {
         //cout << 1000000.0*wavelength_[dataNo] << "nm\tN/A\tN/A\tFAILED!!\t"
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
         << "\t" << alpha_[dataNo] << "\tFAILED!!\t"
-        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo] << endl;
+        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo];
+        if(transmittance_[dataNo] + reflectance_[dataNo] > 1.0) cout << "\t YandFailed!";
+        cout << endl;
     } else {
         //cout << 1000000.0*wavelength_[dataNo] << "nm\tN/A\tN/A\tERROR/UNKNOWN\t"
         cout << 1000000.0*wavelength_[dataNo] << "nm\t" << indexOfRefraction_[dataNo]
         << "\t" << alpha_[dataNo] << "\tFAILED/UNKNOEN!!\t"
-        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo] << endl;
+        << thinTransmittanceConstrain_[dataNo] << "\t" << thinReflectanceConstrain_[dataNo];
+        if(transmittance_[dataNo] + reflectance_[dataNo] > 1.0) cout << "\t Y";
+        cout << endl;
     }
 
 
