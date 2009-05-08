@@ -58,9 +58,10 @@ svn-usage(){
        name WC folders on "child" nodes to "env.P"   
 
        svn-hometag   : $(svn-hometag)      tag of source WC, assuming directory naming convention
-       svn-patchtag  : $(svn-patchtag) 
-       svn-patchname : $(svn-pathname)     name for patch files 
-       svn-patchloc  : $(svn-patchloc)     scp coordinates of the patch file 
+             U means that not following convention ... meaning not in degraded usage mode
+       svn-patchtag  \$ENV_HOME : $(svn-patchtag $ENV_HOME) 
+       svn-patchname            : $(svn-patchname)     name for patch files 
+       svn-patchloc             : $(svn-patchloc)     scp coordinates of the patch file 
 
        svn-makepatch    
             creates a patch in \$ENV_HOME with standard name
@@ -111,9 +112,12 @@ EOU
 
 
 svn-revert-(){ svn --recursive revert . ; }
-svn-hometag(){   echo ${ENV_HOME/*./} ; }
-svn-patchtag(){  echo $(svn-lastrev- ${1:-$PWD}) ; }
-svn-patchname(){ echo $(svn-patchtag $PWD).patch ; }
+svn-hometag(){   
+   local tag=${ENV_HOME/*./}
+   [ "$ENV_HOME" == "$tag" ] && echo U || echo $tag 
+}
+svn-patchtag(){  echo $(svn-lastrev- $ENV_HOME) ; }
+svn-patchname(){ echo $(svn-patchtag).patch ; }
 svn-patchpath(){ echo $ENV_HOME/$(svn-patchname) ; }
 svn-patchloc(){  echo $(svn-hometag):$(basename $ENV_HOME)/$(svn-patchname) ; }
 

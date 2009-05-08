@@ -8,37 +8,24 @@ svnsetup-usage(){
 
   cat << EOU 
 
-   $BASH_SOURCE
+    == Hooking SVN/Trac to Apache ==
 
-     For infrequently used setup of svn + apache ...  
+     Infrequently used setup of svn + apache ...  
 
+     svnsetup-sysapache
+           system apache hookup 
      svnsetup-apache <path/to/apache/conf/folder>       defaults to: $(svn-setupdir)  
-                invokes the below funcs
-                to create the apache conf files and hooks them up to httpd.conf
-                by appending an Include 
+            source apache hookup  
+
+            creates the apache conf files and hooks them up to httpd.conf
 
      test with
         SUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
-        
      use with ... 
          SUDO=sudo svnsetup-apache 
 
-     Or for just authz updates ... the usual change on adding new users :
-     
-        1) modify svn/svnconf/authz.bash giving appropriate permissions to the new
-           usernames
-        2) update the authz file
-              svn-
-              svnsetup-
-              SUDO=sudo svnsetup-authz-update
-        3) add corresponding users thru the trac AccountManager  
 
-
-
-
-
-
-
+     == Internals of above command ==     
 
      svnsetup-tracs <path/to/tracs.conf>
      svnsetup-repos <path/to/repos.conf> 
@@ -49,22 +36,8 @@ svnsetup-usage(){
            if a path is given then copies the temporary to it using 
            SUDO:$SUDO
            
-           
-           authz could potentially be managed by a trac plugin
-           
-            (extremely simple approach, just editing file thru web interface
-              ... so simple almost not worth doing, just edit the file with 
-              the function is more traceable
-            )
-               http://www.trac-hacks.org/wiki/TracSvnAuthzPlugin
-            (involved approach, must be parsing the file
-              .... to get it working on 0.11 would have to diddle with multiple
-              patches
-              )    
-               http://www.trac-hacks.org/wiki/SvnAuthzAdminPlugin            
-           
-           
-           
+           authz could potentially be web managed via trac plugin, see svnsetup-notes
+
      svnsetup-tracs-
      svnsetup-repos-
      svnsetup-authz-
@@ -73,17 +46,9 @@ svnsetup-usage(){
      svnsetup-location-
             used internally by the above funcs
 
-
-
-
-
      svnsetup-put-users-to-node target-node 
      svnsetup-get-users-from-h 
     
-    
-
-
-
      svnsetup-modules 
            add the requisite modules for apache+svn runninf to httpd.conf 
            THIS IS NOW HANDLED IN APACHEBUILD ???     
@@ -92,11 +57,25 @@ svnsetup-usage(){
            get the xsl/css for prettier raw svn               
 
 
-    TODO : 
-       ownership...
-           
+    == SELinux labelling ==
+
+      svnsetup-selinux              ## chcon relabelling of repos/tracs/svn/conf  
+      svnsetup-selinux-persist      ## semanage the labels 
 
 
+     == ADDING NEW USERS (CHANGING AUTH) ==
+
+     Or for just authz updates ... the usual change on adding new users :
+     
+        1) modify svn/svnconf/authz.bash permissions for new usernames
+             svnsetup-
+             authz-;authz-vi   
+
+        2) on the svn/trac server ... propagate the above change to the authz file
+              svnsetup-
+              SUDO=sudo svnsetup-authz-update
+
+        3) add corresponding users thru the trac AccountManager web interface 
 
 
 
@@ -104,6 +83,26 @@ EOU
 
 
 }
+
+svnsetup-notes(){
+  cat << EON
+           
+         http://www.trac-hacks.org/wiki/TracSvnAuthzPlugin
+
+             Extremely simple approach, just editing file thru web interface
+             ... so simple almost not worth doing, just edit the file with 
+             the function is more traceable
+            
+        http://www.trac-hacks.org/wiki/SvnAuthzAdminPlugin            
+
+              Involved approach, must be parsing the file .... to get it 
+              working on 0.11 would have to diddle with multiple patches
+              
+
+
+EON
+}
+
 
 
 svnsetup-env(){

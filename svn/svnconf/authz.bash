@@ -8,6 +8,7 @@ authz(){
   local hk="jimmy, antony, soap, talent"
   local cn="tianxc, maqm"
   local us="littlejohn"
+  local hz="simon, cjl, tosi, cecilia, b2c, andrzej, gigi, matteo"
 
 cat << EOA
 #
@@ -17,6 +18,8 @@ cat << EOA
 #     hk:[$hk]
 #     cn:[$cn]
 #     us:[$us]
+#
+#     hz:[$hz]
 #     
 #   http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #  
@@ -35,7 +38,7 @@ abuser = simon, dayabay
 abdev = blyth, $tw, $hk
 abadmin = blyth
 
-hzuser = simon, cjl, tosi, cecilia, b2c, andrzej
+hzuser = $hz
 hzdev = blyth
 hzadmin = blyth
 
