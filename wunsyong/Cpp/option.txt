@@ -1,0 +1,11 @@
+/* Distance Option  */
+
+
+Options
+
+	distance	0.08018
+	sourcefile	data
+	output_file	Results-side-b.txt
+ 
+EndOptions
+
