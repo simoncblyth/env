@@ -127,6 +127,7 @@ svnsetup-authz-update(){
   local authz=$(svn-authzpath)
   echo $msg updating $authz
   svnsetup-authz $authz
+  apache-chown $(dirname $authz)
 
 }
 
