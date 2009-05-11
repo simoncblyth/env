@@ -122,6 +122,7 @@ cmt-(){         . $(env-home)/cmt-/cmt-.bash && cmt-env $* ; }
 legacy-(){      . $(env-home)/legacy/legacy.bash && legacy-env $* ; }
 sshconf-(){     . $(env-home)/base/sshconf.bash && sshconf-env $* ; }
 private-(){     . $(env-home)/base/private.bash && private-env $* ; }
+func-(){        . $(env-home)/base/func.bash    && func-env $* ; }
 
 dyw-(){         . $(env-home)/dyw/dyw.bash   && dyw-env   $* ; }
 root-(){        . $(env-home)/dyw/root.bash  && root-env  $* ; }
