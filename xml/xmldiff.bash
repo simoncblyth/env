@@ -28,3 +28,10 @@ xmldiff-get(){
    #cd $iwd 
 }
 
+xmldiff-cd(){ cd $(xmldiff-dir)/$(xmldiff-nam)/$1 ; }
+xmldiff-build(){
+   xmldiff-cd
+   python setup.py install
+}
+
+

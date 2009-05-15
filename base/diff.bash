@@ -80,7 +80,7 @@ diff-dirs(){
        elif [ "$typ" == "ERROR" ]; then
            path=$line
        fi
-       echo $typ $path
+       echo $typ:$path
    done
 
 
