@@ -91,7 +91,7 @@ env-localserver(){
      G) echo http://localhost ;;
      P) echo $(env-ntu grid1):8080 ;;
      C) echo $(env-ntu cms01) ;;
-    C2) echo $(env-ntu dayabay) ;;
+C2|C2R) echo $(env-ntu dayabay) ;;
     XX) echo $(env-ihep dayabay) ;;
     YY) echo $(env-ihep dyb1) ;;
   esac  

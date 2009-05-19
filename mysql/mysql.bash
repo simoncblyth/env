@@ -10,6 +10,9 @@ mysql-usage(){
 
         http://dev.mysql.com/doc/refman/4.1/en/
 
+   This was prior to C2 being reinstalled 
+
+
 
    invenio requires some specific settings in my.cnf
        max_allowed_packet at least 4M
