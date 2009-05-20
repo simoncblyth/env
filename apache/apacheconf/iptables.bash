@@ -23,8 +23,11 @@ iptables-usage(){
      iptables-record
           leave them wallowing in working copy ... as do not want to publish them 
      
+     iptables-port   : $(iptables-port)
+          port to control, override default with IPTABLES_PORT : $IPTABLES_PORT
+
      iptables-webopen
-          open port 80 to allow web access
+          open port $(iptables-port) to allow web access
 
      iptables-webclose
           close web access
@@ -86,8 +89,10 @@ iptables-record(){
 
 }
 
+iptables-port(){ echo ${IPTABLES_PORT:-80} ; }
+
 iptables-webaccept(){
-  echo -p tcp -i eth0 --dport 80 --sport 1024:65535 -m state --state NEW -j ACCEPT
+  echo -p tcp -i eth0 --dport $(iptables-port) --sport 1024:65535 -m state --state NEW -j ACCEPT
 }
 
 iptables-list(){
