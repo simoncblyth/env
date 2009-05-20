@@ -107,6 +107,8 @@ cmt-setup(){
    [ -n "$ext" ] && echo $(cmt-external)/CMT/$(cmt-ver)/mgr/setup.sh || echo "" 
 }
 cmt-external(){ [ -n "$NUWA_HOME" ] && echo $(dirname $NUWA_HOME)/external || echo "" ; }   ## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
+cmt-enabled-(){  test -n "$(cmt-external)"  ; }
+cmt-enabled(){   $FUNCNAME- && echo yes || echo no ; }
 
 cmt-addpp(){
    local add=$1;
@@ -120,8 +122,7 @@ cmt-info(){
      cmt-ver      : $(cmt-ver)
      cmt-external : $(cmt-external)
      cmt-setup    : $(cmt-setup)
-   
-
+     cmt-enabled  : $(cmt-enabled)
 
 EOI
 }
@@ -138,7 +139,8 @@ cmt-itself(){
 } 
 
 cmt-cmt(){
- 
+
+ ! cmt-enabled- && return 0 
   cmt-itself
   cmt-preq
   local sitereq=$(cmt-sitereq)

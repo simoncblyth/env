@@ -623,5 +623,5 @@ env-ab(){
 
 
 
-env-env
+#env-env
 diff-(){      . $(env-home)/base/diff.bash && diff-env $* ; }
