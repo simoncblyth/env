@@ -621,7 +621,22 @@ env-ab(){
 
 }
 
+env-htdocs-up(){
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   [ ! -f "$path" ] && echo $msg ABORT no path $path && return 1
+   htdocs-
+   TRAC_INSTANCE=env htdocs-up $path $(htdocs-privat)
+}
+
+env-htdocs-url(){
+   local path=$1
+   local name=$(basename $path)
+   htdocs-
+   echo $(TRAC_INSTANCE=env htdocs-url)/$(htdocs-privat)/$name
+} 
 
 
 #env-env
-diff-(){      . $(env-home)/base/diff.bash && diff-env $* ; }
+diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
+offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }

@@ -6,6 +6,8 @@ htdocs-env(){ trac- ; }
 htdocs-usage(){
   cat << EOU
 
+      htdocs-src : $(htdocs-src)
+
       htdocs-url : $(htdocs-url)
       htdocs-dir : $(htdocs-dir)
       htdocs-rpath <path-to-local-file> <htdocs-relative-path-on-server> 
