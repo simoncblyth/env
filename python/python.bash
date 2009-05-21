@@ -99,11 +99,12 @@ python-sudo(){
 
 python-env(){
 
+   local mode=${1:-$(python-mode)}
    elocal-
 
    export PYTHON_SUDO=$(python-sudo)
 
-   if [ "$(python-mode)" == "system" ]; then
+   if [ "$mode" == "system" ]; then
       export PYTHON_SITE=$(python-site)
       #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
    else
@@ -123,6 +124,19 @@ python-env(){
 python-site(){
   python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
 }
+
+
+python-ln(){
+    local msg="=== $FUNCNAME :";
+    local path=$1
+    [ ! -d "$path" ] && echo $msg ABORT no such path $path && return 1
+    local lnk=$(python-site)/$(basename $path);
+    [ -L "$lnk" ] && echo $msg link $lnk is already present ... skipping && return 0;
+    local cmd="sudo ln -s $path $(python-site)/$(basename $path)";
+    echo $msg $cmd;
+    eval $cmd
+}
+
 
 python-site-deprecated(){
   case $NODE_TAG in 
