@@ -55,7 +55,13 @@ offdb-usage(){
       TASK ... LOCATE THE SQL QUERY THAT WAS DONE FOR THIS "DBI" QUERY ...
 
 
+   Exposing the functionality of dybgaudi/Database/DatabaseInterface 
+   to python, especially query preparation in 
+        dybgaudi/Database/DatabaseInterface/src/DbiDBProxy.cxx 
+   without using Gaudi  ... will allow a django webapp to 
+   make DBI like queries ?
 
+  
 
 
 

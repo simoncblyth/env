@@ -640,3 +640,4 @@ env-htdocs-url(){
 #env-env
 diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
+dj-(){         . $(env-home)/offline/dj.bash && dj-env $*  ; }
