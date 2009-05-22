@@ -22,6 +22,13 @@ def pp(a):
     import pprint
     return pprint.pformat(a)
 
+def text(conf):
+    fn = conf.filename
+    conf.filename = None
+    txt = conf.write()
+    conf.filename = fn 
+    return txt
+ 
 class IniEdit:
     
     """
@@ -43,14 +50,7 @@ class IniEdit:
     tripat = re.compile("(?P<blk>[\w\-]*):(?P<key>[\w\-]*):(?P<val>.*)")
     
     
-    @classmethod
-    def text(cls, conf):
-        fn = conf.filename
-        conf.filename = None
-        txt = conf.write()
-        conf.filename = fn 
-        return txt
-    
+   
     def __init__(self, *args, **kwargs ):
         """
             
@@ -63,7 +63,7 @@ class IniEdit:
         """
         from configobj import ConfigObj
         self.conf = ConfigObj( *args, **kwargs)
-        self.orig = ConfigObj( self.text( self.conf ))
+        self.orig = ConfigObj( text(self.conf ) )
         
     
     def write(self):
