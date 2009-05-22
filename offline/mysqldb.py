@@ -17,6 +17,28 @@ class DB:
          http://www.devshed.com/c/a/Python/MySQL-Connectivity-With-Python/
          http://mysql-python.sourceforge.net/MySQLdb.html#mysqldb
 
+      Usage example :
+
+     In [1]: from env.offline.mysqldb import DB
+     In [2]: db = DB()
+     In [3]: db("SHOW TABLES")
+     Out[3]: 
+     ({'Tables_in_mydb': 'SimPmtSpec'},
+      {'Tables_in_mydb': 'SimPmtSpecVld'},
+      {'Tables_in_mydb': 'auth_group'},
+       ...
+
+     In [5]: db("describe SimPmtSpecVld")
+     Out[5]: 
+     ({'Default': None,
+       'Extra': 'auto_increment',
+       'Field': 'SEQNO',
+       'Key': 'PRI',
+       'Null': '',
+       'Type': 'int(11)'},
+      {'Default': '0000-00-00 00:00:00',
+      ...
+
 
     """
     def __init__(self):

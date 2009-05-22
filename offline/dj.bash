@@ -119,6 +119,14 @@ dj-build(){
 }
 
 
+
+dj-preq(){
+    sudo yum install mysql-server
+    sudo yum install MySQL-python
+    sudo yum install ipython
+}
+
+
 ## src access ##
 
 dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
@@ -215,9 +223,9 @@ cat << EOC
 CREATE DATABASE ${1:-dbname} ;
 EOC
 }
-dj-create-db(){ $FUNCNAME- $(dj-val DATABASE_NAME)  | dj-mysql- ; }
-dj-mysql-(){  mysql --user $(dj-val DATABASE_USER) --password=$(dj-val DATABASE_PASSWORD) $1 ; }
-dj-mysql(){   dj-mysql- $(dj-val DATABASE_NAME) ; } 
+dj-create-db(){ $FUNCNAME- $(dj-settings-val DATABASE_NAME)  | dj-mysql- ; }
+dj-mysql-(){  mysql --user $(dj-settings-val DATABASE_USER) --password=$(dj-settings-val DATABASE_PASSWORD) $1 ; }
+dj-mysql(){   dj-mysql- $(dj-settings-val DATABASE_NAME) ; } 
 
 
 ## models introspection from db ##  
