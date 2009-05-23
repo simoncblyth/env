@@ -39,6 +39,7 @@ svn-usage(){
         svnbuild-
         svnsetup-   :  hookup svn and trac with apache   
         svnsync-    :  mirroring setup
+        svntools-   :  needed for hot-backup.py on non source svn nodes
         
         
         
@@ -239,6 +240,7 @@ svn-autopatch(){
 svnbuild-(){      . $ENV_HOME/svn/svnbuild/svnbuild.bash   && svnbuild-env $* ; } 
 svnsetup-(){      . $ENV_HOME/svn/svnconf/svnsetup.bash    && svnsetup-env $* ; }
 svnsync-(){       . $ENV_HOME/svn/svnsync/svnsync.bash     && svnsync-env  $* ; }
+svntools-(){      . $ENV_HOME/svn/svntools.bash            && svntools-env  $* ; }
 
 svn-setupdir(){
   case ${1:-$NODE_TAG} in 
@@ -302,8 +304,9 @@ svn--(){
 
 svn-hotbackuppath(){
   svnbuild-
+  svntools-
   case ${1:-$NODE_TAG} in
-     G) echo $(local-base)/svn/tools/backup/hot-backup.py  ;;  ## as stock svn doesnt come with the tools
+     G) echo $(svntools-dir)/tools/backup/hot-backup.py  ;;  ## as stock svn doesnt come with the tools
      *) echo $(svnbuild-dir)/tools/backup/hot-backup.py    ;;
   esac
 }
