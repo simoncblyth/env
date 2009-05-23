@@ -160,6 +160,7 @@ dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
 dj-app(){     echo ${DJANGO_APP:-offdb} ; }
 dj-projdir(){ echo $(env-home)/offline/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
+dj-apppkg(){  echo env.offline.$(dj-project).$(dj-app) ; }
 dj-cd(){      cd $(dj-appdir) ; }
 
 
@@ -233,25 +234,36 @@ dj-mysql(){   dj-mysql- $(dj-settings-val DATABASE_NAME) ; }
 dj-models(){
    local msg="=== $FUNCNAME :"
    echo $msg creating $FUNCNAME-path
-   $FUNCNAME-introspect
+   $FUNCNAME-inspectdb
    $FUNCNAME-fix 
+   $FUNCNAME-proxy
 }
-dj-models-path(){  echo $(dj-appdir)/models.py ; }
-dj-models-introspect(){
-  local path=$(dj-models-path)
-  mkdir -p $(dirname $path) 
-  touch $(dirname $path)/__init__.py
-  dj-manage inspectdb > $path
+dj-models-path(){  echo $(dj-appdir)/genmodels.py ; }
+dj-models-inspectdb(){
+   local path=$(dj-models-path)
+   mkdir -p $(dirname $path) 
+   touch $(dirname $path)/__init__.py
+   dj-manage inspectdb > $path
+}
+dj-models-fix(){
+
+   ## this may be table specific
+   perl -pi -e "s@null=True, db_column='SEQNO', blank=True@primary_key=True, db_column='SEQNO'@ " $(dj-models-path)
+}
+dj-models-proxy-(){
+   cat << EOC
+from $(dj-apppkg) import genmodels
+from env.offline.dj import ProxyWrap
+exec str(ProxyWrap(genmodels))
+EOC
+}
+dj-models-proxy(){
+   $FUNCNAME- > $(dj-appdir)/models.py
 }
 
-dj-models-fix(){
-   local path=$(dj-models-path) 
-   perl -pi -e "s@null=True, db_column='SEQNO', blank=True@primary_key=True, db_column='SEQNO'@ " $path
-   cat << EOR >> $path
-Simpmtspec.__unicode__ = lambda self:"<Simpmtspec %s %s %s %s %s %s %s >" % ( self.seqno , self.row_counter, self.pmtsite, self.pmtad, self.pmtring, self.pmtcolumn, self.pmtgain )
-Simpmtspecvld.__unicode__ = lambda self:"<Simpmtspecvld %s %s %s %s %s %s %s >" % ( self.seqno , self.timestart, self.timeend, self.sitemask, self.simmask, self.subsite, self.task )
-EOR
-}
+## ... also do imports prep for ipython usage with a spot of code generation 
+## ... then minimise what must be updated following a genmodels update 
+
 dj-models-classes(){ cat $(dj-models-path) | perl -n -e 'm,class (\S*)\(models.Model\):, && print "$1\n" ' ; }
 dj-models-imports(){ $FUNCNAME- > $(dj-projdir)/$FUNCNAME.py ; }
 dj-models-imports-(){
@@ -269,6 +281,8 @@ dj-models-dump-(){
     dj-models-printall-
 }
 dj-models-dump(){ $FUNCNAME- | python ; }
+
+
 
 
 
