@@ -503,7 +503,7 @@ scm-backup-parasitic(){
    local tmp=/tmp/${FUNCNAME}_${server}_${backup}.txt
 
    echo $msg monitoring to $tmp and sending mail 
-   scm-backup-parasitic- $server $backup > $tmp
+   scm-backup-parasitic- $server $backup > $tmp 2>&1
    python-sendmail $tmp
 }
 
@@ -621,7 +621,7 @@ scm-backup-nightly(){
     echo
     echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
     case $NODE_TAG in 
-       C2) scm-backup-parasitic XX C2 ;;
+       C2) scm-backup-parasitic XX C ;;
        *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
     esac
 
