@@ -36,27 +36,10 @@ dj-usage(){
      dj-admin
           invoke the django-admin.py
 
-     dj-startproject name
-          create the name project using "django-admin startproject name"
-
-     dj-setup
-          inplace edits entering DATABASE_* coordinates in settings.py 
-
-
-     dj-settings- <name>
-          db config in the settings.py 
-     dj-settings-vi 
-          edit the settings file for the default project  
-
 
      dj-models-fix
           why is the seqno the primary key needed 
                     ... why was this not introspeced ?
-
-
-
-     dj-urls <name>
-          edit the urls file for the default project  
 
 
      dj-project       : $(dj-project)
@@ -80,29 +63,25 @@ dj-usage(){
      dj-cd
           cd to dj-projdir
 
-
-   ISSUES :
-      the settings.py contains a mix of 
-           * sensitive stuff that should not be kept in a repository 
-           * stuff that should be ...
-
    TODO :
-         easy_install + ipython into system python
-         automate the __unicode__ generation + avoid Auth* Django* classes     
+        fix the names of the model classes ... 
+        load the mysqldump with mysqlpython ?
 
 EOU
 
 }
 
+dj-preq(){
+    sudo yum install mysql-server
+    sudo yum install MySQL-python
+    sudo yum install ipython
+}
+
 
 dj-build(){
 
-   dj-get              ## checkout 
-   dj-ln               ## plant link in site-packages
-
-   dj-startproject 
-
-   dj-settings        ## DATABASE_* coordinates in settings.py
+   dj-get             ## checkout 
+   dj-ln              ## plant link in site-packages
    dj-create-db       ## gives error if exists already 
 
    ## load from mysqldump 
@@ -111,19 +90,6 @@ dj-build(){
 
    ## introspect the db schema to generate and fix models.py
    dj-models
-
-   ## dump using the django introspected model
-   dj-models-dump
-
-   ## dj-manage syncdb ... creates Auth* and Django* tables only needed for web access ? 
-}
-
-
-
-dj-preq(){
-    sudo yum install mysql-server
-    sudo yum install MySQL-python
-    sudo yum install ipython
 }
 
 
@@ -158,76 +124,18 @@ dj-find(){
 
 dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
 dj-app(){     echo ${DJANGO_APP:-offdb} ; }
+dj-port(){    echo 8000 ; }
 dj-projdir(){ echo $(env-home)/offline/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
 dj-apppkg(){  echo env.offline.$(dj-project).$(dj-app) ; }
 dj-cd(){      cd $(dj-appdir) ; }
 
-
-dj-port(){    
-   case ${1:-$(dj-project)} in
-     *) echo 8000 ;;
-   esac
-}
-
-## proj infrastructure creation ##
-
-dj-startproject(){
-   local msg="=== $FUNCNAME :"
-   local name=$(basename $(dj-projdir))
-   cd $(dirname $(dj-projdir))
-   [ -d "$name" ] && echo $msg project $(dj-projdir) exists already && return 0
-   echo $msg creating $(dj-projdir)
-   dj-admin startproject  $name
-}
-
-## settings : NEVER put sensitive things in repository  ##
-
-dj-settings(){
-   local msg="=== $FUNCNAME :"
-   local path=$($FUNCNAME-path)
-   echo $msg editing $path
-   dj-settings-apply
-   cat $path | grep DATABASE
-}
-
-dj-settings-path(){ echo $(dj-projdir)/settings.py ; }
-dj-settings-vars(){ echo DATABASE_ENGINE DATABASE_NAME DATABASE_USER DATABASE_PASSWORD DATABASE_HOST ; }
-dj-settings-(){
-   local var=$1
-   local val=$2
-   perl -pi -e "s,($var\s*=\s*')(\S*)('.*)$,\$1$val\$3,"   $(dj-settings-path)
-}
-dj-settings-apply(){
-   local msg="=== $FUNCNAME :"
-   echo $msg inplace edits of settings.py 
-   local var ; for var in $(dj-settings-vars) ; do
-      local val=$(dj-settings-val $var)
-      printf "%-20s %s \n" $var $val
-      dj-settings- $var $val
-   done
-}
-
-dj-settings-val(){ echo $(private- ; private-val $1) ;}
-dj-settings-vi(){  vi $(dj-settings-path) ; }
-
-
-## urls ##
-
-dj-urls-vi(){      vi $(dj-projdir)/urls.py ; }
-
-
 ## database setup   ##
 
-dj-create-db-(){
-cat << EOC
-CREATE DATABASE ${1:-dbname} ;
-EOC
-}
-dj-create-db(){ $FUNCNAME- $(dj-settings-val DATABASE_NAME)  | dj-mysql- ; }
-dj-mysql-(){  mysql --user $(dj-settings-val DATABASE_USER) --password=$(dj-settings-val DATABASE_PASSWORD) $1 ; }
-dj-mysql(){   dj-mysql- $(dj-settings-val DATABASE_NAME) ; } 
-
+dj-val(){ echo $(private- ; private-val $1) ;}
+dj-create-db(){ echo "create database $(dj-val DATABASE_NAME) ;"  | dj-mysql- ; }
+dj-mysql-(){    mysql --user $(dj-val DATABASE_USER) --password=$(dj-val DATABASE_PASSWORD) $1 ; }
+dj-mysql(){     dj-mysql- $(dj-val DATABASE_NAME) ; } 
 
 ## models introspection from db ##  
 
@@ -236,9 +144,8 @@ dj-models(){
    echo $msg creating $FUNCNAME-path
    $FUNCNAME-inspectdb
    $FUNCNAME-fix 
-   $FUNCNAME-proxy
 }
-dj-models-path(){  echo $(dj-appdir)/genmodels.py ; }
+dj-models-path(){  echo $(dj-appdir)/generated/models.py ; }
 dj-models-inspectdb(){
    local path=$(dj-models-path)
    mkdir -p $(dirname $path) 
@@ -246,44 +153,13 @@ dj-models-inspectdb(){
    dj-manage inspectdb > $path
 }
 dj-models-fix(){
-
    ## this may be table specific
    perl -pi -e "s@null=True, db_column='SEQNO', blank=True@primary_key=True, db_column='SEQNO'@ " $(dj-models-path)
 }
-dj-models-proxy-(){
-   cat << EOC
-from $(dj-apppkg) import genmodels
-from env.offline.dj import ProxyWrap
-exec str(ProxyWrap(genmodels))
-EOC
-}
-dj-models-proxy(){
-   $FUNCNAME- > $(dj-appdir)/models.py
-}
 
-## ... also do imports prep for ipython usage with a spot of code generation 
-## ... then minimise what must be updated following a genmodels update 
+## interactive access to model objects
 
-dj-models-classes(){ cat $(dj-models-path) | perl -n -e 'm,class (\S*)\(models.Model\):, && print "$1\n" ' ; }
-dj-models-imports(){ $FUNCNAME- > $(dj-projdir)/$FUNCNAME.py ; }
-dj-models-imports-(){
-   local cls ; dj-models-classes | while read cls ; do
-      echo "from env.offline.$(dj-project).$(dj-app).models import $cls "
-   done
-}
-dj-models-printall-(){
-   local cls ; dj-models-classes | while read cls ; do
-      echo "for o in $cls.objects.all():print o"
-   done
-}
-dj-models-dump-(){
-    dj-models-imports-
-    dj-models-printall-
-}
-dj-models-dump(){ $FUNCNAME- | python ; }
-
-
-
+dj-ip(){      ipython $(dj-appdir)/imports.py ; }
 
 
 ## management interface  ##
@@ -300,7 +176,6 @@ dj-manage(){
 dj-run(){    dj-manage runserver $(dj-port) ; }
 dj-shell(){  dj-manage shell  ; }
 dj-syncdb(){ dj-manage syncdb ; }
-dj-ip(){      ipython $(dj-projdir)/dj-models-imports.py ; }
 
 
 ## web interface ##

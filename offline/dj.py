@@ -6,23 +6,32 @@ def proxy_name_( cls ):return 'P' + cls._meta.db_table
 
 class ExamineGenModels:
     """
-           from env.offline.dybsite.offdb import genmodels
+           from env.offline.dybsite.offdb.generated import models as genmodels
            from env.offline.dj import ExamineGenModels
            egm = ExamineGenModels(genmodels)
            print egm.names()
     """
     def __init__(self, module):
-        assert module.__name__.endswith('genmodels')
+        assert module.__name__.endswith('generated.models'), module.__name__
         self.module = module
+        self.modulename = module.__name__.replace('generated.models','models')
     def names(self): 
         return [name for name,cls in inspect.getmembers( self.module , inspect.isclass ) if not(skip(name))]
     def proxynames(self): 
         return [proxy_name_(cls) for name,cls in inspect.getmembers( self.module , inspect.isclass ) if not(skip(name))]
+
     def import_(self, proxy_name ):
-        modulename = self.module.__name__.replace('gen','')
+        modulename = self.modulename
         return "from %(modulename)s import %(proxy_name)s" % locals()  
-    def imports_(self):
+    def import_all(self):
         return "\n".join( [self.import_(name) for name in self.proxynames()]) 
+
+    def dump_(self, proxy_name ):
+        return "    for o in %(proxy_name)s.objects.all():print o" % locals()  
+    def dump_all(self):
+        return "\n".join( ["def dump_all():"] + [self.dump_(name) for name in self.proxynames()]) 
+  
+
 
 
 tmpl = r"""
@@ -78,9 +87,10 @@ class ProxyWrap:
 
 
 if __name__=='__main__':
-    from env.offline.dybsite.offdb import genmodels
+    from env.offline.dybsite.offdb.generated import models as genmodels
     from env.offline.dj import ExamineGenModels
     egm = ExamineGenModels(genmodels)
-    print egm.imports_()
+    print egm.import_all()
+    print egm.dump_all()
 
 
