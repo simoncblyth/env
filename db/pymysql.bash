@@ -25,14 +25,11 @@ pymysql-build(){
    easy_install MySQL-python 
 }
 
-pymysql-test(){
-   python -c "import MySQLdb "
-}
-
-pymysql-cd(){ cd $(pymysql-dir) ; }
-
+pymysql-test(){ python -c "import MySQLdb " ;  }
 pymysql-name(){ echo MySQL-python-1.2.2 ; }
-pymysql-dir(){ echo $(local-system-base)/pymysql ; }
+pymysql-fold(){ echo $(local-system-base)/pymysql ; }
+pymysql-dir(){  echo $(pymysql-fold)/$(pymysql-name) ; }
+pymysql-cd(){   cd $(pymysql-dir) ; }
 pymysql-get(){
   
   local nam=$(pymysql-name)
@@ -45,23 +42,23 @@ pymysql-get(){
   [ ! -d "$dir" ] && mkdir -p "$dir"
   cd $dir
   [ ! -f $tgz ] && curl -L -O $url
-  [ ! -d build ] && mkdir build
-  [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
+  [ ! -d $nam ] && tar -zxvf $tgz 
   cd $iwd
 }
 
-pymysql-install(){
-  
-   local nam=$(pymysql-name)
-   local nik=pymysql
+pymysql-build(){
+   local msg="=== $FUNCNAME :"
    local iwd=$PWD
-   cd $(pymysql-dir)/build/$nam
- 
+   pymysql-cd
+   [ "$(which mysql_config)" == "" ] && echo $msg ABORT need mysql_config in path && return 1
+   python setup.py build
+   cd $iwd
 }
 
-pymysql-test(){
-    python << EOP
-from pysqlite2 import test
-test.test()
-EOP
+pymysql-install(){
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   pymysql-cd
+   python setup.py install
+   cd $iwd
 }
