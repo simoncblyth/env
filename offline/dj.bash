@@ -4,9 +4,22 @@ dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
 dj-vi(){       vi $(dj-source) ; }
 dj-env(){      
    elocal- ; 
-   export DJANGO_SETTINGS_MODULE=env.offline.$(dj-project).settings
+   export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
 
    python- system
+}
+
+dj-settings-module(){ echo env.offline.$(dj-project).settings ; }
+dj-urlroot(){         echo /$(dj-project) ; }          
+
+dj-notes(){
+  cat << EON
+
+   1) initial investigations on cms01
+   2) moved to cms02 when needed to deploy into mod_python
+
+EON
+
 }
 
 
@@ -21,6 +34,7 @@ dj-usage(){
      $(env-wikiurl)/OfflineDB
 
 
+     dj-settings-module : $(dj-settings-module)
          DJANGO_SETTINGS_MODULE : $DJANGO_SETTINGS_MODULE
 
      dj-env   
@@ -74,6 +88,8 @@ EOU
 dj-preq(){
     sudo yum install mysql-server
     sudo yum install MySQL-python
+
+  ## this is in dag.repo ... you may need to enable that in /etc/yum.repos.d/dag.repo
     sudo yum install ipython
 }
 
@@ -181,6 +197,39 @@ dj-syncdb(){ dj-manage syncdb ; }
 ## web interface ##
 
 dj-open(){      open http://localhost:$(dj-port $*) ; }
+
+
+## deployment  ##
+
+dj-confname(){ zdjango.conf ; }
+dj-deploy(){
+  local msg="=== $FUNCNAME :" 
+  local tmp=/tmp/env/dj && mkdir -p $tmp 
+  local conf=$tmp/$(dj-confname)
+  dj-location- > $conf
+  apache-
+  cat $conf
+  local cmd="sudo cp $conf $(apache-confd)/$(basename $conf)"
+  local ans
+  read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+  eval $cmd
+}
+dj-location-(){
+  cat << EOL
+<Location "$(dj-urlroot)/">
+    SetHandler python-program
+    PythonHandler django.core.handlers.modpython
+    SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
+    PythonOption django.root $(dj-urlroot)
+    PythonDebug On
+</Location>
+EOL
+}
+
+
+
 
 
 
