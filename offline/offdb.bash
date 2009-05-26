@@ -14,14 +14,17 @@ offdb-usage(){
 
     $(env-wikiurl)/OfflineDB
 
+
+
+
+    offdb-build
+        do the below 
+ 
  
     offdb-get
          get the dump 
-
     offdb-load 
          load into db 
-
-
 
 
 EOU
@@ -30,26 +33,26 @@ EOU
 offdb-dir(){ echo $(local-base)/env/offdb ; }
 offdb-name(){ echo database.tar.gz ; }
 offdb-url(){  echo $(env-htdocs-url $(offdb-name)) ; } 
-offdb-get(){
 
+offdb-build(){
+   offdb-get
+   offdb-load
+   offdb-check
+}
+
+offdb-get(){
     local msg="=== $FUNCNAME :"
     local iwd=$PWD
     local dir=$(offdb-dir) 
     mkdir -p $dir && cd $dir
-
     local name=$(offdb-name)
     [ ! -f "$name" ] && curl -O $(offdb-url) && tar zxvf $name   ## one step as exploding tarball
-
-
-
-    #cd $iwd
+    cd $iwd
 }
 
 offdb-load(){
-
    dj-
-   dj-mysql < SimPmtSpec_data.sql
-
+   dj-mysql < $(offdb-dir)/SimPmtSpec_data.sql
 }
 
 offdb-check(){

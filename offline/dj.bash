@@ -1,11 +1,9 @@
-# === func-gen- : offline/dj.bash fgp offline/dj.bash fgn dj
 dj-src(){      echo offline/dj.bash ; }
 dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
 dj-vi(){       vi $(dj-source) ; }
 dj-env(){      
    elocal- ; 
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
-
    python- system
 }
 
@@ -15,8 +13,13 @@ dj-urlroot(){         echo /$(dj-project) ; }
 dj-notes(){
   cat << EON
 
-   1) initial investigations on cms01
+   1) initial investigations on cms01 ... using system python 2.3.2
+
    2) moved to cms02 when needed to deploy into mod_python
+      ... but the apache there is my source apache using my
+      source python 2.5. 
+
+      so the prerequsities are less simple 
 
 EON
 
@@ -96,16 +99,22 @@ dj-preq(){
 
 dj-build(){
 
+  local msg="=== $FUNCNAME :"
    dj-get             ## checkout 
    dj-ln              ## plant link in site-packages
    dj-create-db       ## gives error if exists already 
 
+   [ $? -ne 0 ] && echo $msg failed ... probaly you need to : sudo /sbin/service mysqld start && return 1
+
    ## load from mysqldump 
    offdb-
-   offdb-load 
+   offdb-build
 
    ## introspect the db schema to generate and fix models.py
    dj-models
+
+   dj-ip
+
 }
 
 
@@ -149,7 +158,7 @@ dj-cd(){      cd $(dj-appdir) ; }
 ## database setup   ##
 
 dj-val(){ echo $(private- ; private-val $1) ;}
-dj-create-db(){ echo "create database $(dj-val DATABASE_NAME) ;"  | dj-mysql- ; }
+dj-create-db(){ echo "create database if not exists $(dj-val DATABASE_NAME) ;"  | dj-mysql- ; }
 dj-mysql-(){    mysql --user $(dj-val DATABASE_USER) --password=$(dj-val DATABASE_PASSWORD) $1 ; }
 dj-mysql(){     dj-mysql- $(dj-val DATABASE_NAME) ; } 
 
@@ -201,7 +210,7 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 
 ## deployment  ##
 
-dj-confname(){ zdjango.conf ; }
+dj-confname(){ echo zdjango.conf ; }
 dj-deploy(){
   local msg="=== $FUNCNAME :" 
   local tmp=/tmp/env/dj && mkdir -p $tmp 

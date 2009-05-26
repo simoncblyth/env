@@ -641,3 +641,4 @@ env-htdocs-url(){
 diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
 dj-(){         . $(env-home)/offline/dj.bash && dj-env $*  ; }
+pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
