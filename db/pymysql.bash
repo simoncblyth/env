@@ -16,42 +16,65 @@ pymqsql-usage(){
 
       pymysql-name : $(pymysql-name)
 
+
+   Django says : MySQLdb-1.2.1p2 or newer is required
+
+
 EOU
 
 }
 
 
-pymysql-build(){
-   easy_install MySQL-python 
+yum-installed-(){ yum list installed | grep $1 ; }
+
+pymysql-preq-(){ echo mysql-server mysql-devel ; }
+pymysql-preq(){
+  local msg="=== $FUNCNAME :"
+  local preqs=$(pymysql-preq-)
+  echo $msg $preqs
+  local preq
+  for preq in $preqs ; do 
+    ! yum-installed- $preq  && sudo yum install $preq
+  done
 }
 
-pymysql-test(){ python -c "import MySQLdb " ;  }
+pymysql-build(){
+   local msg="=== $FUNCNAME :"
+   pymysql-preq
+   pymysql-get
+   pymysql-setup build
+
+   pymysql-install 
+   pymysql-test
+}
+
+pymysql-test(){ python -c "import MySQLdb " ; }
 pymysql-name(){ echo MySQL-python-1.2.2 ; }
 pymysql-fold(){ echo $(local-system-base)/pymysql ; }
 pymysql-dir(){  echo $(pymysql-fold)/$(pymysql-name) ; }
 pymysql-cd(){   cd $(pymysql-dir) ; }
+
 pymysql-get(){
   
   local nam=$(pymysql-name)
   local tgz=$nam.tar.gz
   local url=http://jaist.dl.sourceforge.net/sourceforge/mysql-python/$tgz
-  local nik=pymysql
  
   local iwd=$PWD
-  local dir=$(pymysql-dir)
+  local dir=$(pymysql-fold)
   [ ! -d "$dir" ] && mkdir -p "$dir"
   cd $dir
   [ ! -f $tgz ] && curl -L -O $url
-  [ ! -d $nam ] && tar -zxvf $tgz 
+  [ ! -d $nam ] && tar  -zxvf $tgz 
   cd $iwd
 }
 
-pymysql-build(){
+pymysql-setup(){
    local msg="=== $FUNCNAME :"
    local iwd=$PWD
    pymysql-cd
-   [ "$(which mysql_config)" == "" ] && echo $msg ABORT need mysql_config in path && return 1
-   python setup.py build
+   [ "$(which mysql_config)" == "" ] && echo $msg ABORT no mysql_config in path && return 1
+   python setup.py $*
    cd $iwd
 }
 
@@ -59,6 +82,11 @@ pymysql-install(){
    local msg="=== $FUNCNAME :"
    local iwd=$PWD
    pymysql-cd
-   python setup.py install
+   local cmd="sudo python setup.py install "
+   echo $msg $cmd
+   eval $cmd
+   python setup.py build
    cd $iwd
 }
+
+

@@ -7,7 +7,7 @@ dj-env(){
    python- system
 }
 
-dj-settings-module(){ echo env.offline.$(dj-project).settings ; }
+dj-settings-module(){ echo $(dj-project).settings ; }
 dj-urlroot(){         echo /$(dj-project) ; }          
 
 dj-notes(){
@@ -90,7 +90,16 @@ EOU
 
 dj-preq(){
     sudo yum install mysql-server
+
+   
     sudo yum install MySQL-python
+  
+  #   if the system versions dont work ... 
+  # pymysql-
+  # pymysql-build
+  #
+
+
 
   ## this is in dag.repo ... you may need to enable that in /etc/yum.repos.d/dag.repo
     sudo yum install ipython
@@ -136,6 +145,7 @@ dj-ln(){
   local msg="=== $FUNCNAME :"
   python-ln $(dj-srcdir)/django 
   python-ln $(env-home)
+  python-ln $(dj-projdir)
 }
 
 dj-find(){
@@ -211,6 +221,7 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 ## deployment  ##
 
 dj-confname(){ echo zdjango.conf ; }
+dj-eggcache(){ echo /var/cache/dj ; }
 dj-deploy(){
   local msg="=== $FUNCNAME :" 
   local tmp=/tmp/env/dj && mkdir -p $tmp 
@@ -224,20 +235,57 @@ dj-deploy(){
   [ "$ans" != "YES" ] && echo $msg skipping && return 0
 
   eval $cmd
+
+  local cache=$(dj-eggcache)
+  echo $msg createing egg cache dir $cache
+  sudo mkdir -p $cache
+  apache-chown $cache
+  sudo chcon -R -t httpd_sys_script_rw_t $cache
+  ls -alZ $cache
 }
+
+dj-export(){
+  python-
+  sudo rm $(python-site)/$(dj-project)
+  sudo svn export $(dj-projdir) $(python-site)/$(dj-project)
+}
+
 dj-location-(){
   cat << EOL
 <Location "$(dj-urlroot)/">
     SetHandler python-program
     PythonHandler django.core.handlers.modpython
     SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
+    SetEnv PYTHON_EGG_CACHE $(dj-eggcache)
+    PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
     PythonOption django.root $(dj-urlroot)
     PythonDebug On
 </Location>
 EOL
 }
 
+## test ##
 
+dj-audit(){ sudo vi /var/log/audit/audit.log ; }
+dj-audit-tail(){ sudo tail -f  /var/log/audit/audit.log ; }
+dj-selinux(){
+   #sudo vi /var/log/audit/audit.log
+   local msg="=== $FUNCNAME :"
+   [ "$NODE_TAG" != "N" ] && echo $msg only needed on N && return 1 
+   sudo chcon -R -t var_t /data1/env
+   sudo chcon -R -t httpd_sys_content_t $(dj-srcdir)
+   sudo chcon -R -t httpd_sys_content_t $(dj-projdir) 
+}
+
+
+dj-check-settings(){
+   python -c "import dybsite.settings "
+}
+
+
+dj-test(){
+    curl http://localhost$(dj-urlroot)/
+}
 
 
 
