@@ -1,24 +1,34 @@
 """
-         Creates Django proxy models for django 
-         models introspected from the database tables, excluding 
-         standard tables with names Auth* Django*
 
-         The idea is to avoid touching the genmodels and 
-         do the generic hookups that can be done
+   Introspects the "inspectdb" generated models (excluding Auth* Django* tables)
+   to determine the classes corresponding to tables and their attributes corresponding 
+   to the fields.
 
-         Usage :
+   On updating the database tables use "dj-models" to regenerate ... 
 
-            1) generate models from database with 
-                   dj-manage inspectdb > genmodels.py
+   On importing :
+         dybsite.offdb.models 
+         dybsite.offdb.imports
+         dybsite.offdb.admin
 
-            2) place a models.py containing something like:
+   This module manages code generation against the genrated models
+   allowing to do generic manipulations to set up the admin site etc..
 
-                 from env.offline.dybsite.offdb import genmodels
-                 from env.offline.dj import ProxyWrap
-                 exec str(ProxyWrap(genmodels))
+   Although using code generation is regarded as somewehat nasty    
+   in this case it is a lot simpler than alternatives such as "new.classobj"
+   or managing lots of temporary files.
 
-        This is somewhat nasty as it uses code generation  
-        but this is a lot simpler than using new.classobj
+        Import
+             import all the proxy models
+        Dump
+             excercise the python api to dump the objects
+        Proxy
+             create models that proxy the generated models
+             in order to avoid touching the generated models
+        Register
+              with the admin interface 
+
+
 """
 
 def skip( name ):return name.startswith('Auth') or name.startswith('Django')
@@ -90,16 +100,21 @@ class %(proxy_name)s(%(name)s):
 class Register:
     tmpl = r"""
 class %(proxy_name)sAdmin(admin.ModelAdmin):
-    fields = %(fields)s
+    list_display = %(display_str)s
+    list_filter = %(filter_str)s
 
 admin.site.register(%(proxy_name)s, %(proxy_name)sAdmin)
 """
+    ## generalize to a non PK integer ?
+    filters = ['pmtsite','pmtad','pmtring','pmtcolumn']  
     def __init__(self, module):self.dj = Dj(module)
     def __repr__(self):
         codegen = ""
         for name, cls in self.dj.items():
             proxy_name = proxy_name_(cls)
-            fields = str([field.name for field, modl in cls._meta.get_fields_with_model()])
+            fields = [field.name for field, modl in cls._meta.get_fields_with_model()]
+            display_str = str(fields)
+            filter_str  = str([f for f in fields if f in self.__class__.filters])
             codegen += self.dj.filltmpl( self.__class__.tmpl , locals() )
         return codegen
 
