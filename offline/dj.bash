@@ -221,8 +221,16 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 ## deployment  ##
 
 dj-confname(){ echo zdjango.conf ; }
-dj-eggcache(){ echo /var/cache/dj ; }
+dj-eggcache-dir(){ echo /var/cache/dj ; }
 dj-deploy(){
+   dj-conf
+   dj-eggcache
+   dj-selinux
+   dj-private
+   dj-test
+}
+
+dj-conf(){
   local msg="=== $FUNCNAME :" 
   local tmp=/tmp/env/dj && mkdir -p $tmp 
   local conf=$tmp/$(dj-confname)
@@ -233,54 +241,67 @@ dj-deploy(){
   local ans
   read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
   [ "$ans" != "YES" ] && echo $msg skipping && return 0
-
   eval $cmd
+}
 
-  local cache=$(dj-eggcache)
+dj-location-(){
+  cat << EOL
+
+## avoid code caching for debugging ... huge performance hit 
+#MaxRequestsPerChild 1
+
+<Location "$(dj-urlroot)/">
+    SetHandler python-program
+    PythonHandler django.core.handlers.modpython
+    SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
+    SetEnv PYTHON_EGG_CACHE $(dj-eggcache-dir)
+    PythonOption django.root $(dj-urlroot)
+    PythonDebug On
+</Location>
+EOL
+    # PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
+}
+
+
+dj-eggcache(){
+  local cache=$(dj-eggcache-dir)
   echo $msg createing egg cache dir $cache
   sudo mkdir -p $cache
+  apache- 
   apache-chown $cache
   sudo chcon -R -t httpd_sys_script_rw_t $cache
   ls -alZ $cache
 }
 
-dj-export(){
-  python-
-  sudo rm $(python-site)/$(dj-project)
-  sudo svn export $(dj-projdir) $(python-site)/$(dj-project)
-}
-
-dj-location-(){
-  cat << EOL
-<Location "$(dj-urlroot)/">
-    SetHandler python-program
-    PythonHandler django.core.handlers.modpython
-    SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
-    SetEnv PYTHON_EGG_CACHE $(dj-eggcache)
-    PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
-    PythonOption django.root $(dj-urlroot)
-    PythonDebug On
-</Location>
-EOL
-}
-
-## test ##
-
-dj-audit(){ sudo vi /var/log/audit/audit.log ; }
-dj-audit-tail(){ sudo tail -f  /var/log/audit/audit.log ; }
 dj-selinux(){
-   #sudo vi /var/log/audit/audit.log
    local msg="=== $FUNCNAME :"
-   [ "$NODE_TAG" != "N" ] && echo $msg only needed on N && return 1 
-   sudo chcon -R -t var_t /data1/env
+   
    sudo chcon -R -t httpd_sys_content_t $(dj-srcdir)
    sudo chcon -R -t httpd_sys_content_t $(dj-projdir) 
+   sudo chcon -R -t httpd_sys_content_t $(env-home)
 }
+
+dj-private(){
+ private- 
+ private-selinux
+
+ sudo -u $(apache-user) ls $(private-path)
+}
+
 
 
 dj-check-settings(){
-   python -c "import dybsite.settings "
+   type $FUNCNAME
+   apache-
+   ## python -c "import dybsite.settings " should fail with permission denied 
+
+   sudo -u $(apache-user) python -c "import dybsite.settings "
+   sudo -u $(apache-user)  python -c "import dybsite.settings as s ; print '\n'.join(['%s : %s ' % ( v, getattr(s, v) ) for v in dir(s) if v.startswith('DATABASE_')]) "
 }
+
+
+
+## test ##
 
 
 dj-test(){
@@ -289,8 +310,4 @@ dj-test(){
 
 
 
-dj-check(){
 
-  python -c "import dybsite.settings as s ; print '\n'.join(['%s : %s ' % ( v, getattr(s, v) ) for v in dir(s) if v.startswith('DATABASE_')]) "
-
-}

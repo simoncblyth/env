@@ -92,7 +92,7 @@ local-env(){
    export BACKUP_TAG=$(local-backup-tag)  # paired backup for the NODE_TAG 
    export SUDO=$(local-sudo)
 
-   local-scm        # assign coordinates of the SCM server for this node
+  # local-scm        # assign coordinates of the SCM server for this node
  
    export SYSTEM_BASE=$(local-system-base) ## prequisite base for most everything, ie where to pick up subversion +
    export LOCAL_BASE=$(local-base)

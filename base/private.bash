@@ -29,7 +29,7 @@ private-env(){
 }
 
 private-path(){
-  echo $HOME/.bash_private
+  python -c "from env.base.private import Private ; print Private.path "
 }
 
 private-check-(){
@@ -51,3 +51,17 @@ private-val(){
   echo $valu
   return 0
 }
+
+private-selinux(){
+
+  local msg="=== $FUNCNAME :" 
+  local path=$(private-path)
+  echo $msg $path
+  apache-
+  apache-chown $path
+
+  local cmd=" sudo chcon -t httpd_sys_content_t $path"
+  echo $msg $cmd
+  eval $cmd
+}
+
