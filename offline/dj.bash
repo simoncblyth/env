@@ -190,12 +190,21 @@ dj-models-inspectdb(){
 }
 dj-models-fix(){
    ## this may be table specific
-   perl -pi -e "s@null=True, db_column='SEQNO', blank=True@primary_key=True, db_column='SEQNO'@ " $(dj-models-path)
+   perl -pi -e "s@null=True, db_column='ROW_COUNTER', blank=True@primary_key=True, db_column='ROW_COUNTER'@ " $(dj-models-path)
 }
 
 ## interactive access to model objects
 
-dj-ip(){      ipython $(dj-appdir)/imports.py ; }
+dj-ip(){     
+  local msg="=== $FUNCNAME :"
+  apache-
+  local user=$(apache-user)
+  local home=/tmp/env/$FUNCNAME/$user
+  echo $msg $user $home
+  mkdir -p $home
+  apache-chown $home
+  sudo -u $user HOME=$home $(dj-env-inline) ipython $(dj-appdir)/imports.py 
+}
 
 
 ## management interface  ##

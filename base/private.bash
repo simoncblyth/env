@@ -26,6 +26,8 @@ EOU
 
 private-env(){
    echo -n
+   ## this is used for an overide for interactive testting it is not used by apache
+   export ENV_PRIVATE_PATH=$HOME/.bash_private
 }
 
 private-edit(){

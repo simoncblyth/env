@@ -16,8 +16,13 @@ class Private:
 
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
-    path = os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
-    def __init__(self, path=path):
+    
+    def path_(self):
+        epp = os.environ.get('ENV_PRIVATE_PATH',None)
+        if epp: return epp  
+        return os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
+    def __init__(self, path=None):
+        if not(path):path=self.path_() 
         assert os.path.exists(path), "path %s does not exist " % path
         s = os.stat(path)
         assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "path %s has incorrect permissions " % path  
