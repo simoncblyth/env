@@ -1,5 +1,7 @@
 import os
 import re
+import env
+from stat import *
 
 class Private:
     """
@@ -8,14 +10,19 @@ class Private:
              from env.base.private import Private
              v = Private()('DATABASE_NAME')  
 
+
+         sudo -u apache python -c "from env.base.private import Private ; p=Private() ; print p('DATABASE_NAME') " 
+
+
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
-    path = "%s/%s" % ( os.environ['HOME'] , ".bash_private" )
+    path = os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
     def __init__(self, path=path):
-        assert os.path.exists(path)
+        assert os.path.exists(path), "path %s does not exist " % path
+        s = os.stat(path)
+        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "path %s has incorrect permissions " % path  
         self.path = path
-        ll=os.popen("ls -l %s" % self.path).read()
-        assert ll.split()[0] == '-rw-------'
+
     def __call__(self, qwn):
         val = ""
         f = file(self.path, "r")

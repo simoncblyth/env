@@ -129,10 +129,25 @@ python-site(){
 python-ln(){
     local msg="=== $FUNCNAME :";
     local path=$1
+    local name=${2:-$(basename $path)}
+
     [ ! -d "$path" ] && echo $msg ABORT no such path $path && return 1
-    local lnk=$(python-site)/$(basename $path);
-    [ -L "$lnk" ] && echo $msg link $lnk is already present ... skipping && return 0;
-    local cmd="sudo ln -s $path $(python-site)/$(basename $path)";
+    local lnk=$(python-site)/$name ;
+    local cmd
+
+    if [ -L "$lnk" ]; then 
+       local tgt=$(readlink $lnk)
+       if [ "$tgt" == "$path" ]; then
+           echo $msg link $lnk already points to $path && return 0
+       else
+           echo $msg old link $lnk points to $tgt ... changing to $path
+           cmd="sudo ln -sf $path $(python-site)/$name";
+       fi
+    else
+       echo $msg creating new link $lnk to $path 
+       cmd="sudo ln -s $path $(python-site)/$name";
+    fi
+
     echo $msg $cmd;
     eval $cmd
 }

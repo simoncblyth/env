@@ -144,7 +144,7 @@ dj-get(){
 dj-ln(){
   local msg="=== $FUNCNAME :"
   python-ln $(dj-srcdir)/django 
-  python-ln $(env-home)
+  python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
 
@@ -289,4 +289,8 @@ dj-test(){
 
 
 
+dj-check(){
 
+  python -c "import dybsite.settings as s ; print '\n'.join(['%s : %s ' % ( v, getattr(s, v) ) for v in dir(s) if v.startswith('DATABASE_')]) "
+
+}
