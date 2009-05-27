@@ -28,13 +28,29 @@ private-env(){
    echo -n
 }
 
+private-edit(){
+  local cmd="sudo vi $(private-path) "
+  echo $cmd
+  eval $cmd
+}
+
 private-path(){
   python -c "from env.base.private import Private ; print Private.path "
+  #echo /tmp/env/test.txt
 }
 
 private-check-(){
   [ "$1" == "-rw-------"  ] && return 0 || return 1
 }
+
+
+
+private-hasval-(){ sudo grep $1 $(private-path) > /dev/null ; }
+private-set(){ ! private-hasval- $1 && private-append $* || private-change $* ;  }
+private-append(){ sudo bash -c "echo local $1=$2 >> $(private-path)   " ;  }
+private-change(){ sudo perl -pi -e "s,local $1=(\S*),local $1=$2, " $(private-path) ; }
+
+
 
 private-val(){
 

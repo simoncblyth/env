@@ -4,6 +4,7 @@ dj-vi(){       vi $(dj-source) ; }
 dj-env(){      
    elocal- ; 
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
+   export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
    python- system
 }
 
@@ -199,12 +200,13 @@ dj-ip(){      ipython $(dj-appdir)/imports.py ; }
 
 ## management interface  ##
 
+dj-env-inline(){  echo DJANGO_SETTINGS_MODULE=$(dj-settings-module) PYTHON_EGG_CACHE=$(dj-eggcache-dir) ; }
 dj-manage(){
    local iwd=$PWD
    cd $(dj-projdir)   
    case $1 in 
-       shell) ipython manage.py $* ;;
-           *)  python manage.py $* ;;
+       shell)  sudo -u $(apache-user) $(dj-env-inline) ipython manage.py $* ;;
+           *)  sudo -u $(apache-user) $(dj-env-inline)  python manage.py $* ;;
    esac
    cd $iwd
 }
@@ -227,7 +229,11 @@ dj-deploy(){
    dj-eggcache
    dj-selinux
    dj-private
-   dj-test
+
+   dj-docroot-ln
+
+
+   #dj-test
 }
 
 dj-conf(){
@@ -247,8 +253,9 @@ dj-conf(){
 dj-location-(){
   cat << EOL
 
-## avoid code caching for debugging ... huge performance hit 
-#MaxRequestsPerChild 1
+## each process only servers one request  ... huge performance hit 
+## but good for development as means that code changes are immediately reflected 
+MaxRequestsPerChild 1
 
 <Location "$(dj-urlroot)/">
     SetHandler python-program
@@ -258,45 +265,72 @@ dj-location-(){
     PythonOption django.root $(dj-urlroot)
     PythonDebug On
 </Location>
+
+<Location "/media">
+    SetHandler None
+</Location>
+
+<LocationMatch "\.(jpg|gif|png)$">
+    SetHandler None
+</LocationMatch>
+
+
+
 EOL
-    # PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
+# PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
 }
 
 
 dj-eggcache(){
-  local cache=$(dj-eggcache-dir)
-  echo $msg createing egg cache dir $cache
-  sudo mkdir -p $cache
-  apache- 
-  apache-chown $cache
-  sudo chcon -R -t httpd_sys_script_rw_t $cache
-  ls -alZ $cache
+local cache=$(dj-eggcache-dir)
+echo $msg createing egg cache dir $cache
+sudo mkdir -p $cache
+apache- 
+apache-chown $cache
+sudo chcon -R -t httpd_sys_script_rw_t $cache
+ls -alZ $cache
 }
 
 dj-selinux(){
-   local msg="=== $FUNCNAME :"
-   
-   sudo chcon -R -t httpd_sys_content_t $(dj-srcdir)
-   sudo chcon -R -t httpd_sys_content_t $(dj-projdir) 
-   sudo chcon -R -t httpd_sys_content_t $(env-home)
+local msg="=== $FUNCNAME :"
+
+sudo chcon -R -t httpd_sys_content_t $(dj-srcdir)
+sudo chcon -R -t httpd_sys_content_t $(dj-projdir) 
+sudo chcon -R -t httpd_sys_content_t $(env-home)
 }
 
 dj-private(){
- private- 
- private-selinux
+private- 
+private-selinux
 
- sudo -u $(apache-user) ls $(private-path)
+sudo -u $(apache-user) ls $(private-path)
 }
 
 
 
 dj-check-settings(){
-   type $FUNCNAME
-   apache-
-   ## python -c "import dybsite.settings " should fail with permission denied 
+type $FUNCNAME
+apache-
+## python -c "import dybsite.settings " should fail with permission denied 
 
-   sudo -u $(apache-user) python -c "import dybsite.settings "
-   sudo -u $(apache-user)  python -c "import dybsite.settings as s ; print '\n'.join(['%s : %s ' % ( v, getattr(s, v) ) for v in dir(s) if v.startswith('DATABASE_')]) "
+sudo -u $(apache-user) python -c "import dybsite.settings "
+sudo -u $(apache-user)  python -c "import dybsite.settings as s ; print '\n'.join(['%s : %s ' % ( v, getattr(s, v) ) for v in dir(s) if v.startswith('DATABASE_')]) "
+}
+
+
+dj-docroot-ln(){
+   local msg="=== $FUNCNAME :"
+   apache-
+   local docroot=$(apache-docroot)
+   local cmd="sudo ln -s  $(dj-srcdir)/django/contrib/admin/media $docroot/media"
+   echo $msg $cmd
+   eval $cmd
+}
+
+dj-templates(){
+
+  local path=$(private-path)
+  private-set DJ_TEMPLATES_DIR $(apache-docroot)  
 }
 
 

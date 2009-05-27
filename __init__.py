@@ -18,4 +18,7 @@ def find_home():
     else:
         return os.path.dirname(path) 
 
+
+
+
 HOME = find_home() 

@@ -229,6 +229,12 @@ apache-downloadsdir(){
 }
 
 
+apache-docroot(){
+  grep DocumentRoot $(apache-conf) | perl -n -e 'm,^DocumentRoot\s*\"(\S*)\", && print $1 '
+}
+
+
+
 
 
 

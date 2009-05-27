@@ -31,11 +31,13 @@ EOU
 }
 
 offdb-dir(){ echo $(local-base)/env/offdb ; }
+offdb-cd(){  cd $(offdb-dir) ; }
 offdb-name(){ echo database.tar.gz ; }
 offdb-url(){  echo $(env-htdocs-url $(offdb-name)) ; } 
 
 offdb-build(){
    offdb-get
+   offdb-fix
    offdb-load
    offdb-check
 }
@@ -49,6 +51,12 @@ offdb-get(){
     [ ! -f "$name" ] && curl -O $(offdb-url) && tar zxvf $name   ## one step as exploding tarball
     cd $iwd
 }
+
+offdb-fix(){
+    local msg="=== $FUNCNAME :"
+    offdb-cd 
+}
+
 
 offdb-load(){
    dj-
