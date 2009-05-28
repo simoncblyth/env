@@ -4,6 +4,8 @@ from django.conf.urls.defaults import *
 from django.contrib import admin
 admin.autodiscover()
 
+from django.contrib import databrowse
+
 urlpatterns = patterns('',
     # Example:
     # (r'^dybsite/', include('dybsite.foo.urls')),
@@ -14,4 +16,8 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
      (r'^admin/', include(admin.site.urls)),
+
+     (r'^databrowse/(.*)', databrowse.site.root),
+
+
 )

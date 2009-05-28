@@ -44,7 +44,7 @@ class Dj(dict):
         ctx = {}
         ctx['modulename'] = module.__name__
         ctx['proxymodulename'] = module.__name__.replace('generated.models','models')
-        self.ctx = ctx
+        self.ctx = ctx         
         self.module = module
         pass
     def names(self):return self.keys()
@@ -74,57 +74,126 @@ def dump_all():
         return "\n".join( [ self.__class__.head ] +  [ self.dj.filltmpl( self.__class__.tmpl , locals() ) for proxy in self.dj.proxynames() ] )
 
 
-class Proxy:
+
+class VldProxy(dict):
     tmpl = r"""
 from %(modulename)s import %(name)s
-class %(proxy_name)s(%(name)s):
+class %(proxy)s(%(name)s):
     class Meta:
         proxy = True
+        verbose_name = "%(proxy)s"
+    def __unicode__(self):
+        return "%(proxy)s:%(ffmt)s" %(perc)s  ( %(sfmt)s ) 
+
+%(name)s.simflag = lambda self:e('SimFlag',self.simmask )
+%(name)s.site    = lambda self:e('Site',   self.sitemask )
+%(name)s.__unicode__ = lambda self:"%(name)s:%(ffmt)s" %(perc)s ( %(sfmt)s )
+
+databrowse.site.register(%(proxy)s)
+"""
+    def __init__(self, *a):
+        for d in a:self.update(d)
+    def __repr__(self):
+       return self.__class__.tmpl % self  
+
+
+class MainProxy(dict):
+    tmpl = r"""
+from %(modulename)s import %(name)s
+class %(proxy)s(%(name)s):
+    class Meta:
+        proxy = True
+        verbose_name = "%(proxy)s"
     def __unicode__(self):
         return "<%(name)s %(ffmt)s > " %(perc)s  ( %(sfmt)s ) 
+
+%(name)s.simflag = lambda self:e('SimFlag',self.seqno.simmask )
+%(name)s.site    = lambda self:e('Site',   self.seqno.sitemask )
+
+databrowse.site.register(%(proxy)s)
+"""
+    def __init__(self, *a):
+        for d in a:self.update(d)
+    def __repr__(self):
+        return self.__class__.tmpl % self  
+
+
+class Models:
+    tmpl = r"""
+from django.contrib import databrowse
+from env.offline.enum import Enum
+e = Enum()
+
+%(codegen)s
+
 """
     def __init__(self, module):
         self.dj = Dj(module)
     def __repr__(self):
         codegen = ""
         for name,cls in self.dj.items():
+            proxy = proxy_name_(cls)
             cols = [field.name for field, modl in cls._meta.get_fields_with_model()]
-            proxy_name = proxy_name_(cls)
-            ffmt = "%s " * len(cols)
-            sfmt = ",".join( [ "self.%s  " % col for col in cols ])
             perc = '%'   
-            codegen += self.dj.filltmpl( self.__class__.tmpl , locals() )
-        return codegen
+            if proxy.endswith('Vld'):
+                ffmt = "%s"
+                sfmt = "self.seqno"
+                p = VldProxy( self.dj.ctx ,  locals() )
+            else:
+                ffmt = "%s " * len(cols)
+                sfmt = ",".join( [ "self.%s  " % col for col in cols ])
+                p = MainProxy( self.dj.ctx , locals()  )
+            codegen += str(p)
+        return self.dj.filltmpl( self.__class__.tmpl , locals() )
 
 
-class Register:
+
+
+class Admin:
     tmpl = r"""
-class %(proxy_name)sAdmin(admin.ModelAdmin):
-    list_display = %(display_str)s
-    list_filter = %(filter_str)s
 
-admin.site.register(%(proxy_name)s, %(proxy_name)sAdmin)
+class %(proxy)sAdmin(admin.ModelAdmin):
+    list_display = %(list_display)s
+    list_filter = %(list_filter)s
+    %(date_hierarchy)s
+
+admin.site.register(%(proxy)s, %(proxy)sAdmin)
 """
     ## generalize to a non PK integer ?
     filters = ['pmtsite','pmtad','pmtring','pmtcolumn']  
     def __init__(self, module):self.dj = Dj(module)
     def __repr__(self):
+        """
+           display order is arranged to put the pk first 
+        """
         codegen = ""
         for name, cls in self.dj.items():
-            proxy_name = proxy_name_(cls)
-            fields = [field.name for field, modl in cls._meta.get_fields_with_model()]
-            display_str = str(fields)
-            filter_str  = str([f for f in fields if f in self.__class__.filters])
+            proxy = proxy_name_(cls)
+            fields = [field.name for field, modl in cls._meta.get_fields_with_model() if field != cls._meta.pk  ]
+            if proxy.endswith("Vld"):
+                 date_hierarchy = "date_hierarchy = 'insertdate'" 
+                 fields += ['site','simflag']
+            else:
+                 fields += ['site','simflag']
+                 date_hierarchy = "pass"
+
+            list_display = str([cls._meta.pk.name] + fields )
+            list_filter  = str([f for f in fields if f in self.__class__.filters])
             codegen += self.dj.filltmpl( self.__class__.tmpl , locals() )
         return codegen
+
+
+
+
+
 
 
 if __name__=='__main__':
     from dybsite.offdb.generated import models as gm
     print Import(gm)
     print Dump(gm)
-    print Proxy(gm)
-    print Register(gm)
+    print Models(gm)
+    print Admin(gm)
 
     from env.offline.dj import Dj
     dj = Dj(gm)

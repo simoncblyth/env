@@ -4,11 +4,30 @@ private-vi(){     vi $(private-source) ; }
 private-usage(){
 
    cat << EOU
-   
+  
+
+      The private file is by default located at 
+           $ENV_HOME/../.bash_private
+
+      This can be overridden with the envvar ENV_PRIVATE_PATH 
+
+
        Access the values with 
             private-
             private-val PRIVATE_VARIABLE <path>
-   
+  
+
+       Change, detect or add values with :
+            private-hasval- NAME
+            private-set NAME VAL
+
+       TODO: detect permissions on the path 
+             to avoid pointless sudo 
+               
+
+
+
+ 
        The path defaults to  $(private-path)     
        The definition file should have variables defined as below :
            local PRIVATE_VARIABLE=42
@@ -26,8 +45,6 @@ EOU
 
 private-env(){
    echo -n
-   ## this is used for an overide for interactive testting it is not used by apache
-   export ENV_PRIVATE_PATH=$HOME/.bash_private
 }
 
 private-edit(){
@@ -37,7 +54,7 @@ private-edit(){
 }
 
 private-path(){
-  python -c "from env.base.private import Private ; print Private.path "
+  python -c "from env.base.private import Private ; print Private.PATH "
   #echo /tmp/env/test.txt
 }
 
@@ -48,9 +65,9 @@ private-check-(){
 
 
 private-hasval-(){ sudo grep $1 $(private-path) > /dev/null ; }
-private-set(){ ! private-hasval- $1 && private-append $* || private-change $* ;  }
-private-append(){ sudo bash -c "echo local $1=$2 >> $(private-path)   " ;  }
-private-change(){ sudo perl -pi -e "s,local $1=(\S*),local $1=$2, " $(private-path) ; }
+private-set(){     ! private-hasval- $1 && private-append- $* || private-change- $* ;  }
+private-append-(){ sudo bash -c "echo local $1=$2 >> $(private-path)   " ;  }
+private-change-(){ sudo perl -pi -e "s,local $1=(\S*),local $1=$2, " $(private-path) ; }
 
 
 

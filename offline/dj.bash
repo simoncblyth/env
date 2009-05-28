@@ -1,10 +1,17 @@
 dj-src(){      echo offline/dj.bash ; }
 dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
+dj-dir(){      echo $(dirname $(dj-source)) ; }
 dj-vi(){       vi $(dj-source) ; }
 dj-env(){      
    elocal- ; 
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
    export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
+
+   ## this is used for an overide to point to a second private file ... 
+   ## to avoid having to enter passwords for interactive testing 
+   ## it is not used by apache
+   export ENV_PRIVATE_PATH=$HOME/.bash_private  
+
    python- system
 }
 
@@ -178,20 +185,19 @@ dj-mysql(){     dj-mysql- $(dj-val DATABASE_NAME) ; }
 dj-models(){
    local msg="=== $FUNCNAME :"
    echo $msg creating $FUNCNAME-path
-   $FUNCNAME-inspectdb
-   $FUNCNAME-fix 
-}
-dj-models-path(){  echo $(dj-appdir)/generated/models.py ; }
-dj-models-inspectdb(){
    local path=$(dj-models-path)
    mkdir -p $(dirname $path) 
    touch $(dirname $path)/__init__.py
-   dj-manage inspectdb > $path
+   $FUNCNAME-inspectdb > $path
 }
-dj-models-fix(){
-   ## this may be table specific
+dj-models-path(){  echo $(dj-appdir)/generated/models.py ; }
+dj-models-inspectdb(){ dj-manage inspectdb | python $(dj-dir)/fix.py ; }
+
+
+dj-models-fix-deprecated(){
    perl -pi -e "s@null=True, db_column='ROW_COUNTER', blank=True@primary_key=True, db_column='ROW_COUNTER'@ " $(dj-models-path)
 }
+
 
 ## interactive access to model objects
 

@@ -85,4 +85,5 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'dybsite.offdb',
+    'django.contrib.databrowse',
 )

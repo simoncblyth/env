@@ -1,8 +1,17 @@
 import os
 import re
-import env
 from stat import *
-
+    
+def path_():
+    """
+         Default env.HOME/../.bash_ptivate 
+         this can be overridded with ENV_PRIVATE_PATH
+    """
+    epp = os.environ.get('ENV_PRIVATE_PATH',None)
+    if epp: return epp  
+    import env
+    return os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
+ 
 class Private:
     """
          Re-implementation of the bash private- for ease of use from python
@@ -13,16 +22,11 @@ class Private:
 
          sudo -u apache python -c "from env.base.private import Private ; p=Private() ; print p('DATABASE_NAME') " 
 
-
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
-    
-    def path_(self):
-        epp = os.environ.get('ENV_PRIVATE_PATH',None)
-        if epp: return epp  
-        return os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
+    PATH = path_()
     def __init__(self, path=None):
-        if not(path):path=self.path_() 
+        if not(path):path=Private.PATH
         assert os.path.exists(path), "path %s does not exist " % path
         s = os.stat(path)
         assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "path %s has incorrect permissions " % path  
