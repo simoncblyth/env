@@ -434,14 +434,19 @@ env-path(){
    echo $PATH | tr ":" "\n"
 }
 
+env-notpath-(){ echo $PATH | grep -v $1 - > /dev/null  ; }
+env-inpath-(){  echo $PATH | grep    $1 - > /dev/null  ; }
+
+env-remove(){ export PATH=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
+
 env-prepend(){
   local add=$1 
-  echo $PATH | grep -v $add - > /dev/null  && export PATH=$add:$PATH 
+  env-notpath- $add && export PATH=$add:$PATH 
 }
 
 env-append(){
   local add=$1 
-  echo $PATH | grep -v $add - > /dev/null && export PATH=$PATH:$add 
+  env-notpath- $add && export PATH=$PATH:$add 
 }
 
 env-llp-prepend(){

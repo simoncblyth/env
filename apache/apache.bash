@@ -94,23 +94,26 @@ apache-again(){
 
 
 apache-env(){
-
    elocal-
-
-   if [ "$(apache-mode)" == "system" ]; then
+   local mode=${1:-$(apache-mode)}
+   if [ "$mode" == "system" ]; then
+      [ -n "$APACHE_HOME" ] && env-remove $APACHE_HOME/bin
       env-prepend /usr/sbin
+      export APACHE_MODE=system
    else
-
+      env-remove /usr/sbin
+      export APACHE_MODE=source
       export APACHE_NAME=$(apache-name)
-      export APACHE_HOME=$(apache-home)
-   
+      export APACHE_HOME=$(apache-home)   
       [ -d $APACHE_HOME ] && env-prepend $APACHE_HOME/bin
-
   fi
-
 }
 
-apache-mode(){ echo ${APACHE_MODE:-source} ; }
+
+apache-mode(){ 
+   echo ${APACHE_MODE:-source} ; 
+   #env-inpath- apache && echo source || echo system
+}
 
 apache-home(){
    local tag=${1:-$NODE_TAG}

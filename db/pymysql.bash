@@ -1,11 +1,6 @@
 pymysql-src(){ echo db/pymysql.bash ; }
 pymysql-source(){ echo ${BASH_SOURCE:-$(env-home)/$(pymysql-src)} ; }
 pymysql-vi(){     vi $(pymysql-source) ; }
-pymysql-env(){
-   local-
-   python-
-   export PYMYSQL_NAME=$(pymysql-name)
-}
 pymqsql-usage(){
    cat << EOU
 
@@ -17,13 +12,25 @@ pymqsql-usage(){
       pymysql-name : $(pymysql-name)
 
 
-   Django says : MySQLdb-1.2.1p2 or newer is required
+   Django says :
+        MySQLdb-1.2.1p2 or newer is required
+     
+        yum installed MySQL-python is not new enough on C
+
+
+       
+
 
 
 EOU
 
 }
 
+pymysql-env(){
+   local-
+   python-
+   export PYMYSQL_NAME=$(pymysql-name)
+}
 
 yum-installed-(){ yum list installed | grep $1 ; }
 
@@ -82,7 +89,7 @@ pymysql-install(){
    local msg="=== $FUNCNAME :"
    local iwd=$PWD
    pymysql-cd
-   local cmd="sudo python setup.py install "
+   local cmd="$SUDO python setup.py install "
    echo $msg $cmd
    eval $cmd
    python setup.py build

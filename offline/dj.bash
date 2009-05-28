@@ -12,7 +12,10 @@ dj-env(){
    ## it is not used by apache
    export ENV_PRIVATE_PATH=$HOME/.bash_private  
 
-   python- system
+   case $NODE_TAG in 
+      N) python- system ;;
+      *) python-        ;;
+   esac
 }
 
 dj-settings-module(){ echo $(dj-project).settings ; }
@@ -23,11 +26,17 @@ dj-notes(){
 
    1) initial investigations on cms01 ... using system python 2.3.2
 
+
    2) moved to cms02 when needed to deploy into mod_python
       ... but the apache there is my source apache using my
       source python 2.5. 
 
       so the prerequsities are less simple 
+
+
+   3) trying system apache on C      
+      ... need mod python
+
 
 EON
 
@@ -184,14 +193,14 @@ dj-mysql(){     dj-mysql- $(dj-val DATABASE_NAME) ; }
 
 dj-models(){
    local msg="=== $FUNCNAME :"
-   echo $msg creating $FUNCNAME-path
+   echo $msg creating $($FUNCNAME-path)
    local path=$(dj-models-path)
    mkdir -p $(dirname $path) 
    touch $(dirname $path)/__init__.py
    $FUNCNAME-inspectdb > $path
 }
 dj-models-path(){  echo $(dj-appdir)/generated/models.py ; }
-dj-models-inspectdb(){ dj-manage inspectdb | python $(dj-dir)/fix.py ; }
+dj-models-inspectdb(){ dj-manage- inspectdb | python $(dj-dir)/fix.py ; }
 
 
 dj-models-fix-deprecated(){
@@ -200,6 +209,10 @@ dj-models-fix-deprecated(){
 
 
 ## interactive access to model objects
+
+dj-ip-(){
+  ipython $(dj-appdir)/imports.py 
+}
 
 dj-ip(){     
   local msg="=== $FUNCNAME :"
@@ -216,6 +229,9 @@ dj-ip(){
 ## management interface  ##
 
 dj-env-inline(){  echo DJANGO_SETTINGS_MODULE=$(dj-settings-module) PYTHON_EGG_CACHE=$(dj-eggcache-dir) ; }
+
+
+dj-manage-(){ python $(dj-projdir)/manage.py $*  ; }
 dj-manage(){
    local iwd=$PWD
    cd $(dj-projdir)   
