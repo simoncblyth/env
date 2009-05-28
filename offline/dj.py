@@ -154,6 +154,7 @@ class Admin:
 
 class %(proxy)sAdmin(admin.ModelAdmin):
     list_display = %(list_display)s
+    list_display_links = %(list_display_links)s
     list_filter = %(list_filter)s
     %(date_hierarchy)s
 
@@ -178,6 +179,7 @@ admin.site.register(%(proxy)s, %(proxy)sAdmin)
                  date_hierarchy = "pass"
 
             list_display = str([cls._meta.pk.name] + fields )
+            list_display_links = str([cls._meta.pk.name] + ['seqno'] )
             list_filter  = str([f for f in fields if f in self.__class__.filters])
             codegen += self.dj.filltmpl( self.__class__.tmpl , locals() )
         return codegen
