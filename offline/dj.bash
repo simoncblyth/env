@@ -256,7 +256,10 @@ dj-confname(){ echo zdjango.conf ; }
 dj-eggcache-dir(){ echo /var/cache/dj ; }
 dj-deploy(){
 
+   local msg="=== $FUNCNAME :"
    dj-conf
+   [ "$?" != "0" ] && echo $msg && return 1
+
    dj-eggcache
    dj-selinux
 
@@ -277,11 +280,13 @@ dj-conf(){
   local cmd="sudo cp $conf $(apache-confd)/$(basename $conf)"
   local ans
   read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
-  [ "$ans" != "YES" ] && echo $msg skipping && return 0
+  [ "$ans" != "YES" ] && echo $msg skipping && return 1
   eval $cmd
 }
 
 dj-location-(){
+  apache-
+  private-
   cat << EOL
 
 ## each process only servers one request  ... huge performance hit 
@@ -291,7 +296,7 @@ MaxRequestsPerChild 1
 <Location "$(dj-urlroot)/">
     SetHandler python-program
     PythonHandler django.core.handlers.modpython
-    SetEnv ENV_PRIVATE_PATH $(USER=$(apache-;apache-user) private-path)    
+    SetEnv ENV_PRIVATE_PATH $(USER=$(apache-user) private-path)    
     SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
     SetEnv PYTHON_EGG_CACHE $(dj-eggcache-dir)
     PythonOption django.root $(dj-urlroot)

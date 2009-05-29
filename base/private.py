@@ -3,9 +3,6 @@ import re
 from stat import *
     
 
-def epp_():
-    return os.environ.get('ENV_PRIVATE_PATH',None)
-
     
 class Private:
     """
@@ -19,12 +16,13 @@ class Private:
 
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
-    def __init__(self, path=None):
-        if not(path):path=epp_()
+    def __init__(self):
+        path = os.environ.get('ENV_PRIVATE_PATH',None)
+        assert path , "envvar ENV_PRIVATE_PATH not defined "        
         self.path = path
         assert os.path.exists(path), "path does not exist ... %s  %s " % ( path , self )
         s = os.stat(path)
-        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions .. %s  %s  " % ( path , self )  
+        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions .. %s  " % ( self )  
 
     def __call__(self, qwn):
         val = ""
@@ -37,7 +35,7 @@ class Private:
                 if d['var'] == qwn:val = d['val']  
         f.close()
         return val
-    def __repr__(self):return "\n".join( ["<Private %s>" % self.path , "epp:%s" % epp_()  ] )
+    def __repr__(self):return "\n".join( ["<Private %s>" % self.path ] )
 
 if __name__=='__main__':
     import sys
