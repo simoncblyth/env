@@ -19,26 +19,53 @@ dj-urlroot(){         echo /$(dj-project) ; }
 dj-notes(){
   cat << EON
 
-   1) initial investigations on cms01 ... using system python 2.3.2
+
+   Deployments 
+
+           http://belle7.nuu.edu.tw/dybsite/admin/
+        N   : system python 2.4, mysql 5.0.24, MySQL_python-1.2.2, 
+              system Mod Python , apache
 
 
-   2) moved to cms02 when needed to deploy into mod_python
-      ... but the apache there is my source apache using my
-      source python 2.5. 
+           http://cms01.phys.ntu.edu.tw/dybsite/admin/
+        C   : system python 2.3, mysql 4.1.22, MySQL_python  
+           
+               ===> admin pw needs resetting ...
 
-      so the prerequsities are less simple 
+        C2  :
+           EXCLUDE FOR NOW AS PRIME REPO SERVER
+                 which still uses source python 2.5
+                 and source apache 2.0.63
 
 
-   3) trying system apache on C      
-      ... need mod python
+        H :
+            ancient machine ... not worth bothering with 
 
+
+        G   :  
+           
+             port installed mysql 5.0.67
+
+             Darwin difficulties ... need to be careful with system python  
+             do i want to port install python ?
+             
+ 
+ 
 
 EON
 
 }
 
 
-
+dj-versions(){
+   python -V
+   echo ipython $(ipython -V)
+   python -c "import mod_python as _ ; print 'mod_python:%s' % _.version "
+   python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
+   echo "select version() ; " | dj-mysql
+   apachectl -v
+   svn info $(dj-srcdir)
+}
 
 dj-usage(){ 
   cat << EOU
@@ -251,7 +278,12 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 ## deployment  ##
 
 dj-confname(){ echo zdjango.conf ; }
-dj-eggcache-dir(){ echo /var/cache/dj ; }
+dj-eggcache-dir(){ 
+    case ${USER:-nobody} in 
+      nobody|apache|www) echo /var/cache/dj ;; 
+                      *) echo $HOME ;;  
+    esac
+}
 dj-deploy(){
 
    local msg="=== $FUNCNAME :"
@@ -318,13 +350,15 @@ EOL
 
 
 dj-eggcache(){
-local cache=$(dj-eggcache-dir)
-echo $msg createing egg cache dir $cache
-sudo mkdir -p $cache
-apache- 
-apache-chown $cache
-sudo chcon -R -t httpd_sys_script_rw_t $cache
-ls -alZ $cache
+   local cache=$(dj-eggcache-dir)
+   [ "$cache" == "$HOME" ] && echo $msg cache is HOME:$HOME skipping && return 0
+
+   echo $msg createing egg cache dir $cache
+   sudo mkdir -p $cache
+   apache- 
+   apache-chown $cache
+   sudo chcon -R -t httpd_sys_script_rw_t $cache
+   ls -alZ $cache
 }
 
 dj-selinux(){
