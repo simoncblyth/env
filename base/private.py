@@ -2,16 +2,11 @@ import os
 import re
 from stat import *
     
-def path_():
-    """
-         Default env.HOME/../.bash_ptivate 
-         this can be overridded with ENV_PRIVATE_PATH
-    """
-    epp = os.environ.get('ENV_PRIVATE_PATH',None)
-    if epp: return epp  
-    import env
-    return os.path.join( os.path.dirname(env.HOME) , ".bash_private" )
- 
+
+def epp_():
+    return os.environ.get('ENV_PRIVATE_PATH',None)
+
+    
 class Private:
     """
          Re-implementation of the bash private- for ease of use from python
@@ -24,13 +19,12 @@ class Private:
 
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
-    PATH = path_()
     def __init__(self, path=None):
-        if not(path):path=Private.PATH
-        assert os.path.exists(path), "path %s does not exist " % path
-        s = os.stat(path)
-        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "path %s has incorrect permissions " % path  
+        if not(path):path=epp_()
         self.path = path
+        assert os.path.exists(path), "path does not exist ... %s  %s " % ( path , self )
+        s = os.stat(path)
+        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions .. %s  %s  " % ( path , self )  
 
     def __call__(self, qwn):
         val = ""
@@ -43,7 +37,7 @@ class Private:
                 if d['var'] == qwn:val = d['val']  
         f.close()
         return val
-    def __repr__(self):return "<Private %s>" % self.path
+    def __repr__(self):return "\n".join( ["<Private %s>" % self.path , "epp:%s" % epp_()  ] )
 
 if __name__=='__main__':
     import sys

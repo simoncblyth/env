@@ -437,7 +437,8 @@ env-path(){
 env-notpath-(){ echo $PATH | grep -v $1 - > /dev/null  ; }
 env-inpath-(){  echo $PATH | grep    $1 - > /dev/null  ; }
 
-env-remove(){ export PATH=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
+env-remove(){     export PATH=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
+env-llp-remove(){ export $(env-libvar)=$(echo $PATH | perl -p -e "s,$1:,," - ) ; }
 
 env-prepend(){
   local add=$1 
@@ -449,9 +450,15 @@ env-append(){
   env-notpath- $add && export PATH=$PATH:$add 
 }
 
+env-libvar(){
+   case $(uname) in
+      Darwin) echo DYLD_LIBRARY_PATH ;;
+           *) echo LD_LIBRARY_PATH ;;
+   esac
+}
+
 env-llp-prepend(){
   local add=$1 
-  
   if [ "$(uname)" == "Darwin" ]; then
     echo $DYLD_LIBRARY_PATH | grep -v $add - > /dev/null && export DYLD_LIBRARY_PATH=$add:$DYLD_LIBRARY_PATH
   else  

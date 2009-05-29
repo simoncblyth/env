@@ -77,14 +77,13 @@ python-cd(){
    cd $(python-site)
 }
 
-python-mode(){ echo ${PYTHON_MODE:-source} ; }
 python-name(){ echo Python-2.5.1 ; }
 python-major(){ echo 2.5 ; }
 python-home(){
    if [ "$(python-mode)" == "source" ]; then
        echo $(local-system-base)/python/$(python-name)
    else
-       echo unused-?
+       echo unused
    fi
 }
 
@@ -97,6 +96,7 @@ python-sudo(){
 }
 
 
+python-mode(){ echo ${PYTHON_MODE:-source} ; }
 python-env(){
 
    local mode=${1:-$(python-mode)}
@@ -105,20 +105,52 @@ python-env(){
    export PYTHON_SUDO=$(python-sudo)
 
    if [ "$mode" == "system" ]; then
+      python-unpath $mode
       export PYTHON_SITE=$(python-site)
+      export PYTHON_MODE=system
       #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
    else
+      python-path $mode
+      export PYTHON_MODE=source
       export PYTHON_MAJOR=$(python-major)
       export PYTHON_NAME=$(python-name)
       export PYTHON_HOME=$(python-home)
       export PYTHON_SITE=$(python-home)/lib/python$(python-major)/site-packages
       
-      python-path
   
      ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
       export REFERENCE_PYTHON_HOME=$PYTHON_HOME
    fi
 }
+
+python-unpath(){
+  local mode=${1:-$(python-mode)}
+  local msg="=== $FUNCNAME :"
+
+  [ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  env-remove $PYTHON_HOME/bin
+  env-llp-remove $PYTHON_HOME/lib
+}
+
+python-path(){
+  local mode=${1:-$(python-mode)}
+  local msg="=== $FUNCNAME :"
+
+  [ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  env-prepend $PYTHON_HOME/bin
+  env-llp-prepend $PYTHON_HOME/lib
+}
+
+python-ldconfig(){
+   env-ldconfig  $PYTHON_HOME/lib
+}
+
+python-libdir(){
+   echo $PYTHON_HOME/lib
+}
+
+
+
 
 
 python-site(){
@@ -166,28 +198,7 @@ python-site-(){
     echo $archdir/lib/python2.5/site-packages
 }
 
-python-path(){
 
-  [ -z $PYTHON_HOME ] && echo $msg skip as no PYTHON_HOME && return 1  
-
-  env-prepend $PYTHON_HOME/bin
-  env-llp-prepend $PYTHON_HOME/lib
-  
-
-}
-
-python-ldconfig(){
-
-   env-ldconfig  $PYTHON_HOME/lib
-
-
-}
-
-
-
-python-libdir(){
-   echo $PYTHON_HOME/lib
-}
 
 
 

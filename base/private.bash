@@ -44,8 +44,18 @@ EOU
 }
 
 private-env(){
-   echo -n
+   export ENV_PRIVATE_PATH=$(private-path)
 }
+private-name(){ echo .bash_private ; }
+private-path(){ 
+  case ${USER:-nobody} in 
+    nobody|www|apache) echo $(dirname $ENV_HOME)/$(private-name) ;;
+              default) echo $HOME/$(private-name) ;;
+                    *) echo $HOME/$(private-name) ;;
+  esac
+}
+
+
 
 private-edit(){
   local cmd="sudo vi $(private-path) "
@@ -53,10 +63,24 @@ private-edit(){
   eval $cmd
 }
 
-private-path(){
-  python -c "from env.base.private import Private ; print Private.PATH "
-  #echo /tmp/env/test.txt
+private-sync(){
+  local msg="=== $FUNCNAME :"
+  local path=$(private-path)
+  local orig=$(private-path default)
+  local user=$(apache- ; apache-user)
+  [ "$path" == "$orig" ] && return 0
+
+  local cmd
+  cmd="sudo cp $orig $path && sudo chown $user:$user $path "  
+  echo $msg "$cmd"
+  eval $cmd
+
+  cmd="sudo chcon -t httpd_sys_content_t $path"
+  echo $msg "$cmd"
+  eval $cmd
+
 }
+
 
 private-check-(){
   [ "$1" == "-rw-------"  ] && return 0 || return 1
@@ -87,16 +111,5 @@ private-val(){
   return 0
 }
 
-private-selinux(){
 
-  local msg="=== $FUNCNAME :" 
-  local path=$(private-path)
-  echo $msg $path
-  apache-
-  apache-chown $path
-
-  local cmd=" sudo chcon -t httpd_sys_content_t $path"
-  echo $msg $cmd
-  eval $cmd
-}
 

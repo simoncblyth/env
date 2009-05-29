@@ -13,8 +13,7 @@ dj-env(){
    export ENV_PRIVATE_PATH=$HOME/.bash_private  
 
    case $NODE_TAG in 
-      N) python- system ;;
-      *) python-        ;;
+      *) python- system ;;
    esac
 }
 
@@ -256,13 +255,14 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 dj-confname(){ echo zdjango.conf ; }
 dj-eggcache-dir(){ echo /var/cache/dj ; }
 dj-deploy(){
+
    dj-conf
    dj-eggcache
    dj-selinux
-   dj-private
 
+   private- 
+   private-sync
    dj-docroot-ln
-
 
    #dj-test
 }
@@ -291,6 +291,7 @@ MaxRequestsPerChild 1
 <Location "$(dj-urlroot)/">
     SetHandler python-program
     PythonHandler django.core.handlers.modpython
+    SetEnv ENV_PRIVATE_PATH $(USER=$(apache-;apache-user) private-path)    
     SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
     SetEnv PYTHON_EGG_CACHE $(dj-eggcache-dir)
     PythonOption django.root $(dj-urlroot)
@@ -330,14 +331,6 @@ sudo chcon -R -t httpd_sys_content_t $(dj-projdir)
 sudo chcon -R -t httpd_sys_content_t $(env-home)
 }
 
-dj-private(){
-private- 
-private-selinux
-
-sudo -u $(apache-user) ls $(private-path)
-}
-
-
 
 dj-check-settings(){
 type $FUNCNAME
@@ -353,7 +346,7 @@ dj-docroot-ln(){
    local msg="=== $FUNCNAME :"
    apache-
    local docroot=$(apache-docroot)
-   local cmd="sudo ln -s  $(dj-srcdir)/django/contrib/admin/media $docroot/media"
+   local cmd="sudo ln -sf  $(dj-srcdir)/django/contrib/admin/media $docroot/media"
    echo $msg $cmd
    eval $cmd
 }
