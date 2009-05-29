@@ -186,23 +186,44 @@ dj-build(){
 }
 
 
+## cpk fork investigations ##
+
+dj-cpkurl(){  echo git://github.com/dcramer/django-compositepks.git ; }
+dj-cpkrev(){  echo 9477 ; }
+dj-cpk(){
+    local dir=$(dj-srcfold)
+    mkdir -p $dir && cd $dir  
+    local cpk=$(dj-srcnam cpk)
+    local pre=$(dj-srcnam pre)
+    [ ! -d "$cpk" ] && git clone $(dj-cpkurl)
+    [ ! -d "$pre" ] && svn co    $(dj-srcurl)@$(dj-cpkrev) $pre
+    diff -r --brief $pre $cpk | grep -v .svn 
+}
+
 ## src access ##
 
 dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
 dj-srcfold(){ echo $(local-base)/env ; }
-dj-srcnam(){  echo django ; }
+dj-mode(){ echo cpk ; }
+dj-srcnam(){  
+   case ${1:-$(dj-mode)} in
+    cpk) echo django-compositepks ;;
+    pre) echo django$(dj-cpkrev)   ;;
+      *) echo django ;;
+   esac 
+}
 dj-srcdir(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
 dj-get(){
   local msg="=== $FUNCNAME :"
   local dir=$(dj-srcfold)
-  local nam=$(dj-srcnam)
+  local nam=$(dj-srcnam default)
   mkdir -p $dir && cd $dir 
   [ ! -d "$nam" ] && svn co $(dj-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
 }
 dj-ln(){
   local msg="=== $FUNCNAME :"
-  python-ln $(dj-srcdir)/django 
+  python-ln $(dj-srcdir)/django django 
   python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
