@@ -130,18 +130,36 @@ EOU
 }
 
 dj-preq(){
-    sudo yum install mysql-server
+    local msg="=== $FUNCNAME :"
+    [ "$(which port)" != "" ] && $FUNCNAME-port
+    [ "$(which yum)"  != "" ] && $FUNCNAME-yum
+    echo $msg ERROR ... no distro handler 
+}
 
-   
+
+
+
+dj-preq-port(){
+    ## port list installed is too slow to use for this
+    [ "$(which python)" != "/opt/local/bin/python" ]              && sudo port install python25
+    [ "$(which ipython)" != "/opt/local/bin/ipython" ]            && sudo port install py25-ipython -scientific
+
+    [ "$(which mysql5)" != "/opt/local/bin/mysql5" ]              && sudo port install mysql5
+    [ ! -f "/opt/local/lib/python2.5/site-packages/_mysql.so" ]   && sudo port install py25-mysql
+
+    [ "$(which apachectl)" != "/opt/local/bin/apachectl" ]        && sudo port install apache2
+    [ ! -f "/opt/local/smth" ]                                    && sudo port install mod_python25
+}
+
+dj-preq-yum(){
+
+    sudo yum install mysql-server
     sudo yum install MySQL-python
   
   #   if the system versions dont work ... 
   # pymysql-
   # pymysql-build
   #
-
-
-
   ## this is in dag.repo ... you may need to enable that in /etc/yum.repos.d/dag.repo
     sudo yum install ipython
 }

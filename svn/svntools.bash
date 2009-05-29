@@ -57,7 +57,7 @@ svntools-prepare(){
    local svnlook=$(which svnlook)
    local svnbin=$(dirname $svnlook)
 
-   perl -p -e "s,\@SVN_BINDIR\\@,$svnbin,g" $name.in  > $name   
+   perl -p -e "s,\@SVN_BINDIR\@,$svnbin,g" $name.in  > $name   
 
    diff $name.in $name
    chmod u+x $name
