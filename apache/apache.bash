@@ -164,7 +164,12 @@ apache-confd(){
 }
 
 
+
 apache-user(){
+   perl -n -e 's,^User\s*(\S*),$1, && print ' $(apache-conf)
+}
+
+apache-user-deprecated(){
    case ${1:-$NODE_TAG} in 
      G) echo www ;;
   C|C2) echo nobody ;;

@@ -65,10 +65,10 @@ private-edit(){
 
 private-sync(){
   local msg="=== $FUNCNAME :"
-  local path=$(private-path)
-  local orig=$(private-path default)
   local user=$(apache- ; apache-user)
-  [ "$path" == "$orig" ] && return 0
+  local path=$(USER=$user private-path)
+  local orig=$(private-path default)
+  [ "$path" == "$orig" ] && echo $msg skipping as are same path $path && return 0
 
   local cmd
   cmd="sudo cp $orig $path && sudo chown $user:$user $path "  
@@ -79,7 +79,14 @@ private-sync(){
   echo $msg "$cmd"
   eval $cmd
 
+  private-ls
 }
+
+
+private-ls(){
+   ls -alZ $(USER=apache private-path) $(private-path)
+}
+
 
 
 private-check-(){

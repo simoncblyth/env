@@ -7,14 +7,10 @@ dj-env(){
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
    export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
 
-   ## this is used for an overide to point to a second private file ... 
-   ## to avoid having to enter passwords for interactive testing 
-   ## it is not used by apache
-   export ENV_PRIVATE_PATH=$HOME/.bash_private  
+   
+   apache- system
+   python- system
 
-   case $NODE_TAG in 
-      *) python- system ;;
-   esac
 }
 
 dj-settings-module(){ echo $(dj-project).settings ; }
@@ -40,6 +36,8 @@ dj-notes(){
 EON
 
 }
+
+
 
 
 dj-usage(){ 
@@ -265,6 +263,7 @@ dj-deploy(){
 
    private- 
    private-sync
+
    dj-docroot-ln
 
    #dj-test
