@@ -127,7 +127,8 @@ python-unpath(){
   local mode=${1:-$(python-mode)}
   local msg="=== $FUNCNAME :"
 
-  [ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  #[ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  [ -z "$PYTHON_HOME" ] && return 0
   env-remove $PYTHON_HOME/bin
   env-llp-remove $PYTHON_HOME/lib
 }
@@ -136,7 +137,8 @@ python-path(){
   local mode=${1:-$(python-mode)}
   local msg="=== $FUNCNAME :"
 
-  [ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  #[ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
+  [ -z "$PYTHON_HOME" ] && return 0 
   env-prepend $PYTHON_HOME/bin
   env-llp-prepend $PYTHON_HOME/lib
 }
