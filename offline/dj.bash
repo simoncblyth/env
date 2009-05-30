@@ -63,6 +63,7 @@ dj-versions(){
    python -c "import mod_python as _ ; print 'mod_python:%s' % _.version "
    python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
    echo "select version() ; " | dj-mysql
+   mysql_config --version 
    apachectl -v
    svn info $(dj-srcdir)
 }
