@@ -439,10 +439,30 @@ dj-docroot-ln(){
    eval $cmd
 }
 
-dj-templates(){
 
-  local path=$(private-path)
-  private-set DJ_TEMPLATES_DIR $(apache-docroot)  
+## admin site grabs 
+
+dj-admin-cp(){
+  local msg="=== $FUNCNAME :"
+  local rel=${1:-templates/admin/base_site.html}
+  local srcd=$(dj-srcdir)/django/contrib/admin
+  local dstd=$(dj-projdir)  
+
+  echo $msg rel $rel srcd $srcd dstd $dstd 
+  local path=$srcd/$rel
+  local targ=$dstd/$rel
+  [ ! -f "$path" ] && echo $msg ABORT no path $path && return 1
+  local cmd="mkdir -p $(dirname $targ) &&  cp $path $targ "
+    
+  echo $msg $(dirname $path)
+  ls -l $(dirname $path)
+  echo $msg $(dirname $targ)
+  ls -l $(dirname $targ)
+
+  local ans
+  read -p "$msg $cmd ... enter YES to proceed " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0
+  eval $cmd 
 }
 
 
