@@ -88,8 +88,17 @@ dj-usage(){
          ... supporting env cleanup to avoid this is not worth the effort
 
      dj-get
+
+     dj-mode   : $(dj-mode)
+     dj-srcnam : $(dj-srcnam)
      dj-ln
           plant a symbolic link in site-package
+          pointing at the version of django + dybsite + .. to use
+          
+          provides easy way to try out different versions ... simply change
+          the dj-mode and rerun dj-ln to switch : no need to stop/start
+          apache (when using MaxRequestsPerChild 1)
+          
 
      dj-admin
           invoke the django-admin.py
@@ -204,11 +213,12 @@ dj-cpk(){
 
 dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
 dj-srcfold(){ echo $(local-base)/env ; }
-dj-mode(){ echo cpk ; }
+dj-mode(){ echo def ; }
 dj-srcnam(){  
    case ${1:-$(dj-mode)} in
     cpk) echo django-compositepks ;;
     pre) echo django$(dj-cpkrev)   ;;
+    def) echo django ;;
       *) echo django ;;
    esac 
 }

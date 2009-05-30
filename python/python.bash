@@ -175,7 +175,7 @@ python-ln(){
            echo $msg link $lnk already points to $path && return 0
        else
            echo $msg old link $lnk points to $tgt ... changing to $path
-           cmd="sudo ln -sf $path $(python-site)/$name";
+           cmd="sudo rm $(python-site)/$name ; sudo ln -sf $path $(python-site)/$name";
        fi
     else
        echo $msg creating new link $lnk to $path 
