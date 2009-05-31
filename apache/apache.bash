@@ -124,8 +124,8 @@ apache-home(){
       esac
    else
       case $tag in 
-        H) echo $(local-base)/apache2/$(apache-name) ;;
-        *) echo $(local-system-base)/apache/$(apache-name) ;;
+        H) echo $(local-base $tag)/apache2/$(apache-name $tag) ;;
+        *) echo $(local-system-base $tag)/apache/$(apache-name $tag) ;;
       esac
    fi
 }
@@ -137,8 +137,8 @@ apache-name(){
  # httpd-2.0.61  nearest version on the mirror    
  # httpd-2.0.63  nearest version on the mirror    
  #
-
-   case $NODE_TAG in 
+   local tag=${1:-$NODE_TAG}
+   case $tag in 
       H) echo httpd-2.0.59 ;;
       *) echo httpd-2.0.63 ;;
    esac
@@ -149,9 +149,10 @@ apache-target(){
 }
 
 apache-envvars(){
-  case $NODE_TAG in 
-   H) echo $APACHE_HOME/sbin/envvars ;;
-   *) echo $APACHE_HOME/bin/envvars ;;
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+   H) echo $(apache-home $tag)/sbin/envvars ;;
+   *) echo $(apache-home $tag)/bin/envvars ;;
   esac 
 }
 
@@ -163,9 +164,8 @@ apache-confd(){
    esac
 }
 
-
-
 apache-user(){
+   ## not convenient to do this remotely ...
    perl -n -e 's,^User\s*(\S*),$1, && print ' $(apache-conf)
 }
 
@@ -180,14 +180,14 @@ apache-user-deprecated(){
 }
 
 apache-group(){
-   case $NODE_TAG in 
+   local tag=${1:-$NODE_TAG}
+   case $tag in 
   P|G1) echo dayabay ;;
-     *) echo $(apache-user) ;;
+     *) echo $(apache-user $tag) ;;
    esac
 }
 
 apache-chown(){
-
   local msg="=== $FUNCNAME :"
   local path=$1
   shift
@@ -203,16 +203,13 @@ apache-se-content(){
    sudo chcon -R -h -t httpd_sys_content_t $path
 }
 
-
-
-
-
 apache-confdir(){
-  case $NODE_TAG in
+  local tag=${1:-$NODE_TAG} 
+  case $tag in
         G) echo /private/etc/apache2 ;;
-        H) echo $(apache-home)/etc/apache2 ;;
-        C) echo $(apache-home)/conf ;;
-        *) echo $(apache-home)/conf ;;
+        H) echo $(apache-home $tag)/etc/apache2 ;;
+        C) echo $(apache-home $tag)/conf ;;
+        *) echo $(apache-home $tag)/conf ;;
   esac
 }
 
@@ -220,12 +217,12 @@ apache-fragmentpath(){
    echo $(apache-confdir)/${1:-fragment}.conf
 }
 
-
 apache-htdocs(){
-  case ${1:-$NODE_TAG} in 
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
     G) echo /Library/WebServer/Documents ;;
-    H) echo $(apache-home)/share/apache2/htdocs ;;
-    *) echo $(apache-home)/htdocs  ;;
+    H) echo $(apache-home $tag)/share/apache2/htdocs ;;
+    *) echo $(apache-home $tag)/htdocs  ;;
   esac  
 }
 
@@ -277,23 +274,16 @@ apache-publish-logdir(){
    ln -sf $dir $name
    cd $iwd
 }
- 
- 
- 
- 
- 
+
 apache-conf(){
-   echo $(apache-confdir)/httpd.conf
+   local tag=${1:-$NODE_TAG}
+   echo $(apache-confdir $tag)/httpd.conf
 }   
-
-
-
      
 apache-vi(){
    $SUDO vi $(apache-conf)
 }
          
-  
 apache-sudouser(){
   local user=$(apache-user)
   [ -n "$SUDO" ] && echo $SUDO -u $user || echo ""
