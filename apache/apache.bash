@@ -9,15 +9,12 @@ modpython-(){   . $ENV_HOME/apache/apachebuild/modpython.bash   && modpython-env
 mpinfo-(){      . $ENV_HOME/apache/apachebuild/mpinfo.bash      && mpinfo-env $* ; } 
 iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env $* ; }
 
-
-
 apache-usage(){
 
    cat << EOU
  
      apache-src      : $(apache-src)
      apache-vi
-
 
        which apachectl : $(which apachectl) 
 
@@ -60,7 +57,6 @@ apache-usage(){
            wipes and builds both apache and modpython
            CAUTION:  this wipes installations and rebuilds from the tarball
    
-   
       Precursors ...
       
          apachebuild-
@@ -69,75 +65,47 @@ apache-usage(){
          mpinfo-
          iptables-
          
-
      When attempting use of system apache, will need to
          sudo yum install httpd
          sudo yum install httpd-devel   ## for apxs
-     
-   
    
 EOU
-
-
 }
 
 apache-again(){
-    
     apachebuild-
     apachebuild-again
-    
+
     modpython-
     modpython-again
-
 }
-
-
 
 
 apache-env(){
    elocal-
-   local mode=${1:-$(apache-mode)}
-   if [ "$mode" == "system" ]; then
-      [ -n "$APACHE_HOME" ] && env-remove $APACHE_HOME/bin
-      env-prepend /usr/sbin
-      export APACHE_MODE=system
-   else
-      env-remove /usr/sbin
-      export APACHE_MODE=source
-      export APACHE_NAME=$(apache-name)
-      export APACHE_HOME=$(apache-home)   
-      [ -d $APACHE_HOME ] && env-prepend $APACHE_HOME/bin
-  fi
-}
+   local mode=$(apache-mode $*)
+   local oldbin=$(apache-bin)     ## tis old because APACHE_MODE has not been chnaged yet
+   export APACHE_MODE=$mode
+   export APACHE_HOME=$(apache-home)   ## should be able to get rid of this envvar ?
+   local bin=$(apache-bin)  
 
-
-apache-mode(){ 
-   echo ${APACHE_MODE:-source} ; 
-   #env-inpath- apache && echo source || echo system
-}
-
-apache-home(){
-   local tag=${1:-$NODE_TAG}
-   local mode=$(apache-mode)
-   if [ "$mode" == "system" ]; then
-      case $tag in 
-        *) echo /etc/httpd ;; 
-      esac
-   else
-      case $tag in 
-        H) echo $(local-base $tag)/apache2/$(apache-name $tag) ;;
-        *) echo $(local-system-base $tag)/apache/$(apache-name $tag) ;;
-      esac
+   if [ "$oldbin" != "$bin" ]; then 
+      env-remove $oldbin
+      env-prepend $bin
    fi
 }
 
-apache-name(){
+apache-mode(){ 
+   local arg=$1
+   [ -z "$arg" ] && echo ${APACHE_MODE:-source} && return 0
+   if [ "${arg:0:6}" == "system" ]; then
+       echo $arg  
+   else
+       echo source 
+   fi  
+}
 
- #
- # httpd-2.0.59  known to work with svn bindings for Trac usage
- # httpd-2.0.61  nearest version on the mirror    
- # httpd-2.0.63  nearest version on the mirror    
- #
+apache-name(){
    local tag=${1:-$NODE_TAG}
    case $tag in 
       H) echo httpd-2.0.59 ;;
@@ -145,31 +113,14 @@ apache-name(){
    esac
 }
 
-apache-target(){
-  echo http://cms01.phys.ntu.edu.tw
-}
+apache-target(){ echo http://cms01.phys.ntu.edu.tw ;  }   ## WHO USES THIS ?
 
-apache-envvars(){
-  local tag=${1:-$NODE_TAG}
-  case $tag in 
-   H) echo $(apache-home $tag)/sbin/envvars ;;
-   *) echo $(apache-home $tag)/bin/envvars ;;
-  esac 
-}
 
-apache-confd(){
-   ## used by svnsetup-sysapache
-   case ${1:-$NODE_TAG} in 
-      N) echo /etc/httpd/conf.d ;;
-      *) echo /etc/httpd/conf.d ;;
-   esac
-}
-
-apache-user(){
-   ## not convenient to do this remotely ...
-   perl -n -e 's,^User\s*(\S*),$1, && print ' $(apache-conf)
-}
-
+##
+##   apache user / group 
+##
+   
+apache-user(){ perl -n -e 's,^User\s*(\S*),$1, && print ' $(apache-conf) ;  } ## local only 
 apache-user-deprecated(){
    case ${1:-$NODE_TAG} in 
      G) echo www ;;
@@ -188,6 +139,8 @@ apache-group(){
    esac
 }
 
+apache-sudouser(){ [ -n "$SUDO" ] && echo $SUDO -u $(apache-user) || echo "" ; }
+
 apache-chown(){
   local msg="=== $FUNCNAME :"
   local path=$1
@@ -196,25 +149,46 @@ apache-chown(){
   local cmd="sudo chown $opts $(apache-user):$(apache-group) $path "
   echo $msg $cmd
   eval $cmd
-
 }
 
-apache-se-content(){
-   local path=$1
-   sudo chcon -R -h -t httpd_sys_content_t $path
+apache-chcon(){ sudo chcon -R -h -t httpd_sys_content_t $1 ;  }
+
+
+##
+##   characterization of many apaches
+##
+apache-info(){
+   cat << EOI
+     APACHE_MODE       : $APACHE_MODE
+     APACHE_HOME       : $APACHE_HOME
+
+
+     which apachectl   : $(which apachectl 2> /dev/null)
+
+
+     apache-mode       : $(apache-mode)
+     apache-sysflavor  : $(apache-sysflavor)
+
+            change the mode/flavor with the precursor, eg 
+
+                  apache- systemapple
+                  apache- systemport
+                  apache- systemyum
+                  apache- source
+
+     apache-home       : $(apache-home)
+     apache-bin        : $(apache-bin)
+     apache-confdir    : $(apache-confdir)
+     apache-confd      : $(apache-confd)
+     apache-htdocs     : $(apache-htdocs)
+     apache-modulesdir : $(apache-modulesdir)
+     apache-logdir     : $(apache-logdir)
+
+EOI
 }
 
-apache-confdir(){
-  local tag=${1:-$NODE_TAG} 
-  case $tag in
-        G) echo /private/etc/apache2 ;;
-        H) echo $(apache-home $tag)/etc/apache2 ;;
-        C) echo $(apache-home $tag)/conf ;;
-        *) echo $(apache-home $tag)/conf ;;
-  esac
-}
 
-
+apache-sudo(){      apache-issystem- && echo sudo || echo -n  ; }
 apache-issystem-(){ [ "${APACHE_MODE:0:6}" == "system" ] && return 0 || return 1  ; }
 apache-sysflavor-default(){
     case $(uname) in 
@@ -223,13 +197,56 @@ apache-sysflavor-default(){
     esac
 }
 apache-sysflavor(){ 
+    [ "${APACHE_MODE:0:6}" != "system" ] && echo -n && return 0
     local flavor=${APACHE_MODE:6}
-    [ -n "$flavor" ] && echo $flavor || echo $(apache-sysflavor-default) 
+    case $flavor in 
+       port|yum|apple) echo $flavor ;;
+                    *) echo $(apache-sysflavor-default) ;;
+    esac
 }
 
 
-## the dir with apachectl 
 
+apache-check-(){
+   local msg="=== $FUNCNAME :"
+   local rc=0
+   apache-info
+   local fns="home bin confdir confd htdocs modulesdir logdir"
+   local fn
+   for fn in $fns ; do
+       local func=apache-$fn-check-
+       ! $func  && echo $msg FAILED   $func $(apache-$fn) && rc=${#check}
+          $func && echo $msg SUCEEDED $func $(apache-$fn) 
+   done
+   return $rc
+}
+
+##
+##
+
+apache-home-check-(){  [ -d "$(apache-home)" ] && return 0 || return 1 ; }
+apache-home(){         local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-home-system $tag  || apache-home-source $tag ; }
+apache-home-source(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+     H) echo $(local-base $tag)/apache2/$(apache-name $tag) ;;
+     *) echo $(local-system-base $tag)/apache/$(apache-name $tag) ;;
+  esac
+}
+apache-home-system(){
+      local tag=${1:-$NODE_TAG}
+      local flavor=$(apache-sysflavor)
+      local label=$tag_$flavor
+      case $flavor in 
+             apple) echo /Library/WebServer  ;;
+              port) echo /opt/local/apache2 ;; 
+               yum) echo /var/www  ;;
+                 *) echo failed-$FUNCNAME ;;
+      esac
+}
+## 
+##
+apache-bin-check-(){  [ -f "$(apache-bin)/apachectl" ] && return 0 || return 1 ; }
 apache-bin(){    local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-bin-system $tag  || apache-bin-source $tag ; }
 apache-bin-source(){
   local tag=${1:-$NODE_TAG}
@@ -241,16 +258,61 @@ apache-bin-source(){
 apache-bin-system(){
       local tag=${1:-$NODE_TAG}
       local flavor=$(apache-sysflavor)
-      local label=$tag_$flavor
       case $flavor in 
              apple) echo /usr/sbin  ;;
               port) echo /opt/local/apache2/bin ;; 
                yum) echo /usr/sbin  ;;
+                 *) echo failed-$FUNCNAME ;;
       esac
 }
+apache-envvars(){ echo $(apache-bin $*)/envvars ; }
 
 ## 
+##
+apache-confdir-check-(){  [ -f "$(apache-confdir)/httpd.conf" ] && return 0 || return 1 ; }
+apache-confdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-confdir-system $tag  || apache-confdir-source $tag ; }
+apache-confdir-source(){
+  local tag=${1:-$NODE_TAG} 
+  case $tag in
+        H) echo $(apache-home $tag)/etc/apache2 ;;
+        *) echo $(apache-home $tag)/conf ;;
+  esac
+}
+apache-confdir-system(){
+  local tag=${1:-$NODE_TAG} 
+  local flavor=$(apache-sysflavor)
+  case $flavor in
+        apple) echo /private/etc/apache2 ;;
+         port) echo /opt/local/apache2/conf ;; 
+          yum) echo /etc/httpd/conf ;;
+            *) echo failed-$FUNCNAME ;;
+  esac
+}
 
+apache-fragmentpath(){ echo $(apache-confdir)/${1:-fragment}.conf ; }
+apache-conf(){         echo $(apache-confdir $*)/httpd.conf ; }   
+apache-edit(){         $SUDO vi $(apache-conf) ; }
+
+apache-addline(){
+  local msg="=== $FUNCNAME :"
+  local line=$1
+  local conf=$(apache-conf)
+  local sudouser=$(apache-sudouser)
+  grep -q "$line" $conf && echo $msg line \"$line\" already present in $conf  || $sudouser echo "$line" >> $conf  
+}
+
+apache-confd-check-(){  [ -d "$(apache-confd)" ] && return 0 || return 1 ; }
+apache-confd(){
+   ## used by svnsetup-sysapache
+   local confdir=$(apache-confdir $*)
+   local confd=$(dirname $confdir)/conf.d 
+   [ -d "$confd" ] && echo $confd || echo /tmp
+}
+
+##
+##
+
+apache-htdocs-check-(){ [ -d "$(apache-htdocs)" ] && return 0 || return 1 ; }
 apache-htdocs(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-htdocs-system $tag  || apache-htdocs-source $tag ; }
 apache-htdocs-source(){
   local tag=${1:-$NODE_TAG}
@@ -264,13 +326,20 @@ apache-htdocs-system(){
   local flavor=$(apache-sysflavor)
   case $flavor in 
        apple) echo /Library/WebServer/Documents ;;
-        port) echo $FUNCNAME  ;;
+        port) echo /opt/local/apache2/htdocs  ;;
          yum) echo /var/www/html ;;
+           *) echo failed-$FUNCNAME ;;
   esac  
 }
 
+apache-docroot(){      apache-htdocs $* ; }
+apache-downloadsdir(){ local tag=${1:-$NODE_TAG} ; echo $(apache-htdocs $tag)/downloads ; }
+apache-docroot-local(){ grep DocumentRoot $(apache-conf) | perl -n -e 'm,^DocumentRoot\s*\"(\S*)\", && print $1 ' ; }
+
+##
 ##
 
+apache-modulesdir-check-(){ [ -d "$(apache-modulesdir)" ] && return 0 || return 1 ; }
 apache-modulesdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-modulesdir-system $tag  || apache-modulesdir-source $tag ; }
 apache-modulesdir-source(){
   local tag=${1:-$NODE_TAG}
@@ -281,43 +350,47 @@ apache-modulesdir-source(){
 }
 apache-modulesdir-system(){
   local tag=${1:-$NODE_TAG}
-  case $tag in 
-     G) echo /usr/libexec/apache2 ;;
+  local flavor=$(apache-sysflavor)
+  case $flavor in 
+     apple) echo /usr/libexec/apache2 ;;
+      port) echo /opt/local/apache2/modules ;;
+       yum) echo /usr/lib/httpd/modules ;;
+         *) echo failed-$FUNCNAME ;;
   esac    
 }
 
+apache-ls(){   ls -alst $(apache-modulesdir) ; }
 
-
-
-
-## nefarious 
-
-apache-downloadsdir(){
+##
+##
+apache-logdir-check-(){ [ -d "$(apache-logdir)" ] && return 0 || return 1 ; }
+apache-logdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-logdir-system $tag  || apache-logdir-source $tag ; }
+apache-logdir-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
-    *) echo $(apache-htdocs $tag)/downloads  ;;
-  esac  
+     H) echo $(apache-home $tag)/var/apache2/log ;;
+     *) echo $(apache-home $tag)/logs ;;
+  esac    
+}
+apache-logdir-system(){
+  local tag=${1:-$NODE_TAG}
+  local flavor=$(apache-sysflavor)
+  case $flavor in 
+     apple) echo /var/log/apache2 ;;
+      port) echo /opt/local/apache2/logs ;;
+       yum) echo /var/log/httpd ;;
+         *) echo failed-$FUNCNAME ;;
+  esac    
 }
 
+apache-etail(){ $(apache-sudo) tail -f $(apache-logdir)/error_log ; }   
+apache-evi(){   $(apache-sudo)      vi $(apache-logdir)/error_log ; }   
+apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }   
+apache-avi(){   $(apache-sudo)      vi $(apache-logdir)/access_log ; }   
+apache-logs(){ cd $(apache-logdir) ;  ls -l ; }
 
-apache-docroot(){ apache-htdocs $* ; }
-apache-docroot-(){ grep DocumentRoot $(apache-conf) | perl -n -e 'm,^DocumentRoot\s*\"(\S*)\", && print $1 ' ; }
 
-
-
-apache-fragmentpath(){
-   echo $(apache-confdir)/${1:-fragment}.conf
-}
-
-apache-logdir(){
-   case ${1:-$NODE_TAG} in 
-      N) echo /var/log/httpd ;;
-      G) echo /var/log/apache2 ;;
-      H) echo $APACHE_HOME/var/apache2/log ;;
-      *) echo $APACHE_HOME/logs ;;
-   esac   
-}   
- 
+## publish a dir via a link  in htdocs
  
 apache-publish-logdir(){
    local msg="=== $FUNCNAME :" 
@@ -333,49 +406,6 @@ apache-publish-logdir(){
    cd $iwd
 }
 
-apache-conf(){
-   local tag=${1:-$NODE_TAG}
-   echo $(apache-confdir $tag)/httpd.conf
-}   
-     
-apache-edit(){
-   $SUDO vi $(apache-conf)
-}
-         
-apache-sudouser(){
-  local user=$(apache-user)
-  [ -n "$SUDO" ] && echo $SUDO -u $user || echo ""
-}
-     
-apache-addline(){
 
-  local msg="=== $FUNCNAME :"
-  local line=$1
-  local conf=$(apache-conf)
-  local sudouser=$(apache-sudouser)
+## nefarious 
 
-  grep -q "$line" $conf && echo $msg line \"$line\" already present in $conf  || $sudouser echo "$line" >> $conf  
-
-}
-   
-apache-sudo(){
-   case $(apache-mode) in 
-     source) echo -n ;; 
-          *) echo sudo ;;
-   esac
-}
-
-
-apache-etail(){ $(apache-sudo) tail -f $(apache-logdir)/error_log ; }   
-apache-evi(){   $(apache-sudo) vi $(apache-logdir)/error_log ; }   
-apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }   
-apache-avi(){   $(apache-sudo) vi $(apache-logdir)/access_log ; }   
-   
-apache-logs(){
-  cd $(apache-logdir)
-  ls -l 
-}
-
-apache-ls(){
-   ls -alst $(apache-modulesdir)
-}
