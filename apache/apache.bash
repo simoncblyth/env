@@ -1,6 +1,6 @@
 apache-src(){    echo apache/apache.bash ; }
 apache-source(){ echo $ENV_HOME/$(apache-src) ; }
-apache-svi(){    vi $(apache-source) ; }
+apache-vi(){     vi $(apache-source) ; }
 
 apachebuild-(){ . $ENV_HOME/apache/apachebuild/apachebuild.bash && apachebuild-env $* ; } 
 apacheconf-(){  . $ENV_HOME/apache/apacheconf/apacheconf.bash   && apacheconf-env $* ; } 
@@ -16,7 +16,7 @@ apache-usage(){
    cat << EOU
  
      apache-src      : $(apache-src)
-     apache-svi
+     apache-vi
 
 
        which apachectl : $(which apachectl) 
@@ -49,6 +49,7 @@ apache-usage(){
       apache-confd       : $(apache-confd)
       apache-fragmentpath demo :  $(apache-fragmentpath demo)    
       apache-modulesdir  : $(apache-modulesdir)
+      apache-bin         : $(apache-bin)
       apache-htdocs      : $(apache-htdocs)
       apache-logdir      : $(apache-logdir)
       apache-downloadsdir  : $(apache-downloadsdir)
@@ -213,18 +214,83 @@ apache-confdir(){
   esac
 }
 
-apache-fragmentpath(){
-   echo $(apache-confdir)/${1:-fragment}.conf
+
+apache-issystem-(){ [ "${APACHE_MODE:0:6}" == "system" ] && return 0 || return 1  ; }
+apache-sysflavor-default(){
+    case $(uname) in 
+      Darwin) echo port ;;
+       Linux) echo yum ;;
+    esac
+}
+apache-sysflavor(){ 
+    local flavor=${APACHE_MODE:6}
+    [ -n "$flavor" ] && echo $flavor || echo $(apache-sysflavor-default) 
 }
 
-apache-htdocs(){
+
+## the dir with apachectl 
+
+apache-bin(){    local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-bin-system $tag  || apache-bin-source $tag ; }
+apache-bin-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
-    G) echo /Library/WebServer/Documents ;;
+     H) echo  $(apache-home $tag)/sbin  ;;
+     *) echo  $(apache-home $tag)/bin  ;;
+  esac 
+}
+apache-bin-system(){
+      local tag=${1:-$NODE_TAG}
+      local flavor=$(apache-sysflavor)
+      local label=$tag_$flavor
+      case $flavor in 
+             apple) echo /usr/sbin  ;;
+              port) echo /opt/local/apache2/bin ;; 
+               yum) echo /usr/sbin  ;;
+      esac
+}
+
+## 
+
+apache-htdocs(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-htdocs-system $tag  || apache-htdocs-source $tag ; }
+apache-htdocs-source(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
     H) echo $(apache-home $tag)/share/apache2/htdocs ;;
     *) echo $(apache-home $tag)/htdocs  ;;
   esac  
 }
+apache-htdocs-system(){
+  local tag=${1:-$NODE_TAG}
+  local flavor=$(apache-sysflavor)
+  case $flavor in 
+       apple) echo /Library/WebServer/Documents ;;
+        port) echo $FUNCNAME  ;;
+         yum) echo /var/www/html ;;
+  esac  
+}
+
+##
+
+apache-modulesdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-modulesdir-system $tag  || apache-modulesdir-source $tag ; }
+apache-modulesdir-source(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+     H) echo $(apache-home $tag)/libexec ;;
+     *) echo $(apache-home $tag)/modules ;;
+  esac    
+}
+apache-modulesdir-system(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+     G) echo /usr/libexec/apache2 ;;
+  esac    
+}
+
+
+
+
+
+## nefarious 
 
 apache-downloadsdir(){
   local tag=${1:-$NODE_TAG}
@@ -234,21 +300,13 @@ apache-downloadsdir(){
 }
 
 
-apache-docroot(){
-  grep DocumentRoot $(apache-conf) | perl -n -e 'm,^DocumentRoot\s*\"(\S*)\", && print $1 '
-}
+apache-docroot(){ apache-htdocs $* ; }
+apache-docroot-(){ grep DocumentRoot $(apache-conf) | perl -n -e 'm,^DocumentRoot\s*\"(\S*)\", && print $1 ' ; }
 
 
 
-
-
-
-apache-modulesdir(){
-  case ${1:-$NODE_TAG} in 
-     G) echo /usr/libexec/apache2 ;;
-     H) echo $APACHE_HOME/libexec ;;
-     *) echo $APACHE_HOME/modules ;;
-  esac    
+apache-fragmentpath(){
+   echo $(apache-confdir)/${1:-fragment}.conf
 }
 
 apache-logdir(){
@@ -280,7 +338,7 @@ apache-conf(){
    echo $(apache-confdir $tag)/httpd.conf
 }   
      
-apache-vi(){
+apache-edit(){
    $SUDO vi $(apache-conf)
 }
          
