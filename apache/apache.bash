@@ -80,41 +80,29 @@ apache-again(){
     modpython-again
 }
 
-
 apache-env(){
    elocal-
-   local mode=$(apache-mode $*)
-   local oldbin=$(apache-bin)     ## tis old because APACHE_MODE has not been chnaged yet
-   export APACHE_MODE=$mode
-   export APACHE_HOME=$(apache-home)   ## should be able to get rid of this envvar ?
-   local bin=$(apache-bin)  
+   export APACHE_MODE=$(apache-mode $*)
 
-   if [ "$oldbin" != "$bin" ]; then 
-      env-remove $oldbin
+   ## path setting to put the desired apachectl in the path 
+   local bin=$(apache-bin)  
+   local ctl=$(which apachectl)
+   local curbin
+   [ -n "$ctl" ] && curbin=$(dirname $ctl) || curbin=none 
+   if [ "$curbin" != "$bin" ]; then 
+      env-remove $curbin
       env-prepend $bin
    fi
 }
 
-apache-mode(){ 
-   local arg=$1
-   [ -z "$arg" ] && echo ${APACHE_MODE:-source} && return 0
-   if [ "${arg:0:6}" == "system" ]; then
-       echo $arg  
-   else
-       echo source 
-   fi  
-}
-
 apache-name(){
-   local tag=${1:-$NODE_TAG}
-   case $tag in 
+   case ${1:-$NODE_TAG} in 
       H) echo httpd-2.0.59 ;;
       *) echo httpd-2.0.63 ;;
    esac
 }
 
-apache-target(){ echo http://cms01.phys.ntu.edu.tw ;  }   ## WHO USES THIS ?
-
+#apache-target(){ echo http://cms01.phys.ntu.edu.tw ;  }   ## WHO USES THIS ?
 
 ##
 ##   apache user / group 
@@ -151,7 +139,21 @@ apache-chown(){
   eval $cmd
 }
 
-apache-chcon(){ sudo chcon -R -h -t httpd_sys_content_t $1 ;  }
+apache-chcon(){ 
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   local label=${2:-httpd_sys_content_t}
+   [ "$(which chcon)" == "" ] && echo $msg no chcon on NODE_TAG $NODE_TAG && return 0
+
+   case $label in 
+      httpd_sys_content_t)  echo -n ;; 
+           httpd_config_t)  echo -n ;;
+                        *)  echo $msg label $label is not listed ;; 
+   esac
+   local cmd="sudo chcon -R -h -t $label $path  "
+   echo $msg $cmd
+   eval $cmd
+}
 
 
 ##
@@ -160,21 +162,35 @@ apache-chcon(){ sudo chcon -R -h -t httpd_sys_content_t $1 ;  }
 apache-info(){
    cat << EOI
      APACHE_MODE       : $APACHE_MODE
-     APACHE_HOME       : $APACHE_HOME
-
+     NODE_TAG          : $NODE_TAG
 
      which apachectl   : $(which apachectl 2> /dev/null)
+  
+     apache-mode-default : $(apache-mode-default)
+     apache-mode         : $(apache-mode)
+     apache-sysflavor    : $(apache-sysflavor)
 
+     == apache-mode logic ==
+  
+       Precursor argument is passes to apache-mode to determine the mode to use..
+       when no argument : 
+           if APACHE_MODE is defined then keep this definition 
+           ... otherwise use the default for the node 
+   
+       when there is an argument :
+           if system* or source ... then switch to that for APACHE_MODE  
+           otherwise if the argument is not understood use the default for the node
+   
+ 
+     == precursor usage examples ==
 
-     apache-mode       : $(apache-mode)
-     apache-sysflavor  : $(apache-sysflavor)
+      change the mode/flavor with the precursor, eg 
 
-            change the mode/flavor with the precursor, eg 
+          apache- systemapple
+          apache- systemport
+          apache- systemyum
+          apache- source
 
-                  apache- systemapple
-                  apache- systemport
-                  apache- systemyum
-                  apache- source
 
      apache-home       : $(apache-home)
      apache-bin        : $(apache-bin)
@@ -186,6 +202,34 @@ apache-info(){
 
 EOI
 }
+
+apache-mode-default(){
+   case ${1:-$NODE_TAG} in
+     G) echo systemapple ;;
+   C|N) echo systemyum   ;;
+    C2) echo source      ;;
+     H) echo source      ;;
+     *) echo source      ;; 
+   esac
+}
+
+apache-mode(){ 
+   local arg=$1
+   if [ -z "$arg" ]; then
+       local mode=${APACHE_MODE:-$(apache-mode-default)} 
+       case $mode in  
+          stock2|linuxsystem) echo $(apache-mode-default) ;;  ## disallow legacy hapache modes
+                           *) echo $mode ;;
+       esac
+   elif [ "${arg:0:6}" == "system" ]; then
+       echo $arg  
+   elif [ "$arg" == "source" ]; then
+       echo source 
+   else 
+       echo $(apache-mode-default) 
+   fi  
+}
+
 
 
 apache-sudo(){      apache-issystem- && echo sudo || echo -n  ; }
@@ -205,19 +249,18 @@ apache-sysflavor(){
     esac
 }
 
-
-
 apache-check-(){
    local msg="=== $FUNCNAME :"
    local rc=0
-   apache-info
    local fns="home bin confdir confd htdocs modulesdir logdir"
    local fn
+   local out
    for fn in $fns ; do
        local func=apache-$fn-check-
-       ! $func  && echo $msg FAILED   $func $(apache-$fn) && rc=${#check}
-          $func && echo $msg SUCEEDED $func $(apache-$fn) 
+       ! $func && out="$out FAILED   $func $(apache-$fn) " && rc=${#check}
+         $func && out="$out SUCEEDED $func $(apache-$fn) " 
    done
+   [ $rc -ne 0 ] && echo $msg $out 
    return $rc
 }
 
@@ -389,6 +432,11 @@ apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }
 apache-avi(){   $(apache-sudo)      vi $(apache-logdir)/access_log ; }   
 apache-logs(){ cd $(apache-logdir) ;  ls -l ; }
 
+apache-checklog(){
+   cd $(apache--logdir)
+   grep Segmentation error_log
+}
+
 
 ## publish a dir via a link  in htdocs
  
@@ -406,6 +454,46 @@ apache-publish-logdir(){
    cd $iwd
 }
 
+## hooking up additional conf to httpd.conf  
 
-## nefarious 
+apache-conf-connected-(){
+   local msg="=== $FUNCNAME :" 
+   local path=$1
+   [ ! -f "$path" ] && echo $msg no such path $path ... sleeping  && sleep 1000000000000 && return 1
+   local conf=$(apache-conf)
+   [ ! -f "$conf" ] && echo $msg no conf $conf .... sleeping      && sleep 10000000000 && return 2
+   grep $path $conf > /dev/null
+}
+
+
+apache-conf-connect(){
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   local conf=$(apache-conf)
+   echo $msg this may prompt for a sudoer password in order to connect $path to $conf
+   ! apache-conf-connected- $path  \
+           &&  $SUDO bash -c "echo Include $path >> $conf " \
+           || echo $msg $path  is already connected to  $conf
+}
+
+apache-configtest(){
+   local msg="=== $FUNCNAME :"
+   $SUDO apachectl configtest  && echo $msg passed the configtest || echo $msg FAILED
+}
+
+
+apache-get-test(){
+   local urls=$(cat << EOU
+http://hfag.phys.ntu.edu.tw/tracs/heprez/wiki
+EOU)
+   local count=0
+   for url in $urls ; do
+      count=$(($count+1))
+      local html=$count.html
+      curl $url -o $html
+   done
+}
+
+
+
 
