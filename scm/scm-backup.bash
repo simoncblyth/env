@@ -473,7 +473,7 @@ scm-backup-rls(){
        if [ "$?" != "0" ]; then
           echo $msg FAILED TO SEND NOTIFICATION EMAIL
           if [ "$NODE_TAG" == "G" ]; then
-             growlnotify -s -m "$msg FAILED TO SEND NOTIFICATION EMAIL : need to start postfix ?  "
+             /usr/local/bin/growlnotify -s -m "$msg FAILED TO SEND NOTIFICATION EMAIL : need to start postfix ?  "
           fi
        fi
    done
