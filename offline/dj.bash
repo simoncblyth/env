@@ -7,7 +7,8 @@ dj-env(){
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
    export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
 
-   
+  
+   private- 
    apache- system
    python- system
 
@@ -31,6 +32,7 @@ dj-notes(){
         C   : system python 2.3, mysql 4.1.22, MySQL_python  
            
                ===> admin pw needs resetting ...
+
 
         C2  :
            EXCLUDE FOR NOW AS PRIME REPO SERVER
@@ -128,6 +130,22 @@ dj-usage(){
      dj-syncdb :
             use the django-manage ...    
 
+            Create db tables corresponding to models such as 
+            the django_* and auth_* tables used for the admin 
+
+            On first run (when no users defined) will be asked :
+               You just installed Django's auth system, which means you don't have any superusers defined.
+               Would you like to create one now? (yes/no): yes
+               Username (Leave blank to use 'blyth'): 
+               E-mail address: blyth@hep1.phys.ntu.edu.tw
+               Password: 
+               Password (again): 
+               Superuser created successfully.
+               Installing index for admin.LogEntry model
+               Installing index for auth.Permission model
+               Installing index for auth.Message model
+
+
      dj-cd
           cd to dj-projdir
 
@@ -191,7 +209,7 @@ dj-build(){
    ## introspect the db schema to generate and fix models.py
    dj-models
 
-   dj-ip
+   dj-ip-
 
 }
 
@@ -317,7 +335,11 @@ dj-manage(){
 }
 dj-run(){    dj-manage runserver $(dj-port) ; }
 dj-shell(){  dj-manage shell  ; }
-dj-syncdb(){ dj-manage syncdb ; }
+dj-syncdb(){ 
+   local msg="=== $FUNCNAME :"
+   echo $msg 
+   dj-manage- syncdb 
+}
 
 
 ## web interface ##
@@ -348,6 +370,7 @@ dj-deploy(){
 
    dj-docroot-ln
 
+   dj-syncdb
    #dj-test
 }
 
