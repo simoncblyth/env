@@ -86,7 +86,7 @@ apache-env(){
 
    ## path setting to put the desired apachectl in the path 
    local bin=$(apache-bin)  
-   local ctl=$(which apachectl)
+   local ctl=$(which apachectl 2> /dev/null)
    local curbin
    [ -n "$ctl" ] && curbin=$(dirname $ctl) || curbin=none 
    if [ "$curbin" != "$bin" ]; then 
