@@ -160,15 +160,17 @@ apache-chcon(){
 ##   characterization of many apaches
 ##
 apache-info(){
+   local tag=${1:-$NODE_TAG}
    cat << EOI
      APACHE_MODE       : $APACHE_MODE
      NODE_TAG          : $NODE_TAG
+     tag               : $tag
 
      which apachectl   : $(which apachectl 2> /dev/null)
   
-     apache-mode-default : $(apache-mode-default)
-     apache-mode         : $(apache-mode)
-     apache-sysflavor    : $(apache-sysflavor)
+     apache-mode-default $tag : $(apache-mode-default $tag)
+     apache-mode         $tag : $(apache-mode $tag)
+     apache-sysflavor    $tag : $(apache-sysflavor $tag)
 
      == apache-mode logic ==
   
@@ -192,13 +194,13 @@ apache-info(){
           apache- source
 
 
-     apache-home       : $(apache-home)
-     apache-bin        : $(apache-bin)
-     apache-confdir    : $(apache-confdir)
-     apache-confd      : $(apache-confd)
-     apache-htdocs     : $(apache-htdocs)
-     apache-modulesdir : $(apache-modulesdir)
-     apache-logdir     : $(apache-logdir)
+     apache-home       $tag : $(apache-home $tag)
+     apache-bin        $tag : $(apache-bin $tag)
+     apache-confdir    $tag : $(apache-confdir $tag)
+     apache-confd      $tag : $(apache-confd $tag)
+     apache-htdocs     $tag : $(apache-htdocs $tag)
+     apache-modulesdir $tag : $(apache-modulesdir $tag)
+     apache-logdir     $tag : $(apache-logdir $tag)
 
 EOI
 }
@@ -230,10 +232,16 @@ apache-mode(){
    fi  
 }
 
-
-
+apache-mode4tag(){
+    local tag=${1:-$NODE_TAG}
+    [ "$tag" == "$NODE_TAG" ] && echo $APACHE_MODE || echo $(apache-mode-default $tag)    
+}
 apache-sudo(){      apache-issystem- && echo sudo || echo -n  ; }
-apache-issystem-(){ [ "${APACHE_MODE:0:6}" == "system" ] && return 0 || return 1  ; }
+apache-issystem-(){ 
+    local mode=$(apache-mode4tag $*)
+    [ "${mode:0:6}" == "system" ] && return 0 || return 1  ; 
+}
+apache-issystem(){ apache-issystem- $* && echo YES || echo NO ; }
 apache-sysflavor-default(){
     case $(uname) in 
       Darwin) echo port ;;
@@ -241,11 +249,12 @@ apache-sysflavor-default(){
     esac
 }
 apache-sysflavor(){ 
-    [ "${APACHE_MODE:0:6}" != "system" ] && echo -n && return 0
-    local flavor=${APACHE_MODE:6}
+    local tag=${1:-$NODE_TAG}
+    local mode=$(apache-mode4tag $tag)
+    local flavor=${mode:6}
     case $flavor in 
        port|yum|apple) echo $flavor ;;
-                    *) echo $(apache-sysflavor-default) ;;
+                    *) echo $(apache-sysflavor-default $tag) ;;
     esac
 }
 
@@ -268,7 +277,7 @@ apache-check-(){
 ##
 
 apache-home-check-(){  [ -d "$(apache-home)" ] && return 0 || return 1 ; }
-apache-home(){         local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-home-system $tag  || apache-home-source $tag ; }
+apache-home(){         local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-home-system $tag  || apache-home-source $tag ; }
 apache-home-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
@@ -278,8 +287,7 @@ apache-home-source(){
 }
 apache-home-system(){
       local tag=${1:-$NODE_TAG}
-      local flavor=$(apache-sysflavor)
-      local label=$tag_$flavor
+      local flavor=$(apache-sysflavor $tag)
       case $flavor in 
              apple) echo /Library/WebServer  ;;
               port) echo /opt/local/apache2 ;; 
@@ -290,7 +298,7 @@ apache-home-system(){
 ## 
 ##
 apache-bin-check-(){  [ -f "$(apache-bin)/apachectl" ] && return 0 || return 1 ; }
-apache-bin(){    local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-bin-system $tag  || apache-bin-source $tag ; }
+apache-bin(){    local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-bin-system $tag  || apache-bin-source $tag ; }
 apache-bin-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
@@ -300,7 +308,7 @@ apache-bin-source(){
 }
 apache-bin-system(){
       local tag=${1:-$NODE_TAG}
-      local flavor=$(apache-sysflavor)
+      local flavor=$(apache-sysflavor $tag)
       case $flavor in 
              apple) echo /usr/sbin  ;;
               port) echo /opt/local/apache2/bin ;; 
@@ -313,7 +321,7 @@ apache-envvars(){ echo $(apache-bin $*)/envvars ; }
 ## 
 ##
 apache-confdir-check-(){  [ -f "$(apache-confdir)/httpd.conf" ] && return 0 || return 1 ; }
-apache-confdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-confdir-system $tag  || apache-confdir-source $tag ; }
+apache-confdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-confdir-system $tag  || apache-confdir-source $tag ; }
 apache-confdir-source(){
   local tag=${1:-$NODE_TAG} 
   case $tag in
@@ -323,7 +331,7 @@ apache-confdir-source(){
 }
 apache-confdir-system(){
   local tag=${1:-$NODE_TAG} 
-  local flavor=$(apache-sysflavor)
+  local flavor=$(apache-sysflavor $tag)
   case $flavor in
         apple) echo /private/etc/apache2 ;;
          port) echo /opt/local/apache2/conf ;; 
@@ -356,7 +364,7 @@ apache-confd(){
 ##
 
 apache-htdocs-check-(){ [ -d "$(apache-htdocs)" ] && return 0 || return 1 ; }
-apache-htdocs(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-htdocs-system $tag  || apache-htdocs-source $tag ; }
+apache-htdocs(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-htdocs-system $tag  || apache-htdocs-source $tag ; }
 apache-htdocs-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
@@ -366,7 +374,7 @@ apache-htdocs-source(){
 }
 apache-htdocs-system(){
   local tag=${1:-$NODE_TAG}
-  local flavor=$(apache-sysflavor)
+  local flavor=$(apache-sysflavor $tag)
   case $flavor in 
        apple) echo /Library/WebServer/Documents ;;
         port) echo /opt/local/apache2/htdocs  ;;
@@ -383,7 +391,7 @@ apache-docroot-local(){ grep DocumentRoot $(apache-conf) | perl -n -e 'm,^Docume
 ##
 
 apache-modulesdir-check-(){ [ -d "$(apache-modulesdir)" ] && return 0 || return 1 ; }
-apache-modulesdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-modulesdir-system $tag  || apache-modulesdir-source $tag ; }
+apache-modulesdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-modulesdir-system $tag  || apache-modulesdir-source $tag ; }
 apache-modulesdir-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
@@ -393,7 +401,7 @@ apache-modulesdir-source(){
 }
 apache-modulesdir-system(){
   local tag=${1:-$NODE_TAG}
-  local flavor=$(apache-sysflavor)
+  local flavor=$(apache-sysflavor $tag)
   case $flavor in 
      apple) echo /usr/libexec/apache2 ;;
       port) echo /opt/local/apache2/modules ;;
@@ -407,7 +415,7 @@ apache-ls(){   ls -alst $(apache-modulesdir) ; }
 ##
 ##
 apache-logdir-check-(){ [ -d "$(apache-logdir)" ] && return 0 || return 1 ; }
-apache-logdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- && apache-logdir-system $tag  || apache-logdir-source $tag ; }
+apache-logdir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-logdir-system $tag  || apache-logdir-source $tag ; }
 apache-logdir-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
@@ -417,7 +425,7 @@ apache-logdir-source(){
 }
 apache-logdir-system(){
   local tag=${1:-$NODE_TAG}
-  local flavor=$(apache-sysflavor)
+  local flavor=$(apache-sysflavor $tag)
   case $flavor in 
      apple) echo /var/log/apache2 ;;
       port) echo /opt/local/apache2/logs ;;
