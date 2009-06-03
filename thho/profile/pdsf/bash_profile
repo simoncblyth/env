@@ -2,7 +2,7 @@
 # ~/.bash_profile
 
 # thho setting
-export THHOENV=$THHOENV/thho/profile/pdsf
+export THHOENV=$HOME/env/thho/profile/pdsf
 
 if [ -e $THHOENV/tty_profile.sh ]; then
     source $THHOENV/tty_profile.sh
