@@ -2,13 +2,8 @@
 # ~/.bash_profile
 
 # thho setting
-export THHOENV=$HOME/env/thho/profile/pdsf
-
-if [ -e $THHOENV/tty_profile.sh ]; then
-    source $THHOENV/tty_profile.sh
-fi
-
-if [ -e $THHOENV/module_loading.sh ]; then
-    source $THHOENV/module_loading.sh
+if [ -e $HOME/.bashrc ]; then
+    echo "source $HOME/.bashrc"
+    source $HOME/.bashrc
 fi
 
