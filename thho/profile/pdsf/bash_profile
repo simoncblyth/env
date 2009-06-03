@@ -1,0 +1,14 @@
+#!/bin/bash
+# ~/.bash_profile
+
+# thho setting
+export THHOENV=$THHOENV/thho/profile/pdsf
+
+if [ -e $THHOENV/tty_profile.sh ]; then
+    source $THHOENV/tty_profile.sh
+fi
+
+if [ -e $THHOENV/module_loading.sh ]; then
+    source $THHOENV/module_loading.sh
+fi
+
