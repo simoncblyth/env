@@ -28,12 +28,12 @@ typedef struct
 
 void initializeHypotenuse(double radiusPoints[]) {
 
-    radiusPoints[0] = 75.0;
+    radiusPoints[0] = 75.00;
     radiusPoints[1] = 300.0;
-    radiusPoints[2] = 600.0;
-    radiusPoints[3] = 900.0;
-    radiusPoints[4] = 1200.0;
-    radiusPoints[5] = 1563.0;
+    radiusPoints[2] = 595.0;
+    radiusPoints[3] = 892.0;
+    radiusPoints[4] = 1194.0;
+    radiusPoints[5] = 1520.0;
 
 }
 
@@ -47,6 +47,8 @@ void drawDiff(double radiusPoints[], LineData* lineData, FitLinesParas* fitLines
             // Debug.
             //cout << fitLinesParas[i].diff[j] << endl;
         }
+        // Debug.
+        
         stringstream ss;
         ss << i;
         string s = "Line ";
@@ -58,6 +60,7 @@ void drawDiff(double radiusPoints[], LineData* lineData, FitLinesParas* fitLines
         TGraph* graph = new TGraph(TOTALRINGNO, radiusPoints, &fitLinesParas[i].diff[0]);
         graph->Draw("ACP");
         graph->SetMarkerColor(kBlue);
+        
     }
 
 }
@@ -75,8 +78,10 @@ void drawFitLine(double radiusPoints[], LineData* lineData, FitLinesParas* fitLi
         // Debug.
         //cout << s << endl;
         //cout << c << endl;
+        // Debug.
         TCanvas* cv = new TCanvas(c.data(),s.data(),200,10,700,500);
         TGraph* graph = new TGraph(TOTALRINGNO, radiusPoints, &lineData[lineNo].points[0]);
+        // Debug.
         graph->Draw("a*");
         graph->SetMarkerColor(kBlue);
         graph->Fit("pol1");
@@ -96,7 +101,7 @@ void mold_status() {
 
     // read in measurement data, storing in them in lines
     ifstream fin;
-    fin.open("mold.dat");
+    fin.open("mold_090412.dat");
     double radiusPoints[TOTALRINGNO];
     initializeHypotenuse(radiusPoints);
     FitLinesParas fitLinesParas[TOTALPOINTNOONRING];
@@ -110,7 +115,7 @@ void mold_status() {
     drawFitLine(radiusPoints, lineData, fitLinesParas);
 
     TCanvas* fitSlopCv = new TCanvas("fitSlop");
-    TH1D* fitSlop = new TH1D("fitSlop","Fit Slops",30,2.7,3.0);
+    TH1D* fitSlop = new TH1D("fitSlop","Fit Slops",40,2.8,3.2);
     for(int i=0;i<TOTALPOINTNOONRING;i++) {
         fitSlop->Fill(atan(fitLinesParas[i].fitParas[1])*(180.0/PI));
         // Debug.
