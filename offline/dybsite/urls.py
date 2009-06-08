@@ -6,6 +6,12 @@ admin.autodiscover()
 
 from django.contrib import databrowse
 
+# http://code.djangoproject.com/ticket/10061
+# temporary fix to make the logout button work 
+admin.site.root_path = '/dybsite/admin/'
+
+
+
 urlpatterns = patterns('',
     # Example:
     # (r'^dybsite/', include('dybsite.foo.urls')),
