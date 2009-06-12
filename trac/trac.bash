@@ -180,6 +180,7 @@ nuwacomp-(){          . $ENV_HOME/trac/nuwacomp.bash   && nuwacomp-env   $* ; }
 autocomp-(){          . $ENV_HOME/trac/autocomp/autocomp.bash   && autocomp-env   $* ; }
 
 
+navadd-(){            . $ENV_HOME/trac/package/navadd.bash    && navadd-env   $* ; }
 bitextra-(){          . $ENV_HOME/trac/package/bitextra.bash  && bitextra-env  $* ; }
 tractags-(){          . $ENV_HOME/trac/package/tractags.bash  && tractags-env $* ; }
 tracnav-(){           . $ENV_HOME/trac/package/tracnav.bash   && tracnav-env  $* ; }
