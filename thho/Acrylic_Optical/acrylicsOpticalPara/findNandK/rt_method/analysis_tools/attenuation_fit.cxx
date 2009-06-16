@@ -1,20 +1,29 @@
 /*******************************************************\
 
-cauchy_fit.cxx
+attnuation_fit.cxx
 
 A root script to model the measurement
-refractive index values by Cauchy equation.
+refractive index values by a equation
+based on Fremi-Dirac distribution.
 
-There is also Sellmeier equation but doesn't be used
-because the modeling is bad for my measurment.
+attenuation length =
+    (A1 - A2) / (1 + exp((lambda - cut-off)/delta) + A1
+    - (TOTALABSWL / lambda) * A1
 
-Usage: root cauchy_fit.cxx
-input measurement file name: para.dat
-input data format:
-     wavelength(nm) refractive_index
+    A1: The smallest attenuation length
+    A2: The largest attenuation length
+    cut-off: Where the attenuation edge is
+    delta: const
+    TOTALABSWL: Where the RT method could not be used
+                because the attenuation is too small
+    lambda: wavelength(nm)
+
+
+
+Usage: root attenuation_fit.cxx
 
 Author: Taihsiang
-Date: June, 15, 2009
+Date: June, 16, 2009
 
 \*******************************************************/
 
