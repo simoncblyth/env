@@ -73,6 +73,9 @@ python-ls(){
 }
 
 
+python-version(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
+
+
 python-cd(){
    cd $(python-site)
 }

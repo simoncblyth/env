@@ -38,84 +38,24 @@ tg-versions(){
 
 tg-usage(){ 
   cat << EOU
-    
-     http://www.djangoproject.com
-     http://docs.djangoproject.com/en/dev/intro/tutorial01/#intro-tutorial01
+   
+     http://www.turbogears.org/2.0/docs/main/DownloadInstall.html
 
-     $(env-wikiurl)/MySQL
-     $(env-wikiurl)/MySQLPython
-     $(env-wikiurl)/OfflineDB
-
-     tg-env   
-         called by the tg- precursor 
-
-     tg-get
-
-     tg-mode   : $(tg-mode)
-     tg-srcnam : $(tg-srcnam)
-         
-     tg-admin
-
-     tg-models-fix
-          why is the seqno the primary key needed 
-                    ... why was this not introspeced ?
-
-
-     tg-project       : $(tg-project)
-     tg-app           : $(tg-app)
-
-     tg-srcdir        : $(tg-srcdir)
-     tg-projdir       : $(tg-projdir)
-     tg-appdir        : $(tg-appdir)
-
-     tg-port          : $(tg-port)
-
-     tg-manage <other args>
-          invoke the manage.py for the project  $(tg-project) 
-          
-
-     tg-run :
-     tg-shell :
-     tg-syncdb :
-     tg-cd
-          cd to tg-projdir
 EOU
 
 }
 
 tg-preq(){
-    local msg="=== $FUNCNAME :"
-    [ "$(which port)" != "" ] && $FUNCNAME-port
-    [ "$(which yum)"  != "" ] && $FUNCNAME-yum
-    echo $msg ERROR ... no distro handler 
-}
+    
+    python-
+    [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version && return 1
+
+    setuptools-
+    [ "$(setuptools-version)" != "0.6c9" ]  && setuptools-get
 
 
 
 
-tg-preq-port(){
-    ## port list installed is too slow to use for this
-    [ "$(which python)" != "/opt/local/bin/python" ]              && sudo port install python25
-    [ "$(which ipython)" != "/opt/local/bin/ipython" ]            && sudo port install py25-ipython -scientific
-
-    [ "$(which mysql5)" != "/opt/local/bin/mysql5" ]              && sudo port install mysql5
-    [ ! -f "/opt/local/lib/python2.5/site-packages/_mysql.so" ]   && sudo port install py25-mysql
-
-    [ "$(which apachectl)" != "/opt/local/bin/apachectl" ]        && sudo port install apache2
-    [ ! -f "/opt/local/smth" ]                                    && sudo port install mod_python25
-}
-
-tg-preq-yum(){
-
-    sudo yum install mysql-server
-    sudo yum install MySQL-python
-  
-  #   if the system versions dont work ... 
-  # pymysql-
-  # pymysql-build
-  #
-  ## this is in dag.repo ... you may need to enable that in /etc/yum.repos.d/dag.repo
-    sudo yum install ipython
 }
 
 

@@ -45,8 +45,8 @@ tracpreq-mode(){ echo ${TRACPREQ_MODE:-source} ; }
 tracpreq-sysagain(){
    [ "$(tracpreq-mode)" != "system" ] && echo $msg ABORT this is for tracpreq-mode:system  only, maybe you want to use tracpreq-again && return 1
 
-   ezsetup-
-   ezsetup-get
+   setuptools-
+   setuptools-get
 
    configobj-          
    configobj-get   

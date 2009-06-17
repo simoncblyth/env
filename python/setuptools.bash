@@ -1,10 +1,13 @@
-ezsetup-vi(){  vi $BASH_SOURCE ; }
-ezsetup-env(){ elocal- ; }
-ezsetup-usage(){
+setuptools-vi(){  vi $BASH_SOURCE ; }
+setuptools-env(){ elocal- ; }
+setuptools-usage(){
 
    cat << EOU
 
-       ezsetup-get
+
+       setuptools-version : $(setuptools-version)
+
+       setuptools-get
              download and invoke ez_setup.py providing 
              setuptools module and easy_install entry point
 
@@ -12,13 +15,12 @@ EOU
 
 }
 
-ezsetup-tmp(){ echo /tmp/env/ezsetup ; }
-
-
-ezsetup-get(){
+setuptools-tmp(){ echo /tmp/env/setuptools ; }
+setuptools-version(){ python -c "import setuptools as _ ; print _.__version__" ; }
+setuptools-get(){
     local msg="=== $FUNCNAME :"
     local iwd=$PWD
-    local tmp=$(ezsetup-tmp) && mkdir -p $tmp
+    local tmp=$(setuptools-tmp) && mkdir -p $tmp
     cd $tmp
 
     local ezpy=ez_setup.py
