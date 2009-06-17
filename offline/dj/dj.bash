@@ -1,4 +1,4 @@
-dj-src(){      echo offline/dj.bash ; }
+dj-src(){      echo offline/dj/dj.bash ; }
 dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
 dj-dir(){      echo $(dirname $(dj-source)) ; }
 dj-vi(){       vi $(dj-source) ; }
@@ -269,9 +269,8 @@ dj-find(){
 dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
 dj-app(){     echo ${DJANGO_APP:-offdb} ; }
 dj-port(){    echo 8000 ; }
-dj-projdir(){ echo $(env-home)/offline/$(dj-project) ; }
+dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
-dj-apppkg(){  echo env.offline.$(dj-project).$(dj-app) ; }
 dj-cd(){      cd $(dj-appdir) ; }
 
 ## database setup   ##
