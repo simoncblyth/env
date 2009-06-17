@@ -81,7 +81,7 @@ tg-srcdir(){  echo $(tg-srcfold)/$(tg-srcnam) ; }
 
 tg-projname(){ echo OfflineDB ; }
 tg-projdir(){ echo $(tg-dir)/$(tg-projname) ; }
-tg-proj-quickstart(){
+tg-quickstart(){
 
    cd $(tg-dir)
    #  currently cannot install hashlib into py2.4 on N ... so skip the auth, see #205
@@ -96,8 +96,8 @@ tg-proj-quickstart(){
 }
 
 tg-ini(){ echo $(tg-projdir)/development.ini; }
-tg-proj-setup(){ paster setup-app $(tg-ini) ; }
-
+tg-setup(){ paster setup-app $(tg-ini) ; }
+tg-serve(){ paster serve $(tg-ini) ; }
 
 tg-conf(){ $FUNCNAME- | python ; }
 tg-conf-(){ cat << EOC
