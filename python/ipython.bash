@@ -5,6 +5,9 @@ ipython-env(){
 }
 
 
+ipython-version(){ ipython -V ; }
+
+
 ipython-get(){
 
 

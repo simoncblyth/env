@@ -46,7 +46,9 @@ sqlalchemy-dbcheck-(){ cat << EOC
 from env.base.private import Private
 p = Private()
 from sqlalchemy import create_engine
-db = create_engine( p('DATABASE_URL') )
+dburl = p('DATABASE_URL')
+print dburl
+db = create_engine(dburl)
 print db.table_names()
 EOC
 }

@@ -48,3 +48,8 @@ configobj-check(){
    python-
    python -c "import configobj"
 }
+
+configobj-version(){
+   python -c "import configobj as _ ; print _.__version__"
+}
+

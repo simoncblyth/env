@@ -9,105 +9,108 @@ tg-env(){
    python- system
 }
 
-tg-urlroot(){         echo /$(tg-project) ; }          
-
 tg-notes(){
   cat << EON
-
    Needs python 2.4:2.6 so for sys python are restricted to N  
 
            http://belle7.nuu.edu.tw/dybsite/admin/
         N   : system python 2.4, mysql 5.0.24, MySQL_python-1.2.2, 
               system Mod Python , apache
-
 EON
-
-}
-
-
-tg-versions(){
-   python -V
-   echo ipython $(ipython -V)
-   python -c "import mod_python as _ ; print 'mod_python:%s' % _.version "
-   python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
-   echo "select version() ; " | tg-mysql
-   mysql_config --version 
-   apachectl -v
-   svn info $(tg-srcdir)
 }
 
 tg-usage(){ 
   cat << EOU
-   
      http://www.turbogears.org/2.0/docs/main/DownloadInstall.html
+     http://www.turbogears.org/2.0/docs/main/QuickStart.html
+
+     http://www.voidspace.org.uk/python/configobj.html
+
+
+    NB have to avoid commiting development.ini 
 
 EOU
+}
 
+
+tg-preq-install(){
+
+   easy_install MySQL-python
 }
 
 tg-preq(){
-    
+    local msg="=== $FUNCNAME :"
     python-
     [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version && return 1
-
     setuptools-
-    [ "$(setuptools-version)" != "0.6c9" ]  && setuptools-get
+    [ "$(setuptools-version)" != "0.6c9" ]  && echo $msg no setuptools && return 1
+    virtualenv-
+    [ "$(virtualenv-version)" != "1.3.3" ] && echo $msg untested virtualenv  && return 1
 
 
-
-
+    ## my additions ... 
+    configobj-
+    [ "$(configobj-version)" != "4.5.3" ] && echo $msg untested configobj && return 1
+    ipython-
+    [ "$(ipython-version)" != "0.9.1" ] && echo $msg untested ipython && return 1
 }
 
-
-tg-build(){
-
-  local msg="=== $FUNCNAME :"
-   tg-get             ## checkout 
-   tg-ln              ## plant link in site-packages
-   tg-create-db       ## gives error if exists already 
-
-   [ $? -ne 0 ] && echo $msg failed ... probaly you need to : sudo /sbin/service mysqld start && return 1
-
-   ## load from mysqldump 
-   offdb-
-   offdb-build
-
-   ## introspect the db schema to generate and fix models.py
-   tg-models
-
-   tg-ip-
-
+tg-activate(){ 
+  cd $(tg-srcdir) 
+  . bin/activate  
 }
 
+tg-install(){
+   local dir=$(tg-srcdir)
+   local fld=$(dirname $dir)
+   local nam=$(basename $dir)
+   mkdir -p $fld && cd $fld
+   virtualenv --no-site-packages $nam
+   tg-activate
+   easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+}
 
-
-## src access ##
-
-tg-srcurl(){  echo http://code.tgangoproject.com/svn/tgango/trunk ; }
 tg-srcfold(){ echo $(local-base)/env ; }
-tg-mode(){ echo def ; }
+tg-mode(){ echo bootstrap ; }
+tg-srcnam(){ 
+   case ${1:-$(tg-mode)} in
+     bootstrap) echo tg2env ;;
+   esac
+}
 tg-srcdir(){  echo $(tg-srcfold)/$(tg-srcnam) ; }
-tg-admin(){   $(tg-srcdir)/tgango/bin/tgango-admin.py $* ; }
-tg-get(){
-  local msg="=== $FUNCNAME :"
-  local dir=$(tg-srcfold)
-  local nam=$(tg-srcnam default)
-  mkdir -p $dir && cd $dir 
-  [ ! -d "$nam" ] && svn co $(tg-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
-}
-tg-ln(){
-  local msg="=== $FUNCNAME :"
-  python-ln $(tg-srcdir)/tgango tgango 
-  python-ln $(env-home) env
-  python-ln $(tg-projdir)
+
+tg-projname(){ echo OfflineDB ; }
+tg-projdir(){ echo $(tg-dir)/$(tg-projname) ; }
+tg-proj-quickstart(){
+
+   cd $(tg-dir)
+   #  currently cannot install hashlib into py2.4 on N ... so skip the auth, see #205
+   #paster quickstart --auth --noinput $(tg-projname)
+   paster quickstart --noinput $(tg-projname)
+
+   cd $(tg-projdir)
+   python setup.py develop
+
+   tg-conf
+
 }
 
-tg-find(){
-  local q=$1
-  local iwd=$PWD
-  cd $(tg-srcdir)
-  find . -name "*.py" -exec grep -H $1 {} \;
+tg-ini(){ echo $(tg-projdir)/development.ini; }
+tg-proj-setup(){ paster setup-app $(tg-ini) ; }
+
+
+tg-conf(){ $FUNCNAME- | python ; }
+tg-conf-(){ cat << EOC
+from configobj import ConfigObj
+c = ConfigObj( "$(tg-ini)" , interpolation=False )
+c['app:main']['sqlalchemy.url'] = "$(private-val DATABASE_URL)"
+c.write()
+EOC
 }
 
+
+
+tg-scd(){   cd $(tg-srcdir) ; }
+tg-cd(){    cd $(tg-projdir) ; }
 
 

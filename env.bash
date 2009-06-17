@@ -105,7 +105,7 @@ env-email(){       echo blyth@hep1.phys.ntu.edu.tw ; }
 
 setuptools-(){  . $(env-home)/python/setuptools.bash && setuptools-env $* ; }
 sqlalchemy-(){  . $(env-home)/python/sqlalchemy.bash && sqlalchemy-env $* ; }
-
+virtualenv-(){  . $(env-home)/python/virtualenv.bash && virtualenv-env $* ; }
 
 mysql-(){       . $(env-home)/mysql/mysql.bash    && mysql-env $* ; }
 log-(){         . $(env-home)/log/log.bash        && log-env $* ; }
