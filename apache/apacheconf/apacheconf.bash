@@ -1,7 +1,7 @@
 
 apacheconf-src(){ echo apache/apacheconf/apacheconf.bash ; }
 apacheconf-source(){ echo $ENV_HOME/$(apacheconf-src) ; }
-apacheconf-svi(){    vi $(apacheconf-source) ; }
+apacheconf-vi(){    vi $(apacheconf-source) ; }
 
 apacheconf-usage(){
   
@@ -199,7 +199,7 @@ apacheconf-applypatch(){
 }
 
 
-apacheconf-vi(){
+apacheconf-edit(){
   vi $(apacheconf-path)
 }
 

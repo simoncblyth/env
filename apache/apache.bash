@@ -46,6 +46,7 @@ apache-usage(){
       apache-confd       : $(apache-confd)
       apache-fragmentpath demo :  $(apache-fragmentpath demo)    
       apache-modulesdir  : $(apache-modulesdir)
+      apache-cgidir      : $(apache-cgidir)
       apache-bin         : $(apache-bin)
       apache-htdocs      : $(apache-htdocs)
       apache-logdir      : $(apache-logdir)
@@ -409,6 +410,24 @@ apache-modulesdir-system(){
          *) echo failed-$FUNCNAME ;;
   esac    
 }
+
+
+apache-cgidir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-cgidir-system $tag  || apache-cgidir-source $tag ; }
+apache-cgidir-source(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+     *) echo $(apache-home $tag)/placeholder/cgi-bin;;
+  esac    
+}
+apache-cgidir-system(){
+  local tag=${1:-$NODE_TAG}
+  local flavor=$(apache-sysflavor $tag)
+  case $flavor in 
+       yum) echo /var/www/cgi-bin ;;
+         *) echo failed-$FUNCNAME ;;
+  esac 
+}
+
 
 apache-ls(){   ls -alst $(apache-modulesdir) ; }
 

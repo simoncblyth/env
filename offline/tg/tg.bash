@@ -26,8 +26,14 @@ tg-usage(){
 
      http://www.voidspace.org.uk/python/configobj.html
 
+     NB have to avoid commiting development.ini 
 
-    NB have to avoid commiting development.ini 
+
+
+     tg-install
+            create a virtualenv and install tg2 into it (a boatload of circa 20 dependencies)
+            ... also modwsgideploy  
+
 
 EOU
 }
@@ -53,6 +59,11 @@ tg-preq(){
     [ "$(configobj-version)" != "4.5.3" ] && echo $msg untested configobj && return 1
     ipython-
     [ "$(ipython-version)" != "0.9.1" ] && echo $msg untested ipython && return 1
+
+
+    modwsgi-
+    [ ! -f "$(modwsgi-so)" ] && echo $msg modwsgi is not present && return 1 
+
 }
 
 tg-activate(){ 
@@ -68,6 +79,7 @@ tg-install(){
    virtualenv --no-site-packages $nam
    tg-activate
    easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
+   easy_install modwsgideploy
 }
 
 tg-srcfold(){ echo $(local-base)/env ; }
