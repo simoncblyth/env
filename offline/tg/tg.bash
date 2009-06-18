@@ -80,6 +80,9 @@ tg-install(){
    tg-activate
    easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
    easy_install modwsgideploy
+
+   python-ln $(env-home) env   ## for env.base.private.Private access
+
 }
 
 tg-deploy-conf-(){
@@ -126,6 +129,7 @@ tg-apache(){
    apache-
    apache-chown $(tg-projdir)/data -R
 }
+
 
 
 
