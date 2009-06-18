@@ -139,6 +139,8 @@ dybt-(){        . $(env-home)/dyb/dybt.bash && dybt-env $* ; }
 dybpy-(){       . $(env-home)/dybpy/dybpy.bash && dybpy-env $* ; }
 dybsvn-(){      . $(env-home)/dyb/dybsvn.bash && dybsvn-env $* ; }
 
+abd-(){         . $(env-home)/aberdeen/abd.bash && abd-env $* ; }
+
 dtracebuild-(){  . $(env-home)/dtrace/dtracebuild.bash && dtracebuild-env $* ; }
 
 apache2-(){     . $(env-home)/apache/apache2.bash && apache2-env $* ; } 
