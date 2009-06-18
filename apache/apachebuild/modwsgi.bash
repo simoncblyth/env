@@ -104,12 +104,19 @@ modwsgi-conf(){
 
 
 modwsgi-app-name(){ echo myapp ; }
+modwsgi-app-path(){ echo $(apache-cgidir)/${1:-$(modwsgi-app-name)}.wsgi ; }
 modwsgi-app-test(){
     local msg="=== $FUNCNAME :"
-    modwsgi-app
-    modwsgi-app-conf
+    local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
+    local path=$(modwsgi-app-path)
+    local tmp=$tmpd/$(basename $path)
+    [ -f "$path" ] && echo $msg path $path already exists && return 0
+    echo $msg writing $tmp
+    modwsgi-app- > $tmp
+    modwsgi-deploy $tmp  
     [ "$(curl http://localhost/$(modwsgi-app-name)/)" == "Hello World!" ] && echo $msg SUCCEEDED || echo $msg FAILED
 }
+
 modwsgi-app-(){ cat << EOA
 def application(environ, start_response):
     status = '200 OK'
@@ -120,25 +127,57 @@ def application(environ, start_response):
     return [output]
 EOA
 }
-modwsgi-app-path(){ echo $(apache-cgidir)/$(modwsgi-app-name).wsgi ; }
-modwsgi-app(){
-    local msg="=== $FUNCNAME :"
-    local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
-    local path=$(modwsgi-app-path)
-    local tmp=$tmpd/$(basename $path)
-    [ -f "$path" ] && echo $msg path $path already exists && return 0
-    modwsgi-app- > $tmp
-    local cmd="sudo cp $tmp $path "
-    echo $cmd
-    eval $cmd
+
+modwsgi-app-conf-(){ 
+   local name=${1:-$(modwsgi-app-name)}
+   echo "WSGIScriptAlias /$name $(modwsgi-app-path $name)"
 }
-modwsgi-app-conf-(){ echo "WSGIScriptAlias /$(modwsgi-app-name) $(modwsgi-app-path)"; }
 modwsgi-app-conf(){
     local msg="=== $FUNCNAME :"
-    grep "$(modwsgi-app-conf-)" $(apache-conf)  && echo $msg already hooked up to apache || echo $msg needs to be added to apache-conf
+    local name=$1
+    local conf=$(modwsgi-app-conf- $name)
+    grep "$conf" $(apache-conf)  && echo $msg \"$conf\" already hooked up to apache || echo $msg \"$conf\" needs to be added to apache-conf
 }
 
 
+modwsgi-virtualenv-(){
+   echo "WSGIPythonHome $(tg-srcdir)"
+}
+
+modwsgi-virtualenv(){
+    local msg="=== $FUNCNAME :"
+    local conf=$(modwsgi-virtualenv-)
+    grep "$conf" $(apache-conf)  
+    local rc=$?
+    case $rc in  
+       0) echo $msg \"$conf\" already hooked up to apache ;;
+       *) echo $msg \"$conf\" needs to be added to apache-conf && return $rc ;;
+    esac
+}
+
+modwsgi-deploy(){
+    local msg="=== $FUNCNAME :"
+    local tmp=$1
+    local base=$(basename $tmp)
+    local name=${base/.*}  
+
+    [ ! -f "$tmp" ] && echo $msg ABORT no such path $tmp && return 1
+    [ "$name.wsgi" != "$base" ] && echo $msg ABORT path should end with .wsgi && return 1 
+
+    local path=$(modwsgi-app-path $name)
+  
+    if [ -f "$path" ]; then
+       echo $msg path $path is already present 
+    else
+       local cmd="sudo cp $tmp $path "
+       echo $cmd
+       eval $cmd
+    fi 
+
+    modwsgi-app-conf $name  
+    modwsgi-virtualenv 
+
+}
 
 
 

@@ -82,6 +82,96 @@ tg-install(){
    easy_install modwsgideploy
 }
 
+tg-deploy-conf-(){
+   ## needed for virtual env usage 
+   echo "WSGIPythonHome $(tg-srcdir)"
+}
+
+tg-deploy(){
+   tg-cd
+
+    ## creates the apache folder in the app folder .. used as examples only 
+    paster modwsgi_deploy 
+    tg-eggcache
+    tg-wsgi-deploy
+}
+
+
+tg-eggcache-dir(){
+   case ${USER:-nobody} in 
+      nobody|apache|www) echo /var/cache/tg ;;
+                      *) echo $HOME ;;
+    esac
+}
+
+tg-eggcache(){
+   local cache=$(tg-eggcache-dir)
+   [ "$cache" == "$HOME" ] && echo $msg cache is HOME:$HOME skipping && return 0
+
+   echo $msg createing egg cache dir $cache
+   sudo mkdir -p $cache
+   apache-
+   apache-chown $cache
+   sudo chcon -R -t httpd_sys_script_rw_t $cache
+   ls -alZ $cache
+}
+
+
+tg-selinux(){
+   local msg="=== $FUNCNAME :"
+   sudo chcon -R -t httpd_sys_content_t $(tg-srcdir)
+}
+
+tg-apache(){
+   apache-
+   apache-chown $(tg-projdir)/data -R
+}
+
+
+
+tg-wsgi-deploy-(){  cat << EOS
+
+#  $FUNCNAME 
+
+import sys
+prev_sys_path = list(sys.path)
+
+import site
+site.addsitedir("$(tg-srcdir)/lib/python$(python-major)/site-packages")
+
+import os
+
+new_sys_path = []
+for item in list(sys.path):
+    if item not in prev_sys_path:
+        new_sys_path.append(item)
+        sys.path.remove(item)
+sys.path[:0] = new_sys_path 
+
+
+sys.path.append("$(tg-projdir)")
+os.environ['PYTHON_EGG_CACHE'] = '/var/cache/tg'
+
+from paste.deploy import loadapp
+application = loadapp('config:$(tg-projdir)/development.ini')
+
+EOS
+}
+
+tg-wsgi-deploy(){
+  local msg="=== $FUNCNAME :"
+  local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
+  local tmp=$tmpd/$(tg-projname).wsgi
+  echo $msg writing $tmp
+  $FUNCNAME- > $tmp
+  tg-selinux
+  tg-apache
+  modwsgi-
+  modwsgi-deploy $tmp 
+}
+
+
+
 tg-srcfold(){ echo $(local-base)/env ; }
 tg-mode(){ echo bootstrap ; }
 tg-srcnam(){ 

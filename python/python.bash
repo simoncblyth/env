@@ -80,8 +80,11 @@ python-cd(){
    cd $(python-site)
 }
 
-python-name(){ echo Python-2.5.1 ; }
-python-major(){ echo 2.5 ; }
+python-name(){ echo Python-$(python-version) ; }
+python-major(){
+   local v=$(python-version) 
+   echo ${v:0:3} ; 
+}
 python-home(){
    if [ "$(python-mode)" == "source" ]; then
        echo $(local-system-base)/python/$(python-name)
