@@ -199,6 +199,10 @@ pygments-(){          . $ENV_HOME/trac/package/pygments.bash   && pygments-env  
 docutils-(){          . $ENV_HOME/trac/package/docutils.bash   && docutils-env   $* ; }
 textile-(){           . $ENV_HOME/trac/package/textile.bash    && textile-env   $* ; }
 
+ofc2dz-(){            . $(env-home)/trac/ofc2dz.bash && ofc2dz-env $* ; }
+
+
+
 bittennotify-(){      . $ENV_HOME/trac/package/bittennotify.bash && bittennotify-env   $* ; }
 tracreposearch-(){    . $ENV_HOME/trac/package/tracreposearch.bash && tracreposearch-env   $* ; }
 
