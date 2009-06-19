@@ -116,13 +116,19 @@ tg-eggcache(){
 
 tg-selinux(){
    local msg="=== $FUNCNAME :"
-   sudo chcon -R -t httpd_sys_content_t $(tg-srcdir)
+   local cmd="sudo chcon -R -t httpd_sys_content_t $(tg-srcdir) "
+   echo $cmd
+   eval $cmd
 }
 
 tg-apache(){
    apache-
    apache-chown $(tg-projdir)/data -R
 }
+
+
+
+
 
 
 
@@ -174,6 +180,21 @@ tg-hmac-kludge(){
 
    scp /opt/local/lib/python2.5/hmac.py $target:$(tg-srcdir $target)/lib/python2.4/
 }
+
+
+tg-hmac-test(){ $FUNCNAME- | python ; }
+tg-hmac-test-(){ cat << EOT
+import pkg_resources
+pkg_resources.get_distribution('Beaker').version
+import beaker.session
+print beaker.session.sha1 
+import hmac
+print hmac.new('test', 'test', beaker.session.sha1).hexdigest()
+print hmac.__file__
+EOT
+}
+
+
 
 
 tg-srcfold(){  echo $(local-base $*)/env ; }
