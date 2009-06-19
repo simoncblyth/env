@@ -116,16 +116,17 @@ tg-eggcache(){
 
 tg-selinux(){
    local msg="=== $FUNCNAME :"
-   local cmd="sudo chcon -R -t httpd_sys_content_t $(tg-srcdir) "
+   local cmd="sudo chcon -h -R -t httpd_sys_content_t $(tg-srcdir) "
    echo $cmd
    eval $cmd
 }
 
-tg-apache(){
+tg-datadir(){
+   local dir=$(tg-projdir)/data
+   mkdir -p $dir
    apache-
-   apache-chown $(tg-projdir)/data -R
+   apache-chown $dir -R
 }
-
 
 
 
@@ -136,25 +137,31 @@ tg-apache(){
 tg-wsgi-deploy-(){  cat << EOS
 
 #  $FUNCNAME 
+#     http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
+
+ALLDIRS = ["$(tg-srcdir)/lib/python$(python-major)/site-packages"]
 
 import sys
+import site
+
 prev_sys_path = list(sys.path)
 
-import site
-site.addsitedir("$(tg-srcdir)/lib/python$(python-major)/site-packages")
-
-import os
+for dir in ALLDIRS:
+    site.addsitedir(dir)
 
 new_sys_path = []
 for item in list(sys.path):
     if item not in prev_sys_path:
         new_sys_path.append(item)
         sys.path.remove(item)
+
 sys.path[:0] = new_sys_path 
 
-
-sys.path.append("$(tg-projdir)")
+import os
 os.environ['PYTHON_EGG_CACHE'] = '/var/cache/tg'
+
+# sys.path.insert( 0, "$(tg-projdir)" )
+# sys.path.insert( 1, "$(tg-srcdir)/lib/python$(python-major)" )
 
 from paste.deploy import loadapp
 application = loadapp('config:$(tg-projdir)/development.ini')
@@ -210,6 +217,7 @@ tg-quickstart(){
    #paster quickstart --noinput $(tg-projname)
 
    cd $(tg-projdir)
+   python setup.py develop --uninstall
    python setup.py develop
 
    ## customize the ini with DATABASE_URL + ...
@@ -217,7 +225,7 @@ tg-quickstart(){
 
    ## labelling and ownership
    tg-selinux
-   tg-apache
+   tg-datadir
 
 }
 

@@ -167,12 +167,13 @@ modwsgi-deploy(){
     local path=$(modwsgi-app-path $name)
   
     if [ -f "$path" ]; then
-       echo $msg path $path is already present 
-    else
-       local cmd="sudo cp $tmp $path "
-       echo $cmd
-       eval $cmd
+       echo $msg path $path is already present .. will overwrite it 
     fi 
+
+    local cmd="sudo cp -f $tmp $path "
+    echo $cmd
+    eval $cmd
+     
 
     modwsgi-app-conf $name  
     modwsgi-virtualenv 
