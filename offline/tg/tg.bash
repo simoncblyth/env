@@ -1,6 +1,6 @@
 tg-src(){      echo offline/tg/tg.bash ; }
 tg-source(){   echo ${BASH_SOURCE:-$(env-home)/$(tg-src)} ; }
-tg-dir(){      echo $(dirname $(tg-source)) ; }
+tg-dir(){      echo $(env-home $*)/$(dirname $(tg-src)) ; }
 tg-vi(){       vi $(tg-source) ; }
 tg-env(){      
    elocal- ; 
@@ -23,24 +23,19 @@ tg-usage(){
   cat << EOU
      http://www.turbogears.org/2.0/docs/main/DownloadInstall.html
      http://www.turbogears.org/2.0/docs/main/QuickStart.html
-
      http://www.voidspace.org.uk/python/configobj.html
 
      NB have to avoid commiting development.ini 
 
-
-
      tg-install
             create a virtualenv and install tg2 into it (a boatload of circa 20 dependencies)
             ... also modwsgideploy  
-
 
 EOU
 }
 
 
 tg-preq-install(){
-
    easy_install MySQL-python
 }
 
@@ -60,16 +55,14 @@ tg-preq(){
     ipython-
     [ "$(ipython-version)" != "0.9.1" ] && echo $msg untested ipython && return 1
 
-
     modwsgi-
     [ ! -f "$(modwsgi-so)" ] && echo $msg modwsgi is not present && return 1 
-
 }
 
-tg-activate(){ 
-  cd $(tg-srcdir) 
-  . bin/activate  
-}
+tg-activate(){
+   local act=$(tg-srcdir)/bin/activate 
+   [ -f "$act" ] && . $act 
+ }
 
 tg-install(){
    local dir=$(tg-srcdir)
@@ -78,6 +71,7 @@ tg-install(){
    mkdir -p $fld && cd $fld
    virtualenv --no-site-packages $nam
    tg-activate
+   cd $(tg-srcdir)
    easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
    easy_install modwsgideploy
 
@@ -93,10 +87,10 @@ tg-deploy-conf-(){
 tg-deploy(){
    tg-cd
 
-    ## creates the apache folder in the app folder .. used as examples only 
-    paster modwsgi_deploy 
-    tg-eggcache
-    tg-wsgi-deploy
+   ## creates the apache folder in the app folder .. used as examples only 
+   paster modwsgi_deploy 
+   tg-eggcache
+   tg-wsgi-deploy
 }
 
 
@@ -168,36 +162,41 @@ tg-wsgi-deploy(){
   local tmp=$tmpd/$(tg-projname).wsgi
   echo $msg writing $tmp
   $FUNCNAME- > $tmp
-  tg-selinux
-  tg-apache
   modwsgi-
   modwsgi-deploy $tmp 
 }
 
 
+tg-hmac-kludge(){
+   local msg="=== $FUNCNAME :"
+   local target=${1:-N}
+   [ "$NODE_TAG" != "G" ] && echo $msg this must be done from G && return 1 
 
-tg-srcfold(){ echo $(local-base)/env ; }
-tg-mode(){ echo bootstrap ; }
-tg-srcnam(){ 
-   case ${1:-$(tg-mode)} in
-     bootstrap) echo tg2env ;;
-   esac
+   scp /opt/local/lib/python2.5/hmac.py $target:$(tg-srcdir $target)/lib/python2.4/
 }
-tg-srcdir(){  echo $(tg-srcfold)/$(tg-srcnam) ; }
 
+
+tg-srcfold(){  echo $(local-base $*)/env ; }
+tg-srcnam(){   echo tg2env ; }
+tg-srcdir(){   echo $(tg-srcfold $*)/$(tg-srcnam) ; }
 tg-projname(){ echo OfflineDB ; }
-tg-projdir(){ echo $(tg-dir)/$(tg-projname) ; }
+tg-projdir(){  echo $(tg-dir)/$(tg-projname) ; }
 tg-quickstart(){
 
    cd $(tg-dir)
    #  currently cannot install hashlib into py2.4 on N ... so skip the auth, see #205
-   #paster quickstart --auth --noinput $(tg-projname)
-   paster quickstart --noinput $(tg-projname)
+   paster quickstart --auth --noinput $(tg-projname)
+   #paster quickstart --noinput $(tg-projname)
 
    cd $(tg-projdir)
    python setup.py develop
 
-   tg-conf
+   ## customize the ini with DATABASE_URL + ...
+   tg-conf   
+
+   ## labelling and ownership
+   tg-selinux
+   tg-apache
 
 }
 
@@ -210,6 +209,7 @@ tg-conf-(){ cat << EOC
 from configobj import ConfigObj
 c = ConfigObj( "$(tg-ini)" , interpolation=False )
 c['app:main']['sqlalchemy.url'] = "$(private-val DATABASE_URL)"
+c['DEFAULT']['debug'] = "false"
 c.write()
 EOC
 }
