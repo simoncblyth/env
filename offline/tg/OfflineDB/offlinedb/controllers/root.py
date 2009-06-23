@@ -11,6 +11,7 @@ from offlinedb.model import DBSession, metadata
 from offlinedb.controllers.error import ErrorController
 from offlinedb import model
 from offlinedb.controllers.secure import SecureController
+from offlinedb.controllers.dbi    import DbiController
 
 __all__ = ['RootController']
 
@@ -30,6 +31,7 @@ class RootController(BaseController):
     
     """
     secc = SecureController()
+    dbi = DbiController()
     
     admin = Catwalk(model, DBSession)
     

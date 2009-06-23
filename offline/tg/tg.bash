@@ -183,7 +183,9 @@ tg-wsgi-deploy(){
 }
 
 
-
+tg-find(){
+  find $(tg-srcdir) -name '*.py' -exec grep -H $1 {} \;
+}
 
 
 tg-srcfold(){  echo $(local-base $*)/env ; }

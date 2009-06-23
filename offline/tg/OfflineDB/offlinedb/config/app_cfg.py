@@ -19,6 +19,9 @@ import offlinedb
 from offlinedb import model
 from offlinedb.lib import app_globals, helpers 
 
+from offlinedb.controllers.routing import custom_setup_routes
+AppConfig.setup_routes = custom_setup_routes
+
 base_config = AppConfig()
 base_config.renderers = []
 
