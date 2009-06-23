@@ -1,0 +1,4 @@
+recursive-include offlinedb/public *
+include offlinedb/public/favicon.ico
+recursive-include offlinedb/i18n *
+recursive-include offlinedb/templates *

@@ -31,6 +31,15 @@ tg-usage(){
             create a virtualenv and install tg2 into it (a boatload of circa 20 dependencies)
             ... also modwsgideploy  
 
+
+     tg-quickstart
+             create a project and add to svn with appropriate ignores 
+             and skipping of things with sensitive items
+              
+     tg-wipe  
+              delete a quickstarted project 
+
+
 EOU
 }
 
@@ -129,7 +138,13 @@ tg-datadir(){
 }
 
 
-
+tg-ip(){
+  local iwd=$PWD
+  tg-activate
+  tg-cd
+  paster shell $(tg-ini)
+  cd $iwd
+}
 
 
 
@@ -209,12 +224,33 @@ tg-srcnam(){   echo tg2env ; }
 tg-srcdir(){   echo $(tg-srcfold $*)/$(tg-srcnam) ; }
 tg-projname(){ echo OfflineDB ; }
 tg-projdir(){  echo $(tg-dir)/$(tg-projname) ; }
+
+
+tg-wipe(){
+   local msg="=== $FUNCNAME :"
+   cd $(tg-dir)
+   local proj=$(tg-projname)
+   [ ! -d "$proj" ] && echo $msg dir $proj does not exist && return 1 
+    
+   local cmd="sudo rm -rf $proj"
+   local ans 
+   read -p "$msg enter YES to proceed with $cmd " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 0
+   eval $cmd
+
+   ## tis important to remove remnants from the parent dir to allow subseqent quickstarting 
+   svn revert $proj
+}
+
 tg-quickstart(){
 
+   local msg="=== $FUNCNAME :"
+   tg-activate
    cd $(tg-dir)
-   #  currently cannot install hashlib into py2.4 on N ... so skip the auth, see #205
+
+   local proj=$(tg-projname)
+   [ -d "$proj" ] && echo $msg dir $proj exists already && return 1 
    paster quickstart --auth --noinput $(tg-projname)
-   #paster quickstart --noinput $(tg-projname)
 
    cd $(tg-projdir)
    python setup.py develop --uninstall
@@ -227,7 +263,85 @@ tg-quickstart(){
    tg-selinux
    tg-datadir
 
+   ## add to svn with appropriate ignores and skips
+   tg-svn-add
 }
+
+tg-svn-ignore-(){ cat << EOI
+data
+*.ini
+EOI
+}
+
+tg-svn-ignore(){
+   local msg="=== $FUNCNAME :"
+   local tmp=/tmp/env/$FUNCNAME/ignore && mkdir -p $(dirname $tmp)    
+   [ "$(tg-projdir)" != "$PWD"  ] && echo $msg ERROR not projdir && return 1  
+
+   $FUNCNAME- > $tmp
+   echo $msg setting svn:ignore property in PWD $PWD
+   
+   svn propset svn:ignore -F $tmp .
+   svn pg svn:ignore .
+
+   echo $msg with ignoring 
+   svn status
+   echo $msg no-ignore
+   svn status --no-ignore
+}
+
+
+tg-svn-add-(){
+  local msg="=== $FUNCNAME :"
+  local dir=$1
+
+  [ ! -d "$dir" ] && echo $msg no such dir && return 1
+
+  echo $msg entering $dir 
+  cd $(dirname $dir)
+
+  [ -d "$dir/.svn" ] && svn revert $dir   
+  svn -N add $dir
+  cd $dir 
+ 
+  local item 
+  for item in $(ls -1 . | grep -v .svn) 
+  do
+     local act
+     case $item in
+       data) act=SKIP ;;
+      *.ini) act=SKIP ;;
+      *.pyc) act=SKIP ;;
+          *) act=ADD ;;     
+     esac
+     local path=$dir/$item
+     echo $msg $act $path
+
+     if [ -d "$path" ]; then
+        case $act in
+           ADD) tg-svn-add- $path ;;
+        esac
+     else
+       case $act in
+          ADD) svn add $path  ;;
+       esac
+     fi
+  done 
+}
+
+
+tg-svn-add(){
+
+  cd $(tg-projdir)
+  tg-svn-add- $PWD
+
+  cd $(tg-projdir)
+  tg-svn-ignore 
+
+}
+
+
+
 
 tg-ini(){ echo $(tg-projdir)/development.ini; }
 tg-setup(){ paster setup-app $(tg-ini) ; }
