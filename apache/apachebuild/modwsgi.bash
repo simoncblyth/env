@@ -140,13 +140,54 @@ modwsgi-app-conf(){
 }
 
 
+
+modwsgi-baseline-dir(){ echo $(local-base $*)/env/BASELINE ; } 
+modwsgi-baseline(){
+   local msg="=== $FUNCNAME :"
+   [ "$(which virtualenv)" != "/usr/bin/virtualenv" ] && echo $msg unexpected virtualenv path && return 1
+   echo $msg creating baseline virtualenv $dir as recommended : http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
+   local dir=$(modwsgi-baseline-dir)
+   cd $(dirname $dir)
+   virtualenv --no-site-packages $(basename $dir)
+
+   [ "$(which chcon)" == "" ] && echo $msg no chcon skip selinux labelling && return 0
+   local cmd="sudo chcon -h -R -t httpd_sys_content_t $dir "
+   echo $cmd
+   eval $cmd
+}
+
+modwsgi-hmac-kludge(){
+   local msg="=== $FUNCNAME :"
+   local target=${1:-N}
+   [ "$NODE_TAG" != "G" ] && echo $msg this must be done from G && return 1
+   scp /opt/local/lib/python2.5/hmac.py $target:$(modwsgi-baseline-dir $target)/lib/python2.4/
+}
+
+modwsgi-hmac-test(){ $FUNCNAME- | python ; }
+modwsgi-hmac-test-(){ cat << EOT
+import pkg_resources
+pkg_resources.get_distribution('Beaker').version
+import beaker.session
+print beaker.session.sha1 
+import hmac
+print hmac.new('test', 'test', beaker.session.sha1).hexdigest()
+print hmac.__file__
+EOT
+}
+
+
+
 modwsgi-virtualenv-(){
-   echo "WSGIPythonHome $(tg-srcdir)"
+   echo "WSGIPythonHome $(modwsgi-baseline-dir)"
 }
 
 modwsgi-virtualenv(){
     local msg="=== $FUNCNAME :"
-    local conf=$(modwsgi-virtualenv-)
+
+    local base=$(modwsgi-baseline-dir)
+    [ ! -d "$base" ] && modwsgi-baseline || echo $msg baseline dir $base already exists 
+
+    local conf=$(modwsgi-virtualenv- )
     grep "$conf" $(apache-conf)  
     local rc=$?
     case $rc in  

@@ -98,7 +98,10 @@ tg-deploy(){
 
    ## creates the apache folder in the app folder .. used as examples only 
    paster modwsgi_deploy 
-   tg-eggcache
+   
+   apache-
+   apache-eggcache /var/cache/tg
+
    tg-wsgi-deploy
 }
 
@@ -108,18 +111,6 @@ tg-eggcache-dir(){
       nobody|apache|www) echo /var/cache/tg ;;
                       *) echo $HOME ;;
     esac
-}
-
-tg-eggcache(){
-   local cache=$(tg-eggcache-dir)
-   [ "$cache" == "$HOME" ] && echo $msg cache is HOME:$HOME skipping && return 0
-
-   echo $msg createing egg cache dir $cache
-   sudo mkdir -p $cache
-   apache-
-   apache-chown $cache
-   sudo chcon -R -t httpd_sys_script_rw_t $cache
-   ls -alZ $cache
 }
 
 
@@ -175,9 +166,6 @@ sys.path[:0] = new_sys_path
 import os
 os.environ['PYTHON_EGG_CACHE'] = '/var/cache/tg'
 
-# sys.path.insert( 0, "$(tg-projdir)" )
-# sys.path.insert( 1, "$(tg-srcdir)/lib/python$(python-major)" )
-
 from paste.deploy import loadapp
 application = loadapp('config:$(tg-projdir)/development.ini')
 
@@ -194,27 +182,6 @@ tg-wsgi-deploy(){
   modwsgi-deploy $tmp 
 }
 
-
-tg-hmac-kludge(){
-   local msg="=== $FUNCNAME :"
-   local target=${1:-N}
-   [ "$NODE_TAG" != "G" ] && echo $msg this must be done from G && return 1 
-
-   scp /opt/local/lib/python2.5/hmac.py $target:$(tg-srcdir $target)/lib/python2.4/
-}
-
-
-tg-hmac-test(){ $FUNCNAME- | python ; }
-tg-hmac-test-(){ cat << EOT
-import pkg_resources
-pkg_resources.get_distribution('Beaker').version
-import beaker.session
-print beaker.session.sha1 
-import hmac
-print hmac.new('test', 'test', beaker.session.sha1).hexdigest()
-print hmac.__file__
-EOT
-}
 
 
 

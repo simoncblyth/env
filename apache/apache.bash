@@ -96,6 +96,25 @@ apache-env(){
    fi
 }
 
+
+
+apache-eggcache(){
+   local msg="=== $FUNCNAME :"
+   local cache=$1
+   [ "$cache" == "$HOME" ] && echo $msg cache is HOME:$HOME skipping && return 0
+
+   echo $msg creating dir $cache
+   sudo mkdir -p $cache
+   apache-
+   apache-chown $cache
+   sudo chcon -R -t httpd_sys_script_rw_t $cache
+   ls -alZ $cache
+}
+
+
+
+
+
 apache-name(){
    case ${1:-$NODE_TAG} in 
       H) echo httpd-2.0.59 ;;
