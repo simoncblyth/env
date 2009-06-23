@@ -146,10 +146,15 @@ modwsgi-baseline(){
    local msg="=== $FUNCNAME :"
    [ "$(which virtualenv)" != "/usr/bin/virtualenv" ] && echo $msg unexpected virtualenv path && return 1
    echo $msg creating baseline virtualenv $dir as recommended : http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
-   local dir=$(modwsgi-baseline-dir)
+   local dir=$($FUNCNAME-dir)
    cd $(dirname $dir)
    virtualenv --no-site-packages $(basename $dir)
 
+   $FUNCNAME-chcon $dir
+}
+
+modwsgi-baseline-chcon(){
+   local dir=${1:-$(modwsgi-baseline-dir)}
    [ "$(which chcon)" == "" ] && echo $msg no chcon skip selinux labelling && return 0
    local cmd="sudo chcon -h -R -t httpd_sys_content_t $dir "
    echo $cmd

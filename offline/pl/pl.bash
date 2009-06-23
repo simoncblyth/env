@@ -79,7 +79,14 @@ pl-install(){
    cd Pylons
    python setup.py develop 
 
+   pl-chcon
 }
+
+pl-chcon(){
+   modwsgi-
+   modwsgi-baseline-chcon $(pl-srcdir)
+}
+
 
   
 pl-quickstart(){
