@@ -31,6 +31,7 @@ fields = make_args()
 
 from tg import expose
 from offlinedb.controllers.routing import RoutingController
+from offlinedb.model import DBSession
 
 
 class DbiController(RoutingController):

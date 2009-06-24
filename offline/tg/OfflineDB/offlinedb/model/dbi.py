@@ -17,6 +17,7 @@
 
 class _Dbi(object):
     head = """
+# expose the instance as the only dynamic access
 global dbi_ 
 dbi_ = self
 
@@ -25,7 +26,7 @@ dbi_ = self
 # soup = self.soup
 """
     tmpl = """
-# exports to module level
+# exports to module level ... per table exports useful for interactive usage
 global %(t)s
 %(t)s = self.payload( "%(t)s" )
 
