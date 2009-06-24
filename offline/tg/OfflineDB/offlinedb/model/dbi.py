@@ -19,28 +19,43 @@ class _Dbi(object):
     head = """
 global dbi_ 
 dbi_ = self
-global soup
-soup = self.soup
+
+## exposing soup is a whopping great security risk ... 
+# global soup
+# soup = self.soup
 """
     tmpl = """
-# export the mapped class to module level
+# exports to module level
 global %(t)s
-%(t)s = self.soup.%(t)s
-# export the join of the payload and validity tables to module level 
+%(t)s = self.payload( "%(t)s" )
+
+global %(t)sVld
+%(t)s%(VLD)s = self.validity( "%(t)s" )
+
 global %(t)s_
-%(t)s_ = self.soup.join( self.soup.%(t)s , self.soup.%(t)sVld , self.soup.%(t)s.SEQNO == self.soup.%(t)sVld.SEQNO, isouter=False )
+%(t)s_ = self.pair( "%(t)s" )
 """
+    FK = 'SEQNO'
+    VLD = 'Vld'
+
     def __init__(self, *args, **kwa):
         from sqlalchemy.ext.sqlsoup import SqlSoup
         self.soup = SqlSoup(*args, **kwa)
         self.exec_()
-    
+   
+    def payload( self, t ):return getattr( self.soup , t )
+    def validity(self, t ):return getattr( self.soup , "%s%s" % (t, _Dbi.VLD) )
+    def pair(self, t):
+        pay = self.payload(t)
+        vld = self.validity(t)
+        return self.soup.join( pay , vld , getattr( pay, _Dbi.FK ) == getattr( vld, _Dbi.FK ), isouter=False )
+
     def table_names(self):
-        return [n[0:-3] for n in self.soup.engine.table_names() if n.endswith('Vld')]
+        return [n[0:-3] for n in self.soup.engine.table_names() if n.endswith(_Dbi.VLD)]
     def __repr__(self):
         return "<Dbi singleton instance for %s at %s >" % ( repr(self.soup) , self.__hash__() )
     def __str__(self):
-        return "\n".join( [_Dbi.head] + [ _Dbi.tmpl % {'t':t } for t in self.table_names()]) 
+        return "\n".join( [_Dbi.head] + [ _Dbi.tmpl % {'t':t , 'VLD':_Dbi.VLD } for t in self.table_names()]) 
     def exec_(self):         
        exec str(self)
 
@@ -62,8 +77,9 @@ if __name__=='__main__':
     metadata = MetaData( engine )
     Dbi( metadata )
     print dbi_ 
-    print repr(soup)
+    #print repr(soup)
     print SimPmtSpec.first()
+    print SimPmtSpecVld.first()
     print SimPmtSpec_.first()
 
 

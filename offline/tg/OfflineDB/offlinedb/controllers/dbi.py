@@ -53,9 +53,9 @@ class DbiController(RoutingController):
         from sqlalchemy.exceptions import NoSuchTableError
         if not(table):return "table not specifieed %s " % kwa 
         try:
-            from offlinedb.model.dbi import soup
-            entity = soup.entity(table) 
-            return "found table:%s " % table
+            from offlinedb.model.dbi import dbi_
+            pair = dbi_.pair(table) 
+            return "found paired table:%s " % table
         except NoSuchTableError:
             return "no such table:%s " % table
 
