@@ -27,6 +27,9 @@ tg-usage(){
 
      NB have to avoid commiting development.ini 
 
+
+     tg-srcdir : $(tg-srcdir)
+
      tg-install
             create a virtualenv and install tg2 into it (a boatload of circa 20 dependencies)
             ... also modwsgideploy  
@@ -50,6 +53,8 @@ tg-preq-install(){
 
 tg-preq(){
     local msg="=== $FUNCNAME :"
+    
+    ## baseline preqs ... not virtual 
     python-
     [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version && return 1
     setuptools-
@@ -63,7 +68,6 @@ tg-preq(){
     [ "$(configobj-version)" != "4.5.3" ] && echo $msg untested configobj && return 1
     ipython-
     [ "$(ipython-version)" != "0.9.1" ] && echo $msg untested ipython && return 1
-
     modwsgi-
     [ ! -f "$(modwsgi-so)" ] && echo $msg modwsgi is not present && return 1 
 }
@@ -73,17 +77,37 @@ tg-activate(){
    [ -f "$act" ] && . $act 
  }
 
+
+tg-install-default(){
+   easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools 
+   easy_install modwsgideploy
+}
+
+tg-install-dev(){
+   svn co http://svn.turbogears.org/projects/tg.devtools/trunk tgdevtools
+   svn co http://svn.turbogears.org/trunk tg2
+   cd tg2 
+   python setup.py develop
+   cd ../tgdevtools
+   python setup.py develop
+}
+
 tg-install(){
+   local msg="=== $FUNCNAME :"
    local dir=$(tg-srcdir)
+   [ -d "$dir" ] && echo $msg ERROR dir $dir exists already ... delete this an rerun && return 1
+
    local fld=$(dirname $dir)
    local nam=$(basename $dir)
    mkdir -p $fld && cd $fld
+
    virtualenv --no-site-packages $nam
    tg-activate
    cd $(tg-srcdir)
-   easy_install -i http://www.turbogears.org/2.0/downloads/current/index tg.devtools
-   easy_install modwsgideploy
-
+   case $nam in
+     tg2dev) $FUNCNAME-dev     ;;
+          *) $FUNCNAME-default ;;
+   esac 
    python-ln $(env-home) env   ## for env.base.private.Private access
 
 }
@@ -190,6 +214,7 @@ tg-find(){
 
 tg-srcfold(){  echo $(local-base $*)/env ; }
 tg-srcnam(){   echo tg2env ; }
+#tg-srcnam(){   echo tg2dev ; }
 tg-srcdir(){   echo $(tg-srcfold $*)/$(tg-srcnam) ; }
 tg-projname(){ echo OfflineDB ; }
 tg-projdir(){  echo $(tg-dir)/$(tg-projname) ; }

@@ -38,6 +38,7 @@ metadata = DeclarativeBase.metadata
 #
 ######
 
+
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
 
@@ -58,5 +59,15 @@ def init_model(engine):
 
     #mapper(Reflected, t_reflected)
 
+    from offlinedb.model.dbi import Dbi
+    from sqlalchemy import MetaData
+    Dbi( MetaData( engine ) )    
+
+
+
+
 # Import your model modules here.
 from offlinedb.model.auth import User, Group, Permission
+from offlinedb.model.dbi import Dbi
+
+

@@ -1,8 +1,4 @@
 
-from tg import expose
-from offlinedb.controllers.routing import RoutingController
-
-
 class Arg(dict):
     def __init__(self, **kwa ):[setattr(self,k,v) for k,v in kwa.items()]
 
@@ -33,6 +29,9 @@ fields = make_args()
 
 
 
+from tg import expose
+from offlinedb.controllers.routing import RoutingController
+
 
 class DbiController(RoutingController):
     """
@@ -45,8 +44,20 @@ class DbiController(RoutingController):
         return 'dbi controller table list'
 
     @expose()
-    def view_table(self, *args, **kwa ):
+    def debug_args(self, *args, **kwa ):
         return "\n".join( ["%s:%s" % (k,v) for k,v in kwa.items() if k in fields.names()] )
+
+    @expose()
+    def view_table(self, *args, **kwa ):
+        table = kwa.get('table', None)
+        from sqlalchemy.exceptions import NoSuchTableError
+        if not(table):return "table not specifieed %s " % kwa 
+        try:
+            from offlinedb.model.dbi import soup
+            entity = soup.entity(table) 
+            return "found table:%s " % table
+        except NoSuchTableError:
+            return "no such table:%s " % table
 
 
 
