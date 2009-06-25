@@ -1,8 +1,21 @@
-
+autocomp-src(){    echo trac/autocomp/autocomp.bash ; }
+autocomp-source(){ echo ${BASH_SOURCE:-$(env-home)/$(autocomp-src)} ; }
+autocomp-dir(){    echo $(dirname $(autocomp-source)) ; }
+autocomp-cd(){     cd $(autocomp-dir) ; }
+autocomp-vi(){     vi $(autocomp-source) ; }
 
 autocomp-usage(){
 
   cat << EOU
+
+
+    View the components with {10} ...
+
+            http://dayabay.ihep.ac.cn/tracs/dybsvn/report/10
+            http://dayabay.phys.ntu.edu.tw/tracs/env/report/10
+            http://localhost/tracs/workflow/report/10
+
+ 
 
      autocomp-sync  <env-name>    defaults to TRAC_INSTANCE 
 
@@ -41,7 +54,7 @@ autocomp-sync(){
    
    local name=${1:-$TRAC_INSTANCE}
    sqlite-
-   local cmd="python $ENV_HOME/trac/autocomp/autocomponent.py $(trac-envpath $name) $(trac-administrator)"
+   local cmd="python $(autocomp-dir)/autocomponent.py $(trac-envpath $name) $(trac-administrator)"
    echo $cmd
    eval $cmd
    
@@ -58,7 +71,7 @@ autocomp-sudosync(){
 autocomp-help(){
 
    local iwd=$PWD
-   cd $ENV_HOME/trac/autocomp
+   autocomp-cd 
    pydoc autocomponent
    
    cd $iwd

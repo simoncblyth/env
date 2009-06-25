@@ -1,4 +1,6 @@
-
+traccomp-src(){ echo trac/traccomp.bash ; }
+traccomp-source(){ echo ${BASH_SOURCE:-$(env-home)/$(traccomp-src)} ; }
+traccomp-vi(){     vi $(traccomp-source) ; }
 
 traccomp-usage(){
    cat << EOU
