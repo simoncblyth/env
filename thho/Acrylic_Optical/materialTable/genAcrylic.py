@@ -14,7 +14,7 @@ import xml.etree.ElementTree as ET
 import math as ma
 
 # decide the file format
-model = "ModelA"
+model = "ModelB"
 
 def GenTable(model):
 
@@ -45,7 +45,8 @@ def GenAbsNum(model):
     if(model=="ModelA"):
         absNum = ModelAbsA(2.,2000.,3.,300.)
     elif(model=="ModelB"):
-        #absNum = ModelAbsB()
+        absNum = ModelAbsB(2.,20000.,3.,300.)
+    elif(model=="IORModelA")
         pass
     else:
         print "Please specify a correct model name"
@@ -57,7 +58,7 @@ def GenRefNum(model):
         refNum = ModelRefA()
         pass
     elif(model=="ModelB"):
-        #refNum = ModelRefB()
+        refNum = ModelRefB()
         pass
     else:
         print "Please specify a correct model name"
@@ -90,6 +91,13 @@ def ModelRefA():
                      4.13281                  1.5358
                         6.20                  1.6279'''
     return RefNum
+
+def ModelAbsB(a1,a2,delta,cutting):
+    return ModelAbsA(a1,a2,delta,cutting)
+
+def ModelRefB():
+    return ModelRefA()
+
 #################################################################
 
 #################################################################
