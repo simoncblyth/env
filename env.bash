@@ -638,6 +638,16 @@ env-ab(){
 
 }
 
+env-columns(){
+   
+   local msg="=== $FUNCNAME :"
+   type $FUNCNAME
+   echo COLUMNS : $COLUMNS
+   echo tput cols : $(tput cols)
+   python -c "import os ; os.environ['COLUMNS']='100' ; print os.environ['COLUMNS'] ; print os.getenv('COLUMNS')  "
+
+}
+
 env-htdocs-up(){
    local msg="=== $FUNCNAME :"
    local path=$1
