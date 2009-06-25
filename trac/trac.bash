@@ -1,6 +1,6 @@
 trac-src(){    echo trac/trac.bash ; }
 trac-source(){ echo ${BASH_SOURCE:-$(env-home)/$(trac-src)} ; }
-trac-svi(){    vi $(trac-source) ; }
+trac-vi(){     vi $(trac-source) ; }
 trac-usage(){
 cat << EOU
 
@@ -39,7 +39,7 @@ cat << EOU
     trac-tail    <name>  
     trac-log     <name>
     trac-inicat  <name>
-    trac-vi      <name>   
+    trac-edit      <name>   
            for name of ".." this edits the common inherited config  
            
     trac-rename <oldname> <newname>
@@ -378,7 +378,7 @@ trac-log(){  cd $(dirname $(trac-logpath $*)) ; ls -l  ;}
 trac-lvi(){  vi $(trac-logpath $*) ;}
 trac-inicat(){  cat $(trac-inipath $*) ; }
 trac-inhcat(){  cat $(trac-inheritpath $*) ; }
-trac-vi(){     $SUDO vi $(trac-inipath $*) ; }
+trac-edit(){    $SUDO vi $(trac-inipath $*) ; }
 
 trac-logname(){ echo trac.log ; }
 
@@ -650,6 +650,9 @@ trac-configure-instance(){
   ## this is needed to do copies of logos ... into htdocs
   SUDO=sudo TRAC_INSTANCE=$name   trac-placebanner 
   TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)  
+
+  ## special chars make this problematic to do via trac-triplets
+  TRAC_INSTANCE=$name trac-default-query
 }
 
 trac-configure-all(){
@@ -733,13 +736,19 @@ trac-logging(){
     
     local mbytes=1
     local count=10
-    
+ 
     trac-configure $(cat << EON 
         logging:log_maxsize:$mbytes
         logging:log_maxcount:$count
 EON)
+}
 
-
+trac-default-query(){
+   case $TRAC_INSTANCE in
+       dybsvn)  trac-configure 'query:default_query:status!=closed&owner=$USER|offline'  ;;
+ env|workflow)  trac-configure 'query:default_query:status!=closed&owner=$USER|admin'    ;;
+            *)  trac-configure 'query:default_query:status!=closed&owner=$USER'          ;;
+   esac 
 }
 
 
