@@ -1,10 +1,19 @@
+% mythesis.cls
 %
+% My thesis cls for tex based on 
 % ociamthesis v2.0
 % By Keith A. Gillow <gillow@maths.ox.ac.uk>
 % Version 1.0 released 26/11/1997
+%
+% Remove copyright stuffs like CRESTS etc.
+%
+%
+% Date: June 25, 2009
+% Author: Taihsiang Ho
+%
 %-------------------------- identification ---------------------
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{ociamthesis}[2006/08/18 v2.0 OCIAM thesis class]
+\ProvidesClass{mythesis}[2009/06/25 my thesis class]
 %-------------------------- initial code -----------------------
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{report}}
 \ProcessOptions\relax
@@ -28,36 +37,6 @@
 \def\degree#1{\gdef\@degree{#1}}
 % The name of your Oxford college (e.g. Christ Church, Pembroke)
 \def\college#1{\gdef\@college{#1}}
-
-
-%
-% CRESTS
-%
-
-% Traditional Oxford crest
-
-%Using latex metafont (Mathematical Institute system)
-%\font\crestfont=Upright
-%\def\crest{{\crestfont \char1}}
-%For comlab system replace 1st line above with
-%\font\crestfont=crest scaled\magstep3
-
-%To use an EPS image instead obtain suitable crest.eps file and
-%uncomment next line
-%\def\crest{{\includegraphics{crest.eps}}}
-
-% New Oxford Belt crest
-
-%Using latex metafont (Mathematical Institute system)
-%\font\beltcrestfont=oxbeltcrest
-%\def\beltcrest{{\beltcrestfont \char0}}
-%For comlab system replace 1st line above with
-%\font\beltcrestfont=newcrest
-
-%To use an EPS image instead obtain suitable beltcrest.eps file and
-%uncomment next line
-%\def\beltcrest{{\includegraphics{beltcrest.eps}}}
-
 
 %
 % Define text area of page and margin offsets
