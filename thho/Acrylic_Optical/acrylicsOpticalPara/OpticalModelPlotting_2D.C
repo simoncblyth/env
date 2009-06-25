@@ -31,7 +31,10 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
 
     TCanvas *c1 = new TCanvas(
         "c1","Optical Model T and R",200,10,700,900);
-    c1->Divide(2,1);
+    c1->Divide(2,2);
+    TCanvas *c2 = new TCanvas(
+        "c2","Optical Model T and R",200,10,700,900);
+    c2->Divide(3,1);
     //title = new TPaveText(.2,0.96,.8,.995);
     //title->AddText("Optical Model T and R");
     //title->Draw();
@@ -46,7 +49,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     buffer << "thickness " << d << ", lambda " << lambda;
     titleString = buffer.str();
 
-    c1->cd(1);
+    c2->cd(1);
     TF2 *tt = new
         TF2("Transmittance", GetTFormula,nmin,nmax,kmin,kmax,parNo);
     //pad1->cd();
@@ -63,7 +66,7 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     // gouraud shading
     //tt->Draw("surf4");
 
-    c1->cd(2);
+    c2->cd(2);
     TF2 *rr = new
         TF2("Reflectance", GetRFormula,nmin,nmax,kmin,kmax,parNo);
     //pad2->cd();
@@ -76,31 +79,47 @@ void OpticalModelPlotting2D(Double_t nmin, Double_t nmax,
     rr->GetHistogram()->GetYaxis()->SetTitleOffset(2.0);
  
     rr->Draw("surf1");
-/*
+
+    c2->cd(3);
+    TF2 *rt = new TF2("Sum of RT", GetSumRTFormula,nmin,nmax,kmin,kmax,parNo);
+    rt->SetParameters(d,lambda);
+    tmpTitle = "Sum " + titleString;
+    rt->SetTitle(tmpTitle.data());
+    rt->GetHistogram()->GetXaxis()->SetTitle("index of refraction, n");
+    rt->GetHistogram()->GetYaxis()->SetTitle("extinction coefficient, K");
+    rt->GetHistogram()->GetXaxis()->SetTitleOffset(1.4);
+    rt->GetHistogram()->GetYaxis()->SetTitleOffset(2.0);
+    rt->Draw("surf1");
+
+
     c1->cd(3);
     TF1 *ttk = new
         TF1("Transmittance of fix n",GetTFormulaK,kmin,kmax,parNo+1);
+    ttk->SetTitle("Transmittance of fix n");
     ttk->SetParameters(d,lambda,nfix);
     ttk->Draw();
 
     c1->cd(4);
     TF1 *rrk = new
         TF1("Reflectance of fix n",GetRFormulaK,kmin,kmax,parNo+1);
+    rrk->SetTitle("Reflectance of fix n");
     rrk->SetParameters(d,lambda,nfix);
     rrk->Draw();
 
-    c1->cd(5);
+    c1->cd(1);
     TF1 *ttn = new
         TF1("Transmittance of fix k",GetTFormulaN,nmin,nmax,parNo+1);
+    ttn->SetTitle("Transmittance of fix k");
     ttn->SetParameters(d,lambda,kfix);
     ttn->Draw();
 
-    c1->cd(6);
+    c1->cd(2);
     TF1 *rrn = new
         TF1("Reflectance of fix k",GetRFormulaN,nmin,nmax,parNo+1);
+    rrn->SetTitle("Reflectance of fix k");
     rrn->SetParameters(d,lambda,kfix);
     rrn->Draw();
-*/
+
 
 
 }
@@ -123,6 +142,12 @@ void GetMeasureValue(Double_t alpha, Double_t n,
     cout << "FR\t" << GetFR(n,k) << endl;
     cout << "Tmc\t" << Tmc << endl;
     cout << "Rmc\t" << Rmc << "\tTmc+Rmc\t" << Tmc+Rmc << endl;
+
+}
+
+Double_t GetSumRTFormula(Double_t *x, Double_t *par) {
+
+    return GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1])) + GetOpticalModelRValue(GetOpticalModelTValue(GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1])),GetIT(x[1],par[0],par[1]),GetFR(x[0],x[1]));
 
 }
 
