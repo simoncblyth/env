@@ -249,6 +249,12 @@ trac-baseurl-deprecated-use-env-localserver(){
 }
 
 
+trac-find(){
+   find $(python-site)/Trac-0.11-py2.5.egg/trac -name '*.py' -exec grep -H $1 {} \;
+}
+
+
+
 trac-url(){
    echo $(env-localserver)/tracs/${1:-$TRAC_INSTANCE}
 } 
