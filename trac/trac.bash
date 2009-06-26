@@ -641,7 +641,12 @@ trac-inherit(){
       read -p "install the new config ? Enter YES to do so :" ans 
       if [ "$ans" == "YES" ]; then
          $SUDO cp $tpath $live 
-         [ -n "$SUDO" ] && $SUDO chown $user:$user $live
+       
+         if [ -n "$SUDO" ]; then 
+            local cmd="$SUDO chown $user:$user $live"
+            echo $cmd
+            eval $cmd
+         fi
       else
          echo $msg skipping new config 
       fi
