@@ -8,14 +8,32 @@ autocomp-usage(){
 
   cat << EOU
 
+   Workflow :
 
-    View the components with {10} ...
+       0) View the current Trac components with report:10 or {10} ...
 
             http://dayabay.ihep.ac.cn/tracs/dybsvn/report/10
             http://dayabay.phys.ntu.edu.tw/tracs/env/report/10
             http://localhost/tracs/workflow/report/10
 
- 
+       1) Modify the "owner" settings in instance functions
+              env-owners-/workflow-owners-/...
+          
+          Apply these settings to relevant working copy with : 
+              autocomp-owners
+           
+          Commit these property settings (and function changes) to the repository 
+
+
+       2) On the machine on which the repository resides ... 
+          (as need to access the trac and svn databases simultaneously)
+          sync property settings with components :
+
+              autocomp-sudosync
+
+
+
+
 
      autocomp-sync  <env-name>    defaults to TRAC_INSTANCE 
 
@@ -29,15 +47,16 @@ autocomp-usage(){
                  see #e111
 
 
-
     autocomp-sudosync  <env-name>  
               as the script writes to the trac log ... this sudo form is usally needed 
 
-
-     autocomp-help           
-     
+     autocomp-help                
              pydoc of the autocomponent module 
   
+
+
+
+
 
      trac-home        : $(trac-home)
             working copy home for TRAC_INSTANCE : $TRAC_INSTANCE
@@ -101,7 +120,7 @@ autocomp-owners(){
 
 
 
-
+autocomp-py(){ vi $(autocomp-dir)/autocomponent.py ; }
 autocomp-sync(){
    
    local name=${1:-$TRAC_INSTANCE}
