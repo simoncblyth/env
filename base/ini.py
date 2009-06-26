@@ -77,7 +77,7 @@ class IniEdit:
             blk = r.group('blk')
             key = r.group('key')
             val = r.group('val')
-            print "[%s][%s][%s]" % ( blk, key, val )
+            #print "[%s][%s][%s]" % ( blk, key, val )
             if not(self.conf.has_key(blk)):
                 self.conf[blk] = {}
             

@@ -414,7 +414,9 @@ trac-edit-ini(){
    
    local dmd="diff $path $tpath" 
    echo $msg $dmd
-   $dmd
+   eval $dmd
+
+   [ "$?" == "0" ] && echo $msg no differences ... skipping && return 0
 
    if [ -n "$TRAC_CONFIRM" ]; then
       local ans
@@ -763,28 +765,16 @@ trac-logging(){
 EON)
 }
 
-trac-defaultquery(){
-   case $TRAC_INSTANCE in
-       dybsvn)  trac-configure 'query:default_query:status!=closed&owner=$USER|offline'  ;;
- env|workflow)  trac-configure 'query:default_query:status!=closed&owner=$USER|admin'    ;;
-            *)  trac-configure 'query:default_query:status!=closed&owner=$USER'          ;;
-   esac 
-}
-
-
 trac-defaultquery-triplets(){
    local name=${1:-$TRAC_INSTANCE}
    case $name in
        dybsvn)  echo 'query:default_query:status!=closed&owner=$USER|offline'  ;;
- env|workflow)  echo 'query:default_query:status!=closed&owner=$USER|admin'    ;;
+ env|workflow)  echo 'query:default_query:status!=closed&owner=$USER|admin&group=component'    ;;
             *)  echo 'query:default_query:status!=closed&owner=$USER'          ;;
    esac 
 }
 
-
-
 trac-triplets(){
-
    local name=${1:-$TRAC_INSTANCE}
    svn-
    local authz=$(svn-authzpath)
