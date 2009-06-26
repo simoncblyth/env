@@ -16,6 +16,19 @@ env-rel(){
   echo $rel
 }
 
+env-owners-(){ cat << EOO
+    aberdeen blyth
+    base     blyth
+    scm      blyth
+    trac     blyth 
+    apache   blyth
+    mysql    blyth
+    python   blyth
+    root     blyth 
+EOO
+## used by autocomp-owners-
+}
+
 env-sourcelink(){
    local src=${1:-$(env-home)/}
    svn-

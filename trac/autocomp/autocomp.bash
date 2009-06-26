@@ -38,6 +38,26 @@ autocomp-usage(){
      
              pydoc of the autocomponent module 
   
+
+     trac-home        : $(trac-home)
+            working copy home for TRAC_INSTANCE : $TRAC_INSTANCE
+     
+     autocomp-owners
+            set the svn owner properties for paths relative to 
+            trac-home, preexisting owner properties are overwritten
+
+            the following folders / owners are defined :
+          
+$(autocomp-owners-)
+
+
+            to manipulate an instance that is not the default for the node
+            use the form :
+
+                 TRAC_INSTANCE=env autocomp-usage
+                 TRAC_INSTANCE=env autocomp-owners
+
+
   
 EOU
 
@@ -48,6 +68,38 @@ EOU
 autocomp-env(){
    trac-
 }
+
+autocomp-owners-set(){
+   local msg="=== $FUNCNAME :"
+   local fold=$1
+   local owner=$2
+   local path=$(trac-home)/$fold
+   [ ! -d "$path" ] && echo $msg skip no existing dir $path && return 1
+   ## preexisting owner gets overwritten
+   local cmd="svn propset owner $owner $path "
+   echo $cmd
+   eval $cmd
+}
+autocomp-owners-(){ 
+   ## defers to the function for the relevant instance 
+   local name=${1:-$TRAC_INSTANCE}
+   local f=${FUNCNAME/autocomp/$name}
+   $f
+}
+autocomp-owners(){
+   local msg="=== $FUNCNAME :"
+   local name=${1:-$TRAC_INSTANCE}
+   [ -z "$name" ] && echo $msg trac instance must be specified && return 1
+   echo $msg set svn owner properties of folders relative to working copy home  $(trac-home)
+   $FUNCNAME-
+ 
+   local line
+   $FUNCNAME- $name | while read line ; do 
+      $FUNCNAME-set $line
+   done
+}
+
+
 
 
 autocomp-sync(){

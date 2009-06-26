@@ -214,6 +214,13 @@ trac--(){
 }
 
 
+trac-home(){
+   ## home of the pertinent working copy 
+   local name=${1:-$TRAC_INSTANCE}
+   local f="$name-home"
+   $f 
+}
+
 trac-instance(){
     ## the override should be set in .bash_profile for a temporary change to the default instance
     [ -n "$TRAC_INSTANCE_OVERRIDE" ] && echo $TRAC_INSTANCE_OVERRIDE && return 1  
