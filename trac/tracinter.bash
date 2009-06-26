@@ -1,4 +1,5 @@
 tracinter-source(){ echo $BASH_SOURCE ; }
+tracinter-vi(){     vi $(tracinter-source) ; }
 tracinter-usage(){
    cat << EOU
    

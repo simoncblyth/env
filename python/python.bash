@@ -73,7 +73,23 @@ python-ls(){
 }
 
 
-python-version(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
+python-version-system(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
+python-version-source(){
+   local tag=${1:-$NODE_TAG}
+   case $tag in 
+     C2) echo 2.5.1 ;;
+      *) echo 2.5.1 ;;
+   esac
+}
+python-version(){
+  ## can only cream the version of the python in path in system case.. 
+  ## as python-home is being used to set the path 
+  case $(python-mode) in 
+     system) echo $(python-version-system) ;; 
+     source) echo $(python-version-source) ;;
+  esac
+}
+
 
 
 python-cd(){

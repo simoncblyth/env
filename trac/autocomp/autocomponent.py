@@ -191,12 +191,12 @@ def autocomp(args):
 
     if envdir.endswith("dybsvn"):
         acs = SubTrunkAutoComponent(  "owner", "offline" , "//" )
+        print "===> use seed components to direct the repository walk, selecting owned nodes .. and their parents "
+        seed_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_seedcomp(c.name) ]
     else:
         acs = BaseTrunkAutoComponent( "owner" , "blyth" , "//" )
+        seed_comps = ["//"] 
     print acs
-
-    print "===> use seed components to direct the repository walk, selecting owned nodes .. and their parents "
-    seed_comps = [ c.name for c in Component.select(admin.env_open()) if acs.is_seedcomp(c.name) ]
     print "seed_comps: %s " % seed_comps 
     
     repos = Repository(envdir, authname, acs)    
