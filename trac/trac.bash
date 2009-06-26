@@ -256,7 +256,11 @@ trac-find(){
 
 
 trac-url(){
-   echo $(env-localserver)/tracs/${1:-$TRAC_INSTANCE}
+   local name=${1:-$TRAC_INSTANCE}
+   case $name in 
+     workflow) echo http://localhost/tracs/$name ;;
+            *) echo $(env-localserver)/tracs/${1:-$TRAC_INSTANCE} ;;
+   esac
 } 
  
 
