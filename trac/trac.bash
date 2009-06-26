@@ -398,6 +398,7 @@ trac-configure(){ trac-edit-ini $(trac-inipath) $*   ; }
 
 
 trac-edit-ini(){
+   local msg="=== $FUNCNAME :"
    local path=$1
    shift
    
@@ -414,6 +415,13 @@ trac-edit-ini(){
    local dmd="diff $path $tpath" 
    echo $msg $dmd
    $dmd
+
+   if [ -n "$TRAC_CONFIRM" ]; then
+      local ans
+      read -p "$msg enter YES to confirm this change " ans
+      [ "$ans" != "YES" ] && echo $msg skipped && return 1
+   fi 
+
    
    
    $SUDO cp $tpath $path 
@@ -642,18 +650,30 @@ trac-configure-instance(){
   local inherit=$(trac-inheritpath)
   [ ! -f "$inherit" ] && echo $msg ABORT ... sleeping ... there is no trac-inheritpath : $inherit ... do trac-inherit-setup elsewhere then ctrl-C out of the sleep to continue && sleep 100000000
  
-  trac-comment $name "tracrpc.* = enabled"
-  trac-comment $name "default_handler = TagsWikiModule"
-  trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"
-  trac-comment $name "enscript_path = .*"
-
   ## this is needed to do copies of logos ... into htdocs
   SUDO=sudo TRAC_INSTANCE=$name   trac-placebanner 
   TRAC_INSTANCE=$name trac-configure  $(trac-triplets $name)  
 
-  ## special chars make this problematic to do via trac-triplets
-  TRAC_INSTANCE=$name trac-default-query
 }
+
+trac-delete-triplets(){
+
+ # These should all be configured in the inherited common.ini ... rather than the individual trac.ini
+
+ # trac-comment $name "tracrpc.* = enabled"
+ # trac-comment $name "default_handler = TagsWikiModule"
+ # trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"      housed in common.ini not needed here ?
+ # trac-comment $name "enscript_path = .*"
+
+  cat << EOT
+      trac:default_handler:TagsWikiModule@DELETE
+      components:tracrpc.*:enabled@DELETE
+      components:trac.wiki.web_ui.wikimodule:disabled@DELETE
+      mimeviewer:enscript_path:@DELETE
+EOT
+}
+
+
 
 trac-configure-all(){
 
@@ -743,13 +763,24 @@ trac-logging(){
 EON)
 }
 
-trac-default-query(){
+trac-defaultquery(){
    case $TRAC_INSTANCE in
        dybsvn)  trac-configure 'query:default_query:status!=closed&owner=$USER|offline'  ;;
  env|workflow)  trac-configure 'query:default_query:status!=closed&owner=$USER|admin'    ;;
             *)  trac-configure 'query:default_query:status!=closed&owner=$USER'          ;;
    esac 
 }
+
+
+trac-defaultquery-triplets(){
+   local name=${1:-$TRAC_INSTANCE}
+   case $name in
+       dybsvn)  echo 'query:default_query:status!=closed&owner=$USER|offline'  ;;
+ env|workflow)  echo 'query:default_query:status!=closed&owner=$USER|admin'    ;;
+            *)  echo 'query:default_query:status!=closed&owner=$USER'          ;;
+   esac 
+}
+
 
 
 trac-triplets(){
@@ -762,6 +793,7 @@ trac-triplets(){
    local repo=$(TRAC_INSTANCE=$name trac-repopath)
    local inherit=$(trac-inheritpath)
    
+   navadd-
    
    cat << EOT
       inherit:file:$inherit
@@ -780,6 +812,9 @@ trac-triplets(){
       project:name:$name
       project:descr:$name
       ticket:restrict_owner:true
+$(trac-delete-triplets $name)
+$(navadd-triplets query Query /tracs/$name/query)
+      $(trac-defaultquery-triplets $name)
 EOT
 
 }
@@ -820,11 +855,12 @@ trac-placebanner(){
    local msg="=== $FUNCNAME :" 
    local path=${1:-$(trac-bannerpath)}
    [ ! -f "$path" ] && echo $msg no such path $path && return 1
-   local cmd="$SUDO cp -f $path $(trac-envpath)/htdocs/"
+   local dest=$(trac-envpath)/htdocs/$(basename $path)
+   [ -f "$dest" ] && echo $msg already present at $dest && return 0
+
+   local cmd="$SUDO cp -f $path $dest "
    echo $msg $cmd
    eval $cmd
-   # tis confusing to have multiple configure calls ...
-   #trac-configure $(trac-banner-triplet)
 }
 
 

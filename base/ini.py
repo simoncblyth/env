@@ -47,7 +47,7 @@ class IniEdit:
             
             
     """
-    tripat = re.compile("(?P<blk>[\w\-]*):(?P<key>[\w\-]*):(?P<val>.*)")
+    tripat = re.compile("(?P<blk>[\w\-]*):(?P<key>[\w\-\.\*]*):(?P<val>.*)")
     
     
    
@@ -85,7 +85,11 @@ class IniEdit:
             if key == "":
                 self.conf[blk] = {}
             else:
-                self.conf[blk][key] = val 
+                if val.find("@DELETE") > -1: 
+                    if self.conf.has_key(blk) and self.conf[blk].has_key(key): 
+                        del self.conf[blk][key] 
+                else:
+                    self.conf[blk][key] = val 
         
     def __str__(self):
         return "\n".join(self.text( self.conf ))

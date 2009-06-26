@@ -34,14 +34,26 @@ EON
 navadd-conf-(){
 cat << EOC
 [navadd]
-add_items = mytickets
-mytickets.title = MyTickets
-mytickets.url = /tracs/workflow/report/7
-mytickets.perm = REPORT_VIEW
-mytickets.target = mainnav   # metanav
+add_items = query 
+query.title = Query
+query.url = /tracs/$TRAC_INSTANCE/query
+query.perm = REPORT_VIEW
+query.target = mainnav   # metanav
 EOC
 }
 
+navadd-triplets(){ 
+   local  name=${1:-query}
+   local title=${2:-Query}
+   local   url=${3:-/tracs/$TRAC_INSTANCE/query}
+   cat << EOT
+      navadd:add_items:$name
+      navadd:$name.title:$title
+      navadd:$name.url:$url
+      navadd:$name.perm:REPORT_VIEW
+      navadd:$name.target:mainnav 
+EOT
+}
 
 navadd-env(){
   elocal-
