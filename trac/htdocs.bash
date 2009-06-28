@@ -1,7 +1,10 @@
 htdocs-src(){    echo trac/htdocs.bash ; }
 htdocs-source(){ echo ${BASH_SOURCE:-$(env-home)/$(htdocs-src)} ; }
 htdocs-vi(){ vi $BASH_SOURCE ; }
-htdocs-env(){ trac- ; }
+htdocs-env(){ 
+    echo -n ; 
+   # trac- ; 
+}
 
 htdocs-usage(){
   cat << EOU

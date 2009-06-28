@@ -685,3 +685,4 @@ tg-(){         . $(env-home)/offline/tg/tg.bash && tg-env $*  ; }
 pl-(){         . $(env-home)/offline/pl/pl.bash && pl-env $* ; }
 pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
 modwsgi-(){    . $(env-home)/apache/apachebuild/modwsgi.bash && modwsgi-env $* ; }
+lighttpd-(){      . $(env-home)/lighttpd/lighttpd.bash && lighttpd-env $* ; }

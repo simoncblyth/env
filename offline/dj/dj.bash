@@ -1,7 +1,7 @@
 dj-src(){      echo offline/dj/dj.bash ; }
 dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
 dj-dir(){      echo $(dirname $(dj-source)) ; }
-dj-vi(){       vi $(dj-source) ; }
+dj-vi(){       vim $(dj-source) ; }
 dj-env(){      
    elocal- ; 
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
@@ -161,6 +161,7 @@ dj-preq(){
     local msg="=== $FUNCNAME :"
     [ "$(which port)" != "" ] && $FUNCNAME-port
     [ "$(which yum)"  != "" ] && $FUNCNAME-yum
+    [ "$(which ipkg)"  != "" ] && $FUNCNAME-yum
     echo $msg ERROR ... no distro handler 
 }
 
@@ -191,6 +192,14 @@ dj-preq-yum(){
   ## this is in dag.repo ... you may need to enable that in /etc/yum.repos.d/dag.repo
     sudo yum install ipython
 }
+
+dj-preq-ipkg(){
+
+   sudo ipkg install python25
+  # sudo ipkg install py25-django
+
+}
+
 
 
 dj-build(){
@@ -230,14 +239,28 @@ dj-cpk(){
 
 ## src access ##
 
+
+
+
 dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
-dj-srcfold(){ echo $(local-base)/env ; }
-dj-mode(){ echo def ; }
+dj-srcfold(){ 
+   case $(dj-mode $*) in 
+      system) echo $(python-site) ;; 
+           *) echo $(local-base)/env ;; 
+   esac
+}
+dj-mode(){ 
+   case $NODE_TAG in 
+     U) echo system ;;
+     *) echo def ;;
+   esac
+}
 dj-srcnam(){  
    case ${1:-$(dj-mode)} in
     cpk) echo django-compositepks ;;
     pre) echo django$(dj-cpkrev)   ;;
     def) echo django ;;
+    system) echo django ;;
       *) echo django ;;
    esac 
 }
@@ -245,6 +268,8 @@ dj-srcdir(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
 dj-get(){
   local msg="=== $FUNCNAME :"
+
+  [ "$NODE_TAG" == "U" ] && echo $msg system django && return 1
   local dir=$(dj-srcfold)
   local nam=$(dj-srcnam default)
   mkdir -p $dir && cd $dir 
@@ -373,21 +398,25 @@ dj-deploy(){
    #dj-test
 }
 
+dj-server(){ echo lighttpd ; }
+
 dj-conf(){
   local msg="=== $FUNCNAME :" 
   local tmp=/tmp/env/dj && mkdir -p $tmp 
   local conf=$tmp/$(dj-confname)
-  dj-location- > $conf
-  apache-
+  
+  local server=$(dj-server)
+  dj-location-$server- > $conf
+  $server-
   cat $conf
-  local cmd="sudo cp $conf $(apache-confd)/$(basename $conf)"
+  local cmd="sudo cp $conf $($server-confd)/$(basename $conf)"
   local ans
   read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
   [ "$ans" != "YES" ] && echo $msg skipping && return 1
   eval $cmd
 }
 
-dj-location-(){
+dj-location-apache-(){
   apache-
   private-
   cat << EOL
@@ -420,6 +449,36 @@ EOL
 # PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
 }
 
+dj-location-lighttpd-(){  cat << EOC
+
+fastcgi.server = (
+    "$(dj-urlroot)" => (
+           "main" => (
+               "socket" => "/tmp/mysite.sock",
+               "check-local" => "disable",
+                      )
+                 ),
+)
+
+alias.url = (
+           "/media" => "$(python-site)/django/contrib/admin/media",  
+)
+
+
+url.rewrite-once = (
+      "^(/media.*)$" => "$1",
+      "^/favicon\.ico$" => "/media/favicon.ico",
+      "^(/.*)$" => "$(dj-urlroot)$1",
+)
+
+EOC
+}
+
+
+
+dj-lighttpd(){
+  $FUNCNAME- > $(lighttpd-confd)/django.conf
+}
 
 dj-eggcache(){
    local cache=$(dj-eggcache-dir)
@@ -495,6 +554,7 @@ dj-admin-cp(){
 dj-test(){
     curl http://localhost$(dj-urlroot)/
 }
+
 
 
 
