@@ -20,6 +20,8 @@
 \documentclass[12pt]{mythesis}
 
 %\usepackage{amssymb,epsfig}
+\usepackage{natbib}
+\usepackage{graphicx}
 
 %setup a default path to search for graphics
 %\graphicspath{{./}{Figs/}{Plots/}}
@@ -30,8 +32,6 @@
 %\renewcommand{\submittedtext}{change the default text here if needed}
 \degree{Master}
 \degreedate{April 24, 2009}
-%uncomment line below to change from traditional crest to belt crest
-%\renewcommand{\crest}{\beltcrest}
 
 \begin{document}
 
@@ -62,10 +62,11 @@
 %\include{appendix2}
 
 %next line adds the Bibliography to the contents page
-%\addcontentsline{toc}{chapter}{Bibliography}
+\addcontentsline{toc}{chapter}{Bibliography}
 %uncommnent next line to change bibliography name to references
 %\renewcommand{\bibname}{References}
 %\bibliography{refs}
-%\bibliographystyle{gillow}
+\bibliographystyle{utcaps}
+\bibliography{./contents/mybib}
 
 \end{document}
