@@ -18,7 +18,9 @@ class Private:
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
     def __init__(self):
         path = os.environ.get('ENV_PRIVATE_PATH',None)
-        assert path , "envvar ENV_PRIVATE_PATH not defined "        
+        if(not(path)):
+            path = os.path.join( os.path.dirname(os.environ.get('ENV_HOME')), '.bash_private' )
+        assert path , "path not defined : this can be set with envvar ENV_PRIVATE_PATH not defined "        
         self.path = path
         assert os.path.exists(path), "path does not exist ... %s  %s " % ( path , self )
         s = os.stat(path)
