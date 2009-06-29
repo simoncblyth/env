@@ -21,4 +21,8 @@ lighttpd-check(){
 }
 
 
+lighttpd-init(){ sudo /opt/etc/init.d/S80lighttpd $* ; }
+lighttpd-start(){ lighttpd-init start ; }
+lighttpd-stop(){  lighttpd-init stop ; }
+lighttpd-ps(){    ps aux | grep light ; }
 

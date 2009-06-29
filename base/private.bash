@@ -38,6 +38,15 @@ private-usage(){
        not "-rw-------"
        
        returns silently if the file doesnt exist 
+
+
+       Arc> private-test- | sudo python
+                    i = p.rfind('/') + 1
+                    AttributeError: 'NoneType' object has no attribute 'rfind'
+                    
+       Arc> private-test- | sudo ENV_PRIVATE_PATH=$HOME/.bash_private python                                     
+                    42
+
    
 EOU
 
@@ -117,6 +126,21 @@ private-val(){
   echo $valu
   return 0
 }
+
+
+private-test(){ 
+   [ "$PWD" == "$ENV_HOME" ] && echo $msg ERROR env.pyc will cause problems running from here && return 1
+   $FUNCNAME- | python 
+}
+private-test-(){ cat << EOT
+
+from env.base.private import Private
+p = Private()
+print p('SECRET')
+
+EOT
+}
+
 
 
 

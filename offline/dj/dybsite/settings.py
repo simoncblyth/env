@@ -11,6 +11,10 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+# for fastcgi
+FORCE_SCRIPT_NAME = ''
+
+
 from env.base.private import Private
 p = Private()
 

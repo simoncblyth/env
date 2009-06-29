@@ -251,7 +251,7 @@ dj-srcfold(){
 }
 dj-mode(){ 
    case $NODE_TAG in 
-     U) echo system ;;
+     Z) echo system ;;
      *) echo def ;;
    esac
 }
@@ -269,7 +269,7 @@ dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
 dj-get(){
   local msg="=== $FUNCNAME :"
 
-  [ "$NODE_TAG" == "U" ] && echo $msg system django && return 1
+  [ "$(dj-mode)" == "system" ] && echo $msg system django && return 1
   local dir=$(dj-srcfold)
   local nam=$(dj-srcnam default)
   mkdir -p $dir && cd $dir 
@@ -277,7 +277,8 @@ dj-get(){
 }
 dj-ln(){
   local msg="=== $FUNCNAME :"
-  python-ln $(dj-srcdir)/django django 
+
+  [ "$(dj-mode)" != "system" ] && python-ln $(dj-srcdir)/django django 
   python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
@@ -398,7 +399,12 @@ dj-deploy(){
    #dj-test
 }
 
-dj-server(){ echo lighttpd ; }
+dj-server(){ 
+   case ${1:-$NODE_TAG} in
+      U) echo lighttpd  ;;
+      *) echo apache ;;
+   esac
+}
 
 dj-conf(){
   local msg="=== $FUNCNAME :" 
@@ -449,12 +455,14 @@ EOL
 # PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
 }
 
+
+dj-fcgiroot(){ echo /django.fcgi ; }
 dj-location-lighttpd-(){  cat << EOC
 
 fastcgi.server = (
-    "$(dj-urlroot)" => (
+    "$(dj-fcgiroot)" => (
            "main" => (
-               "socket" => "/tmp/mysite.sock",
+               "socket" => "$(dj-socket)",
                "check-local" => "disable",
                       )
                  ),
@@ -466,19 +474,27 @@ alias.url = (
 
 
 url.rewrite-once = (
-      "^(/media.*)$" => "$1",
+      "^(/media.*)$" => "\$1",
       "^/favicon\.ico$" => "/media/favicon.ico",
-      "^(/.*)$" => "$(dj-urlroot)$1",
+      "^/robots\.txt$" => "/robots.txt",
+      "^(/.*)$" => "$(dj-fcgiroot)\$1",
 )
 
 EOC
 }
 
+dj-socket(){  echo /tmp/mysite.sock ; }
 
-
-dj-lighttpd(){
-  $FUNCNAME- > $(lighttpd-confd)/django.conf
+dj-runfcgi(){
+  cd $(dj-projdir)
+  sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false $*
 }
+
+dj-runserver(){
+  cd $(dj-projdir)
+  sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 80
+}
+
 
 dj-eggcache(){
    local cache=$(dj-eggcache-dir)
