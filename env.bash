@@ -25,6 +25,7 @@ env-owners-(){ cat << EOO
     mysql    blyth
     python   blyth
     root     blyth 
+    offline  blyth 
 EOO
 ## used by autocomp-owners-
 }
