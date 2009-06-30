@@ -33,6 +33,7 @@ UV-transparent ones.
 (UV-blocked acrylic transmission spectrum)
 (UV-transparent acrylic transmission spectrum)
 
+optical transmission standard
 
 Nervertheless, not only as-received acrylic material property, but also as-cast
 acrylic material should be monitored. Three kinds of manufacture process happen to the acrylic panels.
@@ -56,6 +57,7 @@ and both increasing and decreasing effect could happen, depending on different k
 
 (IAV 10mm increasing)
 
+(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
 
 Fig. IAV 10mm increasing shows the transmission will fit in with the QA in around 1 month, which is longer than typical
 bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
@@ -73,27 +75,61 @@ Thus the acrylic vessels should be avoid to be exposured to the sunshine directl
 
 \subsubsection {Polish}
 
-Acrylic vessels during manufacture 
-Polish process happens
+Besides bonding, polish affects optical behavior.
+Finer polish enhance specular reflection and ensure that light
+go more straightly when passing through acrylic panels, namely
+reducing diffuce reflection. However, to approach very fine polish,
+ingredients of some products so called scratch remover are unknown, and
+ingredients of binder of finer aluminium oxide or other kinds of powder to polish
+acrylic finer is unknown, too. The unknown ingredients may contaminate GdLS or LS, or
+be radioactive and should not be used.
+
+Fig----------  shows comparison of different
+polish class. Acrylic transmission is obviously different in air but not in LAB.
+Extent of polish only changes light path of incident beam but not affects total light intensity.
+The image of a acrylic sheet with ralph surface looks vague because diffuce reflection happens, not
+incident beams are absorbed.
+
+
+
+(setting of polish test, in LAB)
 
 
 
 
-polish class
-
-(settings of the polish test)
-
-(test of the polish result)
+(result of air)
 
 
-optical transmission standard
+
+
+(result of in LAB)
+
+
+
+
+(setting of different range of polish test)
+
+
+
+
+(result of different range shows the different)
+
+
+The 1st IAV has used the scratch remover and the abrasive with binder. The 2nd
+IAV is decided not to use both of them before any further study of the ingredients
+, and only using normal sand papers, which the abrasive is aluminium oxide generally. 
 
 
 \subsection {Acrylic Optical Property for Simulations}
 
-\section {Optical Property of Acrylic Sheets Used for Dayabay and Aberdeen Experiments}
+Both G4dyb and NuWa use GEANT4 as the physics simulation engine.
+To simulate the optical property of photons, only two parameters are used
+by GEANT4, the index of refraction and the attenuation length. These two
+parameters are different from materials to materials and can be decided
+by measurement only.
 
-\subsection {A Spectrometer and Integrating sphere}
+
+\subsection {Spectrometer and Integrating sphere}
 
 A spectrometer with a integrating sphere is used for the QA/QC
 of the acrylic optical property including
@@ -111,20 +147,173 @@ from 200nm to 800nm, that is, covers the sensitive wavelength range.
 
 The outcoming light source of the Lambda 650 has around 30\%-70\% polarization.
 
+
+(Perkin Elmer Lambda 650 optical component)
+
+
 The
 
+
 A integrating sphere can collect
+    - too thick for acrylic
+    - systematic error for transparent samples
+        - modify by distance
 
 
-\subsection {The Aging Effect}
+(scheme shows thickness effect of transmission measurement)
+
+
+
+
+(optical principle of a integrating sphere)
+
+
+
+
+(systematic error for transparent samples)
+
+
 
 
 \section {Integration of Dayabay Acrylic Vessel}
 
-\subsection {Transportation, Cleaning, and Assembly}
+\subsection {Cleaning, Transportation and Assembly}
 
-Alconox test
 
-cleaning procedure
+\subsubsection {Cleaning}
+
+IAV is the target of Dayabay antineutrino detector,
+and the cleanliness is highly required to avoid any contaminant
+for GdLS and possible radioactive sources like dusts in air, which
+could be Th or ----------. Th and ----- could be radioactive sources potentially
+by ----------decays to -------------.
+
+IAV can not be opened anymore after manufacture, except the calibration ports.
+Thus the cleaning process is suggested before the final bonding of bottom lid.
+The proposed cleaning process is shown in Fig--------. The requirement to define
+how clean is clean is shown below.
+
+
+(how clean is clean)
+
+
+
+A class 10000 meets the FED209a standard is adopted to be the level of the cleaning room.
+The QA of the cleaning room is shown below.
+
+
+(FED209a standard)
+
+
+
+
+(QA of the cleaning room)
+
+
+
+
+(Cleaning process scheme)
+
+
+Alconox and deionized water are used to clean IAVs. Alconox is -------------------.
+1\% Alconox solution.
+The resistance of the deionized water should be greater than 18M$ohm$-cm.
+To define the Alconox solution is removed by deionized water, conductivity of the
+washdown water should be smaller than 1$mu$S/cm after cycle rinse.
+
+
+(cycle rinse scheme)
+
+
+The 1$mu$S/cm conductivity is derived by measuring the conductivity of Alconox solution.
+Alconox solution which is smaller than 1ppm shows conductivity smaller than around 1$mu$S.
+Although the unit of conductivity meter, Hana --------, is 0.1 $mu$S, the minimum to detect
+Alconox solution concentration down to around 1$mu$S because of the possible contaminant
+in pipes, pumps, water tanks, and so forth. Also the carbon dioxide may dissolve in
+deionized water jet. These will make the conductivity of the washdown water raise
+even through the vessel surface has been clean and the cycle rinse water does not
+carry any Alconox solution, dust or other dirt.
+
+
+(Test of monitor of water and Alconox solution conductivity)
+
+
+\subsubsection {Transportation}
+
+After the production including final cleaning of IAV, the IAV will be
+transported from Taiwan to Dayabay.
+The IAV prototype was checked by the polarizers-------- and passed
+the lifting test after tranportation to SAB, Dayabay.
+
+
+(polarizer check of the IAV prototype at SAB)
+
+
+
+
+(lifting test of the prototype at SAB)
+
+
+Accroding to the experience of the IAV
+prototype, the pack method is feasible shown in Fig -----------.
+
+
+(Pack scheme)
+
+
+The route for IAV#1 and IAV#2 is shown in Fig--------.
+It will take around 1 or 2 week from Taiwan to Dayabay site.
+
+
+(route)
+
+
+More moniter devices were suggested to moniter the transportation
+status. Table-------- summary the devices.
+
+
+(moniter device for IAV transportation)
+
+
+\subsubsection {Assembly}
+
+IAV should be installed into OAV. A proposed AD installation
+scheme is as Fig-------, including installation of IAV.
+
+
+(AD installation scheme, Karsten slides)
+
+
+From the point of installation view, the coaxiality of the top center calibration port and
+the bottom pin is mostly cared. Installation could be bottom-to-top or top-to-bottom, deponding
+on the coaxiality.
+
+
+(bottom-to-top installation scheme and the error)
+
+
+
+
+(top-to-bottom installation scheme and the error)
+
+
+
+A proposed coaxiality QA measurement is shown in Fig--------. The uncertainty
+of the QA measurement is less than 3mm.
+
+
+(table of measurement uncertainty)
+
+
+
+
+
+(QA of coaxiality measurement scheme)
+
+
+
+
+
+
 
 Aberdeen Reflector manufactor

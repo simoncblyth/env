@@ -4,7 +4,47 @@
 
 \subsection {G4dyb}
 
+G4dyb is a application program composed of GEANT4.
+G4dyb provides many preliminary simulation tasks and could be
+the validation of NuWa, the later offline software.
+The version control of G4dyb is CVS in the early days and
+SVN later. CMT is used to manage the configuration of G4dyb.
+The latest version of G4dyb is release ------------, and
+G4dyb has been stopped to develop around in the middle of last year(2008).
+
+
 \subsection {NuWa}
+
+NuWa is the official offline software of Dayabay experiment.
+It contains not only the physics simulation engine, but also
+other offline programs, including electronic simulation,
+trigger simulation, analysis programs, and so forth.
+
+NuWa is a framework, which is different from G4dyb.
+A framework-----------------------, ------------------.
+It could be realized NuWa is a assembly of many kinds of application program,
+e.g. Root, the analysis framework developed by CERN, GEANT4, and so forth.
+The framework is based on Gaudi. Gaudi is ----------------------.
+
+NuWa communicates with GEANT4 by GiGa, Gaudi interface to GEANT application-------.
+A typical script to control GiGa is Python. The simulation structure scheme is shown below.
+
+
+(NuWa simulation structure scheme)
+
+
+The version control of NuWa is SVN and CMT is used to manage
+the configuration of NuWa. At the time of writing, the latest
+version of NuWa is 1.3.0--------------------------.
+
+The algorithm of NuWa simulation scheme is shown below.
+
+
+(simulation algorithm scheme of NuWa)
+
+
+
+
 
 NuWa overview
 
@@ -15,6 +55,13 @@ DataModel AES TES
 Gaudi
 
 Giga
+
+
+\subsubsection {Comparison of NuWa and G4dyb}
+
+
+
+
 
 \section {Mock Data Challenge}
 
