@@ -10,19 +10,19 @@ lighttpd-usage(){
 EOU
 }
 
-lighttpd-base(){   echo /opt/etc/lighttpd ; }
-lighttpd-conf(){   echo $(lighttpd-base)/lighttpd.conf ; }
-lighttpd-confd(){  echo $(lighttpd-base)/conf.d  ;  }
+lighttpd-check(){   /opt/sbin/lighttpd -f $(lighttpd-conf) -p  ; }
+lighttpd-base(){    echo /opt/etc/lighttpd ; }
+lighttpd-initd(){   echo /opt/etc/init.d ; }
 
-lighttpd-check(){ 
+lighttpd-conf(){    echo $(lighttpd-base)/lighttpd.conf ; }
+lighttpd-confd(){   echo $(lighttpd-base)/conf.d  ;  }
+lighttpd-edit(){    sudo vim $(lighttpd-conf) $(lighttpd-confd)/*.conf ; }
+lighttpd-ini(){     echo $(lighttpd-initd)/S80lighttpd ; }
+lighttpd-init(){    sudo $(lighttpd-ini) $* ; }
 
-   /opt/sbin/lighttpd -f $(lighttpd-conf) -p 
+lighttpd-start(){   lighttpd-init start ; }
+lighttpd-stop(){    lighttpd-init stop ; }
+lighttpd-restart(){ lighttpd-init restart ; }
 
-}
-
-
-lighttpd-init(){ sudo /opt/etc/init.d/S80lighttpd $* ; }
-lighttpd-start(){ lighttpd-init start ; }
-lighttpd-stop(){  lighttpd-init stop ; }
-lighttpd-ps(){    ps aux | grep light ; }
+lighttpd-ps(){     ps aux | grep light ; }
 

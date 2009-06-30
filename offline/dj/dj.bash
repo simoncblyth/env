@@ -374,7 +374,7 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 
 ## deployment  ##
 
-dj-confname(){ echo zdjango.conf ; }
+dj-confname(){ echo 50-django.conf ; }
 dj-eggcache-dir(){ 
     case ${USER:-nobody} in 
       nobody|apache|www) echo /var/cache/dj ;; 
@@ -464,16 +464,18 @@ fastcgi.server = (
            "main" => (
                "socket" => "$(dj-socket)",
                "check-local" => "disable",
+               "allow-x-send-file" => "enable" , 
                       )
                  ),
 )
 
-alias.url = (
+# The alias module is used to specify a special document-root for a given url-subset. 
+alias.url += (
            "/media" => "$(python-site)/django/contrib/admin/media",  
 )
 
 
-url.rewrite-once = (
+url.rewrite-once += (
       "^(/media.*)$" => "\$1",
       "^/favicon\.ico$" => "/media/favicon.ico",
       "^/robots\.txt$" => "/robots.txt",
