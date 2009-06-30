@@ -1,6 +1,6 @@
 dj-src(){      echo offline/dj/dj.bash ; }
 dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
-dj-dir(){      echo $(dirname $(dj-source)) ; }
+dj-dir-(){     echo $(dirname $(dj-source)) ; }
 dj-vi(){       vim $(dj-source) ; }
 dj-env(){      
    elocal- ; 
@@ -14,11 +14,33 @@ dj-env(){
 
 }
 
+
+## environment overridible coordinates
+dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
+dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
+dj-app(){     echo ${DJANGO_APP:-offdb} ; }
+
+dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
+dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
+dj-cd(){      cd $(dj-appdir) ; }
+
+dj-settings(){      vi $(dj-projdir)/settings.py ; }                                                                                                                                                                                                          
+dj-urls(){          vi $(dj-projdir)/urls.py ; }    
+
 dj-settings-module(){ echo $(dj-project).settings ; }
 dj-urlroot(){         echo /$(dj-project) ; }          
 
 dj-notes(){
   cat << EON
+
+
+   NB 
+     Override the locations with envvars 
+          DJANGO_DIR     : $DJANGO_DIR
+          DJANGO_APP     : $DJANGO_APP
+          DJANGO_PROJECT : $DJANGO_PROJECT
+
+
 
 
    Deployments 
@@ -58,6 +80,9 @@ EON
 
 }
 
+
+
+dj-info(){ env | grep DJANGO_ ;  }
 
 dj-versions(){
    python -V
@@ -292,13 +317,7 @@ dj-find(){
 
 ## project/app layout ##
 
-dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
-dj-app(){     echo ${DJANGO_APP:-offdb} ; }
 dj-port(){    echo 8000 ; }
-dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
-dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
-dj-cd(){      cd $(dj-appdir) ; }
-
 ## database setup   ##
 
 dj-val(){ echo $(private- ; private-val $1) ;}
@@ -489,7 +508,11 @@ dj-socket(){  echo /tmp/mysite.sock ; }
 
 dj-runfcgi(){
   cd $(dj-projdir)
-  sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false $*
+  dj-info
+  pwd
+  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false $* "
+  echo $cmd from $PWD
+  eval $cmd
 }
 
 dj-runserver(){
