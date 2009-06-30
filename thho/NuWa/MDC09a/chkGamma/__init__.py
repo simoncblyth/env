@@ -44,6 +44,7 @@ class plotGammaBasics(GaudiAlgo):
 
         self.histSvc = self.svc('ITHistSvc', 'THistSvc')
 
+        # R means radius-square, 6.1504 = 2.48*2.48, which 2.5 - thickness of steel tank
         self.hist["genRZ"] = TH2D("genRZ", "Generation Vertex R-Z", \
                                       100, 0.0, 6.1504, 100, -2.48, 2.48)
         status = self.histSvc.regHist('/file1/basics/genRZ', \
@@ -229,7 +230,8 @@ class plotGammaBasics(GaudiAlgo):
 
         print 'Generation locations', \
             '[', genGlbPoint.x(), genGlbPoint.y(), genGlbPoint.z(),']', \
-            '[', genLclPoint.x()/units.cm, genLclPoint.y()/units.cm, genLclPoint.z()/units.cm,']'
+            '[', genLclPoint.x()/units.cm, genLclPoint.y()/units.cm, genLclPoint.z()/units.cm,']',
+        #print "R is ", genLclPoint.x()/units.meter * genLclPoint.x()/units.meter + genLclPoint.y()/units.meter * genLclPoint.y()/units.meter
         
         self.hist["genRZ"].Fill(genLclPoint.x()/units.meter * genLclPoint.x()/units.meter + genLclPoint.y()/units.meter * genLclPoint.y()/units.meter, genLclPoint.z()/units.meter)
 
