@@ -19,7 +19,7 @@ cat << EOU
     trac-version  : $(trac-version)
     trac-instance : $(trac-instance)    the default instance for the node    
     trac-site     : $(trac-site)    
-         ihep .. for dybsvn and toysvn instances otherwise ntu , 
+         ihep .. for dybsvn, dybaux and toysvn instances otherwise ntu , 
          used for distinguiishing IHEP/NTU layout differences 
     
     TRAC_VERSION  : $TRAC_VERSION
@@ -340,10 +340,9 @@ trac-group(){
 
 trac-site(){
   case ${1:-$TRAC_INSTANCE} in
-     dybsvn) echo ihep ;;
-     toysvn) echo ihep ;;
-    mdybsvn) echo ntu  ;;
-          *) echo ntu  ;;
+  dybsvn|toysvn|dybaux) echo ihep ;;
+               mdybsvn) echo ntu  ;;
+                     *) echo ntu  ;;
   esac
 }
 
