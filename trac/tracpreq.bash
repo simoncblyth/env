@@ -86,3 +86,30 @@ tracpreq-again(){
 
 }
 
+
+tracpreq-system(){
+  [ "$(which yum)" != "" ] && $FUNCNAME-yum $* 
+}
+
+tracpreq-system-yum-(){ cat << EOS
+python
+mod_dav_svn
+subversion
+mod_python
+swig
+sqlite
+EOS
+}
+
+tracpreq-system-yum(){
+  local msg="=== $FUNCNAME :"
+  echo $msg WARNING THIS HAS NEVER BEEN USED 
+  local line
+  $FUNCNAME- | while read line ; do
+     echo sudo yum install $line
+  done
+}
+
+
+
+
