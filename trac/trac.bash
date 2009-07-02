@@ -257,6 +257,7 @@ trac-baseurl-deprecated-use-env-localserver(){
 
 
 trac-find(){
+   python-
    find $(python-site)/Trac-0.11-py2.5.egg/trac -name '*.py' -exec grep -H $1 {} \;
 }
 

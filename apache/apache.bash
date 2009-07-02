@@ -128,7 +128,7 @@ apache-name(){
 ##   apache user / group 
 ##
    
-apache-user(){ perl -n -e 's,^User\s*(\S*),$1, && print ' $(apache-conf) ;  } ## local only 
+apache-user(){ perl -n -e 's,^User\s+(\S*),$1, && print ' $(apache-conf) ;  } ## local only 
 apache-user-deprecated(){
    case ${1:-$NODE_TAG} in 
      G) echo www ;;

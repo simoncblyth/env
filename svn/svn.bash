@@ -508,16 +508,19 @@ svn-create-(){
     local cmd="svnadmin create $name"
     [ ! -d $name ] && echo $msg $cmd && eval $cmd
 
+    local pop=0
     case $arg in 
       EMPTY) echo $msg leaving empty repository ;;
-       INIT) svn-populate       ;;
-          *) svn-populate $arg  ;;     
+       INIT) pop=1 ; svn-populate       ;;
+          *) pop=1 ; svn-populate $arg  ;;     
     esac  
        
-    local tmp=$(svn-tmpdir)   
-    local imd="svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
-    echo $msg $imd
-    eval $imd
+    if [ "$pop" == "1" ] ; then
+       local tmp=$(svn-tmpdir)   
+       local imd="svn import $tmp file://$repo -m \"initial import by $(svn-sourcelink) '''$FUNCNAME''' on $(date) with argument $arg \" "
+       echo $msg $imd
+       eval $imd
+    fi
     
     svn-chown $name
     
