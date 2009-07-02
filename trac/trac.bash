@@ -674,6 +674,11 @@ trac-configure-instance(){
 
 }
 
+
+
+
+
+
 trac-delete-triplets(){
 
  # These should all be configured in the inherited common.ini ... rather than the individual trac.ini
@@ -683,8 +688,10 @@ trac-delete-triplets(){
  # trac-comment $name "trac.wiki.web_ui.wikimodule = disabled"      housed in common.ini not needed here ?
  # trac-comment $name "enscript_path = .*"
 
+ #  not there anymore ?
+ # trac:default_handler:TagsWikiModule@DELETE
+
   cat << EOT
-      trac:default_handler:TagsWikiModule@DELETE
       components:tracrpc.*:enabled@DELETE
       components:trac.wiki.web_ui.wikimodule:disabled@DELETE
       mimeviewer:enscript_path:@DELETE
@@ -781,6 +788,37 @@ trac-logging(){
 EON)
 }
 
+
+trac-defaulthandler-triplets-(){
+   local name=${1:-$TRAC_INSTANCE}
+   case $name in
+          dybsvn|env|workflow) echo Roadmap  ;;
+                       dybaux) echo Timeline ;;
+                            *) echo Wiki     ;; 
+   esac
+}
+trac-defaulthandler-triplets(){ echo trac:default_handler:$($FUNCNAME- $*)Module ;  }
+
+
+
+trac-mainnav-triplets-(){
+   local name=${1:-$TRAC_INSTANCE}
+   case $name in 
+      dybaux) echo -roadmap -query -newticket -tickets ;;
+           *) echo -n ;;
+   esac   
+}
+trac-mainnav-triplets(){
+  local tab
+  $FUNCNAME- $* | tr " " "\n" | while read tab ; do
+     case ${tab:0:1} in
+        +) echo mainnav:${tab:1}:enabled ;;
+        -) echo mainnav:${tab:1}:disabled ;;
+     esac
+  done
+}
+
+
 trac-defaultquery-triplets(){
    local name=${1:-$TRAC_INSTANCE}
    case $name in
@@ -820,7 +858,9 @@ trac-triplets(){
       ticket:restrict_owner:true
 $(trac-delete-triplets $name)
 $(navadd-triplets query Query /tracs/$name/query)
+      $(trac-defaulthandler-triplets $name)
       $(trac-defaultquery-triplets $name)
+      $(trac-mainnav-triplets $name)
 EOT
 
 }
