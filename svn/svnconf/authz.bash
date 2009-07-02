@@ -23,7 +23,11 @@ cat << EOA
 #     
 #   http://svnbook.red-bean.com/en/1.0/ch06s04.html
 #  
-# 
+#   NB 
+#        THIS IS USED ONLY AT NTU ..
+#        THE IHEP EQUIVALENT WAS SETUP BY XINCHUN AND IS NOT MANAGED IN ENV 
+#               (ALTHOUGH IT WOULD BE BETTER IF IT WAS)
+#
 #
 [groups]
 
@@ -65,9 +69,9 @@ wfadmin = blyth
 [toysvn:/]
 @dyuser = r 
 
-
-
-
+# testing new instance setup destined for IHEP at NTU
+[dybaux:/]
+@dyuser = rw
 
 [env:/]
 * = r

@@ -63,7 +63,7 @@ svnsetup-usage(){
       svnsetup-selinux-persist      ## semanage the labels 
 
 
-     == ADDING NEW USERS (CHANGING AUTH) ==
+     == ADDING NEW USERS (CHANGING AUTH) OR NEW REPOSITORY  ==
 
      Or for just authz updates ... the usual change on adding new users :
      
