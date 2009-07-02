@@ -1,12 +1,23 @@
 \chapter {Acrylic Vessel R\&D and Integration}
 
+plenty of waffle...plenty of waffle...plenty of waffle...plenty of waffle...
+
+plenty of waffle...plenty of waffle...plenty of waffle...
+
+
 \section {Overview of A Acrylic Vessel of Dayabay and Aberdeen experiments}
 
+From the point of view of material transmission, the engineering cast, and the containment, 
+acrylics, PMMA, is proposed to be used for the vessels of the antineutrino detectors of Dayabay and the neutron detector of Aberdeen.
 
-why acrylic
-n
-cheap
-containment
+For engineering, acrylics is cheaper than glass which the transmittance is the highest attainable
+especially in the blue and new UV spectral regions where the PMT maximum responsivity and light yield of GdLS/LS are.
+Strengh and tensile modules of elasticity of acrylics are good.
+It's safer to install acrylic vessels instead of glass vessels.
+Because of the size of the vessels, their components must be easily joined, and acrylics
+is tough and has almost infinite design flexibility.
+Acrylics possess the requisite low levels of radioactive contamination.
+The above considerations led to the selection of acrylic.
 
 
 Karsten: characters of acrylic veseel DocDB
@@ -15,23 +26,42 @@ Jeff: requirement of acrylic vesesel
 
 \subsection {Acrylic Optical Property in Detectors}
 
+The optical properties of acrylic exert a strong influence on how light is propagated
+from a neutrino interaction point for Dayabay, or a neutron interaction point for Aberdeen,
+within the Ls, GdLs, and mineral oil to the PMTs arranged on the barrel of the steel tank.
+
 The signal region of both Dayabay detectors and Aberdeen detector
-is around from 350nm to 450nm, namely blue region of visible light.
+is around from 350nm to 450nm, namely blue region of visible light and near UV.
 The signal region is decided by the PMT gain, the LS and the GdLS emitting spectrum and
 the attenuation spectrum, the mineral oil attenuation spectrum, and
-the acrylic panels spectrum.
+the acrylic panels spectrum. Fig. \ref{fig:SpectrumCoupling} shows the region.
 
-(overview of the coupling spectrum by Joseph)
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/LS_GdLS_Acrylic_PMT_coupling.png}
+    \caption{LS, GdLS, acrylics ,and PMT QE sepctrum. The coupling indicates the signal spectrum is in the blue and near UV spectral regions}
+    \label{fig:SpectrumCoupling}
+    \end{figure}
+
 
 A typical commercial acrylic panel is often doped UV absorber
 to prevent aging of acrylic panel. This kind of UV absorber makes acrylic spectrum
 UV-blocked and the typical cut-off trasmission is at around 350nm to 400nm,
 which happens to signal region of optical photon.
 Thus the acrylic panels used for the acrylic vessels should be chosen as
-UV-transparent ones.
+UV-transparent ones. Fig. \ref{UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
+and UV-blocked acrylics.
 
-(UV-blocked acrylic transmission spectrum)
-(UV-transparent acrylic transmission spectrum)
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./figure/UVT_UVB_acrylics.png}
+    \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
+    \label{UVTUVBAcrylics}
+    \end{figure}
+
+
 
 optical transmission standard
 
@@ -51,19 +81,35 @@ and the thickness of acrylic panels. This kind of UV curing process is observed 
 and both increasing and decreasing effect could happen, depending on different kinds of acrylic panel.
 
 
-(LJ's reflector acrylic panels show the decreasing effect)
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./figure/reflector_panel_UV_aging.png}
+    \caption{Example of acrylic aging by UV lamps: these are the reflector samples}
+    \label{ReflectorAging}
+    \end{figure}
 
 
 
 (IAV 10mm increasing)
 
+
 (the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
+
 
 Fig. IAV 10mm increasing shows the transmission will fit in with the QA in around 1 month, which is longer than typical
 bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
 
-A similar effect could be observed when acrylic panels are exposure to the sunshine. Fig shows different
+A similar effect could be observed when acrylic panels are exposure to the sunshine like what
+Fig. \ref{IAVPrototypeBarrelSunshineAging} shows. Fig shows different
 acrylic panels exposured to the sunshine responds differently.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IAV_prototype_barrel_sunshine.png}
+    \caption{Example of acrylic aging by the sunshine: this is the barrel sample of the IAV prototype.}
+    \label{IAVPrototypeBarrelSunshineAging}
+    \end{figure}
 
 (Bryce, LJ, and my figure)
 
@@ -139,6 +185,8 @@ The spectrometer is Perkin Elmer Lambda 650 with the 60mm integrating sphere.
 Lambda 650 is a double beams spectrometer. One is reference beam and another is
 sample beam. All transmission meausrement is ratio of sample beam intensity to
 reference beam. Refernce beam and sample beam are frequently calibrated in air.
+Fig. \ref{transmittance_integrating_systematic_error_calibration.png} shows the scheme
+to calibrate the integrating sphere.
 
 This Lambda 650 has tungsten and deturian light source, and they cover UV/VIS/NIR
 range. For Dayabay antineutrino detectors, the PMT/LS/GdLS coupling wavelength range
@@ -148,7 +196,7 @@ from 200nm to 800nm, that is, covers the sensitive wavelength range.
 The outcoming light source of the Lambda 650 has around 30\%-70\% polarization.
 
 
-(Perkin Elmer Lambda 650 optical component)
+(Perkin Elmer Lambda 650 optical component. copyright problem so I can't show here)
 
 
 The
@@ -163,16 +211,48 @@ A integrating sphere can collect
 (scheme shows thickness effect of transmission measurement)
 
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/compartment_position_test.png}
+    \caption{Different acrylic sample position in the compartment of Lambda650. From
+ left to right: position A, position B, and position C.}
+    \label{compartment_position_test.png}
+    \end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/compartment_transmittance_difference_effect.png}
+    \caption{Transmittance to the transmittance measurement in position B. Green: measurement in position A, Blue:
+ measurement in position C. Red: measurement by integrating sphere.}
+    \label{compartment_transmittance_difference_effect.png}
+    \end{figure}
 
 
 (optical principle of a integrating sphere)
 
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_calibration.png}
+    \caption{Calibration of a integrating sphere by air.}
+    \label{transmittance_integrating_systematic_error_calibration.png}
+    \end{figure}
 
 
-(systematic error for transparent samples)
 
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_measurement.png}
+    \caption{The systematic error caused by measuring transmittance of a transparent sample with a integrating sphere.}
+    \label{transmittance_integrating_systematic_error_measurement.png}
+    \end{figure}
+
+
+
+\subsection {Measurement of Refractive Index and Attenuation Length of Acrylics}
+\label {sec:RTMethod}
 
 
 \section {Integration of Dayabay Acrylic Vessel}
@@ -202,7 +282,15 @@ A class 10000 meets the FED209a standard is adopted to be the level of the clean
 The QA of the cleaning room is shown below.
 
 
-(FED209a standard)
+(FED-STD-290E)
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/e209.jpg}
+    \caption{Class level of FED-STD-290E definition.}
+    \label{e209.jpg}
+    \end{figure}
+
 
 
 
@@ -261,7 +349,7 @@ prototype, the pack method is feasible shown in Fig -----------.
 (Pack scheme)
 
 
-The route for IAV#1 and IAV#2 is shown in Fig--------.
+The route for IAVNo1 and IAVNo2 is shown in Fig--------.
 It will take around 1 or 2 week from Taiwan to Dayabay site.
 
 

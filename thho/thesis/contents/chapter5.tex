@@ -1,3 +1,69 @@
 \chapter {Event Reconstruction}
 \section {Event Reconstruction of Aberdeen Neutron Detector}
+There are three kinds of reconstruction were developed, center of mass,
+energy pattern, and genetic algorithm(GA).
+
+The center of mass algorithm doesn't consider the diffuse reflectors.
+The energy pattern gives up to reconstruct vertices.
+The genetic algorithm is not related to the geometry property, for example,
+diffuse reflectors are used or not. But GA needs careful calibration process
+to build a well-behavior response matrix and takes longer time to reconstruct
+the events of Aberdeen. It takes around 3 seconds each event, and of course, deponding
+on the CPU speed.
+
+
+(The center of mass algorithm)
+
+
+
+
+(The energy pattern algorithm)
+
+
+
+
+(The GA algorithm scheme)
+
+
+The online reconstruction is not decided, but the GA is inteded for
+the offline. The preliminary test of a inver-square generator of Aberdeen
+detector geometry is shown below. The fitness definition of this GA is
+
+
+(fitness definition)
+
+
+
+
+(raw data of the inver-square, energy resolution)
+
+
+
+
+(reconstruction result of the GA)
+
+
+A chi-square definition to be the fitness definition is also tested.
+It shows the previous fitness definition works better on the
+energy resolution.
+
+
+(fitness definition)
+
+
+
+
+(raw data of the inver-square, energy resolution)
+
+
+
+
+(reconstruction result of the GA)
+
+
+More detailed test is done by Antony and Jimmy by G4dyb for simulation.
+The result is shown below.
+
+
+
 
