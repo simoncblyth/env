@@ -62,13 +62,14 @@ EOU
 
 }
 
-
-
 cmt-env(){ 
    elocal-
-   cmt-cmt
+   ! cmt-enabled- && return 0 
+   cmt-itself
+   cmt-preq
+   local sitereq=$(cmt-sitereq)
+   [ ! -f "$sitereq" ] && cmt-upsite
 }
-
 
 cmt-cl(){  rm -f *.sh *.csh Makefile ; }
 cmt-i(){   env | grep CMT ; }
@@ -107,8 +108,13 @@ cmt-setup(){
    [ -n "$ext" ] && echo $(cmt-external)/CMT/$(cmt-ver)/mgr/setup.sh || echo "" 
 }
 cmt-external(){ [ -n "$NUWA_HOME" ] && echo $(dirname $NUWA_HOME)/external || echo "" ; }   ## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
-cmt-enabled-(){  test -n "$(cmt-external)"  ; }
-cmt-enabled(){   $FUNCNAME- && echo yes || echo no ; }
+cmt-enabled-(){  
+  case $NODE_TAG in 
+    P) return 1  ;;
+    *) test -n "$(cmt-external)"  ; 
+  esac 
+}
+cmt-enabled(){  $FUNCNAME- && echo yes || echo no ; }
 
 cmt-addpp(){
    local add=$1;
@@ -138,15 +144,7 @@ cmt-itself(){
   . $cmtsetup
 } 
 
-cmt-cmt(){
 
- ! cmt-enabled- && return 0 
-  cmt-itself
-  cmt-preq
-  local sitereq=$(cmt-sitereq)
-  [ ! -f "$sitereq" ] && cmt-upsite
-
-}
 
 cmt-upsite(){
    local msg="=== $FUNCNAME :"
