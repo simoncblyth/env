@@ -145,8 +145,12 @@ nuwa-defpkgdir(){
 
 nuwa-dir(){
   local arg=$1
+
+  [ -z "$arg" ] && echo $(nuwa-base) && return 0
   local pkg
   local sub
+
+
   ## arg contains a slash ... 
   if [ "${arg/\//}" != "$arg" ]; then
      pkg=${arg/\/*/}
@@ -313,7 +317,9 @@ nuwa-info(){
  
     For screen protection :
          nuwa-- nuwa-dybinst projects dybgaudi
- 
+
+    for full build : 
+         nuwa-- nuwa-dybinst all 
             
             
             
@@ -417,7 +423,10 @@ nuwa-dybinst-cmd(){     echo ./dybinst "$(nuwa-dybinst-options)" $(nuwa-version)
 nuwa-dybinst-options(){ echo "${NUWA_DYBINST_OPTIONS:-""}" ; }
 nuwa-dybinst(){
 
+    local args=$*
     local msg="=== $FUNCNAME :"
+    echo $msg args $args
+
     local base=$(nuwa-base)
     [ ! -d "$base" ] && echo $msg creating base directory $base 
     
@@ -427,7 +436,7 @@ nuwa-dybinst(){
     local url=$(nuwa-dybinst-url)
     [ ! -f dybinst ] && echo $msg exporting $url && svn export $url
     
-    local cmd=$(nuwa-dybinst-cmd) $*
+    local cmd="$(nuwa-dybinst-cmd) $args"
     local ans
     read -p "$msg from $PWD proceed with : [ $cmd ]  enter YES to proceed : " ans     
     [ "$ans" != "YES" ] && echo $msg skipped ... && return 1
