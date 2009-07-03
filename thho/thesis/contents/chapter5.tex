@@ -23,7 +23,12 @@ on the CPU speed.
 
 
 (The GA algorithm scheme)
-
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/ga_flow_chart.png}
+    \caption{Genetic algorithm for the reconstruction of Aberdeen neutron detector}
+    \label{ga_flow_chart.png}
+    \end{figure}
 
 The online reconstruction is not decided, but the GA is inteded for
 the offline. The preliminary test of a inver-square generator of Aberdeen
@@ -31,8 +36,28 @@ detector geometry is shown below. The fitness definition of this GA is
 
 
 (fitness definition)
+\begin{equation}
+\label{fitness}
+Fitness = 100 - \chi^{2}/NDF,
+\end{equation}
 
 
+where
+
+
+\begin{equation}
+\label{fitnessNDF}
+NDF(degree of freedom) = 4,
+\end{equation}
+
+
+and
+
+
+\begin{equation}
+\label{fitnessChi}
+\chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\mathbf{Q}^T\Sigma^{-1}\mathbf{Q}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
+\end{equation}
 
 
 (raw data of the inver-square, energy resolution)
@@ -59,6 +84,64 @@ energy resolution.
 
 
 (reconstruction result of the GA)
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_diff.png}
+    \caption{Difference in actual and reconstruction distance}
+    \label{fig:nd1_distance_diff.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_x_diff.png}
+    \caption{Difference in actual and reconstruction x-coordinate}
+    \label{fig:nd1_distance_x_diff.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_y_diff.png}
+    \caption{Difference in actual and reconstruction z-coordinate}
+    \label{fig:nd1_distance_y_diff.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_z_diff.png}
+    \caption{Difference in actual and reconstruction z-coordinate}
+    \label{fig:nd1_distance_z_diff.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_photon_no_diff.png}
+    \caption{Difference in actual and reconstruction number of photons}
+    \label{fig:nd1_photon_no_diff.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_photon_no_diff_normal.png}
+    \caption{Normalized difference in actual and reconstruction number of photons}
+    \label{fig:nd1_photon_no_diff_normal.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/nd1_fitness.png}
+    \caption{Fitness distribution}
+    \label{fig:nd1_fitness.png}
+    \end{figure}
+
 
 
 More detailed test is done by Antony and Jimmy by G4dyb for simulation.
