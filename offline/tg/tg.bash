@@ -56,7 +56,7 @@ tg-preq(){
     
     ## baseline preqs ... not virtual 
     python-
-    [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version && return 1
+    [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version #&& return 1
     setuptools-
     [ "$(setuptools-version)" != "0.6c9" ]  && echo $msg no setuptools && return 1
     virtualenv-

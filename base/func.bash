@@ -9,7 +9,7 @@ func-usage(){
 EOU
 }
 func-end-template(){ echo 10 ; }
-
+## CAUTION THE ABOVE IS A TEMPLATE FOR GENERATED FUNCS ... DO NOT EDIT
 
 func-notes(){
    cat << EON
@@ -21,6 +21,11 @@ func-notes(){
           save the func-gen- output to $(env-home)/xml/xmldiff.bash 
           if no such file exists 
 
+     func-gen base/hello <repo>
+          generate $(<repo>-home)/base/hello/hello.bash 
+          hook up the precursor into $(<repo>-home)/<repo>.bash
+          eval the precursor
+ 
 EON
 }
 
@@ -53,7 +58,7 @@ func-precursor-(){
   local fgp=$(func-gen-path $*)
   local fgn=$(func-gen-name $*)
 cat << EOP
-  $fgn-(){      . \$(env-home)/$fgp && $fgn-env \$* ; }
+$fgn-(){      . \$(env-home)/$fgp && $fgn-env \$* ; }
 EOP
 }
 
@@ -62,21 +67,44 @@ EOP
 func-gen(){
 
   local msg="=== $FUNCNAME :"
-  local fgp=$(func-gen-path $*)
-  local path=$(env-home)/$fgp  
+
+  local arg=$1
+  local repo=${2:-env}
+
+
+  local fgp=$(func-gen-path $arg)
+  local fgn=$(func-gen-name $arg)
+
+  echo  $msg $arg $repo .... $fgp $fgn 
+
+
+  local path=$($repo-home)/$fgp  
   local dir=$(dirname $path)
+  local top=$($repo-home)/$repo.bash
 
-
+  [ ! -f "$top" ] && echo $msg the repo $repo must have a top .bash at $top && return 1
   [ -f "$path" ]  && echo $msg ABORT : path $path exists already ... delete and rerun to override && return 0  
+  
+  echo;echo $msg proposes to write the below into : $path ;echo
+  func-gen- $fgp 
+
+  echo;echo $msg and hookup precursor into : $top;echo 
+  func-precursor- $fgp
+  echo
+
+  local ans
+  read -p "$msg enter YES to proceed : " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0 
+ 
   [ ! -d "$dir" ] && echo $msg WARNING : creating dir $dir &&  mkdir -p "$dir" 
-  echo $msg writing to path $path 
-
   func-gen- $fgp > $path
-  cat $path
+  func-precursor- $fgp >> $top
 
-  echo $msg hook this up with precursor...
-  func-precursor- $fgp 
 
+  eval $(func-precursor- $fgp)
+
+  echo $msg $fgn-vi
+  eval $fgn-vi
 
 }
 
