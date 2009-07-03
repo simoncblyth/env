@@ -320,8 +320,11 @@ nuwa-info(){
 
     for full build : 
          nuwa-- nuwa-dybinst all 
-            
-            
+         
+    Follow what happening with tail on the log and : 
+         pstree -Gapu $USER         
+
+   
             
     Source paths reported by the functions hooked up into the environment :
     

@@ -819,6 +819,7 @@ trac-mainnav-triplets(){
 }
 
 
+
 trac-defaultquery-triplets(){
    local name=${1:-$TRAC_INSTANCE}
    case $name in

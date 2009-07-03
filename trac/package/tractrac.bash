@@ -57,6 +57,28 @@ tractrac-branch2revision(){
    esac
 }
 
+tractrac-cssfix(){
+  local msg="=== $FUNCNAME :"
+  local css=$(python-site)/$(tractrac-egg)/trac/htdocs/css/ticket.css
+  local tmp=/tmp/env/$FUNCNAME/$(basename $css)
+  [ ! -f "$css" ] && echo $msg ABORT no css $css && return 1
+
+  echo $msg $css
+  mkdir -p $(dirname $tmp)
+  perl -p -e 's,(\#content.ticket.*width: )(\d+)(px.*)$,${1}1201${3},' $css > $tmp
+
+  diff $css $tmp
+  local ans
+  read -p "$msg change $css as proposed ? enter YES to proceed " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+  local cmd="sudo cp $tmp $css"
+  echo $cmd
+  eval $cmd
+}
+
+
+
 tractrac-revision(){
    echo $(tractrac-branch2revision $(tractrac-version2branch $TRAC_VERSION))
 }
