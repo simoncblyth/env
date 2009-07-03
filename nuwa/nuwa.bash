@@ -337,7 +337,6 @@ EOI
 
 
 
-
 nuwa-home-default(){  echo $LOCAL_BASE/dyb/trunk_dbg/NuWa-trunk ; }
 
 nuwa-home-construct(){
@@ -418,6 +417,7 @@ nuwa-isinstalled-(){
 
 
 
+nuwa-all(){  nuwa-- nuwa-dybinst all ; }  ## with screen protection 
 nuwa-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
 nuwa-dybinst-cmd(){     echo ./dybinst "$(nuwa-dybinst-options)" $(nuwa-version)  ; }
 nuwa-dybinst-options(){ echo "${NUWA_DYBINST_OPTIONS:-""}" ; }
