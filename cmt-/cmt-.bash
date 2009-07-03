@@ -109,6 +109,7 @@ cmt-setup(){
 }
 cmt-external(){ [ -n "$NUWA_HOME" ] && echo $(dirname $NUWA_HOME)/external || echo "" ; }   ## NUWA_HOME is an input to the nuwa machinery, it does not depend on that being run
 cmt-enabled-(){  
+  return 1   ## blanket disable this ... the CMTCONFIG causes problems for the upgrade build
   case $NODE_TAG in 
     P) return 1  ;;
     *) test -n "$(cmt-external)"  ; 
