@@ -50,7 +50,7 @@ func-gen-(){
   local fgn=$(func-gen-name $*)
   echo \# $msg $* fgp $fgp fgn $fgn
 
-  head -$(func-end-template) $(func-source) | perl -p -e "s,$(func-src),$fgp," - | perl -p -e "s,func,$fgn,g" -
+  head -$(func-end-template) $(func-source) | perl -p -e "s,$(func-src),$fgp," - | perl -p -e "s,func,$fgn,g" - 
 
 }
 

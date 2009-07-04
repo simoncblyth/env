@@ -277,6 +277,7 @@ dj-srcfold(){
 dj-mode(){ 
    case $NODE_TAG in 
      Z) echo system ;;
+     G) echo dev ;;
      *) echo def ;;
    esac
 }
@@ -284,7 +285,7 @@ dj-srcnam(){
    case ${1:-$(dj-mode)} in
     cpk) echo django-compositepks ;;
     pre) echo django$(dj-cpkrev)   ;;
-    def) echo django ;;
+def|dev) echo django ;;
     system) echo django ;;
       *) echo django ;;
    esac 
