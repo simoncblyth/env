@@ -43,22 +43,29 @@ func-gen-name(){
   echo $name  
 }
 
+func-gen-repo(){
+  echo ${2:-env}
+}
+
+
 func-gen-(){
 
   local msg="=== $FUNCNAME :"
   local fgp=$(func-gen-path $*)
   local fgn=$(func-gen-name $*)
+  local fgr=$(func-gen-repo $*)
   echo \# $msg $* fgp $fgp fgn $fgn
 
-  head -$(func-end-template) $(func-source) | perl -p -e "s,$(func-src),$fgp," - | perl -p -e "s,func,$fgn,g" - 
+  head -$(func-end-template) $(func-source) | perl -p -e "s,$(func-src),$fgp," - | perl -p -e "s,func,$fgn,g" - | perl -p -e "s,env-home,$fgr-home,g" -
 
 }
 
 func-precursor-(){
   local fgp=$(func-gen-path $*)
   local fgn=$(func-gen-name $*)
+  local fgr=$(func-gen-repo $*)
 cat << EOP
-$fgn-(){      . \$(env-home)/$fgp && $fgn-env \$* ; }
+$fgn-(){      . \$($fgr-home)/$fgp && $fgn-env \$* ; }
 EOP
 }
 
@@ -68,28 +75,24 @@ func-gen(){
 
   local msg="=== $FUNCNAME :"
 
-  local arg=$1
-  local repo=${2:-env}
+  local fgp=$(func-gen-path $*)
+  local fgn=$(func-gen-name $*)
+  local fgr=$(func-gen-repo $*)
 
+  echo  $msg  .... fgp:$fgp fgn:$fgn fgr:$fgr
 
-  local fgp=$(func-gen-path $arg)
-  local fgn=$(func-gen-name $arg)
-
-  echo  $msg $arg $repo .... $fgp $fgn 
-
-
-  local path=$($repo-home)/$fgp  
+  local path=$($fgr-home)/$fgp  
   local dir=$(dirname $path)
-  local top=$($repo-home)/$repo.bash
+  local top=$($fgr-home)/$fgr.bash
 
   [ ! -f "$top" ] && echo $msg the repo $repo must have a top .bash at $top && return 1
   [ -f "$path" ]  && echo $msg ABORT : path $path exists already ... delete and rerun to override && return 0  
   
   echo;echo $msg proposes to write the below into : $path ;echo
-  func-gen- $fgp 
+  func-gen- $*
 
   echo;echo $msg and hookup precursor into : $top;echo 
-  func-precursor- $fgp
+  func-precursor- $*
   echo
 
   local ans
@@ -97,11 +100,11 @@ func-gen(){
   [ "$ans" != "YES" ] && echo $msg skipping && return 0 
  
   [ ! -d "$dir" ] && echo $msg WARNING : creating dir $dir &&  mkdir -p "$dir" 
-  func-gen- $fgp > $path
-  func-precursor- $fgp >> $top
+  func-gen- $* > $path
+  func-precursor- $* >> $top
 
 
-  eval $(func-precursor- $fgp)
+  eval $(func-precursor- $*)
 
   echo $msg $fgn-vi
   eval $fgn-vi
