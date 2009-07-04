@@ -104,9 +104,11 @@ func-gen(){
   func-precursor- $* >> $top
 
 
+  echo $msg defining precursor $fgn- 
   eval $(func-precursor- $*)
 
-  echo $msg $fgn-vi
+  echo $msg invoking precursor $fgn-
+  eval $fgn-
   eval $fgn-vi
 
 }
