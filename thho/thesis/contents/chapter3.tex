@@ -415,7 +415,51 @@ are optical photons.
 
 For acrylics,--------don't break--------------------
 
-This method is based on ------------------SNO
+This method is based on \cite{RTMethod} which is to the overall performance of the Subdbury neutrino observatory (SNO),
+but slightly different from the measurement facilities. In our case, we wanted to characterize the optical constants of a
+transparent material--acrylics-- over a wavelength range from 200nm to 800nm. The Fresnel relationships connecting the front-surface
+primary reflectance R and the internal transmittance T for normal incidence, with the optical constants $n$ and $\kappa$ at each wavelength $\lambda$
+are:
+
+
+\begin{equation}
+\label{eq:FSR}
+R = \frac{(n-1)^2 + \kappa^2}{(n+1)^2 + \kappa^2}
+\end{equation}
+
+
+\begin{equation}
+\label{eq:IT}
+T = exp(\frac{-4{\pi}{\kappa}d}{\lambda})
+\end{equation}
+
+For a plane-parallel sample, the relationship connecting the measured normal-incidence reflectance $R^*$ and $T^*$ by the
+Perkin Elmer Lambda 650 with the 60 mm integrating sphere are:
+
+
+\begin{equation}
+\label{eq:TStar}
+T^* = \frac{(1-R)^2T}{1-R^2T^2}
+\end{equation}
+
+
+\begin{equation}
+\label{eq:RStar}
+R^* = R(1+TT^*)
+\end{equation}
+
+
+This is the model for the analysis of the reflectance and transmittance measurement data.
+A typical result could be found in Fig. -----------.
+
+
+The analysis algorithm is based on Newton method to find numerical solutions. It may fail
+to find solutions. The possible reasons could be the uncertainty of the spectrometer.
+For a transparent but thin sample, the transmittance measurement could show the attenuation
+is larger than some value, and could not show  what is the exact value of the attenuation.
+Most failed solutions are derived by the unreasonable attenuation lengths which are related to the transmittance measurements.
+The index of refraction is mainly decided by the Eq. \ref{eq:FSR} for a tranparent sample--acrylics-- because
+of the $\kappa$ is relatively small than $n$. So basically the derived $n$ is still reliable shown in Table --------.
 
 
 
