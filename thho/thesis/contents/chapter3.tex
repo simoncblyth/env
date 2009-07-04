@@ -1,11 +1,15 @@
 \chapter {Acrylic Vessel R\&D and Integration}
+\label{chap:arylicVessel}
 
 plenty of waffle...plenty of waffle...plenty of waffle...plenty of waffle...
 
 plenty of waffle...plenty of waffle...plenty of waffle...
 
 
-\section {Overview of A Acrylic Vessel of Dayabay and Aberdeen experiments}
+\section {Overview of A Acrylic Vessel of Dayabay and Aberdeen Experiment}
+
+Both of Dayabay Experiment and Aberdeen Experiment use acrylic vessels to hold
+the liquid scintillator. The requirement of the both acrylic vessels is the same.
 
 From the point of view of material transmission, the engineering cast, and the containment, 
 acrylics, PMMA, is proposed to be used for the vessels of the antineutrino detectors of Dayabay and the neutron detector of Aberdeen.
@@ -23,6 +27,7 @@ The above considerations led to the selection of acrylic.
 Karsten: characters of acrylic veseel DocDB
 Tom: shipping etc.
 Jeff: requirement of acrylic vesesel
+
 
 \subsection {Acrylic Optical Property in Detectors}
 
@@ -133,7 +138,7 @@ be radioactive and should not be used.
 Fig----------  shows comparison of different
 polish class. Acrylic transmission is obviously different in air but not in LAB.
 Extent of polish only changes light path of incident beam but not affects total light intensity.
-The image of a acrylic sheet with ralph surface looks vague because diffuce reflection happens, not
+The image of a acrylic sheet with rough surface looks vague because diffuce reflection happens, not
 incident beams are absorbed.
 
 
@@ -235,15 +240,14 @@ by measurement only.
 
 \subsection {Spectrometer and Integrating sphere}
 
-A spectrometer with a integrating sphere is used for the QA/QC
+The spectrometer, Perkin Elmer Lambda 650, with a integrating sphere is used for the QA/QC
 of the acrylic optical property including
 the transmission, reflection, index of refraction, and attenuation length.
-The spectrometer is Perkin Elmer Lambda 650 with the 60mm integrating sphere.
 
 Lambda 650 is a double beams spectrometer. One is reference beam and another is
 sample beam. All transmission meausrement is ratio of sample beam intensity to
 reference beam. Refernce beam and sample beam are frequently calibrated in air.
-Fig. \ref{transmittance_integrating_systematic_error_calibration.png} shows the scheme
+Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png} shows the scheme
 to calibrate the integrating sphere.
 
 This Lambda 650 has tungsten and deturian light source, and they cover UV/VIS/NIR
@@ -251,7 +255,7 @@ range. For Dayabay antineutrino detectors, the PMT/LS/GdLS coupling wavelength r
 is around 350nm to 450nm. The QA/QC of the acrylic panels provides the spectrum
 from 200nm to 800nm, that is, covers the sensitive wavelength range.
 
-The outcoming light source of the Lambda 650 has around 30\%-70\% polarization.
+The incident beam of the Lambda 650 has around 30\%-70\% polarization.
 
 
 (Perkin Elmer Lambda 650 optical component. copyright problem so I can't show here)
@@ -264,11 +268,49 @@ A integrating sphere can collect
     - too thick for acrylic
     - systematic error for transparent samples
         - modify by distance
+    - light source spectrum and noise
 
+\subsection{Basic Performance}
+
+The detector of Lambda 650 with a 60 mm integrating sphere
+is a ----- PMT.
+The 60mm integrating sphere has a diameter equal to 60mm and 19 mm diamter ports.
+Due to the noise of the PMT and the stability of the
+light sources, the stability of the baseline is around 0.5\%.
+For the QA/QC region of acrylics, the stability of near UV and IR is wrose because
+of the intensity of the light sources is lower than the other region.
+Fig.------ shows the energy spectrum of the light sources from 190nm to
+860nm. Assume the stability of the light sources and the PMT is the same in
+the region from near UV to IR, i.e. the noise of signals is the same. The higher
+light intensity could decrease the ratio of the noise intensity to incident beam intensity to the noise,
+so the baseline would be more stable.
+
+The error may come from:
+
+\subsection{Transmittance Measurement of Acrylics}
+
+Acrylic panels used for Dayabay and Aberdeen acrylic vessels
+generally thicker than around 10 cm except for the reflectors of Aberdeen
+neutron detecor. However, this kind of thickness is too thick to
+keep the incident and exit beam in the same path, and then
+the beam probably will not collect by the detector properly or
+the conditions are too different from the calibration. See Fig.------.
+The thickness Perkin Elmer suggests is less than 3 mm.
+
+
+(The thickness may make the beam not be collected by the detector properly)
+
+
+(The thickness may vary the condition too much so the calibration fails)
+
+
+Samples with different thicknesses are measured in different positions and
+the result shown in Fig.------. The thicker the sample is, the variance of
+measurement is. Transmittance meausred by a integrating sphere
+are almost the largest one because the integrating sphere collects refraction light may
+not be collected properly by the other measurement.
 
 (scheme shows thickness effect of transmission measurement)
-
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/compartment_position_test.png}
@@ -294,23 +336,87 @@ A integrating sphere can collect
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_calibration.png}
     \caption{Calibration of a integrating sphere by air.}
-    \label{transmittance_integrating_systematic_error_calibration.png}
+    \label{fig:transmittance_integrating_systematic_error_calibration.png}
     \end{figure}
 
 
+Nevertheless, for transparent samples, the integrating sphere
+may induce systematic increasing transmittance slightly when measuring tansmittance.
+This is because the diffuse light reflected by the integrating
+sphere, is reflected back to the integrating sphere by the sample.
+Fig. \ref{fig:transmittance_integrating_systematic_error_measurement.png} demonstrates the mechanism to cause such error.
 
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_measurement.png}
-    \caption{The systematic error caused by measuring transmittance of a transparent sample with a integrating sphere.}
-    \label{transmittance_integrating_systematic_error_measurement.png}
+    \caption{The systematic error caused by measuring transmittance of a transparent sample with a integrating sphere.
+Comparing to Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png}, the yellow beam reflected by the sample
+should exit by the transmittance port as what it has done in calibration shown
+in Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png}, but it is reflected by the transparent sample so
+the measured transmittance should be considerated larger than true value.}
+    \label{fig:transmittance_integrating_systematic_error_measurement.png}
     \end{figure}
 
+
+(eq to estimate the quantity)
+
+
+Improvements to reduce such kind of systematic error are, for example,
+to put the sample slightly away from the integrating sphere (Fig.-----), but not too much in
+order not to collect the refration light improperly (Fig. ----). The sample should
+fit the dimension of the coming port as much as possible(Fig. ----).
+
+\subsection{Reflectance Measurement of Acrylics}
+
+Uncertainty by the Spectrlon
+
+
+\subsection{Sources of Error of Both Transmittance and Reflectance Measurement}
+
+Besides the errorss metioned above for transmittance and reflectance measurement, the other possible kinds of sources of error, for example,
+wall radiance uniformity error, port induced errors, stray light, and errors attributed to the reflectance standard are provided
+for consideration.
+
+The wall radiance uniformity error can occur due to seams, baffles or bright spots, and dirt on the wall surface
+positioned in the field of view of the sphere detector. These variations depend on the reflectance
+characteristics of each sphere detector, so the magnitude of the error cannot be quantified.
+Perkin Elmer 60 mm integrating sphere accessories is claimed that the 60 mm integrating sphere is machined
+directly from a block of Spectralon, cut in half and
+re-assembled to insure a uniform surface. Compare 60mm with 150mm integrating sphere, the 60mm one exhibit low optical
+attenuation and a high detector signal-to-noise ration at all wavelengths.
+
+Port induced errors refer to no-uniformities produced by the locatio, size and shape
+of the ports dispersed across the inner sphere surface. The perimeter along each
+port is thinned and coated with Spectraflect to reduce scatter.
+
+Stray light is defined as light detected by the sphere detector outside the programmed bandwidth of the spectrometer.
+The potential sources of stray light in the accessory are from
+room lighting, leaking through the accessory ild and on of the integrating sphere ports, or
+through the two access holes to the baseplate thumbscrews and the dusts in the air scattering.
+The impact of stray light error on measurements depends on the magnitude of the sample measurements.
+The following simple technique provided by the Perkin Elmer guide can be used to locate a stray ligh source when operating with
+the sphere accessories. Extinguish the laboratory room lighting and drive the instrument monochromator to 400 nm and leave the reflectance port open.
+Then close the sample compartment and accessory lids. Shine a flashlight near all potential stray light sources while oberserving the live display in the
+control software. Because the flashlight provides visible light, the instrument now is sensitive to 400 nm which is also visible light region. If there is stray light, the instrument will provide the information.
+
+The actual reflectance of Spectralon varies from batches to barches, and can vary as much as 0.015 from a typical value, depending on the wavelength.
+A Spectralon surface may degrade slowly over time, so regular calibration is needed on a yearly basis.
 
 
 \subsection {Measurement of Refractive Index and Attenuation Length of Acrylics}
 \label {sec:RTMethod}
+
+The two parameters, index of refraction and attenuation length, are important
+to describ the behavior of optical photons. Due to the simulation (see ref------------),
+the calibration, and the dry run requirement. The index of refraction and attenuation length
+of the GdLS, LS, mineral oil and acrylcs should be known because the signals of the detectors
+are optical photons.
+
+For acrylics,--------don't break--------------------
+
+This method is based on ------------------SNO
+
 
 
 \section {Integration of Dayabay Acrylic Vessel}
@@ -504,4 +610,5 @@ of the QA measurement is less than 3mm.
 
 
 
-Aberdeen Reflector manufactor
+\section {Manufactor of Aberdeen Reflector}
+\label{sec:reflector}
