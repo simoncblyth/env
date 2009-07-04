@@ -70,8 +70,10 @@ TGraph* readGraph(void) {
 void cauchy_fit(void) {
 
     TCanvas *c1 = new TCanvas("c1","the fit canvas",500,400);
+    gStyle->SetOptFit(1111);
 
     TGraph* gr = readGraph();
+    gr->SetTitle("Cauchy Equation and Measured n");
     gr->Draw("a*");
 
     TF1 *func = new TF1("func",fitf,200.0,800.0,2);
@@ -88,5 +90,6 @@ void cauchy_fit(void) {
     func = gr->GetFunction("func");
     func->SetLineColor(kRed);
     func->SetLineWidth(1);
+
 }
 

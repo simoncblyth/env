@@ -101,8 +101,11 @@ TGraph* readGraph(void) {
 void attenuation_fit(void) {
 
     TCanvas *c1 = new TCanvas("c1","the fit canvas",500,400);
+    gStyle->SetOptFit(1111);
+
 
     TGraph* gr = readGraph();
+    gr->SetTitle("Attenuation Model and Measurement");
     gr->Draw("a*");
 
     TF1 *func = new TF1("func",fitf,200.0,800.0,4);

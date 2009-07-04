@@ -105,7 +105,7 @@ double FresnelModel::evalAttenuation(double wl, double lowAtt, double upAtt, dou
 
     double attVal = (lowAtt - upAtt)/(1 + exp((wl - cutAtt)/delta)) + upAtt
                     - (TOTALABSWL/wl)*lowAtt;
-
+    cout << attVal << endl;
     if((attVal<0.0) || (wl<TOTALABSWL)) attVal = 0.0; // absorptance domain, Fresnel model could not apply
 
     return attVal;
