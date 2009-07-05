@@ -494,7 +494,6 @@ alias.url += (
            "/media" => "$(python-site)/django/contrib/admin/media",  
 )
 
-
 url.rewrite-once += (
       "^(/media.*)$" => "\$1",
       "^/favicon\.ico$" => "/media/favicon.ico",
@@ -508,11 +507,13 @@ EOC
 dj-socket(){  echo /tmp/mysite.sock ; }
 
 dj-runfcgi(){
+  local msg="=== $FUNCNAME :"
   cd $(dj-projdir)
   dj-info
-  pwd
-  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false $* "
-  echo $cmd from $PWD
+  echo $msg $(pwd)
+  which python
+  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
+  echo $cmd 
   eval $cmd
 }
 

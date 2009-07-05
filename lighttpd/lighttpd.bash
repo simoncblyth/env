@@ -10,6 +10,8 @@ lighttpd-usage(){
 EOU
 }
 
+lighttpd-cd(){      cd $(lighttpd-base) ; }
+
 lighttpd-check(){   /opt/sbin/lighttpd -f $(lighttpd-conf) -p  ; }
 lighttpd-base(){    echo /opt/etc/lighttpd ; }
 lighttpd-initd(){   echo /opt/etc/init.d ; }
