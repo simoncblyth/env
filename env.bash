@@ -688,3 +688,4 @@ pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
 modwsgi-(){    . $(env-home)/apache/apachebuild/modwsgi.bash && modwsgi-env $* ; }
 cpp-(){        . $(env-home)/base/cpp.bash && cpp-env $* ; } 
 lighttpd-(){   . $(env-home)/lighttpd/lighttpd.bash && lighttpd-env $* ; }
+pkgr-(){      . $(env-home)/base/pkgr.bash && pkgr-env $* ; }
