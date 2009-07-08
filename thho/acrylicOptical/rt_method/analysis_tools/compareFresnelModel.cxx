@@ -171,7 +171,7 @@ FresnelModel::evalFresnel(void) {
 
 FresnelModel::compare(string type, double *wlArr, double *dataArr, double *paraArr, double lowBound, double upBound) {
 
-    TCanvas *canv = new TCanvas(type.data(), type.data(), 200,10,700,900);
+    TCanvas *canv = new TCanvas(type.data(), type.data(), 200,10,700,450);
 
     const int successSize = successSize_;
 
