@@ -1,5 +1,6 @@
 \chapter {Event Reconstruction}
 \section {Event Reconstruction of Aberdeen Neutron Detector}
+\subsection {Overview}
 There are three kinds of reconstruction were developed, center of mass,
 energy pattern, and genetic algorithm(GA).
 
@@ -9,7 +10,9 @@ The genetic algorithm is not related to the geometry property, for example,
 diffuse reflectors are used or not. But GA needs careful calibration process
 to build a well-behavior response matrix and takes longer time to reconstruct
 the events of Aberdeen. It takes around 3 seconds each event, and of course, deponding
-on the CPU speed.
+on the CPU speed. Jimmy suggested the GA to be used for Aberdeen.
+This chapter focuses on the GA.
+
 
 
 (The center of mass algorithm)
@@ -30,9 +33,42 @@ on the CPU speed.
     \label{ga_flow_chart.png}
     \end{figure}
 
-The online reconstruction is not decided, but the GA is inteded for
-the offline. The preliminary test of a inver-square generator of Aberdeen
-detector geometry is shown below. The fitness definition of this GA is
+
+The most advantage to use GA is that the geometry details could be changed anytime without modifying the codes,
+and could be used for very complicated geometry without coding for that. The most disadvantage is the consuming
+CPU because there are so many "useless" individuals would be rejected during the algorithm.
+A diffusive reflector, tyvek ( details could be found at Section--------), is used for Aberdeen neutron detector to
+be a radial reflector around the target. To quantize the extent of how diffusive the tyvek reflector is, would be a problem
+if the reconstruction algorithm would like to use the information of the certer of mass.
+Nervertheless, GA could skip such diffusive information.
+
+
+There are many factors to decide the performance of the GA for Aberdeen.
+For example, the quality of calibration data, the covariance matrix, the fitness definition,
+the population size, the evolution time and generation number.
+Basically the larger the population size, the better the reconstruction result is; the longer the evolution time, the better the result is;
+the more the generation number, the better the result is. But all of these: large population size, long evolution time, and many generation
+number consume the CPU time very much.
+At the time of writing, the calibration of aberdeen neutron detector is still on going.
+This chapter focuses on the discussion of the covariance matrix and the fitness definition.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Fitness Definition}
+
+The preliminary test of a inver-square generator of Aberdeen
+detector geometry is shown below. A suggested fitness definition of this GA is
 
 
 (fitness definition)
@@ -46,7 +82,7 @@ where
 
 
 \begin{equation}
-\label{fitnessNDF}
+\label{eq:fitnessNDF}
 NDF(degree of freedom) = 4,
 \end{equation}
 
@@ -55,9 +91,54 @@ and
 
 
 \begin{equation}
-\label{fitnessChi}
+\label{eq:fitnessChi}
 \chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\mathbf{Q}^T\Sigma^{-1}\mathbf{Q}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
 \end{equation}
+
+
+The typical reconstruction patterns are shown in Figure \ref{fig:ndr_c4_distance.png} and Figure \ref{fig:ndr_c4_photon.png}.
+The simple inverse-square law event generator generates random photon numbers randomly distributed in the acrylic vessel.
+The response matrix is generated based on the event which 10000 optical photons were generated.
+Events that PMTs receive photons less than 500 are rejected. This is the same as what the electronic trigger does in reality.
+The comparison of enery resolution before and after the reconstruction pattern is shown in Table \ref{} and Table \ref{}.
+
+
+
+\begin{table}
+\centering
+\caption{Energy resolution before and after the GA reconstruction}
+\label{tab:GAISSim}
+\begin{tabular}{lcp{5.0cm}}
+\hline
+Item & Before reconstruction (\%) & After reconstruction (\%) \\
+\hline
+\hline
+Energy resolution & 9.18 & 6.84 \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}
+\centering
+\caption[Summary of the actual and fitted coordinates and photon number]
+{
+This table shows the comparisons of fitted with actual values.
+For coordinates, the fitted values minus the actual values.
+For photon number, the fitted values is divided by the actual values.
+}
+\label{tab:GACoorPhoton}
+\begin{tabular}{lccccc}
+\hline
+Item &  x-coordinate (mm) & y-coordinate (mm) & z-coordinate (mm) & Distance (mm) & photon number \\
+\hline
+\hline
+Mean        &   -0.8295 &   -0.9153 &   0.5432  &   97.31   &   -0.02449    \\
+RMS         &   57.35   &   58.4    &   67.66   &   42.53   &   0.06337     \\
+\hline
+\end{tabular}
+\end{table}
+
 
 
 (raw data of the inver-square, energy resolution)
@@ -73,80 +154,135 @@ It shows the previous fitness definition works better on the
 energy resolution.
 
 
-(fitness definition)
+Figure \ref{fig:ndr_c4_distance.png} shows the coordinates and distance of reconstruction.
+The lines in x, y and z coordinate plottings shows how the target volume is divided into the bins.
+In this case, a $10cm\times10cm\times10cm$ cells of cube is used for the target volume. The response matrix
+is based on the way how the target is divided. The response matrix is built by simuating 10000 photons
+generated in the center of each bin. Because the simulation events for the reconstruction is to generate
+photons randomly and uniformly in the target. The events generated near the center of bins will be reconstructed
+and converge to the reconstructed results quicker and easier than the events not generated near the centers.
+The events not generated near the centers may or may not be regarded as the events near the centers by the algorithm,
+but the events generated near the centers is likely to be regarded as the events near the centers.
+Because it a $10cm\times10cm\times10cm$ cube, there are 10 lines in x, y and z coordinate respectively.
+For the same reason, the space resolution is limited to be in the order of 10cm in each coordinate.
+
+The reconstructed events near the center of the target volume have better space resolution.
+This is because the ADC count variance generated in the bins near the center of the target is smaller
+than the one in the bins not near the center of the target. Thus the ADC count of the previous case
+matches the response matrix easier than the later one.
+
+Figure \ref{fig:ndr_c4_photon.png} shows the reconstruction energy--generated photon number-- pattern.
+The more the generated photon number, the larger the variance of the reconstructed photo number.
+If the fitted photon number is divided by the actual--simulation-- photon number, the ratio is
+almost the same.
+This is derived by the normalized term $\mathbf{Q}^T$ of the fitness definition \ref{eq:fitnessChi}.
+The weighting of the fitness, the elements of the covariance matrix, is fixed. The TDC counts have upper limit
+because the size of the target is finite. Nervertheless the energy, or say ADC counts, could be very large.
+If there is no such normalized term $\mathbf{Q}^T$, the weighting of the covariance matrix would be negligible
+if the generated photon number is very large.
+
+
+%Table ------ shows the comparison of the algorithm with and without $\mathbf{Q}^T$. It's obvious the reconstruction fails
+%when the photon number is large.
+
+
+%and the relation of the TDC counts to
+%the distance from vertices to PMTs is linear. However, The relation of the ADC counts to the distance from vertices is not linear.
+%It's inverse-square.
+
+
+On the other side, if the photon number is too small. There is data could not provide sufficient ADC counts.
+The ADC ratio of PMT response to caculated value is relative small to the TDC term, and result in large
+fitted-to-actual ratio variance of ADC. This is shown in Figure \ref{ndr_c4_distance_no_threshold.png}.
+In reality, this could be avoided by tuning electronic triggers.
 
 
 
-
-(raw data of the inver-square, energy resolution)
-
-
-
-
-(reconstruction result of the GA)
-
-
-
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_diff.png}
-    \caption{Difference in actual and reconstruction distance}
-    \label{fig:nd1_distance_diff.png}
+    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_distance.png}
+    \caption[Coordinate reconstruction I]
+{
+Coordinate reconstruction pattern derived by the GA.
+The pattern is cut by photon number of 500.
+}
+    \label{fig:ndr_c4_distance.png}
     \end{figure}
 
 
-\begin{figure}
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_x_diff.png}
-    \caption{Difference in actual and reconstruction x-coordinate}
-    \label{fig:nd1_distance_x_diff.png}
+    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_photon.png}
+    \caption[Energy reconstruction I]
+{
+Energy reconstruction pattern derived by the GA.
+The pattern is cut by photon number of 500.
+}
+    \label{fig:ndr_c4_photon.png}
+    \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_distance_no_threshold.png}
+    \caption[Coordinate reconstruction without threshold]
+{
+Coordinate reconstruction pattern derived by the GA.
+If the photon number is not enough, the fitting pattern is wrose.
+}
+    \label{fig:ndr_c4_distance_no_threshold.png}
     \end{figure}
 
 
-\begin{figure}
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_y_diff.png}
-    \caption{Difference in actual and reconstruction z-coordinate}
-    \label{fig:nd1_distance_y_diff.png}
+    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_photon_no_threshold.png}
+    \caption[Energy reconstruction without threshold]
+{
+Energy reconstruction pattern derived by the GA.
+If the photon number is not enough, the fitting pattern is wrose.
+}
+    \label{fig:ndr_c4_photon_no_threshold.png}
     \end{figure}
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_distance_z_diff.png}
-    \caption{Difference in actual and reconstruction z-coordinate}
-    \label{fig:nd1_distance_z_diff.png}
-    \end{figure}
+\subsection{The Covariance Matrix}
+
+The covariance matrix plays a role to decide which information is more important in fitness definition \ref{eq:eq:fitnessChi}.
+The reconstruction of space is more directly related to the TDC term than ADC term
+because the distance between the vertices and the PMTs is easy to know by only the TDC counts.
+To reconstruct the photon number by ADC counts, the distance should be known first.
+
+Tabel------- shows the result to use different covariance matrix to reconstruct the events.
+A compromising method to build a covariance matrix is to use the bin near one of the 16 PMTs.
+Fill the bin by events generating fixed photon number randomly distributed in the bin.
+The resolution of ADC and TDC counts shows which one is more "realiable".
+The reason to choose the bin near a PMT because of the inverse-square of the light intensity
+result in the possible largest variance of ADC counts. The resolution TDC counts won't change
+very much in a bin either near a PMT or not because the time information associated to the
+distance information is linear.
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_photon_no_diff.png}
-    \caption{Difference in actual and reconstruction number of photons}
-    \label{fig:nd1_photon_no_diff.png}
-    \end{figure}
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_photon_no_diff_normal.png}
-    \caption{Normalized difference in actual and reconstruction number of photons}
-    \label{fig:nd1_photon_no_diff_normal.png}
-    \end{figure}
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/nd1_fitness.png}
-    \caption{Fitness distribution}
-    \label{fig:nd1_fitness.png}
-    \end{figure}
+
+
+
+
+
+
+
+
 
 
 
 More detailed test is done by Antony and Jimmy by G4dyb for simulation.
-The result is shown below.
+%The result is shown below.
 
 
 
-
+The online reconstruction is not decided, but the GA is intended for
+the offline.

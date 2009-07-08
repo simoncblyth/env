@@ -196,20 +196,162 @@ Other R \& D details could be found in section--------------------.
 
 
 \section {The Effect of Optical Property Measurement}
+\subsection {The Behavior of Optical Photons Passing Through Acrylics}
+
+When the optical photons passing through the acrylic panels in air, multiple refractions
+and reflections occurs. A simple simulation by GEANT4 shows when 10000 optical photons
+are going to pass the acrylic panel of thickness of 10 mm, the typical front-primary
+reflection is around 4\%, the sum of the other orders of reflection is around 2.6\%.
+The most a near-normal incident optical photon reflected is around 5 times.
+The lost intensity of transmittance is attributed by the reflection but not the
+absorption until the scanning comes to the UV-block region.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/OM_acrylic_sample_study.png}
+    \caption[A example exhibited by GEANT4 of a optical photon has multiple reflections in a acrylic panel.]
+{
+A example exhibited by GEANT4 of a optical photon has multiple reflections in a acrylic panel.
+}
+    \label{fig:OM_acrylic_sample_study.png}
+    \end{figure}
+
+
 \subsection {The Optical Model}
+\label{sec:opticalModel}
 
 The optical model of GEANT4 requires the index of refraction and the attenuation length
 of matirails. The measurement method of these two parameters of acrylic pannels for Dayabay IAV
-is mentioned in section \ref{sec:RTMethod}.
+is mentioned in Sec. \ref{sec:RTMethod}.
 The measurement may fail at few wavelength for some reasons, also discussed
-in section --------------.
+in Sec. \ref{sec:RTMethod}.
 To model the index of refraction by a smooth curve to fit in GEANT4 requirement, Cauchy equation
+is used.
+
+\begin{equation}
+\label{eq:Chauchy}
+n = A + \frac{B}{\lambda^2},
+\end{equation}
+where $A$ and $B$ are constants.
 
 
-(Chaucy equation)
+To model attenuation length, a Fermi-Dirac-like distribution
 
 
-is used. To model attenuation length, a Fermi-Dirac-like distribution
+\begin{equation}
+\label{eq:AttenuationModelA}
+absorption\,length = {\frac{A - B}{1 + exp(\frac{\lambda - C}{\Delta})}} + B + {\frac{\lambda}{D}}A,\;if\,absorption\,length\,>\,0
+\end{equation}
+where $A$,$B$,$C$,and $D$ are constants. $D$ should be decided manually and is associated to the wavelength the total
+absorption occurs at. And
 
 
+\begin{equation}
+\label{eq:AttenuationModelB}
+absorption\,length = 0,\;if\,absorption\,length\,in\,Eq.\,\ref{eq:AttenuationModelA}\leq0
+\end{equation}
+
+
+Figure \ref{fig:rt_ior_cauchy_model_measurement.png} and Figure \ref{fig:rt_attenuation_model_measurement.png} show the comparison of the indexes of refraction and the attenuation lengths drived from the
+optical model, with the measurements by RT method in Sec. \ref{RTMethod}.
+And also \ref{fig:rt_transmittance_measurement_model.png} and Figure \ref{fig:rt_reflectance_measurement_model.png} show the comparison of the transmittance
+and reflectance derived by the Fresnel relationships and parameters derived by the RT method, with the transmittance and reflectance measurements.
+
+
+
+
+(comparison of n)
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/rt_ior_cauchy_model_measurement.png}
+    \caption[Optical model of $n$ and measurement]{Optical model of $n$ and measurement.}
+    \label{fig:rt_ior_cauchy_model_measurement.png}
+    \end{figure}
+
+
+
+(comparison of att)
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/rt_attenuation_model_measurement.png}
+    \caption[Optical model of attenuation length and measurement]{Optical model of attenuation length and measurement}
+    \label{fig:rt_attenuation_model_measurement.png}
+    \end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/rt_transmittance_measurement_model.png}
+    \caption[Comparison of the transmittance derived by the optical model and the measurement]
+{
+Comparison of the transmittance derived by the optical model and the measurement.
+Blue: The transmittance derived by the optical model.
+Red: The transmittance measurement.
+}
+    \label{fig:fig:rt_transmittance_measurement_model.png}
+    \end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/rt_reflectance_measurement_model.png}
+    \caption[Comparison of the reflectance derived by the optical model and the measurement.]
+{
+Comparison of the reflectance derived by the optical model and the measurement.
+Blue: The reflectance derived by the optical model.
+Red: The reflectance measurement.
+}
+    \label{}
+    \end{figure}
+
+
+
+\subsection{Comparison of Different Acrylic Optical Models}
+
+A simple acrylic optical model is used both in G4dyb and NuWa. Figure \ref{fig:OM_origin_model_att.png} and
+Figure \ref{fig:OM_origin_model_ior.png} shows the comparisons of the original parameters of acrylics
+and the parameters derived from the RT method for the simulation in G4dyb and NuWa.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/OM_origin_model_att.png}
+    \caption[Comparison of attenuation length of the origin acrylic material optical model and the RT method model]
+{
+Comparison of attenuation lengths of the origin acrylic material optical model and the RT method model.
+Blue: The original attenuation lengths of the simulation model.
+Red: The attenuation lengths derived by the RT method.
+}
+    \label{fig:OM_origin_model_att.png}
+    \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/OM_origin_model_ior.png}
+    \caption[Comparison of indices of the origin acrylic material optical model and the RT method model]
+{
+Comparison of indices of the origin acrylic material optical model and the RT method model.
+Blue: The original indices of refraction for the simulation model.
+Red: The indices of refraction derived by the RT method.
+}
+    \label{fig:OM_origin_model_ior.png}
+    \end{figure}
+
+
+\begin{table}
+\centering
+\caption{Comparisons of total p.e. number generated by GdLS of different optical models}
+\label{tab:peGenGdLSOpModel}
+\begin{tabular}{lp{3.0cm}p{3.0cm}p{3.0cm}}
+Model  &  Total p.e. generated by GdLS(Mean)  &    Total p.e. generated by GdLS (RMS) &     Energy resolution (\%) \\
+\hline
+\hline
+origin & 123.9 &  18.88 &  15.24 \\
+A  &  118.5 &  18.76 &  15.83 \\
+B  & 123.5  & 18.82  & 15.23 \\
+C  & 118.4  & 18.88  & 15.95 \\
+\hline
+\end{tabular}
+\end{table}
 
