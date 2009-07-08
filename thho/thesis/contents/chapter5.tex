@@ -2,10 +2,34 @@
 \section {Event Reconstruction of Aberdeen Neutron Detector}
 \subsection {Overview}
 There are three kinds of reconstruction were developed, center of mass,
-energy pattern, and genetic algorithm(GA).
+energy pattern matching, and genetic algorithm(GA).
 
 The center of mass algorithm doesn't consider the diffuse reflectors.
-The energy pattern gives up to reconstruct vertices.
+And the single photon spectrum of PMTs should be well-known to reconstruct the energy pattern.
+Nevertheless, our R1408 PMTs for Aberdeen is old and hard to see the single photon spectrum clearly.
+The calibration of the single photon is on going at the time of writing.
+The preliminary center of mass spatial reconstruction is done by Wan.
+
+
+\begin{equation}
+\label{eq:reconstructionCM}
+\Delta_{s}(\mathbf{r}) = {\sum}^N_{i=1} |   \frac{q_i}{\sum^N_{j=1}q_j}  -  \frac { \mu_{eff,i}(\mathbf{r}) }{ \sum^N_{j=1}\mu_{eff,i}(\mathbf{r}) }|
+\end{equation}
+
+
+The energy pattern matching is done by Long.
+The energy pattern gives up to reconstruct vertices and prelimnary result shows
+the reconstruction of enery resolution is around 4.2\%.
+
+
+(The energy pattern algorithm)
+
+
+
+
+
+
+
 The genetic algorithm is not related to the geometry property, for example,
 diffuse reflectors are used or not. But GA needs careful calibration process
 to build a well-behavior response matrix and takes longer time to reconstruct
@@ -15,12 +39,10 @@ This chapter focuses on the GA.
 
 
 
-(The center of mass algorithm)
 
 
 
 
-(The energy pattern algorithm)
 
 
 
@@ -37,7 +59,7 @@ This chapter focuses on the GA.
 The most advantage to use GA is that the geometry details could be changed anytime without modifying the codes,
 and could be used for very complicated geometry without coding for that. The most disadvantage is the consuming
 CPU because there are so many "useless" individuals would be rejected during the algorithm.
-A diffusive reflector, tyvek ( details could be found at Section--------), is used for Aberdeen neutron detector to
+A diffusive reflector, tyvek which details could be found at Section \ref{sec:reflector}, is used for Aberdeen neutron detector to
 be a radial reflector around the target. To quantize the extent of how diffusive the tyvek reflector is, would be a problem
 if the reconstruction algorithm would like to use the information of the certer of mass.
 Nervertheless, GA could skip such diffusive information.
@@ -95,12 +117,28 @@ and
 \chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\mathbf{Q}^T\Sigma^{-1}\mathbf{Q}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
 \end{equation}
 
+%
+%where
+%
+%
+%\begin{equation}
+%\label{equ:fitnessQ1_1}
+%\mathbf{Q}_{i,i} = 1 / \mathbf{P}_{obs,i}, \,\, if \, i<16
+%\end{equation}
+%
+%
+%and
+%\begin{equation}
+%\label{equ:fitnessQ1_2}
+%\mathbf{Q}_{i,i} = 1 , \,\, if \, i>15
+%\end{equation}
+%
 
 The typical reconstruction patterns are shown in Figure \ref{fig:ndr_c4_distance.png} and Figure \ref{fig:ndr_c4_photon.png}.
 The simple inverse-square law event generator generates random photon numbers randomly distributed in the acrylic vessel.
 The response matrix is generated based on the event which 10000 optical photons were generated.
 Events that PMTs receive photons less than 500 are rejected. This is the same as what the electronic trigger does in reality.
-The comparison of enery resolution before and after the reconstruction pattern is shown in Table \ref{} and Table \ref{}.
+The comparison of enery resolution before and after the reconstruction pattern is shown in Table \ref{tab:GAISSim} and Table \ref{tab:GACoorPhoton}.
 
 
 
@@ -246,42 +284,63 @@ If the photon number is not enough, the fitting pattern is wrose.
     \label{fig:ndr_c4_photon_no_threshold.png}
     \end{figure}
 
-
-\subsection{The Covariance Matrix}
-
-The covariance matrix plays a role to decide which information is more important in fitness definition \ref{eq:eq:fitnessChi}.
-The reconstruction of space is more directly related to the TDC term than ADC term
-because the distance between the vertices and the PMTs is easy to know by only the TDC counts.
-To reconstruct the photon number by ADC counts, the distance should be known first.
-
-Tabel------- shows the result to use different covariance matrix to reconstruct the events.
-A compromising method to build a covariance matrix is to use the bin near one of the 16 PMTs.
-Fill the bin by events generating fixed photon number randomly distributed in the bin.
-The resolution of ADC and TDC counts shows which one is more "realiable".
-The reason to choose the bin near a PMT because of the inverse-square of the light intensity
-result in the possible largest variance of ADC counts. The resolution TDC counts won't change
-very much in a bin either near a PMT or not because the time information associated to the
-distance information is linear.
-
-
-
-
+%
+%\subsection{The Covariance Matrix}
+%
+%The covariance matrix plays a role to decide which information is more important in fitness definition \ref{eq:eq:fitnessChi}.
+%The reconstruction of space is more directly related to the TDC term than ADC term
+%because the distance between the vertices and the PMTs is easy to know by only the TDC counts.
+%To reconstruct the photon number by ADC counts, the distance should be known first.
+%
+%Tabel------- shows the result to use different covariance matrix to reconstruct the events.
+%A compromising method to build a covariance matrix is to use the bin near one of the 16 PMTs.
+%Fill the bin by events generating fixed photon number randomly distributed in the bin.
+%The resolution of ADC and TDC counts shows which one is more "realiable".
+%The reason to choose the bin near a PMT because of the inverse-square of the light intensity
+%result in the possible largest variance of ADC counts. The resolution TDC counts won't change
+%very much in a bin either near a PMT or not because the time information associated to the
+%distance information is linear.
+%
+%
 
 
-
-
+However, for neutron reconstruction, because of the time delay, a time offset
+for the TDC term is suggested by Jimmy.
 
 
 
+\begin{equation}
+\label{eq:fitnessChiTimeOffset}
+\chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal} - \mathbf{O})^T\mathbf{Q}^T\Sigma^{-1}\mathbf{Q}(\mathbf{P}_{obs} - \mathbf{P}_{cal} - \mathbf{O}).
+\end{equation}
 
+where
 
+\begin{equation}
+\label{eq:fitnessQTimeOffset}
+\mathbf{Q}_{i,j}
+= \left\{
+    \begin{array}{lll}
+        \frac{16}{\sum^16_{k=1}\mathbf{P}_obs,k} & \mbox{for } i=j \mbox{ and } i\leq16, \mbox{(ADC terms)} \\
+        1 & \mbox{for } i=j \mbox{ and } i>16, \mbox{(TDC terms)} \\
+        0 & \mbox{for } i{\neq}j
+    \end{array} \right.
+\end{equation}
 
-
+\begin{equation}
+\label{eq:fitnessOTimeOffset}
+\mathbf{O}_i =
+\left\{
+    \begin{array}{ll}
+    0 & \mbox{for } i\leq16, \\
+    min\{\mathbf{P}_{obj,j}{\mid}j\in[16,32]\} - min\{\mathbf{P}_{cal,j}{\mid}j\in[16,32]\}  & \mbox{for } i>16.
+    \end{array} \right.
+\end{equation}
 
 
 More detailed test is done by Antony and Jimmy by G4dyb for simulation.
-%The result is shown below.
-
+The preliminary result shows the reconstruction of neutron energy resolution is 4.47\%
+and the ADC-sum energy resolution is 4.89\%.
 
 
 The online reconstruction is not decided, but the GA is intended for
