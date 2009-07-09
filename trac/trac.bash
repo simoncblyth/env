@@ -227,7 +227,7 @@ trac-instance(){
     case ${1:-$NODE_TAG} in
               G) echo workflow ;;
      C|C2|N|P|H) echo env      ;;
-             XX) echo dybsvn   ;;
+       XX|YY|ZZ) echo dybsvn   ;;
               *) echo env      ;;
    esac
 }
