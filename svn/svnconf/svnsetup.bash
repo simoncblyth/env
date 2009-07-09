@@ -183,6 +183,15 @@ svnsetup-selinux(){
    done
 }
 
+
+svnsetup-base(){
+  ## todo rationalize all apaches onto svn-setupdir
+   case $NODE_TAG in 
+     C2|C|H|N|G) echo $(apache- ; apache-confd) ;;
+              *) echo $(svn-setupdir)   ;;
+   esac 
+}
+
 svnsetup-sysapache(){
 
    local msg="=== $FUNCTION : "
@@ -190,7 +199,7 @@ svnsetup-sysapache(){
    local mode=$(apache-mode)
    [ "${mode:0:6}" != "system" ] && echo $msg ABORT this is for system apache only ... perhaps you should use svnsetup-apache && return 1
 
-   local base=$(apache-confd)
+   local base=$(svnsetup-base)
    [ ! -d "$base" ] && echo $msg ABORT apache-confd $base does not exist && return 2    
 
    svnsetup-tracs $base/tracs.conf 
@@ -202,6 +211,7 @@ svnsetup-sysapache(){
   
 }
 
+
 svnsetup-apache(){
 
 
@@ -210,9 +220,8 @@ svnsetup-apache(){
    local mode=$(apache-mode)
    [ "${mode:0:6}" != "source" ] && echo $msg ABORT this is for source apache only ... perhaps you should use svnsetup-sysapache && return 1
 
-   local def=$(svn-setupdir)
+   local def=$(svn-setupbase)
    local base=${1:-$def}
-   
 
    if [ "$base" == "$def" ]; then
       echo $msg setting ownership of $base
