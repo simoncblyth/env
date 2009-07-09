@@ -187,7 +187,8 @@ svnsetup-sysapache(){
 
    local msg="=== $FUNCTION : "
    apache-
-   [ "$(apache-mode)" != "system" ] && echo $msg ABORT this is for system apache only ... perhaps you should use svnsetup-apache && return 1
+   local mode=$(apache-mode)
+   [ "${mode:0:6}" != "system" ] && echo $msg ABORT this is for system apache only ... perhaps you should use svnsetup-apache && return 1
 
    local base=$(apache-confd)
    [ ! -d "$base" ] && echo $msg ABORT apache-confd $base does not exist && return 2    
@@ -197,7 +198,7 @@ svnsetup-sysapache(){
    svnsetup-svn   $base/svn.conf   anon-or-real svn      ## for recovered IHEP repositories
 
    local authz=$(svn-authzpath)
-   svnsetup-authz $(dirname $authz)/$(basename $authz)
+   svnsetup-authz-place $authz
   
 }
 
@@ -206,7 +207,8 @@ svnsetup-apache(){
 
    local msg="=== $FUNCNAME :"
    apache-   
-   [ "$(apache-mode)" != "source" ] && echo $msg ABORT this is for source apache only ... perhaps you should use svnsetup-sysapache && return 1
+   local mode=$(apache-mode)
+   [ "${mode:0:6}" != "source" ] && echo $msg ABORT this is for source apache only ... perhaps you should use svnsetup-sysapache && return 1
 
    local def=$(svn-setupdir)
    local base=${1:-$def}
@@ -229,18 +231,23 @@ svnsetup-apache(){
    svnsetup-repos $base/repos.conf anon-or-real repos
    svnsetup-svn   $base/svn.conf   anon-or-real svn      ## for recovered IHEP repositories
    svnsetup-setup $base/setup.conf
-   
+
    local authz=$(svn-authzpath)
-   svnsetup-authz $base/$(basename $authz)
-   
-  
+   svnsetup-authz-place $base/$(basename $authz) 
+ 
    ## do the common config used for all instances
    trac-
    trac-inherit-setup  
 
 }
 
-
+svnsetup-authz-place(){
+   local path=$1
+   case $NODE_TAG in
+        C|C2|H|G|N) svnsetup-authz $path     ;;
+                 *) echo $msg authz $path is manually managed by default ... for safety  ;;
+   esac  
+}
 
 
 
