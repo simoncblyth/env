@@ -98,6 +98,7 @@ subversion
 mod_python
 swig
 sqlite
+httpd
 EOS
 }
 

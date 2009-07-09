@@ -228,7 +228,7 @@ EOI
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
      G) echo systemapple ;;
-   C|N) echo systemyum   ;;
+   C|N|ZZ) echo systemyum   ;;
     C2) echo source      ;;
      H) echo source      ;;
      *) echo source      ;; 
