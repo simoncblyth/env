@@ -183,7 +183,7 @@ svnsetup-selinux(){
    done
 }
 
-
+svnsetup-cd(){  cd $(svnsetup-base) ; }
 svnsetup-base(){
   ## todo rationalize all apaches onto svn-setupdir
    case $NODE_TAG in 
@@ -205,6 +205,7 @@ svnsetup-sysapache(){
    svnsetup-tracs $base/tracs.conf 
    svnsetup-repos $base/repos.conf anon-or-real repos
    svnsetup-svn   $base/svn.conf   anon-or-real svn      ## for recovered IHEP repositories
+   svnsetup-setup $base/setup.conf
 
    local authz=$(svn-authzpath)
    svnsetup-authz-place $authz
