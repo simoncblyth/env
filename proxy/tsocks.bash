@@ -18,7 +18,11 @@ tsocks-get(){
 
 tsocks-conf-(){ cat << EOC
 # $(tsocks-source) $FUNCNAME $(date)
+# what is accessed directly ... not thru the proxy 
+# where the mask is 0 ... it corresponds to a wildcard in the IP
 local = 127.0.0.1/255.255.255.255
+local = 208.67.222.222/255.255.255.255
+
 server = 127.0.0.1
 server_port = 8080
 EOC
