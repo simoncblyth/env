@@ -39,7 +39,7 @@ configobj-build(){
 
 configobj-get(){
    python-
-   local cmd="easy_install configobj "
+   local cmd="sudo easy_install configobj "
    echo $cmd 
    eval $cmd
 }

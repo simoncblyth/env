@@ -91,6 +91,16 @@ python-version(){
 }
 
 
+python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default)} ; }
+python-mode-default(){
+  case ${1:-$NODE_TAG} in
+        ZZ) echo system ;;
+   C|C2|YY) echo source ;;
+         *) echo system ;;
+  esac
+}
+
+
 
 python-cd(){
    cd $(python-site)
@@ -118,7 +128,6 @@ python-sudo(){
 }
 
 
-python-mode(){ echo ${PYTHON_MODE:-source} ; }
 python-env(){
 
    local mode=${1:-$(python-mode)}

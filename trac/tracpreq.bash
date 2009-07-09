@@ -38,12 +38,17 @@ tracpreq-env(){
    echo -n
 }
 
+tracpreq-mode(){ 
+   case ${1:-$NODE_TAG} in
+     ZZ) echo system ;;
+      *) echo ${TRACPREQ_MODE:-source} ; 
+   esac
+}
 
-tracpreq-mode(){ echo ${TRACPREQ_MODE:-source} ; }
 
-
-tracpreq-sysagain(){
-   [ "$(tracpreq-mode)" != "system" ] && echo $msg ABORT this is for tracpreq-mode:system  only, maybe you want to use tracpreq-again && return 1
+tracpreq-again(){ tracpreq-again-$(tracpreq-mode) ; }
+tracpreq-again-system(){
+   [ "$(tracpreq-mode)" != "system" ] && echo $msg ABORT this is for tracpreq-mode:system  only && return 1
 
    setuptools-
    setuptools-get
@@ -54,9 +59,14 @@ tracpreq-sysagain(){
 }
 
 
-tracpreq-again(){
+tracpreq-again-source(){
 
-   [ "$(tracpreq-mode)" != "source" ] && echo $msg ABORT this is for tracpreq-mode:source only, maybe you want to use tracpreq-sysagain && return 1
+   local msg="=== $FUNCNAME :"
+   [ "$(tracpreq-mode)" != "source" ] && echo $msg ABORT this is for tracpreq-mode:source only && return 1
+
+   local ans
+   read -p "$msg ENTER YES TO PROCEED" ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 1
 
    log-
    log-init $FUNCNAME   
@@ -103,11 +113,12 @@ EOS
 }
 
 tracpreq-system-yum(){
+  local cmd=${1:-info}
   local msg="=== $FUNCNAME :"
   echo $msg WARNING THIS HAS NEVER BEEN USED 
   local line
   $FUNCNAME- | while read line ; do
-     echo sudo yum install $line
+     sudo yum $cmd $line
   done
 }
 

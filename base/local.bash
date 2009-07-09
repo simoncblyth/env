@@ -289,7 +289,7 @@ local-nodetag-xinchun(){
 
 local-sudo(){
   case ${1:-$NODE_TAG} in
-  G|H|T|C2|C|YY|N) echo sudo ;;
+  G|H|T|C2|C|YY|N|ZZ) echo sudo ;;
       *) echo -n ;
   esac
 }
@@ -358,6 +358,8 @@ local-root(){
 }
 
 
+local-base-workflow(){ echo $(local-base $*)/workflow ; }
+local-base-env(){      echo $(local-base $*)/env ; }
 local-base(){
     local t=${1:-$NODE_TAG}
     case $t in 
@@ -584,7 +586,7 @@ export SCM_TRAC
 local-initialize(){
 
    local msg="=== $FUNCNAME :"
-   local names="local-base local-system-base local-scm-fold"
+   local names="local-base local-base-env local-system-base local-scm-fold"
    echo $msg initializing dirs ... $names , check em with local-info
    local name
    for name in $names ; do 
