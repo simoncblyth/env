@@ -270,6 +270,27 @@ A integrating sphere can collect
         - modify by distance
     - light source spectrum and noise
 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IS/calibration1.png}
+    \caption
+    [Calibration for transmittance and total reflectance measurement overview of the integrating sphere]
+    {Calibration for transmittance and total reflectance measurement overview of the integrating sphere}
+    \label{fig:calibration1.png}
+    \end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IS/calibration2.png}
+    \caption
+    [Calibration for diffuse reflectance measurement overview of the integrating sphere]
+    {Calibration for diffuse reflectance measurement overview of the integrating sphere}
+    \label{fig:calibration2.png}
+    \end{figure}
+
+
+
 \subsection{Basic Performance}
 
 The detector for the UV/Vis range(up to 900nm) of Lambda 650 with a 60 mm integrating sphere
@@ -446,7 +467,42 @@ and is slightly lower than the baseline by around 0.3\%. This quantity is expect
     \end{figure}
 
 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IS/transmittance.png}
+    \caption
+    [Transmission measurement]
+    {Transmission measurement}
+    \label{fig:transmission.png}
+    \end{figure}
+
+
+
+
 \subsection{Reflectance Measurement of Acrylics}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IS/reflectance8d.png}
+    \caption
+    [Total reflectance measurement]
+    {Total reflectance measurement}
+    \label{fig:reflectance8d.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IS/reflectance0d.png}
+    \caption
+    [Diffuse reflectance measurement]
+    {Diffuse reflectance measurement}
+    \label{fig:reflectance0d.png}
+    \end{figure}
+
+
 
 Uncertainty by the Spectrlon
 
@@ -457,7 +513,7 @@ Fig. \ref{fig:spectralon_0_8_degree.png} shows both the spectralon by $0^\circ$ 
 reflectance measurement.) and $8^\circ$ (Specular and diffuse reflectance.).
 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/spectralon_0_8_degree.png}
     \caption[Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction]{Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction. Both the two curves are similar. This shows the stability of Lambda650 and the extent of diffuse of the Spectralon calibration standard is good.}
@@ -657,6 +713,51 @@ Wavelength (nm) & ABT Barrel  & ABT Bottom Lid & ABT Bottom Rib &  ABT Top Lid &
 \end{table}
 
 
+\subsection {Dayabay AD Geometry QA}
+
+
+The coaxiality of IAV is directly related to the scheme to installation.
+This will be discussed in Section \ref{sec:assembly}.
+Figure \ref{fig:coaxiality.png} shows the proposal for IAV coaxiality measurement.
+There is no a real and exact center because the acrylic is a flexible material and
+the thickness uncertainty. For assembly and installation, a more practical information is the difference
+distance of the center calibration port and the bottom block.
+A template is used to define the center of the calibration port.
+The calibration port, namely the flange is machined by CNC, and around 1 mm uncertainty might occur.
+To define the center position of the calibration port,
+1 mm uncertainty by CNC and 1 mm uncertainty by the line on the template occur.
+The similar way to define the center of the bottom block raise 1 mm uncertainty because of CNC and
+another 1 mm uncertainty because of the lines.
+The uncertainty of level is around 1 mm including the line width effect.
+Two levels are used.
+
+Thus the measurement uncertainty is estimated as:
+
+
+\begin{equation}
+\label{equ:coaxiality}
+\sqrt{
+2^2\mbox{(Port)} +
+2^2\mbox{(Block)} +
+2^2\mbox{(Levels)} < 3
+}
+\end{equation}
+
+
+The coaxiality and the information of rib-to-center length of bottom lid measurement can
+provide the information for the assembly of IAV and OAV. This will be discussed in Section \ref{sec:assembly}.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/coaxiality/coaxiality.png}
+    \caption
+    [Scheme to show the measurement of coaxiality]
+    {Scheme to show the measurement of coaxiality}
+    \label{fig:coaxiality.png}
+    \end{figure}
+
+
 
 
 \section {Integration of Dayabay Acrylic Vessel}
@@ -771,6 +872,53 @@ water D &~5.6\\
 \end{table}
 
 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/cleaning/IAV_cleaning_as_built.png}
+    \caption
+    [As-built cleaning room]
+    {As-built cleaning room}
+    \label{fig:IAV_cleaning_as_built.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/cleaning/IAV_cleaning_overview.png}
+    \caption
+    [Clean inner surface]
+    {Clean inner surface}
+    \label{fig:IAV_cleaning_overview.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/cleaning/IAV_cleaning_procedure2.png}
+    \caption
+    [Dry IAV and seal bottom lid]
+    {Dry IAV and seal bottom lid}
+    \label{fig:IAV_cleaning_procedure2.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/cleaning/IAV_cleaning_procedure3.png}
+    \caption
+    [Final polish]
+    {Final polish}
+    \label{fig:IAV_cleaning_procedure3.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/cleaning/IAV_cleaning_procedure4.png}
+    \caption
+    [Clean exterior and dry out]
+    {Clean exterior and dry out}
+    \label{fig:IAV_cleaning_procedure4.png}
+    \end{figure}
+
+
 \subsubsection {Transportation}
 
 After the production including final cleaning of IAV, the IAV will be
@@ -809,6 +957,7 @@ status. Table-------- summary the devices.
 
 
 \subsubsection {Assembly}
+\label {sec:assembly}
 
 IAV should be installed into OAV. A proposed AD installation
 scheme is as Fig-------, including installation of IAV.
@@ -820,6 +969,38 @@ scheme is as Fig-------, including installation of IAV.
 From the point of installation view, the coaxiality of the top center calibration port and
 the bottom pin is mostly cared. Installation could be bottom-to-top or top-to-bottom, deponding
 on the coaxiality.
+
+
+
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/assembly/assembly_top_to_bottom.png}
+    \caption
+    [Top-to-bottom assembly]
+    {Top-to-bottom assembly}
+    \label{fig:assembly_top_to_bottom.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/assembly/assembly_bottom_to_top.png}
+    \caption
+    [Bottom-to-top assembly]
+    {Bottom-to-top assembly}
+    \label{fig:assembly_bottom_to_top.png}
+    \end{figure}
+
+
+
+
+
+
+
 
 
 (bottom-to-top installation scheme and the error)
