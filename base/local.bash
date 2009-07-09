@@ -158,6 +158,7 @@ local-tag2node(){
  C2|SC2|C2R) echo cms02 ;;
          XX) echo dayabay ;;
          YY) echo dyb1 ;;
+         ZZ) echo dyb2 ;;
          H1) echo hep1 ;;
           N) echo belle7 ;;
     S2|P|G1) echo grid1 ;;
@@ -177,7 +178,7 @@ local-tag2user(){
            X) echo exist ;;
            P) echo dayabaysoft ;;
            L) echo sblyth ;;
-       YY|XX) echo maqm ;;
+    YY|XX|ZZ) echo maqm ;;
            *) echo $USER ;;
   esac 
 }
@@ -211,6 +212,7 @@ local-tag2ip(){
            T) echo tersk.slac.stanford.edu ;;
            L) echo pal.nuu.edu.tw ;;
           YY) echo dyb1.ihep.ac.cn ;;
+          ZZ) echo dyb2.ihep.ac.cn ;;
           XX) echo dayabay.ihep.ac.cn ;;
   esac 
 }
@@ -227,6 +229,7 @@ local-nodetag(){
         cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo XX ;;
          dyb1) echo YY ;;
+         dyb2) echo ZZ ;;
        belle7) echo N ;;
       gateway) echo B ;;
          g3pb) echo G ;;
@@ -321,9 +324,8 @@ local-first(){        echo $1 ; }
 
 local-email(){
    case ${1:-$NODE_TAG} in
-     XX) echo maqm@ihep.ac.cn ;;
-     YY) echo maqm@ihep.ac.cn ;;
-      *) echo blyth@hep1.phys.ntu.edu.tw ;;
+     XX|YY|ZZ) echo maqm@ihep.ac.cn ;;
+            *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
 }
 
@@ -393,6 +395,7 @@ local-system-base(){
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
         YY) echo /usr/local ;;
+        ZZ) echo /usr/local ;;
          *) echo $(local-base $*) ;;
    esac
 }
@@ -411,6 +414,7 @@ local-var-base(){
        XT) echo /home/tianxc ;; 
        XX) echo /home ;; 
        YY) echo /home ;;
+       ZZ) echo /home ;;
      IHEP) echo /home ;;  
     OLD_C) echo /var ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;

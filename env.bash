@@ -108,6 +108,7 @@ env-localserver(){
 C2|C2R) echo $(env-ntu dayabay) ;;
     XX) echo $(env-ihep dayabay) ;;
     YY) echo $(env-ihep dyb1) ;;
+    ZZ) echo $(env-ihep dyb2) ;;
   esac  
 }
 
