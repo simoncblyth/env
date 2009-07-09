@@ -178,7 +178,12 @@ ssh--tunnel(){
   local tag=${1:-N} 
   local port=${2:-8080}
 
-  local cmd="ssh -fND localhost:$port $tag "
+  local sudo
+  case $port in
+    80) sudo="sudo" ;;
+     *) sudo="" ;
+  esac
+  local cmd="$sudo ssh -fND localhost:$port $tag "
 
   cat << EON
 
