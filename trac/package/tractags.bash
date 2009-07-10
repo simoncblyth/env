@@ -1,3 +1,4 @@
+tractags-vi(){ vi $BASH_SOURCE ; }
 tractags-usage(){
    package-usage tractags
    cat << EOU

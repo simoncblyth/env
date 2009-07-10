@@ -792,8 +792,8 @@ EON)
 trac-defaulthandler-triplets-(){
    local name=${1:-$TRAC_INSTANCE}
    case $name in
-          dybsvn|env|workflow) echo Roadmap  ;;
-                       dybaux) echo Timeline ;;
+          dybsvn|env|workflow) echo Wiki ;;
+                       dybaux) echo Wiki ;;
                             *) echo Wiki     ;; 
    esac
 }
@@ -856,6 +856,8 @@ trac-triplets(){
       project:url:$url
       project:name:$name
       project:descr:$name
+      tags:ignore_closed:false
+      tags:ticket_fields:keywords
       ticket:restrict_owner:true
 $(trac-delete-triplets $name)
 $(navadd-triplets query Query /tracs/$name/query)

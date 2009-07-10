@@ -958,8 +958,10 @@ scm-backup-trac(){
    local trac_admin
    if [ -x "/usr/local/bin/trac-admin" ]; then
       trac_admin=/usr/local/bin/trac-admin
+   elif [ -x "/usr/bin/trac-admin" ]; then
+      trac_admin=/usr/bin/trac-admin
    else 
-	  trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
+      trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
    fi	  
    
    [ ! -x $trac_admin ] && echo $msg ABORT no trac_admin at $trac_admin && return 1
