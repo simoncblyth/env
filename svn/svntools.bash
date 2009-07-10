@@ -38,7 +38,14 @@ svntools-get(){
    local dir=$(svntools-dir)
    [ ! -d $dir ] && type $FUNCNAME && $SUDO mkdir -p $dir && $SUDO chown $USER $dir   
    cd $dir
-   [ -d "tools" ] && svn update tools || svn co $(svntools-url)
+
+   local rev
+   case "$(python -V 2>&1)" in
+     "Python 2.3.4") rev=34959 ;;
+                  *) rev=HEAD ;;
+    esac
+ 
+   [ -d "tools" ] && svn update -r $rev tools || svn co $(svntools-url)@$rev
 }
 
 
