@@ -512,7 +512,11 @@ dj-runfcgi(){
   dj-info
   echo $msg $(pwd)
   which python
-  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
+  python -V
+
+
+  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
+  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
   echo $cmd 
   eval $cmd
 }

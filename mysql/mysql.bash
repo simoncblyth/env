@@ -1,24 +1,46 @@
-
-mysql-env(){    elocal- ; }
-mysql-src(){ echo mysql/mysql.bash ; }
+mysql-env(){    pkgr- ; }
+mysql-src(){    echo mysql/mysql.bash ; }
 mysql-source(){ echo ${BASH_SOURCE:-$(env-home)/$(mysql-src)} ; }
-mysql-vi(){     vi $(mysql-source) ; }
+mysql-vi(){     vim $(mysql-source) ; }
 mysql-usage(){
   cat << EOU
 
+
+EOU
+}
+
+
+
+mysql-ini(){
+  case $(pkgr-cmd) in
+    yum) echo /etc/rc.d/init.d/lighttpd ;;
+   ipkg) echo /opt/etc/init.d/S70mysqld ;;
+  esac
+}
+
+mysql-init(){    sudo $(mysql-ini) $* ; }
+
+mysql-start(){   mysql-init start ; }
+mysql-stop(){    mysql-init stop ; }
+mysql-restart(){ mysql-init restart ; }
+
+mysql-ps(){     ps aux | grep mysql ; }
+
+
+
+
+
+
+mysql-notes(){
+  cat << EOU
+
     Installed 4.1.22 with yum $(env-wikiurl)/MySQL onto C2
-
         http://dev.mysql.com/doc/refman/4.1/en/
-
    This was prior to C2 being reinstalled 
-
-
 
    invenio requires some specific settings in my.cnf
        max_allowed_packet at least 4M
        default-character-set=utf8     (multiple places ?)
-
-
 
 [blyth@cms02 ~]$ cat /etc/my.cnf
 [mysqld]
@@ -37,8 +59,6 @@ pid-file=/var/run/mysqld/mysqld.pid
 [blyth@cms02 ~]$ cat  /var/lib/mysql/my.cnf
 cat: /var/lib/mysql/my.cnf: No such file or directory
 
-
-
 [blyth@cms02 ~]$ l /var/lib/mysql/
 total 20552
 -rw-rw----  1 mysql mysql 10485760 Mar 27 14:10 ibdata1
@@ -48,17 +68,11 @@ drwx------  2 mysql mysql     4096 Mar 27 14:10 mysql
 srwxrwxrwx  1 mysql mysql        0 Mar 27 14:10 mysql.sock
 drwx------  2 mysql mysql     4096 Mar 27 14:10 test
 [blyth@cms02 ~]$ 
-
-
-
-
-
 EOU
-
 
 }
 
-mysql-install(){
+mysql-install-yum(){
    sudo yum install mysql-server
 }
 
