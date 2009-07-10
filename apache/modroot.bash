@@ -73,6 +73,9 @@ modroot-append(){
 
 }
 
+
+
+
 modroot-upload(){
    local path=${1:-run00027.root}
    local    t=${2:-C2}
@@ -80,16 +83,17 @@ modroot-upload(){
 }
 
 
+modroot-test(){ $FUNCNAME- | python ; }
 modroot-test-(){ cat << EOT
-{
-  f = TFile::Open("http://dayabay.phys.ntu.edu.tw/aberdeen/run0007.root");
-  f.ls()
-}
+import os
+os.environ["LD_LIBRARY_PATH"] += ":" + os.path.join( os.environ["HOME"] , "aberdeen/DataModel/lib" ) 
+from ROOT import gSystem, TFile
+gSystem.Load("libAbtDataModel")
+f = TFile.Open("http://dayabay.phys.ntu.edu.tw/aberdeen/run00027.root");
+t = f.Get("T")  
+print t.GetEntries()
 EOT
 }
 
-modroot-test(){
-   $FUNCNAME- | root -b -q -l 
-}
 
 
