@@ -128,6 +128,20 @@ and
 \chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\mathbf{Q}^T\Sigma^{-1}\mathbf{Q}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
 \end{equation}
 
+
+
+\begin{equation}
+\label{eq:covariance1}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1 & \mbox{for } i=j, \\
+    0 & \mbox{for } i{\neq}j.
+    \end{array} \right.
+\end{equation}
+
+
+
 %
 %where
 %
@@ -145,7 +159,7 @@ and
 %\end{equation}
 %
 
-The typical reconstruction patterns are shown in Figure \ref{fig:ndr_c4_distance.png} and Figure \ref{fig:ndr_c4_photon.png}.
+The typical reconstruction patterns are shown in Figure \ref{fig:f1c1_500.png} and Figure \ref{fig:f1c1_500.png}.
 The simple inverse-square law event generator generates random photon numbers randomly distributed in the acrylic vessel.
 The response matrix is generated based on the event which 10000 optical photons were generated.
 Events that PMTs receive photons less than 500 are rejected. This is the same as what the electronic trigger does in reality.
@@ -203,7 +217,7 @@ It shows the previous fitness definition works better on the
 energy resolution.
 
 
-Figure \ref{fig:ndr_c4_distance.png} shows the coordinates and distance of reconstruction.
+Figure \ref{fig:f1c1_500.png} shows the coordinates and distance of reconstruction.
 The lines in x, y and z coordinate plottings shows how the target volume is divided into the bins.
 In this case, a $10cm\times10cm\times10cm$ cells of cube is used for the target volume. The response matrix
 is based on the way how the target is divided. The response matrix is built by simuating 10000 photons
@@ -220,7 +234,7 @@ This is because the ADC count variance generated in the bins near the center of 
 than the one in the bins not near the center of the target. Thus the ADC count of the previous case
 matches the response matrix easier than the later one.
 
-Figure \ref{fig:ndr_c4_photon.png} shows the reconstruction energy--generated photon number-- pattern.
+Figure \ref{fig:f1c1_500.png} shows the reconstruction energy--generated photon number-- pattern.
 The more the generated photon number, the larger the variance of the reconstructed photo number.
 If the fitted photon number is divided by the actual--simulation-- photon number, the ratio is
 almost the same.
@@ -242,58 +256,94 @@ if the generated photon number is very large.
 
 On the other side, if the photon number is too small. There is data could not provide sufficient ADC counts.
 The ADC ratio of PMT response to caculated value is relative small to the TDC term, and result in large
-fitted-to-actual ratio variance of ADC. This is shown in Figure \ref{ndr_c4_distance_no_threshold.png}.
+fitted-to-actual ratio variance of ADC. This is shown in Figure \ref{f1c1.png}.
 In reality, this could be avoided by tuning electronic triggers.
 
 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_distance.png}
-    \caption[Coordinate reconstruction I]
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1_500.png}
+    \caption[Coordinate and energy reconstruction]
 {
-Coordinate reconstruction pattern derived by the GA.
+Coordinate and energy reconstruction pattern derived by the GA.
 The pattern is cut by photon number of 500.
 }
-    \label{fig:ndr_c4_distance.png}
+    \label{fig:f1c1_500.png}
     \end{figure}
 
-
-
-\begin{figure}[h]
+\begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_photon.png}
-    \caption[Energy reconstruction I]
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1.png}
+    \caption[Coordinate and enery reconstruction without threshold]
 {
-Energy reconstruction pattern derived by the GA.
-The pattern is cut by photon number of 500.
-}
-    \label{fig:ndr_c4_photon.png}
-    \end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_distance_no_threshold.png}
-    \caption[Coordinate reconstruction without threshold]
-{
-Coordinate reconstruction pattern derived by the GA.
+Coordinate and energy reconstruction pattern derived by the GA.
 If the photon number is not enough, the fitting pattern is wrose.
 }
-    \label{fig:ndr_c4_distance_no_threshold.png}
+    \label{fig:f1c1.png}
     \end{figure}
 
 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/ndr_c4_photon_no_threshold.png}
-    \caption[Energy reconstruction without threshold]
-{
-Energy reconstruction pattern derived by the GA.
-If the photon number is not enough, the fitting pattern is wrose.
-}
-    \label{fig:ndr_c4_photon_no_threshold.png}
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500.png}
+    \caption
+    [Coordinate and energy reconstruction by a non-normalized fitness]
+    {Coordinate and energy reconstruction by a non-normalized fitness}
+    \label{fig:f3c1_500.png}
     \end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1.png}
+    \caption
+    [Coordinate and energy reconstruction by a non-normalized fitness without thresold]
+    {Coordinate and energy reconstruction by a non-normalized fitness without thresold}
+    \label{fig:f3c1.png}
+    \end{figure}
+
+
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1_500proj.png}
+    \caption
+    [Projection of \ref{fig:f1c1_500.png}]
+    {Projection of \ref{fig:f1c1_500.png}}
+    \label{fig:f1c1_500proj.png}
+    \end{figure}
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500proj.png}
+    \caption
+    [Projection of \ref{fig:f3c1_500.png}]
+    {Projection of \ref{fig:f3c1_500.png}}
+    \label{fig:f3c1_500proj.png}
+    \end{figure}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 %
 %\subsection{The Covariance Matrix}
@@ -313,6 +363,75 @@ If the photon number is not enough, the fitting pattern is wrose.
 %distance information is linear.
 %
 %
+\begin{equation}
+\label{eq:covariance4}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    1000 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+
+
+\begin{equation}
+\label{eq:covariance5}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1000 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    1 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c4_500.png}
+    \caption
+    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}]
+    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}}
+    \label{fig:f1c4_500.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c5_500.png}
+    \caption
+    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}]
+    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}}
+    \label{fig:f1c5_500.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c4_500.png}
+    \caption
+    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}]
+    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}}
+    \label{fig:f3c4_500.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c5_500.png}
+    \caption
+    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}]
+    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}}
+    \label{fig:f3c5_500.png}
+    \end{figure}
+
+
+
+
+
+
 
 
 However, for neutron reconstruction, because of the time delay, a time offset
@@ -332,11 +451,14 @@ where
 \mathbf{Q}_{i,j}
 = \left\{
     \begin{array}{lll}
-        \frac{16}{\sum^16_{k=1}\mathbf{P}_obs,k} & \mbox{for } i=j \mbox{ and } i\leq16, \mbox{(ADC terms)} \\
+        \frac{16} {  {\sum^{16}_{k=1}}  {\mathbf{P}_{obs,k}}  } & \mbox{for } i=j \mbox{ and } i\leq16, \mbox{(ADC terms)} \\
         1 & \mbox{for } i=j \mbox{ and } i>16, \mbox{(TDC terms)} \\
         0 & \mbox{for } i{\neq}j
     \end{array} \right.
 \end{equation}
+
+
+
 
 \begin{equation}
 \label{eq:fitnessOTimeOffset}
