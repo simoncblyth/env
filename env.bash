@@ -693,3 +693,4 @@ lighttpd-(){   . $(env-home)/lighttpd/lighttpd.bash && lighttpd-env $* ; }
 pkgr-(){       . $(env-home)/base/pkgr.bash && pkgr-env $* ; }
 modroot-(){    . $(env-home)/apache/modroot.bash && modroot-env $* ; }
 tsocks-(){     . $(env-home)/proxy/tsocks.bash && tsocks-env $* ; }
+pid-(){      . $(env-home)/base/pid.bash && pid-env $* ; }
