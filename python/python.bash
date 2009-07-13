@@ -193,7 +193,15 @@ python-site(){
 
 python-ln(){
     local msg="=== $FUNCNAME :";
-    local path=$1
+
+    local arg=$1
+    local path
+    func-
+    func-isfunc- $arg && path=$($arg) || path=$arg
+
+    echo arg $arg path $path
+   
+    return 0
     local name=${2:-$(basename $path)}
 
     [ ! -d "$path" ] && echo $msg ABORT no such path $path && return 1

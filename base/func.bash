@@ -25,10 +25,21 @@ func-notes(){
           generate $(<repo>-home)/base/hello/hello.bash 
           hook up the precursor into $(<repo>-home)/<repo>.bash
           eval the precursor
- 
+
+
+     func-isfunc-  name
+          detect if the function "name" is defined 
+
+          func-isfunc envx-
+          n
+          func-isfunc env-
+          y
 EON
 }
 
+
+func-isfunc-(){ local n=$1 ; [ "$(type $n 2>/dev/null | head -1 )" == "$n is a function" ] && return 0 || return 1 ; }
+func-isfunc(){ $FUNCNAME- $* && echo y || echo n ;  }
 
 func-gen-path(){
   local path=${1:-dummy/hello}
