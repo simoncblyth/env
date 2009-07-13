@@ -95,7 +95,7 @@ python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default)} ; }
 python-mode-default(){
   case ${1:-$NODE_TAG} in
         ZZ) echo system ;;
-   C|C2|YY) echo source ;;
+   C|YY|C2) echo source ;;
          *) echo system ;;
   esac
 }

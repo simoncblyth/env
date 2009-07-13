@@ -184,7 +184,8 @@ svnsetup-selinux(){
 }
 
 svnsetup-cd(){  cd $(svnsetup-base) ; }
-svnsetup-base(){
+svnsetup-base(){ echo ${SVNSETUP_BASE:-$(svnsetup-base-default)} ; }
+svnsetup-base-default(){
   ## todo rationalize all apaches onto svn-setupdir
    case $NODE_TAG in 
      C2|C|H|N|G) echo $(apache- ; apache-confd) ;;
@@ -200,7 +201,7 @@ svnsetup-sysapache(){
    [ "${mode:0:6}" != "system" ] && echo $msg ABORT this is for system apache only ... perhaps you should use svnsetup-apache && return 1
 
    local base=$(svnsetup-base)
-   [ ! -d "$base" ] && echo $msg ABORT apache-confd $base does not exist && return 2    
+   [ ! -d "$base" ] && echo $msg ABORT svnsetup-base $base does not exist && return 2    
 
    svnsetup-tracs $base/tracs.conf 
    svnsetup-repos $base/repos.conf anon-or-real repos
