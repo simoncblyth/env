@@ -1,14 +1,12 @@
 
-#
-#  this is not sustainable 
-#    ... move to putting top level precursors here only 
-#        with the sub precursors defined  in the name/name.bash file
-#
+
+
 env-home(){     [ -n "$BASH_SOURCE" ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 env-source(){   echo $(env-home)/env.bash ; }
 env-vi(){       vi $(env-source) ; }
 env-ini(){      . $(env-source) ; }
 env-lastrev(){  svn- ; svn-lastrev $(env-home) ; }
+env-override-path(){ echo $(env-home)/local/$(uname -n).bash ; }
 env-rel(){
   local src=$1
   local rel=${src/$(env-home)\//}
@@ -680,6 +678,18 @@ env-htdocs-url(){
 } 
 
 
+env-override(){
+   local msg="=== $FUNCNAME :"
+   local path=$(env-override-path)
+   if [ -f "$path" ] ; then
+     source $path
+   fi
+}
+
+env-override
+
+
+
 #env-env
 diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
@@ -694,3 +704,7 @@ pkgr-(){       . $(env-home)/base/pkgr.bash && pkgr-env $* ; }
 modroot-(){    . $(env-home)/apache/modroot.bash && modroot-env $* ; }
 tsocks-(){     . $(env-home)/proxy/tsocks.bash && tsocks-env $* ; }
 pid-(){      . $(env-home)/base/pid.bash && pid-env $* ; }
+
+
+
+

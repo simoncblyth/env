@@ -401,6 +401,11 @@ trac-admin--(){
 trac-admin-(){   
    python-
    sqlite-
+
+   which trac-admin
+   which python
+   echo $LD_LIBRARY_PATH | tr ":" "\n"
+
    trac-admin $(trac-envpath) $* 
 }
 
