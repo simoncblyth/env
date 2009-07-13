@@ -63,8 +63,13 @@ sqlite-again(){
 
 }
 
-sqlite-name(){
-   echo sqlite-3.3.16
+sqlite-name(){ echo sqlite-3.3.16 ; }
+sqlite-mode(){ echo ${SQLITE_MODE:-$(sqlite-mode-default)} ; }
+sqlite-mode-default(){
+   case $NODE_TAG in 
+     G) echo system ;;
+     *) echo source ;;
+   esac
 }
 
 sqlite-home(){
@@ -77,6 +82,8 @@ sqlite-home(){
 sqlite-env(){
 
    elocal-
+
+   [ "$(sqlite-mode)" == "system" ] && return 0
    
    export SQLITE_NAME=$(sqlite-name)
    export SQLITE_HOME=$(sqlite-home)
