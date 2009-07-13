@@ -547,7 +547,7 @@ scm-backup-rsync-from-node(){
    
    local tgt=$(scm-backup-dir $NODE_TAG)
    mkdir -p $tgt
-   local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/$node $tgt/$node "
+   local cmd="rsync -e ssh --delete-after -razvt $tag:$(scm-backup-dir $tag)/$node/ $tgt/$node/ "
    echo $cmd
 
    read -p "$msg Enter YES to proceed " ans
