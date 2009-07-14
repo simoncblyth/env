@@ -71,7 +71,7 @@ apacheconf-path(){
 }
 
 apacheconf-bindir(){
-  echo $APACHE_HOME/bin
+  echo $(apache-home)/bin
 }
 
 
