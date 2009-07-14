@@ -177,12 +177,16 @@ scm-backup-all(){
    
    python-
    sqlite-
-   
+  
+   which python
+   echo $LD_LIBRARY_PATH | tr ":" "\n"
+ 
    local typs="svn repos tracs"
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
        do  
+           [ -f "$ENV_HOME/ABORT" ]  && echo $msg ABORTING via file semaphore && return 1  
            if [ -d $path ]; then 
                local name=$(basename $path)
                local inhibiter=$(dirname $path)/${name}-scm-recover-repo
@@ -201,6 +205,7 @@ scm-backup-all(){
   		   fi
        done
    done
+   [ -f "$ENV_HOME/ABORT" ]  && echo $msg ABORTING via file semaphore && return 1  
    
    svn-
    
@@ -927,6 +932,8 @@ scm-backup-repo(){
    # svn co file:///tmp/hottest-6
 }
 
+
+
 scm-backup-trac(){
 
    local msg="=== $FUNCNAME :" 
@@ -955,18 +962,20 @@ scm-backup-trac(){
    ## target_fold must NOT exist , but its parent should
    ## too many pythons around to rely on an external PYTHON_HOME
    
-   local trac_admin
-   if [ -x "/usr/local/bin/trac-admin" ]; then
-      trac_admin=/usr/local/bin/trac-admin
-   elif [ -x "/usr/bin/trac-admin" ]; then
-      trac_admin=/usr/bin/trac-admin
-   else 
-      trac_admin=$REFERENCE_PYTHON_HOME/bin/trac-admin
-   fi	  
+   local tracadmin=$(which trac-admin)
+   local pymode=$(python-mode)
+   if [ "$pymode" == "source" ]; then
+     [ "$(python-home)/bin/trac-admin" != "$tracadmin" ] && echo $msg ERROR wrong source tracadmin $tracadmin ... env screwup  && return 1  
+   elif [  "${pymode:0:6}" == "system" ] ; then
+     case $tracadmin in
+        /usr/bin/trac-admin) echo -n ;;
+                          *) echo $msg ERROR wrong system trac_admin $tracadmin ... env screwup  && return 1
+     esac 
+   fi
    
-   [ ! -x $trac_admin ] && echo $msg ABORT no trac_admin at $trac_admin && return 1
+   [ ! -x $tracadmin ] && echo $msg ABORT no trac_admin at $tracadmin && return 1
    
-   local cmd="mkdir -p $parent_fold && $trac_admin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
+   local cmd="mkdir -p $parent_fold && $tracadmin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $msg $cmd
    eval $cmd 
    

@@ -1,4 +1,4 @@
-
+pysqlite-vi(){  vi $BASH_SOURCE ; }
 pysqlite-usage(){
 
   cat << EOU
