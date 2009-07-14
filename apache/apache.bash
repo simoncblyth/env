@@ -239,10 +239,7 @@ apache-mode(){
    local arg=$1
    if [ -z "$arg" ]; then
        local mode=${APACHE_MODE:-$(apache-mode-default)} 
-       case $mode in  
-          stock2|linuxsystem) echo $(apache-mode-default) ;;  ## disallow legacy hapache modes
-                           *) echo $mode ;;
-       esac
+       echo $mode
    elif [ "${arg:0:6}" == "system" ]; then
        echo $arg  
    elif [ "$arg" == "source" ]; then
