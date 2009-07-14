@@ -105,6 +105,8 @@ pysqlite-test(){
     cd /tmp
     
     python-
+    echo $msg $(which python) ... LLP :
+    echo $LD_LIBRARY_PATH | tr ":" "\n"
     python << EOP
 from pysqlite2 import test
 test.test()
