@@ -111,14 +111,6 @@ python-major(){
    local v=$(python-version) 
    echo ${v:0:3} ; 
 }
-python-home(){
-   if [ "$(python-mode)" == "source" ]; then
-       echo $(local-system-base)/python/$(python-name)
-   else
-       echo unused
-   fi
-}
-
 python-sudo(){
    case $(python-mode) in 
      system) echo sudo ;;
@@ -127,51 +119,58 @@ python-sudo(){
    esac
 }
 
+python-home(){
+   if [ "$(python-mode)" == "source" ]; then
+       echo $(local-system-base)/python/$(python-name)
+   else
+       echo unused
+   fi
+}
+
 
 python-env(){
-
+   local msg="=== $FUNCNAME : "
    local mode=${1:-$(python-mode)}
+   #echo $msg mode $mode
+
    elocal-
 
-   export PYTHON_SUDO=$(python-sudo)
-
    if [ "$mode" == "system" ]; then
-      python-unpath $mode
+      export PYTHON_MODE=system
+      #echo $msg mode $mode system branch
+      python-unpath $PYTHON_HOME
       export PYTHON_SITE=$(python-site)
       export PYTHON_MODE=system
       #export PYTHONSTARTUP=$ENV_HOME/python/startup.py
    else
-      python-path $mode
       export PYTHON_MODE=source
+      #echo $msg mode $mode source branch
+      python-path $(python-home)
       export PYTHON_MAJOR=$(python-major)
       export PYTHON_NAME=$(python-name)
       export PYTHON_HOME=$(python-home)
       export PYTHON_SITE=$(python-home)/lib/python$(python-major)/site-packages
-      
   
      ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
       export REFERENCE_PYTHON_HOME=$PYTHON_HOME
    fi
+   export PYTHON_SUDO=$(python-sudo)
 }
 
 python-unpath(){
-  local mode=${1:-$(python-mode)}
-  local msg="=== $FUNCNAME :"
-
-  #[ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
-  [ -z "$PYTHON_HOME" ] && return 0
-  env-remove $PYTHON_HOME/bin
-  env-llp-remove $PYTHON_HOME/lib
+  local oldhome=$1
+  [ -z "$oldhome"  ] && return 0
+  [ ! -d "$oldhome" ] && return 0
+  env-remove $oldhome/bin
+  env-llp-remove $oldhome/lib
 }
 
 python-path(){
-  local mode=${1:-$(python-mode)}
-  local msg="=== $FUNCNAME :"
-
-  #[ -z "$PYTHON_HOME" ] && echo $msg skip as no PYTHON_HOME && return 1  
-  [ -z "$PYTHON_HOME" ] && return 0 
-  env-prepend $PYTHON_HOME/bin
-  env-llp-prepend $PYTHON_HOME/lib
+  local home=$1
+  [ -z "$home" ] && return 0 
+  [ ! -d "$home" ] && return 0
+  env-prepend $home/bin
+  env-llp-prepend $home/lib
 }
 
 python-ldconfig(){
