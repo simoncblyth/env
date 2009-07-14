@@ -268,7 +268,14 @@ svn-authzpath(){ echo $(svn-setupdir $*)/$(svn-authzname $*) ; }
 svn-userspath(){ echo $(svn-setupdir $*)/$(svn-usersname $*) ; }
 
 
-svn-mode(){ echo ${SVN_MODE:-source} ; }
+svn-mode(){ echo ${SVN_MODE:-$(svn-mode-default)} ; }
+svn-mode-default(){
+  case $NODE_TAG in
+      ZZ) echo system ;;
+       *) echo source ;;
+  esac
+}
+
 
 svn-env(){
 
