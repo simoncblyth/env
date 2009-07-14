@@ -310,12 +310,14 @@ svn--(){
 
 
 svn-hotbackuppath(){
-  svnbuild-
-  svntools-
-  case ${1:-$NODE_TAG} in
-     C|C2|C2R|H|XX|YY) echo $(svnbuild-dir)/tools/backup/hot-backup.py    ;;
-                    *) echo $(svntools-dir)/tools/backup/hot-backup.py  ;;  ## as stock svn doesnt come with the tools
-  esac
+  local mode=$(svn-mode)
+  if [ "${mode:0:6}" == "system" ]; then
+      svntools-
+      echo $(svntools-dir)/tools/backup/hot-backup.py   ## as stock svn doesnt come with the tools
+  elif [ "$mode" == "source" ]; then  
+      svnbuild-
+      echo $(svnbuild-dir)/tools/backup/hot-backup.py    
+  fi
 }
 
 svn-dumpload-incremental(){

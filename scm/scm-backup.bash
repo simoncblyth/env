@@ -146,19 +146,19 @@ scm-backup-du(){
 }
 
 scm-backup--(){
-  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; $*  "
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$(env-home) ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; $*  "
 }
 
 
 scm-backup-all-as-root(){
 
-  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-all  "
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$(env-home) ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-all  "
 
 }
 
 scm-backup-nightly-as-root(){
 
-  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$HOME/env ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-nightly  "
+  sudo bash -lc "export HOME=$HOME ; export ENV_HOME=$(env-home) ; . $ENV_HOME/env.bash ; env- ; scm-backup- ; scm-backup-nightly  "
 
 }
 
@@ -174,6 +174,9 @@ scm-backup-all(){
    local msg="=== $FUNCNAME :"
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=$SCM_FOLD/backup/$LOCAL_NODE
+
+   ## remove semaphore is set 
+   rm -f $ENV_HOME/ABORT
    
    python-
    sqlite-
