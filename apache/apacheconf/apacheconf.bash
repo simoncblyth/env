@@ -79,11 +79,13 @@ apacheconf-patchpath(){
   echo  $ENV_HOME/apache/$APACHE_NAME.conf.patch
 }
 
-
-
-
 apacheconf-envvars-path(){
-  echo $(apacheconf-bindir)/envvars
+  local amode=$(apache-mode)
+  if [ "${amode:0:6}" == "system" ]; then
+     echo /etc/sysconfig/httpd
+  else
+     echo $(apacheconf-bindir)/envvars
+  fi
 }
 
 apacheconf-envvars-match-(){
