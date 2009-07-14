@@ -14,6 +14,8 @@ pysqlite-usage(){
      pysqlite-get
 
      pysqlite-install
+          this needs  "python-devel" when running against system python 
+
 
      pysqlite-test
          1/173 fails on grid1
@@ -75,22 +77,29 @@ pysqlite-get(){
   test -d build/$nam || tar -C build -zxvf $tgz 
 }
 
-
+pysqlite-cd(){ cd $(pysqlite-builddir) ; }
 
 pysqlite-install(){
 
    # http://initd.org/pub/software/pysqlite/doc/install-source.html
  
+   local msg="=== $FUNCNAME :"
    sqlite-
    [ -z $SQLITE_HOME ] && echo $msg ABORT no SQLITE_HOME && sleep 1000000
  
    cd $(pysqlite-builddir)
 
+   echo $msg customizing setup.cfg with SQLITE_HOME : $SQLITE_HOME
    perl -pi -e "s|^(include_dirs=)(.*)$|\$1$SQLITE_HOME/include|g" setup.cfg
    perl -pi -e "s|^(library_dirs=)(.*)$|\$1$SQLITE_HOME/lib|g"     setup.cfg
 
    python-
-   python setup.py install 
+   echo $msg $(which python)
+   local cmd="$(python-sudo) python setup.py install "
+   echo $msg $cmd 
+   eval $cmd
+
+   python-ls | grep sql
 
 }
 

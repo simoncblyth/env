@@ -123,7 +123,7 @@ python-home(){
    if [ "$(python-mode)" == "source" ]; then
        echo $(local-system-base)/python/$(python-name)
    else
-       echo unused
+       echo unused ##  too dangerous : /usr  
    fi
 }
 
