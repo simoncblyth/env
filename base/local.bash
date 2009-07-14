@@ -156,7 +156,7 @@ local-tag2node(){
           H) echo hfag  ;;
         C|S) echo cms01 ;;
  C2|SC2|C2R) echo cms02 ;;
-         XX) echo dayabay ;;
+         ZZ) echo dayabay ;;
          YY) echo dyb1 ;;
          ZZ) echo dyb2 ;;
          H1) echo hep1 ;;
@@ -213,7 +213,7 @@ local-tag2ip(){
            L) echo pal.nuu.edu.tw ;;
           YY) echo dyb1.ihep.ac.cn ;;
           ZZ) echo dyb2.ihep.ac.cn ;;
-          XX) echo dayabay.ihep.ac.cn ;;
+          ZZ) echo dayabay.ihep.ac.cn ;;
   esac 
 }
 
@@ -227,7 +227,7 @@ local-nodetag(){
          hep1) echo H1 ;;
         cms01) echo C ;;
         cms02) local-nodetag-cms02 $USER ;;
-      dayabay) echo XX ;;
+      dayabay) echo ZZ ;;
          dyb1) echo YY ;;
          dyb2) echo ZZ ;;
        belle7) echo N ;;
@@ -304,6 +304,7 @@ local-backup-tag(){
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
      XX) echo YY S ;;
+     ZZ) echo YY S ;;
      *) echo U ;;
    esac  
 }
