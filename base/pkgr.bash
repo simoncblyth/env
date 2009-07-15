@@ -16,7 +16,7 @@ pkgr-usage(){
 EOU
 }
 
-pkgr-cmds(){ echo yum ipkg ; }
+pkgr-cmds(){ echo yum ipkg port  ; }
 pkgr-cmd(){ 
     local pkgr;
     for pkgr in $(pkgr-cmds);
@@ -31,6 +31,7 @@ pkgr-prefix(){
    case $cmd in 
      yum) echo -n ;;
     ipkg) echo /opt ;;
+    port) echo /opt ;;
    esac
 }
 

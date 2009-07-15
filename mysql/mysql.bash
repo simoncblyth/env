@@ -15,6 +15,7 @@ mysql-ini(){
   case $(pkgr-cmd) in
     yum) echo /etc/rc.d/init.d/lighttpd ;;
    ipkg) echo /opt/etc/init.d/S70mysqld ;;
+   port) echo /opt/local/share/mysql5/mysql/mysql.server ;; 
   esac
 }
 

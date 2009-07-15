@@ -198,9 +198,8 @@ python-ln(){
     func-
     func-isfunc- $arg && path=$($arg) || path=$arg
 
-    echo arg $arg path $path
-   
-    return 0
+    #echo arg $arg path $path
+    #return 0
     local name=${2:-$(basename $path)}
 
     [ ! -d "$path" ] && echo $msg ABORT no such path $path && return 1
