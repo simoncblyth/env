@@ -402,6 +402,7 @@ trac-admin--(){
 trac-admin-sqlite-check(){
    local v=$(python $(env-home)/trac/sqlite-version-check.py)
    case $v in
+     "sqlite_version_string:3.1.2 have_pysqlite:1") echo $msg ABORT this combination has resulted in memory exhaution within seconds ...  see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 1 ;; 
      "sqlite_version_string:3.3.16 have_pysqlite:2") echo $msg OK $v   ;;
                                                   *) echo $msg ABORT non-supported sqlite/pysqlite version $v ... see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 1 ;;  
    esac
