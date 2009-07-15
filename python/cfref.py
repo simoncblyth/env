@@ -7,27 +7,27 @@ class CfRef(list):
         tryout object wrapping for 
         functionality of cf_stdout.py
 
+        pause/continue not working 
+
     """
     def __init__(self, path , start=True ):
         self.path = path
+        from cStringIO import StringIO
+        self.cur = StringIO()
         if start:
             self.start_()
 
-    def start_(self):
-        from cStringIO import StringIO
-        self.cur = StringIO()
-        sys.stdout = self.cur    ## start capturing 
-
-    def __call__(self):self.stop_()
+    def captured(self):return ["%s\n" % l  for l in self.cur.getvalue().split("\n")]
+    def start_(self):sys.stdout = self.cur    ## start capturing 
+    def __call__(self):self.stop_(compare=True)
+    def pause_(self):   self.stop_(compare=False)
+    def continue_(self):self.start_()
 
     def stop_(self, compare=True):
         if sys.stdout == self.cur:
             sys.stdout = sys.__stdout__  ## reset stdout 
         if compare:
             self.compare()
-
-    def captured(self):
-        return ["%s\n" % l  for l in self.cur.getvalue().split("\n")]
 
     def compare(self):
         import os
@@ -42,23 +42,25 @@ class CfRef(list):
         ref.close()
 
     def compare_(self):
-        refl = file(self.path,"r").readlines()
         from difflib import unified_diff
-        for l in unified_diff( refl , self.captured() ):
+        for l in unified_diff( file(self.path,"r").readlines() , self.captured() ):
             self.append( l )
          
 
 
-
+def msg(arg, date=False):
+    from datetime import datetime
+    if date:
+        print datetime.now()
+    print arg
 
 
 if __name__=='__main__':
 
     cf = CfRef( __file__ + ".ref" )
 
-    print "hello world "
-    from datetime import datetime
-    print datetime.now()
+    msg("hello")
+    msg("hello", date=True)
 
     cf()
 
