@@ -398,13 +398,30 @@ trac-admin--(){
   ## huh this did not change ownership of the trac.log ??
 }
 
+
+trac-admin-sqlite-check(){
+   local v=$(python $(env-home)/trac/sqlite-version-check.py)
+   case $v in
+     "sqlite_version_string:3.3.16 have_pysqlite:2") echo $msg OK $v   ;;
+                                                  *) echo $msg ABORT non-supported sqlite/pysqlite version $v ... see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 1 ;;  
+   esac
+}
+
 trac-admin-(){   
+
+   local msg="=== $FUNCNAME :"
+
    python-
    sqlite-
 
-   which trac-admin
-   which python
-   echo $LD_LIBRARY_PATH | tr ":" "\n"
+   echo $msg trac-admin : $(which trac-admin)
+   echo $msg python     : $(which python)
+   echo $msg LLP        : $LD_LIBRARY_PATH | tr ":" "\n"
+
+   trac-admin-sqlite-check
+
+   local rc=$?
+   [ "$rc" != "0" ] && env-abort &&
 
    trac-admin $(trac-envpath) $* 
 }

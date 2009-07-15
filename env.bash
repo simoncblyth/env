@@ -48,6 +48,16 @@ env-designated(){
 
 env-urlwc(){ svn info $1 | perl -n -e 'm,URL: (\S*), && print $1 ' -  ; }
 
+env-abort-clear(){
+   rm -f $(env-home)/ABORT
+}
+env-abort(){
+   local msg="=== $FUNCNAME :" 
+   touch $(env-home)/ABORT 
+   echo $msg ABORT ... sleeping forever 
+   sleep 1000000000000000 
+}
+
 
 env-relocate(){
    local msg="=== $FUNCNAME :"
