@@ -961,6 +961,8 @@ scm-backup-trac(){
    local target_fold=$base/tracs/$name/$stamp/$name
    local parent_fold=$(dirname $target_fold)
 
+   trac-
+   trac-admin-sqlite-check || env-abort 
    
    ## target_fold must NOT exist , but its parent should
    ## too many pythons around to rely on an external PYTHON_HOME
@@ -977,8 +979,8 @@ scm-backup-trac(){
    fi
    
    [ ! -x $tracadmin ] && echo $msg ABORT no trac_admin at $tracadmin && return 1
-  
-   trac-admin-sqlite-check || env-abort 
+ 
+   
  
    local cmd="mkdir -p $parent_fold && $tracadmin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $msg $cmd

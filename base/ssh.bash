@@ -283,15 +283,19 @@ ssh--infofile(){
   echo $SSH_INFOFILE
 }
 
-ssh--agent-ok(){
+ssh--agent-ok-(){
   ## agent must be running and hold some identities to be "ok"
-   (ssh-add -l >& /dev/null) && echo 1 || echo 0
+   ssh-add -l >& /dev/null
 }
+ssh--agent-ok(){ $FUNCNAME- && echo y || echo n ; }
+
+
 
 ssh--agent-check(){
   [ -z "$SSH_AGENT_PID" ]  && return 1
   [ -z "$SSH_AUTH_SOCK" ]  && return 2 
-  return 0
+  ## checks the process is running ... does not kill 
+  kill -0 $SSH_AGENT_PID 2>/dev/null 
 }
 
 ssh--envdump(){
@@ -344,7 +348,7 @@ ssh--agent-start(){
 
 ssh--setup(){
 
-  if [ $(ssh--agent-ok) == "1" ]; then
+  if [ "$(ssh--agent-ok)" == "y" ]; then
       echo agent is responding and holds identities
   else
      echo agent is not responding, trying to start a new one
