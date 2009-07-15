@@ -48,15 +48,20 @@ env-designated(){
 
 env-urlwc(){ svn info $1 | perl -n -e 'm,URL: (\S*), && print $1 ' -  ; }
 
-env-abort-clear(){
-   rm -f $(env-home)/ABORT
-}
+
+env-abort-path(){ echo $(env-home)/ABORT ; }
+env-abort-touch(){ touch $(env-abort-path) ; }
+env-abort-clear(){ rm -f $(env-abort-path) ; }
 env-abort(){
    local msg="=== $FUNCNAME :" 
-   touch $(env-home)/ABORT 
+   env-abort-touch
    echo $msg ABORT ... sleeping forever 
    sleep 1000000000000000 
 }
+env-abort-active-(){ [ -f "$(env-abort-path)" ] && return 0 || return 1  ;  }
+env-abort-active(){ $FUNCNAME- && echo y || echo n ; }
+
+
 
 
 env-relocate(){

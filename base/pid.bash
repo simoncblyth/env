@@ -23,5 +23,7 @@ pid-vmsize-(){
    done
 }
 
-
+pid-tree(){
+   pstree -Gpl
+}
 

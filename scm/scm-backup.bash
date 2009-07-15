@@ -176,8 +176,8 @@ scm-backup-all(){
    local base=$SCM_FOLD/backup/$LOCAL_NODE
 
    ## remove semaphore is set 
-   rm -f $ENV_HOME/ABORT
-   
+   env-abort-clear
+ 
    python-
    sqlite-
   
@@ -189,7 +189,7 @@ scm-backup-all(){
    do
        for path in $SCM_FOLD/$typ/*
        do  
-           [ -f "$ENV_HOME/ABORT" ]  && echo $msg ABORTING via file semaphore && return 1  
+           env-abort-active-  && echo $msg ABORTING via file semaphore && return 1  
            if [ -d $path ]; then 
                local name=$(basename $path)
                local inhibiter=$(dirname $path)/${name}-scm-recover-repo
@@ -208,7 +208,7 @@ scm-backup-all(){
   		   fi
        done
    done
-   [ -f "$ENV_HOME/ABORT" ]  && echo $msg ABORTING via file semaphore && return 1  
+   env-abort-active- && echo $msg ABORTING via file semaphore && return 1  
    
    svn-
    
@@ -977,7 +977,9 @@ scm-backup-trac(){
    fi
    
    [ ! -x $tracadmin ] && echo $msg ABORT no trac_admin at $tracadmin && return 1
-   
+  
+   trac-admin-sqlite-check || env-abort 
+ 
    local cmd="mkdir -p $parent_fold && $tracadmin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $msg $cmd
    eval $cmd 
