@@ -582,7 +582,46 @@ export SCM_TRAC
 
 
 }
-    
+   
+local-mode-pkgs(){ cat << EOL
+tracpreq
+python
+apache
+svn
+sqlite
+EOL
+}
+local-mode(){
+  local msg="=== $FUNCNAME :"
+  local tag=${1:-$NODE_TAG}
+  echo $msg $tag 
+  echo 
+  func-
+  local pkg
+  local fmt="%-10s     %-20s %-20s %s \n"
+  printf "$fmt" pkg default mode note 
+  $FUNCNAME-pkgs | while read pkg ; do
+     if [ "$(func-isfunc $pkg-)" == "y" ]; then 
+        eval $pkg-
+        local mode=$(eval $pkg-mode $tag)
+        local default=$(eval $pkg-mode-default $tag)
+        local note=""
+        [ "$default"  != "$mode" ] && note="######"
+        printf "$fmt" $pkg $default $mode  $note 
+
+        #type $pkg-mode
+        #type $pkg-mode-default
+     else
+        echo $msg ERROR $pkg- is not a function 
+     fi
+  done
+
+  echo 
+  echo the mode is influenced by the local environment _MODE variables ... ignore when checking other nodes 
+  echo the default  is influenced by the NODE_TAG or argument ... allows to see defaults on other nodes
+}
+
+ 
     
 local-initialize(){
 

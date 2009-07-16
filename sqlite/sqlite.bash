@@ -64,10 +64,11 @@ sqlite-again(){
 }
 
 sqlite-name(){ echo sqlite-3.3.16 ; }
-sqlite-mode(){ echo ${SQLITE_MODE:-$(sqlite-mode-default)} ; }
+sqlite-mode(){ echo ${SQLITE_MODE:-$(sqlite-mode-default $*)} ; }
 sqlite-mode-default(){
-   case $NODE_TAG in 
-     G|ZZ) echo system ;;
+   case ${1:-$NODE_TAG} in 
+        G) echo system ;;
+       ZZ) echo source ;;
         *) echo source ;;
    esac
 }

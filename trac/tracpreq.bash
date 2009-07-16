@@ -38,10 +38,11 @@ tracpreq-env(){
    echo -n
 }
 
-tracpreq-mode(){ 
+tracpreq-mode(){ echo ${TRACPREQ_MODE:-$(tracpreq-mode-default $*)} ; }
+tracpreq-mode-default(){
    case ${1:-$NODE_TAG} in
-     ZZ) echo system ;;
-      *) echo ${TRACPREQ_MODE:-source} ; 
+     ZZ|C) echo system ;;
+        *) echo ${TRACPREQ_MODE:-source} ; 
    esac
 }
 

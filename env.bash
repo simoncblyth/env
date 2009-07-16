@@ -63,7 +63,6 @@ env-abort-active(){ $FUNCNAME- && echo y || echo n ; }
 
 
 
-
 env-relocate(){
    local msg="=== $FUNCNAME :"
    local tag=${1:-$(env-designated)}

@@ -227,15 +227,17 @@ EOI
 
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
-         G) echo systemapple ;;
-    C|N|ZZ) echo systemyum   ;;
+         G) echo system      ;;
+    C|N|ZZ) echo system      ;;
         C2) echo source      ;;
          H) echo source      ;;
          *) echo source      ;; 
    esac
 }
 
-apache-mode(){ 
+apache-mode(){ echo ${APACHE_MODE:-$(apache-mode-default $*)} ; } 
+apache-mode-deprecated(){ 
+   ## better not to confuse the mode with systemyum ....etc
    local arg=$1
    if [ -z "$arg" ]; then
        local mode=${APACHE_MODE:-$(apache-mode-default)} 

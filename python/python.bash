@@ -91,11 +91,11 @@ python-version(){
 }
 
 
-python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default)} ; }
+python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default $*)} ; }
 python-mode-default(){
   case ${1:-$NODE_TAG} in
-            ZZ) echo system ;;
-   C|YY|C2|C2R) echo source ;;
+          ZZ|C) echo system ;;
+     YY|C2|C2R) echo source ;;
              *) echo system ;;
   esac
 }
