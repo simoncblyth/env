@@ -42,7 +42,7 @@ tracpreq-mode(){ echo ${TRACPREQ_MODE:-$(tracpreq-mode-default $*)} ; }
 tracpreq-mode-default(){
    case ${1:-$NODE_TAG} in
      ZZ|C) echo system ;;
-        *) echo ${TRACPREQ_MODE:-source} ; 
+        *) echo source ;;
    esac
 }
 
