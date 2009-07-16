@@ -8,6 +8,8 @@ modroot-usage(){
      modroot-src : $(modroot-src)
     $(env-wikiurl)/ModRoot
 
+   http://root.cern.ch/drupal/content/how-read-root-file-web
+
 EOU
 }
 
@@ -50,6 +52,10 @@ AddHandler mod-root2 .root
 AddHandler mod-root2 .zip
 
 # the last line is only needed if you want to support ZIP files containing
+
+AddType application/root .root
+
+
 EOC
 }
 
