@@ -303,8 +303,8 @@ local-backup-tag(){
  C2|C2R) echo  C H N P H1 ;;
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
-     XX) echo YY S ;;
-     ZZ) echo YY S ;;
+     XX) echo ZZ S ;;
+     ZZ) echo XX S ;;
      *) echo U ;;
    esac  
 }
