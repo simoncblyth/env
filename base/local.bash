@@ -178,7 +178,7 @@ local-tag2user(){
            X) echo exist ;;
            P) echo dayabaysoft ;;
            L) echo sblyth ;;
-    YY|XX|ZZ) echo maqm ;;
+    YY|XX|ZZ) echo root ;;
            *) echo $USER ;;
   esac 
 }
