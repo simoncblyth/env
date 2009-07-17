@@ -311,7 +311,7 @@ local-backup-tag(){
 
 local-server-tag(){
    case ${1:-$NODE_TAG} in
-     ZZ) echo XX ;;
+     XX) echo ZZ ;;
       *) echo P ;;  
    esac
 }
