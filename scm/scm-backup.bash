@@ -475,13 +475,17 @@ scm-backup-rls(){
    python-
    local tag
    for tag in $tags ; do
-       local tmp=$tmpd/${tag}.txt
-       scm-backup-rls- $tag $inst > $tmp
-       python-sendmail $tmp
-       if [ "$?" != "0" ]; then
-          echo $msg FAILED TO SEND NOTIFICATION EMAIL
-          if [ "$NODE_TAG" == "G" ]; then
-             /usr/local/bin/growlnotify -s -m "$msg FAILED TO SEND NOTIFICATION EMAIL : need to start postfix ?  "
+       if [ "$tag" == "S" ]; then
+          echo $msg exclude sending mail to restricted account/node with tag $tag
+       else 
+          local tmp=$tmpd/${tag}.txt
+          scm-backup-rls- $tag $inst > $tmp
+          python-sendmail $tmp
+          if [ "$?" != "0" ]; then
+             echo $msg FAILED TO SEND NOTIFICATION EMAIL
+             if [ "$NODE_TAG" == "G" ]; then
+                /usr/local/bin/growlnotify -s -m "$msg FAILED TO SEND NOTIFICATION EMAIL : need to start postfix ?  "
+             fi
           fi
        fi
    done
