@@ -158,7 +158,7 @@ local-tag2node(){
  C2|SC2|C2R) echo cms02 ;;
          ZZ) echo dayabay ;;
          YY) echo dyb1 ;;
-         ZZ) echo dyb2 ;;
+         XX) echo dyb2 ;;
          H1) echo hep1 ;;
           N) echo belle7 ;;
     S2|P|G1) echo grid1 ;;
@@ -212,7 +212,7 @@ local-tag2ip(){
            T) echo tersk.slac.stanford.edu ;;
            L) echo pal.nuu.edu.tw ;;
           YY) echo dyb1.ihep.ac.cn ;;
-          ZZ) echo dyb2.ihep.ac.cn ;;
+          XX) echo dyb2.ihep.ac.cn ;;
           ZZ) echo dayabay.ihep.ac.cn ;;
   esac 
 }
@@ -311,7 +311,7 @@ local-backup-tag(){
 
 local-server-tag(){
    case ${1:-$NODE_TAG} in
-     YY) echo XX ;;
+     ZZ) echo XX ;;
       *) echo P ;;  
    esac
 }
@@ -336,6 +336,7 @@ local-sshkeyholder(){
             P) echo dayabaysoft ;;
            XX) echo root ;;
            YY) echo maqm ;; 
+           ZZ) echo maqm ;;
            *) echo blyth ;;
   esac
 
