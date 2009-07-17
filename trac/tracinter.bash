@@ -96,22 +96,24 @@ tracinter-url2name(){
 
 tracinter-triplets-(){
 
-   #local lsv=http://dayabay.phys.ntu.edu.tw
-   local lsv=$(trac- ; trac-localserver)
+   #local lsv=$(trac- ; trac-localserver)
+   local ntu=http://dayabay.phys.ntu.edu.tw
+   local ihep=http://dayabay.ihep.ac.cn
    cat << EOT
-   i  ihep      http://dayabay.ihep.ac.cn/tracs/dybsvn
-   e  env       $lsv/tracs/env
-   m  mirror    $lsv/tracs/dybsvn
-   a  aberdeen  $lsv/tracs/aberdeen
-   d  data      $lsv/tracs/data
+   i  ihep      $ihep/tracs/dybsvn
+   x  aux       $ihep/tracs/dybaux
+   e  env       $ntu/tracs/env
+   m  mirror    $ntu/tracs/mdybsvn
+   a  aberdeen  $ntu/tracs/aberdeen
+   d  data      $ntu/tracs/data
+   t  tracdev   $ntu/tracs/tracdev
    b  bitten    http://bitten.edgewall.org
    tr trac      http://trac.edgewall.org
    th trachacks http://trac-hacks.org
-   t  tracdev   $lsv/tracs/tracdev
    mp macports  https://trac.macports.org 
 EOT
 
-if [ "$NODE_TAG" != "XX" ]; then
+if [ "$NODE_TAG" != "ZZ" ]; then
    cat << EOT 
    w  workflow     http://localhost/tracs/workflow
    bn bittennotify http://trac.3dbits.de/bittennotify
