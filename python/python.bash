@@ -425,7 +425,10 @@ python-sendmail(){
 
    python << EOP
 import smtplib
-from email.mime.text import MIMEText
+try:
+    from email.mime.text import MIMEText
+except ImportError:
+    from email.MIMEText import MIMEText
 
 # Open a plain text file for reading,  assume ASCII characters only
 fp = open( "$path" , 'rb')
