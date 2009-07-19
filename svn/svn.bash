@@ -272,6 +272,7 @@ svn-mode(){ echo ${SVN_MODE:-$(svn-mode-default $*)} ; }
 svn-mode-default(){
   case ${1:-$NODE_TAG} in
       ZZ|C) echo system ;;
+         G) echo systemport ;;
          *) echo source ;;
   esac
 }

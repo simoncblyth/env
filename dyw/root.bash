@@ -1,4 +1,4 @@
-
+root-vi(){ vi $BASH_SOURCE ; }
 root-info(){
 
   cat << EOI
