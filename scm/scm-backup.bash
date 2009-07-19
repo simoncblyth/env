@@ -461,6 +461,8 @@ scm-backup-rls-(){
      echo $msg local $smry
      find $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day
   else
+     ssh--
+     ! ssh--agent-check && echo $msg ABORT SSH AGENT PROBLEM ... remote $smry && return 1 
      echo $msg remote $smry
      ssh $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
   fi
@@ -479,7 +481,7 @@ scm-backup-rls(){
           echo $msg exclude sending mail to restricted account/node with tag $tag
        else 
           local tmp=$tmpd/${tag}.txt
-          scm-backup-rls- $tag $inst > $tmp
+          scm-backup-rls- $tag $inst > $tmp 2>&1 
           python-sendmail $tmp
           if [ "$?" != "0" ]; then
              echo $msg FAILED TO SEND NOTIFICATION EMAIL
