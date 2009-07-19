@@ -1,11 +1,5 @@
 \chapter {Acrylic Vessel R\&D and Integration}
 \label{chap:arylicVessel}
-
-plenty of waffle...plenty of waffle...plenty of waffle...plenty of waffle...
-
-plenty of waffle...plenty of waffle...plenty of waffle...
-
-
 \section {Overview of A Acrylic Vessel of Dayabay and Aberdeen Experiment}
 
 Both of Dayabay Experiment and Aberdeen Experiment use acrylic vessels to hold
@@ -23,220 +17,40 @@ is tough and has almost infinite design flexibility.
 Acrylics possess the requisite low levels of radioactive contamination.
 The above considerations led to the selection of acrylic.
 
+The summary of QA items of inner acrylic vessel of Dayabay AD is shown in
+Table \ref{IAVQA}. More details of the items will be discussed respectively in the following and
+the optical QA will be focus on.
+\begin{table}
+\centering
+\caption{QA items of inner acrylic vessel of Dayabay AD}
+\label{tab:IAVQA}
+\begin{tabular}{lcp{5.0cm}}
+\hline
+Type & Item & Description \\
+\hline
+\hline
+Optical & Transmittance of raw material in 200nm to 800 nm & Optical signal region in 350 nm to 500 nm \\
+        & Index of refraction and attenuation of acrylics & GdLS/LS coupling optical property. Simulation parameters.\\
+Mechanics & Stress concentration & Mechanics strength for installation the acrylic vessel. \\
+Radioactive & Radioactive of raw material & IAV is target container. The background impact is large.\\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+%Karsten: characters of acrylic veseel DocDB
+%Tom: shipping etc.
+%Jeff: requirement of acrylic vesesel
+
+\section {Optical QA Instrument and Method}
+
+In order to measure the basic optical property including
+transmittance, reflectance, index of refraction and attenuation,
+a spectrometer, Perkin Elmer Lambda 650 with 60 mm integrating sphere,
+is used.
 
-Karsten: characters of acrylic veseel DocDB
-Tom: shipping etc.
-Jeff: requirement of acrylic vesesel
-
-
-\subsection {Acrylic Optical Property in Detectors}
-
-The optical properties of acrylic exert a strong influence on how light is propagated
-from a neutrino interaction point for Dayabay, or a neutron interaction point for Aberdeen,
-within the Ls, GdLs, and mineral oil to the PMTs arranged on the barrel of the steel tank.
-
-The signal region of both Dayabay detectors and Aberdeen detector
-is around from 350nm to 450nm, namely blue region of visible light and near UV.
-The signal region is decided by the PMT gain, the LS and the GdLS emitting spectrum and
-the attenuation spectrum, the mineral oil attenuation spectrum, and
-the acrylic panels spectrum. Fig. \ref{fig:SpectrumCoupling} shows the region.
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/LS_GdLS_Acrylic_PMT_coupling.png}
-    \caption{LS, GdLS, acrylics ,and PMT QE sepctrum. The coupling indicates the signal spectrum is in the blue and near UV spectral regions}
-    \label{fig:SpectrumCoupling}
-    \end{figure}
-
-
-A typical commercial acrylic panel is often doped UV absorber
-to prevent aging of acrylic panel. This kind of UV absorber makes acrylic spectrum
-UV-blocked and the typical cut-off trasmission is at around 350nm to 400nm,
-which happens to signal region of optical photon.
-Thus the acrylic panels used for the acrylic vessels should be chosen as
-UV-transparent ones. Fig. \ref{UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
-and UV-blocked acrylics.
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{./figure/UVT_UVB_acrylics.png}
-    \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
-    \label{UVTUVBAcrylics}
-    \end{figure}
-
-
-
-optical transmission standard
-
-Nervertheless, not only as-received acrylic material property, but also as-cast
-acrylic material should be monitored. Three kinds of manufacture process happen to the acrylic panels.
-They are polish, bonding and annealing, including heating the panels to shape them. Besides,
-the aging of acrylic panels will be discussed too.
-
-\subsubsection {Bonding and Aging}
-
-IAVs are produced by Nakano Int., Taiwan. Nakano uses a kind of glue, which is basically
-composed of PMMA, to bond the acrylic panels of IAV. The process to produce this kind of glue is a commercial
-secret. Nakano claims the glue is pure PMMA. The glue needs a process so called UV curing. The bonding area
-is compose of acrylc panels and glue, and exposured to UV lamps. To cure a 2mm thick bonding
-area, a 10W UV lamp is needed to irradiate the area for around 2 days, depending on the manufacutre status of glue
-and the thickness of acrylic panels. This kind of UV curing process is observed that it changes transmission of acrylic panels,
-and both increasing and decreasing effect could happen, depending on different kinds of acrylic panel.
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.5\textwidth]{./figure/reflector_panel_UV_aging.png}
-    \caption{Example of acrylic aging by UV lamps: these are the reflector samples}
-    \label{ReflectorAging}
-    \end{figure}
-
-
-
-(IAV 10mm increasing)
-
-
-(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
-
-
-Fig. IAV 10mm increasing shows the transmission will fit in with the QA in around 1 month, which is longer than typical
-bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
-
-A similar effect could be observed when acrylic panels are exposure to the sunshine like what
-Fig. \ref{IAVPrototypeBarrelSunshineAging} shows. Fig shows different
-acrylic panels exposured to the sunshine responds differently.
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IAV_prototype_barrel_sunshine.png}
-    \caption{Example of acrylic aging by the sunshine: this is the barrel sample of the IAV prototype.}
-    \label{IAVPrototypeBarrelSunshineAging}
-    \end{figure}
-
-(Bryce, LJ, and my figure)
-
-
-Nevertheless, the transmission measured on different date of acrylic panels without exposuing to the sunshine directly,
-shows slightly variance in around a year, which is longer than typical acrylic vessel manufacture time.
-Thus the acrylic vessels should be avoid to be exposured to the sunshine directly.
-
-
-\subsubsection {Polish}
-
-Besides bonding, polish affects optical behavior.
-Finer polish enhance specular reflection and ensure that light
-go more straightly when passing through acrylic panels, namely
-reducing diffuce reflection. However, to approach very fine polish,
-ingredients of some products so called scratch remover are unknown, and
-ingredients of binder of finer aluminium oxide or other kinds of powder to polish
-acrylic finer is unknown, too. The unknown ingredients may contaminate GdLS or LS, or
-be radioactive and should not be used.
-
-Fig----------  shows comparison of different
-polish class. Acrylic transmission is obviously different in air but not in LAB.
-Extent of polish only changes light path of incident beam but not affects total light intensity.
-The image of a acrylic sheet with rough surface looks vague because diffuce reflection happens, not
-incident beams are absorbed.
-
-
-
-(setting of polish test, in LAB)
-
-
-
-
-(result of air)
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_panels.png}
-    \caption{Transmittance of acrylic samples}
-    \label{polishing_panels.png}
-    \end{figure}
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_panels_relative.png}
-    \caption{Difference of the transmittance of acrylic samples in Fig. \ref{fig:polishing_panels.png}}
-    \label{polishing_panels_relative.png}
-    \end{figure}
-
-
-(result of in LAB)
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_quartz_LAB.png}
-    \caption{Quartz and LAB coupling transmittance. There is no acrylics.}
-    \label{polishing_quartz_LAB.png}
-    \end{figure}
-
-
-
-(setting of different range of polish test)
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_2000_position1_and_2.png}
-    \caption{Comparison of the class 2000 sample in position 1 and position 2}
-    \label{polishing_2000_position1_and_2.png}
-    \end{figure}
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_1000_position1.png}
-    \caption{Comparision of the class 1000 sample in position 1 and the class 2000 sample in position1}
-    \label{polishing_1000_position1.png}
-    \end{figure}
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_1000_position2.png}
-    \caption{Comparision of the class 1000 sample in position 2 and the class 2000 sample in position1}
-    \label{polishing_1000_position2.png}
-    \end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_polish_position1.png}
-    \caption{Comparison of the fully polish sample in position 1 and the class 2000 sample in position 1}
-    \label{polishing_polish_position1.png}
-    \end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{./figure/polishing_polish_position2.png}
-    \caption{Comparison of the fully polish sample in position 2 and the class 2000 sample in position 1}
-    \label{polishing_polish_position2.png}
-    \end{figure}
-
-
-(result of different range shows the different)
-%\begin{figure}
-%    \centering
-%    \includegraphics[width=0.6\textwidth]{./figure/}
-%    \caption{}
-%    \label{}
-%    \end{figure}
-
-The 1st IAV has used the scratch remover and the abrasive with binder. The 2nd
-IAV is decided not to use both of them before any further study of the ingredients
-, and only using normal sand papers, which the abrasive is aluminium oxide generally. 
-
-
-\subsection {Acrylic Optical Property for Simulations}
-
-Both G4dyb and NuWa use GEANT4 as the physics simulation engine.
-To simulate the optical property of photons, only two parameters are used
-by GEANT4, the index of refraction and the attenuation length. These two
-parameters are different from materials to materials and can be decided
-by measurement only.
-More will be discussed in Sec. \ref{sec:opticalModel}.
 
 \subsection {Spectrometer and Integrating sphere}
 
@@ -244,11 +58,13 @@ The spectrometer, Perkin Elmer Lambda 650, with a integrating sphere is used for
 of the acrylic optical property including
 the transmission, reflection, index of refraction, and attenuation length.
 
-Lambda 650 is a double beams spectrometer. One is reference beam and another is
-sample beam. All transmission meausrement is ratio of sample beam intensity to
+Lambda 650 is a double beam spectrometer. One is reference beam and another is
+sample beam. All transmission meausrement is the ratio of sample beam intensity relative to
 reference beam. Refernce beam and sample beam are frequently calibrated in air.
-Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png} shows the scheme
-to calibrate the integrating sphere.
+%Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png} shows the scheme
+%Figure \ref{fig:calibration1.png} shows the way to calibrate the instrument for transmittance
+%and total reflectance measurement. Figure \ref{fig:calibration2.png} shows the way to calibrate
+%the instrument for diffuse reflectance measurement.
 
 This Lambda 650 has tungsten and deturian light source, and they cover UV/VIS/NIR
 range. For Dayabay antineutrino detectors, the PMT/LS/GdLS coupling wavelength range
@@ -256,19 +72,16 @@ is around 350nm to 450nm. The QA/QC of the acrylic panels provides the spectrum
 from 200nm to 800nm, that is, covers the sensitive wavelength range.
 
 The incident beam of the Lambda 650 has around 30\%-70\% polarization.
+To check the polarization of acrylic raw material, transmittance and reflectance of a sample
+measured by two orientation which is orthogonal to each other.
 
-
-(Perkin Elmer Lambda 650 optical component. copyright problem so I can't show here)
-
-
-The
-
-
-A integrating sphere can collect
-    - too thick for acrylic
-    - systematic error for transparent samples
-        - modify by distance
-    - light source spectrum and noise
+%(Perkin Elmer Lambda 650 optical component. copyright problem so I can't show here)
+%The
+%A integrating sphere can collect
+%    - too thick for acrylic
+%    - systematic error for transparent samples
+%        - modify by distance
+%    - light source spectrum and noise
 
 
 \begin{figure}
@@ -302,7 +115,7 @@ Due to the noise of the PMT and the stability of the
 light sources, the stability of the baseline is around 0.5\%.
 For the QA/QC region of acrylics, the stability of near UV and IR is wrose because
 of the intensity of the light sources is lower than the other region.
-Fig. \ref{fig:spectrometer_maintenace_scan_E.png} shows the energy spectrum of the light sources from 190nm to
+Figure \ref{fig:spectrometer_maintenace_scan_E.png} shows the energy spectrum of the light sources from 190nm to
 860nm. Assume the stability of the light sources and the PMT is the same in
 the region from near UV to IR, i.e. the noise of signals is the same. The higher
 light intensity could decrease the ratio of the noise intensity to incident beam intensity to the noise,
@@ -312,7 +125,7 @@ The baseline stability before and after cleaning the filter is shown in Fig. \re
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/spectrometer_baseline_stability.png}
+    \includegraphics[width=0.5\textwidth]{./figure/spectrometer_baseline_stability.png}
     \caption[The spectrometer baseline stability]
 {It's obvious that the worse stability occurs in the region associated to the lower energy spectrum in Fig. \ref{fig:spectrometer_maintenace_scan_E.png}}
     \label{fig:spectrometer_baseline_stability.png}
@@ -321,7 +134,7 @@ The baseline stability before and after cleaning the filter is shown in Fig. \re
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/spectrometer_maintenace_scan_E.png}
+    \includegraphics[width=0.5\textwidth]{./figure/spectrometer_maintenace_scan_E.png}
     \caption[The energy spectrum of the light source of Lambda 650]
 {
 After cleaning the filter, the energy intensity of the light source is higher than the one before cleaning in the wavelength from 300nm to 400nm.
@@ -332,7 +145,7 @@ After cleaning the filter, the energy intensity of the light source is higher th
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/spectrometer_maintenace_baseline.png}
+    \includegraphics[width=0.5\textwidth]{./figure/spectrometer_maintenace_baseline.png}
     \caption[The spectrometer baseline stability before and after cleaing the filter]
 {
 The red curve shows the stability before the cleaing and the blue curve shows the stability after cleaning.
@@ -342,17 +155,21 @@ It's obvious the stability is better in the region associated to the better ener
     \end{figure}
 
 
+%The error may come from:
 
-The error may come from:
 
 \subsection{Transmittance Measurement of Acrylics}
 
 The transmittance measurement by a spectrometer in air is to measure the gross transmittance.
-The beam will be reflected few times in a sample. A simple simulation by GEANT4 shows
-an optical photon reflected around five times in a acrylic sample in Sec.-----------.
+The beam will be reflected few times in a sample.
+%A simple simulation by GEANT4 shows
+%an optical photon reflected around five times in a acrylic sample
+%------------------------------------------------
+%in Sec.-----------.
+%-------------------------------------------------
 
 Acrylic panels used for Dayabay and Aberdeen acrylic vessels
-generally thicker than around 10 cm except for the reflectors of Aberdeen
+are generally around 10cm or thicker, except for the reflectors of Aberdeen
 neutron detecor. However, this kind of thickness is too thick to
 keep the incident and exit beam in the same path, and then
 the beam probably will not collect by the detector properly or
@@ -672,6 +489,216 @@ Wavelength (nm) & RT Method & Unc. & SNO Acrylic & Unc. & Schott & Unc. \\
 
 
 
+
+\section {Acrylic Optical Property in Detectors}
+
+The optical properties of acrylic exert a strong influence on how light is propagated
+from a neutrino interaction point for Dayabay, or a neutron interaction point for Aberdeen,
+within the Ls, GdLs, and mineral oil to the PMTs arranged on the barrel of the steel tank.
+
+The signal region of both Dayabay detectors and Aberdeen detector
+is around from 350nm to 450nm, namely blue region of visible light and near UV.
+The signal region is decided by the PMT gain, the LS and the GdLS emitting spectrum and
+the attenuation spectrum, the mineral oil attenuation spectrum, and
+the acrylic panels spectrum. Fig. \ref{fig:SpectrumCoupling} shows the region.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/LS_GdLS_Acrylic_PMT_coupling.png}
+    \caption{LS, GdLS, acrylics ,and PMT QE sepctrum. The coupling indicates the signal spectrum is in the blue and near UV spectral regions}
+    \label{fig:SpectrumCoupling}
+    \end{figure}
+
+
+A typical commercial acrylic panel is often doped UV absorber
+to prevent aging of acrylic panel. This kind of UV absorber makes acrylic spectrum
+UV-blocked and the typical cut-off trasmission is at around 350nm to 400nm,
+which happens to signal region of optical photon.
+Thus the acrylic panels used for the acrylic vessels should be chosen as
+UV-transparent ones. Fig. \ref{UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
+and UV-blocked acrylics.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{./figure/UVT_UVB_acrylics.png}
+    \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
+    \label{UVTUVBAcrylics}
+    \end{figure}
+
+
+
+optical transmission standard
+
+Nervertheless, not only as-received acrylic material property, but also as-cast
+acrylic material should be monitored. Three kinds of manufacture process happen to the acrylic panels.
+They are polish, bonding and annealing, including heating the panels to shape them. Besides,
+the aging of acrylic panels will be discussed too.
+
+\subsection {Bonding and Aging}
+
+IAVs are produced by Nakano Int., Taiwan. Nakano uses a kind of glue, which is basically
+composed of PMMA, to bond the acrylic panels of IAV. The process to produce this kind of glue is a commercial
+secret. Nakano claims the glue is pure PMMA. The glue needs a process so called UV curing. The bonding area
+is compose of acrylc panels and glue, and exposured to UV lamps. To cure a 2mm thick bonding
+area, a 10W UV lamp is needed to irradiate the area for around 2 days, depending on the manufacutre status of glue
+and the thickness of acrylic panels. This kind of UV curing process is observed that it changes transmission of acrylic panels,
+and both increasing and decreasing effect could happen, depending on different kinds of acrylic panel.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\textwidth]{./figure/reflector_panel_UV_aging.png}
+    \caption{Example of acrylic aging by UV lamps: these are the reflector samples}
+    \label{ReflectorAging}
+    \end{figure}
+
+
+
+(IAV 10mm increasing)
+
+
+(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
+
+
+Fig. IAV 10mm increasing shows the transmission will fit in with the QA in around 1 month, which is longer than typical
+bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
+
+A similar effect could be observed when acrylic panels are exposure to the sunshine like what
+Fig. \ref{IAVPrototypeBarrelSunshineAging} shows. Fig shows different
+acrylic panels exposured to the sunshine responds differently.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/IAV_prototype_barrel_sunshine.png}
+    \caption{Example of acrylic aging by the sunshine: this is the barrel sample of the IAV prototype.}
+    \label{IAVPrototypeBarrelSunshineAging}
+    \end{figure}
+
+(Bryce, LJ, and my figure)
+
+
+Nevertheless, the transmission measured on different date of acrylic panels without exposuing to the sunshine directly,
+shows slightly variance in around a year, which is longer than typical acrylic vessel manufacture time.
+Thus the acrylic vessels should be avoid to be exposured to the sunshine directly.
+
+
+\subsection {Polish}
+
+Besides bonding, polish affects optical behavior.
+Finer polish enhance specular reflection and ensure that light
+go more straightly when passing through acrylic panels, namely
+reducing diffuce reflection. However, to approach very fine polish,
+ingredients of some products so called scratch remover are unknown, and
+ingredients of binder of finer aluminium oxide or other kinds of powder to polish
+acrylic finer is unknown, too. The unknown ingredients may contaminate GdLS or LS, or
+be radioactive and should not be used.
+
+Fig----------  shows comparison of different
+polish class. Acrylic transmission is obviously different in air but not in LAB.
+Extent of polish only changes light path of incident beam but not affects total light intensity.
+The image of a acrylic sheet with rough surface looks vague because diffuce reflection happens, not
+incident beams are absorbed.
+
+
+
+(setting of polish test, in LAB)
+
+
+
+
+(result of air)
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_panels.png}
+    \caption{Transmittance of acrylic samples}
+    \label{polishing_panels.png}
+    \end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_panels_relative.png}
+    \caption{Difference of the transmittance of acrylic samples in Fig. \ref{fig:polishing_panels.png}}
+    \label{polishing_panels_relative.png}
+    \end{figure}
+
+
+(result of in LAB)
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_quartz_LAB.png}
+    \caption{Quartz and LAB coupling transmittance. There is no acrylics.}
+    \label{polishing_quartz_LAB.png}
+    \end{figure}
+
+
+
+(setting of different range of polish test)
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_2000_position1_and_2.png}
+    \caption{Comparison of the class 2000 sample in position 1 and position 2}
+    \label{polishing_2000_position1_and_2.png}
+    \end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_1000_position1.png}
+    \caption{Comparision of the class 1000 sample in position 1 and the class 2000 sample in position1}
+    \label{polishing_1000_position1.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_1000_position2.png}
+    \caption{Comparision of the class 1000 sample in position 2 and the class 2000 sample in position1}
+    \label{polishing_1000_position2.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_polish_position1.png}
+    \caption{Comparison of the fully polish sample in position 1 and the class 2000 sample in position 1}
+    \label{polishing_polish_position1.png}
+    \end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{./figure/polishing_polish_position2.png}
+    \caption{Comparison of the fully polish sample in position 2 and the class 2000 sample in position 1}
+    \label{polishing_polish_position2.png}
+    \end{figure}
+
+
+(result of different range shows the different)
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.6\textwidth]{./figure/}
+%    \caption{}
+%    \label{}
+%    \end{figure}
+
+The 1st IAV has used the scratch remover and the abrasive with binder. The 2nd
+IAV is decided not to use both of them before any further study of the ingredients
+, and only using normal sand papers, which the abrasive is aluminium oxide generally. 
+
+
+\subsection {Acrylic Optical Property for Simulations}
+
+Both G4dyb and NuWa use GEANT4 as the physics simulation engine.
+To simulate the optical property of photons, only two parameters are used
+by GEANT4, the index of refraction and the attenuation length. These two
+parameters are different from materials to materials and can be decided
+by measurement only.
+More will be discussed in Sec. \ref{sec:opticalModel}.
+
 \subsection {Summary of Optical Property of Dayabay and Aberdeen Acrylic Vessels}
 
 The transmittance summary of Dayabay acrylic samples for IAV No.1 and No.2 is shown in Table \ref{tab:summaryDYBTransmittance}.
@@ -768,11 +795,7 @@ provide the information for the assembly of IAV and OAV. This will be discussed 
 
 
 \section {Integration of Dayabay Acrylic Vessel}
-
-\subsection {Cleaning, Transportation and Assembly}
-
-
-\subsubsection {Cleaning}
+\subsection {Cleaning}
 
 IAV is the target of Dayabay antineutrino detector,
 and the cleanliness is highly required to avoid any contaminant
@@ -926,7 +949,7 @@ water D &~5.6\\
     \end{figure}
 
 
-\subsubsection {Transportation}
+\subsection {Transportation}
 
 After the production including final cleaning of IAV, the IAV will be
 transported from Taiwan to Dayabay.
@@ -963,7 +986,7 @@ status. Table-------- summary the devices.
 (moniter device for IAV transportation)
 
 
-\subsubsection {Assembly}
+\subsection {Assembly}
 \label {sec:assembly}
 
 IAV should be installed into OAV. A proposed AD installation

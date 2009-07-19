@@ -3,8 +3,6 @@
 
 \section{Neutrinos}
 
-The history of neutrinos.
-
 In the early 1900s, William Bragg demonstrated that mono-energetic $\alpha$-rays
 were emitted in $\alpha$ decays, which are two-body decays. Therefore $\beta$-rays
 were supposed to be mono-energetic also because of 2-body decay of protons and
@@ -24,50 +22,198 @@ Pauli postulated a tiny neutron particle which we call neutrino today. The neutr
 of $\beta$ decay carrys away some energy so it's a 3-body decay.
 
 The neutrions are not observed directly. Only the products from their interactions
-with matter are seen. A particular neutrino flavor is associated to the obseved lepton type.
+with matter are observed. A particular neutrino flavor is associated to the obseved lepton type.
+Our reference to neutrino mass is the effective mass
+associated with the flavor state.
+There are three flavors of neutrinos: electron neutrino $\mu_e$, muon neutrino $\mu_{\nu}$, and
+tau neutrino $\mu_{tau}$.
 
 
-(overview of the flavor types, observed flavors and exps)
+%----------------------
+%(overview of the flavor types, observed flavors and exps)
+%----------------------
 
 
+\subsection{Neutrino Oscillation, $\theta_{13}$ and Standard Model}
 
 
-\subsection{Neutrino Oscillation, Theta 13 and Standard Model}
+%-----------------------------------------------------------------
+%The standard model of quarks and leptons. (Alan poon, OCPA slides)
+%standard model: m= 0
+%-----------------------------------------------------------
 
-The standard model of quarks and leptons. (Alan poon, OCPA slides)
-
-
-standard model: m= 0
-
-in the past decade, exp have shown indirectly through neutrino oscillation 
+Neutrinos in the standard model of particle physics are massless.
+However, in the past decade, experiments have shown indirectly through neutrino oscillation 
 that neutrinos are massive.
 
-For the time being, our reference to neutrino mass is the effective mass
-associated with the flavor state.
+%-----------------------------------------------------------------
+%MNSP matrix
+%-----------------------------------------------------------------
 
-\section{Underground Experiments}
-
-(Alan poon, OCPA slides)
-
-No. of observed events:
-
-Because of small cross section, neutrinos do not interact readily, thus
-a powerful neutrino sources are needed for study neutrinos. A source could be
-accelerators, nuclear reactors, the sun, or supernovae.
-
-(comparison of diff sources power)
-
-And also, large mass targets are needed. A typical target is around in the order
-of few tons, at least.
+%----------
+%exp ref
+%----------
 
 
+%\section{Underground Experiments}
+%
+%(Alan poon, OCPA slides)
+%
+%No. of observed events:
+%
+%Because of small cross section, neutrinos do not interact readily, thus
+%a powerful neutrino sources are needed for study neutrinos. A source could be
+%accelerators, nuclear reactors, the sun, or supernovae.
+%
+%(comparison of diff sources power)
+%
+%And also, large mass targets are needed. A typical target is around in the order
+%of few tons, at least.
+%
 
 
 
-\subsection{Inverse Beta-decay}
 
 
-The signal process, inverse beta-decay, emits neutrons and positrons.
+\section{The Dayabay Neutrino Oscillation Experiment}
+\subsection{Overview}
+
+A deep underground neutrino observatory at Dayabay, China, has
+been proposed. \cite{TDR}
+Dayabay is nearby Hong Kong. See Figure \ref{googleMap.png}
+
+
+\begin{figure}
+    \label{fig:googleMap.png}
+    \centering
+    \includegraphics[width=0.8\textwidth]{googleMap.png}
+    \caption
+    [Dayabay and Aberdeen Tunnel location]
+    {Dayabay and Aberdeen Tunnel location shown by Google Map.
+$The\,dot\,at\,the\,upper-right\,of\,the\,map:$ Dayabay.
+$The\,dot\,at\,the\,lower-left\,of\,the\,map:$ Aberdeen Tunnel.
+The distance between Dayabay and Aberdeen Tunnel is around 90 km.}
+    \end{figure}
+
+
+The idea to measure $\theta_{13}$ is to use two or more antineutrino detectors
+to measure the survival or disappearance probability of reactor antineutrino, which is electron-type antineutrino.
+The observed survival probability associated to different distance could be derived 
+%------------------------
+%from the MNS matrix :
+%-------------------------
+
+
+\begin{equation}
+\label{equ:survivalProb}
+P_{ee} = 1 - \sin^{2}{2\theta_{13}}\sin^{2}{\frac{{\Delta}m^{2}_{31}L}{4E_{\mu}}} - \cos^{4}{\theta_{13}}\sin^{2}{2\theta_{12}}\sin^{2}{\frac{{\Delta}m^{2}_{21}L}{4E_{\mu}}}
+\end{equation}
+
+
+Thus compare the ratio of interaction rates in multiple detectors as \ref{equ:compareDetectorsRatio}, and
+the survival probability term shows the $\sin^{2}{\theta_{13}}$.
+
+
+\begin{equation}
+\label{equ:compareDetectorsRatio}
+\frac{N_{f}}{N_{n}} = (\frac{N_{p,f}}{N_{p,n}})(\frac{L_n}{L_f})^{2}(\frac{\epsilon_f}{\epsilon_n})[\frac{P_{sur}(E,L_f)}{P_{sur}(E,L_n)}]
+\end{equation}
+
+
+Dayabay anti-neutrino detectors (AD), which will discussed more in section \ref{sec:AD},
+will be placed at Dayabay. They will be placed at varying distance from the Dayabay reactor and
+the Ling Ao reatcors as shown in \ref{fig:location_dayabay.png}. There are two sets of near detectors
+at near sites, close to the Dayabay reactor and the Ling Ao reactors respectively, and two modules each set.
+There is one set of far detectors, and four modules are there. The Dayabay near site with an overburden of
+255 m.w.e.is located at a distance of 363m from the Dayabay cores. The Ling Ao near sitewith an overburden of
+294 m.w.e. is 481m and 526m from the Ling Ao I and Ling Ao II cores respectively. The far site is at the distance
+of 1985m and 1615m from the Dayabay cores and the mid-pointof the Ling Ao-Ling Ao II cores, and has an overburden
+of 910 m.w.e.
+
+At the time of writing, the Ling Ao II cores is still under construction and are going to be built and run in around
+2011. This effect should be study and has been studied by Dayabay collaborators.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/location_dayabay.png}
+    \caption{AD module positions at Dayabay.}
+    \label{fig:location_dayabay.png}
+    \end{figure}
+
+
+The baseline between the near site AD and far site AD associated to the neutrino oscillation
+location is shown in Figure \ref{fig:oscillation}
+
+
+\begin{figure}
+    \label{fig:oscillation}
+    \centering
+    \includegraphics[width=0.8\textwidth]{oscillation.png}
+    \caption
+    [The Dayabay detector location associated to the survival probability due to neutrino oscillation]
+    {The Dayabay detector location associated to the survival probability due to neutrino oscillation.
+$Blue:$ Large but slow oscillation due to the $\theta_{12}$. $Green:$ Small oscillation due to the $\theta_{13}$.}
+    \end{figure}
+
+
+
+
+The main backgrounds to the Dayabay Experiement are induced by cosmic-ray muons.
+The site is located adjacent to mountainous terrain, ideal for sitting underground detectors that
+are well shield from external backgrounds like cosmogeic backgrounds including the cosmic-ray mouons.
+However, background due to the muon spallation products at the depths of the experiment halls and ambient
+$\gamma$ background due to the radioactivity of the rock surrounding the experiment halls is reduced by shielding
+the ADs with 2.5 meterof water. This water shield also attenuates the flux of neutrons produced outside the water
+pool.
+
+Events with a muons that passes through the water in the water pool less than 200 $\mu$s, which is the typical time window bewtween
+a prompt signal and a delayed signal of an inverse-beta decay process, have a small but finite
+probability to create a fake signal event.
+There is a layer of  Resistive Plate Chambers (RPC) above a water pool
+and 8" PMTs arround the water pool for the Cherenkov detection of muons to tag such muon signals.
+The setup is shown in Fig. \ref{fig:water_pool.png}.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/water_pool.png}
+    \caption{Elevation view of an experiment hall,
+showing the water pool to shield backgrounds from muons, muon-induced neutrons and radioactivity of rock.}
+    \label{fig:water_pool.png}
+    \end{figure}
+
+
+\subsection{Progject Organization}
+
+%http://dayabay.ihep.ac.cn/cgi-bin/DocDB/ShowDocument?docid=2298
+
+%WBS, TDR
+
+
+
+\section{The Dayabay Anti-neutrino Detectors}
+\label{sec:AD}
+
+Dayabay antineutrino is a 3-zone detector. See Figure \ref{fig:3zone.png}
+The inner most zone is the antineutrino target, which
+is 0.1\% Gd-doped liquid scintillator. The second zone
+is the gamma catcher, which is liquid scintillator only.
+The outer most zone is the mineral oil buffer.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/introduction/3zone.png}
+    \caption
+    [3-zone structure of Dayabay antineutrino detector]
+    {3-zone structure of Dayabay antineutrino detector. $Left:$ Transparent cross-sectionof the antineutrino detector.
+$Right:$ Scheatic top view of the three different zones o the antineutrino detector.}
+    \label{fig:3zone.png}
+    \end{figure}
+
+
+The detection mechanism is inverse $\beta$ decay.
 
 
 \begin{equation}
@@ -116,136 +262,104 @@ background events.
 (inverse beta decay and signal scheme)
 
 
-\section{The Dayabay Neutrino Oscillation Experiment}
+The inverse beta-decay is adopted as the signals of Dayabay antineutrino detectors.
+The measurement of $\sin^{2}_{2\theta_{13}}$ to less than 0.01 corresponds to a small
+difference in a lot of antineutrino events observed between the far site and
+the near site.
 
-A deep underground neutrino observatory at Dayabay, China, has
-been proposed. \cite{TDR}
-
-\subsection{Overview}
-
-Dayabay anti-neutrino detectors (AD), which will discussed more in section \ref{sec:AD},
-will be placed at Dayabay. They will be placed at varying distance from the Dayabay reactor and
-the Ling Ao reatcors as shown in \ref{fig:location_dayabay.png}. There are two sets of near detectors
-at near sites, close to the Dayabay reactor and the Ling Ao reactors respectively, and two modules each set.
-There is one set of far detectors, and four modules are there. The Dayabay near site with an overburden of
-255 m.w.e.is located at a distance of 363m from the Dayabay cores. The Ling Ao near sitewith an overburden of
-294 m.w.e. is 481m and 526m from the Ling Ao I and Ling Ao II cores respectively. The far site is at the distance
-of 1985m and 1615m from the Dayabay cores and the mid-pointof the Ling Ao-Ling Ao II cores, and has an overburden
-of 910 m.w.e.
-
-At the time of writing, the third Ling Ao cores were proposed and are going to be built and run in around
-2011. This effect should be study and has been studied by Dayabay collaborators.
+The delayed signals are generated by the neutrons of inverse beta-decay process.
+Neutrons are neutral so the cross section with matters is small.
+A large mass antineutrino detector should be in the order of tons.
+Typical requirement of an antineutrino detector is summarized in Table \ref{tab:ADRequirement}
 
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/location_dayabay.png}
-    \caption{AD module positions at Dayabay.}
-    \label{fig:location_dayabay.png}
-    \end{figure}
+\begin{table}
+\centering
+\caption{Physical requirements of the antineutrio detector\cite{TDR}}
+\label{tab:ADRequirement}
+\begin{tabular}{lcp{5.0cm}}
+\hline
+Item & Requirement & Justification\\
+\hline
+\hline
+Target mass at far site &
+$\geq$ 80T &
+Achieve sensitivity goal in three years over allowed ${\Delta}m^{2}_31 range$ \\
+\hline
+Precision on target mass &
+$\leq$ 0.3\% &
+Meet detector systematic uncertainty baseline per module \\
+\hline
+Energy resolution &
+$\leq$ $15\%/\sqrt{E}$ &
+Assure accurate calibration to achieve required uncertainty in energy-threshold cuts dominated by energy threshold cut \\
+\hline
+Detector efficiency error &
+$\leq 0.2\%$ &
+Should be small compared to target mass uncertainty \\
+\hline
+Positron energy threshold &
+$\leq 1MeV$ &
+Fully efficient for positrons of all energies \\
+Radioactivity signals rate &
+$\leq 50 Hz$ &
+Limit accidental background to less than other backgrounds and keep data rate manageable \\
+\hline
+\end{tabular}
+\end{table}
 
 
-The main backgrounds to the Dayabay Experiement are induced by cosmic-ray muons.
-The site is located adjacent to mountainous terrain, ideal for sitting underground detectors that
-are well shield from external backgrounds like cosmogeic backgrounds including the cosmic-ray mouons.
-However, background due to the muon spallation products at the depths of the experiment halls and ambient
-$\gamma$ background due to the radioactivity of the rock surrounding the experiment halls is reduced by shielding
-the ADs with 2.5 meterof water. This water shield also attenuates the flux of neutrons produced outside the water
-pool.
+It's simpler to simulate and analysis the antineutrino detectors if they are
+symmetric, so a sphere or a cylinder shape could be considered. The cylinder
+shape is easier to produce from the point of engineering view, and also lower
+price. Thus the antineutrino detectors are designed based on the cylinder shape.
 
-Events with a muons that passes through the water in the water pool less than 200 $\mu$s, which is the typical time window bewtween
-a prompt signal and a delayed signal of an inverse-beta decay process, have a small but finite
-probability to create a fake signal event.
-There is a layer of  Resistive Plate Chambers (RPC) above a water pool
-and 8" PMTs arround the water pool for the Cherenkov detection of muons to tag such muon signals.
-The setup is shown in Fig. \ref{fig:water_pool.png}.
+The delayed signal are the 2.2MeV and 8MeV neutrons . There are external backgrounds like
+muon-induced neutrons, radioactivity of PMT glasses, natural radioactivity of rock,
+buffer water etc. Mineral oil is used for the antineutrino detectors to be a buffer.
 
+Accroding to the neutron capture processes, by protons and by Gd, and the buffer to
+suppress the background, 2-zone and 3-zone detectors are considered. The innermost
+zone is the antineutrino target, composed of the liquid scintillator doped 1\% Gd.
+The second zone is the gamma catcher, composed of the liquid scintillator, for a
+3-zone detector or the mineral oil for a 2-zone detector. The outermost zone
+is the mineral oil for a 3-zone.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/water_pool.png}
-    \caption{Elevation view of an experiment hall,
-showing the water pool to shield backgrounds from muons, muon-induced neutrons and radioactivity of rock.}
-    \label{fig:water_pool.png}
-    \end{figure}
+(overview of the 2-zone and 3-zone antineutrino detecotrs)
 
 
-\subsection{Progject Organization}
+The comparison for 2-zone and 3-zone detectors shows 
+uncertainty of the neutron energy threshold, caused by uncertainty in the energy scale.
+3-zone detectors could have better energy resolution where the energy scale
+uncertainty is taken to be 1\% and 1.2\% at 6MeV and 4 MeV, respectively.
 
-http://dayabay.ihep.ac.cn/cgi-bin/DocDB/ShowDocument?docid=2298
+(table of the comparison)
 
-WBS, TDR
-
-
-
-\section{A experiment at Aberdeen}
-
-The Dayabay antineutrino signal is composed of a prompt positron signal and a delayed
-neutron signal. Although the time and energy tagged signals could be powerful tool to suppress
-the background, there are still accidentally conincidence signals. Any signal happens during
-the typical time window after the prompt position signals happen for 30 micro-second to 120 micro-second,
-which is typical thermal neutron drifting time, 
-could be regarded as a antineutrino candidate. These accidnetally conincidence signals could be
-muon-induced neutrons, radioactivity of PMT glasses, natural radioactivity of rock
-( usually $^238_U$, $^232Th$, and $^40K$) etc. $(\alpha,n)$ processes may also produce
-neutrons from natural radio-nuclides. Cosmogenic $^8He$ and $^9Li$ can undergo beta-neutron decay,
-and this may also mimick neutrons from inverse-beta decay.
-
-%The radioactivity of PMT could be known by studying the ingredient of the PMTs and decreased
-%by the mineral oil buffer. The other natural radioactivity, like rock or dusts in the 
-%air could be studied or monitored directly. Muon-induced neutron is a complicated
-%process and needed measured the flux directly.
-
-A muon-induced neutron detector is proposed to measure muon-indeced neutron flux Aberdenn, Hong Kong,
-around 90 km away from Dayabay.
-The detector is positioned at a vertical overburden of ~600 m.w.e. in Aberdeen tunnel, and the rock of the tunnel
-providing veto of many cosmic rays. Muon, which has low attenuation length in rock, could
-survives after passing through the rock of the tunnel.
-
-Aberdeen is nearby Dayabay and with similar geological composition as Dayabay.
-The Aberdeen Tunnel Experiment is aimed at studying those backgrounds encountered by the Dayabay
-Experiment. The main focus of the Aberdeen Experiment is to study cosimic-ray muons in terms
-of measuring their angular distribution, flux and contribution to neutron background in an
-underground environment like the Dayabay ones.
-
-The setup of the Aberdeen Tunnel Experiment is similar to the Dayabay one and consists of
-two parts, the muon tracker and the neutron detecotr. The neutron detector is placed in the
-middle of the muon tracker.
-More details of the neutron detector will be disscussed in section \ref{sec:ND}.
-
-The muon tracker, which consists of 63 scintillator hodoscopes and 72 proportional
-tubes arranged in six layers.
-Three layers are above the neutron detector and three layers are below the neutron detector seperately.
-The top layer consists of 30 scintillator hodoscope of 1 m long and 10 cm wide with
-one end readout by 2-inch PMTs. The second layer consists of 24 proportional tubes of diameters of
-7.6 cm and lengths of 2 m placed orthogonal to the top layer. the third layer consists of 18 1.5 m-long
-and 10 cm-wide scintillator hodoscope with one end readout by a 2" PMT. The forth layer is a row
-of 24 proportional tubes of diameters of 7.6cm and lengths of 2 m placed orthogonal to the third layer.
-The fifth layer is make up of 15 2m-long and 9.3 cm-wide scintillator hodoscope with both end
-readout by Hamamatsu 7826 Small PMTs (SPMT). The last layer is an array of 24 proportional tubes
-of diameters of 7.6 cm and lengths of 2 m placed  orthogonal to the fif layer.
-
-
-(overview the settings of Aberdeen exp)
-
+Thus 3-zone detectors are used. The innermost GdLS is 20 tons and the outer layer is another
+20 tons of the unloaded  liquid scintillator. The outermost is 40 tons of mineral oil. 192 eight-inch
+Hamamatsu photomutiplier tubes (PMTs) are mounted on the inner surface of the stainless steel tank
+in eight horizontal rings, viewing the target volume and the gamma catcher. The crooss-sectional model of an AD
+is shown in Fig. \ref{fig:AD_module.png}.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/abtExp.png}
-    \caption
-    [Aberdeen Experiment Setup]
-    {Aberdeen Experiment Setup}
-    \label{fig:abtExp.png}
+    \includegraphics[width=0.6\textwidth]{./figure/AD_module.png}
+    \caption{Cross-sectional model of the antineutrino detectors.
+The model show complete AD including calibration boxes and overflow tanks on the top of the AD.}
+    \label{fig:AD_module.png}
     \end{figure}
 
 
-(overview of the aberdeen neutron detector)
 
 
-The conincidence of the top and bottom muon trackers can tag the muon candidates
-associated to the neutron signals in the neutron detector. Neutron signals happened
-in the time window after muon candidates are tagged for around 30 micro-second to
-120 micro-second, would be regarded as muon-induced neutron signal candidates.
+%-------------------
+%TDR v2
+%-------------------------
 
-
-(the process scheme to tag aberdeen exp)
+%On the top and beneath the gamma catcher, there is a reflector each AD module respectively.
+%The reflector could enhance the total optical photon number received by PMTs.
+%Table \ref{} shows the G4dyb simulation of the reflector distance associated to the total p.e. generated by the target.
+%G4dyb is the Monte Carlo simulation software based on GEANT4. The details of G4dyb will be shown in Section{}.
+%---------
+%reflector
+%----------
