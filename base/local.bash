@@ -601,6 +601,7 @@ local-mode(){
   local pkg
   local fmt="%-10s     %-20s %-20s %s \n"
   printf "$fmt" pkg default mode note 
+  echo
   $FUNCNAME-pkgs | while read pkg ; do
      if [ "$(func-isfunc $pkg-)" == "y" ]; then 
         eval $pkg-

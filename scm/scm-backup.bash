@@ -635,7 +635,7 @@ scm-backup-nightly(){
     echo
     echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
     case $NODE_TAG in 
-  C2|C2R) scm-backup-parasitic XX C ;;
+  C2|C2R) scm-backup-parasitic ZZ C ;;
        *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
     esac
 
