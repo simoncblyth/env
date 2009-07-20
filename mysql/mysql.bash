@@ -1,4 +1,3 @@
-mysql-env(){    pkgr- ; }
 mysql-src(){    echo mysql/mysql.bash ; }
 mysql-source(){ echo ${BASH_SOURCE:-$(env-home)/$(mysql-src)} ; }
 mysql-vi(){     vim $(mysql-source) ; }
@@ -6,9 +5,19 @@ mysql-usage(){
   cat << EOU
 
 
+    See also 
+           dj-vi
+
+
 EOU
 }
 
+mysql-env(){
+   pkgr-
+  case $(pkgr-cmd) in
+    port) PATH=/opt/local/lib/mysql5/bin:$PATH ;;
+  esac
+}
 
 
 mysql-ini(){
@@ -18,6 +27,13 @@ mysql-ini(){
    port) echo /opt/local/share/mysql5/mysql/mysql.server ;; 
   esac
 }
+mysql-post(){
+  case $(pkgr-cmd) in 
+    port) echo 5 ;;
+       *) echo -n ;;
+  esac
+}
+
 
 mysql-init(){    sudo $(mysql-ini) $* ; }
 
@@ -27,8 +43,10 @@ mysql-restart(){ mysql-init restart ; }
 
 mysql-ps(){     ps aux | grep mysql ; }
 
-
-
+mysql-admin(){
+   private-
+   mysqladmin$(mysql-post) -u $(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $*
+}
 
 
 
@@ -76,5 +94,21 @@ EOU
 mysql-install-yum(){
    sudo yum install mysql-server
 }
+
+mysql-install-port(){
+   sudo port install mysql5 +server
+}
+
+
+mysql-py-install(){
+  if [ "$NODE_TAG" == "G" ] ; then
+     easy_install MySQL-python
+  else
+     echo klop
+  fi 
+
+
+}
+
 
 

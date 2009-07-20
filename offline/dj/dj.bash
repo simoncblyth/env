@@ -421,8 +421,8 @@ dj-deploy(){
 
 dj-server(){ 
    case ${1:-$NODE_TAG} in
-      U) echo lighttpd  ;;
-      *) echo apache ;;
+      U|G) echo lighttpd  ;;
+        *) echo apache ;;
    esac
 }
 
@@ -435,7 +435,11 @@ dj-conf(){
   dj-location-$server- > $conf
   $server-
   cat $conf
-  local cmd="sudo cp $conf $($server-confd)/$(basename $conf)"
+
+  local confd=$($server-confd)
+  [ ! -d "$confd" ] && echo $msg ABORT there is no confd : $confd  && return 1
+
+  local cmd="sudo cp $conf $confd/$(basename $conf)"
   local ans
   read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
   [ "$ans" != "YES" ] && echo $msg skipping && return 1

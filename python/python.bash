@@ -194,6 +194,9 @@ python-ln(){
     local msg="=== $FUNCNAME :";
 
     local arg=$1
+    [ -z "$arg" ] && python-ln-ls && return $?
+
+
     local path
     func-
     func-isfunc- $arg && path=$($arg) || path=$arg
@@ -221,6 +224,24 @@ python-ln(){
 
     echo $msg $cmd;
     eval $cmd
+}
+
+
+python-ln-ls(){
+  local item 
+  for item in $(python-site)/* ; do
+    if [ -L "$item" ]; then
+       local lnk=$item
+       local name=$(basename $lnk)
+       local tgt=$(readlink $lnk)
+       local sta
+       [ ! -d "$tgt" ] && sta="MISSING" || sta=""
+       
+       printf " %-15s %-10s %s \n" $name $sta $tgt 
+    fi
+  done
+
+
 }
 
 

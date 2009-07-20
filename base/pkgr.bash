@@ -26,14 +26,43 @@ pkgr-cmd(){
 }
 
 
-pkgr-prefix(){
-   local cmd=$(pkgr-cmd)
-   case $cmd in 
+pkgr-prefix-(){
+   case $1 in 
      yum) echo -n ;;
     ipkg) echo /opt ;;
-    port) echo /opt ;;
+    port) echo /opt/local ;;
    esac
 }
 
+pkgr-sbin-(){
+   case $1 in 
+     yum) echo -n ;;
+    ipkg) echo /opt/sbin ;;
+    port) echo /opt/local/sbin ;;
+   esac
+}
+
+pkgr-rund-(){
+   case $1 in 
+     yum) echo -n ;;
+    port) echo /opt/local/var/run ;;
+   esac
+}
+pkgr-logd-(){
+  case $1 in 
+   port) echo /opt/local/var/log ;;
+  esac 
+}
+
+pkgr-wwwd-(){
+  case $1 in 
+   port) echo /opt/local/www ;;
+  esac 
+}
 
 
+pkgr-prefix(){ $FUNCNAME- $(pkgr-cmd) ; }
+pkgr-sbin(){   $FUNCNAME- $(pkgr-cmd) ; }
+pkgr-logd(){    $FUNCNAME- $(pkgr-cmd) ; }
+pkgr-rund(){    $FUNCNAME- $(pkgr-cmd) ; }
+pkgr-wwwd(){    $FUNCNAME- $(pkgr-cmd) ; }

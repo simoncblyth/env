@@ -44,8 +44,7 @@ class DB:
     def __init__(self):
         try:  
             self.conn = MySQLdb.connect( **DBP() ) 
-        except MySQLdb.Error, e:
-            print dbp
+        except MySQLdb.Error, e: 
             print "Error %d: %s " % ( e.args[0], e.args[1] )
          
     def close(self):
