@@ -979,8 +979,9 @@ scm-backup-trac(){
      [ "$(python-home)/bin/trac-admin" != "$tracadmin" ] && echo $msg ERROR wrong source tracadmin $tracadmin ... env screwup  && return 1  
    elif [  "${pymode:0:6}" == "system" ] ; then
      case $tracadmin in
-        /usr/bin/trac-admin) echo -n ;;
-                          *) echo $msg ERROR wrong system trac_admin $tracadmin ... env screwup  && return 1
+              /usr/bin/trac-admin) echo -n ;;
+        /usr/local/bin/trac-admin) echo -n ;;
+                                *) echo $msg ERROR wrong system trac_admin $tracadmin ... env screwup  && return 1
      esac 
    fi
    
