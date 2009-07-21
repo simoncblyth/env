@@ -12,6 +12,7 @@ insulate-usage(){
 EOU
 }
 
+insulate-ez(){ easy_install -Z InsulateRunner ; }
 insulate-env(){ elocal- ; }
 insulate-rev(){       echo 38 ; }
 insulate-patchpath(){ echo $(env-home)/trac/patch/insulate/insulate-trunk-$(insulate-rev).patch ; }
@@ -21,6 +22,9 @@ insulate-name(){      echo insulatenoseplugin ; }
 insulate-dir(){       echo $(local-base)/env/nose/$(insulate-name) ; }
 insulate-srcdir(){    echo $(insulate-dir)/insulate ; }
 insulate-getdir(){    echo $(dirname $(dirname $(insulate-srcdir))) ; }
+
+insulate-cd(){        cd $(insulate-srcdir) ; }
+insulate-edit(){      vi $(insulate-srcdir)/insulate.py ; }
 
 insulate-get(){
    local msg="=== $FUNCNAME :"
@@ -45,7 +49,15 @@ insulate-install(){
   python setup.py develop
 }
 
-insulate-ez(){ easy_install -Z InsulateRunner ; }
 insulate-chk(){
   python -c "import insulate as _ ; print _.__file__ "
 }
+
+insulate-makepatch(){
+   local msg="=== $FUNCNAME :"
+   cd $(insulate-dir)
+   svn diff > $(insulate-patchpath)
+   echo $msg remember to : svn ci $(insulate-patchpath) : THE PATCH IS THE SOURCE IN THIS CASE 
+}
+
+
