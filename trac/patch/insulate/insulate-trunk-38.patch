@@ -2,7 +2,26 @@ Index: insulate/insulate.py
 ===================================================================
 --- insulate/insulate.py	(revision 38)
 +++ insulate/insulate.py	(working copy)
-@@ -46,6 +46,9 @@
+@@ -39,6 +39,18 @@
+     def getMethodName(test):
+         return test._TestCase__testMethodName
+ 
++
++def getDropSlave( test ):
++    theTest = getattr( test , 'test' , None )  ## test is for example FunctionTestCase
++    if theTest:
++        drop = getattr( theTest , '__drop__' , False )
++    else:
++        drop = False
++    return drop
++
++
++
++
+ class Insulate(Plugin):
+     "Master insulation plugin class"
+ 
+@@ -46,6 +58,9 @@
      name = 'insulate'
      restart_after_crash = True
      show_slave_output = False
@@ -12,7 +31,7 @@ Index: insulate/insulate.py
      enableOpt = 'insulate'
      testCount = 0
      testSlave = None
-@@ -71,7 +74,22 @@
+@@ -71,7 +86,22 @@
                            dest='show_slave_output',
                            action="store_true",
                            default=False)
@@ -36,7 +55,7 @@ Index: insulate/insulate.py
      def configure(self, options, conf):
          super(Insulate, self).configure(options, conf)
          if getattr(options, 'insulateslave', None):
-@@ -83,6 +101,9 @@
+@@ -83,12 +113,32 @@
              self.in_slave = options.in_slave[:]
  
              self.show_slave_output = options.show_slave_output
@@ -46,55 +65,92 @@ Index: insulate/insulate.py
  
              # Always enabled in slave
              self.in_slave.append('--nocapture')
-@@ -102,6 +123,9 @@
-         args.extend(self.in_slave)
-         self.testSlave = TestSlave(self.restart_after_crash,
-                                    self.show_slave_output,
+ 
+         self.argv = [sys.executable] + sys.argv		# Save for slave creation in prepareTest
+ 
++
++    def dropSlave_(self):
++        if not(self.testSlave):return 
++        self.testSlave.dropSlave()
++        self.testSlave = None
++
++    def prepareSlave_(self):
++        args = [arg for arg in self.argv if arg not in self.not_in_slave]
++        args.extend(self.in_slave)
++        self.testSlave = TestSlave(self.restart_after_crash,
++                                   self.show_slave_output,
 +                                   self.every_test,
 +                                   self.drop_slave,
 +                                   self.discard_master_output,
-                                    args)
++                                   args)
++
++
+     def prepareTest(self, test):
+         """
+         Prepare a test run; set counter to zero in preparation for run,
+@@ -98,11 +148,7 @@
+         Returns:   None
+         """
+         self.testCount = 0
+-        args = [arg for arg in self.argv if arg not in self.not_in_slave]
+-        args.extend(self.in_slave)
+-        self.testSlave = TestSlave(self.restart_after_crash,
+-                                   self.show_slave_output,
+-                                   args)
++        self.prepareSlave_()
  
      def finalize(self, result):
-@@ -135,6 +159,18 @@
+         """
+@@ -112,8 +158,7 @@
+         Arguments: result
+         Returns:   None
+         """
+-        self.testSlave.dropSlave()
+-        self.testSlave = None
++        self.dropSlave_()
+ 
+     def prepareTestCase(self, test):
+         """
+@@ -132,9 +177,14 @@
+         Arguments: test - test to run
+         Returns: result status
+         """
++
++        if not(self.testSlave):
++            self.prepareSlave_()
++
          self.testCount += 1
  
          result = self.testSlave.runTest(self.testCount, test)
 +
-+        theTest = getattr( test , 'test' , None )  ## test is for example FunctionTestCase
-+        if theTest:
-+            drop = getattr( theTest , '__drop__' , False )
-+        else:
-+            drop = False
-+        if drop:
-+            sys.stdout.write( ">>>>>>  dropping slave  count:[%s] theTest:[%s] drop:[%s] \n" % ( self.testCount, theTest, drop   ) )
-+            self.testSlave.dropSlave()
-+        else:
-+            sys.stdout.write( ">>>>>>  NOT dropping slave  count:[%s] theTest:[%s] drop:[%s] \n" % ( self.testCount, theTest, drop   ) )
-+
          return result
  
  class TestWrapper(object):
-@@ -176,6 +212,18 @@
+@@ -176,6 +226,8 @@
          method_name = getMethodName(self.orgtest)
          testMethod = getattr(self.orgtest, method_name)
  
-+
-+        ## the orgtest is FunctionTestCase 
-+        #theTest = getattr(self.orgtest , 'test' , None )
-+        #if theTest:
-+        #    fresh = getattr( theTest , '__fresh__' , False )
-+        #else:
-+        #    fresh = False
-+        #
-+        ## view this by running : nosetests -v -s --with-insulate 
-+        #print "running method_name:[%s] testMethod:[%s] theTest:[%s] fresh:[%s] " % ( method_name , testMethod , theTest, fresh  )  
 +
 +
          try:
              status, (ev, tb) = self.plugin.runTestInSlave(self.orgtest)
              if isinstance(ev, types.InstanceType):
-@@ -230,13 +278,15 @@
+@@ -201,7 +253,14 @@
+ 
+         finally:
+             result.stopTest(self.orgtest)
++            drop = getDropSlave(self.orgtest) 
++            if drop:
++                sys.stdout.write( ">>>>>>  dropping slave  after testMethod:[%s]  \n" % ( testMethod  ) )
++                self.plugin.dropSlave_()
++            else:
++                sys.stdout.write( ">>>>>>  NOT dropping slave  after testMethod:[%s] \n" % ( testMethod   ) )
+ 
++
+ # Picklable objects mimicking a traceback structure enough
+ class Code(object):
+     def __init__(self, code):
+@@ -230,13 +289,15 @@
  class TestSlave(object):
      "The test slave class for running tests in a separate process."
  
@@ -111,7 +167,7 @@ Index: insulate/insulate.py
                     args - argument list
          Returns:   None
          """
-@@ -244,6 +294,9 @@
+@@ -244,6 +305,9 @@
  
          self.restart_after_crash = restart_after_crash
          self.show_slave_output = show_slave_output
@@ -121,7 +177,15 @@ Index: insulate/insulate.py
          self.fromSlave = None
          self.toSlave = None
          self.noseSlave = None
-@@ -309,6 +362,7 @@
+@@ -291,6 +355,7 @@
+         self.noseSlave = noseSlave
+         self.toSlave = slavefile
+         self.fromSlave = slavefile
++        sys.stdout.write(">>>>>>>>>>>> started slave on port %s  >>>>>>>>>>\n" % port )
+ 
+     def dropSlave(self):
+         """
+@@ -309,6 +374,7 @@
              self.fromSlave.close()
              self.toSlave = self.fromSlave = None
          self.hasCrashed = True
@@ -129,7 +193,7 @@ Index: insulate/insulate.py
  
  
      def sendToSlave(self, count):
-@@ -326,6 +380,7 @@
+@@ -326,6 +392,7 @@
                            master and slave independently.
          Returns: (result status, result data)
          """
@@ -137,7 +201,7 @@ Index: insulate/insulate.py
          self.startSlave()
  
          if self.noseSlave is None:
-@@ -344,8 +399,25 @@
+@@ -344,8 +411,15 @@
              if func_dict is not None:
                  orgtest.test.func_dict.update(func_dict)
              
@@ -152,16 +216,6 @@ Index: insulate/insulate.py
 +            if self.every_test:
 +                sys.stdout.write( ">>>>>>>>>>>>>>>>>>>>>>>>>  dropping slave" )
 +                self.dropSlave()
-+            #elif self.drop_slave:
-+            #    theTest = getattr( orgtest , 'test' , None )  ## self.orgtest is for example FunctionTestCase
-+            #    if theTest:
-+            #        drop = getattr( theTest , '__drop__' , False )
-+            #    else:
-+            #        drop = False
-+            #    print "theTest:[%s] drop:[%s] " % ( theTest, drop  )  
-+            #    if drop:
-+            #        sys.stdout.write( ">>>>>>>>>>>>>>>>>>>>>>>>>  dropping slave" )
-+            #        self.dropSlave()
              return status, exc
  
          except (EOFError, IOError, socket.error), e:
