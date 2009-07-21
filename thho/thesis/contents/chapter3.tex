@@ -86,7 +86,7 @@ measured by two orientation which is orthogonal to each other.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS/calibration1.png}
+    \includegraphics[width=0.8\textwidth]{calibration1.png}
     \caption
     [Calibration for transmittance and total reflectance measurement overview of the integrating sphere]
     {Calibration for transmittance and total reflectance measurement overview of the integrating sphere}
@@ -95,7 +95,7 @@ measured by two orientation which is orthogonal to each other.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS/calibration2.png}
+    \includegraphics[width=0.8\textwidth]{calibration2.png}
     \caption
     [Calibration for diffuse reflectance measurement overview of the integrating sphere]
     {Calibration for diffuse reflectance measurement overview of the integrating sphere}
@@ -125,7 +125,7 @@ The baseline stability before and after cleaning the filter is shown in Fig. \re
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{./figure/spectrometer_baseline_stability.png}
+    \includegraphics[width=0.5\textwidth]{spectrometer_baseline_stability.png}
     \caption[The spectrometer baseline stability]
 {It's obvious that the worse stability occurs in the region associated to the lower energy spectrum in Fig. \ref{fig:spectrometer_maintenace_scan_E.png}}
     \label{fig:spectrometer_baseline_stability.png}
@@ -134,10 +134,10 @@ The baseline stability before and after cleaning the filter is shown in Fig. \re
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{./figure/spectrometer_maintenace_scan_E.png}
+    \includegraphics[width=0.5\textwidth]{spectrometer_maintenace_scan_E.png}
     \caption[The energy spectrum of the light source of Lambda 650]
 {
-After cleaning the filter, the energy intensity of the light source is higher than the one before cleaning in the wavelength from 300nm to 400nm.
+After cleaning the filter, the energy intensity of the light source is higher than the one before cleaning over the wavelength from 300nm to 400nm.
 }
     \label{fig:spectrometer_maintenace_scan_E.png}
     \end{figure}
@@ -173,26 +173,25 @@ are generally around 10cm or thicker, except for the reflectors of Aberdeen
 neutron detecor. However, this kind of thickness is too thick to
 keep the incident and exit beam in the same path, and then
 the beam probably will not collect by the detector properly or
-the conditions are too different from the calibration. See Fig.------.
+the conditions are too different from the calibration, Figure \ref{calibration1.png}.
 The thickness Perkin Elmer suggests is less than 3 mm.
 
 
-(The thickness may make the beam not be collected by the detector properly)
+%(The thickness may make the beam not be collected by the detector properly)
+%(The thickness may vary the condition too much so the calibration fails)
 
 
-(The thickness may vary the condition too much so the calibration fails)
-
-
-Samples with different thicknesses are measured in different positions and
-the result shown in Fig.------. The thicker the sample is, the variance of
+Samples with different thicknesses are measured at different locations, in the sample compartment shown in Figure \ref{compartment_position_test.png},
+and the result is shown in Figure \ref{compartment_transmittance_difference_effect.png}.
+The result is also compared with the measurement by the 60 mm integrating sphere.
+The thicker the sample is, the variance of
 measurement is. Transmittance meausred by a integrating sphere
 are almost the largest one because the integrating sphere collects refraction light may
 not be collected properly by the other measurement.
 
-(scheme shows thickness effect of transmission measurement)
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/compartment_position_test.png}
+    \includegraphics[width=0.8\textwidth]{compartment_position_test.png}
     \caption{Different acrylic sample position in the compartment of Lambda650. From
  left to right: position A, position B, and position C.}
     \label{compartment_position_test.png}
@@ -201,7 +200,7 @@ not be collected properly by the other measurement.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/compartment_transmittance_difference_effect.png}
+    \includegraphics[width=0.8\textwidth]{compartment_transmittance_difference_effect.png}
     \caption{Transmittance to the transmittance measurement in position B. Green: measurement in position A, Blue:
  measurement in position C. Red: measurement by integrating sphere.}
     \label{compartment_transmittance_difference_effect.png}
@@ -209,28 +208,27 @@ not be collected properly by the other measurement.
 
 
 So for acrylics in Dayabay and Aberdeen experiment, the transmittance measurement is
-considerated to use a integrating sphere instead of the original detector.
-
-
-(optical principle of a integrating sphere)
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_calibration.png}
-    \caption{Calibration of a integrating sphere by air.}
-    \label{fig:transmittance_integrating_systematic_error_calibration.png}
-    \end{figure}
-
+considerated to use a integrating sphere instead of the original detector module with the compartment.
 
 Nevertheless, for transparent samples, the integrating sphere
 may induce systematic increasing transmittance slightly when measuring tansmittance.
 This is because the diffuse light reflected by the integrating
 sphere, is reflected back to the integrating sphere by the sample.
-Fig. \ref{fig:transmittance_integrating_systematic_error_measurement.png} demonstrates the mechanism to cause such error.
+Figure \ref{fig:transmittance_integrating_systematic_error_measurement.png} and
+demonstrates the mechanism to cause such error.
 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/transmittance_integrating_systematic_error_measurement.png}
+    \includegraphics[width=0.8\textwidth]{transmittance_integrating_systematic_error_calibration.png}
+    \caption{Calibration of a integrating sphere by air.}
+    \label{fig:transmittance_integrating_systematic_error_calibration.png}
+    \end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{transmittance_integrating_systematic_error_measurement.png}
     \caption[Transmittance measurement of the integrating sphere error attributed by transparent sample.]
 {The systematic error caused by measuring transmittance of a transparent sample with a integrating sphere.
 Comparing to Fig. \ref{fig:transmittance_integrating_systematic_error_calibration.png}, the yellow beam reflected by the sample
@@ -249,21 +247,21 @@ Thus the increasing is around (to second order) in the order of:
 
 \begin{equation}
 \label{eq:ISError}
-92\%\times2.5\%\times4\%\times99\%\thicksim0.1%
+92\%\times2.5\%\times4\%\times99\%\thicksim0.1\%
 \end{equation}
 
 
 A compromising improvement to reduce such kind of systematic error are, for example,
-to put the sample slightly away from the integrating sphere (Fig. \ref{fig:IS_improvement.png}), but not too much in
-order not to collect the refration light improperly as the effect metioned above.The distance depends on the geometry--surface flatness and
-the thickness-- of the acrylic sample.  A example of the comparison of different distance from
-the integrating sphere to measure the transmittance is shown in Fig. \ref{fig:IS_distance_test.png}. The result shows for a acrylic panel
+to put the sample slightly away from the integrating sphere (Figure \ref{fig:IS_improvement.png}), but not too much in
+order not to collect the refration light improperly as the effect metioned above.The distance depends on the geometry -- surface flatness and
+the thickness -- of the acrylic sample.  A example of the comparison of different distance from
+the integrating sphere to measure the transmittance is shown in Figure \ref{fig:IS_distance_test.png}. The result shows for a acrylic panel
 sample of thickness of around 1 cm, around 1 to 1.5 cm away from the integrating sphere is more reasonable.
 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS_improvement.png}
+    \includegraphics[width=0.8\textwidth]{IS_improvement.png}
     \caption{Improvement skill to measure transmittance by integrating sphere.}
     \label{fig:IS_improvement.png}
     \end{figure}
@@ -271,12 +269,12 @@ sample of thickness of around 1 cm, around 1 to 1.5 cm away from the integrating
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS_distance_test.png}
+    \includegraphics[width=0.6\textwidth]{IS_distance_test.png}
     \caption[Example of transmittance measured in different distance from the integrating sphere.]
 {
-These data are subtracted by the transmittance measured by putting the acrylic samlpe adjacent to the integrating sphere.
-Form top to bottom, they are the one around 0.7 cm away, the one around 1.6 cm away, the one around 2.5 cm away, the one around 4.5 cm away,
-and the one larger than 10 cm--in the middle of the compartment--. The 0.7 cm one shows almost the same transmittance measurement as the baseline.
+These data are subtracted by the transmittance measured by placing the acrylic samlpe adjacent to the integrating sphere.
+Form top to bottom, they are the one around 0.7 cm, 1.6 cm, 2.5 cm, 4.5 cm,
+and the one larger than 10 cm -- in the middle of the compartment --. The 0.7 cm one shows almost the same transmittance measurement as the baseline.
 The others except the 1.6 cm one show almost the same transmittance measurement. The 1.6 cm one is in the middle of the 0.7 cm one and the others,
 and is slightly lower than the baseline by around 0.3\%. This quantity is expected in \ref{eq:ISError}.
 }
@@ -284,62 +282,85 @@ and is slightly lower than the baseline by around 0.3\%. This quantity is expect
     \end{figure}
 
 
+The set up for transmittance measurement by the integrating sphere is shown in Figure \ref{fig:transmission.png}.
+The distance between the sample ant the integrating sphere is not scaled. Please note the measured transmittance
+is gross transmittan, which include multiple reflection and transmittion in the interface of the sample and air.
+%See Figure ref{}.
+
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS/transmittance.png}
+    \includegraphics[width=0.8\textwidth]{transmittance.png}
     \caption
-    [Transmission measurement]
-    {Transmission measurement}
+    [Transmission measurement set up]
+    {Transmission measurement set up. The distance between the sample ant the integrating sphere is not scaled.}
     \label{fig:transmission.png}
     \end{figure}
 
 
+% scheme to show the so called gross transmittance and reflectance.
 
 
 \subsection{Reflectance Measurement of Acrylics}
 
+Perkin Elmer Lambda 650 with the 60 mm integrating sphere could measure
+the total refletance incluing specular and diffuse reflection by a near-normal ($8^\circ$) incident beam, and
+the diffuse reflectance by a normal incident beam.
+Figure \ref{fig:reflectance8d.png} and \ref{fig:reflectance0d.png} show the setup of the total reflectance and the diffuse only
+reflectance respectively.
+The reflectance measured by a spectrometer with a integrating sphere is to measure the gross reflecance including multiple reflection in samples.
+And the measured reflectance is relative to the reflectance standard which is made of Spectralon, whose absolute reflectance is certified with
+a relative uncertaianty less than 0.015 from a typical value. Spectralon is a kind of highly reflective and diffuse material manufactured by Spectrlon Int.
+% Spectrlon Int. ref
+%Uncertainty by the Spectrlon
+Because the reflectance measurement is relative to the standard refletance material, Spetralon,
+a correction could be approached by the absolute Spetralon reflectance data.
+A typical Spetralon material reflctance correction of Perkin Elmer Lambda 650 is
+shown in Figure \ref{fig:spectralon_0_8_degree.png}, derived by removing the standard
+reflectance in the sample port. The reflectance variance of Spectralon material in the wavelength from 200nm to 800nm
+is claimed not larger than 1.5\% from batch to batch
+in the Perkin Elmer user guide.
+%-------
+% Perkin Elmer user guide ref
+%-------
+Figure \ref{fig:spectralon_0_8_degree.png} shows both the Spectralon reflectance measured and corrected by the Perkin Elmer typical Spectralon value,
+by $0^\circ$ incident angle, namely normal-incident, leading to the diffuse reflectance measurement,
+and $8^\circ$, namely gross reflectance measurement including Specular and diffuse reflectance.
+If the measurement was not correct by the typical Sepctralon value, the measurement is 100\% transmittance stability test
+because this spectrometer is a double beam spectrometer.
+After correcting the measurement by the typical Spectralon value, Figure \ref{fig:spectralon_0_8_degree.png} shows the typical Spectralon correction value.
+
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS/reflectance8d.png}
+    \includegraphics[width=0.8\textwidth]{reflectance8d.png}
     \caption
-    [Total reflectance measurement]
-    {Total reflectance measurement}
+    [Total reflectance measurement setup]
+    {Total reflectance measurement setup}
     \label{fig:reflectance8d.png}
     \end{figure}
 
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IS/reflectance0d.png}
+    \includegraphics[width=0.8\textwidth]{reflectance0d.png}
     \caption
-    [Diffuse reflectance measurement]
-    {Diffuse reflectance measurement}
+    [Diffuse reflectance measurement setup]
+    {Diffuse reflectance measurement setup}
     \label{fig:reflectance0d.png}
     \end{figure}
 
 
-
-Uncertainty by the Spectrlon
-
-The reflectance measured by a spectrometer is to measure the gross measurement. And the measured
-reflectance is relative to the reflectance standard, the Spectralon.
-
-Fig. \ref{fig:spectralon_0_8_degree.png} shows both the spectralon by $0^\circ$ incident angle (namely, normal. This will lead to the diffuse
-reflectance measurement.) and $8^\circ$ (Specular and diffuse reflectance.).
-
-
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/spectralon_0_8_degree.png}
+    \includegraphics[width=0.6\textwidth]{spectralon_0_8_degree.png}
     \caption[Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction]{Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction. Both the two curves are similar. This shows the stability of Lambda650 and the extent of diffuse of the Spectralon calibration standard is good.}
     \label{fig:spectralon_0_8_degree.png}
     \end{figure}
 
 
 The calibration is executed by the highly diffusive reflectance standard.
-If the sample is highly specular, large error may occur because the uniformity of the light path.
+If the sample is highly specular, large error may occur because the condition is too different from calibration.
 
 
 \subsection{Sources of Error of Both Transmittance and Reflectance Measurement}
@@ -378,17 +399,22 @@ A Spectralon surface may degrade slowly over time, so regular calibration is nee
 \label {sec:RTMethod}
 
 The two parameters, index of refraction and attenuation length, are important
-to describ the behavior of optical photons. Due to the simulation (see ref------------),
-the calibration, and the dry run requirement. The index of refraction and attenuation length
+to describ the behavior of optical photons.
+Due to the simulation requirement ( Section \ref{sec:opticalModel}), the calibration, and the dry run requirement,
+the index of refraction and attenuation length
 of the GdLS, LS, mineral oil and acrylcs should be known because the signals of the detectors
 are optical photons.
 
-For acrylics,--------don't break--------------------
+
+%For acrylics,--------don't break--------------------, SNO paper
+
 
 This method is based on a method proposed by Zwinkels $et. al.$ \cite{RTMethod} which
 is to the overall performance of the Subdbury neutrino observatory (SNO),
-but slightly different from the measurement facilities. In our case, we wanted to characterize the optical constants of a
-transparent material--acrylics-- over a wavelength range from 200nm to 800nm. The Fresnel relationships connecting the front-surface
+but different from the measurement facilities and the algorithm to find numerical solutions.
+In our case, to characterize the optical constants of a
+transparent material -- acrylics -- over a wavelength range from 200nm to 800nm is needed.
+The Fresnel relationships connecting the front-surface
 primary reflectance R and the internal transmittance T for normal incidence, with the optical constants $n$ and $\kappa$ at each wavelength $\lambda$
 are:
 
@@ -446,16 +472,33 @@ Bottom right: Subtract the caculated reflectance $R*$ from the RT model from the
     \label{fig:rt_10mm_result.png}
     \end{figure}
 
-The analysis algorithm is based on Newton method to find numerical solutions. It may fail
-to find solutions. The possible reasons could be the uncertainty of the spectrometer.
+The analysis algorithm is based on Newton method to find numerical solutions.
+The algorithm flow chart is shown in Figure \ref{fig:rt_algorithm_flow_chart.png}.
+The Newton method  may fail to find solutions. One of the possible reasons is the uncertainty of the spectrometer.
 For a transparent but thin sample, the transmittance measurement could show the attenuation
-is larger than some value, and could not show  what is the exact value of the attenuation.
+is larger than some value, and could not show what is the exact value of the attenuation.
 Most failed solutions are derived by the unreasonable attenuation lengths which are related to the transmittance measurements.
-The index of refraction is mainly decided by the Eq. \ref{eq:FSR} for a tranparent sample--acrylics-- because
-of the $\kappa$ is relatively small than $n$. So basically the derived $n$ is still reliable shown in Table \ref{tab:RTMethodResult}.
+However, the index of refraction is mainly decided by the Eq. \ref{eq:FSR} for a tranparent sample -- acrylics -- because
+of the $\kappa$ is relatively small than $n$. So basically the derived $n$ is still reliable, and the comparison
+of different measurement method shown in Table \ref{tab:RTMethodResult}.
+Schott Int. provides the typical refraction index measurement by directly observing monochromatic beam refraction.
 
 
-Schott company's  method
+%-----------
+%Schott company's  method
+%and ref
+%------------
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{./figure/rt_algorithm_flow_chart.png}
+    \caption
+    [Flow chart to show how the algorithm to find numerical solutions of RT measurement.]
+    {Flow chart to show how the algorithm to find numerical solutions of RT measurement.}
+    \label{fig:rt_algorithm_flow_chart.png}
+    \end{figure}
+
 
 \begin{table}
 \centering
@@ -478,42 +521,42 @@ Wavelength (nm) & RT Method & Unc. & SNO Acrylic & Unc. & Schott & Unc. \\
 \end{table}
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/rt_algorithm_flow_chart.png}
-    \caption
-    [Flow chart to show how the algorithm to find numerical solutions of RT measurement.]
-    {Flow chart to show how the algorithm to find numerical solutions of RT measurement.}
-    \label{fig:rt_algorithm_flow_chart.png}
-    \end{figure}
-
-
-
-
-\section {Acrylic Optical Property in Detectors}
+\section {Acrylic Optical Property of AD and Neutron Detector}
 
 The optical properties of acrylic exert a strong influence on how light is propagated
-from a neutrino interaction point for Dayabay, or a neutron interaction point for Aberdeen,
+from a neutrino capture vertex for Dayabay, or a neutron capture vertex for Aberdeen,
 within the Ls, GdLs, and mineral oil to the PMTs arranged on the barrel of the steel tank.
 
 The signal region of both Dayabay detectors and Aberdeen detector
 is around from 350nm to 450nm, namely blue region of visible light and near UV.
 The signal region is decided by the PMT gain, the LS and the GdLS emitting spectrum and
 the attenuation spectrum, the mineral oil attenuation spectrum, and
-the acrylic panels spectrum. Fig. \ref{fig:SpectrumCoupling} shows the region.
+the acrylic panels spectrum. Figure \ref{fig:SpectrumR5912} and \ref{fig:spectrumLS} show the spectrum region.
 
 
 \begin{figure}
+    \label{fig:SpectrumR5912}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/LS_GdLS_Acrylic_PMT_coupling.png}
-    \caption{LS, GdLS, acrylics ,and PMT QE sepctrum. The coupling indicates the signal spectrum is in the blue and near UV spectral regions}
-    \label{fig:SpectrumCoupling}
+    \includegraphics[width=0.6\textwidth]{SpectrumR5912.png}
+    \caption
+    [Hamamatsu R5912 8" PMT QE spectrum]
+    {Hamamatsu R5912 8" PMT QE spectrum}
     \end{figure}
 
 
-A typical commercial acrylic panel is often doped UV absorber
+\begin{figure}
+    \label{fig:SpectrumLS}
+    \centering
+    \includegraphics[width=0.8\textwidth]{SpectrumLS.png}
+    \caption
+    [Typical LS spectrum used fo Dayabay AD.]
+    {Typical LS spectrum used fo Dayabay AD. This is not the final material.}
+    \end{figure}
+
+
+A typical commercial acrylic panel is often doped by UV absorber
 to prevent aging of acrylic panel. This kind of UV absorber makes acrylic spectrum
-UV-blocked and the typical cut-off trasmission is at around 350nm to 400nm,
+UV-blocked and the typical cut-off trasmission is at wavelength from around 350nm to 400nm,
 which happens to signal region of optical photon.
 Thus the acrylic panels used for the acrylic vessels should be chosen as
 UV-transparent ones. Fig. \ref{UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
@@ -522,19 +565,21 @@ and UV-blocked acrylics.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{./figure/UVT_UVB_acrylics.png}
+    \includegraphics[width=0.5\textwidth]{UVT_UVB_acrylics.png}
     \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
     \label{UVTUVBAcrylics}
     \end{figure}
 
 
-
-optical transmission standard
+%-----
+%optical transmission standard required by Dayabay
+%--------
 
 Nervertheless, not only as-received acrylic material property, but also as-cast
 acrylic material should be monitored. Three kinds of manufacture process happen to the acrylic panels.
 They are polish, bonding and annealing, including heating the panels to shape them. Besides,
 the aging of acrylic panels will be discussed too.
+
 
 \subsection {Bonding and Aging}
 
@@ -550,19 +595,21 @@ and both increasing and decreasing effect could happen, depending on different k
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{./figure/reflector_panel_UV_aging.png}
-    \caption{Example of acrylic aging by UV lamps: these are the reflector samples}
+    \caption [Example of acrylic aging by UV lamps]
+    {Example of acrylic aging by UV lamps: these are the reflector samples. This figure is provided by Liangjian Wen, IHEP}
     \label{ReflectorAging}
     \end{figure}
 
 
 
-(IAV 10mm increasing)
+%table (IAV 10mm increasing)
 
 
-(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
+%(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
 
 
-Fig. IAV 10mm increasing shows the transmission will fit in with the QA in around 1 month, which is longer than typical
+%Table \ref{IAV 10mm increasing}
+shows the transmission will fit in with the QA in around 1 month, which is longer than typical
 bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
 
 A similar effect could be observed when acrylic panels are exposure to the sunshine like what
@@ -572,15 +619,20 @@ acrylic panels exposured to the sunshine responds differently.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/IAV_prototype_barrel_sunshine.png}
+    \includegraphics[width=0.8\textwidth]{IAV_prototype_barrel_sunshine.png}
     \caption{Example of acrylic aging by the sunshine: this is the barrel sample of the IAV prototype.}
     \label{IAVPrototypeBarrelSunshineAging}
     \end{figure}
 
-(Bryce, LJ, and my figure)
+
+%(Bryce, LJ, and my figure)
 
 
-Nevertheless, the transmission measured on different date of acrylic panels without exposuing to the sunshine directly,
+The response of acrylic panels exposured to the sunshine is case by case.
+%Figure \ref{%(Bryce, LJ, and my figure)} shows measurement of different panels exposure to the sunshine.
+
+
+The transmission measured on different date of acrylic panels without exposuing to the sunshine directly,
 shows slightly variance in around a year, which is longer than typical acrylic vessel manufacture time.
 Thus the acrylic vessels should be avoid to be exposured to the sunshine directly.
 
