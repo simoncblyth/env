@@ -90,7 +90,7 @@ root-get(){
    local msg="=== $FUNCNAME :"
    
    local base=$(root-base)
-   [ ! -d "$base" ] && $SUDO mkdir -p $base && $SUDO chown $USER $base
+   [ ! -d "$base" ] && mkdir -p $base 
    cd $base  ## 2 levels above ROOTSYS , the 
    local n=$(root-nametag)
    [ ! -f $n.tar.gz ] && curl -O $(root-url)
@@ -181,30 +181,27 @@ root-pycheck(){
 
 
 
-
-
-root-evetest(){
-
+root-tutetest(){
+  local dir=$1
+  local name=$2
   local msg="=== $FUNCNAME :"
-  [ "$1" == "" ] && echo $msg requires an argument naming the test && type $FUNCNAME && return 1
-  local tmpd=/tmp/env/$FUNCNAME/$1 ; 
-  mkdir -p $tmpd
-  cd $tmpd 
+  local iwd=$PWD
 
-  local dir=$ROOTSYS/tutorials/eve
-  local sglv=$dir/SplitGLView.C
-  [ ! -f SplitGLView.C ] && echo copying $sglv && cp $sglv . 
-  root-info
-  ls -l 
-  local cmd="root $ROOTSYS/tutorials/eve/alice_esd_split.C"
+  cd $dir  
+  [ ! -f "$name" ] && echo $msg no such script $PWD/$name  && cd $iwd && return 1
+ 
+  root-config --version
+ 
+  local cmd="root $name"
   echo $msg $cmd
   eval $cmd
-
-# Running from afar does not work ... 
-# Error in <TRint::ProcessLine>: macro SplitGLView.C not found in path .:/data/env/local/root/root_v5.21.04/root/macros:
-
-
 }
+
+root-evetest(){ root-tutetest $ROOTSYS/tutorials/eve $* ; }
+root-gltest(){  root-tutetest $ROOTSYS/tutorials/gl  $* ; }
+
+
+
 
 
 
