@@ -4,8 +4,8 @@
 
 void drawParas() {
 
-    drawParasOfFile("paras1.dat");
-    drawParasOfFile("paras2.dat");
+    drawParasOfFile("paras.dat");
+    //drawParasOfFile("paras2.dat");
     //drawParasOfFile("paras3.dat");
 
 
@@ -15,14 +15,19 @@ void drawParasOfFile(string filename) {
 
 //    double wlArray[TOTALDATANO], nArray[TOTALDATANO], aArray[TOTALDATANO];
 //    double thindTArray[TOTALDATANO], thindRArray[TOTALDATANO];
-    double wlArrayTmp[TOTALDATANO], nArrayTmp[TOTALDATANO], aArrayTmp[TOTALDATANO];
+    double wlArrayTmp[TOTALDATANO], nArrayTmp[TOTALDATANO], nArrayErrTmp[TOTALDATANO];
+    double aArrayTmp[TOTALDATANO], aArrayErrTmp[TOTALDATANO];
+    double attArrayTmp[TOTALDATANO], attArrayUpErrTmp[TOTALDATANO], attArrayLowErrTmp[TOTALDATANO];
     double thindTArrayTmp[TOTALDATANO], thindRArrayTmp[TOTALDATANO];
     int numericalStatus[TOTALDATANO];
     ifstream fin;
     fin.open(filename.data());
 
     for(int i=0;i<TOTALDATANO;i++) {
-        fin >> wlArrayTmp[i] >> nArrayTmp[i] >> aArrayTmp[i] >> thindTArrayTmp[i] >> thindRArrayTmp[i] >> numericalStatus[i];
+        fin >> wlArrayTmp[i] >> nArrayTmp[i] >> nArrayErrTmp[i] >> 
+                aArrayTmp[i] >> aArrayErrTmp[i] >>
+                attArrayTmp[i] >> attArrayUpErrTmp[i] >> attArrayLowErrTmp[i] >>
+                thindTArrayTmp[i] >> thindRArrayTmp[i] >> numericalStatus[i];
     }
 
     double numericalStatusGra[TOTALDATANO];
@@ -48,24 +53,38 @@ void drawParasOfFile(string filename) {
     // do not draw fail status
     int successStatus(0);
     for(int i=0;i<TOTALDATANO;i++) {
+        //if(numericalStatus[i] == 0 && (attArrayUpErrTmp[i] > 1.0) && ((attArrayTmp[i] + attArrayUpErrTmp[i]) < 5000.0)) {
         if(numericalStatus[i] == 0) {
             successStatus++;
         }
     }
     const int successSize = successStatus;
-    double wlArray[successSize], nArray[successSize], aArray[successSize];
+    double wlArray[successSize], nArray[successSize], aArray[successSize], attArray[successSize];
+    double wlArrayErr[successSize], nArrayErr[successSize], aArrayErr[successSize];
+    double attArrayUpErr[successSize], attArrayLowErr[successSize];
     double thindTArray[successSize], thindRArray[successSize];
+    int ns[TOTALDATANO];
+    for(int i=0;i<TOTALDATANO;i++) ns[i] = 1;
 
     cout << "su size " << successSize << endl;
 
     int suCounter(0);
     for(int i=0;i<TOTALDATANO;i++) {
+        //if(numericalStatus[i] == 0 && (attArrayUpErrTmp[i] > 1.0) && ((attArrayTmp[i] + attArrayUpErrTmp[i]) < 5000.0)) {
         if(numericalStatus[i] == 0) {
             wlArray[suCounter] = wlArrayTmp[i];
+            wlArrayErr[suCounter] = 0.5;
             nArray[suCounter] = nArrayTmp[i];
             aArray[suCounter] = aArrayTmp[i];
+            attArray[suCounter] = attArrayTmp[i];
+            nArrayErr[suCounter] = nArrayErrTmp[i];
+            aArrayErr[suCounter] = aArrayErrTmp[i];
+            attArrayUpErr[suCounter] = attArrayUpErrTmp[i];
+            //cout << attArrayUpErr[i] << endl;
+            attArrayLowErr[suCounter] = attArrayLowErrTmp[i];
             thindTArray[suCounter] = thindTArrayTmp[i];
             thindRArray[suCounter] = thindRArrayTmp[i];
+            ns[i] = 0;
             suCounter++;
         }
     }
@@ -78,38 +97,40 @@ void drawParasOfFile(string filename) {
     c1->Divide(2,3);
     
     c1->cd(1);
-    grn = new TGraph(successSize, wlArray, nArray);
+    //grn = new TGraphErrors(successSize, wlArray, nArray, wlArrayErr, nArrayErr);
+    grn = new TGraphErrors(successSize, wlArray, nArray);
     grn->SetTitle("Index of Refraction V.S. Wavelength");
     grn->GetXaxis()->SetTitle("nm");
     grn->GetYaxis()->SetTitle("n");
     grn->SetMarkerColor(kRed);
     grn->SetLineColor(kBlue);
-    grn->Draw("APC");
+    grn->Draw("A*");
 
     c1->cd(2);
-    grk = new TGraph(successSize, wlArray, aArray);
+    grk = new TGraphErrors(successSize, wlArray, aArray, wlArrayErr, aArrayErr);
     grk->SetTitle("Alpha V.S. Wavelength");
     grk->GetXaxis()->SetTitle("nm");
     grk->GetYaxis()->SetTitle("alpha, 1/mm");
     grk->SetMarkerColor(kRed);
     grk->SetLineColor(kBlue);
     //grk->SetMarkerStyle(21);
-    grk->Draw("APC");
+    grk->Draw("A*");
 
-    double attArray[successSize];
-    for(int i=0;i<successSize;i++) {
-        attArray[i] = (1.0/aArray[i])/1000.0; // unit: m
-    }
+    //double attArray[successSize];
+    //for(int i=0;i<successSize;i++) {
+    //    attArray[i] = (1.0/aArray[i])/1000.0; // unit: m
+    //}
 
     c1->cd(3);
-    gratt = new TGraph(successSize, wlArray, attArray);
+    //gratt = new TGraphAsymmErrors(successSize, wlArray, attArray, wlArrayErr, wlArrayErr, attArrayLowErr, attArrayUpErr);
+    gratt = new TGraphAsymmErrors(successSize, wlArray, attArray);
     gratt->SetTitle("Attenuation V.S. Wavelength");
     gratt->GetXaxis()->SetTitle("nm");
     gratt->GetYaxis()->SetTitle("m");
     gratt->SetLineColor(kBlue);
     gratt->SetMarkerColor(kRed);
     //gratt->SetMarkerStyle(21);
-    gratt->Draw("APC");
+    gratt->Draw("A*");
 
     c1->cd(4);
     grdr = new TGraph(TOTALDATANO, wlArrayTmp, numericalStatusGra);
@@ -128,7 +149,7 @@ void drawParasOfFile(string filename) {
     grdt->SetLineColor(kBlue);
     grdt->SetMarkerColor(kRed);
     //grdt->SetMarkerStyle(21);
-    grdt->Draw("APC");
+    grdt->Draw("A*");
 
     c1->cd(6);
     grdr = new TGraph(successSize, wlArray, thindRArray);
@@ -138,9 +159,9 @@ void drawParasOfFile(string filename) {
     grdr->SetLineColor(kBlue);
     grdr->SetMarkerColor(kRed);
     //grdr->SetMarkerStyle(21);
-    grdr->Draw("APC");
+    grdr->Draw("A*");
 
-
+    /*
     string cc = "Solution status " + filename;
     string cc2 = filename+"2";
     TCanvas *c2 = new TCanvas(
@@ -151,8 +172,9 @@ void drawParasOfFile(string filename) {
     grdr2->GetXaxis()->SetTitle("nm");
     grdr2->GetYaxis()->SetTitle("Status, 0:Success, 1:failded");
     //grdr->SetMarkerStyle(21);
-    if(filename == "paras1.dat") grdr2->SetMarkerColor(kBlue);
+    if(filename == "paras.dat") grdr2->SetMarkerColor(kBlue);
     if(filename == "paras2.dat") grdr2->SetMarkerColor(kRed);
     grdr2->Draw("A*");
+    */
 
 }

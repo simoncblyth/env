@@ -12,9 +12,11 @@
 //#define THIN_THICKNESS 10.14
 #define THIN_THICKNESS 10.14
 // Input filename of transmittance of a thin sample
-#define FILENAME_THIN_TRANSMITTANCE "1-1-1-1.csv"
+//#define FILENAME_THIN_TRANSMITTANCE "1-1-1-1.csv"
+#define FILENAME_THIN_TRANSMITTANCE "gt.dat"
 // Input filename of reflectance of a thin sample
-#define FILENAME_THIN_REFLECTANCE "1-1-2-1.csv"
+//#define FILENAME_THIN_REFLECTANCE "1-1-2-1.csv"
+#define FILENAME_THIN_REFLECTANCE "gr.dat"
 // Input the thickness of the thicker sample (mm)
 #define THICK_THICKNESS 14.80
 // Input filename of transmittance of a thick sample
@@ -45,10 +47,10 @@ int main(int argc, char *argv[]) {
         fresnelData.dump(i);
     }
 
-    fresnelData.dumpToFile("paras1.dat");
+    fresnelData.dumpToFile("paras.dat");
 
 
-
+    /*
     FresnelData fresnelDataThick(FILENAME_THICK_TRANSMITTANCE, FILENAME_THICK_REFLECTANCE);
     fresnelDataThick.setInitialParas(1.505,0.009,THICK_THICKNESS);
 
@@ -59,7 +61,7 @@ int main(int argc, char *argv[]) {
     }
 
     fresnelDataThick.dumpToFile("paras2.dat");
-
+    */
 
 
     /*

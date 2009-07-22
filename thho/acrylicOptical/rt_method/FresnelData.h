@@ -120,6 +120,8 @@ class FresnelData {
 
         long double thinTransmittance_[TOTALDATANO];
         long double thinReflectance_[TOTALDATANO];
+        long double thinTransmittanceRMS_[TOTALDATANO];
+        long double thinReflectanceRMS_[TOTALDATANO];
         long double wavelength_[TOTALDATANO]; // mm
         long double indexOfRefraction_[TOTALDATANO];
         long double indexOfRefractionErrorUp_[TOTALDATANO];

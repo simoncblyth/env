@@ -79,8 +79,8 @@ int FresnelData::loadFromFile(  string thinTransmittanceFilename, string thinRef
         finThinTransmittance >> thinWT;
         finThinReflectance >> thinWR;
         if((thinWT == thinWR)) {
-            finThinTransmittance >> thinTransmittance_[i];
-            finThinReflectance >> thinReflectance_[i];
+            finThinTransmittance >> thinTransmittance_[i] >> thinTransmittanceRMS_[i];
+            finThinReflectance >> thinReflectance_[i] >> thinReflectanceRMS_[i];
             // unit %->0.01 nm->mm
             thinTransmittance_[i] = thinTransmittance_[i]*0.01;
             thinReflectance_[i] = thinReflectance_[i]*0.01;
