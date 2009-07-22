@@ -1,0 +1,12 @@
+prepare 200nm~800nm data, 1nm data interval
+
+remove comma
+    root mergeData.cxx
+output out.dat
+
+eval mean and RMS
+    root evalData.cxx
+
+
+the final output file is
+meanData.dat
