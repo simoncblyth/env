@@ -116,7 +116,7 @@ root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
 root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
 root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
 
-root-cd(){ cd $(root-rootsys) ; }
+root-cd(){ cd $(root-rootsys)/tutorials/eve ; }
 
 
 

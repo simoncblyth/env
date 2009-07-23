@@ -157,7 +157,8 @@ func-(){        . $(env-home)/base/func.bash    && func-env $* ; }
 xmldiff-(){     . $(env-home)/xml/xmldiff.bash && xmldiff-env $* ; }
 
 dyw-(){         . $(env-home)/dyw/dyw.bash   && dyw-env   $* ; }
-root-(){        . $(env-home)/dyw/root.bash  && root-env  $* ; }
+oroot-(){       . $(env-home)/dyw/root.bash  && root-env  $* ; }
+root-(){        . $(env-home)/root/root.bash  && root-env  $* ; }
 
 _dyb__(){       . $(env-home)/dyb/dyb__.sh              $* ; }
 dyb-(){         . $(env-home)/dyb/dyb.bash  && dyb-env  $* ; }

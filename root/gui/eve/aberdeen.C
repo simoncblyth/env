@@ -2,8 +2,8 @@
 
 gROOT->ProcessLine(" .L $ENV_HOME/aberdeen/root/GeoMap.C");
 
-//TString src = "$ENV_HOME/aberdeen/root/Aberdeen_World.root" ;
-TString src = "$ENV_HOME/aberdeen/root/WorldWithPMTs.root" ;
+TString src = "$ENV_HOME/aberdeen/root/Aberdeen_World.root" ;
+//TString src = "$ENV_HOME/aberdeen/root/WorldWithPMTs.root" ;
 
 GeoMap* gm = new GeoMap() ;  // not working other .root yet 
 gm->ImportVolume( src ,"World");
