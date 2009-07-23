@@ -36,7 +36,7 @@ lighttpd-init(){    sudo $(lighttpd-ini) $* ; }
 lighttpd-start(){   lighttpd-init start ; }
 lighttpd-stop(){    lighttpd-init stop ; }
 lighttpd-restart(){ lighttpd-init restart ; }
-lighttpd-ps(){     ps aux | grep light ; }
+lighttpd-ps(){     ps aux | grep lighttpd | grep -v grep ; }
 
 
 lighttpd-htdocs(){ echo $(pkgr-wwwd)/lighttpd/htdocs ; }
@@ -48,14 +48,21 @@ lighttpd-elog(){   echo $(lighttpd-logd)/error.log ; }
 lighttpd-alog(){   echo $(lighttpd-logd)/access.log ; }
 lighttpd-etail(){  sudo tail -f $(lighttpd-elog) ; } 
 lighttpd-atail(){  sudo tail -f $(lighttpd-alog) ; } 
+lighttpd-pidf(){   echo $(pkgr-rund)/lighttpd.pid ; }
+lighttpd-pid(){    [ -f "$(lighttpd-pidf)" ] && cat $(lighttpd-pidf) ; }
+
+lighttpd-port(){   echo 9000 ; }
 
 
 lighttpd-config-(){ cat << EOC
 
+## CAUTION THIS IS MANUALLY PROPAGATED INTO THE CONF
+
 server.document-root        = "$(lighttpd-htdocs)/"
 
 ## this matches the pid path in the macports lighttpd.wrapper 
-server.pid-file             = "$(pkgr-rund)/lighttpd.pid"
+server.port                 = "$(lighttpd-port)"
+server.pid-file             = "$(lighttpd-pidf)"
 server.errorlog             = "$(lighttpd-elog)"
 accesslog.filename          = "$(lighttpd-alog)"
 

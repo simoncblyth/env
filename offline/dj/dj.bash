@@ -520,14 +520,16 @@ dj-runfcgi(){
 
 
   #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
-  local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  #local cmd="sudo python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  local cmd="ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
   echo $cmd 
   eval $cmd
 }
 
 dj-runserver(){
   cd $(dj-projdir)
-  sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 80
+  ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 
 }
 
 
