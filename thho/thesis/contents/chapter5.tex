@@ -1,15 +1,15 @@
 \chapter {Event Reconstruction}
 \section {Event Reconstruction of Aberdeen Neutron Detector}
 \subsection {Overview}
-There are three kinds of reconstruction were developed, center of mass,
+There are three kinds of reconstruction algorithm were developed: by PMT solid angle about vertex,
 energy pattern matching, and genetic algorithm(GA).
 
-The center of mass algorithm doesn't consider the diffuse reflectors.
+The PMT solid angle method is done by Wan Kin, CUHK.
+The algorithm doesn't consider the diffuse reflectors.
 And the single photon spectrum of PMTs should be well-known to reconstruct the energy pattern.
 Nevertheless, our R1408 PMTs for Aberdeen is old and hard to see the single photon spectrum clearly.
 The calibration of the single photon is on going at the time of writing.
-The preliminary center of mass spatial reconstruction is done by Wan.
-
+The preliminary test by G4dyb simulation shows the spatial resolution is around 17 cm.
 
 \begin{equation}
 \label{eq:reconstructionCM}
@@ -17,37 +17,36 @@ The preliminary center of mass spatial reconstruction is done by Wan.
 \end{equation}
 
 
-The energy pattern matching is done by Long.
-The energy pattern gives up to reconstruct vertices and prelimnary result shows
-the reconstruction of enery resolution is around 4.2\%.
+The energy pattern matching method is done by Chan Yat Long, CUHK.
+This method uses the simulation pattern by known vertices, and then matches the pattern against the simulation database.
+The prelimnary result shows the reconstruction of enery resolution is around 4.2\% by around spatial resolution of 17 cm.
 
 
-(The energy pattern algorithm)
+%(The energy pattern algorithm)
 
 
-
-
-
-
-
-The genetic algorithm is not related to the geometry property, for example,
-diffuse reflectors are used or not. But GA needs careful calibration process
+The genetic algorithm (GA) is not needed to build the geometry model of detector directly, for example,
+diffuse reflectors are used or not. Instead of that, GA needs careful calibration process
 to build a well-behavior response matrix and takes longer time to reconstruct
 the events of Aberdeen. It takes around 3 seconds each event, and of course, deponding
-on the CPU speed. Jimmy suggested the GA to be used for Aberdeen.
-This chapter focuses on the GA.
+on the CPU speed. Jimmy Ngai (HKU) proposed the GA to be used for Aberdeen.
+This chapter focuses on the test of GA.
+
+\subsection{Test of GA for Aberdeen Neutron Detector}
+
+Figure \ref{ga_flow_chart.png} shows the GA flow chart used for Aberdeen neutron detector reconstruction.
+The most advantage to use GA is that the geometry details could be changed anytime without modifying the code of detector geometry,
+and could be used for very complicated geometry without coding for that. The most disadvantage is the consuming
+CPU because there are so many "useless" individuals would be rejected during the algorithm.
+A diffusive reflector, tyvek
+%which details could be found at Section \ref{sec:reflector}
+, is used for Aberdeen neutron detector to
+be a radial reflector around the target. To quantize the extent of how diffusive the tyvek reflector is, would be a problem
+if the reconstruction algorithm would like to use such information.
+Nervertheless, GA could skip such diffusive information.
 
 
-
-
-
-
-
-
-
-
-
-(The GA algorithm scheme)
+%(The GA algorithm scheme)
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/ga_flow_chart.png}
@@ -56,16 +55,24 @@ This chapter focuses on the GA.
     \end{figure}
 
 
-The most advantage to use GA is that the geometry details could be changed anytime without modifying the codes,
-and could be used for very complicated geometry without coding for that. The most disadvantage is the consuming
-CPU because there are so many "useless" individuals would be rejected during the algorithm.
-A diffusive reflector, tyvek which details could be found at Section \ref{sec:reflector}, is used for Aberdeen neutron detector to
-be a radial reflector around the target. To quantize the extent of how diffusive the tyvek reflector is, would be a problem
-if the reconstruction algorithm would like to use the information of the certer of mass.
-Nervertheless, GA could skip such diffusive information.
+The following test of the GA for Aberdeen is based on these conditions:
+the neutron detector is divided into 1000 10 cm $\times$10 cm $\times$10 cm cubes. ( Figure \ref{fig:abtNDRecon.png} )
+Each cube is a individual, and the population size is 1000.
+And the evolution generation number is 50.
+The response matrix is established by 10000 photons yielded in each bin respectively.
+The photon number received by PMT is to be the ADC counts directly.
+Namely the QE of PMT is doesn't taken into account.
+Thus the "photon number" here is a relative quantity to be a unit of energy and does not mean the exact
+photon number which PMTs receive in reality.
+This doesn't matter because the so-called photon number could be linearly shift after the
+detector calibration is well-known.
+Thus the response matrix is a 1000$\times$32 matrix, because there are 1000 bins, 16 PMTs including
+16 ADC channels and 16 TDC channels.
+Essentially the GA is try-and-error.
+The definition of fitness decides how the elite looks, and the elite
+will be the reconstruction result.
 
-
-\begin{figure}[h]
+\begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{./figure/abtNDRecon.png}
     \caption
@@ -77,34 +84,27 @@ Nervertheless, GA could skip such diffusive information.
 
 
 There are many factors to decide the performance of the GA for Aberdeen.
-For example, the quality of calibration data, the covariance matrix, the fitness definition,
+For example, the quality of calibration data, the fitness definition,
 the population size, the evolution time and generation number.
 Basically the larger the population size, the better the reconstruction result is; the longer the evolution time, the better the result is;
 the more the generation number, the better the result is. But all of these: large population size, long evolution time, and many generation
 number consume the CPU time very much.
 At the time of writing, the calibration of aberdeen neutron detector is still on going.
-This chapter focuses on the discussion of the covariance matrix and the fitness definition.
-
-
-
-
-
-
-
-
-
-
-
-
+This chapter focuses on the test of the fitness definition.
 
 
 \subsection{Fitness Definition}
 
-The preliminary test of a inver-square generator of Aberdeen
-detector geometry is shown below. A suggested fitness definition of this GA is
+%The preliminary test of a inver-square generator of Aberdeen
+%detector geometry is shown below.
+
+The generator to test the GA for Aberdeen is a cube as the same dimension as the Aberdeen stainless steel tank.
+The photons yielded by the generator obey a inver-square law only.
+
+A fitness definition of this GA could be
 
 
-(fitness definition)
+%(fitness definition)
 \begin{equation}
 \label{fitness}
 Fitness = 100 - \chi^{2}/NDF,
@@ -159,62 +159,53 @@ and
 %\end{equation}
 %
 
-The typical reconstruction patterns are shown in Figure \ref{fig:f1c1_500.png} and Figure \ref{fig:f1c1_500.png}.
-The simple inverse-square law event generator generates random photon numbers randomly distributed in the acrylic vessel.
-The response matrix is generated based on the event which 10000 optical photons were generated.
+
+To test the reconstruction algorithm,
+the inverse-square law event generator generates random photon numbers randomly distributed in the acrylic vessel.
+The typical reconstruction patterns are shown in Figure \ref{fig:f1c1_500.png} and Figure \ref{fig:f1c1_500proj.png}.
+%The response matrix is generated based on the event which 10000 optical photons were generated.
 Events that PMTs receive photons less than 500 are rejected. This is the same as what the electronic trigger does in reality.
-The comparison of enery resolution before and after the reconstruction pattern is shown in Table \ref{tab:GAISSim} and Table \ref{tab:GACoorPhoton}.
+%The comparison of enery resolution before and after the reconstruction pattern is shown in Table \ref{tab:GAISSim} and Table \ref{tab:GACoorPhoton}.
+
+
+%\begin{table}
+%\centering
+%\caption{Energy resolution before and after the GA reconstruction}
+%\label{tab:GAISSim}
+%\begin{tabular}{lcp{5.0cm}}
+%\hline
+%Item & Before reconstruction (\%) & After reconstruction (\%) \\
+%\hline
+%\hline
+%Energy resolution & 9.18 & 6.84 \\
+%\hline
+%\end{tabular}
+%\end{table}
+
+
+%\begin{table}
+%\centering
+%\caption[Summary of the actual and fitted coordinates and photon number]
+%{
+%This table shows the comparisons of fitted with actual values.
+%For coordinates, the fitted values minus the actual values.
+%For photon number, the fitted values is divided by the actual values.
+%}
+%\label{tab:GACoorPhoton}
+%\begin{tabular}{lp{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}c}
+%\hline
+%Item &  x-coordinate (mm) & y-coordinate (mm) & z-coordinate (mm) & Distance (mm) & photon number \\
+%\hline
+%\hline
+%Mean        &   -0.8295 &   -0.9153 &   0.5432  &   97.31   &   -0.02449    \\
+%RMS         &   57.35   &   58.4    &   67.66   &   42.53   &   0.06337     \\
+%\hline
+%\end{tabular}
+%\end{table}
 
 
 
-\begin{table}
-\centering
-\caption{Energy resolution before and after the GA reconstruction}
-\label{tab:GAISSim}
-\begin{tabular}{lcp{5.0cm}}
-\hline
-Item & Before reconstruction (\%) & After reconstruction (\%) \\
-\hline
-\hline
-Energy resolution & 9.18 & 6.84 \\
-\hline
-\end{tabular}
-\end{table}
-
-
-\begin{table}
-\centering
-\caption[Summary of the actual and fitted coordinates and photon number]
-{
-This table shows the comparisons of fitted with actual values.
-For coordinates, the fitted values minus the actual values.
-For photon number, the fitted values is divided by the actual values.
-}
-\label{tab:GACoorPhoton}
-\begin{tabular}{lp{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}c}
-\hline
-Item &  x-coordinate (mm) & y-coordinate (mm) & z-coordinate (mm) & Distance (mm) & photon number \\
-\hline
-\hline
-Mean        &   -0.8295 &   -0.9153 &   0.5432  &   97.31   &   -0.02449    \\
-RMS         &   57.35   &   58.4    &   67.66   &   42.53   &   0.06337     \\
-\hline
-\end{tabular}
-\end{table}
-
-
-
-(raw data of the inver-square, energy resolution)
-
-
-
-
-(reconstruction result of the GA)
-
-
-A chi-square definition to be the fitness definition is also tested.
-It shows the previous fitness definition works better on the
-energy resolution.
+%(raw data of the inver-square, energy resolution)
 
 
 Figure \ref{fig:f1c1_500.png} shows the coordinates and distance of reconstruction.
@@ -229,15 +220,15 @@ but the events generated near the centers is likely to be regarded as the events
 Because it a $10cm\times10cm\times10cm$ cube, there are 10 lines in x, y and z coordinate respectively.
 For the same reason, the space resolution is limited to be in the order of 10cm in each coordinate.
 
-The reconstructed events near the center of the target volume have better space resolution.
+The reconstructed events near the center of the target volume have better spacial resolution.
 This is because the ADC count variance generated in the bins near the center of the target is smaller
 than the one in the bins not near the center of the target. Thus the ADC count of the previous case
 matches the response matrix easier than the later one.
 
-Figure \ref{fig:f1c1_500.png} shows the reconstruction energy--generated photon number-- pattern.
+Figure \ref{fig:f1c1_500.png} shows the reconstruction energy -- generated photon number -- pattern.
 The more the generated photon number, the larger the variance of the reconstructed photo number.
-If the fitted photon number is divided by the actual--simulation-- photon number, the ratio is
-almost the same.
+However, if the fitted photon number is divided by the maximum ADC number -- the photon number -- received by one of the 16 PMTs,
+the ratio is stable.
 This is derived by the normalized term $\mathbf{Q}^T$ of the fitness definition \ref{eq:fitnessChi}.
 The weighting of the fitness, the elements of the covariance matrix, is fixed. The TDC counts have upper limit
 because the size of the target is finite. Nervertheless the energy, or say ADC counts, could be very large.
@@ -253,17 +244,9 @@ if the generated photon number is very large.
 %the distance from vertices to PMTs is linear. However, The relation of the ADC counts to the distance from vertices is not linear.
 %It's inverse-square.
 
-
-On the other side, if the photon number is too small. There is data could not provide sufficient ADC counts.
-The ADC ratio of PMT response to caculated value is relative small to the TDC term, and result in large
-fitted-to-actual ratio variance of ADC. This is shown in Figure \ref{f1c1.png}.
-In reality, this could be avoided by tuning electronic triggers.
-
-
-
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1_500.png}
+    \includegraphics[width=0.8\textwidth]{f1c1_500.png}
     \caption[Coordinate and energy reconstruction]
 {
 Coordinate and energy reconstruction pattern derived by the GA.
@@ -272,77 +255,285 @@ The pattern is cut by photon number of 500.
     \label{fig:f1c1_500.png}
     \end{figure}
 
+
+Figure \ref{fig:f1c1_500proj.png} shows the x, y, and z reconstruction coordinate difference from the actual -- simulation --
+x, y, and z coordinates is Gaussian distribution basically. The RMS and sigma values of x, y, and z coordinates are around 50 mm
+becuase the bin size is a 100 mm$\times$100 mm$\times$100 mm box. Z-axis value is slightly larger because the z-axis infomation
+is less than x-axis and y-axis. There are only specular reflectors and there is no PMT along z-axis.
+More photon numbers are underestimated slightly because the normalized terms actually is "unfair" because the time distribution
+is linear but the photon number distribution is inverse-square.
+When the event occurs near by PMT,
+%in order to get the maximum fitness value,
+larger photon number difference between two adjacent location occurs.
+%The spatial resolution is confined around in a bin basically.
+If the fitted vertex gets closer to PMT, the photon number difference from the actual number is larger than that
+if the fitted bertex gets further from PMT for the same amount of distance difference from the actual vertex, which is the same
+amount of TDC term difference. Thus the fitted photon number intends for being smaller when the vertex near by PMT.
+
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1.png}
-    \caption[Coordinate and enery reconstruction without threshold]
+    \includegraphics[width=0.8\textwidth]{f1c1_500proj.png}
+    \caption[Projection of coordinate and energy reconstruction result in Figure \ref{fig:f1c1_500.png}]
 {
-Coordinate and energy reconstruction pattern derived by the GA.
-If the photon number is not enough, the fitting pattern is wrose.
+Projection of Figure \ref{fig:f1c1_500.png} and fitted by Gaussian function.
 }
-    \label{fig:f1c1.png}
-    \end{figure}
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500.png}
-    \caption
-    [Coordinate and energy reconstruction by a non-normalized fitness]
-    {Coordinate and energy reconstruction by a non-normalized fitness}
-    \label{fig:f3c1_500.png}
-    \end{figure}
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1.png}
-    \caption
-    [Coordinate and energy reconstruction by a non-normalized fitness without thresold]
-    {Coordinate and energy reconstruction by a non-normalized fitness without thresold}
-    \label{fig:f3c1.png}
-    \end{figure}
-
-
-
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1_500proj.png}
-    \caption
-    [Projection of \ref{fig:f1c1_500.png}]
-    {Projection of \ref{fig:f1c1_500.png}}
     \label{fig:f1c1_500proj.png}
     \end{figure}
 
 
 
+If the photon number is too small. There is data could not provide sufficient ADC counts.
+The ADC ratio of PMT response to caculated value is relative small to the TDC term, and result in large
+fitted-to-actual ratio variance of ADC. This is shown in Figure \ref{fig:f1c1}.
+In reality, this could be avoided by tuning electronic triggers.
+
+
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500proj.png}
-    \caption
-    [Projection of \ref{fig:f3c1_500.png}]
-    {Projection of \ref{fig:f3c1_500.png}}
-    \label{fig:f3c1_500proj.png}
+    \includegraphics[width=0.8\textwidth]{f1c1.png}
+    \caption[Coordinate and enery reconstruction without threshold]
+{
+Coordinate and energy reconstruction pattern derived by the GA.
+If the photon number is not enough, the fitting pattern is wrose.
+}
+    \label{fig:f1c1}
+    \end{figure}
+
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500.png}
+%    \caption
+%    [Coordinate and energy reconstruction by a non-normalized fitness]
+%    {Coordinate and energy reconstruction by a non-normalized fitness}
+%    \label{fig:f3c1_500.png}
+%    \end{figure}
+%
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1.png}
+%    \caption
+%    [Coordinate and energy reconstruction by a non-normalized fitness without thresold]
+%    {Coordinate and energy reconstruction by a non-normalized fitness without thresold}
+%    \label{fig:f3c1.png}
+%    \end{figure}
+%
+%
+%
+%
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c1_500proj.png}
+%    \caption
+%    [Projection of \ref{fig:f1c1_500.png}]
+%    {Projection of \ref{fig:f1c1_500.png}}
+%    \label{fig:f1c1_500proj.png}
+%    \end{figure}
+%
+%
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c1_500proj.png}
+%    \caption
+%    [Projection of \ref{fig:f3c1_500.png}]
+%    {Projection of \ref{fig:f3c1_500.png}}
+%    \label{fig:f3c1_500proj.png}
+%    \end{figure}
+%
+%
+%
+%
+
+
+\subsection {Comparison of Different Fitness Definitions}
+
+%(reconstruction result of the GA)
+%A chi-square definition to be the fitness definition is also tested.
+%It shows the previous fitness definition works better on the
+%energy resolution.
+
+
+The other kinds of fitness definition are also tested. They are
+
+\begin{equation}
+\label{eq:fitnessChi2}
+\chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\mathbf{Q}^T\Sigma^{-1}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
+\end{equation}
+
+and
+
+\begin{equation}
+\label{eq:fitnessChi3}
+\chi^{2} = (\mathbf{P}_{obs} - \mathbf{P}_{cal})^T\Sigma^{-1}(\mathbf{P}_{obs} - \mathbf{P}_{cal}).
+\end{equation}
+
+Their associated covariance matrixes could be
+
+\begin{equation}
+\label{eq:covariance2}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    10 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    1 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+or,
+
+\begin{equation}
+\label{eq:covariance3}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    10 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+or,
+
+\begin{equation}
+\label{eq:covariance4}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1000 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    1 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+or,
+
+\begin{equation}
+\label{eq:covariance5}
+\mathbf{\Sigma}_{i,j} =
+\left\{
+    \begin{array}{ll}
+    1 & \mbox{for } i=j, \mbox{and } i\leq16, \\
+    1000 & \mbox{for } i=j, \mbox{and } i>16, \\
+    0 & \mbox{for } i \neq j
+    \end{array} \right.
+\end{equation}
+
+
+The Equation \ref{eq:fitnessChi} is called $\chi^2_1$.
+The Equation \ref{eq:fitnessChi2} is called $\chi^2_2$.
+The Equation \ref{eq:fitnessChi3} is called $\chi^2_3$.
+The covariance matrix \ref{eq:covariance1} is called $\Sigma_1$.
+The covariance matrix \ref{eq:covariance2} is called $\Sigma_2$.
+The covariance matrix \ref{eq:covariance3} is called $\Sigma_3$.
+The covariance matrix \ref{eq:covariance4} is called $\Sigma_4$.
+The covariance matrix \ref{eq:covariance5} is called $\Sigma_5$.
+The test result is summarized in Table \ref{tab:GAResultSummary}.
+
+This table shows essentially the fitness definition of Equation \ref{eq:fitnessChi3}
+is similar to the energy pattern matching method. The magnitude of the ADC term
+of such fitness dominates the $\chi^2_3$ value when the ADC magnitude is large than
+typical TDC magnitude, around 2 (ns). No matter how the covariance matrix changes,
+the performance of such fitness is similar.
+
+The performace of $\chi^2_1$ and $\chi^2_2$ is similar. However $\chi^2_2$ is
+more sensitive to the definition of the covariance matrix.
+Again, this is because the ADC counts is decided by a inverse-square law but
+the TDC counts is decided by a linear relationship for various fitted positions.
+$\chi^2_2$ doesn't has the normalized TDC term so the typical magnitude of TDC term
+deviation between the fitted and actual value is smaller than the typical magnitude of ADC term.
+Namely the TDC term could dominate the fitness value in the definition $\chi^2_2$ easier than in $\chi^2_1$.
+Thus, the underestimating photon number effect metioned above of the definition $\chi^2_2$ will be smaller than the one of $\chi^2_1$.
+This is shown by the mean value of each case.
+For example, comparing Figure \ref{fig:f1c1_500proj.png} and \ref{fig:f2c1_500proj.png} shows the
+the underestimating photon number effect metioned above of the definition $\chi^2_2$ is smaller than the one of $\chi^2_1$.
+But $\chi^2_2$ may or may not lead to wrose resolution of reconstruction energy because the TDC term dominate.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{f2c1_500.png}
+    \caption[Coordinate and energy reconstruction]
+{
+Coordinate and energy reconstruction pattern derived by the GA.
+The pattern is cut by photon number of 500.
+}
+    \label{fig:f2c1_500.png}
+    \end{figure}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{f2c1_500proj.png}
+    \caption[Projection of coordinate and energy reconstruction result in Figure \ref{fig:f2c1_500.png}]
+{
+Projection of Figure \ref{fig:f2c1_500.png} and fitted by Gaussian function.
+}
+    \label{fig:f2c1_500proj.png}
     \end{figure}
 
 
 
 
-
-
-
-
-
-
-
-
-
+\begin{table}
+\centering
+\caption{Comparison of different fitness test}
+\label{tab:GAResultSummary}
+%\rotatebox[origin=c]{90}
+%{
+\begin{tabular}{lccccccccccccccc}
+\hline
+ & $\chi^2_1$ & $\chi^2_1$ & $\chi^2_1$ & $\chi^2_1$ & $\chi^2_1$ \\
+ & $\Sigma_1$ & $\Sigma_2$ & $\Sigma_3$ & $\Sigma_4$ & $\Sigma_5$ \\
+\hline
+Distance mean (mm)             & 95.18   &94.85   &85.48   &68.02   &83.71  \\ 
+Distance RMS (mm)              & 39.13   &39.72   &36.92   &30.78   &37.25  \\ 
+Distance Gauss mean (mm)       & 92.88   &91.81   &83.97   &64.02   &81.63  \\ 
+Distance sigma (mm)            & 36.15   & 36.28   &32.90   &24.38   &33.31 \\ 
+Photon number ratio mean       & -0.0163 &-0.0119 &-0.0204 &-0.0132 &-0.0250\\ 
+Photon number ratio RMS        & 0.0434  &0.0417  &0.0426  &0.0899  &0.0435 \\ 
+Photon number ratio Gauss mean & -0.0074 &-0.0034 &-0.0125 &-0.0005 &-0.0170\\ 
+Photon number ratio sigma      & 0.0304  &0.0268  &0.0309  &0.0196  &0.0318 \\ 
+\hline
+\hline
+& $\chi^2_2$ & $\chi^2_2$ & $\chi^2_2$ & $\chi^2_2$ & $\chi^2_2$ \\
+ & $\Sigma_1$ & $\Sigma_2$ & $\Sigma_3$ & $\Sigma_4$ & $\Sigma_5$ \\
+\hline
+Distance mean (mm)             &90.40   &74.93   &96.58   &77.38   &83.98   \\
+Distance RMS (mm)              &38.43   &33.69   &39.20   &38.05   &37.04   \\
+Distance Gauss mean (mm)       &87.60   &70.84   &94.81   &70.59   &82.57   \\
+Distance sigma (mm)             &34.71  &27.42   &36.95   &28.00   &32.73      \\
+Photon number ratio mean       &-0.0115 &-0.0107 &-0.0158 &-0.0105 &-0.0233 \\
+Photon number ratio RMS        &0.0425  &0.0624  &0.0434  &0.0849  &0.0432  \\
+Photon number ratio Gauss mean &-0.0039 &-0.0013 &-0.0072 &-0.0014 &-0.0153 \\
+Photon number ratio sigma      &0.0270  &0.0216  &0.0307  &0.0227  &0.0315  \\
+\hline
+\hline
+ & $\chi^2_3$ & $\chi^2_3$ & $\chi^2_3$ & $\chi^2_3$ & $\chi^2_3$ \\ 
+ & $\Sigma_1$ & $\Sigma_2$ & $\Sigma_3$ & $\Sigma_4$ & $\Sigma_5$ \\
+\hline
+Distance mean (mm)             &88.12   &88.13   &87.97   &87.98   &93.18\\
+Distance RMS (mm)              &44.48   &43.84   &44.83   &44.81   &41.21\\
+Distance Gauss mean (mm)       &83.35   &83.58   &82.84   &87.94   &89.83\\
+Distance sigma (mm)            &34.80   &36.13   &34.57   &44.63   &36.82\\
+Photon number ratio mean       &-0.0056 &-0.0057 &-0.0057 &-0.0058 &-0.0038\\
+Photon number ratio RMS        &0.0483  &0.0491  &0.0484  &0.0484  &0.0569\\
+Photon number ratio Gauss mean &-0.0075 &-0.0068 &-0.0075 &-0.0074 &-0.0021\\
+Photon number ratio sigma      &0.0313  &0.0303  &0.0313  &0.0313  &0.0283\\
+\hline
+\end{tabular}
+%}
+\end{table}
 
 
 %
@@ -363,80 +554,71 @@ If the photon number is not enough, the fitting pattern is wrose.
 %distance information is linear.
 %
 %
-\begin{equation}
-\label{eq:covariance4}
-\mathbf{\Sigma}_{i,j} =
-\left\{
-    \begin{array}{ll}
-    1 & \mbox{for } i=j, \mbox{and } i\leq16, \\
-    1000 & \mbox{for } i=j, \mbox{and } i>16, \\
-    0 & \mbox{for } i \neq j
-    \end{array} \right.
-\end{equation}
+
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c4_500.png}
+%    \caption
+%    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}]
+%    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}}
+%    \label{fig:f1c4_500.png}
+%    \end{figure}
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c5_500.png}
+%    \caption
+%    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}]
+%    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}}
+%    \label{fig:f1c5_500.png}
+%    \end{figure}
+%
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c4_500.png}
+%    \caption
+%    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}]
+%    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}}
+%    \label{fig:f3c4_500.png}
+%    \end{figure}
+%
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c5_500.png}
+%    \caption
+%    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}]
+%    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}}
+%    \label{fig:f3c5_500.png}
+%    \end{figure}
+%
+%
+%
 
 
+\section {Summary}
+\subsection {Suggested Fitness Definition}
 
-\begin{equation}
-\label{eq:covariance5}
-\mathbf{\Sigma}_{i,j} =
-\left\{
-    \begin{array}{ll}
-    1000 & \mbox{for } i=j, \mbox{and } i\leq16, \\
-    1 & \mbox{for } i=j, \mbox{and } i>16, \\
-    0 & \mbox{for } i \neq j
-    \end{array} \right.
-\end{equation}
+The performance of the definition of fitness $\chi^2_1$, Equation \ref{eq:fitnessChi}, and $\chi^2_2$, Equation \ref{eq:fitnessChi2} is
+better than $\chi^2_3$, Equation \ref{eq:fitnessChi3} because they use the TDC information more.
 
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c4_500.png}
-    \caption
-    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}]
-    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance4}}
-    \label{fig:f1c4_500.png}
-    \end{figure}
+The performance of the definition of fitness $\chi^2_1$, Equation \ref{eq:fitnessChi}, and $\chi^2_2$, Equation \ref{eq:fitnessChi2} is similar.
+$\chi^2_1$ has smaller effect to underestimate the actual photon number than $\chi^2_2$ but may lead to wrose resolution slightly.
+A optimized covariance still needs to be studied to find a balance point of the underestimating effect and the energy resolution.
+In priciple the spatial resolution is not as important as the energy resolution if the neutron detector uniformity is good.
+And also, for the neutron signal of Aberdeen neutron detector, the time tagged engery signal is more useful than vertex information to identify
+a event.
+The test about various covariance above is not for a specific energy scale.
+A optimized covariance matrix could be decided by the calibration data for a specific energy and calibration source.
 
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f1c5_500.png}
-    \caption
-    [Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}]
-    {Fitness definition as \ref{eq:fitnessChi} with covariance matrix \ref{eq:covariance5}}
-    \label{fig:f1c5_500.png}
-    \end{figure}
+\subsection {Fitness Definition for Aberdeen Neutron Detector}
 
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c4_500.png}
-    \caption
-    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}]
-    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance4}}
-    \label{fig:f3c4_500.png}
-    \end{figure}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{./figure/image_ND_GA/f3c5_500.png}
-    \caption
-    [Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}]
-    {Fitness definition as \ref{eq:fitnessChi} without $\mathbf{Q}$ with covariance matrix \ref{eq:covariance5}}
-    \label{fig:f3c5_500.png}
-    \end{figure}
-
-
-
-
-
-
-
-
-However, for neutron reconstruction, because of the time delay, a time offset
-for the TDC term is suggested by Jimmy.
-
+The vertex where the optical photons are yielded of the test above is not considered the time delay of a neutron signal.
+Thus to use this algorithm practically, a fitness definition with time offset modification is suggested by Jimmy.
+Now the preliminary fitness definition for Aberdeen Neutron Detector is:
 
 
 \begin{equation}
@@ -471,10 +653,8 @@ where
 \end{equation}
 
 
-More detailed test is done by Antony and Jimmy by G4dyb for simulation.
-The preliminary result shows the reconstruction of neutron energy resolution is 4.47\%
+More detailed tests are done by Antony and Jimmy by G4dyb for simulation.
+The preliminary result shows the reconstruction of 5 MeV electrons is 4.47\%
 and the ADC-sum energy resolution is 4.89\%.
-
-
-The online reconstruction is not decided, but the GA is intended for
-the offline.
+At the time of writing, more tests of this GA for Aberdeen are on going.
+The online reconstruction is not decided, but the GA is intended for the offline.
