@@ -1,7 +1,5 @@
 root-vi(){ vi $BASH_SOURCE ; }
-root-info(){
-
-  cat << EOI
+root-info(){ cat << EOI
 
    root-mode     : $(root-mode $*)
       if not "binary" source is assumed
@@ -13,9 +11,13 @@ root-info(){
    root-rootsys  : $(root-rootsys $*)
    root-base     : $(root-base $*) 
  
-
     ROOTSYS    : $ROOTSYS
     which root : $(which root)
+
+EOI
+}
+
+root-usage(){  cat << EOU
 
     After changing the root version you will need to run :
         cmt-gensitereq
@@ -33,11 +35,17 @@ root-info(){
    linked against the old root version, that includes dynamically created libs
 
 
+
+  Check what you are getting :   
+        ROOT_VERSION=5.24.00 root-info
+        ROOT_VERSION=5.24.00 root-get
+
+
+
    root-           :  hook into these functions invoking root-env
    root-get        :  download and unpack
    root-configure  :     
    root-build      :
-
 
    root-path       :
          invoked by the precursor, sets up PATH (DY)LD_LIBRARY_PATH and PYTHONPATH
@@ -45,34 +53,27 @@ root-info(){
    root-pycheck
          http://root.cern.ch/root/HowtoPyROOT.html
 
-   root-evetest
+   root-test-eve
 
    root-ps         : list root.exe processes
    root-killall    : kill root.exe processes
 
 
-
-EOI
-
+EOU
 }
 
-root-usage(){
-   root-info
+root-usage(){ root-info ; }
+root-ps(){ ps aux | grep root.exe ; }
+root-killall(){ killall root.exe ; }
+
+root-find(){
+   cd $(root-rootsys)
+   find . -name '*.*' -exec grep -H $* {} \;
 }
 
-
-root-ps(){
-  ps aux | grep root.exe
-}
-
-root-killall(){
-   killall root.exe
-}
 
 root-archtag(){
-
    [ "$(root-mode)" != "binary" ] && echo "source" && return 0 
-
    case ${1:-$NODE_TAG} in 
       C) echo Linux-slc4-gcc3.4 ;;
       G) echo macosx-powerpc-gcc-4.0 ;;
@@ -80,41 +81,38 @@ root-archtag(){
    esac
 }
 
-root-nametag(){ 
-   echo $(root-name $*).$(root-archtag $*) 
-}
-
-
 root-get(){
-
    local msg="=== $FUNCNAME :"
-   
    local base=$(root-base)
    [ ! -d "$base" ] && mkdir -p $base 
    cd $base  ## 2 levels above ROOTSYS , the 
    local n=$(root-nametag)
    [ ! -f $n.tar.gz ] && curl -O $(root-url)
    [ ! -d $n/root   ] && mkdir $n && tar  -C $n -zxvf $n.tar.gz 
- 
    ## unpacked tarballs create folder called "root"
 }
 
-root-version(){
+root-version-default(){
   local def="5.21.04"
   local jmy="5.22.00"   ## has eve X11 issues 
   local new="5.23.02" 
+  local now="5.24.00" 
   case ${1:-$NODE_TAG} in 
      C) echo $def ;;
      *) echo $def ;;
   esac
 }
 
+
 #root-mode(){    echo binary  ; }
 root-mode(){    echo -n  ; }
+root-version(){ echo ${ROOT_VERSION:-$(root-version-default)} ; }
 root-name(){    echo root_v$(root-version $*) ; }
-root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
+root-nametag(){ echo $(root-name $*).$(root-archtag $*) ; }
 root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
+root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
 root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
+
 
 root-cd(){ cd $(root-rootsys)/tutorials/eve ; }
 
