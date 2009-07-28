@@ -1,7 +1,7 @@
 
 {
 
-   gROOT->ProcessLine(".L TEveDigitSet_Additions.cxx+");
+   gROOT->ProcessLine(".L $ENV_HOME/eve/TEveDigitSet_Additions.cxx+");
 
    TRandom r(0);
    TEveQuadSet* q = new TEveQuadSet("RectangleXY");
@@ -18,16 +18,16 @@
    q->RefitPlex();
 
    cout << "TEveDigitSet_GetValue ... " ;
-   for (Int_t i=0; i<num; ++i) cout << TEveDigitSet_GetValue( q , i ) << " " ;
+   for (Int_t i=0; i<num; ++i) cout << TEveDigitSet_GetDigitValue( q , i ) << " " ;
    cout << endl ;
 
    cout << "TEveDigitSet_SetValue ... " ;
-   for (Int_t i=0; i<num; ++i) TEveDigitSet_SetValue( q , i , i + 200 )  ;
-   for (Int_t i=0; i<num; ++i) cout << TEveDigitSet_GetValue( q , i ) << " " ;
+   for (Int_t i=0; i<num; ++i) TEveDigitSet_SetDigitValue( q , i , i + 200 )  ;
+   for (Int_t i=0; i<num; ++i) cout << TEveDigitSet_GetDigitValue( q , i ) << " " ;
    cout << endl ;
 
    cout << "TEveDigitSet_PrintValue ... " << endl ;
-   for (Int_t i=0; i<num; ++i) TEveDigitSet_PrintValue( q , i )  ;
+   for (Int_t i=0; i<num; ++i) TEveDigitSet_PrintDigit( q , i )  ;
 
 
 }
