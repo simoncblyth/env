@@ -59,6 +59,12 @@ root-usage(){  cat << EOU
    root-killall    : kill root.exe processes
 
 
+  root-c2py  
+
+       cat alice_esd.C | root-c2py > alice_esd.py
+
+
+
 EOU
 }
 
@@ -153,7 +159,9 @@ root-paths(){
 
 
 
-
+root-c2py(){
+    perl -p -e 's,\:\:,.,g' -  | perl -p -e 's,\->,.,g' - | perl -p -e 's,new ,,g' - | perl -p -e 's,;,,g' -  
+}
 
 
 
