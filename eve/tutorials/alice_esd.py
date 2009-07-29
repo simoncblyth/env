@@ -34,18 +34,31 @@ esd_event_id      = 0 ## Current event id.
 track_list        = 0
 
 
-from ROOT import kTRUE, kFALSE
-
-
+from ROOT import kTRUE, kFALSE, gEve
 
 
 class BranchHack(dict):
+    """   
+        Workaround failure of TList.GetObjectRef from pyroot
+        using templated code generation to allocate objects 
+        for each branch of the tree from the pyside
+        allowing AddressOf to be used
+  
+        See tutorials/tree/tcl.C for TClonesArray details
+    """
     tmpl = """
 global %(varname)s 
-%(varname)s = ROOT.%(clsname)s()
+%(varname)s = ROOT.%(clsname)s(%(clcls)s)
 %(treename)s.SetBranchAddress( "%(branch)s" , ROOT.AddressOf( %(varname)s ))"""
     def __init__(self, **kwa ):self.update(kwa)
-    def __call__(self, **kwa ):self.update(kwa)
+    def __call__(self, el, **kwa):
+        self.update(kwa)
+        clsname = el.__class__.__name__ 
+        self.update( {'branch':el.GetName(), 'varname':"g_%s" % el.GetName() , 'clsname':clsname , 'clcls':'' } )
+        if clsname == 'TClonesArray':
+            clcls = '"%s"' % el.GetClass().GetName()
+            self.update( {'clcls':clcls } )
+
     def __repr__(self):return self.__class__.tmpl % self 
 
 
@@ -65,14 +78,14 @@ def alice_esd():
     if not(esd_file):
         return
 
-    #print "*** Opening ESD-friends ***"
-    #esd_friends_file = TFile.Open(esd_friends_file_name, "CACHEREAD")
-    #if not(esd_friends_file):
-    #    return
+    print "*** Opening ESD-friends ***"
+    esd_friends_file = TFile.Open(esd_friends_file_name, "CACHEREAD")
+    if not(esd_friends_file):
+        return
 
     global esd_tree
     esd_tree = esd_file.Get("esdTree")
-    #esd_tree.GetBranch("ESDfriend.").SetFile(esd_friends_file)
+    esd_tree.GetBranch("ESDfriend.").SetFile(esd_friends_file)
 
     global esd   
     esd = esd_tree.GetUserInfo().FindObject("AliESDEvent")
@@ -80,10 +93,10 @@ def alice_esd():
     bh = BranchHack(treename='esd_tree')
     for el in esd.fESDObjects:
         friend = el.GetName() == "AliESDfriend"
-        bh(varname=el.GetName().lower(), clsname=el.__class__.__name__ , branch=el.GetName() )
-        if friend:bh(branch="ESDfriend.")
+        bh(el)
+        if friend:bh.update({'branch':"ESDfriend."})
         print str(bh)
-        if not(friend):exec(str(bh))
+        exec(str(bh))
 
     geom = TFile.Open(esd_geom_file_name, "CACHEREAD")
     if not(geom):
@@ -168,14 +181,16 @@ def alice_esd_read():
 
     ## Read tracks and associated clusters from current event.
 
-    esdrun = esd.fESDObjects.FindObject("AliESDRun")
-    tracks = esd.fESDObjects.FindObject("Tracks")
+    global g_AliESDRun, g_Tracks, g_AliESDfriend 
+    esdrun = g_AliESDRun
+    tracks = g_Tracks
 
-    frnd   = esd.fESDObjects.FindObject("AliESDfriend")
-    print "Friend %p, n_tracks:%d\n" % ( frnd, frnd.fTracks.GetEntries() )
+    frnd   = g_AliESDfriend
+    print "Friend %s, n_tracks:%d\n" % ( frnd, frnd.fTracks.GetEntries() )
 
+    global track_list
     if track_list == 0:
-        track_list = TEveTrackList("ESD Tracks") 
+        track_list = ROOT.TEveTrackList("ESD Tracks") 
         track_list.SetMainColor(6)
         track_list.SetMarkerColor(ROOT.kYellow)
         track_list.SetMarkerStyle(4)
@@ -186,7 +201,7 @@ def alice_esd_read():
     trkProp.SetMagField( 0.1 * esdrun.fMagneticField ) 
 
     kITSrefit = 4
-    for at in tracks:
+    for n, at in enumerate(tracks):
         tp = at
         if not(trackIsOn(at, kITSrefit)):
             tp = at.fIp
@@ -206,14 +221,14 @@ def esd_make_track(trkProp, index, at, tp):
     rt = TEveRecTrack()
     rt.fLabel  = at.fLabel
     rt.fIndex  = index
-    rt.fStatus = at.fFlags
+    #rt.fStatus = at.fFlags   getting : "OverflowError: long int too large to convert to int "
     if tp.fP[4] > 0:
         rt.fSign = 1 
     else:
         rt.fSign = -1
 
-    rt.fV.Set( trackGetPos(tp) ) 
-    rt.fP.Set( trackGetMomentum(tp) )
+    rt.fV.Set( *trackGetPos(tp) ) 
+    rt.fP.Set( *trackGetMomentum(tp) )
 
     ep = trackGetP(at)
     mc = 0.138              ## // at.GetMass() - Complicated funciton, requiring PID.
@@ -221,7 +236,7 @@ def esd_make_track(trkProp, index, at, tp):
     from ROOT import TMath
     rt.fBeta = ep/TMath.Sqrt(ep*ep + mc*mc)
  
-    track = TEveTrack( rt, trkProp)
+    track = ROOT.TEveTrack( rt, trkProp)
     track.SetName( "TEveTrack %d" % rt.fIndex )
     track.SetStdTitle()
     return track
@@ -233,9 +248,7 @@ def trackIsOn( t, mask):
 
 ## ______________________________________________________________________________
 def trackGetPos( tp ):
-    r[0] = tp.fX 
-    r[1] = tp.fP[0] 
-    r[2] = tp.fP[1]
+    r = [ tp.fX , tp.fP[0] , tp.fP[1] ]
     cs=ROOT.TMath.Cos(tp.fAlpha)
     sn=ROOT.TMath.Sin(tp.fAlpha)
     x=tp.fX
@@ -245,10 +258,8 @@ def trackGetPos( tp ):
 
 ## ______________________________________________________________________________
 def trackGetMomentum( tp ):
-    p[0] = tp.fP[4] 
-    p[1] = tp.fP[2] 
-    p[2] = tp.fP[3]
-    pt=1./TMath.Abs(p[0])
+    p = [ tp.fP[4] , tp.fP[2] , tp.fP[3] ]
+    pt=1./ROOT.TMath.Abs(p[0])
     cs=ROOT.TMath.Cos(tp.fAlpha)
     sn=ROOT.TMath.Sin(tp.fAlpha)
     r=ROOT.TMath.Sqrt(1 - p[1]*p[1])
