@@ -7,8 +7,15 @@ def MenuHandler():
         entry = obj.GetCurrent()
         print "entry %s " % entry 
     print "MenuHandler %s " % obj
+menu_dispatcher = ROOT.TPyDispatcher( MenuHandler )
 
-dispatcher = ROOT.TPyDispatcher( MenuHandler )
+def ButtHandler():
+    obj = ROOT.BindObject( ROOT.gTQSender, ROOT.TGTextButton )
+    #if obj.ClassName() == "TGTextButton":
+    #    entry = obj.GetCurrent()
+    #    print "entry %s " % entry 
+    print "ButtHandler %s " % obj
+butt_dispatcher = ROOT.TPyDispatcher( ButtHandler )
 
 def add_menu( frame ):
     """
@@ -26,10 +33,24 @@ def add_menu( frame ):
     fNavMenu.AddEntry("&Prev", 1)
     fNavMenu.AddEntry("&Jump", 2)
     fNavMenu.AddEntry("&Load", 3)
-    fNavMenu.Connect("Activated(Int_t)", "TPyDispatcher", dispatcher , "Dispatch()") 
+    fNavMenu.Connect("Activated(Int_t)", "TPyDispatcher", menu_dispatcher , "Dispatch()") 
 
     fMenuBar.AddPopup("&Navigate" , fNavMenu , fLH1 )
     frame.AddFrame(fMenuBar, fLH2)
+
+
+
+
+def add_buttons( frame ):
+    fNextButton = ROOT.TGTextButton( frame , "&Next" )
+    fNextButton.Connect("Clicked()", "TPyDispatcher", butt_dispatcher , "Dispatch()") 
+    fPrevButton = ROOT.TGTextButton( frame , "&Prev" )
+    fPrevButton.Connect("Clicked()", "TPyDispatcher", butt_dispatcher , "Dispatch()") 
+    f0 = ROOT.TGLayoutHints( ROOT.kLHintsCenterX , 5, 5, 3, 4)  
+    frame.AddFrame( fNextButton ,  f0 )
+    frame.AddFrame( fPrevButton ,  f0 )
+
+
  
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()
@@ -37,7 +58,8 @@ if __name__=='__main__':
 
     b = gEve.GetBrowser()
     fToolbarFrame = b.GetToolbarFrame()
-    add_menu( fToolbarFrame )
+    add_menu(    fToolbarFrame )
+    add_buttons( fToolbarFrame )
 
     b.MapSubwindows()
     b.Resize(b.GetDefaultSize())
