@@ -1,4 +1,6 @@
-#include "KeyHandler.h"
+
+#include "EvManager.h"
+#include "Riostream.h"
 
 #include "Riostream.h"
 #include <TEveManager.h>
@@ -6,6 +8,42 @@
 #include <KeySymbols.h>
 
 #include "EvManager.h"
+
+
+EvManager* g_ = 0;
+ClassImp(EvManager);
+
+EvManager::EvManager() {
+   if (g_ != 0)
+      throw("There can be only one!");
+   g_ = this;
+
+   fKeyHandler = new KeyHandler ;
+}
+
+EvManager* EvManager::Create(){
+   if (g_ == 0){
+       g_ = new EvManager();
+   }
+   return g_ ;
+}
+
+void EvManager::NextEvent(){
+   cout << "EvManager::NextEvent " << endl ;
+}
+void EvManager::PrevEvent(){
+   cout << "EvManager::PrevEvent " << endl ;
+}
+
+EvManager::~EvManager(){
+
+
+}
+
+
+
+
+
 
 
 //  adapted from $ROOTSYS/test/Tetris.cxx

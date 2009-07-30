@@ -39,8 +39,6 @@ def add_menu( frame ):
     frame.AddFrame(fMenuBar, fLH2)
 
 
-
-
 def add_buttons( frame ):
     fNextButton = ROOT.TGTextButton( frame , "&Next" )
     fNextButton.Connect("Clicked()", "TPyDispatcher", butt_dispatcher , "Dispatch()") 
