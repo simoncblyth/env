@@ -8,7 +8,7 @@
 #include <KeySymbols.h>
 
 #include "EvManager.h"
-
+#include <RQ_OBJECT.h>
 
 EvManager* g_ = 0;
 ClassImp(EvManager);
@@ -17,6 +17,8 @@ EvManager::EvManager() {
    if (g_ != 0)
       throw("There can be only one!");
    g_ = this;
+
+   fEventId = 0 ;
 
    fKeyHandler = new KeyHandler ;
 }
@@ -28,15 +30,26 @@ EvManager* EvManager::Create(){
    return g_ ;
 }
 
+
+Int_t EvManager::GetEventId(){ return fEventId ; }
+
 void EvManager::NextEvent(){
-   cout << "EvManager::NextEvent " << endl ;
+   fEventId += 1 ;
+   cout << "EvManager::NextEvent " << fEventId << endl ;
+   Emit("NextEvent()");
 }
 void EvManager::PrevEvent(){
-   cout << "EvManager::PrevEvent " << endl ;
+   fEventId -= 1 ;
+   cout << "EvManager::PrevEvent " << fEventId << endl ;
+   Emit("PrevEvent()");
+}
+void EvManager::LoadEvent(){
+   cout << "EvManager::LoadEvent " << fEventId << endl ;
+   Emit("LoadEvent()");
 }
 
 EvManager::~EvManager(){
-
+  delete fKeyHandler ; fKeyHandler = NULL ;
 
 }
 

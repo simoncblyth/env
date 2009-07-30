@@ -2,22 +2,28 @@
 #define EVMANAGER_H
 
 #include <TGFrame.h>
+#include <RQ_OBJECT.h>
 
 class KeyHandler ;
 
 
 
-
 class EvManager {
+
+   RQ_OBJECT("EvManager")
 
 public:
    EvManager();
    virtual ~EvManager();
 
-   void NextEvent();
-   void PrevEvent();
+   void NextEvent();   // *SIGNAL*
+   void PrevEvent();   // *SIGNAL*
+   void LoadEvent();   // *SIGNAL*
+
+   Int_t GetEventId();
 
 private:
+   Int_t       fEventId   ;
    KeyHandler* fKeyHandler ;       // Handler for key presses used for quick navigation   
 
 public:
