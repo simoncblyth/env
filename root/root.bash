@@ -72,10 +72,26 @@ root-usage(){ root-info ; }
 root-ps(){ ps aux | grep root.exe ; }
 root-killall(){ killall root.exe ; }
 
+root-find--(){
+  local ext 
+  for ext in $* ; do
+      echo -n \ \-name \'*.$ext\' -o  
+  done 
+}
+
+root-find-(){
+   cat << EOC
+find . -type f \( $(root-find-- cxx c hh py) -name '*.py'  \) -exec grep -H \$* {} \;
+EOC
+}
+
 root-find(){
    cd $(root-rootsys)
-   find . -name '*.*' -exec grep -H $* {} \;
+   eval $(root-find- $*)
 }
+
+
+
 
 
 root-archtag(){
