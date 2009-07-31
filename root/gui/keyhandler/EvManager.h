@@ -20,6 +20,8 @@ public:
 
    void NextEntry();   
    void PrevEntry();    
+   void FirstEntry();    
+   void LastEntry();    
 
    Int_t GetEntry() const;
    void SetEntry(Int_t entry);  // *SIGNAL* 

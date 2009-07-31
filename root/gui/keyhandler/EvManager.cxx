@@ -88,6 +88,12 @@ void EvManager::NextEntry(){
 void EvManager::PrevEntry(){ 
     SetEntry( GetEntry() - 1 )  ; 
 }
+void EvManager::FirstEntry(){ 
+    SetEntry( GetEntryMin() )  ; 
+}
+void EvManager::LastEntry(){ 
+    SetEntry( GetEntryMax() )  ; 
+}
 
 
 
@@ -176,7 +182,7 @@ Bool_t KeyHandler::HandleKey(Event_t *event)
             break;
          case kKey_Space:
             cout << "space" << endl; 
-            g_->SetEntry(0);
+            g_->FirstEntry();
             break;
          default:
             cout << "default:" << keysym << endl; 
