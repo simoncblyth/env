@@ -3,12 +3,14 @@
 
 #include <TGFrame.h>
 #include <RQ_OBJECT.h>
+#include <TObject.h>
+#include <TString.h>
 
 class KeyHandler ;
 
 
 
-class EvManager {
+class EvManager : public TObject {
 
    RQ_OBJECT("EvManager")
 
@@ -16,18 +18,33 @@ public:
    EvManager();
    virtual ~EvManager();
 
-   void NextEvent();   // *SIGNAL*
-   void PrevEvent();   // *SIGNAL*
-   void LoadEvent();   // *SIGNAL*
+   void NextEntry();   
+   void PrevEntry();    
 
-   Int_t GetEventId();
+   Int_t GetEntry() const;
+   void SetEntry(Int_t entry);  // *SIGNAL* 
+
+   Int_t GetEntryMin() const ;
+   Int_t GetEntryMax() const ;
+   void SetEntryMinMax(Int_t min, Int_t max); // *SIGNAL* 
+
+   const char* GetSource() const;
+   void SetSource(const char *source);   // *SIGNAL* 
+
+   void Print(Option_t* option="" ) const;
+
+protected:
+   Int_t       fEntry    ;
+   Int_t       fEntryMin ;
+   Int_t       fEntryMax ;
+   TString     fSource   ;
 
 private:
-   Int_t       fEventId   ;
    KeyHandler* fKeyHandler ;       // Handler for key presses used for quick navigation   
 
 public:
    static EvManager* Create();
+
    ClassDef(EvManager, 0 ) 
 };
 

@@ -20,28 +20,31 @@
 
 
 """
-from ROOT import *
 
-class pMyMainFrame( TGMainFrame ):
+import ROOT 
+from ROOT import TGLayoutHints, TGNumberEntry, TPyDispatcher, TGLabel, TGGroupFrame, TGNumberFormat, Form
+from ROOT import kFixedWidth, kLHintsTop, kLHintsLeft, kLHintsExpandX, kLHintsBottom, kLHintsRight, kDeepCleanup
+
+
+class pMyMainFrame( ROOT.TGMainFrame ):
    def __init__( self, parent, width, height ):
-      TGMainFrame.__init__( self, parent, width, height )
+      ROOT.TGMainFrame.__init__( self, parent, width, height )
 
-      self.fHor1 = TGHorizontalFrame( self, 60, 20, kFixedWidth )
-      self.fExit = TGTextButton( self.fHor1, "&Exit", "gApplication->Terminate(0)" )
+      self.fHor1 = ROOT.TGHorizontalFrame( self, 60, 20, ROOT.kFixedWidth )
+      self.fExit = ROOT.TGTextButton( self.fHor1, "&Exit", "gApplication->Terminate(0)" )
       self.fExit.SetCommand( 'TPython::Exec( "raise SystemExit" )' )
-      self.fHor1.AddFrame( self.fExit, TGLayoutHints( kLHintsTop | kLHintsLeft |
-                                                      kLHintsExpandX, 4, 4, 4, 4 ) )
+      self.fHor1.AddFrame( self.fExit, ROOT.TGLayoutHints( kLHintsTop | kLHintsLeft | kLHintsExpandX, 4, 4, 4, 4 ) )
       self.AddFrame( self.fHor1, TGLayoutHints( kLHintsBottom | kLHintsRight, 2, 2, 5, 1 ) )
    
-      self.fNumber = TGNumberEntry( self, 0, 9,999, TGNumberFormat.kNESInteger,
-                                               TGNumberFormat.kNEANonNegative,
-                                               TGNumberFormat.kNELLimitMinMax,
-                                               0, 99999 )
+      self.fNumber = TGNumberEntry( self, 0, 9,999, TGNumberFormat.kNESInteger, TGNumberFormat.kNEANonNegative, TGNumberFormat.kNELLimitMinMax, 0, 99999 )
+
       self.fLabelDispatch = TPyDispatcher( self.DoSetlabel )
-      self.fNumber.Connect(
-         "ValueSet(Long_t)", "TPyDispatcher", self.fLabelDispatch, "Dispatch()" )
-      self.fNumber.GetNumberEntry().Connect(
-         "ReturnPressed()", "TPyDispatcher", self.fLabelDispatch, "Dispatch()" )
+
+      ## ValueSet(Long_t) is Emitted from TGNumberEntry 
+      ## ReturnPressed() is Emitted from TGTextEntry, a base class of TGNumberEntryField 
+      self.fNumber.Connect( "ValueSet(Long_t)", "TPyDispatcher", self.fLabelDispatch, "Dispatch()" )
+      self.fNumber.GetNumberEntry().Connect( "ReturnPressed()", "TPyDispatcher", self.fLabelDispatch, "Dispatch()" )
+
       self.AddFrame( self.fNumber, TGLayoutHints( kLHintsTop | kLHintsLeft, 5, 5, 5, 5 ) )
       self.fGframe = TGGroupFrame( self, "Value" )
       self.fLabel = TGLabel( self.fGframe, "No input." )
@@ -63,6 +66,6 @@ class pMyMainFrame( TGMainFrame ):
 
 
 if __name__ == '__main__':
-   window = pMyMainFrame( gClient.GetRoot(), 50, 50 ) 
+   window = pMyMainFrame( ROOT.gClient.GetRoot(), 50, 50 ) 
 
 
