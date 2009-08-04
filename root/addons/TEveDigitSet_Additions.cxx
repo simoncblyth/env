@@ -38,19 +38,19 @@ void TEveDigitSet_SetDigitValue(TEveDigitSet* ds, Int_t idx , Int_t value )
    d->fValue = value ;
 }
 
-void TEveDigitSet_SetDigitColor(TEveDigitSet* ds, Int_t idx, Color_t ci )
+void TEveDigitSet_SetDigitColorI(TEveDigitSet* ds, Int_t idx, Color_t ci )
 {
    DigitBase_t* d = (DigitBase_t*)(ds->GetDigit(idx));
    TEveUtil::ColorFromIdx(ci, (UChar_t*) & d->fValue, kTRUE);
 }
 
-void TEveDigitSet_SetDigitColor(TEveDigitSet* ds, Int_t idx, Color_t ci , Float_t ftrans )
+void TEveDigitSet_SetDigitColorIT(TEveDigitSet* ds, Int_t idx, Color_t ci , Float_t ftrans )
 {
    DigitBase_t* d = (DigitBase_t*)(ds->GetDigit(idx));
    TEveUtil::ColorFromIdx(ci, (UChar_t*) & d->fValue, (UChar_t)(255*ftrans));
 }
 
-void TEveDigitSet_SetDigitColor(TEveDigitSet* ds, Int_t idx, Float_t r , Float_t g, Float_t b, Float_t a )
+void TEveDigitSet_SetDigitColorRGBA(TEveDigitSet* ds, Int_t idx, Float_t r , Float_t g, Float_t b, Float_t a )
 {
    DigitBase_t* d = (DigitBase_t*)(ds->GetDigit(idx));
    UChar_t* x = (UChar_t*) & d->fValue;
