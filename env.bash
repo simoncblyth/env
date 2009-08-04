@@ -723,3 +723,4 @@ pid-(){      . $(env-home)/base/pid.bash && pid-env $* ; }
 
 
 
+rootd-(){      . $(env-home)/root/rootd.bash && rootd-env $* ; }

@@ -2,10 +2,9 @@
 """
    Usage examples :
 
-         import AbtViz.geotree
+         import env.root.addons.TEveElement_Additions
 
  
-
 
   recursive find and match for TGeoNode and TEveElement
 
@@ -102,17 +101,23 @@ def TEveElement_rmatch( self , patn , leaf=True ):
         for child in irange(self.BeginChildren(),self.EndChildren()):l.extend(TEveElement_rmatch(child, patn, leaf ))
     return l
 
-def TEveElement_rselect(self , func ):
+def TEveElement_rselect(self , func , leaf=True ):
     l = []
-    if func(self):l.extend([self])  
+    if leaf and self.HasChildren():
+        pass
+    else:
+        if func(self):l.extend([self])  
     if self.HasChildren():
         for child in irange(self.BeginChildren(),self.EndChildren()):l.extend(TEveElement_rselect(child, func))
     return l
 
-def TEveElement_rtagged(self , matcher, tag ):
+def TEveElement_rtagged(self , matcher, tag , leaf=True ):
     l = []
-    matcher( self.GetName() )
-    if matcher.get( 'pname', None) == tag:l.extend([self])  
+    if leaf and self.HasChildren():
+        pass
+    else:
+        matcher( self.GetName() )
+        if matcher.get( 'pname', None) == tag:l.extend([self])  
     if self.HasChildren():
         for child in irange(self.BeginChildren(),self.EndChildren()):l.extend(TEveElement_rtagged(child, matcher, tag))
     return l
