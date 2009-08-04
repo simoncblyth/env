@@ -15,7 +15,7 @@ rootd-usage(){
 EOU
 }
 
-
+rootd-user(){ echo ${ROOTD_USER:-blyth} ; }
 rootd-xconf-(){  cat << EOC
 # default: on
 # description: The rootd daemon allows remote access to ROOT files.
@@ -24,9 +24,9 @@ service rootd
         disable = no
         socket_type             = stream
         wait                    = no
-        user                    = root
+        user                    = $(rootd-user) 
         server                  = $(which rootd)
-        server_args             = -i $(root-rootsys)
+        server_args             = -r -i $(root-rootsys)
         log_on_success          += DURATION USERID
         log_on_failure          += USERID
 }
@@ -45,7 +45,9 @@ rootd-xconf(){
   eval $cmd
 }
 
-
+rootd-ps(){
+    ps aux | grep rootd
+}
 
 rootd-conf(){
    local msg="=== $FUNCNAME :"
