@@ -1,8 +1,10 @@
 
 import os
-from ROOT import gROOT
+from ROOT import gROOT, gSystem
 
-## how to control the dir in which the .so gets created ?
+builddir = "/tmp/env"
+gSystem.MakeDirectory(builddir)
+gSystem.SetBuildDir(builddir)
 gROOT.ProcessLine(".L %s/TEveDigitSet_Additions.cxx+" % os.path.dirname(__file__) )
 
 from ROOT import TEveDigitSet_GetDigitValue, TEveDigitSet_SetDigitValue, TEveDigitSet_PrintDigit
