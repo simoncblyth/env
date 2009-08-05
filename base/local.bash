@@ -300,7 +300,7 @@ local-backup-tag(){
       G) echo G3 ;;
       H) echo C  ;;
       C) echo H1 C2 P H ;;
- C2|C2R) echo  C H N H1 ;;
+ C2|C2R) echo  C H N H1 P ;;
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
      XX) echo ZZ S ;;
