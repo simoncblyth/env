@@ -36,7 +36,7 @@ pkgr-prefix-(){
 
 pkgr-sbin-(){
    case $1 in 
-     yum) echo -n ;;
+     yum) echo /usr/sbin  ;;
     ipkg) echo /opt/sbin ;;
     port) echo /opt/local/sbin ;;
    esac
@@ -44,18 +44,20 @@ pkgr-sbin-(){
 
 pkgr-rund-(){
    case $1 in 
-     yum) echo -n ;;
+     yum) echo /var/run ;;
     port) echo /opt/local/var/run ;;
    esac
 }
 pkgr-logd-(){
   case $1 in 
+   yum) echo /var/log ;;
    port) echo /opt/local/var/log ;;
   esac 
 }
 
 pkgr-wwwd-(){
   case $1 in 
+    yum) echo /srv/www ;; 
    port) echo /opt/local/www ;;
   esac 
 }

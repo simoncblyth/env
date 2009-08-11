@@ -13,6 +13,9 @@ lighttpd-usage(){
 
 
 
+
+     http://blog.lighttpd.net/articles/2006/07/18/reverse-proxying-mod_proxy_core
+
      lighttpd-rproxy  ... test a non-default config with :
           LIGHTTPD_CONF=$(lighttpd-rproxy-conf) lighttpd-check
 
@@ -25,7 +28,7 @@ lighttpd-base(){    echo $(pkgr-prefix)/etc/lighttpd ; }
 lighttpd-initd(){   echo $(pkgr-prefix)/etc/init.d ; }
 lighttpd-cd(){      cd $(lighttpd-base) ; }
 
-lighttpd-check(){   $(pkgr-sbin)/lighttpd -f $(lighttpd-conf) -p  ; }
+#lighttpd-check(){   $(pkgr-sbin)/lighttpd -f $(lighttpd-conf) -p  ; }
 
 lighttpd-conf(){    echo ${LIGHTTPD_CONF:-$(lighttpd-base)/lighttpd.conf} ; }
 lighttpd-confd(){   echo $(lighttpd-base)/conf.d  ;  }
@@ -117,8 +120,16 @@ lighttpd-rproxy(){
     eval $cmd
 
    echo $msg checking config :
-    LIGHTTPD_CONF=$(lighttpd-rproxy-conf) lighttpd-check
+   LIGHTTPD_CONF=$(lighttpd-rproxy-conf) lighttpd-check
 }
+
+lighttpd-rproxy-start(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo lighttpd -f $(lighttpd-rproxy-conf) "
+   echo $msg $cmd
+   eval $cmd
+}
+
 
 lighttpd-rproxy-port(){ echo 8000 ; }
 lighttpd-rproxy-(){  
@@ -128,6 +139,7 @@ lighttpd-rproxy-(){
    cat << EOC
 
 server.document-root        = "$(lighttpd-htdocs)/"
+server.modules  += ( "mod_proxy_backend_http" )
 
 ## this matches the pid path in the macports lighttpd.wrapper 
 server.port                 = $port
@@ -144,7 +156,7 @@ accesslog.filename          = "$(lighttpd-alog)"
     "Location" => ( "^http://$backend/(.*)" => "http://127.0.0.1:$port$proxyme/\$1" ),
   )
   proxy-core.rewrite-request = (
-    "_uri" => ( "^$proxyme/?(.*)" => "/$1" ),
+    "_uri" => ( "^$proxyme/?(.*)" => "/\$1" ),
     "Host" => ( ".*" => "$backend" ),
  )
 }
