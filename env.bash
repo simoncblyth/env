@@ -724,3 +724,4 @@ pid-(){      . $(env-home)/base/pid.bash && pid-env $* ; }
 
 
 rootd-(){      . $(env-home)/root/rootd.bash && rootd-env $* ; }
+gallery3-(){      . $(env-home)/gallery3/gallery3.bash && gallery3-env $* ; }
