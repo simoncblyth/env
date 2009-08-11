@@ -69,7 +69,19 @@ apache-usage(){
      When attempting use of system apache, will need to
          sudo yum install httpd
          sudo yum install httpd-devel   ## for apxs
-   
+  
+
+
+     apache-rproxy
+         config snippet for a reverse proxy ...
+         however this handles headers only , so absolute URLs will prevent 
+         this from working 
+
+             http://apache.webthing.com/mod_proxy_html/  
+
+      
+
+ 
 EOU
 }
 
@@ -541,4 +553,13 @@ EOU)
 
 
 
+apache-rproxy-(){  
 
+  ## bv suggestion ... but doesnt stay in proxy 
+cat << EOC
+
+ProxyPass        /   http://picasaweb.google.com
+ProxyPassReverse /   http://picasaweb.google.com
+
+EOC
+}

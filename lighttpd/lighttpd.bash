@@ -15,9 +15,12 @@ lighttpd-usage(){
 
 
      http://blog.lighttpd.net/articles/2006/07/18/reverse-proxying-mod_proxy_core
+     http://redmine.lighttpd.net/projects/1/wiki/Docs:ModProxyCore
 
      lighttpd-rproxy  ... test a non-default config with :
           LIGHTTPD_CONF=$(lighttpd-rproxy-conf) lighttpd-check
+
+      It appears that reverse proxying is no go in 1.4.22 that is coming from dag repo
 
 
 EOU
