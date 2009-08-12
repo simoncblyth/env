@@ -107,7 +107,7 @@ measured by two orientation which is orthogonal to each other.
 \subsection{Basic Performance}
 
 The detector for the UV/Vis range(up to 900nm) of Lambda 650 with a 60 mm integrating sphere
-is a PMT and a PbS detector for the NUR range (860-2500nm). For the QA of Dayabay and Aberdeen acrylic vessels, the wavelength region is from
+is a PMT and a PbS detector for the NIR range (860-2500nm). For the QA of Dayabay and Aberdeen acrylic vessels, the wavelength region is from
 200nm to 800nm so only the PMT will be used.
 Two radiation sources, a deuterium lamp (DL) and a halogen lamp (HL), cover the working wavelength range of the spectrumeter.
 The 60mm integrating sphere has a diameter equal to 60mm and 19 mm diamter ports.
@@ -138,7 +138,7 @@ The baseline stability before and after cleaning the spectrometer filter is show
     \caption[The energy spectrum of the light source of Lambda 650]
 {
 After cleaning the spectrometer filter,
-the energy intensity of the light source is higher than the one before cleaning over the wavelength from 300nm to 400nm.
+the energy intensity of the light source is higher (the blue one) than the one before cleaning (the red one) over the wavelength from 300nm to 400nm.
 }
     \label{fig:spectrometer_maintenace_scan_E.png}
     \end{figure}
@@ -150,7 +150,7 @@ the energy intensity of the light source is higher than the one before cleaning 
     \caption[The spectrometer baseline stability before and after cleaing the filter]
 {
 The red curve shows the stability before the cleaing and the blue curve shows the stability after cleaning.
-It's obvious the stability is better in the region associated to the better energy intesity in Fig. \ref{fig:spectrometer_maintenace_scan_E.png}
+It's obvious the stability is better in the region associated to the higher energy intesity in Fig. \ref{fig:spectrometer_maintenace_scan_E.png}
 }
     \label{fig:spectrometer_maintenace_baseline.png}
     \end{figure}
@@ -174,7 +174,7 @@ are generally around 10cm or thicker, except for the reflectors of Aberdeen
 neutron detecor. However, this kind of thickness is too thick to
 keep the incident and exit beam in the same path, and then
 the beam probably will not collect by the detector properly or
-the conditions are too different from the calibration, Figure \ref{calibration1.png}.
+the conditions are too different from the calibration, Figure \ref{fig:calibration1.png}.
 The thickness Perkin Elmer suggests is less than 3 mm.
 
 
@@ -202,7 +202,7 @@ not be collected properly by the other measurement.
 \begin{figure}
     \centering
     \includegraphics[width=0.8\textwidth]{compartment_transmittance_difference_effect.png}
-    \caption{Transmittance to the transmittance measurement in position B. Green: measurement in position A, Blue:
+    \caption{Transmittance relative to the transmittance measurement in position B. Green: measurement in position A, Blue:
  measurement in position C. Red: measurement by integrating sphere.}
     \label{compartment_transmittance_difference_effect.png}
     \end{figure}
@@ -452,15 +452,24 @@ R^* = R(1+TT^*)
 \end{equation}
 
 
-This is the model for the analysis of the reflectance and transmittance measurement data.
-A typical result could be found in Fig. \ref{fig:rt_10mm_result.png}.
+To model and analyze the measurement data, specular reflectance is used.
+However the Lambda650 with the 60 mm integrating sphere can only access the total and diffuse reflectance.
+The specular reflectance is expected to be:
+
+\begin{equation}
+\label{eq:specularR}
+\mbox{Total reflectance } - \mbox{Diffuse reflectance}
+\end{equation}
+
+Equation \ref{eq:TStar} and \ref{eq:RStar} are the models for the analysis of the reflectance and transmittance measurement data.
+Typical results could be found in Figure \ref{fig:rt_10mm_result.png} and \ref{rt_15mm_result.png}.
 
 
 \begin{figure}[p]
     \centering
-    \includegraphics[width=0.8\textwidth]{./figure/rt_10mm_result.png}
-    \caption[Result of RT method]
-{A IAV No. 1 barrel acrylic sample of thickness of 10.18mm.
+    \includegraphics[width=0.8\textwidth]{rt_10mm_result.png}
+    \caption[Result of RT method of 10 mm acrylic sample]
+{A IAV No. 1 barrel acrylic sample of thickness of 10.113mm.
 Top left: The indexes of refraction.
 Top right: The absorption coefficient $alpha$.
 Middle left: The attenuation length.
@@ -471,12 +480,32 @@ Bottom right: Subtract the caculated reflectance $R*$ from the RT model from the
     \label{fig:rt_10mm_result.png}
     \end{figure}
 
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.8\textwidth]{rt_15mm_result.png}
+    \caption[Result of RT method of 15 mm acrylic sample]
+{A IAV No. 1 barrel acrylic sample of thickness of 15.150 mm.
+Top left: The indexes of refraction.
+Top right: The absorption coefficient $alpha$.
+Middle left: The attenuation length.
+Middle right: Newton method solution status. 1 means finding a solution successfully and 0 means failing.
+Bottom left: Subtract the caculated transmittance $T*$ from the RT model from the transmittance measurements, $T*$.
+Bottom right: Subtract the caculated reflectance $R*$ from the RT model from the reflectance measurements, $R*$.
+}
+    \label{fig:rt_15mm_result.png}
+    \end{figure}
+
 The analysis algorithm is based on Newton method to find numerical solutions.
 The algorithm flow chart is shown in Figure \ref{fig:rt_algorithm_flow_chart.png}.
 The Newton method  may fail to find solutions. One of the possible reasons is the uncertainty of the spectrometer.
 For a transparent but thin sample, the transmittance measurement could show the attenuation
 is larger than some value, and could not show what is the exact value of the attenuation.
-Most failed solutions are derived by the unreasonable attenuation lengths which are related to the transmittance measurements.
+The error bar of ${alpha}$ of Equation \ref{eq:Lambdert} is large enough to make
+the possible ${alpha}$ equal to or smaller than zero, namely infinite attenuation length.
+
+Most failed solutions are derived by the unreasonable large -- infinite or larger than 10 meters --
+attenuation lengths which are related to the transmittance measurements.
 However, the index of refraction is mainly decided by the Eq. \ref{eq:FSR} for a tranparent sample -- acrylics -- because
 of the $\kappa$ is relatively small than $n$. So basically the derived $n$ is still reliable, and the comparison
 of different measurement method shown in Table \ref{tab:RTMethodResult}.
@@ -503,18 +532,18 @@ Schott Int. provides the typical refraction index measurement by directly observ
 \centering
 \caption{Comparisons the index of refraction derived by RT method for IAV barrel acrylics}
 \label{tab:RTMethodResult}
-\begin{tabular}{lcccccc}
+\begin{tabular}{lccccccc}
 \hline
-Wavelength (nm) & RT Method & Unc. & SNO Acrylic & Unc. & Schott & Unc. \\
+Wavelength (nm) & RT Method & Unc. & SNO Acrylic & Unc. & Schott & Unc. & Solution Status\\
 \hline
 \hline
-365 & 1.512 & 0.006 & 1.510 & Not Given & - & - \\
+365 & 1.507 & 0.006 & 1.510 & Not Given & - & - & Success\\
 \hline
-405 & 1.504 & 0.006 & 1.505 & Not Given & - & - \\
+405 & 1.501 & 0.006 & 1.505 & Not Given & - & - & Success\\
 \hline
-480 & 1.495 & 0.006 & - & - & 1.497 & 0.001 \\
+480 & 1.494 & 0.006 & - & - & 1.497 & 0.001 & Success\\
 \hline
-546 & 1.491 & 0.006 & - & - & 1.492 & 0.001 \\
+546 & 1.490 & 0.006 & - & - & 1.492 & 0.001 & Failed by infinite attenuation length\\
 \hline
 \end{tabular}
 \end{table}
