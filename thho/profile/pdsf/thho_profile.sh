@@ -3,6 +3,12 @@
 
 export thhoenv=$HOME/env/thho/profile/pdsf
 
+if [ -e $thhoenv/thho_NuWa_env.sh ]; then
+    echo "source $thhoenv/thho_NuWa_env.sh"
+    source $thhoenv/thho_NuWa_env.sh
+fi
+
+
 if [ -e $thhoenv/tty_profile.sh ]; then
     echo "source $thhoenv/tty_profile.sh"
     source $thhoenv/tty_profile.sh
