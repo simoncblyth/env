@@ -1,0 +1,4 @@
+set softtabstop=4
+set expandtab
+"set background=dark
+hi Comment ctermfg=blue
