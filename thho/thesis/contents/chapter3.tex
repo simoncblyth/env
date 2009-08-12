@@ -120,7 +120,7 @@ Figure \ref{fig:spectrometer_maintenace_scan_E.png} shows the energy spectrum of
 the region from near UV to IR, i.e. the noise of signals is the same. The higher
 light intensity could decrease the ratio of the noise intensity to incident beam intensity to the noise,
 so the baseline would be more stable. The baseline stability is shown in Fig. \ref{fig:spectrometer_baseline_stability.png}.
-The baseline stability before and after cleaning the filter is shown in Fig. \ref{fig:spectrometer_maintenace_baseline.png}.
+The baseline stability before and after cleaning the spectrometer filter is shown in Fig. \ref{fig:spectrometer_maintenace_baseline.png}.
 
 
 \begin{figure}
@@ -137,7 +137,8 @@ The baseline stability before and after cleaning the filter is shown in Fig. \re
     \includegraphics[width=0.5\textwidth]{spectrometer_maintenace_scan_E.png}
     \caption[The energy spectrum of the light source of Lambda 650]
 {
-After cleaning the filter, the energy intensity of the light source is higher than the one before cleaning over the wavelength from 300nm to 400nm.
+After cleaning the spectrometer filter,
+the energy intensity of the light source is higher than the one before cleaning over the wavelength from 300nm to 400nm.
 }
     \label{fig:spectrometer_maintenace_scan_E.png}
     \end{figure}
@@ -351,7 +352,7 @@ After correcting the measurement by the typical Spectralon value, Figure \ref{fi
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.6\textwidth]{spectralon_0_8_degree.png}
+    \includegraphics[width=0.4\textwidth]{spectralon_0_8_degree.png}
     \caption[Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction]{Typical Spetralon material reflectance value to access Lambda 650 Spetralon correction. Both the two curves are similar. This shows the stability of Lambda650 and the extent of diffuse of the Spectralon calibration standard is good.}
     \label{fig:spectralon_0_8_degree.png}
     \end{figure}
@@ -563,7 +564,7 @@ and UV-blocked acrylics.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\textwidth]{UVT_UVB_acrylics.png}
+    \includegraphics[width=0.4\textwidth]{UVT_UVB_acrylics.png}
     \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
     \label{UVTUVBAcrylics}
     \end{figure}
@@ -606,9 +607,36 @@ and both increasing and decreasing effect could happen, depending on different k
 %(the spectrum of one of different UV lamps Nakano used. This is mainly used for IAV.)
 
 
-%Table \ref{IAV 10mm increasing}
+Table \ref{UVLampTest}
 shows the transmission will fit in with the QA in around 1 month, which is longer than typical
-bonding time, 2~3 days. So the UV curing is allowed to produce IAVs.
+bonding time, 2 to 3 days. So the UV curing is allowed to produce IAVs.
+The sample exposured to the UV lamp increase the transmission of few \%.
+The UV lamp is the same as what Nakano uses and the wavelength is around 352 nm.
+
+\begin{table}
+\centering
+\caption{352 nm UV Lamp Transmission Test. The sample is the acrylic sample 1. See \ref{tab:summaryDYBTransmittance}}
+\label{tab:UVLampTest}
+\begin{tabular}{lp{2.5cm}p{2.5cm}p{2.5cm}p{2.5cm}}
+\hline
+Wavelength &  0 hour & 3 days and 14 hours & 9 days and 18 hours & 20 days and 6 hours \\
+\hline
+\hline
+No UV, 500nm        &92.640  &92.565  &92.734  &92.647 \\
+UV – No UV, 500nm   &-0.037  &0.026   &-0.214  &0.423\\
+No UV, 400nm        &92.413  &92.248  &92.457  &92.352\\
+UV – No UV, 400nm   &-0.063  &0.002   &-0.335  &0.272\\
+No UV, 380nm        &91.629  &91.424  &91.679  &91.734\\
+UV – No UV, 380nm   &0.034   &0.507   &0.263   &0.720\\
+No UV, 360nm        &90.044  &89.664  &89.979  &89.800\\
+UV – No UV, 360nm   &-0.288  &1.949   &1.413   &2.002\\
+No UV, 340nm        &87.26   &87.21   &87.19   &87.57\\
+UV – No UV, 340nm   &0.11    &2.49    &2.64    &2.2\\
+
+\hline
+\end{tabular}
+\end{table}
+
 
 A similar effect could be observed when acrylic panels are exposure to the sunshine like what
 Fig. \ref{IAVPrototypeBarrelSunshineAging} shows. Fig shows different
@@ -628,8 +656,6 @@ acrylic panels exposured to the sunshine responds differently.
 
 The response of acrylic panels exposured to the sunshine is case by case.
 %Figure \ref{%(Bryce, LJ, and my figure)} shows measurement of different panels exposure to the sunshine.
-
-
 The transmission measured on different date of acrylic panels without exposuing to the sunshine directly,
 shows slightly variance in around a year, which is longer than typical acrylic vessel manufacture time.
 Thus the acrylic vessels should be avoid to be exposured to the sunshine directly.
