@@ -10,7 +10,7 @@
 ###################################################################
 nuwa_version=${NUWA_VERSION:-trunk}
 echo The hooking up NuWa version is $nuwa_version now
-export NUWA_HOME=/data/dyb/NuWa/$nuwa_version/NuWa-$nuwa_version
+#export NUWA_HOME=/data/dyb/NuWa/$nuwa_version/NuWa-$nuwa_version
 ################## Blyth's env script ##########################
 export ENV_HOME=$HOME/env
 env-(){  . $ENV_HOME/env.bash  && env-env $* ; }
