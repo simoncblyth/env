@@ -18,6 +18,9 @@ Date: June, 15, 2009
 
 \*******************************************************/
 
+//#define ATTCONSTRAIN 10000.0 // unit: mm, the reasonable attenuation up limit
+
+#define TOTALRAWDATANO 601
 
 double fitf(double *x, double *par) {
 
@@ -37,16 +40,29 @@ double fitfSell(double *x, double *par) {
 TGraph* readGraph(void) {
 
     ifstream fin;
-    fin.open("para.dat");
+    fin.open("paras.dat");
 
     int sizeCounter(0);
     double wl(0), ior(0);
+    double iorErr(0), alpha(0), alphaErr(0);
+    double attenu(0), attenuErrH(0), attenuErrL(0);
+    double tErr(0), rErr(0), solutionStatus;
 
     while(1) {
-        fin >> wl >> ior;
+        fin >> wl >> ior >> iorErr >> alpha >> alphaErr >> attenu
+        >> attenuErrH >> attenuErrL >> tErr >> rErr >> solutionStatus;
         if(!fin.good()) break;
+
+        #ifdef ATTCONSTRAIN
+        if((attenuErrH > 0.1 && ((attenuErrH + attenu) < ATTCONSTRAIN))) sizeCounter++;
+        #endif
+
+        #ifndef ATTCONSTRAIN
         sizeCounter++;
+        #endif
     }
+    cout << "sizeCounter " << sizeCounter << endl;
+
 
     fin.close();
 
@@ -54,13 +70,28 @@ TGraph* readGraph(void) {
     double wlArray[sizeArray], iorArray[sizeArray];
 
     ifstream finData;
-    finData.open("para.dat");
-    for(int i=0;i<sizeArray;i++) {
-        finData >> wl >> ior;
+    finData.open("paras.dat");
+    int dataCounter(0);
+    for(int i=0;i<TOTALRAWDATANO;i++) {
+        finData >> wl >> ior >> iorErr >> alpha >> alphaErr >> attenu
+        >> attenuErrH >> attenuErrL >> tErr >> rErr >> solutionStatus;
+        #ifdef ATTCONSTRAIN
+        if((attenuErrH > 0.1 && ((attenuErrH + attenu) < ATTCONSTRAIN))) {
+            wlArray[dataCounter] = wl;
+            iorArray[dataCounter] = ior;
+            //cout << wl << " " << ior << endl;
+            dataCounter++;
+        }
+        #endif
+
+        #ifndef ATTCONSTRAIN
+        //cout << "ATTCONSTRAIN is not defined" << endl;
         wlArray[i] = wl;
         iorArray[i] = ior;
         //cout << wl << " " << ior << endl;
+        #endif
     }
+    cout << "dataCounter " << dataCounter << endl;
 
     TGraph* gr = new TGraph(sizeArray, wlArray, iorArray);
     return gr;
