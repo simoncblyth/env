@@ -8,20 +8,25 @@ gallery3-usage(){
      gallery3-src : $(gallery3-src)
 
 
-
      http://kohanaphp.com
-
      http://github.com/gallery/gallery3/tree/master
+
+    Needs :
+       PHP 5.2.3 
+     so its a nogo from distros ...
+         C ... php 4.3.9 
+         N ... php 5.1.6
 
 
 EOU
 }
 
 
-gallery3-dir(){ echo /tmp/env/gallery3 ; }
+gallery3-dir(){ echo $(local-base)/env/gallery3/gallery3 ; }
+gallery3-cd(){  cd $(gallery3-dir) ; }
 gallery3-url(){ echo git://github.com/gallery/gallery3.git ; }
 gallery3-get(){
-  local dir=$(gallery3-dir) && mkdir -p $dir
+  local dir=$(dirname $(gallery3-dir)) && mkdir -p $dir
   cd $dir
   git clone  $(gallery3-url) 
 }
