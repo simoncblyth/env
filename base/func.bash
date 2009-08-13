@@ -5,10 +5,18 @@ func-env(){      elocal- ; }
 func-usage(){
   cat << EOU
      func-src : $(func-src)
+     func-dir : $(func-dir)
+
 
 EOU
 }
-func-end-template(){ echo 10 ; }
+func-dir(){ echo $(local-base)/env/heading/heading-func ; }
+func-cd(){  cd $(func-dir); }
+func-get(){
+   local dir=$(dirname $(func-dir)) &&  mkdir -p $dir && cd $dir
+
+}
+func-end-template(){ echo 18 ; }
 ## CAUTION THE ABOVE IS A TEMPLATE FOR GENERATED FUNCS ... DO NOT EDIT
 
 func-notes(){
@@ -58,6 +66,12 @@ func-gen-repo(){
   echo ${2:-env}
 }
 
+func-gen-heading(){
+   local path=${1:-dummy/hello}
+   local dir=$(dirname $path)
+   echo $dir   
+}
+
 
 func-gen-(){
 
@@ -65,9 +79,17 @@ func-gen-(){
   local fgp=$(func-gen-path $*)
   local fgn=$(func-gen-name $*)
   local fgr=$(func-gen-repo $*)
-  echo \# $msg $* fgp $fgp fgn $fgn
+  local fgh=$(func-gen-heading $*)
 
-  head -$(func-end-template) $(func-source) | perl -p -e "s,$(func-src),$fgp," - | perl -p -e "s,func,$fgn,g" - | perl -p -e "s,env-home,$fgr-home,g" -
+  echo \# $msg $* fgp $fgp fgn $fgn fgh $fgh
+
+  head -$(func-end-template) $(func-source) \
+         | perl -p -e "s,$(func-src),$fgp," - \
+         | perl -p -e "s,func,$fgn,g" - \
+         | perl -p -e "s,env-home,$fgr-home,g" - \
+         | perl -p -e "s,/env,/$fgr,g" - \
+         | perl -p -e "s,heading,$fgh,g" - \
+         | cat 
 
 }
 
