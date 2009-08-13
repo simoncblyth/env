@@ -563,3 +563,14 @@ ProxyPassReverse /   http://picasaweb.google.com
 
 EOC
 }
+
+
+
+apache-ln(){
+   base-
+   base-ln $(apache-htdocs) $*
+}
+
+
+
+

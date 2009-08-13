@@ -102,6 +102,60 @@ base-pathstamp(){
 }
 
 
+base-ln(){
+    local msg="=== $FUNCNAME :";
+
+    local base=$1
+    local arg=$2
+    [ -z "$arg" ] && base-ln-ls $base && return $?
+
+
+    local path
+    func-
+    func-isfunc- $arg && path=$($arg) || path=$arg
+
+    #echo arg $arg path $path
+    #return 0
+    local name=${3:-$(basename $path)}
+
+    [ ! -d "$path" ] && echo $msg ABORT no such path $path && return 1
+    local lnk=$base/$name ;
+    local cmd
+
+    if [ -L "$lnk" ]; then 
+       local tgt=$(readlink $lnk)
+       if [ "$tgt" == "$path" ]; then
+           echo $msg link $lnk already points to $path && return 0
+       else
+           echo $msg old link $lnk points to $tgt ... changing to $path
+           cmd="sudo rm $base/$name ; sudo ln -sf $path $base/$name";
+       fi
+    else
+       echo $msg creating new link $lnk to $path 
+       cmd="sudo ln -s $path $base/$name";
+    fi
+
+    echo $msg $cmd ... lnk $lnk ;
+    eval $cmd
+}
+
+
+base-ln-ls(){
+  local base=$1
+  local item 
+  for item in $base/* ; do
+    if [ -L "$item" ]; then
+       local lnk=$item
+       local name=$(basename $lnk)
+       local tgt=$(readlink $lnk)
+       local sta
+       [ ! -d "$tgt" ] && sta="MISSING" || sta=""
+       
+       printf " %-15s %-10s %s \n" $name $sta $tgt 
+    fi
+  done
+}
+
 
 
 
