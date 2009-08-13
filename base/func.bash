@@ -12,11 +12,12 @@ EOU
 }
 func-dir(){ echo $(local-base)/env/heading/heading-func ; }
 func-cd(){  cd $(func-dir); }
+func-mate(){ mate $(func-dir) ; }
 func-get(){
    local dir=$(dirname $(func-dir)) &&  mkdir -p $dir && cd $dir
 
 }
-func-end-template(){ echo 18 ; }
+func-end-template(){ echo 19 ; }
 ## CAUTION THE ABOVE IS A TEMPLATE FOR GENERATED FUNCS ... DO NOT EDIT
 
 func-notes(){
