@@ -16,19 +16,14 @@ clui-env(){
     
 }
 
-clui-se(){
-   case ${1:-$NODE_TAG} in
-     C2|N) echo "-Z"  ;; 
-        *) echo ""    ;;
-    esac    
-}
+
 
 clui-alias(){
 
    alias x='exit'
-   local se=$(clui-se)
-   alias l="ls -l $se "
-   alias ll="ls -la $se"
+   alias l="ls -l "
+   alias lz="ls -la -Z"
+   alias ll="ls -la "
    alias lt="ls -lt $se "
    alias p="ps aux $se"
    alias st="svn st"
