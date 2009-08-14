@@ -90,19 +90,26 @@ private-edit(){
 
 private-sync(){
   local msg="=== $FUNCNAME :"
-  local user=$(apache- ; apache-user)
-  local path=$(USER=$user private-path)
+
+  local cmd
+  local ans
+  local auser=$(apache- ; apache-user)
+  local path=$(USER=$auser private-path)
   local orig=$(private-path default)
   [ "$path" == "$orig" ] && echo $msg skipping as are same path $path && return 0
 
-  local cmd
-  cmd="sudo cp $orig $path && sudo chown $user:$user $path "  
-  echo $msg "$cmd"
+  cmd="sudo diff $orig $path "
+  echo $msg "$cmd" && eval $cmd
+  local rc=$?
+  [ "$rc" == "0" ] && echo $msg no difference between the files ... skipping && return 0
+
+  cmd="sudo cp $orig $path && sudo chown $auser:$auser $path "  
+  read -p "$msg \"$cmd\"  .... enter YES to proceed " ans 
+  [ "$ans" != "YES" ] && echo $msg OK skipping && return 1
   eval $cmd
 
   cmd="sudo chcon -t httpd_sys_content_t $path"
-  echo $msg "$cmd"
-  eval $cmd
+  echo $msg "$cmd" && eval $cmd
 
   private-ls
 }
