@@ -12,6 +12,12 @@ sqlalchemy-usage(){
      sqlalchemy-dbcheck 
          verify the connection to the database 
 
+     sqlalchemy 0.4
+         The SQLAlchemy 0.4 line is the last version with Python 2.3 support. 
+
+     sqlalchemy 0.5 
+         Python 2.4 or higher is required. 
+
 
 EOU
 }
@@ -24,7 +30,9 @@ sqlalchemy-srcnam(){
    esac
 }
 sqlalchemy-srcdir(){  echo $(sqlalchemy-srcfold)/$(sqlalchemy-srcnam) ; }
-sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/trunk@6065 ; }
+#sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/trunk@6065 ; }
+sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/branches/rel_0_5 ; }
+
 sqlalchemy-get(){
   local msg="=== $FUNCNAME :"
   local dir=$(sqlalchemy-srcfold)

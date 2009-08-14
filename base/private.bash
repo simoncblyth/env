@@ -5,12 +5,28 @@ private-usage(){
 
    cat << EOU
   
+   ----
+       issue 1 
+
+          the webserver apache user needs 
+          to read this file ... but it must be protected 
+          so when need to use it for testing get permission denied
+
+          -rw-------  1 apache apache 452 May 29 12:48 /data/env/local/env/.bash_private
+
+          workaround is to duplicate the path and have different locations for
+          different users ... this needs simplification 
+
+
+   ----
 
       The private file is by default located at 
            $ENV_HOME/../.bash_private
 
       This can be overridden with the envvar ENV_PRIVATE_PATH 
 
+
+    
 
        Access the values with 
             private-
