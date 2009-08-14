@@ -45,11 +45,11 @@ def GenTable(model):
 
 def GenAbsNum(model):
     if(model=="ModelA"):
-        absNum = ModelAbsA(658.737, 2470.79, 351.423, 6.50717, 270.0)
+        absNum = ModelAbsA(730.281, 2185.28, 374.751, 6.92802, 270.0)
     elif(model=="ModelB"):
         absNum = ModelAbsB()
     elif(model == "ModelC"):
-        absNum = ModelAbsC(658.737, 2470.79, 351.423, 6.50717, 270.0)
+        absNum = ModelAbsC(730.281, 2185.28, 374.751, 6.92802, 270.0)
     elif(model=="IORModelA"):
         pass
     else:
@@ -62,10 +62,10 @@ def GenRefNum(model):
         refNum = ModelRefA()
         pass
     elif(model=="ModelB"):
-        refNum = ModelRefB(1.47325, 6159.11)
+        refNum = ModelRefB(1.47228, 4825.03)
         pass
     elif(model == "ModelC"):
-        refNum = ModelRefC(1.47325, 6159.11)
+        refNum = ModelRefC(1.47228, 4825.03)
     else:
         print "Please specify a correct model name"
     return refNum

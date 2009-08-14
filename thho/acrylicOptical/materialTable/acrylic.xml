@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE DDDB SYSTEM "../DTD/geometry.dtd">
+
+<DDDB>
+
+
+  <catalog name="AcrylicProperties">
+
+    <!-- This is taken from G4dyb's MaterialProperties.xml and massaged to fit -->
+    <tabproperty name="AcrylicAbsorptionLength"
+		 type="ABSLENGTH"
+		 xunit="eV"
+		 yunit="mm"
+		 xaxis="PhotonEnergy"
+		 yaxis="AbsorptionLength">
+	                1.55	               5.0e3
+	                1.61	               5.0e3
+	                2.07	               5.0e3
+	                2.48	               5.0e3
+	                3.76	               5.0e3
+	                4.13	               5.0e3
+	                6.20	              5.0e-3
+    </tabproperty> <!-- abs length -->
+
+    <tabproperty name="AcrylicRefractionIndex"
+		 type="RINDEX"
+		 xunit="eV"
+		 yunit=""
+		 xaxis="PhotonEnergy"
+		 yaxis="IndexOfRefraction">
+	                1.55	              1.4878
+	             1.79505	              1.4895
+	             2.10499	              1.4925
+	             2.27077	              1.4946
+	             2.55111	              1.4986
+	             2.84498	              1.5022
+	             3.06361	              1.5065
+	             4.13281	              1.5358
+	                6.20	              1.6279
+    </tabproperty> <!-- index of refraction -->
+  </catalog>
+</DDDB>
+
