@@ -18,7 +18,7 @@ Date: June, 15, 2009
 
 \*******************************************************/
 
-//#define ATTCONSTRAIN 10000.0 // unit: mm, the reasonable attenuation up limit
+#define ATTCONSTRAIN 10000.0 // unit: mm, the reasonable attenuation up limit
 
 #define TOTALRAWDATANO 601
 
