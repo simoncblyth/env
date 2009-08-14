@@ -114,6 +114,14 @@ root-get(){
    ## unpacked tarballs create folder called "root"
 }
 
+root-build(){
+   cd $(root-rootsys)
+   export ROOTSYS=$(root-rootsys)
+   echo ROOTSYS is $(root-rootsys)
+   ./configure
+   make
+}
+
 root-version-default(){
   local def="5.21.04"
   local jmy="5.22.00"   ## has eve X11 issues 
