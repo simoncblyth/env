@@ -225,6 +225,7 @@ local-nodetag(){
    g4pb|simon) echo G ;;
          coop) echo CO ;;
          hep1) echo H1 ;;
+        hep52) echo H52 ;;
         cms01) echo C ;;
         cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo ZZ ;;
@@ -371,6 +372,7 @@ local-base(){
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
        H1) echo $(local-root $t)/local ;;
+      H52) echo /data/local ;;
         T) echo /usr/local ;;
         N) echo $(local-root $t)/env/local ;;
     OLD_C) echo                         /data/env/local ;;
