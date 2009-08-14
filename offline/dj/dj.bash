@@ -174,9 +174,20 @@ dj-usage(){
      dj-cd
           cd to dj-projdir
 
-   TODO :
-        fix the names of the model classes ... 
-        load the mysqldump with mysqlpython ?
+
+
+
+     dj-initialdata-path app   : $(dj-initialdata-path app)  
+               
+     dj-dumpdata- app
+             dump table serialization to stdout 
+     
+     dj-dumpdata  app
+             write table serialization to standard initialdata path
+
+     dj-loaddata  appname
+             load table serialization into db
+             CAUTION : this is done automatically on doing syncdb
 
 EOU
 
@@ -340,6 +351,7 @@ dj-models-path(){  echo $(dj-appdir)/generated/models.py ; }
 dj-models-inspectdb(){ dj-manage- inspectdb | python $(dj-dir)/fix.py ; }
 
 
+
 dj-models-fix-deprecated(){
    perl -pi -e "s@null=True, db_column='ROW_COUNTER', blank=True@primary_key=True, db_column='ROW_COUNTER'@ " $(dj-models-path)
 }
@@ -385,6 +397,44 @@ dj-syncdb(){
    echo $msg 
    dj-manage- syncdb 
 }
+
+
+## fixtures : allow saving the state of tables ... for reloading on syncdb
+
+dj-initialdata-path(){ echo ${1:-theapp}/fixtures/initial_data.json ;  }
+dj-dumpdata-(){
+    local app=${1:-dbi}
+    local iwd=$PWD
+    cd $(dj-projdir)  
+    python manage.py dumpdata --format=json --indent 1 $*
+    cd $iwd
+}
+dj-dumpdata(){
+    local msg="=== $FUNCNAME :"
+    local app=${1:-dbi}
+    local path=$(dj-initialdata-path $app)
+    local fixd=$(dirname $path)
+    [ ! -d "$fixd" ] && echo $msg ABORT no dir $fixd && return 1
+    [ -f "$path" ]   && echo $msg ABORT path $path already exists && return 2
+    echo $msg app $app writing to $path 
+    dj-dumpdata- $app > $path
+}
+dj-loaddata-(){
+    local app=${1:-dbi}
+    local iwd=$PWD
+    cd $(dj-projdir)  
+    python manage.py loaddata $*
+    cd $iwd
+}
+dj-loaddata(){
+    local msg="=== $FUNCNAME :"
+    local app=${1:-dbi}
+    local path=$(dj-initialdata-path $app)
+    [ ! -f "$path" ]   && echo $msg ABORT no path $path && return 2
+    echo $msg from $path 
+    dj-loaddata- $path
+}
+
 
 
 ## web interface ##
@@ -451,6 +501,9 @@ dj-location-apache-(){
   private-
   cat << EOL
 
+
+LoadModule python_module modules/mod_python.so
+
 ## each process only servers one request  ... huge performance hit 
 ## but good for development as means that code changes are immediately reflected 
 MaxRequestsPerChild 1
@@ -460,7 +513,7 @@ MaxRequestsPerChild 1
     PythonHandler django.core.handlers.modpython
     SetEnv ENV_PRIVATE_PATH $(USER=$(apache-user) private-path)    
     SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
-    SetEnv PYTHON_EGG_CACHE $(dj-eggcache-dir)
+    SetEnv PYTHON_EGG_CACHE $(USER=$(apache-user) dj-eggcache-dir)
     PythonOption django.root $(dj-urlroot)
     PythonDebug On
 </Location>
