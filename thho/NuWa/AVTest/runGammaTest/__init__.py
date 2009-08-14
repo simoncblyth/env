@@ -50,8 +50,8 @@ def configure(argv = []):
     import GaudiKernel.SystemOfUnits as units
     from GenTools.Helpers import Gun
     from GenTools.GenToolsConf import GtGunGenTool, GtPositionerTool
-    volume = "/dd/Structure/AD/db-oil1"
-    #volume = "/dd/Structure/AD/db-gds1"
+    #volume = "/dd/Structure/AD/db-oil1"
+    volume = "/dd/Structure/AD/db-gds1"
     gun = Gun(volume,
               gun = GtGunGenTool("gun",
                                  ParticlesPerEvent = 1,
@@ -63,11 +63,12 @@ def configure(argv = []):
                                  Direction = [ 1, 0, 0 ],
                                  DirectionSpread = 3),
               positioner = GtPositionerTool("pos",
-                                            Strategy = "FullVolume",
-                                            Mode = "Uniform",
+                                            #Strategy = "FullVolume",
+                                            Mode = 'Fixed',
+                                            #Mode = "Uniform",
                                             #Spread = 2.5*units.meter,
-                                            Spread = 1.55*units.meter,
-                                            Position = [0,0,0*units.meter])
+                                            #Spread = 1.55*units.meter,
+                                            Position = [0,1.539*units.meter,1.532*units.meter])
               )
     gun.timerator.LifeTime = 0.020*units.second
     import GenTools

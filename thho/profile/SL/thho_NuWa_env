@@ -30,3 +30,5 @@ export BUILD_PATH=tutorial/$nuwa_version/Simulation/SimHistsExample
 
 #DYB_VERSION=trunk dyb_hookup /usr/local/dyb/trunk_dbg
 #export DYB_CHECK=nope
+
+export ABERDEEN_HOME=$HOME/aberdeen

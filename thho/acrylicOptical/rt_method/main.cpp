@@ -9,8 +9,8 @@
 // Input a wavelength value (nm) to find the numerical solution
 #define WHICH_WAVELENGTH 279.0
 // Input the thickness of the thiner sample (mm)
-//#define THIN_THICKNESS 10.14
-#define THIN_THICKNESS 10.14
+#define THIN_THICKNESS 10.113
+//#define THIN_THICKNESS 15.150
 // Input filename of transmittance of a thin sample
 //#define FILENAME_THIN_TRANSMITTANCE "1-1-1-1.csv"
 #define FILENAME_THIN_TRANSMITTANCE "gt.dat"
