@@ -158,12 +158,28 @@ class plotGammaBasics(GaudiAlgo):
                                       self.hist["peGenCap_GdLS"])
         if status.isFailure(): return status
 
+
+
+
+
+
+
+
         self.hist["peGenCap_iav"] = TH1F("peGenCap_iav", 
                                           "pe of a gamma in AD",
                                           500, 0, 1400)
         status = self.histSvc.regHist('/file1/basics/peGenCap_iav', 
                                       self.hist["peGenCap_iav"])
         if status.isFailure(): return status
+
+        self.hist["peGenCap_GdLS_iav"] = TH1F("peGenCap_GdLS_iav", 
+                                          "pe of a gamma in AD",
+                                          500, 0, 1400)
+        status = self.histSvc.regHist('/file1/basics/peGenCap_GdLS_iav', 
+                                      self.hist["peGenCap_GdLS_iav"])
+        if status.isFailure(): return status
+
+
 
 
 
@@ -358,7 +374,7 @@ class plotGammaBasics(GaudiAlgo):
             self.hist["peGen_GdLS"].Fill(pmtHits)
             self.hist["genXY_GdLS"].Fill(genLclPoint.x()/units.meter,genLclPoint.y()/units.meter)
             self.hist["genRZ_GdLS"].Fill(genLclPoint.x()/units.meter * genLclPoint.x()/units.meter + genLclPoint.y()/units.meter * genLclPoint.y()/units.meter, genLclPoint.z()/units.meter)
-
+            print 'pmtHits is: ',pmtHits
 
 
         if genDM ==  'db-iav1':
@@ -381,10 +397,14 @@ class plotGammaBasics(GaudiAlgo):
 
         if capDM == 'db-gds1':
             self.hist["peCap_GdLS"].Fill(pmtHits)
+            print 'pmtHits is: ',pmtHits
 
 
         if capDM == 'db-iav1':
             self.hist["peCap_iav"].Fill(pmtHits)
+
+        if genDM ==  'db-gds1' and capDM == 'db-iav1':
+            self.hist["peGenCap_GdLS_iav"].Fill(pmtHits)
 
 
 
