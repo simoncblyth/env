@@ -1,5 +1,8 @@
 # Django settings for multidb project.
 
+# attempt to follow the notes from :
+# http://www.eflorenzano.com/blog/post/easy-multi-database-support-django/
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
@@ -9,12 +12,33 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
+DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = 'primary.db'   # Or path to database file if using sqlite3.
 DATABASE_USER = ''             # Not used with sqlite3.
 DATABASE_PASSWORD = ''         # Not used with sqlite3.
 DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+
+DATABASES = dict(
+    primary = dict(
+        DATABASE_ENGINE=DATABASE_ENGINE,
+        DATABASE_NAME=DATABASE_NAME,
+        DATABASE_USER=DATABASE_USER,
+        DATABASE_PASSWORD=DATABASE_PASSWORD,
+        DATABASE_HOST=DATABASE_HOST,
+        DATABASE_PORT=DATABASE_PORT,
+    ),
+    secondary = dict(
+        DATABASE_ENGINE=DATABASE_ENGINE,
+        DATABASE_NAME='secondary.db',
+        DATABASE_USER=DATABASE_USER,
+        DATABASE_PASSWORD=DATABASE_PASSWORD,
+        DATABASE_HOST=DATABASE_HOST,
+        DATABASE_PORT=DATABASE_PORT,
+    ),
+)
+
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -48,7 +72,7 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'z2*-now$__ki&^t5$9no8tpm!zou+(8prig4)27nz%@2qq6me1'
+SECRET_KEY = 'x5s*c5qp^j%1@x7qbvnj-0li_zqjryc6!&gzp%@6@onq*f@)f1'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -76,4 +100,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'blog',
+    'util',
 )
