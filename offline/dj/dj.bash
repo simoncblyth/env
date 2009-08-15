@@ -30,6 +30,12 @@ dj-urls(){          vi $(dj-projdir)/urls.py ; }
 dj-settings-module(){ echo $(dj-project).settings ; }
 dj-urlroot(){         echo /$(dj-project) ; }          
 
+
+dj-settings-check(){ python -c "from django.conf import settings ; print settings, settings.SETTINGS_MODULE " ; }
+
+
+
+
 dj-notes(){
   cat << EON
 
@@ -131,6 +137,11 @@ dj-usage(){
      dj-admin
           invoke the django-admin.py
 
+     dj-startproject projname
+          create initial directory for a project, which contains the settings.py that 
+          configures the database connection  
+          
+          projects contain apps which define the models etc..
 
      dj-models-fix
           why is the seqno the primary key needed 
@@ -302,6 +313,7 @@ def|dev) echo django ;;
    esac 
 }
 dj-srcdir(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
+dj-mate(){    mate $(dj-srcdir) ; }
 dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
 dj-get(){
   local msg="=== $FUNCNAME :"
@@ -652,7 +664,10 @@ dj-admin-cp(){
   eval $cmd 
 }
 
-
+dj-startproject(){
+   ## curiously command not available if the envvar is defined 
+   DJANGO_SETTINGS_MODULE= dj-admin startproject $*
+}
 
 ## test ##
 
@@ -660,8 +675,6 @@ dj-admin-cp(){
 dj-test(){
     curl http://localhost$(dj-urlroot)/
 }
-
-
 
 
 
