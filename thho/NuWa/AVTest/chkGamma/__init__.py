@@ -68,7 +68,13 @@ class plotGammaBasics(GaudiAlgo):
         status = self.histSvc.regHist('/file1/basics/peGen_GdLS', 
                                       self.hist["peGen_GdLS"])
         if status.isFailure(): return status
-        
+
+        self.hist["peGen_iav"] = TH1F("peGen_iav", "pe of a gamma (in IAV)",
+                                      500, 0, 1400)
+        status = self.histSvc.regHist("/file1/basics/peGen_iav",
+                                      self.hist["peGen_iav"])
+        if status.isFailure(): return status
+
         self.hist["peGen_LS"] = TH1F("peGen_LS",
                                      "pe of a gamma(in LS)",
                                      500, 0, 1400)
@@ -292,6 +298,8 @@ class plotGammaBasics(GaudiAlgo):
 
         if genDM ==  'db-gds1':
             self.hist["peGen_GdLS"].Fill(pmtHits)
+        if genDM ==  'db-iav1':
+            self.hist["peGen_iav"].Fill(pmtHits)
 
         if genDM ==  'db-lso1':
             self.hist["peGen_LS"].Fill(pmtHits)
