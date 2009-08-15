@@ -1,36 +1,39 @@
 gStyle->SetOptFit(1111);
 
+TH1F *gh_peGen_all = new TH1F("peGen_all", "pe of a gamma in AD",500, 0, 1400);
 TH1F *gh_peGen_GdLS = new TH1F("peGen_GdLS", "pe of a gamma (in GdLS)",500, 0, 1400);
-TH1F *gh_peGenCap_GdLS = new TH1F("peGenCap_GdLS","pe of a gamma in AD",500, 0, 1400);
+//TH1F *gh_peGenCap_GdLS = new TH1F("peGenCap_GdLS","pe of a gamma in target",500, 0, 1400);
 //TH1F *gh_peGen_iav = new TH1F("peGen_iav", "pe of a gamma (in IAV)", 500, 0, 1400);
 //TH1F *gh_peCap_iav = new TH1F("peCap_iav", "pe of a gamma (in IAV)", 500, 0, 1400);
-TH1F *gh_peGenCap_GdLS_iav = new TH1F("peGenCap_GdLS_iav", "pe of a gamma in AD", 500, 0, 1400);
+TH1F *gh_peGenCap_GdLS_iav = new TH1F("peGenCap_GdLS_iav", "pe of a gamma in IAV", 500, 0, 1400);
 
 
 void analysisOM_6mev_gamma(void) {
 
-    printFit(genPlot("peGen_GdLS", gh_peGen_GdLS), genPlot("peGenCap_GdLS", gh_peGenCap_GdLS));
+    printRes("Resolution of a 6 Mev gamma in AD", genPlot("peGen_all", gh_peGen_all));
+    printRes("Resolution of a 6 MeVgamma in target", genPlot("peGen_GdLS", gh_peGen_GdLS));
     genPlot("peGenCap_GdLS_iav",gh_peGenCap_GdLS_iav);
-    printEff(gh_peGen_GdLS, gh_peGenCap_GdLS_iav);
+    printEff("Gammas stopping at iav", gh_peGen_GdLS, gh_peGenCap_GdLS_iav);
     gSystem->Exit(0);
 
 }
 
-void printEff(TH1F *gen, TH1F *cap) {
+void printEff(TString title, TH1F *gen, TH1F *cap) {
 
     cout << "********************************************************************************" << endl;
-    cout << "Capture in Acrylics\t Gen in GdLS\tEfficiency" << endl;
-    cout << cap->GetEntries() << "\t" << gen->GetEntries() << "\t" << cap->GetEntries()/gen->GetEntries() << endl;
+    cout << title << endl;
+    cout << "Efficiency(%)\tCapture in Acrylics\t Gen in GdLS" << endl;
+    cout << (cap->GetEntries()/gen->GetEntries())*100.0 << "\t" << cap->GetEntries() << "\t" << gen->GetEntries() << endl;
     cout << "********************************************************************************" << endl;
 
 }
 
-void printFit(TF1 *genFit, TF1 *capFit) {
+void printRes(TString title, TF1 *genFit) {
 
     cout << "********************************************************************************" << endl;
-    cout << "Term\tMean\tSigma" << endl;
-    cout << "peGen\t" << genFit->GetParameter(1) << "\t" << genFit->GetParameter(2) << endl;
-    cout << "peCap\t" << capFit->GetParameter(1) << "\t" << capFit->GetParameter(2) << endl;
+    cout << title << endl;
+    cout << "Resolution(%)\tMean\tSigma" << endl;
+    cout << (genFit->GetParameter(2)/genFit->GetParameter(1))*100.0 << "\t" << genFit->GetParameter(1) << "\t" << genFit->GetParameter(2) << endl;
     cout << "********************************************************************************" << endl;
 
 }
