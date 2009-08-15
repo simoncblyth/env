@@ -313,9 +313,9 @@ class plotIbdBasics(GaudiAlgo):
             print "No SimHeader in this ReadOut"
             return SUCCESS
 
-        det = self.detSvc(self.target_de_name)
-        det_gds = self.detSvc(self.gds_de_name)
-        det_lso = self.detSvc(self.lso_de_name)
+        #det = self.detSvc(self.target_de_name)
+        #det_gds = self.detSvc(self.gds_de_name)
+        #det_lso = self.detSvc(self.lso_de_name)
 
         # Unobservables
         statshdr = simhdr.unobservableStatistics()
