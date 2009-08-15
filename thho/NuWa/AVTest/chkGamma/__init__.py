@@ -50,13 +50,32 @@ class plotGammaBasics(GaudiAlgo):
         status = self.histSvc.regHist('/file1/basics/genRZ', \
                                           self.hist["genRZ"])
         if status.isFailure(): return status
+
+
+
         
         self.hist["genXY"] = TH2D("genXY", "Generation Vertex X-Y", \
                                       100, -2.48, 2.48, 100, -2.48, 2.48)
         status = self.histSvc.regHist('/file1/basics/genXY', \
                                           self.hist["genXY"])
         if status.isFailure(): return status
-        
+
+
+        self.hist["genXY_GdLS"] = TH2D("genXY_GdLS", "Generation Vertex X-Y in GdLS", \
+                                      100, -2.48, 2.48, 100, -2.48, 2.48)
+        status = self.histSvc.regHist('/file1/basics/genXY_GdLS', \
+                                          self.hist["genXY_GdLS"])
+        if status.isFailure(): return status
+
+        self.hist["genRZ_GdLS"] = TH2D("genRZ_GdLS", "Generation Vertex R-Z in GdLS", \
+                                      100, 0.0, 6.1504, 100, -2.48, 2.48)
+        status = self.histSvc.regHist('/file1/basics/genRZ_GdLS', \
+                                          self.hist["genRZ_GdLS"])
+        if status.isFailure(): return status
+
+
+
+ 
         self.hist["HitTime"] = TH1F("HitTime", "Hit Time",
                                     100, 0.0, 100)
         status = self.histSvc.regHist('/file1/basics/HitTime',
@@ -109,6 +128,14 @@ class plotGammaBasics(GaudiAlgo):
         status = self.histSvc.regHist('/file1/basics/peCap_GdLS', 
                                       self.hist["peCap_GdLS"])
         if status.isFailure(): return status
+
+        self.hist["peCap_iav"] = TH1F("peCap_iav", "pe of a gamma (in IAV)",
+                                      500, 0, 1400)
+        status = self.histSvc.regHist("/file1/basics/peCap_iav",
+                                      self.hist["peCap_iav"])
+        if status.isFailure(): return status
+
+
         
         self.hist["peCap_LS"] = TH1F("peCap_LS", 
                                      "pe of a gamma stop in LS", 
@@ -130,6 +157,37 @@ class plotGammaBasics(GaudiAlgo):
         status = self.histSvc.regHist('/file1/basics/peGenCap_GdLS', 
                                       self.hist["peGenCap_GdLS"])
         if status.isFailure(): return status
+
+        self.hist["peGenCap_iav"] = TH1F("peGenCap_iav", 
+                                          "pe of a gamma in AD",
+                                          500, 0, 1400)
+        status = self.histSvc.regHist('/file1/basics/peGenCap_iav', 
+                                      self.hist["peGenCap_iav"])
+        if status.isFailure(): return status
+
+
+
+
+
+#Debug.
+#        self.hist["peGenLocation_GdLS"] = TH1F("peGenLocation_GdLS", 
+#                                          "peGen location of a gamma in AD",
+#                                          500, 0, 1400)
+#        status = self.histSvc.regHist('/file1/basics/peGenLocation_GdLS', 
+#                                      self.hist["peGenLocation_GdLS"])
+#        if status.isFailure(): return status
+#
+#
+#        self.hist["peCapLocation_GdLS"] = TH1F("peCapLocation_GdLS", 
+#                                          "peCap location of a gamma in AD",
+#                                          500, 0, 1400)
+#        status = self.histSvc.regHist('/file1/basics/peCapLocation_GdLS', 
+#                                      self.hist["peCapLocation_GdLS"])
+#        if status.isFailure(): return status
+
+
+
+
         
         self.hist["eDepInGdLS"] = TH1D("eDepInGdLS", "Deposited Energy [MeV]",
                                        70, 0, 7)
@@ -298,6 +356,11 @@ class plotGammaBasics(GaudiAlgo):
 
         if genDM ==  'db-gds1':
             self.hist["peGen_GdLS"].Fill(pmtHits)
+            self.hist["genXY_GdLS"].Fill(genLclPoint.x()/units.meter,genLclPoint.y()/units.meter)
+            self.hist["genRZ_GdLS"].Fill(genLclPoint.x()/units.meter * genLclPoint.x()/units.meter + genLclPoint.y()/units.meter * genLclPoint.y()/units.meter, genLclPoint.z()/units.meter)
+
+
+
         if genDM ==  'db-iav1':
             self.hist["peGen_iav"].Fill(pmtHits)
 
@@ -319,14 +382,42 @@ class plotGammaBasics(GaudiAlgo):
         if capDM == 'db-gds1':
             self.hist["peCap_GdLS"].Fill(pmtHits)
 
+
+        if capDM == 'db-iav1':
+            self.hist["peCap_iav"].Fill(pmtHits)
+
+
+
         if genDM == 'db-gds1' and capDM == 'db-gds1':
             self.hist["peGenCap_GdLS"].Fill(pmtHits)
             self.hist["time_GdLS"].Fill(capTime/units.nanosecond)
             self.hist["drift_GdLS"].Fill(capDis/units.cm)
+        if genDM == 'db-iav1' and capDM == 'db-iav1':
+            self.hist["peGenCap_iav"].Fill(pmtHits)
 
         if genDM == 'db-lso1' and capDM == 'db-lso1':
             self.hist["time_LS"].Fill(capTime/units.nanosecond)
             self.hist["drift_LS"].Fill(capDis/units.cm)
+
+# Debug.
+#        if ((genLclPoint.x()/units.mm) < 1550.0) \
+#            and ((genLclPoint.y()/units.mm) < 1550.0) \
+#            and ((genLclPoint.z()/units.mm) < 1535.0) \
+#            and ((genLclPoint.x()/units.mm) > -1550.0) \
+#            and ((genLclPoint.y()/units.mm) > -1550.0) \
+#            and ((genLclPoint.z()/units.mm) > -1535.0) :
+#            self.hist["peGenLocation_GdLS"].Fill(pmtHits)
+#
+#        if ((capLclPoint.x()/units.mm) < 1550.0) \
+#            and ((capLclPoint.y()/units.mm) < 1550.0) \
+#            and ((capLclPoint.z()/units.mm) < 1535.0) \
+#            and ((capLclPoint.x()/units.mm) > -1550.0) \
+#            and ((capLclPoint.y()/units.mm) > -1550.0) \
+#            and ((capLclPoint.z()/units.mm) > -1535.0) :
+#            self.hist["peCapLocation_GdLS"].Fill(pmtHits)
+
+
+
 
         eDepInGdLS = stats["EDepInGdLS"].sum()
         eDepInLS = stats["EDepInLS"].sum()
