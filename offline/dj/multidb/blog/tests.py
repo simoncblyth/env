@@ -21,3 +21,11 @@ Another way to test that 1 + 1 is equal to 2.
 True
 """}
 
+
+def test_post():
+    from multidb.blog.models import Post
+    p = Post(title="title", body="body")
+    p.save()
+
+if __name__=='__main__':
+    test_post()
