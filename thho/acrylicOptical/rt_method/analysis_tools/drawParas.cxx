@@ -99,8 +99,8 @@ void drawParasOfFile(string filename) {
     c1->Divide(2,3);
     
     c1->cd(1);
-    //grn = new TGraphErrors(successSize, wlArray, nArray, wlArrayErr, nArrayErr);
-    grn = new TGraph(successSize, wlArray, nArray);
+    grn = new TGraphErrors(successSize, wlArray, nArray, wlArrayErr, nArrayErr);
+    //grn = new TGraph(successSize, wlArray, nArray);
     grn->SetTitle("Index of Refraction V.S. Wavelength");
     grn->GetXaxis()->SetTitle("nm");
     grn->GetYaxis()->SetTitle("n");
@@ -109,8 +109,8 @@ void drawParasOfFile(string filename) {
     grn->Draw("A*");
 
     c1->cd(2);
-    //grk = new TGraphErrors(successSize, wlArray, aArray, wlArrayErr, aArrayErr);
-    grk = new TGraph(successSize, wlArray, aArray);
+    grk = new TGraphErrors(successSize, wlArray, aArray, wlArrayErr, aArrayErr);
+    //grk = new TGraph(successSize, wlArray, aArray);
     grk->SetTitle("Alpha V.S. Wavelength");
     grk->GetXaxis()->SetTitle("nm");
     grk->GetYaxis()->SetTitle("alpha, 1/mm");
@@ -125,8 +125,8 @@ void drawParasOfFile(string filename) {
     //}
 
     c1->cd(3);
-    //gratt = new TGraphAsymmErrors(successSize, wlArray, attArray, wlArrayErr, wlArrayErr, attArrayLowErr, attArrayUpErr);
-    gratt = new TGraph(successSize, wlArray, attArray);
+    gratt = new TGraphAsymmErrors(successSize, wlArray, attArray, wlArrayErr, wlArrayErr, attArrayLowErr, attArrayUpErr);
+    //gratt = new TGraph(successSize, wlArray, attArray);
     gratt->SetTitle("Attenuation V.S. Wavelength");
     gratt->GetXaxis()->SetTitle("nm");
     gratt->GetYaxis()->SetTitle("mm");

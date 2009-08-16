@@ -1,14 +1,14 @@
-#define FIN_T "1-1-1-1.csv"
-#define FIN_R "1-1-2-1.csv"
+#define FIN_T "gt.dat"
+#define FIN_R "gr.dat"
 #define TOTALRAWDATANO 601
 
-#define CAUCHY_A 1.47325
-#define CAUCHY_B 6.15911e3
+#define CAUCHY_A 1.47228
+#define CAUCHY_B 4825.03
 
-#define ATT_LOW 6.58737e2
-#define ATT_UP 2.47079e3
-#define ATT_CUT 3.51423e2
-#define ATT_DELTA 6.50717
+#define ATT_LOW 730.281
+#define ATT_UP 2185.28
+#define ATT_CUT 374.751
+#define ATT_DELTA 6.92802
 #define TOTALABSWL 270.0
 
 #define DOUBLE_ZERO 1.0e-99
@@ -47,7 +47,9 @@ class FresnelModel{
     private:
         double dataWl_[TOTALRAWDATANO];
         double dataTra_[TOTALRAWDATANO];
+        double dataTraErr_[TOTALRAWDATANO];
         double dataRef_[TOTALRAWDATANO];
+        double dataRefErr_[TOTALRAWDATANO];
         double paraN_[TOTALRAWDATANO];
         double paraAtt_[TOTALRAWDATANO];
         double paraFresnelT_[TOTALRAWDATANO];
@@ -71,7 +73,7 @@ FresnelModel::loadTDataFromFile(string finData) {
     ifstream fin;
     fin.open(finData.data());
     for(int i=0;i<TOTALRAWDATANO;i++) {
-        fin >> dataWl_[i] >> dataTra_[i];
+        fin >> dataWl_[i] >> dataTra_[i] >> dataTraErr_[i];
     }
 
 }
@@ -81,7 +83,7 @@ FresnelModel::loadRDataFromFile(string finData) {
     ifstream fin;
     fin.open(finData.data());
     for(int i=0;i<TOTALRAWDATANO;i++) {
-        fin >> dataWl_[i] >> dataRef_[i];
+        fin >> dataWl_[i] >> dataRef_[i] >> dataRefErr_[i];
     }
 
 }
@@ -105,7 +107,7 @@ double FresnelModel::evalAttenuation(double wl, double lowAtt, double upAtt, dou
 
     double attVal = (lowAtt - upAtt)/(1 + exp((wl - cutAtt)/delta)) + upAtt
                     - (TOTALABSWL/wl)*lowAtt;
-    cout << attVal << endl;
+    //cout << attVal << endl;
     if((attVal<0.0) || (wl<TOTALABSWL)) attVal = 0.0; // absorptance domain, Fresnel model could not apply
 
     return attVal;

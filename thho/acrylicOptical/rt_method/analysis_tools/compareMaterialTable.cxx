@@ -18,14 +18,16 @@ customized material table
 #define FIN_R "originIOR.dat"
 #define TOTALRAWDATANO 601
 
-#define CAUCHY_A 1.47325
-#define CAUCHY_B 6.15911e3
+#define CAUCHY_A 1.47228
+#define CAUCHY_B 4825.03
 
-#define ATT_LOW 6.58737e2
-#define ATT_UP 2.47079e3
-#define ATT_CUT 3.51423e2
-#define ATT_DELTA 6.50717
+#define ATT_LOW 730.281
+#define ATT_UP 2185.28
+#define ATT_CUT 374.751
+#define ATT_DELTA 6.92802
 #define TOTALABSWL 270.0
+
+
 
 #define DOUBLE_ZERO 1.0e-99
 #define DOUBLE_INFINITE 1.0e99

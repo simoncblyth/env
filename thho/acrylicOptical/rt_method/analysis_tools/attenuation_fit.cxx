@@ -28,7 +28,7 @@ Date: June, 16, 2009
 \*******************************************************/
 
 #define TOTALRAWDATANO 601
-#define TOTALABSWL 270.0
+#define TOTALABSWL 197.0
 
 double fitf(double *x, double *par) {
 
@@ -109,7 +109,7 @@ void attenuation_fit(void) {
     gr->Draw("a*");
 
     TF1 *func = new TF1("func",fitf,200.0,800.0,4);
-    func->SetParameters(2.0, 3000.0, 290.0, 3.0);
+    func->SetParameters(100.0, 3000.0, 290.0, 3.0);
     func->SetParNames("Lower_Attenu_Leng","Upper_Attenu_Leng","Cutting_Lambda","Delta");
     //TF1 *func = new TF1("func",fitf,200.0,370.0,4);
     //func->SetParameters(1.0, 10.0);
