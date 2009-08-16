@@ -11,9 +11,9 @@ TH1F *gh_peGenCap_GdLS_iav = new TH1F("peGenCap_GdLS_iav", "pe of a gamma in IAV
 void analysisOM_6mev_gamma(void) {
 
     printRes("Resolution of a 6 Mev gamma in AD", genPlot("peGen_all", gh_peGen_all));
-    printRes("Resolution of a 6 MeVgamma in target", genPlot("peGen_GdLS", gh_peGen_GdLS));
+    printRes("Resolution of a 6 MeV gamma in target", genPlot("peGen_GdLS", gh_peGen_GdLS));
     genPlot("peGenCap_GdLS_iav",gh_peGenCap_GdLS_iav);
-    printEff("Gammas stopping at iav", gh_peGen_GdLS, gh_peGenCap_GdLS_iav);
+    printEff("6 Mev gammas stopping at iav", gh_peGen_GdLS, gh_peGenCap_GdLS_iav);
     gSystem->Exit(0);
 
 }

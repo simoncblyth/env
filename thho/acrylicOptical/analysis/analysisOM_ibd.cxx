@@ -1,5 +1,5 @@
 //gStyle->SetOptFit(1111);
-#define NCUT 810.0
+#define NCUT 810.323
 #define NMAX 3000.0
 
 TH1F *gh_nHits = new TH1F("nHits", "Neutron Capture Hits in GdLS", 100, 0, 1400);
