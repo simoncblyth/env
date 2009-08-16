@@ -6,7 +6,7 @@
 
 #################### The version of NUWA ##########################
 # comment out the version you would like to use
-#export NUWA_VERSION=1.0.0-rc01
+export NUWA_VERSION=1.3.0
 ###################################################################
 nuwa_version=${NUWA_VERSION:-trunk}
 echo The hooking up NuWa version is $nuwa_version now
