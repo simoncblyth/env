@@ -44,3 +44,25 @@ djsa-tests(){
 }
 
 
+djsa-manual-fix(){
+
+   echo $msg need to do this for tests to succeed with a recent django 
+   cat << EOF
+
+[blyth@belle7 backend]$ git diff
+diff --git a/django_sqlalchemy/backend/base.py b/django_sqlalchemy/backend/base.py
+index 42a1adf..b5c85f2 100644
+--- a/django_sqlalchemy/backend/base.py
++++ b/django_sqlalchemy/backend/base.py
+@@ -33,7 +33,7 @@ class SQLAlchemyDatabaseWrapper(BaseDatabaseWrapper):
+         self.introspection = DatabaseIntrospection(self)
+         self.validation = BaseDatabaseValidation()
+ 
+-    def _cursor(self, settings):
++    def _cursor(self):
+         return session.connection().connection.cursor()
+ 
+
+EOF
+
+}
