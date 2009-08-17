@@ -727,3 +727,5 @@ rootd-(){      . $(env-home)/root/rootd.bash && rootd-env $* ; }
 gallery3-(){      . $(env-home)/gallery3/gallery3.bash && gallery3-env $* ; }
 nginx-(){      . $(env-home)/nginx/nginx.bash && nginx-env $* ; }
 cpg-(){      . $(env-home)/cpg/cpg.bash && cpg-env $* ; }
+djsa-(){      . $(env-home)/offline/dj/djsa.bash && djsa-env $* ; }
+
