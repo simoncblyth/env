@@ -33,6 +33,8 @@ sqlalchemy-srcdir(){  echo $(sqlalchemy-srcfold)/$(sqlalchemy-srcnam) ; }
 #sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/trunk@6065 ; }
 sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/branches/rel_0_5 ; }
 
+sqlalchemy-mate(){ mate $(sqlalchemy-srcdir) ; }
+
 sqlalchemy-get(){
   local msg="=== $FUNCNAME :"
   local dir=$(sqlalchemy-srcfold)
