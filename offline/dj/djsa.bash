@@ -9,6 +9,11 @@ djsa-usage(){
      djsa-dir : $(djsa-dir)
 
 
+
+
+
+
+
      djsa-tests 
            Ran 104 tests in 24.268s
            FAILED (failures=2) 
@@ -35,6 +40,14 @@ djsa-noseplugin(){
    sudo python setup.py install
    nosetests -p
 }
+
+djsa-blogtests(){
+  dj-
+  DJANGO_PROJECT=djsa dj-
+  cd $(dj-dir)/djsa
+  python blog/tests.py
+}
+
 
 djsa-tests(){
    local msg="=== $FUNCNAME :"
