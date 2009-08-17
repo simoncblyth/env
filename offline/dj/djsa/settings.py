@@ -10,8 +10,13 @@ ADMINS = (
 MANAGERS = ADMINS
 
 
+
+from env.base.private import Private
+p = Private()
+
+
 DATABASE_ENGINE = 'django_sqlalchemy.backend' 
-DJANGO_SQLALCHEMY_DBURI = "sqlite:///djsa.db"
+DJANGO_SQLALCHEMY_DBURI = p('DATABASE_URL')
 DJANGO_SQLALCHEMY_ECHO = False 
 
 #DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

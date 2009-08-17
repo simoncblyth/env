@@ -44,8 +44,10 @@ djsa-noseplugin(){
 djsa-blogtests(){
   dj-
   DJANGO_PROJECT=djsa dj-
-  cd $(dj-dir)/djsa
+  cd $(dj-dir-)/djsa
   python blog/tests.py
+
+  echo "select * from blog_post ; " | dj-mysql
 }
 
 

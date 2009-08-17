@@ -344,9 +344,12 @@ dj-find(){
 dj-port(){    echo 8000 ; }
 ## database setup   ##
 
+
+
+dj-five(){ [ "$(uname)" == "Darwin" ] && echo 5 ; }
 dj-val(){ echo $(private- ; private-val $1) ;}
 dj-create-db(){ echo "create database if not exists $(dj-val DATABASE_NAME) ;"  | dj-mysql- ; }
-dj-mysql-(){    mysql --user $(dj-val DATABASE_USER) --password=$(dj-val DATABASE_PASSWORD) $1 ; }
+dj-mysql-(){    mysql$(dj-five) --user $(dj-val DATABASE_USER) --password=$(dj-val DATABASE_PASSWORD) $1 ; }
 dj-mysql(){     dj-mysql- $(dj-val DATABASE_NAME) ; } 
 
 ## models introspection from db ##  

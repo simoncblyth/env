@@ -22,8 +22,11 @@ True
 """}
 
 def test_trivial():
+
+    from django_sqlalchemy.backend import metadata
     from djsa.blog.models import Trivial 
-    p = Trivial(title="title", body="body")
+    metadata.create_all()
+    p = Trivial(title="the title", body="the body")
     p.save()
 
 
@@ -33,5 +36,5 @@ def test_post():
     p.save()
 
 if __name__=='__main__':
-    test_trivial()
-    #test_post()
+    #test_trivial()
+    test_post()
