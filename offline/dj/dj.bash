@@ -293,7 +293,7 @@ dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
 dj-srcfold(){ 
    case $(dj-mode $*) in 
       system) echo $(python-site) ;; 
-           *) echo $(local-base)/env ;; 
+           *) echo $(local-base)/env/django ;; 
    esac
 }
 dj-mode(){ 

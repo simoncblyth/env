@@ -12,7 +12,7 @@ MANAGERS = ADMINS
 
 DATABASE_ENGINE = 'django_sqlalchemy.backend' 
 DJANGO_SQLALCHEMY_DBURI = "sqlite:///djsa.db"
-DJANGO_SQLALCHEMY_ECHO = True
+DJANGO_SQLALCHEMY_ECHO = False 
 
 #DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = ''             # Or path to database file if using sqlite3.

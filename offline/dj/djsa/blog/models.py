@@ -2,7 +2,10 @@
 import datetime
 from django.db import models
 
-
+class Trivial(models.Model):
+    title = models.TextField()
+    body = models.TextField()
+ 
 class Post(models.Model):
     title = models.TextField()
     body = models.TextField()

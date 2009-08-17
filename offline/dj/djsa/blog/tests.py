@@ -21,6 +21,11 @@ Another way to test that 1 + 1 is equal to 2.
 True
 """}
 
+def test_trivial():
+    from djsa.blog.models import Trivial 
+    p = Trivial(title="title", body="body")
+    p.save()
+
 
 def test_post():
     from djsa.blog.models import Post
@@ -28,4 +33,5 @@ def test_post():
     p.save()
 
 if __name__=='__main__':
-    test_post()
+    test_trivial()
+    #test_post()
