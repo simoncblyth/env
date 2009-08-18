@@ -1,5 +1,5 @@
 # === func-gen- : django/djsa workflow fgp django/djsa.bash fgn djsa fgh django
-djsa-src(){      echo offline/dj/djsa.bash ; }
+djsa-src(){      echo dj/djsa.bash ; }
 djsa-source(){   echo ${BASH_SOURCE:-$(env-home)/$(djsa-src)} ; }
 djsa-vi(){       vi $(djsa-source) ; }
 djsa-env(){      elocal- ; }

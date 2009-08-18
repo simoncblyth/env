@@ -708,7 +708,6 @@ env-override
 #env-env
 diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
-dj-(){         . $(env-home)/offline/dj/dj.bash && dj-env $*  ; }
 tg-(){         . $(env-home)/offline/tg/tg.bash && tg-env $*  ; }
 pl-(){         . $(env-home)/offline/pl/pl.bash && pl-env $* ; }
 pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
@@ -727,5 +726,7 @@ rootd-(){      . $(env-home)/root/rootd.bash && rootd-env $* ; }
 gallery3-(){      . $(env-home)/gallery3/gallery3.bash && gallery3-env $* ; }
 nginx-(){      . $(env-home)/nginx/nginx.bash && nginx-env $* ; }
 cpg-(){      . $(env-home)/cpg/cpg.bash && cpg-env $* ; }
-djsa-(){      . $(env-home)/offline/dj/djsa.bash && djsa-env $* ; }
+
+dj-(){         . $(env-home)/dj/dj.bash && dj-env $*  ; }
+djsa-(){      . $(env-home)/dj/djsa.bash && djsa-env $* ; }
 
