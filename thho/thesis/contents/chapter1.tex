@@ -4,10 +4,10 @@
 \section{Neutrinos}
 
 In the early 1900s, William Bragg demonstrated that mono-energetic $\alpha$-rays
-were emitted in $\alpha$ decays, which are two-body decays. Therefore $\beta$-rays
+were emitted in $\alpha$ decays\cite{Franklin:ch1}, which are two-body decays. Therefore $\beta$-rays
 were supposed to be mono-energetic also because of 2-body decay of protons and
-electrons. Nevertheless, C.D. Ellis and J. Chadwich showed that the $\beta$-ray
-spectrum was continuous. Fig. \ref{fig:inverse_beta_decay_spectrum.png} shows the typical beta-rays energy distribution curve.
+electrons. Nevertheless, J. Chadwich showed that the $\beta$-ray
+spectrum was continuous\cite{Franklin:ch1}. Fig. \ref{fig:inverse_beta_decay_spectrum.png} shows the typical beta-rays energy distribution curve.
 
 
 \begin{figure}
@@ -19,14 +19,14 @@ spectrum was continuous. Fig. \ref{fig:inverse_beta_decay_spectrum.png} shows th
 
 
 Pauli postulated a tiny neutral particle which we call neutrino today. The neutrino
-of $\beta$ decay carrys away some energy so it's a 3-body decay.
+of $\beta$ decay carrys away some energy so it's a 3-body decay.\cite{Franklin:ch1}
 
 The neutrinos are not observed directly. Only the products from their interactions
 with matter are observed. A particular neutrino flavor is associated to the obseved lepton type.
 Our reference to neutrino mass is the effective mass
 associated with the flavor state.
 There are three flavors of neutrinos: electron neutrino $\nu_e$, muon neutrino $\nu_{\mu}$, and
-tau neutrino $\nu_{tau}$.
+tau neutrino $\nu_{\tau}$.\cite{Franklin:ch1}\cite{pdg}
 
 
 %----------------------
@@ -43,8 +43,9 @@ tau neutrino $\nu_{tau}$.
 %-----------------------------------------------------------
 
 Neutrinos in the standard model of particle physics are massless.
-However, in the past decade, experiments \cite{Fkuda:1998} \cite{SNO:2001} in solar have shown indirectly through neutrino oscillation 
-that neutrinos are massive.
+However, in the past decade, experiments in solar have shown indirectly through neutrino oscillation 
+that neutrinos are massive. Since neutrinos can have mass with very small mass splitting, different flavors of neutrinos
+can mix quantumechanically and show oscillation behavior when propagating through space.\cite{Perkins:ch1}\cite{Vahle:ch1}\cite{Fkuda:1998} \cite{SNO:2001} 
 
 %-----------------------------------------------------------------
 %MNSP matrix
@@ -79,7 +80,7 @@ that neutrinos are massive.
 \subsection{Overview}
 
 A deep underground neutrino observatory at Dayabay, China, has
-been proposed. \cite{TDR}
+been proposed.\cite{DYBProposal:2007} \cite{TDR}
 Dayabay is nearby Hong Kong. See Figure \ref{fig:googleMap.png}
 
 
@@ -106,12 +107,12 @@ The observed survival probability associated to different distance could be deri
 
 \begin{equation}
 \label{equ:survivalProb}
-P_{ee} = 1 - \sin^{2}{2\theta_{13}}\sin^{2}{\frac{{\Delta}m^{2}_{31}L}{4E_{\mu}}} - \cos^{4}{\theta_{13}}\sin^{2}{2\theta_{12}}\sin^{2}{\frac{{\Delta}m^{2}_{21}L}{4E_{\mu}}}
+P_{sur} = P_{ee} = 1 - \sin^{2}{2\theta_{13}}\sin^{2}{\frac{{\Delta}m^{2}_{31}L}{4E_{\nu}}} - \cos^{4}{\theta_{13}}\sin^{2}{2\theta_{12}}\sin^{2}{\frac{{\Delta}m^{2}_{21}L}{4E_{\nu}}}
 \end{equation}
 
 
-Thus compare the ratio of interaction rates in multiple detectors as \ref{equ:compareDetectorsRatio}, and
-the survival probability term shows the $\sin^{2}{\theta_{13}}$.
+Thus compare the ratio of interaction rates in multiple detectors as shown in Equation \ref{equ:compareDetectorsRatio}, and
+the survival probability term shows the $\sin^{2}{2\theta_{13}}$.
 
 
 \begin{equation}
@@ -119,15 +120,19 @@ the survival probability term shows the $\sin^{2}{\theta_{13}}$.
 \frac{N_{f}}{N_{n}} = (\frac{N_{p,f}}{N_{p,n}})(\frac{L_n}{L_f})^{2}(\frac{\epsilon_f}{\epsilon_n})[\frac{P_{sur}(E,L_f)}{P_{sur}(E,L_n)}]
 \end{equation}
 
-
-Dayabay anti-neutrino detectors (AD), which will discussed more in section \ref{sec:AD},
-will be placed at Dayabay. They will be placed at varying distance from the Dayabay reactor and
+$N_{f}$ and $N_{n}$ are measured ratio of rates of far site and near site respectively.
+$N_{p,f}$ and $N_{p,n}$ are detector mass ratio.
+${L_n}$ and ${L_f}$ are distance of near site and far site respectively.
+${\epsilon_f}$ and ${\epsilon_n}$ are detector efficiency ratio of far site and near site respectively.
+$E$ and $L_f$/$L_n$ of $P_{sur}$ associated to the $E_{\nu}$ and $L$ in Equation \ref{equ:survivalProb} respectively.
+Dayabay anti-neutrino detectors (AD), which will discussed more in Section \ref{sec:AD},
+are be placed at Dayabay underground laboratory. They are placed at varying distance from the Dayabay reactor and
 the Ling Ao reatcors as shown in \ref{fig:location_dayabay.png}. There are two sets of near detectors
-at near sites, close to the Dayabay reactor and the Ling Ao reactors respectively, and two modules each set.
-There is one set of far detectors, and four modules are there. The Dayabay near site with an overburden of
-255 m.w.e.is located at a distance of 363m from the Dayabay cores. The Ling Ao near sitewith an overburden of
+at near sites, close to the Dayabay reactor and the Ling Ao reactors respectively, and two modules of each set.
+There is one set of far detectors, with four modules. The Dayabay near site with an overburden of
+255 with meter of water equivalent (m.w.e.) is located at a distance of 363m from the Dayabay cores. The Ling Ao near sitewith an overburden of
 294 m.w.e. is 481m and 526m from the Ling Ao I and Ling Ao II cores respectively. The far site is at the distance
-of 1985m and 1615m from the Dayabay cores and the mid-pointof the Ling Ao-Ling Ao II cores, and has an overburden
+of 1985m and 1615m from the Dayabay cores and the mid-point of the Ling Ao-Ling Ao II cores, and has an overburden
 of 910 m.w.e.
 
 At the time of writing, the Ling Ao II cores is still under construction and are going to be built and run in around
@@ -164,14 +169,14 @@ The site is located adjacent to mountainous terrain, ideal for sitting undergrou
 are well shield from external backgrounds like cosmogeic backgrounds including the cosmic-ray mouons.
 However, background due to the muon spallation products at the depths of the experiment halls and ambient
 $\gamma$ background due to the radioactivity of the rock surrounding the experiment halls is reduced by shielding
-the ADs with 2.5 meterof water. This water shield also attenuates the flux of neutrons produced outside the water
+the ADs with 2.5 meter of water. This water shield also attenuates the flux of neutrons produced outside the water
 pool.
 
-Events with a muons that passes through the water in the water pool less than 200 $\mu$s, which is the typical time window bewtween
-a prompt signal and a delayed signal of an inverse-beta decay process, have a small but finite
+Events with a muons that passes through the water in the water pool less than 200 $\mu$s, which is the typical time window
+a prompt signal due to positron annihilation and a delayed signal due to capture of neutron of an inverse-beta decay process, have a small but finite
 probability to create a fake signal event.
 There is a layer of  Resistive Plate Chambers (RPC) above a water pool
-and 8" PMTs arround the water pool for the Cherenkov detection of muons to tag such muon signals.
+and 8" PMTs surrounding the water pool for the Cherenkov detection of muons to tag such muon signals.
 The setup is shown in Fig. \ref{fig:water_pool.png}.
 
 
@@ -195,11 +200,11 @@ showing the water pool to shield backgrounds from muons, muon-induced neutrons a
 \section{The Dayabay Anti-neutrino Detectors}
 \label{sec:AD}
 
-Dayabay antineutrino is a 3-zone detector. See Figure \ref{fig:3zone.png}
+Dayabay antineutrino detector is a 3-zone detector as shown in Figure \ref{fig:3zone.png}.
 The inner most zone is the antineutrino target, which
-is 0.1\% Gd-doped liquid scintillator. The second zone
-is the gamma catcher, which is liquid scintillator only.
-The outer most zone is the mineral oil buffer.
+contains 0.1\% gadolinium(Gd)-doped liquid scintillator. The second zone
+contains the gamma catcher, which is liquid scintillator only.
+The outer most zone is the mineral oil buffer surrounded by 192 8" PMTs.
 
 
 \begin{figure}
@@ -213,20 +218,22 @@ $Right:$ Scheatic top view of the three different zones o the antineutrino detec
     \end{figure}
 
 
-The detection mechanism is inverse $\beta$ decay.
+The detection mechanism uses the inverse $\beta$ decay.
 
 
 \begin{equation}
 \overline{\nu_e} + p \rightarrow e^+ + n
-\label{InverseBetaDecay}
+\label{eq:InverseBetaDecay}
 \end{equation}
 
 
-The positrons will anniheas soon after they are generated by the inverse beta-decay,
-and generate gammas which could be observed by PMTs. The neutrons will go through
-thermal scattering process and finally captured by nuclies, namely protons. This
-process will generate a 2.2Mev gamma each event, and it is a delayed signal comparing
-to the positon annilesas.
+The positrons will annihilate soon after they are generated by the inverse beta-decay in Equation \ref{eq:InverseBetaDecay},
+and generate gammas which could be observed by PMTs.
+This is the so-called prompt signal as shown in Figure \ref{fig:promptSignal}.
+The neutrons will go through
+thermal scattering process and finally captured by nucleus, namely protons or Gd.
+If a neutron captured by a proton, this process will generate a 2.2 $MeV$ gamma-ray each event, and it is a delayed signal comparing
+to the positon annihilation.
 
 
 \begin{equation}
@@ -235,10 +242,11 @@ n + p \rightarrow D + \gamma (2.2 MeV)
 \end{equation}
 
 
-The cross section of the neutron captured by protons process is 0.3b, so a 0.1\%Gd-doped
-is proposed. The cross section of neutrons captured by Gd is 50000b. The Gd will be excited
-after capturing neutrons and go back to ground state by emitting gammas, totally 8 MeV. This
-process is also a delayed comparing to the positron annealing.
+The cross section of the neutron captured by a proton is only 0.3b.
+To enhance the neutron capture probability, a 0.1\%Gd-doped
+is proposed. The cross section of neutrons captured by Gd is 49000b. The Gd will be excited
+after capturing neutrons and go back to ground state by emitting 8 MeV gamma rays. This
+process is also a delayed signal as shown in Figure \ref{fig:delayedSignal} comparing to the positron annihilation (prompt).
 
 
 \begin{equation}
@@ -253,7 +261,8 @@ Gd^* \rightarrow Gd + \Sigma \gamma (8 MeV)
 \end{equation}
 
 
-The prompt and delayed signals are time-tagged signals.
+The scheme of the detection mechanism based on inverse $\beta$ decay is shown as Figure \ref{fig:ibd}.
+The prompt and delayed signals are both time-tagged signals.
 Together with the energy-tagged signals, the inverse beta-decay
 in 0.1\% Gd-doped liquid scintillator is a good tool to suppress
 background events.
@@ -283,20 +292,20 @@ background events.
 \begin{figure}
     \label{fig:ibd}
     \centering
-    \includegraphics[width=0.8\textwidth]{ibd.png}
+    \includegraphics[width=0.6\textwidth]{ibd.png}
     \caption
     [Dayabay AD detection mechanism based on inverse $\beta$ decay]
     {Dayabay AD detection mechanism based on inverse $\beta$ decay}
     \end{figure}
 
 
-The inverse beta-decay is adopted as the signals of Dayabay antineutrino detectors.
-The measurement of $\sin^{2}_{2\theta_{13}}$ to less than 0.01 corresponds to a small
-difference in a lot of antineutrino events observed between the far site and
+The inverse beta-decay is adopted as the signals for the Dayabay antineutrino detectors.
+The measurement of $\sin^{2}{2\theta_{13}}$ to less than 0.01 corresponds to a small
+difference in a number of antineutrino events observed between the far site and
 the near site.
 
 The delayed signals are generated by the neutrons of inverse beta-decay process.
-Neutrons are neutral so the cross section with matters is small.
+Neutrons are neutral particles so the direct detection is difficult.
 A large mass antineutrino detector should be in the order of tons.
 Typical requirement of an antineutrino detector is summarized in Table \ref{tab:ADRequirement}
 
@@ -337,21 +346,21 @@ Limit accidental background to less than other backgrounds and keep data rate ma
 \end{table}
 
 
-It's simpler to simulate and analysis the antineutrino detectors if they are
-symmetric, so a sphere or a cylinder shape could be considered. The cylinder
-shape is easier to produce from the point of engineering view, and also lower
-price. Thus the antineutrino detectors are designed based on the cylinder shape.
+It's simpler to simulate and analyze the antineutrino detectors if they are
+symmetric, so a spherical or a cylindrical shape could be considered. The cylindrical
+shape is easier to produce from the engineering point of view, and also cheaper
+price. Thus the antineutrino detectors are designed based on the cylindrical shape.
 
-The delayed signal are the 2.2MeV and 8MeV neutrons . There are external backgrounds like
-muon-induced neutrons, radioactivity of PMT glasses, natural radioactivity of rock,
-buffer water etc. Mineral oil is used for the antineutrino detectors to be a buffer.
+The delayed signal are the 2.2 $MeV$ and 8 $MeV$ gamma rays from neutron capture. There are external backgrounds like
+muon-induced neutrons, radioactivity of PMT glasses, natural radioactivity of rock, etc.
+Mineral oil is used for the antineutrino detectors to be a buffer for the detection of scintillation light.
 
-Accroding to the neutron capture processes, by protons and by Gd, and the buffer to
+Accroding to the neutron capture processes ( by protons and by Gd ) and the buffer to
 suppress the background, 2-zone and 3-zone detectors are considered. The innermost
-zone is the antineutrino target, composed of the liquid scintillator doped 1\% Gd.
-The second zone is the gamma catcher, composed of the liquid scintillator, for a
-3-zone detector or the mineral oil for a 2-zone detector. The outermost zone
-is the mineral oil for a 3-zone.
+zone is the antineutrino target, composed of liquid scintillator doped 0.1\% Gd.
+The second zone is gamma catcher, composed of pure liquid scintillator, for a
+3-zone detector or mineral oil for a 2-zone detector. The outermost zone
+is mineral oil for a 3-zone.
 
 %(overview of the 2-zone and 3-zone antineutrino detecotrs)
 
@@ -359,13 +368,13 @@ is the mineral oil for a 3-zone.
 The comparison for 2-zone and 3-zone detectors shows 
 uncertainty of the neutron energy threshold, caused by uncertainty in the energy scale.
 3-zone detectors could have better energy resolution where the energy scale
-uncertainty is taken to be 1\% and 1.2\% at 6MeV and 4 MeV, respectively.
+uncertainty is taken to be 1\% and 1.2\% at 6MeV and 4 MeV, respectively.\cit{TDR}
 
 %(table of the comparison)
 
-Thus 3-zone detectors are used. The innermost GdLS is 20 tons and the outer layer is another
-20 tons of the unloaded  liquid scintillator. The outermost is 40 tons of mineral oil. 192 eight-inch
-Hamamatsu photomutiplier tubes (PMTs) are mounted on the inner surface of the stainless steel tank
+Thus 3-zone detectors are chosen. The innermost GdLS is 20 tons and the outer layer is another
+20 tons of the undopped liquid scintillator. The outermost is 40 tons mineral oil. 192 eight-inch R5912
+Hamamatsu photomutiplier tubes (PMTs) \cite{R5912} are mounted on the inner surface of the stainless steel tank
 in eight horizontal rings, viewing the target volume and the gamma catcher. The crooss-sectional model of an AD
 is shown in Fig. \ref{fig:AD_module.png}.
 
@@ -384,10 +393,10 @@ The model show complete AD including calibration boxes and overflow tanks on the
 %TDR v2
 %-------------------------
 
-On the top and beneath the gamma catcher, there is a reflector each AD module respectively.
+On the top of and beneath the gamma catcher, there is a reflector in each AD module respectively.
 The reflector could enhance the total optical photon number received by PMTs.
 The reflector is a acrylic-ESR-acrylic sandwich structure. The thickness of the acylic panel is 1.5 cm each.
-The ESR, Enhanced Spectular Reflector Film, is a product of 3M.
+The ESR, Enhanced Spectular Reflector Film, is a product of 3M.\cite{ESR}
 The typical reflectance of ESR is larger than 98\% over the most signal wavelength around 400 nm.
 The typical thickness of ESR is 65 $\mu$m.
 %\ref of ESR
