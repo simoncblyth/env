@@ -41,7 +41,7 @@ CPU because there are so many "useless" individuals would be rejected during the
 A diffusive reflector, tyvek
 %which details could be found at Section \ref{sec:reflector}
 , is used for Aberdeen neutron detector to
-be a radial reflector around the target. To quantize the extent of how diffusive the tyvek reflector is, would be a problem
+be a radial reflector around the target. To quantify the extent of how diffusive the tyvek reflector is, would be a problem
 if the reconstruction algorithm would like to use such information.
 Nervertheless, GA could skip such diffusive information.
 
@@ -64,12 +64,12 @@ The photon number received by PMT is to be the ADC counts directly.
 Namely the QE of PMT is doesn't taken into account.
 Thus the "photon number" here is a relative quantity to be a unit of energy and does not mean the exact
 photon number which PMTs receive in reality.
-This doesn't matter because the so-called photon number could be linearly shift after the
-detector calibration is well-known.
+This doesn't matter because the so-called photon number could be linearly shifted after the
+detector calibration is known.
 Thus the response matrix is a 1000$\times$32 matrix, because there are 1000 bins, 16 PMTs including
 16 ADC channels and 16 TDC channels.
-Essentially the GA is try-and-error.
-The definition of fitness decides how the elite looks, and the elite
+Essentially the GA is a try-and-error algorithm.
+The definition of fitness decides how the elite (the best choise in the population) looks, and the elite
 will be the reconstruction result.
 
 \begin{figure}
