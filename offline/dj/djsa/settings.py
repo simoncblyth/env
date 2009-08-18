@@ -15,16 +15,19 @@ from env.base.private import Private
 p = Private()
 
 
-DATABASE_ENGINE = 'django_sqlalchemy.backend' 
-DJANGO_SQLALCHEMY_DBURI = p('DATABASE_URL')
-DJANGO_SQLALCHEMY_ECHO = False 
 
-#DATABASE_ENGINE = ''           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+sa = False 
+if sa:
+    DATABASE_ENGINE = 'django_sqlalchemy.backend' 
+    DJANGO_SQLALCHEMY_DBURI = p('DATABASE_URL')
+    DJANGO_SQLALCHEMY_ECHO = False 
+else:
+    DATABASE_ENGINE = p('DATABASE_ENGINE')           # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+    DATABASE_NAME   = p('DATABASE_NAME')             # Or path to database file if using sqlite3.
+    DATABASE_USER   = p('DATABASE_USER')             # Not used with sqlite3.
+    DATABASE_PASSWORD = p('DATABASE_PASSWORD')         # Not used with sqlite3.
+    DATABASE_HOST = p('DATABASE_HOST')             # Set to empty string for localhost. Not used with sqlite3.
+    DATABASE_PORT = p('DATABASE_PORT')             # Set to empty string for default. Not used with sqlite3.
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -69,9 +72,15 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    #'django.contrib.sessions.middleware.SessionMiddleware',
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
+
+## required for the admin 
+MIDDLEWARE_CLASSES += (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
+
+
 
 ROOT_URLCONF = 'djsa.urls'
 
@@ -81,11 +90,22 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-INSTALLED_APPS = (
-    #'django.contrib.auth',
-    #'django.contrib.contenttypes',
-    #'django.contrib.sessions',
-    #'django.contrib.sites',
-    'django_sqlalchemy',
-    'blog',
+
+INSTALLED_APPS = ()
+
+## enable the admin ...   auth,contenttypes and sessions are required by the admin 
+INSTALLED_APPS += (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',
+    'django.contrib.admin',
 )
+
+
+if DATABASE_ENGINE.startswith('django_sqlalchemy'):
+    INSTALLED_APPS += ('django_sqlalchemy',)
+INSTALLED_APPS += ('blog',)
+
+
+

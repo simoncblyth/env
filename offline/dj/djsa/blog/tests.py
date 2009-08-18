@@ -22,13 +22,11 @@ True
 """}
 
 def test_trivial():
-
     from django_sqlalchemy.backend import metadata
     from djsa.blog.models import Trivial 
     metadata.create_all()
     p = Trivial(title="the title", body="the body")
     p.save()
-
 
 def test_post():
     from djsa.blog.models import Post

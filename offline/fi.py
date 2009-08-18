@@ -1,6 +1,11 @@
 """
        somewhat of a perl -ism 
           http://effbot.org/librarybook/fileinput.htm
+
+
+       inplace editing of files 
+
+
 """
         
 

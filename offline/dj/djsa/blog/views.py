@@ -19,6 +19,7 @@ from django.contrib.admin.views.main import ChangeList
 def post_index(request):
     admin_model = admin.site._registry[Post]
     admin_model.admin_site.root_path = request.path
+
     cl = ChangeList(
         request,
         Post,
@@ -33,12 +34,13 @@ def post_index(request):
         admin_model)
     #cl.query_set = cl.query_set.filter(user=request.user)
     cl.get_results(request)
+    cl.formset = None
 
     context = {
         'title': cl.title,
         'is_popup': cl.is_popup,
         'cl': cl,
-        'has_add_permission': admin_model.has_add_permission(request),
+        'has_add_permission': True, #admin_model.has_add_permission(request),
         'root_path': admin_model.admin_site.root_path,
         'app_label': _('Post'),
     }
