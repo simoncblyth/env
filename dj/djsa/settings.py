@@ -105,7 +105,9 @@ INSTALLED_APPS += (
 
 if DATABASE_ENGINE.startswith('django_sqlalchemy'):
     INSTALLED_APPS += ('django_sqlalchemy',)
+
 INSTALLED_APPS += ('blog',)
+INSTALLED_APPS += ('django_extensions',)
 
 
 
