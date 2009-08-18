@@ -2,7 +2,7 @@
 offdb-src(){      echo offline/offdb.bash ; }
 offdb-source(){   echo ${BASH_SOURCE:-$(env-home)/$(offdb-src)} ; }
 offdb-vi(){       vi $(offdb-source) ; }
-offdb-env(){      elocal- ; }
+offdb-env(){      elocal- ; dj- ;  }
 offdb-usage(){
   cat << EOU
      offdb-src : $(offdb-src)
@@ -37,8 +37,10 @@ offdb-url(){  echo $(env-htdocs-url $(offdb-name)) ; }
 
 offdb-build(){
    offdb-get
-   offdb-fix
+
+   offdb-drop
    offdb-load
+   offdb-dupe
    offdb-check
 }
 
@@ -52,12 +54,11 @@ offdb-get(){
     cd $iwd
 }
 
-offdb-fix(){
-    local msg="=== $FUNCNAME :"
-    offdb-cd 
+
+offdb-drop(){
+   echo "drop table SimPmtSpec ;    " | dj-mysql
+   echo "drop table SimPmtSpecVld ; " | dj-mysql
 }
-
-
 
 
 offdb-load(){
@@ -72,31 +73,39 @@ offdb-check(){
 }
 
 
+## faking entries to allow to see what happens with composite primary keys 
+
 offdb-vld-columns(){ cat << EOC
       TIMESTART, TIMEEND, SITEMASK, SIMMASK, SUBSITE, TASK, AGGREGATENO, VERSIONDATE, INSERTDATE
 EOC
 }
-offdb-double-vld(){ $FUNCNAME- | dj-mysql ; }
-offdb-double-vld-(){ cat << EOS
-      insert into SimPmtSpecVld (SEQNO, $(offdb-vld-columns)) select 2, $(offdb-vld-columns) from SimPmtSpecVld ; 
-EOS 
-}
-
-
-offdb-pay-columns(){ cat << EOC
-     PMTSITE, PMTAD, PMTRING, PMTCOLUMN, PMTGAIN, PMTGFWHM, PMTTOFFSET, PMTTSPREAD, PMTEFFIC, PMTPREPULSE, PMTAFTERPULSE, PMTDARKRATE
-EOC
-}
-offdb-double-pay(){ $FUNCNAME- | dj-mysql ; }
-offdb-double-pay-(){ cat << EOS
-    insert into SimPmtSpec (SEQNO, $(offdb-pay-columns)) select 2, $(offdb-pay-columns) from SimPmtSpec ; 
+offdb-dupe-vld(){ $FUNCNAME- $* | dj-mysql ; }
+offdb-dupe-vld-(){ cat << EOS
+      insert into SimPmtSpecVld (SEQNO, $(offdb-vld-columns)) select $1, $(offdb-vld-columns) from SimPmtSpecVld ; 
 EOS
 }
 
 
-offdb-kludge(){
-   offdb-double-vld
-   offdb-double-pay
+offdb-pay-columns(){ cat << EOC
+     ROW_COUNTER, PMTSITE, PMTAD, PMTRING, PMTCOLUMN, PMTGAIN, PMTGFWHM, PMTTOFFSET, PMTTSPREAD, PMTEFFIC, PMTPREPULSE, PMTAFTERPULSE, PMTDARKRATE
+EOC
+}
+offdb-dupe-pay(){ $FUNCNAME- $* | dj-mysql ; }
+offdb-dupe-pay-(){ cat << EOS
+    insert into SimPmtSpec (SEQNO, $(offdb-pay-columns)) select $1, $(offdb-pay-columns) from SimPmtSpec ; 
+EOS
+}
+
+
+offdb-dupe(){
+
+   offdb-dupe-vld 2
+#   offdb-dupe-vld 3
+#   offdb-dupe-vld 4
+
+   offdb-dupe-pay 2
+#   offdb-dupe-pay 3
+#   offdb-dupe-pay 4
 }
 
 
