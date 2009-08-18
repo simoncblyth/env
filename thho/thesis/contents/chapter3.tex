@@ -5,21 +5,21 @@
 Both of Dayabay Experiment and Aberdeen Experiment use acrylic vessels to hold
 the liquid scintillator. The requirement of the both acrylic vessels is the same.
 
-From the point of view of material transmission, the engineering cast, and the containment, 
+From the material transmission, the engineering cast, the radioactivity and the compatibility of LS point of view,
 acrylics, PMMA, is proposed to be used for the vessels of the antineutrino detectors of Dayabay and the neutron detector of Aberdeen.
 
-For engineering, acrylics is cheaper than glass which the transmittance is the highest attainable
-especially in the blue and new UV spectral regions where the PMT maximum responsivity and light yield of GdLS/LS are.
-Strengh and tensile modules of elasticity of acrylics are good.
+Form engineering point of view, acrylics is cheaper than glass which the optical transmittance is the highest attainable
+especially in the blue and near UV spectral regions where the PMT has the maximum response for light yield of GdLS/LS.
+Mechanical strengh and tensile modules of elasticity of acrylics are good.
 It's safer to install acrylic vessels instead of glass vessels.
-Because of the size of the vessels, their components must be easily joined, and acrylics
-is tough and has almost infinite design flexibility.
-Acrylics possess the requisite low levels of radioactive contamination.
-The above considerations led to the selection of acrylic.
+Because of the size of the vessels, their components must be easily joined or bonded, and acrylics
+is tough and has almost infinite design flexibility.\cite{acrylic:handbook}
+Acrylics possess the required low levels of radioactive contamination and the compatibility of LS.
+The above considerations led to the selection of acrylics to be the material.
 
 The summary of QA items of inner acrylic vessel of Dayabay AD is shown in
-Table \ref{IAVQA}. More details of the items will be discussed respectively in the following and
-the optical QA will be focus on.
+Table \ref{tab:IAVQA}. More details of the items will be discussed in the following and
+the optical QA will be on main focus.
 \begin{table}
 \centering
 \caption{QA items of inner acrylic vessel of Dayabay AD}
@@ -170,12 +170,21 @@ The beam will be reflected few times in a sample.
 %-------------------------------------------------
 
 Acrylic panels used for Dayabay and Aberdeen acrylic vessels
-are generally around 10cm or thicker, except for the reflectors of Aberdeen
+are generally about 10cm or thicker, except for the reflectors of Aberdeen
 neutron detecor. However, this kind of thickness is too thick to
 keep the incident and exit beam in the same path, and then
 the beam probably will not collect by the detector properly or
-the conditions are too different from the calibration, Figure \ref{fig:calibration1.png}.
-The thickness Perkin Elmer suggests is less than 3 mm.
+the conditions are too different from the calibration, Figure \ref{fig:transmittance_integrating_systematic_error_calibration.png}.
+The thickness that Perkin Elmer suggests is less than 3 mm.
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{transmittance_integrating_systematic_error_calibration.png}
+    \caption{Calibration of a integrating sphere by air.}
+    \label{fig:transmittance_integrating_systematic_error_calibration.png}
+    \end{figure}
 
 
 %(The thickness may make the beam not be collected by the detector properly)
@@ -217,15 +226,6 @@ This is because the diffuse light reflected by the integrating
 sphere, is reflected back to the integrating sphere by the sample.
 Figure \ref{fig:transmittance_integrating_systematic_error_measurement.png} and
 demonstrates the mechanism to cause such error.
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\textwidth]{transmittance_integrating_systematic_error_calibration.png}
-    \caption{Calibration of a integrating sphere by air.}
-    \label{fig:transmittance_integrating_systematic_error_calibration.png}
-    \end{figure}
-
 
 \begin{figure}
     \centering
@@ -305,7 +305,7 @@ is gross transmittan, which include multiple reflection and transmittion in the 
 \subsection{Reflectance Measurement of Acrylics}
 
 Perkin Elmer Lambda 650 with the 60 mm integrating sphere could measure
-the total refletance incluing specular and diffuse reflection by a near-normal ($8^\circ$) incident beam, and
+the total reflectance including specular and diffuse reflection by a near-normal ($8^\circ$) incident beam, and
 the diffuse reflectance by a normal incident beam.
 Figure \ref{fig:reflectance8d.png} and \ref{fig:reflectance0d.png} show the setup of the total reflectance and the diffuse only
 reflectance respectively.
@@ -315,7 +315,7 @@ a relative uncertaianty less than 0.015 from a typical value. Spectralon is a ki
 \cite{Labsphere}
 % Spectrlon Int. ref
 %Uncertainty by the Spectrlon
-Because the reflectance measurement is relative to the standard refletance material, Spetralon,
+Because the reflectance measurement is relative to the standard reflectance material, Spetralon,
 a correction could be approached by the absolute Spetralon reflectance data.
 A typical Spetralon material reflctance correction of Perkin Elmer Lambda 650 is
 shown in Figure \ref{fig:spectralon_0_8_degree.png}, derived by removing the standard
@@ -364,7 +364,7 @@ If the sample is highly specular, large error may occur because the condition is
 
 \subsection{Sources of Error of Both Transmittance and Reflectance Measurement}
 
-Besides the errorss metioned above for transmittance and reflectance measurement, the other possible kinds of sources of error, for example,
+Besides the errors metioned above for transmittance and reflectance measurement, the other possible kinds of sources of error, for example,
 wall radiance uniformity error, port induced errors, stray light, and errors attributed to the reflectance standard are provided
 for consideration.
 
@@ -398,10 +398,10 @@ A Spectralon surface may degrade slowly over time, so regular calibration is nee
 \label {sec:RTMethod}
 
 The two parameters, index of refraction and attenuation length, are important
-to describ the behavior of optical photons.
+to describe the behavior of optical photons in a medium.
 Due to the simulation requirement ( Section \ref{sec:opticalModel}), the calibration, and the dry run requirement,
 the index of refraction and attenuation length
-of the GdLS, LS, mineral oil and acrylcs should be known because the signals of the detectors
+of the GdLS, LS, mineral oil and acrylics should be known because the signals of the detectors
 are optical photons.
 
 
@@ -554,13 +554,13 @@ Wavelength (nm) & RT Method & Unc. & SNO Acrylic & Unc. & Schott & Unc. & Soluti
 
 The optical properties of acrylic exert a strong influence on how light is propagated
 from a neutrino capture vertex for Dayabay, or a neutron capture vertex for Aberdeen,
-within the Ls, GdLs, and mineral oil to the PMTs arranged on the barrel of the steel tank.
+within the LS, GdLS, and mineral oil to the PMTs arranged on the barrel of the steel tank.
 
 The signal region of both Dayabay detectors and Aberdeen detector
 is around from 350nm to 450nm, namely blue region of visible light and near UV.
 The signal region is decided by the PMT gain, the LS and the GdLS emitting spectrum and
 the attenuation spectrum, the mineral oil attenuation spectrum, and
-the acrylic panels spectrum. Figure \ref{fig:SpectrumR5912} and \ref{fig:spectrumLS} show the spectrum region.
+the acrylic panels spectrum. Figure \ref{fig:SpectrumR5912} and \ref{fig:SpectrumLS} show the spectrum region.
 
 
 \begin{figure}
@@ -588,7 +588,7 @@ to prevent aging of acrylic panel. This kind of UV absorber makes acrylic spectr
 UV-blocked and the typical cut-off trasmission is at wavelength from around 350nm to 400nm,
 which happens to signal region of optical photon.
 Thus the acrylic panels used for the acrylic vessels should be chosen as
-UV-transparent ones. Fig. \ref{UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
+UV-transparent ones. Fig. \ref{fig:UVTUVBAcrylics} shows the comparison of the transmittance of UV-transparent
 and UV-blocked acrylics.
 
 
@@ -596,7 +596,7 @@ and UV-blocked acrylics.
     \centering
     \includegraphics[width=0.4\textwidth]{UVT_UVB_acrylics.png}
     \caption{Comparison of the transmitance of a 10mm thickness UV-transparent (blue curve) and UV-blocked (red curve) acrylics}
-    \label{UVTUVBAcrylics}
+    \label{fig:UVTUVBAcrylics}
     \end{figure}
 
 
@@ -612,10 +612,10 @@ the aging of acrylic panels will be discussed too.
 
 \subsection {Bonding and Aging}
 
-IAVs are produced by Nakano Int., Taiwan. Nakano uses a kind of glue, which is basically
+IAVs are produced by Nakano Int. Co. in Taiwan. Nakano uses a kind of glue, which is basically
 composed of PMMA, to bond the acrylic panels of IAV. The process to produce this kind of glue is a commercial
 secret. Nakano claims the glue is pure PMMA. The glue needs a so-called UV curing process. The bonding area
-is compose of acrylc panels and glue, and exposured to UV lamps. To cure a 2mm thick bonding
+is compose of acrylc panels and glue, and exposured to UV lamps at 365nm. To cure a 2 mm thick bonding
 area, a 10W UV lamp is needed to irradiate the area for around 2 days, depending on the manufacutre status of glue
 and the thickness of acrylic panels. This kind of UV curing process is observed that it changes transmission of acrylic panels,
 and both increasing and decreasing effect could happen, depending on different kinds of acrylic panel.
