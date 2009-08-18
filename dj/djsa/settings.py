@@ -16,7 +16,7 @@ p = Private()
 
 
 
-sa = False 
+sa = True 
 if sa:
     DATABASE_ENGINE = 'django_sqlalchemy.backend' 
     DJANGO_SQLALCHEMY_DBURI = p('DATABASE_URL')
@@ -94,14 +94,14 @@ TEMPLATE_DIRS = (
 INSTALLED_APPS = ()
 
 ## enable the admin ...   auth,contenttypes and sessions are required by the admin 
-INSTALLED_APPS += (
+admin = False
+if admin:INSTALLED_APPS += (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
 )
-
 
 if DATABASE_ENGINE.startswith('django_sqlalchemy'):
     INSTALLED_APPS += ('django_sqlalchemy',)

@@ -1,6 +1,6 @@
 #!/usr/bin/env ipython
 import os
-def interactive_client():
+def interactive_client(url=None):
     """
           http://simonwillison.net/2008/May/22/debugging/
 
@@ -12,14 +12,17 @@ def interactive_client():
     setup_test_environment()
     from django.test.client import Client
     c = Client()
-    return c
+    if url:
+        r = c.get(url)
+    else:
+        r = None
+    return c, r
 
 if __name__=='__main__':
     import iclient 
-    c = iclient.interactive_client()
+    c,r = iclient.interactive_client("/blog/")
     os.system( "cat %s" % iclient.__file__ )
 
-# r = c.get("/blog/")
 # print r 
 # print r.template
 # print r.context

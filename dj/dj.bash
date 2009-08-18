@@ -17,7 +17,7 @@ dj-env(){
 
 ## environment overridible coordinates
 dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
-dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; }
+dj-project(){ echo ${DJANGO_PROJECT:-djsa} ; }
 dj-app(){     echo ${DJANGO_APP:-offdb} ; }
 
 dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }

@@ -58,6 +58,8 @@ offdb-fix(){
 }
 
 
+
+
 offdb-load(){
    dj-
    dj-mysql < $(offdb-dir)/SimPmtSpec_data.sql
@@ -68,3 +70,33 @@ offdb-check(){
    echo "select * from SimPmtSpec    ; " |  dj-mysql
    echo "select * from SimPmtSpecVld ; " |  dj-mysql
 }
+
+
+offdb-vld-columns(){ cat << EOC
+      TIMESTART, TIMEEND, SITEMASK, SIMMASK, SUBSITE, TASK, AGGREGATENO, VERSIONDATE, INSERTDATE
+EOC
+}
+offdb-double-vld(){ $FUNCNAME- | dj-mysql ; }
+offdb-double-vld-(){ cat << EOS
+      insert into SimPmtSpecVld (SEQNO, $(offdb-vld-columns)) select 2, $(offdb-vld-columns) from SimPmtSpecVld ; 
+EOS 
+}
+
+
+offdb-pay-columns(){ cat << EOC
+     PMTSITE, PMTAD, PMTRING, PMTCOLUMN, PMTGAIN, PMTGFWHM, PMTTOFFSET, PMTTSPREAD, PMTEFFIC, PMTPREPULSE, PMTAFTERPULSE, PMTDARKRATE
+EOC
+}
+offdb-double-pay(){ $FUNCNAME- | dj-mysql ; }
+offdb-double-pay-(){ cat << EOS
+    insert into SimPmtSpec (SEQNO, $(offdb-pay-columns)) select 2, $(offdb-pay-columns) from SimPmtSpec ; 
+EOS
+}
+
+
+offdb-kludge(){
+   offdb-double-vld
+   offdb-double-pay
+}
+
+

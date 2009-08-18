@@ -13,6 +13,13 @@ nosedjango-usage(){
          nosetests -v --with-django
 
      from project or app directory, see nosedjango-examples for use of the test Client  
+
+
+     Save typing the options by creating $HOME/.noserc containing :
+
+[nosetests]
+verbosity=3
+with-django=1
      
 
 EOU
