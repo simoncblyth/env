@@ -17,12 +17,12 @@ dj-env(){
 
 ## environment overridible coordinates
 dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
-dj-project(){ echo ${DJANGO_PROJECT:-djsa} ; }
-dj-app(){     echo ${DJANGO_APP:-offdb} ; }
+dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; } ## djsa
+dj-app(){     echo ${DJANGO_APP:-offdb} ; }       ## blog 
 
 dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
-dj-cd(){      cd $(dj-appdir) ; }
+dj-cd(){      cd $(dj-projdir) ; }
 
 dj-settings(){      vi $(dj-projdir)/settings.py ; }                                                                                                                                                                                                          
 dj-urls(){          vi $(dj-projdir)/urls.py ; }    
@@ -38,6 +38,12 @@ dj-settings-check(){ python -c "from django.conf import settings ; print setting
 
 dj-notes(){
   cat << EON
+
+
+   Proxying was used in order to simply keep generated 
+   model files separate from the tweaked other files 
+
+
 
 
    NB 
@@ -275,14 +281,106 @@ dj-build(){
 dj-cpkurl(){  echo git://github.com/dcramer/django-compositepks.git ; }
 dj-cpkrev(){  echo 9477 ; }
 dj-cpk(){
+    local msg="=== $FUNCNAME :"
     local dir=$(dj-srcfold)
     mkdir -p $dir && cd $dir  
+   
     local cpk=$(dj-srcnam cpk)
     local pre=$(dj-srcnam pre)
+    echo $msg clone/co $cpk and $pre and compare 
     [ ! -d "$cpk" ] && git clone $(dj-cpkurl)
     [ ! -d "$pre" ] && svn co    $(dj-srcurl)@$(dj-cpkrev) $pre
-    diff -r --brief $pre $cpk | grep -v .svn 
+
+   
 }
+
+
+dj-diff-(){
+    local msg="=== $FUNCNAME :"
+    local dir=$(dj-srcfold)
+    cd $dir
+    local aaa=$(dj-srcnam $1)
+    local bbb=$(dj-srcnam $2)
+    diff -r --brief $aaa $bbb | grep -v .svn | grep -v .pyc | grep Files  
+}
+dj-diff(){
+   $FUNCNAME- $* | while read line ; do
+      dj-diff-parse $line $* || return 1
+   done
+}
+dj-diff-parse(){
+   [ "$1" != "Files"  ] && return 1
+   [ "$3" != "and"    ] && return 2
+   [ "$5" != "differ" ] && return 3
+   local aaa=$(dj-srcnam $6)/
+   local bbb=$(dj-srcnam $7)/
+   local a=${2/$aaa/}
+   local b=${4/$bbb/}
+   [ "$a" != "$b" ]  && return 4 
+   echo $a   
+}
+dj-opendiff(){
+   local aaa=$(dj-srcnam $1)/
+   local bbb=$(dj-srcnam $2)/
+   dj-diff $* | while read line ; do 
+      echo opendiff $aaa$line $bbb$line 
+   done
+}
+
+
+
+dj-cpk-mate(){ mate $(dj-srcfold)/$(dj-srcnam ${1:-cpk});  }
+
+
+dj-git(){
+
+   local dir=$(dj-srcfold)/djgit && mkdir -p $dir
+   cd $dir
+   [ ! -d .git ]  && git init 
+
+   ## add some aliases to remotes  
+   git remote add dcramer  git://github.com/dcramer/django-compositepks.git
+   git remote add django   git://github.com/django/django.git
+
+   ## access the urls
+   git config --get remote.dcramer.url
+   git config --get remote.django.url
+
+   ## using the aliases for the fetch, stores the branches in eg django/master and dcramer/master 
+   git fetch django
+   git fetch dcramer
+   
+   ## create local branches to track the remote ones
+   git checkout -b django  django/master 
+   git checkout -b dcramer dcramer/master 
+
+   ## list all branches , local and remote 
+   git branch -a 
+
+
+}
+
+
+dj-git-try(){
+
+   local dir=$(dj-srcfold)
+   cd $dir 
+   [ ! -d "django-compositepks" ] && git clone git://github.com/dcramer/django-compositepks.git
+   cd django-compositepks
+
+   git branch aswas    ## for easy switchback
+
+   [ "$(git config --get remote.django.url)" == "" ] && git remote add django git://github.com/django/django.git  
+
+   
+   git fetch django 
+
+   echo $msg git merge django/master  ... and fix conflicts 
+
+}
+
+
+
 
 ## src access ##
 
@@ -308,10 +406,15 @@ dj-srcnam(){
     cpk) echo django-compositepks ;;
     pre) echo django$(dj-cpkrev)   ;;
 def|dev) echo django ;;
-    system) echo django ;;
+    svn) echo django ;;
+    git) echo djgit  ;;
+ system) echo django ;;
       *) echo django ;;
    esac 
 }
+
+
+dj-ls(){      ls -l $(dj-srcfold) ; }
 dj-srcdir(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-mate(){    mate $(dj-srcdir) ; }
 dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
@@ -327,7 +430,7 @@ dj-get(){
 dj-ln(){
   local msg="=== $FUNCNAME :"
 
-  [ "$(dj-mode)" != "system" ] && python-ln $(dj-srcdir)/django django 
+  [ "$(dj-mode)" != "system" ] && python-ln $(dj-srcfold)/djgit/django django 
   python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
@@ -599,6 +702,11 @@ dj-runserver(){
   cd $(dj-projdir)
   ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 
 }
+
+
+
+
+
 
 
 dj-eggcache(){

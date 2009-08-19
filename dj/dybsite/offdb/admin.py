@@ -5,7 +5,7 @@
 
 from django.contrib import admin
 
-from env.offline.dj import Import, Admin
+from env.dj import Import, Admin
 from dybsite.offdb.generated import models as gm
 exec(str(Import(gm)))
 exec(str(Admin(gm)))

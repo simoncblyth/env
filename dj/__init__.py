@@ -192,12 +192,17 @@ admin.site.register(%(proxy)s, %(proxy)sAdmin)
 
 if __name__=='__main__':
     from dybsite.offdb.generated import models as gm
+
+    print "###### Import "
     print Import(gm)
+    print "###### Dump "
     print Dump(gm)
+    print "###### Models "
     print Models(gm)
+    print "###### Admin "
     print Admin(gm)
 
-    from env.offline.dj import Dj
+    from env.dj import Dj
     dj = Dj(gm)
     print dj
 
