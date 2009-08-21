@@ -66,6 +66,9 @@ configobj-(){    . $ENV_HOME/python/configobj.bash && configobj-env $* ; }
 pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-env $* ; } 
 
 
+python-mdir(){ python -c "import $1 as _, os ; print os.path.dirname(_.__file__) " ; }
+python-mate(){ mate $(python-mdir $*) ; }
+
 python-ls(){
 
    ls -l $(python-site)/
