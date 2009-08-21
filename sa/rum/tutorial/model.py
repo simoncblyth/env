@@ -121,8 +121,7 @@ if __name__=='__main__':
     actor = model.Actor(name=u'Sean Jollystar')
     director = model.Director(name=u'Lucy Jollygood')
     genre = model.Genre(name=u'Comedy')
-    movie = model.Movie(title=u'Jolly Summer', director=director,
-    actors=[actor] , genre=genre )
+    movie = model.Movie(title=u'Jolly Summer', director=director, actors=[actor] , genre=genre )
     session.add(movie) 
     session.flush()
     session.clear()
