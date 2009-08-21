@@ -102,6 +102,17 @@ base-pathstamp(){
 }
 
 
+
+base-rln(){
+    local base=$1
+    local name=$2
+    local lnk=$base/$name ;
+    if [ -L "$lnk" ]; then 
+       local tgt=$(readlink $lnk)
+       echo $tgt
+    fi
+}
+
 base-ln(){
     local msg="=== $FUNCNAME :";
 

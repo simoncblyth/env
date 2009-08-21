@@ -60,6 +60,9 @@ offdb-drop(){
    echo "drop table SimPmtSpecVld ; " | dj-mysql
 }
 
+offdb-add-cpk(){
+   echo "alter table SimPmtSpec add primary key (SEQNO, ROW_COUNTER ) ;" | dj-mysql
+}
 
 offdb-load(){
    dj-

@@ -30,19 +30,26 @@ WSGIPythonHome /data1/env/local/env/tg2env
 EOU
 }
 
+
+pl-preq-install-yum(){  [ "$(which hg)" == "" ] && sudo yum  install mercurial ; } 
+pl-preq-install-port(){ [ "$(which hg)" == "" ] && sudo port install mercurial ; }
 pl-preq-install(){
-   [ "$(which hg)" == "" ] && sudo yum install mercurial
+   pkgr-
+   case $(pkgr-cmd) in 
+      yum) $FUNCNAME-yum ;;
+     port) $FUNCNAME-port ;;
+   esac
 }
 
 pl-preq(){
     local msg="=== $FUNCNAME :"
     echo $msg preqs for the baseline python ... not the virtualized one
     python-
-    [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version && return 1
-    setuptools-
-    [ "$(setuptools-version)" != "0.6c9" ]  && echo $msg no setuptools && return 1
+    [ "$(python-version)"     != "2.4.3" ]  && echo $msg untested python version
+
     virtualenv-
-    [ "$(virtualenv-version)" != "1.3.3" ] && echo $msg untested virtualenv  && return 1
+    virtualenv-get
+    [ "$(virtualenv-version)" != "1.3.3" ] && echo $msg untested virtualenv  
 }
 
 pl-srcfold(){  echo $(local-base $*)/env ; }

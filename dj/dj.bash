@@ -415,7 +415,9 @@ def|dev) echo django ;;
 
 
 dj-ls(){      ls -l $(dj-srcfold) ; }
-dj-srcdir(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
+dj-srcdir-(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
+dj-srcdir(){  python-rln django ; }
+dj-scd(){     cd $(dj-srcdir) ; }
 dj-mate(){    mate $(dj-srcdir) ; }
 dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
 dj-get(){
@@ -427,6 +429,9 @@ dj-get(){
   mkdir -p $dir && cd $dir 
   [ ! -d "$nam" ] && svn co $(dj-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
 }
+
+
+
 dj-ln(){
   local msg="=== $FUNCNAME :"
 

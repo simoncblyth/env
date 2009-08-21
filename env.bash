@@ -733,3 +733,4 @@ djsa-(){      . $(env-home)/dj/djsa.bash && djsa-env $* ; }
 djextensions-(){      . $(env-home)/dj/djextensions.bash && djextensions-env $* ; }
 nosedjango-(){      . $(env-home)/dj/nosedjango.bash && nosedjango-env $* ; }
 git-(){      . $(env-home)/git/git.bash && git-env $* ; }
+formalchemy-(){      . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }

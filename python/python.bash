@@ -195,6 +195,11 @@ python-ln(){
    base-ln $(python-site) $*
 }
 
+python-rln(){
+   base-
+   base-rln $(python-site) $*
+}
+
 
 
 
