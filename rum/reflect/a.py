@@ -50,6 +50,10 @@ def load_app(url,  debug=False):
         }
     }, finalize=False )
     #app.finalize()
+
+
+
+
     return app
 
 #
@@ -57,7 +61,7 @@ def load_app(url,  debug=False):
 #
 
 
-def readonly( app ):
+def field_fix( app ):
     """
         attempt to make the fields readonly and all displayed ...
     """
@@ -65,6 +69,7 @@ def readonly( app ):
         for f in app.fields_for_resource( cls ):
             f.searchable = True
             f.read_only = True
+            f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
             print f
 
 
@@ -74,7 +79,7 @@ if __name__=='__main__':
     opts, args = parser.parse_args(sys.argv)
 
     app = load_app(opts.url,  debug=True )
-    #readonly( app )
+    field_fix( app )
     app.finalize()
     rf = app.repositoryfactory  
     for cls in rf.resources.keys():print repr(cls._table.c.SEQNO)

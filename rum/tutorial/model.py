@@ -110,6 +110,8 @@ class Rental(Model):
 
 
 
+
+
 if __name__=='__main__':
     import model
     from sqlalchemy import create_engine
