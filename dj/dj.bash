@@ -568,10 +568,15 @@ dj-open(){      open http://localhost:$(dj-port $*) ; }
 ## deployment  ##
 
 dj-confname(){ echo 50-django.conf ; }
+
+dj-eggcache-prep(){
+    local tmp=/tmp/env/$FUNCNAME/$USER && mkdir -p $tmp && echo $tmp
+}
+
 dj-eggcache-dir(){ 
     case ${USER:-nobody} in 
       nobody|apache|www) echo /var/cache/dj ;; 
-                      *) echo $HOME ;;  
+                      *) dj-eggcache-prep  ;;  
     esac
 }
 dj-deploy(){

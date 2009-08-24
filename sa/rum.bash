@@ -2,7 +2,7 @@
 rum-src(){      echo sa/rum.bash ; }
 rum-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rum-src)} ; }
 rum-vi(){       vi $(rum-source) ; }
-rum-env(){      elocal- ; }
+rum-env(){      elocal- ; rum-activate ;  }
 rum-usage(){
   cat << EOU
      rum-src : $(rum-src)
@@ -34,14 +34,8 @@ rum-get(){
 
    easy_install rum RumAlchemy tw.rum ipython
 }
-rum-activate(){
-   rum-cd
-   . bin/activate
-}
-rum-deactivate(){
-   rum-cd
-   . bin/deactivate
-}
+rum-activate(){   . $(rum-dir)/bin/activate ; }
+rum-deactivate(){ deactivate ; }
 
 rum-projdir(){ echo $(dirname $(rum-source))/rum ; }
 
@@ -51,3 +45,6 @@ rum-tute(){
    
 
 }
+
+
+

@@ -189,7 +189,7 @@ python-libdir(){
 
 
 python-site(){
-  python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python2.5/site-packages || python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
 }
 
 
