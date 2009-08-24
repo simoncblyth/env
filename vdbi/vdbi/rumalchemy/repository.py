@@ -4,7 +4,11 @@ from rumalchemy import SARepositoryFactory, sqlsoup
 from rumalchemy.util import get_mapper, get_foreign_keys
 
 from sqlalchemy.orm.properties import ColumnProperty
-from sqlalchemy import MetaData
+from sqlalchemy import MetaData, Table
+
+import os
+
+SKIP_COLUMNS = ('SEQNO','ROW_COUNTER')
 
 
 class DbiSARepositoryFactory(SARepositoryFactory):
@@ -26,6 +30,35 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             pay.append_constraint( ForeignKeyConstraint( ['SEQNO'] , ['%s.SEQNO' % v ] ) )
         return pay_tables + vld_tables
               
+    def entity(self, soup, attr ):
+        """ pull this out of the soup to allow better control of the mapping """
+        try:
+            t = soup._cache[attr]
+        except KeyError:
+            table = Table(attr, soup._metadata, autoload=True, schema=soup.schema)
+
+            ## initially tried trimming ... but this messes up the ordering ... so insert an undercore to allow the interface to split 
+            if not table.primary_key.columns:
+                raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
+            if table.columns:
+                cols  = [ c for c in table.columns if c.name not in SKIP_COLUMNS ]
+                names = [ c.name for c in cols ]
+                prefix = os.path.commonprefix( names )
+                def attrname( col ):
+                    if col.name in SKIP_COLUMNS or len(prefix) == 0:return col.name 
+                    return  "%s_%s" % ( prefix , col.name[len(prefix):] )
+                properties = {}
+                for col in table.columns:
+                    properties.update( { attrname(col):col } )
+                kwargs = { 'properties':properties , 'include_properties':[attrname(col) for col in table.columns]   }
+                print kwargs
+                t = soup.class_for_table(table, **kwargs )
+            else:
+                t = None
+            soup._cache[attr] = t
+        return t
+
+
     def _reflect_models(self):
         # Use the scoped_session sqlsoup creates. This is suboptimal, we
         # need a way to bring the objects sqlsoup creates into our
@@ -56,7 +89,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         entities=dict()
         for table_name in table_names:
             try:
-                entities[table_name]=db.entity(table_name)
+                #entities[table_name]=db.entity(table_name)
+                entities[table_name]=self.entity(db, table_name )
             except sqlsoup.PKNotFoundError:
                 log.warn("reflection: skipping table "+table_name+ "...")
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
@@ -94,5 +128,22 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         return entities.values()
 
 
+
+if __name__=='__main__':
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    from env.base.private import Private
+    p = Private()
+    engine = create_engine(p('DATABASE_URL'))    
+
+    Session = scoped_session(sessionmaker(autocommit=False, autoflush=True))
+    factory = DbiSARepositoryFactory( reflect='dbi', engine=engine, session_factory=Session)
+    factory.load_resources()
+
+    for modl in factory._models:
+        mapr = factory.mappers[ modl ]
+        print modl, mapr 
+        print list(modl.c)
 
 
