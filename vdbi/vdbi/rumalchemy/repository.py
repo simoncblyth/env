@@ -4,6 +4,7 @@ from rumalchemy import SARepositoryFactory, sqlsoup
 from rumalchemy.util import get_mapper, get_foreign_keys
 
 from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.sql import expression
 from sqlalchemy import MetaData, Table
 
 import os
@@ -41,9 +42,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             if not table.primary_key.columns:
                 raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
             if table.columns:
-                cols  = [ c for c in table.columns if c.name not in SKIP_COLUMNS ]
-                names = [ c.name for c in cols ]
-                prefix = os.path.commonprefix( names )
+                prefix = os.path.commonprefix( [c.name for c in table.columns if c.name not in SKIP_COLUMNS] )
                 def attrname( col ):
                     if col.name in SKIP_COLUMNS or len(prefix) == 0:return col.name 
                     return  "%s_%s" % ( prefix , col.name[len(prefix):] )
@@ -93,6 +92,14 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 entities[table_name]=self.entity(db, table_name )
             except sqlsoup.PKNotFoundError:
                 log.warn("reflection: skipping table "+table_name+ "...")
+
+        ## the soup messes up the column ordering ... fix it
+        #for e in entities.itervalues():
+        #    cc = e.c = expression.ColumnCollection()
+        #    t = e._table
+        #    for col in t.columns:
+
+
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
         # autogenerate relations
         for table_name, entity in entities.iteritems():
@@ -145,5 +152,8 @@ if __name__=='__main__':
         mapr = factory.mappers[ modl ]
         print modl, mapr 
         print list(modl.c)
+        for cp in mapr.iterate_properties:
+            print cp
+
 
 

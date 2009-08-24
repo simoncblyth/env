@@ -36,6 +36,9 @@ parser.add_option('-d', '--debug',
 # Makes the app
 #
 def load_app(url,  debug=False):
+
+
+
     app = RumApp({
         'debug': debug,
         'default_page_size':30,
