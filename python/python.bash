@@ -66,7 +66,12 @@ configobj-(){    . $ENV_HOME/python/configobj.bash && configobj-env $* ; }
 pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-env $* ; } 
 
 
-python-mdir(){ python -c "import $1 as _, os ; print os.path.dirname(_.__file__) " ; }
+python-mdir(){ 
+   local iwd=$PWD
+   local tmp=/tmp/$FUNCNAME && mkdir -p $tmp && cd $tmp  ## need to rum from empty dir to avoid module clashes 
+   python -c "import $1 as _, os ; print os.path.dirname(_.__file__) " ; 
+   cd $iwd
+}
 python-mate(){ mate $(python-mdir $*) ; }
 
 python-ls(){

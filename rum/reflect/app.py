@@ -38,6 +38,7 @@ parser.add_option('-d', '--debug',
 def load_app(url,  debug=False):
     app = RumApp({
         'debug': debug,
+        'default_page_size':30,
         'rum.repositoryfactory': {
             'use': 'vdbisqlalchemy',
             'reflect':'dbi'  ,
