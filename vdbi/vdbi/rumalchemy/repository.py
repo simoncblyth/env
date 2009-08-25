@@ -42,16 +42,25 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             if not table.primary_key.columns:
                 raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
             if table.columns:
-                prefix = os.path.commonprefix( [c.name for c in table.columns if c.name not in SKIP_COLUMNS] )
+                
+                cols = [col for col in table.columns if col.name not in SKIP_COLUMNS] 
+                prefix = os.path.commonprefix( [col.name for col in cols] )
                 def attrname( col ):
                     if col.name in SKIP_COLUMNS or len(prefix) == 0:return col.name 
                     return  "%s_%s" % ( prefix , col.name[len(prefix):] )
-                properties = {}
-                for col in table.columns:
-                    properties.update( { attrname(col):col } )
-                kwargs = { 'properties':properties , 'include_properties':[attrname(col) for col in table.columns]   }
-                print kwargs
-                t = soup.class_for_table(table, **kwargs )
+                #properties = {}
+                #wargs = { 'properties':properties , 'include_properties':[attrname(col) for col in table.columns]   }
+                #print kwargs
+                t = soup.class_for_table(table )
+                 
+                # avoid setting the properties via the dict, as this looses the column ordering 
+                mapr = get_mapper( t )
+                for col in cols:
+                    mapr.add_property( attrname(col) , col )
+
+                
+
+
             else:
                 t = None
             soup._cache[attr] = t
@@ -95,9 +104,17 @@ class DbiSARepositoryFactory(SARepositoryFactory):
 
         ## the soup messes up the column ordering ... fix it
         #for e in entities.itervalues():
-        #    cc = e.c = expression.ColumnCollection()
+        #    e.c = expression.ColumnCollection()
         #    t = e._table
+        #    mapr = get_mapper(e)
+        #    props = {}
+        #    for k in mapr.iterate_properties:
+        #        props[k.columns[0].name] = k
         #    for col in t.columns:
+        #        k = props.get( col.name , None )
+        #        if k:
+        #            e.c[k.key] = k.columns[0]
+        # 
 
 
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
