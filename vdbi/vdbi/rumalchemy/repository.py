@@ -11,7 +11,22 @@ from sqlalchemy import join
 
 import os
 
-SKIP_COLUMNS = ('SEQNO','ROW_COUNTER')
+PAY_COLUMNS = {
+   'SEQNO':'SEQ',
+   'ROW_COUNTER':'ROW',
+   }
+VLD_COLUMNS = {
+   'SEQNO':'SEQ',
+   'TIMESTART':'tSTART',
+   'TIMEEND':'tEND',
+   'SITEMASK':'SITEMASK',
+   'SIMMASK':'SIMMASK',
+   'SUBSITE':'SUBSITE',
+   'TASK':'TASK',
+   'AGGREGATENO':'AGG',
+   'VERSIONDATE':'tVERS',
+   'INSERTDATE':'tINSERT',
+   }
 
 
 class DbiSARepositoryFactory(SARepositoryFactory):
@@ -52,7 +67,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
              pay_t = metadata.tables.get(p, None )
              vld_t = metadata.tables.get(v, None )
              jo = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
-             jo.name = "%s_" % p
+             jo.name = "%sJ" % p
              tjo.append( jo )
          return tjo
    
@@ -76,6 +91,41 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             pay.append_constraint( ForeignKeyConstraint( ['SEQNO'] , ['%s.SEQNO' % v ] ) )
         return vld_tables + pay_tables 
               
+              
+              
+    def prepare_properties(self, table , related=False ):
+        skips = PAY_COLUMNS.keys() + VLD_COLUMNS.keys()
+        cols = [col for col in table.columns if col.name not in skips ] 
+        prefix = os.path.commonprefix( [col.name for col in cols] )
+        def attrname( col ):
+            """
+             change the mapped class attribute name for simpler a
+             tighter presentation 
+            """
+            if PAY_COLUMNS.get(col.name,None):
+                return PAY_COLUMNS.get(col.name)
+            elif VLD_COLUMNS.get(col.name,None):
+                return VLD_COLUMNS.get(col.name)
+            elif len(prefix) == 0:
+                return col.name 
+            #return  "%s_%s" % ( prefix , col.name[len(prefix):] )
+            return  col.name[len(prefix):] 
+  
+        from sqlalchemy.util import OrderedDict
+        properties = OrderedDict()
+        for col in table.columns:
+            properties[attrname(col)] = col
+
+        if related:
+            if not(table.name.endswith("Vld")):
+                vt = self.soup._cache.get("%sVld" % table.name, None )
+                assert vt
+                print "paired vld mapped class vt : %s " % vt 
+                for vc in vt._table.columns:
+                    vn = "v_%s" % vc.name
+                    properties[vn] = column_property( (vc).label(vn) )   
+        return properties
+              
     def entity(self, soup, attr ):
         """ 
              This is pulled out of the soup to allow better control of the mapping 
@@ -91,41 +141,12 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             t = soup._cache[attr]
         except KeyError:
             table = Table(attr, soup._metadata, autoload=True, schema=soup.schema)
-
             if not table.primary_key.columns:
                 raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
             if table.columns:
-                
-                cols = [col for col in table.columns if col.name not in SKIP_COLUMNS] 
-                prefix = os.path.commonprefix( [col.name for col in cols] )
-                def attrname( col ):
-                    """
-                       change the mapped class attribute name for simpler a
-                       tighter presentation 
-                    """
-                    if col.name in SKIP_COLUMNS:
-                        return col.name[0:3]
-                    elif len(prefix) == 0:
-                        return col.name 
-                    #return  "%s_%s" % ( prefix , col.name[len(prefix):] )
-                    return  col.name[len(prefix):] 
-                    
-                from sqlalchemy.util import OrderedDict
-                properties = OrderedDict()
-                for col in table.columns:
-                    properties[attrname(col)] = col
-                
-                if not(table.name.endswith("Vld")):
-                    vt = soup._cache.get("%sVld" % table.name, None )
-                    assert vt
-                    print "paired vld mapped class vt : %s " % vt 
-                    for vc in vt._table.columns:
-                        vn = "v_%s" % vc.name
-                        properties[vn] = column_property( (vc).label(vn) )
-                
+                properties = self.prepare_properties(table) 
                 kwargs = { 'properties':properties  }
                 t = soup.class_for_table(table , **kwargs)
-
             else:
                 t = None
             soup._cache[attr] = t
@@ -170,7 +191,6 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             except sqlsoup.PKNotFoundError:
                 log.warn("reflection: skipping table "+table_name+ "...")
 
- 
 
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
         # autogenerate relations
@@ -205,7 +225,9 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         ## do not need relations from the joined tables ... so can do here  ?
         tjo = self.dbi_fk_tjoins( metadata )
         for tj in tjo:
-            entities[tj.name] = db.map( tj )
+            properties = self.prepare_properties(tj) 
+            kwargs = { 'properties':properties  }
+            entities[tj.name] = db.map( tj , **kwargs )
 
         ## update the mappers 
         for e in entities.itervalues():
