@@ -17,7 +17,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
     def dbi_fkc( self, metadata ):
         """
            Append FK constraints to the SA tables as MySQL dont know em 
-
+           and returns the names of the paired DBI tables found
         """
         from sqlalchemy import ForeignKeyConstraint
         pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith('Vld')]
@@ -32,13 +32,21 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         return pay_tables + vld_tables
               
     def entity(self, soup, attr ):
-        """ pull this out of the soup to allow better control of the mapping """
+        """ 
+             This is pulled out of the soup to allow better control of the mapping 
+             any common prefix on column names is removed for 
+             the mapped class attribute names for a tighter table
+             
+             Had to pull this out of the soup as need access to the table columns
+             prior to doing the mapping in order to prepare the attribute properties
+             that effect the renaming. 
+    
+        """
         try:
             t = soup._cache[attr]
         except KeyError:
             table = Table(attr, soup._metadata, autoload=True, schema=soup.schema)
 
-            ## initially tried trimming ... but this messes up the ordering ... so insert an undercore to allow the interface to split 
             if not table.primary_key.columns:
                 raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
             if table.columns:
@@ -46,8 +54,16 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 cols = [col for col in table.columns if col.name not in SKIP_COLUMNS] 
                 prefix = os.path.commonprefix( [col.name for col in cols] )
                 def attrname( col ):
-                    if col.name in SKIP_COLUMNS or len(prefix) == 0:return col.name 
-                    return  "%s_%s" % ( prefix , col.name[len(prefix):] )
+                    """
+                       change the mapped class attribute name for simpler a
+                       tighter presentation 
+                    """
+                    if col.name in SKIP_COLUMNS:
+                        return col.name[0:3]
+                    elif len(prefix) == 0:
+                        return col.name 
+                    #return  "%s_%s" % ( prefix , col.name[len(prefix):] )
+                    return  col.name[len(prefix):] 
                     
                 from sqlalchemy.util import OrderedDict
                 properties = OrderedDict()
@@ -69,7 +85,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         # session (which we can control: set to transactional, etc...)
         # If we don't use soup's session SA barfs with  a
         # 'object is already attached to session blah'
-        print "_reflect_models ... customized in %s " % self.__class__
+        print "_reflect_models ... customized in %s " % self.__class__.__name__
         metadata = MetaData(self.engine)
         metadata.reflect()
    
@@ -97,21 +113,6 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 entities[table_name]=self.entity(db, table_name )
             except sqlsoup.PKNotFoundError:
                 log.warn("reflection: skipping table "+table_name+ "...")
-
-        ## the soup messes up the column ordering ... fix it
-        #for e in entities.itervalues():
-        #    e.c = expression.ColumnCollection()
-        #    t = e._table
-        #    mapr = get_mapper(e)
-        #    props = {}
-        #    for k in mapr.iterate_properties:
-        #        props[k.columns[0].name] = k
-        #    for col in t.columns:
-        #        k = props.get( col.name , None )
-        #        if k:
-        #            e.c[k.key] = k.columns[0]
-        # 
-
 
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
         # autogenerate relations
@@ -163,8 +164,9 @@ if __name__=='__main__':
 
     for modl in factory._models:
         mapr = factory.mappers[ modl ]
-        print modl, mapr 
-        print list(modl.c)
+        print "modl %s mapr %s " % ( modl, mapr ) 
+        print "modl.c %s " % list(modl.c)
+        print "mapr column properties : "
         for cp in mapr.iterate_properties:
             print cp
 

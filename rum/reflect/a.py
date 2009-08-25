@@ -36,9 +36,6 @@ parser.add_option('-d', '--debug',
 # Makes the app
 #
 def load_app(url,  debug=False):
-
-
-
     app = RumApp({
         'debug': debug,
         'default_page_size':30,
@@ -53,10 +50,6 @@ def load_app(url,  debug=False):
         }
     }, finalize=False )
     #app.finalize()
-
-
-
-
     return app
 
 #
@@ -73,7 +66,7 @@ def field_fix( app ):
             f.searchable = True
             f.read_only = True
             f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
-            print f
+            #print f
 
 
 if __name__=='__main__':
