@@ -48,18 +48,14 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 def attrname( col ):
                     if col.name in SKIP_COLUMNS or len(prefix) == 0:return col.name 
                     return  "%s_%s" % ( prefix , col.name[len(prefix):] )
-                #properties = {}
-                #wargs = { 'properties':properties , 'include_properties':[attrname(col) for col in table.columns]   }
-                #print kwargs
-                t = soup.class_for_table(table )
-                 
-                # avoid setting the properties via the dict, as this looses the column ordering 
-                mapr = get_mapper( t )
-                for col in cols:
-                    mapr.add_property( attrname(col) , col )
-
+                    
+                from sqlalchemy.util import OrderedDict
+                properties = OrderedDict()
+                for col in table.columns:
+                    properties[attrname(col)] = col
                 
-
+                kwargs = { 'properties':properties  }
+                t = soup.class_for_table(table , **kwargs)
 
             else:
                 t = None
