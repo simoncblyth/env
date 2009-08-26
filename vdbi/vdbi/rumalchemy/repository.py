@@ -1,4 +1,5 @@
 
+from rum import repository
 
 from rumalchemy import SARepositoryFactory, sqlsoup
 from rumalchemy.util import get_mapper, get_foreign_keys
@@ -9,27 +10,30 @@ from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import column_property
 from sqlalchemy import join 
 
+from inspect import isclass
+
+
 import os
+from vdbi import PAY_COLUMNS, VLD_COLUMNS, JOIN_POSTFIX, VLD_POSTFIX
+from vdbi import debug_here
 
-PAY_COLUMNS = {
-   'SEQNO':'SEQ',
-   'ROW_COUNTER':'ROW',
-   }
-VLD_COLUMNS = {
-   'SEQNO':'SEQ',
-   'TIMESTART':'tSTART',
-   'TIMEEND':'tEND',
-   'SITEMASK':'SITEMASK',
-   'SIMMASK':'SIMMASK',
-   'SUBSITE':'SUBSITE',
-   'TASK':'TASK',
-   'AGGREGATENO':'AGG',
-   'VERSIONDATE':'tVERS',
-   'INSERTDATE':'tINSERT',
-   }
 
+def fix_entity_name( entity , table ):
+    entity.__name__ = str(table.name)    ## fix the .capitalized name  
+    print "fix_entity_name %s %s " % ( repr(entity), table )
 
 class DbiSARepositoryFactory(SARepositoryFactory):
+
+    @repository.names_for_resource.when("isclass(resource)", prio=10)
+    def _default_names_for_resource(self, resource):
+        name = resource.__name__
+        plural = "%ss" % name
+        return name, plural       ## get template error if these are the same 
+    
+    @repository.names_for_resource.when("not isclass(resource)", prio=10)
+    def _default_names_for_instance(self, resource):
+        return self.names_for_resource(resource.__class__)
+        
    
    
     def dbi_fk_ojoins(self, soup ):
@@ -43,7 +47,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             
         """
         joins = []
-        for t in [n[0:-3] for n in soup._metadata.tables.keys() if n.endswith('Vld')]:
+        for t in [n[0:-3] for n in soup._metadata.tables.keys() if n.endswith(VLD_POSTFIX)]:
             payn = t
             vldn = payn + "Vld"
             payo = self.entity( soup, payn )
@@ -61,13 +65,13 @@ class DbiSARepositoryFactory(SARepositoryFactory):
               
          """
          tjo = []
-         pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith('Vld')]
-         vld_tables = ["%sVld" % n for n in pay_tables]
+         pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith(VLD_POSTFIX)]
+         vld_tables = ["%s%s" % (n, VLD_POSTFIX) for n in pay_tables]
          for p,v in zip(pay_tables,vld_tables): 
              pay_t = metadata.tables.get(p, None )
              vld_t = metadata.tables.get(v, None )
              jo = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
-             jo.name = "%sJ" % p
+             jo.name = "%s%s" % ( p , JOIN_POSTFIX )
              tjo.append( jo )
          return tjo
    
@@ -80,8 +84,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
            them when mapping the payload tables 
         """
         from sqlalchemy import ForeignKeyConstraint
-        pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith('Vld')]
-        vld_tables = ["%sVld" % n for n in pay_tables]    
+        pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith(VLD_POSTFIX)]
+        vld_tables = ["%s%s" % (n,VLD_POSTFIX) for n in pay_tables]    
         for p,v in zip(pay_tables,vld_tables): 
             pay = metadata.tables.get(p, None )
             vld = metadata.tables.get(v, None )
@@ -122,8 +126,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             properties[attrname(col)] = col
 
         if related:
-            if not(table.name.endswith("Vld")):
-                vt = self.soup._cache.get("%sVld" % table.name, None )
+            if not(table.name.endswith(VLD_POSTFIX)):
+                vt = self.soup._cache.get("%s%s" % (table.name,VLD_POSTFIX), None )
                 assert vt
                 print "paired vld mapped class vt : %s " % vt 
                 for vc in vt._table.columns:
@@ -152,10 +156,42 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 properties = self.prepare_properties(table) 
                 kwargs = { 'properties':properties  }
                 t = soup.class_for_table(table , **kwargs)
+                fix_entity_name( t , table )     
             else:
                 t = None
             soup._cache[attr] = t
         return t
+
+
+    def _auto_relate(self, entities, mappers):
+        # autogenerate relations
+        for table_name, entity in entities.iteritems():
+            self._fix_soup_entity(entity)
+            for prop in mappers[entity].iterate_properties:
+                if isinstance(prop, ColumnProperty):
+                    for col in prop.columns:
+                        # See if the column is a foreign key
+                        try:
+                            fk = get_foreign_keys(col)[0]
+                        except IndexError:
+                            # It isn't...
+                            continue
+                        # It is, lookup parent mapper
+                        relation_kwds=dict()
+                        for parent, m in mappers.iteritems():
+                            if fk.references(m.local_table):
+                                if col.primary_key:
+                                    relation_kwds["cascade"]='all, delete-orphan'
+                                break
+                        # Relate it
+                        
+                        e_name = self.names_for_resource(entity)[1]
+                        p_name = self.names_for_resource(parent)[0]
+                        ## get unicode error on attempting to print the bare entity 
+                        print "_auto_relate table_name %s entity %s e_name %s p_name %s " % ( table_name, repr(entity), e_name , p_name )
+                        if entity._table.__class__.__name__ != 'Join':
+                            assert getattr(self.soup,table_name) is entity
+                        parent.relate( e_name, entity, backref=p_name , **relation_kwds)
 
 
     def _reflect_models(self):
@@ -198,49 +234,33 @@ class DbiSARepositoryFactory(SARepositoryFactory):
 
 
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
-        # autogenerate relations
-        for table_name, entity in entities.iteritems():
-            self._fix_soup_entity(entity)
-            for prop in mappers[entity].iterate_properties:
-                if isinstance(prop, ColumnProperty):
-                    for col in prop.columns:
-                        # See if the column is a foreign key
-                        try:
-                            fk = get_foreign_keys(col)[0]
-                        except IndexError:
-                            # It isn't...
-                            continue
-                        # It is, lookup parent mapper
-                        relation_kwds=dict()
-                        for parent, m in mappers.iteritems():
-                            if fk.references(m.local_table):
-                                if col.primary_key:
-                                    relation_kwds["cascade"]='all, delete-orphan'
-                                break
-                        # Relate it
-
-                        assert getattr(db,table_name) is entity
-# 
-                        parent.relate(
-                            self.names_for_resource(entity)[1],entity,
-                            backref=self.names_for_resource(parent)[0],
-                            **relation_kwds)
- 
+        
  
         ## do not need relations from the joined tables ... so can do here  ?
         tjo = self.dbi_fk_tjoins( metadata )
         for tj in tjo:
             properties = self.prepare_properties(tj) 
             kwargs = { 'properties':properties  }
-            entities[tj.name] = db.map( tj , **kwargs )
-
+            entity = db.map( tj , **kwargs )
+            fix_entity_name( entity , tj )
+            entities[tj.name] = entity
+            
         ## update the mappers 
         for e in entities.itervalues():
             if not(mappers.has_key(e)):
                 mappers[e] = get_mapper(e)
  
+        ## try relating the joined too 
+        self._auto_relate( entities , mappers )
+ 
+ 
         self.mappers = mappers 
         self.entities = entities 
+        
+        ## set the resource names  ... causes peak.rules to complain of ambiguous methods for names_for_resources
+        ##   http://docs.python-rum.org/developer/modules/genericfunctions.html
+        ##for e in entities.itervalues():
+        ##    self.set_names( e , e.__name__, e.__name__)
         
         return entities.values() 
 
