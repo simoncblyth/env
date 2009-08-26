@@ -12,6 +12,9 @@ setup(
        [rum.repositoryfactory]
        vdbisqlalchemy = vdbi.rumalchemy:DbiSARepositoryFactory
 
+       [rum.policy]
+       vdbipolicy = vdbi.rum.policy:DbiPolicy
+
        [console_scripts]
 
 """

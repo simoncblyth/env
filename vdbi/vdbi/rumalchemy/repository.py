@@ -94,6 +94,11 @@ class DbiSARepositoryFactory(SARepositoryFactory):
               
               
     def prepare_properties(self, table , related=False ):
+        """
+            using related succeeds to set column properties from 
+            the related objects ... but they do not show up in the table
+            or on the filter option list 
+        """
         skips = PAY_COLUMNS.keys() + VLD_COLUMNS.keys()
         cols = [col for col in table.columns if col.name not in skips ] 
         prefix = os.path.commonprefix( [col.name for col in cols] )

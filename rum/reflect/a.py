@@ -39,6 +39,9 @@ def load_app(url,  debug=False):
     app = RumApp({
         'debug': debug,
         'default_page_size':30,
+        'rum.policy':{
+            'use': 'vdbipolicy' ,
+        },
         'rum.repositoryfactory': {
             'use': 'vdbisqlalchemy',
             'reflect':'dbi'  ,
@@ -56,6 +59,20 @@ def load_app(url,  debug=False):
 # Main calling point
 #
 
+def dump_entry_points(app):
+    """
+         Dump the alternative implementations available for each of the apps component
+         keys ... adding more implemtations in egg entry_points 
+         and picking them via '''use''' allows major changes to app beahviour to be made without touching the rum code 
+    """
+    from rum.component import Component
+    import pkg_resources as pr
+    cls = app.__class__
+    comps =  [getattr(cls,x) for x in dir(cls) if not(x.startswith('_')) and isinstance( getattr(cls, x) , Component)  ]
+    for comp in comps:
+        print "=========== %s ============== " % comp.key 
+        print list(pr.iter_entry_points(comp.key))
+
 
 def field_fix( app ):
     """
@@ -67,6 +84,22 @@ def field_fix( app ):
             f.read_only = True
             f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
             print f
+
+
+
+
+from rum.policy import Policy, Denial
+class DbiPolicy(Policy):pass
+#
+#    def has_permission(self, obj, action, attr=None, user=None):
+#         return True
+
+
+def anyone(policy, obj, action,  attr, user):
+    print "dbipolicy callable called ... "
+    return True
+
+DbiPolicy.register(anyone)
 
 
 
@@ -147,6 +180,9 @@ if __name__=='__main__':
     app = load_app(opts.url,  debug=True )
     field_fix( app )
     app.finalize()
+
+    dump_entry_points( app )
+
 
     m = Mapr( app )
     q = Qry(  app )
