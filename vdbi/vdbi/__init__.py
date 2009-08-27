@@ -1,4 +1,7 @@
 
+from vdbi.app.ip_vdbi import ip_vdbi
+from vdbi.app         import serve_app
+
 from IPython.Debugger import Tracer
 debug_here = Tracer()
 
