@@ -12,6 +12,8 @@ from sqlalchemy import join
 
 from inspect import isclass
 
+import logging
+log = logging.getLogger(__name__)
 
 import os
 from vdbi import PAY_COLUMNS, VLD_COLUMNS, JOIN_POSTFIX, VLD_POSTFIX
@@ -20,7 +22,7 @@ from vdbi import debug_here
 
 def fix_entity_name( entity , table ):
     entity.__name__ = str(table.name)    ## fix the .capitalized name  
-    print "fix_entity_name %s %s " % ( repr(entity), table )
+    log.debug("fix_entity_name %s %s " % ( repr(entity), table ))
 
 class DbiSARepositoryFactory(SARepositoryFactory):
 
@@ -188,7 +190,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                         e_name = self.names_for_resource(entity)[1]
                         p_name = self.names_for_resource(parent)[0]
                         ## get unicode error on attempting to print the bare entity 
-                        print "_auto_relate table_name %s entity %s e_name %s p_name %s " % ( table_name, repr(entity), e_name , p_name )
+                        log.debug( "_auto_relate table_name %s entity %s e_name %s p_name %s " % ( table_name, repr(entity), e_name , p_name ))
                         if entity._table.__class__.__name__ != 'Join':
                             assert getattr(self.soup,table_name) is entity
                         parent.relate( e_name, entity, backref=p_name , **relation_kwds)
@@ -200,7 +202,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         # session (which we can control: set to transactional, etc...)
         # If we don't use soup's session SA barfs with  a
         # 'object is already attached to session blah'
-        print "_reflect_models ... customized in %s " % self.__class__.__name__
+        log.debug( "_reflect_models ... customized in %s " % self.__class__.__name__ )
         metadata = MetaData(self.engine)
         metadata.reflect()
         self.metadata = metadata

@@ -19,11 +19,14 @@ def load_app(url=None,  dbg=True):
         url = p('DATABASE_URL')          
 
     import logging
+    #logging.basicConfig()
     for name in ('rum.basefactory',):
         handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( logging.INFO )
   
     
- 
+    import rum.util
+    rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
+    
     from pkg_resources import resource_filename
     from rum import RumApp
     app = RumApp({
@@ -39,10 +42,10 @@ def load_app(url=None,  dbg=True):
             'use': 'vdbisqlalchemy',
             'reflect':'dbi'  ,
             'sqlalchemy.url': url,
-            'session.transactional': True,
+            'session.autocommit': True,
         },
         'rum.viewfactory': {
-            'use': 'toscawidgets',
+            'use': 'vdbitoscawidgets',
         }
     }, finalize=False )
 
@@ -70,7 +73,8 @@ def field_fix( app ):
             f.searchable = True
             #f.read_only = True
             f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
-            print f
+            f.label = f.name    
+            #print f
 
 
 def serve_app(**kwargs):

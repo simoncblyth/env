@@ -15,6 +15,9 @@ setup(
        [rum.policy]
        vdbipolicy = vdbi.rum.policy:DbiPolicy
 
+       [rum.viewfactory]
+       vdbitoscawidgets = vdbi.tw.rum:DbiWidgetFactory
+
        [console_scripts]
 
 """

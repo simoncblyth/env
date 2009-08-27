@@ -1,0 +1,1 @@
+from vdbi.tw.rum.viewfactory import DbiWidgetFactory
