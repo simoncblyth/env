@@ -55,8 +55,11 @@ def main(argv=None):
         server(app)
     except (KeyboardInterrupt, SystemExit):
         print "Bye!"
+    return app
+
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    #sys.exit(main(sys.argv))
+    app = main(sys.argv)
 
 
