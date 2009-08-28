@@ -51,6 +51,8 @@ def load_app(url=None,  dbg=True):
 
     field_fix( app )
 
+    from vdbi.rumalchemy.query import dbi_query_override
+    dbi_query_override( app )
 
 
     #from tw.rum import RumDataGrid
