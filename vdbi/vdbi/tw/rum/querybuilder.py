@@ -37,6 +37,9 @@ class ExpressionWidget(forms.FieldSet):
         forms.TextField("a", validator=UnicodeString),
         ]
 
+
+
+
 class QueryWidget(forms.FieldSet):
     template = "genshi:tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
@@ -48,15 +51,37 @@ class QueryWidget(forms.FieldSet):
                    add_text=_("Add criteria"), remove_text=_("Remove"))
         ]
 
+
+def dbi_fields():
+    from vdbi.dyb import Enum
+    from vdbi import CTX_COLUMNS, CTX_KEYS
+    e = Enum()
+    ssf = lambda n,k:forms.SingleSelectField(n, options=e.options(k)) 
+    return map(ssf, CTX_COLUMNS, CTX_KEYS )
+
+class DbiQueryWidget(forms.FieldSet):
+    template = "genshi:vdbi.tw.rum.templates.querybuilder"
+    css_class = "rum-query-widget"
+    fields = dbi_fields() + [
+        forms.SingleSelectField("o", options=[("and", _("AND")), ("or", _("OR"))]),
+        JSRepeater("c", widget=ExpressionWidget(), extra=0, add_text=_("Add criteria"), remove_text=_("Remove"))
+        ]
+
+
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
     submit_text = _("Filter DBI records")
     fields = [
-        QueryWidget("q", label_text=''),
+        DbiQueryWidget("q", label_text=''),
         ]
 
     def adapt_value(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
         return value
+
+
+
+if __name__=='__main__':
+    print DbiQueryWidget.fields

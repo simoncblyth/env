@@ -2,13 +2,19 @@
 from vdbi.app.ip_vdbi import ip_vdbi
 from vdbi.app         import serve_app
 
-from IPython.Debugger import Tracer
-debug_here = Tracer()
+debug_here = lambda : None
+try:
+    import IPython
+    debug_here = IPython.Debugger.Tracer()
+except ValueError: 
+    None
+
 
 PAY_COLUMNS = {
    'SEQNO':'SEQ',
    'ROW_COUNTER':'ROW',
    }
+
 VLD_COLUMNS = {
    'SEQNO':'VSEQ',
    'TIMESTART':'VSTART',
@@ -21,6 +27,10 @@ VLD_COLUMNS = {
    'VERSIONDATE':'VVERS',
    'INSERTDATE':'VINSERT',
    }
+
+
+CTX_COLUMNS = ('SITEMASK','SUBSITE','SIMMASK',)
+CTX_KEYS    = ('Site', 'DetectorId','SimFlag',)
 
 JOIN_POSTFIX = 'Dbi'
 VLD_POSTFIX = 'Vld'

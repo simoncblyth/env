@@ -17,8 +17,14 @@ class Enum(dict):
                 if v == i:return k
         return None
 
+    def options(self, s ):
+        return [(v,k) for k,v in sorted( self[s].items() , key=lambda (a,b):(b,a) ) ]
+        
+
 
 if __name__=='__main__':
+    from vdbi.dyb import Enum 
+
     e = Enum()
     for t in e.keys():
         for n,i in e[t].items():
