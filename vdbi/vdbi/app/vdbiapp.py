@@ -28,6 +28,11 @@ def load_app(url=None,  dbg=True):
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
     
     from pkg_resources import resource_filename
+    
+    
+    ## attempt generic function override
+    import vdbi.rum.query 
+    
     from rum import RumApp
     app = RumApp({
         'debug': dbg,
@@ -51,8 +56,10 @@ def load_app(url=None,  dbg=True):
 
     field_fix( app )
 
-    from vdbi.rumalchemy.query import dbi_query_override
-    dbi_query_override( app )
+    #from vdbi.rumalchemy.query import dbi_query_override
+    #dbi_query_override( app )
+
+
 
 
     #from tw.rum import RumDataGrid
