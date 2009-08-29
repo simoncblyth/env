@@ -19,6 +19,9 @@ import os
 from vdbi import PAY_COLUMNS, VLD_COLUMNS, JOIN_POSTFIX, VLD_POSTFIX
 from vdbi import debug_here
 
+from vdbi.rum.query import DbiQueryFactory
+
+
 
 def fix_entity_name( entity , table ):
     entity.__name__ = str(table.name)    ## fix the .capitalized name  
@@ -36,7 +39,15 @@ class DbiSARepositoryFactory(SARepositoryFactory):
     def _default_names_for_instance(self, resource):
         return self.names_for_resource(resource.__class__)
         
-   
+    def __call__(self, resource, parent=None, remote_name=None, action=None, parent_id=None):
+        get_repo = super(DbiSARepositoryFactory, self).__call__
+        repo = get_repo(resource, parent, remote_name=remote_name, action=action)
+        # THIS IS CALLED 4 TIMES FOR EVERY ROW OF THE TABLE ???  3* for Dbi + 1 for Vld ??? 
+        #    ... RespositoryFactory.get_id appears to be the culprit when called in order to form the url for  show/edit/delete  and related vld ...
+        #print "intercepted repository creation resource:%s self:%s repo:%s qf:%s " % ( resource, repr(self), repo , repo.queryfactory )
+        repo.queryfactory = DbiQueryFactory()
+        debug_here()
+        return repo
    
     def dbi_fk_ojoins(self, soup ):
         """
