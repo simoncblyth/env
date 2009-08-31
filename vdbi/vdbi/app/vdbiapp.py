@@ -38,6 +38,9 @@ def load_app(url=None,  dbg=True):
     app = RumApp({
         'debug': dbg,
         'default_page_size':30,
+        'widgets': {
+            'rum_css':'vdbi.rum.widgets:rum_css',
+        },
          'templating': {
                 'search_path': [os.path.abspath(resource_filename('vdbi.rum','templates'))] , 
          },

@@ -262,13 +262,13 @@ h1 {
 
 .rum-querybuilder-expression {
     display: inline-block;
-    background-color: red;
+/*    background-color: red; */
 }
 
 
 .rum-querybuilder-expression div {
     display:inline ;
-    background-color: green;
+/*    background-color: green; */
 }
 
 

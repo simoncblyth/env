@@ -37,6 +37,9 @@ class ExpressionWidget(forms.FieldSet):
         forms.TextField("a", validator=UnicodeString),
         ]
 
+class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):
+    css_class = "rum-querybuilder-expression"
+    
 
 class QueryWidget(forms.FieldSet):
     template = "genshi:tw.rum.templates.querybuilder"
@@ -51,20 +54,27 @@ class QueryWidget(forms.FieldSet):
 
 
 from vdbi.dyb import ctx
+class DbiExpressionWidget(forms.FieldSet):
+    template = "genshi:vdbi.tw.rum.templates.expression"
+    css_class = "rum-querybuilder-expression"
+    fields =  [
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default']),
+           forms.SingleSelectField('Site', options=ctx.options('Site') ,  default=ctx['Site.default']),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId'), default=ctx['DetectorId.default']),
+           DbiCalendarDateTimePicker('Timestamp'),
+        ]
 
 class DbiContextWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default']),
-           forms.SingleSelectField('Site', options=ctx.options('Site') ,  default=ctx['Site.default']),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId'), default=ctx['DetectorId.default']),
-           forms.CalendarDateTimePicker('Timestamp'),
+       forms.SingleSelectField("o",
+           options=[("and", _("AND")), ("or", _("OR"))]
+           ),
+       JSRepeater("c", widget=DbiExpressionWidget(), extra=0,
+                  add_text=_("Add context"), remove_text=_("Remove"))
         ]
         
-
-        
-
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
