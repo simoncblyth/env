@@ -81,6 +81,9 @@ python-ls(){
 }
 
 
+
+
+
 python-version-system(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
 python-version-source(){
    local tag=${1:-$NODE_TAG}
@@ -523,5 +526,18 @@ s.close()
 
 EOP
 
+}
+
+
+python-port-on(){
+   pkgr-
+   pkgr-ln python2.5 python
+   pkgr-ln ipython2.5 ipython
+}
+
+python-port-off(){
+   pkgr-
+   pkgr-uln python2.5 python
+   pkgr-uln ipython2.5 ipython
 }
 
