@@ -45,8 +45,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         # THIS IS CALLED 4 TIMES FOR EVERY ROW OF THE TABLE ???  3* for Dbi + 1 for Vld ??? 
         #    ... RespositoryFactory.get_id appears to be the culprit when called in order to form the url for  show/edit/delete  and related vld ...
         #print "intercepted repository creation resource:%s self:%s repo:%s qf:%s " % ( resource, repr(self), repo , repo.queryfactory )
-        repo.queryfactory = DbiQueryFactory()
-        debug_here()
+        repo.queryfactory = DbiQueryFactory()     ## replacing the QueryFactory object 
+        #debug_here()
         return repo
    
     def dbi_fk_ojoins(self, soup ):

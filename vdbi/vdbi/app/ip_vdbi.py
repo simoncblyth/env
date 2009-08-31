@@ -17,9 +17,12 @@ Set breakpoints in code by :
 """
 
 def ip_vdbi(self, arg):
+    import os 
+    #os.chdir("/tmp")  
+    #print "ip_vdbi chdir to /tmp avoid module shading issues"
+    import vdbi
+    path = os.path.join( os.path.dirname( vdbi.__file__ ), "app" , "vdbiapp.py" )
     ip = self.api
-    import vdbi, os
-    path = os.path.join( os.path.dirname( vdbi.__file__ ), "app" , "vdbiapp.py" )     
     ip.magic("run -d %s" % path )
 
 

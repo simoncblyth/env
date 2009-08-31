@@ -27,18 +27,19 @@ def load_app(url=None,  dbg=True):
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
     
-    from pkg_resources import resource_filename
     
     
     ## attempt generic function override
-    import vdbi.rum.query 
+    #import vdbi.rum.query 
     
+    from pkg_resources import resource_filename
+    import os
     from rum import RumApp
     app = RumApp({
         'debug': dbg,
         'default_page_size':30,
          'templating': {
-                'search_path': [resource_filename('vdbi.rum','templates')] , 
+                'search_path': [os.path.abspath(resource_filename('vdbi.rum','templates'))] , 
          },
         'rum.policy':{
             'use': 'vdbipolicy' ,
