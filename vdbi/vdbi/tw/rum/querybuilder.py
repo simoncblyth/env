@@ -38,8 +38,6 @@ class ExpressionWidget(forms.FieldSet):
         ]
 
 
-
-
 class QueryWidget(forms.FieldSet):
     template = "genshi:tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
@@ -52,28 +50,28 @@ class QueryWidget(forms.FieldSet):
         ]
 
 
-def dbi_fields():
-    from vdbi.dyb import Enum
-    from vdbi import CTX_COLUMNS, CTX_KEYS
-    e = Enum()
-    ssf = lambda n,k:forms.SingleSelectField(n, options=e.options(k)) 
-    return map(ssf, CTX_COLUMNS, CTX_KEYS )
+from vdbi.dyb import ctx
 
-class DbiQueryWidget(forms.FieldSet):
+class DbiContextWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
-    fields = dbi_fields() + [
-        forms.SingleSelectField("o", options=[("and", _("AND")), ("or", _("OR"))]),
-        JSRepeater("c", widget=ExpressionWidget(), extra=0, add_text=_("Add criteria"), remove_text=_("Remove"))
+    fields =  [
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default']),
+           forms.SingleSelectField('Site', options=ctx.options('Site') ,  default=ctx['Site.default']),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId'), default=ctx['DetectorId.default']),
+           forms.CalendarDateTimePicker('Timestamp'),
         ]
+        
 
+        
 
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
     submit_text = _("Filter DBI records")
     fields = [
-        DbiQueryWidget("q", label_text=''),
+         DbiContextWidget("ctx", label_text=''),
+         QueryWidget("q", label_text=''),
         ]
 
     def adapt_value(self, value):

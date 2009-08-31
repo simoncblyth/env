@@ -19,6 +19,9 @@ setup(
        vdbitoscawidgets = vdbi.tw.rum:DbiWidgetFactory
 
        [console_scripts]
+       vdbi = vdbi.app.command:vdbi
+
+
 
 """
 )

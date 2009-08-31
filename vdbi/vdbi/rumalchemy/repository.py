@@ -45,6 +45,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         # THIS IS CALLED 4 TIMES FOR EVERY ROW OF THE TABLE ???  3* for Dbi + 1 for Vld ??? 
         #    ... RespositoryFactory.get_id appears to be the culprit when called in order to form the url for  show/edit/delete  and related vld ...
         #print "intercepted repository creation resource:%s self:%s repo:%s qf:%s " % ( resource, repr(self), repo , repo.queryfactory )
+        
+        #print "%s replacing %s " % (self, repo.queryfactory)
         repo.queryfactory = DbiQueryFactory()     ## replacing the QueryFactory object 
         #debug_here()
         return repo
@@ -304,5 +306,38 @@ if __name__=='__main__':
     pay_t = metadata.tables.get("SimPmtSpec")
     vld_t = metadata.tables.get("SimPmtSpecVld")
     pv_t = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
+
+
+    modl = factory._models[1]
+    repo = factory(modl)
+    
+
+    all = repo.select()
+
+    print all[0]
+    print all[1000]
+    #print all[-1]     fails 
+
+    
+    
+    
+  
+    ## standalone queries cause assertions due to lack of resource hookup 
+    ## from rumalchemy.query import SAQuery
+    ## sq =  SAQuery(and_([eq(u'SEQ', u'1'), eq(u'SITE', u'1'), eq(u'AD', u'1'), eq(u'RING', u'1')]), None, None, None)
+    ## access the query via the repo queryfactory : NB this is also engine agnostic
+
+    q = repo.queryfactory( modl ) 
+    assert q.__class__.__name__ == 'SAQuery'
+    print q
+    
+    from rum.query import *
+    
+    
+    s = repo.select(q)   ## sqlalchemy.orm.query.Query object
+
+    nq = q.clone( expr = and_([q.expr, eq('SEQ',1) ]) )       
+
+
 
 
