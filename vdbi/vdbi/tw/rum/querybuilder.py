@@ -127,7 +127,8 @@ class WidgetTest(dict):
     def __call__(self):
         self.selects_()
         self.inputs_()
-        assert self.vls == dict(self) , "WidgetTest mismatch vls:%s chk:%s " % ( repr(self.vls) , repr(dict(self)) )
+        if self.vls != dict(self):
+            print "WidgetTest mismatch vls:%s chk:%s " % ( repr(self.vls) , repr(dict(self)) )
         return self
         
     def selects_(self):
@@ -137,7 +138,11 @@ class WidgetTest(dict):
             sopt = [o for o in opts if o.attrib.get('selected',False) ]
             if len(sopt) == 1:
                 if id in self.vls:
-                    self[id] = int(sopt[0].attrib['value']) 
+                    v = sopt[0].attrib['value']
+                    try:
+                        self[id] = int(v) 
+                    except ValueError:
+                        self[id] = v
     
     def inputs_(self):
         for input in self.root.findall(".//{%s}input" % self.xhtml ):
@@ -160,15 +165,17 @@ if __name__=='__main__':
     #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template     
     #print dqb(q)   ## see the html
     
+    
+    
  
     dew = DbiExpressionWidget()
-    vls = { 'SimFlag':2 , 'Site':32 , 'DetectorId':7 , 'Timestamp':"2009/09/01 18:39" } 
-    dew_test = WidgetTest( dew , vls )()
+    dew_vls = { 'SimFlag':2 , 'Site':32 , 'DetectorId':7 , 'Timestamp':"2009/09/01 18:39" } 
+    dew_test = WidgetTest( dew , dew_vls )()
 
 
-
-    
-  
+    dcw = DbiContextWidget()
+    dcw_vls = { 'c':[dew_vls] , 'o':"and"  } 
+    dcw_test = WidgetTest( dcw , dcw_vls )()
     
     
     
