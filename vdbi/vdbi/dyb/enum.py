@@ -41,6 +41,13 @@ class Enum(dict):
         self['TimeStart.attr'] = VLD_COLUMNS['TIMESTART']
         self['TimeEnd.attr'] = VLD_COLUMNS['TIMEEND']
 
+        self[VLD_COLUMNS['SITEMASK']] = 'Site'
+        self[VLD_COLUMNS['SIMMASK']] = 'SimFlag'
+        self[VLD_COLUMNS['SUBSITE']] = 'DetectorId'
+        self[VLD_COLUMNS['TIMESTART']] = 'Timestamp'
+        self[VLD_COLUMNS['TIMEEND']] = 'Timestamp'
+
+
 ctx = Enum()
 
 

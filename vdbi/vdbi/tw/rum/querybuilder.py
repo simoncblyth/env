@@ -6,6 +6,11 @@ from rum import app, fields
 from rum.query import Query
 from tw.rum.repeater import JSRepeater
 
+from vdbi import debug_here
+from vdbi.rum.query import ReContext
+
+
+
 def get_fields():
     try:
         return [(f.name, f.label)
@@ -74,6 +79,8 @@ class DbiContextWidget(forms.FieldSet):
        JSRepeater("c", widget=DbiExpressionWidget(), extra=0,
                   add_text=_("Add context"), remove_text=_("Remove"))
         ]
+ 
+
         
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
@@ -87,6 +94,7 @@ class DbiQueryBuilder(forms.TableForm):
     def adapt_value(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
+        value = ReContext(value)()
         return value
 
 

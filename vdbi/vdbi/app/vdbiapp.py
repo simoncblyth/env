@@ -20,8 +20,9 @@ def load_app(url=None,  dbg=True):
 
     import logging
     #logging.basicConfig()
-    for name in ('rum.basefactory',):
-        handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( logging.INFO )
+    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG }
+    for name,levl  in logc.items():
+        handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
   
     
     import rum.util
