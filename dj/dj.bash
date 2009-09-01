@@ -231,6 +231,10 @@ dj-preq-port(){
 
     [ "$(which apachectl)" != "/opt/local/bin/apachectl" ]        && sudo port install apache2
     [ ! -f "/opt/local/smth" ]                                    && sudo port install mod_python25
+
+
+    sudo port install py25-docutils   ## for /admin/doc/
+
 }
 
 dj-preq-yum(){

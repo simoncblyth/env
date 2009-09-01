@@ -30,7 +30,7 @@ class ReContext(dict):
     def __init__(self, d):
         self.d = d
         log.debug("ReContext.__init__ %s " % repr(d) )
-        if 'q' in d and 'c' in d['q']:
+        if d and 'q' in d and 'c' in d['q']:
             self.recon_ctx_(d['q'])
     def recon_ctx_(self, d):
         """
@@ -45,19 +45,24 @@ class ReContext(dict):
             elif isinstance(d['c'],str):
                 if d.get('a',None) and d.get('o',None):
                     if ctx.get(d['c'],None):
-                        self[ctx[d['c']]] = d['a']
+                        self[ctx[d['c']]] = unicode(d['a'])
     
     def __call__(self):
         d = self.d
+        
+        n = {}
+        n['q'] = {}
+        if d and 'q' in d:
+            n['q']['xtr'] = d['q']
+        
         if ctx_complete(self):
-            d['ctx'] = {}
-            d['ctx']['c'] = [dict(self)]
-            d['ctx']['a'] = None
-            d['ctx']['o'] = "and"
+            n['q']['ctx'] = {}
+            n['q']['ctx']['c'] = [dict(self)]
+            n['q']['ctx']['o'] = u"and"
         else:
             log.debug("incomplete context %s " % repr(self) )
-        log.debug("ReContext.__call__ %s " % repr(d) )
-        return d
+        log.debug("ReContext.__call__ %s " % repr(n) )
+        return n
 
 
 
@@ -76,8 +81,8 @@ class DbiQueryFactory(QueryFactory):
          
          log.debug("DbiQueryFactory.__call__ d %s " % repr(d) ) 
          
-         if 'ctx' in d and 'c' in d['ctx']:
-             vs = d['ctx']['c']
+         if 'q' in d and 'ctx' in d['q'] and 'c' in d['q']['ctx']:
+             vs = d['q']['ctx']['c']
              if isinstance(vs, (list,tuple) ) and len(vs) > 0:
                  v = vs[0]       ## only the 1st value 
                  expr =  ctx_expression(v)

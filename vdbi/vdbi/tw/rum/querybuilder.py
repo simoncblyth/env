@@ -63,41 +63,116 @@ class DbiExpressionWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.expression"
     css_class = "rum-querybuilder-expression"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default']),
-           forms.SingleSelectField('Site', options=ctx.options('Site') ,  default=ctx['Site.default']),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId'), default=ctx['DetectorId.default']),
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag')),   
+           forms.SingleSelectField('Site', options=ctx.options('Site')),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId')),
            DbiCalendarDateTimePicker('Timestamp'),
         ]
+
+## default=ctx['SimFlag.default']
+## default=ctx['Site.default'])
+## default=ctx['DetectorId.default']
+
 
 class DbiContextWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
     fields =  [
-       forms.SingleSelectField("o",
-           options=[("and", _("AND")), ("or", _("OR"))]
-           ),
-       JSRepeater("c", widget=DbiExpressionWidget(), extra=0,
-                  add_text=_("Add context"), remove_text=_("Remove"))
+       forms.SingleSelectField("o", options=[("and", _("AND")), ("or", _("OR"))] ),
+       JSRepeater("c", widget=DbiExpressionWidget(), extra=0, add_text=_("Add context"), remove_text=_("Remove"))
         ]
- 
 
+class DbiQueryWidget(forms.FieldSet):
+    template = "genshi:vdbi.tw.rum.templates.querywidget"
+    css_class = "rum-query-widget"
+    fields = [
+          DbiContextWidget("ctx", label_text=''),
+          QueryWidget("xtr", label_text=''),         
+        ]
         
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
     submit_text = _("Filter DBI records")
     fields = [
-         DbiContextWidget("ctx", label_text=''),
-         QueryWidget("q", label_text=''),
+          DbiQueryWidget("q", label_text=''), 
         ]
 
     def adapt_value(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
+        #debug_here()
         value = ReContext(value)()
         return value
 
 
 
+def xml_parse( txt ):
+    from StringIO import StringIO
+    demo = StringIO( str(txt) )
+    from xml.etree import ElementTree as ET
+    t = ET.parse( demo )
+    r = t.getroot()
+    return r
+
+
+
+class WidgetTest(dict):
+    xhtml = "http://www.w3.org/1999/xhtml"
+    def __init__(self,widget, vls):
+        self.widget = widget
+        self.vls = vls
+        self.root = xml_parse( widget(vls) )   
+    
+    def __call__(self):
+        self.selects_()
+        self.inputs_()
+        assert self.vls == dict(self) , "WidgetTest mismatch vls:%s chk:%s " % ( repr(self.vls) , repr(dict(self)) )
+        return self
+        
+    def selects_(self):
+        for select in self.root.findall(".//{%s}select" % self.xhtml ):
+            id = select.attrib['id']
+            opts = select.findall(".//{%s}option" % self.xhtml )
+            sopt = [o for o in opts if o.attrib.get('selected',False) ]
+            if len(sopt) == 1:
+                if id in self.vls:
+                    self[id] = int(sopt[0].attrib['value']) 
+    
+    def inputs_(self):
+        for input in self.root.findall(".//{%s}input" % self.xhtml ):
+            id = input.attrib['id']
+            if id in self.vls:
+                self[id] = input.attrib['value']
+ 
+     
+    
+
+
 if __name__=='__main__':
-    print DbiQueryWidget.fields
+    #print DbiQueryWidget.fields
+    #dqb = DbiQueryBuilder()
+    #print dqb
+
+    #from rum.query import *   
+    #q = Query(and_([eq('SITE',1)]))
+    #kw = {}
+    #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template     
+    #print dqb(q)   ## see the html
+    
+ 
+    dew = DbiExpressionWidget()
+    vls = { 'SimFlag':2 , 'Site':32 , 'DetectorId':7 , 'Timestamp':"2009/09/01 18:39" } 
+    dew_test = WidgetTest( dew , vls )()
+
+
+
+    
+  
+    
+    
+    
+    
+    
+    
+
