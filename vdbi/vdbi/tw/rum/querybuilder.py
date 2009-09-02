@@ -67,15 +67,12 @@ class DbiExpressionWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.expression"
     css_class = "rum-querybuilder-expression"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag')),   
-           forms.SingleSelectField('Site', options=ctx.options('Site')),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId')),
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default'] ),   
+           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['Site.default'] ),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['DetectorId.default'] ),
            DbiCalendarDateTimePicker('Timestamp'),
         ]
 
-## default=ctx['SimFlag.default']
-## default=ctx['Site.default'])
-## default=ctx['DetectorId.default']
 
 
 class DbiContextWidget(forms.FieldSet):
