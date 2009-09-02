@@ -10,6 +10,15 @@ def handle_log( name , logdir ):
     log.addHandler(handler)
     return log 
 
+def setup_logging(**kw):
+    import logging
+    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG }
+    logc.update(**kw)
+    #logging.basicConfig()
+    for name,levl  in logc.items():
+        handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
+    
+
 
 def load_app(url=None,  dbg=True):
 
@@ -18,17 +27,10 @@ def load_app(url=None,  dbg=True):
         p = Private()
         url = p('DATABASE_URL')          
 
-    import logging
-    #logging.basicConfig()
-    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG }
-    for name,levl  in logc.items():
-        handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
-  
+    setup_logging()
     
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
-    
-    
     
     ## attempt generic function override
     #import vdbi.rum.query 

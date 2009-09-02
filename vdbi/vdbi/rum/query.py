@@ -45,7 +45,12 @@ class ReContext(dict):
             elif isinstance(d['c'],str):
                 if d.get('a',None) and d.get('o',None):
                     if ctx.get(d['c'],None):
-                        self[ctx[d['c']]] = unicode(d['a'])
+                        a = d['a']
+                        try:
+                            ia = int(a)
+                        except ValueError:
+                            ia = a
+                        self[ctx[d['c']]] = ia
     
     def __call__(self):
         d = self.d
@@ -72,6 +77,9 @@ class DbiQueryFactory(QueryFactory):
          """
               turns the request into a Query
               with DBI context criteria added  
+            
+              when request_args are passed upstream the Query.from_dict is invoked to 
+              create a query ... assuming the original widget layout : 'q' in d and 'c' in d['q']
              
          """
          query = super(DbiQueryFactory, self).__call__(resource, request_args=request_args, **kw ) 

@@ -19,6 +19,10 @@ def get_fields():
     except:
         return []
 
+## fake for testing
+#def get_fields():return [(f,f) for f in ("SITE","WIBBLE","WOBBLE")]
+   
+
 operators = [
     ("eq", _("is")),
     ("neq", _("is not")),
@@ -101,8 +105,7 @@ class DbiQueryBuilder(forms.TableForm):
     def adapt_value(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
-        #debug_here()
-        value = ReContext(value)()
+            value = ReContext(value)()
         return value
 
 
@@ -115,70 +118,128 @@ def xml_parse( txt ):
     r = t.getroot()
     return r
 
-
-
-class WidgetTest(dict):
+def xhtml_find( a, elemname ):
     xhtml = "http://www.w3.org/1999/xhtml"
-    def __init__(self,widget, vls):
+    return a.findall(".//{%s}%s" % (xhtml, elemname) )
+
+class WidgetTest(list):
+    
+    def __init__(self, widget, value, **kw ):
         self.widget = widget
-        self.vls = vls
-        self.root = xml_parse( widget(vls) )   
+        self.value = value
+        self.kw = kw
+        self.root = xml_parse( str(self) )   
+    
+    def __str__(self):
+        return self.widget( self.value , **self.kw )
     
     def __call__(self):
         self.selects_()
         self.inputs_()
-        if self.vls != dict(self):
-            print "WidgetTest mismatch vls:%s chk:%s " % ( repr(self.vls) , repr(dict(self)) )
+        self.check_()
         return self
+    
+    def find_(self, elemname ):
+        return xhtml_find(self.root, elemname )
         
     def selects_(self):
-        for select in self.root.findall(".//{%s}select" % self.xhtml ):
+        for select in self.find_('select'):
             id = select.attrib['id']
-            opts = select.findall(".//{%s}option" % self.xhtml )
+            opts = xhtml_find( select , "option")
             sopt = [o for o in opts if o.attrib.get('selected',False) ]
             if len(sopt) == 1:
-                if id in self.vls:
-                    v = sopt[0].attrib['value']
-                    try:
-                        self[id] = int(v) 
-                    except ValueError:
-                        self[id] = v
+                v = sopt[0].attrib['value']
+                try:
+                    iv = int(v)
+                except ValueError:
+                    iv = v
+                self.append( { id:iv } ) 
     
     def inputs_(self):
-        for input in self.root.findall(".//{%s}input" % self.xhtml ):
+        for input in self.find_('input'):
             id = input.attrib['id']
-            if id in self.vls:
-                self[id] = input.attrib['value']
- 
-     
+            self.append( { id:input.attrib['value'] })
+  
+    def check_(self):      
+        print "WidgetTest check value:%s xmlchk:%s " % ( repr(self.value) , repr(list(self)) )  
     
 
 
 if __name__=='__main__':
     #print DbiQueryWidget.fields
-    #dqb = DbiQueryBuilder()
-    #print dqb
 
-    #from rum.query import *   
-    #q = Query(and_([eq('SITE',1)]))
-    #kw = {}
-    #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template     
-    #print dqb(q)   ## see the html
+
+    from vdbi.app import setup_logging
+    setup_logging()
     
     
-    
+    from xml.etree import ElementTree as ET
  
-    dew = DbiExpressionWidget()
-    dew_vls = { 'SimFlag':2 , 'Site':32 , 'DetectorId':7 , 'Timestamp':"2009/09/01 18:39" } 
-    dew_test = WidgetTest( dew , dew_vls )()
+    dew = DbiExpressionWidget('c')
+    dew_v = { 'SimFlag':2 , 'Site':32 , 'DetectorId':7 , 'Timestamp':"2009/09/01 18:39" } 
+    dew_t = WidgetTest( dew , dew_v )()
 
-
-    dcw = DbiContextWidget()
-    dcw_vls = { 'c':[dew_vls] , 'o':"and"  } 
-    dcw_test = WidgetTest( dcw , dcw_vls )()
+    dcw = DbiContextWidget("ctx")
+    dcw_v = { 'c':[dew_v] , 'o':"and"  } 
+    dcw_t = WidgetTest( dcw , dcw_v )()
+     
+    ew = ExpressionWidget("c")
+    ew_v = {'c':"SITE" , 'o':"eq" , 'a':1 }
+    ew_t = WidgetTest( ew , ew_v )()
+       
+    qw = QueryWidget('xtr')
+    qw_v = {  'o':"and" , 'c':[ew_v] }
+    qw_t = WidgetTest( qw , qw_v )()
+    
+    dqw = DbiQueryWidget("q")
+    dqw_v = { 'ctx':dcw_v , 'xtr':qw_v }
+    dqw_t = WidgetTest( dqw , dqw_v )()    ## working 
+    
+    dqb = DbiQueryBuilder("dqb")
+    dqb_v = { 'q':dqw_v }
+    dqb_t = WidgetTest( dqb , dqb_v , adapt=False )()       ## this adapt seems not to be honoured
+    
+    ## nothing was getting thru to values ... 
+    ## due to the ReContext always being done ... changed to only being done for Query values 
+    
+    from rum.query import *   
+    q = Query(and_([eq('VSITE', u'1'), eq('VSIM', u'1'), eq('VSUB', u'0'), lt('VSTART', u'2009/09/01 19:12'), gt('VEND', u'2009/09/01 19:12')]))
+      
+    dqq =  DbiQueryBuilder("dqq")
+    dqq_v = q
+    dqq_t = WidgetTest( dqq , dqq_v  )()  
+    
+    #kw = {}
+    #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template
+    
+    ## pull out what the adapt_value is doing ... converting the query into a dict 
+    ## the dict created assumes the original Rum widget layout ... so use ReContext 
+    ## to rejig the dict to fit into the new widget layout
+    
+    qdict = q.as_dict()
+    qctx = ReContext(qdict)()
+    
+    dqq2_t = WidgetTest( dqq , qctx  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
     
     
     
+"""    
+    In [2]: dqb_v
+    Out[2]: 
+    {'q': {'ctx': {'c': [{'DetectorId': 7,
+                          'SimFlag': 2,
+                          'Site': 32,
+                          'Timestamp': '2009/09/01 18:39'}],
+                   'o': 'and'},
+           'xtr': {'c': [{'a': 1, 'c': 'SITE', 'o': 'eq'}], 'o': 'and'}}}
+"""
+    
+    
+    
+    #d = dcw.prepare_dict(dcw_vls, {} )
+    #v = d['value_for']( dcw ) 
+ 
+ 
     
     
     
