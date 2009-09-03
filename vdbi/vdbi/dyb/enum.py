@@ -34,7 +34,7 @@ class Enum(dict):
         default = { 
                    'Site':self('Site','kDayaBay'), 
                 'SimFlag':self('SimFlag','kMC') , 
-              'DetectorId':self('DetectorId','kAD1') }
+              'DetectorId':self('DetectorId','kUnknown') }
         
         n2a = {       'Site':VLD_COLUMNS['SITEMASK'], 
                    'SimFlag':VLD_COLUMNS['SIMMASK'], 

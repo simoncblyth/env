@@ -67,9 +67,9 @@ class DbiExpressionWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.expression"
     css_class = "rum-querybuilder-expression"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['SimFlag.default'] ),   
-           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['Site.default'] ),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['DetectorId.default'] ),
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['_default']['SimFlag'] ),   
+           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['_default']['Site'] ),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['_default']['DetectorId'] ),
            DbiCalendarDateTimePicker('Timestamp'),
         ]
 
@@ -213,11 +213,18 @@ if __name__=='__main__':
     ## the dict created assumes the original Rum widget layout ... so use ReContext 
     ## to rejig the dict to fit into the new widget layout
     
-    qdict = q.as_dict()
-    qctx = ReContext(qdict)()
+    qd = q.as_dict()
+    qr = ReContext(qd)
+    qv = qr()
+    qt = WidgetTest( dqq , qv  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
     
-    dqq2_t = WidgetTest( dqq , qctx  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
     
+    qxt = and_( [  eq(u'RING', u'2') , q.expr ])
+    qq = q.clone( expr=qxt )
+    qqd = qq.as_dict()
+    qqr = ReContext(qqd)
+    qqv = qqr()
+    qqt = WidgetTest( dqq , qqv )()
     
     
 """    
