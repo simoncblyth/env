@@ -31,21 +31,24 @@ class Enum(dict):
         return [(v,k) for k,v in sorted( self[s].items() , key=lambda (a,b):(b,a) ) ]
 
     def _defaults(self):
-        self['Site.default']    = self('Site','kDayaBay')
-        self['SimFlag.default'] = self('SimFlag','kMC')
-        self['DetectorId.default'] = self('DetectorId','kAD1')
+        default = { 
+                   'Site':self('Site','kDayaBay'), 
+                'SimFlag':self('SimFlag','kMC') , 
+              'DetectorId':self('DetectorId','kAD1') }
         
-        self['Site.attr'] = VLD_COLUMNS['SITEMASK']
-        self['SimFlag.attr'] = VLD_COLUMNS['SIMMASK']
-        self['DetectorId.attr'] = VLD_COLUMNS['SUBSITE']
-        self['TimeStart.attr'] = VLD_COLUMNS['TIMESTART']
-        self['TimeEnd.attr'] = VLD_COLUMNS['TIMEEND']
-
-        self[VLD_COLUMNS['SITEMASK']] = 'Site'
-        self[VLD_COLUMNS['SIMMASK']] = 'SimFlag'
-        self[VLD_COLUMNS['SUBSITE']] = 'DetectorId'
-        self[VLD_COLUMNS['TIMESTART']] = 'Timestamp'
-        self[VLD_COLUMNS['TIMEEND']] = 'Timestamp'
+        n2a = {       'Site':VLD_COLUMNS['SITEMASK'], 
+                   'SimFlag':VLD_COLUMNS['SIMMASK'], 
+                'DetectorId':VLD_COLUMNS['SUBSITE'], 
+                 'TimeStart':VLD_COLUMNS['TIMESTART'],
+                   'TimeEnd':VLD_COLUMNS['TIMEEND'], }
+        a2n = {}
+        for n,a in n2a.items():
+            if n.startswith('Time'):n = 'Timestamp'
+            a2n[a] = n        
+        
+        self['_default']  = default
+        self['_name2attr'] = n2a
+        self['_attr2name'] = a2n
 
 
 ctx = Enum()

@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 
 class ReContext(dict):
-    def __init__(self, d):
+    def __init__(self, a):
         """
            Used in the DbiQueryBuilder.adapt_value , which converts
            a Query object into the dict needed to fill-out the values in 
@@ -24,8 +24,11 @@ class ReContext(dict):
            returned from Query.as_dict needs correction to fit 
         
         """
+        from copy import deepcopy
+        d = deepcopy(a)
         self.d = d
         log.debug("ReContext.__init__ %s " % repr(d) )
+        
         if d and 'q' in d and 'c' in d['q']:     ## standard old dict layout 
             self.recon_ctx_(d['q'])
             
@@ -41,23 +44,34 @@ class ReContext(dict):
             d['q']['xtr']['c'].pop(2)
            
            
+          Popping while iterating is problematic  
+           
         """
+        #print "recon_ctx_ %s " % (repr(d))
         if 'c' in d:
             if isinstance(d['c'], (list,tuple)):
                 dc = d['c']
+                poplist = []
                 for i,dci in enumerate(dc):
-                    if self.recon_ctx_(dci):
-                        d['c'].pop(i)
+                    if self.recon_ctx_(dci):poplist.append(i)
+                for i in reversed(poplist):
+                    d['c'].pop(i)
+                    
             elif isinstance(d['c'],str):
                 if d.get('a',None) and d.get('o',None):
-                    if ctx.get(d['c'],None):
+                    a2n = ctx['_attr2name']
+                    if a2n.get(d['c'],None):
                         a = d['a']
                         try:
                             ia = int(a)
                         except ValueError:
                             ia = a
-                        self[ctx[d['c']]] = ia
+                        self[ a2n[d['c']] ]  = ia
                         return True  ## signal a pop
+            else:
+                log.debug("dc not list or string ")
+        else:
+            log.debug("no c in d ")
         return False        
     
     def __call__(self):
@@ -91,12 +105,13 @@ def ctx_expression(d):
         if isinstance(vs, (list,tuple) ) and len(vs) > 0:
             v = vs[0]       ## only the 1st value 
             if ctx_complete(v):
+                n2a = ctx['_name2attr']
                 return and_([ 
-                   eq(ctx['Site.attr'],v['Site']) ,
-                   eq(ctx['SimFlag.attr'],v['SimFlag']) ,
-                   eq(ctx['DetectorId.attr'],v['DetectorId']) ,    
-                   lt(ctx['TimeStart.attr'],v['Timestamp']),
-                   gt(ctx['TimeEnd.attr'],v['Timestamp']),
+                   eq(n2a['Site'],v['Site']) ,
+                   eq(n2a['SimFlag'],v['SimFlag']) ,
+                   eq(n2a['DetectorId'],v['DetectorId']) ,    
+                   lt(n2a['TimeStart'],v['Timestamp']),
+                   gt(n2a['TimeEnd'],v['Timestamp']),
                          ])
     return None
 
@@ -166,19 +181,20 @@ if __name__=='__main__':
     q = Query(and_([eq('VSITE', u'1'), eq('VSIM', u'2'), eq('VSUB', u'0'), lt('VSTART', u'2009/09/01 15:17'), gt('VEND', u'2009/09/01 15:17')]), None, 30, None)
     d = q.as_dict()
     print d
-    d2 = ReContext(d)()
+    
+    r = ReContext(d)
+    d2 = r()
     print d2
     
-    expr = and_([eq('VSITE',1)])
-    qq = q.clone( expr = and_([q.expr, expr]))
-    dd = qq.as_dict()
-    dd2 = ReContext(dd)()
+    #expr = and_([eq('VSITE',1)])
+    #qq = q.clone( expr = and_([q.expr, expr]))
+    #dd = qq.as_dict()
+    #dd2 = ReContext(dd)()
     
     
-    from webob.multidict import MultiDict, UnicodeMultiDict
-    multi = MultiDict([('q.ctx.o', u'and'), ('q.ctx.c-0.SimFlag', u'2'), ('q.ctx.c-0.Site', u'1'), ('q.ctx.c-0.DetectorId', u'0'), ('q.ctx.c-0.Timestamp', u'2009/09/02 18:34'), ('q.xtr.o', u'and')]) 
-    req = UnicodeMultiDict( multi )
-    d = variabledecode.variable_decode(req)
-    
-    
+    #from webob.multidict import MultiDict, UnicodeMultiDict
+    #multi = MultiDict([('q.ctx.o', u'and'), ('q.ctx.c-0.SimFlag', u'2'), ('q.ctx.c-0.Site', u'1'), ('q.ctx.c-0.DetectorId', u'0'), ('q.ctx.c-0.Timestamp', u'2009/09/02 18:34'), ('q.xtr.o', u'and')]) 
+    #req = UnicodeMultiDict( multi )
+    #d = variabledecode.variable_decode(req)
+    #n = ReContext(d)()
     
