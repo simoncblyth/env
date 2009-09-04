@@ -194,7 +194,7 @@ def test_ctx_req2q():
     req = UnicodeMultiDict( raw.GET )
     q = Query.from_dict( req )         ## the recast is done in the overridden classmethod
     e = Query(and_([ctx_([{'Timestamp': u'2009/09/04 16:43', 'DetectorId': u'0', 'SimFlag': u'2', 'Site': u'1'}], u'and'), and_([eq(u'RING', u'2')])]), None, None, None)
-    assert q == e
+    assert repr(q) == repr(e)
     d = q.as_dict()
     assert Query.from_dict(d).as_dict() == d
 

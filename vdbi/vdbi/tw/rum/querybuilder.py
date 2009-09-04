@@ -11,7 +11,10 @@ from tw.rum.repeater import JSRepeater
 from vdbi import debug_here
 #from vdbi.rum.query import ReContext
 
-
+def get_default_field():
+    fields = get_fields()
+    return fields[1][0]
+        
 
 def get_fields():
     try:
@@ -43,8 +46,8 @@ class ExpressionWidget(forms.FieldSet):
     css_class = "rum-querybuilder-expression"
     template = "genshi:tw.rum.templates.expression"
     fields = [
-        forms.SingleSelectField("c", options=get_fields),
-        forms.SingleSelectField("o", options=operators),
+        forms.SingleSelectField("c", options=get_fields, default=get_default_field ),
+        forms.SingleSelectField("o", options=operators, default=operators[0][0] ),
         forms.TextField("a", validator=UnicodeString),
         ]
 
@@ -205,36 +208,7 @@ if __name__=='__main__':
     dqb_v = { 'q':dqw_v }
     dqb_t = WidgetTest( dqb , dqb_v , adapt=False )()       ## this adapt seems not to be honoured
     
-    ## nothing was getting thru to values ... 
-    ## due to the ReContext always being done ... changed to only being done for Query values 
-    
-    #from rum.query import *   
-    #q = Query(and_([eq('VSITE', u'1'), eq('VSIM', u'1'), eq('VSUB', u'0'), lt('VSTART', u'2009/09/01 19:12'), gt('VEND', u'2009/09/01 19:12')]))
-      
-    #dqq =  DbiQueryBuilder("dqq")
-    #dqq_v = q
-    #dqq_t = WidgetTest( dqq , dqq_v  )()  
-    
-    #kw = {}
-    #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template
-    
-    ## pull out what the adapt_value is doing ... converting the query into a dict 
-    ## the dict created assumes the original Rum widget layout ... so use ReContext 
-    ## to rejig the dict to fit into the new widget layout
-    
-    #qd = q.as_dict()
-    #qr = ReContext(qd)
-    #qv = qr()
-    #qt = WidgetTest( dqq , qd  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
-    
-    
-    #qxt = and_( [  eq(u'RING', u'2') , q.expr ])
-    #qq = q.clone( expr=qxt )
-    #qqd = qq.as_dict()
-    #qqr = ReContext(qqd)
-    #qqv = qqr()
-    #qqt = WidgetTest( dqq , qqv )()
-    
+ 
     
 
     

@@ -29,11 +29,17 @@ def load_app(url=None,  dbg=True):
 
     setup_logging()
     
+    
+    
+    
+    
+    
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
     
     ## attempt generic function override
     #import vdbi.rum.query 
+    
     
     from pkg_resources import resource_filename
     import os
@@ -68,9 +74,6 @@ def load_app(url=None,  dbg=True):
 
 
 
-
-    #from tw.rum import RumDataGrid
-    #RumDataGrid.actions = ['show']
 
     if dbg:
         from debug import Repo, Qry , Mapr, Dump
