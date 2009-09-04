@@ -22,26 +22,6 @@ from vdbi import debug_here
 from vdbi.rum.query import DbiQueryFactory
 
 
-## extend Query2SA translate generic function re ctx expressions        
-
-from vdbi.rum import query as vdbirumquery
-from rumalchemy.query import translate
-
-@translate.when((vdbirumquery.ctx_,))
-def _ctx(expr, resource):
-    v = expr.col
-    from vdbi.dyb import ctx
-    from rum.query import and_, eq, lt, gt
-    n2a = ctx['_name2attr']
-    ctxexpr = and_([ 
-       eq(n2a['Site'],v['Site']) ,
-       eq(n2a['SimFlag'],v['SimFlag']) ,    
-       eq(n2a['DetectorId'],v['DetectorId']) ,    
-       lt(n2a['TimeStart'],v['Timestamp']),
-       gt(n2a['TimeEnd'],v['Timestamp']),
-         ])       
-    return translate( ctxexpr , resource )
-
 
 
 

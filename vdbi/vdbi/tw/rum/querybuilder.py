@@ -1,13 +1,15 @@
 from tw.api import lazystring as _
 from tw import forms
 from tw.forms.validators import UnicodeString
+from tw.forms.validators import Int
+
 
 from rum import app, fields
 from rum.query import Query
 from tw.rum.repeater import JSRepeater
 
 from vdbi import debug_here
-from vdbi.rum.query import ReContext
+#from vdbi.rum.query import ReContext
 
 
 
@@ -67,9 +69,9 @@ class DbiExpressionWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.expression"
     css_class = "rum-querybuilder-expression"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['_default']['SimFlag'] ),   
-           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['_default']['Site'] ),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['_default']['DetectorId'] ),
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['_default']['SimFlag'], validator=Int() ),   
+           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['_default']['Site']   , validator=Int() ),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['_default']['DetectorId'] , validator=Int() ),
            DbiCalendarDateTimePicker('Timestamp'),
         ]
 
@@ -79,18 +81,25 @@ class DbiContextWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
     fields =  [
-       forms.SingleSelectField("o", options=[("and", _("AND")), ("or", _("OR"))] ),
+       forms.HiddenField("o", default="ctx_" ),    
+       forms.SingleSelectField("a", options=[("and", _("AND")), ("or", _("OR"))] ),
        JSRepeater("c", widget=DbiExpressionWidget(), extra=0, add_text=_("Add context"), remove_text=_("Remove"))
         ]
 
+
+
+## if could make an anonymous widget ... would be able to do widget algebra ?
 class DbiQueryWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querywidget"
     css_class = "rum-query-widget"
     fields = [
-          DbiContextWidget("ctx", label_text=''),
-          QueryWidget("xtr", label_text=''),         
-        ]
-        
+                 DbiContextWidget( "ctx", label_text=''),
+                 QueryWidget( "xtr", label_text=''), 
+             ]
+  
+  
+  
+from vdbi.rum.query import _vdbi_uncast       
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
@@ -102,7 +111,7 @@ class DbiQueryBuilder(forms.TableForm):
     def adapt_value(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
-            value = ReContext(value)()
+            value = _vdbi_uncast(value)
         return value
 
 
@@ -199,12 +208,12 @@ if __name__=='__main__':
     ## nothing was getting thru to values ... 
     ## due to the ReContext always being done ... changed to only being done for Query values 
     
-    from rum.query import *   
-    q = Query(and_([eq('VSITE', u'1'), eq('VSIM', u'1'), eq('VSUB', u'0'), lt('VSTART', u'2009/09/01 19:12'), gt('VEND', u'2009/09/01 19:12')]))
+    #from rum.query import *   
+    #q = Query(and_([eq('VSITE', u'1'), eq('VSIM', u'1'), eq('VSUB', u'0'), lt('VSTART', u'2009/09/01 19:12'), gt('VEND', u'2009/09/01 19:12')]))
       
-    dqq =  DbiQueryBuilder("dqq")
-    dqq_v = q
-    dqq_t = WidgetTest( dqq , dqq_v  )()  
+    #dqq =  DbiQueryBuilder("dqq")
+    #dqq_v = q
+    #dqq_t = WidgetTest( dqq , dqq_v  )()  
     
     #kw = {}
     #d = dqb.prepare_dict(q , kw )   ## this is what gets fed to the template
@@ -213,37 +222,21 @@ if __name__=='__main__':
     ## the dict created assumes the original Rum widget layout ... so use ReContext 
     ## to rejig the dict to fit into the new widget layout
     
-    qd = q.as_dict()
-    qr = ReContext(qd)
-    qv = qr()
-    qt = WidgetTest( dqq , qv  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
+    #qd = q.as_dict()
+    #qr = ReContext(qd)
+    #qv = qr()
+    #qt = WidgetTest( dqq , qd  )()    ## only timestamp getting thru to context, fixed by changing from string to int ... now all getting thru 
     
     
-    qxt = and_( [  eq(u'RING', u'2') , q.expr ])
-    qq = q.clone( expr=qxt )
-    qqd = qq.as_dict()
-    qqr = ReContext(qqd)
-    qqv = qqr()
-    qqt = WidgetTest( dqq , qqv )()
+    #qxt = and_( [  eq(u'RING', u'2') , q.expr ])
+    #qq = q.clone( expr=qxt )
+    #qqd = qq.as_dict()
+    #qqr = ReContext(qqd)
+    #qqv = qqr()
+    #qqt = WidgetTest( dqq , qqv )()
     
     
-"""    
-    In [2]: dqb_v
-    Out[2]: 
-    {'q': {'ctx': {'c': [{'DetectorId': 7,
-                          'SimFlag': 2,
-                          'Site': 32,
-                          'Timestamp': '2009/09/01 18:39'}],
-                   'o': 'and'},
-           'xtr': {'c': [{'a': 1, 'c': 'SITE', 'o': 'eq'}], 'o': 'and'}}}
-"""
-    
-    
-    
-    #d = dcw.prepare_dict(dcw_vls, {} )
-    #v = d['value_for']( dcw ) 
- 
- 
+
     
     
     
