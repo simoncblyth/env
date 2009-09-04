@@ -22,6 +22,31 @@ from vdbi import debug_here
 from vdbi.rum.query import DbiQueryFactory
 
 
+## extend Query2SA translate generic function re ctx expressions        
+
+from vdbi.rum import query as vdbirumquery
+from rumalchemy.query import translate
+
+@translate.when((vdbirumquery.ctx_,))
+def _ctx(expr, resource):
+    v = expr.col
+    from vdbi.dyb import ctx
+    from rum.query import and_, eq, lt, gt
+    n2a = ctx['_name2attr']
+    ctxexpr = and_([ 
+       eq(n2a['Site'],v['Site']) ,
+       eq(n2a['SimFlag'],v['SimFlag']) ,    
+       eq(n2a['DetectorId'],v['DetectorId']) ,    
+       lt(n2a['TimeStart'],v['Timestamp']),
+       gt(n2a['TimeEnd'],v['Timestamp']),
+         ])       
+    return translate( ctxexpr , resource )
+
+
+
+
+
+
 
 def fix_entity_name( entity , table ):
     entity.__name__ = str(table.name)    ## fix the .capitalized name  
@@ -40,15 +65,16 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         return self.names_for_resource(resource.__class__)
         
     def __call__(self, resource, parent=None, remote_name=None, action=None, parent_id=None):
+        """
+          Called 4 times for each table row :  3* for Dbi + 1 for Vld  
+          due to RespositoryFactory.get_id from url_for : show/edit/delete dbi + related vld
+            
+          The original QueryFactory object that was hooked up in rum.Repository 
+          is replaced by DbiQueryFactory 
+        """
         get_repo = super(DbiSARepositoryFactory, self).__call__
         repo = get_repo(resource, parent, remote_name=remote_name, action=action)
-        # THIS IS CALLED 4 TIMES FOR EVERY ROW OF THE TABLE ???  3* for Dbi + 1 for Vld ??? 
-        #    ... RespositoryFactory.get_id appears to be the culprit when called in order to form the url for  show/edit/delete  and related vld ...
-        #print "intercepted repository creation resource:%s self:%s repo:%s qf:%s " % ( resource, repr(self), repo , repo.queryfactory )
-        
-        #print "%s replacing %s " % (self, repo.queryfactory)
-        repo.queryfactory = DbiQueryFactory()     ## replacing the QueryFactory object 
-        #debug_here()
+        repo.queryfactory = DbiQueryFactory()     
         return repo
    
     def dbi_fk_ojoins(self, soup ):
@@ -281,18 +307,18 @@ class DbiSARepositoryFactory(SARepositoryFactory):
 
 
 
-if __name__=='__main__':
 
-    from sqlalchemy import create_engine
-    from sqlalchemy.orm import scoped_session, sessionmaker
-    from env.base.private import Private
-    p = Private()
-    engine = create_engine(p('DATABASE_URL'))    
+def test_standalone_saquery():
+    """
+       standalone queries cause assertions due to lack of resource hookup 
+       instead : access the query via the repo queryfactory (which is engine agnostic)
+    """
+    from rumalchemy.query import SAQuery
+    sq =  SAQuery(and_([eq(u'SEQ', u'1'), eq(u'SITE', u'1'), eq(u'AD', u'1'), eq(u'RING', u'1')]), None, None, None)
 
-    Session = scoped_session(sessionmaker(autocommit=False, autoflush=True))
-    factory = DbiSARepositoryFactory( reflect='dbi', engine=engine, session_factory=Session)
-    factory.load_resources()
 
+
+def test_dump_columns():
     for modl in factory._models:
         mapr = factory.mappers[ modl ]
         print "modl %s mapr %s " % ( modl, mapr ) 
@@ -300,44 +326,64 @@ if __name__=='__main__':
         print "mapr column properties : "
         for cp in mapr.iterate_properties:
             print cp
-
     
+
+def test_join_tables():
     metadata = factory.soup._metadata
     pay_t = metadata.tables.get("SimPmtSpec")
     vld_t = metadata.tables.get("SimPmtSpecVld")
     pv_t = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
-
-
-    modl = factory._models[1]
-    repo = factory(modl)
     
-
+ 
+def test_select_all():
+    """
+        all[-1]  fails
+    """
     all = repo.select()
+    assert all[0].ROW == 2
+    assert all[1000].ROW == 1002 
+    assert all.count() == 3169
+ 
 
-    print all[0]
-    print all[1000]
-    #print all[-1]     fails 
-
-    
-    
-    
-  
-    ## standalone queries cause assertions due to lack of resource hookup 
-    ## from rumalchemy.query import SAQuery
-    ## sq =  SAQuery(and_([eq(u'SEQ', u'1'), eq(u'SITE', u'1'), eq(u'AD', u'1'), eq(u'RING', u'1')]), None, None, None)
-    ## access the query via the repo queryfactory : NB this is also engine agnostic
-
-    q = repo.queryfactory( modl ) 
+def test_select_ctx():
+    """
+        Makes use of the extended translate genericfunction that 
+        understands ctx_ expressions 
+    """
+    q  = repo.queryfactory( resource ) 
     assert q.__class__.__name__ == 'SAQuery'
-    print q
     
-    from rum.query import *
+    sq = repo.select(q)      
+    assert sq.__class__.__name__ == 'Query' and sq.__class__.__module__ == 'sqlalchemy.orm.query'
     
+    from vdbi.rum.query import ctx_
+    p  = q.clone( expr = ctx_({'Timestamp': u'2009/09/03 18:54', 'DetectorId': 0, 'SimFlag': 2, 'Site': 1})  )       
+    sp = repo.select(p)
     
-    s = repo.select(q)   ## sqlalchemy.orm.query.Query object
+    assert sp[0].ROW == 2
+    assert sp[1000].ROW == 1002
+    assert sp.count() == 3169 
+    
+ 
 
-    nq = q.clone( expr = and_([q.expr, eq('SEQ',1) ]) )       
 
+if __name__=='__main__':
 
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    from env.base.private import Private
+    priv = Private()
+    engine = create_engine(priv('DATABASE_URL'))    
+
+    Session = scoped_session(sessionmaker(autocommit=False, autoflush=True))
+    factory = DbiSARepositoryFactory( reflect='dbi', engine=engine, session_factory=Session)
+    factory.load_resources()
+    resource = factory._models[1]
+    repo = factory(resource) 
+
+    #test_dump_columns()
+    #test_join_tables()
+    test_select_all()
+    test_select_ctx()
 
 
