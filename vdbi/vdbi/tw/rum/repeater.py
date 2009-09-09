@@ -22,5 +22,5 @@ class DbiJSRepeater(JSRepeater):
     template = "genshi:vdbi.tw.rum.templates.repeater"
     javascript = [dbi_repeater_js]
     def update_params(self, d):
-        print "DbiJSRepeater %s" % repr(d)
+        #print "DbiJSRepeater %s" % repr(d)
         super(DbiJSRepeater, self).update_params(d)

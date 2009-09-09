@@ -60,12 +60,12 @@ class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
     css_class = "rum-querybuilder-expression"
     
     def __init__(self, *args, **kw):
-        print "DbiCalendarDateTimePicker.__init__ %s %s " % ( repr(args), repr(kw))
+        #print "DbiCalendarDateTimePicker.__init__ %s %s " % ( repr(args), repr(kw))
         super(DbiCalendarDateTimePicker, self).__init__(*args, **kw)
     
     def update_params(self, d):
         super(DbiCalendarDateTimePicker, self).update_params(d)
-        print "DbiCalendarDateTimePicker.update_params %s  " % (  repr(d))
+        #print "DbiCalendarDateTimePicker.update_params %s  " % (  repr(d))
 
     
 
