@@ -6,10 +6,14 @@ from tw.forms.validators import Int
 
 from rum import app, fields
 from rum.query import Query
-from tw.rum.repeater import JSRepeater
 
+# switch in the DbiJSRepeater in order for Calendar setup to be done on adding repetitions
+#from tw.rum.repeater import JSRepeater
+from vdbi.tw.rum.repeater import DbiJSRepeater
+
+from tw.rum import widgets
 from vdbi import debug_here
-#from vdbi.rum.query import ReContext
+
 
 def get_default_field():
     fields = get_fields()
@@ -51,8 +55,18 @@ class ExpressionWidget(forms.FieldSet):
         forms.TextField("a", validator=UnicodeString),
         ]
 
-class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):
+##class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):
+class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
     css_class = "rum-querybuilder-expression"
+    
+    def __init__(self, *args, **kw):
+        print "DbiCalendarDateTimePicker.__init__ %s %s " % ( repr(args), repr(kw))
+        super(DbiCalendarDateTimePicker, self).__init__(*args, **kw)
+    
+    def update_params(self, d):
+        super(DbiCalendarDateTimePicker, self).update_params(d)
+        print "DbiCalendarDateTimePicker.update_params %s  " % (  repr(d))
+
     
 
 class QueryWidget(forms.FieldSet):
@@ -62,7 +76,7 @@ class QueryWidget(forms.FieldSet):
         forms.SingleSelectField("o",
             options=[("and", _("AND")), ("or", _("OR"))]
             ),
-        JSRepeater("c", widget=ExpressionWidget(), extra=0,
+        DbiJSRepeater("c", widget=ExpressionWidget(), extra=0,
                    add_text=_("Add criteria"), remove_text=_("Remove"))
         ]
 
@@ -79,14 +93,14 @@ class DbiExpressionWidget(forms.FieldSet):
         ]
 
 
-
+## need the DbiJSRepeater in order to do the calendar hookup in repetitions
 class DbiContextWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
     fields =  [
        forms.HiddenField("o", default="ctx_" ),    
        forms.SingleSelectField("a", options=[("and", _("AND")), ("or", _("OR"))] ),
-       JSRepeater("c", widget=DbiExpressionWidget(), extra=0, add_text=_("Add context"), remove_text=_("Remove"))
+       DbiJSRepeater("c", widget=DbiExpressionWidget(), extra=0, add_text=_("Add context"), remove_text=_("Remove"))
         ]
 
 
