@@ -19,7 +19,7 @@ twdev-cd(){  cd $(twdev-dir); }
 twdev-mate(){ mate $(twdev-dir) ; }
 
 twdev-rbase(){ echo http://toscawidgets.org/hg ; }
-twdev-repos(){ echo tw.jquery ; }
+twdev-repos(){ echo tw.jquery ToscaWidgets ; }
 twdev-get(){
    local msg="=== $FUNCNAME :"
    local dir=$(twdev-dir) &&  mkdir -p $dir && cd $dir
@@ -44,4 +44,13 @@ twdev-install(){
    done
 }
 
-
+twdev-serve(){
+   local msg="=== $FUNCNAME :"
+   local repo=${1:-tw.jquery}
+   shift
+   local dir=$(twdev-dir)/$repo
+   [ ! -d "$dir" ] && echo $msg ERROR no such repo $dir && return 1
+   echo $msg starting local webserver ... browse repo $repo at http://localhost:8000
+   cd $dir 
+   hg serve $*
+}
