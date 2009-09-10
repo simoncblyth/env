@@ -120,27 +120,31 @@ def _vdbi_recast(d):
     
 def _vdbi_uncast(d):
     """ 
-       NASTY HAVING TO DO DETECTIVE WORK ON THE DICT 
-       ... BUT YET TO FIND A BETTER WAY ?
-           * maybe use xtr_ operator   
-           * plant a hidden field in "a" slot with value "xtr_"  for the extras
+        Note :
+           * planted a hidden field in "a" slot with value "xtr_"  for the extras
+             to avoid divination 
        
          convert back to the form needed by the widgets 
          replacing the ctx and xtr nodes
+         
     """
-    if d and 'q' in d:
-        if len(d['q']['c']) == 2 and d['q']['c'][0].get('o', None) and d['q']['c'][0]['o'] == u"ctx_":
-                return { 'q':{ 'ctx': d['q']['c'][0] , 'xtr': d['q']['c'][1] }  }
+    if d and 'q' in d:    ## identify only xtr or only ctx queries
+        if d['q'].get('a', None) and d['q']['a'] == "xtr_":
+            lab = "xtr"
+        elif d['q'].get('o', None) and d['q']['o'] == "ctx_":
+            lab = "ctx"
         else:
-            if len(d['q']['c']) > 0 and d['q']['c'][0].get('o',None):
-                if d['q']['c'][0]['o'] == u"ctx_":
-                    lab = "ctx"
-                else:
-                    lab = "xtr"
-                return { 'q':{ lab:d['q']['c'][0] } }
+            lab = None
+            
+        if lab:
+            r =  { 'q':{ lab:d['q'] } }
+            print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))
+            return r
+        else:
+            if len(d['q']['c']) == 2 and d['q']['c'][0].get('o', None) and d['q']['c'][0]['o'] == u"ctx_":
+                return { 'q':{ 'ctx': d['q']['c'][0] , 'xtr': d['q']['c'][1] }  }
             else:
-                print "_vdbi_uncast %s " % (repr(d))
-                return d
+                print "_vdbi_uncast unsupported dict layout %s  " % (repr(d))
     else:
         return d
 
@@ -176,8 +180,35 @@ class DbiQueryFactory(QueryFactory):
 
 
 
-#def test_new_layout():
-#    raw = Request.blank("http://localhost:8080/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+16%3A21%3A03&q.xtr.o=and&q.xtr.c-0.c=ROW&q.xtr.c-0.o=eq&q.xtr.c-0.a=10")
+def test_new_layout_with_xtr_mark():
+    """
+       avoid divination of the dict layouts due to the presence of the xtr_ marker hailing from a hidden field 
+    """
+    from webob import Request, UnicodeMultiDict
+    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+20%3A10%3A01&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=ROW&q.xtr.c-0.o=eq&q.xtr.c-0.a=10")
+    req = UnicodeMultiDict( raw.GET )
+    
+    from formencode import variabledecode
+    o = variabledecode.variable_decode(req)
+    assert o == {'q': {'ctx': {'a': u'and',
+                               'c': [{'DetectorId': u'0','SimFlag': u'2','Site': u'1','Timestamp': u'2009-09-10 20:10:01'}],
+                               'o': u'ctx_'},
+                       'xtr': {'a': u'xtr_',
+                               'c': [{'a': u'10', 'c': u'ROW', 'o': u'eq'}],
+                               'o': u'and'}}}
+    
+    q = Query.from_dict( req )
+    d = q.as_dict()
+    assert d == {'q': {'a': None,
+                       'c': [
+                             {'a': u'and',
+                              'c': [{'DetectorId': u'0','SimFlag': u'2','Site': u'1','Timestamp': u'2009-09-10 20:10:01'}],
+                              'o': u'ctx_'},
+                             {'a': 'xtr_',
+                              'c': [{'a': '10', 'c': 'ROW', 'o': 'eq'}],
+                              'o': 'and'}
+                            ],
+                       'o': 'and'}}
 
 
 def test_ctx_layout():
@@ -298,6 +329,10 @@ def test_ctx_only():
 
 
 
+
+
+
+
 if __name__=='__main__':
 
     test_ctx0_as_dict()  
@@ -309,5 +344,5 @@ if __name__=='__main__':
     test_cast()
     
     test_ctx_only()
-    
+    test_new_layout_with_xtr_mark()
     

@@ -36,7 +36,7 @@ twdev-install(){
    rum-
    [ "$(which python)" != "$(rum-dir)/bin/python" ] && echo $msg ABORT this must be run whilst inside the rum virtualenv  && return 1
 
-   local tips="tw.jquery"
+   local tips="tw.jquery ToscaWidgets"
    local tip ; for tip in $tips ; do
       twdev-cd
       cd $tip
