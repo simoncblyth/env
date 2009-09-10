@@ -102,6 +102,10 @@ def _vdbi_recast(d):
     """  
          recast the dict into the oldform without the ctx and xtr nodes 
          despite the new widget layout  
+         
+         cannot fake thinks to retain a consistent structure as the 
+         fakes will appear in the interface ... so have to detect the 
+         different dict topologies 
     """
     xtr = 'q' in d and 'xtr' in d['q'] and 'c' in d['q']['xtr']
     ctx = 'q' in d and 'ctx' in d['q'] and 'c' in d['q']['ctx']
@@ -116,23 +120,30 @@ def _vdbi_recast(d):
     
 def _vdbi_uncast(d):
     """ 
+       NASTY HAVING TO DO DETECTIVE WORK ON THE DICT 
+       ... BUT YET TO FIND A BETTER WAY ?
+           * maybe use xtr_ operator   
+           * plant a hidden field in "a" slot with value "xtr_"  for the extras
+       
          convert back to the form needed by the widgets 
          replacing the ctx and xtr nodes
     """
     if d and 'q' in d:
-        assert d['q']['o'] == u"and"
-        if len(d['q']['c']) == 2 and d['q']['c'][0]['o'] == u"ctx_":
-            return { 'q':{ 'ctx': d['q']['c'][0] , 'xtr': d['q']['c'][1] }      }
-        elif len(d['q']['c']) == 1:
-            if d['q']['c'][0]['o'] == u"ctx_":
-                lab = "ctx"
-            else:
-                lab = "xtr"
-            return { 'q':{ lab:d['q']['c'][0] } }
+        if len(d['q']['c']) == 2 and d['q']['c'][0].get('o', None) and d['q']['c'][0]['o'] == u"ctx_":
+                return { 'q':{ 'ctx': d['q']['c'][0] , 'xtr': d['q']['c'][1] }  }
         else:
-            return d
+            if len(d['q']['c']) > 0 and d['q']['c'][0].get('o',None):
+                if d['q']['c'][0]['o'] == u"ctx_":
+                    lab = "ctx"
+                else:
+                    lab = "xtr"
+                return { 'q':{ lab:d['q']['c'][0] } }
+            else:
+                print "_vdbi_uncast %s " % (repr(d))
+                return d
     else:
         return d
+
             
 def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""
@@ -165,6 +176,8 @@ class DbiQueryFactory(QueryFactory):
 
 
 
+#def test_new_layout():
+#    raw = Request.blank("http://localhost:8080/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+16%3A21%3A03&q.xtr.o=and&q.xtr.c-0.c=ROW&q.xtr.c-0.o=eq&q.xtr.c-0.a=10")
 
 
 def test_ctx_layout():
@@ -235,8 +248,53 @@ def test_cast():
                           'Timestamp': u'2009/09/04 16:43'}],
                    'o': u'ctx_'},
            'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
-           
+
+    f = _vdbi_recast( e )   ## remove the ctx and xtr 
+    assert f == {'q': {'c': [{'a': u'and',
+                   'c': [{'DetectorId': u'0',
+                          'SimFlag': u'2',
+                          'Site': u'1',
+                          'Timestamp': u'2009/09/04 16:43'}],
+                   'o': u'ctx_'},
+                  {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}],
+            'o': u'and'}}
+        
+    g = _vdbi_uncast( f )   ## put them back ... as needed for widget display
+    assert g ==         {'q': {'ctx': {'a': u'and',
+                           'c': [{'DetectorId': u'0',
+                                  'SimFlag': u'2',
+                                  'Site': u'1',
+                                  'Timestamp': u'2009/09/04 16:43'}],
+                           'o': u'ctx_'},
+                   'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
     assert _vdbi_uncast( _vdbi_recast( e ) ) == e
+
+
+def test_ctx_only():
+    """
+         when no additional criteria are added ... leaving just a ctx query 
+         the form of the dict is causing assertions / key errors in the uncast 
+    
+    """
+    from webob import Request, UnicodeMultiDict
+    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+15%3A04%3A06&q.ctx.c-1.SimFlag=1&q.ctx.c-1.Site=1&q.ctx.c-1.DetectorId=0&q.ctx.c-1.Timestamp=2009-09-17+15%3A05%3A14&q.xtr.o=and")    
+    req = UnicodeMultiDict( raw.GET )
+    q = Query.from_dict( req )
+    print q
+    d = q.as_dict()
+    x = {'q': {'a': u'and',
+               'c': [{'DetectorId': u'0',
+                      'SimFlag': u'2',
+                      'Site': u'1',
+                      'Timestamp': u'2009-09-10 15:04:06'},
+                     {'DetectorId': u'0',
+                      'SimFlag': u'1',
+                      'Site': u'1',
+                      'Timestamp': u'2009-09-17 15:05:14'}],
+                'o': u'ctx_'}}
+    assert d == x , "query as dict when ctx only mismatches expectations "
+    
+    y = _vdbi_uncast( x )
 
 
 
@@ -248,7 +306,8 @@ if __name__=='__main__':
     
     test_ctx_layout()
     test_ctx_req2q()
-
     test_cast()
+    
+    test_ctx_only()
     
     

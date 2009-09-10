@@ -70,14 +70,12 @@ class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
     
 
 class QueryWidget(forms.FieldSet):
-    template = "genshi:tw.rum.templates.querybuilder"
+    template = "genshi:vdbi.tw.rum.templates.querybuilder"
     css_class = "rum-query-widget"
     fields = [
-        forms.SingleSelectField("o",
-            options=[("and", _("AND")), ("or", _("OR"))]
-            ),
-        DbiJSRepeater("c", widget=ExpressionWidget(), extra=0,
-                   add_text=_("Add criteria"), remove_text=_("Remove"))
+        forms.SingleSelectField("o",options=[("and", _("AND")), ("or", _("OR"))]),
+        DbiJSRepeater("c", widget=ExpressionWidget(), extra=0,add_text=_("Add criteria"), remove_text=_("Remove")),
+        forms.HiddenField("a", default="xtr_" ), 
         ]
 
 
