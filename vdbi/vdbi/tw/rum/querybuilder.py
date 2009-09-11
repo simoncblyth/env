@@ -136,19 +136,6 @@ class DbiQueryBuilder(forms.TableForm):
 
 
 
-
-
-
-from tw.jquery import JQPlotWidget
-class DbiPlotWidget(JQPlotWidget):
-    date = [[[1,1],[2,2]]]
-
-
-
-
-
-
-
 def xml_parse( txt ):
     from StringIO import StringIO
     demo = StringIO( str(txt) )
