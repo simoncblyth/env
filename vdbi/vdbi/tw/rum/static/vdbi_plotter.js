@@ -26,6 +26,19 @@ Plotter = function ( plot_id, data_url , data_kw , opts ){
                 series[is]._y = label.substring(n+1)
             }
         }
+        
+        // promote the axes renderers to functions 
+        var axes = this.opts.axes
+        if ( typeof axes.xaxis !== 'undefined' ){
+            if ( typeof axes.xaxis.renderer  === 'string' ){
+                axes.xaxis.renderer = $.jqplot[axes.xaxis.renderer]
+            }
+        } 
+        if ( typeof axes.yaxis  !== 'undefined' ){
+            if (typeof axes.yaxis.renderer == 'string' ){
+                axes.yaxis.renderer = $.jqplot[axes.yaxis.renderer]
+            }
+        }
    }
      
    this.handle_data = function(json){  // invoked by load_data when the data arrives 

@@ -23,4 +23,3 @@ class DbiWidgetFactory(WidgetFactory):
         for k,v in app.config['widgets'].items():
             print k,v.__class__
 
-

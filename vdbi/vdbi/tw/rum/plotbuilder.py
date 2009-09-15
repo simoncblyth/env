@@ -101,7 +101,7 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         url = req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html
         return url
 
-    def adapt_value(self, value):
+    def adapt_value_custom(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
             print "DbiPlotView.adapt_value Query  as_dict : %s " % (repr(value))
@@ -112,21 +112,44 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
     def update_params(self, d):
         d['id'] = "plotid"
         d['src_url'] = self.data_url( app.request )
-        
-        value = d['value']
-        
-        if 'q' in value and 'plt' in value['q']:
+     
+        if isinstance(d['value'], Query):
+            q = d['value']
+            v = self.adapt_value_custom( q )
+            print "DbiPlotView.update_params %s" % repr(q)
+        else:
+            v = d['value']
+ 
+        if 'q' in v and 'plt' in v['q']:
+            
+            opts = {
+                 'legend':{ 'show':True }, 
+                 'cursor':{ 'zoom':True, 'showTooltip':False },
+                   'axes':{},
+                 'series':[],
+            }
+            
+            t_cols = ('VSTART','VEND','VINSERT')
+            xtime = True
+            ytime = True
             series = []
-            for sd in value['q']['plt']['c']:
+            for sd in v['q']['plt']['c']:
                 if 'x' in sd and 'y' in sd:
                     series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
+                    if sd['x'] not in t_cols:xtime = False
+                    if sd['y'] not in t_cols:ytime = False
                     
-            d['options'] = { 
-                    # 'title':"Default Title from Python" , 
-                     'legend':{ 'show':True }, 
-                     'cursor':{ 'zoom':True, 'showTooltip':False }, 
-                     'series':series
-                     }
+            if xtime:
+                opts['axes']['xaxis'] = { 'renderer':'DateAxisRenderer', } 
+            if ytime:
+                opts['axes']['yaxis'] = { 'renderer':'DateAxisRenderer', }
+                              
+            if len(series) > 0:
+                opts['series'] = series   
+    
+                     
+            d['options'] = opts
+                     
         
         super(DbiPlotView,self).update_params(d)
         print "DbiPlotView.update_params %s " % repr(d)

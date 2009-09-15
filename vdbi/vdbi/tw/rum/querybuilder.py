@@ -128,12 +128,6 @@ class DbiContextWidget(forms.FieldSet):
         ]
 
 
-
-
-
-
-
-## if could make an anonymous widget ... would be able to do widget algebra ?
 class DbiQueryWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querywidget"
     css_class = "rum-query-widget"
@@ -143,8 +137,7 @@ class DbiQueryWidget(forms.FieldSet):
                  PlotWidget("plt", label_text=''),
              ]
   
-  
-  
+   
 from vdbi.rum.query import _vdbi_uncast       
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
@@ -156,7 +149,6 @@ class DbiQueryBuilder(forms.TableForm):
 
     def adapt_value(self, value):
         if isinstance(value, Query):
-            
             value = value.as_dict()
             print "adapt_value Query  as_dict : %s " % (repr(value))
             value = _vdbi_uncast(value)

@@ -21,7 +21,7 @@
       <div py:if="'paginator' in widgets"
            py:replace="widgets['paginator'](query)" />
 	  	
-	  <div py:if="'plotview' in widgets"
+	  <div py:if="'plotview' in widgets and query.show_plot()"
 	           py:replace="widgets['plotview'](query)" />
 
       <!--!<a href="${url_for(action='new')}" class="noprint">
@@ -29,7 +29,9 @@
       </a>-->
       <div py:if="'context_links' in widgets"
              py:replace="widgets['context_links']()" />
-      ${view(items,query=query)}
+      
+      <div py:if="query.show_table()"
+              py:replace="view(items,query=query)" />
       <div py:if="'csvlink' in widgets"
              py:replace="widgets['csvlink'](query=query)" />
     </div>

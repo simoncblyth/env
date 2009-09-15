@@ -194,6 +194,12 @@ def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""
     expr = sort = limit = offset = None
     od = variabledecode.variable_decode(od)
+    
+    if 'q' in od and 'plt' in od['q']:
+        plt = od['q']['plt']
+    else:
+        plt = {}
+    
     d = _vdbi_recast(od)  
     #debug_here()
     if 'q' in d and 'c' in d['q']:
@@ -206,12 +212,25 @@ def _vdbi_query_from_dict(cls, od):
         limit = Int(min=0).to_python(d['limit'])
     if 'offset' in d:
         offset = Int(min=0).to_python(d['offset'])
-        
-    # {'plt': {'a': u'plt_', 'c': [{'y': u'ROW', 'x': u'VSTART'}, {'y': u'RING', 'x': u'VSTART'}], 'o': u'table'},    
+           
     obj = cls(expr, sort, limit, offset) 
+    obj.plt = plt                  ## risky ?
     return obj
 
 Query.from_dict = classmethod(_vdbi_query_from_dict)
+
+
+def show_smth(self, smth=()):
+    d = self.as_dict()
+    ud = _vdbi_uncast( d )
+    if 'q' in ud and 'plt' in ud['q'] and 'a' in ud['q']['plt']:
+        return ud['q']['plt']['a'] in smth
+    return True
+    
+
+Query.show_smth = show_smth
+Query.show_plot = lambda self:self.show_smth(("plot","both"))
+Query.show_table = lambda self:self.show_smth(("table","both"))
 
 
 class DbiQueryFactory(QueryFactory): 
