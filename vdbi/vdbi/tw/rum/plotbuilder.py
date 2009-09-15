@@ -1,12 +1,19 @@
 
 from vdbi import debug_here
+from rum.query import Query
 
-from tw.jquery import JQPlotWidget
-from tw.jquery.jqplot import AsynchronousJQPlotWidget
 from tw.api import JSLink, js_function,  js_callback
+from tw.jquery import JQPlotWidget
+from tw.jquery.jqplot import AsynchronousJQPlotWidget, jqp_cursor_js, jqp_dateAxis_js 
 
 
+plotter_js = JSLink(modname = 'vdbi.tw.rum', filename = 'static/vdbi_plotter.js' )
 
+extra_js = [
+   jqp_cursor_js, 
+   jqp_dateAxis_js,
+   plotter_js, 
+]
 
 
 class DbiJQPlotWidget(JQPlotWidget):
@@ -23,8 +30,6 @@ class DbiJQPlotWidget(JQPlotWidget):
         )
         
         return d
-
-
 
 class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
     """
@@ -45,9 +50,9 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
     """
  
     def __init__(self, id,  *args, **kw):
-        if not(kw):kw = {}
+        if not(kw):kw = {}       
         if 'extra_js' not in kw:
-            kw['extra_js'] = [JSLink(modname = 'vdbi.tw.rum', filename = 'static/vdbi_plotter.js' )]
+            kw['extra_js'] = extra_js
         super(DbiAsynchronousJQPlotWidget, self).__init__(id, *args, **kw)
 
 
@@ -71,7 +76,7 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
             data = [[[0,0]]]
         options = d.get('options')
         if not options:
-            options = { 'title':"Default Title from Python" }
+            options = {}
         interval = d.get('interval')
         if not interval:
             interval = -1
@@ -84,6 +89,9 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
 
       
 from rum import app
+from vdbi.rum.query import _vdbi_uncast
+
+
 class DbiPlotView(DbiAsynchronousJQPlotWidget):
 
     def __init__(self):
@@ -93,10 +101,34 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         url = req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html
         return url
 
+    def adapt_value(self, value):
+        if isinstance(value, Query):
+            value = value.as_dict()
+            print "DbiPlotView.adapt_value Query  as_dict : %s " % (repr(value))
+            value = _vdbi_uncast(value)
+            print "DbiPlotView.adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
+        return value
+
     def update_params(self, d):
         d['id'] = "plotid"
         d['src_url'] = self.data_url( app.request )
-        d = super(DbiPlotView,self).update_params(d)
+        
+        value = d['value']
+        
+        if 'q' in value and 'plt' in value['q']:
+            series = []
+            for sd in value['q']['plt']['c']:
+                if 'x' in sd and 'y' in sd:
+                    series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
+                    
+            d['options'] = { 
+                    # 'title':"Default Title from Python" , 
+                     'legend':{ 'show':True }, 
+                     'cursor':{ 'zoom':True, 'showTooltip':False }, 
+                     'series':series
+                     }
+        
+        super(DbiPlotView,self).update_params(d)
         print "DbiPlotView.update_params %s " % repr(d)
         return d
 

@@ -6,21 +6,45 @@ Plotter = function ( plot_id, data_url , data_kw , opts ){
    this.data_url = data_url
    this.data_kw = data_kw
    this.opts = opts
-   
-   
-   this.handle_data = function(data){  // invoked by load_data when the data arrives 
-      var cols = [];
-      for( _i = 0 ; _i < data.items.length ; _i++ ){
-      	  item = data.items[_i];
-       	  cols.push( [item.ROW, item.DARKRATE] );    
+   this.data = []    
+ 
+   this.zero = function(){
+       var series = this.opts.series
+       for( is = 0 ; is < series.length ; is++ ){
+           this.data[is] = []
        }
-       this.plot = $.jqplot( this.plot_id , [cols] , this.opts )
+   }    
+ 
+   this.configure = function(){  //  examine the labels to determine which rows to put into the data 
+       this.zero()
+       var series = this.opts.series
+       for( is = 0 ; is < series.length ; is++ ){
+            var label = series[is].label 
+            var n     = label.indexOf(':') 
+            if ( n > -1 ){
+                series[is]._x = label.substring(0,n)
+                series[is]._y = label.substring(n+1)
+            }
+        }
+   }
+     
+   this.handle_data = function(json){  // invoked by load_data when the data arrives 
+
+      var series = this.opts.series 
+      for( _i = 0 ; _i < json.items.length ; _i++ ){
+      	  item = json.items[_i];
+       	  for( is = 0 ; is < series.length ; is++ ){
+              var s = series[is]
+              this.data[is].push( [item[s._x], item[s._y]] )
+          }
+      } 	  
+      this.plot = $.jqplot( this.plot_id , this.data , this.opts )
    }
    
-   this.load_data = function(){
-      var obj = this ;    // NB this is done async
-      $.getJSON( this.data_url , this.data_kw ,  function (data){ 
-              obj.handle_data(data);
+   this.load_data = function(){    // NB getJSON returns asynchronously
+      var obj = this ;   
+      $.getJSON( this.data_url , this.data_kw ,  function (json){ 
+              obj.handle_data(json);
           })
    }
 
@@ -41,6 +65,7 @@ Plotter.setup = function(params){
     param_default( "opts"     , {'title':"Default Plot Title"} )
     
     plotr = new Plotter( params["plot_id"], params["data_url"], params["data_kw"], params["opts"] )
+    plotr.configure()
     plotr.load_data()
     return plotr 
     

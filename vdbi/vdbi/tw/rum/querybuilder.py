@@ -18,7 +18,10 @@ from vdbi import debug_here
 def get_default_field():
     fields = get_fields()
     return fields[1][0]
-        
+    
+def get_default_field_x():
+    return "VSTART"
+    
 
 def get_fields():
     try:
@@ -54,6 +57,29 @@ class ExpressionWidget(forms.FieldSet):
         forms.SingleSelectField("o", options=operators, default=operators[0][0] ),
         forms.TextField("a", validator=UnicodeString),
         ]
+
+
+
+
+class PlotSeriesWidget(forms.FieldSet):
+    css_class = "rum-querybuilder-expression"
+    template = "genshi:vdbi.tw.rum.templates.plotexpression"
+    fields = [
+        forms.SingleSelectField("x", options=get_fields, default=get_default_field_x ),
+        forms.SingleSelectField("y", options=get_fields, default=get_default_field ),
+        ]
+
+
+class PlotWidget(forms.FieldSet):
+    template = "genshi:vdbi.tw.rum.templates.querybuilder"
+    css_class = "rum-query-widget"
+    fields = [
+        forms.SingleSelectField("a",options=[("table", _("Table")), ("plot", _("Plot")), ("both", _("Plot+Table"))]),
+        DbiJSRepeater("c", widget=PlotSeriesWidget(), extra=0,add_text=_("Add plot series"), remove_text=_("Remove")),
+        forms.HiddenField("o", default="plt_" ), 
+        ]
+
+
 
 ##class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):
 class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
@@ -103,6 +129,10 @@ class DbiContextWidget(forms.FieldSet):
 
 
 
+
+
+
+
 ## if could make an anonymous widget ... would be able to do widget algebra ?
 class DbiQueryWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.querywidget"
@@ -110,6 +140,7 @@ class DbiQueryWidget(forms.FieldSet):
     fields = [
                  DbiContextWidget( "ctx", label_text=''),
                  QueryWidget( "xtr", label_text=''), 
+                 PlotWidget("plt", label_text=''),
              ]
   
   

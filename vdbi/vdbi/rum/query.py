@@ -22,6 +22,9 @@ class ctx_(Expression):
     """
     name = "ctx_"
   
+class plt_(Expression):
+    name = "plt_"
+  
   
 from rumalchemy.query import translate   ## a little unhealthy importing from rumalchemy ?
 @translate.when((ctx_,))
@@ -56,6 +59,11 @@ def _ctx(expr, resource):
     return translate( xpr , resource )
 
 
+@translate.when((plt_,))
+def _plt(expr, resource):
+    return None
+
+
   
 from rum.query import simplify 
 @simplify.when((ctx_,))
@@ -76,6 +84,29 @@ def _simplify_ctx(obj):
     return { 'c':c , 'o':u"ctx_" , 'a':obj.arg } 
 
 
+@simplify.when((plt_,))
+def _simplify_plt(obj):
+    """
+        extend the simplify generic function such that this is used 
+        by the Query class without subclassing ... changing the result of
+        Query.as_dict when the expression features ctx_
+    """   
+    if isinstance(obj.col, (dict,)):
+        c = [obj.col]
+    elif isinstance(obj.col,(list,tuple,)):
+        c = obj.col
+    else:
+        c = None
+
+    if not(obj.arg):obj.arg = u"and"
+    return { 'c':c , 'o':u"plt_" , 'a':obj.arg } 
+
+
+
+
+
+
+
 from rum.query import _maybe_unicode
 def _vdbi_expression_from_dict(cls, d):
     """
@@ -92,7 +123,7 @@ def _vdbi_expression_from_dict(cls, d):
     col = d['c']
     arg = d.get('a')
     args = [col, _maybe_unicode(arg)]
-    if cls.__name__ == 'ctx_':return cls(*args)    ## special case to avoid recursing into the ctx_
+    if cls.__name__ in ('ctx_','plt_'):return cls(*args)    ## special case to avoid recursing into the ctx_ or plt_
     return cls(*map(cls.from_dict, args))
 
 Expression.from_dict = classmethod(_vdbi_expression_from_dict)
@@ -107,16 +138,18 @@ def _vdbi_recast(d):
          fakes will appear in the interface ... so have to detect the 
          different dict topologies 
     """
-    xtr = 'q' in d and 'xtr' in d['q'] and 'c' in d['q']['xtr']
-    ctx = 'q' in d and 'ctx' in d['q'] and 'c' in d['q']['ctx']
-    if xtr and ctx:
-        return { 'q':{ 'o':u'and' , 'c':[ d['q']['ctx'] , d['q']['xtr'] ] }}
-    elif ctx:
-        return { 'q': d['q']['ctx']  }
-    elif xtr:
-        return { 'q': d['q']['xtr']  } 
+    
+    if not 'q' in d:return d
+    c = []
+    for br in ('ctx','xtr','plt'):
+        if br in d['q'] and 'c' in d['q'][br]:c.append( d['q'][br] )
+    if len(c) == 1:
+        return { 'q':c[0] }
+    elif len(c) > 1:
+        return { 'q':{ 'o':u'and' , 'c':c }}    
     else:
         return d
+    
     
 def _vdbi_uncast(d):
     """ 
@@ -133,6 +166,8 @@ def _vdbi_uncast(d):
             lab = "xtr"
         elif d['q'].get('o', None) and d['q']['o'] == "ctx_":
             lab = "ctx"
+        elif d['q'].get('o', None) and d['q']['o'] == "plt_":
+            lab = "plt"
         else:
             lab = None
             
@@ -141,8 +176,14 @@ def _vdbi_uncast(d):
             print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))
             return r
         else:
-            if len(d['q']['c']) == 2 and d['q']['c'][0].get('o', None) and d['q']['c'][0]['o'] == u"ctx_":
-                return { 'q':{ 'ctx': d['q']['c'][0] , 'xtr': d['q']['c'][1] }  }
+            if len(d['q']['c']) > 0: 
+                brs = {}
+                for el in d['q']['c']:
+                    if el.get('o',None) and el['o'] in (u"ctx_",u"plt_"):
+                       brs[str(el['o'])[0:-1]] = el  
+                    else:
+                       brs['xtr'] = el    
+                return { 'q':brs  }
             else:
                 print "_vdbi_uncast unsupported dict layout %s  " % (repr(d))
     else:
@@ -154,6 +195,7 @@ def _vdbi_query_from_dict(cls, od):
     expr = sort = limit = offset = None
     od = variabledecode.variable_decode(od)
     d = _vdbi_recast(od)  
+    #debug_here()
     if 'q' in d and 'c' in d['q']:
         expr = Expression.from_dict(d['q'])
     if 'sort' in d:
@@ -164,7 +206,10 @@ def _vdbi_query_from_dict(cls, od):
         limit = Int(min=0).to_python(d['limit'])
     if 'offset' in d:
         offset = Int(min=0).to_python(d['offset'])
-    return cls(expr, sort, limit, offset)
+        
+    # {'plt': {'a': u'plt_', 'c': [{'y': u'ROW', 'x': u'VSTART'}, {'y': u'RING', 'x': u'VSTART'}], 'o': u'table'},    
+    obj = cls(expr, sort, limit, offset) 
+    return obj
 
 Query.from_dict = classmethod(_vdbi_query_from_dict)
 
@@ -232,13 +277,13 @@ def test_ctx_layout():
     expr = Expression.from_dict(n)
     assert expr ==  x , "changed expression %s " % repr()
 
-def test_ctx_req2q():
+def test_ctx_req2q():    
     from webob import Request, UnicodeMultiDict
     raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009%2F09%2F04+16%3A43&q.xtr.o=and&q.xtr.c-0.c=RING&q.xtr.c-0.o=eq&q.xtr.c-0.a=2")
     req = UnicodeMultiDict( raw.GET )
     q = Query.from_dict( req )         ## the recast is done in the overridden classmethod
     e = Query(and_([ctx_([{'Timestamp': u'2009/09/04 16:43', 'DetectorId': u'0', 'SimFlag': u'2', 'Site': u'1'}], u'and'), and_([eq(u'RING', u'2')])]), None, None, None)
-    assert repr(q) == repr(e)
+    assert repr(q) == repr(e)  
     d = q.as_dict()
     assert Query.from_dict(d).as_dict() == d
 
@@ -331,6 +376,66 @@ def test_ctx_only():
 
 
 
+def test_with_plt():
+  
+   from webob import Request, UnicodeMultiDict
+   raw = Request.blank("http://localhost:8080/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-15+16%3A04%3A32&q.xtr.a=xtr_&q.xtr.o=and&q.plt.a=both&q.plt.o=plt_&q.plt.c-0.y=ROW&q.plt.c-0.x=VSTART")
+   req = UnicodeMultiDict( raw.GET )
+   
+   from formencode import variabledecode
+   d =  variabledecode.variable_decode(req)
+   e = {'q': {'ctx': {'a': u'and',
+                  'c': [{'DetectorId': u'0',
+                         'SimFlag': u'2',
+                         'Site': u'1',
+                         'Timestamp': u'2009-09-15 16:04:32'}],
+                  'o': u'ctx_'},
+          'plt': {'a': u'both',
+                  'c': [{'x': u'VSTART', 'y': u'ROW'}],
+                  'o': u'plt_'},
+          'xtr': {'a': u'xtr_', 'o': u'and'}}}
+          
+   assert d == e , "decoded req mismatches expectaions %s " % repr(d)
+          
+   
+   q = Query.from_dict( req )  
+   qad = q.as_dict()
+   
+   qad_x = {'q': {'a': None,
+          'c': [{'a': u'and',
+                 'c': [{'DetectorId': u'0',
+                        'SimFlag': u'2',
+                        'Site': u'1',
+                        'Timestamp': u'2009-09-15 16:04:32'}],
+                 'o': u'ctx_'},
+                {'a': u'both',
+                 'c': [{'x': u'VSTART', 'y': u'ROW'}],
+                 'o': u'plt_'}],
+          'o': 'and'}}
+   
+   
+   assert qad == qad_x , "qad mismatch %s " % repr(qad)
+   
+   
+   uqad = _vdbi_uncast( qad )
+   uqad_x = {'q': {'ctx': {'a': u'and',
+                  'c': [{'DetectorId': u'0',
+                         'SimFlag': u'2',
+                         'Site': u'1',
+                         'Timestamp': u'2009-09-15 16:04:32'}],
+                  'o': u'ctx_'},
+          'plt': {'a': u'both',
+                  'c': [{'x': u'VSTART', 'y': u'ROW'}],
+                  'o': u'plt_'}}}
+                  
+   assert uqad == uqad_x , "uncast qad mismatch %s " % repr(uqad) 
+
+    
+
+
+
+
+
 
 
 if __name__=='__main__':
@@ -345,4 +450,8 @@ if __name__=='__main__':
     
     test_ctx_only()
     test_new_layout_with_xtr_mark()
+    test_with_plt()
+    
+ 
+
     
