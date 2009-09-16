@@ -1,5 +1,5 @@
 
-from vdbi import debug_here
+from vdbi import debug_here, VLD_TIMEATTS
 from rum.query import Query
 
 from tw.api import JSLink, js_function,  js_callback
@@ -128,16 +128,15 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
                    'axes':{},
                  'series':[],
             }
-            
-            t_cols = ('VSTART','VEND','VINSERT')
+        
             xtime = True
             ytime = True
             series = []
             for sd in v['q']['plt']['c']:
                 if 'x' in sd and 'y' in sd:
                     series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
-                    if sd['x'] not in t_cols:xtime = False
-                    if sd['y'] not in t_cols:ytime = False
+                    if sd['x'] not in VLD_TIMEATTS:xtime = False
+                    if sd['y'] not in VLD_TIMEATTS:ytime = False
                     
             if xtime:
                 opts['axes']['xaxis'] = { 'renderer':'DateAxisRenderer', } 
