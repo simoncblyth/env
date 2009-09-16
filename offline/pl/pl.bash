@@ -53,7 +53,8 @@ pl-preq(){
 }
 
 pl-srcfold(){  echo $(local-base $*)/env ; }
-pl-srcnam(){   echo plenv ; }
+#pl-srcnam(){   echo plenv ; }
+pl-srcnam(){   echo rumenv ; }   ## pick the rum virtualized python
 pl-srcdir(){   echo $(pl-srcfold $*)/$(pl-srcnam) ; }
 #pl-projname(){ echo OfflineDB ; }
 pl-projname(){ echo helloworld ; }
@@ -95,32 +96,48 @@ pl-chcon(){
 }
 
 
-  
-pl-quickstart(){
+pl-proj-deps(){
   pl-activate
-  cd $(pl-dir)  
-  local proj=$(pl-projname)
-  [ -d "$proj" ] && echo $msg ERROR proj $proj exists already && return 1 
-
-  paster create -t pylons $(pl-projname) 
-  cd $(pl-projname)
-
-  ## this with get the dependencies, such as SQLAlchemy 
-  python setup.py develop
 
   ## could be handled by adding requirements to the setup.py of the proj 
   easy_install configobj
   easy_install ipython  
   easy_install MySQL-python
+}
 
+  
+pl-create(){
+  pl-activate
+  cd $(pl-dir)  
+  local proj=${1:-$(pl-projname)}
+  [ -d "$proj" ] && echo $msg ERROR proj $proj exists already && return 1 
+
+  paster create -t pylons $proj 
+  cd $proj
+
+  ## this will get the dependencies, such as SQLAlchemy 
+  python setup.py develop
+
+  ## edit the development.ini adding DB coordinates etc..
   pl-conf
+
   # python-ln $(env-home) env   ## for env.base.private.Private access
 }
 
 
-pl-conf(){ $FUNCNAME- | python ; }
-pl-conf-(){ cat << EOC
-# this could be done be either the base python or the virtualized one 
+pl-conf(){ 
+   local msg="=== $FUNCNAME :"
+   $FUNCNAME-
+   [ ! -f "$(pl-ini)" ] && echo $msg ABORT no .ini file at $(pl-ini) && return 1
+   $FUNCNAME- | python 
+}
+pl-conf-(){ 
+    private-
+    # this could be done be either the base python or the virtualized one 
+    cat << EOC
+#
+#   C A U T I O N  :    D O    N O T   C O M M I T   T H E    I N I   :    $(pl-ini)
+#
 from configobj import ConfigObj
 c = ConfigObj( "$(pl-ini)" , interpolation=False )
 c['app:main']['sqlalchemy.url'] = "$(private-val DATABASE_URL)"

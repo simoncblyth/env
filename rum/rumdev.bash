@@ -16,7 +16,7 @@ rumdev-usage(){
 EOU
 }
 rumdev-dir(){ echo $(local-base)/env/rumdev ; }
-rumdev-cd(){  cd $(rumdev-dir); }
+rumdev-cd(){  cd $(rumdev-dir);  }
 rumdev-mate(){ mate $(rumdev-dir) ; }
 
 rumdev-rbase(){  echo http://hg.python-rum.org ; }
@@ -86,23 +86,37 @@ rumdev-diff(){
 }
 
 
-rumdev-install(){
+rumdev-isprimed-(){
+   [ "$(which python)" == "$(rum-dir)/bin/python" ] && return 0 || return 1
+}
 
+rumdev-install(){
    local msg="=== $FUNCNAME :"
    rum-
-   [ "$(which python)" != "$(rum-dir)/bin/python" ] && echo $msg ABORT this must be run whilst inside the rum virtualenv  && return 1 
-
-
+   ! rumdev-isprimed- && echo $msg ABORT this must be run whilst inside the rum virtualenv  && return 1 
    local tips="tw.rum rum"
-
    local tip ; for tip in $tips ; do
       rumdev-cd
       cd $tip
       python setup.py develop
    done 
- 
+}
 
+rumdev-pylons-get(){
+   local msg="=== $FUNCNAME :"
+   rumdev-cd
+   rumdev-isprimed- && echo $msg ABORT this must be run whilst NOT inside the rum virtualenv  && return 1
+   #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
+   hg clone http://bitbucket.org/bbangert/pylons/
+}
 
+rumdev-pylons-install(){
+   local msg="=== $FUNCNAME :"
+   rumdev-cd
+   rum-
+   ! rumdev-isprimed- && echo $msg ABORT this must be run whilst inside the rum virtualenv  && return 1
+   cd pylons
+   python setup.py develop
 }
 
 
