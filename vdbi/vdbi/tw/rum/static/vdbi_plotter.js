@@ -43,15 +43,18 @@ Plotter = function ( plot_id, data_url , data_kw , opts ){
      
    this.handle_data = function(json){  // invoked by load_data when the data arrives 
 
-      var series = this.opts.series 
-      for( _i = 0 ; _i < json.items.length ; _i++ ){
-      	  item = json.items[_i];
-       	  for( is = 0 ; is < series.length ; is++ ){
-              var s = series[is]
-              this.data[is].push( [item[s._x], item[s._y]] )
-          }
-      } 	  
-      this.plot = $.jqplot( this.plot_id , this.data , this.opts )
+      //var series = this.opts.series 
+      //
+      // for( _i = 0 ; _i < json.items.length ; _i++ ){
+      //	  item = json.items[_i];
+      // 	  for( is = 0 ; is < series.length ; is++ ){
+      //          var s = series[is]
+      //          this.data[is].push( [item[s._x], item[s._y]] )
+      //          }
+      //} 	  
+      
+      
+      this.plot = $.jqplot( this.plot_id , json.plotdata , this.opts )
    }
    
    this.load_data = function(){    // NB getJSON returns asynchronously

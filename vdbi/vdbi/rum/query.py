@@ -173,7 +173,7 @@ def _vdbi_uncast(d):
             
         if lab:
             r =  { 'q':{ lab:d['q'] } }
-            print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))
+            #print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))
             return r
         else:
             if len(d['q']['c']) > 0: 
@@ -189,6 +189,9 @@ def _vdbi_uncast(d):
     else:
         return d
 
+     
+Query.as_dict_for_widgets = lambda q:_vdbi_uncast(q.as_dict())
+     
             
 def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""

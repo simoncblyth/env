@@ -18,9 +18,8 @@ class DbiWidgetFactory(WidgetFactory):
         rum_widgets.setdefault('context_links', DbiContextLinks())
         rum_widgets.setdefault('jsonlink', JSONLink())
         rum_widgets.setdefault('plotview', DbiPlotView())
-        print "customized %s " % (repr(self))
+        #print "customized %s " % (repr(self))
         super(DbiWidgetFactory, self).__init__(*args, **kwargs)
 
-        for k,v in app.config['widgets'].items():
-            print k,v.__class__
+        #for k,v in app.config['widgets'].items():print k,v.__class__
 

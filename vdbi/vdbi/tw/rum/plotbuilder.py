@@ -97,7 +97,10 @@ from vdbi.rum.query import _vdbi_uncast
 
 
 def json_url(d):
-    """ based on CSVLink.update_params  """
+    """ based on CSVLink.update_params 
+        replacing    req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html  
+    
+     """
     routes=app.request.routes
     kwds=dict()
     kwds["format"]="json"
@@ -105,15 +108,11 @@ def json_url(d):
         kwds["resource"]=routes['resource']
     if isinstance(d['value'], Query):
         q = d['value']
-        #print "json_url q %s %s " % ( repr(q), repr(d) )
         nq = q.clone(limit=None, offset=None)
-        #print "json_url nq %s  " % ( repr(nq) )
         kwds.update(nq.as_flat_dict())
     else:
         print "json_url no q %s " % repr(d)
     url = app.url_for(**kwds)
-    #print "json-url url %s" % url
-    #debug_here()
     return url
 
 
@@ -130,16 +129,10 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
     def __init__(self):
         super(DbiPlotView, self).__init__("jqplotLabel")
 
-    #def data_url(self, req ):
-    #    url = req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html
-    #    return url
-
     def adapt_value_custom(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
-            #print "DbiPlotView.adapt_value Query  as_dict : %s " % (repr(value))
             value = _vdbi_uncast(value)
-            #print "DbiPlotView.adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
         return value
 
     def update_params(self, d):
@@ -149,7 +142,6 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         if isinstance(d['value'], Query):
             q = d['value']
             v = self.adapt_value_custom( q )
-            #print "DbiPlotView.update_params %s" % repr(q)
         else:
             v = d['value']
  
