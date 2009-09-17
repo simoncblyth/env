@@ -152,8 +152,10 @@ EOC
 pl-ini(){ echo $(pl-projdir)/development.ini ; }
 
 pl-serve(){
+  local msg="=== $FUNCNAME :"
   pl-activate
   cd $(pl-projdir) 
+  echo $msg serving $(pl-ini) from $PWD with $(which paster)
   paster serve --reload $(pl-ini)
 }
 

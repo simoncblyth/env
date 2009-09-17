@@ -19,33 +19,23 @@ def setup_logging(**kw):
         handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
     
 
-
-def load_app(url=None,  dbg=True):
-
+def create_app(url=None,  dbg=True):
+    
     if not(url):
         from env.base.private import Private
         p = Private()
         url = p('DATABASE_URL')          
-
     setup_logging()
-    
-    
-    
-    
-    
     
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
-    
-    ## attempt generic function override
-    #import vdbi.rum.query 
-    
     
     from pkg_resources import resource_filename
     import os
     from rum import RumApp
     app = RumApp({
         'debug': dbg,
+        'full_stack':True,
         'default_page_size':30,
         'widgets': {
             'rum_css':'vdbi.rum.widgets:rum_css',
@@ -69,19 +59,12 @@ def load_app(url=None,  dbg=True):
 
     field_fix( app )
 
-    #from vdbi.rumalchemy.query import dbi_query_override
-    #dbi_query_override( app )
-
-
-
-
     if dbg:
         from debug import Repo, Qry , Mapr, Dump
         app.__class__._repo = lambda self:Repo(self)
         app.__class__._qry  = lambda self:Qry(self)
         app.__class__._mapr = lambda self:Mapr(self)
         app.__class__._dump = lambda self:Dump(self)
-
 
     app.finalize()
     return app
@@ -97,8 +80,8 @@ def field_fix( app ):
 
 
 def serve_app(**kwargs):
-    from vdbi.app import load_app
-    app = load_app( **kwargs )
+    from vdbi.app import create_app
+    app = create_app( **kwargs )
     from paste.deploy import loadserver
     server = loadserver('egg:Paste#http')
     try:

@@ -1,5 +1,5 @@
 
-from vdbi import debug_here, VLD_TIMEATTS
+from vdbi import debug_here, VLD_TIMEATTS, DEFAULT_ATT_X, DEFAULT_ATT_Y
 from rum.query import Query
 
 from tw.api import JSLink, js_function,  js_callback
@@ -91,6 +91,21 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
 from rum import app
 from vdbi.rum.query import _vdbi_uncast
 
+def json_url(d):
+    """ based on CSVLink.update_params  """
+    routes=app.request.routes
+    kwds=dict()
+    kwds["format"]="json"
+    if routes['resource'] is not None:
+        kwds["resource"]=routes['resource']
+    if isinstance(d['value'], Query):
+        q = d['value']
+        nq = q.clone(limit=None, offset=None)
+        kwds.update(nq.as_flat_dict())
+    url = app.url_for(**kwds)
+    #debug_here()
+    return url
+
 
 class DbiPlotView(DbiAsynchronousJQPlotWidget):
 
@@ -111,7 +126,8 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
 
     def update_params(self, d):
         d['id'] = "plotid"
-        d['src_url'] = self.data_url( app.request )
+        #d['src_url'] = self.data_url( app.request )
+        d['src_url'] = json_url( d )
      
         if isinstance(d['value'], Query):
             q = d['value']
@@ -120,34 +136,37 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         else:
             v = d['value']
  
-        if 'q' in v and 'plt' in v['q']:
-            
-            opts = {
-                 'legend':{ 'show':True }, 
-                 'cursor':{ 'zoom':True, 'showTooltip':False },
-                   'axes':{},
-                 'series':[],
-            }
-        
-            xtime = True
-            ytime = True
-            series = []
-            for sd in v['q']['plt']['c']:
-                if 'x' in sd and 'y' in sd:
-                    series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
-                    if sd['x'] not in VLD_TIMEATTS:xtime = False
-                    if sd['y'] not in VLD_TIMEATTS:ytime = False
+        opts = {
+             'legend':{ 'show':True }, 
+             'cursor':{ 'zoom':True, 'showTooltip':False },
+                'axes':{},
+              'series':[],
+        }
+ 
+        xtime = True
+        ytime = True
+        series = []
+ 
+        if 'q' in v and 'plt' in v['q']:       
+            sdc = v['q']['plt']['c']
+        else:
+            sdc = [{'x':DEFAULT_ATT_X, 'y':DEFAULT_ATT_Y}]
+                
+        for sd in sdc:
+            if 'x' in sd and 'y' in sd:
+                series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
+                if sd['x'] not in VLD_TIMEATTS:xtime = False
+                if sd['y'] not in VLD_TIMEATTS:ytime = False
                     
-            if xtime:
-                opts['axes']['xaxis'] = { 'renderer':'DateAxisRenderer', } 
-            if ytime:
-                opts['axes']['yaxis'] = { 'renderer':'DateAxisRenderer', }
+        if xtime:
+            opts['axes']['xaxis'] = { 'renderer':'DateAxisRenderer', } 
+        if ytime:
+            opts['axes']['yaxis'] = { 'renderer':'DateAxisRenderer', }
                               
-            if len(series) > 0:
-                opts['series'] = series   
-    
+        if len(series) > 0:
+            opts['series'] = series   
                      
-            d['options'] = opts
+        d['options'] = opts
                      
         
         super(DbiPlotView,self).update_params(d)

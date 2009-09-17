@@ -1,1 +1,1 @@
-from vdbiapp import load_app, serve_app, setup_logging
+from vdbiapp import create_app, serve_app, setup_logging

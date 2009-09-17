@@ -14,13 +14,8 @@ from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
 from vdbi import debug_here
 
+from vdbi import DEFAULT_ATT_X , DEFAULT_ATT_Y
 
-def get_default_field():
-    fields = get_fields()
-    return fields[1][0]
-    
-def get_default_field_x():
-    return "VSTART"
     
 
 def get_fields():
@@ -53,7 +48,7 @@ class ExpressionWidget(forms.FieldSet):
     css_class = "rum-querybuilder-expression"
     template = "genshi:tw.rum.templates.expression"
     fields = [
-        forms.SingleSelectField("c", options=get_fields, default=get_default_field ),
+        forms.SingleSelectField("c", options=get_fields, default=DEFAULT_ATT_Y ),
         forms.SingleSelectField("o", options=operators, default=operators[0][0] ),
         forms.TextField("a", validator=UnicodeString),
         ]
@@ -65,8 +60,8 @@ class PlotSeriesWidget(forms.FieldSet):
     css_class = "rum-querybuilder-expression"
     template = "genshi:vdbi.tw.rum.templates.plotexpression"
     fields = [
-        forms.SingleSelectField("x", options=get_fields, default=get_default_field_x ),
-        forms.SingleSelectField("y", options=get_fields, default=get_default_field ),
+        forms.SingleSelectField("x", options=get_fields, default=DEFAULT_ATT_X ),
+        forms.SingleSelectField("y", options=get_fields, default=DEFAULT_ATT_Y ),
         ]
 
 
