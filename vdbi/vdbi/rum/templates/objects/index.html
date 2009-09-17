@@ -20,9 +20,10 @@
             py:replace="widgets['querybuilder'](query)" />
       <div py:if="'paginator' in widgets"
            py:replace="widgets['paginator'](query)" />
-	  	
-	  <div py:if="'plotview' in widgets and query.show_plot()"
-	           py:replace="widgets['plotview'](query)" />
+
+
+	  <div py:if="'jsonlink' in widgets"                       py:replace="widgets['jsonlink'](query)" />	
+	  <div py:if="'plotview' in widgets and query.show_plot()" py:replace="widgets['plotview'](query)" />
 
       <!--!<a href="${url_for(action='new')}" class="noprint">
         ${_(u'Create a new %(resource_name)s') % dict(resource_name=resource_name)}

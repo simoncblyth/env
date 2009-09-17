@@ -3,20 +3,14 @@ from tw import forms
 from tw.forms.validators import UnicodeString
 from tw.forms.validators import Int
 
-
 from rum import app, fields
 from rum.query import Query
 
-# switch in the DbiJSRepeater in order for Calendar setup to be done on adding repetitions
-#from tw.rum.repeater import JSRepeater
 from vdbi.tw.rum.repeater import DbiJSRepeater
-
 from tw.rum import widgets
 from vdbi import debug_here
-
 from vdbi import DEFAULT_ATT_X , DEFAULT_ATT_Y
 
-    
 
 def get_fields():
     try:
@@ -26,9 +20,6 @@ def get_fields():
     except:
         return []
 
-## fake for testing
-#def get_fields():return [(f,f) for f in ("SITE","WIBBLE","WOBBLE")]
-   
 
 operators = [
     ("eq", _("is")),

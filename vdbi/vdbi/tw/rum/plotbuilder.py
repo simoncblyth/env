@@ -3,6 +3,8 @@ from vdbi import debug_here, VLD_TIMEATTS, DEFAULT_ATT_X, DEFAULT_ATT_Y
 from rum.query import Query
 
 from tw.api import JSLink, js_function,  js_callback
+from tw.api import Widget
+
 from tw.jquery import JQPlotWidget
 from tw.jquery.jqplot import AsynchronousJQPlotWidget, jqp_cursor_js, jqp_dateAxis_js 
 
@@ -25,10 +27,7 @@ class DbiJQPlotWidget(JQPlotWidget):
             d['id'] = 'jqplot_%s' % str(int(random() * 999))
         data = d.get('data', [])
         options = d.get('options', {})
-        self.add_call(
-            js_function('$.jqplot')( "%s" % d.id, data, options)
-        )
-        
+        self.add_call( js_function('$.jqplot')( "%s" % d.id, data, options))
         return d
 
 class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
@@ -86,8 +85,7 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
             )
 
 
-
-      
+     
 from rum import app
 from vdbi.rum.query import _vdbi_uncast
 
@@ -100,11 +98,24 @@ def json_url(d):
         kwds["resource"]=routes['resource']
     if isinstance(d['value'], Query):
         q = d['value']
+        print "json_url q %s %s " % ( repr(q), repr(d) )
         nq = q.clone(limit=None, offset=None)
+        print "json_url nq %s  " % ( repr(nq) )
         kwds.update(nq.as_flat_dict())
+    else:
+        print "json_url no q %s " % repr(d)
     url = app.url_for(**kwds)
+    print "json-url url %s" % url
     #debug_here()
     return url
+
+
+
+class JSONLink(Widget):
+    template="genshi:vdbi.tw.rum.templates.json_link"
+    def update_params(self, d):
+        super(JSONLink, self).update_params(d)
+        d['link']=json_url(d)
 
 
 class DbiPlotView(DbiAsynchronousJQPlotWidget):
@@ -112,9 +123,9 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
     def __init__(self):
         super(DbiPlotView, self).__init__("jqplotLabel")
 
-    def data_url(self, req ):
-        url = req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html
-        return url
+    #def data_url(self, req ):
+    #    url = req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html
+    #    return url
 
     def adapt_value_custom(self, value):
         if isinstance(value, Query):
@@ -126,7 +137,6 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
 
     def update_params(self, d):
         d['id'] = "plotid"
-        #d['src_url'] = self.data_url( app.request )
         d['src_url'] = json_url( d )
      
         if isinstance(d['value'], Query):
