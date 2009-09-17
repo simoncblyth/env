@@ -19,10 +19,10 @@ class DbiCRUDController(CRUDController):
         for i in range(len(sdc)):plotdata.append([])
         for i,sd in enumerate(sdc):
             xy = lambda item:[getattr(item,sd['x']),getattr(item,sd['y'])]  
-            for item in output['items']:
+            for item in output['items']:        ##  output['items'] isa sqlalchemy.orm.query.Query   
                 plotdata[i].append( xy(item) )       
         output['plotdata'] = plotdata
-        del output['items']
+        del output['items']     
         self.response.body = self.app.jsonencoder.encode(output)
         #debug_here()
 

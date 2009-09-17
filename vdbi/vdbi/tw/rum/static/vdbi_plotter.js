@@ -6,26 +6,27 @@ Plotter = function ( plot_id, data_url , data_kw , opts ){
    this.data_url = data_url
    this.data_kw = data_kw
    this.opts = opts
-   this.data = []    
- 
-   this.zero = function(){
-       var series = this.opts.series
-       for( is = 0 ; is < series.length ; is++ ){
-           this.data[is] = []
-       }
-   }    
+   
+   //this.data = []    
+   //this.zero = function(){
+   //   var series = this.opts.series
+   //   for( is = 0 ; is < series.length ; is++ ){
+   //       this.data[is] = []
+   //   }
+   //}    
  
    this.configure = function(){  //  examine the labels to determine which rows to put into the data 
-       this.zero()
-       var series = this.opts.series
-       for( is = 0 ; is < series.length ; is++ ){
-            var label = series[is].label 
-            var n     = label.indexOf(':') 
-            if ( n > -1 ){
-                series[is]._x = label.substring(0,n)
-                series[is]._y = label.substring(n+1)
-            }
-        }
+   
+       //this.zero()
+       //var series = this.opts.series
+       //for( is = 0 ; is < series.length ; is++ ){
+       //        var label = series[is].label 
+       //        var n     = label.indexOf(':') 
+       //        if ( n > -1 ){
+       //            series[is]._x = label.substring(0,n)
+       //            series[is]._y = label.substring(n+1)
+       //        }
+       //     }
         
         // promote the axes renderers to functions 
         var axes = this.opts.axes
