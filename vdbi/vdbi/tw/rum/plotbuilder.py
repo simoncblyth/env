@@ -9,6 +9,11 @@ from tw.jquery import JQPlotWidget
 from tw.jquery.jqplot import AsynchronousJQPlotWidget, jqp_cursor_js, jqp_dateAxis_js 
 
 
+import vdbi.rum.controller   ## use specialized process_output for json plot data 
+
+
+
+
 plotter_js = JSLink(modname = 'vdbi.tw.rum', filename = 'static/vdbi_plotter.js' )
 
 extra_js = [
@@ -89,6 +94,8 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
 from rum import app
 from vdbi.rum.query import _vdbi_uncast
 
+
+
 def json_url(d):
     """ based on CSVLink.update_params  """
     routes=app.request.routes
@@ -98,14 +105,14 @@ def json_url(d):
         kwds["resource"]=routes['resource']
     if isinstance(d['value'], Query):
         q = d['value']
-        print "json_url q %s %s " % ( repr(q), repr(d) )
+        #print "json_url q %s %s " % ( repr(q), repr(d) )
         nq = q.clone(limit=None, offset=None)
-        print "json_url nq %s  " % ( repr(nq) )
+        #print "json_url nq %s  " % ( repr(nq) )
         kwds.update(nq.as_flat_dict())
     else:
         print "json_url no q %s " % repr(d)
     url = app.url_for(**kwds)
-    print "json-url url %s" % url
+    #print "json-url url %s" % url
     #debug_here()
     return url
 
@@ -130,9 +137,9 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
     def adapt_value_custom(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
-            print "DbiPlotView.adapt_value Query  as_dict : %s " % (repr(value))
+            #print "DbiPlotView.adapt_value Query  as_dict : %s " % (repr(value))
             value = _vdbi_uncast(value)
-            print "DbiPlotView.adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
+            #print "DbiPlotView.adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
         return value
 
     def update_params(self, d):
@@ -142,7 +149,7 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         if isinstance(d['value'], Query):
             q = d['value']
             v = self.adapt_value_custom( q )
-            print "DbiPlotView.update_params %s" % repr(q)
+            #print "DbiPlotView.update_params %s" % repr(q)
         else:
             v = d['value']
  
@@ -180,6 +187,6 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
                      
         
         super(DbiPlotView,self).update_params(d)
-        print "DbiPlotView.update_params %s " % repr(d)
+        #print "DbiPlotView.update_params %s " % repr(d)
         return d
 
