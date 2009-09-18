@@ -17,3 +17,15 @@ class AuthController(BaseController):
         
     def logout(self):
         return 'You Are Now Logged Out '
+        
+    def environ(self):
+        result = '<html><body><h1>Environ</h1>'
+        for key, value in request.environ.items():
+            result += '%s: %r <br />'%(key, value)
+        result += '</body></html>'
+        return result
+        
+    def exception(self):
+        raise Exception('Just testing the interactive debugger!')
+        
+    
