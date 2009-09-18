@@ -19,6 +19,9 @@ def make_map(config):
 
     # CUSTOM ROUTES HERE
 
+    map.connect("/dbi", controller="dbi", path_info="/")
+    map.connect('/dbi/{path_info:.*}', controller='dbi')
+
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')
 

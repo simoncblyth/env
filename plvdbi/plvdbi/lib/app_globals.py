@@ -2,6 +2,8 @@
 
 from beaker.cache import CacheManager
 from beaker.util import parse_cache_config_options
+from vdbi.app import create_app
+
 
 class Globals(object):
     """Globals acts as a container for objects available throughout the
@@ -16,3 +18,5 @@ class Globals(object):
 
         """
         self.cache = CacheManager(**parse_cache_config_options(config))
+        #self.vdbi_app = create_app( dbg=asbool(config.get('debug')) )   
+        self.vdbi_app = create_app( dbg=True )

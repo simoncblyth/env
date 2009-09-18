@@ -737,3 +737,4 @@ formalchemy-(){     . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }
 rum-(){             . $(env-home)/rum/rum.bash && rum-env $* ; }
 rumdev-(){          . $(env-home)/rum/rumdev.bash && rumdev-env $* ; }
 twdev-(){      . $(env-home)/tw/twdev.bash && twdev-env $* ; }
+plvdbi-(){      . $(env-home)/plvdbi/plvdbi.bash && plvdbi-env $* ; }
