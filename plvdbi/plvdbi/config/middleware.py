@@ -8,6 +8,11 @@ from pylons.middleware import ErrorHandler, StatusCodeRedirect
 from pylons.wsgiapp import PylonsApp
 from routes.middleware import RoutesMiddleware
 
+import authkit.authenticate
+import authkit.authorize
+from authkit.permissions import ValidAuthKitUser
+
+
 from plvdbi.config.environment import load_environment
 
 def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
@@ -48,6 +53,13 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
+        
+        # Authorization     http://pylonsbook.com/en/1.0/authentication-and-authorization.html
+        permission = ValidAuthKitUser()
+        app = authkit.authorize.middleware(app, permission)
+
+        # Authentication handling intercepting 401, 403
+        app = authkit.authenticate.middleware(app, app_conf)
 
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
