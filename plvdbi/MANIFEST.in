@@ -1,0 +1,3 @@
+include plvdbi/config/deployment.ini_tmpl
+recursive-include plvdbi/public *
+recursive-include plvdbi/templates *
