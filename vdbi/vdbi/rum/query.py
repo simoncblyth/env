@@ -5,7 +5,7 @@ from rum.query import _sort
 from formencode import variabledecode
 from formencode.validators import Int, Invalid
 
-from vdbi import debug_here
+from vdbi.dbg import debug_here
 from vdbi.dyb import ctx
 
 import logging

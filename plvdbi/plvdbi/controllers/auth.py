@@ -25,6 +25,17 @@ class AuthController(BaseController):
     def logout(self):
         return 'You Are Now Logged Out '
       
+    def tmplteststatic(self):
+        from vdbi.rum.widgets import DEFAULT_WIDGETS as widgets
+        extra_vars = { 
+           'widgets':widgets,
+           'master_template':"master.html",
+           'resources':[],
+           'url_for':lambda x:x,
+           'flash':FlashDummy(),
+        } 
+        return render("dbilogin.html", extra_vars=extra_vars )
+    
     def tmpltest(self):
         vapp = app_globals.vdbi_app
         extra_vars = { 

@@ -1,7 +1,13 @@
 
 from vdbi import debug_here, DEFAULT_ATT_X, DEFAULT_ATT_Y
 from rum import app
-from rum.controller import ControllerFactory, CRUDController, process_output
+from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
+
+
+
+
+
+
 
 class DbiCRUDController(CRUDController):
     @process_output.when("isinstance(output,dict) and self.get_format(routes) == 'json'", prio=10)
@@ -26,6 +32,13 @@ class DbiCRUDController(CRUDController):
         self.response.body = self.app.jsonencoder.encode(output)
         #debug_here()
 
+#
+#    N_('login')
+#    @resource_action('collection', 'POST')
+#    def login(self):
+#        self.flash(_(u'Succesfully logged in ') )
+#        self.app.redirect_to(action='index', _use_next=True, id=None)
+#
 
 
 

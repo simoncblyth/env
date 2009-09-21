@@ -15,6 +15,10 @@
 	
     <div id="rum-content">
        <h1>Welcome to vDBI : login </h1>
+
+       <form py:if="'dbilogin' in widgets"
+            py:replace="widgets['dbilogin']()" />
+
     </div>
     <div id="rum-sidebar" />
   </body>

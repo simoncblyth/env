@@ -2,14 +2,6 @@
 from vdbi.app.ip_vdbi import ip_vdbi
 from vdbi.app         import serve_app
 
-debug_here = lambda : None
-try:
-    import IPython
-    debug_here = IPython.Debugger.Tracer()
-except ValueError: 
-    None
-
-
 PAY_COLUMNS = {
    'SEQNO':'SEQ',
    'ROW_COUNTER':'ROW',
@@ -33,8 +25,6 @@ VLD_TIMEATTS = map( lambda x:VLD_COLUMNS[x] ,  ('INSERTDATE','TIMEEND','TIMESTAR
 
 DEFAULT_ATT_X = VLD_COLUMNS['TIMESTART'] 
 DEFAULT_ATT_Y = PAY_COLUMNS['ROW_COUNTER']
-
-
 
 CTX_COLUMNS = ('SITEMASK','SUBSITE','SIMMASK',)
 CTX_KEYS    = ('Site', 'DetectorId','SimFlag',)

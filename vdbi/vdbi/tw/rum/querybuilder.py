@@ -123,6 +123,16 @@ class DbiQueryWidget(forms.FieldSet):
                  PlotWidget("plt", label_text=''),
              ]
   
+  
+  
+class DbiLogin(forms.TableForm):
+    method = "post"
+    submit_test = _("Login")
+    fields = [
+        forms.TextField("username"),
+        forms.PasswordField("password"),
+    ]
+  
    
 from vdbi.rum.query import _vdbi_uncast       
 class DbiQueryBuilder(forms.TableForm):

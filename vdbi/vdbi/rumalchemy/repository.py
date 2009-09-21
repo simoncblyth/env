@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 import os
 from vdbi import PAY_COLUMNS, VLD_COLUMNS, JOIN_POSTFIX, VLD_POSTFIX
-from vdbi import debug_here
+from vdbi.dbg import debug_here
 
 from vdbi.rum.query import DbiQueryFactory
 

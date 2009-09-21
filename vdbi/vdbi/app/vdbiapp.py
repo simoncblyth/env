@@ -1,4 +1,5 @@
 from __future__ import with_statement
+from vdbi.dbg import debug_here
 
 def handle_log( name , logdir ):
     import logging
@@ -19,6 +20,17 @@ def setup_logging(**kw):
     for name,levl  in logc.items():
         handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
     
+
+from rum.controller import Controller
+class RootController(Controller):
+    def index(self):
+        self.template = 'dbilogin'
+        return {}
+
+
+
+
+
 
 def create_app(url=None,  dbg=True):
     
@@ -56,7 +68,7 @@ def create_app(url=None,  dbg=True):
         'rum.viewfactory': {
             'use': 'vdbitoscawidgets',
         }
-    }, finalize=False )
+    }, finalize=False, root_controller=RootController )
 
     field_fix( app )
 

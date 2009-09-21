@@ -10,7 +10,7 @@ the ipython debugger ready to step in
 
 Set breakpoints in code by :
  
-   from vdbi import debug_here
+   from vdbi.dbg import debug_here
    debug_here()    
 
 
@@ -18,10 +18,7 @@ Set breakpoints in code by :
 
 def ip_vdbi(self, arg):
     import os 
-    #os.chdir("/tmp")  
-    #print "ip_vdbi chdir to /tmp avoid module shading issues"
-    import vdbi
-    path = os.path.join( os.path.dirname( vdbi.__file__ ), "app" , "vdbiapp.py" )
+    path = os.path.join( os.path.dirname( __file__ ), "vdbiapp.py" )
     ip = self.api
     ip.magic("run -d %s" % path )
 
