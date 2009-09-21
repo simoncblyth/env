@@ -1,3 +1,4 @@
+from __future__ import with_statement
 
 def handle_log( name , logdir ):
     import logging
@@ -93,13 +94,18 @@ def serve_app(**kwargs):
 
 
 if __name__=='__main__':
-    #app = load_app(dbg=True)
-    app = serve_app(dbg=True)
+    #vdbi_app = create_app(dbg=True)
+    vdbi_app = serve_app(dbg=True)
 
     ## the below is almost equivalent to :   run -d 
     ## import pdb
     ## pdb.run("from vdbi import serve_app ; app = serve_app() ")
 
 
+    ## http://docs.python-rum.org/tip/developer/modules/index.html
+    ## using "with" (from future) enables rum.app to stay non-None outside of WSGI request context
+    ## 
+    with vdbi_app.mounted_at("/"):
+        print vdbi_app.viewfactory   ## <vdbi.tw.rum.viewfactory.DbiWidgetFactory object at 0x21b4090>
 
  

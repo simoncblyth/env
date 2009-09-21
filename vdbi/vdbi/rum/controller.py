@@ -27,6 +27,8 @@ class DbiCRUDController(CRUDController):
         #debug_here()
 
 
+
+
 for resource in app.resources.keys():
     ControllerFactory.register(DbiCRUDController, resource )
 

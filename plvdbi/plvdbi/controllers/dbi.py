@@ -1,6 +1,4 @@
 
-#from pylons import config
-#g = config['pylons.app_globals']
 from pylons import app_globals     ## some magic here : StackedObjectProxy 
 
 def DbiController(environ, start_response):
