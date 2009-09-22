@@ -48,14 +48,18 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))
     login_template = os.path.join( vdbi_templates , 'login.html')
     
-    app_conf['authkit.setup.method'] = 'form, cookie'
-    app_conf['authkit.form.authenticate.user.data'] = 'visitor:open_sesame'
-    #app_conf['authkit.form.template.obj'] = 'plvdbi.lib.auth:render_signin'
-    app_conf['authkit.form.template.file'] = login_template
-    app_conf['authkit.form.action'] = '/dbi' 
-    app_conf['authkit.cookie.secret'] = 'secret string'
-    app_conf['authkit.cookie.signoutpath'] = '/auth/logout'
+    from env.base.private import Private
+    priv = Private()
     
+    app_conf['authkit.setup.method'] = 'form, cookie'
+    #app_conf['authkit.form.authenticate.user.data'] = 'visitor:open_sesame'
+    app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'
+    app_conf['authkit.form.authenticate.user.data'] = priv('VDBI_USERS_PATH')
+    app_conf['authkit.form.template.file'] = login_template
+    
+    app_conf['authkit.form.action'] = '/dbi' 
+    app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
+    app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
     
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
