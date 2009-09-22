@@ -128,7 +128,7 @@ class DbiQueryWidget(forms.FieldSet):
 class DbiLogin(forms.TableForm):
     method = "post"
     submit_text = _("Login")
-    action = "FORMACTION"
+    action = "%s"
     fields = [
         forms.TextField("username"),
         forms.PasswordField("password"),

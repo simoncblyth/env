@@ -40,6 +40,22 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         defaults to main).
 
     """
+    
+    print "app_conf %s " % repr(app_conf)
+    
+    import os
+    from pkg_resources import resource_filename
+    vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))
+    login_template = os.path.join( vdbi_templates , 'login.html')
+    
+    app_conf['authkit.setup.method'] = 'form, cookie'
+    app_conf['authkit.form.authenticate.user.data'] = 'visitor:open_sesame'
+    #app_conf['authkit.form.template.obj'] = 'plvdbi.lib.auth:render_signin'
+    app_conf['authkit.form.template.file'] = login_template 
+    app_conf['authkit.cookie.secret'] = 'secret string'
+    app_conf['authkit.cookie.signoutpath'] = '/auth/logout'
+    
+    
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
 

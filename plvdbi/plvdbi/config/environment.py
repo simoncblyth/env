@@ -16,8 +16,7 @@ def load_environment(global_conf, app_conf):
     """
     config = PylonsConfig()
     
-    #from pkg_resources import resource_filename
-    #vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))
+
     
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
