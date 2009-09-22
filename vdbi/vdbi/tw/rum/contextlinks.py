@@ -2,7 +2,7 @@
 
 from tw.api import lazystring as _
 from tw.rum.contextlinks import ContextLinks
-from vdbi import debug_here
+from vdbi.dbg import debug_here
 from rum import app
 
 gen_links = ContextLinks.gen_links.im_func

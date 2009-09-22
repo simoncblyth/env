@@ -8,7 +8,7 @@ from rum.query import Query
 
 from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
-from vdbi import debug_here
+from vdbi.dbg import debug_here
 from vdbi import DEFAULT_ATT_X , DEFAULT_ATT_Y
 
 
@@ -127,7 +127,8 @@ class DbiQueryWidget(forms.FieldSet):
   
 class DbiLogin(forms.TableForm):
     method = "post"
-    submit_test = _("Login")
+    submit_text = _("Login")
+    action = "FORMACTION"
     fields = [
         forms.TextField("username"),
         forms.PasswordField("password"),

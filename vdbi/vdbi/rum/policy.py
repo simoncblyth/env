@@ -1,4 +1,6 @@
-from vdbi import debug_here, JOIN_POSTFIX_
+
+from vdbi.dbg import debug_here
+from vdbi import JOIN_POSTFIX_
 from vdbi import is_vld_attr
 from rum.policy import Policy, Denial
 

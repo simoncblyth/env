@@ -1,5 +1,6 @@
 
-from vdbi import debug_here, VLD_TIMEATTS, DEFAULT_ATT_X, DEFAULT_ATT_Y
+from vdbi.dbg import debug_here
+from vdbi import VLD_TIMEATTS, DEFAULT_ATT_X, DEFAULT_ATT_Y
 from rum.query import Query
 
 from tw.api import JSLink, js_function,  js_callback

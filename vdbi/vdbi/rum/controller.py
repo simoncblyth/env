@@ -1,5 +1,6 @@
 
-from vdbi import debug_here, DEFAULT_ATT_X, DEFAULT_ATT_Y
+from vdbi.dbg import debug_here
+from vdbi import DEFAULT_ATT_X, DEFAULT_ATT_Y
 from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 

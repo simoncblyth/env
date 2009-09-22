@@ -22,14 +22,16 @@ def setup_logging(**kw):
     
 
 from rum.controller import Controller
-class RootController(Controller):
+class LoginController(Controller):
     def index(self):
         self.template = 'dbilogin'
+        print "login controller "
+        return {'msg':"from the login controller"}
+
+class RootController(Controller):
+    def index(self):
+        self.template = 'home'
         return {}
-
-
-
-
 
 
 def create_app(url=None,  dbg=True):
@@ -71,6 +73,10 @@ def create_app(url=None,  dbg=True):
     }, finalize=False, root_controller=RootController )
 
     field_fix( app )
+
+
+    app.router.connect("login/:action", controller=LoginController )
+
 
     if dbg:
         from debug import Repo, Qry , Mapr, Dump

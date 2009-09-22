@@ -4,6 +4,14 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
   
+
+   <py:match path="div[@id='rum-sidebar']" once="true">
+	    <div py:attrs="select('@*')">
+	        <div py:replace="select('*|text()')"/>
+	    </div>
+ </py:match>
+
+
  <xi:include href="layout.html" />
 
   <head>
@@ -14,10 +22,9 @@
   <body>
 	
     <div id="rum-content">
-       <h1>Welcome to vDBI : login </h1>
+       <h1>Welcome to vDBI </h1>
 
-       <form py:if="'dbilogin' in widgets"
-            py:replace="widgets['dbilogin']()" />
+       <form py:if="'dbilogin' in widgets" py:replace="widgets['dbilogin']()" />
 
     </div>
     <div id="rum-sidebar" />
