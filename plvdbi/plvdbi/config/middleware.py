@@ -51,7 +51,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     app_conf['authkit.setup.method'] = 'form, cookie'
     app_conf['authkit.form.authenticate.user.data'] = 'visitor:open_sesame'
     #app_conf['authkit.form.template.obj'] = 'plvdbi.lib.auth:render_signin'
-    app_conf['authkit.form.template.file'] = login_template 
+    app_conf['authkit.form.template.file'] = login_template
+    app_conf['authkit.form.action'] = '/dbi' 
     app_conf['authkit.cookie.secret'] = 'secret string'
     app_conf['authkit.cookie.signoutpath'] = '/auth/logout'
     

@@ -118,6 +118,14 @@ h1 {
     text-decoration: none;
 }
 
+#rum-loggedin {
+    color: #999;
+    font-size: .8em;
+    display:inline;
+    text-align: right;
+    float:right;
+}
+
 #rum-tagline {
     color: #999;
     font-size: .8em;

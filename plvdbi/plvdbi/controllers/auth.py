@@ -8,53 +8,16 @@ from plvdbi.lib.base import BaseController, render
 
 log = logging.getLogger(__name__)
 
-class FlashDummy:
-    def render(self,*args):
-        return '<div></div>'
-
-
 
 class AuthController(BaseController):
 
     def index(self):
-        # Return a rendered template
-        #return render('/auth.mako')
-        # or, return a response
-        return 'Hello World'
+        return 'Whaddya do to get here ?'
         
     def logout(self):
-        return 'You Are Now Logged Out '
-      
-    def tmplteststatic(self):
-        from vdbi.rum.widgets import DEFAULT_WIDGETS as widgets
-        extra_vars = { 
-           'widgets':widgets,
-           'master_template':"master.html",
-           'resources':[],
-           'url_for':lambda x:x,
-           'flash':FlashDummy(),
-        } 
-        return render("dbilogin.html", extra_vars=extra_vars )
-    
-    def tmpltest(self):
-        vapp = app_globals.vdbi_app
-        extra_vars = { 
-           'widgets':vapp.config['widgets'],
-           'master_template':"master.html",
-           'resources':[],
-           'url_for':vapp.url_for,
-           'flash':FlashDummy(),
-        } 
-        return render("dbilogin.html", extra_vars=extra_vars )
+        return redirect_to(controller='dbi',path_info='')
+
         
-    def environ(self):
-        result = '<html><body><h1>Environ</h1>'
-        for key, value in request.environ.items():
-            result += '%s: %r <br />'%(key, value)
-        result += '</body></html>'
-        return result
-        
-    def exception(self):
-        raise Exception('Just testing the interactive debugger!')
+
         
     
