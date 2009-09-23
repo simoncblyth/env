@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from vdbi.dbg import debug_here
+#from vdbi.dbg import debug_here
 
 def handle_log( name , logdir ):
     import logging
@@ -103,7 +103,9 @@ def serve_app(**kwa):
     port = kwa.pop('port', 8080 )
     app = create_app( **kwa )
     from paste.deploy import loadserver
-    server = loadserver('egg:Paste#http' )
+    #server = loadserver('egg:Paste#http' )
+    from pkg_resources import resource_filename
+    server = loadserver('config:%s' % resource_filename('vdbi.app', 'server.ini') )
     try:
         server(app)
     except (KeyboardInterrupt, SystemExit):

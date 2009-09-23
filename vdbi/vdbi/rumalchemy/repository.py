@@ -337,7 +337,7 @@ def test_select_ctx():
     assert sq.__class__.__name__ == 'Query' and sq.__class__.__module__ == 'sqlalchemy.orm.query'
     
     from vdbi.rum.query import ctx_
-    p  = q.clone( expr = ctx_({'Timestamp': u'2009/09/03 18:54', 'DetectorId': 0, 'SimFlag': 2, 'Site': 1})  )       
+    p  = q.clone( expr = ctx_([{'Timestamp': u'2009/09/03 18:54', 'DetectorId': 0, 'SimFlag': 2, 'Site': 1}])  )       
     sp = repo.select(p)
     
     assert sp[0].ROW == 2
@@ -361,8 +361,8 @@ if __name__=='__main__':
     resource = factory._models[1]
     repo = factory(resource) 
 
-    #test_dump_columns()
-    #test_join_tables()
+    test_dump_columns()
+    test_join_tables()
     test_select_all()
     test_select_ctx()
 

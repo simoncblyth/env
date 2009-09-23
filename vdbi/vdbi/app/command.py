@@ -7,18 +7,14 @@ def vdbi():
     parser.add_option('', '--dburl',
                   dest='url',
                   help='SQLAlchemy database uri (eg: postgres:///somedatabase)',
-                  default='sqlite:///rum_demo.db')
-    parser.add_option('', '--port',
-                  dest='port',
-                  help='port to serve the app on (eg 8080)',
-                  default=6060)
+                  default=None )
     parser.add_option('-d', '--debug',
                   dest='dbg',
                   help='Turn on debug mode',
                   default=False,
                   action='store_true')
     opts, args = parser.parse_args(sys.argv)
-    kwa = { 'url':opts.url , 'dbg':opts.dbg , 'port':opts.port }
+    kwa = { 'url':opts.url , 'dbg':opts.dbg }
     print "vdbi kwa %s " % ( repr(kwa) )
     app = serve_app(**kwa)
     
