@@ -8,10 +8,7 @@ rumdev-usage(){
      rumdev-src : $(rumdev-src)
      rumdev-dir : $(rumdev-dir)
 
-
-
     tw.rum-exp  no changes since Jan 2009 
-
 
 EOU
 }

@@ -41,25 +41,19 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     """
     
-    print "app_conf %s " % repr(app_conf)
-    
     import os
     from pkg_resources import resource_filename
-    vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))
-    login_template = os.path.join( vdbi_templates , 'login.html')
-    
+    vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))    
     from env.base.private import Private
     priv = Private()
-    
     app_conf['authkit.setup.method'] = 'form, cookie'
-    #app_conf['authkit.form.authenticate.user.data'] = 'visitor:open_sesame'
     app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'
     app_conf['authkit.form.authenticate.user.data'] = priv('VDBI_USERS_PATH')
-    app_conf['authkit.form.template.file'] = login_template
-    
+    app_conf['authkit.form.template.file'] = os.path.join( vdbi_templates , 'login.html')
     app_conf['authkit.form.action'] = '/dbi' 
     app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
     app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
+    print "app_conf %s " % repr(app_conf)
     
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
@@ -78,6 +72,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
         
         # for the login/logout forms 
+        # TODO: verify this is unused and remove 
         app = twapi.middleware.make_middleware(app, 
             { 'toscawidgets.middleware.inject_resources': True, 
               'toscawidgets.framework.default_view': 'genshi' }) 

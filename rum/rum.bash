@@ -16,10 +16,11 @@ rum-usage(){
        for interactive investigation from ipython use :
            %run -d app.py
        
+    rum-get
+        pre-requisite : virtualenv, get that with virtualenv-get
 
      For bumping some the components (eg tw.rum) up to their tips ... see 
         rumdev-install 
-
 
 
     http://docs.python-rum.org/user/install.html
@@ -42,24 +43,17 @@ rum-get(){
 
    local iwd=$PWD
    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp && cd $tmp
-
-
+   
    easy_install rum RumAlchemy tw.rum 
    easy_install ipython
-
    cd $iwd
-
 }
 rum-activate(){   . $(rum-dir)/bin/activate ; }
 rum-deactivate(){ deactivate ; }
-
 rum-projdir(){ echo $(dirname $(rum-source))/rum ; }
-
 rum-tute(){
    cd $(rum-projdir)/tutorial
    python app.py
-   
-
 }
 
 
