@@ -9,6 +9,18 @@ rum-usage(){
      rum-dir : $(rum-dir)
 
 
+    Pre-requisites :
+        mysql server running, 
+                mysql-start
+
+    rum-create
+        create the virtual python at $(rum-dir) 
+
+    rum-get
+        pre-requisite : virtualenv created virtual python site 
+        get with : virtualenv-get
+
+
      rum-tute 
         run the tutorial
         view the app at :  http://localhost:8080
@@ -16,8 +28,6 @@ rum-usage(){
        for interactive investigation from ipython use :
            %run -d app.py
        
-    rum-get
-        pre-requisite : virtualenv, get that with virtualenv-get
 
      For bumping some the components (eg tw.rum) up to their tips ... see 
         rumdev-install 
@@ -48,6 +58,7 @@ rum-get(){
    easy_install ipython
    cd $iwd
 }
+rum-create(){     virtualenv $(rum-dir) ; }
 rum-activate(){   . $(rum-dir)/bin/activate ; }
 rum-deactivate(){ deactivate ; }
 rum-projdir(){ echo $(dirname $(rum-source))/rum ; }

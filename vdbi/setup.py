@@ -14,7 +14,7 @@ setup(
         "tw.rum==0.3dev-20090717",
         "ConfigObj",
         "ipython",
-        ]
+        ],
     entry_points="""
        [rum.repositoryfactory]
        vdbisqlalchemy = vdbi.rumalchemy:DbiSARepositoryFactory

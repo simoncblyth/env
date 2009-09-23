@@ -1,7 +1,22 @@
 from vdbi.app import serve_app
+from optparse import OptionParser
+import sys
 
-def vdbi(argv=None):
-    app = serve_app(dbg=True)
+def vdbi():
+    parser = OptionParser()
+    parser.add_option('', '--dburl',
+                  dest='url',
+                  help='SQLAlchemy database uri (eg: postgres:///somedatabase)',
+                  default='sqlite:///rum_demo.db')
+    parser.add_option('-d', '--debug',
+                  dest='dbg',
+                  help='Turn on debug mode',
+                  default=False,
+                  action='store_true')
+    opts, args = parser.parse_args(sys.argv)
+    kwa = { 'url':opts.url , 'dbg':opts.dbg }
+    print "vdbi kwa %s " % ( repr(kwa) )
+    app = serve_app(**kwa)
     
     
 def parentage(p):

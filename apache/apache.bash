@@ -373,7 +373,7 @@ apache-confdir-system(){
 
 apache-fragmentpath(){ echo $(apache-confdir)/${1:-fragment}.conf ; }
 apache-conf(){         echo $(apache-confdir $*)/httpd.conf ; }   
-apache-edit(){         $SUDO vi $(apache-conf) ; }
+apache-edit(){         $SUDO vim $(apache-conf) ; }
 
 apache-addline(){
   local msg="=== $FUNCNAME :"
@@ -573,4 +573,22 @@ apache-ln(){
 
 
 
+apache-sesetup(){
 
+
+   local path=/data/heprez/install/apache/conf/heprez.conf
+   local elems=($(echo $path | tr "/" " " ))
+   local nelem=${#elems[@]}
+   local ielem=0
+
+   echo elems $elems nelem $nelem
+   while [ "$ielem" -lt "$nelem" ]
+   do
+       echo ielem $ielem ${elems[$ielem]}
+       let "ielem = $ielem + 1"
+   done
+
+   
+
+
+}

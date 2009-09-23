@@ -2,7 +2,7 @@
 offdb-src(){      echo offline/offdb.bash ; }
 offdb-source(){   echo ${BASH_SOURCE:-$(env-home)/$(offdb-src)} ; }
 offdb-vi(){       vi $(offdb-source) ; }
-offdb-env(){      elocal- ; dj- ;  }
+offdb-env(){      elocal- ; mysql- ;  }
 offdb-usage(){
   cat << EOU
      offdb-src : $(offdb-src)
@@ -56,23 +56,23 @@ offdb-get(){
 
 
 offdb-drop(){
-   echo "drop table SimPmtSpec ;    " | dj-mysql
-   echo "drop table SimPmtSpecVld ; " | dj-mysql
+   echo "drop table SimPmtSpec ;    " | mysql-sh
+   echo "drop table SimPmtSpecVld ; " | mysql-sh
 }
 
 offdb-add-cpk(){
-   echo "alter table SimPmtSpec add primary key (SEQNO, ROW_COUNTER ) ;" | dj-mysql
+   echo "alter table SimPmtSpec add primary key (SEQNO, ROW_COUNTER ) ;" | mysql-sh
 }
 
 offdb-load(){
-   dj-
-   dj-mysql < $(offdb-dir)/SimPmtSpec_data.sql
+   mysql-
+   mysql-sh < $(offdb-dir)/SimPmtSpec_data.sql
 }
 
 offdb-check(){
-   dj-
-   echo "select * from SimPmtSpec    ; " |  dj-mysql
-   echo "select * from SimPmtSpecVld ; " |  dj-mysql
+   mysql-
+   echo "select * from SimPmtSpec    ; " |  mysql-sh
+   echo "select * from SimPmtSpecVld ; " |  mysql-sh
 }
 
 
@@ -82,7 +82,7 @@ offdb-vld-columns(){ cat << EOC
       TIMESTART, TIMEEND, SITEMASK, SIMMASK, SUBSITE, TASK, AGGREGATENO, VERSIONDATE, INSERTDATE
 EOC
 }
-offdb-dupe-vld(){ $FUNCNAME- $* | dj-mysql ; }
+offdb-dupe-vld(){ $FUNCNAME- $* | mysql-sh ; }
 offdb-dupe-vld-(){ cat << EOS
       insert into SimPmtSpecVld (SEQNO, $(offdb-vld-columns)) select $1, $(offdb-vld-columns) from SimPmtSpecVld ; 
 EOS
@@ -93,7 +93,7 @@ offdb-pay-columns(){ cat << EOC
      ROW_COUNTER, PMTSITE, PMTAD, PMTRING, PMTCOLUMN, PMTGAIN, PMTGFWHM, PMTTOFFSET, PMTTSPREAD, PMTEFFIC, PMTPREPULSE, PMTAFTERPULSE, PMTDARKRATE
 EOC
 }
-offdb-dupe-pay(){ $FUNCNAME- $* | dj-mysql ; }
+offdb-dupe-pay(){ $FUNCNAME- $* | mysql-sh ; }
 offdb-dupe-pay-(){ cat << EOS
     insert into SimPmtSpec (SEQNO, $(offdb-pay-columns)) select $1, $(offdb-pay-columns) from SimPmtSpec ; 
 EOS

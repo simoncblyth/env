@@ -20,9 +20,24 @@ mysql-env(){
 }
 
 
+mysql-five(){
+   [ "$(uname)" == "Darwin" ] && echo 5 ; 
+}
+
+mysql-sh-(){
+   private-
+   mysql$(mysql-five) --user $(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
+}
+
+mysql-sh(){
+   private-
+   mysql-sh- $(private-val DATABASE_NAME) ; 
+}
+
+
 mysql-ini(){
   case $(pkgr-cmd) in
-    yum) echo /etc/rc.d/init.d/lighttpd ;;
+    yum) echo /etc/init.d/mysqld  ;;
    ipkg) echo /opt/etc/init.d/S70mysqld ;;
    port) echo /opt/local/share/mysql5/mysql/mysql.server ;; 
   esac
