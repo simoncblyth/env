@@ -14,7 +14,7 @@ def handle_log( name , logdir ):
 
 def setup_logging(**kw):
     import logging
-    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG }
+    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG , 'vdbi.rumalchemy.repository':logging.DEBUG }
     logc.update(**kw)
     #logging.basicConfig()
     for name,levl  in logc.items():

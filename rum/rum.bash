@@ -2,7 +2,20 @@
 rum-src(){      echo rum/rum.bash ; }
 rum-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rum-src)} ; }
 rum-vi(){       vi $(rum-source) ; }
-rum-env(){      elocal- ; rum-activate ;  }
+
+
+rum-env-C(){
+   ## system python on cms01 : 2.3.4 is too old to use ... so the basis of the virtualenv is the source python
+   python- source 
+}
+
+rum-env(){      
+   elocal- ; 
+   case $NODE_TAG in  
+     C) rum-env-C ;;
+   esac
+   rum-activate ;  
+}
 rum-usage(){
   cat << EOU
      rum-src : $(rum-src)
