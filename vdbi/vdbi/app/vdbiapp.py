@@ -98,11 +98,12 @@ def field_fix( app ):
             #print f
 
 
-def serve_app(**kwargs):
+def serve_app(**kwa):
     from vdbi.app import create_app
-    app = create_app( **kwargs )
+    port = kwa.pop('port', 8080 )
+    app = create_app( **kwa )
     from paste.deploy import loadserver
-    server = loadserver('egg:Paste#http')
+    server = loadserver('egg:Paste#http' )
     try:
         server(app)
     except (KeyboardInterrupt, SystemExit):
