@@ -52,9 +52,21 @@ def resource_path(path, name=None):
     if name:
         return os.path.join(path, name)
     return path
-        
-def scrape(url='http://localhost:8080/login', name='login.html'):
+    
+def vdbi_server_config(spec='vdbi.app:server.ini'):
+    ini = resource_path( spec )
+    from configobj import ConfigObj
+    return ConfigObj(ini)
+
+def vdbi_login_url():
+    cnf = vdbi_server_config()
+    port = cnf['server:main']['port']
+    return "http://localhost:%s/login" % port 
+
+    
+def vdbi_scrape(name='login.html'):
     import os
+    url = vdbi_login_url()
     cmd = "curl --user-agent 'MSIE' '%s'" % url
     print "performing %s " % cmd
     html = os.popen(cmd).read()

@@ -17,6 +17,24 @@ import tw.api as twapi
 
 from plvdbi.config.environment import load_environment
 
+
+
+def config_authkit( app_conf ):
+    import os
+    from pkg_resources import resource_filename
+    vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))    
+    from env.base.private import Private
+    priv = Private()
+    app_conf['authkit.setup.method'] = 'form, cookie'
+    app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'
+    app_conf['authkit.form.authenticate.user.data'] = priv('VDBI_USERS_PATH')
+    app_conf['authkit.form.template.file'] = os.path.join( vdbi_templates , 'login.html')
+    app_conf['authkit.form.action'] = '/dbi' 
+    app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
+    app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
+    print "app_conf %s " % repr(app_conf)
+
+
 def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     """Create a Pylons WSGI application and return it
 
@@ -41,20 +59,10 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     """
     
-    import os
-    from pkg_resources import resource_filename
-    vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))    
-    from env.base.private import Private
-    priv = Private()
-    app_conf['authkit.setup.method'] = 'form, cookie'
-    app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'
-    app_conf['authkit.form.authenticate.user.data'] = priv('VDBI_USERS_PATH')
-    app_conf['authkit.form.template.file'] = os.path.join( vdbi_templates , 'login.html')
-    app_conf['authkit.form.action'] = '/dbi' 
-    app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
-    app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
-    print "app_conf %s " % repr(app_conf)
-    
+
+    config_authkit(app_conf)
+ 
+   
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
 

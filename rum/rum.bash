@@ -34,6 +34,15 @@ rum-usage(){
         get with : virtualenv-get
 
 
+    rum-extras
+        get and install ToscaWidgets + tw.jquery from mercurial repo
+        they dont have recent enough pypi releases to fit into the setup.py install
+        
+
+
+
+
+
      rum-tute 
         run the tutorial
         view the app at :  http://localhost:8080
@@ -80,5 +89,12 @@ rum-tute(){
    python app.py
 }
 
+rum-extras(){
+  
+  twdev-
+  twdev-get
+  twdev-install 
 
+
+}
 

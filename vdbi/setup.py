@@ -27,8 +27,8 @@ setup(
 
        [console_scripts]
        vdbi = vdbi.app.command:vdbi
-       scrape = vdbi.app.command:scrape
-       transfer_statics = vdbi.app.command:transfer_statics
+       vdbi_scrape = vdbi.app.command:vdbi_scrape
+       vdbi_transfer_statics = vdbi.app.command:vdbi_transfer_statics
 
 """
 )

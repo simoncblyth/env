@@ -13,7 +13,11 @@ rumdev-usage(){
 EOU
 }
 rumdev-dir(){ echo $(local-base)/env/rumdev ; }
-rumdev-cd(){  cd $(rumdev-dir);  }
+rumdev-cd(){  
+  local dir=$(rumdev-dir)
+  mkdir -p $dir
+  cd $dir  
+}
 rumdev-mate(){ mate $(rumdev-dir) ; }
 
 rumdev-rbase(){  echo http://hg.python-rum.org ; }
@@ -102,7 +106,9 @@ rumdev-install(){
 rumdev-pylons-get(){
    local msg="=== $FUNCNAME :"
    rumdev-cd
-   rumdev-isprimed- && echo $msg ABORT this must be run whilst NOT inside the rum virtualenv  && return 1
+
+   [ "$(which hg)" == "" ] && echo $msg no hg && return 1
+   #rumdev-isprimed- && echo $msg ABORT this must be run whilst NOT inside the rum virtualenv  && return 1
    #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
    hg clone http://bitbucket.org/bbangert/pylons/
 }

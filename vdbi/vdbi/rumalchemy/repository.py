@@ -202,7 +202,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                         for parent, m in mappers.iteritems():
                             if fk.references(m.local_table):
                                 if col.primary_key:
-                                    relation_kwds["cascade"]='all, delete-orphan'
+                                    #relation_kwds["cascade"]='all, delete-orphan'
+                                    relation_kwds["cascade"]='all'
                                 break
                         # Relate it
                         

@@ -21,12 +21,19 @@ plvdbi-mate(){    mate $(plvdbi-dir) ; }
 plvdbi-ini(){     echo $(plvdbi-dir)/development.ini ; }
 plvdbi-cd(){      cd $(plvdbi-dir); }
 
+plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
+
+
 plvdbi-serve(){
   local msg="=== $FUNCNAME :"
   rum-
-  cd $(plvdbi-dir) 
+  local iwd=$PWD 
+  local dir=$(plvdbi-workdir)
+  mkdir -p $dir && cd $dir
   echo $msg serving $(plvdbi-ini) from $PWD with $(which paster)
   paster serve --reload $(plvdbi-ini)
+
+  cd $iwd
 }
 
 
