@@ -12,8 +12,6 @@ import authkit.authenticate
 import authkit.authorize
 from authkit.permissions import ValidAuthKitUser
 
-import tw.api as twapi
-
 
 from plvdbi.config.environment import load_environment
 
@@ -59,9 +57,7 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
 
     """
     
-
     config_authkit(app_conf)
- 
    
     # Configure the Pylons environment
     config = load_environment(global_conf, app_conf)
@@ -78,12 +74,6 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
     if asbool(full_stack):
         # Handle Python exceptions
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
-        
-        # for the login/logout forms 
-        # TODO: verify this is unused and remove 
-        app = twapi.middleware.make_middleware(app, 
-            { 'toscawidgets.middleware.inject_resources': True, 
-              'toscawidgets.framework.default_view': 'genshi' }) 
         
         # Authorization     http://pylonsbook.com/en/1.0/authentication-and-authorization.html
         permission = ValidAuthKitUser()

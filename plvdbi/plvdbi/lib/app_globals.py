@@ -18,5 +18,5 @@ class Globals(object):
 
         """
         self.cache = CacheManager(**parse_cache_config_options(config))
-        #self.vdbi_app = create_app( dbg=asbool(config.get('debug')) )   
-        self.vdbi_app = create_app( dbg=True )
+        from paste.deploy.converters import asbool
+        self.vdbi_app = create_app( dbg=asbool(config.get('debug')) )

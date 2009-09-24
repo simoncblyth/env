@@ -16,8 +16,6 @@ def load_environment(global_conf, app_conf):
     """
     config = PylonsConfig()
     
-
-    
     # Pylons paths
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     paths = dict(root=root,
@@ -32,20 +30,13 @@ def load_environment(global_conf, app_conf):
     config['pylons.app_globals'] = app_globals.Globals(config)
     config['pylons.h'] = plvdbi.lib.helpers
 
-    # add the template path from the vdbi app to pylons search list ... for the login/logout functionality 
-    vdbi_app = config['pylons.app_globals'].vdbi_app
-    tmplpath = paths['templates']
-    for p in vdbi_app.config['templating']['search_path']:
-        tmplpath.append(p)
-
     # Create the Genshi TemplateLoader
     config['pylons.app_globals'].genshi_loader = TemplateLoader(
-        tmplpath , auto_reload=True)
-
+        paths['templates'], auto_reload=True)
 
     # Setup the SQLAlchemy database engine
-    #engine = engine_from_config(config, 'sqlalchemy.')
-    #init_model(engine)
+    # engine = engine_from_config(config, 'sqlalchemy.')
+    # init_model(engine)
 
     # CONFIGURATION OPTIONS HERE (note: all config options will override
     # any Pylons config options)

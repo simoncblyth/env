@@ -76,7 +76,7 @@ def vdbi_scrape(name='login.html'):
     file(path,"w").write(html)
     return html
     
-def transfer_statics(target='plvdbi:public', name='login.html' , src="vdbi.rum.widgets:static"):
+def vdbi_transfer_statics(target='plvdbi:public', name='login.html' , src="vdbi.rum.widgets:static"):
     """
        Copies over statics linked from the scraped .html 
        into the target folder 
@@ -88,7 +88,7 @@ def transfer_statics(target='plvdbi:public', name='login.html' , src="vdbi.rum.w
     import os
     path = resource_path('vdbi.rum:templates', name=name)
     if not(os.path.exists(path)):
-        print "no path %s ... run the command \"scrape first\" to create it " % path 
+        print "no path %s ... run the command \"vdbi_scrape\" first to create it " % path 
         return
     
     print "reading html from %s" % path
