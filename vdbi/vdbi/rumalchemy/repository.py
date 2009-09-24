@@ -198,9 +198,10 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                             # It isn't...
                             continue
                         # It is, lookup parent mapper
+                        log.debug("lookup parent mapper with fk %s " % fk )
                         relation_kwds=dict()
                         for parent, m in mappers.iteritems():
-                            if fk.references(m.local_table):
+                            if fk.references(m.local_table) and parent != entity:
                                 if col.primary_key:
                                     #relation_kwds["cascade"]='all, delete-orphan'
                                     relation_kwds["cascade"]='all'
@@ -213,6 +214,8 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                         log.debug( "_auto_relate table_name %s entity %s e_name %s p_name %s " % ( table_name, repr(entity), e_name , p_name ))
                         if entity._table.__class__.__name__ != 'Join':
                             assert getattr(self.soup,table_name) is entity
+                        
+                        log.debug(" relate parent %s to entity %s with kwds %s " % ( parent, entity, repr(relation_kwds) ) )
                         parent.relate( e_name, entity, backref=p_name , **relation_kwds)
 
 
