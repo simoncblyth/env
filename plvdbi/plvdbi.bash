@@ -18,22 +18,50 @@ EOU
 }
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
-plvdbi-ini(){     echo $(plvdbi-dir)/development.ini ; }
+#plvdbi-name(){  echo development ; }
+plvdbi-name(){  echo deployment ; }
+plvdbi-ini(){     
+   local name=${1:-$(plvdbi-name)}
+   echo $(plvdbi-dir)/$name.ini ;
+ }
 plvdbi-cd(){      cd $(plvdbi-dir); }
 
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 
 plvdbi-serve(){
-  local msg="=== $FUNCNAME :"
+  local msg="=== $FUNCNAME :" 
   rum-
   local iwd=$PWD 
   local dir=$(plvdbi-workdir)
   mkdir -p $dir && cd $dir
   echo $msg serving $(plvdbi-ini) from $PWD with $(which paster)
-  paster serve --reload $(plvdbi-ini)
-
+  
+  case $(plvdbi-name) in
+     development) paster serve --reload $(plvdbi-ini) ;;
+               *) paster serve          $(plvdbi-ini) ;;
+  esac
   cd $iwd
+}
+
+
+plvdbi-conf(){
+   private-
+   cat << EOC
+           email_to=$(private-val PLVDBI_EMAIL_TO) 
+        smtp_server=$(private-val PLVDBI_SMTP_SERVER) 
+               port=$(private-val PLVDBI_PORT) 
+   error_email_from=$(private-val PLVDBI_ERROR_EMAIL_FROM)
+EOC
+}
+
+plvdbi-make-config(){
+   local msg="=== $FUNCNAME :"
+   private-
+   local ini=$(plvdbi-ini deployment)
+   local cmd="paster make-config plvdbi $ini $(echo $(plvdbi-conf)) ; svn revert $ini "
+   echo $msg "$cmd"
+   eval $cmd
 }
 
 
