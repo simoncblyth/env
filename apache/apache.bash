@@ -159,6 +159,12 @@ apache-group(){
    esac
 }
 
+apache-private-path(){
+   private-
+   USER=$(apache-user) private-path
+}
+
+
 apache-sudouser(){ [ -n "$SUDO" ] && echo $SUDO -u $(apache-user) || echo "" ; }
 
 apache-chown(){
@@ -347,7 +353,13 @@ apache-bin-system(){
                  *) echo failed-$FUNCNAME ;;
       esac
 }
-apache-envvars(){ echo $(apache-bin $*)/envvars ; }
+apache-envvars-deprecated-use-apacheconf(){ 
+  local tag=${1:-$NODE_TAG}
+  case $tag in 
+    C) echo  /etc/sysconfig/httpd ;; 
+    *) echo $(apache-bin $*)/envvars ;;
+  esac
+} 
 
 ## 
 ##

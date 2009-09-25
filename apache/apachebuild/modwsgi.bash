@@ -25,8 +25,11 @@ modwsgi-usage(){
 
 
   modwsgi-app-test
-       Follow along http://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide` 
-        Works remotely too ..
+       Follow along 
+            http://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide 
+            http://code.google.com/p/modwsgi/wiki/IntegrationWithPylons
+
+       Works remotely too ..
             http://belle7.nuu.edu.tw/myapp/
 
 
@@ -99,7 +102,7 @@ modwsgi-conf-(){
 
 modwsgi-conf(){
   local msg="=== $FUNCNAME :"
-  grep "$(modwsgi-conf-)" $(apache-conf)  && echo $msg  already hooked up to apache || echo $msg needs to be added to apache-conf
+  grep "$(modwsgi-conf-)" $(apache-conf)  && echo $msg  already hooked up to apache || echo $msg \"$($FUNCNAME-)\" needs to be added to apache-conf ... use apache-edit
 }
 
 
@@ -138,6 +141,11 @@ modwsgi-app-conf(){
     local conf=$(modwsgi-app-conf- $name)
     grep "$conf" $(apache-conf)  && echo $msg \"$conf\" already hooked up to apache || echo $msg \"$conf\" needs to be added to apache-conf
 }
+
+
+
+
+
 
 
 

@@ -57,7 +57,7 @@ pl-srcfold(){  echo $(local-base $*)/env ; }
 pl-srcnam(){   echo rumenv ; }   ## pick the rum virtualized python
 pl-srcdir(){   echo $(pl-srcfold $*)/$(pl-srcnam) ; }
 #pl-projname(){ echo OfflineDB ; }
-pl-projname(){ echo helloworld ; }
+pl-projname(){ echo ${PL_PROJNAME:-helloworld} ; }
 pl-projdir(){  echo $(pl-dir)/$(pl-projname) ; }
 pl-cd(){       cd $(pl-projdir) ; }   
 
@@ -149,7 +149,7 @@ EOC
 
 
 
-pl-ini(){ echo $(pl-projdir)/development.ini ; }
+pl-ini(){ echo ${PL_INI:-$(pl-projdir)/development.ini} ; }
 
 pl-serve(){
   local msg="=== $FUNCNAME :"
@@ -171,6 +171,9 @@ ALLDIRS = ["$(pl-srcdir)/lib/python$(python-major)/site-packages"]
 import sys
 import site
 
+sys.stdout = sys.stderr
+
+
 prev_sys_path = list(sys.path)
 
 for dir in ALLDIRS:
@@ -186,12 +189,14 @@ sys.path[:0] = new_sys_path
 
 import os
 os.environ['PYTHON_EGG_CACHE'] = '$(pl-eggcache-dir)'
+os.environ['ENV_PRIVATE_PATH'] = '$(apache-private-path)'
 
 from paste.deploy import loadapp
-application = loadapp('config:$(pl-projdir)/development.ini')
+application = loadapp('config:$(pl-ini)')
 
 EOS
 }
+
 
 pl-wsgi(){
   local msg="=== $FUNCNAME :"
@@ -214,6 +219,9 @@ pl-deploy(){
 }
 
 
+
+
+## the below should be factored into sphinx- for minimal invokation from here
 
 pl-book-dir(){  echo $(local-base $*)/env/PylonsBook ; }
 pl-book-cd(){   cd $(pl-book-dir) ; }

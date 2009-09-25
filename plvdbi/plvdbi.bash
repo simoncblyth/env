@@ -108,6 +108,11 @@ plvdbi-log(){ echo  $(plvdbi-dir)/plvdbi.log  ; }
 plvdbi-tail(){ tail -f $(plvdbi-log) ; }
 
 
+plvdbi-modwsgi(){
+   pl-
+   PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
+}
+
 
 ## initd script
 
