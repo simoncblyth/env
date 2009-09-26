@@ -30,6 +30,11 @@ setup(
        vdbi_scrape = vdbi.app.command:vdbi_scrape
        vdbi_transfer_statics = vdbi.app.command:vdbi_transfer_statics
 
+       [toscawidgets.widgets]
+       # Register your widgets so they can be collected by archive_tw_resources
+       widgets = vdbi.tw.rum
+
+
 """
 )
 

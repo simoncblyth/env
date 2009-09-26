@@ -150,15 +150,14 @@ modwsgi-app-conf(){
 
 
 modwsgi-baseline-dir(){ echo $(local-base $*)/env/BASELINE ; } 
-modwsgi-baseline(){
+modwsgi-baseline-create(){
    local msg="=== $FUNCNAME :"
-   [ "$(which virtualenv)" != "/usr/bin/virtualenv" ] && echo $msg unexpected virtualenv path && return 1
+   #[ "$(which virtualenv)" != "/usr/bin/virtualenv" ] && echo $msg unexpected virtualenv path && return 1
    echo $msg creating baseline virtualenv $dir as recommended : http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
-   local dir=$($FUNCNAME-dir)
+   local dir=$(modwsgi-baseline-dir)
    cd $(dirname $dir)
    virtualenv --no-site-packages $(basename $dir)
-
-   $FUNCNAME-chcon $dir
+   modwsgi-baseline-chcon $dir
 }
 
 modwsgi-baseline-chcon(){
