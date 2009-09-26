@@ -42,9 +42,9 @@ class DbiCRUDController(CRUDController):
 #
 
 
-
-for resource in app.resources.keys():
-    ControllerFactory.register(DbiCRUDController, resource )
+def register():
+    for resource in app.resources.keys():
+        ControllerFactory.register(DbiCRUDController, resource )
 
 
 

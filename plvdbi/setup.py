@@ -34,5 +34,12 @@ setup(
 
     [paste.app_install]
     main = pylons.util:PylonsInstaller
+
+    [toscawidgets.widgets]
+    # Register your widgets so they can be collected by archive_tw_resources
+    widgets = vdbi.rum.widgets
+
+
+
     """,
 )

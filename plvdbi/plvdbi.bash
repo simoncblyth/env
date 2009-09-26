@@ -24,6 +24,16 @@ plvdbi-usage(){
              request_id = int(tresponse.body)
 
 
+
+     plvdbi-archive-tw-resources
+           collect the statics for deployment/serving from web server (apache/nginx/lighttpd) rather than webapp
+               http://toscawidgets.org/documentation/ToscaWidgets/deploy.html
+               http://projects.roggisch.de/tw/aggregation.html
+
+
+
+
+
 EOU
 }
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
@@ -83,6 +93,16 @@ plvdbi-shell(){
    paster --plugin=pylons shell $(plvdbi-ini)
    cd $iwd
 }
+
+
+plvdbi-archive-tw-resources(){
+
+   
+   cd $(plvdbi-dir)
+   python setup.py archive_tw_resources  -f
+
+}
+
 
 
 
