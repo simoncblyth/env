@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="all" lang="all">
+ 
+  <div>
+	<!--
+	  	<ul>
+		  <py:for each="item in widgets">
+		    <li>${item}</li>
+		  </py:for>
+		</ul>
+     -->
+</div>
+
+  <head><link rel="stylesheet" type="text/css" href="/toscawidgets/resources/vdbi.rum.widgets/static/rum.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="/toscawidgets/resources/rum.widgets/static/print.css" media="print" />
+    <title>Welcome to vDBI : login </title>
+  </head>
+      <body class="rum">
+        <div id="rum-header">
+  <h1 id="rum-title"><a href="/">vDBI</a></h1>
+  <div id="rum-tagline">Interface to DBI objects
+</div>
+</div>
+        <div id="rum-page" class="leftmenu">
+          <div id="rum-wrap">
+    <div id="rum-content">
+       <h1>Welcome to vDBI </h1>
+       <form action="%s" method="post" class="dbilogin required">
+    <table border="0" cellspacing="0" cellpadding="2">
+        <tr id="username.container" class="even" title="">
+            <td class="labelcol">
+                <label id="username.label" for="username" class="fieldlabel">Username</label>
+            </td>
+            <td class="fieldcol">
+                <input xmlns="http://www.w3.org/1999/xhtml" type="text" name="username" class="textfield" id="username" value=""/>
+            </td>
+        </tr><tr id="password.container" class="odd" title="">
+            <td class="labelcol">
+                <label id="password.label" for="password" class="fieldlabel">Password</label>
+            </td>
+            <td class="fieldcol">
+                <input xmlns="http://www.w3.org/1999/xhtml" type="password" name="password" class="passwordfield" id="password" value=""/>
+            </td>
+        </tr><tr id="submit.container" class="even" title="">
+            <td class="labelcol">
+            </td>
+            <td class="fieldcol">
+                <input xmlns="http://www.w3.org/1999/xhtml" type="submit" class="submitbutton" value="Login"/>
+            </td>
+        </tr>
+    </table>
+</form>
+    </div>
+    <div id="rum-sidebar">
+    </div>
+  </div>
+        </div>
+        <div id="rum-footer">
+  <div id="rum-credits">
+     <p> Powered by <a href="http://python-rum.org"> Rum </a> </p>
+  </div>
+</div>
+      </body>
+</html>
