@@ -14,6 +14,26 @@ env-rel(){
   echo $rel
 }
 
+env-build(){
+
+  python-
+  python-ln $(env-home) env
+
+  env-selinux
+
+}
+
+env-selinux(){
+
+  apache-
+  apache-chcon $(env-home)
+
+  private-
+  private-selinux
+
+}
+
+
 env-owners-(){ cat << EOO
     aberdeen blyth
     base     blyth

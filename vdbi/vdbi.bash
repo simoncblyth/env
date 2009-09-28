@@ -29,13 +29,15 @@ vdbi-build(){
   vdbi-install
   vdbi-extras
   vdbi-selinux 
-
+  vdbi-users-path
 }
 
 vdbi-setup(){
+   local msg="=== $FUNCNAME :"
    vdbi-cd
-   which python
-   python setup.py $*
+   local cmd="python setup.py $*"
+   echo $msg $cmd ... from $PWD with $(which python)
+   eval $cmd
 }
 
 vdbi-install(){ vdbi-setup develop ; }
@@ -44,6 +46,15 @@ vdbi-extras(){
   twdev-
   twdev-build
 }
+
+vdbi-users-path(){
+  private-
+  local vap=$(private-get VDBI_USERS_PATH)
+  apache-
+  apache-chcon $vap
+  apache-chown $vap
+}
+
 
 vdbi-selinux(){
    apache-

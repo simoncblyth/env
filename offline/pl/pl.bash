@@ -67,28 +67,46 @@ pl-build(){
   pl-get
   pl-install
   pl-selinux 
+  pl-eggcache
 }
+
+
+
 
 pl-get(){
    local msg="=== $FUNCNAME :"
    [ "$(which hg)" == "" ] && echo $msg no hg && return 1
    local dir=$(dirname $(pl-srcdir))
    local nam=$(basename $(pl-srcdir))
+
    mkdir -p $dir && cd $dir
-   hg clone http://bitbucket.org/bbangert/pylons/ $nam
+   local cmd="hg clone http://bitbucket.org/bbangert/pylons/ $nam"
+   echo $msg \"$cmd\" from $PWD
+   eval $cmd 
+
    #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
 }
 
 pl-install(){
    local msg="=== $FUNCNAME :"
    cd $(pl-srcdir)
-   python setup.py develop
+   local cmd="python setup.py develop"
+   echo $msg \"$cmd\"  ... from $PWD with $(which python)
+   eval $cmd
 }
 
 pl-selinux(){
    apache-
    apache-chcon $(pl-srcdir)
 }
+
+pl-eggcache-dir(){ echo /var/cache/pl ; }
+pl-eggcache(){
+  apache-
+  apache-eggcache $(pl-eggcache-dir)
+}
+
+
 
 
 
@@ -206,12 +224,10 @@ pl-wsgi(){
   modwsgi-deploy $tmp
 }
 
-pl-eggcache-dir(){ echo /var/cache/pl ; }
+
+
 
 pl-deploy(){
-
-  apache-
-  apache-eggcache $(pl-eggcache-dir)
 
   pl-wsgi
 }

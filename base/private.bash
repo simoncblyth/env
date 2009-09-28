@@ -31,6 +31,9 @@ private-usage(){
        Access the values with 
             private-
             private-val PRIVATE_VARIABLE <path>
+
+       alternate access, that works when needs a sudo password
+            private-get PRIVATE_VARIABLE <path>
   
 
        Change, detect or add values with :
@@ -76,11 +79,19 @@ private-path(){
   case ${USER:-nobody} in 
     nobody|www|apache) echo $(dirname $ENV_HOME)/$(private-name) ;;
               default) echo $HOME/$(private-name) ;;
-                    *) echo $HOME/$(private-name) ;;
+                    *) echo $(dirname $ENV_HOME)/$(private-name) ;;
   esac
 }
 
 
+private-selinux(){
+
+  apache-
+  apache-chcon $(apache-private-path)
+
+
+
+}
 
 private-edit(){
   local cmd="sudo vi $(private-path) "
@@ -131,7 +142,7 @@ private-hasval-(){ sudo grep $1 $(private-path) > /dev/null ; }
 private-set(){     ! private-hasval- $1 && private-append- $* || private-change- $* ;  }
 private-append-(){ sudo bash -c "echo local $1=$2 >> $(private-path)   " ;  }
 private-change-(){ sudo perl -pi -e "s,local $1=(\S*),local $1=$2, " $(private-path) ; }
-
+private-get(){     sudo perl -n  -e "m,local $1=(\S*), && print \$1" ${2:-$(private-path)} ; }
 
 
 private-val(){

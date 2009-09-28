@@ -51,14 +51,16 @@ plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 plvdbi-build(){
 
-    plvdbi-install
-    plvdbi-selinux
-
     vdbi-
     vdbi-build
 
     pl-
     pl-build
+
+
+    plvdbi-install
+    plvdbi-selinux
+
 
 }
 
@@ -75,6 +77,12 @@ plvdbi-install(){ plvdbi-setup develop ; }
 plvdbi-selinux(){
    apache-
    apache-chcon $(plvdbi-dir)
+
+   local logdir=/tmp/env/vdbi
+   apache-chown $logdir -R
+   apache-chcon $logdir 
+
+
 }
 
 

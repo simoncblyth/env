@@ -49,6 +49,12 @@ rum-cd(){  cd $(rum-dir); }
 rum-mate(){ mate $(rum-dir) ; }
 
 
+rum-build(){
+   rum-get
+   env-build
+}
+
+
 rum-get(){
    local dir=$(dirname $(rum-dir)) &&  mkdir -p $dir && cd $dir
    local msg="=== $FUNCNAME :"
