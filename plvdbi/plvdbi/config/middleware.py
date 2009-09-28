@@ -76,18 +76,24 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         app = ErrorHandler(app, global_conf, **config['pylons.errorware'])
         
         # Authorization     http://pylonsbook.com/en/1.0/authentication-and-authorization.html
-        permission = ValidAuthKitUser()
-        app = authkit.authorize.middleware(app, permission)
+        #permission = ValidAuthKitUser()
+        #app = authkit.authorize.middleware(app, permission)
 
         # Authentication handling intercepting 401, 403
-        app = authkit.authenticate.middleware(app, app_conf)
+        #app = authkit.authenticate.middleware(app, app_conf)
 
         # Display error documents for 401, 403, 404 status codes (and
         # 500 when debug is disabled)
         if asbool(config['debug']):
-            app = StatusCodeRedirect(app, [401, 403, 404])   ## default is (400, 401, 403, 404)
+            errcodes = [401, 403, 404]         ## default is (400, 401, 403, 404)
         else:
-            app = StatusCodeRedirect(app, [401, 403, 404, 500])
+            errcodes = [401, 403, 404, 500]  
+
+        app = StatusCodeRedirect(app, errcodes)   
+
+        
+
+
 
     # Establish the Registry for this application
     app = RegistryManager(app)

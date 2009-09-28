@@ -72,10 +72,12 @@ EOU
 }
 
 private-env(){
-   export ENV_PRIVATE_PATH=$(private-path)
+   ## only set if not set already .. as is an input used in rum-env 
+   [ -z "$ENV_PRIVATE_PATH" ] && export ENV_PRIVATE_PATH=$(private-path)
 }
 private-name(){ echo .bash_private ; }
-private-path(){ 
+private-path(){ echo ${ENV_PRIVATE_PATH:-$(private-path-default)} ; }
+private-path-default(){ 
   case ${USER:-nobody} in 
     nobody|www|apache) echo $(dirname $ENV_HOME)/$(private-name) ;;
               default) echo $HOME/$(private-name) ;;

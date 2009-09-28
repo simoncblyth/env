@@ -187,12 +187,14 @@ pl-serve(){
 
 
 
-pl-wsgi-(){  cat << EOS
+pl-wsgi-(){  
+  python-
+  cat << EOS
 
 #  $FUNCNAME 
 #     http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
 
-ALLDIRS = ["$(pl-srcdir)/lib/python$(python-major)/site-packages"]
+ALLDIRS = ["$VIRTUAL_ENV/lib/python$(python-major)/site-packages"]
 
 import sys
 import site
@@ -228,7 +230,10 @@ pl-wsgi(){
   local msg="=== $FUNCNAME :"
   local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
   local tmp=$tmpd/$(pl-projname).wsgi
-  echo $msg writing $tmp
+
+  [ -z "$VIRTUAL_ENV" ] && echo $msg abort not in virtual env ... && return 1
+
+  echo $msg writing $tmp ... using VIRTUAL_ENV $VIRTUAL_ENV
   $FUNCNAME- > $tmp
   modwsgi-
   modwsgi-deploy $tmp

@@ -9,6 +9,7 @@ rum-env-C(){
    python- source 
 }
 
+rum-mode(){ echo ${RUM_MODE:-dev} ; }
 rum-env(){      
    elocal- ; 
    case $NODE_TAG in  
@@ -16,7 +17,11 @@ rum-env(){
    esac
    rum-activate ;  
 
-   export ENV_PRIVATE_PATH=$HOME/.bash_private     ## this distinguishes deployed running and debug running 
+   ## this distinguishes deployed running and debug running 
+   case $(rum-mode) in 
+     dev) export ENV_PRIVATE_PATH=$HOME/.bash_private ;; 
+       *) export ENV_PRIVATE_PATH=$(apache-private-path) ;;
+   esac
 }
 rum-usage(){
   cat << EOU
@@ -27,6 +32,18 @@ rum-usage(){
         mysql server running, 
                 mysql-start
 
+    rum-/rum-env
+        activates the rumenv virtual python and 
+        distinguishes dev and deployment modes via the 
+        setting of ENV_PRIVATE_PATH 
+           
+           rum-
+           echo $ENV_PRIVATE_PATH
+              /home/blyth/.bash_private
+
+           RUM_MODE=deploy rum-
+           echo $ENV_PRIVATE_PATH
+              /data1/env/local/env/.bash_private
 
     rum-get
         creates and gets into the virtual python

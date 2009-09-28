@@ -60,6 +60,7 @@ vdbi-users-path(){
   private-
   local vap=$(private-get VDBI_USERS_PATH)
   [ "$vap" == "" ] && echo $msg must have a private key VDBI_USERS_PATH in $(apache-private-path) that points to the vdbi users file : user private-edit to set it && return 1
+  [ ! -f "$vap" ] && echo $msg there is no users file at $vap : you need to create this to enable login  && return 1
   apache-
   apache-chcon $vap
   apache-chown $vap

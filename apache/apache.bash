@@ -161,7 +161,7 @@ apache-group(){
 
 apache-private-path(){
    private-
-   USER=$(apache-user) private-path
+   ENV_PRIVATE_PATH= USER=$(apache-user) private-path
 }
 
 

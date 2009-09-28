@@ -61,6 +61,10 @@ plvdbi-build(){
     ! plvdbi-install  && return 1
     ! plvdbi-selinux  && return 1 
 
+
+    ! plvdbi-make-config && return 1  
+    ! plvdbi-archive-tw-resources  && return 1
+
 }
 
 
@@ -130,12 +134,10 @@ plvdbi-shell(){
 }
 
 
+plvdbi-statics-dir(){  echo $(plvdbi-dir)/plvdbi/public/toscawidgets ; }
 plvdbi-archive-tw-resources(){
-
-   
    cd $(plvdbi-dir)
-   python setup.py archive_tw_resources  -f
-
+   python setup.py archive_tw_resources  -f --output $(plvdbi-statics-dir)
 }
 
 

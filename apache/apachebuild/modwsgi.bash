@@ -133,7 +133,7 @@ EOA
 
 modwsgi-app-conf-(){ 
    local name=${1:-$(modwsgi-app-name)}
-   echo "WSGIScriptAlias /$name $(modwsgi-app-path $name)"
+   echo "WSGIScriptAlias / $(modwsgi-app-path $name)"
 }
 modwsgi-app-conf(){
     local msg="=== $FUNCNAME :"
