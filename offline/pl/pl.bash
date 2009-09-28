@@ -53,47 +53,45 @@ pl-preq(){
 }
 
 pl-srcfold(){  echo $(local-base $*)/env ; }
-#pl-srcnam(){   echo plenv ; }
-pl-srcnam(){   echo rumenv ; }   ## pick the rum virtualized python
-pl-srcdir(){   echo $(pl-srcfold $*)/$(pl-srcnam) ; }
-#pl-projname(){ echo OfflineDB ; }
+pl-srcnam(){   echo pldev ; }  
+pl-srcdir(){   echo $(pl-srcfold $*)/$(pl-srcnam)/pylons ; }
+pl-mate(){     mate $(pl-srcdir) ; }
+
+
 pl-projname(){ echo ${PL_PROJNAME:-helloworld} ; }
 pl-projdir(){  echo $(pl-dir)/$(pl-projname) ; }
 pl-cd(){       cd $(pl-projdir) ; }   
 
-pl-activate(){
-   local act=$(pl-srcdir)/bin/activate
-   [ -f "$act" ] && . $act
- }
 
+pl-build(){
+  pl-get
+  pl-install
+  pl-selinux 
+}
+
+pl-get(){
+   local msg="=== $FUNCNAME :"
+   [ "$(which hg)" == "" ] && echo $msg no hg && return 1
+   local dir=$(dirname $(pl-srcdir))
+   local nam=$(basename $(pl-srcdir))
+   mkdir -p $dir && cd $dir
+   hg clone http://bitbucket.org/bbangert/pylons/ $nam
+   #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
+}
 
 pl-install(){
-
    local msg="=== $FUNCNAME :"
-  
-   pl-preq-install
-   pl-preq
-  
-   local dir=$(pl-srcdir)
-   local fld=$(dirname $dir)
-   local nam=$(basename $dir)
-   mkdir -p $fld && cd $fld
-   virtualenv --no-site-packages $nam
-   pl-activate
    cd $(pl-srcdir)
-
-   hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
-
-   cd Pylons
-   python setup.py develop 
-
-   pl-chcon
+   python setup.py develop
 }
 
-pl-chcon(){
-   modwsgi-
-   modwsgi-baseline-chcon $(pl-srcdir)
+pl-selinux(){
+   apache-
+   apache-chcon $(pl-srcdir)
 }
+
+
+
 
 
 pl-proj-deps(){

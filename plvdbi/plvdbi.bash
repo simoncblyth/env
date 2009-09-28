@@ -37,6 +37,7 @@ plvdbi-usage(){
 EOU
 }
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
+plvdbi-cd(){      cd $(plvdbi-dir); }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
 #plvdbi-name(){  echo development ; }
 plvdbi-name(){  echo production ; }
@@ -44,10 +45,43 @@ plvdbi-ini(){
    local name=${1:-$(plvdbi-name)}
    echo $(plvdbi-dir)/$name.ini ;
  }
-plvdbi-cd(){      cd $(plvdbi-dir); }
 
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
+
+plvdbi-build(){
+
+    plvdbi-install
+    plvdbi-selinux
+
+    vdbi-
+    vdbi-build
+
+    pl-
+    pl-build
+
+}
+
+
+
+
+plvdbi-setup(){
+   plvdbi-cd
+   python setup.py $*
+}
+plvdbi-install(){ plvdbi-setup develop ; }
+
+
+plvdbi-selinux(){
+   apache-
+   apache-chcon $(plvdbi-dir)
+}
+
+
+
+
+
+  
 
 plvdbi-serve(){
   local msg="=== $FUNCNAME :" 
@@ -132,6 +166,8 @@ plvdbi-modwsgi(){
    pl-
    PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
 }
+
+
 
 
 ## initd script

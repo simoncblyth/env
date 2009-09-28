@@ -103,24 +103,5 @@ rumdev-install(){
    done 
 }
 
-rumdev-pylons-get(){
-   local msg="=== $FUNCNAME :"
-   rumdev-cd
-
-   [ "$(which hg)" == "" ] && echo $msg no hg && return 1
-   #rumdev-isprimed- && echo $msg ABORT this must be run whilst NOT inside the rum virtualenv  && return 1
-   #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
-   hg clone http://bitbucket.org/bbangert/pylons/
-}
-
-rumdev-pylons-install(){
-   local msg="=== $FUNCNAME :"
-   rumdev-cd
-   rum-
-   ! rumdev-isprimed- && echo $msg ABORT this must be run whilst inside the rum virtualenv  && return 1
-   cd pylons
-   python setup.py develop
-}
-
 
 
