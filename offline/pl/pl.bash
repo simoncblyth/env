@@ -64,6 +64,12 @@ pl-cd(){       cd $(pl-projdir) ; }
 
 
 pl-build(){
+
+  local msg="=== $FUNCNAME :"
+  [ -z "$VIRTUAL_ENV" ] && echo $msg ABORT are not inside virtualenv && return 1 
+  [ "$(which python)" != "$VIRTUAL_ENV/bin/python" ] && echo  $msg ABORT wrong python && return 1
+
+
   pl-get
   pl-install
   pl-selinux 
@@ -89,6 +95,10 @@ pl-get(){
 
 pl-install(){
    local msg="=== $FUNCNAME :"
+
+
+   
+
    cd $(pl-srcdir)
    local cmd="python setup.py develop"
    echo $msg \"$cmd\"  ... from $PWD with $(which python)

@@ -3,6 +3,13 @@ from optparse import OptionParser
 import sys
 
 def vdbi():
+
+    import os
+
+    # epp = os.path.join( os.environ['HOME'] , '.bash_private' )
+    # os.environ['ENV_PRIVATE_PATH'] = epp 
+    # print "vdbi: CAUTION overridden ENV_PRIVATE_PATH to %s for non-secure debug testing "  % epp  
+
     parser = OptionParser()
     parser.add_option('', '--dburl',
                   dest='url',

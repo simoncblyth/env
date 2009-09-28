@@ -197,7 +197,7 @@ python-libdir(){
 
 
 python-site(){
-   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python2.5/site-packages || python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python$(python-major)/site-packages || python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
 }
 
 
@@ -217,7 +217,7 @@ python-rln(){
 
 python-site-deprecated(){
   case $NODE_TAG in 
-    G) echo /Library/Python/2.5/site-packages ;;
+    G) echo /Library/Python/$(python-major)/site-packages ;;
     *) python-site- ;;
   esac
 }
@@ -225,7 +225,7 @@ python-site-deprecated(){
 python-site-(){
     local python=$(which python)
     local archdir=$(dirname $(dirname $python))
-    echo $archdir/lib/python2.5/site-packages
+    echo $archdir/lib/python$(python-major)/site-packages
 }
 
 

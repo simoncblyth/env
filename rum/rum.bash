@@ -15,6 +15,8 @@ rum-env(){
      C) rum-env-C ;;
    esac
    rum-activate ;  
+
+   export ENV_PRIVATE_PATH=$HOME/.bash_private     ## this distinguishes deployed running and debug running 
 }
 rum-usage(){
   cat << EOU
@@ -24,6 +26,8 @@ rum-usage(){
     Pre-requisites :
         mysql server running, 
                 mysql-start
+
+
     rum-get
         creates and gets into the virtual python
         (rum installation now down with vdbi-)
@@ -36,7 +40,7 @@ rum-usage(){
            %run -d app.py
        
 
-     For bumping some the components (eg tw.rum) up to their tips ... see 
+    For bumping some the components (eg tw.rum) up to their tips ... see 
         rumdev-install 
 
 
@@ -50,22 +54,36 @@ rum-mate(){ mate $(rum-dir) ; }
 
 
 rum-build(){
-   rum-get
+   ! rum-get && return 1
    env-build
 }
 
+rum-wipe(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo rm -rf $(rum-dir) " 
+   local ans
+   read -p "$msg proceed with \"$cmd\"  enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipped && return 0
+   eval $cmd
+}
 
 rum-get(){
    local dir=$(dirname $(rum-dir)) &&  mkdir -p $dir && cd $dir
    local msg="=== $FUNCNAME :"
    [ "$(which virtualenv)" == "" ] && echo $msg missing virtualenv && return 1
    [ ! -d "$(rum-dir)" ] && virtualenv $(rum-dir) || echo $msg virtualenv dir $(rum-dir) exists already skipping virtualenv creation 
-   rum-activate
-   [ "$(which python)" == "$(rum-dir)/bin/python" ] && echo $msg ABORT failed to setup virtualenv && return 1
+   ! rum-activate && echo "$msg failed to activate " && return 1 
+   [ "$(which python)" != "$(rum-dir)/bin/python" ] && echo $msg ABORT failed to setup virtual python $(which python)   && return 1
    [ "$(python -c 'import MySQLdb')" != ""  ] && echo $msg ABORT missing MySQLdb && return 1   
+   return 0
 }
 
-rum-activate(){   . $(rum-dir)/bin/activate ; }
+
+
+rum-activate(){   
+  local activate=$(rum-dir)/bin/activate 
+  . $activate 
+}
 rum-deactivate(){ deactivate ; }
 
 rum-tute(){

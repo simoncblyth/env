@@ -24,12 +24,15 @@ vdbi-mate(){ mate $(vdbi-dir) ; }
 
 vdbi-build(){
   rum-
+  rum-build
   [ "$(which python)" != "$(rum-dir)/bin/python" ]  && echo $msg ABORT must be inside rumenv to proceed && return 1
 
   vdbi-install
   vdbi-extras
   vdbi-selinux 
-  vdbi-users-path
+  ! vdbi-users-path && return 1
+  ! vdbi-logdir     && return 1
+  return 0
 }
 
 vdbi-setup(){
@@ -47,21 +50,34 @@ vdbi-extras(){
   twdev-build
 }
 
-vdbi-users-path(){
-  private-
-  local vap=$(private-get VDBI_USERS_PATH)
-  apache-
-  apache-chcon $vap
-  apache-chown $vap
-}
-
-
 vdbi-selinux(){
    apache-
    apache-chcon $(vdbi-dir)
 }
 
+vdbi-users-path(){
+  local msg="=== $FUNCNAME :"
+  private-
+  local vap=$(private-get VDBI_USERS_PATH)
+  [ "$vap" == "" ] && echo $msg must have a private key VDBI_USERS_PATH in $(apache-private-path) that points to the vdbi users file : user private-edit to set it && return 1
+  apache-
+  apache-chcon $vap
+  apache-chown $vap
+  return 0
+}
 
+vdbi-logdir(){
 
+  local logdir=$(private-get VDBI_LOGDIR)
+  [ "$vap" == "" ] && echo $msg must have a private key VDBI_LOGDIR in $(apache-private-path)  : user private-edit to set it && return 1
 
+  mkdir -p $logdir
+  apache-chown $logdir -R
+  apache-chcon $logdir 
+
+}
+
+vdbi-check(){
+   curl --user-agent MSIE http://127.0.0.1:6060
+}
 

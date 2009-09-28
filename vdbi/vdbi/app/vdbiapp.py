@@ -1,4 +1,4 @@
-from __future__ import with_statement
+#from __future__ import with_statement  ## not available in 2.4
 #from vdbi.dbg import debug_here
 
 def handle_log( name , logdir ):
@@ -12,13 +12,13 @@ def handle_log( name , logdir ):
     log.addHandler(handler)
     return log 
 
-def setup_logging(**kw):
+def setup_logging(logdir):
     import logging
     logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG , 'vdbi.rumalchemy.repository':logging.DEBUG }
-    logc.update(**kw)
+    #logc.update(**kw)
     #logging.basicConfig()
     for name,levl  in logc.items():
-        handle_log( name , logdir="/tmp/env/vdbi" ).setLevel( levl )
+        handle_log( name , logdir=logdir ).setLevel( levl )
     
 
 from rum.controller import Controller
@@ -35,12 +35,13 @@ class RootController(Controller):
 
 
 def create_app(url=None,  dbg=True):
-    
+    from env.base.private import Private
+    p = Private()
     if not(url):
-        from env.base.private import Private
-        p = Private()
-        url = p('DATABASE_URL')          
-    setup_logging()
+       url = p('DATABASE_URL')          
+    logdir = p('VDBI_LOGDIR') 
+
+    setup_logging(logdir)
     
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
@@ -130,8 +131,9 @@ if __name__=='__main__':
 
     ## http://docs.python-rum.org/tip/developer/modules/index.html
     ## using "with" (from future) enables rum.app to stay non-None outside of WSGI request context
-    ## 
-    with vdbi_app.mounted_at("/"):
-        print vdbi_app.viewfactory   ## <vdbi.tw.rum.viewfactory.DbiWidgetFactory object at 0x21b4090>
+    ##
+    ##  
+    ##with vdbi_app.mounted_at("/"):
+    ##    print vdbi_app.viewfactory   ## <vdbi.tw.rum.viewfactory.DbiWidgetFactory object at 0x21b4090>
 
  

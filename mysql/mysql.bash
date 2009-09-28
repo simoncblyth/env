@@ -55,6 +55,7 @@ mysql-init(){    sudo $(mysql-ini) $* ; }
 mysql-start(){   mysql-init start ; }
 mysql-stop(){    mysql-init stop ; }
 mysql-restart(){ mysql-init restart ; }
+mysql-status(){  mysql-init status ; }
 
 mysql-ps(){     ps aux | grep mysql ; }
 
