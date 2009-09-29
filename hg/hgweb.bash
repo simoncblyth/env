@@ -10,21 +10,31 @@ hgweb-usage(){
 
      http://mercurial.selenic.com/wiki/HgWebDirStepByStep
 
+     Mercurial clones in :  
+         /var/hg/repos 
+
+     Will show up in the list   
+          http://belle7.nuu.edu.tw/hg/
+
+     with URLs like :
+          http://belle7.nuu.edu.tw/hg/AuthKit/
 
 EOU
 }
 hgweb-cd(){  cd $(hgweb-dir); }
 
-hgweb-name(){     echo public ; }
+hgweb-name(){     echo hg ; }
 hgweb-dir(){      echo /var/hg ; }
 hgweb-confpath(){ echo $(hgweb-dir)/$(hgweb-name).ini ; }  
 hgweb-wsgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).wsgi ; }
+hgweb-edit(){     sudo vi $(hgweb-confpath) ; }
 
 hgweb-build(){
    hgweb-prep
    hgweb-conf
    hgweb-wsgi
    hgweb-apache
+   hgweb-selinux
 }
 
 hgweb-prep(){
@@ -41,8 +51,8 @@ hgweb-prep(){
 hgweb-conf-(){ cat << EOC
 #[web]
 #style = gitweb
-[collections]
-repos/ = repos/
+[paths]
+/ = $(hgweb-dir)/repos/**
 EOC
 }
 hgweb-conf(){
@@ -59,7 +69,7 @@ hgweb-conf(){
 
 
 hgweb-wsgi-(){ cat << EOC
-ALLDIRS = ["$VIRTUAL_ENV/lib/python$(python-major)/site-packages"]
+ALLDIRS = ["$VIRTUAL_ENV/lib/python$(python-;python-major)/site-packages"]
 import sys
 import site
 
@@ -110,6 +120,9 @@ hgweb-apache(){
   echo $msg use \"apache-edit\" to incorporate the above 
 }
 
-
+hgweb-selinux(){
+  apache-
+  apache-chcon $(hgweb-dir)
+}
 
 
