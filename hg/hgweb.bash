@@ -1,0 +1,115 @@
+# === func-gen- : hg/hgweb fgp hg/hgweb.bash fgn hgweb fgh hg
+hgweb-src(){      echo hg/hgweb.bash ; }
+hgweb-source(){   echo ${BASH_SOURCE:-$(env-home)/$(hgweb-src)} ; }
+hgweb-vi(){       vi $(hgweb-source) ; }
+hgweb-env(){      elocal- ; }
+hgweb-usage(){
+  cat << EOU
+     hgweb-src : $(hgweb-src)
+     hgweb-dir : $(hgweb-dir)
+
+     http://mercurial.selenic.com/wiki/HgWebDirStepByStep
+
+
+EOU
+}
+hgweb-cd(){  cd $(hgweb-dir); }
+
+hgweb-name(){     echo public ; }
+hgweb-dir(){      echo /var/hg ; }
+hgweb-confpath(){ echo $(hgweb-dir)/$(hgweb-name).ini ; }  
+hgweb-wsgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).wsgi ; }
+
+hgweb-build(){
+   hgweb-prep
+   hgweb-conf
+   hgweb-wsgi
+   hgweb-apache
+}
+
+hgweb-prep(){
+  local msg="=== $FUNCNAME :"
+  local repos=$(hgweb-dir)/repos
+  local cmd="sudo mkdir -p $repos"
+  echo $msg $cmd
+  eval $cmd
+  apache-
+  apache-chown $repos
+  apache-chcon $repos
+}
+
+hgweb-conf-(){ cat << EOC
+#[web]
+#style = gitweb
+[collections]
+repos/ = repos/
+EOC
+}
+hgweb-conf(){
+  local msg="=== $FUNCNAME :"
+  local conf=$(hgweb-confpath)
+  local tmp=/tmp/env/$FUNCNAME/$(basename $conf) && mkdir -p $(dirname $tmp)
+  echo $msg $conf writing to $tmp
+  $FUNCNAME-
+  $FUNCNAME- > $tmp
+  local cmd="sudo cp $tmp $conf"
+  echo $msg \"$cmd\"
+  eval $cmd
+}
+
+
+hgweb-wsgi-(){ cat << EOC
+ALLDIRS = ["$VIRTUAL_ENV/lib/python$(python-major)/site-packages"]
+import sys
+import site
+
+sys.stdout = sys.stderr
+prev_sys_path = list(sys.path)
+
+for dir in ALLDIRS:
+    site.addsitedir(dir)
+
+new_sys_path = []
+for item in list(sys.path):
+    if item not in prev_sys_path:
+        new_sys_path.append(item)
+        sys.path.remove(item)
+sys.path[:0] = new_sys_path 
+
+from mercurial.hgweb.hgweb_mod import hgweb
+from mercurial.hgweb.hgwebdir_mod import hgwebdir
+application = hgwebdir('$(hgweb-confpath)')
+EOC
+}
+hgweb-wsgi(){
+  local msg="=== $FUNCNAME :"
+  local wsgi=$(hgweb-wsgipath)
+  local tmp=/tmp/env/$FUNCNAME/$(basename $wsgi) && mkdir -p $(dirname $tmp)
+  echo $msg $wsgi writing to $tmp
+  $FUNCNAME-
+  $FUNCNAME- > $tmp
+  local cmd="sudo cp $tmp $wsgi"
+  echo $msg \"$cmd\"
+  eval $cmd
+}
+
+hgweb-apache-(){ 
+  local path=$(hgweb-wsgipath)
+cat << EOC
+## $FUNCNAME
+WSGIScriptAlias /$(hgweb-name) $path
+<Directory $(dirname $path)
+    Order deny,allow
+    Allow from all
+</Directory> 
+EOC
+}
+hgweb-apache(){
+  local msg="=== $FUNCNAME :"
+  $FUNCNAME- 
+  echo $msg use \"apache-edit\" to incorporate the above 
+}
+
+
+
+
