@@ -759,3 +759,4 @@ rumdev-(){          . $(env-home)/rum/rumdev.bash && rumdev-env $* ; }
 twdev-(){      . $(env-home)/tw/twdev.bash && twdev-env $* ; }
 plvdbi-(){      . $(env-home)/plvdbi/plvdbi.bash && plvdbi-env $* ; }
 vdbi-(){      . $(env-home)/vdbi/vdbi.bash && vdbi-env $* ; }
+authkit-(){      . $(env-home)/authkit/authkit.bash && authkit-env $* ; }

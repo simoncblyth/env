@@ -58,6 +58,9 @@ plvdbi-build(){
     pl-
     ! pl-build   && return 1
 
+    authkit-
+    ! authkit-build   && return 1
+
     ! plvdbi-install  && return 1
     ! plvdbi-selinux  && return 1 
 
