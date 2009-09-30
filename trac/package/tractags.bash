@@ -10,6 +10,23 @@ tractags-usage(){
   
   
   Note that TagCloud has changed ... 
+
+
+   Simple fix for IE TagCloud rendering all on one line ... 
+      http://trac-hacks.org/ticket/4223
+
+--- macros.py.orig      2009-02-18 10:11:22.000000000 +0100
++++ macros.py   2009-02-18 08:46:20.000000000 +0100
+@@ -50,7 +50,7 @@
+         if i == last:
+             li(class_='last')
+         li()
+-        ul(li)
++        ul(li, ' ')
+     return ul
+
+
+
   
   
   

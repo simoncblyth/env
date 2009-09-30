@@ -19,6 +19,10 @@ dj-env(){
 dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
 dj-project(){ echo ${DJANGO_PROJECT:-dybsite} ; } ## djsa
 dj-app(){     echo ${DJANGO_APP:-offdb} ; }       ## blog 
+dj-info(){    env | grep DJANGO_ ;  }
+
+
+
 
 dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
@@ -94,7 +98,6 @@ EON
 
 
 
-dj-info(){ env | grep DJANGO_ ;  }
 
 dj-versions(){
    python -V

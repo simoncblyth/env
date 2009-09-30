@@ -759,5 +759,7 @@ rumdev-(){          . $(env-home)/rum/rumdev.bash && rumdev-env $* ; }
 twdev-(){      . $(env-home)/tw/twdev.bash && twdev-env $* ; }
 plvdbi-(){      . $(env-home)/plvdbi/plvdbi.bash && plvdbi-env $* ; }
 vdbi-(){      . $(env-home)/vdbi/vdbi.bash && vdbi-env $* ; }
+gitorious-(){      . $(env-home)/git/gitorious.bash && gitorious-env $* ; }
+gitweb-(){      . $(env-home)/git/gitweb.bash && gitweb-env $* ; }
 hgweb-(){      . $(env-home)/hg/hgweb.bash && hgweb-env $* ; }
 authkit-(){      . $(env-home)/authkit/authkit.bash && authkit-env $* ; }
