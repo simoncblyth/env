@@ -19,6 +19,11 @@ hgweb-usage(){
      with URLs like :
           http://belle7.nuu.edu.tw/hg/AuthKit/
 
+
+     hgweb-vhgpy 
+         create a virtual python environment to house mercurial 
+
+
 EOU
 }
 hgweb-cd(){  cd $(hgweb-dir); }
@@ -29,13 +34,48 @@ hgweb-confpath(){ echo $(hgweb-dir)/$(hgweb-name).ini ; }
 hgweb-wsgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).wsgi ; }
 hgweb-edit(){     sudo vi $(hgweb-confpath) ; }
 
+
+
 hgweb-build(){
+   local msg="=== $FUNCNAME :" 
+   [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR you must be inside a virtual env first && return 1
    hgweb-prep
    hgweb-conf
    hgweb-wsgi
    hgweb-apache
    hgweb-selinux
 }
+
+hgweb-vhgdir(){      echo $(local-base)/env/vhg ; }
+hgweb-vhgactivate(){ . $(hgweb-vhgdir)/bin/activate  ; }
+hgweb-vhgwipe(){
+  rm -rf $(hgweb-vhgdir)
+}
+hgweb-vhgcreate(){
+  local msg="=== $FUNCNAME :"
+
+  local py=$(which python)
+  local ans
+  read -p "$msg create virtual python with BASELINE $py , enter YES to proceed " ans
+  [ "$ans" != "YES" ] && echo $msg skipped && return 1
+  [ "$(which virtualenv)" == "" ] && echo $msg ERROR no virtualenv && return 1
+  [ -n "$VIRTUAL_ENV" ] && echo $msg ERROR you must NOT be indside one to create one && return 1
+
+  virtualenv $(hgweb-vhgdir)
+  hgweb-vhgactivate
+  which python
+  which easy_install
+  easy_install mercurial
+  deactivate
+}
+
+
+hgweb-vhgselinux(){
+  apache-
+  python-
+  apache-chcon $(hgweb-vhgdir)/lib/python$(python-major)/
+}
+
 
 hgweb-prep(){
   local msg="=== $FUNCNAME :"
