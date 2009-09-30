@@ -168,6 +168,12 @@ apache-private-path(){
 
 apache-sudouser(){ [ -n "$SUDO" ] && echo $SUDO -u $(apache-user) || echo "" ; }
 
+
+apache-own(){
+   apache-chown $* -R
+   apache-chcon $*
+}
+
 apache-chown(){
   local msg="=== $FUNCNAME :"
   local path=$1

@@ -763,3 +763,4 @@ gitorious-(){      . $(env-home)/git/gitorious.bash && gitorious-env $* ; }
 gitweb-(){      . $(env-home)/git/gitweb.bash && gitweb-env $* ; }
 hgweb-(){      . $(env-home)/hg/hgweb.bash && hgweb-env $* ; }
 authkit-(){      . $(env-home)/authkit/authkit.bash && authkit-env $* ; }
+authkitdev-(){      . $(env-home)/authkit/authkitdev.bash && authkitdev-env $* ; }
