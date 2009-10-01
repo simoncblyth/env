@@ -49,23 +49,24 @@ plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 plvdbi-build(){
 
+    local msg="=== $FUNCNAME :"
     vdbi-
     vdbi-build
-    [ ! $? -eq 0 ] && return 1
+    [ ! $? -eq 0 ] && echo $msg ABORT after vdbi-build      && return 1  || echo $msg vdbi-build OK
 
     pl-
     pl-build 
-    [ ! $? -eq 0 ] && return 1
+    [ ! $? -eq 0 ] && echo $msg ABORT after pl-build        && return 1  || echo $msg pl-build OK
 
     authkit-
     authkit-build  
-    [ ! $? -eq 0 ] && return 1
+    [ ! $? -eq 0 ] && echo $msg ABORT after authkit-build   && return 1  || echo $msg authkit-build OK
 
     plvdbi-install 
-    [ ! $? -eq 0 ] && return 1
+    [ ! $? -eq 0 ] && echo $msg ABORT after -install && return 1  || echo $msg -install OK
 
     plvdbi-selinux  
-    [ ! $? -eq 0 ] && return 1
+    [ ! $? -eq 0 ] && echo $msg ABORT after -selinux && return 1  || echo $msg -selinux OK
 
     plvdbi-make-config 
     [ ! $? -eq 0 ] && return 1

@@ -26,6 +26,8 @@ authkit-build(){
    [ ! $? -eq 0 ] && return 1
    authkit-selinux 
    [ ! $? -eq 0 ] && return 1
+
+   return 0
 }
 
 

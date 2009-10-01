@@ -40,8 +40,10 @@ offdb-build(){
 
    offdb-drop
    offdb-load
-   offdb-dupe
+   #offdb-dupe
    offdb-check
+
+   offdb-add-cpk
 }
 
 offdb-get(){
