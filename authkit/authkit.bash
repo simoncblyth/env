@@ -11,7 +11,8 @@ authkit-usage(){
 
 EOU
 }
-authkit-dir(){ echo $(local-base)/env/authkit ; }
+authkit-dir(){ echo $(local-base)/env/$(authkit-name) ; }
+authkit-name(){ echo AuthKitPy24 ; }
 authkit-rel(){ echo AuthKit/trunk ; }
 authkit-cd(){  cd $(authkit-dir)/$*; }
 authkit-mate(){ mate $(authkit-dir) ; }
@@ -20,17 +21,22 @@ authkit-mate(){ mate $(authkit-dir) ; }
 authkit-build(){
 
    authkit-get
-
-   ! authkit-install && return 1
-   ! authkit-selinux && return 1
+   [ ! $? -eq 0 ] && return 1
+   authkit-install 
+   [ ! $? -eq 0 ] && return 1
+   authkit-selinux 
+   [ ! $? -eq 0 ] && return 1
 }
 
 
 authkit-get(){
    local dir=$(dirname $(authkit-dir)) &&  mkdir -p $dir && cd $dir
    type $FUNCNAME
-   #hg clone http://bitbucket.org/kumar303/authkit/
-   hg clone http://belle7.nuu.edu.tw/hg/AuthKitPy24
+   if [ -d "$(authkit-name)" ] ; then
+      ( cd $(authkit-name) ; hg pull )
+   else
+      hg clone http://belle7.nuu.edu.tw/hg/$(authkit-name)
+   fi  
 }
 
 #authkit-diff(){

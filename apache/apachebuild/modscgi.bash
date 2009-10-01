@@ -34,6 +34,14 @@ modscgi-get(){
 
 modscgi-so(){  echo $(apache-modulesdir)/mod_scgi.so ; }
 
+
+modscgi-build(){
+  modscgi-get
+  modscgi-install
+  modscgi-conf
+}
+
+
 modscgi-install(){
 
    local msg="=== $FUNCNAME :"

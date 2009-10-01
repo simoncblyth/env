@@ -71,7 +71,8 @@ rum-mate(){ mate $(rum-dir) ; }
 
 
 rum-build(){
-   ! rum-get && return 1
+   rum-get 
+   [ ! $? -eq 0 ]  && return 1
    env-build
 }
 
@@ -88,10 +89,13 @@ rum-get(){
    local dir=$(dirname $(rum-dir)) &&  mkdir -p $dir && cd $dir
    local msg="=== $FUNCNAME :"
    [ "$(which virtualenv)" == "" ] && echo $msg missing virtualenv && return 1
+   [ "$(which hg)" == "" ] && echo $msg missing hg && return 1
    [ ! -d "$(rum-dir)" ] && virtualenv $(rum-dir) || echo $msg virtualenv dir $(rum-dir) exists already skipping virtualenv creation 
    ! rum-activate && echo "$msg failed to activate " && return 1 
    [ "$(which python)" != "$(rum-dir)/bin/python" ] && echo $msg ABORT failed to setup virtual python $(which python)   && return 1
-   [ "$(python -c 'import MySQLdb')" != ""  ] && echo $msg ABORT missing MySQLdb && return 1   
+
+   python -c "import MySQLdb" 2> /dev/null
+   [ ! $? -eq 0 ] && echo $msg ABORT missing MySQLdb ... see pymysql-build or system install if using system python  && return 1
    return 0
 }
 

@@ -19,7 +19,8 @@ pymqsql-usage(){
 
 
        
-
+    If you get the usual sudo python errot : no .so try  : export SUDO=
+   
 
 
 EOU

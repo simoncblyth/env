@@ -13,11 +13,8 @@ plvdbi-usage(){
      plvdbi-serve   
         run the server ... visible at http://localhost:5000 
 
-
      plvdbi-modscgi
          hints for apache proxying integration via scgi 
-
-
 
      plvdbi-shell
           
@@ -28,14 +25,10 @@ plvdbi-usage(){
              tresponse = test_app.get('/_test_vars')
              request_id = int(tresponse.body)
 
-
-
      plvdbi-archive-tw-resources
            collect the statics for deployment/serving from web server (apache/nginx/lighttpd) rather than webapp
                http://toscawidgets.org/documentation/ToscaWidgets/deploy.html
                http://projects.roggisch.de/tw/aggregation.html
-
-
 
 
 
@@ -56,22 +49,29 @@ plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 plvdbi-build(){
 
-
     vdbi-
-    ! vdbi-build && return 1
+    vdbi-build
+    [ ! $? -eq 0 ] && return 1
 
     pl-
-    ! pl-build   && return 1
+    pl-build 
+    [ ! $? -eq 0 ] && return 1
 
     authkit-
-    ! authkit-build   && return 1
+    authkit-build  
+    [ ! $? -eq 0 ] && return 1
 
-    ! plvdbi-install  && return 1
-    ! plvdbi-selinux  && return 1 
+    plvdbi-install 
+    [ ! $? -eq 0 ] && return 1
 
+    plvdbi-selinux  
+    [ ! $? -eq 0 ] && return 1
 
-    ! plvdbi-make-config && return 1  
-    ! plvdbi-archive-tw-resources  && return 1
+    plvdbi-make-config 
+    [ ! $? -eq 0 ] && return 1
+
+    plvdbi-archive-tw-resources
+    [ ! $? -eq 0 ] && return 1
 
 }
 

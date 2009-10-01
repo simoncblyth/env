@@ -34,6 +34,15 @@ hg-dir(){ echo /var/hg ;  }
 hg-cd(){  cd $(hg-dir); }
 hg-mate(){ mate $(hg-dir) ; }
 
+hg-get(){
+   local msg="=== $FUNCNAME :"
+   [ "$(which hg)" != "" ] && echo $msg hg is already avilable && return 0
+   [ "$(which python)" == "/usr/bin/python" ] && echo $msg when using system python its best to use system mercurial, install with yum etc.. && return 0  
+
+   easy_install -U mercurial
+}
+
+
 
 hg-repos(){ find ${1:-$PWD} -type d -name '.hg' -exec dirname {} \;; }
 hg-val(){   perl -n -e "m/^$2\s*=\s*(.*)$/ && print \$1 " $1/.hg/hgrc ; }

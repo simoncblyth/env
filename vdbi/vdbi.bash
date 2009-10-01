@@ -25,6 +25,7 @@ vdbi-mate(){ mate $(vdbi-dir) ; }
 vdbi-build(){
   rum-
   rum-build
+  [ ! $? -eq 0 ] && return 1
   [ "$(which python)" != "$(rum-dir)/bin/python" ]  && echo $msg ABORT must be inside rumenv to proceed && return 1
 
   vdbi-install
@@ -57,6 +58,7 @@ vdbi-selinux(){
 
 vdbi-users-path(){
   local msg="=== $FUNCNAME :"
+  echo $msg
   private-
   local vap=$(private-get VDBI_USERS_PATH)
   [ "$vap" == "" ] && echo $msg must have a private key VDBI_USERS_PATH in $(apache-private-path) that points to the vdbi users file : user private-edit to set it && return 1
@@ -68,9 +70,11 @@ vdbi-users-path(){
 }
 
 vdbi-logdir(){
-
+  local msg="=== $FUNCNAME :"
+  echo $msg
+  private-
   local logdir=$(private-get VDBI_LOGDIR)
-  [ "$vap" == "" ] && echo $msg must have a private key VDBI_LOGDIR in $(apache-private-path)  : user private-edit to set it && return 1
+  [ "$logdir" == "" ] && echo $msg must have a private key VDBI_LOGDIR in $(apache-private-path)  : user private-edit to set it && return 1
 
   mkdir -p $logdir
   apache-chown $logdir -R
