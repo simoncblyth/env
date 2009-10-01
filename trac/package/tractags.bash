@@ -8,13 +8,14 @@ tractags-usage(){
        copy in changed files sourced in env for safety
      ... this is intended for minor customizations, anything major should be housed in tracdev repo
   
-  
-  Note that TagCloud has changed ... 
-
 
    Simple fix for IE TagCloud rendering all on one line ... 
       http://trac-hacks.org/ticket/4223
 
+[blyth@cms02 tractags]$ vi macros.py
+[blyth@cms02 tractags]$ pwd
+/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/TracTags-0.6-py2.5.egg/tractags
+ 
 --- macros.py.orig      2009-02-18 10:11:22.000000000 +0100
 +++ macros.py   2009-02-18 08:46:20.000000000 +0100
 @@ -50,7 +50,7 @@
@@ -26,8 +27,6 @@ tractags-usage(){
      return ul
 
 
-
-  
   
   
 EOU
