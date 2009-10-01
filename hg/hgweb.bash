@@ -42,8 +42,6 @@ hgweb-confpath(){ echo $(hgweb-dir)/$(hgweb-name).ini ; }
 hgweb-wsgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).wsgi ; }
 hgweb-edit(){     sudo vi $(hgweb-confpath) ; }
 
-
-
 hgweb-build(){
    local msg="=== $FUNCNAME :" 
    [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR you must be inside a virtual env first && return 1
@@ -73,7 +71,11 @@ hgweb-vhgcreate(){
   hgweb-vhgactivate
   which python
   which easy_install
+
   easy_install mercurial
+  easy_install ipython
+
+  hgweb-vhgselinux
   deactivate
 }
 
