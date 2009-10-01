@@ -86,7 +86,7 @@ def create_app(url=None,  dbg=True):
 
 
     if dbg:
-        from debug import Repo, Qry , Mapr, Dump
+        from vdbi.app.debug import Repo, Qry , Mapr, Dump
         app.__class__._repo = lambda self:Repo(self)
         app.__class__._qry  = lambda self:Qry(self)
         app.__class__._mapr = lambda self:Mapr(self)

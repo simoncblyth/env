@@ -465,7 +465,7 @@ apache-cgidir(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-cgi
 apache-cgidir-source(){
   local tag=${1:-$NODE_TAG}
   case $tag in 
-     *) echo $(apache-home $tag)/placeholder/cgi-bin;;
+     *) echo $(apache-home $tag)/cgi-bin;;
   esac    
 }
 apache-cgidir-system(){

@@ -32,6 +32,13 @@ hgweb-usage(){
          create a virtual python environment to house mercurial 
 
 
+
+     TO ADD :  ensure dirs existing ... else cannot start the scgi ...
+
+(rumenv)[blyth@cms02 httpd-2.0.63]$ sudo mkdir /var/hg/backup
+(rumenv)[blyth@cms02 httpd-2.0.63]$ sudo chown blyth.blyth  /var/hg/backup
+
+
 EOU
 }
 hgweb-cd(){  cd $(hgweb-dir); }
@@ -40,6 +47,7 @@ hgweb-name(){     echo hg ; }
 hgweb-dir(){      echo /var/hg ; }
 hgweb-confpath(){ echo $(hgweb-dir)/$(hgweb-name).ini ; }  
 hgweb-wsgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).wsgi ; }
+hgweb-scgipath(){ echo $(apache- ; apache-cgidir)/$(hgweb-name).scgi ; }
 hgweb-edit(){     sudo vi $(hgweb-confpath) ; }
 
 hgweb-build(){
@@ -48,7 +56,7 @@ hgweb-build(){
    hgweb-prep
    hgweb-conf
    hgweb-wsgi
-   hgweb-apache
+   hgweb-modwsgi-apache
    hgweb-selinux
 }
 
@@ -163,7 +171,7 @@ hgweb-wsgi(){
   eval $cmd
 }
 
-hgweb-apache-(){ 
+hgweb-modwsgi-apache-(){ 
   local path=$(hgweb-wsgipath)
 cat << EOC
 ## $FUNCNAME
@@ -174,15 +182,54 @@ WSGIScriptAlias /$(hgweb-name) $path
 </Directory> 
 EOC
 }
-hgweb-apache(){
+hgweb-modwsgi-apache(){
   local msg="=== $FUNCNAME :"
   $FUNCNAME- 
   echo $msg use \"apache-edit\" to incorporate the above 
 }
 
+
+
+
 hgweb-selinux(){
   apache-
   apache-chcon $(hgweb-dir)
 }
+
+
+hgweb-scgi-(){ cat << EOC
+
+## $FUNCNAME 
+## http://trac.saddi.com/flup/wiki/FlupServers
+## http://einsteinmg.dyndns.org/projects/mercurial/hgwebdir1_fcgi  
+## where to config the port 
+
+from mercurial.hgweb.hgweb_mod import hgweb
+from mercurial.hgweb.hgwebdir_mod import hgwebdir
+from mercurial.hgweb.request import wsgiapplication
+
+def app_maker():
+    return hgwebdir('$(hgweb-confpath)')
+
+wsgiapp = wsgiapplication( app_maker ) 
+
+from flup.server.fcgi import WSGIServer
+WSGIServer(wsgiapp, bindAddress=("127.0.0.1",5000) ).run()
+
+EOC
+}
+
+hgweb-scgi(){
+  local msg="=== $FUNCNAME :"
+  local scgi=$(hgweb-scgipath)
+  local tmp=/tmp/env/$FUNCNAME/$(basename $scgi) && mkdir -p $(dirname $tmp)
+  echo $msg $scgi writing to $tmp
+  $FUNCNAME-
+  $FUNCNAME- > $tmp
+  local cmd="sudo cp $tmp $scgi"
+  echo $msg \"$cmd\"
+  eval $cmd
+}
+
 
 
