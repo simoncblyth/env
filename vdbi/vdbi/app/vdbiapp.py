@@ -41,6 +41,7 @@ def create_app(url=None,  dbg=True):
        url = p('DATABASE_URL')          
     logdir = p('VDBI_LOGDIR') 
 
+    print "create_app logdir:%s " % logdir 
     setup_logging(logdir)
     
     import rum.util

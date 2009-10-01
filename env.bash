@@ -765,3 +765,4 @@ hgweb-(){      . $(env-home)/hg/hgweb.bash && hgweb-env $* ; }
 authkit-(){      . $(env-home)/authkit/authkit.bash && authkit-env $* ; }
 authkitdev-(){      . $(env-home)/authkit/authkitdev.bash && authkitdev-env $* ; }
 hg-(){      . $(env-home)/hg/hg.bash && hg-env $* ; }
+modscgi-(){      . $(env-home)/apache/apachebuild/modscgi.bash && modscgi-env $* ; }

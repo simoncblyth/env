@@ -14,6 +14,11 @@ plvdbi-usage(){
         run the server ... visible at http://localhost:5000 
 
 
+     plvdbi-modscgi
+         hints for apache proxying integration via scgi 
+
+
+
      plvdbi-shell
           
           gives error ... invalid literal for int() arising from :
@@ -45,7 +50,7 @@ plvdbi-ini(){
    local name=${1:-$(plvdbi-name)}
    echo $(plvdbi-dir)/$name.ini ;
  }
-
+plvdbi-edit(){    vim $(plvdbi-ini) ; }
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 
@@ -168,13 +173,29 @@ plvdbi-log(){ echo  $(plvdbi-dir)/plvdbi.log  ; }
 plvdbi-tail(){ tail -f $(plvdbi-log) ; }
 
 
+## apache integration
+plvdbi-modscgi-(){ 
+  modscgi-
+cat << EOC
+## $FUNCNAME 
+[server:main]
+#use = egg:Paste#http
+use = egg:Flup#scgi_thread
+host = $(modscgi-ip)
+port = $(modscgi-port)
+EOC
+}
+
+plvdbi-modscgi(){
+  local msg="=== $FUNCNAME :"
+  $FUNCNAME-
+  echo $msg incorporate smth like the above into the paster ini using : \"plvdbi-edit\"
+}
+
 plvdbi-modwsgi(){
    pl-
    PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
 }
-
-
-
 
 ## initd script
 
