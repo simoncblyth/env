@@ -10,6 +10,14 @@ hgweb-usage(){
 
      http://mercurial.selenic.com/wiki/HgWebDirStepByStep
 
+
+     hgweb-hgrc-
+         demo to stdout the hook that needs to be added 
+         to .hg/hgrc to enable auto updates of the web interface for
+         new repos
+             http://mercurial.selenic.com/wiki/modwsgi
+
+
      Mercurial clones in :  
          /var/hg/repos 
 
@@ -88,11 +96,21 @@ hgweb-prep(){
   apache-chcon $repos
 }
 
+hgweb-hgrc-(){ cat << EOC
+## $FUNCNAME add to .hg/hgrc of repo for auto-reloading   
+[hooks]
+changegroup =
+# reload wsgi application
+changegroup.mod_wsgi = touch $(hgweb-wsgipath)
+EOC
+}
+
 hgweb-conf-(){ cat << EOC
 #[web]
 #style = gitweb
 [paths]
 / = $(hgweb-dir)/repos/**
+/backup = $(hgweb-dir)/backup/**
 EOC
 }
 hgweb-conf(){
