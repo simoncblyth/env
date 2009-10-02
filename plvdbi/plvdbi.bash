@@ -183,7 +183,7 @@ cat << EOC
 #use = egg:Paste#http
 use = egg:Flup#scgi_thread
 host = $(modscgi-ip)
-port = $(modscgi-port)
+port = $(modscgi-port dbi)
 EOC
 }
 

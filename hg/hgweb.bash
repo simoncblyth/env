@@ -61,7 +61,7 @@ hgweb-build(){
 }
 
 hgweb-vhgdir(){      echo $(local-base)/env/vhg ; }
-hgweb-vhgactivate(){ . $(hgweb-vhgdir)/bin/activate  ; }
+hgweb-vhg(){         . $(hgweb-vhgdir)/bin/activate  ; }
 hgweb-vhgwipe(){
   rm -rf $(hgweb-vhgdir)
 }
@@ -76,7 +76,7 @@ hgweb-vhgcreate(){
   [ -n "$VIRTUAL_ENV" ] && echo $msg ERROR you must NOT be indside one to create one && return 1
 
   virtualenv $(hgweb-vhgdir)
-  hgweb-vhgactivate
+  hgweb-vhg
   which python
   which easy_install
 
@@ -199,7 +199,7 @@ hgweb-selinux(){
 
 hgweb-scgi-(){ cat << EOC
 
-## $FUNCNAME 
+## $FUNCNAME in collaboration with modscgi-
 ## http://trac.saddi.com/flup/wiki/FlupServers
 ## http://einsteinmg.dyndns.org/projects/mercurial/hgwebdir1_fcgi  
 ## where to config the port 
@@ -211,10 +211,8 @@ from mercurial.hgweb.request import wsgiapplication
 def app_maker():
     return hgwebdir('$(hgweb-confpath)')
 
-wsgiapp = wsgiapplication( app_maker ) 
-
-from flup.server.fcgi import WSGIServer
-WSGIServer(wsgiapp, bindAddress=("127.0.0.1",5000) ).run()
+from flup.server.scgi import WSGIServer
+WSGIServer(wsgiapplication(app_maker), bindAddress=("127.0.0.1", $(modscgi-port hg) ) ).run()
 
 EOC
 }
@@ -232,4 +230,11 @@ hgweb-scgi(){
 }
 
 
-
+hgweb-scgi-run(){
+  cd /tmp
+  hgweb-vhg
+  which python 
+  local cmd="python $(hgweb-scgipath)"
+  echo $msg $cmd
+  eval $cmd
+}
