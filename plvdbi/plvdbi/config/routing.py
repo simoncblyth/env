@@ -21,11 +21,14 @@ def make_map(config):
     
     ## only sends root to /dbi rather than public/index.html when delete public/index.html
     ## BUT lacks css : needs a redirect ? 
-    map.connect('/', controller='dbi', path_info='/')
-    
-    map.connect("/dbi", controller="dbi", path_info="/")
-    map.connect('/dbi/{path_info:.*}', controller='dbi')
+    #map.connect('/', controller='dbi', path_info='/')
+    #map.connect("/dbi", controller="dbi", path_info="/")
+    #map.connect('/dbi/{path_info:.*}', controller='dbi')
 
+    map.connect('/auth/{action}', controller="auth" )
+    map.connect('',  controller='dbi', action="index" )
+    map.connect('/', controller='dbi', action="index" )
+    map.connect('/{path_info:.*}', controller='dbi')
 
     map.connect('/{controller}/{action}')
     map.connect('/{controller}/{action}/{id}')

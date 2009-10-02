@@ -27,7 +27,7 @@ def config_authkit( app_conf ):
     app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'
     app_conf['authkit.form.authenticate.user.data'] = priv('VDBI_USERS_PATH')
     app_conf['authkit.form.template.file'] = os.path.join( vdbi_templates , 'login.html')
-    app_conf['authkit.form.action'] = '/dbi' 
+    app_conf['authkit.form.action'] = '/dbi/' 
     app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
     app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
     print "app_conf %s " % repr(app_conf)
@@ -56,7 +56,8 @@ def make_app(global_conf, full_stack=True, static_files=True, **app_conf):
         defaults to main).
 
     """
-    
+   
+    static_files = False 
     config_authkit(app_conf)
    
     # Configure the Pylons environment

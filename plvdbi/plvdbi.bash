@@ -37,8 +37,8 @@ EOU
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
 plvdbi-cd(){      cd $(plvdbi-dir); }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
-#plvdbi-name(){  echo development ; }
-plvdbi-name(){  echo production ; }
+plvdbi-name(){  echo development ; }
+#plvdbi-name(){  echo production ; }
 plvdbi-ini(){     
    local name=${1:-$(plvdbi-name)}
    echo $(plvdbi-dir)/$name.ini ;

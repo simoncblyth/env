@@ -2,7 +2,7 @@
   <h1 id="rum-title"><a href="${url_for('/')}">vDBI</a></h1>
   <div id="rum-tagline">Interface to DBI objects 
   <py:if test="request.path_info != '/login'" >	
-  <div id="rum-loggedin" > <p> Logged in as ${request.environ.get('REMOTE_USER')}, 	<a href="/auth/logout" > Logout </a>  </p></div>
+  <div id="rum-loggedin" > <p> Logged in as ${request.environ.get('REMOTE_USER')}, 	<a href="/dbi/auth/logout" > Logout </a>  </p></div>
   </py:if>
 </div>
 </div>
