@@ -2,7 +2,9 @@ import os
 import re
 from stat import *
     
-
+def priv(*args):
+   p = Private()
+   return p(*args) 
     
 class Private:
     """

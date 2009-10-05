@@ -426,7 +426,7 @@ dj-srcdir-(){  echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-srcdir(){  python-rln django ; }
 dj-scd(){     cd $(dj-srcdir) ; }
 dj-mate(){    mate $(dj-srcdir) ; }
-dj-admin(){   $(dj-srcdir)/django/bin/django-admin.py $* ; }
+dj-admin(){   $(dj-srcdir)/bin/django-admin.py $* ; }
 dj-get(){
   local msg="=== $FUNCNAME :"
 
