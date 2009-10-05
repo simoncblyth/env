@@ -18,6 +18,10 @@
 class Bash:
     def __init__(self, env=". $ENV_HOME/env.bash ; env-" ):
         self.env = env
+    @classmethod
+    def exe(cls, *argv):
+        b = Bash()
+        return b(*argv)
         
     def cmd( self, *argv):
         if len(argv) == 1: 

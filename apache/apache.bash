@@ -473,6 +473,7 @@ apache-cgidir-system(){
   local flavor=$(apache-sysflavor $tag)
   case $flavor in 
        yum) echo /var/www/cgi-bin ;;
+      apple) echo /Library/WebServer/CGI-Executables ;;
          *) echo failed-$FUNCNAME ;;
   esac 
 }

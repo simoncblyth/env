@@ -138,6 +138,13 @@ python-home(){
    fi
 }
 
+python-v(){
+   case $(python-site) in 
+      /opt/local/Library/*) echo "-$(python-major)"  ;;
+                         *) echo "" ;;
+   esac
+}
+
 
 python-env(){
    local msg="=== $FUNCNAME : "

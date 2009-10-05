@@ -1,49 +1,25 @@
-
 """
+   Reimplementation of the ConfigObj based ~/e/base/ini.py 
+   with the less-featureful ConfigParser in order to work with ";" littered 
+   Supervisor ini files
 
-   Replacement for the ailing ini_edit.pl that uses configobj rather
-   than reinventing the wheel ...
-
-       python ini.py t.ini "header_logo:alt:smth more sensible"
-
-  Issues :
-     1) space removal before a "#"
-      
-        < ticket_subject_template = $prefix #$ticket.id: $summary
-        > ticket_subject_template = $prefix#$ticket.id: $summary
-   
+       python ini_cp.py t.ini "header_logo:alt:smth more sensible"
       
 """
 
 import re
+import sys
 
-
-def pp(a):
-    import pprint
-    return pprint.pformat(a)
-
-def text(conf):
-    fn = conf.filename
-    conf.filename = None
-    txt = conf.write()
-    conf.filename = fn 
-    return txt
- 
 
 def triplet_pattern(delim=":"):
     tripat_s = "(?P<blk>[\w\-]*)\%s(?P<key>[\w\-\.\*]*)\%s(?P<val>.*)"
     return re.compile(tripat_s % ( delim,delim ))
 
 class IniEdit:
-    
     """
         NB
             the triplet pattern only matches alphanumeric (or hyphen) block/key names in
             order to correctly handle values that incorporate a ":"
-            
-            "list_values=False, write_empty_values=True" is used to prevent 
-            extraeous space additions / blanks becoming ""
-            
             
             this collect mods then merge approach has the disadvantage of 
             no easy way to delete a block ... doing things directly would
@@ -52,8 +28,6 @@ class IniEdit:
             
             
     """
-
-  
     def __init__(self, *args, **kwargs ):
         """
             
@@ -64,18 +38,27 @@ class IniEdit:
            Setting outfile=None does not to return the lines 
         
         """
-        from configobj import ConfigObj
+        from ConfigParser import ConfigParser
 	self.delim = kwargs.pop('delim', ':')
         self.tripat = triplet_pattern(self.delim)
-        self.conf = ConfigObj( *args, **kwargs)
-        self.orig = ConfigObj( text(self.conf ) )
-        
-    
-    def write(self):
-         return self.conf.write()
+
+        self.path = path = args[0]
+
+        self.conf = conf = ConfigParser()
+        conf.read(path)
+  
+        self.orig = orig = ConfigParser()
+        orig.read(path)  
+
+ 
+    def write(self, fp=sys.stdout):
+         fp = open(self.path,"w")
+         return self.conf.write(fp)
     
     def __call__(self, triplet ):
         r = self.tripat.match(triplet)
+
+        conf = self.conf
         if r == None:
             print "env/base/ini.py::IniEdit ERROR skipping triplet %s as failed to match pattern %s " % (triplet, self.delim ) 
         else:
@@ -83,25 +66,28 @@ class IniEdit:
             key = r.group('key')
             val = r.group('val')
             #print "[%s][%s][%s]" % ( blk, key, val )
-            if not(self.conf.has_key(blk)):
-                self.conf[blk] = {}
+            if not(conf.has_section(blk)):
+                conf.add_section(blk)
             
             ## blank key causes block deletion
             if key == "":
-                self.conf[blk] = {}
+                conf.remove_[blk] = {}
             else:
                 if val.find("@DELETE") > -1: 
-                    if self.conf.has_key(blk) and self.conf[blk].has_key(key): 
-                        del self.conf[blk][key] 
+                    if conf.has_section(blk) and conf.has_option(blk,key): 
+                        conf.remove_option(blk,key)
                 else:
-                    self.conf[blk][key] = val 
+                    conf.set(blk,key,val) 
         
     def __str__(self):
-        return "\n".join(self.text( self.conf ))
+        from cStringIO import StringIO
+        s = StringIO()
+        self.conf.write(s)
+        return s.getvalue()
                                                       
     def __repr__(self):
         from difflib import unified_diff as ud 
-        return "%s" % "\n".join( ud( self.text(self.orig) , self.text(self.conf)) )
+        return "%s" % "\n".join( ud( str(self.orig) , str(self.conf)) )
     
 
 demo = """
@@ -129,26 +115,16 @@ templates_dir =
 """
 
 
-def test_str():
-    from StringIO import StringIO as SIO
-    cnf = Edit( SIO(demo) )
-    cnf("inherit:plugins_dir:hello")
-    print cnf.write()
-
-
 def ini_edit(args):
     import os    
     delim = os.environ.get('INI_TRIPLET_DELIM',':')
-    ie = IniEdit(args[0], list_values=False, write_empty_values=True, delim=delim )
-    if os.path.isfile(args[0]):
-        ie.conf.filename = args[0]
+    ie = IniEdit(args[0],  delim=delim )
     for t in args[1:]:
         ie(t)
     ie.write()
 
 
 if __name__=='__main__':
-    #test_str()
     import sys
     sys.exit(ini_edit(sys.argv[1:]))
     

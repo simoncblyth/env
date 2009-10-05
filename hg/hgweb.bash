@@ -33,12 +33,6 @@ hgweb-usage(){
 
 
 
-     TO ADD :  ensure dirs existing ... else cannot start the scgi ...
-
-(rumenv)[blyth@cms02 httpd-2.0.63]$ sudo mkdir /var/hg/backup
-(rumenv)[blyth@cms02 httpd-2.0.63]$ sudo chown blyth.blyth  /var/hg/backup
-
-
 EOU
 }
 hgweb-cd(){  cd $(hgweb-dir); }
@@ -55,7 +49,10 @@ hgweb-build(){
    [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR you must be inside a virtual env first && return 1
    hgweb-prep
    hgweb-conf
+
    hgweb-wsgi
+   hgweb-scgi
+
    hgweb-modwsgi-apache
    hgweb-selinux
 }
@@ -68,6 +65,7 @@ hgweb-vhgwipe(){
 hgweb-vhgcreate(){
   local msg="=== $FUNCNAME :"
 
+  local v=$(python-v)  ## only port installed stuff has the -2.5
   local py=$(which python)
   local ans
   read -p "$msg create virtual python with BASELINE $py , enter YES to proceed " ans
@@ -78,10 +76,12 @@ hgweb-vhgcreate(){
   virtualenv $(hgweb-vhgdir)
   hgweb-vhg
   which python
-  which easy_install
+  which easy_install$v
 
-  easy_install mercurial
-  easy_install ipython
+  easy_install$v mercurial
+  easy_install$v ipython
+  easy_install$v flup
+  easy_install$v scgi
 
   hgweb-vhgselinux
   deactivate
@@ -97,13 +97,23 @@ hgweb-vhgselinux(){
 
 hgweb-prep(){
   local msg="=== $FUNCNAME :"
-  local repos=$(hgweb-dir)/repos
-  local cmd="sudo mkdir -p $repos"
-  echo $msg $cmd
-  eval $cmd
+
   apache-
-  apache-chown $repos
-  apache-chcon $repos
+  local dirs="repos backup"
+  local rdir
+  for rdir in $dirs ; do
+     local dir=$(hgweb-dir)/$rdir
+     local cmd="sudo mkdir -p $dir"
+     echo $msg $cmd
+     eval $cmd
+     cmd="sudo chown $USER $dir" 
+     echo $msg $cmd
+     eval $cmd
+
+     apache-chown $dir
+     apache-chcon $dir
+  done 
+
 }
 
 hgweb-hgrc-(){ cat << EOC
@@ -197,7 +207,9 @@ hgweb-selinux(){
 }
 
 
-hgweb-scgi-(){ cat << EOC
+hgweb-scgi-(){ 
+   modscgi-
+   cat << EOC
 
 ## $FUNCNAME in collaboration with modscgi-
 ## http://trac.saddi.com/flup/wiki/FlupServers
@@ -238,3 +250,31 @@ hgweb-scgi-run(){
   echo $msg $cmd
   eval $cmd
 }
+
+
+## supervisor hookup 
+
+hgweb-sv(){  sv-;sv-add $FUNCNAME- hgweb.ini ; }
+hgweb-sv-(){ 
+   hgweb-vhg
+   cat << EOC
+[program:hgweb]
+command=$(which python) $(hgweb-scgipath)
+redirect_stderr=true
+autostart=true
+EOC
+}
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
