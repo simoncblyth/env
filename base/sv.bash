@@ -10,8 +10,8 @@ sv-usage(){
 
      sv-confpath : $(sv-confpath)
 
-     sv-cnf-dump
-     sv-cnf
+     sv-cfp-dump
+     sv-cfp
          ConfigParser based dumping and get/get 
          (as ConfigObj does not handle ";" comments)
 
@@ -59,6 +59,8 @@ sv-check(){
 
 }
 sv-edit(){ vim $(sv-confpath) ; }
+sv-sample(){ vim $(sv-confpath).sample ; }
+
 sv-start(){  supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
 sv-ctl(){    supervisorctl -c $(sv-confpath) $* ; }
@@ -114,6 +116,7 @@ sv-dev-log(){ svn log $(sv-dev-dir) ;  }
 
 
 
+
 sv-ini(){ sv-ini- $(sv-confpath) $*  ; }
 sv-ini-() 
 { 
@@ -142,13 +145,16 @@ sv-ini-()
     [ "$user" != "$USER" ] && $SUDO chown $user:$user $path
 }
 
-sv-cnf-triplets-(){   cat << EOC
+sv-sha(){ python -c "import hashlib ; print \"{SHA}%s\" % hashlib.sha1(\"${1:-thepassword}\").hexdigest() " ; } 
+sv-cnf-triplets-(){   
+  private-
+  cat << EOC
 
   include|files|conf/*.ini
 
-  inet_http_server|port|127.0.0.1:9001 
-  inet_http_server|user|realuser 
-  inet_http_server|password|realpassword 
+  inet_http_server|port|$(private-val SUPERVISOR_PORT) 
+  inet_http_server|username|$(private-val SUPERVISOR_USERNAME)
+  inet_http_server|password|$(sv-sha $(private-val SUPERVISOR_PASSWORD))
 
 EOC
 }
