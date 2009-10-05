@@ -29,6 +29,8 @@ trigger_ = {
 }
 
 
+run_admin_display = ('number','start','stop','events','operator','tkoffset','source','pmtgain','trigger','temperature','humidity','comment','frontendhost','frontendname','created')
+run_admin_filter  = ('operator','source','trigger','frontendhost','frontendname')
 
 class Run(models.Model):
     number    = models.PositiveIntegerField( primary_key=True)
