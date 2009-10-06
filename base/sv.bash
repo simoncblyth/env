@@ -157,17 +157,22 @@ sv-cnf(){
 
 
 
-##  supervisorctl config for network of nodes
+##  supervisorctl config for controlling a network of nodes over xmlrpc
 
+sv-C(){ SV_TAG=C sv-ctl $* ; }
 sv-ctl(){ 
-   local ini=$(sc-ctl-ini)   
-   [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for NODE_TAG $NODE_TAG ... use \"NODE_TAG=$NODE_TAG sv-ctl-prep\" to create one  && return 1
-   supervisorctl -c $ini $*  
+   local msg="=== $FUNCNAME :"
+   local ini=$(sv-ctl-ini)
+   [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for tag $(sv-ctl-tag) ... use \"SV_TAG=$(sv-ctl-tag) sv-ctl-prep\" to create one  && return 1
+   local cmd="supervisorctl -c $ini $*  "
+   echo $msg $cmd
+   eval $cmd
 }
-sv-ctl-ini(){ echo $(sv-ctldir)/$NODE_TAG.ini ; }
+sv-ctl-tag(){ echo ${SV_TAG:-$NODE_TAG} ; }
+sv-ctl-ini(){ echo $(sv-ctldir)/$(sv-ctl-tag).ini ; }
 sv-ctl-prep-(){
   private-
-  local tag=$NODE_TAG
+  local tag=$(sv-ctl-tag)
   local hostport=$(private-val SUPERVISOR_PORT)
   local port=${hostport:${#hostport}-4}           ## last 4 chars give the port number
   local remote=$(local-tag2ip $tag):$port
@@ -181,8 +186,10 @@ history_file=~/.svctl.$tag
 EOC
 }
 sv-ctl-prep(){
+   local msg="=== $FUNCNAME :"
    local ini=$(sv-ctl-ini)
    local dir=$(dirname $ini) && mkdir -p $dir
+   echo $msg creating $ini
    $FUNCNAME- $* > $ini
 }
 
