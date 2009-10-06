@@ -8,8 +8,12 @@ hgweb-usage(){
      hgweb-src : $(hgweb-src)
      hgweb-dir : $(hgweb-dir)
 
-     http://mercurial.selenic.com/wiki/HgWebDirStepByStep
+       Deployments :
+            C  ...  supervisor controlled SCGI + apache modscgi 
+            N  ...  apache modwsgi embedded
 
+
+     http://mercurial.selenic.com/wiki/HgWebDirStepByStep
 
      hgweb-hgrc-
          demo to stdout the hook that needs to be added 

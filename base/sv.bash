@@ -58,12 +58,17 @@ sv-mate(){ mate $(sv-dir) ; }
 sv-get(){
    python-
    local v=$(python-v)
-   easy_install$v supervisor
-   easy_install$v superlance    ## memmon + httpok 
+   case $(which easy_install) in
+     /usr/bin/easy_install*)  sudo=sudo ;;
+                          *)  sudo=""   ;;
+   esac
+   $sudo easy_install$v supervisor
+   $sudo easy_install$v superlance    ## memmon + httpok 
 }
 
 sv-bootstrap(){
    local msg="=== $FUNCNAME :"
+   [ "$(which echo_supervisord_conf)" == "" ] && echo $msg ABORT supervisor not installed in this python && return 1
    local conf=$(sv-confpath)
    mkdir -p $(dirname $conf) 
    echo $msg writing to $conf
@@ -131,7 +136,16 @@ sv-ini-()
     #[ "$user" != "$USER" ] && $SUDO chown $user:$user $path
 }
 
-sv-sha(){ python -c "import hashlib ; print \"{SHA}%s\" % hashlib.sha1(\"${1:-thepassword}\").hexdigest() " ; } 
+sv-sha-(){ python -c "import hashlib ; print \"{SHA}%s\" % hashlib.sha1(\"${1:-thepassword}\").hexdigest() " ; } 
+sv-sha(){
+  local pass=$1
+  if [ "${pass:0:5}" == "{SHA}" ]; then
+    echo $pass
+  else
+    sv-sha- $pass 
+  fi 
+}
+
 sv-cnf-triplets-(){   
   private-
   cat << EOC
@@ -186,11 +200,16 @@ sv-ctl(){
 }
 sv-ctl-tag(){ echo ${SV_TAG:-$NODE_TAG} ; }
 sv-ctl-ini(){ echo $(sv-ctldir)/$(sv-ctl-tag).ini ; }
+sv-ctl-port(){
+  private-
+  local hostport=$(private-val SUPERVISOR_PORT)
+  local port=${hostport:${#hostport}-4}           ## last 4 chars give the port number
+  echo $port
+}
 sv-ctl-prep-(){
   private-
   local tag=$(sv-ctl-tag)
-  local hostport=$(private-val SUPERVISOR_PORT)
-  local port=${hostport:${#hostport}-4}           ## last 4 chars give the port number
+  local port=$(sv-ctl-port)
   local remote=$(local-tag2ip $tag):$port   
   cat << EOC
 [supervisorctl]
@@ -209,5 +228,9 @@ sv-ctl-prep(){
    $FUNCNAME- $* > $ini
 }
 
-
-
+sv-webopen-ip(){
+   local tag=${1:-G}
+   local port=$(sv-ctl-port)
+   iptables-
+   IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)  
+}
