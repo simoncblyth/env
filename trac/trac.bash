@@ -4,6 +4,12 @@ trac-vi(){     vi $(trac-source) ; }
 trac-usage(){
 cat << EOU
 
+   Trac Customizations to adopt ?
+       http://webmail.inoi.fi/open/trac/eunuchs
+          Nice slim trac instance navigator at top of page, with "select-trac" CSS 
+
+   --------
+
    This attempts to automate Trac installation as far as possible
    documentation of the manual installation of 0.11b1 is at 
    

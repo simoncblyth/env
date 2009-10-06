@@ -8,14 +8,33 @@ djdep-usage(){
      djdep-src : $(djdep-src)
      djdep-dir : $(djdep-dir)
 
+     http://docs.djangoproject.com/en/dev/howto/deployment/fastcgi/
+
+     djdep-sv
+         add the active dj-project:$(dj-project) to supervisor conf          
+
+     djdep-media-ln
+        plant link into apache-docroot enabling the serving
+        of the django admin statics (stylesheets/images/javascript) with apache 
+
+     djdep-media-cp
+        if your apache config doesnt like the link use this instead 
+        [Tue Oct 06 15:13:19 2009] [error] [client 140.112.102.77] Symbolic link not allowed: /var/www/html/media, referer: http://cms01.phys.ntu.edu.tw/runinfo/admin/
+
+     djdep-media-test
+         check media access ... if fails look at 
+              /var/log/messages
+              /var/log/httpd/error_log 
+
+
 EOU
 }
 djdep-dir(){ echo $(local-base)/env/dj/dj-djdep ; }
 djdep-cd(){  cd $(djdep-dir); }
 djdep-mate(){ mate $(djdep-dir) ; }
 djdep-get(){
-   local dir=$(dirname $(djdep-dir)) &&  mkdir -p $dir && cd $dir
-
+   #local dir=$(dirname $(djdep-dir)) &&  mkdir -p $dir && cd $dir
+   echo -n
 }
 
 djdep-versions(){
@@ -93,15 +112,6 @@ EON
 
 
 
-djdep-docroot-ln(){
-   local msg="=== $FUNCNAME :"
-   apache-
-   local docroot=$(apache-docroot)
-   local cmd="sudo ln -sf  $(dj-srcdir)/django/contrib/admin/media $docroot/media"
-   echo $msg $cmd
-   eval $cmd
-}
-
 
 ## admin site grabs 
 
@@ -177,7 +187,7 @@ djdep-deploy(){
    private- 
    private-sync
 
-   djdep-docroot-ln
+   djdep-media-ln
 
    dj-syncdb
    #dj-test
@@ -275,21 +285,66 @@ url.rewrite-once += (
 EOC
 }
 
-djdep-socket(){  echo /tmp/mysite.sock ; }
-
-djdep-runfcgi(){
-  local msg="=== $FUNCNAME :"
-  cd $(dj-projdir)
-  dj-info
-  echo $msg $(pwd)
-  which python
-  python -V
 
 
-  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
-  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
-  #local cmd="sudo python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
-  local cmd="ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
-  echo $cmd 
-  eval $cmd
+
+
+## non-embedded deployment with apache mod_scgi or mod_fastcgi ?  or lighttpd/nginx
+
+djdep-socket(){    echo /tmp/$(dj-project).sock ; }
+djdep-protocol(){  echo scgi ;}
+djdep-opts-fcgi(){ echo runfcgi -v 2 debug=true protocol=fcgi socket=$(djdep-socket)  daemonize=false ; }
+djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(modscgi-port $(dj-project))  daemonize=false ; }
+
+
+## interactive config check 
+djdep-run(){       cd $(dj-projdir) ;  ./manage.py $(djdep-opts-$(djdep-protocol)) ;  }  
+
+djdep-sv-(){    
+   dj-
+   cat << EOC
+[program:$(dj-project)]
+command=$(which python) $(dj-projdir)/manage.py $(djdep-opts-$(djdep-protocol))
+redirect_stderr=true
+autostart=true
+EOC
 }
+
+## supervisor hookup 
+djdep-sv(){  
+   sv-
+   sv-add $FUNCNAME- $(dj-project).ini ; 
+}
+
+
+djdep-media(){ 
+   dj-
+   echo $(dj-srcdir)/contrib/admin/media
+}
+
+djdep-media-cp(){
+   local msg="=== $FUNCNAME :"
+   apache-
+   local cmd="sudo cp -r $(djdep-media) $(apache-docroot) "
+   echo $msg \"$cmd\"
+   eval $cmd    
+   apache-own $(apache-docroot)/media
+}
+
+djdep-media-ln(){
+   local msg="=== $FUNCNAME :"
+   apache-
+   local docroot=$(apache-docroot)
+   dj-
+   local media=$(djdep-media)
+   [ ! -d "$media" ] && echo $msg ABORT no such dir $media && return 1
+   local cmd="sudo ln -sf $media  $docroot/media"
+   echo $msg $cmd
+   eval $cmd
+}
+
+djdep-media-test(){
+   curl http://localhost/media/css/base.css
+}
+
+

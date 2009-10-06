@@ -8,27 +8,34 @@ sv-usage(){
      sv-src : $(sv-src)
      sv-dir : $(sv-dir)
 
-     sv-confpath : $(sv-confpath)
-
-     sv-cfp-dump
-     sv-cfp
-         ConfigParser based dumping and get/get 
-         (as ConfigObj does not handle ";" comments)
-
        http://supervisord.org/manual/current/
 
+     sv-get
+         superlance, required a setuptools update 
+              "The required version of setuptools (>=0.6c9) is not available, and
+               a more recent version first, using 'easy_install -U setuptools'."
 
-   Problems with config automation 
-     1) ConfigObj doesnt handle ";" comments... and does not preserve spacing of inline # comments 
-     2) Supervisor uses ConfigParser internally ... but this drops comments 
-  
-   Go with ConfigParser in ini-edit re-implementation ~/e/base/ini_cp.py   
+
+     sv-confpath : $(sv-confpath)
+
+     sv-add fnc ininame
+
+        Adds the config to sv-confdir:$(sv-confdir), 
+        for inclusion at the next supervisor reload.  
+
+                fnc : name of function that emits supervisor config to stdout
+            ininame : name of the supervisor config file, 
+                      eg: hgweb.ini, runinfo.ini, plvdbi.ini  
+
+        NB will also need to hookup up the mount point in apache/lighttpd/nginx 
+           for SCGI/FCGI webapps 
 
 EOU
 }
 sv-dir(){      echo $(local-base)/env/sv ; }
 sv-confpath(){ echo $(sv-dir)/supervisord.conf ; }
 sv-confdir(){  echo $(sv-dir)/conf ; }
+sv-ctldir(){   echo $(sv-dir)/ctl  ; }
 sv-cd(){  cd $(sv-dir); }
 sv-mate(){ mate $(sv-dir) ; }
 sv-get(){
@@ -63,7 +70,6 @@ sv-sample(){ vim $(sv-confpath).sample ; }
 
 sv-start(){  supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
-sv-ctl(){    supervisorctl -c $(sv-confpath) $* ; }
 
 sv-add(){
    local msg="=== $FUNCNAME :"
@@ -76,45 +82,6 @@ sv-add(){
    echo $msg $cmd
    eval $cmd
 }
-
-
-
-
-sv-man-url(){ echo http://svn.supervisord.org/supervisor_manual/trunk ; }
-sv-man-dir(){ echo $(sv-dir)/manual ; }
-sv-man-cd(){  cd $(sv-man-dir) ; }
-sv-man-get(){
-   local dir=$(sv-man-dir) && mkdir -p $(dirname $dir) && cd $(dirname $dir)
-   svn co $(sv-man-url) manual
-}
-sv-man-update(){
-   local msg="=== $FUNCNAME :"
-   [ "$(which xsltproc)" == "" ] && echo $msg ABORT no xsltproc && return 1
-   sv-man-cd
-   svn up
-   autoconf   
-   ./configure
-   make
-}
-sv-man-open(){ open $(sv-man-dir)/html/index.html ; }
-
-
-
-
-sv-dev-url(){ echo http://svn.supervisord.org/supervisor/trunk ; }
-sv-dev-dir(){ echo $(sv-dir)/dev ; }
-sv-dev-mate(){ mate $(sv-dev-dir) ; }
-sv-dev-cd(){  cd $(sv-dev-dir) ; }
-sv-dev-get(){
-   local dir=$(sv-dev-dir) && mkdir -p $(dirname $dir) && cd $(dirname $dir)
-   svn co $(sv-dev-url) dev
-}
-sv-dev-log(){ svn log $(sv-dev-dir) ;  }
-
-
-
-
-
 
 
 sv-ini(){ sv-ini- $(sv-confpath) $*  ; }
@@ -142,7 +109,9 @@ sv-ini-()
         [ "$ans" != "YES" ] && echo $msg skipped && return 1;
     fi;
     $SUDO cp $tpath $path;
-    [ "$user" != "$USER" ] && $SUDO chown $user:$user $path
+
+
+    #[ "$user" != "$USER" ] && $SUDO chown $user:$user $path
 }
 
 sv-sha(){ python -c "import hashlib ; print \"{SHA}%s\" % hashlib.sha1(\"${1:-thepassword}\").hexdigest() " ; } 
@@ -156,59 +125,66 @@ sv-cnf-triplets-(){
   inet_http_server|username|$(private-val SUPERVISOR_USERNAME)
   inet_http_server|password|$(sv-sha $(private-val SUPERVISOR_PASSWORD))
 
+  unix_http_server||
+
+EOC
+
+## the inet is essential ... so remove unix_http_server
+## avoiding  
+##     2009-10-06 16:07:50,845 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+##
+
+}
+
+sv-private-check(){
+
+  local msg="=== $FUNCNAME :"
+  private-
+  local port=$(private-val SUPERVISOR_PORT)
+  local user=$(private-val SUPERVISOR_USERNAME)
+  local pass=$(private-val SUPERVISOR_PASSWORD)
+
+  if [ -z "$port" -o -z "$user" -o -z "$pass" ]; then
+       echo $msg ABORT missing private-val && type $FUNCNAME && return 1
+  fi 
+}
+
+sv-cnf(){ 
+   sv-private-check
+   [ ! "$?" -eq  "0" ] && echo ABORTED && return $?
+   sv-ini $(sv-cnf-triplets-);  
+}
+
+
+
+##  supervisorctl config for network of nodes
+
+sv-ctl(){ 
+   local ini=$(sc-ctl-ini)   
+   [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for NODE_TAG $NODE_TAG ... use \"NODE_TAG=$NODE_TAG sv-ctl-prep\" to create one  && return 1
+   supervisorctl -c $ini $*  
+}
+sv-ctl-ini(){ echo $(sv-ctldir)/$NODE_TAG.ini ; }
+sv-ctl-prep-(){
+  private-
+  local tag=$NODE_TAG
+  local hostport=$(private-val SUPERVISOR_PORT)
+  local port=${hostport:${#hostport}-4}           ## last 4 chars give the port number
+  local remote=$(local-tag2ip $tag):$port
+  cat << EOC
+[supervisorctl]
+serverurl=http://$remote 
+username=$(private-val SUPERVISOR_USERNAME) 
+password=$(private-val SUPERVISOR_PASSWORD)
+prompt=$tag 
+history_file=~/.svctl.$tag  
 EOC
 }
-sv-cnf(){ sv-ini $(sv-cnf-triplets-);  }
-
-
-
-
-
-
-
-
-
-
-sv-cfp-dump(){ $FUNCNAME- | python ; }
-sv-cfp-dump-(){ cat << EOD
-from ConfigParser import ConfigParser
-c = ConfigParser()
-c.read("$(sv-confpath)")
-for section in c.sections():
-    print section
-    for option in c.options(section):
-        print " ", option, "=", c.get(section, option)
-EOD
+sv-ctl-prep(){
+   local ini=$(sv-ctl-ini)
+   local dir=$(dirname $ini) && mkdir -p $dir
+   $FUNCNAME- $* > $ini
 }
-
-sv-cfp(){  $FUNCNAME- | python - $* ; }
-sv-cfp-(){ cat << EOD
-## not used in anger ... see sv-ini
-import sys
-from ConfigParser import ConfigParser
-c = ConfigParser()
-c.read("$(sv-confpath)")
-argv = sys.argv[1:]
-
-if len(argv) == 0:
-   c.write(sys.stdout)
-elif len(argv) == 1:
-   section = argv[0]
-   for option in c.options(section):
-       print " ", option, "=", c.get(section, option)
-elif len(argv) == 2:
-   print c.get(*argv)
-elif len(argv) == 3:
-   c.set(*argv)
-   print "; $FUNCNAME set %s " %  repr(argv)
-   c.write(sys.stdout)  
-else:
-   pass
-
-EOD
-}
-
-
 
 
 

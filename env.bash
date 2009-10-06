@@ -771,3 +771,6 @@ djdev-(){      . $(env-home)/dj/djdev.bash && djdev-env $* ; }
 dybsite-(){      . $(env-home)/dj/dybsite/dybsite.bash && dybsite-env $* ; }
 djdep-(){      . $(env-home)/dj/djdep.bash && djdep-env $* ; }
 runinfo-(){      . $(env-home)/aberdeen/runinfo/runinfo.bash && runinfo-env $* ; }
+svman-(){      . $(env-home)/base/svman.bash && svman-env $* ; }
+svdev-(){      . $(env-home)/base/svdev.bash && svdev-env $* ; }
+svcfp-(){      . $(env-home)/base/svcfp.bash && svcfp-env $* ; }

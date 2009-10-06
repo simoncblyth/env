@@ -62,11 +62,12 @@ modscgi-install(){
 
 
 
-modscgi-apps(){ echo hg dbi ; }
+modscgi-apps(){ echo hg dbi runinfo ; }
 modscgi-port(){ 
    case $1 in 
      hg) echo 5000 ;;
     dbi) echo 6000 ;;
+runinfo) echo 4000 ;;  
       *) echo 7000 ;;
    esac  
 }

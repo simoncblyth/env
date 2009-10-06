@@ -71,7 +71,7 @@ class IniEdit:
             
             ## blank key causes block deletion
             if key == "":
-                conf.remove_[blk] = {}
+                conf.remove_section(blk) 
             else:
                 if val.find("@DELETE") > -1: 
                     if conf.has_section(blk) and conf.has_option(blk,key): 

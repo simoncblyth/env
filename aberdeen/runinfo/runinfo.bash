@@ -28,4 +28,5 @@ runinfo-mate(){ mate $(runinfo-dir) ; }
 
 runinfo-build(){  dj-build ; }
 runinfo-ingest(){ dj-manage csv_ingest ; }
+runinfo-sv(){     djdep-sv ; }
 
