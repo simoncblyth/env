@@ -8,6 +8,7 @@ runinfo-env(){
    export DJANGO_PROJECT=runinfo
    export DJANGO_APP=run
    export DJANGO_PROJDIR=$(runinfo-dir)
+   dj-
 }
 runinfo-usage(){
   cat << EOU
@@ -16,6 +17,8 @@ runinfo-usage(){
      runinfo-build  : 
           specialization of dj-build with the runinfo-env
 
+     runinfo-ingest
+          ingest from Jimmys MIDAS runlog csv list 
      
 EOU
 }
@@ -23,8 +26,6 @@ runinfo-dir(){ echo $(env-home)/aberdeen/runinfo ; }
 runinfo-cd(){  cd $(runinfo-dir); }
 runinfo-mate(){ mate $(runinfo-dir) ; }
 
-runinfo-build(){ 
-   dj-
-   dj-build   
-}
+runinfo-build(){  dj-build ; }
+runinfo-ingest(){ dj-manage csv_ingest ; }
 
