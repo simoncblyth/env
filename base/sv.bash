@@ -30,6 +30,23 @@ sv-usage(){
         NB will also need to hookup up the mount point in apache/lighttpd/nginx 
            for SCGI/FCGI webapps 
 
+     sv-cnf
+          apply the sv-cnf-triplets- to the supervisord config 
+          (operates via sv-ini)
+
+     sv-cnf-triplets-
+          supervisord config edit triplets used by sv-cnf 
+
+          inet is essential ... so remove unix_http_server for simplicity   
+          avoiding :  
+                2009-10-06 16:07:50,845 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+
+     sv-ctl
+         xmlrpc control of remote nodes  
+         assumes common port NNNN between local and remote  as defined in the private-val 
+
+
+
 EOU
 }
 sv-dir(){      echo $(local-base)/env/sv ; }
@@ -125,15 +142,10 @@ sv-cnf-triplets-(){
   inet_http_server|username|$(private-val SUPERVISOR_USERNAME)
   inet_http_server|password|$(sv-sha $(private-val SUPERVISOR_PASSWORD))
 
+  supervisorctl||
   unix_http_server||
 
 EOC
-
-## the inet is essential ... so remove unix_http_server
-## avoiding  
-##     2009-10-06 16:07:50,845 CRIT Server 'unix_http_server' running without any HTTP authentication checking
-##
-
 }
 
 sv-private-check(){
@@ -159,7 +171,11 @@ sv-cnf(){
 
 ##  supervisorctl config for controlling a network of nodes over xmlrpc
 
-sv-C(){ SV_TAG=C sv-ctl $* ; }
+sv-C(){  SV_TAG=C  sv-ctl $* ; }
+sv-N(){  SV_TAG=N  sv-ctl $* ; }
+sv-H(){  SV_TAG=H  sv-ctl $* ; }
+sv-C2(){ SV_TAG=C2 sv-ctl $* ; }
+
 sv-ctl(){ 
    local msg="=== $FUNCNAME :"
    local ini=$(sv-ctl-ini)
@@ -175,7 +191,7 @@ sv-ctl-prep-(){
   local tag=$(sv-ctl-tag)
   local hostport=$(private-val SUPERVISOR_PORT)
   local port=${hostport:${#hostport}-4}           ## last 4 chars give the port number
-  local remote=$(local-tag2ip $tag):$port
+  local remote=$(local-tag2ip $tag):$port   
   cat << EOC
 [supervisorctl]
 serverurl=http://$remote 
