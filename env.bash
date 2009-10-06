@@ -770,3 +770,4 @@ sv-(){      . $(env-home)/base/sv.bash && sv-env $* ; }
 djdev-(){      . $(env-home)/dj/djdev.bash && djdev-env $* ; }
 dybsite-(){      . $(env-home)/dj/dybsite/dybsite.bash && dybsite-env $* ; }
 djdep-(){      . $(env-home)/dj/djdep.bash && djdep-env $* ; }
+runinfo-(){      . $(env-home)/aberdeen/runinfo/runinfo.bash && runinfo-env $* ; }

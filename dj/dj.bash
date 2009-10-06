@@ -5,11 +5,14 @@ dj-vi(){       vim $(dj-source) ; }
 dj-env(){      
    elocal- ; 
    export DJANGO_SETTINGS_MODULE=$(dj-settings-module)
-   export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
-  
-   private- 
-   apache- system
-   python- system
+   #export PYTHON_EGG_CACHE=$(dj-eggcache-dir)
+
+   python-
+   ## place the desired python to work with in the path
+   case $NODE_TAG in
+    C) python- source ;;
+    *) echo -n ;;
+   esac
 }
 
 ## environment overridible coordinates
@@ -18,12 +21,12 @@ dj-env(){
 dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
 dj-project(){ echo ${DJANGO_PROJECT:-runinfo} ; } 
 dj-app(){     echo ${DJANGO_APP:-run} ; }        
-dj-info(){    env | grep DJANGO_ ;  }
+dj-projdir(){ echo ${DJANGO_PROJDIR:-$(dj-dir)/$(dj-project)} ; }
 
-
-dj-projdir(){ echo $(dj-dir)/$(dj-project) ; }
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
 dj-cd(){      cd $(dj-projdir) ; }
+
+dj-info(){    env | grep DJANGO_ ;  }
 
 dj-urls(){            vi $(dj-projdir)/urls.py ; }    
 dj-settings(){        vi $(dj-projdir)/settings.py ; }
@@ -177,9 +180,15 @@ dj-versions(){
 
 dj-build(){
    local msg="=== $FUNCNAME :"
+
    dj-get             ## checkout 
    dj-ln              ## plant link in site-packages
-   dj-create-db       ## gives error if mysql not running
+
+   djext-             ## utility django ./manage.py extension commands such as : shell_plus
+   djext-build
+
+   mysql-
+   mysql-create-db    ## mysql must be running
    [ $? -ne 0 ] && echo $msg failed ... probaly you need to : sudo /sbin/service mysqld start && return 1
 }
 
@@ -197,79 +206,47 @@ dj-mate(){    mate $(dj-srcdir) ; }
 dj-admin(){   $(dj-srcdir)/bin/django-admin.py $* ; }
 dj-port(){    echo 8000 ; }
 
+dj-startproject(){    ## command not available if the envvar is defined 
+   DJANGO_SETTINGS_MODULE= dj-admin startproject $*
+}
+
+## django source ##
+
 dj-get(){
   local msg="=== $FUNCNAME :"
-  [ "$(dj-mode)" == "system" ] && echo $msg system django && return 1
-  local dir=$(dj-srcfold)
-  local nam=$(dj-srcnam default)
-  mkdir -p $dir && cd $dir 
+  local dir=$(dj-srcdir-) && mkdir -p $dir && cd $dir 
+  local nam=$(basename $dir)
   [ ! -d "$nam" ] && svn co $(dj-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
 }
 
+dj-update(){ svn up $(dj-srcdir-) ; }
+
+dj-find(){
+  local q=$1
+  cd $(dj-srcdir)
+  find . -name "*.py" -exec grep -H $1 {} \;
+}
+
+## hookup with python ##
 
 dj-ln(){
   local msg="=== $FUNCNAME :"
-
+  python-
   python-ln $(dj-srcfold)/$(dj-srcnam)/django django   ## set the link
   python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
 
-dj-find(){
-  local q=$1
-  local iwd=$PWD
-  cd $(dj-srcdir)
-  find . -name "*.py" -exec grep -H $1 {} \;
-}
-
-
-## interactive access to model objects
-
-dj-ip-(){ ipython $(dj-appdir)/imports.py ; }
-
-dj-ip(){     
-  local msg="=== $FUNCNAME :"
-  apache-
-  local user=$(apache-user)
-  local home=/tmp/env/$FUNCNAME/$user
-  echo $msg $user $home
-  mkdir -p $home
-  apache-chown $home
-  sudo -u $user HOME=$home $(dj-env-inline) ipython $(dj-appdir)/imports.py 
-}
-
 ## management interface  ##
 
-dj-env-inline(){  echo DJANGO_SETTINGS_MODULE=$(dj-settings-module) PYTHON_EGG_CACHE=$(dj-eggcache-dir) ; }
-
-dj-manage-(){ python $(dj-projdir)/manage.py $*  ; }
-dj-manage(){
-   local iwd=$PWD
-   cd $(dj-projdir)   
-   case $1 in 
-       shell)  sudo -u $(apache-user) $(dj-env-inline) ipython manage.py $* ;;
-           *)  sudo -u $(apache-user) $(dj-env-inline)  python manage.py $* ;;
-   esac
-   cd $iwd
-}
+dj-manage(){ cd $(dj-projdir) ; python ./manage.py $*  ; }
 dj-run(){    dj-manage runserver $(dj-port) ; }
-dj-shell(){  dj-manage shell  ; }
-dj-syncdb(){ 
-   local msg="=== $FUNCNAME :"
-   echo $msg 
-   dj-manage- syncdb 
-}
+dj-shell(){  dj-manage shell_plus  ; }   ## requires dj-ext 
+dj-syncdb(){ dj-manage syncdb ; }
 
-dj-open(){      open http://localhost:$(dj-port $*) ; }
+dj-open(){   open http://localhost:$(dj-port $*) ; }
 
-dj-runserver(){
-  cd $(dj-projdir)
-  ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 
-}
 
-dj-startproject(){    ## curiously command not available if the envvar is defined 
-   DJANGO_SETTINGS_MODULE= dj-admin startproject $*
-}
 
 
 

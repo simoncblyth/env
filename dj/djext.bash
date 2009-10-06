@@ -24,7 +24,7 @@ djext-dir(){ echo $(local-base)/env/django/django-command-extensions ; }
 djext-cd(){  cd $(djext-dir); }
 djext-mate(){ mate $(djext-dir) ; }
 djext-get(){
-   local dir=$(dirname $(djextensions-dir)) &&  mkdir -p $dir && cd $dir
+   local dir=$(dirname $(djext-dir)) &&  mkdir -p $dir && cd $dir
    hg clone http://hgsvn.trbs.net/django-command-extensions
 }
 
@@ -32,4 +32,10 @@ djext-ln(){
    python-
    python-ln $(djext-dir)/django_extensions
 }
+
+djext-build(){
+  djext-get
+  djext-ln
+}
+
 

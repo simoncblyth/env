@@ -8,7 +8,6 @@ djdep-usage(){
      djdep-src : $(djdep-src)
      djdep-dir : $(djdep-dir)
 
-
 EOU
 }
 djdep-dir(){ echo $(local-base)/env/dj/dj-djdep ; }
@@ -29,6 +28,22 @@ djdep-versions(){
    apachectl -v
    svn info $(dj-srcdir)
 }
+
+djdep-manage(){
+   local iwd=$PWD
+   cd $(dj-projdir)   
+   case $1 in 
+       shell)  sudo -u $(apache-user) $(dj-env-inline) ipython manage.py $* ;;
+           *)  sudo -u $(apache-user) $(dj-env-inline)  python manage.py $* ;;
+   esac
+   cd $iwd
+}
+
+djdep-runserver(){
+  cd $(dj-projdir)
+  ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runserver 
+}
+djdep-env-inline(){  echo DJANGO_SETTINGS_MODULE=$(dj-settings-module) PYTHON_EGG_CACHE=$(djdep-eggcache-dir) ; }
 
 
 djdep-notes(){
