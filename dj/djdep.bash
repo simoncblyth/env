@@ -19,6 +19,62 @@ djdep-get(){
 
 }
 
+djdep-versions(){
+   python -V
+   echo ipython $(ipython -V)
+   python -c "import mod_python as _ ; print 'mod_python:%s' % _.version "   
+   python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
+   echo "select version() ; " | mysql-sh
+   mysql_config --version 
+   apachectl -v
+   svn info $(dj-srcdir)
+}
+
+
+djdep-notes(){
+  cat << EON
+
+   Proxying was used in order to simply keep generated 
+   model files separate from the tweaked other files 
+
+   NB 
+     Override the locations with envvars 
+          DJANGO_DIR     : $DJANGO_DIR
+          DJANGO_APP     : $DJANGO_APP
+          DJANGO_PROJECT : $DJANGO_PROJECT
+
+   Deployments 
+
+           http://belle7.nuu.edu.tw/dybsite/admin/
+        N   : system python 2.4, mysql 5.0.24, MySQL_python-1.2.2, 
+              system Mod Python , apache
+
+
+           http://cms01.phys.ntu.edu.tw/dybsite/admin/
+        C   : system python 2.3, mysql 4.1.22, MySQL_python  
+           
+               ===> admin pw needs resetting ...
+
+
+        C2  :
+           EXCLUDE FOR NOW AS PRIME REPO SERVER
+                 which still uses source python 2.5
+                 and source apache 2.0.63
+
+
+        H :
+            ancient machine ... not worth bothering with 
+
+
+        G   :  
+           
+             port installed mysql 5.0.67
+
+             Darwin difficulties ... need to be careful with system python  
+             do i want to port install python ?
+
+EON
+}
 
 
 

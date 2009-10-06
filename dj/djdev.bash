@@ -9,6 +9,27 @@ djdev-usage(){
      djdev-dir : $(djdev-dir)
 
 
+     djdev-initialdata-path app   : $(dj-initialdata-path app)  
+               
+     djdev-dumpdata- app
+             dump table serialization to stdout 
+     
+     djdev-dumpdata  app
+             write table serialization to standard initialdata path
+
+     djdev-loaddata  appname
+             load table serialization into db
+             CAUTION : this is done automatically on doing syncdb
+
+    djdev-ln
+          plant a symbolic link in site-package
+          pointing at the version of django to use
+          
+          provides easy way to try out different versions ... simply change
+          the dj-mode and rerun dj-ln to switch : no need to stop/start
+          apache (when using MaxRequestsPerChild 1)
+  
+
 EOU
 }
 djdev-dir(){ echo $(local-base)/env/dj/dj-djdev ; }
@@ -19,9 +40,34 @@ djdev-get(){
 
 }
 
+djdev-srcnam(){  
+   case ${1:-$(djdev-mode)} in
+    cpk) echo django-compositepks ;;
+    pre) echo django$(djdev-cpkrev)   ;;
+def|dev) echo django ;;
+    svn) echo django ;;
+    git) echo djgit  ;;
+ system) echo django ;;
+      *) echo django ;;
+   esac 
+}
 
-dj-cpk-mate(){ mate $(dj-srcfold)/$(dj-srcnam ${1:-cpk});  }
 
+djdev-cpk-mate(){ mate $(dj-srcfold)/$(dj-srcnam ${1:-cpk});  }
+
+djdev-srcfold(){ 
+   case $(djdev-mode $*) in 
+      system) echo $(python-site) ;; 
+           *) echo $(local-base)/env/django ;; 
+   esac
+}
+djdev-mode(){ 
+   case $NODE_TAG in 
+     Z) echo system ;;
+     G) echo dev ;;
+     *) echo def ;;
+   esac
+}
 
 
 djdev-git(){
