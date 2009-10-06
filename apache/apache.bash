@@ -85,6 +85,11 @@ apache-usage(){
 EOU
 }
 
+apache-versions(){
+    apachectl -v
+}
+
+
 apache-again(){
     apachebuild-
     apachebuild-again

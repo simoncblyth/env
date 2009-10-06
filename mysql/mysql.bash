@@ -20,6 +20,26 @@ mysql-env(){
 }
 
 
+mysql-versions(){
+   echo "select version() ; " | mysql-sh
+   mysql_config --version
+   python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
+}
+
+
+
+mysql-create-db(){
+   local msg="=== $FUNCNAME :"
+   private-
+   local dbname=$(private-val DATABASE_NAME)
+   [ "$dbname" == "" ] && echo $msg ABORT the DATABASE_NAME value is not defined && return 1
+   echo "create database if not exists $dbname ;"  | mysql-sh- 
+   mysql-show-tables
+}
+
+mysql-show-tables(){ echo "show tables ;" | mysql-sh ; }
+
+
 mysql-five(){
    [ "$(uname)" == "Darwin" ] && echo 5 ; 
 }

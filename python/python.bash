@@ -80,7 +80,10 @@ python-ls(){
 
 }
 
-
+python-versions(){
+   python -V
+   echo ipython $(ipython -V)
+}
 
 
 

@@ -750,7 +750,7 @@ cpg-(){      . $(env-home)/cpg/cpg.bash && cpg-env $* ; }
 dj-(){         . $(env-home)/dj/dj.bash && dj-env $*  ; }
 djsa-(){      . $(env-home)/dj/djsa.bash && djsa-env $* ; }
 
-djextensions-(){    . $(env-home)/dj/djextensions.bash && djextensions-env $* ; }
+djext-(){    . $(env-home)/dj/djext.bash && djext-env $* ; }
 nosedjango-(){      . $(env-home)/dj/nosedjango.bash && nosedjango-env $* ; }
 git-(){             . $(env-home)/git/git.bash && git-env $* ; }
 formalchemy-(){     . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }
