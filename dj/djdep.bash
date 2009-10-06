@@ -1,0 +1,224 @@
+# === func-gen- : dj/djdep fgp dj/djdep.bash fgn djdep fgh dj
+djdep-src(){      echo dj/djdep.bash ; }
+djdep-source(){   echo ${BASH_SOURCE:-$(env-home)/$(djdep-src)} ; }
+djdep-vi(){       vi $(djdep-source) ; }
+djdep-env(){      elocal- ; }
+djdep-usage(){
+  cat << EOU
+     djdep-src : $(djdep-src)
+     djdep-dir : $(djdep-dir)
+
+
+EOU
+}
+djdep-dir(){ echo $(local-base)/env/dj/dj-djdep ; }
+djdep-cd(){  cd $(djdep-dir); }
+djdep-mate(){ mate $(djdep-dir) ; }
+djdep-get(){
+   local dir=$(dirname $(djdep-dir)) &&  mkdir -p $dir && cd $dir
+
+}
+
+
+
+
+djdep-docroot-ln(){
+   local msg="=== $FUNCNAME :"
+   apache-
+   local docroot=$(apache-docroot)
+   local cmd="sudo ln -sf  $(dj-srcdir)/django/contrib/admin/media $docroot/media"
+   echo $msg $cmd
+   eval $cmd
+}
+
+
+## admin site grabs 
+
+djdep-admin-cp(){
+  local msg="=== $FUNCNAME :"
+  local rel=${1:-templates/admin/base_site.html}
+  local srcd=$(dj-srcdir)/django/contrib/admin
+  local dstd=$(dj-projdir)  
+
+  echo $msg rel $rel srcd $srcd dstd $dstd 
+  local path=$srcd/$rel
+  local targ=$dstd/$rel
+  [ ! -f "$path" ] && echo $msg ABORT no path $path && return 1
+  local cmd="mkdir -p $(dirname $targ) &&  cp $path $targ "
+    
+  echo $msg $(dirname $path)
+  ls -l $(dirname $path)
+  echo $msg $(dirname $targ)
+  ls -l $(dirname $targ)
+
+  local ans
+  read -p "$msg $cmd ... enter YES to proceed " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0
+  eval $cmd 
+}
+
+
+
+
+djdep-eggcache(){
+   local cache=$(dj-eggcache-dir)
+   [ "$cache" == "$HOME" ] && echo $msg cache is HOME:$HOME skipping && return 0
+
+   echo $msg createing egg cache dir $cache
+   sudo mkdir -p $cache
+   apache- 
+   apache-chown $cache
+   sudo chcon -R -t httpd_sys_script_rw_t $cache
+   ls -alZ $cache
+}
+
+djdep-selinux(){
+local msg="=== $FUNCNAME :"
+
+sudo chcon -R -t httpd_sys_content_t $(dj-srcdir)
+sudo chcon -R -t httpd_sys_content_t $(dj-projdir) 
+sudo chcon -R -t httpd_sys_content_t $(env-home)
+}
+
+
+
+djdep-confname(){ echo 50-django.conf ; }
+
+djdep-eggcache-prep(){
+    local tmp=/tmp/env/$FUNCNAME/$USER && mkdir -p $tmp && echo $tmp
+}
+
+djdep-eggcache-dir(){ 
+    case ${USER:-nobody} in 
+      nobody|apache|www) echo /var/cache/dj ;; 
+                      *) djdep-eggcache-prep  ;;  
+    esac
+}
+djdep-deploy(){
+
+   local msg="=== $FUNCNAME :"
+   djdep-conf
+   [ "$?" != "0" ] && echo $msg && return 1
+
+   djdep-eggcache
+   djdep-selinux
+
+   private- 
+   private-sync
+
+   djdep-docroot-ln
+
+   dj-syncdb
+   #dj-test
+}
+
+djdep-server(){ 
+   case ${1:-$NODE_TAG} in
+      U|G) echo lighttpd  ;;
+        *) echo apache ;;
+   esac
+}
+
+djdep-conf(){
+  local msg="=== $FUNCNAME :" 
+  local tmp=/tmp/env/dj && mkdir -p $tmp 
+  local conf=$tmp/$(djdep-confname)
+  
+  local server=$(djdep-server)
+  djdep-location-$server- > $conf
+  $server-
+  cat $conf
+
+  local confd=$($server-confd)
+  [ ! -d "$confd" ] && echo $msg ABORT there is no confd : $confd  && return 1
+
+  local cmd="sudo cp $conf $confd/$(basename $conf)"
+  local ans
+  read -p "$msg Proceed with : $cmd : enter YES to continue  " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 1
+  eval $cmd
+}
+
+djdep-location-apache-(){
+  apache-
+  private-
+  cat << EOL
+
+
+LoadModule python_module modules/mod_python.so
+
+## each process only servers one request  ... huge performance hit 
+## but good for development as means that code changes are immediately reflected 
+MaxRequestsPerChild 1
+
+<Location "$(dj-urlroot)/">
+    SetHandler python-program
+    PythonHandler django.core.handlers.modpython
+    SetEnv ENV_PRIVATE_PATH $(USER=$(apache-user) private-path)    
+    SetEnv DJANGO_SETTINGS_MODULE $(dj-settings-module)    
+    SetEnv PYTHON_EGG_CACHE $(USER=$(apache-user) dj-eggcache-dir)
+    PythonOption django.root $(dj-urlroot)
+    PythonDebug On
+</Location>
+
+<Location "/media">
+    SetHandler None
+</Location>
+
+<LocationMatch "\.(jpg|gif|png)$">
+    SetHandler None
+</LocationMatch>
+
+
+
+EOL
+# PythonPath "['$(dirname $(dj-projdir))', '$(dj-srcdir)'] + sys.path"
+}
+
+
+djdep-fcgiroot(){ echo /django.fcgi ; }
+djdep-location-lighttpd-(){  cat << EOC
+
+fastcgi.server = (
+    "$(djdep-fcgiroot)" => (
+           "main" => (
+               "socket" => "$(djdep-socket)",
+               "check-local" => "disable",
+               "allow-x-send-file" => "enable" , 
+                      )
+                 ),
+)
+
+# The alias module is used to specify a special document-root for a given url-subset. 
+alias.url += (
+           "/media" => "$(python-site)/django/contrib/admin/media",  
+)
+
+url.rewrite-once += (
+      "^(/media.*)$" => "\$1",
+      "^/favicon\.ico$" => "/media/favicon.ico",
+      "^/robots\.txt$" => "/robots.txt",
+      "^(/.*)$" => "$(djdep-fcgiroot)\$1",
+)
+
+EOC
+}
+
+djdep-socket(){  echo /tmp/mysite.sock ; }
+
+djdep-runfcgi(){
+  local msg="=== $FUNCNAME :"
+  cd $(dj-projdir)
+  dj-info
+  echo $msg $(pwd)
+  which python
+  python -V
+
+
+  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false maxrequests=1 " 
+  #local cmd="sudo ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  #local cmd="sudo python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  local cmd="ENV_PRIVATE_PATH=$HOME/.bash_private python manage.py runfcgi -v 2 debug=true protocol=fcgi socket=$(dj-socket) daemonize=false " 
+  echo $cmd 
+  eval $cmd
+}
