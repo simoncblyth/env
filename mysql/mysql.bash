@@ -4,10 +4,15 @@ mysql-vi(){     vim $(mysql-source) ; }
 mysql-usage(){
   cat << EOU
 
+    Traditional redhat control :
 
-    See also 
-           dj-vi
+       sudo /sbin/service mysqld start
+       sudo /sbin/service mysqld status
+       sudo /sbin/service mysqld stop
 
+    mysql-sv
+        Add to supervisor control ...
+        needs to be configured to run as root
 
 EOU
 }
@@ -145,6 +150,29 @@ mysql-py-install(){
 
 
 }
+
+
+mysql-pidpath(){ echo /var/run/mysqld/mysqld.pid ; }
+
+mysql-sv-(){ 
+   local msg="=== $FUNCNAME :"
+   local pidproxy=$(which pidproxy)
+   local pidpath=$(mysql-pidpath)
+   local mysqld_safe=$(which mysqld_safe)
+ 
+   [ "$pidproxy" == "" ] && echo $msg ABORT no pidproxy ... comes with supervisor : sv-get  && return 1
+   [ "$pidpath" == "" ] && echo $msg ABORT no pidpath $pidpath && return 1
+   [ "$mysqld_safe" == "" ] && echo $msg ABORT no mysql_safe && return 1
+
+   cat << EOC
+## http://supervisord.org/manual/current/subprocesses.html
+[program:mysql]
+command=$pidproxy $pidpath $mysqld_safe
+redirect_stderr=true
+EOC
+}
+
+mysql-sv(){  sv-;sv-add $FUNCNAME- mysql.ini ; }
 
 
 
