@@ -169,6 +169,7 @@ mysql-sv-(){
 [program:mysql]
 command=$pidproxy $pidpath $mysqld_safe
 redirect_stderr=true
+user=root
 EOC
 }
 

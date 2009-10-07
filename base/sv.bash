@@ -90,8 +90,16 @@ sv-check(){
 sv-edit(){ vim $(sv-confpath) ; }
 sv-sample(){ vim $(sv-confpath).sample ; }
 
-sv-start(){  supervisord   -c $(sv-confpath)    $* ; } 
-sv-nstart(){ supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
+sv-user(){   echo ${SV_USER:-root} ; }
+sv-sudo(){   
+    case $(sv-user) in
+        root) echo sudo ;;
+       $USER) echo -n   ;;
+           *) echo sudo ;;
+    esac
+ }
+sv-start(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
+sv-nstart(){ $(sv-sudo) supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
 
 sv-add(){
    local msg="=== $FUNCNAME :"
@@ -155,6 +163,8 @@ sv-cnf-triplets-(){
   inet_http_server|port|$(private-val SUPERVISOR_PORT) 
   inet_http_server|username|$(private-val SUPERVISOR_USERNAME)
   inet_http_server|password|$(sv-sha $(private-val SUPERVISOR_PASSWORD))
+
+  supervisord|user|$(sv-user) 
 
   supervisorctl||
   unix_http_server||
