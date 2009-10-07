@@ -11,7 +11,7 @@ pl-confname(){ echo ${PL_CONFNAME:-development} ; }
 pl-projdir(){  echo ${PL_PROJDIR:-$(pl-dir)/$(pl-projname)} ; }
 
 pl-confpath(){  echo $(pl-projdir)/$(pl-confname).ini ; }
-
+pl-edit(){      vim $(pl-confpath) ;}
 
 pl-usage(){
   cat << EOU
@@ -69,6 +69,10 @@ pl-srcdir(){   echo $(pl-srcfold $*)/$(pl-srcnam)/pylons ; }
 pl-mate(){     mate $(pl-srcdir) ; }
 
 pl-cd(){       cd $(pl-projdir) ; }   
+pl-setup(){
+   pl-cd
+   python setup.py $*
+}
 
 
 pl-build(){
@@ -82,7 +86,6 @@ pl-build(){
   pl-selinux 
   pl-eggcache
 }
-
 
 
 
@@ -158,5 +161,15 @@ pl-serve(){
   eval $cmd 
 }
 
+pl-shell-(){
+   echo paster --plugin=pylons shell $(pl-confpath)
+}
+
+pl-shell(){
+  local msg="=== $FUNCNAME :"
+  local cmd=$($FUNCNAME-)
+  echo $msg \"$cmd\"
+  eval $cmd 
+}
 
 

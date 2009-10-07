@@ -1,23 +1,52 @@
-# === func-gen- : pl/pldep fgp pl/pldep.bash fgn pldep fgh pl
 pldep-src(){      echo pl/pldep.bash ; }
 pldep-source(){   echo ${BASH_SOURCE:-$(env-home)/$(pldep-src)} ; }
 pldep-vi(){       vi $(pldep-source) ; }
 pldep-env(){      elocal- ; }
 pldep-usage(){
   cat << EOU
+
+     NB operation of these commands depends on the basis parameters for the 
+     specific app being defined previously, eg with plvdbi-
+
+        pl-projname : $(pl-projname)
+        pl-projdir  : $(pl-projdir)
+        pl-confname : $(pl-confname)
+
+
      pldep-src : $(pldep-src)
      pldep-dir : $(pldep-dir)
 
+     pldep-server : $(pldep-server) 
+           eg scgi_threaded
+           must correspond to <name> block in the deployment ini, server:<name>
+
+     pldep-xcgi-run
+          interactive test run of scgi/fcgi/afp running
+
+     pldep-xcgi-sv
+          add the non-embedded server to supervisor (sv-) control
+
+
+     pldep-modwsgi
+        prepare the modswgi script for apache embedded deployment
+
+     pldep-lighttpd-
+        incomplete config for lighttpd serving over fcgi 
+ 
 
 EOU
 }
 pldep-dir(){ echo $(local-base)/env/pl/pl-pldep ; }
 pldep-cd(){  cd $(pldep-dir); }
 pldep-mate(){ mate $(pldep-dir) ; }
+pldep-socket(){    echo /tmp/$(pl-projname).sock ; }
+pldep-server(){  echo ${PLDEP_SERVER:-scgi_thread} ;}
 
 pldep-selinux(){
    apache-
    apache-chcon $(pl-srcdir)
+   pl-
+   apache-chcon $(pl-projdir)
 }
 
 pldep-eggcache-dir(){ echo /var/cache/pl ; }
@@ -26,100 +55,42 @@ pldep-eggcache(){
   apache-eggcache $(pldep-eggcache-dir)
 }
 
+
 ## non-embedded deployment with apache mod_scgi or mod_fastcgi ?  or lighttpd/nginx
 
-pldep-socket(){    echo /tmp/$(pl-projname).sock ; }
-pldep-protocol(){  echo ${PLDEP_PROTOCOL:-scgi} ;}
-
-pldep-command(){ cat << EOC
-$(which paster) serve -v $(pldep-confpath) --server-name=$(pldep-protocol)
+pldep-xcgi-(){ cat << EOC
+$(which paster) serve -v $(pl-confpath) --server-name=$(pldep-server)
 EOC
 }
 
-## interactive config check 
-pldep-run(){       
+pldep-xcgi-run(){       
    local msg="=== $FUNCNAME :"
    cd $(pl-projdir) 
-   local ini=$(pldep-confpath)
+   local ini=$(pl-confpath)
    [ ! -f "$ini" ] && echo $msg ABORT no ini $ini && return 1
-   local cmd="$(pldep-command)"
+   local cmd="$(pldep-xcgi-)"
    echo $msg \"$cmd\"
    eval $cmd
 }
 
-pldep-sv-(){    
+pldep-xcgi-sv-(){    
    cat << EOC
 [program:$(pl-projname)]
-command=$(pldep-command)
+command=$(pldep-xcgi-)
 redirect_stderr=true
 autostart=true
 EOC
 }
 
-## supervisor hookup 
-pldep-sv(){  sv-;sv-add $FUNCNAME- $(pl-projname).ini ; }
-
-pldep-protocol(){ echo scgi ; }
-pldep-protocol-egg(){
-  case $(pldep-protocol) in 
-    http) echo "egg:Paste#http" ;;
-    scgi) echo "egg:Flup#scgi_thread" ;;
-  esac     
-}
-
-pldep-cnf-triplets-(){
-  modscgi-
-cat << EOC
-server:main|use|$(pldep-protocol-egg)
-server:main|host|$(modscgi-ip)
-server:main|port|$(local-port $(pl-projname))
-EOC
-}
-
-pldep-cnf(){
-   echo -n 
-}
-
-pldep-modwsgi(){
-   pl-
-   PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
-}
-
-
-## lighttpd + scgi paste server ?
-
-pldep-scgiroot(){  echo /plvdbi.scgi ; }
-pldep-socket(){    echo /tmp/plvdbi.sock ; }
-pldep-lighttpd-(){  cat << EOC
-
-scgi.server = (
-    "$(pldep-scgiroot)" => (
-           "main" => (
-               "socket" => "$(pldep-socket)",
-               "check-local" => "disable",
-               "allow-x-send-file" => "enable" , 
-                      )
-                 ),
-)
-
-# The alias module is used to specify a special document-root for a given url-subset. 
-alias.url += (
-           "/toscawidgets" => "$(plvdbi-dir)/plvdbi/public/toscawidgets",  
-)
-
-url.rewrite-once += (
-      "^(/toscawidgets.*)$" => "\$1",
-      "^/favicon\.ico$" => "/toscawidgets/favicon.ico",
-      "^/robots\.txt$" => "/robots.txt",
-      "^(/.*)$" => "$(plvdbi-scgiroot)\$1",
-)
-
-EOC
-}
+pldep-xcgi-sv(){  sv-;sv-add $FUNCNAME- $(pl-projname).ini ; }
 
 
 
-pldep-wsgi-(){  
+
+
+
+
+pldep-modwsgi-(){  
   python-
   cat << EOS
 
@@ -152,13 +123,13 @@ os.environ['PYTHON_EGG_CACHE'] = '$(pldep-eggcache-dir)'
 os.environ['ENV_PRIVATE_PATH'] = '$(apache-private-path)'
 
 from paste.deploy import loadapp
-application = loadapp('config:$(pl-ini)')
+application = loadapp('config:$(pl-confpath)')
 
 EOS
 }
 
 
-pldep-wsgi(){
+pldep-modwsgi(){
   local msg="=== $FUNCNAME :"
   local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
   local tmp=$tmpd/$(pl-projname).wsgi
@@ -171,5 +142,41 @@ pldep-wsgi(){
   modwsgi-deploy $tmp
 }
 
+
+
+
+
+
+
+## lighttpd + scgi paste server ?
+
+pldep-scgiroot(){  echo /plvdbi.scgi ; }
+pldep-socket(){    echo /tmp/plvdbi.sock ; }
+pldep-lighttpd-(){  cat << EOC
+
+scgi.server = (
+    "$(pldep-scgiroot)" => (
+           "main" => (
+               "socket" => "$(pldep-socket)",
+               "check-local" => "disable",
+               "allow-x-send-file" => "enable" , 
+                      )
+                 ),
+)
+
+# The alias module is used to specify a special document-root for a given url-subset. 
+alias.url += (
+           "/toscawidgets" => "$(plvdbi-dir)/plvdbi/public/toscawidgets",  
+)
+
+url.rewrite-once += (
+      "^(/toscawidgets.*)$" => "\$1",
+      "^/favicon\.ico$" => "/toscawidgets/favicon.ico",
+      "^/robots\.txt$" => "/robots.txt",
+      "^(/.*)$" => "$(plvdbi-scgiroot)\$1",
+)
+
+EOC
+}
 
 

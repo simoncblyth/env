@@ -293,8 +293,11 @@ EOC
 
 djdep-socket(){    echo /tmp/$(dj-project).sock ; }
 djdep-protocol(){  echo scgi ;}
-djdep-opts-fcgi(){ echo runfcgi -v 2 debug=true protocol=fcgi socket=$(djdep-socket)  daemonize=false ; }
-djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(local-port $(dj-project))  daemonize=false ; }
+
+
+## defaults ...  maxspare=5 minspare=2 maxchildren=50 from : django/core/servers/fastcgi.py
+djdep-opts-fcgi(){ echo runfcgi -v 2 debug=true protocol=fcgi socket=$(djdep-socket)  daemonize=false maxspare=3 minspare=1 ; }
+djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(local-port $(dj-project))  daemonize=false maxspare=3 minspare=1 ; }
 
 
 ## interactive config check 

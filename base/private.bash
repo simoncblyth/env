@@ -87,16 +87,16 @@ private-path-default(){
 
 
 private-selinux(){
-
   apache-
   apache-chcon $(apache-private-path)
-
-
-
 }
 
+private-sudo(){
+  local path=$(private-path)
+  [ "$(dirname $path)" == "$HOME" ] && echo -n || echo sudo
+}
 private-edit(){
-  local cmd="sudo vi $(private-path) "
+  local cmd="$(private-sudo) vi $(private-path) "
   echo $cmd
   eval $cmd
 }

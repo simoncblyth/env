@@ -7,8 +7,9 @@ plvdbi-env(){
    elocal- ; 
    export PL_PROJNAME=plvdbi
    export PL_PROJDIR=$(plvdbi-dir)
-   #export PL_CONFNAME=production
-   export PL_CONFNAME=development
+   export PL_CONFNAME=production
+   #export PL_CONFNAME=development
+   pl-
 }
 
 plvdbi-usage(){
@@ -18,23 +19,23 @@ plvdbi-usage(){
        PL_PROJNAME : $PL_PROJNAME
        PL_PROJDIR  : $PL_PROJDIR
        PL_CONFNAME : $PL_CONFNAME
-
+   
+     Derived
+       pl-confpath : $(pl-confpath)
 
      plvdbi-src : $(plvdbi-src)
-     plvdbi-dir : $(plvdbi-dir)
 
-     plvdbi-projdir : $(plvdbi-projdir)
      plvdbi-serve   
-        run the server ... visible at http://localhost:5000 
+        interactive server run ... visible at http://localhost:6000?
 
-     plvdbi-modscgi
-         hints for apache proxying integration via scgi 
+     plvdbi-make-config
+        create deployment config file from template :
+             plvdbi/plvdbi/config/deployment.ini_tmpl
 
      plvdbi-shell
           
           gives error ... invalid literal for int() arising from :
           the response of /_test_vars not being covertible to integer 
-
              # Query the test app to setup the environment
              tresponse = test_app.get('/_test_vars')
              request_id = int(tresponse.body)
@@ -50,7 +51,6 @@ EOU
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
 plvdbi-cd(){      cd $(plvdbi-dir); }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
-plvdbi-edit(){    vim $(pl-confpath) ; }
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
 plvdbi-build(){
@@ -71,7 +71,8 @@ plvdbi-build(){
     plvdbi-install 
     [ ! $? -eq 0 ] && echo $msg ABORT after -install && return 1  || echo $msg -install OK
 
-    plvdbi-selinux  
+    pldep-
+    pldep-selinux  
     [ ! $? -eq 0 ] && echo $msg ABORT after -selinux && return 1  || echo $msg -selinux OK
 
     plvdbi-make-config 
@@ -83,35 +84,30 @@ plvdbi-build(){
 }
 
 
-plvdbi-setup(){
-   plvdbi-cd
-   python setup.py $*
-}
-plvdbi-install(){ plvdbi-setup develop ; }
-
-
-plvdbi-selinux(){
-   apache-
-   apache-chcon $(plvdbi-dir)
-}
-  
+plvdbi-install(){ pl-setup develop ; }
 
 plvdbi-serve(){
   local msg="=== $FUNCNAME :" 
+
+  plvdbi-private-check
+  [ ! "$?" == "0" ] && echo $msg ABORT -private-check fails && return 1
   rum-
   local iwd=$PWD 
   local dir=$(plvdbi-workdir)
   mkdir -p $dir && cd $dir
-  echo $msg serving $(plvdbi-ini) from $PWD with $(which paster)
-  
-  case $(plvdbi-name) in
-     development) paster serve --reload $(plvdbi-ini) ;;
-               *) paster serve          $(plvdbi-ini) ;;
-  esac
+  pl-serve 
   cd $iwd
 }
 
-plvdbi-conf(){
+plvdbi-private-check(){
+   private-
+   local pport=$(private-val PLVDBI_PORT) 
+   local lport=$(local-port plvdbi)
+   [ "$pport" != "$lport" ] && echo $msg ABORT port mismatch pport $pport lport $lport && return 1 
+   return 0
+}
+
+plvdbi-make-config-(){
    private-
    cat << EOC
            email_to=$(private-val PLVDBI_EMAIL_TO) 
@@ -123,10 +119,10 @@ EOC
 
 plvdbi-make-config(){
    local msg="=== $FUNCNAME :"
-   private-
-   local ini=$(plvdbi-ini)
-   local cmd="paster make-config plvdbi $ini $(echo $(plvdbi-conf)) ; svn revert $ini "
-   echo $msg "$cmd"
+   [ "$(pl-confname)" == "development" ] && echo $msg ABORT this is not applicable to the developmemnt.ini ... used for production only && return 1
+   local ini=$(pl-confpath)
+   local cmd="paster make-config plvdbi $ini $(echo $(plvdbi-make-config-)) ; svn revert $ini "
+   echo $msg \"$cmd\"
    eval $cmd
 }
 
@@ -134,22 +130,14 @@ plvdbi-shell(){
    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
    local iwd=$PWD
    cd $tmp
-   paster --plugin=pylons shell $(plvdbi-ini)
+   pl-shell
    cd $iwd
 }
-
 
 plvdbi-statics-dir(){  echo $(plvdbi-dir)/plvdbi/public/toscawidgets ; }
 plvdbi-archive-tw-resources(){
    cd $(plvdbi-dir)
    python setup.py archive_tw_resources  -f --output $(plvdbi-statics-dir)
 }
-
-
-
-
-
-
-
 
 
