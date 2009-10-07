@@ -152,10 +152,10 @@ EOI
 
 local-port(){
    case $1 in 
-     hg) echo 5000 ;;
-    dbi) echo 6000 ;;
-runinfo) echo 4000 ;;  
-      *) echo 7000 ;;
+            hg) echo 5000 ;;
+    dbi|plvdbi) echo 6000 ;;
+       runinfo) echo 4000 ;;  
+             *) echo 7000 ;;
    esac  
 }
 

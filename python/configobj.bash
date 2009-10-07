@@ -57,5 +57,24 @@ configobj-get(){
 
 
 
+configobj-demo-(){ 
+    local path=$1
+    private-
+    cat << EOC
+#
+from configobj import ConfigObj
+c = ConfigObj( "$path" , interpolation=False )
+c['app:main']['sqlalchemy.url'] = "$(private-val DATABASE_URL)"
+c['DEFAULT']['debug'] = "false"
+c.write()
+EOC
+}
 
+configobj-demo(){ 
+   local msg="=== $FUNCNAME :"
+   local path=$1
+   [ ! -f "$path" ] && echo $msg ABORT no .ini file at $path && return 1
+   $FUNCNAME-
+   $FUNCNAME- $* | python 
+}
 

@@ -114,34 +114,9 @@ sv-add(){
 }
 
 
-sv-ini(){ sv-ini- $(sv-confpath) $*  ; }
-sv-ini-() 
-{ 
-    local msg="=== $FUNCNAME :";
-    local path=$1 ;
-    shift;
-    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp;
-    local tpath=$tmp/$(basename $path);
-    local cmd="cp $path $tpath ";
-    eval $cmd;
-    
-    ## NB using a ConfigParser variant of the ConfigObj original as supervisor ini files
-    ## use inline comments and semicolons that give ConfigParser indigestion
-    
-    INI_TRIPLET_DELIM="|" python $ENV_HOME/base/ini_cp.py $tpath $*;
-    local dmd="diff $path $tpath";
-    echo $msg $dmd;
-    eval $dmd;
-    [ "$?" == "0" ] && echo $msg no differences ... skipping && return 0;
-    if [ -n "$SV_CONFIRM" ]; then
-        local ans;
-        read -p "$msg enter YES to confirm this change " ans;
-        [ "$ans" != "YES" ] && echo $msg skipped && return 1;
-    fi;
-    $SUDO cp $tpath $path;
-
-
-    #[ "$user" != "$USER" ] && $SUDO chown $user:$user $path
+sv-ini(){ 
+  ini-
+  INI_TRIPLET_DELIM="|" INI_FLAVOR="ini_cp" ini-triplet-edit $(sv-confpath) $*  
 }
 
 sv-sha-(){ python -c "import hashlib ; print \"{SHA}%s\" % hashlib.sha1(\"${1:-thepassword}\").hexdigest() " ; } 

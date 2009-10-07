@@ -14,38 +14,50 @@ EOU
 pldep-dir(){ echo $(local-base)/env/pl/pl-pldep ; }
 pldep-cd(){  cd $(pldep-dir); }
 pldep-mate(){ mate $(pldep-dir) ; }
-pldep-get(){
-   local dir=$(dirname $(pldep-dir)) &&  mkdir -p $dir && cd $dir
 
+pldep-selinux(){
+   apache-
+   apache-chcon $(pl-srcdir)
 }
 
+pldep-eggcache-dir(){ echo /var/cache/pl ; }
+pldep-eggcache(){
+  apache-
+  apache-eggcache $(pldep-eggcache-dir)
+}
 
 ## non-embedded deployment with apache mod_scgi or mod_fastcgi ?  or lighttpd/nginx
 
-pldep-socket(){    echo /tmp/$(dj-project).sock ; }
-pldep-protocol(){  echo scgi ;}
-pldep-opts-fcgi(){ echo serve -v 2 debug=true protocol=fcgi socket=$(djdep-socket)  daemonize=false ; }
-pldep-opts-scgi(){ echo serve -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(modscgi-port $(dj-project))  daemonize=false ; }
+pldep-socket(){    echo /tmp/$(pl-projname).sock ; }
+pldep-protocol(){  echo ${PLDEP_PROTOCOL:-scgi} ;}
 
+pldep-command(){ cat << EOC
+$(which paster) serve -v $(pldep-confpath) --server-name=$(pldep-protocol)
+EOC
+}
 
 ## interactive config check 
-pldep-run(){       cd $(dj-projdir) ;  ./manage.py $(djdep-opts-$(djdep-protocol)) ;  }  
+pldep-run(){       
+   local msg="=== $FUNCNAME :"
+   cd $(pl-projdir) 
+   local ini=$(pldep-confpath)
+   [ ! -f "$ini" ] && echo $msg ABORT no ini $ini && return 1
+   local cmd="$(pldep-command)"
+   echo $msg \"$cmd\"
+   eval $cmd
+}
 
 pldep-sv-(){    
-   dj-
    cat << EOC
-[program:$(dj-project)]
-command=$(which paster) $(pldep-opts-$(pldep-protocol))
+[program:$(pl-projname)]
+command=$(pldep-command)
 redirect_stderr=true
 autostart=true
 EOC
 }
 
 ## supervisor hookup 
-pldep-sv(){  
-   sv-
-   sv-add $FUNCNAME- $(dj-project).ini ; 
-}
+pldep-sv(){  sv-;sv-add $FUNCNAME- $(pl-projname).ini ; }
 
 pldep-protocol(){ echo scgi ; }
 pldep-protocol-egg(){
@@ -60,40 +72,17 @@ pldep-cnf-triplets-(){
 cat << EOC
 server:main|use|$(pldep-protocol-egg)
 server:main|host|$(modscgi-ip)
-server:main|port|$(local-port dbi)
+server:main|port|$(local-port $(pl-projname))
 EOC
 }
 
 pldep-cnf(){
-  echo -n 
+   echo -n 
 }
 
-
-
-plvdbi-modwsgi(){
+pldep-modwsgi(){
    pl-
    PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
-}
-
-plvdbi-make-sh-(){   
-   cat << EOS
-#!/bin/bash 
-
-pst(){ 
-   local pid=$(plvdbi-pid)
-   local log=$(plvdbi-log)
-   local ini=$(plvdbi-ini)
-   $(which paster) serve --daemon --pid-file=\$pid --log-file=\$log \$ini \$1 
-}
-#type pst
-arg=\${1:-none}
-case \$arg in
-start|stop|restart) pst \$arg ;;
-                 *) echo "Usage \$0 start|stop|restart "  ;; 
-esac
-exit 0
-EOS
-
 }
 
 
@@ -126,6 +115,60 @@ url.rewrite-once += (
 )
 
 EOC
+}
+
+
+
+pldep-wsgi-(){  
+  python-
+  cat << EOS
+
+#  $FUNCNAME 
+#     http://code.google.com/p/modwsgi/wiki/VirtualEnvironments
+
+ALLDIRS = ["$VIRTUAL_ENV/lib/python$(python-major)/site-packages"]
+
+import sys
+import site
+
+sys.stdout = sys.stderr
+
+
+prev_sys_path = list(sys.path)
+
+for dir in ALLDIRS:
+    site.addsitedir(dir)
+
+new_sys_path = []
+for item in list(sys.path):
+    if item not in prev_sys_path:
+        new_sys_path.append(item)
+        sys.path.remove(item)
+
+sys.path[:0] = new_sys_path 
+
+import os
+os.environ['PYTHON_EGG_CACHE'] = '$(pldep-eggcache-dir)'
+os.environ['ENV_PRIVATE_PATH'] = '$(apache-private-path)'
+
+from paste.deploy import loadapp
+application = loadapp('config:$(pl-ini)')
+
+EOS
+}
+
+
+pldep-wsgi(){
+  local msg="=== $FUNCNAME :"
+  local tmpd=/tmp/env/$FUNCNAME && mkdir -p $tmpd
+  local tmp=$tmpd/$(pl-projname).wsgi
+
+  [ -z "$VIRTUAL_ENV" ] && echo $msg abort not in virtual env ... && return 1
+
+  echo $msg writing $tmp ... using VIRTUAL_ENV $VIRTUAL_ENV
+  $FUNCNAME- > $tmp
+  modwsgi-
+  modwsgi-deploy $tmp
 }
 
 

@@ -3,9 +3,23 @@ plvdbi-src(){      echo plvdbi/plvdbi.bash ; }
 plvdbi-source(){   echo ${BASH_SOURCE:-$(env-home)/$(plvdbi-src)} ; }
 plvdbi-vi(){       vi $(plvdbi-source) ; }
 
-plvdbi-env(){      elocal- ; }
+plvdbi-env(){      
+   elocal- ; 
+   export PL_PROJNAME=plvdbi
+   export PL_PROJDIR=$(plvdbi-dir)
+   #export PL_CONFNAME=production
+   export PL_CONFNAME=development
+}
+
 plvdbi-usage(){
   cat << EOU
+
+     Basis vars : 
+       PL_PROJNAME : $PL_PROJNAME
+       PL_PROJDIR  : $PL_PROJDIR
+       PL_CONFNAME : $PL_CONFNAME
+
+
      plvdbi-src : $(plvdbi-src)
      plvdbi-dir : $(plvdbi-dir)
 
@@ -30,22 +44,14 @@ plvdbi-usage(){
                http://toscawidgets.org/documentation/ToscaWidgets/deploy.html
                http://projects.roggisch.de/tw/aggregation.html
 
-
-
 EOU
 }
+
 plvdbi-dir(){     echo $(env-home)/plvdbi ; }
 plvdbi-cd(){      cd $(plvdbi-dir); }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
-#plvdbi-name(){  echo development ; }
-plvdbi-name(){  echo production ; }
-plvdbi-ini(){     
-   local name=${1:-$(plvdbi-name)}
-   echo $(plvdbi-dir)/$name.ini ;
- }
-plvdbi-edit(){    vim $(plvdbi-ini) ; }
+plvdbi-edit(){    vim $(pl-confpath) ; }
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
-
 
 plvdbi-build(){
 
@@ -75,8 +81,6 @@ plvdbi-build(){
     [ ! $? -eq 0 ] && return 1
 
 }
-
-
 
 
 plvdbi-setup(){

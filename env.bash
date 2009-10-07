@@ -771,3 +771,4 @@ svdev-(){      . $(env-home)/base/svdev.bash && svdev-env $* ; }
 svcfp-(){      . $(env-home)/base/svcfp.bash && svcfp-env $* ; }
 pldep-(){      . $(env-home)/pl/pldep.bash && pldep-env $* ; }
 plbook-(){      . $(env-home)/pl/plbook.bash && plbook-env $* ; }
+ini-(){      . $(env-home)/base/ini.bash && ini-env $* ; }
