@@ -110,9 +110,11 @@ def serve_app(**kwa):
     port = kwa.pop('port', 8080 )
     app = create_app( **kwa )
     from paste.deploy import loadserver
-    #server = loadserver('egg:Paste#http' )
     from pkg_resources import resource_filename
-    server = loadserver('config:%s' % resource_filename('vdbi.app', 'server.ini') )
+    ini = resource_filename('vdbi.app', 'server.ini')
+    print "serve_app with ini %s " % ini
+    #server = loadserver('egg:Paste#http' )
+    server = loadserver('config:%s' % ini  )
     try:
         server(app)
     except (KeyboardInterrupt, SystemExit):

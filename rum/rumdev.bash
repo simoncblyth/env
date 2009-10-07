@@ -1,4 +1,3 @@
-# === func-gen- : rum/rumdev fgp rum/rumdev.bash fgn rumdev fgh rum
 rumdev-src(){      echo rum/rumdev.bash ; }
 rumdev-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rumdev-src)} ; }
 rumdev-vi(){       vi $(rumdev-source) ; }
