@@ -15,6 +15,11 @@ plvdbi-env(){
 plvdbi-usage(){
   cat << EOU
 
+    NB you must activate the approriate python virtual environment
+    before these commands will work, eg with "rum-"
+
+
+
      Basis vars : 
        PL_PROJNAME : $PL_PROJNAME
        PL_PROJDIR  : $PL_PROJDIR
@@ -120,6 +125,9 @@ EOC
 plvdbi-make-config(){
    local msg="=== $FUNCNAME :"
    [ "$(pl-confname)" == "development" ] && echo $msg ABORT this is not applicable to the developmemnt.ini ... used for production only && return 1
+   plvdbi-private-check
+   [ ! "$?" -eq "0" ] && echo $msg ABORT -private-check failed &&  return 1
+
    local ini=$(pl-confpath)
    local cmd="paster make-config plvdbi $ini $(echo $(plvdbi-make-config-)) ; svn revert $ini "
    echo $msg \"$cmd\"
@@ -136,8 +144,31 @@ plvdbi-shell(){
 
 plvdbi-statics-dir(){  echo $(plvdbi-dir)/plvdbi/public/toscawidgets ; }
 plvdbi-archive-tw-resources(){
+   local msg="=== $FUNCNAME :"
    cd $(plvdbi-dir)
-   python setup.py archive_tw_resources  -f --output $(plvdbi-statics-dir)
+   [ ! -f "setup.cfg" ] && echo $msg ABORT need setup.cfg to define the distributions to get resources from && return 1
+   cat setup.cfg
+   local cmd="python setup.py archive_tw_resources -f --output $(plvdbi-statics-dir)"
+   echo $msg \"$cmd\"
+   eval $cmd
 }
+
+
+plvdbi-statics-apache-(){  cat << EOC
+Alias /dbi/toscawidgets/ $(plvdbi-statics-dir)/ 
+<Directory $(plvdbi-statics-dir)>
+Order deny,allow
+Allow from all
+</Directory>
+EOC
+}
+
+plvdbi-statics-apache(){
+  local msg="=== $FUNCNAME :"
+  $FUNCNAME- 
+  echo $msg incoporate smth like the above with apache-edit 
+}
+
+
 
 

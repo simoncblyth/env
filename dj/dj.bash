@@ -202,7 +202,7 @@ dj-ls(){      ls -l $(dj-srcfold) ; }
 dj-srcdir-(){ echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-srcdir(){  python-rln django ; }                  ## read the link 
 dj-scd(){     cd $(dj-srcdir) ; }
-dj-mate(){    mate $(dj-srcdir) ; }
+dj-mate(){   [ -d "$(dj-srcdir)" ] &&  mate $(dj-srcdir) || echo === $FUNCNAME : error no dj-srcdir:$(dj-srcdir)  ; }
 dj-admin(){   $(dj-srcdir)/bin/django-admin.py $* ; }
 dj-port(){    echo 8000 ; }
 

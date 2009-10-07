@@ -151,9 +151,10 @@ EOI
 }
 
 local-port(){
+   ## hmm maybe keep these in private-vals only ?
    case $1 in 
             hg) echo 5000 ;;
-    dbi|plvdbi) echo 6000 ;;
+    dbi|plvdbi) echo 6001 ;;
        runinfo) echo 4000 ;;  
              *) echo 7000 ;;
    esac  
