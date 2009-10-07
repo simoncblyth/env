@@ -228,7 +228,7 @@ def app_maker():
     return hgwebdir('$(hgweb-confpath)')
 
 from flup.server.scgi import WSGIServer
-WSGIServer(wsgiapplication(app_maker), bindAddress=("127.0.0.1", $(modscgi-port hg) ) ).run()
+WSGIServer(wsgiapplication(app_maker), bindAddress=("127.0.0.1", $(local-port hg) ) ).run()
 
 EOC
 }

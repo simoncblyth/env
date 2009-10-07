@@ -294,7 +294,7 @@ EOC
 djdep-socket(){    echo /tmp/$(dj-project).sock ; }
 djdep-protocol(){  echo scgi ;}
 djdep-opts-fcgi(){ echo runfcgi -v 2 debug=true protocol=fcgi socket=$(djdep-socket)  daemonize=false ; }
-djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(modscgi-port $(dj-project))  daemonize=false ; }
+djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-ip $(dj-project)) port=$(local-port $(dj-project))  daemonize=false ; }
 
 
 ## interactive config check 

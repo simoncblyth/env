@@ -19,6 +19,10 @@ runinfo-usage(){
 
      runinfo-ingest
           ingest from Jimmys MIDAS runlog csv list 
+
+     runinfo-sv
+          add the runinfo app to supervisor (sv-) control ready 
+          for non-embedded deployment
      
 EOU
 }
@@ -28,5 +32,5 @@ runinfo-mate(){ mate $(runinfo-dir) ; }
 
 runinfo-build(){  dj-build ; }
 runinfo-ingest(){ dj-manage csv_ingest ; }
-runinfo-sv(){     djdep-sv ; }
+runinfo-sv(){     djdep-;djdep-sv ; }
 

@@ -90,11 +90,6 @@ plvdbi-selinux(){
    apache-
    apache-chcon $(plvdbi-dir)
 }
-
-
-
-
-
   
 
 plvdbi-serve(){
@@ -111,9 +106,6 @@ plvdbi-serve(){
   esac
   cd $iwd
 }
-
-
-
 
 plvdbi-conf(){
    private-
@@ -150,116 +142,6 @@ plvdbi-archive-tw-resources(){
 }
 
 
-
-
-##  daemon control 
-
-plvdbi-start(){  plvdbi-pst start ; }
-plvdbi-stop(){   plvdbi-pst stop ; }
-plvdbi-reload(){ plvdbi-pst reload ; }
-plvdbi-pst(){
-   local msg="=== $FUNCNAME :"
-   local arg=$1 
-   case $arg in 
-      start|stop|reload) echo $msg $arg ;;
-                      *) echo "Usage plvdbi-pst start|stop|restart" && return 1 ;;
-   esac    
-   rum-
-   local cmd="paster serve --daemon --pid-file=$(plvdbi-pid) --log-file=$(plvdbi-log)  $(plvdbi-ini) $arg"
-   echo $msg $cmd
-   eval $cmd
-}
-plvdbi-pid(){ echo  $(plvdbi-dir)/plvdbi.pid  ; }
-plvdbi-log(){ echo  $(plvdbi-dir)/plvdbi.log  ; }
-plvdbi-tail(){ tail -f $(plvdbi-log) ; }
-
-
-## apache integration
-plvdbi-modscgi-(){ 
-  modscgi-
-cat << EOC
-## $FUNCNAME 
-[server:main]
-#use = egg:Paste#http
-use = egg:Flup#scgi_thread
-host = $(modscgi-ip)
-port = $(modscgi-port dbi)
-EOC
-}
-
-plvdbi-modscgi(){
-  local msg="=== $FUNCNAME :"
-  $FUNCNAME-
-  echo $msg incorporate smth like the above into the paster ini using : \"plvdbi-edit\"
-}
-
-plvdbi-modwsgi(){
-   pl-
-   PL_PROJNAME=dbi PL_INI=$(plvdbi-ini) pl-wsgi
-}
-
-## initd script
-
-plvdbi-make-sh(){
-  local sh=$(plvdbi-dir)/plvdbi.sh     ## for running in isolated situations 
-  $FUNCNAME- > $sh
-  #cat $sh 
-  chmod u+x $sh
-  #$sh hello
-}
-
-plvdbi-make-sh-(){   
-   cat << EOS
-#!/bin/bash 
-
-pst(){ 
-   local pid=$(plvdbi-pid)
-   local log=$(plvdbi-log)
-   local ini=$(plvdbi-ini)
-   $(which paster) serve --daemon --pid-file=\$pid --log-file=\$log \$ini \$1 
-}
-#type pst
-arg=\${1:-none}
-case \$arg in
-start|stop|restart) pst \$arg ;;
-                 *) echo "Usage \$0 start|stop|restart "  ;; 
-esac
-exit 0
-EOS
-
-}
-
-
-## lighttpd + scgi paste server ?
-
-plvdbi-scgiroot(){  echo /plvdbi.scgi ; }
-plvdbi-socket(){    echo /tmp/plvdbi.sock ; }
-plvdbi-lighttpd-(){  cat << EOC
-
-scgi.server = (
-    "$(plvdbi-scgiroot)" => (
-           "main" => (
-               "socket" => "$(plvdbi-socket)",
-               "check-local" => "disable",
-               "allow-x-send-file" => "enable" , 
-                      )
-                 ),
-)
-
-# The alias module is used to specify a special document-root for a given url-subset. 
-alias.url += (
-           "/toscawidgets" => "$(plvdbi-dir)/plvdbi/public/toscawidgets",  
-)
-
-url.rewrite-once += (
-      "^(/toscawidgets.*)$" => "\$1",
-      "^/favicon\.ico$" => "/toscawidgets/favicon.ico",
-      "^/robots\.txt$" => "/robots.txt",
-      "^(/.*)$" => "$(plvdbi-scgiroot)\$1",
-)
-
-EOC
-}
 
 
 

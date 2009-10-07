@@ -63,15 +63,7 @@ modscgi-install(){
 
 
 modscgi-apps(){ echo hg dbi runinfo ; }
-modscgi-port(){ 
-   case $1 in 
-     hg) echo 5000 ;;
-    dbi) echo 6000 ;;
-runinfo) echo 4000 ;;  
-      *) echo 7000 ;;
-   esac  
-}
-
+modscgi-port(){  local-port $* ; }
 modscgi-ip(){   echo 127.0.0.1 ; } 
 
 
@@ -86,7 +78,7 @@ modscgi-conf-(){
   local app=${1:-appname}  
   apache-
   cat << EOC
-SCGIMount /$app $(modscgi-ip $app):$(modscgi-port $app)
+SCGIMount /$app $(modscgi-ip $app):$(local-port $app)
 EOC
 }
 

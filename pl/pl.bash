@@ -250,39 +250,4 @@ pl-deploy(){
 
 
 
-## the below should be factored into sphinx- for minimal invokation from here
-
-pl-book-dir(){  echo $(local-base $*)/env/PylonsBook ; }
-pl-book-cd(){   cd $(pl-book-dir) ; }
-pl-book-get(){
-   local msg="=== $FUNCNAME :"
-   local dir=$(dirname $(pl-book-dir))
-   mkdir -p $dir && cd $dir
-   local nam=$(basename $(pl-book-dir))
-   [ ! -d "$nam" ] && hg clone https://hg.3aims.com/public/PylonsBook/ || echo $msg $nam is already cloned 
-}
-pl-book-builddir(){ echo .build ; }
-pl-book-build(){
-    pl-book-cd
-    sphinx-build -b html . ./$(pl-book-builddir)
-}
-pl-book-open(){
-   local name=${1:-index.html}
-   open file://$(pl-book-dir)/$(pl-book-builddir)/$name
-}
-pl-book-build-latex(){
-    pl-book-cd
-    sphinx-build -b latex . ./$(pl-book-builddir)
-}
-pl-book-build-pdf(){
-    pl-book-build-latex
-    cd ./$(pl-book-builddir)
-    pdflatex PylonsBook.tex
-    pdflatex PylonsBook.tex
-}
-pl-book-open-pdf(){
-   pl-book-open PylonsBook.pdf
-}
-
-
 

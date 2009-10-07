@@ -355,15 +355,10 @@ sss(){
 
 
 env-u(){ 
-  local iwd=$(pwd)
-  cd $(env-home) 
-  echo ============= env-u : status before update ================
-  svn status -u
-  svn update
-  echo ============= env-u : status after update ================
-  svn status -u
-  cd $iwd
-  echo ============== env-u :  sourcing the env =============
+  local msg="=== $FUNCNAME :"
+  local cmd="svn update $(env-home)"
+  echo $msg \"$cmd\"
+  eval $cmd
   [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
 }
 
@@ -729,7 +724,7 @@ env-override
 diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
 tg-(){         . $(env-home)/offline/tg/tg.bash && tg-env $*  ; }
-pl-(){         . $(env-home)/offline/pl/pl.bash && pl-env $* ; }
+pl-(){         . $(env-home)/pl/pl.bash && pl-env $* ; }
 pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
 modwsgi-(){    . $(env-home)/apache/apachebuild/modwsgi.bash && modwsgi-env $* ; }
 cpp-(){        . $(env-home)/base/cpp.bash && cpp-env $* ; } 
@@ -774,3 +769,5 @@ runinfo-(){      . $(env-home)/aberdeen/runinfo/runinfo.bash && runinfo-env $* ;
 svman-(){      . $(env-home)/base/svman.bash && svman-env $* ; }
 svdev-(){      . $(env-home)/base/svdev.bash && svdev-env $* ; }
 svcfp-(){      . $(env-home)/base/svcfp.bash && svcfp-env $* ; }
+pldep-(){      . $(env-home)/pl/pldep.bash && pldep-env $* ; }
+plbook-(){      . $(env-home)/pl/plbook.bash && plbook-env $* ; }

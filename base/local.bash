@@ -150,6 +150,14 @@ EOI
 
 }
 
+local-port(){
+   case $1 in 
+     hg) echo 5000 ;;
+    dbi) echo 6000 ;;
+runinfo) echo 4000 ;;  
+      *) echo 7000 ;;
+   esac  
+}
 
 local-tag2node(){
   case ${1:-$NODE_TAG} in 
