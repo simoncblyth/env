@@ -96,13 +96,17 @@ def create_app(url=None,  dbg=True):
     return app
 
 def field_fix( app ):
+    
+    from rum.fields import Relation
     for cls in app.resources.keys():
+        print "field_fix for cls : %s " % cls
         for f in app.fields_for_resource( cls ):
-            f.searchable = True
+            f.searchable = not(issubclass(f.__class__, Relation)) 
             f.read_only = True
-            f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
-            f.label = f.name    
-            #print f
+            f.auto = False           ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
+            f.label = f.name   
+            f.plotable = not(issubclass(f.__class__, Relation)) 
+            print f, "plotable:", f.plotable
 
 
 def serve_app(**kwa):

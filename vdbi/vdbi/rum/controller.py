@@ -1,6 +1,6 @@
 
 from vdbi.dbg import debug_here
-from vdbi import DEFAULT_ATT_X, DEFAULT_ATT_Y, DEFAULT_VLD_XY
+from vdbi import dbi_default_plot
 from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
@@ -17,17 +17,11 @@ class DbiCRUDController(CRUDController):
 
         v = output['query'].as_dict_for_widgets()
         
-        name = getattr( routes['resource'] , '__name__' , None)
-        if name and name.endswith('Vld'):
-            default_sdc = [ DEFAULT_VLD_XY ] 
-        else: 
-            default_sdc = [ {'x':DEFAULT_ATT_X, 'y':DEFAULT_ATT_Y}]
-        
         print "v %s " % repr(v)
         if 'q' in v and 'plt' in v['q']:       
              sdc = v['q']['plt']['c']
         else:
-             sdc = default_sdc
+             sdc = dbi_default_plot( routes['resource'] )
         
         plotdata = []
         for i in range(len(sdc)):plotdata.append([])

@@ -9,7 +9,8 @@ from rum.query import Query
 from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
 from vdbi.dbg import debug_here
-from vdbi import DEFAULT_ATT_X , DEFAULT_ATT_Y
+
+from vdbi import get_default_x, get_default_y
 
 
 def get_fields():
@@ -19,6 +20,27 @@ def get_fields():
                 if getattr(f, 'searchable', False)]
     except:
         return []
+
+
+def get_plotable_fields():
+    try:
+        return [(f.name, f.label)
+                for f in app.fields_for_resource(app.request.routes['resource'])
+                if getattr(f, 'plotable', False)]
+    except:
+        return []
+ 
+
+
+def get_default_x_():
+    routes=app.request.routes
+    return get_default_x(routes['resource'])
+
+def get_default_y_():
+    routes=app.request.routes
+    return get_default_y(routes['resource'])
+
+
 
 
 operators = [
@@ -39,7 +61,7 @@ class ExpressionWidget(forms.FieldSet):
     css_class = "rum-querybuilder-expression"
     template = "genshi:tw.rum.templates.expression"
     fields = [
-        forms.SingleSelectField("c", options=get_fields, default=DEFAULT_ATT_Y ),
+        forms.SingleSelectField("c", options=get_fields, default=get_default_y_ ),
         forms.SingleSelectField("o", options=operators, default=operators[0][0] ),
         forms.TextField("a", validator=UnicodeString),
         ]
@@ -51,8 +73,8 @@ class PlotSeriesWidget(forms.FieldSet):
     css_class = "rum-querybuilder-expression"
     template = "genshi:vdbi.tw.rum.templates.plotexpression"
     fields = [
-        forms.SingleSelectField("x", options=get_fields, default=DEFAULT_ATT_X ),
-        forms.SingleSelectField("y", options=get_fields, default=DEFAULT_ATT_Y ),
+        forms.SingleSelectField("x", options=get_plotable_fields, default=get_default_x_ ),
+        forms.SingleSelectField("y", options=get_plotable_fields, default=get_default_y_ ),
         ]
 
 

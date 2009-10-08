@@ -1,4 +1,5 @@
 
+
 from vdbi.app.ip_vdbi import ip_vdbi
 from vdbi.app         import serve_app
 
@@ -23,11 +24,28 @@ VLD_COLUMNS = {
    
 VLD_TIMEATTS = map( lambda x:VLD_COLUMNS[x] ,  ('INSERTDATE','TIMEEND','TIMESTART','VERSIONDATE',) )
 
-DEFAULT_ATT_X = VLD_COLUMNS['TIMESTART'] 
-DEFAULT_ATT_Y = PAY_COLUMNS['ROW_COUNTER']
 
-#DEFAULT_VLD_XY = { 'x':VLD_COLUMNS['SEQNO'], 'y':VLD_COLUMNS['TIMESTART'] }
-DEFAULT_VLD_XY = { 'x':PAY_COLUMNS['SEQNO'], 'y':VLD_COLUMNS['TIMESTART'] }
+## cannot use app here ??
+def is_vld_resource(resource):
+    name = getattr( resource , '__name__' , None)
+    return name and name.endswith('Vld')
+
+def get_default_x(resource):
+    if is_vld_resource(resource):
+        return PAY_COLUMNS['SEQNO']   ## *Vld have SEQ attr not VSEQ ... due to some special FK treatment
+    else:
+        return VLD_COLUMNS['TIMESTART'] 
+    
+def get_default_y(resource):
+    if is_vld_resource(resource):
+        return VLD_COLUMNS['TIMESTART'] 
+    else:
+        return PAY_COLUMNS['ROW_COUNTER']
+
+def dbi_default_plot( resource ):
+    return [{ 'x':get_default_x(resource), 'y':get_default_y(resource)}]  
+
+
 
 CTX_COLUMNS = ('SITEMASK','SUBSITE','SIMMASK',)
 CTX_KEYS    = ('Site', 'DetectorId','SimFlag',)

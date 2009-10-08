@@ -1,6 +1,7 @@
 
 from vdbi.dbg import debug_here
-from vdbi import VLD_TIMEATTS, DEFAULT_ATT_X, DEFAULT_ATT_Y
+from vdbi import VLD_TIMEATTS
+from vdbi import dbi_default_plot
 from rum.query import Query
 
 from tw.api import JSLink, js_function,  js_callback
@@ -157,10 +158,12 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         ytime = True
         series = []
  
+
         if 'q' in v and 'plt' in v['q']:       
             sdc = v['q']['plt']['c']
         else:
-            sdc = [{'x':DEFAULT_ATT_X, 'y':DEFAULT_ATT_Y}]
+            routes=app.request.routes
+            sdc = dbi_default_plot( routes['resource'] )
                 
         for sd in sdc:
             if 'x' in sd and 'y' in sd:
