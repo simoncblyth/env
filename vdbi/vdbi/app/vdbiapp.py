@@ -78,9 +78,8 @@ def create_app(url=None,  dbg=True):
 
 
     ## setup the JSON specialized controller
-    from vdbi.rum.controller import register
-    register()
-
+    from vdbi.rum.controller import register_crud_controller
+    register_crud_controller()
 
     app.router.connect("login/:action", controller=LoginController )
 

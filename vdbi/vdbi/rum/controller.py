@@ -44,8 +44,9 @@ class DbiCRUDController(CRUDController):
 #
 
 
-def register():
+def register_crud_controller():
     for resource in app.resources.keys():
+        print "register_crud_controller for %s" % resource
         ControllerFactory.register(DbiCRUDController, resource )
 
 
