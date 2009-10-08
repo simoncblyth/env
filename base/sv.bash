@@ -170,6 +170,7 @@ sv-cnf(){
 
 ##  supervisorctl config for controlling a network of nodes over xmlrpc
 
+sv-G(){  SV_TAG=G  sv-ctl $* ; }
 sv-C(){  SV_TAG=C  sv-ctl $* ; }
 sv-N(){  SV_TAG=N  sv-ctl $* ; }
 sv-H(){  SV_TAG=H  sv-ctl $* ; }
@@ -178,10 +179,12 @@ sv-C2(){ SV_TAG=C2 sv-ctl $* ; }
 sv-ctl(){ 
    local msg="=== $FUNCNAME :"
    local ini=$(sv-ctl-ini)
+   [ "$(which supervisorctl)" == "" ] && echo $msg no supervisorctl ... you are running with the wrong python && return 1
    [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for tag $(sv-ctl-tag) ... use \"SV_TAG=$(sv-ctl-tag) sv-ctl-prep\" to create one  && return 1
    local cmd="supervisorctl -c $ini $*  "
    echo $msg $cmd
    eval $cmd
+   [ ! "$?" -eq "0" ] && echo $msg error maybe server not running ... the ini $ini : && cat $ini
 }
 sv-ctl-tag(){ echo ${SV_TAG:-$NODE_TAG} ; }
 sv-ctl-ini(){ echo $(sv-ctldir)/$(sv-ctl-tag).ini ; }
@@ -195,10 +198,16 @@ sv-ctl-prep-(){
   private-
   local tag=$(sv-ctl-tag)
   local port=$(sv-ctl-port)
-  local remote=$(local-tag2ip $tag):$port   
+  local ip
+  if [ "$tag" == "$NODE_TAG" ]; then
+      ip=127.0.0.1
+  else
+      ip=$(local-tag2ip $tag)
+  fi 
+  local server=$ip:$port   
   cat << EOC
 [supervisorctl]
-serverurl=http://$remote 
+serverurl=http://$server 
 username=$(private-val SUPERVISOR_USERNAME) 
 password=$(private-val SUPERVISOR_PASSWORD)
 prompt=$tag 
@@ -211,6 +220,8 @@ sv-ctl-prep(){
    local dir=$(dirname $ini) && mkdir -p $dir
    echo $msg creating $ini
    $FUNCNAME- $* > $ini
+   chmod go-rwx $ini
+   cat $ini
 }
 
 sv-webopen-ip(){
