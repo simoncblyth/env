@@ -18,8 +18,8 @@ Set breakpoints in code by :
 
 def ip_vdbi(self, arg):
     import os 
+    path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "vdbiapp.py" ) )
     os.chdir("/tmp")    ## avoid env shadowing 
-    path = os.path.join( os.path.dirname( __file__ ), "vdbiapp.py" )
     ip = self.api
     ip.magic("run -d %s" % path )
 

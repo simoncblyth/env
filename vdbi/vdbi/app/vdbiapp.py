@@ -99,7 +99,7 @@ def field_fix( app ):
     for cls in app.resources.keys():
         for f in app.fields_for_resource( cls ):
             f.searchable = True
-            #f.read_only = True
+            f.read_only = True
             f.auto = False       ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
             f.label = f.name    
             #print f
