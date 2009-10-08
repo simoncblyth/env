@@ -54,7 +54,11 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         """
         get_repo = super(DbiSARepositoryFactory, self).__call__
         repo = get_repo(resource, parent, remote_name=remote_name, action=action)
-        repo.queryfactory = DbiQueryFactory()     
+        repo.queryfactory = DbiQueryFactory()   
+        
+        repo.parent_id = parent_id
+        repo.join_transaction()
+          
         return repo
    
     def dbi_fk_ojoins(self, soup ):
