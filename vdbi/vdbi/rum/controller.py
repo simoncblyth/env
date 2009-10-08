@@ -1,6 +1,6 @@
 
 from vdbi.dbg import debug_here
-from vdbi import DEFAULT_ATT_X, DEFAULT_ATT_Y
+from vdbi import DEFAULT_ATT_X, DEFAULT_ATT_Y, DEFAULT_VLD_XY
 from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
@@ -16,17 +16,25 @@ class DbiCRUDController(CRUDController):
         print "vdbi.rum.controller:process_output %s " % repr(output)
 
         v = output['query'].as_dict_for_widgets()
+        
+        name = getattr( routes['resource'] , '__name__' , None)
+        if name and name.endswith('Vld'):
+            default_sdc = [ DEFAULT_VLD_XY ] 
+        else: 
+            default_sdc = [ {'x':DEFAULT_ATT_X, 'y':DEFAULT_ATT_Y}]
+        
         print "v %s " % repr(v)
         if 'q' in v and 'plt' in v['q']:       
              sdc = v['q']['plt']['c']
         else:
-             sdc = [{'x':DEFAULT_ATT_X, 'y':DEFAULT_ATT_Y}]
+             sdc = default_sdc
         
         plotdata = []
         for i in range(len(sdc)):plotdata.append([])
         for i,sd in enumerate(sdc):
             xy = lambda item:[getattr(item,sd['x']),getattr(item,sd['y'])]  
             for item in output['items']:        ##  output['items'] isa sqlalchemy.orm.query.Query   
+                name = item.__class__.__name__
                 plotdata[i].append( xy(item) )       
         output['plotdata'] = plotdata
         del output['items']     

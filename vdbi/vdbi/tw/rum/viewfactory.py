@@ -1,4 +1,5 @@
 
+debug_here = lambda x:x
 #import IPython ; debug_here = IPython.Debugger.Tracer()
 
 from rum import app, fields
