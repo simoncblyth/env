@@ -24,7 +24,7 @@ class ctx_(Expression):
   
 class plt_(Expression):
     name = "plt_"
-  
+    
   
 from rumalchemy.query import translate   ## a little unhealthy importing from rumalchemy ?
 @translate.when((ctx_,))
@@ -129,6 +129,23 @@ def _vdbi_expression_from_dict(cls, d):
 Expression.from_dict = classmethod(_vdbi_expression_from_dict)
 
 
+def _get_present(d):
+    """
+        CheckBoxList yields either a value or a list ... 
+        regularize that to a list
+    """
+    present = d['q'].get('present',[])
+    if type(present) != list:present=list(present)
+    return present
+
+def _unget_present(p):
+    """ 
+         Feed the CheckBoxList back what it likes
+    """
+    if len(p) == 1:return p[0]
+    elif len(p) > 1:return p
+    elif len(p) == 0:return None    
+
 def _vdbi_recast(d):
     """  
          recast the dict into the oldform without the ctx and xtr nodes 
@@ -138,11 +155,17 @@ def _vdbi_recast(d):
          fakes will appear in the interface ... so have to detect the 
          different dict topologies 
     """
-    
     if not 'q' in d:return d
     c = []
+    
+    ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
+    if not('plt' in d['q']):
+        d['q']['plt'] = {}
+    d['q']['plt']['present'] =  _get_present(d)
+    
     for br in ('ctx','xtr','plt'):
         if br in d['q'] and 'c' in d['q'][br]:c.append( d['q'][br] )
+    
     if len(c) == 1:
         return { 'q':c[0] }
     elif len(c) > 1:
@@ -170,22 +193,28 @@ def _vdbi_uncast(d):
             lab = "plt"
         else:
             lab = None
-            
+        
+        brs = {}    
         if lab:
-            r =  { 'q':{ lab:d['q'] } }
-            #print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))
-            return r
+            brs[lab] = d['q']
         else:
             if len(d['q']['c']) > 0: 
-                brs = {}
                 for el in d['q']['c']:
                     if el.get('o',None) and el['o'] in (u"ctx_",u"plt_"):
-                       brs[str(el['o'])[0:-1]] = el  
+                        brs[str(el['o'])[0:-1]] = el  
                     else:
-                       brs['xtr'] = el    
-                return { 'q':brs  }
+                        brs['xtr'] = el           
             else:
                 print "_vdbi_uncast unsupported dict layout %s  " % (repr(d))
+          
+        ## untuck the present from its hiding place inside the plt
+        if 'plt' in brs and 'present' in brs['plt']:
+            present = _unget_present( brs['plt']['present'] )
+            if present:
+                brs.update( {'present':present })
+            del brs['plt']['present']
+        #print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))        
+        return { 'q':brs  }
     else:
         return d
 
@@ -455,25 +484,48 @@ def test_with_plt():
     
 
 
-
-
+#def test_with_present():
+    
+ 
+    
 
 
 
 if __name__=='__main__':
 
-    test_ctx0_as_dict()  
-    test_ctx1_as_dict()  
-    test_ctx0_from_dict()
+    #test_ctx0_as_dict()  
+    #test_ctx1_as_dict()  
+    #test_ctx0_from_dict()
     
-    test_ctx_layout()
-    test_ctx_req2q()
-    test_cast()
+    #test_ctx_layout()
+    #test_ctx_req2q()
+    #test_cast()
     
-    test_ctx_only()
-    test_new_layout_with_xtr_mark()
-    test_with_plt()
+    #test_ctx_only()
+    #test_new_layout_with_xtr_mark()
+    #test_with_plt()
     
- 
+    from webob import Request, UnicodeMultiDict
+    raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-09+18%3A22%3A45&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=VSTART&q.xtr.c-0.o=eq&q.xtr.c-0.a=&q.present=Plot&q.present=Table&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
+    req = UnicodeMultiDict( raw.GET )
 
+    from formencode import variabledecode
+    d =  variabledecode.variable_decode(req)
+ 
+    assert d == {'q': {'ctx': {'a': u'and',
+                               'c': [{'DetectorId': u'0',
+                                       'SimFlag': u'2',
+                                        'Site': u'1',
+                                       'Timestamp': u'2009-10-09 18:22:45'}],
+                               'o': u'ctx_'},
+                        'plt': {'c': [{'x': u'SEQ', 'y': u'VSTART'}], 'o': u'plt_'},
+                     'present': [u'Plot', u'Table'],
+                         'xtr': {'a': u'xtr_',
+                                 'c': [{'a': u'', 'c': u'VSTART', 'o': u'eq'}],
+                                 'o': u'and'}}}
+    
+    
+    
+    
+    
     
