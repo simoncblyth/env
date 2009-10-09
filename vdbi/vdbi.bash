@@ -30,7 +30,10 @@ vdbi-ipy(){
    ipython 
 }
 
+
+
 vdbi-build(){
+  local msg="=== $FUNCNAME :"
   rum-
   rum-build
   [ ! $? -eq 0 ] && return 1

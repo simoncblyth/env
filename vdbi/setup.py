@@ -12,6 +12,7 @@ setup(
         "rum==0.3dev-20090916", 
         "RumAlchemy==0.3dev-20090708", 
         "tw.rum==0.3dev-20090717",
+        "tw.dynforms",
         "ConfigObj",
         "ipython",
         ],

@@ -3,6 +3,10 @@ from tw import forms
 from tw.forms.validators import UnicodeString
 from tw.forms.validators import Int
 
+## for Hiding 
+import tw.dynforms as twd
+
+
 from rum import app, fields
 from rum.query import Query
 
@@ -78,11 +82,13 @@ class PlotSeriesWidget(forms.FieldSet):
         ]
 
 
+
+##  forms.SingleSelectField("a",options=[("table", _("Table")), ("plot", _("Plot")), ("both", _("Plot+Table"))]),
+
 class PlotWidget(forms.FieldSet):
-    template = "genshi:vdbi.tw.rum.templates.querybuilder"
+    template = "genshi:vdbi.tw.rum.templates.plotwidget"
     css_class = "rum-query-widget"
     fields = [
-        forms.SingleSelectField("a",options=[("table", _("Table")), ("plot", _("Plot")), ("both", _("Plot+Table"))]),
         DbiJSRepeater("c", widget=PlotSeriesWidget(), extra=0,add_text=_("Add plot series"), remove_text=_("Remove")),
         forms.HiddenField("o", default="plt_" ), 
         ]
@@ -136,27 +142,21 @@ class DbiContextWidget(forms.FieldSet):
         ]
 
 
-class DbiQueryWidget(forms.FieldSet):
+
+class DbiQueryWidget(twd.HidingTableFieldSet):
     template = "genshi:vdbi.tw.rum.templates.querywidget"
     css_class = "rum-query-widget"
     fields = [
                  DbiContextWidget( "ctx", label_text=''),
                  QueryWidget( "xtr", label_text=''), 
+                 twd.HidingCheckBoxList('present', options=('Table', 'Plot' ), default=('Table',),
+                     mapping={
+                          'Plot': ['plt'],
+                     }),
                  PlotWidget("plt", label_text=''),
              ]
-  
-  
-  
-class DbiLogin(forms.TableForm):
-    method = "post"
-    submit_text = _("Login")
-    action = "%s"
-    fields = [
-        forms.TextField("username"),
-        forms.PasswordField("password"),
-    ]
-  
-   
+
+    
 from vdbi.rum.query import _vdbi_uncast       
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
@@ -172,6 +172,21 @@ class DbiQueryBuilder(forms.TableForm):
             value = _vdbi_uncast(value)
             #print "adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
         return value
+
+
+
+
+## used for scraping ... for static from outside app
+class DbiLogin(forms.TableForm):
+    method = "post"
+    submit_text = _("Login")
+    action = "%s"
+    fields = [
+        forms.TextField("username"),
+        forms.PasswordField("password"),
+    ]
+
+
 
 
 
