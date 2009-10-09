@@ -30,15 +30,24 @@ def is_vld_resource(resource):
     name = getattr( resource , '__name__' , None)
     return name and name.endswith('Vld')
 
+def is_dbi_resource(resource):
+    name = getattr( resource , '__name__' , None)
+    return name and name.endswith('Dbi')
+
+
 def get_default_x(resource):
     if is_vld_resource(resource):
         return PAY_COLUMNS['SEQNO']   ## *Vld have SEQ attr not VSEQ ... due to some special FK treatment
-    else:
+    elif is_dbi_resource(resource):
         return VLD_COLUMNS['TIMESTART'] 
+    else:
+        return PAY_COLUMNS['SEQNO']
     
 def get_default_y(resource):
     if is_vld_resource(resource):
         return VLD_COLUMNS['TIMESTART'] 
+    elif is_dbi_resource(resource):
+        return PAY_COLUMNS['ROW_COUNTER']
     else:
         return PAY_COLUMNS['ROW_COUNTER']
 
