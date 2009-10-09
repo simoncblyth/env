@@ -37,7 +37,7 @@ class DbiContextLinks(ContextLinks):
         routes=app.request.routes
         name = self._related_resource_name(resource)
         new_name=name[:1].upper()+name[1:]
-        return (name, _(new_name), app.url_for(resource=resource))
+        return (name, _(new_name), app.url_for(resource=resource, _memory=False))
     
     @gen_links.when("routes['resource'] is not None", prio=10 )
     def _gen_links_res(self, routes):

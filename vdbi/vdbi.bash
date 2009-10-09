@@ -22,6 +22,14 @@ vdbi-dir(){ echo $(env-home)/vdbi ; }
 vdbi-cd(){  cd $(vdbi-dir); }
 vdbi-mate(){ mate $(vdbi-dir) ; }
 
+vdbi-ipy(){
+   local msg="=== $FUNCNAME :"
+   rum-
+   cd /tmp
+   echo $msg activate rum env and start ipython from $PWD ... enter \"vdbi\" into ipython for debug running 
+   ipython 
+}
+
 vdbi-build(){
   rum-
   rum-build
