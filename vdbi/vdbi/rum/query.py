@@ -1,9 +1,6 @@
 
-try:
-    import IPython 
-    debug_here = IPython.Debugger.Tracer()
-except ValueError:
-    debug_here = lambda x:x
+
+from vdbi.dbg import debug_here
 
 
 

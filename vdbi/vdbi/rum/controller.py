@@ -4,9 +4,7 @@ from vdbi import dbi_default_plot
 from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
-
-import IPython ; debug_here = IPython.Debugger.Tracer()
-
+from vdbi.dbg import debug_here
 
 from formencode.validators import Int
 
@@ -24,7 +22,7 @@ class DbiCRUDController(CRUDController):
         query = self.repository.make_query(self.request.GET)
         
         query = self.app.policy.filter(resource, query)
-        debug_here()
+        #debug_here()
         if query:
             if self.get_format(self.routes) not in ('csv','json'):
                 if query.limit is None:
@@ -66,7 +64,7 @@ class DbiCRUDController(CRUDController):
 
         q = output['query']
         v = q.as_dict_for_widgets()
-        debug_here()
+        #debug_here()
         
         print "v %s " % repr(v)
         if 'q' in v and 'plt' in v['q']:       
