@@ -85,16 +85,24 @@ class PlotSeriesWidget(forms.FieldSet):
 
 ##  forms.SingleSelectField("a",options=[("table", _("Table")), ("plot", _("Plot")), ("both", _("Plot+Table"))]),
 
+
+
+class PlotParametersWidget(forms.TableFieldSet):
+    css_class = "rum-query-widget"
+    fields = [
+         forms.TextField("limit", default=1000 , size=5, label_text="Plot Limit" ),
+         forms.TextField("offset", default=0 , size=5, label_text="Offset" ),
+             ]
+
+
 class PlotWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.plotwidget"
     css_class = "rum-query-widget"
     fields = [
-        forms.TextField("limit"),
-        forms.TextField("offset"),
+        PlotParametersWidget("param"),
         DbiJSRepeater("c", widget=PlotSeriesWidget(), extra=0,add_text=_("Add plot series"), remove_text=_("Remove")),
         forms.HiddenField("o", default="plt_" ), 
         ]
-
 
 
 ##class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):

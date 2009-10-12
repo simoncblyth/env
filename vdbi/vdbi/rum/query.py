@@ -154,6 +154,11 @@ def _unget_present(p):
     elif len(p) > 1:return p
     elif len(p) == 0:return None    
 
+def _get_plotparam(d):
+    return d.get('q',{}).get('plt',{}).get('param',{})
+    
+
+
 def _vdbi_recast(d):
     """  
          recast the dict into the oldform without the ctx and xtr nodes 
@@ -169,8 +174,11 @@ def _vdbi_recast(d):
     ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
     if not('plt' in d['q']):
         d['q']['plt'] = {}
-    d['q']['plt']['a'] =  _get_present(d)
+    if not('a' in d['q']['plt']):
+        d['q']['plt']['a'] = {} 
+    d['q']['plt']['a'].update({ 'present' : _get_present(d) , 'param':_get_plotparam(d) })
     
+
     for br in ('ctx','xtr','plt'):
         if br in d['q'] and 'c' in d['q'][br]:c.append( d['q'][br] )
     
@@ -216,11 +224,18 @@ def _vdbi_uncast(d):
                 print "_vdbi_uncast unsupported dict layout %s  " % (repr(d))
           
         ## untuck the present from its hiding place inside the plt
-        if 'plt' in brs and 'a' in brs['plt']:
-            present = _unget_present( brs['plt']['a'] )
-            if present:
-                brs.update( {'present':present })
-            del brs['plt']['a']
+        if 'plt' in brs and 'a' in brs['plt']: 
+            if 'present' in brs['plt']['a']:
+                present = _unget_present( brs['plt']['a']['present'] )
+                if present:
+                    brs.update( {'present':present })
+                #del brs['plt']['a']['present']
+            if 'param' in brs['plt']['a']:
+                param = brs['plt']['a'].get('param', None)
+                if param:
+                    brs['plt']['param'] = param
+                    #del brs['plt']['a']['param']
+                
         #print "_vdbi_uncast %s ... return %s " % (repr(d), repr(r))        
         return { 'q':brs  }
     else:
@@ -255,7 +270,7 @@ Query.from_dict = classmethod(_vdbi_query_from_dict)
 
 def show_smth(self, smth="Plot", default=False ):
     present = self.present_list()
-    if not(present):return False
+    if not(present):return default
     if len(present) == 0:return default
     return smth in present
     
@@ -263,11 +278,16 @@ def present_list(self):
     ud = self.as_dict_for_widgets()
     return _get_present( ud )
     
+def plotparam(self):
+    ud = self.as_dict_for_widgets()
+    return _get_plotparam( ud )
+    
+    
 Query.show_smth = show_smth
 Query.show_plot = lambda self:self.show_smth("Plot", False)
 Query.show_table = lambda self:self.show_smth("Table", True)
 Query.present_list = present_list
-
+Query.plotparam = plotparam
 
 
 
@@ -492,26 +512,7 @@ def test_with_plt():
     
 
 
-#def test_with_present():
-    
- 
-    
-
-
-
-if __name__=='__main__':
-
-    #test_ctx0_as_dict()  
-    #test_ctx1_as_dict()  
-    #test_ctx0_from_dict()
-    
-    #test_ctx_layout()
-    #test_ctx_req2q()
-    #test_cast()
-    
-    #test_ctx_only()
-    #test_new_layout_with_xtr_mark()
-    #test_with_plt()
+def test_with_present():
     
     from webob import Request, UnicodeMultiDict
     raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-09+18%3A22%3A45&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=VSTART&q.xtr.c-0.o=eq&q.xtr.c-0.a=&q.present=Plot&q.present=Table&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
@@ -532,15 +533,34 @@ if __name__=='__main__':
                                  'c': [{'a': u'', 'c': u'VSTART', 'o': u'eq'}],
                                  'o': u'and'}}}
     
-    
     q = Query.from_dict( req )  
     qad = q.as_dict()
     uqad = _vdbi_uncast( qad )
+    assert uqad == d 
     
+
+
+
+if __name__=='__main__':
+
+    #test_ctx0_as_dict()  
+    #test_ctx1_as_dict()  
+    #test_ctx0_from_dict()
     
+    #test_ctx_layout()
+    #test_ctx_req2q()
+    #test_cast()
     
-    raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+11%3A46%3A06&q.xtr.a=xtr_&q.xtr.o=and&q.present=Plot&q.plt.limit=&q.plt.offset=&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
+    #test_ctx_only()
+    #test_new_layout_with_xtr_mark()
+    #test_with_plt()
     
+    from webob import Request, UnicodeMultiDict    
+    #raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+11%3A46%3A06&q.xtr.a=xtr_&q.xtr.o=and&q.present=Plot&q.plt.limit=&q.plt.offset=&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
+    #raw = Request.blank("http://localhost:6060/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+16%3A48%3A39&q.xtr.a=xtr_&q.xtr.o=and&q.present=Table&q.present=Plot&q.plt.param.limit=1000&q.plt.param.offset=0&q.plt.o=plt_&q.plt.c-0.y=GFWHM&q.plt.c-0.x=ROW&q.plt.c-1.y=GAIN&q.plt.c-1.x=ROW")
+    raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+17%3A18%3A43&q.xtr.a=xtr_&q.xtr.o=and&q.present=Table&q.present=Plot&q.plt.param.limit=1000&q.plt.param.offset=0&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
+    req = UnicodeMultiDict( raw.GET )
+    q = Query.from_dict( req )  
     
     
     
