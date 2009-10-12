@@ -5,7 +5,7 @@ from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
 
-
+import IPython ; debug_here = IPython.Debugger.Tracer()
 
 
 

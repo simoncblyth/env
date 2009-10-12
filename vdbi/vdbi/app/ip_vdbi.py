@@ -21,7 +21,10 @@ def ip_vdbi(self, arg):
     path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "vdbiapp.py" ) )
     os.chdir("/tmp")    ## avoid env shadowing 
     ip = self.api
-    ip.magic("run -d %s" % path )
+    cmd = "run -d %s" % path
+    
+    print "ip_vdbi : \"%s\" " % cmd
+    ip.magic( cmd )
 
 
 

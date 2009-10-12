@@ -1,6 +1,12 @@
 
 from setuptools import setup, find_packages
 
+#
+#   REMEMBER ... for version changes here to take effect you MUST rerun : 
+#       cd ~/e/vdbi ; python setup.py develop
+#   which propagates the change into the egg-info
+#
+
 setup(
     name='vdbi',
     version="0.1",
@@ -9,9 +15,9 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "rum==0.3dev-20090916", 
+        "rum", 
         "RumAlchemy==0.3dev-20090708", 
-        "tw.rum==0.3dev-20090717",
+        "tw.rum",
         "tw.dynforms",
         "ConfigObj",
         "ipython",
