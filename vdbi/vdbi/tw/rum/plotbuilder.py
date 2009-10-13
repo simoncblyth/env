@@ -4,6 +4,7 @@ from vdbi import VLD_TIMEATTS
 from vdbi import dbi_default_plot
 from rum.query import Query
 
+from rum import exceptions
 from formencode.validators import Int
 
 from tw.api import JSLink, js_function,  js_callback
@@ -153,16 +154,10 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         else:
             v = d['value']
   
-        if 'width' in plotparam:
-            width = Int(min=300).to_python(plotparam['width'])
-        else:
-            width = 600
-         
-        if 'height' in plotparam:
-            height = Int(min=300).to_python(plotparam['height'])
-        else:
-            height = 300 
-         
+        from vdbi.tw.rum.param import width as width_, height as height_
+        width = width_(plotparam.get('width',None))
+        height = height_(plotparam.get('height',None))                 
+                 
         d['width'] = '%spx' % width
         d['height'] = '%spx' % height
         

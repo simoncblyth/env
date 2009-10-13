@@ -1,12 +1,7 @@
 from tw.api import lazystring as _
 from tw import forms
 from tw.forms.validators import UnicodeString, Int, NotEmpty
-
-
-
-## for Hiding 
 import tw.dynforms as twd
-
 
 from rum import app, fields
 from rum.query import Query
@@ -14,8 +9,8 @@ from rum.query import Query
 from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
 from vdbi.dbg import debug_here
-
 from vdbi import get_default_x, get_default_y
+from vdbi.tw.rum.param import offset, limit, width, height
 
 
 def get_fields():
@@ -88,13 +83,18 @@ class PlotSeriesWidget(forms.FieldSet):
 
 
 
+
+
+ 
+
+
 class PlotParametersWidget(forms.TableFieldSet):
     css_class = "rum-query-widget"
     fields = [
-         forms.TextField("limit", default=500 , size=5, label_text="Maximum Entries" , validator=Int(not_empty=True,min=1,max=1000)),
-         forms.TextField("offset", default=0 , size=5, label_text="Entry Offset" , validator=Int(not_empty=True,min=0)),
-         forms.TextField("width", default=600 , size=5, label_text="Pixel Width" , validator=Int(not_empty=True,min=300,max=1000)),
-         forms.TextField("height", default=400 , size=5, label_text="Pixel Height" , validator=Int(not_empty=True,min=300,max=1000)),
+         forms.TextField("limit", **limit ),
+         forms.TextField("offset", **offset ),
+         forms.TextField("width",  **width ),
+         forms.TextField("height", **height ),
              ]
 
 

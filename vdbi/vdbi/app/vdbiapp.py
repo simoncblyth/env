@@ -1,6 +1,11 @@
 #from __future__ import with_statement  ## not available in 2.4
 #from vdbi.dbg import debug_here
 
+import logging
+log = logging.getLogger(__name__)
+
+
+
 def handle_log( name , logdir ):
     import logging
     import logging.handlers
@@ -14,7 +19,10 @@ def handle_log( name , logdir ):
 
 def setup_logging(logdir):
     import logging
-    logc = { 'rum.basefactory':logging.INFO , 'vdbi.rum.query':logging.DEBUG , 'vdbi.rumalchemy.repository':logging.DEBUG }
+    logc = { 'rum.basefactory':logging.INFO , 
+             'vdbi.rum.controller':logging.DEBUG,
+             'vdbi.rum.query':logging.DEBUG ,
+             'vdbi.rumalchemy.repository':logging.DEBUG }
     #logc.update(**kw)
     #logging.basicConfig()
     for name,levl  in logc.items():
@@ -98,14 +106,14 @@ def field_fix( app ):
     
     from rum.fields import Relation
     for cls in app.resources.keys():
-        print "field_fix for cls : %s " % cls
+        log.debug("field_fix for cls : %s " % cls)
         for f in app.fields_for_resource( cls ):
             f.searchable = not(issubclass(f.__class__, Relation)) 
             f.read_only = True
             f.auto = False           ## succeeds to get ROW_COUNTER to appear on payload tables and SEQNO to appear on Vld tables 
             f.label = f.name   
             f.plotable = not(issubclass(f.__class__, Relation)) 
-            print f, "plotable:", f.plotable
+            #print f, "plotable:", f.plotable
 
 
 def serve_app(**kwa):

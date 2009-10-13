@@ -5,6 +5,7 @@ from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
 from vdbi.dbg import debug_here
+from vdbi.tw.rum.param import limit as limit_, offset as offset_
 
 from formencode.validators import Int
 
@@ -26,10 +27,10 @@ class DbiCRUDController(CRUDController):
 #        input_methods = ('DELETE', 'POST', 'PUT', 'GET',)   ## add GET for index validation 
 #        return [action for action,method in self.routeable_actions.iteritems()
 #                if method.upper() in input_methods]
-    
-    def __init__(self, error_handlers=None):
-        super(DbiCRUDController, self).__init__(error_handlers)
-        self.error_handlers.update( { 'index':'index'} )
+#    
+#    def __init__(self, error_handlers=None):
+#        super(DbiCRUDController, self).__init__(error_handlers)
+#        self.error_handlers.update( { 'index':'index'} )
     
     @handle_exception.when((exceptions.Invalid,))
     def _handle_validation_errors(self, e, routes):
@@ -63,26 +64,13 @@ class DbiCRUDController(CRUDController):
                         _(u"Too many results per page requested")
                         ).exception
             else:
+                limit = offset = None
                 plotparam = query.plotparam()
-                if 'limit' in plotparam:
-                    try:
-                        limit = Int(min=0).to_python(plotparam['limit'])
-                    except exceptions.Invalid:
-                        limit = None
-                else:
-                    limit = None
-                    
-                if 'offset' in plotparam:
-                    try:
-                        offset = Int(min=0).to_python(plotparam['offset'])
-                    except exceptions.Invalid:
-                        offset = None
-                else:
-                    offset = None
-                    
+                offset = offset_(plotparam.get('offset',None))
+                limit  = limit_(plotparam.get('limit',None))
                 if limit or offset:
                     query = query.clone( limit=limit, offset=offset )
-                    print "applying plot limit/offset to query %s" % `query`
+                    log.debug("applying plot limit/offset to query %s" % `query` )
                 
         items = self.repository.select(query)
         return {
@@ -94,13 +82,12 @@ class DbiCRUDController(CRUDController):
     
     @process_output.when("isinstance(output,dict) and self.get_format(routes) == 'json'", prio=10)
     def _process_dict_as_json(self, output, routes):
-        print "vdbi.rum.controller:process_output %s " % repr(output)
+        #print "vdbi.rum.controller:process_output %s " % repr(output)
 
         q = output['query']
         v = q.as_dict_for_widgets()
         #debug_here()
-        
-        print "v %s " % repr(v)
+        #print "v %s " % `v`
         if 'q' in v and 'plt' in v['q']:       
              sdc = v['q']['plt']['c']
         else:
@@ -135,7 +122,7 @@ class DbiCRUDController(CRUDController):
 
 def register_crud_controller():
     for resource in app.resources.keys():
-        print "register_crud_controller for %s" % resource
+        #print "register_crud_controller for %s" % resource
         ControllerFactory.register(DbiCRUDController, resource )
 
 
