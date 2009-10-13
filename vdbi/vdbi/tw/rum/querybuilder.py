@@ -10,7 +10,7 @@ from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
 from vdbi.dbg import debug_here
 from vdbi import get_default_x, get_default_y
-from vdbi.tw.rum.param import offset, limit, width, height, present
+from vdbi.rum.param import offset, limit, width, height, present
 
 
 def get_fields():

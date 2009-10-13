@@ -154,7 +154,7 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         else:
             v = d['value']
   
-        from vdbi.tw.rum.param import width as width_, height as height_, offset as offset_, limit as limit_
+        from vdbi.rum.param import width as width_, height as height_, offset as offset_, limit as limit_
         width = width_(plotparam.get('width',None))
         height = height_(plotparam.get('height',None))                 
         offset = offset_(plotparam.get('offset',None))

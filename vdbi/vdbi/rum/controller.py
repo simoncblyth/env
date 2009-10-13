@@ -5,7 +5,7 @@ from rum import app
 from rum.controller import ControllerFactory, CRUDController, process_output  #, resource_action, N_
 
 from vdbi.dbg import debug_here
-from vdbi.tw.rum.param import limit as limit_, offset as offset_
+from vdbi.rum.param import limit as limit_, offset as offset_
 
 from formencode.validators import Int
 
