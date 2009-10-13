@@ -43,7 +43,7 @@ class DbiJSRepeater(JSRepeater):
             add_link_id = d.add_link_id,
             first_id = first_id,
             first_name = first_name,
-            max_repetitions = 1000,
+            max_repetitions = 9,    ## jqplot has limit of 9 ... which is more that enough for xtr and ctx repeaters
             max_error_text = unicode(d.max_error_text),
             error_class = d.error_class,
             )

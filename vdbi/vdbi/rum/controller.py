@@ -13,7 +13,34 @@ from rum.router import resource_action
 from rum import exceptions, app, fields, util, _, N_
 from rum.controller import formats
 
+from rum.controller import handle_exception
+
+import logging
+log = logging.getLogger(__name__)
+
 class DbiCRUDController(CRUDController):
+    
+    
+#    @property
+#    def input_actions(self):
+#        input_methods = ('DELETE', 'POST', 'PUT', 'GET',)   ## add GET for index validation 
+#        return [action for action,method in self.routeable_actions.iteritems()
+#                if method.upper() in input_methods]
+    
+    def __init__(self, error_handlers=None):
+        super(DbiCRUDController, self).__init__(error_handlers)
+        self.error_handlers.update( { 'index':'index'} )
+    
+    @handle_exception.when((exceptions.Invalid,))
+    def _handle_validation_errors(self, e, routes):
+        self.validation_errors = e
+        self.response.status_int = 400
+        self.flash(_(u"Form has errors. Please correct"), status="alert")
+        log.debug("Validation failed: %s", e)
+        form_action = getattr(self, 'form_action', 'index')
+        debug_here()
+        return self.forward(form_action)
+    
     
     N_('index')
     @formats('html', 'json', 'csv')
@@ -38,11 +65,18 @@ class DbiCRUDController(CRUDController):
             else:
                 plotparam = query.plotparam()
                 if 'limit' in plotparam:
-                    limit = Int(min=0).to_python(plotparam['limit'])
+                    try:
+                        limit = Int(min=0).to_python(plotparam['limit'])
+                    except exceptions.Invalid:
+                        limit = None
                 else:
                     limit = None
+                    
                 if 'offset' in plotparam:
-                    offset = Int(min=0).to_python(plotparam['offset'])
+                    try:
+                        offset = Int(min=0).to_python(plotparam['offset'])
+                    except exceptions.Invalid:
+                        offset = None
                 else:
                     offset = None
                     

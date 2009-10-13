@@ -1,7 +1,8 @@
 from tw.api import lazystring as _
 from tw import forms
-from tw.forms.validators import UnicodeString
-from tw.forms.validators import Int
+from tw.forms.validators import UnicodeString, Int, NotEmpty
+
+
 
 ## for Hiding 
 import tw.dynforms as twd
@@ -90,10 +91,10 @@ class PlotSeriesWidget(forms.FieldSet):
 class PlotParametersWidget(forms.TableFieldSet):
     css_class = "rum-query-widget"
     fields = [
-         forms.TextField("limit", default=500 , size=5, label_text="Maximum Entries" ),
-         forms.TextField("offset", default=0 , size=5, label_text="Entry Offset" ),
-         forms.TextField("width", default=600 , size=5, label_text="Pixel Width" ),
-         forms.TextField("height", default=400 , size=5, label_text="Pixel Height" ),
+         forms.TextField("limit", default=500 , size=5, label_text="Maximum Entries" , validator=Int(not_empty=True,min=1,max=1000)),
+         forms.TextField("offset", default=0 , size=5, label_text="Entry Offset" , validator=Int(not_empty=True,min=0)),
+         forms.TextField("width", default=600 , size=5, label_text="Pixel Width" , validator=Int(not_empty=True,min=300,max=1000)),
+         forms.TextField("height", default=400 , size=5, label_text="Pixel Height" , validator=Int(not_empty=True,min=300,max=1000)),
              ]
 
 
@@ -136,10 +137,10 @@ class DbiExpressionWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.expression"
     css_class = "rum-querybuilder-expression"
     fields =  [
-           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['_default']['SimFlag'], validator=Int() ),   
-           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['_default']['Site']   , validator=Int() ),
-           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['_default']['DetectorId'] , validator=Int() ),
-           DbiCalendarDateTimePicker('Timestamp'),
+           forms.SingleSelectField('SimFlag', options=ctx.options('SimFlag'), default=ctx['_default']['SimFlag'], validator=Int(min=0) ),   
+           forms.SingleSelectField('Site', options=ctx.options('Site') , default=ctx['_default']['Site']   , validator=Int(min=0) ),
+           forms.SingleSelectField('DetectorId' , options=ctx.options('DetectorId') , default=ctx['_default']['DetectorId'] , validator=Int(min=0) ),
+           DbiCalendarDateTimePicker('Timestamp', validator=NotEmpty),
         ]
 
 
