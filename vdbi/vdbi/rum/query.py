@@ -12,6 +12,10 @@ from formencode.validators import Int, Invalid
 from vdbi.dbg import debug_here
 from vdbi.dyb import ctx
 
+
+from vdbi.tw.rum.param import present as present_
+
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -265,7 +269,8 @@ def _vdbi_query_from_dict(cls, od):
 Query.from_dict = classmethod(_vdbi_query_from_dict)
 
 
-def show_smth(self, smth="Plot", default=False ):
+def show_smth(self, smth="Plot" ):
+    default = present_.get_default(smth)
     present = self.present_list()
     if not(present):return default
     if len(present) == 0:return default
@@ -281,8 +286,9 @@ def plotparam(self):
     
     
 Query.show_smth = show_smth
-Query.show_plot = lambda self:self.show_smth("Plot", False)
-Query.show_table = lambda self:self.show_smth("Table", True)
+Query.show_plot = lambda self:self.show_smth("Plot")
+Query.show_table = lambda self:self.show_smth("Table")
+Query.show_summary = lambda self:self.show_smth("Summary")
 Query.present_list = present_list
 Query.plotparam = plotparam
 

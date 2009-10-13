@@ -17,12 +17,12 @@
       <a href="${url_for(obj=parent_obj, _memory=False)}" py:if="parent_obj" class="rum-related-title"
               py:content="_(u'Related to %(parent_obj)s') % {'parent_obj':parent_obj}" />
 
-      <form py:if="'querybuilder' in widgets"                  py:replace="widgets['querybuilder'](query)" />
-    
-	  <div py:if="'plotview' in widgets and query.show_plot()" py:replace="widgets['plotview'](query)" />
+      <form py:if="'querybuilder' in widgets"                   py:replace="widgets['querybuilder'](query)" />
+      <div py:if="'summary' in widgets and query.show_summary()"  py:replace="widgets['summary'](query)" />
+	  <div py:if="'plotview' in widgets and query.show_plot()"  py:replace="widgets['plotview'](query)" />
      
-      <div py:if="'paginator' in widgets"                      py:replace="widgets['paginator'](query)" />
-      <div py:if="query.show_table()"                          py:replace="view(items,query=query)" />
+      <div py:if="'paginator' in widgets and query.show_table()"  py:replace="widgets['paginator'](query)" />
+      <div py:if="query.show_table()"                             py:replace="view(items,query=query)" />
 
       <div py:if="'jsonlink' in widgets"                       py:replace="widgets['jsonlink'](query)" />	
       <div py:if="'csvlink' in widgets"                        py:replace="widgets['csvlink'](query=query)" />

@@ -1,6 +1,6 @@
 
 from rum import exceptions
-from tw.forms.validators import UnicodeString, Int, NotEmpty
+from formencode.validators import UnicodeString, Int, NotEmpty 
 import logging
 log = logging.getLogger(__name__)
 
@@ -46,3 +46,18 @@ height = Param({
      'label_text':"Pixel Height [300:1000]",
 })  
 
+
+
+class Choice(dict):
+    def get_default(self, name):
+        return name in self['default']    
+        
+present = Choice({
+   'options':('Summary','Table', 'Plot' ), 
+   'default':('Summary',), 
+   'label_text':'', 
+      'mapping':{
+             'Plot': ['plt'],
+        }
+})
+        

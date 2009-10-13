@@ -10,7 +10,7 @@ from vdbi.tw.rum.repeater import DbiJSRepeater
 from tw.rum import widgets
 from vdbi.dbg import debug_here
 from vdbi import get_default_x, get_default_y
-from vdbi.tw.rum.param import offset, limit, width, height
+from vdbi.tw.rum.param import offset, limit, width, height, present
 
 
 def get_fields():
@@ -164,10 +164,7 @@ class DbiQueryWidget(twd.HidingTableFieldSet):
     fields = [
                  DbiContextWidget( "ctx", label_text=''),
                  QueryWidget( "xtr", label_text=''), 
-                 twd.HidingCheckBoxList('present', options=('Table', 'Plot' ), default=('Table',),
-                     mapping={
-                          'Plot': ['plt'],
-                     }),
+                 twd.HidingCheckBoxList('present', **present ),
                  PlotWidget("plt", label_text=''),
              ]
 
@@ -176,7 +173,7 @@ from vdbi.rum.query import _vdbi_uncast
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
-    submit_text = _("Filter DBI records")
+    submit_text = _("UPDATE")
     fields = [
           DbiQueryWidget("q", label_text=''), 
         ]
