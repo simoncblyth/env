@@ -4,6 +4,8 @@ from vdbi import VLD_TIMEATTS
 from vdbi import dbi_default_plot
 from rum.query import Query
 
+from formencode.validators import Int
+
 from tw.api import JSLink, js_function,  js_callback
 from tw.api import Widget
 
@@ -128,6 +130,7 @@ class JSONLink(Widget):
 
 class DbiPlotView(DbiAsynchronousJQPlotWidget):
 
+    template = "genshi:vdbi.tw.jquery.templates.jqplot"
     def __init__(self):
         super(DbiPlotView, self).__init__("jqplotLabel")
 
@@ -141,12 +144,28 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         d['id'] = "plotid"
         d['src_url'] = json_url( d )
      
+        #debug_here()
+        plotparam = {}
         if isinstance(d['value'], Query):
             q = d['value']
+            plotparam = q.plotparam()
             v = self.adapt_value_custom( q )
         else:
             v = d['value']
- 
+  
+        if 'width' in plotparam:
+            width = Int(min=300).to_python(plotparam['width'])
+        else:
+            width = 600
+         
+        if 'height' in plotparam:
+            height = Int(min=300).to_python(plotparam['height'])
+        else:
+            height = 300 
+         
+        d['width'] = '%spx' % width
+        d['height'] = '%spx' % height
+        
         opts = {
              'legend':{ 'show':True }, 
              'cursor':{ 'zoom':True, 'showTooltip':False },
@@ -158,7 +177,6 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         ytime = True
         series = []
  
-
         if 'q' in v and 'plt' in v['q']:       
             sdc = v['q']['plt']['c']
         else:

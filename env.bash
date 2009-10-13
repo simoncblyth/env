@@ -772,3 +772,4 @@ svcfp-(){      . $(env-home)/base/svcfp.bash && svcfp-env $* ; }
 pldep-(){      . $(env-home)/pl/pldep.bash && pldep-env $* ; }
 plbook-(){      . $(env-home)/pl/plbook.bash && plbook-env $* ; }
 ini-(){      . $(env-home)/base/ini.bash && ini-env $* ; }
+jqplot-(){      . $(env-home)/jqplot/jqplot.bash && jqplot-env $* ; }

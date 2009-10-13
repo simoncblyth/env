@@ -90,8 +90,10 @@ class PlotSeriesWidget(forms.FieldSet):
 class PlotParametersWidget(forms.TableFieldSet):
     css_class = "rum-query-widget"
     fields = [
-         forms.TextField("limit", default=1000 , size=5, label_text="Plot Limit" ),
-         forms.TextField("offset", default=0 , size=5, label_text="Offset" ),
+         forms.TextField("limit", default=500 , size=5, label_text="Maximum Entries" ),
+         forms.TextField("offset", default=0 , size=5, label_text="Entry Offset" ),
+         forms.TextField("width", default=600 , size=5, label_text="Pixel Width" ),
+         forms.TextField("height", default=400 , size=5, label_text="Pixel Height" ),
              ]
 
 
@@ -99,7 +101,7 @@ class PlotWidget(forms.FieldSet):
     template = "genshi:vdbi.tw.rum.templates.plotwidget"
     css_class = "rum-query-widget"
     fields = [
-        PlotParametersWidget("param"),
+        PlotParametersWidget("param", legend="Plot Parameters"),
         DbiJSRepeater("c", widget=PlotSeriesWidget(), extra=0,add_text=_("Add plot series"), remove_text=_("Remove")),
         forms.HiddenField("o", default="plt_" ), 
         ]
