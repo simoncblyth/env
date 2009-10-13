@@ -154,14 +154,17 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         else:
             v = d['value']
   
-        from vdbi.tw.rum.param import width as width_, height as height_
+        from vdbi.tw.rum.param import width as width_, height as height_, offset as offset_, limit as limit_
         width = width_(plotparam.get('width',None))
         height = height_(plotparam.get('height',None))                 
-                 
+        offset = offset_(plotparam.get('offset',None))
+        limit  = limit_(plotparam.get('limit',None))
+                     
         d['width'] = '%spx' % width
         d['height'] = '%spx' % height
         
         opts = {
+             'title':"Limit:%s Offset:%s " % ( limit, offset ),
              'legend':{ 'show':True }, 
              'cursor':{ 'zoom':True, 'showTooltip':False },
                 'axes':{},

@@ -22,27 +22,27 @@ limit = Param({
     'validator':Int(not_empty=True,min=1,max=1000),
     'default':500 ,
     'size':5,
-    'label_text':"Maximum Entries",
+    'label_text':"Entries Limit [1:1000]",
 })
             
 offset = Param({
     'validator':Int(not_empty=True,min=0),
     'default':0,
     'size':5,
-    'label_text':"Entry Offset",
+    'label_text':"Entry Offset [>=0]",
 })    
     
 width = Param({
      'validator':Int(not_empty=True,min=300,max=1000),
      'default':600,
      'size':5,
-     'label_text':"Pixel Width",
+     'label_text':"Pixel Width [300:1000]",
 })
   
 height = Param({
      'validator':Int(not_empty=True,min=300,max=1000),
      'default':400,
      'size':5,
-     'label_text':"Pixel Height",
+     'label_text':"Pixel Height [300:1000]",
 })  
 
