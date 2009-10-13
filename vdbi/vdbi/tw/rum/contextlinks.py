@@ -24,6 +24,7 @@ def dbi_related_resources(resource, dbi_or_vld=False):
 
 
 class DbiContextLinks(ContextLinks):
+    template="genshi:vdbi.tw.rum.templates.context_links"
     """
           Overrides to 
              * omit the new_link_tuple

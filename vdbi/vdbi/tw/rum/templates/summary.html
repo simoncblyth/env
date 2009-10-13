@@ -1,7 +1,15 @@
 <div xmlns="http://www.w3.org/1999/xhtml"
 	 xmlns:py="http://genshi.edgewall.org/"
- 	 class="${css_class}" id="${id}">
+ 	 class="${css_class}" id="${id}" style="margin-top:20px;margin-bottom:10px;" >
 	<span class="rum-paginator-legend">
 		${_('Query yields total of %(count)d records.') % dict(count=count)}
 	</span>
+	
+	Download :
+	<a xmlns="http://www.w3.org/1999/xhtml"
+		  xmlns:py="http://genshi.edgewall.org/" href="${json}" class="csv-link">${_(' .json')}</a>
+		
+	<a xmlns="http://www.w3.org/1999/xhtml"
+		  xmlns:py="http://genshi.edgewall.org/" href="${csv}" class="csv-link">${_(' .csv')}</a>
+		
 </div>

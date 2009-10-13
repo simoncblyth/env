@@ -15,7 +15,7 @@ from tw.jquery.jqplot import AsynchronousJQPlotWidget, jqp_cursor_js, jqp_dateAx
 
 
 import vdbi.rum.controller   ## use specialized process_output for json plot data 
-
+from vdbi.rum.urls import json_url
 
 
 
@@ -101,24 +101,6 @@ from vdbi.rum.query import _vdbi_uncast
 
 
 
-def json_url(d):
-    """ based on CSVLink.update_params 
-        replacing    req.host_url + req.path_info + ".json?" + req.query_string   ## http://pythonpaste.org/webob/reference.html  
-    
-     """
-    routes=app.request.routes
-    kwds=dict()
-    kwds["format"]="json"
-    if routes['resource'] is not None:
-        kwds["resource"]=routes['resource']
-    if isinstance(d['value'], Query):
-        q = d['value']
-        nq = q.clone(limit=None, offset=None)
-        kwds.update(nq.as_flat_dict())
-    else:
-        print "json_url no q %s " % repr(d)
-    url = app.url_for(**kwds)
-    return url
 
 
 

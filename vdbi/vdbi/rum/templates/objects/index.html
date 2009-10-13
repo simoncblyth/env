@@ -24,8 +24,8 @@
       <div py:if="'paginator' in widgets and query.show_table()"  py:replace="widgets['paginator'](query)" />
       <div py:if="query.show_table()"                             py:replace="view(items,query=query)" />
 
-      <div py:if="'jsonlink' in widgets"                       py:replace="widgets['jsonlink'](query)" />	
-      <div py:if="'csvlink' in widgets"                        py:replace="widgets['csvlink'](query=query)" />
+      <!--div py:if="'jsonlink' in widgets"                       py:replace="widgets['jsonlink'](query)" /-->	
+      <!--div py:if="'csvlink' in widgets"                        py:replace="widgets['csvlink'](query=query)" /-->
       <div py:if="'context_links' in widgets"                  py:replace="widgets['context_links']()" />
 
     </div>
