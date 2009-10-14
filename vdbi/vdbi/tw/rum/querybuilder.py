@@ -169,7 +169,7 @@ class DbiQueryWidget(twd.HidingTableFieldSet):
              ]
 
     
-from vdbi.rum.query import _vdbi_uncast       
+from vdbi.rum.query import _vdbi_widget       
 class DbiQueryBuilder(forms.TableForm):
     method = "get"
     css_class = "rum-query-builder"
@@ -180,8 +180,7 @@ class DbiQueryBuilder(forms.TableForm):
 
     def adapt_value(self, value):
         if isinstance(value, Query):
-            value = value.as_dict()
-            value = _vdbi_uncast(value)
+            value = _vdbi_widget(value.as_dict())
             print "adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
         return value
 

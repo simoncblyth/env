@@ -1,6 +1,7 @@
 import logging
 log = logging.getLogger(__name__)
 
+from rum import app
 from rum.query import *
 from rum.query import _sort
 from formencode import variabledecode
@@ -9,7 +10,7 @@ from formencode.validators import Int, Invalid
 from vdbi.dbg import debug_here
 from vdbi.dyb import ctx
 from vdbi.rum.param import present as present_
-
+from vdbi import dbi_default_plot
 
 class ctx_(Expression):
     """
@@ -126,13 +127,16 @@ def _vdbi_expression_from_dict(cls, d):
 Expression.from_dict = classmethod(_vdbi_expression_from_dict)
 
 
+
+## these need the widget dict layout ... 
+
 def _get_present(d):
     """
         CheckBoxList yields either a value or a list ... 
         regularize that to a list
     """
     if not('q' in d):return None
-    present = d['q'].get('present',[])
+    present = d['q'].get('present',[]) 
     if type(present) != list:present=[present]
     return present
 
@@ -144,15 +148,13 @@ def _unget_present(p):
     elif len(p) > 1:return p
     elif len(p) == 0:return None    
 
-def _get_plotparam(d):
-    return d.get('q',{}).get('plt',{}).get('param',{})
-    
+_get_plotparam = lambda d:d.get('q',{}).get('plt',{}).get('param',{})
 
 
-def _vdbi_comps(d):
-    c = []
-    if not 'q' in d:return c
-    ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
+
+
+
+def _default_plt(d):
     if not('plt' in d['q']):
         d['q']['plt'] = {}
         
@@ -160,8 +162,16 @@ def _vdbi_comps(d):
     ## that acts as a trojan horse to hold the parameters inside the query     
     if not('a' in d['q']['plt']):d['q']['plt']['a'] = {} 
     if not('c' in d['q']['plt']):d['q']['plt']['c'] = [] 
-    if not('o' in d['q']['plt']):d['q']['plt']['o'] = u"plt_" 
-           
+    if not('o' in d['q']['plt']):d['q']['plt']['o'] = u"plt_"
+
+
+def _vdbi_comps(d):
+    c = []
+    if not 'q' in d:return c
+    ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
+    _default_plt(d)
+          
+    ## CONFUSING ..WHAT IS PLT DEFAULTING DOING HERE ?        
     d['q']['plt']['a'].update({ 'present' : _get_present(d) , 'param':_get_plotparam(d) })
     
     ## ctx and xtr are expression based ... they need to have a "c" if they are non-empty
@@ -174,10 +184,10 @@ def _vdbi_comps(d):
     return c
 
 
-def _vdbi_recast(d):
+def _vdbi_expression(d):
     """  
-         recast the dict into the oldform without the ctx and xtr nodes 
-         despite the new widget layout  
+         convert widget dict into expression dict 
+         (corresponding to the Rum original widget layout)
          
          cannot fake thinks to retain a consistent structure as the 
          fakes will appear in the interface ... so have to detect the 
@@ -192,23 +202,16 @@ def _vdbi_recast(d):
         return d
     
     
-def _vdbi_uncast(d):
-    """ 
-        Note :
-           * planted a hidden field in "a" slot with value "xtr_"  for the extras
-             to avoid divination 
-       
-         convert back to the form needed by the widgets 
-         replacing the ctx and xtr nodes
+def _vdbi_widget(d):
+    """     
+         convert expression dict (eg that returned from q.as_dict()) 
+         into widget dict putting back the ctx/xtr/plt nodes
          
     """
-    if d and 'q' in d:    ## identify only xtr or only ctx queries
-        if d['q'].get('a', None) and d['q']['a'] == "xtr_":
-            lab = "xtr"
-        elif d['q'].get('o', None) and d['q']['o'] == "ctx_":
-            lab = "ctx"
-        elif d['q'].get('o', None) and d['q']['o'] == "plt_":
-            lab = "plt"
+    if d and 'q' in d:    ## identify single branch queries : only xtr/ctx/plt 
+        if   d['q'].get('a', None) == "xtr_":lab = "xtr"
+        elif d['q'].get('o', None) == "ctx_":lab = "ctx"
+        elif d['q'].get('o', None) == "plt_":lab = "plt"
         else:
             lab = None
         
@@ -243,9 +246,11 @@ def _vdbi_uncast(d):
     else:
         return d
 
+Query.as_dict_for_widgets = lambda q:_vdbi_widget(q.as_dict())
      
-Query.as_dict_for_widgets = lambda q:_vdbi_uncast(q.as_dict())
-     
+def as_flat_dict_for_widgets(self):
+    return variabledecode.variable_encode(self.as_dict_for_widgets(), add_repetitions=False)
+Query.as_flat_dict_for_widgets = as_flat_dict_for_widgets
 
      
             
@@ -253,7 +258,7 @@ def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""
     expr = sort = limit = offset = None
     od = variabledecode.variable_decode(od)
-    d = _vdbi_recast(od)  
+    d = _vdbi_expression(od)  
     #debug_here()
     if 'q' in d and 'c' in d['q']:
         expr = Expression.from_dict(d['q'])
@@ -280,13 +285,23 @@ def show_smth(self, smth="Plot" ):
     return smth in present
     
 def present_list(self):
-    ud = self.as_dict_for_widgets()
-    return _get_present( ud )
+    dfw = self.as_dict_for_widgets()
+    return _get_present( dfw )
     
 def plotparam(self):
-    ud = self.as_dict_for_widgets()
-    return _get_plotparam( ud )
+    dfw = self.as_dict_for_widgets()
+    return _get_plotparam( dfw )
     
+def plotseries(self):
+    """"
+     if no plot series is specified give the default       
+    """
+    dfw = self.as_dict_for_widgets()
+    sdc = dfw.get('q',{}).get('plt',{}).get('c', [])
+    if len(sdc) == 0:
+        routes=app.request.routes
+        sdc = dbi_default_plot( routes['resource'] )
+    return sdc
     
 Query.show_smth = show_smth
 Query.show_plot = lambda self:self.show_smth("Plot")
@@ -294,7 +309,7 @@ Query.show_table = lambda self:self.show_smth("Table")
 Query.show_summary = lambda self:self.show_smth("Summary")
 Query.present_list = present_list
 Query.plotparam = plotparam
-
+Query.plotseries = plotseries
 
 
 
@@ -410,7 +425,7 @@ def test_cast():
                    'o': u'ctx_'},
            'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
 
-    f = _vdbi_recast( e )   ## remove the ctx and xtr 
+    f = _vdbi_expression( e )   ## remove the ctx and xtr 
     assert f == {'q': {'c': [{'a': u'and',
                    'c': [{'DetectorId': u'0',
                           'SimFlag': u'2',
@@ -420,7 +435,7 @@ def test_cast():
                   {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}],
             'o': u'and'}}
         
-    g = _vdbi_uncast( f )   ## put them back ... as needed for widget display
+    g = _vdbi_widget( f )   ## put them back ... as needed for widget display
     assert g ==         {'q': {'ctx': {'a': u'and',
                            'c': [{'DetectorId': u'0',
                                   'SimFlag': u'2',
@@ -428,7 +443,7 @@ def test_cast():
                                   'Timestamp': u'2009/09/04 16:43'}],
                            'o': u'ctx_'},
                    'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
-    assert _vdbi_uncast( _vdbi_recast( e ) ) == e
+    assert _vdbi_widget( _vdbi_expression( e ) ) == e
 
 
 def test_ctx_only():
@@ -455,7 +470,7 @@ def test_ctx_only():
                 'o': u'ctx_'}}
     assert d == x , "query as dict when ctx only mismatches expectations "
     
-    y = _vdbi_uncast( x )
+    y = _vdbi_widget( x )
 
 
 
@@ -502,7 +517,7 @@ def test_with_plt():
    assert qad == qad_x , "qad mismatch %s " % repr(qad)
    
    
-   uqad = _vdbi_uncast( qad )
+   uqad = _vdbi_widget( qad )
    uqad_x = {'q': {'ctx': {'a': u'and',
                   'c': [{'DetectorId': u'0',
                          'SimFlag': u'2',
@@ -513,7 +528,7 @@ def test_with_plt():
                   'c': [{'x': u'VSTART', 'y': u'ROW'}],
                   'o': u'plt_'}}}
                   
-   assert uqad == uqad_x , "uncast qad mismatch %s " % repr(uqad) 
+   assert uqad == uqad_x , "widget qad mismatch %s " % repr(uqad) 
 
     
 
@@ -541,7 +556,7 @@ def test_with_present():
     
     q = Query.from_dict( req )  
     qad = q.as_dict()
-    uqad = _vdbi_uncast( qad )
+    uqad = _vdbi_widget( qad )
     assert uqad == d 
     
 
@@ -577,9 +592,9 @@ if __name__=='__main__':
     
     cmps =  _vdbi_comps(od)
     assert len(cmps) == 1
-    dq =  _vdbi_recast(od)['q']       
+    dq =  _vdbi_expression(od)['q']       
     assert  Expression.from_dict( dq ) ==  plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}})
-    assert q == Query(plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}}), None, None, None)
+    #assert `q` == `Query(plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}}), None, None, None)`
            
     qad = q.as_dict()      
     assert qad == {'q': {'a': {'param': {'height': u'400',
@@ -590,7 +605,7 @@ if __name__=='__main__':
            'c': [],
            'o': u'plt_'}}       
            
-    uqad = _vdbi_uncast( qad )
+    uqad = _vdbi_widget( qad )
     assert uqad == {'q': {'plt': {'a': {'param': {'height': u'400',
                                    'limit': u'500',
                                    'offset': u'0',
@@ -610,6 +625,33 @@ if __name__=='__main__':
     
     assert uqad == od
     
+    
+    
+    ## passage thru the eye of the flat_dict is needed for .json links to faithfully propagate the query 
+    
+    
+    
+    
+    
+    zafd = q.as_flat_dict()
+    
+    assert zafd == {'q.a.param.height': u'400',
+     'q.a.param.limit': u'500',
+     'q.a.param.offset': u'0',
+     'q.a.param.width': u'600',
+     'q.a.present-0': u'Summary',
+     'q.a.present-1': u'Table',
+     'q.o': u'plt_'}
+    ## this is an expression dict ... urls should be widget dicts to avoid confusion 
+    
+    zraw = Request.blank( "?" + "&".join(["%s=%s" % ( k,v) for k,v in zafd.items()]) )
+    zreq = UnicodeMultiDict( zraw.GET )
+    zod =  variabledecode.variable_decode(zreq)
+    z = Query.from_dict( zreq ) 
+    
+    zq = zod['q']
+    
+    #assert z == q
     
     
     

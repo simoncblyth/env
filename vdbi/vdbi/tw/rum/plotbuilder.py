@@ -97,7 +97,7 @@ class DbiAsynchronousJQPlotWidget(AsynchronousJQPlotWidget):
 
      
 from rum import app
-from vdbi.rum.query import _vdbi_uncast
+from vdbi.rum.query import _vdbi_widget
 
 
 
@@ -120,28 +120,31 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
     def adapt_value_custom(self, value):
         if isinstance(value, Query):
             value = value.as_dict()
-            value = _vdbi_uncast(value)
+            value = _vdbi_widget(value)
         return value
 
     def update_params(self, d):
         d['id'] = "plotid"
-        d['src_url'] = json_url( d )
-     
-        #debug_here()
-        plotparam = {}
+
+        #debug_here()       
         if isinstance(d['value'], Query):
             q = d['value']
             plotparam = q.plotparam()
-            v = self.adapt_value_custom( q )
-        else:
-            v = d['value']
-  
+            plotseries = q.plotseries()
+        else:  
+            plotparam = d['value'].get('plotparam',{}) 
+            plotseries = d['value'].get('plotseries',[]) 
+            ## non-implemented fallback
+            
         from vdbi.rum.param import width as width_, height as height_, offset as offset_, limit as limit_
         width = width_(plotparam.get('width',None))
         height = height_(plotparam.get('height',None))                 
         offset = offset_(plotparam.get('offset',None))
         limit  = limit_(plotparam.get('limit',None))
-                     
+            
+        ## have to explicity request limit/offset as the default for data urls is to 
+        ## clone the query with limits/offset removed     
+        d['src_url'] = json_url( d , limit=limit, offset=offset )                         
         d['width'] = '%spx' % width
         d['height'] = '%spx' % height
         
@@ -156,14 +159,8 @@ class DbiPlotView(DbiAsynchronousJQPlotWidget):
         xtime = True
         ytime = True
         series = []
- 
-        if 'q' in v and 'plt' in v['q']:       
-            sdc = v['q']['plt']['c']
-        else:
-            routes=app.request.routes
-            sdc = dbi_default_plot( routes['resource'] )
-                
-        for sd in sdc:
+
+        for sd in plotseries:
             if 'x' in sd and 'y' in sd:
                 series.append( {'label':"%s:%s" % (sd['x'],sd['y']) })
                 if sd['x'] not in VLD_TIMEATTS:xtime = False

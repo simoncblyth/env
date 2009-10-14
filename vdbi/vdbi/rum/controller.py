@@ -48,7 +48,6 @@ class DbiCRUDController(CRUDController):
     @resource_action('collection', 'GET')
     def index(self, resource):
         query = self.repository.make_query(self.request.GET)
-        
         query = self.app.policy.filter(resource, query)
         #debug_here()
         if query:
@@ -71,6 +70,7 @@ class DbiCRUDController(CRUDController):
                 if limit or offset:
                     query = query.clone( limit=limit, offset=offset )
                     log.debug("applying plot limit/offset to query %s" % `query` )
+                debug_here()
                 
         items = self.repository.select(query)
         return {
@@ -82,19 +82,11 @@ class DbiCRUDController(CRUDController):
     
     @process_output.when("isinstance(output,dict) and self.get_format(routes) == 'json'", prio=10)
     def _process_dict_as_json(self, output, routes):
-        #print "vdbi.rum.controller:process_output %s " % repr(output)
-
-        q = output['query']
-        v = q.as_dict_for_widgets()
-               
-        ## if no plot series is specified give the default       
-        sdc = v.get('q',{}).get('plt',{}).get('c', [])
-        if len(sdc) == 0:
-            sdc = dbi_default_plot( routes['resource'] )
-        
+        q = output['query']                         
+        plotseries = q.plotseries()
         plotdata = []
-        for i in range(len(sdc)):plotdata.append([])
-        for i,sd in enumerate(sdc):
+        for i in range(len(plotseries)):plotdata.append([])
+        for i,sd in enumerate(plotseries):
             xy = lambda item:[getattr(item,sd['x']),getattr(item,sd['y'])]  
             for item in output['items']:        ##  output['items'] isa sqlalchemy.orm.query.Query   
                 name = item.__class__.__name__
@@ -102,7 +94,7 @@ class DbiCRUDController(CRUDController):
         output['plotdata'] = plotdata
         del output['items']     
         self.response.body = self.app.jsonencoder.encode(output)
-        #debug_here()
+        debug_here()
 
 #
 #    N_('login')
