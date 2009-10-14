@@ -1,8 +1,5 @@
-
-
-from vdbi.dbg import debug_here
-
-
+import logging
+log = logging.getLogger(__name__)
 
 from rum.query import *
 from rum.query import _sort
@@ -11,13 +8,7 @@ from formencode.validators import Int, Invalid
 
 from vdbi.dbg import debug_here
 from vdbi.dyb import ctx
-
-
 from vdbi.rum.param import present as present_
-
-
-import logging
-log = logging.getLogger(__name__)
 
 
 class ctx_(Expression):
@@ -71,8 +62,6 @@ def _ctx(expr, resource):
 def _plt(expr, resource):
     return None
 
-
-  
 from rum.query import simplify 
 @simplify.when((ctx_,))
 def _simplify_ctx(obj):
@@ -97,7 +86,7 @@ def _simplify_plt(obj):
     """
         extend the simplify generic function such that this is used 
         by the Query class without subclassing ... changing the result of
-        Query.as_dict when the expression features ctx_
+        Query.as_dict when the expression features plt_
     """   
     if isinstance(obj.col, (dict,)):
         c = [obj.col]
@@ -160,6 +149,31 @@ def _get_plotparam(d):
     
 
 
+def _vdbi_comps(d):
+    c = []
+    if not 'q' in d:return c
+    ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
+    if not('plt' in d['q']):
+        d['q']['plt'] = {}
+        
+    ## make the plt sufficienctly well formed to yield the plt_ expression 
+    ## that acts as a trojan horse to hold the parameters inside the query     
+    if not('a' in d['q']['plt']):d['q']['plt']['a'] = {} 
+    if not('c' in d['q']['plt']):d['q']['plt']['c'] = [] 
+    if not('o' in d['q']['plt']):d['q']['plt']['o'] = u"plt_" 
+           
+    d['q']['plt']['a'].update({ 'present' : _get_present(d) , 'param':_get_plotparam(d) })
+    
+    ## ctx and xtr are expression based ... they need to have a "c" if they are non-empty
+    for br in ('ctx','xtr'):
+        if br in d['q'] and 'c' in d['q'][br]:c.append( d['q'][br] )
+
+    ## plt with content can have no "c"    
+    for br in ('plt',):
+        if br in d['q'] and 'a' in d['q'][br]:c.append( d['q'][br] )
+    return c
+
+
 def _vdbi_recast(d):
     """  
          recast the dict into the oldform without the ctx and xtr nodes 
@@ -169,20 +183,7 @@ def _vdbi_recast(d):
          fakes will appear in the interface ... so have to detect the 
          different dict topologies 
     """
-    if not 'q' in d:return d
-    c = []
-    
-    ## tuck the present away inside the 'plt' as [] , ['Table'] or ['Table','Plot']
-    if not('plt' in d['q']):
-        d['q']['plt'] = {}
-    if not('a' in d['q']['plt']):
-        d['q']['plt']['a'] = {} 
-    d['q']['plt']['a'].update({ 'present' : _get_present(d) , 'param':_get_plotparam(d) })
-    
-
-    for br in ('ctx','xtr','plt'):
-        if br in d['q'] and 'c' in d['q'][br]:c.append( d['q'][br] )
-    
+    c = _vdbi_comps(d)
     if len(c) == 1:
         return { 'q':c[0] }
     elif len(c) > 1:
@@ -244,6 +245,8 @@ def _vdbi_uncast(d):
 
      
 Query.as_dict_for_widgets = lambda q:_vdbi_uncast(q.as_dict())
+     
+
      
             
 def _vdbi_query_from_dict(cls, od):
@@ -558,12 +561,55 @@ if __name__=='__main__':
     #test_new_layout_with_xtr_mark()
     #test_with_plt()
     
-    from webob import Request, UnicodeMultiDict    
-    #raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+11%3A46%3A06&q.xtr.a=xtr_&q.xtr.o=and&q.present=Plot&q.plt.limit=&q.plt.offset=&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
-    #raw = Request.blank("http://localhost:6060/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+16%3A48%3A39&q.xtr.a=xtr_&q.xtr.o=and&q.present=Table&q.present=Plot&q.plt.param.limit=1000&q.plt.param.offset=0&q.plt.o=plt_&q.plt.c-0.y=GFWHM&q.plt.c-0.x=ROW&q.plt.c-1.y=GAIN&q.plt.c-1.x=ROW")
-    raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-12+17%3A18%3A43&q.xtr.a=xtr_&q.xtr.o=and&q.present=Table&q.present=Plot&q.plt.param.limit=1000&q.plt.param.offset=0&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
+    from webob import Request, UnicodeMultiDict       
+    raw = Request.blank("http://localhost:6060/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.xtr.a=xtr_&q.xtr.o=and&q.present=Summary&q.present=Table&q.plt.param.limit=500&q.plt.param.offset=0&q.plt.param.width=600&q.plt.param.height=400&q.plt.o=plt_")
     req = UnicodeMultiDict( raw.GET )
     q = Query.from_dict( req )  
+    od =  variabledecode.variable_decode(req)
+    assert od == {'q': {'ctx': {'a': u'and', 'o': u'ctx_'},
+                        'plt': {'o': u'plt_',
+                               'param': {'height': u'400',
+                               'limit': u'500',
+                               'offset': u'0',
+                               'width': u'600'}},
+                               'present': [u'Summary', u'Table'],
+                        'xtr': {'a': u'xtr_', 'o': u'and'}}}
+    
+    cmps =  _vdbi_comps(od)
+    assert len(cmps) == 1
+    dq =  _vdbi_recast(od)['q']       
+    assert  Expression.from_dict( dq ) ==  plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}})
+    assert q == Query(plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}}), None, None, None)
+           
+    qad = q.as_dict()      
+    assert qad == {'q': {'a': {'param': {'height': u'400',
+                           'limit': u'500',
+                           'offset': u'0',
+                           'width': u'600'},
+                 'present': [u'Summary', u'Table']},
+           'c': [],
+           'o': u'plt_'}}       
+           
+    uqad = _vdbi_uncast( qad )
+    assert uqad == {'q': {'plt': {'a': {'param': {'height': u'400',
+                                   'limit': u'500',
+                                   'offset': u'0',
+                                   'width': u'600'},
+                         'present': [u'Summary', u'Table']},
+                   'c': [],
+                   'o': u'plt_',
+                   'param': {'height': u'400',
+                             'limit': u'500',
+                             'offset': u'0',
+                             'width': u'600'}},
+           'present': [u'Summary', u'Table']}}
+    
+    ## to match the original need to add in these       
+    uqad['q']['ctx'] =  {'a': u'and', 'o': u'ctx_'}
+    uqad['q']['xtr'] =  {'a': u'xtr_', 'o': u'and'}
+    
+    assert uqad == od
+    
     
     
     

@@ -30,9 +30,9 @@ class DbiJSRepeater(JSRepeater):
         first_id = self.children[0].id
         first_name = self.children[0].name
         
-        if first_name.find("xtr") > -1 or first_name.find('plt') > -1:
-            #print "DbiJSRepeater enforcing a blank start for %s " % first_name
-            d.repetitions = 0     ## enforce blank start 
+        #if first_name.find("xtr") > -1 or first_name.find('plt') > -1:
+        #print "DbiJSRepeater enforcing a blank start for %s " % first_name
+        d.repetitions = 0     ## enforce blank start 
         
         #TODO: WidgetRepeater should update d.repetitions based on extra
         d.repetitions = max(d.repetitions, len(d.value) + d.extra)

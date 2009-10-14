@@ -86,12 +86,11 @@ class DbiCRUDController(CRUDController):
 
         q = output['query']
         v = q.as_dict_for_widgets()
-        #debug_here()
-        #print "v %s " % `v`
-        if 'q' in v and 'plt' in v['q']:       
-             sdc = v['q']['plt']['c']
-        else:
-             sdc = dbi_default_plot( routes['resource'] )
+               
+        ## if no plot series is specified give the default       
+        sdc = v.get('q',{}).get('plt',{}).get('c', [])
+        if len(sdc) == 0:
+            sdc = dbi_default_plot( routes['resource'] )
         
         plotdata = []
         for i in range(len(sdc)):plotdata.append([])

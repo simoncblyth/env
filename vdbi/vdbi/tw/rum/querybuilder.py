@@ -182,7 +182,7 @@ class DbiQueryBuilder(forms.TableForm):
         if isinstance(value, Query):
             value = value.as_dict()
             value = _vdbi_uncast(value)
-            #print "adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
+            print "adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
         return value
 
 
