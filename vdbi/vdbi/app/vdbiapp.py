@@ -42,6 +42,33 @@ class RootController(Controller):
         return {}
 
 
+
+from rum.fields import Relation
+from rum import RumApp
+def related_resources(self, resource):
+    """
+        Not done in a RumApp subclass, as (from rum import app) is used everywhere 
+        and the app a threadsafe singleton entity, so probably tricky to diddle with it
+    """
+    return [f.other for f in self.fields_for_resource( resource ) if issubclass(f.__class__, Relation) and f.other != resource]
+
+def paired_resource(self, resource, dbi_or_vld=True ):
+    related = self.related_resources( resource )
+    if dbi_or_vld:
+        for r in related:  
+            if r.__name__[-3:] not in ('Dbi','Vld',):
+                related.remove(r)  
+    if len(related) == 1:
+        return related[0]
+    elif len(related) > 1 :
+        return related[0]
+    else:
+        return None
+ 
+RumApp.related_resources = related_resources
+RumApp.paired_resource = paired_resource
+
+
 def create_app(url=None,  dbg=True):
     from env.base.private import Private
     p = Private()
@@ -57,7 +84,7 @@ def create_app(url=None,  dbg=True):
     
     from pkg_resources import resource_filename
     import os
-    from rum import RumApp
+    
     app = RumApp({
         'debug': dbg,
         'full_stack':True,

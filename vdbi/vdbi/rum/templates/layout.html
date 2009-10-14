@@ -19,8 +19,11 @@ from genshi.input import XML
          <py:if test="request.path_info != '/login'" >
          <ul id="rum-resource-list">
           <li py:for="r in resources" py:if="r.__name__.endswith('Dbi')"
-              py:with="name=generate_label(app.names_for_resource(r)[1]); url=url_for(r, _memory=False)">
-              <a href="${url}" class="${request.routes['resource'] is r and 'active' or None}">${name}</a>
+              py:with="name=generate_label(app.names_for_resource(r)[1]); url=url_for(r, _memory=False); paired=app.paired_resource(r);">
+              <a href="${url}" class="${request.routes['resource'] is r and 'active' or None}">${r.__name__[:-3]}</a>
+              <py:if test="paired">
+			     <a href="${url_for(paired,_memory=False)}"> ${paired.__name__[-3:]} </a>	
+			  </py:if>	
           </li>
          </ul>
          </py:if>
