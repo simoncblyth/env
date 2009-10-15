@@ -252,6 +252,9 @@ def as_flat_dict_for_widgets(self):
     return variabledecode.variable_encode(self.as_dict_for_widgets(), add_repetitions=False)
 Query.as_flat_dict_for_widgets = as_flat_dict_for_widgets
 
+## OVERRIDE THE ORIGINAL THAT WAS YEILDING EXPRESSION DICT URLS
+Query.as_flat_dict = as_flat_dict_for_widgets
+     
      
             
 def _vdbi_query_from_dict(cls, od):
