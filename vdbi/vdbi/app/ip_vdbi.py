@@ -28,3 +28,12 @@ def ip_vdbi(self, arg):
 
 
 
+def ip_vdbiq(self, arg):
+    import os 
+    path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "vdbiapp.py" ) )
+    os.chdir("/tmp")    ## avoid env shadowing 
+    ip = self.api
+    cmd = "run -d %s" % path
+
+    print "ip_vdbi : \"%s\" " % cmd
+    ip.magic( cmd )

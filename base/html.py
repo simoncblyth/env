@@ -3,7 +3,7 @@ from lxml import etree
 from cStringIO import StringIO   
 import os
 
-def html_href( url , xpath='.//a/@href' ):
+def html_href( url , xpath='.//a/@href' , unique=True ):
     """
         Parse the html obtained from the url and emit
         urls of links found
@@ -17,6 +17,7 @@ def html_href( url , xpath='.//a/@href' ):
     tree = etree.parse( StringIO(html) , etree.HTMLParser() )
     root = tree.getroot()
     hrefs = root.xpath( xpath )  
+    if unique:hrefs = sorted(list(set(hrefs)))
     for href in hrefs:
         if href.startswith('http'):
             print href
