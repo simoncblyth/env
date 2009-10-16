@@ -774,3 +774,5 @@ plbook-(){      . $(env-home)/pl/plbook.bash && plbook-env $* ; }
 ini-(){      . $(env-home)/base/ini.bash && ini-env $* ; }
 jqplot-(){      . $(env-home)/jqplot/jqplot.bash && jqplot-env $* ; }
 html-(){      . $(env-home)/base/html.bash && html-env $* ; }
+redhat-(){      . $(env-home)/base/redhat.bash && redhat-env $* ; }
+rabbitmq-(){      . $(env-home)/messaging/rabbitmq.bash && rabbitmq-env $* ; }
