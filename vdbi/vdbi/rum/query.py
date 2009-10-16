@@ -1,9 +1,13 @@
 import logging
 log = logging.getLogger(__name__)
+from copy import copy
 
 from rum import app
 from rum.query import *
 from rum.query import _sort
+
+from rum.query import _maybe_unicode
+
 from formencode import variabledecode
 from formencode.validators import Int, Invalid
 
@@ -100,12 +104,6 @@ def _simplify_plt(obj):
     return { 'c':c , 'o':u"plt_" , 'a':obj.arg } 
 
 
-
-
-
-
-
-from rum.query import _maybe_unicode
 def _vdbi_expression_from_dict(cls, d):
     """
        Override of the original Expression.from_dict 
@@ -125,7 +123,6 @@ def _vdbi_expression_from_dict(cls, d):
     return cls(*map(cls.from_dict, args))
 
 Expression.from_dict = classmethod(_vdbi_expression_from_dict)
-
 
 
 ## these need the widget dict layout ... 
@@ -149,10 +146,6 @@ def _unget_present(p):
     elif len(p) == 0:return None    
 
 _get_plotparam = lambda d:d.get('q',{}).get('plt',{}).get('param',{})
-
-
-
-
 
 def _default_plt(d):
     if not('plt' in d['q']):
@@ -208,7 +201,7 @@ def _vdbi_widget(od):
          into widget dict putting back the ctx/xtr/plt nodes
          
     """
-    from copy import copy
+    
     d = copy(od)
     
     if d and 'q' in d:    ## identify single branch queries : only xtr/ctx/plt 
@@ -254,9 +247,8 @@ def as_flat_dict_for_widgets(self):
 Query.as_flat_dict_for_widgets = as_flat_dict_for_widgets
 
 ## OVERRIDE THE ORIGINAL THAT WAS YEILDING EXPRESSION DICT URLS
-Query.as_flat_dict = as_flat_dict_for_widgets
-     
-     
+##  Query.as_flat_dict = as_flat_dict_for_widgets
+      
             
 def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""
@@ -316,8 +308,6 @@ Query.plotparam = plotparam
 Query.plotseries = plotseries
 
 
-
-
 class DbiQueryFactory(QueryFactory): 
     def __call__(self, resource, request_args=None, **kw):
          log.debug("DbiQueryFactory.__call__ req = %s " % repr(request_args) ) 
@@ -327,336 +317,8 @@ class DbiQueryFactory(QueryFactory):
 
 
 
-
-
-def test_new_layout_with_xtr_mark():
-    """
-       avoid divination of the dict layouts due to the presence of the xtr_ marker hailing from a hidden field 
-    """
-    from webob import Request, UnicodeMultiDict
-    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+20%3A10%3A01&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=ROW&q.xtr.c-0.o=eq&q.xtr.c-0.a=10")
-    req = UnicodeMultiDict( raw.GET )
-    
-    from formencode import variabledecode
-    o = variabledecode.variable_decode(req)
-    assert o == {'q': {'ctx': {'a': u'and',
-                               'c': [{'DetectorId': u'0','SimFlag': u'2','Site': u'1','Timestamp': u'2009-09-10 20:10:01'}],
-                               'o': u'ctx_'},
-                       'xtr': {'a': u'xtr_',
-                               'c': [{'a': u'10', 'c': u'ROW', 'o': u'eq'}],
-                               'o': u'and'}}}
-    
-    q = Query.from_dict( req )
-    d = q.as_dict()
-    assert d == {'q': {'a': None,
-                       'c': [
-                             {'a': u'and',
-                              'c': [{'DetectorId': u'0','SimFlag': u'2','Site': u'1','Timestamp': u'2009-09-10 20:10:01'}],
-                              'o': u'ctx_'},
-                             {'a': 'xtr_',
-                              'c': [{'a': '10', 'c': 'ROW', 'o': 'eq'}],
-                              'o': 'and'}
-                            ],
-                       'o': 'and'}}
-
-
-def test_ctx_layout():
-    from webob import Request, UnicodeMultiDict
-    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009%2F09%2F04+16%3A43&q.xtr.o=and&q.xtr.c-0.c=RING&q.xtr.c-0.o=eq&q.xtr.c-0.a=2")
-    req = UnicodeMultiDict( raw.GET )
-    from formencode import variabledecode
-    d =  variabledecode.variable_decode(req)
-    
-    e = {'q': {'ctx': {'a': u'and',
-                   'c': [{'DetectorId': u'0',
-                          'SimFlag': u'2',
-                          'Site': u'1',
-                          'Timestamp': u'2009/09/04 16:43'}],
-                   'o': u'ctx_'},
-           'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
-    
-    assert d == e , "raw dict arising from widget layout has changed %s " % repr(d)
-    n = { 'o':u'and' , 'c':[ d['q']['ctx'] , d['q']['xtr'] ] }   ## manual recast 
-    x = and_([ctx_([{'Timestamp': u'2009/09/04 16:43', 'DetectorId': u'0', 'SimFlag': u'2', 'Site': u'1'}], u'and'), and_([eq(u'RING', u'2')])])
-    expr = Expression.from_dict(n)
-    assert expr ==  x , "changed expression %s " % repr()
-
-def test_ctx_req2q():    
-    from webob import Request, UnicodeMultiDict
-    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009%2F09%2F04+16%3A43&q.xtr.o=and&q.xtr.c-0.c=RING&q.xtr.c-0.o=eq&q.xtr.c-0.a=2")
-    req = UnicodeMultiDict( raw.GET )
-    q = Query.from_dict( req )         ## the recast is done in the overridden classmethod
-    e = Query(and_([ctx_([{'Timestamp': u'2009/09/04 16:43', 'DetectorId': u'0', 'SimFlag': u'2', 'Site': u'1'}], u'and'), and_([eq(u'RING', u'2')])]), None, None, None)
-    assert repr(q) == repr(e)  
-    d = q.as_dict()
-    assert Query.from_dict(d).as_dict() == d
-
-def test_ctx0_as_dict():
-    cta = {'Site':1, 'SimFlag':2 , 'DetectorId':0 , 'Timestamp':"2009/09/03 16:05"}
-    exp0 = ctx_( cta )
-    exp1 = ctx_( cta , u"and")
-    d = {'q': {'c': [cta], 'o': u"ctx_" , 'a':u"and" } }
-    assert Query(exp0).as_dict() == d
-    assert Query(exp1).as_dict() == d
-
-def test_ctx1_as_dict():
-    cta = {'Site':1, 'SimFlag':2 , 'DetectorId':0 , 'Timestamp':"2009/09/03 16:05"}
-    from copy import copy
-    ctb = copy(cta) ; ctb['SimFlag'] = 1
-    expr = ctx_( [cta,ctb], u"or")
-    assert Query(expr).as_dict() == { 'q': { 'c': [cta,ctb], 'o': u'ctx_', 'a':u"or" }}
-
-def test_ctx0_from_dict():
-    cta = {'Site':1, 'SimFlag':2 , 'DetectorId':0 , 'Timestamp':"2009/09/03 16:05"}
-    from copy import copy
-    ctb = copy(cta) ; ctb['SimFlag'] = 1
-    
-    d0 = {'q': {'c': [cta],      'o': u"ctx_" , 'a':u"and" }}
-    d1 = {'q': {'c': [cta],      'o': u"ctx_" , 'a':u"or" }}
-    d2 = {'q': {'c': [cta,ctb] , 'o': u"ctx_" , 'a':u"or"  }}
-    d3 = {'q': {'c': [cta,ctb] , 'o': u"ctx_" , 'a':u"and"  }}
-
-    for d in [d0,d1,d2,d3]:
-        assert  Query.from_dict(d).as_dict() == d , "from_dict/as_dict commute fail for %s " % repr(d)
-    
-
-def test_cast():    
-    e = {'q': {'ctx': {'a': u'and',
-                   'c': [{'DetectorId': u'0',
-                          'SimFlag': u'2',
-                          'Site': u'1',
-                          'Timestamp': u'2009/09/04 16:43'}],
-                   'o': u'ctx_'},
-           'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
-
-    f = _vdbi_expression( e )   ## remove the ctx and xtr 
-    assert f == {'q': {'c': [{'a': u'and',
-                   'c': [{'DetectorId': u'0',
-                          'SimFlag': u'2',
-                          'Site': u'1',
-                          'Timestamp': u'2009/09/04 16:43'}],
-                   'o': u'ctx_'},
-                  {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}],
-            'o': u'and'}}
-        
-    g = _vdbi_widget( f )   ## put them back ... as needed for widget display
-    assert g ==         {'q': {'ctx': {'a': u'and',
-                           'c': [{'DetectorId': u'0',
-                                  'SimFlag': u'2',
-                                  'Site': u'1',
-                                  'Timestamp': u'2009/09/04 16:43'}],
-                           'o': u'ctx_'},
-                   'xtr': {'c': [{'a': u'2', 'c': u'RING', 'o': u'eq'}], 'o': u'and'}}}
-    assert _vdbi_widget( _vdbi_expression( e ) ) == e
-
-
-def test_ctx_only():
-    """
-         when no additional criteria are added ... leaving just a ctx query 
-         the form of the dict is causing assertions / key errors in the uncast 
-    
-    """
-    from webob import Request, UnicodeMultiDict
-    raw = Request.blank("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-10+15%3A04%3A06&q.ctx.c-1.SimFlag=1&q.ctx.c-1.Site=1&q.ctx.c-1.DetectorId=0&q.ctx.c-1.Timestamp=2009-09-17+15%3A05%3A14&q.xtr.o=and")    
-    req = UnicodeMultiDict( raw.GET )
-    q = Query.from_dict( req )
-    print q
-    d = q.as_dict()
-    x = {'q': {'a': u'and',
-               'c': [{'DetectorId': u'0',
-                      'SimFlag': u'2',
-                      'Site': u'1',
-                      'Timestamp': u'2009-09-10 15:04:06'},
-                     {'DetectorId': u'0',
-                      'SimFlag': u'1',
-                      'Site': u'1',
-                      'Timestamp': u'2009-09-17 15:05:14'}],
-                'o': u'ctx_'}}
-    assert d == x , "query as dict when ctx only mismatches expectations "
-    
-    y = _vdbi_widget( x )
-
-
-
-
-
-def test_with_plt():
-  
-   from webob import Request, UnicodeMultiDict
-   raw = Request.blank("http://localhost:8080/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-09-15+16%3A04%3A32&q.xtr.a=xtr_&q.xtr.o=and&q.plt.a=both&q.plt.o=plt_&q.plt.c-0.y=ROW&q.plt.c-0.x=VSTART")
-   req = UnicodeMultiDict( raw.GET )
-   
-   from formencode import variabledecode
-   d =  variabledecode.variable_decode(req)
-   e = {'q': {'ctx': {'a': u'and',
-                  'c': [{'DetectorId': u'0',
-                         'SimFlag': u'2',
-                         'Site': u'1',
-                         'Timestamp': u'2009-09-15 16:04:32'}],
-                  'o': u'ctx_'},
-          'plt': {'a': u'both',
-                  'c': [{'x': u'VSTART', 'y': u'ROW'}],
-                  'o': u'plt_'},
-          'xtr': {'a': u'xtr_', 'o': u'and'}}}
-          
-   assert d == e , "decoded req mismatches expectaions %s " % repr(d)
-          
-   
-   q = Query.from_dict( req )  
-   qad = q.as_dict()
-   
-   qad_x = {'q': {'a': None,
-          'c': [{'a': u'and',
-                 'c': [{'DetectorId': u'0',
-                        'SimFlag': u'2',
-                        'Site': u'1',
-                        'Timestamp': u'2009-09-15 16:04:32'}],
-                 'o': u'ctx_'},
-                {'a': u'both',
-                 'c': [{'x': u'VSTART', 'y': u'ROW'}],
-                 'o': u'plt_'}],
-          'o': 'and'}}
-   
-   
-   assert qad == qad_x , "qad mismatch %s " % repr(qad)
-   
-   
-   uqad = _vdbi_widget( qad )
-   uqad_x = {'q': {'ctx': {'a': u'and',
-                  'c': [{'DetectorId': u'0',
-                         'SimFlag': u'2',
-                         'Site': u'1',
-                         'Timestamp': u'2009-09-15 16:04:32'}],
-                  'o': u'ctx_'},
-          'plt': {'a': u'both',
-                  'c': [{'x': u'VSTART', 'y': u'ROW'}],
-                  'o': u'plt_'}}}
-                  
-   assert uqad == uqad_x , "widget qad mismatch %s " % repr(uqad) 
-
-    
-
-
-def test_with_present():
-    
-    from webob import Request, UnicodeMultiDict
-    raw = Request.blank("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-09+18%3A22%3A45&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=VSTART&q.xtr.c-0.o=eq&q.xtr.c-0.a=&q.present=Plot&q.present=Table&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
-    req = UnicodeMultiDict( raw.GET )
-
-    from formencode import variabledecode
-    d =  variabledecode.variable_decode(req)
- 
-    assert d == {'q': {'ctx': {'a': u'and',
-                               'c': [{'DetectorId': u'0',
-                                       'SimFlag': u'2',
-                                        'Site': u'1',
-                                       'Timestamp': u'2009-10-09 18:22:45'}],
-                               'o': u'ctx_'},
-                        'plt': {'c': [{'x': u'SEQ', 'y': u'VSTART'}], 'o': u'plt_'},
-                     'present': [u'Plot', u'Table'],
-                         'xtr': {'a': u'xtr_',
-                                 'c': [{'a': u'', 'c': u'VSTART', 'o': u'eq'}],
-                                 'o': u'and'}}}
-    
-    q = Query.from_dict( req )  
-    qad = q.as_dict()
-    uqad = _vdbi_widget( qad )
-    assert uqad == d 
-    
-
-
-
-
 if __name__=='__main__':
+    print "testing moved elsewhere"
 
-    #test_ctx0_as_dict()  
-    #test_ctx1_as_dict()  
-    #test_ctx0_from_dict()
-    
-    #test_ctx_layout()
-    #test_ctx_req2q()
-    #test_cast()
-    
-    #test_ctx_only()
-    #test_new_layout_with_xtr_mark()
-    #test_with_plt()
-    
-    
-    u = URL("http://localhost:6060/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.xtr.a=xtr_&q.xtr.o=and&q.present=Summary&q.present=Table&q.plt.param.limit=500&q.plt.param.offset=0&q.plt.param.width=600&q.plt.param.height=400&q.plt.o=plt_")
- 
- 
- 
-    assert od == {'q': {'ctx': {'a': u'and', 'o': u'ctx_'},
-                        'plt': {'o': u'plt_',
-                               'param': {'height': u'400',
-                               'limit': u'500',
-                               'offset': u'0',
-                               'width': u'600'}},
-                               'present': [u'Summary', u'Table'],
-                        'xtr': {'a': u'xtr_', 'o': u'and'}}}
-    
-    cmps =  _vdbi_comps(od)
-    assert len(cmps) == 1
-    dq =  _vdbi_expression(od)['q']       
-    assert  Expression.from_dict( dq ) ==  plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}})
-    #assert `q` == `Query(plt_([], {'present': [u'Summary', u'Table'], 'param': {'width': u'600', 'height': u'400', 'limit': u'500', 'offset': u'0'}}), None, None, None)`
-           
-    qad = q.as_dict()      
-    assert qad == {'q': {'a': {'param': {'height': u'400',
-                           'limit': u'500',
-                           'offset': u'0',
-                           'width': u'600'},
-                 'present': [u'Summary', u'Table']},
-           'c': [],
-           'o': u'plt_'}}       
-           
-    uqad = _vdbi_widget( qad )
-    # assert uqad == {'q': {'plt': {'a': {'param': {'height': u'400',
-    #                                'limit': u'500',
-    #                                'offset': u'0',
-    #                                'width': u'600'},
-    #                      'present': [u'Summary', u'Table']},
-    #                'c': [],
-    #                'o': u'plt_',
-    #                'param': {'height': u'400',
-    #                          'limit': u'500',
-    #                          'offset': u'0',
-    #                          'width': u'600'}},
-    #        'present': [u'Summary', u'Table']}}
-    # 
-    # # to match the original need to add in these       
-    uqad['q']['ctx'] =  {'a': u'and', 'o': u'ctx_'}
-    uqad['q']['xtr'] =  {'a': u'xtr_', 'o': u'and'}
-    
-    #assert uqad == od
-    
-    
-    
-    ## passage thru the eye of the flat_dict is needed for .json links to faithfully propagate the query 
-    
-    
-    
-    
-    
-    zafd = q.as_flat_dict()
-    
-    assert zafd == {'q.a.param.height': u'400',
-     'q.a.param.limit': u'500',
-     'q.a.param.offset': u'0',
-     'q.a.param.width': u'600',
-     'q.a.present-0': u'Summary',
-     'q.a.present-1': u'Table',
-     'q.o': u'plt_'}
-    ## this is an expression dict ... urls should be widget dicts to avoid confusion 
-    
-    zraw = Request.blank( "?" + "&".join(["%s=%s" % ( k,v) for k,v in zafd.items()]) )
-    zreq = UnicodeMultiDict( zraw.GET )
-    zod =  variabledecode.variable_decode(zreq)
-    z = Query.from_dict( zreq ) 
-    
-    zq = zod['q']
-    
-    #assert z == q
-    
-    
+
     
