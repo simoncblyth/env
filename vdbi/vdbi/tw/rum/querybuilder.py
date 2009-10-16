@@ -180,8 +180,9 @@ class DbiQueryBuilder(forms.TableForm):
 
     def adapt_value(self, value):
         if isinstance(value, Query):
+            print "DbiQueryBuilder.adapt_value query : %s " % `value`
             value = _vdbi_widget(value.as_dict())
-            print "adapt_value feedinf _vdbi_uncast to widgets %s " % (repr(value))
+            print "DbiQueryBuilder.adapt_value 4widget:  %s " % `value`
         return value
 
 

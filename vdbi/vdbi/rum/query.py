@@ -1,6 +1,6 @@
 import logging
 log = logging.getLogger(__name__)
-from copy import copy
+from copy import copy, deepcopy
 
 from rum import app
 from rum.query import *
@@ -200,9 +200,10 @@ def _vdbi_widget(od):
          convert expression dict (eg that returned from q.as_dict()) 
          into widget dict putting back the ctx/xtr/plt nodes
          
+         deepcopy is essential in order not to do any harm to the input dict 
     """
     
-    d = copy(od)
+    d = deepcopy(od)
     
     if d and 'q' in d:    ## identify single branch queries : only xtr/ctx/plt 
         if   d['q'].get('a', None) == "xtr_":lab = "xtr"
@@ -240,32 +241,34 @@ def _vdbi_widget(od):
     return d
 
 
-Query.as_dict_for_widgets = lambda q:_vdbi_widget(q.as_dict())
-     
-def as_flat_dict_for_widgets(self):
-    return variabledecode.variable_encode(self.as_dict_for_widgets(), add_repetitions=False)
-Query.as_flat_dict_for_widgets = as_flat_dict_for_widgets
+Query.as_dict_for_widgets      = lambda q:_vdbi_widget(q.as_dict())
+Query.as_flat_dict_for_widgets = lambda q:variabledecode.variable_encode(_vdbi_widget(q.as_dict()) , add_repetitions=False)
+Query.as_flat_dict             = lambda q:variabledecode.variable_encode(_vdbi_widget(q.as_dict()) , add_repetitions=False)
 
-## OVERRIDE THE ORIGINAL THAT WAS YEILDING EXPRESSION DICT URLS
-##  Query.as_flat_dict = as_flat_dict_for_widgets
-      
+##
+## OVERRIDE RUM ORIGINAL as_flat_dict AS THAT YIELDS EXPRESSION DICT URLS
+## if this is not done paginator and grid search links will not work 
+
             
 def _vdbi_query_from_dict(cls, od):
     """Builds up a :class:`Query` object from a dictionary"""
     expr = sort = limit = offset = None
     od = variabledecode.variable_decode(od)
-    d = _vdbi_expression(od)  
-    #debug_here()
-    if 'q' in d and 'c' in d['q']:
-        expr = Expression.from_dict(d['q'])
-    if 'sort' in d:
-        sort = d['sort']
+    
+    ## special handling needed to convert the widget dict back 
+    ## into expression form ... that Expression understands
+    xd = _vdbi_expression(od)  
+    if 'q' in xd and 'c' in xd['q']:
+        expr = Expression.from_dict(xd['q'])
+        
+    if 'sort' in od:
+        sort = od['sort']
         if sort:
             sort = map(_sort.from_dict, sort)
-    if 'limit' in d:
-        limit = Int(min=0).to_python(d['limit'])
-    if 'offset' in d:
-        offset = Int(min=0).to_python(d['offset'])
+    if 'limit' in od:
+        limit = Int(min=0).to_python(od['limit'])
+    if 'offset' in od:
+        offset = Int(min=0).to_python(od['offset'])
            
     obj = cls(expr, sort, limit, offset) 
     return obj

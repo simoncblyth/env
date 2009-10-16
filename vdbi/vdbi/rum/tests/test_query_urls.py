@@ -4,6 +4,9 @@ from vdbi.rum.query import _vdbi_expression, _vdbi_widget
 from vdbi.rum.urltest import URLtest
 from copy import copy
 
+
+
+
 def test_ctx_layout():
     u = URLtest("/SimPmtSpecDbis?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009%2F09%2F04+16%3A43&q.xtr.o=and&q.xtr.c-0.c=RING&q.xtr.c-0.o=eq&q.xtr.c-0.a=2")
     assert u.od == {'q': {'ctx': {'a': u'and',
@@ -144,27 +147,16 @@ def test_with_present():
                    'c': [{'a': u'', 'c': u'VSTART', 'o': u'eq'}],
                    'o': u'and'}}}
  
-    odx = copy(od)
-    odx['q']['plt'].update( { 'a':{'param': {} } })    ## add empty plt param for agreement
-    assert qdw == odx
+    od['q']['plt'].update( { 'a':{'param': {} } })    ## add empty plt param for agreement
+    assert qdw == od
 
 
-
-def test_replication():
-
+def test_passage_thru_query():
     u = URLtest("http://localhost:6060/SimPmtSpecVlds?q.ctx.a=and&q.ctx.o=ctx_&q.ctx.c-0.SimFlag=2&q.ctx.c-0.Site=1&q.ctx.c-0.DetectorId=0&q.ctx.c-0.Timestamp=2009-10-09+18%3A22%3A45&q.xtr.a=xtr_&q.xtr.o=and&q.xtr.c-0.c=VSTART&q.xtr.c-0.o=eq&q.xtr.c-0.a=&q.present=Plot&q.present=Table&q.plt.o=plt_&q.plt.c-0.y=VSTART&q.plt.c-0.x=SEQ")
-    assert len(u.comps) == 1              
-           
-    qdw = u.qdw
-    qdw['q']['ctx'] =  {'a': u'and', 'o': u'ctx_'}
-    qdw['q']['xtr'] =  {'a': u'xtr_', 'o': u'and'}
+    assert len(u.comps) == 3              
+    assert u.qdw == u.odk 
     
-    ##assert qdw == u.od     ## passage thru the eye of the flat_dict is needed for .json links to faithfully propagate the query 
     
-    r = u.repl
-    ##assert r.raw.url == u.raw.url
-    ##assert r.od == u.od
-
 
 
 def test_zen():
@@ -177,6 +169,10 @@ def test_zen():
 
 
 
+
+
+
+
 if __name__=='__main__':
     test_ctx_layout()
     test_ctx_req2q()
@@ -186,5 +182,5 @@ if __name__=='__main__':
     test_cast()
     #test_ctx_only()
     test_with_present()
-    #test_replication()
+    test_replication()
     test_zen()

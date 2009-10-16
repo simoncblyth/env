@@ -70,7 +70,7 @@ class DbiCRUDController(CRUDController):
                 if limit or offset:
                     query = query.clone( limit=limit, offset=offset )
                     log.debug("applying plot limit/offset to query %s" % `query` )
-                debug_here()
+                #debug_here()
                 
         items = self.repository.select(query)
         return {
@@ -94,7 +94,7 @@ class DbiCRUDController(CRUDController):
         output['plotdata'] = plotdata
         del output['items']     
         self.response.body = self.app.jsonencoder.encode(output)
-        debug_here()
+        #debug_here()
 
 #
 #    N_('login')

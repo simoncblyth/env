@@ -36,8 +36,19 @@ class URLtest(object):
         else:
             self.raw = Request.blank( url )  
     
+    def od_kludged(self):
+        """
+            Fixup the original widget dict to match the one 
+            that has traversed thru the Query 
+        """
+        od = self.od
+        if not(od['q']['plt'].get('a',None)):
+            od['q']['plt'].update( { 'a':{'param': {} } })  ## add empty plt param for agreement 
+        return od
+    
     req   = property(lambda self:UnicodeMultiDict( self.raw.GET ))
     od    = property(lambda self:variabledecode.variable_decode(self.req))
+    odk   = property(od_kludged)
     comps = property(lambda self:_vdbi_comps(self.od))
     dq    = property(lambda self:_vdbi_expression(self.od)['q'] )
     expr  = property(lambda self:Expression.from_dict( self.dq ))
@@ -45,13 +56,22 @@ class URLtest(object):
     qd    = property(lambda self:self.q.as_dict())
     qdw   = property(lambda self:_vdbi_widget(self.qd))
     qfd   = property(lambda self:self.q.as_flat_dict())
-    rurl  = property(lambda self:self.raw.path_url + "?" + "&".join(["%s=%s" % ( k,v) for k,v in self.qfd.items()]) )
+    qfdw  = property(lambda self:self.q.as_flat_dict_for_widgets())
+    rurl  = property(lambda self:self.raw.path_url + "?" + "&".join(["%s=%s" % ( k,v) for k,v in self.qfdw.items()]) )
     repl  = property(lambda self:URLtest(self.rurl))
 
-    def consistent(self):
+    def checks(self):
+        self.qexpr_consistent()
+        self.passage_thru_query()
+
+    def qexpr_consistent(self):
         assert `self.expr` == `self.q.expr` 
-        assert self.qdw == self.od
         
+    def passage_thru_query(self):
+        odk = self.odk
+        qdw = self.qdw
+        assert qdw == odk , "passage_thru_query fails \n%s\n %s " % ( `odk` , `qdw`)
+
 
 
 if __name__ == '__main__':
