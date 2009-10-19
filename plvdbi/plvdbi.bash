@@ -86,6 +86,10 @@ plvdbi-build(){
     plvdbi-archive-tw-resources
     [ ! $? -eq 0 ] && return 1
 
+    plvdbi-statics-selinux
+    [ ! $? -eq 0 ] && return 1
+
+
 }
 
 
@@ -152,6 +156,10 @@ plvdbi-archive-tw-resources(){
    local cmd="python setup.py archive_tw_resources -f --output $(plvdbi-statics-dir)"
    echo $msg \"$cmd\"
    eval $cmd
+}
+
+plvdbi-statics-selinux(){
+   apache-chcon $(plvdbi-statics-dir)
 }
 
 
