@@ -9,6 +9,7 @@ pl-env(){      elocal- ; }
 pl-projname(){ echo ${PL_PROJNAME:-helloworld} ; }
 pl-confname(){ echo ${PL_CONFNAME:-development} ; }
 pl-projdir(){  echo ${PL_PROJDIR:-$(pl-dir)/$(pl-projname)} ; }
+pl-opts(){     echo ${PL_OPTS:-} ; }
 
 pl-confpath(){  echo $(pl-projdir)/$(pl-confname).ini ; }
 pl-edit(){      vim $(pl-confpath) ;}
@@ -149,8 +150,8 @@ pl-ini(){
 
 pl-serve-(){
   case $(pl-confname) in
-     development) echo paster serve --reload $(pl-confpath) ;;
-               *) echo paster serve          $(pl-confpath) ;;
+     development) echo paster serve --reload $(pl-confpath) $(pl-opts) ;;
+               *) echo paster serve          $(pl-confpath) $(pl-opts) ;;
   esac
 }
 
@@ -160,6 +161,21 @@ pl-serve(){
   echo $msg \"$cmd\"
   eval $cmd  
 }
+
+pl-sv-(){  cat << EOC
+[program:$(pl-projname)]
+command=$(which paster) serve $(pl-confpath)  $(pl-opts)
+redirect_stderr=true
+autostart=true
+EOC
+}
+
+pl-sv(){
+  ## hmm maybe better to pipe in the conf to allow passing options to the func   ... avoid straightjacket 
+  sv-
+  sv-add $FUNCNAME- $(pl-projname).ini
+}
+
 
 pl-shell-(){
    echo paster --plugin=pylons shell $(pl-confpath)

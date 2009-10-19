@@ -8,6 +8,7 @@ plvdbi-env(){
    export PL_PROJNAME=plvdbi
    export PL_PROJDIR=$(plvdbi-dir)
    export PL_CONFNAME=production
+   export PL_OPTS=" --server-name scgi_thread "
    #export PL_CONFNAME=development
    pl-
 }
@@ -114,9 +115,21 @@ plvdbi-serve(){
   local iwd=$PWD 
   local dir=$(plvdbi-workdir)
   mkdir -p $dir && cd $dir
-  pl-serve --server-name scgi_thread
+  pl-serve 
   cd $iwd
 }
+
+
+plvdbi-sv(){
+  ## customized via the coordinate envvars
+  
+  plvdbi-private-check
+  rum-
+  pl-sv
+}
+
+
+
 
 plvdbi-private-check(){
    private-
