@@ -776,3 +776,5 @@ jqplot-(){      . $(env-home)/jqplot/jqplot.bash && jqplot-env $* ; }
 html-(){      . $(env-home)/base/html.bash && html-env $* ; }
 redhat-(){      . $(env-home)/base/redhat.bash && redhat-env $* ; }
 rabbitmq-(){      . $(env-home)/messaging/rabbitmq.bash && rabbitmq-env $* ; }
+ahkera-(){      . $(env-home)/messaging/ahkera.bash && ahkera-env $* ; }
+openamq-(){      . $(env-home)/messaging/openamq.bash && openamq-env $* ; }

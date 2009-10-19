@@ -9,14 +9,27 @@ rabbitmq-usage(){
      rabbitmq-dir : $(rabbitmq-dir)
 
 
+
+
+  On OSX :
+      http://trac.macports.org/browser/trunk/dports/net/rabbitmq-server/Portfile
+      http://trac.macports.org/browser/trunk/dports/lang/erlang/Portfile
+           Why does erlang depend on wxWidgets ?
+           http://www.erlang.org
+
+   man rabbitmq-server
+   man rabbitmq.conf
+   man rabbitmq-multi
+   man rabbitmqctl
+
 EOU
 }
-rabbitmq-dir(){ echo $(local-base)/env/messaging/messaging-rabbitmq ; }
+rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
 rabbitmq-cd(){  cd $(rabbitmq-dir); }
 rabbitmq-mate(){ mate $(rabbitmq-dir) ; }
 
 
-rabbitmq-install(){
+rabbitmq-install-yum(){
 
    #redhat-
    #redhat-epel    ## hookup epel repo 
@@ -25,8 +38,28 @@ rabbitmq-install(){
 
    ## for RHEL4   
    sudo rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v1.7.0/rabbitmq-server-1.7.0-1.i386.rpm
-
-
 }
 
+rabbitmq-install-port(){
+  sudo port install rabbitmq-server
+}
+
+
+#rabbitmq-conf(){
+#  pkgr-
+#  case $(pkgr-cmd) in 
+#     yum) echo 
+#    port) 
+#  esac
+#}
+
+
+rabbitmq-cc-get(){
+
+  local dir=$(rabbitmq-dir)
+  mkdir -p $dir && cd $dir
+
+  hg clone http://hg.rabbitmq.com/rabbitmq-c
+
+}
 
