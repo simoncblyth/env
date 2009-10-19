@@ -25,6 +25,11 @@ void drawParasOfFile(string filename) {
     ifstream fin;
     fin.open(filename.data());
 
+    ofstream fattout;
+    ofstream fnout;
+    fattout.open("Att.dat");
+    fnout.open("n.dat");
+
     for(int i=0;i<TOTALDATANO;i++) {
         fin >> wlArrayTmp[i] >> nArrayTmp[i] >> nArrayErrTmp[i] >> 
                 aArrayTmp[i] >> aArrayErrTmp[i] >>
@@ -93,6 +98,19 @@ void drawParasOfFile(string filename) {
 
 
     string canvasTi = "Acrylic Optical Parameters, " + filename;
+
+
+    fattout << "nm mm +mm_error -mm_error" << endl;
+    fnout << "nm index_of_refraction error" << endl;
+    for(int i=0;i<successSize;i++){
+        fattout << wlArray[i] << " " << attArray[i] << " " << attArrayUpErr[i] << " " << attArrayLowErr[i] << endl;
+        fnout << wlArray[i] << " " << nArray[i] << " " << nArrayErr[i] << endl;
+    }
+
+    fattout.close();
+    fnout.close();
+
+
 
     TCanvas *c1 = new TCanvas(
         filename.data(),canvasTi.data(),200,10,700,900);
