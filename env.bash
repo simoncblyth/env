@@ -778,3 +778,4 @@ redhat-(){      . $(env-home)/base/redhat.bash && redhat-env $* ; }
 rabbitmq-(){      . $(env-home)/messaging/rabbitmq.bash && rabbitmq-env $* ; }
 ahkera-(){      . $(env-home)/messaging/ahkera.bash && ahkera-env $* ; }
 openamq-(){      . $(env-home)/messaging/openamq.bash && openamq-env $* ; }
+selinux-(){      . $(env-home)/base/selinux.bash && selinux-env $* ; }

@@ -96,6 +96,10 @@ hgweb-vhgselinux(){
   apache-
   python-
   apache-chcon $(hgweb-vhgdir)/lib/python$(python-major)/
+
+  ## for SCGI to work had to enable this in order to avoid "name_connect" denial : 
+  sudo setsebool httpd_can_network_connect 1 
+
 }
 
 

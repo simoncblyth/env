@@ -16,6 +16,7 @@ setup(
        #"Pylons>=0.9.7",
         "SQLAlchemy>=0.5",
         "Genshi>=0.4",
+        "Flup", 
        # "AuthKit>=0.4.3,<=0.4.99",
     ],
     setup_requires=["PasteScript>=1.6.3"],

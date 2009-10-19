@@ -106,6 +106,7 @@ plvdbi-serve(){
 
 plvdbi-private-check(){
    private-
+   local msg="=== $FUNCNAME :"
    local pport=$(private-val PLVDBI_PORT) 
    local lport=$(local-port plvdbi)
    [ "$pport" != "$lport" ] && echo $msg ABORT port mismatch pport $pport lport $lport && return 1 
