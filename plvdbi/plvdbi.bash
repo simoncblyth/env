@@ -83,14 +83,24 @@ plvdbi-build(){
     plvdbi-make-config 
     [ ! $? -eq 0 ] && return 1
 
-    plvdbi-archive-tw-resources
-    [ ! $? -eq 0 ] && return 1
-
-    plvdbi-statics-selinux
+    plvdbi-statics
     [ ! $? -eq 0 ] && return 1
 
 
 }
+
+
+
+plvdbi-statics(){
+
+    plvdbi-archive-tw-resources
+    [ ! $? -eq 0 ] && return 1
+
+    plvdbi-statics-selinux  
+    [ ! $? -eq 0 ] && return 1
+
+}
+
 
 
 plvdbi-install(){ pl-setup develop ; }
