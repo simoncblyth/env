@@ -100,7 +100,7 @@ plvdbi-serve(){
   local iwd=$PWD 
   local dir=$(plvdbi-workdir)
   mkdir -p $dir && cd $dir
-  pl-serve 
+  pl-serve --server-name scgi_thread
   cd $iwd
 }
 

@@ -40,10 +40,15 @@ vdbi-build(){
   [ "$(which python)" != "$(rum-dir)/bin/python" ]  && echo $msg ABORT must be inside rumenv to proceed && return 1
 
   vdbi-install
+  [ "$?" != "0" ] && echo $msg abort aftert vdbi-install &&  return 1
   vdbi-extras
+  [ "$?" != "0" ] && echo $msg abort aftert vdbi-extras &&  return 1
   vdbi-selinux 
-  ! vdbi-users-path && return 1
-  ! vdbi-logdir     && return 1
+  [ "$?" != "0" ] && echo $msg abort aftert vdbi-selinux &&  return 1
+  vdbi-users-path 
+  [ "$?" != "0" ] && echo $msg abort aftert vdbi-users-path &&  return 1
+  vdbi-logdir    
+  [ "$?" != "0" ] && echo $msg abort aftert vdbi-logdir &&  return 1
   return 0
 }
 

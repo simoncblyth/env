@@ -83,8 +83,8 @@ pl-build(){
 
   pl-get
   pl-install
-  pl-selinux 
-  pl-eggcache
+#  pl-selinux 
+#  pl-eggcache
 }
 
 
@@ -98,7 +98,7 @@ pl-get(){
    mkdir -p $dir && cd $dir
    local cmd="hg clone http://bitbucket.org/bbangert/pylons/ $nam"
    echo $msg \"$cmd\" from $PWD
-   eval $cmd 
+   [ ! -d "$nam" ] && eval $cmd || echo $msg already cloned to $nam 
 
    #hg clone https://www.knowledgetap.com/hg/pylons-dev Pylons
 }
@@ -156,9 +156,9 @@ pl-serve-(){
 
 pl-serve(){
   local msg="=== $FUNCNAME :"
-  local cmd=$($FUNCNAME-)
+  local cmd="$($FUNCNAME-) $*"
   echo $msg \"$cmd\"
-  eval $cmd 
+  eval $cmd  
 }
 
 pl-shell-(){
