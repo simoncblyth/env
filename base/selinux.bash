@@ -52,6 +52,7 @@ selinux-httpd_can_network_connect(){
 
 selinux-a2w(){
   type $FUNCNAME
+  sudo echo just getting sudofied  ... as accepting passwords messes up the pipe on the next line 
   sudo cat $(selinux-log) | sudo audit2why
 }
 

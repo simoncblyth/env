@@ -30,6 +30,15 @@ sv-usage(){
         NB will also need to hookup up the mount point in apache/lighttpd/nginx 
            for SCGI/FCGI webapps 
 
+    sv-plus ininame
+        Replacement for sv-add 
+           rather than passing the name of the function that emits the config 
+           ... simply pipe the config in allow to pass arguments to the func 
+           ... avoiding straightjacket 
+
+        Usage :
+             whatever arg1 arg2 | sv-plus whatever.ini
+
      sv-cnf
           apply the sv-cnf-triplets- to the supervisord config 
           (operates via sv-ini)
@@ -111,6 +120,18 @@ sv-add(){
    local cmd="sudo cp $tmp $(sv-confdir)/ "
    echo $msg $cmd
    eval $cmd
+}
+
+sv-plus(){
+  local msg="=== $FUNCNAME :"
+  local nam=$1
+  local tmp=/tmp/env/$FUNCNAME/$nam && mkdir -p $(dirname $tmp)
+  echo $msg writing to $tmp
+  cat - > $tmp
+  cat $tmp
+  local cmd="sudo cp $tmp $(sv-confdir)/ "
+  echo $msg $cmd
+  eval $cmd
 }
 
 

@@ -167,13 +167,14 @@ pl-sv-(){  cat << EOC
 command=$(which paster) serve $(pl-confpath)  $(pl-opts)
 redirect_stderr=true
 autostart=true
+environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH
 EOC
 }
 
 pl-sv(){
   ## hmm maybe better to pipe in the conf to allow passing options to the func   ... avoid straightjacket 
   sv-
-  sv-add $FUNCNAME- $(pl-projname).ini
+  $FUNCNAME- | sv-plus $(pl-projname).ini
 }
 
 
