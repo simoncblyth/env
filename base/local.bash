@@ -208,7 +208,8 @@ local-tag2ip(){
          C|S) echo 140.112.101.190 ;; 
   C2|SC2|C2R) echo 140.112.101.191 ;;
      S2|G1|P) echo 140.112.102.250 ;;
-           N) echo belle7.nuu.edu.tw ;;
+          #N) echo belle7.nuu.edu.tw ;;
+           N) echo 203.64.184.126 ;;
           NE) echo pdsf.nersc.gov ;;
            I) echo lxslc05.ihep.ac.cn ;;
           II) echo 140.112.101.199 ;;
