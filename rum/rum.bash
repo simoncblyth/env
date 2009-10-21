@@ -23,6 +23,8 @@ rum-env(){
        *) export ENV_PRIVATE_PATH=$(apache-private-path) ;;
    esac
 }
+
+
 rum-usage(){
   cat << EOU
      rum-src : $(rum-src)
@@ -112,4 +114,11 @@ rum-tute(){
    python app.py
 }
 
+
+
+
+rum-freeze(){
+   pip -E $(rum-dir) freeze 
+
+}
 

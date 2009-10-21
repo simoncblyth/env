@@ -13,6 +13,10 @@ plvdbi-env(){
    pl-
 }
 
+
+
+
+
 plvdbi-usage(){
   cat << EOU
 
@@ -50,6 +54,11 @@ plvdbi-usage(){
            collect the statics for deployment/serving from web server (apache/nginx/lighttpd) rather than webapp
                http://toscawidgets.org/documentation/ToscaWidgets/deploy.html
                http://projects.roggisch.de/tw/aggregation.html
+
+
+      plvdbi-freeze
+          freeze the state of python into $(pl-pippath)
+
 
 EOU
 }
@@ -203,4 +212,30 @@ plvdbi-statics-apache(){
 
 
 
+
+
+plvdbi-freeze(){
+  local msg="=== $FUNCNAME :"
+  rum-
+  local pip=$(pl-pippath) 
+  local tmp=/tmp/env/$FUNCNAME/$(basename $pip) && mkdir -p $(dirname $tmp)
+  local cmd
+  if [ -f "$pip" ] ; then
+     cmd="pip -E $(rum-dir) freeze -r $pip "   ## -r 
+  else
+     cmd="pip -E $(rum-dir) freeze "
+  fi
+  echo $msg \"$cmd\"
+  echo $msg freezing the state of python into $tmp ... for possible updating of $pip
+  eval $cmd > $tmp
+
+  if [ -f "$pip" ]; then 
+     diff $pip $tmp
+     echo $msg NOT COPYING AS TOO MESSY FOR AUTOMATION ... DO THAT YOURSELF WITH : \"cp $tmp $pip\"
+  else
+     echo $msg copying initial pip freeze to $pip
+     cp $tmp $pip
+  fi
+
+}
 

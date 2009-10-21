@@ -13,6 +13,9 @@ pl-opts(){     echo ${PL_OPTS:-} ; }
 
 pl-confpath(){  echo $(pl-projdir)/$(pl-confname).ini ; }
 pl-edit(){      vim $(pl-confpath) ;}
+#pl-reqpath(){   echo $(pl-projdir)/$(pl-confname).txt ; }
+pl-pippath(){   echo $(pl-projdir)/$(pl-confname).pip ; }   ## production and development same codebase ?
+
 
 pl-usage(){
   cat << EOU

@@ -1,0 +1,58 @@
+AddOns==0.7
+Babel==0.9.4
+Beaker==1.4.1
+BytecodeAssembler==0.5.1
+DecoratorTools==1.7
+EggTranslations==1.2.1
+Extremes==1.1.1
+FormEncode==1.2.2
+Genshi==0.5.1
+PEAK-Rules==0.5a1.dev-r2600
+Paste==1.7.2
+PasteDeploy==1.3.3
+PasteScript==1.7.3
+Pygments==1.0
+Routes==1.10.3
+RumAlchemy==0.3dev-20090708
+SQLAlchemy==0.5.6
+SymbolType==1.0
+Tempita==0.2
+TurboJson==1.2.1
+WebError==0.10.1
+WebFlash==0.1a9
+WebHelpers==0.6.4
+WebOb==0.9.6.1
+WebTest==1.1
+configobj==4.5.3
+decorator==3.0.0
+docutils==0.6
+elementtree==1.2.7-20070827-preview
+flup==1.0.3.dev-20090716
+ipython==0.9.1
+meld3==0.6.6
+prioritized-methods==0.2.1
+python-dateutil==1.4.1
+python-openid==2.2.4
+repoze.tm2==1.0a5
+rum.component==0.0.1dev
+simplejson==2.0.9
+transaction==1.0.0
+tw.dojo==0.9.4
+tw.dynforms==0.9.1
+tw.forms==0.9.8
+virtualenv==1.3.3
+zope.interface==3.5.2
+zope.sqlalchemy==0.4
+
+
+-e hg+http://belle7.nuu.edu.tw/hg/AuthKitPy24/file/d3f4dc698f06/AuthKit/trunk/#egg=AuthKitPy24-tip
+-e hg+http://toscawidgets.org/hg/ToscaWidgets@78787813b0e33065de53a61d03399fda438940bd#egg=ToscaWidgets-0.9.8dev_20091019-py2.4-dev
+-e hg+http://bitbucket.org/bbangert/pylons/@ccd78f4b1f3c2378b6ecc325c17bd0a7fca9d5bb#egg=Pylons-tip
+-e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
+-e hg+http://toscawidgets.org/hg/tw.jquery@e0e598dad42aa3234aaf05093e470ea94a3e2581#egg=tw.jquery-tip
+-e hg+http://hg.python-rum.org/tw.rum@a521028224f50b4d7a37d7098cffb218f1fa4d2b#egg=tw.rum-tip
+
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi@2498#egg=vdbi-dev_r2498
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi@2503#egg=plvdbi-dev_r2503
+
+
