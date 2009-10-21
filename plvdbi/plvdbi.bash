@@ -137,7 +137,16 @@ plvdbi-sv(){
   pl-sv
 }
 
+plvdbi-port(){
+   private-
+   private-val PLVDBI_PORT
+}
 
+plvdbi-webopen-ip(){
+   local tag=${1:-G}
+   iptables-
+   IPTABLES_PORT=$(plvdbi-port) iptables-webopen-ip $(local-tag2ip $tag)
+}
 
 
 plvdbi-private-check(){
@@ -212,7 +221,7 @@ plvdbi-statics-apache(){
 
 
 
-
+plvdbi-req(){ vi $(pl-pippath) ;  }
 
 plvdbi-freeze(){
   local msg="=== $FUNCNAME :"
@@ -236,6 +245,26 @@ plvdbi-freeze(){
      echo $msg copying initial pip freeze to $pip
      cp $tmp $pip
   fi
+
+}
+
+
+
+plvdbi-thaw(){
+
+  rum-
+  local msg="=== $FUNCNAME :"
+  local pip=$(pl-pippath) 
+  local dir=$(rum-dir)
+  [ ! -f "$pip" ] && echo $msg ABORT no pip file at $pip && return 1
+  [ ! -d "$dir" ] && echo $msg ABORT no dir at $dir && return 1 
+
+  #local iwd=$PWD
+  #cd $dir
+
+  local cmd="pip -E $dir install  -r $pip "
+  echo $msg \"$cmd\"  install based in the pip requirements file 
+  eval $cmd
 
 }
 
