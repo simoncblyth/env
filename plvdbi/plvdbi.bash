@@ -9,6 +9,7 @@ plvdbi-env(){
    export PL_PROJDIR=$(plvdbi-dir)
    export PL_CONFNAME=production
    export PL_OPTS=" --server-name scgi_thread "
+   export PL_VPYDIR=$(rum-;rum-dir)
    #export PL_CONFNAME=development
    pl-
 }
@@ -250,20 +251,22 @@ plvdbi-freeze(){
 
 
 
+
 plvdbi-thaw(){
 
-  rum-
   local msg="=== $FUNCNAME :"
   local pip=$(pl-pippath) 
-  local dir=$(rum-dir)
+  local dir=$(pl-vpydir)
   [ ! -f "$pip" ] && echo $msg ABORT no pip file at $pip && return 1
-  [ ! -d "$dir" ] && echo $msg ABORT no dir at $dir && return 1 
+  #[ ! -d "$dir" ] && echo $msg ABORT no dir at $dir && return 1 
 
-  #local iwd=$PWD
-  #cd $dir
+  local cmd="pip -E $dir install  -r $pip $* "
+  echo $msg installation into pl-vpydir:$dir based on the pip requirements : $pip
+  echo $msg \"$cmd\"  
 
-  local cmd="pip -E $dir install  -r $pip "
-  echo $msg \"$cmd\"  install based in the pip requirements file 
+  local ans
+  read -p "$msg enter YES to proceed " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 0  
   eval $cmd
 
 }

@@ -13,7 +13,8 @@ EOU
 }
 authkit-dir(){ echo $(local-base)/env/$(authkit-name) ; }
 authkit-name(){ echo AuthKitPy24 ; }
-authkit-rel(){ echo AuthKit/trunk ; }
+#authkit-rel(){ echo AuthKit/trunk ; }
+authkit-rel(){ echo -n ; }
 authkit-cd(){  cd $(authkit-dir)/$*; }
 authkit-mate(){ mate $(authkit-dir) ; }
 

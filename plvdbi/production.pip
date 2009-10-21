@@ -24,12 +24,12 @@ WebHelpers==0.6.4
 WebOb==0.9.6.1
 WebTest==1.1
 #  configobj==4.5.3   yielding version conflict on C
-configobj==4.6.0
+#configobj==4.6.0
 decorator==3.0.0
 docutils==0.6
 elementtree==1.2.7-20070827-preview
 flup==1.0.3.dev-20090716
-ipython>=0.9.1
+#ipython>=0.9.1
 meld3==0.6.6
 prioritized-methods==0.2.1
 python-dateutil==1.4.1

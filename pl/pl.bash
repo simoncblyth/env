@@ -10,6 +10,8 @@ pl-projname(){ echo ${PL_PROJNAME:-helloworld} ; }
 pl-confname(){ echo ${PL_CONFNAME:-development} ; }
 pl-projdir(){  echo ${PL_PROJDIR:-$(pl-dir)/$(pl-projname)} ; }
 pl-opts(){     echo ${PL_OPTS:-} ; }
+pl-vpydir(){   echo ${PL_VPYDIR} ; }
+
 
 pl-confpath(){  echo $(pl-projdir)/$(pl-confname).ini ; }
 pl-edit(){      vim $(pl-confpath) ;}

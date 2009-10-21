@@ -18,10 +18,6 @@ setup(
         "Genshi>=0.4",
         "Flup", 
         #"AuthKit>=0.4.3,<=0.4.99",
-        "AuthKitPy24==dev",
-    ],
-    dependency_links=[
-       "http://belle7.nuu.edu.tw/hg/AuthKitPy24/file/d3f4dc698f06/AuthKit/trunk/#egg=AuthKitPy24-dev",
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
