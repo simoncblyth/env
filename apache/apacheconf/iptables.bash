@@ -140,3 +140,11 @@ iptables-webclose-ip(){
    [ -z "$ip" ] && echo $msg ABORT ip not specified/determined && return 1
    iptables-webclose -s $ip
 }
+
+
+iptables-openforme(){
+   local port=${1:-6060}
+   local tag=G
+   IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)
+}
+
