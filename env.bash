@@ -749,7 +749,8 @@ djext-(){    . $(env-home)/dj/djext.bash && djext-env $* ; }
 nosedjango-(){      . $(env-home)/dj/nosedjango.bash && nosedjango-env $* ; }
 git-(){             . $(env-home)/git/git.bash && git-env $* ; }
 formalchemy-(){     . $(env-home)/sa/formalchemy.bash && formalchemy-env $* ; }
-rum-(){             . $(env-home)/rum/rum.bash && rum-env $* ; }
+#rum-(){             . $(env-home)/rum/rum.bash && rum-env $* ; }
+vip-(){             . $(env-home)/vip/vip.bash && vip-env $* ; }
 rumdev-(){          . $(env-home)/rum/rumdev.bash && rumdev-env $* ; }
 twdev-(){      . $(env-home)/tw/twdev.bash && twdev-env $* ; }
 plvdbi-(){      . $(env-home)/plvdbi/plvdbi.bash && plvdbi-env $* ; }

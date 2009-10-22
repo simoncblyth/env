@@ -9,11 +9,15 @@ plvdbi-env(){
    export PL_PROJDIR=$(plvdbi-dir)
    export PL_CONFNAME=production
    export PL_OPTS=" --server-name scgi_thread "
-   export PL_VPYDIR=$(rum-;rum-dir)
+   export PL_VIP=dbi    #$(rum-;rum-dir)
    #export PL_CONFNAME=development
    pl-
 }
 
+plvdbi--(){
+  vip-
+  vip-activate $(pl-vip)
+}
 
 plvdbi-usage(){
   cat << EOU
@@ -113,19 +117,18 @@ plvdbi-statics(){
 
     plvdbi-statics-selinux  
     [ ! $? -eq 0 ] && return 1
-
 }
 
-
-
 plvdbi-install(){ pl-setup develop ; }
+
 
 plvdbi-serve(){
   local msg="=== $FUNCNAME :" 
 
   plvdbi-private-check
   [ ! "$?" == "0" ] && echo $msg ABORT -private-check fails && return 1
-  rum-
+
+  plvdbi--
   local iwd=$PWD 
   local dir=$(plvdbi-workdir)
   mkdir -p $dir && cd $dir
@@ -138,7 +141,7 @@ plvdbi-sv(){
   ## customized via the coordinate envvars
   
   plvdbi-private-check
-  rum-
+  plvdbi--
   pl-sv
 }
 
@@ -254,24 +257,51 @@ plvdbi-freeze(){
 }
 
 
+plvdbi-editables-(){  cat << EOE
+-e hg+http://bitbucket.org/bbangert/pylons/@ccd78f4b1f3c2378b6ecc325c17bd0a7fca9d5bb#egg=Pylons-tip
+-e hg+http://toscawidgets.org/hg/ToscaWidgets@78787813b0e33065de53a61d03399fda438940bd#egg=ToscaWidgets-0.9.8dev_20091019-py2.4-dev
+-e hg+http://toscawidgets.org/hg/tw.jquery@e0e598dad42aa3234aaf05093e470ea94a3e2581#egg=tw.jquery-tip
+-e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
+-e hg+http://hg.python-rum.org/tw.rum@a521028224f50b4d7a37d7098cffb218f1fa4d2b#egg=tw.rum-tip
 
-
-plvdbi-thaw(){
-
-  local msg="=== $FUNCNAME :"
-  local pip=$(pl-pippath) 
-  local dir=$(pl-vpydir)
-  [ ! -f "$pip" ] && echo $msg ABORT no pip file at $pip && return 1
-  #[ ! -d "$dir" ] && echo $msg ABORT no dir at $dir && return 1 
-
-  local cmd="pip -s -E $dir install  -r $pip $* "
-  echo $msg installation into pl-vpydir:$dir ... -s means include site packages ... based on the pip requirements : $pip
-  echo $msg \"$cmd\"  
-
-  local ans
-  read -p "$msg enter YES to proceed " ans
-  [ "$ans" != "YES" ] && echo $msg skipping && return 0  
-  eval $cmd
-
+-e hg+http://belle7.nuu.edu.tw/hg/AuthKitPy24@286e263f713f#egg=AuthKitPy24-tip
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private#egg=private-dev  
+EOE
 }
+plvdbi-editables(){
+  vip-
+  $FUNCNAME- | vip-install $(pl-vip)
+}
+
+
+plvdbi-qeditables-(){  cat << EOE
+-e ../src/pylons-tip
+-e ../src/toscawidgets 
+-e ../src/tw.jquery-tip
+-e ../src/rum-tip
+-e ../src/tw.rum-tip
+
+-e ../src/authkitpy24-tip
+-e ../src/vdbi
+-e ../src/plvdbi
+-e ../src/private  
+EOE
+}
+
+plvdbi-qeditables(){
+  vip-
+  $FUNCNAME- | vip-install $(pl-vip)
+}
+
+
+plvdbi-vip(){
+  vip- 
+  local pip=$(pl-pippath)
+  local msg="=== $FUNCNAME :" 
+  [ ! -f "$pip" ] && echo $msg ABORT no requirements file at $pip && return 1
+  cat $pip | vip-install $(pl-vip)
+}
+
 
