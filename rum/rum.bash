@@ -67,7 +67,10 @@ rum-usage(){
 
 EOU
 }
-rum-dir(){ echo $(local-base)/env/rumenv ; }
+
+
+#rum-dir(){ echo $(local-base)/env/rumenv ; }
+rum-dir(){ echo $(local-base)/env/vrum ; }
 rum-cd(){  cd $(rum-dir); }
 rum-mate(){ mate $(rum-dir) ; }
 

@@ -395,7 +395,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
 }
 
 
-
+local-cd(){ cd $(local-base)/env ; }
 
 local-system-base(){
 

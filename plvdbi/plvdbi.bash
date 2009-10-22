@@ -15,9 +15,6 @@ plvdbi-env(){
 }
 
 
-
-
-
 plvdbi-usage(){
   cat << EOU
 
@@ -56,9 +53,16 @@ plvdbi-usage(){
                http://toscawidgets.org/documentation/ToscaWidgets/deploy.html
                http://projects.roggisch.de/tw/aggregation.html
 
-
       plvdbi-freeze
           freeze the state of python into $(pl-pippath)
+
+
+      plvdbi-thaw
+           install based on the versions/repos/clones specified in $(pl-pippath)
+           for example ... into a test virtual python :
+                 PL_VPYDIR=$(local-base)/env/vrum plvdbi-thaw
+
+
 
 
 EOU
