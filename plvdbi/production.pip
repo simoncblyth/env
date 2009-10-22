@@ -56,5 +56,6 @@ zope.sqlalchemy==0.4
 
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi@2498#egg=vdbi-dev_r2498
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi@2503#egg=plvdbi-dev_r2503
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private@2511#egg=private-dev
 
 

@@ -21,7 +21,7 @@ def config_authkit( app_conf ):
     import os
     from pkg_resources import resource_filename
     vdbi_templates = os.path.abspath(resource_filename('vdbi.rum','templates'))    
-    from env.base.private import Private
+    from private import Private
     priv = Private()
     app_conf['authkit.setup.method'] = 'form, cookie'
     app_conf['authkit.form.authenticate.user.type'] = 'authkit.users:UsersFromFile'

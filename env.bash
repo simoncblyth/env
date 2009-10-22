@@ -172,7 +172,7 @@ cmt-(){         . $(env-home)/cmt-/cmt-.bash && cmt-env $* ; }
 
 legacy-(){      . $(env-home)/legacy/legacy.bash && legacy-env $* ; }
 sshconf-(){     . $(env-home)/base/sshconf.bash && sshconf-env $* ; }
-private-(){     . $(env-home)/base/private.bash && private-env $* ; }
+private-(){     . $(env-home)/private/private.bash && private-env $* ; }
 func-(){        . $(env-home)/base/func.bash    && func-env $* ; }
 xmldiff-(){     . $(env-home)/xml/xmldiff.bash && xmldiff-env $* ; }
 

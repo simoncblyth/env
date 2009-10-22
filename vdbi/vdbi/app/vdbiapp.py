@@ -70,7 +70,7 @@ RumApp.paired_resource = paired_resource
 
 
 def create_app(url=None,  dbg=True):
-    from env.base.private import Private
+    from private import Private
     p = Private()
     if not(url):
        url = p('DATABASE_URL')          
