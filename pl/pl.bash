@@ -163,7 +163,10 @@ pl-serve-(){
 pl-serve(){
   local msg="=== $FUNCNAME :"
   local cmd="$($FUNCNAME-) $*"
-  echo $msg \"$cmd\"
+  echo $msg VIRTUAL_ENV  : $VIRTUAL_ENV 
+  echo $msg which paster : $(which paster) 
+  echo $msg which python : $(which python)
+  echo $msg \"$cmd\"  which paster : $(which paster) which python : $(which python)
   eval $cmd  
 }
 

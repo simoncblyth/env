@@ -67,8 +67,6 @@ plvdbi-usage(){
                  PL_VPYDIR=$(local-base)/env/vrum plvdbi-thaw
 
 
-
-
 EOU
 }
 
@@ -104,10 +102,7 @@ plvdbi-build(){
 
     plvdbi-statics
     [ ! $? -eq 0 ] && return 1
-
-
 }
-
 
 
 plvdbi-statics(){
@@ -119,7 +114,7 @@ plvdbi-statics(){
     [ ! $? -eq 0 ] && return 1
 }
 
-plvdbi-install(){ pl-setup develop ; }
+plvdbi-develop(){ pl-setup develop ; }
 
 
 plvdbi-serve(){
@@ -231,44 +226,22 @@ plvdbi-statics-apache(){
 
 plvdbi-req(){ vi $(pl-pippath) ;  }
 
-plvdbi-freeze(){
-  local msg="=== $FUNCNAME :"
-  rum-
-  local pip=$(pl-pippath) 
-  local tmp=/tmp/env/$FUNCNAME/$(basename $pip) && mkdir -p $(dirname $tmp)
-  local cmd
-  if [ -f "$pip" ] ; then
-     cmd="pip -E $(rum-dir) freeze -r $pip "   ## -r 
-  else
-     cmd="pip -E $(rum-dir) freeze "
-  fi
-  echo $msg \"$cmd\"
-  echo $msg freezing the state of python into $tmp ... for possible updating of $pip
-  eval $cmd > $tmp
-
-  if [ -f "$pip" ]; then 
-     diff $pip $tmp
-     echo $msg NOT COPYING AS TOO MESSY FOR AUTOMATION ... DO THAT YOURSELF WITH : \"cp $tmp $pip\"
-  else
-     echo $msg copying initial pip freeze to $pip
-     cp $tmp $pip
-  fi
-
-}
-
 
 plvdbi-editables-(){  cat << EOE
 -e hg+http://bitbucket.org/bbangert/pylons/@ccd78f4b1f3c2378b6ecc325c17bd0a7fca9d5bb#egg=Pylons-tip
 -e hg+http://toscawidgets.org/hg/ToscaWidgets@78787813b0e33065de53a61d03399fda438940bd#egg=ToscaWidgets-0.9.8dev_20091019-py2.4-dev
 -e hg+http://toscawidgets.org/hg/tw.jquery@e0e598dad42aa3234aaf05093e470ea94a3e2581#egg=tw.jquery-tip
--e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
 -e hg+http://hg.python-rum.org/tw.rum@a521028224f50b4d7a37d7098cffb218f1fa4d2b#egg=tw.rum-tip
 
--e hg+http://belle7.nuu.edu.tw/hg/AuthKitPy24@286e263f713f#egg=AuthKitPy24-tip
+-e hg+http://belle7.nuu.edu.tw/hg/AuthKitPy24#egg=AuthKitPy24-tip
+-e hg+http://belle7.nuu.edu.tw/hg/rum#egg=rum-tip
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private#egg=private-dev  
 EOE
+
+## -e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
+
 }
 plvdbi-editables(){
   vip-
@@ -303,5 +276,19 @@ plvdbi-vip(){
   [ ! -f "$pip" ] && echo $msg ABORT no requirements file at $pip && return 1
   cat $pip | vip-install $(pl-vip)
 }
+
+
+plvdbi-eui(){
+  ## end-user-install
+
+  plvdbi-vip
+  plvdbi-editables
+  
+
+
+}
+
+
+
 
 

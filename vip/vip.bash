@@ -3,7 +3,8 @@ vip-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vip-src)} ; }
 vip-vi(){       vi $(vip-source) ; }
 
 vip-base(){ echo $(local-base)/env/vip ; }
-vip-name(){ echo ${1:-$VIP_NAME} ; }
+#vip-name(){ echo ${1:-$VIP_NAME} ; }
+vip-name(){ basename ${VIRTUAL_ENV:-$1} ; } 
 vip-dir(){  echo $(vip-base)/$(vip-name $1) ; }
 vip-srcdir(){  echo $(vip-base)/src ; }
 vip-cd(){   cd $(vip-dir $*); }
@@ -13,6 +14,12 @@ vip-reqpath(){ echo $(vip-dir $*)/requirememts.txt ; }
 vip-deactivate(){  deactivate ; }
 
 vip-env(){ echo -n ; }
+vip--(){ 
+   local msg="=== $FUNCNAME :"
+   local cmd="pip -E $(vip-dir) install --src=$(vip-srcdir) --no-deps $*"
+   echo $msg \"$cmd\"
+   eval $cmd
+}
 
 vip-usage(){
   cat << EOU
@@ -35,6 +42,12 @@ vip-usage(){
 
       the srcdir is located one step above the individual env allowing editable paths  :
             -e ../src/
+
+
+      TODO:
+
+         
+
 
 EOU
 }
@@ -67,6 +80,8 @@ vip-install(){
   echo $msg \"$cmd\"  
   eval $cmd
 }
+
+
 
 
 vip-freeze(){
