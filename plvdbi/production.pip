@@ -54,8 +54,8 @@ zope.sqlalchemy==0.4
 -e hg+http://toscawidgets.org/hg/tw.jquery@e0e598dad42aa3234aaf05093e470ea94a3e2581#egg=tw.jquery-tip
 -e hg+http://hg.python-rum.org/tw.rum@a521028224f50b4d7a37d7098cffb218f1fa4d2b#egg=tw.rum-tip
 
--e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi@2498#egg=vdbi-dev_r2498
--e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi@2503#egg=plvdbi-dev_r2503
--e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private@2511#egg=private-dev
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
+-e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private#egg=private-dev
 
 

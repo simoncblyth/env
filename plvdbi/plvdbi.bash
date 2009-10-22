@@ -264,8 +264,8 @@ plvdbi-thaw(){
   [ ! -f "$pip" ] && echo $msg ABORT no pip file at $pip && return 1
   #[ ! -d "$dir" ] && echo $msg ABORT no dir at $dir && return 1 
 
-  local cmd="pip -E $dir install  -r $pip $* "
-  echo $msg installation into pl-vpydir:$dir based on the pip requirements : $pip
+  local cmd="pip -s -E $dir install  -r $pip $* "
+  echo $msg installation into pl-vpydir:$dir ... -s means include site packages ... based on the pip requirements : $pip
   echo $msg \"$cmd\"  
 
   local ans
