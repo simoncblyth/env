@@ -37,6 +37,22 @@ plvdbi-usage(){
 
      plvdbi-src : $(plvdbi-src)
 
+
+     plvdbi-preqs 
+         check the pre-requisites to the installation and running that 
+         need to be present in the system python namely :
+
+               setuptools 
+               virtualenv
+               pip
+               MySQLdb  + 
+
+     plvdbi-vinstall 
+         the installation will create a virtual python environment and 
+         install a large number of required packages into this
+
+
+
      plvdbi-serve   
         interactive server run ... visible at http://localhost:6000?
 
@@ -268,6 +284,11 @@ plvdbi-qeditables(){
   $FUNCNAME- | vip-install $(pl-vip)
 }
 
+plvdbi-preqs(){
+  vip-preqs
+  python -c "import MySQLdb "
+}
+
 
 plvdbi-vip(){
   vip- 
@@ -278,12 +299,11 @@ plvdbi-vip(){
 }
 
 
-plvdbi-eui(){
-  ## end-user-install
+plvdbi-vinstall(){
 
   plvdbi-vip
   plvdbi-editables
-  
+  #plvdbi-qeditables
 
 
 }

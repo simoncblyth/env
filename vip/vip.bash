@@ -21,10 +21,49 @@ vip--(){
    eval $cmd
 }
 
+
+vip-setuptools-version(){ python -c "import setuptools ; print setuptools.__version__ " ; }
+vip-pip-version-(){    pip --version ; }
+vip-second(){          echo -n $2 ; }
+vip-pip-version(){     vip-second $($FUNCNAME-) ; } 
+
+
+vip-preqs(){
+
+ local msg="=== $FUNCNAME :" 
+
+ echo $msg if version mismatches, try to install into the system python  
+
+ local vsv=$(vip-setuptools-version) 
+ local esv="0.6c11"
+ local msv="setuptools version $vsv is not the required $esv ... try : sudo easy_install -U setuptools "  
+ [ "$vsv" != "$esv" ] && echo $msg $msv 
+
+ local vev=$(virtualenv --version)
+ local eev="1.3.4dev"
+ local mev="virtualenv version $vev is not the required $eev ... try : sudo easy_install -U virtualenv==dev :  dev version needed for 0.6c11 compatibility "
+ [ "$vev" != "$eev" ] && echo $msg $mev
+
+ local vpv=$(vip-pip-version)
+ local epv="0.5.1"
+ local mpv="pip version $vpv is not the required $epv ... try : sudo easy_install -U pip==dev : dev version needed for uninstall functionality "
+ [ "$vpv" != "$epv" ] && echo $msg $mpv
+ echo $msg suspect pip version reporting broken ... $mpv
+
+
+}
+
+
 vip-usage(){
   cat << EOU
      vip-src : $(vip-src)
      vip-dir : $(vip-dir)
+
+     vip-preqs
+         check the versions of :  setuptools / virtualenv / pip 
+         this triplet is tightly coupled and other plvdbi constraints demand setuptools 0.6c11
+         so using the precise versions is a necessity
+      
 
      vip-install <name>
 
