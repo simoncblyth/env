@@ -166,7 +166,7 @@ pl-serve(){
   echo $msg VIRTUAL_ENV  : $VIRTUAL_ENV 
   echo $msg which paster : $(which paster) 
   echo $msg which python : $(which python)
-  echo $msg \"$cmd\"  which paster : $(which paster) which python : $(which python)
+  echo $msg \"$cmd\"  
   eval $cmd  
 }
 

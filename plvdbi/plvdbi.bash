@@ -251,12 +251,13 @@ plvdbi-editables-(){  cat << EOE
 
 -e hg+http://belle7.nuu.edu.tw/hg/AuthKitPy24#egg=AuthKitPy24-tip
 -e hg+http://belle7.nuu.edu.tw/hg/rum#egg=rum-tip
--e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
--e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private#egg=private-dev  
 EOE
 
-## -e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
+
+# -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
+# -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
+# -e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
 
 }
 plvdbi-editables(){
@@ -273,8 +274,8 @@ plvdbi-qeditables-(){  cat << EOE
 -e ../src/tw.rum-tip
 
 -e ../src/authkitpy24-tip
--e ../src/vdbi
--e ../src/plvdbi
+-e $(env-home)/vdbi
+-e $(env-home)/plvdbi
 -e ../src/private  
 EOE
 }

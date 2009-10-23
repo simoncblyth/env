@@ -4,7 +4,7 @@ vip-vi(){       vi $(vip-source) ; }
 
 vip-base(){ echo $(local-base)/env/vip ; }
 #vip-name(){ echo ${1:-$VIP_NAME} ; }
-vip-name(){ basename ${VIRTUAL_ENV:-$1} ; } 
+vip-name(){ basename ${VIRTUAL_ENV:-${1:-.}} ; } 
 vip-dir(){  echo $(vip-base)/$(vip-name $1) ; }
 vip-srcdir(){  echo $(vip-base)/src ; }
 vip-cd(){   cd $(vip-dir $*); }
@@ -12,6 +12,8 @@ vip-mate(){ mate $(vip-dir $*) ; }
 vip-activate(){    . $(vip-dir $*)/bin/activate ;  }
 vip-reqpath(){ echo $(vip-dir $*)/requirememts.txt ; }
 vip-deactivate(){  deactivate ; }
+
+vip-dbi(){  vip-activate dbi ; }
 
 vip-env(){ echo -n ; }
 vip--(){ 
