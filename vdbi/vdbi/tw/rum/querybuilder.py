@@ -109,8 +109,15 @@ class PlotWidget(forms.FieldSet):
 
 
 ##class DbiCalendarDateTimePicker(forms.CalendarDateTimePicker):
+
+
+from tw.api import JSLink
+calendar_js = JSLink( modname='tw.forms', filename='static/calendar/calendar.js')
+calendar_setup = JSLink( modname='vdbi.tw.rum', filename='static/calendar/calendar_setup.js')
+
 class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
     css_class = "rum-querybuilder-expression"
+    javascript = [calendar_js, calendar_setup]
     
     def __init__(self, *args, **kw):
         #print "DbiCalendarDateTimePicker.__init__ %s %s " % ( repr(args), repr(kw))
