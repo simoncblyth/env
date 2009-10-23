@@ -52,6 +52,8 @@ class DbiCRUDController(CRUDController):
         #debug_here()
         if query:
             if self.get_format(self.routes) not in ('csv','json'):
+                ## try to keep Safari happy 
+                self.response.headers.add('Content-Script-Type','text/javascript')
                 if query.limit is None:
                     
                     query = query.clone(
