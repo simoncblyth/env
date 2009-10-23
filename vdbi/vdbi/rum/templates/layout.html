@@ -12,6 +12,8 @@ from genshi.input import XML
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       py:strip="True">
+
+
   <py:match path="div[@id='rum-sidebar']" once="true">
     <div py:attrs="select('@*')">
         <?python from rum.util import generate_label ?>
@@ -52,7 +54,6 @@ from genshi.input import XML
   <xi:include href="${master_template}"><xi:fallback /></xi:include>
 </html>
 
-<meta http-equiv="content-script-type" content="text/javascript">
 
 
 
