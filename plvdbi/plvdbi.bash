@@ -213,6 +213,7 @@ plvdbi-archive-tw-resources(){
    cd $(plvdbi-dir)
    [ ! -f "setup.cfg" ] && echo $msg ABORT need setup.cfg to define the distributions to get resources from && return 1
    cat setup.cfg
+   plvdbi--
    local cmd="python setup.py archive_tw_resources -f --output $(plvdbi-statics-dir)"
    echo $msg \"$cmd\"
    eval $cmd
