@@ -116,7 +116,8 @@ calendar_js = JSLink( modname='tw.forms', filename='static/calendar/calendar.js'
 calendar_setup = JSLink( modname='vdbi.tw.rum', filename='static/calendar/calendar_setup.js')
 
 class DbiCalendarDateTimePicker(widgets.RumCalendarDateTimePicker):
-    css_class = "rum-querybuilder-expression"
+    #css_class = "rum-querybuilder-expression"
+    css_class = "rum-querybuilder-datetimepicker"
     javascript = [calendar_js, calendar_setup]
     
     def __init__(self, *args, **kw):

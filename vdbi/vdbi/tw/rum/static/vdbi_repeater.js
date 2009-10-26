@@ -54,19 +54,29 @@ dojo.declare("JSRepeater", null, {
             return tpl;
         },
         _resetRepetition: function(elem) {
-            // Clear value and remove error class if any
+            // Clear value and remove error class if any ... matches elements with name attribute
             dojo.query('[name]', elem).forEach(function(e) {
-                e.value = '';
+                // avoid clearing the time
+                if(e.name.substring( e.name.length - 9 ) !== 'Timestamp'){
+                    e.value = '';
+                }
                 dojo.removeClass(e, 'has_error');
             });
             // Select first (assume is default) options in each dropdown
-            dojo.query('select',elem).forEach(function(e) {
-                e.selectedIndex = 0;
-            });
+            //dojo.query('select',elem).forEach(function(e) {
+            //    e.selectedIndex = 0;
+            //});
             // Uncheck checkboxes
             dojo.query('input[type=checkbox]', elem).forEach(function(e) {
                 e.checked = null;
             });
+            // Set time ... suspect Calendar does some Date overriding ??   
+            // actually no need to set it, just avoid it being cleared
+            //dojo.query('.rum-querybuilder-datetimepicker', elem).forEach(function(e){
+            //   var now = new Date()    
+            //   e.value = now.print("%Y-%m-%d %H:%M:%S")
+            //  
+            //});    
             // Clear error messages
             dojo.query('.'+ this._error_class, elem).forEach(function(e) {
                 e.remove();
