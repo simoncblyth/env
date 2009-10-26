@@ -82,7 +82,9 @@ def create_app(url=None,  dbg=True):
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
     
-    from pkg_resources import resource_filename
+    from pkg_resources import resource_filename, get_distribution
+
+    
     import os
     
     app = RumApp({
@@ -111,6 +113,18 @@ def create_app(url=None,  dbg=True):
 
     field_fix( app )
 
+    ## record the versions of the principal packages for quoting in the footer    
+    app.pkgs = []
+    pkgs = "%s" % p('VDBI_PACKAGES').replace('"','')
+    for pkg in pkgs.split(','):
+        print pkg
+        try:
+            dist = get_distribution(pkg)
+            app.pkgs.append(dist)
+        except:
+            print "failed to get_distribution for %s" % pkg
+    print "\n".join([repr(p) for p in app.pkgs])
+    
 
     ## setup the JSON specialized controller
     from vdbi.rum.controller import register_crud_controller

@@ -2,7 +2,7 @@ vip-src(){      echo vip/vip.bash ; }
 vip-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vip-src)} ; }
 vip-vi(){       vi $(vip-source) ; }
 
-vip-base(){ echo $(local-base)/env/vip ; }
+vip-base(){ echo $(local-base)/env/v ; }
 #vip-name(){ echo ${1:-$VIP_NAME} ; }
 vip-name(){ basename ${VIRTUAL_ENV:-${1:-.}} ; } 
 vip-dir(){  echo $(vip-base)/$(vip-name $1) ; }
@@ -36,23 +36,24 @@ vip-preqs(){
 
  echo $msg if version mismatches, try to install into the system python  
 
+ local rc=0
  local vsv=$(vip-setuptools-version) 
  local esv="0.6c11"
  local msv="setuptools version $vsv is not the required $esv ... try : sudo easy_install -U setuptools "  
- [ "$vsv" != "$esv" ] && echo $msg $msv 
+ [ "$vsv" != "$esv" ] && echo $msg $msv && rc=1
 
  local vev=$(virtualenv --version)
- local eev="1.3.4dev"
+ local eev="1.3.4dev"   ## actually needs to be > some specifc revision that supports 0.6c11 ... this version does not ensure that 
  local mev="virtualenv version $vev is not the required $eev ... try : sudo easy_install -U virtualenv==dev :  dev version needed for 0.6c11 compatibility "
- [ "$vev" != "$eev" ] && echo $msg $mev
+ [ "$vev" != "$eev" ] && echo $msg $mev && rc=2
 
  local vpv=$(vip-pip-version)
  local epv="0.5.1"
  local mpv="pip version $vpv is not the required $epv ... try : sudo easy_install -U pip==dev : dev version needed for uninstall functionality "
- [ "$vpv" != "$epv" ] && echo $msg $mpv
+ [ "$vpv" != "$epv" ] && echo $msg $mpv && rc=3
  echo $msg suspect pip version reporting broken ... $mpv
 
-
+ return $rc
 }
 
 

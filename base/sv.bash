@@ -55,6 +55,14 @@ sv-usage(){
          assumes common port NNNN between local and remote  as defined in the private-val 
 
 
+     FAQ 
+         1) If the supervisord is not running you will get  : 
+                 socket.error: (61, 'Connection refused')
+             on attempting to start the controller
+            
+
+
+
 
 EOU
 }

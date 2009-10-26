@@ -26,21 +26,21 @@ plvdbi-usage(){
     before these commands will work, eg with "rum-"
 
 
-
      Basis vars : 
        PL_PROJNAME : $PL_PROJNAME
        PL_PROJDIR  : $PL_PROJDIR
        PL_CONFNAME : $PL_CONFNAME
+       PL_OPTS     : $PL_OPTS
+       PL_VIP      : $PL_VIP
    
      Derived
        pl-confpath : $(pl-confpath)
 
      plvdbi-src : $(plvdbi-src)
 
-
      plvdbi-preqs 
-         check the pre-requisites to the installation and running that 
-         need to be present in the system python namely :
+         check the system python (or basis python) pre-requisites to the 
+         installation and running namely :
 
                setuptools 
                virtualenv
@@ -51,11 +51,24 @@ plvdbi-usage(){
          the installation will create a virtual python environment and 
          install a large number of required packages into this
 
+     plvdbi-statics
+         collect statics (.css, .js, etc...) from the source distributions
+         and place them where the web server delivers them from 
 
+         NB : javascript issues such as pages failing to fully load 
+              are most likely caused by the statics becoming out of step with the sources 
 
      plvdbi-serve   
-        interactive server run ... visible at http://localhost:6000?
+        interactive server run ... visible at http://localhost/dbi/ 
+        after apache or other webserver is configured 
 
+     plvdbi-versions
+        report the versions of the more important packages : $(plvdbi-pkgs)
+
+
+
+     ###############  for development only ######################
+ 
      plvdbi-make-config
         create deployment config file from template :
              plvdbi/plvdbi/config/deployment.ini_tmpl
@@ -75,7 +88,6 @@ plvdbi-usage(){
 
       plvdbi-freeze
           freeze the state of python into $(pl-pippath)
-
 
       plvdbi-thaw
            install based on the versions/repos/clones specified in $(pl-pippath)
@@ -240,10 +252,23 @@ plvdbi-statics-apache(){
 }
 
 
+plvdbi-preqs(){
+  local msg="=== $FUNCNAME :"
+  python -c "import MySQLdb "
+  vip-preqs
+  [ ! "$?" == "0" ] && echo $msg FAILURE ... && return 1  
+  return 0
+}
+
+
+
+## the below vip installs can be contracted to a single line pip install once stabilization is achieved, split for faster development 
 
 plvdbi-req(){ vi $(pl-pippath) ;  }
+plvdbi-basis(){     vip- ; $FUNCNAME- | vip-install $(pl-vip) ; }
+plvdbi-basis-(){    cat $(pl-pippath) ; }
 
-
+plvdbi-editables(){ vip- ; $FUNCNAME- | vip-install $(pl-vip) ; }
 plvdbi-editables-(){  cat << EOE
 -e hg+http://bitbucket.org/bbangert/pylons/@ccd78f4b1f3c2378b6ecc325c17bd0a7fca9d5bb#egg=Pylons-tip
 -e hg+http://toscawidgets.org/hg/ToscaWidgets@78787813b0e33065de53a61d03399fda438940bd#egg=ToscaWidgets-0.9.8dev_20091019-py2.4-dev
@@ -254,19 +279,9 @@ plvdbi-editables-(){  cat << EOE
 -e hg+http://belle7.nuu.edu.tw/hg/rum#egg=rum-tip
 -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/private#egg=private-dev  
 EOE
-
-
-# -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/vdbi#egg=vdbi-dev
-# -e svn+http://dayabay.phys.ntu.edu.tw/repos/env/trunk/plvdbi#egg=plvdbi-dev
-# -e hg+http://hg.python-rum.org/rum@ad96b3e66e544a4674affe6024613e9f69f9a6de#egg=rum-tip
-
-}
-plvdbi-editables(){
-  vip-
-  $FUNCNAME- | vip-install $(pl-vip)
 }
 
-
+plvdbi-qeditables(){ vip- ;  $FUNCNAME- | vip-install $(pl-vip) ; }
 plvdbi-qeditables-(){  cat << EOE
 -e ../src/pylons-tip
 -e ../src/toscawidgets 
@@ -275,40 +290,45 @@ plvdbi-qeditables-(){  cat << EOE
 -e ../src/tw.rum-tip
 
 -e ../src/authkitpy24-tip
--e $(env-home)/vdbi
--e $(env-home)/plvdbi
 -e ../src/private  
 EOE
 }
 
-plvdbi-qeditables(){
-  vip-
-  $FUNCNAME- | vip-install $(pl-vip)
-}
-
-plvdbi-preqs(){
-  vip-preqs
-  python -c "import MySQLdb "
-}
-
-
-plvdbi-vip(){
-  vip- 
-  local pip=$(pl-pippath)
-  local msg="=== $FUNCNAME :" 
-  [ ! -f "$pip" ] && echo $msg ABORT no requirements file at $pip && return 1
-  cat $pip | vip-install $(pl-vip)
+plvdbi-primes(){ vip- ;  $FUNCNAME- | vip-install $(pl-vip) ; }
+plvdbi-primes-(){  cat << EOE
+-e $(env-home)/vdbi
+-e $(env-home)/plvdbi
+EOE
 }
 
 
 plvdbi-vinstall(){
-
-  plvdbi-vip
+  local msg="=== $FUNCNAME :"
+  plvdbi-preqs
+  [ ! "$?" == "0" ] && echo $msg install system python pre-requisites then try again && return 1
+  plvdbi-basis
+  [ ! "$?" == "0" ] && echo $msg plvdbi-vip failed && return 1 
   plvdbi-editables
-  #plvdbi-qeditables
+  [ ! "$?" == "0" ] && echo $msg plvdbi-editables failed && return 1 
+  plvdbi-qeditables
+  [ ! "$?" == "0" ] && echo $msg plvdbi-qeditables failed && return 1 
+  plvdbi-primes
+  [ ! "$?" == "0" ] && echo $msg plvdbi-primes failed && return 1 
+
 
 
 }
+
+
+plvdbi-pkgs(){      private- ; private-val VDBI_PACKAGES ; }
+plvdbi-versions(){  $FUNCNAME- | $(vip-dir $(pl-vip))/bin/python ; }
+plvdbi-versions-(){ cat << EOV
+import pkg_resources as pr
+for pkg in '$(plvdbi-pkgs)'.split(','):
+    print pr.get_distribution(pkg)
+EOV
+}
+
 
 
 

@@ -1,6 +1,7 @@
-<div id="rum-footer">
+<div id="rum-footer"  xmlns:py="http://genshi.edgewall.org/"   >
   <div id="rum-credits">
      <p> Powered by <a href="http://python-rum.org" > Rum </a> </p>
+       <span py:for="pkg in app.pkgs" >${pkg} </span>
   </div>
 </div>
 
