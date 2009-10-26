@@ -31,8 +31,6 @@ mysql-versions(){
    python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
 }
 
-
-
 mysql-create-db(){
    local msg="=== $FUNCNAME :"
    private-
@@ -58,6 +56,20 @@ mysql-sh(){
    private-
    mysql-sh- $(private-val DATABASE_NAME) ; 
 }
+
+
+mysql-cnf(){
+  case $(pkgr-cmd) in
+    yum) echo /etc/my.cnf ;;
+      *) echo /etc/my.cnf
+  esac
+}
+mysql-edit(){ sudo vi $(mysql-cnf) ; }
+mysql-triplet-edit(){
+  ini-
+  ini-triplet-edit $(mysql-cnf) $* 
+}
+
 
 
 mysql-ini(){
@@ -169,7 +181,7 @@ mysql-sv-(){
 [program:mysql]
 command=$pidproxy $pidpath $mysqld_safe
 redirect_stderr=true
-user=root
+user=mysql
 EOC
 }
 
