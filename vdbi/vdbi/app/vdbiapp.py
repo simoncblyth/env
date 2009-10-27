@@ -88,15 +88,13 @@ def create_app(url=None,  dbg=True):
        url = p('DATABASE_URL')          
     logdir = p('VDBI_LOGDIR') 
 
-    print "create_app logdir:%s " % logdir 
+    print "create_app private config from : %s " % p.path 
     setup_logging(logdir)
     
     import rum.util
     rum.util.generate_label = lambda x:x   ## stomp on the decamelization 
     
     from pkg_resources import resource_filename, get_distribution
-
-    
     import os
     
     app = RumApp({
@@ -127,7 +125,8 @@ def create_app(url=None,  dbg=True):
 
     ## record the versions of the principal packages for quoting in the footer    
     app.pkgs = []
-    pkgs = "%s" % p('VDBI_PACKAGES').replace('"','')
+    vdbi_packages = p('VDBI_PACKAGES')
+    pkgs = "%s" % vdbi_packages.replace('"','')
     for pkg in pkgs.split(','):
         print pkg
         try:
@@ -137,7 +136,8 @@ def create_app(url=None,  dbg=True):
             print "failed to get_distribution for %s" % pkg
 
     ## report the date on the statics dir
-    dtfmt = stat_(p('PLVDBI_STATICS_DIR'))
+    plvdbi_statics_dir = p('PLVDBI_STATICS_DIR')
+    dtfmt = stat_(plvdbi_statics_dir)
     app.pkgs.append("statics %s" % dtfmt['mtime'] )
 
     print "\n".join([repr(p) for p in app.pkgs])

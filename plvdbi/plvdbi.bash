@@ -241,6 +241,7 @@ plvdbi-archive-tw-resources(){
    eval $cmd
 }
 
+plvdbi-statics-stat(){ stat $(plvdbi-statics-dir) ; } 
 plvdbi-statics-check(){
    private-
    local psd=$(private-val PLVDBI_STATICS_DIR)
