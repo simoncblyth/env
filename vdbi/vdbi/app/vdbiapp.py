@@ -4,6 +4,18 @@
 import logging
 log = logging.getLogger(__name__)
 
+import time
+tfmt = lambda t:time.strftime("%Y%m%d",time.localtime(t))
+
+def stat_( path ):
+    import os, stat
+    if not os.path.exists(path):return {}
+    s = os.stat(path)
+    return {
+      'mtime': tfmt(s[stat.ST_MTIME]),
+      'atime': tfmt(s[stat.ST_ATIME]),
+      'ctime': tfmt(s[stat.ST_CTIME]),
+    }
 
 
 def handle_log( name , logdir ):
@@ -123,6 +135,11 @@ def create_app(url=None,  dbg=True):
             app.pkgs.append(dist)
         except:
             print "failed to get_distribution for %s" % pkg
+
+    ## report the date on the statics dir
+    dtfmt = stat_(p('PLVDBI_STATICS_DIR'))
+    app.pkgs.append("statics %s" % dtfmt['mtime'] )
+
     print "\n".join([repr(p) for p in app.pkgs])
     
 
@@ -176,6 +193,8 @@ def serve_app(**kwa):
 
 
 if __name__=='__main__':
+
+
     #vdbi_app = create_app(dbg=True)
     vdbi_app = serve_app(dbg=True)
 

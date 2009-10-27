@@ -142,6 +142,9 @@ plvdbi-build(){
 
 plvdbi-statics(){
 
+    plvdbi-statics-check
+    [ ! $? -eq 0 ] && return 1
+
     plvdbi-archive-tw-resources
     [ ! $? -eq 0 ] && return 1
 
@@ -238,10 +241,16 @@ plvdbi-archive-tw-resources(){
    eval $cmd
 }
 
+plvdbi-statics-check(){
+   private-
+   local psd=$(private-val PLVDBI_STATICS_DIR)
+   [ "$psd" != "$(plvdbi-statics-dir)" ] && echo $msg ERROR inconsistency between private-val PLVDBI_STATICS_DIR and the function && return 1
+   return 0
+}
+
 plvdbi-statics-selinux(){
    apache-chcon $(plvdbi-statics-dir)
 }
-
 
 plvdbi-statics-apache-(){  cat << EOC
 Alias /dbi/toscawidgets/ $(plvdbi-statics-dir)/ 
