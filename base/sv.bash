@@ -118,6 +118,13 @@ sv-sudo(){
 sv-start(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ $(sv-sudo) supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
 
+sv-sstart(){
+   ## when using source python, have to jump thu "sudo python" hoops ...  
+   python-
+   sudo bash -c "LD_LIBRARY_PATH=$(python-libdir) supervisord -c $(sv-confpath)" 
+}
+
+
 sv-add(){
    local msg="=== $FUNCNAME :"
    local fnc=$1

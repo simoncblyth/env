@@ -14,6 +14,10 @@ mysql-usage(){
         Add to supervisor control ...
         needs to be configured to run as root
 
+
+    mysql-triplet-edit "mysqld|log-bin|binlog"
+
+
 EOU
 }
 
@@ -101,7 +105,8 @@ mysql-admin(){
    mysqladmin$(mysql-post) -u $(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $*
 }
 
-
+mysql-logpath(){ echo /var/log/mysqld.log ; }
+mysql-tail(){    sudo tail -f $(mysql-logpath) ; }
 
 mysql-notes(){
   cat << EOU
@@ -144,6 +149,13 @@ EOU
 
 }
 
+mysql-tt-(){ cat << EOT
+create table tt (name varchar(20) );
+insert into tt (name) values ("simon") ; 
+EOT
+}
+
+
 mysql-install-yum(){
    sudo yum install mysql-server
 }
@@ -165,7 +177,7 @@ mysql-py-install(){
 
 
 mysql-pidpath(){ echo /var/run/mysqld/mysqld.pid ; }
-
+mysql-ps(){ ps aux | grep mysql ; }
 mysql-sv-(){ 
    local msg="=== $FUNCNAME :"
    local pidproxy=$(which pidproxy)
@@ -178,10 +190,14 @@ mysql-sv-(){
 
    cat << EOC
 ## http://supervisord.org/manual/current/subprocesses.html
+##
+##  try doing mysql config in more globally usable /etc/my.cnf rather than here ... 
+##      --log-bin=logbin
+##
 [program:mysql]
-command=$pidproxy $pidpath $mysqld_safe
+command=$pidproxy $pidpath $mysqld_safe 
 redirect_stderr=true
-user=mysql
+user=root
 EOC
 }
 
