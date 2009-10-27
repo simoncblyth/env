@@ -261,7 +261,9 @@ plvdbi-statics-apache(){
 
 plvdbi-preqs(){
   local msg="=== $FUNCNAME :"
+  [ "$(which hg)" == "" ] && echo $msg FAILURE ... Mercurial is missing && return 1
   python -c "import MySQLdb "
+  vip-
   vip-preqs
   [ ! "$?" == "0" ] && echo $msg FAILURE ... && return 1  
   return 0
