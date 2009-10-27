@@ -19,6 +19,12 @@ from rum.controller import handle_exception
 import logging
 log = logging.getLogger(__name__)
 
+
+def is_data_request( req ):
+    if req.user_agent[0:4] in ['Pyth','curl']:
+        return True
+    return False
+
 class DbiCRUDController(CRUDController):
     
     
@@ -50,6 +56,7 @@ class DbiCRUDController(CRUDController):
         query = self.repository.make_query(self.request.GET)
         query = self.app.policy.filter(resource, query)
         #debug_here()
+        print "index: %s " % self.request.user_agent
         if query:
             if self.get_format(self.routes) not in ('csv','json'):
                 ## try to keep Safari happy 
@@ -66,9 +73,15 @@ class DbiCRUDController(CRUDController):
                         ).exception
             else:
                 limit = offset = None
-                plotparam = query.plotparam()
-                offset = offset_(plotparam.get('offset',None))
-                limit  = limit_(plotparam.get('limit',None))
+                if is_data_request(self.request):
+                    print "vdbi.rum.controller : data feeder user_agent detected   %s " %  self.request.user_agent
+                    limit = query.limit
+                    offset = query.offset
+                    print "vdbi.rum.controller limit %s offset %s " % ( limit, offset )
+                else:
+                    plotparam = query.plotparam()
+                    offset = offset_(plotparam.get('offset',None))
+                    limit  = limit_(plotparam.get('limit',None))
                 if limit or offset:
                     query = query.clone( limit=limit, offset=offset )
                     log.debug("applying plot limit/offset to query %s" % `query` )
@@ -81,6 +94,10 @@ class DbiCRUDController(CRUDController):
             }
 
     
+    @process_output.when("isinstance(output,dict) and self.get_format(routes) == 'json' and is_data_request(self.request)",prio=10)
+    def _process_dict_as_json(self, output, routes):
+        json_output = self.app.jsonencoder.encode(output)
+        self.response.body = json_output
     
     @process_output.when("isinstance(output,dict) and self.get_format(routes) == 'json'", prio=10)
     def _process_dict_as_json(self, output, routes):

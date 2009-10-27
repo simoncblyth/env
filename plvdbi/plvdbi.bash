@@ -66,6 +66,13 @@ plvdbi-usage(){
         report the versions of the more important packages : $(plvdbi-pkgs)
 
 
+     plvdbi-curl/urllib/grab
+          Usage :  
+             plvdbi-urllib "SimPmtSpecDbis.json?limit=10&offset=50"
+             plvdbi-curl   "SimPmtSpecDbis.json?limit=1&offset=100"
+             plvdbi-grab   "SimPmtSpecDbis.json?limit=2&offset=100"
+                   demo json access
+
 
      ###############  for development only ######################
  
@@ -330,7 +337,29 @@ EOV
 }
 
 
+plvdbi-url(){ echo http://$(plvdbi-node)/dbi/${1:-SimPmtSpecDbis.json} ;  }
+plvdbi-node(){ echo localhost ; }
 
+plvdbi-curl-(){ cat << EOC
+curl -v -d username=$(private-val DAYABAY_USER) -d password=$(private-val DAYABAY_PASS) "$(plvdbi-url $*)"
+EOC
+}
 
+plvdbi-curl(){
+  private-
+  eval $($FUNCNAME- $*)
+}
+
+plvdbi-urllib(){ $FUNCNAME- $* | python ; }
+plvdbi-urllib-(){ private- ; cat << EOC
+import urllib2
+import urllib
+creds = urllib.urlencode({  'username':"$(private-val DAYABAY_USER)", 'password':"$(private-val DAYABAY_PASS)", } )
+req = urllib2.Request('$(plvdbi-url $*)', creds)
+print urllib2.urlopen(req).read()
+EOC
+}
+
+plvdbi-grab(){ python $(plvdbi-dir)/grab.py "$(plvdbi-url $*)" ; }
 
 
