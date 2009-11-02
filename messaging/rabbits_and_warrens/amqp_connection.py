@@ -5,7 +5,7 @@ class AMQPConnection(dict):
     def vhost(cls):
         from private import Private
         p = Private()
-        v = cls( host="%s:%s" % ( p('AMQP_SERVER'), p('AMQP_PORT') ) , userid=p('AMQP_USER'), password=p('AMQP_PASSWORD'), virtual_host=p('AMQP_VHOST'), insist=False )   
+        v = cls( host="%s:%s" % ( p('AMQP_SERVER'), p('AMQP_PORT') ) , userid=p('AMQP_USER'), password=p('AMQP_PASSWORD'), virtual_host=p('AMQP_VHOST'), insist=False , connect_timeout=5 )   
         return v
     def __init__(self, **kwa):
         self.update( **kwa )
