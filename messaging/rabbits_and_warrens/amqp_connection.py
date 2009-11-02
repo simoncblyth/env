@@ -1,13 +1,15 @@
 # http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
 
-class AMQPServer(object):
+class AMQPConnection(dict):
     @classmethod
     def vhost(cls):
-        from env.base.private import Private
+        from private import Private
         p = Private()
-        v = AMQPServer( host="%s:%s" % ( p('AMQP_SERVER'), p('AMQP_PORT') ) , userid=p('AMQP_USER'), password=p('AMQP_PASSWORD'), virtual_host=p('AMQP_VHOST'), insist=False )   
+        v = cls( host="%s:%s" % ( p('AMQP_SERVER'), p('AMQP_PORT') ) , userid=p('AMQP_USER'), password=p('AMQP_PASSWORD'), virtual_host=p('AMQP_VHOST'), insist=False )   
         return v
     def __init__(self, **kwa):
+        self.update( **kwa )
+        print self
         from amqplib import client_0_8 as amqp
         conn = amqp.Connection( **kwa )
         chan = conn.channel()
@@ -26,8 +28,8 @@ class AMQPServer(object):
 
 
 if __name__=='__main__':
-    from amqp_server import AMQPServer
-    v = AMQPServer.vhost() 
+    from amqp_connection import AMQPConnection
+    v = AMQPConnection.vhost() 
     print v
 
 

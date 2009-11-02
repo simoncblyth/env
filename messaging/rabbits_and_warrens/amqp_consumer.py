@@ -1,7 +1,8 @@
 # http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
 
-from amqp_server import AMQPServer
-v = AMQPServer.vhost()
+from amqp_connection import AMQPConnection
+v = AMQPConnection.vhost()
+print v
 
 v.queue_declare(queue="po_box", durable=True, exclusive=False, auto_delete=False)
 v.exchange_declare(exchange="sorting_room", type="direct", durable=True, auto_delete=False,)

@@ -1,8 +1,9 @@
 # http://blogs.digitar.com/jjww/2009/01/rabbits-and-warrens/
 
 from amqplib import client_0_8 as amqp
-from amqp_server import AMQPServer
-v = AMQPServer.vhost()
+from amqp_connection import AMQPConnection
+v = AMQPConnection.vhost()
+print v
 
 import sys
 msg = amqp.Message(sys.argv[1])
