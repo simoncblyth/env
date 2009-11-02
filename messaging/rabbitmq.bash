@@ -54,6 +54,15 @@ rabbitmq-install-port(){
 }
 
 
+rabbitmq-open-ip(){
+  local ip=$1
+  private-
+  iptables-
+  IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen-ip $ip 
+}
+
+
+
 #rabbitmq-conf(){
 #  pkgr-
 #  case $(pkgr-cmd) in 
