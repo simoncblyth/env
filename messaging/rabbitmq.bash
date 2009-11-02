@@ -28,6 +28,15 @@ rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
 rabbitmq-cd(){  cd $(rabbitmq-dir); }
 rabbitmq-mate(){ mate $(rabbitmq-dir) ; }
 
+rabbitmq-logdir(){   echo /var/log/rabbitmq ; }
+rabbitmq-logpath(){  echo $(rabbitmq-logdir)/rabbit.log ; }
+rabbitmq-tail(){   sudo tail -f $(rabbitmq-logpath) ; }
+rabbitmq-confpath(){ echo /etc/rabbitmq/rabbitmq.conf ; }
+rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }
+
+rabbitmq-inipath(){ echo /etc/init.d/rabbitmq-server ; }
+rabbitmq-ini(){     sudo $(rabbitmq-inipath) $* ; }
+rabbitmq-start(){   rabbitmq-ini start ; }
 
 rabbitmq-install-yum(){
 
