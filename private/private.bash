@@ -170,7 +170,7 @@ private-test(){
 }
 private-test-(){ cat << EOT
 
-from env.base.private import Private
+from private import Private
 p = Private()
 print p('SECRET')
 
@@ -178,5 +178,9 @@ EOT
 }
 
 
+private-py-install(){
+  cd $(env-home)/private
+  python setup.py develop
+}
 
-
+private-py-check(){ python -c "from private import Private ; p = Private() ; print p " ;  }
