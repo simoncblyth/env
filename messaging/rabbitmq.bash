@@ -81,3 +81,12 @@ rabbitmq-cc-get(){
 
 }
 
+
+
+rabbitmq-ex-dir(){         echo $(env-home)/messaging/rabbits_and_warrens ; } 
+rabbitmq-ex-cd(){          cd $(rabbitmq-ex-dir) ; }
+rabbitmq-ex-consumer(){    python $(rabbitmq-ex-dir)/amqp_consumer.py $* ; }
+rabbitmq-ex-publisher(){   python $(rabbitmq-ex-dir)/amqp_publisher.py $* ; }
+
+
+
