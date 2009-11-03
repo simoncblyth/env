@@ -9,7 +9,12 @@ rabbitmq-usage(){
      rabbitmq-dir : $(rabbitmq-dir)
 
 
-
+     rabbitmq-exchanges
+     rabbitmq-queues
+     rabbitmq-bindings
+     rabbitmq-connections
+               interrogate the server to provide listings of diagnostic fields, 
+               provide fieldname arguments to restrict to a subset of the fields 
 
   On OSX :
       http://trac.macports.org/browser/trunk/dports/net/rabbitmq-server/Portfile
@@ -60,7 +65,10 @@ rabbitmq-open-ip(){
   iptables-
   IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen-ip $ip 
 }
-
+rabbitmq-open(){
+   local tag=$1
+   $FUNCNAME-ip $(local-tag2ip $tag)
+}
 
 
 #rabbitmq-conf(){
@@ -82,7 +90,39 @@ rabbitmq-cc-get(){
 }
 
 
+rabbitmq-fields(){    ## from the rabbitmqctl usage message 
+   case $1 in
+      exchanges) echo name type durable auto_delete arguments  ;;
+         queues) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
+    connections) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
+       bindings) echo exchange_name routing_key queue_name arguments ;;
+   esac
+}
+rabbitmq-exchanges(){   rabbitmq-list ${FUNCNAME/*-/} $* ; }  
+rabbitmq-queues(){      rabbitmq-list ${FUNCNAME/*-/} $* ; }  
+rabbitmq-connections(){ rabbitmq-list ${FUNCNAME/*-/} $* ; }  
+rabbitmq-bindings(){    rabbitmq-list ${FUNCNAME/*-/} $* ; }  
 
+rabbitmq-list(){
+    local ty=${1:-queues}
+    shift
+    local args
+    [ "$#" == "0" ] && args=$(rabbitmq-fields $ty) || args=$*
+    echo $args 
+    sudo rabbitmqctl -q list_$ty $args
+}
+
+
+
+
+rabbitmq-ex-preq(){       
+
+    pip install amqplib 
+    
+    private-
+    private-py-install
+
+}
 rabbitmq-ex-dir(){         echo $(env-home)/messaging/rabbits_and_warrens ; } 
 rabbitmq-ex-cd(){          cd $(rabbitmq-ex-dir) ; }
 rabbitmq-ex-consumer(){    python $(rabbitmq-ex-dir)/amqp_consumer.py $* ; }
