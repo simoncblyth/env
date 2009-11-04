@@ -780,3 +780,5 @@ rabbitmq-(){      . $(env-home)/messaging/rabbitmq.bash && rabbitmq-env $* ; }
 ahkera-(){      . $(env-home)/messaging/ahkera.bash && ahkera-env $* ; }
 openamq-(){      . $(env-home)/messaging/openamq.bash && openamq-env $* ; }
 selinux-(){      . $(env-home)/base/selinux.bash && selinux-env $* ; }
+carrot-(){      . $(env-home)/messaging/carrot/carrot.bash && carrot-env $* ; }
+pcre-(){      . $(env-home)/pcre/pcre.bash && pcre-env $* ; }

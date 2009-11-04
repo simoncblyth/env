@@ -27,6 +27,23 @@ rabbitmq-usage(){
    man rabbitmq-multi
    man rabbitmqctl
 
+
+
+     rabbitmq-c-build
+         build the rabbitmq C client 
+   
+     rabbitmq-c-sendstring 
+
+
+       
+
+     rabbitmq-ex-consumer
+     rabbitmq-ex-publisher
+            try py-ampqlib based consumer and publisher
+
+
+
+
 EOU
 }
 rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
@@ -87,6 +104,8 @@ rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
 
 rabbitmq-c-build(){
    rabbitmq-c-preq
+
+   rabbitmq-codegen-get
    rabbitmq-c-get
    rabbitmq-c-make
 }
@@ -109,8 +128,29 @@ rabbitmq-c-get(){
 rabbitmq-c-make(){
   rabbitmq-c-cd
   autoreconf -i
+  autoconf
   ./configure 
   make 
+}
+
+
+rabbitmq-c-exepath(){ echo $(rabbitmq-c-dir)/examples/amqp_$1 ; }
+
+rabbitmq-c-sendstring(){
+   local msg="=== $FUNCNAME :"
+   local exe=$(rabbitmq-c-exepath sendstring)
+   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
+   
+   private-
+   local host=$(private-val AMQP_SERVER) 
+   local port=$(private-val AMQP_PORT) 
+   local exchange="feed" 
+   local routingkey="importer" 
+   local messagebody="$(hostname) $(date)"
+   local cmd="$exe $host $port $exchange $routingkey \"$messagebody\""
+   echo $msg $cmd
+   eval $cmd
+
 }
 
 
@@ -155,13 +195,13 @@ rabbitmq-list(){
 
 
 
-rabbitmq-ex-preq(){       
 
+## this is using py-amqplib see carrot- for a slightly higher level interface 
+
+rabbitmq-ex-preq(){       
     pip install amqplib 
-    
     private-
     private-py-install
-
 }
 rabbitmq-ex-dir(){         echo $(env-home)/messaging/rabbits_and_warrens ; } 
 rabbitmq-ex-cd(){          cd $(rabbitmq-ex-dir) ; }
