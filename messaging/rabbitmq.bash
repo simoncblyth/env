@@ -80,23 +80,33 @@ rabbitmq-open(){
 #}
 
 
+
+
+rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
+rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
+
+rabbitmq-c-build(){
+   rabbitmq-c-preq
+   rabbitmq-c-get
+   rabbitmq-c-make
+}
+
+
 rabbitmq-c-preq(){
    pip install simplejson 
 }
 
-rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
-rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
 rabbitmq-c-get(){
   local dir=$(rabbitmq-dir)
   mkdir -p $dir && cd $dir
   hg clone http://hg.rabbitmq.com/rabbitmq-c
 
   ## rabbitmq-c expects a codegen dir containing : amqp-0.8.json and amqp_codegen.py
-  cd rabbitmq-c
-  hg clone http://hg.rabbitmq.com/rabbitmq-codegen codegen
+  #cd rabbitmq-c
+  #hg clone http://hg.rabbitmq.com/rabbitmq-codegen codegen
 }
 
-rabbitmq-c-build(){
+rabbitmq-c-make(){
   rabbitmq-c-cd
   autoreconf -i
   ./configure 
