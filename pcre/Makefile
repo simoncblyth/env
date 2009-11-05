@@ -1,15 +1,4 @@
-
-SOFLAGS     = -dynamiclib -Wl,-undefined -Wl,dynamic_lookup
-CFLAGS      = -g -fno-common -Wall
-LIBS        =
-
-PCRE_CFLAGS = -I/opt/local/include 
-PCRE_LIBS   = -L/opt/local/lib -lpcre
-
-GLIB_CFLAGS = -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include
-GLIB_LIBS   = -L/opt/local/lib -lglib-2.0
-
-
+include Makefile.$(shell uname)
 
 SRC_DIR     = .
 INC_DIR     = .
@@ -21,12 +10,10 @@ LIBS       += $(GLIB_LIBS)
 CFLAGS     += $(PCRE_CFLAGS)
 LIBS       += $(PCRE_LIBS)
 
-
 PRIV_CFLAGS = -I.
 PRIV_LIBS   = -L./$(LIB_DIR) -lprivate
 
-
-LIBFILE = libprivate.dylib
+LIBFILE = libprivate.$(SOFIX)
 OBJ_LIST = private.o
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
@@ -45,12 +32,10 @@ $(LIB_DIR)/private_val : $(addprefix $(LIB_DIR)/, private_val.o) $(LIB_DIR)/$(LI
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(PRIV_CFLAGS) $(PRIV_LIBS) $< -o $@ 
 
-
 .PHONY : clean test
 
-
 test:
-	./lib/private_val AMQP_SERVER
+	DYLD_LIBRARY_PATH=$(LIB_DIR) LD_LIBRARY_PATH=$(LIB_DIR) ./lib/private_val AMQP_SERVER
 	
 clean:
 	rm -rf $(LIB_DIR)

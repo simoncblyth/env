@@ -1,0 +1,14 @@
+
+SOFLAGS     = -dynamiclib -Wl,-undefined -Wl,dynamic_lookup
+CFLAGS      = -g -fno-common -Wall
+LIBS        =
+SOFIX       = dylib
+
+
+PCRE_CFLAGS = -I/opt/local/include 
+PCRE_LIBS   = -L/opt/local/lib -lpcre
+
+GLIB_CFLAGS = -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include
+GLIB_LIBS   = -L/opt/local/lib -lglib-2.0
+
+
