@@ -1,5 +1,6 @@
 // 
 //   http://www.gtk.org/api/2.6/glib/glib-Hash-Tables.html
+//   http://www.ibm.com/developerworks/library/l-glib.html
 //   http://www.ibm.com/developerworks/linux/library/l-glib2.html
 //
 //     gcc ht.c  -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include  -L/opt/local/lib -lglib-2.0 -o ht
@@ -17,6 +18,12 @@
 #include <stdlib.h> 
 #include <stdio.h>
 #include <glib.h>
+
+
+static void dump_hash_table_entry(gpointer key, gpointer value, gpointer user_data)
+{
+    printf("dump_hash_table_entry :  \"%s\" \"%s\" ", key, value);
+}
 
 int main(){
 
@@ -50,6 +57,21 @@ int main(){
    }
    fclose(fp);
 
+   g_hash_table_foreach(table, dump_hash_table_entry, NULL);
+
+   char* the_key, *the_value ;
+   the_key = "one" ;
+   the_value = g_hash_table_lookup(table, the_key);
+   if(the_value)
+   {
+	  printf("lookup \"%s\" yields \"%s\" \n", the_key, the_value ) ; 
+   }
+   else
+   {
+      printf("lookup \"%s\" yields nowt \n", the_key ) ; 	 
+   }
+
+   
    g_hash_table_destroy(table);      
 
    return 0 ;
