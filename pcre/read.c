@@ -16,7 +16,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <pcre.h>
 
 char enter_reverse_mode[] = "\33[7m";
