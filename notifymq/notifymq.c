@@ -1,3 +1,5 @@
+
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,16 +12,10 @@
 #include "private.h"
 #include "example_utils.h"
 
+#include "notifymq.h"
 
-int notifymq_init();
-int notifymq_cleanup();
-int notifymq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody );
-
-
-int sockfd ;
-amqp_connection_state_t conn ;
-
-
+static int sockfd ;
+static amqp_connection_state_t conn ;
 
 
 int notifymq_init()
@@ -69,16 +65,3 @@ int notifymq_cleanup()
 }
 
 
-int main(int argc, char const * const *argv) {
-   if (argc < 4) {
-      fprintf(stderr, "Usage: amqp_sendstring exchange routingkey messagebody\n");
-      return 1;
-   }
-   notifymq_init();
-   char const* exchange = argv[1];
-   char const* routingkey = argv[2];
-   char const* messagebody = argv[3];
-   notifymq_sendstring( exchange , routingkey , messagebody );
-   notifymq_cleanup();
-   return 0;
-}

@@ -24,12 +24,12 @@ LIBS       += $(PRIV_LIBS)
 
 
 LIBFILE = libnotifymq.$(SOFIX)
-OBJ_LIST = example_utils.o
+OBJ_LIST = example_utils.o notifymq.o
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(LIB_DIR)
 
-all : $(LIB_DIR)/amqp_sendstring
+all : $(LIB_DIR)/notifymq_sendstring
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -40,7 +40,7 @@ $(LIB_DIR)/$(LIBFILE) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST))
 	@echo "Making $@ from $^ "
 	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@
 
-$(LIB_DIR)/amqp_sendstring : amqp_sendstring.c $(LIB_DIR)/$(LIBFILE) 
+$(LIB_DIR)/notifymq_sendstring : notifymq_sendstring.c $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
@@ -51,7 +51,7 @@ info:
 	@echo $(shell echo $(ENV_HOME))
 
 test:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/amqp_sendstring feed importer "$(shell date) $(shell hostname)"
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
 	
 clean:
 	rm -rf $(LIB_DIR)
