@@ -7,39 +7,34 @@
 #include <amqp_framing.h>
 
 #include <unistd.h>
-
+#include "private.h"
 #include "example_utils.h"
 
 int main(int argc, char const * const *argv) {
-  char const *hostname;
-  int port;
-  char const *exchange;
-  char const *routingkey;
-  char const *messagebody;
-
-  int sockfd;
-  amqp_connection_state_t conn;
-
-  if (argc < 6) {
-    fprintf(stderr, "Usage: amqp_sendstring host port exchange routingkey messagebody\n");
+  if (argc < 4) {
+    fprintf(stderr, "Usage: amqp_sendstring exchange routingkey messagebody\n");
     return 1;
   }
 
-  hostname = argv[1];
-  port = atoi(argv[2]);
-  exchange = argv[3];
-  routingkey = argv[4];
-  messagebody = argv[5];
+  private_init();
+  char const* hostname = private_lookup("AMQP_SERVER");
+  int port = atoi(private_lookup("AMQP_PORT"));
+  char const* user = private_lookup("AMQP_USER");
+  char const* password = private_lookup("AMQP_PASSWORD");
+  char const* vhost = private_lookup("AMQP_VHOST");
 
-  conn = amqp_new_connection();
+  int sockfd;
+  amqp_connection_state_t conn = amqp_new_connection();
 
   die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
   amqp_set_sockfd(conn, sockfd);
-  die_on_amqp_error(amqp_login(conn, "/", 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, "guest", "guest"),
-		    "Logging in");
+  die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
   amqp_channel_open(conn, 1);
   die_on_amqp_error(amqp_rpc_reply, "Opening channel");
 
+  char const* exchange = argv[1];
+  char const* routingkey = argv[2];
+  char const* messagebody = argv[3];
   {
     amqp_basic_properties_t props;
     props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
@@ -60,5 +55,8 @@ int main(int argc, char const * const *argv) {
   die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
   amqp_destroy_connection(conn);
   die_on_error(close(sockfd), "Closing socket");
+
+  private_cleanup();
+
   return 0;
 }

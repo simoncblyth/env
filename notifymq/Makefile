@@ -51,7 +51,7 @@ info:
 	@echo $(shell echo $(ENV_HOME))
 
 test:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/amqp_sendstring cms01.phys.ntu.edu.tw 5672 feed importer hello-from-makefile
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/amqp_sendstring feed importer "$(shell date) $(shell hostname)"
 	
 clean:
 	rm -rf $(LIB_DIR)
