@@ -134,6 +134,11 @@ rabbitmq-c-make(){
 }
 
 
+
+
+
+
+
 rabbitmq-c-exepath(){ echo $(rabbitmq-c-dir)/examples/amqp_$1 ; }
 
 rabbitmq-c-sendstring(){
@@ -151,6 +156,14 @@ rabbitmq-c-sendstring(){
    echo $msg $cmd
    eval $cmd
 
+}
+
+rabbitmq-c-usage(){
+   local files="amqp_sendstring.c example_utils.c example_utils.h"
+   cd $(env-home)/notifymq 
+   local file ; for file in $files ; do
+     [ ! -f "$file" ] &&  cp $(rabbitmq-c-dir)/examples/$file . || echo $msg $file already present in $PWD
+   done
 }
 
 
