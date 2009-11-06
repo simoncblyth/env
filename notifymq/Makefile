@@ -50,6 +50,7 @@ $(LIB_DIR)/notifymq_sendstring : notifymq_sendstring.c $(LIB_DIR)/$(LIBFILE)
 info:
 	@echo $(shell echo $(ENV_HOME))
 
+## run carrot-consumer to provide somewhere for the messages to be consumed 
 test:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
 	

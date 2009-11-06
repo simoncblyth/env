@@ -14,7 +14,7 @@ def main(argv):
     parser.add_option("-k", "--key",      dest="key",      default="importer", help="name of the routing key")
     (opts, args) = parser.parse_args(argv)
 
-    pars = { 'connection':conn , 'queue':opts.queue , 'exchange':opts.exchange , 'key':opts.key }
+    pars = { 'connection':conn , 'queue':opts.queue , 'exchange':opts.exchange , 'key':opts.key }   ## is the duplication of queue and exchange needed ?
     print "creating consumer %s on connection %s " % ( repr(pars) , repr(params) )
     consumer = Consumer( **pars )
     def _callback(msg_data, msg):

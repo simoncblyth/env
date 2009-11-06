@@ -1,4 +1,5 @@
-
+#ifndef private_h
+#define private_h
 
 #define OVECCOUNT 30    /* should be a multiple of 3 */
 #define ENVVAR  "ENV_PRIVATE_PATH"
@@ -10,4 +11,6 @@ int private_dump();
 
 const char* private_lookup( const char* key );
 
+
+#endif
 
