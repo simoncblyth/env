@@ -29,7 +29,9 @@ int notifymq_init()
     char const* password = private_lookup("AMQP_PASSWORD");
     char const* vhost = private_lookup("AMQP_VHOST");
 
-    die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
+    rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
+    if(rc != EXIT_SUCCESS) return rc ;
+
     conn = amqp_new_connection();
     amqp_set_sockfd(conn, sockfd);
     die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");

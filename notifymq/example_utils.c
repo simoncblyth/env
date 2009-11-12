@@ -9,11 +9,12 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-void die_on_error(int x, char const *context) {
+int die_on_error(int x, char const *context) {
   if (x < 0) {
     fprintf(stderr, "%s: %s\n", context, strerror(-x));
-    exit(1);
+    return -x ;
   }
+  return EXIT_SUCCESS ;
 }
 
 void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
