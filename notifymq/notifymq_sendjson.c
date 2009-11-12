@@ -17,7 +17,26 @@ int main(int argc, char const * const *argv) {
    }
    char const* exchange = argv[1];
    char const* routingkey = argv[2];
- 
+
+   cJSON* root=cJSON_CreateObject();	
+   cJSON_AddNumberToObject(root, "number", 309);
+   cJSON_AddStringToObject(root, "start", "2009-09-10 01:58:52");
+   cJSON_AddStringToObject(root, "stop",  "2009-09-10 01:59:05");
+   cJSON_AddNumberToObject(root, "events" , 0 );
+   cJSON_AddNumberToObject(root, "operator" , 0 );
+   cJSON_AddNumberToObject(root, "tkoffset" , 0 );
+   cJSON_AddNumberToObject(root, "source  " , 0 );
+   cJSON_AddNumberToObject(root, "pmtgain" , 0.0 );
+   cJSON_AddNumberToObject(root, "trigger" , 0 );
+   cJSON_AddNumberToObject(root, "temperature" , 25.0 );
+   cJSON_AddNumberToObject(root, "humidity" , 75.0 );
+   cJSON_AddStringToObject(root, "comment" ,  "Calibration Run" );
+   cJSON_AddStringToObject(root, "frontendhost" ,  "dayabay8core" );
+   cJSON_AddStringToObject(root, "frontendname" ,  "Frontend" );
+   cJSON_AddStringToObject(root, "created" ,       "2009-11-12 19:03:21.676917" );
+
+   // NB a dict with more structure that this rather flat one can also be prepared, using AddItemToObject :
+/*
    cJSON* root=cJSON_CreateObject();	
    cJSON_AddItemToObject(root, "name", cJSON_CreateString("Jack (\"Bee\") Nimble"));
    cJSON* fmt=cJSON_CreateObject();
@@ -27,6 +46,8 @@ int main(int argc, char const * const *argv) {
    cJSON_AddNumberToObject(fmt,"height",1080);
    cJSON_AddFalseToObject (fmt,"interlace");
    cJSON_AddNumberToObject(fmt,"frame rate",24);
+*/
+
 	
    // Print to text, Delete the cJSON, print it, release the string.
    char* out=cJSON_Print(root);	

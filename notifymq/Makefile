@@ -66,7 +66,7 @@ test_sendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
 
 test_sendjson:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendjson feed importer "$(shell date) $(shell hostname)"
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendjson runinfo_run runinfo_run_add
 		
 clean:
 	rm -rf $(LIB_DIR)
