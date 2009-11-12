@@ -30,6 +30,7 @@ def process_runinfo():
 
     for message in consumer.iterqueue():
         print message, message.body
+        message.ack()
 
     #  usual django db updating 
     #for url, click_count in clicks_for_urls.items():
