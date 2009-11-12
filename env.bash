@@ -782,3 +782,5 @@ openamq-(){      . $(env-home)/messaging/openamq.bash && openamq-env $* ; }
 selinux-(){      . $(env-home)/base/selinux.bash && selinux-env $* ; }
 carrot-(){      . $(env-home)/messaging/carrot/carrot.bash && carrot-env $* ; }
 pcre-(){      . $(env-home)/pcre/pcre.bash && pcre-env $* ; }
+cjson-(){      . $(env-home)/messaging/cjson.bash && cjson-env $* ; }
+notifymq-(){      . $(env-home)/notifymq/notifymq.bash && notifymq-env $* ; }

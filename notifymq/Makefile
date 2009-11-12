@@ -10,6 +10,10 @@ PRIV_LIBDIR = $(PRIV_HOME)/lib
 PRIV_CFLAGS = -I$(PRIV_HOME)
 PRIV_LIBS   = -L$(PRIV_LIBDIR) -lprivate
 
+CJSON_HOME   = $(LOCAL_BASE)/env/messaging/cjson
+CJSON_LIBDIR = $(CJSON_HOME)/lib
+CJSON_CFLAGS = -I$(CJSON_HOME)  
+CJSON_LIBS   = -L$(CJSON_LIBDIR) -lcJSON
 
 SRC_DIR     = .
 INC_DIR     = .
@@ -44,6 +48,13 @@ $(LIB_DIR)/notifymq_sendstring : notifymq_sendstring.c $(LIB_DIR)/$(LIBFILE)
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
+
+$(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $< -o $@ 
+
+
 
 .PHONY : clean test info
 
