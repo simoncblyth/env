@@ -6,7 +6,11 @@ int main(int argc, char const * const *argv) {
       fprintf(stderr, "Usage: notifymq_sendstring exchange routingkey messagebody\n");
       return 1;
    }
-   notifymq_init();
+   int rc ;
+   if((rc = notifymq_init())){
+      fprintf(stderr, "ABORT: notifymq_init failed rc : %d \n", rc );
+      return rc ;
+   }
    char const* exchange = argv[1];
    char const* routingkey = argv[2];
    char const* messagebody = argv[3];

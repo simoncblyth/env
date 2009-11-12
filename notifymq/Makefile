@@ -31,9 +31,9 @@ LIBFILE = libnotifymq.$(SOFIX)
 OBJ_LIST = example_utils.o notifymq.o
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
-LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(LIB_DIR)
+LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
 
-all : $(LIB_DIR)/notifymq_sendstring
+all : $(LIB_DIR)/notifymq_sendstring $(LIB_DIR)/notifymq_sendjson
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -52,18 +52,21 @@ $(LIB_DIR)/notifymq_sendstring : notifymq_sendstring.c $(LIB_DIR)/$(LIBFILE)
 $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $< -o $@ 
+	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $< -o $@ 
 
 
 
-.PHONY : clean test info
+.PHONY : clean test_sendstring test_sendjson info
 
 info:
 	@echo $(shell echo $(ENV_HOME))
 
 ## run carrot-consumer to provide somewhere for the messages to be consumed 
-test:
+test_sendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
-	
+
+test_sendjson:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendjson feed importer "$(shell date) $(shell hostname)"
+		
 clean:
 	rm -rf $(LIB_DIR)

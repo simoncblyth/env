@@ -20,7 +20,9 @@ static amqp_connection_state_t conn ;
 
 int notifymq_init()
 {
-    private_init();
+    int rc = private_init();
+    if(rc != EXIT_SUCCESS) return rc ;
+   
     char const* hostname = private_lookup("AMQP_SERVER");
     int port = atoi(private_lookup("AMQP_PORT"));
     char const* user = private_lookup("AMQP_USER");
