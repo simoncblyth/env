@@ -1,9 +1,7 @@
-
-
+aberdeen-vi(){ vi ${BASH_SOURCE:-$(env-home)/aberdeen/aberdeen.bash} ; }
 aberdeen-env(){
   local msg="=== $FUNCNAME "
 }
-
 
 roody-(){ . $ENV_HOME/aberdeen/roody.bash && roody-env $* ; }
 midas-(){ . $ENV_HOME/aberdeen/midas.bash && midas-env $* ; }

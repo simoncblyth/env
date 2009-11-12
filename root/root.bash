@@ -1,4 +1,4 @@
-root-vi(){ vi $BASH_SOURCE ; }
+root-vi(){ vi ${BASH_SOURCE:-$(env-home)/root/root.bash} ; }
 root-info(){ cat << EOI
 
    root-mode     : $(root-mode $*)
