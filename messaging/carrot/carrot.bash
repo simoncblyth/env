@@ -17,6 +17,12 @@ carrot-usage(){
 
 EOU
 }
+
+carrot-preq(){
+   pip install carrot
+   pip install python-cjson
+}
+
 carrot-dir(){ echo $(env-home)/messaging/carrot ; }
 carrot-cd(){  cd $(carrot-dir); }
 carrot-mate(){ mate $(carrot-dir) ; }
