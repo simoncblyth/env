@@ -9,7 +9,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-from env.base.private import priv as p
+from private import Private 
+p = Private()
 
 DATABASE_ENGINE = p('DATABASE_ENGINE')       # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = p('DATABASE_NAME')           # Or path to database file if using sqlite3.
@@ -17,6 +18,16 @@ DATABASE_USER = p('DATABASE_USER')           # Not used with sqlite3.
 DATABASE_PASSWORD = p('DATABASE_PASSWORD')   # Not used with sqlite3.
 DATABASE_HOST = p('DATABASE_HOST')           # Set to empty string for localhost. Not used with sqlite3.
 DATABASE_PORT = p('DATABASE_PORT')           # Set to empty string for default. Not used with sqlite3.
+
+
+# celery config
+
+AMQP_SERVER = p("AMQP_SERVER")
+AMQP_PORT = p("AMQP_PORT")
+AMQP_USER = p("AMQP_USER")
+AMQP_PASSWORD = p("AMQP_PASSWORD")
+AMQP_VHOST = p("AMQP_VHOST")
+
 
 
 # Local time zone for this installation. Choices can be found here:
@@ -82,4 +93,5 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'run',
     'django_extensions',
+    'celery',
 )

@@ -23,6 +23,9 @@ runinfo-usage(){
      runinfo-sv
           add the runinfo app to supervisor (sv-) control ready 
           for non-embedded deployment
+
+     NB following runinfo- precursor the DJANGO_* "context" is switched to runinfo 
+        providing generic django functionality via the dj- and djdep- funcs
      
 EOU
 }
