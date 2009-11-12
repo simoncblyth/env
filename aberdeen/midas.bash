@@ -1,28 +1,17 @@
-
+midas-vi(){   vi $BASH_SOURCE ; }
 midas-usage(){
 
    cat << EOU
    
        midas-name   : $(midas-name)
        midas-folder : $(midas-folder)
-
-
    
 EOU
-
-
-
-
 }
-
-
 
 midas-env(){
    
   local- 
-   
-   
-   
   export MIDAS_NAME=$(midas-name) 
   export MIDAS_FOLDER=$(midas-folder)
   export MIDAS_UNAME=$(midas-uname) 
@@ -39,94 +28,59 @@ midas-env(){
   #          http://midas.psi.ch/htmldoc/AppendixD.html#Environment_variables
   #
   export MIDASSYS=$(midas-folder)
-
-
 }
 
-
-midas-exptab(){
-   echo $(midas-folder)/examples/experiment/exptab
-}
-
+midas-exptab(){ echo $(midas-folder)/examples/experiment/exptab ; }
 midas-info(){
    env | grep MIDAS_
-   
    local xtab=$(midas-exptab)
    if [ -f "$xtab" ]; then
      cat $xtab
   else
      echo $msg ERROR ..... no MIDAS_EXPTAB file $xtab 
   fi
-
 }
-
-
-midas-uname(){
-   uname | tr "A-Z" "a-z"
-}
-
+midas-uname(){ uname | tr "A-Z" "a-z" ; }
 midas-user(){
   case $NODE_TAG in
      C) echo dayabaysoft ;;
      *) echo $USER ;;
   esac     
 }
-
 midas-name(){
    case $NODE_TAG in
      *) echo midas-2.0.0 ;;
    esac  
 }
-
-
 midas-folder(){
    case $NODE_TAG in 
  G|C|P) echo $LOCAL_BASE/env/midas/$(midas-name) ;;
      *) echo $LOCAL_BASE/midas/$(midas-name) ;; 
    esac
 }
-
-
-
-
 midas-path(){
-
   local msg="=== $FUNCNAME :" 
   # only append the PATH if the path being appended is not there already 
   local mbin=$(midas-folder)/$(midas-uname)/bin
   [ ! -d "$mbin" ] && echo $msg no dir $mbin && return 0
-  
   test $PATH == ${PATH/$mbin/} && PATH=$PATH:$mbin
-
   local xbin=$(midas-folder)/examples/experiment 
   test $PATH == ${PATH/$xbin/} && PATH=$PATH:$xbin
-  
   echo $PATH | tr ":" "\n"
-  
 }
 
-
 midas-get(){
-
   local dir=$(midas-folder)
   [ ! -d "$dir" ] && $SUDO mkdir -p $dir && $SUDO chown $USER $dir
-  
   local tgz=$(midas-name).tar.gz
   #local url=http://midas.psi.ch/download/tar/$tgz
   local url=https://midas.psi.ch/download/tar/$tgz
-
-
   cd $dir
-
   [ -f $tgz          ] || curl -o $tgz $url
   [ -d $(midas-name) ] || tar zxvf $tgz
-
 }
 
-
 midas-make(){
-  
-  
   cd $(midas-folder)
   make
   make examples
@@ -153,15 +107,10 @@ midas-make(){
 #       solved compilation issues by inserting "random" parameters ...
 #   
 #
-
-
 }
 
 midas-expt-make(){
-
- 
   cd $(midas-folder)/examples/experiment
-  
   make 
 
 #
@@ -206,10 +155,7 @@ midas-expt-make(){
 
 
 midas-expt-run(){
-
-
    cd $(midas-folder)/examples/experiment
-   
    ./frontend
    
 # [g4pb:/usr/local/midas/midas-2.0.0/examples/experiment] blyth$ ./frontend
@@ -235,8 +181,6 @@ midas-expt-run(){
 #  Connect to experiment ...
 #  Error: Experiment "" not defined.
 #
-
-   
 }
 
 
@@ -279,16 +223,10 @@ EOC
 
 
 midas-install(){
-
-  
   cd $(midas-folder)
   $SUDO make PREFIX=$(midas-folder) install
-
 #
 # to get the install to work on darwin removed the "-D" option from "install" an added 
 #  several  "mkdir -p"  
 #  and a   mkdir -p `dirname $(PREFIX)/$$file` ;  for the drivers 
-#
-
-
 }

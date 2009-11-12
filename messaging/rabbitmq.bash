@@ -97,6 +97,16 @@ rabbitmq-open(){
 #}
 
 
+rabbitmq-hg(){  echo http://hg.rabbitmq.com ; }
+
+
+rabbitmq-server-dir(){ echo $(rabbitmq-dir)/rabbitmq-server ; }
+rabbitmq-server-cd(){  cd $(rabbitmq-server-dir) ; }
+rabbitmq-server-get(){
+  local dir=$(rabbitmq-dir)
+  mkdir -p $dir && cd $dir
+  hg clone $(rabbitmq-hg)/rabbitmq-server
+}
 
 
 rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
@@ -118,11 +128,7 @@ rabbitmq-c-preq(){
 rabbitmq-c-get(){
   local dir=$(rabbitmq-dir)
   mkdir -p $dir && cd $dir
-  hg clone http://hg.rabbitmq.com/rabbitmq-c
-
-  ## rabbitmq-c expects a codegen dir containing : amqp-0.8.json and amqp_codegen.py
-  #cd rabbitmq-c
-  #hg clone http://hg.rabbitmq.com/rabbitmq-codegen codegen
+  hg clone $(rabbitmq-hg)/rabbitmq-c
 }
 
 rabbitmq-c-make(){
