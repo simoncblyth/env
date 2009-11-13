@@ -115,8 +115,42 @@ cjson-makelib(){
   cjson-makefile- > Makefile
   cjson-makefile-Darwin-  > Makefile.Darwin
   cjson-makefile-Linux-   > Makefile.Linux
+  cjson-linkdef-  > cJSON_LinkDef.hh
+  cjson-test- > $(cjson-testname)
   make 
+  cjson-test
+}
+
+cjson-clean(){
+  cjson-cd
+  [ -f Makefile ] && make clean
+  rm -rf Makefile Makefile.Darwin Makefile.Linux cJSON_LinkDef.hh $(cjson-testname)
 }
 
 
+cjson-linkdef-(){ cat << EOL
+// from $FUNCNAME  gleaned by examination of TSystem::CompileMacro and running this in debug, see wiki:MidasMQ
+#ifdef __CINT__ 
 
+#pragma link C++ nestedclasses;
+#pragma link C++ nestedtypedefs;
+#pragma link C++ defined_in ./cJSON.h;
+//#pragma link C++ defined_in ./cJSON.c;
+
+#endif  
+
+EOL
+}
+
+cjson-test-(){ cat << EOT
+{
+   gSystem->Load(Form("$LOCAL_BASE/env/messaging/cjson/lib/libcJSON.%s",gSystem->GetSoExt()));
+   cJSON* root =  cJSON_CreateObject()  ; 
+   cJSON_AddItemToObject(root,"number", cJSON_CreateString("hello world") );
+   cout << cJSON_Print(root) << endl ;
+}
+EOT
+}
+
+cjson-testname(){ echo test_rootcjson.C ; }
+cjson-test(){ root -l -q $(cjson-testname) ; }
