@@ -11,6 +11,16 @@ notifymq-usage(){
 
 EOU
 }
+
+notifymq-preq(){
+
+   rabbitmq-c-get
+
+
+}
+
+
+
 notifymq-dir(){ echo $(local-base)/env/notifymq/notifymq-notifymq ; }
 notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
