@@ -152,5 +152,19 @@ cjson-test-(){ cat << EOT
 EOT
 }
 
+cjson-root-(){ cat << EOR
+{
+   gSystem->Load(Form("$LOCAL_BASE/env/messaging/cjson/lib/libcJSON.%s",gSystem->GetSoExt()));
+} 
+EOR
+}
+
+cjson-root(){
+  local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+  $FUNCNAME- > $tmp/$FUNCNAME.C
+  root -l $tmp/$FUNCNAME.C
+}
+
+
 cjson-testname(){ echo test_rootcjson.C ; }
 cjson-test(){ root -l -q $(cjson-testname) ; }
