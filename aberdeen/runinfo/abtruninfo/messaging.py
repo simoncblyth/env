@@ -40,6 +40,25 @@ def deserialize( body ):
         print "failed to decode %s " % body
     return d 
      
+
+def save_run( d ):
+    """
+        for and preexisting run an update needs to be 
+        done eg with end-of-run additional info 
+            ... not yet working 
+    """ 
+    try: 
+        abi = AbtRunInfo.objects.get( RunNumber=d['RunNumber'] )
+        #abi.update( **d )   # there is no such method
+        for k,v in d.items():
+            setattr( abi , k , v )
+    except AbtRunInfo.DoesNotExist:
+        abi = AbtRunInfo( **d )
+    finally:
+        abi.save()
+    return abi
+ 
+
 def process_abtruninfo():
     """Process all currently gathered runinfo by saving them to the
     database."""
@@ -56,8 +75,7 @@ def process_abtruninfo():
         d = skips_(d)
         print message, d 
         if d:
-            ari = AbtRunInfo( **d )
-            print ari 
+            save_run( d )
         #message.ack()
 
     #  usual django db updating 
