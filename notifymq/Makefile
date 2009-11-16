@@ -28,6 +28,10 @@ LIBS       += $(RMQC_LIBS)
 CFLAGS     += $(PRIV_CFLAGS)
 LIBS       += $(PRIV_LIBS)
 
+CFLAGS     += $(CJSON_CFLAGS)
+LIBS       += $(CJSON_LIBS)
+
+
 
 LIBFILE = libnotifymq.$(SOFIX)
 OBJ_LIST = example_utils.o notifymq.o
@@ -43,14 +47,23 @@ $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
+$(LIB_DIR)/%.o : $(SRC_DIR)/%.cc
+	@echo "Compiling $< to $@ "
+	@mkdir -p $(LIB_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@ 
+
+
 
 ifdef ROOTSYS
 ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS   := $(shell $(ROOTSYS)/bin/root-config --libs)
-DOBJ_LIST += notifymqDict.o
+OBJ_LIST  += root2cjson.o
+DOBJ_LIST += notifymqDict.o root2cjsonDict.o
 
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
+INCLUDES   += $(CJSON_CFLAGS)
+
 
 $(DCT_DIR)/%Dict.cxx : $(INC_DIR)/%.h $(INC_DIR)/%_$(LINKDEF)
 	@echo "Creating $@ from $^ "
@@ -82,13 +95,20 @@ $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring
+.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root
+
+
+root:
+	LD_LIBRARY_PATH=$(LIBSPATH) root -l 
 
 libspath:
 	@echo $(LIBSPATH)
 
 test_rootsendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_rootsendstring.C
+test_root2cjson:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2cjson.C
+
 
 
 info:
