@@ -9,6 +9,9 @@ notifymq-usage(){
      notifymq-dir : $(notifymq-dir)
 
 
+
+
+
 EOU
 }
 
@@ -21,7 +24,7 @@ notifymq-preq(){
 
 
 
-notifymq-dir(){ echo $(local-base)/env/notifymq/notifymq-notifymq ; }
+notifymq-dir(){ echo $(env-home)/notifymq ; }
 notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
 notifymq-get(){
