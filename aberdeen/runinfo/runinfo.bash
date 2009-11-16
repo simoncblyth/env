@@ -12,6 +12,12 @@ runinfo-env(){
 }
 runinfo-usage(){
   cat << EOU
+
+
+     NB following runinfo- precursor the DJANGO_* "context" is switched to runinfo 
+        providing generic django functionality via the dj- and djdep- funcs
+ 
+
      runinfo-dir : $(runinfo-dir)
 
      runinfo-build  : 
@@ -24,9 +30,14 @@ runinfo-usage(){
           add the runinfo app to supervisor (sv-) control ready 
           for non-embedded deployment
 
-     NB following runinfo- precursor the DJANGO_* "context" is switched to runinfo 
-        providing generic django functionality via the dj- and djdep- funcs
-     
+     runinfo-celeryd
+          interactive run of the celery daemon (for testing), 
+          the daemon makes periodic checks of the message queue and 
+          takes required actions when new messages are found, such 
+          as ingesting serialized objects into the database
+
+          see tasks.py and messaging.py for implementation 
+
 EOU
 }
 runinfo-dir(){ echo $(env-home)/aberdeen/runinfo ; }
@@ -36,4 +47,8 @@ runinfo-mate(){ mate $(runinfo-dir) ; }
 runinfo-build(){  dj-build ; }
 runinfo-ingest(){ dj-manage csv_ingest ; }
 runinfo-sv(){     djdep-;djdep-sv ; }
+
+
+runinfo-celeryd(){  dj-manage celeryd ; } 
+
 

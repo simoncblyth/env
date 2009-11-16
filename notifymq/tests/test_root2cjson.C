@@ -17,7 +17,11 @@
    
    cout << "sending string ... " << endl ;
    notifymq_init();
-   notifymq_sendstring("feed","importer", out );
+
+   const char* exchange = "runinfo_abtruninfo" ;
+   const char* routingkey = "runinfo_abtruninfo_add" ; 
+
+   notifymq_sendstring( exchange , routingkey , out );
    notifymq_cleanup();
 
 

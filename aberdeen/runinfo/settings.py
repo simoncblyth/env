@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'run',
+    'abtruninfo',
     'django_extensions',
     'celery',
 )

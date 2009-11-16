@@ -20,7 +20,7 @@ def main(argv):
     def _callback(msg_data, msg):
         msg.__class__.__repr__ = lambda x:"< %s.%s object at 0x%x  ; %s %s %s %s >" % ( x.__class__.__module__, x.__class__.__name__, id(x), x.content_encoding , x.content_type , x.delivery_info , x.delivery_tag  )
         print "Got message : %s with data of length %s " % ( msg , len(msg_data) )
-        if len(msg_data) < 200:print "msg_data: %s " % msg_data
+        if len(msg_data) < 1000:print "msg_data: %s " % msg_data
         msg.ack()
     consumer.register_callback(_callback)
     print "enter consumer wait ... " 
