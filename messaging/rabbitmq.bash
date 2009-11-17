@@ -151,6 +151,22 @@ rabbitmq-c-make(){
 
 rabbitmq-c-exepath(){ echo $(rabbitmq-c-dir)/examples/amqp_$1 ; }
 
+rabbitmq-c-exchange(){ echo ${RMQC_EXCHANGE:-amq.direct} ; }
+rabbitmq-c-queue(){    echo ${RMQC_QUEUE:-test queue} ; }
+rabbitmq-c-key(){      echo ${RMQC_KEY:-test queue} ; }
+
+rabbitmq-c-consumer(){
+   local msg="=== $FUNCNAME :"
+   local exe=$(rabbitmq-c-exepath consumer)
+   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
+   private-
+   local host=$(private-val AMQP_SERVER) 
+   local port=$(private-val AMQP_PORT) 
+   local cmd="$exe $host $port " 
+   echo $msg $cmd CAUTION hardcoded : exchange  \"amq.direct\" and key  \"test queue\"
+   eval $cmd
+}
+
 rabbitmq-c-sendstring(){
    local msg="=== $FUNCNAME :"
    local exe=$(rabbitmq-c-exepath sendstring)
@@ -159,10 +175,25 @@ rabbitmq-c-sendstring(){
    private-
    local host=$(private-val AMQP_SERVER) 
    local port=$(private-val AMQP_PORT) 
-   local exchange="feed" 
-   local routingkey="importer" 
+   local exchange=$(rabbitmq-c-exchange)
+   local routingkey=$(rabbitmq-c-queue)
    local messagebody="$(hostname) $(date)"
-   local cmd="$exe $host $port $exchange $routingkey \"$messagebody\""
+   local cmd="$exe $host $port $exchange \"$routingkey\" \"$messagebody\""
+   echo $msg $cmd
+   eval $cmd
+}
+
+rabbitmq-c-listen(){
+   local msg="=== $FUNCNAME :"
+   local exe=$(rabbitmq-c-exepath listen)
+   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
+   
+   private-
+   local host=$(private-val AMQP_SERVER) 
+   local port=$(private-val AMQP_PORT) 
+   local exchange=$(rabbitmq-c-exchange)
+   local routingkey=$(rabbitmq-c-queue)
+   local cmd="$exe $host $port $exchange \"$routingkey\" "
    echo $msg $cmd
    eval $cmd
 

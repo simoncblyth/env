@@ -16,6 +16,8 @@ int notifymq_sendbytes(  char const*  exchange , char const* routingkey , void* 
 int notifymq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete );
 int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey );
 int notifymq_queue_declare( char const* queue, bool_t passive , bool_t durable , bool_t exclusive , bool_t auto_delete );
+int notifymq_basic_consume( char const* queue ) ;
+
 
 #ifdef __cplusplus
 }

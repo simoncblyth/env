@@ -95,7 +95,7 @@ $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root ipython
+.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume
 
 
 root:
@@ -113,6 +113,9 @@ test_root2cjson:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2cjson.C
 test_root2message:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2message.C
+test_basic_consume:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_basic_consume.C
+
 
 
 

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include <stdint.h>
 #include <amqp.h>
@@ -16,6 +17,8 @@
 
 static int sockfd ;
 static amqp_connection_state_t conn ;
+
+extern void amqp_dump(void const *buffer, size_t len);
 
 
 int notifymq_init()
@@ -126,4 +129,89 @@ int notifymq_cleanup()
     return EXIT_SUCCESS ;
 }
 
+int notifymq_basic_consume( char const* queue ) 
+{
+   // based on rabbitmq-c/examples/amqp_listen.c
 
+  amqp_boolean_t no_local   = 0 ; 
+  amqp_boolean_t no_ack     = 1 ;
+  amqp_boolean_t exclusive  = 0 ;
+
+  amqp_basic_consume(conn, 1, amqp_cstring_bytes(queue) , 
+                           AMQP_EMPTY_BYTES , no_local, no_ack, exclusive );
+  die_on_amqp_error(amqp_rpc_reply, "Consuming");
+
+  {
+    amqp_frame_t frame;
+    int result;
+
+    amqp_basic_deliver_t *d;
+    amqp_basic_properties_t *p;
+    size_t body_target;
+    size_t body_received;
+
+    while (1) {
+      amqp_maybe_release_buffers(conn);
+      result = amqp_simple_wait_frame(conn, &frame);
+      printf("Result %d\n", result);
+      if (result <= 0)
+	break;
+
+      printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
+      if (frame.frame_type != AMQP_FRAME_METHOD)
+	continue;
+
+      printf("Method %s\n", amqp_method_name(frame.payload.method.id));
+      if (frame.payload.method.id != AMQP_BASIC_DELIVER_METHOD)
+	continue;
+
+      d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
+      printf("Delivery %u, exchange %.*s routingkey %.*s\n",
+	     (unsigned) d->delivery_tag,
+	     (int) d->exchange.len, (char *) d->exchange.bytes,
+	     (int) d->routing_key.len, (char *) d->routing_key.bytes);
+
+      result = amqp_simple_wait_frame(conn, &frame);
+      if (result <= 0)
+	break;
+
+      if (frame.frame_type != AMQP_FRAME_HEADER) {
+	fprintf(stderr, "Expected header!");
+	abort();
+      }
+      p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
+      if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
+	printf("Content-type: %.*s\n",
+	       (int) p->content_type.len, (char *) p->content_type.bytes);
+      }
+      printf("----\n");
+
+      body_target = frame.payload.properties.body_size;
+      body_received = 0;
+
+      while (body_received < body_target) {
+	result = amqp_simple_wait_frame(conn, &frame);
+	if (result <= 0)
+	  break;
+
+	if (frame.frame_type != AMQP_FRAME_BODY) {
+	  fprintf(stderr, "Expected body!");
+	  abort();
+	}	  
+
+	body_received += frame.payload.body_fragment.len;
+	assert(body_received <= body_target);
+
+	amqp_dump(frame.payload.body_fragment.bytes,
+		  frame.payload.body_fragment.len);
+      }
+
+      if (body_received != body_target) {
+	/* Can only happen when amqp_simple_wait_frame returns <= 0 */
+	/* We break here to close the connection */
+	break;
+      }
+    }
+  }
+  return EXIT_SUCCESS ;
+}
