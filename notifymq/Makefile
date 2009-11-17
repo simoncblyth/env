@@ -108,6 +108,9 @@ test_rootsendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_rootsendstring.C
 test_root2cjson:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2cjson.C
+test_root2message:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2message.C
+
 
 
 

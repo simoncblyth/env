@@ -40,8 +40,56 @@ int notifymq_init()
     return EXIT_SUCCESS ;
 }
 
+
+
+
+int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
+{
+    amqp_queue_bind(conn, 1,
+     		  amqp_cstring_bytes(queue),
+     		  amqp_cstring_bytes(exchange),
+     		  amqp_cstring_bytes(bindingkey),
+     		  AMQP_EMPTY_TABLE);
+    die_on_amqp_error(amqp_rpc_reply, "Binding queue");
+    return EXIT_SUCCESS ;
+}
+
+
+int notifymq_exchange_declare( char const* exchange , char const* exchangetype )
+{
+    amqp_exchange_declare(conn, 
+                              1, 
+                              amqp_cstring_bytes(exchange), 
+                              amqp_cstring_bytes(exchangetype),
+     			      0, 0, 0, AMQP_EMPTY_TABLE);
+    die_on_amqp_error(amqp_rpc_reply, "Declaring exchange");
+    return EXIT_SUCCESS ;
+}
+
+
+int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* msgbytes , size_t msglen )
+{ 
+   // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_producer.c
+    amqp_basic_properties_t props;
+    props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
+    props.content_type = amqp_cstring_bytes("text/plain");
+    props.delivery_mode = 2; // persistent delivery mode
+    die_on_error(amqp_basic_publish(conn,
+				    1,
+				    amqp_cstring_bytes(exchange),
+				    amqp_cstring_bytes(routingkey),
+				    0,
+				    0,
+				    &props,
+				    (amqp_bytes_t){.len = msglen, .bytes = msgbytes }),
+		 "Publishing");
+    return EXIT_SUCCESS ;
+}
+
+
 int notifymq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody )
 { 
+   // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_sendstring.c
     amqp_basic_properties_t props;
     props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
     props.content_type = amqp_cstring_bytes("text/plain");
