@@ -57,8 +57,8 @@ $(LIB_DIR)/%.o : $(SRC_DIR)/%.cc
 ifdef ROOTSYS
 ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS   := $(shell $(ROOTSYS)/bin/root-config --libs)
-OBJ_LIST  += root2cjson.o
-DOBJ_LIST += notifymqDict.o root2cjsonDict.o
+OBJ_LIST  += root2cjson.o mytmessage.o
+DOBJ_LIST += notifymqDict.o root2cjsonDict.o mytmessageDict.o
 
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
@@ -95,11 +95,14 @@ $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root
+.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root ipython
 
 
 root:
 	LD_LIBRARY_PATH=$(LIBSPATH) root -l 
+ipython:
+	LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython
+
 
 libspath:
 	@echo $(LIBSPATH)
