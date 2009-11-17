@@ -15,14 +15,22 @@
    int bufferLength = tm->Length();
    cout << "serialized into buffer of length " << bufferLength << endl ;
 
-   const char* exchange = "root2message" ;
+   const char* exchange = "root3message" ;
    const char* exchangetype = "direct" ;
-   const char* routingkey = "root2message.bytes" ; 
-   const char* queue = "root2message" ;
+   const char* routingkey = "root3message.bytes" ; 
+   const char* queue = "root3message" ;
 
    notifymq_init();
-   notifymq_exchange_declare( exchange , exchangetype ); 
+
+   bool passive = false ;
+   bool durable = false ;
+   bool exclusive = false ;
+   bool auto_delete = true ;
+
+   notifymq_exchange_declare( exchange , exchangetype , passive , durable, auto_delete  ); 
+   notifymq_queue_declare(    queue                   , passive , durable, exclusive, auto_delete  ); 
    notifymq_queue_bind( queue, exchange , routingkey ); 
+
    notifymq_sendbytes( exchange , routingkey , buffer , bufferLength );
    notifymq_cleanup();
    

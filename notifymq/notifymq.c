@@ -41,27 +41,36 @@ int notifymq_init()
 }
 
 
+int notifymq_queue_declare( char const* queue, bool_t passive, bool_t durable, bool_t exclusive, bool_t auto_delete )
+{
+    amqp_queue_declare(conn, 1, 
+                       amqp_cstring_bytes(queue) , 
+                       passive , durable, exclusive, auto_delete , 
+                       AMQP_EMPTY_TABLE );
+    die_on_amqp_error(amqp_rpc_reply, "Declaring queue");
+    return EXIT_SUCCESS ;
+} 
 
 
 int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
 {
     amqp_queue_bind(conn, 1,
-     		  amqp_cstring_bytes(queue),
-     		  amqp_cstring_bytes(exchange),
-     		  amqp_cstring_bytes(bindingkey),
-     		  AMQP_EMPTY_TABLE);
+     		    amqp_cstring_bytes(queue),
+     		    amqp_cstring_bytes(exchange),
+     		    amqp_cstring_bytes(bindingkey),
+     		    AMQP_EMPTY_TABLE);
     die_on_amqp_error(amqp_rpc_reply, "Binding queue");
     return EXIT_SUCCESS ;
 }
 
 
-int notifymq_exchange_declare( char const* exchange , char const* exchangetype )
+int notifymq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete )
 {
-    amqp_exchange_declare(conn, 
-                              1, 
-                              amqp_cstring_bytes(exchange), 
-                              amqp_cstring_bytes(exchangetype),
-     			      0, 0, 0, AMQP_EMPTY_TABLE);
+    amqp_exchange_declare(conn, 1, 
+                          amqp_cstring_bytes(exchange), 
+                          amqp_cstring_bytes(exchangetype),
+     			  passive, durable, auto_delete, 
+                          AMQP_EMPTY_TABLE);
     die_on_amqp_error(amqp_rpc_reply, "Declaring exchange");
     return EXIT_SUCCESS ;
 }
