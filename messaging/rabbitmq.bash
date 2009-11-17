@@ -58,7 +58,11 @@ rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }
 
 rabbitmq-inipath(){ echo /etc/init.d/rabbitmq-server ; }
 rabbitmq-ini(){     sudo $(rabbitmq-inipath) $* ; }
+
 rabbitmq-start(){   rabbitmq-ini start ; }
+rabbitmq-status(){  rabbitmq-ini status ; }
+rabbitmq-stop(){    rabbitmq-ini stop ; }
+
 
 rabbitmq-install-yum(){
 
@@ -207,10 +211,13 @@ rabbitmq-list(){
     shift
     local args
     [ "$#" == "0" ] && args=$(rabbitmq-fields $ty) || args=$*
-    echo $args 
-    sudo rabbitmqctl -q list_$ty $args
+    echo $args  | rabbitmq-tabulate
+    sudo rabbitmqctl -q list_$ty $args | rabbitmq-tabulate 
 }
 
+rabbitmq-tabulate(){
+  perl -n -e '@a = split("\t") ;  @a = split(" ") if($#a == 0);  printf "%-20s "." %-10s " x ($#a - 1) ."\n", @a  ; ' -
+}
 
 
 

@@ -80,8 +80,9 @@ int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* m
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_producer.c
     amqp_basic_properties_t props;
-    props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
-    props.content_type = amqp_cstring_bytes("text/plain");
+    props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG | AMQP_BASIC_CONTENT_ENCODING_FLAG ;
+    props.content_type = amqp_cstring_bytes("application/data");
+    props.content_encoding = amqp_cstring_bytes("binary");
     props.delivery_mode = 2; // persistent delivery mode
     die_on_error(amqp_basic_publish(conn,
 				    1,

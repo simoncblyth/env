@@ -15,10 +15,10 @@
    int bufferLength = tm->Length();
    cout << "serialized into buffer of length " << bufferLength << endl ;
 
-   const char* exchange = "root3message" ;
+   const char* exchange = "root5message" ;
    const char* exchangetype = "direct" ;
-   const char* routingkey = "root3message.bytes" ; 
-   const char* queue = "root3message" ;
+   const char* routingkey = "root5message.bytes" ; 
+   const char* queue = "root5message" ;
 
    notifymq_init();
 
