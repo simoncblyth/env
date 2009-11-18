@@ -24,15 +24,18 @@ int handlebytes( const void *msgbytes , size_t msglen )
    AbtRunInfo* ari = (AbtRunInfo*)obj ;
    cout << ari->GetExptName() << " " << ari->GetRunNumber() << endl ;
 
+   // how to get the object out of this callback to somewhere it can be used ...
+   // signal/slot ... delegate object ?  into pyROOT ?
+   //  http://root.cern.ch/phpBB2/viewtopic.php?t=8325&highlight=tthread
+   //
+   // EvConsumer in separate thread ? that does the waiting around for messages
+   // http://root.cern.ch/root/html/TThread.html#TThread:TThread
+
+
    return 0; 
 }
 
 int main(int argc, char const * const *argv) {
-
-   //if (argc < 4) {
-   //   fprintf(stderr, "Usage: notifymq_consume_bytes exchange routingkey messagebody\n");
-   //   return 1;
-   //}
 
    int rc ;
    if((rc = notifymq_init())){
