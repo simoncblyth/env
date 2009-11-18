@@ -114,6 +114,7 @@ rabbitmq-server-get(){
 
 
 rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
+rabbitmq-c-libdir(){ echo $(rabbitmq-c-dir)/librabbitmq/.libs ; }
 rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
 
 rabbitmq-c-build(){

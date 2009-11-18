@@ -27,6 +27,7 @@ EOU
 cjson-dir(){ echo $(local-base)/env/messaging/cjson ; }
 cjson-cd(){  cd $(cjson-dir); }
 cjson-mate(){ mate $(cjson-dir) ; }
+cjson-libdir(){ echo $(local-base)/env/messaging/cjson/lib ; }
 cjson-get(){
    local dir=$(dirname $(cjson-dir)) &&  mkdir -p $dir && cd $dir
    svn co https://cjson.svn.sourceforge.net/svnroot/cjson
@@ -144,7 +145,7 @@ EOL
 
 cjson-test-(){ cat << EOT
 {
-   gSystem->Load(Form("$LOCAL_BASE/env/messaging/cjson/lib/libcJSON.%s",gSystem->GetSoExt()));
+   gSystem->Load(Form("$(cjson-libdir)/libcJSON.%s",gSystem->GetSoExt()));
    cJSON* root =  cJSON_CreateObject()  ; 
    cJSON_AddItemToObject(root,"number", cJSON_CreateString("hello world") );
    cout << cJSON_Print(root) << endl ;
@@ -152,9 +153,11 @@ cjson-test-(){ cat << EOT
 EOT
 }
 
+
+
 cjson-root-(){ cat << EOR
 {
-   gSystem->Load(Form("$LOCAL_BASE/env/messaging/cjson/lib/libcJSON.%s",gSystem->GetSoExt()));
+   gSystem->Load(Form("$(cjson-libdir)/libcJSON.%s",gSystem->GetSoExt()));
 } 
 EOR
 }

@@ -785,3 +785,4 @@ pcre-(){      . $(env-home)/pcre/pcre.bash && pcre-env $* ; }
 cjson-(){      . $(env-home)/messaging/cjson.bash && cjson-env $* ; }
 notifymq-(){      . $(env-home)/notifymq/notifymq.bash && notifymq-env $* ; }
 alice-(){      . $(env-home)/messaging/alice.bash && alice-env $* ; }
+priv-(){      . $(env-home)/priv/priv.bash && priv-env $* ; }
