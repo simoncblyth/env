@@ -34,4 +34,17 @@ notifymq-get(){
 
 
 
+notifymq-root(){
+   local msg="=== $FUNCNAME :"
+   local defpath=$(notifymq-dir)/tests/test_basic_consume.C
+   local path=${1:-$defpath}
+   [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
+ 
+   rabbitmq-
+   cjson-
+   priv-
+   local cmd="LD_LIBRARY_PATH=$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir) root -q -l $path"
+   echo $msg $cmd
+   eval $cmd
 
+}

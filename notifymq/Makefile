@@ -15,6 +15,13 @@ CJSON_LIBDIR = $(CJSON_HOME)/lib
 CJSON_CFLAGS = -I$(CJSON_HOME)  
 CJSON_LIBS   = -L$(CJSON_LIBDIR) -lcJSON
 
+ABDM_HOME    = $(ABERDEEN_HOME)/DataModel
+ABDM_LIBDIR  = $(ABDM_HOME)/lib
+ABDM_CFLAGS  = -I$(ABDM_HOME)/include
+ABDM_LIBS    = -L$(ABDM_LIBDIR) -lAbtDataModel
+
+
+
 SRC_DIR     = .
 INC_DIR     = .
 LIB_DIR     = lib
@@ -40,7 +47,7 @@ NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
 
-all : $(LIB_DIR)/notifymq_sendstring $(LIB_DIR)/notifymq_sendjson
+all : $(LIB_DIR)/notifymq_sendstring $(LIB_DIR)/notifymq_sendjson $(LIB_DIR)/notifymq_consumebytes
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -93,9 +100,14 @@ $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE)
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $< -o $@ 
 
+$(LIB_DIR)/notifymq_consumebytes : notifymq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 
-.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume
+
+.PHONY : clean test_sendstring test_sendjson info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes
 
 
 root:
@@ -126,9 +138,11 @@ info:
 ## run carrot-consumer to provide somewhere for the messages to be consumed 
 test_sendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
-
 test_sendjson:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendjson runinfo_run runinfo_run_add
+test_consumebytes:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/notifymq_consumebytes
+
 		
 clean:
 	rm -rf $(LIB_DIR) $(DCT_DIR)

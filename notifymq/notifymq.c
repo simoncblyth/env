@@ -129,7 +129,9 @@ int notifymq_cleanup()
     return EXIT_SUCCESS ;
 }
 
-int notifymq_basic_consume( char const* queue ) 
+
+
+int notifymq_basic_consume( char const* queue , receiver_t handlebytes ) 
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
@@ -184,6 +186,11 @@ int notifymq_basic_consume( char const* queue )
 	printf("Content-type: %.*s\n",
 	       (int) p->content_type.len, (char *) p->content_type.bytes);
       }
+      if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
+	printf("Content-encoding: %.*s\n",
+	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
+      }
+
       printf("----\n");
 
       body_target = frame.payload.properties.body_size;
@@ -205,6 +212,10 @@ int notifymq_basic_consume( char const* queue )
 	amqp_dump(frame.payload.body_fragment.bytes,
 		  frame.payload.body_fragment.len);
       }
+
+      fprintf(stderr, "Completed receiving \n");
+      handlebytes(frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
+  
 
       if (body_received != body_target) {
 	/* Can only happen when amqp_simple_wait_frame returns <= 0 */
