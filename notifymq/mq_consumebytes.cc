@@ -4,6 +4,7 @@ using namespace std ;
 
 #include "MQ.h"
 #include "TObject.h"
+#include "TObjString.h"
 #include "TString.h"
 
 #include "AbtRunInfo.h"
@@ -43,14 +44,20 @@ int handlebytes( const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
    TObject* obj = MQ::Receive( msgbytes , msglen );
-   TString kln = obj->ClassName();
-   cout << kln.Data() ; 
-   if( kln == "AbtRunInfo" ){       
-       dump_runinfo((AbtRunInfo*)obj) ;
-   } else if ( kln == "AbtEvent" ){     
-       dump_event((AbtEvent*)obj) ;
+   if ( obj == NULL ){
+       cout << "received NULL obj " << endl ;
    } else {
-       cout << "SKIPPING received obj of class " << kln.Data() << endl ;
+       TString kln = obj->ClassName();
+       cout << kln.Data() ; 
+       if( kln == "TObjString" ){      
+          cout << ((TObjString*)obj)->GetString() << endl; 
+       } else if( kln == "AbtRunInfo" ){       
+          dump_runinfo((AbtRunInfo*)obj) ;
+       } else if ( kln == "AbtEvent" ){     
+          dump_event((AbtEvent*)obj) ;
+       } else {
+          cout << "SKIPPING received obj of class " << kln.Data() << endl ;
+       }
    }
    return 0; 
 }

@@ -47,7 +47,7 @@ NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
 
-all : $(LIB_DIR)/notifymq_sendstring $(LIB_DIR)/notifymq_sendjson $(LIB_DIR)/notifymq_consumebytes
+all : $(LIB_DIR)/mq_sendstring  $(LIB_DIR)/mq_consumebytes
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -90,7 +90,7 @@ $(LIB_DIR)/$(LIBFILE) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_
 	@echo "Making $@ from $^ "
 	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@
 
-$(LIB_DIR)/notifymq_sendstring : notifymq_sendstring.c $(LIB_DIR)/$(LIBFILE) 
+$(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
@@ -100,7 +100,7 @@ $(LIB_DIR)/notifymq_sendjson : notifymq_sendjson.c $(LIB_DIR)/$(LIBFILE)
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $< -o $@ 
 
-$(LIB_DIR)/notifymq_consumebytes : notifymq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
+$(LIB_DIR)/mq_consumebytes : mq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
@@ -137,11 +137,11 @@ info:
 
 ## run carrot-consumer to provide somewhere for the messages to be consumed 
 test_sendstring:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendstring feed importer "$(shell date) $(shell hostname)"
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_sendstring 
 test_sendjson:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) ./lib/notifymq_sendjson runinfo_run runinfo_run_add
 test_consumebytes:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/notifymq_consumebytes
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_consumebytes
 
 		
 clean:
