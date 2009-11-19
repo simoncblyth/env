@@ -10,6 +10,7 @@ class MyTMessage : public TMessage {
 
 public:
    MyTMessage(void *buf, Int_t len) : TMessage(buf, len) { }
+   virtual ~MyTMessage(){}
    TObject* MyReadObject();
    ClassDef( MyTMessage , 1 ) // TMessage with from buffer constructor exposed 
 };

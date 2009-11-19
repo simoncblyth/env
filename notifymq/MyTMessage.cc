@@ -1,4 +1,4 @@
-#include "mytmessage.h"
+#include "MyTMessage.h"
 
 TObject* MyTMessage::MyReadObject()
 {
