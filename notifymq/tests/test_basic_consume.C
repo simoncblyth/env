@@ -1,4 +1,6 @@
 
+// callbacks have to be defined and set in compiled code ... not in cint 
+
 int handlebytes( const void *msgbytes , size_t msglen )
 {
    printf("inside handlebytes\n" );
