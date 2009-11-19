@@ -12,34 +12,7 @@ using namespace std ;
 #include "AbtResponse.h"
 
 
-void dump_runinfo( AbtRunInfo* ari )
-{
-   cout << ari->GetExptName() << " " << ari->GetRunNumber() << endl ;
-} 
-
-void dump_response( AbtResponse* res )
-{
-   Int_t n = 16 ;
-   for(Int_t i = 0 ; i < n ; i++ ){
-      cout << res->GetCh(i) << " " ;
-   } 
-   cout << endl ;
-}
-
-void dump_event( AbtEvent* evt )
-{
-   cout << evt->GetSerialNumber() << endl ;
-   TObject* o = NULL ; 
-   TIter next(evt->GetEvtObjects()) ;
-   while(( o = (TObject*)next() )){
-      cout << o->GetName() << " " << o->ClassName() << endl ;
-      TString kln = o->ClassName();
-      if( kln == "AbtResponse" ){
-          dump_response( (AbtResponse*)o ); 
-      }
-   }
-}
-
+// callbacks need to be defined and set in compiled code, not from cint 
 int handlebytes( const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
@@ -52,9 +25,9 @@ int handlebytes( const void *msgbytes , size_t msglen )
        if( kln == "TObjString" ){      
           cout << ((TObjString*)obj)->GetString() << endl; 
        } else if( kln == "AbtRunInfo" ){       
-          dump_runinfo((AbtRunInfo*)obj) ;
+          ((AbtRunInfo*)obj)->Print() ;
        } else if ( kln == "AbtEvent" ){     
-          dump_event((AbtEvent*)obj) ;
+          ((AbtEvent*)obj)->Print() ;
        } else {
           cout << "SKIPPING received obj of class " << kln.Data() << endl ;
        }
