@@ -12,10 +12,12 @@
    mfile->Print();
    mfile->ls();
 
+   const char* brn = "trigger" ;
+
    TTree* tree  = 0;
    AbtEvent* evt = 0 ;
    tree = (TTree*)mfile->Get("T");
-   tree->SetBranchAddress( "trigger" , &evt );
+   tree->SetBranchAddress( brn , &evt );
 
    //tree->GetEntry(0);  
    //Int_t entries = 0 ;
@@ -29,9 +31,16 @@
    }
 
    while (1) {
+      // this deletes the old tree and gets new one via copying from shared mem
+      // ... highly-inefficient for large trees so use TTree::SetCircular(1000) on the producer side
+      // to prevent the trees getting too big    
       tree = (TTree*)mfile->Get("T", tree);
+      tree->SetBranchAddress( brn , &evt );  // its a new copy of the tree... so must set the branch addresses again
+
       Int_t n = tree->GetEntries();
-      if( n > entries ){
+
+      // hmm the circular TTree will trim one get too big 
+      if( n > entries ){   
           cout << "received additional entries " << n << " " << entries << endl ;
           for(Int_t i = TMath::Max(entries - 1,0) ; i < n ; i++ ){
               tree->GetEntry(i);

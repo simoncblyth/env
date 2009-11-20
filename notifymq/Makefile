@@ -119,6 +119,11 @@ ipython:
 libspath:
 	@echo $(LIBSPATH)
 
+
+ldd:
+	LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ldd $(LIB_DIR)/$(LIBFILE)
+
+
 test_rootsendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_rootsendstring.C
 test_root2cjson:

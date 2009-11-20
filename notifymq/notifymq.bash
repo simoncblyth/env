@@ -25,26 +25,31 @@ notifymq-preq(){
 
 
 notifymq-dir(){ echo $(env-home)/notifymq ; }
+notifymq-libdir(){ echo $(notifymq-dir)/lib ; }
 notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
-notifymq-get(){
-   local dir=$(dirname $(notifymq-dir)) &&  mkdir -p $dir && cd $dir
 
+
+notifymq-libpaths(){
+   rabbitmq-
+   cjson-
+   priv-
+   echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir)
 }
-
-
 
 notifymq-root(){
    local msg="=== $FUNCNAME :"
    local defpath=$(notifymq-dir)/tests/test_basic_consume.C
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
- 
-   rabbitmq-
-   cjson-
-   priv-
-   local cmd="LD_LIBRARY_PATH=$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir) root -q -l $path"
+   local cmd="LD_LIBRARY_PATH=$(notifymq-libpaths) root -q -l $path"
    echo $msg $cmd
    eval $cmd
-
 }
+
+notifymq-ipython(){
+   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) ipython"
+   echo $msg $cmd
+   eval $cmd
+}
+
