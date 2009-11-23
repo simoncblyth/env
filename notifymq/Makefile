@@ -64,8 +64,8 @@ $(LIB_DIR)/%.o : $(SRC_DIR)/%.cc
 ifdef ROOTSYS
 ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS   := $(shell $(ROOTSYS)/bin/root-config --libs)
-OBJ_LIST  += root2cjson.o MyTMessage.o MQ.o
-DOBJ_LIST += notifymqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o
+OBJ_LIST  += root2cjson.o MyTMessage.o MQ.o AbtMonitor.o
+DOBJ_LIST += notifymqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o AbtMonitorDict.o
 
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
