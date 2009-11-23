@@ -45,6 +45,9 @@ class MQ : public TObject {
      void Wait(receiver_t handler);
      static TObject* Receive( const void *msgbytes , size_t msglen );
      static Int_t bufmax ;
+     static int handlebytes( const void *msgbytes , size_t msglen );
+     static void test_handlebytes();
+ 
 
      void Print(Option_t *option = "") const;
 

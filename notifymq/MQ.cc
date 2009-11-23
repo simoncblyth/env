@@ -8,6 +8,9 @@
 #include "notifymq.h"
 #include "root2cjson.h"
 
+
+
+
 #include <iostream>
 using namespace std ;
 
@@ -129,6 +132,7 @@ void MQ::SendJSON(TClass* kls, TObject* obj )
 
 TObject* MQ::Receive( const void *msgbytes , size_t msglen )
 {
+   // this segments when an instance of a class with a dictionary that is not available to be loaded is received 
    printf("MQ::Receive callback \n" );
    MyTMessage* msg = new MyTMessage((void*)msgbytes,msglen);
    TObject* obj = NULL ;
@@ -154,5 +158,39 @@ void MQ::Wait(receiver_t handler)
    if(!fConfigured) this->Configure();
    notifymq_basic_consume( fQueue.Data() , handler );
 }
+
+
+int MQ::handlebytes( const void *msgbytes , size_t msglen )
+{
+   cout <<  "handlebytes received msglen "  << msglen << endl ; 
+   TObject* obj = MQ::Receive( msgbytes , msglen );
+   if ( obj == NULL ){
+       cout << "received NULL obj " << endl ;
+   } else {
+       TString kln = obj->ClassName();
+       cout << kln.Data() ; 
+       if( kln == "TObjString" ){      
+          cout << ((TObjString*)obj)->GetString() << endl; 
+     //  } else if( kln == "AbtRunInfo" ){       
+     //     ((AbtRunInfo*)obj)->Print() ;
+     //  } else if ( kln == "AbtEvent" ){     
+     //     ((AbtEvent*)obj)->Print() ;
+       } else {
+          cout << "SKIPPING received obj of class " << kln.Data() << endl ;
+       }
+   }
+   return 0; 
+}
+
+
+void MQ::test_handlebytes()
+{
+    MQ* q = new MQ ;
+    q->Wait( MQ::handlebytes );
+    delete q ;
+}
+
+
+
 
 

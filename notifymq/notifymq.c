@@ -140,7 +140,8 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes )
   amqp_boolean_t exclusive  = 0 ;
 
   long long start_time = now_microseconds()  ;
-  long long live_time = 1000000 ;  
+  //long long live_time = 1000000 ;  
+  long long live_time = 0 ;  
   long long cycle_time ;
 
   amqp_basic_consume(conn, 1, amqp_cstring_bytes(queue) , 
@@ -162,15 +163,15 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes )
 
       cycle++ ;
 
-      if( cycle % 1000 == 0 ){
-          printf("cycle %lld \n" , cycle );
-      }
+      //if( cycle % 1000 == 0 ){
+      //    printf("cycle %lld \n" , cycle );
+      //}
 
       cycle_time = now_microseconds();
-      if (cycle_time > start_time + live_time ){
-         printf("Time to die after %lld cycles \n", cycle );
-         break ; 
-      }
+      //if (live_time != 0 && cycle_time > start_time + live_time ){
+      //   printf("Time to die after %lld cycles \n", cycle );
+      //   break ; 
+      //}
 
       amqp_maybe_release_buffers(conn);
       result = amqp_simple_wait_frame(conn, &frame);   // the wait happens here 

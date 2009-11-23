@@ -40,17 +40,21 @@ notifymq-libpaths(){
 
 notifymq-root(){
    local msg="=== $FUNCNAME :"
-   local defpath=$(notifymq-dir)/tests/test_basic_consume.C
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
-   local cmd="LD_LIBRARY_PATH=$(notifymq-libpaths) root -q -l $path"
-   echo $msg $cmd
-   eval $cmd
+   local cmd="LD_LIBRARY_PATH=$(notifymq-libpaths) root -q -l $path $*"
+   echo $msg $cmd 
+   eval $cmd 
 }
 
+notifymq-iroot(){
+   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) root -l $*"
+   echo $msg $cmd 
+   eval $cmd 
+}
 notifymq-ipython(){
-   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) ipython"
-   echo $msg $cmd
-   eval $cmd
+   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) ipython $*"
+   echo $msg $cmd 
+   eval $cmd 
 }
 
