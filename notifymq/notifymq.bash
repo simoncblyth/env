@@ -34,7 +34,8 @@ notifymq-libpaths(){
    rabbitmq-
    cjson-
    priv-
-   echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir)
+   aberdeen-
+   echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir)
 }
 
 notifymq-root(){

@@ -139,6 +139,10 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes )
   amqp_boolean_t no_ack     = 1 ;
   amqp_boolean_t exclusive  = 0 ;
 
+  long long start_time = now_microseconds()  ;
+  long long live_time = 1000000 ;  
+  long long cycle_time ;
+
   amqp_basic_consume(conn, 1, amqp_cstring_bytes(queue) , 
                            AMQP_EMPTY_BYTES , no_local, no_ack, exclusive );
   die_on_amqp_error(amqp_rpc_reply, "Consuming");
@@ -152,12 +156,32 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes )
     size_t body_target;
     size_t body_received;
 
+    long long cycle ;
+    printf("Starting wait loop \n");
     while (1) {
+
+      cycle++ ;
+
+      if( cycle % 1000 == 0 ){
+          printf("cycle %lld \n" , cycle );
+      }
+
+      cycle_time = now_microseconds();
+      if (cycle_time > start_time + live_time ){
+         printf("Time to die after %lld cycles \n", cycle );
+         break ; 
+      }
+
       amqp_maybe_release_buffers(conn);
-      result = amqp_simple_wait_frame(conn, &frame);
+      result = amqp_simple_wait_frame(conn, &frame);   // the wait happens here 
       printf("Result %d\n", result);
       if (result <= 0)
 	break;
+
+      printf("Cycles %lld\n", cycle);
+      printf("start_time %lld \n", start_time );
+      printf("live_time  %lld \n", live_time );
+      printf("cycle_time %lld \n", cycle_time );
 
       printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
       if (frame.frame_type != AMQP_FRAME_METHOD)
