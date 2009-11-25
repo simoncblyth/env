@@ -15,7 +15,8 @@ using namespace std ;
 int handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
-   TObject* obj = MQ::Receive( msgbytes , msglen );
+   //TObject* obj = MQ::Receive( msgbytes , msglen );
+   TObject* obj = NULL ;
    if ( obj == NULL ){
        cout << "received NULL obj " << endl ;
    } else {

@@ -17,7 +17,7 @@ static Bool_t run_updated = kFALSE ;
 int handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    TThread::Printf( "handlebytes received msglen %d \n" , msglen ) ; 
-   TObject* obj = MQ::Receive( msgbytes , msglen );
+   TObject* obj = MQ::Receive( (void*)msgbytes , msglen );
    if ( obj == NULL ){
        TThread::Printf("received NULL obj \n" ) ;
    } else {

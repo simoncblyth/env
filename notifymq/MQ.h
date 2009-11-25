@@ -26,8 +26,10 @@ class MQ : public TObject {
         TThread* fMonitor  ;
         // these need mutex protection 
         Bool_t  fMonitorFinished ;
-        Bool_t  fMessageUpdated ;
-        MyTMessage* fMessage ;   
+        Bool_t  fBytesUpdated ;
+        void*  fBytes ;
+        size_t fLength ;
+
 
   public:
      MQ( const char* exchange = "t.exchange" , 
@@ -44,33 +46,30 @@ class MQ : public TObject {
 
      virtual ~MQ();
 
-
      Bool_t IsMonitorFinished(){ return fMonitorFinished ; }
-     Bool_t IsMessageUpdated(){  return fMessageUpdated  ; }
-     void SetMessage(MyTMessage* msg );
-     MyTMessage*  GetMessage();
-
+     Bool_t IsBytesUpdated(){  return fBytesUpdated  ; }
+     void SetBytesLength(void* bytes, size_t len );
+     void* GetBytes();
+     size_t GetLength();
+     TObject* ConstructObject();
 
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );
      void SendString(const char* str );
      void SendRaw(const char* str );
      void SendMessage(TMessage* msg );
+     static TObject* Receive( void* msgbytes , size_t msglen );
 
      void Wait(receiver_t handler, void* arg );
-     static TObject* Receive( const void *msgbytes , size_t msglen );
      static Int_t bufmax ;
-     static int handlebytes( void* arg , const void *msgbytes , size_t msglen );
-     static void test_handlebytes();
 
-
-     static int receive_message( void* arg , const void *msgbytes , size_t msglen );
+     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen );
      void StartMonitorThread();
      static void* Monitor(void* );
 
      void Print(Option_t *option = "") const;
 
-     static MQ* Create();
+     static MQ* Create(Bool_t start_monitor=kFALSE);
 
      ClassDef(MQ , 0) // Message Queue 
 };

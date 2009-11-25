@@ -22,7 +22,7 @@ static AbtEvent* evt = NULL ;
 int handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
-   TObject* obj = MQ::Receive( msgbytes , msglen );
+   TObject* obj = MQ::Receive( (void*)msgbytes , msglen );
    if ( obj == NULL ){
        cout << "received NULL obj " << endl ;
    } else {

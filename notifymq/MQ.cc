@@ -42,9 +42,12 @@ void MQ::SetOptions(  Bool_t passive , Bool_t durable , Bool_t auto_delete , Boo
    fExclusive = exclusive ;
 }
 
-MQ* MQ::Create()
+MQ* MQ::Create(Bool_t start_monitor)
 {
    if (gMQ == 0) gMQ = new MQ();
+   if(start_monitor){
+      gMQ->StartMonitorThread() ;
+   }
    return gMQ ;
 }  
 
@@ -64,6 +67,10 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    fConfigured = kFALSE ;
 
    fMonitor = NULL ;
+   fMonitorFinished = kFALSE ;
+   fBytes = NULL ;
+   fLength = 0 ;
+   fBytesUpdated = kFALSE ; 
 } 
  
 
@@ -134,11 +141,35 @@ void MQ::SendJSON(TClass* kls, TObject* obj )
 }
 
 
-TObject* MQ::Receive( const void *msgbytes , size_t msglen )
+void MQ::Wait(receiver_t handler , void* arg )
 {
-   // this segments when an instance of a class with a dictionary that is not available to be loaded is received 
-   printf("MQ::Receive callback \n" );
-   MyTMessage* msg = new MyTMessage((void*)msgbytes,msglen);
+   if(!fConfigured) this->Configure();
+   notifymq_basic_consume( fQueue.Data() , handler , arg  );
+}
+
+
+void MQ::SetBytesLength(void* bytes, size_t len )
+{
+   fBytes = bytes ;
+   fLength = len ;
+   fBytesUpdated = kTRUE ;
+}
+
+void* MQ::GetBytes()
+{
+   fBytesUpdated = kFALSE ;
+   return fBytes ;
+}
+
+size_t MQ::GetLength()
+{
+   return fLength ;
+}
+
+
+TObject* MQ::Receive( void* msgbytes , size_t msglen )
+{
+   MyTMessage* msg = new MyTMessage( msgbytes , msglen );
    TObject* obj = NULL ;
 
    char str[MQ::bufmax] ; 
@@ -147,80 +178,31 @@ TObject* MQ::Receive( const void *msgbytes , size_t msglen )
        cout << "got string " << str << endl ;
        obj = new TObjString( str );
    } else if (msg->What() == kMESS_OBJECT ){
-       cout << "got object " << endl ;
        TClass* kls = msg->GetClass();
-       cout << "got kls " << kls << endl ;
-       kls->Print();
-       cout << "read object " << endl ;   // hanging here 
        obj = msg->ReadObject(kls);
-       cout << "print object " << endl ;
-       obj->Print();
-       cout << "get kln  " << endl ;
-       TString kln = obj->ClassName();
-       cout << kln.Data() << endl ;
    }
    return obj ;
 }
 
-void MQ::Wait(receiver_t handler , void* arg )
+TObject* MQ::ConstructObject()
 {
-   if(!fConfigured) this->Configure();
-   notifymq_basic_consume( fQueue.Data() , handler , arg  );
+   return MQ::Receive( GetBytes() , GetLength() );
 }
 
-
-int MQ::handlebytes( void* arg , const void *msgbytes , size_t msglen )
+int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen )
 {
-   cout <<  "handlebytes received msglen "  << msglen << endl ; 
-   TObject* obj = MQ::Receive( msgbytes , msglen );
-   if ( obj == NULL ){
-       cout << "received NULL obj " << endl ;
-   } else {
-       TString kln = obj->ClassName();
-       cout << kln.Data() ; 
-       if( kln == "TObjString" ){      
-          cout << ((TObjString*)obj)->GetString() << endl; 
-     //  } else if( kln == "AbtRunInfo" ){       
-     //     ((AbtRunInfo*)obj)->Print() ;
-     //  } else if ( kln == "AbtEvent" ){     
-     //     ((AbtEvent*)obj)->Print() ;
-       } else {
-          cout << "SKIPPING received obj of class " << kln.Data() << endl ;
-       }
-   }
-   return 0; 
-}
-
-
-
-
-void MQ::SetMessage(MyTMessage* msg )
-{
-   fMessage = msg ;
-   fMessageUpdated = kTRUE ;
-}
-
-MyTMessage* MQ::GetMessage()
-{
-   fMessageUpdated = kFALSE ;
-   return fMessage ;
-}
-
-int MQ::receive_message( void* arg , const void *msgbytes , size_t msglen )
-{
-   printf("MQ::receive_message of length %d \n" , msglen );
-   MyTMessage* msg = new MyTMessage((void*)msgbytes,msglen);
+   //printf("MQ::receive_bytes of length %d \n" , msglen );
    MQ* instance = (MQ*)arg ;
-   instance->SetMessage( msg );
+   instance->SetBytesLength( (void*)msgbytes , msglen );
    return 0 ;
 }
 
 void* MQ::Monitor(void* arg )
 {
    MQ* inst = (MQ*)arg ;
-   Int_t id=TThread::SelfId(); // get pthread id
-   TThread::Printf("MQ::Monitor from inside thread %d ", id );
-   notifymq_basic_consume( inst->fQueue.Data() , MQ::receive_message , arg  );
+   Long_t tid=TThread::SelfId(); // get pthread id
+   TThread::Printf("MQ::Monitor from inside thread %ld ", tid );
+   notifymq_basic_consume( inst->fQueue.Data() , MQ::receive_bytes , arg  );
    return 0 ;
 }
 
@@ -229,13 +211,6 @@ void MQ::StartMonitorThread()
    if(!fConfigured) this->Configure();
    fMonitor =  new TThread("monitor", (void(*) (void *))&Monitor , (void*) this);    
    fMonitor->Run();
-}
-
-void MQ::test_handlebytes()
-{
-    MQ* q = new MQ ;
-    q->Wait( MQ::handlebytes , (void*)q );
-    delete q ;
 }
 
 

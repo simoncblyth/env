@@ -135,6 +135,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
+  int dbg = 0 ; 
   amqp_boolean_t no_local   = 0 ; 
   amqp_boolean_t no_ack     = 1 ;
   amqp_boolean_t exclusive  = 0 ;
@@ -158,7 +159,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
     size_t body_received;
 
     long long cycle ;
-    printf("Starting wait loop \n");
+    if(dbg>0) printf("notifymq_basic_consume : Starting wait loop \n");
     while (1) {
 
       cycle++ ;
@@ -175,25 +176,27 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 
       amqp_maybe_release_buffers(conn);
       result = amqp_simple_wait_frame(conn, &frame);   // the wait happens here 
-      printf("Result %d\n", result);
+      if(dbg>1) printf("Result %d\n", result);
       if (result <= 0)
 	break;
 
-      printf("Cycles %lld\n", cycle);
-      printf("start_time %lld \n", start_time );
-      printf("live_time  %lld \n", live_time );
-      printf("cycle_time %lld \n", cycle_time );
+      if(dbg > 2 ){
+          printf("Cycles %lld\n", cycle);
+          printf("start_time %lld \n", start_time );
+          printf("live_time  %lld \n", live_time );
+          printf("cycle_time %lld \n", cycle_time );
+      } 
 
-      printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
+      if(dbg>0) printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
       if (frame.frame_type != AMQP_FRAME_METHOD)
 	continue;
 
-      printf("Method %s\n", amqp_method_name(frame.payload.method.id));
+      if(dbg>0) printf("Method %s\n", amqp_method_name(frame.payload.method.id));
       if (frame.payload.method.id != AMQP_BASIC_DELIVER_METHOD)
 	continue;
 
       d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
-      printf("Delivery %u, exchange %.*s routingkey %.*s\n",
+      if(dbg>0) printf("Delivery %u, exchange %.*s routingkey %.*s\n",
 	     (unsigned) d->delivery_tag,
 	     (int) d->exchange.len, (char *) d->exchange.bytes,
 	     (int) d->routing_key.len, (char *) d->routing_key.bytes);
@@ -208,15 +211,15 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
       }
       p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
       if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
-	printf("Content-type: %.*s\n",
+	if(dbg>0) printf("Content-type: %.*s\n",
 	       (int) p->content_type.len, (char *) p->content_type.bytes);
       }
       if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
-	printf("Content-encoding: %.*s\n",
+	if(dbg>0) printf("Content-encoding: %.*s\n",
 	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
       }
 
-      printf("----\n");
+      if(dbg>0) printf("----\n");
 
       body_target = frame.payload.properties.body_size;
       body_received = 0;
@@ -234,8 +237,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 	body_received += frame.payload.body_fragment.len;
 	assert(body_received <= body_target);
 
-	amqp_dump(frame.payload.body_fragment.bytes,
-		  frame.payload.body_fragment.len);
+        if(dbg>1) amqp_dump(frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
       }
 
 
@@ -245,10 +247,12 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 	break;
       }
 
-      // copy the received bytes to avoid ownership concerns
-      fprintf(stderr, "Duping bytes received \n");
+        
+      if(dbg>0) fprintf(stderr, "notifymq_basic_consume : invoking the receiver \n");
+      
+      // perhaps should dupe first ?
       //amqp_bytes_t dupe = amqp_bytes_malloc_dup( frame.payload.body_fragment );
-      //handlebytes( dupe.bytes, dupe.len);
+      //handlebytes( arg, dupe.bytes, dupe.len);
 
       handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
       
