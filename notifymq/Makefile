@@ -47,7 +47,7 @@ NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
 
-all : $(LIB_DIR)/mq_sendstring  $(LIB_DIR)/mq_consumebytes $(LIB_DIR)/mq_mapfile $(LIB_DIR)/mq_threaded
+all : $(LIB_DIR)/mq_sendstring  $(LIB_DIR)/mq_consumebytes $(LIB_DIR)/mq_mapfile $(LIB_DIR)/mq_threaded $(LIB_DIR)/mq_monitor
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -110,6 +110,11 @@ $(LIB_DIR)/mq_threaded : mq_threaded.cc $(LIB_DIR)/$(LIBFILE)
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
+$(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+
 
 
 .PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes
@@ -154,6 +159,9 @@ test_mapfile:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_mapfile
 test_threaded:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_threaded
+test_monitor:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_monitor
+
 
 
 

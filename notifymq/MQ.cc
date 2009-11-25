@@ -208,7 +208,7 @@ MyTMessage* MQ::GetMessage()
 
 int MQ::receive_message( void* arg , const void *msgbytes , size_t msglen )
 {
-   printf("MQ::Receive callback \n" );
+   printf("MQ::receive_message of length %d \n" , msglen );
    MyTMessage* msg = new MyTMessage((void*)msgbytes,msglen);
    MQ* instance = (MQ*)arg ;
    instance->SetMessage( msg );
