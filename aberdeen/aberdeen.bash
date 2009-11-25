@@ -10,6 +10,10 @@ rome-(){  . $ENV_HOME/aberdeen/rome.bash && rome-env $* ; }
 abd-(){   . $ENV_HOME/aberdeen/abd.bash && abd-env $* ; }
 
 
+aberdeen-libdir(){ echo $ABERDEEN_HOME/DataModel/lib ; }
+
+
+
 ## NB moving away from this kitchen sink approach ... the envirobnment should bring in 
 ## only whats needed  
 
