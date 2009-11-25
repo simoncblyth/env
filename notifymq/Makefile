@@ -22,8 +22,8 @@ ABDM_LIBS    = -L$(ABDM_LIBDIR) -lAbtDataModel
 
 
 
-SRC_DIR     = .
-INC_DIR     = .
+SRC_DIR     = src
+INC_DIR     = include
 LIB_DIR     = lib
 DCT_DIR     = dict
 LINKDEF     = LinkDef.hh
@@ -52,12 +52,12 @@ all : $(LIB_DIR)/mq_sendstring  $(LIB_DIR)/mq_consumebytes $(LIB_DIR)/mq_mapfile
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.cc
 	@echo "Compiling $< to $@ "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@ 
 
 
 
@@ -93,27 +93,27 @@ $(LIB_DIR)/$(LIBFILE) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_
 $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_mapfile : mq_mapfile.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
 
 $(LIB_DIR)/mq_consumebytes : mq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_threaded : mq_threaded.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 
 
