@@ -175,6 +175,7 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
    char str[MQ::bufmax] ; 
    if (msg->What() == kMESS_STRING) {
        msg->ReadString( str , MQ::bufmax ); 
+       // char *kg = new char [lg]; //buffer 
        cout << "got string " << str << endl ;
        obj = new TObjString( str );
    } else if (msg->What() == kMESS_OBJECT ){

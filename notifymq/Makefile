@@ -143,6 +143,9 @@ test_root2message:
 test_basic_consume:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_basic_consume.C
 
+test_evmq:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
+
 
 
 
