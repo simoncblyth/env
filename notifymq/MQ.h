@@ -7,6 +7,8 @@
 
 class TMessage ;
 class TClass ;
+class MyTMessage ;
+class TThread ;
 
 class MQ : public TObject {
 
@@ -20,6 +22,12 @@ class MQ : public TObject {
         Bool_t  fAutoDelete ;
         Bool_t  fExclusive  ;
         Bool_t  fConfigured ;
+
+        TThread* fMonitor  ;
+        // these need mutex protection 
+        Bool_t  fMonitorFinished ;
+        Bool_t  fMessageUpdated ;
+        MyTMessage* fMessage ;   
 
   public:
      MQ( const char* exchange = "t.exchange" , 
@@ -36,23 +44,33 @@ class MQ : public TObject {
 
      virtual ~MQ();
 
+
+     Bool_t IsMonitorFinished(){ return fMonitorFinished ; }
+     Bool_t IsMessageUpdated(){  return fMessageUpdated  ; }
+     void SetMessage(MyTMessage* msg );
+     MyTMessage*  GetMessage();
+
+
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );
      void SendString(const char* str );
      void SendRaw(const char* str );
      void SendMessage(TMessage* msg );
 
-     void Wait(receiver_t handler);
+     void Wait(receiver_t handler, void* arg );
      static TObject* Receive( const void *msgbytes , size_t msglen );
      static Int_t bufmax ;
-     static int handlebytes( const void *msgbytes , size_t msglen );
+     static int handlebytes( void* arg , const void *msgbytes , size_t msglen );
      static void test_handlebytes();
- 
+
+
+     static int receive_message( void* arg , const void *msgbytes , size_t msglen );
+     void StartMonitorThread();
+     static void* Monitor(void* );
 
      void Print(Option_t *option = "") const;
 
      static MQ* Create();
-
 
      ClassDef(MQ , 0) // Message Queue 
 };

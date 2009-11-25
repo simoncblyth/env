@@ -8,7 +8,7 @@ extern "C"
 
 
 typedef int bool_t;
-typedef int (*receiver_t)(const void *msgbytes , size_t msglen );
+typedef int (*receiver_t)(void* arg,  const void *msgbytes , size_t msglen );
 
 int notifymq_init();
 int notifymq_cleanup();
@@ -17,7 +17,7 @@ int notifymq_sendbytes(  char const*  exchange , char const* routingkey , void* 
 int notifymq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete );
 int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey );
 int notifymq_queue_declare( char const* queue, bool_t passive , bool_t durable , bool_t exclusive , bool_t auto_delete );
-int notifymq_basic_consume( char const* queue , receiver_t handlebytes ) ;
+int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg  ) ;
 
 
 #ifdef __cplusplus

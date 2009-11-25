@@ -4,6 +4,7 @@
 #include  "TSystem.h"
 #include  "MyTMessage.h"
 #include  "TMessage.h"
+#include  "TThread.h"
 #include  "TClass.h"
 #include "notifymq.h"
 #include "root2cjson.h"
@@ -13,6 +14,7 @@
 
 #include <iostream>
 using namespace std ;
+
 
 Int_t MQ::bufmax = 512 ; 
 MQ* gMQ = 0 ;
@@ -60,6 +62,8 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
 
    this->SetOptions();      // take the defaults initially , change using Options before any actions
    fConfigured = kFALSE ;
+
+   fMonitor = NULL ;
 } 
  
 
@@ -143,24 +147,29 @@ TObject* MQ::Receive( const void *msgbytes , size_t msglen )
        cout << "got string " << str << endl ;
        obj = new TObjString( str );
    } else if (msg->What() == kMESS_OBJECT ){
+       cout << "got object " << endl ;
        TClass* kls = msg->GetClass();
+       cout << "got kls " << kls << endl ;
        kls->Print();
+       cout << "read object " << endl ;   // hanging here 
        obj = msg->ReadObject(kls);
+       cout << "print object " << endl ;
        obj->Print();
+       cout << "get kln  " << endl ;
        TString kln = obj->ClassName();
        cout << kln.Data() << endl ;
    }
    return obj ;
 }
 
-void MQ::Wait(receiver_t handler)
+void MQ::Wait(receiver_t handler , void* arg )
 {
    if(!fConfigured) this->Configure();
-   notifymq_basic_consume( fQueue.Data() , handler );
+   notifymq_basic_consume( fQueue.Data() , handler , arg  );
 }
 
 
-int MQ::handlebytes( const void *msgbytes , size_t msglen )
+int MQ::handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
    TObject* obj = MQ::Receive( msgbytes , msglen );
@@ -183,10 +192,49 @@ int MQ::handlebytes( const void *msgbytes , size_t msglen )
 }
 
 
+
+
+void MQ::SetMessage(MyTMessage* msg )
+{
+   fMessage = msg ;
+   fMessageUpdated = kTRUE ;
+}
+
+MyTMessage* MQ::GetMessage()
+{
+   fMessageUpdated = kFALSE ;
+   return fMessage ;
+}
+
+int MQ::receive_message( void* arg , const void *msgbytes , size_t msglen )
+{
+   printf("MQ::Receive callback \n" );
+   MyTMessage* msg = new MyTMessage((void*)msgbytes,msglen);
+   MQ* instance = (MQ*)arg ;
+   instance->SetMessage( msg );
+   return 0 ;
+}
+
+void* MQ::Monitor(void* arg )
+{
+   MQ* inst = (MQ*)arg ;
+   Int_t id=TThread::SelfId(); // get pthread id
+   TThread::Printf("MQ::Monitor from inside thread %d ", id );
+   notifymq_basic_consume( inst->fQueue.Data() , MQ::receive_message , arg  );
+   return 0 ;
+}
+
+void MQ::StartMonitorThread()
+{
+   if(!fConfigured) this->Configure();
+   fMonitor =  new TThread("monitor", (void(*) (void *))&Monitor , (void*) this);    
+   fMonitor->Run();
+}
+
 void MQ::test_handlebytes()
 {
     MQ* q = new MQ ;
-    q->Wait( MQ::handlebytes );
+    q->Wait( MQ::handlebytes , (void*)q );
     delete q ;
 }
 

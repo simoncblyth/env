@@ -12,7 +12,7 @@ using namespace std ;
 
 
 // callbacks need to be defined and set in compiled code, not from cint 
-int handlebytes( const void *msgbytes , size_t msglen )
+int handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    cout <<  "handlebytes received msglen "  << msglen << endl ; 
    TObject* obj = MQ::Receive( msgbytes , msglen );
@@ -38,7 +38,7 @@ int handlebytes( const void *msgbytes , size_t msglen )
 int main(int argc, char const * const *argv) 
 {
    MQ* q = new MQ();
-   q->Wait( handlebytes );
+   q->Wait( handlebytes , (void*)q );
    delete q ;
    return 0;
 }

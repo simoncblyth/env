@@ -131,7 +131,7 @@ int notifymq_cleanup()
 
 
 
-int notifymq_basic_consume( char const* queue , receiver_t handlebytes ) 
+int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg ) 
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
@@ -238,15 +238,21 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes )
 		  frame.payload.body_fragment.len);
       }
 
-      fprintf(stderr, "Completed receiving \n");
-      handlebytes(frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
-  
 
       if (body_received != body_target) {
 	/* Can only happen when amqp_simple_wait_frame returns <= 0 */
 	/* We break here to close the connection */
 	break;
       }
+
+      // copy the received bytes to avoid ownership concerns
+      fprintf(stderr, "Duping bytes received \n");
+      //amqp_bytes_t dupe = amqp_bytes_malloc_dup( frame.payload.body_fragment );
+      //handlebytes( dupe.bytes, dupe.len);
+
+      handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
+      
+
     }
   }
   return EXIT_SUCCESS ;

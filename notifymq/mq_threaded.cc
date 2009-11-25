@@ -14,7 +14,7 @@ static Bool_t finished = kFALSE ;
 static Bool_t evt_updated = kFALSE ;
 static Bool_t run_updated = kFALSE ;
 
-int handlebytes( const void *msgbytes , size_t msglen )
+int handlebytes( void* arg , const void *msgbytes , size_t msglen )
 {
    TThread::Printf( "handlebytes received msglen %d \n" , msglen ) ; 
    TObject* obj = MQ::Receive( msgbytes , msglen );
@@ -47,7 +47,7 @@ void *handle(void *ptr)
    long nr = (long) ptr;
    TThread::Printf(" starting thread handle %ld " , nr );
    MQ* q = new MQ ;
-   q->Wait( handlebytes );
+   q->Wait( handlebytes , (void*)q );
    delete q ;
    return 0 ;
 }
