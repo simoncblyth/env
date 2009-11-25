@@ -24,11 +24,13 @@ class MQ : public TObject {
         Bool_t  fConfigured ;
 
         TThread* fMonitor  ;
-        // these need mutex protection 
         Bool_t  fMonitorFinished ;
+
+        // written by monitor thread , copied into MyTMessage in main thread 
+        //  ... currently have observed no deadlocks, and have no mutexes
         Bool_t  fBytesUpdated ;
-        void*  fBytes ;
-        size_t fLength ;
+        void*  fBytes ;      
+        size_t fLength ;       
 
 
   public:
@@ -36,6 +38,7 @@ class MQ : public TObject {
          const char* queue = "t.queue" , 
          const char* routingkey = "t.key" ,
          const char* exchangetype = "direct" );
+     virtual ~MQ();
 
      void SetOptions( Bool_t passive = kFALSE , 
                    Bool_t durable = kFALSE , 
@@ -44,11 +47,10 @@ class MQ : public TObject {
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
 
-     virtual ~MQ();
 
      Bool_t IsMonitorFinished(){ return fMonitorFinished ; }
      Bool_t IsBytesUpdated(){  return fBytesUpdated  ; }
-     void SetBytesLength(void* bytes, size_t len );
+     void SetBytesLength(void* bytes, size_t len );      
      void* GetBytes();
      size_t GetLength();
      TObject* ConstructObject();
@@ -63,13 +65,13 @@ class MQ : public TObject {
      void Wait(receiver_t handler, void* arg );
      static Int_t bufmax ;
 
-     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen );
+     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen );  // callback invoked by monitor thread 
      void StartMonitorThread();
-     static void* Monitor(void* );
+     void StopMonitorThread();       
+     static void* Monitor(void* );    // runs as separate thread waiting for new messages 
+     static MQ* Create(Bool_t start_monitor=kFALSE);
 
      void Print(Option_t *option = "") const;
-
-     static MQ* Create(Bool_t start_monitor=kFALSE);
 
      ClassDef(MQ , 0) // Message Queue 
 };

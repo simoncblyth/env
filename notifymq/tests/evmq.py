@@ -11,6 +11,7 @@ class EvMQ:
         self._connect( self.timer, "Timeout()", self.Check ) 
         self._connect( self.timer, "TurnOff()", self.Off ) 
         self.timer.TurnOn()
+        self.obj = None
 
     def On(self):
         print "EvMQ.On"
@@ -20,9 +21,14 @@ class EvMQ:
         if not(self.mq.IsMonitorFinished()):
             if self.mq.IsBytesUpdated():
                 obj = self.mq.ConstructObject()
-                if obj:obj.Print()
+                if obj:
+                    obj.Print()
+                    self.obj = obj
     def Off(self):
         print "EvMQ.Off"
+
+    def stop(self):
+        self.timer.TurnOff()
 
     def _connect(self, obj, sign , method ):
         handlerName = "_%s" % method.__name__
@@ -37,6 +43,10 @@ class EvMQ:
 if __name__=='__main__':
     from evmq import EvMQ
     emq = EvMQ()
+    #ROOT.gSystem.Sleep(1000*10)
+    #emq.stop()
+
+
     
 
 

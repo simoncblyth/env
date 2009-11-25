@@ -214,7 +214,11 @@ void MQ::StartMonitorThread()
    fMonitor->Run();
 }
 
-
+void MQ::StopMonitorThread()
+{
+   // more cleanup ? cancel points ?
+   fMonitor->Kill() ;
+}
 
 
 
