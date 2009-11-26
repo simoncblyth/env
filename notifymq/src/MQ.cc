@@ -8,6 +8,7 @@
 #include  "TClass.h"
 #include "notifymq.h"
 #include "root2cjson.h"
+#include "private.h"
 
 #include <iostream>
 using namespace std ;
@@ -48,10 +49,32 @@ void MQ::SetOptions(  Bool_t passive , Bool_t durable , Bool_t auto_delete , Boo
 
 MQ* MQ::Create(Bool_t start_monitor)
 {
-   if (gMQ == 0) gMQ = new MQ();
+   if( gMQ != 0 ){
+      cout << "MQ::Create WARNING  non null gMQ ... you can only call this once " << endl ;
+      return gMQ 
+   }
+
+   private_init();
+
+   const char* exchange     = private_lookup_default( "NOTIFYMQ_EXCHANGE" ,    "default.exchange" );
+   const char* queue        = private_lookup_default( "NOTIFYMQ_QUEUE" ,       "default.queue" );
+   const char* routingkey   = private_lookup_default( "NOTIFYMQ_ROUTINGKEY" ,  "default.routingkey" );
+   const char* exchangetype = private_lookup_default( "NOTIFYMQ_EXCHANGETYPE", "direct" );
+
+   gMQ = new MQ(exchange, queue, routingkey, exchangetype);
+
+   Bool_t passive     = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_PASSIVE" , "0" ) );
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_DURABLE" , "0" ) );
+   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_AUTODELETE" , "1" ) );
+   Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_EXCLUSIVE" , "0" ) );
+
+   gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
+
    if( start_monitor ){
       gMQ->StartMonitorThread() ;
    }
+
+   private_cleanup();
    return gMQ ;
 }  
 
@@ -67,7 +90,7 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    fRoutingKey = routingkey ;
    fExchangeType = exchangetype ;
 
-   this->SetOptions();      // take the defaults initially , change using Options before any actions
+   this->SetOptions();      // take the defaults initially , change using SetOptions before any actions
    fConfigured = kFALSE ;
 
    fMonitor = NULL ;
@@ -75,6 +98,8 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    fBytes = NULL ;
    fLength = 0 ;
    fBytesUpdated = kFALSE ; 
+   fContentType = NULL ;
+   fContentEncoding  = NULL ;
 } 
  
 
