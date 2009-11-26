@@ -44,5 +44,22 @@
  
 
 
+   PREREQUISITES 
 
+        libprivate  ( ~/env/priv )
+
+        rabbitmq-c
+            install with :
+               rabbitmq-
+               rabbitmq-c-build        (requires mercurial and pip)
+
+              Caution the bash function does some kludging around to get the build to succeed ;
+                   http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RabbitMQ#rabbitmq-cbuildonC
+
+       cjson 
+
+               PATH=/usr/bin:$PATH cjson-build   
+                     path shuffle to get old svn that supports SSL
+
+                     requires root 
 

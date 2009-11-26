@@ -39,20 +39,22 @@ cjson-test(){
    ./test
 }
 
+cjson-build(){
+
+   cjson-get
+   cjson-makelib
+
+}
+
+
+
 cjson-name(){ echo cJSON ; }
 cjson-makefile-(){  cat << EOM
 
 include Makefile.\$(shell uname)
 
-ifdef ROOTSYS
 ROOTCFLAGS := \$(shell  \$(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS   := \$(shell  \$(ROOTSYS)/bin/root-config --libs)
-else
-missroot:
-        @echo "...";
-        @echo "Missing definition of environment variable 'ROOTSYS' !";
-        @echo "...";
-endif
 
 SRC_DIR     = .
 INC_DIR     = .

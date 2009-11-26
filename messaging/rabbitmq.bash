@@ -138,13 +138,17 @@ rabbitmq-c-get(){
 
 rabbitmq-c-make(){
   rabbitmq-c-cd
+  rabbitmq-c-kludge
+
   autoreconf -i
   autoconf
   ./configure 
   make 
 }
 
-
+rabbitmq-c-kludge(){
+  perl -pi -e "s,(sibling_codegen_dir=).*,\$1\"$(rabbitmq-codegen-dir)\"," configure.ac
+}
 
 
 
