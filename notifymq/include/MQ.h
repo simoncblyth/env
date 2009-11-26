@@ -17,6 +17,7 @@ class MQ : public TObject {
         TString fExchangeType ;  
         TString fQueue ;  
         TString fRoutingKey ;  
+
         Bool_t  fPassive ;
         Bool_t  fDurable ;
         Bool_t  fAutoDelete ;
@@ -41,13 +42,14 @@ class MQ : public TObject {
          const char* exchangetype = "direct" );
      virtual ~MQ();
 
-     void SetOptions( Bool_t passive = kFALSE , 
-                   Bool_t durable = kFALSE , 
-                   Bool_t auto_delete = kTRUE , 
-                   Bool_t exclusive = kFALSE ); 
+     static MQ* Create(Bool_t start_monitor=kFALSE);
+     void SetOptions( 
+                      Bool_t passive = kFALSE , 
+                      Bool_t durable = kFALSE , 
+                      Bool_t auto_delete = kTRUE , 
+                      Bool_t exclusive = kFALSE ); 
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
-
 
      Bool_t IsMonitorFinished(){ return fMonitorFinished ; }
      Bool_t IsBytesUpdated(){  return fBytesUpdated  ; }
@@ -61,23 +63,18 @@ class MQ : public TObject {
      TObject* ConstructObject();
 
 
-
-
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );
      void SendString(const char* str );
      void SendRaw(const char* str );
      void SendMessage(TMessage* msg );
      static TObject* Receive( void* msgbytes , size_t msglen );
-
      void Wait(receiver_t handler, void* arg );
-     //static Int_t bufmax ;
 
      static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
      void StartMonitorThread();
      void StopMonitorThread();       
      static void* Monitor(void* );    // runs as separate thread waiting for new messages 
-     static MQ* Create(Bool_t start_monitor=kFALSE);
 
      void Print(Option_t *option = "") const;
 

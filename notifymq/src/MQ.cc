@@ -9,9 +9,6 @@
 #include "notifymq.h"
 #include "root2cjson.h"
 
-
-
-
 #include <iostream>
 using namespace std ;
 
@@ -24,8 +21,6 @@ char* mq_cstring_dupe( void* bytes , size_t len )
     return str ;
 }
 
-
-//Int_t MQ::bufmax = 512 ; 
 MQ* gMQ = 0 ;
 
 void MQ::Print(Option_t* opt ) const 
@@ -54,7 +49,7 @@ void MQ::SetOptions(  Bool_t passive , Bool_t durable , Bool_t auto_delete , Boo
 MQ* MQ::Create(Bool_t start_monitor)
 {
    if (gMQ == 0) gMQ = new MQ();
-   if(start_monitor){
+   if( start_monitor ){
       gMQ->StartMonitorThread() ;
    }
    return gMQ ;
