@@ -11,6 +11,8 @@
 #include "private.h"
 
 #include <iostream>
+#include <sstream>
+#include <string>
 using namespace std ;
 
 
@@ -24,9 +26,11 @@ char* mq_cstring_dupe( void* bytes , size_t len )
 
 MQ* gMQ = 0 ;
 
-void MQ::Print(Option_t* opt ) const 
+
+const char* MQ::Summary() const
 {
-    cout 
+   stringstream ss ;
+   ss 
          << " exchange " << fExchange.Data() 
          << " exchangeType " << fExchangeType.Data() 
          << " queue " << fQueue.Data() 
@@ -35,8 +39,13 @@ void MQ::Print(Option_t* opt ) const
          << " durable " << fDurable 
          << " autoDelete " << fAutoDelete 
          << " exclusive " << fExclusive
-         << endl ;
+        ;
+   return ss.str().data() ;
+}
 
+void MQ::Print(Option_t* opt ) const 
+{
+   Printf("%s\n", Summary() ); 
 }
 
 void MQ::SetOptions(  Bool_t passive , Bool_t durable , Bool_t auto_delete , Bool_t exclusive )
@@ -51,7 +60,7 @@ MQ* MQ::Create(Bool_t start_monitor)
 {
    if( gMQ != 0 ){
       cout << "MQ::Create WARNING  non null gMQ ... you can only call this once " << endl ;
-      return gMQ 
+      return gMQ ;
    }
 
    private_init();
@@ -69,6 +78,7 @@ MQ* MQ::Create(Bool_t start_monitor)
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_EXCLUSIVE" , "0" ) );
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
+   gMQ->Print() ;
 
    if( start_monitor ){
       gMQ->StartMonitorThread() ;
@@ -121,7 +131,6 @@ void MQ::Configure()
    notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() ); 
 
    fConfigured = kTRUE ;
-   this->Print();
 }
 
 

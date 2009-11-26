@@ -3,6 +3,7 @@
 
 int main(int argc, char const * const *argv) {
    MQ::Create();
-   gMQ->SendString("hello from notifymq_sendstring..."); 
+   const char* smry = gMQ->Summary(); 
+   gMQ->SendString( smry ); 
    return 0;
 }

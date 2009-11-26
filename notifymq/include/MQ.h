@@ -42,6 +42,7 @@ class MQ : public TObject {
          const char* exchangetype = "direct" );
      virtual ~MQ();
 
+
      static MQ* Create(Bool_t start_monitor=kFALSE);
      void SetOptions( 
                       Bool_t passive = kFALSE , 
@@ -76,6 +77,7 @@ class MQ : public TObject {
      void StopMonitorThread();       
      static void* Monitor(void* );    // runs as separate thread waiting for new messages 
 
+     const char* Summary() const;
      void Print(Option_t *option = "") const;
 
      ClassDef(MQ , 0) // Message Queue 
