@@ -63,3 +63,12 @@
 
                      requires root 
 
+
+   PRE-REQUISITES FOR TESTING
+
+        libAbtDataModel  
+                 svn up -r 513 ~/a/DataModel
+                 cd ~/a/DataModel
+                 make
+
+
