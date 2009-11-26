@@ -16,6 +16,14 @@
 using namespace std ;
 
 
+char* mq_cstring_dupe( void* bytes , size_t len )
+{ 
+    char* str  = new char[len];
+    memcpy( str , bytes , len );
+    return str ;
+}
+
+
 Int_t MQ::bufmax = 512 ; 
 MQ* gMQ = 0 ;
 
@@ -166,6 +174,22 @@ size_t MQ::GetLength()
    return fLength ;
 }
 
+void MQ::SetContentType(char* str)
+{
+   fContentType = str  ;
+}
+void MQ::SetContentEncoding(char* str)
+{
+   fContentEncoding = str  ;
+}
+char* MQ::GetContentType()
+{
+   return fContentType ;
+}
+char* MQ::GetContentEncoding()
+{
+   return fContentEncoding ;
+}
 
 TObject* MQ::Receive( void* msgbytes , size_t msglen )
 {
@@ -190,11 +214,14 @@ TObject* MQ::ConstructObject()
    return MQ::Receive( GetBytes() , GetLength() );
 }
 
-int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen )
+int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props )
 {
    //printf("MQ::receive_bytes of length %d \n" , msglen );
    MQ* instance = (MQ*)arg ;
    instance->SetBytesLength( (void*)msgbytes , msglen );
+
+   instance->SetContentType(      mq_cstring_dupe( props.content_type.bytes ,     props.content_type.len ));
+   instance->SetContentEncoding(  mq_cstring_dupe( props.content_encoding.bytes , props.content_encoding.len  ));
    return 0 ;
 }
 

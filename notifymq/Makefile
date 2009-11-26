@@ -70,6 +70,7 @@ DOBJ_LIST += notifymqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
 INCLUDES   += $(CJSON_CFLAGS)
+#INCLUDES   += $(RMQC_CFLAGS)
 
 
 $(DCT_DIR)/%Dict.cxx : $(INC_DIR)/%.h $(INC_DIR)/%_$(LINKDEF)

@@ -1,5 +1,6 @@
 
 #include "MQ.h"
+#include "notifymq.h"
 #include "TThread.h"
 #include "TObjString.h"
 #include "TObject.h"
@@ -14,7 +15,7 @@ static Bool_t finished = kFALSE ;
 static Bool_t evt_updated = kFALSE ;
 static Bool_t run_updated = kFALSE ;
 
-int handlebytes( void* arg , const void *msgbytes , size_t msglen )
+int handlebytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props )
 {
    TThread::Printf( "handlebytes received msglen %d \n" , msglen ) ; 
    TObject* obj = MQ::Receive( (void*)msgbytes , msglen );

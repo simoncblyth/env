@@ -8,27 +8,23 @@ notifymq-usage(){
      notifymq-src : $(notifymq-src)
      notifymq-dir : $(notifymq-dir)
 
+     notifymq-root path/to/macro.C
+           batch run macro with dependent libpaths defined
 
-
-
+     notifymq-iroot 
+     notifymq-ipython
+           interactive root/python with libpaths setup appropriately 
 
 EOU
 }
 
 notifymq-preq(){
-
    rabbitmq-c-get
-
-
 }
-
-
-
 notifymq-dir(){ echo $(env-home)/notifymq ; }
 notifymq-libdir(){ echo $(notifymq-dir)/lib ; }
 notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
-
 
 notifymq-libpaths(){
    rabbitmq-
@@ -37,7 +33,6 @@ notifymq-libpaths(){
    aberdeen-
    echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir)
 }
-
 notifymq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
@@ -46,7 +41,6 @@ notifymq-root(){
    echo $msg $cmd 
    eval $cmd 
 }
-
 notifymq-iroot(){
    local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) root -l $*"
    echo $msg $cmd 

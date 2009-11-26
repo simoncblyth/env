@@ -31,7 +31,8 @@ class MQ : public TObject {
         Bool_t  fBytesUpdated ;
         void*  fBytes ;      
         size_t fLength ;       
-
+        char* fContentType ;
+        char* fContentEncoding ;
 
   public:
      MQ( const char* exchange = "t.exchange" , 
@@ -53,7 +54,14 @@ class MQ : public TObject {
      void SetBytesLength(void* bytes, size_t len );      
      void* GetBytes();
      size_t GetLength();
+     void SetContentType(    char* str);      
+     void SetContentEncoding(char* str);      
+     char* GetContentType();
+     char* GetContentEncoding();
      TObject* ConstructObject();
+
+
+
 
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );
@@ -65,7 +73,7 @@ class MQ : public TObject {
      void Wait(receiver_t handler, void* arg );
      static Int_t bufmax ;
 
-     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen );  // callback invoked by monitor thread 
+     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
      void StartMonitorThread();
      void StopMonitorThread();       
      static void* Monitor(void* );    // runs as separate thread waiting for new messages 

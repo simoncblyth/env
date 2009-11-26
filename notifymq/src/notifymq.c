@@ -21,6 +21,13 @@ static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
 
+   
+
+
+
+
+
+
 int notifymq_init()
 {
     int rc = private_init();
@@ -158,6 +165,8 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
     size_t body_target;
     size_t body_received;
 
+    notifymq_props_t props ;
+
     long long cycle ;
     if(dbg>0) printf("notifymq_basic_consume : Starting wait loop \n");
     while (1) {
@@ -213,10 +222,18 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
       if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
 	if(dbg>0) printf("Content-type: %.*s\n",
 	       (int) p->content_type.len, (char *) p->content_type.bytes);
+         // collect metadata for the handlebytes call
+         //props.content_type = amqp_bytes_malloc_dup( p->content_type );
+         props.content_type.len   = p->content_type.len ;
+         props.content_type.bytes = p->content_type.bytes ;
       }
       if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
 	if(dbg>0) printf("Content-encoding: %.*s\n",
 	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
+         // collect metadata for the handlebytes call
+         //props.content_encoding = amqp_bytes_malloc_dup( p->content_encoding );
+         props.content_encoding.len   = p->content_encoding.len ;
+         props.content_encoding.bytes = p->content_encoding.bytes ;
       }
 
       if(dbg>0) printf("----\n");
@@ -254,7 +271,8 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
       //amqp_bytes_t dupe = amqp_bytes_malloc_dup( frame.payload.body_fragment );
       //handlebytes( arg, dupe.bytes, dupe.len);
 
-      handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len);
+
+      handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
 
     }
