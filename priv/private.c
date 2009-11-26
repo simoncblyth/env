@@ -154,9 +154,15 @@ int private_init()
 
 const char* private_lookup( const char* key )
 {
-	const char* value = NULL ;
-    value = g_hash_table_lookup(table, key);
+    const char* value = NULL ;
+    value = g_hash_table_lookup(table, key);  // returns NULL if not found 
     return value ;
+}
+
+const char* private_lookup_default( const char* key , const char* def )
+{
+    const char* value = private_lookup( key );
+    return value ? value : def  ;
 }
 
 int private_cleanup()

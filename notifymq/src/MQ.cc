@@ -18,13 +18,14 @@ using namespace std ;
 
 char* mq_cstring_dupe( void* bytes , size_t len )
 { 
-    char* str  = new char[len];
+    char* str  = new char[len+1];
     memcpy( str , bytes , len );
+    str[len] = 0 ;   // null termination 
     return str ;
 }
 
 
-Int_t MQ::bufmax = 512 ; 
+//Int_t MQ::bufmax = 512 ; 
 MQ* gMQ = 0 ;
 
 void MQ::Print(Option_t* opt ) const 
@@ -196,12 +197,11 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
    MyTMessage* msg = new MyTMessage( msgbytes , msglen );
    TObject* obj = NULL ;
 
-   char str[MQ::bufmax] ; 
    if (msg->What() == kMESS_STRING) {
-       msg->ReadString( str , MQ::bufmax ); 
-       // char *kg = new char [lg]; //buffer 
-       cout << "got string " << str << endl ;
-       obj = new TObjString( str );
+       char* buf = new char[msglen];  
+       msg->ReadString( buf , msglen ); 
+       //cout << "got string [" << buf << "]" <<  endl ;
+       obj = new TObjString( buf );
    } else if (msg->What() == kMESS_OBJECT ){
        TClass* kls = msg->GetClass();
        obj = msg->ReadObject(kls);
@@ -211,7 +211,19 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
 
 TObject* MQ::ConstructObject()
 {
-   return MQ::Receive( GetBytes() , GetLength() );
+   //cout << "MQ::ConstructObject (type,encoding) : (" << fContentType << "," << fContentEncoding << ")" << endl ;
+   TObject* obj = NULL ;
+   TString type = fContentType ;
+   TString encoding = fContentEncoding ;
+   if(type == "application/data" && encoding == "binary" ){
+       obj = MQ::Receive( GetBytes() , GetLength() );
+   } else if (type == "text/plain" && encoding == "" ){
+       char* str = mq_cstring_dupe( GetBytes() , GetLength() );
+       obj = new TObjString( str );
+   } else {
+       cout << "MQ::ConstructObject WARNING unknown (type,encoding) : (" << type.Data() << "," << encoding.Data() << ")" << endl ;
+   }
+   return obj ;
 }
 
 int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props )

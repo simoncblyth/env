@@ -71,7 +71,7 @@ class MQ : public TObject {
      static TObject* Receive( void* msgbytes , size_t msglen );
 
      void Wait(receiver_t handler, void* arg );
-     static Int_t bufmax ;
+     //static Int_t bufmax ;
 
      static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
      void StartMonitorThread();

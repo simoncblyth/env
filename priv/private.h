@@ -14,8 +14,10 @@ int private_init();
 int private_cleanup();
 int private_dump();
 
-const char* private_lookup( const char* key );
+// implemented in C for widest applicability, including from notifmq 
 
+const char* private_lookup( const char* key );
+const char* private_lookup_default( const char* key , const char* def  );
 
 #ifdef __cplusplus
 }

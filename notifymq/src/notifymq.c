@@ -20,13 +20,7 @@ static amqp_connection_state_t conn ;
 
 extern void amqp_dump(void const *buffer, size_t len);
 
-
-   
-
-
-
-
-
+static int notifymq_dbg = 0 ; 
 
 int notifymq_init()
 {
@@ -38,6 +32,11 @@ int notifymq_init()
     char const* user = private_lookup("AMQP_USER");
     char const* password = private_lookup("AMQP_PASSWORD");
     char const* vhost = private_lookup("AMQP_VHOST");
+    notifymq_dbg = atoi( private_lookup_default("NOTIFYMQ_DBG", "0" )) ;
+
+    if(notifymq_dbg > 0 ) 
+        printf("notifymq_init : INFO debug level NOTIFYMQ_DBG is at level :[%d] \n", notifymq_dbg );
+
 
     rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
     if(rc != EXIT_SUCCESS) return rc ;
@@ -111,8 +110,10 @@ int notifymq_sendstring( char const*  exchange , char const* routingkey , char c
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_sendstring.c
     amqp_basic_properties_t props;
-    props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG;
+    //props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG | AMQP_BASIC_CONTENT_ENCODING_FLAG ;
+    props._flags = AMQP_BASIC_CONTENT_TYPE_FLAG | AMQP_BASIC_DELIVERY_MODE_FLAG ;
     props.content_type = amqp_cstring_bytes("text/plain");
+    //props.content_encoding = amqp_cstring_bytes("default");
     props.delivery_mode = 2; // persistent delivery mode
     die_on_error(amqp_basic_publish(conn,
 				    1,
@@ -142,7 +143,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
-  int dbg = 0 ; 
+  int dbg = notifymq_dbg ; 
   amqp_boolean_t no_local   = 0 ; 
   amqp_boolean_t no_ack     = 1 ;
   amqp_boolean_t exclusive  = 0 ;
@@ -219,6 +220,10 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
 	abort();
       }
       p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
+
+
+      props.content_type.len   = 0 ;
+      props.content_type.bytes = NULL ;
       if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
 	if(dbg>0) printf("Content-type: %.*s\n",
 	       (int) p->content_type.len, (char *) p->content_type.bytes);
@@ -227,6 +232,9 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
          props.content_type.len   = p->content_type.len ;
          props.content_type.bytes = p->content_type.bytes ;
       }
+
+      props.content_encoding.len   = 0 ;
+      props.content_encoding.bytes = NULL ; 
       if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
 	if(dbg>0) printf("Content-encoding: %.*s\n",
 	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
@@ -235,6 +243,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
          props.content_encoding.len   = p->content_encoding.len ;
          props.content_encoding.bytes = p->content_encoding.bytes ;
       }
+
 
       if(dbg>0) printf("----\n");
 

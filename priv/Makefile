@@ -61,7 +61,7 @@ $(LIB_DIR)/private_val : $(addprefix $(LIB_DIR)/, private_val.o) $(LIB_DIR)/$(LI
 .PHONY : clean test roottest
 
 test:
-	DYLD_LIBRARY_PATH=$(LIB_DIR) LD_LIBRARY_PATH=$(LIB_DIR) ./lib/private_val AMQP_SERVER
+	DYLD_LIBRARY_PATH=$(LIB_DIR) LD_LIBRARY_PATH=$(LIB_DIR):$(ROOTSYS)/lib ./lib/private_val AMQP_SERVER AMQP_NONEXISTING AMQP_PORT AMQP_PORTX
 	
 roottest:
 	root -l -q tests/test_rootlookup.C

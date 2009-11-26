@@ -1,4 +1,6 @@
 {
+   // notifymq-;notifymq-root tests/test_root2cjson.C
+
    gSystem->Load(Form("$ENV_HOME/notifymq/lib/libnotifymq.%s",gSystem->GetSoExt()));
    MQ::Create();
 
