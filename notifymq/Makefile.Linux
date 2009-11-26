@@ -1,4 +1,6 @@
 
+CC          = cc
+CCX         = cc
 SOFLAGS     = -shared
 CFLAGS      = -g -fno-common -Wall
 LIBS        =

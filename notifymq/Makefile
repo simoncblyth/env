@@ -1,3 +1,4 @@
+
 include Makefile.$(shell uname)
 
 RMQC_HOME   = $(LOCAL_BASE)/env/messaging/rabbitmq-c
@@ -94,27 +95,27 @@ $(LIB_DIR)/$(LIBFILE) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_
 $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
+	$(CCX) $(CFLAGS) $(INCLUDES) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_mapfile : mq_mapfile.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
+	$(CCX) $(CFLAGS) $(INCLUDES) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
 
 $(LIB_DIR)/mq_consumebytes : mq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_threaded : mq_threaded.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 $(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
-	$(CC) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 
 

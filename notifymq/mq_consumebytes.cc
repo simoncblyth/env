@@ -9,7 +9,6 @@ using namespace std ;
 
 #include "AbtRunInfo.h"
 #include "AbtEvent.h"
-#include "AbtResponse.h"
 
 
 // callbacks need to be defined and set in compiled code, not from cint 

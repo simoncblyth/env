@@ -12,7 +12,6 @@ using namespace std ;
 
 #include "AbtRunInfo.h"
 #include "AbtEvent.h"
-#include "AbtResponse.h"
 
 // see $ROOTSYS/tutorials/net/hprod.C  mapfiles can be opened from another process
 static TMapFile* mfile = NULL ;

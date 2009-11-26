@@ -1,4 +1,5 @@
-
+CC          =  cc
+CCX         =  g++
 SOFLAGS     = -dynamiclib -Wl,-undefined -Wl,dynamic_lookup
 CFLAGS      = -g -fno-common -Wall
 LIBS        =
