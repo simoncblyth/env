@@ -8,9 +8,13 @@ cjson-usage(){
      cjson-src : $(cjson-src)
      cjson-dir : $(cjson-dir)
 
+     This makes cJSON usable from root by dictionary creation 
      NB keeping makefile source in here to avoid forking cjson just to 
      add a makefile 
 
+
+     cjson-build
+            do the -get/makelib/test
 
      cjson-get
               from sourceforge svn, which annoyingly uses https: causing  "svn: SSL is not supported" 
@@ -18,9 +22,32 @@ cjson-usage(){
               however the ancient system svn worked 
                     /usr/bin/svn co https://cjson.svn.sourceforge.net/svnroot/cjson
 
-
      cjson-makelib
               generate Makefile and use to to create dynamic lib 
+
+     cjson-test
+             test cJSON using generated root macro
+
+     cjson-chcon
+             set the SELinux label on the shared lib to avoid issue 0
+
+
+     PRE-REQUISITES
+             root
+
+
+     RUNTIME ISSUES  
+
+        0)   cjson-test fails with Permission denied , occurs when SELinux in enforcing   
+
+Processing test_rootcjson.C...
+dlopen error: /data1/env/local/env/messaging/cjson/lib/libcJSON.so: cannot restore segment prot after reloc: Permission denied
+Load Error: Failed to load Dynamic link library /data1/env/local/env/messaging/cjson/lib/libcJSON.so
+*** Interpreter error recovered ***
+
+
+
+
 
 EOU
 }
@@ -43,9 +70,17 @@ cjson-build(){
 
    cjson-get
    cjson-makelib
+   cjson-test
 
 }
 
+
+cjson-chcon(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo chcon -t texrel_shlib_t $(cjson-libdir)/libcJSON.so "
+   echo $msg $cmd
+   eval $cmd
+}
 
 
 cjson-name(){ echo cJSON ; }
@@ -121,7 +156,6 @@ cjson-makelib(){
   cjson-linkdef-  > cJSON_LinkDef.hh
   cjson-test- > $(cjson-testname)
   make 
-  cjson-test
 }
 
 cjson-clean(){

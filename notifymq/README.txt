@@ -42,26 +42,40 @@
                        for consumption by a separate process 
 
  
+   INSTALLS
+
+        G        ok
+        C        ok
+        N        ok
+        C2       ok
+
+        P/G1     pcre version too old, attempted pcre-build but not getting
+                 pcre-demo to succeed due to the system lib being used rather 
+                 than my created one
+                 
+        H        too old to bother trying
+        H1       off limits 
 
 
    PREREQUISITES 
 
-        libprivate  ( ~/env/priv )
+        libprivate  ( cd ~/e/priv ; make )
 
         rabbitmq-c
-            install with :
+             install with :
                rabbitmq-
                rabbitmq-c-build        (requires mercurial and pip)
 
-              Caution the bash function does some kludging around to get the build to succeed ;
-                   http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RabbitMQ#rabbitmq-cbuildonC
+               Caution the bash function does some kludging around to get the build to succeed ;
+                  http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RabbitMQ#rabbitmq-cbuildonC
 
        cjson 
+              normally just :
+                    cjson- ; cjson-build 
 
                PATH=/usr/bin:$PATH cjson-build   
                      path shuffle to get old svn that supports SSL
-
-                     requires root 
+                     requires root (root-;root-get;root-build)
 
 
    PRE-REQUISITES FOR TESTING
@@ -70,5 +84,56 @@
                  svn up -r 513 ~/a/DataModel
                  cd ~/a/DataModel
                  make
+                  
+                 ABERDEEN_HOME envvar defined, use aberdeen-
+
+
+   POSSIBLE ISSUES 
+
+
+      0) rabbitmq-c-preq
+               " sudo pip install simplejson"
+
+      1)  While installing rabbitmq-c with rabbitmq-c-build the build of the dependency 
+          rabbitmq-codegen may require python 2.5 ?
+      
+
+make[2]: Entering directory
+`/data1/env/local/env/messaging/rabbitmq-c/librabbitmq'
+PYTHONPATH=/data1/env/local/env/messaging/rabbitmq-codegen python2.5
+./codegen.py header
+/data1/env/local/env/messaging/rabbitmq-codegen/amqp-0.8.json amqp_framing.h
+/bin/sh: python2.5: command not found
+make[2]: *** [amqp_framing.h] Error 127
+make[2]: Leaving directory
+`/data1/env/local/env/messaging/rabbitmq-c/librabbitmq'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/data1/env/local/env/messaging/rabbitmq-c'
+make: *** [all] Error 2
+
+
+           make PYTHON=python
+   
+
+      2) permission denied from SELinux in enforcing mode  on attempting to
+run the test, eg "make test_sendstring"
+
+
+DYLD_LIBRARY_PATH=/data1/env/local/env/messaging/rabbitmq-c/librabbitmq/.libs:/data1/env/local/env/home/priv/lib:/data1/env/local/env/messaging/cjson/lib:lib:
+LD_LIBRARY_PATH=/data1/env/local/env/messaging/rabbitmq-c/librabbitmq/.libs:/data1/env/local/env/home/priv/lib:/data1/env/local/env/messaging/cjson/lib:lib:/data1/env/local/root/root_v5.21.04.source/root/lib:/cern/pro/lib:
+./lib/mq_sendstring 
+./lib/mq_sendstring: error while loading shared libraries: lib/libnotifymq.so:
+cannot restore segment prot after reloc: Permission denied
+make: *** [test_sendstring] Error 127
+
+
+      3) running tests appear to connect to the rabbitmq broker OK , but
+         messages do not show up on other consumers .... probably you forgot to
+         configure the client in the file pointed to by ENV_PRIVATE_PATH   
+
+local NOTIFYMQ_EXCHANGE=fanout.exchange
+local NOTIFYMQ_EXCHANGETYPE=fanout
+local NOTIFYMQ_QUEUE=belle7.nuu.edu.tw
+
 
 

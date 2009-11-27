@@ -143,7 +143,9 @@ rabbitmq-c-make(){
   autoreconf -i
   autoconf
   ./configure 
-  make 
+
+  ## avoid hardcoded attempt to use python2.5
+  make PYTHON=python
 }
 
 rabbitmq-c-kludge(){

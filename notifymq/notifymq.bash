@@ -33,6 +33,7 @@ notifymq-libpaths(){
    aberdeen-
    echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir)
 }
+
 notifymq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
@@ -51,4 +52,13 @@ notifymq-ipython(){
    echo $msg $cmd 
    eval $cmd 
 }
+
+notifymq-chcon(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo chcon -t texrel_shlib_t $(notifymq-libdir)/libnotifymq.so"
+   echo $msg $cmd
+   eval $cmd
+}
+
+
 
