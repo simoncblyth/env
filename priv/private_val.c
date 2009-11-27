@@ -4,6 +4,19 @@
 
 int main(int argc, char** argv)
 {
+
+        const size_t max = 100 ;
+        char stamp[max] ;
+        const char* afmt = "%s %s" ;
+        const char* tfmt1 = "%c" ;
+        private_gethostftime( stamp , max , tfmt1 , afmt  );
+        printf("private_gethostftime( stamp , max , \"%s\", \"%s\" ) --> \"%s\" \n", tfmt1 , afmt , stamp );
+
+        const char* tfmt2 = "%Y%m%d_%H%M%S" ;
+        private_gethostftime( stamp , max , tfmt2 , afmt  );
+        printf("private_gethostftime( stamp , max , \"%s\", \"%s\" ) --> \"%s\" \n", tfmt2 , afmt , stamp );
+
+
 	int rc ;
 	rc = private_init(); if(rc != EXIT_SUCCESS) exit(rc) ;
 	int a ; 

@@ -31,6 +31,10 @@
 #include <pcre.h>
 #include <glib.h>
 #include <string.h>
+#include <time.h>
+
+// gethostname
+#include <unistd.h>
  
 #include "private.h"
 
@@ -171,9 +175,37 @@ int private_dump()
     return EXIT_SUCCESS ;
 }
 
+int private_getftime( char* buffer , size_t max ,  const char* tfmt )
+{ 
+  time_t rawtime;
+  time ( &rawtime );
+  struct tm * timeinfo;
+  timeinfo = localtime ( &rawtime );
+  return strftime ( buffer, max, tfmt ,timeinfo);
+}
+
+int private_gethostftime( char* buffer , size_t max , const char* tfmt , const char* afmt )
+{
+  const size_t hmax = 80 ;
+  char hbuf[hmax] ;
+  int hrc = gethostname( hbuf , hmax );
+
+  const size_t tmax = 80 ;
+  char tbuf[tmax] ;
+  int trc = private_getftime( tbuf , tmax , tfmt );
+   
+  snprintf( buffer, max , afmt , hbuf , tbuf );
+  return trc + hrc ;
+}
+
 
 int main(int argc, char** argv)
 {
+    const size_t max = 80 ;
+    char buf[max] ;
+    private_gethostftime( buf , max , "%c" , "%s %s" ) ;
+    printf( buf );
+
     int rc ;
     rc = private_init(); if(rc != EXIT_SUCCESS) exit(rc) ;
     int a ; for ( a = 1; a < argc; a++ ) printf("%s\n", private_lookup(argv[a])) ;
