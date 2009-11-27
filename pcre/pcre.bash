@@ -18,6 +18,12 @@ pcre-name(){ echo pcre-8.00 ; }
 pcre-dir(){ echo $(local-base)/env/$(pcre-name) ; }
 pcre-cd(){  cd $(pcre-dir); }
 pcre-mate(){ mate $(pcre-dir) ; }
+
+pcre-build(){
+   pcre-get
+   pcre-make
+}
+
 pcre-get(){
    local dir=$(dirname $(pcre-dir)) &&  mkdir -p $dir && cd $dir
    local nam=$(pcre-name)
@@ -27,20 +33,51 @@ pcre-get(){
 
 }
 
+pcre-mode(){
+  case ${1:-$NODE_TAG} in
+     P|G1) echo source ;;
+        *) echo system ;;
+  esac 
+}
+pcre-libdir(){ 
+   case $(pcre-mode $1) in 
+     source) echo $(pcre-dir)/.libs ;; 
+     system) echo /usr/lib  ;;
+   esac
+}
+pcre-incdir(){ 
+   case $(pcre-mode $1) in 
+     source) echo $(pcre-dir) ;; 
+     system) echo /usr/include/pcre  ;;
+   esac
+}   
+
+
+
+pcre-make(){
+   pcre-cd
+   ./configure
+   make
+}
+
+
 
 pcre-demo(){
 
    cd $(env-home)/pcre    
    ## adapted from $(pcre-dir)/pcredemo.c
- 
-   gcc -Wall pcredemo.c -I/usr/include/pcre -L/usr/lib  -lpcre
+   ##pcre-cd 
+
+   gcc -Wall pcredemo.c -I$(pcre-incdir) -L$(pcre-libdir)  -lpcre
 
   ## fails to compile due to version mismatch between the yum installed pcre (4.5 or 4.6) and the 
   ## tgz grabbed for the demo ... 4.5/6 are not available
   ## 
   ## pcredemo.c:254: error: `PCRE_NOTEMPTY_ATSTART' undeclared (first use in this function)
 
-  ./a.out $*
+  local cmd="./a.out $*"
+  echo running $cmd 
+  eval $cmd
 
 
 ## [blyth@cms01 pcre]$ ./a.out  -g '^local (?P<name>\S+)=(?P<val>\S+)' 'local hello=world'
@@ -58,7 +95,7 @@ pcre-demo(){
 pcre-grep(){
    cd $(env-home)/pcre
    
-   gcc -Wall pcregrep.c -I/usr/include/pcre -L/usr/lib  -lpcre
+   gcc -Wall pcregrep.c -I$(pcre-incdir) -L$(pcre-libdir)  -lpcre
 
    ## usage example ... the matched lines are show in reverse colors
    cat pcregrep.c | ./a.out '^{.*'
