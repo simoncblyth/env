@@ -37,7 +37,6 @@ sudo chcon -t texrel_shlib_t $(env-home)/priv/lib/libprivate.so
 }}}
 
 
-
   2)   pcre version too old    (encounterd on grid1)
 
 private.c: In function `parse_config':
@@ -54,7 +53,11 @@ private.c:74: `PCRE_INFO_NAMEENTRYSIZE' undeclared (first use in this function)
         pcre-build
 
             
-              
+  3)  while running tests "make test" find 
+          ABORT : envvar ENV_PRIVATE_PATH is not defined 
+      the envvar must be defined and containing the path of a file from 
+      which the config variables are read 
+
 
 
 

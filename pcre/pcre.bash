@@ -2,15 +2,31 @@
 pcre-src(){      echo pcre/pcre.bash ; }
 pcre-source(){   echo ${BASH_SOURCE:-$(env-home)/$(pcre-src)} ; }
 pcre-vi(){       vi $(pcre-source) ; }
-pcre-env(){      elocal- ; }
+pcre-env(){      
+   elocal- ; 
+   if [ "$(pcre-mode)" == "source" ]; then
+      export PCRE_LIBDIR=$(pcre-libdir)
+      export PCRE_INCDIR=$(pcre-incdir)
+   fi 
+}
+
+pcre-info(){ env | grep PCRE_ ; }
 pcre-usage(){
   cat << EOU
      pcre-src : $(pcre-src)
      pcre-dir : $(pcre-dir)
 
+     pcre-mode   : $(pcre-mode)
+     pcre-libdir : $(pcre-libdir)
+     pcre-incdir : $(pcre-incdir)
+
+     envvars that should only be defined on nodes with system pcre too old
+     to be usable 
+
+         PCRE_LIBDIR  : $PCRE_LIBDIR
+         PCRE_INCDIR  : $PCRE_INCDIR 
 
      pcre is available from yum, but it without the pcredemo.c
-
 
 EOU
 }
@@ -61,12 +77,7 @@ pcre-make(){
 }
 
 
-
-pcre-demo(){
-
-   cd $(env-home)/pcre    
-   ## adapted from $(pcre-dir)/pcredemo.c
-   ##pcre-cd 
+pcre-demo-(){
 
    gcc -Wall pcredemo.c -I$(pcre-incdir) -L$(pcre-libdir)  -lpcre
 
@@ -75,7 +86,7 @@ pcre-demo(){
   ## 
   ## pcredemo.c:254: error: `PCRE_NOTEMPTY_ATSTART' undeclared (first use in this function)
 
-  local cmd="./a.out $*"
+  local cmd="LD_LIBRARY_PATH=$(pcre-libdir):$LD_LIBRARY_PATH ./a.out  -g '^local (?P<name>\S+)=(?P<val>\S+)' 'local hello=world' "
   echo running $cmd 
   eval $cmd
 
@@ -90,6 +101,14 @@ pcre-demo(){
 ##(1) name: hello
 ##(2)  val: world
 
+}
+
+
+
+
+pcre-demo(){
+   cd $(env-home)/pcre    
+   pcre-demo-
 }
 
 pcre-grep(){

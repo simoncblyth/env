@@ -41,22 +41,20 @@
                        deprecated approach that receives TObjects and writes into TMapFile 
                        for consumption by a separate process 
 
- 
    INSTALLS
 
         G        ok
         C        ok
         N        ok
         C2       ok
+        P        ok
 
-        P/G1     
-              fail to install rabbitmq-c due to autoconf/automake morass
-                
+        G1       same node as P so no point ?                
         H        too old to bother trying
         H1       off limits 
 
 
-   PROBLEMS ON P/G1
+   PROBLEMS ON P
 
      a) old pcre, forced source installation and propagation of include dirs and libs into 
         build and usage commands
@@ -68,14 +66,20 @@
        configure.ac:5: `automake requires `AM_CONFIG_HEADER', not `AC_CONFIG_HEADER'
             http://momentarypause.blogspot.com/2006/02/acconfigheaders-vs-amconfigheaders.html
 
+        initially :
+
        [dayabaysoft@grid1 rabbitmq-c]$ automake --version
        automake (GNU automake) 1.6.3
        [dayabaysoft@grid1 rabbitmq-c]$ autoconf --version
        autoconf (GNU Autoconf) 2.57
 
+       updating to automake17 succeeded to fix this ...
+            sudo yum install automake17   
+
+       see foot of page for details  
 
 
-   PREREQUISITES 
+   PRE-REQUISITES 
 
         libprivate  ( cd ~/e/priv ; make )
 
@@ -108,14 +112,12 @@
 
    POSSIBLE ISSUES 
 
-
       0) rabbitmq-c-preq
                " sudo pip install simplejson"
 
       1)  While installing rabbitmq-c with rabbitmq-c-build the build of the dependency 
           rabbitmq-codegen may require python 2.5 ?
       
-
 make[2]: Entering directory
 `/data1/env/local/env/messaging/rabbitmq-c/librabbitmq'
 PYTHONPATH=/data1/env/local/env/messaging/rabbitmq-codegen python2.5
@@ -129,8 +131,8 @@ make[1]: *** [all-recursive] Error 1
 make[1]: Leaving directory `/data1/env/local/env/messaging/rabbitmq-c'
 make: *** [all] Error 2
 
-
-           make PYTHON=python
+         workaround with :
+              make PYTHON=python
    
 
       2) permission denied from SELinux in enforcing mode  on attempting to
@@ -162,26 +164,18 @@ local NOTIFYMQ_QUEUE=belle7.nuu.edu.tw
                   
 
 
+     5) 
+         problems installling rabbitmq-c due to autoconf/automake mismatched versions
+         FIXED by update of automake with "sudo yum install automake17"  
 
 
-
-
-
-   http://autotoolset.sourceforge.net/
-
+           http://autotoolset.sourceforge.net/
 
 [dayabaysoft@grid1 rabbitmq-c]$ automake --version
 automake (GNU automake) 1.6.3
 
 [dayabaysoft@grid1 rabbitmq-c]$ sudo yum search automake
-Gathering header information file(s) from server(s)
-Server: Scientific Linux CERN 3 (SLC3) update packages
-Server: Scientific Linux CERN 3 (SLC3) base os packages
-Server: Scientific Linux CERN 3 (SLC3) extra packages
-Finding updated packages
-Downloading needed headers
-Looking in available packages for a providing package
-Available package: automake17.noarch 0:1.7.8-1 from slc3-base matches with
+vailable package: automake17.noarch 0:1.7.8-1 from slc3-base matches with
  automake17
 1 results returned
 Looking in installed packages for a providing package
@@ -199,15 +193,6 @@ Installed package: automake.noarch 0:1.6.3-5 matches with
 autoconf (GNU Autoconf) 2.57
 
 [dayabaysoft@grid1 rabbitmq-c]$ sudo yum search autoconf
-Password:
-Gathering header information file(s) from server(s)
-Server: Scientific Linux CERN 3 (SLC3) update packages
-Server: Scientific Linux CERN 3 (SLC3) base os packages
-Server: Scientific Linux CERN 3 (SLC3) extra packages
-Finding updated packages
-Downloading needed headers
-Looking in available packages for a providing package
-No packages found
 Looking in installed packages for a providing package
 Installed package: autoconf213.noarch 0:2.13-6 matches with
  autoconf213
@@ -216,39 +201,6 @@ Installed package: autoconf.noarch 0:2.57-3 matches with
 2 results returned
 
 
-
-
-
-[dayabaysoft@grid1 rabbitmq-c]$ sudo yum install automake17
-Password:
-Gathering header information file(s) from server(s)
-Server: Scientific Linux CERN 3 (SLC3) update packages
-Server: Scientific Linux CERN 3 (SLC3) base os packages
-Server: Scientific Linux CERN 3 (SLC3) extra packages
-Finding updated packages
-Downloading needed headers
-Resolving dependencies
-Dependencies resolved
-I will do the following:
-[install: automake17 1.7.8-1.noarch]
-Is this ok [y/N]: y
-Downloading Packages
-Getting automake17-1.7.8-1.noarch.rpm
-automake17-1.7.8-1.noarch 100% |=========================| 341 kB    00:03     
-Running test transaction:
-Test transaction complete, Success!
-automake17 100 % done 1/1 
-Installed:  automake17 1.7.8-1.noarch
-Transaction(s) Complete
-
-
 [dayabaysoft@grid1 rabbitmq-c]$ automake-1.7 --version
 automake (GNU automake) 1.7.8
-Written by Tom Tromey <tromey@redhat.com>.
-
-Copyright 2003 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-
 

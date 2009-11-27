@@ -6,8 +6,20 @@ SOFIX       = so
 
 #  rpm -ql pcre
 #  rpm -ql pcre-devel
-PCRE_CFLAGS = -I/usr/include/pcre 
+
+
+ifdef PCRE_INCDIR
+PCRE_CFLAGS = -I$(PCRE_INCDIR)
+else
+PCRE_CFLAGS = -I/usr/include/pcre
+endif
+
+ifdef PCRE_LIBDIR
+PCRE_LIBS   = -L$(PCRE_LIBDIR) -lpcre
+else
 PCRE_LIBS   = -L/usr/lib -lpcre
+endif
+
 
 #  rpm -ql glib2  
 #  rpm -ql glib2-devel  
