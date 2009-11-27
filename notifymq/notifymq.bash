@@ -76,6 +76,10 @@ notifymq-monitor(){
    make test_monitor
 }
 
+notifymq-build(){
+   notifymq-cd
+   make
 
+}
 
 
