@@ -2,7 +2,14 @@
 notifymq-src(){      echo notifymq/notifymq.bash ; }
 notifymq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(notifymq-src)} ; }
 notifymq-vi(){       vi $(notifymq-source) ; }
-notifymq-env(){      elocal- ; }
+notifymq-env(){      
+    elocal-  
+    root-
+    rabbitmq-
+    cjson-
+    #priv-
+    aberdeen-
+}
 notifymq-usage(){
   cat << EOU
      notifymq-src : $(notifymq-src)
@@ -26,13 +33,7 @@ notifymq-libdir(){ echo $(notifymq-dir)/lib ; }
 notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
 
-notifymq-libpaths(){
-   rabbitmq-
-   cjson-
-   priv-
-   aberdeen-
-   echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir)
-}
+notifymq-libpaths(){ echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir) ; }
 
 notifymq-root(){
    local msg="=== $FUNCNAME :"
@@ -59,6 +60,22 @@ notifymq-chcon(){
    echo $msg $cmd
    eval $cmd
 }
+
+notifymq-sendstring(){
+   notifymq-cd
+   make test_sendstring
+}
+
+notifymq-sendjson(){
+   notifymq-cd
+   make test_root2cjson
+}
+
+notifymq-monitor(){
+   notifymq-cd
+   make test_monitor
+}
+
 
 
 

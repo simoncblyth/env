@@ -37,7 +37,7 @@ const char* MQ::NodeStamp()
     return stamp ;
 }
 
-const char* MQ::Summary() const
+char* MQ::Summary() const
 {
    stringstream ss ;
    ss 
@@ -52,7 +52,9 @@ const char* MQ::Summary() const
          << " " 
          << MQ::NodeStamp()
         ;
-   return ss.str().data() ;
+
+   string smry = ss.str();
+   return mq_cstring_dupe( (void*)smry.data() , smry.length() ) ;
 }
 
 void MQ::Print(Option_t* opt ) const 

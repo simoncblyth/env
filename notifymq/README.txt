@@ -49,12 +49,30 @@
         N        ok
         C2       ok
 
-        P/G1     pcre version too old, attempted pcre-build but not getting
-                 pcre-demo to succeed due to the system lib being used rather 
-                 than my created one
-                 
+        P/G1     
+              fail to install rabbitmq-c due to autoconf/automake morass
+                
         H        too old to bother trying
         H1       off limits 
+
+
+   PROBLEMS ON P/G1
+
+     a) old pcre, forced source installation and propagation of include dirs and libs into 
+        build and usage commands
+
+     b) no mercurial , and none in the yum repo ... has to pip install
+
+     c) automake/autoconf incompatible versions 
+
+       configure.ac:5: `automake requires `AM_CONFIG_HEADER', not `AC_CONFIG_HEADER'
+            http://momentarypause.blogspot.com/2006/02/acconfigheaders-vs-amconfigheaders.html
+
+       [dayabaysoft@grid1 rabbitmq-c]$ automake --version
+       automake (GNU automake) 1.6.3
+       [dayabaysoft@grid1 rabbitmq-c]$ autoconf --version
+       autoconf (GNU Autoconf) 2.57
+
 
 
    PREREQUISITES 
@@ -134,6 +152,103 @@ make: *** [test_sendstring] Error 127
 local NOTIFYMQ_EXCHANGE=fanout.exchange
 local NOTIFYMQ_EXCHANGETYPE=fanout
 local NOTIFYMQ_QUEUE=belle7.nuu.edu.tw
+
+
+     4) no mercurial , and package manager does not have it, eg if  "sudo yum install mercurial" 
+        fails to find
+
+        use pip or easy_install to get mercurial :
+                  (sudo) pip install mercurial
+                  
+
+
+
+
+
+
+
+   http://autotoolset.sourceforge.net/
+
+
+[dayabaysoft@grid1 rabbitmq-c]$ automake --version
+automake (GNU automake) 1.6.3
+
+[dayabaysoft@grid1 rabbitmq-c]$ sudo yum search automake
+Gathering header information file(s) from server(s)
+Server: Scientific Linux CERN 3 (SLC3) update packages
+Server: Scientific Linux CERN 3 (SLC3) base os packages
+Server: Scientific Linux CERN 3 (SLC3) extra packages
+Finding updated packages
+Downloading needed headers
+Looking in available packages for a providing package
+Available package: automake17.noarch 0:1.7.8-1 from slc3-base matches with
+ automake17
+1 results returned
+Looking in installed packages for a providing package
+Installed package: automake14.noarch 0:1.4p6-6 matches with
+ automake14
+Installed package: automake15.noarch 0:1.5-7 matches with
+ automake15
+Installed package: automake.noarch 0:1.6.3-5 matches with
+ automake
+3 results returned
+
+
+
+[dayabaysoft@grid1 rabbitmq-c]$ autoconf --version
+autoconf (GNU Autoconf) 2.57
+
+[dayabaysoft@grid1 rabbitmq-c]$ sudo yum search autoconf
+Password:
+Gathering header information file(s) from server(s)
+Server: Scientific Linux CERN 3 (SLC3) update packages
+Server: Scientific Linux CERN 3 (SLC3) base os packages
+Server: Scientific Linux CERN 3 (SLC3) extra packages
+Finding updated packages
+Downloading needed headers
+Looking in available packages for a providing package
+No packages found
+Looking in installed packages for a providing package
+Installed package: autoconf213.noarch 0:2.13-6 matches with
+ autoconf213
+Installed package: autoconf.noarch 0:2.57-3 matches with
+ autoconf
+2 results returned
+
+
+
+
+
+[dayabaysoft@grid1 rabbitmq-c]$ sudo yum install automake17
+Password:
+Gathering header information file(s) from server(s)
+Server: Scientific Linux CERN 3 (SLC3) update packages
+Server: Scientific Linux CERN 3 (SLC3) base os packages
+Server: Scientific Linux CERN 3 (SLC3) extra packages
+Finding updated packages
+Downloading needed headers
+Resolving dependencies
+Dependencies resolved
+I will do the following:
+[install: automake17 1.7.8-1.noarch]
+Is this ok [y/N]: y
+Downloading Packages
+Getting automake17-1.7.8-1.noarch.rpm
+automake17-1.7.8-1.noarch 100% |=========================| 341 kB    00:03     
+Running test transaction:
+Test transaction complete, Success!
+automake17 100 % done 1/1 
+Installed:  automake17 1.7.8-1.noarch
+Transaction(s) Complete
+
+
+[dayabaysoft@grid1 rabbitmq-c]$ automake-1.7 --version
+automake (GNU automake) 1.7.8
+Written by Tom Tromey <tromey@redhat.com>.
+
+Copyright 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
 
