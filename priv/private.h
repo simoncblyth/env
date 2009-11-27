@@ -24,7 +24,7 @@ const char* private_lookup_default( const char* key , const char* def  );
 // miscellaneous functions that do not need the init or cleanup
 //  tfmt is strftime format and afmt combines the hostname and time strings 
 int private_getftime( char* buffer , size_t max ,  const char* tfmt );
-int private_gethostftime( char* buffer , size_t max , const char* tfmt , const char* afmt );
+int private_getuserhostftime( char* buffer , size_t max , const char* tfmt , const char* afmt );
 
 
 #ifdef __cplusplus

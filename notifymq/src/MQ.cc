@@ -26,6 +26,16 @@ char* mq_cstring_dupe( void* bytes , size_t len )
 
 MQ* gMQ = 0 ;
 
+const char* MQ::NodeStamp()
+{
+    const size_t max = 256 ;
+    char* stamp  = new char[max+1];
+    stamp[max] = 0;
+    const char* afmt = "%s@%s %s" ;
+    const char* tfmt1 = "%c" ;
+    private_getuserhostftime( stamp , max , tfmt1 , afmt  );
+    return stamp ;
+}
 
 const char* MQ::Summary() const
 {
@@ -39,6 +49,8 @@ const char* MQ::Summary() const
          << " durable " << fDurable 
          << " autoDelete " << fAutoDelete 
          << " exclusive " << fExclusive
+         << " " 
+         << MQ::NodeStamp()
         ;
    return ss.str().data() ;
 }

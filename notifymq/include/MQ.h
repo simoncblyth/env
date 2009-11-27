@@ -76,7 +76,7 @@ class MQ : public TObject {
      void StartMonitorThread();
      void StopMonitorThread();       
      static void* Monitor(void* );    // runs as separate thread waiting for new messages 
-
+     static const char* NodeStamp();
      const char* Summary() const;
      void Print(Option_t *option = "") const;
 

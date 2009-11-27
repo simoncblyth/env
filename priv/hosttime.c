@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <unistd.h>
 
 int getftime( char* buffer , size_t max ,  const char* tfmt )
 { 
@@ -28,6 +29,12 @@ int main()
    char buf[max] ;
    gethostftime( buf , max , "%c" ) ;
    printf( buf );
+
+
+   char* user = getlogin();
+   printf( user );
+
+
    return 0;
 }
 

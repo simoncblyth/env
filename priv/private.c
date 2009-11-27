@@ -184,7 +184,7 @@ int private_getftime( char* buffer , size_t max ,  const char* tfmt )
   return strftime ( buffer, max, tfmt ,timeinfo);
 }
 
-int private_gethostftime( char* buffer , size_t max , const char* tfmt , const char* afmt )
+int private_getuserhostftime( char* buffer , size_t max , const char* tfmt , const char* afmt )
 {
   const size_t hmax = 80 ;
   char hbuf[hmax] ;
@@ -194,7 +194,9 @@ int private_gethostftime( char* buffer , size_t max , const char* tfmt , const c
   char tbuf[tmax] ;
   int trc = private_getftime( tbuf , tmax , tfmt );
    
-  snprintf( buffer, max , afmt , hbuf , tbuf );
+  char* user = getlogin();
+
+  snprintf( buffer, max , afmt , user, hbuf , tbuf );
   return trc + hrc ;
 }
 
@@ -203,7 +205,7 @@ int main(int argc, char** argv)
 {
     const size_t max = 80 ;
     char buf[max] ;
-    private_gethostftime( buf , max , "%c" , "%s %s" ) ;
+    private_getuserhostftime( buf , max , "%c" , "%s@%s %s" ) ;
     printf( buf );
 
     int rc ;
