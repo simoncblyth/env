@@ -45,10 +45,10 @@ class MQ : public TObject {
 
      static MQ* Create(Bool_t start_monitor=kFALSE);
      void SetOptions( 
-                      Bool_t passive = kFALSE , 
-                      Bool_t durable = kFALSE , 
-                      Bool_t auto_delete = kTRUE , 
-                      Bool_t exclusive = kFALSE ); 
+                      Bool_t passive = kFALSE ,     // passive: the exchange/queue will not get declared but an error will be thrown if it does not exist.
+                      Bool_t durable = kFALSE ,     // durable: the exchange/queue will survive a broker restart. 
+                      Bool_t auto_delete = kTRUE ,  // auto-delete: the exchange/queue will get deleted as soon as there are no more queues/subscriptions bound to it. 
+                      Bool_t exclusive = kFALSE );  // exclusive: there can only be one client for this specific queue.
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
 
