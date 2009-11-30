@@ -11,7 +11,10 @@ typedef int bool_t;
 //#include <amqp.h>
 
 typedef struct notifymq_bytes_t_ { size_t len; void *bytes; } notifymq_bytes_t;
-typedef struct notifymq_props_t_ { notifymq_bytes_t content_type ; notifymq_bytes_t content_encoding ; } notifymq_props_t ; 
+typedef struct notifymq_props_t_ { 
+   notifymq_bytes_t content_type ; 
+   notifymq_bytes_t content_encoding ; 
+} notifymq_props_t ; 
 
 typedef int (*receiver_t)(void* arg,  const void *msgbytes , size_t msglen , notifymq_props_t props );
 
