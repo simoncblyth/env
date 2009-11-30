@@ -204,3 +204,11 @@ Installed package: autoconf.noarch 0:2.57-3 matches with
 [dayabaysoft@grid1 rabbitmq-c]$ automake-1.7 --version
 automake (GNU automake) 1.7.8
 
+
+     6)  Multiple roots ...
+Processing tests/test_root2message.C...
+Error in <TUnixSystem::Load>: version mismatch,
+/data/env/local/env/home/notifymq/lib/libnotifymq.so = 52200, ROOT = 52104
+
+
+

@@ -5,6 +5,7 @@
 #include  "MyTMessage.h"
 #include  "TMessage.h"
 #include  "TThread.h"
+#include  "TVirtualMutex.h"
 #include  "TClass.h"
 #include "notifymq.h"
 #include "root2cjson.h"
@@ -117,7 +118,10 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    this->SetOptions();      // take the defaults initially , change using SetOptions before any actions
    fConfigured = kFALSE ;
 
+
    fMonitor = NULL ;
+   fMQMutex = new TMutex();
+
    fMonitorFinished = kFALSE ;
    fBytes = NULL ;
    fLength = 0 ;
@@ -151,6 +155,7 @@ void MQ::Configure()
 MQ::~MQ()
 {
    notifymq_cleanup();
+   delete fMQMutex ;
 }
 
 void MQ::SendRaw( const char* str )
@@ -199,6 +204,7 @@ void MQ::Wait(receiver_t handler , void* arg )
    notifymq_basic_consume( fQueue.Data() , handler , arg  );
 }
 
+// private setters, protected en-masse
 
 void MQ::SetBytesLength(void* bytes, size_t len )
 {
@@ -206,18 +212,6 @@ void MQ::SetBytesLength(void* bytes, size_t len )
    fLength = len ;
    fBytesUpdated = kTRUE ;
 }
-
-void* MQ::GetBytes()
-{
-   fBytesUpdated = kFALSE ;
-   return fBytes ;
-}
-
-size_t MQ::GetLength()
-{
-   return fLength ;
-}
-
 void MQ::SetContentType(char* str)
 {
    fContentType = str  ;
@@ -226,14 +220,45 @@ void MQ::SetContentEncoding(char* str)
 {
    fContentEncoding = str  ;
 }
+
+// private getters, as not needed to be exposed ... and thread sensitive
+
+void* MQ::GetBytes()
+{
+   R__LOCKGUARD(fMQMutex);
+   fBytesUpdated = kFALSE ;
+   return fBytes ;
+}
+size_t MQ::GetLength()
+{
+   R__LOCKGUARD(fMQMutex);
+   return fLength ;
+}
 char* MQ::GetContentType()
 {
+   R__LOCKGUARD(fMQMutex);
    return fContentType ;
 }
 char* MQ::GetContentEncoding()
 {
+   R__LOCKGUARD(fMQMutex);
    return fContentEncoding ;
 }
+
+
+// public getters, individually protected 
+
+Bool_t MQ::IsMonitorFinished(){ 
+   R__LOCKGUARD(fMQMutex);
+   return fMonitorFinished ; 
+}
+Bool_t MQ::IsBytesUpdated(){    
+   R__LOCKGUARD(fMQMutex);
+   return fBytesUpdated  ; 
+}
+
+// private internals 
+
 
 TObject* MQ::Receive( void* msgbytes , size_t msglen )
 {
@@ -255,13 +280,16 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
 TObject* MQ::ConstructObject()
 {
    //cout << "MQ::ConstructObject (type,encoding) : (" << fContentType << "," << fContentEncoding << ")" << endl ;
+   R__LOCKGUARD(fMQMutex);
    TObject* obj = NULL ;
    TString type = fContentType ;
    TString encoding = fContentEncoding ;
    if(type == "application/data" && encoding == "binary" ){
-       obj = MQ::Receive( GetBytes() , GetLength() );
+       obj = MQ::Receive( fBytes , fLength );
+       fBytesUpdated = kFALSE ; 
    } else if (type == "text/plain" && encoding == "" ){
-       char* str = mq_cstring_dupe( GetBytes() , GetLength() );
+       char* str = mq_cstring_dupe( fBytes , fLength );
+       fBytesUpdated = kFALSE ; 
        obj = new TObjString( str );
    } else {
        cout << "MQ::ConstructObject WARNING unknown (type,encoding) : (" << type.Data() << "," << encoding.Data() << ")" << endl ;
@@ -273,8 +301,8 @@ int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen , notify
 {
    //printf("MQ::receive_bytes of length %d \n" , msglen );
    MQ* instance = (MQ*)arg ;
+   R__LOCKGUARD(instance->fMQMutex);
    instance->SetBytesLength( (void*)msgbytes , msglen );
-
    instance->SetContentType(      mq_cstring_dupe( props.content_type.bytes ,     props.content_type.len ));
    instance->SetContentEncoding(  mq_cstring_dupe( props.content_encoding.bytes , props.content_encoding.len  ));
    return 0 ;

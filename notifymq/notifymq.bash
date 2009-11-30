@@ -22,6 +22,13 @@ notifymq-usage(){
      notifymq-ipython
            interactive root/python with libpaths setup appropriately 
 
+
+     notifymq-sendstring
+     notifymq-sendjson
+     notifymq-sendevt
+
+     notifymq-monitor 
+
 EOU
 }
 
@@ -70,6 +77,13 @@ notifymq-sendjson(){
    notifymq-cd
    make test_root2cjson
 }
+
+notifymq-sendevt(){
+   notifymq-cd
+   make test_root2message
+}
+
+
 
 notifymq-monitor(){
    notifymq-cd

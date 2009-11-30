@@ -28,13 +28,24 @@ class MQ : public TObject {
         Bool_t  fMonitorFinished ;
 
         // written by monitor thread , copied into MyTMessage in main thread 
-        //  ... currently have observed no deadlocks, and have no mutexes
+
+        TVirtualMutex* fMQMutex ; 
         Bool_t  fBytesUpdated ;
         void*  fBytes ;      
         size_t fLength ;       
         char* fContentType ;
         char* fContentEncoding ;
 
+        // private as access thread shared data ... demanding careful usage 
+        void SetContentType(    char* str);      
+        void SetContentEncoding(char* str);      
+        void SetBytesLength(void* bytes, size_t len );      
+
+        void* GetBytes();
+        size_t GetLength();
+        static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
+        static void* Monitor(void* );    // runs as separate thread waiting for new messages 
+ 
   public:
      MQ( const char* exchange = "t.exchange" , 
          const char* queue = "t.queue" , 
@@ -52,16 +63,15 @@ class MQ : public TObject {
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
 
-     Bool_t IsMonitorFinished(){ return fMonitorFinished ; }
-     Bool_t IsBytesUpdated(){  return fBytesUpdated  ; }
-     void SetBytesLength(void* bytes, size_t len );      
-     void* GetBytes();
-     size_t GetLength();
-     void SetContentType(    char* str);      
-     void SetContentEncoding(char* str);      
+
+     // these getters cross threads 
+     Bool_t IsMonitorFinished();
+     Bool_t IsBytesUpdated();
      char* GetContentType();
      char* GetContentEncoding();
      TObject* ConstructObject();
+
+     static TObject* Receive( void* msgbytes , size_t msglen );
 
 
      void SendJSON(TClass* kls, TObject* obj );
@@ -69,13 +79,14 @@ class MQ : public TObject {
      void SendString(const char* str );
      void SendRaw(const char* str );
      void SendMessage(TMessage* msg );
-     static TObject* Receive( void* msgbytes , size_t msglen );
+
+
      void Wait(receiver_t handler, void* arg );
 
-     static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
      void StartMonitorThread();
      void StopMonitorThread();       
-     static void* Monitor(void* );    // runs as separate thread waiting for new messages 
+
+
      static const char* NodeStamp();
      char* Summary() const;
      void Print(Option_t *option = "") const;
