@@ -22,6 +22,11 @@ extern void amqp_dump(void const *buffer, size_t len);
 
 static int notifymq_dbg = 0 ; 
 
+int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
+    if(b.len > max || b.bytes == 0) return EXIT_FAILURE ;
+    return snprintf( buf , max , "%s" , (char*)b.bytes );
+}
+
 int notifymq_init()
 {
     int rc = private_init();
@@ -89,7 +94,7 @@ int notifymq_exchange_declare( char const* exchange , char const* exchangetype ,
 // property setters 
 
 
-int notifymq_content_type( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_content_type( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CONTENT_TYPE_FLAG ;
@@ -97,7 +102,18 @@ int notifymq_content_type( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_content_encoding( amqp_basic_properties_t* props , char const* v )
+int notifymq_get_content_type( amqp_basic_properties_t* props, char* buf , size_t max )
+{
+    if (props->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG){
+        notifymq_getstr( props->content_type, buf , max  );
+        printf("get_content_type %s \n", buf );
+    }
+    return EXIT_FAILURE ;
+}
+
+
+
+int notifymq_set_content_encoding( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CONTENT_ENCODING_FLAG ;
@@ -105,7 +121,7 @@ int notifymq_content_encoding( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_correlation_id( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_correlation_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CORRELATION_ID_FLAG ;
@@ -113,7 +129,7 @@ int notifymq_correlation_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_reply_to( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_reply_to( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_REPLY_TO_FLAG ;
@@ -121,7 +137,7 @@ int notifymq_reply_to( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_expiration( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_expiration( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_EXPIRATION_FLAG ;
@@ -129,7 +145,7 @@ int notifymq_expiration( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_message_id( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_message_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_MESSAGE_ID_FLAG ;
@@ -137,7 +153,7 @@ int notifymq_message_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_type( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_type( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_TYPE_FLAG ;
@@ -145,7 +161,7 @@ int notifymq_type( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_user_id( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_user_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_USER_ID_FLAG ;
@@ -153,7 +169,7 @@ int notifymq_user_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_app_id( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_app_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_APP_ID_FLAG ;
@@ -161,7 +177,7 @@ int notifymq_app_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_cluster_id( amqp_basic_properties_t* props , char const* v )
+int notifymq_set_cluster_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CLUSTER_ID_FLAG ;
@@ -169,21 +185,21 @@ int notifymq_cluster_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_delivery_mode( amqp_basic_properties_t* props, uint8_t v )
+int notifymq_set_delivery_mode( amqp_basic_properties_t* props, uint8_t v )
 {
     props->_flags |= AMQP_BASIC_DELIVERY_MODE_FLAG ;
     props->delivery_mode = v ;
     return 0 ;
 }
 
-int notifymq_priority( amqp_basic_properties_t* props, uint8_t v )
+int notifymq_set_priority( amqp_basic_properties_t* props, uint8_t v )
 {
     props->_flags |= AMQP_BASIC_PRIORITY_FLAG ;
     props->priority = v ;
     return 0 ;
 }
 
-int notifymq_timestamp( amqp_basic_properties_t* props, uint64_t v )
+int notifymq_set_timestamp( amqp_basic_properties_t* props, uint64_t v )
 {
     props->_flags |= AMQP_BASIC_TIMESTAMP_FLAG ;
     props->timestamp = v ;
@@ -191,14 +207,26 @@ int notifymq_timestamp( amqp_basic_properties_t* props, uint64_t v )
 }
 
 
+
+
+
+
+
 int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* msgbytes , size_t msglen )
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_producer.c
     amqp_basic_properties_t props;
     props._flags = 0 ;
-    notifymq_content_type(      &props , "application/data" );
-    notifymq_content_encoding(  &props , "binary" );
-    notifymq_delivery_mode(     &props , 2 );           // persistent delivery mode
+    notifymq_set_content_type(      &props , "application/data" );
+
+    const size_t max = 30 ;  
+    char s[max] ;
+    notifymq_get_content_type(      &props , s , max  );
+    printf("sendbytes %s \n", s );
+
+
+    notifymq_set_content_encoding(  &props , "binary" );
+    notifymq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
 
     die_on_error(amqp_basic_publish(conn,
 				    1,
@@ -213,25 +241,41 @@ int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* m
 }
 
 
+
+
+
+
+
+
+
 int notifymq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody )
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_sendstring.c
     amqp_basic_properties_t props;
     props._flags = 0 ;
-    notifymq_content_type(      &props , "text/plain" );
-    //notifymq_content_encoding( &props , "?" );
-    //notifymq_headers(         &props  , "??" ) ;
-    notifymq_delivery_mode(     &props , 2 );           // persistent delivery mode
-    //notifymq_priority(          &props , 1 ); 
-    notifymq_correlation_id(   &props , "test.correlation_id" ); 
-    notifymq_reply_to(         &props , "test.reply_to" ); 
-    notifymq_expiration(       &props , "test.expiration" ); 
-    notifymq_message_id(       &props , "test.message_id" ); 
-    //notifymq_timestamp(      &props ,  (uint64_t)101 ); 
-    notifymq_type(             &props , "test.type" ); 
-    notifymq_user_id(          &props , "test.user_id" ); 
-    notifymq_app_id(           &props , "test.app_id" ); 
-    notifymq_cluster_id(       &props , "test.cluster_id" ); 
+    notifymq_set_content_type(      &props , "text/plain" );
+
+    const size_t max = 30 ;
+    char s[max] ;
+    notifymq_get_content_type(      &props , s , max );
+    printf("sendstring %s \n", s );
+
+
+
+
+    //notifymq_set_content_encoding( &props , "?" );
+    //notifymq_set_headers(         &props  , "??" ) ;
+    notifymq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
+    //notifymq_set_priority(          &props , 1 ); 
+    notifymq_set_correlation_id(   &props , "test.correlation_id" ); 
+    notifymq_set_reply_to(         &props , "test.reply_to" ); 
+    notifymq_set_expiration(       &props , "test.expiration" ); 
+    notifymq_set_message_id(       &props , "test.message_id" ); 
+    //notifymq_set_timestamp(      &props ,  (uint64_t)101 ); 
+    notifymq_set_type(             &props , "test.type" ); 
+    notifymq_set_user_id(          &props , "test.user_id" ); 
+    notifymq_set_app_id(           &props , "test.app_id" ); 
+    notifymq_set_cluster_id(       &props , "test.cluster_id" ); 
 
 
     die_on_error(amqp_basic_publish(conn,
@@ -352,6 +396,13 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
          props.content_type.len   = p->content_type.len ;
          props.content_type.bytes = p->content_type.bytes ;
       }
+
+
+      const size_t max = 40 ;
+      char s[max] ;
+      notifymq_get_content_type( p , s , max );
+      printf("notifymq_get_content_type: %s\n", s );
+
 
       props.content_encoding.len   = 0 ;
       props.content_encoding.bytes = NULL ; 
