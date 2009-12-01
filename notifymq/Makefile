@@ -39,6 +39,11 @@ LIBS       += $(PRIV_LIBS)
 CFLAGS     += $(CJSON_CFLAGS)
 LIBS       += $(CJSON_LIBS)
 
+CFLAGS     += $(GLIB_CFLAGS)
+LIBS       += $(GLIB_LIBS)
+
+
+
 
 
 LIBFILE = libnotifymq.$(SOFIX)

@@ -13,17 +13,23 @@
 #include "private.h"
 #include "example_utils.h"
 
+#include <glib.h>
+
 #include "notifymq.h"
 
 static int sockfd ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
+static GHashTable* notifymq_collection  ;  // hash table of routing keys associated with dequeues of messages
+static const int notifymq_collection_max = 10 ;
+
 static uint64_t notifymq_msg_index = 0 ; 
 static int notifymq_dbg = 0 ; 
 
 typedef struct notifymq_basic_msg_t_ {
    uint64_t index ;
+   char* key ;      // convenience copy of the routing_key  
    amqp_basic_deliver_t deliver ;
    amqp_basic_properties_t properties ;
    amqp_bytes_t body ;		
@@ -44,7 +50,7 @@ notifymq_basic_msg_t*   notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* b
 void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d );
 void notifymq_basic_properties_dump( const amqp_basic_properties_t* p );
 void notifymq_table_dump( const amqp_table_t* t );
-void notifymq_msg_dump( const notifymq_basic_msg_t* msg );
+void notifymq_msg_dump( const notifymq_basic_msg_t* msg, int verbosity  );
 
 char* notifymq_getstr_alloc( amqp_bytes_t b ) {
     char* buf ;
@@ -64,12 +70,57 @@ int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
     return EXIT_SUCCESS ;
 }
 
+
+int notifymq_collection_add( notifymq_basic_msg_t * msg )
+{
+
+    gchar* k = g_strdup( msg->key );
+    GQueue* q = (GQueue*)g_hash_table_lookup( notifymq_collection , k );  
+    if( q == NULL ){      
+       printf("_collection_add creating dq for key \"%s\" \n", msg->key ); 
+       g_hash_table_insert( notifymq_collection , k , g_queue_new() );
+       q =  (GQueue*)g_hash_table_lookup( notifymq_collection , k );
+    } else {
+       printf("_collection_add using pre-existing dq for key \"%s\" \n", msg->key ); 
+    }
+    guint length = g_queue_get_length( q );
+    if(length == notifymq_collection_max ){
+        printf("_collection_add reached max %d popping tail \n" , length );
+        g_queue_pop_tail( q );
+    }
+    g_queue_push_head( q , msg );
+    return EXIT_SUCCESS ;
+}
+
+
+void notifymq_hash_dumper(gpointer key, gpointer value, gpointer user_data)
+{
+   GQueue* q = (GQueue*)value ;
+   guint length = g_queue_get_length(q );
+   printf("_collection_dump key \"%s\" length %d \n", (char*)key, length );
+
+   notifymq_basic_msg_t* msg = NULL ; 
+   guint n ;
+   for( n = 0 ; n < length ; n++ ){
+      msg = (notifymq_basic_msg_t*)g_queue_peek_nth( q , n );
+      notifymq_msg_dump( msg , 0 ); 
+   }
+}
+
+void notifymq_collection_dump()
+{
+   g_hash_table_foreach( notifymq_collection , notifymq_hash_dumper , NULL );
+}
+
+
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
     notifymq_basic_msg_t* msg = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
     notifymq_msg_index++ ;     // global received message index within this run 
-    notifymq_msg_dump( msg );
+    notifymq_msg_dump( msg , 3 );
 
+    notifymq_collection_add( msg );
+    notifymq_collection_dump();
 
     return EXIT_SUCCESS ;
 }
@@ -82,15 +133,19 @@ notifymq_basic_msg_t* notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* bod
     msg->body    = amqp_bytes_malloc_dup( *body );
     msg->deliver = notifymq_basic_deliver_dup( *deliver ); 
     msg->properties = notifymq_basic_properties_dup( *props ) ;
+    msg->key     = notifymq_getstr_alloc( msg->deliver.routing_key );  // convenience copy as null terminated string needed 
     return msg ;
 }
 
-void notifymq_msg_dump( const notifymq_basic_msg_t* msg )
+void notifymq_msg_dump( const notifymq_basic_msg_t* msg , int verbosity )
 {
-    printf("notifymq_msg_dump .index %lld \n", msg->index );
-    amqp_dump( msg->body.bytes , msg->body.len  );   
-    notifymq_basic_deliver_dump( &(msg->deliver) );
-    notifymq_basic_properties_dump( &(msg->properties) );  
+    printf("notifymq_msg_dump .index %lld .key \"%s\" verbosity %d \n", msg->index , msg->key, verbosity  );
+    if(verbosity > 2)
+       amqp_dump( msg->body.bytes , msg->body.len  );   
+    if(verbosity > 1)
+       notifymq_basic_deliver_dump( &(msg->deliver) );
+    if(verbosity > 1)
+       notifymq_basic_properties_dump( &(msg->properties) );  
 }
 
 
@@ -118,6 +173,10 @@ int notifymq_init()
     die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
     amqp_channel_open(conn, 1);
     die_on_amqp_error(amqp_rpc_reply, "Opening channel");
+
+    printf("_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
+    notifymq_collection  = g_hash_table_new(g_str_hash, g_str_equal);  // funcs for : hashing, key comparison 
+
     return EXIT_SUCCESS ;
 }
 
