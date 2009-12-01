@@ -50,13 +50,15 @@ notifymq_basic_msg_t*   notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* b
 void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d );
 void notifymq_basic_properties_dump( const amqp_basic_properties_t* p );
 void notifymq_table_dump( const amqp_table_t* t );
-void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg, int verbosity  );
+void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg, int verbosity , const char* label  );
 
 // deallocaters
 void notifymq_basic_msg_free( notifymq_basic_msg_t* msg );
 void notifymq_basic_deliver_free( amqp_basic_deliver_t* src );
 void notifymq_basic_properties_free( amqp_basic_properties_t* src );
 
+// accessors 
+GQueue* notifymq_collection_getq_or_create( const char* key );
 
 
 char* notifymq_getstr_alloc( amqp_bytes_t b ) {
@@ -80,16 +82,7 @@ int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
 
 int notifymq_collection_add( notifymq_basic_msg_t * msg )
 {
-
-    gchar* k = g_strdup( msg->key );
-    GQueue* q = (GQueue*)g_hash_table_lookup( notifymq_collection , k );  
-    if( q == NULL ){      
-       printf("_collection_add creating dq for key \"%s\" \n", msg->key ); 
-       g_hash_table_insert( notifymq_collection , k , g_queue_new() );
-       q =  (GQueue*)g_hash_table_lookup( notifymq_collection , k );
-    } else {
-       printf("_collection_add using pre-existing dq for key \"%s\" \n", msg->key ); 
-    }
+    GQueue* q =  notifymq_collection_getq_or_create( msg->key );
     guint length = g_queue_get_length( q );
     if(length == notifymq_collection_max ){
         printf("_collection_add reached max %d popping tail \n" , length );
@@ -100,25 +93,66 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
     return EXIT_SUCCESS ;
 }
 
+GQueue* notifymq_collection_getq( const char* key )
+{
+    GQueue* q = (GQueue*)g_hash_table_lookup( notifymq_collection ,  key  );  
+    return q ;
+}
+
+GQueue* notifymq_collection_getq_or_create( const char* key )
+{
+    GQueue* q = notifymq_collection_getq( key );
+    if( q == NULL ){      
+       printf("_collection_getq_or_create : creating dq for key \"%s\" \n", key ); 
+       g_hash_table_insert( notifymq_collection , g_strdup( key ) , g_queue_new() );
+       q =  (GQueue*)g_hash_table_lookup( notifymq_collection , key );
+    } else {
+       printf("_collection_getq_or_create using pre-existing dq for key \"%s\" \n", key ); 
+    }
+    return q ;
+}
+
 
 void notifymq_hash_dumper(gpointer key, gpointer value, gpointer user_data)
 {
    GQueue* q = (GQueue*)value ;
    guint length = g_queue_get_length(q );
-   printf("_collection_dump key \"%s\" length %d \n", (char*)key, length );
-
-   notifymq_basic_msg_t* msg = NULL ; 
+   printf("_hash_dumper key \"%s\" length %d \n", (char*)key, length );
    guint n ;
+   char label[50] ;
    for( n = 0 ; n < length ; n++ ){
-      msg = (notifymq_basic_msg_t*)g_queue_peek_nth( q , n );
-      notifymq_basic_msg_dump( msg , 0 ); 
+      sprintf( label, "peek_nth %d ", n );
+      notifymq_basic_msg_dump(  (notifymq_basic_msg_t*)g_queue_peek_nth(q, n ), 0 , label  ); 
    }
+   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_head( q ) , 0 , "peek_head" ); 
+   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_tail( q ) , 0 , "peek_tail" ); 
 }
 
-void notifymq_collection_dump()
+void notifymq_collection_dump( )
 {
    g_hash_table_foreach( notifymq_collection , notifymq_hash_dumper , NULL );
 }
+
+int notifymq_collection_length( const char* key )
+{
+   GQueue* q = notifymq_collection_getq( key );
+   if( q == NULL ){
+      printf("_collection_get ERROR no q for key \"%s\" \n", key );
+      return -1 ;
+   }
+   return (int)g_queue_get_length( q );
+}
+
+notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n ) 
+{
+   GQueue* q = notifymq_collection_getq( key );
+   if( q == NULL ){
+      printf("_collection_get ERROR no q for key \"%s\" \n", key );
+      return NULL ;
+   }
+   return (notifymq_basic_msg_t*)g_queue_peek_nth( q , n  );
+}
+
 
 
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
@@ -130,10 +164,13 @@ int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver 
     notifymq_basic_msg_free( msg2 );
 
     notifymq_msg_index++ ;     // global received message index within this run 
-    notifymq_basic_msg_dump( msg , 3 );
+    notifymq_basic_msg_dump( msg , 3 , "_basic_collect");
 
     notifymq_collection_add( msg );
     notifymq_collection_dump();
+
+    notifymq_basic_msg_dump(  notifymq_collection_get( "default.routingkey" , 0 ) , 0 , "last" );
+    notifymq_basic_msg_dump(  notifymq_collection_get( "default.routingkey" , 1 ) , 0 , "penultimate" );
 
     return EXIT_SUCCESS ;
 }
@@ -150,9 +187,13 @@ notifymq_basic_msg_t* notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* bod
     return msg ;
 }
 
-void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg , int verbosity )
+void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg , int verbosity , const char* label )
 {
-    printf("notifymq_msg_dump .index %lld .key \"%s\" verbosity %d \n", msg->index , msg->key, verbosity  );
+    if( msg == NULL ){
+       printf("notifymq_msg_dump %s ERROR null msg \n", label );
+       return ;
+    }
+    printf("notifymq_msg_dump %s .index %lld .key \"%s\" verbosity %d \n", label , msg->index , msg->key, verbosity  );
     if(verbosity > 2)
        amqp_dump( msg->body.bytes , msg->body.len  );   
     if(verbosity > 1)
@@ -559,12 +600,6 @@ int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* m
     amqp_basic_properties_t props;
     props._flags = 0 ;
     notifymq_set_content_type(      &props , "application/data" );
-
-    char* s ;
-    s = notifymq_get_content_type( &props );
-    printf("sendbytes \"%s\" \n", s );
-
-
     notifymq_set_content_encoding(  &props , "binary" );
     notifymq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
 
@@ -579,10 +614,6 @@ int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* m
 		 "Publishing");
     return EXIT_SUCCESS ;
 }
-
-
-
-
 
 
 
@@ -773,14 +804,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
         
       if(dbg>0) fprintf(stderr, "notifymq_basic_consume : invoking the receiver \n");
       
-      // perhaps should dupe first ?
-      //amqp_bytes_t dupe = amqp_bytes_malloc_dup( frame.payload.body_fragment );
-      //handlebytes( arg, dupe.bytes, dupe.len);
-
-      //    
-      //  p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
-      //  d = (amqp_basic_deliver_t *)    frame.payload.method.decoded;
-      
+     
       notifymq_basic_collect( &frame.payload.body_fragment , d , p );
       handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
