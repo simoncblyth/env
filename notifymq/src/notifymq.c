@@ -50,7 +50,14 @@ notifymq_basic_msg_t*   notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* b
 void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d );
 void notifymq_basic_properties_dump( const amqp_basic_properties_t* p );
 void notifymq_table_dump( const amqp_table_t* t );
-void notifymq_msg_dump( const notifymq_basic_msg_t* msg, int verbosity  );
+void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg, int verbosity  );
+
+// deallocaters
+void notifymq_basic_msg_free( notifymq_basic_msg_t* msg );
+void notifymq_basic_deliver_free( amqp_basic_deliver_t* src );
+void notifymq_basic_properties_free( amqp_basic_properties_t* src );
+
+
 
 char* notifymq_getstr_alloc( amqp_bytes_t b ) {
     char* buf ;
@@ -86,7 +93,8 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
     guint length = g_queue_get_length( q );
     if(length == notifymq_collection_max ){
         printf("_collection_add reached max %d popping tail \n" , length );
-        g_queue_pop_tail( q );
+        notifymq_basic_msg_t* d = (notifymq_basic_msg_t*)g_queue_pop_tail( q );
+        notifymq_basic_msg_free( d );
     }
     g_queue_push_head( q , msg );
     return EXIT_SUCCESS ;
@@ -103,7 +111,7 @@ void notifymq_hash_dumper(gpointer key, gpointer value, gpointer user_data)
    guint n ;
    for( n = 0 ; n < length ; n++ ){
       msg = (notifymq_basic_msg_t*)g_queue_peek_nth( q , n );
-      notifymq_msg_dump( msg , 0 ); 
+      notifymq_basic_msg_dump( msg , 0 ); 
    }
 }
 
@@ -116,8 +124,13 @@ void notifymq_collection_dump()
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
     notifymq_basic_msg_t* msg = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
+
+    // test clean up
+    notifymq_basic_msg_t* msg2 = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
+    notifymq_basic_msg_free( msg2 );
+
     notifymq_msg_index++ ;     // global received message index within this run 
-    notifymq_msg_dump( msg , 3 );
+    notifymq_basic_msg_dump( msg , 3 );
 
     notifymq_collection_add( msg );
     notifymq_collection_dump();
@@ -137,7 +150,7 @@ notifymq_basic_msg_t* notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* bod
     return msg ;
 }
 
-void notifymq_msg_dump( const notifymq_basic_msg_t* msg , int verbosity )
+void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg , int verbosity )
 {
     printf("notifymq_msg_dump .index %lld .key \"%s\" verbosity %d \n", msg->index , msg->key, verbosity  );
     if(verbosity > 2)
@@ -146,6 +159,15 @@ void notifymq_msg_dump( const notifymq_basic_msg_t* msg , int verbosity )
        notifymq_basic_deliver_dump( &(msg->deliver) );
     if(verbosity > 1)
        notifymq_basic_properties_dump( &(msg->properties) );  
+}
+
+void notifymq_basic_msg_free( notifymq_basic_msg_t* msg )
+{
+    AMQP_BYTES_FREE( msg->body );
+    notifymq_basic_deliver_free( &(msg->deliver) ) ;
+    notifymq_basic_properties_free( &(msg->properties) );  
+    free( msg->key );
+    msg = NULL ;
 }
 
 
@@ -237,6 +259,15 @@ amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src 
     dest.routing_key  = amqp_bytes_malloc_dup( src.routing_key );
     return dest ;
 }
+
+void notifymq_basic_deliver_free( amqp_basic_deliver_t* src )
+{
+    AMQP_BYTES_FREE( src->consumer_tag );
+    AMQP_BYTES_FREE( src->exchange );   
+    AMQP_BYTES_FREE( src->routing_key );
+    src = NULL ;
+}
+
 
 amqp_decimal_t notifymq_decimal_dup( const amqp_decimal_t src )
 {
@@ -334,12 +365,15 @@ amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properti
         dest.content_type     = amqp_bytes_malloc_dup( src.content_type );
     if (src._flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
         dest.content_encoding = amqp_bytes_malloc_dup( src.content_encoding );
+
     if (src._flags & AMQP_BASIC_HEADERS_FLAG) 
         dest.headers          = notifymq_table_dup( src.headers );
+
     if (src._flags & AMQP_BASIC_DELIVERY_MODE_FLAG) 
         dest.delivery_mode    = src.delivery_mode ;
     if (src._flags & AMQP_BASIC_PRIORITY_FLAG) 
         dest.priority         = src.priority ;
+
     if (src._flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
         dest.correlation_id   = amqp_bytes_malloc_dup( src.correlation_id ) ;
     if (src._flags & AMQP_BASIC_REPLY_TO_FLAG) 
@@ -348,8 +382,10 @@ amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properti
         dest.expiration       = amqp_bytes_malloc_dup( src.expiration ) ;
     if (src._flags & AMQP_BASIC_MESSAGE_ID_FLAG) 
         dest.message_id       = amqp_bytes_malloc_dup( src.message_id ) ;
+
     if (src._flags & AMQP_BASIC_TIMESTAMP_FLAG) 
         dest.timestamp        = src.timestamp ;
+
     if (src._flags & AMQP_BASIC_TYPE_FLAG) 
         dest.type             = amqp_bytes_malloc_dup( src.type ) ;
     if (src._flags & AMQP_BASIC_USER_ID_FLAG) 
@@ -362,7 +398,35 @@ amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properti
 }
 
 
+void notifymq_basic_properties_free( amqp_basic_properties_t* src )
+{
+    if (src->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
+        AMQP_BYTES_FREE( src->content_type );
+    if (src->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
+        AMQP_BYTES_FREE( src->content_encoding );
 
+    //if (src->_flags & AMQP_BASIC_HEADERS_FLAG) 
+    //    notifymq_table_free( src->headers );
+
+    if (src->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
+        AMQP_BYTES_FREE( src->correlation_id ) ;
+    if (src->_flags & AMQP_BASIC_REPLY_TO_FLAG) 
+        AMQP_BYTES_FREE( src->reply_to ) ;
+    if (src->_flags & AMQP_BASIC_EXPIRATION_FLAG) 
+        AMQP_BYTES_FREE( src->expiration ) ;
+    if (src->_flags & AMQP_BASIC_MESSAGE_ID_FLAG) 
+        AMQP_BYTES_FREE( src->message_id ) ;
+
+    if (src->_flags & AMQP_BASIC_TYPE_FLAG) 
+        AMQP_BYTES_FREE( src->type ) ;
+    if (src->_flags & AMQP_BASIC_USER_ID_FLAG) 
+        AMQP_BYTES_FREE( src->user_id ) ;
+    if (src->_flags & AMQP_BASIC_APP_ID_FLAG) 
+        AMQP_BYTES_FREE( src->app_id ) ;
+    if (src->_flags & AMQP_BASIC_CLUSTER_ID_FLAG) 
+        AMQP_BYTES_FREE( src->cluster_id ) ;
+    src = NULL ;
+}
 
 
 
