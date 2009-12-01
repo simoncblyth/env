@@ -17,11 +17,20 @@
 
 static int sockfd ;
 static amqp_connection_state_t conn ;
-
 extern void amqp_dump(void const *buffer, size_t len);
 
+static uint64_t notifymq_msg_index = 0 ; 
 static int notifymq_dbg = 0 ; 
 
+typedef struct notifymq_basic_msg_t_ {
+   uint64_t index ;
+   amqp_basic_deliver_t deliver ;
+   amqp_basic_properties_t properties ;
+   amqp_bytes_t body ;		
+} notifymq_basic_msg_t ;
+	
+
+// deprecated ... it allocates every time
 char* notifymq_get_content_type( amqp_basic_properties_t* props );
 
 // duplicators 
@@ -29,18 +38,13 @@ amqp_basic_deliver_t    notifymq_basic_deliver_dup( const amqp_basic_deliver_t s
 amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properties_t src );
 amqp_decimal_t          notifymq_decimal_dup( const amqp_decimal_t src );
 amqp_table_t            notifymq_table_dup( const amqp_table_t src );
+notifymq_basic_msg_t*   notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props );
 
-void notifymq_table_dump( const amqp_table_t src );
-
-
-typedef struct notifymq_basic_msg_t_ {
-   amqp_basic_deliver_t deliver ;
-   amqp_basic_properties_t properties ;
-   amqp_bytes_t body ;		
-} notifymq_basic_msg_t ;
-	
-
-
+// dumpers 
+void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d );
+void notifymq_basic_properties_dump( const amqp_basic_properties_t* p );
+void notifymq_table_dump( const amqp_table_t* t );
+void notifymq_msg_dump( const notifymq_basic_msg_t* msg );
 
 char* notifymq_getstr_alloc( amqp_bytes_t b ) {
     char* buf ;
@@ -53,7 +57,6 @@ char* notifymq_getstr_alloc( amqp_bytes_t b ) {
     return buf ;
 }
 
-
 int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
     if(b.len > max || b.bytes == 0) return EXIT_FAILURE ;
     memcpy( buf , b.bytes , b.len );   // cannot use strcpy...  as .bytes from amqp_bytes_t is not null-terminated
@@ -61,32 +64,34 @@ int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
     return EXIT_SUCCESS ;
 }
 
-
-int notifymq_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
+int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
-    // testing message duping 
-    amqp_bytes_t         b    = amqp_bytes_malloc_dup( *body );
-    printf("_collect : body len %d \n", b.len );
-
-    amqp_basic_deliver_t d    = notifymq_basic_deliver_dup( *deliver ); 
-    printf("_collect : exchange    \"%.*s\" \n", d.exchange.len , (char*)d.exchange.bytes );              
-    printf("_collect : routing_key \"%.*s\" \n", d.routing_key.len , (char*)d.routing_key.bytes );              
-
-
-    //notifymq_table_dump( props->headers ); 
-
-
-    amqp_basic_properties_t p = notifymq_basic_properties_dup( *props ) ;
-    char* s ;
-    s = notifymq_get_content_type( &p );
-    printf("_collect : notifymq_get_content_type: \"%s\" \n", s );	
-    
+    notifymq_basic_msg_t* msg = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
+    notifymq_msg_index++ ;     // global received message index within this run 
+    notifymq_msg_dump( msg );
 
 
     return EXIT_SUCCESS ;
 }
 
+notifymq_basic_msg_t* notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
+{
+    // full duplication with new allocations, collecting msg and its metadata into single structure  
+    notifymq_basic_msg_t* msg = malloc( sizeof(notifymq_basic_msg_t) );
+    msg->index   = index ;
+    msg->body    = amqp_bytes_malloc_dup( *body );
+    msg->deliver = notifymq_basic_deliver_dup( *deliver ); 
+    msg->properties = notifymq_basic_properties_dup( *props ) ;
+    return msg ;
+}
 
+void notifymq_msg_dump( const notifymq_basic_msg_t* msg )
+{
+    printf("notifymq_msg_dump .index %lld \n", msg->index );
+    amqp_dump( msg->body.bytes , msg->body.len  );   
+    notifymq_basic_deliver_dump( &(msg->deliver) );
+    notifymq_basic_properties_dump( &(msg->properties) );  
+}
 
 
 int notifymq_init()
@@ -155,7 +160,13 @@ int notifymq_exchange_declare( char const* exchange , char const* exchangetype ,
 
 
 
-
+void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d )
+{
+    printf("basic_deliver_dump delivery_tag %lld redelivered %d \n", d->delivery_tag, d->redelivered );
+    printf("\t.consumer_tag\t\t%.*s\n",  d->consumer_tag.len, (char*)d->consumer_tag.bytes );
+    printf("\t.exchange\t\t%.*s\n",      d->exchange.len,     (char*)d->exchange.bytes );
+    printf("\t.routing_key\t\t%.*s\n",   d->routing_key.len,  (char*)d->routing_key.bytes );
+}
 
 amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src )
 {
@@ -168,41 +179,6 @@ amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src 
     return dest ;
 }
 
-/*
-typedef struct amqp_table_t_ {
-  int num_entries;
-  struct amqp_table_entry_t_ *entries;
-} amqp_table_t;
-
-#define AMQP_EMPTY_TABLE ((amqp_table_t) { .num_entries = 0, .entries = NULL })
-
-typedef struct amqp_table_entry_t_ {
-  amqp_bytes_t key;
-  char kind;
-  union { 
-    amqp_bytes_t bytes;
-    int32_t i32;
-    amqp_decimal_t decimal;
-    uint64_t u64;
-    amqp_table_t table;
-  } value; 
-} amqp_table_entry_t;
-
-#define _AMQP_TE_INIT(ke,ki,v) { .key = (ke), .kind = (ki), .value = { v } }
-#define AMQP_TABLE_ENTRY_S(k,v) _AMQP_TE_INIT(amqp_cstring_bytes(k), 'S', .bytes = (v))
-#define AMQP_TABLE_ENTRY_I(k,v) _AMQP_TE_INIT(amqp_cstring_bytes(k), 'I', .i32 = (v))
-#define AMQP_TABLE_ENTRY_D(k,v) _AMQP_TE_INIT(amqp_cstring_bytes(k), 'D', .decimal = (v))
-#define AMQP_TABLE_ENTRY_T(k,v) _AMQP_TE_INIT(amqp_cstring_bytes(k), 'T', .u64 = (v))
-#define AMQP_TABLE_ENTRY_F(k,v) _AMQP_TE_INIT(amqp_cstring_bytes(k), 'F', .table = (v))
-
-
-typedef struct amqp_decimal_t_ {
-  int decimals;
-  uint32_t value;
-} amqp_decimal_t;
-
-*/
-
 amqp_decimal_t notifymq_decimal_dup( const amqp_decimal_t src )
 {
    amqp_decimal_t dest ;
@@ -211,12 +187,12 @@ amqp_decimal_t notifymq_decimal_dup( const amqp_decimal_t src )
    return dest ;
 }
 
-void notifymq_table_dump( const amqp_table_t src )
+void notifymq_table_dump( const amqp_table_t* t )
 {
    int i ;
    amqp_table_entry_t* entry = NULL ;
-   for( i = 0 ; i < src.num_entries ; i++ ){
-      entry =  &src.entries[i] ;
+   for( i = 0 ; i < t->num_entries ; i++ ){
+      entry =  &t->entries[i] ;
       printf("_table_dump \"%c\" \n", entry->kind ); 
       //printf("_table_dump %.*s \n", entry->key.len , (char*)entry->key.bytes ); 
    } 
@@ -254,6 +230,39 @@ amqp_table_t notifymq_table_dup( const amqp_table_t src )
       }
    }
    return dest ;
+}
+
+void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
+{
+    printf("basic_properties_dump \n" );
+    if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
+        printf("\t.content_type\t\t%.*s\n", p->content_type.len, (char*)p->content_type.bytes );
+    if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
+        printf("\t.content_encoding\t\t%.*s\n", p->content_encoding.len, (char*)p->content_encoding.bytes );
+    if (p->_flags & AMQP_BASIC_HEADERS_FLAG) 
+        notifymq_table_dump( &p->headers );
+    if (p->_flags & AMQP_BASIC_DELIVERY_MODE_FLAG) 
+        printf("\t.delivery_mode\t\t%d\n", p->delivery_mode );
+    if (p->_flags & AMQP_BASIC_PRIORITY_FLAG) 
+        printf("\t.priority\t\t%d\n", p->priority );
+    if (p->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
+        printf("\t.content_encoding\t\t%.*s\n", p->correlation_id.len, (char*)p->correlation_id.bytes );
+    if (p->_flags & AMQP_BASIC_REPLY_TO_FLAG) 
+        printf("\t.reply_to\t\t%.*s\n", p->reply_to.len, (char*)p->reply_to.bytes );
+    if (p->_flags & AMQP_BASIC_EXPIRATION_FLAG) 
+        printf("\t.expiration\t\t%.*s\n", p->expiration.len, (char*)p->expiration.bytes );
+    if (p->_flags & AMQP_BASIC_MESSAGE_ID_FLAG) 
+        printf("\t.message_id\t\t%.*s\n", p->message_id.len, (char*)p->message_id.bytes );
+    if (p->_flags & AMQP_BASIC_TIMESTAMP_FLAG) 
+        printf("\t.timestamp\t\t%lld\n", p->timestamp );
+    if (p->_flags & AMQP_BASIC_TYPE_FLAG) 
+        printf("\t.type\t\t%.*s\n", p->type.len, (char*)p->type.bytes );
+    if (p->_flags & AMQP_BASIC_USER_ID_FLAG) 
+        printf("\t.user_id\t\t%.*s\n", p->user_id.len, (char*)p->user_id.bytes );
+    if (p->_flags & AMQP_BASIC_APP_ID_FLAG) 
+        printf("\t.app_id\t\t%.*s\n", p->app_id.len, (char*)p->app_id.bytes );
+    if (p->_flags & AMQP_BASIC_CLUSTER_ID_FLAG) 
+        printf("\t.cluster_id\t\t%.*s\n", p->cluster_id.len, (char*)p->cluster_id.bytes );
 }
 
 
@@ -316,6 +325,7 @@ int notifymq_set_content_type( amqp_basic_properties_t* props , char const* v )
 
 char* notifymq_get_content_type( amqp_basic_properties_t* props )
 {
+    // unhealthy allocation 
     if (props->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) return notifymq_getstr_alloc( props->content_type );
     return NULL ;
 }
@@ -461,21 +471,15 @@ int notifymq_sendstring( char const*  exchange , char const* routingkey , char c
     amqp_basic_properties_t props;
     props._flags = 0 ;
     notifymq_set_content_type(      &props , "text/plain" );
-
-    char* s  ;
-    s = notifymq_get_content_type(      &props );
-    printf("sendstring \"%s\" \n", s );
-
-
-    //notifymq_set_content_encoding( &props , "?" );
+    //notifymq_set_content_encoding(  &props , "test.encoding" );
     //notifymq_set_headers(         &props  , "??" ) ;
-    notifymq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
-    //notifymq_set_priority(          &props , 1 ); 
+    notifymq_set_delivery_mode(    &props , 2 );           // persistent delivery mode
+    notifymq_set_priority(         &props , 1 ); 
     notifymq_set_correlation_id(   &props , "test.correlation_id" ); 
     notifymq_set_reply_to(         &props , "test.reply_to" ); 
     notifymq_set_expiration(       &props , "test.expiration" ); 
     notifymq_set_message_id(       &props , "test.message_id" ); 
-    //notifymq_set_timestamp(      &props ,  (uint64_t)101 ); 
+    notifymq_set_timestamp(        &props ,  (uint64_t)101 ); 
     notifymq_set_type(             &props , "test.type" ); 
     notifymq_set_user_id(          &props , "test.user_id" ); 
     notifymq_set_app_id(           &props , "test.app_id" ); 
@@ -654,7 +658,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
       //  p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
       //  d = (amqp_basic_deliver_t *)    frame.payload.method.decoded;
       
-      notifymq_collect(  &frame.payload.body_fragment , d , p );
+      notifymq_basic_collect( &frame.payload.body_fragment , d , p );
       handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
 
