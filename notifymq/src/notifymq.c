@@ -24,7 +24,6 @@ static int sockfd ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
-static int notifymq_dbg = 0 ; 
 static uint64_t notifymq_msg_index = 0 ; 
 static GThread* notifymq_monitor_thread = NULL;
 
@@ -197,7 +196,8 @@ int notifymq_cleanup()
 gpointer notifymq_monitor_thread_(gpointer data )
 {
     char const* queue = (char const*)data ; 
-    printf("notifymq_monitor_thread_ starting for queue \"%s\"\n", queue );
+    if( notifymq_dbg > 0 )
+        printf("notifymq_monitor_thread_ starting for queue \"%s\"\n", queue );
     notifymq_basic_consume( queue );
     return NULL ;
 }

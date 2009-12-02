@@ -23,6 +23,8 @@ class MQ : public TObject {
         Bool_t  fExclusive  ;
         Bool_t  fConfigured ;
 
+        Bool_t  fMonitorRunning ;
+
   public:
      MQ( const char* exchange = "t.exchange" , 
          const char* queue = "t.queue" , 
@@ -44,6 +46,7 @@ class MQ : public TObject {
      Int_t GetLength( const char* key );
      TObject* Get( const char* key , int n );
      static TObject* Receive( void* msgbytes , size_t msglen );
+     Bool_t IsMonitorRunning();
 
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );

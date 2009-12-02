@@ -33,6 +33,7 @@ typedef struct notifymq_basic_msg_t_ {
 	
 typedef int bool_t;
 
+static int notifymq_dbg = 0 ; 
 
 extern int notifymq_init();
 extern int notifymq_cleanup();

@@ -1,10 +1,11 @@
 import ROOT
 
 class EvMQ:
-    def __init__(self):
+    def __init__(self, key="default.routingkey"):
         ROOT.gSystem.Load("$ENV_HOME/notifymq/lib/libnotifymq.%s" % ROOT.gSystem.GetSoExt() )
         ROOT.gSystem.Load("$ABERDEEN_HOME/DataModel/lib/libAbtDataModel.%s" % ROOT.gSystem.GetSoExt() )
         ROOT.gMQ.Create()
+        self.key = key 
         self.mq = ROOT.gMQ
         self.timer = ROOT.TTimer(1000)
         self._connect( self.timer, "TurnOn()",  self.On ) 
@@ -18,11 +19,11 @@ class EvMQ:
         self.mq.StartMonitorThread()
     def Check(self):
         #print "EvMQ.Check"
-        if not(self.mq.IsMonitorFinished()):
-            if self.mq.IsBytesUpdated():
-                obj = self.mq.ConstructObject()
+        if self.mq.IsMonitorRunning():
+            if self.mq.IsUpdated(self.key):
+                obj = self.mq.Get(self.key, 0)
                 if obj:
-                    obj.Print()
+                    obj.Print("")
                     self.obj = obj
     def Off(self):
         print "EvMQ.Off"

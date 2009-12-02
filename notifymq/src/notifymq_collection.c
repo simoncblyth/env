@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "notifymq.h"
 #include "notifymq_collection.h"
 #include "notifymq_utils.h"
 #include <glib.h>
@@ -35,7 +36,8 @@ notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* ke
 
 int notifymq_collection_init()
 {
-    printf("_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
+    if( notifymq_dbg > 0 )
+        printf("_collection_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
     notifymq_collection  = g_hash_table_new(g_str_hash, g_str_equal);  // funcs for : hashing, key comparison 
     return EXIT_SUCCESS ;
 }
@@ -53,7 +55,8 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
     notifymq_collection_queue_t* q =  notifymq_collection_getq_or_create_( msg->key );
     guint length = g_queue_get_length( q->queue );
     if(length == notifymq_collection_max ){
-        printf("_collection_add reached max %d popping tail \n" , length );
+        if( notifymq_dbg > 1 )
+            printf("_collection_add reached max %d popping tail \n" , length );
         notifymq_basic_msg_t* d = (notifymq_basic_msg_t*)g_queue_pop_tail( q->queue );
         notifymq_basic_msg_free( d );
     }
@@ -147,11 +150,13 @@ notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* ke
 {
     notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
     if( q == NULL ){      
-       printf("_collection_getq_or_create : creating dq for key \"%s\" \n", key ); 
+       if( notifymq_dbg > 0 )
+           printf("_collection_getq_or_create : creating dq for key \"%s\" \n", key ); 
        g_hash_table_insert( notifymq_collection , g_strdup( key ) , notifymq_collection_queue_alloc_() );
        q =  (notifymq_collection_queue_t*)g_hash_table_lookup( notifymq_collection , key );
     } else {
-       printf("_collection_getq_or_create using pre-existing dq for key \"%s\" \n", key ); 
+       if( notifymq_dbg > 1 )
+           printf("_collection_getq_or_create using pre-existing dq for key \"%s\" \n", key ); 
     }
     return q ;
 }

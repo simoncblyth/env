@@ -101,9 +101,11 @@ MQ* MQ::Create(Bool_t start_monitor)
    Bool_t durable     = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_DURABLE" , "0" ) );
    Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_AUTODELETE" , "1" ) );
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_EXCLUSIVE" , "0" ) );
+   Int_t dbg          =         atoi( private_lookup_default( "NOTIFYMQ_DBG" ,   "0" ) );
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
-   gMQ->Print() ;
+   
+   if( dbg > 0 ) gMQ->Print() ;
 
    if( start_monitor ){
       gMQ->StartMonitorThread() ;
@@ -127,8 +129,7 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
 
    this->SetOptions();      // take the defaults initially , change using SetOptions before any actions
    fConfigured = kFALSE ;
-
-
+   fMonitorRunning = kFALSE ;
 } 
  
 
@@ -252,15 +253,21 @@ TObject* MQ::Get( const char* key , int n )
 }
 
 
+Bool_t MQ::IsMonitorRunning()
+{
+   return fMonitorRunning ;
+}
 
 void MQ::StartMonitorThread()
 {
    if(!fConfigured) this->Configure();
+   fMonitorRunning = kTRUE ;
    notifymq_basic_consume_async( fQueue.Data() );
 }
 
 void MQ::StopMonitorThread()
 {
+   fMonitorRunning = kFALSE ;
 }
 
 
