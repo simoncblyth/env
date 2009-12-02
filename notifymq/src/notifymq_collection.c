@@ -18,12 +18,19 @@ static const int notifymq_collection_max = 10 ;
 G_LOCK_DEFINE( notifymq_collection );
 
 
-// internal funcs, without thread protection 
-GQueue* notifymq_collection_getq_( const char* key );
-GQueue* notifymq_collection_getq_or_create_( const char* key );
 void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_data);
 
 
+typedef struct notifymq_collection_queue_t_ { 
+   GQueue* queue  ; 
+   uint64_t received ; 
+   uint64_t read ; 
+   bool_t   updated ;           // since the last read 
+} notifymq_collection_queue_t ; 
+
+// internal funcs, without thread protection 
+notifymq_collection_queue_t* notifymq_collection_getq_( const char* key );
+notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* key );
 
 
 int notifymq_collection_init()
@@ -43,14 +50,14 @@ int notifymq_collection_cleanup()
 int notifymq_collection_add( notifymq_basic_msg_t * msg )
 {
     G_LOCK(notifymq_collection);
-    GQueue* q =  notifymq_collection_getq_or_create_( msg->key );
-    guint length = g_queue_get_length( q );
+    notifymq_collection_queue_t* q =  notifymq_collection_getq_or_create_( msg->key );
+    guint length = g_queue_get_length( q->queue );
     if(length == notifymq_collection_max ){
         printf("_collection_add reached max %d popping tail \n" , length );
-        notifymq_basic_msg_t* d = (notifymq_basic_msg_t*)g_queue_pop_tail( q );
+        notifymq_basic_msg_t* d = (notifymq_basic_msg_t*)g_queue_pop_tail( q->queue );
         notifymq_basic_msg_free( d );
     }
-    g_queue_push_head( q , msg );
+    g_queue_push_head( q->queue , msg );
     G_UNLOCK(notifymq_collection);
     return EXIT_SUCCESS ;
 }
@@ -65,10 +72,10 @@ void notifymq_collection_dump( )
 int notifymq_collection_length( const char* key )
 {
     G_LOCK(notifymq_collection);
-    GQueue* q = notifymq_collection_getq_( key );
+    notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
     if( q == NULL )
         printf("_collection_length ERROR no q for key \"%s\" \n", key );
-    int len = q == NULL ? -1 : (int)g_queue_get_length( q );
+    int len = q == NULL ? -1 : (int)g_queue_get_length( q->queue );
     G_UNLOCK(notifymq_collection);
     return len ;
 }
@@ -76,10 +83,10 @@ int notifymq_collection_length( const char* key )
 notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n ) 
 {
     G_LOCK(notifymq_collection);
-    GQueue* q = notifymq_collection_getq_( key );
+    notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
     if( q == NULL )
        printf("_collection_get ERROR no q for key \"%s\" \n", key );
-    notifymq_basic_msg_t* msg = q == NULL ? NULL :  (notifymq_basic_msg_t*)g_queue_peek_nth( q , n  ) ;   
+    notifymq_basic_msg_t* msg = q == NULL ? NULL :  (notifymq_basic_msg_t*)g_queue_peek_nth( q->queue , n  ) ;   
     G_UNLOCK(notifymq_collection);
     return msg ; 
 }
@@ -88,19 +95,32 @@ notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n )
 
 // private funcs  ... thread protection must be done by public interface callers of these
 
-GQueue* notifymq_collection_getq_( const char* key )
+notifymq_collection_queue_t* notifymq_collection_getq_( const char* key )
 {
-    GQueue* q = (GQueue*)g_hash_table_lookup( notifymq_collection ,  key  );  
+    return (notifymq_collection_queue_t*)g_hash_table_lookup( notifymq_collection ,  key  );  
+}
+
+notifymq_collection_queue_t* notifymq_collection_queue_alloc_()
+{
+    notifymq_collection_queue_t* q = (notifymq_collection_queue_t*)malloc( sizeof( notifymq_collection_queue_t ) );
+    q->queue = g_queue_new();
+    q->received = 0 ;
+    q->read= 0 ;
+    q->updated = 0 ;
     return q ;
 }
 
-GQueue* notifymq_collection_getq_or_create_( const char* key )
+void notifymq_collection_queue_free_(notifymq_collection_queue_t* q )
 {
-    GQueue* q = notifymq_collection_getq_( key );
+}
+
+notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* key )
+{
+    notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
     if( q == NULL ){      
        printf("_collection_getq_or_create : creating dq for key \"%s\" \n", key ); 
-       g_hash_table_insert( notifymq_collection , g_strdup( key ) , g_queue_new() );
-       q =  (GQueue*)g_hash_table_lookup( notifymq_collection , key );
+       g_hash_table_insert( notifymq_collection , g_strdup( key ) , notifymq_collection_queue_alloc_() );
+       q =  (notifymq_collection_queue_t*)g_hash_table_lookup( notifymq_collection , key );
     } else {
        printf("_collection_getq_or_create using pre-existing dq for key \"%s\" \n", key ); 
     }
@@ -109,17 +129,17 @@ GQueue* notifymq_collection_getq_or_create_( const char* key )
 
 void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_data)
 {
-   GQueue* q = (GQueue*)value ;
-   guint length = g_queue_get_length(q );
+   notifymq_collection_queue_t* q = (notifymq_collection_queue_t*)value ;
+   guint length = g_queue_get_length(q->queue);
    printf("_hash_dumper key \"%s\" length %d \n", (char*)key, length );
    guint n ;
    char label[50] ;
    for( n = 0 ; n < length ; n++ ){
       sprintf( label, "peek_nth %d ", n );
-      notifymq_basic_msg_dump(  (notifymq_basic_msg_t*)g_queue_peek_nth(q, n ), 0 , label  ); 
+      notifymq_basic_msg_dump(  (notifymq_basic_msg_t*)g_queue_peek_nth(q->queue, n ), 0 , label  ); 
    }
-   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_head( q ) , 0 , "peek_head" ); 
-   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_tail( q ) , 0 , "peek_tail" ); 
+   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_head( q->queue ) , 0 , "peek_head" ); 
+   notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_tail( q->queue ) , 0 , "peek_tail" ); 
 }
 
 
