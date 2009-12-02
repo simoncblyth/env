@@ -1,0 +1,13 @@
+   
+   1) dynamic control of routing key ? 
+
+        its set in MQ::Configure with
+{{{
+ notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() ); 
+}}}
+
+     can I control on per-message basis ? 
+
+
+
+
