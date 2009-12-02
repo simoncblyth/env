@@ -36,6 +36,7 @@ class MQ : public TObject {
         char* fContentType ;
         char* fContentEncoding ;
 
+
         // private as access thread shared data ... demanding careful usage 
         void SetContentType(    char* str);      
         void SetContentEncoding(char* str);      
@@ -65,6 +66,7 @@ class MQ : public TObject {
 
 
      // these getters cross threads 
+     TObject* Get( const char* key , int n );
      Bool_t IsMonitorFinished();
      Bool_t IsBytesUpdated();
      char* GetContentType();

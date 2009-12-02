@@ -7,7 +7,13 @@
 #include  "TThread.h"
 #include  "TVirtualMutex.h"
 #include  "TClass.h"
-#include "notifymq.h"
+
+
+//#include <amqp.h>
+//#include <amqp_framing.h>
+//#include "notifymq.h"
+#include "notifymq_collection.h"
+
 #include "root2cjson.h"
 #include "private.h"
 
@@ -17,6 +23,15 @@
 using namespace std ;
 
 
+
+char* mq_frombytes(amqp_bytes_t b)
+{ 
+    char* str  = new char[b.len+1];
+    memcpy( str , b.bytes , b.len );
+    str[b.len] = 0 ;   // null termination 
+    return str ;
+}
+
 char* mq_cstring_dupe( void* bytes , size_t len )
 { 
     char* str  = new char[len+1];
@@ -24,6 +39,7 @@ char* mq_cstring_dupe( void* bytes , size_t len )
     str[len] = 0 ;   // null termination 
     return str ;
 }
+
 
 MQ* gMQ = 0 ;
 
@@ -302,6 +318,29 @@ TObject* MQ::ConstructObject()
    }
    return obj ;
 }
+
+
+TObject* MQ::Get( const char* key , int n ) 
+{
+    TObject* obj = NULL ;
+    notifymq_basic_msg_t* msg = notifymq_collection_get( key , n );
+    if(!msg) return obj ;
+
+    const char* type     =  mq_frombytes( msg->properties.content_type );
+    const char* encoding =  mq_frombytes( msg->properties.content_encoding );
+    cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
+
+    if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
+       obj = MQ::Receive( msg->body.bytes , msg->body.len );
+    } else if ( strcmp( type , "text/plain" ) == 0 ){
+       char* str = mq_frombytes( msg->body );
+       obj = new TObjString( str );
+    } else {
+       cout << "MQ::Get WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
+    }
+    return obj ;  
+}
+
 
 int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props )
 {

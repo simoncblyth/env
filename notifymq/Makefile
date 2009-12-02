@@ -47,7 +47,7 @@ LIBS       += $(GLIB_LIBS)
 
 
 LIBFILE = libnotifymq.$(SOFIX)
-OBJ_LIST = example_utils.o notifymq.o
+OBJ_LIST = example_utils.o notifymq.o notifymq_utils.o notifymq_collection.o
 DOBJ_LIST =
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
@@ -79,7 +79,7 @@ DOBJ_LIST += notifymqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
 INCLUDES   += $(CJSON_CFLAGS)
-#INCLUDES   += $(RMQC_CFLAGS)
+INCLUDES   += $(RMQC_CFLAGS)
 
 
 $(DCT_DIR)/%Dict.cxx : $(INC_DIR)/%.h $(INC_DIR)/%_$(LINKDEF)
@@ -155,6 +155,9 @@ test_basic_consume:
 
 test_evmq:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
+
+imq:
+	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
 
 
 
