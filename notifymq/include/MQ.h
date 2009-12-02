@@ -40,6 +40,8 @@ class MQ : public TObject {
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
 
+     Bool_t IsUpdated( const char* key );
+     Int_t GetLength( const char* key );
      TObject* Get( const char* key , int n );
      static TObject* Receive( void* msgbytes , size_t msglen );
 

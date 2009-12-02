@@ -12,21 +12,12 @@ int main(int argc, char const * const *argv)
 {
    gMQ = MQ::Create(kTRUE);  // start the monitor thread 
 
-  /*
-   while(!gMQ->IsMonitorFinished()){
-      if(gMQ->IsBytesUpdated()){
-         cout << "mq_monitor: BytesUpdated type:[" << gMQ->GetContentType() << "] encoding:[" << gMQ->GetContentEncoding() << "]" <<  endl;  
-         TObject* obj = gMQ->ConstructObject();
-         if(obj) obj->Print();  
-      } 
-      gSystem->Sleep(100);
-      gSystem->ProcessEvents();
-   }
-  */ 
-
+   const char* key = "default.routingkey" ;
    while(kTRUE){
-         TObject* obj = gMQ->Get("default.routingkey", 0 );
-         if(obj) obj->Print();  
+         if(gMQ->IsUpdated(key)){
+             TObject* obj = gMQ->Get( key, 0 );
+             if(obj) obj->Print();  
+         }
          gSystem->Sleep(1000);
          gSystem->ProcessEvents();
    }

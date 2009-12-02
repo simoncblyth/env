@@ -57,10 +57,25 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
         notifymq_basic_msg_t* d = (notifymq_basic_msg_t*)g_queue_pop_tail( q->queue );
         notifymq_basic_msg_free( d );
     }
+
+    q->received += 1 ;
+    q->updated = 1 ;    
+
     g_queue_push_head( q->queue , msg );
     G_UNLOCK(notifymq_collection);
     return EXIT_SUCCESS ;
 }
+
+bool_t notifymq_collection_queue_updated(const char* key )
+{
+    G_LOCK(notifymq_collection);
+    bool_t updated = 0 ;
+    notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
+    updated = q == NULL ? 0 : q->updated ;  // defaults to not updated if no q 
+    G_UNLOCK(notifymq_collection);
+    return updated ;
+}
+
 
 void notifymq_collection_dump( )
 {
@@ -69,7 +84,7 @@ void notifymq_collection_dump( )
     G_UNLOCK(notifymq_collection);
 }
 
-int notifymq_collection_length( const char* key )
+int notifymq_collection_queue_length( const char* key )
 {
     G_LOCK(notifymq_collection);
     notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
@@ -86,6 +101,10 @@ notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n )
     notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
     if( q == NULL )
        printf("_collection_get ERROR no q for key \"%s\" \n", key );
+
+    q->updated = 0 ;    
+    q->read += 1 ;
+
     notifymq_basic_msg_t* msg = q == NULL ? NULL :  (notifymq_basic_msg_t*)g_queue_peek_nth( q->queue , n  ) ;   
     G_UNLOCK(notifymq_collection);
     return msg ; 
@@ -114,6 +133,16 @@ void notifymq_collection_queue_free_(notifymq_collection_queue_t* q )
 {
 }
 
+void notifymq_collection_queue_dump_(notifymq_collection_queue_t* q )
+{
+    if(!q){
+        printf("_collection_queue_dump NULL q\n");
+        return ;
+    }
+    guint length = g_queue_get_length(q->queue);
+    printf("_collection_queue_dump : length %d received %lld read %lld updated %d \n", length, q->received, q->read, q->updated ); 
+}
+
 notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* key )
 {
     notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
@@ -132,6 +161,8 @@ void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer use
    notifymq_collection_queue_t* q = (notifymq_collection_queue_t*)value ;
    guint length = g_queue_get_length(q->queue);
    printf("_hash_dumper key \"%s\" length %d \n", (char*)key, length );
+   notifymq_collection_queue_dump_( q );
+
    guint n ;
    char label[50] ;
    for( n = 0 ; n < length ; n++ ){

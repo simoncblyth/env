@@ -89,7 +89,10 @@ notifymq-monitor(){
    notifymq-cd
    make test_monitor
 }
-
+notifymq-gmonitor(){
+   notifymq-cd
+   make test_gmonitor
+}
 notifymq-build(){
    notifymq-cd
    make

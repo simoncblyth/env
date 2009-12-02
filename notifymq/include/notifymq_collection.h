@@ -12,13 +12,16 @@ extern "C"
 #include "notifymq.h"
 
 
-
 int notifymq_collection_init();
 int notifymq_collection_cleanup();
+
 int notifymq_collection_add( notifymq_basic_msg_t * msg );
-void notifymq_collection_dump();
-int notifymq_collection_length( const char* key );
+
+bool_t notifymq_collection_queue_updated(const char* key );
+int notifymq_collection_queue_length( const char* key );
 notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n );
+void notifymq_collection_dump();
+
 
 #ifdef __cplusplus
 }
