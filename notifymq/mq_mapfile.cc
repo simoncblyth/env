@@ -68,7 +68,7 @@ int main(int argc, char const * const *argv)
    tree->SetCircular( 1000 );    //  http://root.cern.ch/phpBB2/viewtopic.php?t=7964&highlight=ttree+circular  
 
    MQ* q = new MQ();
-   q->Wait( handlebytes , (void*)q );
+   //q->Wait( handlebytes , (void*)q );
    delete q ;
    return 0;
 }

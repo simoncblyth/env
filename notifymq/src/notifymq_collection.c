@@ -13,8 +13,17 @@
 static GHashTable* notifymq_collection  ;  // hash table of routing keys associated with dequeues of messages
 static const int notifymq_collection_max = 10 ;
 
-// accessors 
-GQueue* notifymq_collection_getq_or_create( const char* key );
+// http://library.gnome.org/devel/glib/stable/glib-Threads.html#GStaticMutex
+//static GStaticMutex notifymq_collection_mutex = G_STATIC_MUTEX_INIT;
+G_LOCK_DEFINE( notifymq_collection );
+
+
+// internal funcs, without thread protection 
+GQueue* notifymq_collection_getq_( const char* key );
+GQueue* notifymq_collection_getq_or_create_( const char* key );
+void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_data);
+
+
 
 
 int notifymq_collection_init()
@@ -29,12 +38,12 @@ int notifymq_collection_cleanup()
     return EXIT_SUCCESS ;
 }
 
-
 // _collection setters 
 
 int notifymq_collection_add( notifymq_basic_msg_t * msg )
 {
-    GQueue* q =  notifymq_collection_getq_or_create( msg->key );
+    G_LOCK(notifymq_collection);
+    GQueue* q =  notifymq_collection_getq_or_create_( msg->key );
     guint length = g_queue_get_length( q );
     if(length == notifymq_collection_max ){
         printf("_collection_add reached max %d popping tail \n" , length );
@@ -42,20 +51,52 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
         notifymq_basic_msg_free( d );
     }
     g_queue_push_head( q , msg );
+    G_UNLOCK(notifymq_collection);
     return EXIT_SUCCESS ;
 }
 
-// _collection getters 
+void notifymq_collection_dump( )
+{
+    G_LOCK(notifymq_collection);
+    g_hash_table_foreach( notifymq_collection , notifymq_collection_hash_dumper_ , NULL );
+    G_UNLOCK(notifymq_collection);
+}
 
-GQueue* notifymq_collection_getq( const char* key )
+int notifymq_collection_length( const char* key )
+{
+    G_LOCK(notifymq_collection);
+    GQueue* q = notifymq_collection_getq_( key );
+    if( q == NULL )
+        printf("_collection_length ERROR no q for key \"%s\" \n", key );
+    int len = q == NULL ? -1 : (int)g_queue_get_length( q );
+    G_UNLOCK(notifymq_collection);
+    return len ;
+}
+
+notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n ) 
+{
+    G_LOCK(notifymq_collection);
+    GQueue* q = notifymq_collection_getq_( key );
+    if( q == NULL )
+       printf("_collection_get ERROR no q for key \"%s\" \n", key );
+    notifymq_basic_msg_t* msg = q == NULL ? NULL :  (notifymq_basic_msg_t*)g_queue_peek_nth( q , n  ) ;   
+    G_UNLOCK(notifymq_collection);
+    return msg ; 
+}
+
+
+
+// private funcs  ... thread protection must be done by public interface callers of these
+
+GQueue* notifymq_collection_getq_( const char* key )
 {
     GQueue* q = (GQueue*)g_hash_table_lookup( notifymq_collection ,  key  );  
     return q ;
 }
 
-GQueue* notifymq_collection_getq_or_create( const char* key )
+GQueue* notifymq_collection_getq_or_create_( const char* key )
 {
-    GQueue* q = notifymq_collection_getq( key );
+    GQueue* q = notifymq_collection_getq_( key );
     if( q == NULL ){      
        printf("_collection_getq_or_create : creating dq for key \"%s\" \n", key ); 
        g_hash_table_insert( notifymq_collection , g_strdup( key ) , g_queue_new() );
@@ -66,7 +107,7 @@ GQueue* notifymq_collection_getq_or_create( const char* key )
     return q ;
 }
 
-void notifymq_collection_hash_dumper(gpointer key, gpointer value, gpointer user_data)
+void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_data)
 {
    GQueue* q = (GQueue*)value ;
    guint length = g_queue_get_length(q );
@@ -80,34 +121,5 @@ void notifymq_collection_hash_dumper(gpointer key, gpointer value, gpointer user
    notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_head( q ) , 0 , "peek_head" ); 
    notifymq_basic_msg_dump( (notifymq_basic_msg_t*)g_queue_peek_tail( q ) , 0 , "peek_tail" ); 
 }
-
-void notifymq_collection_dump( )
-{
-  g_hash_table_foreach( notifymq_collection , notifymq_collection_hash_dumper , NULL );
-
-  //notifymq_basic_msg_dump(  notifymq_collection_get( "default.routingkey" , 0 ) , 0 , "last" );
-  //notifymq_basic_msg_dump(  notifymq_collection_get( "default.routingkey" , 1 ) , 0 , "penultimate" );
-}
-
-int notifymq_collection_length( const char* key )
-{
-   GQueue* q = notifymq_collection_getq( key );
-   if( q == NULL ){
-      printf("_collection_get ERROR no q for key \"%s\" \n", key );
-      return -1 ;
-   }
-   return (int)g_queue_get_length( q );
-}
-
-notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n ) 
-{
-   GQueue* q = notifymq_collection_getq( key );
-   if( q == NULL ){
-      printf("_collection_get ERROR no q for key \"%s\" \n", key );
-      return NULL ;
-   }
-   return (notifymq_basic_msg_t*)g_queue_peek_nth( q , n  );
-}
-
 
 

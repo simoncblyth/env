@@ -41,7 +41,9 @@ extern int notifymq_sendbytes(  char const*  exchange , char const* routingkey ,
 extern int notifymq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete );
 extern int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey );
 extern int notifymq_queue_declare( char const* queue, bool_t passive , bool_t durable , bool_t exclusive , bool_t auto_delete );
-extern int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg  ) ;
+//extern int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg  ) ;
+extern int notifymq_basic_consume( char const* queue ) ;
+extern int notifymq_basic_consume_async( char const* queue ) ;
 
 #ifdef __cplusplus
 }

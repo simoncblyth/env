@@ -9,7 +9,14 @@ SOFIX       = so
 
 #  rpm -ql glib2  
 #  rpm -ql glib2-devel  
-GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
-GLIB_LIBS   = -L/usr/lib -lglib-2.0
+# GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include
+# GLIB_LIBS   = -L/usr/lib -lglib-2.0
 
+#
+#  pkg-config failing inside Makefile, so back to hardcoding 
+# 
+#  pkg-config --cflags gthread-2.0  
+#  pkg-config --cflags gthread-2.0
 
+GLIB_CFLAGS = -pthread -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include 
+GLIB_LIBS   = -pthread -lgthread-2.0 -lglib-2.0 

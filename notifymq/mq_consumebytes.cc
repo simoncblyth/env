@@ -38,7 +38,7 @@ int handlebytes( void* arg , const void *msgbytes , size_t msglen, notifymq_prop
 int main(int argc, char const * const *argv) 
 {
    MQ* q = new MQ();
-   q->Wait( handlebytes , (void*)q );
+   //q->Wait( handlebytes , (void*)q );
    delete q ;
    return 0;
 }

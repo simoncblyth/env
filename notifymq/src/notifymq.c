@@ -17,12 +17,16 @@
 #include "notifymq_utils.h"
 #include "notifymq_collection.h"
 
+#include <glib.h>
+
+
 static int sockfd ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
 static int notifymq_dbg = 0 ; 
 static uint64_t notifymq_msg_index = 0 ; 
+static GThread* notifymq_monitor_thread = NULL;
 
 
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
@@ -47,6 +51,9 @@ int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver 
 
 int notifymq_init()
 {
+
+    if (!g_thread_supported ()) g_thread_init (NULL);
+
     int rc = private_init();
     if(rc != EXIT_SUCCESS) return rc ;
    
@@ -69,6 +76,10 @@ int notifymq_init()
     die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
     amqp_channel_open(conn, 1);
     die_on_amqp_error(amqp_rpc_reply, "Opening channel");
+
+
+
+
 
     notifymq_collection_init();
 
@@ -183,8 +194,23 @@ int notifymq_cleanup()
 }
 
 
+gpointer notifymq_monitor_thread_(gpointer data )
+{
+    char const* queue = (char const*)data ; 
+    printf("notifymq_monitor_thread_ starting for queue \"%s\"\n", queue );
+    notifymq_basic_consume( queue );
+    return NULL ;
+}
 
-int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg ) 
+int notifymq_basic_consume_async( char const* queue ) 
+{
+    gboolean joinable = 0 ;
+    notifymq_monitor_thread = g_thread_create((GThreadFunc)notifymq_monitor_thread_ , (gpointer)queue , joinable, NULL);
+    return EXIT_SUCCESS ;
+}
+
+
+int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
@@ -326,7 +352,7 @@ int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* a
       
      
       notifymq_basic_collect( &frame.payload.body_fragment , d , p );
-      handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
+      //handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
 
     }

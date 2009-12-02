@@ -11,6 +11,8 @@ extern "C"
 #include <amqp_framing.h>
 #include "notifymq.h"
 
+
+
 int notifymq_collection_init();
 int notifymq_collection_cleanup();
 int notifymq_collection_add( notifymq_basic_msg_t * msg );

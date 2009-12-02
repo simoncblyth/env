@@ -8,7 +8,6 @@
 class TMessage ;
 class TClass ;
 class MyTMessage ;
-class TThread ;
 
 class MQ : public TObject {
 
@@ -24,29 +23,6 @@ class MQ : public TObject {
         Bool_t  fExclusive  ;
         Bool_t  fConfigured ;
 
-        TThread* fMonitor  ;
-        Bool_t  fMonitorFinished ;
-
-        // written by monitor thread , copied into MyTMessage in main thread 
-
-        TVirtualMutex* fMQMutex ; 
-        Bool_t  fBytesUpdated ;
-        void*  fBytes ;      
-        size_t fLength ;       
-        char* fContentType ;
-        char* fContentEncoding ;
-
-
-        // private as access thread shared data ... demanding careful usage 
-        void SetContentType(    char* str);      
-        void SetContentEncoding(char* str);      
-        void SetBytesLength(void* bytes, size_t len );      
-
-        void* GetBytes();
-        size_t GetLength();
-        static int receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props );  // callback invoked by monitor thread 
-        static void* Monitor(void* );    // runs as separate thread waiting for new messages 
- 
   public:
      MQ( const char* exchange = "t.exchange" , 
          const char* queue = "t.queue" , 
@@ -64,17 +40,8 @@ class MQ : public TObject {
      // these defaults are taken initially, to use others settings call SetOptions before sending anything 
      void Configure();
 
-
-     // these getters cross threads 
      TObject* Get( const char* key , int n );
-     Bool_t IsMonitorFinished();
-     Bool_t IsBytesUpdated();
-     char* GetContentType();
-     char* GetContentEncoding();
-     TObject* ConstructObject();
-
      static TObject* Receive( void* msgbytes , size_t msglen );
-
 
      void SendJSON(TClass* kls, TObject* obj );
      void SendObject(TObject* obj );
@@ -82,12 +49,8 @@ class MQ : public TObject {
      void SendRaw(const char* str );
      void SendMessage(TMessage* msg );
 
-
-     void Wait(receiver_t handler, void* arg );
-
      void StartMonitorThread();
      void StopMonitorThread();       
-
 
      static const char* NodeStamp();
      char* Summary() const;

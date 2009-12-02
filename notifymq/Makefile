@@ -21,6 +21,9 @@ ABDM_LIBDIR  = $(ABDM_HOME)/lib
 ABDM_CFLAGS  = -I$(ABDM_HOME)/include
 ABDM_LIBS    = -L$(ABDM_LIBDIR) -lAbtDataModel
 
+# tis failing ... so get from Makefile.arch
+#GLIB_CFLAGS   = $(shell pkg-config --cflags gthead-2.0)
+#GLIB_LIBS     = $(shell pkg-config --libs gthread-2.0
 
 
 SRC_DIR     = src

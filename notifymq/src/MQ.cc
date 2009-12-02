@@ -4,14 +4,8 @@
 #include  "TSystem.h"
 #include  "MyTMessage.h"
 #include  "TMessage.h"
-#include  "TThread.h"
-#include  "TVirtualMutex.h"
 #include  "TClass.h"
 
-
-//#include <amqp.h>
-//#include <amqp_framing.h>
-//#include "notifymq.h"
 #include "notifymq_collection.h"
 
 #include "root2cjson.h"
@@ -135,15 +129,6 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    fConfigured = kFALSE ;
 
 
-   fMonitor = NULL ;
-   fMQMutex = new TMutex();
-
-   fMonitorFinished = kFALSE ;
-   fBytes = NULL ;
-   fLength = 0 ;
-   fBytesUpdated = kFALSE ; 
-   fContentType = NULL ;
-   fContentEncoding  = NULL ;
 } 
  
 
@@ -171,7 +156,6 @@ void MQ::Configure()
 MQ::~MQ()
 {
    notifymq_cleanup();
-   delete fMQMutex ;
 }
 
 void MQ::SendRaw( const char* str )
@@ -214,70 +198,7 @@ void MQ::SendJSON(TClass* kls, TObject* obj )
 }
 
 
-void MQ::Wait(receiver_t handler , void* arg )
-{
-   if(!fConfigured) this->Configure();
-   notifymq_basic_consume( fQueue.Data() , handler , arg  );
-}
 
-// private setters, protected en-masse
-
-void MQ::SetBytesLength(void* bytes, size_t len )
-{
-   fBytes = bytes ;
-   fLength = len ;
-   fBytesUpdated = kTRUE ;
-}
-void MQ::SetContentType(char* str)
-{
-   fContentType = str  ;
-}
-void MQ::SetContentEncoding(char* str)
-{
-   fContentEncoding = str  ;
-}
-
-// private getters, as not needed to be exposed ... and thread sensitive
-
-void* MQ::GetBytes()
-{
-   R__LOCKGUARD(fMQMutex);
-   fBytesUpdated = kFALSE ;
-   return fBytes ;
-}
-size_t MQ::GetLength()
-{
-   R__LOCKGUARD(fMQMutex);
-   return fLength ;
-}
-char* MQ::GetContentType()
-{
-   R__LOCKGUARD(fMQMutex);
-   return fContentType ;
-}
-char* MQ::GetContentEncoding()
-{
-   R__LOCKGUARD(fMQMutex);
-   return fContentEncoding ;
-}
-
-
-
-
-
-
-
-
-// public getters, individually protected 
-
-Bool_t MQ::IsMonitorFinished(){ 
-   R__LOCKGUARD(fMQMutex);
-   return fMonitorFinished ; 
-}
-Bool_t MQ::IsBytesUpdated(){    
-   R__LOCKGUARD(fMQMutex);
-   return fBytesUpdated  ; 
-}
 
 // private internals 
 
@@ -290,7 +211,6 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
    if (msg->What() == kMESS_STRING) {
        char* buf = new char[msglen];  
        msg->ReadString( buf , msglen ); 
-       //cout << "got string [" << buf << "]" <<  endl ;
        obj = new TObjString( buf );
    } else if (msg->What() == kMESS_OBJECT ){
        TClass* kls = msg->GetClass();
@@ -299,25 +219,6 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
    return obj ;
 }
 
-TObject* MQ::ConstructObject()
-{
-   //cout << "MQ::ConstructObject (type,encoding) : (" << fContentType << "," << fContentEncoding << ")" << endl ;
-   R__LOCKGUARD(fMQMutex);
-   TObject* obj = NULL ;
-   TString type = fContentType ;
-   TString encoding = fContentEncoding ;
-   if(type == "application/data" && encoding == "binary" ){
-       obj = MQ::Receive( fBytes , fLength );
-       fBytesUpdated = kFALSE ; 
-   } else if (type == "text/plain" && encoding == "" ){
-       char* str = mq_cstring_dupe( fBytes , fLength );
-       fBytesUpdated = kFALSE ; 
-       obj = new TObjString( str );
-   } else {
-       cout << "MQ::ConstructObject WARNING unknown (type,encoding) : (" << type.Data() << "," << encoding.Data() << ")" << endl ;
-   }
-   return obj ;
-}
 
 
 TObject* MQ::Get( const char* key , int n ) 
@@ -342,37 +243,15 @@ TObject* MQ::Get( const char* key , int n )
 }
 
 
-int MQ::receive_bytes( void* arg , const void *msgbytes , size_t msglen , notifymq_props_t props )
-{
-   //printf("MQ::receive_bytes of length %d \n" , msglen );
-   MQ* instance = (MQ*)arg ;
-   R__LOCKGUARD(instance->fMQMutex);
-   instance->SetBytesLength( (void*)msgbytes , msglen );
-   instance->SetContentType(      mq_cstring_dupe( props.content_type.bytes ,     props.content_type.len ));
-   instance->SetContentEncoding(  mq_cstring_dupe( props.content_encoding.bytes , props.content_encoding.len  ));
-   return 0 ;
-}
-
-void* MQ::Monitor(void* arg )
-{
-   MQ* inst = (MQ*)arg ;
-   Long_t tid=TThread::SelfId(); // get pthread id
-   TThread::Printf("MQ::Monitor from inside thread %ld ", tid );
-   notifymq_basic_consume( inst->fQueue.Data() , MQ::receive_bytes , arg  );
-   return 0 ;
-}
 
 void MQ::StartMonitorThread()
 {
    if(!fConfigured) this->Configure();
-   fMonitor =  new TThread("monitor", (void(*) (void *))&Monitor , (void*) this);    
-   fMonitor->Run();
+   notifymq_basic_consume_async( fQueue.Data() );
 }
 
 void MQ::StopMonitorThread()
 {
-   // more cleanup ? cancel points ?
-   fMonitor->Kill() ;
 }
 
 

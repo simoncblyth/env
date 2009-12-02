@@ -48,7 +48,7 @@ void *handle(void *ptr)
    long nr = (long) ptr;
    TThread::Printf(" starting thread handle %ld " , nr );
    MQ* q = new MQ ;
-   q->Wait( handlebytes , (void*)q );
+   //q->Wait( handlebytes , (void*)q );
    delete q ;
    return 0 ;
 }
