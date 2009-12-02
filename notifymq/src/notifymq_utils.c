@@ -72,9 +72,9 @@ void notifymq_basic_msg_free( notifymq_basic_msg_t* msg )
 void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d )
 {
     printf("basic_deliver_dump delivery_tag %lld redelivered %d \n", d->delivery_tag, d->redelivered );
-    printf("\t.consumer_tag\t\t%.*s\n",  d->consumer_tag.len, (char*)d->consumer_tag.bytes );
-    printf("\t.exchange\t\t%.*s\n",      d->exchange.len,     (char*)d->exchange.bytes );
-    printf("\t.routing_key\t\t%.*s\n",   d->routing_key.len,  (char*)d->routing_key.bytes );
+    printf("\t.consumer_tag\t\t%.*s\n",  (int)d->consumer_tag.len, (char*)d->consumer_tag.bytes );
+    printf("\t.exchange\t\t%.*s\n",      (int)d->exchange.len,     (char*)d->exchange.bytes );
+    printf("\t.routing_key\t\t%.*s\n",   (int)d->routing_key.len,  (char*)d->routing_key.bytes );
 }
 
 amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src )
@@ -154,9 +154,9 @@ void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
 {
     printf("basic_properties_dump \n" );
     if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
-        printf("\t.content_type\t\t%.*s\n", p->content_type.len, (char*)p->content_type.bytes );
+        printf("\t.content_type\t\t%.*s\n", (int)p->content_type.len, (char*)p->content_type.bytes );
     if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
-        printf("\t.content_encoding\t\t%.*s\n", p->content_encoding.len, (char*)p->content_encoding.bytes );
+        printf("\t.content_encoding\t\t%.*s\n", (int)p->content_encoding.len, (char*)p->content_encoding.bytes );
     if (p->_flags & AMQP_BASIC_HEADERS_FLAG) 
         notifymq_table_dump( &p->headers );
     if (p->_flags & AMQP_BASIC_DELIVERY_MODE_FLAG) 
@@ -164,23 +164,23 @@ void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
     if (p->_flags & AMQP_BASIC_PRIORITY_FLAG) 
         printf("\t.priority\t\t%d\n", p->priority );
     if (p->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
-        printf("\t.content_encoding\t\t%.*s\n", p->correlation_id.len, (char*)p->correlation_id.bytes );
+        printf("\t.content_encoding\t\t%.*s\n", (int)p->correlation_id.len, (char*)p->correlation_id.bytes );
     if (p->_flags & AMQP_BASIC_REPLY_TO_FLAG) 
-        printf("\t.reply_to\t\t%.*s\n", p->reply_to.len, (char*)p->reply_to.bytes );
+        printf("\t.reply_to\t\t%.*s\n", (int)p->reply_to.len, (char*)p->reply_to.bytes );
     if (p->_flags & AMQP_BASIC_EXPIRATION_FLAG) 
-        printf("\t.expiration\t\t%.*s\n", p->expiration.len, (char*)p->expiration.bytes );
+        printf("\t.expiration\t\t%.*s\n", (int)p->expiration.len, (char*)p->expiration.bytes );
     if (p->_flags & AMQP_BASIC_MESSAGE_ID_FLAG) 
-        printf("\t.message_id\t\t%.*s\n", p->message_id.len, (char*)p->message_id.bytes );
+        printf("\t.message_id\t\t%.*s\n", (int)p->message_id.len, (char*)p->message_id.bytes );
     if (p->_flags & AMQP_BASIC_TIMESTAMP_FLAG) 
         printf("\t.timestamp\t\t%lld\n", p->timestamp );
     if (p->_flags & AMQP_BASIC_TYPE_FLAG) 
-        printf("\t.type\t\t%.*s\n", p->type.len, (char*)p->type.bytes );
+        printf("\t.type\t\t%.*s\n", (int)p->type.len, (char*)p->type.bytes );
     if (p->_flags & AMQP_BASIC_USER_ID_FLAG) 
-        printf("\t.user_id\t\t%.*s\n", p->user_id.len, (char*)p->user_id.bytes );
+        printf("\t.user_id\t\t%.*s\n", (int)p->user_id.len, (char*)p->user_id.bytes );
     if (p->_flags & AMQP_BASIC_APP_ID_FLAG) 
-        printf("\t.app_id\t\t%.*s\n", p->app_id.len, (char*)p->app_id.bytes );
+        printf("\t.app_id\t\t%.*s\n", (int)p->app_id.len, (char*)p->app_id.bytes );
     if (p->_flags & AMQP_BASIC_CLUSTER_ID_FLAG) 
-        printf("\t.cluster_id\t\t%.*s\n", p->cluster_id.len, (char*)p->cluster_id.bytes );
+        printf("\t.cluster_id\t\t%.*s\n", (int)p->cluster_id.len, (char*)p->cluster_id.bytes );
 }
 
 

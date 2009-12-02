@@ -211,4 +211,16 @@ Error in <TUnixSystem::Load>: version mismatch,
 /data/env/local/env/home/notifymq/lib/libnotifymq.so = 52200, ROOT = 52104
 
 
+    7)
+Syntax error /usr/local/env/messaging/rabbitmq-c/librabbitmq/amqp.h:167:
+Warning: Error occurred during reading source files
+Warning: Error occurred during dictionary source generation
+!!!Removing dict/notifymqDict.cxx dict/notifymqDict.h !!!
+
+//extern int amqp_table_entry_cmp(void const *entry1, void const *entry2);
+extern int amqp_table_entry_cmp(const void*entry1, const void*entry2);
+
+  rootcint chokes on "void const*" but "const void*" (which has the same meaning) is ok 
+
+
 
