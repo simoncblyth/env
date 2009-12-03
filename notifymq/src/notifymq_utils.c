@@ -263,11 +263,20 @@ void notifymq_basic_properties_free( amqp_basic_properties_t* src )
 
 // getter ... with unhealthy allocation 
 
-char* notifymq_get_content_type( amqp_basic_properties_t* props )
+const char* notifymq_props_get_content_type( amqp_basic_properties_t* props )
 {
     if (props->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) return notifymq_getstr_alloc( props->content_type );
     return NULL ;
 }
+
+const char* notifymq_props_get_content_encoding( amqp_basic_properties_t* props )
+{
+    if (props->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) return notifymq_getstr_alloc( props->content_encoding );
+    return NULL ;
+} 
+
+
+
 
 // property setters 
 

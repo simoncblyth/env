@@ -27,6 +27,16 @@ extern void amqp_dump(void const *buffer, size_t len);
 static uint64_t notifymq_msg_index = 0 ; 
 static GThread* notifymq_monitor_thread = NULL;
 
+const char* notifymq_get_content_type( notifymq_basic_msg_t* msg )
+{
+    return  msg == NULL ? NULL : notifymq_props_get_content_type( &(msg->properties) )  ;    
+}
+
+const char* notifymq_get_content_encoding( notifymq_basic_msg_t* msg )
+{
+    return  msg == NULL ? NULL : notifymq_props_get_content_encoding( &(msg->properties) )  ;    
+}
+
 
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
@@ -237,7 +247,6 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
     size_t body_target;
     size_t body_received;
       
-    notifymq_props_t props ;
 
     long long cycle ;
     if(dbg>0) printf("notifymq_basic_consume : Starting wait loop \n");
@@ -293,31 +302,15 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
       }
       p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
 
-
-      props.content_type.len   = 0 ;
-      props.content_type.bytes = NULL ;
       if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
 	if(dbg>0) printf("Content-type: %.*s\n",
 	       (int) p->content_type.len, (char *) p->content_type.bytes);
-         // collect metadata for the handlebytes call
-         //props.content_type = amqp_bytes_malloc_dup( p->content_type );
-         props.content_type.len   = p->content_type.len ;
-         props.content_type.bytes = p->content_type.bytes ;
       }
 
-
- 
-      props.content_encoding.len   = 0 ;
-      props.content_encoding.bytes = NULL ; 
       if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
 	if(dbg>0) printf("Content-encoding: %.*s\n",
 	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
-         // collect metadata for the handlebytes call
-         //props.content_encoding = amqp_bytes_malloc_dup( p->content_encoding );
-         props.content_encoding.len   = p->content_encoding.len ;
-         props.content_encoding.bytes = p->content_encoding.bytes ;
       }
-
 
       if(dbg>0) printf("----\n");
 
@@ -347,10 +340,8 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
 	break;
       }
 
-        
       if(dbg>0) fprintf(stderr, "notifymq_basic_consume : invoking the receiver \n");
       
-     
       notifymq_basic_collect( &frame.payload.body_fragment , d , p );
       //handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       

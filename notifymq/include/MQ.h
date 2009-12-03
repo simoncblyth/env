@@ -48,11 +48,11 @@ class MQ : public TObject {
      static TObject* Receive( void* msgbytes , size_t msglen );
      Bool_t IsMonitorRunning();
 
-     void SendJSON(TClass* kls, TObject* obj );
-     void SendObject(TObject* obj );
-     void SendString(const char* str );
-     void SendRaw(const char* str );
-     void SendMessage(TMessage* msg );
+     void SendJSON(TClass* kls, TObject* obj , const char* key = NULL );
+     void SendObject(TObject* obj , const char* key = NULL );
+     void SendString(const char* str , const char* key = NULL );
+     void SendRaw(const char* str , const char* key = NULL );
+     void SendMessage(TMessage* msg , const char* key = NULL );
 
      void StartMonitorThread();
      void StopMonitorThread();       

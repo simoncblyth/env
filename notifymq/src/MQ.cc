@@ -20,6 +20,11 @@ using namespace std ;
 
 char* mq_frombytes(amqp_bytes_t b)
 { 
+    if(b.len > 10000){
+       printf("mq_frombytes probable corruped amqp_bytes ... \n");
+       return NULL ;
+    }
+
     char* str  = new char[b.len+1];
     memcpy( str , b.bytes , b.len );
     str[b.len] = 0 ;   // null termination 
@@ -159,43 +164,46 @@ MQ::~MQ()
    notifymq_cleanup();
 }
 
-void MQ::SendRaw( const char* str )
+void MQ::SendRaw( const char* str , const char* key )
 {
    if(!fConfigured) this->Configure();
-   notifymq_sendstring( fExchange.Data() ,fRoutingKey.Data() , str );
+   const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
+   notifymq_sendstring( fExchange.Data() , ukey  , str );
 }
 
-void MQ::SendString( const char* str )
+void MQ::SendString( const char* str , const char* key  )
 {
    TMessage *tm = new TMessage(kMESS_STRING);
    tm->WriteCharP(str);
-   this->SendMessage( tm );
+   this->SendMessage( tm , key );
 }
 
-void MQ::SendObject( TObject* obj )
+void MQ::SendObject( TObject* obj , const char* key  )
 {
    TMessage *tm = new TMessage(kMESS_OBJECT);
    tm->WriteObject(obj);
-   this->SendMessage( tm );
+   this->SendMessage( tm , key );
 }
 
-void MQ::SendMessage( TMessage* msg   )
+void MQ::SendMessage( TMessage* msg , const char* key   )
 {
    if(!fConfigured) this->Configure();
    char *buffer     = msg->Buffer();
    int bufferLength = msg->Length();
-   cout << "MQ::SendMessage : serialized into buffer of length " << bufferLength << endl ;
-   notifymq_sendbytes( fExchange.Data() , fRoutingKey.Data() , buffer , bufferLength );
+
+   const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
+   cout << "MQ::SendMessage : serialized into buffer of length " << bufferLength << " ukey : \"" << ukey << "\"" << endl ;
+   notifymq_sendbytes( fExchange.Data() , ukey  , buffer , bufferLength );
 }
 
 
-void MQ::SendJSON(TClass* kls, TObject* obj )
+void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 {
    // the interface cannot be reduced as you might imagine as : ((TObject*)ri)->Class() != ri->Class()
    cJSON* o = root2cjson( kls , obj );
    char* out = cJSON_Print(o) ;
    cout << "MQ::SendJSON " << out << endl ;
-   this->SendRaw( out );
+   this->SendRaw( out , key );
 }
 
 
@@ -237,8 +245,21 @@ TObject* MQ::Get( const char* key , int n )
     notifymq_basic_msg_t* msg = notifymq_collection_get( key , n );
     if(!msg) return obj ;
 
-    const char* type     =  mq_frombytes( msg->properties.content_type );
-    const char* encoding =  mq_frombytes( msg->properties.content_encoding );
+/*
+    if( msg->properties ){
+        cout << "MQ::Get ABORT : NULL msg properties for ( " << key << "," << n << ")" << endl;  
+        return obj ;
+    }
+*/
+
+    // these are dangerous ... must check the _flags before attempting access
+    //const char* type     =  mq_frombytes( msg->properties.content_type );
+    //const char* encoding =  mq_frombytes( msg->properties.content_encoding );
+    
+    const char* type     =  notifymq_get_content_type( msg );
+    const char* encoding =  notifymq_get_content_encoding( msg );
+
+
     cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
 
     if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){

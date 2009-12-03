@@ -46,6 +46,10 @@ extern int notifymq_queue_declare( char const* queue, bool_t passive , bool_t du
 extern int notifymq_basic_consume( char const* queue ) ;
 extern int notifymq_basic_consume_async( char const* queue ) ;
 
+extern const char* notifymq_get_content_type(     notifymq_basic_msg_t* msg );
+extern const char* notifymq_get_content_encoding( notifymq_basic_msg_t* msg );
+
+
 #ifdef __cplusplus
 }
 #endif

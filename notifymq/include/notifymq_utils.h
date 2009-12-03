@@ -32,8 +32,9 @@ void notifymq_basic_msg_free( notifymq_basic_msg_t* msg );
 void notifymq_basic_deliver_free( amqp_basic_deliver_t* src );
 void notifymq_basic_properties_free( amqp_basic_properties_t* src );
 
-// getter ... with unhealthy allocation 
-char* notifymq_get_content_type( amqp_basic_properties_t* props );
+// getter ... with allocation 
+const char* notifymq_props_get_content_type(     amqp_basic_properties_t* props );
+const char* notifymq_props_get_content_encoding( amqp_basic_properties_t* props );
 
 // property setters 
 int notifymq_set_content_type( amqp_basic_properties_t* props , char const* v );
