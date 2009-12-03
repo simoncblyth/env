@@ -160,7 +160,7 @@ void MQ::Configure()
    // observer is invoked (from inside the lock)
    //  when messages are added with fRoutingKey ... caution what you call otherwise deadlock
    //  just use observer to signal the update  
-   AddObserver( fRoutingKey.Data() , MQ::DemoObserver , (void*)this  );  
+   ConfigureQueue( fRoutingKey.Data() , DemoObserver , (void*)this , 5  );  
 
 }
 
@@ -222,10 +222,16 @@ int MQ::DemoObserver( void* me , void* data )
    return 42 ;
 }
 
-void MQ::AddObserver( const char* key , notifymq_collection_observer_t obs, void* args )
+void MQ::ConfigureQueue( const char* key , notifymq_collection_observer_t obs, void* args , int msgmax  )
 {
-   notifymq_collection_add_observer( key , obs , args ); 
+   notifymq_collection_queue_configure( key , obs , args , msgmax  ); 
 }
+
+notifymq_collection_qstat_t MQ::QueueStat( const char* key )
+{
+   return notifymq_collection_queue_stat( key ); 
+}
+
 
 
 // private internals 

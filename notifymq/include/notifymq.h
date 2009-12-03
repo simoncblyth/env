@@ -38,6 +38,7 @@ typedef int bool_t;
 
 
 typedef struct notifymq_collection_qstat_t_ { 
+   uint64_t msgmax  ; 
    uint64_t received ; 
    uint64_t read ; 
    uint64_t lastread ; 
