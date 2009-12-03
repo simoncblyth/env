@@ -215,8 +215,18 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 
 int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t* qstat )
 {
-   //  could have msg arg too ?   notifymq_basic_msg_t* msg 
-   //  BUT cannot do much from here as inside the lock ... just Emit 
+   //
+   //  Could have msg arg too ?   notifymq_basic_msg_t* msg 
+   //  BUT cannot do much from here as this is
+   //  executed from inside the monitoring thread ...
+   //
+   //  so avoid doing anything involved ... such as creating a TObject from a message
+   //
+   //  setup the signal such that it propagates the arguments needed 
+   //  to construct the corresponding object via absolute addressing 
+   //    ( key , index ) ... 
+   //
+
 
    MQ* self = (MQ*)me ; 
    cout << "MQ::DemoObserver key [" << key << "] qstat " 
@@ -229,6 +239,7 @@ int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t
         <<  endl ;
    self->Print();
    self->Emit(Form("added.%s", key ));
+  
    return 42 ;
 }
 
