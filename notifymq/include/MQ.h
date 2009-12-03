@@ -54,6 +54,9 @@ class MQ : public TObject {
      void SendRaw(const char* str , const char* key = NULL );
      void SendMessage(TMessage* msg , const char* key = NULL );
 
+     void AddObserver( const char* key , notifymq_collection_observer_t obs , void* args );
+     static int DemoObserver( void* me , void* args );
+
      void StartMonitorThread();
      void StopMonitorThread();       
 

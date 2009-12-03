@@ -156,6 +156,12 @@ void MQ::Configure()
    notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() ); 
 
    fConfigured = kTRUE ;
+
+   // observer is invoked (from inside the lock)
+   //  when messages are added with fRoutingKey ... caution what you call otherwise deadlock
+   //  just use observer to signal the update  
+   AddObserver( fRoutingKey.Data() , MQ::DemoObserver , (void*)this  );  
+
 }
 
 
@@ -207,6 +213,19 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 }
 
 
+int MQ::DemoObserver( void* me , void* data )
+{
+   MQ* self = (MQ*)me ; 
+   notifymq_collection_qstat_t* qstat = (notifymq_collection_qstat_t*)data ; 
+   cout << "MQ::DemoObserver qstat read " << qstat->read << "received " << qstat->received <<  endl ;
+   self->Print();
+   return 42 ;
+}
+
+void MQ::AddObserver( const char* key , notifymq_collection_observer_t obs, void* args )
+{
+   notifymq_collection_add_observer( key , obs , args ); 
+}
 
 
 // private internals 

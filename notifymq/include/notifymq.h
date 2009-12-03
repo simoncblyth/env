@@ -22,6 +22,9 @@ typedef struct notifymq_props_t_ {
 typedef int (*receiver_t)(void* arg,  const void *msgbytes , size_t msglen , notifymq_props_t props );
 
 
+
+typedef int (*notifymq_collection_observer_t)(void* me, void* args );
+
 // cannot expose on cint/pyROOT command line as the included types are not wrapped, but can use in compiled C++
 typedef struct notifymq_basic_msg_t_ {
    uint64_t index ;
@@ -32,6 +35,16 @@ typedef struct notifymq_basic_msg_t_ {
 } notifymq_basic_msg_t ;
 	
 typedef int bool_t;
+
+
+typedef struct notifymq_collection_qstat_t_ { 
+   uint64_t received ; 
+   uint64_t read ; 
+   uint64_t lastread ; 
+   uint64_t lastadd ; 
+   bool_t   updated ;           // since the last read 
+} notifymq_collection_qstat_t ;
+
 
 static int notifymq_dbg = 0 ; 
 

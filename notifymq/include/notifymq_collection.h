@@ -21,6 +21,7 @@ bool_t notifymq_collection_queue_updated(const char* key );
 int notifymq_collection_queue_length( const char* key );
 notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n );
 void notifymq_collection_dump();
+void notifymq_collection_add_observer( const char* key , notifymq_collection_observer_t observer , void* obsargs  );
 
 
 #ifdef __cplusplus

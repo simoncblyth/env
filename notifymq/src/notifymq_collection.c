@@ -20,9 +20,6 @@ G_LOCK_DEFINE( notifymq_collection );
 
 
 void notifymq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_data);
-
- 
-
 typedef struct notifymq_collection_queue_t_ { 
    char kind ;
    union {
@@ -30,11 +27,9 @@ typedef struct notifymq_collection_queue_t_ {
      GHashTable* hash  ;
      void*       other  ;
    } v ;
-   uint64_t received ; 
-   uint64_t read ; 
-   uint64_t lastread ; 
-   uint64_t lastadd ; 
-   bool_t   updated ;           // since the last read 
+  notifymq_collection_qstat_t        stat ;
+  notifymq_collection_observer_t observer ;
+  void* obsargs ;
 } notifymq_collection_queue_t ; 
 
 
@@ -43,11 +38,23 @@ notifymq_collection_queue_t* notifymq_collection_getq_( const char* key );
 notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* key );
 
 
+
+/*
+int notifymq_collection_demo_observer( void* me , void* args )
+{
+    const char* txt = (const char*)args ;
+    printf("notifymq_collection_demo_observer %s \n" , txt );
+    return 42 ; 
+}
+*/
+
 int notifymq_collection_init()
 {
     if( notifymq_dbg > 0 )
         printf("_collection_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
     notifymq_collection  = g_hash_table_new(g_str_hash, g_str_equal);  // funcs for : hashing, key comparison 
+
+
     return EXIT_SUCCESS ;
 }
 
@@ -80,20 +87,28 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
            break ; 
     }
 
-    q->lastadd = msg->index ;
-    q->received += 1 ;
-    q->updated = 1 ;
-    
+    q->stat.lastadd = msg->index ;
+    q->stat.received += 1 ;
+    q->stat.updated = 1 ;
+   
+    if( q->observer ){
+        q->observer( q->obsargs , (void*)&(q->stat) ) ;
+    }
+ 
     G_UNLOCK(notifymq_collection);
     return EXIT_SUCCESS ;
 }
+
+
+
+
 
 bool_t notifymq_collection_queue_updated(const char* key )
 {
     G_LOCK(notifymq_collection);
     bool_t updated = 0 ;
     notifymq_collection_queue_t* q = notifymq_collection_getq_( key );
-    updated = q == NULL ? 0 : q->updated ;  // defaults to not updated if no q 
+    updated = q == NULL ? 0 : q->stat.updated ;  // defaults to not updated if no q 
     G_UNLOCK(notifymq_collection);
     return updated ;
 }
@@ -127,6 +142,19 @@ int notifymq_collection_queue_length( const char* key )
     return len ;
 }
 
+
+void notifymq_collection_add_observer( const char* key , notifymq_collection_observer_t observer , void* obsargs  )
+{
+    G_LOCK(notifymq_collection);
+    notifymq_collection_queue_t* q =  notifymq_collection_getq_or_create_( key );
+    if( q == NULL )
+       printf("_collection_add_observer ERROR failed to create q for key \"%s\" \n", key );
+    q->observer = observer ;
+    q->obsargs  = obsargs ;
+    G_UNLOCK(notifymq_collection);
+} 
+
+
 notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n ) 
 {
     G_LOCK(notifymq_collection);
@@ -146,9 +174,9 @@ notifymq_basic_msg_t* notifymq_collection_get( const char* key , int n )
     }
 
     if( msg ){
-        q->updated = 0 ;    
-        q->read += 1 ;
-        q->lastread = msg->index ;
+        q->stat.updated = 0 ;    
+        q->stat.read += 1 ;
+        q->stat.lastread = msg->index ;
     }
 
     G_UNLOCK(notifymq_collection);
@@ -184,11 +212,14 @@ notifymq_collection_queue_t* notifymq_collection_queue_alloc_()
            q->v.other = NULL ;
        } 
 
-    q->received = 0 ;
-    q->read = 0 ;
-    q->updated = 0 ;
-    q->lastread= 0 ;
-    q->lastadd = 0 ;
+    q->stat.received = 0 ;
+    q->stat.read = 0 ;
+    q->stat.updated = 0 ;
+    q->stat.lastread= 0 ;
+    q->stat.lastadd = 0 ;
+
+    q->observer = NULL ;
+    q->obsargs = NULL ;
 
     return q ;
 }
@@ -204,7 +235,7 @@ void notifymq_collection_queue_dump_(notifymq_collection_queue_t* q )
         return ;
     }
     guint length = g_queue_get_length(q->v.queue);
-    printf("_collection_queue_dump : length %d received %lld read %lld updated %d lastread %lld lastadd %lld \n", length, q->received, q->read, q->updated, q->lastread, q->lastadd ); 
+    printf("_collection_queue_dump : length %d received %lld read %lld updated %d lastread %lld lastadd %lld \n", length, q->stat.received, q->stat.read, q->stat.updated, q->stat.lastread, q->stat.lastadd ); 
 }
 
 notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* key )
@@ -216,6 +247,9 @@ notifymq_collection_queue_t* notifymq_collection_getq_or_create_( const char* ke
 
        g_hash_table_insert( notifymq_collection , g_strdup( key ) , notifymq_collection_queue_alloc_() );
        q =  notifymq_collection_getq_( key );
+
+       // notifymq_collection_add_observer( key ,  notifymq_collection_demo_observer ); causes deadlock when done here 
+
     
     } else {
        if( notifymq_dbg > 1 )
