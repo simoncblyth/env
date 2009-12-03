@@ -87,8 +87,9 @@ int notifymq_collection_add( notifymq_basic_msg_t * msg )
         q->stat.updated = 1 ;
     }   
 
+    // invoke the observer callback for the q corresponding to the message key
     if( q->observer ){
-        q->observer( q->obsargs , (void*)&(q->stat) ) ;
+        q->observer( q->obsargs , msg->key , &(q->stat) ) ;
     }
  
     G_UNLOCK(notifymq_collection);

@@ -1,6 +1,8 @@
 #ifndef MQ_h
 #define MQ_h
 
+
+#include <RQ_OBJECT.h>
 #include  "TObject.h"
 #include  "TString.h"
 #include  "notifymq.h"
@@ -10,6 +12,8 @@ class TClass ;
 class MyTMessage ;
 
 class MQ : public TObject {
+
+  RQ_OBJECT("MQ")
 
   private:
         TString fExchange ;  
@@ -55,7 +59,7 @@ class MQ : public TObject {
      void SendMessage(TMessage* msg , const char* key = NULL );
 
      void ConfigureQueue( const char* key , notifymq_collection_observer_t obs , void* obsargs , int msgmax );
-     static int DemoObserver( void* me , void* args );
+     static int QueueObserver( void* me , const char* key, notifymq_collection_qstat_t* args );  /* SIGNAL */
      notifymq_collection_qstat_t QueueStat( const char* key );
 
      void StartMonitorThread();

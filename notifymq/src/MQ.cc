@@ -16,7 +16,7 @@
 #include <string>
 using namespace std ;
 
-
+ClassImp(MQ);
 
 char* mq_frombytes(amqp_bytes_t b)
 { 
@@ -160,7 +160,7 @@ void MQ::Configure()
    // observer is invoked (from inside the lock)
    //  when messages are added with fRoutingKey ... caution what you call otherwise deadlock
    //  just use observer to signal the update  
-   ConfigureQueue( fRoutingKey.Data() , DemoObserver , (void*)this , 5  );  
+   ConfigureQueue( fRoutingKey.Data() , QueueObserver , (void*)this , 5  );  
 
 }
 
@@ -213,12 +213,22 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 }
 
 
-int MQ::DemoObserver( void* me , void* data )
+int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t* qstat )
 {
+   //  could have msg arg too ?   notifymq_basic_msg_t* msg 
+   //  BUT cannot do much from here as inside the lock ... just Emit 
+
    MQ* self = (MQ*)me ; 
-   notifymq_collection_qstat_t* qstat = (notifymq_collection_qstat_t*)data ; 
-   cout << "MQ::DemoObserver qstat read " << qstat->read << "received " << qstat->received <<  endl ;
+   cout << "MQ::DemoObserver key [" << key << "] qstat " 
+        << " read:" << qstat->read 
+        << " received:" << qstat->received 
+        << " lastread:" << qstat->lastread 
+        << " lastadd:" << qstat->lastadd 
+        << " updated:" << qstat->updated 
+        << " msgmax:"  << qstat->msgmax 
+        <<  endl ;
    self->Print();
+   self->Emit(Form("added.%s", key ));
    return 42 ;
 }
 
@@ -231,7 +241,6 @@ notifymq_collection_qstat_t MQ::QueueStat( const char* key )
 {
    return notifymq_collection_queue_stat( key ); 
 }
-
 
 
 // private internals 
