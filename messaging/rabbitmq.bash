@@ -44,6 +44,15 @@ rabbitmq-usage(){
 
 
 
+     http://www.rabbitmq.com/plugin-development.html#getting-started 
+
+     rabbitmq-umbrella-get
+            umbrella is simply just a Makefile, that can checkout all rabbitmq-* and build
+
+     rabbitmq-umbrella-make
+
+
+
 EOU
 }
 rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
@@ -274,3 +283,21 @@ rabbitmq-ex-publisher(){   python $(rabbitmq-ex-dir)/amqp_publisher.py $* ; }
 
 
 
+
+
+
+rabbitmq-umbrella-dir(){ echo $(rabbitmq-dir)/rabbitmq-public-umbrella ;  }
+rabbitmq-umbrella-cd(){  cd $(rabbitmq-umbrella-dir) ; }
+rabbitmq-umbrella-get(){
+   rabbitmq-cd
+   local dir=$(rabbitmq-dir)
+   mkdir -p $dir && cd $dir
+   hg clone http://hg.rabbitmq.com/rabbitmq-public-umbrella
+}
+
+rabbitmq-umbrella-make(){
+   rabbitmq-umbrella-cd
+   ## check out subprojects into the umbrella
+   make co
+
+}
