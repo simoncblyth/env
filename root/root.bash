@@ -216,5 +216,7 @@ root-test-eve(){ root-test-tute $ROOTSYS/tutorials/eve $* ; }
 root-test-gl(){  root-test-tute $ROOTSYS/tutorials/gl  $* ; }
 
 
-
+root-signal(){
+   find $ROOTSYS -name '*.h' -exec grep -H SIGNAL {} \;
+}
 
