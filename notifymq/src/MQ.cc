@@ -238,9 +238,20 @@ int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t
         << " msgmax:"  << qstat->msgmax 
         <<  endl ;
    self->Print();
-   self->Emit(Form("added.%s", key ));
-  
+   //self->QueueUpdated();
+   self->QueueUpdatedIndex( (Long_t)qstat->lastadd );
+   // it would be nice to pass the struct in the signal 
    return 42 ;
+}
+
+
+void MQ::QueueUpdatedIndex( Long_t index )
+{
+   Emit("QueueUpdatedIndex(Long_t)", index);
+}
+void MQ::QueueUpdated()
+{
+   Emit("QueueUpdated()");
 }
 
 void MQ::ConfigureQueue( const char* key , notifymq_collection_observer_t obs, void* args , int msgmax  )

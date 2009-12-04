@@ -59,8 +59,11 @@ class MQ : public TObject {
      void SendMessage(TMessage* msg , const char* key = NULL );
 
      void ConfigureQueue( const char* key , notifymq_collection_observer_t obs , void* obsargs , int msgmax );
-     static int QueueObserver( void* me , const char* key, notifymq_collection_qstat_t* args );  /* SIGNAL */
+     static int QueueObserver( void* me , const char* key, notifymq_collection_qstat_t* args );  
+     void QueueUpdatedIndex( Long_t index ); /* SIGNAL */
+     void QueueUpdated(); /* SIGNAL */
      notifymq_collection_qstat_t QueueStat( const char* key );
+
 
      void StartMonitorThread();
      void StopMonitorThread();       
