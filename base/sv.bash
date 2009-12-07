@@ -15,6 +15,11 @@ sv-usage(){
               "The required version of setuptools (>=0.6c9) is not available, and
                a more recent version first, using 'easy_install -U setuptools'."
 
+         it makes most sense to install supervisor into the base python rather than
+         virtual pythons 
+
+     sv-bootstrap
+        initial setup , based on private config values
 
      sv-confpath : $(sv-confpath)
 
@@ -81,6 +86,11 @@ sv-get(){
    esac
    $sudo easy_install$v supervisor
    $sudo easy_install$v superlance    ## memmon + httpok 
+}
+
+sv-build(){
+   sv-get
+   sv-bootstrap
 }
 
 sv-bootstrap(){
