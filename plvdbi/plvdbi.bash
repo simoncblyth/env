@@ -110,7 +110,37 @@ plvdbi-cd(){      cd $(plvdbi-dir); }
 plvdbi-mate(){    mate $(plvdbi-dir) ; }
 plvdbi-workdir(){ echo /tmp/env/plvdbi/workdir ; }
 
+
 plvdbi-build(){
+
+    vip-
+    local name=${1:-dbi}
+    local vdir=$(vip-dir $name)
+
+    vip-preqs               ## check the triplet : setuptools/virtualenv/pip are installed
+    [ ! $? -eq 0 ] && return 1
+    vip-create $name        ## create virtual environment if not existing
+    [ ! $? -eq 0 ] && return 1
+    vip-activate $name      ## get into the virtual env
+    [ ! $? -eq 0 ] && return 1
+
+    ## check are in the virtual env 
+    [ "$(which python)" != "$vdir/bin/python" ]  && echo $msg ABORT must be inside virtual python env to proceed && return 1
+
+    plvdbi-vinstall
+    [ ! $? -eq 0 ] && return 1
+
+
+    plvdbi-make-config 
+    [ ! $? -eq 0 ] && return 1
+    plvdbi-statics
+    [ ! $? -eq 0 ] && return 1
+}  
+
+
+
+
+plvdbi-build-uncontrolled(){
 
     local msg="=== $FUNCNAME :"
     vdbi-
@@ -228,6 +258,19 @@ plvdbi-shell(){
    pl-shell
    cd $iwd
 }
+
+
+plvdbi-statics-htdocs-cp(){
+   ## attempt to avoid permission/selinux issues by copying into htdocs
+   local msg="=== $FUNCNAME :"
+   apache-
+   local dir=$(apache-htdocs)/dbi/toscawidgets
+   sudo mkdir -p $dir
+   local cmd="sudo cp -r $(plvdbi-dir)/plvdbi/public/toscawidgets/resources $dir"
+   echo $msg $cmd
+   eval $cmd
+}
+
 
 plvdbi-statics-dir(){  echo $(plvdbi-dir)/plvdbi/public/toscawidgets ; }
 plvdbi-archive-tw-resources(){

@@ -34,10 +34,28 @@ vdbi-ipy(){
 
 vdbi-build(){
   local msg="=== $FUNCNAME :"
-  rum-
-  rum-build
+  echo $msg for a pip controlled build use : plvdbi-vinstall 
+}
+
+
+vdbi-build-uncontrolled(){
+  local msg="=== $FUNCNAME :"
+  #rum-
+  #rum-build
+
+  vip-
+  local name=${1:-dbi}
+  local vdir=$(vip-dir $name)
+
+  vip-preqs               ## check the triplet : setuptools/virtualenv/pip are installed
   [ ! $? -eq 0 ] && return 1
-  [ "$(which python)" != "$(rum-dir)/bin/python" ]  && echo $msg ABORT must be inside rumenv to proceed && return 1
+  vip-create $name        ## create virtual environment if not existing
+  [ ! $? -eq 0 ] && return 1
+  vip-activate $name      ## get into the virtual env
+  [ ! $? -eq 0 ] && return 1
+
+  ## check are in the virtual env 
+  [ "$(which python)" != "$vdir/bin/python" ]  && echo $msg ABORT must be inside virtual python env to proceed && return 1
 
   vdbi-install
   [ "$?" != "0" ] && echo $msg abort aftert vdbi-install &&  return 1

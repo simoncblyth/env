@@ -53,9 +53,47 @@ vip-preqs(){
  [ "$vpv" != "$epv" ] && echo $msg $mpv && rc=3
  echo $msg suspect pip version reporting broken ... $mpv
 
- return $rc
+ #return $rc   ... try with the more recent 
+ return 0
 }
 
+
+vip-create(){
+   local msg="=== $FUNCNAME :"
+   local name=${1:-dbi}
+   local vdir=$(vip-dir $name)
+
+   [ -d "$vdir" ] && echo $msg virtual python environment $vdir exists already && return 0
+   echo $msg creating $name virtual python environment in $vdir
+   local dir=$(dirname $vdir) &&  mkdir -p $dir && cd $dir
+   local msg="=== $FUNCNAME :"
+   [ "$(which virtualenv)" == "" ] && echo $msg missing virtualenv && return 1
+   [ "$(which pip)" == "" ] && echo $msg missing pip && return 1
+   [ "$(which hg)" == "" ] && echo $msg missing hg && return 1
+
+   virtualenv $vdir
+}
+
+vip-check(){
+   local msg="=== $FUNCNAME :"
+   local name=${1:-dbi}
+   local vdir=$(vip-dir $name)
+
+   ## get into the virtial python environment 
+   vip-activate $name
+
+   [ "$(which python)" != "$vdir/bin/python" ] && echo $msg ABORT failed to setup virtual python $(which python)   && return 1
+   python -c "import MySQLdb" 2> /dev/null
+   [ ! $? -eq 0 ] && echo $msg ABORT missing MySQLdb ... see pymysql-build or system install if using system python  && return 1
+   return 0
+
+}
+
+
+
+
+
+vip-ls(){ ls -l $(vip-base) ; }
 
 vip-usage(){
   cat << EOU
@@ -70,16 +108,24 @@ vip-usage(){
           requiring sudo access) subsequent installations can be done without 
           sudo 
 
-
-
      vip-src : $(vip-src)
      vip-dir : $(vip-dir)
+
+
+     vip-ls  :
+         list virtual python environments     
 
      vip-preqs
          check the versions of :  setuptools / virtualenv / pip 
          this triplet is tightly coupled and other plvdbi constraints demand setuptools 0.6c11
          so using the precise versions is a necessity
       
+     vip-create name 
+         create virtual python environment dir  
+
+     vip-check name
+         check the virual python env and activate it
+
 
      vip-install <name>
 
@@ -173,7 +219,8 @@ vip-freeze(){
 
 
 vip-build(){
-   vip-get 
+   #vip-get 
+   vip-preqs
    [ ! $? -eq 0 ]  && return 1
    env-build
 }
