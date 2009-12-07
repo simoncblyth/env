@@ -34,7 +34,7 @@ vip-preqs(){
 
  local msg="=== $FUNCNAME :" 
 
- echo $msg if version mismatches, try to install into the system python  
+ echo $msg if version mismatches, try to install into the target python, currently : $(which python)  
 
  local rc=0
  local vsv=$(vip-setuptools-version) 
@@ -59,6 +59,19 @@ vip-preqs(){
 
 vip-usage(){
   cat << EOU
+
+     vip- 
+          a combination of the triplet : virtualenv + pip + setuptools 
+          provides python package assembly based on frozen versionsets 
+          into virtual python environments  
+
+          the use of virtual python environments means that once the triplet 
+          are installed into the system (or base) python (probably 
+          requiring sudo access) subsequent installations can be done without 
+          sudo 
+
+
+
      vip-src : $(vip-src)
      vip-dir : $(vip-dir)
 
