@@ -612,8 +612,35 @@ apache-sesetup(){
        echo ielem $ielem ${elems[$ielem]}
        let "ielem = $ielem + 1"
    done
-
-   
-
-
 }
+
+
+apache-sv-(){ 
+  apacheconf-
+
+  ## running under supervisor skips the "apachectl" and its envvars setup ...
+  ## so do the equivalent here 
+
+  local llp=$LD_LIBRARY_PATH
+  LD_LIBRARY_PATH="" 
+  . $(apacheconf-envvars-path)
+
+  ## the python-libdir hookup only needed when using non-standard python
+  cat << EOS
+[program:apache]
+command=$(which httpd) -c "ErrorLog /dev/stdout" -DFOREGROUND
+redirect_stderr=true
+environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+EOS
+  LD_LIBRARY_PATH=$llp
+}
+
+apache-sv(){
+  sv-
+  $FUNCNAME- | sv-plus apache.ini
+  echo $msg your LD_LIBRARY_PATH has been messed with ... exit this shell 
+}
+
+
+
+
