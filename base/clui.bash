@@ -12,7 +12,7 @@ clui-env(){
    export EDITOR=vi
    
    clui-alias
-   clui-tty
+   #clui-tty
     
 }
 
@@ -44,13 +44,13 @@ clui-alias(){
 
 clui-tty(){
 
-   ##fix delete key operation in vi
-  [ -t 0 ] && stty erase '^?'
 
    ## this is the bash equivalent of "bindkey -v"
 
   if [ "$USER" == "blyth" ]; then
     set -o vi     # vi or emacs CLI editing 
+   ##fix delete key operation in vi
+    [ -t 0 ] && stty erase '^?'
   fi
   
 }  
