@@ -127,6 +127,11 @@ plvdbi-build(){
     ## check are in the virtual env 
     [ "$(which python)" != "$vdir/bin/python" ]  && echo $msg ABORT must be inside virtual python env to proceed && return 1
 
+    #if [ "$(python-mode)" == "source" ]; then
+    #   ## something resetting to py2.3 
+    #   python- source 
+    #fi
+
     plvdbi-vinstall
     [ ! $? -eq 0 ] && return 1
 

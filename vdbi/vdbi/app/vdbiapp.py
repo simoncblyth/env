@@ -86,8 +86,10 @@ def create_app(url=None,  dbg=True):
     p = Private()
     if not(url):
        url = p('DATABASE_URL')          
-    logdir = p('VDBI_LOGDIR') 
 
+    assert not url == "", "create_app ABORT : DATABASE_URL not configured ... needs to be in sqlalchemy format "
+    logdir = p('VDBI_LOGDIR') 
+    assert not logdir == "", "create_app ABORT : VDBI_LOGDIR not configured "
     print "create_app private config from : %s " % p.path 
     setup_logging(logdir)
     

@@ -376,6 +376,7 @@ local-base-env(){      echo $(local-base $*)/env ; }
 local-base(){
     local t=${1:-$NODE_TAG}
     case $t in 
+       WW) echo /home/blyth/local ;;
         G) echo /usr/local ;;
        G1) echo /disk/d3/dayabay/local ;;    ## used to be :  /data/w  then /disk/d4
         P) echo /disk/d3/dayabay/local ;;

@@ -109,7 +109,7 @@ python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default $*)} ; }
 python-mode-default(){
   case ${1:-$NODE_TAG} in
           ZZ|C) echo system ;;
-     YY|C2|C2R) echo source ;;
+     YY|C2|C2R|WW) echo source ;;
              *) echo system ;;
   esac
 }

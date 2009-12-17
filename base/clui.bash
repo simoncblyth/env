@@ -12,7 +12,7 @@ clui-env(){
    export EDITOR=vi
    
    clui-alias
-   #clui-tty
+   clui-tty 
     
 }
 
