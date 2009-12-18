@@ -48,6 +48,7 @@ mysql-bindir(){
 mysql-libdir(){
   case $NODE_TAG in 
      WW) echo /usr/local/mysql/lib/mysql ;;
+     WW_other) echo /usr/lib/mysql ;;
   esac
 }
 
@@ -228,6 +229,25 @@ EOC
 }
 
 mysql-sv(){  sv-;sv-add $FUNCNAME- mysql.ini ; }
+
+
+mysql-python-dir(){ echo $(local-base)/mysql-python/MySQL-python-$(mysql-python-ver) ; }
+mysql-python-ver(){ echo 1.2.3c1 ; }
+mysql-python-tgz(){ echo MySQL-python-$(mysql-python-ver).tar.gz ; }
+mysql-python-url(){ echo http://downloads.sourceforge.net/project/mysql-python/mysql-python-test/$(mysql-python-ver)/$(mysql-python-tgz) ; }
+mysql-python-cd(){  cd $(mysql-python-dir) ; }
+mysql-python-get(){  
+
+   local dir=$(dirname  $(mysql-python-dir))
+   local nam=$(basename $(mysql-python-dir))
+   mkdir -p $dir && cd $dir   
+ 
+   local tgz=$(mysql-python-tgz)
+   [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url) 
+   [ ! -d "$nam" ] && tar zxvf $tgz
+}
+
+
 
 
 
