@@ -18,6 +18,23 @@ mysql-usage(){
     mysql-triplet-edit "mysqld|log-bin|binlog"
 
 
+
+    mysql-python-*
+
+          normally can just 
+              easy_install mysql-python
+              pip install mysql-python
+
+          but on WW with multiple mysql and python, suspect 
+          confusion of these auto builds... with crossed include
+          and lib dirs 
+
+          it appears the mysql_config in the PATH dictates the 
+          mysql that is built against but ...
+
+
+
+
 EOU
 }
 
@@ -229,6 +246,9 @@ EOC
 }
 
 mysql-sv(){  sv-;sv-add $FUNCNAME- mysql.ini ; }
+
+
+
 
 
 mysql-python-dir(){ echo $(local-base)/mysql-python/MySQL-python-$(mysql-python-ver) ; }
