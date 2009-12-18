@@ -42,7 +42,8 @@ mysql-env(){
   local msg="=== $FUNCNAME :"
   local bindir=$(mysql-bindir)
   if [ -n "$bindir" ]; then 
-     env-prepend $bindir
+     ##env-prepend $bindir   a prexisting lowere level bindir was preventing this being brought to the front 
+     export PATH=$bindir:$PATH
   else
      [ -n "$MYSQL_DBG" ] && echo $msg no mysql-bindir not defined 
   fi 
@@ -55,10 +56,17 @@ mysql-env(){
   fi 
 }
 
+mysql-bindir-(){
+  case $NODE_TAG in 
+    WW) echo /usr/local/mysql/bin ;;
+  esac 
+}
+
 mysql-bindir(){
    pkgr-
   case $(pkgr-cmd) in
     port) echo /opt/local/lib/mysql5/bin ;;
+       *) mysql-bindir- ;;
   esac
 }
 

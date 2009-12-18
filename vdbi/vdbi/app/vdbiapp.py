@@ -139,6 +139,8 @@ def create_app(url=None,  dbg=True):
 
     ## report the date on the statics dir
     plvdbi_statics_dir = p('PLVDBI_STATICS_DIR')
+    assert not plvdbi_statics_dir == "", "ABORT missing config var PLVDBI_STATICS_DIR " 
+    assert os.path.isdir( plvdbi_statics_dir ), "ABORT PLVDBI_STATICS_DIR %s does not exist " % plvdbi_statics_dir
     dtfmt = stat_(plvdbi_statics_dir)
     app.pkgs.append("statics %s" % dtfmt['mtime'] )
 
