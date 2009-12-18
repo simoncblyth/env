@@ -22,11 +22,36 @@ EOU
 }
 
 mysql-env(){
+  local msg="=== $FUNCNAME :"
+  local bindir=$(mysql-bindir)
+  if [ -n "$bindir" ]; then 
+     env-prepend $bindir
+  else
+     [ -n "$MYSQL_DBG" ] && echo $msg no mysql-bindir not defined 
+  fi 
+
+  local libdir=$(mysql-libdir)
+  if [ -n "$libdir" ]; then 
+     env-llp-prepend $libdir
+  else
+     [ -n "$MYSQL_DBG" ] && echo $msg no mysql-libdir not defined 
+  fi 
+}
+
+mysql-bindir(){
    pkgr-
   case $(pkgr-cmd) in
-    port) PATH=/opt/local/lib/mysql5/bin:$PATH ;;
+    port) echo /opt/local/lib/mysql5/bin ;;
   esac
 }
+
+mysql-libdir(){
+  case $NODE_TAG in 
+     WW) echo /usr/local/mysql/lib/mysql ;;
+  esac
+}
+
+
 
 
 mysql-versions(){
