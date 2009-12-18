@@ -78,7 +78,7 @@ mysql-five(){
 
 mysql-sh-(){
    private-
-   #mysql$(mysql-five) --user $(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
+   [ -n "$MYSQL_DBG" ] && echo mysql$(mysql-five) --host=$(private-val DATABASE_HOST) --user=$(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
    mysql$(mysql-five) --host=$(private-val DATABASE_HOST) --user=$(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
 }
 

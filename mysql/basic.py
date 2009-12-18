@@ -10,13 +10,12 @@ class DBP(dict):
         self['passwd'] = p('DATABASE_PASSWORD')
 
 if __name__=='__main__':
-    conn = MySQLdb.connect( **DBP() )
-    cursor = conn.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT VERSION()")
-    rec = cursor.fetchone()
-    cursor.close()
+    con = MySQLdb.connect( **DBP() )
+    cur = con.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("SELECT VERSION()")
+    rec = cur.fetchone()
     print rec 
 
     cur.close()
-    conn.commit()
+    con.commit()
 
