@@ -30,6 +30,9 @@ def config_authkit( app_conf ):
     app_conf['authkit.form.action'] = '/dbi/' 
     app_conf['authkit.cookie.secret'] = priv('VDBI_COOKIE_SECRET')
     app_conf['authkit.cookie.signoutpath'] = '/auth/logout' 
+
+    assert not app_conf['authkit.form.authenticate.user.data'] == "" , "config_authkit : ABORT : missing config VDBI_USERS_PATH "
+    assert not app_conf['authkit.cookie.secret'] == "" , "config_authkit : ABORT : missing config VDBI_COOKIE_SECRET "
     print "app_conf %s " % repr(app_conf)
 
 
