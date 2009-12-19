@@ -193,6 +193,41 @@ sv-cnf-triplets-(){
 EOC
 }
 
+
+sv-ctl-sock(){
+   local user=$(private-val SUPERVISOR_USERNAME)
+   local sock=/tmp/env/$user/supervisor.sock
+   echo $sock
+}
+
+sv-cnf-triplets-nonet-(){
+   private-
+   local sock=$(sv-ctl-sock)
+   mkdir -p $(dirname $sock)
+   cat << EOC
+
+  include|files|conf/*.ini
+
+  unix_http_server|file|$(sv-ctl-sock)
+  unix_http_server|chmod|0777
+  unix_http_server|chown|$(sv-user):$(sv-user)
+  unix_http_server|username|$(private-val SUPERVISOR_USERNAME)
+  unix_http_server|password|$(private-val SUPERVISOR_PASSWORD)
+
+  supervisord|user|$(sv-user) 
+
+  rpcinterface:supervisor||
+  supervisorctl||
+  inet_http_server||
+
+EOC
+
+# 
+
+}
+
+
+
 sv-private-check(){
 
   local msg="=== $FUNCNAME :"
@@ -212,6 +247,14 @@ sv-cnf(){
    sv-ini $(sv-cnf-triplets-);  
 }
 
+sv-cnf-nonet(){ 
+   sv-private-check
+   [ ! "$?" -eq  "0" ] && echo ABORTED && return $?
+   sv-ini $(sv-cnf-triplets-nonet-);  
+}
+
+
+
 
 
 ##  supervisorctl config for controlling a network of nodes over xmlrpc
@@ -221,6 +264,7 @@ sv-C(){  SV_TAG=C  sv-ctl $* ; }
 sv-N(){  SV_TAG=N  sv-ctl $* ; }
 sv-H(){  SV_TAG=H  sv-ctl $* ; }
 sv-C2(){ SV_TAG=C2 sv-ctl $* ; }
+sv-WW(){ SV_TAG=WW sv-ctl $* ; }
 
 sv-ctl(){ 
    local msg="=== $FUNCNAME :"
@@ -270,9 +314,56 @@ sv-ctl-prep(){
    cat $ini
 }
 
+
+sv-ctl-prep-nonet-(){
+   cat << EOC
+[supervisorctl]
+serverurl = unix://$(sv-ctl-sock)
+username = $(private-val SUPERVISOR_USERNAME)
+password = $(private-val SUPERVISOR_PASSWORD)
+prompt = nonet
+
+EOC
+}
+
+sv-ctl-prep-nonet(){
+   local msg="=== $FUNCNAME :"
+   local ini=$(sv-ctl-ini)
+   local dir=$(dirname $ini) && mkdir -p $dir
+   echo $msg creating $ini
+   $FUNCNAME- $* > $ini
+   chmod go-rwx $ini
+   cat $ini
+}
+
+
+
+
+
 sv-webopen-ip(){
    local tag=${1:-G}
    local port=$(sv-ctl-port)
    iptables-
    IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)  
 }
+
+sv-dev-url(){ echo http://svn.supervisord.org/supervisor/trunk/ ; }
+sv-dev-dir(){ echo $(local-base)/env/supervisor-dev ; }
+sv-dev-cd(){ cd $(sv-dev-dir) ; }
+sv-dev-get(){
+  local dir=$(sv-dev-dir)
+  mkdir -p $dir 
+  sv-dev-cd
+  [ ! -d trunk ] && svn co $(sv-dev-url) 
+ 
+}
+
+sv-dev-install(){
+  sv-dev-cd
+  cd trunk
+  python setup.py install
+}
+
+
+
+

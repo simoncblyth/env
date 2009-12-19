@@ -26,7 +26,7 @@ ini-triplet-edit()
     local msg="=== $FUNCNAME :";
     local path=$1 ;
     shift;
-    local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp;
+    local tmp=/tmp/$USER/env/$FUNCNAME && mkdir -p $tmp;
     local tpath=$tmp/$(basename $path);
     local cmd="cp $path $tpath ";
     eval $cmd;
