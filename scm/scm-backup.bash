@@ -615,10 +615,16 @@ scm-backup-dybsvn-from-node(){
 }
 
 
+
+
 scm-backup-nightly(){
 
    local msg="=== $FUNCNAME :"
 
+    echo
+    echo $msg $(date)  @@@ scm-backup-checkssh
+    scm-backup-checkssh
+ 
     echo
     echo $msg $(date)  @@@ scm-backup-all 
     scm-backup-all 
@@ -685,6 +691,23 @@ scm-backup-rsync(){
 
 }
 
+
+scm-backup-checkssh(){
+
+   local tags=${1:-$BACKUP_TAG}   
+   [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+ 
+   local tag 
+   for tag in $tags ; do
+       [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+       local remote=$(scm-backup-dir $tag)
+       local cmd="ssh $tag ls $remote" 
+       echo $msg $cmd
+       eval $cmd
+  done 
+
+
+}
 
 
 
