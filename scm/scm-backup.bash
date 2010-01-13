@@ -701,8 +701,8 @@ scm-backup-checkssh(){
    for tag in $tags ; do
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
        local remote=$(scm-backup-dir $tag)
-       local cmd="ssh $tag ls $remote" 
-       echo $msg $cmd
+       local cmd="ssh $tag df -h $remote" 
+       echo;echo $msg $cmd
        eval $cmd
   done 
 
