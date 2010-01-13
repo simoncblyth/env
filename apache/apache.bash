@@ -514,6 +514,14 @@ apache-atail(){ $(apache-sudo) tail -f $(apache-logdir)/access_log ; }
 apache-avi(){   $(apache-sudo)      vi $(apache-logdir)/access_log ; }   
 apache-logs(){ cd $(apache-logdir) ;  ls -l ; }
 
+
+apache-hits(){
+   local today=$(date +"%d/%b/%Y")
+   local day=${1:-$today}
+   perl -e "for \$i (0..23){ \$d=sprintf(\"$day:%0.2d\", \$i); \$c=sprintf(\"grep %s $(apache-logdir)/access_log \| wc -l \", \$d) ;  printf \"%s %s\", \$d, \`\$c\` ; } "
+}
+
+
 apache-checklog(){
    cd $(apache--logdir)
    grep Segmentation error_log
