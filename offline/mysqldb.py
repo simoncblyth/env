@@ -118,6 +118,10 @@ if __name__=='__main__':
     print rec
     for rec in db("SHOW TABLES"):
         print rec 
+        tab = rec.values()[0]
+        print db("DESCRIBE %s" % tab )
+
+
     db.close()
 
     

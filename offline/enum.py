@@ -20,6 +20,7 @@ class Enum(dict):
 
 if __name__=='__main__':
     e = Enum()
+    print e
     for t in e.keys():
         for n,i in e[t].items():
             i = e( t , n ) 
