@@ -1,14 +1,6 @@
 import MySQLdb
 import os
 
-class DBPPrivate(dict):
-    def __init__(self):
-        from private import Private
-        p = Private()
-        self['host'] = p('DATABASE_HOST') 
-        self['db'] = p('DATABASE_NAME')  
-        self['user'] = p('DATABASE_USER')
-        self['passwd'] = p('DATABASE_PASSWORD')
 
 class DBP(dict):
     """
@@ -23,9 +15,12 @@ class DBP(dict):
              print dbp
                  > {'passwd': 'the_db_pass', 'host': '127.0.0.1', 'db': 'the_db', 'user': 'the_db_user'}
 
+        NB as the config file (eg ~/.mydb.cfg ) contains passwords it needs to be treated with care
+            * protect it with chmod go-rw (this is enforced )
+            * DO NOT COMMIT into any repository 
+
         If envpfx is supplied and it matches the start of the keys, then the key, value
         pair is exported into the envrionent.
-
 
         Example config file with multiple sections to easy config swapping 
 
@@ -117,7 +112,7 @@ class DB:
 
 if __name__=='__main__':
     dbp = DBP( path=os.path.expanduser('~/.mydb.cfg') , section="testdb" , envpfx=None )  
-    print dbp
+    #print dbp
     db = DB( **dbp )
     rec = db.fetchone("SELECT VERSION()")
     print rec

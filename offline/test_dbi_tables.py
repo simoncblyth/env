@@ -28,7 +28,14 @@ def test_counts():
             print "%-20s %s " % ( t, r.values()[0] )
        
 
+
+
+
+
+
+
 if __name__=='__main__':
+
     test_config()
     test_connection()
     test_dbi_pairing()
