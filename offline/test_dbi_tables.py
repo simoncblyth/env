@@ -32,10 +32,13 @@ def test_vld_description():
           simple approach of comparing the whole tuple failing ... split this up, 
               compare fields etc..
     """
+    from v import V
     for dbi in dbis:
         t = "%sVld" % dbi
         print t 
-        r = db("describe %s" % t )    
+        r = db("describe %s" % t )
+
+    
         print "%-20s %s " % ( t, r  )
         assert len(r) == len(vld_expected) , "length mismatch "
         
