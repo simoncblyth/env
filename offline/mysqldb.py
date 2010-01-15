@@ -111,7 +111,7 @@ class DB:
 
 
 if __name__=='__main__':
-    dbp = DBP( path=os.path.expanduser('~/.mydb.cfg') , section="testdb" , envpfx=None )  
+    dbp = DBP( path=os.path.expanduser('~/.dybdb.ini') , section="testdb" , envpfx=None )  
     #print dbp
     db = DB( **dbp )
     rec = db.fetchone("SELECT VERSION()")
