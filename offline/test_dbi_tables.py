@@ -1,6 +1,5 @@
 """
-    ideas 
-         * try to use generative nosetests ... to allowing testing of all tables at once
+         * use generative nosetests ... to allowing testing of all tables at once
            with out bogging down asserting on one and not getting errors from others
            due to repetitive looping over tables 
 
@@ -37,17 +36,18 @@ def test_counts():
             r = db.fetchone("select count(*) from %s" % t )    
             print "%-20s %s " % ( t, r.values()[0] )
 
-# example of a generative nose test, generating a separate test for each table
-def test_vld_tables():
-    for t in ["%sVld"%dbi for dbi in dbis]:
-        yield vld_table_description, t 
+# generative nosetest, yielding separate tests for each table
+def test_vld_table_description():
+    for t in ["%sVld"%dbi for dbi in dbis]:yield vld_table_description, t 
 
-def vld_table_description(t):
-    print t 
+# problem here ... it dies on the first assert, nicer to see other failures too for the same table
+# so split the test with another param ... 2 param generative ? 
+# with 2nd param indicating what is being tested ?
+
+def vld_table_desription(t):
     from vld import V
     v = V( db("describe %s" % t ) )
-    v.assert_()
-
+    v.assert_()   
 
 
 if __name__=='__main__':
@@ -57,7 +57,7 @@ if __name__=='__main__':
     test_dbi_pairing()
     test_counts()
 
-    test_vld_tables()
+    test_vld_table_description()
 
 
     db.close()
