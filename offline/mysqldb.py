@@ -132,11 +132,11 @@ class DB:
 
 if __name__=='__main__':
     
-    demo = DBP( src=demo_ini  , section="testdb" , envpfx=None )  
-    print demo
+    #demo = DBP( src=demo_ini  , section="testdb" , envpfx=None )  
+    #print demo
 
     dbp = DBP( path=os.path.expanduser('~/.dybdb.ini') , section="testdb" , envpfx=None )  
-    #print dbp
+    print dbp
     db = DB( **dbp )
     rec = db.fetchone("SELECT VERSION()")
     print rec

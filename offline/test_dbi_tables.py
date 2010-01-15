@@ -4,6 +4,8 @@
            with out bogging down asserting on one and not getting errors from others
            due to repetitive looping over tables 
 
+ 
+
 """
 
 import os
