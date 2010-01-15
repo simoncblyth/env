@@ -1,3 +1,17 @@
+"""
+
+ An error while {{{import MySQLdb}}} like :
+
+{{{
+  File "/home/blyth/local/mysql-python/MySQL-python-1.2.3c1/MySQLdb/__init__.py", line 19, in <module>
+    import _mysql
+ImportError: libmysqlclient_r.so.16: cannot open shared object file: No such file or directory
+}}}
+
+ indicates a library path issue :  
+     export LD_LIBRARY_PATH=/usr/local/mysql/lib/mysql:$LD_LIBRARY_PATH
+"""
+
 import MySQLdb
 import os
 

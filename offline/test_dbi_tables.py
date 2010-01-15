@@ -15,7 +15,7 @@ db = dbp = dbis = None
 
 def test_config():
     global dbp
-    dbp = DBP( path=os.path.expanduser('~/.mydb.cfg') , section="testdb" , envpfx=None )  
+    dbp = DBP( path=os.path.expanduser('~/.dybdb.ini') , section="testdb" , envpfx=None )  
     #print dbp
     
 def test_connection():
@@ -36,35 +36,17 @@ def test_counts():
         for t in (dbi, "%sVld" % dbi ):
             r = db.fetchone("select count(*) from %s" % t )    
             print "%-20s %s " % ( t, r.values()[0] )
-       
-def test_vld_description():
-    """
-         compare each vld table description against the 1st 
-    """
 
-    vlds = ["%sVld"%dbi for dbi in dbis]
+# example of a generative nose test, generating a separate test for each table
+def test_vld_tables():
+    for t in ["%sVld"%dbi for dbi in dbis]:
+        yield vld_table_description, t 
+
+def vld_table_description(t):
+    print t 
     from vld import V
-    
-    #x = V( db("describe %s" % vlds[0] ) )
-    
-    for t in vlds:
-        print t 
-        v = V( db("describe %s" % t ) )
-        #print "%-20s %s " % ( t, v  )
-        v.assert_()
-
-        #assert len(v) == len(x) , "length mismatch "
-        #for i in range(len(v)):
-        #    assert x[i] == v[i] , "field description mismatch %s expected %s " % ( x[i]  , v[i] )
-
-
-def test_vld_values():
-    """
-          check the values correponds to relevant enum residents 
-    """
-    pass
-
-
+    v = V( db("describe %s" % t ) )
+    v.assert_()
 
 
 
@@ -74,8 +56,8 @@ if __name__=='__main__':
     test_connection()
     test_dbi_pairing()
     test_counts()
-    test_vld_description()
-    test_vld_values()
+
+    test_vld_tables()
 
 
     db.close()
