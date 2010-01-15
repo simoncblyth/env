@@ -1,6 +1,49 @@
 import MySQLdb
 import os
 
+demo_ini = """
+#
+#  parsability with bash cfg.parser imposes restrictions :
+#     * comments use # not ;
+#     * values cannot include #
+#     * values cannot include spaces
+#     * extraneous space after section declarations should be avoided (still?)
+#     * values using python style interpolation need to be in "double_quotes"
+#
+#  this is included inside source code for demonstration only, 
+#  it is not a good practice to do this for real configuration parameters 
+#  as source belongs in a repository and passwords/config do not
+#
+
+[testdb]
+
+# these key names correspond to keyword arguments accepted by MySQLdb.connect
+host = 127.0.0.1
+db   = the_db
+user = the_db_user
+passwd = the_db_pass
+
+[otherdb]        
+
+host = 127.0.0.1
+db   = otherdb
+user = the_db_user
+passwd = the_db_pass
+
+# export these into environment using argument envpfx='ENV_TSQL_' 
+# use interpolation to avoid duplication and associated errors
+
+ENV_TSQL_URL  = "mysql://%(host)s/%(db)s;"
+ENV_TSQL_USER = "%(user)s"
+ENV_TSQL_PSWD = "%(passwd)s"
+
+[mycascade]
+
+ENV_TSQL_URL  = "mysql://wherever/testdb;mysql://wherever/otherdb"
+ENV_TSQL_USER = "testuser;otheruser"
+ENV_TSQL_PSWD = "testpass;otherpass"
+
+"""
 
 class DBP(dict):
     """
@@ -11,7 +54,7 @@ class DBP(dict):
         which supports %(name)s style replacements in other values 
  
         Usage example :
-             dbp = DBP(path=os.path.expanduser('~/.mydb.cfg') , section="testdb" , envpfx=None )
+             dbp = DBP(path=os.path.expanduser('~/.dybdb.ini') , section="testdb" , envpfx=None )
              print dbp
                  > {'passwd': 'the_db_pass', 'host': '127.0.0.1', 'db': 'the_db', 'user': 'the_db_user'}
 
@@ -24,48 +67,25 @@ class DBP(dict):
 
         Example config file with multiple sections to easy config swapping 
 
-[testdb]
-
-; these key names correspond to keyword arguments accepted by MySQLdb.connect
-host   : 127.0.0.1
-db     : the_db
-user   : the_db_user
-passwd : the_db_pass
-
-[otherdb]        
-
-host   : 127.0.0.1
-db     : otherdb
-user   : the_db_user
-passwd : the_db_pass
-
-; export these into environment using argument envpfx='ENV_TSQL_' 
-; use interpolation to avoid duplication and associated errors
-;
-ENV_TSQL_URL = 'mysql://%(host)s/%(db)s;'
-ENV_TSQL_USER = %(user)s
-ENV_TSQL_PSWD = %(passwd)s
-
-[mycascade]
-
-ENV_TSQL_URL = 'mysql://wherever/testdb;mysql://wherever/otherdb'
-ENV_TSQL_USER = 'testuser;otheruser'
-ENV_TSQL_PSWD = 'testpass;otherpass'
-
-
     """
-    def __init__(self, path, section, envpfx=None ): 
 
-        ## make sure the config file exists and has appropriate permissions 
-        assert os.path.exists( path ), "config path %s does not exist " % path
-        from stat import S_IMODE, S_IRUSR, S_IWUSR
-        s = os.stat(path)
-        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions, config file must be protected with : chmod go-rw \"%s\" " %  path
-
+    def __init__(self, path=None, section=None, envpfx=None, src=None ): 
+        
         from ConfigParser import ConfigParser
         cfg = ConfigParser()
         cfg.optionxform = str   ## avoid lowercasing keys, making the keys case sensitive
-        cfg.read(path)
+ 
+        if not(src):
+            ## make sure the config file exists and has appropriate permissions 
+            assert os.path.exists( path ), "config path %s does not exist " % path
+            from stat import S_IMODE, S_IRUSR, S_IWUSR
+            s = os.stat(path)
+            assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions, config file must be protected with : chmod go-rw \"%s\" " %  path
+            cfg.read(path)
+        else:
+            from StringIO import StringIO
+            cfg.readfp( StringIO(src) )
+
         secs = cfg.sections()
         assert section in secs , "section %s is not one of these : %s configured in %s " % (section,  secs, path ) 
         for k in cfg.options(section):
@@ -111,6 +131,10 @@ class DB:
 
 
 if __name__=='__main__':
+    
+    demo = DBP( src=demo_ini  , section="testdb" , envpfx=None )  
+    print demo
+
     dbp = DBP( path=os.path.expanduser('~/.dybdb.ini') , section="testdb" , envpfx=None )  
     #print dbp
     db = DB( **dbp )
