@@ -1,3 +1,11 @@
+"""
+    ideas 
+         * try to use generative nosetests ... to allowing testing of all tables at once
+           with out bogging down asserting on one and not getting errors from others
+           due to repetitive looping over tables 
+
+"""
+
 import os
 from mysqldb import DB, DBP
 
@@ -29,23 +37,23 @@ def test_counts():
        
 def test_vld_description():
     """
-          simple approach of comparing the whole tuple failing ... split this up, 
-              compare fields etc..
+         compare each vld table description against the 1st 
     """
-    from v import V
-    for dbi in dbis:
-        t = "%sVld" % dbi
-        print t 
-        r = db("describe %s" % t )
 
+    vlds = ["%sVld"%dbi for dbi in dbis]
+    from vld import V
     
-        print "%-20s %s " % ( t, r  )
-        assert len(r) == len(vld_expected) , "length mismatch "
-        
-        for i in range(len(r)):
-            rf = r[i]
-            xf = vld_expected[i]  
-            assert rf == xf , "field description mismatch %s expected %s " % ( rf , xf )
+    #x = V( db("describe %s" % vlds[0] ) )
+    
+    for t in vlds:
+        print t 
+        v = V( db("describe %s" % t ) )
+        #print "%-20s %s " % ( t, v  )
+        v.assert_()
+
+        #assert len(v) == len(x) , "length mismatch "
+        #for i in range(len(v)):
+        #    assert x[i] == v[i] , "field description mismatch %s expected %s " % ( x[i]  , v[i] )
 
 
 def test_vld_values():
@@ -58,21 +66,17 @@ def test_vld_values():
 
 
 
-if __name__=='x__main__':
+if __name__=='__main__':
 
     test_config()
     test_connection()
     test_dbi_pairing()
     test_counts()
-    #test_vld_description()
+    test_vld_description()
     test_vld_values()
 
 
     db.close()
-
-elif __name__=='__main__':
-    print VLD.fields()
-
 
 
 

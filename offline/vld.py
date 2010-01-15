@@ -17,11 +17,17 @@ class V(list):
                 return [f[k] for f in self]
         return None     
 
+    def assert_(self):
+        assert self['SEQNO']['Key'] == 'PRI' , "SEQNO must be primary key"
+        assert self['SEQNO']['Null'] == 'NO' , "SEQNO cannot be Null"
+        assert self['Field'] == ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE'] , "Invalid Fields" 
+
+
 
 if __name__=='__main__':
 
     v = V((
-{'Extra': '', 'Default': '0', 'Field': 'SEQNO', 'Key': '', 'Null': 'NO', 'Type': 'int(11)'}, 
+{'Extra': '', 'Default': '0', 'Field': 'SEQNO', 'Key': 'PRI', 'Null': 'NO', 'Type': 'int(11)'}, 
 {'Extra': '', 'Default': '0000-00-00 00:00:00', 'Field': 'TIMESTART', 'Key': '', 'Null': 'NO', 'Type': 'datetime'}, 
 {'Extra': '', 'Default': '0000-00-00 00:00:00', 'Field': 'TIMEEND', 'Key': '', 'Null': 'NO', 'Type': 'datetime'}, 
 {'Extra': '', 'Default': None, 'Field': 'SITEMASK', 'Key': '', 'Null': 'YES', 'Type': 'tinyint(4)'}, 
@@ -42,5 +48,7 @@ if __name__=='__main__':
     print v[-1]
     print v['SEQNO']
     print v['SIMMASK']
+
+    v.assert_()
 
 
