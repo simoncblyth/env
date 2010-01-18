@@ -7,6 +7,12 @@ class V(list):
             v['SEQNO']      dict for the SEQNO field
             v['Type']       list of types in field order
     """ 
+
+    fields =  ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE']
+
+    @classmethod
+    def all_asserts(cls):return [m for m in dir(cls) if m.startswith('assert_')]
+
     def __getitem__(self, k ):
         if type(k) == int:
             return list.__getitem__(self, k)
@@ -18,25 +24,15 @@ class V(list):
         return None     
 
 
-    @classmethod
-    def all_asserts(cls):
-        return [m for m in dir(cls) if m.startswith('assert_')]
-
-    def assert_fields(self):
-        assert self['Field'] == ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE'] , "Invalid Fields"
-
-    def assert_pk(self):
-        assert self['SEQNO']['Key'] == 'PRI' , "SEQNO must be primary key"
-        assert self['SEQNO']['Null'] == 'NO' , "SEQNO cannot be Null"
+    def assert_fields(self):    assert self['Field'] == V.fields , "Invalid Fields"
+    def assert_pk_pri(self):    assert self['SEQNO']['Key'] == 'PRI' , "SEQNO must be primary key"
+    def assert_pk_nonnull(self):assert self['SEQNO']['Null'] == 'NO' , "SEQNO cannot be Null"
 
 
 
 if __name__=='__main__':
 
-
-
     print V.all_asserts()
-
 
     v = V((
 {'Extra': '', 'Default': '0', 'Field': 'SEQNO', 'Key': 'PRI', 'Null': 'NO', 'Type': 'int(11)'}, 
