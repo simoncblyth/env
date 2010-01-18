@@ -9,6 +9,9 @@ class V(list):
     """ 
 
     fields =  ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE']
+    #enumfields  = { 'Site':'SITEMASK' , 'DetectorId':'SUBSITE' , 'SimFlag':'SIMMASK'  }
+    enumfields  = { 'SITEMASK':'Site' , 'SUBSITE':'DetectorId' , 'SIMMASK':'SimFlag' }
+    datefields  = ( 'TIMESTART', 'TIMEEND', 'VERSIONDATE', 'INSERTDATE' )
 
     @classmethod
     def all_asserts(cls):return [m for m in dir(cls) if m.startswith('assert_')]

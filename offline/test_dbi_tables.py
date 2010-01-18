@@ -1,8 +1,8 @@
 """
 
    In addition to standard nosetests the below makes use of 
-   a generative nosetest 'test_vld_description' which 
-   allowing testing of all (tables,'assert_'s) in a single nosetest run
+   a generative nosetests such as 'test_vld_description' which 
+   allow testing of all (tables,'assert_'s) in a single nosetest run
            
     Notes for environment for running tests on WW
  
@@ -17,8 +17,12 @@
 import os
 from mysqldb import DB, DBP
 from vld import V
+from enum import Enum
+e = Enum()
 
 db = dbp = dbis = None
+
+def vlds():return ["%sVld"%dbi for dbi in dbis]
 
 def test_config():
     global dbp
@@ -41,18 +45,34 @@ def test_dbi_pairing():
 def test_counts():
     for dbi in dbis:
         for t in (dbi, "%sVld" % dbi ):
-            r = db.fetchone("select count(*) from %s" % t )    
-            print "%-20s %s " % ( t, r.values()[0] )
+            c = db.fetchcount("select count(*) from %s" % t )    
+            print "%-20s %s " % ( t, c )
 
-# generative nosetest, yielding matrix of tests for each (table, assert_ method)
 def test_vld_description():
     for table in ["%sVld"%dbi for dbi in dbis]:
         for meth in [m for m in dir(V) if m.startswith('assert_')]:
             yield vld_description, table, meth 
-
 def vld_description(table, meth):
     v = V( db("describe %s" % table ) )
     getattr( v , meth )()  
+
+
+def test_vld_enumfield():
+    for table in vlds():
+        for field in V.enumfields.keys():yield vld_enumfield, table, field 
+def vld_enumfield( table, field ):
+    v = tuple(e[V.enumfields[field]].values())
+    q = "select count(*) from %s where %s not in %s " % ( table , field , v )  
+    assert db.fetchcount(q) == 0 , " field with non-enumerated values, query: \"%s\" " % q 
+
+
+def test_vld_datetimefield():
+    for table in vlds():
+        for field in V.datefields:yield vld_datetimefield, table, field 
+def vld_datetimefield( table , field ):
+    q = "select count(*) from %s where %s <> NULL and %s < FROM_UNIXTIME(0) " % ( table , field, field ) 
+    assert db.fetchcount(q) == 0 , " invalid non-null datetime, query: \"%s\" " % q 
+
 
 
 if __name__=='__main__':
@@ -62,8 +82,10 @@ if __name__=='__main__':
     test_dbi_pairing()
     test_counts()
 
-    test_vld_description()
-
+    ## generative tests rely on nose knowing how to run them ... so these calls are useless
+    #test_vld_description()
+    #test_vld_enumfield()
+    #test_vld_datetimefield()
 
     db.close()
 

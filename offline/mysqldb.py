@@ -24,6 +24,11 @@ class DB:
         cursor.close()
         return row
 
+    def fetchcount(self, cmd ): 
+        row = self.fetchone(cmd)
+        assert len(row) == 1
+        return row.values()[0]
+
     def fetchall(self, cmd ): 
         cursor = self.execute_(cmd)
         rows = cursor.fetchall()
