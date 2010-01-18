@@ -9,6 +9,7 @@
 
 import os
 from mysqldb import DB, DBP
+from vld import V
 
 db = dbp = dbis = None
 
@@ -38,16 +39,17 @@ def test_counts():
 
 # generative nosetest, yielding separate tests for each table
 def test_vld_table_description():
-    for t in ["%sVld"%dbi for dbi in dbis]:yield vld_table_description, t 
+    for table in ["%sVld"%dbi for dbi in dbis]:
+        for meth in [m for m in dir(V) if m.startswith('assert_')]:
+            yield vld_table_description, table, meth 
 
 # problem here ... it dies on the first assert, nicer to see other failures too for the same table
 # so split the test with another param ... 2 param generative ? 
 # with 2nd param indicating what is being tested ?
 
-def vld_table_desription(t):
-    from vld import V
-    v = V( db("describe %s" % t ) )
-    v.assert_()   
+def vld_table_desription(table, meth):
+    v = V( db("describe %s" % table ) )
+    getattr( v , meth ).__call__(v)  
 
 
 if __name__=='__main__':

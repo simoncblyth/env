@@ -17,14 +17,26 @@ class V(list):
                 return [f[k] for f in self]
         return None     
 
-    def assert_(self):
+
+    @classmethod
+    def all_asserts(cls):
+        return [m for m in dir(cls) if m.startswith('assert_')]
+
+    def assert_fields(self):
+        assert self['Field'] == ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE'] , "Invalid Fields"
+
+    def assert_pk(self):
         assert self['SEQNO']['Key'] == 'PRI' , "SEQNO must be primary key"
         assert self['SEQNO']['Null'] == 'NO' , "SEQNO cannot be Null"
-        assert self['Field'] == ['SEQNO', 'TIMESTART', 'TIMEEND', 'SITEMASK', 'SIMMASK', 'SUBSITE', 'TASK', 'AGGREGATENO', 'VERSIONDATE', 'INSERTDATE'] , "Invalid Fields" 
 
 
 
 if __name__=='__main__':
+
+
+
+    print V.all_asserts()
+
 
     v = V((
 {'Extra': '', 'Default': '0', 'Field': 'SEQNO', 'Key': 'PRI', 'Null': 'NO', 'Type': 'int(11)'}, 
@@ -49,6 +61,7 @@ if __name__=='__main__':
     print v['SEQNO']
     print v['SIMMASK']
 
-    v.assert_()
+    v.assert_pk()
+    v.assert_fields()
 
 
