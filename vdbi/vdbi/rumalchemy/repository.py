@@ -176,7 +176,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         except KeyError:
             table = Table(attr, soup._metadata, autoload=True, schema=soup.schema)
             if not table.primary_key.columns:
-                raise PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
+                raise sqlsoup.PKNotFoundError('table %r does not have a primary key defined [columns: %s]' % (attr, ','.join(table.c.keys())))
             if table.columns:
                 properties = self.prepare_properties(table) 
                 kwargs = { 'properties':properties  }

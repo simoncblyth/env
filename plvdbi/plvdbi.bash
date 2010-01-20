@@ -205,6 +205,21 @@ plvdbi-serve(){
 }
 
 
+
+plvdbi-screen-(){
+cat << EOC
+   bash -c "export ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH ; paster serve $(pl-confpath) --server-name scgi_thread "
+EOC
+}
+
+plvdbi-screen(){
+   screen $($FUNCNAME-)
+}
+
+
+
+
+
 plvdbi-sv(){
   ## customized via the coordinate envvars
   
