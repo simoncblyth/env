@@ -84,7 +84,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
             joins.append( mjo )
         return joins
 
-    def dbi_fk_tjoins(self, metadata ):
+    def dbi_fk_tjoins(self, metadata , skips ):
          """
               Try to join at the table level, then map to the join ?
               
@@ -93,11 +93,14 @@ class DbiSARepositoryFactory(SARepositoryFactory):
          pay_tables = [n[0:-3] for n,t in metadata.tables.items() if n.endswith(VLD_POSTFIX)]
          vld_tables = ["%s%s" % (n, VLD_POSTFIX) for n in pay_tables]
          for p,v in zip(pay_tables,vld_tables): 
-             pay_t = metadata.tables.get(p, None )
-             vld_t = metadata.tables.get(v, None )
-             jo = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
-             jo.name = "%s%s" % ( p , JOIN_POSTFIX )
-             tjo.append( jo )
+             if p in skips or v in skips:
+                 log.debug("dbi_fk_joins skipping as p %s or v %s on skip list %s " % ( p,v,skips ))     
+             else: 
+                 pay_t = metadata.tables.get(p, None )
+                 vld_t = metadata.tables.get(v, None )
+                 jo = join( pay_t , vld_t , pay_t.c.SEQNO == vld_t.c.SEQNO , isouter=False )
+                 jo.name = "%s%s" % ( p , JOIN_POSTFIX )
+                 tjo.append( jo )
          return tjo
    
     def dbi_fk_constraint( self, metadata ):
@@ -252,6 +255,7 @@ class DbiSARepositoryFactory(SARepositoryFactory):
         db = sqlsoup.SqlSoup(metadata,self.session_factory)
         self.soup = db  
 
+        invalid = []
         entities=dict()
         for table_name in table_names:
             try:
@@ -259,15 +263,18 @@ class DbiSARepositoryFactory(SARepositoryFactory):
                 #entities[table_name]=db.entity(table_name)
                 entities[table_name]=self.entity(db, table_name )
             except sqlsoup.PKNotFoundError:
+                invalid.append(table_name)
                 log.warn("reflection: skipping table "+table_name+ "...")
 
+        for k in entities.keys():
+            log.debug("_reflect_models ... PK ok entities %s " % k )  
 
         mappers = dict((e, get_mapper(e)) for e in entities.itervalues())
         
- 
         ## do not need relations from the joined tables ... so can do here  ?
-        tjo = self.dbi_fk_tjoins( metadata )
+        tjo = self.dbi_fk_tjoins( metadata , invalid )
         for tj in tjo:
+            log.debug("_reflect_models tj %s " % tj.name )
             properties = self.prepare_properties(tj) 
             kwargs = { 'properties':properties  }
             entity = db.map( tj , **kwargs )
