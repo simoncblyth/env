@@ -22,6 +22,30 @@ plvdbi--(){
 plvdbi-usage(){
   cat << EOU
 
+   Killing the existing plvdbi
+
+       ps aux   and kill -TERM the paster process :
+           /home/blyth/local/env/v/dbi/bin/python /home/blyth/local/env/v/dbi/bin/paster serve /home/blyth/env/plvdbi/production.ini --server-name scgi_thread
+
+
+   Less brutally .. (or is "ctrl-C" just the same as a TERM ? anycase this way you get to see the last words from plvdi) 
+        screen -r      ## rejoin the screen then  ctrl-C
+        
+
+   Starting plvdbi inside screen...
+
+        plvdbi-
+        plvdbi--
+        plvdbi-screen
+
+           then exit by closing the window (ie ctrl-W, not ctrl-C that will stop the process)
+           reconnect to screen with  "screen -r"
+
+           take actions inside screen ...with prefix "C-a" ie "ctrl-A" eg "ctrl-A" then "?" for help , 
+           "return" from that to return to the command output display 
+                  http://aperiodic.net/screen/quick_reference
+
+
     NB you must activate the approriate python virtual environment
     before these commands will work, eg with "rum-"
 
@@ -208,12 +232,12 @@ plvdbi-serve(){
 
 plvdbi-screen-(){
 cat << EOC
-   bash -c "export ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH ; paster serve $(pl-confpath) --server-name scgi_thread "
+   export ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH ; export LD_LIBRARY_PATH=$LD_LIBRARY_PATH ; paster serve $(pl-confpath) --server-name scgi_thread 
 EOC
 }
 
 plvdbi-screen(){
-   screen $($FUNCNAME-)
+   screen bash -c "$($FUNCNAME-)"
 }
 
 
