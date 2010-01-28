@@ -20,8 +20,13 @@ svnsetup-usage(){
             creates the apache conf files and hooks them up to httpd.conf
 
      test with
-        SUDO=sudo svnsetup-apache /tmp/env/svnsetup/apache
-     use with ... 
+        SUDO=sudo svnsetup-apache /tmp/demo
+
+     compare against current config
+          diff -r --brief $(svn-setupdir) /tmp/demo
+          diff -r $(svn-setupdir) /tmp/demo
+
+     change the actual config with ... 
          SUDO=sudo svnsetup-apache 
 
 
@@ -222,7 +227,7 @@ svnsetup-apache(){
    local mode=$(apache-mode)
    [ "${mode:0:6}" != "source" ] && echo $msg ABORT this is for source apache only ... perhaps you should use svnsetup-sysapache && return 1
 
-   local def=$(svn-setupbase)
+   local def=$(svn-setupdir)
    local base=${1:-$def}
 
    if [ "$base" == "$def" ]; then
