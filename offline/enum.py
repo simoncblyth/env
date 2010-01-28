@@ -1,4 +1,10 @@
-
+"""
+    ipython enum.py 
+         fails as __file__ not defined, instead use
+    
+    ipython> %run enum.py
+    
+"""
 
 def path_():
     import os
