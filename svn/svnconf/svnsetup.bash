@@ -358,12 +358,13 @@ svnsetup-tracs-(){
  
  local c="#"
  local b=""
+ local d=""
   
 cat << EOC
 #
 #    $msg $BASH_SOURCE  $(date)
 #
-#     c:[$c] b:[$b] 
+#     c:[$c] b:[$b] d:[$d]
 #   
 #   \$(apache-htdocs)         :  $(apache-htdocs) 
 #   \$(python-site)           :  $(python-site)
@@ -420,6 +421,16 @@ $b    AuthUserFile $(svn-userspath)
 $b    Require valid-user
 $b</LocationMatch>
 $b
+
+
+$d<LocationMatch "/tracs/[^/]+/daily">
+$d    AuthType Basic
+$d    AuthName "svn-tracs"
+$d    AuthUserFile $(svn-userspath)
+$d    Require valid-user
+$d</LocationMatch>
+$d
+
 
 <Location /logs>
     AuthType Basic
