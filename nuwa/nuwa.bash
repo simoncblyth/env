@@ -68,6 +68,25 @@ nuwa-env(){
   
 }
 
+
+nuwa-daily-creds(){ echo "dayabay:$(<~/.dybpass)" ; }
+nuwa-daily-url(){   echo "http://dayabay.phys.ntu.edu.tw/tracs/dybsvn/daily/dybinst?from=07/11/2009&format=txt" ; }
+nuwa-daily-rev(){   curl --fail -s -u "$(nuwa-daily-creds)" "$(nuwa-daily-url)" ; }
+nuwa-daily(){
+  local msg="=== $FUNCNAME :"  
+  local rev
+  local rc
+  rev=$(nuwa-daily-rev)
+  rc=$?
+  ## cannot combine prior 4 lines to 2 and capture both output and rc 
+  case $rc in
+     0) echo $msg last revision is $rev ;;
+     *) echo $msg FAILED with to access last revision ... curl gave non-zero rc $rc  ... bad credentials OR bad server config  ;;
+  esac
+}
+
+
+
 nuwa--(){     screen bash -lc "nuwa- ; $*" ; } 
 
 nuwa-first(){  echo $1 ; }

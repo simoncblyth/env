@@ -46,7 +46,7 @@ bitextra-url(){
    trac-
    echo $(trac-localserver)/repos/tracdev/annobit/$(bitextra-branch) 
 }
-bitextra-revision(){ echo 111 ; }
+bitextra-revision(){ echo 118 ; }
 
 
 bitextra-fix(){
