@@ -15,8 +15,11 @@ def sendmail( lines , to , fr="me@localhost" ):
          creates a text/plain message and sends
          via SMTP server, but does not include the envelope header (?)
     """
+    try:
+        from email.mime.text import MIMEText
+    except ImportError:
+        from email.MIMEText import MIMEText
 
-    from email.mime.text import MIMEText
     msg = MIMEText("".join(lines))
     msg['Subject'] = lines[0]
     msg['From'] = fr
