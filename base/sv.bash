@@ -7,8 +7,64 @@ sv-usage(){
   cat << EOU
      sv-src : $(sv-src)
      sv-dir : $(sv-dir)
+     sv-confpath : $(sv-confpath)
 
        http://supervisord.org/manual/current/
+     
+  == standard operations ==
+
+    sv-start
+                start when using system python 
+
+    sv-sstart  
+                start when using source python 
+
+                to allow remote access will need to open the port:
+                   IPTABLES_PORT=$(sv-ctl-port) iptables-webopen-ip $(local-tag2ip G)
+    sv-ps 
+                check for the supervisord process
+
+    sv-ctl
+               xmlrpc control of remote nodes, used by the shortcuts :
+                    sv-C
+                    sv-C2
+                    sv-N
+               assumes common port NNNN between local and remote  as defined in the private-val 
+
+               NB
+                If the supervisord is not running on the target (or the port is not open) you will get  : 
+                     socket.error: (61, 'Connection refused')
+                on attempting to start the controller
+
+
+  == putting processes under supervisor control ==
+
+
+    sv-plus ininame
+        Replacement for sv-add 
+           rather than passing the name of the function that emits the config 
+           ... simply pipe the config in allow to pass arguments to the func 
+           ... avoiding straightjacket 
+
+        Usage :
+             whatever arg1 arg2 | sv-plus whatever.ini
+
+     sv-add fnc ininame   (DEPRECATED ... NOW USING sv-plus)
+
+        Adds the config to sv-confdir:$(sv-confdir), 
+        for inclusion at the next supervisor reload.  
+
+                fnc : name of function that emits supervisor config to stdout
+            ininame : name of the supervisor config file, 
+                      eg: hgweb.ini, runinfo.ini, plvdbi.ini  
+
+        NB will also need to hookup up the mount point in apache/lighttpd/nginx 
+           for SCGI/FCGI webapps 
+
+
+
+   == getting / building / initial config ==
+
 
      sv-get
          superlance, required a setuptools update 
@@ -21,29 +77,6 @@ sv-usage(){
      sv-bootstrap
         initial setup , based on private config values
 
-     sv-confpath : $(sv-confpath)
-
-     sv-add fnc ininame
-
-        Adds the config to sv-confdir:$(sv-confdir), 
-        for inclusion at the next supervisor reload.  
-
-                fnc : name of function that emits supervisor config to stdout
-            ininame : name of the supervisor config file, 
-                      eg: hgweb.ini, runinfo.ini, plvdbi.ini  
-
-        NB will also need to hookup up the mount point in apache/lighttpd/nginx 
-           for SCGI/FCGI webapps 
-
-    sv-plus ininame
-        Replacement for sv-add 
-           rather than passing the name of the function that emits the config 
-           ... simply pipe the config in allow to pass arguments to the func 
-           ... avoiding straightjacket 
-
-        Usage :
-             whatever arg1 arg2 | sv-plus whatever.ini
-
      sv-cnf
           apply the sv-cnf-triplets- to the supervisord config 
           (operates via sv-ini)
@@ -55,16 +88,6 @@ sv-usage(){
           avoiding :  
                 2009-10-06 16:07:50,845 CRIT Server 'unix_http_server' running without any HTTP authentication checking
 
-     sv-ctl
-         xmlrpc control of remote nodes  
-         assumes common port NNNN between local and remote  as defined in the private-val 
-
-
-     FAQ 
-         1) If the supervisord is not running you will get  : 
-                 socket.error: (61, 'Connection refused')
-             on attempting to start the controller
-            
 
 
 
@@ -127,6 +150,8 @@ sv-sudo(){
  }
 sv-start(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ $(sv-sudo) supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
+sv-ps(){     ps aux | grep -v grep | grep supervisord  ; }
+
 
 sv-sstart(){
    ## when using source python, have to jump thu "sudo python" hoops ...  

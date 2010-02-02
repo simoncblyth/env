@@ -27,6 +27,7 @@ EOU
 
 dybdb-dir(){ echo $(dirname $BASH_SOURCE) ; }
 dybdb-ini(){ echo $HOME/.dybdb.ini ;  }
+dybdb-edit(){ vi $(dybdb-ini) ; }
 dybdb-sect(){ echo testdb ; }
 dybdb-env(){
    local sect=${1:-$(dybdb-sect)}
@@ -47,7 +48,7 @@ dybdb-check(){
 
 dybdb-sh-(){
    dybdb-check
-   mysql --host=$host --user=$user --password=$passwd
+   mysql --host=$host --user=$user --password=$passwd $*
 }
 
 dybdb-sh(){
