@@ -8,6 +8,11 @@ rabbitmq-usage(){
      rabbitmq-src : $(rabbitmq-src)
      rabbitmq-dir : $(rabbitmq-dir)
 
+     rabbitmq-status
+     rabbitmq-start
+     rabbitmq-stop
+           ini controls of the rabbitmq node
+
 
      rabbitmq-exchanges
      rabbitmq-queues

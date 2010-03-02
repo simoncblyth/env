@@ -26,8 +26,26 @@ notifymq-usage(){
      notifymq-sendstring
      notifymq-sendjson
      notifymq-sendevt
+           run tests via the Makefile which is reponsible for environment control for library access
+
 
      notifymq-monitor 
+
+
+
+     == RUNTIME ERRORS ==
+
+     If the tests (such as notifymq-sendstring) yield ...
+
+Opening socket: Connection refused
+ABORT: notifymq_init failed rc : 111 
+make: *** [test_sendstring] Error 111
+
+     Check if the node is running, see rabbitmq-usage
+     
+
+
+
 
 EOU
 }

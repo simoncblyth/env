@@ -1,4 +1,10 @@
 
+   STATUS 
+       Initially handled a single message only ... generalized that to 
+       glib datastructure with threadsafe get/set 
+
+
+
 
   libnotifymq provides an interface to the usage of the rabbitmq-c 
   AMQP producer/consumer from root (pyROOT/cint/compiled)
@@ -8,7 +14,42 @@
   consumption of TObjects, allowing asynchronous communication
   (analogous to email) between processes
 
+
+
+     Makefile
+         building and testing of
+             1) short mains : mq_sendstring.cc mq_mapfile.cc mq_consumebytes.cc mq_threaded.cc mq_monitor.cc
+             2) rootcint scripts : tests/test_rootsendstring.C ...
+             3) pyroot scripts
+
+         note that environment control for library access is done in this Makefile making it the hub of 
+         all notifymq building testing and usage 
+
+
+     pmq.py
+           hook up ROOT signal/slot mechanism with the MQ that resides in a
+           separate monitor thread ... allowing non-blocking response to 
+           messages
+
+
      src/
+            notifymq.c
+                 building on the rabbitmq-c examples to provide simple C interface to AMQP/rabbitmq-c
+                 functionality and integrating configuration access via my private framework  
+
+            notifymq_collection.c
+                  glib hash table of routing keys associated with dequeues of messages of limited size ...
+                  threadsafe functions to get/set the messages in the queues
+                  are provided ... NB messages are passed into/from these functions, ie it has 
+                  little dependency on notifymq specifics  
+
+            MQ.cc
+                 rootcintable C++ interface to the notifymq standard C interface to AMQP/rabbitmq-c 
+                 functionality adds support for 
+                     1) conversions between TObjects and AMQP messages
+                     2) simple TObject conversion into cJSON allowing communication to webapp 
+
+
      include/   
               Sources and headers for the library 
 

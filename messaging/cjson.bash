@@ -45,6 +45,12 @@ dlopen error: /data1/env/local/env/messaging/cjson/lib/libcJSON.so: cannot resto
 Load Error: Failed to load Dynamic link library /data1/env/local/env/messaging/cjson/lib/libcJSON.so
 *** Interpreter error recovered ***
 
+        1)  cjson-test fails to load libnotifymq.so for lack of  librabbitmq.so.0
+
+Processing test_rootcjson.C...
+dlopen error: librabbitmq.so.0: cannot open shared object file: No such file or directory
+Load Error: Failed to load Dynamic link library /data/env/local/env/home/notifymq/lib/libnotifymq.so
+*** Interpreter error recovered *
 
 
 
