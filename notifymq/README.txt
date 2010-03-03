@@ -27,7 +27,7 @@
 
 
      pmq.py
-           hook up ROOT signal/slot mechanism with the MQ that resides in a
+           hook up ROOT signal/slot mechanism with the ROOT.gMQ singleton that resides in a
            separate monitor thread ... allowing non-blocking response to 
            messages
 

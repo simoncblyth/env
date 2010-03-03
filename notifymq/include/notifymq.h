@@ -58,6 +58,8 @@ extern int notifymq_queue_bind( char const* queue, char const* exchange , char c
 extern int notifymq_queue_declare( char const* queue, bool_t passive , bool_t durable , bool_t exclusive , bool_t auto_delete );
 //extern int notifymq_basic_consume( char const* queue , receiver_t handlebytes , void* arg  ) ;
 extern int notifymq_basic_consume( char const* queue ) ;
+
+// spin off the private monitor thread function 
 extern int notifymq_basic_consume_async( char const* queue ) ;
 
 extern const char* notifymq_get_content_type(     notifymq_basic_msg_t* msg );

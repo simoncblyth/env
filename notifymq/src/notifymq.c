@@ -40,7 +40,11 @@ const char* notifymq_get_content_encoding( notifymq_basic_msg_t* msg )
 
 int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
-    // dynamically allocated duplication of the message pulled off the wire
+	// bundle message body and delivery metadata and properties into struct notifymq_basic_msg_t and add to collection 
+	
+    // dynamically allocated duplication of the message pulled off the wire ... 
+    // the bytes of the frame are shortly deallocated so must do the duping 
+    // for them to survive into the glib data structure
     notifymq_basic_msg_t* msg = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
     notifymq_msg_index++ ;     // global received message index within this execution
 
@@ -48,6 +52,7 @@ int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver 
         notifymq_basic_msg_dump( msg , 3 , "_basic_collect");
 
     // data structure just keeps the msg pointer ... no copying 
+    // collection assumes ownership of the msg data and will free it once the number of messages exceeds the maximum
     notifymq_collection_add( msg );
     
     if( notifymq_dbg > 2 )  
@@ -205,6 +210,7 @@ int notifymq_cleanup()
 
 gpointer notifymq_monitor_thread_(gpointer data )
 {
+	// waits on message bytes, invoking notifymq_basic_collect once complete messages are received
     char const* queue = (char const*)data ; 
     if( notifymq_dbg > 0 )
         printf("notifymq_monitor_thread_ starting for queue \"%s\"\n", queue );
@@ -214,6 +220,7 @@ gpointer notifymq_monitor_thread_(gpointer data )
 
 int notifymq_basic_consume_async( char const* queue ) 
 {
+	// spin off the message queue monitor thread  
     gboolean joinable = 0 ;
     notifymq_monitor_thread = g_thread_create((GThreadFunc)notifymq_monitor_thread_ , (gpointer)queue , joinable, NULL);
     return EXIT_SUCCESS ;
@@ -342,10 +349,11 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
 
       if(dbg>0) fprintf(stderr, "notifymq_basic_consume : invoking the receiver \n");
       
+     
       notifymq_basic_collect( &frame.payload.body_fragment , d , p );
       //handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
-
+      // as frame goes out of scope the body/delivery/property bytes are deallocated ... 
     }
   }
   return EXIT_SUCCESS ;

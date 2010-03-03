@@ -17,6 +17,16 @@ def handleQueueUpdatedIndex(index):
 
 
 class pMQ(dict):
+	"""
+	     Creates the message queue singleton ROOT.gMQ and wires up notifications
+	     from it via ROOT signals to user supplied callback function or delegate object
+	     methods. 
+	
+	     Configuration of the message queue and server to connect to is done 
+	     using the private library which is implemented in C (using glib), 
+	     avoiding multi-language duplication.
+	     This reads config data from the file pointed to by the ENV_PRIVATE_PATH envvar
+	"""
     def __init__(self, *args ):
         path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "lib" , "libnotifymq.%s" %  ROOT.gSystem.GetSoExt()  ) ) 
         ROOT.gSystem.Load( path )
