@@ -26,6 +26,9 @@ ABDM_LIBS    = -L$(ABDM_LIBDIR) -lAbtDataModel
 #GLIB_CFLAGS   = $(shell pkg-config --cflags gthead-2.0)
 #GLIB_LIBS     = $(shell pkg-config --libs gthread-2.0
 
+NOMQ_LIBDIR = $(PWD)/lib
+
+
 
 SRC_DIR     = src
 INC_DIR     = include
@@ -55,7 +58,7 @@ OBJ_LIST = example_utils.o notifymq.o notifymq_utils.o notifymq_collection.o
 DOBJ_LIST =
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
-LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
+LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(NOMQ_LIBDIR)
 ALIBSPATH   = $(LIBSPATH):$(ABDM_LIBDIR)
 AALIBSPATH   = $(ALIBSPATH):$(ARCH_LIBDIR)
 XLIBSPATH   = 
@@ -139,7 +142,7 @@ $(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes test_load
+.PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes test_load otool
 
 
 root:
@@ -153,8 +156,11 @@ libspath:
 
 
 ldd:
-	LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ldd $(LIB_DIR)/$(LIBFILE)
+	LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ldd $(LIB_DIR)/lib$(LIBNAME).so
 
+otool:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) otool -L $(LIB_DIR)/lib$(LIBNAME).dylib
+       
 
 test_rootsendstring:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_rootsendstring.C

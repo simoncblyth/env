@@ -1,12 +1,13 @@
 CC          =  cc
 CCX         =  g++
 SOFLAGS     = -dynamiclib -Wl,-undefined -Wl,dynamic_lookup
+#SOFLAGS     = -dynamiclib -Wl,-bind_at_load -Wl,-undefined -Wl,dynamic_lookup
 CFLAGS      = -g -fno-common -Wall
 LIBS        =
 SOFIX       = dylib
 
 # get using pkg-config
 GLIB_CFLAGS = -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include
-GLIB_LIBS   = -L/opt/local/lib -lglib-2.0
+GLIB_LIBS   = -L/opt/local/lib -lglib-2.0 -lgthread-2.0
 
 ARCH_LIBDIR = /opt/local/lib
