@@ -60,12 +60,10 @@ NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(NOMQ_LIBDIR)
 ALIBSPATH   = $(LIBSPATH):$(ABDM_LIBDIR)
-AALIBSPATH   = $(ALIBSPATH):$(ARCH_LIBDIR)
-XLIBSPATH   = 
 
 
 
-all : $(LIB_DIR)/mq_sendstring  $(LIB_DIR)/mq_consumebytes $(LIB_DIR)/mq_mapfile $(LIB_DIR)/mq_threaded $(LIB_DIR)/mq_monitor
+all : $(LIB_DIR)/mq_sendstring  
 
 $(LIB_DIR)/%.o : $(SRC_DIR)/%.c
 	@echo "Compiling $< to $@ "
@@ -117,51 +115,40 @@ $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes test_load otool
+.PHONY : info libspath root ipython ldd otool test_load test_sendstring test_sendjson test_sendobj evmq imq test_sendstring_ clean 
 
-
-root:
-	LD_LIBRARY_PATH=$(LIBSPATH) root -l 
-ipython:
-	LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython
-
-
+info:
+	@echo $(shell echo $(ENV_HOME))
 libspath:
 	@echo $(LIBSPATH)
-
-
+root:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -l 
+ipython:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython
 ldd:
 	LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ldd $(LIB_DIR)/lib$(LIBNAME).so
-
 otool:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) otool -L $(LIB_DIR)/lib$(LIBNAME).dylib
-       
 
-test_rootsendstring:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_rootsendstring.C
-test_root2cjson:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_root2cjson.C
-test_root2message:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_root2message.C
-test_basic_consume:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_basic_consume.C
+
 test_load:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_load.C
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_load.C       
+test_sendstring:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendstring.C
+test_sendjson:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendjson.C
+test_sendobj:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendobj.C
 
 
-test_evmq:
+evmq:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython evmq.py
 imq:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython tests/mq.py
 
-info:
-	@echo $(shell echo $(ENV_HOME))
 
-## run carrot-consumer to provide somewhere for the messages to be consumed 
-test_sendstring:
+test_sendstring_:
 	DYLD_LIBRARY_PATH=$(LIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_sendstring 
-
-
 		
 clean:
 	rm -rf $(LIB_DIR) $(DCT_DIR)

@@ -7,7 +7,7 @@ notifymq-env(){
     root-
     rabbitmq-
     cjson-
-    #priv-
+    priv-
     aberdeen-
 }
 notifymq-usage(){
@@ -25,7 +25,7 @@ notifymq-usage(){
 
      notifymq-sendstring
      notifymq-sendjson
-     notifymq-sendevt
+     notifymq-sendobj
            run tests via the Makefile which is reponsible for environment control for library access
 
 
@@ -66,7 +66,6 @@ notifymq-dynpaths(){
   esac
 }
 
-
 notifymq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
@@ -87,8 +86,6 @@ notifymq-ipython(){
 }
 
 
-
-
 notifymq-chcon(){
    local msg="=== $FUNCNAME :"
    local cmd="sudo chcon -t texrel_shlib_t $(notifymq-libdir)/libnotifymq.so"
@@ -96,35 +93,11 @@ notifymq-chcon(){
    eval $cmd
 }
 
-notifymq-sendstring(){
-   notifymq-cd
-   make test_sendstring
-}
 
-notifymq-sendjson(){
-   notifymq-cd
-   make test_root2cjson
-}
+notifymq-make(){       notifymq-cd ; make $* ; }
+notifymq-sendstring(){ notifymq-make test_sendstring ; }
+notifymq-sendjson(){   notifymq-make test_sendjson   ; }
+notifymq-sendobj(){    notifymq-make test_sendobj    ; }
 
-notifymq-sendevt(){
-   notifymq-cd
-   make test_root2message
-}
-
-
-
-notifymq-monitor(){
-   notifymq-cd
-   make test_monitor
-}
-notifymq-gmonitor(){
-   notifymq-cd
-   make test_gmonitor
-}
-notifymq-build(){
-   notifymq-cd
-   make
-
-}
 
 
