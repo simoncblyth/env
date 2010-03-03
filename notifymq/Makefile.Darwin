@@ -6,5 +6,7 @@ LIBS        =
 SOFIX       = dylib
 
 # get using pkg-config
-# GLIB_CFLAGS = -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include
-# GLIB_LIBS   = -L/opt/local/lib -lglib-2.0
+GLIB_CFLAGS = -I/opt/local/include/glib-2.0 -I/opt/local/lib/glib-2.0/include
+GLIB_LIBS   = -L/opt/local/lib -lglib-2.0
+
+ARCH_LIBDIR = /opt/local/lib

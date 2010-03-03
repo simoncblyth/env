@@ -1,5 +1,6 @@
 
-include Makefile.$(shell uname)
+ARCH := $(shell uname)
+include Makefile.$(ARCH)
 
 RMQC_HOME   = $(LOCAL_BASE)/env/messaging/rabbitmq-c
 RMQC_LIBDIR = $(RMQC_HOME)/librabbitmq/.libs
@@ -48,8 +49,8 @@ LIBS       += $(GLIB_LIBS)
 
 
 
-
-LIBFILE = libnotifymq.$(SOFIX)
+LIBNAME = notifymq
+LIBFILE = lib$(LIBNAME).$(SOFIX)
 OBJ_LIST = example_utils.o notifymq.o notifymq_utils.o notifymq_collection.o
 DOBJ_LIST =
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
@@ -83,7 +84,7 @@ CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)
 INCLUDES   += $(CJSON_CFLAGS)
 INCLUDES   += $(RMQC_CFLAGS)
-
+endif
 
 $(DCT_DIR)/%Dict.cxx : $(INC_DIR)/%.h $(INC_DIR)/%_$(LINKDEF)
 	@echo "Creating $@ from $^ "
@@ -95,13 +96,19 @@ $(LIB_DIR)/%.o : $(DCT_DIR)/%.cxx
 	@mkdir -p $(LIB_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@ -I.
 
-endif
 
 
 
-$(LIB_DIR)/$(LIBFILE) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_DIR)/, $(DOBJ_LIST)) 
+
+
+
+$(LIB_DIR)/lib$(LIBNAME).$(SOFIX) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_DIR)/, $(DOBJ_LIST)) 
 	@echo "Making $@ from $^ "
-	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@
+	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@   
+ifeq ($(ARCH), Darwin)
+	@echo "Create .so symbolic link to .dylib for Darwin workaround "
+	cd $(LIB_DIR) && ln -s lib$(LIBNAME).dylib lib$(LIBNAME).so
+endif
 
 $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE) 
 	@echo "Making $@ from $< "
@@ -157,10 +164,10 @@ test_basic_consume:
 	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_basic_consume.C
 
 test_evmq:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
+	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
 
 imq:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
+	DYLD_LIBRARY_PATH=$(LIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
 
 
 

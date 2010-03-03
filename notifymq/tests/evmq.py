@@ -1,9 +1,31 @@
 import ROOT
 
+def soext():
+	"""
+	    Smth funny with Darwin ROOT library loading ... 
+         ROOT.gSystem.GetSoExt()  is giving "so" when expect "dylib"      
+
+      from TSystem.cxx this SOEXT is set at compile time ...
+         $ROOTSYS/include/compiledata.h
+
+         workaround :
+	          ln -s libAbtDataModel.dylib libAbtDataModel.so
+     
+	"""
+	soext = "so"
+	if ROOT.gSystem.GetBuildArch() == "macosx":soext = "dylib"
+	return soext
+
 class EvMQ:
     def __init__(self, key="default.routingkey"):
-        ROOT.gSystem.Load("$ENV_HOME/notifymq/lib/libnotifymq.%s" % ROOT.gSystem.GetSoExt() )
-        ROOT.gSystem.Load("$ABERDEEN_HOME/DataModel/lib/libAbtDataModel.%s" % ROOT.gSystem.GetSoExt() )
+        """
+              Need library path to include 
+                 $ENV_HOME/notifymq/lib
+                 $ABERDEEN_HOME/DataModel/lib
+        """
+        ROOT.gSystem.Load("libnotifymq" )
+        ROOT.gSystem.Load("libAbtDataModel" )
+ 
         ROOT.gMQ.Create()
         self.key = key 
         self.mq = ROOT.gMQ
