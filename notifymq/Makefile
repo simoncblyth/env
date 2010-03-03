@@ -56,6 +56,8 @@ DOBJ_LIST =
 NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(LIB_DIR)
+ALIBSPATH   = $(LIBSPATH):$(ABDM_LIBDIR)
+AALIBSPATH   = $(ALIBSPATH):$(ARCH_LIBDIR)
 XLIBSPATH   = 
 
 
@@ -137,7 +139,7 @@ $(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes
+.PHONY : clean test_sendstring test_mapfile info libspath test_rootsendstring root ipython test_root2cjson test_root2message test_basic_consume test_consumebytes test_load
 
 
 root:
@@ -155,23 +157,21 @@ ldd:
 
 
 test_rootsendstring:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_rootsendstring.C
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_rootsendstring.C
 test_root2cjson:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2cjson.C
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_root2cjson.C
 test_root2message:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_root2message.C
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_root2message.C
 test_basic_consume:
-	DYLD_LIBRARY_PATH=$(LIBSPATH) LD_LIBRARY_PATH=$(LIBSPATH) root -q -l  tests/test_basic_consume.C
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_basic_consume.C
+test_load:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_load.C
+
 
 test_evmq:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
-
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
 imq:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
-
-
-
-
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
 
 info:
 	@echo $(shell echo $(ENV_HOME))
@@ -180,19 +180,15 @@ info:
 test_sendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_sendstring 
 test_consumebytes:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_consumebytes
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_consumebytes
 test_mapfile:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_mapfile
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_mapfile
 test_threaded:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_threaded
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_threaded
 test_monitor:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) ./lib/mq_monitor
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_monitor
 test_gmonitor:
-	DYLD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(LIBSPATH):$(ABDM_LIBDIR):$(LD_LIBRARY_PATH) gdb ./lib/mq_monitor
-
-
-
-
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) gdb ./lib/mq_monitor
 
 		
 clean:

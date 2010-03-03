@@ -6,7 +6,7 @@
 
  
    gROOT->Reset();
-   gSystem->Load("$ABERDEEN_HOME/DataModel/lib/libAbtDataModel.so");
+   gSystem->Load("libAbtDataModel");
 
    mfile = TMapFile::Create("mq_mapfile.map");
    mfile->Print();

@@ -59,25 +59,35 @@ notifymq-cd(){  cd $(notifymq-dir); }
 notifymq-mate(){ mate $(notifymq-dir) ; }
 
 notifymq-libpaths(){ echo $(notifymq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir) ; }
+notifymq-dynpaths(){  
+  case $(uname) in 
+      Darwin) echo DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:$(notifymq-libpaths) ;;
+       Linux) echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$(notifymq-libpaths) ;;
+  esac
+}
+
 
 notifymq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
-   local cmd="LD_LIBRARY_PATH=$(notifymq-libpaths) root -q -l $path $*"
+   local cmd="$(notifymq-dynpaths) root -q -l $path $*"
    echo $msg $cmd 
    eval $cmd 
 }
 notifymq-iroot(){
-   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) root -l $*"
+   local cmd="$(notifymq-dynpaths) root -l $*"
    echo $msg $cmd 
    eval $cmd 
 }
 notifymq-ipython(){
-   local cmd="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$(notifymq-libpaths) ipython $*"
+   local cmd="$(notifymq-dynpaths) ipython $*"
    echo $msg $cmd 
    eval $cmd 
 }
+
+
+
 
 notifymq-chcon(){
    local msg="=== $FUNCNAME :"

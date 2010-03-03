@@ -2,10 +2,10 @@
 
 void test_root2message()
 {
-   gSystem->Load(Form("$ENV_HOME/notifymq/lib/libnotifymq.%s", gSystem->GetSoExt()));
-   MQ::Create(); //MQ* q = new MQ();
+   gSystem->Load("libnotifymq");
+   MQ::Create();  // creates gMQ global singleton
   
-   gSystem->Load(Form("$ABERDEEN_HOME/DataModel/lib/libAbtDataModel.%s", gSystem->GetSoExt()));
+   gSystem->Load("libAbtDataModel");
 
    TFile* f = TFile::Open("$ABERDEEN_HOME/DataModel/sample/run00027.root");
    TTree* t = f->Get("T") ;
