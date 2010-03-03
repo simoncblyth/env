@@ -26,6 +26,9 @@ class pMQ(dict):
 	     using the private library which is implemented in C (using glib), 
 	     avoiding multi-language duplication.
 	     This reads config data from the file pointed to by the ENV_PRIVATE_PATH envvar
+	
+	     SEE evmq.py for alternative that avoids the polling loop using timers 
+	
 	"""
     def __init__(self, *args ):
         path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "lib" , "libnotifymq.%s" %  ROOT.gSystem.GetSoExt()  ) ) 

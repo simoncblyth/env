@@ -1,35 +1,36 @@
 
-   STATUS 
-       Initially handled a single message only ... generalized that to 
-       glib datastructure with threadsafe get/set 
-
-
-
+  == Overview ==
 
   libnotifymq provides an interface to the usage of the rabbitmq-c 
   AMQP producer/consumer from root (pyROOT/cint/compiled)
-  allowing TObjects to be sent and received via a RabbitMQ server 
+  allowing TObjects to be sent and received over the network 
+  via a RabbitMQ server 
 
   The use of a separate message queue server decouples the production and 
   consumption of TObjects, allowing asynchronous communication
-  (analogous to email) between processes
+  (analogous to email) between remote/local processes that perhaps are using 
+  different languages : cint / pyROOT / compiled ROOT
 
 
+  == Index ==    
 
      Makefile
          building and testing of
-             1) short mains : mq_sendstring.cc mq_mapfile.cc mq_consumebytes.cc mq_threaded.cc mq_monitor.cc
+             1) short mains : mq_sendstring.cc 
              2) rootcint scripts : tests/test_rootsendstring.C ...
              3) pyroot scripts
 
          note that environment control for library access is done in this Makefile making it the hub of 
          all notifymq building testing and usage 
 
-
      pmq.py
            hook up ROOT signal/slot mechanism with the ROOT.gMQ singleton that resides in a
-           separate monitor thread ... allowing non-blocking response to 
-           messages
+           separate monitor thread ... allowing non-blocking response to messages
+           HOWEVER it needs to idle in a checking loop making this not a good architecture, as
+           cannot use interactive python while waiting for events or update a GUI etc.. 
+           
+     evmq.py 
+           timer based alternative that avoids the nasty polling    
 
 
      src/
@@ -56,19 +57,23 @@
 
      tests/
               pyROOT and cint tests using the lib 
-       
+              
+                     
 
      ./
               Short testing mains are here 
 
-                 mq_sendstring
-                       note that the string is wrapped into MyTMessage
-                       (use SendRaw for sending to non-root consumers, as
-                        when using JSON to communicate with web apps  )
+              mq_sendstring
+                    note that the string is wrapped into MyTMessage
+                    (use SendRaw for sending to non-root consumers, as
+                     when using JSON to communicate with web apps  )
+
+     obsolete/
 
                  mq_monitor
                        monitor is started in separate thread preventing blocking, the monitor
                        thread is kept as simple as possible ... avoid use of ROOT objects 
+                       BUT requires a polling loop making inflexible for integration with eg event display 
 
                  mq_threaded
                         initial investigations of using threading , this
@@ -82,7 +87,9 @@
                        deprecated approach that receives TObjects and writes into TMapFile 
                        for consumption by a separate process 
 
-   INSTALLS
+
+
+   == INSTALLS ==
 
         G        ok
         C        ok
@@ -95,7 +102,7 @@
         H1       off limits 
 
 
-   PROBLEMS ON P
+   == PROBLEMS ON P ==
 
      a) old pcre, forced source installation and propagation of include dirs and libs into 
         build and usage commands
@@ -120,7 +127,7 @@
        see foot of page for details  
 
 
-   PRE-REQUISITES 
+   == PRE-REQUISITES ==
 
         libprivate  ( cd ~/e/priv ; make )
 
@@ -141,7 +148,7 @@
                      requires root (root-;root-get;root-build)
 
 
-   PRE-REQUISITES FOR TESTING
+   == PRE-REQUISITES FOR TESTING ==
 
         libAbtDataModel  
                  svn up -r 513 ~/a/DataModel
@@ -151,7 +158,7 @@
                  ABERDEEN_HOME envvar defined, use aberdeen-
 
 
-   POSSIBLE ISSUES 
+   == POSSIBLE ISSUES ==
 
       0) rabbitmq-c-preq
                " sudo pip install simplejson"

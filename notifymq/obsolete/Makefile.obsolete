@@ -1,0 +1,35 @@
+
+$(LIB_DIR)/mq_mapfile : mq_mapfile.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CCX) $(CFLAGS) $(INCLUDES) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
+
+$(LIB_DIR)/mq_consumebytes : mq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+
+$(LIB_DIR)/mq_threaded : mq_threaded.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+
+$(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE) 
+	@echo "Making $@ from $< "
+	@mkdir -p $(LIB_DIR)
+	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
+
+
+
+
+test_consumebytes:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_consumebytes
+test_mapfile:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_mapfile
+test_threaded:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_threaded
+test_monitor:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_monitor
+test_gmonitor:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) gdb ./lib/mq_monitor
+

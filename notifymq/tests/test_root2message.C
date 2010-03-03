@@ -1,9 +1,17 @@
 
+// invoke by : 
+//      notifymq-
+//      notifymq-cd
+//      make test_root2message
+//
+// the kFALSE prevents starting monitor thread, just establish connection to 
+// potentially remote queue and send it a message
+//
 
 void test_root2message()
 {
    gSystem->Load("libnotifymq");
-   MQ::Create();  // creates gMQ global singleton
+   MQ::Create(kFALSE);  // creates gMQ global singleton
   
    gSystem->Load("libAbtDataModel");
 

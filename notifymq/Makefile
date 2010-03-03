@@ -102,11 +102,6 @@ $(LIB_DIR)/%.o : $(DCT_DIR)/%.cxx
 	$(CC) $(CFLAGS) -c $< -o $@ -I.
 
 
-
-
-
-
-
 $(LIB_DIR)/lib$(LIBNAME).$(SOFIX) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addprefix $(LIB_DIR)/, $(DOBJ_LIST)) 
 	@echo "Making $@ from $^ "
 	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@   
@@ -119,26 +114,6 @@ $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE)
 	@echo "Making $@ from $< "
 	@mkdir -p $(LIB_DIR)
 	$(CCX) $(CFLAGS) $(INCLUDES) $(LIBS) $(NOMQ_LIBS) $< -o $@ 
-
-$(LIB_DIR)/mq_mapfile : mq_mapfile.cc $(LIB_DIR)/$(LIBFILE) 
-	@echo "Making $@ from $< "
-	@mkdir -p $(LIB_DIR)
-	$(CCX) $(CFLAGS) $(INCLUDES) $(LIBS) -lNew $(ABDM_CFLAGS) $(NOMQ_LIBS) $(ABDM_LIBS)  $< -o $@ 
-
-$(LIB_DIR)/mq_consumebytes : mq_consumebytes.cc $(LIB_DIR)/$(LIBFILE) 
-	@echo "Making $@ from $< "
-	@mkdir -p $(LIB_DIR)
-	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
-
-$(LIB_DIR)/mq_threaded : mq_threaded.cc $(LIB_DIR)/$(LIBFILE) 
-	@echo "Making $@ from $< "
-	@mkdir -p $(LIB_DIR)
-	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
-
-$(LIB_DIR)/mq_monitor : mq_monitor.cc $(LIB_DIR)/$(LIBFILE) 
-	@echo "Making $@ from $< "
-	@mkdir -p $(LIB_DIR)
-	$(CCX) $(CFLAGS) $(INCLUDES) $(CJSON_CFLAGS) $(ABDM_CFLAGS) $(LIBS) $(NOMQ_LIBS) $(CJSON_LIBS) $(ABDM_LIBS) $< -o $@ 
 
 
 
@@ -175,9 +150,9 @@ test_load:
 
 
 test_evmq:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/evmq.py
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython evmq.py
 imq:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython  tests/mq.py
+	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ipython tests/mq.py
 
 info:
 	@echo $(shell echo $(ENV_HOME))
@@ -185,16 +160,7 @@ info:
 ## run carrot-consumer to provide somewhere for the messages to be consumed 
 test_sendstring:
 	DYLD_LIBRARY_PATH=$(LIBSPATH):$(DYLD_LIBRARY_PATH) LD_LIBRARY_PATH=$(LIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_sendstring 
-test_consumebytes:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_consumebytes
-test_mapfile:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_mapfile
-test_threaded:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_threaded
-test_monitor:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) ./lib/mq_monitor
-test_gmonitor:
-	DYLD_LIBRARY_PATH=$(ALIBSPATH):$(DYLD_LIBRARY_PATH)  LD_LIBRARY_PATH=$(ALIBSPATH):$(LD_LIBRARY_PATH) gdb ./lib/mq_monitor
+
 
 		
 clean:

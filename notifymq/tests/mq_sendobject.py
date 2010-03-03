@@ -1,12 +1,12 @@
 #   notifymq-ipython tests/mq_sendobject.py 
 import ROOT
-ROOT.gSystem.Load("lib/libnotifymq.so")
+ROOT.gSystem.Load("libnotifymq")
 ROOT.MQ.Create()
-
-ROOT.gMQ.SendString( "hello" )
+from ROOT import gMQ
+gMQ.SendString( "hello from mq_sendobject.py" )
 
 from aberdeen.DataModel.tests.evs import Evs
 evs = Evs()
-ROOT.gMQ.SendObject( evs[100] )
+gMQ.SendObject( evs[100] )
 
 

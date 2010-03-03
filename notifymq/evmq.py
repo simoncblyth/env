@@ -1,22 +1,16 @@
 import ROOT
 
-def soext():
-	"""
-	    Smth funny with Darwin ROOT library loading ... 
-         ROOT.gSystem.GetSoExt()  is giving "so" when expect "dylib"      
-
-      from TSystem.cxx this SOEXT is set at compile time ...
-         $ROOTSYS/include/compiledata.h
-
-         workaround :
-	          ln -s libAbtDataModel.dylib libAbtDataModel.so
-     
-	"""
-	soext = "so"
-	if ROOT.gSystem.GetBuildArch() == "macosx":soext = "dylib"
-	return soext
-
 class EvMQ:
+    """
+        Timer based architecture to handle controlled maximum frequency 
+        updating of an event display 
+
+        As new event messages can arrive faster than would want to 
+        display them, establish a "pulse" via a timer allowing new messages 
+        to be checked for every second (or so) while still providing 
+        interactive ipython 
+
+    """
     def __init__(self, key="default.routingkey"):
         """
               Need library path to include 
