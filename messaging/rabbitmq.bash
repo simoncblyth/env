@@ -58,6 +58,14 @@ rabbitmq-usage(){
 
 
 
+
+
+     May need to open the ip 
+           rabbitmq-open-ip 140.112.XXX.XX 
+
+
+
+
 EOU
 }
 rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
