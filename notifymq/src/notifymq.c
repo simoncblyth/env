@@ -24,6 +24,9 @@ static int sockfd ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
+int notifymq_dbg = 0 ;
+
+
 static uint64_t notifymq_msg_index = 0 ; 
 static GThread* notifymq_monitor_thread = NULL;
 

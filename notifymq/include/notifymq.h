@@ -47,7 +47,7 @@ typedef struct notifymq_collection_qstat_t_ {
 
 typedef int (*notifymq_collection_observer_t)(void* me, const char* key , notifymq_collection_qstat_t* args );
 
-static int notifymq_dbg = 0 ; 
+extern int notifymq_dbg ; 
 
 extern int notifymq_init();
 extern int notifymq_cleanup();

@@ -86,6 +86,17 @@ void MQ::SetOptions(  Bool_t passive , Bool_t durable , Bool_t auto_delete , Boo
    fExclusive = exclusive ;
 }
 
+void MQ::SetDebug( Int_t debug )
+{
+    fDebug = debug ;    
+}
+
+Int_t MQ::GetDebug()
+{
+    return fDebug ;
+}
+
+
 MQ* MQ::Create(Bool_t start_monitor)
 {
    if( gMQ != 0 ){
@@ -111,6 +122,7 @@ MQ* MQ::Create(Bool_t start_monitor)
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
    
    if( dbg > 0 ) gMQ->Print() ;
+   gMQ->SetDebug( dbg );
 
    if( start_monitor ){
       gMQ->StartMonitorThread() ;
@@ -131,6 +143,8 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
    fQueue    = queue ;
    fRoutingKey = routingkey ;
    fExchangeType = exchangetype ;
+
+   fDebug = 0 ;
 
    this->SetOptions();      // take the defaults initially , change using SetOptions before any actions
    fConfigured = kFALSE ;
@@ -229,7 +243,10 @@ int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t
 
 
    MQ* self = (MQ*)me ; 
-   cout << "MQ::DemoObserver key [" << key << "] qstat " 
+   
+   Int_t dbg = self->GetDebug();
+   if(dbg > 0){
+        cout << "MQ::DemoObserver key [" << key << "] qstat " 
         << " read:" << qstat->read 
         << " received:" << qstat->received 
         << " lastread:" << qstat->lastread 
@@ -237,7 +254,8 @@ int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t
         << " updated:" << qstat->updated 
         << " msgmax:"  << qstat->msgmax 
         <<  endl ;
-   self->Print();
+        self->Print();
+    }
    //self->QueueUpdated();
    self->QueueUpdatedIndex( (Long_t)qstat->lastadd );
    // it would be nice to pass the struct in the signal 
@@ -315,8 +333,8 @@ TObject* MQ::Get( const char* key , int n )
     const char* type     =  notifymq_get_content_type( msg );
     const char* encoding =  notifymq_get_content_encoding( msg );
 
-
-    cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
+    Int_t dbg = this->GetDebug();
+    if(dbg > 1) cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
 
     if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
        obj = MQ::Receive( msg->body.bytes , msg->body.len );

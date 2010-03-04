@@ -26,6 +26,8 @@ class MQ : public TObject {
         Bool_t  fAutoDelete ;
         Bool_t  fExclusive  ;
         Bool_t  fConfigured ;
+        
+        Int_t   fDebug ;
 
         Bool_t  fMonitorRunning ;
 
@@ -64,7 +66,8 @@ class MQ : public TObject {
      void QueueUpdated(); /* SIGNAL */
      notifymq_collection_qstat_t QueueStat( const char* key );
 
-
+     void SetDebug(Int_t debug);
+     Int_t GetDebug();
      void StartMonitorThread();
      void StopMonitorThread();       
 
