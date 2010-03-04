@@ -18,17 +18,20 @@ void test_sendobj()
    TFile* f = TFile::Open("$ABERDEEN_HOME/DataModel/sample/run00027.root");
    TTree* t = f->Get("T") ;
 
-   AbtRunInfo* ri = (AbtRunInfo*)(t->GetUserInfo()->At(0)) ;
+   //AbtRunInfo* ri = (AbtRunInfo*)(t->GetUserInfo()->At(0)) ;
+   //gMQ->SendObject( ri );
+   
    AbtEvent* evt = 0;
    t->SetBranchAddress( "trigger", &evt );
    Int_t n = (Int_t)t->GetEntries();
-   n = 10 ;
+   //n = 10 ;
 
-   gMQ->SendObject( ri );
+   cout << "sending event objects to the queue " << n << endl ;
 
    for (Int_t i=0;i<n;i++) {
        t->GetEntry(i);
-       cout << evt->GetSerialNumber() << endl ;
+       evt->Print("");
+       gSystem->Sleep(2000);
        gMQ->SendObject( evt );
    }   
 
