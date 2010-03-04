@@ -8,7 +8,7 @@
 // potentially remote queue and send it a message
 //
 
-void test_root2message()
+void test_sendobj()
 {
    gSystem->Load("libnotifymq");
    MQ::Create(kFALSE);  // creates gMQ global singleton

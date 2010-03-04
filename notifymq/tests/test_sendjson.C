@@ -1,3 +1,4 @@
+void test_sendjson()
 {
    // notifymq-;notifymq-root tests/test_root2cjson.C
 
