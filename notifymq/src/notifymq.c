@@ -117,6 +117,12 @@ int notifymq_queue_declare( char const* queue, bool_t passive, bool_t durable, b
 
 int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
 {
+    //
+    // http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+    //    the bindingkey can be identical to the routingkey but can me more complex to 
+    //    handle topic matching or more ...
+    //      https://jira.amqp.org/confluence/download/attachments/720900/amqp0-8.pdf
+    //
     amqp_queue_bind(conn, 1,
      		    amqp_cstring_bytes(queue),
      		    amqp_cstring_bytes(exchange),

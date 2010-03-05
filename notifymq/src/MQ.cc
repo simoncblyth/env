@@ -65,7 +65,7 @@ char* MQ::Summary() const
          << " durable " << fDurable 
          << " autoDelete " << fAutoDelete 
          << " exclusive " << fExclusive
-         << " " 
+         << " nodestamp " 
          << MQ::NodeStamp()
         ;
 
@@ -167,7 +167,7 @@ void MQ::Configure()
    }
    notifymq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
    notifymq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
-   notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() ); 
+   notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
 
    fConfigured = kTRUE ;
 
@@ -318,17 +318,6 @@ TObject* MQ::Get( const char* key , int n )
     TObject* obj = NULL ;
     notifymq_basic_msg_t* msg = notifymq_collection_get( key , n );
     if(!msg) return obj ;
-
-/*
-    if( msg->properties ){
-        cout << "MQ::Get ABORT : NULL msg properties for ( " << key << "," << n << ")" << endl;  
-        return obj ;
-    }
-*/
-
-    // these are dangerous ... must check the _flags before attempting access
-    //const char* type     =  mq_frombytes( msg->properties.content_type );
-    //const char* encoding =  mq_frombytes( msg->properties.content_encoding );
     
     const char* type     =  notifymq_get_content_type( msg );
     const char* encoding =  notifymq_get_content_encoding( msg );
