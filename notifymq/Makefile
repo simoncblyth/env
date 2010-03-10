@@ -105,7 +105,7 @@ $(LIB_DIR)/lib$(LIBNAME).$(SOFIX) : $(addprefix $(LIB_DIR)/, $(OBJ_LIST)) $(addp
 	$(CC) $(SOFLAGS) $^ $(LIBS) -o $@   
 ifeq ($(ARCH), Darwin)
 	@echo "Create .so symbolic link to .dylib for Darwin workaround "
-	cd $(LIB_DIR) && ln -s lib$(LIBNAME).dylib lib$(LIBNAME).so
+	cd $(LIB_DIR) && ln -sf lib$(LIBNAME).dylib lib$(LIBNAME).so
 endif
 
 $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE) 

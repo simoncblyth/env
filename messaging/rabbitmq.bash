@@ -140,6 +140,8 @@ rabbitmq-c-libdir(){ echo $(rabbitmq-c-dir)/librabbitmq/.libs ; }
 rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
 
 rabbitmq-c-build(){
+
+   rabbitmq-c-wipe
    rabbitmq-c-preq
 
    rabbitmq-codegen-get
@@ -152,10 +154,30 @@ rabbitmq-c-preq(){
    pip install simplejson 
 }
 
-rabbitmq-c-get(){
+
+rabbitmq-c-wipe(){
+  local msg="=== $FUNCNAME :"
   local dir=$(rabbitmq-dir)
   mkdir -p $dir && cd $dir
-  hg clone $(rabbitmq-hg)/rabbitmq-c
+  local cmd="rm -rf rabbitmq-c rabbitmq-codegen "
+  local ans
+  read -p "$msg enter YES to proceed with : $cmd from $PWD " ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return 1
+  eval $cmd
+}
+
+
+rabbitmq-c-get(){
+  local msg="=== $FUNCNAME :"
+  local dir=$(rabbitmq-dir)
+  mkdir -p $dir && cd $dir
+  [ -d "rabbitmq-c" ] && echo $msg ABORT dir exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
+  hg clone $(rabbitmq-hg)/rabbitmq-c 
+
+  cd rabbitmq-c
+  hg up 277ec3f5b631
+  cd $dir
+
 }
 
 rabbitmq-c-make(){
@@ -172,7 +194,9 @@ rabbitmq-c-make(){
 
 rabbitmq-c-kludge(){
   perl -pi -e "s,(sibling_codegen_dir=).*,\$1\"$(rabbitmq-codegen-dir)\"," configure.ac
+  perl -pi -e 's,void const,const void,g' librabbitmq/amqp.h   ## needed to get past rootcint in notifymq build
 }
+
 
 
 
@@ -241,9 +265,11 @@ rabbitmq-c-usage(){
 rabbitmq-codegen-dir(){ echo $(rabbitmq-dir)/rabbitmq-codegen ; }
 rabbitmq-codegen-cd(){  cd $(rabbitmq-codegen-dir) ; }
 rabbitmq-codegen-get(){
+  local msg="=== $FUNCNAME :"
   local dir=$(rabbitmq-dir)
   mkdir -p $dir && cd $dir
-  hg clone http://hg.rabbitmq.com/rabbitmq-codegen
+  [ -d "rabbitmq-codegen" ] && echo $msg ABORT dir exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
+  hg clone http://hg.rabbitmq.com/rabbitmq-codegen 
 }
 
 
