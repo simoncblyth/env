@@ -31,7 +31,7 @@ class pMQ(dict):
 	
 	"""
     def __init__(self, *args ):
-        path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "lib" , "libnotifymq.%s" %  ROOT.gSystem.GetSoExt()  ) ) 
+        path = os.path.abspath( os.path.join( os.path.dirname( __file__ ), "lib" , "librootmq.%s" %  ROOT.gSystem.GetSoExt()  ) ) 
         ROOT.gSystem.Load( path )
         ROOT.gMQ.Create(*args)
 
@@ -65,7 +65,7 @@ class pMQ(dict):
 
 
 if __name__=='__main__':
-    from env.notifymq.pmq import pMQ
+    from env.rootmq.pmq import pMQ
     q = pMQ(True)
     q.setCallback( handleQueueUpdatedIndex )
     d = DemoDelegate()

@@ -14,10 +14,10 @@ class EvMQ:
     def __init__(self, key="default.routingkey"):
         """
               Need library path to include 
-                 $ENV_HOME/notifymq/lib
+                 $ENV_HOME/rootmq/lib
                  $ABERDEEN_HOME/DataModel/lib
         """
-        ROOT.gSystem.Load("libnotifymq" )
+        ROOT.gSystem.Load("librootmq" )
         ROOT.gSystem.Load("libAbtDataModel" )
  
         ROOT.gMQ.Create()

@@ -1,7 +1,7 @@
 
   == Overview ==
 
-  libnotifymq provides an interface to the usage of the rabbitmq-c 
+  librootmq provides an interface to the usage of the rabbitmq-c 
   AMQP producer/consumer from root (pyROOT/cint/compiled)
   allowing TObjects to be sent and received over the network 
   via a RabbitMQ server 
@@ -21,7 +21,7 @@
              3) pyroot scripts
 
          note that environment control for library access is done in this Makefile making it the hub of 
-         all notifymq building testing and usage 
+         all rootmq building testing and usage 
 
      pmq.py
            hook up ROOT signal/slot mechanism with the ROOT.gMQ singleton that resides in a
@@ -34,18 +34,18 @@
 
 
      src/
-            notifymq.c
+            rootmq.c
                  building on the rabbitmq-c examples to provide simple C interface to AMQP/rabbitmq-c
                  functionality and integrating configuration access via my private framework  
 
-            notifymq_collection.c
+            rootmq_collection.c
                   glib hash table of routing keys associated with dequeues of messages of limited size ...
                   threadsafe functions to get/set the messages in the queues
                   are provided ... NB messages are passed into/from these functions, ie it has 
-                  little dependency on notifymq specifics  
+                  little dependency on rootmq specifics  
 
             MQ.cc
-                 rootcintable C++ interface to the notifymq standard C interface to AMQP/rabbitmq-c 
+                 rootcintable C++ interface to the rootmq standard C interface to AMQP/rabbitmq-c 
                  functionality adds support for 
                      1) conversions between TObjects and AMQP messages
                      2) simple TObject conversion into cJSON allowing communication to webapp 
@@ -80,7 +80,7 @@
                         approach suffers from deadlocks as too much is done in the monitor thread 
  
                  mq_consumebutes
-                       deprecated approach using MQ::Wait that blocks on notifymq_basic_consume
+                       deprecated approach using MQ::Wait that blocks on rootmq_basic_consume
                        while waiting for messages
 
                  mq_mapfile
@@ -190,7 +190,7 @@ run the test, eg "make test_sendstring"
 DYLD_LIBRARY_PATH=/data1/env/local/env/messaging/rabbitmq-c/librabbitmq/.libs:/data1/env/local/env/home/priv/lib:/data1/env/local/env/messaging/cjson/lib:lib:
 LD_LIBRARY_PATH=/data1/env/local/env/messaging/rabbitmq-c/librabbitmq/.libs:/data1/env/local/env/home/priv/lib:/data1/env/local/env/messaging/cjson/lib:lib:/data1/env/local/root/root_v5.21.04.source/root/lib:/cern/pro/lib:
 ./lib/mq_sendstring 
-./lib/mq_sendstring: error while loading shared libraries: lib/libnotifymq.so:
+./lib/mq_sendstring: error while loading shared libraries: lib/librootmq.so:
 cannot restore segment prot after reloc: Permission denied
 make: *** [test_sendstring] Error 127
 
@@ -256,14 +256,14 @@ automake (GNU automake) 1.7.8
      6)  Multiple roots ...
 Processing tests/test_root2message.C...
 Error in <TUnixSystem::Load>: version mismatch,
-/data/env/local/env/home/notifymq/lib/libnotifymq.so = 52200, ROOT = 52104
+/data/env/local/env/home/rootmq/lib/librootmq.so = 52200, ROOT = 52104
 
 
     7)
 Syntax error /usr/local/env/messaging/rabbitmq-c/librabbitmq/amqp.h:167:
 Warning: Error occurred during reading source files
 Warning: Error occurred during dictionary source generation
-!!!Removing dict/notifymqDict.cxx dict/notifymqDict.h !!!
+!!!Removing dict/rootmqDict.cxx dict/rootmqDict.h !!!
 
 //extern int amqp_table_entry_cmp(void const *entry1, void const *entry2);
 extern int amqp_table_entry_cmp(const void*entry1, const void*entry2);

@@ -6,13 +6,13 @@
 #include <amqp.h>
 #include <amqp_framing.h>
 
-#include "notifymq.h"
-#include "notifymq_utils.h"
+#include "rootmq.h"
+#include "rootmq_utils.h"
 
 extern void amqp_dump(void const *buffer, size_t len);
 
 
-char* notifymq_getstr_alloc( amqp_bytes_t b ) {
+char* rootmq_getstr_alloc( amqp_bytes_t b ) {
     char* buf ;
     buf = (char*)malloc( b.len );
     buf[0] = 0 ;
@@ -23,7 +23,7 @@ char* notifymq_getstr_alloc( amqp_bytes_t b ) {
     return buf ;
 }
 
-int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
+int rootmq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
     if(b.len > max || b.bytes == 0) return EXIT_FAILURE ;
     memcpy( buf , b.bytes , b.len );   // cannot use strcpy...  as .bytes from amqp_bytes_t is not null-terminated
     buf[b.len] = 0 ;                   // null termination 
@@ -32,44 +32,44 @@ int notifymq_getstr( amqp_bytes_t b , char* buf , size_t max  ) {
 
 
 
-notifymq_basic_msg_t* notifymq_basic_msg_dup( uint64_t index , amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
+rootmq_basic_msg_t* rootmq_basic_msg_dup( uint64_t index , amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
     // full duplication with new allocations, collecting msg and its metadata into single structure  
-    notifymq_basic_msg_t* msg = malloc( sizeof(notifymq_basic_msg_t) );
+    rootmq_basic_msg_t* msg = malloc( sizeof(rootmq_basic_msg_t) );
     msg->index   = index ;
     msg->body    = amqp_bytes_malloc_dup( *body );
-    msg->deliver = notifymq_basic_deliver_dup( *deliver ); 
-    msg->properties = notifymq_basic_properties_dup( *props ) ;
-    msg->key     = notifymq_getstr_alloc( msg->deliver.routing_key );  // convenience copy as null terminated string needed 
+    msg->deliver = rootmq_basic_deliver_dup( *deliver ); 
+    msg->properties = rootmq_basic_properties_dup( *props ) ;
+    msg->key     = rootmq_getstr_alloc( msg->deliver.routing_key );  // convenience copy as null terminated string needed 
     return msg ;
 }
 
-void notifymq_basic_msg_dump( const notifymq_basic_msg_t* msg , int verbosity , const char* label )
+void rootmq_basic_msg_dump( const rootmq_basic_msg_t* msg , int verbosity , const char* label )
 {
     if( msg == NULL ){
-       printf("notifymq_msg_dump %s ERROR null msg \n", label );
+       printf("rootmq_msg_dump %s ERROR null msg \n", label );
        return ;
     }
-    printf("notifymq_msg_dump %s .index %lld .key \"%s\" verbosity %d \n", label , msg->index , msg->key, verbosity  );
+    printf("rootmq_msg_dump %s .index %lld .key \"%s\" verbosity %d \n", label , msg->index , msg->key, verbosity  );
     if(verbosity > 2)
        amqp_dump( msg->body.bytes , msg->body.len  );   
     if(verbosity > 1)
-       notifymq_basic_deliver_dump( &(msg->deliver) );
+       rootmq_basic_deliver_dump( &(msg->deliver) );
     if(verbosity > 1)
-       notifymq_basic_properties_dump( &(msg->properties) );  
+       rootmq_basic_properties_dump( &(msg->properties) );  
 }
 
-void notifymq_basic_msg_free( notifymq_basic_msg_t* msg )
+void rootmq_basic_msg_free( rootmq_basic_msg_t* msg )
 {
     AMQP_BYTES_FREE( msg->body );
-    notifymq_basic_deliver_free( &(msg->deliver) ) ;
-    notifymq_basic_properties_free( &(msg->properties) );  
+    rootmq_basic_deliver_free( &(msg->deliver) ) ;
+    rootmq_basic_properties_free( &(msg->properties) );  
     free( msg->key );
     msg = NULL ;
 }
 
 
-void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d )
+void rootmq_basic_deliver_dump( const amqp_basic_deliver_t* d )
 {
     printf("basic_deliver_dump delivery_tag %lld redelivered %d \n", d->delivery_tag, d->redelivered );
     printf("\t.consumer_tag\t\t%.*s\n",  (int)d->consumer_tag.len, (char*)d->consumer_tag.bytes );
@@ -77,7 +77,7 @@ void notifymq_basic_deliver_dump( const amqp_basic_deliver_t* d )
     printf("\t.routing_key\t\t%.*s\n",   (int)d->routing_key.len,  (char*)d->routing_key.bytes );
 }
 
-amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src )
+amqp_basic_deliver_t rootmq_basic_deliver_dup( const amqp_basic_deliver_t src )
 {
     amqp_basic_deliver_t dest ;
     dest.consumer_tag = amqp_bytes_malloc_dup( src.consumer_tag );
@@ -88,7 +88,7 @@ amqp_basic_deliver_t notifymq_basic_deliver_dup( const amqp_basic_deliver_t src 
     return dest ;
 }
 
-void notifymq_basic_deliver_free( amqp_basic_deliver_t* src )
+void rootmq_basic_deliver_free( amqp_basic_deliver_t* src )
 {
     AMQP_BYTES_FREE( src->consumer_tag );
     AMQP_BYTES_FREE( src->exchange );   
@@ -97,7 +97,7 @@ void notifymq_basic_deliver_free( amqp_basic_deliver_t* src )
 }
 
 
-amqp_decimal_t notifymq_decimal_dup( const amqp_decimal_t src )
+amqp_decimal_t rootmq_decimal_dup( const amqp_decimal_t src )
 {
    amqp_decimal_t dest ;
    dest.decimals = src.decimals ;
@@ -105,7 +105,7 @@ amqp_decimal_t notifymq_decimal_dup( const amqp_decimal_t src )
    return dest ;
 }
 
-void notifymq_table_dump( const amqp_table_t* t )
+void rootmq_table_dump( const amqp_table_t* t )
 {
    int i ;
    amqp_table_entry_t* entry = NULL ;
@@ -117,7 +117,7 @@ void notifymq_table_dump( const amqp_table_t* t )
 }
 
 
-amqp_table_t notifymq_table_dup( const amqp_table_t src )
+amqp_table_t rootmq_table_dup( const amqp_table_t src )
 {
    amqp_table_t dest ;
    dest.num_entries = src.num_entries ;
@@ -137,20 +137,20 @@ amqp_table_t notifymq_table_dup( const amqp_table_t src )
               d->value.i32    = s->value.i32 ;
               break ;
           case 'D':
-              d->value.decimal = notifymq_decimal_dup( s->value.decimal ); 
+              d->value.decimal = rootmq_decimal_dup( s->value.decimal ); 
               break ;
           case 'T':
               d->value.u64    = s->value.u64 ;
               break ;
           case 'F':
-              d->value.table  = notifymq_table_dup( s->value.table );
+              d->value.table  = rootmq_table_dup( s->value.table );
               break ;
       }
    }
    return dest ;
 }
 
-void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
+void rootmq_basic_properties_dump( const amqp_basic_properties_t* p )
 {
     printf("basic_properties_dump \n" );
     if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
@@ -158,7 +158,7 @@ void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
     if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
         printf("\t.content_encoding\t\t%.*s\n", (int)p->content_encoding.len, (char*)p->content_encoding.bytes );
     if (p->_flags & AMQP_BASIC_HEADERS_FLAG) 
-        notifymq_table_dump( &p->headers );
+        rootmq_table_dump( &p->headers );
     if (p->_flags & AMQP_BASIC_DELIVERY_MODE_FLAG) 
         printf("\t.delivery_mode\t\t%d\n", p->delivery_mode );
     if (p->_flags & AMQP_BASIC_PRIORITY_FLAG) 
@@ -184,7 +184,7 @@ void notifymq_basic_properties_dump( const amqp_basic_properties_t* p )
 }
 
 
-amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properties_t src )
+amqp_basic_properties_t rootmq_basic_properties_dup( const amqp_basic_properties_t src )
 {
     amqp_basic_properties_t dest ;
     dest._flags = src._flags ;
@@ -195,7 +195,7 @@ amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properti
         dest.content_encoding = amqp_bytes_malloc_dup( src.content_encoding );
 
     if (src._flags & AMQP_BASIC_HEADERS_FLAG) 
-        dest.headers          = notifymq_table_dup( src.headers );
+        dest.headers          = rootmq_table_dup( src.headers );
 
     if (src._flags & AMQP_BASIC_DELIVERY_MODE_FLAG) 
         dest.delivery_mode    = src.delivery_mode ;
@@ -226,7 +226,7 @@ amqp_basic_properties_t notifymq_basic_properties_dup( const amqp_basic_properti
 }
 
 
-void notifymq_basic_properties_free( amqp_basic_properties_t* src )
+void rootmq_basic_properties_free( amqp_basic_properties_t* src )
 {
     if (src->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
         AMQP_BYTES_FREE( src->content_type );
@@ -234,7 +234,7 @@ void notifymq_basic_properties_free( amqp_basic_properties_t* src )
         AMQP_BYTES_FREE( src->content_encoding );
 
     //if (src->_flags & AMQP_BASIC_HEADERS_FLAG) 
-    //    notifymq_table_free( src->headers );
+    //    rootmq_table_free( src->headers );
 
     if (src->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
         AMQP_BYTES_FREE( src->correlation_id ) ;
@@ -263,15 +263,15 @@ void notifymq_basic_properties_free( amqp_basic_properties_t* src )
 
 // getter ... with unhealthy allocation 
 
-const char* notifymq_props_get_content_type( amqp_basic_properties_t* props )
+const char* rootmq_props_get_content_type( amqp_basic_properties_t* props )
 {
-    if (props->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) return notifymq_getstr_alloc( props->content_type );
+    if (props->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) return rootmq_getstr_alloc( props->content_type );
     return NULL ;
 }
 
-const char* notifymq_props_get_content_encoding( amqp_basic_properties_t* props )
+const char* rootmq_props_get_content_encoding( amqp_basic_properties_t* props )
 {
-    if (props->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) return notifymq_getstr_alloc( props->content_encoding );
+    if (props->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) return rootmq_getstr_alloc( props->content_encoding );
     return NULL ;
 } 
 
@@ -280,7 +280,7 @@ const char* notifymq_props_get_content_encoding( amqp_basic_properties_t* props 
 
 // property setters 
 
-int notifymq_set_content_type( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_content_type( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CONTENT_TYPE_FLAG ;
@@ -288,7 +288,7 @@ int notifymq_set_content_type( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_content_encoding( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_content_encoding( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CONTENT_ENCODING_FLAG ;
@@ -296,7 +296,7 @@ int notifymq_set_content_encoding( amqp_basic_properties_t* props , char const* 
     return 0 ;
 }
 
-int notifymq_set_correlation_id( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_correlation_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CORRELATION_ID_FLAG ;
@@ -304,7 +304,7 @@ int notifymq_set_correlation_id( amqp_basic_properties_t* props , char const* v 
     return 0 ;
 }
 
-int notifymq_set_reply_to( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_reply_to( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_REPLY_TO_FLAG ;
@@ -312,7 +312,7 @@ int notifymq_set_reply_to( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_expiration( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_expiration( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_EXPIRATION_FLAG ;
@@ -320,7 +320,7 @@ int notifymq_set_expiration( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_message_id( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_message_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_MESSAGE_ID_FLAG ;
@@ -328,7 +328,7 @@ int notifymq_set_message_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_type( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_type( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_TYPE_FLAG ;
@@ -336,7 +336,7 @@ int notifymq_set_type( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_user_id( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_user_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_USER_ID_FLAG ;
@@ -344,7 +344,7 @@ int notifymq_set_user_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_app_id( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_app_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_APP_ID_FLAG ;
@@ -352,7 +352,7 @@ int notifymq_set_app_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_cluster_id( amqp_basic_properties_t* props , char const* v )
+int rootmq_set_cluster_id( amqp_basic_properties_t* props , char const* v )
 {
     if(!v) return 1 ;
     props->_flags |= AMQP_BASIC_CLUSTER_ID_FLAG ;
@@ -360,21 +360,21 @@ int notifymq_set_cluster_id( amqp_basic_properties_t* props , char const* v )
     return 0 ;
 }
 
-int notifymq_set_delivery_mode( amqp_basic_properties_t* props, uint8_t v )
+int rootmq_set_delivery_mode( amqp_basic_properties_t* props, uint8_t v )
 {
     props->_flags |= AMQP_BASIC_DELIVERY_MODE_FLAG ;
     props->delivery_mode = v ;
     return 0 ;
 }
 
-int notifymq_set_priority( amqp_basic_properties_t* props, uint8_t v )
+int rootmq_set_priority( amqp_basic_properties_t* props, uint8_t v )
 {
     props->_flags |= AMQP_BASIC_PRIORITY_FLAG ;
     props->priority = v ;
     return 0 ;
 }
 
-int notifymq_set_timestamp( amqp_basic_properties_t* props, uint64_t v )
+int rootmq_set_timestamp( amqp_basic_properties_t* props, uint64_t v )
 {
     props->_flags |= AMQP_BASIC_TIMESTAMP_FLAG ;
     props->timestamp = v ;

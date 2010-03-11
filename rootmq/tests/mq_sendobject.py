@@ -1,6 +1,6 @@
-#   notifymq-ipython tests/mq_sendobject.py 
+#   rootmq-ipython tests/mq_sendobject.py 
 import ROOT
-ROOT.gSystem.Load("libnotifymq")
+ROOT.gSystem.Load("librootmq")
 ROOT.MQ.Create()
 from ROOT import gMQ
 gMQ.SendString( "hello from mq_sendobject.py" )

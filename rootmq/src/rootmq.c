@@ -13,9 +13,9 @@
 #include "private.h"
 #include "example_utils.h"
 
-#include "notifymq.h"
-#include "notifymq_utils.h"
-#include "notifymq_collection.h"
+#include "rootmq.h"
+#include "rootmq_utils.h"
+#include "rootmq_collection.h"
 
 #include <glib.h>
 
@@ -24,49 +24,49 @@ static int sockfd ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
-int notifymq_dbg = 0 ;
+int rootmq_dbg = 0 ;
 
 
-static uint64_t notifymq_msg_index = 0 ; 
-static GThread* notifymq_monitor_thread = NULL;
+static uint64_t rootmq_msg_index = 0 ; 
+static GThread* rootmq_monitor_thread = NULL;
 
-const char* notifymq_get_content_type( notifymq_basic_msg_t* msg )
+const char* rootmq_get_content_type( rootmq_basic_msg_t* msg )
 {
-    return  msg == NULL ? NULL : notifymq_props_get_content_type( &(msg->properties) )  ;    
+    return  msg == NULL ? NULL : rootmq_props_get_content_type( &(msg->properties) )  ;    
 }
 
-const char* notifymq_get_content_encoding( notifymq_basic_msg_t* msg )
+const char* rootmq_get_content_encoding( rootmq_basic_msg_t* msg )
 {
-    return  msg == NULL ? NULL : notifymq_props_get_content_encoding( &(msg->properties) )  ;    
+    return  msg == NULL ? NULL : rootmq_props_get_content_encoding( &(msg->properties) )  ;    
 }
 
 
-int notifymq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
+int rootmq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
-	// bundle message body and delivery metadata and properties into struct notifymq_basic_msg_t and add to collection 
+	// bundle message body and delivery metadata and properties into struct rootmq_basic_msg_t and add to collection 
 	
     // dynamically allocated duplication of the message pulled off the wire ... 
     // the bytes of the frame are shortly deallocated so must do the duping 
     // for them to survive into the glib data structure
-    notifymq_basic_msg_t* msg = notifymq_basic_msg_dup( notifymq_msg_index , body , deliver , props );
-    notifymq_msg_index++ ;     // global received message index within this execution
+    rootmq_basic_msg_t* msg = rootmq_basic_msg_dup( rootmq_msg_index , body , deliver , props );
+    rootmq_msg_index++ ;     // global received message index within this execution
 
-    if( notifymq_dbg > 2 )  
-        notifymq_basic_msg_dump( msg , 3 , "_basic_collect");
+    if( rootmq_dbg > 2 )  
+        rootmq_basic_msg_dump( msg , 3 , "_basic_collect");
 
     // data structure just keeps the msg pointer ... no copying 
     // collection assumes ownership of the msg data and will free it once the number of messages exceeds the maximum
-    notifymq_collection_add( msg );
+    rootmq_collection_add( msg );
     
-    if( notifymq_dbg > 2 )  
-        notifymq_collection_dump();
+    if( rootmq_dbg > 2 )  
+        rootmq_collection_dump();
 
     return EXIT_SUCCESS ;
 }
 
 
 
-int notifymq_init()
+int rootmq_init()
 {
 
     if (!g_thread_supported ()) g_thread_init (NULL);
@@ -79,10 +79,10 @@ int notifymq_init()
     char const* user = private_lookup("AMQP_USER");
     char const* password = private_lookup("AMQP_PASSWORD");
     char const* vhost = private_lookup("AMQP_VHOST");
-    notifymq_dbg = atoi( private_lookup_default("NOTIFYMQ_DBG", "0" )) ;
+    rootmq_dbg = atoi( private_lookup_default("ROOTMQ_DBG", "0" )) ;
 
-    if(notifymq_dbg > 0 ) 
-        printf("notifymq_init : INFO debug level NOTIFYMQ_DBG is at level :[%d] \n", notifymq_dbg );
+    if(rootmq_dbg > 0 ) 
+        printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
 
 
     rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
@@ -98,13 +98,13 @@ int notifymq_init()
 
 
 
-    notifymq_collection_init();
+    rootmq_collection_init();
 
     return EXIT_SUCCESS ;
 }
 
 
-int notifymq_queue_declare( char const* queue, bool_t passive, bool_t durable, bool_t exclusive, bool_t auto_delete )
+int rootmq_queue_declare( char const* queue, bool_t passive, bool_t durable, bool_t exclusive, bool_t auto_delete )
 {
     amqp_queue_declare(conn, 1, 
                        amqp_cstring_bytes(queue) , 
@@ -115,7 +115,7 @@ int notifymq_queue_declare( char const* queue, bool_t passive, bool_t durable, b
 } 
 
 
-int notifymq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
+int rootmq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
 {
     //
     // http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
@@ -133,7 +133,7 @@ int notifymq_queue_bind( char const* queue, char const* exchange , char const* b
 }
 
 
-int notifymq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete )
+int rootmq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete )
 {
     amqp_exchange_declare(conn, 1, 
                           amqp_cstring_bytes(exchange), 
@@ -146,14 +146,14 @@ int notifymq_exchange_declare( char const* exchange , char const* exchangetype ,
 
 
 
-int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* msgbytes , size_t msglen )
+int rootmq_sendbytes( char const*  exchange , char const* routingkey , void* msgbytes , size_t msglen )
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_producer.c
     amqp_basic_properties_t props;
     props._flags = 0 ;
-    notifymq_set_content_type(      &props , "application/data" );
-    notifymq_set_content_encoding(  &props , "binary" );
-    notifymq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
+    rootmq_set_content_type(      &props , "application/data" );
+    rootmq_set_content_encoding(  &props , "binary" );
+    rootmq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
 
     die_on_error(amqp_basic_publish(conn,
 				    1,
@@ -171,25 +171,25 @@ int notifymq_sendbytes( char const*  exchange , char const* routingkey , void* m
 
 
 
-int notifymq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody )
+int rootmq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody )
 { 
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_sendstring.c
     amqp_basic_properties_t props;
     props._flags = 0 ;
-    notifymq_set_content_type(      &props , "text/plain" );
-    //notifymq_set_content_encoding(  &props , "test.encoding" );
-    //notifymq_set_headers(         &props  , "??" ) ;
-    notifymq_set_delivery_mode(    &props , 2 );           // persistent delivery mode
-    notifymq_set_priority(         &props , 1 ); 
-    notifymq_set_correlation_id(   &props , "test.correlation_id" ); 
-    notifymq_set_reply_to(         &props , "test.reply_to" ); 
-    notifymq_set_expiration(       &props , "test.expiration" ); 
-    notifymq_set_message_id(       &props , "test.message_id" ); 
-    notifymq_set_timestamp(        &props ,  (uint64_t)101 ); 
-    notifymq_set_type(             &props , "test.type" ); 
-    notifymq_set_user_id(          &props , "test.user_id" ); 
-    notifymq_set_app_id(           &props , "test.app_id" ); 
-    notifymq_set_cluster_id(       &props , "test.cluster_id" ); 
+    rootmq_set_content_type(      &props , "text/plain" );
+    //rootmq_set_content_encoding(  &props , "test.encoding" );
+    //rootmq_set_headers(         &props  , "??" ) ;
+    rootmq_set_delivery_mode(    &props , 2 );           // persistent delivery mode
+    rootmq_set_priority(         &props , 1 ); 
+    rootmq_set_correlation_id(   &props , "test.correlation_id" ); 
+    rootmq_set_reply_to(         &props , "test.reply_to" ); 
+    rootmq_set_expiration(       &props , "test.expiration" ); 
+    rootmq_set_message_id(       &props , "test.message_id" ); 
+    rootmq_set_timestamp(        &props ,  (uint64_t)101 ); 
+    rootmq_set_type(             &props , "test.type" ); 
+    rootmq_set_user_id(          &props , "test.user_id" ); 
+    rootmq_set_app_id(           &props , "test.app_id" ); 
+    rootmq_set_cluster_id(       &props , "test.cluster_id" ); 
 
 
     die_on_error(amqp_basic_publish(conn,
@@ -204,43 +204,43 @@ int notifymq_sendstring( char const*  exchange , char const* routingkey , char c
     return EXIT_SUCCESS ;
 }
 
-int notifymq_cleanup()
+int rootmq_cleanup()
 {
     die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
     die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
     amqp_destroy_connection(conn);
     die_on_error(close(sockfd), "Closing socket");
 
-    notifymq_collection_cleanup();
+    rootmq_collection_cleanup();
     private_cleanup();
     return EXIT_SUCCESS ;
 }
 
 
-gpointer notifymq_monitor_thread_(gpointer data )
+gpointer rootmq_monitor_thread_(gpointer data )
 {
-	// waits on message bytes, invoking notifymq_basic_collect once complete messages are received
+	// waits on message bytes, invoking rootmq_basic_collect once complete messages are received
     char const* queue = (char const*)data ; 
-    if( notifymq_dbg > 0 )
-        printf("notifymq_monitor_thread_ starting for queue \"%s\"\n", queue );
-    notifymq_basic_consume( queue );
+    if( rootmq_dbg > 0 )
+        printf("rootmq_monitor_thread_ starting for queue \"%s\"\n", queue );
+    rootmq_basic_consume( queue );
     return NULL ;
 }
 
-int notifymq_basic_consume_async( char const* queue ) 
+int rootmq_basic_consume_async( char const* queue ) 
 {
 	// spin off the message queue monitor thread  
     gboolean joinable = 0 ;
-    notifymq_monitor_thread = g_thread_create((GThreadFunc)notifymq_monitor_thread_ , (gpointer)queue , joinable, NULL);
+    rootmq_monitor_thread = g_thread_create((GThreadFunc)rootmq_monitor_thread_ , (gpointer)queue , joinable, NULL);
     return EXIT_SUCCESS ;
 }
 
 
-int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
+int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
 {
    // based on rabbitmq-c/examples/amqp_listen.c
 
-  int dbg = notifymq_dbg ; 
+  int dbg = rootmq_dbg ; 
   amqp_boolean_t no_local   = 0 ; 
   amqp_boolean_t no_ack     = 1 ;
   amqp_boolean_t exclusive  = 0 ;
@@ -265,7 +265,7 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
       
 
     long long cycle ;
-    if(dbg>0) printf("notifymq_basic_consume : Starting wait loop \n");
+    if(dbg>0) printf("rootmq_basic_consume : Starting wait loop \n");
     while (1) {
 
       cycle++ ;
@@ -356,10 +356,10 @@ int notifymq_basic_consume( char const* queue )  //  , receiver_t handlebytes , 
 	break;
       }
 
-      if(dbg>0) fprintf(stderr, "notifymq_basic_consume : invoking the receiver \n");
+      if(dbg>0) fprintf(stderr, "rootmq_basic_consume : invoking the receiver \n");
       
      
-      notifymq_basic_collect( &frame.payload.body_fragment , d , p );
+      rootmq_basic_collect( &frame.payload.body_fragment , d , p );
       //handlebytes( arg , frame.payload.body_fragment.bytes, frame.payload.body_fragment.len , props );
       
       // as frame goes out of scope the body/delivery/property bytes are deallocated ... 

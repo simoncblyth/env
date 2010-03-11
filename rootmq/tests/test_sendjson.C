@@ -1,8 +1,8 @@
 void test_sendjson()
 {
-   // notifymq-;notifymq-root tests/test_root2cjson.C
+   // rootmq-;rootmq-root tests/test_root2cjson.C
 
-   gSystem->Load("libnotifymq");
+   gSystem->Load("librootmq");
    MQ::Create();
 
    gSystem->Load("libAbtDataModel");

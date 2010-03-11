@@ -52,11 +52,11 @@ LIBS       += $(GLIB_LIBS)
 
 
 
-LIBNAME = notifymq
+LIBNAME = rootmq
 LIBFILE = lib$(LIBNAME).$(SOFIX)
-OBJ_LIST = example_utils.o notifymq.o notifymq_utils.o notifymq_collection.o
+OBJ_LIST = example_utils.o rootmq.o rootmq_utils.o rootmq_collection.o
 DOBJ_LIST =
-NOMQ_LIBS = -L$(LIB_DIR) -lnotifymq
+NOMQ_LIBS = -L$(LIB_DIR) -lrootmq
 
 LIBSPATH    = $(RMQC_LIBDIR):$(PRIV_LIBDIR):$(CJSON_LIBDIR):$(NOMQ_LIBDIR)
 ALIBSPATH   = $(LIBSPATH):$(ABDM_LIBDIR)
@@ -81,7 +81,7 @@ ifdef ROOTSYS
 ROOTCFLAGS := $(shell $(ROOTSYS)/bin/root-config --cflags)
 ROOTLIBS   := $(shell $(ROOTSYS)/bin/root-config --libs)
 OBJ_LIST  += root2cjson.o MyTMessage.o MQ.o 
-DOBJ_LIST += notifymqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o
+DOBJ_LIST += rootmqDict.o root2cjsonDict.o MyTMessageDict.o MQDict.o
 
 CFLAGS     += $(ROOTCFLAGS)
 LIBS       += $(ROOTLIBS)

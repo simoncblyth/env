@@ -783,7 +783,7 @@ selinux-(){      . $(env-home)/base/selinux.bash && selinux-env $* ; }
 carrot-(){      . $(env-home)/messaging/carrot/carrot.bash && carrot-env $* ; }
 pcre-(){      . $(env-home)/pcre/pcre.bash && pcre-env $* ; }
 cjson-(){      . $(env-home)/messaging/cjson.bash && cjson-env $* ; }
-notifymq-(){      . $(env-home)/notifymq/notifymq.bash && notifymq-env $* ; }
+rootmq-(){      . $(env-home)/rootmq/rootmq.bash && rootmq-env $* ; }
 alice-(){      . $(env-home)/messaging/alice.bash && alice-env $* ; }
 priv-(){      . $(env-home)/priv/priv.bash && priv-env $* ; }
 bunny-(){      . $(env-home)/messaging/bunny.bash && bunny-env $* ; }

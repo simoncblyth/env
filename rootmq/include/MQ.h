@@ -5,7 +5,7 @@
 #include <RQ_OBJECT.h>
 #include  "TObject.h"
 #include  "TString.h"
-#include  "notifymq.h"
+#include  "rootmq.h"
 
 class TMessage ;
 class TClass ;
@@ -60,11 +60,11 @@ class MQ : public TObject {
      void SendRaw(const char* str , const char* key = NULL );
      void SendMessage(TMessage* msg , const char* key = NULL );
 
-     void ConfigureQueue( const char* key , notifymq_collection_observer_t obs , void* obsargs , int msgmax );
-     static int QueueObserver( void* me , const char* key, notifymq_collection_qstat_t* args );  
+     void ConfigureQueue( const char* key , rootmq_collection_observer_t obs , void* obsargs , int msgmax );
+     static int QueueObserver( void* me , const char* key, rootmq_collection_qstat_t* args );  
      void QueueUpdatedIndex( Long_t index ); /* SIGNAL */
      void QueueUpdated(); /* SIGNAL */
-     notifymq_collection_qstat_t QueueStat( const char* key );
+     rootmq_collection_qstat_t QueueStat( const char* key );
 
      void SetDebug(Int_t debug);
      Int_t GetDebug();

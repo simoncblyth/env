@@ -6,7 +6,7 @@
 #include  "TMessage.h"
 #include  "TClass.h"
 
-#include "notifymq_collection.h"
+#include "rootmq_collection.h"
 
 #include "root2cjson.h"
 #include "private.h"
@@ -106,18 +106,18 @@ MQ* MQ::Create(Bool_t start_monitor)
 
    private_init();
 
-   const char* exchange     = private_lookup_default( "NOTIFYMQ_EXCHANGE" ,    "default.exchange" );
-   const char* queue        = private_lookup_default( "NOTIFYMQ_QUEUE" ,       "default.queue" );
-   const char* routingkey   = private_lookup_default( "NOTIFYMQ_ROUTINGKEY" ,  "default.routingkey" );
-   const char* exchangetype = private_lookup_default( "NOTIFYMQ_EXCHANGETYPE", "direct" );
+   const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "default.exchange" );
+   const char* queue        = private_lookup_default( "ROOTMQ_QUEUE" ,       "default.queue" );
+   const char* routingkey   = private_lookup_default( "ROOTMQ_ROUTINGKEY" ,  "default.routingkey" );
+   const char* exchangetype = private_lookup_default( "ROOTMQ_EXCHANGETYPE", "direct" );
 
    gMQ = new MQ(exchange, queue, routingkey, exchangetype);
 
-   Bool_t passive     = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_PASSIVE" , "0" ) );
-   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_DURABLE" , "0" ) );
-   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_AUTODELETE" , "1" ) );
-   Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "NOTIFYMQ_EXCLUSIVE" , "0" ) );
-   Int_t dbg          =         atoi( private_lookup_default( "NOTIFYMQ_DBG" ,   "0" ) );
+   Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "0" ) );
+   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "1" ) );
+   Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "ROOTMQ_EXCLUSIVE" , "0" ) );
+   Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
    
@@ -161,13 +161,13 @@ void MQ::Configure()
    }
 
    int rc ;
-   if((rc = notifymq_init())){
-      fprintf(stderr, "ABORT: notifymq_init failed rc : %d \n", rc );
+   if((rc = rootmq_init())){
+      fprintf(stderr, "ABORT: rootmq_init failed rc : %d \n", rc );
       exit(rc);
    }
-   notifymq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
-   notifymq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
-   notifymq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
+   rootmq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
+   rootmq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
+   rootmq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
 
    fConfigured = kTRUE ;
 
@@ -181,14 +181,14 @@ void MQ::Configure()
 
 MQ::~MQ()
 {
-   notifymq_cleanup();
+   rootmq_cleanup();
 }
 
 void MQ::SendRaw( const char* str , const char* key )
 {
    if(!fConfigured) this->Configure();
    const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
-   notifymq_sendstring( fExchange.Data() , ukey  , str );
+   rootmq_sendstring( fExchange.Data() , ukey  , str );
 }
 
 void MQ::SendString( const char* str , const char* key  )
@@ -213,7 +213,7 @@ void MQ::SendMessage( TMessage* msg , const char* key   )
 
    const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
    cout << "MQ::SendMessage : serialized into buffer of length " << bufferLength << " ukey : \"" << ukey << "\"" << endl ;
-   notifymq_sendbytes( fExchange.Data() , ukey  , buffer , bufferLength );
+   rootmq_sendbytes( fExchange.Data() , ukey  , buffer , bufferLength );
 }
 
 
@@ -227,10 +227,10 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 }
 
 
-int MQ::QueueObserver( void* me , const char* key ,  notifymq_collection_qstat_t* qstat )
+int MQ::QueueObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )
 {
    //
-   //  Could have msg arg too ?   notifymq_basic_msg_t* msg 
+   //  Could have msg arg too ?   rootmq_basic_msg_t* msg 
    //  BUT cannot do much from here as this is
    //  executed from inside the monitoring thread ...
    //
@@ -272,14 +272,14 @@ void MQ::QueueUpdated()
    Emit("QueueUpdated()");
 }
 
-void MQ::ConfigureQueue( const char* key , notifymq_collection_observer_t obs, void* args , int msgmax  )
+void MQ::ConfigureQueue( const char* key , rootmq_collection_observer_t obs, void* args , int msgmax  )
 {
-   notifymq_collection_queue_configure( key , obs , args , msgmax  ); 
+   rootmq_collection_queue_configure( key , obs , args , msgmax  ); 
 }
 
-notifymq_collection_qstat_t MQ::QueueStat( const char* key )
+rootmq_collection_qstat_t MQ::QueueStat( const char* key )
 {
-   return notifymq_collection_queue_stat( key ); 
+   return rootmq_collection_queue_stat( key ); 
 }
 
 
@@ -306,21 +306,21 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
 
 Bool_t MQ::IsUpdated( const char* key )
 {
-    return (Bool_t)notifymq_collection_queue_updated( key );
+    return (Bool_t)rootmq_collection_queue_updated( key );
 }
 Int_t MQ::GetLength( const char* key )
 {
-    return (Int_t)notifymq_collection_queue_length( key );
+    return (Int_t)rootmq_collection_queue_length( key );
 }
 
 TObject* MQ::Get( const char* key , int n ) 
 {
     TObject* obj = NULL ;
-    notifymq_basic_msg_t* msg = notifymq_collection_get( key , n );
+    rootmq_basic_msg_t* msg = rootmq_collection_get( key , n );
     if(!msg) return obj ;
     
-    const char* type     =  notifymq_get_content_type( msg );
-    const char* encoding =  notifymq_get_content_encoding( msg );
+    const char* type     =  rootmq_get_content_type( msg );
+    const char* encoding =  rootmq_get_content_encoding( msg );
 
     Int_t dbg = this->GetDebug();
     if(dbg > 1) cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
@@ -346,7 +346,7 @@ void MQ::StartMonitorThread()
 {
    if(!fConfigured) this->Configure();
    fMonitorRunning = kTRUE ;
-   notifymq_basic_consume_async( fQueue.Data() );
+   rootmq_basic_consume_async( fQueue.Data() );
 }
 
 void MQ::StopMonitorThread()

@@ -1,6 +1,6 @@
-# notifymq-ipython tests/mq_monitor.py
+# rootmq-ipython tests/mq_monitor.py
 import ROOT
-ROOT.gSystem.Load("libnotifymq")
+ROOT.gSystem.Load("librootmq")
 ROOT.gSystem.Load("libAbtDataModel")
 
 from ROOT import gMQ

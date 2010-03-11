@@ -1,7 +1,7 @@
 
 // invoke by : 
-//      notifymq-
-//      notifymq-cd
+//      rootmq-
+//      rootmq-cd
 //      make test_root2message
 //
 // the kFALSE prevents starting monitor thread, just establish connection to 
@@ -10,7 +10,7 @@
 
 void test_sendobj()
 {
-   gSystem->Load("libnotifymq");
+   gSystem->Load("librootmq");
    MQ::Create(kFALSE);  // creates gMQ global singleton
   
    gSystem->Load("libAbtDataModel");
