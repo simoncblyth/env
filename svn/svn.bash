@@ -13,6 +13,10 @@ svn-usage(){
      svn-userspath : $(svn-userspath)
 
 
+     svn-authzcheck
+         check for duplicated usernames in the authz file
+
+
      svn-global-ignores :  
          handholding only
      
@@ -266,6 +270,14 @@ svn-usersname(){
 
 svn-authzpath(){ echo $(svn-setupdir $*)/$(svn-authzname $*) ; }
 svn-userspath(){ echo $(svn-setupdir $*)/$(svn-usersname $*) ; }
+
+
+svn-authzcheck(){
+   local msg="=== $FUNCNAME :"
+   echo $msg looking for duplicates in $(svn-authzpath)
+   perl -n -e 'm,^developers = (.*)$, && print split(" ",$1) '  $(svn-authzpath)  | tr "," "\n" | sort | uniq -D
+}
+
 
 
 svn-mode(){ echo ${SVN_MODE:-$(svn-mode-default $*)} ; }

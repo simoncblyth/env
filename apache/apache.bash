@@ -275,7 +275,7 @@ EOI
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
          G) echo systemapple      ;;
-    C|N|ZZ) echo system      ;;
+    C|N|ZZ|WW) echo system      ;;
         C2) echo source      ;;
          H) echo source      ;;
          *) echo source      ;; 
