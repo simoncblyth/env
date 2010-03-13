@@ -258,6 +258,11 @@ Processing tests/test_root2message.C...
 Error in <TUnixSystem::Load>: version mismatch,
 /data/env/local/env/home/rootmq/lib/librootmq.so = 52200, ROOT = 52104
 
+         You are attempting to load a shared lib linked against one version 
+         of root against another version ... this will not work, so ensure
+         that the ROOTSYS envvar points to the appropriate ROOT.
+
+
 
     7)
 Syntax error /usr/local/env/messaging/rabbitmq-c/librabbitmq/amqp.h:167:
@@ -271,4 +276,12 @@ extern int amqp_table_entry_cmp(const void*entry1, const void*entry2);
   rootcint chokes on "void const*" but "const void*" (which has the same meaning) is ok 
 
 
+
+
+
+
+
+
+
+   cd ~/a/AbtViz
 

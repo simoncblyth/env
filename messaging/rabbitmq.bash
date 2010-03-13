@@ -3,6 +3,29 @@ rabbitmq-src(){      echo messaging/rabbitmq.bash ; }
 rabbitmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rabbitmq-src)} ; }
 rabbitmq-vi(){       vi $(rabbitmq-source) ; }
 rabbitmq-env(){      elocal- ; }
+
+rabbitmq-log(){ cat << EOL
+
+  13/02/2010 : 
+       on cms01 server add_user "a" and change password of "guest" using :
+             sudo rabbitmqctl ...
+       give a the same permissions as guest  
+
+        sudo rabbitmqctl set_permissions a ".*" ".*" ".*"
+          > Setting permissions for user "a" in vhost "/" ...
+        sudo rabbitmqctl list_permissions
+          > Listing permissions in vhost "/" ...
+          > a       .*      .*      .*
+          > guest   .*      .*      .*
+
+       open the cms01 port for general access
+             rabbitmq-wideopen 
+
+EOL
+}
+
+
+
 rabbitmq-usage(){
   cat << EOU
      rabbitmq-src : $(rabbitmq-src)
@@ -32,21 +55,14 @@ rabbitmq-usage(){
    man rabbitmq-multi
    man rabbitmqctl
 
-
-
      rabbitmq-c-build
          build the rabbitmq C client 
    
      rabbitmq-c-sendstring 
 
-
-       
-
      rabbitmq-ex-consumer
      rabbitmq-ex-publisher
             try py-ampqlib based consumer and publisher
-
-
 
 
      http://www.rabbitmq.com/plugin-development.html#getting-started 
@@ -55,9 +71,6 @@ rabbitmq-usage(){
             umbrella is simply just a Makefile, that can checkout all rabbitmq-* and build
 
      rabbitmq-umbrella-make
-
-
-
 
 
      May need to open the ip 
@@ -108,10 +121,20 @@ rabbitmq-open-ip(){
   iptables-
   IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen-ip $ip 
 }
+
+
+
 rabbitmq-open(){
    local tag=$1
    $FUNCNAME-ip $(local-tag2ip $tag)
 }
+
+rabbitmq-wideopen(){
+  private-
+  iptables-
+  IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen
+}
+
 
 
 #rabbitmq-conf(){

@@ -61,9 +61,14 @@ cjson-dir(){ echo $(local-base)/env/messaging/cjson ; }
 cjson-cd(){  cd $(cjson-dir); }
 cjson-mate(){ mate $(cjson-dir) ; }
 cjson-libdir(){ echo $(local-base)/env/messaging/cjson/lib ; }
+cjson-rev(){ echo 17 ; }
+cjson-wipe(){
+   local dir=$(dirname $(cjson-dir)) &&  mkdir -p $dir && cd $dir
+   rm -rf cjson 
+}
 cjson-get(){
    local dir=$(dirname $(cjson-dir)) &&  mkdir -p $dir && cd $dir
-   svn co https://cjson.svn.sourceforge.net/svnroot/cjson
+   svn co https://cjson.svn.sourceforge.net/svnroot/cjson -r $(cjson-rev)
 }
 
 cjson-test(){
@@ -74,9 +79,13 @@ cjson-test(){
 
 cjson-build(){
 
+   local msg="=== $FUNCNAME :"
+   echo $msg proceeding  ...
+   cjson-wipe
    cjson-get
    cjson-makelib
    cjson-test
+   echo $msg completed 
 
 }
 

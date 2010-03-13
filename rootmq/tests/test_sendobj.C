@@ -2,7 +2,7 @@
 // invoke by : 
 //      rootmq-
 //      rootmq-cd
-//      make test_root2message
+//      make test_sendobj
 //
 // the kFALSE prevents starting monitor thread, just establish connection to 
 // potentially remote queue and send it a message

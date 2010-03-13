@@ -29,8 +29,12 @@ priv-chcon(){
 }
 
 priv-build(){
+  local msg="=== $FUNCNAME :"
+  echo $msg prceeding ...
   priv-cd
+  make clean 
   make
+  echo $msg completed ...
 }
 
 priv-test(){

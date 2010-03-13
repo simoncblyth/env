@@ -50,9 +50,6 @@ make: *** [test_sendstring] Error 111
 EOU
 }
 
-rootmq-preq(){
-   rabbitmq-c-get
-}
 rootmq-dir(){ echo $(env-home)/rootmq ; }
 rootmq-libdir(){ echo $(rootmq-dir)/lib ; }
 rootmq-cd(){  cd $(rootmq-dir); }
@@ -65,6 +62,31 @@ rootmq-dynpaths(){
        Linux) echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$(rootmq-libpaths) ;;
   esac
 }
+
+
+
+rootmq-preq(){
+   
+   priv-
+   priv-build
+
+   cjson-
+   cjson-build
+
+   rabbitmq-
+   rabbitmq-c-build
+}
+
+
+rootmq-build(){
+
+   rootmq-preq
+   rootmq-cd
+   
+   make clean 
+   make
+}
+
 
 rootmq-root(){
    local msg="=== $FUNCNAME :"
