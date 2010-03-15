@@ -115,7 +115,7 @@ $(LIB_DIR)/mq_sendstring : mq_sendstring.cc $(LIB_DIR)/$(LIBFILE)
 
 
 
-.PHONY : info libspath root ipython ldd otool test_load test_sendstring test_sendjson test_sendobj evmq imq test_sendstring_ clean 
+.PHONY : info libspath root ipython ldd otool test_load test_sendstring test_sendjson test_sendobj test_sendrun evmq imq test_sendstring_ clean 
 
 info:
 	@echo $(shell echo $(ENV_HOME))
@@ -139,6 +139,9 @@ test_sendjson:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendjson.C
 test_sendobj:
 	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendobj.C
+test_sendrun:
+	DYLD_LIBRARY_PATH=$(ALIBSPATH) LD_LIBRARY_PATH=$(ALIBSPATH) root -q -l  tests/test_sendrun.C
+
 
 
 evmq:
