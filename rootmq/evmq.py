@@ -31,18 +31,19 @@ class EvMQ:
         self.obj = None
 
     def On(self):
-        print "EvMQ.On"
+        print "EvMQ.On : starting monitor thread "
         self.mq.StartMonitorThread()
     def Check(self):
-        #print "EvMQ.Check"
+        #print "EvMQ.Check : looking for updates  "
         if self.mq.IsMonitorRunning():
             if self.mq.IsUpdated(self.key):
                 obj = self.mq.Get(self.key, 0)
                 if obj:
+                    print "EvMQ.Check finds update in queue %s " % self.key  
                     obj.Print("")
                     self.obj = obj
     def Off(self):
-        print "EvMQ.Off"
+        print "EvMQ.Off "
 
     def stop(self):
         self.timer.TurnOff()
