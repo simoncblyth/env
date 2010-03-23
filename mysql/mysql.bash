@@ -34,6 +34,16 @@ mysql-usage(){
 
 
 
+    mysql-showdatabase
+
+    mysql-dumpall
+
+          CAUTION AS EACH db is dumped separately it is possible that the tables in i
+          different DB will be inconsistent if one were to operate in a writing related tables to separate DB manner ?
+  
+
+
+
 
 EOU
 }
@@ -113,8 +123,40 @@ mysql-sh(){
    mysql-sh- $(private-val DATABASE_NAME) ; 
 }
 
+mysql-showdatabases(){
+   echo show databases | mysql-sh- --skip-column-names
+}
+
+mysql-bkpdir(){
+   local base=${1:-/tmp/env/$FUNCNAME}
+   local day=${2:-$(date +"%Y%m%d")}
+   echo $base/$day
+}
+
+mysql-dump(){
+   private-
+   mysqldump --host=$(private-val DATABASE_HOST) --user=$(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
+}
+
+
+mysql-dumpall(){
+
+  local db_
+   local cmd
+   local iwd=$PWD
+   local dir=$(mysql-bkpdir $*)
+   mkdir -p $dir && cd $dir
+   mysql-showdatabases | while read db_ ; do
+       mysql-dump $db_ > $db_.sql
+   done
+   cd $iwd
+}
+
+
+
 
 mysql-cnf(){
+  pkgr-
   case $(pkgr-cmd) in
     yum) echo /etc/my.cnf ;;
       *) echo /etc/my.cnf
@@ -129,6 +171,7 @@ mysql-triplet-edit(){
 
 
 mysql-ini(){
+  pkgr-
   case $(pkgr-cmd) in
     yum) echo /etc/init.d/mysqld  ;;
    ipkg) echo /opt/etc/init.d/S70mysqld ;;
