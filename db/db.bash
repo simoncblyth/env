@@ -24,7 +24,7 @@ db-usage(){
 
      db-backup-rsync target.node  
           rsync local dir $(db-backup-hostdir)
-          to remote target.node $(db-backup-rsyncdir)/$(hostname) 
+          to remote target.node into dir $(db-backup-rsyncdir)/ 
           using the local hostname for identification 
 
      db-backup-daily
@@ -89,10 +89,12 @@ db-backup-purge(){
   while [ "$iday" -lt "$nday" ]
   do    
     local day=${days[$iday]}
+    [ ! ${#day} -gt 8 ] && echo $msg ERROR day \"$day\" is not gt 8 chars long && return 1 
+
     if [ $(( $nday - $iday > $nmax )) == 1 ]; then 
         local cmd="rm -rf $day"
         echo delete $day ... $cmd
-        #eval $cmd 
+        eval $cmd 
     else
         echo retain $day
     fi 
@@ -109,8 +111,8 @@ db-backup-rsync(){
    [ "$tag" == "" ] && echo $msg ABORT must enter target node name or ssh tag && return 1
    [ "$tag" == "$(hostname)" ] && echo $msg ABORT cannot rsync to self && return 1
 
-   local src=$(db-backup-hostdir)                ##local 
-   local tgt=$(db-backup-rsyncdir)/$(hostname)   ## remote dir named after local hostname
+   local src=$(db-backup-hostdir)      ##local 
+   local tgt=$(db-backup-rsyncdir)/    ## remote dir named after local hostname
 
    local pmd="ssh $tag \"mkdir -p $tgt\" "
    echo $pmd
