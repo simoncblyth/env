@@ -2,6 +2,7 @@
 db-source(){ echo ${BASH_SOURCE:-$(env-home)/db/db.bash} ; }
 db-vi(){ vi $(db-source) ; }
 db-up(){ source $(db-source) ; }
+db-env(){ echo -n ; }
 
 pymysql-(){      . $ENV_HOME/db/pymysql.bash && pymysql-env $* ; }
 pysqlite-(){     . $ENV_HOME/db/pysqlite.bash  && pysqlite-env  $* ; }
@@ -21,6 +22,11 @@ db-usage(){
 
      db-backup-names : $(db-backup-names)
 
+     db-backup-rsync target.node  
+          rsync local dir $(db-backup-hostdir)
+          to remote target.node $(db-backup-rsyncdir)/$(hostname) 
+          using the local hostname for identification 
+
      db-backup-daily
            perfomrms backups and purges 
 
@@ -28,6 +34,7 @@ EOU
 }
 
 db-backup-basedir(){ echo /var/dbbackup ; }
+db-backup-rsyncdir(){ echo $(db-backup-basedir)/rsync ; }
 db-backup-hostdir(){ echo $(db-backup-basedir)/$(hostname) ; }
 db-backup-daydir(){  echo $(db-backup-hostdir)/$(date +"%Y%m%d") ; } 
 db-backup-names(){   echo testdb offline_db ; }
@@ -95,4 +102,22 @@ db-backup-purge(){
 }
 
 
+db-backup-rsync(){
+
+   local msg="# === $FUNCNAME : "
+   local tag=$1
+   [ "$tag" == "" ] && echo $msg ABORT must enter target node name or ssh tag && return 1
+   [ "$tag" == "$(hostname)" ] && echo $msg ABORT cannot rsync to self && return 1
+
+   local src=$(db-backup-hostdir)                ##local 
+   local tgt=$(db-backup-rsyncdir)/$(hostname)   ## remote dir named after local hostname
+
+   local pmd="ssh $tag \"mkdir -p $tgt\" "
+   echo $pmd
+   eval $pmd    
+
+   local cmd="rsync -e ssh --delete-after -razvt $src $tag:$tgt "
+   echo $cmd
+   eval $cmd
+}
 
