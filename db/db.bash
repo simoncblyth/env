@@ -13,7 +13,9 @@ db-usage(){
   cat << EOU
 
      db-backup-purge
-          delete day folders retaining only the last $(db-backup-keep) days
+          delete local day folders beneath $(db-backup-hostdir)
+          retaining only the last $(db-backup-keep) days
+          ... relies on sort order of the names 
 
      db-backup <dbname>
            backup db using mysqldump
@@ -70,6 +72,7 @@ db-backup(){
 
 db-backup-purge(){
 
+  local msg="=== $FUNCNAME : "
   local nmax=$(db-backup-keep)
   local days
   local iday
@@ -77,14 +80,12 @@ db-backup-purge(){
   
   declare -a days
 
-  echo ======= db-backup-purge =====   
-
-  cd $(db-backup-basedir)
+  cd $(db-backup-hostdir)
      
   days=($(find . -name '????????' | sort ))
   nday=${#days[@]}
      
-  echo pwd:$PWD nday:$nday nmax:$nmax
+  echo $msg from $PWD  nday:$nday nmax:$nmax
   iday=0
   while [ "$iday" -lt "$nday" ]
   do    
