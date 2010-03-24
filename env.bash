@@ -787,3 +787,4 @@ rootmq-(){      . $(env-home)/rootmq/rootmq.bash && rootmq-env $* ; }
 alice-(){      . $(env-home)/messaging/alice.bash && alice-env $* ; }
 priv-(){      . $(env-home)/priv/priv.bash && priv-env $* ; }
 bunny-(){      . $(env-home)/messaging/bunny.bash && bunny-env $* ; }
+db-(){      . $(env-home)/db/db.bash && db-env $* ; }
