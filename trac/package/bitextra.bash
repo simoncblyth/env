@@ -42,11 +42,12 @@ bitextra-env(){
   export BITEXTRA_BRANCH=trunk
 }
 
+bitextra-srcserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
+
 bitextra-url(){     
-   trac-
-   echo $(trac-localserver)/repos/tracdev/annobit/$(bitextra-branch) 
+   echo $(bitextra-srcserver)/repos/tracdev/annobit/$(bitextra-branch) 
 }
-bitextra-revision(){ echo 118 ; }
+bitextra-revision(){ echo 119 ; }
 
 
 bitextra-fix(){

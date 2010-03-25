@@ -429,7 +429,7 @@ local-var-base(){
        G1) echo /disk/d3/var ;;
         N) echo /var ;;
        XT) echo /home/tianxc ;; 
-       XX) echo /home ;; 
+       XX) echo /home/zhuanghl ;; 
        YY) echo /home ;;
        ZZ) echo /home ;;
      IHEP) echo /home ;;  
