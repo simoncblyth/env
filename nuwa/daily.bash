@@ -81,7 +81,6 @@ daily-build(){
    [ "$rc" != "0" ] && echo $msg ABORT && return $rc     
 
    daily-cd
-
    
    local bdir=$(daily-revdir $rev)
    ln -sf $bdir $(daily-daydir)
@@ -105,13 +104,19 @@ daily-build-(){
   [ -f "dybinst" ] && echo $msg dybinst already exported || svn export $(daily-dybinst-url)
 
   local cmd
+  local rc
   cmd="./dybinst -z $rev -e ../../external trunk checkout"
   echo $msg $cmd
   eval $cmd
+  rc=$?
+  [ "$rc" != "0" ] && echo $msg ABORT checkout failed rc:$rc && return $rc     
+
  
   cmd="./dybinst -z $rev -e ../../external -c trunk projects"
   echo $msg $cmd
   eval $cmd
+  rc=$?
+  [ "$rc" != "0" ] && echo $msg ABORT projects failed rc:$rc && return $rc     
 
 
   cd $iwd
