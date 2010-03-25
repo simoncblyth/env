@@ -1,7 +1,7 @@
 # === func-gen- : nuwa/daily fgp nuwa/daily.bash fgn daily fgh nuwa
 daily-src(){      echo nuwa/daily.bash ; }
 daily-source(){   echo ${BASH_SOURCE:-$(env-home)/$(daily-src)} ; }
-daily-vi(){       vi $(daily-source) ; }
+daily-vi(){       vim $(daily-source) ; }
 daily-env(){      elocal- ; }
 daily-usage(){
   cat << EOU
@@ -11,7 +11,12 @@ daily-usage(){
 
 EOU
 }
-daily-dir(){ echo $(local-base)/env/nuwa/nuwa-daily ; }
+daily-dir(){
+  case $(hostname) in 
+     lxslc??.ihep.ac.cn) echo /home/dyb/dybsw/NuWa/daily ;; 
+                      *) echo /tmp/env/$FUNCNAME         ;;
+  esac 
+}
 daily-cd(){  cd $(daily-dir); }
 daily-mate(){ mate $(daily-dir) ; }
 daily-get(){
@@ -34,9 +39,59 @@ daily-rev(){
   esac
 }
 
+daily-builddir(){ 
+   local rev=$1 
+   echo NuWa-$rev 
+}
+
+daily-daydir(){
+   echo NuWa-$(date +"%Y%m%d") 
+}
+
+daily-build(){
+   local msg="=== $FUNCNAME :"
+   local rev
+   rev=$(daily-rev-)
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg ABORT failed to obtain revision rc $rc && return 1    
+
+   local ddir=$(daily-dir)
+   mkdir -p $ddir && cd $ddir
+   
+   daily-build- $rev
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg ABORT && return $rc     
+
+   daily-cd
+   ln -sf $(daily-builddir $rev) $(daily-daydir)
+}
+
+daily-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
+daily-build-(){
+  local msg="=== $FUNCNAME :"
+  local rev=$1
+  local bdir=$(daily-builddir $rev)
+  [ -z "$rev" ]  && echo $msg revision argument required && return 1 
+  # [ -d "$bdir" ] && echo $msg builddir $bdir exists already && return 0 
+
+  echo $msg proceeding with build $bdir ...
+  local iwd=$PWD
+  mkdir -p $bdir && cd $bdir
+
+  [ -f "dybinst" ] && echo $msg dybinst already exported || svn export $(daily-dybinst-url)
+
+  local cmd
+  cmd="./dybinst -z $rev -e ../../external trunk checkout"
+  echo $msg $cmd
+  eval $cmd
+ 
+  cmd="./dybinst -z $rev -e ../../external -c trunk projects"
+  echo $msg $cmd
+  eval $cmd
 
 
-
+  cd $iwd
+}
 
 
 
