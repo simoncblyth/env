@@ -13,6 +13,7 @@ class DBTableCounts(Persdict):
     _id = classmethod( _id )
 
     def __init__(self, sect=None, stamp=None ):
+        print "__init__ called  "
         ini = os.path.expanduser("~/.dybdb.ini")
         cfg = DBConf( path=ini , sect=sect )  
         db = DB( **cfg )
@@ -20,21 +21,27 @@ class DBTableCounts(Persdict):
         db.close()
 
     def table_counts(self, db ):
-        rec = db.fetchone("SELECT VERSION()")  ## check connection with query that should always succeed
+        """
+            Populate self with table counts 
+        """ 
+        rec = db.fetchone("SELECT VERSION()")  
         for rec in db("SHOW TABLES"):
             tab = rec.values()[0]
             cnt = db.fetchone("SELECT COUNT(*) FROM  %s" % tab )
             n = cnt.values()[0]
             self[tab] = n
  
-if __name__=='__main__':
 
+def today():
+    """ create a new instance for today if not existing already  """
     sect = os.environ.get("DB_SECT","local")
     stamp = datetime.strftime( datetime.now() , "%Y%m%d" )
     
-    ## create a new instance for today if not existing already 
     dbtc = DBTableCounts( sect=sect, stamp=stamp )
     print dbtc
+
+
+if __name__=='__main__':
 
     ## over the persisted instances
     for i in DBTableCounts._instances():
