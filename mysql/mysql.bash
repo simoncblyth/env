@@ -36,11 +36,14 @@ mysql-usage(){
 
     mysql-showdatabase
 
-    mysql-dumpall
+    mysql-dumpall [basedir]
 
-          CAUTION AS EACH db is dumped separately it is possible that the tables in i
-          different DB will be inconsistent if one were to operate in a writing related tables to separate DB manner ?
+          CAUTION AS EACH db is dumped separately it is possible that the tables in 
+          different DB will be inconsistent if one were to operate 
+          in a writing related tables to separate DB manner ?
   
+
+
 
 
 
@@ -138,11 +141,8 @@ mysql-dump(){
    mysqldump --host=$(private-val DATABASE_HOST) --user=$(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $1
 }
 
-
 mysql-dumpall(){
-
-  local db_
-   local cmd
+   local db_
    local iwd=$PWD
    local dir=$(mysql-bkpdir $*)
    mkdir -p $dir && cd $dir
@@ -151,9 +151,6 @@ mysql-dumpall(){
    done
    cd $iwd
 }
-
-
-
 
 mysql-cnf(){
   pkgr-
