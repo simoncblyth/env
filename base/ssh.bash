@@ -28,6 +28,18 @@ cat << EOU
             source>  ssh--agent-start
            
 
+
+     == Troubleshoot Passwordless access not working ==
+
+        ssh uses client-daemon with config files for 
+        both client (man ssh_config) and daemon (man sshd_config) 
+        on both the nodes you are connecting 
+
+        all 4 config files need to be reviewed and have :
+          *  client settings should use "Protocol 2" or "2,1" (NOT with 1 first)  
+          *  daemon settings should use 
+                 AuthorizedKeysFile .ssh/authorized_keys2
+
      == Server/Backup Management ==
 
          
