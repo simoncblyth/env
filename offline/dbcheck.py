@@ -3,9 +3,9 @@ from mysqldb import DB
 from dbconf import DBConf
 from datetime import datetime
 import re
-from env.structure import Pers
+from env.structure import Persdict
 
-class DBTableCounts(Pers):
+class DBTableCounts(Persdict):
 
     _patn = re.compile("(?P<sect>\S*)_(?P<stamp>\d*)")
     def _id( cls, *args, **kwa ):

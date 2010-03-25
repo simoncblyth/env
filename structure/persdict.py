@@ -3,7 +3,7 @@ import cPickle as pickle
 import os
 
 
-class Pers(dict):
+class Persdict(dict):
     """
         Basic idea :
            * objects can be identified by their keyword arguments
@@ -123,7 +123,7 @@ class Pers(dict):
 
 
 
-class NonSingletonExample(Pers):
+class NonSingletonExample(Persdict):
     """
           Using remake=True will inhibit loading of a persisted version 
           
@@ -140,7 +140,7 @@ class NonSingletonExample(Pers):
 
     
 
-class SingletonExample(Pers):
+class SingletonExample(Persdict):
     """
          You must provide the argument  singleton=True
            TODO: 

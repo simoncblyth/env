@@ -3,4 +3,4 @@
 """
 
 from persistent import Persistent
-from pers import Pers
+from persdict import Persdict
