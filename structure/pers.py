@@ -36,7 +36,7 @@ class Pers(object):
     _id = classmethod( _id )   
  
     def _dir(cls,*args, **kwa):
-        basedir = kwa.get( 'persdir', '/tmp/env' )
+        persdir = kwa.get( 'persdir', '/tmp/env' )
         dir = os.path.join( persdir , cls._id(*args, **kwa) )
         if not(os.path.exists(dir)):
             os.makedirs(dir)
@@ -126,7 +126,7 @@ class NonSingletonExample(Pers):
 
     
 
-class SingletonExample(Persistent):
+class SingletonExample(Pers):
     """
          You must provide the argument  singleton=True
            TODO: 
