@@ -14,10 +14,12 @@ EOU
 daily-dir(){
   case $(hostname) in 
      lxslc??.ihep.ac.cn) echo /home/dyb/dybsw/NuWa/daily ;; 
+        farm1.dyb.local) echo /home/dyb/dybsw/NuWa/daily ;; 
                       *) echo /tmp/env/$FUNCNAME         ;;
   esac 
 }
 daily-cd(){  cd $(daily-dir); }
+daily-tcd(){  cd $(daily-todaydir); }
 daily-mate(){ mate $(daily-dir) ; }
 daily-get(){
    local dir=$(dirname $(daily-dir)) &&  mkdir -p $dir && cd $dir
@@ -39,15 +41,9 @@ daily-rev(){
   esac
 }
 
-daily-builddir(){ 
-   local rev=$1 
-   echo NuWa-$rev 
-}
-
-daily-daydir(){
-   echo NuWa-$(date +"%Y%m%d") 
-}
-
+daily-builddir(){ echo NuWa-$1 ; }
+daily-daydir(){   echo NuWa-$(date +"%Y%m%d") ; }
+daily-todaydir(){ echo $(daily-dir)/$(daily-daydir) ; }
 daily-build(){
    local msg="=== $FUNCNAME :"
    local rev
