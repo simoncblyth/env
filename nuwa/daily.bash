@@ -9,6 +9,28 @@ daily-usage(){
      daily-dir : $(daily-dir)
 
 
+     daily-rev-    (no frills version)
+     daily-rev
+         Access the revision of the last successful dybinst autobuild 
+         since the cutoff time 
+         (currently cutoff times are daily at 18:00 dayabay time) 
+
+         For a table of prior such revisions, times and links to build 
+         status pages see
+             http://dayabay.ihep.ac.cn/tracs/dybsvn/daily/dybinst
+
+     daily-build-
+         Builds specific revisions in folders such $(daily-revdir 9999) 
+         beneath $(daily-dir). Revisions obtained using daily-rev-
+         
+     daily-build
+         Calls daily-build- for the actual work, this creates day links
+         such as $(daily-daydir) that point to the actual revdir $(daily-revdir 9999)
+         in which the build is performed   
+         
+     daily-purge
+         Deletes older build dirs and deletes the daylinks that point to them
+
 EOU
 }
 daily-dir(){
@@ -41,7 +63,7 @@ daily-rev(){
   esac
 }
 
-daily-builddir(){ echo NuWa-$1 ; }
+daily-revdir(){   echo NuWa-$1 ; }
 daily-daydir(){   echo NuWa-$(date +"%Y%m%d") ; }
 daily-todaydir(){ echo $(daily-dir)/$(daily-daydir) ; }
 daily-build(){
@@ -61,7 +83,7 @@ daily-build(){
    daily-cd
 
    
-   local bdir=$(daily-builddir $rev)
+   local bdir=$(daily-revdir $rev)
    ln -sf $bdir $(daily-daydir)
    touch $bdir/days
    echo $(daily-daydir) >> $bdir/days
@@ -72,13 +94,13 @@ daily-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/
 daily-build-(){
   local msg="=== $FUNCNAME :"
   local rev=$1
-  local bdir=$(daily-builddir $rev)
+  local rdir=$(daily-revdir $rev)
   [ -z "$rev" ]  && echo $msg revision argument required && return 1 
-  # [ -d "$bdir" ] && echo $msg builddir $bdir exists already && return 0 
+  # [ -d "$rdir" ] && echo $msg revdir $rdir exists already && return 0 
 
-  echo $msg proceeding with build $bdir ...
+  echo $msg proceeding with build $rdir ...
   local iwd=$PWD
-  mkdir -p $bdir && cd $bdir
+  mkdir -p $rdir && cd $rdir
 
   [ -f "dybinst" ] && echo $msg dybinst already exported || svn export $(daily-dybinst-url)
 
@@ -101,44 +123,44 @@ daily-purge(){
 
   local msg="=== $FUNCNAME :"
   local nmax=$(daily-keep)
-  local days
-  local iday
-  local nday
-  declare -a days
+  local revs
+  local irev
+  local nrev
+  declare -a revs
 
   echo $msg   
   daily-cd
 
-  days=($(find . -maxdepth 1 -name 'NuWa-????' | sort ))
-  nday=${#days[@]}
-  echo $msg pwd:$PWD nday:$nday nmax:$nmax
+  revs=($(find . -maxdepth 1 -name 'NuWa-????' | sort ))
+  nrev=${#revs[@]}
+  echo $msg pwd:$PWD nrev:$nrev nmax:$nmax
   iday=0
 
   local cmd
-  while [ "$iday" -lt "$nday" ]
+  while [ "$irev" -lt "$nrev" ]
   do
-    local day=${days[$iday]}
-    if [ $(( $nday - $iday > $nmax )) == 1 ]; then
+    local rev=${revs[$irev]}
+    if [ $(( $nrev - $irev > $nmax )) == 1 ]; then
         ## tidy up day links that point to the folder to be deleted
         local daylink  
-        cat $day/days | while read daylink ; do
+        cat $rev/days | while read daylink ; do
             local revd=$(readlink $daylink)
             echo $msg daylink $daylink $revd
-            if [ "$revd" == "$(basename $day)" ]; then
+            if [ "$revd" == "$(basename $rev)" ]; then
                cmd="rm $daylink"
                echo $msg remove daylink $daylink ... $cmd
                #eval $cmd       
             else
-                echo revd $revd day $day 
+                echo revd $revd rev $rev
             fi  
         done      
-        cmd="rm -rf $day"
-        echo $msg delete $day ... $cmd
+        cmd="rm -rf $rev"
+        echo $msg delete $rev ... $cmd
         #eval $cmd
     else
-        echo retain $day
+        echo retain $rev
     fi
-    let "iday = $iday + 1"
+    let "irev = $irev + 1"
   done
 }
 
