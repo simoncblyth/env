@@ -3,7 +3,7 @@ import cPickle as pickle
 import os
 
 
-class Pers(object):
+class Pers(dict):
     """
         Basic idea :
            * objects can be identified by their keyword arguments
@@ -17,7 +17,6 @@ class Pers(object):
         else:
             return cls(*args, **kwa)
     _get = classmethod( _get )   
-
  
     def _idstring(cls, *args, **kwa):
         """
@@ -36,15 +35,15 @@ class Pers(object):
     _id = classmethod( _id )   
  
     def _dir(cls,*args, **kwa):
-        persdir = kwa.get( 'persdir', '/tmp/env' )
-        dir = os.path.join( persdir , cls._id(*args, **kwa) )
+        persdir = kwa.get( 'persdir', '/tmp/env'   )
+        dir = os.path.join( persdir , cls.__name__  )
         if not(os.path.exists(dir)):
             os.makedirs(dir)
         return dir
     _dir = classmethod( _dir )   
  
     def _path(cls,*args, **kwa):
-        return os.path.join(cls._dir(*args, **kwa), "%s.p" % cls.__name__ )
+        return os.path.join(cls._dir(*args, **kwa), "%s.p" % cls._id(*args,**kwa) )
     _path = classmethod( _path )   
  
     def _save(cls, obj , *args, **kwa):
@@ -90,7 +89,7 @@ class Pers(object):
             return it 
         
         # still dont find it ... so make it and save it 
-        it = object.__new__(cls)
+        it = dict.__new__(cls)
         
         if hasattr(it, 'init'):
             it.init(*args, **kwds)
