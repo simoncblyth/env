@@ -41,7 +41,22 @@ class Pers(dict):
             os.makedirs(dir)
         return dir
     _dir = classmethod( _dir )   
- 
+
+    def _parse(cls, name ):
+        m = cls._patn.match( name )
+        if m:
+            return m.groupdict()
+        return None   
+    _parse = classmethod( _parse )    
+
+    def _instances(cls):        
+        """ allows iteration over the persisted instances """
+        for iname in os.listdir( cls._dir() ):
+           d = cls._parse( iname )
+           if d:
+               yield cls( **d )
+    _instances = classmethod( _instances )
+
     def _path(cls,*args, **kwa):
         return os.path.join(cls._dir(*args, **kwa), "%s.p" % cls._id(*args,**kwa) )
     _path = classmethod( _path )   

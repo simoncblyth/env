@@ -12,26 +12,12 @@ class DBTableCounts(Pers):
         return "%s_%s" % ( kwa.get('sect','nosect'), kwa.get('stamp','nostamp') )
     _id = classmethod( _id )
 
-    def _parse(cls, name ):
-        m = cls._patn.match( name )
-        if m:
-            return m.groupdict()
-        return None   
-    _parse = classmethod( _parse )    
-
     def __init__(self, sect=None, stamp=None ):
         ini = os.path.expanduser("~/.dybdb.ini")
         cfg = DBConf( path=ini , sect=sect )  
         db = DB( **cfg )
         self.table_counts( db )
         db.close()
-
-    def _instances(cls):        
-        for iname in os.listdir( DBTableCounts._dir() ):
-           d = cls._parse( iname )
-           if d:
-               yield cls( **d )
-    _instances = classmethod( _instances )
 
     def table_counts(self, db ):
         rec = db.fetchone("SELECT VERSION()")  ## check connection with query that should always succeed

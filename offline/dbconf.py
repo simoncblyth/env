@@ -50,7 +50,7 @@ class DBConf(dict):
             cfg.readfp( StringIO(src) )
 
         secs = cfg.sections()
-        assert sect in secs , "section %s is not one of these : %s configured in %s " % (section,  secs, path ) 
+        assert sect in secs , "section %s is not one of these : %s configured in %s " % (sect,  secs, path ) 
         for k in cfg.options(sect):
             v = cfg.get(sect,k)
             self[k] = v
