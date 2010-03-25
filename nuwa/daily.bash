@@ -59,7 +59,13 @@ daily-build(){
    [ "$rc" != "0" ] && echo $msg ABORT && return $rc     
 
    daily-cd
-   ln -sf $(daily-builddir $rev) $(daily-daydir)
+
+   
+   local bdir=$(daily-builddir $rev)
+   ln -sf $bdir $(daily-daydir)
+   touch $bdir/days
+   echo $(daily-daydir) >> $bdir/days
+
 }
 
 daily-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
@@ -90,4 +96,49 @@ daily-build-(){
 }
 
 
+daily-keep(){  echo 7 ; }
+daily-purge(){
+
+  local msg="=== $FUNCNAME :"
+  local nmax=$(daily-keep)
+  local days
+  local iday
+  local nday
+  declare -a days
+
+  echo $msg   
+  daily-cd
+
+  days=($(find . -maxdepth 1 -name 'NuWa-????' | sort ))
+  nday=${#days[@]}
+  echo $msg pwd:$PWD nday:$nday nmax:$nmax
+  iday=0
+
+  local cmd
+  while [ "$iday" -lt "$nday" ]
+  do
+    local day=${days[$iday]}
+    if [ $(( $nday - $iday > $nmax )) == 1 ]; then
+        ## tidy up day links that point to the folder to be deleted
+        local daylink  
+        cat $day/days | while read daylink ; do
+            local revd=$(readlink $daylink)
+            echo $msg daylink $daylink $revd
+            if [ "$revd" == "$(basename $day)" ]; then
+               cmd="rm $daylink"
+               echo $msg remove daylink $daylink ... $cmd
+               #eval $cmd       
+            else
+                echo revd $revd day $day 
+            fi  
+        done      
+        cmd="rm -rf $day"
+        echo $msg delete $day ... $cmd
+        #eval $cmd
+    else
+        echo retain $day
+    fi
+    let "iday = $iday + 1"
+  done
+}
 
