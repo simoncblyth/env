@@ -9,10 +9,12 @@ class Persdict(dict):
            * objects can be identified by their keyword arguments
 
     """
+    _dbg = 0
     def _get(cls,*args, **kwa):
         instance = cls._load(*args, **kwa)
         if instance:
-             print "providing pickled"
+             if cls._dbg > 0:
+                 print "providing pickled"
              return instance
         else:
             return cls(*args, **kwa)
@@ -63,17 +65,20 @@ class Persdict(dict):
  
     def _save(cls, obj , *args, **kwa):
         pp = cls._path(*args, **kwa)
-        print "saving to %s using identity %s " % ( pp , cls._idstring(*args, **kwa))
+        if cls._dbg > 0:
+            print "saving to %s using identity %s " % ( pp , cls._idstring(*args, **kwa))
         pickle.dump( obj , file(pp,'w') )
     _save = classmethod( _save )   
  
     def _load(cls, *args, **kwa):
         pp = cls._path(*args, **kwa)
         if os.path.exists(pp):
-            print "loading from %s  using identity %s " % ( pp , cls._idstring(*args, **kwa))
+            if cls._dbg > 0:
+                print "loading from %s  using identity %s " % ( pp , cls._idstring(*args, **kwa))
             return pickle.load(file(pp))
         else:
-            print "failed to load from %s " % pp
+            if cls._dbg > 0:
+                print "failed to load from %s " % pp
             return None
     _load = classmethod( _load )
 
@@ -82,10 +87,12 @@ class Persdict(dict):
         
         # check if have the singleton instance yet
         if kwds.get('singleton',False) == True:
-            print "singleton mode ON "
+            if cls._dbg > 0:
+                print "singleton mode ON "
             it = cls.__dict__.get("__it__")
         else:
-            print "singleton mode OFF "
+            if cls._dbg > 0:
+                print "singleton mode OFF "
             it = None
         
         if it is not None:
@@ -93,10 +100,12 @@ class Persdict(dict):
         
         # attempt to access the persisted it, if find it set the singleton slot and return
         if kwds.get('remake',False) == True:
-            print "remake mode ON ... forcing a remake "
+            if cls._dbg > 0:
+                print "remake mode ON ... forcing a remake "
             it = None
         else:
-            print "remake mode OFF ... try to load from persisted "
+            if cls._dbg > 0:
+                print "remake mode OFF ... try to load from persisted "
             it = cls._load(*args, **kwds)  
         
         if it is not None:
@@ -109,7 +118,8 @@ class Persdict(dict):
         if hasattr(it, 'init'):
             it.init(*args, **kwds)
         else:
-            print "skipping init method ... as you didnt implement one "
+            if cls._dbg > 0:
+                print "skipping init method ... as you didnt implement one "
             
         cls._save(it, *args, **kwds)
     
