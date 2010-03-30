@@ -6,8 +6,20 @@ import os
 class Persdict(dict):
     """
         Basic idea :
-           * objects can be identified by their keyword arguments
-
+           * objects can be identified by their keyword arguments alone, 
+             which translates into a file path 
+           * using __new__ (which takes precedence over __init__) the
+             object instantiation is controlled to load from a persisted version 
+             if such files exists 
+             
+        Persdict sub classes must obey the contract 
+           * implement a "populate' method where object identity 
+             is fully specified by the kwa
+             
+        In return they gain transparent persistency, and avoidance of 
+        repeating expensive object constructions, such a DB lookups. The use of 
+        timestamp arguments allows simple history tracking for object changes.    
+             
     """
     _dbg = 0
     def _get(cls,*args, **kwa):
@@ -66,72 +78,56 @@ class Persdict(dict):
     def _save(cls, obj , *args, **kwa):
         pp = cls._path(*args, **kwa)
         if cls._dbg > 0:
-            print "%s._save obj %s to %s using identity %s " % ( cls.__name__ , obj, pp , cls._idstring(*args, **kwa))
+            print "(base)%s._save obj %s to %s using identity %s " % ( cls.__name__ , obj, pp , cls._idstring(*args, **kwa))
         pickle.dump( obj , file(pp,'w') )
     _save = classmethod( _save )   
  
     def _load(cls, *args, **kwa):
-        pp = cls._path(*args, **kwa)
+        pp  = cls._path(*args, **kwa)
+        ii = cls._idstring(*args, **kwa)
         if os.path.exists(pp):
-            if cls._dbg > 0:
-                print "%s._load loading from %s  using identity %s " % ( cls.__name__ , pp , cls._idstring(*args, **kwa))
             it = pickle.load(file(pp))
-            print "%s._load it :  %s " % ( cls.__name__ , it )
+            if cls._dbg > 0:print "(base)%s._load loading from %s  using identity %s :  %s " %  ( cls.__name__ , pp , ii , it )
             return it 
         else:
-            if cls._dbg > 0:
-                print "%s._load failed from path %s " % ( cls.__name__ , pp )
+            if cls._dbg > 0:print "(base)%s._load failed from %s using identity %s  " % ( cls.__name__ , pp , ii )
             return None
     _load = classmethod( _load )
 
 
     def __new__(cls, *args, **kwds):
-        
-        # check if have the singleton instance yet
-
         it = None
         if kwds.get('singleton',False) == True:
-            if cls._dbg > 1:
-                print "%s.__new__ singleton mode ON " % cls.__name__
+            if cls._dbg > 1:print "(base)%s.__new__ singleton mode ON " % cls.__name__
             it = cls.__dict__.get("__it__")
-        
         if it is not None:
-            return it            
-        
-        # attempt to access the persisted it, if find it set the singleton slot and return
+            return it
+                    
         if kwds.get('remake',False) == True:
-            if cls._dbg > 1:
-                print "%s.__new__ remake mode ON ... forcing remake " % cls.__name__
+            if cls._dbg > 1:print "(base)%s.__new__ remake mode ON ... forcing remake " % cls.__name__
             it = None
         else:
-            if cls._dbg > 1:
-                print "%s.__new__ remake mode OFF ... try to load from persisted " % cls.__name__
+            if cls._dbg > 1:print "(base)%s.__new__ remake mode OFF ... try to load from persisted " % cls.__name__
             it = cls._load(*args, **kwds)  
-        
+            
         if it is not None:
-            cls.__it__ = it
-            if cls._dbg > -1:print "%s.__new__ returning persisted instance : %s " % ( cls.__name__ , it )
+            cls.__it__ = it       ## set the singleton slot as a class variable 
+            if cls._dbg > 0:print "(base)%s.__new__ returning persisted instance : %s " % ( cls.__name__ , it )
             return it 
         
-        # still dont find it ... so make it and save it 
-        print "%s.__new__ no persisted instance ... so invoke the __init__ (via __new__ ) " % cls.__name__
-        it = dict.__new__(cls)
+        if cls._dbg > 0:print "(base)%s.__new__ no persisted instance ... so invoke the __init__ (via __new__ ) " % cls.__name__
+        it = dict.__new__(cls, *args, **kwds )
         
-        if hasattr(it, 'init'):
-            it.init(*args, **kwds)
+        if hasattr( cls , 'populate'):
+            getattr( cls , 'populate' )( it , *args , **kwds )            
+            cls._save( it , *args, **kwds  )
         else:
-            if cls._dbg > 0:
-                print "%s.__new__ skipping init method ... as you didnt implement one " % ( cls.__name__ )
-         
-        # do this in client class    
-        #cls._save(it, *args, **kwds)
-        #
-        #cls.__it__ = it
+            print "client class is expected to have a populate method "
+        if cls._dbg > 0:print "(base)%s.__new__ after dict.__new__  %s " %  ( cls.__name__ , it )
         return it
 
-
-    def __init__(self,*args, **kwds): # called each time
-        print 'In Persistent __init__.'
+    def __init__(self,*args, **kwds): 
+        print '(base)%s.__init__ THIS IS CALLED AFTER THE __new__ ? %s ' % ( self.__class__.__name__, self  )
 
 
 
