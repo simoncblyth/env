@@ -1,5 +1,19 @@
 #!/usr/bin/env python
 """
+
+   DBConf is deprecated after discovering similar capabilities
+   in MySQLdb  :
+      * read_default_file 
+      * read_default_group   
+       
+   Using these allow a single config file  ~/.my.cnf
+   to be used from both command line mysql client 
+   and python      
+
+
+
+
+
    Preview environment setup read from .ini 
        ./dbconf.py --path demo.ini --sect testdb  
 
@@ -32,7 +46,12 @@ class DBConf(dict):
 
     """
 
-    def __init__(self, path=None, sect=None, epfx=None, src=None ): 
+    def __init__(self, *args, **kwa ):
+
+        path = kwa.get('path', None)
+        sect = kwa.get('sect', None)
+        epfx = kwa.get('epfx', None)
+        src  = kwa.get('src' , None)
         
         from ConfigParser import ConfigParser
         cfg = ConfigParser()

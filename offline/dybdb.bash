@@ -6,6 +6,10 @@ dybdb-usage(){
 
      Subsequently can access these functions with dybdb-...
 
+     THIS IS DEPRECATED AS DISCOVERED THAT ~/.my.cnf OFFERS MOST 
+      OF THIS FUNCTIONALITY IN A STANDARD MANNER
+
+
      Switch environment to that defined in a named section 
      of your ini file $(dybdb-ini)
  

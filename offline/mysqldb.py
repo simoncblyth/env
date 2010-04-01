@@ -40,21 +40,15 @@ class DB:
 
 
 if __name__=='__main__':
-   
-    from dbconf import DBConf 
 
-    sect = os.environ.get("DB_SECT","testdb")
-    cfg = DBConf( path=os.path.expanduser('~/.dybdb.ini') , sect=sect )  
-    print cfg
+    cnf = os.path.expanduser('~/.my.cnf')
+    db = DB( read_default_file=cnf )
+    #db = DB( read_default_file=cnf , read_default_group='test' )  ## pick alternate to "client" group in the ~/.my.cnf
 
-    db = DB( **cfg )
     rec = db.fetchone("SELECT VERSION()")
     print rec
     for rec in db("SHOW TABLES"):
-        #print rec 
         tab = rec.values()[0]
-        #print tab
-        #print db("DESCRIBE %s" % tab )
         cnt = db.fetchone("SELECT COUNT(*) FROM  %s" % tab )
         n = cnt.values()[0]
         print "%-30s : %s " % ( tab , n )
