@@ -791,3 +791,4 @@ html-(){      . $(env-home)/html/html.bash && html-env $* ; }
 rootana-(){      . $(env-home)/root/rootana.bash && rootana-env $* ; }
 daily-(){      . $(env-home)/nuwa/daily.bash && daily-env $* ; }
 db-(){      . $(env-home)/db/db.bash && db-env $* ; }
+memoir-(){      . $(env-home)/latex/memoir.bash && memoir-env $* ; }

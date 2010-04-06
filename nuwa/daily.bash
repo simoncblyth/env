@@ -123,6 +123,34 @@ daily-build-(){
 }
 
 
+daily-validate-(){
+  local msg="=== $FUNCNAME :"
+  local rev=$1
+  local rdir=$(daily-revdir $1) 
+
+  local iwd=$PWD
+
+  cd $rdir
+  . $PWD/installation/trunk/dybtest/scripts/dyb__.sh   
+
+  cd NuWa-trunk/dybgaudi
+  dyb__testall -v
+
+  cd $rdir
+  cd NuWa-trunk/tutorial
+  dyb__testall -v
+
+  local rc
+  cd $rdir
+  dyb__testall_ok
+  rc=$?
+
+  cd $iwd
+}
+
+
+
+
 daily-keep(){  echo 7 ; }
 daily-purge(){
 
