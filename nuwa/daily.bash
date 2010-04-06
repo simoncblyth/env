@@ -123,25 +123,29 @@ daily-build-(){
 }
 
 
-daily-validate-(){
-  local msg="=== $FUNCNAME :"
+
+daily-validate(){
   local rev=$1
   local rdir=$(daily-revdir $1) 
 
+  . $rdir/installation/trunk/dybtest/scripts/dyb__.sh   
+  cd $rdir/NuWa-trunk
+  daily-validate-
+}
+
+
+daily-validate-(){
+  local msg="=== $FUNCNAME :"
   local iwd=$PWD
 
-  cd $rdir
-  . $PWD/installation/trunk/dybtest/scripts/dyb__.sh   
-
-  cd NuWa-trunk/dybgaudi
+  cd $iwd/dybgaudi
   dyb__testall -v
 
-  cd $rdir
-  cd NuWa-trunk/tutorial
+  cd $iwd/tutorial
   dyb__testall -v
 
   local rc
-  cd $rdir
+  cd $iwd
   dyb__testall_ok
   rc=$?
 
