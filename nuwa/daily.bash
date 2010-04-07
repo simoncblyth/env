@@ -8,8 +8,13 @@ daily-usage(){
      daily-src : $(daily-src)
      daily-dir : $(daily-dir)
 
+     daily-url : $(daily-url)
+     daily-rev-    
+         (no frills version)
+         Looks up the revision ; requires the existance of a protected
+         file $HOME/.dybpass , create this file with 
+              echo youknowwhat > $HOME/.dybpass
 
-     daily-rev-    (no frills version)
      daily-rev
          Access the revision of the last successful dybinst autobuild 
          since the cutoff time 
@@ -18,6 +23,10 @@ daily-usage(){
          For a table of prior such revisions, times and links to build 
          status pages see
              http://dayabay.ihep.ac.cn/tracs/dybsvn/daily/dybinst
+
+     daily-dir : $(daily-dir)
+         the directory within which revdir (eg NuWa-9999) are created
+         holding the revision builds, typically set to \$SITEROOT/../daily 
 
      daily-build-
          Builds specific revisions in folders such $(daily-revdir 9999) 
@@ -31,24 +40,93 @@ daily-usage(){
      daily-purge
          Deletes older build dirs and deletes the daylinks that point to them
 
+
+
+     daily-rc  : $(daily-rc)
+          path to the configuration file
+
+     daily-cfg-check
+          check contents of config file or create a demo one if not existing with -init
+     daily-cfg-init
+         initialize the config using daily-demorc-
+     daily-cfg-demo
+         emit demonstration config
+
+
+
 EOU
 }
-daily-dir(){
-  case $(hostname) in 
-     lxslc??.ihep.ac.cn) echo /home/dyb/dybsw/NuWa/daily ;; 
-        farm1.dyb.local) echo /home/dyb/dybsw/NuWa/daily ;; 
-                      *) echo /tmp/env/$FUNCNAME         ;;
-  esac 
-}
-daily-cd(){  cd $(daily-dir); }
-daily-tcd(){  cd $(daily-todaydir); }
-daily-mate(){ mate $(daily-dir) ; }
-daily-get(){
-   local dir=$(dirname $(daily-dir)) &&  mkdir -p $dir && cd $dir
+
+daily-cfg-demo(){  cat << EOD
+#
+# created $(date) by $FUNCNAME
+#
+# credentials used to access the Trac master to determine the revisions to build
+#
+local creds=dayabay:youknowit
+
+#
+# absolute path to "daily" dir within which revdir such as NuWa-9999 
+# will be created, eg: /home/dyb/dybsw/NuWa/daily or /data/env/local/dyb/trunk/daily
+#
+# dybinst will be exported into the revdir and run 
+# positioning "daily" inside an pre-existing "dybinst" 
+# containing directory allows the external dir to be shared 
+# using relative path ../../external
+#
+local dir=/path/to/daily
+
+# relative (or absolute) path from revdir (eg /path/to/daily/NuWa-9999) 
+# to the external directory. 
+# Used as the "-e" dybinst argument from the revdir 
+#
+local external=../../external
+
+#
+# number of revdir to be retained by the daily-purge function 
+#
+local keep=7
+
+
+EOD
 }
 
-daily-creds(){ echo "dayabay:$(<~/.dybpass)" ; }
-daily-url(){   echo "http://dayabay.ihep.ac.cn/tracs/dybsvn/daily/dybinst?format=txt" ; }
+daily-rc(){       echo $HOME/.dyb__dailyrc ; }
+daily-edit(){     vi $(daily-rc) ; }
+
+daily-external(){ [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $external ;  }
+daily-creds(){    [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $creds    ;  }
+daily-dir(){      [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $dir      ;  }
+daily-keep(){     [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $keep     ;  }
+
+daily-cfg-check(){
+  local msg="=== $FUNCNAME :"
+  [ ! -f "$(daily-rc)" ] && echo $msg ERROR no daily-rc : $(daily-rc) attempting to create one ... && daily-cfg-init
+  . $(daily-rc)
+  [ -z "$creds" ]    && echo $msg daily \"creds\" undefined && return 1
+  [ -z "$dir" ]      && echo $msg daily \"dir\" undefined && return 1
+  [ -z "$external" ] && echo $msg daily \"external\" undefined && return 1
+  [ -z "$keep" ]     && echo $msg daily \"keep\" undefined && return 1
+  return 0
+}
+daily-cfg-init(){
+  local msg="=== $FUNCNAME :"
+  [ -f "$(daily-rc)" ] && echo $msg daily-rc : $(daily-rc) exists already && return 0
+  echo $msg creating demo $(daily-rc) 
+  daily-cfg-demo > $(daily-rc) 
+  chmod go-rw $(daily-rc)
+  echo $msg YOU NEED TO EDIT : $(daily-rc)
+}
+
+
+
+
+daily-cd(){  cd $(daily-dir); }
+daily-tcd(){  cd $(daily-todaydir); }
+
+daily-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
+daily-url(){             echo "http://dayabay.ihep.ac.cn/tracs/dybsvn/daily/dybinst?format=txt" ; }
+
 daily-rev-(){   curl --fail -s -u "$(daily-creds)" "$(daily-url)" ; }
 daily-rev(){
   local msg="=== $FUNCNAME :"  
@@ -66,113 +144,85 @@ daily-rev(){
 daily-revdir(){   echo NuWa-$1 ; }
 daily-daydir(){   echo NuWa-$(date +"%Y%m%d") ; }
 daily-todaydir(){ echo $(daily-dir)/$(daily-daydir) ; }
+
+
 daily-build(){
    local msg="=== $FUNCNAME :"
-   local rev
-   rev=$(daily-rev-)
-   rc=$?
-   [ "$rc" != "0" ] && echo $msg ABORT failed to obtain revision rc $rc && return 1    
+   local rev=${1:-$(daily-rev-)}
+   [ -z "$rev" ]  && echo $msg revision is required && return 1 
 
    local ddir=$(daily-dir)
    mkdir -p $ddir && cd $ddir
-   
-   daily-build- $rev
+
+   local rdir=$(daily-revdir $rev)
+   # [ -d "$rdir" ] && echo $msg revdir $rdir exists already && return 0 
+
+   echo $msg proceeding with build $rdir ...
+   local iwd=$PWD
+   mkdir -p $rdir && cd $rdir
+
+   daily-build- 
    rc=$?
-   [ "$rc" != "0" ] && echo $msg ABORT && return $rc     
+   [ "$rc" != "0" ] && echo $msg daily-build- ABORT    && return $rc     
 
+   daily-validate- 
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg daily-validate- ABORT && return $rc     
+
+
+   ## publishing via the day link is only done if the above build + validation succeeds
    daily-cd
-   
-   local bdir=$(daily-revdir $rev)
-   ln -sf $bdir $(daily-daydir)
-   touch $bdir/days
-   echo $(daily-daydir) >> $bdir/days
-
+   ln -sf $rdir $(daily-daydir)
+   touch $rdir/days
+   echo $(daily-daydir) >> $rdir/days
 }
 
-daily-dybinst-url(){     echo http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst ; }
+
+
 daily-build-(){
   local msg="=== $FUNCNAME :"
-  local rev=$1
-  local rdir=$(daily-revdir $rev)
-  [ -z "$rev" ]  && echo $msg revision argument required && return 1 
-  # [ -d "$rdir" ] && echo $msg revdir $rdir exists already && return 0 
-
-  echo $msg proceeding with build $rdir ...
-  local iwd=$PWD
-  mkdir -p $rdir && cd $rdir
-
   [ -f "dybinst" ] && echo $msg dybinst already exported || svn export $(daily-dybinst-url)
-
   local cmd
   local rc
-  cmd="./dybinst -z $rev -e ../../external trunk checkout"
+  cmd="./dybinst -z $rev -e $(daily-external) trunk checkout"
   echo $msg $cmd
   eval $cmd
   rc=$?
   [ "$rc" != "0" ] && echo $msg ABORT checkout failed rc:$rc && return $rc     
-
- 
-  cmd="./dybinst -z $rev -e ../../external -c trunk projects"
+  cmd="./dybinst -z $rev -e $(daily-external) -c trunk projects"
   echo $msg $cmd
   eval $cmd
   rc=$?
   [ "$rc" != "0" ] && echo $msg ABORT projects failed rc:$rc && return $rc     
-
-
   cd $iwd
 }
-
-
-
-daily-validate(){
-  local rev=$1
-  local rdir=$(daily-revdir $1) 
-
-  . $rdir/installation/trunk/dybtest/scripts/dyb__.sh   
-  cd $rdir/NuWa-trunk
-  daily-validate-
-}
-
 
 daily-validate-(){
-  local msg="=== $FUNCNAME :"
   local iwd=$PWD
-
-  cd $iwd/dybgaudi
-  dyb__testall -v
-
-  cd $iwd/tutorial
-  dyb__testall -v
-
   local rc
-  cd $iwd
-  dyb__testall_ok
+  [ ! -f "dybinst" ]      && echo $msg ERROR revdir MUST contain dybinst      && return 1 
+  [ ! -d "installation" ] && echo $msg ERROR revdir MUST contain installation && return 1 
+  [ ! -d "NuWa-trunk" ]   && echo $msg ERROR revdir MUST contain NuWa-trunk   && return 1 
+  . ./installation/trunk/dybtest/scripts/dyb__.sh   
+  dyb__validate 
   rc=$?
-
   cd $iwd
+  return $rc
 }
 
-
-
-
-daily-keep(){  echo 7 ; }
 daily-purge(){
-
   local msg="=== $FUNCNAME :"
   local nmax=$(daily-keep)
   local revs
   local irev
   local nrev
   declare -a revs
-
   echo $msg   
   daily-cd
-
   revs=($(find . -maxdepth 1 -name 'NuWa-????' | sort ))
   nrev=${#revs[@]}
   echo $msg pwd:$PWD nrev:$nrev nmax:$nmax
   iday=0
-
   local cmd
   while [ "$irev" -lt "$nrev" ]
   do
