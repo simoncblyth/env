@@ -5,6 +5,18 @@ daily-vi(){       vim $(daily-source) ; }
 daily-env(){      elocal- ; }
 daily-usage(){
   cat << EOU
+
+
+     DEVELOPMENT HERE IS DEPRECATED ....
+        REHOMED INTO dybsvn 
+            http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/installation/trunk/dybtest/scripts/daily.bash
+
+        Documentation pointers at 
+            https://wiki.bnl.gov/dayabay/index.php?title=Offline_Software_Installation#Setup_of_daily_builds_and_validations
+
+
+  == Function Descriptions ==
+
      daily-src : $(daily-src)
      daily-dir : $(daily-dir)
 
@@ -45,12 +57,14 @@ daily-usage(){
      daily-rc  : $(daily-rc)
           path to the configuration file
 
+     daily-cfg
+          list the settings obtained from the configuration file
      daily-cfg-check
           check contents of config file or create a demo one if not existing with -init
      daily-cfg-init
          initialize the config using daily-demorc-
      daily-cfg-demo
-         emit demonstration config
+         emit demonstration config to stdout
 
 
 
@@ -99,6 +113,17 @@ daily-creds(){    [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $creds    ;  }
 daily-dir(){      [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $dir      ;  }
 daily-keep(){     [ -f "$(daily-rc)" ] && . $(daily-rc) ; echo $keep     ;  }
 
+daily-cfg(){  cat << EOS
+Configuration read from daily-rc yields the below settings :
+   daily-rc       : $(daily-rc)
+  
+   daily-external : $(daily-external)
+   daily-creds    : $(daily-creds)
+   daily-dir      : $(daily-dir)
+   daily-keep     : $(daily-keep)
+
+EOS
+}
 daily-cfg-check(){
   local msg="=== $FUNCNAME :"
   [ ! -f "$(daily-rc)" ] && echo $msg ERROR no daily-rc : $(daily-rc) attempting to create one ... && daily-cfg-init
