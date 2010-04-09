@@ -60,30 +60,10 @@ nuwa-env(){
    else
       [ -z "$NUWA_NOFUNC" ] && nuwa-functions $*
       nuwa-exports $*   
-      nuwa-defpkgdir
+      #nuwa-defpkgdir
    fi
-
-   
-   
-  
 }
 
-
-nuwa-daily-creds(){ echo "dayabay:$(<~/.dybpass)" ; }
-nuwa-daily-url(){   echo "http://dayabay.phys.ntu.edu.tw/tracs/dybsvn/daily/dybinst?from=07/11/2009&format=txt" ; }
-nuwa-daily-rev(){   curl --fail -s -u "$(nuwa-daily-creds)" "$(nuwa-daily-url)" ; }
-nuwa-daily(){
-  local msg="=== $FUNCNAME :"  
-  local rev
-  local rc
-  rev=$(nuwa-daily-rev)
-  rc=$?
-  ## cannot combine prior 4 lines to 2 and capture both output and rc 
-  case $rc in
-     0) echo $msg last revision is $rev ;;
-     *) echo $msg FAILED with to access last revision ... curl gave non-zero rc $rc  ... bad credentials OR bad server config  ;;
-  esac
-}
 
 
 
@@ -359,7 +339,7 @@ EOI
 
 
 
-nuwa-home-default(){  echo $LOCAL_BASE/dyb/trunk_dbg/NuWa-trunk ; }
+nuwa-home-default(){  echo $LOCAL_BASE/dyb/trunk/NuWa-trunk ; }
 
 nuwa-home-construct(){
    local v=$1
@@ -380,16 +360,17 @@ nuwa-home(){
 nuwa-release(){       echo $(basename $(nuwa-home $*)); }
 nuwa-version(){       local rel=$(nuwa-release $*) ; echo ${rel/NuWa-/} ; }
 nuwa-scripts(){       echo installation/$(nuwa-version $*)/dybtest/scripts ; }
+
 nuwa-base(){          echo $(dirname $(nuwa-home $*)) ; } 
-
-nuwa-dyb__(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/dyb__.sh ; }
-nuwa-slave(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/slave.bash ; }
-
 nuwa-dyb(){           echo $(nuwa-base $*) ; } 
-nuwa-ddr(){           echo $(nuwa-home $*) ; } 
 nuwa-external(){      echo $(nuwa-base $*)/external ; } 
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
+nuwa-dyb__(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/dyb__.sh ; }
+nuwa-slave(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/slave.bash ; }
+nuwa-daily(){         echo $(nuwa-base $*)/$(nuwa-scripts $*)/daily.bash ; }
+
+nuwa-ddr(){           echo $(nuwa-home $*) ; } 
 nuwa-ddp(){           echo $(nuwa-home $*)/dybgaudi/DybPython/python/DybPython ; }
 nuwa-ddx(){           echo $(nuwa-home $*)/tutorial/Simulation/SimHistsExample/tests ; }
 nuwa-log(){           echo $(nuwa-base $*)/dybinst-recent.log ; }
@@ -409,6 +390,7 @@ nuwa-functions(){
     local msg="=== $FUNCNAME : "
     local dyb__=$(nuwa-dyb__ $*)
     local slave=$(nuwa-slave $*)
+    local daily=$(nuwa-daily $*)
     
     if [ -f $dyb__ ]; then
         set --
@@ -423,6 +405,12 @@ nuwa-functions(){
        . $slave
     else
        echo $msg no slave $slave 
+    fi
+
+    if [ -f $daily ]; then
+       . $daily
+    else
+       echo $msg no daily $daily 
     fi
 
 
