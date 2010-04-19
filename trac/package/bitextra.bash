@@ -47,7 +47,7 @@ bitextra-srcserver(){ echo http://dayabay.phys.ntu.edu.tw ; }
 bitextra-url(){     
    echo $(bitextra-srcserver)/repos/tracdev/annobit/$(bitextra-branch) 
 }
-bitextra-revision(){ echo 121 ; }
+bitextra-revision(){ echo 122 ; }
 
 
 bitextra-fix(){
