@@ -114,12 +114,13 @@ class Persdict(dict):
                 yield grp
     _groups = classmethod( _groups )
 
-    def _instances(cls, group=None ):        
+    def _keys(cls, group=None ):        
         """ 
             Iteration over all persisted instances of this class
+            providing dicts corresponding to the keys 
             for example :
-               for i in DBTableCounts._instances():
-                   print i  
+               for d in DBTableCounts._keys():
+                   i = DBTableCounts(**d)  
         """
         clsdir = cls._clsdir()
         for grp in os.listdir(clsdir):
@@ -130,8 +131,10 @@ class Persdict(dict):
                     if os.path.isfile(path):
                         d = cls._parse(ins)
                         if d:
-                            yield d 
-    _instances = classmethod( _instances )
+                            yield dict(stamp=d.get('stamp'), group=grp ) 
+    _keys = classmethod( _keys )
+
+        
 
     def _summary(cls):
         """
@@ -139,10 +142,10 @@ class Persdict(dict):
         """
         for g in cls._groups():
             print "(base)%s._summary instances in group \"%s\" :" % (cls.__name__, g )
-            for i in cls._instances(group=g):
+            for i in cls._keys(group=g):
                 print i
         print "(base)%s._summary all instances :" % ( cls.__name__ )
-        for i in cls._instances():
+        for i in cls._keys():
             print i
     _summary = classmethod( _summary )
 
@@ -160,7 +163,7 @@ class Persdict(dict):
         """
         pp = cls._path(*args, **kwa)
         if cls._dbg > 0:
-            print "(base)%s._save obj %s to %s using identity %s " % ( cls.__name__ , obj, pp , cls._idstring(*args, **kwa))
+            print "(base)%s._save obj %s to %s " % ( cls.__name__ , obj, pp )
         pickle.dump( obj , file(pp,'w') )
     _save = classmethod( _save )   
  
@@ -169,13 +172,12 @@ class Persdict(dict):
              Load and return persisted object if it exists, otherwise return None 
         """
         pp  = cls._path(*args, **kwa)
-        ii = cls._idstring(*args, **kwa)
         if os.path.exists(pp):
             it = pickle.load(file(pp))
-            if cls._dbg > 0:print "(base)%s._load loading from %s  using identity %s :  %s " %  ( cls.__name__ , pp , ii , it )
+            if cls._dbg > 0:print "(base)%s._load loading from %s  : %s " %  ( cls.__name__ , pp  , it )
             return it 
         else:
-            if cls._dbg > 0:print "(base)%s._load failed from %s using identity %s  " % ( cls.__name__ , pp , ii )
+            if cls._dbg > 0:print "(base)%s._load failed from %s " % ( cls.__name__ , pp )
             return None
     _load = classmethod( _load )
 

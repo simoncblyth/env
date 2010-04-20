@@ -7,7 +7,7 @@ class DBTableCounts(Persdict):
          Next comparing instances with diff reporting ...
            http://code.activestate.com/recipes/576644-diff-two-dictionaries/
     """
-    _dbg = 1 
+    _dbg = 0 
     def populate(self, *args, **kwa ):
         group = kwa.get('group','client')
         stamp = kwa.get('stamp',None)  
@@ -19,9 +19,6 @@ class DBTableCounts(Persdict):
             n = cnt.values()[0]
             self[tab] = n        
         db.close()
-
-    #def __init__(self, *args, **kwa ):
-    #    print "(client)%s.__init__ " % ( self.__class__.__name__ )
 
 
 

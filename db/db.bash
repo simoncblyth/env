@@ -41,8 +41,8 @@ EOU
 
 db-backup-basedir(){ echo /var/dbbackup ; }
 db-backup-rsyncdir(){ echo $(db-backup-basedir)/rsync ; }
-db-backup-hostdir(){ echo $(db-backup-basedir)/$(hostname) ; }
-db-backup-daydir(){  echo $(db-backup-hostdir)/$(date +"%Y%m%d") ; } 
+db-backup-hostdir(){ echo $(db-backup-basedir)/${1:-$(hostname)} ; }
+db-backup-daydir(){  echo $(db-backup-hostdir $*)/$(date +"%Y%m%d") ; } 
 db-backup-names(){   echo testdb offline_db ; }
 db-backup-keep(){    echo 7 ; }
 
@@ -72,7 +72,6 @@ db-backup(){
   mysqldump  $name > $name.sql && gzip $name.sql 
   cd $iwd
 }
-
 
 db-backup-purge(){
 
@@ -127,4 +126,33 @@ db-backup-rsync(){
    echo $cmd
    eval $cmd
 }
+
+db-backup-rsync-monitor-(){
+   local msg="=== $FUNCNAME :"
+   local rdir=$(db-backup-rsyncdir) 
+   echo $msg $(date) $(hostname) checking for todays .sql.gz beneath $rdir
+   local host
+   local name
+   ls -1 $rdir | while read host ; do
+       local daydir=$(db-backup-daydir $host)
+       echo $daydir
+       for name in $(db-backup-names) ; do 
+          local sgz="$name.sql.gz"
+          if [ -f "$sgz" ]; then
+              ls -l $sgz
+          else
+              echo $msg ERROR missing $sqz  
+          fi
+       done 
+   done 
+}
+
+db-backup-rsync-monitor(){
+   local msg="=== $FUNCNAME :"
+   local tmp=/tmp/env/${FUNCNAME}.txt && mkdir -p $(dirname $tmp)
+   $FUNCNAME- > $tmp 2>&1   
+   python-
+   python-sendmail $tmp 
+}
+
 
