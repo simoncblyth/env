@@ -6,7 +6,6 @@ db-env(){ echo -n ; }
 
 pymysql-(){      . $ENV_HOME/db/pymysql.bash && pymysql-env $* ; }
 pysqlite-(){     . $ENV_HOME/db/pysqlite.bash  && pysqlite-env  $* ; }
-mysql-(){        . $ENV_HOME/db/mysql-.bash && mysql-env $* ; }     
 
 
 db-usage(){
@@ -31,6 +30,11 @@ db-usage(){
 
      db-backup-daily
            perfomrms backups and purges 
+
+    This is in use with rsync transfers  :
+        dybdb1.ihep.ac.cn > cms01
+        dybdb2.ihep.ac.cn > cms01 
+
 
 EOU
 }
