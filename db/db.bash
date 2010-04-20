@@ -38,6 +38,10 @@ db-usage(){
             send monitoring email 
 
 
+      Checking the mysqldump ... tiz all within db context 
+         gunzip -c $(db-backup-rsync-sqz) | cat - | more
+
+
     This is in use with rsync transfers  :
         dybdb1.ihep.ac.cn > cms01
         dybdb2.ihep.ac.cn > cms01 
@@ -50,11 +54,12 @@ db-backup-basedir(){ echo /var/dbbackup ; }
 db-backup-rsyncdir(){ echo $(db-backup-basedir)/rsync ; }
 db-backup-hostdir(){ echo $(db-backup-basedir)/$(hostname) ; }
 db-backup-daydir(){  echo $(db-backup-hostdir $*)/$(date +"%Y%m%d") ; } 
-db-backup-rdaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(date +"%Y%m%d") ; } 
+db-backup-rdaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(db-today) ; } 
 db-backup-ryaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(db-yesterday) ; } 
 db-backup-names(){   echo testdb offline_db ; }
 db-backup-keep(){    echo 7 ; }
 
+db-today(){ date +"%Y%m%d" ; }
 db-yesterday(){
    local fmt=${1:-%Y%m%d}
    case $(uname) in 
@@ -145,6 +150,13 @@ db-backup-rsync(){
    eval $cmd
 }
 
+
+db-backup-rsync-sqz(){
+   local name=${1:-testdb}
+   local host=${3:-dybdb1.ihep.ac.cn}
+   echo $(db-backup-rdaydir $host)/$name.sql.gz
+}
+
 db-backup-rsync-monitor-(){
    local msg="=== $FUNCNAME :"
    local rdir=$(db-backup-rsyncdir) 
@@ -173,6 +185,40 @@ db-backup-rsync-monitor(){
    $FUNCNAME- > $tmp 2>&1   
    python-
    python-sendmail $tmp 
+}
+
+
+db-cautious(){  
+   ## dont use defaults as potential to wipe your DB 
+   mysql --no-defaults --host=localhost --user=root -p $1 
+}
+
+db-backup-recover-(){
+   local sqz=$1
+   local dbname=$2
+   echo "create database if not exists $dbname ;" | db-cautious 
+   gunzip -c $sqz                                 | db-cautious $dbname
+}
+
+db-backup-recover(){
+
+   local msg="=== $FUNCNAME :"
+   local name=${1:-testdb}
+   local today=$(db-today)
+   local dbname=${name}_${today}
+   local sqz=$(db-backup-rsync-sqz $name)
+
+   echo $msg sqz $sqz
+   echo $msg dbname $dbname
+   type db-cautious
+   type $FUNCNAME-
+   local ans
+   read -p "$msg enter YES to proceed with recovery into $dbname  " ans  
+
+   [ "$ans" != "YES" ] && echo $msg OK skipping && return 0
+
+   echo $msg proceeding ...
+   $FUNCNAME- $sqz $dbname
 }
 
 
