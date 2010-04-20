@@ -31,6 +31,13 @@ db-usage(){
      db-backup-daily
            perfomrms backups and purges 
 
+
+     db-backup-rsync-monitor-
+            emit to stdout the listing of todays and yesterdays .sql.gz
+     db-backup-rsync-monitor
+            send monitoring email 
+
+
     This is in use with rsync transfers  :
         dybdb1.ihep.ac.cn > cms01
         dybdb2.ihep.ac.cn > cms01 
@@ -41,10 +48,21 @@ EOU
 
 db-backup-basedir(){ echo /var/dbbackup ; }
 db-backup-rsyncdir(){ echo $(db-backup-basedir)/rsync ; }
-db-backup-hostdir(){ echo $(db-backup-basedir)/${1:-$(hostname)} ; }
+db-backup-hostdir(){ echo $(db-backup-basedir)/$(hostname) ; }
 db-backup-daydir(){  echo $(db-backup-hostdir $*)/$(date +"%Y%m%d") ; } 
+db-backup-rdaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(date +"%Y%m%d") ; } 
+db-backup-ryaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(db-yesterday) ; } 
 db-backup-names(){   echo testdb offline_db ; }
 db-backup-keep(){    echo 7 ; }
+
+db-yesterday(){
+   local fmt=${1:-%Y%m%d}
+   case $(uname) in 
+      Linux) date -d yesterday +$fmt ;;
+     Darwin) date -r $(( $(date +%s) - 86400 ))  +$fmt ;;
+   esac
+}
+
 
 db-backup-cd(){ cd $(db-backup-daydir) ; }
 db-backup-ls(){ ls -Ralst $(db-backup-basedir) ; }
@@ -130,25 +148,27 @@ db-backup-rsync(){
 db-backup-rsync-monitor-(){
    local msg="=== $FUNCNAME :"
    local rdir=$(db-backup-rsyncdir) 
-   echo $msg $(date) $(hostname) checking for todays .sql.gz beneath $rdir
+   echo $msg $(date) $(hostname) cf todays and yesterdays  .sql.gz 
    local host
    local name
-   ls -1 $rdir | while read host ; do
-       local daydir=$(db-backup-daydir $host)
-       echo $daydir
-       for name in $(db-backup-names) ; do 
-          local sgz="$name.sql.gz"
+   for name in $(db-backup-names) ; do 
+        echo $msg $name 
+        ls -1 $rdir | while read host ; do
+          local rdaydir=$(db-backup-rdaydir $host)
+          local ryaydir=$(db-backup-ryaydir $host)
+          local sgz="$rdaydir/$name.sql.gz"
+          local ygz="$ryaydir/$name.sql.gz"
           if [ -f "$sgz" ]; then
+              ls -l $ygz
               ls -l $sgz
           else
-              echo $msg ERROR missing $sqz  
+              echo $msg ERROR missing $sgz  
           fi
        done 
    done 
 }
 
 db-backup-rsync-monitor(){
-   local msg="=== $FUNCNAME :"
    local tmp=/tmp/env/${FUNCNAME}.txt && mkdir -p $(dirname $tmp)
    $FUNCNAME- > $tmp 2>&1   
    python-
