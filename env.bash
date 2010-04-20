@@ -762,6 +762,7 @@ authkit-(){      . $(env-home)/authkit/authkit.bash && authkit-env $* ; }
 authkitdev-(){      . $(env-home)/authkit/authkitdev.bash && authkitdev-env $* ; }
 hg-(){      . $(env-home)/hg/hg.bash && hg-env $* ; }
 modscgi-(){      . $(env-home)/apache/apachebuild/modscgi.bash && modscgi-env $* ; }
+modxsendfile-(){ . $(env-home)/apache/apachebuild/modxsendfile.bash && modxsendfile-env $* ; }
 sv-(){      . $(env-home)/base/sv.bash && sv-env $* ; }
 djdev-(){      . $(env-home)/dj/djdev.bash && djdev-env $* ; }
 dybsite-(){      . $(env-home)/dj/dybsite/dybsite.bash && dybsite-env $* ; }
@@ -791,4 +792,5 @@ html-(){      . $(env-home)/html/html.bash && html-env $* ; }
 rootana-(){      . $(env-home)/root/rootana.bash && rootana-env $* ; }
 #daily-(){      . $(env-home)/nuwa/daily.bash && daily-env $* ; }  THIS HAS MOVED INTO DYBSVN
 db-(){      . $(env-home)/db/db.bash && db-env $* ; }
+djnose-(){      . $(env-home)/dj/djnose.bash && djnose-env $* ; }
 memoir-(){      . $(env-home)/latex/memoir.bash && memoir-env $* ; }

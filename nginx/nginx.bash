@@ -11,7 +11,8 @@ nginx-usage(){
      nginx-src : $(nginx-src)
 
      http://wiki.nginx.org/Main
-
+     http://wiki.nginx.org/NginxXSendfile
+     http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
 
 
 EOU
