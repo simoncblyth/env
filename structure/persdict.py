@@ -19,9 +19,34 @@ class Persdict(dict):
         repeating expensive object constructions, such a DB lookups. The use of 
         timestamp arguments allows simple history tracking for object changes.    
         
+        
+        So usage is to define a subclass:
+        
+              class Sub(Persdict):
+                  def populate(self, *args, **kwargs):
+                      #... fill in pickleable properties of the object         
+                      # 'group' and 'stamp' + the classname are used to 
+                      #  identify the persisted objects : so treat them accordingly 
+                      group = kwa.get('group','client')  ## a string suitable for a directort name
+                      stamp = kwa.get('stamp',None)      ## an integer identifying the object, eg a datestamp 
+        
+        
+        And use :
+              a = Sub( group='local' , stamp='20100415' )   
+              b = Sub( group='remote , stamp='20100415' )
+        
+        if persisted versions exist in eg "/tmp/env/Sub/local/20100415.p" they will
+        be returned avoiding the potentially expensive(or impossible : last weeks version) 
+        operations  
+        
+        
     """
     _dbg = 0
     def _get(cls,*args, **kwa):
+        """
+           Provide persisted instance if there is one available otherwise instanciate
+           a new instance which will be populated. 
+        """
         instance = cls._load(*args, **kwa)
         if instance:
              if cls._dbg > 0:
@@ -30,30 +55,36 @@ class Persdict(dict):
         else:
             return cls(*args, **kwa)
     _get = classmethod( _get )   
- 
-    def _idstring(cls, *args, **kwa):
-        """
-            Identity string based on ctor keyword arguments only 
-        """
-        import pprint
-        return pprint.pformat( kwa )
-    _idstring = classmethod( _idstring )   
+
 
     def _id( cls, *args, **kwa ):
+        """
+            Identity with which to name persisted instances, control 
+            using the 'stamp' option
+        """
         if kwa.get('hex',False) == True:
             import md5
-            return md5.new(cls._idstring(*args,**kwa)).hexdigest()
+            import pprint
+            ids = pprint.pformat( kwa )
+            return md5.new(ids).hexdigest()
         else:
             return "%s" % ( kwa.get('stamp','nostamp') )
     _id = classmethod( _id )
 
     def _clsdir(cls, *args, **kwa):
-       persdir = kwa.get( 'persdir', '/tmp/env'  )
-       clsdir = os.path.join( persdir , cls.__name__ )
-       return clsdir 
+        """
+           Directory within which persisted instances of this class are stored, default 
+           parentdir can be overridden using 'persdir' option 
+        """
+        persdir = kwa.get( 'persdir', '/tmp/env'  )
+        clsdir = os.path.join( persdir , cls.__name__ )
+        return clsdir 
     _clsdir = classmethod( _clsdir )
 
     def _grpdir(cls, *args, **kwa):
+        """
+            'group' directory inside the _clsdir 'persdir' 
+        """
         clsdir = cls._clsdir( *args, **kwa )
         dir = os.path.join( clsdir , kwa.get('group','nogroup')  )
         if not(os.path.exists(dir)):
@@ -63,6 +94,9 @@ class Persdict(dict):
 
     _patn = re.compile("(?P<stamp>\d*)")
     def _parse(cls, name ):
+        """
+            Parse a filename to retrive the stamp 
+        """
         m = cls._patn.match( name )
         if m:
             return m.groupdict()
@@ -70,6 +104,9 @@ class Persdict(dict):
     _parse = classmethod( _parse )    
     
     def _groups(cls):
+        """
+            Interate over the groups of persisted instances of this class
+        """
         clsdir = cls._clsdir()
         for grp in os.listdir( clsdir ):
             grpdir = os.path.join( clsdir, grp )
@@ -78,7 +115,12 @@ class Persdict(dict):
     _groups = classmethod( _groups )
 
     def _instances(cls, group=None ):        
-        """ allows iteration over the persisted instances """
+        """ 
+            Iteration over all persisted instances of this class
+            for example :
+               for i in DBTableCounts._instances():
+                   print i  
+        """
         clsdir = cls._clsdir()
         for grp in os.listdir(clsdir):
             grpdir = os.path.join( clsdir, grp )
@@ -92,6 +134,9 @@ class Persdict(dict):
     _instances = classmethod( _instances )
 
     def _summary(cls):
+        """
+             Dump all groups and instances within them for this class.
+        """
         for g in cls._groups():
             print "(base)%s._summary instances in group \"%s\" :" % (cls.__name__, g )
             for i in cls._instances(group=g):
@@ -102,10 +147,17 @@ class Persdict(dict):
     _summary = classmethod( _summary )
 
     def _path(cls,*args, **kwa):
+        """
+              Provide the persisted path for the instance corresponding to the 
+              keyword arguments provided. 
+        """
         return os.path.join(cls._grpdir(*args, **kwa), "%s.p" % cls._id(*args,**kwa) )
     _path = classmethod( _path )   
  
     def _save(cls, obj , *args, **kwa):
+        """
+               Save the obj into the _path corresponding to its keyword arguments
+        """
         pp = cls._path(*args, **kwa)
         if cls._dbg > 0:
             print "(base)%s._save obj %s to %s using identity %s " % ( cls.__name__ , obj, pp , cls._idstring(*args, **kwa))
@@ -113,6 +165,9 @@ class Persdict(dict):
     _save = classmethod( _save )   
  
     def _load(cls, *args, **kwa):
+        """
+             Load and return persisted object if it exists, otherwise return None 
+        """
         pp  = cls._path(*args, **kwa)
         ii = cls._idstring(*args, **kwa)
         if os.path.exists(pp):
@@ -126,6 +181,21 @@ class Persdict(dict):
 
 
     def __new__(cls, *args, **kwds):
+        """
+             Gets called prior to __init__ allowing object instantiation control.
+             The persisted path corresponding to the keyword arguments for this class
+             is constructed and if a persisted instance is present it is returned.
+             
+             If no persistent instance exists then the user defined
+             populate method is invoked to construct the object and it is persisted
+             to its designated path based on the keyword arguments, specifically    
+             "group" and "stamp"
+             
+             If the argument "remake=True" is provided then any persisted instance is
+             ignored and a new one is created and saved.
+             
+                     
+        """
         it = None
         if kwds.get('singleton',False) == True:
             if cls._dbg > 1:print "(base)%s.__new__ singleton mode ON " % cls.__name__

@@ -152,14 +152,16 @@ mysql-dumpall(){
    cd $iwd
 }
 
-mysql-cnf(){
+mysql-syscnf(){
   pkgr-
   case $(pkgr-cmd) in
     yum) echo /etc/my.cnf ;;
       *) echo /etc/my.cnf
   esac
 }
-mysql-edit(){ sudo vi $(mysql-cnf) ; }
+mysql-cnf(){ echo $HOME/.my.cnf ; }
+mysql-edit(){    vi $(mysql-cnf) ; }
+mysql-sysedit(){ sudo vi $(mysql-cnf) ; }
 mysql-triplet-edit(){
   ini-
   ini-triplet-edit $(mysql-cnf) $* 
