@@ -483,12 +483,18 @@ scm-backup-rls(){
           local tmp=$tmpd/${tag}.txt
           scm-backup-rls- $tag $inst > $tmp 2>&1 
           python-sendmail $tmp
+
           if [ "$?" != "0" ]; then
              echo $msg FAILED TO SEND NOTIFICATION EMAIL
              if [ "$NODE_TAG" == "G" ]; then
                 /usr/local/bin/growlnotify -s -m "$msg FAILED TO SEND NOTIFICATION EMAIL : sudo /usr/sbin/postfix start ?  "
              fi
           fi
+
+          if [ "$NODE_TAG" == "G" ]; then
+             cat $tmp | grep workflow | /usr/local/bin/growlnotify -s
+          fi
+
        fi
    done
 }
