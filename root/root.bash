@@ -1,46 +1,89 @@
 root-vi(){ vi ${BASH_SOURCE:-$(env-home)/root/root.bash} ; }
 root-info(){ cat << EOI
 
-   root-mode     : $(root-mode $*)
-      if not "binary" source is assumed
+   === $FUNCNAME 
 
-   root-version  : $(root-version $*)
+    root-version-default : $(root-version-default)
+    ROOT_VERSION         : $ROOT_VERSION  (set this in .bash_profile before "env-" to override default)
+   root-version          : $(root-version $*)
+    which root           : $(which root 2>/dev/null)
+
+  Quantities derived from the root-version  :
+
+    ROOTSYS      : $ROOTSYS   (exported into env by "root-" precursor ) 
    root-name     : $(root-name $*)
    root-nametag  : $(root-nametag $*)
    root-url      : $(root-url $*)
    root-rootsys  : $(root-rootsys $*)
    root-base     : $(root-base $*) 
- 
-    ROOTSYS    : $ROOTSYS
-    which root : $(which root)
+
+   root-mode     : $(root-mode $*)
+      if not "binary" source is assumed
 
 EOI
 }
 
-root-usage(){  cat << EOU
+root-version-default(){
+  local def="5.21.04"
+  local jmy="5.22.00"   ## has eve X11 issues 
+  local new="5.23.02" 
+  local now="5.24.00" 
+  case ${1:-$NODE_TAG} in 
+     C) echo $def ;;
+     *) echo $def ;;
+  esac
+}
 
-    After changing the root version you will need to run :
-        cmt-gensitereq
+root-archtag(){
+   [ "$(root-mode)" != "binary" ] && echo "source" && return 0 
+   case ${1:-$NODE_TAG} in 
+      C) echo Linux-slc4-gcc3.4 ;;
+      G) echo macosx-powerpc-gcc-4.0 ;;
+      *) echo Linux-slc4-gcc3.4 ;;
+   esac
+}
 
-    This informs CMT of the change via re-generation of
-     the non-managed :
-         $ENV_HOME/externals/site/cmt/requirements
-    containing the ROOT_prefix variable 
+#root-mode(){    echo binary  ; }
+root-mode(){    echo -n  ; }
+root-version(){ echo ${ROOT_VERSION:-$(root-version-default)} ; }
+root-name(){    echo root_v$(root-version $*) ; }
+root-nametag(){ echo $(root-name $*).$(root-archtag $*) ; }
+root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
+root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
+root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
 
-    This works via the ROOT_CMT envvar that is set by root-env, such as: 
-       env | grep _CMT
-       ROOT_CMT=ROOT_prefix:/data/env/local/root/root_v5.21.04.source/root
+root-env(){
+  elocal-
+  export ROOT_NAME=$(root-name)
+  export ROOTSYS=$(root-rootsys)
+  root-path
+  root-aliases
+}
 
-   Changing root version will require rebuilding libs that are 
-   linked against the old root version, that includes dynamically created libs
+root-path(){
+  [ ! -d $ROOTSYS ] && return 0
+  env-prepend $ROOTSYS/bin
+  env-llp-prepend $ROOTSYS/lib
+  env-pp-prepend $ROOTSYS/lib
+}
 
+root-aliases(){
+  alias root="root -l"
+  alias rh="tail -100 $HOME/.root_hist"
+}
 
+root-paths(){
+  env-llp
+  env-pp  
+}
+
+root-usage(){  root-info ; cat << EOU
+
+  === $FUNCNAME 
 
   Check what you are getting :   
         ROOT_VERSION=5.24.00 root-info
         ROOT_VERSION=5.24.00 root-get
-
-
 
    root-           :  hook into these functions invoking root-env
    root-get        :  download and unpack
@@ -58,7 +101,6 @@ root-usage(){  cat << EOU
    root-ps         : list root.exe processes
    root-killall    : kill root.exe processes
 
-
   root-c2py  
 
        cat alice_esd.C | root-c2py > alice_esd.py
@@ -68,9 +110,11 @@ root-usage(){  cat << EOU
 EOU
 }
 
-root-usage(){ root-info ; }
-root-ps(){ ps aux | grep root.exe ; }
+root-ps(){      ps aux | grep root.exe ; }
 root-killall(){ killall root.exe ; }
+root-c2py(){    perl -p -e 's,\:\:,.,g' -  | perl -p -e 's,\->,.,g' - | perl -p -e 's,new ,,g' - | perl -p -e 's,;,,g' -  ; }
+root-pycheck(){ python -c "import ROOT as _ ; print _.__file__ " ; }
+root-signal(){ find $ROOTSYS -name '*.h' -exec grep -H SIGNAL {} \; ; }
 
 root-find--(){
   local ext 
@@ -78,30 +122,16 @@ root-find--(){
       echo -n \ \-name \'*.$ext\' -o  
   done 
 }
-
 root-find-(){
    cat << EOC
 find . -type f \( $(root-find-- cxx c hh py) -name '*.py'  \) -exec grep -H \$* {} \;
 EOC
 }
-
 root-find(){
    cd $(root-rootsys)
    eval $(root-find- $*)
 }
 
-
-
-
-
-root-archtag(){
-   [ "$(root-mode)" != "binary" ] && echo "source" && return 0 
-   case ${1:-$NODE_TAG} in 
-      C) echo Linux-slc4-gcc3.4 ;;
-      G) echo macosx-powerpc-gcc-4.0 ;;
-      *) echo Linux-slc4-gcc3.4 ;;
-   esac
-}
 
 root-get(){
    local msg="=== $FUNCNAME :"
@@ -122,81 +152,11 @@ root-build(){
    make
 }
 
-root-version-default(){
-  local def="5.21.04"
-  local jmy="5.22.00"   ## has eve X11 issues 
-  local new="5.23.02" 
-  local now="5.24.00" 
-  case ${1:-$NODE_TAG} in 
-     C) echo $def ;;
-     *) echo $def ;;
-  esac
-}
-
-
-#root-mode(){    echo binary  ; }
-root-mode(){    echo -n  ; }
-root-version(){ echo ${ROOT_VERSION:-$(root-version-default)} ; }
-root-name(){    echo root_v$(root-version $*) ; }
-root-nametag(){ echo $(root-name $*).$(root-archtag $*) ; }
-root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
-root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
-root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
-
-
 root-cd(){ cd $(root-rootsys)/tutorials/eve ; }
 
 
 
-root-env(){
-
-  elocal-
-
-  alias root="root -l"
-  alias rh="tail -100 $HOME/.root_hist"
- 
-  export ROOT_NAME=$(root-name)
-  export ROOTSYS=$(root-rootsys)
-  
-  ## pre-nuwa ... to be dropped      	
-  export ROOT_CMT="ROOT_prefix:$ROOTSYS"
-
-  root-path
-}
-
-
-
-root-path(){
-
-  [ ! -d $ROOTSYS ] && return 0
-  
-  env-prepend $ROOTSYS/bin
-  env-llp-prepend $ROOTSYS/lib
-  env-pp-prepend $ROOTSYS/lib
-}
-
-
-root-paths(){
-  env-llp
-  env-pp  
-}
-
-
-
-root-c2py(){
-    perl -p -e 's,\:\:,.,g' -  | perl -p -e 's,\->,.,g' - | perl -p -e 's,new ,,g' - | perl -p -e 's,;,,g' -  
-}
-
-
-
-
-root-pycheck(){
-  python -c "import ROOT as _ ; print _.__file__ "
-
-}
-
-
-root-tute-test(){
+root-test-tute(){
   local dir=$1
   local name=$2
   local msg="=== $FUNCNAME :"
@@ -216,7 +176,25 @@ root-test-eve(){ root-test-tute $ROOTSYS/tutorials/eve $* ; }
 root-test-gl(){  root-test-tute $ROOTSYS/tutorials/gl  $* ; }
 
 
-root-signal(){
-   find $ROOTSYS -name '*.h' -exec grep -H SIGNAL {} \;
+
+root-usage-deprecated(){ cat << EOU
+
+    After changing the root version you will need to run :
+        cmt-gensitereq
+
+    This informs CMT of the change via re-generation of
+     the non-managed :
+         $ENV_HOME/externals/site/cmt/requirements
+    containing the ROOT_prefix variable 
+
+    This works via the ROOT_CMT envvar that is set by root-env, such as: 
+       env | grep _CMT
+       ROOT_CMT=ROOT_prefix:/data/env/local/root/root_v5.21.04.source/root
+
+   Changing root version will require rebuilding libs that are 
+   linked against the old root version, that includes dynamically created libs
+
+EOU
 }
+
 
