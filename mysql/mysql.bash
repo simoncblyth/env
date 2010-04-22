@@ -44,12 +44,37 @@ mysql-usage(){
   
 
 
+    mysql-stop
+      
+       sudo /opt/local/share/mysql5/mysql/mysql.server stop  
+       ERROR! MySQL manager or server PID file could not be found!
 
+       failing for want of pidof on OSX ?       
+          sudo port install proctools 
+               yielded pgrep/pfind/pkill but no pidof
+       so cheat : 
+          sudo ln -s /opt/local/bin/pgrep /opt/local/bin/pidof
 
+       no joy, the problem is that the server pid file name is based of
+       the hostname which tends to change ... 
+
+          cd /opt/local/var/db/mysql5
+          sudo cp  g4pb.local.pid $(hostname).pid
 
 
 EOU
 }
+
+mysql-logpath(){ echo $(mysql-logdir)/out.log ; }
+mysql-logsetup(){  cat << EOS
+# enter something like the below into $(mysql-syscnf) ... you can use mysql-sysedit
+[mysqld]
+log=$(mysql-logpath)
+EOS
+}
+mysql-tail(){    sudo tail -f $(mysql-logpath) ; }
+
+
 
 mysql-env(){
   local msg="=== $FUNCNAME :"
@@ -80,6 +105,14 @@ mysql-bindir(){
   case $(pkgr-cmd) in
     port) echo /opt/local/lib/mysql5/bin ;;
        *) mysql-bindir- ;;
+  esac
+}
+
+mysql-logdir(){
+  pkgr-
+  case $(pkgr-cmd) in
+    port) echo /opt/local/var/log/mysql5 ;;
+       *) echo /var/log ;;
   esac
 }
 
@@ -161,7 +194,7 @@ mysql-syscnf(){
 }
 mysql-cnf(){ echo $HOME/.my.cnf ; }
 mysql-edit(){    vi $(mysql-cnf) ; }
-mysql-sysedit(){ sudo vi $(mysql-cnf) ; }
+mysql-sysedit(){ sudo vi $(mysql-syscnf) ; }
 mysql-triplet-edit(){
   ini-
   ini-triplet-edit $(mysql-cnf) $* 
@@ -198,9 +231,6 @@ mysql-admin(){
    private-
    mysqladmin$(mysql-post) -u $(private-val DATABASE_USER) --password=$(private-val DATABASE_PASSWORD) $*
 }
-
-mysql-logpath(){ echo /var/log/mysqld.log ; }
-mysql-tail(){    sudo tail -f $(mysql-logpath) ; }
 
 mysql-notes(){
   cat << EOU
