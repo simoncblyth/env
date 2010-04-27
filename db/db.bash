@@ -160,7 +160,8 @@ db-backup-rsync-sqz(){
 db-backup-rsync-monitor-(){
    local msg="=== $FUNCNAME :"
    local rdir=$(db-backup-rsyncdir) 
-   echo $msg $(date) $(hostname) cf todays and yesterdays  .sql.gz 
+   echo $msg $(hostname) cf todays and yesterdays  .sql.gz 
+   echo $msg $(date)
    local host
    local name
    for name in $(db-backup-names) ; do 
