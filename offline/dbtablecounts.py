@@ -9,9 +9,11 @@ class DBTableCounts(Persdict):
     """
     _dbg = 0 
     def populate(self, *args, **kwa ):
-        group = kwa.get('group','client')
-        stamp = kwa.get('stamp',None)  
-        db = DB( read_default_file=os.path.expanduser("~/.my.cnf"), read_default_group=group )
+        """
+              Parameters other than 'stamp' are used for the DB connection
+        """
+        stamp = kwa.pop('stamp',None)  
+        db = DB( **kwa )
         rec = db.fetchone("SELECT VERSION()")  
         for rec in db("SHOW TABLES"):
             tab = rec.values()[0]

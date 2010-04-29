@@ -3,7 +3,13 @@ import MySQLdb
 
 class DB:
     def __init__(self, **cfg ):
+        """
+             Connection parameters are passed to MySQLdb as is, except group which 
+             is used to signal reading from the ~/.my.cnf defaults file
+        """
         try:  
+            group = cfg.pop('group',None)
+            if group:cfg.update(  read_default_file=os.path.expanduser("~/.my.cnf"), read_default_group=group )
             self.conn = MySQLdb.connect( **cfg ) 
             self.cfg = cfg
         except MySQLdb.Error, e: 
