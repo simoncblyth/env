@@ -1,4 +1,4 @@
-pymysql-src(){ echo db/pymysql.bash ; }
+pymysql-src(){ echo mysql/pymysql.bash ; }
 pymysql-source(){ echo ${BASH_SOURCE:-$(env-home)/$(pymysql-src)} ; }
 pymysql-vi(){     vi $(pymysql-source) ; }
 pymqsql-usage(){

@@ -725,7 +725,7 @@ diff-(){       . $(env-home)/base/diff.bash && diff-env $* ; }
 offdb-(){      . $(env-home)/offline/offdb.bash && offdb-env $* ; }
 tg-(){         . $(env-home)/offline/tg/tg.bash && tg-env $*  ; }
 pl-(){         . $(env-home)/pl/pl.bash && pl-env $* ; }
-pymysql-(){    . $(env-home)/db/pymysql.bash && pymysql-env $*  ; }
+pymysql-(){    . $(env-home)/mysql/pymysql.bash && pymysql-env $*  ; }
 modwsgi-(){    . $(env-home)/apache/apachebuild/modwsgi.bash && modwsgi-env $* ; }
 cpp-(){        . $(env-home)/base/cpp.bash && cpp-env $* ; } 
 lighttpd-(){   . $(env-home)/lighttpd/lighttpd.bash && lighttpd-env $* ; }
