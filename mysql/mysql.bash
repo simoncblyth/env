@@ -62,6 +62,15 @@ mysql-usage(){
           sudo cp  g4pb.local.pid $(hostname).pid
 
 
+     Opening mysql to access from a remote webserver...
+
+         1) set "bind-address" in mysql config of server 
+   
+         IPTABLES_PORT=3306 iptables-webopen-ip 140.###.###.###
+
+
+
+
 EOU
 }
 

@@ -209,6 +209,19 @@ db-recover(){
 
 db-name-today(){     echo ${1}_$(db-today) ; }
 db-name-yesterday(){ echo ${1}_$(db-yesterday) ; }
+
+db-grant(){ 
+  local name=${1:-testdb}
+  local rname=${2:-WEBSRV}
+  private-
+  local ruser=$(private-val ${rname}_USER)
+  local rhost=$(private-val ${rname}_HOST)
+  local rpass=$(private-val ${rname}_PASS)
+  cat << EOG
+grant select on $(db-name-today $name).* to $ruser@$rhost identified by '$rpass' ;
+EOG
+}
+
 db-backup-recover(){
    local msg="=== $FUNCNAME :"
    local name=${1:-testdb}
@@ -226,6 +239,7 @@ db-backup-recover(){
    
    ! db-exists $dbtoday    && echo $msg FAILED to create DB $dbtoday  && return 3
    echo $msg SUCCEEDED to create DB $dbtoday
+   db-grant $name WEBSRV | db-recover 
    
    echo $msg dropping $dbyesterday
    echo "drop   database if exists $dbyesterday ;" | db-recover 
