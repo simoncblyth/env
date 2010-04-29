@@ -2,13 +2,12 @@ import os
 import MySQLdb
 
 class DB:
-    def __init__(self, **cfg ):
+    def __init__(self, group=None, **cfg ):
         """
              Connection parameters are passed to MySQLdb as is, except group which 
              is used to signal reading from the ~/.my.cnf defaults file
         """
         try:  
-            group = cfg.pop('group',None)
             if group:cfg.update(  read_default_file=os.path.expanduser("~/.my.cnf"), read_default_group=group )
             self.conn = MySQLdb.connect( **cfg ) 
             self.cfg = cfg
@@ -47,10 +46,7 @@ class DB:
 
 if __name__=='__main__':
 
-    cnf = os.path.expanduser('~/.my.cnf')
-    db = DB( read_default_file=cnf )
-    #db = DB( read_default_file=cnf , read_default_group='test' )  ## pick alternate to "client" group in the ~/.my.cnf
-
+    db = DB('test')   
     rec = db.fetchone("SELECT VERSION()")
     print rec
     for rec in db("SHOW TABLES"):
