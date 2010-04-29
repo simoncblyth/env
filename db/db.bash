@@ -194,32 +194,36 @@ db-cautious(){
    mysql --no-defaults --host=localhost --user=root -p $1 
 }
 
-db-backup-recover-(){
-   local sqz=$1
-   local dbname=$2
-   echo "create database if not exists $dbname ;" | db-cautious 
-   gunzip -c $sqz                                 | db-cautious $dbname
+db-recover(){
+  [ "$(hostname)" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
+  mysql --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
+db-name-today(){     echo ${1}_$(db-today) ; }
+db-name-yesterday(){ echo ${1}_$(db-yesterday) ; }
 db-backup-recover(){
-
    local msg="=== $FUNCNAME :"
    local name=${1:-testdb}
-   local today=$(db-today)
-   local dbname=${name}_${today}
    local sqz=$(db-backup-rsync-sqz $name)
-
-   echo $msg sqz $sqz
-   echo $msg dbname $dbname
-   type db-cautious
-   type $FUNCNAME-
-   local ans
-   read -p "$msg enter YES to proceed with recovery into $dbname  " ans  
-
-   [ "$ans" != "YES" ] && echo $msg OK skipping && return 0
-
-   echo $msg proceeding ...
-   $FUNCNAME- $sqz $dbname
+   [ ! -f "$sqz" ] && echo $msg ABORT sqz $sqz does not exist && return 2
+   local dbtoday=$(db-name-today $name)
+   local dbyesterday=$(db-name-yesterday $name)
+   echo $msg name $name sqz $sqz dbtoday $dbtoday dbyesterday $dbyesterday
+   local rc
+   ## stream direct from the sqz into the DB as the sqz is owned by the unprivileged rsync only user 
+   echo "create database if not exists $dbtoday ;" | db-recover 
+   gunzip -c $sqz                                  | db-recover $dbtoday
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg ABORT error $rc && return $rc   
+   
+   ! db-exists $dbtoday    && echo $msg FAILED to create DB $dbtoday  && return 3
+   echo $msg SUCCEEDED to create DB $dbtoday
+   
+   echo $msg dropping $dbyesterday
+   echo "drop   database if exists $dbyesterday ;" | db-recover 
+   db-exists $dbyesterday && echo $msg FAILED to drop DB $dbyesterday  && return 3
 }
 
-
+db-exists(){
+  [ "$(echo 'show databases ;' | db-recover | grep $1 )" == "$1" ] && return 0 || return 1
+}
