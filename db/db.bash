@@ -1,11 +1,10 @@
 
 db-source(){ echo ${BASH_SOURCE:-$(env-home)/db/db.bash} ; }
+db-srcdir(){ echo $(dirname $(db-source)); }
+db-cd(){ cd $(db-srcdir) ; }
 db-vi(){ vi $(db-source) ; }
 db-up(){ source $(db-source) ; }
 db-env(){ echo -n ; }
-
-pymysql-(){      . $ENV_HOME/db/pymysql.bash && pymysql-env $* ; }
-pysqlite-(){     . $ENV_HOME/db/pysqlite.bash  && pysqlite-env  $* ; }
 
 
 db-usage(){
@@ -29,7 +28,7 @@ db-usage(){
           using the local hostname for identification 
 
      db-backup-daily
-           perfomrms backups and purges 
+           performs backups and purges 
 
 
      db-backup-rsync-monitor-
@@ -37,8 +36,16 @@ db-usage(){
      db-backup-rsync-monitor
             send monitoring email 
 
+     db-backup-recover <dbname>
+           recovers the gzipped mysqldump into local database 
+           with name based on the day eg: <dbname>_20100101 
 
-      Checking the mysqldump ... tiz all within db context 
+     db-test
+          runs nosetests from  $(db-srcdir) 
+          one of the tests compares the table counts in 
+          dybdb1 with those in the recovered copy 
+      
+     Checking the mysqldump ... tiz all within db context 
          gunzip -c $(db-backup-rsync-sqz) | cat - | more
 
 
@@ -227,3 +234,22 @@ db-backup-recover(){
 db-exists(){
   [ "$(echo 'show databases ;' | db-recover | grep $1 )" == "$1" ] && return 0 || return 1
 }
+
+db-test-(){
+   db-cd
+   nosetests -v
+}
+
+db-test(){
+   local msg="=== $FUNCNAME :"
+   local rc 
+   local tmp=/tmp/env/${FUNCNAME}.txt && mkdir -p $(dirname $tmp)
+   echo $msg writing to $tmp
+   db-test- > $tmp 2>&1   
+   rc=$?
+   python-
+   [ "$?" != "0" ] && echo $msg TEST FAILURES from $PWD && python-sendmail $tmp && return $rc
+   echo $msg TEST SUCCEEDED && rm -f $tmp
+}
+
+
