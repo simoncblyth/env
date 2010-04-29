@@ -203,6 +203,7 @@ db-cautious(){
 
 db-recover(){
   [ "$(hostname)" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
+  private-
   mysql --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
@@ -243,13 +244,18 @@ db-test-(){
 db-test(){
    local msg="=== $FUNCNAME :"
    local rc 
-   local tmp=/tmp/env/${FUNCNAME}.txt && mkdir -p $(dirname $tmp)
+   local tmp=$(db-logdir)/${FUNCNAME}.txt && mkdir -p $(dirname $tmp)
    echo $msg writing to $tmp
    db-test- > $tmp 2>&1   
    rc=$?
    python-
    [ "$?" != "0" ] && echo $msg TEST FAILURES from $PWD && python-sendmail $tmp && return $rc
-   echo $msg TEST SUCCEEDED && rm -f $tmp
+   #echo $msg TEST SUCCEEDED && rm -f $tmp
 }
 
-
+db-logdir(){  echo $HOME/log/env ; }
+db-logs(){
+   cd $(db-logdir)
+   echo $PWD $(date)
+   ls -l 
+}
