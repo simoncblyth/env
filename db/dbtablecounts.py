@@ -13,7 +13,7 @@ class DBTableCounts(Persdict):
               Parameters other than 'stamp' are used for the DB connection
         """
         stamp = kwa.pop('stamp',None)  
-        db = DB( **kwa )
+        db = DB( *args, **kwa )
         rec = db.fetchone("SELECT VERSION()")  
         for rec in db("SHOW TABLES"):
             tab = rec.values()[0]

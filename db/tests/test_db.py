@@ -7,8 +7,8 @@ db_name_today = lambda n:"%s_%s" % ( n , datetime.strftime( datetime.now(), "%Y%
 def test_recovered_testdb():
     name = 'testdb'
     stamp = datetime.strftime( datetime.now(), "%Y%m%d%H%M%S" )
-    db1 = DBTableCounts( group="dybdb1"  , stamp=stamp , db=name )
-    rec = DBTableCounts( group="recover" , stamp=stamp , db=db_name_today(name) )
+    db1 = DBTableCounts( "dybdb1"  , stamp=stamp , db=name )
+    rec = DBTableCounts( "recover" , stamp=stamp , db=db_name_today(name) )
     dif = db1.diff(rec)
 
     print db1
