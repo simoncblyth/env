@@ -366,9 +366,21 @@ if __name__=='__main__':
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import scoped_session, sessionmaker
-    from env.base.private import Private
-    priv = Private()
-    engine = create_engine(priv('DATABASE_URL'))    
+    from private import Private
+    p = Private()
+    url = p('DATABASE_URL')
+    if url.find("%s")>-1:
+        from datetime import datetime
+        url = url % datetime.now().strftime("%Y%m%d")
+
+    print "using url %s " % url 
+    engine = create_engine(url)    
+    print "namely database:%s on host:%s " % ( engine.url.database , engine.url.host )
+
+    import socket 
+    name = socket.gethostbyaddr(engine.url.host)
+    print "hostname %s " % repr(name) 
+
 
     Session = scoped_session(sessionmaker(autocommit=False, autoflush=True))
     factory = DbiSARepositoryFactory( reflect='dbi', engine=engine, session_factory=Session)
