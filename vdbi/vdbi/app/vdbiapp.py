@@ -7,6 +7,9 @@ log = logging.getLogger(__name__)
 import time
 tfmt = lambda t:time.strftime("%Y%m%d",time.localtime(t))
 
+from datetime import datetime
+
+
 def stat_( path ):
     import os, stat
     if not os.path.exists(path):return {}
@@ -85,7 +88,9 @@ def create_app(url=None,  dbg=True):
     from private import Private
     p = Private()
     if not(url):
-       url = p('DATABASE_URL')          
+        url = p('DATABASE_URL')          
+        if url.find("%s")>-1:
+            url = url % datetime.now().strftime("%Y%m%d")     
 
     assert not url == "", "create_app ABORT : DATABASE_URL not configured ... needs to be in sqlalchemy format "
     logdir = p('VDBI_LOGDIR') 
