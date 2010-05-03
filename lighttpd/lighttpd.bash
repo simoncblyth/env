@@ -12,8 +12,6 @@ lighttpd-usage(){
        g4pb:lighttpd blyth$ sudo cp lighttpd.conf.default lighttpd.conf
 
 
-
-
      http://blog.lighttpd.net/articles/2006/07/18/reverse-proxying-mod_proxy_core
      http://redmine.lighttpd.net/projects/1/wiki/Docs:ModProxyCore
 
@@ -35,6 +33,9 @@ lighttpd-cd(){      cd $(lighttpd-base) ; }
 
 lighttpd-conf(){    echo ${LIGHTTPD_CONF:-$(lighttpd-base)/lighttpd.conf} ; }
 lighttpd-confd(){   echo $(lighttpd-base)/conf.d  ;  }
+lighttpd-users(){   echo $(lighttpd-base)/users.txt  ;  }
+
+
 lighttpd-edit(){    sudo vim $(lighttpd-conf) $(lighttpd-confd)/*.conf ; }
 lighttpd-ini(){     
   case $(pkgr-cmd) in 
@@ -52,6 +53,23 @@ lighttpd-ps(){     ps aux | grep lighttpd | grep -v grep ; }
 
 
 lighttpd-htdocs(){ echo $(pkgr-wwwd)/lighttpd/htdocs ; }
+
+
+lighttpd-ln(){    
+   local msg="=== $FUNCNAME :" 
+   local dir=$1
+   local name=${2:-$(basename $dir)}
+   local iwd=$PWD
+   local cmd="ln -s $dir $name"
+   local htdocs=$(lighttpd-htdocs)
+   read -p "$msg enter YES to proceed with : $cmd : from $htdocs  " ans
+   [ "$msg" != "YES" ] && echo $msg OK skipping && return 0
+   cd $htdocs
+   eval $cmd
+
+   cd $iwd
+}
+
 
 ## logging 
 
@@ -168,5 +186,18 @@ EOC
 
 }
 
-
+ 
+ 
+lighttpd-adduser(){
+  local msg="=== $FUNCNAME :"
+  local user=$1
+  local realm=$2
+  local pass
+  read -p "$msg enter password for new user \"$1\" to access realm \"$2\" ... " pass
+  read -p "$msg re-enter password  ... " pass2
+  [ "$pass" != "$pass2" ] && echo $msg ABORT the passwords do not match && return 1
+  local hash=$(echo -n "$user:$realm:$pass" | md5 )
+  echo $msg appending new user entry "$user:$realm:$hash" to users file  $(lighttpd-users) 
+  sudo bash -c "echo \"$user:$realm:$hash\" >> $(lighttpd-users) "
+}
 

@@ -264,6 +264,19 @@ EOL
 djdep-fcgiroot(){ echo /django.fcgi ; }
 djdep-location-lighttpd-(){  cat << EOC
 
+
+auth.debug = 1
+auth.backend = "htdigest"
+auth.backend.htdigest.userfile = "$(lighttpd-users)"
+
+auth.require = ( "/protected/" =>
+  (
+   "method" => "digest",
+   "realm" => "protected",
+   "require" => "user=jamesbond"
+  )
+)
+
 fastcgi.server = (
     "$(djdep-fcgiroot)" => (
            "main" => (
@@ -306,10 +319,32 @@ djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-;mo
 
 
 ## interactive config check 
+
+djdep-run-(){ cat << EOR
+./manage.py $(djdep-opts-$(djdep-protocol))
+EOR
+}
+
+djdep-chownsocket(){
+    local msg="=== $FUNCNAME :"
+    local user=${1:-nobody}
+    local cmd="sudo chown $user $(djdep-socket)"
+    echo $msg $cmd
+    eval $cmd
+}
+
 djdep-run(){   
      local msg="=== $FUNCNAME :"
      cd $(dj-projdir) ;  
-     local cmd="./manage.py $(djdep-opts-$(djdep-protocol))" ;
+
+     if [ -f "$(djdep-socket)" ]; then
+       echo $msg maybe you need to delete the socket  $(djdep-socket)
+       ls -l $(djdep-socket)
+     else
+       echo $msg no socket $(djdep-socket)
+     fi
+
+     local cmd="$(djdep-run-)" ;
      echo $msg $cmd  ... from $PWD 
      eval $cmd
  }  

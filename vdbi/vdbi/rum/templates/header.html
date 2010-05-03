@@ -1,6 +1,6 @@
 <div id="rum-header" xmlns:py="http://genshi.edgewall.org/"  >
   <h1 id="rum-title"><a href="${url_for('/')}">vDBI</a></h1>
-  <div id="rum-tagline">Interface to DBI objects 
+  <div id="rum-tagline">Interface to DBI objects from ${app.repositoryfactory.engine.url.database} on ${app.repositoryfactory.engine.url.host}
   <py:if test="request.path_info != '/login'" >	
   <div id="rum-loggedin" > <p> Logged in as ${request.environ.get('REMOTE_USER')}, 	<a href="/dbi/auth/logout" > Logout </a>  </p></div>
   </py:if>
