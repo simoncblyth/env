@@ -22,7 +22,21 @@ from vdbi.dbg import debug_here
 from vdbi.rum.query import DbiQueryFactory
 
 
+def _get_hostname(self):
+    """
+       monkeypatch of sqlalchemy.engine.url.URL 
+       to lookup the hostname of the IP address 
+       supplied as part of the DB url 
+    """
+    from socket import gethostbyaddr
+    try:
+        name = gethostbyaddr(self.host)[0]
+    except:
+        name = '-'
+    return name
 
+from sqlalchemy.engine.url import URL
+URL.hostname = property(_get_hostname, doc=_get_hostname.__doc__)
 
 
 
@@ -359,7 +373,8 @@ def test_select_ctx():
     assert sp[1000].ROW in [1001,1002]
     assert sp.count() in [3169,1585] 
     
- 
+
+
 
 
 if __name__=='__main__':
@@ -380,6 +395,7 @@ if __name__=='__main__':
     import socket 
     name = socket.gethostbyaddr(engine.url.host)
     print "hostname %s " % repr(name) 
+    print "prop hostname %s " % engine.url.hostname
 
 
     Session = scoped_session(sessionmaker(autocommit=False, autoflush=True))
