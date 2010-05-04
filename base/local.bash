@@ -224,6 +224,7 @@ local-tag2ip(){
           YY) echo dyb1.ihep.ac.cn ;;
           XX) echo dyb2.ihep.ac.cn ;;
           ZZ) echo dayabay.ihep.ac.cn ;;
+          WW) echo 202.122.32.203 ;;
   esac 
 }
 

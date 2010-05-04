@@ -11,6 +11,10 @@ pinocchio-usage(){
     The stopwatch nosetests plugin enables the timing of test operation 
     and selection of faster tests based on the running time of prior test runs.
 
+    Comment the figleaf part of the setup.py to avoid a runtime warning regarding
+    missing figleaf dependency
+
+
 EOU
 }
 pinocchio-dir(){ echo $(local-base)/env/nose/$(pinocchio-name) ; }
@@ -31,7 +35,7 @@ pinocchio-build(){
    nosetests -p
 }
 
-pinocchio-times-(){ python -c "from cPickle import load ; d = load(open('.nose-stopwatch-times')) ; print '\n'.join(['%-100s:%s'% (k,d[k]) for k in sorted(d,key=$1)]) " }
+pinocchio-times-(){ python -c "from cPickle import load ; d = load(open('.nose-stopwatch-times')) ; print '\n'.join(['%-100s:%s'% (k,d[k]) for k in sorted(d,key=$1)]) " ; }
 pinocchio-bytime(){  pinocchio-times- 'lambda x:d[x]' ; }
 pinocchio-byname(){  pinocchio-times- 'lambda x:x' ; }
 pinocchio-test(){

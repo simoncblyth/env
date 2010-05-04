@@ -320,12 +320,21 @@ sv-ctl-prep-(){
   else
       ip=$(local-tag2ip $tag)
   fi 
+
+  local username=$(private-val SUPERVISOR_USERNAME_$tag)
+  [ -z "$username" ] && username=$(private-val SUPERVISOR_USERNAME)
+
+  local password=$(private-val SUPERVISOR_PASSWORD_$tag)
+  [ -z "$password" ] && password=$(private-val SUPERVISOR_PASSWORD)
+
+
+
   local server=$ip:$port   
   cat << EOC
 [supervisorctl]
 serverurl=http://$server 
-username=$(private-val SUPERVISOR_USERNAME) 
-password=$(private-val SUPERVISOR_PASSWORD)
+username=$username
+password=$password
 prompt=$tag 
 history_file=~/.svctl.$tag  
 EOC
