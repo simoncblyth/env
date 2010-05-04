@@ -36,9 +36,10 @@ db-usage(){
      db-backup-rsync-monitor
             send monitoring email 
 
-     db-backup-recover <dbname>
+     db-backup-recover <dbname> <host>
            recovers the gzipped mysqldump into local database 
            with name based on the day eg: <dbname>_20100101 
+           from the mysqldump rsynced from host (eg dybdb1.ihep.ac.cn) 
 
      db-test
           runs nosetests from  $(db-srcdir) 
@@ -47,6 +48,20 @@ db-usage(){
       
      Checking the mysqldump ... tiz all within db context 
          gunzip -c $(db-backup-rsync-sqz) | cat - | more
+
+
+
+     db-backup-rsync-sqz  <testdb> <dybdb1.ihep.ac.cn>
+          Absolute path to the mysqldump file         
+
+         -rw-r--r--  1 dayabayscp dayabayscp 1426071 May  3 16:55 /var/dbbackup/rsync/dybdb1.ihep.ac.cn/20100503/testdb.sql.gz
+         -rw-r--r--  1 dayabayscp dayabayscp 1426066 May  3 04:08 /var/dbbackup/rsync/dybdb2.ihep.ac.cn/20100503/testdb.sql.gz
+
+            hmm suspect a double-cron of the dybdb1 dump 
+
+         -rw-r--r--  1 dayabayscp dayabayscp 1426070 May  4 04:10 /var/dbbackup/rsync/dybdb1.ihep.ac.cn/20100504/testdb.sql.gz
+         -rw-r--r--  1 dayabayscp dayabayscp 1426065 May  4 04:10 /var/dbbackup/rsync/dybdb2.ihep.ac.cn/20100504/testdb.sql.gz
+
 
 
     This is in use with rsync transfers  :
@@ -160,7 +175,7 @@ db-backup-rsync(){
 
 db-backup-rsync-sqz(){
    local name=${1:-testdb}
-   local host=${3:-dybdb1.ihep.ac.cn}
+   local host=${2:-dybdb1.ihep.ac.cn}
    echo $(db-backup-rdaydir $host)/$name.sql.gz
 }
 
@@ -225,7 +240,8 @@ EOG
 db-backup-recover(){
    local msg="=== $FUNCNAME :"
    local name=${1:-testdb}
-   local sqz=$(db-backup-rsync-sqz $name)
+   local host=${2:-dybdb1.ihep.ac.cn}
+   local sqz=$(db-backup-rsync-sqz $name $host)
    [ ! -f "$sqz" ] && echo $msg ABORT sqz $sqz does not exist && return 2
    local dbtoday=$(db-name-today $name)
    local dbyesterday=$(db-name-yesterday $name)
