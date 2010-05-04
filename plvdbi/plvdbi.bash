@@ -22,6 +22,11 @@ plvdbi--(){
 plvdbi-usage(){
   cat << EOU
 
+   Note that the dbi virtual env is missing ipython ... install on top with :
+        pip install ipython --upgrade
+   (--upgrade needed as ipython is typically also present in the basis python)
+
+
    Killing the existing plvdbi
 
        ps aux   and kill -TERM the paster process :
