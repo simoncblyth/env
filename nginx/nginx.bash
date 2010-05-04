@@ -16,9 +16,11 @@ nginx-usage(){
      http://wiki.nginx.org/NginxXSendfile
      http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
 
-
      http://wiki.nginx.org/NginxCommandLine
         -s stop/quit/reopen/reload. (version >= 0.7.53)
+
+     Putting nginx under supervisord control 
+        http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
 
 EOU
