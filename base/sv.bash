@@ -135,9 +135,8 @@ sv-check(){
    local bin ; for bin in $(sv-bins) ; do
      echo $msg $bin $(which $bin)
    done
-
 }
-sv-edit(){ vim $(sv-confpath) ; }
+sv-edit(){ vim $(sv-confpath) $(sv-confdir)/*.ini ; }
 sv-sample(){ vim $(sv-confpath).sample ; }
 
 sv-user(){   echo ${SV_USER:-root} ; }
@@ -219,6 +218,9 @@ EOC
 }
 
 
+sv-pid(){ cat /tmp/supervisord.pid ; }
+sv-restart(){ kill -HUP $(sv-pid) ;  }
+
 sv-ctl-sock(){
    local user=$(private-val SUPERVISOR_USERNAME)
    local sock=/tmp/env/$user/supervisor.sock
@@ -241,13 +243,12 @@ sv-cnf-triplets-nonet-(){
 
   supervisord|user|$(sv-user) 
 
-  rpcinterface:supervisor||
   supervisorctl||
   inet_http_server||
 
 EOC
 
-# 
+# must leave this section in there .... rpcinterface:supervisor||
 
 }
 
