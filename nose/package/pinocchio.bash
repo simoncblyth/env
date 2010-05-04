@@ -31,15 +31,14 @@ pinocchio-build(){
    nosetests -p
 }
 
-pinocchio-times(){
-   python -c "from cPickle import load ; print load(open('.nose-stopwatch-times'))"
-}
-
+pinocchio-times-(){ python -c "from cPickle import load ; d = load(open('.nose-stopwatch-times')) ; print '\n'.join(['%-100s:%s'% (k,d[k]) for k in sorted(d,key=$1)]) " }
+pinocchio-bytime(){  pinocchio-times- 'lambda x:d[x]' ; }
+pinocchio-byname(){  pinocchio-times- 'lambda x:x' ; }
 pinocchio-test(){
    pinocchio-cd
    nosetests --with-stopwatch -v examples/test_stopwatch.py 
    [ ! -f .nose-stopwatch-times ] && echo $msg ERROR failed to create time record && return 1
-   pinocchio-times
+   pinocchio-byname
 }
 
 
