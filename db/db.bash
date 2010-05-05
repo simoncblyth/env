@@ -283,7 +283,7 @@ db-test(){
    #echo $msg TEST SUCCEEDED && rm -f $tmp
 }
 
-db-logdir(){  echo $HOME/log/env ; }
+db-logdir(){  echo $HOME/cronlog ; }
 db-logs(){
    cd $(db-logdir)
    echo $PWD $(date)

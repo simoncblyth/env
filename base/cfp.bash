@@ -1,21 +1,22 @@
-# === func-gen- : base/svcfp fgp base/svcfp.bash fgn svcfp fgh base
-svcfp-src(){      echo base/svcfp.bash ; }
-svcfp-source(){   echo ${BASH_SOURCE:-$(env-home)/$(svcfp-src)} ; }
-svcfp-vi(){       vi $(svcfp-source) ; }
-svcfp-env(){      elocal- ; }
-svcfp-usage(){
+# === func-gen- : base/cfp fgp base/cfp.bash fgn cfp fgh base
+cfp-src(){      echo base/cfp.bash ; }
+cfp-source(){   echo ${BASH_SOURCE:-$(env-home)/$(cfp-src)} ; }
+cfp-vi(){       vi $(cfp-source) ; }
+cfp-env(){      elocal- ; }
+cfp-usage(){
   cat << EOU
-     svcfp-src : $(svcfp-src)
-     svcfp-dir : $(svcfp-dir)
+     cfp-src : $(cfp-src)
+     cfp-dir : $(cfp-dir)
 
-       Functionality not used in anger ... 
+     Namechange from svcfp- to cfp- to reflect the generality of 
+     ini editing ... 
 
-     svcfp-dump
-     svcfp-getset
+     svcfp-  functionality has not used in anger ... 
 
+     cfp-dump
+     cfp-getset
          ConfigParser based dumping and get/get 
          (as ConfigObj does not handle ";" comments)
-
 
    Problems with config automation 
      1) ConfigObj doesnt handle ";" comments... and does not preserve spacing of inline # comments 
@@ -23,15 +24,17 @@ svcfp-usage(){
   
    Went with ConfigParser in ini-edit re-implementation ~/e/base/ini_cp.py   
 
-
 EOU
 }
 
-svcfp-dump(){ $FUNCNAME- | python ; }
-svcfp-dump-(){ cat << EOD
+cfp-defpath(){ sv-;sv-confpath ; }
+cfp-path(){ echo ${CFP_PATH:-$(cfp-defpath)} ; }
+
+cfp-dump(){ $FUNCNAME- | python ; }
+cfp-dump-(){ cat << EOD
 from ConfigParser import ConfigParser
 c = ConfigParser()
-c.read("$(sv-;sv-confpath)")
+c.read("$(cfp-path)")
 for section in c.sections():
     print section
     for option in c.options(section):
@@ -39,13 +42,12 @@ for section in c.sections():
 EOD
 }
 
-svcfp-getset(){  $FUNCNAME- | python - $* ; }
-svcfp-getset-(){ cat << EOD
-## not used in anger ... see sv-ini
+cfp-getset(){  $FUNCNAME- | python - $* ; }
+cfp-getset-(){ cat << EOD
 import sys
 from ConfigParser import ConfigParser
 c = ConfigParser()
-c.read("$(sv-;sv-confpath)")
+c.read("$(cfp-path)")
 argv = sys.argv[1:]
 
 if len(argv) == 0:

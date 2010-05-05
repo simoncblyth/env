@@ -770,7 +770,7 @@ djdep-(){      . $(env-home)/dj/djdep.bash && djdep-env $* ; }
 runinfo-(){      . $(env-home)/aberdeen/runinfo/runinfo.bash && runinfo-env $* ; }
 svman-(){      . $(env-home)/base/svman.bash && svman-env $* ; }
 svdev-(){      . $(env-home)/base/svdev.bash && svdev-env $* ; }
-svcfp-(){      . $(env-home)/base/svcfp.bash && svcfp-env $* ; }
+cfp-(){        . $(env-home)/base/cfp.bash && cfp-env $* ; }
 pldep-(){      . $(env-home)/pl/pldep.bash && pldep-env $* ; }
 plbook-(){      . $(env-home)/pl/plbook.bash && plbook-env $* ; }
 ini-(){      . $(env-home)/base/ini.bash && ini-env $* ; }
