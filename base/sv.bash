@@ -37,6 +37,22 @@ sv-usage(){
                 on attempting to start the controller
 
 
+  == supervisord control ==
+
+    sv-logfile  : $(sv-logfile)
+    sv-tail 
+             Follow the tail 
+
+    sv-pidfile  : $(sv-pidfile)
+    sv-pid
+             pid of the supervisord 
+             NB keeping the pidfile in /tmp is not wise for such a longlived process 
+             ... better to keep in /var/run 
+    sv-restart 
+             send HUP for supervisord which restarts it .. re-reading config
+
+
+
   == putting processes under supervisor control ==
 
 
@@ -217,9 +233,23 @@ sv-cnf-triplets-(){
 EOC
 }
 
-
-sv-pid(){ cat /tmp/supervisord.pid ; }
-sv-restart(){ kill -HUP $(sv-pid) ;  }
+sv-tail(){    tail -f $(sv-logfile) ; }
+sv-logfile(){ cfp- ; cfp-getset supervisord logfile ; }
+sv-pidfile(){ cfp- ; cfp-getset supervisord pidfile ; }
+sv-pid(){ 
+   local pidfile=$(sv-pidfile)
+   if [ -f "$pidfile" ]; then
+      cat $(sv-pidfile) 
+   else
+      sv-ctl pid
+   fi
+}
+sv-restart(){ 
+   local msg="=== $FUNCNAME :"
+   local cmd="$(sv-sudo) kill -HUP $(sv-pid)" 
+   echo $msg $cmd
+   eval $cmd  
+}
 
 sv-ctl-sock(){
    local user=$(private-val SUPERVISOR_USERNAME)
@@ -298,7 +328,7 @@ sv-ctl(){
    [ "$(which supervisorctl)" == "" ] && echo $msg no supervisorctl ... you are running with the wrong python && return 1
    [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for tag $(sv-ctl-tag) ... use \"SV_TAG=$(sv-ctl-tag) sv-ctl-prep\" to create one  && return 1
    local cmd="supervisorctl -c $ini $*  "
-   echo $msg $cmd
+   [ -n "$SV_VERBOSE" ] && echo $msg $cmd
    eval $cmd
    [ ! "$?" -eq "0" ] && echo $msg error maybe server not running ... the ini $ini : && cat $ini
 }
@@ -400,5 +430,19 @@ sv-dev-install(){
 }
 
 
+sv-httpok-conf-(){ cat << EOC
+[eventlistener:httpok_plvdbi]
+command=python -u $(which httpok) -m $(local-email) http://localhost/dbi/
+events=TICK_60
+EOC
+}
+
+sv-httpok-conf(){
+   local msg="=== $FUNCNAME :"
+   local ini=$(sv-confdir)/httpok.ini
+   echo $msg writing $ini
+   $FUNCNAME- > $ini
+   cat $ini
+}
 
 
