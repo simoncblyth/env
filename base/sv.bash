@@ -10,6 +10,11 @@ sv-usage(){
      sv-confpath : $(sv-confpath)
 
        http://supervisord.org/manual/current/
+       http://pypi.python.org/pypi/superlance/
+
+    Eventlistener that sends emails on status changes...
+       http://lists.supervisord.org/pipermail/supervisor-users/2009-October/000480.html
+
      
   == standard operations ==
 
@@ -430,10 +435,13 @@ sv-dev-install(){
 }
 
 
-sv-httpok-conf-(){ cat << EOC
+sv-httpok-conf-(){ private- ; cat << EOC
 [eventlistener:httpok_plvdbi]
-command=python -u $(which httpok) -m $(local-email) http://localhost/dbi/
-events=TICK_60
+command=python -u $(which httpok) -p plvdbi -m $(local-email) http://dayabay.phys.ntu.edu.tw/dbi/
+events=TICK_3600
+redirect_stderr=true
+redirect_stdout=true
+environment=SUPERVISOR_USERNAME=$(private-val SUPERVISOR_USERNAME),SUPERVISOR_PASSWORD=$(private-val SUPERVISOR_PASSWORD),SUPERVISOR_SERVER_URL=$(private-val SUPERVISOR_SERVER_URL)
 EOC
 }
 
@@ -442,6 +450,8 @@ sv-httpok-conf(){
    local ini=$(sv-confdir)/httpok.ini
    echo $msg writing $ini
    $FUNCNAME- > $ini
+   chmod go-rw $ini
+   ll $ini
    cat $ini
 }
 
