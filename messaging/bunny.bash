@@ -1,6 +1,7 @@
 # === func-gen- : messaging/bunny fgp messaging/bunny.bash fgn bunny fgh messaging
 bunny-src(){      echo messaging/bunny.bash ; }
 bunny-source(){   echo ${BASH_SOURCE:-$(env-home)/$(bunny-src)} ; }
+bunny-srcdir(){   echo $(dirname $(bunny-source)) ; }
 bunny-vi(){       vi $(bunny-source) ; }
 bunny-env(){      elocal- ; }
 bunny-usage(){
@@ -9,8 +10,8 @@ bunny-usage(){
      bunny-dir : $(bunny-dir)
 
      http://github.com/bkjones/bunny
-         interractive python client to rabbitmq, based on python module amqplib 
-
+         cmd.Cmd based interactive python client to rabbitmq, 
+         based on python module amqplib 
 
      bunny-build
         -get and -kludge
@@ -20,8 +21,30 @@ bunny-usage(){
             "except ValueError as out:"
          -->"except ValueError , out:"
 
-     bunny--
+     bunny--original
         run interactive client
+
+     bunny-- <name>
+        run monkey patched mybunny.py that has the private_connect command 
+        which uses the private- vars and which auto-connects on startup
+
+        Usage example : 
+
+           bunny-- OTHER_
+           Trying connect to cms01.phys.ntu.edu.tw:/ as abtviz ... name:OTHER_ 
+           Success!
+           cms01.phys.ntu.edu.tw./: 
+           cms01.phys.ntu.edu.tw./: create_exchange name=sorting_room
+           No type - using 'direct'
+           cms01.phys.ntu.edu.tw./: create_queue po_box
+           cms01.phys.ntu.edu.tw./: create_binding exchange=sorting_room queue=po_box
+           cms01.phys.ntu.edu.tw./: send_message sorting_room:hello from my bunny
+
+        Using parameter set AMQP_OTHER_SERVER/USER/PASSWORD/VHOST   
+
+        As the exange and queue match those of the amqp_consumer.py example ...
+            simon:rabbits_and_warrens blyth$ python amqp_consumer.py 
+        that consumer will get the message 
 
 
 EOU
@@ -39,11 +62,20 @@ bunny-build(){
    bunny-kludge
 }
 
-
-bunny--(){
+bunny--original(){
    python $(bunny-dir)/bunny.py
 }
-
+bunny--(){
+   PYTHONPATH=$(bunny-dir) python $(bunny-srcdir)/mybunny.py $*
+}
 bunny-kludge(){
    perl -pi -e s'@as out:@, out:@g' $(bunny-dir)/bunny.py
+   perl -pi -e 's,^shell,#shell,g' $(bunny-dir)/bunny.py    ## comment last 2 lines that prevent Monkey patching 
 }
+
+
+
+
+
+
+

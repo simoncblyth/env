@@ -12,8 +12,15 @@ carrot-usage(){
            create a consumer and wait for messages, usage :
                carrot-consumer --help
                carrot-consumer -q theq -e thexchange -k dekey
+           OR just use defaults :
+               carrot-consumer  
 
+     carrot-publisher
+            publish message via the queue 
 
+     carrot-connection
+            test the connection to the MQ configured via private AMQP_... 
+            the corresponding python module is used by both consumer and publisher
 
 EOU
 }
@@ -27,7 +34,8 @@ carrot-dir(){ echo $(env-home)/messaging/carrot ; }
 carrot-cd(){  cd $(carrot-dir); }
 carrot-mate(){ mate $(carrot-dir) ; }
 
-carrot-consumer(){ python $(carrot-dir)/carrot_consumer.py $* ;  }
-
+carrot-consumer(){    python $(carrot-dir)/carrot_consumer.py $* ;  }
+carrot-publisher(){   python $(carrot-dir)/carrot_publisher.py $* ;  }
+carrot-connection(){  python $(carrot-dir)/carrot_connection.py $* ;  }
 
 
