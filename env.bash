@@ -13,6 +13,8 @@ env-rel(){
   [ "$rel" == "$src" ] && rel=$(env-home)/
   echo $rel
 }
+env-cd(){   cd $(env-home) ; }
+
 
 env-build(){
 

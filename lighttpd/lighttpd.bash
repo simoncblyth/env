@@ -29,7 +29,7 @@ lighttpd-base(){    echo $(pkgr-prefix)/etc/lighttpd ; }
 lighttpd-initd(){   echo $(pkgr-prefix)/etc/init.d ; }
 lighttpd-cd(){      cd $(lighttpd-base) ; }
 
-#lighttpd-check(){   $(pkgr-sbin)/lighttpd -f $(lighttpd-conf) -p  ; }
+lighttpd-check(){   $(pkgr-sbin)/lighttpd -f $(lighttpd-conf) -p  ; }
 
 lighttpd-conf(){    echo ${LIGHTTPD_CONF:-$(lighttpd-base)/lighttpd.conf} ; }
 lighttpd-confd(){   echo $(lighttpd-base)/conf.d  ;  }

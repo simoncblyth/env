@@ -59,6 +59,7 @@ pkgr-rund-(){
 pkgr-logd-(){
   case $1 in 
    yum) echo /var/log ;;
+   ipkg) echo /opt/var/log ;;
    port) echo /opt/local/var/log ;;
   esac 
 }

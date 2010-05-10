@@ -51,7 +51,7 @@ nginx-build(){
 nginx-prefix(){
   case $(pkgr-cmd) in 
     port) echo /opt/local ;; 
-    ipkg) echo /tmp ;;
+    ipkg) echo /opt ;;
      yum) echo /usr/local/nginx     ;;   ## change this when revisit nginx on C
   esac
 }
@@ -60,7 +60,14 @@ nginx-conf(){    echo $(nginx-prefix $*)/etc/nginx/nginx.conf ; }
 
  ## Since version 0.6.7 the filename path is relative to directory of nginx configuration file nginx.conf, but not to nginx prefix 
 nginx-users(){   echo $(nginx-prefix)/etc/nginx/users.txt ; }
-nginx-pidpath(){ echo $(nginx-prefix)/var/run/nginx/nginx.pid ; }
+nginx-pidpath(){ 
+  case $(pkgr-cmd) in 
+    port) echo $(nginx-prefix)/var/run/nginx/nginx.pid ;;
+    ipkg) echo $(nginx-prefix)/var/nginx/run/nginx.pid ;;
+  esac
+}    
+    
+    
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
 nginx-stop(){    sudo kill -QUIT $(nginx-pid) ; }
 nginx-start(){   
@@ -80,7 +87,12 @@ EOI
 
 
 nginx-htdocs(){ echo $(nginx-prefix)/share/nginx/html ; }
-nginx-logd(){   echo $(pkgr-logd)/nginx  ; }
+nginx-logd(){   
+   case $(pkgr-cmd) in 
+     port)  echo $(pkgr-logd)/nginx  ;;
+     ipkg)  echo $(nginx-prefix)/var/nginx/log ;;
+   esac  
+}
 nginx-elog(){   echo $(nginx-logd)/error.log ; }
 nginx-alog(){   echo $(nginx-logd)/access.log ; }
 nginx-etail(){  sudo tail -f $(nginx-elog) ; }

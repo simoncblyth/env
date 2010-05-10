@@ -242,6 +242,7 @@ dj-ln(){
 dj-manage(){ cd $(dj-projdir) ; python ./manage.py $*  ; }
 dj-run(){    dj-manage runserver $(dj-port) ; }
 dj-shell(){  dj-manage shell_plus  ; }   ## requires dj-ext 
+dj-db(){  dj-manage dbshell  ; } 
 dj-syncdb(){ dj-manage syncdb ; }
 
 dj-open(){   open http://localhost:$(dj-port $*) ; }

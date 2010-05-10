@@ -27,6 +27,8 @@ djdep-usage(){
               /var/log/httpd/error_log 
 
 
+    djdep-run
+          Error: No module named django_extensions
      djdep-protocol : $(djdep-protocol)
            are using scgi with apache and fcgi with lighttpd
 
