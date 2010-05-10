@@ -28,7 +28,6 @@ fullblog-usage(){
         there should be an extra "builds" tab if you are logged in 
         as a user with permission to see it 
       
-    
                                 
 EOU
 
@@ -38,6 +37,22 @@ EOU
 fullblog-notes(){
 
 cat << EON
+
+  On G 
+     has to not macports to get the system python but then meet  svn/setuptools incompatibility ...
+     really need to move to virtual python env for Trac ... as site-packages is horribly bloated 
+
+simon:~ blyth$ fullblog-install
+=== package-install : fullblog
+svn: This client is too old to work with working copy '/usr/local/env/trac/package/fullblog/0.11'; please get a newer Subversion client
+=== package-applypatch : there is no patch file /Users/blyth/env/trac/patch/fullblog/fullblog-0.11-.patch
+no fixes
+Processing .
+Running setup.py -q bdist_egg --dist-dir /usr/local/env/trac/package/fullblog/0.11/egg-dist-tmp-xsu0XX
+unrecognized .svn/entries format; skipping .
+Traceback (most recent call last):
+  File "/usr/bin/easy_install", line 8, in <module>
+    load_entry_point('setuptools==0.6c7', 'console_scripts', 'easy_install')()
 
 
 EON
@@ -51,7 +66,7 @@ fullblog-env(){
   export FULLBLOG_BRANCH=0.11
 }
 
-fullblog-revision(){  echo 5336 ; }
+fullblog-revision(){  echo 7935 ; }
 fullblog-url(){       echo http://trac-hacks.org/svn/fullblogplugin/$(fullblog-branch) ; }
 fullblog-package(){   echo tracfullblog ; }
 
@@ -66,10 +81,11 @@ fullblog-perms(){
  local msg="=== $FUNCNAME :"
  echo $msg for consistency these are now done in trac/tracperm.bash  
  
- # trac-admin- permission add blyth BUILD_ADMIN
- # trac-admin- permission add authenticated BUILD_VIEW
- # trac-admin- permission add authenticated BUILD_EXEC
- # trac-admin- permission list
+ trac-admin- permission add blyth BLOG_ADMIN
+ trac-admin- permission add authenticated BLOG_VIEW
+ trac-admin- permission add authenticated BLOG_COMMENT
+ trac-admin- permission add authenticated BLOG_MODIFY_OWN
+ trac-admin- permission list
 
 }
 
