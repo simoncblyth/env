@@ -797,3 +797,4 @@ db-(){      . $(env-home)/db/db.bash && db-env $* ; }
 djnose-(){      . $(env-home)/dj/djnose.bash && djnose-env $* ; }
 memoir-(){      . $(env-home)/latex/memoir.bash && memoir-env $* ; }
 pinocchio-(){      . $(env-home)/nose/package/pinocchio.bash && pinocchio-env $* ; }
+scons-(){      . $(env-home)/scons/scons.bash && scons-env $* ; }

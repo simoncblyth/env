@@ -57,11 +57,20 @@ tractrac-branch2revision(){
    esac
 }
 
+
+tractrac-findit-(){ python -c "import trac as _ ; print _.__file__" ;  }
+tractrac-findit(){  local init=$($FUNCNAME-) ; [ -n "$init" ] && echo $(dirname $init) ; }
+
 tractrac-cssfix(){
   local msg="=== $FUNCNAME :"
   local css=$(python-site)/$(tractrac-egg)/trac/htdocs/css/ticket.css
-  local tmp=/tmp/env/$FUNCNAME/$(basename $css)
+  if [ ! -f "$css" ]; then
+     css=$(tractrac-findit)/htdocs/css/ticket.css
+  fi 
   [ ! -f "$css" ] && echo $msg ABORT no css $css && return 1
+  echo $msg found css $css
+
+  local tmp=/tmp/env/$FUNCNAME/$(basename $css)
 
   echo $msg $css
   mkdir -p $(dirname $tmp)

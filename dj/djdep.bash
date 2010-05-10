@@ -346,6 +346,10 @@ djdep-run(){
        echo $msg no socket $(djdep-socket)
      fi
 
+     local pmd="umask u=rwx,g=rwx,o=rwx" 
+     echo $msg remove the mask entirely for this process to allow nginx-nobody to access socket  $pmd
+     eval $pmd
+
      local cmd="$(djdep-run-)" ;
      echo $msg $cmd  ... from $PWD 
      eval $cmd
