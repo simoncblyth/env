@@ -221,7 +221,7 @@ python-rln(){
    base-rln $(python-site) $*
 }
 
-
+python-md5(){ python -c "from md5 import new as _ ; import sys ; print _(''.join(sys.stdin.readlines())).hexdigest() " ; }
 
 
 

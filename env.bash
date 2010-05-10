@@ -3,6 +3,7 @@
 
 env-home(){     [ -n "$BASH_SOURCE" ] && [ "${BASH_SOURCE:0:1}" != "." ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 env-source(){   echo $(env-home)/env.bash ; }
+env-cd(){   cd $(env-home) ; }
 env-vi(){       vi $(env-source) ; }
 env-ini(){      . $(env-source) ; }
 env-lastrev(){  svn- ; svn-lastrev $(env-home) ; }

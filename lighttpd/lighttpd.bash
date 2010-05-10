@@ -193,10 +193,11 @@ lighttpd-adduser(){
   local user=$1
   local realm=$2
   local pass
+  python-
   read -p "$msg enter password for new user \"$1\" to access realm \"$2\" ... " pass
   read -p "$msg re-enter password  ... " pass2
   [ "$pass" != "$pass2" ] && echo $msg ABORT the passwords do not match && return 1
-  local hash=$(echo -n "$user:$realm:$pass" | md5 )
+  local hash=$(echo -n "$user:$realm:$pass" | python-md5 )
   echo $msg appending new user entry "$user:$realm:$hash" to users file  $(lighttpd-users) 
   sudo bash -c "echo \"$user:$realm:$hash\" >> $(lighttpd-users) "
 }
