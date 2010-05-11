@@ -1,0 +1,168 @@
+Index: dev/test2.cc
+===================================================================
+--- dev/test2.cc	(revision 0)
++++ dev/test2.cc	(revision 0)
+@@ -0,0 +1,89 @@
++/*
++    gcc -o minIni.o -c minIni.c
++    g++ -o test2.o -c test2.cc
++    g++ -o test2 test2.o minIni.o
++    ./test2
++*/
++
++
++#include <iostream>
++#include <string>
++using namespace std ;
++
++#include "minIni.h"
++
++int main(void)
++{
++  string del("@DELETE@");
++  minIni ini("test.ini", del );
++  string s;
++  
++  /* string reading */
++  s = ini.gets( "first", "string" , "aap" );    
++  assert(s == "noot");
++  s = ini.gets( "second", "string" , "aap" );    
++  assert(s == "mies");
++  s = ini.gets( "first", "dummy" , "aap" );    
++  assert(s == "aap");
++  cout <<  "1. String reading tests passed" << endl ;
++
++
++  /* value reading */
++  long n;
++  n = ini.getl("first", "val", -1 );
++  assert(n==1);
++  n = ini.getl("second", "val", -1);
++  assert(n==2);
++  n = ini.getl("first", "dummy", -1);
++  assert(n==-1);
++  cout << "2. Value reading tests passed" << endl ;
++
++
++  /* string writing */
++  bool b;
++  b = ini.put("first", "alt", "flagged as \"correct\"");
++  assert(b);
++  s = ini.gets("first", "alt", "aap");
++  assert(s=="flagged as \"correct\"");
++
++  b = ini.put("second", "alt", "correct");
++  assert(b);
++  s = ini.gets("second", "alt", "aap");
++  assert(s=="correct");
++
++  n = ini.put("third", "alt", "correct");
++  assert(b);
++  s = ini.gets("third", "alt", "aap" );
++  assert(s=="correct");
++  cout << "3. String writing tests passed" << endl;
++
++
++
++  /* section/key enumeration */
++  char bsection[INI_BUFFERSIZE];
++  char bkey[INI_BUFFERSIZE];
++  
++  for (int is = 0; ini.getsection(is, bsection, INI_BUFFERSIZE ) > 0; is++) {
++    printf("[%s]\n", bsection);
++    for (int ik = 0; ini.getkey(bsection, ik, bkey, INI_BUFFERSIZE) > 0; ik++) {
++      printf("\t%s\n", bkey );
++    } 
++  } 
++  cout << "4. section/key enumeration passed ... but not in a very C++ manner " << endl;
++
++
++  /* string deletion */
++
++  b = ini.put("first", "alt", del );
++  assert(b);
++  b = ini.put("second", "alt", del );
++  assert(b);
++  b = ini.put("third", del, del );
++  assert(b);
++ 
++  cout << "5. string deletion passed using pragmatic delToken approach as std::string cannot be NULL " << endl;
++
++
++  return 0;
++}
++
+Index: dev/minIni.h
+===================================================================
+--- dev/minIni.h	(revision 28)
++++ dev/minIni.h	(working copy)
+@@ -58,14 +58,15 @@
+   class minIni
+   {
+   public:
+-    minIni(const std::string& filename) : iniFilename(filename)
++      
++    minIni(const std::string& filename, const std::string& deltoken="@DELETE@" ) : iniFilename(filename), iniDeltoken(deltoken)
+       { }
+ 
+     long getl(const std::string& Section, const std::string& Key, long DefValue=0) const
+       { return ini_getl(Section.c_str(), Key.c_str(), DefValue, iniFilename.c_str()); }
+ 
+-    long geti(const std::string& Section, const std::string& Key, int DefValue=0) const
+-      { return reinterpret_cast<int>( this->getl(Section, Key, DefValue) ); }
++    int geti(const std::string& Section, const std::string& Key, long DefValue=0) const
++      { return int(this->getl(Section, Key, DefValue)) ; }  // reinterpret_cast is not for fundamental types
+ 
+     std::string gets(const std::string& Section, const std::string& Key, const std::string& DefValue="") const
+       {
+@@ -75,21 +76,33 @@
+       }
+ 
+     bool put(const std::string& Section, const std::string& Key, long Value) const
+-      { return ini_putl(Section.c_str(), Key.c_str(), Value, iniFilename.c_str()); }
++      {   
++          const TCHAR* s = Section == iniDeltoken ? NULL : Section.c_str() ;
++          const TCHAR* k = Key == iniDeltoken ? NULL : Key.c_str() ; 
++          return ini_putl(s , k , Value, iniFilename.c_str()); 
++      }
+ 
+     bool put(const std::string& Section, const std::string& Key, const std::string& Value) const
+-      { return ini_puts(Section.c_str(), Key.c_str(), Value.c_str(), iniFilename.c_str()); }
++      { 
++          const TCHAR* s = Section == iniDeltoken ? NULL : Section.c_str() ;
++          const TCHAR* k =     Key == iniDeltoken ? NULL : Key.c_str() ;
++          const TCHAR* v =   Value == iniDeltoken ? NULL : Value.c_str() ;        
++          return ini_puts(s , k , v , iniFilename.c_str()); 
++      }
+ 
+     int getsection(int idx, TCHAR *Buffer, int BufferSize) const
+-      { return return ini_getsection(idx, Buffer, BufferSize, iniFilename.c_str()); }
++      { return ini_getsection(idx, Buffer, BufferSize, iniFilename.c_str()); }
+ 
+     int getkey(const std::string& Section, int idx, TCHAR *Buffer, int BufferSize) const
+-      { return return ini_getsection(Section.c_str(), idx, Buffer, BufferSize, iniFilename.c_str()); }
++      { return ini_getkey(Section.c_str(), idx, Buffer, BufferSize, iniFilename.c_str()); }
+ 
+   private:
+     std::string iniFilename;
++    std::string iniDeltoken;
+   };
+ 
++
++
+ #endif /* __WXWIDGETS__ */
+ #endif /* __cplusplus */
+ 
+Index: dev/test.ini
+===================================================================
+--- dev/test.ini	(revision 28)
++++ dev/test.ini	(working copy)
+@@ -1,7 +1,7 @@
+ [First]
+ String=noot # trailing commment
+ Val=1
+-
++
+ [Second]
+ Val = 2
+ String = mies
