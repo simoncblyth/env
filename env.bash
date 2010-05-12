@@ -800,3 +800,6 @@ memoir-(){      . $(env-home)/latex/memoir.bash && memoir-env $* ; }
 pinocchio-(){      . $(env-home)/nose/package/pinocchio.bash && pinocchio-env $* ; }
 scons-(){      . $(env-home)/scons/scons.bash && scons-env $* ; }
 minini-(){      . $(env-home)/base/minini.bash && minini-env $* ; }
+lxr-(){      . $(env-home)/doc/lxr.bash && lxr-env $* ; }
+doxy-(){      . $(env-home)/doc/doxy.bash && doxy-env $* ; }
+doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }

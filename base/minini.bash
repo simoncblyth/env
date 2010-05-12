@@ -15,6 +15,10 @@ minini-usage(){
      Contributed the patch getting the C++ class working in ticket :
          http://code.google.com/p/minini/issues/detail?id=11
 
+     No interpolation  ... but probably the need for this 
+     can be avoided : no point constructing a silly URL and then
+     deconstructing it at the C++ end
+
 EOU
 }
 
