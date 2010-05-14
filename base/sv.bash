@@ -75,33 +75,7 @@ sv-usage(){
 
   == ini issue ... running on the wrong python == 
 
-
-C2> status
-apache                           RUNNING    pid 8261, uptime 0:05:55
-httpok_plvdbi                    FATAL      Exited too quickly (process log may have details)
-mysql                            RUNNING    pid 8263, uptime 0:05:55
-plvdbi                           RUNNING    pid 8262, uptime 0:05:55
-C2> 
-
-
-     env orveride in the sv conf ?
-
-C2> tail httpok_plvdbi
-rements))
-  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 524, in resolve
-    raise DistributionNotFound(req)  # XXX put more info here
-pkg_resources.DistributionNotFound: superlance==0.5
-Traceback (most recent call last):
-  File "/data/env/system/python/Python-2.5.1/bin/httpok", line 5, in ?
-    from pkg_resources import load_entry_point
-  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 2562, in ?
-    working_set.require(__requires__)
-  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 626, in require
-    needed = self.resolve(parse_requirements(requirements))
-  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 524, in resolve
-    raise DistributionNotFound(req)  # XXX put more info here
-pkg_resources.DistributionNotFound: superlance==0.5
-
+    * resolved using \$(which python) in the svconf ... as init.d environment is bare ... unlike manual start with : sv-sstart
 
 
   == putting processes under supervisor control ==
@@ -484,7 +458,7 @@ sv-dev-install(){
 
 sv-httpok-conf-(){ private- ; cat << EOC
 [eventlistener:httpok_plvdbi]
-command=python -u $(which httpok) -p plvdbi -m $(local-email) http://dayabay.phys.ntu.edu.tw/dbi/
+command=$(which python) -u $(which httpok) -p plvdbi -m $(local-email) http://dayabay.phys.ntu.edu.tw/dbi/
 events=TICK_3600
 redirect_stderr=true
 redirect_stdout=true
