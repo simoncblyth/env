@@ -3,6 +3,7 @@ sv-src(){      echo base/sv.bash ; }
 sv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(sv-src)} ; }
 sv-vi(){       vi $(sv-source) ; }
 sv-env(){      elocal- ; }
+sv-name(){     echo sv-$USER | tr "[A-Z]" "[a-z]" ; }
 sv-usage(){
   cat << EOU
      sv-src : $(sv-src)
@@ -55,6 +56,51 @@ sv-usage(){
              ... better to keep in /var/run 
     sv-restart 
              send HUP for supervisord which restarts it .. re-reading config
+
+
+  == making supervisord auto start on reboot ==
+     
+     NB stopping/starting  supervisord will stop/start  all the processes it controls
+
+     sv-initd-path : $(sv-initd-path)
+     sv-initd  
+         set up the ini script for supervisor
+     sv-initd-
+         emit the script to stdout 
+
+     To test when using source python as on C2 : need to do sudo bash python hoop jumping : 
+          [blyth@cms02 e]$ python-
+          [blyth@cms02 e]$ sudo bash -c "LD_LIBRARY_PATH=$(python-libdir) /etc/rc.d/init.d/sv-blyth start "
+
+
+  == ini issue ... running on the wrong python == 
+
+
+C2> status
+apache                           RUNNING    pid 8261, uptime 0:05:55
+httpok_plvdbi                    FATAL      Exited too quickly (process log may have details)
+mysql                            RUNNING    pid 8263, uptime 0:05:55
+plvdbi                           RUNNING    pid 8262, uptime 0:05:55
+C2> 
+
+
+     env orveride in the sv conf ?
+
+C2> tail httpok_plvdbi
+rements))
+  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 524, in resolve
+    raise DistributionNotFound(req)  # XXX put more info here
+pkg_resources.DistributionNotFound: superlance==0.5
+Traceback (most recent call last):
+  File "/data/env/system/python/Python-2.5.1/bin/httpok", line 5, in ?
+    from pkg_resources import load_entry_point
+  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 2562, in ?
+    working_set.require(__requires__)
+  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 626, in require
+    needed = self.resolve(parse_requirements(requirements))
+  File "/usr/lib/python2.3/site-packages/setuptools-0.6c9-py2.3.egg/pkg_resources.py", line 524, in resolve
+    raise DistributionNotFound(req)  # XXX put more info here
+pkg_resources.DistributionNotFound: superlance==0.5
 
 
 
@@ -456,4 +502,78 @@ sv-httpok-conf(){
    cat $ini
 }
 
+sv-initd-(){ cat << EOI
+#!/bin/sh
+# RedHat startup script for a supervisor instance
+#    http://lists.supervisord.org/pipermail/supervisor-users/2007-September/000093.html
+#
+# chkconfig: 2345 80 20
+# description: $(sv-name)
+#
+# Source function library.
+. /etc/rc.d/init.d/functions
 
+supervisorctl="$(which supervisorctl)"
+supervisord="$(which supervisord)"
+name="$(sv-name)"
+
+[ -f \$supervisord ] || exit 1
+[ -f \$supervisorctl ] || exit 1
+
+RETVAL=0
+
+start() {
+     echo -n "Starting \$name: "
+     \$supervisord -c $(sv-confpath)
+     RETVAL=\$?
+     [ \$RETVAL -eq 0 ] && touch /var/lock/subsys/\$name
+     echo
+     return \$RETVAL
+}
+
+stop() {
+     echo -n "Stopping \$name: "
+     \$supervisorctl -c $(sv-ctl-ini) shutdown
+     RETVAL=\$?
+     [ \$RETVAL -eq 0 ] && rm -f /var/lock/subsys/\$name
+     echo
+     return \$RETVAL
+}
+
+case "\$1" in
+        start) start ;;
+         stop) stop  ;;
+      restart)
+               stop
+               start
+                     ;;
+esac
+
+exit \$REVAL
+EOI
+}
+
+sv-initd-path(){ echo /etc/rc.d/init.d/$(sv-name) ; }
+sv-initd(){
+  local msg="=== $FUNCNAME :"
+  local ini=$(sv-initd-path)
+  [ ! -d "$(dirname $ini)" ] && echo $msg error no init.d for $ini && return 1
+  local tmp=/tmp/$USER/env/$FUNCNAME/$(sv-name) && mkdir -p $(dirname $tmp)
+  $FUNCNAME- > $tmp
+  local cmd
+  if [ -f "$ini" ]; then 
+     cmd="diff $ini $tmp"
+     echo $msg $cmd
+     eval $cmd
+  fi
+  cmd="sudo cp $tmp $ini "
+  local ans
+  read -p "$msg enter YES to proceed with : $cmd " ans
+  [ "$ans" != "YES" ] && echo $msg OK skipping && return 0
+  eval $cmd 
+
+  cmd="sudo chmod ugo+x $ini "
+  eval $cmd
+  ls -l $ini
+
+}
