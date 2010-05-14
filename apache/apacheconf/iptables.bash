@@ -5,17 +5,26 @@ iptables-vi(){  vi $(iptables-source) ; }
 iptables-env(){
   elocal-
 }
-
-
+iptables-ini(){    sudo $(iptables-inipath)  $*  ; }
+iptables-inipath(){ echo /etc/init.d/iptables    ; }
+iptables-syspath(){ echo /etc/sysconfig/iptables ; }
 iptables-usage(){
 
    cat << EOU
 
      $(env-wikiurl)/CMS02Firewall
+     $(env-wikiurl)/IPTables
 
      http://www.yolinux.com/TUTORIALS/LinuxTutorialIptablesNetworkGateway.html
      http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch14_:_Linux_Firewalls_Using_iptables
      http://www.cae.wisc.edu/site/public/?title=liniptables
+
+     http://www.cyberciti.biz/faq/how-do-i-save-iptables-rules-or-settings/
+
+     iptables-inipath : $(iptables-inipath)
+     iptables-syspath : $(iptables-syspath)
+
+          
 
      iptables-list
          list the chain 
@@ -50,16 +59,23 @@ iptables-usage(){
           open to only the invoking/specified ip
            
      iptables-persist
-          
+         
+     == persisting iptables on C ==
+ 
           make iptables settings persistent across reboots ...  
          > [blyth@cms01 log]$ iptables-persist
          > sudo /sbin/service iptables save
-         > Saving firewall rules to /etc/sysconfig/iptables:          [  OK  
+         > Saving firewall rules to /etc/sysconfig/iptables:          [  OK  ]
      
          > [blyth@cms01 log]$ sudo service iptables
          > Usage: /etc/init.d/iptables {start|stop|restart|condrestart|status|panic|save}
+ 
+     == persisting iptables on C2 ==
 
-
+         [blyth@cms02 ~]$ iptables-ini
+         Usage: /etc/init.d/iptables {start|stop|restart|condrestart|status|panic|save}
+         [blyth@cms02 ~]$ iptables-ini save
+         Saving firewall rules to /etc/sysconfig/iptables:          [  OK  ]
 EOU
 
 }
@@ -122,8 +138,8 @@ iptables-webclose(){
 
 iptables-ip(){
   case $(uname) in
-     Darwin) ifconfig en0  | perl -n -e 'm,inet (\S*), && print $1 '  ;;
-          *) ifconfig eth0 | perl -n -e 'm,inet addr:(\S*), && print $1 '  ;;
+     Darwin) /sbin/ifconfig en0  | perl -n -e 'm,inet (\S*), && print $1 '  ;;
+          *) /sbin/ifconfig eth0 | perl -n -e 'm,inet addr:(\S*), && print $1 '  ;;
   esac
 }
 
@@ -147,4 +163,8 @@ iptables-openforme(){
    local tag=G
    IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)
 }
+
+
+
+
 
