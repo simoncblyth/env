@@ -88,7 +88,7 @@ def create_app(url=None,  dbg=True):
     from private import Private
     p = Private()
     if not(url):
-        url = p('DATABASE_URL')          
+        url = p('VDBI_DATABASE_URL')          
         if url.find("%s")>-1:
             url = url % datetime.now().strftime("%Y%m%d")     
 

@@ -182,6 +182,7 @@ sv-sstart(){
 
 sv-add(){
    local msg="=== $FUNCNAME :"
+   echo $msg THIS IS DEPRECATED USE sv-plus && return 1
    local fnc=$1
    local nam=$2
    local tmp=/tmp/env/$FUNCNAME/$nam && mkdir -p $(dirname $tmp)
@@ -195,7 +196,7 @@ sv-add(){
 sv-plus(){
   local msg="=== $FUNCNAME :"
   local nam=$1
-  local tmp=/tmp/env/$FUNCNAME/$nam && mkdir -p $(dirname $tmp)
+  local tmp=/tmp/$USER/env/$FUNCNAME/$nam && mkdir -p $(dirname $tmp)
   echo $msg writing to $tmp
   cat - > $tmp
   cat $tmp

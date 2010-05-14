@@ -334,7 +334,7 @@ user=root
 EOC
 }
 
-mysql-sv(){  sv-;sv-add $FUNCNAME- mysql.ini ; }
+mysql-sv(){  sv-; $FUNCNAME- | sv-plus mysql.ini ; }
 
 
 
