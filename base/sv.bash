@@ -228,6 +228,10 @@ sv-get-trunk(){
    svn co $(sv-baseurl)/supervisor/trunk supervisor
 }
 
+sv-trunk-html(){
+   open $(sv-dir)/supervisor/docs/.build/html/index.html
+}
+
 
 sv-get(){
    python-
