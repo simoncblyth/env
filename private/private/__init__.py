@@ -10,15 +10,16 @@ class Private:
     """
          Re-implementation of the bash private- for ease of use from python
  
-             from env.base.private import Private
+             from private import Private
              v = Private()('DATABASE_NAME')  
 
 
-         sudo -u apache python -c "from env.base.private import Private ; p=Private() ; print p('DATABASE_NAME') " 
+         sudo -u apache python -c "from :private import Private ; p=Private() ; print p('DATABASE_NAME') " 
 
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
     def __init__(self):
+        print "\n".join(["%s:%s" % (k,v) for k,v in os.environ.items()]) 
         path = os.environ.get('ENV_PRIVATE_PATH',None)
         if(not(path)):
             path = os.path.join( os.path.dirname(os.environ.get('ENV_HOME')), '.bash_private' )

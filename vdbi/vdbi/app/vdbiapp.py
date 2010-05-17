@@ -92,7 +92,7 @@ def create_app(url=None,  dbg=True):
         if url.find("%s")>-1:
             url = url % datetime.now().strftime("%Y%m%d")     
 
-    assert not url == "", "create_app ABORT : DATABASE_URL not configured ... needs to be in sqlalchemy format "
+    assert not url == "", "create_app ABORT : VDBI_DATABASE_URL not configured ... needs to be in sqlalchemy format "
     logdir = p('VDBI_LOGDIR') 
     assert not logdir == "", "create_app ABORT : VDBI_LOGDIR not configured "
     print "create_app private config from : %s " % p.path 

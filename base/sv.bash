@@ -16,6 +16,22 @@ sv-usage(){
     Eventlistener that sends emails on status changes...
        http://lists.supervisord.org/pipermail/supervisor-users/2009-October/000480.html
 
+    A searchable archive ... unlike archaic pipermail :
+       http://www.mail-archive.com/supervisor-users@lists.supervisord.org/msg00345.html
+    
+    Bug tracker of sorts ...
+       http://www.plope.com/search?SearchableText=supervisord
+
+    Guessed url  
+       http://svn.supervisord.org
+
+
+ == sv-ctl usage notes ==
+
+    * after changing conf must "update" doing "reread" is insufficient 
+
+
+
      
   == standard operations ==
 
@@ -71,6 +87,21 @@ sv-usage(){
      To test when using source python as on C2 : need to do sudo bash python hoop jumping : 
           [blyth@cms02 e]$ python-
           [blyth@cms02 e]$ sudo bash -c "LD_LIBRARY_PATH=$(python-libdir) /etc/rc.d/init.d/sv-blyth start "
+
+
+     To bring it into the chkconfig fold...
+
+      [blyth@cms01 ~]$ sudo chkconfig --add sv-blyth
+      [blyth@cms01 ~]$ sudo chkconfig --list sv-blyth
+      sv-blyth        0:off   1:off   2:on    3:on    4:on    5:on    6:off
+      [blyth@cms01 ~]$ sudo service sv-blyth status
+
+
+      [blyth@cms01 ~]$ sudo service sv-blyth start
+      Starting sv-blyth: /data/env/system/python/Python-2.5.1/bin/python: error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
+
+
+
 
 
   == ini issue ... running on the wrong python == 
@@ -141,6 +172,16 @@ sv-confdir(){  echo $(sv-dir)/conf ; }
 sv-ctldir(){   echo $(sv-dir)/ctl  ; }
 sv-cd(){  cd $(sv-dir); }
 sv-mate(){ mate $(sv-dir) ; }
+
+sv-baseurl(){  echo http://svn.supervisord.org ; }
+
+
+sv-get-trunk(){
+   local dir=$(sv-dir) && mkdir -p $dir && cd $dir
+   svn co $(sv-baseurl)/supervisor/trunk supervisor
+}
+
+
 sv-get(){
    python-
    local v=$(python-v)
@@ -476,7 +517,7 @@ sv-httpok-conf(){
    cat $ini
 }
 
-sv-initd-(){ cat << EOI
+sv-initd-(){ python- ; cat << EOI
 #!/bin/sh
 # RedHat startup script for a supervisor instance
 #    http://lists.supervisord.org/pipermail/supervisor-users/2007-September/000093.html
@@ -498,7 +539,7 @@ RETVAL=0
 
 start() {
      echo -n "Starting \$name: "
-     \$supervisord -c $(sv-confpath)
+     LD_LIBRARY_PATH=$(python-libdir) \$supervisord -c $(sv-confpath)
      RETVAL=\$?
      [ \$RETVAL -eq 0 ] && touch /var/lock/subsys/\$name
      echo
@@ -507,7 +548,7 @@ start() {
 
 stop() {
      echo -n "Stopping \$name: "
-     \$supervisorctl -c $(sv-ctl-ini) shutdown
+     LD_LIBRARY_PATH=$(python-libdir) \$supervisorctl -c $(sv-ctl-ini) shutdown
      RETVAL=\$?
      [ \$RETVAL -eq 0 ] && rm -f /var/lock/subsys/\$name
      echo
@@ -527,7 +568,7 @@ exit \$REVAL
 EOI
 }
 
-sv-initd-path(){ echo /etc/rc.d/init.d/$(sv-name) ; }
+sv-initd-path(){ echo /etc/init.d/$(sv-name) ; }
 sv-initd(){
   local msg="=== $FUNCNAME :"
   local ini=$(sv-initd-path)

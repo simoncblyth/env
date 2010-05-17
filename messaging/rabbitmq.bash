@@ -77,6 +77,16 @@ rabbitmq-usage(){
            rabbitmq-open-ip 140.112.XXX.XX 
 
 
+   == automating rabbitmq-server launch on reboot ==
+
+     Controlled using chkconfig scripts as rabbitmq-server comes fully redhat integrated from EPEL..
+        http://wiki.linuxquestions.org/wiki/Run_Levels
+
+   == service interface ==
+
+    [blyth@cms01 e]$ sudo service rabbitmq-server start
+    Starting rabbitmq-server: SUCCESS
+    rabbitmq-server.
 
 
 EOU
@@ -93,6 +103,17 @@ rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }
 
 rabbitmq-inipath(){ echo /etc/init.d/rabbitmq-server ; }
 rabbitmq-ini(){     sudo $(rabbitmq-inipath) $* ; }
+
+rabbitmq-chkconfig(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo chkconfig --levels 345 rabbitmq-server on"
+   echo $msg $cmd
+   eval $cmd
+
+   cmd="sudo chkconfig --list rabbitmq-server" 
+   eval $cmd
+}
+
 
 rabbitmq-start(){   rabbitmq-ini start ; }
 rabbitmq-status(){  rabbitmq-ini status ; }

@@ -29,7 +29,8 @@ djdep-usage(){
 
     djdep-run
           Error: No module named django_extensions
-     djdep-protocol : $(djdep-protocol)
+
+     dj-protocol : $(dj-protocol)
            are using scgi with apache and fcgi with lighttpd
 
 
@@ -311,8 +312,6 @@ EOC
 ## non-embedded deployment with apache mod_scgi or mod_fastcgi ?  or lighttpd/nginx
 
 djdep-socket(){    echo /tmp/$(dj-project).sock ; }
-#djdep-protocol(){  echo scgi ;}
-djdep-protocol(){  echo fcgi ;}
 
 
 ## defaults ...  maxspare=5 minspare=2 maxchildren=50 from : django/core/servers/fastcgi.py
@@ -323,7 +322,7 @@ djdep-opts-scgi(){ echo runfcgi -v 2 debug=true protocol=scgi host=$(modscgi-;mo
 ## interactive config check 
 
 djdep-run-(){ cat << EOR
-./manage.py $(djdep-opts-$(djdep-protocol))
+./manage.py $(djdep-opts-$(dj-protocol))
 EOR
 }
 
@@ -359,16 +358,34 @@ djdep-sv-(){
    dj-
    cat << EOC
 [program:$(dj-project)]
-command=$(which python) $(dj-projdir)/manage.py $(djdep-opts-$(djdep-protocol))
+command=$(which python) $(dj-projdir)/manage.py $(djdep-opts-$(dj-protocol))
 redirect_stderr=true
 autostart=true
+environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH,ENV_HOME=$ENV_HOME
+user=$USER
 EOC
 }
+
+djdep-sv-fcgi-(){ dj- ; cat << EOC
+[fcgi-program:$(dj-project)]
+socket=tcp://127.0.0.1:$(local-port $(dj-project))
+command = $(which python) $(dj-projdir)/runfcgi.py 
+redirect_stderr=true
+redirect_stdout=true
+environment=PYTHONPATH=$(dj-projdir) 
+environment=DJANGO_SETTINGS_MODULE=settings
+EOC
+}
+
+
+
+
+
 
 ## supervisor hookup 
 djdep-sv(){  
    sv-
-   sv-add $FUNCNAME- $(dj-project).ini ; 
+   $FUNCNAME- | sv-plus $(dj-project).ini ; 
 }
 
 

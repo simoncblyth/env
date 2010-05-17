@@ -18,10 +18,11 @@ dj-env(){
 ## environment overridible coordinates
 ## allowing these functions to be used as the basis for whatever django project
 
-dj-dir(){     echo ${DJANGO_DIR:-$(dj-dir-)} ; }
-dj-project(){ echo ${DJANGO_PROJECT:-runinfo} ; } 
-dj-app(){     echo ${DJANGO_APP:-run} ; }        
-dj-projdir(){ echo ${DJANGO_PROJDIR:-$(dj-dir)/$(dj-project)} ; }
+dj-dir(){      echo ${DJANGO_DIR:-$(dj-dir-)} ; }
+dj-project(){  echo ${DJANGO_PROJECT:-runinfo} ; } 
+dj-protocol(){ echo ${DJANGO_PROTOCOL:-scgi} ; } 
+dj-app(){      echo ${DJANGO_APP:-run} ; }        
+dj-projdir(){  echo ${DJANGO_PROJDIR:-$(dj-dir)/$(dj-project)} ; }
 
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
 dj-cd(){      cd $(dj-projdir) ; }

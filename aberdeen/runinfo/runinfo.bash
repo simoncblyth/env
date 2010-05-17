@@ -8,6 +8,7 @@ runinfo-env(){
    export DJANGO_PROJECT=runinfo
    export DJANGO_APP=run
    export DJANGO_PROJDIR=$(runinfo-dir)
+   export DJANGO_PROTOCOL=scgi
    dj-
 }
 runinfo-usage(){
