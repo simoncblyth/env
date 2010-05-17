@@ -17,8 +17,11 @@ sv-usage(){
        http://lists.supervisord.org/pipermail/supervisor-users/2009-October/000480.html
 
     A searchable archive ... unlike archaic pipermail :
+       http://www.mail-archive.com/supervisor-users@lists.supervisord.org/
+
+    environment parsing issue
        http://www.mail-archive.com/supervisor-users@lists.supervisord.org/msg00345.html
-    
+
     Bug tracker of sorts ...
        http://www.plope.com/search?SearchableText=supervisord
 
@@ -26,11 +29,20 @@ sv-usage(){
        http://svn.supervisord.org
 
 
+ == setting process priorities == 
+
+    * avoid messy startup errors from failure to connect to DB by setting webapp priorities 
+      later than the db 
+
+
  == sv-ctl usage notes ==
 
     * after changing conf must "update" doing "reread" is insufficient 
 
+  == control sv when via /sbin/service ==
 
+    [blyth@cms01 ~]$ sudo /sbin/service sv-blyth start
+    Starting sv-blyth: 
 
      
   == standard operations ==

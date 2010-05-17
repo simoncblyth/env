@@ -330,6 +330,7 @@ mysql-sv-(){
 [program:mysql]
 command=$pidproxy $pidpath $mysqld_safe 
 redirect_stderr=true
+priority=333
 user=root
 EOC
 }

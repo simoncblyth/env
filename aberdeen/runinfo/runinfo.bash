@@ -48,7 +48,7 @@ runinfo-mate(){ mate $(runinfo-dir) ; }
 runinfo-build(){  dj-build ; }
 runinfo-ingest(){ dj-manage csv_ingest ; }
 runinfo-sv(){     djdep-;djdep-sv ; }
-
+runinfo-sh(){     dj-manage shell_plus ; }
 
 runinfo-celeryd(){  dj-manage celeryd ; } 
 

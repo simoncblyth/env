@@ -360,7 +360,9 @@ djdep-sv-(){
 [program:$(dj-project)]
 command=$(which python) $(dj-projdir)/manage.py $(djdep-opts-$(dj-protocol))
 redirect_stderr=true
+redirect_stdout=true
 autostart=true
+priority=999
 environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH,ENV_HOME=$ENV_HOME
 user=$USER
 EOC
@@ -372,6 +374,7 @@ socket=tcp://127.0.0.1:$(local-port $(dj-project))
 command = $(which python) $(dj-projdir)/runfcgi.py 
 redirect_stderr=true
 redirect_stdout=true
+priority=999
 environment=PYTHONPATH=$(dj-projdir) 
 environment=DJANGO_SETTINGS_MODULE=settings
 EOC
