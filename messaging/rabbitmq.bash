@@ -151,9 +151,8 @@ rabbitmq-open(){
 }
 
 rabbitmq-wideopen(){
-  private-
   iptables-
-  IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen
+  IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen
 }
 
 

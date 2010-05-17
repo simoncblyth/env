@@ -152,11 +152,15 @@ EOI
 
 local-port(){
    ## hmm maybe keep these in private-vals only ?
+   private-
    case $1 in 
-            hg) echo 5000 ;;
-    dbi|plvdbi) echo 6001 ;;
-       runinfo) echo 4000 ;;  
-             *) echo 7000 ;;
+slave-lighttpd) private-val SLAVE_LIGHTTPD_PORT  ;;  # info only ... 
+ rabbitmq|amqp) private-val AMQP_PORT  ;;  # info only ... 
+         mysql) private-val MYSQL_PORT ;;  # info only ... 
+            hg) private-val HGWEB_PORT ;;
+    dbi|plvdbi) private-val PLVDBI_PORT ;;
+       runinfo) private-val RUNINFO_PORT ;;  
+             *) echo -n ;;
    esac  
 }
 

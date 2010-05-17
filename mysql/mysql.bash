@@ -10,6 +10,9 @@ mysql-usage(){
        sudo /sbin/service mysqld status
        sudo /sbin/service mysqld stop
 
+    When network access is enabled the mysql port is $(local-port mysql)
+      [blyth@cms01 rootmq]$ sudo lsof -i :$(local-port mysql)
+
     mysql-sv
         Add to supervisor control ...
         needs to be configured to run as root
@@ -31,6 +34,10 @@ mysql-usage(){
 
           it appears the mysql_config in the PATH dictates the 
           mysql that is built against but ...
+
+
+
+
 
 
 
