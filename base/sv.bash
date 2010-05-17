@@ -40,7 +40,44 @@ sv-usage(){
         * find culprit pid(s) with  {{{sudo lsof -i :4000}}} then use {{{ps aux | grep nnnn}}} to see which programs they are running         
     * avoid messy startup errors from failure to connect to DB by setting webapp priorities later than the db 
 
-     
+  == selection of supervisorctl commands ==
+
+{{{    
+
+avail                   Display all configured processes
+add <name> [...]        Activates any updates in config for process/group
+remove <name> [...]     Removes process/group from active config
+update                  Reload config and add/remove as necessary
+reread                  Reload the daemon's configuration files
+
+clear <name>            Clear a process' log files.
+clear <name> <name>     Clear multiple process' log files
+clear all               Clear all process' log files
+
+fg <process>            Connect to a process in foreground mode Press Ctrl+C to exit foreground
+
+restart <name>          Restart a process
+restart <gname>:*       Restart all processes in a group
+restart <name> <name>   Restart multiple processes or groups
+restart all             Restart all processes
+
+start <name>            Start a process
+start <gname>:*         Start all processes in a group
+start <name> <name>     Start multiple processes or groups
+start all               Start all processes
+
+stop <name>             Stop a process
+stop <gname>:*          Stop all processes in a group
+stop <name> <name>      Stop multiple processes or groups
+stop all                Stop all processes
+
+reload                  Restart the remote supervisord.
+shutdown                Shut the remote supervisord down.
+
+}}}
+
+
+ 
   == standard operations ==
 
     sv-start

@@ -111,10 +111,11 @@ iptables-webaccept(){
   echo -p tcp -i eth0 --dport $(iptables-port) --sport 1024:65535 -m state --state NEW -j ACCEPT
 }
 
-
-
 iptables-list(){
-   sudo /sbin/iptables --line-numbers --list $(iptables-name)
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo /sbin/iptables --line-numbers --list $(iptables-name)"
+   echo $msg $cmd
+   eval $cmd
 }
 
 iptables-webopen(){
