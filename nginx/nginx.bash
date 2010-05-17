@@ -93,6 +93,7 @@ nginx-logd(){
      ipkg)  echo $(nginx-prefix)/var/nginx/log ;;
    esac  
 }
+nginx-cd(){     cd $(nginx-logd) ; }
 nginx-elog(){   echo $(nginx-logd)/error.log ; }
 nginx-alog(){   echo $(nginx-logd)/access.log ; }
 nginx-etail(){  sudo tail -f $(nginx-elog) ; }

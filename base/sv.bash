@@ -28,27 +28,25 @@ sv-usage(){
     Guessed url  
        http://svn.supervisord.org
 
+  == supervisor documentation ==
 
- == setting process priorities == 
+    Built the supervisor/trunk/docs using sphinx-build at 
+       file:///usr/local/env/sv/supervisor/docs/.build/html/configuration.html#fcgi-program-x-section-settings
 
-    * avoid messy startup errors from failure to connect to DB by setting webapp priorities 
-      later than the db 
-
-
- == sv-ctl usage notes ==
-
-    * after changing conf must "update" doing "reread" is insufficient 
-
-  == control sv when via /sbin/service ==
-
-    [blyth@cms01 ~]$ sudo /sbin/service sv-blyth start
-    Starting sv-blyth: 
+  == supervisorctl / supervisord experience  ==
+    
+    * after changing conf must "update", doing "reread" is insufficient 
+    * resolve port already bound : 
+        * find culprit pid(s) with  {{{sudo lsof -i :4000}}} then use {{{ps aux | grep nnnn}}} to see which programs they are running         
+    * avoid messy startup errors from failure to connect to DB by setting webapp priorities later than the db 
 
      
   == standard operations ==
 
     sv-start
                 start when using system python 
+                on nodes where supervisor has been initd use the {{{/sbin/service}}} interface for consistency :
+                   * {{{sudo /sbin/service sv-blyth start}}}
 
     sv-sstart  
                 start when using source python 
