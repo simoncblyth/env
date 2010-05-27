@@ -363,7 +363,7 @@ redirect_stderr=true
 redirect_stdout=true
 autostart=true
 priority=999
-environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH,ENV_HOME=$ENV_HOME
+environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH,ENV_HOME=$ENV_HOME,PYTHON_EGG_CACHE=$(djdep-eggcache-dir $USER)
 user=$USER
 EOC
 }
@@ -375,8 +375,7 @@ command = $(which python) $(dj-projdir)/runfcgi.py
 redirect_stderr=true
 redirect_stdout=true
 priority=999
-environment=PYTHONPATH=$(dj-projdir) 
-environment=DJANGO_SETTINGS_MODULE=settings
+environment=PYTHONPATH=$(dj-projdir),DJANGO_SETTINGS_MODULE=settings
 EOC
 }
 

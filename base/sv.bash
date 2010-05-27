@@ -312,8 +312,19 @@ sv-plus(){
   echo $msg writing to $tmp
   cat - > $tmp
   cat $tmp
-  local cmd="sudo cp $tmp $(sv-confdir)/ "
-  echo $msg $cmd
+  local ini=$(sv-confdir)/$nam 
+  echo $msg proposed change to $ini ...
+  if [ -f "$ini" ]; then
+     diff $ini $tmp
+  fi 
+  local cmd="sudo cp $tmp $ini "
+  
+  # taking input and receiving from a pipe ... dont work well together 
+  #local ans
+  #read -p "$msg Enter YES to proceed with : $cmd" ans
+  #[ ! "$ans" == "YES" ] && echo $msg skipping .. && return 0
+  #echo $msg proceeding ... 
+  
   eval $cmd
 }
 
