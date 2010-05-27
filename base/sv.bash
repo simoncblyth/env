@@ -280,9 +280,18 @@ sv-sudo(){
            *) echo sudo ;;
     esac
  }
+
 sv-start(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ $(sv-sudo) supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
 sv-ps(){     ps aux | grep -v grep | grep supervisord  ; }
+
+sv-service(){
+  local arg=${1:-start}
+  local msg="=== $FUNCNAME :"
+  local cmd="sudo /sbin/service $(sv-name) $arg "
+  echo $msg $cmd
+  eval $cmd
+}
 
 
 sv-sstart(){

@@ -654,11 +654,13 @@ apache-sv-(){
   LD_LIBRARY_PATH="" 
   . $(apacheconf-envvars-path)
 
-  ## the python-libdir hookup only needed when using non-standard python
+  # command=$(which httpd) -c "ErrorLog /dev/stdout" -DFOREGROUND
+  # command=$(which httpd) -C "ErrorLog /dev/stdout"  -C "AccessLog /dev/stdout" -DFOREGROUND
+  # the python-libdir hookup only needed when using non-standard python
+#redirect_stdout=true
   cat << EOS
 [program:apache]
 command=$(which httpd) -c "ErrorLog /dev/stdout" -DFOREGROUND
-redirect_stderr=true
 environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH
 EOS
   LD_LIBRARY_PATH=$llp
