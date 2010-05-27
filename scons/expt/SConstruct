@@ -1,0 +1,24 @@
+import os
+rootsys = os.environ['ROOTSYS']
+
+#Import('ROOT')
+
+
+env = Environment()
+env.PrependENVPath('PATH', os.path.join(rootsys, 'bin')) 
+
+env.ParseConfig("root-config --cflags")
+print env['CPPPATH']
+
+env['BUILDERS']['MyCat'] = Builder( action='cat $SOURCES > $TARGET' , src_suffix='.txt' , suffix='_out.cat' )
+env.MyCat('mytarget', ['mysrc','mysrc2'] )
+
+# env['BUILDERS']['RootDict'] = Builder( action='rootcint -f $TARGET -c $INCLUDES $SOURCES')
+## suffix='Dict.cxx' yields private.Dict.cxx
+#env.RootDict('privateDict.cxx', ['private.h','private_LinkDef.hh'])
+
+
+
+print env
+
+
