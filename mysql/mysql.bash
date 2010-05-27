@@ -171,6 +171,9 @@ mysql-sh-(){
 }
 
 mysql-sh(){
+
+   local msg="=== $FUNCNAME :"
+   echo $msg CAUTION this connects with private-val coordinates ... which may differ from the standard client section params in ~/.my.cnf used by the \"mysql\" client
    private-
    mysql-sh- $(private-val DATABASE_NAME) ; 
 }

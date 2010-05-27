@@ -175,6 +175,7 @@ pl-sv-(){  cat << EOC
 command=$(which paster) serve $(pl-confpath)  $(pl-opts)
 redirect_stderr=true
 autostart=true
+startsecs=10
 environment=ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH
 EOC
 }
