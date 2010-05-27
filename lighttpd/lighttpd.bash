@@ -21,7 +21,25 @@ lighttpd-usage(){
       It appears that reverse proxying is no go in 1.4.22 that is coming from dag repo
 
 
+     From yum at least the mod_fastcgi.so comes in a separate pkg :
+       sudo yum install lighttpd
+       sudo yum install lighttpd-fastcgi
+
+
 EOU
+}
+
+
+lighttpd-user(){ echo lighttpd ; }
+lighttpd-group(){ echo lighttpd ; }
+
+lighttpd-chown(){
+   sudo chown  $(lighttpd-user):$(lighttpd-group) -R  $*
+}
+
+lighttpd-mk-rundir(){
+    sudo mkdir $(lighttpd-rundir)
+    lighttpd-chown $(lighttpd-rundir)
 }
 
 lighttpd-check(){   sudo lighttpd -f $(lighttpd-conf) -p  ; }
@@ -34,6 +52,9 @@ lighttpd-check(){   $(pkgr-sbin)/lighttpd -f $(lighttpd-conf) -p  ; }
 lighttpd-conf(){    echo ${LIGHTTPD_CONF:-$(lighttpd-base)/lighttpd.conf} ; }
 lighttpd-confd(){   echo $(lighttpd-base)/conf.d  ;  }
 lighttpd-users(){   echo $(lighttpd-base)/users.txt  ;  }
+
+lighttpd-rundir(){    echo /var/run/lighttpd ; }
+lighttpd-docroot(){   echo /srv/www/lighttpd ; }
 
 
 lighttpd-edit(){    sudo vim $(lighttpd-conf) $(lighttpd-confd)/*.conf ; }

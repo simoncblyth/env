@@ -532,14 +532,20 @@ sv-ctl-prep-nonet(){
 
 
 
-
+sv-webopen-tag(){
+   local tag=${1:-G}
+   local ip=$(local-tag2ip $tag)  
+   sv-webopen-ip $ip 
+}
 
 sv-webopen-ip(){
-   local tag=${1:-G}
+   local ip=$1
    local port=$(sv-ctl-port)
    iptables-
-   IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)  
+   IPTABLES_PORT=$port iptables-webopen-ip $ip
 }
+
+
 
 sv-dev-url(){ echo http://svn.supervisord.org/supervisor/trunk/ ; }
 sv-dev-dir(){ echo $(local-base)/env/supervisor-dev ; }

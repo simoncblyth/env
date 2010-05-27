@@ -14,7 +14,6 @@ env-rel(){
   [ "$rel" == "$src" ] && rel=$(env-home)/
   echo $rel
 }
-env-cd(){   cd $(env-home) ; }
 
 
 env-build(){
@@ -253,7 +252,7 @@ cvs-(){         . $(env-home)/cvs/cvs.bash && cvs-env $* ; }
 db-(){          . $(env-home)/db/db.bash     && db-env $*     ; }
 
 
-aberdeen-(){    . $(env-home)/aberdeen/aberdeen.bash && aberdeen-env $* ; }
+#aberdeen-(){    . $(env-home)/aberdeen/aberdeen.bash && aberdeen-env $* ; }
 
 python-(){      . $(env-home)/python/python.bash  && python-env $*  ; }
 ipython-(){     . $(env-home)/python/ipython.bash && ipython-env $* ; }
@@ -804,3 +803,6 @@ lxr-(){      . $(env-home)/doc/lxr.bash && lxr-env $* ; }
 doxy-(){      . $(env-home)/doc/doxy.bash && doxy-env $* ; }
 doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }
 bitn-(){      . $(env-home)/trac/bitn.bash && bitn-env $* ; }
+tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
+abtviz-(){      . $(env-home)/aberdeen/abtviz.bash && abtviz-env $* ; }
+tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
