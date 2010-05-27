@@ -8,6 +8,10 @@ cat << EOU
        http://webmail.inoi.fi/open/trac/eunuchs
           Nice slim trac instance navigator at top of page, with "select-trac" CSS 
 
+   -------
+       Putting trac inside a virtualenv has non-first glance advantages :
+          * avoid sudo shenanigans   
+
    --------
 
    This attempts to automate Trac installation as far as possible
@@ -434,9 +438,12 @@ trac-admin-(){
    trac-admin-sqlite-check
 
    local rc=$?
-   [ "$rc" != "0" ] && env-abort &&
+  
+   [ "$rc" != "0" ] && echo env-abort && env-abort 
 
-   trac-admin $(trac-envpath) $* 
+   local cmd="trac-admin $(trac-envpath) $*"
+   echo $msg $cmd
+   eval $cmd 
 }
 
 
