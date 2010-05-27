@@ -1,7 +1,7 @@
 aberdeen-vi(){ vi ${BASH_SOURCE:-$(env-home)/aberdeen/aberdeen.bash} ; }
 aberdeen-env(){
   local msg="=== $FUNCNAME "
-  export ABERDEEN_HOME=$HOME/aberdeen
+  export ABERDEEN_HOME=$(dirname $(env-home))/aberdeen
 }
 
 roody-(){ . $ENV_HOME/aberdeen/roody.bash && roody-env $* ; }
@@ -10,7 +10,11 @@ rome-(){  . $ENV_HOME/aberdeen/rome.bash && rome-env $* ; }
 abd-(){   . $ENV_HOME/aberdeen/abd.bash && abd-env $* ; }
 
 
+
+
+aberdeen-libname(){ echo AbtDataModel ; }
 aberdeen-libdir(){ echo $ABERDEEN_HOME/DataModel/lib ; }
+aberdeen-incdir(){ echo $ABERDEEN_HOME/DataModel/include ; }
 
 
 
