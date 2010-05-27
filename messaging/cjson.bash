@@ -60,7 +60,13 @@ EOU
 cjson-dir(){ echo $(local-base)/env/messaging/cjson ; }
 cjson-cd(){  cd $(cjson-dir); }
 cjson-mate(){ mate $(cjson-dir) ; }
-cjson-libdir(){ echo $(local-base)/env/messaging/cjson/lib ; }
+
+## exported via ~/e/bin/pkg-config
+cjson-libdir(){ echo $(cjson-dir)/lib ; }
+cjson-incdir(){ echo $(cjson-dir)     ; }
+cjson-libname(){ echo cJSON ; }
+
+
 cjson-rev(){ echo 17 ; }
 cjson-wipe(){
    local dir=$(dirname $(cjson-dir)) &&  mkdir -p $dir && cd $dir

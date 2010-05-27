@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+#  CAUTION : when invoked from SCons can be a very spartan environment 
+#
+#  Test in sparten env using ...
+#        env -i PATH=$ENV_HOME/bin env-config rabbitmq --home
+#
+#  Avoid special casing here by keeping pkg specifics with 
+#  the pkg functions...
+#
+#
+
+PATH=$PATH:/usr/bin:/bin            ## need uname, hostname, dirname etc...
+
+envhome=$(dirname $(dirname $0))    ## doesnt require HOME
+. $envhome/env.bash
+
+env-libname(){
+  local pkg=$1 
+  case $pkg in 
+           *) echo $($pkg- ; $pkg-libname)   ;; 
+  esac
+}
+
+env-incdir(){
+  local pkg=$1
+  case $pkg in 
+           *) echo $($pkg- ; $pkg-incdir)    ;; 
+  esac
+}
+
+env-libdir(){
+  local pkg=$1
+  case $pkg in 
+           *) echo $($pkg- ; $pkg-libdir )    ;; 
+  esac
+}
+
+env-config--(){
+   local pkg=$1
+   shift
+   local arg
+   for arg in $* 
+   do
+      case $arg in 
+     --libdir) echo $(env-libdir $pkg)  ;;
+    --libname) echo $(env-libname $pkg)  ;;
+     --incdir) echo $(env-incdir $pkg)  ;;
+       --libs) echo -L$(env-libdir $pkg) -l$(env-libname $pkg) -Wl,-rpath,$(env-libdir $pkg) ;;
+     --cflags) echo -I$(env-incdir $pkg)               ;; 
+            *) echo $0 does not recognize argument $arg   ;;
+      esac
+   done
+}
+
+env-config-(){
+   local pkg=$1
+   shift
+   case $pkg in 
+            *) env-config-- $pkg    $* ;;
+   esac 
+}
+
+env-config- $*
+
+
+

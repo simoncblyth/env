@@ -8,7 +8,7 @@ rootmq-env(){
     rabbitmq-
     cjson-
     priv-
-    aberdeen-
+    #aberdeen-
 }
 rootmq-usage(){
   cat << EOU
@@ -51,17 +51,28 @@ EOU
 }
 
 rootmq-dir(){ echo $(env-home)/rootmq ; }
+
+
+rootmq-libname(){ echo rootmq ; }
 rootmq-libdir(){ echo $(rootmq-dir)/lib ; }
+rootmq-incdir(){ echo $(rootmq-dir)/include ; }
+
+
+
 rootmq-cd(){  cd $(rootmq-dir); }
 rootmq-mate(){ mate $(rootmq-dir) ; }
 
-rootmq-libpaths(){ echo $(rootmq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir) ; }
+#rootmq-libpaths(){ echo $(rootmq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir) ; }
+rootmq-libpaths(){ echo $(rootmq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir) ; }
 rootmq-dynpaths(){  
   case $(uname) in 
       Darwin) echo DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:$(rootmq-libpaths) ;;
        Linux) echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$(rootmq-libpaths) ;;
   esac
 }
+
+
+
 
 
 

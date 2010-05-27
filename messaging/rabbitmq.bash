@@ -179,8 +179,13 @@ rabbitmq-server-get(){
 
 
 rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
-rabbitmq-c-libdir(){ echo $(rabbitmq-c-dir)/librabbitmq/.libs ; }
 rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
+
+# pkg exports 
+rabbitmq-libname(){ echo rabbitmq ; }
+rabbitmq-libdir(){ echo $(rabbitmq-c-dir)/librabbitmq/.libs ; }
+rabbitmq-incdir(){ echo $(rabbitmq-c-dir)/librabbitmq ; }
+
 
 rabbitmq-c-build(){
 
