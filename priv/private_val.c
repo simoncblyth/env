@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 	int rc ;
 	rc = private_init(); if(rc != EXIT_SUCCESS) exit(rc) ;
 	int a ; 
-        char* def = "default" ;
+        char* def = "AMQP_PORT" ;
         for ( a = 1; a < argc; a++ ){
             char* arg = argv[a] ;
             printf("private_lookup(\"%s\") = \"%s\"\n", arg, private_lookup(arg)) ;

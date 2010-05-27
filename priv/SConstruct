@@ -1,0 +1,23 @@
+"""
+   Build with 'scons' and clean with 'scons -c' 
+      
+   Using env.ParseConfig and pkg-config is a huge simplifier ..
+
+   To see a list of all packages  :
+       pkg-config --list-all
+
+"""
+import platform
+env = Environment()
+
+bin = platform.system() == 'Darwin' and '/opt/local/bin' or '/usr/bin'
+env.PrependENVPath('PATH', bin )
+## alternatively could inherit PATH from the shell ? this way is more controlled
+
+env.ParseConfig("pkg-config libpcre  --cflags --libs")
+env.ParseConfig("pkg-config glib-2.0 --cflags --libs")
+
+env.SharedLibrary('private', ['private.c'])
+Program('private_val', ['private_val.c'], LIBS='private', LIBPATH=['.'] )
+
+

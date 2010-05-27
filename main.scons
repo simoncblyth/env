@@ -1,0 +1,46 @@
+
+## SCT/SCons Main Build Script  
+##    http://code.google.com/p/swtoolkit/wiki/Examples
+
+build_environments = []
+
+base_env = Environment(
+    tools = ['component_setup'],
+    BUILD_SCONSCRIPTS = ['priv/build.scons'],
+)
+
+linux_env   = base_env.Clone(tools = ['target_platform_linux'])
+mac_env     = base_env.Clone(tools = ['target_platform_mac'])
+
+dbg_mac_env = mac_env.Clone(
+    BUILD_TYPE = 'dbg',
+    BUILD_TYPE_DESCRIPTION = 'debug mac build',
+    BUILD_GROUPS = ['default'],
+    tools = ['target_debug'],
+)
+build_environments.append(dbg_mac_env)
+
+dbg_linux_env = linux_env.Clone(
+    BUILD_TYPE = 'dbg',
+    BUILD_TYPE_DESCRIPTION = 'debug linux build',
+    BUILD_GROUPS = ['default'],
+    tools = ['target_debug'],
+)
+build_environments.append(dbg_linux_env)
+
+opt_mac_env = mac_env.Clone(
+    BUILD_TYPE = 'opt',
+    BUILD_TYPE_DESCRIPTION = 'optimized mac build',
+    tools = ['target_optimized'],
+)
+build_environments.append(opt_mac_env)
+
+opt_linux_env = linux_env.Clone(
+    BUILD_TYPE = 'opt',
+    BUILD_TYPE_DESCRIPTION = 'optimized linux build',
+    tools = ['target_optimized'],
+)
+build_environments.append(opt_linux_env)
+
+
+BuildEnvironments(build_environments)

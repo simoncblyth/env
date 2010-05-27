@@ -806,3 +806,8 @@ bitn-(){      . $(env-home)/trac/bitn.bash && bitn-env $* ; }
 tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
 abtviz-(){      . $(env-home)/aberdeen/abtviz.bash && abtviz-env $* ; }
 tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
+jmeter-(){      . $(env-home)/http/jmeter.bash && jmeter-env $* ; }
+scube-(){      . $(env-home)/scons/scube.bash && scube-env $* ; }
+sct-(){        . $(env-home)/scons/sct.bash && sct-env $* ; }
+parts-(){      . $(env-home)/scons/parts.bash && parts-env $* ; }
+omaha-(){      . $(env-home)/scons/omaha.bash && omaha-env $* ; }

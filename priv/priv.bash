@@ -11,13 +11,17 @@ priv-usage(){
      priv-build 
      priv-chcon 
          
-
+   Why is ROOT needed here ?
 
 
 EOU
 }
 priv-dir(){ echo $(env-home)/priv ; }
-priv-libdir(){ echo $(priv-dir)/lib ; }
+
+priv-libdir(){  echo $(priv-dir) ; }
+priv-incdir(){  echo $(priv-dir) ; }
+priv-libname(){ echo private ; }
+
 priv-cd(){  cd $(priv-dir); }
 priv-mate(){ mate $(priv-dir) ; }
 
