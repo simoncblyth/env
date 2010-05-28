@@ -46,7 +46,8 @@ env-config--(){
      --libdir) echo $(env-libdir $pkg)  ;;
     --libname) echo $(env-libname $pkg)  ;;
      --incdir) echo $(env-incdir $pkg)  ;;
-       --libs) echo -L$(env-libdir $pkg) -l$(env-libname $pkg) -Wl,-rpath,$(env-libdir $pkg) ;;
+      --libsr) echo -L$(env-libdir $pkg) -l$(env-libname $pkg) -Wl,-rpath,$(env-libdir $pkg) ;;
+       --libs) echo -L$(env-libdir $pkg) -l$(env-libname $pkg) ;;
      --cflags) echo -I$(env-incdir $pkg)               ;; 
             *) echo $0 does not recognize argument $arg   ;;
       esac

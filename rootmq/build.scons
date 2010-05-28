@@ -1,8 +1,8 @@
 Import("env")
-tools=['rabbitmq','priv','cjson','abtmodel', 'glib'] 
+tools=['rabbitmq','priv','cjson','abtmodel', 'glib', 'gthread' ] 
 ec = env.Clone( tools=tools , COMPONENT_STATIC=False )
-
-ec.ComponentLibrary('rootmq' , Glob('src/*.c') , CPPPATH=['include']  )
+ec.Append( CPPPATH=['include'] )
+ec.ComponentLibrary('rootmq' , Glob('src/*.c')  )
 
 
 
