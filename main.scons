@@ -1,64 +1,54 @@
 #
 # SCT/SCons Main Build Script  
 #    http://code.google.com/p/swtoolkit/wiki/Examples
-#
 
 builds = []
 tools = []
 dirs = []
 
-
-# global tools ?  
-#    incorp tools into cloned environments as needed
-#    to avoid kitchensinkism
-
+# incorp tools into cloned environments as needed
 tools  = ['component_setup']    ## fundamental to SCT operation 
-tools += ['untar']
 
 
 #dirs  += ['priv']
-#dirs += ['scons/customtest'] 
+#dirs  += ['scons/customtest'] 
 dirs  += ['rootmq']
 
+## builds the build.scons in the dirs 
+base = Environment( tools = tools, BUILD_SCONSCRIPTS = dirs )
 
-import os
-base_env = Environment(
-    tools = tools,
-    BUILD_SCONSCRIPTS = [os.path.join(dir,'build.scons') for dir in dirs],
-)
+linux   = base.Clone(tools = ['target_platform_linux'])
+mac     = base.Clone(tools = ['target_platform_mac'])
 
-linux_env   = base_env.Clone(tools = ['target_platform_linux'])
-mac_env     = base_env.Clone(tools = ['target_platform_mac'])
-
-dbg_mac_env = mac_env.Clone(
+dbg_mac = mac.Clone(
     BUILD_TYPE = 'dbg',
     BUILD_TYPE_DESCRIPTION = 'debug mac build',
     BUILD_GROUPS = ['default'],
     tools = ['target_debug'],
 )
-builds.append(dbg_mac_env)
+builds.append(dbg_mac)
 
-dbg_linux_env = linux_env.Clone(
+dbg_linux = linux.Clone(
     BUILD_TYPE = 'dbg',
     BUILD_TYPE_DESCRIPTION = 'debug linux build',
     BUILD_GROUPS = ['default'],
     tools = ['target_debug'],
 )
-builds.append(dbg_linux_env)
+builds.append(dbg_linux)
 
-opt_mac_env = mac_env.Clone(
+opt_mac = mac.Clone(
     BUILD_TYPE = 'opt',
     BUILD_TYPE_DESCRIPTION = 'optimized mac build',
     tools = ['target_optimized'],
 )
-builds.append(opt_mac_env)
+builds.append(opt_mac)
 
-opt_linux_env = linux_env.Clone(
+opt_linux = linux.Clone(
     BUILD_TYPE = 'opt',
     BUILD_TYPE_DESCRIPTION = 'optimized linux build',
     tools = ['target_optimized'],
 )
-builds.append(opt_linux_env)
+builds.append(opt_linux)
 
 
 BuildEnvironments(builds)
