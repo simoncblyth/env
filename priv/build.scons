@@ -3,8 +3,11 @@
 Import("env") 
 #ESortedDump(env)
 
-ec = env.Clone( tools=['pcre','glib'] )
-ec.ComponentLibrary( 'private', ['private.c'] , COMPONENT_STATIC=False )
+tools = ['pcre','glib']
+#tools += ['cjson']
+
+ec = env.Clone( tools=tools ,  COMPONENT_STATIC=False )
+ec.ComponentLibrary( 'private', ['private.c'] )
 
 import os
 ec['ENV']['ENV_PRIVATE_PATH'] = os.path.expanduser('~/.bash_private') ## needed for running test

@@ -61,7 +61,7 @@ cjson-dir(){ echo $(local-base)/env/messaging/cjson ; }
 cjson-cd(){  cd $(cjson-dir); }
 cjson-mate(){ mate $(cjson-dir) ; }
 
-## exported via ~/e/bin/pkg-config
+## exported via ~/e/bin/env-config
 cjson-libdir(){ echo $(cjson-dir)/lib ; }
 cjson-incdir(){ echo $(cjson-dir)     ; }
 cjson-libname(){ echo cJSON ; }

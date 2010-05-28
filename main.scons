@@ -7,15 +7,20 @@ builds = []
 tools = []
 dirs = []
 
+
+# global tools ?  
+#    incorp tools into cloned environments as needed
+#    to avoid kitchensinkism
+
 tools  = ['component_setup']    ## fundamental to SCT operation 
-#tools += ['root']
 tools += ['untar']
 
-dirs  += ['priv']
-#dirs += ['scons/customtest'] 
-#dirs += ['rootmq']
 
-## global tools ? ... some dirs are not going to need "root" 
+#dirs  += ['priv']
+#dirs += ['scons/customtest'] 
+dirs  += ['rootmq']
+
+
 import os
 base_env = Environment(
     tools = tools,
