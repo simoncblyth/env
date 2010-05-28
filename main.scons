@@ -9,7 +9,6 @@ dirs = []
 # incorp tools into cloned environments as needed
 tools  = ['component_setup']    ## fundamental to SCT operation 
 
-
 #dirs  += ['priv']
 #dirs  += ['scons/customtest'] 
 dirs  += ['rootmq']

@@ -4,11 +4,14 @@ Import("env")
 #ESortedDump(env)
 
 ec = env.Clone( tools=['pcre','glib']  )
-ec.ComponentLibrary( 'private', ['private.c'] )
+prv = ec.ComponentLibrary( 'private', ['private.c'] )
 
-import os
-ec['ENV']['ENV_PRIVATE_PATH'] = os.path.expanduser('~/.bash_private') ## needed for running test
-ec.Append(LIBS=['private'])
-ec.ComponentTestProgram('private_val', ['private_val.c'] )
+## how to skip running test ? and run separately in order to use different env ?
+ec.Tool('env_private_path')
+ec.Append( LIBS=prv )
+ec.ComponentTestProgram( 'private_val', ['private_val.c'] )
+
+
+
 
 
