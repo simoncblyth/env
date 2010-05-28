@@ -5,8 +5,9 @@
 build_environments = []
 
 base_env = Environment(
-    tools = ['component_setup'],
-    BUILD_SCONSCRIPTS = ['priv/build.scons'],
+    #tools = ['component_setup','rootcint','untar'],
+    tools = ['component_setup','untar'],
+    BUILD_SCONSCRIPTS = ['priv/build.scons','scons/customtest/build.scons'],
 )
 
 linux_env   = base_env.Clone(tools = ['target_platform_linux'])
@@ -43,4 +44,12 @@ opt_linux_env = linux_env.Clone(
 build_environments.append(opt_linux_env)
 
 
+
+
+
+
+
 BuildEnvironments(build_environments)
+
+
+
