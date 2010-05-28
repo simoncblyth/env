@@ -1,17 +1,14 @@
 ## SCT/SCons build script ...  http://code.google.com/p/swtoolkit/wiki/Examples
-Import("env") #;print "\n".join(["%s:%s"% _ for _ in sorted(env.Dictionary().items())])
-if env.Bit('mac'):
-    env.PrependENVPath('PATH', '/opt/local/bin' )   ## for macports pkg-config
 
-externals = ['libpcre','glib-2.0']
-for pkg in externals:
-    env.ParseConfig("pkg-config %s --cflags --libs" % pkg )
+Import("env") 
+#ESortedDump(env)
 
-env.ComponentLibrary('private', ['private.c'] , COMPONENT_STATIC=False )
+ec = env.Clone( tools=['pcre','glib'] )
+ec.ComponentLibrary( 'private', ['private.c'] , COMPONENT_STATIC=False )
 
 import os
-env['ENV']['ENV_PRIVATE_PATH'] = os.path.expanduser('~/.bash_private') ## needed for running test
-env.Append(LIBS=['private'])
-env.ComponentTestProgram('private_val', ['private_val.c'] )
+ec['ENV']['ENV_PRIVATE_PATH'] = os.path.expanduser('~/.bash_private') ## needed for running test
+ec.Append(LIBS=['private'])
+ec.ComponentTestProgram('private_val', ['private_val.c'] )
 
 

@@ -20,8 +20,27 @@ sct-usage(){
          alias for sct-hammer 
 
     sct-hammer
-         see:  sct-hammer --help     
 
+ == Useful Options ==
+
+     sct --help
+         NB this is just the options provided by SCT, many more scons options
+         can also be given to sct, see scons -H
+
+     sct -c   :  cleans 
+     sct -Q   :  omit the waffle
+
+     sct --verbose
+          see the commands issued
+
+     sct --tree=derived
+     sct --tree=all
+          dependency handling descends into externals
+
+
+
+
+ == Investigating Underpinnings == 
 
     sct-pth
        puts sct-site on sys path 

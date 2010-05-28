@@ -18,8 +18,22 @@ ROOTCINTBuilder = SCons.Builder.Builder(action = "$ROOTCINT -f $TARGET -c $INCLU
                               src_suffic = ['h', 'hpp'],
                               source_scanner = SCons.Tool.CScanner)
 
-
 def generate(env):
+    """
+          Is it appropriate to access ROOTSYS and do the ParseConfig here, 
+          inside the tool ?
+
+    """
+    env.Dump()
+    #print "tool:root\n" + "\n".join( ["%s:%s" % _ for _ in sorted(os.environ.items()) ])
+    rootsys = os.environ.get('ROOTSYS', None)
+    if rootsys is None:
+        print 'Envvar ROOTSYS is not defined '
+        env.Exit(1)
+    
+    env.PrependENVPath('PATH', rootsys + os.sep + 'bin' )
+    env.ParseConfig("root-config --cflags --glibs")
+
     rootcint_path = env.WhereIs('rootcint')
     if rootcint_path is None:
         print 'Could not find rootcint, please make sure it is on your PATH'
@@ -31,7 +45,7 @@ def generate(env):
     env.Append(BUILDERS = {'RootcintDictionary' : ROOTCINTBuilder })
 
 def exists(env):
-    return env.Detect('rootcint')
+    return env.Detect('root')
 
 
 

@@ -15,6 +15,12 @@ env-rel(){
   echo $rel
 }
 
+env-scons(){
+  cd $(env-home)
+  mate main.scons site_scons priv rootmq
+}
+
+
 
 env-build(){
 
