@@ -15,7 +15,7 @@ tools  = ['component_setup']    ## fundamental to SCT operation
 dirs  += ['rootmq']
 
 ## builds the build.scons in the dirs 
-base = Environment( tools = tools, BUILD_SCONSCRIPTS = dirs )
+base = Environment( tools = tools, BUILD_SCONSCRIPTS = dirs , COMPONENT_STATIC=False )
 
 linux   = base.Clone(tools = ['target_platform_linux'])
 mac     = base.Clone(tools = ['target_platform_mac'])

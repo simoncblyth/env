@@ -18,7 +18,7 @@ def generate(env, pkg=None ):
 
     print "aberdeen_config for pkg %s " % pkg  
     if pkg:
-        env['ABERDEEN_PKG_%s' % pkg.upper() ] = pkg
+        env['PKG_ABERDEEN_%s' % pkg.upper() ] = pkg
         env.ParseConfig("aberdeen-config %s --cflags --libs" % pkg )
 
 

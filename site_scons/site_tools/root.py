@@ -13,19 +13,12 @@ import SCons.Builder
 import SCons.Tool
 
 
-ROOTCINTBuilder = SCons.Builder.Builder(action = "$ROOTCINT -f $TARGET -c $INCLUDES $SOURCES src/LinkDef.hh",
+ROOTCINTBuilder = SCons.Builder.Builder(action = "$ROOTCINT -f $TARGET -c $_CPPINCFLAGS $SOURCES ",
                               suffix='_Dict.cxx',
                               src_suffic = ['h', 'hpp'],
                               source_scanner = SCons.Tool.CScanner)
 
 def generate(env):
-    """
-          Is it appropriate to access ROOTSYS and do the ParseConfig here, 
-          inside the tool ?
-
-    """
-    env.Dump()
-    #print "tool:root\n" + "\n".join( ["%s:%s" % _ for _ in sorted(os.environ.items()) ])
     rootsys = os.environ.get('ROOTSYS', None)
     if rootsys is None:
         print 'Envvar ROOTSYS is not defined '
@@ -41,7 +34,6 @@ def generate(env):
 
     env['ROOTCINT'] = rootcint_path
     rootcint_dir = os.path.dirname(rootcint_path)
-    env['ROOTCINT_LINKDEF'] = 'LinkDef.hh'
     env.Append(BUILDERS = {'RootcintDictionary' : ROOTCINTBuilder })
 
 def exists(env):

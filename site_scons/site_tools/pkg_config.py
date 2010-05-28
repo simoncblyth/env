@@ -29,7 +29,7 @@ def generate(env, pkg=None, t=None):
     if pkg:
         if not(t):
             t = pkg
-        env['PKG_%s' % t.upper() ] = pkg
+        env['PKG_SYS_%s' % t.upper() ] = pkg
         env.ParseConfig("pkg-config %s --cflags --libs" % pkg )
 
 

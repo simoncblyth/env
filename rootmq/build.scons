@@ -1,9 +1,17 @@
 Import("env")
+
 tools=['rabbitmq','priv','cjson','abtmodel', 'glib', 'gthread' ] 
-ec = env.Clone( tools=tools , COMPONENT_STATIC=False )
-ec.Append( CPPPATH=['include'] )
-ec.ComponentLibrary('rootmq' , Glob('src/*.c')  )
 
+# ec = env.Clone( tools=tools  )
+# ec.Append( CPPPATH=['include'] )
+# ec.ComponentLibrary('rootmq' , Glob('src/*.c')  )
 
+er = env.Clone( tools=tools + ['root'] )
+rcd = er.RootcintDictionary( 'rootmq' , ['include/MQ.h','include/MyTMessage.h','include/root2cjson.h','include/rootmq.h','include/LinkDef.hh']   )  
+er.Append( CPPPATH=['include'] )
+er.Append( CPPPATH=['#'] )      ## the dict has includes with paths from the dir above containing the main.scons 
+ESortedDump(er)
+
+er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd )
 
 

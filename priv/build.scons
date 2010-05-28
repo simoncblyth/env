@@ -3,10 +3,7 @@
 Import("env") 
 #ESortedDump(env)
 
-tools = ['pcre','glib']
-#tools += ['cjson']
-
-ec = env.Clone( tools=tools ,  COMPONENT_STATIC=False )
+ec = env.Clone( tools=['pcre','glib']  )
 ec.ComponentLibrary( 'private', ['private.c'] )
 
 import os
