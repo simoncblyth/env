@@ -3,7 +3,7 @@ Import("env")
 tools=[ 
     'rmqc',
     'priv',
-    'cjson',
+    'cjsn',
     'abtmodel', 
     'glib', 
     'gthread',
@@ -30,11 +30,12 @@ er.Prepend( LINKFLAGS=['-Xlinker'] )
 rmq = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 
 er.Tool('env_private_path')
-er.Append( LIBS=rmq )
+er.Append( LIBS=[rmq] )
+er.Append( LIBS=['cjsn'] )
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
    source=['mq_sendstring.cc'],
-   COMPONENT_TEST_RUNNABLE=True
+   COMPONENT_TEST_RUNNABLE=False
  )
 
 

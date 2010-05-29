@@ -3,19 +3,22 @@
 #    http://code.google.com/p/swtoolkit/wiki/Examples
 
 builds = []
-tools = []
-dirs = []
+dirs = (
+  '.',
+  'priv',
+#'scons/customtest',
+  'rootmq',
+  'cjsn',
+)
 
-# incorp tools into cloned environments as needed
-tools  = ['component_setup']    ## fundamental to SCT operation 
-
-dirs  += ['priv']
-#dirs  += ['scons/customtest'] 
-dirs  += ['rootmq']
-dirs  += ['cjsn']
 
 ## builds the build.scons in the dirs 
-base = Environment( tools = tools, BUILD_SCONSCRIPTS = dirs , COMPONENT_STATIC=False )
+base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operation 
+    BUILD_SCONSCRIPTS = dirs , 
+    COMPONENT_STATIC = False ,
+    INCLUDE_ROOT = "$TARGET_ROOT/include" ,
+)
+
 
 linux   = base.Clone(tools = ['target_platform_linux'])
 mac     = base.Clone(tools = ['target_platform_mac'])
@@ -27,6 +30,8 @@ dbg_mac = mac.Clone(
     tools = ['target_debug'],
 )
 builds.append(dbg_mac)
+
+
 
 dbg_linux = linux.Clone(
     BUILD_TYPE = 'dbg',

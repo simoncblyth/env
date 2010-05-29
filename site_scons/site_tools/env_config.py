@@ -16,7 +16,17 @@ def generate(env, pkg=None, tool=None ):
         env.exit(1)
 
     print "env_config for pkg %s " % pkg  
-    if pkg:
+
+    if not(pkg):
+        return
+
+    ## special handling for local pkgs ... hmm the libname ... 
+    if pkg in ('cjsn'):
+        env.Append( 
+           CPPPATH=['$INCLUDE_ROOT'] ,
+           LIBS=[pkg],
+        ) 
+    else: 
         if not(tool):
             tool = pkg
         env['PKG_ENV_%s' % tool.upper() ] = pkg

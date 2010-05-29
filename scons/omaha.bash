@@ -21,3 +21,11 @@ omaha-get(){
    local dir=$(dirname $(omaha-dir)) &&  mkdir -p $dir && cd $dir
    [ ! -d omaha ] && svn co $(omaha-url) omaha
 }
+
+omaha-find(){
+  local iwd=$PWD
+  omaha-cd
+  find . -name build.scons -exec grep -H $1 {} \;
+  cd $iwd
+}
+

@@ -11,7 +11,11 @@ ec.Tool('env_private_path')
 ec.Append( LIBS=prv )
 ec.ComponentTestProgram( 'private_val', ['private_val.c'] )
 
+#ec.Publish( "priv" , "header" , ['private.h'] ) 
+#ec.ReplicatePublished( "$INCLUDE_ROOT" , "priv" , "header" )
 
+EIncludes( ec, ['private.h'] )
 
+print "target_root %s include_root %s " % ( ec["TARGET_ROOT"] , ec["INCLUDE_ROOT"] )
 
 

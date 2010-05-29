@@ -262,7 +262,6 @@ cvs-(){         . $(env-home)/cvs/cvs.bash && cvs-env $* ; }
 db-(){          . $(env-home)/db/db.bash     && db-env $*     ; }
 
 
-#aberdeen-(){    . $(env-home)/aberdeen/aberdeen.bash && aberdeen-env $* ; }
 
 python-(){      . $(env-home)/python/python.bash  && python-env $*  ; }
 ipython-(){     . $(env-home)/python/ipython.bash && ipython-env $* ; }

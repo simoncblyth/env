@@ -1,0 +1,20 @@
+"""
+  mount ABERDEEN inside ENV for SCons building purposes
+  NB the third_party/aberdeen does not actually exist
+
+  Following example from section 
+       'Include source from somewhere outside your project'
+        http://code.google.com/p/swtoolkit/wiki/Examples
+
+"""
+Import("env")
+env['ABERDEEN_DIR'] = 'third_party/aberdeen'
+env.Dir('$ABERDEEN_DIR').addRepository(env.Dir('../aberdeen'))
+env.Append(CPPPATH=['$ABERDEEN_DIR/include'])
+env.ComponentLibrary( 'AbtDataModel', [Glob('$ABERDEEN_DIR/DataModel/src/*.cxx')])
+
+#env.Repository("../aberdeen")
+#env.ComponentLibrary('AbtDataModel', [Glob('../aberdeen/DataModel/src/*.cxx')])
+
+
+

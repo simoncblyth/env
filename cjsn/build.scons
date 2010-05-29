@@ -7,5 +7,5 @@ cjsn = ec.ComponentLibrary("cjsn",["src/cJSON.c"])
 ec.Append( LIBS=cjsn )
 ec.ComponentTestProgram( 'test_cjsn', ['src/test.c'] )
 
-
+EIncludes( ec, ['src/cJSON.h'] )
 

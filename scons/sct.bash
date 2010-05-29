@@ -11,6 +11,9 @@ sct-usage(){
      sct-src : $(sct-src)
      sct-dir : $(sct-dir)
 
+
+  
+
  == Software Construction Toolkit ==
 
     Open Sourced Googles Extensions to SCons
@@ -20,6 +23,12 @@ sct-usage(){
          alias for sct-hammer 
 
     sct-hammer
+
+
+ == Questions ==
+
+   * how to publish a header ?
+
 
  == Useful Options ==
 
