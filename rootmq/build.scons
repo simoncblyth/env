@@ -1,21 +1,40 @@
 Import("env")
 
-tools=['rabbitmq','priv','cjson','abtmodel', 'glib', 'gthread' ] 
+tools=[ 
+    'rmqc',
+    'priv',
+    'cjson',
+    'abtmodel', 
+    'glib', 
+    'gthread',
+    'root'
+] 
+er = env.Clone( tools=tools  )
 
-er = env.Clone( tools=tools + ['root'] )
-rcd = er.RootcintDictionary( 'rootmq' , ['include/MQ.h','include/MyTMessage.h','include/root2cjson.h','include/rootmq.h','include/LinkDef.hh']   )  
+headers = [
+   'include/MQ.h',
+   'include/MyTMessage.h',
+   'include/root2cjson.h',
+   'include/rootmq.h',
+   'include/LinkDef.hh'
+]   
+rcd = er.RootcintDictionary( 'rootmq' , headers )  
+
 er.Append( CPPPATH=['include'] )
 er.Append( CPPPATH=['#'] )      ## the dict has includes with paths from the dir above containing the main.scons 
 
 ## workaround for the swallowed repeated -Xlinker flag issue 
 er.Prepend( LINKFLAGS=['-Xlinker'] )  
-
-ESortedDump(er)
+#ESortedDump(er)
 
 rmq = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 
 er.Tool('env_private_path')
 er.Append( LIBS=rmq )
-er.ComponentTestProgram( 'mq_sendstring', ['mq_sendstring.cc'] )
+er.ComponentTestProgram( 
+   prog_name='mq_sendstring', 
+   source=['mq_sendstring.cc'],
+   COMPONENT_TEST_RUNNABLE=False
+ )
 
 

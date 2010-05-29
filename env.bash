@@ -20,7 +20,7 @@ env-scons(){
   mate main.scons site_scons priv rootmq
 }
 
-
+env-config(){  $(env-home)/bin/env-config $* ; }
 
 env-build(){
 
@@ -817,3 +817,4 @@ scube-(){      . $(env-home)/scons/scube.bash && scube-env $* ; }
 sct-(){        . $(env-home)/scons/sct.bash && sct-env $* ; }
 parts-(){      . $(env-home)/scons/parts.bash && parts-env $* ; }
 omaha-(){      . $(env-home)/scons/omaha.bash && omaha-env $* ; }
+rmqc-(){       . $(env-home)/messaging/rmqc.bash && rmqc-env $* ; }

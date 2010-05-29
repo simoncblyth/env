@@ -24,8 +24,6 @@ rabbitmq-log(){ cat << EOL
 EOL
 }
 
-
-
 rabbitmq-usage(){
   cat << EOU
      rabbitmq-src : $(rabbitmq-src)
@@ -54,12 +52,6 @@ rabbitmq-usage(){
    man rabbitmq.conf
    man rabbitmq-multi
    man rabbitmqctl
-
-     rabbitmq-c-build
-         build the rabbitmq C client 
-   
-     rabbitmq-c-sendstring 
-
      rabbitmq-ex-consumer
      rabbitmq-ex-publisher
             try py-ampqlib based consumer and publisher
@@ -75,6 +67,15 @@ rabbitmq-usage(){
 
      May need to open the ip 
            rabbitmq-open-ip 140.112.XXX.XX 
+
+
+  == rabbitmq-c split off ... ready for migration to rmqc ==
+
+     rabbitmq-c-build
+         build the rabbitmq C client 
+   
+     rabbitmq-c-sendstring 
+
 
 
    == automating rabbitmq-server launch on reboot ==
@@ -177,148 +178,6 @@ rabbitmq-server-get(){
   hg clone $(rabbitmq-hg)/rabbitmq-server
 }
 
-
-rabbitmq-c-dir(){ echo $(rabbitmq-dir)/rabbitmq-c ; }
-rabbitmq-c-cd(){  cd $(rabbitmq-c-dir) ; }
-
-# pkg exports 
-rabbitmq-libname(){ echo rabbitmq ; }
-rabbitmq-libdir(){ echo $(rabbitmq-c-dir)/librabbitmq/.libs ; }
-rabbitmq-incdir(){ echo $(rabbitmq-c-dir)/librabbitmq ; }
-
-
-rabbitmq-c-build(){
-
-   rabbitmq-c-wipe
-   rabbitmq-c-preq
-
-   rabbitmq-codegen-get
-   rabbitmq-c-get
-   rabbitmq-c-make
-}
-
-
-rabbitmq-c-preq(){
-   pip install simplejson 
-}
-
-
-rabbitmq-c-wipe(){
-  local msg="=== $FUNCNAME :"
-  local dir=$(rabbitmq-dir)
-  mkdir -p $dir && cd $dir
-  local cmd="rm -rf rabbitmq-c rabbitmq-codegen "
-  local ans
-  read -p "$msg enter YES to proceed with : $cmd from $PWD " ans
-  [ "$ans" != "YES" ] && echo $msg skipping && return 1
-  eval $cmd
-}
-
-
-rabbitmq-c-get(){
-  local msg="=== $FUNCNAME :"
-  local dir=$(rabbitmq-dir)
-  mkdir -p $dir && cd $dir
-  [ -d "rabbitmq-c" ] && echo $msg ABORT dir exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
-  hg clone $(rabbitmq-hg)/rabbitmq-c 
-
-  cd rabbitmq-c
-  hg up 277ec3f5b631
-  cd $dir
-
-}
-
-rabbitmq-c-make(){
-  rabbitmq-c-cd
-  rabbitmq-c-kludge
-
-  autoreconf -i
-  autoconf
-  ./configure 
-
-  ## avoid hardcoded attempt to use python2.5
-  make PYTHON=python
-}
-
-rabbitmq-c-kludge(){
-  perl -pi -e "s,(sibling_codegen_dir=).*,\$1\"$(rabbitmq-codegen-dir)\"," configure.ac
-  perl -pi -e 's,void const,const void,g' librabbitmq/amqp.h   ## needed to get past rootcint in notifymq build
-}
-
-
-
-
-
-
-rabbitmq-c-exepath(){ echo $(rabbitmq-c-dir)/examples/amqp_$1 ; }
-
-rabbitmq-c-exchange(){ echo ${RMQC_EXCHANGE:-amq.direct} ; }
-rabbitmq-c-queue(){    echo ${RMQC_QUEUE:-test queue} ; }
-rabbitmq-c-key(){      echo ${RMQC_KEY:-test queue} ; }
-
-rabbitmq-c-consumer(){
-   local msg="=== $FUNCNAME :"
-   local exe=$(rabbitmq-c-exepath consumer)
-   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
-   private-
-   local host=$(private-val AMQP_SERVER) 
-   local port=$(private-val AMQP_PORT) 
-   local cmd="$exe $host $port " 
-   echo $msg $cmd CAUTION hardcoded : exchange  \"amq.direct\" and key  \"test queue\"
-   eval $cmd
-}
-
-rabbitmq-c-sendstring(){
-   local msg="=== $FUNCNAME :"
-   local exe=$(rabbitmq-c-exepath sendstring)
-   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
-   
-   private-
-   local host=$(private-val AMQP_SERVER) 
-   local port=$(private-val AMQP_PORT) 
-   local exchange=$(rabbitmq-c-exchange)
-   local routingkey=$(rabbitmq-c-queue)
-   local messagebody="$(hostname) $(date)"
-   local cmd="$exe $host $port $exchange \"$routingkey\" \"$messagebody\""
-   echo $msg $cmd
-   eval $cmd
-}
-
-rabbitmq-c-listen(){
-   local msg="=== $FUNCNAME :"
-   local exe=$(rabbitmq-c-exepath listen)
-   [ ! -x "$exe" ] && echo $msg ABORT no executable at $exe && return 1 
-   
-   private-
-   local host=$(private-val AMQP_SERVER) 
-   local port=$(private-val AMQP_PORT) 
-   local exchange=$(rabbitmq-c-exchange)
-   local routingkey=$(rabbitmq-c-queue)
-   local cmd="$exe $host $port $exchange \"$routingkey\" "
-   echo $msg $cmd
-   eval $cmd
-
-}
-
-rabbitmq-c-usage(){
-   local files="amqp_sendstring.c example_utils.c example_utils.h"
-   cd $(env-home)/notifymq 
-   local file ; for file in $files ; do
-     [ ! -f "$file" ] &&  cp $(rabbitmq-c-dir)/examples/$file . || echo $msg $file already present in $PWD
-   done
-}
-
-
-
-rabbitmq-codegen-dir(){ echo $(rabbitmq-dir)/rabbitmq-codegen ; }
-rabbitmq-codegen-cd(){  cd $(rabbitmq-codegen-dir) ; }
-rabbitmq-codegen-get(){
-  local msg="=== $FUNCNAME :"
-  local dir=$(rabbitmq-dir)
-  mkdir -p $dir && cd $dir
-  [ -d "rabbitmq-codegen" ] && echo $msg ABORT dir exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
-  hg clone http://hg.rabbitmq.com/rabbitmq-codegen 
-}
 
 
 
