@@ -15,6 +15,10 @@ env-rel(){
   echo $rel
 }
 
+env-mode(){   echo dbg ; }
+env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
+
+
 env-scons(){
   cd $(env-home)
   mate main.scons site_scons priv rootmq
@@ -818,3 +822,4 @@ sct-(){        . $(env-home)/scons/sct.bash && sct-env $* ; }
 parts-(){      . $(env-home)/scons/parts.bash && parts-env $* ; }
 omaha-(){      . $(env-home)/scons/omaha.bash && omaha-env $* ; }
 rmqc-(){       . $(env-home)/messaging/rmqc.bash && rmqc-env $* ; }
+cjsn-(){      . $(env-home)/cjsn/cjsn.bash && cjsn-env $* ; }

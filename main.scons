@@ -9,9 +9,10 @@ dirs = []
 # incorp tools into cloned environments as needed
 tools  = ['component_setup']    ## fundamental to SCT operation 
 
-#dirs  += ['priv']
+dirs  += ['priv']
 #dirs  += ['scons/customtest'] 
 dirs  += ['rootmq']
+dirs  += ['cjsn']
 
 ## builds the build.scons in the dirs 
 base = Environment( tools = tools, BUILD_SCONSCRIPTS = dirs , COMPONENT_STATIC=False )

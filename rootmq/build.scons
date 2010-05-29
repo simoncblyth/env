@@ -34,7 +34,7 @@ er.Append( LIBS=rmq )
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
    source=['mq_sendstring.cc'],
-   COMPONENT_TEST_RUNNABLE=False
+   COMPONENT_TEST_RUNNABLE=True
  )
 
 
