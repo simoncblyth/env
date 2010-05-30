@@ -28,6 +28,37 @@ pcre-usage(){
 
      pcre is available from yum, but it without the pcredemo.c
 
+
+     pkg-config not working on C, C2 : 
+
+[blyth@cms02 ~]$ pkg-config libpcre --libs
+Package libpcre was not found in the pkg-config search path.
+Perhaps you should add the directory containing `libpcre.pc'
+to the PKG_CONFIG_PATH environment variable
+No package 'libpcre' found
+
+    Checking the yum pkg contents shows no .pc by reveals : /usr/bin/pcre-config
+        rpm -ql pcre
+        rpm -ql pcre-devel
+
+simon:e blyth$ pcre-config --libs
+-L/opt/local/lib -lpcre
+simon:e blyth$ pcre-config --cflags
+-I/opt/local/include
+
+[blyth@belle7 ~]$ which pcre-config
+/usr/bin/pcre-config
+[blyth@belle7 ~]$ pcre-config --libs
+-lpcre
+[blyth@belle7 ~]$ pkg-config libpcre --libs
+-lpcre  
+[blyth@belle7 ~]$ pkg-config libpcre --cflags
+ 
+[blyth@belle7 ~]$ pcre-config --cflags
+
+
+
+
 EOU
 }
 pcre-name(){ echo pcre-8.00 ; }

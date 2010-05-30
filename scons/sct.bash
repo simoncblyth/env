@@ -39,6 +39,30 @@ sct-usage(){
     sct        :  alias for sct-hammer 
     sct-hammer :  invoke the SCT hammer.sh script 
 
+ == Installation Issues ==
+
+  1) SCT unable to find SCons ...
+{{{
+    [blyth@cms01 e]$ sct
+    Traceback (most recent call last):
+    File "/data/env/local/env/scons/sct/wrapper.py", line 44, in <module>
+       import SCons.Script
+    ImportError: No module named SCons.Script
+}}}
+    Two ways to fix this :
+       * define envvar SCONS_DIR using   : scons-dir-export
+       * more robustly plant a .pth with : scons-dir-pth
+         ... this only needs to be once to your python 
+
+
+   2) Missing hammer.sh :
+{{{
+[blyth@cms02 e]$ sct
+-bash: /data/env/local/env/scons/sct/hammer.sh: No such file or directory
+}}}
+      * You need to {{{sct- ; sct-get}}} first 
+
+
 
  == SCT/SCons Usage Questions ==
 
