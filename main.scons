@@ -28,8 +28,7 @@ base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operat
 #
 
 # mount ABERDEEN inside ENV for SCons building purposes, following example from 
-#    'Include source from somewhere outside your project'   
-#  http://code.google.com/p/swtoolkit/wiki/Examples
+#    http://code.google.com/p/swtoolkit/wiki/Examples#Include_source_from_somewhere_outside_your_project
 #   (assumes aberdeen checkout is sibling to env)
 base['ABERDEEN_DIR'] = 'aberdeen'
 base.Dir('$ABERDEEN_DIR').addRepository(base.Dir('../aberdeen'))

@@ -8,16 +8,19 @@ scons-usage(){
      scons-src : $(scons-src)
      scons-dir : $(scons-dir)
 
-     http://prdownloads.sourceforge.net/scons/scons-1.3.0.tar.gz
+   == installs ==
+
+     port installed v1.2.0.r3842 onto G, mostly into /opt/local/lib/scons-1.2.0
+         sudo port install scons
+
+     yum  installed v1.2.0.r3842  onto C,C2,N
+         sudo yum install scons
+         
+     ipkg installed v1.2.0.r3842 
+         sudo ipkg install scons
 
     
-  using pkged 1.2.0
-     sudo port install scons
-
-
-      /opt/local/lib/scons-1.2.0
-
-
+     http://prdownloads.sourceforge.net/scons/scons-1.3.0.tar.gz
 
 EOU
 }
