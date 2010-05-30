@@ -1,4 +1,9 @@
-#
+""" 
+    Currently this uses pkg/env/aberdeen-config 
+    based Flag parsers ...
+    
+
+"""
 Import("env")
 
 tools=[ 
@@ -30,10 +35,17 @@ rmq = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 
 er.Tool('env_private_path')
 er.Tool('env_libpath')
-er.Tool('env_dump')
 
 er.Append( LIBS=[rmq] )
-er.Tool("dump", LIBS=True )
+
+#
+# On Linux running the test requires the external rmqc-libdir in LD_LIBRARY_PATH 
+# On OSX was able to run without  DYLD_LIBRARY_PATH preparation ?
+#
+
+er.Tool("libpath")
+er.Tool('env_dump')
+er.Tool("dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
 
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
