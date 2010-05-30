@@ -41,8 +41,8 @@ EOU
 
 scons-dir-pth(){
   local msg="=== $FUNCNAME : "
+  local tmp=/tmp/$USER/env/$FUNCNAME/scons.pth && mkdir -p $(dirname $tmp)
   python-
-  local tmp=/tmp/env/$FUNCNAME/scons.pth && mkdir -p $(dirname $tmp)
   echo $(scons-dir) > $tmp
   echo $msg prepare $tmp to put scons-dir on sys path 
   cat $tmp
