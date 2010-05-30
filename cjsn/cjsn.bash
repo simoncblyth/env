@@ -31,8 +31,10 @@ cjsn-mate(){ mate $(cjsn-home) ; }
 cjsn-rev(){  echo 33 ; }
 cjsn-url(){  echo https://cjson.svn.sourceforge.net/svnroot/cjson@$(cjsn-rev) ; }
 cjsn-get(){
+   local iwd=$PWD
    local dir=$(dirname $(cjsn-home)) &&  mkdir -p $dir && cd $dir
    svn co $(cjsn-url) cjsn
+   cd $iwd
 }
 cjsn-build(){
    sct-

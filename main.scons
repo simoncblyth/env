@@ -11,6 +11,17 @@
 
       rmqc  ........  yes for now, but better to hookup to real pkg-config system 
                       and convert to pkg_config user 
+
+
+   As you build this you will run into missing headers, fulfil 
+   these dependencies with :
+
+       cjsn-
+       cjsn-get 
+     
+       rmqc-
+       rmqc-build
+
  
 """
 
