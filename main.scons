@@ -1,6 +1,9 @@
 #
 #  SCT/SCons Main Build Script  
 #       http://code.google.com/p/swtoolkit/wiki/Examples
+import os
+aberdeen_home = os.environ.get('ABERDEEN_HOME',None)
+    
 
 dirs = (
   'aberdeen/DataModel',
@@ -31,7 +34,13 @@ base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operat
 #    http://code.google.com/p/swtoolkit/wiki/Examples#Include_source_from_somewhere_outside_your_project
 #   (assumes aberdeen checkout is sibling to env)
 base['ABERDEEN_DIR'] = 'aberdeen'
-base.Dir('$ABERDEEN_DIR').addRepository(base.Dir('../aberdeen'))
+
+if not(aberdeen_home):
+    aberdeen_home = "../aberdeen"
+    print "ABERDEEN_HOME is not defined try the sibling dir %s  " % aberdeen_home
+    #base.Exit(1)
+
+base.Dir('$ABERDEEN_DIR').addRepository(base.Dir(aberdeen_home))
 
 
 builds = []
