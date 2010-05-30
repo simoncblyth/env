@@ -30,6 +30,10 @@ def generate(env, pkg=None, t=None):
         if not(t):
             t = pkg
         env['PKG_SYS_%s' % t.upper() ] = pkg
-        env.ParseConfig("pkg-config %s --cflags --libs" % pkg )
+        if env.WhereIs('%s-config' % t ):
+            print "using %s-config " % t 
+            env.ParseConfig("%s-config --cflags --libs" % t)
+        else:          
+            env.ParseConfig("pkg-config %s --cflags --libs" % pkg )
 
 

@@ -1,15 +1,14 @@
 ##
 Import("env")
 ec = env.Clone()
+ec.ComponentLibrary("cjsn",["cJSON.c"])
+EIncludes( ec, ['cJSON.h'] )
 
-cjsn = ec.ComponentLibrary("cjsn",["cJSON.c"])
-
-ec.Append( LIBS=cjsn )
-
+ec.Append( LIBS=['cjsn'] )
 if ec.Bit("linux"):
     ec.Append( LIBS=['m'] )
 
+ec.Tool('sct_dump', LIBS=True )
 ec.ComponentTestProgram( 'test_cjsn', ['test.c'] )
 
-EIncludes( ec, ['cJSON.h'] )
 

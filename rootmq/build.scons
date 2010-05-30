@@ -1,20 +1,23 @@
 """ 
     Currently this uses pkg/env/aberdeen-config 
     based Flag parsers ...
-    
 
 """
 Import("env")
 
-tools=[ 
-    'rmqc',
-    'priv',
-    'cjsn',
-    'abtmodel', 
-    'glib', 
-    'gthread',
-    'root'
-] 
+tools = []
+
+# external code installed by system pkg manager 
+tools += [ 'glib', 'gthread', ]
+
+# external code installed by bash functions : rmqc- , root-
+tools += [ 'rmqc', 'root', ] 
+
+
+# code compiled by SCT/SCons 
+tools += [ 'priv', 'cjsn', ]     # 'abtmodel' not needed here 
+
+
 er = env.Clone( tools=tools  )
 
 headers = [
@@ -27,25 +30,26 @@ headers = [
 rcd = er.RootcintDictionary( 'rootmq' , headers )  
 
 er.Append( CPPPATH=['include'] )
-er.Append( CPPPATH=['#'] )      ## the dict has includes with paths from the dir above containing the main.scons 
+er.Append( CPPPATH=['$MAIN_DIR'] )  ## the dict has includes with paths from the dir above containing the main.scons 
 
 EWorkaroundSwallowedXlinker( er )
 #ESortedDump(er)
-rmq = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
+er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 
-er.Tool('env_private_path')
-er.Tool('env_libpath')
-
-er.Append( LIBS=[rmq] )
 
 #
 # On Linux running the test requires the external rmqc-libdir in LD_LIBRARY_PATH 
 # On OSX was able to run without  DYLD_LIBRARY_PATH preparation ?
 #
 
-er.Tool("libpath")
+er.Append( LIBS=['rootmq'] )
+
+er.Tool("libpath")   ## blunt instrument .. TODO: finesse to get just the necessary 
+
+er.Tool('env_private_path')
+#er.Tool('env_libpath')
 er.Tool('env_dump')
-er.Tool("dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
+er.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
 
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
