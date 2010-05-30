@@ -12,8 +12,6 @@ sct-usage(){
      sct-dir : $(sct-dir)
 
 
-  
-
  == Software Construction Toolkit ==
 
     Open Sourced Googles Extensions to SCons
@@ -24,10 +22,22 @@ sct-usage(){
 
     sct-hammer
 
-
  == Questions ==
 
    * how to publish a header ?
+       * implemented INCLUDE_ROOT at top level and created a global 
+         function to copy there using SCons Replicate 
+             eg  EIncludes( env , ['path/to/header.h'] )
+
+   * how to prevent tests from failing due to the needed libs not being present ?
+       * some libs end up in the TEST_DIR but not all ... what is dictating this ?
+
+   * in a SConscript or build.scons is the Imported env a clone
+     or a reference to the "calling" env ? 
+     OR should I be cloning inside the build.scons ? 
+
+
+
 
 
  == Useful Options ==
@@ -44,9 +54,15 @@ sct-usage(){
 
      sct --tree=derived
      sct --tree=all
-          dependency handling descends into externals
+          note that dependency handling descends into externals
 
+     sct --retest run_all_tests
+     sct --retest run_large_tests       ## tests can be grouped 
+     sct --retest run_test_cjsn
 
+          the list of available tests to build/run is given by "sct --help"
+          the "--retest" is needed as will usually say that test has run once already
+          based on the existance of test output 
 
 
  == Investigating Underpinnings == 

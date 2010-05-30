@@ -1,25 +1,41 @@
 #
-# SCT/SCons Main Build Script  
-#    http://code.google.com/p/swtoolkit/wiki/Examples
+#  SCT/SCons Main Build Script  
+#       http://code.google.com/p/swtoolkit/wiki/Examples
 
-builds = []
 dirs = (
-  '.',
+  'aberdeen/DataModel',
   'priv',
-#'scons/customtest',
   'rootmq',
   'cjsn',
+  'aberdeen/AbtViz',
 )
 
-
-## builds the build.scons in the dirs 
+# common to all builds and dirs 
 base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operation 
     BUILD_SCONSCRIPTS = dirs , 
     COMPONENT_STATIC = False ,
+    COMPONENT_LIBRARY_PUBLISH = True ,
     INCLUDE_ROOT = "$TARGET_ROOT/include" ,
 )
+#    COMPONENT_TEST_RUNNABLE = False,  
+#        prevents test from running even with retest or explicit naming
+#        also inhibits the copy of needed libs into TEST_DIR
+#
+#    Instead using env_libpath tool to include LIB_DIR in library path ...
+#        however are uncertain if the new libs are already there  
+#        at the time the tests are run ... maybe should use STAGING_DIR ? 
+#
+#
+
+# mount ABERDEEN inside ENV for SCons building purposes, following example from 
+#    'Include source from somewhere outside your project'   
+#  http://code.google.com/p/swtoolkit/wiki/Examples
+#   (assumes aberdeen checkout is sibling to env)
+base['ABERDEEN_DIR'] = 'aberdeen'
+base.Dir('$ABERDEEN_DIR').addRepository(base.Dir('../aberdeen'))
 
 
+builds = []
 linux   = base.Clone(tools = ['target_platform_linux'])
 mac     = base.Clone(tools = ['target_platform_mac'])
 
@@ -30,8 +46,6 @@ dbg_mac = mac.Clone(
     tools = ['target_debug'],
 )
 builds.append(dbg_mac)
-
-
 
 dbg_linux = linux.Clone(
     BUILD_TYPE = 'dbg',

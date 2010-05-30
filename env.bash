@@ -19,10 +19,9 @@ env-mode(){   echo dbg ; }
 env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
 
 
-env-scons(){
-  cd $(env-home)
-  mate main.scons site_scons priv rootmq
-}
+env-scons-(){ find $(env-home) -name '*.scons' ; }
+env-scons(){ vi `$FUNCNAME-` ; }
+
 
 env-config(){  $(env-home)/bin/env-config $* ; }
 

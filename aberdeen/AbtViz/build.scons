@@ -1,0 +1,20 @@
+"""
+  Using the SCons addRepository mapped ABERDEEN_DIR, 
+  with mapping :
+      $ENV_HOME/aberdeen
+      $ENV_HOME/../aberdeen
+
+  The "include" "src" paths here use "Ghost" referencing 
+  to the other side ... in aberdeen working copy 
+
+"""
+Import("env")
+er = env.Clone( tools=["root"] )
+
+er.Append(CPPPATH=['src'])
+headers = Glob('src/*.h') + ['src/LinkDef.hh' ] 
+rcd = er.RootcintDictionary( 'AbtVizDict' , headers  )
+
+EWorkaroundSwallowedXlinker(er)
+er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
+

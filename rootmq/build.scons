@@ -1,3 +1,4 @@
+#
 Import("env")
 
 tools=[ 
@@ -23,19 +24,22 @@ rcd = er.RootcintDictionary( 'rootmq' , headers )
 er.Append( CPPPATH=['include'] )
 er.Append( CPPPATH=['#'] )      ## the dict has includes with paths from the dir above containing the main.scons 
 
-## workaround for the swallowed repeated -Xlinker flag issue 
-er.Prepend( LINKFLAGS=['-Xlinker'] )  
+EWorkaroundSwallowedXlinker( er )
 #ESortedDump(er)
-
 rmq = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 
 er.Tool('env_private_path')
+er.Tool('env_libpath')
+er.Tool('env_dump')
+
 er.Append( LIBS=[rmq] )
-er.Append( LIBS=['cjsn'] )
+er.Tool("dump", LIBS=True )
+
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
    source=['mq_sendstring.cc'],
-   COMPONENT_TEST_RUNNABLE=False
  )
+   
+# COMPONENT_TEST_RUNNABLE=False
 
 

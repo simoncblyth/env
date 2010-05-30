@@ -14,6 +14,15 @@ def EIncludes(env, sources ):
     """
     env.Replicate( "$INCLUDE_ROOT" , sources )
 
+def EWorkaroundSwallowedXlinker(env):
+    """
+        workaround SCT/SCons bug whereby a repeated -Xlinker flag 
+        is swallowed see env ticket #275
+    """
+    if env.Bit("mac"):
+        env.Prepend( LINKFLAGS=['-Xlinker'] )
+
+
 def ESiteInitMain():
     # Bail out if we've been here before. This is needed to handle the case where
     # this site_init.py has been dropped into a project directory.
@@ -22,7 +31,9 @@ def ESiteInitMain():
     usage_log.log.AddEntry('env site init')
     __builtin__.ESortedDump = ESortedDump
     __builtin__.EIncludes   = EIncludes
+    __builtin__.EWorkaroundSwallowedXlinker = EWorkaroundSwallowedXlinker
     pass
+
 
 
 ESiteInitMain()
