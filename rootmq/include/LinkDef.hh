@@ -7,7 +7,7 @@
 #pragma link C++ global gMQ;
 #pragma link C++ class MQ;
 #pragma link C++ class MyTMessage ;
-#pragma link C++ defined_in root2cjson.h;
-#pragma link C++ defined_in rootmq.h;
+#pragma link C++ defined_in ./rootmq/include/root2cjson.h;
+#pragma link C++ defined_in ./rootmq/include/rootmq.h;
 #endif  
 
