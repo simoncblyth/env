@@ -22,6 +22,15 @@ cjsn-usage(){
      cjsn-get
          exports the pinned revision $(cjsn-rev) from the upstream repo
 
+  == Issues ==
+
+    [blyth@cms02 e]$ cjsn-get
+    svn: SSL is not supported
+
+    Workaround : use a different svn :
+      SVN=/usr/bin/svn cjsn-get
+
+
 EOU
 }
 cjsn-home(){ echo $(local-base)/env/cjsn ; }
@@ -33,7 +42,7 @@ cjsn-url(){  echo https://cjson.svn.sourceforge.net/svnroot/cjson@$(cjsn-rev) ; 
 cjsn-get(){
    local iwd=$PWD
    local dir=$(dirname $(cjsn-home)) &&  mkdir -p $dir && cd $dir
-   svn co $(cjsn-url) cjsn
+   ${SVN:-svn} co $(cjsn-url) cjsn
    cd $iwd
 }
 cjsn-build(){
