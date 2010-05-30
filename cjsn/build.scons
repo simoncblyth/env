@@ -2,10 +2,10 @@
 Import("env")
 ec = env.Clone()
 
-cjsn = ec.ComponentLibrary("cjsn",["src/cJSON.c"])
+cjsn = ec.ComponentLibrary("cjsn",["cJSON.c"])
 
 ec.Append( LIBS=cjsn )
-ec.ComponentTestProgram( 'test_cjsn', ['src/test.c'] )
+ec.ComponentTestProgram( 'test_cjsn', ['test.c'] )
 
-EIncludes( ec, ['src/cJSON.h'] )
+EIncludes( ec, ['cJSON.h'] )
 

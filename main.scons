@@ -2,7 +2,6 @@
 #  SCT/SCons Main Build Script  
 #       http://code.google.com/p/swtoolkit/wiki/Examples
 import os
-aberdeen_home = os.environ.get('ABERDEEN_HOME',None)
     
 
 dirs = (
@@ -33,14 +32,14 @@ base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operat
 # mount ABERDEEN inside ENV for SCons building purposes, following example from 
 #    http://code.google.com/p/swtoolkit/wiki/Examples#Include_source_from_somewhere_outside_your_project
 #   (assumes aberdeen checkout is sibling to env)
-base['ABERDEEN_DIR'] = 'aberdeen'
 
-if not(aberdeen_home):
-    aberdeen_home = "../aberdeen"
-    print "ABERDEEN_HOME is not defined try the sibling dir %s  " % aberdeen_home
-    #base.Exit(1)
+aberdeen_home = os.environ.get('ABERDEEN_HOME',"../aberdeen")
+base.Dir('aberdeen').addRepository(base.Dir(aberdeen_home))
 
-base.Dir('$ABERDEEN_DIR').addRepository(base.Dir(aberdeen_home))
+cjsn_home = os.environ.get('CJSN_HOME',"../cjsn")
+base.Dir('cjsn').addRepository(base.Dir(cjsn_home))
+
+
 
 
 builds = []

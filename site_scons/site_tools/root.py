@@ -26,6 +26,9 @@ def generate(env):
     
     env.PrependENVPath('PATH', rootsys + os.sep + 'bin' )
     env.ParseConfig("root-config --cflags --glibs")
+   
+    if env.Bit("linux"): 
+        env.PrependENVPath('LD_LIBRARY_PATH', rootsys + os.sep + 'lib' )
 
     rootcint_path = env.WhereIs('rootcint')
     if rootcint_path is None:
