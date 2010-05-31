@@ -24,6 +24,42 @@ root-info(){ cat << EOI
 
      longterm default root_v5.21.04
 
+    == C : rpath appears not to be enabled by default on Linux ? ==  
+
+   After default ./configure  without any options/feature settings ... check what ./bin/root-config has to say 
+{{{
+[blyth@cms01 root]$ ./configure 
+...
+[blyth@cms01 root]$ ./bin/root-config --ldflags
+-m32
+
+[blyth@cms01 root]$ ./bin/root-config --cflags
+-pthread -m32 -I/data/env/local/root/root_v5.26.00.source/root/./include
+
+[blyth@cms01 root]$ ./bin/root-config --libs
+-L/data/env/local/root/root_v5.26.00.source/root/./lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic
+
+[blyth@cms01 root]$ ./bin/root-config --auxlibs
+-pthread -lm -ldl -rdynamic
+}}}
+
+
+  Yep rpath is not enabled by default on Linux root_v5.26.00.source
+
+{{{
+    [blyth@cms01 root]$ ./configure --enable-rpath 
+    ...
+    [blyth@cms01 root]$ ./bin/root-config --auxlibs
+    -pthread -Wl,-rpath,/data/env/local/root/root_v5.26.00.source/root/./lib -lm -ldl -rdynamic
+
+    [blyth@cms01 root]$ ./bin/root-config --cflags
+    -pthread -m32 -I/data/env/local/root/root_v5.26.00.source/root/./include
+
+    [blyth@cms01 root]$ ./bin/root-config --libs
+    -L/data/env/local/root/root_v5.26.00.source/root/./lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -Wl,-rpath,/data/env/local/root/root_v5.26.00.source/root/./lib -lm -ldl -rdynamic
+
+}}}
+
 EOI
 }
 
@@ -37,7 +73,7 @@ root-version-default(){
   local try="5.26.00" 
   case ${1:-$NODE_TAG} in 
      G) echo $try ;;
-     C) echo $def ;;
+     C|C2|N) echo $try ;;
      *) echo $def ;;
   esac
 }
@@ -59,6 +95,10 @@ root-nametag(){ echo $(root-name $*).$(root-archtag $*) ; }
 root-rootsys(){ echo $(local-base $1)/root/$(root-nametag $1)/root ; }
 root-base(){    echo $(dirname $(dirname $(root-rootsys $*))) ; }
 root-url(){     echo ftp://root.cern.ch/root/$(root-nametag $*).tar.gz ; }
+
+
+root-libdir(){  echo $(root-rootsys)/lib ; }
+
 
 root-env(){
   elocal-
@@ -156,8 +196,14 @@ root-build(){
    cd $(root-rootsys)
    export ROOTSYS=$(root-rootsys)
    echo ROOTSYS is $(root-rootsys)
-   ./configure
-   make
+
+   if [ "$(uname)" == "Linux" ]; then
+      ./configure --enable-rpath
+   else
+      ./configure 
+   fi 
+
+   screen make
 }
 
 root-cd(){ cd $(root-rootsys)/tutorials/eve ; }
