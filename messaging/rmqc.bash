@@ -65,6 +65,7 @@ EOM
 
 rmqc-pkg(){    echo rmqc ; }
 rmqc-pkgconfig(){
+  pkgconfig-
   $FUNCNAME- | pkgconfig-plus ${1:-$(rmqc-pkg)}
 }
 

@@ -15,9 +15,10 @@ def generate(env, pkg=None, t=None):
                   which corresponds to the __name__
                      
     """
-    portbin = '/opt/local/bin'
-    if env.Bit('mac') and os.path.isdir(portbin): 
-        env.PrependENVPath('PATH', portbin )   
+    if env.Bit('mac'):
+        portbin = '/opt/local/bin'
+        if os.path.isdir(portbin): 
+            env.PrependENVPath('PATH', portbin )   
     else:
         pass
 
@@ -25,6 +26,17 @@ def generate(env, pkg=None, t=None):
         print "could not find pkg-config : failed access config info for  %s " % pkg 
         env.Exit(1) 
 
+    envpfx = os.environ.get('ENV_PREFIX',None)
+    if not(envpfx):
+        print "error ENV_PREFIX is not defined, see : local-usage "
+        env.Exit(1)
+
+    pcdir = os.path.join( envpfx , 'lib' , 'pkgconfig' )
+    if not(os.path.isdir(pcdir)):
+        print "error pkgconfig dir does not exist see : pkgconfig-usage "
+        env.Exit(1)
+
+    env.PrependENVPath('PKG_CONFIG_PATH', pcdir )
     print "pkg_config for pkg %s t %s " % ( pkg , t )  
     if pkg:
         if not(t):

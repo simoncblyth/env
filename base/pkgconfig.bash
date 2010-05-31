@@ -11,6 +11,8 @@ pkgconfig-usage(){
 
      To understand... 
            man pkg-config
+           http://pkg-config.freedesktop.org/wiki/
+
 
      PKG_CONFIG_PATH       : $PKG_CONFIG_PATH
      PKG_CONFIG_LIBDIR     : $PKG_CONFIG_LIBDIR

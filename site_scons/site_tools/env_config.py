@@ -1,31 +1,10 @@
-import os
-
-def generate(env, pkg=None, tool=None ):
-    """
-       Adjust PATH to pick up the env-config for env managed packages
-       Hmm this could benefit from its __file__ to avoid need for envvar ENV_HOME ??
-    """
-    name = 'ENV_HOME'
-    home = os.environ.get(name,None)
-    if home and os.path.isdir(home): 
-        env.PrependENVPath('PATH', home + os.sep + 'bin' )   
-    else:
-        print "envvar %s is not defined " % name
-        env.exit(1)
-
-    if not(pkg):
-        return
-
+def generate(env, pkg=None ):
     if pkg in ('cjsn','priv',):
-        print "env_config : special handling for SCT/SCons built pkg : %s  " % pkg
+        print "env_config : for SCT/SCons built pkg : %s : append to CPPATH and LIBS   " % pkg
         env.Append( 
            CPPPATH=['$INCLUDE_ROOT'] ,
            LIBS=[pkg] ,
         ) 
     else: 
-        print "env_config : for pkg %s " % pkg  
-        if not(tool):
-            tool = pkg
-        env['PKG_ENV_%s' % tool.upper() ] = pkg
-        env.ParseConfig("env-config %s --cflags --libs" % pkg )
+        print "env_config : ERROR pkg %s is not handled by env_config ... try pkg_config " % pkg  
     pass 

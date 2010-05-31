@@ -19,6 +19,7 @@ cat << EOU
    
    local-system-base :  $(local-system-base)      
    local-base        :  $(local-base)
+   local-prefix      :  $(local-prefix)
    local-var-base    :  $(local-var-base)
    local-scm-fold    :  $(local-scm-fold)
    local-user-base   :  $(local-user-base)
@@ -96,6 +97,8 @@ local-env(){
  
    export SYSTEM_BASE=$(local-system-base) ## prequisite base for most everything, ie where to pick up subversion +
    export LOCAL_BASE=$(local-base)
+   export ENV_PREFIX=$(local-prefix)
+
    export VAR_BASE=$(local-var-base)    ## operational files, like backups
    export SCM_FOLD=$(local-scm-fold)
    export VAR_BASE_BACKUP=$(local-var-base $BACKUP_TAG)
@@ -402,7 +405,8 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
 }
 
 
-local-cd(){ cd $(local-base)/env ; }
+local-prefix(){ echo $(local-base)/env ; }
+local-cd(){     cd $(local-prefix) ; }
 
 local-system-base(){
 

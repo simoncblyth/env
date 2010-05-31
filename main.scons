@@ -56,10 +56,8 @@ import os
 aberdeen_home = os.environ.get('ABERDEEN_HOME',"../aberdeen")
 base.Dir('aberdeen').addRepository(base.Dir(aberdeen_home))
 
-cjsn_home = os.environ.get('CJSN_HOME',"../cjsn")
-base.Dir('cjsn').addRepository(base.Dir(cjsn_home))
-
-
+env_prefix = os.environ.get('ENV_PREFIX',"/usr/local/env")
+base.Dir('cjsn').addRepository(base.Dir(env_prefix + os.sep + "cjsn"))
 
 
 builds = []

@@ -18,12 +18,11 @@ env-rel(){
 env-mode(){   echo dbg ; }
 env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
 
-
 env-scons-(){ find $(env-home) -name '*.scons' ; }
 env-scons(){ vi `$FUNCNAME-` ; }
 
-
 env-config(){  $(env-home)/bin/env-config $* ; }
+env-prefix(){ echo $(local-base)/env ; }
 
 env-build(){
 
@@ -31,7 +30,6 @@ env-build(){
   python-ln $(env-home) env
 
   env-selinux
-
 }
 
 env-selinux(){
@@ -41,7 +39,6 @@ env-selinux(){
 
   private-
   private-selinux
-
 }
 
 
