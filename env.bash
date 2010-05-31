@@ -809,7 +809,7 @@ doxy-(){      . $(env-home)/doc/doxy.bash && doxy-env $* ; }
 doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }
 bitn-(){      . $(env-home)/trac/bitn.bash && bitn-env $* ; }
 tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
-abtviz-(){      . $(env-home)/aberdeen/abtviz.bash && abtviz-env $* ; }
+#abtviz-(){      . $(env-home)/aberdeen/abtviz.bash && abtviz-env $* ; }  MOVED TO aberdeen ... run aberdeen- to define the new abtviz-
 tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
 jmeter-(){      . $(env-home)/http/jmeter.bash && jmeter-env $* ; }
 scube-(){      . $(env-home)/scons/scube.bash && scube-env $* ; }
