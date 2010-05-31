@@ -3,9 +3,10 @@
 #   http://www.scons.org/wiki/GCCXMLBuilder 
 #   http://www.scons.org/wiki/UnTarBuilder
 #
-#  Want to avoid binding operation to directory layout ...
-#     dict_ = env.RootcintDictionary('AbtViz', Glob('*.h'))
+#  Without taking precarious measures like imbibing the callers PATH 
+#  this has to depend on ROOTSYS being defined in order to locate rootcint and root-config
 #
+#  It could be avoided by spoofing a root.pc ... but thats too much effort to maintain
 #
 
 import os
@@ -21,14 +22,18 @@ ROOTCINTBuilder = SCons.Builder.Builder(action = "$ROOTCINT -f $TARGET -c $_CPPI
 def generate(env):
     rootsys = os.environ.get('ROOTSYS', None)
     if rootsys is None:
-        print 'Envvar ROOTSYS is not defined '
+        print 'ERROR : %s : ROOTSYS is not defined ' % __file__
         env.Exit(1)
     
     env.PrependENVPath('PATH', rootsys + os.sep + 'bin' )
+
+    if env.WhereIs('root-config') is None:
+        print "ERROR : %s :  no root-config in PATH " % __file__
+        env.Exit(1)
     env.ParseConfig("root-config --cflags --glibs")
    
-    if env.Bit("linux"): 
-        env.PrependENVPath('LD_LIBRARY_PATH', rootsys + os.sep + 'lib' )
+    #if env.Bit("linux"): 
+    #    env.PrependENVPath('LD_LIBRARY_PATH', rootsys + os.sep + 'lib' )
 
     rootcint_path = env.WhereIs('rootcint')
     if rootcint_path is None:
