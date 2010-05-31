@@ -47,8 +47,30 @@ EOU
 rmqc-libname(){ echo rabbitmq ; }
 rmqc-libdir(){  echo $(rmqc-prefix)/lib ; }
 rmqc-incdir(){  echo $(rmqc-prefix)/include ; }
+# pkgconfig exports
+rmqc-pkgconfig-(){  cat << EOM
+prefix=$(rmqc-prefix)
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${exec_prefix}/include
+somevar=simon
+ 
+Name: $(rmqc-name) 
+Description: $(rmqc-desc)
+Version: $(rmqc-version)
+Libs: -L\${libdir} -lrabbitmq
+Cflags: -I\${includedir}
+EOM
+}
+
+rmqc-pkg(){    echo rmqc ; }
+rmqc-pkgconfig(){
+  $FUNCNAME- | pkgconfig-plus ${1:-$(rmqc-pkg)}
+}
 
 
+
+rmqc-desc(){ echo Network Client to RabbitMQ Server implemented in C ; }
 rmqc-name(){ echo rabbitmq-c ; }
 rmqc-prefix(){ echo $(local-base)/env/rmqc ; }
 rmqc-dir(){    echo $(local-base)/env/messaging/rmqc/$(rmqc-name) ; }
@@ -77,6 +99,9 @@ rmqc-build(){
 
    rmqc-make
 }
+
+
+rmqc-version(){     echo dev ; }
 rmqc-rev(){         echo 277ec3f5b631 ; }
 rmqc-codegen-rev(){ echo 821f5ee7b040 ; }
 
@@ -152,7 +177,9 @@ rmqc-make(){
   echo $msg install
   make install
 
+  rmqc-pkgconfig 
 }
+
 
 
 

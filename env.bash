@@ -821,3 +821,4 @@ parts-(){      . $(env-home)/scons/parts.bash && parts-env $* ; }
 omaha-(){      . $(env-home)/scons/omaha.bash && omaha-env $* ; }
 rmqc-(){       . $(env-home)/messaging/rmqc.bash && rmqc-env $* ; }
 cjsn-(){      . $(env-home)/cjsn/cjsn.bash && cjsn-env $* ; }
+pkgconfig-(){      . $(env-home)/base/pkgconfig.bash && pkgconfig-env $* ; }
