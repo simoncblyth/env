@@ -4,15 +4,14 @@ Import("env")
 #ESortedDump(env)
 
 ec = env.Clone( tools=['pcre','glib']  )
-priv = ec.ComponentLibrary( 'priv', ['private.c'] )
+ec.ComponentLibrary( 'priv', ['private.c'] )
 EIncludes( ec, ['private.h'] )
 
 ## test the lib 
 
 ec.Append( LIBS=['priv'] )
-ec.Tool('env_private_path')
-#ec.Tool('libpath')
 
+ec.Tool('env_private_path')
 ec.Tool('env_dump')
 ec.Tool('sct_dump', LIBS=True , LIBPATH=True )
 

@@ -58,7 +58,7 @@ somevar=simon
 Name: $(rmqc-name) 
 Description: $(rmqc-desc)
 Version: $(rmqc-version)
-Libs: -L\${libdir} -lrabbitmq
+Libs: -L\${libdir} -lrabbitmq  -Wl,-rpath,\${libdir}
 Cflags: -I\${includedir}
 EOM
 }
