@@ -14,10 +14,27 @@ import SCons.Builder
 import SCons.Tool
 
 
-ROOTCINTBuilder = SCons.Builder.Builder(action = "$ROOTCINT -f $TARGET -c $_CPPINCFLAGS $SOURCES ",
-                              suffix='_Dict.cxx',
-                              src_suffic = ['h', 'hpp'],
-                              source_scanner = SCons.Tool.CScanner)
+rootcint_builder = SCons.Builder.Builder(
+          action = "$ROOTCINT -f $TARGET -c $_CPPINCFLAGS $SOURCES ",
+          suffix = '_Dict.cxx',
+      src_suffic = ['h', 'hpp'],
+  source_scanner = SCons.Tool.CScanner,
+)
+
+def rootsolink_(target, source ,env):
+    for i,t in enumerate(target):
+        print "rootsolink_ target %s %s " % (i, t.abspath )
+    for i,s in enumerate(source):
+        print "rootsolink_ source %s %s " % (i, s.abspath )
+
+    print "rootsolink_ env    %s " % env 
+    pass
+
+rootsolink_builder = SCons.Builder.Builder( 
+    action=rootsolink_ , 
+    source_factory=SCons.Node.FS.default_fs.Entry,
+    target_factory=SCons.Node.FS.default_fs.Entry,
+)
 
 def generate(env):
     rootsys = os.environ.get('ROOTSYS', None)
@@ -41,8 +58,11 @@ def generate(env):
         env.Exit(1)
 
     env['ROOTCINT'] = rootcint_path
-    rootcint_dir = os.path.dirname(rootcint_path)
-    env.Append(BUILDERS = {'RootcintDictionary' : ROOTCINTBuilder })
+
+    env.Append( BUILDERS = {
+         'RootcintDictionary' : rootcint_builder ,
+                 'Rootsolink' : rootsolink_builder ,
+       })
 
 def exists(env):
     return env.Detect('root')

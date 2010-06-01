@@ -34,7 +34,8 @@ er.Append( CPPPATH=['$MAIN_DIR'] )  ## the dict has includes with paths from the
 
 EWorkaroundSwallowedXlinker( er )
 #ESortedDump(er)
-er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
+lib = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
+er.Rootsolink( lib ) 
 
 
 #
