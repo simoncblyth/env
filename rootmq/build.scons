@@ -55,7 +55,8 @@ if er.Bit("mac"):
 
 er.Append( LIBS=['rootmq'] )
 
-er.Tool('env_private_path')
+#er.Tool('env_private_path')
+er.Tool('env_propagate', ENV_PRIVATE_PATH=True , HOME=True )
 er.Tool('env_dump')
 er.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
 

@@ -8,7 +8,7 @@ const char* default_key = "default.routingkey" ;
 int main(int argc, char const * const *argv) {
    MQ::Create();
 
-   int n = 100 ;
+   int n = 10 ;
    char smry[max];
    for(Int_t i = 0 ; i < n ; i++){
       const char* key = i % 2 == 0 ? default_key : other_key ;
