@@ -4,11 +4,6 @@ rootmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rootmq-src)} ; }
 rootmq-vi(){       vi $(rootmq-source) ; }
 rootmq-env(){      
     elocal-  
-    root-
-    rabbitmq-
-    cjson-
-    priv-
-    #aberdeen-
 }
 rootmq-usage(){
   cat << EOU
@@ -22,16 +17,13 @@ rootmq-usage(){
      rootmq-ipython
            interactive root/python with libpaths setup appropriately 
 
-
      rootmq-sendstring
      rootmq-sendjson
      rootmq-sendobj
-           run tests via the Makefile which is reponsible for environment control for library access
+           run tests using rootmq-root
 
-
-     rootmq-monitor 
-
-
+     rootmq-tests
+          run all the tests
 
     == Usage from python ==
 
@@ -46,95 +38,63 @@ ABORT: rootmq_init failed rc : 111
 make: *** [test_sendstring] Error 111
 
      Check if the node is running, see rabbitmq-usage
-     
-
-
-
 
 EOU
 }
 
 rootmq-dir(){ echo $(env-home)/rootmq ; }
-
-
-rootmq-libname(){ echo rootmq ; }
-rootmq-libdir(){ echo $(rootmq-dir)/lib ; }
-rootmq-incdir(){ echo $(rootmq-dir)/include ; }
-
-
-
 rootmq-cd(){  cd $(rootmq-dir); }
 rootmq-mate(){ mate $(rootmq-dir) ; }
-
-#rootmq-libpaths(){ echo $(rootmq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir):$(aberdeen-libdir) ; }
-rootmq-libpaths(){ echo $(rootmq-libdir):$(rabbitmq-c-libdir):$(cjson-libdir):$(priv-libdir) ; }
-rootmq-dynpaths(){  
-  case $(uname) in 
-      Darwin) echo DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:$(rootmq-libpaths) ;;
-       Linux) echo LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$(rootmq-libpaths) ;;
-  esac
-}
-
-
-
-
-
-
-rootmq-preq(){
-   
-   priv-
-   priv-build
-
-   cjson-
-   cjson-build
-
-   rabbitmq-
-   rabbitmq-c-build
-}
-
-
-rootmq-build(){
-
-   rootmq-preq
-   rootmq-cd
-   
-   make clean 
-   make
-}
-
+rootmq-libpath(){  echo $(env-libdir) ; }
 
 rootmq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
-   local cmd="$(rootmq-dynpaths) root -q -l $path $*"
+   local cmd="$(rootmq-runenv) root -b -q -l $path $*"
    echo $msg $cmd 
    eval $cmd 
 }
 rootmq-iroot(){
-   local cmd="$(rootmq-dynpaths) root -l $*"
+   local cmd="$(rootmq-runenv) root -l $*"
    echo $msg $cmd 
    eval $cmd 
 }
 rootmq-ipython(){
-   local cmd="$(rootmq-dynpaths) ipython $*"
+   local cmd="$(rootmq-runenv) ipython $*"
    echo $msg $cmd 
    eval $cmd 
 }
 
-
-rootmq-chcon(){
+rootmq-chcon-(){
+   local lib=$1
    local msg="=== $FUNCNAME :"
-   local cmd="sudo chcon -t texrel_shlib_t $(rootmq-libdir)/librootmq.so"
+   local cmd="sudo chcon -t texrel_shlib_t $(env-libdir)/lib$lib.so"
    echo $msg $cmd
    eval $cmd
 }
+rootmq-chcon(){
+   local libs="rootmq"
+   for lib in $libs ; do
+       $FUNCNAME- $lib
+   done
+}
 
+rootmq-runenv(){
+   case $(uname) in
+      Darwin) echo DYLD_LIBRARY_PATH=$(rootmq-libpath) ;;
+           *) echo LD_LIBRARY_PATH=$(rootmq-libpath)  ;;
+   esac
+}
 
-rootmq-make(){       rootmq-cd ; make $* ; }
-rootmq-sendstring(){ rootmq-make test_sendstring ; }
-rootmq-sendjson(){   rootmq-make test_sendjson   ; }
-rootmq-sendobj(){    rootmq-make test_sendobj    ; }
-
-
+rootmq-tests(){
+   rootmq-cd
+   local macro
+   for macro in tests/*.C ; do
+      rootmq-root $macro
+   done
+}
+rootmq-sendobj(){     rootmq-root $(rootmq-dir)/tests/test_sendobj.C ;  }
+rootmq-sendjson(){    rootmq-root $(rootmq-dir)/tests/test_sendjson.C ;  }
+rootmq-sendstring(){  rootmq-root $(rootmq-dir)/tests/test_sendstring.C ;  }
 
