@@ -18,6 +18,7 @@ rcd = er.RootcintDictionary( 'AbtDataModelDict' , headers  )
 EWorkaroundSwallowedXlinker(er)
 
 libs = er.ComponentLibrary( 'AbtDataModel', Glob('src/*.cxx') + rcd )
-er.Rootsolink( libs )
+if er.Bit("mac"):
+    er.Rootsolink( libs )
 
 

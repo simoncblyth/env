@@ -17,4 +17,5 @@ rcd = er.RootcintDictionary( 'AbtVizDict' , headers  )
 
 EWorkaroundSwallowedXlinker(er)
 libs = er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
-er.Rootsolink( libs )
+if er.Bit("mac"):
+    er.Rootsolink( libs )
