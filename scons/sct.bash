@@ -86,11 +86,30 @@ sct-usage(){
    * how to set arguments for a test run ?
       * http://code.google.com/p/swtoolkit/wiki/Glossary#SetTargetProperty  may be the way  
 
-
-
    * in a SConscript or build.scons is the Imported env a clone
      or a reference to the "calling" env ? 
      OR should I be cloning inside the build.scons ? 
+
+
+
+   *  why does "sct -c" not clean everything ?
+
+      * when changing source layout, older derived files in the scons-out tree get
+        left behind ... handle this by occasional rm -rf scons-out for a deep clean    
+
+      * other derived files also not cleaned :
+
+simon:e blyth$ find scons-out -type f
+scons-out/.sconsign_darwin.dblite
+scons-out/dbg/obj/aberdeen/AbtViz/AbtVizDict_Dict.h
+scons-out/dbg/obj/aberdeen/DataModel/AbtDataModelDict_Dict.h
+scons-out/dbg/obj/rootmq/rootmq_Dict.h
+
+simon:e blyth$ find scons-out -type l
+scons-out/dbg/lib/libAbtDataModel.so
+scons-out/dbg/lib/libAbtViz.so
+scons-out/dbg/lib/librootmq.so
+
 
 
  == Useful Options ==

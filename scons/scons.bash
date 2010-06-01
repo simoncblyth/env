@@ -30,6 +30,21 @@ scons-usage(){
           enables SCT to find SCons without having to use an envvar
 
 
+   == Issues ==
+
+        simon:e blyth$ scons -c
+        scons: *** No SConstruct file found.
+        File "/opt/local/lib/scons-1.2.0/SCons/Script/Main.py", line 826, in _main
+
+            you need to use : "sct -c" 
+
+   == Questions ==
+ 
+     1) why does "scons -c" not cleans  everything ?
+
+           * when changing source layout, older derived files in the scons-out tree get
+             left behind ... handle this by occasional rm -rf scons-out for a deep clean    
+
 
 
    == source ==

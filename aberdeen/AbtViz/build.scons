@@ -16,5 +16,5 @@ headers = Glob('src/*.h') + ['src/LinkDef.hh' ]
 rcd = er.RootcintDictionary( 'AbtVizDict' , headers  )
 
 EWorkaroundSwallowedXlinker(er)
-er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
-
+libs = er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
+er.Rootsolink( libs )
