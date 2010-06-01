@@ -56,11 +56,11 @@ const char* MQ::NodeStamp()
 char* MQ::Summary() const
 {
    stringstream ss ;
-   ss 
+   ss    << "MQ::Summary "
          << " exchange " << fExchange.Data() 
          << " exchangeType " << fExchangeType.Data() 
          << " queue " << fQueue.Data() 
-         << " routingKey " << fRoutingKey.Data() 
+         << " routingKey " << fRoutingKey.Data() << endl 
          << " passive " << fPassive 
          << " durable " << fDurable 
          << " autoDelete " << fAutoDelete 
@@ -104,7 +104,11 @@ MQ* MQ::Create(Bool_t start_monitor)
       return gMQ ;
    }
 
-   private_init();
+   int rc = private_init();
+   if(rc){
+       Printf("MQ::Create error in private_init\n") ; 
+       gSystem->Exit(214 + rc);
+   }
 
    const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "default.exchange" );
    const char* queue        = private_lookup_default( "ROOTMQ_QUEUE" ,       "default.queue" );

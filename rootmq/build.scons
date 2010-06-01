@@ -13,9 +13,8 @@ tools += [ 'glib', 'gthread', ]
 # external code installed by bash functions : rmqc- , root-
 tools += [ 'rmqc', 'root', ] 
 
-
 # code compiled by SCT/SCons 
-tools += [ 'priv', 'cjsn', ]     # 'abtmodel' not needed here 
+tools += [ 'priv', 'cjsn', ]   
 
 
 er = env.Clone( tools=tools  )
@@ -38,24 +37,8 @@ libs = er.ComponentLibrary('rootmq' , Glob('src/*.c') + rcd + Glob('src/*.cc') )
 if er.Bit("mac"):
     er.Rootsolink( libs )
 
-
-#  setting the (DY)LD_LIBRARY_PATH is a kludge ...
-# 
-#     after 
-#         rpath setup on Linux from rmqc 
-#         building root_5.26.00  with -enable-rpath 
-#     
-#   no longer need the crutch of setting the LD_LIBRARY_PATH
-#   see wiki:Rpath
-#  
-# if er.Bit("linux"):
-#    er.Tool("libpath")
-#
-#
-
 er.Append( LIBS=['rootmq'] )
 
-#er.Tool('env_private_path')
 er.Tool('env_propagate', ENV_PRIVATE_PATH=True , HOME=True )
 er.Tool('env_dump')
 er.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )

@@ -9,6 +9,6 @@ if ec.Bit("linux"):
     ec.Append( LIBS=['m'] )
 
 ec.Tool('sct_dump', LIBS=True )
-ec.ComponentTestProgram( 'test_cjsn', ['test.c'] )
+ec.ComponentTestProgram( 'test_cjsn', ['test.c'] , COMPONENT_TEST_RUNNABLE=False )
 
 
