@@ -252,3 +252,131 @@ EOU
 }
 
 
+root-libdiddle(){
+
+   local nam=PyROOT
+   local lib=lib$nam.so
+   local tmp=/tmp/$USER/env/$FUNCNAME && mkdir -p $tmp && cd $tmp
+
+   [ -f $lib ]   && rm $lib
+   [ ! -f $lib ] && cp $(root-libdir)/$lib .
+   
+   echo $msg otool -D 
+   otool -D $lib
+
+   echo $msg otool -L 
+   otool -L $lib
+
+   #
+   # attempt 1 :
+   #     absolutize the libPyROOT.so install name
+   #     and set dependents relative to that ... @loader_path/../libOther.so
+   #        *  nope it appears that the @loader_path is not understood by root ?
+   #
+   # attempt 2 :
+   #     just absolutize all dependent libs 
+   #     and leave the lib itself at @rpath/libPyROOT.so
+   #        * allows to load with 
+   #             DYLD_LIBRARY_PATH=$(env-libdir) python -c "import ROOT ; ROOT.gSystem.Load('librootmq')  "
+   #             DYLD_LIBRARY_PATH=$(env-libdir) ipython 
+   #                   import ROOT
+   #                   ROOT.gSystem.Load('librootmq')
+   #                   ROOT.gMQ.Create()
+   #                   ROOT.gMQ.SendString("hello")
+   #
+   #  ... if i could edit the rpath in a virtualenv python binary then could dispense
+   #      with libpath setting at expense of picking the right "env" python, so comes down to PATH 
+   #  ... only worth expense if having an "env" python binary has sufficient other benefits  
+   #
+   #    OR could create a /bin/sh wrapper called "python" that sets up the needed env then execs 
+   #       the real python     
+   #        ... low-tech way has advantage of being easily understood
+   #            and not depending on uncommon os specific commands or diddling 
+   #            ... not as expensive as diddling 
+   # 
+   #         * isolated site-packages ?
+   #         * installation can pre-load the virtualized site-packages, with deps like ipython
+   #           removing the need to cd ~/a/AbtViz or wherever
+   #
+   #
+
+   #install_name_tool -id $(root-libdir)/libPyROOT.so $(root-libdir)/libPyROOT.so
+   #install_name_tool -id @loader_path/../libPyROOT.so libPyROOT.so
+   local cmd
+   local deps="Core Cint RIO Net Hist Graf Graf3d Gpad Tree Matrix MathCore Thread Reflex"
+   for dep in $deps ; do
+      #cmd="install_name_tool -change  @rpath/lib$dep.so @loader_path/../lib$dep.so libPyROOT.so"
+      cmd="install_name_tool -change  @rpath/lib$dep.so $(root-libdir)/lib$dep.so libPyROOT.so"
+      echo $cmd
+      eval $cmd
+   done
+   echo after diddline 
+   otool -L $lib
+
+   cp libPyROOT.so $(root-libdir)/libPyROOT.so.diddled
+}
+
+root-libdiddle-place(){
+   cd `root-libdir`
+   mv libPyROOT.so libPyROOT.so.keep 
+   mv libPyROOT.so.diddled libPyROOT.so 
+}
+
+
+
+
+
+root-testload(){
+   local nam=${1:-rootmq} 
+   cd
+   root-testload-py    $nam $(env-libdir)
+   root-testload-cint  $nam $(env-libdir)
+}
+
+root-testload-success(){ echo $FUNCNAME $* ; }
+root-testload-fail(){    echo $FUNCNAME $* ; }
+
+root-testload-env(){
+   case $(uname) in
+      Darwin) echo DYLD_LIBRARY_PATH=$1 ;;
+           *) echo LD_LIBRARY_PATH=$1  ;;
+   esac
+}
+
+
+root-testload-cint-(){ cat << EOM
+{
+    gSystem->Exit(gSystem->Load("lib$1"));
+}
+EOM
+}
+root-testload-cint(){
+    local msg="=== $FUNCNAME :"
+    local nam=${1:-rootmq}
+    shift
+    local tmp=/tmp/$USER/env/$FUNCNAME/$nam.C && mkdir -p $(dirname $tmp) 
+    $FUNCNAME- $nam  > $tmp
+    local path 
+    local cmd
+    for path in "" $* ; do
+        cmd="$(root-testload-env $path) root -b -q $tmp"
+        echo $msg $cmd
+        eval $cmd > /dev/null 2>&1 && root-testload-success $FUNCNAME $nam $path || root-testload-fail $FUNCNAME $nam $path  
+    done
+}
+
+root-testload-py(){
+    local msg="=== $FUNCNAME :"
+    local nam=${1:-rootmq}
+    shift
+    local path
+    local cmd
+    for path in "" $* ; do
+        cmd="$(root-testload-env $path) python -c \"import ROOT ; ROOT.gSystem.Exit(ROOT.gSystem.Load('lib$nam'))\""
+        echo $msg $cmd
+        eval $cmd > /dev/null 2>&1  && root-testload-success $FUNCNAME $nam $path || root-testload-fail $FUNCNAME $nam $path
+    done 
+}
+
+
+

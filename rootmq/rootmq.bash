@@ -33,6 +33,10 @@ rootmq-usage(){
 
 
 
+    == Usage from python ==
+
+        wiki:Rpath 
+
      == RUNTIME ERRORS ==
 
      If the tests (such as rootmq-sendstring) yield ...
