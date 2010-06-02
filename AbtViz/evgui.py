@@ -60,11 +60,11 @@ class EvGui(ROOT.TQObject):
 
         self.html = {}
         self.tab = {}
-
+        
         self.add_htmltab( br.GetTabLeft() ,   "AbtEvent" )
         self.add_htmltab( br.GetTabLeft() ,   "AbtRunInfo" ) 
-	self.add_htmltab( br.GetTabBottom() , "AbtNdResponse" )       
- 
+        self.add_htmltab( br.GetTabBottom() , "AbtNdResponse" )       
+        
         br.Layout()
         br.MapSubwindows()
         br.MapWindow()
@@ -77,17 +77,16 @@ class EvGui(ROOT.TQObject):
         self.update_htmltab( name , html  )
 
     def update_evt_summary(self, **kwa ):
-	return self.update_summary( "AbtEvent", **kwa )
+        return self.update_summary( "AbtEvent", **kwa )
     def update_run_summary(self, **kwa ):
-	return self.update_summary( "AbtRunInfo", **kwa )
+        return self.update_summary( "AbtRunInfo", **kwa )
     def update_ndr_summary(self, **kwa):
-	return self.update_summary( "AbtNdResponse", **kwa )
-		    
+        return self.update_summary( "AbtNdResponse", **kwa )
 
     def update_htmltab(self, name, text ):
         tgh = self.html.get(name, None)
         assert tgh, "Error no htmltab for name %s" % name        
-        #tgh.Clear()
+        tgh.Clear()
         tgh.ParseText(text)
         tgh.Layout() 
 

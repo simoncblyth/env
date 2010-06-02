@@ -21,19 +21,20 @@ class EvOnline(list):
     
     
     """
-    def __init__(self, key="default.routingkey", dbg=0 ):
+    def __init__(self, key="default.routingkey", dbg=0, period=5000 ):
 
         self.status = "online"
         self.key = key
         self.edm = EvDataModel()
         self.dbg = dbg
-
+        self.period = period
+ 
         if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
         if ROOT.gSystem.Load("libAbtDataModel") < 0:ROOT.gSystem.Exit(10)
         
         ROOT.gMQ.Create()
         self.mq = ROOT.gMQ
-        self.timer = ROOT.TTimer(5000)
+        self.timer = ROOT.TTimer(self.period)
         self._connect( self.timer, "TurnOn()",  self.On ) 
         self._connect( self.timer, "Timeout()", self.Check ) 
         self._connect( self.timer, "TurnOff()", self.Off ) 
@@ -42,9 +43,22 @@ class EvOnline(list):
         self.timer.TurnOn()
 
     def On(self):
+        """
+            Called by TTimer/TurnOn 
+        """
         print "EvMQ.On"
         self.mq.StartMonitorThread()
+        
+    def Off(self):
+        print "EvMQ.Off"
+        self.mq.StopMonitorThread()
+        
     def Check(self):
+        """
+            Called by the TTimer/Timeout every self.period microseconds 
+            if there is a new obj in the MQ then get it and pass it on 
+            to self.edm based on its class 
+        """
         if self.mq.IsMonitorRunning():
             if self.mq.IsUpdated(self.key):
                 if self.dbg>0:print "EvOnline.Check mq %s updated " % self.key  
@@ -62,8 +76,7 @@ class EvOnline(list):
             else:
                 if self.dbg>2:print "EvOnline.Check key \"%s\" no update " % self.key 
 
-    def Off(self):
-        print "EvMQ.Off"
+
 
     def _connect(self, obj, sign , method ):
         handlerName = "_%s" % method.__name__

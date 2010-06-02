@@ -41,11 +41,10 @@ rootmq_collection_queue_t* rootmq_collection_getq_or_create_( const char* key );
 
 int rootmq_collection_init()
 {
+    // create hash table 
     if( rootmq_dbg > 0 )
         printf("_collection_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
     rootmq_collection  = g_hash_table_new(g_str_hash, g_str_equal);  // funcs for : hashing, key comparison 
-
-
     return EXIT_SUCCESS ;
 }
 
@@ -58,6 +57,18 @@ int rootmq_collection_cleanup()
 
 int rootmq_collection_add( rootmq_basic_msg_t * msg )
 {
+    //   
+    //  attain collection lock
+    //      pick the q within the collection based on msg->key 
+    //      add msg to q :  
+    //           managing q size by popping tail when too big  
+    //           calc stats for the q
+    //           invoke the q->observer callback with q->obsargs , msg->key and stats
+    //  release lock
+    //
+    //   this is called by rootmq_basic_collect from inside the monitor thread 
+    //
+    
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( msg->key );
 
@@ -67,9 +78,9 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
     switch (q->kind){
        case 'Q':
            length = g_queue_get_length( q->v.queue );
-           if(length == msgmax ){
+           if( length == msgmax ){
                if( rootmq_dbg > 1 )
-                  printf("_collection_add reached max %d popping tail \n" , length );
+                  printf("rootmq_collection_add : reached max %d popping tail \n" , length );
                rootmq_basic_msg_t* d = (rootmq_basic_msg_t*)g_queue_pop_tail( q->v.queue );
                rootmq_basic_msg_free( d );
            }
@@ -149,6 +160,8 @@ int rootmq_collection_queue_length( const char* key )
 
 void rootmq_collection_queue_configure( const char* key , rootmq_collection_observer_t observer , void* obsargs , int msgmax )
 {
+    //  
+    //
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
     if( q == NULL )

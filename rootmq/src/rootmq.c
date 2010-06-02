@@ -43,11 +43,15 @@ const char* rootmq_get_content_encoding( rootmq_basic_msg_t* msg )
 
 int rootmq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , amqp_basic_properties_t* props )
 {
+    //  invoked from the rootmq_basic_consume from inside the monitor thread 
+    // 
 	// bundle message body and delivery metadata and properties into struct rootmq_basic_msg_t and add to collection 
-	
+    //
     // dynamically allocated duplication of the message pulled off the wire ... 
     // the bytes of the frame are shortly deallocated so must do the duping 
     // for them to survive into the glib data structure
+    //   
+    
     rootmq_basic_msg_t* msg = rootmq_basic_msg_dup( rootmq_msg_index , body , deliver , props );
     rootmq_msg_index++ ;     // global received message index within this execution
 
@@ -64,11 +68,9 @@ int rootmq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , 
     return EXIT_SUCCESS ;
 }
 
-
-
 int rootmq_init()
 {
-
+   // Uses config parameters from private lookup to open socket connection to server
     if (!g_thread_supported ()) g_thread_init (NULL);
 
     int rc = private_init();
@@ -85,7 +87,6 @@ int rootmq_init()
         printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
         printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,password,vhost ); 
 
-
     rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
     if(rc != EXIT_SUCCESS) return rc ;
 
@@ -95,12 +96,7 @@ int rootmq_init()
     amqp_channel_open(conn, 1);
     die_on_amqp_error(amqp_rpc_reply, "Opening channel");
 
-
-
-
-
     rootmq_collection_init();
-
     return EXIT_SUCCESS ;
 }
 
