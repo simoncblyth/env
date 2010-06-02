@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+#  generated from abtviz.sh.in
+#
+libpath=$LIB_DIR
+
+case $$(uname) in
+   Linux) export   LD_LIBRARY_PATH=$$libpath ;;
+  Darwin) export DYLD_LIBRARY_PATH=$$libpath ;; 
+esac
+

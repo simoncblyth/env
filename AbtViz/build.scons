@@ -1,5 +1,5 @@
 Import("env")
-er = env.Clone( tools=["root", "addroot"] )
+er = env.Clone( tools=["root", "addroot", "tmpl" ] )
 
 er.Append( CPPPATH=[ 'src', '$MAIN_DIR' ] )
 
@@ -16,12 +16,13 @@ if er.Bit("mac"):
 
 er.Append( LINKFLAGS = [ "-Wl,-rpath,$LIB_DIR" , "-Wl,-rpath,$ROOT_LIBDIR" ] )
 
-## er.Append( LIBS = [ 'Eve' ] )
-## er.Append( LIBS = ['Ged', 'RGL', 'TreePlayer' ] )
+##er.Append( LIBS = [ 'Eve', 'Ged', 'RGL', ] )
 ## from libEve.rootmap
-## er.Append(  LIBS = Split('Eve Geom GeomPainter Graf3d Gui Gpad Graf Hist Physics Ged EG Tree TreePlayer RGL RIO Rint MathCore') )
+er.Append(  LIBS = Split('Eve Geom GeomPainter Graf3d Gui Gpad Graf Hist Physics Ged EG Tree TreePlayer RGL RIO Rint MathCore') )
 
 
 er.ComponentTestProgram( 'viz' , 'abtviz.c' , COMPONENT_TEST_RUNNABLE=False )
 
+er['TMPL'] = ( 'ROOT_LIBDIR' , 'LIB_DIR' )
+er.Filltmpl( source="abtviz.sh.in" )
 

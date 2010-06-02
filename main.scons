@@ -30,7 +30,7 @@ dirs += [ 'aberdeen/DataModel' ]
 dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo development 
 
 
-dirs = [ 'site_scons/site_tools/tests/tmpl' ]
+#dirs = [ 'site_scons/site_tools/tests/tmpl' ]
 
 # common to all builds and dirs 
 base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operation 
