@@ -1,0 +1,13 @@
+
+Import("env")
+
+et = env.Clone( tools=['tmpl'] )
+
+et['TMPL'] = ['LIBS', 'LIB_DIR', 'MAIN_DIR' , 'TEST_DIR' , 'BUILD_TYPE'  ]
+et.Filltmpl( 'wrapper' )
+
+
+
+
+
+

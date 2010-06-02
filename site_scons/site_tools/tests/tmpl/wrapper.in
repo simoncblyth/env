@@ -1,0 +1,13 @@
+
+ Demo tmpl ...
+
+    $LIBS 
+    $EXAMPLE 
+
+    $$BUILD_TYPE  $BUILD_TYPE
+
+    $$LIB_DIR     $LIB_DIR
+    $$MAIN_DIR    $MAIN_DIR
+    $$TEST_DIR    $TEST_DIR
+     
+
