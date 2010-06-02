@@ -2,14 +2,18 @@
 import os
 from ROOT import gROOT, gSystem
 
-builddir = "/tmp/env"
-gSystem.MakeDirectory(builddir)
-gSystem.SetBuildDir(builddir)
-gROOT.ProcessLine(".L %s/TEveDigitSet_Additions.cxx+" % os.path.dirname(__file__) )
+#builddir = "/tmp/env"
+#gSystem.MakeDirectory(builddir)
+#gSystem.SetBuildDir(builddir)
+#gROOT.ProcessLine(".L %s/TEveDigitSet_Additions.cxx+" % os.path.dirname(__file__) )
+
+if gSystem.Load("libaddroot") < 0:gSystem.Exit(10)
+
 
 from ROOT import TEveDigitSet_GetDigitValue, TEveDigitSet_SetDigitValue, TEveDigitSet_PrintDigit
 from ROOT import TEveDigitSet_SetDigitColorI, TEveDigitSet_SetDigitColorIT, TEveDigitSet_SetDigitColorRGBA
 from ROOT import TEveDigitSet
+
 TEveDigitSet.PrintDigit     = TEveDigitSet_PrintDigit
 TEveDigitSet.GetDigitValue  = TEveDigitSet_GetDigitValue
 TEveDigitSet.SetDigitValue  = TEveDigitSet_SetDigitValue

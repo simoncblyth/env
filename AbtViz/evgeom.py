@@ -7,10 +7,6 @@ from ROOT import kTRUE, kFALSE
 class EvGeom:
     def __init__(self):
         from geoconf import GeoConf, VolMatcher
-
-        
-
-
         self.geo = self.load_geo(GeoConf)
         self.vmr = VolMatcher()
         self.setup_viz()

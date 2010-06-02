@@ -1,3 +1,6 @@
+
+#include "TEveDigitSet_Additions.h"
+
 #include <TRef.h>
 #include <TEveDigitSet.h>
 #include <TEveUtil.h>

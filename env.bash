@@ -16,15 +16,21 @@ env-rel(){
 }
 
 env-mode(){   echo dbg ; }
-env-bindir(){ echo $(env-home)/scons-out/$(env-mode)/bin ; }
-env-objdir(){ echo $(env-home)/scons-out/$(env-mode)/obj ; }
-env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
+env-modedir(){  echo $(env-home)/scons-out/$(env-mode) ; }
+env-testsdir(){ echo $(env-modedir)/tests ; }
+env-bindir(){   echo $(env-modedir)/bin ; }
+env-objdir(){   echo $(env-modedir)/obj ; }
+env-libdir(){   echo $(env-modedir)/lib ; }
 env-runenv(){
-   root-
-   case $(uname) in
-      Darwin) echo DYLD_LIBRARY_PATH=$(env-libdir):$(root-libdir) ;;
-           *) echo LD_LIBRARY_PATH=$(env-libdir):$(root-libdir)  ;;
-   esac
+   if [ "$1" == "blank" ]; then
+      echo DYLD_LIBRARY_PATH= LD_LIBRARY_PATH=
+   else
+      root-
+      case $(uname) in
+         Darwin) echo DYLD_LIBRARY_PATH=$(env-libdir):$(root-libdir) ;;
+              *) echo LD_LIBRARY_PATH=$(env-libdir):$(root-libdir)  ;;
+      esac
+   fi
 }
 
 

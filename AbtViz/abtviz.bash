@@ -8,7 +8,8 @@ abtviz-usage(){
      abtviz-src : $(abtviz-src)
      abtviz-dir : $(abtviz-dir)
 
-     abtviz-main 
+     abtviz-main <opt>
+           opt : blank , start with blank (DY)LD_LIBRARY_PATH
 
         invoke the AbtViz main .. ideally should work 
            * from any dir 
@@ -19,7 +20,31 @@ abtviz-usage(){
          bake in RPATH into the binary 
 
          issues with resources....
-            Aberdeen_World_extract.root 
+            *  Aberdeen_World_extract.root fixed 
+            * TODO : avoid users from having to create the extract by committing it ?
+
+     == exit abtviz ==
+         
+         clean way to exit, from the ipython console : ctrl-D ctrl-D
+
+     == loading issues ==
+
+
+
+
+
+
+
+     == graphics isses ==
+         
+           1)
+               sometimes geometry does not appear (giving black viewer screen) 
+               because startup with a whacky viewpoint ... 
+               selecting "Eve" then "Update Scene" gets to a sensible viewpoint  
+
+           2) 
+               the viewer camera controls have become hidden... need to mouse over the upper
+               boundary of the viewer for them to pop into view, allowing camera viewpoint to be changed
 
 
 EOU
@@ -43,7 +68,7 @@ abtviz-main(){
   cd $tmp
   #cd $(env-home)/AbtViz
 
-  local cmd="$(env-runenv) $(env-objdir)/abtviz/abtviz $(env-home)/AbtViz/ev.py"
+  local cmd="$(env-runenv $*) $(env-testsdir)/viz $(env-home)/AbtViz/ev.py"
   echo $msg $cmd 
   eval $cmd 
 

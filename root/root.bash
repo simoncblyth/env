@@ -60,6 +60,15 @@ root-info(){ cat << EOI
 
 }}}
 
+
+   == getting Eve to load without LIBPATH ==
+
+     root-libdeps RGL | sh
+     root-libdeps Eve | sh
+
+
+
+
 EOI
 }
 
@@ -315,6 +324,44 @@ root-libdiddle(){
 
    cp libPyROOT.so $(root-libdir)/libPyROOT.so.diddled
 }
+
+root-first(){ echo $1 ; }
+root-libdeps(){
+   local nam=${1:-Eve}
+   local lib=lib$nam.so
+   local first
+   local line
+   otool -L $(root-libdir)/$lib | grep .so | while read line ; do
+      first=$(root-first $line)
+      case ${first:0:1} in
+        /) echo -n ;;
+        @) $FUNCNAME-xpath $lib $first ;;
+      esac
+   done
+}
+root-libdeps-xpath(){
+   local parent=$1
+   local child=$2
+
+   local diff=$(( ${#child} - ${#parent} ))
+   local end=${child:$diff}
+   if [ "$end" == "$parent" ]; then
+      return
+   fi 
+
+   #echo $FUNCNAME $parent ${#parent} $child ..${child:0:9}..  ${#child}  $diff  $end
+
+   if [ "${child:0:6}" == "@rpath" ]; then 
+       local cmd="install_name_tool -change $child $(root-libdir)/${child:7} $(root-libdir)/$parent"
+       echo $cmd
+   fi
+
+
+}
+
+
+
+
 
 root-libdiddle-place(){
    cd `root-libdir`

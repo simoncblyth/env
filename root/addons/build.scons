@@ -1,0 +1,14 @@
+Import("env")
+
+er = env.Clone( tools=[ 'root' ] )
+er.Append( LIBS=['Eve'] )
+
+rcd = er.RootcintDictionary( 'addroot' , ['TEveDigitSet_Additions.h', 'LinkDef.hh'] )
+er.Append( CPPPATH=['$MAIN_DIR'] )  ## the dict has includes with paths from MAIN_DIR
+
+EWorkaroundSwallowedXlinker( er )
+libs = er.ComponentLibrary( 'addroot' , rcd + [ 'TEveDigitSet_Additions.cxx' ] )
+if er.Bit("mac"):
+    er.Rootsolink( libs )
+
+

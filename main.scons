@@ -24,6 +24,7 @@
 dirs  = []
 dirs += [ 'priv', 'cjsn' ]
 dirs += [ 'rootmq' ]
+dirs += [ 'root/addons' ]
 dirs += [ 'aberdeen/DataModel' ]
 #dirs += [ 'aberdeen/AbtViz' ]
 dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo development 

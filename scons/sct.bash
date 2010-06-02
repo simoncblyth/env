@@ -165,7 +165,7 @@ sct-get(){
    [ ! -d sct ] && svn co $(sct-url) sct
 }
 sct-hammer(){ $(sct-dir)/hammer.sh $* ; }
-alias sct="sct-hammer"
+alias sct="sct-hammer --verbose"
 
 sct-info(){ svn info $(sct-dir) ; }
 

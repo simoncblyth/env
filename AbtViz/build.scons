@@ -1,5 +1,5 @@
 Import("env")
-er = env.Clone( tools=["root"] )
+er = env.Clone( tools=["root", "addroot"] )
 
 er.Append( CPPPATH=[ 'src', '$MAIN_DIR' ] )
 
@@ -11,8 +11,17 @@ libs = er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
 if er.Bit("mac"):
     er.Rootsolink( libs )
 
-er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $LIB_DIR') )
-er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $ROOT_LIBDIR') )
-er.Program( 'abtviz.c')
+#er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $LIB_DIR') )
+#er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $ROOT_LIBDIR') )
+
+er.Append( LINKFLAGS = [ "-Wl,-rpath,$LIB_DIR" , "-Wl,-rpath,$ROOT_LIBDIR" ] )
+
+## er.Append( LIBS = [ 'Eve' ] )
+## er.Append( LIBS = ['Ged', 'RGL', 'TreePlayer' ] )
+## from libEve.rootmap
+## er.Append(  LIBS = Split('Eve Geom GeomPainter Graf3d Gui Gpad Graf Hist Physics Ged EG Tree TreePlayer RGL RIO Rint MathCore') )
+
+
+er.ComponentTestProgram( 'viz' , 'abtviz.c' , COMPONENT_TEST_RUNNABLE=False )
 
 
