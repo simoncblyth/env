@@ -17,6 +17,17 @@ env-rel(){
 
 env-mode(){   echo dbg ; }
 env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
+env-runenv(){
+   root-
+   case $(uname) in
+      Darwin) echo DYLD_LIBRARY_PATH=$(env-libdir):$(root-libdir) ;;
+           *) echo LD_LIBRARY_PATH=$(env-libdir):$(root-libdir)  ;;
+   esac
+}
+
+
+
+
 
 env-scons-(){ find $(env-home) -name '*.scons' ; }
 env-scons(){ vi `$FUNCNAME-` ; }
@@ -809,7 +820,7 @@ doxy-(){      . $(env-home)/doc/doxy.bash && doxy-env $* ; }
 doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }
 bitn-(){      . $(env-home)/trac/bitn.bash && bitn-env $* ; }
 tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
-#abtviz-(){      . $(env-home)/aberdeen/abtviz.bash && abtviz-env $* ; }  MOVED TO aberdeen ... run aberdeen- to define the new abtviz-
+abtviz-(){      . $(env-home)/AbtViz/abtviz.bash && abtviz-env $* ; }  
 tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
 jmeter-(){      . $(env-home)/http/jmeter.bash && jmeter-env $* ; }
 scube-(){      . $(env-home)/scons/scube.bash && scube-env $* ; }

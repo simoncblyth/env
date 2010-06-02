@@ -16,7 +16,7 @@ ec.Tool('env_dump')
 ec.Tool('sct_dump', LIBS=True , LIBPATH=True )
 
 test = ec.ComponentTestProgram( 'private_val', ['private_val.c'] )
-print "test... %s " % test[0].abspath 
+#print "test... %s " % test[0].abspath 
 
 
 

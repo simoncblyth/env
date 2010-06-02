@@ -1,16 +1,13 @@
 """
-  SCT/SCons Main Build Script  
+   SCons/SCT Main Build Script  
        http://code.google.com/p/swtoolkit/wiki/Examples
 
-  Should these env_config tools exist ?
-     cjsn.py:generate = lambda env:env.Tool('env_config', pkg=__name__ )
-     priv.py:generate = lambda env:env.Tool('env_config', pkg=__name__ )
-     rmqc.py:generate = lambda env:env.Tool('env_config', pkg=__name__ )
+   Note the below "addRepository" definitions of mappings of external
+   repos down into this one allowing the external code to be build here.
+      * http://code.google.com/p/swtoolkit/wiki/Examples#Include_source_from_somewhere_outside_your_project
 
-      cjsn + priv ... probably no, so little code no point ... use the INCLUDE_ROOT 
-
-      rmqc  ........  yes for now, but better to hookup to real pkg-config system 
-                      and convert to pkg_config user 
+      || ABERDEEN_HOME    ||  ./aberdeen  ||
+      || ENV_PREFIX/cjsn  ||  ./cjsn      ||
 
 
    As you build this you will run into missing headers, fulfil 
@@ -21,36 +18,24 @@
      
        rmqc-
        rmqc-build
-
-
  
 """
 
-dirs = ( 'priv', 'aberdeen/DataModel', 'rootmq', 'cjsn', 'aberdeen/AbtViz',)
-#dirs = ( 'priv', 'cjsn', 'aberdeen/DataModel' , 'aberdeen/AbtViz',  )
-#dirs = ( 'rootmq', )
+dirs  = []
+dirs += [ 'priv', 'cjsn' ]
+dirs += [ 'rootmq' ]
+dirs += [ 'aberdeen/DataModel' ]
+#dirs += [ 'aberdeen/AbtViz' ]
+dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo development 
 
 # common to all builds and dirs 
 base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operation 
     BUILD_SCONSCRIPTS = dirs , 
     COMPONENT_STATIC = False ,
     COMPONENT_LIBRARY_PUBLISH = False ,
-    COMPONENT_TEST_RUNNABLE = True ,  
+    COMPONENT_TEST_RUNNABLE = True ,        ## False prevents test from running even with retest or explicit naming
     INCLUDE_ROOT = "$TARGET_ROOT/include" ,
 )
-#   COMPONENT_TEST_RUNNABLE = False
-#        prevents test from running even with retest or explicit naming
-#        also inhibits the copy of needed libs into TEST_DIR
-#
-#    Instead using env_libpath tool to include LIB_DIR in library path ...
-#        however are uncertain if the new libs are already there  
-#        at the time the tests are run ... maybe should use STAGING_DIR ? 
-#
-#
-
-# mount ABERDEEN inside ENV for SCons building purposes, following example from 
-#    http://code.google.com/p/swtoolkit/wiki/Examples#Include_source_from_somewhere_outside_your_project
-#   (assumes aberdeen checkout is sibling to env)
 
 import os
 aberdeen_home = os.environ.get('ABERDEEN_HOME',"../aberdeen")
@@ -58,6 +43,8 @@ base.Dir('aberdeen').addRepository(base.Dir(aberdeen_home))
 
 env_prefix = os.environ.get('ENV_PREFIX',"/usr/local/env")
 base.Dir('cjsn').addRepository(base.Dir(env_prefix + os.sep + "cjsn"))
+
+
 
 
 builds = []

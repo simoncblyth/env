@@ -4,6 +4,7 @@ rootmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rootmq-src)} ; }
 rootmq-vi(){       vi $(rootmq-source) ; }
 rootmq-env(){      
     elocal-  
+    root-
 }
 rootmq-usage(){
   cat << EOU
@@ -45,23 +46,22 @@ EOU
 rootmq-dir(){ echo $(env-home)/rootmq ; }
 rootmq-cd(){  cd $(rootmq-dir); }
 rootmq-mate(){ mate $(rootmq-dir) ; }
-rootmq-libpath(){  echo $(env-libdir) ; }
 
 rootmq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
-   local cmd="$(rootmq-runenv) root -b -q -l $path $*"
+   local cmd="$(env-runenv) root -b -q -l $path $*"
    echo $msg $cmd 
    eval $cmd 
 }
 rootmq-iroot(){
-   local cmd="$(rootmq-runenv) root -l $*"
+   local cmd="$(env-runenv) root -l $*"
    echo $msg $cmd 
    eval $cmd 
 }
 rootmq-ipython(){
-   local cmd="$(rootmq-runenv) ipython $*"
+   local cmd="$(env-runenv) ipython $*"
    echo $msg $cmd 
    eval $cmd 
 }
@@ -78,13 +78,6 @@ rootmq-chcon(){
    for lib in $libs ; do
        $FUNCNAME- $lib
    done
-}
-
-rootmq-runenv(){
-   case $(uname) in
-      Darwin) echo DYLD_LIBRARY_PATH=$(rootmq-libpath) ;;
-           *) echo LD_LIBRARY_PATH=$(rootmq-libpath)  ;;
-   esac
 }
 
 rootmq-tests(){
