@@ -95,6 +95,7 @@ def generate(env):
         print 'Could not find rootcint, please make sure it is on your PATH'
         env.Exit(1)
 
+    env['ROOT_LIBDIR'] = rootsys + os.sep + 'lib'
     env['ROOTCINT'] = rootcint_path
 
     env.Append( BUILDERS = {

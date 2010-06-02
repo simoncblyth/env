@@ -7,6 +7,10 @@ from ROOT import kTRUE, kFALSE
 class EvGeom:
     def __init__(self):
         from geoconf import GeoConf, VolMatcher
+
+        
+
+
         self.geo = self.load_geo(GeoConf)
         self.vmr = VolMatcher()
         self.setup_viz()
@@ -16,10 +20,10 @@ class EvGeom:
         """
             load the extracted geometry created by prepare_geom.py
         """
-
-        assert os.path.exists(conf.xpath), "ABORT the extracted geometry file %s does not exist, create it using prepare_geom.py " % conf.xpath
-        fgeom = ROOT.TFile.Open(conf.xpath)
-        tegse = fgeom.Get(conf.xname)
+        xpath = os.path.join( os.path.dirname(__file__) , conf.xpath )
+        assert os.path.exists( xpath ), "ABORT the extracted geometry file %s does not exist, create it using prepare_geom.py " % xpath
+        fgeom = ROOT.TFile.Open( xpath )
+        tegse = fgeom.Get( conf.xname )
         tegs = ROOT.TEveGeoShape.ImportShapeExtract(tegse, 0)
         fgeom.Close()
         return tegs

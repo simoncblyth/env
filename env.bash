@@ -16,6 +16,8 @@ env-rel(){
 }
 
 env-mode(){   echo dbg ; }
+env-bindir(){ echo $(env-home)/scons-out/$(env-mode)/bin ; }
+env-objdir(){ echo $(env-home)/scons-out/$(env-mode)/obj ; }
 env-libdir(){ echo $(env-home)/scons-out/$(env-mode)/lib ; }
 env-runenv(){
    root-
@@ -24,8 +26,6 @@ env-runenv(){
            *) echo LD_LIBRARY_PATH=$(env-libdir):$(root-libdir)  ;;
    esac
 }
-
-
 
 
 

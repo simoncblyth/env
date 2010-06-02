@@ -10,3 +10,9 @@ EWorkaroundSwallowedXlinker(er)
 libs = er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
 if er.Bit("mac"):
     er.Rootsolink( libs )
+
+er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $LIB_DIR') )
+er.Append( LINKFLAGS = Split('-Xlinker -rpath -Xlinker $ROOT_LIBDIR') )
+er.Program( 'abtviz.c')
+
+
