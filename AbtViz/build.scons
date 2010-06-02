@@ -1,0 +1,12 @@
+Import("env")
+er = env.Clone( tools=["root"] )
+
+er.Append( CPPPATH=[ 'src', '$MAIN_DIR' ] )
+
+headers = Glob('src/*.h') + ['src/LinkDef.hh' ] 
+rcd = er.RootcintDictionary( 'AbtVizDict' , headers  )
+
+EWorkaroundSwallowedXlinker(er)
+libs = er.ComponentLibrary( 'AbtViz', Glob('src/*.cc') + rcd )
+if er.Bit("mac"):
+    er.Rootsolink( libs )
