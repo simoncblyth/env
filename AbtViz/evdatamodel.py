@@ -12,10 +12,7 @@ class EvDataModel(DataModel):
     def __init__(self):
         super(EvDataModel, self).__init__()  
 
-        if ROOT.gSystem.Load( "libAbtViz" ):
-            print "%s : failed to load lib with dynamic path  %s " % ( __file__ , ROOT.gSystem.GetDynamicPath() )
-            print "%s : try : LD_LIBRARY_PATH=$(env-libdir) python %s " % ( __file__ , sys.argv[0] )
-            #ROOT.gSystem.Exit(13)
+        if ROOT.gSystem.Load( "libAbtViz" ) < 0:ROOT.gSystem.Exit(10)
 
         # attempt to avoid deadlocks by creating classes initially in the main thread  
         self.trg = ROOT.AbtEvent()

@@ -11,7 +11,7 @@ class EvConnectModel:
         self.load()
 
     def load(self):
-        ROOT.gSystem.Load("libAbtViz")
+        if ROOT.gSystem.Load("libAbtViz") < 0:ROOT.gSystem.Exit(10) 
         ROOT.EvModel.Create()
         self.instance = ROOT.EvModel.g_
         assert self.instance , self

@@ -28,8 +28,8 @@ class EvOnline(list):
         self.edm = EvDataModel()
         self.dbg = dbg
 
-        ROOT.gSystem.Load("librootmq")
-        ROOT.gSystem.Load("libAbtDataModel")
+        if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
+        if ROOT.gSystem.Load("libAbtDataModel") < 0:ROOT.gSystem.Exit(10)
         
         ROOT.gMQ.Create()
         self.mq = ROOT.gMQ
@@ -99,7 +99,7 @@ class EvOnline(list):
 
 
 if __name__=='__main__':
-    ROOT.gSystem.Load("libAbtViz" )
+    if ROOT.gSystem.Load("libAbtViz" ) < 0:ROOT.gSystem.Exit(10)
     ROOT.EvModel.Create()
     eo = EvOnline("default.routingkey")
     print eo 
