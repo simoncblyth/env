@@ -243,5 +243,9 @@ rmqc-usage(){
    done
 }
 
+rmqc-latest(){
+   local tmp=/tmp/$USER/env/$FUNCNAME && mkdir -p $tmp && cd $tmp
+   hg clone http://hg.rabbitmq.com/rabbitmq-c/
 
+}
 

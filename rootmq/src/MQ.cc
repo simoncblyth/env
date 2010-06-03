@@ -7,6 +7,7 @@
 #include  "TClass.h"
 
 #include "rootmq_collection.h"
+#include "rootmq_utils.h"
 
 #include "root2cjson.h"
 #include "private.h"
@@ -331,11 +332,16 @@ TObject* MQ::Get( const char* key , int n )
 
     if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
        obj = MQ::Receive( msg->body.bytes , msg->body.len );
+    } else if( strcmp( type , "application/databinary" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
+       rootmq_basic_msg_dump( msg ,3 , "LOOKING AT OCCASIONAL databinary ISSUE"); 
+       obj = MQ::Receive( msg->body.bytes , msg->body.len );
+       obj->Print(); 
     } else if ( strcmp( type , "text/plain" ) == 0 ){
        char* str = mq_frombytes( msg->body );
        obj = new TObjString( str );
     } else {
        cout << "MQ::Get WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
+       
     }
     return obj ;  
 }

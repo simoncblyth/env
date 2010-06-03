@@ -301,7 +301,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
           printf("rootmq_basic_consume has been asyqd ... breaking out \n");
           break ;
       } else {
-          printf("inside wait loop ... continuing %d\n", cycle);
+          if( cycle % 1000 == 0) printf("inside wait loop ... continuing %d\n", cycle);
       }
 
       if(dbg > 2 ){

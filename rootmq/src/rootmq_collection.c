@@ -72,35 +72,38 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( msg->key );
 
-    int msgmax = q->stat.msgmax == 0 ? rootmq_collection_max : q->stat.msgmax  ;
+    if( q == NULL ){
+        printf("rootmq_collection_add : failed to getq_or_create_ [%s] \n", msg->key );
+    } else {
+        int msgmax = q->stat.msgmax == 0 ? rootmq_collection_max : q->stat.msgmax  ;
+        guint length ;
+        switch (q->kind){
+            case 'Q':
+                length = g_queue_get_length( q->v.queue );
+                if( length == msgmax ){
+                    if( rootmq_dbg > 1 )
+                        printf("rootmq_collection_add : reached max %d popping tail \n" , length );
+                    rootmq_basic_msg_t* d = (rootmq_basic_msg_t*)g_queue_pop_tail( q->v.queue );
+                    rootmq_basic_msg_free( d );
+                }
+                g_queue_push_head( q->v.queue , msg );
+                break ;
+            case 'H':
+                break ;
+            default:
+                break ; 
+        }
 
-    guint length ;
-    switch (q->kind){
-       case 'Q':
-           length = g_queue_get_length( q->v.queue );
-           if( length == msgmax ){
-               if( rootmq_dbg > 1 )
-                  printf("rootmq_collection_add : reached max %d popping tail \n" , length );
-               rootmq_basic_msg_t* d = (rootmq_basic_msg_t*)g_queue_pop_tail( q->v.queue );
-               rootmq_basic_msg_free( d );
-           }
-           g_queue_push_head( q->v.queue , msg );
-           break ;
-       case 'H':
-           break ;
-        default:
-           break ; 
-    }
+        if( msg ){
+            q->stat.lastadd = msg->index ;
+            q->stat.received += 1 ;
+            q->stat.updated = 1 ;
+        }   
 
-    if( msg ){
-        q->stat.lastadd = msg->index ;
-        q->stat.received += 1 ;
-        q->stat.updated = 1 ;
-    }   
-
-    // invoke the observer callback for the q corresponding to the message key
-    if( q->observer ){
-        q->observer( q->obsargs , msg->key , &(q->stat) ) ;
+        // invoke the observer callback for the q corresponding to the message key
+        if( q->observer ){
+            q->observer( q->obsargs , msg->key , &(q->stat) ) ;
+        }
     }
  
     G_UNLOCK(rootmq_collection);
