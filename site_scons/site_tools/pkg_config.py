@@ -15,6 +15,7 @@ def generate(env, pkg=None, t=None):
                   which corresponds to the __name__
                      
     """
+    
     if env.Bit('mac'):
         portbin = '/opt/local/bin'
         if os.path.isdir(portbin): 
@@ -47,5 +48,4 @@ def generate(env, pkg=None, t=None):
             env.ParseConfig("%s-config --cflags --libs" % t)
         else:          
             env.ParseConfig("pkg-config %s --cflags --libs" % pkg )
-
 

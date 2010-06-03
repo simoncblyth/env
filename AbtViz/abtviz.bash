@@ -66,7 +66,9 @@ abtviz-dir(){ echo $(env-home)/AbtViz ; }
 abtviz-cd(){  cd $(abtviz-dir); }
 abtviz-mate(){ 
    cd
-   mate $(abtbiz-dir) e/rootmq 
+   sct-
+   scons-
+   mate $(abtviz-dir) $(env-home)/rootmq  $(env-home)/site_scons/site_tools $(sct-dir) $(scons-dir)
 }
 
 
