@@ -5,8 +5,19 @@
 #include "TObject.h"
 #include <RQ_OBJECT.h>
 
+class EvMQ ;
 class MQ ;
 class TTimer ;
+
+#include "TSysEvtHandler.h"
+class EvTerminationHandler : public TSignalHandler {
+   EvMQ*  fMon ;
+public:
+   EvTerminationHandler(EvMQ* mon ) : TSignalHandler(kSigTermination, kFALSE), fMon(mon) {}
+   Bool_t  Notify();
+};
+
+
 
 class EvMQ : public TObject {
     /*
@@ -36,7 +47,8 @@ class EvMQ : public TObject {
 
        void On();
        void Off();
-       void Stop();
+
+       void HandleTermination();
        
        void Check();
        void Print(Option_t* opt ) const ;

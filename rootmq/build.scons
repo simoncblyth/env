@@ -49,13 +49,18 @@ er.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
 er.ComponentTestProgram( 
    prog_name='mq_sendstring', 
    source=['mq_sendstring.cc'],
+   COMPONENT_TEST_TIMEOUT=10,
  )
 
 er.Tool('libpath', dirs=['$LIB_DIR'] )
+
+## there is no output from the test until completion ... which is implemeted in SCT/RunCommand
+## KILL is used to do the termination 
 er.ComponentTestProgram( 
     prog_name='mq_monitor', 
     source=['tests/mq_monitor.cc'],
-    COMPONENT_TEST_RUNNABLE=False,
+    COMPONENT_TEST_RUNNABLE=False ,
+    COMPONENT_TEST_TIMEOUT=10,
 )
 
 er.ComponentTestProgram( prog_name='environ', source=['tests/environ.c'], )

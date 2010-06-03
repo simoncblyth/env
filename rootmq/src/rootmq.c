@@ -29,6 +29,7 @@ int rootmq_dbg = 0 ;
 
 static uint64_t rootmq_msg_index = 0 ; 
 static GThread* rootmq_monitor_thread = NULL;
+static GAsyncQueue* rootmq_asyq = NULL ; 
 
 const char* rootmq_get_content_type( rootmq_basic_msg_t* msg )
 {
@@ -97,6 +98,9 @@ int rootmq_init()
     die_on_amqp_error(amqp_rpc_reply, "Opening channel");
 
     rootmq_collection_init();
+    
+    rootmq_asyq = g_async_queue_new();
+    
     return EXIT_SUCCESS ;
 }
 
@@ -203,13 +207,30 @@ int rootmq_sendstring( char const*  exchange , char const* routingkey , char con
 
 int rootmq_cleanup()
 {
+    /*
     die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
     die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
     amqp_destroy_connection(conn);
     die_on_error(close(sockfd), "Closing socket");
-
+    */
+ 
     rootmq_collection_cleanup();
     private_cleanup();
+    return EXIT_SUCCESS ;
+}
+
+
+int rootmq_terminate()
+{
+    printf("rootmq_terminate\n");
+    gpointer data = "X" ;
+    g_async_queue_push( rootmq_asyq , data );
+    
+    printf("rootmq_terminate waiting for monitor thread to complete\n");
+    g_thread_join( rootmq_monitor_thread );
+    //printf("rootmq_terminate thread joined ... now cleanup\n");
+    rootmq_cleanup();
+    printf("rootmq_terminate completed cleanup\n");
     return EXIT_SUCCESS ;
 }
 
@@ -227,7 +248,7 @@ gpointer rootmq_monitor_thread_(gpointer data )
 int rootmq_basic_consume_async( char const* queue ) 
 {
 	// spin off the message queue monitor thread  
-    gboolean joinable = 0 ;
+    gboolean joinable = 1 ;
     rootmq_monitor_thread = g_thread_create((GThreadFunc)rootmq_monitor_thread_ , (gpointer)queue , joinable, NULL);
     return EXIT_SUCCESS ;
 }
@@ -235,7 +256,7 @@ int rootmq_basic_consume_async( char const* queue )
 
 int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
 {
-   // based on rabbitmq-c/examples/amqp_listen.c
+   // based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
 
   int dbg = rootmq_dbg ; 
   amqp_boolean_t no_local   = 0 ; 
@@ -266,22 +287,22 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
     while (1) {
 
       cycle++ ;
-
-      //if( cycle % 1000 == 0 ){
-      //    printf("cycle %lld \n" , cycle );
-      //}
-
+      if( cycle % 1000 == 0 ){
+          printf("cycle %lld \n" , cycle );
+      }
       cycle_time = now_microseconds();
-      //if (live_time != 0 && cycle_time > start_time + live_time ){
-      //   printf("Time to die after %lld cycles \n", cycle );
-      //   break ; 
-      //}
-
-      amqp_maybe_release_buffers(conn);
+      amqp_maybe_release_buffers(conn);      
       result = amqp_simple_wait_frame(conn, &frame);   // the wait happens here 
       if(dbg>1) printf("Result %d\n", result);
-      if (result <= 0)
-	break;
+      if (result <= 0) break;
+
+      gpointer asyq = g_async_queue_try_pop(rootmq_asyq);  // see if parent  thread wants anything
+      if(asyq){
+          printf("rootmq_basic_consume has been asyqd ... breaking out \n");
+          break ;
+      } else {
+          printf("inside wait loop ... continuing %d\n", cycle);
+      }
 
       if(dbg > 2 ){
           printf("Cycles %lld\n", cycle);
@@ -362,7 +383,17 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
       // as frame goes out of scope the body/delivery/property bytes are deallocated ... 
     }
   }
-  return EXIT_SUCCESS ;
+  
+   if(dbg>0) printf("rootmq_basic_consume : after wait loop ... start cleaning \n");
+  
+   die_on_amqp_error(amqp_channel_close(conn, 1, AMQP_REPLY_SUCCESS), "Closing channel");
+   die_on_amqp_error(amqp_connection_close(conn, AMQP_REPLY_SUCCESS), "Closing connection");
+   amqp_destroy_connection(conn);
+   die_on_error(close(sockfd), "Closing socket");
+  
+   if(dbg>0) printf("rootmq_basic_consume : after wait loop ... finished cleaning \n");
+  
+   return EXIT_SUCCESS ;
 }
 
 

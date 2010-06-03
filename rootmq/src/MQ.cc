@@ -185,7 +185,7 @@ void MQ::Configure()
 
 MQ::~MQ()
 {
-   rootmq_cleanup();
+    if(fMonitorRunning) StopMonitorThread();
 }
 
 void MQ::SendRaw( const char* str , const char* key )
@@ -356,6 +356,9 @@ void MQ::StartMonitorThread()
 void MQ::StopMonitorThread()
 {
    fMonitorRunning = kFALSE ;
+   if(fDebug > 0) Printf("MQ::StopMonitorThread start cleanup ... ");
+   rootmq_terminate();
+   if(fDebug > 0) Printf("MQ::StopMonitorThread completed cleanup ");
 }
 
 

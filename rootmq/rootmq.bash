@@ -91,3 +91,25 @@ rootmq-sendobj(){     rootmq-root $(rootmq-dir)/tests/test_sendobj.C ;  }
 rootmq-sendjson(){    rootmq-root $(rootmq-dir)/tests/test_sendjson.C ;  }
 rootmq-sendstring(){  rootmq-root $(rootmq-dir)/tests/test_sendstring.C ;  }
 
+
+rootmq-monitor(){ rootmq-test mq_monitor $* ; }
+rootmq-test(){
+    local name=${1:-mq_monitor}
+    shift
+
+    if [ "$1" == "gdb" ]; then
+       cd $(env-libdir)
+       echo $msg workaround gdb env wierdness by running from $PWD
+    fi
+
+    local cmd="env -i HOME=$HOME ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH LD_LIBRARY_PATH=$(env-libdir) $* $(env-testsdir)/$name"
+    echo $msg $cmd
+    eval $cmd
+}
+rootmq-monitor-term(){ rootmq-term mq_monitor ; }
+rootmq-term(){
+    local name=${1:-mq_monitor}
+    local cmd="kill -TERM $(pgrep $name)"
+    echo $msg $cmd
+    eval $cmd
+}

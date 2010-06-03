@@ -50,6 +50,7 @@ typedef int (*rootmq_collection_observer_t)(void* me, const char* key , rootmq_c
 extern int rootmq_dbg ; 
 
 extern int rootmq_init();
+extern int rootmq_terminate();
 extern int rootmq_cleanup();
 extern int rootmq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody );
 extern int rootmq_sendbytes(  char const*  exchange , char const* routingkey , void* msgbytes , size_t msglen );

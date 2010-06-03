@@ -18,6 +18,8 @@ int die_on_error(int x, char const *context) {
 }
 
 void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
+  printf(context);
+  printf("\n");
   switch (x.reply_type) {
     case AMQP_RESPONSE_NORMAL:
       return;

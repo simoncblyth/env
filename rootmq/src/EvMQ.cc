@@ -6,6 +6,16 @@
 #include "TTimer.h"
 #include "TObject.h"
 
+
+Bool_t EvTerminationHandler::Notify()
+{
+   // Handle this interrupt
+   Printf("Received SIGTERM: terminating");
+   fMon->HandleTermination();
+   return kTRUE;
+}
+
+
 ClassImp(EvMQ);
 
 
@@ -20,17 +30,34 @@ EvMQ::EvMQ( const char* key ) : fKey(key), fMQ(NULL), fTimer(NULL), fObj(NULL) {
     fTimer->Connect("TurnOn()"   , "EvMQ" , this , "On()");
     fTimer->Connect("Timeout()"  , "EvMQ" , this , "Check()");
     fTimer->Connect("TurnOff()"  , "EvMQ" , this , "Off()");
-
-    fTimer->TurnOn();
+    
+    gSystem->AddSignalHandler( new EvTerminationHandler(this) );
+    fTimer->TurnOn();  // calls On via signal
 }
 
 EvMQ::~EvMQ(){
    Printf("EvMQ::~EvMQ \n");
 }
 
+void EvMQ::HandleTermination(){
+    Printf("EvMQ::HandleTermination");
+    fTimer->TurnOff(); // calls Off via signal
+    Printf("EvMQ::HandleTermination ... after Off ... exiting ");
+    gSystem->Exit(1);
+}
+
+void EvMQ::On(){
+    Printf("EvMQ::On ... starting monitor thread ");
+    fMQ->StartMonitorThread();
+}
+ 
+void EvMQ::Off(){
+    Printf("EvMQ::Off .. stop monitor thread ");
+    fMQ->StopMonitorThread();
+}
 
 void EvMQ::Check(){
-    Printf("EvMQ.Check : looking for updates  \n");
+    Printf("EvMQ.Check : looking for updates ");
     if(fMQ->IsMonitorRunning()){
         if(fMQ->IsUpdated(fKey)){
            TObject* obj = fMQ->Get( fKey, 0);
@@ -40,20 +67,9 @@ void EvMQ::Check(){
                fObj = obj ;
            }
         }
-    } 
-}
-
-void EvMQ::On(){
-    Printf("EvMQ::On : starting monitor thread \n");
-    fMQ->StartMonitorThread();
-}
- 
-void EvMQ::Off(){
-    Printf("EvMQ::Off \n");
-}
- 
-void EvMQ::Stop(){
-    fTimer->TurnOff();
+    } else {
+        Printf("EvMQ::Check monitor not running");
+    }
 }
 
 void EvMQ::Print(Option_t* opt="") const  {

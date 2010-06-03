@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <stdio.h>
 
+
+
+
 int main(int argc, char **argv)
 {
     printf("starting... %s\n", argv[0]);
@@ -18,7 +21,12 @@ int main(int argc, char **argv)
     }
     
     TApplication *theApp = new TApplication("ROOT example", &argc, argv );
+    
+    
     EvMQ* emq = new EvMQ();
+ 
+    
+    
     theApp->Run();
     return(0);
 }
