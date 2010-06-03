@@ -21,19 +21,20 @@ env-testsdir(){ echo $(env-modedir)/tests ; }
 env-bindir(){   echo $(env-modedir)/bin ; }
 env-objdir(){   echo $(env-modedir)/obj ; }
 env-libdir(){   echo $(env-modedir)/lib ; }
-env-runenv(){
-   if [ "$1" == "blank" ]; then
-      echo DYLD_LIBRARY_PATH= LD_LIBRARY_PATH=
-   else
-      root-
-      case $(uname) in
-         Darwin) echo DYLD_LIBRARY_PATH=$(env-libdir):$(root-libdir) ;;
-              *) echo LD_LIBRARY_PATH=$(env-libdir):$(root-libdir)  ;;
+env-libpath(){
+      [ "$1" == "blank" ] && echo -n && return 
+      case $(hostname -s) in 
+         cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
+             *) echo $(env-libdir):$(root-libdir)                  ;;
       esac
-   fi
 }
-
-
+env-runenv(){
+      case $(uname) in
+         Darwin) echo DYLD_LIBRARY_PATH=$(env-libpath $1) ;;
+              *) echo LD_LIBRARY_PATH=$(env-libpath $1)  ;;
+      esac
+}
+ 
 
 env-scons-(){ find $(env-home) -name '*.scons' ; }
 env-scons(){ vi `$FUNCNAME-` ; }

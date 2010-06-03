@@ -95,7 +95,7 @@ abtviz-main(){
 
 abtviz-ipython(){
    local msg="=== $FUNCNAME :"
-   abtviz-cd
+   #abtviz-cd
    env-
    local cmd="$(env-runenv) ipython $*"
    echo $msg $cmd ... will take a while if need to startup X11 
