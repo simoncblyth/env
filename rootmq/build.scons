@@ -24,6 +24,7 @@ headers = [
    'include/MyTMessage.h',
    'include/root2cjson.h',
    'include/rootmq.h',
+   'include/EvMQ.h',
    'include/LinkDef.hh'
 ]   
 rcd = er.RootcintDictionary( 'rootmq' , headers )  
@@ -47,6 +48,18 @@ er.ComponentTestProgram(
    prog_name='mq_sendstring', 
    source=['mq_sendstring.cc'],
  )
+
+er.Tool('libpath', dirs=['$LIB_DIR'] )
+er.ComponentTestProgram( 
+    prog_name='mq_monitor', 
+    source=['tests/mq_monitor.cc'],
+)
+
+
+
+
+
+
    
 # COMPONENT_TEST_RUNNABLE=False
 

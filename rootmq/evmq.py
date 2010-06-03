@@ -17,8 +17,8 @@ class EvMQ:
                  $ENV_HOME/rootmq/lib
                  $ABERDEEN_HOME/DataModel/lib
         """
-        ROOT.gSystem.Load("librootmq" )
-        ROOT.gSystem.Load("libAbtDataModel" )
+        if ROOT.gSystem.Load("librootmq" ) < 0:ROOT.gSystem.Exit(10)
+        if ROOT.gSystem.Load("libAbtDataModel" ) < 0:ROOT.gSystem.Exit(10)
  
         ROOT.gMQ.Create()
         self.key = key 

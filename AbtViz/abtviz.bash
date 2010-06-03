@@ -8,7 +8,11 @@ abtviz-usage(){
      abtviz-src : $(abtviz-src)
      abtviz-dir : $(abtviz-dir)
 
-     abtviz-main <opt>
+
+     == abtviz-main <opt> ==
+
+        Preparing a standard entry point for users 
+
            opt : blank , start with blank (DY)LD_LIBRARY_PATH
 
         invoke the AbtViz main .. ideally should work 
@@ -22,6 +26,15 @@ abtviz-usage(){
          issues with resources....
             *  Aberdeen_World_extract.root fixed 
             * TODO : avoid users from having to create the extract by committing it ?
+
+
+
+     == abtviz-ipython : dev entry point ==
+
+
+
+
+
 
      == exit abtviz ==
          

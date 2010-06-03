@@ -9,5 +9,6 @@
 #pragma link C++ class MyTMessage ;
 #pragma link C++ defined_in ./rootmq/include/root2cjson.h;
 #pragma link C++ defined_in ./rootmq/include/rootmq.h;
+#pragma link C++ class EvMQ ;
 #endif  
 

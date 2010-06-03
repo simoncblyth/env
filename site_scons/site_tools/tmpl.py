@@ -1,3 +1,18 @@
+"""
+   Tis tempting to dispense with the env['TMPL'] list and
+   just expand the full env into the template, like :
+        http://www.scons.org/wiki/ReplacementBuilder
+
+   ... but the full env is a big beast, and will be changing often
+
+   So to prevent over re-generation would need to scan 
+   the source template to find which variables the target "Depends" on 
+
+
+   But maybe can avoid with smth like :
+       http://www.scons.org/wiki/EnvValue
+
+"""
 
 from _tmpl import Tmpl
 
@@ -31,11 +46,6 @@ def generate(env, **kw):
     """
        The TMPL dict specifies what to propagate into the template
     """
-    #if env.get('TMPL', None):
-    #   env['TMPL'].update(**kw)
-    #else:
-    #   env['TMPL'] = kw 
-
     tmpl_action = Action( tmpl_fill_ , "Fill template $SOURCE creating $TARGET " )
     filltmpl_builder = Builder(action = tmpl_action ,
 	                       emitter = tmpl_emitter,               
