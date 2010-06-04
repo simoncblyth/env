@@ -119,11 +119,14 @@ MQ* MQ::Create(Bool_t start_monitor)
    gMQ = new MQ(exchange, queue, routingkey, exchangetype);
 
    Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
-   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "1" ) );   // chnage to TRUE
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "1" ) );   // change to TRUE
        // Durable message queues that are shared by many consumers and have an independent existence i.e.
        // they will continue to exist and collect messages whether or not there are consumers to receive them
    
-   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "1" ) );
+   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "0" ) ); // change to FALSE
+       // 
+
+
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "ROOTMQ_EXCLUSIVE" , "0" ) );
    Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
 

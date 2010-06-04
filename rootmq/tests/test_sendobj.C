@@ -23,7 +23,7 @@ void test_sendobj()
    AbtEvent* evt = 0;
    t->SetBranchAddress( "trigger", &evt );
    Int_t n = (Int_t)t->GetEntries();
-   //n = 10 ;
+   n = 5 ;
 
    Int_t pass = 0 ;
    while(kTRUE){
@@ -32,7 +32,7 @@ void test_sendobj()
        gMQ->SendObject( ri );
        for (Int_t i=0;i<n;i++) {
            t->GetEntry(i);
-           evt->Print("");
+           //evt->Print("");
            gSystem->Sleep(2000);
            gMQ->SendObject( evt );
        }
