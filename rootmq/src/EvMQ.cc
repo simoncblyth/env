@@ -56,6 +56,15 @@ void EvMQ::Off(){
     fMQ->StopMonitorThread();
 }
 
+
+/*
+    http://stackoverflow.com/questions/1162068/redirect-both-cout-and-stdout-to-a-string-in-c-for-unit-testing
+    
+    
+    
+
+*/
+
 void EvMQ::Check(){
     //Printf("EvMQ.Check : looking for updates %s ", fKey );
     Int_t dbg = fMQ->GetDebug();
