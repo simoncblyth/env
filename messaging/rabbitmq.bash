@@ -29,11 +29,14 @@ rabbitmq-usage(){
      rabbitmq-src : $(rabbitmq-src)
      rabbitmq-dir : $(rabbitmq-dir)
 
+  == rabbitmq server control ==
+
      rabbitmq-status
      rabbitmq-start
      rabbitmq-stop
            ini controls of the rabbitmq node
 
+  == rabbitmqctl status calls ==
 
      rabbitmq-exchanges
      rabbitmq-queues
@@ -41,53 +44,73 @@ rabbitmq-usage(){
      rabbitmq-connections
                interrogate the server to provide listings of diagnostic fields, 
                provide fieldname arguments to restrict to a subset of the fields 
-
-  On OSX :
-      http://trac.macports.org/browser/trunk/dports/net/rabbitmq-server/Portfile
-      http://trac.macports.org/browser/trunk/dports/lang/erlang/Portfile
-           Why does erlang depend on wxWidgets ?
-           http://www.erlang.org
+ 
+  == man pages ==
 
    man rabbitmq-server
    man rabbitmq.conf
    man rabbitmq-multi
    man rabbitmqctl
+
+   == installing rabbitmq-server on redhat ==
+
+      I have used the redhat EPEL distrib to get the server with yum
+      avoiding hassles of building from source 
+
+   === iptables setting to allow access to the amqp port === 
+
+       rabbitmq-open-ip 140.112.XXX.XX 
+
+   === automating rabbitmq-server launch on reboot ===
+
+     Controlled using chkconfig scripts as rabbitmq-server comes fully redhat integrated from EPEL..
+        http://wiki.linuxquestions.org/wiki/Run_Levels
+
+   === service interface ===
+
+    [blyth@cms01 e]$ sudo service rabbitmq-server start
+    Starting rabbitmq-server: SUCCESS
+    rabbitmq-server.
+
+
+   == installing rabbitmq-server on OSX : did not pursue due to excessive dependencies ==
+ 
+      * http://trac.macports.org/browser/trunk/dports/net/rabbitmq-server/Portfile
+      * http://trac.macports.org/browser/trunk/dports/lang/erlang/Portfile
+         * Why does erlang depend on wxWidgets ?
+         *  http://www.erlang.org
+
+   == umbrella etc.. ==
+
+     * needed when using rabbitmq plugins .. like Alice ? 
+         * http://www.rabbitmq.com/plugin-development.html#getting-started 
+
+     rabbitmq-umbrella-get
+     rabbitmq-umbrella-make
+            umbrella is simply just a Makefile, that can checkout all rabbitmq-* and build
+
+  == rabbitmq-c ==
+
+      rabbitmq-c building is split into rmqc-
+
+
+  == rabbitmq examples based on python amqplib ==
+
      rabbitmq-ex-consumer
      rabbitmq-ex-publisher
             try py-ampqlib based consumer and publisher
 
 
-     http://www.rabbitmq.com/plugin-development.html#getting-started 
+  == bunny ==
 
-     rabbitmq-umbrella-get
-            umbrella is simply just a Makefile, that can checkout all rabbitmq-* and build
+    an interactive client that provides a great way to
+    learn how to hook up exchanges/queues etc..
+       bunny-;bunny-usage
 
-     rabbitmq-umbrella-make
-
-
-     May need to open the ip 
-           rabbitmq-open-ip 140.112.XXX.XX 
+    see wiki:RabbitMQFanout
 
 
-  == rabbitmq-c split off ... ready for migration to rmqc ==
-
-     rabbitmq-c-build
-         build the rabbitmq C client 
-   
-     rabbitmq-c-sendstring 
-
-
-
-   == automating rabbitmq-server launch on reboot ==
-
-     Controlled using chkconfig scripts as rabbitmq-server comes fully redhat integrated from EPEL..
-        http://wiki.linuxquestions.org/wiki/Run_Levels
-
-   == service interface ==
-
-    [blyth@cms01 e]$ sudo service rabbitmq-server start
-    Starting rabbitmq-server: SUCCESS
-    rabbitmq-server.
+    also can do simple admin : deleting / purging etc 
 
 
 EOU
@@ -156,19 +179,7 @@ rabbitmq-wideopen(){
   IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen
 }
 
-
-
-#rabbitmq-conf(){
-#  pkgr-
-#  case $(pkgr-cmd) in 
-#     yum) echo 
-#    port) 
-#  esac
-#}
-
-
 rabbitmq-hg(){  echo http://hg.rabbitmq.com ; }
-
 
 rabbitmq-server-dir(){ echo $(rabbitmq-dir)/rabbitmq-server ; }
 rabbitmq-server-cd(){  cd $(rabbitmq-server-dir) ; }
@@ -177,10 +188,6 @@ rabbitmq-server-get(){
   mkdir -p $dir && cd $dir
   hg clone $(rabbitmq-hg)/rabbitmq-server
 }
-
-
-
-
 
 
 
