@@ -8,8 +8,15 @@ rmqc-env(){
 }
 rmqc-usage(){
   cat << EOU
-     rmqc-src : $(rmqc-src)
-     rmqc-dir : $(rmqc-dir)
+
+   == fora ==
+
+       http://groups.google.com/group/rabbitmq-discuss/
+
+
+
+
+
 
    This seeks to replace the rabbitmq-c-* functions housed in rabbitmq- 
    to avoid building confusions 
@@ -37,6 +44,20 @@ rmqc-usage(){
 
        rmqc-build
            download configure make install
+
+
+   == rabbitmqc experience ==
+
+     * after reconfig queue or exchange parameters 
+        * delete the exchanges or queues and recreate for change to take effect
+        * otherwise gets errors or worse : silent no-errors but config not changed
+
+     * to investifate : google:"rabbitmq-status" rabbitmq plugin (in erlang) providing status web interface 
+         * http://www.lshift.net/blog/2009/11/30/introducing-rabbitmq-status-plugin
+
+     * http://groups.google.com/group/rabbitmq-discuss/browse_thread/thread/3835e52e72bd7e87
+     
+     
 
 
 

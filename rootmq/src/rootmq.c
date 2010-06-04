@@ -152,6 +152,7 @@ int rootmq_sendbytes( char const*  exchange , char const* routingkey , void* msg
    // http://hg.rabbitmq.com/rabbitmq-c/file/712d3c55f2b5/examples/amqp_producer.c
     amqp_basic_properties_t props;
     props._flags = 0 ;
+    
     rootmq_set_content_type(      &props , "application/data" );
     rootmq_set_content_encoding(  &props , "binary" );
     rootmq_set_delivery_mode(     &props , 2 );           // persistent delivery mode

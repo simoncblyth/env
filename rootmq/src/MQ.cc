@@ -271,7 +271,7 @@ int MQ::QueueObserver( void* me , const char* key ,  rootmq_collection_qstat_t* 
    
    Int_t dbg = self->GetDebug();
    if(dbg > 0){
-        cout << "MQ::DemoObserver key [" << key << "] qstat " 
+        cout << "MQ::QueueObserver key [" << key << "] qstat " 
         << " read:" << qstat->read 
         << " received:" << qstat->received 
         << " lastread:" << qstat->lastread 

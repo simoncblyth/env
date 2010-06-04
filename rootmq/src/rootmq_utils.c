@@ -12,7 +12,45 @@
 extern void amqp_dump(void const *buffer, size_t len);
 
 
-char* rootmq_getstr_alloc( amqp_bytes_t b ) {
+
+
+/* 
+   Adopted from the future ...
+       tools/common_consume.c  :  stringify_bytes
+
+   Convert a amqp_bytes_t to an escaped string form for printing.  We
+   use the same escaping conventions as rabbitmqctl. 
+   
+*/
+
+static char *rootmq_getstr_alloc(amqp_bytes_t bytes)
+{
+	/* W will need up to 4 chars per byte, plus the terminating 0 */
+	char *res = malloc(bytes.len * 4 + 1);
+	uint8_t *data = bytes.bytes;
+	char *p = res;
+	size_t i;
+	
+	for (i = 0; i < bytes.len; i++) {
+		if (data[i] >= 32 && data[i] != 127) {
+			*p++ = data[i];
+		}
+		else {
+			*p++ = '\\';
+			*p++ = '0' + (data[i] >> 6);
+			*p++ = '0' + (data[i] >> 3 & 0x7); 
+			*p++ = '0' + (data[i] & 0x7);
+		}
+	}
+
+	*p = 0;
+	return res;
+}
+
+
+
+
+char* rootmq_getstr_alloc_deprecated( amqp_bytes_t b ) {
     char* buf ;
     buf = (char*)malloc( b.len );
     buf[0] = 0 ;

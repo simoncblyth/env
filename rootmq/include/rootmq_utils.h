@@ -11,7 +11,7 @@ extern "C"
 {
 #endif
 
-char* rootmq_getstr_alloc( amqp_bytes_t b ) ;
+static char* rootmq_getstr_alloc( amqp_bytes_t b ) ;
 int rootmq_getstr( amqp_bytes_t b , char* buf , size_t max  ) ;
 
 // duplicators 
