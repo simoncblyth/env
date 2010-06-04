@@ -52,7 +52,7 @@ static char *rootmq_getstr_alloc(amqp_bytes_t bytes)
 
 char* rootmq_getstr_alloc_deprecated( amqp_bytes_t b ) {
     char* buf ;
-    buf = (char*)malloc( b.len );
+    buf = (char*)malloc( b.len );  // MISSING +1 IS THE BUG ?
     buf[0] = 0 ;
     if( b.bytes != NULL ){ 
        memcpy( buf , b.bytes , b.len );   // cannot use strcpy...  as .bytes from amqp_bytes_t is not null-terminated

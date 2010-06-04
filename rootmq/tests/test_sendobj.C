@@ -30,15 +30,13 @@ void test_sendobj()
        pass++ ;
        cout << "test_sendobj.C : pass " << pass << " sending  " << n << " sample event objects to the queue " << endl ;
        gMQ->SendObject( ri );
-    /*
        for (Int_t i=0;i<n;i++) {
-           t->GetEntry(i);
+           t->GetEntry(0); // always send the first 
            //evt->Print("");
-           gSystem->Sleep(2000);
+           gSystem->Sleep(1000);
            gMQ->SendObject( evt );
        }
-   */
-       gSystem->Sleep(2000);
+       gSystem->Sleep(20);
    }   
 
    exit(0) ;

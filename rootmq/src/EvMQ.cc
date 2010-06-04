@@ -58,12 +58,13 @@ void EvMQ::Off(){
 
 void EvMQ::Check(){
     //Printf("EvMQ.Check : looking for updates %s ", fKey );
+    Int_t dbg = fMQ->GetDebug();
     if(fMQ->IsMonitorRunning()){
         if(fMQ->IsUpdated(fKey)){
            TObject* obj = fMQ->Get( fKey, 0);
            if(obj){
-               Printf("EvMQ::Check : finds update in queue %s \n" ,fKey );  
-               //obj->Print("");
+               if(dbg>0) Printf("EvMQ::Check : finds update in queue %s \n" ,fKey );  
+               if(dbg>1) obj->Print("");
                fObj = obj ;
            } else {
                Printf("EvMQ::Check : null obj ");
