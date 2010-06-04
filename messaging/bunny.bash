@@ -59,6 +59,13 @@ bunny-usage(){
         Success!
         cms01.phys.ntu.edu.tw./: delete_queue N
         cms01.phys.ntu.edu.tw./:
+        
+        
+        Following a config change to make the queue durable ... 
+           * restarting sendobj works but the queue did not become durable 
+           * have to delete the queue first      
+        
+        
 
 
 EOU

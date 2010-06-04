@@ -111,10 +111,12 @@ MQ* MQ::Create(Bool_t start_monitor)
        gSystem->Exit(214 + rc);
    }
 
-   const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "default.exchange" );
-   const char* queue        = private_lookup_default( "ROOTMQ_QUEUE" ,       "default.queue" );
+
+   const char* hostname     = gSystem->HostName() ;
+   const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "abtdaq" );
+   const char* queue        = private_lookup_default( "ROOTMQ_QUEUE" ,       hostname );
    const char* routingkey   = private_lookup_default( "ROOTMQ_ROUTINGKEY" ,  "default.routingkey" );
-   const char* exchangetype = private_lookup_default( "ROOTMQ_EXCHANGETYPE", "direct" );
+   const char* exchangetype = private_lookup_default( "ROOTMQ_EXCHANGETYPE", "fanout" );
 
    gMQ = new MQ(exchange, queue, routingkey, exchangetype);
 
