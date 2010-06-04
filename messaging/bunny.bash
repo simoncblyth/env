@@ -13,6 +13,10 @@ bunny-usage(){
          cmd.Cmd based interactive python client to rabbitmq, 
          based on python module amqplib 
 
+    Extensive usage examples at :
+        http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/RabbitMQFanout
+
+
      bunny-build
         -get and -kludge
 
@@ -40,11 +44,21 @@ bunny-usage(){
            cms01.phys.ntu.edu.tw./: create_binding exchange=sorting_room queue=po_box
            cms01.phys.ntu.edu.tw./: send_message sorting_room:hello from my bunny
 
+
         Using parameter set AMQP_OTHER_SERVER/USER/PASSWORD/VHOST   
 
         As the exange and queue match those of the amqp_consumer.py example ...
             simon:rabbits_and_warrens blyth$ python amqp_consumer.py 
         that consumer will get the message 
+        
+        
+        Tried deleting a queue as its being written to by sendobj .... it got deleted and no errors from sendobj 
+        
+        simon:e blyth$ bunny--       
+        Trying connect to cms01.phys.ntu.edu.tw:/ as user abtviz ... using private-vals AMQP_<name>SERVER/USER/PASSWORD/VHOST where name: 
+        Success!
+        cms01.phys.ntu.edu.tw./: delete_queue N
+        cms01.phys.ntu.edu.tw./:
 
 
 EOU
@@ -74,7 +88,10 @@ bunny-kludge(){
 }
 
 
-
+bunny-amqplib(){
+   python-
+   mate $(python-site)/amqplib/client_0_8/
+}
 
 
 

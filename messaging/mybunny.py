@@ -16,7 +16,7 @@ def _do_private_connect(self, name='' ):
     password = p("AMQP_%sPASSWORD" % name )
     vhost = p("AMQP_%sVHOST" % name )
     try:
-      print "Trying connect to %s:%s as %s ... name:%s " % (host, vhost, user, name)
+      print "Trying connect to %s:%s as user %s ... using private-vals AMQP_<name>SERVER/USER/PASSWORD/VHOST where name:%s " % (host, vhost, user, name)
       self.conn = amqp.Connection(userid=user, password=password, host=host, virtual_host=vhost, ssl=False)
       self.chan = self.conn.channel()
       print "Success!"

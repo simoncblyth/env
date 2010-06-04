@@ -19,7 +19,7 @@ class Private:
     """
     decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
     def __init__(self):
-        print "\n".join(["%s:%s" % (k,v) for k,v in os.environ.items()]) 
+        #print "\n".join(["%s:%s" % (k,v) for k,v in os.environ.items()]) 
         path = os.environ.get('ENV_PRIVATE_PATH',None)
         if(not(path)):
             path = os.path.join( os.path.dirname(os.environ.get('ENV_HOME')), '.bash_private' )

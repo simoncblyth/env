@@ -119,7 +119,10 @@ MQ* MQ::Create(Bool_t start_monitor)
    gMQ = new MQ(exchange, queue, routingkey, exchangetype);
 
    Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
-   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "0" ) );
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "1" ) );   // chnage to TRUE
+       // Durable message queues that are shared by many consumers and have an independent existence i.e.
+       // they will continue to exist and collect messages whether or not there are consumers to receive them
+   
    Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "1" ) );
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "ROOTMQ_EXCLUSIVE" , "0" ) );
    Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
@@ -165,11 +168,23 @@ void MQ::Configure()
       return ;
    }
 
+   // login and open connection to server
    int rc ;
    if((rc = rootmq_init())){
       fprintf(stderr, "ABORT: rootmq_init failed rc : %d \n", rc );
       exit(rc);
    }
+   
+   //
+   // SUSPECT START ORDERING ISSUE DUE TO SAME CONFIG FOR PUB AND SUB
+   //     1) publish to an exchange ... no queue needed
+   //     2) consume from a queue which is bound to an exchange
+   // 
+   //   publishing is simpler as the ball is in your court... you publish syncronously : when you so desire 
+   //   consumption is harder ... as you dont know when you will receive the messages 
+   //      : hence the burden to set up queues and bind them to exchanges falls to the consumer
+   //
+   //
    rootmq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
    rootmq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
    rootmq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
