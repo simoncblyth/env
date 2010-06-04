@@ -385,6 +385,11 @@ env-u(){
   echo $msg \"$cmd\"
   eval $cmd
   [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
+
+  cd $(env-home)
+  sct-
+  sct
+
 }
 
 
