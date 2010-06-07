@@ -842,3 +842,5 @@ omaha-(){      . $(env-home)/scons/omaha.bash && omaha-env $* ; }
 rmqc-(){       . $(env-home)/messaging/rmqc.bash && rmqc-env $* ; }
 cjsn-(){      . $(env-home)/cjsn/cjsn.bash && cjsn-env $* ; }
 pkgconfig-(){      . $(env-home)/base/pkgconfig.bash && pkgconfig-env $* ; }
+sqlite3x-(){      . $(env-home)/db/sqlite3x.bash && sqlite3x-env $* ; }
+sq3-(){      . $(env-home)/db/sq3.bash && sq3-env $* ; }

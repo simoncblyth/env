@@ -31,8 +31,8 @@ dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo d
 
 
 #dirs = [ 'site_scons/site_tools/tests/tmpl' ]
-#dirs = [ 'rootmq' ]
-dirs = [ 'test' ]
+dirs = [ 'rootmq' ]
+#dirs = [ 'test' ]
 
 
 

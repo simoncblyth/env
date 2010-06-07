@@ -10,6 +10,9 @@ tools = []
 # external code installed by system pkg manager 
 tools += [ 'glib', 'gthread', ]
 
+# hmm this is mainly for testing ... perhaps need to partition
+tools += [ 'sqlite' ]
+
 # external code installed by bash functions : rmqc- , root-
 tools += [ 'rmqc', 'root', ] 
 
@@ -66,6 +69,10 @@ er.ComponentTestProgram(
 er.ComponentTestProgram( prog_name='environ', source=['tests/environ.c'], )
 
 
+
+ea = er.Clone( tools=['abtmodel','sqlite'] )
+ea.Tool('env_propagate',ABERDEEN_HOME=True )
+ea.ComponentTestProgram( prog_name='capture', source=['tests/capture.cc'], )
 
 
    

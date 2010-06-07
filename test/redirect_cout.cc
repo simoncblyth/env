@@ -10,7 +10,17 @@
 #include <sstream>
 #include <string>
 
+#include <map>
+
 using namespace std;
+
+typedef map<string, string> Map;
+typedef pair<string, string> Pair;
+
+
+
+
+
 
 void cout_to_file()
 {
@@ -85,12 +95,32 @@ void cout_to_string_oo_2()
   }
   cout << "did we : " << gotcha << endl ;
 }
+
+
+void captcha_map()
+{
+    string k = "key" ; 
+    Map m ;
+    {
+        Capture c ;
+        cout << "INTO THE VOID" << endl ;
+        m.insert( Pair(k,c.Gotcha() ));
+    }
+    cout << m[k] << endl ;   
+}
+
+
+
+
 int main () {
 
+  /*
   cout_to_file();
   cout_to_string();
   cout_to_string_oo_1();
   cout_to_string_oo_2();
+  */
+  captcha_map();
 
   return 0;
 }
