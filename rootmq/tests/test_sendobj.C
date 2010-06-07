@@ -23,7 +23,7 @@ void test_sendobj()
    AbtEvent* evt = 0;
    t->SetBranchAddress( "trigger", &evt );
    Int_t n = (Int_t)t->GetEntries();
-   n = 5 ;
+   //n = 5 ;
 
    Int_t pass = 0 ;
    while(kTRUE){

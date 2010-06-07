@@ -102,7 +102,7 @@ rootmq-test(){
        echo $msg workaround gdb env wierdness by running from $PWD
     fi
 
-    local cmd="env -i HOME=$HOME ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH LD_LIBRARY_PATH=$(env-libdir) $* $(env-testsdir)/$name"
+    local cmd="env -i HOME=$HOME ABERDEEN_HOME=$ABERDEEN_HOME ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH LD_LIBRARY_PATH=$(env-libdir) $* $(env-testsdir)/$name"
     echo $msg $cmd
     eval $cmd
 }

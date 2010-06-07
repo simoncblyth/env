@@ -76,8 +76,8 @@ er.ComponentTestProgram( prog_name='environ', source=['tests/environ.c'], )
 
 ea = er.Clone( tools=['abtmodel','sqlite'] )
 ea.Tool('env_propagate',ABERDEEN_HOME=True )
-ea.ComponentTestProgram( prog_name='capture', source=['tests/capture.cc'], )
+ea.ComponentTestProgram( prog_name='create_capture_db', source=['tests/create_capture_db.cc'], )
 
 
-#ea.ComponentTestProgram( prog_name='mq_monitor_test', source=['tests/mq_monitor_test.cc'], COMPONENT_TEST_RUNNABLE=False )
+
 

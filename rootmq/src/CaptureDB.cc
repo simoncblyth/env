@@ -1,6 +1,4 @@
 
-
-
 #include <cstdlib>
 #include <string>
 #include <iostream>
@@ -8,8 +6,6 @@
 
 using namespace std;
 
-//#include <stdio.h>
-//#include <string.h>
 #include "CaptureDB.h"
 
 CaptureDB::CaptureDB( const char* dbpath ){
