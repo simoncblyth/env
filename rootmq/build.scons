@@ -20,6 +20,10 @@ tools += [ 'rmqc', 'root', ]
 tools += [ 'priv', 'cjsn', ]   
 
 
+# nasty kludge dependency... partition the testing to avoid this 
+tools += [ 'abtmodel']
+
+
 er = env.Clone( tools=tools  )
 EWorkaroundSwallowedXlinker( er )
 
@@ -75,7 +79,5 @@ ea.Tool('env_propagate',ABERDEEN_HOME=True )
 ea.ComponentTestProgram( prog_name='capture', source=['tests/capture.cc'], )
 
 
-   
-# COMPONENT_TEST_RUNNABLE=False
-
+#ea.ComponentTestProgram( prog_name='mq_monitor_test', source=['tests/mq_monitor_test.cc'], COMPONENT_TEST_RUNNABLE=False )
 

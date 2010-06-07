@@ -8,6 +8,7 @@
 class EvMQ ;
 class MQ ;
 class TTimer ;
+class CaptureDB ;
 
 #include "TSysEvtHandler.h"
 class EvTerminationHandler : public TSignalHandler {
@@ -39,18 +40,25 @@ class EvMQ : public TObject {
         MQ*     fMQ ;
         TTimer* fTimer ; 
         TObject* fObj ;
+        CaptureDB* fDB ;
     
     public:
 
-        EvMQ(  const char* key  = "default.routingkey");
+        EvMQ(  const char* key  = "default.routingkey"  );
        ~EvMQ();
+
+       void Launch();
 
        void On();
        void Off();
 
+       void SetObj(TObject* obj);
+       TObject* GetObj();
+
        void HandleTermination();
        
        void Check();
+       void Verify();
        void Print(Option_t* opt ) const ;
 
 

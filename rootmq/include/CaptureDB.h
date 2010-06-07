@@ -37,7 +37,7 @@ class CaptureDB {
       static int callback( void* me , int argc, char **argv, char **azColName);
       
    public:
-       CaptureDB( char* dbpath );
+       CaptureDB( const char* dbpath );
        const char* Get( const char* table, int i);
        const char* GetLast();
        void Exec( const char* sql );

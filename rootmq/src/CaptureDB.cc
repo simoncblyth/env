@@ -12,7 +12,7 @@ using namespace std;
 //#include <string.h>
 #include "CaptureDB.h"
 
-CaptureDB::CaptureDB( char* dbpath ){
+CaptureDB::CaptureDB( const char* dbpath ){
    m_datum = NULL ;
    m_dbg = 0 ;
    int rc = sqlite3_open(dbpath, &m_db); 

@@ -24,6 +24,10 @@ int capture_db(){
     Int_t n = (Int_t)t->GetEntries();
 
     CaptureDB db("try.db");
+    
+    int iok = 0;
+    int ito = 0;
+    
     for (Int_t i=0;i<n;i++) {
         t->GetEntry(i);
         
@@ -45,15 +49,14 @@ int capture_db(){
         const char* expect = db.Get("AbtEvent", evt->GetSerialNumber() );
         const char* now    = got.c_str();
         
+        ito += 1 ;
         if(strcmp(expect,now)==0){
-            cout << " matches expectation " << endl ;
+            iok += 1;
         } else {
-            cout << "mismatch " << endl ;
+            cout << "ERROR mismatch " << got << endl ;
         }
-        
-    
-    
     }
+    cout << "capture_db " << iok << " match expectation out of " << ito << endl ;
     
 }
 

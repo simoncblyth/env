@@ -6,6 +6,14 @@
 #include "TTimer.h"
 #include "TObject.h"
 
+#include "CaptureMap.h"
+#include "CaptureDB.h"
+
+#include <string>
+
+// ouch ... dont like this ... how can i partition to avoid abtmodel dependency here ?
+#include "AbtEvent.h"
+
 
 Bool_t EvTerminationHandler::Notify()
 {
@@ -19,7 +27,7 @@ Bool_t EvTerminationHandler::Notify()
 ClassImp(EvMQ);
 
 
-EvMQ::EvMQ( const char* key ) : fKey(key), fMQ(NULL), fTimer(NULL), fObj(NULL) {
+EvMQ::EvMQ( const char* key ) : fKey(key), fMQ(NULL), fTimer(NULL), fObj(NULL), fDB(NULL) {
 
     if (gSystem->Load("librootmq" ) < 0) gSystem->Exit(10);
     if (gSystem->Load("libAbtDataModel" ) < 0) gSystem->Exit(10);
@@ -27,13 +35,22 @@ EvMQ::EvMQ( const char* key ) : fKey(key), fMQ(NULL), fTimer(NULL), fObj(NULL) {
     fTimer = new TTimer(1000) ;
     fMQ = MQ::Create() ;
 
+    const char* dbpath = "try.db" ;
+    fDB = new CaptureDB(dbpath);
+        
     fTimer->Connect("TurnOn()"   , "EvMQ" , this , "On()");
     fTimer->Connect("Timeout()"  , "EvMQ" , this , "Check()");
     fTimer->Connect("TurnOff()"  , "EvMQ" , this , "Off()");
-    
+
     gSystem->AddSignalHandler( new EvTerminationHandler(this) );
+     
+}
+
+void EvMQ::Launch()
+{
     fTimer->TurnOn();  // calls On via signal
 }
+
 
 EvMQ::~EvMQ(){
    Printf("EvMQ::~EvMQ \n");
@@ -57,13 +74,42 @@ void EvMQ::Off(){
 }
 
 
-/*
-    http://stackoverflow.com/questions/1162068/redirect-both-cout-and-stdout-to-a-string-in-c-for-unit-testing
-    
-    
-    
+void EvMQ::SetObj(TObject* obj)
+{
+    fObj = obj ;
+}
 
-*/
+TObject* EvMQ::GetObj()
+{
+    return fObj;
+}
+
+
+void EvMQ::Verify(){
+    if(fDB==NULL) return ;
+    if(fObj==NULL) return;
+    if(strcmp(fObj->ClassName(),"AbtEvent")) return ;
+        
+    string got ;
+    {
+        Capture c;
+        fObj->Print();
+        got = c.Gotcha();
+    }
+        
+    AbtEvent* evt = (AbtEvent*)fObj ;    
+    const char* expect = fDB->Get("AbtEvent", evt->GetSerialNumber() );
+    const char* now    = got.c_str();
+    if(strcmp(expect,now)==0){
+        cout << "EvMQ::Verify matches expectation " << endl ;
+    } else {
+        cout << "EvMQ::Verify mismatch " << endl ;
+        cout << "expected:" << endl << expect << endl ;
+        cout << "found:" << endl << now << endl ;
+        
+    }
+}
+
 
 void EvMQ::Check(){
     //Printf("EvMQ.Check : looking for updates %s ", fKey );
@@ -75,6 +121,7 @@ void EvMQ::Check(){
                if(dbg>0) Printf("EvMQ::Check : finds update in queue %s \n" ,fKey );  
                if(dbg>1) obj->Print("");
                fObj = obj ;
+               Verify();
            } else {
                Printf("EvMQ::Check : null obj ");
            }

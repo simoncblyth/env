@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     
     
     EvMQ* emq = new EvMQ();
- 
+    emq->Launch();
     
     
     theApp->Run();
