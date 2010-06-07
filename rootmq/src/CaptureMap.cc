@@ -1,5 +1,6 @@
 
 #include "CaptureMap.h"
+#include "Capture.h"
 #include "TObject.h"
 
 

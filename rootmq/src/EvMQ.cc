@@ -6,7 +6,7 @@
 #include "TTimer.h"
 #include "TObject.h"
 
-#include "CaptureMap.h"
+#include "Capture.h"
 #include "CaptureDB.h"
 
 #include <string>
