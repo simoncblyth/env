@@ -17,8 +17,7 @@ tools += [ 'sqlite' ]
 tools += [ 'rmqc', 'root', ] 
 
 # code compiled by SCT/SCons 
-tools += [ 'priv', 'cjsn', ]   
-
+tools += [ 'priv', 'cjsn', 'envtools' ]   
 
 # nasty kludge dependency... partition the testing to avoid this 
 tools += [ 'abtmodel']
@@ -74,9 +73,9 @@ er.ComponentTestProgram( prog_name='environ', source=['tests/environ.c'], )
 
 
 
-ea = er.Clone( tools=['abtmodel','sqlite'] )
-ea.Tool('env_propagate',ABERDEEN_HOME=True )
-ea.ComponentTestProgram( prog_name='create_capture_db', source=['tests/create_capture_db.cc'], )
+#ea = er.Clone( tools=['abtmodel','sqlite'] )
+#ea.Tool('env_propagate',ABERDEEN_HOME=True )
+#ea.ComponentTestProgram( prog_name='create_capture_db', source=['tests/create_capture_db.cc'], )
 
 
 

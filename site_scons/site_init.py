@@ -10,9 +10,9 @@ def ESortedDump(env):
 
 def EIncludes(env, sources ):
     """
-       INCLUDE_ROOT needs to be defined in the main.scons
+       INCLUDE_BASE needs to be defined in the main.scons
     """
-    env.Replicate( "$INCLUDE_ROOT" , sources )
+    env.Replicate( "$INCLUDE_BASE" , sources )
 
 def EWorkaroundSwallowedXlinker(env):
     """

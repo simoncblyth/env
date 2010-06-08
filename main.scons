@@ -22,19 +22,19 @@
 """
 
 dirs  = []
-dirs += [ 'tools' ]
+dirs += [ 'envtools' ]
 dirs += [ 'priv', 'cjsn' ]
 dirs += [ 'rootmq' ]
 dirs += [ 'root/addons' ]
 dirs += [ 'aberdeen/DataModel' ]
 #dirs += [ 'aberdeen/AbtViz' ]
-dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo development 
+dirs += [ 'AbtViz' ]   ## non-mapped env version for ease of same-repo development 
 
 
 #dirs = [ 'site_scons/site_tools/tests/tmpl' ]
-#dirs = [ 'rootmq' ]
+dirs = [ 'rootmq' ]
 #dirs = [ 'test' ]
-dirs = [ 'tools' ] 
+#dirs = [ 'envtools' ] 
 
 
 # common to all builds and dirs 
@@ -43,7 +43,7 @@ base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operat
     COMPONENT_STATIC = False ,
     COMPONENT_LIBRARY_PUBLISH = False ,
     COMPONENT_TEST_RUNNABLE = True ,        ## False prevents test from running even with retest or explicit naming
-    INCLUDE_ROOT = "$TARGET_ROOT/include" ,
+    INCLUDE_BASE = "$TARGET_ROOT/include" ,
 )
 
 import os
