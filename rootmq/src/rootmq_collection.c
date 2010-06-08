@@ -33,6 +33,14 @@ typedef struct rootmq_collection_queue_t_ {
 } rootmq_collection_queue_t ; 
 
 
+
+typedef struct rootmq_collection_keysbuf_t_ {
+    size_t bufsize ;
+    char* start ;
+    char* cursor ;
+} rootmq_collection_keysbuf_t ;
+
+
 // internal funcs, without thread protection 
 rootmq_collection_queue_t* rootmq_collection_getq_( const char* key );
 rootmq_collection_queue_t* rootmq_collection_getq_or_create_( const char* key );
@@ -132,8 +140,11 @@ bool_t rootmq_collection_queue_updated(const char* key )
     return updated ;
 }
 
+/*
+  // Unfortunately GHashTableIter is only in newer glib-2.0 : its in 0.23 , not in 0.21
+
 int rootmq_collection_keys(char* buf, size_t bufsize )
-{
+{   
     char* p  = buf ;
     G_LOCK(rootmq_collection);
     GHashTableIter iter;
@@ -151,6 +162,33 @@ int rootmq_collection_keys(char* buf, size_t bufsize )
     } 
     return 0 ;
 }
+*/
+
+
+void rootmq_collection_key_iter_(gpointer key, gpointer value, gpointer kb_ )
+{
+     rootmq_collection_keysbuf_t* kb = (rootmq_collection_keysbuf_t*)kb_ ;
+     kb->cursor += snprintf( kb->cursor ,  kb->bufsize - (kb->cursor - kb->start),  "%s ", key );
+}
+
+int rootmq_collection_keys( char* buf , size_t bufsize )
+{
+    rootmq_collection_keysbuf_t* kb = (rootmq_collection_keysbuf_t*)malloc( sizeof( rootmq_collection_keysbuf_t ) );
+    kb->start = buf ;
+    kb->bufsize = bufsize ;
+    kb->cursor = buf ;
+    
+    G_LOCK(rootmq_collection);
+    g_hash_table_foreach( rootmq_collection , rootmq_collection_key_iter_ , kb );
+    G_UNLOCK(rootmq_collection);
+}
+
+
+
+
+
+
+
 
 void rootmq_collection_dump( )
 {
