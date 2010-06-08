@@ -65,6 +65,10 @@ class MQ : public TObject {
      void QueueUpdatedIndex( Long_t index ); /* SIGNAL */
      void QueueUpdated(); /* SIGNAL */
      rootmq_collection_qstat_t QueueStat( const char* key );
+     void QueueDump();
+
+     // NB the Queue referred to here is not the remote MQ but the local glib collection 
+     // better to rename Collection...
 
      void SetDebug(Int_t debug);
      Int_t GetDebug();

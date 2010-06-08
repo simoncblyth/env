@@ -297,6 +297,13 @@ void MQ::QueueUpdated()
    Emit("QueueUpdated()");
 }
 
+
+void MQ::QueueDump()
+{
+    rootmq_collection_dump();
+}
+
+
 void MQ::ConfigureQueue( const char* key , rootmq_collection_observer_t obs, void* args , int msgmax  )
 {
    rootmq_collection_queue_configure( key , obs , args , msgmax  ); 
@@ -352,16 +359,11 @@ TObject* MQ::Get( const char* key , int n )
 
     if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
        obj = MQ::Receive( msg->body.bytes , msg->body.len );
-    } else if( strcmp( type , "application/databinary" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
-       rootmq_basic_msg_dump( msg ,3 , "LOOKING AT OCCASIONAL databinary ISSUE"); 
-       obj = MQ::Receive( msg->body.bytes , msg->body.len );
-       obj->Print(); 
     } else if ( strcmp( type , "text/plain" ) == 0 ){
        char* str = mq_frombytes( msg->body );
        obj = new TObjString( str );
     } else {
        cout << "MQ::Get WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
-       
     }
     return obj ;  
 }
