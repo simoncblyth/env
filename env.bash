@@ -24,7 +24,7 @@ env-libdir(){   echo $(env-modedir)/lib ; }
 env-libpath(){
       [ "$1" == "blank" ] && echo -n && return 
       case $(hostname -s) in 
-         cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
+         cms01|cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
              *) echo $(env-libdir):$(root-libdir)                  ;;
       esac
 }
@@ -385,6 +385,7 @@ env-u(){
   echo $msg \"$cmd\"
   eval $cmd
   [ -r $(env-home)/env.bash ] && . $(env-home)/env.bash  
+  env-
 
   cd $(env-home)
   sct-

@@ -125,6 +125,8 @@ rabbitmq-tail(){   sudo tail -f $(rabbitmq-logpath) ; }
 rabbitmq-confpath(){ echo /etc/rabbitmq/rabbitmq.conf ; }
 rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }
 
+rabbitmq-top(){      top -U rabbitmq $* ; }
+
 rabbitmq-inipath(){ echo /etc/init.d/rabbitmq-server ; }
 rabbitmq-ini(){     sudo $(rabbitmq-inipath) $* ; }
 
@@ -216,7 +218,7 @@ rabbitmq-list(){
 }
 
 rabbitmq-tabulate(){
-  perl -n -e '@a = split("\t") ;  @a = split(" ") if($#a == 0);  printf "%-20s "." %-10s " x ($#a - 1) ."\n", @a  ; ' -
+  perl -n -e '@a = split("\t") ;  @a = split(" ") if($#a == 0);  printf "%-25s "." %-10s " x ($#a - 1) ."\n", @a  ; ' -
 }
 
 
