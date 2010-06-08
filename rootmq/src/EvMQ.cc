@@ -39,9 +39,12 @@ EvMQ::EvMQ( const char* keys ) : fKeys(NULL), fMQ(NULL), fTimer(NULL), fObj(NULL
     fTimer = new TTimer(1000) ;
     fMQ = MQ::Create() ;
 
+    /*
     const char* sample = "$ABERDEEN_HOME/DataModel/sample/run00027.root" ;
     const char* dbpath = gSystem->ExpandPathName(Form("%s.db",sample));
     fDB = new CaptureDB(dbpath);
+    */
+      
         
     fTimer->Connect("TurnOn()"   , "EvMQ" , this , "On()");
     fTimer->Connect("Timeout()"  , "EvMQ" , this , "Check()");
