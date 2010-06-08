@@ -1,0 +1,29 @@
+""" 
+    This is to hold :
+        * source for library of very general tools only ...
+        * tests and demonstration of the lib 
+
+    dependency on ROOT is disallowed for the library, demos can use root however
+
+"""
+Import("env")
+
+tools = []
+tools += [ 'sqlite' ]
+
+et = env.Clone( tools=tools  )
+et.Append( CPPPATH=['include'] )
+libs = et.ComponentLibrary( 'envtools' , Glob('src/*.cc') )
+
+et.Append( LIBS=[ 'envtools'] )
+et.Tool('env_propagate', ENV_PRIVATE_PATH=True , HOME=True )
+et.Tool('env_dump')
+et.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
+
+
+et.ComponentTestProgram( prog_name='capture_db_demo', source=['tests/capture_db_demo.cc'], )
+
+
+
+
+

@@ -11,13 +11,12 @@ using namespace std;
 
 typedef map<string, string> Map;
 typedef pair<string, string> Pair;
-class TObject ;
 
 class CaptureMap {
    private :
       Map m ;
    public :
-      void Add( string k , TObject* obj );
+      void Add( string k , string v );
       string Get( string k ){
          return m[k] ;
       }

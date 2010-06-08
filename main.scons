@@ -22,6 +22,7 @@
 """
 
 dirs  = []
+dirs += [ 'tools' ]
 dirs += [ 'priv', 'cjsn' ]
 dirs += [ 'rootmq' ]
 dirs += [ 'root/addons' ]
@@ -33,7 +34,7 @@ dirs += [ 'AbtViz' ]           ## non-mapped env version for ease of same-repo d
 #dirs = [ 'site_scons/site_tools/tests/tmpl' ]
 #dirs = [ 'rootmq' ]
 #dirs = [ 'test' ]
-
+dirs = [ 'tools' ] 
 
 
 # common to all builds and dirs 

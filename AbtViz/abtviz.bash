@@ -68,7 +68,7 @@ abtviz-mate(){
    cd
    sct-
    scons-
-   mate $(abtviz-dir) $(env-home)/rootmq  $(env-home)/site_scons/site_tools $(sct-dir) $(scons-dir)
+   mate $(abtviz-dir) $(env-home)/tools $(env-home)/rootmq  $(env-home)/site_scons/site_tools $(sct-dir) $(scons-dir)
 }
 
 

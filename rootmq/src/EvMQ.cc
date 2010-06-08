@@ -97,17 +97,18 @@ void EvMQ::Verify(){
         fObj->Print();
         got = c.Gotcha();
     }
-        
+     
+    Int_t dbg = fMQ->GetDebug();    
     AbtEvent* evt = (AbtEvent*)fObj ;    
     const char* expect = fDB->Get("AbtEvent", evt->GetSerialNumber() );
     const char* now    = got.c_str();
     if(strcmp(expect,now)==0){
-        cout << "EvMQ::Verify matches expectation " << endl ;
+        if(dbg>1) cout << "EvMQ::Verify matches expectation " << endl ;
     } else {
         cout << "EvMQ::Verify mismatch " << endl ;
         cout << "expected:" << endl << expect << endl ;
         cout << "found:" << endl << now << endl ;
-        
+        HandleTermination();
     }
 }
 

@@ -159,8 +159,8 @@ if __name__=='__main__':
     g = Controller()
     from ROOT import g_
 
-    g.SetSource("$ABERDEEN_HOME/DataModel/sample/run00027.root")   ## offline running from a file
-    #g.SetSource("default.routingkey")    ## online running tests
+    #g.SetSource("$ABERDEEN_HOME/DataModel/sample/run00027.root")   ## offline running from a file
+    g.SetSource("default.routingkey")    ## online running tests
 
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE
 
