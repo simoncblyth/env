@@ -5,6 +5,11 @@
 
     dependency on ROOT is disallowed for the library, demos can use root however
 
+    NB dependency on external sqlite3 needs to be fulfilled , eg on redhat : 
+   
+        sudo yum install sqlite
+        sudo yum install sqlite-devel
+
 """
 Import("env")
 

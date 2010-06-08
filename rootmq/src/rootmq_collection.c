@@ -43,7 +43,7 @@ int rootmq_collection_init()
 {
     // create hash table 
     if( rootmq_dbg > 0 )
-        printf("_collection_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
+        printf("rootmq_collection_init glib (%d,%d,%d) \n", GLIB_MAJOR_VERSION , GLIB_MINOR_VERSION, GLIB_MICRO_VERSION ); // 2,4,7 on cms01
     rootmq_collection  = g_hash_table_new(g_str_hash, g_str_equal);  // funcs for : hashing, key comparison 
     return EXIT_SUCCESS ;
 }
@@ -70,6 +70,7 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
     //
     
     G_LOCK(rootmq_collection);
+    if(rootmq_dbg > 0) printf("rootmq_collection_add %s \n" , msg->key );
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( msg->key );
 
     if( q == NULL ){
