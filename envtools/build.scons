@@ -32,3 +32,7 @@ et.ComponentTestProgram( prog_name='capture_db_demo', source=['tests/capture_db_
 
 et.ComponentTestProgram( prog_name='snprintf', source=['tests/snprintf.c'], )
 
+
+#eg = et.Clone( tools=['glib'] )
+#eg.ComponentTestProgram( prog_name='ghash', source=['tests/ghash.c'], )
+
