@@ -32,7 +32,7 @@ dirs += [ 'AbtViz' ]   ## non-mapped env version for ease of same-repo developme
 
 
 #dirs = [ 'site_scons/site_tools/tests/tmpl' ]
-dirs = [ 'rootmq' ]
+#dirs = [ 'rootmq' ]
 #dirs = [ 'test' ]
 #dirs = [ 'envtools' ] 
 
