@@ -376,6 +376,7 @@ TObject* MQ::Receive( void* msgbytes , size_t msglen )
 
 Bool_t MQ::IsUpdated( const char* key )
 {
+    if(!fMonitorRunning) return kFALSE ;
     Bool_t r = (Bool_t)rootmq_collection_queue_updated( key );
     //cout << "MQ::IsUpdated [" << key << "] " << r << endl ;
     return r;
