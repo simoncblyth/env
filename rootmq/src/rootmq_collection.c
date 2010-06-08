@@ -78,7 +78,7 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
     */
     
     G_LOCK(rootmq_collection);
-    if(rootmq_dbg > 0) printf("rootmq_collection_add %s \n" , msg->key );
+    if(rootmq_dbg > 2) printf("rootmq_collection_add %s \n" , msg->key );
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( msg->key );
 
     if( q == NULL ){

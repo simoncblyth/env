@@ -69,7 +69,7 @@ class EvMQ : public TObject {
        void Check_( const char* key );
        void Check();
        void Verify();
-       void Print(Option_t* opt ) const ;
+       void Print(Option_t* opt="" ) const ;
 
 
     ClassDef(EvMQ , 0) // Message Queue Monitor

@@ -312,16 +312,16 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
           printf("cycle_time %lld \n", cycle_time );
       } 
 
-      if(dbg>0) printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
+      if(dbg>1) printf("Frame type %d, channel %d\n", frame.frame_type, frame.channel);
       if (frame.frame_type != AMQP_FRAME_METHOD)
 	continue;
 
-      if(dbg>0) printf("Method %s\n", amqp_method_name(frame.payload.method.id));
+      if(dbg>1) printf("Method %s\n", amqp_method_name(frame.payload.method.id));
       if (frame.payload.method.id != AMQP_BASIC_DELIVER_METHOD)
 	continue;
 
       d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
-      if(dbg>0) printf("Delivery %u, exchange %.*s routingkey %.*s consumertag %.*s\n",
+      if(dbg>1) printf("Delivery %u, exchange %.*s routingkey %.*s consumertag %.*s\n",
 	     (unsigned) d->delivery_tag,
 	     (int) d->exchange.len, (char *) d->exchange.bytes,
 	     (int) d->routing_key.len, (char *) d->routing_key.bytes,
@@ -329,25 +329,23 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 
       result = amqp_simple_wait_frame(conn, &frame);
       if (result <= 0)
-	break;
+	       break;
 
       if (frame.frame_type != AMQP_FRAME_HEADER) {
-	fprintf(stderr, "Expected header!");
-	abort();
+	       fprintf(stderr, "Expected header!");
+	       abort();
       }
       p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
 
       if (p->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) {
-	if(dbg>0) printf("Content-type: %.*s\n",
-	       (int) p->content_type.len, (char *) p->content_type.bytes);
+	       if(dbg>1) printf("Content-type: %.*s\n",(int) p->content_type.len, (char *) p->content_type.bytes);
       }
 
       if (p->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) {
-	if(dbg>0) printf("Content-encoding: %.*s\n",
-	       (int) p->content_encoding.len, (char *) p->content_encoding.bytes);
+	       if(dbg>1) printf("Content-encoding: %.*s\n",(int) p->content_encoding.len, (char *) p->content_encoding.bytes);
       }
 
-      if(dbg>0) printf("----\n");
+      if(dbg>1) printf("----\n");
 
       body_target = frame.payload.properties.body_size;
       body_received = 0;
@@ -375,7 +373,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 	break;
       }
 
-      if(dbg>0) fprintf(stderr, "rootmq_basic_consume : invoking the receiver \n");
+      if(dbg>1) fprintf(stderr, "rootmq_basic_consume : invoking the receiver \n");
       
      
       rootmq_basic_collect( &frame.payload.body_fragment , d , p );

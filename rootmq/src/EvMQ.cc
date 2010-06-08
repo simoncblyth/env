@@ -35,7 +35,7 @@ EvMQ::EvMQ( const char* keys ) : fKeys(NULL), fMQ(NULL), fTimer(NULL), fObj(NULL
     if (gSystem->Load("libAbtDataModel" ) < 0) gSystem->Exit(10);
  
     TString ks = keys ;
-    fKeys = ks.Tokenize(" "); 
+    fKeys = (TObjArray*)ks.Tokenize(" ")->Clone(); 
     fTimer = new TTimer(1000) ;
     fMQ = MQ::Create() ;
 
@@ -121,14 +121,13 @@ void EvMQ::Verify(){
 
 void EvMQ::Check_( const char* key )
 {    
-    
     fChecks[key] += 1;
     Int_t dbg = fMQ->GetDebug();
     if(fMQ->IsUpdated(key)){
         fUpdates[key] += 1;
         TObject* obj = fMQ->Get( key, 0);
         if(obj){
-            if(dbg>0) Printf("EvMQ::Check_ : finds update in collection deque %s \n" ,key );  
+            if(dbg>1) Printf("EvMQ::Check_ : finds update in collection dq %s " ,key );  
             if(dbg>1) obj->Print("");
             fObj = obj ;
             Verify();
@@ -136,39 +135,43 @@ void EvMQ::Check_( const char* key )
             Printf("EvMQ::Check_ : null obj : %s", key );
         }
     } else {
-        Printf("EvMQ::Check_ : not updated %s" , key );
+        if(dbg > 1) Printf("EvMQ::Check_ : not updated %s" , key );
     }
 }
-
-
 
 
 void EvMQ::Check(){
     Int_t dbg = fMQ->GetDebug();
     if(fMQ->IsMonitorRunning()){
+        fChecks["total"] += 1;
         TIter next(fKeys);
         TObjString* s = NULL ;
         while(( s = (TObjString*)next() )){
-            const char* key = s->GetString().Data();
-            Check_(key);
+            const char* k = s->GetString().Data();
+            Check_(k);
         }
+        if(dbg > 1 || fChecks["total"] % 10 == 0) Print();
     } else {
         Printf("EvMQ::Check :  monitor not running");
     }
 }
 
-void EvMQ::Print(Option_t* opt="") const  {
+void EvMQ::Print(Option_t* opt) const  {
     fMQ->Print(opt);
     
+    cout << "checks... " ;
     for( map<string,int>::const_iterator i=fChecks.begin(); i!=fChecks.end(); ++i)
     {
-    	  cout << (*i).first << ": " << (*i).second << endl;
+    	  cout << (*i).first << ": " << (*i).second << " " ;
     }
+    cout << endl ;
     
+    cout << "updates..." ;
     for( map<string,int>::const_iterator i=fUpdates.begin(); i!=fUpdates.end(); ++i)
     {
-    	  cout << (*i).first << ": " << (*i).second << endl;
+    	  cout << (*i).first << ": " << (*i).second << " ";
     }
+    cout << endl ;
 }
 
 
