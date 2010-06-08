@@ -10,7 +10,7 @@ void test_sendjson()
    TTree* t = f->Get("T") ;
 
    AbtRunInfo* ri = (AbtRunInfo*)(t->GetUserInfo()->At(0)) ;
-   gMQ->SendJSON( ri->Class(), ri );
+   gMQ->SendJSON( ri->Class(), ri , "abt.test.json.runinfo");
 
    exit(0) ;
 }

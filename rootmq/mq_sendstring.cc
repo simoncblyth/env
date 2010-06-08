@@ -2,8 +2,8 @@
 #include "MQ.h"
 
 const int max = 256 ;
-const char* other_key   = "other.routingkey" ;
-const char* default_key = "default.routingkey" ;
+const char* other_key   = "abt.test.other" ;
+const char* default_key = "abt.test.string" ;
 
 int main(int argc, char const * const *argv) {
    MQ::Create();

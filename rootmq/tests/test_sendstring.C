@@ -9,7 +9,7 @@ void test_sendstring()
 {	 
    gSystem->Load("librootmq");
    MQ::Create(kFALSE);   
-   gMQ->SendString("hello from test_rootsendstring.C ");
+   gMQ->SendString("hello from test_rootsendstring.C ", "abt.test.string");
 }
 
 

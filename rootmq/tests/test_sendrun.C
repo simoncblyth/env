@@ -19,7 +19,7 @@ void test_sendrun()
    TTree* t = f->Get("T") ;
 
    AbtRunInfo* ri = (AbtRunInfo*)(t->GetUserInfo()->At(0)) ;
-   gMQ->SendObject( ri );
+   gMQ->SendObject( ri , "abt.test.runinfo");
 
 
    exit(0) ;
