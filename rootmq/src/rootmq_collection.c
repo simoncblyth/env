@@ -57,17 +57,17 @@ int rootmq_collection_cleanup()
 
 int rootmq_collection_add( rootmq_basic_msg_t * msg )
 {
-    //   
-    //  attain collection lock
-    //      pick the q within the collection based on msg->key 
-    //      add msg to q :  
-    //           managing q size by popping tail when too big  
-    //           calc stats for the q
-    //           invoke the q->observer callback with q->obsargs , msg->key and stats
-    //  release lock
-    //
-    //   this is called by rootmq_basic_collect from inside the monitor thread 
-    //
+    /*  
+      attain collection lock
+          pick the q within the collection based on msg->key 
+          add msg to q :  
+               managing q size by popping tail when too big  
+               calc stats for the q
+               invoke the q->observer callback with q->obsargs , msg->key and stats
+      release lock
+    
+       this is called by rootmq_basic_collect from inside the monitor thread 
+    */
     
     G_LOCK(rootmq_collection);
     if(rootmq_dbg > 0) printf("rootmq_collection_add %s \n" , msg->key );
@@ -132,6 +132,25 @@ bool_t rootmq_collection_queue_updated(const char* key )
     return updated ;
 }
 
+int rootmq_collection_keys(char* buf, size_t bufsize )
+{
+    char* p  = buf ;
+    G_LOCK(rootmq_collection);
+    GHashTableIter iter;
+    gpointer key, value;
+    g_hash_table_iter_init (&iter, rootmq_collection);
+    while (g_hash_table_iter_next (&iter, &key, &value)) {
+        p += snprintf( p,  bufsize - (p - buf),  "%s ", key );
+    }
+    G_UNLOCK(rootmq_collection);
+    
+    if( bufsize < p - buf ){
+        printf("rootmq_collection_keys : ERROR : bufsize %d is too small ... \n", bufsize) ;
+        buf[0] = 0 ;
+        return 13 ;
+    } 
+    return 0 ;
+}
 
 void rootmq_collection_dump( )
 {
@@ -167,6 +186,7 @@ void rootmq_collection_queue_configure( const char* key , rootmq_collection_obse
     //  
     //
     G_LOCK(rootmq_collection);
+    if(rootmq_dbg > 0) printf("rootmq_collection_queue_configure %s",key );
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
     if( q == NULL )
        printf("_collection_add_observer ERROR failed to create q for key \"%s\" \n", key );

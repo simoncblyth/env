@@ -5,6 +5,8 @@
 #include "MQ.h"
 #include "TTimer.h"
 #include "TObject.h"
+#include "TObjString.h"
+#include "TString.h"
 
 #include "Capture.h"
 #include "CaptureDB.h"
@@ -27,11 +29,13 @@ Bool_t EvTerminationHandler::Notify()
 ClassImp(EvMQ);
 
 
-EvMQ::EvMQ( const char* key ) : fKey(key), fMQ(NULL), fTimer(NULL), fObj(NULL), fDB(NULL) {
+EvMQ::EvMQ( const char* keys ) : fKeys(NULL), fMQ(NULL), fTimer(NULL), fObj(NULL), fDB(NULL) {
 
     if (gSystem->Load("librootmq" ) < 0) gSystem->Exit(10);
     if (gSystem->Load("libAbtDataModel" ) < 0) gSystem->Exit(10);
  
+    TString ks = keys ;
+    fKeys = ks.Tokenize(" "); 
     fTimer = new TTimer(1000) ;
     fMQ = MQ::Create() ;
 
@@ -112,23 +116,38 @@ void EvMQ::Verify(){
     }
 }
 
+void EvMQ::Check_( const char* key )
+{    
+    
+    fChecks[key] += 1;
+    Int_t dbg = fMQ->GetDebug();
+    if(fMQ->IsUpdated(key)){
+        fUpdates[key] += 1;
+        TObject* obj = fMQ->Get( key, 0);
+        if(obj){
+            if(dbg>0) Printf("EvMQ::Check_ : finds update in collection deque %s \n" ,key );  
+            if(dbg>1) obj->Print("");
+            fObj = obj ;
+            Verify();
+        } else {
+            Printf("EvMQ::Check_ : null obj : %s", key );
+        }
+    } else {
+        Printf("EvMQ::Check_ : not updated %s" , key );
+    }
+}
+
+
+
 
 void EvMQ::Check(){
-    //Printf("EvMQ.Check : looking for updates %s ", fKey );
     Int_t dbg = fMQ->GetDebug();
     if(fMQ->IsMonitorRunning()){
-        if(fMQ->IsUpdated(fKey)){
-           TObject* obj = fMQ->Get( fKey, 0);
-           if(obj){
-               if(dbg>0) Printf("EvMQ::Check : finds update in queue %s \n" ,fKey );  
-               if(dbg>1) obj->Print("");
-               fObj = obj ;
-               Verify();
-           } else {
-               Printf("EvMQ::Check : null obj ");
-           }
-        } else {
-            Printf("EvMQ::Check : not updated %s" , fKey );
+        TIter next(fKeys);
+        TObjString* s = NULL ;
+        while(( s = (TObjString*)next() )){
+            const char* key = s->GetString().Data();
+            Check_(key);
         }
     } else {
         Printf("EvMQ::Check :  monitor not running");
@@ -137,6 +156,16 @@ void EvMQ::Check(){
 
 void EvMQ::Print(Option_t* opt="") const  {
     fMQ->Print(opt);
+    
+    for( map<string,int>::const_iterator i=fChecks.begin(); i!=fChecks.end(); ++i)
+    {
+    	  cout << (*i).first << ": " << (*i).second << endl;
+    }
+    
+    for( map<string,int>::const_iterator i=fUpdates.begin(); i!=fUpdates.end(); ++i)
+    {
+    	  cout << (*i).first << ": " << (*i).second << endl;
+    }
 }
 
 

@@ -14,6 +14,7 @@ extern "C"
 
 int rootmq_collection_init();
 int rootmq_collection_cleanup();
+int rootmq_collection_keys(char* buf, size_t bufsize);
 
 int rootmq_collection_add( rootmq_basic_msg_t * msg );
 

@@ -30,5 +30,5 @@ et.Tool("sct_dump", LIBS=True , CPPPATH=True, LIBPATH=True  )
 et.ComponentTestProgram( prog_name='capture_db_demo', source=['tests/capture_db_demo.cc'], )
 
 
-
+et.ComponentTestProgram( prog_name='snprintf', source=['tests/snprintf.c'], )
 

@@ -28,6 +28,8 @@ class EvMQ:
         self._connect( self.timer, "Timeout()", self.Check ) 
         self._connect( self.timer, "TurnOff()", self.Off ) 
         self.obj = None
+        self.checks = {}
+        self.updates = {}
 
 
     def Launch(self):
@@ -38,15 +40,25 @@ class EvMQ:
         self.mq.StartMonitorThread()
 
     def Check_(self, key):
+        if self.checks.get(key,None) == None:
+             self.checks[key] = 1
+        else:
+             self.checks[key] += 1
+        
         if self.mq.IsUpdated(key):
+            if self.updates.get(key,None) == None:
+                self.updates[key] = 1
+            else:
+                self.updates[key] += 1
+                
             obj = self.mq.Get(key, 0)
             if obj:
                 print "EvMQ.Check_ finds update in queue %s " % key  
                 obj.Print("")
                 self.obj = obj
+            
     
     def Check(self):
-        #print "EvMQ.Check : looking for updates  "
         if self.mq.IsMonitorRunning():
             for key in self.keys:
                 self.Check_(key)
@@ -63,13 +75,13 @@ class EvMQ:
         obj.Connect( sign , "TPyDispatcher", getattr( self , handlerName )  , "Dispatch()" ) 
 
     def __repr__(self):
-        return repr(self.mq)
+        return "<EvMQ checks \n %s \n updates \n %s \n > " % (repr(self.checks), repr(self.updates) ) 
 
 
 
 if __name__=='__main__':
     from evmq import EvMQ
-    keys = ['default.routingkey','womble']
+    keys = ['default.routingkey','abt.test.string','abt.test.runinfo','abt.test.event','abt.test.other']
     emq = EvMQ(keys)
     emq.Launch()
     #ROOT.gSystem.Sleep(1000*10)

@@ -300,9 +300,47 @@ void MQ::QueueUpdated()
 
 void MQ::QueueDump()
 {
+    cout << "MQ::QueueDump ... for any content the monitor must have been running in order to collect messages " << endl ;
     rootmq_collection_dump();
+    
+    cout << "MQ::" << endl ;
+    TObjArray* keys = CollectionKeys();
+    TIter next(keys);
+    TObjString* s = NULL ;
+    while(( s = (TObjString*)next() )){
+        const char* key = s->GetString().Data();
+        int len = rootmq_collection_queue_length( key );
+        cout << key << " " << len << endl ;
+    }
+    
 }
 
+const char* MQ::CollectionKeys_( const char* re)
+{
+    /*
+       Returns string containing all keys of messages 
+       stored in the glib collection (hash of deques)
+       
+       The keys are delimited by single spaces.  
+    
+       Example usage from PyROOT :
+            ROOT.gMQ.CollectionKeys_().split()
+    */
+    size_t bufmax = 512 ;
+    char* buf = new char[bufmax];
+    if( 0 == rootmq_collection_keys( buf, bufmax )) return buf ;
+    return NULL ;
+}
+
+TObjArray* MQ::CollectionKeys(const char* re)
+{
+    const char* keys_ = CollectionKeys_(re);
+    if(keys_){
+        TString keys = keys_ ;
+        return keys.Tokenize(" ");
+    }
+    return NULL ;
+}
 
 void MQ::ConfigureQueue( const char* key , rootmq_collection_observer_t obs, void* args , int msgmax  )
 {

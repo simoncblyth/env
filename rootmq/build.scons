@@ -10,9 +10,6 @@ tools = []
 # external code installed by system pkg manager 
 tools += [ 'glib', 'gthread', ]
 
-# hmm this is mainly for testing ... perhaps need to partition
-#tools += [ 'sqlite' ]
-
 # external code installed by bash functions : rmqc- , root-
 tools += [ 'rmqc', 'root', ] 
 

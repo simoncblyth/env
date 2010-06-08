@@ -91,6 +91,8 @@ rootmq-sendobj(){     rootmq-root $(rootmq-dir)/tests/test_sendobj.C ;  }
 rootmq-sendjson(){    rootmq-root $(rootmq-dir)/tests/test_sendjson.C ;  }
 rootmq-sendstring(){  rootmq-root $(rootmq-dir)/tests/test_sendstring.C ;  }
 
+rootmq-pymonitor(){   rootmq-ipython $(rootmq-dir)/evmq.py $* ; }
+
 
 rootmq-monitor(){ rootmq-test mq_monitor $* ; }
 rootmq-test(){

@@ -25,17 +25,22 @@ void test_sendobj()
    Int_t n = (Int_t)t->GetEntries();
    //n = 5 ;
 
+   stringstream ss ;
+
    Int_t pass = 0 ;
    while(kTRUE){
        pass++ ;
        cout << "test_sendobj.C : pass " << pass << " sending  " << n << " sample event objects to the queue " << endl ;
+       
        gMQ->SendObject( ri , "abt.test.runinfo");
        for (Int_t i=0;i<n;i++) {
            t->GetEntry(i);
            //evt->Print("");
            gSystem->Sleep(1000);
            gMQ->SendObject( evt , "abt.test.event");
-           if( i%10 == 0) gMQ->SendString( "test_sendobj.C at index %s pass %s" % (i, pass) , "abt.test.string" )
+	       ss.str(""); 
+           ss << "test_sendobj.C at index " << i <<  " pass "  << pass  ;
+           if( i%10 == 0) gMQ->SendString( ss.str().c_str() , "abt.test.string" );
        }
        gSystem->Sleep(20);
    }   

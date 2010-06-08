@@ -15,5 +15,6 @@ int main(int argc, char const * const *argv) {
       snprintf( smry, max, " %s %d %s  ", gMQ->Summary() , i , key   );
       gMQ->SendString( smry , key );
    } 
+   
    return 0;
 }

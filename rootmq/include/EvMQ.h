@@ -5,6 +5,12 @@
 #include "TObject.h"
 #include <RQ_OBJECT.h>
 
+
+using namespace std ;
+#include <string>
+#include <map>
+
+
 class EvMQ ;
 class MQ ;
 class TTimer ;
@@ -36,15 +42,18 @@ class EvMQ : public TObject {
     RQ_OBJECT("EvMQ")
     
     private :
-        const char* fKey ; 
+        TObjArray* fKeys ; 
         MQ*     fMQ ;
         TTimer* fTimer ; 
         TObject* fObj ;
         CaptureDB* fDB ;
     
+        map <string, int> fUpdates ;
+        map <string, int> fChecks ;
+    
     public:
 
-        EvMQ(  const char* key  = "default.routingkey"  );
+        EvMQ(  const char* keys  = "default.routingkey abt.test.string abt.test.runinfo abt.test.event abt.test.other"  );
        ~EvMQ();
 
        void Launch();
@@ -57,6 +66,7 @@ class EvMQ : public TObject {
 
        void HandleTermination();
        
+       void Check_( const char* key );
        void Check();
        void Verify();
        void Print(Option_t* opt ) const ;
