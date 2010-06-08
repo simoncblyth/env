@@ -21,10 +21,10 @@ class EvOnline(list):
     
     
     """
-    def __init__(self, key="default.routingkey", dbg=0, period=5000 ):
+    def __init__(self, keys=["abt.test.event"], dbg=0, period=5000 ):
 
         self.status = "online"
-        self.key = key
+        self.keys = ['default.routingkey','abt.test.string','abt.test.runinfo','abt.test.event','abt.test.other']
         self.edm = EvDataModel()
         self.dbg = dbg
         self.period = period
@@ -52,31 +52,44 @@ class EvOnline(list):
     def Off(self):
         print "EvMQ.Off"
         self.mq.StopMonitorThread()
-        
+   
+
     def Check(self):
         """
             Called by the TTimer/Timeout every self.period microseconds 
             if there is a new obj in the MQ then get it and pass it on 
             to self.edm based on its class 
         """
-        if self.mq.IsMonitorRunning():
-            if self.mq.IsUpdated(self.key):
-                if self.dbg>0:print "EvOnline.Check mq %s updated " % self.key  
-                obj = self.mq.Get(self.key,0)
-                if obj == None:
-                    print "EvOnline.Check failed to Get obj "
-                    return 
-                if self.dbg > 1:
-                    obj.Print("")
-                if obj.ClassName() == 'AbtEvent':
-                    self.edm.set_autoevent( obj )
-                elif obj.ClassName() == 'AbtRunInfo':
-                    self.edm.set_autorun( obj )
-                self.obj = obj 
-            else:
-                if self.dbg>2:print "EvOnline.Check key \"%s\" no update " % self.key 
+        for key in self.keys:
+            self.Check_(key)
 
+    def Check_(self, key):
+         """
+              it will usually be a while before runinfo gets updated ... so 
+              if the autorun has not yet been set 
+              try exploratory get popping off the top of the dq :
 
+                   self.mq.Get("abt.test.runinfo", 0 )
+
+              following the routing key standardization can now
+              also respond to abt.test.string ... an fill in text message view
+
+         """
+         if self.mq.IsUpdated(key):
+             if self.dbg>0:print "EvOnline.Check dq %s updated " % key  
+             obj = self.mq.Get(key,0)
+             if obj == None:
+                 print "EvOnline.Check failed to Get obj "
+                 return 
+             if self.dbg > 1:
+                 obj.Print("")
+             if obj.ClassName() == 'AbtEvent':
+                 self.edm.set_autoevent( obj )
+             elif obj.ClassName() == 'AbtRunInfo':
+                 self.edm.set_autorun( obj )
+             self.obj = obj 
+         else:
+             if self.dbg>2:print "EvOnline.Check dq \"%s\" no update " % key 
 
     def _connect(self, obj, sign , method ):
         handlerName = "_%s" % method.__name__
