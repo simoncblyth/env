@@ -119,6 +119,11 @@ abtviz-gpython(){
    echo $msg $cmd ... enter "set args ev.py" ... then run
    eval $cmd 
 }
-alias abtviz="abtviz-python"
+
+abtviz(){
+  local msg="=== $FUNCNAME :"
+  echo $msg invoking the current favored entry point ...
+  abtviz-python
+}
 
 

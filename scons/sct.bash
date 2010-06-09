@@ -165,7 +165,12 @@ sct-get(){
    [ ! -d sct ] && svn co $(sct-url) sct
 }
 sct-hammer(){ $(sct-dir)/hammer.sh $* ; }
-alias sct="sct-hammer --verbose"
+sct(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sct-hammer --verbose"
+   echo $msg $cmd
+   eval $cmd
+}
 
 sct-info(){ svn info $(sct-dir) ; }
 
