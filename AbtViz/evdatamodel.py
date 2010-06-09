@@ -27,7 +27,7 @@ class EvDataModel(DataModel):
         smry = ROOT.HtmlSummary("ndrhtml")
         qtn = ROOT.AbtNdResponse.__qtn__
         tab = smry.AddTable( "AbtNdResponse Adc/Tdc/Nph/Htime" , len(qtn) , 4 , kTRUE, kTRUE, kFALSE, kTRUE )
-        tab.Dump()
+        #tab.Dump()
         tab.SetSideLabel(0, "Adc" )
         tab.SetSideLabel(1, "Tdc" )
         tab.SetSideLabel(2, "Nph" )
@@ -52,7 +52,7 @@ class EvDataModel(DataModel):
         smry = ROOT.HtmlSummary("runhtml")
         qtn = ROOT.AbtRunInfo.__qtn__
         tab = smry.AddTable( "AbtRunInfo" , 0 , len(qtn) , kTRUE, kTRUE, kTRUE, kFALSE )
-        tab.Dump()
+        #tab.Dump()
         for i,l in enumerate(qtn):
             tab.SetSideLabel(i, l)
         #ari.SetLabel(0,"val")
@@ -60,8 +60,8 @@ class EvDataModel(DataModel):
 
     def update_run_summary(self, ri):
         if not(ri):
-            print "update_run_summary null run "
-	    return   
+            #print "update_run_summary null run "
+	        return   
         tab = self.runhtml.GetTable(0)
         for iv,v in enumerate(ri.__qtv__()):
             #print "iv,v %s %s " % ( iv,v ) 

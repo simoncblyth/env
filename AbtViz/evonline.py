@@ -121,7 +121,7 @@ class EvOnline(list):
         return 1
 
     def __repr__(self):
-        return "<Abt %s %s >" % (self.key , self.status )  
+        return "<Abt %s %s >" % (self.keys , self.status )  
 
 
 if __name__=='__main__':

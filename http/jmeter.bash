@@ -8,7 +8,14 @@ jmeter-usage(){
      jmeter-src : $(jmeter-src)
      jmeter-dir : $(jmeter-dir)
 
-     http://jakarta.apache.org/jmeter/usermanual/index.html
+     jmeter : webapp performance testing / monitoring
+        http://jakarta.apache.org/jmeter/
+        http://jakarta.apache.org/jmeter/usermanual/index.html
+
+     jmstats : analysis of jmeter results 
+        http://sourceforge.net/apps/trac/jmstats/wiki/WikiStart
+
+
 EOU
 }
 

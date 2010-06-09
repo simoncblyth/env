@@ -136,23 +136,8 @@ class Controller(EvController):
 
 
 
-def in_ipython():
-    try:
-        __IPYTHON__
-    except NameError:
-        return False
-    else:
-        return True
-
-
-
 if __name__=='__main__':
 
-    try:
-        import IPython
-        ipython = IPython.Shell.start()
-    except:
-        pass
 
     ROOT.PyGUIThread.finishSchedule()
 
@@ -168,9 +153,14 @@ if __name__=='__main__':
     ## but dont idle like this when using ipython, in order to get to the prompt 
     try:
         __IPYTHON__
-        ipython.mainloop()
-    except:
-        ROOT.gSystem.Sleep(100)
-        ROOT.gSystem.ProcessEvents()
+    except NameError:
+        from IPython.Shell import IPShellEmbed
+        irgs = ['']
+        banner = "entering ipython embedded shell, within the scope of the abtviz instance... try the locals() command "
+        ipshell = IPShellEmbed(irgs, banner=banner, exit_msg="exiting ipython" )
+        ipshell()
+
+#        ROOT.gSystem.Sleep(100)
+#        ROOT.gSystem.ProcessEvents()
            
 

@@ -221,10 +221,8 @@ int rootmq_collection_queue_length( const char* key )
 
 void rootmq_collection_queue_configure( const char* key , rootmq_collection_observer_t observer , void* obsargs , int msgmax )
 {
-    //  
-    //
     G_LOCK(rootmq_collection);
-    if(rootmq_dbg > 0) printf("rootmq_collection_queue_configure %s",key );
+    if(rootmq_dbg > 0) printf("rootmq_collection_queue_configure %s\n",key );
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
     if( q == NULL )
        printf("_collection_add_observer ERROR failed to create q for key \"%s\" \n", key );
