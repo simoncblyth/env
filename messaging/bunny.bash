@@ -64,6 +64,17 @@ bunny-usage(){
         Following a config change to make the queue durable ... 
            * restarting sendobj works but the queue did not become durable 
            * have to delete the queue first      
+
+        After any serious error when using bunny-- ... have to connect again, otherwise all subsequent
+        operations yield errors :
+             cms01.phys.ntu.edu.tw./: delete_queue G
+             'NoneType' object has no attribute 'method_writer'
+
+        To connect again easily with manual entering config use private_connect command :
+             cms01.phys.ntu.edu.tw./: private_connect
+             Trying connect to cms01.phys.ntu.edu.tw:/ as user abtviz ... using private-vals AMQP_<name>SERVER/USER/PASSWORD/VHOST where name: 
+             Success!
+
         
         
 
