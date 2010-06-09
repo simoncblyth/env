@@ -72,6 +72,22 @@ class EvOnline(list):
               following the routing key standardization can now
               also respond to abt.test.string ... an fill in text message view
 
+              PROBLEMS WITH THIS ARCHITECTURE...
+              
+                 1) misses AbtEvent ... thats more of a feature : it is meant to do this
+                 2) misses text msgs ...
+                       sending multiple messages close together within the pulse window
+                       results in some missed messages (different messages get missed
+                       by each consumer)  
+                       
+                       
+                    the messages are all in the local dq ... the monitor thread blocks
+                    on updates and places messages in the dq collections based on 
+                    routing key (up to a current limit of ~10 msgs in each dq)
+                    
+                    just need to read them off..  but issue then becomes avoiding duplicates    
+
+
          """
          if self.mq.IsUpdated(key):
              if self.dbg>0:print "EvOnline.Check dq %s updated " % key  

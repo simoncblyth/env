@@ -215,7 +215,7 @@ void MQ::Configure()
    // observer is invoked (from inside the lock)
    //  when messages are added with fRoutingKey ... caution what you call otherwise deadlock
    //  just use observer to signal the update  
-   ConfigureQueue( fRoutingKey.Data() , QueueObserver , (void*)this , 5  );  
+   CollectionConfigure( fRoutingKey.Data() , CollectionObserver , (void*)this , 5  );  
 
 }
 
@@ -275,7 +275,7 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 }
 
 
-int MQ::QueueObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )
+int MQ::CollectionObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )
 {
    //
    //  Could have msg arg too ?   rootmq_basic_msg_t* msg 
@@ -294,7 +294,7 @@ int MQ::QueueObserver( void* me , const char* key ,  rootmq_collection_qstat_t* 
    
    Int_t dbg = self->GetDebug();
    if(dbg > 0){
-        cout << "MQ::QueueObserver key [" << key << "] qstat " 
+        cout << "MQ::CollectionObserver key [" << key << "] qstat " 
         << " read:" << qstat->read 
         << " received:" << qstat->received 
         << " lastread:" << qstat->lastread 
@@ -304,26 +304,29 @@ int MQ::QueueObserver( void* me , const char* key ,  rootmq_collection_qstat_t* 
         <<  endl ;
         self->Print();
     }
-   //self->QueueUpdated();
-   self->QueueUpdatedIndex( (Long_t)qstat->lastadd );
+   self->CollectionUpdatedIndex( (Long_t)qstat->lastadd );
    // it would be nice to pass the struct in the signal 
    return 42 ;
 }
 
 
-void MQ::QueueUpdatedIndex( Long_t index )
+void MQ::CollectionUpdatedIndex( Long_t index )
 {
-   Emit("QueueUpdatedIndex(Long_t)", index);
+   Emit("CollectionUpdatedIndex(Long_t)", index);
 }
-void MQ::QueueUpdated()
+void MQ::CollectionUpdated()
 {
-   Emit("QueueUpdated()");
+   Emit("CollectionUpdated()");
 }
 
-
-void MQ::QueueDump()
+Int_t MQ::CollectionFresh( const char* key )
 {
-    cout << "MQ::QueueDump ... for any content the monitor must have been running in order to collect messages " << endl ;
+   return rootmq_collection_queue_fresh(key );
+}
+
+void MQ::CollectionDump()
+{
+    cout << "MQ::CollectionDump ... for any content the monitor must have been running in order to collect messages " << endl ;
     rootmq_collection_dump();
     
     cout << "MQ::" << endl ;
@@ -365,12 +368,12 @@ TObjArray* MQ::CollectionKeys(const char* re)
     return NULL ;
 }
 
-void MQ::ConfigureQueue( const char* key , rootmq_collection_observer_t obs, void* args , int msgmax  )
+void MQ::CollectionConfigure( const char* key , rootmq_collection_observer_t obs, void* args , int msgmax  )
 {
    rootmq_collection_queue_configure( key , obs , args , msgmax  ); 
 }
 
-rootmq_collection_qstat_t MQ::QueueStat( const char* key )
+rootmq_collection_qstat_t MQ::CollectionStat( const char* key )
 {
    return rootmq_collection_queue_stat( key ); 
 }

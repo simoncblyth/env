@@ -20,6 +20,8 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg );
 
 rootmq_collection_qstat_t rootmq_collection_queue_stat(const char* key );
 bool_t rootmq_collection_queue_updated(const char* key );
+int rootmq_collection_queue_fresh(const char* key );  // returns number of msgs that have not been accessed (with _collection_get )
+
 int rootmq_collection_queue_length( const char* key );
 rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n );
 void rootmq_collection_dump();

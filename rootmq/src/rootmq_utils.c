@@ -79,6 +79,7 @@ rootmq_basic_msg_t* rootmq_basic_msg_dup( uint64_t index , amqp_bytes_t* body , 
     msg->deliver = rootmq_basic_deliver_dup( *deliver ); 
     msg->properties = rootmq_basic_properties_dup( *props ) ;
     msg->key     = rootmq_getstr_alloc( msg->deliver.routing_key );  // convenience copy as null terminated string needed 
+    msg->accessed = 0 ;
     return msg ;
 }
 
@@ -88,7 +89,7 @@ void rootmq_basic_msg_dump( const rootmq_basic_msg_t* msg , int verbosity , cons
        printf("rootmq_msg_dump %s ERROR null msg \n", label );
        return ;
     }
-    printf("rootmq_msg_dump %s .index %lld .key \"%s\" verbosity %d \n", label , msg->index , msg->key, verbosity  );
+    printf("rootmq_msg_dump %s .index %lld .key \"%s\" .accessed %lld \n", label , msg->index , msg->key, msg->accessed  );
     if(verbosity > 2)
        amqp_dump( msg->body.bytes , msg->body.len  );   
     if(verbosity > 1)

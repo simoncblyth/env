@@ -68,12 +68,13 @@ class MQ : public TObject {
      void SendRaw(const char* str , const char* key = NULL );
      void SendMessage(TMessage* msg , const char* key = NULL );
 
-     void ConfigureQueue( const char* key , rootmq_collection_observer_t obs , void* obsargs , int msgmax );
-     static int QueueObserver( void* me , const char* key, rootmq_collection_qstat_t* args );  
-     void QueueUpdatedIndex( Long_t index ); /* SIGNAL */
-     void QueueUpdated(); /* SIGNAL */
-     rootmq_collection_qstat_t QueueStat( const char* key );
-     void QueueDump();
+     Int_t CollectionFresh(const char* key);
+     void CollectionConfigure( const char* key , rootmq_collection_observer_t obs , void* obsargs , int msgmax );
+     static int CollectionObserver( void* me , const char* key, rootmq_collection_qstat_t* args );  
+     void CollectionUpdatedIndex( Long_t index ); /* SIGNAL */
+     void CollectionUpdated(); /* SIGNAL */
+     rootmq_collection_qstat_t CollectionStat( const char* key );
+     void CollectionDump();
      TObjArray* CollectionKeys(const char* re=NULL);
      const char* CollectionKeys_(const char* re=NULL);
 

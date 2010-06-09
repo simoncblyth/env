@@ -27,7 +27,8 @@ typedef int (*receiver_t)(void* arg,  const void *msgbytes , size_t msglen , roo
 // cannot expose on cint/pyROOT command line as the included types are not wrapped, but can use in compiled C++
 typedef struct rootmq_basic_msg_t_ {
    uint64_t index ;
-   char* key ;      // convenience copy of the routing_key  
+   char* key ;           // convenience copy of the routing_key  
+   uint64_t accessed ;   // count the number of times the msg has been accessed eg with MQ::Get , starting at zero
    amqp_basic_deliver_t deliver ;
    amqp_basic_properties_t properties ;
    amqp_bytes_t body ;		

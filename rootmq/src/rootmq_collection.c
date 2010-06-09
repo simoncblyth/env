@@ -140,6 +140,34 @@ bool_t rootmq_collection_queue_updated(const char* key )
     return updated ;
 }
 
+
+int rootmq_collection_queue_fresh(const char* key )
+{
+    G_LOCK(rootmq_collection);
+    int fresh = 0 ;
+    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
+    guint length = g_queue_get_length(q->v.queue);
+    rootmq_basic_msg_t* msg = NULL ; 
+    guint n ;
+    char label[50] ;
+    for( n = 0 ; n < length ; n++ ){
+         switch ( q->kind ){
+            case 'Q':
+                sprintf( label, "queue_fresh peek_nth %d ", n );
+                msg = (rootmq_basic_msg_t*)g_queue_peek_nth(q->v.queue, n );
+                rootmq_basic_msg_dump( msg , 0 , label  ); 
+                if (msg->accessed == 0) fresh += 1 ;
+                break ;
+            case 'H':
+                break ;
+         }     
+    }
+    G_UNLOCK(rootmq_collection);
+    return fresh ;
+}
+
+
+
 /*
   // Unfortunately GHashTableIter is only in newer glib-2.0 : its in 0.23 , not in 0.21
 
@@ -254,6 +282,7 @@ rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n )
             q->stat.updated = 0 ;    
             q->stat.read += 1 ;
             q->stat.lastread = msg->index ;
+            msg->accessed += 1 ;
         }
     }
     G_UNLOCK(rootmq_collection);
