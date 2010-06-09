@@ -86,6 +86,22 @@ class EvOnline(list):
                     routing key (up to a current limit of ~10 msgs in each dq)
                     
                     just need to read them off..  but issue then becomes avoiding duplicates    
+                    .... to deal with this add .accessed to the msg 
+
+
+                    In [20]: ROOT.gMQ.CollectionFresh("abt.test.string")
+                    rootmq_msg_dump queue_fresh peek_nth 0  .index 756 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 1  .index 745 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 2  .index 734 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 3  .index 723 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 4  .index 712 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 5  .index 701 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 6  .index 690 .key "abt.test.string" .accessed 2 
+                    rootmq_msg_dump queue_fresh peek_nth 7  .index 679 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 8  .index 668 .key "abt.test.string" .accessed 1 
+                    rootmq_msg_dump queue_fresh peek_nth 9  .index 657 .key "abt.test.string" .accessed 1 
+                    Out[20]: 0
+
 
 
          """
