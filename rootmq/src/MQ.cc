@@ -74,6 +74,22 @@ char* MQ::Summary() const
    return mq_cstring_dupe( (void*)smry.data() , smry.length() ) ;
 }
 
+
+const char* MQ::GetExchange(){
+    return fExchange.Data();
+}
+const char* MQ::GetExchangeType(){
+    return fExchangeType.Data();
+}
+const char* MQ::GetQueue(){
+    return fQueue.Data();
+}
+const char* MQ::GetRoutingKey(){
+    return fRoutingKey.Data();
+} // the default routing key if not specified otherwise
+
+
+
 void MQ::Print(Option_t* opt ) const 
 {
    Printf("%s\n", Summary() ); 
@@ -208,6 +224,13 @@ MQ::~MQ()
 {
     if(fMonitorRunning) StopMonitorThread();
 }
+
+void MQ::SendAString( const char* str , const char* key  )
+{
+    TString astr = Form("%s : %s", NodeStamp(), str  ) ;  
+    SendString( astr.Data() , key );
+}
+
 
 void MQ::SendRaw( const char* str , const char* key )
 {

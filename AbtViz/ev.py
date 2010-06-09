@@ -43,6 +43,30 @@ class Controller(EvController):
                         only a small number of objects are kept in these collections
                         index 0 corresponds to the last received
                         ... so try it later and you will get a different obj 
+                        
+                        
+                        
+               g.viewer
+                    ROOT.TGLSAViewer object ("GLViewer") 
+               g.browser
+                    ROOT.TEveBrowser object ("fEveBrowser2") 
+               g.browser.GetTabBottom()        
+                    ROOT.TGTab object ("fTab25")
+                    
+                    t = g.browser.GetTabBottom()
+                    t.GetNumberOfTabs()
+                    
+                    t.GetTabTab("AbtNdResponse")
+                           ROOT.TGTabElement object 
+                           
+                    c = t.GetTabTab("Command")
+                    
+                    
+              g.gui.tab
+                     dict of tabs
+              g.gui.tab['AbtEvent']
+                   
+                    
         
     """
     def __init__(self, dbg=0 ):
@@ -63,6 +87,7 @@ class Controller(EvController):
         self.gui  = EvGui(browser)
         if self.dbg>0:
             print "Controller.__init__ g.gui created"
+        self.browser = browser
         
         self.src = None
         
@@ -134,6 +159,12 @@ class Controller(EvController):
         if len(trkr) > 0:
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
+       
+        tmsg = self.src.msg
+        if tmsg:
+            self.src.msg = None
+            self.gui.do_msg_display(tmsg)
+       
        
         if self.dbg>1:
             print "Controller.handleChangedEntry %s\n%s" % ( entry, self.src.edm()  )

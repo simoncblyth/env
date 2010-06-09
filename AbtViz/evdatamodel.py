@@ -14,12 +14,9 @@ class EvDataModel(DataModel):
 
         if ROOT.gSystem.Load( "libAbtViz" ) < 0:ROOT.gSystem.Exit(10)
 
-        # attempt to avoid deadlocks by creating classes initially in the main thread  
-        #self.trg = ROOT.AbtEvent()
-        #self.run = ROOT.AbtRunInfo()
         self.trg = None
         self.run = None
-
+        
         self.ndrhtml = self.prepare_ndr_summary()
         self.runhtml = self.prepare_run_summary()
 

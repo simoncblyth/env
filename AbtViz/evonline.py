@@ -26,6 +26,8 @@ class EvOnline(list):
         self.status = "online"
         self.keys = ['default.routingkey','abt.test.string','abt.test.runinfo','abt.test.event','abt.test.other']
         self.edm = EvDataModel()
+        self.msg = None
+        
         self.dbg = dbg
         self.period = period
  
@@ -83,6 +85,8 @@ class EvOnline(list):
                  self.edm.set_autoevent( obj )
              elif obj.ClassName() == 'AbtRunInfo':
                  self.edm.set_autorun( obj )
+             elif obj.ClassName() == 'TObjString':
+                 self.msg = str(obj) 
              self.obj = obj 
          else:
              if self.dbg>2:print "EvOnline.Check dq \"%s\" no update " % key 
@@ -109,6 +113,7 @@ class EvOnline(list):
     def evt_summary(self,**kwa):return self.edm.evt_summary(**kwa)
     def run_summary(self,**kwa):return self.edm.run_summary(**kwa)
     def ndr_summary(self,**kwa):return self.edm.ndr_summary(**kwa)
+
 
     def __getitem__(self, i ):
         return self.edm() 

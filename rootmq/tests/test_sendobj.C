@@ -40,7 +40,7 @@ void test_sendobj()
            gMQ->SendObject( evt , "abt.test.event");
 	       ss.str(""); 
            ss << "test_sendobj.C at index " << i <<  " pass "  << pass  ;
-           if( i%10 == 0) gMQ->SendString( ss.str().c_str() , "abt.test.string" );
+           if( i%10 == 0) gMQ->SendAString( ss.str().c_str() , "abt.test.string" );
        }
        gSystem->Sleep(20);
    }   

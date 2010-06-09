@@ -60,10 +60,13 @@ class EvGui(ROOT.TQObject):
 
         self.html = {}
         self.tab = {}
+        self.field = {}
         
         self.add_htmltab( br.GetTabLeft() ,   "AbtEvent" )
         self.add_htmltab( br.GetTabLeft() ,   "AbtRunInfo" ) 
         self.add_htmltab( br.GetTabBottom() , "AbtNdResponse" )       
+        
+        self.add_texttab( br.GetTabBottom() , "AbtText" )
         
         br.Layout()
         br.MapSubwindows()
@@ -110,6 +113,43 @@ class EvGui(ROOT.TQObject):
         self.tab[name] = it
         self.update_htmltab( name , "<html><head></head><body><h1>Initial content of %s tab </h1></body></html>" % name )
  
+ 
+    def add_texttab( self, tab , name="Default"):
+        """
+        
+           ISSUES :
+              space is being trapped ... so cannot enter spaces 
+
+        """
+        it = tab.AddTab( name )
+        tab.SetTab( name )
+        
+        te = ROOT.TGTextEntry( it , "enter message here" )
+        it.AddFrame( te , ROOT.TGLayoutHints(ROOT.kLHintsExpandX , 5, 5, 2, 2)) 
+        self.msg_entry_dispatch = ROOT.TPyDispatcher( self.do_msg_entry )
+        te.Connect(  "ReturnPressed()", "TPyDispatcher", self.msg_entry_dispatch, "Dispatch()" )
+        
+        tv = ROOT.TGTextView( it )
+        it.AddFrame( tv  , ROOT.TGLayoutHints(ROOT.kLHintsExpandX | ROOT.kLHintsExpandY, 5, 5, 2, 2) ) 
+        
+        self.field["%s_te" % name ] = te
+        self.field["%s_tv" % name ] = tv
+        self.tab[name] = it 
+  
+    def do_msg_entry(self):
+        te = self.field.get('AbtText_te',None)
+        if not(te):return
+        txt = te.GetText()
+        print "do-msg-entry ... %s " % txt
+        ROOT.gMQ.SendAString(txt, "abt.test.string")
+        te.SetText("")
+  
+    def do_msg_display(self, txt):
+        tv = self.field.get('AbtText_tv',None)
+        if not(tv):return
+        tv.AddLine(txt)
+        #tvt = tv.GetText()  # TGText 
+  
   
     def add_navmenu(self, frame ):
         """

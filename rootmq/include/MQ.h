@@ -50,9 +50,17 @@ class MQ : public TObject {
 
      Bool_t IsUpdated( const char* key );
      Int_t GetLength( const char* key );
+     
+     const char* GetExchange();
+     const char* GetExchangeType();
+     const char* GetQueue();
+     const char* GetRoutingKey(); // the default routing key if not specified otherwise
+     
      TObject* Get( const char* key , int n );
      static TObject* Receive( void* msgbytes , size_t msglen );
      Bool_t IsMonitorRunning();
+
+     void SendAString(const char* str , const char* key = NULL ); // sends string prefixed with NodeStamp 
 
      void SendJSON(TClass* kls, TObject* obj , const char* key = NULL );
      void SendObject(TObject* obj , const char* key = NULL );
