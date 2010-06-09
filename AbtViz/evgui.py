@@ -148,6 +148,7 @@ class EvGui(ROOT.TQObject):
         tv = self.field.get('AbtText_tv',None)
         if not(tv):return
         tv.AddLine(txt)
+        tv.ShowBottom()
         #tvt = tv.GetText()  # TGText 
   
   
