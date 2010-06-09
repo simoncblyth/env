@@ -4,21 +4,21 @@ from evdatamodel import EvDataModel
 
 class EvOnline(list):   
     """
-      Architectural issue ... 
-         tis OK to loose evt objs when monitoring, as when too many are received
-         BUT : do not want to loose run objs, how to avoid ? split streams / multiple-keys 
+      In order to partition obj handling in the MQ the routing key is
+      used to control which dq the messages are collected in, avoiding loss of runinfo 
+      in a cloud of events
  
-      Probably best to configure multiple queues having different routing keys ... 
-        mq.Abt.Event
-        mq.Abt.RunInfo
-        mq.Abt.Text
+        abt.test.event
+        abt.test.runinfo
+        abt.test.string
+        abt.test.other
      
-      maybe need to improve rootmq key dynamism to facilitate this 
-      (key laid down in the config ? nope seems not )
- 
-      Need some MQ status display in the GUI to help with this 
-      monitoring  the different messages received ... 
-    
+     Intanciation of EvOnline creates a TTimer configured to "Check"
+     the mq every period (default 5000ms)
+     
+     
+      TODO:
+        MQ status display in the GUI to monitor message counts received ... 
     
     """
     def __init__(self, keys=["abt.test.event"], dbg=0, period=5000 ):
@@ -43,9 +43,6 @@ class EvOnline(list):
         self.timer.TurnOn()
 
     def On(self):
-        """
-            Called by TTimer/TurnOn 
-        """
         print "EvMQ.On"
         self.mq.StartMonitorThread()
         
@@ -53,7 +50,6 @@ class EvOnline(list):
         print "EvMQ.Off"
         self.mq.StopMonitorThread()
    
-
     def Check(self):
         """
             Called by the TTimer/Timeout every self.period microseconds 

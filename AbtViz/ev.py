@@ -24,27 +24,25 @@ print "imported EvOnline"
 
 class Controller(EvController):
     """
-          The hub of Event Display wiring ... pulling together all components
-          Useful attributes
+          The hub of Event Display wiring 
+              ... pulling together all components
           
+          
+          Useful attributes to try from ipython commandline :
           
                g.src   EvOnline OR EvTree instance 
                        depending on g.istree() which depends on g.GetSource()
                        
-                       
-               g.src.mq   when online the local collection of message queue updates
+               g.src.mq   
+                       when online the local collection of message queue obj updates
+             
                g.src.mq.Get("abt.test.event",9)
-                           
-                          only a small number of objects are kept in this collection 
-               
-               
-                    oops, need some protection for non-existing dq
-                    
-               In [10]: g.src.mq.Get("abt.test.runinfo",0)
-               _collection_get ERROR no q for key "abt.test.runinfo" 
-
-                *** Break *** bus error
-                
+               g.src.mq.Get("abt.test.runinfo",0)
+               g.src.mq.Get("abt.test.string",0)              
+                        
+                        only a small number of objects are kept in these collections
+                        index 0 corresponds to the last received
+                        ... so try it later and you will get a different obj 
         
     """
     def __init__(self, dbg=0 ):
@@ -68,10 +66,11 @@ class Controller(EvController):
         
         self.src = None
         
+        
         if hasattr(gEve, 'GetGLViewer'):
             viewer = gEve.GetGLViewer()
         elif hasattr(gEve, 'GetDefaultGLViewer'):
-            print "WARNING : YOU ARE USING AN UN-TESTED ROOT VERSION : SEE #233 " 
+            #print "WARNING : YOU ARE USING AN UN-TESTED ROOT VERSION : SEE #233 " 
             viewer = gEve.GetDefaultGLViewer()
         else:
             viewer = None
@@ -80,6 +79,7 @@ class Controller(EvController):
             viewer.ResetCurrentCamera()
         else:
             print "%s : WARNING : failed to access the GL Viewer " % self.__class__
+        self.viewer = viewer
 
     def istree(self):
         return self.GetSource().endswith(".root")
@@ -166,17 +166,14 @@ if __name__=='__main__':
 
     #g.SetSource("$ABERDEEN_HOME/DataModel/sample/run00027.root")   ## offline running from a file
     g.SetSource("default.routingkey")    ## online running tests
-
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE
 
-    ## stay alive while gdb python debugging, 
-    ## but dont idle like this when using ipython, in order to get to the prompt 
     try:
         __IPYTHON__
     except NameError:
         from IPython.Shell import IPShellEmbed
         irgs = ['']
-        banner = "entering ipython embedded shell, within the scope of the abtviz instance... try the locals() command "
+        banner = "entering ipython embedded shell, within the scope of the abtviz instance... try g? for help or the locals() command "
         ipshell = IPShellEmbed(irgs, banner=banner, exit_msg="exiting ipython" )
         ipshell()
 
