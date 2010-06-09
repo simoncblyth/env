@@ -25,7 +25,27 @@ print "imported EvOnline"
 class Controller(EvController):
     """
           The hub of Event Display wiring ... pulling together all components
- 
+          Useful attributes
+          
+          
+               g.src   EvOnline OR EvTree instance 
+                       depending on g.istree() which depends on g.GetSource()
+                       
+                       
+               g.src.mq   when online the local collection of message queue updates
+               g.src.mq.Get("abt.test.event",9)
+                           
+                          only a small number of objects are kept in this collection 
+               
+               
+                    oops, need some protection for non-existing dq
+                    
+               In [10]: g.src.mq.Get("abt.test.runinfo",0)
+               _collection_get ERROR no q for key "abt.test.runinfo" 
+
+                *** Break *** bus error
+                
+        
     """
     def __init__(self, dbg=0 ):
         self.dbg = dbg 

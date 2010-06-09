@@ -236,28 +236,26 @@ void rootmq_collection_queue_configure( const char* key , rootmq_collection_obse
 
 rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n ) 
 {
+    rootmq_basic_msg_t* msg = NULL ;
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
-    if( q == NULL )
-       printf("_collection_get ERROR no q for key \"%s\" \n", key );
-
-    rootmq_basic_msg_t* msg = NULL ;
-
-    switch (q->kind){
-       case 'Q':
-          msg = q == NULL ? NULL : (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , n  ) ;   
-       case 'H':
-          break;
-       default:
-          break;
+    if( q == NULL ){
+        printf("_collection_get ERROR no q for key \"%s\" \n", key );
+    } else {
+        switch (q->kind){
+           case 'Q':
+              msg = q == NULL ? NULL : (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , n  ) ;   
+           case 'H':
+              break;
+           default:
+              break;
+        }
+        if( msg ){
+            q->stat.updated = 0 ;    
+            q->stat.read += 1 ;
+            q->stat.lastread = msg->index ;
+        }
     }
-
-    if( msg ){
-        q->stat.updated = 0 ;    
-        q->stat.read += 1 ;
-        q->stat.lastread = msg->index ;
-    }
-
     G_UNLOCK(rootmq_collection);
     return msg ; 
 }
