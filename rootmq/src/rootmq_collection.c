@@ -143,24 +143,28 @@ bool_t rootmq_collection_queue_updated(const char* key )
 
 int rootmq_collection_queue_fresh(const char* key )
 {
-    G_LOCK(rootmq_collection);
     int fresh = 0 ;
-    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
-    guint length = g_queue_get_length(q->v.queue);
-    rootmq_basic_msg_t* msg = NULL ; 
-    guint n ;
-    char label[50] ;
-    for( n = 0 ; n < length ; n++ ){
-         switch ( q->kind ){
-            case 'Q':
-                sprintf( label, "queue_fresh peek_nth %d ", n );
-                msg = (rootmq_basic_msg_t*)g_queue_peek_nth(q->v.queue, n );
-                rootmq_basic_msg_dump( msg , 0 , label  ); 
-                if (msg->accessed == 0) fresh += 1 ;
-                break ;
-            case 'H':
-                break ;
-         }     
+    G_LOCK(rootmq_collection);
+    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );     
+    if( q == NULL ){
+        printf("_collection_queue_fresh ERROR no q for key \"%s\" \n", key );
+    } else {    
+        guint length = g_queue_get_length(q->v.queue);
+        rootmq_basic_msg_t* msg = NULL ; 
+        guint n ;
+        char label[50] ;
+        for( n = 0 ; n < length ; n++ ){
+             switch ( q->kind ){
+                case 'Q':
+                    sprintf( label, "queue_fresh peek_nth %d ", n );
+                    msg = (rootmq_basic_msg_t*)g_queue_peek_nth(q->v.queue, n );
+                    rootmq_basic_msg_dump( msg , 0 , label  ); 
+                    if (msg->accessed == 0) fresh += 1 ;
+                    break ;
+                case 'H':
+                    break ;
+             }     
+        }
     }
     G_UNLOCK(rootmq_collection);
     return fresh ;
@@ -227,21 +231,21 @@ void rootmq_collection_dump( )
 
 int rootmq_collection_queue_length( const char* key )
 {
+    int len = -1 ;
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
-    if( q == NULL )
+    if( q == NULL ){
         printf("_collection_length ERROR no q for key \"%s\" \n", key );
-
-    int len ;
-    switch (q->kind){
-       case 'Q':
-          len = q == NULL ? -1 : (int)g_queue_get_length( q->v.queue );
-       case 'H':
-          break;
-       default:
-          break;
+    } else {
+        switch (q->kind){
+           case 'Q':
+              len =  (int)g_queue_get_length( q->v.queue );
+           case 'H':
+              break;
+           default:
+              break;
+        }
     }
-
     G_UNLOCK(rootmq_collection);
     return len ;
 }
@@ -252,12 +256,13 @@ void rootmq_collection_queue_configure( const char* key , rootmq_collection_obse
     G_LOCK(rootmq_collection);
     if(rootmq_dbg > 0) printf("rootmq_collection_queue_configure %s\n",key );
     rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
-    if( q == NULL )
-       printf("_collection_add_observer ERROR failed to create q for key \"%s\" \n", key );
-    q->observer = observer ;
-    q->obsargs  = obsargs ;
-    q->stat.msgmax = msgmax ;
-
+    if( q == NULL ){
+        printf("_collection_add_observer ERROR failed to create q for key \"%s\" \n", key );
+    } else {
+        q->observer = observer ;
+        q->obsargs  = obsargs ;
+        q->stat.msgmax = msgmax ;
+    }
     G_UNLOCK(rootmq_collection);
 } 
 
