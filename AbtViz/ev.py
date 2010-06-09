@@ -2,7 +2,6 @@
 
 import os
 
-
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 
@@ -88,7 +87,6 @@ class Controller(EvController):
         if self.dbg>0:
             print "Controller.__init__ g.gui created"
         self.browser = browser
-        
         self.src = None
         
         

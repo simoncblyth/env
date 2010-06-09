@@ -49,6 +49,10 @@ class EvGui(ROOT.TQObject):
     
     """
     def __init__(self, br):
+        
+        name = "%s@%s" % ( os.environ.get('USER',"-") , platform.node() )       
+        br.SetWindowName( name )
+        
         fToolbarFrame = br.GetToolbarFrame()
         self.keyhandler = ROOT.KeyHandler( br )
        
