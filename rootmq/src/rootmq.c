@@ -107,6 +107,18 @@ int rootmq_init()
 
 int rootmq_queue_declare( char const* queue, bool_t passive, bool_t durable, bool_t exclusive, bool_t auto_delete )
 {
+    /*
+          http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+            
+                passive: the queue will not get declared but an error will be thrown if it does not exist.
+                durable: the queue will survive a broker restart.
+                exclusive: there can only be one client for this specific queue.
+                auto-delete: the queue will get deleted as soon as no more subscriptions are active on it. 
+                     This shares the same constraint as the auto-delete property for exchanges: 
+                     if no subscription has been ever active on the queue it will not get auto-deleted. 
+                     An exclusive queue however will always get auto-deleted when the client terminates its session.
+    
+    */
     amqp_queue_declare(conn, 1, 
                        amqp_cstring_bytes(queue) , 
                        passive , durable, exclusive, auto_delete , 
@@ -118,12 +130,12 @@ int rootmq_queue_declare( char const* queue, bool_t passive, bool_t durable, boo
 
 int rootmq_queue_bind( char const* queue, char const* exchange , char const* bindingkey )
 {
-    //
-    // http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
-    //    the bindingkey can be identical to the routingkey but can me more complex to 
-    //    handle topic matching or more ...
-    //      https://jira.amqp.org/confluence/download/attachments/720900/amqp0-8.pdf
-    //
+    /*
+        http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+         the bindingkey can be identical to the routingkey but can me more complex to 
+          handle topic matching or more ...
+            https://jira.amqp.org/confluence/download/attachments/720900/amqp0-8.pdf
+    */
     amqp_queue_bind(conn, 1,
      		    amqp_cstring_bytes(queue),
      		    amqp_cstring_bytes(exchange),
@@ -136,6 +148,15 @@ int rootmq_queue_bind( char const* queue, char const* exchange , char const* bin
 
 int rootmq_exchange_declare( char const* exchange , char const* exchangetype , bool_t passive , bool_t durable , bool_t auto_delete )
 {
+    /*
+        http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
+        
+           passive: the exchange will not get declared but an error will be thrown if it does not exist.
+           durable: the exchange will survive a broker restart.
+           auto-delete: the exchange will get deleted as soon as there are no more queues bound to it. 
+                Exchanges to which queues have never been bound will never get auto deleted.
+    
+    */
     amqp_exchange_declare(conn, 1, 
                           amqp_cstring_bytes(exchange), 
                           amqp_cstring_bytes(exchangetype),

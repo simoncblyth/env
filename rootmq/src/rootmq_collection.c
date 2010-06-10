@@ -75,6 +75,11 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
       release lock
     
        this is called by rootmq_basic_collect from inside the monitor thread 
+       
+       
+       NB the msg is constructed from fully duped components in rootmq_basic_collect
+          and is regarded as fully owned by the rootmq_collection ...
+          which frees it once the collection grows sufficiently to need tail popping   
     */
     
     G_LOCK(rootmq_collection);
@@ -269,6 +274,11 @@ void rootmq_collection_queue_configure( const char* key , rootmq_collection_obse
 
 rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n ) 
 {
+    /*
+        maybe should move to g_queue_pop_nth the msg off the collection
+        to avoid access checks for freshness ?
+    */
+    
     rootmq_basic_msg_t* msg = NULL ;
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
@@ -277,7 +287,7 @@ rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n )
     } else {
         switch (q->kind){
            case 'Q':
-              msg = q == NULL ? NULL : (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , n  ) ;   
+              msg = (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , n  ) ;   
            case 'H':
               break;
            default:

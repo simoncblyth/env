@@ -124,7 +124,7 @@ MQ* MQ::Create(Bool_t start_monitor)
    int rc = private_init();
    if(rc){
        Printf("MQ::Create error in private_init\n") ; 
-       gSystem->Exit(214 + rc);
+       gSystem->Exit(rc);
    }
 
 
@@ -136,27 +136,38 @@ MQ* MQ::Create(Bool_t start_monitor)
 
    gMQ = new MQ(exchange, queue, routingkey, exchangetype);
 
-   Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
-   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "1" ) );   // change to TRUE
-       // Durable message queues that are shared by many consumers and have an independent existence i.e.
-       // they will continue to exist and collect messages whether or not there are consumers to receive them
+
+   /*
+         During active testing option set B is prone to server death at 04:06 am each morning see #276
    
-   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "0" ) ); // change to FALSE
-       // 
+                         A      B      C
+        -----------------------------------------------                 
+         passive         0      0      0
+         durable         0      1      0
+         auto_delete     1      0      1
+         exclusive       0      0      0
+         
+            Durable message queues continue to exist and collect messages whether or 
+            not there are consumers to receive them
+         
+           The defaults were changed to B (with durable:1) while debugging the fanout config...
+         
+   */
 
 
+   Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "0" ) );   
+   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "1" ) ); 
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "ROOTMQ_EXCLUSIVE" , "0" ) );
-   Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
    
+   
+   Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
    if( dbg > 0 ) gMQ->Print() ;
    gMQ->SetDebug( dbg );
-
-   if( start_monitor ){
-      gMQ->StartMonitorThread() ;
-   }
-
+   if( start_monitor ) gMQ->StartMonitorThread() ;
+   
    private_cleanup();
    return gMQ ;
 }  
@@ -277,17 +288,17 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 
 int MQ::CollectionObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )
 {
-   //
-   //  Could have msg arg too ?   rootmq_basic_msg_t* msg 
-   //  BUT cannot do much from here as this is
-   //  executed from inside the monitoring thread ...
-   //
-   //  so avoid doing anything involved ... such as creating a TObject from a message
-   //
-   //  setup the signal such that it propagates the arguments needed 
-   //  to construct the corresponding object via absolute addressing 
-   //    ( key , index ) ... 
-   //
+   /*
+       Could have msg arg too ?   rootmq_basic_msg_t* msg 
+       BUT cannot do much from here as this is
+       executed from inside the monitoring thread ...
+     
+       so avoid doing anything involved ... such as creating a TObject from a message
+     
+       setup the signal such that it propagates the arguments needed 
+       to construct the corresponding object via absolute addressing 
+         ( key , index ) ... 
+   */
 
 
    MQ* self = (MQ*)me ; 
@@ -414,16 +425,22 @@ Int_t MQ::GetLength( const char* key )
 
 TObject* MQ::Get( const char* key , int n ) 
 {
+    /*
+       CAUTION : 
+          the msg accessed here is owned by the collection and
+          will get popped off the tail and deallocated as the collection fills up
+                 
+          ... perhaps should dupe ? but the TMessage ctor does that anyhow
+          it still remains theoretically possible for this to walk into undefined territory 
+    */
+    Int_t dbg = this->GetDebug();
     TObject* obj = NULL ;
-    rootmq_basic_msg_t* msg = rootmq_collection_get( key , n );
+    rootmq_basic_msg_t* msg = rootmq_collection_get( key , n );  
     if(!msg) return obj ;
     
     const char* type     =  rootmq_get_content_type( msg );
     const char* encoding =  rootmq_get_content_encoding( msg );
-
-    Int_t dbg = this->GetDebug();
-    if(dbg > 1) cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
-
+    
     if( strcmp( type , "application/data" ) == 0 && strcmp( encoding , "binary" ) == 0 ){
        obj = MQ::Receive( msg->body.bytes , msg->body.len );
     } else if ( strcmp( type , "text/plain" ) == 0 ){
@@ -432,6 +449,8 @@ TObject* MQ::Get( const char* key , int n )
     } else {
        cout << "MQ::Get WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
     }
+    
+    if(dbg > 1) cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
     return obj ;  
 }
 

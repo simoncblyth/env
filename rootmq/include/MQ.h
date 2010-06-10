@@ -56,7 +56,7 @@ class MQ : public TObject {
      const char* GetQueue();
      const char* GetRoutingKey(); // the default routing key if not specified otherwise
      
-     TObject* Get( const char* key , int n );
+     TObject* Get( const char* key , int n  );
      static TObject* Receive( void* msgbytes , size_t msglen );
      Bool_t IsMonitorRunning();
 
