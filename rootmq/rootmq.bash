@@ -22,8 +22,11 @@ rootmq-usage(){
      rootmq-sendjson
      rootmq-sendobj
            run tests using rootmq-root
-           to run within screen ... for operation without terminal attached :
-               SCREEN=screen rootmq-sendobj
+           for operation without terminal attached :
+
+              startup :
+                SCREEN=screen rootmq-sendobj
+              detach with : ctrl-A d
 
 
      rootmq-tests
