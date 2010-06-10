@@ -76,7 +76,14 @@ bunny-usage(){
              Success!
 
         
-        
+        bunny on cms01 (the node with the server) behaves differently ... appearing not to autoconnect on 
+        startup 
+            * changed config from localhost to cms01.phys.ntu.edu.tw but makes no difference
+            * need to send a ctrl-D to get the cli to updated
+               * possible a readline issue ??
+
+
+         NEED A BETTER INTERFACE THAT THE BUNNY ...
 
 
 EOU
@@ -98,7 +105,10 @@ bunny--original(){
    python $(bunny-dir)/bunny.py
 }
 bunny--(){
-   PYTHONPATH=$(bunny-dir) python $(bunny-srcdir)/mybunny.py $*
+   local msg="=== $FUNCNAME :"
+   local cmd="PYTHONPATH=$(bunny-dir) python $(bunny-srcdir)/mybunny.py $* "
+   echo $msg $cmd
+   eval $cmd
 }
 bunny-kludge(){
    perl -pi -e s'@as out:@, out:@g' $(bunny-dir)/bunny.py
