@@ -14,7 +14,7 @@ slv-usage(){
 /usr/local/env/trac/package/bitten/trac-0.11/bitten/__init__.pyc 
 
 
-   when exporting a file the "dir" is the name of the file 
+   when using svn:export for a file the "dir" is the name of the file 
 
    <svn:export url="http://dayabay.phys.ntu.edu.tw/repos/env/" 
               path="trunk/env.bash" 
@@ -37,13 +37,35 @@ slv-init(){
    local dir=$(slv-dir) &&  mkdir -p $dir && cd $dir
 }
 
-slv-master(){  echo http://dayabay.phys.ntu.edu.tw/tracs/env/builds ; }
-slv-name(){ hostname -s ; }
+slv-repo(){ 
+   echo ${SLV_REPO:-env} 
+}
+
+slv-master(){  
+   case $(slv-repo) in 
+      env) echo http://dayabay.phys.ntu.edu.tw/tracs/env/builds ;;
+   dybsvn) echo http://dayaby.ihep.ac.cn/tracs/dybsvn/builds    ;;
+   esac
+}
+
+slv-name(){ 
+   case $(slv-repo) in 
+       env) hostname -s ;;
+    dybsvn) echo i686-slc46-gcc346 ;;    
+  esac
+}
+
+slv-opt(){  
+  local def="--dry-run"   ## --dry-run is very useful for debugging as avoids having to invalidate the failed builds...  
+  #local def=""
+  echo ${SLV_OPT:-$def}
+}
+
 slv-cmd(){  
   local name=$(slv-name)
   private-
   cat << EOC
-$(which bitten-slave) --dry-run --name $name --verbose --work-dir=$(slv-dir) --keep-files --log=$name.log --user=$(private-val SLV_USER) --password=$(private-val SLV_PASS) $(slv-master)
+$(which bitten-slave) $(slv-opt) --name $name --verbose --work-dir=$(slv-dir) --keep-files --log=$name.log --user=$(private-val SLV_USER) --password=$(private-val SLV_PASS) $(slv-master)
 EOC
 }
 
