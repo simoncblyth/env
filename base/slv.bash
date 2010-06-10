@@ -8,6 +8,13 @@ slv-usage(){
      slv-src : $(slv-src)
      slv-dir : $(slv-dir)
 
+     slv-name : $(slv-name)
+             using simple short hostname for the slave names
+              NB this is different names from current bitten slave 
+                  in order to prevent interference 
+              ... config the allowed slave names in the master eg for config dybdaily 
+
+
    bitten slave explorations ...
 
      simon:e blyth$ python -c "import bitten ; print bitten.__file__ "
@@ -38,22 +45,20 @@ slv-init(){
 }
 
 slv-repo(){ 
-   echo ${SLV_REPO:-env} 
+  case $(hostname -s) in 
+   cms01) echo dybsvn ;;
+       *) echo env  ;;
+  esac
 }
 
 slv-master(){  
    case $(slv-repo) in 
       env) echo http://dayabay.phys.ntu.edu.tw/tracs/env/builds ;;
-   dybsvn) echo http://dayaby.ihep.ac.cn/tracs/dybsvn/builds    ;;
+   dybsvn) echo http://dayabay.ihep.ac.cn/tracs/dybsvn/builds    ;;
    esac
 }
 
-slv-name(){ 
-   case $(slv-repo) in 
-       env) hostname -s ;;
-    dybsvn) echo i686-slc46-gcc346 ;;    
-  esac
-}
+slv-name(){ hostname -s ; }
 
 slv-opt(){  
   local def="--dry-run"   ## --dry-run is very useful for debugging as avoids having to invalidate the failed builds...  
@@ -65,7 +70,13 @@ slv-cmd(){
   local name=$(slv-name)
   private-
   cat << EOC
-$(which bitten-slave) $(slv-opt) --name $name --verbose --work-dir=$(slv-dir) --keep-files --log=$name.log --user=$(private-val SLV_USER) --password=$(private-val SLV_PASS) $(slv-master)
+$(which bitten-slave) $(slv-opt) 
+      --name $name 
+      --verbose 
+      --work-dir=$(slv-dir) --build-dir="build_\\\${config}_\\\${revision}" 
+      --keep-files 
+      --log=$name.log 
+      --user=$(private-val SLV_USER) --password=$(private-val SLV_PASS) $(slv-master)
 EOC
 }
 

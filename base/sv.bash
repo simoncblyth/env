@@ -10,6 +10,14 @@ sv-usage(){
      sv-dir : $(sv-dir)
      sv-confpath : $(sv-confpath)
 
+     sv-logfile : $(sv-logfile)
+     sv-pidfile : $(sv-pidfile)
+         
+         on C : moved these to /var/log and /var/run to avoid ...        
+         C> maintail
+         supervisord: ERROR (no log file)
+
+
        http://supervisord.org/manual/current/
        http://pypi.python.org/pypi/superlance/
 
@@ -363,7 +371,10 @@ sv-cnf-triplets-(){
   inet_http_server|username|$(private-val SUPERVISOR_USERNAME)
   inet_http_server|password|$(sv-sha $(private-val SUPERVISOR_PASSWORD))
 
+
   supervisord|user|$(sv-user) 
+  supervisord|logfile|$(sv-logfile)
+  supervisord|pidfile|$(sv-pidfile)
 
   supervisorctl||
   unix_http_server||
