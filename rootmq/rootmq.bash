@@ -22,6 +22,9 @@ rootmq-usage(){
      rootmq-sendjson
      rootmq-sendobj
            run tests using rootmq-root
+           to run within screen ... for operation without terminal attached :
+               SCREEN=screen rootmq-sendobj
+
 
      rootmq-tests
           run all the tests
@@ -47,14 +50,19 @@ rootmq-dir(){ echo $(env-home)/rootmq ; }
 rootmq-cd(){  cd $(rootmq-dir); }
 rootmq-mate(){ mate $(rootmq-dir) ; }
 
+rootmq-root-cmd(){  cat << EOC
+$SCREEN $(env-runenv) $(which root) -b -q -l $1 $*
+EOC
+}
 rootmq-root(){
    local msg="=== $FUNCNAME :"
    local path=${1:-$defpath}
    [ ! -f "$path" ] && echo $msg no such root script at $path && return 1 
-   local cmd="$(env-runenv) root -b -q -l $path $*"
+   local cmd=$(rootmq-root-cmd $path)
    echo $msg $cmd 
    eval $cmd 
 }
+
 rootmq-iroot(){
    local cmd="$(env-runenv) root -l $*"
    echo $msg $cmd 

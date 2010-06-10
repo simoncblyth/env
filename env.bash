@@ -28,13 +28,18 @@ env-libpath(){
              *) echo $(env-libdir):$(root-libdir)                  ;;
       esac
 }
-env-runenv(){
+env-runenv-(){
       case $(uname) in
          Darwin) echo DYLD_LIBRARY_PATH=$(env-libpath $1) ;;
               *) echo LD_LIBRARY_PATH=$(env-libpath $1)  ;;
       esac
 }
  
+env-runenv(){ cat << EOC
+env -i $(env-runenv-) ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH HOME=$HOME USER=$USER ABERDEEN_HOME=$ABERDEEN_HOME
+EOC
+}
+
 
 env-scons-(){ find $(env-home) -name '*.scons' ; }
 env-scons(){ vi `$FUNCNAME-` ; }

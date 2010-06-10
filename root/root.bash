@@ -125,7 +125,7 @@ root-path(){
 }
 
 root-aliases(){
-  alias root="root -l"
+  #alias root="root -l"
   alias rh="tail -100 $HOME/.root_hist"
 }
 
