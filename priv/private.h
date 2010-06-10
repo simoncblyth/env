@@ -26,6 +26,10 @@ const char* private_lookup_default( const char* key , const char* def  );
 int private_getftime( char* buffer , size_t max ,  const char* tfmt );
 int private_getuserhostftime( char* buffer , size_t max , const char* tfmt , const char* afmt );
 
+char* private_hostname();
+char* private_username();
+char* private_userhost();
+
 
 #ifdef __cplusplus
 }

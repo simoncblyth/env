@@ -184,6 +184,37 @@ int private_getftime( char* buffer , size_t max ,  const char* tfmt )
   return strftime ( buffer, max, tfmt ,timeinfo);
 }
 
+char* private_hostname()
+{
+   const size_t max = 80 ; 
+   char* res = malloc(max + 1);
+   char buf[max] ;
+   int rc = gethostname( buf , max );
+   snprintf( res , max , "%s" , buf );  
+   return res ;
+}
+
+char* private_username()
+{
+   const size_t max = 30 ; 
+   char* res = malloc(max + 1);
+   char* user = getlogin();
+   snprintf( res , max , "%s" , user );  
+   return res ;
+}
+
+char* private_userhost()
+{
+   const size_t max = 110 ; 
+   char* res = malloc(max + 1);
+   char* user = getlogin();
+   snprintf( res , max , "%s@%s" , private_username() , private_hostname() );  
+   return res ;
+}
+
+
+
+
 int private_getuserhostftime( char* buffer , size_t max , const char* tfmt , const char* afmt )
 {
   const size_t hmax = 80 ;
@@ -201,17 +232,4 @@ int private_getuserhostftime( char* buffer , size_t max , const char* tfmt , con
 }
 
 
-int main(int argc, char** argv)
-{
-    const size_t max = 80 ;
-    char buf[max] ;
-    private_getuserhostftime( buf , max , "%c" , "%s@%s %s" ) ;
-    printf( buf );
-
-    int rc ;
-    rc = private_init(); if(rc != EXIT_SUCCESS) exit(rc) ;
-    int a ; for ( a = 1; a < argc; a++ ) printf("%s\n", private_lookup(argv[a])) ;
-    rc = private_cleanup(); if(rc != EXIT_SUCCESS) exit(rc) ;
-    return EXIT_SUCCESS;
-}
 
