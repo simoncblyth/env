@@ -18,11 +18,11 @@ slv-usage(){
 
     Run inside screen with :
           SCREEN=screen slv--
-             (detach with ctrl-a d , re-attach with screen -r ) 
-           the default is to do the build beneath $(slv-dir)
+              (detach with ctrl-a d , re-attach with screen -r ) 
+           this builds beneath $(slv-dir)
 
-    To build in the PWD ... use :
-          SCREEN=screen slv---
+    To build in the PWD ... eg :
+          cd $(local-base)/dyb ; SCREEN=screen slv---
 
 
 EOU
