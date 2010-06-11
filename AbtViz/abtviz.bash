@@ -97,7 +97,7 @@ abtviz-ipython(){
    local msg="=== $FUNCNAME :"
    #abtviz-cd
    env-
-   local cmd="$(env-runenv) ipython $*"
+   local cmd="$(env-runenv) $(which ipython) $*"
    echo $msg $cmd ... will take a while if need to startup X11 
    eval $cmd 
 }
@@ -106,7 +106,7 @@ abtviz-python(){
    local msg="=== $FUNCNAME :"
    abtviz-cd
    env-
-   local cmd="$(env-runenv) python ev.py $*"
+   local cmd="$(env-runenv) $(which python) ev.py $*"
    echo $msg $cmd ... will take a while if need to startup X11 
    eval $cmd 
 }

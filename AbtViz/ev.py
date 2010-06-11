@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import os
 
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]

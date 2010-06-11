@@ -86,7 +86,7 @@ int rootmq_init()
 
     if(rootmq_dbg > 0 ) 
         printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
-        printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,password,vhost ); 
+        printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,"***",vhost ); 
 
     rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
     if(rc != EXIT_SUCCESS) return rc ;

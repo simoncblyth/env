@@ -1,5 +1,5 @@
 import os
-import platform
+
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 
@@ -52,7 +52,8 @@ class EvGui(ROOT.TQObject):
     """
     def __init__(self, br):
         
-        name = "%s@%s" % ( os.environ.get('USER',"-") , platform.node() )       
+        if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
+        name = ROOT.MQ.NodeStamp()      
         br.SetWindowName( name )
         
         fToolbarFrame = br.GetToolbarFrame()
