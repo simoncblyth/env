@@ -28,15 +28,21 @@ env-libpath(){
              *) echo $(env-libdir):$(root-libdir)                  ;;
       esac
 }
+
 env-runenv-(){
       case $(uname) in
          Darwin) echo DYLD_LIBRARY_PATH=$(env-libpath $1) ;;
               *) echo LD_LIBRARY_PATH=$(env-libpath $1)  ;;
       esac
 }
+env-runpath-(){
+   local xdi=$(dirname $(which xdpyinfo))
+   echo $xdi
+}
+
  
 env-runenv(){ cat << EOC
-env -i $(env-runenv-) DISPLAY=$DISPLAY PYTHONPATH=$ROOTSYS/lib ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH HOME=$HOME USER=$USER ABERDEEN_HOME=$ABERDEEN_HOME
+env -i $(env-runenv-) PATH=$(env-runpath-) DISPLAY=$DISPLAY PYTHONPATH=$ROOTSYS/lib ENV_PRIVATE_PATH=$ENV_PRIVATE_PATH HOME=$HOME USER=$USER ABERDEEN_HOME=$ABERDEEN_HOME
 EOC
 }
 
