@@ -181,9 +181,12 @@ rabbitmq-wideopen(){
   IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen
 }
 
-rabbitmq-hg(){  echo http://hg.rabbitmq.com ; }
+
+
+## for info only ... the server was installed from EPEL repo
 
 rabbitmq-server-dir(){ echo $(rabbitmq-dir)/rabbitmq-server ; }
+rabbitmq-hg(){  echo http://hg.rabbitmq.com ; }
 rabbitmq-server-cd(){  cd $(rabbitmq-server-dir) ; }
 rabbitmq-server-get(){
   local dir=$(rabbitmq-dir)
@@ -193,7 +196,15 @@ rabbitmq-server-get(){
 
 
 
-
+rabbitmq-smry()
+{
+   local xs="exchanges queues connections bindings"
+   local x
+   for x in $xs ; do
+        echo $x
+        rabbitmq-$x
+   done
+}
 
 rabbitmq-fields(){    ## from the rabbitmqctl usage message 
    case $1 in

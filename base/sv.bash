@@ -471,12 +471,21 @@ sv-H(){  SV_TAG=H  sv-ctl $* ; }
 sv-C2(){ SV_TAG=C2 sv-ctl $* ; }
 sv-WW(){ SV_TAG=WW sv-ctl $* ; }
 
+
+sv-supervisorctl(){
+   case $(hostname -s) in 
+      cms01) echo /data/env/system/python/Python-2.5.1/bin/supervisorctl ;;
+          *) echo supervisorctl ;;
+   esac
+}
+
+
 sv-ctl(){ 
    local msg="=== $FUNCNAME :"
    local ini=$(sv-ctl-ini)
-   [ "$(which supervisorctl)" == "" ] && echo $msg no supervisorctl ... you are running with the wrong python && return 1
+   #[ "$(which supervisorctl)" == "" ] && echo $msg no supervisorctl ... you are running with the wrong python && return 1
    [ ! -f "$ini" ] && echo $msg ABORT no ini $ini for tag $(sv-ctl-tag) ... use \"SV_TAG=$(sv-ctl-tag) sv-ctl-prep\" to create one  && return 1
-   local cmd="supervisorctl -c $ini $*  "
+   local cmd="$(sv-supervisorctl) -c $ini $*  "
    [ -n "$SV_VERBOSE" ] && echo $msg $cmd
    eval $cmd
    [ ! "$?" -eq "0" ] && echo $msg error maybe server not running ... the ini $ini : && cat $ini
