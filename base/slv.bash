@@ -24,6 +24,9 @@ slv-usage(){
     To build in the PWD ... eg :
           cd $(local-base)/dyb ; SCREEN=screen slv---
 
+    Follow whats happenin :
+          pstree -al $(pgrep -n screen)
+
 
 EOU
 }
