@@ -4,36 +4,25 @@ slv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slv-src)} ; }
 slv-vi(){       vi $(slv-source) ; }
 slv-usage(){
   cat << EOU
-     slv-src : $(slv-src)
+
+    == slv ==
+
+        simplify the slave- funcs to work in fully relative manner 
+        with an eye to doing daily builds under slave control
+
      slv-dir : $(slv-dir)
-
      slv-name : $(slv-name)
-             using simple short hostname for the slave names
-              NB this is different names from current bitten slave 
-                  in order to prevent interference 
-              ... config the allowed slave names in the master eg for config dybdaily 
 
+       * .cfg must not be web-accessible so cannot live in the build dir 
+       * .recipe resides on the master in normal operation 
 
-   bitten slave explorations ...
+    Run inside screen with :
+          SCREEN=screen slv--
+             (detach with ctrl-a d , re-attach with screen -r ) 
+           the default is to do the build beneath $(slv-dir)
 
-     simon:e blyth$ python -c "import bitten ; print bitten.__file__ "
-/usr/local/env/trac/package/bitten/trac-0.11/bitten/__init__.pyc 
-
-
-   when using svn:export for a file the "dir" is the name of the file 
-
-   <svn:export url="http://dayabay.phys.ntu.edu.tw/repos/env/" 
-              path="trunk/env.bash" 
-          revision="${revision}" 
-               dir="env.bash"
-            
-       />
-
-   if it is the name of an existing directory eg /tmp,  then svn returns errors and writes tempfiles into /tempfile.2.tmp
-
-       [DEBUG   ] Executing ['svn', 'export', '--force', '-r', '2900', 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk/env.bash', '/tmp']
-       [ERROR   ] svn: Can't move '/tempfile.2.tmp' to '/tmp': Permission denied
-       [DEBUG   ] svn exited with code 256
+    To build in the PWD ... use :
+          SCREEN=screen slv---
 
 
 EOU
@@ -44,7 +33,6 @@ slv-env(){
 }
 slv-dir(){ echo $(local-base)/env/base/slv ; }
 slv-cd(){  cd $(slv-dir); }
-slv-mate(){ mate $(slv-dir) ; }
 slv-init(){
    local dir=$(slv-dir) &&  mkdir -p $dir && cd $dir
 }
@@ -55,21 +43,22 @@ slv-repo(){        private-val SLV_REPO ; }
 slv-repo-builds(){ private-val $(echo SLV_$(slv-repo)_BUILDS | private-upper ) ; }
 slv-repo-user(){   private-val $(echo SLV_$(slv-repo)_USER   | private-upper ) ; }
 slv-repo-pass(){   private-val $(echo SLV_$(slv-repo)_PASS   | private-upper ) ; }
-slv-repo-url(){    private-val $(echo SLV_$(slv-repo)_URL   | private-upper ) ; }
-slv-repo-script(){      private-val $(echo SLV_$(slv-repo)_SCRIPT     | private-upper ) ; }
-slv-repo-scriptname(){  private-val $(echo SLV_$(slv-repo)_SCRIPTNAME | private-upper ) ; }
+slv-repo-url(){    private-val $(echo SLV_$(slv-repo)_URL    | private-upper ) ; }
+
 slv-repo-info(){  cat << EOI
+
+  Name of the master repo and credentials to contact it with 
 
    slv-repo        : $(slv-repo)
    slv-repo-user   : $(slv-repo-user)
    slv-repo-pass   : $(slv-repo-pass)
    slv-repo-url    : $(slv-repo-url)
    slv-repo-builds : $(slv-repo-builds)
-   slv-repo-script : $(slv-repo-script)
-   slv-repo-scriptname : $(slv-repo-scriptname)
 
 EOI
 }
+
+
 slv-cfg(){
   local msg="=== $FUNCNAME :"
   echo $msg writing $(slv-cfg-path) 
@@ -83,6 +72,7 @@ slv-cfg-(){ cat << EOC
 # normally the master provides this context ... 
 # hardcode under local. for testing
 [local]
+build = 1000
 config = dybinst
 revision = 8751
 
@@ -91,30 +81,75 @@ name = $(slv-repo)
 url  = $(slv-repo-url)
 user = $(slv-repo-user)
 pass = $(slv-repo-pass)
-script = $(slv-repo-script)
-scriptname = $(slv-repo-scriptname)
+
+[script]
+path = installation/trunk/dybinst/dybinst 
+name = dybinst
+
+[dybinst]
+release = trunk
+
+
+
 EOC
 }
 
-slv-recipe-(){ cat << EOR
+slv-recipe-(){ 
+  local tmp="local."
+  cat << EOR
+
+<!DOCTYPE build [
+  <!ENTITY  slav  " export BUILD_REVISION=\${${tmp}revision} ; export BUILD_NUMBER=\${${tmp}build} ; " > 
+  <!ENTITY  clean " unset CMTCONFIG ; " >
+  <!ENTITY  env   " &slav;  &clean;  " > 
+]>
+
 <build
     xmlns:python="http://bitten.cmlenz.net/tools/python"
     xmlns:svn="http://bitten.cmlenz.net/tools/svn"
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
 <step id="export" description="export \${repo.script} script from \${repo.name} " onerror="fail" >
-    <svn:export url="\${repo.url}" path="\${repo.script}" dir="\${repo.scriptname}" revision="\${local.revision}" /> 
+    <svn:export url="\${repo.url}" path="\${script.path}" dir="\${script.name}" revision="\${${tmp}revision}" /> 
 </step>
-
-
  <!--
-   normally the recipe is kept on the master ... 
- -->
+     note that the dir is the name of the file 
+     update bitten on cms01 as export doesnt recognize username="\${repo.user}" password="\${repo.pass}"  
+  -->
+
+<step id="cmt" description="cmt" onerror="fail" > 
+    <sh:exec executable="bash" output="cmt.out"      args=" -c &quot; &env; ./dybinst \${dybinst.release} cmt &quot; " /> 
+</step>  
+
+<step id="checkout" description="checkout" onerror="fail" > 
+    <sh:exec executable="bash" output="checkout.out"  args=" -c &quot; &env; ./dybinst -z \${${tmp}revision} \${dybinst.release} checkout &quot; " /> 
+</step>  
+
+<step id="external" description="external" onerror="fail" > 
+    <sh:exec executable="bash" output="external.out"  args=" -c &quot; &env; ./dybinst  \${dybinst.release} external &quot; " /> 
+</step>  
+
+<step id="relax" description="relax" onerror="fail" > 
+    <sh:exec executable="bash" output="relax.out"  args=" -c &quot; &env; ./dybinst \${dybinst.release} projects relax  &quot; " /> 
+</step>  
+
+<step id="gaudi" description="gaudi" onerror="fail" > 
+    <sh:exec executable="bash" output="gaudi.out"  args=" -c &quot; &env; ./dybinst \${dybinst.release} projects gaudi  &quot; " /> 
+</step>  
+
+<step id="lhcb" description="lhcb" onerror="fail" > 
+    <sh:exec executable="bash" output="lhcb.out"  args=" -c &quot; &env; ./dybinst \${dybinst.release} projects lhcb  &quot; " /> 
+</step>  
+
+<step id="dybgaudi" description="dybgaudi" onerror="fail" > 
+    <sh:exec executable="bash" output="dybgaudi.out"  args=" -c &quot; &env; ./dybinst \${dybinst.release} projects dybgaudi  &quot; " /> 
+</step>  
+
+ <!-- normally the recipe is kept on the master ... but convenient to keep all together for dev  -->
+
 </build>
 EOR
 
-# probably need to update bitten on cms01 as export doesnt recognize username ... its using the svn auth cache
-#  username="\${repo.user}" password="\${repo.pass}"  
 
 }
 slv-recipe-path(){ echo demo.recipe ; }
@@ -135,11 +170,11 @@ slv-cmd(){
   local name=$(slv-name)
   local tmp="local."
   cat << EOC
-$(which bitten-slave) $(slv-opt) 
+$SCREEN $(which bitten-slave) $(slv-opt) 
       --name $name 
       --config=$(slv-cfg-path)
       --verbose 
-      --work-dir=$(slv-dir) 
+      --work-dir=. 
       --build-dir="build_\\\${${tmp}config}_\\\${${tmp}revision}" 
       --keep-files 
       --log=$name.log 
@@ -151,18 +186,25 @@ EOC
 
 }
 
-slv--(){
+slv---(){
+
   local msg="=== $FUNCNAME : "
-  local cmd=$(slv-cmd)
-  echo $msg $cmd
-  [ ! -d "$(slv-dir)" ] && slv-init
-
-  slv-cd
-
+  echo $msg running build from $PWD wherever that may be 
+ 
   slv-cfg 
   slv-recipe
 
+  local cmd=$(slv-cmd)
+  echo $msg $cmd
   eval $cmd
+}
+
+
+slv--(){
+  local msg="=== $FUNCNAME : "
+  [ ! -d "$(slv-dir)" ] && slv-init
+  slv-cd
+  slv---
 }
 
 
