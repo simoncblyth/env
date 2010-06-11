@@ -146,6 +146,9 @@ private-append-(){ sudo bash -c "echo local $1=$2 >> $(private-path)   " ;  }
 private-change-(){ sudo perl -pi -e "s,local $1=(\S*),local $1=$2, " $(private-path) ; }
 private-get(){     sudo perl -n  -e "m,local $1=(\S*), && print \$1" ${2:-$(private-path)} ; }
 
+private-upper(){
+   tr "[a-z]" "[A-Z]" 
+}
 
 private-val(){
 
