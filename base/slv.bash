@@ -10,6 +10,16 @@ slv-usage(){
         simplify the slave- funcs to work in fully relative manner 
         with an eye to doing daily builds under slave control
 
+   == fixed interval bitten-slave operation ==
+
+      IDEA :
+         * use single shot bitten-slave invokation
+         * make the requests to the master at the "right" time based on timeline observations 
+              * calling at fixed times would not work if coincides with commit cooldown windows
+         * observe the timeline rss feed to time the request
+              * http://www.feedparser.org/
+ 
+
      slv-dir : $(slv-dir)
      slv-name : $(slv-name)
 
@@ -40,6 +50,9 @@ slv-init(){
    local dir=$(slv-dir) &&  mkdir -p $dir && cd $dir
 }
 
+
+
+
 slv-name(){ hostname -s ; }
 
 slv-repo(){        private-val SLV_REPO ; }
@@ -47,6 +60,7 @@ slv-repo-builds(){ private-val $(echo SLV_$(slv-repo)_BUILDS | private-upper ) ;
 slv-repo-user(){   private-val $(echo SLV_$(slv-repo)_USER   | private-upper ) ; }
 slv-repo-pass(){   private-val $(echo SLV_$(slv-repo)_PASS   | private-upper ) ; }
 slv-repo-url(){    private-val $(echo SLV_$(slv-repo)_URL    | private-upper ) ; }
+
 
 slv-repo-info(){  cat << EOI
 
