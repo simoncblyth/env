@@ -42,6 +42,7 @@ ejabberd-mate(){ mate $(ejabberd-dir) ; }
 ejabberd-get(){
    #local dir=$(dirname $(ejabberd-dir)) &&  mkdir -p $dir && cd $dir
    echo $msg ... installed with yum from epel5 
+
 }
 
 ejabberd-confdir(){       echo /etc/ejabberd ; }
@@ -49,15 +50,20 @@ ejabberd-confpath(){      echo $(ejabberd-confdir)/ejabberd.cfg ; }
 ejabberd-ctlconfpath(){   echo $(ejabberd-confdir)/ejabberdctl.cfg ; }
 ejabberd-edit(){  sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
 
-ejabberd-cookiepath(){ echo /var/lib/ejabberd/.erlang.cookie ; }
+ejabberd-ebin(){       echo /usr/lib/ejabberd/ebin ; }
+ejabberd-include(){    echo /usr/lib/ejabberd/include ; }
+ejabberd-cookie(){     echo /var/lib/ejabberd/.erlang.cookie ; }
 ejabberd-logdir(){     echo /var/log/ejabberd ; }
 ejabberd-logpath(){    echo $(ejabberd-logdir)/ejabberd.log ; }
-ejabberd-tail(){       tail -f $(ejabberd-logpath) ; }
+ejabberd-log(){       sudo vi $(ejabberd-logpath) ; }
+ejabberd-tail(){      sudo tail -f $(ejabberd-logpath) ; }
 
 ejabberd-ctl(){        sudo ejabberdctl $* ; }
 ejabberd-status(){     ejabberd-ctl status ; }
 ejabberd-start(){      ejabberd-ctl start ; }
 ejabberd-stop(){       ejabberd-ctl stop ; }
+
+ejabberd-connected(){     ejabberd-ctl connected-users ; }
 
 ejabberd-open(){    
    iptables-
@@ -70,13 +76,17 @@ ejabberd-http(){
 }
 ejabberd-register-(){
    local pfx="${1:-}"
+   private-
    local cmd="sudo ejabberdctl register $(private-val EJABBERD_USER$pfx) $(private-val EJABBERD_HOST$pfx) $(private-val EJABBERD_PASS$pfx) "
    echo $cmd
    eval $cmd
 }
 ejabberd-register(){
    private-
+   
    ## attempts to register the same name/host again... gets already registered warning 
-   ejabberd-register- 
-   ejabberd-register- "_2"
+   local ids="_1 _2 _3 _4 _5"
+   for id in $ids ; do
+      ejabberd-register- $id
+   done
 }

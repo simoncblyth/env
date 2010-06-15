@@ -6,13 +6,24 @@ rabbitmq-env(){      elocal- ; }
 
 rabbitmq-log(){ cat << EOL
 
-  13/02/2010 : 
-       on cms01 server add_user "a" and change password of "guest" using :
-             sudo rabbitmqctl ...
-       give a the same permissions as guest  
+  15/06/2010  
+       on N ... use the below to do rougly the same as on C
+ 
+            rabbitmq-register <_1/2/3/...>   .... add users and set permissions 
+            rabbitmq-setup                   .... delete guest user
+            rabbitmq-wideopen
 
+         check connection with {{{bunny-;bunny-- OTHER_}}}
+
+
+  13/02/2010 : 
+       on C server add_user "a" and change password of "guest" using :
+             sudo rabbitmqctl ...
+            give a the same permissions as guest  
+              
         sudo rabbitmqctl set_permissions a ".*" ".*" ".*"
           > Setting permissions for user "a" in vhost "/" ...
+
         sudo rabbitmqctl list_permissions
           > Listing permissions in vhost "/" ...
           > a       .*      .*      .*
@@ -124,6 +135,7 @@ rabbitmq-logpath(){  echo $(rabbitmq-logdir)/rabbit.log ; }
 rabbitmq-tail(){   sudo tail -f $(rabbitmq-logpath) ; }
 rabbitmq-confpath(){ echo /etc/rabbitmq/rabbitmq.conf ; }
 rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }
+rabbitmq-cookie(){   echo /var/lib/rabbitmq/.erlang.cookie ; }
 
 rabbitmq-top(){      top -U rabbitmq $* ; }
 
@@ -140,6 +152,27 @@ rabbitmq-chkconfig(){
    eval $cmd
 }
 
+rabbitmq-ctl(){     sudo rabbitmqctl $* ; }
+
+rabbitmq-setup(){
+   sudo rabbitmqctl delete_user guest
+}
+
+rabbitmq-register(){
+  local msg="=== $FUNCNAME :"
+  local pfx="${1:-_1}" 
+  private-
+  local user=$(private-val RABBITMQ_USER$pfx)
+  local pass=$(private-val RABBITMQ_PASS$pfx)
+  echo $msg pfx $pfx user $user pass $pass 
+  type $FUNCNAME
+
+  rabbitmq-ctl add_user $user $pass 
+  ## do directly as tricky to pass such params 
+  sudo rabbitmqctl set_permissions $user '.*' '.*' '.*'
+  rabbitmq-ctl list_permissions 
+}
+
 
 rabbitmq-start(){   rabbitmq-ini start ; }
 rabbitmq-status(){  rabbitmq-ini status ; }
@@ -154,7 +187,12 @@ rabbitmq-install-yum(){
    sudo yum install erlang  
 
    ## for RHEL4   
-   sudo rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v1.7.0/rabbitmq-server-1.7.0-1.i386.rpm
+   ##sudo rpm -Uvh http://www.rabbitmq.com/releases/rabbitmq-server/v1.7.0/rabbitmq-server-1.7.0-1.i386.rpm
+   ## after enabling EPEL (see :  redhat- ; redhat-epel4 ) ... can just do 
+
+   sudo yum install rabbitmq-server
+
+
 }
 
 rabbitmq-install-port(){
@@ -166,7 +204,7 @@ rabbitmq-open-ip(){
   local ip=$1
   private-
   iptables-
-  IPTABLES_PORT=$(private-val AMQP_PORT) iptables-webopen-ip $ip 
+  IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen-ip $ip 
 }
 
 
@@ -209,7 +247,8 @@ rabbitmq-smry()
 rabbitmq-fields(){    ## from the rabbitmqctl usage message 
    case $1 in
       exchanges) echo name type durable auto_delete arguments  ;;
-         queues) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
+         queues_cms01) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
+         queues) echo name durable auto_delete arguments messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
     connections) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
        bindings) echo exchange_name routing_key queue_name arguments ;;
    esac
