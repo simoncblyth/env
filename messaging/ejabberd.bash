@@ -36,12 +36,20 @@ ejabberd-usage(){
 
 EOU
 }
-ejabberd-dir(){ echo $(local-base)/env/messaging/messaging-ejabberd ; }
+ejabberd-dir(){ echo $(local-base)/env/messaging/ejabberd ; }
 ejabberd-cd(){  cd $(ejabberd-confdir); }
 ejabberd-mate(){ mate $(ejabberd-dir) ; }
 ejabberd-get(){
-   #local dir=$(dirname $(ejabberd-dir)) &&  mkdir -p $dir && cd $dir
-   echo $msg ... installed with yum from epel5 
+   local dir=$(dirname $(ejabberd-dir)) &&  mkdir -p $dir && cd $dir
+   echo $msg ... on N installed with yum from epel5 ... on C not available in epel4 so ...
+
+   if [ ! -d ejabberd ]; then
+      git clone git://git.process-one.net/ejabberd/mainline.git ejabberd
+      cd ejabberd
+      git checkout -b 2.0.x origin/2.0.x
+   else
+      echo $msg ejabberd dir already exists 
+   fi
 
 }
 
@@ -69,8 +77,8 @@ ejabberd-open(){
    iptables-
    IPTABLES_PORT=$(local-port ejabberd) iptables-webopen  
 }
-ejabberd-http(){     
-   local cmd="curl http://localhost:$(local-port ejabberd-http)" 
+ejabberd-webadmin(){     
+   local cmd="curl http://localhost:$(local-port ejabberd-http)/admin" 
    echo $msg $cmd
    eval $cmd
 }

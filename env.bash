@@ -859,3 +859,4 @@ sq3-(){      . $(env-home)/db/sq3.bash && sq3-env $* ; }
 slv-(){      . $(env-home)/base/slv.bash && slv-env $* ; }
 ejabberd-(){      . $(env-home)/messaging/ejabberd.bash && ejabberd-env $* ; }
 modrabbitmq-(){      . $(env-home)/messaging/modrabbitmq.bash && modrabbitmq-env $* ; }
+adium-(){      . $(env-home)/messaging/adium.bash && adium-env $* ; }
