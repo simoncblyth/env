@@ -171,7 +171,7 @@ iptables-setup-node(){
        IPTABLES_PORT=$(local-port mysql) iptables-webopen-ip $(local-tag2ip C2)   
        IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen  
        IPTABLES_PORT=$(local-port slave-lighttpd) iptables-webopen        
-   else if [ "$(local-nodetag)" == "C2" ]; then
+   elif [ "$(local-nodetag)" == "C2" ]; then
        IPTABLES_PORT=$(local-port apache) iptables-webopen  
    else 
        echo $msg no setup defined for this node $(local-nodetag)  ... && return 0 
