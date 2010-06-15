@@ -88,13 +88,10 @@ ejabberd-get(){
 
 }
 
-
-
 ejabberd-build(){
    ejabberd-cd
-  
    cd src
-   ./configure --prefix=$(local-base)/env 
+   ./configure --prefix=$(ejabberd-prefix)  --exec-prefix=$(ejabberd-eprefix)
 }
 
 ejabberd-rabbit-copyin(){
@@ -103,29 +100,39 @@ ejabberd-rabbit-copyin(){
 } 
 
 ejabberd-install(){
-
    ejabberd-cd
    cd src
    sudo make install
 }
 
-
 ejabberd-diff(){        sudo diff $(ejabberd-confpath).original $(ejabberd-confpath) ; } 
 
-ejabberd-confdir(){       echo /etc/ejabberd ; }
-ejabberd-confpath(){      echo $(ejabberd-confdir)/ejabberd.cfg ; }
-ejabberd-ctlconfpath(){   echo $(ejabberd-confdir)/ejabberdctl.cfg ; }
-ejabberd-edit(){     sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
-ejabberd-editctl(){  sudo vi $(ejabberd-ctlconfpath) ; }
 
-ejabberd-ebin(){       echo /usr/lib/ejabberd/ebin ; }
-ejabberd-include(){    echo /usr/lib/ejabberd/include ; }
-ejabberd-cookie(){     echo /var/lib/ejabberd/.erlang.cookie ; }
-ejabberd-logdir(){     echo /var/log/ejabberd ; }
-ejabberd-slogpath(){   echo $(ejabberd-logdir)/sasl.log ; }
-ejabberd-logpath(){    echo $(ejabberd-logdir)/ejabberd.log ; }
+ejabberd-prefix(){
+ case $(hostname -s) in 
+    cms01) echo $(local-base)/env ;;
+        *) echo -n ;;
+ esac
+}
+ejabberd-eprefix(){     echo $(ejabberd-prefix)/usr ; }
+
+ejabberd-confdir(){     echo $(ejabberd-prefix)/etc/ejabberd ; }
+ejabberd-confpath(){    echo $(ejabberd-confdir)/ejabberd.cfg ; }
+ejabberd-ctlconfpath(){ echo $(ejabberd-confdir)/ejabberdctl.cfg ; }
+
+# huh no usr on C .. look into the configure
+ejabberd-ebin(){        echo $(ejabberd-eprefix)/lib/ejabberd/ebin ; }
+ejabberd-include(){     echo $(ejabberd-eprefix)/lib/ejabberd/include ; }
+ejabberd-cookie(){      echo $(ejabberd-prefix)/var/lib/ejabberd/.erlang.cookie ; }
+ejabberd-logdir(){      echo $(ejabberd-prefix)/var/log/ejabberd ; }
+ejabberd-slogpath(){    echo $(ejabberd-logdir)/sasl.log ; }
+ejabberd-logpath(){     echo $(ejabberd-logdir)/ejabberd.log ; }
+
+
+ejabberd-edit(){      sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
+ejabberd-editctl(){   sudo vi $(ejabberd-ctlconfpath) ; }
 ejabberd-log(){       sudo vi $(ejabberd-logpath) ; }
-ejabberd-slog(){       sudo vi $(ejabberd-slogpath) ; }
+ejabberd-slog(){      sudo vi $(ejabberd-slogpath) ; }
 ejabberd-tail(){      sudo tail -f $(ejabberd-logpath) ; }
 ejabberd-stail(){     sudo tail -f $(ejabberd-slogpath) ; }
 
