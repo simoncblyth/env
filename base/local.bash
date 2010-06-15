@@ -164,6 +164,8 @@ slave-lighttpd) private-val SLAVE_LIGHTTPD_PORT  ;;  # info only ...
             hg) private-val HGWEB_PORT ;;
     dbi|plvdbi) private-val PLVDBI_PORT ;;
        runinfo) private-val RUNINFO_PORT ;;  
+      ejabberd) private-val EJABBERD_PORT ;;  
+ ejabberd-http) private-val EJABBERD_HTTP_PORT ;;  
              *) echo -n ;;
    esac  
 }
