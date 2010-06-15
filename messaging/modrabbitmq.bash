@@ -35,7 +35,7 @@ modrabbitmq-get(){
    cd $dir
    if [ ! -d rabbitmq-xmpp ]; then
       hg clone http://hg.rabbitmq.com/rabbitmq-xmpp
-      cd rabbitqmq-xmpp
+      cd rabbitmq-xmpp
 
       ## take a punt on a compatible version  
       #hg up pre_switch_to_non_embedding   ... no .hrl at this version 

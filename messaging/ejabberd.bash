@@ -33,25 +33,78 @@ ejabberd-usage(){
     N : epel5 installation with yum   ejabberd 2.0.5 
           (2.0.5 was released 2009-04-03 ... apparently the last of the 2.0 series )
 
+    C : not available in epel4 ... so source install
+   
+
+   == C : source install ==
+
+      http://www.process-one.net/en/ejabberd/guide_en#htoc8
+
+
+  === rabbitmq-xmpp ===
+
+ [blyth@cms01 rabbitmq-xmpp]$ rpm -ql rabbitmq-server | grep .hrl
+/usr/lib/rabbitmq/lib/rabbitmq_server-1.7.0/include/rabbit.hrl
+/usr/lib/rabbitmq/lib/rabbitmq_server-1.7.0/include/rabbit_framing.hrl
+/usr/lib/rabbitmq/lib/rabbitmq_server-1.7.0/include/rabbit_framing_spec.hrl
+[blyth@cms01 rabbitmq-xmpp]$ 
+[blyth@cms01 rabbitmq-xmpp]$ diff /usr/lib/rabbitmq/lib/rabbitmq_server-1.7.0/include/rabbit.hrl src/rabbit.hrl
+21c21
+
+   some diffs but not disastrous
+
 
 EOU
 }
+ejabberd-base(){ echo $(dirname $(ejabberd-dir)) ; }
 ejabberd-dir(){ echo $(local-base)/env/messaging/ejabberd ; }
-ejabberd-cd(){  cd $(ejabberd-confdir); }
+ejabberd-cd(){  cd $(ejabberd-dir); }
 ejabberd-mate(){ mate $(ejabberd-dir) ; }
 ejabberd-get(){
-   local dir=$(dirname $(ejabberd-dir)) &&  mkdir -p $dir && cd $dir
+   local dir=$(ejabberd-base) &&  mkdir -p $dir && cd $dir
    echo $msg ... on N installed with yum from epel5 ... on C not available in epel4 so ...
 
    if [ ! -d ejabberd ]; then
       git clone git://git.process-one.net/ejabberd/mainline.git ejabberd
       cd ejabberd
-      git checkout -b 2.0.x origin/2.0.x
+      #git checkout -b 2.0.x origin/2.0.x
+      git checkout -b 2.1.x origin/2.1.x
    else
       echo $msg ejabberd dir already exists 
    fi
 
+   cd $dir
+   if [ ! -d rabbitmq-xmpp ]; then
+      hg clone http://hg.rabbitmq.com/rabbitmq-xmpp
+      cd rabbitqmq-xmpp
+      hg up tip
+   fi
+
 }
+
+
+
+ejabberd-build(){
+   ejabberd-cd
+  
+   cd src
+   ./configure --prefix=$(local-base)/env 
+}
+
+ejabberd-rabbit-copyin(){
+   cp $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/   
+   cp $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/
+} 
+
+ejabberd-install(){
+
+   ejabberd-cd
+   cd src
+   sudo make install
+}
+
+
+
 
 ejabberd-confdir(){       echo /etc/ejabberd ; }
 ejabberd-confpath(){      echo $(ejabberd-confdir)/ejabberd.cfg ; }
