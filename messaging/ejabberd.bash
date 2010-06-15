@@ -20,6 +20,12 @@ ejabberd-usage(){
       my investigations
         wiki:Ejabberd
 
+   == funcs ==
+
+   commandline check the webadmin is accessible ..
+      ejabberd-webadmin | xmllint --format - 
+
+
    == configuration ==
 
      config is loaded from .cfg file into mnesia database at 1st start,
@@ -104,20 +110,24 @@ ejabberd-install(){
 }
 
 
-
+ejabberd-diff(){        sudo diff $(ejabberd-confpath).original $(ejabberd-confpath) ; } 
 
 ejabberd-confdir(){       echo /etc/ejabberd ; }
 ejabberd-confpath(){      echo $(ejabberd-confdir)/ejabberd.cfg ; }
 ejabberd-ctlconfpath(){   echo $(ejabberd-confdir)/ejabberdctl.cfg ; }
-ejabberd-edit(){  sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
+ejabberd-edit(){     sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
+ejabberd-editctl(){  sudo vi $(ejabberd-ctlconfpath) ; }
 
 ejabberd-ebin(){       echo /usr/lib/ejabberd/ebin ; }
 ejabberd-include(){    echo /usr/lib/ejabberd/include ; }
 ejabberd-cookie(){     echo /var/lib/ejabberd/.erlang.cookie ; }
 ejabberd-logdir(){     echo /var/log/ejabberd ; }
+ejabberd-slogpath(){   echo $(ejabberd-logdir)/sasl.log ; }
 ejabberd-logpath(){    echo $(ejabberd-logdir)/ejabberd.log ; }
 ejabberd-log(){       sudo vi $(ejabberd-logpath) ; }
+ejabberd-slog(){       sudo vi $(ejabberd-slogpath) ; }
 ejabberd-tail(){      sudo tail -f $(ejabberd-logpath) ; }
+ejabberd-stail(){     sudo tail -f $(ejabberd-slogpath) ; }
 
 ejabberd-ctl(){        sudo ejabberdctl $* ; }
 ejabberd-status(){     ejabberd-ctl status ; }
@@ -130,9 +140,21 @@ ejabberd-open(){
    iptables-
    IPTABLES_PORT=$(local-port ejabberd) iptables-webopen  
 }
+
+ejabberd-open-webadmin(){    
+   #local tag=${1:-G}
+   iptables-
+   #IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen-ip $(local-tag2ip $tag)    
+   IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen 
+}
+
+ejabberd-webadmin-creds(){
+   private-
+   echo $(private-val EJABBERD_USER_0)@$(private-val EJABBERD_HOST_0):$(private-val EJABBERD_PASS_0)
+}
 ejabberd-webadmin(){     
-   local cmd="curl http://localhost:$(local-port ejabberd-http)/admin" 
-   echo $msg $cmd
+   local cmd="curl --anyauth --user $(ejabberd-webadmin-creds) http://localhost:$(local-port ejabberd-http)/admin" 
+   #echo $msg $cmd
    eval $cmd
 }
 ejabberd-register-(){
