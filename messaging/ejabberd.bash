@@ -66,6 +66,14 @@ ejabberd-base(){ echo $(dirname $(ejabberd-dir)) ; }
 ejabberd-dir(){ echo $(local-base)/env/messaging/ejabberd ; }
 ejabberd-cd(){  cd $(ejabberd-dir); }
 ejabberd-mate(){ mate $(ejabberd-dir) ; }
+
+
+ejabberd-wipe(){
+  cd $(ejabberd-base)
+  rm -rf ejabberd
+  rm -rf rabbitmq-xmpp 
+}
+
 ejabberd-get(){
    local dir=$(ejabberd-base) &&  mkdir -p $dir && cd $dir
    echo $msg ... on N installed with yum from epel5 ... on C not available in epel4 so ...
@@ -82,35 +90,74 @@ ejabberd-get(){
    cd $dir
    if [ ! -d rabbitmq-xmpp ]; then
       hg clone http://hg.rabbitmq.com/rabbitmq-xmpp
-      cd rabbitqmq-xmpp
+      cd rabbitmq-xmpp
       hg up tip
    fi
-
 }
 
-ejabberd-build(){
-   ejabberd-cd
-   cd src
-   ./configure --prefix=$(ejabberd-prefix)  --exec-prefix=$(ejabberd-eprefix)
+ejabberd-cf(){
+   local cmd="diff $(rabbitmq-hrl) $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl "
+   echo $msg $cmd
+   eval $cmd
 }
+
 
 ejabberd-rabbit-copyin(){
    cp $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/   
    cp $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/
 } 
 
+ejabberd-configure(){
+   ejabberd-cd
+   ejabberd-rabbit-copyin
+   cd src
+   ./configure --prefix=$(ejabberd-prefix)  --exec-prefix=$(ejabberd-eprefix)
+}
+
+ejabberd-make(){
+   ejabberd-cd
+   cd src
+   make
+}
+
 ejabberd-install(){
    ejabberd-cd
    cd src
    sudo make install
+
+   sudo cp $(ejabberd-confpath) $(ejabberd-confpath).original
+   sudo cp $(ejabberd-ctlconfpath) $(ejabberd-ctlconfpath).original
+}
+
+ejabberd-build(){
+
+   ejabberd-get
+   ejabberd-configure
+   ejabberd-make
+   ejabberd-install
+
 }
 
 ejabberd-diff(){        sudo diff $(ejabberd-confpath).original $(ejabberd-confpath) ; } 
+ejabberd-shost(){  hostname -s ; }
+
+ejabberd-conf(){
+   sudo perl -pi -e "s/^({hosts, \[\"localhost\")(\]}\.)\$/\$1,\"$(ejabberd-host)\"\$2/ " $(ejabberd-confpath)
+   sudo perl -pi -e "s/^{loglevel, \d}.$/{loglevel, 5}./ "  $(ejabberd-confpath)
+   sudo perl -pi -e "s/%%{acl, admin, {user, \"ermine\", \"example.org\"}}./{acl, admin, {user, \"$(ejabberd-user)\", \"$(ejabberd-host)\"}}./ " $(ejabberd-confpath)
+   sudo perl -pi -e "s/(  {mod_vcard,    \[\]},)$/\$1\n  {mod_rabbitmq, [{rabbitmq_node, rabbit\@$(ejabberd-shost)}]},/  " $(ejabberd-confpath) 
+
+   ejabberd-diff
+
+   echo register user 0 ... needed for webadmin to work 
+   ejabberd-register- _0
+   ejabberd-webadmin | xmllint --format -
+}
 
 
 ejabberd-prefix(){
  case $(hostname -s) in 
-    cms01) echo $(local-base)/env ;;
+    cms01) echo $(local-base)/env/ejd ;;
         *) echo -n ;;
  esac
 }
@@ -120,7 +167,6 @@ ejabberd-confdir(){     echo $(ejabberd-prefix)/etc/ejabberd ; }
 ejabberd-confpath(){    echo $(ejabberd-confdir)/ejabberd.cfg ; }
 ejabberd-ctlconfpath(){ echo $(ejabberd-confdir)/ejabberdctl.cfg ; }
 
-# huh no usr on C .. look into the configure
 ejabberd-ebin(){        echo $(ejabberd-eprefix)/lib/ejabberd/ebin ; }
 ejabberd-include(){     echo $(ejabberd-eprefix)/lib/ejabberd/include ; }
 ejabberd-cookie(){      echo $(ejabberd-prefix)/var/lib/ejabberd/.erlang.cookie ; }
@@ -136,7 +182,7 @@ ejabberd-slog(){      sudo vi $(ejabberd-slogpath) ; }
 ejabberd-tail(){      sudo tail -f $(ejabberd-logpath) ; }
 ejabberd-stail(){     sudo tail -f $(ejabberd-slogpath) ; }
 
-ejabberd-ctl(){        sudo ejabberdctl $* ; }
+ejabberd-ctl(){        sudo $(ejabberd-prefix)/usr/sbin/ejabberdctl $* ; }
 ejabberd-status(){     ejabberd-ctl status ; }
 ejabberd-start(){      ejabberd-ctl start ; }
 ejabberd-stop(){       ejabberd-ctl stop ; }
@@ -155,10 +201,11 @@ ejabberd-open-webadmin(){
    IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen 
 }
 
-ejabberd-webadmin-creds(){
-   private-
-   echo $(private-val EJABBERD_USER_0)@$(private-val EJABBERD_HOST_0):$(private-val EJABBERD_PASS_0)
-}
+ejabberd-user(){ echo $(private-;private-val EJABBERD_USER_0) ; }
+ejabberd-host(){ echo $(private-;private-val EJABBERD_HOST_0) ; }
+ejabberd-pass(){ echo $(private-;private-val EJABBERD_PASS_0) ; }
+
+ejabberd-webadmin-creds(){ echo $(ejabberd-user)@$(ejabberd-host):$(ejabberd-pass) ; }
 ejabberd-webadmin(){     
    local cmd="curl --anyauth --user $(ejabberd-webadmin-creds) http://localhost:$(local-port ejabberd-http)/admin" 
    #echo $msg $cmd
@@ -167,7 +214,7 @@ ejabberd-webadmin(){
 ejabberd-register-(){
    local pfx="${1:-}"
    private-
-   local cmd="sudo ejabberdctl register $(private-val EJABBERD_USER$pfx) $(private-val EJABBERD_HOST$pfx) $(private-val EJABBERD_PASS$pfx) "
+   local cmd="ejabberd-ctl register $(private-val EJABBERD_USER$pfx) $(private-val EJABBERD_HOST$pfx) $(private-val EJABBERD_PASS$pfx) "
    echo $cmd
    eval $cmd
 }

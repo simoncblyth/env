@@ -207,6 +207,10 @@ rabbitmq-open-ip(){
   IPTABLES_PORT=$(local-port rabbitmq) iptables-webopen-ip $ip 
 }
 
+rabbitmq-hrl(){
+  rpm -ql rabbitmq-server | grep rabbit.hrl
+}
+
 
 
 rabbitmq-open(){
