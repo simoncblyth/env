@@ -12,7 +12,7 @@ modrabbitmq-usage(){
 
         http://ndpar.blogspot.com/2010/03/integrating-rabbitmq-with-ejabberd.html
 
-
+     DEPRECATED ... MOVED TO ejabberd-
     
 
 
@@ -78,34 +78,4 @@ modrabbitmq-ls(){
 
 }
 
-modrabbitmq-config(){  cat << EOC
-   
-   with ejabberd-edit added the below to the modules section ...
-       {mod_rabbitmq, [{rabbitmq_node, rabbit@belle7}]},
-          
-EOC
-}
-
-modrabbitmq-cookie-align(){
-
-   ejabberd-
-   rabbitmq-
-
-   local ans 
-   read -p "$msg ejabberd-stop before you do this ... enter YES to proceed " ans
-   [ "$ans" != "YES" ] && echo $msg skipping && return 
-  
-   sudo mv $(ejabberd-cookie) $(ejabberd-cookie).orig
-   sudo cp $(rabbitmq-cookie) $(ejabberd-cookie)
-   sudo chown ejabberd:ejabberd  $(ejabberd-cookie)
-}
-
-modrabbitmq-cookie-ls(){
-   sudo ls -l $(ejabberd-cookie)
-   sudo cat $(ejabberd-cookie)
-   echo
-   sudo ls -l $(rabbitmq-cookie)
-   sudo cat $(rabbitmq-cookie) 
-   echo
-}
 

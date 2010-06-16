@@ -46,6 +46,22 @@ ejabberd-usage(){
 
       http://www.process-one.net/en/ejabberd/guide_en#htoc8
 
+   == issues ==
+
+   === on starting/restarting ejabberd(with mod_rabbitmq) on C ... see error in rabbitmq-tail ===
+
+{{{
+=ERROR REPORT==== 16-Jun-2010::15:06:31 ===
+** Connection attempt from disallowed node ejabberd@localhost ** 
+}}}
+
+     After ejabberd-cookie-align ... rabbitmq-tail says :
+{{{
+=INFO REPORT==== 16-Jun-2010::15:27:28 ===
+node ejabberd@localhost up
+}}}
+
+
 
   === rabbitmq-xmpp ===
 
@@ -127,7 +143,41 @@ ejabberd-install(){
 
    sudo cp $(ejabberd-confpath) $(ejabberd-confpath).original
    sudo cp $(ejabberd-ctlconfpath) $(ejabberd-ctlconfpath).original
+
+   ejabberd-cookie-align
+   ejabberd-cookie-ls
 }
+
+
+ejabberd-sysuser(){ 
+  case $(hostname -s) in
+    cms01) echo root ;;
+        *) echo ejabberd ;;
+  esac
+}
+ejabberd-sysgroup(){  ejabberd-sysuser ; }
+
+ejabberd-cookie-align(){
+
+   rabbitmq-
+   local ans
+   read -p "$msg ejabberd-stop before you proceed with this ... rabbitmq cookie stays the same so no need to stop it  ... enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return
+
+   sudo mv $(ejabberd-cookie) $(ejabberd-cookie).original
+   sudo cp $(rabbitmq-cookie) $(ejabberd-cookie)
+   sudo chown $(ejabberd-sysuser):$(ejabberd-sysgroup)  $(ejabberd-cookie)
+}
+
+ejabberd-cookie-ls(){
+   sudo ls -l $(ejabberd-cookie)
+   sudo cat $(ejabberd-cookie)
+   echo
+   sudo ls -l $(rabbitmq-cookie)
+   sudo cat $(rabbitmq-cookie)
+   echo
+}
+
 
 ejabberd-build(){
 
@@ -142,6 +192,7 @@ ejabberd-diff(){        sudo diff $(ejabberd-confpath).original $(ejabberd-confp
 ejabberd-shost(){  hostname -s ; }
 
 ejabberd-conf(){
+   ## this localhost needs to be removed ... to avoid startup crash dump
    sudo perl -pi -e "s/^({hosts, \[\"localhost\")(\]}\.)\$/\$1,\"$(ejabberd-host)\"\$2/ " $(ejabberd-confpath)
    sudo perl -pi -e "s/^{loglevel, \d}.$/{loglevel, 5}./ "  $(ejabberd-confpath)
    sudo perl -pi -e "s/%%{acl, admin, {user, \"ermine\", \"example.org\"}}./{acl, admin, {user, \"$(ejabberd-user)\", \"$(ejabberd-host)\"}}./ " $(ejabberd-confpath)
@@ -171,9 +222,14 @@ ejabberd-ebin(){        echo $(ejabberd-eprefix)/lib/ejabberd/ebin ; }
 ejabberd-include(){     echo $(ejabberd-eprefix)/lib/ejabberd/include ; }
 ejabberd-cookie(){      echo $(ejabberd-prefix)/var/lib/ejabberd/.erlang.cookie ; }
 ejabberd-logdir(){      echo $(ejabberd-prefix)/var/log/ejabberd ; }
-ejabberd-slogpath(){    echo $(ejabberd-logdir)/sasl.log ; }
+ejabberd-slogpath(){    
+  case $(hostname -s) in 
+    cms01) echo $(ejabberd-logdir)/erlang.log  ;;
+        *) echo $(ejabberd-logdir)/sasl.log  ;;
+  esac
+}
 ejabberd-logpath(){     echo $(ejabberd-logdir)/ejabberd.log ; }
-
+ejabberd-logwipe(){   sudo rm $(ejabberd-logpath) $(ejabberd-slogpath) ; }
 
 ejabberd-edit(){      sudo vi $(ejabberd-confpath) $(ejabberd-ctlconfpath) ; }
 ejabberd-editctl(){   sudo vi $(ejabberd-ctlconfpath) ; }
