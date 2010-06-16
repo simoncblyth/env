@@ -11,8 +11,8 @@ adium-usage(){
 
 EOU
 }
-adium-dir(){ echo "~/Library/Application Support/Adium 2.0/Users/Default/libpurple" ; }
-adium-cd(){  cd $(adium-dir); }
+adium-dir(){ echo ~/Library/Application Support/Adium 2.0/Users/Default/libpurple  ; }
+adium-cd(){  cd "$(adium-dir)"; }
 adium-mate(){ mate $(adium-dir) ; }
 adium-get(){
    local dir=$(dirname $(adium-dir)) &&  mkdir -p $dir && cd $dir
