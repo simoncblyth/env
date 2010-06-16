@@ -236,7 +236,9 @@ rabbitmq-server-get(){
   hg clone $(rabbitmq-hg)/rabbitmq-server
 }
 
-
+rabbitmq-info(){
+   yum --enablerepo=epel info rabbitmq-server
+}
 
 rabbitmq-smry()
 {

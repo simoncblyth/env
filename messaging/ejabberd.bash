@@ -34,6 +34,25 @@ ejabberd-usage(){
 
      config changes...  documented in wiki:Ejabberd
 
+
+
+   == versions ==
+
+
+   ||        ||   ejabberd   ||   rabbitmq-server   ||    rabbitmq-xmpp    ||
+   ||  N yum ||   2.0.5      ||    1.7.2            ||  56:0be11e0cbd86    ||            
+   ||  N src ||   2.1.x      ||    1.7.2            ||  56:0be11e0cbd86    ||            
+   ||  C     ||   2.1.x      ||    1.7.0            ||  56:0be11e0cbd86    ||               
+
+     Partially working on C ... not working on N .. 
+         ... curious would suspect the other way around ... am i sure using top of -xmpp
+
+     http://hg.rabbitmq.com/rabbitmq-server/tags
+
+       1.7.0 ... Wed Oct 07 14:47:05 2009 +0100 (8 months ago) .... http://hg.rabbitmq.com/rabbitmq-server/rev/b1089fcc31b7
+       1.7.2 ... Tue Feb 16 12:03:04 2010 +0000 (4 months ago) ...  http://hg.rabbitmq.com/rabbitmq-server/rev/bacb333d7645 
+      
+
    == installations ==
 
     N : epel5 installation with yum   ejabberd 2.0.5 
@@ -83,6 +102,9 @@ ejabberd-dir(){ echo $(local-base)/env/messaging/ejabberd ; }
 ejabberd-cd(){  cd $(ejabberd-dir); }
 ejabberd-mate(){ mate $(ejabberd-dir) ; }
 
+ejabberd-info(){
+    yum --enablerepo=epel info ejabberd
+}
 
 ejabberd-wipe(){
   cd $(ejabberd-base)
@@ -96,19 +118,21 @@ ejabberd-get(){
 
    if [ ! -d ejabberd ]; then
       git clone git://git.process-one.net/ejabberd/mainline.git ejabberd
-      cd ejabberd
-      #git checkout -b 2.0.x origin/2.0.x
-      git checkout -b 2.1.x origin/2.1.x
    else
       echo $msg ejabberd dir already exists 
    fi
+   cd ejabberd
+   #git checkout -b 2.0.x origin/2.0.x
+   git checkout -b 2.1.x origin/2.1.x
 
    cd $dir
    if [ ! -d rabbitmq-xmpp ]; then
       hg clone http://hg.rabbitmq.com/rabbitmq-xmpp
-      cd rabbitmq-xmpp
-      hg up tip
-   fi
+   else
+      echo rabbitmq-xmpp already exists
+   fi 
+   cd rabbitmq-xmpp
+   hg up tip
 }
 
 ejabberd-cf(){
@@ -117,11 +141,16 @@ ejabberd-cf(){
    eval $cmd
 }
 
-
 ejabberd-rabbit-copyin(){
    cp $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/   
    cp $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/
 } 
+
+ejabberd-rabbit-diff(){
+   diff $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/mod_rabbitmq.erl   
+   diff $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/rabbit.hrl   
+}
+
 
 ejabberd-configure(){
    ejabberd-cd
@@ -150,10 +179,11 @@ ejabberd-install(){
 
 
 ejabberd-sysuser(){ 
-  case $(hostname -s) in
-    cms01) echo root ;;
-        *) echo ejabberd ;;
-  esac
+  if [ "$(ejabberd-prefix)" == "" ]; then
+     echo ejabberd 
+  else
+     echo root
+  fi
 }
 ejabberd-sysgroup(){  ejabberd-sysuser ; }
 
@@ -199,16 +229,13 @@ ejabberd-conf(){
    sudo perl -pi -e "s/(  {mod_vcard,    \[\]},)$/\$1\n  {mod_rabbitmq, [{rabbitmq_node, rabbit\@$(ejabberd-shost)}]},/  " $(ejabberd-confpath) 
 
    ejabberd-diff
-
-   echo register user 0 ... needed for webadmin to work 
-   ejabberd-register- _0
-   ejabberd-webadmin | xmllint --format -
 }
 
 
 ejabberd-prefix(){
  case $(hostname -s) in 
     cms01) echo $(local-base)/env/ejd ;;
+   belle7) echo $(local-base)/env/ejd ;;
         *) echo -n ;;
  esac
 }
@@ -222,12 +249,15 @@ ejabberd-ebin(){        echo $(ejabberd-eprefix)/lib/ejabberd/ebin ; }
 ejabberd-include(){     echo $(ejabberd-eprefix)/lib/ejabberd/include ; }
 ejabberd-cookie(){      echo $(ejabberd-prefix)/var/lib/ejabberd/.erlang.cookie ; }
 ejabberd-logdir(){      echo $(ejabberd-prefix)/var/log/ejabberd ; }
+
 ejabberd-slogpath(){    
-  case $(hostname -s) in 
-    cms01) echo $(ejabberd-logdir)/erlang.log  ;;
-        *) echo $(ejabberd-logdir)/sasl.log  ;;
-  esac
+  if [ "$(ejabberd-prefix)" == "" ]; then
+      echo $(ejabberd-logdir)/sasl.log  
+  else
+      echo $(ejabberd-logdir)/erlang.log 
+  fi
 }
+
 ejabberd-logpath(){     echo $(ejabberd-logdir)/ejabberd.log ; }
 ejabberd-logwipe(){   sudo rm $(ejabberd-logpath) $(ejabberd-slogpath) ; }
 
@@ -250,16 +280,21 @@ ejabberd-open(){
    IPTABLES_PORT=$(local-port ejabberd) iptables-webopen  
 }
 
-ejabberd-open-webadmin(){    
-   #local tag=${1:-G}
+ejabberd-webadmin-setup(){
+   echo register user 0 ... needed for webadmin to work ... ejabberd has to be running for this to work 
+   ejabberd-register- _0
+   ejabberd-webadmin | xmllint --format -
+}
+
+ejabberd-webadmin-open(){    
    iptables-
-   #IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen-ip $(local-tag2ip $tag)    
    IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen 
 }
 
 ejabberd-user(){ echo $(private-;private-val EJABBERD_USER_0) ; }
 ejabberd-host(){ echo $(private-;private-val EJABBERD_HOST_0) ; }
 ejabberd-pass(){ echo $(private-;private-val EJABBERD_PASS_0) ; }
+
 
 ejabberd-webadmin-creds(){ echo $(ejabberd-user)@$(ejabberd-host):$(ejabberd-pass) ; }
 ejabberd-webadmin(){     
