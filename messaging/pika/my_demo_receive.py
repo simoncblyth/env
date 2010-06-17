@@ -19,7 +19,7 @@ print 'Connected to %r' % (conn.server_properties,)
 qname = 'pika_demo_receive'
 
 ch = conn.channel()
-ch.queue_declare(queue=qname, durable=True, exclusive=False, auto_delete=False)
+ch.queue_declare(queue=qname, durable=False , exclusive=False, auto_delete=False)
 ch.queue_bind(   queue=qname,  exchange='abtdaq' , routing_key='abt.test.string' )
 
 

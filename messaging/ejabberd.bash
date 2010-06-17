@@ -136,6 +136,7 @@ ejabberd-get(){
 }
 
 ejabberd-cf(){
+   rabbitmq-
    local cmd="diff $(rabbitmq-hrl) $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl "
    echo $msg $cmd
    eval $cmd
@@ -143,8 +144,15 @@ ejabberd-cf(){
 
 ejabberd-rabbit-copyin(){
    cp $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/   
-   cp $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/
+   
+   #echo $msg using the supplied rabbit.hrl from rabbitmq-xmpp
+   #cp $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/
+
+   echo $msg try to use the canonical rabbit ...    
+   rabbitmq-
+   cp $(rabbitmq-hrl)  $(ejabberd-dir)/src/
 } 
+
 
 ejabberd-rabbit-diff(){
    diff $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/mod_rabbitmq.erl   
@@ -170,7 +178,8 @@ ejabberd-install(){
    cd src
    sudo make install
 
-   sudo cp $(ejabberd-confpath) $(ejabberd-confpath).original
+   ## oops looses originals ...  on 2nd pass 
+   sudo cp $(ejabberd-confpath) $(ejabberd-confpath).original   
    sudo cp $(ejabberd-ctlconfpath) $(ejabberd-ctlconfpath).original
 
    ejabberd-cookie-align
