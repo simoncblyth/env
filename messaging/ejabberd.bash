@@ -143,6 +143,27 @@ ejabberd-cf(){
 }
 
 ejabberd-rabbit-copyin(){
+
+
+   cd $(ejabberd-base)/rabbitmq-xmpp
+
+   ## hg up bafcc3d61adb
+   ## go back to :
+   ##        http://hg.rabbitmq.com/rabbitmq-xmpp/rev/bafcc3d61adb    
+   ##            Thu Aug 27 16:21:24 2009 +0100 (9 months ago)
+   ##     
+   ##  which is contemporary with tag 1.7.0 of the server :
+   ##         http://hg.rabbitmq.com/rabbitmq-server/rev/b1089fcc31b7
+   ##              Wed Oct 07 14:47:05 2009 +0100 (8 months ago)
+   ##
+   ##   BUT thats on a different branch ... 
+   ##       pick the next revision on the right branch ...
+   ##       and bingo starting to work somewhat ...
+   ##       ... but sending binaries (eg with rootmq-sendobj) kills the connection 
+   ##       ... only raw string working 
+   ##          
+   hg up dd2dc489730f
+
    cp $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/   
    
    #echo $msg using the supplied rabbit.hrl from rabbitmq-xmpp
