@@ -19,10 +19,14 @@ print 'Connected to %r' % (conn.server_properties,)
 ## avoid round-robinning by having node specific queue names
 import platform
 qname = 'pika_demo_receive_%s' % platform.node()
+xname = 'abtdaq'
+kname = 'abt.test.string'
+print "open basic_consume queue %s from exchange %s with key %s " % ( qname, xname, kname )
+
 
 ch = conn.channel()
 ch.queue_declare(queue=qname, durable=False , exclusive=False, auto_delete=False)
-ch.queue_bind(   queue=qname,  exchange='abtdaq' , routing_key='abt.test.string' )
+ch.queue_bind(   queue=qname,  exchange=xname , routing_key=kname )
 
 
 def handle_delivery(ch, method, header, body):
