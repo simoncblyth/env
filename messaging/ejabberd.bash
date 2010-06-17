@@ -174,22 +174,20 @@ ejabberd-rabbit-copyin(){
    cp $(rabbitmq-hrl)  $(ejabberd-dir)/src/
 } 
 
-
 ejabberd-rabbit-diff(){
    diff $(ejabberd-base)/rabbitmq-xmpp/src/mod_rabbitmq.erl $(ejabberd-dir)/src/mod_rabbitmq.erl   
    diff $(ejabberd-base)/rabbitmq-xmpp/src/rabbit.hrl       $(ejabberd-dir)/src/rabbit.hrl   
 }
 
-
 ejabberd-configure(){
    ejabberd-cd
-   ejabberd-rabbit-copyin
    cd src
    ./configure --prefix=$(ejabberd-prefix)  --exec-prefix=$(ejabberd-eprefix)
 }
 
 ejabberd-make(){
    ejabberd-cd
+   ejabberd-rabbit-copyin
    cd src
    make
 }
@@ -206,7 +204,6 @@ ejabberd-install(){
    ejabberd-cookie-align
    ejabberd-cookie-ls
 }
-
 
 ejabberd-sysuser(){ 
   if [ "$(ejabberd-prefix)" == "" ]; then
@@ -321,21 +318,19 @@ ejabberd-webadmin-open(){
    IPTABLES_PORT=$(local-port ejabberd-http) iptables-webopen 
 }
 
-ejabberd-user(){ echo $(private-;private-val EJABBERD_USER_0) ; }
-ejabberd-host(){ echo $(private-;private-val EJABBERD_HOST_0) ; }
-ejabberd-pass(){ echo $(private-;private-val EJABBERD_PASS_0) ; }
+ejabberd-user(){ echo $(private-;private-val EJABBERD_USER_${1:-0}) ; }
+ejabberd-host(){ echo $(private-;private-val EJABBERD_HOST_${1:-0}) ; }
+ejabberd-pass(){ echo $(private-;private-val EJABBERD_PASS_${1:-0}) ; }
 
 
-ejabberd-webadmin-creds(){ echo $(ejabberd-user)@$(ejabberd-host):$(ejabberd-pass) ; }
+ejabberd-webadmin-creds(){ echo $(ejabberd-user $1)@$(ejabberd-host $1):$(ejabberd-pass $1) ; }
 ejabberd-webadmin(){     
-   local cmd="curl --anyauth --user $(ejabberd-webadmin-creds) http://localhost:$(local-port ejabberd-http)/admin" 
+   local cmd="curl --anyauth --user $(ejabberd-webadmin-creds $1) http://localhost:$(local-port ejabberd-http)/admin" 
    #echo $msg $cmd
    eval $cmd
 }
 ejabberd-register-(){
-   local pfx="${1:-}"
-   private-
-   local cmd="ejabberd-ctl register $(private-val EJABBERD_USER$pfx) $(private-val EJABBERD_HOST$pfx) $(private-val EJABBERD_PASS$pfx) "
+   local cmd="ejabberd-ctl register $(ejabberd-user $1) $(ejabberd-host $1) $(ejabberd-pass $1) "
    echo $cmd
    eval $cmd
 }
@@ -343,8 +338,8 @@ ejabberd-register(){
    private-
    
    ## attempts to register the same name/host again... gets already registered warning 
-   local ids="_1 _2 _3 _4 _5"
+   local ids="0 1 2 3 4 5"
    for id in $ids ; do
-      ejabberd-register- $id
+      [ -n "$(ejabberd-user $id)" ] && ejabberd-register- $id
    done
 }
