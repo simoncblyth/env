@@ -16,7 +16,9 @@ conn = pika.AsyncoreConnection(pika.ConnectionParameters(p('AMQP_SERVER'),
 
 print 'Connected to %r' % (conn.server_properties,)
 
-qname = 'pika_demo_receive'
+## avoid round-robinning by having node specific queue names
+import platform
+qname = 'pika_demo_receive_%s' % platform.node()
 
 ch = conn.channel()
 ch.queue_declare(queue=qname, durable=False , exclusive=False, auto_delete=False)
