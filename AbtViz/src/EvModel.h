@@ -34,6 +34,9 @@ public:
    void SetSource(const char *source);   // *SIGNAL* 
    void RefreshSource();                  // *SIGNAL* 
 
+   const char* GetOther() const;
+   void SetOther(const char* other="");  // *SIGNAL*
+
    void Print(Option_t* option="" ) const;
 
 protected:
@@ -42,6 +45,7 @@ protected:
    Int_t       fEntryMax ;
    Int_t       fDebug ;
    TString     fSource   ;
+   TString     fOther    ;
 
 public:
    static EvModel* Create();

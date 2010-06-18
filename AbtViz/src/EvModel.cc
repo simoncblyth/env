@@ -81,6 +81,16 @@ void EvModel::SetEntryMinMax(Int_t min, Int_t max){
 }
 
 
+
+const char* EvModel::GetOther() const { return fOther ; }
+void EvModel::SetOther( const char* other )
+{
+   fOther = other ;
+   Emit("SetOther(char*)");
+}
+
+
+
 const char* EvModel::GetSource() const { return fSource ; }
 void EvModel::SetSource( const char* source )
 {

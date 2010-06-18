@@ -14,6 +14,7 @@ class EvController(object):
         self.ecm( "SetEntry(Int_t)"             , self.handleChangedEntry )
         self.ecm( "SetEntryMinMax(Int_t,Int_t)" , self.handleChangedEntryMinMax )
         self.ecm( "SetSource(char*)"            , self.handleChangedSource )
+        self.ecm( "SetOther(char*)"             , self.handleChangedOther )
         self.ecm( "RefreshSource()"             , self.handleRefreshSource )
 
     def __getattribute__(self, name ):
@@ -28,6 +29,7 @@ class EvController(object):
     def sender(self):
         return ROOT.BindObject( ROOT.gTQSender, ROOT.EvModel ) 
 
+    def handleChangedOther(self):       print "ChangedOther %s %s " %       ( self.sender().GetOther()  , ROOT.g_.GetOther() )
     def handleChangedEntry(self):       print "ChangedEntry %s %s " %       ( self.sender().GetEntry()  , ROOT.g_.GetEntry() )
     def handleChangedEntryMinMax(self): print "ChangedEntryMinMax %s %s " % ( self.sender().GetEntry()  , ROOT.g_.GetEntry() )
     def handleChangedSource(self):      print "ChangedSource %s %s " %      ( self.sender().GetSource() , ROOT.g_.GetSource() )

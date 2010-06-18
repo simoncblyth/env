@@ -89,7 +89,7 @@ void rootmq_basic_msg_dump( const rootmq_basic_msg_t* msg , int verbosity , cons
        printf("rootmq_msg_dump %s ERROR null msg \n", label );
        return ;
     }
-    printf("rootmq_msg_dump %s .index %lld .key \"%s\" .accessed %lld \n", label , msg->index , msg->key, msg->accessed  );
+    printf("rootmq_basic_msg_dump %s .index %lld .key \"%s\" .accessed %lld \n", label , msg->index , msg->key, msg->accessed  );
     if(verbosity > 2)
        amqp_dump( msg->body.bytes , msg->body.len  );   
     if(verbosity > 1)

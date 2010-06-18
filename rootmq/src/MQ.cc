@@ -194,6 +194,15 @@ MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , co
 
 void MQ::Configure()
 {
+    /*
+         AMQP model ..
+             1) publish to an exchange ... no queue needed
+             2) consume from a queue which is bound to an exchange
+    
+         publishing is simpler as done syncronously : when you so desire 
+         consumption is harder ... as you dont know when you will receive the messages 
+    */
+    
    if(fConfigured){
       Printf("MQ::Configure WARNING are already configured " );
       this->Print();
@@ -207,26 +216,16 @@ void MQ::Configure()
       exit(rc);
    }
    
-   //
-   // SUSPECT START ORDERING ISSUE DUE TO SAME CONFIG FOR PUB AND SUB
-   //     1) publish to an exchange ... no queue needed
-   //     2) consume from a queue which is bound to an exchange
-   // 
-   //   publishing is simpler as the ball is in your court... you publish syncronously : when you so desire 
-   //   consumption is harder ... as you dont know when you will receive the messages 
-   //      : hence the burden to set up queues and bind them to exchanges falls to the consumer
-   //
-   //
    rootmq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
    rootmq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
    rootmq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
 
    fConfigured = kTRUE ;
 
-   // observer is invoked (from inside the lock)
-   //  when messages are added with fRoutingKey ... caution what you call otherwise deadlock
-   //  just use observer to signal the update  
-   CollectionConfigure( fRoutingKey.Data() , CollectionObserver , (void*)this , 5  );  
+ 
+   
+   Int_t maxlen = 10 ;
+   CollectionConfigure( fRoutingKey.Data() , CollectionObserver , (void*)this , maxlen  );  
 
 }
 
@@ -239,7 +238,8 @@ MQ::~MQ()
 void MQ::SendAString( const char* str , const char* key  )
 {
     TString astr = Form("%s : %s", NodeStamp(), str  ) ;  
-    SendString( astr.Data() , key );
+    // SendString( astr.Data() , key ); ... this is causing iChat to disconnect 
+    SendRaw( astr.Data() , key );
 }
 
 
@@ -289,20 +289,22 @@ void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
 int MQ::CollectionObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )
 {
    /*
-       Could have msg arg too ?   rootmq_basic_msg_t* msg 
-       BUT cannot do much from here as this is
-       executed from inside the monitoring thread ...
+   
+       CAUTION : 
+          this is invoked from within the monitoring thread (inside the lock)
+          when messages are added with fRoutingKey 
+                 
+            * caution what you call otherwise deadlock
+            * just use observer to signal the update
+            * avoid doing anything involved ... such as creating a TObject from a message
      
-       so avoid doing anything involved ... such as creating a TObject from a message
-     
-       setup the signal such that it propagates the arguments needed 
-       to construct the corresponding object via absolute addressing 
-         ( key , index ) ... 
+        setup the signal such that it propagates the arguments needed 
+        to construct the corresponding object via absolute addressing 
+           ( key , index ) ... 
+         
    */
 
-
-   MQ* self = (MQ*)me ; 
-   
+   MQ* self = (MQ*)me ;   // static method trick 
    Int_t dbg = self->GetDebug();
    if(dbg > 0){
         cout << "MQ::CollectionObserver key [" << key << "] qstat " 
@@ -330,17 +332,14 @@ void MQ::CollectionUpdated()
    Emit("CollectionUpdated()");
 }
 
-Int_t MQ::CollectionFresh( const char* key )
-{
-   return rootmq_collection_queue_fresh(key );
-}
+
 
 void MQ::CollectionDump()
 {
     cout << "MQ::CollectionDump ... for any content the monitor must have been running in order to collect messages " << endl ;
     rootmq_collection_dump();
     
-    cout << "MQ::" << endl ;
+    cout << "MQ::CollectionDump ... queue_lengths for each key " << endl ;
     TObjArray* keys = CollectionKeys();
     TIter next(keys);
     TObjString* s = NULL ;
@@ -418,26 +417,60 @@ Bool_t MQ::IsUpdated( const char* key )
     //cout << "MQ::IsUpdated [" << key << "] " << r << endl ;
     return r;
 }
+
+Int_t MQ::GetAccessed( const char* key , int n )
+{
+    return (Int_t)rootmq_collection_accessed( key , n  );
+}
+
 Int_t MQ::GetLength( const char* key )
 {
     return (Int_t)rootmq_collection_queue_length( key );
 }
+Int_t MQ::GetMaxLength( const char* key )
+{
+    return (Int_t)rootmq_collection_queue_get_maxlen( key );
+}
+void MQ::SetMaxLength( const char* key , int maxlen )
+{
+    rootmq_collection_queue_set_maxlen( key , maxlen );
+}
+TObject* MQ::Pop( const char* key , int n )
+{
+    rootmq_basic_msg_t* msg = rootmq_collection_pop( key , n );  
+    return MQ::ConvertMessage( msg );   
+} 
+
+TObject* MQ::Peek( const char* key , int n ) 
+{
+    /*
+       only difference between Get and Peek is the recording of the access
+    */
+    rootmq_basic_msg_t* msg = rootmq_collection_peek( key , n , 0 );  
+    return MQ::ConvertMessage( msg );
+}
 
 TObject* MQ::Get( const char* key , int n ) 
 {
-    /*
-       CAUTION : 
-          the msg accessed here is owned by the collection and
-          will get popped off the tail and deallocated as the collection fills up
-                 
-          ... perhaps should dupe ? but the TMessage ctor does that anyhow
-          it still remains theoretically possible for this to walk into undefined territory 
-    */
-    Int_t dbg = this->GetDebug();
-    TObject* obj = NULL ;
     rootmq_basic_msg_t* msg = rootmq_collection_get( key , n );  
-    if(!msg) return obj ;
+    return MQ::ConvertMessage( msg );
+}
     
+/*
+   CAUTION wrt  ::Peek and ::Get
+      the msg accessed is owned by the collection and
+      will get popped off the tail and deallocated as the collection fills up
+      ... perhaps should dupe ? but the TMessage ctor does that anyhow
+      it still remains theoretically possible for this to walk into undefined territory 
+*/
+
+
+TObject* MQ::ConvertMessage( rootmq_basic_msg_t* msg )
+{
+    TObject* obj = NULL ;
+    if(!msg) return obj ;
+       
+    Int_t dbg = this->GetDebug();
     const char* type     =  rootmq_get_content_type( msg );
     const char* encoding =  rootmq_get_content_encoding( msg );
     
@@ -447,12 +480,16 @@ TObject* MQ::Get( const char* key , int n )
        char* str = mq_frombytes( msg->body );
        obj = new TObjString( str );
     } else {
-       cout << "MQ::Get WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
+       cout << "MQ::ConvertMessage WARNING unknown (type,encoding) : (" << type << "," << encoding << ")" << endl ;
     }
     
-    if(dbg > 1) cout << "MQ::Get index " << msg->index << " type " << type << " encoding " << encoding << endl ;
-    return obj ;  
+    if(dbg > 1) cout << "MQ::ConvertMessage key " << msg->key << " index " << msg->index << " type " << type << " encoding " << encoding << endl ;
+    return obj ;
 }
+
+
+
+
 
 
 Bool_t MQ::IsMonitorRunning()

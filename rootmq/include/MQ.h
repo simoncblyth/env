@@ -13,6 +13,29 @@ class MyTMessage ;
 
 class MQ : public TObject {
 
+  /*
+      Internally the local collection is comprised of a hash of dequeues  
+          * http://library.gnome.org/devel/glib/unstable/glib-Double-ended-Queues.html
+          * this collection is updated by the monitoring thread 
+          * the hash is keyed on the routing keys of the messages  
+          * accesses to this collection with rootmq_collection_get/peek/pop are thread locked 
+
+      When monitoring AbtEvents 
+        * want to see the latest, and dont care about missing 
+           * (indeed missing events is a requirement when update frequency is too much for sensible GUI updating  )
+        * need stack behaviour (ie LIFO)
+            * implement with dequeues by restricting to : push_head/pop_head     
+            * restrict size by pop_tail prior to push_head once reach maximum size 
+
+      When presenting text messages 
+        * want to see all messages in the order received 
+        * need queue behaviour (ie FIFO)  
+            * implement with dequeues by restricting to : push_head/pop_tail  
+            * restrict size by pop_tail prior to push_head : this means the oldest messages get lost ... making way for the new 
+            * avoid losses by configuring 
+
+   */
+
   RQ_OBJECT("MQ")
 
   private:
@@ -56,7 +79,15 @@ class MQ : public TObject {
      const char* GetQueue();
      const char* GetRoutingKey(); // the default routing key if not specified otherwise
      
-     TObject* Get( const char* key , int n  );
+     
+     Int_t GetMaxLength( const char* key);
+     void SetMaxLength( const char* key , int maxlen );
+     Int_t GetAccessed( const char* key, int n=0 );
+     
+     TObject* Pop(  const char* key , int n=0 );
+     TObject* Peek( const char* key , int n=0 );
+     TObject* Get(  const char* key , int n=0 );
+     TObject* ConvertMessage( rootmq_basic_msg_t* msg );
      static TObject* Receive( void* msgbytes , size_t msglen );
      Bool_t IsMonitorRunning();
 
@@ -68,7 +99,7 @@ class MQ : public TObject {
      void SendRaw(const char* str , const char* key = NULL );
      void SendMessage(TMessage* msg , const char* key = NULL );
 
-     Int_t CollectionFresh(const char* key);
+ 
      void CollectionConfigure( const char* key , rootmq_collection_observer_t obs , void* obsargs , int msgmax );
      static int CollectionObserver( void* me , const char* key, rootmq_collection_qstat_t* args );  
      void CollectionUpdatedIndex( Long_t index ); /* SIGNAL */

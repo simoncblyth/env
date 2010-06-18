@@ -2,6 +2,20 @@ import ROOT
 from ROOT import kTRUE, kFALSE
 from evdatamodel import EvDataModel
 
+
+def mq_pop(key="abt.test.string", n=-1 ):
+    """     
+       defaults to popping the tail  
+       ... n=0 for popping the head             
+    """
+    while 1:
+        obj = ROOT.gMQ.Pop(key,n)
+        if not obj:
+            break
+        yield obj
+
+
+
 class EvOnline(list):   
     """
       In order to partition obj handling in the MQ the routing key is
@@ -21,22 +35,23 @@ class EvOnline(list):
         MQ status display in the GUI to monitor message counts received ... 
     
     """
-    def __init__(self, keys=["abt.test.event"], dbg=0, period=5000 ):
+    def __init__(self, src ):
 
         self.status = "online"
-        self.keys = ['default.routingkey','abt.test.string','abt.test.runinfo','abt.test.event','abt.test.other']
+        self.keys = eval(src)    # converts repr of dict of lifo/fifo keys back into dict  
         self.edm = EvDataModel()
         self.msg = None
-        
-        self.dbg = dbg
-        self.period = period
+        self.msgi = []
+        self.period = 5000
  
         if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
         if ROOT.gSystem.Load("libAbtDataModel") < 0:ROOT.gSystem.Exit(10)
         
         ROOT.gMQ.Create()
+        self.dbg = ROOT.gMQ.GetDebug()
         self.mq = ROOT.gMQ
         self.timer = ROOT.TTimer(self.period)
+        
         self._connect( self.timer, "TurnOn()",  self.On ) 
         self._connect( self.timer, "Timeout()", self.Check ) 
         self._connect( self.timer, "TurnOff()", self.Off ) 
@@ -58,20 +73,25 @@ class EvOnline(list):
             if there is a new obj in the MQ then get it and pass it on 
             to self.edm based on its class 
         """
-        for key in self.keys:
-            self.Check_(key)
+        for key in self.keys.get('lifo',[]):
+            self.Check_lifo(key)
+        for key in self.keys.get('fifo',[]):
+            self.Check_fifo(key)
 
-    def Check_(self, key):
+    def Check_fifo(self, key):        
+        if key == 'abt.test.string':
+            self.msgi = mq_pop(key)   ## hmm this is a generator ... does not need to be here .. can do it once only
+            accessed = self.mq.GetAccessed(key, 0) 
+            if accessed == 0:
+                ROOT.g_.SetOther()    ## something fresh ready for popping ....  kick the GUI
+        else:
+            self.msgi = []
+            print "Check_fifo not implemented for key %s " % key 
+            
+ 
+    def Check_lifo(self, key):
          """
-              it will usually be a while before runinfo gets updated ... so 
-              if the autorun has not yet been set 
-              try exploratory get popping off the top of the dq :
-
-                   self.mq.Get("abt.test.runinfo", 0 )
-
-              following the routing key standardization can now
-              also respond to abt.test.string ... an fill in text message view
-
+         
               PROBLEMS WITH THIS ARCHITECTURE...
               
                  1) misses AbtEvent ... thats more of a feature : it is meant to do this
@@ -79,34 +99,18 @@ class EvOnline(list):
                        sending multiple messages close together within the pulse window
                        results in some missed messages (different messages get missed
                        by each consumer)  
-                       
-                       
+                                     
                     the messages are all in the local dq ... the monitor thread blocks
                     on updates and places messages in the dq collections based on 
                     routing key (up to a current limit of ~10 msgs in each dq)
                     
                     just need to read them off..  but issue then becomes avoiding duplicates    
-                    .... to deal with this add .accessed to the msg 
-
-
-                    In [20]: ROOT.gMQ.CollectionFresh("abt.test.string")
-                    rootmq_msg_dump queue_fresh peek_nth 0  .index 756 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 1  .index 745 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 2  .index 734 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 3  .index 723 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 4  .index 712 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 5  .index 701 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 6  .index 690 .key "abt.test.string" .accessed 2 
-                    rootmq_msg_dump queue_fresh peek_nth 7  .index 679 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 8  .index 668 .key "abt.test.string" .accessed 1 
-                    rootmq_msg_dump queue_fresh peek_nth 9  .index 657 .key "abt.test.string" .accessed 1 
-                    Out[20]: 0
-
-
+                    .... to deal with this add .accessed to the msg
 
          """
-         if self.mq.IsUpdated(key):
-             if self.dbg>0:print "EvOnline.Check dq %s updated " % key  
+         accessed = self.mq.GetAccessed(key, 0) 
+         if accessed == 0:
+             if self.dbg>0:print "EvOnline.Check_lifo dq %s accessed %s " % ( key , accessed )  
              obj = self.mq.Get(key,0)
              if obj == None:
                  print "EvOnline.Check failed to Get obj "
@@ -121,7 +125,7 @@ class EvOnline(list):
                  self.msg = str(obj) 
              self.obj = obj 
          else:
-             if self.dbg>2:print "EvOnline.Check dq \"%s\" no update " % key 
+             if self.dbg>4:print "EvOnline.Check_lifo dq \"%s\" accessed %s " % ( key , accessed ) 
 
     def _connect(self, obj, sign , method ):
         handlerName = "_%s" % method.__name__

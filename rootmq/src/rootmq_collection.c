@@ -114,7 +114,8 @@ int rootmq_collection_add( rootmq_basic_msg_t * msg )
             q->stat.updated = 1 ;
         }   
 
-        // invoke the observer callback for the q corresponding to the message key
+        //   invoke the observer callback (typically : MQ::CollectionObserver) 
+        //   for the q corresponding to the message key
         if( q->observer ){
             q->observer( q->obsargs , msg->key , &(q->stat) ) ;
         }
@@ -137,44 +138,21 @@ rootmq_collection_qstat_t rootmq_collection_queue_stat(const char* key )
 
 bool_t rootmq_collection_queue_updated(const char* key )
 {
+    /*
+    
+         defaults to not updated if no q 
+             updated 
+               : set to 1 ... when a msg is added
+               : set to 0 ... when msg accessed via _get
+    
+    */
     G_LOCK(rootmq_collection);
     bool_t updated = 0 ;
     rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
-    updated = q == NULL ? 0 : q->stat.updated ;  // defaults to not updated if no q 
+    updated = q == NULL ? 0 : q->stat.updated ;  
     G_UNLOCK(rootmq_collection);
     return updated ;
 }
-
-
-int rootmq_collection_queue_fresh(const char* key )
-{
-    int fresh = 0 ;
-    G_LOCK(rootmq_collection);
-    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );     
-    if( q == NULL ){
-        printf("_collection_queue_fresh ERROR no q for key \"%s\" \n", key );
-    } else {    
-        guint length = g_queue_get_length(q->v.queue);
-        rootmq_basic_msg_t* msg = NULL ; 
-        guint n ;
-        char label[50] ;
-        for( n = 0 ; n < length ; n++ ){
-             switch ( q->kind ){
-                case 'Q':
-                    sprintf( label, "queue_fresh peek_nth %d ", n );
-                    msg = (rootmq_basic_msg_t*)g_queue_peek_nth(q->v.queue, n );
-                    rootmq_basic_msg_dump( msg , 0 , label  ); 
-                    if (msg->accessed == 0) fresh += 1 ;
-                    break ;
-                case 'H':
-                    break ;
-             }     
-        }
-    }
-    G_UNLOCK(rootmq_collection);
-    return fresh ;
-}
-
 
 
 /*
@@ -219,12 +197,6 @@ int rootmq_collection_keys( char* buf , size_t bufsize )
     g_hash_table_foreach( rootmq_collection , rootmq_collection_key_iter_ , kb );
     G_UNLOCK(rootmq_collection);
 }
-
-
-
-
-
-
 
 
 void rootmq_collection_dump( )
@@ -272,13 +244,38 @@ void rootmq_collection_queue_configure( const char* key , rootmq_collection_obse
 } 
 
 
+void rootmq_collection_queue_set_maxlen( const char* key ,  int msgmax )
+{
+    if(rootmq_dbg > 0) printf("rootmq_collection_queue_set_msgmax %s %d\n",key, msgmax );
+    G_LOCK(rootmq_collection);
+    rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
+    if( q == NULL ){
+        printf("_collection_queue_set_msgmax ERROR failed to create q for key \"%s\" \n", key );
+    } else {
+        q->stat.msgmax = msgmax ;
+    }
+    G_UNLOCK(rootmq_collection);
+}
+
+int rootmq_collection_queue_get_maxlen( const char* key )
+{
+    int msgmax = 0 ;  
+    if(rootmq_dbg > 0) printf("rootmq_collection_queue_get_msgmax %s \n",key );
+    G_LOCK(rootmq_collection);
+    rootmq_collection_queue_t* q =  rootmq_collection_getq_or_create_( key );
+    if( q == NULL ){
+        printf("_collection_queue_set_msgmax ERROR failed to create q for key \"%s\" \n", key );
+    } else {
+        msgmax = q->stat.msgmax  ;
+    }
+    G_UNLOCK(rootmq_collection);
+}
+
+
+
+/*
 rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n ) 
 {
-    /*
-        maybe should move to g_queue_pop_nth the msg off the collection
-        to avoid access checks for freshness ?
-    */
-    
     rootmq_basic_msg_t* msg = NULL ;
     G_LOCK(rootmq_collection);
     rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
@@ -303,7 +300,97 @@ rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n )
     G_UNLOCK(rootmq_collection);
     return msg ; 
 }
+*/
 
+rootmq_basic_msg_t* rootmq_collection_pop( const char* key , int n ) 
+{
+    /*
+             n > 0      pop_nth with n
+             n = 0      pop_head
+             n = -1     pop_tail
+             n = -2     pop_nth with 0              ... checking get same as pop_head
+             n = -3     pop_nth with  length - 1   .... checking get same as pop_tail
+
+    */
+    rootmq_basic_msg_t* msg = NULL ;
+    G_LOCK(rootmq_collection);
+    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
+    if( q == NULL ){
+        if( rootmq_dbg > 4 )
+            printf("_collection_pop ERROR no q for key \"%s\" \n", key );
+    } else {       
+        int len =  (int)g_queue_get_length( q->v.queue );
+        switch(n)
+        {
+           case  0:    msg = (rootmq_basic_msg_t*)g_queue_pop_head( q->v.queue ) ;    break ;
+           case -1:    msg = (rootmq_basic_msg_t*)g_queue_pop_tail( q->v.queue ) ;    break ;
+           case -2:    msg = (rootmq_basic_msg_t*)g_queue_pop_nth( q->v.queue , 0 ) ; break ;
+           case -3:    msg = (rootmq_basic_msg_t*)g_queue_pop_nth( q->v.queue , len - 1 ) ;  break;  
+           default:    msg = (rootmq_basic_msg_t*)g_queue_pop_nth( q->v.queue , n ) ; 
+        }
+    }
+    G_UNLOCK(rootmq_collection);
+    return msg ; 
+}
+
+rootmq_basic_msg_t* rootmq_collection_get( const char* key , int n ) 
+{
+    /*
+          _get records the access 
+          _peek doesnt (by default)
+    */
+    return rootmq_collection_peek( key , n , 1 );
+}
+
+rootmq_basic_msg_t* rootmq_collection_peek( const char* key , int n , int record ) 
+{
+    /*
+             n > 0      peek_nth with n
+             n = 0      peek_head
+             n = -1     peek_tail
+             n = -2     peek_nth with  0             ... checking get same as peek_head
+             n = -3     peek_nth with  length - 1   .... checking get same as peek_tail
+
+    */
+    rootmq_basic_msg_t* msg = NULL ;
+    G_LOCK(rootmq_collection);
+    rootmq_collection_queue_t* q = rootmq_collection_getq_( key );
+    if( q == NULL ){
+        if( rootmq_dbg > 4 )
+            printf("_collection_peek ERROR no q for key \"%s\" \n", key );
+    } else {
+        int len =  (int)g_queue_get_length( q->v.queue );
+        switch(n)
+        {
+            case  0:    msg = (rootmq_basic_msg_t*)g_queue_peek_head( q->v.queue ) ;    break ;
+            case -1:    msg = (rootmq_basic_msg_t*)g_queue_peek_tail( q->v.queue ) ;    break ;
+            case -2:    msg = (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , 0 ) ; break ;
+            case -3:    msg = (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , len - 1 ) ; break;  
+            default:    msg = (rootmq_basic_msg_t*)g_queue_peek_nth( q->v.queue , n ) ; 
+        }
+    }
+    
+    if(record && msg){
+        q->stat.updated = 0 ;    
+        q->stat.read += 1 ;
+        q->stat.lastread = msg->index ;
+        msg->accessed += 1 ;
+    }
+    
+    G_UNLOCK(rootmq_collection);
+    return msg ; 
+}
+
+
+int rootmq_collection_accessed( const char* key , int n ) 
+{
+    /*
+          the record = 0  parameter to _peek means that the access is not recorded
+    */
+    rootmq_basic_msg_t* msg = rootmq_collection_peek( key , n , 0 );  
+    if(!msg) return -1 ;
+    return msg->accessed ;
+}
 
 
 
@@ -400,13 +487,14 @@ void rootmq_collection_hash_dumper_(gpointer key, gpointer value, gpointer user_
         }     
    }
 
+   /*
    switch ( q->kind ){
       case 'Q':
           rootmq_basic_msg_dump( (rootmq_basic_msg_t*)g_queue_peek_head( q->v.queue ) , 0 , "peek_head" ); 
           rootmq_basic_msg_dump( (rootmq_basic_msg_t*)g_queue_peek_tail( q->v.queue ) , 0 , "peek_tail" ); 
           break ;
    }
-
+   */
 
 }
 

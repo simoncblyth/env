@@ -20,6 +20,9 @@ from evonline import EvOnline
 print "imported EvOnline"
 
 
+
+
+
 class Controller(EvController):
     """
           The hub of Event Display wiring 
@@ -125,6 +128,12 @@ class Controller(EvController):
             self.src = EvOnline(self.GetSource()) 
         self.SetEntry(0)
 
+    def handleChangedOther(self):
+        if self.dbg>1:
+            print "Controller.handleChangedOther "
+            ROOT.g_.Print()
+        for tmsg in self.src.msgi:
+             self.gui.do_msg_display(str(tmsg))
 
     def handleChangedEntry(self):
         entry = self.GetEntry()
@@ -147,6 +156,7 @@ class Controller(EvController):
             if self.dbg>1:print "rsmy %s" % len(rsmy)
             self.gui.update_run_summary(  html=rsmy )
         
+        
         pmtr = self.src.pmt_response() 
         if len(pmtr) > 0:
             if self.dbg>1:print "pmtr %s" % pmtr
@@ -157,11 +167,12 @@ class Controller(EvController):
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
        
-        tmsg = self.src.msg
-        if tmsg:
-            self.src.msg = None
-            self.gui.do_msg_display(tmsg)
+        #tmsg = self.src.msg
+        #if tmsg:
+        #    self.src.msg = None
+        #    self.gui.do_msg_display(tmsg)
        
+ 
        
         if self.dbg>1:
             print "Controller.handleChangedEntry %s\n%s" % ( entry, self.src.edm()  )
@@ -192,8 +203,13 @@ if __name__=='__main__':
     g = Controller()
     from ROOT import g_
 
-    #g.SetSource("$ABERDEEN_HOME/DataModel/sample/run00027.root")   ## offline running from a file
-    g.SetSource("default.routingkey")    ## online running tests
+    offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
+    online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
+    
+    g.SetSource( repr(online) )
+    #g.SetSource( offline )
+    
+    
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE
 
     try:
