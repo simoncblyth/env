@@ -26,11 +26,6 @@ pika-ln(){
   python-ln $(pika-dir)/pika
 }
 
-pika-ex-receive(){
-  python $(env-home)/messaging/pika/my_demo_receive.py
-}
-
-pika-ex-send(){
-  python $(env-home)/messaging/pika/my_demo_send.py
-}
+pika-send(){    python $(env-home)/messaging/pika/send.py $* ; }
+pika-consume(){ python $(env-home)/messaging/pika/consume.py $* ; }
 
