@@ -21,11 +21,17 @@ op.add_option("-q", "--queue")
 op.add_option("-x", "--exchange")
 op.add_option("-k", "--routing-key")
 
+op.add_option("-d", "--durable",   action="store_true" ) 
+op.add_option("-v", "--exclusive", action="store_true" ) 
+op.add_option("-a", "--auto-delete", action="store_true" ) 
 
 op.set_defaults(
      queue="%s@%s" % ( os.path.basename(sys.argv[0]) , platform.node() ), 
      routing_key="#.string" , 
      exchange="abt" , 
+     durable=True,
+     exclusive=False,
+     auto_delete=False,
 )
 
 def handle_delivery(ch, method, header, body):
@@ -46,7 +52,7 @@ def consume( opts, args ):
     print 'Connected to %r' % (conn.server_properties,)
 
     ch = conn.channel()
-    ch.queue_declare(queue=opts.queue , durable=False , exclusive=False, auto_delete=False)
+    ch.queue_declare(queue=opts.queue , durable=opts.durable , exclusive=opts.exclusive , auto_delete=opts.auto_delete )
     ch.queue_bind(   queue=opts.queue , exchange=opts.exchange  , routing_key=opts.routing_key )
     ch.basic_consume( handle_delivery, queue = opts.queue )
     pika.asyncore_loop()

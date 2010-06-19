@@ -115,7 +115,7 @@ abtviz-gpython(){
    local msg="=== $FUNCNAME :"
    abtviz-cd
    env-
-   local cmd="$(env-runenv) gdb $(which python)"
+   local cmd="$(env-runenv) $(which gdb) $(which python)"
    echo $msg $cmd ... enter "set args ev.py" ... then run
    eval $cmd 
 }
