@@ -16,7 +16,7 @@ op = OptionParser()
 op.add_option("-k", "--routing-key")
 op.add_option("-x", "--exchange")
 op.add_option("-b", "--body")
-op.set_defaults( routing_key="demo.routing.key" , exchange="amq.topic" , body="test message from %s on %s " % (sys.argv[0], platform.node() ))
+op.set_defaults( routing_key="abt.test.string" , exchange="abt" , body="test message from %s on %s " % (sys.argv[0], platform.node() ))
 
 def send( opts, args ):
     print opts, args
