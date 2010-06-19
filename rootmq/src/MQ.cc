@@ -56,16 +56,18 @@ const char* MQ::NodeStamp()
 
 char* MQ::Summary() const
 {
+   const char* type = fConsumer ? "CONSUMER" : "PRODUCER" ;    
    stringstream ss ;
    ss    << "MQ::Summary "
-         << " exchange " << fExchange.Data() 
-         << " exchangeType " << fExchangeType.Data() 
-         << " queue " << fQueue.Data() 
-         << " routingKey " << fRoutingKey.Data() << endl 
-         << " passive " << fPassive 
-         << " durable " << fDurable 
-         << " autoDelete " << fAutoDelete 
-         << " exclusive " << fExclusive
+         << type 
+         << " exchange: " << fExchange.Data() 
+         << " exchangeType: " << fExchangeType.Data() 
+         << " queue: " << fQueue.Data() 
+         << " routingKey: " << fRoutingKey.Data() << endl 
+         << " passive: " << fPassive 
+         << " durable: " << fDurable 
+         << " autoDelete: " << fAutoDelete 
+         << " exclusive: " << fExclusive
          << " nodestamp " 
          << MQ::NodeStamp()
         ;
@@ -113,9 +115,28 @@ Int_t MQ::GetDebug()
     return fDebug ;
 }
 
+Bool_t MQ::IsConsumer(){ 
+    return fConsumer ; 
+}
 
-MQ* MQ::Create(Bool_t start_monitor)
+
+MQ* MQ::Create(Bool_t consumer )
 {
+   /*
+                         A      B      C
+        -----------------------------------------------                 
+         passive         0      0      0
+         durable         0      1      0
+         auto_delete     1      0      1
+         exclusive       0      0      0
+         
+            Durable message queues continue to exist and collect messages whether or 
+            not there are consumers to receive them
+         
+            The defaults were changed to B (with durable:1) while debugging the fanout config...
+         
+   */    
+    
    if( gMQ != 0 ){
       cout << "MQ::Create WARNING  non null gMQ ... you can only call this once " << endl ;
       return gMQ ;
@@ -127,33 +148,13 @@ MQ* MQ::Create(Bool_t start_monitor)
        gSystem->Exit(rc);
    }
 
-
    const char* hostname     = gSystem->HostName() ;
-   const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "abtdaq" );
+   const char* exchange     = private_lookup_default( "ROOTMQ_EXCHANGE" ,    "abt" );
    const char* queue        = private_lookup_default( "ROOTMQ_QUEUE" ,       hostname );
-   const char* routingkey   = private_lookup_default( "ROOTMQ_ROUTINGKEY" ,  "default.routingkey" );
-   const char* exchangetype = private_lookup_default( "ROOTMQ_EXCHANGETYPE", "fanout" );
-
-   gMQ = new MQ(exchange, queue, routingkey, exchangetype);
-
-
-   /*
-         During active testing option set B is prone to server death at 04:06 am each morning see #276
+   const char* routingkey   = private_lookup_default( "ROOTMQ_ROUTINGKEY" ,  "abt.#" );
+   const char* exchangetype = private_lookup_default( "ROOTMQ_EXCHANGETYPE", "topic" );
    
-                         A      B      C
-        -----------------------------------------------                 
-         passive         0      0      0
-         durable         0      1      0
-         auto_delete     1      0      1
-         exclusive       0      0      0
-         
-            Durable message queues continue to exist and collect messages whether or 
-            not there are consumers to receive them
-         
-           The defaults were changed to B (with durable:1) while debugging the fanout config...
-         
-   */
-
+   gMQ = new MQ( consumer, exchange, queue, routingkey, exchangetype);
 
    Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
    Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "0" ) );   
@@ -162,23 +163,25 @@ MQ* MQ::Create(Bool_t start_monitor)
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
    
-   
    Int_t dbg          =         atoi( private_lookup_default( "ROOTMQ_DBG" ,   "0" ) );
    if( dbg > 0 ) gMQ->Print() ;
    gMQ->SetDebug( dbg );
-   if( start_monitor ) gMQ->StartMonitorThread() ;
    
+   if( gMQ->IsConsumer() ){
+       gMQ->StartMonitorThread() ;
+   }
    private_cleanup();
    return gMQ ;
 }  
 
 
-MQ::MQ(  const char* exchange ,  const char* queue , const char* routingkey , const char* exchangetype ) 
+MQ::MQ(  Bool_t consumer, const char* exchange ,  const char* queue , const char* routingkey , const char* exchangetype ) 
 {
    if (gMQ != 0)
       throw("There can be only one!");
    gMQ = this;
 
+   fConsumer = consumer ;
    fExchange = exchange ;
    fQueue    = queue ;
    fRoutingKey = routingkey ;
@@ -216,16 +219,23 @@ void MQ::Configure()
       exit(rc);
    }
    
+   // producers/consumers need an exchange to send/bind to 
    rootmq_exchange_declare( fExchange.Data() , fExchangeType.Data() , fPassive , fDurable, fAutoDelete  ); 
-   rootmq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
-   rootmq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
-
-   fConfigured = kTRUE ;
-
- 
+  
    
-   Int_t maxlen = 10 ;
-   CollectionConfigure( fRoutingKey.Data() , CollectionObserver , (void*)this , maxlen  );  
+   // only consumers need to bind a queue up to an exchange 
+   // and prepare callbacks for message collection + notification onwards to GUIs etc..
+
+   if(fConsumer){
+       cout << "MQ::Configure setting up CONSUMER " <<  endl ;
+       rootmq_queue_declare(    fQueue.Data(), fPassive , fDurable, fExclusive, fAutoDelete  ); 
+       rootmq_queue_bind(       fQueue.Data(), fExchange.Data() , fRoutingKey.Data() );    
+       Int_t maxlen = 10 ;
+       CollectionConfigure( fRoutingKey.Data() , CollectionObserver , (void*)this , maxlen  );
+   } else {
+       cout << "MQ::Configure setting up PRODUCER " <<  endl ;   
+   }
+   fConfigured = kTRUE ;
 
 }
 
@@ -235,23 +245,25 @@ MQ::~MQ()
     if(fMonitorRunning) StopMonitorThread();
 }
 
+
+
+
+// preparing to send
+
 void MQ::SendAString( const char* str , const char* key  )
 {
     TString astr = Form("%s : %s", NodeStamp(), str  ) ;  
-    // SendString( astr.Data() , key ); ... this is causing iChat to disconnect 
     SendRaw( astr.Data() , key );
-}
-
-
-void MQ::SendRaw( const char* str , const char* key )
-{
-   if(!fConfigured) this->Configure();
-   const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
-   rootmq_sendstring( fExchange.Data() , ukey  , str );
 }
 
 void MQ::SendString( const char* str , const char* key  )
 {
+    SendRaw( str , key );
+}
+
+void MQ::SendStringAsTMessage( const char* str , const char* key  )
+{
+   // such messages kill iChat consumers ... causing disconnection     
    TMessage *tm = new TMessage(kMESS_STRING);
    tm->WriteCharP(str);
    this->SendMessage( tm , key );
@@ -262,6 +274,25 @@ void MQ::SendObject( TObject* obj , const char* key  )
    TMessage *tm = new TMessage(kMESS_OBJECT);
    tm->WriteObject(obj);
    this->SendMessage( tm , key );
+}
+
+void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
+{
+   // the interface cannot be reduced as you might imagine as : ((TObject*)ri)->Class() != ri->Class()
+   cJSON* o = root2cjson( kls , obj );
+   char* out = cJSON_Print(o) ;
+   cout << "MQ::SendJSON " << out << endl ;
+   this->SendRaw( out , key );
+}
+
+
+// actual senders 
+
+void MQ::SendRaw( const char* str , const char* key )
+{
+   if(!fConfigured) this->Configure();
+   const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
+   rootmq_sendstring( fExchange.Data() , ukey  , str );
 }
 
 void MQ::SendMessage( TMessage* msg , const char* key   )
@@ -276,14 +307,7 @@ void MQ::SendMessage( TMessage* msg , const char* key   )
 }
 
 
-void MQ::SendJSON(TClass* kls, TObject* obj , const char* key )
-{
-   // the interface cannot be reduced as you might imagine as : ((TObject*)ri)->Class() != ri->Class()
-   cJSON* o = root2cjson( kls , obj );
-   char* out = cJSON_Print(o) ;
-   cout << "MQ::SendJSON " << out << endl ;
-   this->SendRaw( out , key );
-}
+
 
 
 int MQ::CollectionObserver( void* me , const char* key ,  rootmq_collection_qstat_t* qstat )

@@ -39,6 +39,7 @@ class MQ : public TObject {
   RQ_OBJECT("MQ")
 
   private:
+        Bool_t  fConsumer ;
         TString fExchange ;  
         TString fExchangeType ;  
         TString fQueue ;  
@@ -51,18 +52,18 @@ class MQ : public TObject {
         Bool_t  fConfigured ;
         
         Int_t   fDebug ;
-
         Bool_t  fMonitorRunning ;
 
   public:
-     MQ( const char* exchange = "t.exchange" , 
+     MQ( Bool_t consumer = kFALSE , 
+         const char* exchange = "t.exchange" , 
          const char* queue = "t.queue" , 
          const char* routingkey = "t.key" ,
          const char* exchangetype = "direct" );
      virtual ~MQ();
 
 
-     static MQ* Create(Bool_t start_monitor=kFALSE);
+     static MQ* Create(Bool_t consumer=kFALSE);     // a consumer can produce too ... but not vice versa
      void SetOptions( 
                       Bool_t passive = kFALSE ,     // passive: the exchange/queue will not get declared but an error will be thrown if it does not exist.
                       Bool_t durable = kFALSE ,     // durable: the exchange/queue will survive a broker restart. 
@@ -74,6 +75,7 @@ class MQ : public TObject {
      Bool_t IsUpdated( const char* key );
      Int_t GetLength( const char* key );
      
+     Bool_t IsConsumer();
      const char* GetExchange();
      const char* GetExchangeType();
      const char* GetQueue();
@@ -96,6 +98,7 @@ class MQ : public TObject {
      void SendJSON(TClass* kls, TObject* obj , const char* key = NULL );
      void SendObject(TObject* obj , const char* key = NULL );
      void SendString(const char* str , const char* key = NULL );
+     void SendStringAsTMessage(const char* str , const char* key = NULL );
      void SendRaw(const char* str , const char* key = NULL );
      void SendMessage(TMessage* msg , const char* key = NULL );
 

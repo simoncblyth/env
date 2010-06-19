@@ -47,7 +47,7 @@ class EvOnline(list):
         if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
         if ROOT.gSystem.Load("libAbtDataModel") < 0:ROOT.gSystem.Exit(10)
         
-        ROOT.gMQ.Create()
+        ROOT.gMQ.Create(1)      # CONSUMER
         self.dbg = ROOT.gMQ.GetDebug()
         self.mq = ROOT.gMQ
         self.timer = ROOT.TTimer(self.period)
