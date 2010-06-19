@@ -10,6 +10,7 @@ The pattern... [a-z][A-Z][0-9]  words separated by dots...
   * '''#''' matches zero or more words
 """
 import sys
+import os
 import pika
 import asyncore
 import platform
@@ -20,10 +21,11 @@ op.add_option("-q", "--queue")
 op.add_option("-x", "--exchange")
 op.add_option("-k", "--routing-key")
 
+
 op.set_defaults(
-     queue="%s_%s" % ( sys.argv[0] , platform.node() ), 
-     routing_key="demo.routing.key" , 
-     exchange="amq.topic" , 
+     queue="%s@%s" % ( os.path.basename(sys.argv[0]) , platform.node() ), 
+     routing_key="#.string" , 
+     exchange="abt" , 
 )
 
 def handle_delivery(ch, method, header, body):

@@ -154,20 +154,19 @@ rabbitmq-chkconfig(){
 
 rabbitmq-ctl(){     sudo rabbitmqctl $* ; }
 
-rabbitmq-setup(){
-   sudo rabbitmqctl delete_user guest
-}
 
-rabbitmq-register(){
+
+rabbitmq-user(){ echo $(private- ; private-val RABBITMQ_USER_${1:-0}) ; }
+rabbitmq-pass(){ echo $(private- ; private-val RABBITMQ_PASS_${1:-0}) ; }
+
+rabbitmq-register-(){
   local msg="=== $FUNCNAME :"
-  local pfx="${1:-_1}" 
-  private-
-  local user=$(private-val RABBITMQ_USER$pfx)
-  local pass=$(private-val RABBITMQ_PASS$pfx)
-  echo $msg pfx $pfx user $user pass $pass 
-  type $FUNCNAME
+  local id="${1:-0}" 
 
-  rabbitmq-ctl add_user $user $pass 
+  local user=$(rabbitmq-user $id)
+  [ -z "$user" ] && echo $msg no user for id $id && return 0
+
+  rabbitmq-ctl add_user $user $(rabbitmq-pass $id)
   ## do directly as tricky to pass such params 
   sudo rabbitmqctl set_permissions $user '.*' '.*' '.*'
   rabbitmq-ctl list_permissions 
@@ -177,6 +176,27 @@ rabbitmq-register(){
 rabbitmq-start(){   rabbitmq-ini start ; }
 rabbitmq-status(){  rabbitmq-ini status ; }
 rabbitmq-stop(){    rabbitmq-ini stop ; }
+
+
+rabbitmq-reset(){
+
+  rabbitmq-ctl stop_app
+  rabbitmq-ctl reset
+  rabbitmq-ctl start_app
+
+  rabbitmq-init 
+}
+
+
+rabbitmq-init(){
+  sudo rabbitmqctl delete_user guest
+  local ids="0 1 2 3"
+  for id in $ids ; do
+    rabbitmq-register-  $id
+  done 
+}
+
+
 
 
 rabbitmq-install-yum(){
