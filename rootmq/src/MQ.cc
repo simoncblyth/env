@@ -123,17 +123,19 @@ Bool_t MQ::IsConsumer(){
 MQ* MQ::Create(Bool_t consumer )
 {
    /*
-                         A      B      C
+                         A      B      C      D
         -----------------------------------------------                 
-         passive         0      0      0
-         durable         0      1      0
-         auto_delete     1      0      1
-         exclusive       0      0      0
+         passive         0      0      0      0
+         durable         0      1      0      1
+         auto_delete     1      0      1      0
+         exclusive       0      0      0      0
          
             Durable message queues continue to exist and collect messages whether or 
             not there are consumers to receive them
          
             The defaults were changed to B (with durable:1) while debugging the fanout config...
+         
+            Back to D when debugging topic exchange usage 
          
    */    
     
@@ -157,8 +159,8 @@ MQ* MQ::Create(Bool_t consumer )
    gMQ = new MQ( consumer, exchange, queue, routingkey, exchangetype);
 
    Bool_t passive     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_PASSIVE" , "0" ) );
-   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "0" ) );   
-   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "1" ) ); 
+   Bool_t durable     = (Bool_t)atoi( private_lookup_default( "ROOTMQ_DURABLE" , "1" ) );   
+   Bool_t auto_delete = (Bool_t)atoi( private_lookup_default( "ROOTMQ_AUTODELETE" , "0" ) ); 
    Bool_t exclusive   = (Bool_t)atoi( private_lookup_default( "ROOTMQ_EXCLUSIVE" , "0" ) );
 
    gMQ->SetOptions( passive, durable, auto_delete, exclusive ) ;
@@ -292,6 +294,7 @@ void MQ::SendRaw( const char* str , const char* key )
 {
    if(!fConfigured) this->Configure();
    const char* ukey = key == NULL ? fRoutingKey.Data() : key ; 
+   cout << "MQ::SendRaw : " << str  << " ukey : \"" << ukey << "\"" << " xchg : " << fExchange.Data() << endl ;
    rootmq_sendstring( fExchange.Data() , ukey  , str );
 }
 
