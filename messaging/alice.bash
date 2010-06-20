@@ -8,6 +8,13 @@ alice-usage(){
      alice-src : $(alice-src)
      alice-dir : $(alice-dir)
 
+     http://willcodeforfoo.com/2009/07/13/announcing-alice/
+
+     alice-run
+          starts in interactive erlang mode
+          use ctrl-c to exit 
+
+ 
 
 EOU
 }
@@ -34,4 +41,11 @@ alice-build(){
 
 alice-home(){ echo /var/lib/rabbitmq ; }
 alice-run(){ sudo -u rabbitmq env HOME=$(alice-home) erl -pa $(alice-dir)/ebin -pa $(alice-dir)/deps/*/ebin -sname alice -s reloader -boot alice -setcookie $(sudo cat $(alice-home)/.erlang.cookie) ; }
-alice-test(){ curl -i http://localhost:9999/vhosts ; }
+alice--(){ curl -i http://localhost:9999/$* ; }
+
+alice-conn(){     alice-- conn ; }
+alice-users(){    alice-- users ; }
+alice-queues(){   alice-- queues ; }
+alice-bindings(){ alice-- bindings ; }
+alice-exchanges(){ alice-- exchanges ; }
+

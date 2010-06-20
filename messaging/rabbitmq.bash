@@ -4,7 +4,7 @@ rabbitmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rabbitmq-src)} ; }
 rabbitmq-vi(){       vi $(rabbitmq-source) ; }
 rabbitmq-env(){      elocal- ; }
 
-rabbitmq-log(){ cat << EOL
+rabbitmq-actionlog(){ cat << EOL
 
   15/06/2010  
        on N ... use the below to do rougly the same as on C
@@ -132,6 +132,7 @@ rabbitmq-mate(){ mate $(rabbitmq-dir) ; }
 
 rabbitmq-logdir(){   echo /var/log/rabbitmq ; }
 rabbitmq-logpath(){  echo $(rabbitmq-logdir)/rabbit.log ; }
+rabbitmq-log(){    sudo vi $(rabbitmq-logpath) ; }
 rabbitmq-tail(){   sudo tail -f $(rabbitmq-logpath) ; }
 rabbitmq-confpath(){ echo /etc/rabbitmq/rabbitmq.conf ; }
 rabbitmq-edit(){     sudo vi $(rabbitmq-confpath) ; }

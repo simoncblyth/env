@@ -343,3 +343,28 @@ ejabberd-register(){
       [ -n "$(ejabberd-user $id)" ] && ejabberd-register- $id
    done
 }
+
+
+ejabberd-http-bind(){
+    local msg="=== $FUNCNAME :"
+    echo $msg incoporate the below into nginx-conf 
+    cat << EOC
+
+        # $msg ... make it accessible on standard port .... work out how to make this visible at '/xmpp-httpbind'
+        # ~ ^/http-bind/ 
+
+        location  /http-bind/ {
+            proxy_pass http://localhost:5280;
+        }
+
+EOC
+}
+
+ejabberd-http-bind-test(){
+   curl http://localhost/http-bind/
+}
+
+
+
+
+

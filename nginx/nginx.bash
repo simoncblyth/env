@@ -23,6 +23,22 @@ nginx-usage(){
         http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
 
+    == redhat : installs from EPEL ==
+
+     sudo yum --enablerepo=epel install nginx
+         
+       C      0.6.39-4.el4 
+       N      0.6.39-4.el5 
+
+      rpm -ql nginx  
+
+          comes with a perl module interface to the nginx HTTP server API
+             http://sysoev.ru/nginx/docs/http/ngx_http_perl_module.html
+
+
+
+
+
 EOU
 }
 
@@ -52,9 +68,30 @@ nginx-prefix(){
   case $(pkgr-cmd) in 
     port) echo /opt/local ;; 
     ipkg) echo /opt ;;
-     yum) echo /usr/local/nginx     ;;   ## change this when revisit nginx on C
+     src) echo /usr/local/nginx     ;;   ## change this when revisit nginx on C
+     yum) echo -n     ;;  
   esac
 }
+
+nginx-eprefix(){
+  echo $(nginx-prefix)/usr ;
+}
+
+
+nginx-epel-install(){
+  [ ! "$(pkgr-cmd)" == "yum" ] && return  
+  if [ "$(rpm -ql nginx)" == "package nginx is not installed" ] ; then
+      sudo yum --enablerepo=epel install nginx
+  fi
+}
+
+nginx-epel-fixconf(){
+  sudo perl -pi -e 's,/var/log/nginx/logs/access.log,/var/log/nginx/access.log, ' $(nginx-conf)
+}
+
+nginx-diff(){  sudo diff $(nginx-conf).default $(nginx-conf) ; } 
+
+
 nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
 nginx-conf(){    echo $(nginx-prefix $*)/etc/nginx/nginx.conf ; }
 
@@ -64,6 +101,7 @@ nginx-pidpath(){
   case $(pkgr-cmd) in 
     port) echo $(nginx-prefix)/var/run/nginx/nginx.pid ;;
     ipkg) echo $(nginx-prefix)/var/nginx/run/nginx.pid ;;
+     yum) echo $(nginx-prefix)/var/run/nginx.pid ;;
   esac
 }    
     
@@ -86,11 +124,12 @@ EOI
 }
 
 
-nginx-htdocs(){ echo $(nginx-prefix)/share/nginx/html ; }
+nginx-htdocs(){ echo $(nginx-eprefix)/share/nginx/html ; }
 nginx-logd(){   
    case $(pkgr-cmd) in 
      port)  echo $(pkgr-logd)/nginx  ;;
      ipkg)  echo $(nginx-prefix)/var/nginx/log ;;
+      yum)  echo $(nginx-prefix)/var/log/nginx ;;
    esac  
 }
 nginx-cd(){     cd $(nginx-logd) ; }
@@ -149,6 +188,7 @@ nginx-check(){
 
 
 
+
 nginx-rproxy-(){  cat << EOC
 worker_processes 1 ;
 events { worker_connections  1024; }
@@ -186,3 +226,24 @@ nginx-rproxy-start(){
    echo $cmd
    eval $cmd 
 }
+
+
+
+nginx-ln(){
+
+   local iwd=$PWD
+   local dir=$1
+   [ -z "$dir" ] && echo enter the directory to link into nginx-htdocs : $(nginx-htdocs) && return 
+   local name=${2:-$(basename $dir)}
+
+   cd $(nginx-htdocs)
+   local cmd="sudo ln -s $dir $name "
+   echo $cmd
+   eval $cmd
+   cd $iwd
+
+
+}
+
+
+
