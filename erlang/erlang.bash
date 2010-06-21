@@ -17,10 +17,7 @@ erlang-usage(){
 
      erlang-vers
 
-
-
     == Erlang Versions ==
-
 
       ||  C  ||   R11B   ||
       ||  N  ||   R12B   ||  

@@ -8,6 +8,11 @@ ejabberd-usage(){
      ejabberd-src : $(ejabberd-src)
      ejabberd-dir : $(ejabberd-dir)
 
+
+      gitorious + github
+        https://git.process-one.net/ejabberd/mainline
+        http://github.com/processone/ejabberd
+
       bug reports 
         http://support.process-one.net/
 
@@ -25,7 +30,6 @@ ejabberd-usage(){
    commandline check the webadmin is accessible ..
       ejabberd-webadmin | xmllint --format - 
 
-
    == configuration ==
 
      config is loaded from .cfg file into mnesia database at 1st start,
@@ -33,6 +37,28 @@ ejabberd-usage(){
      web interface (but this is not reflected back into the .cfg file) 
 
      config changes...  documented in wiki:Ejabberd
+
+  == ejabberd debugging ==
+
+    Run the node live with interactive erl terminal attached :
+        ejabberd-ctl live
+
+    Both erlang system and ejabberd app errors are visible together on stdout
+
+
+  == ejabberd-http-bind ==
+
+     Problems with the old erlang on C (again) ...  i recall problems with rabbitmq also
+
+        * DEMOS THE NATURE OF EPEL REPOSITORY ? ... TIS NOT CAREFULLY MAINTAINED
+
+        * mod_caps.erl uses base64 module not present in the old erlang 
+
+          attempted back port :  
+               base64:encode_to_string(crypto:sha(... 
+          -->  httpd_util:encode_base64(binary_to_list(crypto:sha(...  
+
+          appears to work ... but then hit another snag  
 
 
 
@@ -144,7 +170,7 @@ ejabberd-cf(){
 
 ejabberd-rabbit-copyin(){
 
-
+   local iwd=$PWD
    cd $(ejabberd-base)/rabbitmq-xmpp
 
    ## hg up bafcc3d61adb
@@ -172,6 +198,9 @@ ejabberd-rabbit-copyin(){
    echo $msg try to use the canonical rabbit ...    
    rabbitmq-
    cp $(rabbitmq-hrl)  $(ejabberd-dir)/src/
+
+   cd $iwd
+
 } 
 
 ejabberd-rabbit-diff(){
@@ -197,9 +226,9 @@ ejabberd-install(){
    cd src
    sudo make install
 
-   ## oops looses originals ...  on 2nd pass 
-   sudo cp $(ejabberd-confpath) $(ejabberd-confpath).original   
-   sudo cp $(ejabberd-ctlconfpath) $(ejabberd-ctlconfpath).original
+   ## prevent loss of originals on 2nd pass by only copying if .originals does not exist  
+   sudo bash -c "[ ! -f $(ejabberd-confpath).original ]    && cp $(ejabberd-confpath) $(ejabberd-confpath).original "    
+   sudo bash -c "[ ! -f $(ejabberd-ctlconfpath).original ] && cp $(ejabberd-ctlconfpath) $(ejabberd-ctlconfpath).original "
 
    ejabberd-cookie-align
    ejabberd-cookie-ls
