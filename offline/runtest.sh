@@ -35,21 +35,38 @@ setup(){
 
   cd $NUWA_HOME/$NUWA_TESTDIR/cmt 
   [ ! -f setup.sh ] && cmt config ; . setup.sh ; cd .. 
+
+
 }
 
 
-echo ############ SEED ENV ############
+
+
+echo
+echo  ............ SEED ENV ..............
+echo
 env
 echo
-echo 
-echo
-
 
 build
 nuwa
 setup
 
-echo ############ DERIVED ENV ############
-env
+echo
+echo ............ DERIVED ENV ... relativised wrt NUWA_HOME and PWD for presentation ............
+echo
+env |  perl -p -e "s,$NUWA_HOME/,,g" - | perl -p -e "s,$PWD,,g" - | sort   
+echo
 
+
+echo
+echo ............ non- NUWA_HOME or PWD relative paths in derived env ............
+echo
+env |  perl -p -e "s,$NUWA_HOME/,,g" - | perl -p -e "s,$PWD,,g" - | sort | grep "=/"  
+echo
+echo
+
+
+
+nosetests -v 
 

@@ -15,6 +15,11 @@ slv-usage(){
            d) environment isolation ... do it in env -i for insensitivity to calling environment
 
 
+     slv--
+
+
+
+
 
      slv-cfg-path  : $(slv-cfg-path)
      slv-cfg
@@ -134,34 +139,46 @@ slv-testdir(){
 
 
 
-
 slv-recipe(){ 
 
   local tmp="local."
 
   #local export=1
-  local export=0
   #local stages="cmt checkout external"
-  local stages=""
   #local projs="relax gaudi lhcb dybgaudi"
-  local projs=""
   #local tests="gaudimessages gentools rootiotest simhistex dbivalidate"
-  local tests="rootiotest"
+  #local xexternals=""
 
+  local export=0
+  local stages=""
+  local projs=""
+  local tests="rootiotest"
+  local xexternals=""
+
+
+  cat <<EOC > /dev/null
+
+  <!ENTITY  release " cd \$NUWA_HOME/dybgaudi/DybRelease/cmt ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
+  <!ENTITY  setup   " cd \$NUWA_HOME/\$NUWA_TESTDIR/cmt      ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
+  <!ENTITY  testdir " &env; &release; &setup; " >
+  <!ENTITY  info    " env | grep BUILD_ ;  " > 
+  <!ENTITY  scpt    " . \$PWD/installation/trunk/dybtest/scripts/dyb__.sh ; " > 
+  <!ENTITY  nose    " env ; nosetests --with-xml-output --xml-outfile=\$BUILD_PWD/test-\$BUILD_TEST.xml --xml-baseprefix=\$(dyb__relativeto \$BUILD_PATH \$BUILD_CONFIG_PATH)/ ; "  >
+
+}
+EOC
 
   # head
   cat << EOH
 <!DOCTYPE build [
   <!ENTITY  base    " export BUILD_PWD=\$PWD ; export BUILD_PATH=\${${tmp}path} ; export BUILD_CONFIG_PATH=\${${tmp}path} ; export BUILD_REVISION=\${${tmp}revision} ; export BUILD_NUMBER=\${${tmp}build} ; " > 
   <!ENTITY  nuwa    " export NUWA_HOME=\$PWD/NuWa-\${nuwa.release} ; export NUWA_LOGURL=\${nuwa.logurl} ; " >
-  <!ENTITY  site    " unset SITEROOT ; unset CMSPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; . \$NUWA_HOME/setup.sh  ; " >
-  <!ENTITY  env     " &base; &nuwa; &site;  " > 
-  <!ENTITY  release " cd \$NUWA_HOME/dybgaudi/DybRelease/cmt ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
-  <!ENTITY  setup   " cd \$NUWA_HOME/\$NUWA_TESTDIR/cmt      ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
-  <!ENTITY  testdir " &env; &release; &setup; " >
-  <!ENTITY  info    " env | grep BUILD_ ;  " > 
-  <!ENTITY  scpt    " . \$PWD/installation/trunk/dybtest/scripts/dyb__.sh ; " > 
-  <!ENTITY  nose    " env ; echo nosetests --with-xml-output --xml-outfile=\$BUILD_PWD/test-\$BUILD_TEST.xml --xml-baseprefix=\$(dyb__relativeto \$BUILD_PATH \$BUILD_CONFIG_PATH)/ ; "  >
+  <!ENTITY  unsite  " unset SITEROOT ; unset CMSPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
+  <!ENTITY  setup   " . \$NUWA_HOME/setup.sh ; " > 
+  <!ENTITY  env     " &base; &nuwa; &unsite;  " > 
+
+  <!ENTITY  test    " env -i NUWA_HOME=\$PWD/NuWa-\${nuwa.release} NUWA_TESTDIR=\$NUWA_TESTDIR $(env-home)/offline/runtest.sh  " > 
+
 ]>
 <build
     xmlns:python="http://bitten.cmlenz.net/tools/python"
@@ -186,6 +203,15 @@ EOX
 EOS
   done
 
+  # xexternals 
+  local xext ; for xext in $xexternals ; do 
+  cat << EOS
+<step id="$xext" description="$xext" onerror="continue" > 
+    <sh:exec executable="bash" output="$xext.out"      args=" -c &quot; &env; ./dybinst \${nuwa.release} external $xext &quot; " /> 
+</step>  
+EOS
+  done
+
   # projs
   local proj ; for proj in $projs ; do 
   cat << EOP
@@ -200,7 +226,7 @@ EOP
   cat << EOT
 <step id="test-$tst" description="test-$tst" onerror="continue" >
      <sh:exec executable="bash"  output="test-$tst.out"
-           args=" -c &quot;  &env; export NUWA_TESTDIR=$(slv-testdir $tst) ; &setup; &nose; &quot; " />
+           args=" -c &quot;  export NUWA_TESTDIR=$(slv-testdir $tst) ; &test; &quot; " />
      <python:unittest file="test-$tst.xml" />
 </step>
 EOT
@@ -262,5 +288,8 @@ slv--(){
 slv-runtest(){
   local script=$(env-home)/offline/runtest.sh   
   cd $(slv-dir)/build_dybinst_8751 
-  env -i NUWA_HOME=$PWD/NuWa-trunk NUWA_TESTDIR=dybgaudi/RootIO/RootIOTest $script
+  env -i NUWA_HOME=$PWD/NuWa-trunk NUWA_TESTDIR=dybgaudi/RootIO/RootIOTest NOSETESTS=$(which nosetests) $script
 }
+
+
+
