@@ -862,4 +862,5 @@ modrabbitmq-(){      . $(env-home)/messaging/modrabbitmq.bash && modrabbitmq-env
 adium-(){      . $(env-home)/messaging/adium.bash && adium-env $* ; }
 pika-(){      . $(env-home)/messaging/pika.bash && pika-env $* ; }
 glib-(){      . $(env-home)/base/glib.bash && glib-env $* ; }
+erlang-(){      . $(env-home)/erlang/erlang.bash && erlang-env $* ; }
 strophe-(){      . $(env-home)/messaging/strophe.bash && strophe-env $* ; }
