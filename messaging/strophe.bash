@@ -5,29 +5,48 @@ strophe-vi(){       vi $(strophe-source) ; }
 strophe-env(){      elocal- ; }
 strophe-usage(){
   cat << EOU
-     strophe-src : $(strophe-src)
-     strophe-dir : $(strophe-dir)
+
+     Strophe : 
+       pure javascript library to facilitate creation of a javascript xmpp/jabber client 
+       that talks over BOSH (Bidirectional-streams Over Synchronous HTTP) to an xmpp server
+       such as ejabberd (which supports http-bind)
 
      http://code.stanziq.com/strophe/
 
-     To build minified versions need to point to the jar with 
-     YUI_COMPRESSOR 
 
+     == echobot setup ==
 
+       1) get and build Strophe   {{{strophe-;strophe-build}}}
 
+           To build minified versions need to point to the jar with 
+           YUI_COMPRESSOR 
 
-     Getting ejabberd + http-bind + nginx setup 
-        http://anders.conbere.org/blog/2009/09/29/get_xmpp_-_bosh_working_with_ejabberd_firefox_and_strophe/
+       2) configure ejabberd + http-bind + nginx setup 
+               http://anders.conbere.org/blog/2009/09/29/get_xmpp_-_bosh_working_with_ejabberd_firefox_and_strophe/
+               http://gist.github.com/272956
 
-         * nginx 
-         * ejabberd-http-bind
-                ejabberd with http-bind proxied into standard port
+          ejabberd-http-bind
+              shows what needs to be added to nginx config... 
+                 to proxy :xxxx/http-bind into standard port
          
-    Getting strophe echobot example working      
-         http://gist.github.com/272956
 
-    Strophe echobot wants to talk with ...
-         var BOSH_SERVICE = '/xmpp-httpbind'
+     == debugging tips for Strophe http-bind connection ==
+
+       Use Firebug javascript console while observing : ejabberd-tail 
+{{{
+xhr = new XMLHttpRequest()
+xhr.open("POST", "/http-bind/" , true)
+xhr.send(null)
+}}}
+   * gives a bad request 400 : no data ...   
+   * BUT at least they are talking... demonstrating that "/http-bind/" is OK for the nginx/ejabberd config in use
+   
+
+    = strophe echobot status =
+
+       ||   || Erlang   ||                                                   ||
+       || C ||          || not working a termination occurs                  ||
+       || N ||          || works .... can chat with the webpage from ichat   ||  
 
 
 EOU
@@ -39,6 +58,16 @@ strophe-get(){
    local dir=$(dirname $(strophe-dir)) &&  mkdir -p $dir && cd $dir
    git clone http://github.com/metajack/strophejs.git
 }
+
+strophe-build(){
+
+   strophe-get
+   strophe-make
+   strophe-ln
+
+   strophe-echobot-conf 
+}
+
 
 strophe-make(){
    strophe-cd
@@ -54,5 +83,6 @@ strophe-host(){ echo localhost ; }
 strophe-echobot(){
   curl http://$(strophe-host)/strophejs/examples/echobot.html
 }
-
-
+strophe-echobot-conf(){
+  perl -pi -e 's,/xmpp-httpbind,/http-bind/, ' $(strophe-dir)/examples/echobot.js
+}

@@ -18,6 +18,15 @@ erlang-usage(){
      erlang-vers
 
 
+
+    == Erlang Versions ==
+
+
+      ||  C  ||   R11B   ||
+      ||  N  ||   R12B   ||  
+
+
+
     == ERLANG TIPS ==
 
       1) man pages for modules
