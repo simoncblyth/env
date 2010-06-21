@@ -19,9 +19,12 @@ erlang-usage(){
 
     == Erlang Versions ==
 
-      ||  C  ||   R11B   ||
-      ||  N  ||   R12B   ||  
+      ||  C  ||   R11B-?   ||
+      ||  N  ||   R12B-?   ||  
 
+
+
+     http://download.fedora.redhat.com/pub/epel/4/i386/repoview/erlang.html
 
 
     == ERLANG TIPS ==

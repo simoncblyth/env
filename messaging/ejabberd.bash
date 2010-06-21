@@ -58,17 +58,45 @@ ejabberd-usage(){
                base64:encode_to_string(crypto:sha(... 
           -->  httpd_util:encode_base64(binary_to_list(crypto:sha(...  
 
-          appears to work ... but then hit another snag  
+         appears to work ... but then hit another snag  
 
+
+       According to 
+           https://support.process-one.net/browse/EJAB-333
+       base64 module was included from OTP R11B-4
+
+
+
+     THE WAY AHEAD ON C ... IS TO FIND A PRIOR VERSION THAT WORKS WITH THE OLD ERLANG 
+
+
+
+
+  == release notes for ejabberd ==
+
+      http://www.process-one.net/en/ejabberd/release_notes/
+
+      http://www.process-one.net/en/ejabberd/release_notes/release_note_ejabberd_200/
+         Since this release, ejabberd requires Erlang R10B-5 or higher. 
+         R11B-5 is the recommended version. 
+         R12 is not yet officially supported, and is not recommended for production servers. 
+
+      http://www.process-one.net/en/ejabberd/release_notes/release_note_ejabberd_2.1.0/
+          ejabberd 2.1.0 requires Erlang R10B-9 or higher. 
+          R12B-5 is the recommended version. Support for R13B is experimental.          
+
+          ==> my older erlang should work 
+
+             https://support.process-one.net/browse/EJAB-333
 
 
    == versions ==
 
 
-   ||        ||   ejabberd   ||   rabbitmq-server   ||    rabbitmq-xmpp    ||
-   ||  N yum ||   2.0.5      ||    1.7.2            ||  56:0be11e0cbd86    ||            
-   ||  N src ||   2.1.x      ||    1.7.2            ||  56:0be11e0cbd86    ||            
-   ||  C     ||   2.1.x      ||    1.7.0            ||  56:0be11e0cbd86    ||               
+   ||        || otp    ||  ejabberd   ||   rabbitmq-server   ||    rabbitmq-xmpp    ||
+   ||  N yum || R12B-? ||  2.0.5      ||    1.7.2            ||  56:0be11e0cbd86    ||            
+   ||  N src || R12B-? ||  2.1.x      ||    1.7.2            ||  56:0be11e0cbd86    ||            
+   ||  C     || R11B-? ||  2.1.x      ||    1.7.0            ||  56:0be11e0cbd86    ||               
 
      Partially working on C ... not working on N .. 
          ... curious would suspect the other way around ... am i sure using top of -xmpp
