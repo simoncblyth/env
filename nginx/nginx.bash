@@ -245,5 +245,6 @@ nginx-ln(){
 
 }
 
-
-
+nginx-ls(){
+ ls -l  `nginx-htdocs`/
+}

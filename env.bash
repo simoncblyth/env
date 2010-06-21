@@ -15,6 +15,8 @@ env-rel(){
   echo $rel
 }
 
+env-gen(){ func-;func-gen $*;}
+
 env-mode(){   echo dbg ; }
 env-modedir(){  echo $(env-home)/scons-out/$(env-mode) ; }
 env-testsdir(){ echo $(env-modedir)/tests ; }
@@ -864,3 +866,4 @@ pika-(){      . $(env-home)/messaging/pika.bash && pika-env $* ; }
 glib-(){      . $(env-home)/base/glib.bash && glib-env $* ; }
 erlang-(){      . $(env-home)/erlang/erlang.bash && erlang-env $* ; }
 strophe-(){      . $(env-home)/messaging/strophe.bash && strophe-env $* ; }
+speeqe-(){      . $(env-home)/messaging/speeqe.bash && speeqe-env $* ; }
