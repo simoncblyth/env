@@ -8,6 +8,19 @@ erlang-usage(){
      erlang-src : $(erlang-src)
      erlang-dir : $(erlang-dir)
 
+    == erlang building ==
+
+       http://www.erlang.org/download.html
+
+    == Erlang EPEL versions ==
+
+      ||  C  ||  EPEL4 ||   R11B-?   ||
+      ||  N  ||  EPEL5 ||   R12B-?   ||  
+
+            http://download.fedora.redhat.com/pub/epel/4/i386/repoview/erlang.html
+
+   == erlang running ==
+
      google:"erlang command line"
         http://www.trapexit.org/Running_Erlang_Code_From_The_Command_Line
 
@@ -16,16 +29,6 @@ erlang-usage(){
         entry point is the start function 
 
      erlang-vers
-
-    == Erlang Versions ==
-
-      ||  C  ||   R11B-?   ||
-      ||  N  ||   R12B-?   ||  
-
-
-
-     http://download.fedora.redhat.com/pub/epel/4/i386/repoview/erlang.html
-
 
     == ERLANG TIPS ==
 
@@ -40,11 +43,22 @@ EOU
 }
 erlang-srcdir(){  echo $(env-home)/erlang ; }
 erlang-beamdir(){ echo $(local-base)/env/erlang ; }
-erlang-dir(){ echo $(local-base)/env/erlang/erlang-erlang ; }
+erlang-dir(){ echo $(local-base)/env/erlang/$(erlang-release)/src/$(erlang-distname) ; }
 erlang-cd(){  cd $(erlang-dir); }
 erlang-mate(){ mate $(erlang-dir) ; }
+
+erlang-release(){   echo R12B-5 ; }
+erlang-distname(){  echo otp_${1:-src}_$(erlang-release) ; }   
+erlang-url(){       echo http://www.erlang.org/download/$(erlang-distname $1).tar.gz ; } 
+
 erlang-get(){
-   local dir=$(dirname $(erlang-dir)) &&  mkdir -p $dir && cd $dir
+   local dir=$(dirname $(dirname $(erlang-dir))) &&  mkdir -p $dir && cd $dir
+   local t
+   local dists="src doc_html doc_man" 
+   for dist in $dists ; do 
+      [ ! -f "$(erlang-distname $dist).tar.gz" ] && curl -O $(erlang-url $dist)
+      [ ! -d "$dist"                           ] && mkdir $dist && tar zxvf $(erlang-distname $dist).tar.gz -C $dist
+   done
 }
 
 erlang--(){
