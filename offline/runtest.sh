@@ -67,6 +67,8 @@ rt-envsetup(){
   cd $NUWA_HOME/dybgaudi/DybRelease/cmt 
   [ ! -f setup.sh ] && cmt config ; . setup.sh ; cd .. 
 
+
+
   cd $NUWA_HOME/$NUWA_TESTDIR/cmt 
   [ ! -f setup.sh ] && cmt config ; . setup.sh ; cd .. 
 }
