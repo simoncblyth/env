@@ -1,7 +1,7 @@
 # === func-gen- : base/slv fgp base/slv.bash fgn slv fgh base
 slv-src(){      echo base/slv.bash ; }
 slv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slv-src)} ; }
-slv-vi(){       vi $(slv-source) ; }
+slv-vi(){       vi $(slv-source) $(slv-runtest-path) ; }
 slv-usage(){
   cat << EOU
 
@@ -16,9 +16,6 @@ slv-usage(){
 
 
      slv--
-
-
-
 
 
      slv-cfg-path  : $(slv-cfg-path)
@@ -77,7 +74,6 @@ slv-init(){
    local dir=$(slv-dir) &&  mkdir -p $dir && cd $dir
 }
 
-
 slv-name(){ hostname -s ; }
 slv-repo(){        private-val SLV_REPO ; }
 slv-repo-builds(){ private-val $(echo SLV_$(slv-repo)_BUILDS | private-upper ) ; }
@@ -125,19 +121,16 @@ logurl = http://localhost:2020
 EOC
 }
 
-
-
-slv-testdir(){
+slv-testpath(){
+   local r=${2:-trunk}
    case ${1} in
-      gaudimessages) echo dybgaudi/Utilities/GaudiMessages ;;
-           gentools) echo dybgaudi/Simulation/GenTools  ;;
-         rootiotest) echo dybgaudi/RootIO/RootIOTest ;;
-          simhistex) echo tutorial/Simulation/SimHistsExample ;;
-        dbivalidate) echo dybgaudi/Database/DbiValidate ;;
+      gaudimessages) echo dybgaudi/$r/Utilities/GaudiMessages ;;
+           gentools) echo dybgaudi/$r/Simulation/GenTools  ;;
+         rootiotest) echo dybgaudi/$r/RootIO/RootIOTest ;;
+    simhistsexample) echo tutorial/$r/Simulation/SimHistsExample ;;
+        dbivalidate) echo dybgaudi/$r/Database/DbiValidate ;;
    esac  
 }
-
-
 
 slv-recipe(){ 
 
@@ -146,7 +139,7 @@ slv-recipe(){
   #local export=1
   #local stages="cmt checkout external"
   #local projs="relax gaudi lhcb dybgaudi"
-  #local tests="gaudimessages gentools rootiotest simhistex dbivalidate"
+  #local tests="gaudimessages gentools rootiotest simhistsexample dbivalidate"
   #local xexternals=""
 
   local export=0
@@ -155,29 +148,13 @@ slv-recipe(){
   local tests="rootiotest"
   local xexternals=""
 
-
-  cat <<EOC > /dev/null
-
-  <!ENTITY  release " cd \$NUWA_HOME/dybgaudi/DybRelease/cmt ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
-  <!ENTITY  setup   " cd \$NUWA_HOME/\$NUWA_TESTDIR/cmt      ; [ ! -f setup.sh ] &amp;&amp; cmt config ; . setup.sh ; cd .. ;  " >
-  <!ENTITY  testdir " &env; &release; &setup; " >
-  <!ENTITY  info    " env | grep BUILD_ ;  " > 
-  <!ENTITY  scpt    " . \$PWD/installation/trunk/dybtest/scripts/dyb__.sh ; " > 
-  <!ENTITY  nose    " env ; nosetests --with-xml-output --xml-outfile=\$BUILD_PWD/test-\$BUILD_TEST.xml --xml-baseprefix=\$(dyb__relativeto \$BUILD_PATH \$BUILD_CONFIG_PATH)/ ; "  >
-
-}
-EOC
-
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  base    " export BUILD_PWD=\$PWD ; export BUILD_PATH=\${${tmp}path} ; export BUILD_CONFIG_PATH=\${${tmp}path} ; export BUILD_REVISION=\${${tmp}revision} ; export BUILD_NUMBER=\${${tmp}build} ; " > 
-  <!ENTITY  nuwa    " export NUWA_HOME=\$PWD/NuWa-\${nuwa.release} ; export NUWA_LOGURL=\${nuwa.logurl} ; " >
-  <!ENTITY  unsite  " unset SITEROOT ; unset CMSPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
-  <!ENTITY  setup   " . \$NUWA_HOME/setup.sh ; " > 
-  <!ENTITY  env     " &base; &nuwa; &unsite;  " > 
-
-  <!ENTITY  test    " env -i NUWA_HOME=\$PWD/NuWa-\${nuwa.release} NUWA_TESTDIR=\$NUWA_TESTDIR $(env-home)/offline/runtest.sh  " > 
+  <!ENTITY  base    " export BUILD_PWD=\$PWD ; " > 
+  <!ENTITY  nuwa    " export NUWA_LOGURL=\${nuwa.logurl} ; " >
+  <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
+  <!ENTITY  env     " &base; &nuwa; &unset;  " > 
 
 ]>
 <build
@@ -226,7 +203,7 @@ EOP
   cat << EOT
 <step id="test-$tst" description="test-$tst" onerror="continue" >
      <sh:exec executable="bash"  output="test-$tst.out"
-           args=" -c &quot;  export NUWA_TESTDIR=$(slv-testdir $tst) ; &test; &quot; " />
+           args=" -c &quot;  cd \$PWD/NuWa-\${nuwa.release} ; env -i BUILD_PATH=$(slv-testpath $tst) BUILD_MASTERPATH=\${${tmp}path}  $(slv-runtest-path) &quot;  " /> 
      <python:unittest file="test-$tst.xml" />
 </step>
 EOT
@@ -238,40 +215,51 @@ EOT
 EOT
 }
 
-slv-cmd(){  
-  local recipe=${1:-slv.recipe}  
-  local name=$(slv-name)
-  local tmp="local."
+
+
+slv-cmd(){
+  local arg=$1  
   cat << EOC
 $SCREEN $(which bitten-slave)
       --dry-run
       --config=$(slv-cfg-path)
       --verbose 
       --work-dir=. 
-      --build-dir="build_\\\${${tmp}config}_\\\${${tmp}revision}" 
+      --build-dir=.
       --keep-files 
-      --log=$name.log 
+      --log=$(slv-name).log 
       --user=$(slv-repo-user) --password=$(slv-repo-pass) 
-      $recipe
+      $arg
 EOC
-# --name=$name ... default is hostname ? 
+
+  cat << EOD > /dev/null
+
+  local tmp="local."
+    --name=$name ... default is hostname ? 
+    --build-dir="build_\\\${${tmp}config}_\\\${${tmp}revision}" 
+
+EOD
 }
+
 
 slv---(){
 
   local msg="=== $FUNCNAME : "
-  echo $msg running build from $PWD wherever that may be 
+  echo $msg running build recipe from $PWD 
 
   local path=$(slv-cfg-path) 
   mkdir -p $(dirname $path)
   slv-cfg > $path 
 
-  local recipe="slv.recipe" 
+  local recipe="recipe.xml" 
   slv-recipe > $recipe
+  xmllint $recipe
+  [ "$?" != "0" ] && echo invalid recipe xml && return 1 
 
-  local url=$(slv-repo-builds)   ## remote "builds" url 
-  #local cmd=$(slv-cmd $url)
-  local cmd=$(slv-cmd)   ## local recipe testing 
+
+  #local cmd=$(slv-cmd $(slv-repo-builds))    ## remote builds url 
+  local cmd=$(slv-cmd $recipe)                ## local recipe for dev
+  
   echo $msg $cmd 
   eval $cmd 
 }
@@ -285,11 +273,16 @@ slv--(){
 }
 
 
-slv-runtest(){
-  local script=$(env-home)/offline/runtest.sh   
-  cd $(slv-dir)/build_dybinst_8751 
-  env -i NUWA_HOME=$PWD/NuWa-trunk NUWA_TESTDIR=dybgaudi/RootIO/RootIOTest NOSETESTS=$(which nosetests) $script
+slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
+slv-runtest-cmd(){  cat << EOC
+  env -i BUILD_PATH=$(slv-testpath $1) $(slv-runtest-path)
+EOC
 }
-
+slv-runtest-demo(){
+  cd /data1/env/local/dyb/build_dybinst_8751/NuWa-trunk  
+  local cmd=$(slv-runtest-cmd rootiotest)
+  echo $msg $cmd
+  eval $cmd
+}
 
 
