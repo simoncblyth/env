@@ -40,6 +40,12 @@ rabbitmq-usage(){
      rabbitmq-src : $(rabbitmq-src)
      rabbitmq-dir : $(rabbitmq-dir)
 
+
+  == monitoring tools to try ==
+
+      * http://www.lshift.net/blog/2009/11/30/introducing-rabbitmq-status-plugin
+      * http://www.rabbitmq.com/faq.html#topic-exchange
+
   == rabbitmq server control ==
 
      rabbitmq-status

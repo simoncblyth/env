@@ -13,6 +13,9 @@ strophe-usage(){
 
      http://code.stanziq.com/strophe/
 
+       strophe API
+          http://code.stanziq.com/strophe/strophejs/doc/1.0.1/files/core-js.html
+    
 
      == echobot setup ==
 
