@@ -867,3 +867,4 @@ glib-(){      . $(env-home)/base/glib.bash && glib-env $* ; }
 erlang-(){      . $(env-home)/erlang/erlang.bash && erlang-env $* ; }
 strophe-(){      . $(env-home)/messaging/strophe.bash && strophe-env $* ; }
 speeqe-(){      . $(env-home)/messaging/speeqe.bash && speeqe-env $* ; }
+erl-(){      . $(env-home)/erlang/erl.bash && erl-env $* ; }
