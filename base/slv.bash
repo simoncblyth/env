@@ -140,7 +140,7 @@ slv-cfg(){ cat << EOC
 path = /
 build = 1000
 config = dybinst
-revision = 8799
+revision = 8800
 
 [repo]
 url  = $(slv-repo-url)
@@ -162,18 +162,18 @@ slv-recipe(){
 
   local tmp="local."
 
+  local export=1
+  local stages="cmt checkout external"
+  local projs="relax gaudi lhcb dybgaudi"
+  local testpkgs="gaudimessages gentools rootiotest simhistsexample"
+  local xexternals=""
+
   #local export=1
-  #local stages="cmt checkout external"
-  #local projs="relax gaudi lhcb dybgaudi"
+  #local stages=""
+  #local projs=""
+  #local testpkgs="rootiotest"
   #local testpkgs="gaudimessages gentools rootiotest simhistsexample dbivalidate"
   #local xexternals=""
-
-  local export=1
-  local stages=""
-  local projs=""
-  #local testpkgs="rootiotest"
-  local testpkgs="gaudimessages gentools rootiotest simhistsexample dbivalidate"
-  local xexternals=""
 
   # head
   cat << EOH
@@ -356,7 +356,10 @@ slv-runtest-demo(){
 }
 
 
-
+slv-screen(){
+  cd $DYB || return 1
+  SCREEN=screen slv--- 
+}
 
 
 
