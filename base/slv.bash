@@ -112,6 +112,8 @@ pass = $(slv-repo-pass)
 
 [script]
 path = installation/trunk/dybinst/dybinst 
+#runtest = ../installation/trunk/dybtest/scripts/runtest.sh 
+runtest = $(slv-runtest-path)
 name = dybinst
 
 [nuwa]
@@ -203,7 +205,7 @@ EOP
   cat << EOT
 <step id="test-$tst" description="test-$tst" onerror="continue" >
      <sh:exec executable="bash"  output="test-$tst.out"
-           args=" -c &quot;  cd \$PWD/NuWa-\${nuwa.release} ; env -i BUILD_PATH=$(slv-testpath $tst) BUILD_MASTERPATH=\${${tmp}path}  $(slv-runtest-path) &quot;  " /> 
+           args=" -c &quot;  cd \$PWD/NuWa-\${nuwa.release} ; env -i BUILD_PATH=$(slv-testpath $tst) BUILD_MASTERPATH=\${${tmp}path}  \${script.runtest}  &quot;  " /> 
      <python:unittest file="test-$tst.xml" />
 </step>
 EOT
@@ -274,15 +276,13 @@ slv--(){
 
 
 slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
-slv-runtest-cmd(){  cat << EOC
-  env -i BUILD_PATH=$(slv-testpath $1) $(slv-runtest-path)
-EOC
-}
 slv-runtest-demo(){
   cd /data1/env/local/dyb/build_dybinst_8751/NuWa-trunk  
-  local cmd=$(slv-runtest-cmd rootiotest)
-  echo $msg $cmd
-  eval $cmd
+  env -i BUILD_PATH=$(slv-testpath $1) $(slv-runtest-path)
 }
+
+
+
+
 
 

@@ -41,16 +41,19 @@ erlang-usage(){
 
 EOU
 }
-erlang-srcdir(){  echo $(env-home)/erlang ; }
-erlang-beamdir(){ echo $(local-base)/env/erlang ; }
-erlang-dir(){ echo $(local-base)/env/erlang/$(erlang-release)/src/$(erlang-distname) ; }
-erlang-cd(){  cd $(erlang-dir); }
-erlang-mate(){ mate $(erlang-dir) ; }
+
+erlang-base(){      echo ${LOCAL_BASE:-$(local-base)}/env/erlang ; }
+erlang-srcdir(){    echo ${ENV_HOME:-$(env-home)}/erlang ; }
+erlang-beamdir(){   echo $(erlang-base)/ebin ; }
+erlang-dir(){       echo $(erlang-base)/$(erlang-release)/src/$(erlang-distname) ; }
+erlang-cd(){        cd $(erlang-dir); }
+erlang-mate(){      mate $(erlang-dir) ; }
 
 erlang-release(){   echo R12B-5 ; }
 erlang-distname(){  echo otp_${1:-src}_$(erlang-release) ; }   
 erlang-url(){       echo http://www.erlang.org/download/$(erlang-distname $1).tar.gz ; } 
 
+erlang-scr(){       screen bash -c ". $(erlang-source) ; erlang-${1:-get} " ; }
 erlang-get(){
    local dir=$(dirname $(dirname $(erlang-dir))) &&  mkdir -p $dir && cd $dir
    local t
