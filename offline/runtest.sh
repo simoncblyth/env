@@ -1,104 +1,97 @@
 #!/bin/bash
 #
-#   This script is used by bitten-slave recipe controlled runs ...
+#   CMT package test runner 
+#
+#   Usage : 
+#         runtest.sh <pkgname> [<masterpath>]
 #
 #   It must be invoked from a NuWa-<release> dir with for example : 
-#       env -i BUILD_PATH=dybgaudi/trunk/RootIO/RootIOTest path/to/runtest.sh
-# 
+#        cd NuWa-trunk
+#        env -i path/to/runtest.sh rootiotest 
+#        env -i path/to/runtest.sh rootiotest /
 #
-#   This was developed with the  "slv-" functions which provide simple 
+#   Alternative environment isolation using shim script : isotest.sh
+#        cd NuWa-trunk
+#        path/to/isotest.sh rootiotest
+#
+#   Arguments:
+#         pkgname   :  case insensitive pkg name to be tested, eg rootiotest
+#
+#      masterpath   :  build triggering repository path (usually "/")
+#                      this is only needed when creating xml reports of test results
+#                      for the master trac instance    
+#
+#   Developed with the  "slv-" functions which provide combined
 #   recipe generation and testing of the recipes and this script.
 #
-
-rt-envdump(){
-   echo
-   echo
-   echo  .....[$PWD]....... $* ..............
-   case $1 in 
-     derived) env |  perl -p -e "s,$NUWA_HOME/,,g" - | perl -p -e "s,$PWD,,g" - | sort   ;;
-    absolute) env |  perl -p -e "s,$NUWA_HOME/,,g" - | perl -p -e "s,$PWD,,g" - | sort | grep "=/"  ;;
-           *) env | sort ;;
-   esac
-   echo
-   echo
-}
-
-## check running from required directory and with the mandatory seed environment
-rt-assert(){
-  local msg="=== $FUNCNAME :"
-  [ -z "$BUILD_PATH" ]       && echo $msg ERROR BUILD_PATH is not defined && return 1
-  return 0
-}
-
-## release from dirname eg NuWa-trunk => trunk
-rt-release(){   
-  local nw="NuWa-"
-  [ "${1:0:${#nw}}" == "$nw" ] && echo ${1:${#nw}} || echo $1
-}
-
-## working copy dir from repository path  eg dybgaudi/trunk/RootIO/RootIOTest => dybgaudi/RootIO/RootIOTest
-rt-wcdir(){     
-   local elems=$(echo $1 | tr "/" " ")
-   local dir=""
-   local elem
-   for elem in $elems ; do
-      [ "$elem" != "$NUWA_RELEASE" ] && dir="$dir $elem" 
-   done
-   echo $dir | tr " " "/"
-}
-
+#
+#
 ## first path relative to the second 
 rt-relativeto(){ [ "$1" == "$2" -o "$2" == "" ] && echo "" || echo ${1/$2\//} ; }
 
-## CAUTION : xmlout is constrained to match the python:unittest attribute in the recipe
-rt-testname(){  echo $(basename $1) | tr "[A-Z]" "[a-z]" ; }
-rt-xmlout(){    echo $NUWA_HOME/../test-$(rt-testname $1).xml ;  }
+## lowercase
+rt-lower(){     echo $1 | tr "[A-Z]" "[a-z]" ; }
 
-
-## get into environment and directory for running test 
-rt-envsetup(){
-  unset SITEROOT 
-  unset CMSPROJECTPATH 
-  unset CMTPATH 
-  unset CMTEXTRATAGS 
-  unset CMTCONFIG 
-
-  . $NUWA_HOME/setup.sh  
-  cd $NUWA_HOME/dybgaudi/DybRelease/cmt 
-  [ ! -f setup.sh ] && cmt config ; . setup.sh ; cd .. 
-
-
-
-  cd $NUWA_HOME/$NUWA_TESTDIR/cmt 
-  [ ! -f setup.sh ] && cmt config ; . setup.sh ; cd .. 
+## cd into pkg directory and cmt environment 
+rt-cdpkg(){
+  local pkd=$1
+  set --
+  [ ! -d "$pkd/cmt" ] && echo $msg ERROR no dir $pkd/cmt && return 1
+  cd $pkd/cmt
+  [ ! -f setup.sh ] && cmt config
+  . setup.sh 
+  cd $pkd 
 }
+
+## pkgdir from the name ... case insensitive
+rt-pkgdir(){
+  local pkg=${1:-RootIOTest}
+  local var=$(echo $pkg | tr "[a-z]" "[A-Z]")ROOT
+  eval local dir=\$$var
+  echo $dir  
+}
+
+## repository relative path from working copy dir
+rt-reporoot(){ LANG=C svn info ${1:-$PWD} | perl -n -e 's,Repository Root: (\S*),$1, && print' - ; }
+rt-repopath(){ LANG=C svn info ${1:-$PWD} | perl -n -e "s,URL: $(rt-reporoot)/(\S*),\$1, && print" - ; }
 
 rt-main(){
+   local pkg=$1        ; shift
+   local masterpath=$1 ; shift
 
-   ## invokation directory is regarded as NUWA_HOME ... it should have name of form "NuWa-trunk"
-   rt-envdump seed
-   rt-assert
-   [ "$?" != "0" ] && echo rt-assert failure exiting && exit 1 
+   export RT_PKG=$pkg
+   export RT_OPTS=$*
+   export RT_HOME=$PWD    ## invoking PWD of name ~ "NuWa-<release>"
+ 
+   unset SITEROOT 
+   unset CMSPROJECTPATH 
+   unset CMTPATH 
+   unset CMTEXTRATAGS 
+   unset CMTCONFIG 
 
-   export NUWA_HOME=$PWD
-   export NUWA_RELEASE=$(rt-release $(basename $NUWA_HOME))
-   export NUWA_TESTDIR=$(rt-wcdir $BUILD_PATH)
+   . $RT_HOME/setup.sh  
+   rt-cdpkg $RT_HOME/dybgaudi/DybRelease 
 
-   export BUILD_MASTERPATH=${BUILD_MASTERPATH:-/}
-   export BUILD_BASEPREFIX=$(rt-relativeto $BUILD_PATH $BUILD_MASTERPATH)/ 
-   export BUILD_XMLOUT=$(rt-xmlout $BUILD_PATH)
+   ## get into environment and directory for pkg
+   local pkgdir=$(rt-pkgdir $pkg)
+   if [ -d "$pkgdir" ]; then 
+      rt-cdpkg $pkgdir
+   else
+      export RT_ERROR="$msg ERROR no pkgdir for $pkg" 
+   fi
 
-   rt-envdump inferred 
+   if [ -z "$masterpath" ]; then  
+      export RT_COMMAND="nosetests $opts "
+   else
+      ## bitten xml reports needs repo paths relative to the build triggering MASTERPATH
+      export RT_REPOPATH=$(rt-repopath $pkgdir)
+      export RT_MASTERPATH=${masterpath:-/}
+      export RT_BASEPREFIX=$(rt-relativeto $RT_REPOPATH $RT_MASTERPATH)/ 
+      export RT_XMLOUT=$RT_HOME/../test-$(rt-lower $pkg).xml 
+      export RT_COMMAND="nosetests $opts --with-xml-output --xml-outfile=$RT_XMLOUT --xml-baseprefix=$RT_BASEPREFIX"
+   fi
 
-   rt-envsetup
-
-   rt-envdump derived
-   rt-envdump absolute
-
-   local cmd="nosetests --with-xml-output --xml-outfile=$BUILD_XMLOUT --xml-baseprefix=$BUILD_BASEPREFIX"
-   echo $msg $cmd   
-   eval $cmd
+   env | grep RT_ | sort 
+   [ -z "$RT_ERROR" ] && eval $RT_COMMAND || echo $RT_ERROR
 }
-
-
-rt-main
+rt-main $*
