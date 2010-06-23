@@ -1,9 +1,16 @@
 # === func-gen- : base/slv fgp base/slv.bash fgn slv fgh base
 slv-src(){      echo base/slv.bash ; }
 slv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slv-src)} ; }
-slv-vi(){       vi $(slv-source) $(slv-runtest-path) ; }
+slv-vi(){       vi $(slv-source) $(slv-runtest-path) $(slv-isotest-path) ; }
 slv-usage(){
   cat << EOU
+
+
+   == TODO : ==
+
+       1) dybinst hookup ...
+             ./dybinst trunk test rootiotest
+
 
     == slv ==
 
@@ -95,10 +102,12 @@ EOI
 
 slv-cfg-path(){ echo $HOME/.bitten-slave/$(slv-repo).cfg ; }
 slv-cfg(){ cat << EOC
-# config is available in the recipe context of the slave as repo.url etc..
-
-# normally the master provides this context ... 
-# hardcode under local. for testing
+#
+#  config is available in the recipe context of the slave as repo.url etc..
+#     NB this config is entirely relative and thus a single config should work fine for 
+#        multiple installations under testing  
+#
+# normally the master provides this context ...  hardcode under local. for testing
 [local]
 path = /
 build = 1000
@@ -112,8 +121,6 @@ pass = $(slv-repo-pass)
 
 [script]
 path = installation/trunk/dybinst/dybinst 
-#runtest = ../installation/trunk/dybtest/scripts/runtest.sh 
-runtest = $(slv-runtest-path)
 name = dybinst
 
 [nuwa]
@@ -123,17 +130,6 @@ logurl = http://localhost:2020
 EOC
 }
 
-slv-testpath(){
-   local r=${2:-trunk}
-   case ${1} in
-      gaudimessages) echo dybgaudi/$r/Utilities/GaudiMessages ;;
-           gentools) echo dybgaudi/$r/Simulation/GenTools  ;;
-         rootiotest) echo dybgaudi/$r/RootIO/RootIOTest ;;
-    simhistsexample) echo tutorial/$r/Simulation/SimHistsExample ;;
-        dbivalidate) echo dybgaudi/$r/Database/DbiValidate ;;
-   esac  
-}
-
 slv-recipe(){ 
 
   local tmp="local."
@@ -141,22 +137,21 @@ slv-recipe(){
   #local export=1
   #local stages="cmt checkout external"
   #local projs="relax gaudi lhcb dybgaudi"
-  #local tests="gaudimessages gentools rootiotest simhistsexample dbivalidate"
+  #local testpkgs="gaudimessages gentools rootiotest simhistsexample dbivalidate"
   #local xexternals=""
 
   local export=0
   local stages=""
   local projs=""
-  local tests="rootiotest"
+  local testpkgs="rootiotest"
   local xexternals=""
 
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  base    " export BUILD_PWD=\$PWD ; " > 
   <!ENTITY  nuwa    " export NUWA_LOGURL=\${nuwa.logurl} ; " >
   <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
-  <!ENTITY  env     " &base; &nuwa; &unset;  " > 
+  <!ENTITY  env     " &nuwa; &unset;  " > 
 
 ]>
 <build
@@ -200,13 +195,12 @@ EOS
 EOP
   done
 
-  # tests
-  local tst ; for tst in $tests ; do 
+  # testpkgs
+  local pkg ; for pkg in $testpkgs ; do 
   cat << EOT
-<step id="test-$tst" description="test-$tst" onerror="continue" >
-     <sh:exec executable="bash"  output="test-$tst.out"
-           args=" -c &quot;  cd \$PWD/NuWa-\${nuwa.release} ; env -i BUILD_PATH=$(slv-testpath $tst) BUILD_MASTERPATH=\${${tmp}path}  \${script.runtest}  &quot;  " /> 
-     <python:unittest file="test-$tst.xml" />
+<step id="test-$pkg" description="test-$pkg" onerror="continue" >
+     <sh:exec executable="bash"  output="test-$pkg.out" args=" -c &quot;  &env; ./dybinst -m \${${tmp}path}  \${nuwa.release} tests $pkg  &quot;  " /> 
+     <python:unittest file="test-$pkg.xml" />
 </step>
 EOT
   done  
@@ -274,11 +268,13 @@ slv--(){
   slv---
 }
 
-
+## these are dev versions operational ones now in installation/trunk/dybinst/scripts
+slv-isotest-path(){ echo $(env-home)/offline/isotest.sh ; }
 slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
+
 slv-runtest-demo(){
-  cd /data1/env/local/dyb/build_dybinst_8751/NuWa-trunk  
-  env -i BUILD_PATH=$(slv-testpath $1) $(slv-runtest-path)
+  cd $DYB
+  ./dybinst -m / trunk tests
 }
 
 
