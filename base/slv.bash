@@ -1,7 +1,15 @@
 # === func-gen- : base/slv fgp base/slv.bash fgn slv fgh base
 slv-src(){      echo base/slv.bash ; }
 slv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slv-src)} ; }
-slv-vi(){       vi $(slv-source) $(slv-runtest-path) $(slv-isotest-path) ; }
+slv-vi(){       vi $(slv-source) $(slv-slave-path) $(slv-runtest-path) $(slv-isotest-path) ; }
+
+## these are dev versions ...  operational ones now in installation/trunk/dybinst/scripts :w
+slv-isotest-path(){ echo $(env-home)/offline/isotest.sh ; }
+slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
+slv-slave-path(){   echo $(env-home)/offline/slave.sh ; }
+
+
+
 slv-usage(){
   cat << EOU
 
@@ -41,6 +49,15 @@ slv-usage(){
  
             ==>  could implement by adding an "askmax" option to bitten-slave  
    
+   == on logurl ==
+
+      formerly primed env with 
+         NUWA_LOGURL BUILD_NUMBER BUILD_CONFIG
+      which is used by dybinst to construct the url 
+       ...   but that wont be appropiate in all cases 
+           as the layout will be different for flavors of slave
+ 
+       better to construct this inside the recipe
 
    == is zeroconf possible ? ==
 
@@ -160,48 +177,15 @@ slv-dybcnf(){
   echo $val
 }
 
-slv-dybini(){
-  ## translate slv_ prefixed config vars such as slv_name into ini format for slave consumption as slv.name 
-  local dybinstrc=$HOME/.dybinstrc
-  [ -f "$dybinstrc" ] && . $dybinstrc
-  local key
-  echo "[slv]"
-  for key in ${!slv*} ; do
-    eval local val=\$$key
-    echo ${key:4}=$val
-  done 
-}
 
 
-
-slv-cfg-path(){ echo $HOME/.bitten-slave/$(slv-repo).cfg ; }
-slv-cfg(){ cat << EOC
-#
-#  config is available in the recipe context of the slave as repo.url etc..
-#     NB this config is entirely relative and thus a single config should work fine for 
-#        multiple installations under testing  
-#
-# normally the master provides this context ...  hardcode under local. for testing
-[local]
-path = /
-build = 1000
-config = dybinst
-revision = 8800
-
-[slv]
-username = $(slv-dybcnf slv_username)
-password = $(slv-dybcnf slv_password)
-logurl = http://localhost:2020
-
-EOC
-}
 
 slv-recipe(){ 
 
   local tmp="local."
   local release=trunk 
 
-  local export=1
+  local export=0
   local stages="cmt checkout external"
   local projs="relax gaudi lhcb dybgaudi"
   local testpkgs="gaudimessages gentools rootiotest simhistsexample"
@@ -217,7 +201,7 @@ slv-recipe(){
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  nuwa    " export NUWA_LOGURL=\${slv.logurl} ; " >
+  <!ENTITY  nuwa    " export NUWA_LOGURL=\${slv.logurl} ; export BUILD_NUMBER=\${${tmp}build} ; " >
   <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
   <!ENTITY  env     " &nuwa; &unset;  " > 
 
@@ -385,13 +369,15 @@ slv--(){
   slv---
 }
 
-## these are dev versions ...  operational ones now in installation/trunk/dybinst/scripts :w
-slv-isotest-path(){ echo $(env-home)/offline/isotest.sh ; }
-slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
-
 slv-runtest-demo(){
   cd $DYB
   ./dybinst -m / trunk tests
+}
+
+slv-slave-demo(){
+  cd $DYB
+  $(slv-slave-path) $*
+
 }
 
 
