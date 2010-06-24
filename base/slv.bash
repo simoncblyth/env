@@ -3,12 +3,18 @@ slv-src(){      echo base/slv.bash ; }
 slv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slv-src)} ; }
 slv-vi(){       vi $(slv-source) $(slv-slave-path) $(slv-runtest-path) $(slv-isotest-path) ; }
 
-## these are dev versions ...  operational ones now in installation/trunk/dybinst/scripts :w
-slv-isotest-path(){ echo $(env-home)/offline/isotest.sh ; }
-slv-runtest-path(){ echo $(env-home)/offline/runtest.sh ; }
-slv-slave-path(){   echo $(env-home)/offline/slave.sh ; }
+slv-srcdir(){
+   ## dev versions ... 
+   #echo $(env-home)/offline
 
+   ##  operational ones
+   echo $DYB/installation/trunk/dybinst/scripts
+}
 
+slv-isotest-path(){ echo $(slv-srcdir)/isotest.sh ; }
+slv-runtest-path(){ echo $(slv-srcdir)/runtest.sh ; }
+slv-slave-path(){   echo $(slv-srcdir)/slave.sh ; }
+slv-recipe-path(){  echo $(slv-srcdir)/${1:-dybinst}.xml ; }
 
 slv-usage(){
   cat << EOU
@@ -59,36 +65,16 @@ slv-usage(){
  
        better to construct this inside the recipe
 
-   == is zeroconf possible ? ==
-
-      * given that credentials cannot be left in the recipe 
-      * translate the needed keys from $HOME/.dybinstrc into the 
-        ini format needed by the slave at runtime 
-           ... so users never need touch the config
-           ... do this in a slave runner script  
-                                     
+                                    
    == TODO : ==
 
        1) propagate NUWA_LOGURL via dybinst local config rather than environment 
           to keep this out of the recipe and config
 
-       2) aiming towards zero-conf ... 
-
        3) placement of outputs/logs ... caution regards credentials and web access
 
        4) migrate the update "standard" slave run to use recipes generated here  
          
-       5) simplify invokation using a slave.sh script that can be invoked from dybinst
-          which derives the config in ini format needed by bitten-slave and requests master
-          for a build            
-  
-              ./dybinst trunk slave
-
-              ./dybinst -s update trunk slave 
-              ./dybinst -s green  trunk slave 
-              ./dybinst -s shared trunk slave 
-
-          caveats
               * system python needs bitten installed 
               * perhaps with patched extra option from me
           
@@ -97,19 +83,11 @@ slv-usage(){
                     (modulo a dybinst config file providing credentials for the slave )
 
 
-   == DONE ==
-
-       1) dybinst hookup for test running
-               ./dybinst trunk test rootiotest
-
-
    == DEV FUNCS ==
+    
+     slv-recipe-update <dybinst|local.dybinst>
+           update slv-recipe-path : $(slv-recipe-path)
 
-     slv--
-
-     slv-cfg-path  : $(slv-cfg-path)
-     slv-cfg
-           emit config to stdout
 
      slv-recipe
            emit build/test recipe to stdout 
@@ -117,25 +95,8 @@ slv-usage(){
            for svn:export of a file use "dir" attribute for the name of the file 
            current bitten on cms01 doesnt recognize username/password attributes ... so only working due to svn auth cache 
 
-     slv-cmd
-           emit cmd to stdout 
+   == notes ... ==
 
-
-     slv-dir : $(slv-dir)
-     slv-name : $(slv-name)
-
-       * .recipe resides on the master in normal operation 
-
-
-    Run inside screen with :
-          SCREEN=screen slv--
-              (detach with ctrl-a d , re-attach with screen -r ) 
-           this builds beneath $(slv-dir)
-
-    To build in the PWD ... eg :
-          cd $(local-base)/dyb ; SCREEN=screen slv---
-
-    Follow whats happenin :
           pstree -al $(pgrep -n screen)
 
 
@@ -146,9 +107,6 @@ slv-env(){
    private-
 }
 slv-cd(){  cd $(slv-dir); }
-slv-init(){
-   local dir=$(slv-dir) &&  mkdir -p $dir && cd $dir
-}
 
 slv-name(){ hostname -s ; }
 slv-repo(){        private-val SLV_REPO ; }
@@ -169,34 +127,85 @@ slv-repo-info(){  cat << EOI
 EOI
 }
 
-slv-dybcnf(){
-  local key=${1:-nokey}
-  local dybinstrc=$HOME/.dybinstrc
-  [ -f "$dybinstrc" ] && . $dybinstrc
-  eval local val=\$$key
-  echo $val
+
+slv-sv(){
+  local config=${1:-dybinst}
+  sv-
+  slv-sv- $config | sv-plus $config.ini
+}
+
+slv-sv-(){ cat << EOS
+[program:$1]
+environment=HOME=$HOME,BITTEN_SLAVE=$(which bitten-slave)
+directory=$DYB
+command=$DYB/dybinst trunk slave
+redirect_stderr=true
+redirect_stdout=true
+autostart=true
+autorestart=true
+priority=999
+user=$USER
+EOS
+}
+
+slv-recipe-update(){
+   local msg="=== $FUNCNAME :"
+   [ -z "$DYB" ] && echo $msg DYB is not defined && return 1
+   local nam=${1:-dybinst}           ## use local.dybinst  for local variant 
+   local cur=$(slv-recipe-path $nam)
+   local tmp=/tmp/$USER/env/$FUNCNAME/$nam.xml
+   mkdir -p $(dirname $tmp)
+
+   echo $msg writing recipe to $tmp
+   slv-recipe $nam > $tmp
+   xmllint --noout $tmp
+   [ "$?" != "0" ] && echo invalid recipe xml $tmp && return 1 
+ 
+   if [ -f "$cur" ]; then 
+      local cmd="diff $cur $tmp"
+      echo $msg $cmd 
+      eval $cmd 
+   fi
+   local ans
+   read -p "$msg enter YES to proceed with updating $cur ... remember to check it in "  ans 
+   [ "$ans" != "YES" ] && echo $msg skipping && return 0
+   cp $tmp $cur
 }
 
 
-
-
+slv-stages(){
+  case $1 in
+     *test) echo -n ;; 
+         *) echo cmt checkout external ;;
+  esac
+}
+slv-projs(){
+  case $1 in
+     *test) echo -n ;; 
+         *) echo relax gaudi lhcb dybgaudi ;;
+  esac
+}
+slv-xexternals(){
+  case $1 in
+     *) echo -n ;; 
+  esac
+}
+slv-export(){
+   case $1 in 
+     *) echo 1 ;;
+   esac
+}
+slv-testpkgs(){
+  case $1 in
+      *detdesc) echo xmldetdescchecks ;;
+      *dybinst) echo gaudimessages gentools rootiotest simhistsexample ;;
+             *) echo gaudimessages gentools rootiotest simhistsexample dbivalidate ;;
+  esac
+}
 slv-recipe(){ 
 
-  local tmp="local."
-  local release=trunk 
-
-  local export=1
-  local stages="cmt checkout external"
-  local projs="relax gaudi lhcb dybgaudi"
-  local testpkgs="gaudimessages gentools rootiotest simhistsexample"
-  local xexternals=""
-
-  #local export=1
-  #local stages=""
-  #local projs=""
-  #local testpkgs="rootiotest"
-  #local testpkgs="gaudimessages gentools rootiotest simhistsexample dbivalidate"
-  #local xexternals=""
+  local config=$1
+  local tmp=$([ "${config:0:6}" == "local." ] && echo "local." || echo -n )   ## blank for operation with the master
 
   # head
   cat << EOH
@@ -211,17 +220,19 @@ slv-recipe(){
     xmlns:svn="http://bitten.cmlenz.net/tools/svn"
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
+  <!-- recipe derived by slv-;$FUNCNAME  -->
+
 EOH
 
   # export
-  [ "$export" == "1" ] && cat << EOX
+  [ "$(slv-export $config)" == "1" ] && cat << EOX
 <step id="export" description="export" onerror="fail" >
     <sh:exec executable="bash" output="export.out"      args=" -c &quot; &env; svn export --username \${slv.username} --password \${slv.password} http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst  &quot; " /> 
 </step>
 EOX
 
   # stages
-  local stage ; for stage in $stages ; do 
+  local stage ; for stage in $(slv-stages $config) ; do 
   cat << EOS
 <step id="$stage" description="$stage" onerror="fail" > 
     <sh:exec executable="bash" output="$stage.out"      args=" -c &quot; &env; ./dybinst -z \${${tmp}revision} \${nuwa.release} $stage &quot; " /> 
@@ -230,7 +241,7 @@ EOS
   done
 
   # xexternals 
-  local xext ; for xext in $xexternals ; do 
+  local xext ; for xext in $(slv-xexternals $config) ; do 
   cat << EOS
 <step id="$xext" description="$xext" onerror="continue" > 
     <sh:exec executable="bash" output="$xext.out"      args=" -c &quot; &env; ./dybinst \${nuwa.release} external $xext &quot; " /> 
@@ -239,7 +250,7 @@ EOS
   done
 
   # projs
-  local proj ; for proj in $projs ; do 
+  local proj ; for proj in $(slv-projs $config) ; do 
   cat << EOP
 <step id="$proj" description="$proj" onerror="fail" > 
     <sh:exec executable="bash" output="$proj.out"  args=" -c &quot; &env; ./dybinst \${nuwa.release} projects $proj  &quot; " /> 
@@ -248,7 +259,7 @@ EOP
   done
 
   # testpkgs
-  local pkg ; for pkg in $testpkgs ; do 
+  local pkg ; for pkg in $(slv-testpkgs $config) ; do 
   cat << EOT
 <step id="test-$pkg" description="test-$pkg" onerror="continue" >
      <sh:exec executable="bash"  output="test-$pkg.out" args=" -c &quot;  &env; ./dybinst -m \${${tmp}path} \${nuwa.release} tests $pkg  &quot;  " /> 
@@ -262,94 +273,5 @@ EOT
 </build>
 EOT
 }
-
-
-
-
-
-slv-cmd(){
-  local arg=$1  
-  cat << EOC
-$SCREEN $(which bitten-slave)
-      --dry-run
-      --config=$(slv-cfg-path)
-      --verbose 
-      --keep-files 
-      --log=$(slv-label).log 
-      --user=$(slv-repo-user) --password=$(slv-repo-pass) 
-EOC
-  slv-layout-$(slv-mode)
-  cat << EOA
-      $arg
-EOA
-}
-
-slv-label(){ echo $(slv-repo)-$(slv-mode) ; }
-
-slv-sv-(){ cat << EOS
-[program:$(slv-label)]
-directory=$(slv-dir)
-command=$(which python) $(slv-cmd $*)
-redirect_stderr=true
-redirect_stdout=true
-autostart=true
-autorestart=true
-priority=999
-user=$USER
-EOS
-}
-
-
-
-
-slv---(){
-
-  # in normal usage the recipe comes from the master 
-  # and the config is fixed once ...  
-  #
-  local msg="=== $FUNCNAME : "
-  echo $msg running build recipe from $PWD 
-
-  local path=$(slv-cfg-path) 
-  mkdir -p $(dirname $path)
-  slv-cfg > $path 
-
-  local recipe="recipe.xml" 
-  slv-recipe > $recipe
-  xmllint --noout $recipe
-  [ "$?" != "0" ] && echo invalid recipe xml $recipe && return 1 
-
-  #local cmd=$(slv-cmd $(slv-repo-builds))    ## remote builds url 
-  local cmd=$(slv-cmd $recipe)                ## local recipe for dev
-  
-  echo $msg $cmd 
-  eval $cmd 
-}
-
-
-slv--(){
-  local msg="=== $FUNCNAME : "
-  [ ! -d "$(slv-dir)" ] && slv-init
-  slv-cd
-  slv---
-}
-
-slv-runtest-demo(){
-  cd $DYB
-  ./dybinst -m / trunk tests
-}
-
-slv-slave-demo(){
-  cd $DYB
-  $(slv-slave-path) $*
-
-}
-
-
-slv-screen(){
-  cd $DYB || return 1
-  SCREEN=screen slv--- 
-}
-
 
 
