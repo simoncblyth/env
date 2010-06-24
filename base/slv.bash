@@ -41,6 +41,14 @@ slv-usage(){
  
             ==>  could implement by adding an "askmax" option to bitten-slave  
    
+
+   == is zeroconf possible ? ==
+
+      * given that credentials cannot be left in the recipe 
+      * translate the needed keys from $HOME/.dybinstrc into the 
+        ini format needed by the slave at runtime 
+           ... so users never need touch the config
+           ... do this in a slave runner script  
                                      
    == TODO : ==
 
@@ -49,15 +57,33 @@ slv-usage(){
 
        2) aiming towards zero-conf ... 
 
-       3) migrate the update "standard" slave run to use recipes generated here  
-          would it make sense to ...
-              ./dybinst trunk slave 
+       3) placement of outputs/logs ... caution regards credentials and web access
+
+       4) migrate the update "standard" slave run to use recipes generated here  
+         
+       5) simplify invokation using a slave.sh script that can be invoked from dybinst
+          which derives the config in ini format needed by bitten-slave and requests master
+          for a build            
+  
+              ./dybinst trunk slave
+
+              ./dybinst -s update trunk slave 
+              ./dybinst -s green  trunk slave 
+              ./dybinst -s shared trunk slave 
+
+          caveats
+              * system python needs bitten installed 
+              * perhaps with patched extra option from me
+          
+          downside
+              * slave cannot then start from an empty dir  
+                    (modulo a dybinst config file providing credentials for the slave )
 
 
    == DONE ==
 
-       1) dybinst hookup ...
-             ./dybinst trunk test rootiotest
+       1) dybinst hookup for test running
+               ./dybinst trunk test rootiotest
 
 
    == DEV FUNCS ==
@@ -82,8 +108,6 @@ slv-usage(){
      slv-name : $(slv-name)
 
        * .recipe resides on the master in normal operation 
-
-
 
 
     Run inside screen with :
@@ -128,6 +152,28 @@ slv-repo-info(){  cat << EOI
 EOI
 }
 
+slv-dybcnf(){
+  local key=${1:-nokey}
+  local dybinstrc=$HOME/.dybinstrc
+  [ -f "$dybinstrc" ] && . $dybinstrc
+  eval local val=\$$key
+  echo $val
+}
+
+slv-dybini(){
+  ## translate slv_ prefixed config vars such as slv_name into ini format for slave consumption as slv.name 
+  local dybinstrc=$HOME/.dybinstrc
+  [ -f "$dybinstrc" ] && . $dybinstrc
+  local key
+  echo "[slv]"
+  for key in ${!slv*} ; do
+    eval local val=\$$key
+    echo ${key:4}=$val
+  done 
+}
+
+
+
 slv-cfg-path(){ echo $HOME/.bitten-slave/$(slv-repo).cfg ; }
 slv-cfg(){ cat << EOC
 #
@@ -142,17 +188,9 @@ build = 1000
 config = dybinst
 revision = 8800
 
-[repo]
-url  = $(slv-repo-url)
-user = $(slv-repo-user)
-pass = $(slv-repo-pass)
-
-[script]
-path = installation/trunk/dybinst/dybinst 
-name = dybinst
-
-[nuwa]
-release = trunk
+[slv]
+username = $(slv-dybcnf slv_username)
+password = $(slv-dybcnf slv_password)
 logurl = http://localhost:2020
 
 EOC
@@ -161,6 +199,7 @@ EOC
 slv-recipe(){ 
 
   local tmp="local."
+  local release=trunk 
 
   local export=1
   local stages="cmt checkout external"
@@ -178,7 +217,7 @@ slv-recipe(){
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  nuwa    " export NUWA_LOGURL=\${nuwa.logurl} ; " >
+  <!ENTITY  nuwa    " export NUWA_LOGURL=\${slv.logurl} ; " >
   <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
   <!ENTITY  env     " &nuwa; &unset;  " > 
 
@@ -192,8 +231,8 @@ EOH
 
   # export
   [ "$export" == "1" ] && cat << EOX
-<step id="export" description="export \${repo.script}  " onerror="fail" >
-    <svn:export url="\${repo.url}" path="\${script.path}" dir="\${script.name}" revision="\${${tmp}revision}" /> 
+<step id="export" description="export" onerror="fail" >
+    <sh:exec executable="bash" output="export.out"      args=" -c &quot; &env; svn export --username \${slv.username} --password \${slv.password} http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst  &quot; " /> 
 </step>
 EOX
 
@@ -228,7 +267,7 @@ EOP
   local pkg ; for pkg in $testpkgs ; do 
   cat << EOT
 <step id="test-$pkg" description="test-$pkg" onerror="continue" >
-     <sh:exec executable="bash"  output="test-$pkg.out" args=" -c &quot;  &env; ./dybinst -m \${${tmp}path}  \${nuwa.release} tests $pkg  &quot;  " /> 
+     <sh:exec executable="bash"  output="test-$pkg.out" args=" -c &quot;  &env; ./dybinst -m \${${tmp}path} \${nuwa.release} tests $pkg  &quot;  " /> 
      <python:unittest file="test-$pkg.xml" />
 </step>
 EOT
@@ -287,7 +326,7 @@ $SCREEN $(which bitten-slave)
       --config=$(slv-cfg-path)
       --verbose 
       --keep-files 
-      --log=$(slv-name).log 
+      --log=$(slv-label).log 
       --user=$(slv-repo-user) --password=$(slv-repo-pass) 
 EOC
   slv-layout-$(slv-mode)
@@ -328,8 +367,8 @@ slv---(){
 
   local recipe="recipe.xml" 
   slv-recipe > $recipe
-  xmllint $recipe
-  [ "$?" != "0" ] && echo invalid recipe xml && return 1 
+  xmllint --noout $recipe
+  [ "$?" != "0" ] && echo invalid recipe xml $recipe && return 1 
 
   #local cmd=$(slv-cmd $(slv-repo-builds))    ## remote builds url 
   local cmd=$(slv-cmd $recipe)                ## local recipe for dev
