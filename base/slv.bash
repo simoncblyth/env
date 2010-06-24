@@ -185,7 +185,7 @@ slv-recipe(){
   local tmp="local."
   local release=trunk 
 
-  local export=0
+  local export=1
   local stages="cmt checkout external"
   local projs="relax gaudi lhcb dybgaudi"
   local testpkgs="gaudimessages gentools rootiotest simhistsexample"
@@ -263,41 +263,6 @@ EOT
 EOT
 }
 
-
-slv-mode(){ 
-  echo ${SLV_MODE:-update}   ## update/shared/green/dev
-}
-slv-layout-dev(){ slv-layout-update ; }
-slv-layout-update(){ cat << EOL
-    --work-dir=. 
-    --build-dir=. 
-EOL
-}
-slv-layout-shared(){ cat << EOL
-   --work-dir=. 
-   --build-dir="shared_\\\${${tmp}config}_\\\${${tmp}revision}" 
-EOL
-}
-slv-layout-green(){ cat << EOL
-   --work-dir=. 
-   --build-dir="green_\\\${${tmp}config}_\\\${${tmp}revision}" 
-EOL
-}
-
-slv-base(){ echo $(local-base)/slv ; }
-slv-dir(){ 
-  case $(slv-mode) in 
-    shared|dev|green) echo $(slv-base)/$(slv-mode) ;;
-              update) echo $(slv-base) ;;
-  esac
-}
-
-slv-external(){
-  case $(slv-mode) in 
-   green|update) echo -n          ;;   ## default external location in the dybinst dir
-     dev|shared) echo ../external ;;   ## one up to the update external 
-  esac 
-}
 
 
 
