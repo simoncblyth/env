@@ -102,6 +102,10 @@ speeqe-statics(){
    sudo cp -r images      $target/
    sudo cp -r js          $target/
 
+   ## nope wrong thing to go now ...  speeqeweb is a django project containing speeqe app ...
+   ##  the statics are being served up via djangos static handling 
+   ## ... 1st get it working with minimal changes  
+
 }
 
 
