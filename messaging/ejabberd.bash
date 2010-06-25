@@ -25,6 +25,10 @@ ejabberd-usage(){
       my investigations
         wiki:Ejabberd
 
+      authentication
+        http://www.process-one.net/en/ejabberd/guide_en#extauth
+
+
    == funcs ==
 
    commandline check the webadmin is accessible ..

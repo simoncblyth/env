@@ -1,0 +1,47 @@
+
+== http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/AuthenticationUnified ==
+
+This folder contains pieces of Trac extracted to 
+allow sharing Trac/SVN users with other applications such as
+   * django
+   * ejabberd
+
+These works were extracted from Trac svn at revision 9923 with :
+{{{
+svn export http://svn.edgewall.com/repos/trac/trunk/trac/web/auth.py
+svn export http://svn.edgewall.com/repos/trac/trunk/COPYING
+}}}
+
+Actually no ... ensure consistency by using the Trac 0.11 ones from the .egg :
+{{{
+cp $(python-site)/Trac-0.11-py2.5.egg/trac/util/__init__.py util.py
+cp $(python-site)/Trac-0.11-py2.5.egg/trac/web/auth.py     auth.py
+}}}
+
+They were modified to retain the functionality of 
+   * BasicAuthentication
+   * DigestAuthentication    (untested)
+
+== checking username/password pairs ==
+
+Usage example :
+{{{
+from env.trac.auth import BasicAuthentication 
+ba = BasicAuthentication("users-htpasswd-file.txt")
+ba.test('username','password')
+}}}
+
+== updating the users file ==
+
+{{{
+svn export http://svn.edgewall.com/repos/trac/trunk/contrib/htpasswd.py 
+}}}
+
+
+== TODO ==
+ 
+   * integrate functionality of htpasswd.py with BasicAuthentication
+       * maybe : AccountManagerPlugin has done this already ?
+
+   * use the merged class to create ejabberd and django external authenticators
+
