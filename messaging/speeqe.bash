@@ -11,10 +11,19 @@ speeqe-usage(){
       http://code.stanziq.com/speeqe
       http://code.stanziq.com/speeqe/wiki/SpeeqeSetup
 
+
+    Getting many 504 Gateway Time-out ... is that normal for BOSH communication ?
+
+      "timeouts" section of :
+           http://tools.ietf.org/id/draft-loreto-http-bidirectional-02.txt
+
+      http://www.checkupdown.com/status/E504.html
+
+
 EOU
 }
 speeqe-dir(){ echo $(local-base)/env/messaging/speeqe ; }
-speeqe-cd(){  cd $(speeqe-dir); }
+speeqe-cd(){  cd $(speeqe-dir)/$1 ; }
 speeqe-mate(){ mate $(speeqe-dir) ; }
 speeqe-get(){
    local dir=$(dirname $(speeqe-dir)) &&  mkdir -p $dir && cd $dir
@@ -79,7 +88,20 @@ location ~ ^/(speeqewebclient/scripts)/ {
 }
 
 
-
-
 EOC
 }
+
+
+speeqe-statics(){
+
+   local target=${1:-$(nginx-htdocs)}
+   speeqe-cd speeqeweb/webroot
+
+   sudo cp -r favicon.ico $target/
+   sudo cp -r css         $target/
+   sudo cp -r images      $target/
+   sudo cp -r js          $target/
+
+}
+
+

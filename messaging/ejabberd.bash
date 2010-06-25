@@ -362,6 +362,7 @@ ejabberd-start(){      ejabberd-ctl start ; }
 ejabberd-stop(){       ejabberd-ctl stop ; }
 
 ejabberd-connected(){     ejabberd-ctl connected-users ; }
+ejabberd-users(){         ejabberd-ctl registered_users $(hostname) ; }
 
 ejabberd-open(){    
    iptables-

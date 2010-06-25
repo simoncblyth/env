@@ -869,3 +869,5 @@ strophe-(){      . $(env-home)/messaging/strophe.bash && strophe-env $* ; }
 speeqe-(){      . $(env-home)/messaging/speeqe.bash && speeqe-env $* ; }
 erl-(){      . $(env-home)/erlang/erl.bash && erl-env $* ; }
 pyxmpp-(){      . $(env-home)/messaging/pyxmpp.bash && pyxmpp-env $* ; }
+xmpppy-(){      . $(env-home)/messaging/xmpppy.bash && xmpppy-env $* ; }
+
