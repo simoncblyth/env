@@ -21,6 +21,9 @@ sv-usage(){
        http://supervisord.org/manual/current/
        http://pypi.python.org/pypi/superlance/
 
+       http://svn.supervisord.org/superlance/trunk/
+
+
     Eventlistener that sends emails on status changes...
        http://lists.supervisord.org/pipermail/supervisor-users/2009-October/000480.html
 
@@ -234,6 +237,7 @@ sv-baseurl(){  echo http://svn.supervisord.org ; }
 sv-get-trunk(){
    local dir=$(sv-dir) && mkdir -p $dir && cd $dir
    svn co $(sv-baseurl)/supervisor/trunk supervisor
+   svn co $(sv-baseurl)/superlance/trunk superlance
 }
 
 sv-trunk-html(){

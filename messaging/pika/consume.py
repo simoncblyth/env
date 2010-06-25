@@ -20,6 +20,7 @@ op = OptionParser()
 op.add_option("-q", "--queue")
 op.add_option("-x", "--exchange")
 op.add_option("-k", "--routing-key")
+op.add_option("-o", "--only-bind", action="store_true" ) 
 
 op.add_option("-d", "--durable",   action="store_true" ) 
 op.add_option("-v", "--exclusive", action="store_true" ) 
@@ -54,7 +55,10 @@ def consume( opts, args ):
     ch = conn.channel()
     ch.queue_declare(queue=opts.queue , durable=opts.durable , exclusive=opts.exclusive , auto_delete=opts.auto_delete )
     ch.queue_bind(   queue=opts.queue , exchange=opts.exchange  , routing_key=opts.routing_key )
-    ch.basic_consume( handle_delivery, queue = opts.queue )
+    if opts.only_bind:
+        print "only binding... "
+    else:
+        ch.basic_consume( handle_delivery, queue = opts.queue )
     pika.asyncore_loop()
     print 'Close reason:', conn.connection_close
 
