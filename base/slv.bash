@@ -148,6 +148,16 @@ user=$USER
 EOS
 }
 
+
+slv-recipe-update-all(){
+
+   slv-recipe-update local.dybinst
+   slv-recipe-update dybinst
+   slv-recipe-update detdesc
+   slv-recipe-update dybdoc
+
+}
+
 slv-recipe-update(){
    local msg="=== $FUNCNAME :"
    [ -z "$DYB" ] && echo $msg DYB is not defined && return 1
@@ -173,27 +183,44 @@ slv-recipe-update(){
 }
 
 
-slv-stages(){
-  case $1 in
-     *test) echo -n ;; 
-         *) echo cmt checkout external ;;
+
+slv-export(){
+   case $1 in 
+     *) echo 1 ;;
+   esac
+}
+slv-cmt(){
+  case $1 in 
+     *) echo 1 ;;
   esac
 }
-slv-projs(){
-  case $1 in
-     *test) echo -n ;; 
-         *) echo relax gaudi lhcb dybgaudi ;;
+slv-checkout(){
+  case $1 in 
+     *) echo 1 ;;
   esac
+}
+slv-external(){
+   case $1 in 
+ dybdoc) echo 0 ;;
+      *) echo 1 ;;
+   esac
 }
 slv-xexternals(){
   case $1 in
      *) echo -n ;; 
   esac
 }
-slv-export(){
-   case $1 in 
-     *) echo 1 ;;
-   esac
+slv-projs(){
+  case $1 in
+     *test|*doc) echo -n ;; 
+              *) echo relax gaudi lhcb dybgaudi ;;
+  esac
+}
+slv-docs(){
+  case $1 in
+     dybdoc) echo manual ;; 
+          *) echo -n ;;
+  esac
 }
 slv-testpkgs(){
   case $1 in
@@ -202,6 +229,12 @@ slv-testpkgs(){
              *) echo gaudimessages gentools rootiotest simhistsexample dbivalidate ;;
   esac
 }
+
+
+
+
+
+
 slv-recipe(){ 
 
   local config=$1
@@ -220,7 +253,15 @@ slv-recipe(){
     xmlns:svn="http://bitten.cmlenz.net/tools/svn"
     xmlns:sh="http://bitten.cmlenz.net/tools/sh"
   >
-  <!-- recipe derived by slv-;$FUNCNAME  -->
+  <!-- recipe derived by slv-;$FUNCNAME  for config $config 
+       slv-export     $config  : $(slv-export $config)
+       slv-cmt        $config  : $(slv-cmt $config)
+       slv-external   $config  : $(slv-external $config)
+       slv-xexternals $config  : $(slv-xexternals $config)
+       slv-projs      $config  : $(slv-projs $config)
+       slv-docs       $config  : $(slv-docs $config)
+       slv-testpkgs   $config  : $(slv-testpkgs $config)
+   -->
 
 EOH
 
@@ -231,14 +272,23 @@ EOH
 </step>
 EOX
 
-  # stages
-  local stage ; for stage in $(slv-stages $config) ; do 
-  cat << EOS
-<step id="$stage" description="$stage" onerror="fail" > 
-    <sh:exec executable="bash" output="$stage.out"      args=" -c &quot; &env; ./dybinst -z \${${tmp}revision} \${nuwa.release} $stage &quot; " /> 
+  [ "$(slv-cmt $config)" == "1" ] && cat << EOA
+<step id="cmt" description="cmt" onerror="fail" > 
+    <sh:exec executable="bash" output="cmt.out"      args=" -c &quot; &env; ./dybinst \${nuwa.release} cmt &quot; " /> 
 </step>  
-EOS
-  done
+EOA
+
+  [ "$(slv-checkout $config)" == "1" ] && cat << EOB
+<step id="checkout" description="checkout" onerror="fail" > 
+    <sh:exec executable="bash" output="checkout.out"      args=" -c &quot; &env; ./dybinst -z \${${tmp}revision} \${nuwa.release} checkout &quot; " /> 
+</step>  
+EOB
+
+  [ "$(slv-external $config)" == "1" ] && cat << EOC
+<step id="external" description="external" onerror="fail" > 
+    <sh:exec executable="bash" output="external.out"      args=" -c &quot; &env; ./dybinst -c -p  \${nuwa.release} external &quot; " /> 
+</step>  
+EOC
 
   # xexternals 
   local xext ; for xext in $(slv-xexternals $config) ; do 
@@ -253,7 +303,7 @@ EOS
   local proj ; for proj in $(slv-projs $config) ; do 
   cat << EOP
 <step id="$proj" description="$proj" onerror="fail" > 
-    <sh:exec executable="bash" output="$proj.out"  args=" -c &quot; &env; ./dybinst \${nuwa.release} projects $proj  &quot; " /> 
+    <sh:exec executable="bash" output="$proj.out"  args=" -c &quot; &env; ./dybinst -c -p \${nuwa.release} projects $proj  &quot; " /> 
 </step>  
 EOP
   done
@@ -267,6 +317,15 @@ EOP
 </step>
 EOT
   done  
+
+  # docs 
+  local doc ; for doc in $(slv-docs $config) ; do 
+  cat << EOP
+<step id="$doc" description="$doc" onerror="fail" > 
+    <sh:exec executable="bash" output="$doc.out"  args=" -c &quot; &env; ./dybinst  \${nuwa.release} docs $doc  &quot; " /> 
+</step>  
+EOP
+  done
 
   # tail
   cat << EOT
