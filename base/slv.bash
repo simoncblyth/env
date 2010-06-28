@@ -218,15 +218,14 @@ slv-projs(){
 }
 slv-docs(){
   case $1 in
-     dybdoc) echo manual ;; 
+     dybdoc) echo manual doxygen ;; 
           *) echo -n ;;
   esac
 }
 slv-testpkgs(){
   case $1 in
       *detdesc) echo xmldetdescchecks ;;
-      *dybinst) echo gaudimessages gentools rootiotest simhistsexample ;;
-             *) echo gaudimessages gentools rootiotest simhistsexample dbivalidate ;;
+      *dybinst) echo gaudimessages gentools rootiotest simhistsexample dbivalidate ;;
   esac
 }
 
