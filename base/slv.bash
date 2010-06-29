@@ -136,7 +136,7 @@ slv-sv(){
 
 slv-sv-(){ cat << EOS
 [program:$1]
-environment=HOME=$HOME,BITTEN_SLAVE=$(which bitten-slave)
+environment=HOME=$HOME,BITTEN_SLAVE=$(which bitten-slave),SLAVE_OPTS=--verbose
 directory=$DYB
 command=$DYB/dybinst trunk slave
 redirect_stderr=true
