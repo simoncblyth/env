@@ -844,7 +844,7 @@ minini-(){      . $(env-home)/base/minini.bash && minini-env $* ; }
 lxr-(){      . $(env-home)/doc/lxr.bash && lxr-env $* ; }
 doxy-(){      . $(env-home)/doc/doxy.bash && doxy-env $* ; }
 doxygen-(){      . $(env-home)/doc/doxygen.bash && doxygen-env $* ; }
-bitn-(){      . $(env-home)/trac/bitn.bash && bitn-env $* ; }
+bitn-(){      . $(env-home)/trac/slave/bitn.bash && bitn-env $* ; }
 tracdoxygen-(){      . $(env-home)/trac/package/tracdoxygen.bash && tracdoxygen-env $* ; }
 abtviz-(){      . $(env-home)/AbtViz/abtviz.bash && abtviz-env $* ; }  
 tracdep-(){      . $(env-home)/trac/tracdep.bash && tracdep-env $* ; }
@@ -858,7 +858,7 @@ cjsn-(){      . $(env-home)/cjsn/cjsn.bash && cjsn-env $* ; }
 pkgconfig-(){      . $(env-home)/base/pkgconfig.bash && pkgconfig-env $* ; }
 sqlite3x-(){      . $(env-home)/db/sqlite3x.bash && sqlite3x-env $* ; }
 sq3-(){      . $(env-home)/db/sq3.bash && sq3-env $* ; }
-slv-(){      . $(env-home)/base/slv.bash && slv-env $* ; }
+slv-(){      . $(env-home)/trac/slave/slv.bash && slv-env $* ; }
 ejabberd-(){      . $(env-home)/messaging/ejabberd.bash && ejabberd-env $* ; }
 modrabbitmq-(){      . $(env-home)/messaging/modrabbitmq.bash && modrabbitmq-env $* ; }
 adium-(){      . $(env-home)/messaging/adium.bash && adium-env $* ; }

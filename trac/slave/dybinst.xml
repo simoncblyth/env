@@ -1,0 +1,66 @@
+<!DOCTYPE build [
+  <!ENTITY  nuwa    " export NUWA_LOGURL=${slv.logurl} ; export BUILD_NUMBER=${build} ; " >
+  <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
+  <!ENTITY  env     " &nuwa; &unset;  " > 
+
+]>
+<build
+    xmlns:python="http://bitten.cmlenz.net/tools/python"
+    xmlns:svn="http://bitten.cmlenz.net/tools/svn"
+    xmlns:sh="http://bitten.cmlenz.net/tools/sh"
+  >
+  <!-- recipe derived by slv-;slv-recipe  for config dybinst 
+       slv-export     dybinst  : 1
+       slv-cmt        dybinst  : 1
+       slv-external   dybinst  : 1
+       slv-xexternals dybinst  : 
+       slv-projs      dybinst  : relax gaudi lhcb dybgaudi
+       slv-docs       dybinst  : 
+       slv-testpkgs   dybinst  : gaudimessages gentools rootiotest simhistsexample dbivalidate
+   -->
+
+<step id="export" description="export" onerror="fail" >
+    <sh:exec executable="bash" output="export.out"      args=" -c &quot; &env; svn export --username ${slv.username} --password ${slv.password} http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst  ; sleep 3 &quot; " /> 
+</step>
+<step id="cmt" description="cmt" onerror="fail" > 
+    <sh:exec executable="bash" output="cmt.out"      args=" -c &quot; &env; ./dybinst -w 3  ${nuwa.release} cmt &quot; " /> 
+</step>  
+<step id="checkout" description="checkout" onerror="fail" > 
+    <sh:exec executable="bash" output="checkout.out"      args=" -c &quot; &env; ./dybinst -w 3 -z ${revision} ${nuwa.release} checkout &quot; " /> 
+</step>  
+<step id="external" description="external" onerror="fail" > 
+    <sh:exec executable="bash" output="external.out"      args=" -c &quot; &env; ./dybinst -w 3 -c -p  ${nuwa.release} external &quot; " /> 
+</step>  
+<step id="relax" description="relax" onerror="fail" > 
+    <sh:exec executable="bash" output="relax.out"  args=" -c &quot; &env; ./dybinst -w 3 -c -p ${nuwa.release} projects relax  &quot; " /> 
+</step>  
+<step id="gaudi" description="gaudi" onerror="fail" > 
+    <sh:exec executable="bash" output="gaudi.out"  args=" -c &quot; &env; ./dybinst -w 3 -c -p ${nuwa.release} projects gaudi  &quot; " /> 
+</step>  
+<step id="lhcb" description="lhcb" onerror="fail" > 
+    <sh:exec executable="bash" output="lhcb.out"  args=" -c &quot; &env; ./dybinst -w 3 -c -p ${nuwa.release} projects lhcb  &quot; " /> 
+</step>  
+<step id="dybgaudi" description="dybgaudi" onerror="fail" > 
+    <sh:exec executable="bash" output="dybgaudi.out"  args=" -c &quot; &env; ./dybinst -w 3 -c -p ${nuwa.release} projects dybgaudi  &quot; " /> 
+</step>  
+<step id="test-gaudimessages" description="test-gaudimessages" onerror="continue" >
+     <sh:exec executable="bash"  output="test-gaudimessages.out" args=" -c &quot;  &env; ./dybinst -w 3 -m ${path} ${nuwa.release} tests gaudimessages  &quot;  " /> 
+     <python:unittest file="test-gaudimessages.xml" />
+</step>
+<step id="test-gentools" description="test-gentools" onerror="continue" >
+     <sh:exec executable="bash"  output="test-gentools.out" args=" -c &quot;  &env; ./dybinst -w 3 -m ${path} ${nuwa.release} tests gentools  &quot;  " /> 
+     <python:unittest file="test-gentools.xml" />
+</step>
+<step id="test-rootiotest" description="test-rootiotest" onerror="continue" >
+     <sh:exec executable="bash"  output="test-rootiotest.out" args=" -c &quot;  &env; ./dybinst -w 3 -m ${path} ${nuwa.release} tests rootiotest  &quot;  " /> 
+     <python:unittest file="test-rootiotest.xml" />
+</step>
+<step id="test-simhistsexample" description="test-simhistsexample" onerror="continue" >
+     <sh:exec executable="bash"  output="test-simhistsexample.out" args=" -c &quot;  &env; ./dybinst -w 3 -m ${path} ${nuwa.release} tests simhistsexample  &quot;  " /> 
+     <python:unittest file="test-simhistsexample.xml" />
+</step>
+<step id="test-dbivalidate" description="test-dbivalidate" onerror="continue" >
+     <sh:exec executable="bash"  output="test-dbivalidate.out" args=" -c &quot;  &env; ./dybinst -w 3 -m ${path} ${nuwa.release} tests dbivalidate  &quot;  " /> 
+     <python:unittest file="test-dbivalidate.xml" />
+</step>
+</build>
