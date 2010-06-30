@@ -4,6 +4,7 @@ sv-source(){   echo ${BASH_SOURCE:-$(env-home)/$(sv-src)} ; }
 sv-vi(){       vi $(sv-source) ; }
 sv-env(){      elocal- ; }
 sv-name(){     echo sv-$USER | tr "[A-Z]" "[a-z]" ; }
+sv(){          sv-ctl $* ; }
 sv-usage(){
   cat << EOU
      sv-src : $(sv-src)

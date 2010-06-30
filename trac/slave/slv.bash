@@ -129,18 +129,23 @@ EOI
 
 
 slv-xml(){ cat << EOX
-<report step="export" >
-</report>
+<result duration="6" status="success" step="cmt" time="2010-06-30T11:45:16.688155">
+   <log generator="http://bitten.cmlenz.net/tools/sh#exec">
+      <message level="info">FABRICATED BY $FUNCNAME FOR SLAVE TESTING </message>
+      <message level="info">Updating existing installation directory installation/trunk/dybinst.</message>
+      <message level="info">Updating existing installation directory installation/trunk/dybtest.</message>
+      <message level="info">Logging to dybinst-20100630-194520.log (or dybinst-recent.log)</message>
+   </log>
+</result>
 EOX
 }
 
 slv-post-(){
-
+  local build=${1-3490}
   local tmp=/tmp/$USER/env/$FUNCNAME/post.xml && mkdir -p $(dirname $tmp)
   slv-xml > $tmp
-
   cat << EOC
-curl -H "Content-Type: application/x-bitten+xml"  --user $(slv-user):$(slv-pass) -d "@$tmp"   $(slv-builds)/33/steps/   
+curl -H "Content-Type: application/x-bitten+xml"  --user $(slv-user):$(slv-pass) -d "@$tmp"   $(slv-builds)/$build/steps/   
 EOC
 }
 
