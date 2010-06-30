@@ -109,23 +109,52 @@ slv-env(){
 slv-cd(){  cd $(slv-dir); }
 
 slv-name(){ hostname -s ; }
-slv-repo(){        private-val SLV_REPO ; }
-slv-repo-builds(){ private-val $(echo SLV_$(slv-repo)_BUILDS | private-upper ) ; }
-slv-repo-user(){   private-val $(echo SLV_$(slv-repo)_USER   | private-upper ) ; }
-slv-repo-pass(){   private-val $(echo SLV_$(slv-repo)_PASS   | private-upper ) ; }
-slv-repo-url(){    private-val $(echo SLV_$(slv-repo)_URL    | private-upper ) ; }
-slv-repo-info(){  cat << EOI
+slv-repo(){   private-val SLV_REPO ; }
+slv-builds(){ private-val $(echo SLV_$(slv-repo)_BUILDS | private-upper ) ; }
+slv-user(){   private-val $(echo SLV_$(slv-repo)_USER   | private-upper ) ; }
+slv-pass(){   private-val $(echo SLV_$(slv-repo)_PASS   | private-upper ) ; }
+slv-url(){    private-val $(echo SLV_$(slv-repo)_URL    | private-upper ) ; }
+slv-info(){  cat << EOI
 
   Name of the master repo and credentials to contact it with 
 
-   slv-repo        : $(slv-repo)
-   slv-repo-user   : $(slv-repo-user)
-   slv-repo-pass   : $(slv-repo-pass)
-   slv-repo-url    : $(slv-repo-url)
-   slv-repo-builds : $(slv-repo-builds)
+   slv-repo   : $(slv-repo)
+   slv-user   : $(slv-user)
+   slv-pass   : $(slv-pass)
+   slv-url    : $(slv-url)
+   slv-builds : $(slv-builds)
 
 EOI
 }
+
+
+slv-xml(){ cat << EOX
+<report step="export" >
+</report>
+EOX
+}
+
+slv-post-(){
+
+  local tmp=/tmp/$USER/env/$FUNCNAME/post.xml && mkdir -p $(dirname $tmp)
+  slv-xml > $tmp
+
+  cat << EOC
+curl -H "Content-Type: application/x-bitten+xml"  --user $(slv-user):$(slv-pass) -d "@$tmp"   $(slv-builds)/33/steps/   
+EOC
+}
+
+
+slv-post(){
+   echo $msg 
+   slv-post- $*
+   eval $(slv-post- $*)
+}
+
+
+
+
+
 
 
 slv-sv(){
