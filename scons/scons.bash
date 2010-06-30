@@ -79,8 +79,8 @@ scons-dir(){
 scons-cd(){  cd $(scons-dir); }
 scons-mate(){ mate $(scons-dir) ; }
 scons-get(){
-   local dir=$(dirname $(scons-dir)) &&  mkdir -p $dir && cd $dir
-
+   #local dir=$(dirname $(scons-dir)) &&  mkdir -p $dir && cd $dir
+   echo use your pkg manager to get scons ... see scons-usage
 }
 
 
