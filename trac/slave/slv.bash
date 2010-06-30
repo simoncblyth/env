@@ -129,9 +129,9 @@ EOI
 
 
 slv-sv(){
-  local config=${1:-dybinst}
+  local slv=${1:-dybslv}  ## misleading to call this dybinst ... it will perform any config the master directs
   sv-
-  slv-sv- $config | sv-plus $config.ini
+  slv-sv- $slv | sv-plus $slv.ini
 }
 
 slv-sv-(){ cat << EOS
