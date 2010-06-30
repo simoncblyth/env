@@ -383,10 +383,20 @@ trac-administrator(){
 }
 
 
-trac-iheplog(){
+trac-iheplog-vi(){
+   vi $(trac-iheplog-dir)/trac.log
+}
+trac-iheplog-cd(){
+   cd $(trac-iheplog-dir)
+}
+trac-iheplog-dir(){
+   echo /tmp/$USER/env/trac/$FUNCNAME 
+}
+trac-iheplog-get(){
 
-   local url=http://dayabay.ihep.ac.cn/log/trac.log
-   local dir=/tmp/env/trac
+   #local url=http://dayabay.ihep.ac.cn/log/trac.log
+   local url=http://dayabay.ihep.ac.cn/log/trac/log/trac.log
+   local dir=$(trac-iheplog-dir)
    mkdir -p $dir
    cd $dir
    private-
