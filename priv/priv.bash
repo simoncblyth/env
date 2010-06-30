@@ -10,6 +10,10 @@ priv-usage(){
 
      priv-build 
      priv-chcon 
+
+
+     This is now build by the build.scons
+
          
    Why is ROOT needed here ?
 
