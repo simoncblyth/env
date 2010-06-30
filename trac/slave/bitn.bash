@@ -10,6 +10,10 @@ bitn-usage(){
 
    TAKE A LOOK AT THE LATEST BITTEN-SLAVE 
 
+     Tried newer revisions of the slave ... but encounter 
+     version incompatibility between slave and master 
+    ... so back to the historical r561 in ghost branch 
+
 
    == belle7 : historically have been using 0.6dev_r561 with increased timout 15s patch == 
 
@@ -43,6 +47,31 @@ bitn-usage(){
    == belle7 : try branches/0.6.x slave ==
 
 
+[blyth@belle7 bitten]$ svn log slave.py
+------------------------------------------------------------------------
+r875 | osimons | 2010-05-14 18:51:22 +0800 (Fri, 14 May 2010) | 1 line
+
+Merged [874] from trunk.
+------------------------------------------------------------------------
+r864 | wbell | 2010-04-30 02:19:48 +0800 (Fri, 30 Apr 2010) | 1 line
+
+Port of [864] to 0.6.x
+------------------------------------------------------------------------
+r837 | wbell | 2010-04-24 22:30:06 +0800 (Sat, 24 Apr 2010) | 1 line
+
+Port of [836] to 0.6.x
+------------------------------------------------------------------------
+r833 | wbell | 2010-04-24 21:38:25 +0800 (Sat, 24 Apr 2010) | 1 line
+
+Merge of [832] from trunk.
+------------------------------------------------------------------------
+r800 | osimons | 2009-12-09 19:57:42 +0800 (Wed, 09 Dec 2009) | 1 line
+
+Merge [797:799] from trunk.
+------------------------------------------------------------------------
+
+
+
 
 EOU
 }
@@ -51,19 +80,27 @@ bitn-cd(){  cd $(bitn-dir); }
 bitn-mate(){ mate $(bitn-dir) ; }
 
 
-bitn-rev(){ echo HEAD ; } 
-#bitn-url(){ echo http://svn.edgewall.org/repos/bitten/trunk/ ; }
-bitn-url(){ echo http://svn.edgewall.org/repos/bitten/branches/0.6.x/ ; }
+#bitn-branch(){ echo trunk ; }
+#bitn-branch(){ echo branches/0.6.x ; }
+#bitn-branch(){ echo tags/0.6b2 ; }
+bitn-branch(){ echo branches/experimental/trac-0.11@561 ; }
+bitn-url(){    echo http://svn.edgewall.org/repos/bitten/$(bitn-branch) ; }
+
+
 bitn-get(){
    local dir=$(dirname $(bitn-dir)) &&  mkdir -p $dir && cd $dir
-   svn co $(bitn-url)@$(bitn-rev) bitn
+   local cmd="svn co $(bitn-url) bitn"
+   echo $msg $cmd from $PWD
+   eval $cmd
 }
 
 
 bitn-develop-slave(){
   local msg="=== $FUNCNAME :"
   bitn-cd
-  local cmd="$SUDO python setup.py --without-master develop"
+
+  ##  --without-master only present in newer revisions 
+  local cmd="$SUDO python setup.py develop"
   echo $msg $cmd
   eval $cmd
 }

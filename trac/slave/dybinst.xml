@@ -25,9 +25,9 @@
 <step id="cmt" description="cmt" onerror="fail" > 
     <sh:exec executable="bash" output="cmt.out"      args=" -c &quot; &env; ./dybinst -w 3  ${nuwa.release} cmt &quot; " /> 
 </step>  
-<step id="checkout" description="checkout" onerror="fail" > 
+<!--step id="checkout" description="checkout" onerror="fail" > 
     <sh:exec executable="bash" output="checkout.out"      args=" -c &quot; &env; ./dybinst -w 3 -z ${revision} ${nuwa.release} checkout &quot; " /> 
-</step>  
+</step-->  
 <step id="external" description="external" onerror="fail" > 
     <sh:exec executable="bash" output="external.out"      args=" -c &quot; &env; ./dybinst -w 3 -c -p  ${nuwa.release} external &quot; " /> 
 </step>  
