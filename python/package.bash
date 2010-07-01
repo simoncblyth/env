@@ -31,14 +31,8 @@ cat << EON
   BINGO :
      http://svn.python.org/projects/distutils/trunk/misc/get_metadata.py
 
- 
-  
-
 
 EON
-
-
-
 
 }
 
@@ -60,6 +54,46 @@ package-usage(){
 
     
 cat << EOU
+
+   == WHAT IS THIS STUFF ==
+
+    THIS MACHINERY AROSE TO HANDLE DEFICIENCIES IN PYTHON PACKAGE INSTALLATION
+    (AND SETUPTOOLS ) ... THAT BECOME APPARENT WHEN YOU NEED TO 
+    INSTALL/UNINSTALL/DEVELOP LARGE NUMBERS OF PACKAGES 
+
+    THE WAY AHEAD IS TO MIGRATE TO USING PIP AND VIRTUALENV
+
+
+   == HOW TO UPDATE A PATCH, DEV PROCESS ==
+
+      bitten-
+      bitten-cd
+
+    1) Before making changes verify that the current state of dev code 
+       matches the current patch  :
+
+       [blyth@cms02 trac-0.11]$ bitten-makepatch
+       === package-makepatch : writing "svn diff" to patchpath /home/blyth/env/trac/patch/bitten/bitten-trac-0.11-561.patch ... remember to svn add and ci for safekeeping
+       [blyth@cms02 trac-0.11]$ svn diff /home/blyth/env/trac/patch/bitten/bitten-trac-0.11-561.patch
+
+    2) Hack away and test locally using the setuptools develop mode 
+          * DO NOT bitten-install until have committed the patch ... or will loose local mods
+          * to avoid having to switch (normal install) -> (develop) -> (normal install) 
+            edit inside the egg for minor temporary mods ... eg to add debug 
+           
+       For changes to take effect have to :
+          * stop/start apache if using mod_python, stop/start trac if using fastcgi/scgi deployment  
+
+    3) Create the patch and commit into env (NB the patch is the source) 
+           bitten-makepatch
+           svn diff $(package-patchpath bitten)
+           cd ~/e ; svn st ; svn ci -m "modified bitten patch fixing ... " 
+           
+    4) Do a normal install and verify changes have taken effect 
+
+
+
+  == OVERVIEW ==
 
     pkg.bash is the "for distribution" variant of this $BASH_SOURCE 
     that focusses on portability ... wherease this focusses on development convenience

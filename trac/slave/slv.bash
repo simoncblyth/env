@@ -37,6 +37,14 @@ slv-usage(){
                     - external option 
                           * daily? build using externals shared with the update build
 
+
+
+   == OBSERVATIONS ==
+
+     While the master is down the slave dies with :
+         <urlopen error (104, 'Connection reset by peer')>
+
+
    == fixed interval bitten-slave operation ==
 
       IDEA A : 

@@ -11,17 +11,32 @@ sv-usage(){
      sv-dir : $(sv-dir)
      sv-confpath : $(sv-confpath)
 
-     sv-logfile : $(sv-logfile)
-     sv-pidfile : $(sv-pidfile)
-         
-         on C : moved these to /var/log and /var/run to avoid ...        
-         C> maintail
-         supervisord: ERROR (no log file)
+   == UPDATING CONFIG ==
 
+     Config read from the sv-confpath by cfp- 
+        sv-logfile : $(sv-logfile)
+        sv-pidfile : $(sv-pidfile)
+        
+            On some nodes these are still stuck in /tmp ... 
+            which is a bad location as that is cleaned weekly?
+            
+            On C,C2  : moved these to /var/log and /var/run to avoid ...        
+                 C> maintail
+                 supervisord: ERROR (no log file)
+    
+     To propagate private- changes, use sv-cnf ... you will be shown the diff 
+     and will need to confirm it to proceed.  To make other non-private 
+     changes simply edit the conf using sv-edit 
+     (sv-cnf always says no changes for these as the source is the conf itself). 
+
+     For these to take effect issue a "shutdown" from sv-ctl (or "sv" shortcut)
+     and start again using service interface    
+          sv-service start 
+
+   == REFERENCES ==    
 
        http://supervisord.org/manual/current/
        http://pypi.python.org/pypi/superlance/
-
        http://svn.supervisord.org/superlance/trunk/
 
 
