@@ -85,7 +85,18 @@ Index: bitten/master.py
          xml.attr['path'] = config.path
          xml.attr['revision'] = build.rev
          xml.attr['config'] = config.name
-@@ -205,7 +224,8 @@
+@@ -198,14 +217,16 @@
+         stepname = elem.attr['step']
+ 	
+         # make sure it's the right slave.
+-        if build.status != Build.IN_PROGRESS or build.slave_info.get(Build.IP_ADDRESS) != req.remote_addr:
+-            raise HTTPForbidden('Build %s has been invalidated for host %s.' % (build.id, req.remote_addr))
+-
++        if build.status != Build.IN_PROGRESS:
++            raise HTTPForbidden('Build %s has been invalidated for host %s. inconsistent IP no longer 403s (#282) ' % (build.id, req.remote_addr))
++        if build.slave_info.get(Build.IP_ADDRESS) != req.remote_addr:
++            self.log.error('The slave REMOTE_ADDR has changed during the build prior IP %s current IP %s (#282)  ', build.slave_info.get(Build.IP_ADDRESS),  req.remote_addr )
+         step = BuildStep.fetch(self.env, build=build.id, name=stepname)
          if step:
              raise HTTPConflict('Build step already exists')
  

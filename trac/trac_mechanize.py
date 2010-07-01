@@ -9,6 +9,17 @@
         print len(t.rss.entries)
         print t.rss.entries[0]
 
+
+     The form of the config in ~/.mechanize/trac.ini
+
+        [dybsvn]
+        url = http://***/tracs/dybsvn
+        user = ***
+        pass = *** 
+        cache_hours = 1
+
+
+
 """
 import os
 import stat

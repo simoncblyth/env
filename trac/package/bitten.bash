@@ -2,11 +2,9 @@ bitten-src(){    echo trac/package/bitten.bash ; }
 bitten-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(bitten-source)} ; }
 bitten-vi(){     vi  $(bitten-source) ; }
 
-
 bitten-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
-   
     
    Setting up an instance to use bitten...   
           
@@ -33,58 +31,19 @@ bitten-usage(){
       In addition to installing the package into PYTHON_SITE this 
       also installs the bitten-slave entry point by default 
       to /usr/local/bin/bitten-slave
-     
                                 
 EOU
-
 }
-
-
-bitten-notes(){
-
-cat << EON
-
-   bitten-get   :   svn co/up of trunk is recommended, rather than releases 
-      ## on hfag ... svn: SSL is not supported  with /data/usr/local/svn/subversion-1.4.0/bin/svn
-      ##  BUT the chekout seems OK
-
-   bitten-install :
-      ##  g4pb: 
-      ##       Installed /Library/Python/2.5/site-packages/Bitten-0.6dev_r547-py2.5.egg
-      ##
-      ##  hfag:  use "SUDO= bitten-install" 
-      ##       Installed /data/usr/local/python/Python-2.5.1/lib/python2.5/site-packages/Bitten-0.6dev_r547-py2.5.egg    
-      ##
-   
-   bitten-test :
-      ##   g4pb:
-      ##           Ran 202 tests in 22.584s  FAILED (errors=13)
-      ##           failures from lack of figleaf / clearsilver ...
-      ##
-      ##    hfag:
-      ##          after excluding "report"
-      ##         Ran 193 tests in 11.074s  FAILED (errors=64)  
-      ##
-      ##
-EON
-
-
-
-}
-
-
 
 bitten-env(){
   elocal-
   package-
-  
   local branch
   case $(trac-major) in 
      0.11) branch=branches/experimental/trac-0.11 ;;
         *) echo $msg ABORT trac-major $(trac-major) not handled ;;
   esac
   export BITTEN_BRANCH=$branch
-
 }
 
 #bitten-revision(){  echo 547 ; }
@@ -97,11 +56,6 @@ bitten-fix(){
    cd $(bitten-dir)   
    echo no fixes
 }
-
-
-
-
-
 
 bitten-perms(){
 
@@ -118,38 +72,19 @@ bitten-perms(){
 
 }
 
-
 bitten-prepare(){
-
    bitten-enable $*
    bitten-perms $*
-
 }
 
-
 bitten-extras-get(){
-
-   ## 
-
   cd /tmp
-
    svn co http://bitten.ufsoft.org/svn/BittenExtraTrac/trunk/  bittentrac
    svn co http://bitten.ufsoft.org/svn/BittenExtraNose/trunk/  nosebitten
 }
 
-
-
-
-
-
-
 bitten-makepatch(){  package-fn $FUNCNAME $* ; }
 bitten-applypatch(){ package-fn $FUNCNAME $* ; }
-
-
-
-
-
 bitten-branch(){    package-fn $FUNCNAME $* ; }
 bitten-basename(){  package-fn $FUNCNAME $* ; }
 bitten-dir(){       package-fn $FUNCNAME $* ; } 

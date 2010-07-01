@@ -1,0 +1,27 @@
+
+CAUTION tracbuild-names-auto 
+  picks *.bash from here to include in the trac autobuild
+
+
+[blyth@cms02 package]$ tracbuild-names-auto
+accountmanager
+bitextra
+bitten
+bittennotify
+docutils
+fullblog
+genshi
+navadd
+pygments
+silvercity
+textile
+trac2latex
+trac2mediawiki
+tracdoxygen
+tracnav
+tractags
+tractoc
+tractrac
+
+
+
