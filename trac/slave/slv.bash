@@ -73,6 +73,10 @@ slv-usage(){
  
        better to construct this inside the recipe
 
+
+   
+           nginx-ln $DYB/logs
+
                                     
    == TODO : ==
 
@@ -133,6 +137,30 @@ slv-info(){  cat << EOI
    slv-builds : $(slv-builds)
 
 EOI
+}
+
+
+slv-nginx(){
+   local msg="=== $FUNCNAME :"
+   echo $msg symbolic link into the logs directory into nginx-htdocs with : nginx-ln \$DYB/logs
+   echo $msg incorporate smth like the below into nginx config using nginx-edit 
+   slv-nginx-
+}
+
+slv-nginx-(){ cat << EOX
+
+     ## $FUNCNAME  
+
+     default_type   text/plain;
+
+     location /logs {
+           autoindex on ;
+           autoindex_exact_size off ;
+           autoindex_localtime on ;
+        }
+
+
+EOX
 }
 
 
