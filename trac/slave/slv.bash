@@ -180,7 +180,7 @@ slv-sv-(){ cat << EOS
 [program:$1]
 environment=HOME=$HOME,BITTEN_SLAVE=$(which bitten-slave),SLAVE_OPTS=--verbose
 directory=$DYB
-command=$DYB/dybinst trunk slave
+command=$DYB/dybinst -l dybinst-slave.log trunk slave
 redirect_stderr=true
 redirect_stdout=true
 autostart=true
@@ -228,7 +228,8 @@ slv-recipe-update(){
 
 slv-export(){
    case $1 in 
-     *) echo 1 ;;
+    local*) echo 0 ;;
+         *) echo 1 ;;
    esac
 }
 slv-cmt(){
@@ -284,9 +285,13 @@ slv-recipe(){
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  nuwa    " export NUWA_LOGURL=\${slv.logurl} ; export BUILD_NUMBER=\${${tmp}build} ; " >
-  <!ENTITY  unset   " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
-  <!ENTITY  env     " &nuwa; &unset;  " > 
+  <!ENTITY  nuwa        " export NUWA_LOGURL=\${slv.logurl} ; export BUILD_NUMBER=\${${tmp}build} ; " >
+  <!ENTITY  unset       " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
+  <!ENTITY  env         " &nuwa; &unset;  " > 
+  <!ENTITY  logd        "logs/\${${tmp}config}/\${${tmp}build}_\${${tmp}revision}" >
+  <!ENTITY  log         "&logd;/\${${tmp}config}.log" >
+  <!ENTITY  dybinst_url "http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst" >
+  <!ENTITY  dybinst     "&env; ./dybinst -l &log; " >
 
 ]>
 <build
@@ -306,28 +311,35 @@ slv-recipe(){
 
 EOH
 
+   # init 
+   cat << EOI
+<step id="init" description="init" onerror="fail" >
+    <sh:exec executable="bash" output="/dev/null"      args=" -c &quot; &env; mkdir -p &logd;  &quot; " />
+</step> 
+EOI
+
   # export
   [ "$(slv-export $config)" == "1" ] && cat << EOX
 <step id="export" description="export" onerror="fail" >
-    <sh:exec executable="bash" output="export.out"      args=" -c &quot; &env; svn export --username \${slv.username} --password \${slv.password} http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst  ; sleep 3 &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/export.out"      args=" -c &quot; &env; svn export --username \${slv.username} --password \${slv.password} &dybinst_url; &quot; " /> 
 </step>
 EOX
 
   [ "$(slv-cmt $config)" == "1" ] && cat << EOA
 <step id="cmt" description="cmt" onerror="fail" > 
-    <sh:exec executable="bash" output="cmt.out"      args=" -c &quot; &env; ./dybinst -w 3  \${nuwa.release} cmt &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/cmt.out"      args=" -c &quot; &dybinst;  \${nuwa.release} cmt &quot; " /> 
 </step>  
 EOA
 
   [ "$(slv-checkout $config)" == "1" ] && cat << EOB
 <step id="checkout" description="checkout" onerror="fail" > 
-    <sh:exec executable="bash" output="checkout.out"      args=" -c &quot; &env; ./dybinst -w 3 -z \${${tmp}revision} \${nuwa.release} checkout &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/checkout.out"      args=" -c &quot; &dybinst; -z \${${tmp}revision} \${nuwa.release} checkout &quot; " /> 
 </step>  
 EOB
 
   [ "$(slv-external $config)" == "1" ] && cat << EOC
 <step id="external" description="external" onerror="fail" > 
-    <sh:exec executable="bash" output="external.out"      args=" -c &quot; &env; ./dybinst -w 3 -c -p  \${nuwa.release} external &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/external.out"      args=" -c &quot; &dybinst; -c -p  \${nuwa.release} external &quot; " /> 
 </step>  
 EOC
 
@@ -335,7 +347,7 @@ EOC
   local xext ; for xext in $(slv-xexternals $config) ; do 
   cat << EOS
 <step id="$xext" description="$xext" onerror="continue" > 
-    <sh:exec executable="bash" output="$xext.out"      args=" -c &quot; &env; ./dybinst -w 3 \${nuwa.release} external $xext &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/$xext.out"      args=" -c &quot; &dybinst; \${nuwa.release} external $xext &quot; " /> 
 </step>  
 EOS
   done
@@ -344,7 +356,7 @@ EOS
   local proj ; for proj in $(slv-projs $config) ; do 
   cat << EOP
 <step id="$proj" description="$proj" onerror="fail" > 
-    <sh:exec executable="bash" output="$proj.out"  args=" -c &quot; &env; ./dybinst -w 3 -c -p \${nuwa.release} projects $proj  &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/$proj.out"  args=" -c &quot; &dybinst; -c -p \${nuwa.release} projects $proj  &quot; " /> 
 </step>  
 EOP
   done
@@ -353,8 +365,8 @@ EOP
   local pkg ; for pkg in $(slv-testpkgs $config) ; do 
   cat << EOT
 <step id="test-$pkg" description="test-$pkg" onerror="continue" >
-     <sh:exec executable="bash"  output="test-$pkg.out" args=" -c &quot;  &env; ./dybinst -w 3 -m \${${tmp}path} \${nuwa.release} tests $pkg  &quot;  " /> 
-     <python:unittest file="test-$pkg.xml" />
+     <sh:exec executable="bash"  output="&logd;/test-$pkg.out" args=" -c &quot; &dybinst; -m \${${tmp}path} \${nuwa.release} tests $pkg  &quot;  " /> 
+     <python:unittest file="&logd;/test-$pkg.xml" />
 </step>
 EOT
   done  
@@ -363,7 +375,7 @@ EOT
   local doc ; for doc in $(slv-docs $config) ; do 
   cat << EOP
 <step id="$doc" description="$doc" onerror="fail" > 
-    <sh:exec executable="bash" output="$doc.out"  args=" -c &quot; &env; ./dybinst  \${nuwa.release} docs $doc  &quot; " /> 
+    <sh:exec executable="bash" output="&logd;/$doc.out"  args=" -c &quot; &dybinst; \${nuwa.release} docs $doc  &quot; " /> 
 </step>  
 EOP
   done
