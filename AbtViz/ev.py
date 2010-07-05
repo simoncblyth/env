@@ -172,7 +172,7 @@ class Controller(EvController):
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
       
-        fitk = self.src.fitted_track( [400,0,-400] )
+        fitk = self.src.fitted_track( [150,0,-150] )
         if len(fitk) > 0:
             if self.dbg>1:print "fitk %s " % repr(fitk)
             self.trk.update( fitk )
