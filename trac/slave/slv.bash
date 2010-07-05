@@ -157,6 +157,10 @@ slv-nginx-(){ cat << EOX
            autoindex on ;
            autoindex_exact_size off ;
            autoindex_localtime on ;
+
+           auth_basic "dyblogs" ;
+           auth_basic_user_file  
+
         }
 
 

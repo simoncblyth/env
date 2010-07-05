@@ -23,6 +23,20 @@ nginx-usage(){
         http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
 
+
+    == PASSWORD PROTECTED DIR ==
+
+    nginx-users  : $(nginx-users)
+    nginx-adduser <username>
+          you will be prompted for 
+               * password 
+               * salt (enter 2 chars at random)
+   
+          The protected location needs the following directives :
+               auth_basic "realm-name-given-to-challengers" ;
+               auth_basic_user_file  users.txt ;
+
+
     == redhat : installs from EPEL ==
 
      sudo yum --enablerepo=epel install nginx
@@ -248,3 +262,5 @@ nginx-ln(){
 nginx-ls(){
  ls -l  `nginx-htdocs`/
 }
+
+
