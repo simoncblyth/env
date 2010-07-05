@@ -38,6 +38,20 @@ slv-usage(){
                           * daily? build using externals shared with the update build
 
 
+   == HOW TO DO A LOCAL TEST ==
+
+
+    Switch to local and restart the slave ...
+        vi ~/.dybinstrc   ## change buildsurl to local        
+        sv restart dybslv 
+        sv > tail -f dybslv
+
+   Switch back ...
+
+        vi ~/.dybinstrc   ## builds url back to master trac
+        sv restart dybslv
+
+
 
    == OBSERVATIONS ==
 
@@ -159,7 +173,7 @@ slv-nginx-(){ cat << EOX
            autoindex_localtime on ;
 
            auth_basic "dyblogs" ;
-           auth_basic_user_file  
+           auth_basic_user_file  users.txt ;
 
         }
 
@@ -317,13 +331,13 @@ slv-recipe(){
   # head
   cat << EOH
 <!DOCTYPE build [
-  <!ENTITY  nuwa        " export NUWA_LOGURL=\${slv.logurl} ; export BUILD_NUMBER=\${${tmp}build} ; " >
+  <!ENTITY  slug        "\${${tmp}config}/\${${tmp}build}_\${${tmp}revision}" >
+  <!ENTITY  nuwa        " export BUILD_SLUG=&slug; ; " >
   <!ENTITY  unset       " unset SITEROOT ; unset CMTPROJECTPATH ; unset CMTPATH ; unset CMTEXTRATAGS ; unset CMTCONFIG ; " >
   <!ENTITY  env         " &nuwa; &unset;  " > 
-  <!ENTITY  logd        "logs/\${${tmp}config}/\${${tmp}build}_\${${tmp}revision}" >
-  <!ENTITY  log         "&logd;/\${${tmp}config}.log" >
+  <!ENTITY  logd        "logs/&slug;" >
   <!ENTITY  dybinst_url "http://dayabay.ihep.ac.cn/svn/dybsvn/installation/trunk/dybinst/dybinst" >
-  <!ENTITY  dybinst     "&env; ./dybinst -l &log; " >
+  <!ENTITY  dybinst     "&env; ./dybinst -l &logd;/\${${tmp}config}.log " >
 
 ]>
 <build
