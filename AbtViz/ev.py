@@ -12,6 +12,8 @@ from evgeom  import EvGeom
 print "imported EvGeom"
 from evdigi  import EvDigi
 print "imported EvDigi"
+from evtrk import EvTrk
+print "imported EvTrk"
 from evgui   import EvGui
 print "imported EvGui"
 from evtree  import EvTree
@@ -83,6 +85,9 @@ class Controller(EvController):
             print "Controller.__init__ g.digi created : %s" % self.digi
         for elem in self.digi:
             elem.add_()
+
+        self.trk = EvTrk()
+
 
         browser = gEve.GetBrowser()
         self.gui  = EvGui(browser)
@@ -166,7 +171,13 @@ class Controller(EvController):
         if len(trkr) > 0:
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
-       
+      
+        fitk = self.src.fitted_track( [400,0,-400] )
+        if len(fitk) > 0:
+            if self.dbg>1:print "fitk %s " % repr(fitk)
+            self.trk.update( fitk )
+
+ 
         #tmsg = self.src.msg
         #if tmsg:
         #    self.src.msg = None
@@ -203,11 +214,12 @@ if __name__=='__main__':
     g = Controller()
     from ROOT import g_
 
-    offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
+    #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
+    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     
-    g.SetSource( repr(online) )
-    #g.SetSource( offline )
+    #g.SetSource( repr(online) )
+    g.SetSource( offline )
     
     
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE

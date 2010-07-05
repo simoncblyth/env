@@ -11,7 +11,7 @@ EIncludes( ec, ['private.h'] )
 
 ec.Append( LIBS=['priv'] )
 
-ec.Tool('env_private_path')
+#ec.Tool('env_private_path')
 ec.Tool('env_dump')
 ec.Tool('sct_dump', LIBS=True , LIBPATH=True )
 
