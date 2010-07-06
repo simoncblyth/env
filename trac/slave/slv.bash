@@ -90,6 +90,7 @@ slv-usage(){
 
    
            nginx-ln $DYB/logs
+           nginx-ln $DYB/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex manual
 
                                     
    == TODO : ==
