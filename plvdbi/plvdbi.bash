@@ -295,7 +295,7 @@ plvdbi-make-config(){
    [ ! "$?" -eq "0" ] && echo $msg ABORT -private-check failed &&  return 1
 
    local ini=$(pl-confpath)
-   local cmd="paster make-config plvdbi $ini $(echo $(plvdbi-make-config-)) ; svn revert $ini "
+   local cmd="paster make-config --no-install plvdbi $ini $(echo $(plvdbi-make-config-)) ; svn revert $ini "
    echo $msg \"$cmd\"
    eval $cmd
 }
