@@ -243,7 +243,6 @@ slv-recipe-update-all(){
    slv-recipe-update local.dybinst
    slv-recipe-update dybinst
    slv-recipe-update detdesc
-   slv-recipe-update dybdoc
 
 }
 
@@ -308,7 +307,7 @@ slv-projs(){
 }
 slv-docs(){
   case $1 in
-     dybdoc) echo manual doxygen ;; 
+     dybinst) echo manual doxyman ;; 
           *) echo -n ;;
   esac
 }
