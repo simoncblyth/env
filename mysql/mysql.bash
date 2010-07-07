@@ -36,11 +36,6 @@ mysql-usage(){
           mysql that is built against but ...
 
 
-
-
-
-
-
     mysql-showdatabase
 
     mysql-dumpall [basedir]
@@ -78,17 +73,34 @@ mysql-usage(){
 
 
 
+    Switching on logging ...    find that the logfile has to exist already 
+
+
+100707 19:03:36  mysqld started
+/usr/libexec/mysqld: File '/var/log/mysqld_out.log' not found (Errcode: 13)
+100707 19:03:36 [ERROR] Could not use /var/log/mysqld_out.log for logging (error 13). Turning logging off for the whole duration of the MySQL server process. To turn it on again: fix the cause, shutdown the MySQL server and restart it.
+100707 19:03:36  InnoDB: Started; log sequence number 0 44756
+/usr/libexec/mysqld: ready for connections.
+Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source distribution
+[blyth@cms01 log]$ 
+[blyth@cms01 log]$ sudo touch  /var/log/mysqld_out.log
+[blyth@cms01 log]$ sudo chown mysql.mysql  /var/log/mysqld_out.log
+
+
 EOU
 }
 
-mysql-logpath(){ echo $(mysql-logdir)/out.log ; }
+
+mysql-logpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld log ; }
+mysql-elogpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld_safe err-log ; }
 mysql-logsetup(){  cat << EOS
 # enter something like the below into $(mysql-syscnf) ... you can use mysql-sysedit
 [mysqld]
-log=$(mysql-logpath)
+log=$(mysql-logdir)/mysqld_out.log
 EOS
 }
 mysql-tail(){    sudo tail -f $(mysql-logpath) ; }
+mysql-etail(){    sudo tail -f $(mysql-elogpath) ; }
 
 
 
@@ -338,7 +350,7 @@ mysql-sv-(){
 ##      --log-bin=logbin
 ##
 [program:mysql]
-command=$pidproxy $pidpath $mysqld_safe 
+command=$pidproxy $pidpath $mysqld_safe --defaults-file=$(mysql-syscnf)
 redirect_stderr=true
 priority=333
 user=root
