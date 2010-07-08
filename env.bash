@@ -220,7 +220,7 @@ oroot-(){       . $(env-home)/dyw/root.bash  && root-env  $* ; }
 root-(){        . $(env-home)/root/root.bash  && root-env  $* ; }
 
 _dyb__(){       . $(env-home)/dyb/dyb__.sh              $* ; }
-dyb-(){         . $(env-home)/dyb/dyb.bash  && dyb-env  $* ; }
+#dyb-(){         . $(env-home)/dyb/dyb.bash  && dyb-env  $* ; }
 dybi-(){        . $(env-home)/dyb/dybi.bash && dybi-env $* ; }
 dybr-(){        . $(env-home)/dyb/dybr.bash && dybr-env $* ; }
 dybt-(){        . $(env-home)/dyb/dybt.bash && dybt-env $* ; }
@@ -870,3 +870,5 @@ erl-(){      . $(env-home)/erlang/erl.bash && erl-env $* ; }
 pyxmpp-(){      . $(env-home)/messaging/pyxmpp.bash && pyxmpp-env $* ; }
 xmpppy-(){      . $(env-home)/messaging/xmpppy.bash && xmpppy-env $* ; }
 
+nenv-(){      . $(env-home)/nuwa/nenv.bash && nenv-env $* ; }
+dyb-(){      . $(env-home)/nuwa/dyb.bash && dyb-env $* ; }
