@@ -73,7 +73,9 @@ mysql-usage(){
 
 
 
-    Switching on logging ...    find that the logfile has to exist already 
+    == Switching on logging ... ==
+
+       * find that the logfile has to exist already 
 
 
 100707 19:03:36  mysqld started
@@ -87,8 +89,68 @@ Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source d
 [blyth@cms01 log]$ sudo chown mysql.mysql  /var/log/mysqld_out.log
 
 
+   == Opening access to all with the password .. ==
+
+
+     1) the firewall
+           IPTABLES_PORT=3306 iptables-webopen
+
+     2) db-grant DAYABAY 
+           the version of mysql on cms01 4.1 does not have "create user"
+
+
+   == how about opening resrtricted access to the log ... ==
+
+     1) BUT tis very big ... as it swallows the mysqldump 
+     
+          tailing a logfile thru a web server ... more effort than gain 
+              http://www.xinotes.org/notes/note/155/
+
+     2) truncate/rotate/purge  the logs ... 
+
+        not convenient to do with the db-backup-recover cronline, as that runs as me 
+        and the logs are owned by mysql ... set up log rotation in separate root cronline
+
+        using logrotate to manage the logs 
+
+
+  == what happended to /etc/logrotate.d/mysql ==
+
+    *  rpm -ql mysql-server  | grep log
+
+     mysql appears not to be a good citizen :
+         [blyth@belle7 logrotate.d]$ yum whatprovides "*/logrotate.d/*"  | grep mysql 
+
+
+    * http://www.mail-archive.com/rhelv5-list@redhat.com/msg00781.html
+
+
+/var/log/mysql/mysql.err /var/log/mysql/mysql.log /var/log/mysql/mysqld.err {
+   monthly
+   create 660 mysql mysql
+   notifempty
+   size 5M
+   sharedscripts
+   missingok
+   postrotate
+     /bin/kill -HUP `cat /var/run/mysqld/mysqld.pid`
+   endscript
+}
+
+
 EOU
 }
+
+
+mysql-logrotate-(){ cat << EOC
+$(mysql-logpath) {
+   daily 
+   rotate 3
+
+}
+EOC
+}
+
 
 
 mysql-logpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld log ; }
@@ -193,6 +255,13 @@ mysql-sh(){
 mysql-showdatabases(){
    echo show databases | mysql-sh- --skip-column-names
 }
+
+mysql-users(){
+  echo select Host, User, Password, Select_priv from mysql.user \; | db-recover
+}
+
+
+
 
 mysql-bkpdir(){
    local base=${1:-/tmp/env/$FUNCNAME}

@@ -91,6 +91,8 @@ db-yesterday(){
 }
 
 
+
+
 db-backup-cd(){ cd $(db-backup-daydir) ; }
 db-backup-ls(){ ls -Ralst $(db-backup-basedir) ; }
 
@@ -225,17 +227,28 @@ db-recover(){
 db-name-today(){     echo ${1}_$(db-today) ; }
 db-name-yesterday(){ echo ${1}_$(db-yesterday) ; }
 
-db-grant(){ 
-  local name=${1:-testdb}
-  local rname=${2:-WEBSRV}
-  private-
-  local ruser=$(private-val ${rname}_USER)
-  local rhost=$(private-val ${rname}_HOST)
-  local rpass=$(private-val ${rname}_PASS)
-  cat << EOG
-grant select on $(db-name-today $name).* to $ruser@$rhost identified by '$rpass' ;
-EOG
+db-user(){ private- ; private-val ${1:-DAYABAY}_USER ; }
+db-host(){ private- ; private-val ${1:-DAYABAY}_HOST ; }
+db-pass(){ private- ; private-val ${1:-DAYABAY}_PASS ; }
+
+
+db-create-user-(){  cat << EOC
+create user '$(db-user $1)'@'$(db-host $1)' IDENTIFIED BY '$(db-pass $1)' ; 
+EOC
 }
+db-create-user(){
+  [ "$(mysql --version)" == "mysql  Ver 14.7 Distrib 4.1.22, for redhat-linux-gnu (i686) using readline 4.3" ] && echo this mysql does not have create user ... just use db-grant && return 1  
+  $FUNCNAME- | db-recover
+}
+
+db-grant-(){ cat << EOC
+grant select on $(db-name-today ${2:-testdb}).* to '$(db-user $1)'@'$(db-host $1)' identified by '$(db-pass $1)' ;
+EOC
+}
+db-grant(){
+  $FUNCNAME- ${1:-DAYABAY} | db-recover 
+}
+
 
 db-backup-recover(){
    local msg="=== $FUNCNAME :"
@@ -255,11 +268,12 @@ db-backup-recover(){
    
    ! db-exists $dbtoday    && echo $msg FAILED to create DB $dbtoday  && return 3
    echo $msg SUCCEEDED to create DB $dbtoday
-   db-grant $name WEBSRV | db-recover 
+   db-grant $name DAYABAY | db-recover 
    
    echo $msg dropping $dbyesterday
    echo "drop   database if exists $dbyesterday ;" | db-recover 
    db-exists $dbyesterday && echo $msg FAILED to drop DB $dbyesterday  && return 3
+
 }
 
 db-exists(){
