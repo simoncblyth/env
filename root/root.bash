@@ -83,7 +83,7 @@ root-version-default(){
   case ${1:-$NODE_TAG} in 
      G) echo $try ;;
      C|C2|N) echo $try ;;
-     *) echo $def ;;
+     *) echo $try ;;
   esac
 }
 

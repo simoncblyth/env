@@ -1,4 +1,4 @@
-
+mail-vi(){   vi $BASH_SOURCE ; }
 mail-env(){
   elocal-
 }
@@ -22,14 +22,17 @@ EOU
 
 }
 
+mail-offline-cache(){ echo ~/Library/Mail/IMAP-$(mail-user)\@$(mail-host)/.OfflineCache ;  }
+mail-offline-cache-cd(){ cd $(mail-offline-cache) ; } 
+mail-offline-cache-ls(){ ls -l $(mail-offline-cache) ; } 
+mail-offline-cache-rm(){ rm $(mail-offline-cache)/* ; } 
 
 mail-tmp(){
   echo /tmp/env/${FUNCNAME/-*/}
 }
 
-mail-host(){
-  echo hep1.phys.ntu.edu.tw
-}
+mail-user(){ echo $USER ; }
+mail-host(){ echo hep1.phys.ntu.edu.tw ; }
 
 mail-ports(){
   echo 993,143   
