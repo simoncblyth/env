@@ -18,6 +18,15 @@ cfp-usage(){
          ConfigParser based dumping and get/get 
          (as ConfigObj does not handle ";" comments)
 
+
+
+     cfp-multifile-tst
+         missing files silently ignored ...
+         last file wins 
+
+
+
+
    Problems with config automation 
      1) ConfigObj doesnt handle ";" comments... and does not preserve spacing of inline # comments 
      2) Supervisor uses ConfigParser internally ... but this drops comments 
@@ -47,7 +56,9 @@ cfp-getset-(){ cat << EOD
 import sys
 from ConfigParser import ConfigParser
 c = ConfigParser()
-c.read("$(cfp-path)")
+
+path = "$(cfp-path)"
+c.read(path.split(":"))
 argv = sys.argv[1:]
 
 if len(argv) == 0:
@@ -70,3 +81,18 @@ EOD
 
 
 
+cfp-multifile-tst(){
+
+  local iwd=$PWD
+  local tmp=/tmp/$USER/env/$FUNCNAME && mkdir -p $tmp
+  cd $tmp
+
+  printf "[aaa]\nared=1\nablue=1\n[bbb]\nbred=1\n" > a.cnf
+  printf "[aaa]\nared=2\nablue=2\n[bbb]\nbred=2\n[ccc]\ncred=3\n" > b.cnf
+
+  [ "$(CFP_PATH=a.cnf:b.cnf cfp-getset aaa ared)" == "2" ] && echo last file : b.cnf wins  
+  [ "$(CFP_PATH=b.cnf:a.cnf cfp-getset aaa ared)" == "1" ] && echo last file : a.cnf wins 
+  [ "$(CFP_PATH=a.cnf:b.cnf:c.cnf cfp-getset ccc cred)" == "3" ] && echo missing files are ignored  
+
+  cd $iwd
+}

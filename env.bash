@@ -870,5 +870,6 @@ erl-(){      . $(env-home)/erlang/erl.bash && erl-env $* ; }
 pyxmpp-(){      . $(env-home)/messaging/pyxmpp.bash && pyxmpp-env $* ; }
 xmpppy-(){      . $(env-home)/messaging/xmpppy.bash && xmpppy-env $* ; }
 
+hash-(){      . $(env-home)/base/hash.bash && hash-env $* ; }
 nenv-(){      . $(env-home)/nuwa/nenv.bash && nenv-env $* ; }
 dyb-(){      . $(env-home)/nuwa/dyb.bash && dyb-env $* ; }
