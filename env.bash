@@ -873,3 +873,4 @@ xmpppy-(){      . $(env-home)/messaging/xmpppy.bash && xmpppy-env $* ; }
 hash-(){      . $(env-home)/base/hash.bash && hash-env $* ; }
 nenv-(){      . $(env-home)/nuwa/nenv.bash && nenv-env $* ; }
 dyb-(){      . $(env-home)/nuwa/dyb.bash && dyb-env $* ; }
+gendbi-(){      . $(env-home)/offline/gendbi.bash && gendbi-env $* ; }
