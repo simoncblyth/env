@@ -31,6 +31,16 @@ class {{ cls }} : public DbiTableRow
 public:
   {{ cls }}(){}
   {{ cls }}(const {{ cls }}& from) : DbiTableRow(from) {  *this = from; }
+
+  {{ cls }}(
+    {% for r in t %}{{ r.codetype }} {{ r.name }}{% if forloop.last %} {% else %},{% endif %} // {{ r.description }}
+    {% endfor %}
+	      ) 
+	  {
+		 {% for r in t %} m_{{ r.name }} = {{ r.name }};
+         {% endfor %} 
+      }
+
   virtual ~{{ cls }}(){};
 
 // State testing member functions

@@ -1,9 +1,6 @@
 import csv
 from string import strip
 
-class Qwn(dict):
-    pass
-
 class Tab(list):
     @classmethod
     def parse_csv(cls, src):
@@ -28,7 +25,7 @@ class Tab(list):
             if d.has_key('meta'):
                 t.meta = d
             else:
-                t.append(Qwn(d))
+                t.append(d)
         return t
 
     def __repr__(self):
