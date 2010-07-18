@@ -1,5 +1,5 @@
 # === func-gen- : offline/gendbi fgp offline/gendbi.bash fgn gendbi fgh offline
-gendbi-src(){      echo offline/gendbi.bash ; }
+gendbi-src(){      echo offline/gendbi/gendbi.bash ; }
 gendbi-source(){   echo ${BASH_SOURCE:-$(env-home)/$(gendbi-src)} ; }
 gendbi-vi(){       vi $(gendbi-source) ; }
 gendbi-srcdir(){   echo $(dirname $(gendbi-source)) ; }
@@ -21,8 +21,8 @@ gendbi-get(){
 }
 
 gendbi-csv-SimPmtSpec(){ cat << EOS
-  meta          ,  class         ,  table
-  1             ,  SimPmtSpec    ,  SimPmtSpec
+  meta          ,  class_        ,  table       ,  CanL2Cache 
+  1             ,  SimPmtSpec    ,  SimPmtSpec  ,  kTRUE
 ; 
   name           , codetype                 , dbtype       , description 
   pmtId          , DayaBay::DetectorSensor  , int(11)      , PMT sensor ID 
@@ -38,22 +38,13 @@ gendbi-csv-SimPmtSpec(){ cat << EOS
 EOS
 }
 
-
-gendbi-csv1(){   cat << EOC
-color,index,description
-red,1,red devil
-green,2,color of envy
-blue,3,oceanic
-cyan,4,ide
-magenta,5,devine
-yellow,6,ish ish
-EOC
-} 
-
-gendbi-test(){
-  gendbi-csv-SimPmtSpec | python $(gendbi-srcdir)/gendbi.py 
-
+gendbi-parse(){
+  gendbi-csv-SimPmtSpec | python $(gendbi-srcdir)/parse.py 
 }
+gendbi-emit(){
+  gendbi-csv-SimPmtSpec | python $(gendbi-srcdir)/emit.py 
+}
+
 
 
 
