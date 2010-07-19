@@ -66,8 +66,6 @@ private:
   {% endfor %}
 
 };
-
-
 #endif  // {{cls|upper}}_H
 
 

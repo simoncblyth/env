@@ -15,34 +15,25 @@ EOU
 gendbi-dir(){ echo $(local-base)/env/offline/offline-gendbi ; }
 gendbi-cd(){  cd $(gendbi-dir); }
 gendbi-mate(){ mate $(gendbi-dir) ; }
-gendbi-get(){
-   local dir=$(dirname $(gendbi-dir)) &&  mkdir -p $dir && cd $dir
 
-}
+gendbi-spec-(){ echo SimPmtSpec ; }
+gendbi-spec(){  cat $(gendbi-srcdir)/spec/$(gendbi-spec-).spec ; }
+gendbi-tmpl(){  echo SubDbiTableRow ; }
 
-gendbi-csv-SimPmtSpec(){ cat << EOS
-  meta          ,  class_        ,  table       ,  CanL2Cache 
-  1             ,  SimPmtSpec    ,  SimPmtSpec  ,  kTRUE
-; 
-  name           , codetype                 , dbtype       , description                          , code2db 
-  pmtId          , DayaBay::DetectorSensor  , int(11)      , PMT sensor ID                        , .sensorId()
-  describ        , std::string              , varchar(27)  , String of decribing PMT position     ,
-  gain           , double                   , float        , Relative gain for pmt with mean = 1  ,
-  sigmaGain      , double                   , float        , 1-sigma spread of S.P.E. response    ,
-  timeOffset     , double                   , float        , Relative transit time offset         ,
-  timeSpread     , double                   , float        , Transit time spread                  ,
-  efficiency     , double                   , float        , Absolute efficiency                  ,
-  prePulseProb   , double                   , float        , Probability of prepulsing            ,
-  afterPulseProb , double                   , float        , Probability of afterpulsing          ,
-  darkRate       , double                   , float        , Dark Rate                            ,
-EOS
-}
+gendbi-parse(){      gendbi-spec | python $(gendbi-srcdir)/parse.py  ; }
+gendbi-h(){          gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).h   ; }
+gendbi-cc(){         gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).cc  ; }
+gendbi-sql(){        gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).sql ; }
+gendbi-tex(){        gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).tex ; }
+gendbi-tracwiki(){   gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).tracwiki ; }
+gendbi-mediawiki(){  gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).mediawiki ; }
 
-gendbi-parse(){
-  gendbi-csv-SimPmtSpec | python $(gendbi-srcdir)/parse.py 
-}
-gendbi-emit(){
-  gendbi-csv-SimPmtSpec | python $(gendbi-srcdir)/emit.py 
+gendbi-pdf(){
+  local iwd=$PWD
+  local tmp=/tmp/$USER/env/$FUNCNAME/$(gendbi-spec-).tex && mkdir -p $(dirname $tmp)
+  cd $(dirname $tmp)
+  gendbi-tex > $tmp
+  pdflatex $tmp
 }
 
 

@@ -1,0 +1,4 @@
+
+ || {{ "'''name'''"|center:"20" }} || {{ "'''dbtype'''"|center:"20" }} || {{ "'''codetype'''"|center:"25" }} || {{ "'''description'''"|center:"40" }} || {{ "'''code2db'''"|center:"20" }} ||
+{% for r in t %} || {{ r.name|center:"20" }} || {{ r.dbtype|center:"20" }} || {{ r.codetype|center:"25" }} || {{ r.description|center:"40" }} || {{ r.code2db|center:"20" }} ||
+{% endfor %}

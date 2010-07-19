@@ -1,0 +1,20 @@
+
+
+{| class="wikitable"
+|+ DBI Table specification for class {{ cls }}, which corresponds to table {{ t.meta.table }}. For this class CanL2Cache:{{ t.meta.CanL2Cache }}. 
+|-
+! name
+! dbtype
+! codetype
+! description
+! code2db 
+{% for r in t %}
+|-
+| {{ r.name }}
+| {{ r.dbtype }}
+| {{ r.codetype }}
+| {{ r.description }}
+| {{ r.code2db }}
+{% endfor %}
+|}
+

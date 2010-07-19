@@ -1,0 +1,30 @@
+\documentclass[10pt,twoside]{article}
+
+\setlength{\oddsidemargin}{-0.4cm}
+\setlength{\evensidemargin}{-0.4cm}
+\setlength{\textwidth}{17cm} 
+\setlength{\textheight}{23.5cm}
+\setlength{\topmargin}{-2.0cm} 
+
+\usepackage[dvips]{hyperref} 
+\hypersetup{ pdfborder=0 0 0, urlbordercolor=1 0 0 }
+
+\begin{document}
+\begin{center}
+\begin{table}
+\begin{tabular}{lllll}\\\hline
+           \bf{name} 
+        &  \bf{dbtype}
+        &  \bf{codetype}
+        &  \bf{description}
+        &  \bf{code2db}
+        \\\hline
+{% for r in t %}{{ r.name }} & {{ r.dbtype }} & {{ r.codetype }} & {{ r.description }} & {{ r.code2db }} \\{% if forloop.last %}\hline{% endif %}
+{% endfor %}
+\end{tabular}
+\caption{ DBI Table specification for class {{ cls }}, which corresponds to table {{ t.meta.table }}. For this class CanL2Cache:{{ t.meta.CanL2Cache }}.   }
+\end{table}
+\end{center}
+
+
+\end{document}
