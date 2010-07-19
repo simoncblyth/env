@@ -16,17 +16,20 @@ gendbi-dir(){ echo $(local-base)/env/offline/offline-gendbi ; }
 gendbi-cd(){  cd $(gendbi-dir); }
 gendbi-mate(){ mate $(gendbi-dir) ; }
 
-gendbi-spec-(){ echo SimPmtSpec ; }
+gendbi-spec-(){ echo ${GENDBI_SPEC:-SimPmtSpec} ; }
 gendbi-spec(){  cat $(gendbi-srcdir)/spec/$(gendbi-spec-).spec ; }
 gendbi-tmpl(){  echo SubDbiTableRow ; }
 
 gendbi-parse(){      gendbi-spec | python $(gendbi-srcdir)/parse.py  ; }
-gendbi-h(){          gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).h   ; }
-gendbi-cc(){         gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).cc  ; }
-gendbi-sql(){        gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).sql ; }
-gendbi-tex(){        gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).tex ; }
-gendbi-tracwiki(){   gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).tracwiki ; }
-gendbi-mediawiki(){  gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).mediawiki ; }
+gendbi-gen(){        gendbi-spec | python $(gendbi-srcdir)/gendbi.py $(gendbi-tmpl).$1 ; }
+
+gendbi-h(){          gendbi-gen h  ; } 
+gendbi-cc(){         gendbi-gen cc ; }
+gendbi-sql(){        gendbi-gen sql ; }
+gendbi-tex(){        gendbi-gen tex ; }
+gendbi-tracwiki(){   gendbi-gen tracwiki ; }
+gendbi-mediawiki(){  gendbi-gen mediawiki ; }
+
 
 gendbi-pdf(){
   local iwd=$PWD
