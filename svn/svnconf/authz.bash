@@ -5,7 +5,7 @@ authz-vi(){     vi $(authz-source) ; }
 authz(){
 
   local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui, wunsyonghe, cjchen"
-  local hk="jimmy, antony, soap, talent, alex"
+  local hk="jimmy, antony, soap, talent, alex, henoch"
   local cn="tianxc, maqm"
   local us="littlejohn"
   local hz="simon, cjl, tosi, cecilia, b2c, andrzej, gigi, matteo"
