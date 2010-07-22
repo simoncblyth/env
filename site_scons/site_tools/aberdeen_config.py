@@ -6,7 +6,11 @@ def generate(env, pkg=None ):
        
        If this was living inside aberdeen repo it
        could benefit from its __file__ to avoid need for envvar ABERDEEN_HOME ??
-       
+      
+       This is still using the fragile bash function approach ... requiring
+               aberdeen-
+               abtmodel- 
+ 
     """
     name = 'ABERDEEN_HOME'
     home = os.environ.get(name,None)
@@ -16,9 +20,11 @@ def generate(env, pkg=None ):
         print "envvar %s is not defined " % name
         env.exit(1)
 
-    print "aberdeen_config for pkg %s " % pkg  
+    print "aberdeen_config for pkg %s with home %s  " % ( pkg , home )  
     if pkg:
         env['PKG_ABERDEEN_%s' % pkg.upper() ] = pkg
-        env.ParseConfig("aberdeen-config %s --cflags --libs" % pkg )
+        cmd = "aberdeen-config %s --cflags --libs" % pkg 
+        print "invoking \"%s\" " % cmd 
+        env.ParseConfig(cmd )
 
 
