@@ -5,6 +5,8 @@
 """
 Import("env")
 
+
+
 tools = []
 
 # external code installed by system pkg manager 
@@ -16,13 +18,15 @@ tools += [ 'rmqc', 'root', ]
 # code compiled by SCT/SCons 
 tools += [ 'priv', 'cjsn', 'envtools' ]   
 
-# nasty kludge dependency... partition the testing to avoid this 
-tools += [ 'abtmodel']
 
 
 er = env.Clone( tools=tools  )
 EWorkaroundSwallowedXlinker( er )
 
+
+# nasty kludge dependency... partition the testing to avoid this 
+
+er.Tool("abtmodel")
 
 headers = [
    'include/MQ.h',

@@ -35,7 +35,8 @@ dirs += [ 'AbtViz' ]   ## non-mapped env version for ease of same-repo developme
 #dirs = [ 'rootmq' ]
 #dirs = [ 'test' ]
 #dirs = [ 'envtools' ] 
-
+#dirs = ['aberdeen/DataModel']
+#dirs = [ 'priv' ]
 
 # common to all builds and dirs 
 base = Environment( tools = ['component_setup'] ,   ## fundamental to SCT operation 

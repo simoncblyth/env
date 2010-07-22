@@ -25,9 +25,11 @@ env-objdir(){   echo $(env-modedir)/obj ; }
 env-libdir(){   echo $(env-modedir)/lib ; }
 env-libpath(){
       [ "$1" == "blank" ] && echo -n && return 
+      root-
       case $(hostname -s) in 
          cms01|cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
-             *) echo $(env-libdir):$(root-libdir)                  ;;
+          simon|g4pb) echo $(env-libdir):$(root-libdir)                  ;;
+                   *) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
       esac
 }
 

@@ -180,10 +180,15 @@ print p('SECRET')
 EOT
 }
 
+private-ln(){
+  python-
+  python-ln $(env-home)/private
+}
+
 
 private-py-install(){
   cd $(env-home)/private
-  python setup.py develop
+  $SUDO python setup.py develop
 }
 
 private-py-check(){ python -c "from private import Private ; p = Private() ; print p " ;  }

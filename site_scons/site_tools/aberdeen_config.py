@@ -15,7 +15,9 @@ def generate(env, pkg=None ):
     name = 'ABERDEEN_HOME'
     home = os.environ.get(name,None)
     if home and os.path.isdir(home): 
-        env.PrependENVPath('PATH', home + os.sep + 'bin' )   
+        bin = home + os.sep + 'bin'   
+        print "preprnding %s " % bin   
+        env.PrependENVPath('PATH', bin )   
     else:
         print "envvar %s is not defined " % name
         env.exit(1)
