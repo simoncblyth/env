@@ -33,6 +33,13 @@ sv-usage(){
      and start again using service interface    
           sv-service start 
 
+
+   == WEB INTERFACE ==
+
+       http://<hostname>:9001/
+
+
+
    == REFERENCES ==    
 
        http://supervisord.org/manual/current/
@@ -297,7 +304,7 @@ sv-check(){
      echo $msg $bin $(which $bin)
    done
 }
-sv-edit(){ vim $(sv-confpath) $(sv-confdir)/*.ini ; }
+sv-edit(){ vim $(sv-confpath) $(sv-confdir)/*.ini $(sv-confpath).sample ; }
 sv-sample(){ vim $(sv-confpath).sample ; }
 
 sv-user(){   echo ${SV_USER:-root} ; }

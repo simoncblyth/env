@@ -20,16 +20,14 @@ dyb-cd(){  cd $(dyb-dir); }
 dyb-mate(){ mate $(dyb-dir) ; }
 dyb-get(){
    local dir=$(dirname $(dyb-dir)) &&  mkdir -p $dir && cd $dir
-
 }
 dyb-rc(){ echo $HOME/.dybrc ; }
 
 dyb-info(){
   env | grep DYB
-
   echo $(dyb-rc) ...
   cat $(dyb-rc)
-
+  ls -l  $DYB_RELEASE/dybgaudi/Utilities/Shell/bash/dyb.sh
 }
 
 dyb-init-(){  cat << EOS
@@ -43,5 +41,11 @@ dyb-init(){
 
 dyb-edit(){
   vi $(dyb-rc)
+}
+
+
+dyb--(){
+   [ -z "$DYBRELEASEROOT" ]     && echo invoking \"dyb dybgaudi\" && dyb dybgaudi
+   echo invoking \"dyb $*\"     && dyb $*
 }
 
