@@ -56,6 +56,28 @@ nginx-usage(){
 EOU
 }
 
+
+nginx-sv-(){ cat << EOX
+# $FUNCNAME  ... requires  "daemon off;"  in nginx-edit 
+[program:nginx]
+command=$(which nginx)
+process_name=%(program_name)s
+autostart=true
+autorestart=true
+
+redirect_stderr=true
+stdout_logfile=$(nginx-log)
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=10
+
+
+EOX
+}
+nginx-sv(){
+  sv-
+  $FUNCNAME- | sv-plus nginx.ini
+}
+
 nginx-user(){ echo nobody ; }
 nginx-name(){ echo nginx-0.7.61 ; }
 nginx-url(){  echo http://sysoev.ru/nginx/$(nginx-name).tar.gz ; }
@@ -147,8 +169,10 @@ nginx-logd(){
    esac  
 }
 nginx-cd(){     cd $(nginx-logd) ; }
+nginx-log(){    echo $(nginx-logd)/sv.log ; }
 nginx-elog(){   echo $(nginx-logd)/error.log ; }
 nginx-alog(){   echo $(nginx-logd)/access.log ; }
+nginx-tail(){  sudo tail -f $(nginx-log) ; }
 nginx-etail(){  sudo tail -f $(nginx-elog) ; }
 nginx-atail(){  sudo tail -f $(nginx-alog) ; }
 
