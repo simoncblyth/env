@@ -307,17 +307,23 @@ EOC
 
 
 
-
-
 ## non-embedded deployment with apache mod_scgi or mod_fastcgi ?  or lighttpd/nginx
 
 djdep-socket(){    echo /tmp/$(dj-project).sock ; }
+djdep-port(){      echo $(local-port $(dj-project)) ; }
+djdep-host(){      echo $(modscgi-;modscgi-ip $(dj-project)) ; }
 
+djdep-approach(){ echo unixdomain ; }
+djdep-connection(){
+   case $(djdep-approach) in 
+      unixdomain) echo socket=$(djdep-socket) ;;
+               *) echo host=$(djdep-host) port=$(djdep-port) ;; 
+   esac  
+}
 
 ## defaults ...  maxspare=5 minspare=2 maxchildren=50 from : django/core/servers/fastcgi.py
-djdep-opts-fcgi(){ echo runfcgi protocol=fcgi socket=$(djdep-socket)  daemonize=false maxspare=3 minspare=1 ; }
-djdep-opts-scgi(){ echo runfcgi protocol=scgi host=$(modscgi-;modscgi-ip $(dj-project)) port=$(local-port $(dj-project))  daemonize=false maxspare=3 minspare=1 ; }
-
+djdep-opts-fcgi(){ echo runfcgi protocol=fcgi $(djdep-connection)  daemonize=false maxspare=3 minspare=1 ; }
+djdep-opts-scgi(){ echo runfcgi protocol=scgi $(djdep-connection)  daemonize=false maxspare=3 minspare=1 ; }
 
 ## interactive config check 
 
@@ -368,23 +374,44 @@ user=$USER
 EOC
 }
 
-djdep-sv-fcgi-(){ dj- ; cat << EOC
+## socket=tcp://127.0.0.1:$(djdep-port)
+djdep-sv-fcgi-(){ dj- ; private- ; cat << EOC
 [fcgi-program:$(dj-project)]
-socket=tcp://127.0.0.1:$(local-port $(dj-project))
-command = $(which python) $(dj-projdir)/runfcgi.py 
+socket=unix://$(djdep-socket)
+command=$(which python) $(djdep-runfcgi-path)
 redirect_stderr=true
 redirect_stdout=true
 priority=999
-environment=PYTHONPATH=$(dj-projdir),DJANGO_SETTINGS_MODULE=settings
+environment=ENV_PRIVATE_PATH='$(private-path)',ENV_HOME='$ENV_HOME',PYTHONPATH='$(dj-projdir)',DJANGO_SETTINGS_MODULE='settings'
 EOC
 }
 
 
 
+djdep-runfcgi-(){ cat << EOS
+#!/usr/bin/env python
+if __name__ == '__main__':
+    from flup.server.fcgi_fork import WSGIServer
+    from django.core.handlers.wsgi import WSGIHandler
+    WSGIServer(WSGIHandler()).run()
+EOS
+}
 
 
+djdep-runfcgi-path(){ echo $(dj-projdir)/runfcgi.py ; }
 
-## supervisor hookup 
+## supervisor hookup with fcgi control by supervisor
+djdep-sv-fcgi(){
+    local msg="=== $FUNCNAME :"     
+    local path=$(djdep-runfcgi-path)
+    [ ! -f "$path" ] && echo $msg creating $path && djdep-runfcgi- > $path
+
+    sv-
+    $FUNCNAME- | sv-plus $(dj-project).ini ; 
+}
+
+
+## supervisor hookup with manage.py handled fcgi
 djdep-sv(){  
    sv-
    $FUNCNAME- | sv-plus $(dj-project).ini ; 

@@ -34,6 +34,17 @@ sv-usage(){
           sv-service start 
 
 
+
+
+   == environment parsing bug in 3.0a8 ==
+   
+       sv-start
+       Error: Unexpected end of key/value pairs
+       
+       Workaround is to quote envirobment values ...
+            http://lists.supervisord.org/pipermail/supervisor-users/2010-March/000539.html
+       
+
    == WEB INTERFACE ==
 
        http://<hostname>:9001/
@@ -716,3 +727,18 @@ sv-initd(){
   ls -l $ini
 
 }
+
+
+sv-dumpenv-(){ 
+  private-
+cat << EOD
+[program:dumpenv]
+command=env
+environment=ENV_PRIVATE_PATH='$(private-path)',ENV_HOME='$ENV_HOME'
+EOD
+}
+
+sv-dumpenv(){
+   $FUNCNAME- | sv-plus dumpenv.ini   
+}
+

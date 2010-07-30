@@ -166,7 +166,7 @@ slave-lighttpd) private-val SLAVE_LIGHTTPD_PORT  ;;  # info only ...
        runinfo) private-val RUNINFO_PORT ;;  
       ejabberd) private-val EJABBERD_PORT ;;  
  ejabberd-http) private-val EJABBERD_HTTP_PORT ;;  
-             *) echo -n ;;
+             *) private-val $(echo ${1}_PORT | tr "[a-z]" "[A-Z"]) ;;
    esac  
 }
 
