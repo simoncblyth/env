@@ -11,6 +11,19 @@ sv-usage(){
      sv-dir : $(sv-dir)
      sv-confpath : $(sv-confpath)
 
+   == INSTALLATIONS ==
+
+     Production installs mostly done with "easy_install supervisor" into "system" python
+     Can determine version with "sv version" when the daemon is running
+
+      C     3.0a7
+      C2    3.0a7
+      N     3.0a7
+      WW    ???      
+                    as do not have permissions for system python on IHEP web server 
+                    installed into virtual python
+      Z     3.0a8
+
    == UPDATING CONFIG ==
 
      Config read from the sv-confpath by cfp- 
@@ -48,7 +61,6 @@ sv-usage(){
    == WEB INTERFACE ==
 
        http://<hostname>:9001/
-
 
 
    == REFERENCES ==    
