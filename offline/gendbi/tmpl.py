@@ -6,7 +6,7 @@ dir = os.path.abspath(os.path.dirname(sys.argv[0]) + os.sep +'templates')
 
 def filltmpl(tmpl, ctx, **kwa ):
 	"""
-	       tmpl   :  name of template file, that will be loaded from the same dir as this module
+	       tmpl   :  name of template file, that will be loaded from the templates dir relative to this module
 	        ctx   :  context parsed from the spec file
 	        kwa   :  extra context, eg shortcuts to frequently used qtys 
 	""" 

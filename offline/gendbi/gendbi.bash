@@ -9,6 +9,17 @@ gendbi-usage(){
      gendbi-src : $(gendbi-src)
      gendbi-dir : $(gendbi-dir)
 
+    Parse a .spec file corresponding to a DBI Table/Object and 
+    emit headers, implementation, sql, tex, mediawiki and tracwiki formats.  
+
+    Usage example :
+       export GENDBI_SPEC=FeeSpec 
+       gendbi-h         > $GENDBI_SPEC.h
+       gendbi-cc        > $GENDBI_SPEC.cc
+       gendbi-sql       > $GENDBI_SPEC.sql
+       gendbi-tex       > $GENDBI_SPEC.tex
+       gendbi-mediawiki > $GENDBI_SPEC.mediawiki
+       gendbi-tracwiki  > $GENDBI_SPEC.tracwiki
 
 EOU
 }

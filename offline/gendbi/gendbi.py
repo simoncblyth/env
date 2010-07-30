@@ -13,7 +13,7 @@
   Use by piping in the spec with a single argument naming the template 
 
      cat SimPmtSpec.spec | python gendbi.py SubDbiTableRow.h   > SimPmtSpec.h
-     cat SimPmtSpec.spec | python gendbi.py DbiTable.sql       > SimPmtSpec.sql
+     cat SimPmtSpec.spec | python gendbi.py SubDbiTableRow.sql > SimPmtSpec.sql
 
 """
 from parse import Tab
