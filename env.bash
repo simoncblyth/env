@@ -879,3 +879,4 @@ nenv-(){      . $(env-home)/nuwa/nenv.bash && nenv-env $* ; }
 dyb-(){      . $(env-home)/nuwa/dyb.bash && dyb-env $* ; }
 du-(){      . $(env-home)/base/du.bash && du-env $* ; }
 gendbi-(){      . $(env-home)/offline/gendbi/gendbi.bash && gendbi-env $* ; }
+time-(){      . $(env-home)/python/tests/time.bash && time-env $* ; }
