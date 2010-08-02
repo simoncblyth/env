@@ -90,6 +90,23 @@ def check_time( tz ):
     c = time.mktime( p ) - time.timezone
     print locals() 
     assert s == c , locals()
+
+
+def check_datetime_dj( tz ):
+    timeformat = fmt + '-%Z' 
+    tstamp = datetime.fromtimestamp( seconds , utc )           # construct datetime explicitly in UTC
+    datestring = tstamp.strftime( timeformat )                 # format ... with tz appended BUT tiz pointless as parsing will not see it
+    t = datetime.strptime(datestring,timeformat)
+
+    #t = t.replace( tzinfo = utc )    ## required otherwise cannot compare tz-naive and aware times
+    #assert tstamp == t, locals()   
+
+    tepoch = datetime.strptime(  '1970-01-01T00:00:00-UTC', '%Y-%m-%dT%H:%M:%S-%Z' )
+    start_time_seconds = (((t.toordinal() - tepoch.toordinal())*24 + (t.hour - tepoch.hour))*60 + (t.minute - tepoch.minute))*60
+    start_time_seconds += (t.second - tepoch.second) + (t.microsecond - tepoch.microsecond)*1.e-6
+    assert start_time_seconds == seconds, locals()
+
+
  
 def check_datetime( tz ):
     """
@@ -124,7 +141,13 @@ test_time.__test__ = False
 def test_datetime():
     for tz in tzs:
         yield check_datetime, tz
-test_datetime.__test__ = True
+test_datetime.__test__ = False
+
+def test_datetime_dj():
+    for tz in tzs:
+        yield check_datetime_dj, tz
+test_datetime_dj.__test__ = True
+
 
 if __name__=='__main__':
     pass
