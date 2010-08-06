@@ -73,6 +73,27 @@ mysql-usage(){
 
 
 
+   == set up passwords ==
+
+      http://dev.mysql.com/doc/refman/5.1/en/default-privileges.html
+
+mysql> SELECT User, Host, Password FROM mysql.user;
++------+-------------------+----------+
+| User | Host              | Password |
++------+-------------------+----------+
+| root | localhost         |          | 
+| root | belle7.nuu.edu.tw |          | 
+| root | 127.0.0.1         |          | 
++------+-------------------+----------+
+3 rows in set (0.01 sec)
+
+       SET PASSWORD FOR 'root'@'localhost' = PASSWORD('***');
+       SET PASSWORD FOR 'root'@'belle7.nuu.edu.tw' = PASSWORD('***');
+       SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('***');
+
+
+
+
     == Switching on logging ... ==
 
        * find that the logfile has to exist already 

@@ -6,10 +6,22 @@ slv-vi(){       vi $(slv-source) $(slv-slave-path) $(slv-runtest-path) $(slv-iso
 slv-srcdir(){
    ## dev versions ... 
    #echo $(env-home)/offline
-
    ##  operational ones
    echo $DYB/installation/trunk/dybinst/scripts
 }
+
+
+slv-common-path(){     echo $DYB/installation/trunk/dybinst/scripts/dybinst-common.sh ; }
+slv-common-lookup(){   env -i bash -c ". $(slv-common-path) ; echo \$${1:-dyb_tests_default} " ; }
+slv-common-sets(){     env -i bash -c ". $(slv-common-path) ; echo \${!dyb_tests*} " ; }
+slv-common-tests(){    slv-common-lookup dyb_tests_${1:-default};  }
+slv-common-smry(){
+   local var
+   for var in $(slv-common-sets) ; do
+      printf "%-20s : %s \n" $var "$(slv-common-lookup $var)"
+   done
+}
+
 
 slv-isotest-path(){ echo $(slv-srcdir)/isotest.sh ; }
 slv-runtest-path(){ echo $(slv-srcdir)/runtest.sh ; }
