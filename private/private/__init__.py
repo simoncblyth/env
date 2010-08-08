@@ -17,7 +17,7 @@ class Private:
          sudo -u apache python -c "from :private import Private ; p=Private() ; print p('DATABASE_NAME') " 
 
     """
-    decl = re.compile("local \s*(?P<var>\S*)=(?P<val>\S*)")
+    decl = re.compile("local \s*(?P<var>\S*)=(?P<val>.*)$")
     def __init__(self):
         #print "\n".join(["%s:%s" % (k,v) for k,v in os.environ.items()]) 
         path = os.environ.get('ENV_PRIVATE_PATH',None)
