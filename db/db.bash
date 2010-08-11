@@ -224,6 +224,15 @@ db-recover(){
   mysql --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
+db-recover-today(){
+   local msg="=== $FUNCNAME :"
+   local name=${1:-testdb}
+   local dbtoday=$(db-name-today $name)
+   echo $msg connecting to dbtoday $dbtoday
+   db-recover $dbtoday 
+}
+
+
 db-name-today(){     echo ${1}_$(db-today) ; }
 db-name-yesterday(){ echo ${1}_$(db-yesterday) ; }
 
