@@ -21,6 +21,7 @@ db-usage(){
             /etc/my.cnf avoiding keeping config info in this script
 
      db-backup-names : $(db-backup-names)
+           names of databases to be backed up and recovered
 
      db-backup-rsync target.node  
           rsync local dir $(db-backup-hostdir)
@@ -29,7 +30,6 @@ db-usage(){
 
      db-backup-daily
            performs backups and purges 
-
 
      db-backup-rsync-monitor-
             emit to stdout the listing of todays and yesterdays .sql.gz
@@ -116,7 +116,7 @@ db-backup(){
   echo $msg mysqldump of $name from $PWD
   local sgz="$name.sql.gz"
   [ -f "$sgz" ] && rm -f "$sgz" 
-  mysqldump  $name > $name.sql && gzip $name.sql 
+  time mysqldump  $name > $name.sql && gzip $name.sql 
   cd $iwd
 }
 
@@ -221,16 +221,10 @@ db-cautious(){
 db-recover(){
   [ "$(hostname)" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
   private-
-  mysql --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
+  ${DB_TIME} mysql --no-defaults --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
-db-recover-today(){
-   local msg="=== $FUNCNAME :"
-   local name=${1:-testdb}
-   local dbtoday=$(db-name-today $name)
-   echo $msg connecting to dbtoday $dbtoday
-   db-recover $dbtoday 
-}
+
 
 
 db-name-today(){     echo ${1}_$(db-today) ; }
@@ -239,6 +233,9 @@ db-name-yesterday(){ echo ${1}_$(db-yesterday) ; }
 db-user(){ private- ; private-val ${1:-DAYABAY}_USER ; }
 db-host(){ private- ; private-val ${1:-DAYABAY}_HOST ; }
 db-pass(){ private- ; private-val ${1:-DAYABAY}_PASS ; }
+
+
+
 
 
 db-create-user-(){  cat << EOC
@@ -271,7 +268,7 @@ db-backup-recover(){
    local rc
    ## stream direct from the sqz into the DB as the sqz is owned by the unprivileged rsync only user 
    echo "create database if not exists $dbtoday ;" | db-recover 
-   gunzip -c $sqz                                  | db-recover $dbtoday
+   gunzip -c $sqz                                  | DB_TIME=time db-recover $dbtoday
    rc=$?
    [ "$rc" != "0" ] && echo $msg ABORT error $rc && return $rc   
    
