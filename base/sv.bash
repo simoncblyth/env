@@ -684,18 +684,18 @@ sv-initd-(){ python- ; cat << EOI
 # Source function library.
 . /etc/rc.d/init.d/functions
 
-supervisorctl="$(which supervisorctl)"
-supervisord="$(which supervisord)"
-name="$(sv-name)"
 
-[ -f \$supervisord ] || exit 1
-[ -f \$supervisorctl ] || exit 1
+LD_LIBRARY_PATH=$(python-libdir):\$LD_LIBRARY_PATH
+PATH=/data/env/system/python/Python-2.5.1/bin:\$PATH
+[ "\$(python -V 2>&1)" != "Python 2.5.1" ] && echo wrong python && exit 1
+
+name="$(sv-name)"
 
 RETVAL=0
 
 start() {
      echo -n "Starting \$name: "
-     LD_LIBRARY_PATH=$(python-libdir) \$supervisord -c $(sv-confpath)
+     supervisord -c $(sv-confpath)
      RETVAL=\$?
      [ \$RETVAL -eq 0 ] && touch /var/lock/subsys/\$name
      echo
@@ -704,7 +704,7 @@ start() {
 
 stop() {
      echo -n "Stopping \$name: "
-     LD_LIBRARY_PATH=$(python-libdir) \$supervisorctl -c $(sv-ctl-ini) shutdown
+     supervisorctl -c $(sv-ctl-ini) shutdown
      RETVAL=\$?
      [ \$RETVAL -eq 0 ] && rm -f /var/lock/subsys/\$name
      echo
