@@ -339,7 +339,16 @@ sv-sudo(){
     esac
  }
 
-sv-start(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
+
+sv-start(){
+   case $(hostname) in 
+      cms01.phys.ntu.edu.tw) type $FUNCNAME && sudo /sbin/service sv-blyth start ;;
+                          *)  $FUNCNAME- ;;
+   esac
+}
+
+
+sv-start-(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 
 sv-nstart(){ $(sv-sudo) supervisord   -c $(sv-confpath) -n $* ; }   ## -n ... non daemon useful for debugging 
 sv-ps(){     ps aux | grep -v grep | grep supervisord  ; }
 
