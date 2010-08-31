@@ -201,6 +201,10 @@ python-ldconfig(){
 python-libdir(){
    echo $PYTHON_HOME/lib
 }
+python-bindir(){
+   echo $PYTHON_HOME/bin
+}
+
 
 
 

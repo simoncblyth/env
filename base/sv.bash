@@ -452,6 +452,7 @@ sv-pid(){
       sv-ctl pid
    fi
 }
+
 sv-restart(){ 
    local msg="=== $FUNCNAME :"
    local cmd="$(sv-sudo) kill -HUP $(sv-pid)" 
@@ -685,9 +686,14 @@ sv-initd-(){ python- ; cat << EOI
 . /etc/rc.d/init.d/functions
 
 
-LD_LIBRARY_PATH=$(python-libdir):\$LD_LIBRARY_PATH
-PATH=/data/env/system/python/Python-2.5.1/bin:\$PATH
-[ "\$(python -V 2>&1)" != "Python 2.5.1" ] && echo wrong python && exit 1
+export LD_LIBRARY_PATH=$(python-libdir):\$LD_LIBRARY_PATH
+export PATH=$(python-bindir):\$PATH
+
+py=\$(which python)
+[ "\$py" != "/usr/bin/python" ] && echo using py \$py  
+
+pv=\$(python -V 2>&1)
+[ "\$pv" != "Python 2.5.1" ] && echo wrong python \$pv  && exit 1
 
 name="$(sv-name)"
 
