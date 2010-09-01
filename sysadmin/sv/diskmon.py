@@ -3,7 +3,7 @@
    Starting point for a Disk usage monitor ...
 
     TODO :
-          * send notification emails when over maxpercent
+          * hostname, date identification in notifications 
           * turn into supervisord event listener 
                * http://supervisord.org/events.html#event-listeners-and-event-notifications
 
@@ -29,20 +29,36 @@ def _main():
         write_stderr(data) # print the event payload to stderr
         write_stdout('RESULT 2\nOK') # transition from READY to ACKNOWLEDGED
 
+class Mail(str):
+    sendmail = '/usr/sbin/sendmail -t -i'
+    def __call__(self, email ):
+        body =  'To: %s\n' % email
+        body += 'Subject: %s\n' % self.split("\n")[0]
+        body += '\n'
+        body += self
+        m = os.popen(self.sendmail, 'w')
+        m.write(body)
+        m.close()
 
 class DiskMon(dict):
-    defaults =  dict(disk="/data" , maxpercent="90" , interactive=True, notify="blyth@hep1.phys.ntu.edu.tw" )
-    
+    """
+        Check disk usage percentage and send notification emails 
+    """
+    defaults =  dict(disk="/data" , maxpercent="90" , interactive=True, notify="blyth@hep1.phys.ntu.edu.tw" , msg="DEFMSG" )
+
     _command = "df -h %(disk)s "
-    command = property( lambda self:self._command % self )
-    
     _percent = re.compile("(\d+)%")
-    def get__percent(self):
-        l = self._percent.findall( os.popen(self.command).read() )
-        return len(l) == 1 and int(l[0]) or 0
-    percent = property( get__percent )
-    def __repr__(self):
-        return "%s \"%s\"  %s   %s " % ( self.__class__.__name__ , self.command , self.percent , dict.__repr__(self)  )
+    _warning = """DiskMon %(disk)s %(maxpercent)s %(msg)s"""
+
+    command = property( lambda self:self._command % self )
+    percent = property( lambda self:self._percent.findall( os.popen(self.command).read() )[0] )
+    warning = property( lambda self:self._warning % self )
+    
+    def __call__(self):
+        p = self.percent
+        ok = p < int(self['maxpercent']) 
+        self.update( msg = (" percentage %s EXCEEEDS LIMIT ", " percentage %s within limit " )[ok] % p ) 
+        Mail( self.warning )( self['notify'] )    
 
 
 if __name__ == '__main__':
@@ -60,6 +76,6 @@ if __name__ == '__main__':
     op.parse_args() 
 
     dm = DiskMon( **op.optsdict )
-
+    dm()
 
 
