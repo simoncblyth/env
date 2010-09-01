@@ -4,6 +4,17 @@ mysql-vi(){     vim $(mysql-source) ; }
 mysql-usage(){
   cat << EOU
 
+   === for mysql debugging (eg on trying to switch on logging ) ===
+
+    Flavors of control ...
+       * sv via pidproxy
+       * mysql-start 
+       * /sbin/service mysql start 
+
+    CONSOLIDATION NEED ...  
+
+   ===
+   
     Traditional redhat control :
 
        sudo /sbin/service mysqld start
@@ -176,12 +187,34 @@ EOC
 
 mysql-logpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld log ; }
 mysql-elogpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld_safe err-log ; }
-mysql-logsetup(){  cat << EOS
+mysql-logsetup-(){  cat << EOS
 # enter something like the below into $(mysql-syscnf) ... you can use mysql-sysedit
 [mysqld]
 log=$(mysql-logdir)/mysqld_out.log
 EOS
 }
+
+mysql-ls(){
+   cd $(mysql-logdir)
+   ls -l *
+}
+
+mysql-logsetup(){
+   local msg="=== $FUNCNAME :"
+   local path=$(mysql-logpath)
+   local logd=$(mysql-logdir)
+
+   [ "$path" == "" ] && echo $msg ERROR you did not configure mysql for logging ... && $FUNCNAME- && return 1
+   case $path in 
+      $logd/*) echo $msg OK mysql-lopath $path is within $logd ;;
+            *) echo $msg ERROR unexpected mysql-logpath $path ...not in $logd && return 1 ;; 
+   esac
+  [ ! -d "$logd" ] && sudo mkdir $logd && sudo chown -R mysql:mysql $logd
+  [ ! -f "$path" ] && sudo touch $path && sudo chown mysql:mysql $path 
+   
+  mysql-ls
+}
+
 mysql-tail(){    sudo tail -f $(mysql-logpath) ; }
 mysql-etail(){    sudo tail -f $(mysql-elogpath) ; }
 
@@ -223,7 +256,7 @@ mysql-logdir(){
   pkgr-
   case $(pkgr-cmd) in
     port) echo /opt/local/var/log/mysql5 ;;
-       *) echo /var/log ;;
+       *) echo /var/log/mysql ;;
   esac
 }
 
