@@ -880,3 +880,5 @@ dyb-(){      . $(env-home)/nuwa/dyb.bash && dyb-env $* ; }
 du-(){      . $(env-home)/base/du.bash && du-env $* ; }
 gendbi-(){      . $(env-home)/offline/gendbi/gendbi.bash && gendbi-env $* ; }
 time-(){      . $(env-home)/python/tests/time.bash && time-env $* ; }
+svlisten-(){      . $(env-home)/sysadmin/sv/svlisten.bash && svlisten-env $* ; }
+diskmon-(){      . $(env-home)/sysadmin/sv/diskmon.bash && diskmon-env $* ; }
