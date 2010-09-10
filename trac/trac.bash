@@ -394,13 +394,16 @@ trac-iheplog-dir(){
 }
 trac-iheplog-get(){
 
+   local msg="=== $FUNCNAME :"
    #local url=http://dayabay.ihep.ac.cn/log/trac.log
    local url=http://dayabay.ihep.ac.cn/log/trac/log/trac.log
    local dir=$(trac-iheplog-dir)
    mkdir -p $dir
    cd $dir
    private-
-   curl -u $(private-val IHEP_TRACLOG_USER):$(private-val IHEP_TRACLOG_PASS) -O $url
+   local cmd="curl -u $(private-val IHEP_TRACLOG_USER):$(private-val IHEP_TRACLOG_PASS) -O $url"
+   echo $msg $cmd
+   eval $cmd
 
 }
 
