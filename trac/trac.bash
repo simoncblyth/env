@@ -983,6 +983,18 @@ trac-timeline-conf(){
 EOC)
 }
 
+trac-bitten-include(){
+  local x=$(cat << EOX | tr "\n" "," 
+installation/trunk
+lcgcmt/trunk
+gaudi/trunk
+relax/trunk
+lhcb/trunk
+dybgaudi/trunk
+ldm/trunk
+EOX)
+ echo ${x:0:$((${#x}-1))}   ## just to remove the trailing comma
+}
 
 trac-bitten-exclude(){
   local x=$(cat << EOX | tr "\n" "," 
@@ -1005,7 +1017,10 @@ EOX)
 
 trac-bitten-conf(){
   trac-configure $(cat << EOC
-     bitten:dybinst.exclude_paths:$(trac-bitten-exclude)
+     bitten:dybinst.exclude_paths:
+     bitten:dybinst.include_paths:$(trac-bitten-include)
+     bitten:opt.dybinst.exclude_paths:
+     bitten:opt.dybinst.include_paths:$(trac-bitten-include)
 EOC)
 }
 
