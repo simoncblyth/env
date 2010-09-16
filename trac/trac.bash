@@ -1014,10 +1014,17 @@ EOX)
  echo ${x:0:$((${#x}-1))}   ## just to remove the trailing comma
 }
 
+trac-bitten-xwords(){
+ echo minor,trivial,minimal
+}
+
+
 trac-bitten-conf(){
   trac-configure $(cat << EOC
+     bitten:dybinst.exclude_words:$(trac-bitten-xwords)
      bitten:dybinst.exclude_paths:
      bitten:dybinst.include_paths:$(trac-bitten-include)
+     bitten:opt.dybinst.exclude_words:$(trac-bitten-xwords)
      bitten:opt.dybinst.exclude_paths:
      bitten:opt.dybinst.include_paths:$(trac-bitten-include)
 EOC)

@@ -119,6 +119,19 @@ Index: bitten/build/pythontools.py
                          value = os.path.realpath(value)
                          if value.startswith(ctxt.basedir):
                              value = value[len(ctxt.basedir) + 1:]
+Index: bitten/slave.py
+===================================================================
+--- bitten/slave.py	(revision 561)
++++ bitten/slave.py	(working copy)
+@@ -145,6 +145,8 @@
+             return os.EX_OK
+ 
+         while True:
++            socket.setdefaulttimeout(15)
++            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
+             try:
+                 try:
+                     job_done = self._create_build()
 Index: bitten/web_ui.py
 ===================================================================
 --- bitten/web_ui.py	(revision 561)
@@ -233,19 +246,6 @@ Index: bitten/web_ui.py
 +            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
  
          return _formatter
-Index: bitten/slave.py
-===================================================================
---- bitten/slave.py	(revision 561)
-+++ bitten/slave.py	(working copy)
-@@ -145,6 +145,8 @@
-             return os.EX_OK
- 
-         while True:
-+            socket.setdefaulttimeout(15)
-+            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
-             try:
-                 try:
-                     job_done = self._create_build()
 Index: bitten/report/testing.py
 ===================================================================
 --- bitten/report/testing.py	(revision 561)
@@ -266,11 +266,10 @@ Index: bitten/queue.py
 ===================================================================
 --- bitten/queue.py	(revision 561)
 +++ bitten/queue.py	(working copy)
-@@ -33,6 +33,46 @@
+@@ -33,6 +33,53 @@
  log = logging.getLogger('bitten.queue')
  
  
-+
 +
 +
 +def changeset_location(chgset):
@@ -302,18 +301,26 @@ Index: bitten/queue.py
 +def exclude_( path , exclude="" ):
 +    return exclude != "" and is_contained( path , exclude.split(",") )
 +
-+def accept_( path , include , exclude ):
++def mxclude_( message , exclude="" ):
++    words = message.split()
++    return exclude != "" and  len( filter(lambda skip:skip in words, exclude.split(",")) ) > 0  
++
++
++def accept_( chgset , include , exclude , exclude_words ):
++    path = changeset_location( chgset )
++    msg = chgset.message 
 +    incl = include_( path , include )
 +    excl = exclude_( path , exclude )
-+    acpt = incl and not(excl)
-+    msg = "accept_ %s incl:%s [%s] excl:%s [%s] " % ( acpt , incl , include , excl , exclude )
++    mxcl = mxclude_( msg , exclude_words ) 
++    acpt = incl and not(excl) and not(mxcl)
++    msg = "accept_ %s incl:%s [%s] excl:%s mxcl:%s [%s] [%s] [%s] " % ( acpt , incl , include , excl , mcxl , exclude , exclude_words , msg  )
 +    return acpt, msg
 +    
 +
  def collect_changes(repos, config, db=None):
      """Collect all changes for a build configuration that either have already
      been built, or still need to be built.
-@@ -217,8 +257,16 @@
+@@ -217,8 +264,18 @@
          db = self.env.get_db_cnx()
          builds = []
  
@@ -323,14 +330,16 @@ Index: bitten/queue.py
          for config in BuildConfig.select(self.env, db=db):
              platforms = []
 +    
++            exclude_words = cfg.get('%s.exclude_words' % config.name )
 +            exclude_paths = cfg.get('%s.exclude_paths' % config.name )
 +            include_paths = cfg.get('%s.include_paths' % config.name )
-+            self.log.info('populate ... config: %s config.path: %s exclude: %s include: %s ', config.name , config.path, exclude_paths , include_paths )
-+            
++            self.log.info('populate ... config: %s config.path: %s exclude: %s include: %s exclude_words:%s ', config.name , config.path, exclude_paths , include_paths, exclude_words )
++                        
++
              for platform, rev, build in collect_changes(repos, config, db):
  
                  if not self.build_all and platform.id in platforms:
-@@ -231,6 +279,24 @@
+@@ -231,6 +288,23 @@
                  platforms.append(platform.id)
  
                  if build is None:
@@ -344,8 +353,7 @@ Index: bitten/queue.py
 +                    #
 +                    
 +                    chgset = repos.get_changeset(rev)
-+                    location = changeset_location(chgset)
-+                    ok, msg = accept_(location , include_paths , exclude_paths)
++                    ok, msg = accept_( chgset , include_paths , exclude_paths, exclude_words )
 +                    if ok:
 +                        self.log.info('accepting Enqueing chgset %s %s .. %s ', rev, location, msg)
 +                    else:
@@ -355,7 +363,7 @@ Index: bitten/queue.py
                      self.log.info('Enqueuing build of configuration "%s" at '
                                    'revision [%s] on %s', config.name, rev,
                                    platform.name)
-@@ -292,10 +358,12 @@
+@@ -292,10 +366,12 @@
          # Ignore pending builds for deactived build configs
          config = BuildConfig.fetch(self.env, build.config)
          if not config.active:
@@ -369,7 +377,7 @@ Index: bitten/queue.py
              return True
  
          # Stay within the revision limits of the build config
-@@ -305,10 +373,13 @@
+@@ -305,10 +381,13 @@
                                                      build.rev)):
              # This minimum and/or maximum revision has changed since
              # this build was enqueued, so drop it
