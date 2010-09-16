@@ -83,6 +83,16 @@ mysql-usage(){
 
 
 
+   == remote mysql dump ==
+
+      Following powercut cms01 is indisposed again...  so do remote dump 
+     (have to use --skip-opt as do not have permission to lock the tables )
+
+[blyth@belle7 ~]$ mysqldump --skip-opt testdb SimPmtSpec SimPmtSpecVld > SimPmtSpec.sql
+Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
+Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
+
+
 
    == set up passwords ==
 
@@ -183,7 +193,9 @@ $(mysql-logpath) {
 EOC
 }
 
-
+mysql-current-user(){
+    echo status | mysql | perl -n -e 'm,Current user:\s*(\S*)$, && print $1 ' -
+}
 
 mysql-logpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld log ; }
 mysql-elogpath(){ cfp- ; CFP_PATH=$(mysql-syscnf) cfp-getset mysqld_safe err-log ; }
