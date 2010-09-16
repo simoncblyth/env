@@ -29,7 +29,7 @@ clui-alias(){
    alias st="svn st"
    alias stu="svn st -u"
    alias up="svn up"
-   alias ci="svn ci"
+   alias ci="svn --username $USER ci "
    alias h='history'
    alias bh='cat ~/.bash_history'
    alias ini='. ~/.bash_profile'
@@ -39,7 +39,14 @@ clui-alias(){
    alias vip='vi ~/.bash_profile'
    alias vips='grep BUILD_PATH ~/.bash_profile | grep -v grep '
    alias eu="env-u"
+
 }
+
+# passing quotes is problematic
+#ci(){
+#   svn --username $USER ci $*
+#}
+
 
 
 clui-tty(){
