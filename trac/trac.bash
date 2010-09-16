@@ -985,7 +985,6 @@ EOC)
 
 trac-bitten-include(){
   local x=$(cat << EOX | tr "\n" "," 
-installation/trunk
 lcgcmt/trunk
 gaudi/trunk
 relax/trunk
