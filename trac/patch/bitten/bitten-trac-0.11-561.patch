@@ -119,19 +119,6 @@ Index: bitten/build/pythontools.py
                          value = os.path.realpath(value)
                          if value.startswith(ctxt.basedir):
                              value = value[len(ctxt.basedir) + 1:]
-Index: bitten/slave.py
-===================================================================
---- bitten/slave.py	(revision 561)
-+++ bitten/slave.py	(working copy)
-@@ -145,6 +145,8 @@
-             return os.EX_OK
- 
-         while True:
-+            socket.setdefaulttimeout(15)
-+            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
-             try:
-                 try:
-                     job_done = self._create_build()
 Index: bitten/web_ui.py
 ===================================================================
 --- bitten/web_ui.py	(revision 561)
@@ -246,6 +233,19 @@ Index: bitten/web_ui.py
 +            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
  
          return _formatter
+Index: bitten/slave.py
+===================================================================
+--- bitten/slave.py	(revision 561)
++++ bitten/slave.py	(working copy)
+@@ -145,6 +145,8 @@
+             return os.EX_OK
+ 
+         while True:
++            socket.setdefaulttimeout(15)
++            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
+             try:
+                 try:
+                     job_done = self._create_build()
 Index: bitten/report/testing.py
 ===================================================================
 --- bitten/report/testing.py	(revision 561)
@@ -266,19 +266,19 @@ Index: bitten/queue.py
 ===================================================================
 --- bitten/queue.py	(revision 561)
 +++ bitten/queue.py	(working copy)
-@@ -33,6 +33,53 @@
+@@ -31,8 +31,53 @@
+ __docformat__ = 'restructuredtext en'
+ 
  log = logging.getLogger('bitten.queue')
++non_alpnumspc = re.compile(r'[^a-zA-Z0-9_ ]+')
  
- 
-+
-+
 +def changeset_location(chgset):
 +    """ common prefix of all the new paths in the changeset """
 +    paths = []
 +    for path, kind, change, base_path, base_rev in chgset.get_changes():
 +        paths.append(path)
 +    return commonprefix( paths )
-+
+ 
 +def commonprefix(paths):
 +    import os
 +    return '/'.join(os.path.commonprefix([p.split('/') for p in paths]))
@@ -302,7 +302,7 @@ Index: bitten/queue.py
 +    return exclude != "" and is_contained( path , exclude.split(",") )
 +
 +def mxclude_( message , exclude="" ):
-+    words = message.split()
++    words = non_alpnumspc.sub('',message).split()
 +    return exclude != "" and  len( filter(lambda skip:skip in words, exclude.split(",")) ) > 0  
 +
 +
@@ -320,7 +320,7 @@ Index: bitten/queue.py
  def collect_changes(repos, config, db=None):
      """Collect all changes for a build configuration that either have already
      been built, or still need to be built.
-@@ -217,8 +264,18 @@
+@@ -217,8 +262,18 @@
          db = self.env.get_db_cnx()
          builds = []
  
@@ -339,7 +339,7 @@ Index: bitten/queue.py
              for platform, rev, build in collect_changes(repos, config, db):
  
                  if not self.build_all and platform.id in platforms:
-@@ -231,6 +288,23 @@
+@@ -231,6 +286,23 @@
                  platforms.append(platform.id)
  
                  if build is None:
@@ -363,7 +363,7 @@ Index: bitten/queue.py
                      self.log.info('Enqueuing build of configuration "%s" at '
                                    'revision [%s] on %s', config.name, rev,
                                    platform.name)
-@@ -292,10 +366,12 @@
+@@ -292,10 +364,12 @@
          # Ignore pending builds for deactived build configs
          config = BuildConfig.fetch(self.env, build.config)
          if not config.active:
@@ -377,7 +377,7 @@ Index: bitten/queue.py
              return True
  
          # Stay within the revision limits of the build config
-@@ -305,10 +381,13 @@
+@@ -305,10 +379,13 @@
                                                      build.rev)):
              # This minimum and/or maximum revision has changed since
              # this build was enqueued, so drop it
