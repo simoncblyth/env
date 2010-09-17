@@ -119,19 +119,6 @@ Index: bitten/build/pythontools.py
                          value = os.path.realpath(value)
                          if value.startswith(ctxt.basedir):
                              value = value[len(ctxt.basedir) + 1:]
-Index: bitten/slave.py
-===================================================================
---- bitten/slave.py	(revision 561)
-+++ bitten/slave.py	(working copy)
-@@ -145,6 +145,8 @@
-             return os.EX_OK
- 
-         while True:
-+            socket.setdefaulttimeout(15)
-+            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
-             try:
-                 try:
-                     job_done = self._create_build()
 Index: bitten/web_ui.py
 ===================================================================
 --- bitten/web_ui.py	(revision 561)
@@ -246,6 +233,19 @@ Index: bitten/web_ui.py
 +            return Markup("".join(buf))   ## we want the links to work ... not be escaped 
  
          return _formatter
+Index: bitten/slave.py
+===================================================================
+--- bitten/slave.py	(revision 561)
++++ bitten/slave.py	(working copy)
+@@ -145,6 +145,8 @@
+             return os.EX_OK
+ 
+         while True:
++            socket.setdefaulttimeout(15)
++            #log.info('Setting socket.defaulttimeout : %s ' , socket.getdefaulttimeout() ) 
+             try:
+                 try:
+                     job_done = self._create_build()
 Index: bitten/report/testing.py
 ===================================================================
 --- bitten/report/testing.py	(revision 561)
@@ -355,9 +355,9 @@ Index: bitten/queue.py
 +                    chgset = repos.get_changeset(rev)
 +                    ok, msg = accept_( chgset , include_paths , exclude_paths, exclude_words )
 +                    if ok:
-+                        self.log.info('accepting Enqueing chgset %s %s .. %s ', rev, location, msg)
++                        self.log.info('accepting Enqueing chgset %s .. %s ', rev, msg)
 +                    else:
-+                        self.log.info('rejecting Enqueing chgset %s %s .. %s ', rev, location, msg)
++                        self.log.info('rejecting Enqueing chgset %s .. %s ', rev, msg)
 +                        continue
 +                
                      self.log.info('Enqueuing build of configuration "%s" at '
