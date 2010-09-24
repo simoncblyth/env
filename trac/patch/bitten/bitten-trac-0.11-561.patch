@@ -237,7 +237,17 @@ Index: bitten/slave.py
 ===================================================================
 --- bitten/slave.py	(revision 561)
 +++ bitten/slave.py	(working copy)
-@@ -145,6 +145,8 @@
+@@ -115,6 +115,9 @@
+         self.poll_interval = poll_interval
+         self.dump_reports = dump_reports
+ 
++        username = username or self.config['slv.username']
++        password = password or self.config['slv.password']
++
+         if not self.local:
+             self.opener = urllib2.build_opener(SaneHTTPErrorProcessor)
+             password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
+@@ -145,6 +148,8 @@
              return os.EX_OK
  
          while True:
