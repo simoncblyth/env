@@ -8,12 +8,15 @@
        python %(path)s --disk=/home --maxpercent=85 --mailto=jack@%(node)s,jill@%(node)s
 
 """
-import sys, re, os, platform, logging
+import sys, re, os, platform, logging, getpass
 
 log = logging.getLogger("diskmon")
 sth = logging.StreamHandler()
 sth.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s"))
 log.addHandler(sth)
+
+
+ctx = dict( user=getpass.getuser(), node=platform.node(), path=sys.argv[0], basename=os.path.basename(sys.argv[0]) )
 
 
 class Mail(str):
@@ -40,22 +43,22 @@ class DiskMon(dict):
         Check disk usage percentage and send notification emails 
     """
     defaults =  dict(
-                     disk="/data" , 
+                     disk="/home" , 
                  loglevel="INFO", 
                maxpercent="90" , 
                   dry_run=False , 
                       msg="not-checked",
                   primitive=False,
-                   mailto="blyth@hep1.phys.ntu.edu.tw" , 
+                   mailto="%(user)s@%(node)s" % ctx , 
                   mailhost="localhost",
-                  mailfrom="diskmon@%s" % platform.node(),
-                 mailsubj="diskmon",
+                  mailfrom="%(basename)s@%(node)s" % ctx,
+                 mailsubj="%(basename)s on node %(node)s" % ctx,
                   mailbuffer=10
                  )
 
     def create(cls):
         from optparse import OptionParser
-        op = OptionParser(usage="./%prog [options] " + __doc__ % { 'path':sys.argv[0],'node':platform.node() } )
+        op = OptionParser(usage="./%prog [options] " + __doc__ % ctx )
 
         op.add_option("-d", "--disk"       , help="path to be monitored by \"df -h\", default : %default ")
         op.add_option("-x", "--maxpercent" , help="maximum allowed percentage , default : %default " )
@@ -68,6 +71,7 @@ class DiskMon(dict):
         op.add_option("-b", "--mailbuffer" , help="max number of log messages per mail, default : %default " )
         op.add_option("-j", "--mailsubj"   , help="mail subject, default : %default " )
 
+        
         op.set_defaults( **DiskMon.defaults )
         opts,args = op.parse_args() 
         
@@ -77,7 +81,7 @@ class DiskMon(dict):
 
         if not opts.primitive and not opts.dry_run:
             from buffering_smtp_handler import BufferingSMTPHandler
-            bsh = BufferingSMTPHandler( opts.mailhost, opts.mailfrom, opts.mailto.split(",") , opts.mailsubj,  opts.mailbuffer )
+            bsh = BufferingSMTPHandler( opts.mailhost % ctx, opts.mailfrom % ctx, opts.mailto.split(",") , opts.mailsubj % ctx,  opts.mailbuffer )
             bsh.setLevel(loglevel)
             log.addHandler(bsh)
 
