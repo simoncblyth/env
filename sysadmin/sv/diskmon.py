@@ -1,37 +1,19 @@
 #!/usr/bin/env python
 """
-   Starting point for a Disk usage monitor ...
 
-    TODO :
-          * hostname, date identification in notifications 
-          * turn into supervisord event listener 
-               * http://supervisord.org/events.html#event-listeners-and-event-notifications
 
 """
-
 import sys, re, os
+import logging
 
-def write_stdout(s):
-    sys.stdout.write(s)
-    sys.stdout.flush()
-
-def write_stderr(s):
-    sys.stderr.write(s)
-    sys.stderr.flush()
-
-def _main():
-    while 1:
-        write_stdout('READY\n') # transition from ACKNOWLEDGED to READY
-        line = sys.stdin.readline()  # read header line from stdin
-        write_stderr(line) # print it out to stderr
-        headers = dict([ x.split(':') for x in line.split() ])
-        data = sys.stdin.read(int(headers['len'])) # read the event payload
-        write_stderr(data) # print the event payload to stderr
-        write_stdout('RESULT 2\nOK') # transition from READY to ACKNOWLEDGED
+log = logging.getLogger("diskmon")
+hdl = logging.StreamHandler()
+hdl.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s-%(message)s"))
+log.addHandler(hdl)
 
 class Mail(str):
     sendmail = '/usr/sbin/sendmail -t -i'
-    def __call__(self, email ):
+    def send(self, email ):
         body =  'To: %s\n' % email
         body += 'Subject: %s\n' % self.split("\n")[0]
         body += '\n'
@@ -40,42 +22,58 @@ class Mail(str):
         m.write(body)
         m.close()
 
+    def __call__( self , recipients ):
+        for recipient in recipients.split(","):
+            self.send( recipient )    
+
 class DiskMon(dict):
     """
         Check disk usage percentage and send notification emails 
     """
-    defaults =  dict(disk="/data" , maxpercent="90" , interactive=True, notify="blyth@hep1.phys.ntu.edu.tw" , msg="DEFMSG" )
-
+    defaults =  dict(disk="/data" , loglevel="INFO", maxpercent="90" , dry_run=True , notify="blyth@hep1.phys.ntu.edu.tw" , msg="not-checked" )
+    def create(cls):
+        from optparse import OptionParser
+        op = OptionParser(usage="./%prog [options] ")
+        op.add_option("-d", "--disk"       , help="path to be monitored by \"df -h\", default : %default ")
+        op.add_option("-x", "--maxpercent" , help="maximum allowed percentage , default : %default " )
+        op.add_option("-e", "--notify"     , help="comma delimited list of email addresses, default : %default " )
+        op.add_option("-l", "--loglevel"   , help="logging level : INFO, DEBUG, WARN etc.. , default : %default " )
+        op.add_option("-n", "--dry-run"    , action="store_true" , help="do not send emails, for debugging, default : %default " )
+        op.set_defaults( **DiskMon.defaults )
+        opts,args = op.parse_args() 
+        
+        loglevel = getattr(logging,opts.loglevel.upper()) 
+        log.setLevel(loglevel)
+        hdl.setLevel(loglevel)
+        return cls(vars(opts))
+    create = classmethod(create)
+ 
     _command = "df -h %(disk)s "
-    _percent = re.compile("(\d+)%")
-    _warning = """DiskMon %(disk)s %(maxpercent)s %(msg)s"""
-
     command = property( lambda self:self._command % self )
-    percent = property( lambda self:self._percent.findall( os.popen(self.command).read() )[0] )
-    warning = property( lambda self:self._warning % self )
+
+    def get_percent(self):
+        if not self.has_key('percent'):
+            self['percent'] = re.compile("(\d+)%").findall( os.popen(self.command).read() )[0] 
+        return self['percent']
+    percent = property( get_percent )
+    inlimit = property( lambda self:self.percent < self['maxpercent'] )
     
+    def __repr__(self):
+        return """DiskMon %(disk)s : %(msg)s : %(maxpercent)s""" % self
+
     def __call__(self):
-        p = self.percent
-        ok = p < int(self['maxpercent']) 
-        self.update( msg = (" percentage %s EXCEEEDS LIMIT ", " percentage %s within limit " )[ok] % p ) 
-        Mail( self.warning )( self['notify'] )    
+        log.debug( self )
+        if not self.inlimit:
+            self.update(msg="percentage %s EXCEEDS LIMIT" % self.percent ) 
+            log.error( self ) 
+            Mail(self)(self["notify"])
+        else:
+            self.update(msg="percentage %s within limit" % self.percent ) 
+            log.debug( self ) 
 
 
 if __name__ == '__main__':
-    from optparse import OptionParser
-    op = OptionParser()
-    ## fix OptionParser making it provide a dict 
-    OptionParser.optsdict = property(lambda self: dict([ (k, getattr(self.values,k) ) for k in self.defaults.keys() if hasattr(self.values, k) ]))
-
-    op.add_option("-d", "--disk" )
-    op.add_option("-x", "--maxpercent" )
-    op.add_option("-n", "--notify" )
-    op.add_option("-i", "--interactive" , action="store_true", help="command line non-listener usage for debugging" )
-
-    op.set_defaults( **DiskMon.defaults )    
-    op.parse_args() 
-
-    dm = DiskMon( **op.optsdict )
+    dm = DiskMon.create()
     dm()
 
 
