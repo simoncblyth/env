@@ -207,11 +207,10 @@ python-bindir(){
 
 
 
-
-
-
 python-site(){
-   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python$(python-major)/site-packages || python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+   [ -n "$PYTHON_SITE__" ] && echo $PYTHON_SITE__ && return
+   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/lib/python$(python-major)/site-packages && return 
+   python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"  
 }
 
 

@@ -20,7 +20,7 @@ djext-usage(){
 
 EOU
 }
-djext-dir(){ echo $(local-base)/env/django/django-command-extensions ; }
+djext-dir(){ echo $(local-base)/env/dj/django-command-extensions ; }
 djext-cd(){  cd $(djext-dir); }
 djext-mate(){ mate $(djext-dir) ; }
 djext-get(){

@@ -164,7 +164,13 @@ dj-preq-ipkg(){
 }
 
 
+dj-get-version(){
+ python -c "from django import get_version ; print get_version() "
+}
+
 dj-versions(){
+
+   dj-get-version
 
    python-
    python-versions
@@ -197,7 +203,7 @@ dj-build(){
 ## src access  ... NB the "django" link in python site-packages is the definitive chooser of django version  
 
 dj-srcurl(){  echo http://code.djangoproject.com/svn/django/trunk ; }
-dj-srcfold(){ echo $(local-base)/env/django ; }
+dj-srcfold(){ echo $(local-base)/env/dj ; }  ## rename to match this controlling script
 dj-srcnam(){  echo django ; }
 dj-ls(){      ls -l $(dj-srcfold) ; }
 dj-srcdir-(){ echo $(dj-srcfold)/$(dj-srcnam) ; }
@@ -215,8 +221,8 @@ dj-startproject(){    ## command not available if the envvar is defined
 
 dj-get(){
   local msg="=== $FUNCNAME :"
-  local dir=$(dj-srcdir-) && mkdir -p $dir && cd $dir 
-  local nam=$(basename $dir)
+  local dir=$(dj-srcfold) && mkdir -p $dir && cd $dir 
+  local nam=$(dj-srcnam)
   [ ! -d "$nam" ] && svn co $(dj-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
 }
 
@@ -233,7 +239,7 @@ dj-find(){
 dj-ln(){
   local msg="=== $FUNCNAME :"
   python-
-  python-ln $(dj-srcfold)/$(dj-srcnam)/django django   ## set the link
+  python-ln $(dj-srcdir-)/django django   ## set the link
   python-ln $(env-home) env
   python-ln $(dj-projdir)
 }
