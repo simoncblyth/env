@@ -26,6 +26,8 @@ clui-alias(){
    alias ll="ls -la "
    alias lt="ls -lt $se "
    alias p="ps aux $se"
+   alias n="nosetests"
+   alias ns="nosetests -s"
    alias st="svn st"
    alias stu="svn st -u"
    alias up="svn up"
