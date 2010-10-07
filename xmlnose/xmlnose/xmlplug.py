@@ -34,8 +34,12 @@ import inspect
 import traceback
 import time
 
+
 log =  logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+log.addHandler(ch)
 
 
 def cdata(s):
@@ -60,6 +64,7 @@ class XmlOutput(Plugin):
         group.add_option("--xml-outfile"   , default=os.environ.get('NOSE_XML_OUTFILE')  , type="string" , help="path to write xml test results to, rather than stdout, default:[%default] " ) 
         group.add_option("--xml-basepath"  , default=os.getcwd()+"/" , type="string" , help="absolute base path to be removed from paths reported in the output, defaults to invoking directory:[%default]  ")  
         group.add_option("--xml-baseprefix", default=""              , type="string" , help="replace the basepath with this prefix, default:[%default] ")
+        group.add_option("--xml-loglevel"  , default="INFO"          , type="string" , help="logging level : INFO, WARN, DEBUG ... " ) 
         fmts = ['debug','bitten']
         group.add_option("--xml-format"  ,   default=fmts[-1]  , choices=fmts , help="choose one of: %s   default:[%%default] " % ", ".join(fmts) )
         parser.add_option_group(group)
@@ -67,6 +72,9 @@ class XmlOutput(Plugin):
     def configure(self, options, config):
         log.debug("XmlOut configure")
         Plugin.configure(self, options, config)
+        loglevel = getattr( logging , options.xml_loglevel.upper() , logging.INFO ) 
+        log.setLevel( loglevel )       
+        ch.setLevel( loglevel )       
         self.config = config
         self.options = options        
 
@@ -130,6 +138,7 @@ class XmlOutput(Plugin):
         self.stack.pop() 
     def startTest(self,test):
         test.test._starttime = time.time()
+        log.debug("startTest %s %s %s " % ( test , test.test , test.test._starttime ))
         #print "startTest %s %s %s " % ( test , test.test , test.test._starttime )
     def stopTest(self,test):
         """ this is called after the test outcome is reported ... so doing duration calc here misses the boat """
