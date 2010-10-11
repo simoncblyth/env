@@ -38,7 +38,8 @@ scm-usage(){
 
              http://trac.edgewall.org/browser/branches/0.11-stable/contrib/trac-post-commit-hook
              http://trac.edgewall.org/wiki/TracFaq#can-trac-automatically-update-a-ticket-when-i-commit-a-changeset
-                     
+             
+        
                                     
         NOTES ...
            * transition from old to new is as yet incomplete          
