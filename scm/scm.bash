@@ -30,6 +30,14 @@ scm-usage(){
       scm-rename <oldname> <newname>                  
 
 
+      scm-postcommit <name>
+
+          Creates or replaces the svn post-commit hook with the trac 0.11 contrib supplied
+          trac-post-commit-hook that supports auto referencing/closing of tickets according 
+          to SVN commit messages. 
+
+             http://trac.edgewall.org/browser/branches/0.11-stable/contrib/trac-post-commit-hook
+             http://trac.edgewall.org/wiki/TracFaq#can-trac-automatically-update-a-ticket-when-i-commit-a-changeset
                      
                                     
         NOTES ...
@@ -122,7 +130,7 @@ scm-postcommit(){
    local cmd="sudo diff $path $tmp"
    echo $msg $cmd
    eval $cmd    
-
+   
    cmd="sudo cp $tmp $path "
    local ans
    read -p "$msg enter YES to proceed with : $cmd : " ans
