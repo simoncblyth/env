@@ -80,6 +80,8 @@ sqlite-home(){
    esac
 }
 
+sqlite-libdir(){ echo $(sqlite-home)/lib ; }
+
 sqlite-env(){
 
    elocal-

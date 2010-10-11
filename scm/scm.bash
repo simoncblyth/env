@@ -116,6 +116,7 @@ scm-postcommit(){
    mkdir -p $(dirname $tmp)
    trac-
    tractrac-
+   sqlite-
    scm-postcommit- > $tmp
 
    local cmd="sudo diff $path $tmp"
@@ -143,7 +144,7 @@ scm-postcommit-(){ cat << EOP
 REPOS="\$1"
 REV="\$2"
 
-export LD_LIBRARY_PATH=$(python-libdir):\$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$(sqlite-libdir):$(python-libdir):\$LD_LIBRARY_PATH
 $(which python) $(tractrac-dir)/contrib/trac-post-commit-hook -p "$(trac-envpath)" -r "\$REV"
 
 EOP
