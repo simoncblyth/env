@@ -139,6 +139,12 @@ scm-postcommit(){
    eval $cmd  
 
 
+   ## closing makes more sense to me
+   local tpch=$(tractrac-dir)/contrib/trac-post-commit-hook
+   perl -pi -e "s,'closed':,'closing':," $tpch 
+   svn diff $tpch
+
+
    local eggc=$(scm-eggcache)
    [ ! -d "$eggc" ] && mkdir $eggc && apache-chown $eggc
 
