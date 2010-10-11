@@ -133,7 +133,8 @@ scm-postcommit(){
 
    apache-
    apache-chown $path
-
+   sudo chmod ugo+x $path
+   sudo ls -l $(dirname $path)
 }
 
 
