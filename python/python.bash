@@ -35,8 +35,8 @@ cat << EOU
         does no harm to run this more that once ...
         === env-ldconfig : the dir /data/env/system/python/Python-2.5.1/lib is already there /etc/ld.so.conf
          
-    python-cd     
-       cd $(python-site)  
+    python-cd <rel>    
+       cd $(python-site)/<rel>  
 
 
     python-mail 
@@ -117,7 +117,7 @@ python-mode-default(){
 
 
 python-cd(){
-   cd $(python-site)
+   cd $(python-site)/$1
 }
 
 python-name(){ echo Python-$(python-version) ; }

@@ -143,7 +143,7 @@ dj-preq-port(){
     [ "$(which ipython)" != "/opt/local/bin/ipython" ]            && sudo port install py25-ipython -scientific
 
     [ "$(which mysql5)" != "/opt/local/bin/mysql5" ]              && sudo port install mysql5
-    [ ! -f "/opt/local/lib/python2.5/site-packages/_mysql.so" ]   && sudo port install py25-mysql
+    [ ! -f "/opt/local/lib/python2.5/site-packages/_mysql.so" ]   && sudo port install py25-mysqli +mysql5
 
     [ "$(which apachectl)" != "/opt/local/bin/apachectl" ]        && sudo port install apache2
     [ ! -f "/opt/local/smth" ]                                    && sudo port install mod_python25
