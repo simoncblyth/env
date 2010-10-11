@@ -38,6 +38,13 @@ scm-usage(){
 
              http://trac.edgewall.org/browser/branches/0.11-stable/contrib/trac-post-commit-hook
              http://trac.edgewall.org/wiki/TracFaq#can-trac-automatically-update-a-ticket-when-i-commit-a-changeset
+
+      scm-postcommit-test 
+
+           test with the apache used in an empty environment ... with non existant repo paths
+           will check out the environmnent details such as : python libs, sqlite libs, python egg cache 
+   
+
        
         NOTES ...
            * transition from old to new is as yet incomplete          
