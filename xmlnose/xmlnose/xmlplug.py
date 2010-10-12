@@ -32,6 +32,7 @@ from nose.core import run
 # new callable access approach for 0.11.2
 from nose.util import resolve_name
 
+from report import status_report
 
 from stack import Stack, tb_iter, tb_filename, exception_lines, source_range 
 import inspect
@@ -104,6 +105,8 @@ class XmlOutput(Plugin):
         if self.options.xml_outfile!=None:
             outpath = os.path.abspath(self.options.xml_outfile)
             self.write_out( outpath )
+            self.stream.writeln("calling status_report\n")
+            status_report( outpath )
         else:
             for l in self.xml:
                 self.stream.writeln(l)
