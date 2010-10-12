@@ -9,58 +9,41 @@
 
 """
 
-class Test:
+class Test(object):
     def __init__(self, t ):
         self.t = t 
 
-    def hdr( self ):
+    def _hdr( self ):
         hdr = '#' * 10 
-        for k in 'name status duration file'.split():
-            hdr += " %s:%s " % ( k , self.t.get(k) ) 
+        hdr += "".join( [" %s:%s " % ( k , self.t.getAttribute(k) ) for  k in 'name status duration file'.split()])
         hdr += '#' * 10 
         return hdr
+    hdr = property( _hdr )
 
-    def isfail(self):
-        return self.t.get('status') == 'failure'    
-
-    def summary(self):
-        if self.isfail():
-            print "%s\n" % self.hdr()
-            print self.t.findtext('stdout')
+    def _stdout(self):
+        return self.t.getElementsByTagName("stdout")[0].childNodes[0].nodeValue     
+    stdout = property( _stdout )
+    isfail = property( lambda self:self.t.getAttribute('status') == 'failure' )   
+    def __repr__(self):
+        return "\n".join( [self.hdr, self.isfail and self.stdout or "" ]) 
 
 
 def status_report(path):
-    import xml.etree.cElementTree as et
+    from xml.dom.minidom import parse
     try:
-        r = et.parse(path).getroot() 
+        tests = parse(path).getElementsByTagName("test") 
     except:
-        print "ERROR: failed to parse %s " % path
-        return 3 
-
-    for t in r:
-        test = Test(t) 
-        test.summary()
-    return 0
+        return "ERROR: failed to parse %s " % path
+    return "\n".join([repr(t) for t in filter( lambda _:_.isfail, map(lambda _:Test(_),tests))])
 
 
 def main(args):
-    if len(args)==0:
-        return 1
-    
-    import os
-    path = args[0]
-    if not(os.path.exists(path)):
-        print "ERROR: no such path %s " % path
-        return 2 
-    return status_report( path )   
+    assert len(args)==1
+    print status_report( args[0] )   
    
-
 if __name__=='__main__':
     import sys
-    rc = main(sys.argv[1:])
-    if rc!=0:
-        print sys.modules[__name__].__doc__
-    sys.exit(rc) 
+    sys.exit(main(sys.argv[1:]))
 
 
 
