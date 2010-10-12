@@ -105,8 +105,8 @@ class XmlOutput(Plugin):
         if self.options.xml_outfile!=None:
             outpath = os.path.abspath(self.options.xml_outfile)
             self.write_out( outpath )
-            self.stream.writeln("calling status_report\n")
-            status_report( outpath )
+            self.stream.writeln("xmlnose status_report for %s\n" % outpath )
+            self.stream.write( status_report( outpath ) )
         else:
             for l in self.xml:
                 self.stream.writeln(l)
