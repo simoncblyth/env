@@ -29,6 +29,10 @@ from nose.plugins import Plugin
 from nose.inspector import inspect_traceback
 from nose.core import run
 
+# new callable access approach for 0.11.2
+from nose.util import resolve_name
+
+
 from stack import Stack, tb_iter, tb_filename, exception_lines, source_range 
 import inspect
 import traceback
@@ -190,7 +194,12 @@ class XmlOutput(Plugin):
                
         path, module, call = test.address()
         path = path.replace('.pyc','.py') 
-        
+       
+        _module = resolve_name( module )
+        assert _module , "failed to resolve module from %s " % module
+        _callable = getattr( _module , call ) 
+        assert _callable , "failed to access callable from %s " % call
+ 
         x = []
         if self.options.xml_format=='bitten0':
             x.append("<test>")
@@ -203,7 +212,7 @@ class XmlOutput(Plugin):
         else:
             assert False,  "xmlformat not allowed %s " % self.options.xml_format
         x.append("<fixture>%s</fixture>" % tid )
-        x.append("<range>%s</range>" % source_range( callable ))
+        x.append("<range>%s</range>" % source_range( _callable ))
         if  err!=None:      
             x.append("<stdout><![CDATA[%s]]></stdout>" % '\n'.join(traceback.format_exception(*err))  )        
             x.append("<lines>%s</lines>" %  " ".join([str(l) for l in exception_lines(err,path)]))

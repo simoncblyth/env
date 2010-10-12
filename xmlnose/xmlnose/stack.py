@@ -33,6 +33,8 @@ def exception_lines(err , path ):
    
 def source_range( callable ):
     """ inspect the source code of the callable to determine unity based line range in the file  """
+    if not callable:
+        return "0-0" 
     lines, offset = inspect.getsourcelines( callable )
     return "%d-%d" % ( offset , offset+len(lines) )
 
