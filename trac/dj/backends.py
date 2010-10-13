@@ -14,13 +14,34 @@ def basic_check_password( auth_user_file , username , password ):
     """
     ba = BasicAuthentication( auth_user_file )
     return ba.test( username , password )
+        
 
-def encrypted_password(password):
+
+## MySQL 41 char password() correspond to this  
+from hashlib import sha1
+mysql_password41_ = lambda pw:"*"+sha1(sha1(pw).digest()).hexdigest().upper()
+
+
+def mysql_password(password):
     """
         Setting the django User password to the mysql encrypted password
         even though django will not be looking at this for authentication, can 
         make use of this for generation of mysql user grant scripts ... allowing 
         to propagate to mysql users
+
+          FOR BETTER SECURITY CHECK YOU DO NOT HAVE old_passwords=1 in /etc/my.cnf 
+              * at expense of loosing compatibility pre 4.1
+              * http://dev.mysql.com/doc/refman/5.1/en/password-hashing.html
+       
+               echo "select password('hello')" | mysql 
+                   password('hello')
+                   70de51425df9d787
+        
+               echo "select password('hello')" | mysql 
+                   password('hello')
+                   *6B4F89A54E2D27ECD7E8DA05B4AB8FD9D1D8B119
+      
+
     """
     assert settings.DATABASE_ENGINE == 'mysql'
     cursor = connection.cursor()
@@ -68,7 +89,7 @@ class AuthUserFileBackend(ModelBackend):
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
-                user = User(username=username, password=encrypted_password(password))
+                user = User(username=username, password=mysql_password(password))
                 user.is_staff = True   ## MUST TO staff TO ENABLE ACCESS TO ADMIN SITE 
                 user.is_superuser = False
                 user.save()

@@ -92,8 +92,8 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'run',
-    'abtruninfo',
+    'runinfo.run',
+    'runinfo.abtruninfo',
     'django_extensions',
     'celery',
 )
