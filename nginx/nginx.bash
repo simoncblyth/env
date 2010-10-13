@@ -129,7 +129,8 @@ nginx-diff(){  sudo diff $(nginx-conf).default $(nginx-conf) ; }
 
 
 nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
-nginx-conf(){    echo $(nginx-prefix $*)/etc/nginx/nginx.conf ; }
+nginx-confd(){    echo $(nginx-prefix $*)/etc/nginx ; }
+nginx-conf(){    echo $(nginx-confd $*)/nginx.conf ; }
 
  ## Since version 0.6.7 the filename path is relative to directory of nginx configuration file nginx.conf, but not to nginx prefix 
 nginx-users(){   echo $(nginx-prefix)/etc/nginx/users.txt ; }

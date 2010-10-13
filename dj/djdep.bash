@@ -170,7 +170,8 @@ sudo chcon -R -t httpd_sys_content_t $(env-home)
 
 
 
-djdep-confname(){ echo 50-django.conf ; }
+#djdep-confname(){ echo 50-django.conf ; }
+djdep-confname(){ echo $(dj-project).conf ; }
 
 djdep-eggcache-prep(){
     local tmp=/tmp/env/$FUNCNAME/$USER && mkdir -p $tmp && echo $tmp
@@ -203,6 +204,7 @@ djdep-deploy(){
 djdep-server(){ 
    case ${1:-$NODE_TAG} in
       U|G) echo lighttpd  ;;
+        C) echo nginx ;;
         *) echo apache ;;
    esac
 }
@@ -304,6 +306,27 @@ url.rewrite-once += (
 
 EOC
 }
+
+
+
+
+djdep-location-nginx-(){ cat << EOC
+
+location /media {
+     alias $(python-site)/django/contrib/admin/media;
+}
+
+location $(dj-urlroot) {
+      #auth_basic            "Restricted";
+      #auth_basic_user_file  users.txt;
+      fastcgi_pass   unix:$(djdep-socket);
+      include fastcgi_params;
+}
+
+
+EOC
+}
+
 
 
 
