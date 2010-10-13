@@ -19,25 +19,26 @@ class VolMatcher(Matcher):
     """
    
     patns = (
-               ( 'SKIP'      , re.compile("(?P<all>logic.*|Lead.*|Worldmuon.*|Door.*|inner_log.*|Lowermuon_log_0)$") , { 'color':kOrange } ),
+               ( 'SKIP'      , re.compile("(?P<all>logic.*|Lead.*|Worldmuon.*|Door.*|inner_log.*|Lowermuon_log_0|reflectivelayer_log_0)$") , { 'color':kOrange } ),
 #
-               ( 'L0'        , re.compile("(?P<all>2m_Proportional_Tube_Gas_1[6-8][0-9])$")           , { 'color':kRed    }  ),
-               ( 'L1'        , re.compile("(?P<all>2m_Plastic_Scintillator_log_1[2-4][0-9])$")        , { 'color':kGreen  }  ),  
-               ( 'L2'        , re.compile("(?P<all>2m_Proportional_Tube_Gas_(9[6-9]|1[0-1]\d))$")     , { 'color':kPink   }  ),
-               ( 'L3'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_[6-8]\d)$")          , { 'color':kYellow }  ),     
-               ( 'L4'        , re.compile("(?P<all>2m_Proportional_Tube_Gas_(3[2-9]|[4-5]\d))$")      , { 'color':kBlue   }  ),
-               ( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(\d|1[0-4]))$")        , { 'color':kTeal   }  ),
-               ( 'L6'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(1[5-9]|2\d))$")       , { 'color':kSpring }  ),
-#
-               ( 'FILM'      , re.compile("(?P<all>(?P<pos>top|bot)_film_log_0)$")                   , { 'color':kViolet } ),                   
+               
+               	( 'L1'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_[0-9])$")    	, { 'color':kGreen  }  ),  
+		( 'L0'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(1[6-9]|2[0-5]))$")      	, { 'color':kBlue   }  ),
+ 		( 'L2'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(3[2-9]|4[0-1]))$")          	, { 'color':kYellow }  ),  
+               	( 'L3'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(4[8-9]|5[0-7]))$")     	, { 'color':kPink   }  ),
+               	( 'L6'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(6[4-9]|7[0-3]))$")    , { 'color':kTeal   }  ),
+               	#( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(14[3-9]|15[0-7]))$")      , { 'color':kSpring }  ),
+		( 'L5'        , re.compile("(?P<all>2m_Plastic_Scintillator_log_(8[0-9]|9[0-3]))$")           	, { 'color':kRed    }  ),
+#         
+               ( 'FILM'      , re.compile("(?P<all>(?P<pos>top|bot)_film_log_([0-1]))$")                   , { 'color':kViolet } ),                   
                ( 'WRLD'      , re.compile("(?P<all>World_1|Worldneutron_log_0|expHall_log_0)$")      , { 'color':kGray   } ),
                ( 'SST'       , re.compile("(?P<all>steeltank_log_0)$")                               , { 'color':kTeal   } ),
                ( 'TOPS'      , re.compile("(?P<all>outer_log_0|acrylictank_log_0)$")                 , { 'color':kSpring } ),
-               ( 'PS1'       , re.compile("(?P<all>1m_Plastic_Scintillator_log_(?P<id>\d*))$")       , { 'color':kRed    } ),
+               ( 'PS1'       , re.compile("(?P<all>1m_Plastic_Scintillator_log_(?P<id>\d*))$")       , { 'color':kWhite    } ),
                ( 'PS15'      , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(?P<id>\d*))$")     , { 'color':kGreen  } ),
-               ( 'PT2'       , re.compile("(?P<all>2m_Proportional_Tube_Gas_(?P<id>\d*))$")          , { 'color':kPink   } ),
-               ( 'PT2F'      , re.compile("(?P<all>2m_Proportional_Tube_(?P<id>\d*))$")              , { 'color':kYellow } ), 
-               ( 'PS2'       , re.compile("(?P<all>2m_Plastic_Scintillator_log_(\d*))$")             , { 'color':kBlue   } ),   ## same name for leaf and its folder 
+               ( 'PT2'       , re.compile("(?P<all>2m_Proportional_Tube_Gas_(?P<id>\d*))$")          , { 'color':kBlack   } ),
+               ( 'PT2F'      , re.compile("(?P<all>2m_Proportional_Tube_(?P<id>\d*))$")              , { 'color':kPink } ), 
+               ( 'PS2'       , re.compile("(?P<all>2m_Plastic_Scintillator_log_(\d*))$")             , { 'color':kViolet   } ),   ## same name for leaf and its folder 
 #   
                ( 'catchall'  , re.compile("(?P<all>.*$)")                                            , { 'color':kAzure  } ),
             )

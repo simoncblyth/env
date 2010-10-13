@@ -80,7 +80,7 @@ class Controller(EvController):
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
         
-        self.digi = EvDigi(pmtmin=0, pmtmax=600)   ## range for palette coloring 
+        self.digi = EvDigi(pmtmin=0, pmtmax=1000)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
         for elem in self.digi:
@@ -215,7 +215,8 @@ if __name__=='__main__':
     from ROOT import g_
 
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
-    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
+    #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
+    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     
     #g.SetSource( repr(online) )

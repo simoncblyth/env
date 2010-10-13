@@ -123,7 +123,7 @@ class EvDataModel(DataModel):
     def tracker_hits(self, random=None):
         hp = None
         if random:
-            hp = ROOT.AbtTrackerHitPattern()
+            hp = ROOT.AbtMtHitPattern()
             for lay in range(7):
                 lhp = hp.Layer(lay)
                 ptn = 1 << int(random.Uniform(0, 30))
@@ -146,7 +146,7 @@ class EvDataModel(DataModel):
         if not(self.trg):return [] 
         ft = self.trg.GetTrack()
         if not(ft):return [] 
-        return [[ft.X().At(z),ft.Y().At(z),z] for z in zs]
+        return [[ft.X().At((z+118.7)*10),ft.Y().At((z+118.7)*10),z] for z in zs]
 
 
 if __name__=='__main__':
