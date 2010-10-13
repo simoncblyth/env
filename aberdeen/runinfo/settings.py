@@ -87,6 +87,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.admin',
+    'django.contrib.admindocs',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -96,3 +97,14 @@ INSTALLED_APPS = (
     'django_extensions',
     'celery',
 )
+
+
+AUTH_USER_FILE=p('AUTH_USER_FILE')
+
+AUTHENTICATION_BACKENDS = (
+    'env.trac.dj.backends.AuthUserFileBackend',
+)
+
+
+
+
