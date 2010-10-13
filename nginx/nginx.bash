@@ -78,7 +78,27 @@ nginx-sv(){
   $FUNCNAME- | sv-plus nginx.ini
 }
 
-nginx-user(){ echo nobody ; }
+nginx-user(){
+  pkgr-
+  case $(pkgr-cmd) in 
+     yum) echo nginx ;;
+       *) echo nobody ;;
+  esac 
+}
+
+nginx-group(){
+   echo $(nginx-user)
+}
+
+nginx-chown(){
+  local msg="=== $FUNCNAME :"
+  local cmd="sudo chown $(nginx-user):$(nginx-group) $* "
+  echo $msg $cmd
+  eval $cmd 
+}
+
+
+
 nginx-name(){ echo nginx-0.7.61 ; }
 nginx-url(){  echo http://sysoev.ru/nginx/$(nginx-name).tar.gz ; }
 nginx-dir(){  echo $(local-base)/env/nginx/$(nginx-name) ; }

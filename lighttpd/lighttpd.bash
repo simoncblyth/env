@@ -33,9 +33,14 @@ EOU
 lighttpd-user(){ echo lighttpd ; }
 lighttpd-group(){ echo lighttpd ; }
 
+
 lighttpd-chown(){
-   sudo chown  $(lighttpd-user):$(lighttpd-group) -R  $*
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo chown $(lighttpd-user):$(lighttpd-group) -R $* "
+   echo $msg $cmd
+   eval $cmd
 }
+
 
 lighttpd-mk-rundir(){
     sudo mkdir $(lighttpd-rundir)
