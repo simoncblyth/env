@@ -8,7 +8,6 @@ svnauthzadmin-usage(){
        Tickets ...
            * http://trac-hacks.org/query?status=!closed&component=SvnAuthzAdminPlugin&order=priority
 
-
        == experience ==
 
         * when adding a subj to a group 
@@ -21,22 +20,20 @@ svnauthzadmin-usage(){
            * the new user does not show up as an available subject to add to a group ? 
            * http://trac-hacks.org/ticket/5191 ... includes patch to get new users to show up
  
-   
       == summary ===
 
-        So the procedure to add a new user is
+        So the procedure to add a new user is :
 
-         1)  Accounts/Users      ... add the new user 
-         2)  General/Permissions ... provide the new user with some trac permission eg WIKI_VIEW
-              *   (you have to recall and retype the username) 
+         1) Accounts/Users               ... add the new user 
+         2) Subversion/Subversion Access ....  pick a group and add the new user "subject" to it
 
-         3) Subversion/Subversion Access ....  pick a group and add the new user "subject" to it
+       Without the users list patch there is an extra step ...
+
+          1.5)  General/Permissions ... provide the new user with some trac permission eg WIKI_VIEW
+                   *(you have to recall and retype the username) 
 
 
      == todo ==
-
-         * invesigate patch in tkt 5191 to avoid step 2   
-
 
 
  
