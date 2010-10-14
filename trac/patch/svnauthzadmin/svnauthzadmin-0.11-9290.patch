@@ -1,0 +1,23 @@
+Index: svnauthz/admin_ui.py
+===================================================================
+--- svnauthz/admin_ui.py	(revision 9290)
++++ svnauthz/admin_ui.py	(working copy)
+@@ -310,15 +310,14 @@
+ 
+     def _get_all_users(self):
+       """
+-      Fetches all users/groups from PermissionSystem
++      Fetches all users/groups 
+       """
+-      perm = PermissionSystem(self.env)
+       users = ["*"]
+-      data = perm.get_all_permissions()
++      data = self.env.get_known_users() 
+       if not data:
+         return [] # we abort here
+ 
+-      for (subject, action) in data:
++      for (subject, name, email) in data:
+         if subject not in users and subject not in ["anonymous", "authenticated"]:
+           users.append(subject)
+       return users	
