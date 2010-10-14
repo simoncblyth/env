@@ -1,112 +1,256 @@
 #!/usr/bin/env python
 """
+   When invoked as a script determines if the 
+   configuration named in the single argument exists.
 
-   DBConf is deprecated after discovering similar capabilities
-   in MySQLdb  :
-      * read_default_file 
-      * read_default_group   
-       
-   Using these allow a single config file  ~/.my.cnf
-   to be used from both command line mysql client 
-   and python      
-
-
-
-
-
-   Preview environment setup read from .ini 
-       ./dbconf.py --path demo.ini --sect testdb  
-
-   Equip your environment with ENV_TSQL_ envvars 
-   by placing the below into your .bash_profile where the section name
-   matches a section name in your $HOME/.dybdb.ini
- 
-       eval $(./dbconf.py --sect testdb  )
+   Usage example : 
+      python %(path)s configname  && echo configname exists || echo no configname
 
 """
-import os
 
+import os
 class DBConf(dict):
     """
         Reads ini format config file from <path>, storing key,value pairs 
-        from <section> into this dict     
+        from <section> into this dict. For example using default <path> 
+        of ~/.my.cnf :
+
+          [testdb]
+          host      = dybdb1.ihep.ac.cn
+          database  = testdb
+          user      = dayabay
+          password  = youknowoit
+
+    
         The standard python ConfigParser module is used
             http://docs.python.org/library/configparser.html
         which supports %(name)s style replacements in other values 
  
         Usage example :
-             cfg = DBConf(path=os.path.expanduser('~/.dybdb.ini') , sect="testdb" , epfx=None )
+             dbc = DBConf(sect="client", path="~/.my.cnf" ) 
 
         NB as the config file contains passwords it needs to be treated with care
-            * protect it with chmod go-rw (this is enforced )
             * DO NOT COMMIT into any repository 
 
-        If epfx is supplied and it matches the start of the keys, then the key, value
-        pair is exported into the envriroment.
-
     """
+    defaults = { 
+                 'path':"/etc/my.cnf:$SITEROOT/../.my.cnf:~/.my.cnf", 
+                 'sect':"offline_db",
+                 'host':"%(host)s", 
+                 'user':"%(user)s", 
+                   'db':"%(database)s", 
+                 'pswd':"%(password)s",
+                  'url':"mysql://%(host)s/%(database)s", 
+                  'fix':None,
+               }
 
-    def __init__(self, *args, **kwa ):
-
-        path = kwa.get('path', None)
-        sect = kwa.get('sect', None)
-        epfx = kwa.get('epfx', None)
-        src  = kwa.get('src' , None)
-        
-        from ConfigParser import ConfigParser
-        cfg = ConfigParser()
-        cfg.optionxform = str   ## avoid lowercasing keys, making the keys case sensitive
-
-        if not(src):
-            ## make sure the config file exists and has appropriate permissions 
-            assert os.path.exists( path ), "config path %s does not exist " % path
-            from stat import S_IMODE, S_IRUSR, S_IWUSR
-            s = os.stat(path)
-            assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions, config file must be protected with : chmod go-rw \"%s\" " %  path
-            cfg.read(path)
+    def Export(cls, sect=None , **extras ):
+        """
+             for export into env of python process 
+             CAUTION : this class method is invoked by the C++ DbiCascader ctor 
+        """
+        cnf = DBConf( sect=sect )  
+        if cnf.fix == None:
+            cnf.export_to_env(**extras)
         else:
-            from StringIO import StringIO
-            cfg.readfp( StringIO(src) )
+            from dbcas import DBCas
+            cas = DBCas(cnf)
+            tas = cas.spawn()
+            cnf.export_to_env( supplier=tas )                
+        return cnf
+        #print dbc.dump_env()
+    Export = classmethod( Export )
 
-        secs = cfg.sections()
-        assert sect in secs , "section %s is not one of these : %s configured in %s " % (sect,  secs, path ) 
-        for k in cfg.options(sect):
-            v = cfg.get(sect,k)
-            self[k] = v
-            if epfx and k.startswith(epfx):os.environ[k] = v
-    
-        self.cfg = cfg
+    def __init__(self, sect=None , path=None , user=None, pswd=None, url=None , host=None, db=None , fix=None, verbose=False, secure=False, from_env=False ): 
+        """
+
+           Documented in the Database/Running section of the Offline User Manual 
+
+           Interpolates the DB connection parameter patterns gleaned 
+           from arguments, envvars or defaults (in that precedence order)
+           into usable values using the context supplied by the 
+           <sect> section of the ini format config file at <path>
+
+
+            Arguments 
+                  sect : section in config file
+                  path : path to config file 
+                  user : username 
+                  pswd : password
+                  url  : connection url
+                  host : db host 
+                  db   : db name
+                  fix  : triggers fixture loading into tmporary 
+                         spawned cascade and specifies paths to fixture files
+                         for each member of the cascade (semi-colon delimited)  
+
+            Envvars
+                 DBCONF        points to section in config file 
+                 DBCONF_PATH   accept a colon delimited list of paths 
+                 DBCONF_USER
+                 DBCONF_PWSD
+                 DBCONF_URL
+                 DBCONF_HOST
+                 DBCONF_DB
+                 DBCONF_FIX
+
+            The "DBCONF" envvar existance also triggers the 
+            DybPython.DBConf Export in the DbiCascader.cxx code
+
+            The DBCONF_PATH is a colon delimited list of paths that are 
+            user (~) and $envvar OR ${envvar} expanded, some of the paths 
+            may not exist.  When there are repeated settings in more than one
+            file the last one wins.
+
+            In secure mode a single protected config file is required, the security 
+            comes with a high price in convenience
+
+        """
+
+        self.secure = secure
+        self.verbose = verbose
+
+        sect   = sect    or os.environ.get('DBCONF',      DBConf.defaults['sect'] ) 
+        path   = path    or os.environ.get('DBCONF_PATH', DBConf.defaults['path'] ) 
+        user   = user    or os.environ.get('DBCONF_USER', DBConf.defaults['user'] ) 
+        pswd   = pswd    or os.environ.get('DBCONF_PSWD', DBConf.defaults['pswd'] ) 
+        url    = url     or os.environ.get('DBCONF_URL',  DBConf.defaults['url'] ) 
+        host   = host    or os.environ.get('DBCONF_HOST', DBConf.defaults['host'] ) 
+        db     = db      or os.environ.get('DBCONF_DB'  , DBConf.defaults['db'] ) 
+        fix    = fix     or os.environ.get('DBCONF_FIX' , DBConf.defaults['fix'] ) 
+  
+        if self.secure:
+            self._check_path( path )
+        if not from_env:
+            self.configure( sect, path ) 
+ 
         self.sect = sect
         self.path = path
-        self.epfx = epfx
+        self.user = user
+        self.pswd = pswd
+        self.url  = url
+        self.host = host
+        self.db   = db
+        self.fix  = fix
 
-    def __repr__(self):
-        return "# ./dbconf.py --path %s --sect %s --epfx %s " % ( self.path, self.sect, self.epfx ) 
+    def mysqldb_parameters(self):
+        #return dict(read_default_file=self.path, read_default_group=self.sect)
+        d = dict(host=self.host % self, user=self.user % self, passwd=self.pswd % self, db=self.db % self ) 
+        if self.verbose:
+            print "dbconf : connecting to %s " % dict(d, passwd="***" )
+        return d
+     
 
-    def export(self, shell='bash'):
-        epfx = self.epfx
-        o = []
-        for k,v in self.items():
-            if epfx and k.startswith(epfx):o.append( "export %s='%s' " % (k, v) )
-        return ";".join(o)
+    def _check_path(self, path ):
+        """
+              Check existance and permissions of path 
+        """ 
+        assert os.path.exists( path ), "config path %s does not exist " % path
+        from stat import S_IMODE, S_IRUSR, S_IWUSR
+        s = os.stat(path)
+        assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions, config file must be protected with : chmod go-rw \"%s\" " %  path
 
+    def configure( self, sect, path ):
+        cfp, paths = DBConf.read_cfg( path )
+        secs = cfp.sections()
+        print "dbconf : reading config from section \"%s\" obtained from %s (last one wins)  " % ( sect, repr(paths) ) 
+        assert sect in secs  , "section %s is not one of these : %s configured in %s " % ( sect,  secs, paths ) 
+        self.update( cfp.items(sect) )
+
+    def dump_env(self, epfx='env_'):
+        e = {}
+        for k,v in os.environ.items():
+            if k.startswith(epfx.upper()):e.update({k:v} )   
+        return e
+
+
+    urls  = property( lambda self:(self.url  % self).split(";") )
+    users = property( lambda self:(self.user % self).split(";") )
+    pswds = property( lambda self:(self.pswd % self).split(";") )
+    fixs  = property( lambda self:(self.fix  % self).split(";") )
+
+    def from_env(cls):
+        """
+            could also reconstruct from a live gDbi.cascader
+        """
+        url  = os.environ.get( 'ENV_TSQL_URL', None )
+        user = os.environ.get( 'ENV_TSQL_USER', None )
+        pswd = os.environ.get( 'ENV_TSQL_PSWD', None )
+        assert url and user and pswd , "DBConf.from_env reconstruction requites the ENV_TSQL_* "
+        cnf = DBConf(url=url, user=user, pswd=pswd,from_env=True)
+        return cnf
+    from_env = classmethod(from_env)
+
+
+    def export_(self, **extras):
+        """
+            Exports the interpolated DBCONF_* into 
+            corresponding envvars :
+
+                ENV_TSQL_*   for access to DBI tables via DatabaseInterface 
+                DYB_DB_*     for access to non-DBI tables via DatabaseSvc
+
+        """ 
+        supplier = extras.pop('supplier', None )
+        if supplier:
+            print "export_ supplier is %s " % supplier
+        else:
+            supplier = self
+
+        self.export={}
+	self.export['ENV_TSQL_URL'] =  supplier.url  % self 
+        self.export['ENV_TSQL_USER'] = supplier.user % self 
+        self.export['ENV_TSQL_PSWD'] = supplier.pswd % self 
+
+        self.export['DYB_DB_HOST']   = supplier.host % self
+        self.export['DYB_DB_NAME']   = supplier.db   % self
+        self.export['DYB_DB_USER']   = supplier.user % self
+        self.export['DYB_DB_PSWD']   = supplier.pswd % self
+      
+        for k,v in extras.items():
+            self.export[k] = v % self 
+
+
+    def read_cfg( cls , path=None ):
+        """
+              Read section from the config into self
+        """
+        path = path or os.environ.get('DBCONF_PATH', DBConf.defaults['path'] ) 
+        from ConfigParser import ConfigParser
+        cfp = ConfigParser(DBConf.prime_parser())
+        cfp.optionxform = str   ## avoid lowercasing keys, making the keys case sensitive
+        paths = cfp.read( [os.path.expandvars(os.path.expanduser(p)) for p in path.split(":")] )   
+        return cfp, paths
+    read_cfg = classmethod( read_cfg )
+
+
+    def has_config( cls , name ):
+        """ return if the named config is available in any of the available DBCONF files """ 
+        cfp, paths = DBConf.read_cfg()
+        return name in cfp.sections() 
+    has_config = classmethod( has_config ) 
+
+    def prime_parser( cls ):
+        """
+             prime parser with "today" to allow expansion of 
+              %(today)s in ~/.my.cnf
+             allowing connection to a daily recovered database named after todays date
+        """
+        from datetime import datetime
+        return dict(today=datetime.now().strftime("%Y%m%d"))
+    prime_parser = classmethod( prime_parser )
+
+
+    def export_to_env(self, **extras):
+        self.export_(**extras)
+        print "dbconf:export_to_env from %s section %s " % ( self.path, self.sect ) 
+        os.environ.update(self.export) 
+        if self.verbose:
+            print " ==> %s " % dict(self.export, ENV_TSQL_PSWD='***', DYB_DB_PSWD='***' ) 
 
 
 if __name__=='__main__':
+    import sys
+    assert len(sys.argv) == 2 , __doc__ % { 'path':sys.argv[0] }
+    sys.exit( not(DBConf.has_config(sys.argv[1])) )
 
-    from optparse import OptionParser
-    parser = OptionParser()
-    defaults = { 'path':os.path.expanduser('~/.dybdb.ini') , 'sect':"testdb" , 'epfx':"ENV_TSQL_" }
-
-    parser.add_option("-p", "--path", dest="path", help="path to ini file, default: %s " % defaults['path'], metavar="PATH")
-    parser.add_option("-s", "--sect", dest="sect", help="active section in the ini file, default: %s " % defaults['sect'], metavar="SECT")
-    parser.add_option("-e", "--epfx", dest="epfx", help="export envvars with names starting with this prefix, default: %s  " % defaults['epfx'] , metavar="EPFX")
-    parser.set_defaults( **defaults )
-    (opts, args) = parser.parse_args()
-
-    cfg = DBConf( path=opts.path , sect=opts.sect , epfx=opts.epfx )  
-    print cfg.export(), cfg
-
-
-
-  
