@@ -1,0 +1,55 @@
+= Overview dybprj =
+
+'''dybprj''' is an umbrella/skeleton django project destined for source:dybgaudi/trunk/Utilities/DybPrj
+    * via AuthUserFileBackend provides extrapolated Trac/SVN Users
+    * where to put ? project OR app ? in general minimise whats in the project 
+    
+== ugo (user-group-other) app ==
+
+    * generic thinking : 
+       * control actions on resources (such as Databases, Tables ) 
+       * aping unix permissions ? user-group-other
+
+    * in particular ...
+        * provide high level control of offline_db Table permissions
+           * ie respond to logged changes to a high level model (ie User added to Group with write permission for Table )  
+             issue the needed GRANTS/REVOKES to the offline_db
+        * user profiles 
+           * view group memberships and permissions of User 
+ 
+
+   NEXT STEPS ...
+       * how to capture permission groups for DBI table pair  updating 
+       * introspect current MySQL GRANTS ?
+       * propagate Dbi table names in DBCONFed DB into Django Groups ?
+       * apply generated sql to DB pointed to by DBCONF via MySQLdb ?
+
+=== model ===
+  
+     high level model comprising 
+
+         User, Group       ... django standard     
+         Permissions       ... probably need instance specific ... so cannot go-django         
+
+         Log ... is there some standard django way to DB log things 
+
+
+         Resource ............ 
+
+             Database
+                - name  
+                - tables
+             Table
+                - name
+                - writers ... User 
+                - related-tables
+
+
+=== Open questions ... ===
+
+  * DBI specific or just treat *Vld and DbiLogEntry as other related tables  ?
+  * use django 1.2 multi-db support for access to tables in offline_db ? or do at mysql-python level ?
+  * can django used multi-db without models ? just a way to get to the cursor ?
+
+
+

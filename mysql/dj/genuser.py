@@ -8,16 +8,6 @@
    To generate MySQL GRANT/REVOKE sql, thereby allowing further
    extrapolation of Trac/SVN users to MySQL 
 
-
-
-   NEXT STEPS ...
-       * how to capture permission groups for DBI table pair  updating 
-       * introspect current MySQL GRANTS ?
-
-       * propagate Dbi table names in DBCONFed DB into Django Groups ?
-       * apply generated sql to DB pointed to by DBCONF via MySQLdb ?
-
-
 """
 
 import os
