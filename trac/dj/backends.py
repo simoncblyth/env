@@ -86,11 +86,15 @@ class AuthUserFileBackend(ModelBackend):
 
         valid = basic_check_password( settings.AUTH_USER_FILE,  username, password )
         if valid:
+            pw = mysql_password(password)
             try:
                 user = User.objects.get(username=username)
+                if user.password != pw:         ## update django hashed mysql password on changes 
+                    user.password = pw
+                    user.save()
             except User.DoesNotExist:
-                user = User(username=username, password=mysql_password(password))
-                user.is_staff = True   ## MUST TO staff TO ENABLE ACCESS TO ADMIN SITE 
+                user = User(username=username, password=pw )
+                user.is_staff = True             ## needs to be staff TO ENABLE ACCESS TO ADMIN SITE 
                 user.is_superuser = False
                 user.save()
             return user
