@@ -2,7 +2,44 @@ svnauthzadmin-vi(){ vi $BASH_SOURCE ; }
 svnauthzadmin-usage(){
    package-usage svnauthzadmin
    cat << EOU
-  
+ 
+       http://trac-hacks.org/wiki/SvnAuthzAdminPlugin
+
+       Tickets ...
+           * http://trac-hacks.org/query?status=!closed&component=SvnAuthzAdminPlugin&order=priority
+
+
+       == experience ==
+
+        * when adding a subj to a group 
+           * the "subject" list is composed of all other groups and : *,admin,bitadmin,slave
+               * why, what is special about these
+               * these show up in the Trac permissions page ...
+                   * http://dayabay.phys.ntu.edu.tw/tracs/env/admin/general/perm
+
+       * after adding a new user via Accounts/Users 
+           * the new user does not show up as an available subject to add to a group ? 
+           * http://trac-hacks.org/ticket/5191 ... includes patch to get new users to show up
+ 
+   
+      == summary ===
+
+        So the procedure to add a new user is
+
+         1)  Accounts/Users      ... add the new user 
+         2)  General/Permissions ... provide the new user with some trac permission eg WIKI_VIEW
+              *   (you have to recall and retype the username) 
+
+         3) Subversion/Subversion Access ....  pick a group and add the new user "subject" to it
+
+
+     == todo ==
+
+         * invesigate patch in tkt 5191 to avoid step 2   
+
+
+
+ 
 EOU
 
 }
@@ -30,7 +67,7 @@ svnauthzadmin-upgradeconf(){
 svnauthzadmin-revision(){ echo 9290 ; }
 
 svnauthzadmin-url(){     echo http://trac-hacks.org/svn/svnauthzadminplugin/$(svnauthzadmin-branch) ; }
-svnauthzadmin-package(){ echo svnauthzadmin ; }
+svnauthzadmin-package(){ echo svnauthz; }
 
 svnauthzadmin-fix(){
   local msg="=== $FUNCNAME :"
@@ -58,25 +95,13 @@ svnauthzadmin-cd(){        package-cd        ${FUNCNAME/-*/} $* ; }
 svnauthzadmin-fullname(){  package-fullname  ${FUNCNAME/-*/} $* ; }
 svnauthzadmin-update(){    package-fn $FUNCNAME $* ; }
 
-svnauthzadmin-unconf(){
-   local msg="=== $FUNCNAME :"
-   local name=${1:-$SCM_TRAC}
-   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-   echo $msg not implemented ... use trac-edit to remove the    components:svnauthzadin.\*:enabled
-}
+
 
 svnauthzadmin-conf(){
-   local msg="=== $FUNCNAME :"
-   local name=${1:-$SCM_TRAC}
-   local tini=$SCM_FOLD/tracs/$name/conf/trac.ini
-   trac-ini-
-   trac-ini-edit $tini components:svnauthzadmin.\*:enabled
+   trac-
+   trac-edit-ini $(trac-inipath $*) svnauthzadmin:show_all_repos:true
+
 }
-
-
-
-
-
 
 
 
