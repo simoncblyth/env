@@ -2,11 +2,17 @@
 from django.db import connection
 from django.conf import settings
 from django.contrib.auth.models import User
-
-from django.contrib.auth.backends import ModelBackend
-
+#from django.contrib.auth.backends import ModelBackend
 
 from env.trac.auth import BasicAuthentication 
+
+
+import logging as log
+log.basicConfig(
+    level = log.INFO,
+    format = '%(asctime)s %(levelname)s %(message)s',
+)
+
 
 def basic_check_password( auth_user_file , username , password ):
     """
@@ -43,27 +49,35 @@ def mysql_password(password):
       
 
     """
-    assert settings.DATABASE_ENGINE == 'mysql'
+    #assert settings.DATABASE_ENGINE == 'mysql'
     cursor = connection.cursor()
     if cursor.execute("select password(%s)", [ password ] ) == 1:
         return cursor.fetchone()[0]
     return "encrypted_password_failed" 
         
-class AuthUserFileBackend(ModelBackend):
+class AuthUserFileBackend:
     """
-        This specialises the default ModelBackend, but only steps in 
-        if authentication with the base Backend (standard django Users) 
-        fails ... in which case authentication against the AUTH_USER_FILE is
-        attempted. In the case of valid credentials new django users are created
-        but with a password that django will not recognise...   
+        An authentication Backend authenticating against 
+        SVN/Trac username/passwords in settings.AUTH_USER_FILE
+        Only invoked if authentication with prior backends 
+        in the sequence : settings.AUTHENTICATION_BACKENDS all fail
+
+        In the case of valid credentials new django users are created
+        but with a password that django will not recognise thus future logins
+        will fail other authentications and pass thru to this one
+        (assuming configured after the default backend in settings) 
+
+        CAUTION : 
+             it is best not to have username overlap between native 
+             django users and AUTH_USER_FILE ones to avoid confusion/changed passwords
 
         Usage :
 
            1) in settings point to this backend with : 
-                    AUTHENTICATION_BACKENDS = ( 'env.trac.dj.backends.AuthUserFileBackend',)
-
-               which overrides the default, which may not be present in your settings of:
-                    AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.ModelBackend',)
+                    AUTHENTICATION_BACKENDS = ( 
+                           'django.contrib.auth.backends.ModelBackend',  ## the default 
+                           'env.trac.dj.backends.AuthUserFileBackend',
+                         )
 
            2)  also in settings 
                      AUTH_USER_FILE=/absolute/path/to/auth_user_file
@@ -77,26 +91,48 @@ class AuthUserFileBackend(ModelBackend):
           to anything, because it won't be checked; the password
           from settings.AUTH_USER_FILE will.
        
-    """ 
-    def authenticate(self, username=None, password=None):
-        
-        user = ModelBackend.authenticate( self, username, password )
-        if user:
-           return user
+    """
+    supports_object_permissions = False
+    supports_anonymous_user = False
 
+    def authenticate(self, username=None, password=None):
+        """
+           Observing ...
+                mysql> select * from auth_user ;
+           shows that this usurps pre-existing django native users by changing their passwords
+
+           After changing passwords to the AUTH_USER_FILE one, django will fail to authenticate
+           natively and hence will be passed along here
+
+        """
         valid = basic_check_password( settings.AUTH_USER_FILE,  username, password )
+        log.info( "authentication of  %s from %s valid %s " , username, self.__class__.__name__ , valid  ) 
         if valid:
             pw = mysql_password(password)
             try:
                 user = User.objects.get(username=username)
+                log.info( "authentication, preexisting User %s  " , user  ) 
                 if user.password != pw:         ## update django hashed mysql password on changes 
                     user.password = pw
+                    log.info( "authentication, updating password of preexisting User %s  " , user  ) 
                     user.save()
             except User.DoesNotExist:
                 user = User(username=username, password=pw )
+                log.info( "authentication, creating new User %s  " , user  ) 
                 user.is_staff = True             ## needs to be staff TO ENABLE ACCESS TO ADMIN SITE 
                 user.is_superuser = False
                 user.save()
             return user
+        log.info("authentication failed for %s ", username )
         return None
+
+    def get_user(self, user_id):
+        try:
+            return User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+
+
+
+
 
