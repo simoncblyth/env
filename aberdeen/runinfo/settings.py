@@ -12,12 +12,17 @@ MANAGERS = ADMINS
 from private import Private 
 p = Private()
 
-DATABASE_ENGINE = p('DATABASE_ENGINE')       # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = p('DATABASE_NAME')           # Or path to database file if using sqlite3.
-DATABASE_USER = p('DATABASE_USER')           # Not used with sqlite3.
-DATABASE_PASSWORD = p('DATABASE_PASSWORD')   # Not used with sqlite3.
-DATABASE_HOST = p('DATABASE_HOST')           # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = p('DATABASE_PORT')           # Set to empty string for default. Not used with sqlite3.
+DATABASES = {
+  'default': p(NAME='DATABASE_NAME',ENGINE='DATABASE_ENGINE' , USER='DATABASE_USER', PASSWORD='DATABASE_PASSWORD' , HOST='DATABASE_HOST', PORT='DATABASE_PORT' )  
+ }
+
+
+#DATABASE_ENGINE = p('DATABASE_ENGINE')       # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+#DATABASE_NAME = p('DATABASE_NAME')           # Or path to database file if using sqlite3.
+#DATABASE_USER = p('DATABASE_USER')           # Not used with sqlite3.
+#DATABASE_PASSWORD = p('DATABASE_PASSWORD')   # Not used with sqlite3.
+#DATABASE_HOST = p('DATABASE_HOST')           # Set to empty string for localhost. Not used with sqlite3.
+#DATABASE_PORT = p('DATABASE_PORT')           # Set to empty string for default. Not used with sqlite3.
 
 
 # celery config
@@ -102,6 +107,7 @@ INSTALLED_APPS = (
 AUTH_USER_FILE=p('AUTH_USER_FILE')
 
 AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # this is default
     'env.trac.dj.backends.AuthUserFileBackend',
 )
 

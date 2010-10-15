@@ -6,7 +6,7 @@ def priv(*args):
    p = Private()
    return p(*args) 
     
-class Private:
+class Private(dict):
     """
          Re-implementation of the bash private- for ease of use from python
  
@@ -28,18 +28,25 @@ class Private:
         assert os.path.exists(path), "path does not exist ... %s  %s " % ( path , self )
         s = os.stat(path)
         assert S_IMODE( s.st_mode ) == S_IRUSR | S_IWUSR , "incorrect permissions .. %s  " % ( self )  
+        self.parse()
 
-    def __call__(self, qwn):
-        val = ""
+    def parse(self):
         f = file(self.path, "r")
         for line in f.readlines():    
             line = line.strip()
             m = Private.decl.match(line)
             if m:
                 d = m.groupdict()
-                if d['var'] == qwn:val = d['val']  
+                self[d['var']] = d['val']
         f.close()
-        return val
+
+    def __call__(self, *args, **kwa ):
+        if len(kwa) == 0:
+            assert len(args) == 1 , "error expecting one arg %s " % repr(args)
+            return self.get(args[0],"private-error-no-%s" % args[0] )
+        else:  
+            return dict( [ (k,self(v),) for k,v in kwa.items() ] ) 
+
     def __repr__(self):return "\n".join( ["<Private %s>" % self.path ] )
 
 if __name__=='__main__':

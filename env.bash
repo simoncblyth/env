@@ -883,3 +883,4 @@ time-(){      . $(env-home)/python/tests/time.bash && time-env $* ; }
 svlisten-(){      . $(env-home)/sysadmin/sv/svlisten.bash && svlisten-env $* ; }
 diskmon-(){      . $(env-home)/sysadmin/sv/diskmon.bash && diskmon-env $* ; }
 svnauthzadmin-(){      . $(env-home)/trac/package/svnauthzadmin.bash && svnauthzadmin-env $* ; }
+guardian-(){      . $(env-home)/dj/guardian.bash && guardian-env $* ; }

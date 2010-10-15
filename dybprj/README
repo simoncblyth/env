@@ -3,6 +3,38 @@
 '''dybprj''' is an umbrella/skeleton django project destined for source:dybgaudi/trunk/Utilities/DybPrj
     * via AuthUserFileBackend provides extrapolated Trac/SVN Users
     * where to put ? project OR app ? in general minimise whats in the project 
+
+
+
+== IMPLEMENTATION APPROACHES ==
+
+  * Use django Permissions ... model (not instance) based 
+     * means cannot have a Table model ... 
+     * requires dynamic introspection (i did this before)
+     * django does not support compound PK using in DBI tables (SEQNO,ROW_COUNTER)
+        * when just using django models to hold permissions ... probably not a problem  
+
+     * FORCES HOOP JUMPING FOR DYNAMIC SYNCDB 
+
+
+  * Role-own per-instance permissions ... aping unix  
+
+  * adopt django add on that provides object permissions 
+
+      * django-authority (the way to go pre django 1.2)
+         * http://packages.python.org/django-authority/create_per_object_permission.html
+         * http://groups.google.com/group/django-authority/browse_thread/thread/59ef512046ad41b3
+      * BUT django 1.2 adds new possibilities
+         * http://djangoadvent.com/1.2/object-permissions/ 
+            * nice API
+         * http://packages.python.org/django-guardian/
+            * http://packages.python.org/django-guardian/assign.html
+
+         * http://packages.python.org/django-permissions
+            * put off by ugly documentation, and "role" usag ... non-agnostic seemingly 
+
+
+
     
 == ugo (user-group-other) app ==
 
