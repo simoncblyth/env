@@ -13,6 +13,10 @@ guardian-usage(){
 
      http://packages.python.org/django-guardian/configuration.html    
 
+     Good background description of django 1.2 underpinning of this 
+         http://djangoadvent.com/1.2/object-permissions/ 
+
+
      Usage :
 
         guardian-get
@@ -33,21 +37,34 @@ guardian-usage(){
          ANONYMOUS_USER_ID = -1
 
 
+     On syncdb ...
 
+Creating tables ...
+Creating table guardian_userobjectpermission
+Creating table guardian_groupobjectpermission
+Installing custom SQL ...
+Installing indexes ...
+No fixtures found.
 
 
 
 EOU
 }
-guardian-dir(){ echo $(local-base)/env/dj/django-guardian ; }
+guardian-dir(){ echo $(local-base)/env/dj/django-guardian/$(guardian-fork) ; }
 guardian-cd(){  cd $(guardian-dir); }
 guardian-mate(){ mate $(guardian-dir) ; }
-guardian-url(){ echo http://github.com/lukaszb/django-guardian.git ;  }
 
+guardian-fork(){
+  #echo ${GUARDIAN_FORK:-lukaszb}   ## master 
+  echo ${GUARDIAN_FORK:-fairview}   ## with admin
+}
+
+guardian-url(){ echo http://github.com/$(guardian-fork)/django-guardian.git ;  }
 guardian-get(){
    local dir=$(dirname $(guardian-dir)) &&  mkdir -p $dir && cd $dir
-   git clone $(guardian-url) 
+   git clone $(guardian-url) $(guardian-fork) 
 }
+
 
 guardian-ln(){
    python-
