@@ -47,6 +47,14 @@ Installing indexes ...
 No fixtures found.
 
 
+      Notes ...
+         the fork, when using "syncdb" from an fresh DB, gives MySQL operational error...
+         while creating table : guardian_userobjectpermission
+
+           "BLOB/TEXT column 'object_pk' used in key specification without a key length"
+
+
+
 
 EOU
 }
@@ -55,8 +63,8 @@ guardian-cd(){  cd $(guardian-dir); }
 guardian-mate(){ mate $(guardian-dir) ; }
 
 guardian-fork(){
-  #echo ${GUARDIAN_FORK:-lukaszb}   ## master 
-  echo ${GUARDIAN_FORK:-fairview}   ## with admin
+  echo ${GUARDIAN_FORK:-lukaszb}   ## master 
+  #echo ${GUARDIAN_FORK:-fairview}   ## with admin
 }
 
 guardian-url(){ echo http://github.com/$(guardian-fork)/django-guardian.git ;  }
