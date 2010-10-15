@@ -146,12 +146,14 @@ class DBConf(dict):
         if self.verbose:
             print "dbconf : connecting to %s " % dict(d, passwd="***" )
         return d
-    
+    mysqldb = property( mysqldb_parameters ) 
+ 
     def django_parameters(self):
         d = dict( ENGINE=self.engine % self, NAME=self.db % self , USER=self.user % self, PASSWORD=self.pswd % self, HOST=self.host % self , PORT=self.port % self )
         if self.verbose:
             print "dbconf : connecting to %s " % dict(d, PASSWORD="***" )
         return d   
+    django = property( django_parameters ) 
 
     def _check_path(self, path ):
         """

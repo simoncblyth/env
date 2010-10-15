@@ -35,6 +35,27 @@
 
 
 
+== how/when to sync with tables in offline_db ? ==
+
+   * via an action ... actions need a selection 
+       * http://code.djangoproject.com/ticket/10768
+
+  * so implement an object to represent a database , and put the action on that model ...  
+      * populate that from the settings.DATABASES list 
+      * how to get to the cursors with multi-db 
+
+from django.db import connections
+cursor = connections['my_db_alias'].cursor()
+
+
+
+
+== logging ==
+
+    use LogEntry from the admin 
+        http://stackoverflow.com/questions/868295/django-admin-action-in-1-1
+
+
     
 == ugo (user-group-other) app ==
 
