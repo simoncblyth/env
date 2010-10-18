@@ -14,6 +14,8 @@ from evdigi  import EvDigi
 print "imported EvDigi"
 from evtrk import EvTrk
 print "imported EvTrk"
+from evvrtx import EvVrtx
+print "imported EvVrtx"
 from evgui   import EvGui
 print "imported EvGui"
 from evtree  import EvTree
@@ -80,7 +82,7 @@ class Controller(EvController):
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
         
-        self.digi = EvDigi(pmtmin=0, pmtmax=1000)   ## range for palette coloring 
+        self.digi = EvDigi(pmtmin=0, pmtmax=150)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
         for elem in self.digi:
@@ -88,6 +90,7 @@ class Controller(EvController):
 
         self.trk = EvTrk()
 
+	self.vrtx = EvVrtx()
 
         browser = gEve.GetBrowser()
         self.gui  = EvGui(browser)
@@ -177,7 +180,11 @@ class Controller(EvController):
             if self.dbg>1:print "fitk %s " % repr(fitk)
             self.trk.update( fitk )
 
- 
+    	vrtxp = self.src.vertex_position()
+        if len(vrtxp) > 0:
+            if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
+	    self.vrtx.update( vrtxp )
+
         #tmsg = self.src.msg
         #if tmsg:
         #    self.src.msg = None

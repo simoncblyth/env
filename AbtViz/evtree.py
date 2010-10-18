@@ -42,6 +42,7 @@ class EvTree(list):
         return True
 
     def fitted_track(self,*args,**kwa):return self.edm.fitted_track(*args,**kwa)
+    def vertex_position(self,*args,**kwa):return self.edm.vertex_position(*args,**kwa)
 
     def pmt_response(self,**kwa):return self.edm.pmt_response(**kwa)
     def tracker_hits(self,**kwa):return self.edm.tracker_hits(**kwa)

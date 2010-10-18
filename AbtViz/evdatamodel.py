@@ -110,16 +110,24 @@ class EvDataModel(DataModel):
         if not(self.trg):
             ROOT.Error("pmt_response", "NULL trg" )
             return self.pmt_response_default()
-        #np = self.trg.GetNPhoton() 
-        #if not(np):
-        #    ROOT.Error("pmt_response", "NULL NPhoton" )
-        #    return self.pmt_response_default()
+        
+	np = self.trg.GetNPhoton() 
+        if not(np):
+            ROOT.Error("pmt_response", "NULL NPhoton" )
+            return self.pmt_response_default()
+
         adc = self.trg.GetAdc() 
         if not(adc):
             ROOT.Error("pmt_response", "NULL Adc" )
             return self.pmt_response_default()
-        return [ adc.GetCh(i) for i in range(16)]
 
+	#To map the correct response of the PMT from data file
+	pmtMapping = [11, 15, 3, 7, 10, 14, 2, 6, 9, 13, 1, 5, 8, 12, 0, 4]
+        
+	#Choose to use adc or NPhoton for PMT response
+	#return [ adc.GetCh(i) for i in range(16)]
+	return [ np.GetCh(pmtMapping[i]) for i in range(16)]
+    
     def tracker_hits(self, random=None):
         hp = None
         if random:
@@ -148,6 +156,14 @@ class EvDataModel(DataModel):
         if not(ft):return [] 
         return [[ft.X().At((z+118.7)*10),ft.Y().At((z+118.7)*10),z] for z in zs]
 
+    def vertex_position(self):
+    	"""
+		Provides the location of the center vertex
+	"""
+	if not(self.trg):return []
+	vp = self.trg.GetVertex().GetCenter()
+	if not(vp):return [] 
+        return [vp.X(),vp.Y(),vp.Z()-118.7,vp.GetNPhoton()]
 
 if __name__=='__main__':
     edm = EvDataModel()

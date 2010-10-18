@@ -86,7 +86,7 @@ class EvDigi(list):
 
     valIsColor = kFALSE ## i guess this makes no sense when using palette
     
-    def __init__(self, pmtmin=0 , pmtmax=300 ):
+    def __init__(self, pmtmin=0 , pmtmax=150 ):
         self.pmtmin = pmtmin
         self.pmtmax = pmtmax
         ROOT.gStyle.SetPalette(1)
