@@ -4,6 +4,18 @@ mysql-vi(){     vim $(mysql-source) ; }
 mysql-usage(){
   cat << EOU
 
+   == VERSIONS ==
+
+    Determine from   "echo status | mysql"     
+
+        dybdb1   :   5.0.45-community-log MySQL Community Edition (GPL)
+        belle7   :   5.0.77-log Source distribution
+        cms01    :   4.1.22-log
+
+    CAUTION :
+        * user creation changed significantly between 4.1 and 5.0 
+
+
    === for mysql debugging (eg on trying to switch on logging ) ===
 
     Flavors of control ...
@@ -182,6 +194,17 @@ Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source d
 
 EOU
 }
+
+
+
+
+
+my-(){
+  [ ~/.my.cnf -nt ~/.my/client.cnf ] && python $(env-home)/mysql/splitcnf.py 
+  [ -z "$1" ] && ls -l ~/.my/   
+  mysql --defaults-file=~/.my/${1:-client}.cnf
+} 
+
 
 
 mysql-logrotate-(){ cat << EOC
