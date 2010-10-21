@@ -327,6 +327,7 @@ local-backup-tag(){
       P) echo H1 C H N C2 ;;
      XX) echo ZZ S ;;
      ZZ) echo XX S ;;
+     WW) echo S ;;
      *) echo U ;;
    esac  
 }
@@ -457,12 +458,11 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
 }
 
 
-
-
-
-
 local-scm-fold(){
-   echo $(local-var-base $*)/scm
+   case ${1:-$NODE_TAG} in 
+     WW) echo /home/scm ;;  
+      *) echo $(local-var-base $*)/scm ;;
+   esac
 }
 
 local-user-base(){

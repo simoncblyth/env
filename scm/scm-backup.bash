@@ -628,8 +628,8 @@ scm-backup-nightly(){
    local msg="=== $FUNCNAME :"
 
     echo
-    echo $msg $(date)  @@@ scm-backup-checkssh
-    scm-backup-checkssh
+    echo $msg $(date)  @@@ scm-backup-checkscp
+    scm-backup-checkscp
  
     echo
     echo $msg $(date)  @@@ scm-backup-all 
@@ -708,6 +708,26 @@ scm-backup-checkssh(){
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
        local remote=$(scm-backup-dir $tag)
        local cmd="ssh $tag df -h $remote" 
+       echo;echo $msg $cmd
+       eval $cmd
+  done 
+
+
+}
+
+scm-backup-checkscp(){
+
+   local tags=${1:-$BACKUP_TAG}   
+   [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+ 
+   local tag 
+   local nonce=/tmp/env/$FUNCNAME/$FUNCNAME.$(hostname).txt
+   mkdir -p $(dirname $nonce) 
+   touch $nonce
+
+   for tag in $tags ; do
+       [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
+       local cmd="scp $nonce $tag:/tmp/" 
        echo;echo $msg $cmd
        eval $cmd
   done 
