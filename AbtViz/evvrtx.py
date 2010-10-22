@@ -12,7 +12,7 @@ class EvVrtx(list):
     def _marker(self):
         p = ROOT.TEvePointSet()
         p.SetMarkerStyle(4)
-        p.SetMainColor(ROOT.kYellow)
+	p.SetMainColor(ROOT.kYellow)
         return p
 
     def update(self, vrtxp , reset=True, xysc=0.1 ):

@@ -82,7 +82,7 @@ class Controller(EvController):
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
         
-        self.digi = EvDigi(pmtmin=0, pmtmax=150)   ## range for palette coloring 
+        self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
         for elem in self.digi:
@@ -154,13 +154,13 @@ class Controller(EvController):
             self.gui.update_evt_summary(  smy=esmy )
         
         nsmy = self.src.ndr_summary()
-        if len(nsmy) > 0:
+	if len(nsmy) > 0:
             if self.dbg>1:print "update_ndr_summary with nsmy %s" % len(nsmy)
             self.gui.update_ndr_summary(  html=nsmy )
          
         ## no point doing this for every changed entry ... but need rethink to avoid 
         rsmy = self.src.run_summary()
-        if len(rsmy) > 0:
+	if len(rsmy) > 0:
             if self.dbg>1:print "rsmy %s" % len(rsmy)
             self.gui.update_run_summary(  html=rsmy )
         

@@ -9,7 +9,7 @@ import env.root.addons.TEveDigitSet_Additions
 
 class PMTDigi:
     def __init__(self, pmt, palette):
-        self.offset = 0,0,-30.     ## arbitrary offset value ... chosen by eye ... what should this be ?
+        self.offset = 0,0,-30.36     ##(cm) Offset of acrylic tank centre from (0,0,0)
         self.pmt    = pmt 
         self.index  = pmt.id
         name = repr(pmt)
@@ -86,10 +86,12 @@ class EvDigi(list):
 
     valIsColor = kFALSE ## i guess this makes no sense when using palette
     
-    def __init__(self, pmtmin=0 , pmtmax=150 ):
+    def __init__(self, pmtmin=0 , pmtmax=200 ):
+	
         self.pmtmin = pmtmin
         self.pmtmax = pmtmax
-        ROOT.gStyle.SetPalette(1)
+        
+	ROOT.gStyle.SetPalette(1)
         palette = ROOT.TEveRGBAPalette(self.pmtmin, self.pmtmax)
         self.palette = palette
 

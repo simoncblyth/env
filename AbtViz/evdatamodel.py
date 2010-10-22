@@ -38,12 +38,24 @@ class EvDataModel(DataModel):
             print "update_ndr_summary null evt "
 	    return   
         tab = self.ndrhtml.GetTable(0)
+	
         for iq,q in enumerate(ROOT.AbtNdResponse.__typ__):
+            
+	    #Data might not contain a particular row so need to correct iq (ciq)
+	    if q == "Adc":
+		ciq = 0
+	    elif q == "Tdc":
+		ciq = 1
+	    elif q == "NPhoton":
+		ciq = 2
+	    elif q == "HitTime":
+		ciq = 3
+
             anr = getattr( ev , 'Get%s'%q )()
-            if anr:
+	    if anr:
                 for iv,v in enumerate(anr.__qtv__()):
-                    tab.SetValue(iv,iq,v)
-                    #print "iv,iq,v %s %s %s " % ( iv,iq,v )
+                    tab.SetValue(iv,ciq,v)
+                    #print "iv,ciq,v %s %s %s " % ( iv,ciq,v )
 
     def prepare_run_summary(self):
         smry = ROOT.HtmlSummary("runhtml")
@@ -57,8 +69,8 @@ class EvDataModel(DataModel):
 
     def update_run_summary(self, ri):
         if not(ri):
-            #print "update_run_summary null run "
-	        return   
+            print "update_run_summary null run "
+	    return   
         tab = self.runhtml.GetTable(0)
         for iv,v in enumerate(ri.__qtv__()):
             #print "iv,v %s %s " % ( iv,v ) 
@@ -68,6 +80,7 @@ class EvDataModel(DataModel):
         from ROOT import AbtEvent
         evt = AbtEvent() 
         self.trg = evt   ## formerly AbtTriggerEvent
+	self.run = tree.GetUserInfo().At(0)
         tree.SetBranchAddress("trigger", ROOT.AddressOf(evt))
 
     def set_autoevent(self, evt ):
@@ -81,8 +94,8 @@ class EvDataModel(DataModel):
 
     def __call__(self):return self.trg
 
-    def version(self, tree):
-        if not(tree):
+    def version(self, tree):      
+	if not(tree):
             return "?"
         ri = tree.GetUserInfo().At(0)
         return ri.GetDmVersion()
@@ -163,8 +176,8 @@ class EvDataModel(DataModel):
 	if not(self.trg):return []
 	vp = self.trg.GetVertex().GetCenter()
 	if not(vp):return [] 
-        return [vp.X(),vp.Y(),vp.Z()-118.7,vp.GetNPhoton()]
-
+	return [vp.X(),vp.Y(),vp.Z()-303.6,vp.GetNPhoton()]
+        
 if __name__=='__main__':
     edm = EvDataModel()
 
