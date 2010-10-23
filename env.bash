@@ -885,3 +885,4 @@ diskmon-(){      . $(env-home)/sysadmin/sv/diskmon.bash && diskmon-env $* ; }
 svnauthzadmin-(){      . $(env-home)/trac/package/svnauthzadmin.bash && svnauthzadmin-env $* ; }
 guardian-(){      . $(env-home)/dj/guardian.bash && guardian-env $* ; }
 dybprj-(){      . $(env-home)/dybprj/dybprj.bash && dybprj-env $* ; }
+nodejs-(){      . $(env-home)/nodejs/nodejs.bash && nodejs-env $* ; }

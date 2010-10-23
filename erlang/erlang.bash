@@ -9,16 +9,32 @@ erlang-usage(){
      erlang-src : $(erlang-src)
      erlang-dir : $(erlang-dir)
 
+    == erlang intro ==
+
+        http://www.erlang.org/documentation/doc-5.2/doc/getting_started/getting_started.html
+
+      See also : erl-vi , which focuses on usage wherease this erlang-vi focuses on installation   
+
     == erlang building ==
 
        http://www.erlang.org/download.html
 
     == Erlang yum/rpm EPEL versions ==
 
-      ||  C  ||  EPEL4 ||   R11B-?   ||
-      ||  N  ||  EPEL5 ||   R12B-?   ||  
+      ||  C  ||  EPEL4 ||   R11B-?   ||               ||
+      ||  N  ||  EPEL5 ||   R12B-?   || R12B-5.10.el5 ||   
 
         http://download.fedora.redhat.com/pub/epel/4/i386/repoview/erlang.html
+
+     On N, yum erlang was updated to R12B-5 on installing erlang-misultin but still not new enough to work.
+
+     Examine tarball dates from http://www.erlang.org/download/
+       || R11B  ||  -0 17-May-2006 ... -5 13-Jun-2007 ||
+       || R12B  ||  -0 05-Dec-2007 ... -5 06-Nov-2008 ||
+       || R13B  ||  "" 21-Apr-2009 ... "04" 24-Feb-2010  ||
+
+    * mochiweb master uses R13B04
+
 
    == Erlang layout ==
 

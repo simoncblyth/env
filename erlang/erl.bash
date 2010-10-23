@@ -9,6 +9,10 @@ erl-usage(){
      erl-dir  : $(erl-dir)
      erl-ebin : $(erl-ebin)
 
+     This is intended for erlang usage/learning experience 
+     (see erlang- for installation related functions / version ruminations) 
+
+
      erl-erlpath name  :  $(erl-erlpath name) 
      erl-beampath name :  $(erl-beampath name) 
 
