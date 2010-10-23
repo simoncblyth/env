@@ -886,3 +886,5 @@ svnauthzadmin-(){      . $(env-home)/trac/package/svnauthzadmin.bash && svnauthz
 guardian-(){      . $(env-home)/dj/guardian.bash && guardian-env $* ; }
 dybprj-(){      . $(env-home)/dybprj/dybprj.bash && dybprj-env $* ; }
 nodejs-(){      . $(env-home)/nodejs/nodejs.bash && nodejs-env $* ; }
+rabbitjs-(){      . $(env-home)/nodejs/rabbitjs.bash && rabbitjs-env $* ; }
+nodeamqp-(){      . $(env-home)/nodejs/nodeamqp.bash && nodeamqp-env $* ; }
