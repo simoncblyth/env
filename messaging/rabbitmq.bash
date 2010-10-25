@@ -277,12 +277,15 @@ rabbitmq-smry()
    done
 }
 
+
+
 rabbitmq-fields(){    ## from the rabbitmqctl usage message 
    case $1 in
       exchanges) echo name type durable auto_delete arguments  ;;
          queues_cms01) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
          queues) echo name durable auto_delete arguments messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
-    connections) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
+    connections_cms01) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
+    connections) echo address port peer_address peer_port state channels user vhost timeout frame_max client_properties recv_oct recv_cnt send_oct send_cnt send_pend ;; 
        bindings) echo exchange_name routing_key queue_name arguments ;;
    esac
 }

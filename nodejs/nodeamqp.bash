@@ -135,3 +135,8 @@ nodeamqp-cfg-export(){
 }
 
 
+nodeamqp-dbg-on(){   export NODE_DEBUG_AMQP=1;  }
+nodeamqp-dbg-off(){  unset NODE_DEBUG_AMQP ;    }
+
+
+
