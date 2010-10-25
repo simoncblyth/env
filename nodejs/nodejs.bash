@@ -18,6 +18,9 @@ nodejs-usage(){
   * building runs into issue with libev 
       * follow suggestion in  http://github.com/ry/node/issues#issue/170 and checkout prior revision to proceed with build 
 
+      * http://github.com/ry/node/commit/d59512f6f406ceae4940fd9c83e8255f0c03173b
+         * back to Oct 2nd
+
 {{{
 default/deps/libeio/eio_1.o: In function `eio__sync_file_range':
 /data1/env/local/env/nodejs/node/build/../deps/libeio/eio.c:874: undefined reference to `sync_file_range'
@@ -71,10 +74,35 @@ make: *** [test] Error 1
 }}}
 
 
+== revert to v0.2.2 to correspond to forking time of  ry/node-amqp  to squaremo/node-amqp ==
 
+    * checkout tag v0.2.2, clean, configure and build ...
+{{{
+[blyth@belle7 node]$ git checkout v0.2.2
+HEAD is now at 7bf46bc... bump version to v0.2.2
+   ...
 
+[blyth@belle7 node-amqp]$ node -v
+v0.2.2
+}}}
+
+   * one failed test 
+{{{
+=== release test-dgram-multicast ===                                   
+Path: simple/test-dgram-multicast
+sent 'First message to send' to 224.0.0.112346
+sent 'Second message to send' to 224.0.0.112346
+sent 'Third message to send' to 224.0.0.112346
+sent 'Fourth message to send' to 224.0.0.112346
+sendSocket closed
+Command: build/default/node /data1/env/local/env/nodejs/build/node/test/simple/test-dgram-multicast.js
+--- TIMEOUT ---
+[01:19|% 100|+ 126|-   1]: Done                                       
+make: *** [test] Error 1
+}}}
 
 EOU
+
 }
 nodejs-dir(){ echo $(local-base)/env/nodejs/build/node ; }
 nodejs-idir(){ echo $(local-base)/env/nodejs/install ; }
@@ -95,7 +123,10 @@ nodejs-get(){
    local dir=$(dirname $(nodejs-dir)) &&  mkdir -p $dir && cd $dir
    [ ! -d "node" ] && git clone $(nodejs-url) 
    nodejs-cd
-   git checkout d59512f6f406ceae4940
+   #git checkout d59512f6f406ceae4940
+
+   ## get into the ballpark of when squaremo forked from ry/node-amqp 
+   git checkout v0.2.2
 }
 
 nodejs-build(){

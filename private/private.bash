@@ -36,6 +36,12 @@ private-usage(){
             private-get PRIVATE_VARIABLE <path>
   
 
+       Export a list of variables into envvars with 
+           private-export VAR1 VAR2
+
+
+
+
        Change, detect or add values with :
             private-hasval- NAME
             private-set NAME VAL
@@ -149,6 +155,17 @@ private-get(){     sudo perl -n  -e "m,local $1=(\S*), && print \$1" ${2:-$(priv
 private-upper(){
    tr "[a-z]" "[A-Z]" 
 }
+
+
+private-export(){
+  local var
+  for var in $* ; do
+    local exp="export $var=$(private-val $var)"
+    echo $exp
+    eval $exp
+  done
+}
+
 
 private-val(){
 
