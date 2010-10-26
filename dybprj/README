@@ -74,8 +74,74 @@ cursor = connections['my_db_alias'].cursor()
    NEXT STEPS ...
        * how to capture permission groups for DBI table pair  updating 
        * introspect current MySQL GRANTS ?
+           * http://dev.mysql.com/doc/refman/5.1/en/privilege-system.html
+{{{
+SHOW GRANTS FOR 'joe'@'office.example.com';
+}}}
+   * not easily parsible 
+
+{{{
+mysql> grant select on testdb_20101020.SimPmtSpec to dayabay@belle7.nuu.edu.tw ;
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> grant update,delete on testdb_20101020.SimPmtSpec to dayabay@belle7.nuu.edu.tw ;
+Query OK, 0 rows affected (0.00 sec)
+
+
+}}}
+
+{{{
+mysql> select * from mysql.tables_priv ;
++-------------------+-----------------+---------+------------+----------------------------+---------------------+----------------------+-------------+
+| Host              | Db              | User    | Table_name | Grantor                    | Timestamp           | Table_priv           | Column_priv |
++-------------------+-----------------+---------+------------+----------------------------+---------------------+----------------------+-------------+
+| belle7.nuu.edu.tw | testdb_20101020 | dayabay | SimPmtSpec | root@cms01.phys.ntu.edu.tw | 2010-10-20 19:43:54 | Select,Update,Delete |             |
++-------------------+-----------------+---------+------------+----------------------------+---------------------+----------------------+-------------+
+1 row in set (0.00 sec)
+
+mysql> describe mysql.tables_priv ;
++-------------+-----------------------------------------------------------------------------------------------+------+-----+-------------------+-------+
+| Field       | Type                                                                                          | Null | Key | Default           | Extra |
++-------------+-----------------------------------------------------------------------------------------------+------+-----+-------------------+-------+
+| Host        | char(60)                                                                                      |      | PRI |                   |       |
+| Db          | char(64)                                                                                      |      | PRI |                   |       |
+| User        | char(16)                                                                                      |      | PRI |                   |       |
+| Table_name  | char(64)                                                                                      |      | PRI |                   |       |
+| Grantor     | char(77)                                                                                      |      | MUL |                   |       |
+| Timestamp   | timestamp                                                                                     | YES  |     | CURRENT_TIMESTAMP |       |
+| Table_priv  | set('Select','Insert','Update','Delete','Create','Drop','Grant','References','Index','Alter') |      |     |                   |       |
+| Column_priv | set('Select','Insert','Update','References')                                                  |      |     |                   |       |
++-------------+-----------------------------------------------------------------------------------------------+------+-----+-------------------+-------+
+8 rows in set (0.00 sec)
+
+}}}
+
+
+{{{
+mysql> show grants for dayabay@belle7.nuu.edu.tw ;
++-------------------------------------------------------------------------------------------------+
+| Grants for dayabay@belle7.nuu.edu.tw                                                            |
++-------------------------------------------------------------------------------------------------+
+| GRANT USAGE ON *.* TO 'dayabay'@'belle7.nuu.edu.tw'                                             |
+| GRANT SELECT, UPDATE, DELETE ON `testdb_20101020`.`SimPmtSpec` TO 'dayabay'@'belle7.nuu.edu.tw' |
++-------------------------------------------------------------------------------------------------+
+2 rows in set (0.00 sec)
+}}}
+
+
+
+{{{
+mysql> select * from mysql.tables_priv ;
+Empty set (0.01 sec)
+}}}
+
+
        * propagate Dbi table names in DBCONFed DB into Django Groups ?
        * apply generated sql to DB pointed to by DBCONF via MySQLdb ?
+
+
+
+
 
 === model ===
   
@@ -103,6 +169,10 @@ cursor = connections['my_db_alias'].cursor()
   * DBI specific or just treat *Vld and DbiLogEntry as other related tables  ?
   * use django 1.2 multi-db support for access to tables in offline_db ? or do at mysql-python level ?
   * can django used multi-db without models ? just a way to get to the cursor ?
+
+
+
+
 
 
 
