@@ -158,11 +158,13 @@ iptables-webclose-ip(){
    iptables-webclose -s $ip
 }
 
-
-iptables-openforme(){
+iptables-open(){
+   local msg="=== $FUNCNAME :"
    local port=${1:-6060}
    local tag=G
-   IPTABLES_PORT=$port iptables-webopen-ip $(local-tag2ip $tag)
+   local cmd="IPTABLES_PORT=${1:-8080} iptables-webopen-ip $(local-tag2ip $tag) "
+   echo $msg $cmd
+   eval $cmd
 }
 
 iptables-setup-node(){

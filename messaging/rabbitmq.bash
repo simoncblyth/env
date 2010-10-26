@@ -269,7 +269,7 @@ rabbitmq-info(){
 
 rabbitmq-smry()
 {
-   local xs="exchanges queues connections bindings"
+   local xs="exchanges queues connections bindings users"
    local x
    for x in $xs ; do
         echo $x
@@ -293,6 +293,7 @@ rabbitmq-exchanges(){   rabbitmq-list ${FUNCNAME/*-/} $* ; }
 rabbitmq-queues(){      rabbitmq-list ${FUNCNAME/*-/} $* ; }  
 rabbitmq-connections(){ rabbitmq-list ${FUNCNAME/*-/} $* ; }  
 rabbitmq-bindings(){    rabbitmq-list ${FUNCNAME/*-/} $* ; }  
+rabbitmq-users(){       rabbitmq-list ${FUNCNAME/*-/} $* ; }  
 
 rabbitmq-list(){
     local ty=${1:-queues}
