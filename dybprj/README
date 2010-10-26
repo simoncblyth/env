@@ -19,7 +19,7 @@
 
   * Role-own per-instance permissions ... aping unix  
 
-  * adopt django add on that provides object permissions 
+  * adopt django add-on that provides object permissions 
 
       * django-authority (the way to go pre django 1.2)
          * http://packages.python.org/django-authority/create_per_object_permission.html
@@ -33,6 +33,9 @@
          * http://packages.python.org/django-permissions
             * put off by ugly documentation, and "role" usag ... non-agnostic seemingly 
 
+
+   * and the winner is : '''django-guardian'''
+       * http://packages.python.org/django-guardian/configuration.html
 
 
 == how/when to sync with tables in offline_db ? ==

@@ -2,7 +2,11 @@
 rabbitjs-src(){      echo nodejs/rabbitjs.bash ; }
 rabbitjs-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rabbitjs-src)} ; }
 rabbitjs-vi(){       vi $(rabbitjs-source) ; }
-rabbitjs-env(){      elocal- ; }
+rabbitjs-env(){      
+    elocal-  
+    nodejs-
+    nodejs-path
+}
 rabbitjs-usage(){
   cat << EOU
      rabbitjs-src : $(rabbitjs-src)
@@ -93,3 +97,14 @@ rabbitjs-get(){
 
    git clone http://github.com/squaremo/rabbit.js.git
 }
+
+rabbitjs-run(){
+   rabbitjs-cd
+
+   nodeamqp-
+   nodeamqp-cfg-export
+   node socketio.js
+  
+}
+
+

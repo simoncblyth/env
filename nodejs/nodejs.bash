@@ -2,7 +2,10 @@
 nodejs-src(){      echo nodejs/nodejs.bash ; }
 nodejs-source(){   echo ${BASH_SOURCE:-$(env-home)/$(nodejs-src)} ; }
 nodejs-vi(){       vi $(nodejs-source) ; }
-nodejs-env(){      elocal- ; }
+nodejs-env(){      
+   elocal- 
+   nodejs-path 
+}
 
 
 
