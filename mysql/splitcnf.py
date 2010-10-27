@@ -58,6 +58,7 @@ def split():
 
         s = sio.getvalue()
         s = s.replace( "[%s]" % sec , "[%s]" % "client" )
+        s = s.replace( "engine" , "#engine" ) ## needed by django, but mysql client dont like 
         spl = os.path.join( savd , "%s.cnf" % sec )
         open(spl,"w").write( s )
         print "writing to %s " % spl

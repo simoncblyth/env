@@ -47,12 +47,14 @@ Installing indexes ...
 No fixtures found.
 
 
-      Notes ...
-         the fork, when using "syncdb" from an fresh DB, gives MySQL operational error...
-         while creating table : guardian_userobjectpermission
 
-           "BLOB/TEXT column 'object_pk' used in key specification without a key length"
+ == concerning the "fairview" fork ==
 
+    *  When using "syncdb" from an fresh DB, gives MySQL operational error...
+       while creating table : guardian_userobjectpermission
+       "BLOB/TEXT column 'object_pk' used in key specification without a key length"
+
+    * the admin.py that the fork adds is less than stellar ... clumsy interface 
 
 
 

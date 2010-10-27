@@ -88,8 +88,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.admin',
     'django.contrib.admindocs',
-    'guardian',
-    'dbi',
+    'django.contrib.comments',
+    'guardian',                   ## see guardian- 
+    'db',
+    'django_extensions',          ## see djext-
 )
 
 

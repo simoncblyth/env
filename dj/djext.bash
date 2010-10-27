@@ -10,6 +10,11 @@ djext-usage(){
 
     Pre-requisite : mercurial for hg , see hg-
 
+    Install with 
+         djext-get
+         djext-ln
+  
+
     Include django_extensions in INSTALLED_APPS , then list available commands with :
       ./manage.py help
 

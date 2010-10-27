@@ -16,6 +16,11 @@ mysql-usage(){
         * user creation changed significantly between 4.1 and 5.0 
 
 
+   == grants ==
+
+
+
+
    === for mysql debugging (eg on trying to switch on logging ) ===
 
     Flavors of control ...
