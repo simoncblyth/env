@@ -9,12 +9,12 @@ import env.root.addons.TEveDigitSet_Additions
 
 class PMTDigi:
     def __init__(self, pmt, palette):
-        self.offset = 0,0,-30.36     ##(cm) Offset of acrylic tank centre from (0,0,0)
-        self.pmt    = pmt 
+        self.offset = 0,0,-29.5 #30.36     ##(cm) Offset of acrylic tank centre from (0,0,0)
+        self.namemapping = ['SW4','NW4','NE4','SE4','SW3','NW3','NE3','SE3','SW2','NW2','NE2','SE2','SW1','NW1','NE1','SE1']
+	self.pmt    = pmt 
         self.index  = pmt.id
-        name = repr(pmt)
+        name = "PMT: %s " % self.namemapping[self.index]
         self.name = name
-        self.title = name
         self.set_coords(pmt)
         self.line = self.create_lineset()
         self.cone = self.create_coneset(palette)
@@ -38,7 +38,7 @@ class PMTDigi:
         lineset = ROOT.TEveStraightLineSet(self.name)
         lineset.SetLineColor(ROOT.kYellow)
         lineset.SetLineWidth(2)
-        lineset.SetElementTitle(self.title)   ## used as tooltip   
+        lineset.SetElementTitle(self.name)   ## used as tooltip   
         pos = self.pos
         end = self.end
         lineset.AddLine(pos.fX, pos.fY, pos.fZ, end.fX, end.fY, end.fZ)
@@ -52,7 +52,7 @@ class PMTDigi:
         coneset.SetPickable(kTRUE)
         coneset.SetDrawConeCap(kTRUE)
         coneset.SetPalette(palette)
-        coneset.SetElementTitle(self.title)   ## used as tooltip   
+        #coneset.SetElementTitle(self.title)   ## used as tooltip   
 
         ## elliptical cone, has ellipse for the base ... with majors r1, r2  
         r1 , r2, ang = 10., 10., 180.
@@ -65,11 +65,14 @@ class PMTDigi:
 
     def update(self, resp ):   
         if EvDigi.valIsColor: 
-            rgba = 0.01*resp, 0.02*resp, 0.03*resp, 1
+            rgba = 0.01*resp[2], 0.02*resp[2], 0.03*resp[2], 1
             self.cone.SetDigitColorRGBA( i , *rgba )
         else:
-            self.cone.SetDigitValue( 0 , int(resp) )   ## only one so index is zero
+            self.cone.SetDigitValue( 0 , int(resp[2]) )   ## only one so index is zero
         self.cone.ElementChanged(update_scenes=kTRUE, redraw=kTRUE)
+	title = "PMT: %s \nadc: %d \ntdc: %d\nnph: %d\nhti: %d " % (self.namemapping[resp[4]],resp[0],resp[1],resp[2],resp[3])
+	self.cone.SetElementTitle(title)	
+
 
     def __call__(self, resp ):
         self.update(resp)
@@ -107,10 +110,10 @@ class EvDigi(list):
             self.append(pd)
 
     def update_pmt(self , resp ):
-        assert len(resp) == 16
-        for i, r in enumerate(resp):
-            self[i].update(int(r))  
-       
+        assert len(resp[2]) == 16
+        for i in range(16):
+	    #When updating, only take 1 data from adc, tdc, ph, hti
+            self[i].update([resp[0][i],resp[1][i],resp[2][i],resp[3][i],i])       
 
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()

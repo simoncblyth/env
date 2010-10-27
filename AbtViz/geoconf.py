@@ -19,18 +19,19 @@ class VolMatcher(Matcher):
     """
    
     patns = (
-               ( 'SKIP'      , re.compile("(?P<all>logic.*|Lead.*|Worldmuon.*|Door.*|inner_log.*|Lowermuon_log_0|reflectivelayer_log_0)$") , { 'color':kOrange } ),
+               ( 'SKIP'      , re.compile("(?P<all>logic.*|Lead.*|Worldmuon.*|Door.*|Lowermuon_log_0|reflectivelayer_log_0)$") , { 'color':kOrange } ),
 #
                
-               	( 'L1'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_[0-9])$")    	, { 'color':kSpring  }  ),  
-		( 'L0'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(1[6-9]|2[0-5]))$")      	, { 'color':kBlue   }  ),
- 		( 'L2'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(3[2-9]|4[0-1]))$")          	, { 'color':kYellow }  ),  
-               	( 'L3'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(4[8-9]|5[0-7]))$")     	, { 'color':kPink   }  ),
-               	( 'L6'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(6[4-9]|7[0-3]))$")    , { 'color':kCyan   }  ),
-               	#( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(14[3-9]|15[0-7]))$")      , { 'color':kSpring }  ),
-		( 'L5'        , re.compile("(?P<all>2m_Plastic_Scintillator_log_(8[0-9]|9[0-3]))$")           	, { 'color':kRed    }  ),
+               	( 'L1'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_[0-9])$")    	      	, { 'color':kSpring  }  ),  
+		( 'L0'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(1[6-9]|2[0-5]))$")   , { 'color':kBlue   }  ),
+ 		( 'L2'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(3[2-9]|4[0-1]))$")     , { 'color':kYellow }  ),  
+               	( 'L3'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(4[8-9]|5[0-7]))$")   , { 'color':kPink   }  ),
+               	( 'L6'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(6[4-9]|7[0-3]))$")     , { 'color':kCyan   }  ),
+               	#( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(14[3-9]|15[0-7]))$")   , { 'color':kSpring }  ),
+		( 'L5'        , re.compile("(?P<all>2m_Plastic_Scintillator_log_(8[0-9]|9[0-3]))$")     , { 'color':kRed    }  ),
 #         
-               ( 'FILM'      , re.compile("(?P<all>(?P<pos>top|bot)_film_log_([0-1]))$")                   , { 'color':kViolet } ),                   
+               ( 'FILM'      , re.compile("(?P<all>(?P<pos>top|bot)_film_log_([0-1]))$")             , { 'color':kViolet } ),
+	       ( 'ACRYLIC'   , re.compile("(?P<all>inner_log.*)$")          		       	     , { 'color':kWhite    }  ),               
                ( 'WRLD'      , re.compile("(?P<all>World_1|Worldneutron_log_0|expHall_log_0)$")      , { 'color':kGray   } ),
                ( 'SST'       , re.compile("(?P<all>steeltank_log_0)$")                               , { 'color':kTeal   } ),
                ( 'TOPS'      , re.compile("(?P<all>outer_log_0|acrylictank_log_0)$")                 , { 'color':kSpring } ),

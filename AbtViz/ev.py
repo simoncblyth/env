@@ -166,7 +166,8 @@ class Controller(EvController):
         
         
         pmtr = self.src.pmt_response() 
-        if len(pmtr) > 0:
+
+	if len(pmtr[2]) > 0:
             if self.dbg>1:print "pmtr %s" % pmtr
             self.digi.update_pmt(  pmtr ) 
             

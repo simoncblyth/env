@@ -22,7 +22,13 @@ class EvDataModel(DataModel):
 
     def prepare_ndr_summary(self):
         smry = ROOT.HtmlSummary("ndrhtml")
-        qtn = ROOT.AbtNdResponse.__qtn__
+        
+	#This qtn labels PMT with names Ch00,Ch01,Ch02 ...
+	#qtn = ROOT.AbtNdResponse.__qtn__
+	
+	#This qtn labels PMT with names NW1, NW2, NW3 ...
+	qtn = ['NE1','NE2','NE3','NE4','SE1','SE2','SE3','SE4','SW1','SW2','SW3','SW4','NW1','NW2','NW3','NW4','Sum','Mean','MinCh','MaxCh','Overflow']
+
         tab = smry.AddTable( "AbtNdResponse Adc/Tdc/Nph/Htime" , len(qtn) , 4 , kTRUE, kTRUE, kFALSE, kTRUE )
         #tab.Dump()
         tab.SetSideLabel(0, "Adc" )
@@ -128,18 +134,48 @@ class EvDataModel(DataModel):
         if not(np):
             ROOT.Error("pmt_response", "NULL NPhoton" )
             return self.pmt_response_default()
-
+	
         adc = self.trg.GetAdc() 
-        if not(adc):
-            ROOT.Error("pmt_response", "NULL Adc" )
-            return self.pmt_response_default()
-
+        #if not(adc):
+            #ROOT.Error("pmt_response", "NULL Adc" )
+            #return self.pmt_response_default()
+	
+	tdc = self.trg.GetTdc()
+	hti = self.trg.GetHitTime()
+	
 	#To map the correct response of the PMT from data file
 	pmtMapping = [11, 15, 3, 7, 10, 14, 2, 6, 9, 13, 1, 5, 8, 12, 0, 4]
         
-	#Choose to use adc or NPhoton for PMT response
-	#return [ adc.GetCh(i) for i in range(16)]
-	return [ np.GetCh(pmtMapping[i]) for i in range(16)]
+	#Store all adc, tdc, np, hti and pass back to ev.py, weary of null 
+	null= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+	
+	if (adc):
+	   adcr = []
+	   [adcr.append(adc.GetCh(pmtMapping[i])) for i in range(16)]
+	else:
+	   adcr = null
+
+	
+        if (tdc):
+           tdcr = []
+           [tdcr.append(tdc.GetCh(pmtMapping[i])) for i in range(16)]
+        else:
+           tdcr = null
+
+        if (np):
+           npr = []
+           [npr.append(np.GetCh(pmtMapping[i])) for i in range(16)]
+        else:
+           npr = null
+
+        if (hti):
+           htir = []
+           [htir.append(hti.GetCh(pmtMapping[i])) for i in range(16)]
+        else:
+           htir = null
+
+
+	return [adcr, tdcr, npr, htir]
     
     def tracker_hits(self, random=None):
         hp = None
@@ -176,7 +212,7 @@ class EvDataModel(DataModel):
 	if not(self.trg):return []
 	vp = self.trg.GetVertex().GetCenter()
 	if not(vp):return [] 
-	return [vp.X(),vp.Y(),vp.Z()-303.6,vp.GetNPhoton()]
+	return [vp.X(),vp.Y(),vp.Z()-295.0,vp.GetNPhoton()]
         
 if __name__=='__main__':
     edm = EvDataModel()

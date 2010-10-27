@@ -23,6 +23,9 @@ class EvVrtx(list):
         p = self._marker()
  	p.SetMarkerSize((vrtxp[3]/5000))
         p.SetNextPoint(vrtxp[0]*xysc,vrtxp[1]*xysc,vrtxp[2]*xysc)
+	
+	tag = "Vertex: \n (x = %d, y = %d, z = %d) mm \n Number of Photons = %d" % (vrtxp[0],vrtxp[1],vrtxp[2]+295.0,vrtxp[3])
+	p.SetElementTitle(tag)	
 
         self.append(p)
         ROOT.gEve.AddElement(p)
