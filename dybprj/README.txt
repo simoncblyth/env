@@ -4,9 +4,14 @@
     * via AuthUserFileBackend provides extrapolated Trac/SVN Users
     * where to put ? project OR app ? in general minimise whats in the project 
 
+== DB APP : db permissions controller ==
 
+    * django-guardian object permissions provides high level table perms
+       * what mapping granularity between these and the MySQL table perms ?
+       * very high level best for pre-cooked usability from admin  
+          * ... but what about ease of introspection during the bootstrap ?
 
-== IMPLEMENTATION APPROACHES ==
+== PERMISSIONS IMPLEMENTATION APPROACHES ==
 
   * Use django Permissions ... model (not instance) based 
      * means cannot have a Table model ... 
@@ -15,7 +20,6 @@
         * when just using django models to hold permissions ... probably not a problem  
 
      * FORCES HOOP JUMPING FOR DYNAMIC SYNCDB 
-
 
   * Role-own per-instance permissions ... aping unix  
 
@@ -32,7 +36,6 @@
 
          * http://packages.python.org/django-permissions
             * put off by ugly documentation, and "role" usag ... non-agnostic seemingly 
-
 
    * and the winner is : '''django-guardian'''
        * http://packages.python.org/django-guardian/configuration.html

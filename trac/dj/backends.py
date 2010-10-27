@@ -24,7 +24,10 @@ def basic_check_password( auth_user_file , username , password ):
 
 
 ## MySQL 41 char password() correspond to this  
-from hashlib import sha1
+try:
+    from hashlib import sha1
+except ImportError:
+    from sha import sha as sha1
 mysql_password41_ = lambda pw:"*"+sha1(sha1(pw).digest()).hexdigest().upper()
 
 

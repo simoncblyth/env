@@ -25,7 +25,7 @@ dj-app(){      echo ${DJANGO_APP:-run} ; }
 dj-projdir(){  echo ${DJANGO_PROJDIR:-$(dj-dir)/$(dj-project)} ; }
 
 dj-appdir(){  echo $(dj-projdir)/$(dj-app) ; }
-dj-cd(){      cd $(dj-projdir) ; }
+dj-cd(){      cd $(dj-projdir)/$1 ; }
 
 dj-info(){    env | grep DJANGO_ ;  }
 
@@ -208,7 +208,7 @@ dj-srcnam(){  echo django ; }
 dj-ls(){      ls -l $(dj-srcfold) ; }
 dj-srcdir-(){ echo $(dj-srcfold)/$(dj-srcnam) ; }
 dj-srcdir(){  python-rln django ; }                  ## read the link 
-dj-scd(){     cd $(dj-srcdir) ; }
+dj-scd(){     cd $(dj-srcdir)/$1 ; }
 dj-mate(){   [ -d "$(dj-srcdir)" ] &&  mate $(dj-srcdir) || echo === $FUNCNAME : error no dj-srcdir:$(dj-srcdir)  ; }
 dj-admin(){   $(dj-srcdir)/bin/django-admin.py $* ; }
 dj-port(){    echo 8000 ; }

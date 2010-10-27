@@ -1,18 +1,13 @@
-
-from django.conf import settings
 from django.db.models.signals import post_syncdb
-from models import * 
-
-def bootstrap():
-    print "bootstraping from settings.DATABASES "
-    for k in filter(lambda _:_ != "default",  settings.DATABASES.keys()):
-        print k
-        Database.objects.get_or_create( name=k )
+from dybprj.db.bootstrap import bootstrap
 
 def bootstrap_callback(sender, **kwa):
     app = kwa.get('app', None)
-    if app and app.__name__ == 'dbi.models':
+    if app and app.__name__ == 'dybprj.db.models':
+        print "bootstrapping %s " % app.__name__
         bootstrap()
+    else:
+        print "skip %s " % app.__name__
 
 post_syncdb.connect(bootstrap_callback)
 

@@ -5,9 +5,14 @@ p = Private()
 
 from env.offline.dbconf import DBConf
 
+import os
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+DJYLT_DIR = p('DJYLT_DIR')
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+
+
 
 ADMINS = (
     ( p('ADMIN_NAME') ,  p('ADMIN_EMAIL') ),
@@ -31,6 +36,7 @@ TIME_ZONE = 'Asia/Taipei'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+SITE_DOMAIN = p('SITE_DOMAIN')
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
@@ -42,12 +48,12 @@ USE_L10N = True
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = p('MEDIA_ROOT')
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = p('MEDIA_URL')
 
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
@@ -78,6 +84,8 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    DJYLT_DIR ,
+    PROJECT_DIR + "/templates" , 
 )
 
 INSTALLED_APPS = (
@@ -90,7 +98,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.comments',
     'guardian',                   ## see guardian- 
-    'db',
+    'dybprj.db',                  ## see dybprj-
     'django_extensions',          ## see djext-
 )
 

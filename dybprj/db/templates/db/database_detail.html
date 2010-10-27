@@ -1,3 +1,35 @@
+{% extends 'layouts/layout_2_equal_columns.html' %}
+{% load comments %}
 
-database detail 
+{% block yahooui %}id="doc4"{% endblock yahooui %}
+
+
+{% block title %}
+    Details for database : {{ db.name }}}
+{% endblock %}
+
+{% block 1 %}
+  
+   <table> 
+     <tr>
+          <th> table </th>
+          <th> comments </th>
+     </tr>
+   {% for tab in tables %}
+
+     {% get_comment_count for tab as tabcom %}
+     <tr>
+         <td> <a href="{{ tab.name }}">{{ tab.name }}</a> </td> 
+         <td> {{ tabcom }}  </td>
+     </tr>
+   {% endfor %}
+   </table>
+
+{% endblock 1 %}
+
+{% block 2 %}
+Right Column
+
+{% endblock 2 %}
+
 

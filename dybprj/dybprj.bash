@@ -8,7 +8,13 @@ dybprj-env(){
    export DJANGO_APP=dbi
    export DJANGO_PROJDIR=$(dybprj-dir)
    export DJANGO_PROTOCOL=fcgi
+
    dj-
+}
+
+dybprj-ln(){
+   python-
+   python-ln $(dybprj-dir)
 }
 
 
@@ -23,10 +29,15 @@ dybprj-usage(){
               dj- 
               djdep-      eg fastcgi deployment 
 
+     == CSRF issues ==
+
+        On N was getting CSRF permission denied on submitting comment forms 
+           * fixed by upgrading to trunk django and using RequestContext on all views
+
+
      == for dev running behind a protected port ONLY ==
 
           iptables-open $(dj-port)
-
 
 
      TODO ...

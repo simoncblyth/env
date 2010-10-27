@@ -1,13 +1,23 @@
 
+{% extends 'layouts/layout_2_equal_columns.html' %}
+
+{% block 1 %}
+Left Column
+{% endblock 1 %}
+
+{% block 2 %}
+Right Column
+
+  {% for db in dblist %}
+    <p>{{ db.name }} </p>
+  {% endfor %}
+
+{% endblock 2 %}
+
+{% block title %}
+    Database List 
+{% endblock %}
 
 
-
-database list 
-
-
-{% for db in dblist %}
-  hello 
- {{ db }}
-{% endfor %}
 
 
