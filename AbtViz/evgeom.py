@@ -58,10 +58,11 @@ class EvGeom:
         import env.root.addons.TEveElement_Additions
         self.geo.SetRnrSelfChildren(kFALSE,kTRUE)
 
-        
+       
         for leaf in self.geo.rselect(lambda self:not(self.HasChildren())):
             leaf.SetRnrSelf(kTRUE)
 	    leaf.SetMainTransparency(80)
+
         for skip in self.geo.rtagged( self.vmr , 'SKIP' ):
             skip.SetRnrSelf(kFALSE)    
 

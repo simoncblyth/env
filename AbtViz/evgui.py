@@ -65,7 +65,11 @@ class EvGui(ROOT.TQObject):
         self.butt = Enum("kPrev kNext kFirst kLast kRefresh")
         self.add_buttons( fToolbarFrame )
 
-        self.html = {}
+	self.add_numberEntry( fToolbarFrame )
+
+	self.add_eventDisplay( fToolbarFrame )
+
+	self.html = {}
         self.tab = {}
         self.field = {}
         
@@ -79,7 +83,7 @@ class EvGui(ROOT.TQObject):
         br.MapSubwindows()
         br.MapWindow()
         br.Resize(br.GetDefaultSize())   ## avoids display glitch at top left of new tabs
- 
+      	
     def update_summary(self, name, smy=None , html=None):
         if not(html):
             assert len(smy) % 2 == 0 
@@ -218,10 +222,24 @@ class EvGui(ROOT.TQObject):
             name = self.butt(wid)
             print "handleButtons ?... %s %s " % ( obj , name )
 
+    def add_numberEntry(self,frame):
+	self.fNumber = ROOT.TGNumberEntry( frame, 0, 9,999, ROOT.TGNumberFormat.kNESInteger, ROOT.TGNumberFormat.kNEANonNegative, ROOT.TGNumberFormat.kNELLimitMinMax, 0, 99999 )
+	self._handleNumberEntry = ROOT.TPyDispatcher( self.handleNumberEntry )
+	self.fNumber.Connect( "ValueSet(Long_t)", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
+      	self.fNumber.GetNumberEntry().Connect( "ReturnPressed()", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
+	frame.AddFrame( self.fNumber, ROOT.TGLayoutHints( ROOT.kLHintsTop | ROOT.kLHintsLeft, 5, 5, 5, 5 ) )
 
+    def handleNumberEntry(self):
+	self.eventLabel.SetText( ROOT.Form( "%d" % self.fNumber.GetNumberEntry().GetIntNumber() ) )
+      	self.eventframe.Layout()
+	from ROOT import g_	
+	g_.SetEntry(self.fNumber.GetNumberEntry().GetIntNumber())
 
-
-
+    def add_eventDisplay(self,frame):
+	self.eventframe = ROOT.TGGroupFrame( frame, "Event:" )
+      	self.eventLabel = ROOT.TGLabel( self.eventframe, "0" )
+      	self.eventframe.AddFrame( self.eventLabel, ROOT.TGLayoutHints( ROOT.kLHintsTop | ROOT.kLHintsLeft, 5, 5, 5, 5) )
+      	frame.AddFrame( self.eventframe, ROOT.TGLayoutHints( ROOT.kLHintsExpandX, 2, 2, 1, 1 ) )
 
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()
