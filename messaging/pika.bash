@@ -7,9 +7,23 @@ pika-usage(){
   cat << EOU
      pika-src : $(pika-src)
      pika-dir : $(pika-dir)
-
-
+     
      http://github.com/tonyg/pika
+
+     To test operation ... 
+         1) in one session : pika-consume
+         2) in another     : pika-send
+
+      The sessions can be on different machines but the 
+      AMQP_ config for the sessions has to point 
+      to the same vhost in the same server (or erlang cluster i suppose)
+
+     Usage example ...
+
+          pika-consume --help
+          pika-consume -x testolive
+             fails noisily if exchange does not exist 
+
 
 EOU
 }

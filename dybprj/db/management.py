@@ -8,8 +8,10 @@ def bootstrap_callback(sender, **kwa):
         bootstrap()
     else:
         print "skip %s " % app.__name__
-
+    pass
 post_syncdb.connect(bootstrap_callback)
+
+
 
 
 

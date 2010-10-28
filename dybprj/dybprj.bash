@@ -55,9 +55,9 @@ dybprj-usage(){
 EOU
 }
 dybprj-dir(){ echo $(env-home)/dybprj ; }
-dybprj-cd(){  cd $(dybprj-dir); }
+dybprj-cd(){  cd $(dybprj-dir)/$1 ; }
 dybprj-mate(){ mate $(dybprj-dir) ; }
-
+dybprj-sh(){ dybprj-cd ; ./manage.py shell_plus ; }
 
 dybprj-dev-caution(){ cat << EOC
 

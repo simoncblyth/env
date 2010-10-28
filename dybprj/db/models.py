@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 database_admin_display = ('name','created',)
 database_admin_filter = ('name','created',)
 
+
 class Database(models.Model):
     name = models.CharField(max_length=40)
     created = models.DateTimeField(auto_now_add=True)
@@ -33,5 +34,11 @@ class Table(models.Model):
         )
     def __unicode__(self):
         return ",".join( ["%s=%s" % ( k, getattr(self,k)) for k in table_admin_display ] )
+
+
+
+
+
+
 
 

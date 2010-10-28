@@ -12,6 +12,7 @@ from django.db import connections
 from django.contrib.sites.models import Site
 
 
+# this is very generic ... it does not belong here 
 def set_site_domain():
     s = Site.objects.get_current()
     s.name = settings.SITE_DOMAIN

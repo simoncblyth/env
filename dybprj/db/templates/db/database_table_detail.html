@@ -1,6 +1,23 @@
 {% extends 'layouts/layout_2_equal_columns.html' %}
 {% load comments %}
 
+
+{% block js.custom %}
+  <script src="http://belle7.nuu.edu.tw:8080/socket.io/socket.io.js"></script>
+  <script>
+      var sub = new io.Socket(null, {transports: ['xhr-multipart', 'xhr-polling']});
+      sub.connect();
+      sub.send('sub abt:olive.db.table.2.string');
+      sub.on('message', function(msg){
+           var el = document.createElement('p');
+           el.innerHTML = '<em>' + msg + '</em>';
+           document.getElementById('comments').appendChild(el);
+           document.getElementById('comments').scrollTop = 1000000;
+           });
+  </script>
+{% endblock js.custom %}
+
+
 {% block yahooui %}id="doc4"{% endblock yahooui %}
 
 

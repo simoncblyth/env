@@ -12,6 +12,8 @@ DJYLT_DIR = p('DJYLT_DIR')
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+OLIVE_KEY_FUNC = lambda k:'olive.%s.string' % k
+OLIVE_EXCHANGE = 'abt'
 
 
 ADMINS = (
@@ -99,6 +101,7 @@ INSTALLED_APPS = (
     'django.contrib.comments',
     'guardian',                   ## see guardian- 
     'dybprj.db',                  ## see dybprj-
+    'dybprj.olive',
     'django_extensions',          ## see djext-
 )
 
