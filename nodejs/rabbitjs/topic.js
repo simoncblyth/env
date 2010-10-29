@@ -56,6 +56,11 @@ function listen(server, allowed) {
             }
         }
         client.on('message', dispatch);
+
+        function disconnect(){
+           sys.log("client disconnected ........ ");
+        }
+        client.on('disconnect' , disconnect );
     });
 }
 
