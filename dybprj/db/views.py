@@ -4,7 +4,7 @@ from db.models import Database, Table
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
-ctx = dict( MEDIA_URL=settings.MEDIA_URL )
+ctx = dict( MEDIA_URL=settings.MEDIA_URL , OLIVE_SERVER_HOST=settings.OLIVE_SERVER_HOST, OLIVE_SERVER_PORT=settings.OLIVE_SERVER_PORT  )
 
 def db_list(request):
     return render_to_response( "db/database_list.html" , dict( ctx, dblist=Database.objects.all() ) , context_instance=RequestContext(request) )

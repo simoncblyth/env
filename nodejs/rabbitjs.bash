@@ -101,9 +101,11 @@ rabbitjs-get(){
 rabbitjs-run(){
    rabbitjs-cd
 
-   nodeamqp-
-   nodeamqp-cfg-export
-   node socketio.js
+   #nodeamqp-
+   #nodeamqp-cfg-export
+   #node socketio.js
+   
+   node topicserver.js
   
 }
 

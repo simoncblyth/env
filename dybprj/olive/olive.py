@@ -5,12 +5,12 @@ import asyncore
 from private import Private
 p = Private()
 
-exchange , key, body =  "abt", "test.key.string" , "test.body" 
-def publish_to_q( exchange, key , body ):
+def publish_to_q( addr , body ):
     """
-         
-
-    """
+        TODO :
+          read the same config JSON string AMQP_CFG that the topicserver.js does for consistency  
+    """ 
+    exchange, key = addr.split(":")
     print "publish_to_q %s %s %s " % ( exchange, key, body )
     conn = pika.AsyncoreConnection(pika.ConnectionParameters( p('AMQP_SERVER'),credentials=pika.PlainCredentials(p('AMQP_USER'), p('AMQP_PASSWORD'))))
     ch = conn.channel()
