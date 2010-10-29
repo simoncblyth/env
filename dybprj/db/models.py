@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 database_admin_display = ('name','created',)
 database_admin_filter = ('name','created',)
 
-
 class Database(models.Model):
     name = models.CharField(max_length=40)
     created = models.DateTimeField(auto_now_add=True)

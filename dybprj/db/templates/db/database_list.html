@@ -1,5 +1,8 @@
-
 {% extends 'layouts/layout_2_equal_columns.html' %}
+
+{% block title %}
+    Database List 
+{% endblock %}
 
 {% block 1 %}
 Left Column
@@ -7,17 +10,8 @@ Left Column
 
 {% block 2 %}
 Right Column
-
   {% for db in dblist %}
     <p>{{ db.name }} </p>
   {% endfor %}
-
 {% endblock 2 %}
-
-{% block title %}
-    Database List 
-{% endblock %}
-
-
-
 

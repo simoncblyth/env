@@ -59,17 +59,19 @@ dybprj-cd(){  cd $(dybprj-dir)/$1 ; }
 dybprj-mate(){ mate $(dybprj-dir) ; }
 dybprj-sh(){ dybprj-cd ; ./manage.py shell_plus ; }
 
-dybprj-dev-caution(){ cat << EOC
+dybprj-run-caution(){ cat << EOC
 
     ONLY DO THIS WHEN THE PORT IS PROTECTED ...
     AS EXPOSING A DEBUG ENABLED DJANGO IS AKIN TO EXPOSING YOUR SOUL
 
+    NB live updating requires rabbitjs-run also 
+
 EOC
 }
 
-dybprj-dev(){
+dybprj-run(){
     local msg="=== $FUNCNAME :"
-    dybprj-dev-caution
+    dybprj-run-caution
     dybprj-cd
     local cmd="./manage.py runserver $(hostname):$(dj-port)"
     echo $msg $cmd

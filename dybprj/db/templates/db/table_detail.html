@@ -3,7 +3,7 @@
 {% load olive %}
 
 {% block js.custom %}
-  {% olive_script tab %}
+  {% olive_script table %}
   <script>
      // callback function invoked when messages are received from the olive server
       olive.on('message',
@@ -19,15 +19,15 @@
 
 {% block yahooui %}id="doc4"{% endblock yahooui %}
 
-{% block title %} Details for table : {{ tab.name }} {% endblock %}
+{% block title %} Details for table : {{ table.name }} {% endblock %}
 
 {% block 1 %}
-   <h1> {{ tab.name }} </h1>
-   {% render_comment_list for tab %} 
+   <h1> {{ table.name }} </h1>
+   {% render_comment_list for table %} 
 {% endblock 1 %}
 
 {% block 2 %}
-   {% render_comment_form for tab %} 
+   {% render_comment_form for table %} 
 {% endblock 2 %}
 
 
