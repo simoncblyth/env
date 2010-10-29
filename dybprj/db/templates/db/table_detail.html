@@ -2,6 +2,7 @@
 {% load comments %}
 {% load olive %}
 
+
 {% block js.custom %}
   {% olive_script table %}
   <script>
@@ -17,17 +18,15 @@
   </script>
 {% endblock js.custom %}
 
-{% block yahooui %}id="doc4"{% endblock yahooui %}
+{% block yahooui %}id="doc3"{% endblock yahooui %}
 
 {% block title %} Details for table : {{ table.name }} {% endblock %}
 
 {% block 1 %}
    <h1> {{ table.name }} </h1>
    {% render_comment_list for table %} 
+   {% render_comment_form for table %} 
 {% endblock 1 %}
 
-{% block 2 %}
-   {% render_comment_form for table %} 
-{% endblock 2 %}
 
 

@@ -18,6 +18,9 @@ urlpatterns = patterns('',
     # enabling comment pages ... preview/moderation etc..
      (r'^db/', include('db.urls')),
 
+    # default login form 
+     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+
 )
 
 #from django.conf import settings

@@ -85,11 +85,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'dybprj.urls'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    DJYLT_DIR ,
     PROJECT_DIR + "/templates" , 
+    DJYLT_DIR + "/templates" ,
 )
 
 INSTALLED_APPS = (
@@ -104,8 +101,12 @@ INSTALLED_APPS = (
     'guardian',                   ## see guardian- 
     'dybprj.db',                  ## see dybprj-
     'dybprj.olive',
+    'dybprj.cust_comments',
     'django_extensions',          ## see djext-
 )
+
+
+COMMENTS_APP = 'dybprj.cust_comments'   ## make email/url/name fields optional 
 
 
 

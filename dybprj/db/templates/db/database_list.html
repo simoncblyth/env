@@ -5,13 +5,13 @@
 {% endblock %}
 
 {% block 1 %}
-Left Column
+   <ul>
+   {% for db in dblist %}
+       <li> <a href="{{ db.name }}" > {{ db.name }} </a> </li>
+   {% endfor %}
+   </ul>
 {% endblock 1 %}
 
 {% block 2 %}
-Right Column
-  {% for db in dblist %}
-    <p>{{ db.name }} </p>
-  {% endfor %}
-{% endblock 2 %}
+ {% endblock 2 %}
 
