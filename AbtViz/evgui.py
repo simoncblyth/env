@@ -214,18 +214,18 @@ class EvGui(ROOT.TQObject):
 
         if   wid == self.butt.kNext:
 	   #g_.NextEntry()
-	   if (number < 9998):
+	   if (number < g_.GetEntryMax()):
 	      self.fNumber.SetIntNumber(number+1)
         elif wid == self.butt.kPrev:
 	   #g_.PrevEntry()
-	   if (number): #avoid reaching -1
+	   if (number>g_.GetEntryMin()): #avoid reaching -1
 	      self.fNumber.SetIntNumber(number-1)
 	elif wid == self.butt.kFirst:
 	   #g_.FirstEntry()
-	   self.fNumber.SetIntNumber(0)
+	   self.fNumber.SetIntNumber(g_.GetEntryMin())
         elif wid == self.butt.kLast :
 	   #g_.LastEntry()
-	   self.fNumber.SetIntNumber(9998)
+	   self.fNumber.SetIntNumber(g_.GetEntryMax())
         elif wid == self.butt.kRefresh :
 	   g_.RefreshSource()
 	   self.fNumber.SetIntNumber(number)
@@ -235,7 +235,7 @@ class EvGui(ROOT.TQObject):
 	self.fNumber.ValueSet(100)
 
     def add_numberEntry(self,frame):
-	self.fNumber = ROOT.TGNumberEntry( frame, 0, 9,999, ROOT.TGNumberFormat.kNESInteger, ROOT.TGNumberFormat.kNEANonNegative, ROOT.TGNumberFormat.kNELLimitMinMax, 0, 9998 )
+	self.fNumber = ROOT.TGNumberEntry( frame, 0, 9,999, ROOT.TGNumberFormat.kNESInteger, ROOT.TGNumberFormat.kNEANonNegative, ROOT.TGNumberFormat.kNELLimitMinMax, 0, 1000000 )
 	self._handleNumberEntry = ROOT.TPyDispatcher( self.handleNumberEntry )
 	self.fNumber.Connect( "ValueSet(Long_t)", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
       	self.fNumber.GetNumberEntry().Connect( "ReturnPressed()", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
