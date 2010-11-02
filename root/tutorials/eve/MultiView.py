@@ -110,10 +110,6 @@ class MultiView(list):
       self.fRhoZView.AddScene(self.fRhoZEventScene)
 			
 
-      fHisto = gEve.SpawnNewViewer("Histograms?", "")
-      fHisto2 = gEve.SpawnNewViewer("Histograms2?", "")
-
-
    # ---------------------------------------------------------------------------
 
    def SetDepth(self, d):
