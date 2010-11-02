@@ -1,4 +1,5 @@
 import ROOT
+import MultiView
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 
 ## Forward declarations.
@@ -108,7 +109,12 @@ def alice_esd():
     geom.Close()
     del geom
     gEve.AddGlobalElement(gsre)
+	
+    global gMultiView
+    gMultiView = MultiView.MultiView()
 
+    gMultiView.ImportGeom(gsre)
+    
     #make_gui()
     load_event()
     gEve.Redraw3D(kTRUE)  ## Reset camera after the first event has been shown.
@@ -135,6 +141,12 @@ def load_event():
 
     esd_tree.GetEntry(esd_event_id)
     alice_esd_read()
+
+    top = gEve.GetCurrentEvent()
+
+    gMultiView.DestroyEvent()
+    gMultiView.ImportEvent(top)
+
     gEve.Redraw3D(kFALSE, kTRUE)
 
 
