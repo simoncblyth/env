@@ -67,8 +67,6 @@ class EvGui(ROOT.TQObject):
 
 	self.add_numberEntry( fToolbarFrame )
 
-	self.add_eventDisplay( fToolbarFrame )
-
 	self.html = {}
         self.tab = {}
         self.field = {}
@@ -211,35 +209,42 @@ class EvGui(ROOT.TQObject):
     def handleButtons(self):
         obj = ROOT.BindObject( ROOT.gTQSender, ROOT.TGTextButton )
         wid = obj.WidgetId()
+	number = self.fNumber.GetNumberEntry().GetIntNumber() 
         from ROOT import g_ 
 
-        if   wid == self.butt.kNext:  g_.NextEntry()
-        elif wid == self.butt.kPrev:  g_.PrevEntry()
-        elif wid == self.butt.kFirst: g_.FirstEntry()
-        elif wid == self.butt.kLast : g_.LastEntry()
-        elif wid == self.butt.kRefresh : g_.RefreshSource()
+        if   wid == self.butt.kNext:
+	   #g_.NextEntry()
+	   if (number < 9998):
+	      self.fNumber.SetIntNumber(number+1)
+        elif wid == self.butt.kPrev:
+	   #g_.PrevEntry()
+	   if (number): #avoid reaching -1
+	      self.fNumber.SetIntNumber(number-1)
+	elif wid == self.butt.kFirst:
+	   #g_.FirstEntry()
+	   self.fNumber.SetIntNumber(0)
+        elif wid == self.butt.kLast :
+	   #g_.LastEntry()
+	   self.fNumber.SetIntNumber(9998)
+        elif wid == self.butt.kRefresh :
+	   g_.RefreshSource()
+	   self.fNumber.SetIntNumber(number)
         else:
             name = self.butt(wid)
             print "handleButtons ?... %s %s " % ( obj , name )
+	self.fNumber.ValueSet(100)
 
     def add_numberEntry(self,frame):
-	self.fNumber = ROOT.TGNumberEntry( frame, 0, 9,999, ROOT.TGNumberFormat.kNESInteger, ROOT.TGNumberFormat.kNEANonNegative, ROOT.TGNumberFormat.kNELLimitMinMax, 0, 99999 )
+	self.fNumber = ROOT.TGNumberEntry( frame, 0, 9,999, ROOT.TGNumberFormat.kNESInteger, ROOT.TGNumberFormat.kNEANonNegative, ROOT.TGNumberFormat.kNELLimitMinMax, 0, 9998 )
 	self._handleNumberEntry = ROOT.TPyDispatcher( self.handleNumberEntry )
 	self.fNumber.Connect( "ValueSet(Long_t)", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
       	self.fNumber.GetNumberEntry().Connect( "ReturnPressed()", "TPyDispatcher", self._handleNumberEntry, "Dispatch()" )
 	frame.AddFrame( self.fNumber, ROOT.TGLayoutHints( ROOT.kLHintsTop | ROOT.kLHintsLeft, 5, 5, 5, 5 ) )
 
     def handleNumberEntry(self):
-	self.eventLabel.SetText( ROOT.Form( "%d" % self.fNumber.GetNumberEntry().GetIntNumber() ) )
-      	self.eventframe.Layout()
 	from ROOT import g_	
 	g_.SetEntry(self.fNumber.GetNumberEntry().GetIntNumber())
 
-    def add_eventDisplay(self,frame):
-	self.eventframe = ROOT.TGGroupFrame( frame, "Event:" )
-      	self.eventLabel = ROOT.TGLabel( self.eventframe, "0" )
-      	self.eventframe.AddFrame( self.eventLabel, ROOT.TGLayoutHints( ROOT.kLHintsTop | ROOT.kLHintsLeft, 5, 5, 5, 5) )
-      	frame.AddFrame( self.eventframe, ROOT.TGLayoutHints( ROOT.kLHintsExpandX, 2, 2, 1, 1 ) )
 
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()

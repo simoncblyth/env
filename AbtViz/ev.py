@@ -6,6 +6,8 @@ ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 
 from ROOT import kTRUE, kFALSE, gEve 
 
+import MultiView
+
 from evctrl import EvController
 print "imported EvController"
 from evgeom  import EvGeom
@@ -81,7 +83,7 @@ class Controller(EvController):
         if self.dbg>0:
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
-        
+
         self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
@@ -113,6 +115,9 @@ class Controller(EvController):
         else:
             print "%s : WARNING : failed to access the GL Viewer " % self.__class__
         self.viewer = viewer
+	        
+	#use multiview!
+    	MultiView.MultiView()
 
     def istree(self):
         return self.GetSource().endswith(".root")
@@ -200,6 +205,7 @@ class Controller(EvController):
         ## this redraw appears to be where the Darwin crash usually occurs 
         ## gEve.Redraw3D(kFALSE, kFALSE )  ## quick update
         #print "redraw3d"
+
         gEve.Redraw3D()
         #print "redraw3d.done"
 
