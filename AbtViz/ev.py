@@ -73,7 +73,7 @@ class Controller(EvController):
                      dict of tabs
               g.gui.tab['AbtEvent']
                    
-                    
+       :             
         
     """
     def __init__(self, dbg=0 ):
