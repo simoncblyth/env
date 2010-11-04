@@ -121,58 +121,53 @@ class EvDataModel(DataModel):
         self.ndrhtml.Build()
         return self.ndrhtml.Html().Data()
 
-
     def pmt_response_default(self):
         return [0 for i in range(16)]
 
     def pmt_response(self):
         if not(self.trg):
             ROOT.Error("pmt_response", "NULL trg" )
-            return self.pmt_response_default()
+            return [self.pmt_response_default() for i in range(4)]
         
 	np = self.trg.GetNPhoton() 
-        if not(np):
-            ROOT.Error("pmt_response", "NULL NPhoton" )
-            return self.pmt_response_default()
-	
+        #if not(np):
+            #ROOT.Error("pmt_response", "NULL NPhoton" )
         adc = self.trg.GetAdc() 
         #if not(adc):
             #ROOT.Error("pmt_response", "NULL Adc" )
-            #return self.pmt_response_default()
-	
 	tdc = self.trg.GetTdc()
 	hti = self.trg.GetHitTime()
 	
 	#To map the correct response of the PMT from data file
 	pmtMapping = [11, 15, 3, 7, 10, 14, 2, 6, 9, 13, 1, 5, 8, 12, 0, 4]
         
-	#Store all adc, tdc, np, hti and pass back to ev.py, weary of null 
-	null= [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0]
+	#Store all adc, tdc, np, hti and pass back to ev.py
+	#In case data is not stored, set response as default
 	
 	if (adc):
 	   adcr = []
 	   [adcr.append(adc.GetCh(pmtMapping[i])) for i in range(16)]
 	else:
-	   adcr = null
+	   adcr = self.pmt_response_default()
 
 	
         if (tdc):
            tdcr = []
            [tdcr.append(tdc.GetCh(pmtMapping[i])) for i in range(16)]
         else:
-           tdcr = null
+           tdcr = self.pmt_response_default()
 
         if (np):
            npr = []
            [npr.append(np.GetCh(pmtMapping[i])) for i in range(16)]
         else:
-           npr = null
+           npr = self.pmt_response_default()
 
         if (hti):
            htir = []
            [htir.append(hti.GetCh(pmtMapping[i])) for i in range(16)]
         else:
-           htir = null
+           htir = self.pmt_response_default()
 
 
 	return [adcr, tdcr, npr, htir]

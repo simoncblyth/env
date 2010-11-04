@@ -73,7 +73,7 @@ class Controller(EvController):
                      dict of tabs
               g.gui.tab['AbtEvent']
                    
-       :             
+                    
         
     """
     def __init__(self, dbg=0 ):
@@ -171,7 +171,6 @@ class Controller(EvController):
         
         
         pmtr = self.src.pmt_response() 
-
 	if len(pmtr[2]) > 0:
             if self.dbg>1:print "pmtr %s" % pmtr
             self.digi.update_pmt(  pmtr ) 
@@ -233,8 +232,8 @@ if __name__=='__main__':
     offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     
-    #g.SetSource( repr(online) )
-    g.SetSource( offline )
+    g.SetSource( repr(online) )
+    #g.SetSource( offline )
     
     
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE
