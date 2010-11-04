@@ -52,15 +52,17 @@ void KeyHandler::Bind()
    }
 
    // bind arrow keys and space-bar key
-   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
-   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
-   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
-   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
+   //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
+   //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
+   //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
+   //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
 
   // these 3 work for me ... from OSX 
   //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
+   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Home), 0);
    fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_PageUp), 0);
    fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_PageDown), 0);
+   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_End), 0);
 
 }
 
@@ -72,14 +74,16 @@ void KeyHandler::RemoveBind()
    }
 
    // remove binding of arrow keys and space-bar key
-   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
-   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
-   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
-   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
+   //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Up),    0);
+   //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Left),  0);
+   //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
+   //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
 
    //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
+   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Home), 0);
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_PageUp), 0);
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_PageDown), 0);
+   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_End), 0);
 
 }
 
@@ -111,18 +115,18 @@ Bool_t KeyHandler::HandleKey(Event_t *event)
 
    if (event->fType == kGKeyPress) {
       switch ((EKeySym)keysym) {
-         case kKey_Left:
-            cout << "left" << endl; 
-            break;
-         case kKey_Right:
-            cout << "right" << endl; 
-            break;
-         case kKey_Down:
-            cout << "down" << endl; 
-            break;
-         case kKey_Up:
-            cout << "up" << endl; 
-            break;
+         //case kKey_Left:
+            //cout << "left" << endl; 
+            //break;
+         //case kKey_Right:
+            //cout << "right" << endl; 
+            //break;
+         //case kKey_Down:
+            //cout << "down" << endl; 
+            //break;
+         //case kKey_Up:
+            //cout << "up" << endl; 
+            //break;
          case kKey_PageDown:
             //cout << "Pdown" << endl; 
             g_->NextEntry();
@@ -131,10 +135,14 @@ Bool_t KeyHandler::HandleKey(Event_t *event)
             //cout << "Pup" << endl; 
             g_->PrevEntry();
             break;
-         //case kKey_Space:
+         case kKey_Home:
             //cout << "space" << endl; 
-            //g_->FirstEntry();
-            //break;
+            g_->FirstEntry();
+            break;
+         case kKey_End:
+            //cout << "space" << endl; 
+            g_->LastEntry();
+            break;
          default:
             cout << "default:" << keysym << endl; 
             return kTRUE;
