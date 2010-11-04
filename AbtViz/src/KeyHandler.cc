@@ -58,7 +58,7 @@ void KeyHandler::Bind()
    fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
 
   // these 3 work for me ... from OSX 
-   fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
+  //fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
    fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_PageUp), 0);
    fMainFrame->BindKey((const TGWindow*)this, gVirtualX->KeysymToKeycode(kKey_PageDown), 0);
 
@@ -77,7 +77,7 @@ void KeyHandler::RemoveBind()
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Right), 0);
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Down),  0);
 
-   fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
+   //fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_Space), 0);
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_PageUp), 0);
    fMainFrame->RemoveBind(this, gVirtualX->KeysymToKeycode(kKey_PageDown), 0);
 
@@ -131,10 +131,10 @@ Bool_t KeyHandler::HandleKey(Event_t *event)
             //cout << "Pup" << endl; 
             g_->PrevEntry();
             break;
-         case kKey_Space:
-            cout << "space" << endl; 
-            g_->FirstEntry();
-            break;
+         //case kKey_Space:
+            //cout << "space" << endl; 
+            //g_->FirstEntry();
+            //break;
          default:
             cout << "default:" << keysym << endl; 
             return kTRUE;
