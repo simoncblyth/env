@@ -890,3 +890,4 @@ rabbitjs-(){      . $(env-home)/nodejs/rabbitjs.bash && rabbitjs-env $* ; }
 nodeamqp-(){      . $(env-home)/nodejs/nodeamqp.bash && nodeamqp-env $* ; }
 socketio-(){      . $(env-home)/nodejs/socketio.bash && socketio-env $* ; }
 djylt-(){      . $(env-home)/dj/djylt.bash && djylt-env $* ; }
+telnet-(){      . $(env-home)/base/telnet.bash && telnet-env $* ; }

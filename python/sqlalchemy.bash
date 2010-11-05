@@ -9,29 +9,37 @@ sqlalchemy-usage(){
 
      http://www.sqlalchemy.org
 
+ 
+     sqlalchemu-version 
+
      sqlalchemy-dbcheck 
-         verify the connection to the database 
+         verify the connection to DATABASE_URL by attempting 
+         to dump the tables therein
+ 
+     sqlalchemy 
 
-     sqlalchemy 0.4
-         The SQLAlchemy 0.4 line is the last version with Python 2.3 support. 
-
-     sqlalchemy 0.5 
-         Python 2.4 or higher is required. 
+    ||   || 0.4    ||  last version with Python 2.3 support. || 
+    ||   || 0.5    ||  Python 2.4 or higher is required.     ||
+    ||   || 0.6    ||                                        ||
+    || C || 0.6.6  ||  hg tip                                ||         
 
 
 EOU
 }
 
 sqlalchemy-srcfold(){ echo $(local-base)/env ; }
-sqlalchemy-mode(){ echo 0.5 ; }
+sqlalchemy-mode(){ echo 0.6 ; }
 sqlalchemy-srcnam(){
    case ${1:-$(sqlalchemy-mode)} in
     0.5) echo sqlalchemy-0.5 ;;
+    0.6) echo sqlalchemy ;;
    esac
 }
 sqlalchemy-srcdir(){  echo $(sqlalchemy-srcfold)/$(sqlalchemy-srcnam) ; }
 #sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/trunk@6065 ; }
-sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/branches/rel_0_5 ; }
+#sqlalchemy-srcurl(){ echo http://svn.sqlalchemy.org/sqlalchemy/branches/rel_0_5 ; }
+
+sqlalchemy-cd(){  cd $(sqlalchemy-srcdir) ;}
 
 sqlalchemy-mate(){ mate $(sqlalchemy-srcdir) ; }
 
@@ -40,7 +48,10 @@ sqlalchemy-get(){
   local dir=$(sqlalchemy-srcfold)
   local nam=$(sqlalchemy-srcnam)
   mkdir -p $dir && cd $dir
-  [ ! -d "$nam" ] && svn co $(sqlalchemy-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
+  #[ ! -d "$nam" ] && svn co $(sqlalchemy-srcurl)  $nam || echo $msg $nam already exists in $dir skipping 
+
+  hg clone http://hg.sqlalchemy.org/sqlalchemy 
+
 }
 
 sqlalchemy-ln(){
@@ -53,7 +64,7 @@ sqlalchemy-version(){ python -c "import sqlalchemy as _ ; print _.__version__ " 
 
 sqlalchemy-dbcheck(){ $FUNCNAME- | python ; }
 sqlalchemy-dbcheck-(){ cat << EOC
-from env.base.private import Private
+from private import Private
 p = Private()
 from sqlalchemy import create_engine
 dburl = p('DATABASE_URL')
