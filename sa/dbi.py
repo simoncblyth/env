@@ -1,24 +1,23 @@
-from sqlalchemy import create_engine, MetaData 
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.ext.sqlsoup import SqlSoup
-from datetime import datetime
 
 class DbiSoup(dict):
-    def __init__(self, dburl):
+    def __init__(self, soup):
         """
             DB access and instrospection ... curtesy of sqlalchemy + SqlSoup extension
+                http://www.sqlalchemy.org/docs/orm/extensions/sqlsoup.html
 
-            Usage : 
-                from private import Private
-                p = Private()
-                dbis = DBISoup( p('DATABASE_URL') )
-                locals().update(dbis)    ## populates scope with the mapped classes 
+                http://www.sqlalchemy.org/docs/orm/extensions/sqlsoup.html#sessions-transations-and-application-integration
+                     the soup saves a lot pf effort, but unclear regarding integration 
+
+            Multi-DB usage ...
+               http://www.sqlalchemy.org/docs/05/session.html#vertical-partitioning
+                   done by configuring the Session class
+
+                http://www.sqlalchemy.org/docs/05/reference/orm/sessions.html#sqlalchemy.orm.sessionmaker
 
         """
-        self.engine = create_engine( dburl )
-        self.insp = Inspector.from_engine(self.engine)
-        self.meta = MetaData(self.engine) 
-        self.soup = SqlSoup( self.meta )
+        self.soup = soup
+        self.insp = Inspector.from_engine(soup.engine)
 
         self.pk_check()
         self.map_all()
@@ -27,28 +26,35 @@ class DbiSoup(dict):
     vld_tables = property( lambda self:filter(lambda t:t[-3:].upper() == "VLD", self.all_tables ))
     pay_tables = property( lambda self:map(lambda t:t[0:-3], self.vld_tables ))
     dbi_pairs  = property( lambda self:zip(self.pay_tables, self.vld_tables))
+    dbi_tables = property( lambda self:self.pay_tables + self.vld_tables )
+    oth_tables = property( lambda self:filter(lambda t:t not in self.dbi_tables,self.all_tables))
 
     def map_all(self):
         for p,v in self.dbi_pairs:
-            self(p)
+            self.pairing(p,v)
+        for t  in self.oth_tables:
+            self[t] = getattr( self.soup , t )
                 
-    def __call__(self, t ):
+    def pairing(self, p, v  ):
         """
             accessing the attribute from the soup, pulls the class into existance  
         """
-        p,v = (t, "%sVld" % t)
         pay = getattr( self.soup , p )
         vld = getattr( self.soup , v )
         self[p] = self.soup.join( pay, vld, pay.SEQNO == vld.SEQNO , isouter=False )  ## pay + vld join 
         self[v] = vld 
         return self[p]
  
+
     def pk_check(self):
         """
+             THIS BELONGS ELSEWHERE
+
             Inspector API is new in SA 0.6.5?
         """
         for p,v in self.dbi_pairs:
             for t in p,v:
+                print t 
                 pks = self.insp.get_primary_keys(t)
                 cols = self.insp.get_columns(t)
                 assert len(cols) > 1 , cols
@@ -61,14 +67,7 @@ class DbiSoup(dict):
 
 
 if __name__=='__main__':
-    from private import Private
-    p = Private()
-    dbis = DbiSoup( p('DATABASE_URL') )
-    locals().update(dbis)
+    pass
 
-    assert SimPmtSpec.count() == 2546 
-    assert CalibPmtSpec.count() == 4160 
-    assert SimPmtSpec.get((1,100)).VERSIONDATE == datetime(2010, 1, 20, 0, 0)   ## CPK get 
-    assert CalibFeeSpecVld.count() == 111
 
 
