@@ -59,7 +59,7 @@ class EvGui(ROOT.TQObject):
         fToolbarFrame = br.GetToolbarFrame()
         self.keyhandler = ROOT.KeyHandler( br )
        
-        self.menu = Enum("kPrev kNext kFirst kLast kRefresh")
+        self.menu = Enum("kOnline kOffline")
         self.add_navmenu( fToolbarFrame )
 
         self.butt = Enum("kPrev kNext kFirst kLast kRefresh")
@@ -112,6 +112,9 @@ class EvGui(ROOT.TQObject):
              tab.RemoveTab(0)    
               
         """
+        ROOT.gEve.GetBrowser().SetStatusText("Online",0)    
+        ROOT.gEve.GetBrowser().SetStatusText("",1) 
+
         it = tab.AddTab( name )
         tab.SetTab( name )     ## select the tab 
         
@@ -124,12 +127,7 @@ class EvGui(ROOT.TQObject):
  
  
     def add_texttab( self, tab , name="Default"):
-        """
-        
-           ISSUES :
-              space is being trapped ... so cannot enter spaces 
 
-        """
         it = tab.AddTab( name )
         tab.SetTab( name )
         
@@ -187,12 +185,20 @@ class EvGui(ROOT.TQObject):
         eid = obj.GetCurrent().GetEntryId()
         from ROOT import g_ 
 
-        if   eid == self.menu.kNext :  g_.NextEntry()
-        elif eid == self.menu.kPrev :  g_.PrevEntry()
-        elif eid == self.menu.kFirst:  g_.FirstEntry()
-        elif eid == self.menu.kLast :  g_.LastEntry()
-        elif eid == self.menu.kRefresh :  g_.RefreshSource()
-        else:
+        if   eid == self.menu.kOnline :
+	    online = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
+	    g_.SetSource( repr(online) )
+	    g_.RefreshSource()
+	    ROOT.gEve.GetBrowser().SetStatusText("Online",0)
+	    ROOT.gEve.GetBrowser().SetStatusText("",1)
+        elif eid == self.menu.kOffline :
+	    #FileBrowser = ROOT.gEve.GetBrowser().MakeFileBrowser()
+ 	    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+	    g_.SetSource( offline )
+	    g_.RefreshSource()
+	    ROOT.gEve.GetBrowser().SetStatusText("Offline",0)
+	    ROOT.gEve.GetBrowser().SetStatusText(offline,1)        
+	else:
             name = self.menu(eid)
             print "handleNavMenu ?... %s %s " % ( obj , name )
 
