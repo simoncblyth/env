@@ -45,11 +45,11 @@ from sqlalchemy.ext.sqlsoup import SqlSoup
 meta = MetaData( ENGINES[dbi] )
 soup = SqlSoup( meta , session = Session )   # introspect DB and mapem 
 from dbi import DbiSoup 
-dbisoup = DbiSoup(soup)
-locals().update(dbisoup)
+DBISOUP = DbiSoup(soup)
+locals().update(DBISOUP)
 
 
-
+__all__ += ['DBISOUP']
 
 
 if __name__ == '__main__':

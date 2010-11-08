@@ -8,6 +8,7 @@ from env.offline.dbconf import DBConf
 import os
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 DJYLT_DIR = p('DJYLT_DIR')
+DEFAULT_CONTENT_TYPE =  "application/xhtml+xml"   # default mimetype, needed for inline SVG to show up 
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -25,6 +26,8 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASES = dict([ (k,DBConf(k,verbose=False).django) for k in "default prior".split() ] )  
+
+
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

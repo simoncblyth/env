@@ -1,7 +1,6 @@
-
+#!/usr/bin/env python
 from env.sa import *
 from datetime import datetime
-
 
 session = Session()        
 for c in "red green blue cyan magenta yellow".split():
@@ -9,10 +8,8 @@ for c in "red green blue cyan magenta yellow".split():
     print q, created
 session.flush()
 
-
 for o in session.query(Qry).all():
     print o
-
 
 print "count : %d ", session.query(Qry).count()
 print session.query(Qry).count()
