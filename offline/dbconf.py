@@ -41,6 +41,7 @@ class DBConf(dict):
                    'db':"%(database)s", 
                  'pswd':"%(password)s",
                   'url':"mysql://%(host)s/%(database)s", 
+                'urlsa':"mysql://%(user)s:%(password)s@%(host)s/%(database)s", 
                'engine':"django.db.backends.mysql",
                  'port':"",
                   'fix':None,
@@ -63,7 +64,7 @@ class DBConf(dict):
         #print dbc.dump_env()
     Export = classmethod( Export )
 
-    def __init__(self, sect=None , path=None , user=None, pswd=None, url=None , host=None, db=None , port=None, engine=None, fix=None, verbose=False, secure=False, from_env=False ): 
+    def __init__(self, sect=None , path=None , user=None, pswd=None, url=None , host=None, db=None , port=None, engine=None, urlsa=None, fix=None, verbose=False, secure=False, from_env=False ): 
         """
 
            Documented in the Database/Running section of the Offline User Manual 
@@ -123,6 +124,8 @@ class DBConf(dict):
         ## for django
         port   = port    or os.environ.get('DBCONF_PORT' ,  DBConf.defaults['port'] ) 
         engine = engine  or os.environ.get('DBCONF_ENGINE' , DBConf.defaults['engine'] ) 
+        ## for SQLAlchemy
+        urlsa   = urlsa  or os.environ.get('DBCONF_URLSA',  DBConf.defaults['urlsa'] ) 
   
         if self.secure:
             self._check_path( path )
@@ -139,6 +142,7 @@ class DBConf(dict):
         self.fix  = fix
         self.port = port
         self.engine = engine
+        self.urlsa = urlsa
 
     def mysqldb_parameters(self):
         #return dict(read_default_file=self.path, read_default_group=self.sect)
@@ -154,6 +158,13 @@ class DBConf(dict):
             print "dbconf : connecting to %s " % dict(d, PASSWORD="***" )
         return d   
     django = property( django_parameters ) 
+ 
+    def sqlalchemy_url(self):
+        if self.verbose:
+            print "dbconf : connecting to %s " % dict(self, password="***" )
+        return self.urlsa % self   
+    sqlalchemy = property( sqlalchemy_url ) 
+        
 
     def _check_path(self, path ):
         """
