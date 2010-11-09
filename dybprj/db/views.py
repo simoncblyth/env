@@ -16,6 +16,19 @@ epoch = lambda dt:time.mktime(dt.timetuple())
   http://matplotlib.sourceforge.net/ 
   http://code.creativecommons.org/svnroot/stats/reports/temp/date_demo.py
 
+
+  http://matplotlib.sourceforge.net/users/artists.html#figure-container 
+     line drawing example can be the basis of the viz i have in mind
+
+     help(matplotlib.dates) help(matplotlib.ticker)
+
+
+    sqlalchemy -- numpy -- matplotlib -- django
+
+
+     https://github.com/dalloliogm/sqlalchemy-recarray
+     http://www.sqlalchemy.org/trac/ticket/1572
+
 """
 
 ctx = {} 
@@ -45,7 +58,7 @@ def db_table(request, dbname , tabname ):
     ## aggregates dont need ORM 
     from sqlalchemy import select, func
     tc = kls._table.c
-    count,seqmin,seqmax,tmin,tmax = select([func.count(),func.min(tc.SEQNO),func.max(tc.SEQNO),func.min(tc.TIMESTART),func.max(tc.TIMEEND),]).execute().fetchone()
+    count,seqmin,seqmax,tmin,tmax = select([func.count(),func.min(tc.SEQNO),func.max(tc.SEQNO),func.min(tc.TIMESTART),func.max(tc.TIMEEND),]).where(tc.TIMESTART>datetime(2000, 1, 1, 0, 0, 0)).execute().fetchone()
     viewBox = "%s %s %s %s" % ( epoch(tmin), seqmin , epoch(tmax), seqmax )
 
     limit = 25
