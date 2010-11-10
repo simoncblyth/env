@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 
 
+
 ## sqlalchemy 
 from env.sa import Session, DBISOUP
 
@@ -44,12 +45,16 @@ def db_detail(request, dbname ):
     return render_to_response( "db/database_detail.html" , { 'db':db, 'tables':tables } , context_instance=RequestContext(request) )
 
 @login_required
-def db_table(request, dbname , tabname ):
+def db_table_dev(request, dbname , tabname ):
     """ next specifies to redirect back to table detail after posting comments """
     table = Table.objects.get( name = tabname, db__name = dbname )
-    next = reverse( 'db-table' , kwargs={ 'dbname':dbname, 'tabname':tabname } ) 
+    next = reverse( 'db-table-dev' , kwargs={ 'dbname':dbname, 'tabname':tabname } ) 
 
-    ## SQLAlchemy ...
+
+    ## using SQLAlchemy querying to determine the extents of the table fields ...
+    ## and filling in inline SVG in the template ...
+    ##   ... this approach does not scale to slow DB queries
+
     session = Session()
     kls = DBISOUP.get(tabname, None)
     assert kls, "no SA class for tabname %s " % tabname
@@ -69,6 +74,32 @@ def db_table(request, dbname , tabname ):
     else:
         objs = session.query(kls).order_by(kls.SEQNO).all()[0:limit]
 
-   
     return render_to_response( "db/table_detail.html" ,  { 'table':table , 'next':next, 'count':count, 'objs':objs, 'vld':vld , 'viewBox':viewBox } , context_instance=RequestContext(request) )
+
+
+
+
+
+
+from django.http import HttpResponse
+from figs import demo
+
+mimetype = dict( png="image/png", svg="image/svg+xml", pdf="application/pdf" )
+
+@login_required
+def db_table_fig(request, dbname , tabname , format ):
+    response = HttpResponse(mimetype=mimetype[format])
+    fig = demo()
+    fig.savefig( response, format=format )
+    return response
+
+
+
+
+
+
+
+
+
+
 

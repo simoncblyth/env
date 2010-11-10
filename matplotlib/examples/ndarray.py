@@ -22,22 +22,19 @@
        http://pytseries.sourceforge.net/lib.database.html
            masked approach to NULL handling 
 
-      
-
  
     pytables based on HDF ... claims to be a lot faster that SQL databases 
        http://www.pytables.org/moin/HowToUse
 
-
 """
 import MySQLdb  
-import numpy as np
 import decimal, types
 from datetime import datetime
+
 from env.offline.dbconf import DBConf
 
 
-class DB(object):
+class DBn(object):
     def __init__(self, *args, **kwa ):
         d = {}
         if len(args) == 1:
@@ -87,6 +84,7 @@ class DB(object):
 
         http://crucible.broadinstitute.org/browse/~raw,r=10032/CellProfiler/trunk/CPAnalyst/src/DBConnect.py
 
+        NB does not depend on numpy 
         """
         descr = []
         for (name, type_code, display_size, 
@@ -119,7 +117,7 @@ class DB(object):
     def __len__(self):
         return self.cursor.rowcount
 
-    def _ndarray(self):
+    def _numpy(self):
         """   
             An efficient? way of translating MySQLdb SQL query results 
             into numpy ndarrays ( actually structured/record arrays )
@@ -155,8 +153,13 @@ class DB(object):
                 otherwise much copying will get done as new fixed length ndarrays are created  
 
         """
+        try:
+            import numpy as np
+        except ImportError:
+            print "missing numpy installation "
+            return None 
         return np.fromiter( self.iter, dtype=self.dtype, count = self.cursor.rowcount)
-    numpy = property( _ndarray , doc=_ndarray.__doc__ )
+    numpy = property( _numpy , doc=_numpy.__doc__ )
     
     def dump(self):
         for _ in self.iter:
@@ -192,7 +195,7 @@ class Qry(dict):
          parameterized select query with where-limit-offset tail   
     """
     dbi_sql = "select %(paycol)s, %(TIMESTART)s, %(TIMEEND)s from %(tab)s as p inner join %(tab)sVld as v on p.SEQNO = v.SEQNO where %(where)s limit %(limit)s offset %(offset)s " 
-    vld_sql = "select v.SEQNO, %(TIMESTART)s, %(TIMEEND)s from %(tab)s as v where %(where)s limit %(limit)s offset %(offset)s " 
+    vld_sql = "select v.SEQNO, %(TIMESTART)s, %(TIMEEND)s, %(VERSIONDATE)s, %(INSERTDATE)s from %(tab)s as v where %(where)s limit %(limit)s offset %(offset)s " 
 
     defaults = {
               'base':dict( offset=0 , limit=100000 , where='1=1' ),
