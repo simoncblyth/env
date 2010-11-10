@@ -1,38 +1,18 @@
 from django.shortcuts import render_to_response
-from db.models import Database, Table
+
+
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 
 from django.contrib.auth.decorators import login_required
 
 
+## django models that are MySQLdb bootstrapped at syncdb time
+from db.models import Database, Table
 
-## sqlalchemy 
+## sqlalchemy models pulled from the soup 
 from env.sa import Session, DBISOUP
 
-import time
-epoch = lambda dt:time.mktime(dt.timetuple())
-
-"""
-  http://matplotlib.sourceforge.net/ 
-  http://code.creativecommons.org/svnroot/stats/reports/temp/date_demo.py
-
-
-  http://matplotlib.sourceforge.net/users/artists.html#figure-container 
-     line drawing example can be the basis of the viz i have in mind
-
-     help(matplotlib.dates) help(matplotlib.ticker)
-
-
-    sqlalchemy -- numpy -- matplotlib -- django
-
-
-     https://github.com/dalloliogm/sqlalchemy-recarray
-     http://www.sqlalchemy.org/trac/ticket/1572
-
-"""
-
-ctx = {} 
 
 @login_required
 def db_list(request):
@@ -45,54 +25,40 @@ def db_detail(request, dbname ):
     return render_to_response( "db/database_detail.html" , { 'db':db, 'tables':tables } , context_instance=RequestContext(request) )
 
 @login_required
-def db_table_dev(request, dbname , tabname ):
+def db_table(request, dbname , tabname ):
     """ next specifies to redirect back to table detail after posting comments """
     table = Table.objects.get( name = tabname, db__name = dbname )
-    next = reverse( 'db-table-dev' , kwargs={ 'dbname':dbname, 'tabname':tabname } ) 
+    next = reverse( 'db-table' , kwargs={ 'dbname':dbname, 'tabname':tabname } ) 
+    return render_to_response( "db/table_detail.html" ,  { 'table':table , 'next':next, } , context_instance=RequestContext(request) )
 
-
-    ## using SQLAlchemy querying to determine the extents of the table fields ...
-    ## and filling in inline SVG in the template ...
-    ##   ... this approach does not scale to slow DB queries
-
-    session = Session()
-    kls = DBISOUP.get(tabname, None)
-    assert kls, "no SA class for tabname %s " % tabname
-    assert hasattr( kls, 'SEQNO' ) , kls
-
-    ## aggregates dont need ORM 
-    from sqlalchemy import select, func
-    tc = kls._table.c
-    count,seqmin,seqmax,tmin,tmax = select([func.count(),func.min(tc.SEQNO),func.max(tc.SEQNO),func.min(tc.TIMESTART),func.max(tc.TIMEEND),]).where(tc.TIMESTART>datetime(2000, 1, 1, 0, 0, 0)).execute().fetchone()
-    viewBox = "%s %s %s %s" % ( epoch(tmin), seqmin , epoch(tmax), seqmax )
-
-    limit = 25
-    pay = hasattr( kls, 'ROW_COUNTER' )
-    vld = not pay  
-    if pay: 
-        objs = session.query(kls).order_by(kls.SEQNO,kls.ROW_COUNTER).all()[0:limit]
-    else:
-        objs = session.query(kls).order_by(kls.SEQNO).all()[0:limit]
-
-    return render_to_response( "db/table_detail.html" ,  { 'table':table , 'next':next, 'count':count, 'objs':objs, 'vld':vld , 'viewBox':viewBox } , context_instance=RequestContext(request) )
-
-
+@login_required
+def db_column(request, dbname , tabname , colname ):
+    table = Table.objects.get( name = tabname, db__name = dbname )
+    column = Column.objects.get( name = tabname, table = table )
+    next = reverse( 'db-column' , kwargs={ 'dbname':dbname, 'tabname':tabname, 'colname':colname } ) 
+    return render_to_response( "db/column_detail.html" ,  { 'column':column, 'table':table , 'next':next, } , context_instance=RequestContext(request) )
 
 
 
 
 from django.http import HttpResponse
-from figs import demo
+from figs import demo_fig, column_fig
 
 mimetype = dict( png="image/png", svg="image/svg+xml", pdf="application/pdf" )
 
 @login_required
 def db_table_fig(request, dbname , tabname , format ):
     response = HttpResponse(mimetype=mimetype[format])
-    fig = demo()
+    fig = demo_fig()
     fig.savefig( response, format=format )
     return response
 
+@login_required
+def db_column_fig(request, dbname , tabname , colname , format ):
+    response = HttpResponse(mimetype=mimetype[format])
+    fig = column_fig(dbname,tabname, colname )
+    fig.savefig( response, format=format )
+    return response
 
 
 

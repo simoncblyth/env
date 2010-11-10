@@ -24,42 +24,6 @@
 {% block title %} Details for table : {{ table.name }} {% endblock %}
 
 {% block 1 %}
-   <h1> viz {{ table.name }} count {{ count }}  </h1>
-   {% if vld %}
-      <table>
-         <tr>
-            <th> seqno </th>
-            <th> start </th>
-            <th> end </th>
-            <th> version </th>
-            <th> insert </th>
-         </tr>
-      {% for obj in objs %}
-         <tr>
-             <td> {{ obj.SEQNO }} </td>
-             <td> {{ obj.TIMESTART }} </td>
-             <td> {{ obj.TIMEEND }} </td>
-             <td> {{ obj.VERSIONDATE }} </td>
-             <td> {{ obj.INSERTDATE }} </td>
-         </tr> 
-      {% endfor %}
-     </table>
-   {% endif %} 
-
-{% autoescape off %}
-<svg  width="500px" height="500px"  viewBox="{{ viewBox }}"
-     xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve">
-   <g id="root" >
-
-       {% for obj in objs %}
-          {{ obj|svgline }}
-       {% endfor %}
-
-  </g>
-</svg>
-
-{% endautoescape %}
-
    <h1> {{ table.name }} </h1>
    {% render_comment_list for table %} 
    {% render_comment_form for table %} 

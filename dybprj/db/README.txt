@@ -4,6 +4,19 @@
   * very high level best for pre-cooked usability from admin  
      * ... but what about ease of introspection during the bootstrap ?
 
+
+== more general viz than vDBI, eg histos, vld sketch, ... ==
+
+   Investigating using approach  ...
+     * env.offline.dbn.DBn  connects to DB and pulls out numpy arrays 
+     * vizualized numpy arrays with  matplotlib 
+     * save into django response as pdf/png/svg
+
+   Possible issues ... 
+     * unknown complications regarding multiple DB connections 
+
+
+
 == model ==
   
    * User, Group  : django standard     

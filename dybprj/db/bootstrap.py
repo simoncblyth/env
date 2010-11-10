@@ -34,8 +34,13 @@ def populate():
         cur = connections[k].cursor()
         cur.execute("show tables");     
         for tn in cur.fetchall(): 
-            tab = Table.objects.get_or_create( name=tn[0] , db=db )
+            tab, created = Table.objects.get_or_create( name=tn[0] , db=db )
             print tab
+            cur.execute("describe %s " % tn[0] )
+            for cn in cur.fetchall():
+                col = Column.objects.get_or_create( name=cn[0] , table = tab ) 
+                print col
+            
 
 def bootstrap():
     set_site_domain()
