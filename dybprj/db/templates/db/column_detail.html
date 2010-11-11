@@ -1,0 +1,33 @@
+{% extends 'layouts/layout_2_columns_narrow_left_column.html' %}
+
+{% load db %}
+
+
+{% block title %} Details for column : {{ column.name }} {% endblock %}
+
+
+{% block 1 %}
+   <h1> {{ table.name }} /  </h1>
+
+   <table>
+   {% for col in columns %}
+       <tr>
+          <th> <a href="../{{ col.name }}" > {{ col.name }} </a> </th>
+       </tr> 
+   {% endfor %}
+   </table>
+  
+{% endblock 1 %}
+
+
+{% block 2 %}
+   <h1> {{ column.name }} </h1>
+
+   <object id="{{ column.name }}" width="800" height="700" data="column.svg" type="image/svg+xml">
+      You need a decent(ie not IE) browser in order to see the plot  <a href="column.svg" > column.svg </a> 
+   </object>
+   
+{% endblock 2 %}
+
+
+

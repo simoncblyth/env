@@ -25,6 +25,16 @@
 
 {% block 1 %}
    <h1> {{ table.name }} </h1>
+
+   <table>
+   {% for col in columns %}
+       <tr>
+          <th> <a href="{{ col.name }}" > {{ col.name }} </a> </th>
+       </tr> 
+   {% endfor %}
+   </table>
+   
+   <h1> Comments on {{ table.name }} </h1>
    {% render_comment_list for table %} 
    {% render_comment_form for table %} 
 {% endblock 1 %}

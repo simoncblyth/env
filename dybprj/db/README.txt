@@ -7,12 +7,51 @@
 
 == more general viz than vDBI, eg histos, vld sketch, ... ==
 
-   Investigating using approach  ...
+  Investigating using approach  ...
      * env.offline.dbn.DBn  connects to DB and pulls out numpy arrays 
      * vizualized numpy arrays with  matplotlib 
      * save into django response as pdf/png/svg
 
-   Possible issues ... 
+== Drilling / Selection interface ==
+
+
+Ideas :
+
+
+
+== Generic plots ==
+
+Ideas 
+  * database level : pie chart showing the row counts of each table
+  * table level : big n-by-n plot of each columns histograms
+  * column level : simple hist  
+
+  * DybDbi live (or canned) query  at timestamp you click on 
+    ... highlighting the resuling seqno   
+     * add a DbiQuery to the model ?
+
+
+
+== Custom (table/column specific) plots ==
+
+Custom plots use known relationships between fields/tables 
+in order to inform the plotting approach, in contract to generic
+plots which have little understanding of what the data is representing.
+
+==  Organization of table/column specific plots 
+
+     * want to enable iteractively developable matplotlib 
+       plots to be integrated into webapp by simply 
+       adding the plotname.py into a table named folder in repo    
+
+     * this will enable people to develop and add custom plots 
+       to webapp without needing to understand webapp machinery,
+       and avoid me having to create too many custom plots 
+
+== Issues ==
+
+Approach is using many DB connections ...
+     * will probably need to go to scraped/cached approach 
      * unknown complications regarding multiple DB connections 
 
 
