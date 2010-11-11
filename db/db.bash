@@ -41,6 +41,16 @@ db-usage(){
            with name based on the day eg: <dbname>_20100101 
            from the mysqldump rsynced from host (eg dybdb1.ihep.ac.cn) 
 
+
+           ISSUE ... 
+             works in cron job but fails when running interactively fails with 
+                 ERROR 2002 (HY000): Can't connect to local MySQL server through socket '/tmp/mysql.sock' (2)
+
+             connection can be made to work by changing db-recover to specifiy the RECOVER_HOST rather than
+             using localhost ?
+
+
+
      db-test
           runs nosetests from  $(db-srcdir) 
           one of the tests compares the table counts in 
@@ -219,9 +229,12 @@ db-cautious(){
 }
 
 db-recover(){
-  [ "$(hostname)" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
+
+  local host=$(private-val RECOVER_HOST)
+  [ "$host" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
+
   private-
-  ${DB_TIME} mysql --no-defaults --host=localhost --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
+  ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
 

@@ -19,6 +19,7 @@ Ideas :
 
 
 
+
 == Generic plots ==
 
 Ideas 
@@ -54,7 +55,12 @@ Approach is using many DB connections ...
      * will probably need to go to scraped/cached approach 
      * unknown complications regarding multiple DB connections 
 
+     * every comment in the list is causing a user lookup 
 
+
+    * string / VARCHAR ?columns cause errors..
+http://cms01.phys.ntu.edu.tw:8000/db/prior/SimPmtSpec/PMTDESCRIB/column.svg
+     cannot perform reduce with flexible type
 
 == model ==
   

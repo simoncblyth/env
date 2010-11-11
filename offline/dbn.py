@@ -36,6 +36,8 @@ from env.offline.dbconf import DBConf
 
 class DBn(object):
     def __init__(self, *args, **kwa ):
+        
+        tab = kwa.pop('tab',None)
         d = {}
         if len(args) == 1:
            d.update( **DBConf(args[0]).mysqldb )
@@ -44,6 +46,9 @@ class DBn(object):
         conn = MySQLdb.connect( **d )
         self.cursor = conn.cursor()
         self._tab = None
+        if tab:
+            self.tab = tab 
+        pass
 
     def get_tab( self ):
         return self._tab 
@@ -196,6 +201,7 @@ class Qry(dict):
     """
     dbi_sql = "select %(paycol)s, %(TIMESTART)s, %(TIMEEND)s from %(tab)s as p inner join %(tab)sVld as v on p.SEQNO = v.SEQNO where %(where)s limit %(limit)s offset %(offset)s " 
     vld_sql = "select v.SEQNO, %(TIMESTART)s, %(TIMEEND)s, %(VERSIONDATE)s, %(INSERTDATE)s from %(tab)s as v where %(where)s limit %(limit)s offset %(offset)s " 
+    non_sql = "select %(paycol)s from %(tab)s as p where %(where)s limit %(limit)s offset %(offset)s " 
 
     defaults = {
               'base':dict( offset=0 , limit=100000 , where='1=1' ),
@@ -211,7 +217,12 @@ class Qry(dict):
         print dict(self)
 
     def __repr__(self):
-        sql = self['tab'].upper().endswith('VLD') and self.vld_sql or self.dbi_sql  
+        if self['tab'].upper().endswith('VLD'):
+             sql = self.vld_sql 
+        elif self['tab'] in "LOCALSEQNO GLOBALSEQNO DaqRunConfig".split():
+             sql = self.non_sql 
+        else:
+             sql = self.dbi_sql  
         return sql % self % self 
 
 
