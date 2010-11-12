@@ -890,6 +890,8 @@ rabbitjs-(){      . $(env-home)/nodejs/rabbitjs.bash && rabbitjs-env $* ; }
 nodeamqp-(){      . $(env-home)/nodejs/nodeamqp.bash && nodeamqp-env $* ; }
 socketio-(){      . $(env-home)/nodejs/socketio.bash && socketio-env $* ; }
 djylt-(){      . $(env-home)/dj/djylt.bash && djylt-env $* ; }
+djcelery-(){      . $(env-home)/dj/djcelery.bash && djcelery-env $* ; }
 telnet-(){      . $(env-home)/base/telnet.bash && telnet-env $* ; }
 matplotlib-(){      . $(env-home)/matplotlib/matplotlib.bash && matplotlib-env $* ; }
 timeseries-(){      . $(env-home)/scikits/timeseries.bash && timeseries-env $* ; }
+numpy-(){      . $(env-home)/npy/numpy.bash && numpy-env $* ; }
