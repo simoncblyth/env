@@ -157,6 +157,10 @@ class DBn(object):
             NB imperative to definendarray size ahead of time for performance, 
                 otherwise much copying will get done as new fixed length ndarrays are created  
 
+             THIS IS CRAZY FROM PERFORMANCE POINT OF VIEW FOR LARGE QUERIES
+
+                    _mysql result C ==> ( python tuple ) ==> numpy ndarray C 
+  
         """
         try:
             import numpy as np

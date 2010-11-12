@@ -31,6 +31,8 @@ Ideas
     ... highlighting the resuling seqno   
      * add a DbiQuery to the model ?
 
+  * Vld view ... payload counts for each seqno in the *Vld table 
+
 
 
 == Custom (table/column specific) plots ==
