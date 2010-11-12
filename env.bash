@@ -895,3 +895,4 @@ telnet-(){      . $(env-home)/base/telnet.bash && telnet-env $* ; }
 matplotlib-(){      . $(env-home)/matplotlib/matplotlib.bash && matplotlib-env $* ; }
 timeseries-(){      . $(env-home)/scikits/timeseries.bash && timeseries-env $* ; }
 numpy-(){      . $(env-home)/npy/numpy.bash && numpy-env $* ; }
+cython-(){      . $(env-home)/npy/cython.bash && cython-env $* ; }
