@@ -897,3 +897,4 @@ timeseries-(){      . $(env-home)/scikits/timeseries.bash && timeseries-env $* ;
 numpy-(){      . $(env-home)/npy/numpy.bash && numpy-env $* ; }
 cython-(){      . $(env-home)/npy/cython.bash && cython-env $* ; }
 mysql-pyrex-(){      . $(env-home)/db/mysql-pyrex.bash && mysql-pyrex-env $* ; }
+mysql-python-(){      . $(env-home)/mysql/mysql-python.bash && mysql-python-env $* ; }

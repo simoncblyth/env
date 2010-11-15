@@ -15,7 +15,7 @@ cdef extern from "mysqlmod.h":
 
     ctypedef class _mysql.result [object _mysql_ResultObject]:
         cdef object conn
-        cdef MYSQL_RES* result
+        cdef MYSQL_RES* res
         cdef int nfields
         cdef int use
         cdef object fields

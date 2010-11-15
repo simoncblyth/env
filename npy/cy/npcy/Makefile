@@ -1,7 +1,7 @@
 NAME = npcy
 
 $(NAME).so : $(NAME).pyx
-	python setup.py build_ext -i
+	python setup.py build_ext -i && cython -a $(NAME).pyx
 
 clean :
 	rm -rf $(NAME).c $(NAME).so build

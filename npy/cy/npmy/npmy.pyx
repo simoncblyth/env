@@ -16,8 +16,19 @@ cimport numpy as np
 import _mysql
 cimport _mysql 
 
-#from libc.stdlib cimport const_char, strtof
-# fetch_rows has already converted to python strings 
+cimport mysql
+
+
+
+# shadow cdef class for the _mysql.result
+cdef class Result:
+    cdef mysql.MYSQL_RES* _result
+    def __cinit__(self, mysql.MYSQL_RES* result ):
+        self._result = result
+
+
+
+#libc.stdlib cimport const_char, strtof
 
 # dynamic typing sacrificed on performance altar 
 cdef packed struct qdt:
@@ -42,18 +53,18 @@ def look(_mysql.result res):
     #row = res.fetch_row()   
     #print row 
 
-def fetch_rows_into_array(_mysql.result res, np.ndarray[qdt] qa):
+def fetch_rows_into_array_0(_mysql.result result, np.ndarray[qdt] qa):
     """
         fixed types for speed ... when dealing with huge queries 
         if need flexibility do some code generation 
     """ 
     cdef Py_ssize_t n, i  
     print "fetch_rows_into_array"
-    print qa 
-    n = res.num_rows()
-    print n 
+    #print qa 
+    n = result.num_rows()
+    #print n 
     for i in range(n):
-        row = res.fetch_row()
+        row = result.fetch_row()
         qa[i].SEQNO = int(row[0])
         qa[i].ROW_COUNTER = int(row[1])
         qa[i].ladder = int(row[2])
@@ -61,3 +72,33 @@ def fetch_rows_into_array(_mysql.result res, np.ndarray[qdt] qa):
         qa[i].ring = int(row[4])
         qa[i].voltage = float(row[5])
         qa[i].pw = int(row[6])
+
+
+def fetch_rows_into_array_1(_mysql.result result, np.ndarray[qdt] qa):
+    """
+        fixed types for speed ... when dealing with huge queries 
+        if need flexibility do some code generation 
+    """ 
+    cdef Py_ssize_t i  
+    print "fetch_rows_into_array"
+    #print qa 
+
+    cdef mysql.MYSQL_ROW row 
+    cdef unsigned int n 
+    cdef Result r = Result( result )
+    
+    n = mysql.mysql_num_rows( r._result )
+
+    for i in range(n):
+        row = mysql.mysql_fetch_row( r._result )
+        print row
+
+    #    qa[i].SEQNO = int(row[0])
+    #    qa[i].ROW_COUNTER = int(row[1])
+    #    qa[i].ladder = int(row[2])
+    #    qa[i].col = int(row[3])
+    #    qa[i].ring = int(row[4])
+    #    qa[i].voltage = float(row[5])
+    #    qa[i].pw = int(row[6])
+
+

@@ -50,20 +50,6 @@ mysql-usage(){
 
 
 
-    mysql-python-*
-
-          normally can just 
-              easy_install mysql-python
-              pip install mysql-python
-
-          but on WW with multiple mysql and python, suspect 
-          confusion of these auto builds... with crossed include
-          and lib dirs 
-
-          it appears the mysql_config in the PATH dictates the 
-          mysql that is built against but ...
-
-
     mysql-showdatabase
 
     mysql-dumpall [basedir]
@@ -483,16 +469,6 @@ mysql-install-port(){
 }
 
 
-mysql-py-install(){
-  if [ "$NODE_TAG" == "G" ] ; then
-     easy_install MySQL-python
-  else
-     echo klop
-  fi 
-
-
-}
-
 
 mysql-pidpath(){ echo /var/run/mysqld/mysqld.pid ; }
 mysql-ps(){ ps aux | grep mysql ; }
@@ -522,25 +498,6 @@ EOC
 
 mysql-sv(){  sv-; $FUNCNAME- | sv-plus mysql.ini ; }
 
-
-
-
-
-mysql-python-dir(){ echo $(local-base)/mysql-python/MySQL-python-$(mysql-python-ver) ; }
-mysql-python-ver(){ echo 1.2.3c1 ; }
-mysql-python-tgz(){ echo MySQL-python-$(mysql-python-ver).tar.gz ; }
-mysql-python-url(){ echo http://downloads.sourceforge.net/project/mysql-python/mysql-python-test/$(mysql-python-ver)/$(mysql-python-tgz) ; }
-mysql-python-cd(){  cd $(mysql-python-dir) ; }
-mysql-python-get(){  
-
-   local dir=$(dirname  $(mysql-python-dir))
-   local nam=$(basename $(mysql-python-dir))
-   mkdir -p $dir && cd $dir   
- 
-   local tgz=$(mysql-python-tgz)
-   [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url) 
-   [ ! -d "$nam" ] && tar zxvf $tgz
-}
 
 
 
