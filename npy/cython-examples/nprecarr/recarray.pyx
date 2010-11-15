@@ -74,9 +74,9 @@ def test3(np.ndarray[rec_cell2, ndim=2] recarray):
 
 def test4(np.ndarray[rec_cell2, ndim=2] recarray):
   cdef Py_ssize_t i,j
-
   cdef char*  endp = NULL 
   cdef const_char* str = "123456.012" 
+
 
   for i in range(recarray.shape[0]):
     for j in range(recarray.shape[1]):
