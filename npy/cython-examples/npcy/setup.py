@@ -9,13 +9,18 @@ from distutils.core import setup
 from distutils.extension import Extension 
 from Cython.Distutils import build_ext 
 
+#import distutils.sysconfig as conf
+#os.environ.update(PYTHON_SITE=conf.get_python_lib())
+
+import numpy as np
+
 
 # $PYTHON_SITE/numpy/numarray/include
 
 ext_modules = [
      Extension("npcy", 
                 ["npcy.pyx"],
-                include_dirs=[os.path.expandvars("$PYTHON_SITE/numpy/core/include")],
+                include_dirs=[np.get_include()],
              )] 
 
 setup( 
