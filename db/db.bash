@@ -230,10 +230,10 @@ db-cautious(){
 
 db-recover(){
 
+  private-
   local host=$(private-val RECOVER_HOST)
   [ "$host" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
 
-  private-
   ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
 
