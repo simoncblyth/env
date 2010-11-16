@@ -18,35 +18,26 @@ cython-usage(){
      http://conference.scipy.org/proceedings/SciPy2009/paper_2/
           not loading ... so google for the url and use google docs 
 
-
      http://sage.math.washington.edu/home/dagss/
-
 
     http://www.cython.org/release/Cython-0.13/
 
     http://www.cython.org/release/Cython-0.13/tests/run/
        * mother lode ... the tests are the best docs 
 
-
     http://www.mail-archive.com/sage-devel@googlegroups.com/msg25350.html
-
 
     http://trac.cython.org/cython_trac/query?status=new&status=assigned&status=reopened&order=priority&keywords=~numerics
 
-   http://sage.math.washington.edu/home/dagss/cython-notur09/notur2009.pdf
-
-
+    http://sage.math.washington.edu/home/dagss/cython-notur09/notur2009.pdf
 
     http://hg.sagemath.org/sage-main/file/120c07be6358/sage/databases/database.py#l1
 
-
-   https://github.com/dagss/euroscipy2010/blob/master/gsl/spline.pyx
+    https://github.com/dagss/euroscipy2010/blob/master/gsl/spline.pyx
         creates matplotlib fig in the pyx
 
-  
     http://ehuss.org/mysql/api/
          mysql-pyrex
-
 
     http://www.mail-archive.com/numpy-discussion@lists.sourceforge.net/msg03946.html
 
