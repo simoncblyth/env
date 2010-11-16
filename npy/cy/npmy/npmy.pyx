@@ -19,13 +19,7 @@ cimport _mysql
 cimport mysql
 
 
-
-# shadow cdef class for the _mysql.result
-cdef class Result:
-    cdef mysql.MYSQL_RES* _result
-    def __cinit__(self, mysql.MYSQL_RES* result ):
-        self._result = result
-
+cimport c_result
 
 
 #libc.stdlib cimport const_char, strtof
@@ -84,14 +78,15 @@ def fetch_rows_into_array_1(_mysql.result result, np.ndarray[qdt] qa):
     #print qa 
 
     cdef mysql.MYSQL_ROW row 
-    cdef unsigned int n 
-    cdef Result r = Result( result )
+    cdef mysql.my_ulonglong n 
+    cdef mysql.MYSQL_RES* res = result.result   
+    #cdef c_result.Result r = c_result.Result_new( res )
     
-    n = mysql.mysql_num_rows( r._result )
+    n = mysql.mysql_num_rows( res )
+    row = mysql.mysql_fetch_row( res )
 
-    for i in range(n):
-        row = mysql.mysql_fetch_row( r._result )
-        print row
+    #for i in range(n):
+    #    print row
 
     #    qa[i].SEQNO = int(row[0])
     #    qa[i].ROW_COUNTER = int(row[1])
