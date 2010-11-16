@@ -21,12 +21,12 @@ conn.query( sql )
 result = conn.get_result()
 n = result.num_rows()  
 
-
 import npmy
 #npmy.look(result)
 
 a = np.zeros(10, dt)
 npmy.fetch_rows_into_array_1( result, a )
+
 print a
 
 

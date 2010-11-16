@@ -10,6 +10,8 @@
 
 """
 
+import cython
+
 import numpy as np
 cimport numpy as np
 
@@ -18,18 +20,16 @@ cimport _mysql
 
 cimport mysql
 
-
-cimport c_result
-
-
-#libc.stdlib cimport const_char, strtof
+from libc.stdlib cimport const_char, strtof, atoi, atof
 
 # dynamic typing sacrificed on performance altar 
-cdef packed struct qdt:
+cdef packed struct dtype_t:
     np.int32_t SEQNO, ROW_COUNTER
     np.int32_t ladder,col,ring
     np.float32_t voltage
     np.int32_t pw
+
+
 
 
 def look(_mysql.result res):
@@ -47,53 +47,52 @@ def look(_mysql.result res):
     #row = res.fetch_row()   
     #print row 
 
-def fetch_rows_into_array_0(_mysql.result result, np.ndarray[qdt] qa):
+def fetch_rows_into_array_0(_mysql.result result, np.ndarray[dtype_t, ndim=1] a not None):
     """
         fixed types for speed ... when dealing with huge queries 
         if need flexibility do some code generation 
     """ 
     cdef Py_ssize_t n, i  
     print "fetch_rows_into_array"
-    #print qa 
     n = result.num_rows()
-    #print n 
     for i in range(n):
         row = result.fetch_row()
-        qa[i].SEQNO = int(row[0])
-        qa[i].ROW_COUNTER = int(row[1])
-        qa[i].ladder = int(row[2])
-        qa[i].col = int(row[3])
-        qa[i].ring = int(row[4])
-        qa[i].voltage = float(row[5])
-        qa[i].pw = int(row[6])
+        a[i].SEQNO = int(row[0])
+        a[i].ROW_COUNTER = int(row[1])
+        a[i].ladder = int(row[2])
+        a[i].col = int(row[3])
+        a[i].ring = int(row[4])
+        a[i].voltage = float(row[5])
+        a[i].pw = int(row[6])
 
 
-def fetch_rows_into_array_1(_mysql.result result, np.ndarray[qdt] qa):
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+def fetch_rows_into_array_1(_mysql.result result, np.ndarray[dtype_t, ndim=1] a not None):
     """
         fixed types for speed ... when dealing with huge queries 
         if need flexibility do some code generation 
     """ 
-    cdef Py_ssize_t i  
-    print "fetch_rows_into_array"
-    #print qa 
-
+    cdef Py_ssize_t i, j   
     cdef mysql.MYSQL_ROW row 
-    cdef mysql.my_ulonglong n 
-    cdef mysql.MYSQL_RES* res = result.result   
-    #cdef c_result.Result r = c_result.Result_new( res )
-    
-    n = mysql.mysql_num_rows( res )
-    row = mysql.mysql_fetch_row( res )
+    cdef mysql.my_ulonglong num_rows 
+    cdef unsigned int num_fields
+    cdef mysql.MYSQL_RES* res 
 
-    #for i in range(n):
-    #    print row
+    res        = result.result   
+    num_rows   = mysql.mysql_num_rows( res )
+    num_fields = mysql.mysql_num_fields( res )
+    print "fetch_rows_into_array_1 : num_rows %d num_fields %s " % ( num_rows , num_fields ) 
 
-    #    qa[i].SEQNO = int(row[0])
-    #    qa[i].ROW_COUNTER = int(row[1])
-    #    qa[i].ladder = int(row[2])
-    #    qa[i].col = int(row[3])
-    #    qa[i].ring = int(row[4])
-    #    qa[i].voltage = float(row[5])
-    #    qa[i].pw = int(row[6])
+    for i in range(num_rows):
+        row        = mysql.mysql_fetch_row( res )
+        a[i].SEQNO = atoi(row[0])
+        a[i].ROW_COUNTER = atoi(row[1])
+        a[i].ladder = atoi(row[2])
+        a[i].col = atoi(row[3])
+        a[i].ring = atoi(row[4])
+        a[i].voltage = atof(row[5])
+        a[i].pw = atoi(row[6])
 
-
+    return num_rows
