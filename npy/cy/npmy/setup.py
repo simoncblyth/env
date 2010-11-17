@@ -1,7 +1,12 @@
-# setup.py:
+"""
+    TODO :
+
+    add stringemnt mysql-python version check ... as the extension 
+    hijacks the  _mysql.result struct 
+ 
+"""
 
 import os
-
 from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
@@ -9,7 +14,6 @@ from Cython.Distutils import build_ext
 import numpy as np
 
 mysql_config = lambda _:os.popen("mysql_config --%s" % _ ).read().strip()
-
 mysql_inc = mysql_config("include")[2:]
 _mysql_inc = os.path.expandvars("$LOCAL_BASE/env/mysql/MySQLdb-2.0/src")  # mysql-python-;mysql-python-get;...
 
