@@ -81,8 +81,6 @@ class Fetch(dict):
     colnames = property(lambda self:map(lambda _:_[0], self['descr'])) 
     dtype = property(lambda self:np.dtype(self['descr']))
     sql  = property(lambda self:self._sql % self )
-    scanpath = classmethod(lambda cls,name:"ts_%s.npz" % name )
-    scan = classmethod(lambda cls,name:np.load( cls.scanpath(name)) )
     connargs = property(lambda self:dict(read_default_file="~/.my.cnf", read_default_group=self['read_default_group'])) 
 
     def __repr__(self):
@@ -96,14 +94,6 @@ class Fetch(dict):
         self['cols'] = ",".join(self.cols)
         self.update(kwargs)
 
-    def __del__(self):
-        if self.conn:
-            self.close()
-
-    def close(self):
-        print "closing connection %s " % repr(self)
-        self.conn.close()
-        self.conn = None
 
 
 class Pure(Fetch):
@@ -137,6 +127,8 @@ class Pure(Fetch):
             a = None
 
         conn.close()
+        del conn
+        conn = None
 
 
 class Cyth(Fetch):
@@ -155,7 +147,6 @@ class Cyth(Fetch):
         meth( result, a )
         if 'verbose' in kwargs:print a
         a = None
-
         conn.close()
 
 
@@ -171,19 +162,14 @@ def test_pure():
 
 
 
-
-class LimitScan(Scan):
+class Task(dict):
     _name  = "%(class_)s_%(kls)s_%(method)s"
     _setup = "gc.enable() ; from __main__ import %(kls)s ; obj = %(kls)s(\"%(name)s\", read_default_group=\"%(dbconf)s\" )  "
     _stmt = "obj(method=%(method)s, limit=%(limit)s) ; del obj ; obj=None " 
-    steps = 11 
-    max   = 100000   ## 1000000 Pure is dying well before get to 1M 
 
-    def __init__(self, *args, **kwargs ): 
-        Scan.__init__(self, *args, **kwargs)
-        scan = np.zeros( (self.steps,) , np.dtype([('limit','i4'),('time_','f4'),('rss_','f4')]) ) 
-        scan['limit'] = np.linspace( 0, self.max , len(scan) )
-        self.scan = scan
+    setup = property( lambda self:self._setup % self )
+    stmt =  property( lambda self:self._stmt % self )
+    name =  property( lambda self:self._name % self )
 
     def __call__(self):
         if 'verbose' in self:print self
@@ -194,17 +180,16 @@ class LimitScan(Scan):
             time_=-1
             timer.print_exc()
             sys.exit(1)
-        pass
-        Scan.__call__(self, time_=time_, rss_=rss() )
+        return dict( time_=time_, rss_=rss(), task_=self.name )
+  
 
-    def close(self):
-        self.scan = None   
+class LimitScan(Scan):
+    steps = 11 
+    max   = 100000   ## 1000000 Pure is dying well before get to 1M 
 
- 
-class DebugScan(LimitScan):
+class DebugScan(Scan):
     steps = 10 
     max = 10000
-
 
 
 
@@ -228,9 +213,20 @@ if __name__=="__main__":
         if len(sys.argv) > 1 and int(sys.argv[1]) != n:continue  
         scan = LimitScan( **scarg )
         print "starting scan %s " % repr(scan)
-        scan.run()
+
+        for ctx in scan:
+
+            tsk = Task(ctx) 
+
+            res = tsk()
+            del tsk 
+            tsk = None
+
+            scan( **res )   ## record result in the scan structure at this cursor point 
+
+
         print repr(scan.scan) 
         scan.save()
-        scan.close()
+        del scan
         scan = None
 

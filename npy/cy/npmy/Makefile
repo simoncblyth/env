@@ -24,7 +24,7 @@ ts :
 i :
 	ipython test_$(NAME).py
 
-plt :
+p :
 	ipython plt.py
 
 
