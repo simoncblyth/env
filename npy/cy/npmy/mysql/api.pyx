@@ -1,0 +1,32 @@
+"""
+   The .pyx is only needed to allow importing into python ...
+   other cython .pyx can cimport direct from the .pxd
+
+"""
+cimport mysql.api as _ 
+
+DECIMAL     = _.MYSQL_TYPE_DECIMAL
+TINY        = _.MYSQL_TYPE_TINY
+SHORT       = _.MYSQL_TYPE_SHORT
+LONG        = _.MYSQL_TYPE_LONG
+FLOAT       = _.MYSQL_TYPE_FLOAT
+DOUBLE      = _.MYSQL_TYPE_DOUBLE
+NULL_       = _.MYSQL_TYPE_NULL
+TIMESTAMP   = _.MYSQL_TYPE_TIMESTAMP
+LONGLONG    = _.MYSQL_TYPE_LONGLONG
+INT24       = _.MYSQL_TYPE_INT24
+DATE        = _.MYSQL_TYPE_DATE   
+TIME        = _.MYSQL_TYPE_TIME
+DATETIME    = _.MYSQL_TYPE_DATETIME
+YEAR        = _.MYSQL_TYPE_YEAR
+NEWDATE     = _.MYSQL_TYPE_NEWDATE
+ENUM        = _.MYSQL_TYPE_ENUM
+SET         = _.MYSQL_TYPE_SET
+TINY_BLOB   = _.MYSQL_TYPE_TINY_BLOB
+MEDIUM_BLOB = _.MYSQL_TYPE_MEDIUM_BLOB
+LONG_BLOB   = _.MYSQL_TYPE_LONG_BLOB
+BLOB        = _.MYSQL_TYPE_BLOB
+VAR_STRING  = _.MYSQL_TYPE_VAR_STRING
+STRING      = _.MYSQL_TYPE_STRING
+GEOMETRY    = _.MYSQL_TYPE_GEOMETRY
+

@@ -267,7 +267,30 @@ class DebugScan(Scan):
 if __name__=="__main__":
     pass
 
+
+if 1:
+    """
+         avoiding leaky cursors, and much faster 
+         but can i still use the "description" for convenience of
+         dynamic data definition for whatever query as done in DBn
+ 
+    """
+    conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" )   # _mysql.connection  instance 
+    q = Fetch("DcsPmtHv", limit=100 )
+    conn.query( q.sql )
+    result = conn.get_result()      ## _mysql.result object    (slow)
+
+    a = np.fromiter( result , dtype=q.dtype, count = int(q['limit']) )
+
+    #result.clear()     ## ESSENTIAL MEMORY CLEANUP
+    #result = None 
+    #conn.close()
+    print a
+
 if 0:
+    """
+           transitioning from cursors to lower level 
+    """
     conn = MySQLdb.connect(  read_default_file="~/.my.cnf", read_default_group="client" )
     cursor = conn.cursor()
 
@@ -301,13 +324,16 @@ if 0:
     result = None
     print a
 
+
+
+
 if 0:
     test_pure()
 
 if 0:
     test_cyth()
 
-if 1: 
+if 0: 
     base = dict(name="DcsPmtHv", dbconf="client", verbose=1 , limit="*" , method=0 )
     scargs = (
          dict( kls="Xure", symbol="bo" ),

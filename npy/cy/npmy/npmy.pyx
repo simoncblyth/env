@@ -8,17 +8,48 @@
    numpy impinge above the fetch_row level ...
    as then i dont need to touch the bare MYSQL objects 
 
+
+  testing enum access 
+     avoid spilling guts like this by implementing the 
+     result description translation into numpy descr tuple 
+     within mysql.???  
+  
+
 """
 
-import cython
-
+cimport cython
 import numpy as np
+
 cimport numpy as np
+cimport mysql.python as _mysql
+cimport mysql.api as mysql
 
-import _mysql
-cimport _mysql 
+DECIMAL     = mysql.MYSQL_TYPE_DECIMAL
+TINY        = mysql.MYSQL_TYPE_TINY
+SHORT       = mysql.MYSQL_TYPE_SHORT
+LONG        = mysql.MYSQL_TYPE_LONG
+FLOAT       = mysql.MYSQL_TYPE_FLOAT
+DOUBLE      = mysql.MYSQL_TYPE_DOUBLE
+NULL_       = mysql.MYSQL_TYPE_NULL
+TIMESTAMP   = mysql.MYSQL_TYPE_TIMESTAMP
+LONGLONG    = mysql.MYSQL_TYPE_LONGLONG
+INT24       = mysql.MYSQL_TYPE_INT24
+DATE        = mysql.MYSQL_TYPE_DATE   
+TIME        = mysql.MYSQL_TYPE_TIME
+DATETIME    = mysql.MYSQL_TYPE_DATETIME
+YEAR        = mysql.MYSQL_TYPE_YEAR
+NEWDATE     = mysql.MYSQL_TYPE_NEWDATE
+ENUM        = mysql.MYSQL_TYPE_ENUM
+SET         = mysql.MYSQL_TYPE_SET
+TINY_BLOB   = mysql.MYSQL_TYPE_TINY_BLOB
+MEDIUM_BLOB = mysql.MYSQL_TYPE_MEDIUM_BLOB
+LONG_BLOB   = mysql.MYSQL_TYPE_LONG_BLOB
+BLOB        = mysql.MYSQL_TYPE_BLOB
+VAR_STRING  = mysql.MYSQL_TYPE_VAR_STRING
+STRING      = mysql.MYSQL_TYPE_STRING
+GEOMETRY    = mysql.MYSQL_TYPE_GEOMETRY
 
-cimport mysql
+
 
 from libc.stdlib cimport const_char, strtof, atoi, atof
 

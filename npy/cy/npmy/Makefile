@@ -1,10 +1,12 @@
 NAME = npmy
+PKG = mysql
 
-$(NAME).so : $(NAME).pyx _mysql.pxd mysql.pxd
+
+$(NAME).so : $(NAME).pyx $(PKG)/api.pxd $(PKG)/api.pyx $(PKG)/python.pxd $(PKG)/python.pyx 
 	python setup.py build_ext -i && cython -a $(NAME).pyx
 
 clean :
-	rm -rf $(NAME).c $(NAME).so $(NAME).html build *.pyc
+	rm -rf $(NAME).{c,so,pyc,html}  $(PKG)/*.{c,so,pyc,html}
 
 t0 :
 	python test_$(NAME).py 0

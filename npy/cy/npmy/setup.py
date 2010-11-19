@@ -3,6 +3,8 @@
 
     add stringemnt mysql-python version check ... as the extension 
     hijacks the  _mysql.result struct 
+
+    http://wiki.cython.org/PackageHierarchy
  
 """
 
@@ -17,18 +19,25 @@ mysql_config = lambda _:os.popen("mysql_config --%s" % _ ).read().strip()
 mysql_inc = mysql_config("include")[2:]
 _mysql_inc = os.path.expandvars("$LOCAL_BASE/env/mysql/MySQLdb-2.0/src")  # mysql-python-;mysql-python-get;...
 
-ext = Extension(
-          "npmy", 
-          ["npmy.pyx"], 
-          include_dirs=[ np.get_include(), _mysql_inc, mysql_inc, ],
-          extra_compile_args=mysql_config("cflags").split(),
-          extra_link_args=mysql_config("libs").split(),
-                   )
+
+def ExtArgs( **kwargs ):
+    kwargs.update( extra_compile_args=mysql_config("cflags").split(), 
+                      extra_link_args=mysql_config("libs").split(),)
+    kwargs.setdefault('include_dirs',[]).extend( mysql_config("include")[2:] )
+    return kwargs 
+    
+ext_modules = [
+     Extension( "mysql.api",       ["mysql/api.pyx"],       **ExtArgs() ),
+     Extension( "mysql.python",    ["mysql/python.pyx"],    **ExtArgs( include_dirs=[ _mysql_inc, ], )),
+     Extension( "npmy",            ["npmy.pyx"],            **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
+  ]
+
 
 setup(
   name = 'npmy',
+  packages = [ 'npmy', 'mysql', 'mysql.api', 'mysql.python', ], 
   cmdclass = {'build_ext':build_ext},
-  ext_modules = [ ext ],
+  ext_modules = ext_modules ,
 )
 
 
