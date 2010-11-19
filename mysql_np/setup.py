@@ -1,10 +1,16 @@
 """
-    TODO :
+     Cython based extensions providing fast 
+     creation of numpy record arrays from mysql queries
 
-    add stringemnt mysql-python version check ... as the extension 
-    hijacks the  _mysql.result struct 
+     Build with : 
 
-    http://wiki.cython.org/PackageHierarchy
+         rm *.{c,so} ; python setup.py build_ext -i
+
+     TODO :
+          add stringemnt mysql-python version check ... as the extension 
+          hijacks the  _mysql.result struct 
+
+     http://wiki.cython.org/PackageHierarchy
  
 """
 
@@ -27,14 +33,14 @@ def ExtArgs( **kwargs ):
     return kwargs 
     
 ext_modules = [
-     Extension( "mysql.api",       ["mysql/api.pyx"],  **ExtArgs() ),
-     Extension( "mysql.npy",       ["mysql/npy.pyx"],  **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
+     Extension( "api",       ["api.pyx"],  **ExtArgs() ),
+     Extension( "npy",       ["npy.pyx"],  **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
   ]
 
 
 setup(
   name = 'npmy',
-  packages = [ 'npmy', 'mysql', 'mysql.api', 'mysql.npy', ], 
+  #packages = [ 'npmy', 'mysql', 'mysql.api', 'mysql.npy', ], 
   cmdclass = {'build_ext':build_ext},
   ext_modules = ext_modules ,
 )

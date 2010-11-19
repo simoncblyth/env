@@ -3,7 +3,7 @@
    other cython .pyx can cimport direct from the .pxd
 
 """
-cimport mysql.api as _ 
+cimport api as _ 
 
 DECIMAL     = _.MYSQL_TYPE_DECIMAL
 TINY        = _.MYSQL_TYPE_TINY

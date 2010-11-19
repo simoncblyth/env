@@ -22,7 +22,7 @@ import numpy as np
 
 cimport numpy as np
 cimport _mysql
-cimport mysql.api as mysql
+cimport api as mysql
 
 DECIMAL     = mysql.MYSQL_TYPE_DECIMAL
 TINY        = mysql.MYSQL_TYPE_TINY

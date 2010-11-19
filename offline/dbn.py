@@ -90,6 +90,39 @@ class DBn(object):
         http://crucible.broadinstitute.org/browse/~raw,r=10032/CellProfiler/trunk/CPAnalyst/src/DBConnect.py
 
         NB does not depend on numpy 
+
+        TODO 
+              ... modify this to work at a lower level 
+              ... without leaky/slow cursors 
+
+
+In [5]: result.describe()
+Out[5]: 
+(('SEQNO', 3, 1, 11, 11, 0, 0),
+ ('ROW_COUNTER', 3, 3, 11, 11, 0, 0),
+ ('ladder', 1, 1, 4, 4, 0, 1),
+ ('col', 1, 1, 4, 4, 0, 1),
+ ('ring', 1, 1, 4, 4, 0, 1),
+ ('coalesce(voltage,0.)', 5, 7, 8, 8, 2, 1),
+ ('coalesce(pw,0)', 8, 1, 4, 4, 0, 1))
+
+In [6]: result
+Out[6]: <_mysql.result object at b7947be4>
+
+
+   In [3]: npmy.INTEGER
+   Out[3]: 3
+
+   In [4]: npmy.TINYINT
+   Out[4]: 1
+
+   In [8]: npmy.DOUBLE
+   Out[8]: 5
+
+
+
+
+
         """
         descr = []
         for (name, type_code, display_size, 

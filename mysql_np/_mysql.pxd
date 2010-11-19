@@ -13,7 +13,7 @@
       http://docs.cython.org/src/userguide/extension_types.html
 """
 
-cimport mysql.api as mysql
+cimport api as mysql
 
 cdef extern from "mysqlmod.h":
 
