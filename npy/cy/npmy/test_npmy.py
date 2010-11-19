@@ -90,7 +90,7 @@ from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
 
-import npmy
+import mysql.npy as npy
 
 #try:
 #    import npmy
@@ -207,7 +207,7 @@ class Cyth(Fetch):
         result = conn.get_result()   ## this takes the time
         
         a = np.zeros( int(self['limit']) , self.dtype )
-        meth = getattr( npmy , "fetch_rows_into_array_%d" % self['method'] )
+        meth = getattr( npy , "fetch_rows_into_array_%d" % self['method'] )
         meth( result, a )
 
         result.clear()      ## ESSENTIAL MEMORY CLEANUP
