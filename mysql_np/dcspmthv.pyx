@@ -6,6 +6,9 @@ cimport numpy as np
 
 cimport _mysql
 
+cimport c_api
+
+from libc.stdlib cimport const_char, strtof, atoi, atof
 
 
 # dynamic typing sacrificed on performance altar 
@@ -73,15 +76,15 @@ def fetch_rows_into_array_1(_mysql.result result, np.ndarray[dtype_t, ndim=1] a 
 
     """ 
     cdef Py_ssize_t i, j   
-    cdef mysql.MYSQL_ROW row 
-    cdef mysql.my_ulonglong num_rows 
-    cdef mysql.my_ulonglong max_rows 
+    cdef c_api.MYSQL_ROW row 
+    cdef c_api.my_ulonglong num_rows 
+    cdef c_api.my_ulonglong max_rows 
     cdef unsigned int num_fields
-    cdef mysql.MYSQL_RES* res 
+    cdef c_api.MYSQL_RES* res 
 
     res        = result.result   
-    num_rows   = mysql.mysql_num_rows( res )
-    num_fields = mysql.mysql_num_fields( res )
+    num_rows   = c_api.mysql_num_rows( res )
+    num_fields = c_api.mysql_num_fields( res )
     print "fetch_rows_into_array_1 : num_rows %d num_fields %s " % ( num_rows , num_fields ) 
 
     if a.shape[0] < num_rows:
@@ -92,7 +95,7 @@ def fetch_rows_into_array_1(_mysql.result result, np.ndarray[dtype_t, ndim=1] a 
 
 
     for i in range(max_rows):
-        row        = mysql.mysql_fetch_row( res )
+        row        = c_api.mysql_fetch_row( res )
         if row == NULL:
             continue
 

@@ -1,15 +1,13 @@
 
-== View MySQL DB Tables as numpy record arrays ==
+== View MySQL queries as numpy record arrays ==
 
 {{{
-In [1]: from env.mysql_np import DBnp
+n [1]: from env.mysql_np import DB
 
-In [2]: db = DBnp()
+In [2]: db = DB()
 
-In [3]: a = db("show tables")
-dtd [('Tables_in_offline_db_20101111', '|S64')] 
-dtd [('Tables_in_offline_db_20101111', '|S64')] 
-fetch_np dtype([('Tables_in_offline_db_20101111', '|S64')])  using count 20 
+In [3]:  a = db("show tables")
+   ...: 
 
 In [4]: a
 Out[4]: 
@@ -23,11 +21,6 @@ array([('CalibFeeSpec',), ('CalibFeeSpecVld',), ('CalibPmtSpec',),
       dtype=[('Tables_in_offline_db_20101111', '|S64')])
 
 In [5]: b = db("select * from CalibFeeSpec")
-
-fetch_np dtype([('SEQNO', '<i4'), ('ROW_COUNTER', '<i4'), ('channelId',
-'<i4'), ('status', '<i4'), ('pedestalHigh', '<f8'), ('sigmaPedestalHigh',
-'<f8'), ('pedestalLow', '<f8'), ('sigmaPedestalLow', '<f8'), ('thresholdHigh',
-'<f8'), ('thresholdLow', '<f8')])  using count 1984 
 
 In [6]: b
 Out[6]: 
@@ -47,17 +40,16 @@ array([(3, 1, 2, 4, 6.0, 8.0, 1.0, 3.0, 5.0, 7.0),
 ('pedestalLow', '<f8'), ('sigmaPedestalLow', '<f8'), ('thresholdHigh', '<f8'),
 ('thresholdLow', '<f8')])
 
-In [7]: len(b)
-Out[7]: 1984
+In [7]: 
+}}}
 
-}}} 
 
 
 == issues ==
 
   * NULL handling 
-
-
+  * date handling
+  * type conversion correspondence checks 
 
 
 

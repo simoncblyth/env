@@ -1,1 +1,1 @@
-from npy import DBnp
+from npy import DB

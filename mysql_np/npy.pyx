@@ -18,8 +18,10 @@
 """
 
 
+import numpy as np
+cimport numpy as np
+import  _mysql
 cimport _mysql
-
 cimport c_api 
 
 ## guesses ...
@@ -50,7 +52,19 @@ numpy_dt = {
    c_api.MYSQL_TYPE_GEOMETRY    : "" ,
 }
 
-from libc.stdlib cimport const_char, strtof, atoi, atof
+
+class DB(object):
+    def __init__(self, **kwargs ):
+         kwargs.setdefault( "read_default_file", "~/.my.cnf" ) 
+         kwargs.setdefault( "read_default_group",  "client" )   # _mysql.connection  instance 
+         conn = _mysql.connection( **kwargs )
+         self.conn = conn
+         self.q = None
+
+    def __call__(self, q ):
+         self.q = q 
+         self.conn.query( q )
+         return fetch(self.conn) 
 
 
 
@@ -63,13 +77,14 @@ def fetch(_mysql.connection conn):
     descr = []   
     for (name, type_code, display_size, internal_size, precision, scale, null_ok) in describe:
         dt = numpy_dt.get(type_code,"f8")
-        if '%' in dt:dt = dt % internal_size
-        descr.append( (name, dt )
+        if '%' in dt:
+            dt = dt % internal_size
+        descr.append( (name, dt ) )
     dtype = np.dtype(descr)
 
     a = np.fromiter(result, dtype=dtype, count=count )
     
-    result.clear()
+    result.clear()   ## ESSENTIAL MEMORY CLEAN UP 
     result = None
     return a 
 
