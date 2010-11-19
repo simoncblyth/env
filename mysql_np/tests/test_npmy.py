@@ -1,83 +1,15 @@
 """
+    Optimizing creation of numpy arrays from mysql queries 
 
-   MEMORY LEAK CHECKING WITH 
+    Summary findings (details in NOTES.txt )
 
-  In [3]: MySQLdb.version_info
-  Out[3]: (1, 3, 0, 'final', 0)
-
-[blyth@cms01 MySQLdb-2.0]$ hg tip
-changeset:   83:e705129ff06f
-branch:      MySQLdb
-tag:         tip
-parent:      82:ffe9e5ca17e0
-parent:      80:6ec608cdd19c
-user:        Andy Dustman <adustman@users.sourceforge.net>
-date:        Tue Aug 31 22:28:13 2010 -0400
-summary:     Merge some Kyle stuff
-
-
-
-
-   PROGESSIVE COMMENTING / DE-COMMENTING
-
-       * skip array loading from the query result
-       * skip array creation      
-          * little change in memory/timings !!!
-       * skip doing the query
-          * memory/timings drastically reduced and flat
-       * put back array creation 
-          * timings equal-ish and memory flat when using np.zeros (ndarray is a bit quicker)
-
-       * put back the query and get_result 
-          * back to monotonic memory ==> MySQLdb/_mysql or my useage of it is culprit
-
-       * for MySQLdb 1.3.0  
-            * find that MUST cursor.close() TO AVOID LEAK
-            * connection.close() IS NOT ENOUGH  
-
-
-
-   ISSUES ...
-
-    * monotonic memory ... when run multiple scans in the same process
-
-
-
-
-    * tinyints could be used for ladder/col/ring ... but leave at i4 initially   
-    * voltage and pw go null quite a lot ... avoid for now by "not null" exclusion  
-
-    * defaul mysql is not to '''use''' 
-        store_result  : results stored in client
-        use_result    : results stay on server, until fetched ..... for HUGE resultsets
-        result = conn.store_result() old 1.2.2 API is not longer there in 1.3
-         NB num_rows will not be valid for "use_result" until all rows are fetched
-
-   OOPS ... MEMORY DEATH ?
-
-   fetch_rows_into_array_1 : num_rows 730000 num_fields 7 
-(730000, 7.9681329727172852)
-Killed
-
-
-    Grab the timescan array with ...
-
-       from test_npmy import Fetch
-       npz = Fetch.scan("DcsPmtHv")  
-       ts = npz['ts']
-
-    For plotting the timescan use :
-
-       ipython ts_plt.py 
-
-
-    For interactive plot development 
-
-       ipython ts_plt.py -pylab
-
+       * MySQLdb 1.2.3 cursor usage leaky and slow (factor 10) , and cannot be push to big queries (1M rows)
+       * 1.2.3 _mysql/fromiter is fast and convenient
+       * cythoning can double the _mysql speed at cost of static numpy array types
 
 """
 import sys, os
+
 from timeit import Timer
 import numpy as np
 from env.npy.scan import Scan
@@ -85,18 +17,12 @@ from env.npy.scan import Scan
 import MySQLdb
 import _mysql
 
-import gc
+
 from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
 
-import mysql.npy as npy
-
-#try:
-#    import npmy
-#except ImportError:
-#    print "you need to \"make\" to create the python/cython extension first "     
-#    sys.exit(1)
+import env.mysql_np.npy as npy
 
 
 class Fetch(dict):
@@ -219,18 +145,6 @@ class Cyth(Fetch):
 
 
 
-def test_cyth():
-    fetch = Cyth( "DcsPmtHv" ,read_default_group="client")
-    print fetch
-    fetch(method=1,verbose=1,limit=60000)
-
-def test_pure():
-    fetch = Pure( "DcsPmtHv" ,read_default_group="client")
-    print fetch
-    fetch(method=0,verbose=1,limit=60000)
-
-
-
 class Task(dict):
     _name  = "%(class_)s_%(kls)s_%(method)s"
     _setup = "gc.enable() ; from __main__ import %(kls)s ; obj = %(kls)s(\"%(name)s\", read_default_group=\"%(dbconf)s\" )  "
@@ -263,6 +177,18 @@ class LimitScan(Scan):
 class DebugScan(Scan):
     steps = 10 
     max = 10000
+
+
+def test_cyth():
+    fetch = Cyth( "DcsPmtHv" ,read_default_group="client")
+    print fetch
+    fetch(method=1,verbose=1,limit=60000)
+
+def test_pure():
+    fetch = Pure( "DcsPmtHv" ,read_default_group="client")
+    print fetch
+    fetch(method=0,verbose=1,limit=60000)
+
 
 
 

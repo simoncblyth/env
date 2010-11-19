@@ -30,6 +30,7 @@ for npz in npzs(dir):
     _meta = d["meta"]
     meta = dict(zip(_meta.dtype.names, _meta[0]))
     sc = d["scan"]
+
     ax1.plot( sc['limit'], sc['time_'] , meta["symbol"]  ) 
     ax2.plot( sc['limit'], sc['rss_'] , meta["symbol"]  ) 
     pass
