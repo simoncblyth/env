@@ -31,7 +31,7 @@ cdef extern from "mysql.h":
 
 
     ctypedef unsigned long long my_ulonglong
-    ctypedef char **MYSQL_ROW
+    ctypedef char** MYSQL_ROW
 
     ctypedef struct MYSQL:
         pass

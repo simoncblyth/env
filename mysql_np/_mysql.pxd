@@ -13,7 +13,7 @@
       http://docs.cython.org/src/userguide/extension_types.html
 """
 
-cimport api as mysql
+cimport c_api 
 
 cdef extern from "mysqlmod.h":
 
@@ -25,19 +25,19 @@ cdef extern from "mysqlmod.h":
         pass
 
     ctypedef class _mysql.connection [object _mysql_ConnectionObject]:
-        cdef mysql.MYSQL connection
+        cdef c_api.MYSQL connection
         cdef int open
 
     ctypedef class _mysql.result [object _mysql_ResultObject]:
         cdef object conn
-        cdef mysql.MYSQL_RES* result
+        cdef c_api.MYSQL_RES* result
         cdef int nfields
         cdef int use
         cdef object fields
 
     ctypedef class _mysql.field [object _mysql_FieldObject]:
         cdef object result
-        cdef mysql.MYSQL_FIELD field
+        cdef c_api.MYSQL_FIELD field
         cdef unsigned int index
 
 

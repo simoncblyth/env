@@ -4,7 +4,7 @@
 
      Build with : 
 
-         rm *.{c,so} ; python setup.py build_ext -i
+         rm *.{c,so,pyc} ; python setup.py build_ext -i
 
      TODO :
           add stringemnt mysql-python version check ... as the extension 
@@ -33,8 +33,9 @@ def ExtArgs( **kwargs ):
     return kwargs 
     
 ext_modules = [
-     Extension( "api",       ["api.pyx"],  **ExtArgs() ),
-     Extension( "npy",       ["npy.pyx"],  **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
+     Extension( "c_api",     ["c_api.pyx"],     **ExtArgs() ),
+     Extension( "dcspmthv",  ["dcspmthv.pyx"],  **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
+     Extension( "npy",       ["npy.pyx"],       **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
   ]
 
 

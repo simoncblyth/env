@@ -22,7 +22,8 @@ from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
 
-import env.mysql_np.npy as npy
+
+import env.mysql_np.dcspmthv as dcspmthv 
 
 
 class Fetch(dict):
@@ -71,11 +72,16 @@ class Pure(Fetch):
       This has monotonic memory ???
            cannot push either approach to big queries ... due to memory death 
 
+           http://www.coactivate.org/projects/topp-engineering/lists/topp-engineering-discussion/archive/2009/01/1231971483836/forum_view
+
+      Only accepts the charset for  MYSQL_VERSION_ID >= 50007
+
+
     """
     def __call__(self, **kwargs ):
         self.update(kwargs)
 
-        conn = MySQLdb.connect( **self.connargs  )
+        conn = MySQLdb.connect( **dict( self.connargs )  )
         cursor = conn.cursor()
         cursor.execute( self.sql )          ## this includes the time-consuming get_result
 
@@ -133,7 +139,7 @@ class Cyth(Fetch):
         result = conn.get_result()   ## this takes the time
         
         a = np.zeros( int(self['limit']) , self.dtype )
-        meth = getattr( npy , "fetch_rows_into_array_%d" % self['method'] )
+        meth = getattr( dcspmthv , "fetch_rows_into_array_%d" % self['method'] )
         meth( result, a )
 
         result.clear()      ## ESSENTIAL MEMORY CLEANUP
@@ -262,6 +268,7 @@ if 0:
 if 1: 
     base = dict(name="DcsPmtHv", dbconf="client", verbose=1 , limit="*" , method=0 )
     scargs = (
+         dict( kls="Pure", symbol="ro" ),
          dict( kls="Xure", symbol="bo" ),
          dict( kls="Cyth",  symbol="g^" , method=1 ),
     )
