@@ -18,12 +18,15 @@ import MySQLdb
 import _mysql
 
 
+
+
 from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
 
 
 import env.mysql_np.dcspmthv as dcspmthv 
+from env.mysql_np.npy import DB
 
 
 class Fetch(dict):
@@ -70,10 +73,8 @@ class Pure(Fetch):
            forcing use of coalesce with default zeros for voltage and pw columns
 
       This has monotonic memory ???
-           cannot push either approach to big queries ... due to memory death 
-
+       cannot push either approach to big queries ... due to memory death 
            http://www.coactivate.org/projects/topp-engineering/lists/topp-engineering-discussion/archive/2009/01/1231971483836/forum_view
-
       Only accepts the charset for  MYSQL_VERSION_ID >= 50007
 
 
@@ -96,13 +97,13 @@ class Pure(Fetch):
         if 'verbose' in kwargs:print a
         a = None
 
-        cursor.close()    ## NOT CLOSING THE CURSOR LEAKS MEMORY TERRIBLY 
+        cursor.close()    ## NOT CLOSING THE CURSOR LEAKS MORTALLY ... EVEN WITH IT ARE STILL LEAKIN LIKE SIEVE 
         conn.close()      ## LITTLE MEMORY IMPACT
 
 class Xure(Fetch):
     """
           Avoid the leaky cursor  
-            ... very healthy speed up only 2-3* slower than Cyth
+          ... very healthy speed up only 2-3* slower than Cyth
 
     """
     def __call__(self, **kwargs ):
@@ -122,11 +123,28 @@ class Xure(Fetch):
         a = None
 
 
+class Viadb(Fetch):
+    """
+         Exactly the same mem/time characteristics as Xure 
+         with nice API for interactive usage ... and 
+         it works for any generic query 
+         (array dtype is introspected from the result )
+    """
+    def __call__(self, **kwargs ):
+        self.update(kwargs)
+       
+        db = DB( **self.connargs )
+        a = db( self.sql )
+        db.close()
+
+        if 'verbose' in kwargs:print a
+        a = None
+
+
 class Cyth(Fetch):
     """
-        Factor of 10 faster than Pure* but leaks like a sieve
+        Factor of 10 faster than Pure* ... and no leaking (unlike Pure)
         does the shovelling from mysql rows into numpy array in C
-
         method 1 is approx twice the speed as method 0, 
         with the same memory  ... removal of bounds checking/wraparound 
 
@@ -268,7 +286,8 @@ if 0:
 if 1: 
     base = dict(name="DcsPmtHv", dbconf="client", verbose=1 , limit="*" , method=0 )
     scargs = (
-         dict( kls="Pure", symbol="ro" ),
+        #dict( kls="Pure", symbol="ro" ),
+         dict( kls="Viadb", symbol="ro" ),
          dict( kls="Xure", symbol="bo" ),
          dict( kls="Cyth",  symbol="g^" , method=1 ),
     )

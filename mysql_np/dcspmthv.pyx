@@ -22,6 +22,14 @@ cdef packed struct dtype_t:
 
 def fetch_rows_into_array_0( result, np.ndarray[dtype_t, ndim=1] a not None ):
     """
+        fetch_row converts c strings from mysql into python strings ...
+        which is a bit pointless as i am going to stuff into the numpy array 
+        as floats/ints...
+
+        but its a lot less effort to 
+        numpy impinge above the fetch_row level ...
+        as then i dont need to touch the bare MYSQL objects 
+
         fixed types for speed ... when dealing with huge queries 
         if need flexibility do some code generation 
     """  

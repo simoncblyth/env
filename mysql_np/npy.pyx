@@ -1,22 +1,7 @@
 """
-
-   fetch_row converts c strings from mysql into python strings ...
-   which is a bit pointless as i am going to stuff into the numpy array 
-   as floats/ints...
-
-   but its a lot less effort to 
-   numpy impinge above the fetch_row level ...
-   as then i dont need to touch the bare MYSQL objects 
-
-
-  testing enum access 
-     avoid spilling guts like this by implementing the 
-     result description translation into numpy descr tuple 
-     within mysql.???  
-  
+ 
 
 """
-
 
 import numpy as np
 cimport numpy as np
@@ -55,17 +40,19 @@ numpy_dt = {
 
 class DB(object):
     def __init__(self, **kwargs ):
-         kwargs.setdefault( "read_default_file", "~/.my.cnf" ) 
-         kwargs.setdefault( "read_default_group",  "client" )   # _mysql.connection  instance 
-         conn = _mysql.connection( **kwargs )
-         self.conn = conn
-         self.q = None
+        kwargs.setdefault( "read_default_file", "~/.my.cnf" ) 
+        kwargs.setdefault( "read_default_group",  "client" )   # _mysql.connection  instance 
+        conn = _mysql.connection( **kwargs )
+        self.conn = conn
+        self.q = None
 
     def __call__(self, q ):
-         self.q = q 
-         self.conn.query( q )
-         return fetch(self.conn) 
+        self.q = q 
+        self.conn.query( q )
+        return fetch(self.conn) 
 
+    def close(self):
+        self.conn.close()
 
 
 def fetch(_mysql.connection conn):
