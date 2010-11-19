@@ -21,7 +21,7 @@ cimport cython
 import numpy as np
 
 cimport numpy as np
-cimport mysql.python as _mysql
+cimport _mysql
 cimport mysql.api as mysql
 
 DECIMAL     = mysql.MYSQL_TYPE_DECIMAL

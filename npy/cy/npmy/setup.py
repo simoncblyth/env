@@ -28,14 +28,13 @@ def ExtArgs( **kwargs ):
     
 ext_modules = [
      Extension( "mysql.api",       ["mysql/api.pyx"],       **ExtArgs() ),
-     Extension( "mysql.python",    ["mysql/python.pyx"],    **ExtArgs( include_dirs=[ _mysql_inc, ], )),
      Extension( "npmy",            ["npmy.pyx"],            **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
   ]
 
 
 setup(
   name = 'npmy',
-  packages = [ 'npmy', 'mysql', 'mysql.api', 'mysql.python', ], 
+  packages = [ 'npmy', 'mysql', 'mysql.api', ], 
   cmdclass = {'build_ext':build_ext},
   ext_modules = ext_modules ,
 )

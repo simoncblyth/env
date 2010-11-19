@@ -90,11 +90,13 @@ from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
 
-try:
-    import npmy
-except ImportError:
-    print "you need to \"make\" to create the python/cython extension first "     
-    sys.exit(1)
+import npmy
+
+#try:
+#    import npmy
+#except ImportError:
+#    print "you need to \"make\" to create the python/cython extension first "     
+#    sys.exit(1)
 
 
 class Fetch(dict):
@@ -268,7 +270,7 @@ if __name__=="__main__":
     pass
 
 
-if 1:
+if 0:
     """
          avoiding leaky cursors, and much faster 
          but can i still use the "description" for convenience of
@@ -325,15 +327,13 @@ if 0:
     print a
 
 
-
-
 if 0:
     test_pure()
 
 if 0:
     test_cyth()
 
-if 0: 
+if 1: 
     base = dict(name="DcsPmtHv", dbconf="client", verbose=1 , limit="*" , method=0 )
     scargs = (
          dict( kls="Xure", symbol="bo" ),

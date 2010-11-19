@@ -1,4 +1,0 @@
-
-cimport mysql.python 
-
-

@@ -2,7 +2,7 @@ NAME = npmy
 PKG = mysql
 
 
-$(NAME).so : $(NAME).pyx $(PKG)/api.pxd $(PKG)/api.pyx $(PKG)/python.pxd $(PKG)/python.pyx 
+$(NAME).so : $(NAME).pyx $(PKG)/api.pxd $(PKG)/api.pyx _mysql.pxd 
 	python setup.py build_ext -i && cython -a $(NAME).pyx
 
 clean :
