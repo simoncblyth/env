@@ -9,7 +9,16 @@ numpy-usage(){
      numpy-dir : $(numpy-dir)
 
 
-    
+   numpy in use on C came as dependency of matplotlib (Oct 2010)
+       In [2]: np.__version__
+       Out[2]: '1.5.0'
+       In [3]: np.__file__
+       Out[3]: '/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/numpy/__init__.pyc'    
+
+
+
+
+
      http://www.scipy.org/Cookbook
 
 

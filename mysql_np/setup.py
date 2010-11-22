@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
      Cython based extensions providing fast 
      creation of numpy record arrays from mysql queries
