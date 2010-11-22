@@ -260,12 +260,15 @@ db-create-user(){
   $FUNCNAME- | db-recover
 }
 
-db-grant-(){ cat << EOC
-grant select on $(db-name-today ${2:-testdb}).* to '$(db-user $1)'@'$(db-host $1)' identified by '$(db-pass $1)' ;
+db-grant-(){ 
+   local pfx=${1:-DAYABAY}  ## private var prefix
+   local db=${2:-offline_db}
+   cat << EOC
+grant select on $(db-name-today ${db:-offline_db}).* to '$(db-user $pfx)'@'$(db-host $pfx)' identified by '$(db-pass $pfx)' ;
 EOC
 }
 db-grant(){
-  $FUNCNAME- ${1:-DAYABAY} | db-recover 
+  $FUNCNAME-  | db-recover 
 }
 
 
