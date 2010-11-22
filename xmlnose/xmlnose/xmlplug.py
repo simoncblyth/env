@@ -95,6 +95,8 @@ class XmlOutput(Plugin):
                 pass
             def writeln(self, *arg):
                 pass
+            def flush(self):
+                pass
         d = dummy()
         return d
         
