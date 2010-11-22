@@ -16,6 +16,11 @@ numpy-usage(){
        Out[3]: '/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/numpy/__init__.pyc'    
 
 
+    On N ...
+         system python 2.4 has a yum installed numpy 1.1
+         experiment with more recent numpy in virtual python : vip-npy 
+
+   
 
 
 
@@ -31,6 +36,26 @@ numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
 
    git clone git://github.com/numpy/numpy.git numpy
+}
 
+
+numpy-build(){
+   numpy-cd
+   which python
+   python setup.py build
 
 }
+
+numpy-install(){
+   numpy-cd
+   which python
+
+
+   ## using virtual python environments ... avoids sudo hassles  ... ge
+
+   local cmd="python setup.py install"
+   echo $msg $cmd
+   eval $cmd
+
+}
+

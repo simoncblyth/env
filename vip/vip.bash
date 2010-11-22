@@ -2,7 +2,106 @@ vip-src(){      echo vip/vip.bash ; }
 vip-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vip-src)} ; }
 vip-vi(){       vi $(vip-source) ; }
 
-vip-base(){ echo $(local-base)/env/v ; }
+vip-usage(){
+  cat << EOU
+
+          http://virtualenv.openplans.org/ 
+
+     Typical vip workflow ... eg for npy (numpy- + mysql-python- experimentation on N)
+
+          vip-create npy       ## create a new environment 
+          vip-activate npy     ## get into a preexisting one
+
+          which python        
+          which easy_install   
+          which pip               
+                           ## all these should be from the npy virtual env 
+
+          which ipython          
+                           ## not the virtual one ...
+
+          pip install --upgrade  ipython       ## plucked 0.10.1
+                           ## tis installed into system hence the upgrade 
+
+          python -c "import sys ; print '\n'.join(sys.path) "
+                           ## the npy virtual dirs should come ahead of the system ones   
+
+
+          numpy-
+          numpy-install   
+                           ## installs into virtual python , no sudo required
+
+          (npy)[blyth@belle7 ~]$ python -c "import numpy as np ; print np.__version__ "
+          2.0.0.dev-12d0200
+
+          (npy)[blyth@belle7 ~]$ pip install cython
+
+
+         
+
+     Initially found old system numpy shadowing the new npy one ???
+          * resolved by updating virtualenv to 1.5.1 (sudo pip install --upgrade virtualenv) in system python
+          * the 1.5.1 created virtual env comes with pip + setuptools(easy_install) 
+
+
+
+
+
+     vip- 
+          a combination of the triplet : virtualenv + pip + setuptools 
+          provides python package assembly based on frozen versionsets 
+          into virtual python environments  
+
+          the use of virtual python environments means that once the triplet 
+          are installed into the system (or base) python (probably 
+          requiring sudo access) subsequent installations can be done without 
+          sudo 
+
+     vip-src : $(vip-src)
+     vip-dir : $(vip-dir)
+
+
+     vip-ls  :
+         list virtual python environments     
+
+     vip-preqs
+         check the versions of :  setuptools / virtualenv / pip 
+         this triplet is tightly coupled and other plvdbi constraints demand setuptools 0.6c11
+         so using the precise versions is a necessity
+      
+     vip-create name 
+         create virtual python environment dir  
+
+     vip-check name
+         check the virual python env and activate it
+
+
+     vip-install <name>
+
+        Usage : 
+           cat production.pip | vip-install dbi
+  
+          Background, pip options : 
+            -s  :  use site packages when creating v : eg for MySQLdb that needs to come from system
+                   (DOES NOT WORK ... SO CREATE virtualenv SEPARATELY)
+
+      --no-deps :  so the requirements file is fully in control of versions 
+       -E \$dir :  v directory to use OR create
+       -r \$pip :  requirements file specifying the versions to use
+    --src \$src : directory to check out/clone editables into, avoid repeating slow clones      
+
+      the srcdir is located one step above the individual env allowing editable paths  :
+            -e ../src/
+
+
+      TODO:
+
+
+EOU
+}
+
+
+vip-base(){ echo $(local-base)/env/v ; }  ## the v should be "vip"
 #vip-name(){ echo ${1:-$VIP_NAME} ; }
 vip-name(){ basename ${VIRTUAL_ENV:-${1:-.}} ; } 
 vip-dir(){  echo $(vip-base)/$(vip-name $1) ; }
@@ -14,6 +113,7 @@ vip-reqpath(){ echo $(vip-dir $*)/requirememts.txt ; }
 vip-deactivate(){  deactivate ; }
 
 vip-dbi(){  vip-activate dbi ; }
+vip-npy(){  vip-activate npy ; }
 
 vip-env(){ echo -n ; }
 vip--(){ 
@@ -94,64 +194,6 @@ vip-check(){
 
 
 vip-ls(){ ls -l $(vip-base) ; }
-
-vip-usage(){
-  cat << EOU
-
-     vip- 
-          a combination of the triplet : virtualenv + pip + setuptools 
-          provides python package assembly based on frozen versionsets 
-          into virtual python environments  
-
-          the use of virtual python environments means that once the triplet 
-          are installed into the system (or base) python (probably 
-          requiring sudo access) subsequent installations can be done without 
-          sudo 
-
-     vip-src : $(vip-src)
-     vip-dir : $(vip-dir)
-
-
-     vip-ls  :
-         list virtual python environments     
-
-     vip-preqs
-         check the versions of :  setuptools / virtualenv / pip 
-         this triplet is tightly coupled and other plvdbi constraints demand setuptools 0.6c11
-         so using the precise versions is a necessity
-      
-     vip-create name 
-         create virtual python environment dir  
-
-     vip-check name
-         check the virual python env and activate it
-
-
-     vip-install <name>
-
-        Usage : 
-           cat production.pip | vip-install dbi
-  
-          Background, pip options : 
-            -s  :  use site packages when creating v : eg for MySQLdb that needs to come from system
-                   (DOES NOT WORK ... SO CREATE virtualenv SEPARATELY)
-
-      --no-deps :  so the requirements file is fully in control of versions 
-       -E \$dir :  v directory to use OR create
-       -r \$pip :  requirements file specifying the versions to use
-    --src \$src : directory to check out/clone editables into, avoid repeating slow clones      
-
-      the srcdir is located one step above the individual env allowing editable paths  :
-            -e ../src/
-
-
-      TODO:
-
-         
-
-
-EOU
-}
 
 
 vip-install(){
