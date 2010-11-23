@@ -14,8 +14,6 @@ matplotlib-usage(){
      || numpy >= 1.1 ||  pip install numpy  ||  1.5.0 on C  ||
 
 
-
-
      http://matplotlib.sourceforge.net/faq/installing_faq.html#install-svn
 
          using "python setupegg.py develop" means 
@@ -76,15 +74,25 @@ OPTIONAL BACKEND DEPENDENCIES
 
  == missing deps :  tcl-devel tk-devel tkinter ==
 
+=== On C (a source python node) : ===
+
     sudo yum install tcl-devel
     sudo yum install tk-devel
 
- After which rebuild python  (just a few min partial build):
+ After which rebuild python (just a few min partial build):
 
-   pythonbuild-
-   pythonbuild-configure
-   pythonbuild-install
-   python -c "import Tkinter"
+    pythonbuild-
+    pythonbuild-configure
+    pythonbuild-install
+    python -c "import Tkinter"
+
+=== On N (system python node) : ===
+
+    sudo yum install tkinter 
+    python -c "import Tkinter"
+    
+     sudo yum install tk-devel      
+     sudo yum install pygtk2-devel 
 
 
  Propagate to matplotlib by cleaning and rebuilding as described above
@@ -92,7 +100,30 @@ OPTIONAL BACKEND DEPENDENCIES
    Test it worked ...
         ipython -pylab
         > figure()      ## should popup a GUI window 
+
+ == matplotlib 0.91.1 not compatible with numpy 2.0? ==
+
+
+Try {{{ipython -pylab}}} :
+{{{
+  File "/data1/env/local/env/v/npy/lib/python2.4/site-packages/matplotlib/numerix/ma/__init__.py", line 16, in ?
+    from numpy.core.ma import *
+ImportError: No module named ma
+}}}
+
+
+ Tried {{{pip -v install matplotlib==dev}}} but no found on pypi etc.., so use the source install technique : 
+
+{{{
+(npy)[blyth@belle7 mysql_np]$ pip -v install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
+Obtaining matplotlib from svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
+  Checking out https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/ to /data1/env/local/env/v/npy/src/matplotlib
+  Found command 'svn' at '/usr/bin/svn'
+}}}
  
+
+
+
 
 
 EOU

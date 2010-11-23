@@ -7,6 +7,10 @@ vip-usage(){
 
           http://virtualenv.openplans.org/ 
 
+          http://www.b-list.org/weblog/2008/dec/15/pip/
+               advantages of pip over setuptools/easy_install etc..
+
+
      Typical vip workflow ... eg for npy (numpy- + mysql-python- experimentation on N)
 
           vip-create npy       ## create a new environment 
@@ -21,7 +25,11 @@ vip-usage(){
                            ## not the virtual one ...
 
           pip install --upgrade  ipython       ## plucked 0.10.1
-                           ## tis installed into system hence the upgrade 
+          pip install --upgrade  nose          ## plucked 0.11.1
+                           ## are installed into system alreay hence the upgrade 
+
+
+          pip install matplotlib              ## plucked 0.91.1
 
           python -c "import sys ; print '\n'.join(sys.path) "
                            ## the npy virtual dirs should come ahead of the system ones   
