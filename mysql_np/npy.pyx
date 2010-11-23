@@ -1,8 +1,6 @@
 """
- 
 
 """
-
 import numpy as np
 cimport numpy as np
 import  _mysql
@@ -11,21 +9,21 @@ cimport c_api
 
 ## guesses ...
 numpy_dt = {
-   c_api.MYSQL_TYPE_DECIMAL     : "f8" ,
+   c_api.MYSQL_TYPE_DECIMAL     : "f8" ,   ## 0
    c_api.MYSQL_TYPE_TINY        : "i1" ,
    c_api.MYSQL_TYPE_SHORT       : "i2" ,
    c_api.MYSQL_TYPE_LONG        : "i4" ,
    c_api.MYSQL_TYPE_FLOAT       : "f4" ,
    c_api.MYSQL_TYPE_DOUBLE      : "f8" ,
    c_api.MYSQL_TYPE_NULL        : ""   ,
-   c_api.MYSQL_TYPE_TIMESTAMP   : "|S10" , 
+   c_api.MYSQL_TYPE_TIMESTAMP   : "datetime64[us]" , 
    c_api.MYSQL_TYPE_LONGLONG    : "i8"   , 
    c_api.MYSQL_TYPE_INT24       : "i8"   , 
-   c_api.MYSQL_TYPE_DATE        : "|S10" , 
-   c_api.MYSQL_TYPE_TIME        : "|S10" ,
-   c_api.MYSQL_TYPE_DATETIME    : "|S10" ,
-   c_api.MYSQL_TYPE_YEAR        : "|S10" ,
-   c_api.MYSQL_TYPE_NEWDATE     : "|S10" ,
+   c_api.MYSQL_TYPE_DATE        : "datetime64[us]" , ## 10
+   c_api.MYSQL_TYPE_TIME        : "datetime64[us]" , ## 11
+   c_api.MYSQL_TYPE_DATETIME    : "datetime64[us]" , ## 12
+   c_api.MYSQL_TYPE_YEAR        : "datetime64[us]" , ## 13 
+   c_api.MYSQL_TYPE_NEWDATE     : "datetime64[us]" , ## 14 
    c_api.MYSQL_TYPE_ENUM        : "i4"   ,
    c_api.MYSQL_TYPE_SET         : "i4"   ,
    c_api.MYSQL_TYPE_TINY_BLOB   : "" ,
@@ -39,7 +37,13 @@ numpy_dt = {
 
 
 class DB(object):
-    def __init__(self, **kwargs ):
+    """   _mysql.connect in instance of CPython implemented class 
+          ... apparently cannot add methods OR inherit from it ???
+          hence use composition with DB class having _mysql.connect as member
+    """
+    def __init__(self, *args, **kwargs ):
+        if args:
+            kwargs.update( read_default_group=args[0] )         # some sugar 
         kwargs.setdefault( "read_default_file", "~/.my.cnf" ) 
         kwargs.setdefault( "read_default_group",  "client" )   # _mysql.connection  instance 
         conn = _mysql.connection( **kwargs )
@@ -56,7 +60,15 @@ class DB(object):
 
 
 def fetch(_mysql.connection conn):
+    """
+         Fetches result of the query as a numpy structured array 
+         with dtype pre-determined from the _mysql result description 
+         and array size pre-determined from the affected rows
 
+         Despite the dynamic typing this is rather fast, only a 
+         factor of 2~3 slower using cython with fixed type array arguments. 
+
+    """ 
     result = conn.get_result()
     count = conn.affected_rows()
     describe = result.describe()
