@@ -47,10 +47,21 @@ def send( opts, args ):
     conn = pika.AsyncoreConnection(pika.ConnectionParameters( cfg['server'] , credentials=pika.PlainCredentials( cfg['user'], cfg['password'] )))
     ch = conn.channel()
 
+    # content_type = None, 
+    # content_encoding = None, 
+    # headers = None, 
+    # delivery_mode = None, 
+    # priority = None, 
+    # correlation_id = None, reply_to = None, expiration = None, message_id = None, timestamp = None, type = None, user_id = None, app_id = None, cluster_id = None
+
     props = pika.BasicProperties( content_type = "text/plain",  delivery_mode = 2, ) # persistent
     ch.basic_publish(
-                 exchange=opts.exchange,routing_key=opts.routing_key,body=opts.body,
-                 properties=props , block_on_flow_control = True)
+                    exchange=opts.exchange,
+                 routing_key=opts.routing_key,
+                        body=opts.body,
+                  properties=props, 
+       block_on_flow_control=True,
+                    )
     conn.close()
     pika.asyncore_loop()
 
