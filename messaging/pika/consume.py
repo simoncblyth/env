@@ -9,6 +9,9 @@ in your $ENV_PRIVATE_PATH file
      AMQP_CMS01_USER
      AMQP_CMS01_PASSWORD
 
+Specify a default configset using eg: 
+     AMQP_DEFAULT=_CMS01
+
 
 
 From the spec... topic exchange :
@@ -60,8 +63,11 @@ def handle_delivery(ch, method, header, body):
 def consume( opts, args ):
     from private import Private
     p = Private()
-    srv = opts.server or ""
-    cfg = dict(server=p('AMQP%s_SERVER' % srv ), user=p('AMQP%s_USER' % srv ),  password=p('AMQP%s_PASSWORD' % srv ) )
+    
+    srv = opts.server or p('AMQP_DEFAULT') or ""
+    req = dict( server='AMQP%s_SERVER' % srv , user='AMQP%s_USER' % srv,  password='AMQP%s_PASSWORD' % srv )
+    cfg = p( **req )
+
     if opts.verbose:
         print opts, args
         print "config for server %s : %s " % ( srv , repr(cfg))

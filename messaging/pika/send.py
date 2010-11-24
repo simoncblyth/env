@@ -9,6 +9,9 @@ in your $ENV_PRIVATE_PATH file
      AMQP_CMS01_USER
      AMQP_CMS01_PASSWORD
 
+Specify a default configset using eg: 
+     AMQP_DEFAULT=_CMS01
+
 
 Example of simple producer, creates one message and exits.
 '''
@@ -32,10 +35,13 @@ op.set_defaults( verbose=False, routing_key="abt.test.string" , exchange="abt" ,
 
 def send( opts, args ):
 
-    srv = opts.server or ""
-    cfg = dict(server=p('AMQP%s_SERVER' % srv ), user=p('AMQP%s_USER' % srv ),  password=p('AMQP%s_PASSWORD' % srv ) )
+    srv = opts.server or p('AMQP_DEFAULT') or ""
+    req = dict( server='AMQP%s_SERVER' % srv , user='AMQP%s_USER' % srv,  password='AMQP%s_PASSWORD' % srv )
+    cfg = p( **req )
+
     if opts.verbose:
         print opts, args
+        print " srv %s req %s " % ( srv, repr(req) )
         print "config for server %s : %s " % ( srv , repr(cfg))
 
     conn = pika.AsyncoreConnection(pika.ConnectionParameters( cfg['server'] , credentials=pika.PlainCredentials( cfg['user'], cfg['password'] )))

@@ -10,6 +10,10 @@ vip-usage(){
           http://www.b-list.org/weblog/2008/dec/15/pip/
                advantages of pip over setuptools/easy_install etc..
 
+          http://packages.python.org/distribute/
+               fork of setuptools 
+
+
 
      Typical vip workflow ... eg for npy (numpy- + mysql-python- experimentation on N)
 

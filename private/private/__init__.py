@@ -43,7 +43,7 @@ class Private(dict):
     def __call__(self, *args, **kwa ):
         if len(kwa) == 0:
             assert len(args) == 1 , "error expecting one arg %s " % repr(args)
-            return self.get(args[0],"private-error-no-%s" % args[0] )
+            return self.get(args[0], None )
         else:  
             return dict( [ (k,self(v),) for k,v in kwa.items() ] ) 
 
