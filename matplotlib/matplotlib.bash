@@ -122,13 +122,61 @@ Obtaining matplotlib from svn+https://matplotlib.svn.sourceforge.net/svnroot/mat
 }}}
  
 
+ == matplotlib 1.0??? installed by pip ... no plots showing on C ==
+
+   * remember that are using source python  C ...
+                  try : pip install PyGTK
+     but fails with ... ImportError: No module named dsextras
 
 
+     on N comes via {{{yum info pygtk2}}}
+
+
+   After cleaning try a standard ... (not 1.00 and not using virtual but into source python)
+       [blyth@cms01 ~]$ pip install matplotlib
+
+   
+matplotlib-test
+$HOME=/home/blyth
+CONFIGDIR=/home/blyth/.matplotlib
+matplotlib data path /data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/matplotlib/mpl-data
+loaded rc file /data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/matplotlib/mpl-data/matplotlibrc
+matplotlib version 0.91.1
+verbose.level helpful
+interactive is False
+units is False
+platform is linux2
+numerix numpy 1.5.0
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/pylab.py", line 1, in <module>
+    from matplotlib.pylab import *
+  File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/matplotlib/pylab.py", line 206, in <module>
+    from matplotlib.numerix import npyma as ma
+  File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/matplotlib/numerix/__init__.py", line 166, in <module>
+    __import__('ma', g, l)
+  File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/matplotlib/numerix/ma/__init__.py", line 16, in <module>
+    from numpy.core.ma import *
+ImportError: No module named ma
+[blyth@cms01 ~]$ 
+[blyth@cms01 ~]$ 
+[blyth@cms01 ~]$ python -c "import numpy as np ; print np.__version__ "
+1.5.0
+
+         this was the reason i moved to 1.0 from source  
+
+
+
+    so ...
+           matplotlib-get
+           matplotlib-build
 
 
 EOU
 }
-matplotlib-dir(){ echo $(local-base)/env/matplotlib/matplotlib ; }
+matplotlib-dir(){ 
+  [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/src/matplotlib ||  echo $(local-base)/env/matplotlib/matplotlib ; 
+}
 matplotlib-cd(){  cd $(matplotlib-dir); }
 matplotlib-mate(){ mate $(matplotlib-dir) ; }
 matplotlib-get(){
@@ -141,15 +189,42 @@ matplotlib-versions(){
    pkg-config libpng --modversion --libs --cflags
    python -c "import _tkinter"
    python -c "import Tkinter"
+   #python -c "import gtk"
 }
 
 matplotlib-update(){
    svn up $(matplotlib-dir)
 }
 
+matplotlib-configdir(){  python -c "import matplotlib ; print matplotlib.get_configdir() " ; }
+matplotlib-installdir(){ python -c "import matplotlib ; print matplotlib.__file__ " ; }
+
+matplotlib-clean(){
+  local msg="# === $FUNCNAME :"
+  echo $msg pipe this to sh if you are happy with the deletions
+  echo rm -rf $(matplotlib-configdir)
+  echo rm -rf $(matplotlib-dir)/build
+  echo rm -rf $(python-site)/matplotlib*
+
+  ## TODO : add a perl -pi to cut out the line from easy-install.pth 
+}
+
+
 matplotlib-build(){
    matplotlib-cd
    python setupegg.py develop
 }
+
+matplotlib-test-(){ cat << EOT
+from pylab import *
+plot([1,2,3])
+show()
+EOT
+}
+
+matplotlib-test(){
+  $FUNCNAME- | python - --verbose-helpful 
+}
+
 
 
