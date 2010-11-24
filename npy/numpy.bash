@@ -20,8 +20,8 @@ numpy-usage(){
          system python 2.4 has a yum installed numpy 1.1
          experiment with more recent numpy in virtual python : vip-npy 
 
-   
 
+      see vip- for installation via pip into virtual python env 
 
 
      http://www.scipy.org/Cookbook

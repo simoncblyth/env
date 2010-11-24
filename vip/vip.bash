@@ -5,58 +5,70 @@ vip-vi(){       vi $(vip-source) ; }
 vip-usage(){
   cat << EOU
 
+     References
+
           http://virtualenv.openplans.org/ 
+          http://pip.openplans.org/
+          http://packages.python.org/distribute/
+               supported fork of setuptools 
 
           http://www.b-list.org/weblog/2008/dec/15/pip/
                advantages of pip over setuptools/easy_install etc..
 
-          http://packages.python.org/distribute/
-               fork of setuptools 
-
-
-
      Typical vip workflow ... eg for npy (numpy- + mysql-python- experimentation on N)
 
+          pip install -U virtualenv    
+                               ## get uptodate virtualenv (eg 1.5.1 ) IN SYSTEM PYTHON
+
           vip-create npy       ## create a new environment 
-          vip-activate npy     ## get into a preexisting one
+          vip-activate npy     ## get into it 
 
-          which python        
-          which easy_install   
-          which pip               
-                           ## all these should be from the npy virtual env 
+          which python easy_install pip               
+                               ## all these should be from the npy virtual env 
 
-          which ipython          
-                           ## not the virtual one ...
+          which ipython nosetests         
+                               ## not from npy virtual env
 
-          pip install --upgrade  ipython       ## plucked 0.10.1
-          pip install --upgrade  nose          ## plucked 0.11.1
-                           ## are installed into system alreay hence the upgrade 
+          pip install -U  ipython       ## plucked 0.10.1
+          pip install -U  nose          ## plucked 0.11.1 N(py24) 0.11.4 C(py25)
+          pip install -U  cython
+                               ## are installed into system alreay hence the upgrade 
+                               ## TODO : investigate standard essentials bootstrapping 
+
+          pip -v install -e git://github.com/numpy/numpy.git#egg=numpy
+                               ## need the latest numpy (~2.0?) for datetime support 
+                         
+          pip -v install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
+                               ## need latest matplotlib (~1.0?) to work with latest numpy (~2.0?) 
+
+          pip -v install -e hg+http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/MySQLdb-2.0#egg=MySQLdb-2.0
+                               ## need latest mysql-python- for mysqlmod.h to facilitate cython wrapping, earlier versions miss this
 
 
-          pip install matplotlib              ## plucked 0.91.1
+          pip install -U django       ## plucked 1.2.3 
+
+                ... hmm will need flup + ... for deployment
+                ... will django work with MySQLdb-2.0 ?? (ie 1.3.0 )
+                       
+
 
           python -c "import sys ; print '\n'.join(sys.path) "
-                           ## the npy virtual dirs should come ahead of the system ones   
+                               ## the npy virtual dirs should come ahead of the system ones   
 
-
-          numpy-
-          numpy-install   
-                           ## installs into virtual python , no sudo required
+     Numpy version checking ...
 
           (npy)[blyth@belle7 ~]$ python -c "import numpy as np ; print np.__version__ "
           2.0.0.dev-12d0200
 
+          (npy)[blyth@cms01 v]$ python -c "import numpy as np ; print np.__version__ "
+          2.0.0.dev-8fa2591
+ 
           (npy)[blyth@belle7 ~]$ pip install cython
 
-
-         
-
+   
      Initially found old system numpy shadowing the new npy one ???
           * resolved by updating virtualenv to 1.5.1 (sudo pip install --upgrade virtualenv) in system python
           * the 1.5.1 created virtual env comes with pip + setuptools(easy_install) 
-
-
-
 
 
      vip- 
@@ -247,7 +259,8 @@ vip-freeze(){
   shift
 
   local req=$(vip-reqpath $nam)   
-  local tmp=/tmp/env/$FUNCNAME/$(basename $pip) && mkdir -p $(dirname $tmp)
+  echo $msg nam $nam dir $dir req $req
+  local tmp=/tmp/env/$FUNCNAME/$nam/$(basename $req) && mkdir -p $(dirname $tmp)
   local cmd
   if [ -f "$req" ] ; then
      cmd="pip -E $dir freeze -r $req "   ## -r 
