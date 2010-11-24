@@ -18,8 +18,6 @@ import MySQLdb
 import _mysql
 
 
-
-
 from env.memcheck.mem import Ps
 _ps = Ps(os.getpid())
 rss = lambda:_ps.rss_megabytes
@@ -53,6 +51,7 @@ class Fetch(dict):
     dtype = property(lambda self:np.dtype(self['descr']))
     sql  = property(lambda self:self._sql % self )
     connargs = property(lambda self:dict(read_default_file="~/.my.cnf", read_default_group=self['read_default_group'])) 
+    limit = property( lambda self:int(self['limit']) )
 
     def __repr__(self):
         return "%s(\"%s\",%s)" % ( self.__class__.__name__, self.name , ",".join(["%s=\"%s\"" % _ for _ in self.kwargs.items() ] ) ) 
@@ -87,13 +86,13 @@ class Pure(Fetch):
         cursor.execute( self.sql )          ## this includes the time-consuming get_result
 
         if 0:
-            a = np.zeros( ( int(self['limit']), ) , dtype=self.dtype )
+            a = np.zeros( ( self.limit, ) , dtype=self.dtype )
             for i,row in enumerate(cursor):
                 a[i] = tuple(row)
             if 'verbose' in kwargs:print a
             a = None
 
-        a = np.fromiter( (tuple(row) for row in cursor), dtype=self.dtype, count = int(self['limit']) )
+        a = np.fromiter( (tuple(row) for row in cursor), dtype=self.dtype, count = self.limit  )
         if 'verbose' in kwargs:print a
         a = None
 
@@ -113,7 +112,7 @@ class Xure(Fetch):
         conn.query( self.sql )
         result = conn.get_result()      ## this takes the time
  
-        a = np.fromiter( result , dtype=self.dtype, count = int(self['limit']) )
+        a = np.fromiter( result , dtype=self.dtype, count = self.limit )
         
         result.clear()     ## ESSENTIAL MEMORY CLEANUP
         result = None 
@@ -156,7 +155,7 @@ class Cyth(Fetch):
         conn.query( self.sql )
         result = conn.get_result()   ## this takes the time
         
-        a = np.zeros( int(self['limit']) , self.dtype )
+        a = np.zeros( self.limit  , self.dtype )
         meth = getattr( dcspmthv , "fetch_rows_into_array_%d" % self['method'] )
         meth( result, a )
 
@@ -203,51 +202,40 @@ class DebugScan(Scan):
     max = 10000
 
 
-def test_cyth():
-    fetch = Cyth( "DcsPmtHv" ,read_default_group="client")
-    print fetch
-    fetch(method=1,verbose=1,limit=60000)
 
-def test_pure():
-    fetch = Pure( "DcsPmtHv" ,read_default_group="client")
-    print fetch
-    fetch(method=0,verbose=1,limit=60000)
+def check_technique(tech, kwargs):
+    tech(**kwargs)
 
+def test_techniques():
+    tab, grp = "DcsPmtHv","client"
+    kwargs = dict( method=1, verbose=1, limit=60000 )
 
-
-
-if __name__=="__main__":
-    pass
+    yield  check_technique, Pure( tab ,read_default_group=grp ), kwargs
+    yield  check_technique, Xure( tab ,read_default_group=grp ), kwargs
+    yield  check_technique, Cyth( tab ,read_default_group=grp ), kwargs
+    yield  check_technique, Viadb( tab ,read_default_group=grp ), kwargs
 
 
-if 0:
-    """
-         avoiding leaky cursors, and much faster 
-         but can i still use the "description" for convenience of
-         dynamic data definition for whatever query as done in DBn
- 
-    """
+def test_fromiter():
     conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" )   # _mysql.connection  instance 
     q = Fetch("DcsPmtHv", limit=100 )
     conn.query( q.sql )
     result = conn.get_result()      ## _mysql.result object    (slow)
+    a = np.fromiter( result , dtype=q.dtype, count = q.limit )
+    result.clear()     ## ESSENTIAL MEMORY CLEANUP
+    result = None 
+    conn.close()
+    print repr(a)
+    n = len(a)
+    assert n == q.limit , ( n , q.limit ) 
 
-    a = np.fromiter( result , dtype=q.dtype, count = int(q['limit']) )
-
-    #result.clear()     ## ESSENTIAL MEMORY CLEANUP
-    #result = None 
-    #conn.close()
-    print a
-
-if 0:
-    """
-           transitioning from cursors to lower level 
-    """
+def test_transitional():
     conn = MySQLdb.connect(  read_default_file="~/.my.cnf", read_default_group="client" )
     cursor = conn.cursor()
-
     q = Fetch("DcsPmtHv", limit=100 )
 
+    # transitioning from cursors to lower level
+    #
     # cursor.execute( q )   
     # does 
     #   _clear 
@@ -260,7 +248,6 @@ if 0:
     #      SO NO GOOD    
 
     cursor._clear()
-
     # adapt from  from cursor._query 
     db = cursor._get_db()    ## the  _mysql.connection  instance 
     cursor._flush()          ## clears result 
@@ -274,14 +261,22 @@ if 0:
     # after usage 
     result.clear()
     result = None
-    print a
+    print repr(a)
+
+    n = len(a)
+    assert n == q.limit , ( n , q.limit ) 
 
 
-if 0:
-    test_pure()
 
-if 0:
-    test_cyth()
+
+if __name__=="__main__":
+    pass
+    
+    #for chk, tech, kwargs in test_techniques():
+    #    chk(tech,kwargs)
+    #test_fromiter()
+    #test_transitional()
+
 
 if 1: 
     base = dict(name="DcsPmtHv", dbconf="client", verbose=1 , limit="*" , method=0 )

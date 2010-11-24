@@ -5,7 +5,6 @@
    No worries concerning the warning about matplotlib.use('Agg') doing nothing 
    ... for interactive use you want TkAgg anyhow.
 
-
    Access the numpy arrays like below, remember to call with the () ... which does the DB query 
 
          db = DBn("prior", tab="SimPmtSpec" )()
@@ -14,9 +13,7 @@
    switch tables by assignment :
          db.tab = "CalibPmtSpecVld"
 
-
    read from csv into numpy arrays ...
-
 
    import numpy as np
 
@@ -35,11 +32,6 @@ array([ (17, 1, 536936705, '"SABAD1-ring01-column01"', 1, 19.521999999999998, 0.
        (25, 415, 537001999, '"SABAD2-ring00-column15"', 1, 20.0, 0.0, 2.0, 0.0, 0, 1.0, 0, 0, 0),
        (25, 416, 537002000, '"SABAD2-ring00-column16"', 1, 20.0, 0.0, 2.0, 0.0, 0, 1.0, 0, 0, 0)], 
       dtype=[('f0', '<i4'), ('f1', '<i4'), ('f2', '<i4'), ('f3', '|S24'), ('f4', '<i4'), ('f5', '<f8'), ('f6', '<f8'), ('f7', '<f8'), ('f8', '<f8'), ('f9', '<i4'), ('f10', '<f8'), ('f11', '<i4'), ('f12', '<i4'), ('f13', '<i4')])
-
-
-
-
-
 
 
 
@@ -108,7 +100,6 @@ if __name__ == '__main__':
 
     db = DBn("prior", tab="SimPmtSpec")()  
     nd = db.numpy 
-
 
 
 
