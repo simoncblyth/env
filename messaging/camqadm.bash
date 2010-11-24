@@ -8,13 +8,22 @@ camqadm-usage(){
      camqadm-src : $(camqadm-src)
      camqadm-dir : $(camqadm-dir)
 
-     camqadm is an AMQP command line client that comes with recent celery ...
+     camqadm is an AMQP command line client that comes with recent celery (eg 2.1.3)
      to get it upgrade celery with 
 
-        pip install --upgrade celery   
+           pip install --upgrade celery
+   
+    or check your version with 
+           pip search celery 
 
-    http://ask.github.com/celery/reference/celery.bin.camqadm.html
+     2.1 docs 
+          http://celeryq.org/docs/userguide/routing.html#hands-on-with-the-api
 
+     dev docs
+         http://ask.github.com/celery/userguide/routing.html#hands-on-with-the-api
+    
+     API refernce 
+         http://ask.github.com/celery/reference/celery.bin.camqadm.html
 
         camqadm--
              invoke camqadm CLI with messaging/camqadm on PYTHONPATH
