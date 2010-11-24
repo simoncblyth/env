@@ -1,5 +1,16 @@
 #!/usr/bin/env python
 """
+     pika-consume -v -s _CMS01
+     pika-consume -v -s _CUHK
+
+Assuming you have the corresponding private config variables 
+in your $ENV_PRIVATE_PATH file
+     AMQP_CMS01_SERVER
+     AMQP_CMS01_USER
+     AMQP_CMS01_PASSWORD
+
+
+
 From the spec... topic exchange :
   * message queue binds to the exchange using a routing pattern
   * publisher sends the exchange a message with routing key R
@@ -16,15 +27,18 @@ import asyncore
 import platform
 from optparse import OptionParser
 
-op = OptionParser()
+op = OptionParser(usage=__doc__)
 op.add_option("-q", "--queue")
 op.add_option("-x", "--exchange")
 op.add_option("-k", "--routing-key")
 op.add_option("-o", "--only-bind", action="store_true" ) 
 
 op.add_option("-d", "--durable",   action="store_true" ) 
-op.add_option("-v", "--exclusive", action="store_true" ) 
+op.add_option("-e", "--exclusive", action="store_true" ) 
 op.add_option("-a", "--auto-delete", action="store_true" ) 
+
+op.add_option("-v", "--verbose", action="store_true" ) 
+op.add_option("-s", "--server" , help="allow easy switching between private configs AMQP%(srv)s_SERVER/USER/PASSWORD eg with _CUHK " ) 
 
 op.set_defaults(
      queue="%s@%s" % ( os.path.basename(sys.argv[0]) , platform.node() ), 
@@ -33,6 +47,8 @@ op.set_defaults(
      durable=True,
      exclusive=False,
      auto_delete=False,
+     verbose=False,
+     server="",
 )
 
 def handle_delivery(ch, method, header, body):
@@ -42,12 +58,16 @@ def handle_delivery(ch, method, header, body):
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 def consume( opts, args ):
-    print opts, args
-
     from private import Private
     p = Private()
-    conn = pika.AsyncoreConnection(pika.ConnectionParameters(p('AMQP_SERVER'),
-              credentials = pika.PlainCredentials(p('AMQP_USER'), p('AMQP_PASSWORD')),
+    srv = opts.server or ""
+    cfg = dict(server=p('AMQP%s_SERVER' % srv ), user=p('AMQP%s_USER' % srv ),  password=p('AMQP%s_PASSWORD' % srv ) )
+    if opts.verbose:
+        print opts, args
+        print "config for server %s : %s " % ( srv , repr(cfg))
+
+    conn = pika.AsyncoreConnection(pika.ConnectionParameters( cfg['server'],
+              credentials = pika.PlainCredentials( cfg['user'], cfg['password'] ),
               heartbeat = 10))
 
     print 'Connected to %r' % (conn.server_properties,)
