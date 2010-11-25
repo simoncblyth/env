@@ -13,7 +13,6 @@ class Tech(dict):
     __repr__ = lambda self:self.__class__.__name__
     def _members(cls):
         # all tech.Tech subclasses from module "tech" 
-        #print sys.modules[cls.__module__]
         return inspect.getmembers( sys.modules[cls.__module__] , lambda _:inspect.isclass(_) and issubclass(_, cls ) and _ is not cls )
     members   = classmethod( _members )    
     names     = classmethod( lambda cls:map(lambda _:_[0]  , cls.members() ))

@@ -35,13 +35,17 @@ for npz in npzs(dir):
     meta = dict(zip(_meta.dtype.names, _meta[0]))
     sc = d["scan"]
 
+    callable = meta.get("callable","no-callable")
     print " meta : %s " % repr(meta)
     print "   sc : %s " % repr(sc)
 
-    ax1.plot( sc['limit'], sc['ctime']  , meta.get("symbol","-")  ) 
-    ax2.plot( sc['limit'], sc['rss_']   , meta.get("symbol","-")  ) 
+    ax1.plot( sc['limit'], sc['ctime']  , meta.get("symbol","-") , label=callable ) 
+    ax2.plot( sc['limit'], sc['rss_']   , meta.get("symbol","-") , label=callable ) 
     pass
 
+
+ax1.legend(loc='upper left')
+ax2.legend(loc='upper left')
 
 fig.show()
 

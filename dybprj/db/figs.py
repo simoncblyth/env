@@ -58,11 +58,12 @@ array([ (17, 1, 536936705, '"SABAD1-ring01-column01"', 1, 19.521999999999998, 0.
 
 """
 import matplotlib 
-matplotlib.use('Agg')    # Agg      non-interactive/web server usage
-#matplotlib.use('TkAgg')  # TkAgg    interactive plot showing etc... 
+matplotlib.use('Agg')      #  non-interactive/web server usage
+#matplotlib.use('GTkAgg')  # interactive plot showing etc... 
 import matplotlib.pyplot as plt
 
 from env.offline.dbn import DBn
+from env.mysql_np import DB
 
 
 def demo_fig():
@@ -70,7 +71,6 @@ def demo_fig():
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
     return fig
-
 
 def column_fig( dbname, tabname, colname ):
     fig = plt.figure()
@@ -89,6 +89,18 @@ def column_fig( dbname, tabname, colname ):
     else:
         ax.hist( col )
     return fig
+
+
+def column_fig2( dbname, tabname, colname ):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    db = DB(dbname)
+    #a = db(q.sql) 
+     
+
+
+
 
 
 if __name__ == '__main__':
