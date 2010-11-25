@@ -7,24 +7,24 @@ numpy-usage(){
   cat << EOU
      numpy-src : $(numpy-src)
      numpy-dir : $(numpy-dir)
+     
+
+        http://www.scipy.org/Cookbook
 
 
-   numpy in use on C came as dependency of matplotlib (Oct 2010)
-       In [2]: np.__version__
-       Out[2]: '1.5.0'
-       In [3]: np.__file__
-       Out[3]: '/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/numpy/__init__.pyc'    
 
-
-    On N ...
+    == N : npy virtual py24 ==
+ 
          system python 2.4 has a yum installed numpy 1.1
          experiment with more recent numpy in virtual python : vip-npy 
 
+    == C : in source py25  ==
+
+       hostname   : cms01.phys.ntu.edu.tw
+       version    : 2.0.0.dev-cfd4c05
+       installdir : /data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/numpy
 
       see vip- for installation via pip into virtual python env 
-
-
-     http://www.scipy.org/Cookbook
 
 
 EOU
@@ -36,6 +36,19 @@ numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
 
    git clone git://github.com/numpy/numpy.git numpy
+}
+
+numpy-version(){    python -c "import numpy as np ; print np.__version__ " ; }
+numpy-installdir(){ python -c "import os, numpy as np ; print os.path.dirname(np.__file__) " ; }
+numpy-include(){    python -c "import numpy as np ; print np.get_include() " ; }
+numpy-info(){  cat << EOI  
+
+    hostname   : $(hostname)
+    version    : $(numpy-version)
+    installdir : $(numpy-installdir)
+    include    : $(numpy-include)
+
+EOI
 }
 
 
@@ -50,9 +63,7 @@ numpy-install(){
    numpy-cd
    which python
 
-
-   ## using virtual python environments ... avoids sudo hassles  ... ge
-
+   ## using virtual python environments / or source python avoids sudo hassles  ...
    local cmd="python setup.py install"
    echo $msg $cmd
    eval $cmd

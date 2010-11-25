@@ -44,13 +44,15 @@ vip-usage(){
           pip -v install -e hg+http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/MySQLdb-2.0#egg=MySQLdb-2.0
                                ## need latest mysql-python- for mysqlmod.h to facilitate cython wrapping, earlier versions miss this
 
+          pip install matplotlib              
+                          ## plucked 0.91.1 ... this is ANCIENT AND A BUG ...  SHOULD BE 1.0.0
 
           pip install -U django       ## plucked 1.2.3 
+
 
                 ... hmm will need flup + ... for deployment
                 ... will django work with MySQLdb-2.0 ?? (ie 1.3.0 )
                        
-
 
           python -c "import sys ; print '\n'.join(sys.path) "
                                ## the npy virtual dirs should come ahead of the system ones   

@@ -127,4 +127,11 @@ pygtk-test(){
    cd $iwd
 }
 
+pygtk-installdir(){ python -c "import os, gtk as _ ; print os.path.dirname(_.__file__) " ; }
+pygtk-version(){    python -c "import gtk as _ ; print _.pygtk_version  " ; }
+pygtk-info(){  cat << EOI
+    version      : $(pygtk-version)
+    installdir   : $(pygtk-installdir)
+EOI
+}
 

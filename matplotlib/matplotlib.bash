@@ -269,15 +269,22 @@ matplotlib-get(){
 
 
 
-matplotlib-versions(){
+matplotlib-preqs(){
    echo numpy...
-   python -c "import numpy as _ ; print _.__version__ "
+   numpy-
+   numpy-info
+
    echo libpng ...
    pkg-config libpng --modversion --libs --cflags
+
    echo checking _tkinter Tkinter...
    python -c "import _tkinter"
    python -c "import Tkinter"
-   #python -c "import gtk"
+
+   echo pygtk
+   pygtk-
+   pygtk-info
+   
 }
 
 
@@ -286,22 +293,24 @@ matplotlib-installdir(){ python -c "import matplotlib,os ; print os.path.dirname
 matplotlib-version(){    python -c "import matplotlib ; print matplotlib.__version__ " 2>/dev/null ; }
 matplotlib-rcpath(){     python -c "import matplotlib ; print matplotlib.matplotlib_fname() " ; }
 matplotlib-edit(){       vi $(matplotlib-rcpath) ; }     
-
+matplotlib-easy(){       grep matplotlib $(python-site)/easy-install.pth ; }
 
 
 matplotlib-info(){
-   local fns="configdir installdir version rcpath"
-   local fn
-   for fn in $fns ; do
-      local f="matplotlib-$fn"
-      printf "%-20s %s \n" $fn $(eval $f) 
-   done
+   cat << EOI
+     version    : $(matplotlib-version)
+     configdir  : $(matplotlib-configdir)
+     installdir : $(matplotlib-installdir)
+     rcpath     : $(matplotlib-rcpath)
+     easy       : $(matplotlib-easy)
+
+EOI
 }
 
 
 matplotlib-uneasy-(){
   local lib=$(matplotlib-dir)/lib
-  echo perl -pi -e "s,$lib\n,," $(python-site)/easy-install.pth 
+  echo perl -pi -e \"s,$lib\\n,,\" $(python-site)/easy-install.pth 
 }
 matplotlib-unbuild-(){
   local msg="# === $FUNCNAME :"

@@ -2,6 +2,7 @@
    Use ipython to get a chance to see the plot ...
 
          ipython plt.py 
+         ipython plt.py -pylab    ## huh without -pylab window does not pop up
 
    Plots all scans found in the .npz folder 
 
@@ -10,7 +11,7 @@
 import os
 import numpy as np
 import matplotlib
-matplotlib.use('TkAgg')               # Agg for non-interactive/web server usage
+matplotlib.use('GTkAgg')               # Agg for non-interactive/web server usage
 import matplotlib.pyplot as pyplot
 
 fig = pyplot.figure()
@@ -23,7 +24,10 @@ npzs = lambda dir:filter(lambda _:_.endswith(".npz") , os.listdir(dir))
 
 dir = ".npz"
 for npz in npzs(dir):
+
     d = np.load(os.path.join(dir,npz)) 
+    print "\n ========= %s =========== " % npz
+
     if not "meta" in d:continue
     if not "scan" in d:continue
 
@@ -31,11 +35,11 @@ for npz in npzs(dir):
     meta = dict(zip(_meta.dtype.names, _meta[0]))
     sc = d["scan"]
 
-    print meta
-    print sc
+    print " meta : %s " % repr(meta)
+    print "   sc : %s " % repr(sc)
 
-    ax1.plot( sc['limit'], sc['time_'] , meta["symbol"]  ) 
-    ax2.plot( sc['limit'], sc['rss_'] , meta["symbol"]  ) 
+    ax1.plot( sc['limit'], sc['ctime']  , meta.get("symbol","-")  ) 
+    ax2.plot( sc['limit'], sc['rss_']   , meta.get("symbol","-")  ) 
     pass
 
 

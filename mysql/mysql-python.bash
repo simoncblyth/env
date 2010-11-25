@@ -55,11 +55,14 @@ mysql-python-install(){
 
 
 
-
-mysql-python-version(){
-   python -c "import MySQLdb as _ ; print 'MySQLdb:%s' % _.__version__ "
+mysql-python-version(){    python -c "import MySQLdb as _ ; print _.__version__ " ; }
+mysql-python-installdir(){ python -c "import os,MySQLdb as _ ; print os.path.dirname(_.__file__) " ; }
+mysql-python-info(){ cat << EOI
+    hostname   : $(hostname)
+    version    : $(mysql-python-version)
+    installdir : $(mysql-python-installdir)
+EOI
 }
-
 
 
 
