@@ -900,3 +900,5 @@ mysql-pyrex-(){      . $(env-home)/db/mysql-pyrex.bash && mysql-pyrex-env $* ; }
 mysql-python-(){      . $(env-home)/mysql/mysql-python.bash && mysql-python-env $* ; }
 camqadm-(){      . $(env-home)/messaging/camqadm.bash && camqadm-env $* ; }
 celery-(){      . $(env-home)/messaging/celery.bash && celery-env $* ; }
+pygtk-(){      . $(env-home)/gui/pygtk.bash && pygtk-env $* ; }
+pygobject-(){      . $(env-home)/gui/pygobject.bash && pygobject-env $* ; }

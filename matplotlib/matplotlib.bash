@@ -8,6 +8,57 @@ matplotlib-usage(){
      matplotlib-src : $(matplotlib-src)
      matplotlib-dir : $(matplotlib-dir)
 
+   tracker : appears neglected
+       http://sourceforge.net/tracker/?atid=560720&group_id=80706&func=browse
+
+   primitive archive views
+       http://sourceforge.net/mail/?group_id=80706
+       http://sourceforge.net/mailarchive/forum.php?forum_name=matplotlib-users
+  
+   better interface 
+       http://news.gmane.org/gmane.comp.python.matplotlib.general
+       http://news.gmane.org/gmane.comp.python.matplotlib.devel
+
+   primitive svn browser
+       http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/
+
+   git mirror .. 
+       https://github.com/astraw/matplotlib#readme
+
+   huh lots of activity in maintenance branch ?
+      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/branches/v1_0_maint/lib/matplotlib/
+
+
+
+
+  == ISSUE : pip install matplotlib ... plucks 0.91.1 (from 2007) ==
+
+
+       pip install -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz matplotlib
+
+
+
+  == ISSUE BLANK CANVAS WITH TkAgg ON C and N ... ==
+
+     * less of an issue on N, ad GTkAgg is available ...
+
+   Suspicious commit ...
+     * https://github.com/astraw/matplotlib/commit/e4927a719403a769709d92c0dac659c02931308a
+
+   ------------------------------------------------------------------------
+r8739 | efiring | 2010-10-11 04:30:37 +0800 (Mon, 11 Oct 2010) | 2 lines
+Changed paths:
+   M /trunk/matplotlib/lib/matplotlib/backends/backend_tkagg.py
+
+backend_tkagg: delete dead code
+
+
+    https://github.com/astraw/matplotlib/tree/trunk/lib/matplotlib/backends/
+
+
+    https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v1_0_maint/
+
+
 
 
    Dependencies ...
@@ -174,44 +225,101 @@ ImportError: No module named ma
 
 EOU
 }
+
+matplotlib-name(){
+   #echo matplotlib         ## trunk 
+    echo matplotlib-1.0.0   ## tarball
+}
+matplotlib-update(){ svn up $(matplotlib-dir) ; }
+
 matplotlib-dir(){ 
-  [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/src/matplotlib ||  echo $(local-base)/env/matplotlib/matplotlib ; 
+  local nam=$(matplotlib-name) 
+  case $nam in 
+         matplotlib) [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/src/matplotlib ||  echo $(local-base)/env/matplotlib/matplotlib ;;
+      matplotlib-* ) echo $(local-base)/env/matplotlib/$nam ;; 
+  esac 
 }
 matplotlib-cd(){  cd $(matplotlib-dir); }
+matplotlib-ex(){ cd $(env-home)/matplotlib/examples ; }
 matplotlib-mate(){ mate $(matplotlib-dir) ; }
+
+
+
+
 matplotlib-get(){
    local dir=$(dirname $(matplotlib-dir)) &&  mkdir -p $dir && cd $dir
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
+   local nam=$(matplotlib-name) 
+   if [ "$nam" == "matplotlib" ]; then
+       svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
+   else  
+       [ ! -f "$nam.tar.gz" ] && curl -L  -O http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/$nam.tar.gz
+       [ ! -d "$nam" ]        && tar zxvf $nam.tar.gz
+   fi
 }
 
+
+
 matplotlib-versions(){
+   echo numpy...
    python -c "import numpy as _ ; print _.__version__ "
+   echo libpng ...
    pkg-config libpng --modversion --libs --cflags
+   echo checking _tkinter Tkinter...
    python -c "import _tkinter"
    python -c "import Tkinter"
    #python -c "import gtk"
 }
 
-matplotlib-update(){
-   svn up $(matplotlib-dir)
-}
 
 matplotlib-configdir(){  python -c "import matplotlib ; print matplotlib.get_configdir() " ; }
-matplotlib-installdir(){ python -c "import matplotlib ; print matplotlib.__file__ " ; }
+matplotlib-installdir(){ python -c "import matplotlib,os ; print os.path.dirname(matplotlib.__file__) " ; }
+matplotlib-version(){    python -c "import matplotlib ; print matplotlib.__version__ " 2>/dev/null ; }
+matplotlib-rcpath(){     python -c "import matplotlib ; print matplotlib.matplotlib_fname() " ; }
+matplotlib-edit(){       vi $(matplotlib-rcpath) ; }     
 
-matplotlib-clean(){
-  local msg="# === $FUNCNAME :"
-  echo $msg pipe this to sh if you are happy with the deletions
-  echo rm -rf $(matplotlib-configdir)
-  echo rm -rf $(matplotlib-dir)/build
-  echo rm -rf $(python-site)/matplotlib*
 
-  ## TODO : add a perl -pi to cut out the line from easy-install.pth 
+
+matplotlib-info(){
+   local fns="configdir installdir version rcpath"
+   local fn
+   for fn in $fns ; do
+      local f="matplotlib-$fn"
+      printf "%-20s %s \n" $fn $(eval $f) 
+   done
 }
+
+
+matplotlib-uneasy-(){
+  local lib=$(matplotlib-dir)/lib
+  echo perl -pi -e "s,$lib\n,," $(python-site)/easy-install.pth 
+}
+matplotlib-unbuild-(){
+  local msg="# === $FUNCNAME :"
+  echo rm -rf $(matplotlib-dir)/build
+  [ ! -d "$(matplotlib-dir)/.svn" ] && echo $msg not svn checkout ... skip && return   
+  svn status --no-ignore $(matplotlib-dir) | perl -p -e 's,^[I?],rm -rf,g' - 
+}
+matplotlib-pyclean-(){
+  local msg="# === $FUNCNAME :"
+  [ "$(matplotlib-version)" == "" ] && echo $msg python sees no matplotlib && return   
+  echo rm -rf $(matplotlib-configdir)
+  echo rm -rf $(python-site)/matplotlib*
+  echo rm -rf $(python-site)/mpl_toolkits*
+}
+matplotlib-clean(){
+   local msg="# === $FUNCNAME :"
+   echo $msg pipe this to sh if you are happy with the deletions
+   matplotlib-pyclean-
+   matplotlib-unbuild-
+   matplotlib-uneasy-
+}
+
 
 
 matplotlib-build(){
    matplotlib-cd
+   #python setup.py build
+   #python setup.py install
    python setupegg.py develop
 }
 
