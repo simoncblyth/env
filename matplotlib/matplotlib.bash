@@ -54,9 +54,19 @@ backend_tkagg: delete dead code
 
 
     https://github.com/astraw/matplotlib/tree/trunk/lib/matplotlib/backends/
-
-
     https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v1_0_maint/
+
+
+ == WORKAROUND TkAgg FAILURE ===> MOVE TO GTkAgg ==
+
+
+    After hard work in pygtk- (pygobject- that turned out not be needed at the requisite version era)
+    succeed to build the GTkAgg backend into source python on C
+
+         Gtk+: gtk+: 2.4.13, glib: 2.4.7, pygtk: 2.4.0, pygobject:
+               [pre-pygobject]
+
+    Now the plots reappear
 
 
 
