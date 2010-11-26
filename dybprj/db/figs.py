@@ -12,7 +12,10 @@ matplotlib.use('Agg')      #  non-interactive/web server usage
 import matplotlib.pyplot as plt
 
 from env.offline.dbn import DBn
+
+
 from env.mysql_np import DB
+from env.dyb.db import Qry
 
 
 def demo_fig():
@@ -44,6 +47,8 @@ def column_fig2( dbname, tabname, colname ):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
+
+    q = Qry(tabname)
     db = DB(dbname)
     #a = db(q.sql) 
      
