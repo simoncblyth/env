@@ -902,3 +902,5 @@ camqadm-(){      . $(env-home)/messaging/camqadm.bash && camqadm-env $* ; }
 celery-(){      . $(env-home)/messaging/celery.bash && celery-env $* ; }
 pygtk-(){      . $(env-home)/gui/pygtk.bash && pygtk-env $* ; }
 pygobject-(){      . $(env-home)/gui/pygobject.bash && pygobject-env $* ; }
+mplh5canvas-(){      . $(env-home)/matplotlib/mplh5canvas.bash && mplh5canvas-env $* ; }
+gnocl-(){      . $(env-home)/gui/gnocl.bash && gnocl-env $* ; }

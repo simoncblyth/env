@@ -1,14 +1,14 @@
 import numpy as np
 import MySQLdb
 import _mysql
-from qry import Qry
+from env.dyb.db import Qry
 
 def test_fromiter():
     conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" )   # _mysql.connection  instance 
     q = Qry("DcsPmtHv", limit=100 )
     conn.query( str(q) )
     result = conn.get_result()      ## _mysql.result object    (slow)
-    a = np.fromiter( result , dtype=q.dtype, count = q.limit )
+    a = np.fromiter( result , dtype=np.dtype(q.descr), count = q.limit )
     result.clear()     ## ESSENTIAL MEMORY CLEANUP
     result = None 
     conn.close()
@@ -43,7 +43,7 @@ def test_transitional():
 
     # adapt from  Result.__init__
     result = db.get_result(cursor.use_result)   ## _mysql.result object
-    a = np.fromiter( result  , dtype=q.dtype )
+    a = np.fromiter( result  , dtype=np.dtype(q.descr) )
 
     # after usage 
     result.clear()

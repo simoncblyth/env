@@ -11,7 +11,7 @@
 import sys
 from env.npy.scan import ScanIt, ClassTimr        
 from tech import Tech
-from qry import Qry
+from env.dyb.db import Qry
 
 class LimitScan(ScanIt):
     steps = 5 
@@ -35,7 +35,7 @@ def test_scan():
         print repr(ls.scan) 
         ls.save()
 
-test_scan.__test__ = False      ## tis too slow to run everytime
+test_scan.__test__ = True ## tis too slow to run everytime
 
 
 

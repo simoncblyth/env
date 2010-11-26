@@ -9,6 +9,9 @@ pygtk-usage(){
      pygtk-dir : $(pygtk-dir)
 
 
+     http://wiki.python.org/moin/GuiProgramming
+    
+
 
      http://www.pygtk.org/downloads.html
      http://ftp.gnome.org/pub/GNOME/sources/pygtk/

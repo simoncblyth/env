@@ -43,13 +43,13 @@ class Pure(Tech):
         cursor.execute( str(q) )          ## this includes the time-consuming get_result
 
         if 0:
-            a = np.zeros( ( q.limit, ) , dtype=q.dtype )
+            a = np.zeros( ( q.limit, ) , dtype=np.dtype(q.descr) )
             for i,row in enumerate(cursor):
                 a[i] = tuple(row)
             if 'verbose' in kwargs:print a
             a = None
 
-        a = np.fromiter( (tuple(row) for row in cursor), dtype=q.dtype, count = q.limit  )
+        a = np.fromiter( (tuple(row) for row in cursor), dtype=np.dtype(q.descr), count = q.limit  )
         if 'verbose' in kwargs:print a
         a = None
 
@@ -70,7 +70,7 @@ class Xure(Tech):
         conn.query( str(q) )
         result = conn.get_result()      ## this takes the time
  
-        a = np.fromiter( result , dtype=q.dtype, count = q.limit )
+        a = np.fromiter( result , dtype=np.dtype(q.descr), count = q.limit )
         
         result.clear()     ## ESSENTIAL MEMORY CLEANUP
         result = None 
@@ -115,7 +115,7 @@ class Cyth(Tech):
         conn.query( str(q) )
         result = conn.get_result()   ## this takes the time
         
-        a = np.zeros( q.limit  , q.dtype )
+        a = np.zeros( q.limit  , np.dtype(q.descr) )
         meth = getattr( dcspmthv , "fetch_rows_into_array_%d" % q.method )
         meth( result, a )
 

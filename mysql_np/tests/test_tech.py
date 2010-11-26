@@ -1,6 +1,6 @@
 
 from tech import Tech
-from qry import Qry
+from env.dyb.db import Qry
 
 
 def check_technique(callable, args, kwargs):

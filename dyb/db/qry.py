@@ -1,7 +1,4 @@
 
-import numpy as np
-
-
 class Qry(dict):
     _sql = "select %(cols)s from %(tab)s limit %(limit)s  "
     _qry = {
@@ -23,7 +20,8 @@ class Qry(dict):
 
     cols = property(_cols) 
     colnames = property(lambda self:map(lambda _:_[0], self['descr'])) 
-    dtype = property(lambda self:np.dtype(self['descr']))
+    descr = property(lambda self:self['descr'])
+    #dtype = property(lambda self:np.dtype(self['descr']))
     sql  = property(lambda self:self._sql % self )
     connargs = property(lambda self:dict(read_default_file="~/.my.cnf", read_default_group=self['read_default_group'])) 
     limit = property( lambda self:int(self['limit']) )
