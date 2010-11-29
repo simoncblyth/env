@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 
 #from env.offline.dbn import DBn
 
-#from env.mysql_np import DB
-from env.mysql_np import SlowDB as DB
+#from env.mysql_np import SlowDB as DB
+from env.mysql_np import DB     ## this relies on patch to 1.2.3 or use of un-released 1.3.0
+
 from env.dyb.db import Qry
 
 
