@@ -35,10 +35,10 @@ cdef extern from "mysqlmod.h":
         cdef int use
         cdef object fields
 
-    ctypedef class _mysql.field [object _mysql_FieldObject]:
-        cdef object result
-        cdef c_api.MYSQL_FIELD field
-        cdef unsigned int index
+    #ctypedef class _mysql.field [object _mysql_FieldObject]:
+    #    cdef object result
+    #    cdef c_api.MYSQL_FIELD field
+    #    cdef unsigned int index
 
 
                                                    

@@ -7,12 +7,11 @@
 
 """
 import matplotlib 
-matplotlib.use('Agg')      #  non-interactive/web server usage
-#matplotlib.use('GTkAgg')  # interactive plot showing etc... 
+#matplotlib.use('Agg')      #  non-interactive/web server usage
+matplotlib.use('GTkAgg')  # interactive plot showing etc... 
 import matplotlib.pyplot as plt
 
-from env.offline.dbn import DBn
-
+#from env.offline.dbn import DBn
 
 from env.mysql_np import DB
 from env.dyb.db import Qry
@@ -24,33 +23,66 @@ def demo_fig():
     ax.plot([1,2,3])
     return fig
 
-def column_fig( dbname, tabname, colname ):
+def one_column_hist( dbname, tabname, colname ):
+
+    db = DB(dbname)
+    q = Qry(tabname)
+    a = db(str(q))
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    
-    db = DBn( dbname )
-    db.tab = tabname
-    db()
-    nd = db.numpy 
+    ax.hist( a[colname] )
 
-    col = nd[colname]
-
-    ## for string entries ... could add bar graph which frequency of each string 
-    if col.dtype.kind == 'S':
-        pass 
-    else:
-        ax.hist( col )
     return fig
 
 
-def column_fig2( dbname, tabname, colname ):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+def multi_column_hist( dbname, tabname ):
 
-
-    q = Qry(tabname)
     db = DB(dbname)
-    #a = db(q.sql) 
+    q = Qry(tabname)
+    a = db(str(q))
+    colnames = a.dtype.names
+    
+    if len(cols)<2:
+        n = 1 
+    if len(cols)<5:
+        n = 2
+    elif len(cols)<10:
+        n = 3 
+    elif len(cols)<17:
+        n = 4
+    else:
+        n = 5
+
+    fig = plt.figure()
+    for i, colname in enumerate(colnames):
+        ax = fig.add_subplot(n,n,i)
+        col = a[colname]
+        if col.dtype.kind == 'S':    ## for string entries ... could add bar graph which frequency of each string 
+            pass
+        else: 
+            ax.hist( col )
+
+    return fig
+
+
+def make_fig( **kwargs ):
+    """
+         TODO:
+             dispatching in Fig classes rather than here
+    """
+    dbname = kwargs.get('dbname','client' )   
+    tabname = kwargs.get('tabname', None )
+    colname = kwargs.get('colname', None )
+    type = kwargs.get('type', None )
+
+    if tabname and colname:
+        return one_column_hist( dbname, tabname, colname )
+    elif tabname:
+        return multi_column_hist( dbname, tabname )
+    else:
+        return demo_fig()
+ 
      
 
 
@@ -58,15 +90,10 @@ def column_fig2( dbname, tabname, colname ):
 
 if __name__ == '__main__':
     pass
-    #fig = column_fig( "prior","CalibFeeSpec", "SEQNO" )
-    #fig = column_fig( "prior","SimPmtSpec", "PMTDESCRIB" )
-    #fig = column_fig( "prior","SimPmtSpec", "PMTSIGMAG" )
-    #fig.show()
-
-    db = DBn("prior", tab="SimPmtSpec")()  
-    nd = db.numpy 
 
 
+    fig = make_fig("client","CalibPmtSpec","SEQNO")
+    fig.show()
 
 
 

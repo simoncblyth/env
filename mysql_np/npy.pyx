@@ -3,8 +3,10 @@
 """
 import numpy as np
 cimport numpy as np
+
 import  _mysql
-cimport _mysql
+#cimport _mysql   cannot descend beneach public API unless uysing unrelease 1.3.0
+
 cimport c_api 
 
 ## guesses ...
@@ -59,7 +61,8 @@ class DB(object):
         self.conn.close()
 
 
-def fetch(_mysql.connection conn):
+#def fetch(_mysql.connection conn):
+def fetch(conn):
     """
          Fetches result of the query as a numpy structured array 
          with dtype pre-determined from the _mysql result description 
@@ -69,7 +72,12 @@ def fetch(_mysql.connection conn):
          factor of 2~3 slower using cython with fixed type array arguments. 
 
     """ 
-    result = conn.get_result()
+    
+    if hasattr( conn, 'get_result' ):   # 1.3.0
+        result = conn.get_result()
+    else:
+        result = conn.store_result()
+
     count = conn.affected_rows()
     describe = result.describe()
 
@@ -81,8 +89,8 @@ def fetch(_mysql.connection conn):
         descr.append( (name, dt ) )
     dtype = np.dtype(descr)
 
-    a = np.fromiter(result, dtype=dtype, count=count )
-    
+    a = np.fromiter(result, dtype=dtype, count=count )        ## in 1.2.3 TypeError: '_mysql.result' object is not iterable
+   
     result.clear()   ## ESSENTIAL MEMORY CLEAN UP 
     result = None
     return a 
@@ -90,7 +98,8 @@ def fetch(_mysql.connection conn):
 
 
 
-def look(_mysql.result res):
+#def look(_mysql.result res):
+def look(res):
     print "look"
     print res
     for f in res.describe():

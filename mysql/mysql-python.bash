@@ -12,16 +12,27 @@ mysql-python-usage(){
 
 
     mysql-python-*
-
-
           http://mysql-python.blogspot.com/
                
 
-          normally can just 
-              pip install mysql-python
+  == pip install -U mysql-python ==
 
-              BUT CAUTION WRT WHICH mysql-config IS IN PATH ... 
-              it dictates which mysql/python to build against
+      installed MySQL-python-1.2.3.tar.gz  after uninstalling 1.2.3c1
+      the mysql-config in PATH determined which mysql/python to build against
+
+
+ == unreleased 1.3.0 incompatible with django ==
+
+    was operating with unreleases 1.3.0 (for cython wrapping ease) 
+    but django not compatible with this ...
+    attempt to back off to 1.2.3c1 by easy editing 
+
+      File "/data/env/system/python/Python-2.5.1/lib/python2.5/site-packages/django/db/backends/mysql/base.py", line 14, in <module>
+    raise ImproperlyConfigured("Error loading MySQLdb module: %s" % e)
+    django.core.exceptions.ImproperlyConfigured: Error loading MySQLdb module: libmysqlclient_r.so.15: cannot open shared object file: No such file or directory
+
+
+
 
 
 
@@ -29,13 +40,34 @@ EOU
 }
 
 
-mysql-python-name(){ echo MySQLdb-2.0 ;}
+
+
+
+#mysql-python-ver(){ echo 1.2.2 ; }
+mysql-python-ver(){ echo 1.2.3 ; }
+mysql-python-name(){ echo MySQL-python-$(mysql-python-ver) ; }
+#mysql-python-name(){ echo MySQLdb-2.0 ;}
+
+mysql-python-url(){ 
+   local nam=$(mysql-python-name)
+   case $nam in  
+              MySQLdb-2.0) echo http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/$(mysql-python-name)/   ;;
+            MySQL-python*) echo http://downloads.sourceforge.net/project/mysql-python/mysql-python/$(mysql-python-ver)/$nam.tar.gz ;; 
+   esac
+}
 mysql-python-dir(){ echo $(local-base)/env/mysql/$(mysql-python-name) ; }
 mysql-python-cd(){  cd $(mysql-python-dir); }
 mysql-python-mate(){ mate $(mysql-python-dir) ; }
 mysql-python-get(){
    local dir=$(dirname $(mysql-python-dir)) &&  mkdir -p $dir && cd $dir
-   hg clone http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/$(mysql-python-name)/
+   local nam=$(mysql-python-name)
+   if [ "$nam" == "MySQLdb-2.0" ]; then
+       hg clone $(mysql-python-url) 
+   else
+       local tgz=$(mysql-python-name).tar.gz
+       [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url)  
+       [ ! -d "$nam" ] && tar zxvf $tgz
+   fi
 }
 
 mysql-python-which(){
@@ -52,6 +84,22 @@ mysql-python-install(){
 
 }
 
+mysql-python-ls(){
+  type $FUNCNAME
+  ls -1 $(python-site)/MySQL_python*
+  grep MySQL $(python-site)/easy-install.pth 
+}
+
+
+mysql-python-wipe(){
+  local iwd=$PWD
+  python-cd
+  rm -rf MySQL_python*
+  
+  perl  
+
+}
+
 
 
 
@@ -64,27 +112,6 @@ mysql-python-info(){ cat << EOI
 EOI
 }
 
-
-
-
-#mysql-python-dir(){ echo $(local-base)/mysql-python/MySQL-python-$(mysql-python-ver) ; }
-#mysql-python-ver(){ echo 1.2.3c1 ; }
-#mysql-python-ver(){ echo 1.2.2 ; }
-#mysql-python-tgz(){ echo MySQL-python-$(mysql-python-ver).tar.gz ; }
-#mysql-python-url(){ echo http://downloads.sourceforge.net/project/mysql-python/mysql-python/$(mysql-python-ver)/$(mysql-python-tgz) ; }
-
-
-#mysql-python-cd(){  cd $(mysql-python-dir) ; }
-#mysql-python-get(){  
-#
-#   local dir=$(dirname  $(mysql-python-dir))
-#   local nam=$(basename $(mysql-python-dir))
-#   mkdir -p $dir && cd $dir   
-# 
-#   local tgz=$(mysql-python-tgz)
-#   [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url) 
-#   [ ! -d "$nam" ] && tar zxvf $tgz
-#}
 
 
 

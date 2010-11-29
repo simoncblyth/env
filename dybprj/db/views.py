@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from db.models import Database, Table, Column  # django model-of-model (mom) which are MySQLdb bootstrapped at syncdb time
 #from env.sa import Session, DBISOUP            # SQLAlchemy models pulled from the soup 
 
-from figs import demo_fig, column_fig
+from figs import make_fig
 mimetype = dict( png="image/png", svg="image/svg+xml", pdf="application/pdf" )
 
 @login_required
@@ -37,19 +37,12 @@ def db_column(request, dbname , tabname , colname ):
     return render_to_response( "db/column_detail.html" ,  { 'table':table, 'columns':columns, 'column':column, 'next':next, } , context_instance=RequestContext(request) )
 
 @login_required
-def db_table_fig(request, dbname , tabname , format ):
+def db_figure(request, **kwargs ):
+    format = kwargs.pop('format','svg')
     response = HttpResponse(mimetype=mimetype[format])
-    fig = demo_fig()
+    fig = make_fig( **kwargs )
     fig.savefig( response, format=format )
     return response
-
-@login_required
-def db_column_fig(request, dbname , tabname , colname , format ):
-    response = HttpResponse(mimetype=mimetype[format])
-    fig = column_fig(dbname,tabname, colname )
-    fig.savefig( response, format=format )
-    return response
-
 
 
 
