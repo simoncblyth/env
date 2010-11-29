@@ -13,7 +13,8 @@ import matplotlib.pyplot as plt
 
 #from env.offline.dbn import DBn
 
-from env.mysql_np import DB
+#from env.mysql_np import DB
+from env.mysql_np import SlowDB as DB
 from env.dyb.db import Qry
 
 
@@ -37,11 +38,14 @@ def one_column_hist( dbname, tabname, colname ):
 
 
 def multi_column_hist( dbname, tabname ):
+    """
+                   
+    """
 
     db = DB(dbname)
     q = Qry(tabname)
     a = db(str(q))
-    colnames = a.dtype.names
+    cols = a.dtype.names
     
     if len(cols)<2:
         n = 1 
@@ -55,13 +59,15 @@ def multi_column_hist( dbname, tabname ):
         n = 5
 
     fig = plt.figure()
-    for i, colname in enumerate(colnames):
-        ax = fig.add_subplot(n,n,i)
+    for i, colname in enumerate(cols):
+        ax = fig.add_subplot(n,n,i + 1)
         col = a[colname]
         if col.dtype.kind == 'S':    ## for string entries ... could add bar graph which frequency of each string 
             pass
         else: 
             ax.hist( col )
+        #plt.title( colname )
+        plt.xlabel( colname )
 
     return fig
 

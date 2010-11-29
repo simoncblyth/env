@@ -1,23 +1,7 @@
 {% extends 'layouts/layout_2_equal_columns.html' %}
 {% load comments %}
-{% load olive %}
 {% load db %}
 
-
-{% block js.custom %}
-  {% olive_script table %}
-  <script>
-     // callback function invoked when messages are received from the olive server
-      olive.on('message',
-          function(msg){
-              var el = document.createElement('p');
-              el.innerHTML = '<em>' + msg + '</em>';
-              document.getElementById('comments').appendChild(el);
-              document.getElementById('comments').scrollTop = 1000000;
-          }
-      );
-  </script>
-{% endblock js.custom %}
 
 {% block yahooui %}id="doc3"{% endblock yahooui %}
 
@@ -34,10 +18,18 @@
    {% endfor %}
    </table>
    
-   <h1> Comments on {{ table.name }} </h1>
-   {% render_comment_list for table %} 
-   {% render_comment_form for table %} 
 {% endblock 1 %}
 
+
+{% block 2 %}
+
+   <h1> tab {{table.name }} </h1>
+
+   <object id="{{ table.name }}" width="800" height="700" data="table.svg" type="image/svg+xml">
+      You need a decent(ie not IE) browser in order to see the plot  <a href="table.svg" > table.svg </a> 
+   </object>
+ 
+
+{% endblock 2 %}
 
 

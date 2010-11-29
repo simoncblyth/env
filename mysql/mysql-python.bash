@@ -21,6 +21,10 @@ mysql-python-usage(){
       the mysql-config in PATH determined which mysql/python to build against
 
 
+
+
+
+
  == unreleased 1.3.0 incompatible with django ==
 
     was operating with unreleases 1.3.0 (for cython wrapping ease) 
@@ -32,8 +36,19 @@ mysql-python-usage(){
     django.core.exceptions.ImproperlyConfigured: Error loading MySQLdb module: libmysqlclient_r.so.15: cannot open shared object file: No such file or directory
 
 
+     https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-1.2.3/
 
 
+== cf svn tagged 1.2.3 with tarball ==
+
+[blyth@cms01 mysql]$ diff -r --brief MySQLdb-1.2.3/MySQLdb/ MySQL-python-1.2.3/ | grep -v .svn
+Only in MySQL-python-1.2.3/MySQLdb: release.py
+Only in MySQL-python-1.2.3/: MySQL_python.egg-info
+Only in MySQL-python-1.2.3/: PKG-INFO
+Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ 
+
+
+i
 
 
 EOU
@@ -43,31 +58,65 @@ EOU
 
 
 
-#mysql-python-ver(){ echo 1.2.2 ; }
 mysql-python-ver(){ echo 1.2.3 ; }
-mysql-python-name(){ echo MySQL-python-$(mysql-python-ver) ; }
+#mysql-python-name(){ echo MySQL-python-$(mysql-python-ver) ; }
 #mysql-python-name(){ echo MySQLdb-2.0 ;}
+mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
+
 
 mysql-python-url(){ 
    local nam=$(mysql-python-name)
    case $nam in  
               MySQLdb-2.0) echo http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/$(mysql-python-name)/   ;;
+               MySQLdb-1*) echo https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-$(mysql-python-ver)/ ;;
             MySQL-python*) echo http://downloads.sourceforge.net/project/mysql-python/mysql-python/$(mysql-python-ver)/$nam.tar.gz ;; 
    esac
 }
+
+mysql-python-rdir(){ 
+   local nam=$(mysql-python-name)
+   case $nam in  
+              MySQLdb-1.2.3) echo MySQLdb ;;
+                          *) echo -n ;;
+   esac
+}
+
 mysql-python-dir(){ echo $(local-base)/env/mysql/$(mysql-python-name) ; }
-mysql-python-cd(){  cd $(mysql-python-dir); }
+mysql-python-cd(){  cd $(mysql-python-dir)/$(mysql-python-rdir) ; }
 mysql-python-mate(){ mate $(mysql-python-dir) ; }
 mysql-python-get(){
    local dir=$(dirname $(mysql-python-dir)) &&  mkdir -p $dir && cd $dir
    local nam=$(mysql-python-name)
-   if [ "$nam" == "MySQLdb-2.0" ]; then
-       hg clone $(mysql-python-url) 
-   else
-       local tgz=$(mysql-python-name).tar.gz
-       [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url)  
-       [ ! -d "$nam" ] && tar zxvf $tgz
-   fi
+   case "$nam" in
+        MySQLdb-2.0) mysql-python-get-hg  ;;
+      MySQLdb-1.2.3) mysql-python-get-svn ;;
+                  *) mysql-python-get-tgz ;;
+   esac
+}
+
+mysql-python-patchpath(){
+   echo $(dirname $(mysql-python-source))/$(mysql-python-name)-resultiter.patch 
+}
+
+mysql-python-patch(){
+   local path=$(mysql-python-patchpath)
+   [ ! -f "$path" ] && echo $msg no patch for $(mysql-python-name) && return
+
+   mysql-python-cd
+   patch -p0 < $path 
+}
+
+
+mysql-python-get-svn(){
+  svn co $(mysql-python-url) 
+}
+mysql-python-get-hg(){
+  hg clone $(mysql-python-url) 
+}
+mysql-python-get-tgz(){
+  local tgz=$(mysql-python-name).tar.gz
+  [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url)  
+  [ ! -d "$nam" ] && tar zxvf $tgz
 }
 
 mysql-python-which(){
@@ -75,13 +124,10 @@ mysql-python-which(){
    which mysql_config
 }
 
-
 mysql-python-install(){
    mysql-python-cd
    mysql-python-which
-
    python setup.py install
-
 }
 
 mysql-python-ls(){

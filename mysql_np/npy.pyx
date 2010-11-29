@@ -38,6 +38,18 @@ numpy_dt = {
 }
 
 
+def numpy_descr( describe ):
+    descr = []   
+    for (name, type_code, display_size, internal_size, precision, scale, null_ok) in describe:
+        dt = numpy_dt.get(type_code,"f8")
+        if '%' in dt:
+            dt = dt % internal_size
+        descr.append( (name, dt ) )
+    return descr
+
+
+
+
 class DB(object):
     """   _mysql.connect in instance of CPython implemented class 
           ... apparently cannot add methods OR inherit from it ???
@@ -80,18 +92,13 @@ def fetch(conn):
 
     count = conn.affected_rows()
     describe = result.describe()
-
-    descr = []   
-    for (name, type_code, display_size, internal_size, precision, scale, null_ok) in describe:
-        dt = numpy_dt.get(type_code,"f8")
-        if '%' in dt:
-            dt = dt % internal_size
-        descr.append( (name, dt ) )
+    descr = numpy_descr( describe )
     dtype = np.dtype(descr)
-
     a = np.fromiter(result, dtype=dtype, count=count )        ## in 1.2.3 TypeError: '_mysql.result' object is not iterable
-   
-    result.clear()   ## ESSENTIAL MEMORY CLEAN UP 
+  
+    if hasattr( result, 'clear'):   # 1.3.0
+        result.clear()   ## ESSENTIAL MEMORY CLEAN UP IN 1.3.0
+
     result = None
     return a 
 

@@ -1,5 +1,6 @@
 
 from env.mysql_np import DB
+#from env.mysql_np import SlowDB as DB
 
 
 def test_vld_pull():
