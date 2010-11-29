@@ -43,7 +43,8 @@ env-runpath-(){
    local xdi=$(dirname $(which xdpyinfo 2>/dev/null))
    local cat=$(dirname $(which cat 2>/dev/null))
    local ldd=$(dirname $(which ldd 2>/dev/null))
-   echo $xdi:$cat:$ldd
+   local ipy=$(dirname $(which ipython 2>/dev/null))
+   echo $xdi:$cat:$ldd:$ipy
 }
 
  

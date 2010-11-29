@@ -72,7 +72,7 @@ rootmq-iroot(){
    eval $cmd 
 }
 rootmq-ipython(){
-   local cmd="$(env-runenv) ipython $*"
+   local cmd="$(env-runenv) $(which ipython) $*"
    echo $msg $cmd 
    eval $cmd 
 }
