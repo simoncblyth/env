@@ -13,10 +13,54 @@ rmqc-usage(){
 
        http://groups.google.com/group/rabbitmq-discuss/
 
+  
+  == switching to 0_9_1 ==
+
+      http://mercurial.selenic.com/wiki/NamedBranches
+
+      rmqc-
+      rmqc-cd
+ 
+      hg branches
+      hg update -C amqp_0_9_1     
+
+   ## CAUTION THIS LOOSES UNCOMMITTED CHANGES
+   ## .. BUT THESE CHANGES ARE THE RESULT OF rmqc-kludge SO PROBABLY CAN BE APPLIED IN 0_9_1 
+
+
+[blyth@cms01 rabbitmq-c]$ hg diff
+diff -r 277ec3f5b631 configure.ac
+--- a/configure.ac      Mon Oct 19 15:17:15 2009 +0100
++++ b/configure.ac      Mon Nov 29 14:15:16 2010 +0800
+@@ -21,7 +21,7 @@
+ fi
+ 
+ AC_MSG_CHECKING(location of AMQP codegen directory)
+-sibling_codegen_dir="$ac_abs_confdir/../rabbitmq-codegen"
++sibling_codegen_dir="/data/env/local/env/messaging/rmqc/rabbitmq-codegen"
+ AMQP_CODEGEN_DIR=$(test -d "$sibling_codegen_dir" && echo "$sibling_codegen_dir" || echo "$ac_abs_confdir/codegen")
+ AMQP_SPEC_JSON_PATH="$AMQP_CODEGEN_DIR/amqp-0.8.json"
+ if test -f "$AMQP_SPEC_JSON_PATH"
+diff -r 277ec3f5b631 librabbitmq/amqp.h
+--- a/librabbitmq/amqp.h        Mon Oct 19 15:17:15 2009 +0100
++++ b/librabbitmq/amqp.h        Mon Nov 29 14:15:16 2010 +0800
+@@ -164,7 +164,7 @@
+                              amqp_output_fn_t fn,
+                              void *context);
+ 
+-extern int amqp_table_entry_cmp(void const *entry1, void const *entry2);
++extern int amqp_table_entry_cmp(const void *entry1, const void *entry2);
+ 
+ extern int amqp_open_socket(char const *hostname, int portnumber);
+ 
 
 
 
 
+
+
+
+ ====
 
    This seeks to replace the rabbitmq-c-* functions housed in rabbitmq- 
    to avoid building confusions 
