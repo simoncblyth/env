@@ -305,7 +305,7 @@ rabbitmq-list(){
 }
 
 rabbitmq-tabulate(){
-  perl -n -e '@a = split("\t") ;  @a = split(" ") if($#a == 0);  printf "%-25s "." %-10s " x ($#a - 1) ."\n", @a  ; ' -
+  perl -n -e '@a = split("\t") ;  @a = split(" ") if($#a == 0);  printf "%-35s "." %-10s " x ($#a - 1) ."\n", @a  ; ' -
 }
 
 

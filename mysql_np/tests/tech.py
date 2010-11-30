@@ -2,7 +2,13 @@ import sys, inspect
 import numpy as np
 import MySQLdb
 import _mysql 
-import env.mysql_np.dcspmthv as dcspmthv 
+
+try:
+    import env.mysql_np.dcspmthv as dcspmthv 
+except ImportError:
+    pass
+
+
 from env.mysql_np.npy import DB
 
 
@@ -13,7 +19,7 @@ class Tech(dict):
     __repr__ = lambda self:self.__class__.__name__
     def _members(cls):
         # all tech.Tech subclasses from module "tech" 
-        return inspect.getmembers( sys.modules[cls.__module__] , lambda _:inspect.isclass(_) and issubclass(_, cls ) and _ is not cls )
+        return inspect.getmembers( sys.modules[cls.__module__] , lambda _:inspect.isclass(_) and issubclass(_, cls ) and _ is not cls and _.active )
     members   = classmethod( _members )    
     names     = classmethod( lambda cls:map(lambda _:_[0]  , cls.members() ))
     classes   = classmethod( lambda cls:map(lambda _:_[1]  , cls.members() ))
@@ -35,6 +41,7 @@ class Pure(Tech):
 
     """
     symbol = "ro"
+    active = True 
     def __call__(self, q,  **kwargs ):
         self.update(kwargs)
 
@@ -49,7 +56,7 @@ class Pure(Tech):
             if 'verbose' in kwargs:print a
             a = None
 
-        a = np.fromiter( (tuple(row) for row in cursor), dtype=np.dtype(q.descr), count = q.limit  )
+        a = np.fromiter( (tuple(row) for row in cursor), dtype=np.dtype(q.descr), count = int(q.limit)  )
         if 'verbose' in kwargs:print a
         a = None
 
@@ -63,6 +70,7 @@ class Xure(Tech):
 
     """
     symbol = "go"
+    active = False
     def __call__(self, q, **kwargs ):
         self.update(kwargs)
 
@@ -88,6 +96,7 @@ class Viadb(Tech):
          (array dtype is introspected from the result )
     """
     symbol = "bo"
+    active = True
     def __call__(self, q, **kwargs ):
         self.update(kwargs)
        
@@ -108,6 +117,7 @@ class Cyth(Tech):
 
     """     
     symbol = "r^"
+    active = False
     def __call__(self, q, **kwargs ):
         self.update(kwargs)
         

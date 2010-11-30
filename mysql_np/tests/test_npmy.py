@@ -25,6 +25,7 @@ def test_scan():
     q = Qry( "DcsPmtHv" , read_default_group="client" , limit="*" , verbose=1, method=1 )
     for n, tc  in enumerate(Tech.classes()):
         #if len(sys.argv) > 1 and int(sys.argv[1]) != n:continue  
+        #ls = LimitScan(q)
         ls = DebugScan(q)
         print "starting query scan %s " % repr(ls)
         for _ in ls:           ## cranking the scan iterator changes parameters

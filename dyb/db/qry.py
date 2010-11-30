@@ -67,23 +67,29 @@ class Qry(dict):
     tab = property( _tab )       
 
     def _limit(self):
-        i = int(self.get('limit',1000000)) 
+        return int(self.get('limit',1000000)) 
+    limit  = property( _limit )
+    def _fmtlimit(self):
+        i = self.limit
         if i < 0: 
             return "" 
         return "limit %d" % i
-    limit  = property( _limit )
+    fmtlimit  = property( _fmtlimit )
 
     def _offset(self):
-        i = int(self.get('offset',0)) 
-        return i < 0 and "" or "offset %d" % i
+        return int(self.get('offset',0)) 
     offset  = property( _offset )
+    def _fmtoffset(self):
+        i = self.offset
+        return i < 0 and "" or "offset %d" % i
+    fmtoffset  = property( _fmtoffset )
+
 
     def _limoff(self):
-        lim = self.limit
-        off = self.offset
+        lim = self.fmtlimit
+        off = self.fmtoffset
         return lim and "%s %s " % ( lim , off ) or "" 
     limoff  = property( _limoff )
-
 
     def _pars(self):
         return dict(self, _cols=self.cols, _tab=self.tab, _limoff=self.limoff )
