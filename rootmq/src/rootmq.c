@@ -237,7 +237,7 @@ int rootmq_cleanup()
     */
  
     rootmq_collection_cleanup();
-    private_cleanup();
+    //private_cleanup();
     return EXIT_SUCCESS ;
 }
 

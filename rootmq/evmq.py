@@ -72,7 +72,8 @@ class EvMQ:
             print self
 
     def Off(self):
-        print "EvMQ.Off "
+        print "EvMQ.Off ... stopping monitor thread "
+        self.mq.StopMonitorThread()
 
     def stop(self):
         self.timer.TurnOff()
@@ -92,10 +93,10 @@ if __name__=='__main__':
     keys = ['default.routingkey','abt.test.string','abt.test.runinfo','abt.test.event','abt.test.other']
     emq = EvMQ(keys)
     emq.Launch()
-    #ROOT.gSystem.Sleep(1000*10)
-    #emq.stop()
+    ROOT.gSystem.Sleep(1000*1)
+    emq.stop()
 
-
+    
     
 
 
