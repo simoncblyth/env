@@ -1,18 +1,24 @@
+/*
+    invoke by : 
+        rootmq-
+        rootmq-cd
+        make test_sendobj
 
-// invoke by : 
-//      rootmq-
-//      rootmq-cd
-//      make test_sendobj
-//
-// the kFALSE prevents starting monitor thread, just establish connection to 
-// potentially remote queue and send it a message
-//
+    the kFALSE prevents starting monitor thread, just establish connection to 
+    potentially remote queue and send it a message
+
+*/
+
+
 
 void test_sendobj()
 {
    gSystem->Load("librootmq");
    MQ::Create(kFALSE);  // creates gMQ global singleton
   
+   cout << gMQ << endl;
+
+
    gSystem->Load("libAbtDataModel");
 
    TFile* f = TFile::Open("$ABERDEEN_HOME/DataModel/sample/run00027.root");

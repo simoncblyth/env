@@ -20,7 +20,7 @@ class EvMQ:
         if ROOT.gSystem.Load("librootmq" ) < 0:ROOT.gSystem.Exit(10)
         if ROOT.gSystem.Load("libAbtDataModel" ) < 0:ROOT.gSystem.Exit(10)
  
-        ROOT.gMQ.Create()
+        ROOT.gMQ.Create(True)
         self.keys = keys 
         self.mq = ROOT.gMQ
         self.timer = ROOT.TTimer(1000)
@@ -36,10 +36,17 @@ class EvMQ:
         self.timer.TurnOn()
 
     def On(self):
-        print "EvMQ.On : starting monitor thread "
-        self.mq.StartMonitorThread()
+        print "EvMQ.On : NOT starting monitor thread ... should be running already "
+        #self.mq.StartMonitorThread()  ... not needed as done beneath 
 
     def Check_(self, key):
+        """
+           Updates dicts with per key counts ... and dumps objects received
+
+              checks : number of mq.IsUpdated checks for each key  
+             updates : number of mq.IsUpdated checks that returned True
+
+        """
         if self.checks.get(key,None) == None:
              self.checks[key] = 1
         else:
@@ -53,7 +60,7 @@ class EvMQ:
                 
             obj = self.mq.Get(key, 0)
             if obj:
-                print "EvMQ.Check_ finds update in queue %s " % key  
+                print "EvMQ.Check_ finds update for key %s " % key  
                 obj.Print("")
                 self.obj = obj
             
@@ -62,6 +69,7 @@ class EvMQ:
         if self.mq.IsMonitorRunning():
             for key in self.keys:
                 self.Check_(key)
+            print self
 
     def Off(self):
         print "EvMQ.Off "

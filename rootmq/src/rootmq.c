@@ -46,7 +46,7 @@ int rootmq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , 
 {
     //  invoked from the rootmq_basic_consume from inside the monitor thread 
     // 
-	// bundle message body and delivery metadata and properties into struct rootmq_basic_msg_t and add to collection 
+    // bundle message body and delivery metadata and properties into struct rootmq_basic_msg_t and add to collection 
     //
     // dynamically allocated duplication of the message pulled off the wire ... 
     // the bytes of the frame are shortly deallocated so must do the duping 
@@ -151,7 +151,7 @@ int rootmq_exchange_declare( char const* exchange , char const* exchangetype , b
     /*
         http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
         
-           passive: the exchange will not get declared but an error will be thrown if it does not exist.
+           passive: the exchange will not get created but an error will be thrown if it does not exist.
            durable: the exchange will survive a broker restart.
            auto-delete: the exchange will get deleted as soon as there are no more queues bound to it. 
                 Exchanges to which queues have never been bound will never get auto deleted.

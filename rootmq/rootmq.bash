@@ -46,6 +46,18 @@ make: *** [test_sendstring] Error 111
 
      Check if the node is running, see rabbitmq-usage
 
+
+   == DEBUGGING AMQ WIRING ==
+
+      1) Use rabbitmq-smry + camqadm-- to delete all exchanges/queues (other than the supplied amq.* ones) 
+      2) 
+          * start producer rootmq-sendobj 
+              * creates exchange "abt"
+
+          * start consumer rootmq-pymonitor
+
+
+
 EOU
 }
 
