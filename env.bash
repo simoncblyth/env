@@ -26,6 +26,7 @@ env-libdir(){   echo $(env-modedir)/lib ; }
 env-libpath(){
       [ "$1" == "blank" ] && echo -n && return 
       root-
+      python-
       case $(hostname -s) in 
          cms01|cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
           simon|g4pb) echo $(env-libdir):$(root-libdir)                  ;;
