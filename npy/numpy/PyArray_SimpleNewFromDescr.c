@@ -20,13 +20,21 @@
 int main(int argc, char *argv[])
 {
      int dims[] = { 2, 3 };
-     PyObject *op, *array ;
+     PyObject *op, *array, *dte ;
      PyArray_Descr *descr;
 
      Py_Initialize();
      import_array();
 
-     op = Py_BuildValue("[(s, s), (s, s)]", "aaaa", "i4", "bbbb", "f4");
+     //op = Py_BuildValue("[(s, s), (s, s)]", "aaaa", "i4", "bbbb", "f4");
+     
+     op = PyList_New(2) ;
+     dte = Py_BuildValue("(s,s)" , "aaa", "i4" ) ;
+     PyList_SET_ITEM( op, 0, dte );
+     dte = Py_BuildValue("(s,s)" , "bbb", "f4" ) ;
+     PyList_SET_ITEM(op, 1, dte );
+
+     PyObject_Print( op , stdout, 0);
      PyArray_DescrConverter(op, &descr);
      Py_DECREF(op);
      
