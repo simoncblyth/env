@@ -7,6 +7,14 @@ def test_npdescr():
     d = r.npdescr()
     assert d[0][1] == "|S64",  d
 
+def test_nparray():
+    conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" ) 
+    conn.query("show tables")
+    r = conn.store_result()
+    a = r.fetch_nparray()
+
+
 if __name__ == '__main__':
     test_npdescr()
+    test_nparray()
 

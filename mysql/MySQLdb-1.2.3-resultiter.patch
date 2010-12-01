@@ -2,10 +2,12 @@ Index: _mysql.c
 ===================================================================
 --- _mysql.c	(revision 650)
 +++ _mysql.c	(working copy)
-@@ -39,6 +39,64 @@
+@@ -39,6 +39,66 @@
  #include "mysqld_error.h"
  #include "errmsg.h"
  
++#include <numpy/arrayobject.h>
++
 +//#include "mysql_np.h"
 +static const char* NP_I1 = "i1" ; 
 +static const char* NP_I2 = "i2" ; 
@@ -67,7 +69,7 @@ Index: _mysql.c
  #if PY_VERSION_HEX < 0x02020000
  # define MyTuple_Resize(t,n,d) _PyTuple_Resize(t, n, d)
  # define MyMember(a,b,c,d,e) {a,b,c,d}
-@@ -388,6 +446,7 @@
+@@ -388,6 +448,7 @@
  	}
  	n = mysql_num_fields(result);
  	self->nfields = n;
@@ -75,7 +77,7 @@ Index: _mysql.c
  	if (!(self->converter = PyTuple_New(n))) return -1;
  	fields = mysql_fetch_fields(result);
  	for (i=0; i<n; i++) {
-@@ -1191,6 +1250,56 @@
+@@ -1191,6 +1252,56 @@
  	Py_XDECREF(d);
  	return NULL;
  }
@@ -132,7 +134,7 @@ Index: _mysql.c
  	
  static char _mysql_ResultObject_field_flags__doc__[] =
  "Returns a tuple of field flags, one for each column in the result.\n\
-@@ -1456,6 +1565,90 @@
+@@ -1456,6 +1567,175 @@
  	return NULL;
  }
  
@@ -194,6 +196,91 @@ Index: _mysql.c
 +}
 +
 +
++
++static char _mysql_ResultObject_fetch_nparray__doc__[] =
++"futurefetchrow()\n\
++  Fetches one row as a tuple of strings.\n\
++  NULL is returned as None.\n\
++  A single None indicates the end of the result set.\n\
++";
++
++
++static PyObject *
++_mysql_ResultObject_fetch_nparray(
++	_mysql_ResultObject *self,
++ 	PyObject *unused)
++ {
++	unsigned int n, i ;
++	unsigned long *length;
++        unsigned long long e ;
++
++	PyObject* r=NULL;
++	PyObject* array=NULL;
++
++	MYSQL_ROW row;
++        int dims[] = { -1 };
++	
++ 	check_result_connection(self);
++    
++        import_array(); 
++
++        // descr describes the structure of each element, not the shape
++        PyObject* d = _mysql_ResultObject_npdescr( self , NULL ) ;
++        PyArray_Descr *descr;
++        PyArray_DescrConverter( d , &descr);
++        Py_DECREF( d );
++
++        _mysql_ConnectionObject* conn = result_connection(self) ;
++        unsigned long long nele = mysql_affected_rows(&(conn->connection)) ;
++
++        // hmm need to know the count in order to create the structured array          
++        dims[0] = nele ; 
++        array = PyArray_SimpleNewFromDescr( 1, dims, descr);
++        
++        n = self->nfields ; 
++
++        for( e=0; e<nele ; e++ ){  
++
++  	    row = mysql_fetch_row(self->result);
++	    if (!row && mysql_errno(&(((_mysql_ConnectionObject *)(self->conn))->connection))) {
++	   	    _mysql_Exception((_mysql_ConnectionObject *)self->conn);
++		    goto error;
++	    }
++	    if (!row) {
++	   	    Py_INCREF(Py_None);
++		    return Py_None;
++	    }
++	
++	    length = mysql_fetch_lengths(self->result);
++	    
++            if (!(r = PyTuple_New(n))) return NULL;
++	    for (i=0; i<n; i++) {
++	  	PyObject *v;
++		if (row[i]) {
++			v = PyString_FromStringAndSize(row[i], length[i]);
++			if (!v) goto error;
++		} else {
++			v = Py_None;
++			Py_INCREF(v);
++ 		}
++		PyTuple_SET_ITEM(r, i, v);
++ 	    }
++            
++            void* ptr = PyArray_GETPTR1(array, (npy_intp)e ) ;
++            int rc = PyArray_SETITEM(array, ptr, r );
++        }
++	return array ;
++  error:
++	Py_XDECREF(r);
++	return NULL;
++}
++
++
++
++
++
++
++
 +static PyObject *
 +_mysql_ResultObject__iter__(
 +	_mysql_ResultObject *self,
@@ -223,7 +310,7 @@ Index: _mysql.c
  #if MYSQL_VERSION_ID >= 32303
  
  static char _mysql_ConnectionObject_change_user__doc__[] =
-@@ -2392,12 +2585,24 @@
+@@ -2392,12 +2672,30 @@
  		_mysql_ResultObject_describe__doc__
  	},
  	{
@@ -239,6 +326,12 @@ Index: _mysql.c
  		_mysql_ResultObject_fetch_row__doc__
  	},
  	{
++		"fetch_nparray",
++		(PyCFunction)_mysql_ResultObject_fetch_nparray,
++		METH_VARARGS | METH_KEYWORDS,
++		_mysql_ResultObject_fetch_nparray__doc__
++	},
++	{
 +		"futurefetch_row",
 +		(PyCFunction)_mysql_ResultObject_futurefetch_row,
 +		METH_VARARGS | METH_KEYWORDS,
@@ -248,7 +341,7 @@ Index: _mysql.c
  		"field_flags",
  		(PyCFunction)_mysql_ResultObject_field_flags,
  		METH_VARARGS,
-@@ -2678,9 +2883,9 @@
+@@ -2678,9 +2976,9 @@
  #if PY_VERSION_HEX >= 0x02020000
  	/* Added in release 2.2 */
  	/* Iterators */
@@ -261,3 +354,31 @@ Index: _mysql.c
  	/* Attribute descriptor and subclassing stuff */
  	(struct PyMethodDef *) _mysql_ResultObject_methods, /* tp_methods */
  	(MyMemberlist(*)) _mysql_ResultObject_memberlist, /*tp_members */
+Index: setup_posix.py
+===================================================================
+--- setup_posix.py	(revision 650)
++++ setup_posix.py	(working copy)
+@@ -3,6 +3,12 @@
+ # This dequote() business is required for some older versions
+ # of mysql_config
+ 
++try:
++    import numpy as np
++except ImportError:
++    np = None 
++
++
+ def dequote(s):
+     if s[0] in "\"'" and s[0] == s[-1]:
+         s = s[1:-1]
+@@ -70,6 +76,10 @@
+                          for i in mysql_config('cflags')
+                          if i.startswith(compiler_flag('I')) ]
+ 
++
++    if np:
++         include_dirs += [ np.get_include() ]
++
+     if static:
+         extra_objects.append(os.path.join(
+             library_dirs[0],'lib%s.a' % client))
