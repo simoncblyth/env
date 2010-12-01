@@ -11,11 +11,17 @@
   http://svn.scipy.org/svn/scipy/branches/testing_cleanup/scipy/sandbox/timeseries/src/c_tseries.c
   http://starship.python.net/crew/hinsen/NumPyExtensions.html 
 
+  http://www.pymolwiki.org/index.php/Advanced_Scripting
+
 */
 
 #include <Python.h>
 #include <stdio.h>
 #include <numpy/arrayobject.h>
+
+#include "mysql.h"
+#include "mysql_np.h"
+
 
 int main(int argc, char *argv[])
 {
@@ -26,13 +32,36 @@ int main(int argc, char *argv[])
      Py_Initialize();
      import_array();
 
+ 
+     // shortest but least flexible ...  
      //op = Py_BuildValue("[(s, s), (s, s)]", "aaaa", "i4", "bbbb", "f4");
      
-     op = PyList_New(2) ;
-     dte = Py_BuildValue("(s,s)" , "aaa", "i4" ) ;
-     PyList_SET_ITEM( op, 0, dte );
-     dte = Py_BuildValue("(s,s)" , "bbb", "f4" ) ;
-     PyList_SET_ITEM(op, 1, dte );
+     // more easily extendible
+     //op = PyList_New(2) ;
+     //dte = Py_BuildValue("(s,s)" , "aaa", "i4" ) ;
+     //PyList_SET_ITEM( op, 0, dte );
+     //dte = Py_BuildValue("(s,s)" , "bbb", "f4" ) ;
+     //PyList_SET_ITEM(op, 1, dte );
+
+     // list appending style is most convenient
+     op = PyList_New(0) ;
+     Py_INCREF(op);
+     PyObject* kv ;
+     int ikv ;
+     for ( ikv = 0; ikv < 2; ikv++ ) {
+         if( ikv == 0) kv = Py_BuildValue( "(s,s)", "aaa", "i4" );
+         if( ikv == 1) kv = Py_BuildValue( "(s,s)", "bbb", "f4" );
+         Py_INCREF(kv);
+         PyList_Append(op, kv );
+     }
+
+     printf(" MYSQL_TYPE_TINY %d %s \n" , MYSQL_TYPE_TINY , mysql2np( MYSQL_TYPE_TINY) );
+     printf(" MYSQL_TYPE_LONG %d %s \n" , MYSQL_TYPE_LONG , mysql2np( MYSQL_TYPE_LONG) );
+     printf(" MYSQL_TYPE_FLOAT %d %s \n" , MYSQL_TYPE_FLOAT , mysql2np( MYSQL_TYPE_FLOAT) );
+     printf(" MYSQL_TYPE_DOUBLE %d %s \n" , MYSQL_TYPE_DOUBLE ,mysql2np( MYSQL_TYPE_DOUBLE ) );
+     printf(" MYSQL_TYPE_TIMESTAMP %d %s \n" , MYSQL_TYPE_TIMESTAMP , mysql2np(  MYSQL_TYPE_TIMESTAMP) );
+
+
 
      PyObject_Print( op , stdout, 0);
      PyArray_DescrConverter(op, &descr);

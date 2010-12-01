@@ -7,8 +7,10 @@ PYTHON_VERSION := $(shell python -c "from  distutils.sysconfig import get_config
 
 NUMPY_INCDIR := $(shell python -c "import numpy as np ; print np.get_include() ")
 
+MYSQL_INCLUDE := $(shell  mysql_config --include ) 
 
-CFLAGS = -I$(PYTHON_INCDIR) -I$(NUMPY_INCDIR)
+
+CFLAGS = -I$(PYTHON_INCDIR) -I$(NUMPY_INCDIR) $(MYSQL_INCLUDE)
 
 LIBS = -L$(PYTHON_LIBDIR) -lpython$(PYTHON_VERSION)
 
@@ -22,10 +24,14 @@ $(NAME) : $(NAME).o
 	$(CC) $(CFLAGS) $(LIBS)  $< -o $@ 
 
 
+run :
+	./$(NAME)
+
+
 clean :
 	rm *.o $(NAME)
 
 
-.PHONY : clean
+.PHONY : clean run
 
 
