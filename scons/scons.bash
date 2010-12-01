@@ -71,7 +71,7 @@ scons-dir(){
    pkgr- 
    case $(pkgr-cmd) in 
        port) echo /opt/local/lib/scons-1.2.0 ;; 
-        yum) echo /usr/lib/scons-1.2.0       ;;
+        yum) echo /usr/lib/scons       ;;
        ipkg) echo /opt/lib/scons-1.2.0       ;;
           *) echo /tmp ;;
    esac
