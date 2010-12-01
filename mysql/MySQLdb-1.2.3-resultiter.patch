@@ -77,7 +77,7 @@ Index: _mysql.c
  	if (!(self->converter = PyTuple_New(n))) return -1;
  	fields = mysql_fetch_fields(result);
  	for (i=0; i<n; i++) {
-@@ -1191,6 +1252,56 @@
+@@ -1191,6 +1252,55 @@
  	Py_XDECREF(d);
  	return NULL;
  }
@@ -102,7 +102,6 @@ Index: _mysql.c
 +        const char* nptype ;
 +        char nptype_[10];
 +
-+	if (!PyArg_ParseTuple(args, "")) return NULL;
 +	check_result_connection(self);
 +	n = mysql_num_fields(self->result);
 +	fields = mysql_fetch_fields(self->result);
@@ -134,7 +133,7 @@ Index: _mysql.c
  	
  static char _mysql_ResultObject_field_flags__doc__[] =
  "Returns a tuple of field flags, one for each column in the result.\n\
-@@ -1456,6 +1567,175 @@
+@@ -1456,6 +1566,178 @@
  	return NULL;
  }
  
@@ -211,27 +210,30 @@ Index: _mysql.c
 + 	PyObject *unused)
 + {
 +	unsigned int n, i ;
-+	unsigned long *length;
-+        unsigned long long e ;
++	unsigned long *length ;
++        my_ulonglong e ;
 +
-+	PyObject* r=NULL;
-+	PyObject* array=NULL;
++	PyObject* r = NULL;
++	PyObject* array = NULL;
 +
 +	MYSQL_ROW row;
 +        int dims[] = { -1 };
 +	
 + 	check_result_connection(self);
 +    
-+        import_array(); 
 +
 +        // descr describes the structure of each element, not the shape
 +        PyObject* d = _mysql_ResultObject_npdescr( self , NULL ) ;
 +        PyArray_Descr *descr;
 +        PyArray_DescrConverter( d , &descr);
 +        Py_DECREF( d );
++        //PyObject_Print( d , stdout, 0);
++        //PyObject_Print( descr , stdout, 0);
 +
-+        _mysql_ConnectionObject* conn = result_connection(self) ;
-+        unsigned long long nele = mysql_affected_rows(&(conn->connection)) ;
++        //_mysql_ConnectionObject* conn = result_connection(self) ;
++        //unsigned long long nele = mysql_affected_rows(&(conn->connection)) ;
++        
++        my_ulonglong nele = mysql_num_rows(self->result);
 +
 +        // hmm need to know the count in order to create the structured array          
 +        dims[0] = nele ; 
@@ -253,7 +255,7 @@ Index: _mysql.c
 +	
 +	    length = mysql_fetch_lengths(self->result);
 +	    
-+            if (!(r = PyTuple_New(n))) return NULL;
++            if (!( r = PyTuple_New(n) )) return NULL;
 +	    for (i=0; i<n; i++) {
 +	  	PyObject *v;
 +		if (row[i]) {
@@ -267,11 +269,11 @@ Index: _mysql.c
 + 	    }
 +            
 +            void* ptr = PyArray_GETPTR1(array, (npy_intp)e ) ;
-+            int rc = PyArray_SETITEM(array, ptr, r );
++            PyArray_SETITEM(array, ptr, r );
 +        }
 +	return array ;
 +  error:
-+	Py_XDECREF(r);
++	Py_XDECREF(array);
 +	return NULL;
 +}
 +
@@ -310,7 +312,7 @@ Index: _mysql.c
  #if MYSQL_VERSION_ID >= 32303
  
  static char _mysql_ConnectionObject_change_user__doc__[] =
-@@ -2392,12 +2672,30 @@
+@@ -2392,12 +2674,30 @@
  		_mysql_ResultObject_describe__doc__
  	},
  	{
@@ -341,7 +343,7 @@ Index: _mysql.c
  		"field_flags",
  		(PyCFunction)_mysql_ResultObject_field_flags,
  		METH_VARARGS,
-@@ -2678,9 +2976,9 @@
+@@ -2678,9 +2978,9 @@
  #if PY_VERSION_HEX >= 0x02020000
  	/* Added in release 2.2 */
  	/* Iterators */
@@ -354,6 +356,30 @@ Index: _mysql.c
  	/* Attribute descriptor and subclassing stuff */
  	(struct PyMethodDef *) _mysql_ResultObject_methods, /* tp_methods */
  	(MyMemberlist(*)) _mysql_ResultObject_memberlist, /*tp_members */
+@@ -2880,6 +3180,9 @@
+ 	if (!(_mysql_NULL = PyString_FromString("NULL")))
+ 		goto error;
+ 	if (PyDict_SetItemString(dict, "NULL", _mysql_NULL)) goto error;
++
++        import_array();
++
+   error:
+ 	if (PyErr_Occurred())
+ 		PyErr_SetString(PyExc_ImportError,
+Index: test.py
+===================================================================
+--- test.py	(revision 0)
++++ test.py	(revision 0)
+@@ -0,0 +1,9 @@
++import _mysql
++
++if __name__ == '__main__':
++    conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" ) 
++    conn.query("select * from CalibPmtSpecVld limit 10")
++    r = conn.store_result()
++    a = r.fetch_nparray()
++    print repr(a)
++
 Index: setup_posix.py
 ===================================================================
 --- setup_posix.py	(revision 650)
@@ -382,3 +408,23 @@ Index: setup_posix.py
      if static:
          extra_objects.append(os.path.join(
              library_dirs[0],'lib%s.a' % client))
+Index: Makefile
+===================================================================
+--- Makefile	(revision 0)
++++ Makefile	(revision 0)
+@@ -0,0 +1,15 @@
++
++PYTHON := $(shell which python)
++
++
++i :
++	python setup.py build_ext -i
++t :
++	python test.py 
++g :
++	@echo enter \"set args test.py\" then \"r\"
++	gdb $(PYTHON) 
++
++
++.PHONY : i t g
++
