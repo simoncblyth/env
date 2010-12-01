@@ -106,6 +106,17 @@ mysql-python-patch(){
    patch -p0 < $path 
 }
 
+mysql-python-makepatch(){
+   local msg="=== $FUNCNAME : "
+   local path=$(mysql-python-patchpath)
+   echo $msg updating $path 
+   mysql-python-cd
+   svn diff > $path 
+}
+
+
+
+
 
 mysql-python-get-svn(){
   svn co $(mysql-python-url) 

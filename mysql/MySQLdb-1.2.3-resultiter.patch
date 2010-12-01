@@ -1,8 +1,138 @@
-Index: MySQLdb/_mysql.c
+Index: _mysql.c
 ===================================================================
---- MySQLdb/_mysql.c	(revision 650)
-+++ MySQLdb/_mysql.c	(working copy)
-@@ -1456,6 +1456,89 @@
+--- _mysql.c	(revision 650)
++++ _mysql.c	(working copy)
+@@ -39,6 +39,64 @@
+ #include "mysqld_error.h"
+ #include "errmsg.h"
+ 
++//#include "mysql_np.h"
++static const char* NP_I1 = "i1" ; 
++static const char* NP_I2 = "i2" ; 
++static const char* NP_I4 = "i4" ;
++static const char* NP_I8 = "i4" ;
++static const char* NP_F4 = "f4" ; 
++static const char* NP_F8 = "f8" ; 
++static const char* NP_DT = "datetime64[us]" ; 
++static const char* NP_ST = "|S%d" ; 
++
++const char* mysql2np( long type ){
++   const char* npt = NULL ; 
++   switch( type ){
++
++       case MYSQL_TYPE_TINY: 
++          npt = NP_I1 ; 
++          break ; 
++       case MYSQL_TYPE_SHORT: 
++          npt = NP_I2 ; 
++          break ; 
++       case MYSQL_TYPE_ENUM: 
++       case MYSQL_TYPE_SET: 
++       case MYSQL_TYPE_LONG: 
++          npt = NP_I4 ; 
++          break ; 
++       case MYSQL_TYPE_LONGLONG: 
++       case MYSQL_TYPE_INT24: 
++          npt = NP_I8 ; 
++          break ; 
++
++       case MYSQL_TYPE_DECIMAL: 
++       case MYSQL_TYPE_DOUBLE: 
++          npt = NP_F8 ; 
++          break ; 
++       case MYSQL_TYPE_FLOAT: 
++          npt = NP_F4 ; 
++          break ; 
++          
++       case MYSQL_TYPE_DATE: 
++       case MYSQL_TYPE_TIME: 
++       case MYSQL_TYPE_DATETIME: 
++       case MYSQL_TYPE_YEAR: 
++       case MYSQL_TYPE_NEWDATE: 
++       case MYSQL_TYPE_TIMESTAMP: 
++          npt = NP_DT ; 
++          break ; 
++ 
++       case MYSQL_TYPE_VAR_STRING:
++       case MYSQL_TYPE_STRING:
++          npt = NP_ST ; 
++          break ; 
++
++   }
++   return npt ;
++}
++
++
++
+ #if PY_VERSION_HEX < 0x02020000
+ # define MyTuple_Resize(t,n,d) _PyTuple_Resize(t, n, d)
+ # define MyMember(a,b,c,d,e) {a,b,c,d}
+@@ -388,6 +446,7 @@
+ 	}
+ 	n = mysql_num_fields(result);
+ 	self->nfields = n;
++
+ 	if (!(self->converter = PyTuple_New(n))) return -1;
+ 	fields = mysql_fetch_fields(result);
+ 	for (i=0; i<n; i++) {
+@@ -1191,6 +1250,56 @@
+ 	Py_XDECREF(d);
+ 	return NULL;
+ }
++
++
++
++
++static char _mysql_ResultObject_npdescr__doc__[] =
++"Returns the sequence of 7-tuples required by the DB-API for\n\
++the Cursor.description attribute.\n\
++";
++
++static PyObject *
++_mysql_ResultObject_npdescr(
++	_mysql_ResultObject *self,
++	PyObject *args)
++{
++	PyObject *d;
++	MYSQL_FIELD *fields;
++	unsigned int i, n;
++        long type, length ;
++        const char* nptype ;
++        char nptype_[10];
++
++	if (!PyArg_ParseTuple(args, "")) return NULL;
++	check_result_connection(self);
++	n = mysql_num_fields(self->result);
++	fields = mysql_fetch_fields(self->result);
++	if (!(d = PyList_New(n))) return NULL;
++	for (i=0; i<n; i++) {
++		PyObject *t;
++                type   =  (long) fields[i].type ;
++                length =  (long) fields[i].length ;
++                nptype =  mysql2np( type ) ;
++
++                if( type == MYSQL_TYPE_VAR_STRING || type == MYSQL_TYPE_STRING ) { 
++                    sprintf( nptype_ , nptype , length ) ;                   
++		    t = Py_BuildValue("(s,s)", fields[i].name, nptype_ );
++                } else { 
++		    t = Py_BuildValue("(s,s)", fields[i].name, nptype );
++                }
++
++		if (!t) goto error;
++		PyList_SET_ITEM(d, i, t);
++	}
++	return d;
++  error:
++	Py_XDECREF(d);
++	return NULL;
++}
++
++
++
+ 	
+ static char _mysql_ResultObject_field_flags__doc__[] =
+ "Returns a tuple of field flags, one for each column in the result.\n\
+@@ -1456,6 +1565,90 @@
  	return NULL;
  }
  
@@ -42,7 +172,8 @@ Index: MySQLdb/_mysql.c
 +		return Py_None;
 +	}
 +	
-+	n = mysql_num_fields(self->result);
++	//n = mysql_num_fields(self->result);
++        n = self->nfields ; 
 +	if (!(r = PyTuple_New(n))) return NULL;
 +	length = mysql_fetch_lengths(self->result);
 +	for (i=0; i<n; i++) {
@@ -92,7 +223,19 @@ Index: MySQLdb/_mysql.c
  #if MYSQL_VERSION_ID >= 32303
  
  static char _mysql_ConnectionObject_change_user__doc__[] =
-@@ -2398,6 +2481,12 @@
+@@ -2392,12 +2585,24 @@
+ 		_mysql_ResultObject_describe__doc__
+ 	},
+ 	{
++		"npdescr",
++		(PyCFunction)_mysql_ResultObject_npdescr,
++		METH_VARARGS,
++		_mysql_ResultObject_npdescr__doc__
++	},
++	{
+ 		"fetch_row",
+ 		(PyCFunction)_mysql_ResultObject_fetch_row,
+ 		METH_VARARGS | METH_KEYWORDS,
  		_mysql_ResultObject_fetch_row__doc__
  	},
  	{
@@ -105,7 +248,7 @@ Index: MySQLdb/_mysql.c
  		"field_flags",
  		(PyCFunction)_mysql_ResultObject_field_flags,
  		METH_VARARGS,
-@@ -2678,9 +2767,9 @@
+@@ -2678,9 +2883,9 @@
  #if PY_VERSION_HEX >= 0x02020000
  	/* Added in release 2.2 */
  	/* Iterators */

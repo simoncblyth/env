@@ -204,7 +204,9 @@ python-libdir(){
 python-bindir(){
    echo $PYTHON_HOME/bin
 }
-
+python-incdir(){
+   echo $PYTHON_HOME/include/python$(python-major)
+}
 
 
 python-site(){
