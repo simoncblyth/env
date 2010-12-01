@@ -1,5 +1,6 @@
 # thho_alias
 # my alias
+alias ls='ls --color'
 alias lh='ls -alh'
 alias ll='ls -al'
 alias vi='vim'
