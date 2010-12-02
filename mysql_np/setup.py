@@ -47,6 +47,7 @@ if _mysql.__version__ == "1.3.0":   ## unreleased
 else:
     ext_modules = [ 
         Extension( "c_api",     ["c_api.pyx"],     **ExtArgs() ),
+        Extension( "dcspmthv",  ["dcspmthv.pyx"],  **ExtArgs( include_dirs=[ np.get_include(), _mysql_inc, ".", ],)),
         Extension( "npy",       ["npy.pyx"],       **ExtArgs( include_dirs=[ np.get_include(), "." ],)),
   ]
 

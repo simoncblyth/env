@@ -1,5 +1,8 @@
 
-NAME = PyArray_SimpleNewFromDescr
+#NAME = PyArray_SimpleNewFromDescr
+#NAME = PyArray_FromDims
+#NAME = PyArray_RegisterDataType
+NAME = PyArray_SimpleNewFromData
 
 PYTHON_LIBDIR := $(shell python -c "from  distutils.sysconfig import get_config_var ; print get_config_var('LIBDIR') " )
 PYTHON_INCDIR := $(shell python -c "from  distutils.sysconfig import get_python_inc ; print get_python_inc() " )
@@ -31,7 +34,10 @@ run :
 clean :
 	rm *.o $(NAME)
 
+vi :
+	vi $(NAME).c
 
-.PHONY : clean run
+
+.PHONY : clean run vi
 
 

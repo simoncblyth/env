@@ -20,11 +20,6 @@ mysql-python-usage(){
       installed MySQL-python-1.2.3.tar.gz  after uninstalling 1.2.3c1
       the mysql-config in PATH determined which mysql/python to build against
 
-
-
-
-
-
  == unreleased 1.3.0 incompatible with django ==
 
     was operating with unreleases 1.3.0 (for cython wrapping ease) 

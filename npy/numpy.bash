@@ -30,7 +30,7 @@ numpy-usage(){
 EOU
 }
 numpy-dir(){ echo $(local-base)/env/npy/numpy ; }
-numpy-cd(){  cd $(numpy-dir); }
+numpy-cd(){  cd $(numpy-dir)/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
 numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
@@ -49,6 +49,15 @@ numpy-info(){  cat << EOI
     include    : $(numpy-include)
 
 EOI
+}
+
+numpy-doc-preq(){
+    pip install -U sphinx
+}
+numpy-doc(){
+    numpy-cd doc
+   [ "$(which sphinx-build)" == "" ] && echo $msg install sphinx first && return 
+    make html
 }
 
 

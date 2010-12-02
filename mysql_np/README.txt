@@ -52,6 +52,22 @@ In [7]:
   * type conversion correspondence checks 
 
 
+== development history ==
+
+  * started with mysql-python ~1.3.0 (unreleased) + numpy 1.5
+     * due to better source layout that makes cythoning easier
+
+  * upped to numpy ~2.0.0 (unreleased) for datetime support
+
+  * discover that django interface to mysql-python does not support 1.3.0
+    * so move back to last release 1.2.3
+  
+  * features of mysql-pyhon 1.2.3 
+    * no headers : makes difficult to cython
+    * _mysql.result is not iterable (unlike 1.3.0)    
+       * added iterability in patch 
+    
+
 
 == implementation notes ==
 
@@ -76,5 +92,55 @@ In [7]:
 
 
 
+
+== C implementation of array creation ==
+
+  * dtype fields contains the byte offsets...
+
+
+{{{
+In [7]: for k,v in a.dtype.fields.items():print k,v
+   ...: 
+VERSIONDATE (dtype('datetime64[us]'), 34)
+TASK (dtype('int32'), 26)
+SEQNO (dtype('int32'), 0)
+TIMEEND (dtype('datetime64[us]'), 12)
+SITEMASK (dtype('int8'), 20)
+TIMESTART (dtype('datetime64[us]'), 4)
+AGGREGATENO (dtype('int32'), 30)
+SIMMASK (dtype('int8'), 21)
+INSERTDATE (dtype('datetime64[us]'), 42)
+SUBSITE (dtype('int32'), 22)
+
+In [8]: dt = a.dtype
+
+In [9]: dt.kind
+Out[9]: 'V'
+
+In [10]: dt.str
+Out[10]: '|V50'
+
+In [11]: dt.num
+Out[11]: 22
+
+In [12]: dt.itemsize
+Out[12]: 50
+
+
+In [14]: for n in a.dtype.names:print "%-15s %s " % ( n, a.dtype.fields[n] )
+   ....: 
+SEQNO           (dtype('int32'), 0) 
+TIMESTART       (dtype('datetime64[us]'), 4) 
+TIMEEND         (dtype('datetime64[us]'), 12) 
+SITEMASK        (dtype('int8'), 20) 
+SIMMASK         (dtype('int8'), 21) 
+SUBSITE         (dtype('int32'), 22) 
+TASK            (dtype('int32'), 26) 
+AGGREGATENO     (dtype('int32'), 30) 
+VERSIONDATE     (dtype('datetime64[us]'), 34) 
+INSERTDATE      (dtype('datetime64[us]'), 42) 
+
+
+}}}
 
 

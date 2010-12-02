@@ -24,6 +24,17 @@ nginx-usage(){
 
 
 
+   == HOW TO EXPOSE SOME STATIC HTML DOCS ==
+
+        cd `nginx-htdocs` 
+        sudo ln -s /data/env/local/env/npy/numpy/doc/build/html np
+        nginx-edit      ## create section similar to /logs   
+        nginx-stop      
+        
+        ##  sv will auto restart with the new config
+        visit http://cms01.phys.ntu.edu.tw/np/
+     
+
     == PASSWORD PROTECTED DIR ==
 
     nginx-users  : $(nginx-users)
