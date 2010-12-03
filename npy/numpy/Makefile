@@ -13,7 +13,7 @@ NUMPY_INCDIR := $(shell python -c "import numpy as np ; print np.get_include() "
 MYSQL_INCLUDE := $(shell  mysql_config --include ) 
 
 
-CFLAGS = -I$(PYTHON_INCDIR) -I$(NUMPY_INCDIR) $(MYSQL_INCLUDE)
+CFLAGS = -g -I$(PYTHON_INCDIR) -I$(NUMPY_INCDIR) $(MYSQL_INCLUDE)
 
 LIBS = -L$(PYTHON_LIBDIR) -lpython$(PYTHON_VERSION)
 
@@ -37,7 +37,10 @@ clean :
 vi :
 	vi $(NAME).c
 
+g :
+	gdb $(PWD)/$(NAME)
 
-.PHONY : clean run vi
+
+.PHONY : clean run vi g
 
 
