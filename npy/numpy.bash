@@ -8,9 +8,11 @@ numpy-usage(){
      numpy-src : $(numpy-src)
      numpy-dir : $(numpy-dir)
      
-
         http://www.scipy.org/Cookbook
 
+
+       http://github.com/numpy/numpy
+       http://projects.scipy.org/numpy/report/6?asc=1&sort=modified&USER=anonymous
 
 
     == N : npy virtual py24 ==
@@ -34,11 +36,17 @@ numpy-cd(){  cd $(numpy-dir)/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
 numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
-
    git clone git://github.com/numpy/numpy.git numpy
 }
 
-numpy-version(){    python -c "import numpy as np ; print np.__version__ " ; }
+numpy-pull(){
+   numpy-cd
+   git pull
+   git show
+}
+
+
+numpy-version(){    local iwd=$PWD ; cd /tmp ; python -c "import numpy as np ; print np.__version__ " ;  cd $iwd ; }
 numpy-installdir(){ python -c "import os, numpy as np ; print os.path.dirname(np.__file__) " ; }
 numpy-include(){    python -c "import numpy as np ; print np.get_include() " ; }
 numpy-info(){  cat << EOI  
@@ -78,4 +86,13 @@ numpy-install(){
    eval $cmd
 
 }
+
+
+numpy-test(){
+   local iwd=$PWD
+   cd /tmp
+   python -c 'import numpy; numpy.test()'
+   cd $iwd 
+}
+
 

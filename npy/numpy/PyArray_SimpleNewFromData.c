@@ -1,9 +1,39 @@
 /*
+
+  NUMPY 2.0.0 DEBUGGING SESSION ... 
+     * PyObject_Print of numpy structured areas created from external buffer was segmenting  
+     * problem in scalar ctor ... userdefined types were not treated as flexible
+
+      TODO : REPORT TO NUMPY TRAC 
+
+
+
+
+  APPEARING BE FIXED WITH 
+
+[blyth@cms01 numpy]$ git diff
+diff --git a/numpy/core/src/multiarray/scalarapi.c b/numpy/core/src/multiarray/scalarapi.c
+index 87e140c..0f84d87 100644
+--- a/numpy/core/src/multiarray/scalarapi.c
++++ b/numpy/core/src/multiarray/scalarapi.c
+@@ -674,7 +674,7 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
+         memcpy(&(((PyDatetimeScalarObject *)obj)->obmeta), dt_data,
+                sizeof(PyArray_DatetimeMetaData));
+     }
+-    if (PyTypeNum_ISFLEXIBLE(type_num)) {
++    if (PyTypeNum_ISEXTENDED(type_num)) {
+         if (type_num == PyArray_STRING) {
+             destptr = PyString_AS_STRING(obj);
+             ((PyStringObject *)obj)->ob_shash = -1;
+
+
+
 */
 
 #include <Python.h>
 #include <stdio.h>
 #include <numpy/arrayobject.h>
+#include <numpy/arrayscalars.h>
 
 #include "aligned.h"
 
@@ -77,7 +107,7 @@ int main(int argc, char *argv[])
 
 
 
-     PyObject_Print( (PyObject*)d , stdout, 0);
+     PyObject_Print( (PyObject*)d , stdout, 0 );
 
      printf("elsize %d\n", d->elsize );
      printf("fields %d\n", d->fields );
@@ -144,11 +174,39 @@ int main(int argc, char *argv[])
 
     //PyObject* a = PyArray_SimpleNewFromData( nd,  dims, typenum,  data) ;
     PyObject* a = PyArray_FromBuffer( buf, descr , count, bufoff);
-    
+
+  
+    void* a_data = PyArray_DATA(a);
     npy_intp a_size = PyArray_Size(a) ;
     npy_intp a_nbytes = PyArray_NBYTES(a) ;
     int a_itemsize = PyArray_ITEMSIZE(a);
-    printf(" a_size %d a_nbytes %d a_itemsize %d \n", a_size, a_nbytes, a_itemsize );
+    int a_isaligned = PyArray_ISALIGNED(a);
+    int a_isuserdef = PyArray_ISUSERDEF(a);
+    int a_isflexible = PyArray_ISFLEXIBLE(a);  
+    int a_isextended = PyArray_ISEXTENDED(a);  
+    int a_isobject = PyArray_ISOBJECT(a);  
+    int a_isnbo = PyArray_ISNBO(a);  
+    PyArray_Descr* a_descr = PyArray_DESCR(a) ;
+
+
+    printf(" a_size %d a_nbytes %d a_itemsize %d a_isaligned %d a_isuserdef %d a_isflexible %d a_isextended %d a_isobject %d a_isnbo %d \n", a_size, a_nbytes, a_itemsize, a_isaligned , a_isuserdef, a_isflexible, a_isextended, a_isobject, a_isnbo );
+    printf("\n a_descr str \n");
+    PyObject_Print( (PyObject*)a_descr , stdout, Py_PRINT_RAW );  // the str 
+    printf("\n a_descr str done \n");
+    printf("\n a_descr repr \n");
+    PyObject_Print( (PyObject*)a_descr , stdout,  0 ); 
+    printf("\n a_descr repr done \n");
+       
+    printf("\n data scalar 1\n");
+    PyObject* ds = PyArray_ToScalar(a_data, a) ;      
+    printf("\n data scalar 2\n");
+    char* ds_obval = ((PyVoidScalarObject *)ds)->obval ;
+    PyArray_Descr* ds_descr = ((PyVoidScalarObject *)ds)->descr ;  // tiz NULL
+
+    printf("\n data scalar 3 %x %x \n", ds_obval, ds_descr );
+
+    PyObject_Print(  ds , stdout, 0);   // SEGMENTS
+    printf("\n data scalar 4\n");
 
     for( it = 0 ; it < count ; ++it ){
         void* ptr = PyArray_GETPTR1( a, (npy_intp)it ) ;
@@ -156,9 +214,77 @@ int main(int argc, char *argv[])
         PyObject* item = PyArray_GETITEM(a , ptr) ;
         PyObject_Print( item , stdout, 0);
         printf("\n");
-    }     
+       
+       /*   
+        printf("\n item scalar 0\n");
+        PyObject* sc = PyArray_ToScalar(ptr, a) ;   // SEGMENTS
+        printf("\n item scalar 1\n");
+        PyObject_Print(  sc , stdout, 0);
+        printf("\n item scalar 2\n");
+        */
+    }
+
+     
+
+/*
+  Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread -1208640992 (LWP 28376)]
+0x00ca46ef in LONG_copyswap (dst=0x0, src=0xb7f0aacc, swap=0, __NPY_UNUSED_TAGGEDarr=0x94f5ee0) at numpy/core/src/multiarray/arraytypes.c.src:1718
+1718            memcpy(dst, src, sizeof(@type@));
+(gdb) bt
+#0  0x00ca46ef in LONG_copyswap (dst=0x0, src=0xb7f0aacc, swap=0, __NPY_UNUSED_TAGGEDarr=0x94f5ee0) at numpy/core/src/multiarray/arraytypes.c.src:1718
+#1  0x00ca596f in VOID_copyswap (dst=0x0, src=0xb7f0aacc "\001", swap=0, arr=0x94f5ee0) at numpy/core/src/multiarray/arraytypes.c.src:2113
+#2  0x00cdc873 in PyArray_Scalar (data=0xb7f0aacc, descr=0xb7c0c9f8, base=0x94f5ee0) at numpy/core/src/multiarray/scalarapi.c:776
+#3  0x080494bd in main (argc=1, argv=0xbfe67fc4) at PyArray_SimpleNewFromData.c:170
+(gdb) 
 
 
+  #define PyArray_ToScalar(data, arr)                                           \
+        PyArray_Scalar(data, PyArray_DESCR(arr), (PyObject *)arr)
+
+
+     PyObject* PyArray_Scalar(void* data, PyArray_Descr* dtype, PyObject* itemsize)
+
+    Return an array scalar object of the given enumerated typenum and itemsize by copying from memory pointed to by data .
+    If swap is nonzero then this function will byteswap the data if appropriate to the data-type because array scalars are always in correct machine-byte order.
+
+
+*/
+
+   // from the segmenting ... VOID_copyswqp 
+
+   /*
+
+    if (PyArray_HASFIELDS(a)) {
+        PyObject *key, *value, *title = NULL;
+        PyArray_Descr *new, *descr;
+        int offset;
+        Py_ssize_t pos = 0;
+
+        descr = a_descr;
+        while (PyDict_Next(descr->fields, &pos, &key, &value)) {
+            if NPY_TITLE_KEY(key, value) {
+                continue;
+            }
+            if (!PyArg_ParseTuple(value, "Oi|O", &new, &offset, &title)) {
+                printf("descr field parse fails \n");
+                return;
+            }
+
+            printf("\ndescr field type ... offset %d \n", offset);
+            PyObject_Print(  key  , stdout, 0);
+            PyObject_Print( (PyObject*)new , stdout, 0);
+            PyObject_Print(  title , stdout, 0);
+            printf("\ndescr field type done \n");
+            
+        }
+    }
+
+   */
+
+
+    PyObject_Print( (PyObject*)a , stdout, Py_PRINT_RAW );  // the str 
+    printf("\n");
     PyObject_Print( (PyObject*)a , stdout, 0);
     printf("\n");
 
