@@ -37,3 +37,7 @@ host hku
 host cms
    hostname cms01.phys.ntu.edu.tw
    ForwardX11 yes
+host mars
+   hostname mars.phys.ntu.edu.tw
+   ForwardX11 yes
+
