@@ -2,48 +2,42 @@ Index: _mysql.c
 ===================================================================
 --- _mysql.c	(revision 650)
 +++ _mysql.c	(working copy)
-@@ -39,6 +39,66 @@
+@@ -39,6 +39,60 @@
  #include "mysqld_error.h"
  #include "errmsg.h"
  
 +#include <numpy/arrayobject.h>
 +
-+//#include "mysql_np.h"
-+static const char* NP_I1 = "i1" ; 
-+static const char* NP_I2 = "i2" ; 
-+static const char* NP_I4 = "i4" ;
-+static const char* NP_I8 = "i4" ;
-+static const char* NP_F4 = "f4" ; 
-+static const char* NP_F8 = "f8" ; 
-+static const char* NP_DT = "datetime64[us]" ; 
-+static const char* NP_ST = "|S%d" ; 
++/*
++   http://dev.mysql.com/doc/refman/5.5/en/c-api-data-structures.html
++   http://dev.mysql.com/doc/refman/5.5/en/numeric-types.html
++   http://docs.scipy.org/doc/numpy/reference/c-api.dtype.html
++*/
 +
-+const char* mysql2np( long type ){
-+   const char* npt = NULL ; 
++int mysql2npy( long type ){
++   int npt = -1 ; 
 +   switch( type ){
 +
 +       case MYSQL_TYPE_TINY: 
-+          npt = NP_I1 ; 
-+          break ; 
 +       case MYSQL_TYPE_SHORT: 
-+          npt = NP_I2 ; 
++          npt = NPY_SHORT ; 
 +          break ; 
 +       case MYSQL_TYPE_ENUM: 
 +       case MYSQL_TYPE_SET: 
++       case MYSQL_TYPE_INT24: 
 +       case MYSQL_TYPE_LONG: 
-+          npt = NP_I4 ; 
++          npt = NPY_INT ; 
 +          break ; 
 +       case MYSQL_TYPE_LONGLONG: 
-+       case MYSQL_TYPE_INT24: 
-+          npt = NP_I8 ; 
++          npt = NPY_LONGLONG ; 
 +          break ; 
 +
 +       case MYSQL_TYPE_DECIMAL: 
 +       case MYSQL_TYPE_DOUBLE: 
-+          npt = NP_F8 ; 
++          npt = NPY_DOUBLE ; 
 +          break ; 
 +       case MYSQL_TYPE_FLOAT: 
-+          npt = NP_F4 ; 
++          npt = NPY_FLOAT ; 
 +          break ; 
 +          
 +       case MYSQL_TYPE_DATE: 
@@ -52,12 +46,12 @@ Index: _mysql.c
 +       case MYSQL_TYPE_YEAR: 
 +       case MYSQL_TYPE_NEWDATE: 
 +       case MYSQL_TYPE_TIMESTAMP: 
-+          npt = NP_DT ; 
++          npt = NPY_DATETIME ; 
 +          break ; 
 + 
 +       case MYSQL_TYPE_VAR_STRING:
 +       case MYSQL_TYPE_STRING:
-+          npt = NP_ST ; 
++          npt = NPY_STRING ; 
 +          break ; 
 +
 +   }
@@ -69,7 +63,7 @@ Index: _mysql.c
  #if PY_VERSION_HEX < 0x02020000
  # define MyTuple_Resize(t,n,d) _PyTuple_Resize(t, n, d)
  # define MyMember(a,b,c,d,e) {a,b,c,d}
-@@ -388,6 +448,7 @@
+@@ -388,6 +442,7 @@
  	}
  	n = mysql_num_fields(result);
  	self->nfields = n;
@@ -77,7 +71,7 @@ Index: _mysql.c
  	if (!(self->converter = PyTuple_New(n))) return -1;
  	fields = mysql_fetch_fields(result);
  	for (i=0; i<n; i++) {
-@@ -1191,6 +1252,55 @@
+@@ -1191,7 +1246,57 @@
  	Py_XDECREF(d);
  	return NULL;
  }
@@ -95,45 +89,47 @@ Index: _mysql.c
 +	_mysql_ResultObject *self,
 +	PyObject *args)
 +{
-+	PyObject *d;
++	PyObject* descr;
 +	MYSQL_FIELD *fields;
-+	unsigned int i, n;
+ 	
++        unsigned int i, n;
 +        long type, length ;
-+        const char* nptype ;
-+        char nptype_[10];
++        char npy_code[10];
 +
 +	check_result_connection(self);
 +	n = mysql_num_fields(self->result);
 +	fields = mysql_fetch_fields(self->result);
-+	if (!(d = PyList_New(n))) return NULL;
++	
++        if (!(descr = PyList_New(n))) return NULL;
 +	for (i=0; i<n; i++) {
-+		PyObject *t;
 +                type   =  (long) fields[i].type ;
 +                length =  (long) fields[i].length ;
-+                nptype =  mysql2np( type ) ;
 +
-+                if( type == MYSQL_TYPE_VAR_STRING || type == MYSQL_TYPE_STRING ) { 
-+                    sprintf( nptype_ , nptype , length ) ;                   
-+		    t = Py_BuildValue("(s,s)", fields[i].name, nptype_ );
-+                } else { 
-+		    t = Py_BuildValue("(s,s)", fields[i].name, nptype );
-+                }
++                int tn =  mysql2npy( type ) ;
++                int is_flexible =  PyTypeNum_ISFLEXIBLE(tn);
++                PyArray_Descr* field_dt = is_flexible  ? PyArray_DescrNewFromType(tn) : PyArray_DescrFromType(tn);
++                if( is_flexible ) field_dt->elsize = length ;
++                sprintf( npy_code, "%c%d", field_dt->type , field_dt->elsize );
 +
-+		if (!t) goto error;
-+		PyList_SET_ITEM(d, i, t);
++		PyObject *it;
++		it = Py_BuildValue("(s,s)", fields[i].name, npy_code );
++
++		if (!it) goto error;
++		PyList_SET_ITEM(descr, i, it );
 +	}
-+	return d;
++	return descr ;
 +  error:
-+	Py_XDECREF(d);
++	Py_XDECREF(descr);
 +	return NULL;
 +}
 +
 +
 +
- 	
++	
  static char _mysql_ResultObject_field_flags__doc__[] =
  "Returns a tuple of field flags, one for each column in the result.\n\
-@@ -1456,6 +1566,178 @@
+ " ;
+@@ -1456,6 +1561,178 @@
  	return NULL;
  }
  
@@ -312,7 +308,7 @@ Index: _mysql.c
  #if MYSQL_VERSION_ID >= 32303
  
  static char _mysql_ConnectionObject_change_user__doc__[] =
-@@ -2392,12 +2674,30 @@
+@@ -2392,12 +2669,30 @@
  		_mysql_ResultObject_describe__doc__
  	},
  	{
@@ -343,7 +339,7 @@ Index: _mysql.c
  		"field_flags",
  		(PyCFunction)_mysql_ResultObject_field_flags,
  		METH_VARARGS,
-@@ -2678,9 +2978,9 @@
+@@ -2678,9 +2973,9 @@
  #if PY_VERSION_HEX >= 0x02020000
  	/* Added in release 2.2 */
  	/* Iterators */
@@ -356,7 +352,7 @@ Index: _mysql.c
  	/* Attribute descriptor and subclassing stuff */
  	(struct PyMethodDef *) _mysql_ResultObject_methods, /* tp_methods */
  	(MyMemberlist(*)) _mysql_ResultObject_memberlist, /*tp_members */
-@@ -2880,6 +3180,9 @@
+@@ -2880,6 +3175,9 @@
  	if (!(_mysql_NULL = PyString_FromString("NULL")))
  		goto error;
  	if (PyDict_SetItemString(dict, "NULL", _mysql_NULL)) goto error;

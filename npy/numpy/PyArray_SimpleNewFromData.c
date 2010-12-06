@@ -136,6 +136,8 @@ int main(int argc, char *argv[])
      void* data = malloc(size);
      //void* data = _aligned_malloc(size , 16 );
 
+/*
+     // only working because the int and float are both 4bytes
      int offset = 0 ;
      sscanf( "123",    "%d",     ((int*)data + offset)) ; offset += 1 ; //sizeof(int) ;       
      sscanf( "123.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
@@ -143,9 +145,18 @@ int main(int argc, char *argv[])
      sscanf( "223.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
      sscanf( "323",    "%d",     ((int*)data + offset)) ; offset += 1 ; //sizeof(int) ;       
      sscanf( "323.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
+*/
+
+     int off = 0 ;
+     sscanf( "123",    "%d",   (int*)(data + off)) ; off += sizeof(int)   ;       
+     sscanf( "123.0",  "%f", (float*)(data + off)) ; off += sizeof(float) ;       
+     sscanf( "223",    "%d",   (int*)(data + off)) ; off += sizeof(int)   ;       
+     sscanf( "223.0",  "%f", (float*)(data + off)) ; off += sizeof(float) ;       
+     sscanf( "323",    "%d",   (int*)(data + off)) ; off += sizeof(int)   ;       
+     sscanf( "323.0",  "%f", (float*)(data + off)) ; off += sizeof(float) ;       
 
      int it ;
-     int off = 0 ;
+     off = 0 ;
      for( it = 0 ; it < dims[0]  ; it++ ){
           printf("it %d \n", it );
           int* outd = ((int*)data + off );
