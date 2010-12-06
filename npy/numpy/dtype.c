@@ -77,12 +77,12 @@ int main(int argc, char *argv[])
          if(is_flexible){
             d->elsize = 7 ; 
          }
-         printf("typenum %2d flexible %d name %20s fmt %20s kind %c type %c byteorder %c elsize %2d ", t, is_flexible, NPY_TYPE_NAMES[t],NPY_TYPE_FMTS[t], d->kind , d->type ,d->byteorder,  d->elsize  );
+         sprintf( code, "%c%d", d->type , d->elsize );
+         printf("typenum %2d flexible %d name %20s fmt %20s kind %c type %c byteorder %c elsize %2d code %s ", t, is_flexible, NPY_TYPE_NAMES[t],NPY_TYPE_FMTS[t], d->kind , d->type ,d->byteorder,  d->elsize, code  );
 
          PyObject_Print( (PyObject*)d , stdout, 0 );
          printf("\n");
 
-         sprintf( code, "%c%d", d->type , d->elsize );
          PyObject* op = Py_BuildValue("(s,s)", NPY_TYPE_NAMES[t] , code );
          PyList_SET_ITEM( l , t, op );
 
@@ -97,43 +97,43 @@ int main(int argc, char *argv[])
     PyObject_Print( (PyObject*)dtype , stdout, 0 );
     printf("\n");
 
-     PyObject *key, *value;
+     PyObject *key, *tup ;
      Py_ssize_t pos = 0;
- 
-     if(PyDict_Check(dtype->fields)){
-         PyObject_Print( (PyObject*)dtype->fields , stdout, 0);
-         printf("\n\n");
+     
+     PyObject* names = dtype->names ;
+     PyObject* fields = dtype->fields ;
 
-         while (PyDict_Next( dtype->fields , &pos, &key, &value)) {
-             PyObject_Print( (PyObject*)key , stdout, 0);
-             printf(" ---> ");
-             PyObject_Print( (PyObject*)value , stdout, 0);
-             printf("\n");
+    // use names in order to get the correct field order
+     if(PyTuple_Check(names) && PyDict_Check(fields)){
+          
+         int n = PyTuple_GET_SIZE(names);
+         int i ; 
+         for ( i = 0; i < n; i++) {
+              key = PyTuple_GET_ITEM(names, i);
+              tup = PyDict_GetItem( fields, key);
+              PyObject_Print( (PyObject*)key , stdout, 0);
+              printf(" ---> ");
+              PyObject_Print( (PyObject*)tup , stdout, 0);
 
-             /*
-             if(PyTuple_Check(value)){
-                   Py_ssize_t s = PyTuple_GET_SIZE(value);
-                   if( (int)s >= 2 ){
-                       
-                       PyObject* ft  = PyTuple_GetItem( value, (Py_ssize_t)0 );
-                       printf(" field type ... elsize %d \n", ((PyArray_Descr*)ft)->elsize );
-                       PyObject_Print( ft , stdout, 0);
-                       printf("\n");
-
-                       PyObject* fo = PyTuple_GetItem( value, (Py_ssize_t)1 );
-                       int ifo = (int)PyLong_AsLong( fo );
-                       printf(" field offset ... %d ", ifo );
-
-                       PyObject_Print( fo , stdout, 0);
-                       printf("\n");
+             if(PyTuple_Check(tup)){
+                   Py_ssize_t stup = PyTuple_GET_SIZE(tup);
+                   if( (int)stup >= 2 ){
+                       PyObject* ft  = PyTuple_GetItem( tup , (Py_ssize_t)0 );
+                       PyObject* fo  = PyTuple_GetItem( tup , (Py_ssize_t)1 );
+                       PyArray_Descr* fdt = (PyArray_Descr*)ft ;
+                       int type_num = fdt->type_num ;
+                       char* fmt = NPY_TYPE_FMTS[type_num] ;  
+                       int offset   =  (int)PyLong_AsLong( fo ); 
+                       printf(" type_num %d type %c kind %c elsize %d offset %d fmt %s \n", type_num, fdt->type, fdt->kind, fdt->elsize, offset, fmt );
                    }
              }
-             */
+
 
          }
+
      }
 
- 
+
 
     return 0;
 }
