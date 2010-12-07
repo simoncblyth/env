@@ -28,8 +28,11 @@ host abt
 host nuu
    hostname belle7.nuu.edu.tw
    ForwardX11 yes
-host nctu
+host nctu1
    hostname 140.113.145.65
+   ForwardX11 yes
+host nctu2
+   hostname 140.113.145.119
    ForwardX11 yes
 host hku
    hostname dayabay8core.no-ip.org
