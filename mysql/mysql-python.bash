@@ -9,6 +9,18 @@ mysql-python-usage(){
      mysql-python-dir : $(mysql-python-dir)
 
 
+   WARNING ...
+      KEEPING mysql_numpy DEVELOPMENTS IN SVN DERIVED PATCH 
+        * MUST "svn add ... " ON EACH DEV NODE ... OTHERWISE WILL LOOSE MOST OF PATCH 
+
+          Adding to mysql-python svn working copy even though cannot commit ... 
+          in order to keep svn diff and patches in sync between nodes.
+
+             g4pb:MySQLdb blyth$ svn add test.py mysql_numpy.h Makefile 
+
+                        mysql-python-makepatch
+              e > svn diff .... ensure the mysql-python patch doesnt loose mods 
+
 
 
     mysql-python-*
@@ -43,7 +55,9 @@ Only in MySQL-python-1.2.3/: PKG-INFO
 Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ 
 
 
-i
+== on OSX(macports) add symbolic link from mysql_config5 to mysql_config ==
+
+
 
 
 EOU
@@ -133,8 +147,15 @@ mysql-python-which(){
 mysql-python-install(){
    mysql-python-cd
    mysql-python-which
-   python setup.py install
+   python setup.py install 
 }
+
+mysql-python-build(){
+   mysql-python-cd
+   mysql-python-which
+   python setup.py build 
+}
+
 
 mysql-python-ls(){
   type $FUNCNAME

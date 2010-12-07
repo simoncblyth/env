@@ -261,7 +261,7 @@ Index: _mysql.c
  static char _mysql_ResultObject_field_flags__doc__[] =
  "Returns a tuple of field flags, one for each column in the result.\n\
  " ;
-@@ -1456,6 +1579,264 @@
+@@ -1456,6 +1579,265 @@
  	return NULL;
  }
  
@@ -345,7 +345,7 @@ Index: _mysql.c
 +	PyObject* array = NULL;
 +
 +	MYSQL_ROW row;
-+        int dims[] = { -1 };
++        npy_intp dims[] = { -1 };
 +	
 + 	check_result_connection(self);
 +    
@@ -427,6 +427,7 @@ Index: _mysql.c
 +	unsigned int n, i  ;
 +        unsigned long *lengths ;
 +        my_ulonglong e ;
++        PyObject* array = NULL ;
 +
 +	MYSQL_ROW row;
 +	
@@ -474,23 +475,23 @@ Index: _mysql.c
 +
 +
 +        // interpret the buffer and a numpy array 
-+        PyObject* buf = PyBuffer_FromMemory( data , (Py_ssize_t)size ) ;
-+        PyObject* a   = PyArray_FromBuffer( buf, descr , (npy_intp)nele, (npy_intp)0 );
++        PyObject* buf    = PyBuffer_FromMemory( data , (Py_ssize_t)size ) ;
++        array   = PyArray_FromBuffer( buf, descr , (npy_intp)nele, (npy_intp)0 );
 +
 +        //PyObject_Print( (PyObject*)buf , stdout, 0);
 +        //printf("\n");
 +        //printf(" a %x \n", (npy_intp)a );
-+        //PyObject_Print( (PyObject*)a , stdout, 0);
++        //PyObject_Print( (PyObject*)array , stdout, 0);
 +        //printf("\n");
 +
-+        return a ;
++        return array ;
 +	    
 +  error:
 +        if (mysql_errno(&(((_mysql_ConnectionObject *)(self->conn))->connection))) {
 +	      _mysql_Exception((_mysql_ConnectionObject *)self->conn);
 +        } 
 +
-+	Py_XDECREF(a);
++	Py_XDECREF(array);
 +	return NULL;
 +}
 +
@@ -526,7 +527,7 @@ Index: _mysql.c
  #if MYSQL_VERSION_ID >= 32303
  
  static char _mysql_ConnectionObject_change_user__doc__[] =
-@@ -2392,12 +2773,36 @@
+@@ -2392,12 +2774,36 @@
  		_mysql_ResultObject_describe__doc__
  	},
  	{
@@ -563,7 +564,7 @@ Index: _mysql.c
  		"field_flags",
  		(PyCFunction)_mysql_ResultObject_field_flags,
  		METH_VARARGS,
-@@ -2678,9 +3083,9 @@
+@@ -2678,9 +3084,9 @@
  #if PY_VERSION_HEX >= 0x02020000
  	/* Added in release 2.2 */
  	/* Iterators */
@@ -576,7 +577,7 @@ Index: _mysql.c
  	/* Attribute descriptor and subclassing stuff */
  	(struct PyMethodDef *) _mysql_ResultObject_methods, /* tp_methods */
  	(MyMemberlist(*)) _mysql_ResultObject_memberlist, /*tp_members */
-@@ -2880,6 +3285,9 @@
+@@ -2880,6 +3286,9 @@
  	if (!(_mysql_NULL = PyString_FromString("NULL")))
  		goto error;
  	if (PyDict_SetItemString(dict, "NULL", _mysql_NULL)) goto error;
