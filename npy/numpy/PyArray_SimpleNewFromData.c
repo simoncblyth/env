@@ -136,16 +136,7 @@ int main(int argc, char *argv[])
      void* data = malloc(size);
      //void* data = _aligned_malloc(size , 16 );
 
-/*
-     // only working because the int and float are both 4bytes
-     int offset = 0 ;
-     sscanf( "123",    "%d",     ((int*)data + offset)) ; offset += 1 ; //sizeof(int) ;       
-     sscanf( "123.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
-     sscanf( "223",    "%d",     ((int*)data + offset)) ; offset += 1 ; //sizeof(int) ;       
-     sscanf( "223.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
-     sscanf( "323",    "%d",     ((int*)data + offset)) ; offset += 1 ; //sizeof(int) ;       
-     sscanf( "323.0",  "%f",   ((float*)data + offset)) ; offset += 1 ; //sizeof(float) ;       
-*/
+     //char* demo_str[6] = { "123", "123.0", "223", "223.0" , "323" , "323.0" } ; 
 
      int off = 0 ;
      sscanf( "123",    "%d",   (int*)(data + off)) ; off += sizeof(int)   ;       

@@ -55,11 +55,11 @@ int main(int argc, char *argv[])
          PyList_Append(op, kv );
      }
 
-     printf(" MYSQL_TYPE_TINY %d %s \n" , MYSQL_TYPE_TINY , mysql2np( MYSQL_TYPE_TINY) );
-     printf(" MYSQL_TYPE_LONG %d %s \n" , MYSQL_TYPE_LONG , mysql2np( MYSQL_TYPE_LONG) );
-     printf(" MYSQL_TYPE_FLOAT %d %s \n" , MYSQL_TYPE_FLOAT , mysql2np( MYSQL_TYPE_FLOAT) );
-     printf(" MYSQL_TYPE_DOUBLE %d %s \n" , MYSQL_TYPE_DOUBLE ,mysql2np( MYSQL_TYPE_DOUBLE ) );
-     printf(" MYSQL_TYPE_TIMESTAMP %d %s \n" , MYSQL_TYPE_TIMESTAMP , mysql2np(  MYSQL_TYPE_TIMESTAMP) );
+     printf(" MYSQL_TYPE_TINY %d %s \n" , MYSQL_TYPE_TINY , mysql2npy( MYSQL_TYPE_TINY) );
+     printf(" MYSQL_TYPE_LONG %d %s \n" , MYSQL_TYPE_LONG , mysql2npy( MYSQL_TYPE_LONG) );
+     printf(" MYSQL_TYPE_FLOAT %d %s \n" , MYSQL_TYPE_FLOAT , mysql2npy( MYSQL_TYPE_FLOAT) );
+     printf(" MYSQL_TYPE_DOUBLE %d %s \n" , MYSQL_TYPE_DOUBLE ,mysql2npy( MYSQL_TYPE_DOUBLE ) );
+     printf(" MYSQL_TYPE_TIMESTAMP %d %s \n" , MYSQL_TYPE_TIMESTAMP , mysql2npy(  MYSQL_TYPE_TIMESTAMP) );
 
 
 
