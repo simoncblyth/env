@@ -14,6 +14,7 @@ class ScanIt(dict):
     """ Parameter context scan and result record array used to keep the results """
     steps = 5
     max = 10000 
+    min = 1 
     def __init__(self, *args, **kwargs ): 
         dict.__init__(self, *args, **kwargs)
         it = args[0] 
@@ -25,7 +26,7 @@ class ScanIt(dict):
         self._kwargs = kwargs
         assert self.steps and self.max, "subclass Scan, and supply these attributes " 
         scan = np.zeros( (self.steps,) , np.dtype([('limit','i4'),('ctime','f4'),('itime','f4'),('rss_','f4')]) ) 
-        scan['limit'] = np.linspace( 0, self.max , len(scan) )
+        scan['limit'] = np.linspace( self.min , self.max , len(scan) )
         self.scan = scan
 
     def __iter__(self):

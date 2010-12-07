@@ -52,6 +52,13 @@ In [7]:
   * type conversion correspondence checks 
 
 
+=== mysql-python patch issues ===
+
+  * fetch_ndarrayfast 
+      * failing for empty OR limit 0  query 
+      * datetime wrong on big endian PPC ???
+
+
 == development history ==
 
   * started with mysql-python ~1.3.0 (unreleased) + numpy 1.5

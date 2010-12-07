@@ -16,10 +16,12 @@ from env.dyb.db import Qry
 class LimitScan(ScanIt):
     steps = 5 
     max   = 1000000   
+    min   = 1
 
 class DebugScan(ScanIt):
     steps = 5 
     max = 10000
+    min = 1
 
 def test_scan():
     q = Qry( "DcsPmtHv" , read_default_group="client" , limit="*" , verbose=1, method=1 )
@@ -27,13 +29,13 @@ def test_scan():
         #if len(sys.argv) > 1 and int(sys.argv[1]) != n:continue  
         #ls = LimitScan(q)
         ls = DebugScan(q)
-        print "starting query scan %s " % repr(ls)
+        print "starting query scan %s number %d for tc %s " % (repr(ls), n, tc )
         for _ in ls:           ## cranking the scan iterator changes parameters
             ct = ClassTimr(tc)
             ct(q)
             ls( **ct )   ## record result in the scan structure at this cursor point 
             pass
-        print repr(ls.scan) 
+        print "repr(ls.scan):", repr(ls.scan) 
         ls.save()
 
 test_scan.__test__ = True ## tis too slow to run everytime

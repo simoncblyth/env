@@ -137,6 +137,43 @@ class Cyth(Tech):
         a = None
 
 
+
+class Mynp(Tech):
+    symbol = "ro"
+    active = True 
+    def __call__( self, q , **kwargs ):
+        self.update(kwargs)
+        
+        conn = _mysql.connect( **q.connargs )
+        conn.query( str(q) )
+        result = conn.store_result()   ## this takes the time
+        a = result.fetch_nparray()
+        conn.close()
+        
+        if 'verbose' in kwargs:print repr(a)
+        a = None
+
+class Mynpfast(Tech):
+    symbol = "go"
+    active = True 
+    def __call__( self, q , **kwargs ):
+        self.update(kwargs)
+        
+        conn = _mysql.connect( **q.connargs )
+        conn.query( str(q) )
+        result = conn.store_result()   ## this takes the time
+
+        #dtype = result.npdescr()
+        #print repr(dtype)
+
+        a = result.fetch_nparrayfast()
+        conn.close()
+        
+        if 'verbose' in kwargs:print repr(a)
+        a = None
+
+
+
 if __name__ == '__main__':
     pass
 

@@ -11,7 +11,7 @@ def test_techniques():
     q = Qry( "DcsPmtHv" , read_default_group="client" , limit=60000, verbose=1, method=1 )
 
     args = [ q ]
-    kwargs = dict()
+    kwargs = dict(verbose=1)
     for t in Tech.callables():
         yield  check_technique, t,  args, kwargs
 
