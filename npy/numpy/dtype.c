@@ -17,61 +17,11 @@
 
 #include <Python.h>
 #include <stdio.h>
+
 #include <numpy/arrayobject.h>
 #include <numpy/arrayscalars.h>
 
-char* NPY_TYPE_NAMES[NPY_NTYPES] =  { 
-     "NPY_BOOL",
-     "NPY_BYTE", 
-     "NPY_UBYTE",
-     "NPY_SHORT", 
-     "NPY_USHORT",
-     "NPY_INT", 
-     "NPY_UINT",
-     "NPY_LONG", 
-     "NPY_ULONG",
-     "NPY_LONGLONG", 
-     "NPY_ULONGLONG",
-     "NPY_HALF", 
-     "NPY_FLOAT", 
-     "NPY_DOUBLE", 
-     "NPY_LONGDOUBLE",
-     "NPY_CFLOAT", 
-     "NPY_CDOUBLE", 
-     "NPY_CLONGDOUBLE",
-     "NPY_DATETIME", 
-     "NPY_TIMEDELTA",
-     "NPY_OBJECT",
-     "NPY_STRING", 
-     "NPY_UNICODE",
-     "NPY_VOID" } ;
- 
-char* NPY_TYPE_FMTS[NPY_NTYPES] =  { 
-     "%"NPY_BYTE_FMT, // "NPY_BOOL_FMT",
-     "%"NPY_BYTE_FMT, 
-     "%"NPY_UBYTE_FMT ,
-     "%"NPY_SHORT_FMT, 
-     "%"NPY_USHORT_FMT,
-     "%"NPY_INT_FMT, 
-     "%"NPY_UINT_FMT,
-     "%"NPY_LONG_FMT, 
-     "%"NPY_ULONG_FMT,
-     "%"NPY_LONGLONG_FMT, 
-     "%"NPY_ULONGLONG_FMT,
-     "%"NPY_HALF_FMT, 
-     "%"NPY_FLOAT_FMT, 
-     "%lg",  // "%"NPY_DOUBLE_FMT, 
-     "%Lg", // %"NPY_LONGDOUBLE_FMT,
-     "NPY_CFLOAT_FMT", 
-     "NPY_CDOUBLE", 
-     "NPY_CLONGDOUBLE",
-     "%"NPY_DATETIME_FMT, 
-     "%"NPY_TIMEDELTA_FMT,
-     "NPY_OBJECT_FMT",
-     "NPY_STRING_FMT", 
-     "NPY_UNICODE_FMT",
-     "NPY_VOID_FMT" } ;
-
+#include "mysql_numpy.h"
 
 
 void bitsof()
@@ -113,6 +63,16 @@ void printf_formats()
 //    npy_cfloat cfloat = 1 ;
 //    npy_cdouble cdouble = 1 ;
 //    npy_clongdouble clongdouble = 1 ;
+
+    npy_datetime datetime = 1 ;
+    npy_timedelta timedelta = 1 ;
+    
+    //npy_object object = 1 ;
+    //npy_string string = 1 ;
+    //npy_unicode unicode = 1 ;
+    //npy_void void_ = 1 ;
+
+    char out_str[100] ;
     
     char* str = "123" ;
 
@@ -120,12 +80,16 @@ void printf_formats()
     sscanf( str , "%hg" ,  &float_ );
     sscanf( str , "%lg" ,  &double_ );
     sscanf( str , "%Lg" ,  &longdouble );
+    sscanf( str , "%Lg" ,  &longdouble );
+    
  
     printf("half %hhg \n", half );
     printf("float %hg \n", float_ );
     printf("double %lg \n", double_ );
     printf("longdouble %Lg \n", longdouble );
    
+    sscanf( str , "%2s" ,   out_str );
+    printf("out_str %s \n", out_str );
   
 
 }
@@ -189,25 +153,24 @@ void dump_dtype( PyArray_Descr* dtype )
 
 }
 
- 
-int main(int argc, char *argv[])
+
+
+PyArray_Descr* make_dtype()
 {
-     Py_Initialize();
-     import_array();
-
-     printf_formats();
-     PyObject* l = PyList_New(0) ;
-     PyArray_Descr* d ;
+     /*
+           construction of test dtype 
+     */
+     PyObject* ls = PyList_New(0) ;
      char code[10];
-
      int t ;
      for( t=0 ; t < NPY_NTYPES  ; t++ ){
          int is_flexible = PyTypeNum_ISFLEXIBLE(t) ;
-         d = is_flexible ? PyArray_DescrNewFromType(t) : PyArray_DescrFromType( t );
+         PyArray_Descr* d = is_flexible ? PyArray_DescrNewFromType(t) : PyArray_DescrFromType( t );
+
          if(is_flexible){
-            d->elsize = 7 ; 
+            d->elsize = 3 ; 
          }
-         //sprintf( code, "%c%d", d->type , d->elsize );
+
          sprintf( code, "%c%d", d->kind , d->elsize );
          printf("typenum %2d flexible %d name %20s fmt %20s kind %c type %c byteorder %c elsize %2d code %s ", t, is_flexible, NPY_TYPE_NAMES[t],NPY_TYPE_FMTS[t], d->kind , d->type ,d->byteorder,  d->elsize, code  );
 
@@ -218,105 +181,148 @@ int main(int argc, char *argv[])
          //if( PyTypeNum_ISINTEGER(t) ){ 
          //if( PyTypeNum_ISFLOAT(t) ){ 
          //if( PyTypeNum_ISNUMBER(t) ){ 
-         // if( !PyTypeNum_ISCOMPLEX(t) && !PyTypeNum_ISFLEXIBLE(t) && t != NPY_OBJECT ){ 
-         
+         //if( !PyTypeNum_ISCOMPLEX(t) && !PyTypeNum_ISFLEXIBLE(t) && t != NPY_OBJECT ){ 
+         //if( PyTypeNum_ISFLEXIBLE(t) ){
+
          if( !PyTypeNum_ISOBJECT(t) ){
-              
               PyObject* op = Py_BuildValue("(s,s)", NPY_TYPE_NAMES[t] , code );
-              PyList_Append( l , op );
+              PyList_Append( ls , op );
          }
     }
 
     printf("dtype blueprint ... \n");
-    PyObject_Print( (PyObject*)l , stdout, 0 );
+    PyObject_Print( (PyObject*)ls , stdout, 0 );
     printf("\n");
 
-    PyArray_Descr *dtype;
+    PyArray_Descr* dtype;
+    PyArray_DescrConverter( ls , &dtype );    // HUH DONT I NEED TO ALLOCATE 
+    //PyArray_DescrAlignConverter( ls , &dtype );
 
-    PyArray_DescrConverter( l , &dtype );
-    //dump_dtype( dtype );
-
-    //PyArray_DescrAlignConverter( l , &dtype );
-    //dump_dtype( dtype );
+    return dtype ;
+}
 
 
-    // manual buffer filling 
-    size_t size = dtype->elsize*1 ;
-    void* data = malloc(size);
-
-    PyObject *key, *tup ;
-    PyObject* names = dtype->names ;
-    PyObject* fields = dtype->fields ;
-
-    // use names in order to get the correct field order
-    if(PyTuple_Check(names) && PyDict_Check(fields)){
-          
-         int n = PyTuple_GET_SIZE(names);
+int dtype_extract( PyArray_Descr* dtype , int offsets[DTYPE_FIELD_MAX]  , char fmts[DTYPE_FIELD_MAX][DTYPE_FMTLEN_MAX], int types[DTYPE_FIELD_MAX], int* noffsets )
+{
+     PyObject *key, *tup ;
+     PyObject* names = dtype->names ;
+     PyObject* fields = dtype->fields ;
+     int n = -1 ;
+     if(PyTuple_Check(names) && PyDict_Check(fields)){
+         n = PyTuple_GET_SIZE(names);
          int i ; 
          for ( i = 0; i < n; i++) {
               key = PyTuple_GET_ITEM(names, i);
               tup = PyDict_GetItem( fields, key);
-              PyObject_Print( (PyObject*)key , stdout, 0);
-              printf(" ---> ");
-              PyObject_Print( (PyObject*)tup , stdout, 0);
-
              if(PyTuple_Check(tup)){
                    Py_ssize_t stup = PyTuple_GET_SIZE(tup);
                    if( (int)stup >= 2 ){
                        PyObject* ft  = PyTuple_GetItem( tup , (Py_ssize_t)0 );
                        PyObject* fo  = PyTuple_GetItem( tup , (Py_ssize_t)1 );
                        PyArray_Descr* fdt = (PyArray_Descr*)ft ;
+
                        int type_num = fdt->type_num ;
                        char* fmt = NPY_TYPE_FMTS[type_num] ;  
                        int offset   =  (int)PyLong_AsLong( fo ); 
-                       printf(" type_num %d type %c kind %c elsize %d offset %d fmt %s ", type_num, fdt->type, fdt->kind, fdt->elsize, offset, fmt );
+                       
+                       char fmt_[10] ;
+                       if( type_num == NPY_STRING ){
+                           sprintf( fmt_ , "%c%d%c" , *"%", fdt->elsize , *"s" );
+                           printf( "fmt_ %s \n" , fmt_ );
+                           strcpy( fmts[i] , fmt_ );
+                       } else {
+                           strcpy( fmts[i] , fmt );
+                       }
+
+                       offsets[i] = offset ;
+                       types[i] = type_num ;
+                   }
+             }
+         } 
+     } 
+     *noffsets = n ;
+     return 0 ;
+}
 
 
-                       void* ptr = data + offset ;  
-
-                       int rc ;
-                       char* str = "123" ;
-                       rc = sscanf( str,  fmt , ptr ) ;
-
-                       switch( type_num ){              
-                            case NPY_BOOL:       printf( fmt , *((npy_bool*)ptr))       ; break ;
-                            case NPY_BYTE:       printf( fmt , *((npy_byte*)ptr))       ; break ;
-                            case NPY_UBYTE:      printf( fmt , *((npy_ubyte*)ptr))      ; break ;
-                            case NPY_SHORT:      printf( fmt , *((npy_short*)ptr))      ; break ;
-                            case NPY_USHORT:     printf( fmt , *((npy_ushort*)ptr))     ; break ;
-                            case NPY_INT:        printf( fmt , *((npy_int*)ptr))        ; break ;
-                            case NPY_UINT:       printf( fmt , *((npy_uint*)ptr))       ; break ;
-                            case NPY_LONG:       printf( fmt , *((npy_long*)ptr))       ; break ;
-                            case NPY_ULONG:      printf( fmt , *((npy_ulong*)ptr))      ; break ;
-                            case NPY_LONGLONG:   printf( fmt , *((npy_longlong*)ptr))   ; break ;
-                            case NPY_ULONGLONG:  printf( fmt , *((npy_ulonglong*)ptr))  ; break ;
-                            case NPY_HALF:       printf( fmt , *((npy_half*)ptr))       ; break ;
-                            case NPY_FLOAT:      printf( fmt , *((npy_float*)ptr))      ; break ;
-                            case NPY_DOUBLE:     printf( fmt , *((npy_double*)ptr))     ; break ;
-                            case NPY_LONGDOUBLE: printf( fmt , *((npy_longdouble*)ptr)) ; break ;
-                            case NPY_CFLOAT:     printf( fmt , *((npy_cfloat*)ptr))     ; break ;
-                            case NPY_CDOUBLE:    printf( fmt , *((npy_cdouble*)ptr))    ; break ;
-                            case NPY_CLONGDOUBLE:printf( fmt , *((npy_clongdouble*)ptr)); break ;
-                            case NPY_DATETIME:   printf( fmt , *((npy_datetime*)ptr))   ; break ;
-                            case NPY_TIMEDELTA:  printf( fmt , *((npy_timedelta*)ptr))  ; break ;
-                            //case NPY_OBJECT:      sscanf( str,  fmt ,      (npy_object*)ptr) ; break ;
-                            //case NPY_STRING:      sscanf( str,  fmt ,      (npy_string*)ptr) ; break ;
-                            //case NPY_UNICODE:     sscanf( str,  fmt ,     (npy_unicode*)ptr) ; break ;
-                            //case NPY_VOID:        sscanf( str,  fmt ,        (npy_void*)ptr) ; ;break;
-                       }  // type switch
-
-                       printf( " rc %d \n", rc ) ;
-                   } // tuple length check
-             } // tuple check
-         }    // over field names
-     }       // names and field check 
+void printf_npy( int type_num , char* fmt , void* ptr )
+{
+    switch( type_num ){              
+        case NPY_BOOL:       printf( fmt , *((npy_bool*)ptr))           ; break ;
+        case NPY_BYTE:       printf( fmt , *((npy_byte*)ptr))           ; break ;
+        case NPY_UBYTE:      printf( fmt , *((npy_ubyte*)ptr))          ; break ;
+        case NPY_SHORT:      printf( fmt , *((npy_short*)ptr))          ; break ;
+        case NPY_USHORT:     printf( fmt , *((npy_ushort*)ptr))         ; break ;
+        case NPY_INT:        printf( fmt , *((npy_int*)ptr))            ; break ;
+        case NPY_UINT:       printf( fmt , *((npy_uint*)ptr))           ; break ;
+        case NPY_LONG:       printf( fmt , *((npy_long*)ptr))           ; break ;
+        case NPY_ULONG:      printf( fmt , *((npy_ulong*)ptr))          ; break ;
+        case NPY_LONGLONG:   printf( fmt , *((npy_longlong*)ptr))       ; break ;
+        case NPY_ULONGLONG:  printf( fmt , *((npy_ulonglong*)ptr))      ; break ;
+        case NPY_HALF:       printf( fmt , *((npy_half*)ptr))           ; break ;
+        case NPY_FLOAT:      printf( fmt , *((npy_float*)ptr))          ; break ;
+        case NPY_DOUBLE:     printf( fmt , *((npy_double*)ptr))         ; break ;
+        case NPY_LONGDOUBLE: printf( fmt , *((npy_longdouble*)ptr))     ; break ;
+        case NPY_CFLOAT:     printf( fmt , *((npy_cfloat*)ptr))         ; break ;
+        case NPY_CDOUBLE:    printf( fmt , *((npy_cdouble*)ptr))        ; break ;
+        case NPY_CLONGDOUBLE:printf( fmt , *((npy_clongdouble*)ptr))    ; break ;
+        case NPY_DATETIME:   printf( fmt , *((npy_datetime*)ptr))       ; break ;
+        case NPY_TIMEDELTA:  printf( fmt , *((npy_timedelta*)ptr))      ; break ;
+        case NPY_OBJECT:     PyObject_Print( (PyObject*)ptr, stdout, 0) ; break ;
+        case NPY_STRING:     printf( fmt , (char*)ptr  )               ; break ;
+      //case NPY_UNICODE:     sscanf( str,  fmt ,     (npy_unicode*)ptr) ; break ;
+        case NPY_VOID:       printf( "%x" , (npy_intp*)ptr)             ; break ;
+    }  
+}
 
  
+int main(int argc, char *argv[])
+{
+     Py_Initialize();
+     import_array();
+     printf_formats();
+
+     PyArray_Descr* dtype = make_dtype() ;
+
+     int types[DTYPE_FIELD_MAX] ;
+     int offsets[DTYPE_FIELD_MAX] ;
+     char fmts[DTYPE_FIELD_MAX][DTYPE_FMTLEN_MAX] ;
+     int nfield ;
+
+     dtype_extract( dtype, offsets, fmts, types, &nfield );
+   
+     // manual buffer filling 
+
+     npy_intp count = 3 ;
+     size_t size = dtype->elsize*count ;
+     void* data = malloc(size);
+     void* rec = data ;
+     
+     int try ;
+     for( try=0 ; try < 3 ; try++ ){  
+
+        char* str ;
+        switch(try){
+           case 0:str="123" ;break;
+           case 1:str="223" ;break;
+           case 2:str="323" ;break;
+        }
+        int j ;
+        for( j = 0 ; j < nfield ; j++ ){
+             void* ptr = rec + offsets[j] ;
+             int rc = sscanf( str,   fmts[j] , ptr ) ;
+             
+             printf( " j %d offset %d fmt %s type %d  \n", j, offsets[j], fmts[j], types[j]  );
+             printf_npy(  types[j] , fmts[j],  ptr ) ;
+             printf( " rc %d \n", rc );
+        }
+        rec += dtype->elsize ;
+    }
+
     PyObject* buf = PyBuffer_FromMemory( data , (Py_ssize_t)size) ;
     PyObject_Print( (PyObject*)buf , stdout, 0);
     printf("\n");
     
-    npy_intp count = 1 ;
     npy_intp bufoff = 0 ;
 
     PyObject* a = PyArray_FromBuffer( buf, dtype , count, bufoff);
@@ -324,8 +330,6 @@ int main(int argc, char *argv[])
 
     PyObject_Print( (PyObject*)a , stdout, 0);
     printf("\n");
-
-
 
     return 0;
 }
