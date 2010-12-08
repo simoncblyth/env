@@ -97,15 +97,24 @@ Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ
     git push origin master
            ## need to enter the C id_rsa passphrase here 
 
-
-
    
 == GETTING FROM GIT ==
 
    git clone git://github.com/scb-/mysql_numpy.git
 
- 
+== PUSHING FROM ANOTHER NODE ==
 
+
+  If you get ...
+
+  simon:mysql_numpy blyth$ git push origin master
+fatal: remote error: 
+  You can't push to git://github.com/scb-/mysql_numpy.git
+  Use git@github.com:scb-/mysql_numpy.git
+
+
+  Then you cloned from a readonly URL ... OR 
+  you need to add the relevant public keys to account thru github web UI
 
 
 EOU
@@ -117,31 +126,29 @@ mysql-python-ver(){ echo 1.2.3 ; }
 #mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
 mysql-python-name(){  echo mysql_numpy ; }                   ##  github managed version of patched mysql-python 1.2.3 
 
-
 mysql-python-url(){ 
    local nam=$(mysql-python-name)
    case $nam in  
-              mysql_numpy) echo git://github.com/scb-/mysql_numpy.git ;;
+              mysql_numpy_ro) echo git://github.com/scb-/mysql_numpy.git ;;
+              mysql_numpy) echo git@github.com:scb-/mysql_numpy.git ;;
               MySQLdb-2.0) echo http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/$(mysql-python-name)/   ;;
                MySQLdb-1*) echo https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-$(mysql-python-ver)/ ;;
             MySQL-python*) echo http://downloads.sourceforge.net/project/mysql-python/mysql-python/$(mysql-python-ver)/$nam.tar.gz ;; 
    esac
 }
-
 mysql-python-rdir(){ 
    local nam=$(mysql-python-name)
    case $nam in  
-              MySQLdb-1.2.3|mysql_numpy) echo MySQLdb ;;
-                          *) echo -n ;;
+     MySQLdb-1.2.3|mysql_numpy) echo MySQLdb ;;
+                             *) echo -n ;;
    esac
 }
-
-
-
-mysql-python-patchpath(){ echo $(dirname $(mysql-python-source))/$(mysql-python-name)-resultiter.patch ; }
 mysql-python-dir(){ echo $(local-base)/env/mysql/$(mysql-python-name) ; }
 mysql-python-cd(){  cd $(mysql-python-dir)/$(mysql-python-rdir) ; }
 mysql-python-mate(){ mate $(mysql-python-dir) ; }
+
+
+
 mysql-python-get(){
    local dir=$(dirname $(mysql-python-dir)) &&  mkdir -p $dir && cd $dir
    local nam=$(mysql-python-name)
@@ -229,6 +236,7 @@ EOI
 
 ### MOVED AWAY FROM SVN-PATCH MANAGEMENT TO USING GITHUB
 
+mysql-python-patchpath(){ echo $(dirname $(mysql-python-source))/$(mysql-python-name)-resultiter.patch ; }
 mysql-python-patch(){
    local path=$(mysql-python-patchpath)
    [ ! -f "$path" ] && echo $msg no patch for $(mysql-python-name) && return
@@ -246,5 +254,17 @@ mysql-python-makepatch(){
    echo $msg updating $path 
    mysql-python-cd
    svn diff > $path 
+}
+
+mysql-python-revert(){
+    local msg="=== $FUNCNAME :"
+    echo $msg WARNING this reverts current changes and removes added files  ... LOCAL CHANGES NOT IN THE PATCH WILL BE LOST
+    local ans
+    read -p "$msg enter YES to proceed " ans
+    [ "$ans" != "YES" ] && echo $msg OK skipping && return 0
+    mysql-python-cd
+    svn rm --force mysql_numpy.h test.py Makefile
+    svn revert _mysql.c setup_posix.py
+    svn st  
 }
 
