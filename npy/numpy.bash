@@ -28,29 +28,36 @@ numpy-usage(){
 
       see vip- for installation via pip into virtual python env 
 
+    == G : (macports) python_select python27 ==
+
+      Numpy installs into :
+        /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/numpy/
+
 
 EOU
 }
 numpy-dir(){ echo $(local-base)/env/npy/numpy ; }
 numpy-cd(){  cd $(numpy-dir)/$1; }
+numpy-scd(){  cd $(env-home)/npy/numpy/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
 numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
    git clone git://github.com/numpy/numpy.git numpy
 }
-
+numpy-wipe(){
+   local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
+   rm -rf numpy
+}
 numpy-pull(){
    numpy-cd
    git pull
    git show
 }
 
-
 numpy-version(){    local iwd=$PWD ; cd /tmp ; python -c "import numpy as np ; print np.__version__ " ;  cd $iwd ; }
 numpy-installdir(){ python -c "import os, numpy as np ; print os.path.dirname(np.__file__) " ; }
 numpy-include(){    python -c "import numpy as np ; print np.get_include() " ; }
 numpy-info(){  cat << EOI  
-
     hostname   : $(hostname)
     version    : $(numpy-version)
     installdir : $(numpy-installdir)
@@ -73,18 +80,15 @@ numpy-build(){
    numpy-cd
    which python
    python setup.py build
-
 }
 
 numpy-install(){
    numpy-cd
    which python
-
    ## using virtual python environments / or source python avoids sudo hassles  ...
    local cmd="python setup.py install"
    echo $msg $cmd
    eval $cmd
-
 }
 
 

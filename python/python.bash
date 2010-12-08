@@ -8,6 +8,15 @@ python-usage(){
 cat << EOU
 
 
+
+   == G : macports python_select python26 ==
+
+       sudo port -v install py26-ipython -scientific
+
+
+
+
+
     PYTHON_SITE : $PYTHON_SITE
 
     python-pygments-get
@@ -85,6 +94,16 @@ python-versions(){
    echo ipython $(ipython -V)
 }
 
+python-config-vars(){ $FUNCNAME- | python ; }
+python-config-vars-(){ cat << EOC
+from distutils.sysconfig import get_config_vars 
+for k,v in get_config_vars().items():
+    pass
+    print k,v
+    #if "2.5" in str(v):print k,v  
+    #if "2.6" in str(v):print k,v  
+EOC
+}
 
 
 python-version-system(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
