@@ -173,6 +173,7 @@ slave-lighttpd) private-val SLAVE_LIGHTTPD_PORT  ;;  # info only ...
 local-tag2node(){
   case ${1:-$NODE_TAG} in 
           H) echo hfag  ;;
+          M) echo mars  ;;
         C|S) echo cms01 ;;
  C2|SC2|C2R) echo cms02 ;;
          ZZ) echo dayabay ;;
@@ -206,7 +207,7 @@ local-tag2user(){
 local-scponly-tags(){   echo S SC2 S2 ; }
 local-tags(){
    case ${1:-$NODE_TAG} in 
-           G) echo A AR N NE I B C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
+           G) echo M A AR N NE I B C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
            *) local-backup-tag ;;
    esac
 }
@@ -220,8 +221,10 @@ local-tag2ip(){
      S2|G1|P) echo 140.112.102.250 ;;
           #N) echo belle7.nuu.edu.tw ;;
            N) echo 203.64.184.126 ;;
+           M) echo 140.112.101.50 ;;
           NE) echo pdsf.nersc.gov ;;
-           I) echo lxslc05.ihep.ac.cn ;;
+       #    I) echo lxslc05.ihep.ac.cn ;;  lxslc05 needs klog and has flaky xauth 
+           I) echo lxslc21.ihep.ac.cn ;;
           II) echo 140.112.101.199 ;;
            B) echo gateway.phy.bnl.gov ;;
          H|X) echo 140.112.101.48 ;;
@@ -244,6 +247,7 @@ local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
    g4pb|simon) echo G ;;
+         mars) echo M ;;
          coop) echo CO ;;
          hep1) echo H1 ;;
         hep52) echo H52 ;;

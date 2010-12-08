@@ -19,6 +19,12 @@ sshconf-usage(){
    edit with local-vi
     
 
+         local-tags : $(local-tags)
+                     letters tags of all nodes to have in .ssh/config  
+
+              each needs a 
+                   local-tag2node M : $(local-tag2node M)
+                   local-tag2ip   M : $(local-tag2ip M) 
 EOU
 
 }
