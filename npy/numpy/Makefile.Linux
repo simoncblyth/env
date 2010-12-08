@@ -1,7 +1,0 @@
-
-SOFLAGS     = -shared
-CFLAGS      = -g -fno-common -Wall
-LIBS        =
-SOFIX       = so
-
-
