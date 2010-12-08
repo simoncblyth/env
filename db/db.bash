@@ -100,7 +100,19 @@ db-yesterday(){
    esac
 }
 
+db-standalone(){
+   local msg="=== $FUNCNANE : "
+   local iwd=$PWD
+   local dir=/tmp/$FUNCNAME &&  mkdir -p $dir && cd $dir
+   local url=http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/DybPython/python/DybPython
+   
+   echo $msg mysql-python is required 
+   python -c "import MySQLdb as _ ; print _.__version__ " 
+   [ ! -f "$dir/db.py" ]     && svn export $url/db.py
+   [ ! -f "$dir/dbconf.py" ] && svn export $url/dbconf.py
 
+   python $dir/db.py $*
+}
 
 
 db-backup-cd(){ cd $(db-backup-daydir) ; }
