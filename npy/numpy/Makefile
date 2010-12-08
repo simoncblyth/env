@@ -1,4 +1,6 @@
 
+#include Makefile.$(shell uname)
+
 #NAME = PyArray_SimpleNewFromDescr
 #NAME = PyArray_FromDims
 #NAME = PyArray_RegisterDataType
@@ -7,31 +9,29 @@
 #NAME = Py_BuildValue
 NAME = dtype
 
+PYTHON := $(shell which python) 
 PYTHON_LIBDIR := $(shell python -c "from  distutils.sysconfig import get_config_var ; print get_config_var('LIBDIR') " )
 PYTHON_INCDIR := $(shell python -c "from  distutils.sysconfig import get_python_inc ; print get_python_inc() " )
 PYTHON_VERSION := $(shell python -c "from  distutils.sysconfig import get_config_var ; print get_config_var('VERSION') " )
-
 NUMPY_INCDIR := $(shell python -c "import numpy as np ; print np.get_include() ")
-
 MYSQL_INCLUDE := $(shell  mysql_config --include ) 
 
 
 CFLAGS = -g -I$(PYTHON_INCDIR) -I$(NUMPY_INCDIR) $(MYSQL_INCLUDE)
-
 LIBS = -L$(PYTHON_LIBDIR) -lpython$(PYTHON_VERSION)
-
 
 %.o : %.c
 	@echo "Compiling $< to $@ "
 	$(CC) $(CFLAGS) -c $< -o $@ 
 
-
 $(NAME) : $(NAME).o
 	$(CC) $(CFLAGS) $(LIBS)  $< -o $@ 
 
-
 run :
-	./$(NAME)
+	DYLD_LIBRARY_PATH=$(PYTHON_LIBDIR) ./$(NAME)
+
+dyld :
+	DYLD_PRINT_LIBRARIES=1 ./$(NAME)
 
 
 clean :
@@ -43,7 +43,17 @@ vi :
 g :
 	gdb $(PWD)/$(NAME)
 
+info :
+	@echo PYTHON_LIBDIR $(PYTHON_LIBDIR) 
+	@echo PYTHON_INCDIR $(PYTHON_INCDIR) 
+	@echo NUMPY_INCDIR $(NUMPY_INCDIR) 
+	@echo PYTHON_VERSION $(PYTHON_VERSION)
+	@echo MYSQL_INCLUDE $(MYSQL_INCLUDE)
+	@echo PYTHON $(PYTHON)
 
-.PHONY : clean run vi g
+
+
+
+.PHONY : clean run vi g info run dyld
 
 

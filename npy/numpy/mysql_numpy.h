@@ -1,4 +1,5 @@
 
+#include "mysql.h"
 #include <numpy/arrayobject.h>
 #define DTYPE_FIELD_MAX  50 
 #define DTYPE_FMTLEN_MAX 30

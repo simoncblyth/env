@@ -17,12 +17,9 @@
 
 #include <Python.h>
 #include <stdio.h>
-
 #include <numpy/arrayobject.h>
 #include <numpy/arrayscalars.h>
-
 #include "mysql_numpy.h"
-
 
 void bitsof()
 {
