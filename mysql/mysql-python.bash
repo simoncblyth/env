@@ -63,17 +63,65 @@ Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ
 == on OSX(macports) add symbolic link from mysql_config5 to mysql_config ==
 
 
+
+
+== MOVE MANAGEMENT OF PATCH INTO GITHUB ==
+
+    svn export https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-1.2.3/ mysql_numpy
+    cd mysql_numpy
+ 
+    git init
+    git add MySQLdb
+    git commit -m "original mysql-python 1.2.3 obtained from https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-1.2.3/  at revision 650 "
+ 
+    git remote add origin git@github.com:scb-/mysql_numpy.git
+    git push origin master
+           ## need to enter the C id_rsa passphrase here 
+
+    cp ../README .
+    git add README
+ 
+    cd MySQLdb
+    patch -p0 < /data/env/local/env/home/mysql/MySQLdb-1.2.3-resultiter.patch
+ 
+    git diff
+    git status
+
+    git add Makefile
+    git add mysql_numpy.h 
+    git add test.py
+    git add _mysql.c
+    git add setup_posix.py
+ 
+    git status
+    git push origin master
+           ## need to enter the C id_rsa passphrase here 
+
+
+
+   
+== GETTING FROM GIT ==
+
+   git clone git://github.com/scb-/mysql_numpy.git
+
+ 
+
+
+
 EOU
 }
 
 mysql-python-ver(){ echo 1.2.3 ; }
 #mysql-python-name(){ echo MySQL-python-$(mysql-python-ver) ; }
 #mysql-python-name(){ echo MySQLdb-2.0 ;}
-mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
+#mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
+mysql-python-name(){  echo mysql_numpy ; }                   ##  github managed version of patched mysql-python 1.2.3 
+
 
 mysql-python-url(){ 
    local nam=$(mysql-python-name)
    case $nam in  
+              mysql_numpy) echo git://github.com/scb-/mysql_numpy.git ;;
               MySQLdb-2.0) echo http://mysql-python.hg.sourceforge.net/hgweb/mysql-python/$(mysql-python-name)/   ;;
                MySQLdb-1*) echo https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-$(mysql-python-ver)/ ;;
             MySQL-python*) echo http://downloads.sourceforge.net/project/mysql-python/mysql-python/$(mysql-python-ver)/$nam.tar.gz ;; 
@@ -83,10 +131,12 @@ mysql-python-url(){
 mysql-python-rdir(){ 
    local nam=$(mysql-python-name)
    case $nam in  
-              MySQLdb-1.2.3) echo MySQLdb ;;
+              MySQLdb-1.2.3|mysql_numpy) echo MySQLdb ;;
                           *) echo -n ;;
    esac
 }
+
+
 
 mysql-python-patchpath(){ echo $(dirname $(mysql-python-source))/$(mysql-python-name)-resultiter.patch ; }
 mysql-python-dir(){ echo $(local-base)/env/mysql/$(mysql-python-name) ; }
@@ -97,34 +147,15 @@ mysql-python-get(){
    local nam=$(mysql-python-name)
    case "$nam" in
         MySQLdb-2.0) mysql-python-get-hg  ;;
-      MySQLdb-1.2.3) mysql-python-get-svn ;;
+      MySQLdb-1.2.3) mysql-python-get-svn && mysql-python-patch ;;
+        mysql_numpy) mysql-python-get-git ;;
                   *) mysql-python-get-tgz ;;
    esac
-   mysql-python-patch
-}
-
-mysql-python-patch(){
-   local path=$(mysql-python-patchpath)
-   [ ! -f "$path" ] && echo $msg no patch for $(mysql-python-name) && return
-   mysql-python-cd
-   patch -p0 < $path 
-   svn add  mysql_numpy.h Makefile test.py   
-
-   echo $msg checking consistency between the patched and svn-added WC from mysql-pythin  and the patch from env
-    mysql-python-makepatch
-    svn diff $(mysql-python-patchpath)
-}
-
-mysql-python-makepatch(){
-   local msg="=== $FUNCNAME : "
-   local path=$(mysql-python-patchpath)
-   echo $msg updating $path 
-   mysql-python-cd
-   svn diff > $path 
 }
 
 mysql-python-get-svn(){ svn co $(mysql-python-url) ; }
-mysql-python-get-hg(){ hg clone $(mysql-python-url) ; }
+mysql-python-get-hg(){   hg clone $(mysql-python-url) ; }
+mysql-python-get-git(){ git clone $(mysql-python-url) ; }
 mysql-python-get-tgz(){
   local tgz=$(mysql-python-name).tar.gz
   [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url)  
@@ -192,4 +223,28 @@ EOI
 
 
 
+
+
+
+
+### MOVED AWAY FROM SVN-PATCH MANAGEMENT TO USING GITHUB
+
+mysql-python-patch(){
+   local path=$(mysql-python-patchpath)
+   [ ! -f "$path" ] && echo $msg no patch for $(mysql-python-name) && return
+   mysql-python-cd
+   patch -p0 < $path 
+   svn add  mysql_numpy.h Makefile test.py   
+   echo $msg checking consistency between the patched and svn-added WC from mysql-pythin  and the patch from env
+   mysql-python-makepatch
+   svn diff $(mysql-python-patchpath)
+}
+
+mysql-python-makepatch(){
+   local msg="=== $FUNCNAME : "
+   local path=$(mysql-python-patchpath)
+   echo $msg updating $path 
+   mysql-python-cd
+   svn diff > $path 
+}
 
