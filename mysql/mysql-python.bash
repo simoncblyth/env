@@ -104,7 +104,6 @@ Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ
 
 == PUSHING FROM ANOTHER NODE ==
 
-
   If you get ...
 
   simon:mysql_numpy blyth$ git push origin master
@@ -173,6 +172,11 @@ mysql-python-which(){
    which python
    python -V
    which mysql_config
+}
+
+mysql-python-pull(){
+   mysql-python-cd
+   git pull
 }
 
 mysql-python-install(){
