@@ -123,7 +123,12 @@ mysql-python-ver(){ echo 1.2.3 ; }
 #mysql-python-name(){ echo MySQL-python-$(mysql-python-ver) ; }
 #mysql-python-name(){ echo MySQLdb-2.0 ;}
 #mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
-mysql-python-name(){  echo mysql_numpy ; }                   ##  github managed version of patched mysql-python 1.2.3 
+mysql-python-name(){  
+   case $USER in 
+      thho) echo MySQLdb-1.2.3 ;; 
+     blyth) echo mysql_numpy ;;            ##  github managed version of patched mysql-python 1.2.3 
+  esac
+ }       
 
 mysql-python-url(){ 
    local nam=$(mysql-python-name)
@@ -153,7 +158,7 @@ mysql-python-get(){
    local nam=$(mysql-python-name)
    case "$nam" in
         MySQLdb-2.0) mysql-python-get-hg  ;;
-      MySQLdb-1.2.3) mysql-python-get-svn && mysql-python-patch ;;
+      MySQLdb-1.2.3) mysql-python-get-svn ;;
         mysql_numpy) mysql-python-get-git ;;
                   *) mysql-python-get-tgz ;;
    esac

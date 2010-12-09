@@ -34,15 +34,34 @@ numpy-usage(){
         /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/numpy/
 
 
+   == Fork numpy on github for the hours fix ==
+
+     http://help.github.com/forking/
+
+
+
+
 EOU
 }
 numpy-dir(){ echo $(local-base)/env/npy/numpy ; }
 numpy-cd(){  cd $(numpy-dir)/$1; }
 numpy-scd(){  cd $(env-home)/npy/numpy/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
+
+#numpy-name(){ echo upstream ; }
+numpy-name(){ echo scbfork ; }
+
+numpy-url(){
+   case $(numpy-name) in 
+      upstream) echo git://github.com/numpy/numpy.git ;;
+       scbfork) echo git@github.com:scb-/numpy.git ;;
+   esac
+}
+
 numpy-get(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
-   git clone git://github.com/numpy/numpy.git numpy
+   [ -d numpy ] && echo numpy exists already, remove before re-cloneing  && return 1 
+   git clone $(numpy-url) numpy
 }
 numpy-wipe(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
@@ -87,6 +106,15 @@ numpy-install(){
    which python
    ## using virtual python environments / or source python avoids sudo hassles  ...
    local cmd="python setup.py install"
+   echo $msg $cmd
+   eval $cmd
+}
+
+numpy-sinstall(){
+   numpy-cd
+   which python
+   ## using virtual python environments / or source python avoids sudo hassles  ...
+   local cmd="sudo python setup.py install"
    echo $msg $cmd
    eval $cmd
 }
