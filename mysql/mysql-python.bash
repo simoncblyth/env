@@ -183,7 +183,10 @@ mysql-python-pull(){
    mysql-python-cd
    git pull
 }
-
+mysql-python-push(){
+   mysql-python-cd
+   git push origin master
+}
 mysql-python-install(){
    mysql-python-cd
    mysql-python-which
