@@ -11,8 +11,9 @@ cat << EOU
 
    == G : macports python_select python26 ==
 
-       sudo port -v install py26-ipython -scientific
+        sudo port -v install py26-ipython -scientific
         sudo port -v install py26-setuptools
+        sudo port -v install py26-nose
 
 
 
