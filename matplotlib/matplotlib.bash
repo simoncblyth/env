@@ -342,6 +342,14 @@ matplotlib-build(){
    python setupegg.py develop
 }
 
+matplotlib-sbuild(){
+   matplotlib-cd
+   #python setup.py build
+   #python setup.py install
+   sudo python setupegg.py develop
+}
+
+
 matplotlib-test-(){ cat << EOT
 from pylab import *
 plot([1,2,3])
