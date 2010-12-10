@@ -8,7 +8,7 @@ numpy-usage(){
      numpy-src : $(numpy-src)
      numpy-dir : $(numpy-dir)
      
-        http://www.scipy.org/Cookbook
+       http://www.scipy.org/Cookbook
 
 
        http://github.com/numpy/numpy

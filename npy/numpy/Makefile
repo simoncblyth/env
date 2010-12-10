@@ -7,8 +7,8 @@
 #NAME = Py_BuildValue
 #NAME = dtype
 #NAME = datetime
-#NAME = datetime_buf
-NAME = types
+NAME = datetime_buf
+#NAME = types
 
 PYTHON := $(shell which python) 
 PYTHON_LIBDIR := $(shell python -c "from  distutils.sysconfig import get_config_var ; print get_config_var('LIBDIR') " )
