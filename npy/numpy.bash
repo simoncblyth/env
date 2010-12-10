@@ -15,6 +15,13 @@ numpy-usage(){
        http://projects.scipy.org/numpy/report/6?asc=1&sort=modified&USER=anonymous
 
 
+    == debug build ==
+
+       http://projects.scipy.org/numpy/ticket/539
+
+       numpy-cd ; rm -rf build ; numpy-build --debug 
+
+
     == N : npy virtual py24 ==
  
          system python 2.4 has a yum installed numpy 1.1
@@ -145,7 +152,7 @@ numpy-doc(){
 numpy-build(){
    numpy-cd
    which python
-   python setup.py build
+   python setup.py build $*
 }
 
 numpy-install(){
