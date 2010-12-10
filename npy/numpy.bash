@@ -11,6 +11,10 @@ numpy-usage(){
        http://www.scipy.org/Cookbook
 
 
+     After running numpy-doc docs served by nginx at
+         http://cms01.phys.ntu.edu.tw/np/
+
+
        http://github.com/numpy/numpy
        http://projects.scipy.org/numpy/report/6?asc=1&sort=modified&USER=anonymous
 
