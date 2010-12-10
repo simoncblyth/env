@@ -63,6 +63,83 @@ numpy-usage(){
     After which can issue   http://help.github.com/pull-requests/
 
 
+   == rejig numpy fork to follow numpy dev workflow  ... as i forgot to make an initial branch ==
+
+      http://cms01.phys.ntu.edu.tw/np/dev/gitwash/patching.html
+          guidlines start by branching ... and do all changes one the branch 
+
+        1) github web UI/Admin : delete scb-/numpy 
+        2) github web UI numpy/numpy ... fork again (had to reload a few times to not see my datetime fix) 
+
+        3) move the old repo aside, and clone the fresh one :
+
+         [blyth@cms01 npy]$ mv numpy numpy_0
+         [blyth@cms01 npy]$ git clone git@github.com:scb-/numpy.git
+         Initialized empty Git repository in /data/env/local/env/npy/numpy/.git/
+         Enter passphrase for key '/home/blyth/.ssh/id_rsa': 
+
+
+         4) follow the github forking help http://help.github.com/forking/
+
+           cd numpy
+           git remote add upstream git://github.com/numpy/numpy.git
+           [blyth@cms01 numpy]$ git remote
+           origin
+           upstream 
+
+           [blyth@cms01 numpy]$ git fetch upstream
+           ...
+           * refs/remotes/upstream/maintenance/1.5.x: storing branch 'maintenance/1.5.x' of git://github.com/numpy/numpy
+             commit: f3d4e73
+           * refs/remotes/upstream/master: storing branch 'master' of git://github.com/numpy/numpy
+             commit: 147f817
+
+
+        5) this time immediately make a branch for each fix i have in mind  
+
+             http://docs.scipy.org/doc/numpy/dev/gitwash/development_workflow.html#making-a-new-feature-branch
+
+             git checkout master    ## move off the branch to allow to delete
+             git branch -D datetime-s-hours-more-than-24-fix
+  
+             git branch datetime64s-hours-more-than-24
+             git checkout datetime64s-hours-more-than-24
+
+            Grab the mods from the repo are about to abandon and put into the named branch in new fork  ...
+
+             cd ..
+
+            [blyth@cms01 npy]$ diff --recursive --brief numpy_0 numpy | grep differ | grep -v .git 
+            Files numpy_0/numpy/core/src/multiarray/datetime.c and numpy/numpy/core/src/multiarray/datetime.c differ
+            Files numpy_0/numpy/core/tests/test_datetime.py and numpy/numpy/core/tests/test_datetime.py differ
+
+            [blyth@cms01 numpy]$ git commit -a -m "fix for datetime64[s] hours exceeding 24 and test to demonstrate  "
+            Created commit fd18c43: fix for datetime64[s] hours exceeding 24 and test to demonstrate
+            2 files changed, 7 insertions(+), 1 deletions(-)
+
+            [blyth@cms01 numpy]$ git --version
+            git version 1.5.2.1
+            simon:numpy blyth$ git --version
+            git version 1.7.2.2
+             
+            cms01 git is too old for ...
+                 git push --set-upstream origin datetime64s-hours-more-than-24
+            so just do ..
+                 git push origin datetime64s-hours-more-than-24
+
+            this is visible on github when switch to the branch 
+                 https://github.com/scb-/numpy/tree/datetime64s-hours-more-than-24
+
+
+            make pull request from this branch
+                 http://help.github.com/pull-requests/
+
+            in shows up in the numpy pulls, not mine
+                 https://github.com/numpy/numpy/pulls
+
+ 
+
+
 
 
    == Unsure if still need for this change .. ==
