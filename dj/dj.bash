@@ -1,5 +1,5 @@
 dj-src(){      echo dj/dj.bash ; }
-dj-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dj-src)} ; }
+
 dj-dir-(){     echo $(dirname $(dj-source)) ; }
 dj-vi(){       vim $(dj-source) ; }
 dj-env(){      
@@ -121,6 +121,35 @@ dj-usage(){
 
      dj-cd
           cd to dj-projdir
+
+
+
+   == DJANGO EXTENSIONS OF INTEREST ==
+
+      https://github.com/bkjones/django-taxonomy
+      http://django-staticfiles.readthedocs.org/
+
+      https://github.com/pydanny/django-uni-form
+
+      http://packages.python.org/django-richtemplates/index.html
+            possible alternatate to djylt-
+
+      http://djangofeeds.soup.io/tag/calendar
+            calendaring 
+ 
+
+   == DEBUGGING SLOW PAGE LOADS ==
+
+     http://wimleers.com/article/page-loading-profiling-tools
+
+  == REFERENCES ==
+
+    Nice series on 1.2 new features 
+         http://djangoadvent.com/1.2/improved-bash-completion/
+
+
+        
+
 
 EOU
 

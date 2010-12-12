@@ -104,6 +104,13 @@ Command: build/default/node /data1/env/local/env/nodejs/build/node/test/simple/t
 make: *** [test] Error 1
 }}}
 
+
+    == WEBSOCKETS ==
+
+        http://blog.new-bamboo.co.uk/2010/2/10/json-event-based-convention-websockets
+
+
+
 EOU
 
 }

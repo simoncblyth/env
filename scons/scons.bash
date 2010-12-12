@@ -45,11 +45,14 @@ scons-usage(){
            * when changing source layout, older derived files in the scons-out tree get
              left behind ... handle this by occasional rm -rf scons-out for a deep clean    
 
-
-
    == source ==
     
      http://prdownloads.sourceforge.net/scons/scons-1.3.0.tar.gz
+
+
+   == realworld scons usage examples ==
+
+     http://www.opensource.apple.com/source/JavaScriptCore/JavaScriptCore-525/JavaScriptCore.scons
 
 EOU
 }

@@ -24,6 +24,70 @@ sqlalchemy-usage(){
     || C || 0.6.6  ||  hg tip                                ||         
 
 
+
+    DOING SQLALCHEMY QUERIES IN A DJANGO MANNER
+
+
+  * google:"SQLAlchemy session in  Django"
+
+
+On SA sessions 
+  * http://www.ibm.com/developerworks/aix/library/au-sqlalchemy/
+
+Ambitious project that will never get there .. but undoubtably informative
+  * http://code.google.com/p/django-sqlalchemy/wiki/Roadmap
+  * http://bitbucket.org/lukaszb/django-alchemy/
+
+Making SQLAlchemy models more compatible to Django (eg pagination ) 
+  * http://reliablybroken.com/b/tag/sqlalchemy/
+
+  * http://stackoverflow.com/questions/2546207/does-sqlalchemy-have-an-equivalent-of-djangos-get-or-create
+{{{
+
+That's basically the way to do it, there is no shortcut readily available AFAIK.
+
+You could generalize it ofcourse:
+
+def get_or_create(session, model, defaults=None, **kwargs):
+    instance = session.Query(model.filter_by(**kwargs).first()
+    if instance:
+        return instance, False
+    else:
+        params = dict((k, v) for k, v in kwargs.iteritems() if not isinstance(v, ClauseElement))
+        params.update(defaults)
+        instance = model(**params)
+        session.add(instance)
+        return instance, True
+
+link|flag
+	
+edited Apr 6 at 22:27
+
+	
+answered Apr 6 at 17:47
+WoLpH
+6,999315
+}}}
+
+ * http://www.python-blog.com/tag/sqlalchemy/
+    * allow do use sqlalchemy queries in a more djangoish manner (without having to pass the session around )
+ 
+	You now can of course get comments using comment_set attribute on blog entry. But sometimes we want start querying for other objects, for some reasons.
+	With Django ORM, no problem, just define method on the model and start querying ? it just works. With SQLAlchemy on the other hand we need to create query
+	using Session object. But how does mapper use proper session if you call ?comment_set?? Well, I?ve found the answer here: http://www.sqlalchemy.org/docs/05/reference/orm/sessions.html . There is ?Session.object_session? class method which returns session object binded to an model object.
+
+	So now we can simply define method for BlogComment
+{{{
+def get_related_comments(self):
+    session = Session.object_session(self)
+    comment_list = session.query(BlogComment)\
+        .filter(BlogComment.entry_id==BlogEntry.id)\
+        .all()
+    return comment_list
+
+}}}
+
+
 EOU
 }
 

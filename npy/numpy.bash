@@ -10,21 +10,16 @@ numpy-usage(){
      
        http://www.scipy.org/Cookbook
 
-
      After running numpy-doc docs served by nginx at
          http://cms01.phys.ntu.edu.tw/np/
-
 
        http://github.com/numpy/numpy
        http://projects.scipy.org/numpy/report/6?asc=1&sort=modified&USER=anonymous
 
-
     == debug build ==
 
-       http://projects.scipy.org/numpy/ticket/539
-
        numpy-cd ; rm -rf build ; numpy-build --debug 
-
+            http://projects.scipy.org/numpy/ticket/539
 
     == N : npy virtual py24 ==
  
@@ -43,7 +38,6 @@ numpy-usage(){
 
       Numpy installs into :
         /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/numpy/
-
 
    == Fork numpy on github  ==
 
@@ -139,9 +133,6 @@ numpy-usage(){
 
  
 
-
-
-
    == Unsure if still need for this change .. ==
 
    Was triggering segv in doing repr of arrays derived from buffers ...
@@ -165,6 +156,11 @@ index 87e140c..0f84d87 100644
 
 }}}
 
+
+
+     == references ==
+
+         http://efreedom.com/Question/1-877578/Fastest-Way-Convert-Numpy-Array-Sparse-Dictionary
 
 
 EOU

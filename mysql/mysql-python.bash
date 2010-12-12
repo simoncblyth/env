@@ -63,8 +63,6 @@ Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ
 == on OSX(macports) add symbolic link from mysql_config5 to mysql_config ==
 
 
-
-
 == MOVE MANAGEMENT OF PATCH INTO GITHUB ==
 
     svn export https://mysql-python.svn.sourceforge.net/svnroot/mysql-python/tags/MySQLdb-1.2.3/ mysql_numpy
@@ -114,6 +112,16 @@ fatal: remote error:
 
   Then you cloned from a readonly URL ... OR 
   you need to add the relevant public keys to account thru github web UI
+
+
+== mysql_numpy ==
+
+   google:"mysql python numpy" ...
+
+   adustman on numpy and mysql-python from 2000
+       http://mail.scipy.org/pipermail/numpy-discussion/2000-April/000129.html
+
+
 
 
 EOU

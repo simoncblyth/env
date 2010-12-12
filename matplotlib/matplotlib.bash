@@ -29,18 +29,32 @@ matplotlib-usage(){
       http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/branches/v1_0_maint/lib/matplotlib/
 
 
+  == interactive plotting approaches ==
+   
+   Thinking about how to implement interactive plots using SVG 
+   brought me to matplotlib as a higher level way of proceeding.
+  
+   I looked into  
+      * http://raphaeljs.com/       (hindered by supporting IE canvas... not an SVG API)
+   Interactive SVG 
+        * http://www.svgopen.org/2009/papers/14-Interactive_SVG_with_JSXGraph/  
+      
+     
+           
 
+
+EOU
+}
+
+matplotlib-issues(){ cat << EOU
 
   == ISSUE : pip install matplotlib ... plucks 0.91.1 (from 2007) ==
 
-
        pip install -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz matplotlib
-
-
 
   == ISSUE BLANK CANVAS WITH TkAgg ON C and N ... ==
 
-     * less of an issue on N, ad GTkAgg is available ...
+     * less of an issue on N, as GTkAgg is available ...
 
    Suspicious commit ...
      * https://github.com/astraw/matplotlib/commit/e4927a719403a769709d92c0dac659c02931308a
@@ -56,7 +70,6 @@ backend_tkagg: delete dead code
     https://github.com/astraw/matplotlib/tree/trunk/lib/matplotlib/backends/
     https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v1_0_maint/
 
-
  == WORKAROUND TkAgg FAILURE ===> MOVE TO GTkAgg ==
 
 
@@ -69,18 +82,14 @@ backend_tkagg: delete dead code
     Now the plots reappear
 
 
-
-
    Dependencies ...
      || numpy >= 1.1 ||  pip install numpy  ||  1.5.0 on C  ||
-
 
      http://matplotlib.sourceforge.net/faq/installing_faq.html#install-svn
 
          using "python setupegg.py develop" means 
              * py only updates with -update 
              * C/C++ updates require another -build
-
 
    = build problem with libpng  =
 
@@ -155,7 +164,6 @@ OPTIONAL BACKEND DEPENDENCIES
      sudo yum install tk-devel      
      sudo yum install pygtk2-devel 
 
-
  Propagate to matplotlib by cleaning and rebuilding as described above
 
    Test it worked ...
@@ -164,7 +172,6 @@ OPTIONAL BACKEND DEPENDENCIES
 
  == matplotlib 0.91.1 not compatible with numpy 2.0? ==
 
-
 Try {{{ipython -pylab}}} :
 {{{
   File "/data1/env/local/env/v/npy/lib/python2.4/site-packages/matplotlib/numerix/ma/__init__.py", line 16, in ?
@@ -172,9 +179,7 @@ Try {{{ipython -pylab}}} :
 ImportError: No module named ma
 }}}
 
-
- Tried {{{pip -v install matplotlib==dev}}} but no found on pypi etc.., so use the source install technique : 
-
+Tried {{{pip -v install matplotlib==dev}}} but no found on pypi etc.., so use the source install technique : 
 {{{
 (npy)[blyth@belle7 mysql_np]$ pip -v install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
 Obtaining matplotlib from svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
@@ -182,20 +187,16 @@ Obtaining matplotlib from svn+https://matplotlib.svn.sourceforge.net/svnroot/mat
   Found command 'svn' at '/usr/bin/svn'
 }}}
  
-
  == matplotlib 1.0??? installed by pip ... no plots showing on C ==
 
    * remember that are using source python  C ...
                   try : pip install PyGTK
      but fails with ... ImportError: No module named dsextras
 
-
      on N comes via {{{yum info pygtk2}}}
-
 
    After cleaning try a standard ... (not 1.00 and not using virtual but into source python)
        [blyth@cms01 ~]$ pip install matplotlib
-
    
 matplotlib-test
 $HOME=/home/blyth
@@ -226,11 +227,12 @@ ImportError: No module named ma
 
          this was the reason i moved to 1.0 from source  
 
-
-
     so ...
            matplotlib-get
            matplotlib-build
+
+
+
 
 
 EOU

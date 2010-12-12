@@ -10,7 +10,6 @@ pygtk-usage(){
 
 
      http://wiki.python.org/moin/GuiProgramming
-    
 
 
      http://www.pygtk.org/downloads.html
@@ -74,6 +73,18 @@ pygtk-usage(){
         yum info pygtk2      ===> 2.4.0        ( into system py2.3 )
         yum info pygobject ....  NOT FOUND      
              ( pre-pygobject era )
+
+
+  == pygtk macports ==
+
+    g4pb:site-packages blyth$ sudo port install py25-gtk 
+    g4pb:site-packages blyth$ sudo port install py25-gtk 
+       --->  Computing dependencies for py25-gtk
+       --->  Dependencies to be installed: py25-cairo py25-numpy py25-gobject
+
+
+    py25-numpy is dependency of py25-gtk ... liable to cause problems 
+
 
 
 

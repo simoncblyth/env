@@ -46,9 +46,6 @@ sv-usage(){
      and start again using service interface    
           sv-service start 
 
-
-
-
    == environment parsing bug in 3.0a8 ==
    
        sv-start
@@ -57,18 +54,15 @@ sv-usage(){
        Workaround is to quote envirobment values ...
             http://lists.supervisord.org/pipermail/supervisor-users/2010-March/000539.html
        
-
    == WEB INTERFACE ==
 
        http://<hostname>:9001/
-
 
    == REFERENCES ==    
 
        http://supervisord.org/manual/current/
        http://pypi.python.org/pypi/superlance/
        http://svn.supervisord.org/superlance/trunk/
-
 
     Eventlistener that sends emails on status changes...
        http://lists.supervisord.org/pipermail/supervisor-users/2009-October/000480.html
@@ -205,16 +199,11 @@ shutdown                Shut the remote supervisord down.
       Starting sv-blyth: /data/env/system/python/Python-2.5.1/bin/python: error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
 
 
-
-
-
   == ini issue ... running on the wrong python == 
 
     * resolved using \$(which python) in the svconf ... as init.d environment is bare ... unlike manual start with : sv-sstart
 
-
   == putting processes under supervisor control ==
-
 
     sv-plus ininame
         Replacement for sv-add 
@@ -265,7 +254,44 @@ shutdown                Shut the remote supervisord down.
                 2009-10-06 16:07:50,845 CRIT Server 'unix_http_server' running without any HTTP authentication checking
 
 
+   == ALTERNATIVES ==
 
+       * http://www.puppetlabs.com/company/overview/
+  
+       * http://www.agileweboperations.com/monitoring-tools-essentials-munin-vs-nagios/
+
+       * munin http://munin-monitoring.org/
+          * perlbased server-node system built on RRDtool (round robin database .. designed for time series data )
+             * http://oss.oetiker.ch/rrdtool/ 
+             * RRD problem ... : inflexibility wrt the '''step'''
+             * munin default step 5 min .. some added flexibility in 1.6? (not yet in distro versions) 
+        * easy to write plugins (simple bash scripts even)
+             * many plugins available   
+
+
+       * nagios 
+          * http://www.nagios.org/
+          * http://exchange.nagios.org/
+          * http://docs.pnp4nagios.org/pnp-0.4/start   RRD 
+
+       * monitoring rabbitmq with nagios
+          * http://morethanseven.net/2010/01/30/rabbitmq-support-cucumber-nagios.html 
+
+       * http://serverfault.com/questions/97270/munin-vs-nagios
+
+Munin and Nagios are really different tools.
+from munin website:
+    Munin is a networked resource monitoring tool that can help analyze resource trends and "what just happened to kill our performance?" problems. It is designed to be very plug and play. A default installation provides a lot of graphs with almost no work.
+
+Nagios is a monitoring (alerting) tool. Munin could be a replacenment of Cacti
+we use both of them: Nagios and Munin. Nagios tell us in real time if something is wrong: like web server down, db load average, etc.
+
+Using munin you can see the trends and the history about why that happenend.
+link|flag
+
+answered Dec 24 '09 at 21:06
+Gabriel Sosa
+29027
 
 
 EOU

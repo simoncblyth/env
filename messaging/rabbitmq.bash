@@ -130,6 +130,23 @@ rabbitmq-usage(){
     also can do simple admin : deleting / purging etc 
 
 
+
+  == pika ==
+
+    http://www.slideshare.net/hungryblank/rabbitmq-with-python-and-ruby-rupy-2009
+
+
+  == rabbitmq plugins of interest ==
+
+     last value cache exchange 
+         https://github.com/squaremo/rabbitmq-lvc-plugin
+
+  == about rabbitmq ==
+
+     talk by core rabbitmq dev 
+         http://www.erlang-factory.com/conference/SFBay2010/speakers/TonyGarnockJones
+         http://homepages.kcbbs.gen.nz/tonyg/talks.html
+
 EOU
 }
 rabbitmq-dir(){ echo $(local-base)/env/messaging ; }
