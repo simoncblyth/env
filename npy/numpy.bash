@@ -128,7 +128,7 @@ numpy-usage(){
             make pull request from this branch
                  http://help.github.com/pull-requests/
 
-            in shows up in the numpy pulls, not mine
+            in shows up in the numpy pulls, not my ones
                  https://github.com/numpy/numpy/pulls
 
  
@@ -165,24 +165,24 @@ index 87e140c..0f84d87 100644
 
 EOU
 }
-numpy-dir(){ echo $(local-base)/env/npy/numpy ; }
+numpy-dir(){ echo $(local-base)/env/npy/$(numpy-name) ; }
 numpy-cd(){  cd $(numpy-dir)/$1; }
 numpy-scd(){  cd $(env-home)/npy/numpy/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
 
 #numpy-name(){ echo upstream ; }
 numpy-name(){ 
-  case $USER in 
-    blyth) echo scbforkrw ;; 
-        *) echo scbforkro ;; 
-  esac
+    case $USER in
+      blyth) echo scbfork ;;
+      thho) echo scbfork_ro ;; 
+    esac
 }
 
 numpy-url(){
    case $(numpy-name) in 
       upstream) echo git://github.com/numpy/numpy.git ;;
-     scbforkrw) echo git@github.com:scb-/numpy.git ;;
-     scbforkro) echo git://github.com:scb-/numpy.git ;;
+       scbfork) echo git@github.com:scb-/numpy.git    ;;
+    scbfork_ro) echo git://github.com/scb-/numpy.git  ;;
    esac
 }
 
@@ -190,18 +190,13 @@ numpy-get(){
    local msg="=== $FUNCNAME :"
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
    [ -d numpy ] && echo numpy exists already, remove before re-cloneing  && return 1 
-   local cmd="git clone $(numpy-url) numpy"
-   echo $msg $cmd
-   eval $cmd
+   git clone $(numpy-url) $(numpy-name)
+   numpy-cd
+   git branch 
 }
 numpy-wipe(){
    local dir=$(dirname $(numpy-dir)) &&  mkdir -p $dir && cd $dir
    rm -rf numpy
-}
-numpy-pull(){
-   numpy-cd
-   git pull
-   git show
 }
 
 numpy-version(){    local iwd=$PWD ; cd /tmp ; python -c "import numpy as np ; print np.__version__ " ;  cd $iwd ; }

@@ -133,7 +133,8 @@ mysql-python-ver(){ echo 1.2.3 ; }
 #mysql-python-name(){ echo MySQLdb-$(mysql-python-ver) ;}    ## svn checkout of the tag, to facilitate patching 
 mysql-python-name(){  
    case $USER in 
-      thho) echo MySQLdb-1.2.3 ;; 
+      #thho) echo MySQLdb-1.2.3 ;; 
+      thho) echo mysql_numpy_ro  ;; 
      blyth) echo mysql_numpy ;;            ##  github managed version of patched mysql-python 1.2.3 
   esac
  }       
@@ -151,7 +152,7 @@ mysql-python-url(){
 mysql-python-rdir(){ 
    local nam=$(mysql-python-name)
    case $nam in  
-     MySQLdb-1.2.3|mysql_numpy) echo MySQLdb ;;
+     MySQLdb-1.2.3|mysql_numpy*) echo MySQLdb ;;
                              *) echo -n ;;
    esac
 }
@@ -167,14 +168,14 @@ mysql-python-get(){
    case "$nam" in
         MySQLdb-2.0) mysql-python-get-hg  ;;
       MySQLdb-1.2.3) mysql-python-get-svn ;;
-        mysql_numpy) mysql-python-get-git ;;
+       mysql_numpy*) mysql-python-get-git ;;
                   *) mysql-python-get-tgz ;;
    esac
 }
 
 mysql-python-get-svn(){ svn co $(mysql-python-url) ; }
 mysql-python-get-hg(){   hg clone $(mysql-python-url) ; }
-mysql-python-get-git(){ git clone $(mysql-python-url) ; }
+mysql-python-get-git(){ git clone $(mysql-python-url) $(mysql-python-name) ; }
 mysql-python-get-tgz(){
   local tgz=$(mysql-python-name).tar.gz
   [ ! -f "$tgz" ] && curl -L -O $(mysql-python-url)  
