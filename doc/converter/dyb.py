@@ -13,7 +13,7 @@ for i in os.listdir(texdir):
     if ext == '.tex':
         inpath = os.path.join( texdir, i )
         outpath = os.path.join( outdir, "%s.rst" % name )
-        print ext, name, i, inpath , outpath   
+        print "%s --> %s " % ( inpath , outpath )   
         convert_file( inpath, outpath )
 
 

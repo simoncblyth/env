@@ -25,7 +25,6 @@ converter-usage(){
         http://docutils.sourceforge.net/docs/user/links.html
         http://docutils.sourceforge.net/rst.html 
 
-
    == ATTEMPT TO PARSE AND CONVERT DB SECTION OF OFFLINE USER MANUAL ==
 
     See how difficult conversion is the conversion of 
@@ -74,31 +73,28 @@ hbox
 EOU
 }
 converter-dir(){ echo $(local-base)/env/doc/converter ; }
-converter-cd(){  cd $(converter-dir); }
+converter-cd(){  cd $(converter-dir)/$(converter-rdir) ; }
 converter-mate(){ mate $(converter-dir) ; }
 converter-get(){
    local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
    svn co http://svn.python.org/projects/doctools/converter/
 }
+converter-rdir(){ echo converter ; }
 
 converter-texdir(){ echo $DYB/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex/database ; }
 converter-rstdir(){
    local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && echo $dir 
 }
-converter-texinputs-dir(){
-   local dir=/tmp/env/converter/texinputs && mkdir -p $dir && echo $dir 
-} 
-converter-texinputs-setup(){
-   cp $(converter-texdir)/*.tex $(converter-texinputs-dir)/
-}
-converter-convert(){
-    python $(converter-dir)/convert.py $(dirname $(converter-texinputs-dir)) $(converter-rstdir)
-}
 
 converter-sdir(){ echo $(env-home)/doc/converter ; }
 converter-scd(){  cd $(converter-sdir) ; }
-
 converter-ln(){
    python-
    python-ln $(converter-dir)/converter
 }
+
+converter-dyb(){
+    python $(converter-sdir)/dyb.py 
+}
+
+
