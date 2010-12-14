@@ -906,3 +906,5 @@ pygtk-(){      . $(env-home)/gui/pygtk.bash && pygtk-env $* ; }
 pygobject-(){      . $(env-home)/gui/pygobject.bash && pygobject-env $* ; }
 mplh5canvas-(){      . $(env-home)/matplotlib/mplh5canvas.bash && mplh5canvas-env $* ; }
 gnocl-(){      . $(env-home)/gui/gnocl.bash && gnocl-env $* ; }
+sphinx-(){      . $(env-home)/doc/sphinx.bash && sphinx-env $* ; }
+converter-(){      . $(env-home)/doc/converter.bash && converter-env $* ; }
