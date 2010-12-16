@@ -43,6 +43,10 @@ converter-usage(){
            \begin{table} ... commented
             
 
+    old python docs used some noddy approach to tables 
+         http://docs.python.org/release/2.5.4/doc/table-markup.html
+    which the converter supports ...
+ 
     parsing of tabular/figure/center needs work .. added placeholders :
 
     470     def handle_tabular_env(self):
@@ -70,6 +74,12 @@ hbox
 
 
 
+   == ATTEMPTING TO MAKE LATEX+PDF FROM THE RST ==
+
+       C: RH4 latex too old utf8.def missing ... move to N
+
+
+
 EOU
 }
 converter-dir(){ echo $(local-base)/env/doc/converter ; }
@@ -78,7 +88,9 @@ converter-mate(){ mate $(converter-dir) ; }
 converter-get(){
    local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
    svn co http://svn.python.org/projects/doctools/converter/
+   converter-patch-apply
 }
+
 converter-rdir(){ echo converter ; }
 
 converter-texdir(){ echo $DYB/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex/database ; }
@@ -92,9 +104,19 @@ converter-ln(){
    python-
    python-ln $(converter-dir)/converter
 }
-
 converter-dyb(){
     python $(converter-sdir)/dyb.py 
 }
-
+converter-patch-path(){
+    echo $(converter-sdir)/converter-add-tabular.patch
+}
+converter-patch-apply(){
+   [ ! -f "$(converter-patch-path)" ] && return 0
+   converter-cd
+   patch -p0 < $(converter-patch-path)
+}
+converter-patch-make(){
+    converter-cd
+    svn diff > $(converter-patch-path) 
+}
 

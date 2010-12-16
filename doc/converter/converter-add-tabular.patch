@@ -1,0 +1,72 @@
+Index: latexparser.py
+===================================================================
+--- latexparser.py	(revision 87228)
++++ latexparser.py	(working copy)
+@@ -107,6 +107,8 @@
+         mathmode = False
+         math = ''
+         for l, t, v, r in self.tokens:
++            #print "[%s][%s][%s][%s]" % ( l,t,v,r )  ## line, type[command/text/egroup/...] ,  
++
+             if condition and condition(t, v, bracelevel):
+                 return nodelist.flatten()
+             if mathmode:
+@@ -461,6 +463,10 @@
+         raise ParserError('no handler for \\%s command' % cmdname,
+                           self.tokens.peek()[0])
+ 
++
++
++
++
+     def handle_begin(self):
+         envname, = self.parse_args('begin', 'T')
+         handler = getattr(self, 'handle_%s_env' % envname.text, None)
+@@ -693,6 +699,35 @@
+     handle_tablev_env = mk_table_handler(None, 'v', 5)
+     handle_longtablev_env = handle_tablev_env
+ 
++
++    def handle_tabular_env(self):
++        args = self.parse_args('tabular', 'T' )
++
++        colspec = args[0].text 
++        colspec = colspec.replace('|','')
++        numcols = len(colspec)
++        print "_tabylat %s colspec %s numcols %d ", repr(args), colspec, numcols
++        
++        headings = []
++        lines = []
++        for l, t, v, r in self.tokens:
++            print "[%s][%s][%s][%s]" % (l,t,v,r)
++            if t == 'command':
++                if v == 'end':
++                    arg = self.parse_args('\\end', 'T')
++                    assert arg[0].text.endswith('tabular'), arg[0].text
++                    break
++        #for line in lines:
++        #    if not empty(line[0]):
++        #        line[0] = InlineNode(firstcolformat, [line[0]])
++        return TableNode(numcols, headings, lines)
++        
++ 
++    def handle_figure_env(self):
++        return EmptyNode()
++    def handle_center_env(self):
++        return EmptyNode()
++
+     def handle_productionlist_env(self):
+         env_args = self.parse_args('productionlist', 'Q')
+         items = []
+Index: __init__.py
+===================================================================
+--- __init__.py	(revision 87228)
++++ __init__.py	(working copy)
+@@ -30,6 +30,7 @@
+         outf = codecs.open(outfile, 'w', 'utf-8')
+     else:
+         outf = None
++    
+     r = RestWriter(outf, splitchap, toctree, deflang, labelprefix)
+     try:
+         r.write_document(p.parse())
