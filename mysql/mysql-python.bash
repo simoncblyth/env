@@ -188,9 +188,9 @@ mysql-python-which(){
    which mysql_config
 }
 
-mysql-python-pull(){
+mysql-python-fetch(){
    mysql-python-cd
-   git pull
+   git fetch     ## pulling is not a good idea, as does merge also ... better to do that manually
 }
 mysql-python-push(){
    mysql-python-cd

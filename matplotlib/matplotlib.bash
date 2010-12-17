@@ -35,12 +35,33 @@ matplotlib-usage(){
    brought me to matplotlib as a higher level way of proceeding.
   
    I looked into  
-      * http://raphaeljs.com/       (hindered by supporting IE canvas... not an SVG API)
+        * http://raphaeljs.com/       (hindered by supporting IE canvas... not an SVG API)
    Interactive SVG 
         * http://www.svgopen.org/2009/papers/14-Interactive_SVG_with_JSXGraph/  
       
-     
-           
+   html5 : sliders are trivial with html5 ... just a range input 
+        * http://webhole.net/2010/04/24/html-5-slider-input-tutorial/
+{{{
+<html>
+<body>
+<input type="range" min="0" max="50" value="0" step="5" onchange="showValue(this.value)" />
+<span id="range">0</span>
+<script type="text/javascript">
+function showValue(newValue)
+{
+	document.getElementById("range").innerHTML=newValue;
+}
+</script>
+</body>
+</html>
+}}} 
+
+
+   svg slider ...
+       * http://www.carto.net/papers/svg/gui/slider/
+       * http://www.carto.net/papers/svg/gui/slider/index.svg     
+   
+   
 
 
 EOU

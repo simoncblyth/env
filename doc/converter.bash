@@ -86,30 +86,44 @@ converter-dir(){ echo $(local-base)/env/doc/converter ; }
 converter-cd(){  cd $(converter-dir)/$(converter-rdir) ; }
 converter-mate(){ mate $(converter-dir) ; }
 converter-get(){
-   local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
-   svn co http://svn.python.org/projects/doctools/converter/
+    local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
+
+    [ -d converter ] && echo $msg converter dir exists already deklete and rerun && return 0
+
+    svn co http://svn.python.org/projects/doctools/converter/
    converter-patch-apply
 }
 
 converter-rdir(){ echo converter ; }
 
-converter-texdir(){ echo $DYB/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex/database ; }
+converter-texpath(){ echo Documentation/OfflineUserManual/tex/database ; }
+converter-texdir(){ echo $DYB/NuWa-trunk/dybgaudi/$(converter-texpath) ; }
 converter-rstdir(){
-   local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && echo $dir 
+    local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && echo $dir 
 }
 
 converter-sdir(){ echo $(env-home)/doc/converter ; }
 converter-scd(){  cd $(converter-sdir) ; }
 converter-ln(){
-   python-
-   python-ln $(converter-dir)/converter
+    python-
+    python-ln $(converter-dir)/converter
 }
-converter-dyb(){
-    python $(converter-sdir)/dyb.py 
+
+converter-dyb(){ python $(converter-sdir)/dyb.py ; }
+converter--(){   python $(converter-sdir)/convert.py ; }
+
+converter-test(){
+    local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && cd $dir
+    [ ! -d "$(basename $(converter-texpath))" ] && svn co http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/$(converter-texpath)
+    cd $(basename $(converter-texpath))
+    local name=database_interface
+    cat $name.tex | converter-- > $name.rst
 }
-converter-patch-path(){
-    echo $(converter-sdir)/converter-add-tabular.patch
-}
+
+
+
+
+converter-patch-path(){ echo $(converter-sdir)/converter-add-tabular.patch ; }
 converter-patch-apply(){
    [ ! -f "$(converter-patch-path)" ] && return 0
    converter-cd
