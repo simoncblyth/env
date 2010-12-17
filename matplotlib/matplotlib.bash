@@ -260,8 +260,8 @@ EOU
 }
 
 matplotlib-name(){
-   #echo matplotlib         ## trunk 
-    echo matplotlib-1.0.0   ## tarball
+    echo matplotlib         ## trunk 
+   #echo matplotlib-1.0.0   ## tarball
 }
 matplotlib-update(){ svn up $(matplotlib-dir) ; }
 
@@ -313,7 +313,7 @@ matplotlib-preqs(){
 
 matplotlib-configdir(){  python -c "import matplotlib ; print matplotlib.get_configdir() " ; }
 matplotlib-installdir(){ python -c "import matplotlib,os ; print os.path.dirname(matplotlib.__file__) " ; }
-matplotlib-version(){    python -c "import matplotlib ; print matplotlib.__version__ " 2>/dev/null ; }
+matplotlib-version(){    python -c "import matplotlib ; print matplotlib.__version__ "  ; }
 matplotlib-rcpath(){     python -c "import matplotlib ; print matplotlib.matplotlib_fname() " ; }
 matplotlib-edit(){       vi $(matplotlib-rcpath) ; }     
 matplotlib-easy(){       grep matplotlib $(python-site)/easy-install.pth ; }

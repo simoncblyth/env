@@ -25,7 +25,7 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DATABASES = dict([ (k,DBConf(k,verbose=False).django) for k in "default prior".split() ] )  
+DATABASES = dict([ (k,DBConf(k,verbose=False).django) for k in "default client".split() ] )  
 
 
 
