@@ -100,6 +100,12 @@ Files MySQLdb-1.2.3/MySQLdb/setup.cfg and MySQL-python-1.2.3/setup.cfg differ
 
    git clone git://github.com/scb-/mysql_numpy.git
 
+
+== Add public keys to git ==
+
+   * https://github.com/account
+
+
 == PUSHING FROM ANOTHER NODE ==
 
   If you get ...
@@ -120,6 +126,28 @@ fatal: remote error:
 
    adustman on numpy and mysql-python from 2000
        http://mail.scipy.org/pipermail/numpy-discussion/2000-April/000129.html
+
+== build issues on N ==
+
+=== The version info needs to be quoted ===
+
+   Reproducible with 
+        make 
+{{{
+gcc: _mysql.c
+sh: -c: line 0: syntax error near unexpected token `('
+sh: -c: line 0: `( gcc -pthread -fno-strict-aliasing -DNDEBUG -O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -march=i386 -mtune=generic -fasynchronous-unwind-tables -D_GNU_SOURCE -fPIC -fPIC -Dversion_info=(1,2,3,'final',0) -D__version__=1.2.3 -I/usr/include/mysql -I/usr/lib/python2.4/site-packages/numpy/core/include -I/usr/include/python2.4 -c _mysql.c -o build/temp.linux-i686-2.4/_mysql.o -g -pipe -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m32 -fasynchronous-unwind-tables -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -fno-strict-aliasing -fwrapv ; echo $? > /tmp/tmpZj36Dj/4VfOrA ) 2>&1 | tee /tmp/tmpZj36Dj/hRNszn '
+_exec_command_posix failed (status=512)
+}}}
+
+     The version info needs to be quoted to get past compiler ...
+           -Dversion_info=(1,2,3,'final',0) 
+           -Dversion_info="(1,2,3,'final',0)" 
+
+
+=== preinstalled old numpy ... need to upgrade or avoid conflict ===
+
+
 
 
 
