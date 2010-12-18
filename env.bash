@@ -908,3 +908,7 @@ mplh5canvas-(){      . $(env-home)/matplotlib/mplh5canvas.bash && mplh5canvas-en
 gnocl-(){      . $(env-home)/gui/gnocl.bash && gnocl-env $* ; }
 sphinx-(){      . $(env-home)/doc/sphinx.bash && sphinx-env $* ; }
 converter-(){      . $(env-home)/doc/converter.bash && converter-env $* ; }
+redmine-(){      . $(env-home)/redmine/redmine.bash && redmine-env $* ; }
+redmine-hudson-(){      . $(env-home)/redmine/redmine-hudson.bash && redmine-hudson-env $* ; }
+hudson-(){      . $(env-home)/hudson/hudson.bash && hudson-env $* ; }
+buildbot-(){      . $(env-home)/buildbot/buildbot.bash && buildbot-env $* ; }
