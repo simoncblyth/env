@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 r"""
 
 \begin{document}
@@ -7,10 +8,17 @@ r"""
 \item blue
 \end{itemize}
 
+
+hello & worlf
+hello ~ worlf
+
 Some content
 \begin{tabular}{ccc}
  one & two & three \\
  red & green & blue \\
+ cyan  & magenta & yellow \\
+ itsy & \emph{bitsy} and ditsy & yellow \\
+ polka & dot & bikini  \\
 \end{tabular}
 
 

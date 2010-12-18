@@ -9,25 +9,60 @@ sphinx-usage(){
      sphinx-dir : $(sphinx-dir)
 
 
-    == tryout sphinx ==
+  == Features ==
 
-       from the /tmp/out where converterd .rst are created
-       
-       setup the conf.py and other reqs : 
-           sphinx-quickstart    ## used defaults for almost all questions asked
+    Pull docs out of python modules ..
+         http://sphinx.pocoo.org/ext/autodoc.html#module-sphinx.ext.autodoc
 
-           make html
+    Lots of extensions : includes TracLinks 
+         https://bitbucket.org/birkenfeld/sphinx-contrib/src
 
-       cd `nginx-htdocs`
-       sudo ln -s /tmp/out/_build/html sphinxdemo 
-       nginx-edit
-       nginx-stop  ## sv will auto re-start with new comnfig
+    Pretty html
+         http://sphinx.pocoo.org/theming.html
 
-    
+  == tryout sphinx ==
 
-       http://cms01.phys.ntu.edu.tw/sphinxdemo/database_interface.html#concepts
+      1) from directory with .rst
+             sphinx-quickstart    
+                   answered defaults for almost all questions asked
+                   creates conf.py + Makefile ... 
+
+      2) add basenames of the rst to the toctree in the index.rst 
+         created by quickstart  (same indentation and spacing is required) 
+
+         .. toctree::
+               :maxdepth: 2
+
+               database_interface 
+               database_maintanence
+
+       3) make html
+             open _build/html/index.html  
+             file:///tmp/env/converter-test/database/_build/html/database_interface.html
+
+       4) make latexpdf
+ 
+       5) publish with nginx 
+
+            cd `nginx-htdocs`
+            sudo ln -s /tmp/out/_build/html sphinxdemo 
+            nginx-edit
+            nginx-stop  ## sv will auto re-start with new comnfig
+
+            http://cms01.phys.ntu.edu.tw/sphinxdemo/database_interface.html#concepts
 
 
+  == OSX install with macports py26 ==
+
+     Install plucked Jinja2 and Pygments 
+
+     Installing sphinx-build script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+     Installing sphinx-quickstart script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+     Installing sphinx-autogen script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+  
+     Need to sphinx-path on OSX to put these in PATH 
+
+  == about reStructured text  ==
 
     Online rst renderer
        http://www.tele3.cz/jbar/rest/rest.html
@@ -50,5 +85,22 @@ sphinx-get(){
    hg clone http://bitbucket.org/birkenfeld/sphinx 
 }
 
+sphinx-path(){
+   if [ "$(uname)" == "Darwin" ]; then
+      export PATH=/opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin:$PATH
+   fi
+}
+
+
 sphinx-version(){   python -c "import sphinx as _ ; print _.__version__  " ; }
 sphinx-pkgsource(){ python -c "import sphinx as _ ; print _.__file__  " ;   }
+
+sphinx-test(){
+   cd  /tmp/env/converter-test
+   cd database
+
+   
+
+}
+
+

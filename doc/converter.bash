@@ -73,6 +73,33 @@ hbox
           converter.restwriter.WriterError: no handler for tabular environment
 
 
+   == links ==
+
+        http://docutils.sourceforge.net/docs/user/rst/quickref.html#hyperlink-targets
+
+   == tables/tabular ==
+
+         http://docutils.sourceforge.net/docs/ref/rst/directives.html#id25
+
+         Use "table" directive in order to propagate a title, so can propagate table captions 
+         like this  
+
+   == figures/includegrapics ==
+
+         \begin{figure}[ht]
+         \begin{center}
+         \includegraphics[scale=.35]{../fig/dbm_db_distribution}
+         \caption{\label{dbm_db_distribution_fig}}
+         \end{center}
+         \end{figure}
+
+         http://docutils.sourceforge.net/docs/ref/rst/directives.html#images
+
+         .. figure:: path/to/file
+            :scale: 50%
+
+            Caption para goes here.
+
 
    == ATTEMPTING TO MAKE LATEX+PDF FROM THE RST ==
 
@@ -116,8 +143,14 @@ converter-test(){
     local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && cd $dir
     [ ! -d "$(basename $(converter-texpath))" ] && svn co http://dayabay.ihep.ac.cn/svn/dybsvn/dybgaudi/trunk/$(converter-texpath)
     cd $(basename $(converter-texpath))
-    local name=database_interface
-    cat $name.tex | converter-- > $name.rst
+
+    local names="database_interface database_maintanence database_tables"
+    local name
+    for name in $names ; do
+        echo converting $name.tex to $name.rst
+        cat $name.tex | converter-- > $name.rst
+    done 
+
 }
 
 

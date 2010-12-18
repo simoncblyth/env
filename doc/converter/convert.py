@@ -8,7 +8,7 @@ def _convert_file(inf, outf, doraise=True, splitchap=False,
     p = DocParser(Tokenizer(inf.read()).tokenize(), inf)
     r = RestWriter(outf, splitchap, toctree, deflang, labelprefix)
     r.write_document(p.parse())
-    outf.close()
+    #outf.close()
     p.finish()  # print warnings about unrecognized commands
 
 if __name__ == '__main__':

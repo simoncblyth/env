@@ -1,17 +1,61 @@
+Index: test_tokenizer.py
+===================================================================
+--- test_tokenizer.py	(revision 0)
++++ test_tokenizer.py	(revision 0)
+@@ -0,0 +1,8 @@
++from converter.tokenizer import Tokenizer
++
++t = Tokenizer("hello ~ world & yeah & ooodles & doodles ")
++ts = t.tokenize()
++
++for x in ts:
++    print x
++
 Index: latexparser.py
 ===================================================================
---- latexparser.py	(revision 87228)
+--- latexparser.py	(revision 87315)
 +++ latexparser.py	(working copy)
+@@ -14,11 +14,11 @@
+      DescLineCommandNode, InlineNode, IndexNode, SectioningNode, \
+      EnvironmentNode, DescEnvironmentNode, TableNode, VerbatimNode, \
+      ListNode, ItemizeNode, EnumerateNode, DescriptionNode, \
+-     DefinitionsNode, ProductionListNode
++     DefinitionsNode, ProductionListNode, AmpersandNode
+ 
+ from .util import umlaut, empty
++import sys
+ 
+-
+ class ParserError(Exception):
+     def __init__(self, msg, lineno):
+         Exception.__init__(self, msg, lineno)
 @@ -107,6 +107,8 @@
          mathmode = False
          math = ''
          for l, t, v, r in self.tokens:
-+            #print "[%s][%s][%s][%s]" % ( l,t,v,r )  ## line, type[command/text/egroup/...] ,  
++            sys.stderr.write("[%s][%s][%s][%s]\n" % ( l,t,v,r ))  ## line, type[command/text/egroup/...] ,  
 +
              if condition and condition(t, v, bracelevel):
                  return nodelist.flatten()
              if mathmode:
-@@ -461,6 +463,10 @@
+@@ -134,6 +136,8 @@
+                 nodelist.append(CommentNode(v))
+             elif t == 'tilde':
+                 nodelist.append(NbspNode())
++            elif t == 'ampersand':
++                nodelist.append(AmpersandNode())
+             elif t == 'mathmode':
+                 mathmode = True
+             elif t == 'parasep':
+@@ -271,6 +275,7 @@
+             'samp': 'M',
+             'character': 'M',
+             'texttt': 'M',
++            'code': 'M',
+ 
+             # mapped to `default role`
+             'var': 'M',
+@@ -461,6 +466,10 @@
          raise ParserError('no handler for \\%s command' % cmdname,
                            self.tokens.peek()[0])
  
@@ -22,7 +66,15 @@ Index: latexparser.py
      def handle_begin(self):
          envname, = self.parse_args('begin', 'T')
          handler = getattr(self, 'handle_%s_env' % envname.text, None)
-@@ -693,6 +699,35 @@
+@@ -564,6 +573,7 @@
+     handle_sloppypar_env = handle_document_env
+     handle_flushleft_env = handle_document_env
+     handle_math_env = handle_document_env
++    handle_table_env = handle_document_env
+ 
+     def handle_verbatim_env(self):
+         text = []
+@@ -693,6 +703,63 @@
      handle_tablev_env = mk_table_handler(None, 'v', 5)
      handle_longtablev_env = handle_tablev_env
  
@@ -33,22 +85,50 @@ Index: latexparser.py
 +        colspec = args[0].text 
 +        colspec = colspec.replace('|','')
 +        numcols = len(colspec)
-+        print "_tabylat %s colspec %s numcols %d ", repr(args), colspec, numcols
-+        
-+        headings = []
-+        lines = []
-+        for l, t, v, r in self.tokens:
-+            print "[%s][%s][%s][%s]" % (l,t,v,r)
-+            if t == 'command':
-+                if v == 'end':
-+                    arg = self.parse_args('\\end', 'T')
-+                    assert arg[0].text.endswith('tabular'), arg[0].text
-+                    break
-+        #for line in lines:
-+        #    if not empty(line[0]):
-+        #        line[0] = InlineNode(firstcolformat, [line[0]])
-+        return TableNode(numcols, headings, lines)
-+        
++        sys.stderr.write( "_tabylat %s colspec %s numcols %d \n" % (  repr(args), colspec, numcols ) )
++       
++        all = []
++        running = [False]
++
++        def endrow_condition(t, v, bracelevel):
++            #print "endrow t[%s] v[%s] b[%s] " % ( t, v, bracelevel )
++            if self.environment_end(t, v):
++                del running[:]
++                return True
++            if t == 'command' and v == "\\":
++                return True
++            return False
++
++        while running:
++            row = NodeList() 
++            row.append( self.parse_until(endrow_condition) )
++            row.append( AmpersandNode())
++
++            cols = []
++            elem = NodeList()            
++            for c in row:
++                if isinstance(c, AmpersandNode):
++                    cols.append(elem)
++                    elem = NodeList()
++                else:
++                    elem.append(c)
++
++            sys.stderr.write("row %s \n" % repr(row))
++            if len(cols) == numcols: 
++                all.append( cols )
++            else:
++                pass
++                print "tail skip ", ( repr(cols) , numcols, len(cols) )
++
++
++        if len(all) > 0:
++            headings = all[0]
++            lines = all[1:]
++            return TableNode(numcols, headings, lines)
++        else:
++            print "WARNING returning EMPTY"
++            return EmptyNode()        
++
 + 
 +    def handle_figure_env(self):
 +        return EmptyNode()
@@ -58,9 +138,87 @@ Index: latexparser.py
      def handle_productionlist_env(self):
          env_args = self.parse_args('productionlist', 'Q')
          items = []
+Index: restwriter.py
+===================================================================
+--- restwriter.py	(revision 87315)
++++ restwriter.py	(working copy)
+@@ -814,6 +814,7 @@
+         else:
+             self.curpar.append(fixup_text(node.text))
+ 
++    visit_AmpersandNode = visit_EmptyNode
+     visit_NbspNode = visit_TextNode
+     visit_SimpleCmdNode = visit_TextNode
+ 
+Index: tokenizer.py
+===================================================================
+--- tokenizer.py	(revision 87315)
++++ tokenizer.py	(working copy)
+@@ -23,6 +23,7 @@
+         ']': 'eoptional',
+         '~': 'tilde',
+         '$': 'mathmode',
++        '&': 'ampersand',
+     }
+ 
+     @property
+@@ -35,6 +36,7 @@
+     def _tokenize(self):
+         lineno = 1
+         while not self.eos:
++            #print self
+             if self.scan(r'\\verb([^a-zA-Z])(.*?)(\1)'):
+                 # specialcase \verb here
+                 yield lineno, 'command', 'verb', '\\verb'
+@@ -51,7 +53,7 @@
+             elif self.scan(r'%(.*)\n[ \t]*'):
+                 yield lineno, 'comment', self.match.group(1), self.mtext
+                 lineno += 1
+-            elif self.scan(r'[{}\[\]~$]'):
++            elif self.scan(r'[{}\[\]~&$]'):
+                 yield lineno, self.specials[self.mtext], self.mtext, self.mtext
+             elif self.scan(r'(\n[ \t]*){2,}'):
+                 lines = self.mtext.count('\n')
+@@ -60,7 +62,7 @@
+             elif self.scan(r'\n[ \t]*'):
+                 yield lineno, 'text', ' ', self.mtext
+                 lineno += 1
+-            elif self.scan(r'[^\\%}{\[\]~\n\$]+'):
++            elif self.scan(r'[^\\%}{\[\]~\n\$&]+'):
+                 yield lineno, 'text', self.mtext, self.mtext
+             else:
+                 raise RuntimeError('unexpected text on line %d: %r' %
+@@ -122,3 +124,10 @@
+     def push(self, item):
+         """ Push a token back to the stream. """
+         self._pushed.append(item)
++
++
++
++
++
++
++
+Index: docnodes.py
+===================================================================
+--- docnodes.py	(revision 87315)
++++ docnodes.py	(working copy)
+@@ -120,6 +120,12 @@
+         self.text = ''
+ 
+ 
++class AmpersandNode(DocNode):
++    """ An ampersand node. """
++    def __repr__(self):
++        return 'Ampersand'
++
++
+ class NbspNode(TextNode):
+     """ A non-breaking space. """
+     def __init__(self, *args):
 Index: __init__.py
 ===================================================================
---- __init__.py	(revision 87228)
+--- __init__.py	(revision 87315)
 +++ __init__.py	(working copy)
 @@ -30,6 +30,7 @@
          outf = codecs.open(outfile, 'w', 'utf-8')
