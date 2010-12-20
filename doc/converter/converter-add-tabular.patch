@@ -1,3 +1,34 @@
+Index: test_py24with.py
+===================================================================
+--- test_py24with.py	(revision 0)
++++ test_py24with.py	(revision 0)
+@@ -0,0 +1,26 @@
++
++from py24with import with_
++
++class DemoContext(object):
++    def __enter__(self):
++        print "Enter %s" % self
++    def __exit__(self, *args):
++        print "Exit %s(%s)" % (self, args)
++x = DemoContext()
++
++
++
++@with_
++def _(it = x):
++    print "Body %s" % it
++
++@with_
++def _(it = x):
++    print "Body before %s" % it
++    raise "Nothing"
++
++
++
++
++
++
 Index: test_tokenizer.py
 ===================================================================
 --- test_tokenizer.py	(revision 0)
@@ -13,16 +44,23 @@ Index: test_tokenizer.py
 +
 Index: latexparser.py
 ===================================================================
---- latexparser.py	(revision 87315)
+--- latexparser.py	(revision 87407)
 +++ latexparser.py	(working copy)
-@@ -14,11 +14,11 @@
+@@ -9,16 +9,16 @@
+     :license: BSD.
+ """
+ 
+-from .docnodes import CommentNode, RootNode, NodeList, ParaSepNode, \
++from converter.docnodes import CommentNode, RootNode, NodeList, ParaSepNode, \
+      TextNode, EmptyNode, NbspNode, SimpleCmdNode, BreakNode, CommandNode, \
       DescLineCommandNode, InlineNode, IndexNode, SectioningNode, \
       EnvironmentNode, DescEnvironmentNode, TableNode, VerbatimNode, \
       ListNode, ItemizeNode, EnumerateNode, DescriptionNode, \
 -     DefinitionsNode, ProductionListNode
 +     DefinitionsNode, ProductionListNode, AmpersandNode
  
- from .util import umlaut, empty
+-from .util import umlaut, empty
++from converter.util import umlaut, empty
 +import sys
  
 -
@@ -140,9 +178,254 @@ Index: latexparser.py
          items = []
 Index: restwriter.py
 ===================================================================
---- restwriter.py	(revision 87315)
+--- restwriter.py	(revision 87407)
 +++ restwriter.py	(working copy)
-@@ -814,6 +814,7 @@
+@@ -58,7 +58,7 @@
+ """
+ 
+ # yay!
+-from __future__ import with_statement
++#from __future__ import with_statement
+ 
+ import re
+ import StringIO
+@@ -78,16 +78,23 @@
+ textwrap.TextWrapper.wordsep_re = new_wordsep_re
+ wrapper = textwrap.TextWrapper(width=WIDTH, break_long_words=False)
+ 
+-from .docnodes import RootNode, TextNode, NodeList, InlineNode, \
++from converter.docnodes import RootNode, TextNode, NodeList, InlineNode, \
+      CommentNode, EmptyNode
+-from .util import fixup_text, empty, text, my_make_id, \
++from converter.util import fixup_text, empty, text, my_make_id, \
+      repair_bad_inline_markup
+-from .filenamemap import includes_mapping
++from converter.filenamemap import includes_mapping
+ 
++from converter.py24with import with_
++
++
+ class WriterError(Exception):
+     pass
+ 
+ 
++
++
++
++
+ class Indenter(object):
+     """ Context manager factory for indentation. """
+     def __init__(self, writer):
+@@ -194,7 +201,7 @@
+     def write(self, text='', nl=True, first=False):
+         """ Write a string to the output file. """
+         if first:
+-            self.fp.write((self.indentation if self.indentfirstline else '') + text)
++            self.fp.write(('',self.indentation)[self.indentfirstline==True] + text)
+             self.indentfirstline = True
+         elif text: # don't write indentation only
+             self.fp.write(self.indentation + text)
+@@ -210,8 +217,12 @@
+             self.footnotes = [] # first clear since indented() will flush
+             for footnode in footnotes:
+                 self.write('.. [#] ', nl=False)
+-                with self.indented(3, firstline=False):
++
++                @with_(it=self.indented(3, firstline=False))
++                def _(it=self.indented(3, firstline=False)):
+                     self.visit_node(footnode)
++                #with self.indented(3, firstline=False):
++                #    self.visit_node(footnode)
+ 
+     def write_directive(self, name, args='', node=None, spabove=False, spbelow=True):
+         """ Helper to write a ReST directive. """
+@@ -220,10 +231,15 @@
+         self.write('.. %s::%s' % (name, args and ' '+args))
+         if spbelow:
+             self.write()
+-        with self.indented():
++        @with_ 
++        def _(it=self.indented()):
+             if node is not None:
+                 self.visit_node(node)
++        #with self.indented():
++        #    if node is not None:
++        #        self.visit_node(node)
+ 
++
+     def write_sectionmeta(self):
+         mod = self.sectionmeta
+         self.sectionmeta = None
+@@ -354,7 +370,10 @@
+     def get_node_text(self, node, wrap=False, width=None):
+         """ Write the node to a temporary paragraph and return the result
+             as a string. """
+-        with self.noflush:
++        #with self.noflush:
++        ret = ""  ## dodgy
++        @with_
++        def _(it=self.noflush):
+             self._old_curpar = self.curpar
+             self.curpar = []
+             self.visit_node(node)
+@@ -391,7 +410,9 @@
+         if noescape:
+             self.noescape += 1
+         self.curpar.append(pre)
+-        with self.noflush:
++        #with self.noflush:
++        @with_
++        def _(it=self.noflush):
+             self.visit_node(node)
+         self.curpar.append(post)
+         if noescape:
+@@ -418,8 +439,7 @@
+             if node.params.get('author'):
+                 self.write(':Author: %s%s' %
+                            (self.get_node_text(node.params['author']),
+-                            (' <%s>' % self.get_node_text(node.params['authoremail'])
+-                             if 'authoremail' in node.params else '')))
++                            ('', ' <%s>' % self.get_node_text(node.params.get('authoremail','')))['authoremail' in node.params ]   ))
+                 self.write()
+ 
+             if node.params.get('date'):
+@@ -486,7 +506,9 @@
+         elif envname == 'abstract':
+             self.write_directive('topic', 'Abstract', node.content, spabove=True)
+         elif envname == 'quote':
+-            with self.indented():
++            #with self.indented():
++            @with_
++            def _(it=self.indented()):
+                 self.visit_node(node.content)
+             self.write()
+         elif envname == 'quotation':
+@@ -562,7 +584,9 @@
+         if envname.endswith('ni'):
+             self.write('   :noindex:')
+         self.write()
+-        with self.indented():
++        #with self.indented():
++        @with_
++        def _(it=self.indented()):
+             self.visit_node(node.content)
+ 
+ 
+@@ -627,12 +651,16 @@
+             elif cmdname == 'seetext':
+                 self.visit_node(node.args[0])
+                 return
+-            with self.indented():
++            #with self.indented():
++            @with_
++            def _(it=self.indented()):
+                 self.visit_node(node.args[i])
+         elif cmdname in ('versionchanged', 'versionadded'):
+             self.write('.. %s:: %s' % (cmdname, text(node.args[1])))
+             if not empty(node.args[0]):
+-                with self.indented():
++                #with self.indented():
++                @with_
++                def _(it=self.indented()):
+                     self.visit_node(node.args[0])
+                     self.curpar.append('.')
+             else:
+@@ -643,7 +671,9 @@
+         elif cmdname == 'localmoduletable':
+             if self.toctree is not None:
+                 self.write_directive('toctree', '', spbelow=True, spabove=True)
+-                with self.indented():
++                #with self.indented():
++                @with_ 
++                def _(it=self.indented()):
+                     for entry in self.toctree:
+                         self.write(entry + '.rst')
+             else:
+@@ -695,7 +725,9 @@
+         else:
+             self.curpar.append('::')
+         self.flush_par()
+-        with self.indented():
++        #with self.indented():
++        @with_
++        def _(it=self.indented()):
+             if isinstance(node.content, TextNode):
+                 # verbatim
+                 lines = textwrap.dedent(text(node.content).lstrip('\n')).split('\n')
+@@ -722,7 +754,9 @@
+         realwidths = [0] * node.numcols
+         colwidth = (width / node.numcols) + 5
+         # don't allow paragraphs in table cells for now
+-        with self.noflush:
++        #with self.noflush:
++        @with_
++        def _(it=self.noflush):
+             for line in lines:
+                 cells = []
+                 for i, cell in enumerate(line):
+@@ -730,7 +764,8 @@
+                     if len(par) == 1 and self.note_re.match(par[0].strip()):
+                         # special case: escape "(1)" to avoid enumeration
+                         par[0] = '\\' + par[0]
+-                    maxwidth = max(map(len, par)) if par else 0
++                    #maxwidth = max(map(len, par)) if par else 0
++                    maxwidth = par and max(map(len, par)) or 0
+                     realwidths[i] = max(realwidths[i], maxwidth)
+                     cells.append(par)
+                 fmted_rows.append(cells)
+@@ -768,11 +803,15 @@
+             if not empty(title):
+                 # do it like in a description list
+                 self.write(self.get_node_text(title))
+-                with self.indented():
++                #with self.indented():
++                @with_
++                def _(it=self.indented()):
+                     self.visit_node(content)
+             else:
+                 self.curpar.append('* ')
+-                with self.indented(2, firstline=False):
++                #with self.indented(2, firstline=False):
++                @with_
++                def _(it=self.indented(2, firstline=False)):
+                     self.visit_node(content)
+ 
+     def visit_EnumerateNode(self, node):
+@@ -780,14 +819,18 @@
+         for title, content in node.items:
+             assert empty(title)
+             self.curpar.append('#. ')
+-            with self.indented(3, firstline=False):
++            #with self.indented(3, firstline=False):
++            @with_
++            def _(it=self.indented(3, firstline=False)):
+                 self.visit_node(content)
+ 
+     def visit_DescriptionNode(self, node):
+         self.flush_par()
+         for title, content in node.items:
+             self.write(self.get_node_text(title))
+-            with self.indented():
++            #with self.indented():
++            @with_ 
++            def _(it=self.indented()):
+                 self.visit_node(content)
+ 
+     visit_DefinitionsNode = visit_DescriptionNode
+@@ -795,8 +838,10 @@
+     def visit_ProductionListNode(self, node):
+         self.flush_par()
+         arg = text(node.arg)
+-        self.write('.. productionlist::%s' % (' '+arg if arg else ''))
+-        with self.indented():
++        self.write('.. productionlist::%s' % ( arg and ' '+arg or ''))
++        #with self.indented():
++        @with_
++        def _(it=self.indented()):
+             for item in node.items:
+                 if not empty(item[0]):
+                     lasttext = text(item[0])
+@@ -814,6 +859,7 @@
          else:
              self.curpar.append(fixup_text(node.text))
  
@@ -152,8 +435,17 @@ Index: restwriter.py
  
 Index: tokenizer.py
 ===================================================================
---- tokenizer.py	(revision 87315)
+--- tokenizer.py	(revision 87407)
 +++ tokenizer.py	(working copy)
+@@ -11,7 +11,7 @@
+ 
+ import re
+ 
+-from .scanner import Scanner
++from converter.scanner import Scanner
+ 
+ class Tokenizer(Scanner):
+     """ Lex a Python doc LaTeX document. """
 @@ -23,6 +23,7 @@
          ']': 'eoptional',
          '~': 'tilde',
@@ -199,9 +491,74 @@ Index: tokenizer.py
 +
 +
 +
+Index: py24with.py
+===================================================================
+--- py24with.py	(revision 0)
++++ py24with.py	(revision 0)
+@@ -0,0 +1,25 @@
++"""
++   http://stackoverflow.com/questions/1547526/improvizing-a-drop-in-replacement-for-the-with-statement-for-python-2-4 
++ 
++   A hack to provide fairly easy backporting of "with" statements to py24
++
++"""
++import sys
++def with_(func):
++    def decorated(body = func):
++        contexts = body.func_defaults
++        try:
++            exc = None, None, None
++            try:
++                for context in contexts:
++                    context.__enter__()
++                body()
++            except:
++                exc = sys.exc_info()
++                raise
++        finally:
++            for context in reversed(contexts):
++                context.__exit__(*exc)
++    decorated()
++
++
+Index: util.py
+===================================================================
+--- util.py	(revision 87407)
++++ util.py	(working copy)
+@@ -11,7 +11,7 @@
+ 
+ from docutils.nodes import make_id
+ 
+-from .docnodes import TextNode, EmptyNode, NodeList
++from converter.docnodes import TextNode, EmptyNode, NodeList
+ 
+ 
+ def umlaut(cmd, c):
+@@ -34,10 +34,10 @@
+         elif cmd == '`':
+             return {'o': u'ò'}[c]
+         else:
+-            from .latexparser import ParserError
++            from converter.latexparser import ParserError
+             raise ParserError('invalid umlaut \\%s' % cmd, 0)
+     except KeyError:
+-        from .latexparser import ParserError
++        from converter.latexparser import ParserError
+         raise ParserError('unsupported umlaut \\%s%s' % (cmd, c), 0)
+ 
+ def fixup_text(text):
+@@ -56,7 +56,7 @@
+         for subnode in node:
+             restext += text(subnode)
+         return restext
+-    from .restwriter import WriterError
++    from converter.restwriter import WriterError
+     raise WriterError('text() failed for %r' % node)
+ 
+ markup_re = re.compile(r'(:[a-zA-Z0-9_-]+:)?`(.*?)`')
 Index: docnodes.py
 ===================================================================
---- docnodes.py	(revision 87315)
+--- docnodes.py	(revision 87407)
 +++ docnodes.py	(working copy)
 @@ -120,6 +120,12 @@
          self.text = ''
@@ -218,8 +575,27 @@ Index: docnodes.py
      def __init__(self, *args):
 Index: __init__.py
 ===================================================================
---- __init__.py	(revision 87315)
+--- __init__.py	(revision 87407)
 +++ __init__.py	(working copy)
+@@ -14,13 +14,13 @@
+ import codecs
+ from os import path
+ 
+-from .tokenizer import Tokenizer
+-from .latexparser import DocParser
+-from .restwriter import RestWriter
+-from .filenamemap import (fn_mapping, copyfiles_mapping, newfiles_mapping,
++from converter.tokenizer import Tokenizer
++from converter.latexparser import DocParser
++from converter.restwriter import RestWriter
++from converter.filenamemap import (fn_mapping, copyfiles_mapping, newfiles_mapping,
+                           rename_mapping, dirs_to_make, toctree_mapping,
+                           amendments_mapping)
+-from .console import red, green
++from converter.console import red, green
+ 
+ def convert_file(infile, outfile, doraise=True, splitchap=False,
+                  toctree=None, deflang=None, labelprefix=''):
 @@ -30,6 +30,7 @@
          outf = codecs.open(outfile, 'w', 'utf-8')
      else:
