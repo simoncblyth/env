@@ -24,11 +24,50 @@ converter-usage(){
         converter-ln
                  hookup to python
 
+    == Pre-requisites ==
+
+      * py25+  (py24 is NOT supported)
+      * docutils
+
+
+   == nuwa sphinx ==
+
+      * nuwa (which includes py27)
+      * virtualenv hookup 
+         * {{{./dybinst trunk external virtualenv}}} 
+
+      Install remainder into a virtual python env :
+
+          * pip install sphinx
+
+          * pip install -e git+git://github.com/scb-/converter.git#egg=converter
+                ## cannot push back to origin 
+          * pip install -e git+git@github.com:scb-/converter.git#egg=converter
+                ## can push to origin, if have the key  
+     
+      Convert .tex sources to .rst
+          * converter-test           
+                ## TODO ... standalone python walker or main.tex "parser" for all 
+                            OfflineUserManual, not just database dir  
+
+      Quickstart sphinx in the folder containing source .tex (and .rst)
+          * sphinx-quickstart
+          * make html 
+          
+      Configure nginx to serve the manual
+          * http://belle7.nuu.edu.tw/oum
+
+      Create pdf conversion with "make latexpdf", serve it at :
+          * http://belle7.nuu.edu.tw/oum/OfflineUserManual.pdf
+      via relative link from _build/html
+          * OfflineUserManual.pdf -> ../latex/OfflineUserManual.pdf
+ 
+      HMM : little point CMTifying this,  given its highly non-standard nature
+
 
     == ISSUES ==
 
         On N, py24 doesnt do relative imports ..
-
 
    == Git setup ==
 
@@ -171,7 +210,7 @@ converter-mate(){ mate $(converter-dir) ; }
 converter-url(){
    case $USER in 
       blyth) echo git@github.com:scb-/converter.git ;;
-          *) echo git://github.com:scb-/converter.git  ;;
+          *) echo git://github.com/scb-/converter.git  ;;
    esac 
 }
 
