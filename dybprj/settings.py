@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'guardian',                   ## see guardian- 
     'dybprj.db',                  ## see dybprj-
     'dybprj.olive',
+    'dybprj.job',
     'dybprj.cust_comments',
     'django_extensions',          ## see djext-
 )
