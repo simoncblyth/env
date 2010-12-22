@@ -71,7 +71,9 @@ matplotlib-issues(){ cat << EOU
 
   == ISSUE : pip install matplotlib ... plucks 0.91.1 (from 2007) ==
 
+     Workaround: skip pypi index and target the tarball directly :
        pip install -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz matplotlib
+
 
   == ISSUE BLANK CANVAS WITH TkAgg ON C and N ... ==
 

@@ -163,6 +163,14 @@ index 87e140c..0f84d87 100644
          http://efreedom.com/Question/1-877578/Fastest-Way-Convert-Numpy-Array-Sparse-Dictionary
 
 
+     == pip source installation of branch ==
+
+          pip install -e git+git@github.com:scb-/numpy.git@datetime64s-hours-more-than-24#egg=numpy 
+               ## pushable clone requires passphrase for key 
+
+          pip install -e git+git://github.com/scb-/numpy.git@datetime64s-hours-more-than-24#egg=numpy 
+               ## un-pushable clone
+
 EOU
 }
 numpy-dir(){ echo $(local-base)/env/npy/$(numpy-name) ; }

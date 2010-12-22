@@ -65,6 +65,45 @@ converter-usage(){
       HMM : little point CMTifying this,  given its highly non-standard nature
 
 
+    == linking to pdf without absolute URLs in source ? ==
+
+       * want absolute pdf visible in the PDF document 
+       * do not want base url in the sources
+
+       * possiblilities 
+            * sphinx global vars
+            * dynamic conf.py 
+            * sphinx-build -D OR -A options 
+
+
+         make latexpdf SPHINXOPTS="-D latex_show_urls=True" > o
+       
+{{{
+PDF render :download:`OfflineUserManual.pdf <_build/latex/OfflineUserManual.pdf>` available at URL `OfflineUserManual`_.
+
+.. _OfflineUserManual: http://belle7.nuu.edu.tw/oum/_downloads/OfflineUserManual.pdf
+.. target-notes::
+}}}
+
+
+
+    == math support ==
+
+      Attempt to support math output in html by adding extension to conf.py 
+      sphinx.ext.pngmath   
+        * but the html output has latex errors embedded due to pkg inputenc missing  : "utf8x.def"
+
+      sage:ticket:10350 would suggest that may be able to live with utf8 rather than utf8x 
+        * http://trac.sagemath.org/sage_trac/ticket/10350
+        * http://www.mail-archive.com/sage-trac@googlegroups.com/msg53586.html
+
+        
+
+          pip install -U ipython
+              ## ipython -pylab    may be doing smth underhand that requires ipython sibling to matplotlib
+
+
+
     == ISSUES ==
 
         On N, py24 doesnt do relative imports ..
