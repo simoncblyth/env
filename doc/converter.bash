@@ -13,8 +13,7 @@ converter-usage(){
          http://svn.python.org/projects/doctools/converter/
          http://svn.python.org/view/doctools/converter/
 
-           as use by python project to migrate from latex to rst doc sources
-
+           as used by python project to migrate from latex to rst doc sources
 
     == Usage ==
 
@@ -28,7 +27,6 @@ converter-usage(){
 
       * py25+  (py24 is NOT supported)
       * docutils
-
 
    == nuwa sphinx ==
 
@@ -47,8 +45,6 @@ converter-usage(){
      
       Convert .tex sources to .rst
           * converter-test           
-                ## TODO ... standalone python walker or main.tex "parser" for all 
-                            OfflineUserManual, not just database dir  
 
       Quickstart sphinx in the folder containing source .tex (and .rst)
           * sphinx-quickstart
@@ -74,7 +70,7 @@ converter-usage(){
             * sphinx global vars
             * dynamic conf.py 
             * sphinx-build -D OR -A options 
-
+            * an absolutelink directive that uses a baseurl setting from conf ?
 
          make latexpdf SPHINXOPTS="-D latex_show_urls=True" > o
        
@@ -86,74 +82,27 @@ PDF render :download:`OfflineUserManual.pdf <_build/latex/OfflineUserManual.pdf>
 }}}
 
 
-
     == math support ==
 
       Attempt to support math output in html by adding extension to conf.py 
       sphinx.ext.pngmath   
+
+      Add to conf.py
+          extensions = ['sphinx.ext.pngmath']
+
         * but the html output has latex errors embedded due to pkg inputenc missing  : "utf8x.def"
 
-      sage:ticket:10350 would suggest that may be able to live with utf8 rather than utf8x 
+      sage:ticket:10350 would suggest that maybe able to live with utf8 rather than utf8x 
         * http://trac.sagemath.org/sage_trac/ticket/10350
         * http://www.mail-archive.com/sage-trac@googlegroups.com/msg53586.html
-
         
-
           pip install -U ipython
               ## ipython -pylab    may be doing smth underhand that requires ipython sibling to matplotlib
 
+    == Git setup ==
 
-
-    == ISSUES ==
-
-        On N, py24 doesnt do relative imports ..
-
-   == Git setup ==
-
-   === export from SVN into git repo ===
-
-        cd $HOME
-        svn info http://svn.python.org/projects/doctools/converter/ 
-
-          Path: converter
-          URL: http://svn.python.org/projects/doctools/converter
-          Repository Root: http://svn.python.org/projects
-          Repository UUID: 6015fed2-1504-0410-9fe1-9d1591cc4771
-          Revision: 87407
-          Node Kind: directory
-          Last Changed Author: georg.brandl
-          Last Changed Rev: 68972
-          Last Changed Date: 2009-01-27 05:08:02 +0800 (Tue, 27 Jan 2009)
-
-        svn export http://svn.python.org/projects/doctools/converter/ 
-        
-        cd converter
-        git init
-        git add README convert.py converter
-         
-        git commit -m "original latex to reStructuredText converter from python project, exported from  http://svn.python.org/projects/doctools/converter/ last changed rev 68972, revision 87407 "
-        git remote add origin git@github.com:scb-/converter.git
-
-            ## from github dashboard create a new repo named the same as this, ie "converter"
-
-        git push origin master    
-            ## if ssh-agent not running, you will be prompted for passphrase
-
-        ## check the repo appears at   https://github.com/scb-/converter
-
-        cd converter   ## apply the patch from the appropriate dir 
-        patch -p0 < $(converter-patch-path)
-
-        git add __init__.py docnodes.py latexparser.py restwriter.py tokenizer.py test_tokenizer.py 
-        git commit -m "changes to support simple latex tabular environments in a more generic manner " 
-                ## add the changes and commit
-
-        git push origin master
-                 ## push up to github  
-
-         
-         ## redirect the source handling in these functions to github and deprecate the patch manipulations 
-
+         Description of setup moved to
+              https://github.com/scb-/converter/blob/master/NOTES
 
 
     == OTHERS ==
@@ -256,14 +205,14 @@ converter-url(){
 converter-get(){
     local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
     [ -d converter ] && echo $msg converter dir exists already delete and rerun ... or use git && return 0
-    #svn co http://svn.python.org/projects/doctools/converter/
-    #converter-patch-apply
-    git clone $(converter-url)
+    
+    pip install -e git+$(converter-url)#egg=converter
+   
 }
 
 converter-rdir(){ echo converter ; }
 
-converter-texpath(){ echo Documentation/OfflineUserManual/tex/database ; }
+converter-texpath(){ echo Documentation/OfflineUserManual/tex ; }
 converter-texdir(){ echo $DYB/NuWa-trunk/dybgaudi/$(converter-texpath) ; }
 converter-rstdir(){
     local dir=/tmp/env/$FUNCNAME && mkdir -p $dir && echo $dir 
@@ -271,15 +220,24 @@ converter-rstdir(){
 
 converter-sdir(){ echo $(env-home)/doc/converter ; }
 converter-scd(){  cd $(converter-sdir) ; }
-converter-ln(){
+
+converter-ln-deprecated(){
     python-
     python-ln $(converter-dir)/converter
 }
-
-converter-dyb(){ python $(converter-sdir)/dyb.py ; }
 converter--(){   python $(converter-sdir)/convert.py ; }
 
+
+
 converter-test(){
+    [ -z "$DYB" ] && echo $msg DYB not defined && return 1
+    cd $(converter-texdir)
+
+    
+}
+
+
+converter-test-deprecated(){
     local msg="=== $FUNCNAME :"
     if [ -n "$DYB" ]; then 
        cd $(converter-texdir)
@@ -302,14 +260,4 @@ converter-test(){
 
 
 
-converter-patch-path(){ echo $(converter-sdir)/converter-add-tabular.patch ; }
-converter-deprecated-patch-apply(){
-   [ ! -f "$(converter-patch-path)" ] && return 0
-   converter-cd
-   patch -p0 < $(converter-patch-path)
-}
-converter-deprecated-patch-make(){
-    converter-cd
-    svn diff > $(converter-patch-path) 
-}
 
