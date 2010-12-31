@@ -20,6 +20,10 @@ sphinx-usage(){
     Pretty html
          http://sphinx.pocoo.org/theming.html
 
+    Tracker
+         http://groups.google.com/group/sphinx-dev/topics
+
+
   == tryout sphinx ==
 
       1) from directory with .rst

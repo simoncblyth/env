@@ -15,6 +15,16 @@ converter-usage(){
 
            as used by python project to migrate from latex to rst doc sources
 
+    For trial docbuilding on non-nuwa capable nodes ...
+            scp -r N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Database/DybDbi/genDbi .
+
+           (docs)simon:fig blyth$ scp N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/fig/\*.png .
+
+    hookup to local apache with :
+            apache-ln $PWD/_build/dirhtml oum
+          
+
+
     == Usage ==
 
         converter-get
