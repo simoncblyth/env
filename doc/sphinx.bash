@@ -23,6 +23,63 @@ sphinx-usage(){
     Tracker
          http://groups.google.com/group/sphinx-dev/topics
 
+    reST renderer and demo 
+         http://www.siafoo.net/tools/reST
+
+  == demos ==
+
+    http://people.ee.ethz.ch/~creller/web/tricks/reST.html
+        includes demo of linebreaks inside table cells 
+
+
+    http://openalea.gforge.inria.fr/doc/openalea/doc/_build/html/source/sphinx/rest_syntax.html 
+  
+    http://sphinx.pocoo.org/markup/misc.html#tables
+        points out reST tabularcolumns directive 
+        hopefully can avoid htmlonly/latexonly bifurcation 
+
+
+.. tabularcolumns:: |l|c|p{5cm}|
+
++--------------+---+-----------+
+|  simple text | 2 | 3         |
++--------------+---+-----------+
+
+    sphinx.ext.todo 
+         make really red todo boxes
+
+
+
+  == issues ==
+
+Latex handles input encodings with '''inputenc'''
+{{{
+\usepackage[utf8]{inputenc}
+}}}
+   * the argument, typically '''utf8''' specifies the input encoding in usage
+   * '''utf8x''' is non-standard encoding with lots of extra characters 
+
+{{{
+[blyth@belle7 ~]$ rpm -ql tetex-latex | grep utf8
+/usr/share/texmf/tex/latex/base/utf8-test.tex
+/usr/share/texmf/tex/latex/base/utf8.def
+/usr/share/texmf/tex/latex/base/utf8enc.dfu
+/usr/share/texmf/tex/latex/base/utf8test.tex
+/usr/share/texmf/tex/latex/t2/test-utf8.tex
+[blyth@belle7 ~]$
+}}}
+
+   * seems to be no yum pkg with utf8x.def
+
+Hails from :
+   * http://www.ctan.org/tex-archive/macros/latex/contrib/unicode/
+
+Try test edit '''utf8x --> utf8''' in {{{/home/blyth/rst/lib/python2.7/site-packages/sphinx/ext/pngmath.py}}}
+   * it works for simple math 
+
+
+
+
 
   == tryout sphinx ==
 

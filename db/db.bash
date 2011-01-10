@@ -10,6 +10,20 @@ db-env(){ echo -n ; }
 db-usage(){
   cat << EOU
 
+    killed the sync as very slow network at Daya Bay after transfering 
+
+        g4pb:rsync blyth$ db-;db-backup-rsync-from-c
+        dybdb1.ihep.ac.cn/20101227/offline_db.sql.gz
+        dybdb1.ihep.ac.cn/20101227/testdb.sql.gz
+        ^CKilled by signal 2.
+
+    recover into G manually 
+   
+        g4pb:rsync blyth$ db- ; db-backup-recover-sqz dybdb1.ihep.ac.cn/20101227/offline_db.sql.gz
+        1229.28 real        35.67 user         3.16 sys
+   
+
+------------
      db-backup-purge
           delete local day folders beneath $(db-backup-hostdir)
           retaining only the last $(db-backup-keep) days
@@ -91,7 +105,7 @@ db-backup-ryaydir(){  echo $(db-backup-rsyncdir)/${1:-nohost}/$(db-yesterday) ; 
 db-backup-names(){   echo testdb offline_db ; }
 db-backup-keep(){    echo 7 ; }
 
-db-today(){ date +"%Y%m%d" ; }
+db-today(){ [ -n "$DB_DATE" ] && echo $_DATE || date +"%Y%m%d" ; }
 db-yesterday(){
    local fmt=${1:-%Y%m%d}
    case $(uname) in 
@@ -176,6 +190,14 @@ db-backup-purge(){
      
 }
 
+db-backup-rsync-from-c(){
+   [ "$NODE_TAG" == "C" ] && echo ABORT not allowed to do this on node C && return 1
+   local tag=C
+   local tgt=$(db-backup-rsyncdir)/    ## remote dir named after local hostname
+   local cmd="rsync -e ssh --delete-after -razvt $tag:$tgt $tgt "
+   echo $cmd
+   eval $cmd
+}
 
 db-backup-rsync(){
 
@@ -241,15 +263,14 @@ db-cautious(){
 }
 
 db-recover(){
-
   private-
   local host=$(private-val RECOVER_HOST)
-  [ "$host" != "cms01.phys.ntu.edu.tw" ] && echo sorry too dangerous ... && return 1
-
+  case $host in 
+     cms01.phys.ntu.edu.tw|localhost) echo -n                                    ;;
+                                  *)  echo sorry too dangerous ... && return 1   ;;
+  esac
   ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 }
-
-
 
 
 db-name-today(){     echo ${1}_$(db-today) ; }
@@ -284,12 +305,45 @@ db-grant(){
 }
 
 
+db-backup-recover-sqz(){
+   local msg="=== $FUNCNAME :"
+   local sqz=$1
+   [ ! -f "$sqz" ] && echo $msg ABORT sqz $sqz does not exist && return 2
+  
+   local name=$(basename $sqz)
+   name=${name/.*/}
+   case $name in 
+     offline_db) echo -n ;;
+         testdb) echo -n ;;
+              *) echo $msg unexpected basename  $name ... aborting && return 1 ;;
+   esac
+
+  local date=$(basename $(dirname $sqz))
+  case $date in
+     2010????) echo -n ;;
+     2011????) echo -n ;;
+            *) echo expecting a date && return 1 ;;
+  esac
+
+    
+  local dbrecover=${name}_${date}
+  echo $msg recovering from sqz $sqz into DB $dbrecover 
+
+  echo "create database if not exists $dbrecover ;" | db-recover 
+  gunzip -c $sqz                                  | DB_TIME=time db-recover $dbrecover
+  
+
+}
+
+
 db-backup-recover(){
    local msg="=== $FUNCNAME :"
-   local name=${1:-testdb}
+   local name=${1:-offline_db}
    local host=${2:-dybdb1.ihep.ac.cn}
+
    local sqz=$(db-backup-rsync-sqz $name $host)
    [ ! -f "$sqz" ] && echo $msg ABORT sqz $sqz does not exist && return 2
+
    local dbtoday=$(db-name-today $name)
    local dbyesterday=$(db-name-yesterday $name)
    echo $msg name $name sqz $sqz dbtoday $dbtoday dbyesterday $dbyesterday
