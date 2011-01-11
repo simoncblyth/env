@@ -1,0 +1,4 @@
+
+
+
+gdb --args $(which python) $PWD/dcspmthv.py
