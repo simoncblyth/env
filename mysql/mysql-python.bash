@@ -19,6 +19,16 @@ mysql-python-usage(){
       setuptools
       mysql
 
+
+ == DBG BUILD ==
+
+     python setup.py build_ext --debug --optimize 0
+     python setup.py install
+
+
+     OSX error ... failed to convert type 246  ...  null dtype descr 
+
+
  ==  WARNING : KEEPING mysql_numpy DEVELOPMENTS IN SVN DERIVED PATCH  ==
         
         * MUST "svn add ... "  ALL ADDITIONAL FILES TO MYSQL-PYTHON SVN

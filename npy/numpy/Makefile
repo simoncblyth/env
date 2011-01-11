@@ -2,11 +2,11 @@
 #NAME = PyArray_SimpleNewFromDescr
 #NAME = PyArray_FromDims
 #NAME = PyArray_RegisterDataType
-NAME = PyArray_SimpleNewFromData2
+#NAME = PyArray_SimpleNewFromData2
 #NAME = PyArray_SimpleNewFromData
 #NAME = PyArray_DescrConverter
 #NAME = Py_BuildValue
-#NAME = dtype
+NAME = dtype
 #NAME = datetime
 #NAME = datetime_buf
 #NAME = types

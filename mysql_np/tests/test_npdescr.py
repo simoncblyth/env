@@ -1,12 +1,27 @@
 import _mysql
 
-def test_npdescr():
+#if 1:
+def test_npdescr_0():
+    conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" ) 
+    conn.query("select * from CalibPmtSpec limit 10")
+    r = conn.store_result()
+    d = r.npdescr()
+    print repr(d) 
+    assert len(d.names) == 14 , repr(d)
+
+"""
+   looks like numpy behavior change in recent numpy ...
+       dtype([('Tables_in_offline_db_20101227', '|S64')])
+          'There are no fields in dtype |S64.'
+"""
+def test_npdescr_1():
     conn = _mysql.connect(  read_default_file="~/.my.cnf", read_default_group="client" ) 
     conn.query("show tables")
     r = conn.store_result()
     d = r.npdescr()
-    assert d[0][1] == "|S64",  d
     print repr(d) 
+    assert len(d.names) == 1, d
+    assert d[d.names[0]].name == 'string512'  
 
 
 def test_nparray_1():
@@ -28,7 +43,9 @@ def test_nparray_2():
 
 
 if __name__ == '__main__':
-    test_npdescr()
+    pass
+    test_npdescr_0()
+    test_npdescr_1()
     test_nparray_1()
     test_nparray_2()
 

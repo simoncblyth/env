@@ -26,6 +26,9 @@ sphinx-usage(){
     reST renderer and demo 
          http://www.siafoo.net/tools/reST
 
+    editor
+        http://python.net/~gherman/ReSTedit.html
+
   == demos ==
 
     http://people.ee.ethz.ch/~creller/web/tricks/reST.html

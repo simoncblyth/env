@@ -8,6 +8,44 @@ matplotlib-usage(){
      matplotlib-src : $(matplotlib-src)
      matplotlib-dir : $(matplotlib-dir)
 
+
+  == installation ==
+
+
+     Pre-requisites, numpy and mysql_numpy (my fork of mysql_python that adding the pulling of numpy arrays from 
+     mysql query results)::
+
+         pip install -E ~/v/docs -e git+git://github.com/scb-/numpy.git#egg=numpy                ## maybe better to use the writable access technique         
+         pip install -E ~/v/docs -e git://github.com/scb-/mysql_numpy.git#egg=mysql_numpy 
+
+     Hmm "mysql_numpy" fails as setup.py is not at top level ... have to::
+
+         cd ~/v/docs/src/mysql-numpy/MySQLdb/
+         python setup.py install
+
+    Then matplotlib (fails if numpy not installed)
+
+         pip install -E ~/v/docs -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz -U matplotlib
+
+    For testing and interactive dev::
+
+         pip install -E ~/v/docs -U ipython
+         pip install -E ~/v/docs -U nose
+
+    env hookup 
+         cd ~/v/docs/lib/python2.6/site-packages 
+         ln -sf ~/env env
+
+
+    ipython gotcha
+          despite what "which ipython" would have you imagine, be explicit in the 
+          virtual ipython invocation in order to have the full virtual sys.path 
+
+          ~/v/docs/bin/ipython dcspmthv.py 
+
+
+
+
    tracker : appears neglected
        http://sourceforge.net/tracker/?atid=560720&group_id=80706&func=browse
 
@@ -73,6 +111,14 @@ matplotlib-issues(){ cat << EOU
 
      Workaround: skip pypi index and target the tarball directly :
        pip install -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz matplotlib
+       pip install -E ~/v/docs -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz -U matplotlib
+
+     this fails if numpy is not installed ..
+     so ... actually before installing matplotlib better to install my forked numpy + mysql_numpy 
+
+         pip install -E ~/v/docs -e git+git://github.com/scb-/numpy.git#egg=numpy                ## maybe better to use the writable access technique
+         pip install -E ~/v/docs -e git://github.com/scb-/mysql_numpy.git#egg=mysql_numpy 
+
 
 
   == ISSUE BLANK CANVAS WITH TkAgg ON C and N ... ==
