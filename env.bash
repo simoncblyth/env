@@ -912,3 +912,4 @@ redmine-(){      . $(env-home)/redmine/redmine.bash && redmine-env $* ; }
 redmine-hudson-(){      . $(env-home)/redmine/redmine-hudson.bash && redmine-hudson-env $* ; }
 hudson-(){      . $(env-home)/hudson/hudson.bash && hudson-env $* ; }
 buildbot-(){      . $(env-home)/buildbot/buildbot.bash && buildbot-env $* ; }
+analog-(){      . $(env-home)/apache/analog.bash && analog-env $* ; }

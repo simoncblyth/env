@@ -1,37 +1,70 @@
-"""
-  Reading an apache access_log into a numpy array 
-     * the datetime format in the log [17/Jan/2011:11:48:20 +0800] does not get correctly converted
-       to an M8[s]         
-
-In [6]: tt = np.ones( 10 ,  dtype="M8[ms]" )
-In [7]: tt[0] = "17/Jan/2011:11:48:10 +0800"
-
-In [24]: t.strftime("%d/%b/%Y:%H:%M:%S")
-Out[24]: '17/Jan/2011:13:32:27'
-
-"""
-import os
+import os, sys
 import numpy as np
-from StringIO import StringIO
 
-#s = os.path.expanduser("~/access_log")
-s = StringIO(r"""207.46.13.131 - - [17/Jan/2011:11:48:10 +0800] "GET /tracs/env/ticket/228 HTTP/1.1" 200 14270
-77.88.27.27 - - [17/Jan/2011:11:48:20 +0800] "GET /tracs/env/export/3255/trunk/vdbi/vdbi/tw/jquery/__init__.py HTTP/1.1" 200 -
-77.88.27.27 - - [17/Jan/2011:11:48:29 +0800] "GET /tracs/env/changeset/43 HTTP/1.1" 200 9764
-77.88.27.27 - - [17/Jan/2011:11:48:41 +0800] "GET /tracs/env/changeset/1908/trunk/nuwa HTTP/1.1" 200 15076
-77.88.27.27 - - [17/Jan/2011:11:49:14 +0800] "GET /tracs/env/wiki/ApacheBenchmarks HTTP/1.1" 200 51613
-77.88.27.27 - - [17/Jan/2011:11:49:26 +0800] "GET /tracs/tracdev/changeset/55/trac2mediawiki/trunk/0.11/plugins/trac2mediawiki/__init__.py HTTP/1.1" 200 10794
-77.88.27.27 - - [17/Jan/2011:11:49:36 +0800] "GET /repos/env/trunk/dyw/root_use.bash HTTP/1.1" 200 1821
-77.88.27.27 - - [17/Jan/2011:11:49:44 +0800] "GET /tracs/env/changeset/2422/trunk/mysql HTTP/1.1" 200 10162
-77.88.27.27 - - [17/Jan/2011:11:49:58 +0800] "GET /tracs/env/changeset/2823/trunk/#hello HTTP/1.1" 200 13307
-77.88.27.27 - - [17/Jan/2011:11:50:09 +0800] "GET /tracs/env/changeset/2082/trunk/thho HTTP/1.1" 200 6551
-""")
+"""
+Usage::
 
-t = np.dtype([ ('ip','S15'), ('id', 'S10') , ('user', 'S10'), ('time','S26'), ('req','S100'), ('resp','i4'), ('size','i4') ] )   
-r = r'(\d+\.\d+\.\d+\.\d+) (.?) (.?) \[(.*)\] "(.*)" (\d+) (\d+)'
+   from env.apache.analog import load
+   a = load("/tmp/env/analog/access_log/0_1000")
 
-aa = np.fromregex( s, r, t )
-a = aa.view(np.recarray)
+"""
+
+def load( path , chk_orig=True ):
+    """
+       avoid trivial numpy bug 
+            global name 'fh' is not defined
+
+       by passing in a fh 
+    """
+    print "load from %s   " % ( path ) 
+    own_fh = False
+    if not hasattr(path,'read'):
+        own_fh = True
+        fh = open(path, "r")
+
+    
+    fields = [ ('ip','S15'), ('id', 'S10') , ('user', 'S10'), ('time','M8[s]'), ('req','S100'), ('resp','i4'), ('size','i4') ] 
+    patn = r'(\d+\.\d+\.\d+\.\d+) (.+) (.+) \[(.*)\] "(.*)" (\d+) ([\d-]+)'
+
+    if chk_orig:
+        t = np.dtype([ ('orig','S256') ] + fields )   
+        r = r'(%s)' % patn
+    else:
+        t = np.dtype( fields )
+        r = patn 
+
+    a = np.fromregex( fh if own_fh else path , r, t )
+
+    if own_fh:
+        fh.close()
+
+    if chk_orig:
+        name = path + '.chk_orig' 
+        o = open(name, "w")
+        print "writing  %s " % name 
+        o.write( "\n".join( a['orig'] ) + "\n" )
+        o.close()  
+
+    return a 
+
+
+
+
+def array_save( path ):
+    """
+         failing with 
+           ValueError: mismatch in size of old and new data-descriptor
+    """
+    z = path + '.npz'
+    print "array_save from %s into %s  " % (path, z) 
+    a = load(path)
+    print "array_save into %s length %s " % ( z, len(a)  ) 
+    n = os.path.basename( path )
+    np.savez( z , a=a )
+
+if __name__ == '__main__':
+    assert len(sys.argv) == 2
+    array_save( sys.argv[1] )
 
 
 
