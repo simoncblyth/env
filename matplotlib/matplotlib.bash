@@ -8,9 +8,7 @@ matplotlib-usage(){
      matplotlib-src : $(matplotlib-src)
      matplotlib-dir : $(matplotlib-dir)
 
-
   == installation ==
-
 
      Pre-requisites, numpy and mysql_numpy (my fork of mysql_python that adding the pulling of numpy arrays from 
      mysql query results)::
@@ -36,14 +34,11 @@ matplotlib-usage(){
          cd ~/v/docs/lib/python2.6/site-packages 
          ln -sf ~/env env
 
-
     ipython gotcha
           despite what "which ipython" would have you imagine, be explicit in the 
           virtual ipython invocation in order to have the full virtual sys.path 
 
           ~/v/docs/bin/ipython dcspmthv.py 
-
-
 
 
    tracker : appears neglected
@@ -118,7 +113,6 @@ matplotlib-issues(){ cat << EOU
 
          pip install -E ~/v/docs -e git+git://github.com/scb-/numpy.git#egg=numpy                ## maybe better to use the writable access technique
          pip install -E ~/v/docs -e git://github.com/scb-/mysql_numpy.git#egg=mysql_numpy 
-
 
 
   == ISSUE BLANK CANVAS WITH TkAgg ON C and N ... ==

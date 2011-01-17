@@ -25,8 +25,20 @@ mysql-python-usage(){
      python setup.py build_ext --debug --optimize 0
      python setup.py install
 
+     OSX error ... 
+           failed to convert type 246  ...  null dtype descr 
 
-     OSX error ... failed to convert type 246  ...  null dtype descr 
+      probably caused by newer mysql version .... 
+
+        5.1.50 (G) /opt/local/include/mysql5/mysql/mysql_com.h  
+        4.1.22 (C) /usr/include/mysql/mysql_com.h
+
+      3 types present in 50150 but not 40122 
+
+        MYSQL_TYPE_VARCHAR,            ****
+        MYSQL_TYPE_BIT,                ****  
+        MYSQL_TYPE_NEWDECIMAL=246,     ****
+
 
 
  ==  WARNING : KEEPING mysql_numpy DEVELOPMENTS IN SVN DERIVED PATCH  ==
