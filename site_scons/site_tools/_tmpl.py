@@ -15,7 +15,11 @@ except ImportError, e:
     from string25 import Template
 
 class Tmpl(Template):
-    pattern = re.compile(r"""
+    """
+    CAUTION this peaks into the implementation internals and changes the pattern of string.Template
+    Before py26 needed `pattern` rather than `idpattern`, see :env:`ticket:314`
+    """
+    idpattern = re.compile(r"""
     %(delim)s(?:
       (?P<escaped>%(delim)s) |   # Escape sequence of two delimiters
       (?P<named>%(id)s)      |   # delimiter and a Python identifier

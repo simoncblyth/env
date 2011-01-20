@@ -10,8 +10,11 @@ scons-usage(){
 
    == installs ==
 
-     port installed v1.2.0.r3842 onto G, mostly into /opt/local/lib/scons-1.2.0
-         sudo port install scons
+     port 
+          sudo port install scons
+     
+            * installed v1.2.0.r3842 onto G, mostly into /opt/local/lib/scons-1.2.0
+            * after move to py26 on G, installed scons 2.0.1 mostly into /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/scons-2.0.1/
 
      yum  installed v1.2.0.r3842  onto C,C2,N
          sudo yum install scons
@@ -37,6 +40,19 @@ scons-usage(){
         File "/opt/local/lib/scons-1.2.0/SCons/Script/Main.py", line 826, in _main
 
             you need to use : "sct -c" 
+
+
+   == python setup issue (needs to be done once for each python) ==
+
+       Traceback (most recent call last):
+       File "/usr/local/env/scons/sct/wrapper.py", line 44, in <module>
+           import SCons.Script
+       ImportError: No module named SCons.Script
+
+
+       use scons-dir-pth  
+
+
 
    == Questions ==
  
@@ -69,11 +85,14 @@ scons-dir-pth(){
   eval $cmd 
 }
 
+scons-version(){ python -c "import SCons as _ ; print _.__version__ " ; } 
+
 scons-dir-export(){ export SCONS_DIR=$(scons-dir) ;  }
 scons-dir(){ 
    pkgr- 
    case $(pkgr-cmd) in 
-       port) echo /opt/local/lib/scons-1.2.0 ;; 
+       #port) echo /opt/local/lib/scons-1.2.0 ;; 
+       port) echo /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/scons-2.0.1 ;; 
         yum) echo /usr/lib/scons       ;;
        ipkg) echo /opt/lib/scons-1.2.0       ;;
           *) echo /tmp ;;
