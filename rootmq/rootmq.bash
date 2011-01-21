@@ -58,6 +58,29 @@ make: *** [test_sendstring] Error 111
 
 
 
+   == rootmq updates for rabbitmq-c/codegen tips at Jan 2011 ==
+
+   === example_utils to utils ===  
+
+      http://hg.rabbitmq.com/rabbitmq-c/rev/030b4948b33c
+         has become opaque... 
+         adopt the new utils.{c,h}
+
+       cp /data/env/local/env/messaging/rmqc/rabbitmq-c/examples/utils.{c,h} .
+
+   ==  amqp_rpc_reply ---> amqp_get_rpc_reply(conn) == 
+
+      a global has become conn local 
+
+   == amqp_exchange_declare has lost the auto_delete param ==
+
+
+rootmq/src/rootmq.c: In function `rootmq_basic_consume':
+rootmq/src/rootmq.c:295: error: too few arguments to function `amqp_basic_consume'
+
+
+
+
 EOU
 }
 

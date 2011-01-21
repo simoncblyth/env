@@ -11,7 +11,8 @@
 
 #include <unistd.h>
 #include "private.h"
-#include "example_utils.h"
+//#include "example_utils.h"
+#include "utils.h"
 
 #include "rootmq.h"
 #include "rootmq_utils.h"
@@ -88,14 +89,14 @@ int rootmq_init()
         printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
         printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,"***",vhost ); 
 
-    rc = die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
-    if(rc != EXIT_SUCCESS) return rc ;
+    die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
+    //
 
     conn = amqp_new_connection();
     amqp_set_sockfd(conn, sockfd);
     die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
     amqp_channel_open(conn, 1);
-    die_on_amqp_error(amqp_rpc_reply, "Opening channel");
+    die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
 
     rootmq_collection_init();
     
@@ -123,7 +124,7 @@ int rootmq_queue_declare( char const* queue, bool_t passive, bool_t durable, boo
                        amqp_cstring_bytes(queue) , 
                        passive , durable, exclusive, auto_delete , 
                        AMQP_EMPTY_TABLE );
-    die_on_amqp_error(amqp_rpc_reply, "Declaring queue");
+    die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring queue");
     return EXIT_SUCCESS ;
 } 
 
@@ -141,7 +142,7 @@ int rootmq_queue_bind( char const* queue, char const* exchange , char const* bin
      		    amqp_cstring_bytes(exchange),
      		    amqp_cstring_bytes(bindingkey),
      		    AMQP_EMPTY_TABLE);
-    die_on_amqp_error(amqp_rpc_reply, "Binding queue");
+    die_on_amqp_error(amqp_get_rpc_reply(conn), "Binding queue");
     return EXIT_SUCCESS ;
 }
 
@@ -155,14 +156,17 @@ int rootmq_exchange_declare( char const* exchange , char const* exchangetype , b
            durable: the exchange will survive a broker restart.
            auto-delete: the exchange will get deleted as soon as there are no more queues bound to it. 
                 Exchanges to which queues have never been bound will never get auto deleted.
-    
+
+
+             Jan2011 auto_delete has gone    
+
     */
     amqp_exchange_declare(conn, 1, 
                           amqp_cstring_bytes(exchange), 
                           amqp_cstring_bytes(exchangetype),
-     			  passive, durable, auto_delete, 
+     			  passive, durable, 
                           AMQP_EMPTY_TABLE);
-    die_on_amqp_error(amqp_rpc_reply, "Declaring exchange");
+    die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
     return EXIT_SUCCESS ;
 }
 
@@ -278,7 +282,21 @@ int rootmq_basic_consume_async( char const* queue )
 
 int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
 {
-   // based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
+   /*
+        based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
+
+        RABBITMQ_EXPORT 
+        amqp_basic_consume_ok_t*  amqp_basic_consume(
+                amqp_connection_state_t state, 
+                       amqp_channel_t channel, 
+                           amqp_bytes_t queue, 
+                    amqp_bytes_t consumer_tag, 
+                      amqp_boolean_t no_local, 
+                        amqp_boolean_t no_ack, 
+                     amqp_boolean_t exclusive, 
+                       amqp_table_t arguments
+         );
+  */
 
   int dbg = rootmq_dbg ; 
   amqp_boolean_t no_local   = 0 ; 
@@ -291,8 +309,8 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
   long long cycle_time ;
 
   amqp_basic_consume(conn, 1, amqp_cstring_bytes(queue) , 
-                           AMQP_EMPTY_BYTES , no_local, no_ack, exclusive );
-  die_on_amqp_error(amqp_rpc_reply, "Consuming");
+                           AMQP_EMPTY_BYTES , no_local, no_ack, exclusive, amqp_empty_table );
+  die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
 
   {
     amqp_frame_t frame;

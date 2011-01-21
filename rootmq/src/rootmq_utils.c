@@ -100,7 +100,7 @@ void rootmq_basic_msg_dump( const rootmq_basic_msg_t* msg , int verbosity , cons
 
 void rootmq_basic_msg_free( rootmq_basic_msg_t* msg )
 {
-    AMQP_BYTES_FREE( msg->body );
+    amqp_bytes_free( msg->body );
     rootmq_basic_deliver_free( &(msg->deliver) ) ;
     rootmq_basic_properties_free( &(msg->properties) );  
     free( msg->key );
@@ -129,9 +129,9 @@ amqp_basic_deliver_t rootmq_basic_deliver_dup( const amqp_basic_deliver_t src )
 
 void rootmq_basic_deliver_free( amqp_basic_deliver_t* src )
 {
-    AMQP_BYTES_FREE( src->consumer_tag );
-    AMQP_BYTES_FREE( src->exchange );   
-    AMQP_BYTES_FREE( src->routing_key );
+    amqp_bytes_free( src->consumer_tag );
+    amqp_bytes_free( src->exchange );   
+    amqp_bytes_free( src->routing_key );
     src = NULL ;
 }
 
@@ -150,9 +150,85 @@ void rootmq_table_dump( const amqp_table_t* t )
    amqp_table_entry_t* entry = NULL ;
    for( i = 0 ; i < t->num_entries ; i++ ){
       entry =  &t->entries[i] ;
-      printf("_table_dump \"%c\" \n", entry->kind ); 
-      //printf("_table_dump %.*s \n", entry->key.len , (char*)entry->key.bytes ); 
+      //printf("_table_dump \"%c\" \n", entry->kind ); 
+      printf("_table_dump %.*s \n", entry->key.len , (char*)entry->key.bytes ); 
    } 
+}
+
+amqp_boolean_t rootmq_boolean_dup( const amqp_boolean_t src )
+{
+     amqp_boolean_t dest ;
+     dest = src ;
+     return dest ;
+}
+
+amqp_field_value_t rootmq_field_value_dup( const amqp_field_value_t src )
+{
+   /*
+     need to adapt to use 
+     new value encode/decode API ... 
+          amqp_decode_field_value
+
+     expect dramatic code reductions
+
+   */
+
+     amqp_field_value_t dest ;
+     switch ( src.kind ){
+     case AMQP_FIELD_KIND_BOOLEAN:
+          dest.value.boolean = rootmq_boolean_dup( src.value.boolean );
+          break ;
+     case AMQP_FIELD_KIND_I8:
+          dest.value.i8  = src.value.i8 ;
+          break ;
+     case AMQP_FIELD_KIND_U8: 
+          dest.value.u8  = src.value.u8 ;
+          break ;
+     case AMQP_FIELD_KIND_I16:
+          dest.value.i16  = src.value.i16 ;
+          break ;
+     case AMQP_FIELD_KIND_U16:
+          dest.value.u16  = src.value.u16 ;
+          break ;
+     case AMQP_FIELD_KIND_I32:
+          dest.value.i32  = src.value.i32 ;
+          break ;
+     case AMQP_FIELD_KIND_U32:
+          dest.value.u32  = src.value.u32 ;
+          break ;
+     case AMQP_FIELD_KIND_I64:
+          dest.value.i64  = src.value.i64 ;
+          break ;
+     case AMQP_FIELD_KIND_U64:
+          dest.value.u64  = src.value.u64 ;
+          break ;
+     case AMQP_FIELD_KIND_F32:
+          dest.value.f32  = src.value.f32 ;
+          break ;
+     case AMQP_FIELD_KIND_F64:
+          dest.value.f64  = src.value.f64 ;
+          break ;
+     case AMQP_FIELD_KIND_DECIMAL:
+          dest.value.decimal = rootmq_decimal_dup( src.value.decimal ); 
+          break ;
+     case AMQP_FIELD_KIND_BYTES:
+     case AMQP_FIELD_KIND_UTF8:
+          dest.value.bytes = amqp_bytes_malloc_dup( src.value.bytes ); 
+          break ;
+     case AMQP_FIELD_KIND_ARRAY:
+          //dest.value.array = rootmq_array_dup( src.value.array );
+          break ;
+     case AMQP_FIELD_KIND_TIMESTAMP:
+          //?
+          break ;
+     case AMQP_FIELD_KIND_TABLE:
+          dest.value.table  = rootmq_table_dup( src.value.table );
+          break ;
+     case AMQP_FIELD_KIND_VOID:
+          //?
+          break ;
+     }
+     return dest ;
 }
 
 
@@ -167,27 +243,12 @@ amqp_table_t rootmq_table_dup( const amqp_table_t src )
       amqp_table_entry_t* s =  &src.entries[i] ;
       amqp_table_entry_t* d =  &dest.entries[i] ;
       d->key  = amqp_bytes_malloc_dup( s->key );       
-      d->kind = s->kind ;
-      switch ( s->kind ){
-          case 'S':
-              d->value.bytes = amqp_bytes_malloc_dup( s->value.bytes ); 
-              break ;
-          case 'I':
-              d->value.i32    = s->value.i32 ;
-              break ;
-          case 'D':
-              d->value.decimal = rootmq_decimal_dup( s->value.decimal ); 
-              break ;
-          case 'T':
-              d->value.u64    = s->value.u64 ;
-              break ;
-          case 'F':
-              d->value.table  = rootmq_table_dup( s->value.table );
-              break ;
-      }
+      d->value  = rootmq_field_value_dup( s->value );       
    }
    return dest ;
 }
+
+
 
 void rootmq_basic_properties_dump( const amqp_basic_properties_t* p )
 {
@@ -268,30 +329,30 @@ amqp_basic_properties_t rootmq_basic_properties_dup( const amqp_basic_properties
 void rootmq_basic_properties_free( amqp_basic_properties_t* src )
 {
     if (src->_flags & AMQP_BASIC_CONTENT_TYPE_FLAG) 
-        AMQP_BYTES_FREE( src->content_type );
+        amqp_bytes_free( src->content_type );
     if (src->_flags & AMQP_BASIC_CONTENT_ENCODING_FLAG) 
-        AMQP_BYTES_FREE( src->content_encoding );
+        amqp_bytes_free( src->content_encoding );
 
     //if (src->_flags & AMQP_BASIC_HEADERS_FLAG) 
     //    rootmq_table_free( src->headers );
 
     if (src->_flags & AMQP_BASIC_CORRELATION_ID_FLAG) 
-        AMQP_BYTES_FREE( src->correlation_id ) ;
+        amqp_bytes_free( src->correlation_id ) ;
     if (src->_flags & AMQP_BASIC_REPLY_TO_FLAG) 
-        AMQP_BYTES_FREE( src->reply_to ) ;
+        amqp_bytes_free( src->reply_to ) ;
     if (src->_flags & AMQP_BASIC_EXPIRATION_FLAG) 
-        AMQP_BYTES_FREE( src->expiration ) ;
+        amqp_bytes_free( src->expiration ) ;
     if (src->_flags & AMQP_BASIC_MESSAGE_ID_FLAG) 
-        AMQP_BYTES_FREE( src->message_id ) ;
+        amqp_bytes_free( src->message_id ) ;
 
     if (src->_flags & AMQP_BASIC_TYPE_FLAG) 
-        AMQP_BYTES_FREE( src->type ) ;
+        amqp_bytes_free( src->type ) ;
     if (src->_flags & AMQP_BASIC_USER_ID_FLAG) 
-        AMQP_BYTES_FREE( src->user_id ) ;
+        amqp_bytes_free( src->user_id ) ;
     if (src->_flags & AMQP_BASIC_APP_ID_FLAG) 
-        AMQP_BYTES_FREE( src->app_id ) ;
+        amqp_bytes_free( src->app_id ) ;
     if (src->_flags & AMQP_BASIC_CLUSTER_ID_FLAG) 
-        AMQP_BYTES_FREE( src->cluster_id ) ;
+        amqp_bytes_free( src->cluster_id ) ;
     src = NULL ;
 }
 

@@ -13,6 +13,31 @@ rmqc-usage(){
 
        http://groups.google.com/group/rabbitmq-discuss/
 
+
+  == try the tips... ==
+
+      [blyth@cms01 rabbitmq-c]$ hg update -C default
+      [blyth@cms01 rabbitmq-codegen]$ hg update -C default
+
+
+      rmqc-
+      rmqc-make   
+
+________Compiling scons-out/dbg/obj/rootmq/src/example_utils.os
+rootmq/src/example_utils.c: In function `die_on_amqp_error':
+rootmq/src/example_utils.c:33: error: structure has no member named `library_errno'
+rootmq/src/example_utils.c:33: error: structure has no member named `library_errno'
+scons: *** [scons-out/dbg/obj/rootmq/src/example_utils.os] Error 1
+scons: building terminated because of errors.
+
+
+        http://hg.rabbitmq.com/rabbitmq-c/rev/030b4948b33c
+            has become opaque... 
+
+
+       cp /data/env/local/env/messaging/rmqc/rabbitmq-c/examples/utils.{c,h} .
+
+
   
   == switching to 0_9_1 ==
 
@@ -53,10 +78,6 @@ diff -r 277ec3f5b631 librabbitmq/amqp.h
  
  extern int amqp_open_socket(char const *hostname, int portnumber);
  
-
-
-
-
 
 
 
@@ -168,6 +189,8 @@ rmqc-build(){
 
 
 rmqc-version(){     echo dev ; }
+
+## caution ... the wrong revision can land you on the wrong branch 
 rmqc-rev(){         echo 277ec3f5b631 ; }
 rmqc-codegen-rev(){ echo 821f5ee7b040 ; }
 
