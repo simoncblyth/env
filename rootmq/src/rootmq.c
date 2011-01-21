@@ -375,6 +375,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 
       if (frame.frame_type != AMQP_FRAME_HEADER) {
 	       fprintf(stderr, "Expected header!");
+	       if(dbg>1) printf("frame_type : %d \n",(int) frame.frame_type );
 	       abort();
       }
       p = (amqp_basic_properties_t *) frame.payload.properties.decoded;
@@ -399,6 +400,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 
 	if (frame.frame_type != AMQP_FRAME_BODY) {
 	  fprintf(stderr, "Expected body!");
+	  if(dbg>1) printf("frame_type : %d \n",(int) frame.frame_type );
 	  abort();
 	}	  
 

@@ -164,7 +164,7 @@ rmqc-dir(){    echo $(local-base)/env/messaging/rmqc/$(rmqc-name) ; }
 rmqc-base(){   echo $(dirname $(rmqc-dir)) ; }
 rmqc-codegen-dir(){ echo $(rmqc-base)/rabbitmq-codegen ; }
 
-rmqc-cd(){  cd $(rmqc-dir); }
+rmqc-cd(){  cd $(rmqc-dir)/$1; }
 rmqc-codegen-cd(){  cd $(rmqc-codegen-dir) ; }
 rmqc-mate(){ mate $(rmqc-dir) ; }
 
