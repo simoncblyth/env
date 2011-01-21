@@ -334,7 +334,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
       amqp_maybe_release_buffers(conn);      
       result = amqp_simple_wait_frame(conn, &frame);   // the wait happens here 
       if(dbg>1) printf("Result %d\n", result);
-      if (result <= 0) break;
+      if (result < 0) break;
 
       gpointer asyq = g_async_queue_try_pop(rootmq_asyq);  // see if parent  thread wants anything
       if(asyq){
@@ -370,7 +370,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
       }
 
       result = amqp_simple_wait_frame(conn, &frame);
-      if (result <= 0)
+      if (result < 0)
 	       break;
 
       if (frame.frame_type != AMQP_FRAME_HEADER) {
@@ -394,7 +394,7 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 
       while (body_received < body_target) {
 	result = amqp_simple_wait_frame(conn, &frame);
-	if (result <= 0)
+	if (result <  0)
 	  break;
 
 	if (frame.frame_type != AMQP_FRAME_BODY) {
