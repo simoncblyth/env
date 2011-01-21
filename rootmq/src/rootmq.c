@@ -342,11 +342,14 @@ int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , vo
 	continue;
 
       d = (amqp_basic_deliver_t *) frame.payload.method.decoded;
-      if(dbg>1) printf("Delivery %u, exchange %.*s routingkey %.*s consumertag %.*s\n",
-	     (unsigned) d->delivery_tag,
-	     (int) d->exchange.len, (char *) d->exchange.bytes,
-	     (int) d->routing_key.len, (char *) d->routing_key.bytes,
-	     (int) d->consumer_tag.len, (char *) d->consumer_tag.bytes);
+
+     if(dbg>1){ 
+         printf("Delivery %u", (unsigned) d->delivery_tag );
+         if(d->exchange.len > 0)     printf(" exchange %.*s", (int) d->exchange.len, (char *) d->exchange.bytes);
+         if(d->routing_key.len > 0)  printf(" routingkey %.*s", (int) d->routing_key.len, (char *) d->routing_key.bytes);
+         if(d->consumer_tag.len > 0) printf(" consumer_tag %.*s", (int) d->consumer_tag.len, (char *) d->consumer_tag.bytes);
+         printf("  ... \n" );
+      }
 
       result = amqp_simple_wait_frame(conn, &frame);
       if (result <= 0)
