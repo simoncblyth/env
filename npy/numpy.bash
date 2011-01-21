@@ -8,13 +8,30 @@ numpy-usage(){
      numpy-src : $(numpy-src)
      numpy-dir : $(numpy-dir)
      
-       http://www.scipy.org/Cookbook
-
-     After running numpy-doc docs served by nginx at
-         http://cms01.phys.ntu.edu.tw/np/
-
        http://github.com/numpy/numpy
        http://projects.scipy.org/numpy/report/6?asc=1&sort=modified&USER=anonymous
+
+       http://www.scipy.org/
+            svn co http://svn.scipy.org/svn/scipy/trunk scipy
+
+
+   == references ==
+
+       https://github.com/pv/advanced-numpy-tutorial
+       http://www.scipy.org/Cookbook
+
+       http://belle7.nuu.edu.tw/numpy/
+       http://belle7.nuu.edu.tw/advanced-numpy-tutorial/
+
+    == numpy documentation ==
+
+       numpy-doc  
+            build the sphinx based documentation
+                (on N latex problem : preview.sty not found )        
+
+       numpy-nginx
+            plant a link from nginx-htdocs...  check results at 
+                http://belle7.nuu.edu.tw/numpy/
 
     == debug build ==
 
@@ -173,7 +190,11 @@ index 87e140c..0f84d87 100644
 
 EOU
 }
-numpy-dir(){ echo $(local-base)/env/npy/$(numpy-name) ; }
+numpy-dir(){ 
+   ## virtualized takes precedent 
+   [ -n "$VIRTUAL_ENV" ] && echo $VIRTUAL_ENV/src/numpy && return 
+   echo $(local-base)/env/npy/$(numpy-name) ; 
+}
 numpy-cd(){  cd $(numpy-dir)/$1; }
 numpy-scd(){  cd $(env-home)/npy/numpy/$1; }
 numpy-mate(){ mate $(numpy-dir) ; }
@@ -192,6 +213,21 @@ numpy-url(){
        scbfork) echo git@github.com:scb-/numpy.git    ;;
     scbfork_ro) echo git://github.com/scb-/numpy.git  ;;
    esac
+}
+
+
+numpy-tute(){
+   cd $(local-base)/env/npy/ ; 
+
+   local name=Euroscipy-intro-tutorials
+   [ ! -d "$name" ] &&  git clone https://github.com/scipy-lectures/$name.git
+
+   cd $name/lecture_notes
+   make html
+
+   ## hmmm needs : scipy.interpolate
+   
+
 }
 
 numpy-get(){
@@ -227,6 +263,13 @@ numpy-doc(){
    [ "$(which sphinx-build)" == "" ] && echo $msg install sphinx first && return 
     make html
 }
+numpy-nginx(){
+   nginx-
+   local docd=$(numpy-dir)/doc/build/html/ 
+   [ ! -d "$docd" ] && echo $msg ERROR no docs dir at  $docd && return
+   nginx-ln $docd numpy
+}
+
 
 
 numpy-build(){

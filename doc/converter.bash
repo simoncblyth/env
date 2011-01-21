@@ -38,6 +38,12 @@ converter-usage(){
       * py25+  (py24 is NOT supported)
       * docutils
 
+
+   == rst tips ==
+
+      * finiky with indenting ... if it dont work make sure lined up, and try adding some more space 
+
+
    == nuwa sphinx ==
 
       * nuwa (which includes py27)

@@ -168,8 +168,14 @@ shutdown                Shut the remote supervisord down.
              pid of the supervisord 
              NB keeping the pidfile in /tmp is not wise for such a longlived process 
              ... better to keep in /var/run 
+    
     sv-restart 
-             send HUP for supervisord which restarts it .. re-reading config
+              send HUP for supervisord which restarts it .. re-reading config
+
+    sv-stop 
+              stops the supervisor either via the /sbin/service or via sv-ctl depending 
+              on the node, in the latter case you will need to manually confirm for the 
+              shutdown to proceed 
 
 
   == making supervisord auto start on reboot ==
@@ -372,6 +378,16 @@ sv-start(){
                           *)  $FUNCNAME- ;;
    esac
 }
+
+sv-stop(){
+   case $(hostname) in 
+      cms01.phys.ntu.edu.tw) type $FUNCNAME && sudo /sbin/service sv-blyth stop ;;
+                          *)  sv-ctl shutdown ;;  ## will be prompted for confirmation
+   esac
+}
+
+
+
 
 
 sv-start-(){  $(sv-sudo) supervisord   -c $(sv-confpath)    $* ; } 

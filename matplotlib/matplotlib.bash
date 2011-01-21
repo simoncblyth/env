@@ -62,6 +62,14 @@ matplotlib-usage(){
       http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/branches/v1_0_maint/lib/matplotlib/
 
 
+ == install ==
+
+    pypi entry for matplotlib is buggered ... causing an out of date install
+    workaround, use a source install 
+
+     pip -v install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
+
+
   == interactive plotting approaches ==
    
    Thinking about how to implement interactive plots using SVG 

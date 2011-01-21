@@ -1,6 +1,36 @@
 #!/usr/bin/env python
 r"""
 
+\section{Introduction}
+
+The Electronics Simulation is in the ElecSim package.
+It takes an SimHeader as input and produces an ElecHeader, which
+will be read in by  the Trigger Simulation package.  The position
+where ElecSim fit in the full simulation chain is given in
+figure~\ref{fig-electronics-simChain}. The data model
+used in ElecSim is summarized in the UML form
+ in figure~\ref{fig-electronics-ElecSimUML}. 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.98\textwidth]{../fig/electronics_simChain}
+\caption{\label{fig-electronics-simChain}}
+\end{center}
+\end{figure} 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=1.00\textwidth]{../fig/electronics_ElecSimUML}
+\caption{\label{fig-electronics-ElecSimUML} UML for data model in ElecSim.}
+\end{center}
+\end{figure}
+
+
+"""
+
+
+verbatim_etc = r"""
+
 \begin{document}
 
 To use this you will need to hookup to a python with \code{converter} pkg. 
