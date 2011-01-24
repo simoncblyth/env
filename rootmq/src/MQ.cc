@@ -529,6 +529,7 @@ void MQ::StartMonitorThread()
    if(!fConfigured) this->Configure();
    fMonitorRunning = kTRUE ;
    rootmq_basic_consume_async( fQueue.Data() );
+   //rootmq_basic_consume( fQueue.Data() );  // ....  dont spin off thread (means that GUI doesnt update) ... BUT useful to check if threading is the cause of issues
 }
 
 void MQ::StopMonitorThread()

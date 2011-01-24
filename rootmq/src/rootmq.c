@@ -20,11 +20,11 @@
 
 #include <glib.h>
 
-
-static int sockfd ;
+static int sockfd = 0 ;
 static amqp_connection_state_t conn ;
 extern void amqp_dump(void const *buffer, size_t len);
 
+int rootmq_initialized = 0 ;
 int rootmq_dbg = 0 ;
 
 
@@ -72,38 +72,11 @@ int rootmq_basic_collect( amqp_bytes_t* body ,  amqp_basic_deliver_t* deliver , 
 
 int rootmq_init()
 {
-   // Uses config parameters from private lookup to open socket connection to server
     if (!g_thread_supported ()) g_thread_init (NULL);
-
-    int rc = private_init();
-    if(rc != EXIT_SUCCESS) return rc ;
-   
-    char const* hostname = private_lookup("AMQP_SERVER");
-    int port = atoi(private_lookup("AMQP_PORT"));
-    char const* user = private_lookup("AMQP_USER");
-    char const* password = private_lookup("AMQP_PASSWORD");
-    char const* vhost = private_lookup("AMQP_VHOST");
-    rootmq_dbg = atoi( private_lookup_default("ROOTMQ_DBG", "0" )) ;
-
-    if(rootmq_dbg > 0 ) 
-        printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
-        printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,"***",vhost ); 
-
-    die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
-    //
-
-    conn = amqp_new_connection();
-    amqp_set_sockfd(conn, sockfd);
-    die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
-    amqp_channel_open(conn, 1);
-    die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
-
-    rootmq_collection_init();
-    
     rootmq_asyq = g_async_queue_new();
-    
-    return EXIT_SUCCESS ;
+    return rootmq_init_amqp() ;
 }
+
 
 
 int rootmq_queue_declare( char const* queue, bool_t passive, bool_t durable, bool_t exclusive, bool_t auto_delete )
@@ -273,43 +246,73 @@ gpointer rootmq_monitor_thread_(gpointer data )
 
 int rootmq_basic_consume_async( char const* queue ) 
 {
-	// spin off the message queue monitor thread  
+    // spin off the message queue monitor thread  
     gboolean joinable = 1 ;
     rootmq_monitor_thread = g_thread_create((GThreadFunc)rootmq_monitor_thread_ , (gpointer)queue , joinable, NULL);
     return EXIT_SUCCESS ;
 }
 
 
-int rootmq_basic_consume( char const* queue )  //  , receiver_t handlebytes , void* arg ) 
+int rootmq_init_amqp()  
 {
-   /*
-        based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
+  // Uses config parameters from private lookup to open socket connection to server
 
-        RABBITMQ_EXPORT 
-        amqp_basic_consume_ok_t*  amqp_basic_consume(
-                amqp_connection_state_t state, 
-                       amqp_channel_t channel, 
-                           amqp_bytes_t queue, 
-                    amqp_bytes_t consumer_tag, 
-                      amqp_boolean_t no_local, 
-                        amqp_boolean_t no_ack, 
-                     amqp_boolean_t exclusive, 
-                       amqp_table_t arguments
-         );
+  if(rootmq_initialized != 0){
+     printf("rootmq_init_amqp : initialized already " );
+     return EXIT_SUCCESS ;
+  }
+
+  int rc = private_init();
+  if(rc != EXIT_SUCCESS) return rc ;
+   
+  char const* hostname = private_lookup("AMQP_SERVER");
+  int port = atoi(private_lookup("AMQP_PORT"));
+  char const* user = private_lookup("AMQP_USER");
+  char const* password = private_lookup("AMQP_PASSWORD");
+  char const* vhost = private_lookup("AMQP_VHOST");
+  rootmq_dbg = atoi( private_lookup_default("ROOTMQ_DBG", "0" )) ;
+
+  if(rootmq_dbg > 0 ){ 
+     printf("rootmq_init : INFO debug level ROOTMQ_DBG is at level :[%d] \n", rootmq_dbg );
+     printf("rootmq_init : hostname:[%s] port:[%d] user:[%s] password:[%s] vhost:[%s] \n", hostname,port,user,"***",vhost ); 
+  } 
+
+  die_on_error(sockfd = amqp_open_socket(hostname, port), "Opening socket");
+
+  conn = amqp_new_connection();
+  amqp_set_sockfd(conn, sockfd);
+  die_on_amqp_error(amqp_login(conn, vhost , 0, 131072, 0, AMQP_SASL_METHOD_PLAIN, user, password), "Logging in");
+  amqp_channel_open(conn, 1);
+  die_on_amqp_error(amqp_get_rpc_reply(conn), "Opening channel");
+
+  rootmq_collection_init();
+  rootmq_initialized = 1 ;
+  
+  return EXIT_SUCCESS ;
+}
+
+
+int rootmq_basic_consume( char const* queue )  
+{
+  /*
+        based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
   */
 
+  int rc = rootmq_init_amqp();
+  if(rc != EXIT_SUCCESS) return rc ;
+
   int dbg = rootmq_dbg ; 
+
+  amqp_channel_t channel = 1 ;
   amqp_boolean_t no_local   = 0 ; 
   amqp_boolean_t no_ack     = 1 ;
   amqp_boolean_t exclusive  = 0 ;
 
   long long start_time = now_microseconds()  ;
-  //long long live_time = 1000000 ;  
   long long live_time = 0 ;  
   long long cycle_time ;
 
-  amqp_basic_consume(conn, 1, amqp_cstring_bytes(queue) , 
-                           AMQP_EMPTY_BYTES , no_local, no_ack, exclusive, amqp_empty_table );
+  amqp_basic_consume(conn, channel , amqp_cstring_bytes(queue) , amqp_empty_bytes, no_local, no_ack, exclusive, amqp_empty_table );
   die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
 
   {

@@ -140,6 +140,7 @@ rootmq-sendstring(){  rootmq-root $(rootmq-dir)/tests/test_sendstring.C ;  }
 rootmq-pymonitor(){   rootmq-ipython $(rootmq-dir)/evmq.py $* ; }
 
 
+rootmq-gsendstring(){ rootmq-test mq_sendstring gdb ; }
 rootmq-monitor(){ rootmq-test mq_monitor $* ; }
 rootmq-test(){
     local name=${1:-mq_monitor}
@@ -154,6 +155,9 @@ rootmq-test(){
     echo $msg $cmd
     eval $cmd
 }
+
+
+
 rootmq-monitor-term(){ rootmq-term mq_monitor ; }
 rootmq-term(){
     local name=${1:-mq_monitor}
