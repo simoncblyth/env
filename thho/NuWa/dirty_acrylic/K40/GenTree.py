@@ -116,7 +116,7 @@ class GenTree(DybPythonAlg):
         self.genTypes = {
             "IBD_gds":11, "IBD_lso":12, "IBD_oil":13, "IBD_acrylic":14,           
             "U238_gds":21, "U238_lso":22, "U238_PMT":23, "U238_sst":24, "U238_iav":25,
-            "Th232_gds":31, "Th232_lso":32, "Th232_PMT":33, "Th232_sst":34, "Th238_iav":35,
+            "Th232_gds":31, "Th232_lso":32, "Th232_PMT":33, "Th232_sst":34, "Th235_iav":35,
             "K40_gds":41, "K40_lso":42, "K40_PMT":43, "K40_sst":44, "K40_iav":45,
             "Co60_sst":54,
         }
