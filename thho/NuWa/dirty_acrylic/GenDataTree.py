@@ -4,7 +4,7 @@ Modified from people/zhang/jom/CheckSim/GenTree.py
 
 Save generator info into root tree
 Usage:
-    nuwa.py --no-history -A 1 -n -1 -m "GenTree out.root" data_file
+    nuwa.py --no-history -A 1 -n -1 -m "GenDataTree out.root" input.root
 '''
 
 
@@ -59,19 +59,22 @@ class GenTree(DybPythonAlg):
         #self.target_de_name = '/dd/Structure/AD/db-ade1/db-sst1/db-oil1'
         self.target_de_name = '/dd/Structure/AD/db-lso1'
         self.genTree = TTree("genTree","genTree")
-        self.readoutTree = TTree("readoutTree", "readoutTree")
+        #self.readoutTree = TTree("readoutTree", "readoutTree")
 
         self.initTree()
-        self.initReadoutTree()
 
         self.stats['/file1/tree/genTree'] = self.genTree
-        self.stats['/file1/tree/readoutTree'] = self.readoutTree
+        #self.stats['/file1/tree/readoutTree'] = self.readoutTree
 
         return SUCCESS
 
     # ===========================================
     def initTree(self):
-         
+        self.initGenTree()
+        self.initReadoutTree()
+
+    # ===========================================
+    def initGenTree(self):
         # genHeader info
        
         self.genType = array('i', [0])
@@ -135,10 +138,16 @@ class GenTree(DybPythonAlg):
 
         # readoutHeader info
         self.adcSum = array('i', [0])
-        self.readoutTree.Branch("adc", self.adcSum, "adc/I")
+        #self.readoutTree.Branch("adcSum", self.adcSum, "adcSum/I")
+        self.genTree.Branch("adcSum", self.adcSum, "adcSum/I")
 
     # ===========================================
     def reset(self):
+        self.resetGenTree()
+        self.resetReadoutTree()
+
+    # ===========================================
+    def resetGenTree(self):
         self.nPDG[0] = 0
         self.nVtx[0] = 0
         self.genType[0] = 0
@@ -282,7 +291,6 @@ class GenTree(DybPythonAlg):
         self.nEvents += 1
         self.info("executing #" + str(self.nEvents))
         self.reset()
-        self.resetReadoutTree()
        
         genHdr = evt["/Event/Gen/GenHeader"]
         self.processGenHeader(genHdr)
@@ -293,7 +301,7 @@ class GenTree(DybPythonAlg):
 
         # Fill Tree
         self.genTree.Fill()
-        self.readoutTree.Fill()
+        #self.readoutTree.Fill()
        
         return SUCCESS
      
