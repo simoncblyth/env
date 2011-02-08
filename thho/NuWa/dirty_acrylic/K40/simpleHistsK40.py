@@ -109,19 +109,25 @@ class EnergyStatsAlg(DybPythonAlg):
                              genEvt.vertices_end()):
             #thhoN +=1
             #print "thhoN is ", thhoN
+            pos = vertex.position()
+            print "thho vertex position is", pos.x(), pos.y(), pos.z()
             for particle in irange(vertex.particles_out_const_begin(),
                                    vertex.particles_out_const_end()):
+                particlePDGID = particle.pdg_id()
+                print "thho Particle is ", particlePDGID
+                if (particlePDGID != 1000200400) and (particlePDGID != 1000180400) and (particlePDGID != 11):
+                    print "thho sssss particle is ", particlePDGID
+                #print "thho particle is ", particle
                 #print "vertex.particles_out_const_begin() is", vertex.particles_out_const_begin()
                 #print "vertex.particles_out_const_end() is", vertex.particles_out_const_end()
-                totalGenEnergy += particle.momentum().e()
-                totalGenKineticEnergy += (particle.momentum().e()
-                                          - particle.momentum().m())
+                genEachTotalEnergy = particle.momentum().e()
+                genEachKineticEnergy = (particle.momentum().e() - particle.momentum().m())
                 #print "totalGenEnergy is ", totalGenEnergy
                 #print "totalGenKineticEnergy is ", totalGenKineticEnergy 
         #self.stats["/file0/energy/genEnergy"].Fill(totalGenEnergy)
         #self.stats["/file0/energy/genKineticEnergy"].Fill(totalGenKineticEnergy)
-                self.stats["/file0/energy/genEachTotalEnergy"].Fill(totalGenEnergy)
-                self.stats["/file0/energy/genEachKineticEnergy"].Fill(totalGenKineticEnergy)
+                self.stats["/file0/energy/genEachTotalEnergy"].Fill(genEachTotalEnergy)
+                self.stats["/file0/energy/genEachKineticEnergy"].Fill(genEachKineticEnergy)
 
 
 
@@ -145,29 +151,10 @@ class EnergyStatsAlg(DybPythonAlg):
 
 
 
-
-
-
-
-
-
-
-        print "Executing plotGammaBasics", self.name()
-
-
         tGen = simStats["t_Trk1"].sum()
         xGen = simStats["x_Trk1"].sum()
         yGen = simStats["y_Trk1"].sum()
         zGen = simStats["z_Trk1"].sum()
-
-        tCap = simStats["tEnd_Trk1"].sum()
-        xCap = simStats["xEnd_Trk1"].sum()
-        yCap = simStats["yEnd_Trk1"].sum()
-        zCap = simStats["zEnd_Trk1"].sum()
-
-
-
-
 
         # Get underlying DE object
         de = self.getDet(self.target_de_name)
@@ -179,17 +166,12 @@ class EnergyStatsAlg(DybPythonAlg):
         import PyCintex
         Gaudi = PyCintex.makeNamespace('Gaudi')
         genGlbPoint = Gaudi.XYZPoint(xGen, yGen, zGen)
-        capGlbPoint = Gaudi.XYZPoint(xCap, yCap, zCap)
-#        point = de.geometry().toGlobal(point)
+        #point = de.geometry().toGlobal(point)
         genLclPoint = de.geometry().toLocal(genGlbPoint)
-        capLclPoint = de.geometry().toLocal(capGlbPoint)
-#        print 'Current point is [',point.x(),point.y(),point.z(),']'
-#        print 'In global coordinate [',gpoint.x(),gpoint.y(),gpoint.z(),']'
+        #print 'Current point is [',point.x(),point.y(),point.z(),']'
+        #print 'In global coordinate [',gpoint.x(),gpoint.y(),gpoint.z(),']'
 
-        ndrift = ROOT.TVector3(xCap-xGen, yCap-yGen, zCap-zGen)
 
-        capTime = tCap - tGen
-        capDis = ndrift.Mag()
 
         print 'Generation locations', \
             '[', genGlbPoint.x(), genGlbPoint.y(), genGlbPoint.z(),']', \
