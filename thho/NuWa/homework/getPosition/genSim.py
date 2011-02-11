@@ -5,7 +5,7 @@ usage example:
 
   nuwa.py -n 2 -o output.root genSim 
 
-  positrum is generated uniformly in the AD
+  positrum is generated in the center of the AD
   The energy deposited in the Gd and GdLS zone is recorded.
   
 '''
