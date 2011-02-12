@@ -43,12 +43,12 @@ class EnergyStatsAlg(DybPythonAlg):
 
         self.target_de_name = '/dd/Structure/AD/db-ade1/db-sst1/db-oil1'
 
-        hist = TH1F("genEachEnergy","Generated Particles Kinetic Energy, Each",
+        hist = TH1F("genEachKineticEnergy","Generated Particles Kinetic Energy, Each",
                     100,0.0,10.0)
         hist.GetXaxis().SetTitle("Particle Kinetic Energy [MeV]")
         hist.GetYaxis().SetTitle("Generated Particles")
         hist.SetLineColor(4)
-        self.stats["/file0/energy/genEachEnergy"] = hist
+        self.stats["/file0/energy/genEachKineticEnergy"] = hist
 
 
         hist = TH1F("simScintEnergy","Energy deposited in Scintillator",
@@ -106,7 +106,7 @@ class EnergyStatsAlg(DybPythonAlg):
                 #print "totalGenKineticEnergy is ", totalGenKineticEnergy 
         #self.stats["/file0/energy/genEnergy"].Fill(totalGenEnergy)
         #self.stats["/file0/energy/genKineticEnergy"].Fill(totalGenKineticEnergy)
-                self.stats["/file0/energy/genEachEnergy"].Fill(particle.momentum().e())
+                self.stats["/file0/energy/genEachKineticEnergy"].Fill(particle.momentum().e() - particle.momentum().m())
 
 
 
