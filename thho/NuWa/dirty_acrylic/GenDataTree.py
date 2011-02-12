@@ -71,6 +71,7 @@ class GenTree(DybPythonAlg):
     # ===========================================
     def initTree(self):
         self.initGenTree()
+        self.initSimTree()
         self.initReadoutTree()
 
     # ===========================================
@@ -134,6 +135,11 @@ class GenTree(DybPythonAlg):
         }
        
     # ===========================================
+    def initSimTree(self):
+        self.hitSum = array('i', [0])
+        self.genTree.Branch("hitSum", self.hitSum, "hitSum/I")
+
+    # ===========================================
     def initReadoutTree(self):
 
         # readoutHeader info
@@ -144,6 +150,7 @@ class GenTree(DybPythonAlg):
     # ===========================================
     def reset(self):
         self.resetGenTree()
+        self.resetSimTree()
         self.resetReadoutTree()
 
     # ===========================================
@@ -155,6 +162,9 @@ class GenTree(DybPythonAlg):
         self.genY[0] = 0
         self.genZ[0] = 0   
 
+    # ===========================================   
+    def resetSimTree(self):
+        self.hitSum[0] = 0
     # ===========================================   
     def resetReadoutTree(self):
         self.adcSum[0] = 0
@@ -170,6 +180,12 @@ class GenTree(DybPythonAlg):
         nVtx = 0
         genName = genHdr.generatorName()
         self.genType[0] = self.genTypes.get(genName, 0)
+
+        if self.genTypes.get(genName, 0) != 21:
+            print "not U238 genType and it is ..."
+            print self.genTypes.get(genName, 0)
+            self.notU238 += 1
+
         genEvt = genHdr.event()
         for vtx in irange(genEvt.vertices_begin(), genEvt.vertices_end()):         
             if nVtx == 0:
@@ -199,7 +215,7 @@ class GenTree(DybPythonAlg):
                 nPDG += 1
             nVtx += 1
            
-        self.nPDG[0] = nPDG             
+        self.nPDG[0] = nPDG
         self.nVtx[0] = nVtx    # nVtx > 1 for most Radioact generators
        
         # get vertex position
@@ -213,6 +229,28 @@ class GenTree(DybPythonAlg):
         self.genX[0] = genLclPoint.x()/units.mm
         self.genY[0] = genLclPoint.y()/units.mm
         self.genZ[0] = genLclPoint.z()/units.mm
+
+    # ===========================================
+    def processSimHeader(self, simHdr):
+        if simHdr == None:
+            self.error("Failed to get SimHeader")
+            return FAILURE
+
+        # Simulated Hits
+        hitCollectionMap = simHdr.hits().hitCollection()
+        detector = Detector("DayaBayAD1")
+        hitCollection = hitCollectionMap[detector.siteDetPackedData()]
+        if hitCollection == None:
+            self.info("No Hit Collection for "+detector.detName())
+            return SUCCESS
+        hits = hitCollectionMap[detector.siteDetPackedData()].collection()
+        nSimHits = 0
+        for hit in hits:
+            pmtId = AdPmtSensor( hit.sensDetId() )
+            if pmtId.ring() < 1: continue  # Skip calibration PMTs
+            nSimHits += 1
+        self.hitSum[0] = nSimHits
+
                  
     # ===========================================
     def processReadoutHeader(self, readoutHdr):
@@ -235,28 +273,28 @@ class GenTree(DybPythonAlg):
             return SUCCESS
 
 
-        # Get the detector ID for this trigger
-        detector = readout.detector()
-        self.info("Detector Name: "+detector.detName())
+        ## Get the detector ID for this trigger
+        #detector = readout.detector()
+        #self.info("Detector Name: "+detector.detName())
 
-        # Trigger Type: This is an integer of the type for this trigger
-        self.info("Trigger Type: "+str( readout.triggerType() ))
-        # Trigger Number: A count of the trigger, according to the DAQ
-        self.info("Trigger Number: "+str( readout.triggerNumber() ))
+        ## Trigger Type: This is an integer of the type for this trigger
+        #self.info("Trigger Type: "+str( readout.triggerType() ))
+        ## Trigger Number: A count of the trigger, according to the DAQ
+        #self.info("Trigger Number: "+str( readout.triggerNumber() ))
 
-        # Trigger Time: Absolute time of trigger for this raw data
-        triggerTime = readout.triggerTime()
-        # Trigger Time [Seconds]: Trigger time in seconds from some day in 1990
-        self.info("Trigger Time [Seconds part]: "
-                  +str( triggerTime.GetSec() ))
-        # Trigger Time [Nanoseconds]: Nanoseconds part of trigger time
-        self.info("Trigger Time [Nanoseconds part]: "
-                  +str( triggerTime.GetNanoSec() ))
-        # Full Trigger Time: Seconds + nanoseconds
-        # Warning: When you add this together, it will lose some precision.
-        self.info("Full Trigger Time: "
-                  +str( triggerTime.GetSec()
-                        +triggerTime.GetNanoSec()*1.0e-9 ))
+        ## Trigger Time: Absolute time of trigger for this raw data
+        #triggerTime = readout.triggerTime()
+        ## Trigger Time [Seconds]: Trigger time in seconds from some day in 1990
+        #self.info("Trigger Time [Seconds part]: "
+        #          +str( triggerTime.GetSec() ))
+        ## Trigger Time [Nanoseconds]: Nanoseconds part of trigger time
+        #self.info("Trigger Time [Nanoseconds part]: "
+        #          +str( triggerTime.GetNanoSec() ))
+        ## Full Trigger Time: Seconds + nanoseconds
+        ## Warning: When you add this together, it will lose some precision.
+        #self.info("Full Trigger Time: "
+        #          +str( triggerTime.GetSec()
+        #                +triggerTime.GetNanoSec()*1.0e-9 ))
 
 
 
@@ -272,17 +310,17 @@ class GenTree(DybPythonAlg):
                     pedestal = channel.pedestal( adcIdx )
                 adcClock = channel.adcCycle( adcIdx )
                 adcGain = channel.adcRange( adcIdx )
-                self.info("ADC value: "+str(adc)
-                          + " (pedestal: "+str( pedestal )+","
-                          + " peak cycle: "+str( adcClock )+","
-                          + " gain: "+str( adcGain )+")")
+                #self.info("ADC value: "+str(adc)
+                #          + " (pedestal: "+str( pedestal )+","
+                #          + " peak cycle: "+str( adcClock )+","
+                #          + " gain: "+str( adcGain )+")")
                 # Add to total ADC sum for this trigger
                 if adcGain == 1:
                     self.adcSum[0] += (adc-pedestal)
                 elif adcGain == 2:
                     # Adjust low gain adc to high gain scale
                     self.adcSum[0] += (adc-pedestal) * 20
-                self.info("ADC Sum: " + str(self.adcSum[0]))
+                #self.info("ADC Sum: " + str(self.adcSum[0]))
 
 
     # ===========================================
@@ -291,13 +329,23 @@ class GenTree(DybPythonAlg):
         self.nEvents += 1
         self.info("executing #" + str(self.nEvents))
         self.reset()
+
+
+
+
+        self.notU238 = 0
+
        
         genHdr = evt["/Event/Gen/GenHeader"]
         self.processGenHeader(genHdr)
- 
+
+        simHdr = evt["/Event/Sim/SimHeader"]
+        self.processSimHeader(simHdr)
 
         readoutHdr = evt["/Event/Readout/ReadoutHeader"]
         self.processReadoutHeader(readoutHdr)
+
+
 
         # Fill Tree
         self.genTree.Fill()
@@ -308,6 +356,13 @@ class GenTree(DybPythonAlg):
     # ===========================================   
     def finalize(self):
         self.info("finalizing")
+
+
+        print "Total notU238 number is ... "
+        print self.notU238
+
+
+
        
         status = DybPythonAlg.finalize(self)
         return status
