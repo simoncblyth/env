@@ -38,6 +38,14 @@ Preparing...                ########################################### [100%]
 /usr/share/doc/epel-release-5/GPL
 
 
+
+
+  Example of searching, with extra EPEL repo included :
+  (it is probably wise to not enable EPEL by default)
+
+      yum --enablerepo=epel search pycurl
+
+
 EOU
 }
 redhat-dir(){ echo $(local-base)/env/base/base-redhat ; }

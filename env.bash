@@ -914,3 +914,4 @@ hudson-(){      . $(env-home)/hudson/hudson.bash && hudson-env $* ; }
 buildbot-(){      . $(env-home)/buildbot/buildbot.bash && buildbot-env $* ; }
 scipy-(){      . $(env-home)/npy/scipy.bash && scipy-env $* ; }
 analog-(){      . $(env-home)/apache/analog.bash && analog-env $* ; }
+tornado-(){      . $(env-home)/messaging/tornado.bash && tornado-env $* ; }

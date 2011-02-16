@@ -195,14 +195,18 @@ shutdown                Shut the remote supervisord down.
 
      To bring it into the chkconfig fold...
 
-      [blyth@cms01 ~]$ sudo chkconfig --add sv-blyth
-      [blyth@cms01 ~]$ sudo chkconfig --list sv-blyth
+      [blyth@cms01 ~]$ sudo /sbin/chkconfig --add sv-blyth
+      [blyth@cms01 ~]$ sudo /sbin/chkconfig --list sv-blyth
       sv-blyth        0:off   1:off   2:on    3:on    4:on    5:on    6:off
       [blyth@cms01 ~]$ sudo service sv-blyth status
 
 
       [blyth@cms01 ~]$ sudo service sv-blyth start
       Starting sv-blyth: /data/env/system/python/Python-2.5.1/bin/python: error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
+
+
+       
+
 
 
   == ini issue ... running on the wrong python == 
@@ -734,8 +738,9 @@ export PATH=$(python-bindir):\$PATH
 py=\$(which python)
 [ "\$py" != "/usr/bin/python" ] && echo using py \$py  
 
-pv=\$(python -V 2>&1)
-[ "\$pv" != "Python 2.5.1" ] && echo wrong python \$pv  && exit 1
+# http://supervisord.org/introduction.html suggests OK from 2.3.3
+# pv=\$(python -V 2>&1)
+# [ "\$pv" != "Python 2.5.1" ] && echo wrong python \$pv  && exit 1
 
 name="$(sv-name)"
 

@@ -29,6 +29,17 @@ sphinx-usage(){
     editor
         http://python.net/~gherman/ReSTedit.html
 
+
+  == rst and Trac ==
+
+    http://trac.edgewall.org/wiki/WikiRestructuredText
+
+    trac browser obeys svn:mime-type property 
+
+         svn propset svn:mime-type text/x-rst README.rst
+
+
+
   == demos ==
 
     http://people.ee.ethz.ch/~creller/web/tricks/reST.html
