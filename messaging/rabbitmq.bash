@@ -6,6 +6,91 @@ rabbitmq-env(){      elocal- ; }
 
 rabbitmq-actionlog(){ cat << EOL
 
+
+
+  17/02/2011 ... G  (with the port py26) ... rabbitmq 2.3.1 
+            sudo port selfupdate
+            sudo port install rabbitmq-server
+
+simon:~ blyth$ sudo port install rabbitmq-server
+Portfile changed since last build; discarding previous state.
+--->  Computing dependencies for libxml2
+--->  Fetching libxml2
+--->  Attempting to fetch libxml2-2.7.8.tar.gz from http://distfiles.macports.org/libxml2
+--->  Verifying checksum(s) for libxml2
+--->  Extracting libxml2
+--->  Configuring libxml2
+--->  Building libxml2
+--->  Staging libxml2 into destroot
+--->  Computing dependencies for libxml2
+--->  Installing libxml2 @2.7.8_0
+--->  Deactivating libxml2 @2.7.7_0
+--->  Activating libxml2 @2.7.8_0
+--->  Cleaning libxml2
+--->  Computing dependencies for rabbitmq-server
+--->  Dependencies to be installed: erlang perl5 py26-simplejson
+--->  Fetching perl5
+--->  Verifying checksum(s) for perl5
+--->  Extracting perl5
+--->  Configuring perl5
+--->  Building perl5
+--->  Staging perl5 into destroot
+--->  Installing perl5 @5.8.9_0
+--->  Activating perl5 @5.8.9_0
+--->  Cleaning perl5
+--->  Fetching erlang
+--->  Attempting to fetch otp_src_R14B01.tar.gz from http://distfiles.macports.org/erlang
+--->  Attempting to fetch otp_doc_man_R14B01.tar.gz from http://distfiles.macports.org/erlang
+--->  Attempting to fetch otp_doc_html_R14B01.tar.gz from http://distfiles.macports.org/erlang
+--->  Verifying checksum(s) for erlang
+--->  Extracting erlang
+--->  Applying patches to erlang
+--->  Configuring erlang                     
+--->  Building erlang
+--->  Staging erlang into destroot
+--->  Installing erlang @R14B01_1
+--->  Activating erlang @R14B01_1
+--->  Cleaning erlang
+--->  Fetching py26-simplejson
+--->  Attempting to fetch simplejson-2.1.2.tar.gz from http://distfiles.macports.org/python
+--->  Verifying checksum(s) for py26-simplejson
+--->  Extracting py26-simplejson
+--->  Configuring py26-simplejson
+--->  Building py26-simplejson
+--->  Staging py26-simplejson into destroot
+--->  Installing py26-simplejson @2.1.2_0
+--->  Activating py26-simplejson @2.1.2_0
+--->  Cleaning py26-simplejson
+--->  Fetching rabbitmq-server
+--->  Attempting to fetch rabbitmq-server-2.3.1.tar.gz from http://distfiles.macports.org/rabbitmq-server
+--->  Attempting to fetch rabbitmq-server-generic-unix-2.3.1.tar.gz from http://distfiles.macports.org/rabbitmq-server
+--->  Verifying checksum(s) for rabbitmq-server
+--->  Extracting rabbitmq-server
+--->  Configuring rabbitmq-server
+--->  Building rabbitmq-server
+--->  Staging rabbitmq-server into destroot
+--->  Creating launchd control script
+###########################################################
+# A startup item has been generated that will aid in
+# starting rabbitmq-server with launchd. It is disabled
+# by default. Execute the following command to start it,
+# and to cause it to launch at startup:
+#
+# sudo port load rabbitmq-server
+###########################################################
+--->  Installing rabbitmq-server @2.3.1_0
+--->  Activating rabbitmq-server @2.3.1_0
+--->  Cleaning rabbitmq-server
+
+
+ 
+
+
+  17/02/2011 ... N : bringing rabbitmq up to 2.2 
+
+         [blyth@belle7 ~]$ sudo yum --enablerepo=epel upgrade rabbitmq-server
+
+
   15/06/2010  
        on N ... use the below to do rougly the same as on C
  
