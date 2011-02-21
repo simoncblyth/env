@@ -12,75 +12,28 @@ rabbitmq-actionlog(){ cat << EOL
             sudo port selfupdate
             sudo port install rabbitmq-server
 
-simon:~ blyth$ sudo port install rabbitmq-server
-Portfile changed since last build; discarding previous state.
---->  Computing dependencies for libxml2
---->  Fetching libxml2
---->  Attempting to fetch libxml2-2.7.8.tar.gz from http://distfiles.macports.org/libxml2
---->  Verifying checksum(s) for libxml2
---->  Extracting libxml2
---->  Configuring libxml2
---->  Building libxml2
---->  Staging libxml2 into destroot
---->  Computing dependencies for libxml2
---->  Installing libxml2 @2.7.8_0
---->  Deactivating libxml2 @2.7.7_0
---->  Activating libxml2 @2.7.8_0
---->  Cleaning libxml2
---->  Computing dependencies for rabbitmq-server
---->  Dependencies to be installed: erlang perl5 py26-simplejson
---->  Fetching perl5
---->  Verifying checksum(s) for perl5
---->  Extracting perl5
---->  Configuring perl5
---->  Building perl5
---->  Staging perl5 into destroot
---->  Installing perl5 @5.8.9_0
---->  Activating perl5 @5.8.9_0
---->  Cleaning perl5
---->  Fetching erlang
---->  Attempting to fetch otp_src_R14B01.tar.gz from http://distfiles.macports.org/erlang
---->  Attempting to fetch otp_doc_man_R14B01.tar.gz from http://distfiles.macports.org/erlang
---->  Attempting to fetch otp_doc_html_R14B01.tar.gz from http://distfiles.macports.org/erlang
---->  Verifying checksum(s) for erlang
---->  Extracting erlang
---->  Applying patches to erlang
---->  Configuring erlang                     
---->  Building erlang
---->  Staging erlang into destroot
---->  Installing erlang @R14B01_1
---->  Activating erlang @R14B01_1
---->  Cleaning erlang
---->  Fetching py26-simplejson
---->  Attempting to fetch simplejson-2.1.2.tar.gz from http://distfiles.macports.org/python
---->  Verifying checksum(s) for py26-simplejson
---->  Extracting py26-simplejson
---->  Configuring py26-simplejson
---->  Building py26-simplejson
---->  Staging py26-simplejson into destroot
---->  Installing py26-simplejson @2.1.2_0
---->  Activating py26-simplejson @2.1.2_0
---->  Cleaning py26-simplejson
---->  Fetching rabbitmq-server
---->  Attempting to fetch rabbitmq-server-2.3.1.tar.gz from http://distfiles.macports.org/rabbitmq-server
---->  Attempting to fetch rabbitmq-server-generic-unix-2.3.1.tar.gz from http://distfiles.macports.org/rabbitmq-server
---->  Verifying checksum(s) for rabbitmq-server
---->  Extracting rabbitmq-server
---->  Configuring rabbitmq-server
---->  Building rabbitmq-server
---->  Staging rabbitmq-server into destroot
---->  Creating launchd control script
-###########################################################
-# A startup item has been generated that will aid in
-# starting rabbitmq-server with launchd. It is disabled
-# by default. Execute the following command to start it,
-# and to cause it to launch at startup:
-#
-# sudo port load rabbitmq-server
-###########################################################
---->  Installing rabbitmq-server @2.3.1_0
---->  Activating rabbitmq-server @2.3.1_0
---->  Cleaning rabbitmq-server
+
+        started with 
+              sudo port load rabbitmq-server
+        said yes to two dialogs that popped up allow incoming network connection to epmd and beam 
+
+
+
+ simon:env blyth$ sudo rabbitmqctl status     
+Status of node rabbit@simon ...
+Error: unable to connect to node rabbit@simon: nodedown
+
+
+simon:env blyth$ sudo rabbitmqctl start_app
+Starting node rabbit@simon ...
+Error: unable to connect to node rabbit@simon: nodedown
+diagnostics:
+- unable to connect to epmd on simon: address
+- current node: rabbitmqctl91362@simon
+- current node home dir: /opt/local/var/lib/rabbitmq
+- current node cookie hash: 0gtn34TrzMob6X6AYfxD+g==
+
+
 
 
  
@@ -383,12 +336,14 @@ rabbitmq-smry()
 
 rabbitmq-fields(){    ## from the rabbitmqctl usage message 
    case $1 in
-      exchanges) echo name type durable auto_delete arguments  ;;
-         queues_cms01) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
-         queues) echo name durable auto_delete arguments messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
-    connections_cms01) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
-    connections) echo address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; # client_properties 
-       bindings) echo exchange_name routing_key queue_name arguments ;;
+        exchanges) echo name type durable auto_delete arguments  ;;
+      queues_old1) echo name durable auto_delete arguments node messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
+      queues_old2) echo name durable auto_delete arguments      messages_ready  messages_unacknowledged messages_uncommitted messages acks_uncommitted consumers transactions memory ;; 
+           queues) echo name durable auto_delete arguments      messages_ready  messages_unacknowledged                      messages                  consumers              memory ;; 
+connections_cms01) echo node address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; 
+      connections) echo address port peer_address peer_port state channels user vhost timeout frame_max recv_oct recv_cnt send_oct send_cnt send_pend ;; # client_properties 
+     bindings_old) echo exchange_name routing_key queue_name arguments ;;
+         bindings) echo source_name source_kind destination_name destination_kind routing_key arguments ;; 
    esac
 }
 rabbitmq-exchanges(){   rabbitmq-list ${FUNCNAME/*-/} $* ; }  
@@ -445,3 +400,28 @@ rabbitmq-umbrella-make(){
    make co
 
 }
+
+
+
+rabbitmq-port-on(){
+    sudo port load rabbitmq-server
+}
+
+rabbitmq-port-epmd(){ echo /opt/local/lib/erlang/erts-5.8.2/bin/epmd ; }
+
+rabbitmq-port-off(){
+    sudo port unload rabbitmq-server
+    sudo $(rabbitmq-port-epmd) -names
+    sudo $(rabbitmq-port-epmd) -kill
+}
+
+rabbitmq-port-startupitemlog(){
+     cat /opt/local/var/log/rabbitmq/startupitem.log
+}
+
+rabbitmq-epmd-names(){
+    $(rabbitmq-port-epmd) -names
+}
+
+
+

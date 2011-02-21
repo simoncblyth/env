@@ -80,6 +80,7 @@ root-version-default(){
   local new="5.23.02" 
   local now="5.24.00" 
   local try="5.26.00" 
+  #local try="5.28.00" 
   case ${1:-$NODE_TAG} in 
      G) echo $try ;;
      C|C2|N) echo $try ;;

@@ -44,6 +44,14 @@ pika-usage(){
          pika-info 
                 dump branch info 
 
+
+    On G, Feb 2011 with the ~/v/mq virtualenv
+
+         pika-update
+         python setup.py build
+         python setup.py install     ## no sudo as using virtualenv
+
+
 EOU
 }
 pika-dir(){ echo $(local-base)/env/messaging/pika ; }
@@ -104,4 +112,18 @@ pika-info(){
 
 pika-send(){    python $(env-home)/messaging/pika/send.py $* ; }
 pika-consume(){ python $(env-home)/messaging/pika/consume.py $* ; }
+
+pika-v(){ echo ~/v/mq ; }
+pika-activate(){
+   . $(pika-v)/bin/activate
+}
+pika-mon(){
+   $(pika-v)/bin/python $(env-home)/messaging/pika/mon.py $* 
+}
+pika-imon(){
+   . $(pika-v)/bin/activate
+   cd $(env-home)/messaging/pika
+   ipython
+}
+
 

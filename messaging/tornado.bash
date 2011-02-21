@@ -10,18 +10,33 @@ tornado-usage(){
 
      http://www.tornadoweb.org/documentation
 
-   tornado-check
- 
-      Pre-requisites with py2.4 on N  
-         sudo yum --enablerepo=epel install pycurl
-         sudo yum --enablerepo=epel install python-simplejson
 
+
+
+   tornado-check
    tornado-build
 
       builds 'tornado.epoll' extension
 
    tornado-install 
-       errors from lots of python 2.6 isms ... "with"
+
+
+
+   == install attempts ==
+
+       system yum py24 on N 
+ 
+         sudo yum --enablerepo=epel install pycurl
+         sudo yum --enablerepo=epel install python-simplejson
+
+            ... nope lots of py2.6 isms "with" ... encountered at tornado-install step
+
+       port py26 on G ...   simplejson not needed as "json" comes standard with py26
+
+            virtualenv $HOME/v/mq 
+            cd ; . v/mq/bin/activate
+            pip install pycurl        
+
 
 EOU
 }
@@ -52,7 +67,11 @@ tornado-build(){
 tornado-install(){
    type $FUNCNAME
    tornado-cd
-   sudo python setup.py install
+   python setup.py install   ## no need for sudo as using virtualenv python on G 
 }
 
-
+tornado-helloworld(){
+   local msg="=== $FUNCNAME :"
+   echo $msg test with : curl http://localhost:8888
+   python $(tornado-dir)/demos/helloworld/helloworld.py
+}
