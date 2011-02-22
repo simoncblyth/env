@@ -125,5 +125,8 @@ pika-imon(){
    cd $(env-home)/messaging/pika
    ipython
 }
+pika-i(){
+   $(pika-v)/bin/ipython 
+}
 
 
