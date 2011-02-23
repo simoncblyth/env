@@ -81,7 +81,7 @@ void die_on_amqp_error(amqp_rpc_reply_t x, char const *context) {
       break;
 
     case AMQP_RESPONSE_LIBRARY_EXCEPTION:
-      fprintf(stderr, "%s: %s\n", context, amqp_error_string(x.library_error));
+      fprintf(stderr, "%s: %s\n", context, amqp_error_string(x.library_errno));
       break;
 
     case AMQP_RESPONSE_SERVER_EXCEPTION:

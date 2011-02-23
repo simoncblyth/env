@@ -132,12 +132,13 @@ int rootmq_exchange_declare( char const* exchange , char const* exchangetype , b
 
 
              Jan2011 auto_delete has gone    
+             Feb2011 auto_delete is back 
 
     */
     amqp_exchange_declare(conn, 1, 
                           amqp_cstring_bytes(exchange), 
                           amqp_cstring_bytes(exchangetype),
-     			  passive, durable, 
+     			  passive, durable, auto_delete, 
                           AMQP_EMPTY_TABLE);
     die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
     return EXIT_SUCCESS ;
@@ -296,6 +297,18 @@ int rootmq_basic_consume( char const* queue )
 {
   /*
         based on rabbitmq-c/examples/amqp_listen.c ... this is inside the monitor thread
+
+extern struct amqp_basic_consume_ok_t_ *amqp_basic_consume(amqp_connection_state_t state,
+                                                           amqp_channel_t channel,
+                                                           amqp_bytes_t queue,
+                                                           amqp_bytes_t consumer_tag,
+                                                           amqp_boolean_t no_local,
+                                                           amqp_boolean_t no_ack,
+                                                           amqp_boolean_t exclusive);
+
+
+       Feb2011 : parameters gone
+
   */
 
   int rc = rootmq_init_amqp();
@@ -312,7 +325,7 @@ int rootmq_basic_consume( char const* queue )
   long long live_time = 0 ;  
   long long cycle_time ;
 
-  amqp_basic_consume(conn, channel , amqp_cstring_bytes(queue) , amqp_empty_bytes, no_local, no_ack, exclusive, amqp_empty_table );
+  amqp_basic_consume(conn, channel , amqp_cstring_bytes(queue) , AMQP_EMPTY_BYTES , no_local, no_ack, exclusive );
   die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
 
   {

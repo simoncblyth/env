@@ -199,9 +199,9 @@ amqp_field_value_t rootmq_field_value_dup( const amqp_field_value_t src )
      case AMQP_FIELD_KIND_I64:
           dest.value.i64  = src.value.i64 ;
           break ;
-     case AMQP_FIELD_KIND_U64:
-          dest.value.u64  = src.value.u64 ;
-          break ;
+     //case AMQP_FIELD_KIND_U64:
+     //     dest.value.u64  = src.value.u64 ;
+     //     break ;
      case AMQP_FIELD_KIND_F32:
           dest.value.f32  = src.value.f32 ;
           break ;
