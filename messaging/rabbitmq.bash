@@ -246,7 +246,6 @@ rabbitmq-reset(){
   rabbitmq-ctl reset
   rabbitmq-ctl start_app
 
-  rabbitmq-init 
 }
 
 
@@ -330,9 +329,18 @@ rabbitmq-smry()
         echo $x
         rabbitmq-$x
    done
+
+
 }
-
-
+rabbitmq-ls()
+{
+   sudo rabbitmqctl list_exchanges
+   sudo rabbitmqctl list_bindings
+   sudo rabbitmqctl list_queues
+   sudo rabbitmqctl list_connections
+   sudo rabbitmqctl list_channels
+   sudo rabbitmqctl list_consumers
+}
 
 rabbitmq-fields(){    ## from the rabbitmqctl usage message 
    case $1 in
