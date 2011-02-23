@@ -58,16 +58,31 @@ NEXT
 
 '''
 
-import os, sys, platform, time, threading
-from Queue import Queue
+import os, sys, platform, time, threading, multiprocessing, Queue
 import pika
 from pika.adapters import SelectConnection
 
 
-class Worker(threading.Thread):
-    nam = property( lambda self:"%s:%s" % ( self.__class__.__name__, self.getName() ))
+
+#class Worker(threading.Thread):
+class Worker(multiprocessing.Process):
+
+    is_thread_worker = property( lambda self:issubclass(self.__class__, threading.Thread ) )
+    is_process_worker = property( lambda self:issubclass(self.__class__, multiprocessing.Process ) )
+
+    def _tag(self): 
+        if self.is_thread_worker:
+             return "T%s" % self.name
+        elif self.is_process_worker:
+             return "P%s" % self.pid
+        else:
+             return "?"
+    tag = property( _tag ) 
+
+
     def __init__(self, q, **kwargs ):
-        threading.Thread.__init__(self)
+        #threading.Thread.__init__(self, name=kwargs['name'] )
+        multiprocessing.Process.__init__(self, name=kwargs['name'])
 
         self.q = q
         self.opts = kwargs
@@ -78,6 +93,7 @@ class Worker(threading.Thread):
         self.channel  = None
         self.connection = None
 
+
     def run(self):                        
         """ 
         Runs in separate thread once started 
@@ -86,7 +102,7 @@ class Worker(threading.Thread):
         otherwise the publisher ends up behaving as a 2nd consumer ... leading to confusion/roundrobining/duplication 
 
         """ 
-        pika.log.debug("%s : starting " , self.nam )
+        pika.log.debug("%s : starting " , self.tag )
         credentials = pika.PlainCredentials(self.opts['username'], self.opts['password'])
         parameters = pika.ConnectionParameters(self.opts['host'], credentials=credentials)
         connection = SelectConnection( parameters )
@@ -96,28 +112,29 @@ class Worker(threading.Thread):
         self.connection = connection
         connection.ioloop.start()
 
-    def __call__(self, daemon=False):
+    def __call__(self, daemon=True):
         """Using all daemon threads allows the MainThread to exit while the daemons are still alive """
-        self.daemon = daemon
+        if  issubclass(self.__class__, threading.Thread ): 
+            self.daemon = daemon
         self.start()
  
     def _on_connected(self):
         def on_connected(connection):
-            pika.log.info("%s: connected : %r " % ( self.nam , connection) )
+            pika.log.info("%s: connected : %r " % ( self.tag , connection) )
             connection.channel(self._on_channel_open() )
             self.connection = connection
         return on_connected  
 
     def _on_channel_open(self):
         def on_channel_open(channel):
-            pika.log.info("%s: channel_open : %r " % ( self.nam , channel )  )
+            pika.log.info("%s: channel_open : %r " % ( self.tag , channel )  )
             self.channel = channel
             channel.exchange_declare( type=self.opts['type'], exchange=self.opts['exchange'], durable=self.opts['durable'], auto_delete=self.opts['auto_delete'], callback=self._on_exchange_declared() )
         return on_channel_open
 
     def _on_closed(self):
         def on_closed(connection):
-            pika.log.info("%s: closing connection : %r " % ( self.nam , connection) )
+            pika.log.info("%s: closing connection : %r " % ( self.tag , connection) )
             connection.ioloop.stop()
         return on_closed
 
@@ -128,9 +145,9 @@ class Worker(threading.Thread):
         connection.ioloop.start()
 
     def _on_exchange_declared(self):
-        if self.opts['mode'] == "CONSUMER":
+        if self.name == "CONSUMER":
             def on_exchange_declared(frame): 
-                pika.log.info("%s: exchange_declared : %r " % ( self.nam , frame )  )
+                pika.log.info("%s: exchange_declared : %r " % ( self.tag , frame )  )
                 channel = self.channel
                 channel.queue_declare( queue=self.opts['queue'], durable=self.opts['durable'], exclusive=self.opts['exclusive'], auto_delete=self.opts['auto_delete'], callback=self._on_queue_declared() )
         else:
@@ -138,21 +155,21 @@ class Worker(threading.Thread):
                 channel = self.channel
                 while True:
                     m = self.q.get()  # blocks 
-                    pika.log.info( "%s %r ", self.nam, m ) 
+                    pika.log.info( "%s %r ", self.tag , m ) 
                     channel.basic_publish(exchange=self.opts['exchange'], routing_key=self.opts['routing_key'],
                               body=m, properties=pika.BasicProperties( content_type="text/plain", delivery_mode=1))
         return on_exchange_declared
 
     def _on_queue_declared(self):
         def on_queue_declared(frame): 
-            pika.log.info("%s: queue_declared : %r " % ( self.nam , frame )  )
+            pika.log.info("%s: queue_declared : %r " % ( self.tag, frame )  )
             channel = self.channel
             channel.queue_bind( queue=self.opts['queue'], exchange=self.opts['exchange'], routing_key=self.opts['routing_key'], callback=self._on_ready() )
         return on_queue_declared
 
     def _on_ready(self):
         def on_ready(frame):
-            pika.log.info("%s: ready : %r " % ( self.nam, frame ) )
+            pika.log.info("%s: ready : %r " % ( self.tag, frame ) )
             self.start_time = time.time()
             channel = self.channel
             channel.basic_consume( self._on_handle_delivery() , queue=self.opts['queue'] , no_ack=self.opts['no_ack'])
@@ -160,8 +177,8 @@ class Worker(threading.Thread):
 
     def _on_handle_delivery(self):  
         def on_handle_delivery(channel, method_frame, header_frame, body):
-            pika.log.debug(" %s : handle_delivery : channel %r  method %r header %r body %r " , self.nam, channel, method_frame, header_frame, body )
-            pika.log.debug(" %s : content_type %s delivery_tag %s " , self.nam, header_frame.content_type, method_frame.delivery_tag )
+            pika.log.debug(" %s : handle_delivery : channel %r  method %r header %r body %r " , self.tag, channel, method_frame, header_frame, body )
+            pika.log.debug(" %s : content_type %s delivery_tag %s " , self.tag, header_frame.content_type, method_frame.delivery_tag )
             self.q.put( body )
             if self.opts['no_ack']:
                 pass
@@ -180,7 +197,7 @@ class Worker(threading.Thread):
             self.last_count = count
             self.count = count          
  
-            pika.log.info(" %s : timed_receive: %i Messages Received, %.4f per second", self.nam, self.count, rate)
+            pika.log.info(" %s : timed_receive: %i Messages Received, %.4f per second", self.tag, self.count, rate)
         return on_handle_delivery 
 
 
@@ -192,19 +209,19 @@ class Dumper(threading.Thread):
 
     BUT going via the rabbit .... 
     """
-    def __init__(self, q ):
+    def __init__(self, q , **kwargs):
         self.q = q 
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name=kwargs['name'] )
 
-    nam = property( lambda self:"%s:%s" % ( self.__class__.__name__, self.getName() ))
+    tag = property( lambda self:"%s:%s" % ( self.__class__.__name__, self.name ))
 
     def run(self):             
-        pika.log.debug( "%s starting " , self.nam )
+        pika.log.debug( "%s starting " , self.tag )
         while True:
             m = self.q.get()  # blocks 
-            pika.log.info( "%s %r ", self.nam, m ) 
+            pika.log.info( "%s %r ", self.tag, m ) 
 
-    def __call__(self, daemon=False):
+    def __call__(self, daemon=True):
         self.daemon = daemon
         self.start()
    
@@ -212,8 +229,21 @@ class Dumper(threading.Thread):
 
  
 def tls():
+    for c in multiprocessing.active_children():
+        pika.log.info( "%r", c ) 
     for t in threading.enumerate():
         pika.log.info( "%r", t ) 
+ 
+
+def addr():
+    n = platform.node()
+    p = multiprocessing.current_process()
+    t = threading.current_thread()
+    return "%s:%s:%s:%s" % ( n, p.name, p.pid, t.name )
+
+def clean():
+    for c in multiprocessing.active_children():
+        c.terminate()
 
 
 
@@ -223,35 +253,23 @@ if __name__ == '__main__':
 
     pika.log.setup(color=True, level=pika.log.INFO )    
 
-
-    qn = "%s-%s-%s" % ( platform.node(), os.getpid(), threading.current_thread().getName() )
-    cfg = dict( queue=qn , routing_key="test", exchange="xmonf", type="fanout", durable=False , exclusive=False, auto_delete=True, host='127.0.0.1' , username='guest', password='guest', no_ack=True )
+    cfg = dict( queue=addr() , routing_key="test", exchange="xmonf", type="fanout", durable=False , exclusive=False, auto_delete=True, host='127.0.0.1' , username='guest', password='guest', no_ack=True )
     
+    ## sender and receiver queues 
+    p = multiprocessing.Queue()   ## Queue.Queue()   
+    q = multiprocessing.Queue()   
+    
+    pubr = Worker( p , **dict( cfg, name="PUBLISHER" ) )    ## put to p to send messages
+    cons = Worker( q , **dict( cfg, name="CONSUMER" )  )    ## updates q as messages arrive
+    
+    ## start subprocesses before threads to avoid forking the threads     
+    pubr()
+    cons()    
 
-    q = Queue()        ## receiver
-    cons = Worker( q , **dict( cfg, mode="CONSUMER" )  )
-    cons(daemon=True)    ## start thread to update the local q as messages arrive from remote rabbitmq q          
-
-    dmpr = Dumper( q )
-    dmpr(daemon=True)    ## start thread to dump messages as they arrive in local q 
-
-
-
-    #p = Queue()   ## sender
-    #pubr = Worker( p , **dict( cfg, mode="PUBLISHER" ) )
-    #pubr(daemon=True)
-
+    dmpr = Dumper( q , name="DUMPER" )
+    dmpr()                                                  ## thread to dump messages as they arrive in local q 
 
     tls()
-
-
-    ##
-    ##     ... only every other message gets thru 
-    ##                  ... roundrobin-ing? 
-    ##                  ... change q names ???
-    ##
-
-    #time.sleep(1)
 
 
 
