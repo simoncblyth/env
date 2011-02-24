@@ -77,7 +77,6 @@ from aberdeen.DataModel.tests.evs import Evs
 from ConfigParser import ConfigParser
 import os, sys, platform, time, datetime, threading, multiprocessing, Queue, pickle, atexit
 import pika
-from pika.adapters import SelectConnection
 
 class Msg(dict):
     content_type = property( lambda self:self.get('content_type', 'text/pickle' ))
@@ -128,7 +127,7 @@ class Worker(multiprocessing.Process):
         pika.log.debug("%s : starting " , self.tag )
         credentials = pika.PlainCredentials(self.opts['username'], self.opts['password'])
         parameters = pika.ConnectionParameters(self.opts['host'], credentials=credentials)
-        connection = SelectConnection( parameters )
+        connection = pika.SelectConnection( parameters )
 
         connection.callbacks.add(0, '_on_connection_open', self._on_connected() , one_shot=True )
         connection.add_on_close_callback( self._on_closed() )
