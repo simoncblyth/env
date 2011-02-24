@@ -1,10 +1,18 @@
 #!/usr/bin/env python
+"""
+Exercising pika and demoing a threading problem 
+   http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/320
 
+
+"""
 import os, sys, platform, time, datetime, threading, multiprocessing, Queue, pickle, atexit
 from ConfigParser import ConfigParser
 import pika
 
 class Envelope(object):
+    """
+    Message manipulator/converter
+    """
     def __init__(self, obj , **opts ):
         if issubclass( obj.__class__ , Envelope ):
             raise Exception("already in Envelope")
@@ -22,12 +30,15 @@ class T(threading.Thread):
     """
     Thread runner for Worker subclasses
     Using all daemon threads allows the MainThread to exit while the daemons are still alive 
+     ... which means should run from ipython to keep it alive.
+
+    Making workers stoppable breaks agnosticism
     """
     def __init__( self,  cls, args, kwargs ):
         q = kwargs.pop('q',None) or Queue.Queue()
         w = cls( q, *args, **kwargs )
-        threading.Thread.__init__(self, name=kwargs.get('name',self.__class__.__name__ ))  
-        self.daemon = True
+        threading.Thread.__init__(self, name=kwargs.get('name',"%s%s" % (self.__class__.__name__, cls.__name__)))  
+        self.daemon = False
         self.q = q 
         self.w = w 
 
@@ -41,13 +52,12 @@ class P(multiprocessing.Process):
     def __init__( self, cls, args, kwargs):
         q = kwargs.pop('q', None) or  multiprocessing.Queue()
         w = cls( q, *args, **kwargs )
-        multiprocessing.Process.__init__(self, name=kwargs.get('name',self.__class__.__name__ ))  
+        multiprocessing.Process.__init__(self, name=kwargs.get('name',"%s%s" % (self.__class__.__name__, cls.__name__ )))  
         self.q = q 
         self.w = w 
 
     def run(self):
         self.w()
-
 
 class Worker(object):
     """
@@ -55,7 +65,7 @@ class Worker(object):
         * stay thread/process agnostic
         * blocking call in the __call__
         * 1st __init__ argument is the appropriate q instance
-        * 2nd __init__ argument is dict like object such as PikaOptions
+        * 2nd __init__ argument is dict like object such as PikaOpts
           which gets updated by kwargs 
     """
     tag = property( lambda self:self.opts.get('variant', self.__class__.__name__ )  ) 
@@ -64,17 +74,20 @@ class Worker(object):
         self.opts = opts
         self.opts.update( kwargs )
 
-
 class Dumper(Worker):          
+    """
+    Dumps objects appearing in the local q 
+    """
     def __call__(self):             
         pika.log.debug("%s starting ", self.tag )
         while True:
             m = self.q.get()  # blocks 
-            pika.log.info( "Dumper %r ", m ) 
+            pika.log.info( "%s %r ", self.tag,  m ) 
+
 
 class Emitter(Worker):          
     """
-    Placing strings onto the argument q 
+    Puts strings onto the argument q 
     every interval seconds ...
 
     Usage::
@@ -84,15 +97,24 @@ class Emitter(Worker):
     """
     interval = property( lambda self:self.opts.get('interval',5) )
     def __call__(self):             
-        pika.log.debug("%s starting ", self.tag )
-        while True:
+        pika.log.info("%s starting ", self.tag )
+        self.countdown = 10 
+        while self.countdown > 0:
+            self.countdown -= 1 
             now = datetime.datetime.now() 
-            msg = "Emitter-%s" % ( now.strftime("%c") )
+            msg = "Emitter-%i-%s" % ( self.countdown, now.strftime("%c") )
             self.q.put( msg )  
             time.sleep( self.interval )
- 
+        pika.log.info("%s finishing ", self.tag )
+
 
 class Consumer(Worker):
+    """
+    Connects to a RabbitMQ server and via a sequence of callbacks 
+    wires up an AMQP exchange and queue
+
+    Messages appearing on the remote queue are propagated onto the local queue
+    """
     def __call__(self):
         self.count = 0
         self.last_count = None
@@ -135,7 +157,6 @@ class Consumer(Worker):
 
     def fallback(self, *args ):
         pika.log.warning("%s: fallback callback invoked %r " % ( self.tag , args ) )
-
 
     def on_connected(self, connection):
         pika.log.info("%s: connected : %r " % ( self.tag , connection) )
@@ -188,9 +209,7 @@ class Consumer(Worker):
 
         self.q.put( body )
 
-        if self.opts.no_ack:
-            pass
-        else:
+        if not self.opts.no_ack:
             channel.basic_ack(delivery_tag=method_frame.delivery_tag)
 
         count = self.count 
@@ -210,46 +229,81 @@ class Consumer(Worker):
 
 class Publisher(Consumer):
     """
-    The behavior split arises from the classname influencing the chain 
-    of callbacks in force
+    Connects to a RabbitMQ server and via a sequence of callbacks 
+    wires up an AMQP exchange and queue
+
+    Messages appearing on the local queue are propagated onto the remote queue
+
+    The behavior split between Publisher and Consumer 
+    arises from the classname influencing the chain of callbacks in force
     """
     pass
  
 
-
-
-
 class PikaOpts(dict):
     defaults = dict( 
                   host='127.0.0.1', username='guest', password='guest' , vhost='/' , port='5672' ,
-                  queue_name='pmq' , exchange_name="pmx" , exchange_type="topic" , routing_key="pmq.#" , durable=True, exclusive=False, auto_delete=False, no_ack=False  
+                  queue_name='pmq' , exchange_name="pmx" , exchange_type="topic" , routing_key="pmq.#" , 
+                  durable=True, exclusive=False, auto_delete=False, no_ack=False  
                   )
     def __getattr__(self, name ):
         return self.get(name, self.defaults.get(name, None)) 
 
+    def __repr__(self):
+        d = self.copy()
+        d.update( host="***" , password="***", username="***" )
+        return repr(d)
+
     def read(self, cnf='local', path='~/.rmq.cnf' ):
-        cfp = ConfigParser()
-        cfp.read( os.path.expanduser(path) )
-        assert cfp.has_section(cnf), ( cnf, cfp.sections() )
-        for o in cfp.options( cnf ):   
-            self[o] = cfp.get( cnf, o )
+        path = os.path.expanduser(path)
+        if os.path.exists( path ): 
+            cfp = ConfigParser()
+            cfp.read( path )
+            if cfp.has_section(cnf):
+                for o in cfp.options( cnf ):
+                    self[o] = cfp.get( cnf, o )
         return self
     pass
 
 
-
 class PikaMQ(object):
-    def __init__(self, cnf='mon' ):
-        pika.log.setup(color=True, level=pika.log.INFO )    
-        self.opts = PikaOpts().read('mon')
-        pika.log.info( "PikaOpts %r ", self.opts )
-        atexit.register( PikaMQ.cleanup )
-        
-        cons = P( Consumer,  (opts,) , {} )
-        pubr = P( Publisher, (opts,) , {}  )
-        dmpr = T( Dumper, (opts,), dict(q=cons.q,) )
-        emtr = T( Emitter, (opts,), dict(q=pubr.q,) )
+    """
+    Umbrella class to hold 
 
+    cons
+         consumer that propagates messages from remote AMQP queue onto local queue 
+    pubr
+         publisher that propagates messages placed on local queue to remote AMQP exchange
+    dmpr
+         dumper that dumps objects arriving on the local queue
+    emtr 
+         emitter that puts messages onto the local queue every interval seconds
+
+
+    Fails when Consumer and Publisher are both threads .. 
+
+
+    """
+    def __init__(self, cnf='mon' , fail=True ):
+        pika.log.setup(color=True, level=pika.log.INFO )    
+        opts = PikaOpts().read(cnf)
+        pika.log.info( "PikaOpts %r ", opts )
+        atexit.register( PikaMQ.cleanup )
+
+        if fail:
+            cons = T( Consumer,  (opts,) , {} ) 
+            pubr = T( Publisher, (opts,) , {} )
+            dmpr = T( Dumper,    (opts,),  dict(q=cons.q,) )
+            emtr = T( Emitter,   (opts,),  dict(q=pubr.q,) )
+        else:
+            cons = P( Consumer,  (opts,) , {} )   
+            pubr = T( Publisher, (opts,) , {} )
+            dmpr = T( Dumper,    (opts,),  dict(q=cons.q,) )
+            emtr = T( Emitter,   (opts,),  dict(q=pubr.q,) )
+ 
+
+        self.opts = opts     
+   
         self.cons = cons
         self.pubr = pubr
         self.dmpr = dmpr
@@ -260,6 +314,9 @@ class PikaMQ(object):
         self.pubr.start() 
         self.dmpr.start()
         self.emtr.start()
+
+    def publish(self, obj):
+        self.pubr.q.put(obj)
 
     @classmethod
     def cleanup(cls):
@@ -280,28 +337,17 @@ class PikaMQ(object):
             pika.log.info( "%r", c ) 
         for t in threading.enumerate():
             pika.log.info( "%r", t ) 
- 
-
+    
+    def __repr__(self):
+        return "\n".join( [ "cons %r" % self.cons , "pubr %r" % self.pubr , "dmpr %r" % self.dmpr , "emtr %r" % self.emtr, "" ] ) 
 
 
 
 if __name__ == '__main__':
 
 
-    pmq = PikaMQ()
+    pmq = PikaMQ(fail=False)
     pmq()    
-
-
-    #import ROOT
-    #ROOT.gSystem.Load("libAbtDataModel")
-    #from aberdeen.DataModel.tests.evs import Evs
-
-    ## sending pickled ROOT objects, working OK 
-    #evs = Evs()
-    #p.put( pickle.dumps(evs.ri) )
-    #p.put( pickle.dumps(evs[0]) )
-    #p.put( pickle.dumps(evs[1]) )
-
 
 
 
