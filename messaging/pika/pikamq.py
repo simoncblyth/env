@@ -1,101 +1,222 @@
 #!/usr/bin/env python
-import os
-import pika
+
+import os, sys, platform, time, datetime, threading, multiprocessing, Queue, pickle, atexit
 from ConfigParser import ConfigParser
+import pika
 
-class PikaClient(object):
-    def __init__(self, opts):
+class Envelope(object):
+    def __init__(self, obj , **opts ):
+        if issubclass( obj.__class__ , Envelope ):
+            raise Exception("already in Envelope")
+        self.obj = obj
+        self.opts = opts 
+    def _prop(self):
+        return pika.BasicProperties( content_type=self.opts.get('content_type','text/plain'), delivery_mode=self.opts.get('delivery_mode', 1)) 
+    properties = property(_prop)
+    def _body(self):
+        return self.obj
+    body = property(_body)
 
+ 
+class T(threading.Thread):
+    """
+    Thread runner for Worker subclasses
+    Using all daemon threads allows the MainThread to exit while the daemons are still alive 
+    """
+    def __init__( self,  cls, args, kwargs ):
+        q = kwargs.pop('q',None) or Queue.Queue()
+        w = cls( q, *args, **kwargs )
+        threading.Thread.__init__(self, name=kwargs.get('name',self.__class__.__name__ ))  
+        self.daemon = True
+        self.q = q 
+        self.w = w 
+
+    def run(self):
+        self.w()
+
+class P(multiprocessing.Process):
+    """ 
+    Process runner for Worker subclasses
+    """
+    def __init__( self, cls, args, kwargs):
+        q = kwargs.pop('q', None) or  multiprocessing.Queue()
+        w = cls( q, *args, **kwargs )
+        multiprocessing.Process.__init__(self, name=kwargs.get('name',self.__class__.__name__ ))  
+        self.q = q 
+        self.w = w 
+
+    def run(self):
+        self.w()
+
+
+class Worker(object):
+    """
+    Worker conventions :
+        * stay thread/process agnostic
+        * blocking call in the __call__
+        * 1st __init__ argument is the appropriate q instance
+        * 2nd __init__ argument is dict like object such as PikaOptions
+          which gets updated by kwargs 
+    """
+    tag = property( lambda self:self.opts.get('variant', self.__class__.__name__ )  ) 
+    def __init__(self, q, opts, **kwargs ):
+        self.q = q 
         self.opts = opts
-        self.pending = ['hello','world']
-        self.messages = list()
+        self.opts.update( kwargs )
 
-        self.connected = False
-        self.connecting = False
-        self.connection = None
-        self.channel = None
 
-    def properties(self, **kwargs):
-        return pika.BasicProperties( **kwargs )
+class Dumper(Worker):          
+    def __call__(self):             
+        pika.log.debug("%s starting ", self.tag )
+        while True:
+            m = self.q.get()  # blocks 
+            pika.log.info( "Dumper %r ", m ) 
 
+class Emitter(Worker):          
+    """
+    Placing strings onto the argument q 
+    every interval seconds ...
+
+    Usage::
+        emit = Emitter( q, interval=10 )
+        emit()
+
+    """
+    interval = property( lambda self:self.opts.get('interval',5) )
+    def __call__(self):             
+        pika.log.debug("%s starting ", self.tag )
+        while True:
+            now = datetime.datetime.now() 
+            msg = "Emitter-%s" % ( now.strftime("%c") )
+            self.q.put( msg )  
+            time.sleep( self.interval )
+ 
+
+class Consumer(Worker):
     def __call__(self):
+        self.count = 0
+        self.last_count = None
+        self.last_time = None
+        self.channel  = None
+        self.connection = None
+
         self.connect()
         self.connection.ioloop.start()
 
     def connect(self):
-        if self.connecting:
-            pika.log.info('PikaClient: Already connecting to RabbitMQ')
-            return
-        self.connecting = True
-        credentials = pika.PlainCredentials(self.opts.username, self.opts.password)
-        param = pika.ConnectionParameters(host=self.opts.host, port=int(self.opts.port), virtual_host=self.opts.vhost , credentials=credentials)
-        pika.log.info('PikaClient: Connecting to RabbitMQ with param %r', param )
-        self.connection = pika.SelectConnection(param, on_open_callback=self.on_connected)
-        self.connection.add_on_close_callback(self.on_closed)
+        """
+        Note the low level way of setting the on_open callback in order to specify one_shot=True 
+        otherwise the publisher ends up behaving as a 2nd consumer ... leading to confusion/roundrobining/duplication 
+
+        """ 
+        pika.log.debug("%s : connect " , self.tag )
+        credentials = pika.PlainCredentials(self.opts.username, self.opts.password )
+        parameters = pika.ConnectionParameters(self.opts.host , credentials=credentials)
+        connection = pika.SelectConnection( parameters )
+
+        connection.callbacks.add(0, '_on_connection_open', self.on_connected , one_shot=True )
+        connection.add_on_close_callback( self.on_closed )
+        self.connection = connection
+
+
+    def cb(self, name):
+        """
+        Callback variants postfixed with lowercased classname 
+        take precedence, eg 
+             on_exchange_declared_consumer
+             on_exchange_declared_publisher
+
+        """
+        names = [ "%s_%s" % ( name, self.__class__.__name__.lower() ), name ]
+        for name in names:
+            if hasattr(self, name ):
+                return getattr(self, name)
+        return self.fallback 
+
+    def fallback(self, *args ):
+        pika.log.warning("%s: fallback callback invoked %r " % ( self.tag , args ) )
+
 
     def on_connected(self, connection):
-        pika.log.info('PikaClient: Connected : %r ', connection )
-        self.connected = True
+        pika.log.info("%s: connected : %r " % ( self.tag , connection) )
         self.connection = connection
-        self.connection.channel(self.on_channel_open)
+        self.connection.channel( self.on_channel_open )
 
-    def on_channel_open(self, channel):
-        pika.log.info('PikaClient: channel_open : %r , Declaring Exchange', channel )
+    def on_channel_open(self,channel):
+        pika.log.info("%s: channel_open : %r " % ( self.tag , channel )  )
         self.channel = channel
-        self.channel.exchange_declare(exchange=self.opts.exchange_name,
-                                      type=self.opts.exchange_type ,
-                                      auto_delete=self.opts.auto_delete,
-                                      durable=self.opts.durable,
-                                      callback=self.on_exchange_declared)
-
-    def on_exchange_declared(self, frame):
-        pika.log.info('PikaClient: Exchange Declared %r , Declaring Queue', frame )
-        self.channel.queue_declare(queue=self.opts.queue_name,
-                                   auto_delete=self.opts.auto_delete,
-                                   durable=self.opts.durable,
-                                   exclusive=self.opts.exclusive,
-                                   callback=self.on_queue_declared)
-
-    def on_queue_declared(self, frame):
-        pika.log.info('PikaClient: Queue Declared %r , Binding Queue', frame )
-        self.channel.queue_bind(exchange=self.opts.exchange_name,
-                                queue=self.opts.queue_name,
-                                routing_key=self.opts.routing_key,
-                                callback=self.on_queue_bound)
-
-    def on_queue_bound(self, frame):
-        pika.log.info('PikaClient: Queue Bound %r, Issuing Basic Consume', frame )
-        self.channel.basic_consume(consumer_callback=self.on_pika_message,
-                                   queue=self.opts.queue_name,
-                                   no_ack=self.opts.no_ack)
-        for body in self.pending:
-            self.channel.basic_publish(exchange=self.opts.exchange_name,
-                                       routing_key=self.opts.routing_key ,
-                                       body=body,
-                                       properties=self.properties(content_type='text/plain', delivery_mode=1 ))
-
-    def on_pika_message(self, channel, method, header, body):
-        pika.log.info('PikaCient: Message receive, delivery tag #%i  body %r ', method.delivery_tag, body )
-        self.messages.append(body)
-
-    def on_basic_cancel(self, frame):
-        pika.log.info('PikaClient: Basic Cancel Ok')
-        # If we don't have any more consumer processes running close
-        self.connection.close()
+        args = dict( type=self.opts.exchange_type, exchange=self.opts.exchange_name, durable=self.opts.durable , auto_delete=self.opts.auto_delete , callback=self.cb('on_exchange_declared') ) 
+        pika.log.info("%s: exchange_declare start : %r ", self.tag, args )
+        channel.exchange_declare( **args )
 
     def on_closed(self, connection):
-        self.connection.ioloop.stop()
+        pika.log.info("%s: closing connection : %r " % ( self.tag , connection) )
+        connection.ioloop.stop()
 
-    def sample_message(self, body='dummy sample msg'):
-        self.channel.basic_publish(exchange=self.opts.exchange_name,
-                                   routing_key=self.opts.routing_key ,
-                                   body=body,
-                                   properties=self.properties(content_type='text/plain', delivery_mode=1 ))
+    def close(self):
+        connection = self.connection
+        connection.close() 
+        connection.ioloop.start() # Loop until we're fully closed, will stop on its own
 
-    def get_messages(self):
-        output = self.messages
-        self.messages = list()
-        return output
+    def on_exchange_declared_consumer(self, frame):
+        pika.log.info("%s: exchange_declared_consumer : %r " % ( self.tag , frame )  )
+        self.channel.queue_declare( queue=self.opts.queue_name, durable=self.opts.durable , exclusive=self.opts.exclusive , auto_delete=self.opts.auto_delete , callback=self.on_queue_declared )
+            
+    def on_exchange_declared_publisher(self, frame):
+        """ Getting the obj from the queue blocks until available """
+        pika.log.info("%s: exchange_declared_publisher : %r " % ( self.tag , frame )  )
+        while True:
+            obj = self.q.get()  
+            evl = Envelope(obj)
+            pika.log.info( "%s %r ", self.tag , evl ) 
+            self.channel.basic_publish( exchange=self.opts.exchange_name , routing_key=self.opts.routing_key , body=evl.body, properties=evl.properties ) 
+
+    def on_queue_declared(self, frame): 
+        pika.log.info("%s: queue_declared : %r " % ( self.tag, frame )  )
+        channel = self.channel
+        channel.queue_bind( queue=self.opts.queue_name, exchange=self.opts.exchange_name, routing_key=self.opts.routing_key, callback=self.on_queue_bound )
+
+    def on_queue_bound(self, frame):
+        pika.log.info("%s: ready : %r " % ( self.tag, frame ) )
+        self.start_time = time.time()
+        channel = self.channel
+        channel.basic_consume( self.on_handle_delivery , queue=self.opts.queue_name , no_ack=self.opts.no_ack )
+
+    def on_handle_delivery(self, channel, method_frame, header_frame, body):
+        pika.log.info(" %s : handle_delivery : channel %r  method %r header %r body %r " , self.tag, channel, method_frame, header_frame, body )
+        pika.log.info(" %s : content_type %s delivery_tag %s " , self.tag, header_frame.content_type, method_frame.delivery_tag )
+
+        self.q.put( body )
+
+        if self.opts.no_ack:
+            pass
+        else:
+            channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+
+        count = self.count 
+        count += 1
+
+        now = time.time()
+        duration = now - (self.last_time or 0)
+        received = count - (self.last_count or 0)
+        rate = received / duration
+           
+        self.last_time = now
+        self.last_count = count
+        self.count = count          
+ 
+        pika.log.info(" %s : timed_receive: %i Messages Received, %.4f per second", self.tag, self.count, rate)
+
+
+class Publisher(Consumer):
+    """
+    The behavior split arises from the classname influencing the chain 
+    of callbacks in force
+    """
+    pass
+ 
+
+
 
 
 class PikaOpts(dict):
@@ -106,24 +227,81 @@ class PikaOpts(dict):
     def __getattr__(self, name ):
         return self.get(name, self.defaults.get(name, None)) 
 
-    def read(self, path='~/.rmq.cnf', cnf='local' ):
+    def read(self, cnf='local', path='~/.rmq.cnf' ):
         cfp = ConfigParser()
         cfp.read( os.path.expanduser(path) )
         assert cfp.has_section(cnf), ( cnf, cfp.sections() )
         for o in cfp.options( cnf ):   
             self[o] = cfp.get( cnf, o )
+        return self
+    pass
+
+
+
+class PikaMQ(object):
+    def __init__(self, cnf='mon' ):
+        pika.log.setup(color=True, level=pika.log.INFO )    
+        self.opts = PikaOpts().read('mon')
+        pika.log.info( "PikaOpts %r ", self.opts )
+        atexit.register( PikaMQ.cleanup )
+        
+        cons = P( Consumer,  (opts,) , {} )
+        pubr = P( Publisher, (opts,) , {}  )
+        dmpr = T( Dumper, (opts,), dict(q=cons.q,) )
+        emtr = T( Emitter, (opts,), dict(q=pubr.q,) )
+
+        self.cons = cons
+        self.pubr = pubr
+        self.dmpr = dmpr
+        self.emtr = emtr
+
+    def __call__(self):
+        self.cons.start() 
+        self.pubr.start() 
+        self.dmpr.start()
+        self.emtr.start()
+
+    @classmethod
+    def cleanup(cls):
+        print "cleanup : terminating active subprocess children ... "
+        for c in multiprocessing.active_children():
+            c.terminate()
+         
+    @classmethod
+    def addr(cls):
+        n = platform.node()
+        p = multiprocessing.current_process()
+        t = threading.current_thread()
+        return "%s:%s:%s:%s" % ( n, p.name, p.pid, t.name )
+ 
+    @classmethod
+    def ls(cls):
+        for c in multiprocessing.active_children():
+            pika.log.info( "%r", c ) 
+        for t in threading.enumerate():
+            pika.log.info( "%r", t ) 
+ 
+
 
 
 
 if __name__ == '__main__':
 
-    po = PikaOpts()
-    po.read(  path='~/.rmq.cnf' , cnf='pikamq' )
-    print po
-    
-    pika.log.setup(color=True)
 
-    pc = PikaClient(po)
-    pc()
+    pmq = PikaMQ()
+    pmq()    
+
+
+    #import ROOT
+    #ROOT.gSystem.Load("libAbtDataModel")
+    #from aberdeen.DataModel.tests.evs import Evs
+
+    ## sending pickled ROOT objects, working OK 
+    #evs = Evs()
+    #p.put( pickle.dumps(evs.ri) )
+    #p.put( pickle.dumps(evs[0]) )
+    #p.put( pickle.dumps(evs[1]) )
+
+
 
 
