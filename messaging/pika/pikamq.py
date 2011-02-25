@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 """
-Exercising pika and demoing a threading problem 
-   http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/320
+Exercising pika 
 
+When using threads for consumer and producer a small pika fix
+is required :
+   https://github.com/tonyg/pika/issues#issue/36
+   http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/320
 
 """
 import os, sys, platform, time, datetime, threading, multiprocessing, Queue, pickle, atexit
@@ -202,6 +205,8 @@ class Consumer(Worker):
         self.start_time = time.time()
         channel = self.channel
         channel.basic_consume( self.on_handle_delivery , queue=self.opts.queue_name , no_ack=self.opts.no_ack )
+        pika.log.info("%s : after invoke basic_consume : channel : %r channel._consumers : %r ", self.tag, channel, channel._consumers ) 
+
 
     def on_handle_delivery(self, channel, method_frame, header_frame, body):
         pika.log.info(" %s : handle_delivery : channel %r  method %r header %r body %r " , self.tag, channel, method_frame, header_frame, body )
@@ -284,23 +289,16 @@ class PikaMQ(object):
 
 
     """
-    def __init__(self, cnf='mon' , fail=True ):
+    def __init__(self, cnf='pikamq'):
         pika.log.setup(color=True, level=pika.log.INFO )    
         opts = PikaOpts().read(cnf)
         pika.log.info( "PikaOpts %r ", opts )
         atexit.register( PikaMQ.cleanup )
 
-        if fail:
-            cons = T( Consumer,  (opts,) , {} ) 
-            pubr = T( Publisher, (opts,) , {} )
-            dmpr = T( Dumper,    (opts,),  dict(q=cons.q,) )
-            emtr = T( Emitter,   (opts,),  dict(q=pubr.q,) )
-        else:
-            cons = P( Consumer,  (opts,) , {} )   
-            pubr = T( Publisher, (opts,) , {} )
-            dmpr = T( Dumper,    (opts,),  dict(q=cons.q,) )
-            emtr = T( Emitter,   (opts,),  dict(q=pubr.q,) )
- 
+        cons = T( Consumer,  (opts,) , {} ) 
+        pubr = T( Publisher, (opts,) , {} )
+        dmpr = T( Dumper,    (opts,),  dict(q=cons.q,) )
+        emtr = T( Emitter,   (opts,),  dict(q=pubr.q,) )
 
         self.opts = opts     
    
@@ -346,7 +344,7 @@ class PikaMQ(object):
 if __name__ == '__main__':
 
 
-    pmq = PikaMQ(fail=False)
+    pmq = PikaMQ()
     pmq()    
 
 

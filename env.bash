@@ -29,7 +29,7 @@ env-libpath(){
       python-
       case $(hostname -s) in 
          cms01|cms02) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
-          simon|g4pb) echo $(env-libdir):$(root-libdir)                  ;;
+          simon|g4pb) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
                    *) echo $(env-libdir):$(root-libdir):$(python-libdir) ;;
       esac
 }
@@ -45,7 +45,8 @@ env-runpath-(){
    local cat=$(dirname $(which cat 2>/dev/null))
    local ldd=$(dirname $(which ldd 2>/dev/null))
    local ipy=$(dirname $(which ipython 2>/dev/null))
-   echo $xdi:$cat:$ldd:$ipy
+   local gdb=$(dirname $(which gdb 2>/dev/null))
+   echo $xdi:$cat:$ldd:$ipy:$gdb
 }
 
  

@@ -219,7 +219,7 @@ python-ldconfig(){
 }
 
 python-libdir(){
-   echo $PYTHON_HOME/lib
+   echo ${VIRTUAL_ENV:-ERROR-NO-VIRTUALENV-PYTHON}/lib
 }
 python-bindir(){
    echo $PYTHON_HOME/bin
