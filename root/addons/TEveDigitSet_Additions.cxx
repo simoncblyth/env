@@ -59,8 +59,15 @@ void TEveDigitSet_SetDigitColorI(TEveDigitSet* ds, Int_t idx, Color_t ci )
 void TEveDigitSet_SetDigitColorIT(TEveDigitSet* ds, Int_t idx, Color_t ci , Float_t ftrans )
 {
    DigitBase_t* d = (DigitBase_t*)(ds->GetDigit(idx));
-   //TEveUtil::ColorFromIdx(ci, (UChar_t*) & d->fValue, (UChar_t)(255*ftrans));
+
+  // version cut guess awaits bug reports
+#if ROOT_VERSION_CODE >= ROOT_VERSION(5,28,00)
    TEveUtil::ColorFromIdx(ci, (UChar_t*) & d->fValue, (Char_t)(255*ftrans));
+#else
+   TEveUtil::ColorFromIdx(ci, (UChar_t*) & d->fValue, (UChar_t)(255*ftrans));
+#endif
+
+
 }
 
 void TEveDigitSet_SetDigitColorRGBA(TEveDigitSet* ds, Int_t idx, Float_t r , Float_t g, Float_t b, Float_t a )
