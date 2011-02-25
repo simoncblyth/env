@@ -38,7 +38,20 @@ scons: building terminated because of errors.
        cp /data/env/local/env/messaging/rmqc/rabbitmq-c/examples/utils.{c,h} .
 
 
-  
+ 
+  == getting uptodate ==
+
+      rmqc-cd
+
+      hg branch     ## check are on the default branch 
+      hg tip        ## show where the local repository is at ... not necessarily the wc yet
+
+      hg pull       ## pull in updates from remote repository
+      hg tip
+
+      hg update     ## update working copy 
+
+ 
   == switching to 0_9_1 ==
 
       http://mercurial.selenic.com/wiki/NamedBranches
@@ -49,8 +62,8 @@ scons: building terminated because of errors.
       hg branches
       hg update -C amqp_0_9_1     
 
-   ## CAUTION THIS LOOSES UNCOMMITTED CHANGES
-   ## .. BUT THESE CHANGES ARE THE RESULT OF rmqc-kludge SO PROBABLY CAN BE APPLIED IN 0_9_1 
+        ## CAUTION THIS LOOSES UNCOMMITTED CHANGES
+        ## .. BUT THESE CHANGES ARE THE RESULT OF rmqc-kludge SO PROBABLY CAN BE APPLIED IN 0_9_1 
 
 
 [blyth@cms01 rabbitmq-c]$ hg diff

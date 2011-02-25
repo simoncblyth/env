@@ -132,14 +132,14 @@ int rootmq_exchange_declare( char const* exchange , char const* exchangetype , b
 
 
              Jan2011 auto_delete has gone    
-             Feb2011 auto_delete is back 
+             Feb2011 auto_delete is back  ... this was mercurial pilot error
+    
 
     */
     amqp_exchange_declare(conn, 1, 
                           amqp_cstring_bytes(exchange), 
                           amqp_cstring_bytes(exchangetype),
-     			  passive, durable, auto_delete, 
-                          AMQP_EMPTY_TABLE);
+     			  passive, durable,  AMQP_EMPTY_TABLE);
     die_on_amqp_error(amqp_get_rpc_reply(conn), "Declaring exchange");
     return EXIT_SUCCESS ;
 }
@@ -325,7 +325,8 @@ extern struct amqp_basic_consume_ok_t_ *amqp_basic_consume(amqp_connection_state
   long long live_time = 0 ;  
   long long cycle_time ;
 
-  amqp_basic_consume(conn, channel , amqp_cstring_bytes(queue) , AMQP_EMPTY_BYTES , no_local, no_ack, exclusive );
+
+  amqp_basic_consume(conn, channel , amqp_cstring_bytes(queue) , AMQP_EMPTY_BYTES , no_local, no_ack, exclusive , AMQP_EMPTY_TABLE );
   die_on_amqp_error(amqp_get_rpc_reply(conn), "Consuming");
 
   {

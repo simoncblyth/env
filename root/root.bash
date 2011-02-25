@@ -79,7 +79,7 @@ root-version-default(){
   local jmy="5.22.00"   ## has eve X11 issues 
   local new="5.23.02" 
   local now="5.24.00" 
-  local try="5.26.00" 
+  local try="5.26.00e" 
   #local try="5.28.00" 
   case ${1:-$NODE_TAG} in 
      G) echo $try ;;
