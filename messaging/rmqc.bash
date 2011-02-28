@@ -224,11 +224,8 @@ rmqc-pinclone(){
    local rev=$2
    local iwd=$PWD
    
-   [ -d "$nam" ] && echo $msg ABORT dir $nam exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
-   local cmd="hg clone $(rabbitmq-hg)/$nam"
-   echo $msg $cmd ... $PWD
-   eval $cmd
-  
+   rmqc-get- $nam 
+
    cd $nam
    cmd="hg up $rev"
    echo $msg $cmd ... revert to the pinned revision ... $PWD
@@ -237,6 +234,15 @@ rmqc-pinclone(){
 }
 
 
+rmqc-get-(){
+   local msg="$FUNCNAME :"
+   local dir=$(dirname $(rmqc-dir)) &&  mkdir -p $dir && cd $dir
+   local nam=${1:-$(rmqc-name)}
+   [ -d "$nam" ] && echo $msg ABORT dir $nam exists already .. delete and rerun ... sleeping ... ctrl-c to continue  && sleep 1000000
+   local cmd="hg clone $(rabbitmq-hg)/$nam"
+   echo $msg $cmd ... $PWD
+   eval $cmd
+}
 
 rmqc-get(){
    local msg="$FUNCNAME :"
