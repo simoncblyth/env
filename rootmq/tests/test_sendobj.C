@@ -29,7 +29,7 @@ void test_sendobj()
    AbtEvent* evt = 0;
    t->SetBranchAddress( "trigger", &evt );
    Int_t n = (Int_t)t->GetEntries();
-   //n = 5 ;
+   n = 5 ;
 
    stringstream ss ;
 
@@ -41,12 +41,13 @@ void test_sendobj()
        gMQ->SendObject( ri , "abt.test.runinfo");
        for (Int_t i=0;i<n;i++) {
            t->GetEntry(i);
-           //evt->Print("");
+           evt->Print("");
            gSystem->Sleep(1000);
            gMQ->SendObject( evt , "abt.test.event");
-	       ss.str(""); 
+	   ss.str(""); 
            ss << "test_sendobj.C at index " << i <<  " pass "  << pass  ;
-           if( i%10 == 0) gMQ->SendAString( ss.str().c_str() , "abt.test.string" );
+           //if( i%10 == 0) gMQ->SendAString( ss.str().c_str() , "abt.test.string" );
+           gMQ->SendAString( ss.str().c_str() , "abt.test.string" );
        }
        gSystem->Sleep(20);
    }   

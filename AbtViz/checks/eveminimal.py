@@ -2,8 +2,14 @@
 """
  Minimal Eve GUI with ipython shell
 """
+
+
+def some_callable():
+    print "some_callable"
+
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
+ROOT.PyConfig.GUIThreadScheduleOnce += [ some_callable ]
 
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()

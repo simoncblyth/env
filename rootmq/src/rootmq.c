@@ -156,6 +156,11 @@ int rootmq_sendbytes( char const*  exchange , char const* routingkey , void* msg
     rootmq_set_content_encoding(  &props , "binary" );
     rootmq_set_delivery_mode(     &props , 2 );           // persistent delivery mode
 
+    amqp_bytes_t message_bytes;
+    message_bytes.len = msglen;
+    message_bytes.bytes = msgbytes ;
+    printf("rootmq_sendbytes exchnage %s routinekey %s msglen %d \n", exchange, routingkey, msglen );
+
     die_on_error(amqp_basic_publish(conn,
 				    1,
 				    amqp_cstring_bytes(exchange),
@@ -163,13 +168,10 @@ int rootmq_sendbytes( char const*  exchange , char const* routingkey , void* msg
 				    0,
 				    0,
 				    &props,
-				    (amqp_bytes_t){.len = msglen, .bytes = msgbytes }),
-		 "Publishing");
+				    message_bytes ),
+		 "sendbytesPublishing");
     return EXIT_SUCCESS ;
 }
-
-
-
 
 
 int rootmq_sendstring( char const*  exchange , char const* routingkey , char const* messagebody )
@@ -181,6 +183,10 @@ int rootmq_sendstring( char const*  exchange , char const* routingkey , char con
     //rootmq_set_content_encoding(  &props , "test.encoding" );
     //rootmq_set_headers(         &props  , "??" ) ;
     rootmq_set_delivery_mode(    &props , 2 );           // persistent delivery mode
+
+/*
+   // something in these properties causes unreliable message sending 
+
     rootmq_set_priority(         &props , 1 ); 
     rootmq_set_correlation_id(   &props , "test.correlation_id" ); 
     rootmq_set_reply_to(         &props , "test.reply_to" ); 
@@ -191,7 +197,7 @@ int rootmq_sendstring( char const*  exchange , char const* routingkey , char con
     rootmq_set_user_id(          &props , "test.user_id" ); 
     rootmq_set_app_id(           &props , "test.app_id" ); 
     rootmq_set_cluster_id(       &props , "test.cluster_id" ); 
-
+*/
 
     die_on_error(amqp_basic_publish(conn,
 				    1,
@@ -201,7 +207,7 @@ int rootmq_sendstring( char const*  exchange , char const* routingkey , char con
 				    0,
 				    &props,
 				    amqp_cstring_bytes(messagebody)),
-		 "Publishing");
+		 "sendstringPublishing");
     return EXIT_SUCCESS ;
 }
 

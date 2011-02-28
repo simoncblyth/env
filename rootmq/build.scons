@@ -71,6 +71,7 @@ er.ComponentTestProgram(
 )
 
 er.ComponentTestProgram( prog_name='environ', source=['tests/environ.c'], )
+#er.ComponentTestProgram( prog_name='mq_sender', source=['tests/mq_sender.c'], )
 
 
 

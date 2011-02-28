@@ -133,11 +133,20 @@ rootmq-tests(){
       rootmq-root $macro
    done
 }
+
 rootmq-sendobj(){     rootmq-root $(rootmq-dir)/tests/test_sendobj.C ;  }
 rootmq-sendjson(){    rootmq-root $(rootmq-dir)/tests/test_sendjson.C ;  }
 rootmq-sendstring(){  rootmq-root $(rootmq-dir)/tests/test_sendstring.C ;  }
 
 rootmq-pymonitor(){   rootmq-ipython $(rootmq-dir)/evmq.py $* ; }
+
+
+rootmq-groot(){
+    cd $(env-libdir)
+    echo enter : set args -l $(rootmq-dir)/tests/test_sendobj.C
+    echo then  : r 
+    gdb $(which root)
+}
 
 
 rootmq-gsendstring(){ rootmq-test mq_sendstring gdb ; }

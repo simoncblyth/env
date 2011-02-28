@@ -9,6 +9,26 @@ rmqc-env(){
 rmqc-usage(){
   cat << EOU
 
+
+   == RabbitMQ Mercurial Usage ==
+
+       http://www.rabbitmq.com/mercurial.html#branchperbug
+
+       http://hgbook.red-bean.com/read/
+       http://hgbook.red-bean.com/read/managing-releases-and-branchy-development.html 
+
+            hg log -v -b default  | more
+
+                verbose listing of commits on the default branch 
+                ... these are the ones to use 
+
+            "hg parents" is equivalent to "git log"   
+                https://github.com/sympy/sympy/wiki/Git-hg-rosetta-stone
+
+            "hg log" gives the entire repo history no matter what
+
+
+
    == fora ==
 
        http://groups.google.com/group/rabbitmq-discuss/
@@ -269,7 +289,7 @@ rmqc-kludge(){
 rmqc-make(){
   local msg="=== $FUNCNAME :"
   rmqc-cd
-  rmqc-kludge
+  #rmqc-kludge
 
   echo $msg autoreconf  
   autoreconf -i
@@ -280,7 +300,8 @@ rmqc-make(){
 
   echo $msg make
   ## avoid hardcoded attempt to use python2.5
-  make PYTHON=python
+  #make PYTHON=python
+  make 
 
   echo $msg install
   make install
@@ -355,4 +376,5 @@ rmqc-latest(){
    hg clone http://hg.rabbitmq.com/rabbitmq-c/
 
 }
+
 
