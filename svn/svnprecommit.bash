@@ -8,6 +8,12 @@ svnprecommit-usage(){
      svnprecommit-src : $(svnprecommit-src)
      svnprecommit-dir : $(svnprecommit-dir)
 
+    svnprecommit-test
+         does all the below creating svn repo, checkout wc, commit, install precommit hook
+         then try to commit again and get denied
+
+        NB THIS DELETES AND RECREATES REPOSITORIES ON EVERY INVOKATION 
+
 
      svnprecommit-create
          creates a test SVN repository
@@ -20,6 +26,8 @@ svnprecommit-usage(){
      svnprecommit-testhook
          attempt to make a commit .. that should be denied
 
+
+
   == pre-commit hook examples ==
    
      * http://svn.apache.org/repos/asf/subversion/trunk/tools/hook-scripts/
@@ -28,7 +36,24 @@ svnprecommit-usage(){
   == Approaches ==
 
     * base on svnlook commandline
+      
     * use python-svn bindings 
+         * difficult for users to install the bindings 
+
+   ... parsing the diff from "svnlook" and "svn diff" will be very similar  
+
+
+  == Dev ==
+
+    Getting ..
+       svn: Commit blocked by pre-commit hook (exit code 255) with no output.
+    usually means an error in the hook 
+
+ File "/tmp/testrepo/hooks/pre-commit", line 12, in precommit
+    repository = repos.open(repo_path)
+  File "/System/Library/Frameworks/Python.framework/Versions/2.5/Extras/lib/python/libsvn/repos.py", line 47, in svn_repos_open
+    return apply(_repos.svn_repos_open, args)
+libsvn._core.SubversionException: ("Expected FS format '2'; found format '4'", 160043)
 
 
 
@@ -50,9 +75,6 @@ svnprecommit-rurl(){  echo file://$(svnprecommit-rpath) ; }
 svnprecommit-name(){  echo $(basename $(svnprecommit-rurl)) ; }
 
 svnprecommit-test(){
-
-   echo deletes and recreates repositories and working copy 
-   echo and populates ... establishing test fixture
 
    svnprecommit-create
    svnprecommit-checkout
@@ -106,15 +128,24 @@ svnprecommit-populate(){
 
 svnprecommit-placehook(){
   local hpath=$(svnprecommit-hpath)
-  svnprecommit-demodeny- > $hpath
+  svnprecommit-wrapper- > $hpath
   cat $hpath
   chmod u+x $hpath 
+}
+svnprecommit-wrapper-(){ cat << EOW
+#!/bin/bash
+# customized wrapper to avoid shebang hard coding in the python
+# $FUNCNAME $(date)  
+export SVNLOOK=$(which svnlook)
+$(which python)  $(env-home)/svn/precommit.py \$*
+exit \$?
+EOW
 }
 
 svnprecommit-demodeny-(){ cat << EOD
 #!/usr/bin/env python
 import sys
-sys.stderr.write("WHA WHA OOPS ... YOUR COMMIT IS NOT ALLOWED")
+sys.stderr.write("WHA WHA OOPS ... $FUNCNAME ... YOUR COMMIT IS NOT ALLOWED")
 sys.exit(1)
 EOD
 }
@@ -125,3 +156,9 @@ svnprecommit-testhook(){
   svn ci -m "$FUNCNAME"
 
 }
+
+svnprecommit-thook(){ python  $(env-home)/svn/precommit.py $(svnprecommit-rpath) $* ; }
+svnprecommit-ihook(){ ipython  $(env-home)/svn/precommit.py $(svnprecommit-rpath) $* ; }
+
+
+
