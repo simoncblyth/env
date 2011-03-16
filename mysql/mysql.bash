@@ -117,6 +117,18 @@ mysql> SELECT User, Host, Password FROM mysql.user;
 
 
 
+   == useful selects to debug permissions ==
+
+{{{
+mysql> select Host, User, Password, Select_priv, Insert_priv,Update_priv,Drop_priv, File_priv from mysql.user ;
++-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
+| Host                  | User    | Password                                  | Select_priv | Insert_priv | Update_priv | Drop_priv | File_priv |
++-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
+
+}}}
+
+
+
 
     == Switching on logging ... ==
 

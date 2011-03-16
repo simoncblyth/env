@@ -170,7 +170,7 @@ class Consumer(Worker):
         pika.log.info("%s: channel_open : %r " % ( self.tag , channel )  )
         self.channel = channel
         args = dict( type=self.opts.exchange_type, exchange=self.opts.exchange_name, durable=self.opts.durable , auto_delete=self.opts.auto_delete , callback=self.cb('on_exchange_declared') ) 
-        pika.log.info("%s: exchange_declare start : %r ", self.tag, args )
+        pika.log.info("%s: exchange_declare start : %r ", self.tag, args ) ## if this doesnt callback ... probably a config discrepancy 
         channel.exchange_declare( **args )
 
     def on_closed(self, connection):
