@@ -22,6 +22,13 @@ Approaches to validiation candidate DBI updates
      ... NOT TRUE WANT A CLIENT VERSION THAT CAN BE APPLIED TO AN 
            svn diff  outpiut also  
 
+
+  http://svn.apache.org/repos/asf/subversion/trunk/contrib/hook-scripts/enforcer/enforcer
+
+
+
+
+
 """
 import os, sys
 from svn import fs, repos, core
