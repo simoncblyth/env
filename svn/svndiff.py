@@ -11,6 +11,45 @@ Compare "svn diff" with "svnlook diff" on C2 ...
 
        * differences in the "chrome" only
 
+
+
+
+  Set up test env for checking what valid DBI deltas look like ...
+
+   svn co http://dayabay.phys.ntu.edu.tw/repos/newtest 
+   cd ~/newtest
+   mkdir catalog
+
+Create ascii catalog with rdumpcat::
+
+      ~/DybPython/python/DybPython/db.py offline_db rdumpcat ~/newtest/catalog/tmp_offline_db
+      writing catfile /Users/blyth/newtest/catalog/tmp_offline_db/tmp_offline_db.cat 
+
+And check in to newtest repo 
+   * http://dayabay.phys.ntu.edu.tw/tracs/newtest/changeset/3
+
+
+On another machine checkout the ascii catalog ...
+
+[blyth@belle7 ~]$ svn co http://dayabay.phys.ntu.edu.tw/repos/newtest/catalog/tmp_offline_db 
+
+And compare ythe state of tmp_offline_db with it using 
+
+[blyth@belle7 ~]$ db.py tmp_offline_db rdumpcat ~/tmp_offline_db
+
+Have to be careful with the path to get the dump to land ontop of the checkout 
+
+[blyth@belle7 ~]$ svn diff tmp_offline_db/
+[blyth@belle7 ~]$ 
+
+    ## no differences are observed
+
+
+
+
+
+
+
 """
 import os, re
 
@@ -88,7 +127,16 @@ class Block(Text):
         self.parse_hdr()
         self.parse_body()
         self.check(verbose=False)
-
+    def _smry(self):
+        """
+        Override for briefer hunk summary
+        """
+        if len(self.children)>0:
+            return " " + "".join([ c.meta['c'] for c in self.children] )
+        else:
+            return ""
+    smry = property(_smry)
+ 
     hdr = property(lambda self:self[0])
     def parse_hdr(self):
         m = self.ptn.match(self[0])   
@@ -155,6 +203,12 @@ class Delta(Text):
        for req in self.req:
            assert req in self.meta, "required match parameter not found %s " % req
        pass
+       assert self.meta['apath'] == self.meta['bpath'] == self.meta['path0'] , ( "path mismatch", self.meta )
+
+       self.meta['path'] = self.meta['apath']
+       del self.meta['apath']
+       del self.meta['bpath']
+       del self.meta['path0']
        del self.meta['div']
 
 
