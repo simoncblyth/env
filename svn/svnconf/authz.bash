@@ -84,6 +84,7 @@ wfadmin = blyth
 @evuser = r
 @evdev = rw 
 @evadmin = rw
+@dyuser = rw
 
 [data:/]
 * = r
