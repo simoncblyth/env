@@ -1,5 +1,5 @@
 dj-src(){      echo dj/dj.bash ; }
-
+dj-source(){   echo $(env-home)/$(dj-src) ;}
 dj-dir-(){     echo $(dirname $(dj-source)) ; }
 dj-vi(){       vim $(dj-source) ; }
 dj-env(){      

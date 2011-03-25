@@ -9,6 +9,40 @@ sphinx-usage(){
      sphinx-dir : $(sphinx-dir)
 
 
+  == extension ideas ==
+
+    A mobile compatible theme/builder would be useful ...
+       * there is a html for chm option, but compiling M$ 
+         chm on linux is problematic and demands chm reader on device 
+
+ == readthedocs ==
+
+    Interesting marriage of django + sphinx .
+    Suspect that progress on mobile themes made in this proj 
+
+       * http://readthedocs.org/ ... 
+           * https://github.com/rtfd/readthedocs.org
+           * http://ericholscher.com/blog/2011/jan/11/read-docs-updates/
+           * http://twitter.com/readthedocs    
+       
+   Mar 1st 2011 tweet...
+      Pushed out the RTD Theme to everyone using the 'default' theme today. 
+      RTD Theme now includes sweet mobile styles using media queries.
+ 
+
+
+  == SphinxReport : Using Sphinx for data access ==  
+
+    http://wwwfgu.anat.ox.ac.uk/~andreas/SphinxReport/contents.html
+
+     Uses ...
+        * Python (2.5.2 or higher)
+        * SQLAlchemy (0.4.8 or higher)
+        * matplotlib (0.98.1 or higher)
+        * sphinx (0.5-1 or higher)
+
+      * adds an SQLAlchemy backend to Sphinx 
+
   == Features ==
 
     Pull docs out of python modules ..
