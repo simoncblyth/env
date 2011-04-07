@@ -8,6 +8,61 @@ matplotlib-usage(){
      matplotlib-src : $(matplotlib-src)
      matplotlib-dir : $(matplotlib-dir)
 
+
+  == OSX installation ==
+
+    On trying a basic plot using matplotlib installed into virtual python based on 
+    macports python26 
+
+{{{
+import matplotlib.pyplot as plt
+import numpy as np
+x = np.random.randn(1000)
+plt.hist( x, 20)
+plt.grid()
+plt.title(r'Normal: $\mu=%.2f, \sigma=%.2f$'%(x.mean(), x.std()))
+plt.show()
+}}}
+
+   The plot appears, but get a not-a-framework warning:
+{{{
+In [5]: plt.hist( x, 20)
+/usr/local/env/matplotlib/matplotlib-1.0.0/lib/matplotlib/backends/backend_macosx.py:235: 
+UserWarning: 
+  Python is not installed as a framework. 
+  The MacOSX backend may not work correctly if Python is not installed as a framework. 
+  Please see the Python documentation for more information on installing Python as a framework on Mac OS X
+}}} 
+
+
+
+  == matplotlib.sphinxext.ipython_directive ==
+
+    * this hails from the src install on N, on G 
+
+
+[blyth@belle7 sphinxext]$ pwd
+/home/blyth/rst/src/matplotlib/lib/matplotlib/sphinxext
+[blyth@belle7 sphinxext]$ ll
+total 116
+drwxrwxr-x  3 blyth blyth  4096 Jan  4 19:55 .
+drwxrwxr-x 11 blyth blyth  4096 Jan  4 19:54 ..
+-rw-rw-r--  1 blyth blyth     1 Jan  4 15:28 __init__.py
+-rw-rw-r--  1 blyth blyth   154 Jan  4 19:44 __init__.pyc
+-rw-rw-r--  1 blyth blyth  4183 Jan  4 15:28 ipython_console_highlighting.py
+-rw-rw-r--  1 blyth blyth  3266 Jan  4 19:55 ipython_console_highlighting.pyc
+-rw-rw-r--  1 blyth blyth 15656 Jan  4 15:28 ipython_directive.py
+-rw-rw-r--  1 blyth blyth 11909 Jan  4 19:54 ipython_directive.pyc
+-rw-rw-r--  1 blyth blyth  3781 Jan  4 15:28 mathmpl.py
+-rw-rw-r--  1 blyth blyth  5040 Jan  4 19:51 mathmpl.pyc
+-rw-rw-r--  1 blyth blyth  2109 Jan  4 15:28 only_directives.py
+-rw-rw-r--  1 blyth blyth  3603 Jan  4 19:44 only_directives.pyc
+-rw-rw-r--  1 blyth blyth 18563 Jan  4 15:28 plot_directive.py
+-rw-rw-r--  1 blyth blyth 15100 Jan  4 19:44 plot_directive.pyc
+drwxrwxr-x  6 blyth blyth  4096 Jan  4 15:32 .svn
+
+
+
   == installation ==
 
      Pre-requisites, numpy and mysql_numpy (my fork of mysql_python that adding the pulling of numpy arrays from 
@@ -24,6 +79,9 @@ matplotlib-usage(){
     Then matplotlib (fails if numpy not installed)
 
          pip install -E ~/v/docs -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz -U matplotlib
+
+
+
 
     For testing and interactive dev::
 
@@ -67,7 +125,7 @@ matplotlib-usage(){
     pypi entry for matplotlib is buggered ... causing an out of date install
     workaround, use a source install 
 
-     pip -v install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
+     pip -v -E ~/v/docs install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
 
 
   == interactive plotting approaches ==
