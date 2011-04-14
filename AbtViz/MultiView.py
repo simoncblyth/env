@@ -34,12 +34,15 @@ class MultiView(list):
       self.f3DView.AddScene(gEve.GetGlobalScene())
       self.f3DView.AddScene(gEve.GetEventScene())
 
-
+      cen = 0.0
       pack3 = pack1.NewSlot().MakePack()
       pack3.SetShowTitleBar(kFALSE)
       pack3.NewSlot().MakeCurrent()
       self.fYZView = gEve.SpawnNewViewer("Y-Z View", "")
       self.fYZView.GetGLViewer().SetCurrentCamera(ROOT.TGLViewer.kCameraOrthoZOY)
+      self.fYZView.GetGLViewer().CurrentCamera().SetEnableRotate(kTRUE)
+      #self.fYZView.GetGLViewer().CurrentCamera().SetExternalCenter(kTRUE)
+      self.fYZView.GetGLViewer().CurrentCamera().Rotate(10,30,kFALSE,kFALSE)
       self.fYZView.AddScene(gEve.GetGlobalScene())
       self.fYZView.AddScene(gEve.GetEventScene())
       

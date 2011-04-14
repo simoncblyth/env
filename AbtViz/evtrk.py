@@ -1,6 +1,7 @@
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 import os
+import math 
 
 from ROOT import kTRUE, kFALSE
 
@@ -10,21 +11,47 @@ class EvTrk(list):
         pass
     def _line(self):
         l = ROOT.TEveLine()
-        l.SetLineStyle(2)
+        l.SetLineStyle(1)
+	l.SetSmooth(1)
         l.SetLineWidth(3)
-        l.SetMainColor(ROOT.kRed)
+        l.SetMainColor(ROOT.kWhite)
         return l
 
-    def update(self, xyzs , reset=True, xysc=0.1 ):
+    def update(self, allft, reset=True, xysc=0.1 ):
         if reset:
-            for i in range(len(self)):
-                k = self.pop()
+	    for i in range(len(self)):
+	        k = self.pop()
                 k.Destroy()
-        l = self._line()
-        for x,y,z in xyzs:   
-            l.SetNextPoint(x*xysc,y*xysc, z )
-        self.append(l)
-        ROOT.gEve.AddElement(l)
+
+	ntrk = allft.GetNTrack()
+	zs = [75,0,-250]
+
+	count = 0
+	while (count < ntrk):
+	    ft = allft.Get(count)
+	    l = self._line()
+            for z in zs:   
+                l.SetNextPoint(ft.X().At((z+233.7)*10)*xysc,ft.Y().At((z+233.7)*10)*xysc, z )
+            
+	    if (count == 0):
+		l.SetMainColor(ROOT.kRed)
+		l.SetLineStyle(9)
+	    else:
+		l.SetMainTransparency(95)
+	    
+	    #name = "Track #%i \nTheta: %s +/- %s" % (count,ft.Theta(),ft.ThetaError()*100)
+
+	    name = "Track #%i \nTheta: %s +/- %s\nPhi: %s +/- %s\nFitness: %s\nChiSquare: %s\nNFitLayer: %i" % (count,ft.Theta(),ft.ThetaError(),ft.Phi(),ft.PhiError(),ft.GetFitness(),ft.GetChisquare(),ft.GetNFitLayer())
+	    #chi = ft.GetChisquare()
+	    #transp = int(100/ntrk*count)
+	    #print transp
+	    #l.SetMainTransparency(transp)
+	    #name = ft.Print()
+	    #type(name)
+	    l.SetElementTitle(name)    
+	    self.append(l)
+            ROOT.gEve.AddElement(l)
+	    count = count +1
 
 
 

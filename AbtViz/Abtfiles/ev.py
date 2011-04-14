@@ -84,11 +84,11 @@ class Controller(EvController):
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
 
-        #self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
+        self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
-        #for elem in self.digi:
-            #elem.add_()
+        for elem in self.digi:
+            elem.add_()
 
         self.trk = EvTrk()
 
@@ -171,26 +171,25 @@ class Controller(EvController):
         
 	self.gui.fNumber.SetIntNumber(g_.GetEntry())
         
-	#No pmt response in CP5 (HKU)
-        #pmtr = self.src.pmt_response() 
-	#if len(pmtr[2]) > 0:
-            #if self.dbg>1:print "pmtr %s" % pmtr
-            #self.digi.update_pmt(  pmtr ) 
+        pmtr = self.src.pmt_response() 
+	if len(pmtr[2]) > 0:
+            if self.dbg>1:print "pmtr %s" % pmtr
+            self.digi.update_pmt(  pmtr ) 
             
         trkr = self.src.tracker_hits()
         if len(trkr) > 0:
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
       
-        fitk = self.src.fitted_track() # [150,0,-300])    
-	#if len(fitk) > 0:
-            #if self.dbg>1:print "fitk %s " % repr(fitk)
-        self.trk.update( fitk )
+        fitk = self.src.fitted_track( [150,0,-150] )
+        if len(fitk) > 0:
+            if self.dbg>1:print "fitk %s " % repr(fitk)
+            self.trk.update( fitk )
 
-    	#vrtxp = self.src.vertex_position()
-        #if len(vrtxp) > 0:
-            #if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
-	    #self.vrtx.update( vrtxp )
+    	vrtxp = self.src.vertex_position()
+        if len(vrtxp) > 0:
+            if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
+	    self.vrtx.update( vrtxp )
 
         #tmsg = self.src.msg
         #if tmsg:
@@ -231,12 +230,11 @@ if __name__=='__main__':
 
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
-    offline = "/home/user/run00100.root"
-#"$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     
-    #g.SetSource( repr(online) )
-    g.SetSource( offline )
+    g.SetSource( repr(online) )
+    #g.SetSource( offline )
     
     
     gEve.Redraw3D(kTRUE, kTRUE )  ## resetCameras and dropLogicals ... defaults are kFALSE
