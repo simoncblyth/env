@@ -412,7 +412,7 @@ scm-backup-purge(){
   #
 
   local node=${1:-$LOCAL_NODE} 
-  local nmax=7
+  local nmax=4
   local name
   local tgzs
   local itgz
