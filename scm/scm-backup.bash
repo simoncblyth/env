@@ -195,6 +195,8 @@ scm-backup-all(){
                local inhibiter=$(dirname $path)/${name}-scm-recover-repo
                if [ -L $inhibiter ]; then
                     echo $msg INHIBIT BACKUP of recovered environment, delete the inhibiter $inhibiter to backup this environment $path
+               elif [ "$LOCAL_NODE" == "cms02" -a "$typ" == "svn" ]; then
+                    echo $msg SKIP BACKUP of alien environment $typ at $path on $LOCAL_NODE
                else
                     echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD
                     case $typ in 
@@ -202,7 +204,7 @@ scm-backup-all(){
                      repos|svn) scm-backup-repo $name $path $base $stamp  ;;
                              *) echo $msg ERROR unhandled typ $typ ;;
                     esac           
-  		       fi
+  	       fi
            else
   		       echo $msg $typ === skip non-folder $path
   		   fi
