@@ -25,8 +25,24 @@ cat << EOU
    
          start the agent and give it the keys on the source machine,
          the passphrase used at key creation will be prompted for 
+
             source>  ssh--agent-start
-           
+
+
+    == connecting without using keys (ie force revert to passwords) ==
+
+
+        For debugging or to avoid running a "forced" command (eg from gateway to internal node)
+        it is sometimes useful to revert to password authentication... do so with
+
+             ssh -o PubkeyAuthentication=no VT
+
+        Persist this setting in the config file under a new name (add to ~/.ssh-local-config then sshconf-gen  )
+
+             host VTN
+                hostname gateway.domain
+                protocol 2
+                PubkeyAuthentication no
 
 
      == Troubleshoot Passwordless access not working ==
