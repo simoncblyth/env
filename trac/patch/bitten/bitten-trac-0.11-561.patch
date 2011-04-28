@@ -106,6 +106,19 @@ Index: bitten/master.py
          index = None
          current_step = None
          for num, recipe_step in enumerate(recipe):
+Index: bitten/htdocs/bitten.css
+===================================================================
+--- bitten/htdocs/bitten.css	(revision 561)
++++ bitten/htdocs/bitten.css	(working copy)
+@@ -60,7 +60,7 @@
+ #content.build #charts { clear: right; float: right; width: 44%; }
+ 
+ #content.build #builds { clear: none; margin-top: 2em; table-layout: fixed;
+-  width: 54%;
++  width: 100%;
+ }
+ #content.build #builds tbody th, #content.build #builds tbody td {
+   background: #fff;
 Index: bitten/build/pythontools.py
 ===================================================================
 --- bitten/build/pythontools.py	(revision 561)
@@ -256,6 +269,15 @@ Index: bitten/slave.py
              try:
                  try:
                      job_done = self._create_build()
+@@ -189,7 +194,7 @@
+         body = str(xml)
+         log.debug('Sending slave configuration: %s', body)
+         resp = self.request('POST', self.url, body, {
+-            'Content-Length': len(body),
++            'Content-Length': str(len(body)),
+             'Content-Type': 'application/x-bitten+xml'
+         })
+ 
 Index: bitten/report/testing.py
 ===================================================================
 --- bitten/report/testing.py	(revision 561)
