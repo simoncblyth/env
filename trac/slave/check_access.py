@@ -20,14 +20,21 @@ class SaneHTTPRequest(urllib2.Request):
         return self.method
 
 
-def check_access( url, username, password , method='GET', body="hello", headers={'Content-Type': 'text/plain' }):
+def check_access( url, username, password , method='POST' ):
     password_mgr = urllib2.HTTPPasswordMgrWithDefaultRealm()
     password_mgr.add_password(None, url, username, password)
     opener = urllib2.build_opener(SaneHTTPErrorProcessor)
     opener.add_handler(urllib2.HTTPBasicAuthHandler(password_mgr))
     opener.add_handler(urllib2.HTTPDigestAuthHandler(password_mgr))
-    #req = urllib2.Request( url, body, headers or {})
-    req = urllib2.Request( url )
+
+    xml = "<testpost/>"
+    body = str(xml)
+    headers = {
+              'Content-Length': len(body),
+              'Content-Type': 'application/x-bitten+xml'
+         }
+    req = urllib2.Request( url, body, headers or {})
+
     try:
         return opener.open(req)
     except urllib2.HTTPError, e:
