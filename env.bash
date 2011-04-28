@@ -917,3 +917,4 @@ scipy-(){      . $(env-home)/npy/scipy.bash && scipy-env $* ; }
 analog-(){      . $(env-home)/apache/analog.bash && analog-env $* ; }
 tornado-(){      . $(env-home)/messaging/tornado.bash && tornado-env $* ; }
 svnprecommit-(){      . $(env-home)/svn/svnprecommit.bash && svnprecommit-env $* ; }
+dcs-(){      . $(env-home)/offline/dcs.bash && dcs-env $* ; }

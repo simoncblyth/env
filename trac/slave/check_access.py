@@ -3,6 +3,24 @@ Usage::
 
   python check_access.py http://dayabay.ihep.ac.cn/tracs/dybsvn dayabay youknowit
 
+
+  http://sourceforge.net/projects/s3tools/forums/forum/618865/topic/3825692?message=8717733
+
+
+Cause of py27 issue at VT was 
+{{{
+'Content-Length': len(body),
+}}}
+
+Changing to:
+{{{
+'Content-Length': str(len(body)),
+}}}
+
+
+Gets past this issue ... apparently py27/urllib2 is stricter regarding ints in headers  
+
+
 """
 import sys
 import urllib2
@@ -30,7 +48,7 @@ def check_access( url, username, password , method='POST' ):
     xml = "<testpost/>"
     body = str(xml)
     headers = {
-              'Content-Length': len(body),
+              'Content-Length': str(len(body)),
               'Content-Type': 'application/x-bitten+xml'
          }
     req = urllib2.Request( url, body, headers or {})
