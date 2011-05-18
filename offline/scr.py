@@ -61,7 +61,6 @@ mysql> describe DcsPmtHv  ;
 import os
 from sqlalchemy import MetaData, create_engine
 
-
 def sa_url( sect , path="~/.my.cnf" ):
     """
     Provide SQLAlchemy URL for the config file section `sect`
@@ -94,11 +93,6 @@ def sa_meta( url ):
     return m
 
 
-
-m_dcs = sa_meta(sa_url("dcs"))
-m_off = sa_meta(sa_url("tmp_offline_db"))
-
-
 print "\n".join([t.name for t in m_dcs.sorted_tables])
 print "\n".join([t.name for t in m_off.sorted_tables])
 
@@ -109,12 +103,9 @@ pair = pairs[0]
 from sqlalchemy.sql import join
 from sqlalchemy.orm import mapper
 
-class ADHV(object):
-    pass
-
 hv_, pw_ = pair
 hv, pw = m_dcs.tables[hv_],m_dcs.tables[pw_]
-hp = join( hv, pw , hv.c.id == pw.c.id )   ## no FK so must specify the onclause
+hp = join( hv, pw , hv.c.id == pw.c.id )          ## no FK so must specify the onclause
 
 import re
 kptn = re.compile("^L(?P<ladder>\d)C(?P<col>\d)R(?P<ring>\d)$")
@@ -124,6 +115,91 @@ for k in hv.c.keys():
     if m:
         print m.groupdict()
     #mapper(AD, hp , include_properties={ 'ladder':k[1],'ring':k )
+
+
+class Dcs(object):
+    """
+    Higher level access to DCS tables, usage ::
+
+         dcs = Dcs("DBNS", "AD1" )
+
+
+    """
+    siteList = ["DBNS", "LANS", "FARS", "MIDS" "Aberdeen", "SAB"]
+    detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
+    def __init__(self, site, det ):
+        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
+        assert det  in self.detList, "detector \"%s\" is not in \"%s\"" %  ( det , self.detList ) 
+        self.dcs = sa_meta(sa_url("dcs"))
+
+    def _lcr_table(self, modifier="HV" ):
+        """
+        Returns the names of LCR (ladder/column/ring) tables, for  
+        examples of LCR tables see oum:sop/dcs
+ 
+        DBNS_AD1_HV
+        DBNS_AD2_HV
+
+        DBNS_AD1_HVPw     ## table naming bug 
+         SAB_AD2_HV_Pw
+        DBNS_AD2_HV_Pw
+         SAB_AD1_HV_Pw
+
+        SAB_AD1_HV_Vmon
+        SAB_AD2_HV_Vmon
+
+        valid modifiers are HV, HV_Pw, HV_Vmon 
+
+        """
+        if self.site == "DBNS" and self.det == "AD1" and modifier == "HV_Pw":
+            modifier = "HVPw"      ## correct what looks like a bug in table naming  
+        return "%s_%s_%s" % ( self.site, self.det , modifier )     
+
+    hv   = property(lambda self:_lcr_table(self, "HV")) 
+    pw   = property(lambda self:_lcr_table(self, "HV_Pw")) 
+    vmon = property(lambda self:_lcr_table(self, "HV_Vmon")) 
+
+
+    
+    
+
+
+
+class PmtHv(object):
+    """
+    Table specifics that cannot be factored in the general scraper  
+
+    ... hmm add a meta key in the DybDbi table spec to point at this class
+    """
+    dbi_table = "DcsPmtHv"  
+    time_interval = 60
+    dcstime = "date_time"
+
+    def __init__(self, site, detector ):
+        self.site = site
+        self.detector = detector
+
+    def selectable(self, db ):
+        return join( db.tables[
+  
+
+class DcsScraper(object):
+    """
+    Generic aspects of scraping tables from DCS database are contained here
+    """
+    def __init__(self, kls ):
+        self.kls = kls
+        self.off = sa_meta(sa_url("copy_offline_db"))
+
+
+
+
+
+if __name__ == '__main__':
+    kls = PmtHv()
+    scr = DcsScraper( kls )
+
+
 
 
 """
@@ -139,11 +215,6 @@ Out[5]:
  u'L8C3R3',
 ...
 
-
-    
-
-
-
 mapper complaining regards same named columns
 
 /home/blyth/v/scr/lib/python2.4/site-packages/sqlalchemy/orm/mapper.py:585: SAWarning: Implicitly combining column DBNS_AD1_HV.id with column DBNS_AD1_HVPw.id under attribute 'id'.  This usage will be prohibited in 0.7.  Please configure one or more attributes for these same-named columns explicitly.
@@ -151,12 +222,6 @@ mapper complaining regards same named columns
 
 
 """
-
-## accessing column objects
-#print t.c.id
-#print t.c.date_time
-
-
 
 
 
