@@ -1,30 +1,17 @@
 import re
 from datetime import datetime
 
-
 class DcsTableName(object):
     """
-    DCS table name provider, returing the names of tables based on 
-    ctor (site, det) arguments and qty attribute name, usage::
+    DCS table name provider, returning names of tables based on 
+    ctor (site, det, qty) arguments usage::
 
-         tn = DcsTableName("DBNS", "AD1" )
-         print tn.hv
-         print tn.pw
+         dtn = DcsTableName("DBNS", "AD1", "HV" )
+         print dtn
+         print dtn.site, dtn.gcln
 
-    """
-    siteList = ["DBNS", "LANS", "FARS", "MIDS", "Aberdeen", "SAB"]
-    detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
-    def __init__(self, site, det ):
-        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
-        assert det  in self.detList, "detector \"%s\" is not in \"%s\"" %  ( det , self.detList ) 
-        self.site = site
-        self.det = det 
-
-    lcr_qtys = dict(hv="HV",pw="HV_Pw")
-    def lcr(self, qty ):
-        """
-        Returns the names of LCR (ladder/column/ring) tables, for  
-        examples of LCR tables see oum:sop/dcs
+    For example the names of LCR (ladder/column/ring) tables
+    can be returned, for details see oum:sop/dcs
  
            =================  ==============================   ===========================
              LCR table          description                      notes
@@ -39,18 +26,52 @@ class DcsTableName(object):
             SAB_AD1_HV_Pw      oum:sop/dcs/#sab-ad1-hv-pw
            =================  ==============================   ===========================
 
-        valid qty are HV, HV_Pw, HV_Vmon 
+    valid qty are HV, HV_Pw, HV_Vmon 
 
+    """
+    siteList = ["DBNS", "LANS", "FARS", "MIDS", "Aberdeen", "SAB"]
+    detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
+    qtyList = ["HV","HV_Pw", "HV_Vmon" ]
+
+    def instances(cls):
         """
-        if self.site == "DBNS" and self.det == "AD1" and qty == "HV_Pw":
-            qty = "HVPw"      ## correct what looks like a bug in table naming  
-        return "%s_%s_%s" % ( self.site, self.det , qty )     
+        Selection of DcsTableName instances
+        """
+        dtns = []
+        for site in "DBNS".split():
+            for det in "AD1 AD2".split():
+                for qty in "HV HV_Pw".split():
+                    dtns.append( cls(site, det, qty) )
+        return dtns
+    instances = classmethod(instances) 
+    tables    = classmethod(lambda cls:map(str, cls.instances() ))
+    classes   = classmethod(lambda cls:map(lambda _:_.gcln, cls.instances() ))
 
-    def __getattr__(self, name):
-        if name in self.lcr_qtys:
-            return self.lcr( self.lcr_qtys[name] )
+    def __init__(self, site, det, qty ):
+        pass
+        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
+        assert det  in self.detList, "detector \"%s\" is not in \"%r\"" %  ( det , self.detList ) 
+        assert qty in self.qtyList, "qty \"%s\" is not in \"%r\"" % ( qty, self.qtyList )
+
+        self.site = site
+        self.det = det 
+        self.qty = qty
+
+    def __repr__(self):
+        return "DTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.site, self.det, self.qty, self.gcln )
+
+    def __str__(self):
+        """
+        correct what looks like a bug in table naming, on rendering 
+        """
+        if self.site == "DBNS" and self.det == "AD1" and self.qty == "HV_Pw":
+            qty = "HVPw"      
         else:
-            raise AttributeError
+            qty = self.qty
+        return "%s_%s_%s" % ( self.site, self.det, qty ) 
+
+    gcln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
+ 
 
 def lcr():
     for l in range(8,0,-1):
@@ -59,32 +80,32 @@ def lcr():
                 yield l,c,r
 
 
-
-
-
-class BaseT(object):
+class DcsBase(object):
     """
     Base for mapped classes that have a date_time attribute
     """
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
 
-class Hv(BaseT):
-    pass
-class Pw(BaseT):
-    pass
-
+#
+#class Hv(BaseT):
+#    pass
+#class Pw(BaseT):
+#    pass
+#
 
             
 if __name__ == '__main__':
             
-    tn = DcsTableName("DBNS", "AD1" )
-    print tn.hv
-    print tn.pw
+    cls = DcsTableName
 
-    for site in DcsTableName.siteList:
-        for det in DcsTableName.detList:
-            tn = DcsTableName(site, det)   ## many will be non-sensical
-            print tn.hv
-            print tn.pw
+    print "instances",  cls.instances()
+    print "tables",  cls.tables()
+    print "classes", cls.classes()
+
+    dtn = cls("DBNS", "AD1", "HV" )
+    print dtn, repr(dtn)
+
+    for dtn in cls.instances():
+        print dtn, repr(dtn)
 

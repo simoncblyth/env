@@ -40,23 +40,9 @@ if __name__ == '__main__':
     pass
 
     from sa import SA
-    from sqlalchemy.orm import mapper
-
     otn = OffTableName()
     off = SA("recovered_offline_db", tables=otn.dbi_pairs(["hv"])  )
-    #for t in off.meta.tables:
-    #    print t
 
-    hvv_t = off(otn.hv+"Vld")    
-    mapper( Vld , hvv_t )
-
-    q = off.session.query(Vld).order_by(Vld.SEQNO.desc())
-    print q.count()
-   
-    last = q.first()   ## first in SEQNO descending order, ie the last SEQNO   
-    print last
-    print last.SEQNO
- 
 
 
 

@@ -5,7 +5,6 @@ Fake insertions into dcs, for scraper testing usage::
 
 """
 from datetime import datetime, timedelta
-from dcs import Hv, Pw
 from dcsconf import DCS
 from dcsfake import LCRFaker
 
@@ -13,20 +12,25 @@ import time
 
 def fake_insert(i):
     """
-    create Hv instance, fake the LCR attributes and write to dcs
+    create generic instances, fake the LCR attributes and write to dcs
     """
-    last = dcs.qd(Hv).first()
-    lid = last.id
-    assert lid > 0 
 
-    hv = Hv()    
-    fk = LCRFaker()
-    fk(hv)
-    hv.id = lid + 1
-    hv.date_time = datetime.now()
+    for gcln, gcls in dcs.classes.items():
+        last = dcs.qd(gcls).first()
+        if last == None:
+            lid = 0
+        else:
+            lid = last.id
 
-    print "%-3d fake_insert %r " % (i, hv) 
-    dcs.add(hv)   
+        inst = gcls()    
+        fk = LCRFaker()
+        fk(inst)
+        inst.id = lid + 1
+        inst.date_time = datetime.now()
+
+        print "%-3d fake_insert %s %r " % (i, gcln, inst) 
+
+        dcs.add(inst)   
     dcs.commit()
 
 
