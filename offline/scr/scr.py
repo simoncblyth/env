@@ -6,11 +6,38 @@
 """
 
 from sa import SA
-from dcstable import DcsTableName, Hv
+from dcs import DcsTableName, Hv, Pw
 from dcsfake import LCRFaker
 
 from sqlalchemy.orm import mapper
 from datetime import datetime
+
+
+class Feed(object):
+    """
+    Feed instances of the mapped class specified, usage:
+
+        src = Feed(Hv)
+        for i in src:
+            print i 
+
+    where to put the time logic ?
+
+    """ 
+    def __init__(self, kls ):
+        self.kls = kls
+
+    def upto(self, cut):
+        """
+        _dcsDb.cursor.execute("SELECT * FROM " + self.info["hv"] + " WHERE date_time >= %s LIMIT 1", (self.info["nextTime"], ))
+        """
+        pass 
+
+    def last(self, cut ):
+        """
+         _dcsDb.cursor.execute("SELECT date_time FROM " + self.info["hv"] + " WHERE date_time < %s ORDER BY date_time DESC LIMIT 1", (timeStart,))
+        """
+        pass
 
 
 if __name__ == '__main__':
@@ -25,8 +52,9 @@ if __name__ == '__main__':
     hv_t = dcs(dtn.hv)
     pw_t = dcs(dtn.pw)
 
-    # maps hv table to Hv class
+    # map tables to classes
     mapper( Hv ,  hv_t ) 
+    mapper( Pw ,  pw_t ) 
     
     # create Hv instance, fake the LCR attributes and write to dcs
     if 0:
@@ -40,16 +68,20 @@ if __name__ == '__main__':
 
     # access instances with filtering 
     cut = datetime( 2011,5,19, 9 )
+    
+    q = dcs.session.query(Hv).order_by(Hv.date_time)
 
-    for i in dcs.session.query(Hv).all():
-       print i.id, i.date_time
-    for i in dcs.session.query(Hv).filter(Hv.date_time < cut ).all():
-       print i.id, i.date_time
-    for i in dcs.session.query(Hv).filter(Hv.date_time > cut ).all():
-       print i.id, i.date_time
+    print "all"
+    for i in q.all():
+       print i
+    print "before %s " % cut 
+    for i in q.filter(Hv.date_time < cut ).all():
+       print i
+    print "after %s " % cut 
+    for i in q.filter(Hv.date_time > cut ).all():
+       print i
 
 
-
-    off = SA("recovered_offline_db")
+    #off = SA("recovered_offline_db")
 
 

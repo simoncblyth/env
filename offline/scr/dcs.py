@@ -58,16 +58,19 @@ def lcr():
                 yield l,c,r
 
 
-class Hv(object):
-    """
-    Class mapped against single table
-    """
-    pass
 
-class Pw(object):
+
+
+class BaseT(object):
     """
-    Class mapped against single table
+    Base for mapped classes that have a date_time attribute
     """
+    def __repr__(self):
+        return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
+
+class Hv(BaseT):
+    pass
+class Pw(BaseT):
     pass
 
 
