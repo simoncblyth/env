@@ -21,10 +21,6 @@ if __name__ == '__main__':
     # SQLAlchemy connection to database and table reflection
     dcs = SA("dcs", tables=(dtn.hv,dtn.pw,) )
 
-
-    off = SA("off")  ## all tables
-
-
     # sqlalchemy.schema.Table objects
     hv_t = dcs(dtn.hv)
     pw_t = dcs(dtn.pw)
@@ -32,30 +28,28 @@ if __name__ == '__main__':
     # maps hv table to Hv class
     mapper( Hv ,  hv_t ) 
     
-    # instance of mapped class   
-    hv = Hv()    
-
-    # fake the LCR attributes
-    fk = LCRFaker()
-    fk(hv)
-
-    hv.id = 3
-    hv.date_time = datetime.now()
-
-    dcs.add(hv)   
-    dcs.commit()
+    # create Hv instance, fake the LCR attributes and write to dcs
+    if 0:
+        hv = Hv()    
+        fk = LCRFaker()
+        fk(hv)
+        hv.id = 3
+        hv.date_time = datetime.now()
+        dcs.add(hv)   
+        dcs.commit()
 
     # access instances with filtering 
     cut = datetime( 2011,5,19, 9 )
 
     for i in dcs.session.query(Hv).all():
        print i.id, i.date_time
-
     for i in dcs.session.query(Hv).filter(Hv.date_time < cut ).all():
        print i.id, i.date_time
-
     for i in dcs.session.query(Hv).filter(Hv.date_time > cut ).all():
        print i.id, i.date_time
 
+
+
+    off = SA("recovered_offline_db")
 
 
