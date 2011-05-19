@@ -40,9 +40,7 @@ class Demo(object):
 
 
 
-if __name__=='__main__':
-    pass
-
+def demo_fake_attributes():
     d = Demo()
     atts = "L1C1R1 L1C1R2 L1C1R3".split()
     for att in atts:
@@ -55,6 +53,11 @@ if __name__=='__main__':
        v = getattr(d, att)
        print att, v 
 
+
+
+
+if __name__=='__main__':
+    pass
 
 
 

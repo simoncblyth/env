@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 
+
 class DcsTableName(object):
     """
     DCS table name provider, returing the names of tables based on 
