@@ -5,25 +5,10 @@ from sqlalchemy.orm import sessionmaker, mapper
 Session = sessionmaker()
 
 
-class Dcs(object):
-    """
-    High level access to DCS tables, usage ::
-
-         ds = Dcs("DBNS", "AD1" )
-         print ds.db.tables['site_table']
-
-    """
-    siteList = ["DBNS", "LANS", "FARS", "MIDS" "Aberdeen", "SAB"]
-    detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
-    def __init__(self, site, det ):
-        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
-        assert det  in self.detList, "detector \"%s\" is not in \"%s\"" %  ( det , self.detList ) 
-        self.site = site
-        self.det = det 
-
-        url = sa_url("dcs")
+class SA(object):
+    def __init__(self, dbconf):
         meta = MetaData()
-        engine = create_engine( url, echo=False )
+        engine = create_engine( sa_url(dbconf), echo=False )
         meta.reflect(bind=engine)    
 
         Session.configure(bind=engine)
@@ -39,15 +24,23 @@ class Dcs(object):
         self.session.commit()  
 
 
+class DcsTable(object):
+    """
+    DCS table name provider, usage ::
 
-class LCR(Dcs):
+         dcstn = Dcs("DBNS", "AD1" )
+         print dcstn.hv
+
     """
-    Access to ladder/column/ring tables, usage::
-    """
+    siteList = ["DBNS", "LANS", "FARS", "MIDS" "Aberdeen", "SAB"]
+    detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
     def __init__(self, site, det ):
-         Dcs.__init__(self, site, det)    
+        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
+        assert det  in self.detList, "detector \"%s\" is not in \"%s\"" %  ( det , self.detList ) 
+        self.site = site
+        self.det = det 
 
-    def lcr_table(self, modifier="HV" ):
+    def lcr(self, qty="HV" ):
         """
         Returns the names of LCR (ladder/column/ring) tables, for  
         examples of LCR tables see oum:sop/dcs
@@ -65,21 +58,21 @@ class LCR(Dcs):
             SAB_AD1_HV_Pw      oum:sop/dcs/#sab-ad1-hv-pw
            =================  ==============================   ===========================
 
-        valid modifiers are HV, HV_Pw, HV_Vmon 
+        valid qty are HV, HV_Pw, HV_Vmon 
 
         """
-        if self.site == "DBNS" and self.det == "AD1" and modifier == "HV_Pw":
-            modifier = "HVPw"      ## correct what looks like a bug in table naming  
-        return "%s_%s_%s" % ( self.site, self.det , modifier )     
+        if self.site == "DBNS" and self.det == "AD1" and qty == "HV_Pw":
+            qty = "HVPw"      ## correct what looks like a bug in table naming  
+        return "%s_%s_%s" % ( self.site, self.det , qty )     
 
-    ## table names of LCR tables
-    hv_   = property(lambda self:self.lcr_table("HV")) 
-    pw_   = property(lambda self:self.lcr_table("HV_Pw")) 
+    def __getattr__(self, att):
+         
+     
+
 
     ## sqlalchemy.schema.Table for LCR tables
-    hv    = property(lambda self:self.meta.tables[self.hv_]) 
-    pw    = property(lambda self:self.meta.tables[self.pw_]) 
- 
+    hv    = property(lambda self:self.meta.tables[self.lcr("HV")]) 
+    pw    = property(lambda self:self.meta.tables[self.lcr("HV_Pw")]) 
     ## no FK so must specify the onclause
     hp    = property(lambda self:join( self.hv, self.pw , self.hv.c.id == self.pw.c.id ))  
 
@@ -98,6 +91,12 @@ def lcr():
 
 
 if __name__ == '__main__':
+
+
+
+    dcs = SA("dcs")
+
+
     #ds = LCR("DBNS", "AD1" )
     ds = LCR("DBNS", "AD2" )
     #ds = LCR("SAB", "AD1" )
