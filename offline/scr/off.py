@@ -1,48 +1,62 @@
 
 class OffTableName(object):
     """
-    Supply Offline DB table names, given some ctor context arguments (tbd)
-    and attribute qty
-
+    Supply Offline DB table names, given some ctor arguments
     This class is intended as insulation against table name changes.
-
-    Old scraper code features "DcsAdPmtHv" which does not appear 
+    
+    Note, old scraper code features "DcsAdPmtHv" which does not appear 
     in offline_db 
     """ 
-    names = dict(temp="DcsAdTemp", hv="DcsPmtHv")
-    def __getattr__(self, name):
-        if name in self.names:
-            return self.names[name] 
-        else:
-            raise AttributeError
 
-    def dbi_pairs(self, names ):
-        ret = []
-        for name in names:
-            tn = getattr(self, name) 
-            ret.append( tn )
-            ret.append( tn + "Vld" )
-        return ret
+    def instances(cls):
+        """
+        Selection of OffTableName instances
+        """
+        otns = []
+        for pfx in cls.pfxList:
+            for qty in cls.qtyList:
+                for flv in cls.flvList:
+                    otns.append( cls(pfx,qty,flv) )
+        return otns
+    instances = classmethod(instances) 
+    tables    = classmethod(lambda cls:map(str, cls.instances() ))
+    classes   = classmethod(lambda cls:map(lambda _:_.gcln, cls.instances() ))
 
-class Base(object):
-    """
-    Base for mapped classes that have a SEQNO attribute
-    """
+    gcln = property(lambda self:'G%s' % ( str(self) ))      #  rationalized class name G<tablename> 
+
+    pfxList = "Dcs".split()
+    qtyList = "PmtHv AdTemp".split()
+    flvList = "Pay Vld".split()
+
+    def __init__(self, pfx, qty, flv):
+        assert pfx in self.pfxList, pfx 
+        assert qty in self.qtyList, qty 
+        assert flv in self.flvList, flv 
+
+        self.pfx = pfx
+        self.qty = qty
+        self.flv = flv
+
     def __repr__(self):
-        return "%s %s " % ( self.__class__.__name__, self.SEQNO )
+        return "OTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.pfx, self.qty, self.flv, self.gcln )
 
-class Vld(Base):
-    def __repr__(self):
-        return "%s %s %s %s %s %s" % ( self.__class__.__name__, self.SEQNO, self.TIMESTART, self.TIMEEND, self.VERSIONDATE, self.INSERTDATE )
-
+    def __str__(self):
+         if self.flv == "Pay":
+             flv = ""
+         else:
+             flv = self.flv
+         return "%s%s%s" % (self.pfx, self.qty, flv ) 
 
 if __name__ == '__main__':
     pass
 
-    from sa import SA
-    otn = OffTableName()
-    off = SA("recovered_offline_db", tables=otn.dbi_pairs(["hv"])  )
+    cls = OffTableName
 
+    otn = cls("Dcs", "PmtHv", "Pay" )
+    print otn, repr(otn)
+
+    for otn in cls.instances():
+        print otn, repr(otn)
 
 
 

@@ -1,6 +1,13 @@
 from sa import SA
-from dcs import DcsTableName as DTN, DcsBase
+from dcs import DcsTableName as DTN
 from sqlalchemy.orm import mapper
+
+class DcsBase(object):
+    """
+    Base for mapped classes that have `id` and `date_time` attributes
+    """
+    def __repr__(self):
+        return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
 
 class DCS(SA):
     def __init__(self, dbconf ):
@@ -28,15 +35,21 @@ class DCS(SA):
         SA.__init__( self, dbconf , tables=tables )
 
         self.classes = {}
-
         for dtn in instances:
             tn = str(dtn)                           # table name
             gcln = dtn.gcln                         # dynamic class name
             gcls = type( gcln, (DcsBase,),{})       # dynamic class creation 
-
             self.classes[gcln] = gcls               # record dynamic classes, keyed by name
             mapper( gcls , self.meta.tables[tn] )   # map dynamic class to reflected table 
-    
+            pass
+        self.instances = instances              
+
+    def lookup(self,  dtn ):
+        """
+        Return dynamic class from a dtn instance
+        """
+        return self.classes[dtn.gcln] 
+
     def qa(self, cls):
         """query date_time ascending""" 
         return self.session.query(cls).order_by(cls.date_time)
@@ -57,7 +70,11 @@ if __name__ == '__main__':
         print t 
 
     ## over dynamic classes
-    for gcln, gcls in dcs.classes.items(): 
+    for dtn in dcs.instances: 
+        gcls = dcs.lookup( dtn )
+        gcln = gcls.__name__
+        print "%" * 20, dtn, "%" * 20
+
         qa = dcs.qa(gcls)
         qd = dcs.qd(gcls)
 
@@ -73,5 +90,16 @@ if __name__ == '__main__':
         print "after %s " % cut 
         for i in qa.filter(gcls.date_time > cut ).all():
             print i
+
+    print "lookup dynamic classes from DTN coordinates "
+
+    for det in "AD1 AD2".split():
+        gcls = dcs.lookup(DTN("DBNS", det , "HV"))
+        print gcls, gcls.__name__
+        gcls = dcs.lookup(DTN("DBNS", det , "HV_Pw"))
+        print gcls, gcls.__name__   
+
+
+
 
 

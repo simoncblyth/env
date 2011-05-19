@@ -1,14 +1,15 @@
-import re
-from datetime import datetime
 
 class DcsTableName(object):
     """
     DCS table name provider, returning names of tables based on 
     ctor (site, det, qty) arguments usage::
 
-         dtn = DcsTableName("DBNS", "AD1", "HV" )
+         from dcs import DcsTableName as DTN
+         dtn = DTN("DBNS", "AD1", "HV" )
          print dtn
-         print dtn.site, dtn.gcln
+         print dtn.site, dtn.det, dtn.qty
+         print dtn.gcln    ## name of dynamic class for a single table mapping 
+      
 
     For example the names of LCR (ladder/column/ring) tables
     can be returned, for details see oum:sop/dcs
@@ -47,6 +48,8 @@ class DcsTableName(object):
     tables    = classmethod(lambda cls:map(str, cls.instances() ))
     classes   = classmethod(lambda cls:map(lambda _:_.gcln, cls.instances() ))
 
+    gcln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
+
     def __init__(self, site, det, qty ):
         pass
         assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
@@ -70,29 +73,13 @@ class DcsTableName(object):
             qty = self.qty
         return "%s_%s_%s" % ( self.site, self.det, qty ) 
 
-    gcln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
  
-
 def lcr():
     for l in range(8,0,-1):
         for c in range(3,0,-1):
             for r in range(8,0,-1):
                 yield l,c,r
 
-
-class DcsBase(object):
-    """
-    Base for mapped classes that have a date_time attribute
-    """
-    def __repr__(self):
-        return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
-
-#
-#class Hv(BaseT):
-#    pass
-#class Pw(BaseT):
-#    pass
-#
 
             
 if __name__ == '__main__':
