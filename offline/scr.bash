@@ -5,6 +5,7 @@ scr-vi(){       vi $(scr-source) ; }
 scr-env(){      
    elocal- 
    [ -d ~/v/scr ] && . ~/v/scr/bin/activate
+   cd $(env-home)/offline/scr
 }
 scr-usage(){
   cat << EOU
