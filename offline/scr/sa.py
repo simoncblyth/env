@@ -1,5 +1,8 @@
 import os
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import Table, MetaData, create_engine
+from sqlalchemy.orm import sessionmaker, mapper
+Session = sessionmaker()
+
 
 def sa_url( sect , path="~/.my.cnf" ):
     """
@@ -11,7 +14,7 @@ def sa_url( sect , path="~/.my.cnf" ):
     cfg = dict(cfp.items(sect))
     return "mysql://%(user)s:%(password)s@%(host)s/%(database)s" % cfg
 
-def sa_meta( url , **kwa ):
+class SA(object):
     """
     Reflect schema of all tables in database at `url`
 
@@ -26,11 +29,36 @@ def sa_meta( url , **kwa ):
     table via its metadata (provided the Session itself has no bind configured.).
 
     Adopt simple approach of binding the engine to the metadata
-    """      
-    m = MetaData()
-    e = create_engine( url, **kwa )
-    m.reflect(bind=e)       
-    return m
 
 
+    """  
+    def __init__(self, dbconf , tables=[] ):
+        meta = MetaData()
+        engine = create_engine( sa_url(dbconf), echo=False )
+
+        if len(tables) == 0:
+            meta.reflect(bind=engine)    
+        else:
+            for t in tables:
+                tt = Table( t , meta, autoload=True, autoload_with=engine)
+
+        Session.configure(bind=engine)
+        session = Session()
+
+        self.meta = meta
+        self.session = session
+
+    def add(self, obj):
+        self.session.add( obj )
+
+    def commit(self):
+        self.session.commit()  
+
+    def __call__(self, tn ):
+        return self.meta.tables[tn]
+
+if __name__ == '__main__':
+    dcs = SA("dcs")
+    for t in dcs.meta.tables:
+        print t
 
