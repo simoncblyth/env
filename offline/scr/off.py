@@ -13,15 +13,22 @@ class OffTableName(object):
     pfxList = "Dcs".split()
     qtyList = "PmtHv AdTemp".split()
     flvList = "Pay Vld".split()
-
+ 
     def __init__(self, pfx, qty, flv):
-        assert pfx in self.pfxList, pfx 
-        assert qty in self.qtyList, qty 
-        assert flv in self.flvList, flv 
-
         self.pfx = pfx
         self.qty = qty
         self.flv = flv
+        assert pfx in self.pfxList, pfx 
+        assert qty in self.qtyList, qty 
+        assert flv in self.flvList or self.isjoin, flv 
+
+    isjoin = property(lambda self:self.flv.find(":") > -1)
+    def jbits(self):
+       assert self.isjoin
+       a,b,j,tb = self.flv.split(":")               ## tb is tiebreaker prefix for name collisions 
+       xa = OffTableName( self.pfx, self.qty, a )
+       xb = OffTableName( self.pfx, self.qty, b )
+       return xa,xb,j,tb
 
     def __repr__(self):
         return "OTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.pfx, self.qty, self.flv, self.kln )
@@ -66,5 +73,8 @@ if __name__ == '__main__':
     for otn in instances():
         print otn, repr(otn)
 
-
-
+    otn = cls("Dcs", "PmtHv", "Pay:Vld:SEQNO" )
+    print otn, repr(otn)
+    assert otn.isjoin
+    for jtn in otn.jbits():
+        print jtn,repr(jtn)

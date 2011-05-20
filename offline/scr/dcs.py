@@ -37,14 +37,21 @@ class DcsTableName(object):
     kln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
 
     def __init__(self, site, det, qty ):
-        pass
-        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
-        assert det  in self.detList, "detector \"%s\" is not in \"%r\"" %  ( det , self.detList ) 
-        assert qty in self.qtyList, "qty \"%s\" is not in \"%r\"" % ( qty, self.qtyList )
-
         self.site = site
         self.det = det 
         self.qty = qty
+        pass
+        assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
+        assert det  in self.detList, "detector \"%s\" is not in \"%r\"" %  ( det , self.detList ) 
+        assert qty in self.qtyList or self.isjoin, "qty \"%s\" is not in \"%r\"" % ( qty, self.qtyList )
+
+    isjoin = property(lambda self:self.qty.find(":") > -1)
+    def jbits(self):
+       assert self.isjoin
+       a,b,j,tb = self.qty.split(":")   ## tb is tiebreaker prefix for name collisions
+       xa = DcsTableName( self.site, self.det, a )
+       xb = DcsTableName( self.site, self.det, b )
+       return xa,xb,j,tb
 
     def __repr__(self):
         return "DTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.site, self.det, self.qty, self.kln )

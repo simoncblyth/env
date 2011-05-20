@@ -1,6 +1,8 @@
 import os
 from sqlalchemy import Table, MetaData, create_engine
 from sqlalchemy.orm import sessionmaker, mapper
+from sqlalchemy.sql import join
+
 Session = sessionmaker()
 
 
@@ -13,6 +15,19 @@ def sa_url( sect , path="~/.my.cnf" ):
     cfp.read( map(lambda _:os.path.expanduser(_), [path] ))
     cfg = dict(cfp.items(sect))
     return "mysql://%(user)s:%(password)s@%(host)s/%(database)s" % cfg
+
+
+class SABase(object):
+    """
+    Shortcut classmethods on the dynamic classes
+    """
+    last  = classmethod(lambda kls:kls.db.qd(kls).first())
+    first = classmethod(lambda kls:kls.db.qa(kls).first())
+    count = classmethod(lambda kls:kls.db.q(kls).count())
+    q = classmethod(lambda kls:kls.db.q(kls))
+    qa = classmethod(lambda kls:kls.db.qa(kls))
+    qd = classmethod(lambda kls:kls.db.qd(kls))
+
 
 class SA(object):
     """
@@ -42,15 +57,48 @@ class SA(object):
         self.meta = meta
         self.classes = {}
 
+    def _kls(self, xtn):
+        """
+        Dynamic creation of class to represent table row instances 
+        with potentially table dependant base class
+        """
+        kln = xtn.kln                   
+        Base = self.subbase( xtn )    
+        kls = type(kln,(Base,),dict(db=self,xtn=xtn))    
+        return kls
+
+    def _map_properties(self, j, tb ):
+        """
+        :j param: the join instance
+        :tb param: tiebreaker prefix
+
+        when mapping to a join, there is tendency for property name collisions
+        in the mapped class, avoid collisions by using the key name which is
+        prefixed by table name 
+        """ 
+        props = {}
+        for k in j.c.keys():
+            v = j.c.get(k)      # Column instance
+            n = v.name
+            if n in props:
+               props["%s%s"% (tb,n)] = v
+            else:
+               props[n] = v 
+        return props
+
     def _mapclass(self, xtn):
+        """
+        map single table or join to a dynamic class
+        """
         print "mapclass for xtn %s " % xtn
-        tn = str(xtn)
-        tab = self.table(tn)           # will reflect the table if not already done
-        kln = xtn.kln                  # dynamic class name 
-        Base = self.subbase( xtn )     # potentially table dependant base class
-        kls = type(kln,(Base,),dict(db=self,xtn=xtn))     # dynamic subclass creation
-        mapper( kls , tab )
-        self.classes[kln] = kls        # ... hmmm maybe key by xtn ?
+        kls = self._kls(xtn)
+        if xtn.isjoin:
+            j,tb = self._join( *xtn.jbits() ) 
+            mapper( kls , j , properties=self._map_properties(j,tb) )
+        else:
+            tab = self.table( str(xtn))
+            mapper( kls , tab )
+        self.classes[kls.__name__] = kls  
 
     def kls(self, xtn ):
         """Return mapped dynamic class from a xtn instance"""
@@ -58,6 +106,20 @@ class SA(object):
         if kln not in self.classes:
             self._mapclass(xtn)
         return self.classes[kln]
+
+    def _join(self, tna, tnb, ja, tb ):
+        """
+        Returns the join of the 2 named tables
+
+        :tna param: coordinates of first table
+        :tnb param: coordinates of seconf table 
+        :ja param:  where clause join attribute, eg "id" or "SEQNO"
+        :tb param:  tiebreaker for name collisions
+
+        """ 
+        a = self.table(str(tna))
+        b = self.table(str(tnb))
+        return join( a , b , getattr(a.c,ja) == getattr(b.c, ja) ), tb
 
     def reflect(self, tn ):
         """
@@ -71,6 +133,7 @@ class SA(object):
         Return the sqlalchemy.schema.Table representation of a table, reflect upon
         the table if not already done 
         """
+        tn = str(tn)
         if tn not in self.meta.tables:
             self.reflect(tn)
         return self.meta.tables[tn]

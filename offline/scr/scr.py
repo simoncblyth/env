@@ -23,13 +23,22 @@ class Mapping(object):
     #.  avoid multi-class sources by mapping single class to joined tables ?
 
     """	
+    interval = timedelta(seconds=60)   ## interval on mapping OR scrape ?
     def __init__(self, source, target):
         self.source = source
         self.target = target
 
+    def target_next(self):
+        tlast = self.target.last()
+        print tlast
+        if tlast == None:
+            return 0
+        else:
+            return tlast.TIMESTART + self.interval 
 
 class Scrape(object):
     """
+    Hmm ... `Scrape` as a list of `Mapping` ??
 
     ## below lines parameterize the scrape at table level ... captured into a class ?
     ## mappings for scraping into DBI table pair : DcsPmtHv  
@@ -42,24 +51,21 @@ class Scrape(object):
 	"""
 	Table level mapping 
 	"""
-        source = mp.source
-        target = mp.target
+        print "sfirst", mp.source.first()
+        print "slast", mp.source.last()
 
-        sfirst = source.db.qa(source).first()
-        slast  = source.db.qd(source).first()
-        print "sfirst", sfirst
-        print "slast", slast
+        print "tfirst", mp.target.first()
+        print "tlast", mp.target.last()
 
-        tfirst = target.db.qa(target).first()
-        tlast  = target.db.qd(target).first()
-        print "tfirst", tfirst
-        print "tlast", tlast
+        next = mp.target_next()
+        print "next %s " % next
+
 
 
 if __name__ == '__main__':
     
     off = OFF("recovered_offline_db")
-    otn = OTN("Dcs","PmtHv","Pay")
+    otn = OTN("Dcs","PmtHv","Pay:Vld:SEQNO")
     tkls = off.kls( otn )   ## target kls
 
     dcs = DCS("dcs")
@@ -70,7 +76,6 @@ if __name__ == '__main__':
                dtn = DTN(site, det, qty)
                scls = dcs.kls(dtn)
                mps.append( Mapping(scls,tkls) )
-
 
     scr = Scrape()
 
