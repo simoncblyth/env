@@ -34,21 +34,7 @@ class DcsTableName(object):
     detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
     qtyList = ["HV","HV_Pw", "HV_Vmon" ]
 
-    def instances(cls):
-        """
-        Selection of DcsTableName instances
-        """
-        dtns = []
-        for site in "DBNS".split():
-            for det in "AD1 AD2".split():
-                for qty in "HV HV_Pw".split():
-                    dtns.append( cls(site, det, qty) )
-        return dtns
-    instances = classmethod(instances) 
-    tables    = classmethod(lambda cls:map(str, cls.instances() ))
-    classes   = classmethod(lambda cls:map(lambda _:_.gcln, cls.instances() ))
-
-    gcln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
+    kln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
 
     def __init__(self, site, det, qty ):
         pass
@@ -61,7 +47,7 @@ class DcsTableName(object):
         self.qty = qty
 
     def __repr__(self):
-        return "DTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.site, self.det, self.qty, self.gcln )
+        return "DTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.site, self.det, self.qty, self.kln )
 
     def __str__(self):
         """
@@ -81,18 +67,31 @@ def lcr():
                 yield l,c,r
 
 
+def instances():
+    """Selection of DcsTableName instances"""
+    dtns = []
+    for site in "DBNS".split():
+        for det in "AD1 AD2".split():
+            for qty in "HV HV_Pw".split():
+                dtns.append( cls(site, det, qty) )
+    return dtns
+def tables():    
+    return map(str, instances() )
+def classes():
+    return map(lambda _:_.kln, instances() )
+
             
 if __name__ == '__main__':
             
     cls = DcsTableName
 
-    print "instances",  cls.instances()
-    print "tables",  cls.tables()
-    print "classes", cls.classes()
+    print "instances",  instances()
+    print "tables",    tables()
+    print "classes", classes()
 
     dtn = cls("DBNS", "AD1", "HV" )
     print dtn, repr(dtn)
 
-    for dtn in cls.instances():
+    for dtn in instances():
         print dtn, repr(dtn)
 

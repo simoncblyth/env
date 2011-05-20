@@ -1,6 +1,5 @@
 from sa import SA
 from dcs import DcsTableName as DTN
-from sqlalchemy.orm import mapper
 
 class DcsBase(object):
     """
@@ -18,7 +17,7 @@ class DCS(SA):
         Specializations:
 
         #. selects tables of interest to reflect/map to classes
-        #. establishes standard query ordering 
+        #. establishes standard query ordering, assuming a date_time attribute in tables
         #. dynamically generates classes to map to  
 
         TODO:
@@ -30,33 +29,26 @@ class DCS(SA):
            hp_j = join( hv_t , pw_t , hv_t.c.id == pw_t.c.id )   
 
         """
-        instances = DTN.instances()
-        tables = map( str, instances )
-        SA.__init__( self, dbconf , tables=tables )
+        SA.__init__( self, dbconf )
 
-        self.classes = {}
-        for dtn in instances:
-            tn = str(dtn)                           # table name
-            gcln = dtn.gcln                         # dynamic class name
-            gcls = type( gcln, (DcsBase,),{})       # dynamic class creation 
-            self.classes[gcln] = gcls               # record dynamic classes, keyed by name
-            mapper( gcls , self.meta.tables[tn] )   # map dynamic class to reflected table 
-            pass
-        self.instances = instances              
-
-    def lookup(self,  dtn ):
+    def subbase(self, dtn):
         """
-        Return dynamic class from a dtn instance
+        subclass to use, that can be dependent on table coordinate 
         """
-        return self.classes[dtn.gcln] 
+        return DcsBase
 
-    def qa(self, cls):
-        """query date_time ascending""" 
-        return self.session.query(cls).order_by(cls.date_time)
-
-    def qd(self, cls):
-        """query date_time ascending""" 
-        return self.session.query(cls).order_by(cls.date_time.desc())
+    ## the below specialization boils down to : date_time
+    def q(self,dtn):
+	kls = self.kls(dtn)
+	return self.session.query(kls)
+    def qa(self, dtn):
+        """query date_time ascending"""
+        kls = self.kls(dtn)
+	return self.session.query(kls).order_by(kls.date_time)
+    def qd(self, dtn):
+        """query date_time descending"""
+        kls = self.kls(dtn) 
+        return self.session.query(kls).order_by(kls.date_time.desc())
   
 
 if __name__ == '__main__':
@@ -65,40 +57,47 @@ if __name__ == '__main__':
     cut = datetime( 2011,5,19, 9 )
 
     dcs = DCS("dcs")
-    print "mapped tables"
+    print "mapped tables ... initially will be none, as is lazy"
     for t in dcs.meta.tables:
         print t 
 
-    ## over dynamic classes
-    for dtn in dcs.instances: 
-        gcls = dcs.lookup( dtn )
-        gcln = gcls.__name__
+    dtns = []
+    for site in "DBNS".split():
+        for det in "AD1 AD2".split():
+            for qty in "HV HV_Pw".split():
+                dtns.append( DTN(site, det, qty) )
+
+    for dtn in dtns: 
         print "%" * 20, dtn, "%" * 20
 
-        qa = dcs.qa(gcls)
-        qd = dcs.qd(gcls)
+        kls = dcs.kls(dtn)
+        qa = dcs.qa(dtn)
+        qd = dcs.qd(dtn)
 
-        print "date_time ascending %s" % gcln
+        print "date_time ascending %s" % kls.__name__
         for i in qa.all():
             print i 
-        print "date_time descending %s" % gcln
+        print "date_time descending %s" % kls.__name__
         for i in qd.all():
             print i 
-        print "before %s " % cut 
-        for i in qa.filter(gcls.date_time < cut ).all():
+        print "before %s " % cut    ## hmmm a qbefore / qafter would avoid having to spill the kls
+        for i in qa.filter(kls.date_time < cut ).all():
             print i
         print "after %s " % cut 
-        for i in qa.filter(gcls.date_time > cut ).all():
+        for i in qa.filter(kls.date_time > cut ).all():
             print i
 
     print "lookup dynamic classes from DTN coordinates "
 
     for det in "AD1 AD2".split():
-        gcls = dcs.lookup(DTN("DBNS", det , "HV"))
-        print gcls, gcls.__name__
-        gcls = dcs.lookup(DTN("DBNS", det , "HV_Pw"))
-        print gcls, gcls.__name__   
+        kls = dcs.kls(DTN("DBNS", det , "HV"))
+        print kls, kls.__name__
+        kls = dcs.kls(DTN("DBNS", det , "HV_Pw"))
+        print kls, kls.__name__   
 
+    print "mapped tables ... should be some now"
+    for t in dcs.meta.tables:
+        print t 
 
 
 

@@ -30,23 +30,50 @@ class SA(object):
 
     Adopt simple approach of binding the engine to the metadata
 
-
     """  
-    def __init__(self, dbconf , tables=[] ):
+    def __init__(self, dbconf ):
         meta = MetaData()
         engine = create_engine( sa_url(dbconf), echo=False )
-
-        if len(tables) == 0:
-            meta.reflect(bind=engine)    
-        else:
-            for t in tables:
-                tt = Table( t , meta, autoload=True, autoload_with=engine)
-
         Session.configure(bind=engine)
         session = Session()
-
-        self.meta = meta
+        
+        self.engine = engine
         self.session = session
+        self.meta = meta
+        self.classes = {}
+
+    def _mapclass(self, xtn):
+        print "mapclass for xtn %s " % xtn
+        tn = str(xtn)
+        tab = self.table(tn)           # will reflect the table if not already done
+        kln = xtn.kln                  # dynamic class name 
+        Base = self.subbase( xtn )     # potentially table dependant base class
+        kls = type(kln,(Base,),{})     # dynamic subclass creation
+        mapper( kls , tab )
+        self.classes[kln] = kls        # ... hmmm maybe key by xtn ?
+
+    def kls(self, xtn ):
+        """Return mapped dynamic class from a xtn instance"""
+        kln = xtn.kln                 # dynamic class name
+        if kln not in self.classes:
+            self._mapclass(xtn)
+        return self.classes[kln]
+
+    def reflect(self, tn ):
+        """
+        Reflect on the table, recording it in the meta
+        """
+        tt = Table( tn , self.meta,  autoload=True, autoload_with=self.engine)
+        assert self.meta.tables[tn] == tt
+
+    def table(self, tn ):
+        """
+        Return the sqlalchemy.schema.Table representation of a table, reflect upon
+        the table if not already done 
+        """
+        if tn not in self.meta.tables:
+            self.reflect(tn)
+        return self.meta.tables[tn]
 
     def add(self, obj):
         self.session.add( obj )
@@ -54,8 +81,8 @@ class SA(object):
     def commit(self):
         self.session.commit()  
 
-    def __call__(self, tn ):
-        return self.meta.tables[tn]
+    #def __call__(self, tn ):
+    #    return self.meta.tables[tn]
 
 if __name__ == '__main__':
     dcs = SA("dcs")

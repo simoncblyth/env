@@ -8,21 +8,7 @@ class OffTableName(object):
     in offline_db 
     """ 
 
-    def instances(cls):
-        """
-        Selection of OffTableName instances
-        """
-        otns = []
-        for pfx in cls.pfxList:
-            for qty in cls.qtyList:
-                for flv in cls.flvList:
-                    otns.append( cls(pfx,qty,flv) )
-        return otns
-    instances = classmethod(instances) 
-    tables    = classmethod(lambda cls:map(str, cls.instances() ))
-    classes   = classmethod(lambda cls:map(lambda _:_.gcln, cls.instances() ))
-
-    gcln = property(lambda self:'G%s' % ( str(self) ))      #  rationalized class name G<tablename> 
+    kln = property(lambda self:'G%s' % ( str(self) ))      #  rationalized class name G<tablename> 
 
     pfxList = "Dcs".split()
     qtyList = "PmtHv AdTemp".split()
@@ -38,7 +24,7 @@ class OffTableName(object):
         self.flv = flv
 
     def __repr__(self):
-        return "OTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.pfx, self.qty, self.flv, self.gcln )
+        return "OTN %-15s %-10s %-10s %-10s     %-10s" % ( str(self), self.pfx, self.qty, self.flv, self.kln )
 
     def __str__(self):
          if self.flv == "Pay":
@@ -46,6 +32,28 @@ class OffTableName(object):
          else:
              flv = self.flv
          return "%s%s%s" % (self.pfx, self.qty, flv ) 
+
+def instances():
+    """
+    Selection of OffTableName instances
+    """
+    cls = OffTableName
+    otns = []
+    for pfx in cls.pfxList:
+        for qty in cls.qtyList:
+            for flv in cls.flvList:
+                otns.append( cls(pfx,qty,flv) )
+    return otns
+   
+def tables():
+    return map(str, instances() )
+
+def classes():
+    return map(lambda _:_.kln, instances() )
+
+
+
+
 
 if __name__ == '__main__':
     pass
@@ -55,7 +63,7 @@ if __name__ == '__main__':
     otn = cls("Dcs", "PmtHv", "Pay" )
     print otn, repr(otn)
 
-    for otn in cls.instances():
+    for otn in instances():
         print otn, repr(otn)
 
 

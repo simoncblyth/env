@@ -1,6 +1,6 @@
 
 from sa import SA
-from off import OffTableName as OTN 
+from off import OffTableName as OTN, instances 
 from sqlalchemy.orm import mapper
         
 class OffBasePay(object):
@@ -35,54 +35,49 @@ class OFF(SA):
         #. refactor to eliminate duplication between this and DCS
 
         """
-        instances = OTN.instances()
-        tables = map( str, instances )
-        SA.__init__( self, dbconf, tables=tables  )
+        #instances = OTN.instances()
+        #tables = map( str, instances )
+        #SA.__init__( self, dbconf, tables=tables  )
+        SA.__init__( self, dbconf )
 
-        self.classes = {}
-        for otn in instances:
-            tn = str(otn)
-            gcln = otn.gcln
-            # flv dependent base class for the dynamic class  
-            if otn.flv == "Pay":
-                bcls = OffBasePay
-            else:
-                bcls = OffBaseVld
-            gcls = type( gcln, (bcls,), {})
-            self.classes[gcln] = gcls               # record dynamic classes, keyed by name
-            mapper( gcls , self.meta.tables[tn] )   # map dynamic class to reflected table 
-            pass
-        self.instances = instances              
+        #self.classes = {}
+        #for otn in instances:
+        #    tn = str(otn)
+        #    gcln = otn.gcln
+        # flv dependent base class for the dynamic class  
+        #   gcls = type( gcln, (bcls,), {})
+        #    self.classes[gcln] = gcls               # record dynamic classes, keyed by name
+        #    mapper( gcls , self.meta.tables[tn] )   # map dynamic class to reflected table 
+        #    pass
+        #self.instances = instances              
 
-    def lookup(self,  otn ):
+    def subbase(self, otn):
         """
-        Return dynamic class from a dtn instance
+        subclass to use, that can be dependent on table coordinate 
         """
-        return self.classes[otn.gcln] 
+        return OffBasePay if otn.flv == "Pay" else OffBaseVld
 
-    def qa(self, cls):
+    def qa(self, otn):
         """query SEQNO ascending""" 
-        return self.session.query(cls).order_by(cls.SEQNO)
+        kls = self.kls(otn)
+        return self.session.query(kls).order_by(kls.SEQNO)
 
-    def qd(self, cls):
+    def qd(self, otn):
         """query SEQNO descending""" 
-        return self.session.query(cls).order_by(cls.SEQNO.desc())
+        kls = self.kls(otn)
+        return self.session.query(kls).order_by(kls.SEQNO.desc())
 
 
 if __name__ == '__main__':
     pass
     off = OFF("recovered_offline_db")
-    for t in off.meta.tables:
-        print t
 
-    ## over dynamic classes
-    for otn in off.instances: 
-        gcls = off.lookup( otn )
-        gcln = gcls.__name__
+    for otn in instances(): 
+        kls = off.kls( otn )
         print "%" * 20, otn, "%" * 20
 
-        qa = off.qa(gcls)
-        qd = off.qd(gcls)
+        qa = off.qa(otn)
+        qd = off.qd(otn)
 
         la = qa.first()   
         print "first in SEQNO ascending order, ie 1st SEQNO", la, la.SEQNO
@@ -97,13 +92,13 @@ if __name__ == '__main__':
         if otn.flv == "Vld":
             cut = ld.SEQNO - 3
             print "SEQNO after %s " % cut 
-            for i in qa.filter(gcls.SEQNO > cut ).all():
+            for i in qa.filter(kls.SEQNO > cut ).all():
                 print i
 
     print "lookup dynamic classes from OTN coordinates "
     for qty in "PmtHv AdTemp".split():
-        gcls = off.lookup(OTN("Dcs",qty,"Vld"))
-        print gcls, gcls.__name__
+        kls = off.kls(OTN("Dcs",qty,"Vld"))
+        print kls, kls.__name__
 
 
 

@@ -6,110 +6,71 @@ from dcsconf import DCS
 from off import OffTableName as OTN   
 from offconf import OFF
 
-class Source(object):
-    """
-    Interate over the source to yield dicts to pass to the sink ??? 
-    Handling multi-class sources ?
-
-    #.  avoid by mapping single class to joined tables ?
-
-    """
-    def __init__(self, dcs, dtn ):
-        self.dcs = dcs
-        self.dtn = dtn
-    def gcls(self):
-        return self.dcs.lookup( self.dtn )
-
-class Sink(object):
-    """
-    Drive DybDbi
-    """  
-    def __init__(self, off, otn ):
-        self.off = off
-        self.otn = otn
-
 class Mapping(object):
     """
-    Parameters for the mapping OR source OR sink ... which parameter belongs where ?
+    Holds table/join level coordinates of source and targets 
+
+
+    Parameters for the mapping ... which parameter belongs where ?
 
     #. min interval
     #. max interval
     #. change delta ... does this belong here ?
 
+    Interate over the source to yield dicts to pass to wherever ?	   
+
+    #.  avoid multi-class sources by mapping single class to joined tables ?
+
+    """	
+    def __init__(self, dtn, otn):
+        self.dtn = dtn
+        self.otn = otn   
+ 
+
+class Scrape(object):
     """
-    def __init__(self, source , sink ):
-        pass      
+    Database level src and trg
+    """ 
+    def __init__(self, src, trg ):
+        self.src = src
+        self.trg = trg
 
+    def __call__(self, mp ):
+	"""
+	Table level mapping 
+	"""
+        sfirst = self.src.qa(mp.dtn).first()     
+        slast  = self.src.qd(mp.dtn).first()     
+        print "sfirst", sfirst
+        print "slast", slast
 
-class Scraper(dict):
-    """
-    pseudo-code translation of the old scraper, in order to see what needs
-    to be factored out 
-    """
-    interval = timedelta(seconds=20)   ## needs to be property of a mapping class ?
-    def __init__(self, dcs, off):
+        tfirst  = self.trg.qa(mp.otn).first()
+        tlast   = self.trg.qd(mp.otn).first()
 
-        lvld = off.qd(Vld).first()   
-        if lvld == None:
-            next = 0
-        else:
-            next = lvld.TIMESTART + self.interval
-        self['next'] = next 
-        self['recursion'] = 0
-
-        self.dcs = dcs
-        self.off = off
-
-    def __call__(self, clsa, clsb ):
-        """ 
-        TODO:
-
-        #. encapulate the 2 queries into one on a join ... so 
-           can tease out the table specifics into one mapped class ... improving 
-           genericness
-
-        """ 
-        self['recursion'] += 1
-        ia = self.dcs.qa(clsa).filter(clsa.date_time >= self['next']).first() 
-        if ia == None:
-            return
-        assert ia.id > 0                
-
-        ib = self.dcs.qa(clsb).filter(clsb.id == ia.id).first()
-        if ib == None:
-            print "no related clsb %s record for %r " % ( clsb.__name__, ia )
-        
-        ## this stuff needs to be DybDbied anyhow        
-        timeStart = ia.date_time
-        timeEnd = timeStart + self.interval
-        siteMask = 
-        subsite = 
-
-        self['next'] = timeEnd
-
-
+        print "tfirst", tfirst
+        print "tlast", tlast
 
 
 if __name__ == '__main__':
 
-    ## need way to address joins
-
     dcs = DCS("dcs")
-    dtn = DTN("DBNS","AD1","HV")  
-    src = Source( dcs , dtn )
-
     off = OFF("recovered_offline_db")
+    scr = Scrape( dcs,off )
+
+    ## mappings for scraping into DBI table pair : DcsPmtHv  
     otn = OTN("Dcs","PmtHv","Pay")
-    snk = Sink( off, otn )
-
-    scr = Scraper( src, snk )
-
+    mps = []
     for site in "DBNS".split():
-        for det in "AD1 AD2".split():
-            dhv = dcs.lookup( DTN( site, det, "HV" )    )
-            dpw = dcs.lookup( DTN( site, det, "HV_Pw" ) )
+       for det in "AD1 AD2".split():
+           for qty in "HV HV_Pw".split():
+               dtn = DTN(site, det, qty) 
+               mps.append( Mapping(dtn,otn) )
 
-    scr()
-
+    i = 0 
+    while i<1:
+        i += 1
+        for mp in mps:
+            scr(mp)
+        #time.sleep(60)
 
 
