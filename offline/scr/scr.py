@@ -8,8 +8,9 @@ from offconf import OFF
 
 class Mapping(object):
     """
-    Holds table/join level coordinates of source and targets 
-
+    A ``Mapping`` instance represents the association between 
+    a single table/join in the source db to a single table in
+    the target db
 
     Parameters for the mapping ... which parameter belongs where ?
 
@@ -22,49 +23,56 @@ class Mapping(object):
     #.  avoid multi-class sources by mapping single class to joined tables ?
 
     """	
-    def __init__(self, dtn, otn):
-        self.dtn = dtn
-        self.otn = otn   
- 
+    def __init__(self, source, target):
+        self.source = source
+        self.target = target
+
 
 class Scrape(object):
     """
-    Database level src and trg
+
+    ## below lines parameterize the scrape at table level ... captured into a class ?
+    ## mappings for scraping into DBI table pair : DcsPmtHv  
+
     """ 
-    def __init__(self, src, trg ):
-        self.src = src
-        self.trg = trg
+    def __init__(self):
+        pass
 
     def __call__(self, mp ):
 	"""
 	Table level mapping 
 	"""
-        sfirst = self.src.qa(mp.dtn).first()     
-        slast  = self.src.qd(mp.dtn).first()     
+        source = mp.source
+        target = mp.target
+
+        sfirst = source.db.qa(source).first()
+        slast  = source.db.qd(source).first()
         print "sfirst", sfirst
         print "slast", slast
 
-        tfirst  = self.trg.qa(mp.otn).first()
-        tlast   = self.trg.qd(mp.otn).first()
-
+        tfirst = target.db.qa(target).first()
+        tlast  = target.db.qd(target).first()
         print "tfirst", tfirst
         print "tlast", tlast
 
 
 if __name__ == '__main__':
+    
+    off = OFF("recovered_offline_db")
+    otn = OTN("Dcs","PmtHv","Pay")
+    tkls = off.kls( otn )   ## target kls
 
     dcs = DCS("dcs")
-    off = OFF("recovered_offline_db")
-    scr = Scrape( dcs,off )
-
-    ## mappings for scraping into DBI table pair : DcsPmtHv  
-    otn = OTN("Dcs","PmtHv","Pay")
     mps = []
     for site in "DBNS".split():
        for det in "AD1 AD2".split():
            for qty in "HV HV_Pw".split():
-               dtn = DTN(site, det, qty) 
-               mps.append( Mapping(dtn,otn) )
+               dtn = DTN(site, det, qty)
+               scls = dcs.kls(dtn)
+               mps.append( Mapping(scls,tkls) )
+
+
+    scr = Scrape()
 
     i = 0 
     while i<1:

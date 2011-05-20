@@ -8,6 +8,7 @@ class DcsBase(object):
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
 
+
 class DCS(SA):
     def __init__(self, dbconf ):
         """
@@ -38,18 +39,29 @@ class DCS(SA):
         return DcsBase
 
     ## the below specialization boils down to : date_time
-    def q(self,dtn):
+    def q_(self,dtn):
 	kls = self.kls(dtn)
 	return self.session.query(kls)
-    def qa(self, dtn):
+    def qa_(self,dtn):
         """query date_time ascending"""
         kls = self.kls(dtn)
 	return self.session.query(kls).order_by(kls.date_time)
-    def qd(self, dtn):
+    def qd_(self,dtn):
         """query date_time descending"""
         kls = self.kls(dtn) 
         return self.session.query(kls).order_by(kls.date_time.desc())
-  
+
+
+    def q(self, kls):
+        return self.session.query(kls)
+    def qa(self, kls):
+        return self.session.query(kls).order_by(kls.date_time)
+    def qd(self, kls):
+        return self.session.query(kls).order_by(kls.date_time.desc())
+
+
+
+
 
 if __name__ == '__main__':
 
@@ -71,8 +83,11 @@ if __name__ == '__main__':
         print "%" * 20, dtn, "%" * 20
 
         kls = dcs.kls(dtn)
-        qa = dcs.qa(dtn)
-        qd = dcs.qd(dtn)
+        assert kls.db  == dcs
+        assert kls.xtn == dtn
+
+        qa = dcs.qa(kls)
+        qd = dcs.qd(kls)
 
         print "date_time ascending %s" % kls.__name__
         for i in qa.all():
@@ -90,9 +105,16 @@ if __name__ == '__main__':
     print "lookup dynamic classes from DTN coordinates "
 
     for det in "AD1 AD2".split():
-        kls = dcs.kls(DTN("DBNS", det , "HV"))
+        dtn = DTN("DBNS", det , "HV")
+        kls = dcs.kls(dtn)
+        assert str(kls.xtn) == str(dtn), "dtn %s xtn %s" % (dtn, kls.xtn)
+        assert kls.db  == dcs
         print kls, kls.__name__
-        kls = dcs.kls(DTN("DBNS", det , "HV_Pw"))
+
+        drn = DTN("DBNS", det , "HV_Pw")
+        kls = dcs.kls(dtn)
+        assert str(kls.xtn) == str(dtn), "dtn %s xtn %s" % (dtn, kls.xtn)   
+        assert kls.db  == dcs
         print kls, kls.__name__   
 
     print "mapped tables ... should be some now"

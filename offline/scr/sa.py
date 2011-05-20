@@ -48,7 +48,7 @@ class SA(object):
         tab = self.table(tn)           # will reflect the table if not already done
         kln = xtn.kln                  # dynamic class name 
         Base = self.subbase( xtn )     # potentially table dependant base class
-        kls = type(kln,(Base,),{})     # dynamic subclass creation
+        kls = type(kln,(Base,),dict(db=self,xtn=xtn))     # dynamic subclass creation
         mapper( kls , tab )
         self.classes[kln] = kls        # ... hmmm maybe key by xtn ?
 

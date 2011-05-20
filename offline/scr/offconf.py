@@ -35,21 +35,7 @@ class OFF(SA):
         #. refactor to eliminate duplication between this and DCS
 
         """
-        #instances = OTN.instances()
-        #tables = map( str, instances )
-        #SA.__init__( self, dbconf, tables=tables  )
         SA.__init__( self, dbconf )
-
-        #self.classes = {}
-        #for otn in instances:
-        #    tn = str(otn)
-        #    gcln = otn.gcln
-        # flv dependent base class for the dynamic class  
-        #   gcls = type( gcln, (bcls,), {})
-        #    self.classes[gcln] = gcls               # record dynamic classes, keyed by name
-        #    mapper( gcls , self.meta.tables[tn] )   # map dynamic class to reflected table 
-        #    pass
-        #self.instances = instances              
 
     def subbase(self, otn):
         """
@@ -57,15 +43,27 @@ class OFF(SA):
         """
         return OffBasePay if otn.flv == "Pay" else OffBaseVld
 
-    def qa(self, otn):
+
+    def q_(self, otn):
+        kls = self.kls(otn)
+        return self.session.query(kls)
+    def qa_(self, otn):
         """query SEQNO ascending""" 
         kls = self.kls(otn)
         return self.session.query(kls).order_by(kls.SEQNO)
-
-    def qd(self, otn):
+    def qd_(self, otn):
         """query SEQNO descending""" 
         kls = self.kls(otn)
         return self.session.query(kls).order_by(kls.SEQNO.desc())
+
+
+    def q(self, kls):
+        return self.session.query(kls)
+    def qa(self, kls):
+        return self.session.query(kls).order_by(kls.SEQNO)
+    def qd(self, kls):
+        return self.session.query(kls).order_by(kls.SEQNO.desc())
+                  
 
 
 if __name__ == '__main__':
@@ -74,10 +72,14 @@ if __name__ == '__main__':
 
     for otn in instances(): 
         kls = off.kls( otn )
+
+        assert kls.xtn == otn    ## kls knows where it came from
+        assert kls.db  == off 
+
         print "%" * 20, otn, "%" * 20
 
-        qa = off.qa(otn)
-        qd = off.qd(otn)
+        qa = off.qa(kls)
+        qd = off.qd(kls)
 
         la = qa.first()   
         print "first in SEQNO ascending order, ie 1st SEQNO", la, la.SEQNO
