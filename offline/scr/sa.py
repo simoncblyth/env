@@ -2,6 +2,7 @@ import os
 from sqlalchemy import Table, MetaData, create_engine
 from sqlalchemy.orm import sessionmaker, mapper
 from sqlalchemy.sql import join
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 Session = sessionmaker()
 
@@ -27,6 +28,10 @@ class SABase(object):
     q = classmethod(lambda kls:kls.db.q(kls))
     qa = classmethod(lambda kls:kls.db.qa(kls))
     qd = classmethod(lambda kls:kls.db.qd(kls))
+    qafter  = classmethod(lambda kls,cut:kls.db.qafter(kls,cut))
+    qbefore = classmethod(lambda kls,cut:kls.db.qbefore(kls,cut))
+    attribs = classmethod(lambda kls:filter(lambda k:isinstance(getattr(kls,k), InstrumentedAttribute ),dir(kls))) 
+    asdict = property(lambda self:dict(zip(self.attribs(),map(lambda k:getattr(self,k),self.attribs()))))
 
 
 class SA(object):

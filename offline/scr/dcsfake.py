@@ -54,8 +54,6 @@ def demo_fake_attributes():
        print att, v 
 
 
-
-
 if __name__=='__main__':
     pass
 

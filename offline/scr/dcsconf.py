@@ -1,12 +1,39 @@
 from sa import SA, SABase
-from dcs import DcsTableName as DTN
+from dcs import DcsTableName as DTN, LCR
 
 class DcsBase(SABase):
     """
     Base for mapped classes that have `id` and `date_time` attributes
     """
+    lcr_matcher = LCR()
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
+
+    def contextrange(self, interval):
+        return dict(timeStart=self.date_time,timeEnd=self.date_time+interval,siteMask=self.xtn.sitemask,subsite=self.xtn.subsite)
+
+    def _lcrdict(self):
+        """
+        Hmm encoding some specifics it has no right to here ...
+        What a mess storing content in field names causes
+
+        TODO:
+        #. fix tiebreaker prefixes in matched joins
+
+        """ 
+        dd = {}
+        for k,v in self.asdict.items():
+            if k in 'P_id id date_time P_date_time'.split():
+                continue 
+            qty,kk = ('pw',k[2:]) if k.startswith('P_') else ('hv',k)
+            lcr = self.lcr_matcher(kk)  
+            if dd.has_key(lcr):
+                dd[lcr].update({qty:v})
+            else:
+                dd[lcr] = {qty:v}
+        return dd
+    lcrdict = property( _lcrdict )
+
 
 
 class DCS(SA):
@@ -36,7 +63,11 @@ class DCS(SA):
         return self.session.query(kls).order_by(kls.date_time)
     def qd(self, kls):
         return self.session.query(kls).order_by(kls.date_time.desc())
-
+    def qafter(self, kls, cut ):
+        return self.session.query(kls).order_by(kls.date_time).filter(kls.date_time >= cut)
+    def qbefore(self, kls, cut ):
+        return self.session.query(kls).order_by(kls.date_time).filter(kls.date_time < cut)
+         
 
 def test_filter():
 
@@ -99,6 +130,14 @@ if __name__ == '__main__':
     print "autojoin"
     dtn = DTN("DBNS","AD1","HV:HV_Pw:id:P_")
     kls = dcs.kls(dtn)
-    print kls, kls.last(), dir(kls)
- 
+    last = kls.last()
+    #print kls, last, dir(kls)
+
+    #print last.asdict 
+    #print last.lcrdict
+
+    for (l,c,r),v in sorted(last.lcrdict.items()):
+        #pass
+        print l,c,r,v['hv'],v['pw']
+
 

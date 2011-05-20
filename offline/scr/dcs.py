@@ -1,3 +1,14 @@
+import re
+
+class LCR(object):
+    kptn = re.compile("^L(?P<ladder>\d)C(?P<col>\d)R(?P<ring>\d)$")
+    def __call__(self, k):
+        m = self.kptn.match(k)
+        if m:
+            d = m.groupdict()
+            return (int(d['ladder']),int(d['col']),int(d['ring']),)
+        return None
+
 
 class DcsTableName(object):
     """
@@ -35,6 +46,16 @@ class DcsTableName(object):
     qtyList = ["HV","HV_Pw", "HV_Vmon" ]
 
     kln = property(lambda self:'G%s_%s_%s' % ( self.site, self.det, self.qty ))     #  rationalized class name G<site>_<det> 
+
+
+    ## convert from DCS to offline conventions ... TODO: use the enum when PORT TO NuWa
+    def _sitemask(self, site):
+        return 1 << self.siteList.index(site)
+    def _subsite(self, det):
+        return self.detList.index(det)
+    sitemask = property(lambda self:self._sitemask(self.site))
+    subsite  = property(lambda self:self._subsite(self.det))
+
 
     def __init__(self, site, det, qty ):
         self.site = site

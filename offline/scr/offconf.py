@@ -53,7 +53,11 @@ class OFF(SA):
         return self.session.query(kls).order_by(kls.SEQNO)
     def qd(self, kls):
         return self.session.query(kls).order_by(kls.SEQNO.desc())
-                  
+    def qafter(self, kls, cut ):
+        return self.session.query(kls).order_by(kls.SEQNO).filter(kls.SEQNO >= cut)
+    def qbefore(self, kls, cut ):
+        return self.session.query(kls).order_by(kls.SEQNO).filter(kls.SEQNO < cut)
+                   
 
 
 def test_filter():
