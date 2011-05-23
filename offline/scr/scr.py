@@ -3,9 +3,8 @@ Generic Scraping
 
 TODO:
 
-#. delta-ing 
+#. delta-ing ...age checking 
 #. propa-logging
-
 #. implement scrape testing with 2 processes
 #. hook up to NuWa/DybDbi 
 #. DAQ ?  ... probably no new DAQ tables coming down pipe, but still needs DBI writing 

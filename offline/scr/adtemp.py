@@ -13,6 +13,8 @@ class AdTempScrape(Scrape):
                     dtns.append(dtn)
         return dtns
     dtns = classmethod(dtns) 
+
+    temp_threshold = 0.5      ## GUESS
  
     def __init__(self, srcdb, trgdb, sleep=1):
         """Configure AdTemp scrape, defining mappings between tables/joins in source and target"""
@@ -22,10 +24,32 @@ class AdTempScrape(Scrape):
         for dtn in self.dtns():
             self.append( Mapping(srcdb.kls(dtn),target,interval))
         self.ptx_matcher = PTX()   
+
+    def proceed(self, mapping, update ):
+        """
+        During a scrape this method is called from the base class, 
+        return True if the mapping fulfils significant change or age requirements    
+        and the propagate method should be invoked.
+
+        If False is returned then the propagate method is not called on this iteration of the 
+        scraper.
+        """
+        if not mapping.prior:  ## starting up 
+            return True
+        pd = self._ptxdict( mapping.prior )
+        ud = self._ptxdict( update )
+        for ptx in sorted(dd.keys()):
+            pv = pd[ptx]
+            uv = ud[ptx]
+            if abs(pv-uv) > temp_threshold:
+                return True
+        return False
+
     def propagate(self, inst, cr ):
         dd = self._ptxdict(inst)
         print dd
         return True
+
     def _ptxdict(self, inst ):
         dd = {}
         for k,v in inst.asdict.items():

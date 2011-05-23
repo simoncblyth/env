@@ -27,26 +27,38 @@ class Mapping(object):
         self.source = source
         self.target = target
         self.interval = interval
-        self.next = self.target_nexttime(self.interval)
+        self.nexttime = self._nexttime(self.interval)
+        self.prior = None
 
-    def target_nexttime(self, interval):
+    def _nexttime(self, interval):
         """
-        Time of last entry in target plus the update interval, 
-        which corresponds to earliest source eligibility cutoff
+        TIMESTART of last entry in target plus update validity interval,
+        (should be TIMEEND)  
+        corresponding to next source cutoff time that will constitute 
+        a candidate to be scraped
+
+        Should validity interval exactly match scrape sleep time (the pulse) ?
         """
         tl = self.target.last()
         return 0 if tl == None else tl.TIMESTART + interval
 
+
     def __call__(self):
         """
-        Look for entries in the source with time stamp after the current target `next`. 
-        When found return the last instance. 
+        Look for entries in the source with time stamp after the current `nexttime`. 
+        When found return the last instance if the instance meets one of the 
+        propagation requirements:
+
+        #. significant delta
+        #. significant time since last propagation
+
+        Where does delta-ing belong ?   scraper/mapper/dynamic-class 
+        prior clearly belongs in the mapper
+
+        Where do "significant-change" parameters belong ?
+
         """
-        eligible = self.source.qafter(self.next).first()   
-        if eligible == None:
-            print "no src entry after %s " % self.next
-            return None
-        return eligible
+        return self.source.qafter(self.nexttime).first()   
 
 
 class Scrape(list):
@@ -55,6 +67,30 @@ class Scrape(list):
     """ 
     def __init__(self, sleep):
         self.sleep = sleep
+
+    def proceed(self, mapping, update ):
+        """
+        During a scrape this method is called from the base class, 
+        return `True` if the mapping fulfils significant change or age requirements    
+        and the propagate method should be invoked.
+
+        If `False` is returned then the propagate method is not called on this iteration of the 
+        scraper.
+        """
+        return True
+
+    def propagate(self, instance, cr ):
+        """
+        Override this method in subclasses,  to perform the propagation 
+        of the source instance to the target DB. Return True if this 
+        succeeds
+
+        :param instance:  source instance to propagate to target 
+        :param cr: context range 
+        """
+        return True
+
+
     def __call__(self, max=0):
         """
         Spin the scrape, looping over mappings and calling propagate 
@@ -64,12 +100,16 @@ class Scrape(list):
         while i<max or max==0:
             i += 1
             for mapping in self:
-                inst = mapping()
-                if not inst:
+                instance = mapping()
+                if not instance:
                     continue 
-                tcr = inst.contextrange( mapping.interval )  
-                if self.propagate( inst, tcr ):
-                    mapping.next = tcr['timeEnd']       
+                if not self.proceed( mapping , instance ):
+                    continue
+                tcr = instance.contextrange( mapping.interval )  
+                if self.propagate( instance, tcr ):
+                    ## NOTE diddling with mapping attribute directly ... mapping and scrape are intimately entwined        
+                    mapping.nexttime = tcr['timeEnd']       
+                    mapping.prior = instance
             time.sleep(self.sleep)
 
 class SourceSim(list):

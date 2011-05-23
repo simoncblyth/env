@@ -14,6 +14,7 @@ class PmtHvScrape(Scrape):
                     dtns.append(DTN(site, det, qty))
         return dtns 
     dtns = classmethod(dtns) 
+    voltage_threshold = 1.0
 
     def __init__(self, srcdb, trgdb, sleep ):
         """
@@ -29,6 +30,28 @@ class PmtHvScrape(Scrape):
         for dtn in self.dtns():
             self.append( Mapping(srcdb.kls(dtn),target,interval))
         self.lcr_matcher = LCR()   
+
+    def proceed(self, mapping, update ):
+        """
+        During a scrape this method is called from the base class, 
+        return True if the mapping fulfils significant change or age requirements    
+        and the propagate method should be invoked.
+
+        If False is returned then the propagate method is not called on this iteration of the 
+        scraper.
+        """
+        if not mapping.prior:  ## starting up 
+            return True
+        pd = self._lcrdict( mapping.prior )
+        ud = self._lcrdict( update )
+        for lcr in sorted(dd.keys()):
+            pv = pd[lcr]
+            uv = ud[lcr]
+            if abs(pv['pw']-uv['pw']) > 0:
+                return True
+            if abs(pv['voltage']-uv['voltage']) > voltage_threshold:
+                return True
+        return False
 
     def propagate(self, inst , tcr ):
         """

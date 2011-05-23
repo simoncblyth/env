@@ -12,6 +12,7 @@ class DcsBase(SABase):
         """  
         return dict(timeStart=self.date_time,timeEnd=self.date_time+interval,siteMask=self.xtn.sitemask,subsite=self.xtn.subsite)
 
+
 class DCS(SA):
     def __init__(self, dbconf ):
         """

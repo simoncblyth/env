@@ -33,6 +33,16 @@ class SABase(object):
     attribs = classmethod(lambda kls:filter(lambda k:isinstance(getattr(kls,k), InstrumentedAttribute ),dir(kls))) 
     asdict = property(lambda self:dict(zip(self.attribs(),map(lambda k:getattr(self,k),self.attribs()))))
 
+    def delta_dict(self, other):
+        """
+        Generic delta-ing 
+        """
+        dd = {}
+        for k in self.attribs():
+             vself  = getattr( self, k  )
+             vother = getattr( other, k )
+             dd[k] = vself - vother           
+        return dd
 
 class SA(object):
     """
