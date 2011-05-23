@@ -9,6 +9,15 @@ class LCR(object):
             return (int(d['ladder']),int(d['col']),int(d['ring']),)
         return None
 
+class PTX(object):
+    kptn = re.compile("^.*_(?P<ptx>PT\d)$")
+    def __call__(self, k):
+        m = self.kptn.match(k)
+        if m:
+            d = m.groupdict()
+            return d['ptx']
+        return None
+
 
 class DcsTableName(object):
     """

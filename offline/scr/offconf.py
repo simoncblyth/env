@@ -25,7 +25,6 @@ class OffBasePayVld(SABase):
         return "OBPV %s %s %s %s %s %s %s" % ( self.__class__.__name__, self.SEQNO, self.ROW_COUNTER, self.TIMESTART, self.TIMEEND, self.VERSIONDATE, self.INSERTDATE )
 
 
-
 class OFF(SA):
     basemap = dict(Pay=OffBasePay, Vld=OffBaseVld)
     def __init__(self, dbconf ):
