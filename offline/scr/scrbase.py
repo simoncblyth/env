@@ -72,6 +72,36 @@ class Scrape(list):
                     mapping.next = tcr['timeEnd']       
             time.sleep(self.sleep)
 
+class SourceSim(list):
+    """
+    create fake source instances and insert them 
+    """
+    def __init__(self, sleep ):
+        self.sleep = sleep
+
+    def insertfake(self):
+        for source in self:
+            last = source.last()
+            lid = 0 if last == None else last.id
+            lid += 1
+            inst = source()
+            self.fake( inst , lid )
+
+            print "%-3d insertfake %s %r " % (lid, source, inst) 
+            db = source.db
+            db.add(inst)   
+            db.commit()
+
+    def __repr__(self):
+        return "%s %s " % ( self.__class__.__name__, self.sleep )
+
+    def __call__(self, max=10): 
+        i = 0 
+        while i<max:
+            i += 1
+            self.insertfake()
+            time.sleep(self.sleep)
+
 
 
 if __name__ == '__main__':

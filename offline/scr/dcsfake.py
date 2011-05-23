@@ -35,9 +35,10 @@ class LCRFaker(Faker):
     def __call__(self, obj):
         Faker.__call__( self, obj , LCR  ) 
 
+
+
 class Demo(object):
     pass
-
 
 
 def demo_fake_attributes():

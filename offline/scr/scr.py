@@ -18,10 +18,22 @@ from dcsconf import DCS
 from off import OffTableName as OTN   
 from offconf import OFF
 
-from scrbase import Mapping, Scrape
+from scrbase import Mapping, Scrape, SourceSim
 
 class PmtHvScrape(Scrape):
-    def __init__(self, srcdb, trgdb, sleep=1):
+    def dtns(cls):    
+        """
+        List of source tables/joins of interest 
+        """
+        dtns = []
+        for site in ("DBNS",):
+            for det in ("AD1",):
+                for qty in ("HV:HV_Pw:id:P_",):            ## auto-join
+                    dtns.append(DTN(site, det, qty))
+        return dtns 
+    dtns = classmethod(dtns) 
+
+    def __init__(self, srcdb, trgdb, sleep ):
         """
         Configure PmtHv scrape, defining mappings between tables/joins in source and target 
 
@@ -32,20 +44,19 @@ class PmtHvScrape(Scrape):
         """
         Scrape.__init__(self, sleep)
         target = trgdb.kls(OTN("Dcs","PmtHv","Pay:Vld:SEQNO:V_"))   ## auto-join
-
         interval = timedelta(seconds=60)   
-        for site in ("DBNS",):
-            for det in ("AD1",):
-                for qty in ("HV:HV_Pw:id:P_",):            ## auto-join
-                    source = srcdb.kls(DTN(site, det, qty))
-                    self.append( Mapping(source,target,interval))
+        for dtn in self.dtns():
+            self.append( Mapping(srcdb.kls(dtn),target,interval))
         self.lcr_matcher = LCR()   
 
     def propagate(self, inst , tcr ):
         """
+        During a scrape this method is called from the base class,
+        return True in order to move on with a mapping (incrementing the nexttime )
+
         :param inst: source instance 
         :param tcr: target context range
-
+ 
         TODO: add DybDbi writing
 
         from DybDbi import GDcsPmtHv
@@ -53,17 +64,18 @@ class PmtHvScrape(Scrape):
         wrt.ctx( contextrange=tcr , ...)
         wrt.Write( **d )
         wrt.Close() 
-        """
 
-        print "propagate_ src inst %r tcr %r " % (inst, tcr)
+        """
+        print "propagate inst %r tcr %r " % (inst, tcr)
         dd = self._lcrdict(inst)
         for (l,c,r),v in sorted(dd.items()):
             d = dict(ladder=l,col=c,ring=r,voltage=v['voltage'],pw=v['pw'])
             print d
-        return True   ## NB MUST RETURN True TO MOVE ON WITH THE MAPPING
+        return True  
+
     def _lcrdict(self, inst):
         """
-        Juice the source instance, extracting ladder,col,ring and values
+        Examine source instance, extracting ladder,col,ring and values
         and collecting into a dict. 
         """ 
         dd = {}
@@ -77,6 +89,37 @@ class PmtHvScrape(Scrape):
             else:
                 dd[lcr] = {qty:v}
         return dd
+
+
+class PmtHvSim(SourceSim):
+    """
+    Creates fake instances and feeds them to sourcedb   
+    """
+    def __init__(self, srcdb, sleep ):
+        SourceSim.__init__(self, sleep )
+        for dtn in PmtHvScrape.dtns():
+            self.append( srcdb.kls(dtn) )
+        self.lcr_matcher = LCR()   
+
+    def fake(self, inst, id ):
+        """
+        Invoked from base class call method, 
+        set attributes of source instance to form a fake 
+
+        :param inst: source instance
+        :param id: id to assign to the instance instance
+        """
+        fakefn=lambda (l,c,r),qty:l*100 + c*10 + r if qty == "voltage" else 1 
+        for k,v in inst.asdict.items():
+            if k in 'id P_id'.split():
+                 setattr( inst, k, id )
+            elif k in 'date_time P_date_time'.split():
+                 setattr( inst, k, datetime.now() )
+            else:
+                qty,kk = ('pw',k[2:]) if k.startswith('P_') else ('voltage',k)
+                lcr = self.lcr_matcher(kk)    
+                setattr( inst , k, fakefn( lcr, qty) )
+           
 
 
 class AdTempScrape(Scrape):
@@ -112,7 +155,6 @@ if __name__ == '__main__':
     import sys
     dcs = DCS("dcs")
     off = OFF("recovered_offline_db")
-
     scr = PmtHvScrape( dcs, off )
     scr()
 
