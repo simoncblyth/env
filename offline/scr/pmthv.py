@@ -44,7 +44,7 @@ class PmtHvScrape(Scrape):
             return True
         pd = self._lcrdict( mapping.prior )
         ud = self._lcrdict( update )
-        for lcr in sorted(dd.keys()):
+        for lcr in sorted(ud.keys()):
             pv = pd[lcr]
             uv = ud[lcr]
             if abs(pv['pw']-uv['pw']) > 0:
