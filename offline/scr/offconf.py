@@ -1,29 +1,19 @@
-
 from sa import SA, SABase
-from off import OffTableName as OTN, instances 
-from sqlalchemy.orm import mapper
 
 class OffBasePay(SABase):
-    """
-    Base for mapped payload classes
-    """
+    """Base for mapped payload classes"""
     def __repr__(self):
         return "OBP %s %s %s" % ( self.__class__.__name__, self.SEQNO, self.ROW_COUNTER  )
 
 class OffBaseVld(SABase):
-    """
-    Base for mapped validity classes
-    """
+    """Base for mapped validity classes"""
     def __repr__(self):
         return "OBV %s %s %s %s %s %s" % ( self.__class__.__name__, self.SEQNO, self.TIMESTART, self.TIMEEND, self.VERSIONDATE, self.INSERTDATE )
 
 class OffBasePayVld(SABase):
-    """
-    Base for mapped validity classes
-    """
+    """Base for mapped validity classes"""
     def __repr__(self):
         return "OBPV %s %s %s %s %s %s %s" % ( self.__class__.__name__, self.SEQNO, self.ROW_COUNTER, self.TIMESTART, self.TIMEEND, self.VERSIONDATE, self.INSERTDATE )
-
 
 class OFF(SA):
     basemap = dict(Pay=OffBasePay, Vld=OffBaseVld)
@@ -34,7 +24,8 @@ class OFF(SA):
         
         Specializations:
  
-        #. establishes standard query ordering 
+        #. standard query ordering based on SEQNO
+        #. table dependant base class for row/join mapped class instances  
 
         """
         SA.__init__( self, dbconf )

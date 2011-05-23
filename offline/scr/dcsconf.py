@@ -1,10 +1,7 @@
 from sa import SA, SABase
-from dcs import DcsTableName as DTN
 
 class DcsBase(SABase):
-    """
-    Base for mapped classes that have `id` and `date_time` attributes
-    """
+    """Base for mapped classes that have `id` and `date_time` attributes """
     def __repr__(self):
         return "%s %s %s " % ( self.__class__.__name__, self.id, self.date_time )
 
@@ -15,7 +12,6 @@ class DcsBase(SABase):
         """  
         return dict(timeStart=self.date_time,timeEnd=self.date_time+interval,siteMask=self.xtn.sitemask,subsite=self.xtn.subsite)
 
-
 class DCS(SA):
     def __init__(self, dbconf ):
         """
@@ -23,10 +19,7 @@ class DCS(SA):
         table reflection and mappings from tables 
         
         Specializations:
-        #. establishes standard query ordering, assuming a date_time attribute in tables
-
-        TODO:
-        #. get mapping to joins to work without duplicate attribute problems 
+        #. standard query ordering, assuming a date_time attribute in tables
 
         """
         SA.__init__( self, dbconf )

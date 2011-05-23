@@ -103,39 +103,6 @@ class DcsTableName(object):
             qty = self.qty
         return "%s_%s_%s" % ( self.site, self.det, qty ) 
 
- 
-def lcr():
-    for l in range(8,0,-1):
-        for c in range(3,0,-1):
-            for r in range(8,0,-1):
-                yield l,c,r
 
-
-def instances():
-    """Selection of DcsTableName instances"""
-    dtns = []
-    for site in "DBNS".split():
-        for det in "AD1 AD2".split():
-            for qty in "HV HV_Pw".split():
-                dtns.append( cls(site, det, qty) )
-    return dtns
-def tables():    
-    return map(str, instances() )
-def classes():
-    return map(lambda _:_.kln, instances() )
-
-            
 if __name__ == '__main__':
-            
-    cls = DcsTableName
-
-    print "instances",  instances()
-    print "tables",    tables()
-    print "classes", classes()
-
-    dtn = cls("DBNS", "AD1", "HV" )
-    print dtn, repr(dtn)
-
-    for dtn in instances():
-        print dtn, repr(dtn)
-
+    pass

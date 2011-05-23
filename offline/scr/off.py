@@ -40,39 +40,6 @@ class OffTableName(object):
              flv = self.flv
          return "%s%s%s" % (self.pfx, self.qty, flv ) 
 
-def instances():
-    """
-    Selection of OffTableName instances
-    """
-    cls = OffTableName
-    otns = []
-    for pfx in cls.pfxList:
-        for qty in cls.qtyList:
-            for flv in cls.flvList:
-                otns.append( cls(pfx,qty,flv) )
-    return otns
-   
-def tables():
-    return map(str, instances() )
-
-def classes():
-    return map(lambda _:_.kln, instances() )
-
-
 
 if __name__ == '__main__':
     pass
-
-    cls = OffTableName
-
-    otn = cls("Dcs", "PmtHv", "Pay" )
-    print otn, repr(otn)
-
-    for otn in instances():
-        print otn, repr(otn)
-
-    otn = cls("Dcs", "PmtHv", "Pay:Vld:SEQNO" )
-    print otn, repr(otn)
-    assert otn.isjoin
-    for jtn in otn.jbits():
-        print jtn,repr(jtn)

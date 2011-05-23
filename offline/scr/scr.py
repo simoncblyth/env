@@ -3,7 +3,6 @@ Generic Scraping
 
 TODO:
 
-#. split-off the tests, merge dcs+dcsconf ? off+offconf  
 #. delta-ing 
 #. propa-logging
 
