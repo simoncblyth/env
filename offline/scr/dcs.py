@@ -10,7 +10,7 @@ class LCR(object):
         return None
 
 class PTX(object):
-    kptn = re.compile("^.*_(?P<ptx>PT\d)$")
+    kptn = re.compile("^.*_PT(?P<ptx>\d)$")
     def __call__(self, k):
         m = self.kptn.match(k)
         if m:
@@ -49,6 +49,9 @@ class DcsTableName(object):
 
     valid qty are HV, HV_Pw, HV_Vmon 
 
+    Extending this to temperatures is clear as mud, as only oum:sop/dcs/#dbns-sab-temp has
+    the _PT1/2/3/4/5 the code points to using by that table name does not follow the convention
+
     """
     siteList = ["DBNS", "LANS", "FARS", "MIDS", "Aberdeen", "SAB"]
     detList = ["Unknown", "AD1", "AD2", "AD3", "AD4", "IWS", "OWS", "RPC" ]
@@ -61,16 +64,20 @@ class DcsTableName(object):
     def _sitemask(self, site):
         return 1 << self.siteList.index(site)
     def _subsite(self, det):
+        if self.qty == "TEMP": 
+            return 1
         return self.detList.index(det)
     sitemask = property(lambda self:self._sitemask(self.site))
     subsite  = property(lambda self:self._subsite(self.det))
 
 
-    def __init__(self, site, det, qty ):
+    def __init__(self, site, det, qty , skipcheck=False):
         self.site = site
         self.det = det 
         self.qty = qty
-        pass
+        if skipcheck:   ## for table names that do not play by the conventions 
+            return
+
         assert site in self.siteList, "site \"%s\" is not in \"%r\"" % ( site , self.siteList ) 
         assert det  in self.detList, "detector \"%s\" is not in \"%r\"" %  ( det , self.detList ) 
         assert qty in self.qtyList or self.isjoin, "qty \"%s\" is not in \"%r\"" % ( qty, self.qtyList )

@@ -55,13 +55,13 @@ class Scrape(list):
     """ 
     def __init__(self, sleep):
         self.sleep = sleep
-    def __call__(self):
+    def __call__(self, max=0):
         """
         Spin the scrape, looping over mappings and calling propagate 
         when eligible source instances are found 
         """
         i = 0 
-        while i<3:
+        while i<max or max==0:
             i += 1
             for mapping in self:
                 inst = mapping()
@@ -97,7 +97,7 @@ class SourceSim(list):
 
     def __call__(self, max=10): 
         i = 0 
-        while i<max:
+        while i<max or max==0:
             i += 1
             self.insertfake()
             time.sleep(self.sleep)
