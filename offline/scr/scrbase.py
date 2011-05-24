@@ -1,4 +1,5 @@
 import time
+from datetime import timedelta
 
 class Mapping(object):
     """
@@ -65,51 +66,69 @@ class Scrape(list):
     """
     Base class holding common scrape features 
     """ 
+    age_threshold = timedelta(hours=2)   ## from the old scraper 7200 seconds
+
     def __init__(self, sleep):
         self.sleep = sleep
 
-    def proceed(self, mapping, update ):
+    def changed(self, prev, curr ):
         """
         During a scrape this method is called from the base class, 
         return `True` if the mapping fulfils significant change or age requirements    
         and the propagate method should be invoked.
-
         If `False` is returned then the propagate method is not called on this iteration of the 
         scraper.
+
+        :param prev: previous source instance
+        :param curr: current source instance
+
         """
         return True
 
-    def propagate(self, instance, cr ):
+    def propagate(self, curr, contextrange ):
         """
         Override this method in subclasses,  to perform the propagation 
         of the source instance to the target DB. Return True if this 
         succeeds
 
-        :param instance:  source instance to propagate to target 
-        :param cr: context range 
+        :param curr:  current source instance to propagate to target 
+        :param contextrange: context range 
         """
         return True
 
-
     def __call__(self, max=0):
         """
-        Spin the scrape, looping over mappings and calling propagate 
-        when eligible source instances are found 
+        Spin the scrape infinite loop, sleeping at each pass.
+        Within each pass loop over mappings and check for updated source instances. 
+        When updates are found and a previous instance is lodged in the mapping, 
+        defer to the subclass to decide if there is significant change to proceed to 
+        propagate source instances into target instances.
+
+        NOTE mapping and scrape are intimately entwined        
         """
         i = 0 
         while i<max or max==0:
             i += 1
             for mapping in self:
-                instance = mapping()
-                if not instance:
+                update = mapping()
+                if not update:              ## no new source instance
                     continue 
-                if not self.proceed( mapping , instance ):
-                    continue
-                tcr = instance.contextrange( mapping.interval )  
-                if self.propagate( instance, tcr ):
-                    ## NOTE diddling with mapping attribute directly ... mapping and scrape are intimately entwined        
+
+                if mapping.prior == None:   ## starting up, need to update 
+                    pass
+                else:
+                    if update.age(mapping.prior) > self.age_threshold:
+                        pass   
+                    elif self.changed( mapping.prior , update ):
+                        pass
+                    else:
+                        continue
+
+                tcr = update.contextrange( mapping.interval )  
+                if self.propagate( update, tcr ):
                     mapping.nexttime = tcr['timeEnd']       
-                    mapping.prior = instance
+                    mapping.prior = update
+
             time.sleep(self.sleep)
 
 class SourceSim(list):

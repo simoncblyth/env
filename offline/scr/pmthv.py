@@ -31,25 +31,16 @@ class PmtHvScrape(Scrape):
             self.append( Mapping(srcdb.kls(dtn),target,interval))
         self.lcr_matcher = LCR()   
 
-    def proceed(self, mapping, update ):
-        """
-        During a scrape this method is called from the base class, 
-        return True if the mapping fulfils significant change or age requirements    
-        and the propagate method should be invoked.
-
-        If False is returned then the propagate method is not called on this iteration of the 
-        scraper.
-        """
-        if not mapping.prior:  ## starting up 
-            return True
-        pd = self._lcrdict( mapping.prior )
-        ud = self._lcrdict( update )
-        for lcr in sorted(ud.keys()):
-            pv = pd[lcr]
-            uv = ud[lcr]
-            if abs(pv['pw']-uv['pw']) > 0:
+    def changed(self, prev, curr ):
+        """ Decide if reason to proceed to propagate """
+        p = self._lcrdict( prev )
+        c = self._lcrdict( curr )
+        for lcr in sorted(p.keys()):
+            pv = p[lcr]
+            cv = c[lcr]
+            if abs(pv['pw']-cv['pw']) > 0:
                 return True
-            if abs(pv['voltage']-uv['voltage']) > voltage_threshold:
+            if abs(pv['voltage']-cv['voltage']) > voltage_threshold:
                 return True
         return False
 
