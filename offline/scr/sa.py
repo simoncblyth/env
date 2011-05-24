@@ -4,8 +4,10 @@ from sqlalchemy.orm import sessionmaker, mapper
 from sqlalchemy.sql import join
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
-Session = sessionmaker()
+import logging
+log = logging.getLogger(__name__)
 
+Session = sessionmaker()
 
 def sa_url( sect , path="~/.my.cnf" ):
     """
@@ -32,6 +34,9 @@ class SABase(object):
     qbefore = classmethod(lambda kls,cut:kls.db.qbefore(kls,cut))
     attribs = classmethod(lambda kls:filter(lambda k:isinstance(getattr(kls,k), InstrumentedAttribute ),dir(kls))) 
     asdict = property(lambda self:dict(zip(self.attribs(),map(lambda k:getattr(self,k),self.attribs()))))
+
+    def __str__(self):
+        return self.__class__.__name__
 
     def delta_dict(self, other):
         """
@@ -105,7 +110,7 @@ class SA(object):
         """
         map single table or join to a dynamic class
         """
-        print "mapclass for xtn %s " % xtn
+        log.debug("mapclass for xtn %s " % xtn)
         kls = self._kls(xtn)
         if xtn.isjoin:
             j,tb = self._join( *xtn.jbits() ) 

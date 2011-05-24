@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 
-from scrbase import Mapping, Scrape, SourceSim
+from scrbase import Mapping, Scraper, Faker
 from dcs import DcsTableName as DTN, LCR, PTX
 from off import OffTableName as OTN   
 
-class PmtHvScrape(Scrape):
+class PmtHvScraper(Scraper):
     def dtns(cls):    
         """List of source tables/joins of interest """
         dtns = []
@@ -24,7 +24,7 @@ class PmtHvScrape(Scrape):
         :param trgdb: dbconf sectname of target database
         :param sleep: seconds to sleep between scrape interations
         """
-        Scrape.__init__(self, sleep)
+        Scraper.__init__(self, sleep)
         target = trgdb.kls(OTN("Dcs","PmtHv","Pay:Vld:SEQNO:V_"))   ## auto-join
         interval = timedelta(seconds=60)   
         for dtn in self.dtns():
@@ -83,13 +83,13 @@ class PmtHvScrape(Scrape):
         return dd
 
 
-class PmtHvSim(SourceSim):
+class PmtHvFaker(Faker):
     """
     Creates fake instances and inserts them into sourcedb   
     """
     def __init__(self, srcdb, sleep ):
-        SourceSim.__init__(self, sleep )
-        for dtn in PmtHvScrape.dtns():
+        Faker.__init__(self, sleep )
+        for dtn in PmtHvScraper.dtns():
             self.append( srcdb.kls(dtn) )
         self.lcr_matcher = LCR()   
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
     from offsa import OFF
     dcs = DCS("dcs")
     off = OFF("recovered_offline_db")
-    scr = PmtHvScrape( dcs, off , 10 )
+    scr = PmtHvScraper( dcs, off , 10 )
     scr(1000)
 
 

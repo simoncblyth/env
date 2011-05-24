@@ -1,4 +1,7 @@
 from sa import SA, SABase
+import logging
+log = logging.getLogger(__name__)
+
 
 class DcsBase(SABase):
     """Base for mapped classes that have `id` and `date_time` attributes """

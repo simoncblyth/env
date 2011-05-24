@@ -1,24 +1,21 @@
 import time
 from datetime import timedelta
 
+import logging
+log = logging.getLogger(__name__)
+
+
 class Mapping(object):
     """
     ``Mapping`` instances represent the association between 
     a single table/join in the source DB to a single table/join 
     in the target DB
 
-    Parameters of mapping make most sense to 
-    to carried on the target DybDbi class ? and maintained
-    as meta entries in the .spec
-
-    #. min interval
-    #. max interval
-    #. change delta threshold 
-
     """	
     def __init__(self, source, target, interval):
         """
-        Specify source and target SA classes 
+        Specify source and target SA classes, determines ``nexttime`` for 
+        a candidate source instance by looking at target instances
 
         :param source: source SA mapped class (for table/join in non-DBI database)
         :param target: target SA mapped class (for table/join in DBI database)
@@ -28,48 +25,49 @@ class Mapping(object):
         self.source = source
         self.target = target
         self.interval = interval
-        self.nexttime = self._nexttime(self.interval)
+        self.nexttime = self.nexttime_(self.interval)
         self.prior = None
+        self.counter = -1
+        log.info( "create mapping %s " % self )
 
-    def _nexttime(self, interval):
+    def __str__(self):
+        return "(%3d) %s : %s : nextt %s interval %s " % ( self.counter, self.source.__name__, self.target.__name__, self.nexttime, self.interval )
+
+    def nexttime_(self, interval):
         """
-        TIMESTART of last entry in target plus update validity interval,
-        (should be TIMEEND)  
-        corresponding to next source cutoff time that will constitute 
-        a candidate to be scraped
-
+        TIMESTART of last entry in target plus update validity interval (normally would be TIMEEND)  
+        corresponding to next source cutoff time that will constitute a candidate to be scraped
         Should validity interval exactly match scrape sleep time (the pulse) ?
         """
         tl = self.target.last()
         return 0 if tl == None else tl.TIMESTART + interval
 
 
-    def __call__(self):
+    def __call__(self, counter=0):
         """
-        Look for entries in the source with time stamp after the current `nexttime`. 
-        When found return the last instance if the instance meets one of the 
-        propagation requirements:
+        Returns last source instance with timestamp after current `nexttime`. 
 
-        #. significant delta
-        #. significant time since last propagation
+        Q:
 
-        Where does delta-ing belong ?   scraper/mapper/dynamic-class 
-        prior clearly belongs in the mapper
-
-        Where do "significant-change" parameters belong ?
-
+        #. should this be playing catchup, when a scraper is restarted after hiatus ?
         """
+        self.counter = counter
         return self.source.qafter(self.nexttime).first()   
 
 
-class Scrape(list):
+
+class Player(list):
+    def __init__(self, sleep):
+        self.sleep = sleep
+
+class Scraper(Player):
     """
     Base class holding common scrape features 
     """ 
     age_threshold = timedelta(hours=2)   ## from the old scraper 7200 seconds
 
     def __init__(self, sleep):
-        self.sleep = sleep
+        Player.__init__(self, sleep)
 
     def changed(self, prev, curr ):
         """
@@ -110,33 +108,44 @@ class Scrape(list):
         while i<max or max==0:
             i += 1
             for mapping in self:
-                update = mapping()
+                update = mapping(i)         ## i : counter for debugging 
                 if not update:              ## no new source instance
+                    log.info("no update for %s " % mapping )
                     continue 
 
                 if mapping.prior == None:   ## starting up, need to update 
+                    log.info("no prior for %s " % mapping )
                     pass
                 else:
-                    if update.age(mapping.prior) > self.age_threshold:
+                    age = update.age(mapping.prior) 
+                    if age > self.age_threshold:
+                        log.info("update age %r over threshold %s for : %s " % (age, self.age_threshold, mapping) )
+                        log.info("date_time for prior %s and update %s " % (mapping.prior.date_time, update.date_time ))
                         pass   
                     elif self.changed( mapping.prior , update ):
+                        log.info("significant change detected %s " % mapping )
                         pass
                     else:
+                        log.info("skip update %s " % mapping )
                         continue
 
                 tcr = update.contextrange( mapping.interval )  
                 if self.propagate( update, tcr ):
+                    log.debug("propagation succeeded %s " % mapping )
                     mapping.nexttime = tcr['timeEnd']       
                     mapping.prior = update
+                else:
+                    log.warn("propagation failed %s " % mapping )
+                  
 
             time.sleep(self.sleep)
 
-class SourceSim(list):
+class Faker(Player):
     """
     create fake source instances and insert them 
     """
-    def __init__(self, sleep ):
-        self.sleep = sleep
+    def __init__(self, sleep):
+        Player.__init__(self, sleep)
 
     def insertfake(self):
         for source in self:
@@ -146,7 +155,7 @@ class SourceSim(list):
             inst = source()
             self.fake( inst , lid )
 
-            print "%-3d insertfake %s %r " % (lid, source, inst) 
+            log.info("%-3d insertfake %s %r " % (lid, source.__name__, inst.asdict ))
             db = source.db
             db.add(inst)   
             db.commit()
