@@ -76,8 +76,8 @@ class AdTempSim(SourceSim):
 
 
 if __name__ == '__main__':
-    from dcsconf import DCS
-    from offconf import OFF
+    from dcssa import DCS
+    from offsa import OFF
     dcs = DCS("dcs")
     off = OFF("recovered_offline_db")
     scr = AdTempScrape( dcs, off , 10 )

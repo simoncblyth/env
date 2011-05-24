@@ -11,8 +11,8 @@ TODO:
 
 """
 
-from dcsconf import DCS
-from offconf import OFF
+from dcssa import DCS
+from offsa import OFF
 
 from pmthv import PmtHvScrape, PmtHvSim
 from adtemp import AdTempScrape, AdTempSim

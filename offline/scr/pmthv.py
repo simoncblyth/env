@@ -115,8 +115,8 @@ class PmtHvSim(SourceSim):
 
 if __name__ == '__main__':
     pass 
-    from dcsconf import DCS
-    from offconf import OFF
+    from dcssa import DCS
+    from offsa import OFF
     dcs = DCS("dcs")
     off = OFF("recovered_offline_db")
     scr = PmtHvScrape( dcs, off , 10 )

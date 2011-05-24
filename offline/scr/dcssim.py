@@ -3,7 +3,7 @@ Fake insertions into dcs, for scraper testing usage::
    python dcssim.py
 
 """
-from dcsconf import DCS
+from dcssa import DCS
 from scr import PmtHvSim, AdTempSim
 
 if __name__ == '__main__':
