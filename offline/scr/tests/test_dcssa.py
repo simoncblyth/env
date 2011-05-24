@@ -1,7 +1,7 @@
 
 from datetime import datetime
 from dcs import DcsTableName as DTN
-from dcsconf import DCS
+from dcssa import DCS
 
 dcs = None
 

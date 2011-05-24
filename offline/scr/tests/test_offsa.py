@@ -1,5 +1,5 @@
 from off import OffTableName as OTN, instances
-from offconf import OFF
+from offsa import OFF
 
 off = None
 def setup():

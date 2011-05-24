@@ -47,4 +47,7 @@ class DCS(SA):
 if __name__ == '__main__':
     pass
 
+    dcs = DCS("dcs")
+    print dcs
+
 
