@@ -535,17 +535,23 @@ scm-backup-parasitic-(){
    local smry="$msg $server $(local-tag2node $server) -> $backup $(local-tag2node $backup) : rsync transfer monitoring   "
    local server="$1"
    local backup="$2"
+   local cmd="scm-backup-rls- $backup $(local-tag2node $server)"
+
    cat << EOP
 $smry
-Running at : $(date)
+Running at : $(date)    
+On host    : $(hostname)
 Monitoring the rsync transfer from server to backup :
    server : $server $(local-tag2node $server) 
    backup : $backup $(local-tag2node $backup) 
-   
+  
+Rerun with :
+     $cmd
+ 
 EOP
-   ##scm-backup-rls C dayabay
-   scm-backup-rls- $backup $(local-tag2node $server)
    
+  eval $cmd
+
 }
 
 
