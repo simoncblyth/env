@@ -547,6 +547,11 @@ Monitoring the rsync transfer from server to backup :
   
 Rerun with :
      $cmd
+after setting up on C2R ... 
+    env-
+    scm-backup-
+    scm-backup-rls- C dayabay
+
  
 EOP
    
