@@ -71,7 +71,8 @@ if __name__=='__main__':
 
     #src =  "http://dayabay.phys.ntu.edu.tw/aberdeen/run00027.root"
     #src =  "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
-    src =  "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+    #src =  "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+    src = "/home/henoch/combine.root"
 
     et = EvTree(src)
     print et 

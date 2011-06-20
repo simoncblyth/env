@@ -182,10 +182,10 @@ class Controller(EvController):
             if self.dbg>1:print "trkr %s" % trkr
             self.geom.update_hits( trkr ) 
       
-        fitk = self.src.fitted_track( [150,0,-300] )
-        if len(fitk) > 0:
-            if self.dbg>1:print "fitk %s " % repr(fitk)
-            self.trk.update( fitk )
+        fitk = self.src.fitted_track() # [150,0,-300])    
+	#if len(fitk) > 0:
+            #if self.dbg>1:print "fitk %s " % repr(fitk)
+        self.trk.update( fitk )
 
     	#vrtxp = self.src.vertex_position()
         #if len(vrtxp) > 0:
@@ -231,7 +231,7 @@ if __name__=='__main__':
 
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
-    offline = "$ABERDEEN_HOME/DataModel/sample/run00018.root"
+    offline = "/home/user/run00100.root"
 #"$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     

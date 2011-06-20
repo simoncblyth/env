@@ -42,7 +42,7 @@ class EvOnline(list):
         self.edm = EvDataModel()
         self.msg = None
         self.msgi = []
-        self.period = 5000
+        self.period = 50
  
         if ROOT.gSystem.Load("librootmq") < 0:ROOT.gSystem.Exit(10)
         if ROOT.gSystem.Load("libAbtDataModel") < 0:ROOT.gSystem.Exit(10)
@@ -56,7 +56,7 @@ class EvOnline(list):
         self._connect( self.timer, "Timeout()", self.Check ) 
         self._connect( self.timer, "TurnOff()", self.Off ) 
         
-        ROOT.gSystem.Sleep(1000)  ## pause before starting the timer... avoid possible startup issue ?
+        ROOT.gSystem.Sleep(10)  ## pause before starting the timer... avoid possible startup issue ?
         self.timer.TurnOn()
 
     def On(self):
@@ -145,12 +145,12 @@ class EvOnline(list):
         #    self.edm.set_autoevent(self.auto.GetEvent())  
 
 
-    def fitted_track(self,*args,**kwa):return self.edm.fitted_track(*args,**kwa)
+    #def fitted_track(self,*args,**kwa):return self.edm.fitted_track(*args,**kwa)
     def vertex_position(self,*args,**kwa):return self.edm.vertex_position(*args,**kwa)
     def pmt_response(self,**kwa):return self.edm.pmt_response(**kwa)
     def tracker_hits(self,**kwa):return self.edm.tracker_hits(**kwa)
     def evt_summary(self,**kwa):return self.edm.evt_summary(**kwa)
-    def run_summary(self,**kwa):return self.edm.run_summary(**kwa)
+    #def run_summary(self,**kwa):return self.edm.run_summary(**kwa)
     def ndr_summary(self,**kwa):return self.edm.ndr_summary(**kwa)
 
 

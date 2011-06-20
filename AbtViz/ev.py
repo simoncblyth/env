@@ -84,11 +84,11 @@ class Controller(EvController):
             print "Controller.__init__ g.geom created : %s " % self.geom
         gEve.AddGlobalElement(self.geom.geo)
 
-        #self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
+        self.digi = EvDigi(pmtmin=0, pmtmax=200)   ## range for palette coloring 
         if self.dbg>0:
             print "Controller.__init__ g.digi created : %s" % self.digi
-        #for elem in self.digi:
-            #elem.add_()
+        for elem in self.digi:
+            elem.add_()
 
         self.trk = EvTrk()
 
@@ -171,11 +171,10 @@ class Controller(EvController):
         
 	self.gui.fNumber.SetIntNumber(g_.GetEntry())
         
-	#No pmt response in CP5 (HKU)
-        #pmtr = self.src.pmt_response() 
-	#if len(pmtr[2]) > 0:
-            #if self.dbg>1:print "pmtr %s" % pmtr
-            #self.digi.update_pmt(  pmtr ) 
+        pmtr = self.src.pmt_response() 
+	if len(pmtr[2]) > 0:
+            if self.dbg>1:print "pmtr %s" % pmtr
+            self.digi.update_pmt(  pmtr ) 
             
         trkr = self.src.tracker_hits()
         if len(trkr) > 0:
@@ -183,14 +182,15 @@ class Controller(EvController):
             self.geom.update_hits( trkr ) 
       
         fitk = self.src.fitted_track() # [150,0,-300])    
-	#if len(fitk) > 0:
-            #if self.dbg>1:print "fitk %s " % repr(fitk)
-        self.trk.update( fitk )
+	#update fitted track only if there exist at least one track!
+	if fitk.GetNTrack() > 0:
+            if self.dbg>1:print "fitk %s " % repr(fitk.Get(0))
+            self.trk.update( fitk )
 
-    	#vrtxp = self.src.vertex_position()
-        #if len(vrtxp) > 0:
-            #if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
-	    #self.vrtx.update( vrtxp )
+    	vrtxp = self.src.vertex_position()
+        if len(vrtxp) > 0:
+            if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
+	    self.vrtx.update( vrtxp )
 
         #tmsg = self.src.msg
         #if tmsg:
@@ -229,10 +229,13 @@ if __name__=='__main__':
     g = Controller()
     from ROOT import g_
 
+    #offline = "/home/henoch/run00062.root"
+    offline = "/home/henoch/combine.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
-    offline = "/home/user/run00100.root"
-#"$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+    #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+    #offline = "/home/user/run00100.root"
+
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     
     #g.SetSource( repr(online) )

@@ -24,14 +24,14 @@ class EvTrk(list):
                 k.Destroy()
 
 	ntrk = allft.GetNTrack()
-	zs = [75,0,-250]
+	zs = [150,0,-150]
 
 	count = 0
 	while (count < ntrk):
 	    ft = allft.Get(count)
 	    l = self._line()
             for z in zs:   
-                l.SetNextPoint(ft.X().At((z+233.7)*10)*xysc,ft.Y().At((z+233.7)*10)*xysc, z )
+                l.SetNextPoint(ft.X().At((z+118.7)*10)*xysc,ft.Y().At((z+118.7)*10)*xysc, z )
             
 	    if (count == 0):
 		l.SetMainColor(ROOT.kRed)

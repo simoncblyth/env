@@ -190,15 +190,17 @@ class EvDataModel(DataModel):
             return [] 
         return [(lay,det) for det in range(32) for lay in range(7) if hp.IsHit(lay,det)]
 
-    def fitted_track(self, zs ):
+    def fitted_track(self):
         """
             Provide list of [[x1,y1,z1], [x2,y2,z2], ... ]
             for the [z1,z2,...] arguments 
         """
         if not(self.trg):return [] 
+
         ft = self.trg.GetTrack()
         if not(ft):return [] 
-        return [[ft.X().At((z+233.7)*10),ft.Y().At((z+233.7)*10),z] for z in zs]
+        #return [[ft.X().At((z+233.7)*10),ft.Y().At((z+233.7)*10),z] for z in zs]
+	return ft
 
     def vertex_position(self):
     	"""
