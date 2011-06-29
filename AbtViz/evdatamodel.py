@@ -16,9 +16,12 @@ class EvDataModel(DataModel):
 
         self.trg = None
         self.run = None
+	self.en = None
         
         self.ndrhtml = self.prepare_ndr_summary()
         self.runhtml = self.prepare_run_summary()
+	self.trkhtml = self.prepare_trk_summary()
+	self.vrthtml = self.prepare_vrt_summary()
 
     def prepare_ndr_summary(self):
         smry = ROOT.HtmlSummary("ndrhtml")
@@ -40,11 +43,17 @@ class EvDataModel(DataModel):
         return smry
 
     def update_ndr_summary(self, ev):
-        if not(ev):
-            print "update_ndr_summary null evt "
-	    return   
         tab = self.ndrhtml.GetTable(0)
-	
+
+	#Reset table for every event
+	for iq in range(4):	
+	    for iv in range(21):
+		tab.SetValue(iv,iq,0.0)
+
+        if not (ev):
+            #print "update_ndr_summary null evt "
+	    return   
+
         for iq,q in enumerate(ROOT.AbtNdResponse.__typ__):
             
 	    #Data might not contain a particular row so need to correct iq (ciq)
@@ -82,11 +91,64 @@ class EvDataModel(DataModel):
             #print "iv,v %s %s " % ( iv,v ) 
             tab.SetSideValue(iv,"%s"%v)
 
+    def prepare_trk_summary(self):
+        smry = ROOT.HtmlSummary("trkhtml")
+        row = 6
+        tab = smry.AddTable( "Muon Tracker" , 0 , row , kTRUE, kTRUE, kTRUE, kFALSE )
+        #tab.Dump()
+        tab.SetSideLabel(0, "Theta" )
+        tab.SetSideLabel(1, "Phi" )
+        tab.SetSideLabel(2, "Fitness" )
+        tab.SetSideLabel(3, "Chi Square" )
+	tab.SetSideLabel(4, "N Layers" )
+	tab.SetSideLabel(5, "N Tracks" )
+        return smry
+
+    def update_trk_summary(self, allft):
+	tab = self.trkhtml.GetTable(0)
+	self.clear_summary(tab, 6)
+        if (allft): 
+	    #Get best fitted track
+	    ft = allft.Get(0) 
+            tab.SetSideValue(0,"%.3f &plusmn %.3f"%(ft.Theta(),ft.ThetaError()))
+	    tab.SetSideValue(1,"%.3f &plusmn %.3f"%(ft.Phi(),ft.PhiError()))
+	    tab.SetSideValue(2,"%.4f"%ft.GetFitness())
+	    tab.SetSideValue(3,"%.4f"%ft.GetChisquare())
+	    tab.SetSideValue(4,"%i"%ft.GetNFitLayer())
+	    tab.SetSideValue(5,"%i"%allft.GetNTrack())
+
+    def prepare_vrt_summary(self):
+        smry = ROOT.HtmlSummary("vrthtml")
+        row = 5
+        tab = smry.AddTable( "Neutron Detector" , 0 , row , kTRUE, kTRUE, kTRUE, kFALSE )
+        #tab.Dump()
+        tab.SetSideLabel(0, "Position (mm)" )
+        tab.SetSideLabel(1, "N Photon" )
+	tab.SetSideLabel(2, "Energy (MeV)" )
+	tab.SetSideLabel(3, "Mult. Thres." )
+	tab.SetSideLabel(4, "Multiplicity" )
+        return smry
+
+    def update_vrt_summary(self, vrt, Threshold):
+	tab = self.vrthtml.GetTable(0)
+	self.clear_summary(tab, 5)
+	if (vrt):
+            tab.SetSideValue(0,"[%.0f, %.0f, %.0f]"%(vrt[0],vrt[1],vrt[2]))
+	    tab.SetSideValue(1,"%.1f"%vrt[3])
+	    tab.SetSideValue(2,"%.2f"%self.en.GetEnergy(self.trg.GetVertex().GetCenter()))
+	tab.SetSideValue(3,"%.1f Photons"%Threshold)
+	if (self.trg.GetNPhoton()): tab.SetSideValue(4,"%i"%int(self.trg.GetNPhoton().GetMultiplicity(Threshold)))
+
+    def clear_summary(self, tab, row):
+	for i in range(row):
+            tab.SetSideValue(i," ")
+
     def branch_addresses(self, tree):
         from ROOT import AbtEvent
         evt = AbtEvent() 
         self.trg = evt   ## formerly AbtTriggerEvent
 	self.run = tree.GetUserInfo().At(0)
+	self.en = tree.GetUserInfo().FindObject("NdEnCalib")
         tree.SetBranchAddress("trigger", ROOT.AddressOf(evt))
 
     def set_autoevent(self, evt ):
@@ -106,16 +168,26 @@ class EvDataModel(DataModel):
         ri = tree.GetUserInfo().At(0)
         return ri.GetDmVersion()
 
-    def evt_summary(self):
-        return [ self.trg.__class__.__name__ , repr(self.trg) ]
-    def run_summary_old(self):
-        return [ self.run.__class__.__name__ , repr(self.run) ]
+    #def evt_summary(self):
+        #return [ self.trg.__class__.__name__ , repr(self.trg) ]
+    #def run_summary_old(self):
+        #return [ self.run.__class__.__name__ , repr(self.run) ]
     
     def run_summary(self):
         self.update_run_summary(self.run)
         self.runhtml.Build()
         return self.runhtml.Html().Data()
      
+    def trk_summary(self):
+        self.update_trk_summary(self.fitted_track())
+        self.trkhtml.Build()
+        return self.trkhtml.Html().Data()
+
+    def vrt_summary(self, MultiThres ):
+        self.update_vrt_summary(self.vertex(), MultiThres)
+        self.vrthtml.Build()
+        return self.vrthtml.Html().Data()
+
     def ndr_summary(self):
         self.update_ndr_summary(self.trg)
         self.ndrhtml.Build()
@@ -202,14 +274,57 @@ class EvDataModel(DataModel):
         #return [[ft.X().At((z+233.7)*10),ft.Y().At((z+233.7)*10),z] for z in zs]
 	return ft
 
-    def vertex_position(self):
+    def vertex(self):
     	"""
 		Provides the location of the center vertex
 	"""
-	if not(self.trg):return []
+	if not(self.trg):return [] 
+	if not(self.trg.GetVertex()):return []
 	vp = self.trg.GetVertex().GetCenter()
 	if not(vp):return [] 
-	return [vp.X(),vp.Y(),vp.Z()-295.0,vp.GetNPhoton()]
+	return [vp.X(),vp.Y(),vp.Z(),vp.GetNPhoton()]
+
+    def condition(self,TrkCriteria,NDCriteria):
+    	"""
+		Check to see if conditions are met
+	"""
+
+        if not (self.trg): return 0 #FAIL if nothing present
+
+	if (TrkCriteria[0]): #Require Tracker Event
+	    if not (self.trg.GetTrackerHit()) and not (self.trg.GetTrack()): return 0 #FAIL if no Fitted Track or Tracker Hits present
+
+	if (TrkCriteria[1]): #Require FitTrack condition
+	    if not (self.trg.GetTrack()): return 0
+	    if not (self.trg.GetTrack().Get(0)): return 0	
+	    if (TrkCriteria[1] > self.trg.GetTrack().Get(0).GetFitness()):return 0
+
+	if (TrkCriteria[2]): #Require Chi Square condition
+	    if not (self.trg.GetTrack()): return 0
+	    if not (self.trg.GetTrack().Get(0)): return 0	
+	    if (TrkCriteria[2] < self.trg.GetTrack().Get(0).GetChisquare()):return 0
+
+	if (TrkCriteria[3]): #Require N Layers condition
+	    if not (self.trg.GetTrackerHit()): return 0
+	    if not (self.trg.GetTrackerHit().IsNFoldHit(int(TrkCriteria[3]))): return 0	
+
+	if (NDCriteria[0]): #Require Neutron Event
+	    if not (self.trg.GetAdc()) and not (self.trg.GetNPhoton): return 0 #FAIL if no ADC data or NPhoton data present
+
+	if (NDCriteria[1]): #Require ADC sum condition
+	    if not (self.trg.GetAdc()): return 0	
+	    if (NDCriteria[1] > self.trg.GetAdc().GetSum()):return 0 
+
+	if (NDCriteria[2]): #Require Energy condition
+	    if not (self.trg.GetVertex()): return 0	
+	    if not (self.trg.GetVertex().GetCenter): return 0	
+	    if (NDCriteria[2] > self.en.GetEnergy(self.trg.GetVertex().GetCenter())):return 0 
+
+	if (NDCriteria[4]): #Require Multiplicity condition
+	    if not (self.trg.GetNPhoton()): return 0		
+	    if (NDCriteria[4] > self.trg.GetNPhoton().GetMultiplicity(NDCriteria[3])):return 0
+
+	return 1 #SUCCESS!
         
 if __name__=='__main__':
     edm = EvDataModel()

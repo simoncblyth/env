@@ -42,11 +42,14 @@ class EvTree(list):
         return True
 
     def fitted_track(self,*args,**kwa):return self.edm.fitted_track(*args,**kwa)
-    def vertex_position(self,*args,**kwa):return self.edm.vertex_position(*args,**kwa)
+    def vertex(self,*args,**kwa):return self.edm.vertex(*args,**kwa)
+    
+    def condition(self,*args,**kwa):return self.edm.condition(*args,**kwa)
 
     def pmt_response(self,**kwa):return self.edm.pmt_response(**kwa)
     def tracker_hits(self,**kwa):return self.edm.tracker_hits(**kwa)
-    def evt_summary(self,**kwa):return self.edm.evt_summary(**kwa)
+    def trk_summary(self,**kwa):return self.edm.trk_summary(**kwa)
+    def vrt_summary(self,*args,**kwa):return self.edm.vrt_summary(*args,**kwa)
     def run_summary(self,**kwa):return self.edm.run_summary(**kwa)
     def ndr_summary(self,**kwa):return self.edm.ndr_summary(**kwa)
     ## nasty : this is duplicated with evonline , rethink inheritance from list to avoid ?

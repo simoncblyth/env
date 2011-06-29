@@ -15,16 +15,17 @@ class EvVrtx(list):
 	p.SetMainColor(ROOT.kYellow)
         return p
 
-    def update(self, vrtxp , reset=True, xysc=0.1 ):
-        if reset:
-            for i in range(len(self)):
-                k = self.pop()
-                k.Destroy()
+    def clear(self):
+	for i in range(len(self)):
+	    k = self.pop()
+	    k.Destroy()   
+
+    def update(self, vrtxp , xysc=0.1 ):
         p = self._marker()
  	p.SetMarkerSize((vrtxp[3]/5000))
-        p.SetNextPoint(vrtxp[0]*xysc,vrtxp[1]*xysc,vrtxp[2]*xysc)
+        p.SetNextPoint(vrtxp[0]*xysc,vrtxp[1]*xysc,(vrtxp[2]-295.0)*xysc)
 	
-	tag = "Vertex: \n (x = %d, y = %d, z = %d) mm \n Number of Photons = %d" % (vrtxp[0],vrtxp[1],vrtxp[2]+295.0,vrtxp[3])
+	tag = "Vertex: \n (x = %d, y = %d, z = %d) mm \n Number of Photons = %d" % (vrtxp[0],vrtxp[1],vrtxp[2],vrtxp[3])
 	p.SetElementTitle(tag)	
 
         self.append(p)

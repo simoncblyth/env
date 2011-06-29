@@ -100,8 +100,7 @@ class Controller(EvController):
             print "Controller.__init__ g.gui created"
         self.browser = browser
         self.src = None
-        
-        
+
         if hasattr(gEve, 'GetGLViewer'):
             viewer = gEve.GetGLViewer()
         elif hasattr(gEve, 'GetDefaultGLViewer'):
@@ -126,6 +125,8 @@ class Controller(EvController):
         if len(self.src)==0:return False
         if len(self.src)>0:
             self.SetEntryMinMax( 0, len(self.src) - 1 )
+	    #Update number entry field limits
+	    self.gui.fNumber.SetLimitValues(0,len(self.src) - 1 )
 
     def handleRefreshSource(self):
         if not(self.src):return False
@@ -152,63 +153,99 @@ class Controller(EvController):
         entry = self.GetEntry()
         self.src(entry)                 ## call the source 
         #self.rnd = ROOT.TRandom(entry)  ## no real tracker hits ... so randomize a storm 
+
+	#Pass GUI event selection criteria to Datamodel to see if event satisfy requirement 
+	self.gui.condition = self.src.condition(self.TrkCriteria(),self.NDCriteria())
+	
+	#Only redraw if user specifies event no. OR event satisfies the criteria 
+	if (self.gui.selectionflag == 0 | ( self.gui.selectionflag == 1 & self.gui.condition == 1)):
+
+	    #Update event number entry field 
+	    self.gui.fNumber.SetIntNumber(g_.GetEntry())
         
-        esmy = self.src.evt_summary()
-        if len(esmy) > 0:
-            if self.dbg>1:print "esmy %s" % esmy
-            self.gui.update_evt_summary(  smy=esmy )
-        
-        nsmy = self.src.ndr_summary()
-	if len(nsmy) > 0:
-            if self.dbg>1:print "update_ndr_summary with nsmy %s" % len(nsmy)
-            self.gui.update_ndr_summary(  html=nsmy )
+            vsmy = self.src.vrt_summary( self.gui.NDField[3].GetNumber() )
+            if len(vsmy) > 0:
+                if self.dbg>1:print "vsmy %s" % len(vsmy)
+                self.gui.update_vrt_summary(  html=vsmy )
+
+            nsmy = self.src.ndr_summary()
+	    if len(nsmy) > 0:
+                if self.dbg>1:print "update_ndr_summary with nsmy %s" % len(nsmy)
+                self.gui.update_ndr_summary(  html=nsmy )
          
-        ## no point doing this for every changed entry ... but need rethink to avoid 
-        rsmy = self.src.run_summary()
-	if len(rsmy) > 0:
-            if self.dbg>1:print "rsmy %s" % len(rsmy)
-            self.gui.update_run_summary(  html=rsmy )
+            ## no point doing this for every changed entry ... but need rethink to avoid 
+            rsmy = self.src.run_summary()
+	    if len(rsmy) > 0:
+                if self.dbg>1:print "rsmy %s" % len(rsmy)
+                self.gui.update_run_summary(  html=rsmy )
         
-	self.gui.fNumber.SetIntNumber(g_.GetEntry())
-        
-        pmtr = self.src.pmt_response() 
-	if len(pmtr[2]) > 0:
-            if self.dbg>1:print "pmtr %s" % pmtr
-            self.digi.update_pmt(  pmtr ) 
+            pmtr = self.src.pmt_response() 
+	    if len(pmtr[2]) > 0:
+                if self.dbg>1:print "pmtr %s" % pmtr
+                self.digi.update_pmt(  pmtr ) 
             
-        trkr = self.src.tracker_hits()
-        if len(trkr) > 0:
-            if self.dbg>1:print "trkr %s" % trkr
-            self.geom.update_hits( trkr ) 
+            trkr = self.src.tracker_hits()
+	    self.geom.clear_hits()
+            if len(trkr) > 0:
+                if self.dbg>1:print "trkr %s" % trkr
+                self.geom.update_hits( trkr ) 
       
-        fitk = self.src.fitted_track() # [150,0,-300])    
-	#update fitted track only if there exist at least one track!
-	if fitk.GetNTrack() > 0:
-            if self.dbg>1:print "fitk %s " % repr(fitk.Get(0))
-            self.trk.update( fitk )
+            fitk = self.src.fitted_track() # [150,0,-300])
+	    self.trk.clear()  
+	    #update fitted track only if there exist at least one track!
+	    if (fitk): 
+                if self.dbg>1:print "fitk %s " % repr(fitk.Get(0))
+                self.trk.update( fitk )
 
-    	vrtxp = self.src.vertex_position()
-        if len(vrtxp) > 0:
-            if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
-	    self.vrtx.update( vrtxp )
+            tsmy = self.src.trk_summary()
+            if len(tsmy) > 0:
+                if self.dbg>1:print "tsmy %s" % len(tsmy)
+                self.gui.update_trk_summary(  html=tsmy )
 
-        #tmsg = self.src.msg
-        #if tmsg:
-        #    self.src.msg = None
-        #    self.gui.do_msg_display(tmsg)
+    	    vrtxp = self.src.vertex()
+	    self.vrtx.clear()
+            if len(vrtxp) > 0:
+                if self.dbg>1:print "vrtxp %s " % repr(vrtxp)
+	        self.vrtx.update( vrtxp )
+
+            #tmsg = self.src.msg
+            #if tmsg:
+            #    self.src.msg = None
+            #    self.gui.do_msg_display(tmsg)
        
  
        
-        if self.dbg>1:
-            print "Controller.handleChangedEntry %s\n%s" % ( entry, self.src.edm()  )
-            ROOT.g_.Print()      
+            if self.dbg>1:
+                print "Controller.handleChangedEntry %s\n%s" % ( entry, self.src.edm()  )
+                ROOT.g_.Print()      
 
-        ## this redraw appears to be where the Darwin crash usually occurs 
-        ## gEve.Redraw3D(kFALSE, kFALSE )  ## quick update
-        #print "redraw3d"
+            ## this redraw appears to be where the Darwin crash usually occurs 
+            ## gEve.Redraw3D(kFALSE, kFALSE )  ## quick update
+            #print "redraw3d"
 
-        gEve.Redraw3D()
-        #print "redraw3d.done"
+            gEve.Redraw3D()
+            #print "redraw3d.done"
+
+    def TrkCriteria(self):
+	TrkCut={}
+	for i in range(len(self.gui.TrkCheck)):
+	    if i == 0: TrkCut[i] = self.gui.TrkCheck[i].IsDown()
+	    else: 
+		if self.gui.TrkCheck[i].IsDown() == 0: TrkCut[i] = None
+		else: TrkCut[i] = self.gui.TrkField[i].GetNumber()
+    
+    	return TrkCut
+
+    def NDCriteria(self):
+	NDCut={}
+	for i in range(len(self.gui.NDCheck)):
+	    if i == 0: NDCut[i] = self.gui.NDCheck[i].IsDown()
+	    elif i == 3: NDCut[i] = self.gui.NDField[i].GetNumber()
+	    else:
+		if self.gui.NDCheck[i].IsDown() == 0: NDCut[i] = None
+	    	else: NDCut[i] = self.gui.NDField[i].GetNumber()
+    
+    	return NDCut
 
     def __call__(self, *args ):
         if len(args)>0:
@@ -230,11 +267,12 @@ if __name__=='__main__':
     from ROOT import g_
 
     #offline = "/home/henoch/run00062.root"
-    offline = "/home/henoch/combine.root"
+    #offline = "/home/henoch/combine.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc.root"
     #offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
     #offline = "/home/user/run00100.root"
+    offline = "/home/user/data/TunnelData/V8/root/run02401.root"
 
     online  = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
     

@@ -44,7 +44,6 @@ class EvGeom:
         """
              tracker hit presentation by selection of volumes 
         """
-        self.clear_hits() 
         for lay,det in hits:
             vol = self.hitmap[lay].get(det,None)
             if vol:vol.SelectElement(kTRUE)

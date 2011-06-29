@@ -17,11 +17,12 @@ class EvTrk(list):
         l.SetMainColor(ROOT.kWhite)
         return l
 
-    def update(self, allft, reset=True, xysc=0.1 ):
-        if reset:
-	    for i in range(len(self)):
-	        k = self.pop()
-                k.Destroy()
+    def clear(self):
+	for i in range(len(self)):
+	    k = self.pop()
+            k.Destroy()
+
+    def update(self, allft, xysc=0.1 ):
 
 	ntrk = allft.GetNTrack()
 	zs = [150,0,-150]
@@ -30,7 +31,7 @@ class EvTrk(list):
 	while (count < ntrk):
 	    ft = allft.Get(count)
 	    l = self._line()
-            for z in zs:   
+            for z in zs: 
                 l.SetNextPoint(ft.X().At((z+118.7)*10)*xysc,ft.Y().At((z+118.7)*10)*xysc, z )
             
 	    if (count == 0):
