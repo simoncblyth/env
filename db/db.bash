@@ -295,7 +295,8 @@ db-recover(){
 
   ${DB_TIME}mysql --defaults-file=$cfg 
 
-  rm -f $cfg ## tidy up config file after use 
+  [ ${#cfg} -lt ${#HOME} -o ${#cfg} -lt 10 ] && echo $msg SANITY CHECK FAILURE FOR cfg $cfg && return 1
+  [ -f "$cfg" ] && rm -f "$cfg"
 }
 
 
