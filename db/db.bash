@@ -262,6 +262,25 @@ db-cautious(){
    mysql --no-defaults --host=localhost --user=root -p $1 
 }
 
+
+db-recover-credentials-(){ private- ; cat << EOC
+[client]
+host      = $(private-val RECOVER_HOST)
+database  = $1
+user      = $(private-val RECOVER_USER)
+password  = $(private-val RECOVER_PASSWORD)
+EOC
+}
+
+db-recover-credentials(){
+  ## rewrite credentials every time to avoid habing to put db name into path or some such 
+  local path=~/.my.$FUNCNAME.cnf
+  $FUNCNAME- $* > $path
+  chmod go-rwx $path
+  echo $path
+}
+
+
 db-recover(){
   private-
   local host=$(private-val RECOVER_HOST)
@@ -269,7 +288,14 @@ db-recover(){
      cms01.phys.ntu.edu.tw|localhost) echo -n                                    ;;
                                   *)  echo sorry too dangerous ... && return 1   ;;
   esac
-  ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
+
+  local cfg=$(echo $(db-recover-credentials $1))
+
+#  ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
+
+  ${DB_TIME}mysql --defaults-file=$cfg 
+
+  rm -f $cfg ## tidy up config file after use 
 }
 
 
