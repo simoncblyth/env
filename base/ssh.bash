@@ -56,6 +56,21 @@ cat << EOU
           *  daemon settings should use 
                  AuthorizedKeysFile .ssh/authorized_keys2
 
+
+
+     == recover from forgotten passphrase ==
+
+        #. create a new key pair 
+        #. transfer public keys to target 
+           and append to authorized_keys2
+
+               scp ~/Downloads/id_dsa.pub C:.ssh/dybdb1.id_dsa.pub
+               scp ~/Downloads/id_rsa.pub C:.ssh/dybdb1.id_rsa.pub
+               C >  cd .ssh ; cat dybdb1.id_dsa.pub dybdb1.id_rsa.pub >> authorized_keys2
+
+         NB this can be automated with ``ssh--putkey`` when you have control of both ends 
+
+
      == Server/Backup Management ==
 
          
