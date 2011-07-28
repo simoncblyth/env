@@ -919,3 +919,4 @@ tornado-(){      . $(env-home)/messaging/tornado.bash && tornado-env $* ; }
 svnprecommit-(){      . $(env-home)/svn/svnprecommit.bash && svnprecommit-env $* ; }
 dcs-(){      . $(env-home)/offline/dcs.bash && dcs-env $* ; }
 scr-(){      . $(env-home)/offline/scr.bash && scr-env $* ; }
+videola-(){  . $(env-home)/videola/videola.bash && videola-env $* ; }
