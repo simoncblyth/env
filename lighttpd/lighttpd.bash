@@ -214,7 +214,7 @@ EOC
 
  
  
-lighttpd-adduser(){
+lighttpd-adduser-(){
   local msg="=== $FUNCNAME :"
   local user=$1
   local realm=$2
@@ -225,6 +225,10 @@ lighttpd-adduser(){
   [ "$pass" != "$pass2" ] && echo $msg ABORT the passwords do not match && return 1
   local hash=$(echo -n "$user:$realm:$pass" | python-md5 )
   echo $msg appending new user entry "$user:$realm:$hash" to users file  $(lighttpd-users) 
-  sudo bash -c "echo \"$user:$realm:$hash\" >> $(lighttpd-users) "
+  sudo bash -c "echo \"$user:$realm:$hash\" "
+}
+
+lighttpd-adduser(){
+   lighttpd-adduser- $* >> $(lighttpd-users) "
 }
 

@@ -46,6 +46,16 @@ dj-usage(){
      http://www.djangoproject.com
      http://docs.djangoproject.com/en/dev/intro/tutorial01/#intro-tutorial01
 
+     http://djangopackages.com
+     https://bitbucket.org/natgeo/django-exposure
+             National Geographic image resizer, assuming upstream cache
+     https://docs.djangoproject.com/en/1.3/topics/cache/#upstream-caches
+     http://www.squid-cache.org/
+     http://wiki.squid-cache.org/ConfigExamples
+
+     http://tomayko.com/writings/things-caches-do
+
+
      $(env-wikiurl)/MySQL
      $(env-wikiurl)/MySQLPython
 
