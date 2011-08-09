@@ -120,7 +120,12 @@ djdep-notes(){
              port installed mysql 5.0.67
 
              Darwin difficulties ... need to be careful with system python  
-             do i want to port install python ?
+             port installed python 2.6 and created virtualenv ~/v/djimg into
+             which installed most of the preqs
+
+           
+
+
 
 EON
 }

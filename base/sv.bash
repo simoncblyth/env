@@ -304,9 +304,67 @@ Gabriel Sosa
 29027
 
 
+== G install ==
+
+    g4pb:site-packages blyth$ sudo pip-2.6 install supervisor 
+Downloading/unpacking supervisor
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/threading.py", line 532, in __bootstrap_inner
+    self.run()
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/threading.py", line 484, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pip/index.py", line 207, in _get_queued_page
+    for link in page.rel_links():
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pip/index.py", line 439, in rel_links
+    for url in self.scraped_rel_links():
+  File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pip/index.py", line 466, in scraped_rel_links
+    url = match.group(1) or match.group(2) or match.group(3)
+IndexError: no such group
+
+  Downloading supervisor-3.0a10.tar.gz (438Kb): 438Kb downloaded
+  Running setup.py egg_info for package supervisor
+    no previously-included directories found matching 'docs/*.pyc'
+    no previously-included directories found matching 'docs/.build'
+Downloading/unpacking meld3>=0.6.5 (from supervisor)
+  Downloading meld3-0.6.7.tar.gz
+  Running setup.py egg_info for package meld3
+Installing collected packages: meld3, supervisor
+  Running setup.py install for meld3
+  Running setup.py install for supervisor
+    no previously-included directories found matching 'docs/*.pyc'
+    no previously-included directories found matching 'docs/.build'
+    Skipping installation of /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/supervisor/__init__.py (namespace package)
+    Installing /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/supervisor-3.0a10-py2.6-nspkg.pth
+    Installing echo_supervisord_conf script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+    Installing pidproxy script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+    Installing supervisorctl script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+    Installing supervisord script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+Successfully installed meld3 supervisor
+Cleaning up...
+g4pb:site-packages blyth$ 
+
+
+
+Fails to plant symbolic links ... so do manually 
+          
+g4pb:env blyth$ sudo ln -s  /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/supervisorctl /opt/local/bin/supervisorctl-2.6
+g4pb:env blyth$ sudo ln -s  /opt/local/bin/supervisorctl-2.6 /opt/local/bin/supervisorctl 
+
+    g4pb:site-packages blyth$ supervisorctl
+Error: No config file found at default paths (/opt/local/etc/supervisord.conf, /opt/local/supervisord.conf, supervisord.conf, etc/supervisord.conf, /etc/supervisord.conf); use the -c option to specify a config file at a different path
+For help, use /opt/local/bin/supervisorctl -h
+
+
 EOU
 }
-sv-dir(){      echo $(local-base)/env/sv ; }
+sv-dir(){  
+   case $NODE_TAG in      
+      G) echo /opt/local/etc ;; 
+      *) echo $(local-base)/env/sv ;;
+   esac
+}
+
 sv-confpath(){ echo $(sv-dir)/supervisord.conf ; }
 sv-confdir(){  echo $(sv-dir)/conf ; }
 sv-ctldir(){   echo $(sv-dir)/ctl  ; }

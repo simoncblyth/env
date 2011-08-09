@@ -199,7 +199,7 @@ EOT
 
 private-ln(){
   python-
-  python-ln $(env-home)/private
+  python-ln $(env-home)/private/private
 }
 
 
