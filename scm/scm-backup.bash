@@ -6,6 +6,12 @@ scm-backup-vi(){      vi $(scm-backup-source) ; }
 scm-backup-usage(){
 cat << EOU
 
+   
+   IHEP CRON RUNNING OF THE BACKUPS ...
+       changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
+
+
+
    \$SCM_FOLD   : $SCM_FOLD
    \$BACKUP_TAG : $BACKUP_TAG
 
