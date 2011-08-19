@@ -558,6 +558,14 @@ after setting up on C2R ...
     scm-backup-
     scm-backup-rls- C dayabay
 
+Most frequent cause of missing tarballs is server outage resulting in 
+the ssh-agent from being killed.  
+To resolve
+
+  1)  ctrl-cmd-W   SSH into web server 
+  2)  uptime       correlate downtime with when tarballs stopped arriving, check cronlogs for the permission denied
+  3)  sas          start agent entering passphrase to add identities
+
  
 EOP
    

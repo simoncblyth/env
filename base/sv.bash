@@ -24,6 +24,19 @@ sv-usage(){
                     installed into virtual python
       Z     3.0a8
 
+   == C source python peculiarity ==
+
+     Use of source python leads to env sensitivity of "sv" invokation ... Symptom:
+        /data/env/system/python/Python-2.5.1/bin/python: 
+               error while loading shared libraries: libpython2.5.so.1.0: 
+               cannot open shared object file: No such file or directory
+
+     Remedy by fixing envrironment :
+          env-
+          python- source
+
+
+
    == UPDATING CONFIG ==
 
      Config read from the sv-confpath by cfp- 
