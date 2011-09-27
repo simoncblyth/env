@@ -71,6 +71,10 @@ cat << EOU
          NB this can be automated with ``ssh--putkey`` when you have control of both ends 
 
 
+               sudo vi  ~dayabayscp/.ssh/authorized_keys2
+               sudo bash -c "cat dybdb1.* >>  ~dayabayscp/.ssh/authorized_keys2"  
+
+
      == Server/Backup Management ==
 
          

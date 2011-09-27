@@ -219,7 +219,10 @@ python-ldconfig(){
 }
 
 python-libdir(){
-   echo ${VIRTUAL_ENV:-ERROR-NO-VIRTUALENV-PYTHON}/lib
+   case $NODE_TAG in 
+      C) echo $PYTHON_HOME/lib ;;
+      *) echo ${VIRTUAL_ENV:-ERROR-NO-VIRTUALENV-PYTHON}/lib ;;
+   esac
 }
 python-bindir(){
    echo $PYTHON_HOME/bin
@@ -227,7 +230,6 @@ python-bindir(){
 python-incdir(){
    echo $PYTHON_HOME/include/python$(python-major)
 }
-
 
 python-site(){
    [ -n "$PYTHON_SITE__" ] && echo $PYTHON_SITE__ && return

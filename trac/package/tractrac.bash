@@ -20,6 +20,24 @@ tractrac-usage(){
          NB makes no difference to the actual code, but would prevent patches
          from being found
          
+
+
+  == operational notes ==
+
+    Very large diffs bring Trac/apache to knees ... need
+
+     * http://trac.edgewall.org/ticket/2343
+
+   The default of 10 million bytes is too much ...
+{{{
+[changeset]
+max_diff_bytes = 10000000
+max_diff_files = 0
+}}}
+
+  at IHEP got Q to djust limit to 100000 bytes (down factor of 100 from 10 million)
+
+
             
          
          
