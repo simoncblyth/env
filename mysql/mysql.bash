@@ -195,6 +195,17 @@ Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source d
 }
 
 
+
+  == note regards pausing mysql slave replication ==
+
+    
+     * http://dev.mysql.com/doc/refman/5.0/en/replication-howto-masterbaseconfig.html
+
+         set master server-id to 0 to disable slave connections ???
+    
+
+
+
 EOU
 }
 
