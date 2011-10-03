@@ -581,6 +581,15 @@ scm-backup-dir(){
    echo $(local-scm-fold ${1:-$NODE_TAG})/backup  
 }
 
+scm-backup-tdir(){
+   ## non-standard to handle travelling other nodes, ie a 2nd transfer of backups not from either of the partaking nodes
+   case ${1:-$NODE_TAG} in 
+     C2|C2R) echo /data/var/scm/backup ;;
+          *) echo /tmp ;;
+   esac
+}
+
+
 scm-backup-rsync-from-node(){
 
    local msg="# === $FUNCNAME : "
@@ -686,6 +695,17 @@ scm-backup-rsync-opts(){
   echo ${SCM_BACKUP_RSYNC_OPTS:-}
 }
 
+scm-backup-rsync-dayabay-pull-from-cms01(){
+    local from="C"
+    local tag 
+    local travelnode="dayabay"
+    local source=$(scm-backup-dir $from)/$travelnode
+    local cmd="rsync -e ssh --delete-after -razvt $from:$source $(scm-backup-tdir) $(scm-backup-rsync-opts) "
+    echo $msg pulling travelnode $travelnode from $from with $cmd
+    [ "$from" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync pull from self  && return 1
+    echo $msg $cmd
+    #eval $cmd
+}
 
 scm-backup-rsync(){
 
