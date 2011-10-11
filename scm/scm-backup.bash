@@ -11,6 +11,14 @@ cat << EOU
        changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
 
 
+   HOW TO RECOVER dayabay TARBALLS ONTO cms02
+
+      1) from C2R : scm-backup-rsync-dayabay-pull-from-cms01
+      2) from C2R : scm-recover-all dayabay
+
+    Note potential issue of incomplete tarballs, to reduce change 
+
+
 
    \$SCM_FOLD   : $SCM_FOLD
    \$BACKUP_TAG : $BACKUP_TAG
@@ -282,7 +290,8 @@ scm-recover-all(){
    local msg="=== $FUNCNAME :"
    local fromnode=$1
    [ "$fromnode" == "" ] && echo scm-recover-all needs a fromnode  && return 1 
-   
+  
+
    local ans
    read -p "$msg using tarballs from node $fromnode ? Enter YES to proceed " ans
    [ "$ans" != "YES" ] && echo $msg ABORTing && return  1
@@ -295,8 +304,12 @@ scm-recover-all(){
    local types="repos svn tracs"
    for type in $types
    do
-      
-      local base=$SCM_FOLD/backup/$fromnode/$type
+      local base
+      if [ "$fromnode" == "dayabay"  ]; then
+          base=$(scm-backup-tdir)/$fromnode/$type    ## updated manually by dayabay-pull from C2R (from the parasitic C1 backups from IHEP) 
+      else
+          base=$SCM_FOLD/backup/$fromnode/$type
+      fi   
       local dest=$SCM_FOLD/$type
       local user=$(apache-user)
       
@@ -696,6 +709,9 @@ scm-backup-rsync-opts(){
 }
 
 scm-backup-rsync-dayabay-pull-from-cms01(){
+
+    ## hmm potential issue ... need to check the rsync transfer from IHEP to C is completed ?
+
     local from="C"
     local tag 
     local travelnode="dayabay"
