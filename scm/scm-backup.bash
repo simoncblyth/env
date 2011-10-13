@@ -6,17 +6,77 @@ scm-backup-vi(){      vi $(scm-backup-source) ; }
 scm-backup-usage(){
 cat << EOU
 
+
+   ISSUES WITH NEW INTEGRITY TESTS
+       * SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
+       * expensive 
+       * temporarily take loadsa disk space ~4GB (liable to cause non-interesting problems)
+
    
    IHEP CRON RUNNING OF THE BACKUPS ...
        changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
 
 
-   HOW TO RECOVER dayabay TARBALLS ONTO cms02
+   POTENTIAL scm-backup-repo ISSUE AT 2GB 
 
-      1) from C2R : scm-backup-rsync-dayabay-pull-from-cms01
-      2) from C2R : scm-recover-all dayabay
+      http://subversion.apache.org/faq.html#hotcopy-large-repos
+
+           Early versions of APR on its 0.9 branch, which Apache 2.0.x and Subversion 1.x use, 
+           have no support for copying large files (2Gb+). 
+           A fix which solves the 'svnadmin hotcopy' problem has been applied and 
+           is included in APR 0.9.5+ and Apache 2.0.50+. 
+           The fix doesn't work on all platforms, but works on Linux.
+
+      On C2 are using source apache  /data/env/system/apache/httpd-2.0.63 
+
+
+   HOW TO RECOVER dayabay TARBALLS ONTO cms02, run from C2 (sudo is used)
+
+      1) from C2  : scm-backup-rsync-dayabay-pull-from-cms01
+      2) from C2  : scm-recover-all dayabay
 
     Note potential issue of incomplete tarballs, to reduce change 
+
+   HOW TO TEST SOME IMPROVED ERROR CHECKING WITH SINGLE REPO/TRAC BACKUPS
+
+     Run as root, eg from C2R::
+
+         scm-backup-         ## pick up changes
+         t scm-backup-repo   ## check the function   
+
+         mkdir -p /tmp/bkp
+         scm-backup-repo newtest /var/scm/repos/newtest /tmp/bkp dummystamp
+
+         export LD_LIBRARY_PATH=/data/env/system/sqlite/sqlite-3.3.16/lib:$LD_LIBRARY_PATH   ## for the right sqlite, otherwise aborts
+         scm-backup-trac newtest /var/scm/tracs/newtest /tmp/bkp dummystamp
+
+
+   TESTING FULL BACKUP INTO TMP DIRECTORY
+
+     Run as root, eg from C2R::
+
+         scm-backup-
+         t scm-backup-all   ## check the function   
+
+         rm -rf /tmp/bkptest ; mkdir -p /tmp/bkptest
+         export LD_LIBRARY_PATH=/data/env/system/sqlite/sqlite-3.3.16/lib:$LD_LIBRARY_PATH
+         cd /tmp ; SCM_BACKUP_TEST_FOLD=/tmp/bkptest scm-backup-all
+
+
+    SLIMMING THE TRAC TGZ ... ALL THOSE BITTEN LOGS
+
+         http://bitten.edgewall.org/ticket/519
+
+{{{
+DELETE FROM bitten_log_message WHERE log IN (SELECT id FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk'))
+DELETE FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+DELETE FROM bitten_error WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+DELETE FROM bitten_step WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
+}}}
+
+
 
 
 
@@ -187,7 +247,7 @@ scm-backup-all(){
    
    local msg="=== $FUNCNAME :"
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
-   local base=$SCM_FOLD/backup/$LOCAL_NODE
+   local base=${SCM_BACKUP_TEST_FOLD:-$SCM_FOLD/backup/$LOCAL_NODE}   ## SCM_BACKUP_TEST_FOLD not standardly set, use inline for interactive checking 
 
    ## remove semaphore is set 
    env-abort-clear
@@ -198,7 +258,8 @@ scm-backup-all(){
    which python
    echo $LD_LIBRARY_PATH | tr ":" "\n"
  
-   local typs="svn repos tracs"
+   #local typs="svn repos tracs"
+   local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
@@ -214,14 +275,14 @@ scm-backup-all(){
                else
                     echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD
                     case $typ in 
-                         tracs) scm-backup-trac $name $path $base $stamp  ;;
-                     repos|svn) scm-backup-repo $name $path $base $stamp  ;;
+                         tracs) scm-backup-trac $name $path $base $stamp || return $?  ;;
+                     repos|svn) scm-backup-repo $name $path $base $stamp || return $?  ;;
                              *) echo $msg ERROR unhandled typ $typ ;;
-                    esac           
+                    esac    
   	       fi
            else
   		       echo $msg $typ === skip non-folder $path
-  		   fi
+  	   fi
        done
    done
    env-abort-active- && echo $msg ABORTING via file semaphore && return 1  
@@ -710,17 +771,20 @@ scm-backup-rsync-opts(){
 
 scm-backup-rsync-dayabay-pull-from-cms01(){
 
-    ## hmm potential issue ... need to check the rsync transfer from IHEP to C is completed ?
-
+    local msg="=== $FUNCNAME :"
+    echo $msg ...  hmm potential issue ... need to check the rsync transfer from IHEP to C is completed ?
     local from="C"
+    [ "$NODE_TAG" != "C2" ] && echo $msg SHOULD BE RUN FROM C2 NOT $NODE_TAG ABORTING && return 1
+
     local tag 
     local travelnode="dayabay"
     local source=$(scm-backup-dir $from)/$travelnode
-    local cmd="rsync -e ssh --delete-after -razvt $from:$source $(scm-backup-tdir) $(scm-backup-rsync-opts) "
+    local cmd="sudo rsync -e ssh --delete-after -razvt $from:$source $(scm-backup-tdir) $(scm-backup-rsync-opts) "
     echo $msg pulling travelnode $travelnode from $from with $cmd
     [ "$from" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync pull from self  && return 1
     echo $msg $cmd
-    #eval $cmd
+    echo $msg need local pw for sudo then sshkey pw for transfer 
+    eval $cmd
 }
 
 scm-backup-rsync(){
@@ -1017,6 +1081,7 @@ scm-backup-synctrac(){
 
 scm-backup-repo(){
 
+   local iwd=$PWD
    local msg="=== $FUNCNAME :" 
    local name=${1:-dummy}   ## name of the repo
    local path=${2:-dummy}   ## absolute path to the repo  
@@ -1044,19 +1109,29 @@ scm-backup-repo(){
    local hot_backup=$(svn-hotbackuppath)      
    [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
                   			  	  
+   local rc
    local cmd="mkdir -p $target_fold &&  $hot_backup --archive-type=gz $path $target_fold && cd $base/$(svn-repo-dirname-forsite $site)/$name && rm -f last && ln -s $stamp last "   
    echo $msg $cmd
    eval $cmd
-   
-   
-   # to check a integrity of a backed up repository , after unpacking 
-   # svn co file:///tmp/hottest-6
-}
+   rc=$? 
 
+   [ "$rc" != "0" ] && echo $msg ERROR $rc && return $rc
+
+   local rev=$(svnlook youngest $path)
+   local tgz=${target_fold}/${name}-${rev}.tar.gz
+   scm-tgzcheck-ztvf $tgz
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg tgz $tgz rev $rev integrity check failure $rc && return $rc 
+   echo $msg tgz $tgz rev $rev integrity check ok 
+
+   cd $iwd
+   return 0
+}
 
 
 scm-backup-trac(){
 
+   local iwd=$PWD
    local msg="=== $FUNCNAME :" 
    local name=${1:-dummy}     ## name of the trac
    local path=${2:-dummy}     ## absolute path to the trac
@@ -1100,11 +1175,72 @@ scm-backup-trac(){
    [ ! -x $tracadmin ] && echo $msg ABORT no trac_admin at $tracadmin && return 1
  
    
- 
-   local cmd="mkdir -p $parent_fold && $tracadmin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name/* && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
+   local rc
+   ## curious : sometimes (depends on cwd i assume)  the rampant wildcard "tar -zcf $name.tar.gz $name/*" causes an error ... changing to "tar -zcf $name.tar.gz $name" results in same structure anyhow (maybe dotfile diff ?)
+   local cmd="mkdir -p $parent_fold && $tracadmin $source_fold hotcopy $target_fold && cd $parent_fold && tar -zcf $name.tar.gz $name && rm -rf $name && cd $base/tracs/$name && rm -f last && ln -s $stamp last "
    echo $msg $cmd
    eval $cmd 
-   
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg trac hotcopy failure $rc && return $rc 
+
+   local tgz=${parent_fold}/${name}.tar.gz
+   scm-tgzcheck-trac ${name} ${tgz}
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg trac tgzcheck failure $rc && return $rc 
+
+   cd $iwd
+   return 0   
+}
+
+scm-tgzcheck-ztvf(){
+
+   local msg="=== $FUNCNAME :"
+   local tgz=$1    ## absolute path to tgz
+   local rc
+   tar ztvf $tgz > /dev/null 
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg tgz $tgz integrity check FAILURE $rc && return $rc
+   echo $msg OK tgz $tgz integrity check succeeds
+   return 0   
+}
+
+scm-tgzcheck-trac(){
+
+   local iwd=$PWD
+   local msg="=== $FUNCNAME :"
+   local name=$1   ## name of trac repo eg env, newtest
+   local tgz=$2    ## absolute path to tgz
+   local clean=1
+   local rc
+   local tmp_fold=$(dirname $tgz)/tmp      ## in same dir as tgz
+
+   tar ztvf $tgz > /dev/null 
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg tgz $tgz integrity check FAILURE $rc && return $rc
+   echo $msg OK tgz $tgz integrity check succeeds
+
+   local chk="rm -rf $tmp_fold && mkdir -p $tmp_fold && cd $tmp_fold &&  tar zxf $tgz ${name}/db/trac.db "
+   eval $chk
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg tmp trac.db extraction FAILURE && return $rc
+   echo $msg OK tgz $tgz tracdb extraction succeeds
+
+   trac-
+   trac-admin-sqlite-check || env-abort     ## LD_LIBRARY_PATH must include dirs for appropriate version of sqlite
+ 
+   local tracdb="${tmp_fold}/${name}/db/trac.db"
+   local dumpdb="${tmp_fold}/${name}.sql"
+   local dump="echo .dump | sqlite3 ${tracdb} > ${dumpdb}"
+   eval $dump
+   rc=$?
+   [ "$rc" != "0" ] && echo $msg sqlite3 dumping of $tracdb FAILURE && return $rc
+   echo $msg OK sqlite3 dumping of $tracdb to ${dumpdb} succeeds
+
+   ## avoid leaving around large dumpfiles 
+   if [ "$clean" == "1" ]; then
+        [ "$(basename $tmp_fold)" == "tmp" ] && rm -rf $tmp_fold && echo $msg OK removed $tmp_fold modify clean to retain
+   fi 
+
    #
    #  to check integrity of the sqlite database that is the heart of trac
    #   sqlite3 /path/to/env/db/trac.db
@@ -1113,6 +1249,9 @@ scm-backup-trac(){
    #    > .schema wiki
    #    > .dump            dumps the database as SQL statements 
    # 
+   cd $iwd           ## hanging around in dirs that get deleted cause hotcopy failure 
+   return 0   
+  
 }
 
 
