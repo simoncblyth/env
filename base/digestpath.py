@@ -1,29 +1,76 @@
 #!/usr/bin/env python
 """
 Emits to stdout the hexdigest for file path provided, using chunked reading to avoid memory 
-issues with large files, usage::
+issues with large files. Any logging goes to stderr to avoid messing stdout.
 
-  ./digestpath.py /path/to/file/to/digest 
+Usage::
+
+    ~/e/base/digestpath.py /path/to/file/to/digest 
+    ~/e/base/digestpath.py /data/var/scm/backup '*.tar.gz' './dayabay' 
+    ~/e/base/digestpath.py /data/var/scm/backup/dayabay '*.tar.gz' './repos/'
+    ~/e/base/digestpath.py /data/var/scm/backup/dayabay '*.tar.gz' './tracs/'
+    ~/e/base/digestpath.py /data/var/scm/backup/dayabay '*.tar.gz' './svn/'
+
+Allows subsequnt access with::
+
+    ~/e/base/digestpath.py /data/var/scm/backup/dayabay '*.tar.gz' './svn/' >  out.p
+    d = eval(file("out.p").read())
 
 http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-it-in-python
-"""
-import sys
 
+Typical usage, need to find and digest a load of tarballs and record results into a dict that 
+can be transferred and compared at other end of transfer/or at a later time 
+
+
+"""
+# dont use logging/argparse/optparse as want to stay ancient python compatible 
+import os, sys, time, stat
 try: 
     from hashlib import md5
 except ImportError: 
     from md5 import md5
 
-def digestpath( path ):
+def dnapath( path , times=False ):
+    """
+    :param path: 
+    """
+    t0 = time.time()
+    
     hash = md5()
     size = 64*128   # 8192
+    st = os.stat(path)
+    sz = st[stat.ST_SIZE]
     f = open(path,'rb') 
     for chunk in iter(lambda: f.read(size), ''): 
         hash.update(chunk)
     f.close()
-    return hash.hexdigest()
+    dig = hash.hexdigest()
+    dna = dict(dig=dig,size=sz)
+
+    t1 = time.time()
+    if times:dna['t'] = t1 - t0   ## not standardly part of dna, as will change 
+    return dna
+
+def dnatree( top, ptn , start ):
+    """
+    :param top: directory to perform find from 
+    :param ptn: find pattern eg '*.tar.gz'
+    :param start: string start for relative paths, use "." for all or "./dayabay" to restrict 
+    """ 
+    d = {}
+    cmd = "cd %(top)s ; find -name '%(ptn)s' " % locals() 
+    for line in os.popen(cmd).readlines():
+        if line.startswith(start):
+            name = line.strip()
+            path = os.path.abspath(os.path.join( top, name ))
+            d[name] = dnapath( path )
+            sys.stderr.write("%s:%s" % ( name, d[name] ) )
+    return d 
 
 if __name__ == '__main__':
-    print digestpath(sys.argv[1])
-
+    narg = len(sys.argv)
+    if narg == 2:
+        print dnapath(sys.argv[1])
+    elif narg == 4: 
+        print dnatree(*sys.argv[1:])
 

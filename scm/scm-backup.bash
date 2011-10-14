@@ -294,6 +294,8 @@ scm-backup-all(){
    scm-backup-folder $name $dir $base $stamp
    
    scm-backup-purge $LOCAL_NODE
+
+
 }
 
 
@@ -746,9 +748,17 @@ scm-backup-nightly(){
     scm-backup-all 
     
     echo
+    echo $msg $(date)  @@@ scm-backup-metadata before
+    scm-backup-metadata 
+
+    echo
     echo $msg $(date)  @@@ scm-backup-rsync  ... performing transfers that i control 
     #SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
     scm-backup-rsync  
+    
+    echo
+    echo $msg $(date)  @@@ scm-backup-metadata after
+    scm-backup-metadata 
     
     echo
     echo $msg $(date)  @@@ scm-backup-rls
@@ -817,7 +827,24 @@ scm-backup-date-diff(){
    echo $msg $d days / $h hours / $s seconds
 }
 
-
+scm-backup-metadata(){
+   #
+   # would like to write the dna output to be included in the rsync transfer 
+   # but the rsync from IHEP is done as me, without write access 
+   # ... so calc the digests in the Q controlled backup step  
+   #
+   # keep dna metadata in datestamped files 
+   #        $(scm-backup-dir)/$LOCAL_NODE/meta/20110101-034001.p 
+   #
+   local msg="=== $FUNCNAME :"
+   local stamp=$(date  +"%Y%m%d-%H%M%S")
+   local metapath=$(scm-backup-dir)/$LOCAL_NODE/meta/${stamp}.p
+   mkdir -p $(dirname $metapath) 
+   echo $msg writing to $metapath
+   $(env-home)/base/digestpath.py $(scm-backup-dir) '*.tar.gz' "./$LOCAL_NODE" > $metapath
+   echo $msg wrote the below to $metapath
+   cat $metapath
+}
 
 
 scm-backup-rsync(){
