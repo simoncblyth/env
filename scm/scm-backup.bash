@@ -258,8 +258,8 @@ scm-backup-all(){
    which python
    echo $LD_LIBRARY_PATH | tr ":" "\n"
  
-   #local typs="svn repos tracs"
-   local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
+   local typs="svn repos tracs"
+   #local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
@@ -787,6 +787,39 @@ scm-backup-rsync-dayabay-pull-from-cms01(){
     eval $cmd
 }
 
+
+
+scm-backup-date(){ date -u +"$(scm-backup-date-fmt)" ; }
+scm-backup-date-fmt(){ echo %c ; }
+scm-backup-date-conv(){
+   case $(uname) in 
+     Darwin) date -u -j -f "$(scm-backup-date-fmt)" "$1" +%s  ;; 
+      Linux) date -u -d"$1" +%s  ;; 
+          *) echo ERROR ;;
+   esac
+}
+scm-backup-date-docs(){ cat << EOD
+  Test with::
+      start=$(scm-backup-date) ; sleep 10 ; end=$(scm-backup-date) ; scm-backup-date-diff "$start" "$end"
+  Note that must quote input params with spaces eg   scm-backup-date-diff "$start" "$end" 
+EOD
+} 
+scm-backup-date-diff(){  
+   local msg="=== $FUNCNAME :"
+   local a=$(scm-backup-date-conv "$1")
+   local b=$(scm-backup-date-conv "$2")
+   local s=$(( b - a ))
+   local m=$(( $s / 60 ))
+   local h=$(( $s / 60 / 60 ))
+   local d=$(( $s / 60 / 60 / 24 ))
+   echo $msg $1 
+   echo $msg $2 
+   echo $msg $d days / $h hours / $s seconds
+}
+
+
+
+
 scm-backup-rsync(){
 
    # 
@@ -815,10 +848,15 @@ scm-backup-rsync(){
  
        ## have to skip from XX as do not have permission to ssh 
        [ $NODE_TAG != "XX" ] && ssh $tag "mkdir -p  $remote"
+
+       local starttime=$(scm-backup-date)
+       echo $msg starting transfer to tag $tag at $starttime
        echo $msg transfer $source to $tag:$remote/ 
        local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
        echo $msg $cmd
        eval $cmd
+       local endtime=$(scm-backup-date)
+       scm-backup-date-diff "$starttime" "$endtime"
 
   done 
 
