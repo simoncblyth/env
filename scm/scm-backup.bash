@@ -933,6 +933,16 @@ scm-backup-rsync(){
   
        local remote=$(scm-backup-dir $tag)
        local source=$(scm-backup-dir)/$LOCAL_NODE
+       local semaphore=$source/LOCKED/rsync-to-$tag-started-at-$(date +"%Y-%m-%d@%H:%M:%S")
+
+       if [ -d $(dirname $semaphore) ]; then 
+          echo $msg ERROR source is LOCKED by semaphore, aborting 
+          ls -alst $(dirname $semaphore)
+          return 1 
+       fi
+
+       mkdir -p $(dirname $semaphore) 
+       touch $semaphore
  
        ## have to skip from XX as do not have permission to ssh 
        [ $NODE_TAG != "XX" ] && ssh $tag "mkdir -p  $remote"
@@ -943,7 +953,11 @@ scm-backup-rsync(){
        local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
        echo $msg $cmd
        eval $cmd
-    
+
+       rm -rf $(dirname $semaphore)
+       echo $msg quick re-transfer $source to $tag:$remote/ after semaphore removal    ## shoud be very quick as almost nothing changed
+       eval $cmd
+ 
        if [ "$NODE_TAG" != "XX" ]; then 
            echo $msg invoke remote DNA check
            ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote " 
