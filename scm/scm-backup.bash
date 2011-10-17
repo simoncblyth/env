@@ -249,6 +249,8 @@ scm-backup-all(){
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=${SCM_BACKUP_TEST_FOLD:-$SCM_FOLD/backup/$LOCAL_NODE}   ## SCM_BACKUP_TEST_FOLD not standardly set, use inline for interactive checking 
 
+   echo $msg starting from pwd $PWD
+
    ## remove semaphore is set 
    env-abort-clear
  
@@ -258,24 +260,40 @@ scm-backup-all(){
    which python
    echo $LD_LIBRARY_PATH | tr ":" "\n"
  
-   local typs="svn repos tracs"
-   #local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
+   #local typs="svn repos tracs"
+   local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
        do  
            env-abort-active-  && echo $msg ABORTING via file semaphore && return 1  
            if [ -d $path ]; then 
+
                local name=$(basename $path)
                local inhibiter=$(dirname $path)/${name}-scm-recover-repo
+
                if [ -L $inhibiter ]; then
                     echo $msg INHIBIT BACKUP of recovered environment, delete the inhibiter $inhibiter to backup this environment $path
                elif [ "$LOCAL_NODE" == "cms02" -a "$typ" == "svn" ]; then
                     echo $msg SKIP BACKUP of alien environment $typ at $path on $LOCAL_NODE
+               elif [ "$name" == "LOCKED" ]; then 
+                    echo $msg ignore the LOCKED folder
+               elif [ "$name" == "dybsvn" -a "$NODE_TAG" == "C2R" ]; then 
+                    echo $msg skip the slow dybsvn whilst on C2R 
                else
+   
                     local starttime=$(scm-backup-date)
+                    local semaphore=$(dirname $path)/LOCKED/$FUNCNAME-$typ-$name-started-$(date +"%Y-%m-%d@%H:%M:%S")  
+                    local semdir=$(dirname $semaphore)     ##  NB semdir is sibling to repos/tracs dirs for safety with path such as /var/scm/tracs/LOCKED
                     echo
-                    echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD    starting $starttime
+                    echo $msg proceed to backup $typ $name $path ... $semaphore
+                    if [ -d "$semdir" ]; then 
+                        echo $msg ERROR : LOCKED by semaphore $semdir , aborting 
+                        ls -alst $semdir
+                        return 1 
+                    fi
+                    mkdir -p $semdir && touch $semaphore && echo $msg $semaphore || return 1
+
                     case $typ in 
                          tracs) scm-backup-trac $name $path $base $stamp || return $?  ;;
                      repos|svn) scm-backup-repo $name $path $base $stamp || return $?  ;;
@@ -283,7 +301,13 @@ scm-backup-all(){
                     esac  
                     local endtime=$(scm-backup-date)
                     scm-backup-date-diff "$starttime" "$endtime"
-  
+
+                    if [ "$(basename $semdir)" == "LOCKED" ]; then 
+                       rm -rf "$semdir" && echo $msg UNLOCKED $semaphore  || echo $msg FAILED to UNLOCK $semaphore
+                    else
+                       echo $msg ERROR unexpected semdir $semdir && return 1
+                    fi
+
   	       fi
            else
   		       echo $msg $typ === skip non-folder $path
@@ -907,7 +931,23 @@ scm-backup-dnachecktgzs(){
    return 0
 }
 
-
+scm-backup-is-locked(){
+   local msg="=== $FUNCNAME :" 
+   local typs="svn repos tracs"
+   local typ 
+   for typ in $typs
+   do
+      local lockd=$SCM_FOLD/$typ/LOCKED
+      if [ -d "$lockd" ]; then 
+          echo $msg ERROR $lockd
+          ls -alst $lockd
+          return 0
+      else
+          echo $msg not locked $lockd
+      fi 
+   done
+   return 1
+}
 
 
 scm-backup-rsync(){
@@ -925,12 +965,16 @@ scm-backup-rsync(){
 
    local tags=${1:-$BACKUP_TAG}   
    [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
+
+
  
    local tag 
    for tag in $tags ; do
  
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
-  
+
+       scm-backup-is-locked && echo $msg scm-backup-is-locked ABORTING && return 1 
+
        local remote=$(scm-backup-dir $tag)
        local source=$(scm-backup-dir)/$LOCAL_NODE
 
@@ -1300,7 +1344,7 @@ scm-backup-trac(){
    local base=${3:-dummy}     ## backup folder
    local stamp=${4:-dummy}  ## date stamp
    
-   echo $msg name $name path $path base $base stamp $stamp === $(datetime)
+   echo $msg name $name path $path base $base stamp $stamp === $(date)
    
    #
    #  perhaps the stamp should be above the name, and have only one stamp 
