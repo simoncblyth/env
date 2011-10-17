@@ -6,13 +6,16 @@ scm-backup-vi(){      vi $(scm-backup-source) ; }
 scm-backup-usage(){
 cat << EOU
 
+   STATE OF LOCK ADDITIONS
+       * cannot incorp the scm-backup-rsync LOCKS in the IHEP->NTU transfers due to 
+         lack of permissions 
+
 
    ISSUES WITH NEW INTEGRITY TESTS
        * SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
        * expensive 
        * temporarily take loadsa disk space ~4GB (liable to cause non-interesting problems)
 
-   
    IHEP CRON RUNNING OF THE BACKUPS ...
        changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
 
@@ -242,6 +245,64 @@ scm-backup-postfix-start(){
 }
 
 
+scm-backup-is-locked(){
+   local msg="=== $FUNCNAME :" 
+   [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0   ## yep locking is conservative
+   local lockg=$SCM_FOLD/LOCKED 
+   if [ -d "$lockg" ]; then 
+       echo $msg GLOBALLY locked 
+       ls -alst $lockg 
+       return 0  
+   fi 
+   local typs="svn repos tracs"
+   local typ 
+   for typ in $typs
+   do
+      local lockd=$SCM_FOLD/$typ/LOCKED
+      if [ -d "$lockd" ]; then 
+          echo $msg ERROR $lockd
+          ls -alst $lockd
+          return 0
+      else
+          echo $msg not locked $lockd
+      fi 
+   done
+   return 1
+}
+scm-backup-global-is-locked(){
+   local msg="=== $FUNCNAME :"
+   [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0    ## yep locking is conservative
+   if [ -d "$SCM_FOLD/LOCKED" ]; then 
+       echo $msg GLOBALLY locked
+       ls -alst "$SCM_FOLD/LOCKED" 
+       return 0 
+   fi
+   return 1
+}
+scm-backup-global-lock(){
+   local caller=$1
+   local msg="=== $FUNCNAME :"
+   [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 1
+   local meta=${caller}-started-$(date +"%Y-%m-%d@%H:%M:%S")  
+   mkdir -p $SCM_FOLD/LOCKED
+   local lock=$SCM_FOLD/LOCKED/$meta
+   touch $lock
+   echo $msg $lock
+}
+scm-backup-global-unlock(){
+   local caller=$1
+   local msg="=== $FUNCNAME :"
+   [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 1
+   if [ -d "$SCM_FOLD/LOCKED" ]; then 
+       echo $msg $caller
+       rm -rf "$SCM_FOLD/LOCKED"
+   else
+       echo $msg $caller WARNING not locked
+   fi 
+}
+
+
+
 
 scm-backup-all(){
    
@@ -250,6 +311,9 @@ scm-backup-all(){
    local base=${SCM_BACKUP_TEST_FOLD:-$SCM_FOLD/backup/$LOCAL_NODE}   ## SCM_BACKUP_TEST_FOLD not standardly set, use inline for interactive checking 
 
    echo $msg starting from pwd $PWD
+
+   scm-backup-global-is-locked && echo $msg ABORT due to global lock && return 1 
+   scm-backup-global-lock $FUNCNAME
 
    ## remove semaphore is set 
    env-abort-clear
@@ -260,8 +324,8 @@ scm-backup-all(){
    which python
    echo $LD_LIBRARY_PATH | tr ":" "\n"
  
-   #local typs="svn repos tracs"
-   local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
+   local typs="svn repos tracs"
+   #local typs="tracs"    ## TEMPORARY CHANGE WHILE DEBUGGING 
    for typ in $typs
    do
        for path in $SCM_FOLD/$typ/*
@@ -321,9 +385,9 @@ scm-backup-all(){
    local dir=$(svn-setupdir)
    local name=$(basename $dir)
    scm-backup-folder $name $dir $base $stamp
-   
    scm-backup-purge $LOCAL_NODE
 
+   scm-backup-global-unlock $FUNCNAME
 
 }
 
@@ -931,24 +995,6 @@ scm-backup-dnachecktgzs(){
    return 0
 }
 
-scm-backup-is-locked(){
-   local msg="=== $FUNCNAME :" 
-   local typs="svn repos tracs"
-   local typ 
-   for typ in $typs
-   do
-      local lockd=$SCM_FOLD/$typ/LOCKED
-      if [ -d "$lockd" ]; then 
-          echo $msg ERROR $lockd
-          ls -alst $lockd
-          return 0
-      else
-          echo $msg not locked $lockd
-      fi 
-   done
-   return 1
-}
-
 
 scm-backup-rsync(){
 
@@ -958,6 +1004,9 @@ scm-backup-rsync(){
    # 
 
    local msg="=== $FUNCNAME :" 
+   scm-backup-global-is-locked && echo $msg ABORT due to global lock && return 1 
+   scm-backup-global-lock $FUNCNAME
+
 
    ssh--
    ! ssh--agent-check && echo $msg ABORT ssh--agent-check FAILED : seems that you are not hooked up to your ssh-agent : possible NODE mischaracterization &&  ssh--envdump && return 1
@@ -965,7 +1014,6 @@ scm-backup-rsync(){
 
    local tags=${1:-$BACKUP_TAG}   
    [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
-
 
  
    local tag 
@@ -1025,6 +1073,8 @@ scm-backup-rsync(){
        scm-backup-date-diff "$starttime" "$endtime"
 
   done 
+
+  scm-backup-global-unlock $FUNCNAME
 
 }
 
