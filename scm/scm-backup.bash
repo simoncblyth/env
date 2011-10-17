@@ -933,7 +933,14 @@ scm-backup-rsync(){
   
        local remote=$(scm-backup-dir $tag)
        local source=$(scm-backup-dir)/$LOCAL_NODE
-       local semaphore=$source/LOCKED/$FUNCNAME-to-$tag-started-$(date +"%Y-%m-%d@%H:%M:%S")
+
+       local locked=LOCKED/$FUNCNAME-to-$tag-started-$(date +"%Y-%m-%d@%H:%M:%S")  
+       local semaphore
+       case $NODE_TAG in 
+         WW) semaphore=/tmp/$USER/env/$FUNCNAME/$source/$locked ;;
+          *) semaphore=$source/$locked                          ;;
+       esac 
+       ## problem with the tmp semaphore forced by lack of permissions on WW  is that it does not travel with the sync
 
        if [ -d $(dirname $semaphore) ]; then 
           echo $msg ERROR source is LOCKED by semaphore, aborting 
