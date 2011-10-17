@@ -829,7 +829,7 @@ scm-backup-date-diff(){
    local d=$(( $s / 60 / 60 / 24 ))
    echo $msg $1 
    echo $msg $2 
-   echo $msg $d days / $h hours / $s seconds
+   echo $msg $d days / $h hours / $m minutes / $s seconds
 }
 
 scm-backup-metadata(){
@@ -862,19 +862,24 @@ scm-backup-dna(){
 }
 scm-backup-dnacheck(){
    #
-   #   write .dnacheck and diff with existing .dna
+   #   write .dna to somewhere beneath /tmp (to allow checking with only readonly permissions to the tgz)
+   #    and diff with existing .dna
    #
    local tgz=$1
+   local tmpd=/tmp/$USER/env/$FUNCNAME/   
+   local tmpdna=$tmpd/$tgz.dna
+   mkdir -p $(dirname $tmpdna)
+
    local rc
    if [ -f "$tgz" -a -f "${tgz}.dna" ]; then  
-      scm-backup-dna- $tgz > $tgz.dnacheck
-      diff $tgz.dna $tgz.dnacheck
+      scm-backup-dna- $tgz > $tmpdna
+      diff $tgz.dna $tmpdna
       rc=$?
       if [ "$rc" == "0" ] ; then
-          echo $msg $tgz PASS  
-          rm -f $tgz.dnacheck        ## only remove if it passes
+          echo $msg OK $tgz  
+          rm -f $tmpdna          ## only remove if it passes
       else
-          echo $msg $tgz FAIL 
+          echo $msg FAIL $tgz  
           return $rc
       fi 
    else
@@ -883,6 +888,27 @@ scm-backup-dnacheck(){
    fi 
    return 0
 }
+
+scm-backup-dnachecktgzs(){
+   #
+   #  checks the dna of tgz found beheath the passed directory 
+   #
+   local msg=" === $FUNCNAME :"
+   local name
+   local tgz
+   find $1 -name '*.tar.gz.dna' | while read name ; do
+       tgz=${name/.dna}
+       if [ -f "$tgz" ]; then 
+           scm-backup-dnacheck $tgz 
+       else
+           echo $msg $name $tgz NO SUCH TGZ
+       fi 
+   done
+   return 0
+}
+
+
+
 
 scm-backup-rsync(){
 
@@ -1381,6 +1407,8 @@ scm-backup-folder(){
    local target_fold=$base/folders/$name/$stamp
    
    local cmd="mkdir -p $target_fold ; cd $(dirname $source_fold) ; rm -f $name.tar.gz ; tar -zcvf $name.tar.gz $(basename $source_fold)  ; cp $name.tar.gz $target_fold/ && cd $base/folders/$name && rm -f last && ln -s $stamp last "
+
+   echo $msg 
    echo $msg "$cmd"
    eval $cmd
 
