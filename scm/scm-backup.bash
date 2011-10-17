@@ -916,8 +916,6 @@ scm-backup-rsync(){
    # rsync the local backup repository to an off box mirror on the paired $BACKUP_TAG node 
    #   - have to set up ssh keys to allow non-interactive sshing 
    # 
-   #  hmm the passwordless ssh is not setup for "root" user , so have to do this as me, but the above backup as root
-   #
 
    local msg="=== $FUNCNAME :" 
 
@@ -945,6 +943,12 @@ scm-backup-rsync(){
        local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
        echo $msg $cmd
        eval $cmd
+    
+       if [ "$NODE_TAG" != "XX" ]; then 
+           echo $msg invoke remote DNA check
+           ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote " 
+       fi 
+
        local endtime=$(scm-backup-date)
        scm-backup-date-diff "$starttime" "$endtime"
 
