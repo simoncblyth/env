@@ -33,6 +33,8 @@ except ImportError:
 def dnapath( path , times=False ):
     """
     :param path: 
+
+    called by ``scm-backup-dna`` to drop the tarball `.dna` sidecars
     """
     t0 = time.time()
     

@@ -273,12 +273,17 @@ scm-backup-all(){
                elif [ "$LOCAL_NODE" == "cms02" -a "$typ" == "svn" ]; then
                     echo $msg SKIP BACKUP of alien environment $typ at $path on $LOCAL_NODE
                else
-                    echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD
+                    local starttime=$(scm-backup-date)
+                    echo
+                    echo $msg proceed to backup $typ $name $path ... inhibiter $inhibiter $PWD    starting $starttime
                     case $typ in 
                          tracs) scm-backup-trac $name $path $base $stamp || return $?  ;;
                      repos|svn) scm-backup-repo $name $path $base $stamp || return $?  ;;
                              *) echo $msg ERROR unhandled typ $typ ;;
-                    esac    
+                    esac  
+                    local endtime=$(scm-backup-date)
+                    scm-backup-date-diff "$starttime" "$endtime"
+  
   	       fi
            else
   		       echo $msg $typ === skip non-folder $path
@@ -840,12 +845,44 @@ scm-backup-metadata(){
    local stamp=$(date  +"%Y%m%d-%H%M%S")
    local metapath=$(scm-backup-dir)/$LOCAL_NODE/meta/${stamp}.p
    mkdir -p $(dirname $metapath) 
-   echo $msg writing to $metapath
-   $(env-home)/base/digestpath.py $(scm-backup-dir) '*.tar.gz' "./$LOCAL_NODE" > $metapath
-   echo $msg wrote the below to $metapath
-   cat $metapath
+   #echo $msg writing to $metapath
+   #$(env-home)/base/digestpath.py $(scm-backup-dir) '*.tar.gz' "./$LOCAL_NODE" > $metapath
+   #echo $msg wrote the below to $metapath
+   #cat $metapath
 }
 
+scm-backup-dna-(){ $(env-home)/base/digestpath.py $* ; }
+scm-backup-dna(){
+   #
+   #   write a sidecar .dna file for the tgz containing a python dict 
+   #   with the digest and size
+   #
+   local tgz=$1
+   scm-backup-dna- $tgz > $tgz.dna
+}
+scm-backup-dnacheck(){
+   #
+   #   write .dnacheck and diff with existing .dna
+   #
+   local tgz=$1
+   local rc
+   if [ -f "$tgz" -a -f "${tgz}.dna" ]; then  
+      scm-backup-dna- $tgz > $tgz.dnacheck
+      diff $tgz.dna $tgz.dnacheck
+      rc=$?
+      if [ "$rc" == "0" ] ; then
+          echo $msg $tgz PASS  
+          rm -f $tgz.dnacheck        ## only remove if it passes
+      else
+          echo $msg $tgz FAIL 
+          return $rc
+      fi 
+   else
+      echo $msg cannot perform check as no $tgz.dna 
+      return 1
+   fi 
+   return 0
+}
 
 scm-backup-rsync(){
 
@@ -1188,6 +1225,8 @@ scm-backup-repo(){
    rc=$?
    [ "$rc" != "0" ] && echo $msg tgz $tgz rev $rev integrity check failure $rc && return $rc 
    echo $msg tgz $tgz rev $rev integrity check ok 
+   
+   scm-backup-dna $tgz
 
    cd $iwd
    return 0
@@ -1203,7 +1242,7 @@ scm-backup-trac(){
    local base=${3:-dummy}     ## backup folder
    local stamp=${4:-dummy}  ## date stamp
    
-   echo $msg name $name path $path base $base stamp $stamp ===
+   echo $msg name $name path $path base $base stamp $stamp === $(datetime)
    
    #
    #  perhaps the stamp should be above the name, and have only one stamp 
@@ -1252,6 +1291,8 @@ scm-backup-trac(){
    scm-tgzcheck-trac ${name} ${tgz}
    rc=$?
    [ "$rc" != "0" ] && echo $msg trac tgzcheck failure $rc && return $rc 
+
+   scm-backup-dna $tgz
 
    cd $iwd
    return 0   
@@ -1342,6 +1383,9 @@ scm-backup-folder(){
    local cmd="mkdir -p $target_fold ; cd $(dirname $source_fold) ; rm -f $name.tar.gz ; tar -zcvf $name.tar.gz $(basename $source_fold)  ; cp $name.tar.gz $target_fold/ && cd $base/folders/$name && rm -f last && ln -s $stamp last "
    echo $msg "$cmd"
    eval $cmd
+
+   local tgz=$target_fold/$name.tar.gz
+   scm-backup-dna $tgz
  
 }
 
