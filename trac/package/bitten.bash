@@ -35,6 +35,44 @@ bitten-usage(){
 EOU
 }
 
+
+bitten-notes(){ cat << EON
+
+
+g4pb:~ blyth$ diff e/trac/patch/bitten/bitten-trac-0.11-561.patch bitten-trac-0.11-561.patch
+109,121d108
+< Index: bitten/htdocs/bitten.css
+< ===================================================================
+< --- bitten/htdocs/bitten.css  (revision 561)
+< +++ bitten/htdocs/bitten.css  (working copy)
+< @@ -60,7 +60,7 @@
+<  #content.build #charts { clear: right; float: right; width: 44%; }
+<  
+<  #content.build #builds { clear: none; margin-top: 2em; table-layout: fixed;
+< -  width: 54%;
+< +  width: 100%;
+<  }
+<  #content.build #builds tbody th, #content.build #builds tbody td {
+<    background: #fff;
+272,280d258
+< @@ -189,7 +194,7 @@
+<          body = str(xml)
+<          log.debug('Sending slave configuration: %s', body)
+<          resp = self.request('POST', self.url, body, {
+< -            'Content-Length': len(body),
+< +            'Content-Length': str(len(body)),
+<              'Content-Type': 'application/x-bitten+xml'
+<          })
+<  
+g4pb:~ blyth$ 
+
+
+EON
+
+}
+
+
+
 bitten-env(){
   elocal-
   package-
