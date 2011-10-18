@@ -7,9 +7,43 @@ scm-backup-usage(){
 cat << EOU
 
    STATE OF LOCK ADDITIONS
-       * cannot incorp the scm-backup-rsync LOCKS in the IHEP->NTU transfers due to 
-         lack of permissions 
 
+       * cannot incorp the scm-backup-rsync LOCKS in the IHEP->NTU transfers due to 
+         lack of permissions : working with Q to incorp the scm-backup-rsync into the root cron task 
+         by reviving the ssh-agent hook up 
+
+   ABOUT LOCKING : GLOBAL AND RSYNC LOCKS
+
+      * during scm-backup-all the "global" LOCKED directory $SCM_FOLD/LOCKED is created 
+      * scm-backup-rsync pays attention to this LOCKED, and will abort if present
+      * during scm-backup-rsync both the global LOCKED as described above and additional rsync LOCKED 
+        are planted in eg $SCM_FOLD/backup/cms02/LOCKED/ during each transfer to partnered remote nodes
+      * following rsync completion the rsync LOCKED is removed and a quick re-rsync is done to remove the LOCKED
+    
+     Note that the rsync LOCKED status is propagated to the remote directory during the rsync transfer, thus
+     avoiding usage during transfers.
+
+   INTEGRITY CHECKS
+
+      Locking now prevents backup/rsync/recover functions both locally and remotely from touching partials.
+      The backup procedures are purported to be hotcopy of themselves although mismatches 
+      between what gets into the trac instance backup and the svn repo backup are possible.
+      Such mismatches would not cause corruption however, probably just warnings from Trac syncing. 
+
+      The DNA check ensures that the tarball content immediately after creation corresponds 
+      precisely to the tarball at the other end of the transfers.
+
+      * scm-backup-trac 
+           * scm-tgzcheck-trac  : does a ztvf to /dev/null, extracts trac.db from tgz, dumps trac sql using sqlite3 
+           * scm-backup-dna     : writes python dict containing md5 digest and size of tgz in sidecar .dna file
+      * scm-backup-repo
+           * scm-tgzcheck-ztvf  : does a ztvf to /dev/null
+           * scm-backup-dna     : as above
+
+      * scm-backup-rsync
+           * performs remote DNA check for each paired backup node with scm-backup-dnachecktgzs : 
+             finds .tar.gz.dna and looks for mutants (by comparing sidecar DNA with recomputed)
+                
 
    ISSUES WITH NEW INTEGRITY TESTS
        * SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
@@ -806,19 +840,11 @@ scm-backup-nightly(){
     echo
     echo $msg $(date)  @@@ scm-backup-all 
     scm-backup-all 
-    
-    echo
-    echo $msg $(date)  @@@ scm-backup-metadata before
-    scm-backup-metadata 
 
     echo
     echo $msg $(date)  @@@ scm-backup-rsync  ... performing transfers that i control 
     #SCM_BACKUP_RSYNC_OPTS="--exclude=dybsvn-*.tar.gz" scm-backup-rsync  
     scm-backup-rsync  
-    
-    echo
-    echo $msg $(date)  @@@ scm-backup-metadata after
-    scm-backup-metadata 
     
     echo
     echo $msg $(date)  @@@ scm-backup-rls
@@ -894,25 +920,6 @@ scm-backup-date-diff(){
    echo $msg $1 
    echo $msg $2 
    echo $msg $d days / $h hours / $m minutes / $s seconds
-}
-
-scm-backup-metadata(){
-   #
-   # would like to write the dna output to be included in the rsync transfer 
-   # but the rsync from IHEP is done as me, without write access 
-   # ... so calc the digests in the Q controlled backup step  
-   #
-   # keep dna metadata in datestamped files 
-   #        $(scm-backup-dir)/$LOCAL_NODE/meta/20110101-034001.p 
-   #
-   local msg="=== $FUNCNAME :"
-   local stamp=$(date  +"%Y%m%d-%H%M%S")
-   local metapath=$(scm-backup-dir)/$LOCAL_NODE/meta/${stamp}.p
-   mkdir -p $(dirname $metapath) 
-   #echo $msg writing to $metapath
-   #$(env-home)/base/digestpath.py $(scm-backup-dir) '*.tar.gz' "./$LOCAL_NODE" > $metapath
-   #echo $msg wrote the below to $metapath
-   #cat $metapath
 }
 
 scm-backup-dna-(){ $(env-home)/base/digestpath.py $* ; }
