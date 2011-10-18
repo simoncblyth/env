@@ -245,25 +245,6 @@ scm-backup-postfix-start(){
 }
 
 
-scm-backup-local-is-locked(){
-   local msg="=== $FUNCNAME :" 
-   [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0   ## yep locking is conservative
-   local typs="svn repos tracs"
-   local typ 
-   for typ in $typs
-   do
-      local lockd=$SCM_FOLD/$typ/LOCKED
-      if [ -d "$lockd" ]; then 
-          echo $msg ERROR $lockd
-          ls -alst $lockd
-          return 0
-      else
-          echo $msg not locked $lockd
-      fi 
-   done
-   return 1
-}
-
 scm-backup-locked-dir(){ echo $SCM_FOLD/LOCKED ; }
 scm-backup-is-locked(){
    local msg="=== $FUNCNAME :"
@@ -426,12 +407,9 @@ scm-recover-exclude(){
 
 scm-recover-all(){
 
-
-
    local msg="=== $FUNCNAME :"
    local fromnode=$1
-   [ "$fromnode" == "" ] && echo scm-recover-all needs a fromnode  && return 1 
-  
+   [ "$fromnode" == "" ] && echo scm-recover-all needs a fromnode  && return 1   
 
    local ans
    read -p "$msg using tarballs from node $fromnode ? Enter YES to proceed " ans
@@ -451,6 +429,10 @@ scm-recover-all(){
       else
           base=$SCM_FOLD/backup/$fromnode/$type
       fi   
+
+      local lockd=$(dirname $base)/LOCKED
+      [ -d "$lockd" ] && echo $msg ABORTING as locked && ls -alst $lockd  && return 1
+
       local dest=$SCM_FOLD/$type
       local user=$(apache-user)
       
@@ -860,19 +842,28 @@ scm-backup-rsync-opts(){
 scm-backup-rsync-dayabay-pull-from-cms01(){
 
     local msg="=== $FUNCNAME :"
-    echo $msg ...  hmm potential issue ... need to check the rsync transfer from IHEP to C is completed ?
     local from="C"
     [ "$NODE_TAG" != "C2" ] && echo $msg SHOULD BE RUN FROM C2 NOT $NODE_TAG ABORTING && return 1
 
     local tag 
     local travelnode="dayabay"
     local source=$(scm-backup-dir $from)/$travelnode
+
+    local ans
+    read -p "$msg First check for $source/LOCKED on node $from ? Enter YES to proceed if no locks are in force " ans
+    [ "$ans" != "YES" ] && echo $msg ABORTing && return  1
+
     local cmd="sudo rsync -e ssh --delete-after -razvt $from:$source $(scm-backup-tdir) $(scm-backup-rsync-opts) "
     echo $msg pulling travelnode $travelnode from $from with $cmd
     [ "$from" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync pull from self  && return 1
     echo $msg $cmd
     echo $msg need local pw for sudo then sshkey pw for transfer 
     eval $cmd
+
+    # check locally for locks, just in case 
+    local lockd=$(scm-backup-tdir)/$travelnode/LOCKED
+    [ -d "$lockd" ] && echo $msg ABORT as LOCKED $lockd && ls -alst $lockd && return 1
+
 }
 
 
@@ -1038,6 +1029,7 @@ scm-backup-rsync(){
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
 
        ## NB the rsync lock is distinct from the above global lock 
+       echo 
        scm-backup-rsync-is-locked && echo $msg scm-backup-rsync ABORTING as locked  && return 1 
        scm-backup-rsync-lock ${FUNCNAME}-starting-to-$tag
 
@@ -1057,6 +1049,7 @@ scm-backup-rsync(){
        scm-backup-rsync-unlock ${FUNCNAME}-finished-to-$tag
 
        echo $msg quick re-transfer $source to $tag:$remote/ after unlock ## shoud be very quick as should be just removing the remote LOCKED dir
+       echo $msg $cmd
        eval $cmd
  
        if [ "$NODE_TAG" == "XX"  ]; then 
