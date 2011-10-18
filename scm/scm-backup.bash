@@ -245,15 +245,9 @@ scm-backup-postfix-start(){
 }
 
 
-scm-backup-is-locked(){
+scm-backup-local-is-locked(){
    local msg="=== $FUNCNAME :" 
    [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0   ## yep locking is conservative
-   local lockg=$SCM_FOLD/LOCKED 
-   if [ -d "$lockg" ]; then 
-       echo $msg GLOBALLY locked 
-       ls -alst $lockg 
-       return 0  
-   fi 
    local typs="svn repos tracs"
    local typ 
    for typ in $typs
@@ -269,7 +263,9 @@ scm-backup-is-locked(){
    done
    return 1
 }
-scm-backup-global-is-locked(){
+
+scm-backup-locked-dir(){ echo $SCM_FOLD/LOCKED ; }
+scm-backup-is-locked(){
    local msg="=== $FUNCNAME :"
    [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0    ## yep locking is conservative
    if [ -d "$SCM_FOLD/LOCKED" ]; then 
@@ -279,7 +275,7 @@ scm-backup-global-is-locked(){
    fi
    return 1
 }
-scm-backup-global-lock(){
+scm-backup-lock(){
    local caller=$1
    local msg="=== $FUNCNAME :"
    [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 1
@@ -289,7 +285,7 @@ scm-backup-global-lock(){
    touch $lock
    echo $msg $lock
 }
-scm-backup-global-unlock(){
+scm-backup-unlock(){
    local caller=$1
    local msg="=== $FUNCNAME :"
    [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 1
@@ -312,8 +308,8 @@ scm-backup-all(){
 
    echo $msg starting from pwd $PWD
 
-   scm-backup-global-is-locked && echo $msg ABORT due to global lock && return 1 
-   scm-backup-global-lock $FUNCNAME
+   scm-backup-is-locked && echo $msg ABORT due to lock && return 1 
+   scm-backup-lock $FUNCNAME
 
    ## remove semaphore is set 
    env-abort-clear
@@ -340,23 +336,14 @@ scm-backup-all(){
                     echo $msg INHIBIT BACKUP of recovered environment, delete the inhibiter $inhibiter to backup this environment $path
                elif [ "$LOCAL_NODE" == "cms02" -a "$typ" == "svn" ]; then
                     echo $msg SKIP BACKUP of alien environment $typ at $path on $LOCAL_NODE
-               elif [ "$name" == "LOCKED" ]; then 
-                    echo $msg ignore the LOCKED folder
                elif [ "$name" == "dybsvn" -a "$NODE_TAG" == "C2R" ]; then 
                     echo $msg skip the slow dybsvn whilst on C2R 
                else
    
                     local starttime=$(scm-backup-date)
-                    local semaphore=$(dirname $path)/LOCKED/$FUNCNAME-$typ-$name-started-$(date +"%Y-%m-%d@%H:%M:%S")  
-                    local semdir=$(dirname $semaphore)     ##  NB semdir is sibling to repos/tracs dirs for safety with path such as /var/scm/tracs/LOCKED
-                    echo
-                    echo $msg proceed to backup $typ $name $path ... $semaphore
-                    if [ -d "$semdir" ]; then 
-                        echo $msg ERROR : LOCKED by semaphore $semdir , aborting 
-                        ls -alst $semdir
-                        return 1 
-                    fi
-                    mkdir -p $semdir && touch $semaphore && echo $msg $semaphore || return 1
+                    local progress=$(scm-backup-locked-dir)/$FUNCNAME-$typ-$name-started-$(date +"%Y-%m-%d@%H:%M:%S")  
+                    [ ! -d "$(dirname $progress)" ] && echo $msg ABORT no dir for $progress && return 1
+                    touch $progress
 
                     case $typ in 
                          tracs) scm-backup-trac $name $path $base $stamp || return $?  ;;
@@ -365,12 +352,10 @@ scm-backup-all(){
                     esac  
                     local endtime=$(scm-backup-date)
                     scm-backup-date-diff "$starttime" "$endtime"
-
-                    if [ "$(basename $semdir)" == "LOCKED" ]; then 
-                       rm -rf "$semdir" && echo $msg UNLOCKED $semaphore  || echo $msg FAILED to UNLOCK $semaphore
-                    else
-                       echo $msg ERROR unexpected semdir $semdir && return 1
-                    fi
+                    
+                    progress=$(scm-backup-locked-dir)/$FUNCNAME-$typ-$name-completed-$(date +"%Y-%m-%d@%H:%M:%S")  
+                    [ ! -d "$(dirname $progress)" ] && echo $msg ABORT no dir for $progress && return 1
+                    touch $progress
 
   	       fi
            else
@@ -387,7 +372,7 @@ scm-backup-all(){
    scm-backup-folder $name $dir $base $stamp
    scm-backup-purge $LOCAL_NODE
 
-   scm-backup-global-unlock $FUNCNAME
+   scm-backup-unlock $FUNCNAME
 
 }
 
@@ -996,6 +981,40 @@ scm-backup-dnachecktgzs(){
 }
 
 
+
+
+## tmpfold semaphoring us no use, as locks must travel with the rsync 
+scm-backup-rsync-locked-dir(){ echo $(scm-backup-dir)/$LOCAL_NODE/LOCKED ; }
+scm-backup-rsync-is-locked(){
+   local msg="=== $FUNCNAME :" 
+   local lockd=$(scm-backup-rsync-locked-dir)
+   if [ -d "$lockd" ]; then
+       echo $msg ERROR IS LOCKED 
+       ls -alst $lockd
+       return 0
+   fi
+   return 1
+}
+scm-backup-rsync-lock(){
+   local msg="=== $FUNCNAME :" 
+   local label=$1
+   local lockd=$(scm-backup-rsync-locked-dir)
+   local lock=$lockd/${label}-started-$(date +"%Y-%m-%d@%H:%M:%S")  
+   mkdir -p "$lockd" 
+   touch $lock
+   echo $msg LOCKING $lock
+   ls -alst $lockd
+}
+scm-backup-rsync-unlock(){
+   local msg="=== $FUNCNAME :" 
+   local lockd=$(scm-backup-rsync-locked-dir)
+   echo $msg UNLOCKING $lockd
+   ls -alst $lockd
+   [ "$(basename $lockd)" != "LOCKED" ] && echo $msg SANITY CHECK FAILS for lockd $lockd && return 1
+   rm -rf "$lockd"
+}
+
+
 scm-backup-rsync(){
 
    # 
@@ -1004,47 +1023,27 @@ scm-backup-rsync(){
    # 
 
    local msg="=== $FUNCNAME :" 
-   scm-backup-global-is-locked && echo $msg ABORT due to global lock && return 1 
-   scm-backup-global-lock $FUNCNAME
-
+   scm-backup-is-locked && echo $msg ABORT due to lock && return 1 
+   scm-backup-lock $FUNCNAME
 
    ssh--
    ! ssh--agent-check && echo $msg ABORT ssh--agent-check FAILED : seems that you are not hooked up to your ssh-agent : possible NODE mischaracterization &&  ssh--envdump && return 1
 
-
    local tags=${1:-$BACKUP_TAG}   
    [ -z "$tags" ] && echo $msg ABORT no backup node\(s\) for NODE_TAG $NODE_TAG see base/local.bash::local-backup-tag && return 1
 
- 
    local tag 
    for tag in $tags ; do
  
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
 
-       scm-backup-is-locked && echo $msg scm-backup-is-locked ABORTING && return 1 
+       ## NB the rsync lock is distinct from the above global lock 
+       scm-backup-rsync-is-locked && echo $msg scm-backup-rsync ABORTING as locked  && return 1 
+       scm-backup-rsync-lock ${FUNCNAME}-starting-to-$tag
 
        local remote=$(scm-backup-dir $tag)
        local source=$(scm-backup-dir)/$LOCAL_NODE
 
-       local locked=LOCKED/$FUNCNAME-to-$tag-started-$(date +"%Y-%m-%d@%H:%M:%S")  
-       local semaphore
-       case $NODE_TAG in 
-         WW) semaphore=/tmp/$USER/env/$FUNCNAME/$source/$locked ;;
-          *) semaphore=$source/$locked                          ;;
-       esac 
-       ## problem with the tmp semaphore forced by lack of permissions on WW  is that it does not travel with the sync
-
-       if [ -d $(dirname $semaphore) ]; then 
-          echo $msg ERROR source is LOCKED by semaphore, aborting 
-          ls -alst $(dirname $semaphore)
-          return 1 
-       fi
-
-       mkdir -p $(dirname $semaphore) 
-       touch $semaphore
-       echo $msg LOCKED $semaphore 
-       ls -alst $(dirname $semaphore)
- 
        ## have to skip from XX as do not have permission to ssh 
        [ $NODE_TAG != "XX" ] && ssh $tag "mkdir -p  $remote"
 
@@ -1055,9 +1054,9 @@ scm-backup-rsync(){
        echo $msg $cmd
        eval $cmd
 
-       echo $msg UNLOCKED $semaphore 
-       rm -rf $(dirname $semaphore)
-       echo $msg quick re-transfer $source to $tag:$remote/ after semaphore removal    ## shoud be very quick as should be just removing the remote LOCKED dir
+       scm-backup-rsync-unlock ${FUNCNAME}-finished-to-$tag
+
+       echo $msg quick re-transfer $source to $tag:$remote/ after unlock ## shoud be very quick as should be just removing the remote LOCKED dir
        eval $cmd
  
        if [ "$NODE_TAG" == "XX"  ]; then 
@@ -1071,11 +1070,9 @@ scm-backup-rsync(){
 
        local endtime=$(scm-backup-date)
        scm-backup-date-diff "$starttime" "$endtime"
-
   done 
 
-  scm-backup-global-unlock $FUNCNAME
-
+  scm-backup-unlock $FUNCNAME
 }
 
 
