@@ -44,6 +44,18 @@ cat << EOU
            * performs remote DNA check for each paired backup node with scm-backup-dnachecktgzs : 
              finds .tar.gz.dna and looks for mutants (by comparing sidecar DNA with recomputed)
                 
+    DURING AN RSYNC TRANSFER, BOTH SIZE AND DIGEST DIFFER 
+
+         [dayabay] /home/blyth/env > ~/e/base/digestpath.py  /home/scm/backup/dayabay/svn/dybaux/2011/10/19/100802/dybaux-5086.tar.gz
+         {'dig': '7b87e78cc03ea544e2ad3abae46eecd1', 'size': 1915051630L}
+
+         [blyth@cms01 ~]$  ~/e/base/digestpath.py  /data/var/scm/backup/dayabay/svn/dybaux/2011/10/18/100802/dybaux-5083.tar.gz
+         {'dig': 'da39aee61a748602a15c98e3db25d008', 'size': 1915004348L}
+
+         [blyth@cms01 ~]$  ~/e/base/digestpath.py  /data/var/scm/backup/dayabay/svn/dybaux/2011/10/18/100802/dybaux-5083.tar.gz
+         {'dig': 'da39aee61a748602a15c98e3db25d008', 'size': 1915004348L}
+                       sometime later, there is no change : transfer stalled  ?
+
 
    ISSUES WITH NEW INTEGRITY TESTS
        * SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
@@ -1063,8 +1075,9 @@ scm-backup-rsync(){
            echo $msg skip remote DNA check as lack ssh permissions
        else
            case $tag in 
-             H1)  echo $msg skip invoke remote DNA check ;;
-              *)  echo $msg remote DNA check && ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
+               H1)  echo $msg skip invoke remote DNA check to destination $tag  ;;
+                S)  echo $msg skip invoke remote DNA check to destination $tag  ;;
+                *)  echo $msg remote DNA check && ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
            esac
        fi 
 

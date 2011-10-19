@@ -1,3 +1,17 @@
+ipython-src(){ echo python/ipython.bash ; }
+ipython-source(){  echo $(env-home)/$(ipython-src) ; }
+ipython-vi(){      vi $(ipython-source) ; }
+
+ipython-usage(){ cat << EOU
+
+  Good intro to pylab/numpy/ipython etc...
+     http://conference.scipy.org/scipy2010/tutorials.html
+
+
+
+
+EOU
+}
 
 
 ipython-env(){
