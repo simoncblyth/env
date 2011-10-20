@@ -7,8 +7,8 @@
      will become the subject of the message, and provide the 
      recipient email address as the first argumemnt
 """
- 
-def sendmail( lines , to , fr="me@localhost" ):
+import os 
+def sendmail( lines , to , fr=os.environ.get('FROM',"me@localhost") ):
     """
          the first line is used as the subject of the message
          
