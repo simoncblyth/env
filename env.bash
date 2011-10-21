@@ -922,3 +922,4 @@ scr-(){      . $(env-home)/offline/scr.bash && scr-env $* ; }
 drush-(){      . $(env-home)/drush/drush.bash && drush-env $* ; }
 videola-(){  . $(env-home)/videola/videola.bash && videola-env $* ; }
 mediamosa-(){      . $(env-home)/mediamosa/mediamosa.bash && mediamosa-env $* ; }
+tcpdump-(){      . $(env-home)/base/tcpdump.bash && tcpdump-env $* ; }
