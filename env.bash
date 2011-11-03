@@ -1,5 +1,6 @@
 
-# dummy minor commit to test bitten/queue
+# dummy minor commit to test bitten/queue  
+#
 
 env-home(){     [ -n "$BASH_SOURCE" ] && [ "${BASH_SOURCE:0:1}" != "." ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 env-source(){   echo $(env-home)/env.bash ; }
