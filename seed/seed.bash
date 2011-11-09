@@ -5,8 +5,9 @@ seed(){
    local iwd=$(pwd)
    cd $ENV_HOME/seed
    
+   local src=seed.cc
    local exe=${CMTBIN}-seed
-   [ -f "$exe" ] || g++ -o $exe seed.cc
+   [ $src -nt $exe ] && echo recompiling $src &&  g++ -o $exe $src 
    ./$exe
 
    cd $iwd
