@@ -7,17 +7,20 @@ using std::endl ;
 #include <string>  
 #include <vector>  
 #include <iomanip>  
+#include <map>  
 
 long getseed(  long hostID , long runID , long evtID );
 void strip(std::string& str );
 
 void test_seed();
 void test_strip();
+void test_map();
 
 int main(int argc,char** argv)
 {
    //test_seed();
-   test_strip();
+   //test_strip();
+   test_map();
 }
 
 
@@ -30,6 +33,34 @@ void test_seed()
        long seed = getseed( hostID , runID , evtID );  
        cout << "run:" << runID << " evt:" << evtID << " host:" << hostID << " seed:" << seed << endl ; 
     }
+}
+
+
+void test_map()
+{
+   typedef std::map<std::string,std::string> stringmap_t  ;
+   stringmap_t m ;
+
+   m["a"] = "1" ; 
+   m["b"] = "2" ; 
+   m["c"] = "3" ; 
+   m["d"] = "4" ; 
+   m["e"] = "6" ; 
+
+   m["CableMap"] = "2011-11-11 00:01:00" ; 
+   m["Cable*"]   = "2012-11-11 00:01:00" ; 
+   m["Cabl*"]    = "2013-11-11 00:01:00" ; 
+   m["*"]        = "2014-11-11 00:01:00" ; 
+
+  stringmap_t::const_reverse_iterator itr = m.rbegin(); 
+  stringmap_t::const_reverse_iterator end = m.rend();
+ 
+  for (; itr != end; ++itr){
+       const std::string& key = itr->first ;
+       const std::string& val = itr->second ;
+       cout << std::setw(30) << key << " : " << val << endl ;
+  }
+
 }
 
 

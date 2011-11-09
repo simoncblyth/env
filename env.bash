@@ -303,7 +303,7 @@ ipython-(){     . $(env-home)/python/ipython.bash && ipython-env $* ; }
 
 
 
-seed-(){        . $(env-home)/seed/seed.bash && seed-env $* ; }
+cpprun-(){      . $(env-home)/cpprun/cpprun.bash && cpprun-env $* ; }
 macros-(){      . $(env-home)/macros/macros.bash && macros-env $* ; }
 offline-(){     . $(env-home)/offline/offline.bash && offline-env $* ; }
 
