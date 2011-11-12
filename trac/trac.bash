@@ -433,6 +433,7 @@ trac-admin-sqlite-check(){
      "sqlite_version_string:3.3.16 have_pysqlite:2") echo $msg OK $v   ;;
      "sqlite_version_string:3.3.6 have_pysqlite:2") echo $msg MAYBE OK $v ON N WITH SYSTEM python ;;
      "sqlite_version_string:3.4.0 have_pysqlite:2" ) echo $msg OK $v ... apples sqlite3 ;;
+     "sqlite_version_string:3.7.5 have_pysqlite:2" ) echo $msg UNKNOWN  ;;
                                                   *) echo $msg ABORT non-supported sqlite/pysqlite version $v ... see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 1 ;;  
    esac
 }

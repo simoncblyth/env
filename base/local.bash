@@ -2,6 +2,7 @@
 local-src(){    echo base/local.bash ; }
 local-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(local-src)} ; }
 local-vi(){     vi $(local-source) ; }
+local-systail(){ sudo tail -f  /var/log/system.log ; }
 local-usage(){
 
 cat << EOU
@@ -455,6 +456,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
         C) echo /data/var ;;
         S) echo /data/var ;;
         H) echo /data/var ;;
+      A|B) echo /volume1/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
         *) echo  /var ;; 

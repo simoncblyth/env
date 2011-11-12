@@ -361,6 +361,8 @@ scm-backup-all(){
 
                if [ -L $inhibiter ]; then
                     echo $msg INHIBIT BACKUP of recovered environment, delete the inhibiter $inhibiter to backup this environment $path
+               elif [ "$name" == "LOCKED" ]; then
+                    echo $msg IGNORE THE LOCKED FOLDER
                elif [ "$LOCAL_NODE" == "cms02" -a "$typ" == "svn" ]; then
                     echo $msg SKIP BACKUP of alien environment $typ at $path on $LOCAL_NODE
                elif [ "$name" == "dybsvn" -a "$NODE_TAG" == "C2R" ]; then 
