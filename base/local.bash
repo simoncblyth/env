@@ -193,7 +193,7 @@ local-tag2user(){
   case ${1:-$NODE_TAG} in
     SC2|S2|S) echo dayabayscp ;;
  H1|C|H|N|C2) echo blyth ;;
-           A) echo aberdeen ;;
+          AB) echo aberdeen ;;
           AR) echo root ;;
          C2R) echo root ;;
            X) echo exist ;;
@@ -208,7 +208,7 @@ local-tag2user(){
 local-scponly-tags(){   echo S SC2 S2 ; }
 local-tags(){
    case ${1:-$NODE_TAG} in 
-           G) echo M A AR N NE I B C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
+           G) echo M AB AR N NE I BNL C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
            *) local-backup-tag ;;
    esac
 }
@@ -216,7 +216,7 @@ local-tags(){
 
 local-tag2ip(){
   case ${1:-$NODE_TAG} in
-        A|AR) echo aberdeentunnel.dyndns.org ;;
+       AB|AR) echo aberdeentunnel.dyndns.org ;;
          C|S) echo 140.112.101.190 ;; 
   C2|SC2|C2R) echo 140.112.101.191 ;;
      S2|G1|P) echo 140.112.102.250 ;;
@@ -227,7 +227,7 @@ local-tag2ip(){
        #    I) echo lxslc05.ihep.ac.cn ;;  lxslc05 needs klog and has flaky xauth 
            I) echo lxslc21.ihep.ac.cn ;;
           II) echo 140.112.101.199 ;;
-           B) echo gateway.phy.bnl.gov ;;
+         BNL) echo gateway.phy.bnl.gov ;;
          H|X) echo 140.112.101.48 ;;
           H1) echo 140.112.101.41 ;;
            G) echo 140.112.102.77 ;;
@@ -324,7 +324,7 @@ local-sudo(){
 
 local-backup-tag(){
    case ${1:-$NODE_TAG} in 
-      G) echo G3 ;;
+      G) echo A ;;
       H) echo C  ;;
       C) echo H1 C2 P H ;;
  C2|C2R) echo  C N H1 ;;    ## exclude P as cannot get to work see #262 exclude H as out of space

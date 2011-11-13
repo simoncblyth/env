@@ -531,9 +531,8 @@ env-rsync-all-(){
 }
 
 
-env-path(){
-   echo $PATH | tr ":" "\n"
-}
+env-path(){   echo $PATH | tr ":" "\n" ; }
+env-pathpl(){ echo $PATH | perl -pe 's,:,\n,g' - ;  }
 
 env-notpath-(){ echo $PATH | grep -v $1 - > /dev/null  ; }
 env-inpath-(){  echo $PATH | grep    $1 - > /dev/null  ; }

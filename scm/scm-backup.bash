@@ -1079,6 +1079,7 @@ scm-backup-rsync(){
            case $tag in 
                H1)  echo $msg skip invoke remote DNA check to destination $tag  ;;
                 S)  echo $msg skip invoke remote DNA check to destination $tag  ;;
+               G3)  echo $msg remote DNA check && ssh $tag "export ENV_HOME=~/env ; . ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
                 *)  echo $msg remote DNA check && ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
            esac
        fi 

@@ -25,6 +25,17 @@ sshconf-usage(){
               each needs a 
                    local-tag2node M : $(local-tag2node M)
                    local-tag2ip   M : $(local-tag2ip M) 
+
+
+
+  SSH connections to some nodes (eg C), do not stay alive 
+  ... possible config fixes:
+
+    ServerAliveInterval 30
+    ServerAliveCountMax 4
+    TCPKeepAlive
+
+
 EOU
 
 }
