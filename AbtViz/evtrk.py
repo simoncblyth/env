@@ -2,9 +2,9 @@ import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
 import os
 import math 
-
 from ROOT import kTRUE, kFALSE
 
+#counter = 0
 
 class EvTrk(list):
     def __init__(self):
@@ -21,19 +21,19 @@ class EvTrk(list):
 	for i in range(len(self)):
 	    k = self.pop()
             k.Destroy()
-
+        
     def update(self, allft, xysc=0.1 ):
 
 	ntrk = allft.GetNTrack()
-	zs = [150,0,-150]
+	zs = [-150,0,150]
 
 	count = 0
 	while (count < ntrk):
 	    ft = allft.Get(count)
 	    l = self._line()
-            for z in zs: 
+            for z in zs:    
                 l.SetNextPoint(ft.X().At((z+118.7)*10)*xysc,ft.Y().At((z+118.7)*10)*xysc, z )
-            
+        
 	    if (count == 0):
 		l.SetMainColor(ROOT.kRed)
 		l.SetLineStyle(9)
@@ -61,5 +61,4 @@ if __name__=='__main__':
     trk = EvTrk()
     trk.update( [[1,1,1],[2,2,2],[3,3,3]])
     ROOT.gEve.Redraw3D(kTRUE)
-
 

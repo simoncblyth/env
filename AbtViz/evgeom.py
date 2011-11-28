@@ -78,7 +78,6 @@ class EvGeom:
 
 
 
-
 if __name__=='__main__':
     ROOT.PyGUIThread.finishSchedule()
     eg = EvGeom()
@@ -93,4 +92,3 @@ if __name__=='__main__':
     eg.create_hitmap()
     
     ROOT.gEve.Redraw3D(kTRUE)
-    

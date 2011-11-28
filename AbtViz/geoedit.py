@@ -69,7 +69,7 @@ class VolEditor:
        tco = d.get('color', None )
        if tco:
            print "setting color of %s to %s " % ( tgv , tco )
-           tgv.SetLineColor(tco)
+           tgv.SetLineColor(col)
        else:
            print "no color for %s " % d 
 

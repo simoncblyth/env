@@ -1,7 +1,10 @@
 import os
-
+import threading
+from ROOT import *
 import ROOT
 ROOT.PyConfig.GUIThreadScheduleOnce += [ ROOT.TEveManager.Create ]
+global ref
+
 
 """
         Messages from the C++ side such as
@@ -24,6 +27,7 @@ class Enum(list):
             setattr(self, name, value)
     def __call__(self, value ):
         return [name for v, name in enumerate(self) if value == v][0] 
+
 
 
 class EvGui(ROOT.TQObject):
@@ -71,11 +75,11 @@ class EvGui(ROOT.TQObject):
         ROOT.gEve.GetBrowser().SetStatusText("",1) 
 
         self.keyhandler = ROOT.KeyHandler( br )
-       
+        self.br = br 
         self.menu = Enum("kOnline kOffline")
         self.add_navmenu( fToolbarFrame )
 
-        self.butt = Enum("kPrev kNext kFirst kLast kRefresh")
+        self.butt = Enum("kPrev kNext kFirst kLast kRefresh kStop kOpenFile")
         self.add_buttons( fToolbarFrame )
 
 	self.add_numberEntry( fToolbarFrame )
@@ -245,7 +249,7 @@ class EvGui(ROOT.TQObject):
         tab.SetTab( name )
         
         te = ROOT.TGTextEntry( it , "enter message here" )
-        it.AddFrame( te , ROOT.TGLayoutHints(ROOT.kLHintsExpandX , 5, 5, 2, 2)) 
+        it.AddFrame( te , ROOT.TGLayoutHints(ROOT.kLHintsExpandX , 2, 2, 2, 2)) 
         self.msg_entry_dispatch = ROOT.TPyDispatcher( self.do_msg_entry )
         te.Connect(  "ReturnPressed()", "TPyDispatcher", self.msg_entry_dispatch, "Dispatch()" )
         
@@ -306,7 +310,7 @@ class EvGui(ROOT.TQObject):
 	    ROOT.gEve.GetBrowser().SetStatusText("",1)
         elif eid == self.menu.kOffline :
 	    #FileBrowser = ROOT.gEve.GetBrowser().MakeFileBrowser()
- 	    offline = "$ABERDEEN_HOME/DataModel/sample/run00027_mc_interim.root"
+ 	    offline = "/home/user/data/TunnelData/V8/root/run02570.root"
 	    g_.SetSource( offline )
 	    g_.RefreshSource()
 	    ROOT.gEve.GetBrowser().SetStatusText("Offline",0)
@@ -326,29 +330,57 @@ class EvGui(ROOT.TQObject):
             frame.AddFrame( button ,  fLH0 )
 
     def handleButtons(self):
+        global ref
+        ref = 0
+        class Mythread(threading.Thread):
+            def __init__(self, func, args):
+                threading.Thread.__init__(self)
+                self.func = func
+                self.args=args
+            def run(self):
+                apply(self.func,self.args)
+        
         obj = ROOT.BindObject( ROOT.gTQSender, ROOT.TGTextButton )
         wid = obj.WidgetId()
         from ROOT import g_ 
-
-        if   wid == self.butt.kNext:
+        
+#        if   wid == self.butt.kNext:i
+        def openfile():
+            from ROOT import TGFileDialog,TGFileInfo,gClient
+            fi = TGFileInfo()
+            TGFileDialog(gClient.GetDefaultRoot(),self.br,ROOT.kFDOpen,fi)
+            print fi
+        def SearchN():
 	    self.selectionflag = 1
 	    g_.NextEntry()
-	    
-	    while self.condition==0 and int(g_.GetEntry()) < int(g_.GetEntryMax()) :
+	    while self.condition==0 and int(g_.GetEntry()) < int(g_.GetEntryMax()) and ref==0:
 		g_.NextEntry()
 	    self.selectionflag = 0
-	    
+      
+        def SearchP():
+            self.selectionflag = 1
+            g_.PrevEntry()
+            while self.condition ==0 and int(g_.GetEntry()) > int(g_.GetEntryMin()) and ref ==0:
+                g_.PrevEntry()
+            self.selectionflag = 0
+
+        if wid == self.butt.kNext:
+            t = Mythread(SearchN,()) 
+            t.setDaemon(True)
+            t.start() 
+
         elif wid == self.butt.kPrev:
-	    self.selectionflag = 1
-	    g_.PrevEntry()
-	    
-	    while self.condition==0 and int(g_.GetEntry()) > int(g_.GetEntryMin()) :
-		g_.PrevEntry()
-	    self.selectionflag = 0
-	    
+	    t = Mythread(SearchP,())
+            t.setDaemon(True)
+            t.start() 
 	elif wid == self.butt.kFirst:	g_.FirstEntry()
         elif wid == self.butt.kLast:	g_.LastEntry()
         elif wid == self.butt.kRefresh:	g_.RefreshSource()
+        elif wid == self.butt.kStop: 
+            ref = 1        
+        elif wid == self.butt.kOpenFile:
+            MyMainFrame(ROOT.gClient.GetRoot(),250,250)
+ 
         else:
             name = self.butt(wid)
             print "handleButtons ?... %s %s " % ( obj , name )
@@ -363,6 +395,55 @@ class EvGui(ROOT.TQObject):
     def handleNumberEntry(self):
 	from ROOT import g_	
 	g_.SetEntry(self.fNumber.GetNumberEntry().GetIntNumber())
+
+
+#create a new frame for opening a new abt root file
+class MyMainFrame(TGMainFrame):
+    def __init__(self,parent,width,height):
+        TGMainFrame.__init__(self,parent,width,height)
+
+        self.FiName=TGCompositeFrame(self ,170,40,kHorizontalFrame | kFixedWidth)
+        self.AddFrame(self.FiName, TGLayoutHints(kLHintsCenterX | 2, 2, 5, 1) )
+
+
+        self.FName = TGLabel(self.FiName, "FileName:")
+        self.FiName.AddFrame(self.FName,TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX))
+        self.te = TGTextEntry(self.FiName)
+        self.openDispatch = TPyDispatcher( self.OpenFile )
+        self.te.Connect("ReturnPressed()", "TPyDispatcher", self.openDispatch,"Dispatch()")
+
+        self.FiName.AddFrame(self.te,TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX))
+
+        self.actframe=TGCompositeFrame(self,170,40,kHorizontalFrame | kFixedWidth)
+        self.AddFrame(self.actframe, TGLayoutHints(kLHintsCenterX | 2, 2, 5, 1) )
+
+        self.open = TGTextButton(self.actframe, "Open")
+        self.open.Connect("Clicked()", "TPyDispatcher", self.openDispatch,"Dispatch()")
+        self.actframe.AddFrame(self.open, TGLayoutHints(kLHintsTop | kLHintsExpandX, 3, 2, 2, 2))
+
+
+        self.exit = TGTextButton(self.actframe, "&Exit")
+        self.deleteDispatch =  TPyDispatcher( self.DeleteWindow )
+        self.exit.Connect("Clicked()", "TPyDispatcher", self.deleteDispatch, "Dispatch()")
+        self.actframe.AddFrame(self.exit, TGLayoutHints(kLHintsTop | kLHintsExpandX, 3, 2, 2, 2))
+
+         
+
+        self.Layout()
+        self.SetCleanup(kDeepCleanup)
+        self.SetWindowName("Open rootfile")
+        self.MapSubwindows()
+        self.Resize( self.GetDefaultSize() )
+        self.MapWindow()
+
+    def OpenFile(self):
+        
+        offline = "/home/user/data/TunnelData/V8/root/%s.root"%(self.te.GetText())
+        print offline
+        g_.SetSource( offline )
+        g_.RefreshSource()
+        ROOT.gEve.GetBrowser().SetStatusText("Offline",0)
+    
 
 
 if __name__=='__main__':

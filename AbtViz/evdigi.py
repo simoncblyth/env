@@ -41,7 +41,7 @@ class PMTDigi:
         lineset.SetElementTitle(self.name)   ## used as tooltip   
         pos = self.pos
         end = self.end
-        lineset.AddLine(pos.fX, pos.fY, pos.fZ, end.fX, end.fY, end.fZ)
+        lineset.AddLine( pos.fX, pos.fY, pos.fZ, end.fX, end.fY, end.fZ)
         tlines = lineset.RefMainTrans()
         tlines.SetPos(*self.offset)
         return lineset

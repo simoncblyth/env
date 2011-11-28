@@ -27,7 +27,7 @@ class VolMatcher(Matcher):
  		( 'L2'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(3[2-9]|4[0-1]))$")          	, { 'color':kYellow }  ),  
                	( 'L3'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(4[8-9]|5[0-7]))$")     	, { 'color':kPink   }  ),
                	( 'L6'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(6[4-9]|7[0-3]))$")    , { 'color':kTeal   }  ),
-               	#( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(14[3-9]|15[0-7]))$")      , { 'color':kSpring }  ),
+#               	( 'L5'        , re.compile("(?P<all>1m_Plastic_Scintillator_log_(14[3-9]|15[0-7]))$")      , { 'color':kSpring }  ),
 		( 'L5'        , re.compile("(?P<all>1.5m_Plastic_Scintillator_log_(8[0-9]|9[0-3]))$")           	, { 'color':kRed    }  ),
 #   
                ( 'FILM'      , re.compile("(?P<all>(?P<pos>top|bot)_film_log_([0-1]))$")             , { 'color':kViolet } ),
