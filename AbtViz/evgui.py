@@ -76,8 +76,8 @@ class EvGui(ROOT.TQObject):
 
         self.keyhandler = ROOT.KeyHandler( br )
         self.br = br 
-        self.menu = Enum("kOnline kOffline")
-        self.add_navmenu( fToolbarFrame )
+#        self.menu = Enum("kOnline kOffline")
+#        self.add_navmenu( fToolbarFrame )
 
         self.butt = Enum("kPrev kNext kFirst kLast kRefresh kStop kOpenFile")
         self.add_buttons( fToolbarFrame )
@@ -275,49 +275,49 @@ class EvGui(ROOT.TQObject):
         tv.ShowBottom()
         #tvt = tv.GetText()  # TGText 
   
-  
-    def add_navmenu(self, frame ):
-        """
-          Based on $ROOTSYS/gui/gui/src/TRootBrowser.cxx
-          which TEveBrowser inherits from 
-
-        """
-        fLH1 = ROOT.TGLayoutHints(ROOT.kLHintsTop | ROOT.kLHintsLeft, 0, 4, 0, 0)
-        fLH2 = ROOT.TGLayoutHints(ROOT.kLHintsTop | ROOT.kLHintsExpandX, 1, 1, 1, 3)
     
-        fMenuBar = ROOT.TGMenuBar( frame , 10, 10, ROOT.kHorizontalFrame)
-   
-        fNavMenu = ROOT.TGPopupMenu(ROOT.gClient.GetDefaultRoot())
-        for value, name in enumerate(self.menu):
-            fNavMenu.AddEntry( name[1:] , value )
+#    def add_navmenu(self, frame ):
+#        """
+#          Based on $ROOTSYS/gui/gui/src/TRootBrowser.cxx
+#          which TEveBrowser inherits from 
 
-        self._handleNavMenu  = ROOT.TPyDispatcher( self.handleNavMenu  )
-        fNavMenu.Connect("Activated(Int_t)", "TPyDispatcher", self._handleNavMenu , "Dispatch()") 
+#        """
+#        fLH1 = ROOT.TGLayoutHints(ROOT.kLHintsTop | ROOT.kLHintsLeft, 0, 4, 0, 0)
+#        fLH2 = ROOT.TGLayoutHints(ROOT.kLHintsTop | ROOT.kLHintsExpandX, 1, 1, 1, 3)
+#    
+#        fMenuBar = ROOT.TGMenuBar( frame , 10, 10, ROOT.kHorizontalFrame)
+#   
+#        fNavMenu = ROOT.TGPopupMenu(ROOT.gClient.GetDefaultRoot())
+#        for value, name in enumerate(self.menu):
+#            fNavMenu.AddEntry( name[1:] , value )
 
-        fMenuBar.AddPopup("&Navigate" , fNavMenu , fLH1 )
-        frame.AddFrame( fMenuBar, fLH2)
+#        self._handleNavMenu  = ROOT.TPyDispatcher( self.handleNavMenu  )
+#        fNavMenu.Connect("Activated(Int_t)", "TPyDispatcher", self._handleNavMenu , "Dispatch()") 
 
-    def handleNavMenu(self):
-        obj = ROOT.BindObject( ROOT.gTQSender, ROOT.TGPopupMenu )
-        eid = obj.GetCurrent().GetEntryId()
-        from ROOT import g_ 
+#        fMenuBar.AddPopup("&Navigate" , fNavMenu , fLH1 )
+#        frame.AddFrame( fMenuBar, fLH2)
+    
+#    def handleNavMenu(self):
+#        obj = ROOT.BindObject( ROOT.gTQSender, ROOT.TGPopupMenu )
+#        eid = obj.GetCurrent().GetEntryId()
+#        from ROOT import g_ 
 
-        if   eid == self.menu.kOnline :
-	    online = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
-	    g_.SetSource( repr(online) )
-	    g_.RefreshSource()
-	    ROOT.gEve.GetBrowser().SetStatusText("Online",0)
-	    ROOT.gEve.GetBrowser().SetStatusText("",1)
-        elif eid == self.menu.kOffline :
-	    #FileBrowser = ROOT.gEve.GetBrowser().MakeFileBrowser()
- 	    offline = "/home/user/data/TunnelData/V8/root/run02570.root"
-	    g_.SetSource( offline )
-	    g_.RefreshSource()
-	    ROOT.gEve.GetBrowser().SetStatusText("Offline",0)
-	    ROOT.gEve.GetBrowser().SetStatusText(offline,1)        
-	else:
-            name = self.menu(eid)
-            print "handleNavMenu ?... %s %s " % ( obj , name )
+#       if   eid == self.menu.kOnline :
+#	    online = dict(lifo=['default.routingkey','abt.test.runinfo','abt.test.event'],fifo=['abt.test.string'] )
+#	    g_.SetSource( repr(online) )
+#	    g_.RefreshSource()
+#	    ROOT.gEve.GetBrowser().SetStatusText("Online",0)
+#	    ROOT.gEve.GetBrowser().SetStatusText("",1)
+#        elif eid == self.menu.kOffline :
+#	    #FileBrowser = ROOT.gEve.GetBrowser().MakeFileBrowser()
+# 	    offline = "/home/user/data/TunnelData/V8/root/run02570.root"
+#	    g_.SetSource( offline )
+#	    g_.RefreshSource()
+#	    ROOT.gEve.GetBrowser().SetStatusText("Offline",0)
+#	    ROOT.gEve.GetBrowser().SetStatusText(offline,1)        
+#	else:
+#            name = self.menu(eid)
+#            print "handleNavMenu ?... %s %s " % ( obj , name )
 
 
 
