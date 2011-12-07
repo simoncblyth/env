@@ -1063,7 +1063,7 @@ scm-backup-rsync(){
        local starttime=$(scm-backup-date)
        echo $msg starting transfer to tag $tag at $starttime
        echo $msg transfer $source to $tag:$remote/ 
-       local cmd="rsync -e ssh --delete-after -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
+       local cmd="time rsync -e ssh --delete-after --stats -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
        echo $msg $cmd
        eval $cmd
 
