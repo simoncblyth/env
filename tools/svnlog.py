@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 """
-This script derives from that usined by dybsvn svnlog step 
+This script derives from that used by the dybsvn svnlog step, enables querying the SVN commit log 
+usage examples:: 
+
+    svnlog --limit 1000000 -v debug -a blyth  
+    svnlog --limit 1000000 -v debug -a blyth > ~/2011.txt
+
+NB during development, duplicate arguments precisely to benefit from caching 
 
 """
 import re, os, logging, md5
@@ -10,7 +16,6 @@ from datetime import timedelta
 from misc import getuser 
 
 log = logging.getLogger(__name__)
-
 
 class Node(list):
     """
@@ -25,10 +30,16 @@ class Node(list):
 
         cached call with keyed on the command
         """ 
+
+        base = ctx.get('base','.')
+        if not base.startswith('http'):
+            ctx['base'] = os.path.abspath(base)    ## because "." is just too relative 
+
         _cmd = self._cmd % ctx 
         dig = md5.new(_cmd).hexdigest() 
         xmlcache = os.path.join( "/tmp/%s/env/tools/svnlog" % getuser() , "%s.xmlcache" % dig )
-        log.debug("_src xmlcache %s " % xmlcache  )        
+        log.debug("_cmd %s  " % _cmd )        
+        log.debug("xmlcache %s " % xmlcache )
         if os.path.exists(xmlcache):
             log.warn("reading from xmlcache %s " % xmlcache) 
         else:  
@@ -42,10 +53,11 @@ class Node(list):
 
     def _get_one(self, tag):
         lec = self.node.getElementsByTagName(tag)
-        assert len(lec) == 1
-        if lec[0].firstChild:  ## special handling for empty elements
-            return lec[0].firstChild.data       
+        if len(lec) == 1:
+            if lec[0].firstChild:  ## special handling for empty elements
+                return lec[0].firstChild.data       
         else:
+            log.warn("getElementsByTagName unexpected lec %s %s " % (lec,tag) )
             return None 
     def _get_data(self):
         return self.node.firstChild.data
@@ -97,6 +109,7 @@ class LogEntry(Node):
     age = property( lambda self:self.parent.t - self.t )
     msg    = property( lambda self:self._get_one("msg") or "naughty author ... no commit message" )
     selected = property( lambda self:self.age < self.parent.maxage )
+    sauthor = property( lambda self:self.author == self.parent.author )
 
     def __init__(self, node):
         Node.__init__(self, node)
@@ -130,16 +143,19 @@ class SVNLog(Node):
     t = property( lambda self:self[0].t )
     _cmd = "svn log --limit %(limit)s --verbose --xml --revision %(revision)s %(base)s "
     def __init__(self, base, revision, opts , maxage=timedelta(0,60*60), verbose=False ):
+        log.info("SVNLog base %s " % base )
         if opts.get('revision',None):
             log.warn("option override of revision %s to %s ", revision, opts['revision'] )
             revision = opts['revision']  
         self.ctx = dict(base=base, revision=revision, limit=int(opts['limit']) )
         self.maxage = maxage
+        self.author = opts.get('author', None) 
         self.verbose = verbose
         Node.__init__(self, parse=self._src(self.ctx) )
         self(LogEntry, "logentry")
-    def selection(self):
-        return filter( lambda c:c.selected , self )
+    
+    def selection(self, predicate=lambda c:c.selected):
+        return filter( predicate , self )
 
     def writelog(self):
         for c in self.selection():
@@ -170,10 +186,10 @@ class Info(Node):
 
     Will fail if not invoked from svn working copy directory.
     """
-    _cmd = "svn info --xml %s"
+    _cmd = "svn info --xml %(base)s "
 
     def __init__(self, base="." ):
-        Node.__init__(self, parse=self._src(base) )
+        Node.__init__(self, parse=self._src(dict(base=base)) )
         self(Repository, "repository")
 
         self.rooturl = self[0].root 
@@ -227,9 +243,9 @@ class Status(Node):
   </target>
 </status>
     """ 
-    _cmd = "svn status --xml %s"
+    _cmd = "svn status --xml %(base)s "
     def __init__(self, base="." ):
-        Node.__init__(self, parse=self._src(base) )
+        Node.__init__(self, parse=self._src(dict(base=base)) )
 
         targets = self.node.getElementsByTagName("target")
         assert len(targets) == 1, targets
@@ -251,7 +267,7 @@ class Msgs(list):
     and collected into this list of commit messages. 
 
     """
-    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52" )
+    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52", author=None )
 
     def parse_args( cls ):
         from optparse import OptionParser
@@ -259,8 +275,9 @@ class Msgs(list):
         d = cls.defaults
         op.add_option("-l", "--limit" ,     help="limit number of revisions to look at  "  )
         op.add_option("-r", "--revision" ,  help="OVERRIDE auto determined revision sequence, FOR DEBUGGING ONLY eg use 10891:1  "  )
-        op.add_option("-v", "--loglevel",   help=" logging level : INFO, WARN, DEBUG ... " )
+        op.add_option("-v", "--loglevel",   help="logging level : INFO, WARN, DEBUG ... " )
         op.add_option("-w", "--weeks" ,     help="weeks of logs to example" )
+        op.add_option("-a", "--author" ,    help="restrict selection to single author" )
         op.set_defaults( **cls.defaults )
         return op.parse_args()
     parse_args = classmethod( parse_args )
@@ -275,7 +292,7 @@ class Msgs(list):
         maxage = timedelta(weeks=int(opts.weeks))
         info = Info()
         log.info("%r" % info )
-        slog = SVNLog(info.rooturl, "%s:%s" % (info.revision,1) , vars(opts), maxage=maxage )   
+        slog = SVNLog( info.rooturl, "%s:%s" % (info.revision,1) , vars(opts), maxage=maxage )   
 
         #self[:] = slog.msgs()
         self.slog = slog 
@@ -286,7 +303,7 @@ class Msgs(list):
   
 if __name__ == '__main__':
     msgs = Msgs()
-    for le in msgs.slog.selection():
+    for le in msgs.slog.selection(lambda _:_.sauthor and _.selected):
         print repr(le)
  
 
