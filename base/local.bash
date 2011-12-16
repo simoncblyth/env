@@ -239,6 +239,7 @@ local-tag2ip(){
           XX) echo dyb2.ihep.ac.cn ;;
           ZZ) echo dayabay.ihep.ac.cn ;;
           WW) echo 202.122.32.203 ;;
+         SDU) echo rh02.hepg.sdu.edu.cn ;; 
   esac 
 }
 
@@ -266,6 +267,7 @@ local-nodetag(){
  thho-desktop) echo T ;;
         hkvme) echo HKVME ;;
         grid1) local-nodetag-grid1 $USER ;;
+         rh02) echo SDU ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
 
@@ -459,6 +461,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
       A|B) echo /volume1/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
+      SDU) echo  /raid/dybsdu/dybbackup/var ;;
         *) echo  /var ;; 
    esac
 }
