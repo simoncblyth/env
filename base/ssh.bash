@@ -336,7 +336,38 @@ ssh--agent-ok-(){
 }
 ssh--agent-ok(){ $FUNCNAME- && echo y || echo n ; }
 
+ssh--agent-notify(){
+  python $(env-home)/python/pipemail.py $(local-email)
+}
 
+ssh--agent-monitor(){
+   local msg="=== $FUNCNAME :"
+   local user=${1:-$USER}
+   local tmp=/tmp/$USER/env/$FUNCNAME.out
+   mkdir -p $(dirname $tmp)  
+   ssh--agent-check-user $user > $tmp 
+   local rc=$?
+   cat $tmp
+   if [ "$rc" == "1" ]; then 
+       echo $msg rc $rc sending notification email  	   
+       cat $tmp | ssh--agent-notify 	    
+   else
+       echo $msg rc $rc	    
+   fi 	    
+}
+
+ssh--agent-check-user(){
+   local user=${1:-$USER}
+   local msg="=== $FUNCNAME :"
+   local pid=$(pgrep -u $user ssh-agent)
+   if [ "$pid" == "" ]; then 
+       echo $msg ssh-agent for user $user NOT FOUND
+       return 1
+   else
+       echo $msg ssh-agent for user $user has pid $pid	    
+   fi 	   
+   return 0
+}
 
 ssh--agent-check(){
   [ -z "$SSH_AGENT_PID" ]  && return 1
