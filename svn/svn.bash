@@ -653,3 +653,52 @@ svn-lastrev(){
 
 
 
+
+svn-change-password(){
+   local msg=
+   local user=$1
+   local pass=$2
+
+   [ -z "$user" ] && echo $msg a username is required && return 1
+   [ -z "$pass" ] && echo $msg a new password is required && return 1
+
+   local path=$(svn-userspath)
+   local tmp=/tmp/env/$USER/$FUNCNAME/$(basename $path)
+   mkdir -p $(dirname $tmp)
+   cp $path $tmp
+   cp $path $tmp.safetycopy
+
+   ls -l $path
+   ls -l $tmp*
+   $(env-home)/trac/auth/htpasswd.py -b $tmp $user $pass
+ 
+   local cmd="diff $path $tmp"
+   echo $msg $cmd  slated changes 
+   eval $cmd
+   echo 
+
+   echo $msg propagate the above change into the users file with below copy 
+   cmd="sudo cp $tmp $path"
+   echo $msg $cmd
+   local answer
+   read -p "$msg Enter YES to proceed : " answer
+   if [ "$answer" == "YES" ]; then 
+         echo $msg : proceeding with \"$cmd\"
+         echo $msg : sudoer password may be needed
+         eval $cmd
+   else
+         echo $msg : OK skipping 
+   fi 
+   
+   cmd="rm $tmp $tmp.safetycopy"
+   echo $msg tidying temporaries \"$cmd\"
+   eval $cmd
+
+   cmd="ls -l $path"
+   echo $msg checking users file \"$cmd\"
+   eval $cmd 
+
+}
+
+
+
