@@ -8,6 +8,11 @@ git-usage(){
      git-src : $(git-src)
      git-dir : $(git-dir)
 
+     http://gitref.org/remotes/#fetch
+
+     http://book.git-scm.com/book.pdf 
+
+
 
 EOU
 }
