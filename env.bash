@@ -926,3 +926,4 @@ tcpdump-(){      . $(env-home)/base/tcpdump.bash && tcpdump-env $* ; }
 svnlog-(){      . $(env-home)/tools/svnlog.bash && svnlog-env $* ; }
 macports-(){      . $(env-home)/base/macports.bash && macports-env $* ; }
 xsd-(){      . $(env-home)/xml/xsd.bash && xsd-env $* ; }
+bdbxml-(){      . $(env-home)/db/bdbxml.bash && bdbxml-env $* ; }

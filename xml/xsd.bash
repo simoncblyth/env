@@ -2,7 +2,10 @@
 xsd-src(){      echo xml/xsd.bash ; }
 xsd-source(){   echo ${BASH_SOURCE:-$(env-home)/$(xsd-src)} ; }
 xsd-vi(){       vi $(xsd-source) ; }
-xsd-env(){      elocal- ; }
+xsd-env(){      
+   elocal- ;
+   export XSD_HOME=$(xsd-dir)
+ }
 xsd-usage(){
   cat << EOU
 
@@ -52,6 +55,7 @@ hello
 
    cd examples/cxx/tree/hello
    make CXXFLAGS="-I/opt/local/include" LDFLAGS="-L/opt/local/lib"    ## use macports Xerces-c
+   
 
 
 feed some real schema
@@ -70,6 +74,8 @@ EOU
 xsd-name(){ echo xsd-3.3.0-powerpc-macosx ; }
 xsd-dir(){ echo $(local-base)/env/xml/$(xsd-name) ; }
 xsd-cd(){  cd $(xsd-dir); }
+
+
 
 xsd-url(){ echo http://www.codesynthesis.com/download/xsd/3.3/macosx/powerpc/$(xsd-name).tar.bz2 ; }
 xsd-mate(){ mate $(xsd-dir) ; }
