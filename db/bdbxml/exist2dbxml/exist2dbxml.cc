@@ -57,19 +57,8 @@ void listdir( vec& paths, const path& directory, bool recurse_into_subdirs = tru
 }
 
 
-int main(int argc, char* argv[]) 
+void ingest( string root , string dbxml )
 {
-    string root ;
-    string dbxml ; 
-
-    if(argc == 3){	    
-        root  = argv[1] ; 
-        dbxml = argv[2] ;
-    } else {
-        cout << "Usage: " << argv[0] << " <directory-root-of-xml-documents>  <path-to-berkeley-dbxml-to-create> " << '\n';
-        return 1; 
-    }	    
-
     try {
         XmlManager mgr;
         XmlContainer cont = mgr.createContainer(dbxml);
@@ -92,6 +81,20 @@ int main(int argc, char* argv[])
     } catch (XmlException &e) {
         std::cout << "Exception: " << e.what() << std::endl;
     }
+}
+
+
+
+int main(int argc, char* argv[]) 
+{
+
+     // TODO: adopt boost_program_options here, see qxml for how	
+    string source="/data/heprez/data/backup/part/localhost/2012/Mar06-1922" ;
+    string target="/tmp/hfagc" ; 
+
+    ingest( source + "/db/hfagc"        , target + "/hfagc.dbxml" );
+    ingest( source + "/db/hfagc_system" , target + "/hfagc_system.dbxml" );
+
     return 0;
 }
 

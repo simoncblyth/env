@@ -11,6 +11,10 @@ bdbxml-usage(){
   cat << EOU
 
 
+
+installation
+~~~~~~~~~~~~~
+
 Had to sign up for Oracle web account before manually downloading::
 
     mv  ~/Downloads/dbxml-2.5.16.tar .
@@ -26,7 +30,19 @@ Try fully default build (took ~2hrs)::
  /usr/local/env/db/dbxml-2.5.16/install/lib
 
 
-Documentation::
+python bindings
+~~~~~~~~~~~~~~~
+
+http://jimmyg.org/blog/2008/oracle-db-xml-was-sleepycat.html
+
+dbxml/src/python/README
+dbxml/examples/python/examples.py
+dbxml/examples/python/misc/externalFunction.py
+
+
+
+Documentation
+~~~~~~~~~~~~~~
 
     file:///usr/local/env/db/dbxml-2.5.16/dbxml/docs/index.html
     file:///usr/local/env/db/dbxml-2.5.16/dbxml/docs/intro_xml/index.html    
@@ -36,9 +52,9 @@ Documentation::
 dbxml command line tool
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-#. no readline support
+#. no readline support, FAQ suggests http://freecode.com/projects/rlwrap
 #. how to determine document names 
-
+#. tis tedious having to quote queries
 
 adding indices
 ~~~~~~~~~~~~~~~
@@ -131,6 +147,9 @@ query interactively with dbxml
 	3 objects returned for eager expression 'collection('hfagc')//rez:quote[rez:qtag='BR:-511:225,443']'
 
 	Time in seconds for command 'query': 0.007367
+
+	dbxml> q collection()/rez:rez                                        # default container is used
+	226 objects returned for eager expression 'collection()/rez:rez'
 
 	dbxml> time q 'for $a in collection() return dbxml:metadata("dbxml:name", $a)'
 	226 objects returned for eager expression 'for $a in collection() return dbxml:metadata("dbxml:name", $a)'

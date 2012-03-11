@@ -1,0 +1,13 @@
+
+http://www.xquery.co.uk/tutorial_xquery_get_started/get_tutorial_page/xquery_global_variables
+
+
+http://www.oracle.com/technetwork/database/berkeleydb/xml-faq-088319.html#HowcanIreferenceanXQuerymoduleinanXQueryexpression
+
+How can I reference an XQuery module in an XQuery expression?
+
+An XQuery module import statement looks something like this: import module namespace tm='test-module' at 'test-module.xq'; In BDB XML the default module resolution treats the "test-module.xq" as a path name in the file system. For example, the above statement would look for the file, test-module.xq, in the current directory. The resolution also pays attention to the base URI set in the XmlQueryContext object used for the query. For example, if the base URI is "file://tmp/" the resolution will look for the file "/tmp/test-module.xq" Yet another way to handle module import is to implement your own instance of the XmlResolver class, and register it using the method XmlManager::registerResolver() Module imports will call the XmlResolver::resolveEntity() method. This allows you to entirely control the location of modules, and place modules in the file system or in a Berkeley DB database or in BDB XML metadata item, or even construct them in code.
+
+
+
+
