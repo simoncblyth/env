@@ -1,13 +1,63 @@
 
+
+*************
+QUESTIONS
+*************
+
+Can a C++ extension function be used from a python entension function ? 
+It seems that extension mixing is not possible ? 
+
+
+**********
+REFERENCE
+**********
+
 http://www.xquery.co.uk/tutorial_xquery_get_started/get_tutorial_page/xquery_global_variables
 
+
+*************
+FAQ EXTRACTS
+*************
 
 http://www.oracle.com/technetwork/database/berkeleydb/xml-faq-088319.html#HowcanIreferenceanXQuerymoduleinanXQueryexpression
 
 How can I reference an XQuery module in an XQuery expression?
+==============================================================
 
 An XQuery module import statement looks something like this: import module namespace tm='test-module' at 'test-module.xq'; In BDB XML the default module resolution treats the "test-module.xq" as a path name in the file system. For example, the above statement would look for the file, test-module.xq, in the current directory. The resolution also pays attention to the base URI set in the XmlQueryContext object used for the query. For example, if the base URI is "file://tmp/" the resolution will look for the file "/tmp/test-module.xq" Yet another way to handle module import is to implement your own instance of the XmlResolver class, and register it using the method XmlManager::registerResolver() Module imports will call the XmlResolver::resolveEntity() method. This allows you to entirely control the location of modules, and place modules in the file system or in a Berkeley DB database or in BDB XML metadata item, or even construct them in code.
 
+How do I get the value of a node?
+===================================
 
+Many people use this syntax: /foo/bar/text(). 
+In the majority of cases, this is incorrect! The explanation follows. Consider this document:
 
+<foo>
+  <bar>hello <baz>you</baz>there</bar>
+</foo>
+
+In XQuery, text() is a text node test. This means that in the example /foo/bar/text(), text() is short for child::text(), 
+which tells you a little more about what it does. 
+This expression returns all children of the current context that are text nodes. 
+So the in this example, the aforementioned expression will return two text nodes, one with the value "hello ", and the second with the value "there". 
+What's important to note here is that not only are you getting text nodes returned, rather than a string - but that the text nodes' combined value does not equal the value of the bar element! 
+The XQuery specification defines the string value of this element as "hello you there". 
+In other words the concatenation of all the values of the descendant text nodes. 
+Another important issue is that attribute nodes don't even have any text node children. 
+So if you wrote /foo/@bar/text() expecting to get the attributes value, 
+you might be very surprised when the query engine quite rightly returned an empty sequence. 
+
+Thirdly, BDB XML's query planner is not going to optimize any use of text(). 
+It can't, as **the BDB XML indexes deal with the value of elements and attributes**, not their text node children. 
+So you will lose out on valuable optimization if you use text(). 
+Enough of why it's wrong. How do you get the value of a node? Here are some methods, and the differences between them:
+
+Use the fn:string() function. This returns the string value of the node - so no schema type information.
+
+Use the fn:data() function. This returns a typed value from the node - in other words, 
+if there is a schema for the document you will get a value of the type the schema says it should be. If there isn't a schema, you will get a value of type xdt:untypedAtomic.
+
+Use casting: /foo/bar cast as xs:decimal or xs:date(/foo/bar). This can be used to get a value of a specific type.
+
+Whatever you do, try to get out of the habit of using text() unless you know precisely what you want from it.
 

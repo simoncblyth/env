@@ -16,13 +16,9 @@ Demos using external python function
 
 :)
 
-declare function my:foo() as xs:string* external; 
+declare function my:dumper($arg as node()) as xs:string* external; 
 
-let $hello := "sorry overriding you" 
+for $rez in collection("dbxml:/hfc")//rez:quote[rez:qtag='BR:-531:-431,431*/BR:-511:-431,411']
 return 
-(
-   $color, 
-   $hello, 
-   my:foo(),
-   count(collection("dbxml:/hfc")//rez:rez)
-)
+    my:dumper($rez)
+
