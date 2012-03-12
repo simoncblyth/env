@@ -30,14 +30,117 @@ Try fully default build (took ~2hrs)::
  /usr/local/env/db/dbxml-2.5.16/install/lib
 
 
-python bindings
-~~~~~~~~~~~~~~~
 
-http://jimmyg.org/blog/2008/oracle-db-xml-was-sleepycat.html
+python bindings installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-dbxml/src/python/README
-dbxml/examples/python/examples.py
-dbxml/examples/python/misc/externalFunction.py
+
+Module ships with python::
+
+	g4pb:~ blyth$ python -c "import bsddb ; print bsddb.__version__ "
+	4.4.5.3
+
+
+From /usr/local/env/db/dbxml-2.5.16/dbxml/src/python/README version match requirements
+that are likely not to be met.
+
+
+BUILDING bsddb3 module
+----------------------
+
+* remember dbxml is grafted ontop of a bdb installation, so nefarious scripts abound 
+
+
+First build and install against naked macports py::
+
+	g4pb:~ blyth$ python -V
+	Python 2.5.5
+	g4pb:~ blyth$ which python
+	/opt/local/bin/python
+
+	cd /usr/local/env/db/dbxml-2.5.16/dbxml/src/python/bsddb3-4.8.1
+	python setup.dbxml.py build 
+	...
+	running build_ext
+	building 'bsddb3._pybsddb' extension
+	creating build/temp.macosx-10.5-ppc-2.5
+	creating build/temp.macosx-10.5-ppc-2.5/Modules
+	/usr/bin/gcc-4.0 -fno-strict-aliasing -mno-fused-madd -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DPYBSDDB_STANDALONE=1 -I../../../../install/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.5/include/python2.5 -c Modules/_bsddb.c -o build/temp.macosx-10.5-ppc-2.5/Modules/_bsddb.o
+	/usr/bin/gcc-4.0 -L/opt/local/lib -arch ppc -bundle -undefined dynamic_lookup build/temp.macosx-10.5-ppc-2.5/Modules/_bsddb.o -L../../../../install/lib -L../../../../install/lib -ldb -o build/lib.macosx-10.5-ppc-2.5/bsddb3/_pybsddb.so
+
+	
+	sudo python setup.dbxml.py install
+	...
+	creating dist
+	creating 'dist/bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg' and adding 'build/bdist.macosx-10.5-ppc/egg' to it
+	removing 'build/bdist.macosx-10.5-ppc/egg' (and everything under it)
+	Processing bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg
+	creating /opt/local/lib/python2.5/site-packages/bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg
+	Extracting bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg to /opt/local/lib/python2.5/site-packages
+	Adding bsddb3 4.8.1 to easy-install.pth file
+
+	Installed /opt/local/lib/python2.5/site-packages/bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg
+	Processing dependencies for bsddb3==4.8.1
+	Finished processing dependencies for bsddb3==4.8.1
+
+
+Quick check::
+
+	g4pb:~ blyth$ python -c "import bsddb3 as _ ; print _.__file__,_.__version__ "
+	/opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/bsddb3-4.8.1-py2.5-macosx-10.5-ppc.egg/bsddb3/__init__.pyc 4.8.1
+
+
+BUILDING the dbxml module
+-------------------------
+
+Following README to the letter, specifying ``--with-bsddb=bsddb3-4.8.1`` as just built that source::
+
+	cd /usr/local/env/db/dbxml-2.5.16/dbxml/src/python
+	python setup.py --with-bsddb=bsddb3-4.8.1 build
+        ...
+	building '_dbxml' extension
+	creating build/temp.macosx-10.5-ppc-2.5
+	/usr/bin/gcc-4.0 -fno-strict-aliasing -mno-fused-madd -fno-common -dynamic -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DHAVE_BSDDB=1 -I/usr/local/env/db/dbxml-2.5.16/dbxml/src/python/bsddb3-4.8.1 -I/usr/local/env/db/dbxml-2.5.16/install/include -I/usr/local/env/db/dbxml-2.5.16/install/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.5/include/python2.5 -c dbxml_python_wrap.cpp -o build/temp.macosx-10.5-ppc-2.5/dbxml_python_wrap.o
+	cc1plus: warning: command line option "-Wstrict-prototypes" is valid for C/ObjC but not for C++
+	/usr/bin/g++-4.0 -L/opt/local/lib -arch ppc -bundle -undefined dynamic_lookup build/temp.macosx-10.5-ppc-2.5/dbxml_python_wrap.o -L/usr/local/env/db/dbxml-2.5.16/install/build_unix/.libs -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/build_unix/.libs -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -L/usr/local/env/db/dbxml-2.5.16/install/lib -ldbxml -ldb-4 -lxqilla -lxerces-c -o build/lib.macosx-10.5-ppc-2.5/_dbxml.so
+
+	sudo python setup.py install
+	...
+	copying build/lib.macosx-10.5-ppc-2.5/dbxml.py -> /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages
+	byte-compiling /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/dbxml.py to dbxml.pyc
+	running install_egg_info
+	Writing /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/dbxml-2.5.16-py2.5.egg-info
+
+
+
+TESTING and examples
+--------------------
+
+    cd ~/env/db/bdbxml/extpy
+    ./test_versions.py
+
+    cd $(dirname $BDBXML_HOME)/dbxml/examples/python
+    python examples.py test
+    python examples.py 1
+    ...
+    python examples.py 13
+
+
+python functionality from XQuery/C++
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The py binding provides a complete python interface to the C++ API, 
+but there seems no way to use py functionality from C++. 
+Cannot register a python resolver with a C++ manager ?
+
+    examples/python/misc/externalFunction.py
+
+This is a bit different from exist extension where (for example)
+XQuery functions call out to python (actually jython).
+
+However, as are all taking to the same container, can write new docs
+as a result of each languages strengths.  This way is actually more
+direct, and easier to develop/debug than the Russian dolls approach.
 
 
 
