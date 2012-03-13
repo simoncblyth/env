@@ -1,22 +1,111 @@
-g4pb:qxml blyth$ ./test/extmixed.xq -l DEBUG
-(: #!/usr/bin/env qxml.py :)
-declare function my:foo() as xs:string* external; 
-declare function my:pow($a as xs:double, $b as xs:double) as xs:double external;
-declare function my:sqrt($a as xs:double) as xs:double external;
-(
-my:foo(),
-my:pow(2,10),
-my:sqrt(16),
-my:sqrt(my:pow(2,10))
-)
+===============================================================
+Extending DB XML XQuery with C++ extensions via python module
+===============================================================
 
-DEBUG:extfun:init resolver with uri http://my
-DEBUG:extfun:myFunction constructor
-DEBUG:extfun:init resolver done
-DEBUG:extfun:resolve external with sig (0, 'foo') 
-DEBUG:extfun:resolve external with sig (2, 'pow') 
-terminate called after throwing an instance of 'Swig::DirectorTypeMismatchException'
-Abort trap
+Why?
+
+#. to allow python prototyping to benefit from C++ extensions
+
+references
+===========
+
+#. $BDBXML_HOME/../dbxml/dist/swig/{dbxml.i,dbxml_python.i}    swig inputs
+#. $BDBXML_HOME/../dbxml/dist/s_swig  swig runner script 
+#. $BDBXML_HOME/../dbxml/src/python/dbxml_python_wrap.{h,cpp}   generated wrapping
+
+SWIG
+=====
+
+#. http://www.swig.org/Doc1.3/Python.html#Python_directors
+
+
+Running XQuery ABORTs with Swig::DirectorTypeMismatchException (RESOLVED BY SWIG UPDATE)
+==========================================================================================
+
+This is trying to use the python driver ``qxml.py`` and python resolver 
+to load C++ extension functions. The same functions can be used directly with ``env/bin/qxml``
+
+In full::
+
+	DEBUG:extfun:resolve external with sig (2, 'pow') 
+	terminate called after throwing an instance of 'Swig::DirectorTypeMismatchException'
+	Abort trap
+
+
+Reproduce::
+
+
+	g4pb:qxml blyth$ ./test/extmixed.xq -l DEBUG
+	(: #!/usr/bin/env qxml.py :)
+	declare function my:foo() as xs:string* external; 
+	declare function my:pow($a as xs:double, $b as xs:double) as xs:double external;
+	declare function my:sqrt($a as xs:double) as xs:double external;
+	(
+	my:foo(),
+	my:pow(2,10),
+	my:sqrt(16),
+	my:sqrt(my:pow(2,10))
+	)
+
+	DEBUG:extfun:init resolver with uri http://my
+	DEBUG:extfun:myFunction constructor
+	DEBUG:extfun:init resolver done
+	DEBUG:extfun:resolve external with sig (0, 'foo') 
+	DEBUG:extfun:resolve external with sig (2, 'pow') 
+	terminate called after throwing an instance of 'Swig::DirectorTypeMismatchException'
+	Abort trap
+
+
+In debugger::
+
+	Reading symbols for shared libraries ............................. done
+	Reading symbols for shared libraries . done
+	(: #!/usr/bin/env qxml.py :)
+	declare function my:foo() as xs:string* external; 
+	declare function my:pow($a as xs:double, $b as xs:double) as xs:double external;
+	declare function my:sqrt($a as xs:double) as xs:double external;
+	(
+	my:foo(),
+	my:pow(2,10),
+	my:sqrt(16),
+	my:sqrt(my:pow(2,10))
+	)
+
+	Reading symbols for shared libraries . done
+	terminate called after throwing an instance of 'Swig::DirectorTypeMismatchException'
+
+	Program received signal SIGABRT, Aborted.
+	0x957659f0 in __kill ()
+	(gdb) bt
+	#0  0x957659f0 in __kill ()
+	#1  0x95800bfc in abort ()
+	#2  0x91c4de28 in __gnu_cxx::__verbose_terminate_handler ()
+	#3  0x91c4b944 in __gxx_personality_v0 ()
+	#4  0x91c4b9a8 in std::terminate ()
+	#5  0x91c4bc6c in __cxa_rethrow ()
+	#6  0x01294a64 in DbXml::QueryExpression::QueryExpression ()
+	#7  0x012b256c in DbXml::XmlManager::prepare ()
+	#8  0x012b2744 in DbXml::XmlManager::query ()
+	#9  0x0104a9fc in SWIG_Python_Thread_Allow::end () at dbxml_python_wrap.cpp:4080
+	#10 0x0104a9fc in _wrap_XmlManager_query__SWIG_2 [inlined] () at dbxml_python_wrap.cpp:12986
+	#11 0x0104a9fc in _wrap_XmlManager_query (self=<value temporarily unavailable, due to optimizations>, args=<value temporarily unavailable, due to optimizations>) at dbxml_python_wrap.cpp:13106
+	#12 0x001bc484 in PyObject_Call ()
+	#13 0x00264010 in PyEval_EvalFrameEx ()
+	#14 0x00265a40 in PyEval_EvalCodeEx ()
+	#15 0x00263948 in PyEval_EvalFrameEx ()
+	#16 0x00265a40 in PyEval_EvalCodeEx ()
+	#17 0x00265be0 in PyEval_EvalCode ()
+	#18 0x0028befc in PyRun_FileExFlags ()
+	#19 0x0028c140 in PyRun_SimpleFileExFlags ()
+	#20 0x0029bc7c in Py_Main ()
+	#21 0x00001f74 in ?? ()
+	(gdb) 
+
+
+
+Problem seems to have resolved by updating to using macports swig + swig-python at version 2.0.4. 
+see ``swig-vi`` for swig versions table.
+
 
 
 

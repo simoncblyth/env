@@ -1,19 +1,11 @@
-#!/usr/bin/env qxml.py -k color -v blue -k hello -v world 
+#!/usr/bin/env qxml.py 
 (: 
-NB the **.py** on the shebang line, this is using the 
-same DBXML containers but a different controlling main ``qxml.py`` 
-rather than ``qxml``
+NB using **qxml.py** not qxml, but talking to same DB XML containers
+rather than ``qxml``::
 
-Override default color above with::
+      ./tpydump.xq -l DEBUG
 
-      ./tpy.xq -k color -v red 
-      ./tpy.xq -k color -v red -k hello -v will-not-propagate
-
-The variables are added to the query running context, but these fail
-to override vars like $hello assigned in the code. 
-
-Demos using external python function  
-
+Demos using an external python extension function ``my:dumper`` 
 :)
 
 declare function my:dumper($arg as node()) as xs:string* external; 

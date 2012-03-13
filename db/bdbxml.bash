@@ -59,6 +59,7 @@ First build and install against naked macports py::
 	/opt/local/bin/python
 
 	cd /usr/local/env/db/dbxml-2.5.16/dbxml/src/python/bsddb3-4.8.1
+
 	python setup.dbxml.py build 
 	...
 	running build_ext

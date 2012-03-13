@@ -18,6 +18,16 @@ see also ``swigbuild-``
 #.   http://www.swig.org/Doc2.0/SWIGDocumentation.html
 #.   http://www.swig.org/Doc1.3/Python.html
 
+Installs
+~~~~~~~~
+
+  ====================  ========  ===============================================================================================
+  /usr/bin/swig          1.3.31    ancient system swig 
+  ?                      1.3.39    created distributed dbxml_python_wrap.cpp in /usr/local/env/db/dbxml-2.5.16/dbxml/src/python 
+  /opt/local/bin/swig    2.0.4     macports updated swig that resolved the Swig::DirectorTypeMismatchException head banging 
+                                   in ~/env/db/bdbxml/qxml
+  ====================  ========  ===============================================================================================
+
 
 
 Basics
@@ -99,6 +109,52 @@ This must be possible as the base is already wrapped::
 
 Motivation for this is to allow flexible development whereby python prototyping 
 can be ported as needed into C++ and that can be used during subsequent prototyping.
+
+
+
+
+swig update
+~~~~~~~~~~~~
+
+
+g4pb:python blyth$ sudo port install swig
+Password:
+--->  Computing dependencies for bison
+--->  Fetching archive for bison
+--->  Attempting to fetch bison-2.5_0.darwin_9.ppc.tgz from http://packages.macports.org/bison
+--->  Fetching bison
+...
+--->  Fetching swig
+--->  Attempting to fetch swig-2.0.4.tar.gz from http://nchc.dl.sourceforge.net/project/swig/swig/swig-2.0.4
+--->  Verifying checksum(s) for swig
+--->  Extracting swig
+--->  Configuring swig
+--->  Building swig
+--->  Staging swig into destroot
+--->  Installing swig @2.0.4_0
+--->  Activating swig @2.0.4_0
+--->  Cleaning swig
+g4pb:python blyth$ 
+
+
+
+g4pb:python blyth$ sudo port install swig-python
+Password:
+--->  Computing dependencies for swig-python
+--->  Fetching archive for swig-python
+--->  Attempting to fetch swig-python-2.0.4_0.darwin_9.noarch.tgz from http://packages.macports.org/swig-python
+--->  Fetching swig-python
+--->  Verifying checksum(s) for swig-python
+--->  Extracting swig-python
+--->  Configuring swig-python
+--->  Building swig-python
+--->  Staging swig-python into destroot
+--->  Installing swig-python @2.0.4_0
+--->  Activating swig-python @2.0.4_0
+--->  Cleaning swig-python
+g4pb:python blyth$ 
+
+
 
 
 EOU

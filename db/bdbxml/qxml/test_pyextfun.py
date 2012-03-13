@@ -8,14 +8,15 @@ log = logging.getLogger(__name__)
 from bsddb3.db import *
 from dbxml import *
 
-from pyextfun import MyExternalFunctionPow as Pow
-from pyextfun import MyExternalFunctionSqrt as Sqrt
+# must import after dbxml
+
+import pyextfun as pef
 
 if __name__ == '__main__':
-    print dir(Pow)
-    print dir(Sqrt)
+    print dir(pef.MyExternalFunctionPow)
+    print dir(pef.MyExternalFunctionSqrt)
 
-    p = Pow()
+    p = pef.MyExternalFunctionPow()
     print p
 
 
