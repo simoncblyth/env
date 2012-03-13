@@ -29,9 +29,13 @@ def parse_args():
     if not cfg.xqpath and len(args)==1:
         cfg.xqpath = args[0]	    
 
-    assert len(cfg.keys) == len(cfg.vals), "number of keys must match vals" 
-    cfg.kv = dict(zip(cfg.keys,cfg.vals))
-    print cfg.kv
+    if cfg.keys and cfg.vals:
+        assert len(cfg.keys) == len(cfg.vals), "number of keys must match vals" 
+	kv = dict(zip(cfg.keys,cfg.vals))
+    else:
+	kv = {}    
+    pass	
+    cfg.kv = kv
     return cfg, args 
 
 

@@ -1,7 +1,12 @@
-
-
+# === func-gen- : swig/swigbuild fgp swig/swigbuild.bash fgn swigbuild fgh swig
+swigbuild-src(){      echo swig/swigbuild.bash ; }
+swigbuild-source(){   echo ${BASH_SOURCE:-$(env-home)/$(swigbuild-src)} ; }
+swigbuild-vi(){       vi $(swigbuild-source) ; }
+swigbuild-env(){      
+   elocal- 
+   swig-
+}
 swigbuild-usage(){
-
    cat << EOU
 
       http://www.swig.org/
@@ -34,18 +39,21 @@ swigbuild-usage(){
 
 
      $(type swigbuild-again)
-
-    
 EOU
-
+}
+swigbuild-dir-new(){ echo $(local-base)/env/swig/swig-swigbuild ; }
+swigbuild-dir(){
+   echo $SYSTEM_BASE/swig/build/$SWIG_NAME
 }
 
 
-swigbuild-env(){
 
-   swig-
+swigbuild-cd(){  cd $(swigbuild-dir); }
+swigbuild-mate(){ mate $(swigbuild-dir) ; }
+swigbuild-get-new(){
+   local dir=$(dirname $(swigbuild-dir)) &&  mkdir -p $dir && cd $dir
+
 }
-
 
 swigbuild-get(){
  
@@ -60,11 +68,6 @@ swigbuild-get(){
     [ ! -f $tgz ] && curl -O $url
     mkdir -p  build
     [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
-}
-
-
-swigbuild-dir(){
-   echo $SYSTEM_BASE/swig/build/$SWIG_NAME
 }
 
 
@@ -124,6 +127,7 @@ swigbuild-again(){
 swigbuild-check(){
      $SWIG_HOME/bin/swig -version
 }
+
 
 
 

@@ -1,0 +1,22 @@
+g4pb:qxml blyth$ ./test/extmixed.xq -l DEBUG
+(: #!/usr/bin/env qxml.py :)
+declare function my:foo() as xs:string* external; 
+declare function my:pow($a as xs:double, $b as xs:double) as xs:double external;
+declare function my:sqrt($a as xs:double) as xs:double external;
+(
+my:foo(),
+my:pow(2,10),
+my:sqrt(16),
+my:sqrt(my:pow(2,10))
+)
+
+DEBUG:extfun:init resolver with uri http://my
+DEBUG:extfun:myFunction constructor
+DEBUG:extfun:init resolver done
+DEBUG:extfun:resolve external with sig (0, 'foo') 
+DEBUG:extfun:resolve external with sig (2, 'pow') 
+terminate called after throwing an instance of 'Swig::DirectorTypeMismatchException'
+Abort trap
+
+
+

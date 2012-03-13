@@ -285,7 +285,6 @@ authzpolicy-(){ . $(env-home)/otrac/authzpolicy.bash && authzpolicy-env $* ; }
 svn-(){         . $(env-home)/svn/svn.bash         && svn-env $* ; } 
 
 
-swig-(){        . $(env-home)/swig/swig.bash       && swig-env $* ; } 
 sqlite-(){      . $(env-home)/sqlite/sqlite.bash && sqlite-env $* ; } 
 
 swish-(){       . $(env-home)/swish/swish.bash && swish-env $* ; } 
@@ -927,3 +926,5 @@ svnlog-(){      . $(env-home)/tools/svnlog.bash && svnlog-env $* ; }
 macports-(){      . $(env-home)/base/macports.bash && macports-env $* ; }
 xsd-(){      . $(env-home)/xml/xsd.bash && xsd-env $* ; }
 bdbxml-(){      . $(env-home)/db/bdbxml.bash && bdbxml-env $* ; }
+swig-(){      . $(env-home)/swig/swig.bash && swig-env $* ; }
+swigbuild-(){      . $(env-home)/swig/swigbuild.bash && swigbuild-env $* ; }

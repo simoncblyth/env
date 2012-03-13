@@ -15,7 +15,7 @@ namespace po = boost::program_options;
 #include <iostream>
 #include <streambuf>
 
-#include "extfun.hh"
+#include "extresolve.hh"
 	
 using namespace std;
 using namespace DbXml;

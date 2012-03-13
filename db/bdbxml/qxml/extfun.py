@@ -7,7 +7,11 @@ log = logging.getLogger(__name__)
 from bsddb3.db import *
 from dbxml import *
 
-class myFunction(XmlExternalFunction):
+from pyextfun import MyExternalFunctionPow 
+from pyextfun import MyExternalFunctionSqrt 
+
+
+class myFooFunction(XmlExternalFunction):
     def __init__(self):
 	XmlExternalFunction.__init__(self)
 	log.debug("myFunction constructor")
@@ -55,12 +59,18 @@ class myDumperFunction(XmlExternalFunction):
         del self
 
 
+
+
 class myResolver(XmlResolver):
     def __init__(self):
 	XmlResolver.__init__(self)
-        self.fun = myFunction()
-        self.dumper = myDumperFunction()
         self.uri_ = "http://my"
+        log.debug("init resolver with uri %s" % self.uri_)
+        self.foo = myFooFunction()
+        self.dumper = myDumperFunction()
+	self.pow = MyExternalFunctionPow()
+	self.sqrt = MyExternalFunctionSqrt()
+        log.debug("init resolver done")
 
     def getUri(self): return self.uri_
 
@@ -69,12 +79,24 @@ class myResolver(XmlResolver):
         verify the number of arguments, uri and name which uniquely
         identify a function in XQuery
 	"""
-        if numArgs == 0 and uri == self.uri_ and name == "foo":
-            return self.fun
-        elif numArgs == 1 and uri == self.uri_ and name == "dumper":
+        if uri != self.uri_:
+            log.warn("myResolver -- wrong uri ")
+	    raise Exception("resolver wrong uri")
+    	    
+        sig = (numArgs, name)
+        log.debug("resolve external with sig %s " % repr(sig) )
+
+        if sig == (0,"foo"):
+            return self.foo
+        elif sig == (1,"dumper"):
             return self.dumper
+        elif sig == (1,"sqrt"):
+            return self.sqrt
+        elif sig == (2,"pow"):
+            return self.pow
         else:
             log.warn("myResolver -- could not resolve function")
+	    return None
     
     def __del__(self):
         log.info("myResolver -- del")

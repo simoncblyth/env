@@ -303,10 +303,93 @@ bdbxml-test(){
 
   local bkp=/data/heprez/data/backup/part/localhost/2012/Mar06-1922
 
-
-
-
-
 }
+
+
+bdbxml-swig-notes(){ cat << EON
+
+Notice optimizing flags:: 
+
+    swig -python -help
+
+
+g4pb:swig blyth$ pwd
+/usr/local/env/db/dbxml-2.5.16/dbxml/dist/swig
+
+g4pb:swig blyth$ grep XmlExternalFunction *.i
+dbxml.i:class XmlExternalFunction;
+dbxml.i:        virtual XmlExternalFunction *resolveExternalFunction(XmlTransaction *txn, XmlManager &mgr,
+dbxml.i:class XmlExternalFunction
+dbxml.i:        XmlExternalFunction() {}
+dbxml.i:        virtual ~XmlExternalFunction() {}
+dbxml_python.i:%feature("director") XmlExternalFunction;
+dbxml_python.i:%exception XmlExternalFunction::execute {
+dbxml_python.i:%exception XmlExternalFunction::close {
+
+
+/usr/local/env/db/dbxml-2.5.16/dbxml/dist/swig/dbxml.i:1956: Warning(473): Returning a pointer or reference in a director method is not recommended.
+/usr/local/env/db/dbxml-2.5.16/dbxml/dist/swig/dbxml.i:1959: Warning(473): Returning a pointer or reference in a director method is not recommended.
+/usr/local/env/db/dbxml-2.5.16/dbxml/dist/swig/dbxml.i:1965: Warning(473): Returning a pointer or reference in a director method is not recommended.
+/usr/local/env/db/dbxml-2.5.16/dbxml/dist/swig/dbxml.i:1968: Warning(473): Returning a pointer or reference in a director method is not recommended.
+
+
+
+g4pb:qxml blyth$ python -c "import pyextfun"
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    File "pyextfun.py", line 7, in <module>
+        import _pyextfun
+	ImportError: dlopen(./_pyextfun.so, 2): Symbol not found: __ZN5DbXml10XmlResultsD1Ev
+	  Referenced from: /Users/blyth/env/db/bdbxml/qxml/_pyextfun.so
+	    Expected in: dynamic lookup
+
+
+
+
+EON
+}
+
+bdbxml-swig(){
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   local tmp=/tmp/env/$FUNCNAME
+   mkdir -p $tmp && cd $tmp
+	      
+   # extracts from /usr/local/env/db/dbxml-2.5.16/dbxml/dist/s_swig  
+   local swigd=$(bdbxml-dir)/dbxml/dist/swig
+
+   local swigi=$swigd/dbxml.i
+   local swigl=$(basename $swigi)
+   local outd=python
+   local wrap=$outd/dbxml_python_wrap.cpp
+
+   mkdir -p $outd
+
+
+   if [ -d "$outd" -a -f "$wrap"   ]; then 
+       echo $msg already generated wrap $wrap
+   else
+      #	   
+      # all these are %include	from dbxml.i but cannot find most of them ?   
+      # dbxml.i exception.i typemaps.i std_string.i dbxml_python.i"
+      #
+      cp $swigd/dbxml.i .
+      # cp $swigd/dbxml_python.i .
+
+      swig -Wall -python -c++ -threads -I$swigd -outdir $outd -o $wrap $swigl
+      sed -f $swigd/python-post.sed $wrap > $wrap.tmp
+      cp $wrap.tmp $wrap
+   fi   
+
+   local actd=$(bdbxml-dir)/dbxml/src/python
+
+   # lots of differences : maybe swig version effect 
+   #diff $actd/dbxml_python_wrap.cpp $outd/dbxml_python_wrap.cpp  
+   #diff $actd/dbxml_python_wrap.h   $outd/dbxml_python_wrap.h  
+   #diff $actd/dbxml.py              $outd/dbxml.py  
+
+   #cd $iwd
+}
+
 
 
