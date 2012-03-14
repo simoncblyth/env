@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 		("help,h",        "produce help message")
 		("xqpath,q",      po::value(&xqpath), "path for input xquery, positional argument also works ")
 		("baseuri,b",     po::value(&baseuri), "baseuri ")
-		("key,k",        po::value<svec>(&keys), "keys ")
-		("val,v",        po::value<svec>(&vals), "vals ")
+		("key,k",         po::value<svec>(&keys), "keys ")
+		("val,v",         po::value<svec>(&vals), "vals ")
 		("dbxmldir,d",    po::value(&dbxmldir), "path of directory containing hfagc.dbxml and hfagc_system.dbxml containers")
 		;
 
@@ -116,6 +116,10 @@ int main(int argc, char **argv)
         XmlQueryContext qc = mgr.createQueryContext();        
 
 	qc.setNamespace("rez","http://hfag.phys.ntu.edu.tw/hfagc/rez");
+
+
+
+
 
 	// Set the prefix URI
 	qc.setNamespace("my", resolver.getUri());

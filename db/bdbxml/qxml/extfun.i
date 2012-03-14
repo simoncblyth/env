@@ -21,6 +21,7 @@ using namespace DbXml;
 class XmlExternalFunction;
 class MyExternalFunctionPow;
 class MyExternalFunctionSqrt;
+class QuoteToValues;
 
 
 class XmlExternalFunction
@@ -41,6 +42,13 @@ public:
 };
 
 class MyExternalFunctionSqrt : public XmlExternalFunction
+{
+public:
+	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;
+	void close();
+};
+
+class QuoteToValues : public XmlExternalFunction
 {
 public:
 	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;

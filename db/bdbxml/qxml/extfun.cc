@@ -71,3 +71,34 @@ void MyExternalFunctionSqrt::close()
 }
 
 
+
+
+
+
+XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
+{
+	XmlResults argResult1 = args.getArgument(0);
+	XmlValue arg1;
+	argResult1.next(arg1);
+
+        cout << "QTV: asString    " << arg1.asString() << endl;
+        cout << "QTV: getNodeType " << arg1.getNodeType() << endl;
+
+
+
+	double result = sqrt(arg1.asNumber());
+		
+	XmlResults results = mgr.createResults();
+	XmlValue va(result);
+	results.add(va);
+	
+	return results;
+	
+}
+
+void QuoteToValues::close()
+{
+	delete this;
+}
+
+

@@ -19,6 +19,13 @@ public:
 	void close();
 };
 
+class QuoteToValues : public XmlExternalFunction
+{
+public:
+	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;
+	void close();
+};
+
 
 #endif
 

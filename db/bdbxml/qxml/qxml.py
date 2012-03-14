@@ -87,6 +87,7 @@ if __name__ == '__main__':
         sys_ = mgr.openContainer( sys_path )
         sys_.addAlias("sys") 
 
+
         qc = mgr.createQueryContext()        
 
 	qc.setNamespace("rez","http://hfag.phys.ntu.edu.tw/hfagc/rez")
