@@ -10,6 +10,15 @@ bdbxml-env(){
 bdbxml-usage(){
   cat << EOU
 
+Docs
+~~~~
+
+Documentation index
+     http://docs.oracle.com/cd/E17276_01/html/toc.htm
+
+C++ API docs
+     http://docs.oracle.com/cd/E17276_01/html/api_reference/CXX/frame.html
+
 
 
 installation

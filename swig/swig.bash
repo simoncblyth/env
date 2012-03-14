@@ -10,6 +10,13 @@ swig-env(){
 swig-usage(){
   cat << EOU
 
+
+
+  http://www.swig.org/Doc2.0/SWIGDocumentation.html
+  http://www.swig.org/Doc1.3/Python.html
+  http://www.swig.org/Doc1.3/Customization.html#Customization_nn7
+
+
 SWIG : wrap C/C++ to generate scripting language extensions
 ============================================================
 
