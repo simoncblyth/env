@@ -1,89 +1,48 @@
 /*
- 
    Command line tool to facilitate XQuerying dbxml container
    without having to escape the query.
 
-
+  TODO:
+     logging/verbosity control
+     handle no inputfile 
+     allow reading "inputfile" from stdin
+     implicit DBEnv  ?
+     comment (not scrub) first line
+     writing output xml to file, when output path provided in options 
+     
 */
+
+#include <vector>
 #include <string>
+#include <map>
 #include <fstream>
-#include "dbxml/DbXml.hpp"
-
-#include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
 #include <iostream>
 #include <streambuf>
 
+#include "dbxml/DbXml.hpp"
+
+#include "config.hh"
 #include "extresolve.hh"
 	
 using namespace std;
 using namespace DbXml;
 
 typedef vector<string> svec ;
-
+typedef map<string,string> ssmap ;
+typedef map<string,ssmap> sssmap ;
 
 int main(int argc, char **argv)
 {
-      string xqpath("");
-      string dbxmldir("/tmp/hfagc") ;
-      //string baseuri("dbxml:/") ;
-      string baseuri("") ;
-      svec keys ;
-      svec vals ;
-
-      po::options_description desc("Allowed options");
-      desc.add_options()
-		("help,h",        "produce help message")
-		("xqpath,q",      po::value(&xqpath), "path for input xquery, positional argument also works ")
-		("baseuri,b",     po::value(&baseuri), "baseuri ")
-		("key,k",         po::value<svec>(&keys), "keys ")
-		("val,v",         po::value<svec>(&vals), "vals ")
-		("dbxmldir,d",    po::value(&dbxmldir), "path of directory containing hfagc.dbxml and hfagc_system.dbxml containers")
-		;
-
-      po::positional_options_description p;
-      p.add("xqpath", -1);
-
-      po::variables_map vm;
-      try{
-          po::parsed_options parsed = po::command_line_parser(argc, argv).options(desc).positional(p).run();
-          po::store(parsed, vm);
-          po::notify(vm);
-      } catch (exception &e) {
-          cout << "Exception: " << e.what() << endl;
-          return 1;
-      }
-
-
-      if (vm.count("help") || xqpath == "") {
-           cout << desc << "\n";
-	   return 1;
-      }
-
-
-      size_t nkeys = keys.size() ;
-      size_t nvals = vals.size() ;
-      if(nkeys != nvals){
-	    cout << "ERROR : number of keys must match the number of vals " << endl ;
-	    return 2 ;  
-      } 
-
-      for(size_t i = 0 ; i < nkeys ; ++i )
-      {
-	   cout << "key " << keys[i] << " " << vals[i] <<  endl ;
-      }
-
+     sssmap cfg ;
+     qxml_config( argc, argv, cfg );
+       
+     string xqpath( cfg["cli"]["inputfile"] );
      ifstream t(xqpath.c_str()); 
-
-     // ignore 1st line when 1st char is '#' allowing shebang running  
      char c = t.peek();
-     if(c == '#') t.ignore( numeric_limits<streamsize>::max(), '\n' );  
-
+     if(c == '#') t.ignore( numeric_limits<streamsize>::max(), '\n' );  // ignore 1st line when 1st char is '#' allowing shebang running  
      string q((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
 
      cout << q << endl ;
- 
 
      DB_ENV* env = NULL;
      int dberr = db_env_create(&env, 0);
@@ -94,55 +53,43 @@ int main(int argc, char **argv)
      }
 
      u_int32_t env_flags = DB_CREATE | DB_INIT_MPOOL  ;
-     char *envHome = "/tmp/dbxml";  
+     const char *envHome = cfg["dbxml"]["dbxml.environment_dir"].c_str() ;  
      env->open(env, envHome, env_flags, 0);
 
      try {
         XmlManager mgr(env, DBXML_ALLOW_EXTERNAL_ACCESS)  ;
-
-	// Create an function resolver
 	MyFunResolver resolver;
-
-	// Register the function resolver to XmlManager
 	mgr.registerResolver(resolver); 
 
-        
-        XmlContainer hfagc = mgr.openContainer( dbxmldir + "/hfagc.dbxml");
-        hfagc.addAlias("hfc") ;
+        XmlContainer* cont = NULL ;
+        ssmap::const_iterator it ;
+        for( it = cfg["containers"].begin() ; it != cfg["containers"].end() ; ++it ){
+	    cout << "containers:    " << it->first << " : " << it->second << endl ;   
+            cont = new XmlContainer(mgr.openContainer( it->second ));   // hmm lodged in manager ?
+            cont->addAlias(it->first) ;
+        }
 
-        XmlContainer sys   = mgr.openContainer( dbxmldir + "/hfagc_system.dbxml");
-        sys.addAlias("sys") ;
+	XmlQueryContext qc = mgr.createQueryContext();        
 
-        XmlQueryContext qc = mgr.createQueryContext();        
-
-	qc.setNamespace("rez","http://hfag.phys.ntu.edu.tw/hfagc/rez");
-
-
-
-
-
-	// Set the prefix URI
 	qc.setNamespace("my", resolver.getUri());
+        qc.setDefaultCollection( cfg["dbxml"]["dbxml.default_collection"] );
+        qc.setBaseURI( cfg["dbxml"]["dbxml.baseuri"]  );
 
-        qc.setDefaultCollection("dbxml:///" + dbxmldir + "/hfagc.dbxml");
-        qc.setBaseURI( baseuri );
-
-	// populate context with key value pairs   
-   	for(size_t i = 0 ; i < nkeys ; ++i )
-        {
-	   cout << "  $" << keys[i] << " := \"" << vals[i] << "\"" << endl ;
-           qc.setVariableValue( keys[i] , vals[i] );
+        for( it = cfg["namespaces"].begin() ; it != cfg["namespaces"].end() ; ++it ){
+	    cout << "namespaces:    " << it->first << " : " << it->second << endl ;   
+	    qc.setNamespace( it->first, it->second);
+        }
+        for( it = cfg["variables"].begin() ; it != cfg["variables"].end() ; ++it ){
+	    cout << "variables:    " << it->first << " : " << it->second << endl ;   
+            qc.setVariableValue( it->first , it->second );
         }
 
         XmlResults res = mgr.query( q , qc);
-
-        // Print out the result of the query
         XmlValue value;
         while (res.next(value)) cout << "Value: " << value.asString() << endl;
 
     } catch (XmlException &e) {
          cout << "Exception: " << e.what() << std::endl;
     }
-
     return 0;
 }
