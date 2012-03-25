@@ -8,6 +8,16 @@ from optparse import OptionParser
 log = logging.getLogger(__name__)
 import re
 
+def remove_droppings():
+    """
+    Suspect the need for this to clean up the __db.001
+    indicates are missing some memory cleanup ?
+    """
+    import os, glob	
+    files = glob.glob("__db.*")
+    for file in files:
+        os.remove(file)
+
 def parse_args():
     """
     Try to duplicate the boost_program_options interface in C++ qxml
@@ -105,9 +115,15 @@ def raw_parse_config(path):
     return cfg
 
 
+
 def read_xquery( path ):
+    placeholder = r"""
+for $a in collection() return dbxml:metadata("dbxml:name", $a)
+"""
     if not path:
-        raise Exception("an inputfile containing the XQuery is required %s " % path )
+        #raise Exception("an inputfile containing the XQuery is required %s " % path )
+	log.warn("using placeholder XQuery as no inputfile path specified")
+	return placeholder
     lines = open(path, "r").readlines()
     if lines[0][0] == "#":  # comment 1st line when 1st char is '#' allowing shebang running  
         lines[0] = "(: %s :)\n" % lines[0].rstrip()

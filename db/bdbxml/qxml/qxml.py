@@ -4,70 +4,176 @@ Pythonic equivalent to qxml.cc
 
   ./qxml.py test/extmixed.xq
 
+
+suspect that when the container goes out of scope
+on python side it goes away on C++ side
+
+
+SWIG PYTHON MEMORY MANAGEMENT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    http://www.swig.org/Doc1.3/Python.html#Python_nn30
+
+    31.4.2 Memory management
+
+    Associated with proxy object, is an ownership flag .thisown 
+    The value of this flag determines who is responsible for deleting the underlying C++ object. 
+    If set to 1, the Python interpreter will destroy the C++ object when the proxy class is garbage collected. 
+    If set to 0 (or if the attribute is missing), then the destruction of the proxy class has no effect on the C++ object.
+
+    When an object is created by a constructor or returned by value, Python automatically takes ownership of the result. 
+
 """
+from __future__ import with_statement 
 import os, logging
 log = logging.getLogger(__name__)
 
 from bsddb3.db import *
 from dbxml import *
 from extfun import myResolver
-from config import qxml_config
+from config import qxml_config, remove_droppings
+from pprint import pformat
 
-def remove_droppings():
-    """
-    Suspect the need for this to clean up the __db.001
-    indicates are missing some memory cleanup ?
-    """
-    import os, glob	
-    files = glob.glob("__db.*")
-    for file in files:
-        os.remove(file)
+class QXML(dict):
+    def __init__(self, *args, **kwargs ):	
+	dict.__init__(self, *args, **kwargs)    
+	if len(args) == 0:
+            d = qxml_config()
+            self.update(d)
+	self.bootstrap()
 
-if __name__ == '__main__':
+    def __repr__(self):
+	return pformat(dict(self))
 
-    cfg = qxml_config()
-    try:
-        #environment = DBEnv()
+    def bootstrap(self):
+	"""
+        Bootstrap Berkeley DB XML environment, manager and query context 
+	according to the configurations prescription.
+
+	``mgr.env`` provides the enviroment 
+
         #environment.open(None, DB_CREATE|DB_INIT_LOCK|DB_INIT_LOG|DB_INIT_MPOOL|DB_INIT_TXN, 0)
-        #environment.open(None, DB_CREATE|DB_INIT_MPOOL, 0)
         #environment.open(None, DB_CREATE, 0)
-
-	mgr = XmlManager(0,DBXML_ALLOW_EXTERNAL_ACCESS) 
+	#mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV)   ## when use ADOPT get segmentation at cleanup
+	"""
+        env = DBEnv()   # no thisown for C wrapper  
+        env.open(None, DB_CREATE|DB_INIT_MPOOL, 0)
+	mgr = XmlManager(env, DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV) 
 	resolver = myResolver()
+	mgr.thisown = False
 	mgr.registerResolver(resolver)
+	self._containers(mgr) 	
 
-        for tag,path in cfg['containers'].items():
-	    log.info(" containers %s = %s  " % ( tag, path )) 	
-            cont  = mgr.openContainer(path)
-            cont.addAlias(tag) 
+	ctx = mgr.createQueryContext()       
+	ctx.setNamespace("my", resolver.getUri() )
+        self._ctx( ctx )
 
-        qc = mgr.createQueryContext()       
+        self.mgr = mgr 
+	self.ctx = ctx
 
-	qc.setNamespace("my", resolver.getUri())
-        qc.setDefaultCollection( cfg["dbxml"]["dbxml.default_collection"] )
-        qc.setBaseURI( cfg["dbxml"]["dbxml.baseuri"])
-
-        for name,uri in cfg['namespaces'].items():
-	    log.info(" namespaces %s = %s  " % ( name, uri )) 	
-	    qc.setNamespace(name, uri)
-
-	for k,v in cfg['variables'].items():
-	    log.info(" setVariableValue $%s := %s  " % ( k, v )) 	
-	    qc.setVariableValue( k, XmlValue(v) )
-
-        res = mgr.query( cfg['query'] , qc )
-
+    def __call__(self, q=None ):
+	if not q:
+	    q = self['query']	
+        res = self.mgr.query( q , self.ctx )
+	print res
 	for value in res:
+            print "value: ", value.asString() 
+	return res
+
+    def _containers(self, mgr):
+	"""
+        Must arrange to prevent python garbage collection of swig proxies 
+	from killing the underlying C++ objects.  Normally python objects
+	get collected when they go out of scope, giving plenty of opportunities
+	for dropping the C++ objects on the floor.
+
+	Approaches that work: 
+
+	#. set ``.thisown = False`` on the proxies
+	#. assign to a slot in a global dict, so they never go out of scope 
+        #. use monolithic coding style  
+
+	There are not enough containers to worry about leaking.
+	"""
+	log.info("config_containers mgr.thisown %s " % mgr.thisown ) 
+	for tag,path in self['containers'].items():
+	    log.info(" containers %s = %s  " % ( tag, path )) 	
+	    if os.path.exists(path):
+		log.info("openContainer %s " % path )    
+                cont = mgr.openContainer(path)
+                cont.addAlias(tag) 
+		cont.thisown = False
+	    else:
+		log.warn("container %s does not exist " % path )	 
+		raise Exception("No such container %s " % path )
+
+    def _ctx( self, ctx ):
+        ctx.setDefaultCollection( self["dbxml"]["dbxml.default_collection"] )
+        ctx.setBaseURI( self["dbxml"]["dbxml.baseuri"])
+
+        for name,uri in self['namespaces'].items():
+	    log.info(" namespaces %s = %s  " % ( name, uri )) 	
+	    ctx.setNamespace(name, uri)
+
+	for k,v in self['variables'].items():
+	    log.info(" setVariableValue $%s := %s  " % ( k, v )) 	
+	    ctx.setVariableValue( k, XmlValue(v) )
+
+
+
+class Q(object):
+    def __init__(self, holder ):
+	self.holder = holder
+
+    def __call__(self, q=None ):
+        if not q:
+            q = self.cfg['query']
+        return self.mgr.query( q , self.ctx )
+
+
+class QX(object):
+    def __init__(self):
+	"""
+        A contextlib jacket for QXML, motivation was to avoid duplication of 
+	exception handling... unsure if need that now.
+
+        http://www.doughellmann.com/PyMOTW/contextlib/
+	"""
+        qxm = QXML()
+	self.qxm = qxm
+
+    def __enter__(self):
+	return self.qxm
+
+    def __exit__(self, etype, e , etb):
+	"""
+	:return: True to handle expection here, or False to propagate it on 
+	"""
+	handled = False
+	if isinstance(e,XmlException): 
+	    log.warn("XmlException (%s) %s " % (  e.exceptionCode, e.what) )
+	    if e.exceptionCode == DATABASE_ERROR:
+	        log.warn("Database error code: %s " % e.dbError)
+            handled = True
+        return handled
+
+
+def test_qx():
+    with QX() as q: 
+	print q    
+        for value in q():
             print "Value: ", value.asString() 
 
-        del mgr
-        #environment.close(0)
-        #remove_droppings()
+if __name__ == '__main__':
+    pass
+    #qx = QXML()
+    #print qx
+    #res = qx()
+    #print res
+    with QX() as q: 
+	print q    
+        for value in q():
+            print "Value: ", value.asString() 
 
-    except XmlException, e:
-	print "XmlException (", e.exceptionCode,"): ", e.what
-	if e.exceptionCode == DATABASE_ERROR:
-	    print "Database error code:",e.dbError
-    pass 
 
 
