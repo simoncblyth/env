@@ -23,6 +23,11 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
     try {
 	     string config_file;
 
+             po::options_description envvar("Envvar options");
+             envvar.add_options()
+		("config,c", po::value<string>(&config_file)->default_value("hfagc.ini"), "name of a file of a configuration.")
+		;
+
 	     // Declare a group of options that will be allowed only on command line
 	     po::options_description generic("Generic options");
 	     generic.add_options()
@@ -30,8 +35,9 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 		("help,h",  "produce help message")
   		("key,k",    po::value<svec>(),   "keys of variables propagated into XQuery scripts ")
 		("val,v",    po::value<svec>(),   "vals of variables propagated into XQuery scripts ")
-		("config,c", po::value<string>(&config_file)->default_value("hfagc.ini"), "name of a file of a configuration.")
 		;
+	//	("config,c", po::value<string>(&config_file)->default_value("hfagc.ini"), "name of a file of a configuration.")
+
 
 	     po::options_description config("Config file options");
 	     config.add_options()
@@ -49,6 +55,10 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 		("inputfile", po::value<string>(), "input file")
 		;
 
+
+	     po::options_description envvar_options;
+	     envvar_options.add(envvar);
+
 	     po::options_description cmdline_options;
 	     cmdline_options.add(generic).add(config).add(posit);
 
@@ -57,7 +67,8 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 
 	     po::options_description visible("Allowed options");
 	     visible.add(generic).add(config).add(posit);
-		
+
+	   
 	     po::positional_options_description p;
 	     p.add("inputfile", -1);
 		
@@ -65,8 +76,14 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 	     // allowing unregisted presents problems with positionals
 	     
 	     po::parsed_options parsed = po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run() ;
+
+             po::parsed_options eparse = po::parse_environment(envvar, "QXML_"); 
+
 	     store( parsed, vm);
+	     store( eparse, vm);
 	     notify(vm);
+
+             cout << "parse environment " << eparse.options.size() << " config_file" << config_file << endl ;
 
 	     //svec unrec = po::collect_unrecognized(parsed.options, po::include_positional);
              //svec::const_iterator it ;
