@@ -14,7 +14,8 @@ from pyextfun import MyExternalFunctionSqrt
 class myFooFunction(XmlExternalFunction):
     def __init__(self):
 	XmlExternalFunction.__init__(self)
-	log.debug("myFunction constructor")
+	self.thisown = False
+	log.debug("myFooFunction constructor")
 
     def execute(self, txn, mgr, args):
         results = mgr.createResults()
@@ -23,17 +24,25 @@ class myFooFunction(XmlExternalFunction):
         return results
 
     def close(self):
-        log.debug("myFunction -- close")
+        log.debug("myFooFunction -- close")
         del self
         
     def __del__(self):
-        log.debug("myFunction -- del")
+        log.debug("myFooFunction -- del")
 
 
 class myDumperFunction(XmlExternalFunction):
     """
     Checking the passing of XML nodes to extension functions
     """
+
+    def __init__(self):
+	XmlExternalFunction.__init__(self)
+	self.thisown = False
+	log.debug("myDumperFunction constructor")
+    def __del__(self):
+        log.debug("myDumperFunction -- del")
+
     def execute(self, txn, mgr, args):
         """
 
@@ -66,10 +75,14 @@ class myResolver(XmlResolver):
 	XmlResolver.__init__(self)
         self.uri_ = "http://my"
         log.debug("init resolver with uri %s" % self.uri_)
+	self.thisown = False
+
         self.foo = myFooFunction()
         self.dumper = myDumperFunction()
+
 	self.pow = MyExternalFunctionPow()
 	self.sqrt = MyExternalFunctionSqrt()
+
         log.debug("init resolver done")
 
     def getUri(self): return self.uri_
@@ -79,6 +92,7 @@ class myResolver(XmlResolver):
         verify the number of arguments, uri and name which uniquely
         identify a function in XQuery
 	"""
+	log.info("resolveExternalFunction name %s numArgs %s " % ( name, numArgs) )
         if uri != self.uri_:
             log.warn("myResolver -- wrong uri ")
 	    raise Exception("resolver wrong uri")

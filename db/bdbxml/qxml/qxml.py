@@ -5,12 +5,12 @@ Pythonic equivalent to qxml.cc
   ./qxml.py test/extmixed.xq
 
 
-suspect that when the container goes out of scope
-on python side it goes away on C++ side
-
-
 SWIG PYTHON MEMORY MANAGEMENT
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    When DBXML wrapped python objects goes out of scope
+    on python side it goes away on C++ side : unless measures are 
+    taken to prevent this.
 
     http://www.swig.org/Doc1.3/Python.html#Python_nn30
 
@@ -40,7 +40,9 @@ class QXML(dict):
 	if len(args) == 0:
             d = qxml_config()
             self.update(d)
+	log.info("QXML __init__ after qxml_config")    
 	self.bootstrap()
+	log.info("QXML __init__ DONE")    
 
     def __repr__(self):
 	return pformat(dict(self))
@@ -65,11 +67,13 @@ class QXML(dict):
 	self._containers(mgr) 	
 
 	ctx = mgr.createQueryContext()       
+	ctx.thisown = False
 	ctx.setNamespace("my", resolver.getUri() )
         self._ctx( ctx )
 
         self.mgr = mgr 
 	self.ctx = ctx
+	log.info("QXML.bootstrap DONE")    
 
     def __call__(self, q=None ):
 	if not q:
@@ -95,11 +99,9 @@ class QXML(dict):
 
 	There are not enough containers to worry about leaking.
 	"""
-	log.info("config_containers mgr.thisown %s " % mgr.thisown ) 
 	for tag,path in self['containers'].items():
-	    log.info(" containers %s = %s  " % ( tag, path )) 	
 	    if os.path.exists(path):
-		log.info("openContainer %s " % path )    
+		log.info("openContainer %s : %s " % ( tag, path) )    
                 cont = mgr.openContainer(path)
                 cont.addAlias(tag) 
 		cont.thisown = False
@@ -112,23 +114,12 @@ class QXML(dict):
         ctx.setBaseURI( self["dbxml"]["dbxml.baseuri"])
 
         for name,uri in self['namespaces'].items():
-	    log.info(" namespaces %s = %s  " % ( name, uri )) 	
+	    log.info("namespaces %s = %s  " % ( name, uri )) 	
 	    ctx.setNamespace(name, uri)
 
 	for k,v in self['variables'].items():
 	    log.info(" setVariableValue $%s := %s  " % ( k, v )) 	
 	    ctx.setVariableValue( k, XmlValue(v) )
-
-
-
-class Q(object):
-    def __init__(self, holder ):
-	self.holder = holder
-
-    def __call__(self, q=None ):
-        if not q:
-            q = self.cfg['query']
-        return self.mgr.query( q , self.ctx )
 
 
 class QX(object):
@@ -166,14 +157,18 @@ def test_qx():
 
 if __name__ == '__main__':
     pass
-    #qx = QXML()
-    #print qx
-    #res = qx()
-    #print res
-    with QX() as q: 
-	print q    
-        for value in q():
-            print "Value: ", value.asString() 
+
+ 
+
+    qx = QXML()
+    print qx
+    res = qx()
+    print res
+
+    #with QX() as q: 
+    #i	print q    
+    #    for value in q():
+    #        print "Value: ", value.asString() 
 
 
 
