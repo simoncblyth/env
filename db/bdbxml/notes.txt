@@ -5,7 +5,8 @@ QUESTIONS
 *************
 
 Can a C++ extension function be used from a python entension function ? 
-It seems that extension mixing is not possible ? 
+
+   YES, but not easily : by swig converting the C++ into a python module and using it that way
 
 
 **********

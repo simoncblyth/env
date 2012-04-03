@@ -15,3 +15,11 @@ Steps to make C++ extension available from python main XQueries
 #. setup swig wrapping in ``extfun.i``
 
 
+
+Using the python API
+=====================
+
+Very close to C++, but not the same need to examine::
+
+    vi /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/dbxml.py
+

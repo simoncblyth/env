@@ -7,6 +7,7 @@ qtys within group
 ::
      ./qtys.xq -h
      ./qtys.xq -k code -v 01103
+     qxml.py qtys.xq -k code -v 01102
 
 #. for container access need baseURI of dbxml:/ but for module import need -b ""
 #. module loading only working from same directory 

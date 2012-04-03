@@ -11,41 +11,31 @@ from pyextfun import MyExternalFunctionPow
 from pyextfun import MyExternalFunctionSqrt 
 
 
-class myFooFunction(XmlExternalFunction):
+class MyExternalFunction(XmlExternalFunction):
     def __init__(self):
 	XmlExternalFunction.__init__(self)
 	self.thisown = False
-	log.debug("myFooFunction constructor")
+	log.debug("%s __init__ " % self.__class__.__name__ )
+    def __del__(self):
+	log.debug("%s __del__ " % self.__class__.__name__ )
+    def close(self):
+        log.debug("%s close" %  self.__class__.__name__ )
+        del self
+     
 
+class Foo(MyExternalFunction):
     def execute(self, txn, mgr, args):
         results = mgr.createResults()
         results.add(XmlValue("foo"))
         results.add(XmlValue("bar"))
         return results
 
-    def close(self):
-        log.debug("myFooFunction -- close")
-        del self
-        
-    def __del__(self):
-        log.debug("myFooFunction -- del")
-
-
-class myDumperFunction(XmlExternalFunction):
+class Dumper(MyExternalFunction):
     """
     Checking the passing of XML nodes to extension functions
     """
-
-    def __init__(self):
-	XmlExternalFunction.__init__(self)
-	self.thisown = False
-	log.debug("myDumperFunction constructor")
-    def __del__(self):
-        log.debug("myDumperFunction -- del")
-
     def execute(self, txn, mgr, args):
         """
-
         :param args: XmlArguments
 
         Iterating over XmlResults provides XmlValue instances which have DOM like methods
@@ -63,27 +53,63 @@ class myDumperFunction(XmlExternalFunction):
         #results.add(XmlValue(""))
         return results
 
-    def close(self):
-        log.debug("Dumper.close")
-        del self
 
 
+class Quote2Values(MyExternalFunction):
+    """	
+    """
+    def execute(self, txn, mgr, args):
+        """
+        :param args: XmlArguments
+
+        Iterating over XmlResults provides XmlValue instances which have DOM like methods
+        """ 
+        nargs = args.getNumberOfArgs()
+	if nargs != 1: raise Exception("unexpected number of arguments %s " % nargs)
+
+	arg0 = args.getArgument(0)   
+        assert type(arg0) == XmlResults
+        value = arg0.next()
+        log.info("Q2V arg %s %s" % (value.__class__.__name__, value.asString()) ) 
+	rdr = value.asEventReader()
+
+	i = 0 
+        while rdr.hasNext():
+            i += 1		 
+	    typ = rdr.next()	
+	    if   typ == XmlEventReader.StartElement:
+		log.info("Q2V %s start %s" % (i, rdr.getLocalName()) )     
+	    elif typ == XmlEventReader.EndElement:
+		log.info("Q2V %s end %s" % (i, rdr.getLocalName()) )     
+	    else:	     
+                log.info("Q2V %s typ %s %s " % (i, typ,""))		 
+
+
+        results = mgr.createResults()
+        #results.add(XmlValue(""))
+        return results
+
+	
 
 
 class myResolver(XmlResolver):
+    """
+    Hmm not a very sustainable approach
+    """
     def __init__(self):
 	XmlResolver.__init__(self)
         self.uri_ = "http://my"
         log.debug("init resolver with uri %s" % self.uri_)
 	self.thisown = False
 
-        self.foo = myFooFunction()
-        self.dumper = myDumperFunction()
+        self.foo = Foo()
+        self.dumper = Dumper()
+        self.quote2values = Quote2Values()
 
 	self.pow = MyExternalFunctionPow()
 	self.sqrt = MyExternalFunctionSqrt()
 
-        log.debug("init resolver done")
+        log.info("%s __init__" % self.__class__.__name__ )
 
     def getUri(self): return self.uri_
 
@@ -102,6 +128,8 @@ class myResolver(XmlResolver):
 
         if sig == (0,"foo"):
             return self.foo
+        elif sig == (1,"quote2values"):
+            return self.quote2values
         elif sig == (1,"dumper"):
             return self.dumper
         elif sig == (1,"sqrt"):
@@ -113,7 +141,7 @@ class myResolver(XmlResolver):
 	    return None
     
     def __del__(self):
-        log.info("myResolver -- del")
+        log.info("%s __del__" % self.__class__.__name__ )
 
 
 if __name__ == '__main__':

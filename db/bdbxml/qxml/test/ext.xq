@@ -18,7 +18,7 @@ let $frag := element frag { "hello" }
 :)
 declare function my:pow($a as xs:double, $b as xs:double) as xs:double external;
 declare function my:sqrt($a as xs:double) as xs:double external;
-declare function my:quote2values($a as node()) as xs:double external;
+declare function my:quote2values($a as node()) as xs:double* external;
 
 
 let $frag := <frag/> 
