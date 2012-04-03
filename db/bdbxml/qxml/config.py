@@ -2,7 +2,7 @@
 """
 
 """
-import logging, re
+import os, logging, re
 from pprint import pformat
 from optparse import OptionParser
 log = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ def parse_args():
     """
     parser = OptionParser()
     parser.add_option("-l", "--level",  default="INFO" )
-    parser.add_option("-c", "--config", default="hfagc.ini"  )
+    parser.add_option("-c", "--config", default=os.environ.get("QXML_CONFIG","no-qxml-config-envvar")  )
     parser.add_option("-k", "--key" ,   action="append" )
     parser.add_option("-v", "--val" ,   action="append" )
     parser.add_option("-i", "--inputfile"  )

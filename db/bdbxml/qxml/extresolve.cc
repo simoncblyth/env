@@ -8,8 +8,7 @@ using namespace DbXml;
 using namespace std;
 
 
-MyFunResolver::MyFunResolver()
-	:uri_("my://my.fun.resolver")
+MyFunResolver::MyFunResolver():uri_("http://my")
 {
 }
 

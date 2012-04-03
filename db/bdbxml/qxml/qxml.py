@@ -59,7 +59,8 @@ class QXML(dict):
 	#mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV)   ## when use ADOPT get segmentation at cleanup
 	"""
         env = DBEnv()   # no thisown for C wrapper  
-        env.open(None, DB_CREATE|DB_INIT_MPOOL, 0)
+        envdir = self["dbxml"]["dbxml.environment_dir"]
+        env.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(env, DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV) 
 	resolver = myResolver()
 	mgr.thisown = False

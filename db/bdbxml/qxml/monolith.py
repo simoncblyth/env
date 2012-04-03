@@ -19,7 +19,8 @@ def test_monolithic():
     cfg = qxml_config()
     try:
         environment = DBEnv()
-        environment.open(None, DB_CREATE|DB_INIT_MPOOL, 0)
+        envdir = cfg["dbxml"]["dbxml.environment_dir"]
+        environment.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS) 
 	resolver = myResolver()
 	mgr.registerResolver(resolver)
