@@ -6,11 +6,12 @@ rather than ``qxml``::
       ./tpydump.xq -l DEBUG
 
 Demos using an external python extension function ``my:dumper`` 
+for $rez in collection("dbxml:/hfc")//rez:quote[rez:qtag='BR:-531:-431,431*/BR:-511:-431,411']
 :)
 
 declare function my:dumper($arg as node()) as xs:string* external; 
 
-for $rez in collection("dbxml:/hfc")//rez:quote[rez:qtag='BR:-531:-431,431*/BR:-511:-431,411']
+for $rez in collection("dbxml:/hfc")//rez:quote
 return 
     my:dumper($rez)
 

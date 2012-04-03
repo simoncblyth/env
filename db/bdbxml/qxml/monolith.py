@@ -2,7 +2,11 @@
 """
 Pythonic equivalent to qxml.cc 
 
-  ./qxml.py test/extmixed.xq
+  ./monolith.py test/extmixed.xq
+
+Monolithic approach is much easier wrt memory management as nothing 
+goes out of scope, but makes it inconvenient to pull up into ipython session 
+
 
 """
 from __future__ import with_statement 
@@ -12,21 +16,22 @@ log = logging.getLogger(__name__)
 from bsddb3.db import *
 from dbxml import *
 from extfun import myResolver
-from config import qxml_config, remove_droppings
+from config import qxml_config
 
 
-def test_monolithic():
+if __name__ == '__main__': 
     cfg = qxml_config()
     try:
         environment = DBEnv()
         envdir = cfg["dbxml"]["dbxml.environment_dir"]
         environment.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS) 
+
 	resolver = myResolver()
 	mgr.registerResolver(resolver)
 
         for tag,path in cfg['containers'].items():
-	    log.info(" containers %s = %s  " % ( tag, path )) 	
+	    log.debug(" containers %s = %s  " % ( tag, path )) 	
             cont  = mgr.openContainer(path)
             cont.addAlias(tag) 
 
@@ -37,7 +42,7 @@ def test_monolithic():
         qc.setBaseURI( cfg["dbxml"]["dbxml.baseuri"])
 
         for name,uri in cfg['namespaces'].items():
-	    log.info(" namespaces %s = %s  " % ( name, uri )) 	
+	    log.debug(" namespaces %s = %s  " % ( name, uri )) 	
 	    qc.setNamespace(name, uri)
 
 	for k,v in cfg['variables'].items():
@@ -51,7 +56,6 @@ def test_monolithic():
 
         del mgr
         #environment.close(0)
-        #remove_droppings()
 
     except XmlException, e:
 	print "XmlException (", e.exceptionCode,"): ", e.what
@@ -59,6 +63,4 @@ def test_monolithic():
 	    print "Database error code:",e.dbError
     pass 
 
-if __name__ == '__main__': 
-    test_monolithic()	
 	

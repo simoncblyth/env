@@ -137,7 +137,7 @@ def qxml_config():
     variables = cli.pop('variables')
     cfg['cli'] = cli
     cfg['variables'] = variables
-    print pformat(cfg)    
+    log.debug(pformat(cfg))    
     cfg['query'] = read_xquery(cfg['cli']['inputfile'])
     return cfg
 

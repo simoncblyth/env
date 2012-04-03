@@ -1,16 +1,3 @@
-#
-# note that when fail to load config, drops __db.00{1,2,3} in pwd
-# when succeed to load config, fails due to lack of directory /tmp/dbxml::
-#
-#    /tmp/dbxml/__db.001: No such file or directory
-#    DB_ENV->get_home: method not permitted before handle's open method
-#    DB_ENV->get_open_flags: method not permitted before handle's open method
-#    DB_ENV->get_home: method not permitted before handle's open method
-#
-# after creating that directory succeeds to run with no pwd droppings
-#
-#
-
 CC = g++
 BOOST_HOME = /opt/local
 NAME = extfun
@@ -53,7 +40,6 @@ main : main.o config.o
 main.o : main.cc
 	$(CC)  -I$(BOOST_HOME)/include -c $^ -o $@ 
 
-
 # swig binding 
 
 $(PYLIBD)/_py$(NAME).so : $(NAME).i
@@ -86,5 +72,5 @@ endif
 
 
 clean:
-	rm -f *.o *.pyc *.so $(NAME)_wrap.* py$(NAME).py __db.* main && rm -rf build
+	rm -f *.o *.pyc *.so __db.* main && rm -rf build
 

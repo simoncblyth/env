@@ -34,15 +34,17 @@ from extfun import myResolver
 from config import qxml_config, remove_droppings
 from pprint import pformat
 
+resolver = myResolver()    ## letting resolver go out of scope, results in XmlExceptions
+
 class QXML(dict):
     def __init__(self, *args, **kwargs ):	
 	dict.__init__(self, *args, **kwargs)    
 	if len(args) == 0:
             d = qxml_config()
             self.update(d)
-	log.info("QXML __init__ after qxml_config")    
+	log.debug("QXML __init__ after qxml_config")    
 	self.bootstrap()
-	log.info("QXML __init__ DONE")    
+	log.debug("QXML __init__ DONE")    
 
     def __repr__(self):
 	return pformat(dict(self))
@@ -54,15 +56,11 @@ class QXML(dict):
 
 	``mgr.env`` provides the enviroment 
 
-        #environment.open(None, DB_CREATE|DB_INIT_LOCK|DB_INIT_LOG|DB_INIT_MPOOL|DB_INIT_TXN, 0)
-        #environment.open(None, DB_CREATE, 0)
-	#mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV)   ## when use ADOPT get segmentation at cleanup
 	"""
         env = DBEnv()   # no thisown for C wrapper  
         envdir = self["dbxml"]["dbxml.environment_dir"]
         env.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(env, DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV) 
-	resolver = myResolver()
 	mgr.thisown = False
 	mgr.registerResolver(resolver)
 	self._containers(mgr) 	
@@ -74,15 +72,14 @@ class QXML(dict):
 
         self.mgr = mgr 
 	self.ctx = ctx
-	log.info("QXML.bootstrap DONE")    
+	log.debug("QXML.bootstrap DONE")    
 
     def __call__(self, q=None ):
 	if not q:
 	    q = self['query']	
         res = self.mgr.query( q , self.ctx )
-	print res
-	for value in res:
-            print "value: ", value.asString() 
+	for i, value in enumerate(res):
+            log.info("value %-3s: %s", i, value.asString()) 
 	return res
 
     def _containers(self, mgr):
@@ -102,7 +99,7 @@ class QXML(dict):
 	"""
 	for tag,path in self['containers'].items():
 	    if os.path.exists(path):
-		log.info("openContainer %s : %s " % ( tag, path) )    
+		log.debug("openContainer %s : %s " % ( tag, path) )    
                 cont = mgr.openContainer(path)
                 cont.addAlias(tag) 
 		cont.thisown = False
@@ -115,7 +112,7 @@ class QXML(dict):
         ctx.setBaseURI( self["dbxml"]["dbxml.baseuri"])
 
         for name,uri in self['namespaces'].items():
-	    log.info("namespaces %s = %s  " % ( name, uri )) 	
+	    log.debug("namespaces %s = %s  " % ( name, uri )) 	
 	    ctx.setNamespace(name, uri)
 
 	for k,v in self['variables'].items():
@@ -159,17 +156,8 @@ def test_qx():
 if __name__ == '__main__':
     pass
 
- 
-
     qx = QXML()
-    print qx
     res = qx()
-    print res
-
-    #with QX() as q: 
-    #i	print q    
-    #    for value in q():
-    #        print "Value: ", value.asString() 
-
+    log.info("res %s" % res )
 
 
