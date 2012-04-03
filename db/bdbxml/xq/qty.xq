@@ -10,8 +10,14 @@ single qty
 :)
 
 import module namespace rezu="http://hfag.phys.ntu.edu.tw/hfagc/rezu" at "rezu.xqm" ;
+declare function my:quote2values($a as node()) as xs:double* external;
+
+
 let $hfc := collection('dbxml:/hfc')
 let $tty := rezu:iqt2name($qty)  
-return ($qty,$tty, count($hfc//rez:quote[rez:qtag=$tty]), $hfc//rez:quote[rez:qtag=$tty] )
+let $num := count($hfc//rez:quote[rez:qtag=$tty])
+let $one := ($hfc//rez:quote[rez:qtag=$tty])[1] 
+
+return ($qty,$tty,$num,$one, my:quote2values($one) ) 
 
 

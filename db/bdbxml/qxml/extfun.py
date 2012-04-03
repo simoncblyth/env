@@ -57,6 +57,43 @@ class Dumper(MyExternalFunction):
 
 class Quote2Values(MyExternalFunction):
     """	
+
+
+           <rez:value>
+                <rez:number>1.5</rez:number>
+                <rez:unit>0.00001</rez:unit>
+                <rez:signif>4.9</rez:signif>
+                <rez:ltype>-</rez:ltype>
+                <rez:limit/>
+                <rez:cl/>
+            </rez:value>
+            <rez:errors>
+                <rez:err>
+                    <rez:errname>stat</rez:errname>
+                    <rez:type>absolute</rez:type>
+                    <rez:symm/>
+                    <rez:plus>0.5</rez:plus>
+                    <rez:minus>0.4</rez:minus>
+                </rez:err>
+                <rez:err>
+                    <rez:errname>syst</rez:errname>
+                    <rez:type>absolute</rez:type>
+                    <rez:symm>0.1</rez:symm>
+                    <rez:plus/>
+                    <rez:minus/>
+                </rez:err>
+            </rez:errors>
+            <rez:xerrors>
+                <rez:xerr>
+                    <rez:errname>Ds BR</rez:errname>
+                    <rez:type>absolute</rez:type>
+                    <rez:symm>0.2</rez:symm>
+                    <rez:plus/>
+                    <rez:minus/>
+                </rez:xerr>
+            </rez:xerrors>
+
+
     """
     def execute(self, txn, mgr, args):
         """
