@@ -36,14 +36,13 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
   		("key,k",    po::value<svec>(),   "keys of variables propagated into XQuery scripts ")
 		("val,v",    po::value<svec>(),   "vals of variables propagated into XQuery scripts ")
 		;
-	//	("config,c", po::value<string>(&config_file)->default_value("hfagc.ini"), "name of a file of a configuration.")
-
 
 	     po::options_description config("Config file options");
 	     config.add_options()
 		("dbxml.environment_dir",    po::value<string>(), "dbxml environment dir ")
 		("dbxml.default_collection", po::value<string>(), "default collection  ")
 		("dbxml.baseuri",            po::value<string>(), "base uri  ")
+		("dbxml.xqmpath",            po::value<string>(), "comma delimited module directories ")
 		("container.path.path",      po::value<svec>(),   "container paths ")
 		("container.tag.tag",        po::value<svec>(),   "container tags ")
 		("namespace.name.name",      po::value<svec>(),   "namespace names ")
@@ -54,7 +53,6 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 	     posit.add_options()
 		("inputfile", po::value<string>(), "input file")
 		;
-
 
 	     po::options_description envvar_options;
 	     envvar_options.add(envvar);
@@ -77,13 +75,16 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 	     
 	     po::parsed_options parsed = po::command_line_parser(argc, argv).options(cmdline_options).positional(p).run() ;
 
+
+	     // NB somewhat bizarre : if an envvar such as QXML_ENTITYPATH were defined this would
+	     // yield an error :  
              po::parsed_options eparse = po::parse_environment(envvar, "QXML_"); 
 
 	     store( parsed, vm);
 	     store( eparse, vm);
 	     notify(vm);
 
-             cout << "parse environment " << eparse.options.size() << " config_file" << config_file << endl ;
+             //cout << "parse environment " << eparse.options.size() << " config_file" << config_file << endl ;
 
 	     //svec unrec = po::collect_unrecognized(parsed.options, po::include_positional);
              //svec::const_iterator it ;
@@ -132,7 +133,7 @@ int qxml_config(int argc, char **argv , sssmap& m )
      kv_zip( vm , m["variables"] , "key",                 "val" );
 
      //vm_dump( vm );
-     cfg_dump(m);
+     //cfg_dump(m);
 }
 
 

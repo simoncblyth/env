@@ -12,6 +12,8 @@ def remove_droppings():
     """
     Suspect the need for this to clean up the __db.001
     indicates are missing some memory cleanup ?
+
+    Nope : seems that the environment dir was not being controlled so PWD was used
     """
     import os, glob	
     files = glob.glob("__db.*")

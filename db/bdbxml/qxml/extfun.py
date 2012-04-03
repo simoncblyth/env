@@ -1,7 +1,7 @@
 """
 http://docs.oracle.com/cd/E17276_01/html/api_reference/CXX/frame.html
 """
-import logging
+import os, logging
 log = logging.getLogger(__name__)
 
 from bsddb3.db import *
@@ -108,10 +108,36 @@ class myResolver(XmlResolver):
 
 	self.pow = MyExternalFunctionPow()
 	self.sqrt = MyExternalFunctionSqrt()
+        self.xqmpath = ""
 
         log.info("%s __init__" % self.__class__.__name__ )
 
     def getUri(self): return self.uri_
+
+    def find_entity(self, systemId, publicId):
+	"""
+	Search directories of QXML_ENTITYPATH for named entity, typically an xqm module
+	"""
+	xqmpath = filter(os.path.exists, self.xqmpath.split(":"))
+	if len(xqmpath) == 0:
+            log.warn("no existing directories in xqmpath ")		
+        for dir in xqmpath:
+            path = os.path.join( dir, systemId )
+	    if os.path.exists(path):
+		return path
+	return None
+
+    def resolveEntity(self, txn, mgr, systemId, publicId):
+	"""
+	allows importing xqm off an directory path
+	"""
+        path = self.find_entity( systemId, publicId )
+	log.info("resolveEntity %s %s => %s " % (systemId, publicId, path))
+	return mgr.createLocalFileInputStream(path) if path else None
+
+    #def resolveModule(self, txn, mgr, moduleLocation, nameSpace):
+    #	log.info("resolveModule %s %s " % (moduleLocation, nameSpace))
+    #	return None
 
     def resolveExternalFunction(self, txn, mgr, uri, name, numArgs):
 	"""    

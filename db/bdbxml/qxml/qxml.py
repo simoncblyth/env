@@ -62,6 +62,8 @@ class QXML(dict):
         env.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(env, DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV) 
 	mgr.thisown = False
+
+        resolver.xqmpath = self["dbxml"]["dbxml.xqmpath"]
 	mgr.registerResolver(resolver)
 	self._containers(mgr) 	
 

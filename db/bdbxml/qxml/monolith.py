@@ -3,10 +3,10 @@
 Pythonic equivalent to qxml.cc 
 
   ./monolith.py test/extmixed.xq
+  ./monolith.py ../xq/t/qty.xq -k qty -v BR_-521_-431+111
 
 Monolithic approach is much easier wrt memory management as nothing 
 goes out of scope, but makes it inconvenient to pull up into ipython session 
-
 
 """
 from __future__ import with_statement 
@@ -28,6 +28,7 @@ if __name__ == '__main__':
 	mgr = XmlManager(environment,DBXML_ALLOW_EXTERNAL_ACCESS) 
 
 	resolver = myResolver()
+        resolver.xqmpath = cfg["dbxml"]["dbxml.xqmpath"]
 	mgr.registerResolver(resolver)
 
         for tag,path in cfg['containers'].items():

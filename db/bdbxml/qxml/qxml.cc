@@ -42,7 +42,7 @@ int main(int argc, char **argv)
      if(c == '#') t.ignore( numeric_limits<streamsize>::max(), '\n' );  // ignore 1st line when 1st char is '#' allowing shebang running  
      string q((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
 
-     cout << q << endl ;
+     //cout << q << endl ;
 
      DB_ENV* env = NULL;
      int dberr = db_env_create(&env, 0);
@@ -58,7 +58,8 @@ int main(int argc, char **argv)
 
      try {
         XmlManager mgr(env, DBXML_ALLOW_EXTERNAL_ACCESS)  ;
-	MyFunResolver resolver;
+	MyResolver resolver;
+	resolver.setXqmPath( cfg["dbxml"]["dbxml.xqmpath"] );
 	mgr.registerResolver(resolver); 
 
         XmlContainer* cont = NULL ;

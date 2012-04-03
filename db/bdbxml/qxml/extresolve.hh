@@ -7,15 +7,26 @@
 using namespace DbXml;
 using namespace std;
 
-class MyFunResolver : public XmlResolver
+class MyResolver : public XmlResolver
 {
 public:
-	MyFunResolver();
-	XmlExternalFunction *resolveExternalFunction(XmlTransaction *txn, XmlManager &mgr,
+	MyResolver();
+
+	XmlExternalFunction* resolveExternalFunction(XmlTransaction *txn, XmlManager &mgr,
 		const std::string &uri, const std::string &name, size_t numberOfArgs) const; 
-	string getUri(){ return uri_; }
+
+        XmlInputStream* resolveEntity( XmlTransaction *txn, XmlManager &mgr, const std::string &systemId,
+		        const std::string &publicId ) const;
+
+	std::string findEntity( const std::string &systemId, const std::string &publicId ) const;
+	std::string getUri(){ return _uri; }
+
+        void setXqmPath( const std::string xqmPath );
+	std::string getXqmPath(){ return _xqmPath ; }
+
 private:
-	const string uri_;
+	string _uri ;
+	string _xqmPath ; 
 };
 
 #endif

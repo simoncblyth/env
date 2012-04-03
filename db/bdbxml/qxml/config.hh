@@ -1,8 +1,10 @@
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std ;
 
+typedef vector<string> svec ;
 typedef map<string, string> ssmap ;
 typedef map<string, ssmap> sssmap ;
 
