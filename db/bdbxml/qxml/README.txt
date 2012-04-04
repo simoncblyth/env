@@ -23,3 +23,13 @@ Very close to C++, but not the same need to examine::
 
     vi /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/dbxml.py
 
+
+
+Ideas
+======
+
+* "dbxml" shell like capabilities for "qxml" that hook into the qxml configuration  
+   /usr/local/env/db/dbxml-2.5.16/dbxml/src/utils/shell/dbxmlsh.cpp
+
+
+
