@@ -7,6 +7,8 @@ log = logging.getLogger(__name__)
 from bsddb3.db import *
 from dbxml import *
 
+from quote import Quote
+
 from pyextfun import MyExternalFunctionPow 
 from pyextfun import MyExternalFunctionSqrt 
 
@@ -55,45 +57,10 @@ class Dumper(MyExternalFunction):
 
 
 
+
 class Quote2Values(MyExternalFunction):
     """	
-
-
-           <rez:value>
-                <rez:number>1.5</rez:number>
-                <rez:unit>0.00001</rez:unit>
-                <rez:signif>4.9</rez:signif>
-                <rez:ltype>-</rez:ltype>
-                <rez:limit/>
-                <rez:cl/>
-            </rez:value>
-            <rez:errors>
-                <rez:err>
-                    <rez:errname>stat</rez:errname>
-                    <rez:type>absolute</rez:type>
-                    <rez:symm/>
-                    <rez:plus>0.5</rez:plus>
-                    <rez:minus>0.4</rez:minus>
-                </rez:err>
-                <rez:err>
-                    <rez:errname>syst</rez:errname>
-                    <rez:type>absolute</rez:type>
-                    <rez:symm>0.1</rez:symm>
-                    <rez:plus/>
-                    <rez:minus/>
-                </rez:err>
-            </rez:errors>
-            <rez:xerrors>
-                <rez:xerr>
-                    <rez:errname>Ds BR</rez:errname>
-                    <rez:type>absolute</rez:type>
-                    <rez:symm>0.2</rez:symm>
-                    <rez:plus/>
-                    <rez:minus/>
-                </rez:xerr>
-            </rez:xerrors>
-
-
+   
     """
     def execute(self, txn, mgr, args):
         """
@@ -108,19 +75,9 @@ class Quote2Values(MyExternalFunction):
         assert type(arg0) == XmlResults
         value = arg0.next()
         log.info("Q2V arg %s %s" % (value.__class__.__name__, value.asString()) ) 
-	rdr = value.asEventReader()
 
-	i = 0 
-        while rdr.hasNext():
-            i += 1		 
-	    typ = rdr.next()	
-	    if   typ == XmlEventReader.StartElement:
-		log.info("Q2V %s start %s" % (i, rdr.getLocalName()) )     
-	    elif typ == XmlEventReader.EndElement:
-		log.info("Q2V %s end %s" % (i, rdr.getLocalName()) )     
-	    else:	     
-                log.info("Q2V %s typ %s %s " % (i, typ,""))		 
-
+        q = Quote(value.asEventReader())
+        log.info(q)
 
         results = mgr.createResults()
         #results.add(XmlValue(""))

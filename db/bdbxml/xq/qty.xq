@@ -1,5 +1,7 @@
-#!/usr/bin/env qxml.py -k qty -v BR_-521_-431+111
+#!/usr/bin/env qxml.py 
 (: 
+#!/usr/bin/env qxml.py -k qty -v BR_-521_-431+111
+
 single qty 
 ~~~~~~~~~~~
 
@@ -12,7 +14,7 @@ single qty
 import module namespace rezu="http://hfag.phys.ntu.edu.tw/hfagc/rezu" at "rezu.xqm" ;
 declare function my:quote2values($a as node()) as xs:double* external;
 
-
+let $qty := "BR_-521_-431+111"
 let $hfc := collection('dbxml:/hfc')
 let $tty := rezu:iqt2name($qty)  
 let $num := count($hfc//rez:quote[rez:qtag=$tty])

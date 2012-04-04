@@ -2,6 +2,9 @@
 #include "extfun.hh"
 #include <math.h>
 
+#include "quote.hh"
+
+
 using namespace DbXml;
 using namespace std;
 
@@ -77,21 +80,21 @@ void MyExternalFunctionSqrt::close()
 
 XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
 {
-	XmlResults argResult1 = args.getArgument(0);
-	XmlValue arg1;
-	argResult1.next(arg1);
+	XmlResults arg0 = args.getArgument(0);
+	XmlValue val0;
+	arg0.next(val0);
 
-        cout << "QTV: asString    " << arg1.asString() << endl;
-        cout << "QTV: getNodeType " << arg1.getNodeType() << endl;
+        cout << "QTV: asString    " << val0.asString() << endl;
+        cout << "QTV: getNodeType " << val0.getNodeType() << endl;
+
+        Quote q(val0.asEventReader());
 
 
+        double dummy = 42. ;
 
-	double result = sqrt(arg1.asNumber());
-		
 	XmlResults results = mgr.createResults();
-	XmlValue va(result);
+	XmlValue va(dummy);
 	results.add(va);
-	
 	return results;
 	
 }

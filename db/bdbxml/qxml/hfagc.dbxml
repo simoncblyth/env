@@ -1,0 +1,9 @@
+
+
+openContainer /tmp/hfagc/hfagc_system.dbxml
+addAlias sys
+openContainer /tmp/hfagc/hfagc.dbxml
+addAlias hfc
+
+
+
