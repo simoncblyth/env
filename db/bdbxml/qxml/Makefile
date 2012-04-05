@@ -16,7 +16,7 @@ qxmlcfg:$(ENV_HOME)/bin/qxmlcfg
 	@echo built C++ config checker $(shell ls -l $^)
 
 
-$(ENV_HOME)/bin/qxml: qxml.o config.o potools.o extfun.o extresolve.o quote.o
+$(ENV_HOME)/bin/qxml: qxml.o config.o potools.o extfun.o extresolve.o model.o element.o
 	$(CC)  -L$(BDBXML_HOME)/lib -ldbxml -ldb -L$(BOOST_HOME)/lib -lboost_program_options -lboost_filesystem -lboost_system $^ -o $@
 
 qxml.o: qxml.cc
@@ -31,7 +31,10 @@ potools.o : potools.cc
 $(NAME).o : $(NAME).cc $(NAME).hh 
 	$(CC)  -I. -I$(BDBXML_HOME)/include -c $< -o $@
 
-quote.o : quote.cc quote.hh 
+model.o : model.cc model.hh 
+	$(CC)  -I. -c $< -o $@
+
+element.o : element.cc element.hh 
 	$(CC)  -I. -I$(BDBXML_HOME)/include -c $< -o $@
 
 extresolve.o : extresolve.cc extresolve.hh 

@@ -2,7 +2,8 @@
 #include "extfun.hh"
 #include <math.h>
 
-#include "quote.hh"
+#include "model.hh"
+#include "element.hh"
 
 
 using namespace DbXml;
@@ -87,8 +88,11 @@ XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const Xm
         cout << "QTV: asString    " << val0.asString() << endl;
         cout << "QTV: getNodeType " << val0.getNodeType() << endl;
 
-        Quote q(val0.asEventReader());
 
+        Element e;
+        Quote   q;
+	e.read(val0.asEventReader(), q );
+        q.dump();
 
         double dummy = 42. ;
 

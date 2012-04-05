@@ -1,5 +1,6 @@
-#!/usr/bin/env qxml.py 
+#!/usr/bin/env qxml
 (: 
+#!/usr/bin/env qxml.py 
 #!/usr/bin/env qxml.py -k qty -v BR_-521_-431+111
 
 single qty 
