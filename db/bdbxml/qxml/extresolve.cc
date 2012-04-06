@@ -72,7 +72,7 @@ XmlInputStream* MyResolver::resolveEntity( XmlTransaction *txn, XmlManager &mgr,
 		        const std::string &publicId ) const
 {
     string path = findEntity( systemId, publicId );
-    cout << "MyResolver::resolveEntity (" << systemId << ":" << publicId << ") => " << path << endl ; 	
+    clog << "MyResolver::resolveEntity (" << systemId << "{" << publicId << "}) => " << path << endl ; 	
     return path.empty() ? NULL : mgr.createLocalFileInputStream(path) ;
 }
 

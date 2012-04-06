@@ -1,4 +1,5 @@
 CC = g++
+CCOPT = -g
 BOOST_HOME = /opt/local
 NAME = extfun
 PYLIBD = $(ENV_HOME)/lib/python2.5/site-packages
@@ -20,25 +21,25 @@ $(ENV_HOME)/bin/qxml: qxml.o config.o potools.o extfun.o extresolve.o model.o el
 	$(CC)  -L$(BDBXML_HOME)/lib -ldbxml -ldb -L$(BOOST_HOME)/lib -lboost_program_options -lboost_filesystem -lboost_system $^ -o $@
 
 qxml.o: qxml.cc
-	$(CC)  -I$(BDBXML_HOME)/include -I$(BOOST_HOME)/include -c $^ -o $@ 
+	$(CC)  -I$(BDBXML_HOME)/include -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 
 
 config.o : config.cc
-	$(CC)  -I$(BOOST_HOME)/include -c $^ -o $@ 
+	$(CC)  -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 
 
 potools.o : potools.cc
-	$(CC)  -I$(BOOST_HOME)/include -c $^ -o $@ 
+	$(CC)  -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 
 
 $(NAME).o : $(NAME).cc $(NAME).hh 
-	$(CC)  -I. -I$(BDBXML_HOME)/include -c $< -o $@
+	$(CC)  -I. -I$(BDBXML_HOME)/include $(CCOPT) -c $< -o $@
 
 model.o : model.cc model.hh 
-	$(CC)  -I. -c $< -o $@
+	$(CC)  -I. $(CCOPT) -c $< -o $@
 
 element.o : element.cc element.hh 
-	$(CC)  -I. -I$(BDBXML_HOME)/include -c $< -o $@
+	$(CC)  -I. -I$(BDBXML_HOME)/include $(CCOPT) -c $< -o $@
 
 extresolve.o : extresolve.cc extresolve.hh 
-	$(CC)  -I. -I$(BDBXML_HOME)/include -I$(BOOST_HOME)/include -c $< -o $@
+	$(CC)  -I. -I$(BDBXML_HOME)/include -I$(BOOST_HOME)/include $(CCOPT) -c $< -o $@
 
 
 # checking config 
@@ -47,7 +48,7 @@ $(ENV_HOME)/bin/qxmlcfg : qxmlcfg.o config.o potools.o
 	$(CC)  -L$(BOOST_HOME)/lib -lboost_program_options $^ -o $@
 
 qxmlcfg.o : qxmlcfg.cc
-	$(CC)  -I$(BOOST_HOME)/include -c $^ -o $@ 
+	$(CC)  -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 
 
 # swig binding 
 

@@ -9,6 +9,7 @@ using namespace std ;
 using namespace DbXml ;
 
 class Quote ;
+class Header ;
 
 class Element
 {
@@ -16,12 +17,24 @@ class Element
           enum Type {
 	          Undefined,
                   //
+                  CHeader,
+                  COrigin,
                   CQuote,
 		  CMode,
                   CValue,
                   CErr,
                   CXErr,
                   //
+		  HStatus,
+		  HCategory,
+		  HName,
+		  HTitle,
+		  //
+		  OUri,
+		  OGroup,
+		  OOwner,
+		  ODateTime,
+		  //
                   QStatus,
                   QTitle,
                   QComment,
@@ -39,6 +52,7 @@ class Element
 		  //
 	          EName,
 	          EType,
+	          ESymm,
 	          EPlus,
 	          EMinus,
 		  //
@@ -48,6 +62,8 @@ class Element
 
 	  static const char* BlankName;
 
+ 	  static const char* CHeaderName;
+ 	  static const char* COriginName;
  	  static const char* CQuoteName;
  	  static const char* CModeName;
  	  static const char* CValueName;
@@ -69,8 +85,19 @@ class Element
 	  static const char* VLimitName ;
 	  static const char* VCLName ;
 
+  	  static const char* HStatusName;
+	  static const char* HCategoryName ;
+	  static const char* HNameName ;
+	  static const char* HTitleName ;
+
+  	  static const char* OUriName;
+	  static const char* OGroupName ;
+	  static const char* OOwnerName ;
+	  static const char* ODateTimeName ;
+
   	  static const char* ENameName;
 	  static const char* ETypeName ;
+	  static const char* ESymmName ;
 	  static const char* EPlusName ;
 	  static const char* EMinusName ;
 
@@ -80,14 +107,19 @@ class Element
 	  Element(){};
           virtual ~Element(){};
 
-	  void read(   Quote& q, XmlValue& val );
-	  void read_(  Quote& q, XmlEventReader& rdr );
-          void parse( Quote& q, Element::Type posn , Element::Type curr , string& text );
+	  void read_quote(   Quote& quote, XmlValue& val );
+	  void read_quote_(  Quote& quote, XmlEventReader& rdr );
+
+	  void read_header(   Header& header, XmlValue& val );
+	  void read_header_(  Header& header, XmlEventReader& rdr );
+
+          void fillQuote(  Quote& q , Element::Type posn , Element::Type curr , string& text );
+          void fillHeader( Header& h, Element::Type posn , Element::Type curr , string& text );
 
   	  void fillDouble( const char* s , double& out );
 	  void fillString( const char* s , string& out );
-          void fillInt( const char* s , int& out );
-          void fillIntv( const char* s , vector<int>& out );
+          void fillInt(    const char* s , int& out );
+          void fillIntv(   const char* s , vector<int>& out );
 
    private:
 

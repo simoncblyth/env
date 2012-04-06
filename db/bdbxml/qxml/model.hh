@@ -7,6 +7,45 @@
 using namespace std ;
 
 
+class Origin
+{
+   public:
+	  Origin() :
+                   _uri(""),
+		   _group(""),
+		   _owner(""),
+		   _datetime("") {};
+
+	  virtual ~Origin(){};  
+          void dump() const;
+
+          string _uri ;
+          string _group ;
+          string _owner ;
+          string _datetime ;
+};
+
+
+
+class Header
+{
+   public:
+	  Header() :
+                   _status(""),
+		   _category(""),
+		   _name(""),
+		   _title("") {};
+
+	  virtual ~Header(){};  
+          void dump() const;
+
+          string _status ;
+          string _category ;
+          string _name ;
+          string _title ;
+	  Origin _origin ; 
+};
+
 class Factor
 {
    public:
@@ -67,11 +106,14 @@ class Quote
 	      _status(""),
 	      _title(""),
 	      _comment(""),
-	      _qtag("") {} ;
+	      _qtag(""),
+              _qpos(0) {} ;
 
 	virtual ~Quote(){};
         void dump() const;
 
+
+	Header _header ;
         Val _val ;
 	vector<Factor> _factor ;
         vector<Err> _err ;
@@ -81,6 +123,8 @@ class Quote
 	string _title ;
 	string _comment ;
 	string _qtag ;
+
+	int _qpos ;   // 1-based sibling position of the quote within its rez:rez
 
   private:
 

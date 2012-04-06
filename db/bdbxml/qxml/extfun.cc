@@ -57,7 +57,7 @@ XmlResults MyExternalFunctionSqrt::execute(XmlTransaction &txn, XmlManager &mgr,
 }
 
 
-XmlResults MetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
+XmlResults MetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const  // my:metadata
 {
 	XmlResults arg0 = args.getArgument(0);
 	XmlValue val0;
@@ -98,7 +98,7 @@ bool existsDoc(const std::string& docname, XmlContainer& cont) {
 }
 
 
-XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
+XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const // my:mmetadata
 {
 	// these arguments are the slots of the function signature
 	//
@@ -108,17 +108,8 @@ XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArg
 	XmlResults arg0 = args.getArgument(0);
 	XmlValue val0;
 
-        //string tmpContainer = "/tmp/hfagc/scratch.dbxml" ;  // MUST MATCH AN ALREADY CREATED CONTAINER
-	//string tmpName      = "fragment5.xml" ;  
-
         string tmpContainer = _tmpContainer ;
 	string tmpName      = _tmpName ;  
-
-        string md_uri ;
-        string md_name ;
-        string md_valuestring ;
-        XmlValue md_value ;
-
 	XmlContainer cont = mgr.openContainer(tmpContainer) ;  
 	XmlUpdateContext uc = mgr.createUpdateContext();
 
@@ -135,6 +126,8 @@ XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArg
         XmlDocument doc = mgr.createDocument();
         doc.setName(tmpName);
 
+        // writing to the scratch document
+
         const unsigned char* root  = (const unsigned char*)"metadata" ;
         const unsigned char* entry = (const unsigned char*)"doc" ;
 
@@ -142,6 +135,12 @@ XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArg
         writer.writeStartDocument(NULL, NULL, NULL); // no XML decl
         writer.writeStartElement(root, NULL, NULL, 0, false);
 
+        string md_uri ;
+        string md_name ;
+        string md_valuestring ;
+        XmlValue md_value ;
+
+	// iterating over slot0 node() sequence 
 	while(arg0.hasNext()){
 	    arg0.next(val0);
             const XmlDocument& doc = val0.asDocument();
@@ -180,16 +179,15 @@ XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArg
 }
 
 
-
-XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
+XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const // my:quote2values
 {
 	XmlResults arg0 = args.getArgument(0);
 	XmlValue val0;
 	arg0.next(val0);
 
-        Element e;
+        Element e;   // hmm maybe this should be RezReader
         Quote   q;
-	e.read( q, val0 );
+	e.read_quote( q, val0 );
         q.dump();
 
         double dummy = 42. ;

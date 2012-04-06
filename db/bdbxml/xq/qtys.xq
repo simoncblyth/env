@@ -27,9 +27,6 @@ let $group := $grps/*[@class=$code]
 
 return 
    (
-     dbxml:handle-to-node('/tmp/hfagc/hfagc.dbxml','BiMCAp8AzA=='),
-     document-uri(root($grps)),
-     $grps/dbxml:metadata("dbxml:name"),
      for $qtag in $group/qtag 
      return 
       ( 
@@ -43,7 +40,7 @@ return
                      return 
                          (
                            $q/dbxml:metadata("dbxml:name"),
-                           $q/dbxml:node-to-handle()
+                           root($q)
                          ) 
                   )
       )
