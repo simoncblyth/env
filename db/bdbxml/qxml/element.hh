@@ -8,7 +8,7 @@
 using namespace std ;
 using namespace DbXml ;
 
-class Quo ;
+class Quote ;
 
 class Element
 {
@@ -16,11 +16,11 @@ class Element
           enum Type {
 	          Undefined,
                   //
-                  Quote,
-		  Mode,
-                  Value,
-                  Err,
-                  XErr,
+                  CQuote,
+		  CMode,
+                  CValue,
+                  CErr,
+                  CXErr,
                   //
                   QStatus,
                   QTitle,
@@ -48,11 +48,11 @@ class Element
 
 	  static const char* BlankName;
 
- 	  static const char* QuoteName;
- 	  static const char* ModeName;
- 	  static const char* ValueName;
-	  static const char* ErrName ;
-	  static const char* XErrName ;
+ 	  static const char* CQuoteName;
+ 	  static const char* CModeName;
+ 	  static const char* CValueName;
+	  static const char* CErrName ;
+	  static const char* CXErrName ;
 
  	  static const char* QStatusName;
  	  static const char* QTitleName;
@@ -75,12 +75,14 @@ class Element
 	  static const char* EMinusName ;
 
           static Element::Type elementType(const unsigned char* localName, Element::Type regn );
+          const char* elementName( Element::Type type );
 
 	  Element(){};
           virtual ~Element(){};
 
-	  void read(XmlEventReader& rdr, Quo& q );
-          void parse( Quo& q, Element::Type posn , Element::Type curr , string& text );
+	  void read(  Quote& q, XmlEventReader& rdr );
+          void parse( Quote& q, Element::Type posn , Element::Type curr , string& text );
+
   	  void fillDouble( const char* s , double& out );
 	  void fillString( const char* s , string& out );
           void fillInt( const char* s , int& out );

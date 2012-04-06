@@ -12,7 +12,7 @@ class Factor
    public:
 	  Factor() : _src(0),
 	             _qwn(""),
-		     _tag("") {};
+		     _mtag("") {};
 
           virtual ~Factor(){};
           void dump() const;
@@ -20,7 +20,7 @@ class Factor
 	  int _src ;
 	  vector<int> _prod ;
 	  string _qwn ;
-	  string _tag ;
+	  string _mtag ;
 };	
 
 class Err
@@ -60,16 +60,16 @@ class Val
 };
 
 
-class Quo
+class Quote
 {
    public:
-	Quo() : 
+	Quote() : 
 	      _status(""),
 	      _title(""),
 	      _comment(""),
 	      _qtag("") {} ;
 
-	virtual ~Quo(){};
+	virtual ~Quote(){};
         void dump() const;
 
         Val _val ;

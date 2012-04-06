@@ -85,13 +85,12 @@ XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const Xm
 	XmlValue val0;
 	arg0.next(val0);
 
-        cout << "QTV: asString    " << val0.asString() << endl;
+        //cout << "QTV: asString    " << val0.asString() << endl;
         cout << "QTV: getNodeType " << val0.getNodeType() << endl;
-
 
         Element e;
         Quote   q;
-	e.read(val0.asEventReader(), q );
+	e.read( q, val0.asEventReader() );
         q.dump();
 
         double dummy = 42. ;

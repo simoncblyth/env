@@ -15,12 +15,17 @@ void Factor::dump() const
          for( ip = _prod.begin() ; ip != _prod.end() ; ++ip ) cout << *ip << " " ;
          cout << " ) ";
     }	 
-    cout << "]" << endl ;
+    cout << "] " << _mtag << endl ;
 }
 
-void Quo::dump() const
+void Quote::dump() const
 {
-   cout << "Quo " << endl ;
+   cout << "Quote " << endl ;
+   cout << "    qtag: " << _qtag    << endl ;
+   cout << "   title: " << _title   << endl ;
+   cout << "  status: " << _status  << endl ;
+   cout << " comment: " << _comment << endl ;
+
    facv::const_iterator ic ;
    for( ic = _factor.begin() ; ic != _factor.end() ; ++ic ) ic->dump();
 

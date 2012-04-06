@@ -77,4 +77,12 @@ A script containg dbxml commands can save some typing::
 
 
 
+Observations on Berkeley DB XML XQuerying
+==========================================
+
+#. ``document-uri(root($smth))``  does not work, in more involved locations .. suspect a steps removed effect
+     dbxml:metadata("dbxml:name",$smth)  seems to work OK without need to ``root`` up to the doc.
+
+
+
 

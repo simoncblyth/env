@@ -12,14 +12,14 @@ using namespace std ;
 using namespace DbXml ;
 
 
-const char* Element::BlankName = "" ;
+const char* Element::BlankName = "blank" ;
 
 // local names of container elements "rez:quote" which contain the leaves
-const char* Element::QuoteName = "quote" ;  
-const char* Element::ModeName  = "mode" ;
-const char* Element::ValueName = "value" ;  
-const char* Element::ErrName   = "err" ;
-const char* Element::XErrName  = "xerr" ;
+const char* Element::CQuoteName = "quote" ;  
+const char* Element::CModeName  = "mode" ;
+const char* Element::CValueName = "value" ;  
+const char* Element::CErrName   = "err" ;
+const char* Element::CXErrName  = "xerr" ;
 
 
 // leaves of "rez:value"
@@ -46,6 +46,38 @@ const char* Element::QTitleName   = "title" ;
 const char* Element::QCommentName = "comment" ;  
 const char* Element::QTagName     = "qtag" ;  
 
+const char* Element::elementName( Element::Type type )
+{
+     switch(type)
+     {
+	     case CQuote:   return CQuoteName    ; break ;
+	     case CMode:    return CModeName     ; break ;
+	     case CValue:   return CValueName    ; break ;
+	     case CErr:     return CErrName      ; break ;
+	     case CXErr:    return CXErrName     ; break ;
+
+	     case VNumber:  return VNumberName   ; break ;
+	     case VUnit:    return VUnitName     ; break ;
+	     case VLimit:   return VLimitName    ; break ;
+	     case VCL:      return VCLName       ; break ;
+
+	     case EName:    return ENameName     ; break ;
+	     case EType:    return ETypeName     ; break ;
+	     case EPlus:    return EPlusName     ; break ;
+	     case EMinus:   return EMinusName    ; break ;
+
+	     case QStatus:  return QStatusName   ; break ;
+	     case QTitle:   return QTitleName    ; break ;
+	     case QComment: return QCommentName  ; break ;
+	     case QTag:     return QTagName      ; break ;
+
+	     case MSrc:     return MSrcName      ; break ;
+	     case MProd:    return MProdName     ; break ;
+	     case MQwn:     return MQwnName      ; break ;
+	     case MTag:     return MTagName      ; break ;
+     }
+     return BlankName ;
+}
 
 
 Element::Type Element::elementType( const unsigned char* localName, Element::Type regn )
@@ -53,62 +85,62 @@ Element::Type Element::elementType( const unsigned char* localName, Element::Typ
    // element names are always ascii so presumably casting away "unsigned" is OK
    const char* s = (const char*)localName ; 
 
-   if( regn == Element::Undefined ){
+   if( regn == Undefined ){  // Undefined allows checking for container elem, to allows regn switching    
 
-	// always check for container elem to allows regn switching    
-        if(          strcmp(s, Element::QuoteName ) == 0){ return Element::Quote ; }
-	else if(     strcmp(s, Element::ModeName )  == 0){ return Element::Mode  ; }
-	else if(     strcmp(s, Element::ValueName ) == 0){ return Element::Value ; }
-	else if(     strcmp(s, Element::ErrName )   == 0){ return Element::Err   ; }
-	else if(     strcmp(s, Element::XErrName )  == 0){ return Element::XErr  ; }
-        return  Element::Undefined ;
+        if(          strcmp(s, CQuoteName ) == 0){ return CQuote ; }
+	else if(     strcmp(s, CModeName )  == 0){ return CMode  ; }
+	else if(     strcmp(s, CValueName ) == 0){ return CValue ; }
+	else if(     strcmp(s, CErrName )   == 0){ return CErr   ; }
+	else if(     strcmp(s, CXErrName )  == 0){ return CXErr  ; }
+        return  Undefined ;
 
-   } else if( regn == Element::Quote ){	   
+   } else if( regn == CQuote ){	   // quote has leaf elements as well as container elements
 
-	if(     strcmp(s, Element::QStatusName )   == 0){ return Element::QStatus  ; }
-        else if(strcmp(s, Element::QTitleName )    == 0){ return Element::QTitle   ; }
-        else if(strcmp(s, Element::QCommentName )  == 0){ return Element::QComment ; }
-        else if(strcmp(s, Element::QTagName )      == 0){ return Element::QTag     ; }
+	if(     strcmp(s, QStatusName )   == 0){ return QStatus  ; }
+        else if(strcmp(s, QTitleName )    == 0){ return QTitle   ; }
+        else if(strcmp(s, QCommentName )  == 0){ return QComment ; }
+        else if(strcmp(s, QTagName )      == 0){ return QTag     ; }
 
-        else if(strcmp(s, Element::ModeName )     == 0){ return Element::Mode  ; }
-        else if(strcmp(s, Element::ValueName )    == 0){ return Element::Value ; }
-        else if(strcmp(s, Element::ErrName )      == 0){ return Element::Err   ; }
-        else if(strcmp(s, Element::XErrName )     == 0){ return Element::XErr  ; }
-        return  Element::Undefined ;
+        else if(strcmp(s, CModeName )     == 0){ return CMode  ; }
+        else if(strcmp(s, CValueName )    == 0){ return CValue ; }
+        else if(strcmp(s, CErrName )      == 0){ return CErr   ; }
+        else if(strcmp(s, CXErrName )     == 0){ return CXErr  ; }
 
-   } else if( regn == Element::Mode ){	   
+        return  Undefined ;
 
-        if(     strcmp(s, Element::MSrcName )    == 0){ return Element::MSrc    ; }
-        else if(strcmp(s, Element::MProdName )   == 0){ return Element::MProd   ; }
-        else if(strcmp(s, Element::MQwnName )    == 0){ return Element::MQwn    ; }
-        else if(strcmp(s, Element::MTagName )    == 0){ return Element::MTag    ; }
-        return  Element::Undefined ;
+   } else if( regn == CMode ){	   
 
-   } else if( regn == Element::Value ){	   
+        if(     strcmp(s, MSrcName )    == 0){ return MSrc    ; }
+        else if(strcmp(s, MProdName )   == 0){ return MProd   ; }
+        else if(strcmp(s, MQwnName )    == 0){ return MQwn    ; }
+        else if(strcmp(s, MTagName )    == 0){ return MTag    ; }
+        return  Undefined ;
 
-        if(     strcmp(s, Element::VNumberName )  == 0){ return Element::VNumber  ; }
-        else if(strcmp(s, Element::VUnitName )    == 0){ return Element::VUnit    ; }
-        else if(strcmp(s, Element::VLimitName )   == 0){ return Element::VLimit   ; }
-        else if(strcmp(s, Element::VCLName )      == 0){ return Element::VCL      ; }
-        return Element::Undefined ; 
+   } else if( regn == CValue ){	   
 
-   } else if( regn == Element::Err || regn == Element::XErr  ){	   
+        if(     strcmp(s, VNumberName )  == 0){ return VNumber  ; }
+        else if(strcmp(s, VUnitName )    == 0){ return VUnit    ; }
+        else if(strcmp(s, VLimitName )   == 0){ return VLimit   ; }
+        else if(strcmp(s, VCLName )      == 0){ return VCL      ; }
+        return Undefined ; 
 
-        if(     strcmp(s, Element::ENameName )  == 0){ return Element::EName    ; }
-        else if(strcmp(s, Element::ETypeName )  == 0){ return Element::EType    ; }
-        else if(strcmp(s, Element::EPlusName )  == 0){ return Element::EPlus    ; }
-        else if(strcmp(s, Element::EMinusName ) == 0){ return Element::EMinus   ; }
-        return Element::Undefined ; 
+   } else if( regn == CErr || regn == CXErr  ){	   
+
+        if(     strcmp(s, ENameName )  == 0){ return EName    ; }
+        else if(strcmp(s, ETypeName )  == 0){ return EType    ; }
+        else if(strcmp(s, EPlusName )  == 0){ return EPlus    ; }
+        else if(strcmp(s, EMinusName ) == 0){ return EMinus   ; }
+        return Undefined ; 
 
    } 
-   return Element::Undefined ; 
+   return Undefined ; 
 }
 
 
-void Element::read(XmlEventReader& rdr, Quo& q )
+void Element::read(Quote& q, XmlEventReader& rdr )
 {
-   Element::Type regn(Element::Undefined);
-   Element::Type curr(Element::Undefined);
+   Type regn(Undefined);
+   Type curr(Undefined);
 
    // traverse Xml taking note of leaf container elements "rez:mode" "rez:value" "rez:err" "rez:xerr"
    // and parsing text 
@@ -118,13 +150,8 @@ void Element::read(XmlEventReader& rdr, Quo& q )
 	if (type == XmlEventReader::StartElement) 
 	{
             if (!rdr.isEmptyElement()){
-		curr = Element::elementType( rdr.getLocalName(), regn );
-		if(
-		    curr == Element::Quote || 
-		    curr == Element::Mode  || 
-		    curr == Element::Value || 
-		    curr == Element::Err   || 
-		    curr == Element::XErr    ) regn = curr ; 
+		curr = elementType( rdr.getLocalName(), regn );
+		if( curr == CQuote || curr == CMode  || curr == CValue || curr == CErr || curr == CXErr ) regn = curr ; 
             }		    
         } 
 	else if ( type == XmlEventReader::Characters )
@@ -133,11 +160,15 @@ void Element::read(XmlEventReader& rdr, Quo& q )
             const unsigned char* value = rdr.getValue(len);
             const char* blnk = "" ;
 	    string text = (rdr.isWhiteSpace()) ? blnk : reinterpret_cast<const char*>(value)  ; 	    
-            parse(q, regn, curr, text );           
+            parse(q, regn, curr, text );           // no need to go to string here ?
 	}
 	else if ( type == XmlEventReader::EndElement )
 	{
-	    curr = Element::Undefined ;	  // maybe should reset to prior regn
+	    // pass Undefined as looking for leaving regn 
+	    curr = elementType( rdr.getLocalName(), Undefined ); 
+            if( curr == regn ) regn = CQuote ;   
+	    // simple approach works due to the small depth of the hierarchy, 
+	    // for going deeper need to hold parent types
 	}
    }	
 }
@@ -164,47 +195,57 @@ void Element::fillString( const char* s , string& out )
 }	
 
 
-void Element::parse( Quo& q, Element::Type regn , Element::Type curr , string& text )
+void Element::parse( Quote& q, Element::Type regn , Element::Type curr , string& text )
 {
-    if(regn == Element::Undefined ) return ;
-    cout << "Element::parse " << regn << " : " << curr << " : " << text << endl;
+    if(regn == Undefined ) return ;
+    //cout << "Element::parse " << regn << "=" << elementName(regn) << " : " << curr << "=" << elementName(curr) << " : " << text << endl;
 
     const char* s = text.c_str(); 
-    if(regn == Element::Mode )
-    {
+    if(     regn == CQuote ){
+
+        switch(curr)
+        {
+	    case QStatus:     fillString(s, q._status)   ; break ;
+	    case QTitle:      fillString(s, q._title)    ; break ;
+	    case QComment:    fillString(s, q._comment)  ; break ;
+	    case QTag:        fillString(s, q._qtag)     ; break ;
+        }
+
+    } else if(regn == CMode ) {
+
 	vector<Factor>& facv = q._factor ;    
         if(curr == regn) facv.push_back( Factor() ) ;     
 	Factor& fac = facv.back() ;    
         switch(curr)
 	{
-	    case Element::MSrc:    fillInt(   s, fac._src)  ; break ;
-	    case Element::MProd:   fillIntv(  s, fac._prod) ; break ;
-	    case Element::MQwn:    fillString(s, fac._qwn)  ; break ;
-	    case Element::MTag:    fillString(s, fac._tag)  ; break ;
-	}	 
-    }	    
-    else if(regn == Element::Value )
-    {	   
+	    case MSrc:    fillInt(   s, fac._src)  ; break ;
+	    case MProd:   fillIntv(  s, fac._prod) ; break ;
+	    case MQwn:    fillString(s, fac._qwn)  ; break ;
+	    case MTag:    fillString(s, fac._mtag) ; break ;
+	}
+
+    } else if(regn == CValue ) {	   
+
 	Val& val = q._val ;    
         switch(curr)
 	{
-	    case Element::VNumber:  fillDouble(s, val._number) ; break ;
-	    case Element::VUnit:    fillDouble(s, val._unit)   ; break ;
-	    case Element::VLimit:   fillDouble(s, val._limit)  ; break ;
+	    case VNumber:  fillDouble(s, val._number) ; break ;
+	    case VUnit:    fillDouble(s, val._unit)   ; break ;
+	    case VLimit:   fillDouble(s, val._limit)  ; break ;
 	}	 
 
-    }
-    else if( regn == Element::Err || regn == Element::XErr )
-    {	    
-        vector<Err>& errv = ( regn == Element::Err ) ? q._err : q._xerr ;  // refer to the appropriate vector of the 2
-        if(curr == regn) errv.push_back( Err() ) ;                          // on entering "top-level" elements, mint a new Err 
-	Err& err = errv.back();                                             // refer to last Err in the vector
+    } else if( regn == CErr || regn == CXErr ) {	    
+
+        vector<Err>& errv = ( regn == CErr ) ? q._err : q._xerr ;  // refer to the appropriate vector of the 2
+        if(curr == regn) errv.push_back( Err() ) ;                 // on entering "top-level" elements, mint a new Err 
+	Err& err = errv.back();                                    // refer to last Err in the vector
         switch(curr)
 	{
-	    case Element::EPlus:   fillDouble(s, err._plus    ) ; break ;
-	    case Element::EMinus:  fillDouble(s, err._minus   ) ; break ;
-	    case Element::EName:   fillString(s, err._errname ) ; break ;
-	}	
+	    case EPlus:   fillDouble(s, err._plus    ) ; break ;
+	    case EMinus:  fillDouble(s, err._minus   ) ; break ;
+	    case EName:   fillString(s, err._errname ) ; break ;
+	}
+
     }
 
 }

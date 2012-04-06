@@ -15,6 +15,13 @@ cat << EOU
         sudo port -v install py26-setuptools
         sudo port -v install py26-nose
 
+     
+       sudo port select --set python python26
+       python -V
+       sudo port select --set ipython ipython26
+
+
+
 
 
 

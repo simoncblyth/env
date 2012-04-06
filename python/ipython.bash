@@ -9,6 +9,33 @@ ipython-usage(){ cat << EOU
 
 
 
+   Issue with macports ipython 2.5 and readline, getting gibberish prompt
+   1st try uninstall and install 
+
+simon:qxml blyth$ sudo port uninstall py25-ipython
+--->  The following versions of py25-ipython are currently installed:
+--->      py25-ipython @0.9.1_0
+--->      py25-ipython @0.10.2_1 (active)
+
+
+    sudo port clean py25-ipython   
+    sudo port install py25-ipython   -scientific
+
+To make the Python 2.5 version of IPython the one that is run
+    when you execute the commands without a version suffix, e.g. 'ipython',
+        run:
+	        port select --set ipython ipython25
+
+		--->  Cleaning py25-ipython
+
+
+uninstallation/installation of py25-readline + py25-ipython 
+still gives a gibberized prompt...
+
+make it less objectionable by changing config to use "colors NoColor"
+
+   vi ~/.ipython/ipythonrc
+
 
 EOU
 }
