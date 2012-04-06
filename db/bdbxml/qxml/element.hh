@@ -80,7 +80,8 @@ class Element
 	  Element(){};
           virtual ~Element(){};
 
-	  void read(  Quote& q, XmlEventReader& rdr );
+	  void read(   Quote& q, XmlValue& val );
+	  void read_(  Quote& q, XmlEventReader& rdr );
           void parse( Quote& q, Element::Type posn , Element::Type curr , string& text );
 
   	  void fillDouble( const char* s , double& out );

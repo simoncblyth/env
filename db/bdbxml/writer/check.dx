@@ -1,0 +1,9 @@
+
+
+openContainer writer.dbxml
+query 'collection("dbxml:writer.dbxml")'
+print
+
+query 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+print
+

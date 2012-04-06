@@ -137,7 +137,17 @@ Element::Type Element::elementType( const unsigned char* localName, Element::Typ
 }
 
 
-void Element::read(Quote& q, XmlEventReader& rdr )
+void Element::read( Quote& q , XmlValue& val )
+{
+    const XmlDocument& doc = val.asDocument();
+    cout << "Element::read " << doc << " " << doc.getName() << endl ;	
+    XmlEventReader& rdr = val.asEventReader() ;
+    read_( q , rdr );
+    rdr.close();
+}	
+
+
+void Element::read_(Quote& q, XmlEventReader& rdr )
 {
    Type regn(Undefined);
    Type curr(Undefined);

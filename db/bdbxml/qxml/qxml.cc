@@ -65,9 +65,20 @@ int main(int argc, char **argv)
         XmlContainer* cont = NULL ;
         ssmap::const_iterator it ;
         for( it = cfg["containers"].begin() ; it != cfg["containers"].end() ; ++it ){
-	    cout << "containers:    " << it->first << " : " << it->second << endl ;   
-            cont = new XmlContainer(mgr.openContainer( it->second ));   // hmm lodged in manager ?
-            cont->addAlias(it->first) ;
+	    string tag = it->first ;     
+	    string name = it->second ;     
+            int chk = mgr.existsContainer(name);
+	    cout << "containers:    " << tag << " : " << name << " ? " << chk << endl ;   
+
+	    XmlContainer* cont ;
+            if(chk == 0){
+                cont = new XmlContainer(mgr.createContainer(name));
+	    } else {	    
+		cont = new XmlContainer(mgr.openContainer(name));   
+	    }               	
+	    cont->addAlias(tag); 	
+	    // hmm lodged in manager ?  need to do on heap to avoid 
+	    //       Exception: Error: Cannot resolve container: hfc.  Container not open and auto-open is not enabled.  Container may not exist.
         }
 
 	XmlQueryContext qc = mgr.createQueryContext();        

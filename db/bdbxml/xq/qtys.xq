@@ -18,20 +18,6 @@ cli parameters
 
 let $code  := '01102'
 
-
-observations
-~~~~~~~~~~~~
-
-#. ``document-uri root smth``  does not work, in more involved locations .. suspect a steps removed effect
-   dbxml:metadata("dbxml:name",$q) 
-
-           document-uri(root($qtag))
-
-
-
-                           $q/dbxml:metadata("dbxml:name"), 
-                           dbxml:metadata("dbxml:name",$q) 
-
 :)
 
 import module namespace rezu="http://hfag.phys.ntu.edu.tw/hfagc/rezu" at "rezu.xqm" ;
@@ -41,8 +27,9 @@ let $group := $grps/*[@class=$code]
 
 return 
    (
-     document-uri($grps),
-     dbxml:metadata("dbxml:name", $grps),
+     dbxml:handle-to-node('/tmp/hfagc/hfagc.dbxml','BiMCAp8AzA=='),
+     document-uri(root($grps)),
+     $grps/dbxml:metadata("dbxml:name"),
      for $qtag in $group/qtag 
      return 
       ( 
@@ -54,7 +41,10 @@ return
                      count($quo), 
                      for $q in $quo 
                      return 
-                         $q/dbxml:metadata("dbxml:name")
+                         (
+                           $q/dbxml:metadata("dbxml:name"),
+                           $q/dbxml:node-to-handle()
+                         ) 
                   )
       )
 

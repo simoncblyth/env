@@ -21,6 +21,6 @@ let $tty := rezu:iqt2name($qty)
 let $num := count($hfc//rez:quote[rez:qtag=$tty])
 let $one := ($hfc//rez:quote[rez:qtag=$tty])[1] 
 
-return ($qty,$tty,$num,$one, my:quote2values($one) ) 
+return ($qty,$tty,$num, my:quote2values($one) ) 
 
 

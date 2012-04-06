@@ -82,16 +82,30 @@ void MyExternalFunctionSqrt::close()
 XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
 {
 	XmlResults arg0 = args.getArgument(0);
+
 	XmlValue val0;
 	arg0.next(val0);
 
-        //cout << "QTV: asString    " << val0.asString() << endl;
-        cout << "QTV: getNodeType " << val0.getNodeType() << endl;
+	//cout << "QTV: asString    " << val0.asString() << endl;
+        //const XmlDocument& doc = val0.asDocument();
+        //cout << "QTV: asDocument " << doc << " " << doc.getName() << endl ;	
+
+        /*
+        XmlMetaDataIterator mdi = doc.getMetaDataIterator();
+        string md_uri ;
+        string md_name ;
+        XmlValue md_value ;
+        while(mdi.next(md_uri,md_name,md_value)){
+            cout << md_uri << " " << md_name << " " << md_value.asString() << endl ;   
+        }	
+        */
 
         Element e;
         Quote   q;
-	e.read( q, val0.asEventReader() );
+	e.read( q, val0 );
         q.dump();
+
+
 
         double dummy = 42. ;
 
