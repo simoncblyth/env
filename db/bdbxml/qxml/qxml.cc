@@ -4,7 +4,6 @@
 
   TODO:
      logging/verbosity control
-     handle no inputfile 
      allow reading "inputfile" from stdin
      implicit DBEnv  ?
      comment (not scrub) first line
@@ -47,7 +46,7 @@ int main(int argc, char **argv)
      DB_ENV* env = NULL;
      int dberr = db_env_create(&env, 0);
      if (dberr) {
-	  cout << "Unable to create environment: " << db_strerror(dberr) << endl;
+	  cerr << "Unable to create environment: " << db_strerror(dberr) << endl;
           if (env) env->close(env, 0);
           return EXIT_FAILURE;
      }
@@ -68,7 +67,7 @@ int main(int argc, char **argv)
 	    string tag = it->first ;     
 	    string name = it->second ;     
             int chk = mgr.existsContainer(name);
-	    cout << "containers:    " << tag << " : " << name << " ? " << chk << endl ;   
+	    clog << "containers:    " << tag << " : " << name << " ? " << chk << endl ;   
 
 	    XmlContainer* cont ;
             if(chk == 0){
@@ -76,9 +75,23 @@ int main(int argc, char **argv)
 	    } else {	    
 		cont = new XmlContainer(mgr.openContainer(name));   
 	    }               	
-	    cont->addAlias(tag); 	
-	    // hmm lodged in manager ?  need to do on heap to avoid 
-	    //       Exception: Error: Cannot resolve container: hfc.  Container not open and auto-open is not enabled.  Container may not exist.
+	    cont->addAlias(tag);
+            //	    
+	    // need to "leak" containers to avoid evaporation 
+	    //       Exception: Error: Cannot resolve container: hfc.  
+	    //       Container not open and auto-open is not enabled.  Container may not exist.
+            //
+
+            if( tag == "tmp" ){
+		 //   
+		 // give special meaning to container tag "tmp" , 
+		 // some external functions need such a container for scratch space     
+		 //
+		 clog << "setting tmpContainer and Name " << endl ;
+	         resolver.setTmpContainer(name);             // dbxml uri of the scratch container
+	         resolver.setTmpName("tmpfragment.xml");     // default name of docs created there 
+	    }
+
         }
 
 	XmlQueryContext qc = mgr.createQueryContext();        
@@ -88,20 +101,21 @@ int main(int argc, char **argv)
         qc.setBaseURI( cfg["dbxml"]["dbxml.baseuri"]  );
 
         for( it = cfg["namespaces"].begin() ; it != cfg["namespaces"].end() ; ++it ){
-	    cout << "namespaces:    " << it->first << " : " << it->second << endl ;   
+	    clog << "namespaces:    " << it->first << " : " << it->second << endl ;   
 	    qc.setNamespace( it->first, it->second);
         }
         for( it = cfg["variables"].begin() ; it != cfg["variables"].end() ; ++it ){
-	    cout << "variables:    " << it->first << " : " << it->second << endl ;   
+	    clog << "variables:    " << it->first << " : " << it->second << endl ;   
             qc.setVariableValue( it->first , it->second );
         }
 
         XmlResults res = mgr.query( q , qc);
         XmlValue value;
-        while (res.next(value)) cout << "Value: " << value.asString() << endl;
+	// NB the only **cout**, to make it possible to output valid XML
+        while (res.next(value)) cout << value.asString() << endl;
 
     } catch (XmlException &e) {
-         cout << "Exception: " << e.what() << std::endl;
+         cerr << "Exception: " << e.what() << std::endl;
     }
     return 0;
 }

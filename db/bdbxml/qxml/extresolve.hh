@@ -21,12 +21,26 @@ public:
 	std::string findEntity( const std::string &systemId, const std::string &publicId ) const;
 	std::string getUri(){ return _uri; }
 
+
+	// colon delimited string with directories to look for XQuery modules, 
+	// searched in order with first match used
         void setXqmPath( const std::string xqmPath );
 	std::string getXqmPath(){ return _xqmPath ; }
+
+	// dbxml uri of scratch container, used for fragment preparation
+        void setTmpContainer( const std::string tmpContainer );
+	std::string getTmpContainer(){ return _tmpContainer ; }
+
+	// default name of temporary fragments created in scratch container 
+        void setTmpName( const std::string tmpName );
+	std::string getTmpName(){ return _tmpName ; }
+
 
 private:
 	string _uri ;
 	string _xqmPath ; 
+	string _tmpContainer ; 
+	string _tmpName ; 
 };
 
 #endif
