@@ -57,6 +57,25 @@ void listdir( vec& paths, const path& directory, bool recurse_into_subdirs = tru
 }
 
 
+void preparedir( const path& target )
+{
+   try
+   {	   
+      if( !exists( target ) )
+      {
+	  bool ok = create_directory( target );
+          if(!ok) cerr << "preparedir failed to create " << target << endl ;	  
+      }
+   }
+   catch (const filesystem_error& ex)
+   {
+	cout << ex.what() << '\n';
+   }
+
+}
+
+
+
 void ingest( string root , string dbxml )
 {
     try {
@@ -87,10 +106,18 @@ void ingest( string root , string dbxml )
 
 int main(int argc, char* argv[]) 
 {
-
-     // TODO: adopt boost_program_options here, see qxml for how	
-    string source="/data/heprez/data/backup/part/localhost/2012/Mar06-1922" ;
+    // TODO: 
+    //    adopt boost_program_options here, see qxml for how	
+    //    having separate runs for each container
+    //    would allow this to be more generic avoiding the duplication
+    //    of strings with those in the config file hfagc.ini 
+    //
+    //    actually, simpler and faster to do this in python 
+    //
+    //
+    string source="/data/heprez/data/backup/part/localhost/last" ;
     string target="/tmp/hfagc" ; 
+    preparedir( target ); 
 
     ingest( source + "/db/hfagc"        , target + "/hfagc.dbxml" );
     ingest( source + "/db/hfagc_system" , target + "/hfagc_system.dbxml" );

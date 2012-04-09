@@ -4,13 +4,103 @@ rabbitmq-source(){   echo ${BASH_SOURCE:-$(env-home)/$(rabbitmq-src)} ; }
 rabbitmq-vi(){       vi $(rabbitmq-source) ; }
 rabbitmq-env(){      elocal- ; }
 
+rabbitmq-plist(){       echo /Library/LaunchDaemons/org.macports.rabbitmq-server.plist ; }
+rabbitmq-plist-dist(){  echo /opt/local/etc/LaunchDaemons/org.macports.rabbitmq-server/org.macports.rabbitmq-server.plist ; }
+rabbitmq-plist-diff(){  diff $(rabbitmq-plist-dist) $(rabbitmq-plist) ; }   # these are the same file - symbolically linked
+rabbitmq-plist-ls(){   ls -l $(rabbitmq-plist-dist) $(rabbitmq-plist) ; }
+
+## note that a higher level load/unload is provided by macports "sudo port unload"
+## but these are expected to be equivalent https://trac.macports.org/changeset/62893
+##
+rabbitmq-unload(){
+   type $FUNCNAME
+   sudo launchctl unload -w $(rabbitmq-plist)
+   echo unload sets disable key to true and the w option writes to plist
+   rabbitmq-plist-diff
+}
+rabbitmq-load(){
+   type $FUNCNAME
+   sudo launchctl load -w $(rabbitmq-plist)
+   echo load sets disable key to false and the w option writes to plist
+   rabbitmq-plist-diff
+}
+
+rabbitmq-ps(){ ps aux | grep rabbitmq ; }
+rabbitmq-port-on(){   sudo port load rabbitmq-server ;  }
+rabbitmq-port-epmd(){ echo /opt/local/lib/erlang/erts-5.8.2/bin/epmd ; }
+rabbitmq-port-off(){
+    sudo port unload rabbitmq-server
+    sudo $(rabbitmq-port-epmd) -names
+    sudo $(rabbitmq-port-epmd) -kill
+}
+
+rabbitmq-port-startupitemlog(){
+     cat /opt/local/var/log/rabbitmq/startupitem.log
+}
+
+rabbitmq-epmd-names(){
+    $(rabbitmq-port-epmd) -names
+}
+
+
+
 rabbitmq-actionlog(){ cat << EOL
+
+
+April 9, 2012 : 
+
+    used rabbitmq-port-off to switch off rabbitmq-server and epmd
+    and note that the disable flag has been set to true in the plist 
+    so it should not revive following a reboot
+
+
+
+HOW TO DISABLE RABBITMQ TO FREE UP NETWORK RELATED RESOURCES
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   * http://www.cyberciti.biz/faq/disabling-unnecessary-mac-osx-services/
+
+System services are controlled on OSX via "launchctl" , macports integrates
+standard unix services into the launchctl way of doing this with daemondo, see "daemondo -h"::
+
+	daemondo is a wrapper program that runs daemons. It starts the specified
+	daemon on launch, stops it when given SIGTERM, and restarts it on SIGHUP.
+	It can also watch for transitions in system state, such as a change in
+	network availability or system power state, and restart the daemon on such
+	an event.
+
+	daemondo works well as an adapter between darwin 8's launchd, and daemons
+	that are normally started via traditional rc.d style scripts or parameters.
+
+launchctl read and writes plists, the "port contents rabbitmq-server" shows 2 plists 
+which are symbolically linked:: 
+
+    simon:~ blyth$ ll /Library/LaunchDaemons/org.macports.rabbitmq-server.plist
+    lrwxr-xr-x  1 root  wheel  92 17 Feb  2011 /Library/LaunchDaemons/org.macports.rabbitmq-server.plist -> /opt/local/etc/LaunchDaemons/org.macports.rabbitmq-server/org.macports.rabbitmq-server.plist
+
+
+
+	simon:~ blyth$ port contents rabbitmq-server
+	Port rabbitmq-server contains:
+	/Library/LaunchDaemons/org.macports.rabbitmq-server.plist
+	/opt/local/etc/LaunchDaemons/org.macports.rabbitmq-server/org.macports.rabbitmq-server.plist
+	/opt/local/etc/LaunchDaemons/org.macports.rabbitmq-server/rabbitmq-server.wrapper
+	/opt/local/lib/rabbitmq/bin/rabbitmq-env
+	/opt/local/lib/rabbitmq/bin/rabbitmq-multi
+	...
+
+
+         man rabbitmqctl
+
 
 
 
   17/02/2011 ... G  (with the port py26) ... rabbitmq 2.3.1 
             sudo port selfupdate
             sudo port install rabbitmq-server
+
+
+
 
 
         started with 
@@ -407,28 +497,6 @@ rabbitmq-umbrella-make(){
    ## check out subprojects into the umbrella
    make co
 
-}
-
-
-
-rabbitmq-port-on(){
-    sudo port load rabbitmq-server
-}
-
-rabbitmq-port-epmd(){ echo /opt/local/lib/erlang/erts-5.8.2/bin/epmd ; }
-
-rabbitmq-port-off(){
-    sudo port unload rabbitmq-server
-    sudo $(rabbitmq-port-epmd) -names
-    sudo $(rabbitmq-port-epmd) -kill
-}
-
-rabbitmq-port-startupitemlog(){
-     cat /opt/local/var/log/rabbitmq/startupitem.log
-}
-
-rabbitmq-epmd-names(){
-    $(rabbitmq-port-epmd) -names
 }
 
 

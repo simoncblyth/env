@@ -1,6 +1,7 @@
 
 ssh--src(){ echo base/ssh.bash ; }
 ssh--source(){ echo $(env-home)/$(ssh--src) ; }
+ssh-vi(){  vi $(ssh--source) ; }
 ssh--vi(){ vi $(ssh--source) ; }
 ssh--env(){ elocal- ; }
 #ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
@@ -8,6 +9,23 @@ ssh--env(){ elocal- ; }
 ssh--usage(){
 
 cat << EOU
+
+
+   == Issues : openssh openssl version mismatch ==
+
+
+      * http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/328
+
+       resolved by uninstall/reinstall : but git was casualty
+
+	simon:~ blyth$ sudo port uninstall openssh @5.5p1_2
+	--->  Unable to uninstall openssh @5.5p1_2, the following ports depend on it:
+	--->  	git-core @1.6.3.1_0+doc+svn
+	--->  	git-core @1.7.2.2_0+doc
+	Error: port uninstall failed: Please uninstall the ports that depend on openssh first.
+	simon:~ blyth$ 
+
+
 
     == Basic Setup ==
 
