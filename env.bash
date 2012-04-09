@@ -928,3 +928,5 @@ xsd-(){      . $(env-home)/xml/xsd.bash && xsd-env $* ; }
 bdbxml-(){      . $(env-home)/db/bdbxml.bash && bdbxml-env $* ; }
 swig-(){      . $(env-home)/swig/swig.bash && swig-env $* ; }
 swigbuild-(){      . $(env-home)/swig/swigbuild.bash && swigbuild-env $* ; }
+viruscheck-(){      . $(env-home)/admin/viruscheck.bash && viruscheck-env $* ; }
+dbxml-(){      . $(env-home)/db/dbxml.bash && dbxml-env $* ; }

@@ -28,6 +28,19 @@ hg-usage(){
              hg clone http://belle7.nuu.edu.tw/hg/AuthKitPy24
 
 
+
+      hg-forest-get
+
+          openjdk- requires forrest extenstion to mercurial
+          macports gets dependencies py2.7.2 and mercurial 2.1
+
+          initially "hg help" shows no sign of forrect, need to 
+	  configure extension in ~/.hgrc with::
+
+		  [extensions]
+		  hgext.forest=
+
+
 EOU
 }
 hg-dir(){ echo /var/hg ;  }
@@ -39,7 +52,12 @@ hg-get(){
    [ "$(which hg)" != "" ] && echo $msg hg is already avilable && return 0
    [ "$(which python)" == "/usr/bin/python" ] && echo $msg when using system python its best to use system mercurial, install with yum etc.. && return 0  
 
-   easy_install -U mercurial
+   #easy_install -U mercurial   seems I am using the macports one
+}
+
+hg-forest-get(){
+    sudo port -v install hg-forest
+
 }
 
 
