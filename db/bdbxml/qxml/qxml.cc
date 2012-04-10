@@ -22,13 +22,16 @@
 
 #include "config.hh"
 #include "extresolve.hh"
-	
+
 using namespace std;
 using namespace DbXml;
 
 typedef vector<string> svec ;
 typedef map<string,string> ssmap ;
 typedef map<string,ssmap> sssmap ;
+
+/*
+*/
 
 int main(int argc, char **argv)
 {
@@ -52,7 +55,9 @@ int main(int argc, char **argv)
      }
 
      u_int32_t env_flags = DB_CREATE | DB_INIT_MPOOL  ;
-     const char *envHome = cfg["dbxml"]["dbxml.environment_dir"].c_str() ;  
+     string envdir = cfg["dbxml"]["dbxml.environment_dir"] ;  
+     prepare_dir( envdir );
+     const char *envHome = envdir.c_str() ;  
      env->open(env, envHome, env_flags, 0);
 
      try {

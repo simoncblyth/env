@@ -10,3 +10,6 @@ typedef map<string, ssmap> sssmap ;
 
 int qxml_config(int argc, char **argv, sssmap& m);
 
+int prepare_dir( const string& target );
+
+

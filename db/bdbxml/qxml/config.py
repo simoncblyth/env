@@ -48,6 +48,7 @@ def parse_config(path):
     cfg['dbxml'] = dict((k,v) for k,v in raw.items() if k.startswith('dbxml.')) 
     cfg['containers'] = kv_zip(raw,"container.tag.tag","container.path.path") 
     cfg['namespaces'] = kv_zip(raw,"namespace.name.name","namespace.uri.uri") 
+    cfg['srcdir']     = kv_zip(raw,"container.tag.tag","container.srcdir.srcdir") 
     return cfg
 
 def kv_zip( cfg , kname, vname ):
@@ -123,8 +124,7 @@ def read_xquery( path ):
 for $a in collection() return dbxml:metadata("dbxml:name", $a)
 """
     if not path:
-        #raise Exception("an inputfile containing the XQuery is required %s " % path )
-	log.warn("using placeholder XQuery as no inputfile path specified")
+	log.debug("using placeholder XQuery as no inputfile path specified")
 	return placeholder
     lines = open(path, "r").readlines()
     if lines[0][0] == "#":  # comment 1st line when 1st char is '#' allowing shebang running  
@@ -146,8 +146,9 @@ def qxml_config():
 
 
 if __name__ == '__main__':
-    qxml_config()
-   
+    cfg = qxml_config()
+    print pformat(cfg) 
+
 
 
 

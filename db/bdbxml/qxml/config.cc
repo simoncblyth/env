@@ -10,12 +10,33 @@
 
 #include "potools.hh"
 
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/fstream.hpp>
+	
+//using namespace boost::filesystem; 
 
 template<class T>
 ostream& operator<<(ostream& os, const vector<T>& v)
 {
     copy(v.begin(), v.end(), ostream_iterator<T>(cout, " ")); 
     return os;
+}
+
+int prepare_dir( const string& target )
+{
+   try
+   {	   
+      if( !boost::filesystem::exists( target ) )
+      {
+	  bool ok = boost::filesystem::create_directory( target );
+          if(!ok) cerr << "preparedir failed to create " << target << endl ;	  
+      }
+   }
+   catch (const boost::filesystem::filesystem_error& ex)
+   {
+	cerr << ex.what() << '\n';
+   }
+   return 0 ;
 }
 
 int qxml_popvm(int argc, char **argv, po::variables_map& vm )
@@ -43,6 +64,7 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 		("dbxml.default_collection", po::value<string>(), "default collection  ")
 		("dbxml.baseuri",            po::value<string>(), "base uri  ")
 		("dbxml.xqmpath",            po::value<string>(), "comma delimited module directories ")
+		("container.srcdir.srcdir",  po::value<svec>(),   "container source directories ")
 		("container.path.path",      po::value<svec>(),   "container paths ")
 		("container.tag.tag",        po::value<svec>(),   "container tags ")
 		("namespace.name.name",      po::value<svec>(),   "namespace names ")

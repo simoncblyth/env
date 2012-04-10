@@ -45,7 +45,7 @@ extresolve.o : extresolve.cc extresolve.hh
 # checking config 
 
 $(ENV_HOME)/bin/qxmlcfg : qxmlcfg.o config.o potools.o
-	$(CC)  -L$(BOOST_HOME)/lib -lboost_program_options $^ -o $@
+	$(CC)  -L$(BOOST_HOME)/lib -lboost_program_options -lboost_filesystem -lboost_system  $^ -o $@
 
 qxmlcfg.o : qxmlcfg.cc
 	$(CC)  -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 
