@@ -11,6 +11,8 @@
      
 */
 
+#include <boost/chrono.hpp>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -35,9 +37,13 @@ typedef map<string,ssmap> sssmap ;
 
 int main(int argc, char **argv)
 {
+     boost::chrono::system_clock::time_point t_start, t_prequery, t_postquery, t_end ;
+     t_start = boost::chrono::system_clock::now();
+
      sssmap cfg ;
      qxml_config( argc, argv, cfg );
        
+     string loglevel( cfg["cli"]["level"] );  // TODO: find C++ logging approach 
      string xqpath( cfg["cli"]["inputfile"] );
      ifstream t(xqpath.c_str()); 
      char c = t.peek();
@@ -66,6 +72,7 @@ int main(int argc, char **argv)
 	resolver.setXqmPath( cfg["dbxml"]["dbxml.xqmpath"] );
 	mgr.registerResolver(resolver); 
 
+
         XmlContainer* cont = NULL ;
         ssmap::const_iterator it ;
         for( it = cfg["containers"].begin() ; it != cfg["containers"].end() ; ++it ){
@@ -92,12 +99,16 @@ int main(int argc, char **argv)
 		 // give special meaning to container tag "tmp" , 
 		 // some external functions need such a container for scratch space     
 		 //
-		 clog << "setting tmpContainer and Name " << endl ;
+		 //clog << "setting tmpContainer and Name " << endl ;
 	         resolver.setTmpContainer(name);             // dbxml uri of the scratch container
 	         resolver.setTmpName("tmpfragment.xml");     // default name of docs created there 
 	    }
 
         }
+
+    
+	resolver.readGlyphs(mgr);
+	//resolver.dumpGlyphs();
 
 	XmlQueryContext qc = mgr.createQueryContext();        
 
@@ -114,7 +125,9 @@ int main(int argc, char **argv)
             qc.setVariableValue( it->first , it->second );
         }
 
+        t_prequery = boost::chrono::system_clock::now();
         XmlResults res = mgr.query( q , qc);
+        t_postquery = boost::chrono::system_clock::now();
         XmlValue value;
 	// NB the only **cout**, to make it possible to output valid XML
         while (res.next(value)) cout << value.asString() << endl;
@@ -122,5 +135,17 @@ int main(int argc, char **argv)
     } catch (XmlException &e) {
          cerr << "Exception: " << e.what() << std::endl;
     }
+    t_end = boost::chrono::system_clock::now();
+
+
+    boost::chrono::duration<double> d_input = t_prequery - t_start ;
+    boost::chrono::duration<double> d_query = t_postquery - t_prequery ;
+    boost::chrono::duration<double> d_output = t_end - t_postquery ;
+    boost::chrono::duration<double> d_total  = t_end - t_start ;
+
+    clog << "total  " << d_total.count()  << " s\n";
+    clog << "input  " << d_input.count()  << " s\n";
+    clog << "query  " << d_query.count()  << " s\n";
+    clog << "output " << d_output.count() << " s\n";
     return 0;
 }

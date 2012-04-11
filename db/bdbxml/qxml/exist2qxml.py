@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 """
-Hmm add to config
-
-[container.source] 
-
 """
 import os, logging
 log = logging.getLogger(__name__)

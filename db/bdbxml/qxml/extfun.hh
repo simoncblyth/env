@@ -6,12 +6,14 @@
 
 using namespace DbXml;
 
+
+
 /* 
  * MyFunResolver returns a new instance of this object for each Resolution, so
  * that instance must be deleted here 
  */
 
-
+class MyResolver ;
 
 class MyExternalFunctionPow : public XmlExternalFunction
 {
@@ -56,6 +58,18 @@ public:
 private:
 
 };
+
+class CodeToLatex: public XmlExternalFunction 
+{
+public:
+	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;
+	void close(){ delete this ;}
+
+        const MyResolver* _resolver ; 
+private:
+
+};
+
 
 
 #endif

@@ -2,10 +2,10 @@ func-src(){      echo base/func.bash ; }
 func-source(){   echo ${BASH_SOURCE:-$(env-home)/$(func-src)} ; }
 func-vi(){       vi $(func-source) ; }
 func-env(){      elocal- ; }
-func-usage(){
-  cat << EOU
-     func-src : $(func-src)
-     func-dir : $(func-dir)
+func-usage(){ cat << EOU
+
+
+
 
 
 EOU

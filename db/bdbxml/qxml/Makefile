@@ -18,7 +18,7 @@ qxmlcfg:$(ENV_HOME)/bin/qxmlcfg
 
 
 $(ENV_HOME)/bin/qxml: qxml.o config.o potools.o extfun.o extresolve.o model.o element.o
-	$(CC)  -L$(BDBXML_HOME)/lib -ldbxml -ldb -L$(BOOST_HOME)/lib -lboost_program_options -lboost_filesystem -lboost_system $^ -o $@
+	$(CC)  -L$(BDBXML_HOME)/lib -ldbxml -ldb -L$(BOOST_HOME)/lib -lboost_chrono -lboost_program_options -lboost_filesystem -lboost_system $^ -o $@
 
 qxml.o: qxml.cc
 	$(CC)  -I$(BDBXML_HOME)/include -I$(BOOST_HOME)/include $(CCOPT) -c $^ -o $@ 

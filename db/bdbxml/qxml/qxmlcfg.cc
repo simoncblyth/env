@@ -8,6 +8,8 @@ int main(int argc, char **argv)
     sssmap cfg ;
     int rc = qxml_config( argc, argv, cfg );
 
+    string level = cfg["cli"]["level"] ;
+    cout << level << endl ;
     string xqmpath = cfg["dbxml"]["dbxml.xqmpath"] ;
     cout << xqmpath << endl ;
 

@@ -1,13 +1,18 @@
 
 #include "extfun.hh"
+#include "extresolve.hh"
+
 #include <math.h>
+#include <string>
+#include <map>
 
 #include "model.hh"
 #include "element.hh"
 
-
 using namespace DbXml;
 using namespace std;
+
+//typedef map<string,string> ssmap ;
 
 
 XmlResults MyExternalFunctionPow::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const
@@ -195,5 +200,21 @@ XmlResults QuoteToValues::execute(XmlTransaction &txn, XmlManager &mgr, const Xm
 	XmlValue va(dummy);
 	results.add(va);
 	return results;
+}
+
+XmlResults CodeToLatex::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const // my:code2latex
+{
+	XmlResults ret = mgr.createResults();
+	XmlResults arg0 = args.getArgument(0);
+	XmlValue val0;
+	while(arg0.hasNext()){
+	    arg0.next(val0);
+	    string code = val0.asString() ;     
+	    const string& latex = _resolver->codeToLatex(code);  
+	    //clog << "lookup code " << code << " ==> " << latex << endl ;
+	    XmlValue vret(latex);
+	    ret.add(vret);
+        }
+	return ret ;
 }
 

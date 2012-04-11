@@ -930,3 +930,6 @@ swig-(){      . $(env-home)/swig/swig.bash && swig-env $* ; }
 swigbuild-(){      . $(env-home)/swig/swigbuild.bash && swigbuild-env $* ; }
 viruscheck-(){      . $(env-home)/admin/viruscheck.bash && viruscheck-env $* ; }
 dbxml-(){      . $(env-home)/db/dbxml.bash && dbxml-env $* ; }
+boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
+boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
+boostlog-(){      . $(env-home)/boost/boostlog.bash && boostlog-env $* ; }

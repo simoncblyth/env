@@ -79,10 +79,10 @@ class QXML(dict):
     def __call__(self, q=None ):
 	if not q:
 	    q = self['query']	
-        res = self.mgr.query( q , self.ctx )
-	for i, value in enumerate(res):
-            log.info("value %-3s: %s", i, value.asString()) 
-	return res
+        return self.mgr.query( q , self.ctx )
+	#for i, value in enumerate(res):
+        #    log.info("value %-3s: %s", i, value.asString()) 
+	#return res
 
     def _containers(self, mgr):
 	"""
@@ -157,9 +157,9 @@ def test_qx():
 
 if __name__ == '__main__':
     pass
-
     qx = QXML()
     res = qx()
-    log.info("res %s" % res )
+    for v in res:
+        print v
 
 

@@ -2,7 +2,10 @@
 dbxml-src(){      echo db/dbxml.bash ; }
 dbxml-source(){   echo ${BASH_SOURCE:-$(env-home)/$(dbxml-src)} ; }
 dbxml-vi(){       vi $(dbxml-source) ; }
-dbxml-env(){      elocal- ; }
+dbxml-env(){   
+   elocal- 
+   bdbxml-
+ }
 dbxml-usage(){ cat << EOU
 
 Usage of DBXML
@@ -39,4 +42,13 @@ dbxml-mate(){ mate $(dbxml-dir) ; }
 dbxml-get(){
    local dir=$(dirname $(dbxml-dir)) &&  mkdir -p $dir && cd $dir
 
+}
+
+dbxml-py(){
+   local pyc=$(python -c "import dbxml as _ ; print _.__file__ ")
+   vi ${pyc/.pyc}.py
+}
+dbxml-cpp(){
+   cd $BDBXML_HOME/include/dbxml
+   pwd
 }

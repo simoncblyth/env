@@ -1,11 +1,15 @@
 #ifndef EXTRESOLVE_HH
 #define EXTRESOLVE_HH
 
+#include <string>
+#include <map>
 #include <iostream>
 #include <dbxml/DbXml.hpp>
 
 using namespace DbXml;
 using namespace std;
+
+typedef map<string, string> ssmap;
 
 class MyResolver : public XmlResolver
 {
@@ -21,6 +25,9 @@ public:
 	std::string findEntity( const std::string &systemId, const std::string &publicId ) const;
 	std::string getUri(){ return _uri; }
 
+	std::string codeToLatex( const std::string& code ) const;
+        void dumpGlyphs();
+        void readGlyphs( XmlManager& mgr );
 
 	// colon delimited string with directories to look for XQuery modules, 
 	// searched in order with first match used
@@ -35,12 +42,16 @@ public:
         void setTmpName( const std::string tmpName );
 	std::string getTmpName(){ return _tmpName ; }
 
+	// code => latex mappings 
+        ssmap _glyph ;
 
 private:
 	string _uri ;
 	string _xqmPath ; 
 	string _tmpContainer ; 
 	string _tmpName ; 
+
+
 };
 
 #endif
