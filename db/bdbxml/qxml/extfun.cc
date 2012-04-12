@@ -1,6 +1,7 @@
 
 #include "extfun.hh"
 #include "extresolve.hh"
+#include "common.hh"
 
 #include <math.h>
 #include <string>
@@ -86,21 +87,6 @@ XmlResults MetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArgu
 	return results;
 }
 
-
-// from FAQ
-bool existsDoc(const std::string& docname, XmlContainer& cont) {
-	bool ret;
-	try {
-		XmlDocument doc = cont.getDocument(docname, DBXML_LAZY_DOCS);
-		ret = true;
-	} catch (XmlException &e) {
-		if (e.getExceptionCode() == XmlException::DOCUMENT_NOT_FOUND)
-		    ret = false;
-	        else
-		    throw;   // unknown error
-        }     
-	return ret;
-}
 
 
 XmlResults MMetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const // my:mmetadata
