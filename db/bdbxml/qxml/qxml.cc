@@ -8,7 +8,24 @@
      implicit DBEnv  ?
      comment (not scrub) first line
      writing output xml to file, when output path provided in options 
-     
+
+
+  Keeping qxml generic
+  ~~~~~~~~~~~~~~~~~~~~~
+
+     dlopen/dlsym (or C++ equivalent) handling for 
+     resolver and extension functions to prevent project specifics from being inside 
+     qxml : these shoiuld be being developed elsewhere (in heprez repository for example).
+     Some generic extfun will be needed however, so probably best to have an umbrella
+     resolver that handles
+        * dynamic resolver loading
+	* hands out resolve requests based on namespace namespace.
+
+
+      http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
+
+          dlfcn.h
+
 */
 
 #include <boost/chrono.hpp>
@@ -106,9 +123,12 @@ int main(int argc, char **argv)
 
         }
 
-    
-	resolver.readGlyphs(mgr);
+      
+        t_preload = boost::chrono::system_clock::now();
+	// TODO: move this heprez specific elsewhere
+	resolver.readGlyphs(mgr);  
 	//resolver.dumpGlyphs();
+        t_postload = boost::chrono::system_clock::now();
 
 	XmlQueryContext qc = mgr.createQueryContext();        
 
@@ -138,14 +158,19 @@ int main(int argc, char **argv)
     t_end = boost::chrono::system_clock::now();
 
 
-    boost::chrono::duration<double> d_input = t_prequery - t_start ;
+    boost::chrono::duration<double> d_init  = t_preload - t_start ;      
+    boost::chrono::duration<double> d_load  = t_postload - t_preload ;
+    boost::chrono::duration<double> d_qprep = t_prequery - t_postload ;
     boost::chrono::duration<double> d_query = t_postquery - t_prequery ;
     boost::chrono::duration<double> d_output = t_end - t_postquery ;
+
     boost::chrono::duration<double> d_total  = t_end - t_start ;
 
-    clog << "total  " << d_total.count()  << " s\n";
-    clog << "input  " << d_input.count()  << " s\n";
-    clog << "query  " << d_query.count()  << " s\n";
-    clog << "output " << d_output.count() << " s\n";
+    clog << "init   " << d_init.count()   << " s (read config setup containers)\n";
+    clog << "load   " << d_load.count()   << " s (load maps)\n";
+    clog << "qprep  " << d_qprep.count()  << " s (prepare query context)\n";
+    clog << "query  " << d_query.count()  << " s (execute query)\n";
+    clog << "output " << d_output.count() << " s (write results)\n";
+    clog << "TOTAL  " << d_total.count()  << " s \n";
     return 0;
 }
