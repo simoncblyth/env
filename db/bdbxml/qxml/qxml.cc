@@ -27,23 +27,13 @@ typedef vector<string> svec ;
 typedef map<string,string> ssmap ;
 typedef map<string,ssmap> sssmap ;
 
-int main(int argc, char **argv)
+// read from file or stdin, shebang lines are xquery commented 	
+string read_query( const string& xqpath )
 {
-     boost::chrono::system_clock::time_point t_start, t_preload, t_postload, t_prequery, t_postquery, t_end ;
-     t_start = boost::chrono::system_clock::now();
-
-     sssmap cfg ;
-     qxml_config( argc, argv, cfg );
-       
-     string loglevel( cfg["cli"]["level"] );  // TODO: find C++ logging approach 
-     string outXml(   cfg["cli"]["outxml"] ); 
-     string xqpath( cfg["cli"]["inputfile"] );
-
      stringstream qss ;
      ifstream fin ;
      istreambuf_iterator<char> isi ;
      istreambuf_iterator<char> eos = istreambuf_iterator<char>(); 
-
      if( xqpath == "-" ){
          isi = istreambuf_iterator<char>(cin); 
      } else {
@@ -56,16 +46,14 @@ int main(int argc, char **argv)
          }	
          isi = istreambuf_iterator<char>(fin); 
      }
-
      copy( isi, eos, ostreambuf_iterator<char>(qss));
+     return qss.str() ;
+}
 
-     string q = qss.str() ;
-     clog << q << endl ;  // TODO: add option switch for this dumping
 
-     string envdir = cfg["dbxml"]["dbxml.environment_dir"] ;  
+int configure_dbenv( DB_ENV*& env , const string& envdir )
+{
      prepare_dir( envdir );
-
-     DB_ENV* env = NULL;
      int dberr = db_env_create(&env, 0);
      if (dberr) {
 	  cerr << "Unable to create environment: " << db_strerror(dberr) << endl;
@@ -81,6 +69,26 @@ int main(int argc, char **argv)
 	                   DB_INIT_MPOOL  ;       // initialize the cache  
 
      env->open(env, envdir.c_str() , env_flags, 0);
+}
+
+
+
+int main(int argc, char **argv)
+{
+     boost::chrono::system_clock::time_point t_start, t_preload, t_postload, t_prequery, t_postquery, t_end ;
+     t_start = boost::chrono::system_clock::now();
+
+     sssmap cfg ;
+     qxml_config( argc, argv, cfg );
+       
+     string loglevel( cfg["cli"]["level"] );  // TODO: find C++ logging approach 
+     string outXml(   cfg["cli"]["outxml"] ); 
+     string q = read_query( cfg["cli"]["inputfile"] );
+     clog << q << endl ;                   // TODO: add option switch for this dumping
+     
+     DB_ENV* env = NULL;
+     int dberr = configure_dbenv( env, cfg["dbxml"]["dbxml.environment_dir"]) ;  
+     if (dberr) exit(dberr);
 
      try {
         XmlManager mgr(env, DBXML_ALLOW_EXTERNAL_ACCESS)  ;
@@ -99,6 +107,7 @@ int main(int argc, char **argv)
 	    XmlContainerConfig cconfig;
             cconfig.setAllowCreate(true);    // If the container does not exist, create it.
 
+	    // need to "leak" containers to keep them open it seems
 	    XmlContainer* cont ;
             if(chk == 0){
                 cont = new XmlContainer(mgr.createContainer(name, cconfig));
@@ -106,30 +115,19 @@ int main(int argc, char **argv)
 		cont = new XmlContainer(mgr.openContainer(name, cconfig));   
 	    }               	
 	    cont->addAlias(tag);
-            //	    
-	    // need to "leak" containers to avoid evaporation 
-	    //       Exception: Error: Cannot resolve container: hfc.  
-	    //       Container not open and auto-open is not enabled.  Container may not exist.
-            //
-
-            if( tag == "tmp" ){
-		 //   
-		 // give special meaning to container tag "tmp" , 
-		 // some external functions need such a container for scratch space     
-		 //
-		 //clog << "setting tmpContainer and Name " << endl ;
+            if( tag == "tmp" ){ // special meaning for container with tag "tmp" , used for scratch space     
 	         resolver.setTmpContainer(name);             // dbxml uri of the scratch container
-	         resolver.setTmpName("tmpfragment.xml");     // default name of docs created there 
+	         resolver.setTmpName("tmpfragment.xml");     // default name of scratch docs : TODO: check auto-naming
 	    }
-
         }
 
       
         t_preload = boost::chrono::system_clock::now();
-	// TODO: move this heprez specific elsewhere 
-	resolver.readGlyphs(mgr);  
+	resolver.readGlyphs(mgr);  // TODO: move this heprez specific elsewhere 
 	//resolver.dumpGlyphs();
-	
+        resolver.loadMaps(mgr, cfg["maps"] );
+
+
         t_postload = boost::chrono::system_clock::now();
 
 	XmlQueryContext qc = mgr.createQueryContext();        

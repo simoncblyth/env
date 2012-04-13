@@ -10,6 +10,7 @@ using namespace DbXml;
 using namespace std;
 
 typedef map<string, string> ssmap;
+typedef map<string, ssmap> sssmap;
 
 class MyResolver : public XmlResolver
 {
@@ -29,6 +30,10 @@ public:
         void dumpGlyphs();
         void readGlyphs( XmlManager& mgr );
 
+
+	std::string mapLookup( const std::string& mapn, const std::string& key ) const;
+        void loadMaps( XmlManager& mgr, ssmap& maps );
+
 	// colon delimited string with directories to look for XQuery modules, 
 	// searched in order with first match used
         void setXqmPath( const std::string xqmPath );
@@ -44,6 +49,9 @@ public:
 
 	// code => latex mappings 
         ssmap _glyph ;
+
+	// generic maps populated by kv query from config 
+        sssmap _map ;
 
 private:
 	string _uri ;

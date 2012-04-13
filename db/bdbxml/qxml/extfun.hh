@@ -59,16 +59,45 @@ private:
 
 };
 
-class CodeToLatex: public XmlExternalFunction 
+class CodeToLatex: public XmlExternalFunction   // my:code2latex
 {
 public:
 	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;
 	void close(){ delete this ;}
-
         const MyResolver* _resolver ; 
 private:
-
 };
+
+
+class Map: public XmlExternalFunction   // my:map
+{
+public:
+	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const;
+	void close(){ delete this ;}
+        const MyResolver* _resolver ; 
+private:
+};
+
+
+
+/*
+#define foo(X, Y)  ((X) < (Y) ? (X) : (Y))
+
+#define bar(CLASSNAME)  \
+class ##CLASSNAME: public XmlExternalFunction  \
+{     \
+public:   \
+	XmlResults execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const; \
+	void close(){ delete this ;}  \
+        const MyResolver* _resolver ; \
+private: \
+} 
+bar(MapLookup);
+
+*/
+
+
+
 
 
 

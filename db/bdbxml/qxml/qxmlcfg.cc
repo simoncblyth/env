@@ -1,12 +1,13 @@
 // testing config handling 
 #include "config.hh"
+#include "potools.hh"
 #include <iostream>
 #include <boost/algorithm/string.hpp>
 
 int main(int argc, char **argv)
 {
     sssmap cfg ;
-    int rc = qxml_config( argc, argv, cfg );
+    int rc = qxml_config( argc, argv, cfg , true );
 
     string level = cfg["cli"]["level"] ;
     cout << level << endl ;
@@ -19,6 +20,10 @@ int main(int argc, char **argv)
     for( it = dirs.begin() ; it != dirs.end() ; ++it ){
         cout << *it << endl ;   
     }
+
+
+    cout << "cfg_dump " << endl ; 
+    cfg_dump( cfg );
 
     return rc ;
 }

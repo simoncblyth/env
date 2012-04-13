@@ -71,6 +71,8 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 		("container.tag.tag",        po::value<svec>(),   "container tags ")
 		("namespace.name.name",      po::value<svec>(),   "namespace names ")
 		("namespace.uri.uri",        po::value<svec>(),   "namespace uris ")
+		("map.name.name",            po::value<svec>(),   "preloaded map names ")
+		("map.query.query",          po::value<svec>(),   "preloaded map kv queries")
 		;
 
 	     po::options_description posit("Options that also work as positional arguments");
@@ -144,7 +146,7 @@ int qxml_popvm(int argc, char **argv, po::variables_map& vm )
 
 
 
-int qxml_config(int argc, char **argv , sssmap& m )
+int qxml_config(int argc, char **argv , sssmap& m , bool vmdump )
 {
      po::variables_map vm;
      qxml_popvm( argc , argv , vm );
@@ -154,9 +156,10 @@ int qxml_config(int argc, char **argv , sssmap& m )
 
      kv_zip( vm , m["containers"], "container.tag.tag", "container.path.path" );
      kv_zip( vm , m["namespaces"], "namespace.name.name", "namespace.uri.uri" );
+     kv_zip( vm , m["maps"], "map.name.name", "map.query.query" );
      kv_zip( vm , m["variables"] , "key",                 "val" );
 
-     //vm_dump( vm );
+     if(vmdump) vm_dump( vm );
      //cfg_dump(m);
 }
 

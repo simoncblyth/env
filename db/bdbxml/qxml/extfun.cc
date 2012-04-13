@@ -204,3 +204,30 @@ XmlResults CodeToLatex::execute(XmlTransaction &txn, XmlManager &mgr, const XmlA
 	return ret ;
 }
 
+
+
+XmlResults Map::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments &args) const // my:map
+{
+	XmlResults ret = mgr.createResults();
+
+	// 1st slot for map name  
+	XmlResults arg0 = args.getArgument(0);
+	XmlValue val0;
+        arg0.next(val0);
+	string mapk = val0.asString();
+
+	// 2nd slot for key(s) to lookup 
+	XmlResults arg1 = args.getArgument(1);
+	XmlValue val1;
+	while(arg1.hasNext()){
+	    arg1.next(val1);
+	    string key = val1.asString() ;     
+	    const string& val = _resolver->mapLookup( mapk , key );  
+	    clog << "lookup mapk " << mapk << " key " << key << " ==> " << val << endl ;
+	    XmlValue vret(val);
+	    ret.add(vret);
+        }
+	return ret ;
+}
+
+

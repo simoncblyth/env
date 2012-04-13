@@ -121,6 +121,8 @@ Issues/Enhancements/Ideas
 Configurable loading of indices and generic access
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+``std::map <string,string>`` simple starting point implemented in r3436
+
 Enable generic app indices by configuring queries providing (key,val) lists
 which are loaded into ``std::map<string,XmlValue>``:: 
 

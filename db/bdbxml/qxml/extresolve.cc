@@ -52,7 +52,13 @@ XmlExternalFunction* MyResolver::resolveExternalFunction(XmlTransaction *txn, Xm
 	} 
 	else if ( numberOfArgs == 2 )
 	{
-            if(      name == "pow"){ return new MyExternalFunctionPow(); }
+            if(         name == "map"){ 
+		Map* map = new Map();
+	        map->_resolver = this ;	
+	        return map ;
+	    } else if(  name == "pow"){ 
+		return new MyExternalFunctionPow(); 
+	    }
 	}	
 	return fun;
 }
@@ -119,6 +125,54 @@ void MyResolver::readGlyphs( XmlManager& mgr )
     }
     clog << "readGlyphs read " << _glyph.size() << " code => latex pairs " << endl;
 }
+
+
+string MyResolver::mapLookup( const std::string& mapk, const std::string& key ) const
+{
+    string val = "" ;	
+    sssmap::const_iterator imk = _map.find( mapk );
+    if( imk == _map.end() ){
+	cerr << "no map with key " << mapk << endl ;
+    } else {
+        const ssmap& kv = imk->second ;
+        ssmap::const_iterator ikv = kv.find(key) ;
+        if( ikv == kv.end() ){
+	   cerr << "map " << mapk << " has no such key " << key << endl ;
+	} else {
+           val = ikv->second ;   
+	}
+    }	    
+    return val ;
+}
+
+void MyResolver::loadMaps( XmlManager& mgr, ssmap& maps )
+{
+    ssmap::const_iterator it ;
+    for( it = maps.begin() ; it != maps.end() ; ++it ){
+        clog << "loadMaps " << it->first << " : " << it->second << endl ;
+
+        XmlQueryContext qctx = mgr.createQueryContext();
+        XmlResults res = mgr.query( it->second , qctx );
+ 	// alternating keys and values, by convention 
+        XmlValue key;         
+        XmlValue val;  
+        while (res.next(key)){
+            string k = key.asString();
+	    string v = "" ;                // more generally would be good to grab the XmlValue here for fragment storage eg svg elements 
+	    if(res.next(val)){
+               v = val.asString() ;
+	    }
+	    if( k.empty() || v.empty() ){
+		cerr << "unexpected kv " << k << " : " << v << endl ;    
+	    } else { 	    
+	        _map[it->first][k] = v ;
+	    }
+	}    
+        clog << "loadMaps " << it->first << " read " << _map[it->first].size() << " kv pairs " << endl ;
+    }
+}
+
+
 
 
 XmlInputStream* MyResolver::resolveEntity( XmlTransaction *txn, XmlManager &mgr, const std::string &systemId,
