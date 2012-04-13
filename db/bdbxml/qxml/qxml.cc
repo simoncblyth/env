@@ -1,48 +1,6 @@
 /*
-   Command line tool to facilitate XQuerying dbxml container
-   without having to escape the query.
-
-  TODO:
-     logging/verbosity control
-     allow reading "inputfile" from stdin
-     implicit DBEnv  ?
-     comment (not scrub) first line : in order for error messages to report correct line 
-
-  Issues 
-  ~~~~~~~
-
-     duplicated options gives "multiple occurrences" and subsequent errors
-     needs to exit earlier or handle multiple where that makes sense
-
-  Configurable loading of indices and generic access
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-     generic app indices by configuring queries providing (key,val) lists
-     which are loaded into std::map<string,XmlValue> 
-
-        [map.name]
-        name = code2latex
-        [map.query]	 
-        query = for $glyph in collection('dbxml:/sys')/*[dbxml:metadata('dbxml:name')='pdgs.xml' or dbxml:metadata('dbxml:name')='extras.xml' ]//glyph return (data($glyph/@code), data($glyph/@latex)) 
-
-     Such maps could be accessible by generic extension function my:map('code2latex',$key )
-
-
-  Keeping qxml generic
-  ~~~~~~~~~~~~~~~~~~~~~
-
-     dlopen/dlsym (or C++ equivalent) handling for resolver and 
-     extension functions to prevent project specifics from creeping into qxml.
-     Such specifics should be being developed elsewhere (in heprez repository for example).
-
-     Some generic extfun will be needed however, so probably best to have an umbrella
-     resolver that handles
-        * dynamic resolver loading
-	* hands out resolve requests based on namespace namespace.
-
-     (see env/dlfcn for tutorial of dlopen technique)
-      http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
-
+   Command line tool to facilitate XQuerying dbxml containers.
+   See README.txt for issues/enhancement ideas etc..
 */
 
 #include <boost/chrono.hpp>
@@ -52,7 +10,9 @@
 #include <map>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <streambuf>
+#include <sstream>
 
 #include "dbxml/DbXml.hpp"
 
@@ -67,9 +27,6 @@ typedef vector<string> svec ;
 typedef map<string,string> ssmap ;
 typedef map<string,ssmap> sssmap ;
 
-/*
-*/
-
 int main(int argc, char **argv)
 {
      boost::chrono::system_clock::time_point t_start, t_preload, t_postload, t_prequery, t_postquery, t_end ;
@@ -81,14 +38,32 @@ int main(int argc, char **argv)
      string loglevel( cfg["cli"]["level"] );  // TODO: find C++ logging approach 
      string outXml(   cfg["cli"]["outxml"] ); 
      string xqpath( cfg["cli"]["inputfile"] );
-     ifstream t(xqpath.c_str()); 
-     char c = t.peek();
-     if(c == '#') t.ignore( numeric_limits<streamsize>::max(), '\n' );  // ignore 1st line when 1st char is '#' allowing shebang running  
-     string q((istreambuf_iterator<char>(t)), istreambuf_iterator<char>());
+
+     stringstream qss ;
+     ifstream fin ;
+     istreambuf_iterator<char> isi ;
+     istreambuf_iterator<char> eos = istreambuf_iterator<char>(); 
+
+     if( xqpath == "-" ){
+         isi = istreambuf_iterator<char>(cin); 
+     } else {
+         fin.open( xqpath.c_str() );
+         char c = fin.peek();
+         if(c == '#'){
+             char shebang[256];
+	     fin.getline( shebang , 256 );
+             qss << "(:" << shebang << ":)" << endl ;  	 
+         }	
+         isi = istreambuf_iterator<char>(fin); 
+     }
+
+     copy( isi, eos, ostreambuf_iterator<char>(qss));
+
+     string q = qss.str() ;
+     clog << q << endl ;  // TODO: add option switch for this dumping
 
      string envdir = cfg["dbxml"]["dbxml.environment_dir"] ;  
      prepare_dir( envdir );
-
 
      DB_ENV* env = NULL;
      int dberr = db_env_create(&env, 0);
@@ -219,12 +194,14 @@ int main(int argc, char **argv)
     boost::chrono::duration<double> d_output = t_end - t_postquery ;
     boost::chrono::duration<double> d_total  = t_end - t_start ;
 
-    clog << "init   " << d_init.count()   << " s (read config and setup containers)\n";
-    clog << "load   " << d_load.count()   << " s (load maps)\n";
-    clog << "qprep  " << d_qprep.count()  << " s (prepare query context)\n";
-    clog << "query  " << d_query.count()  << " s (execute query)\n";
-    clog << "output " << d_output.count() << " s (write results)\n";
-    clog << "TOTAL  " << d_total.count()  << " s \n";
+
+    clog << setprecision(4)  ;  
+    clog << "init   " << setw(10) << d_init.count()   << " s [read config and setup containers]\n";
+    clog << "load   " << setw(10) << d_load.count()   << " s [load maps]\n";
+    clog << "qprep  " << setw(10) << d_qprep.count()  << " s [prepare query context]\n";
+    clog << "query  " << setw(10) << d_query.count()  << " s [execute query]\n";
+    clog << "output " << setw(10) << d_output.count() << " s [write results]\n";
+    clog << "TOTAL  " << setw(10) << d_total.count()  << " s \n";
 
     return 0;
 }

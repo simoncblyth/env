@@ -78,7 +78,7 @@ XmlResults MetaData::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArgu
         XmlValue md_value ;
 
         XmlMetaDataIterator mdi = doc.getMetaDataIterator();
-        while(mdi.next(md_uri,md_name,md_value)) cout << md_uri << " " << md_name << " " << md_value.asString() << endl ;   
+        while(mdi.next(md_uri,md_name,md_value)) clog << md_uri << " " << md_name << " " << md_value.asString() << endl ;   
 
         double dummy = 42. ;
 	XmlResults results = mgr.createResults();
