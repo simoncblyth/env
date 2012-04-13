@@ -76,8 +76,8 @@ class Err
 
 	  string _errname ;  
           double _symm ;
-	  double _plus ;
 	  double _minus ;
+	  double _plus ;
    private:
 };
 

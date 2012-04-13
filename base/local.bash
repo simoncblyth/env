@@ -1,5 +1,9 @@
 
-local-src(){    echo base/local.bash ; }
+# suffering nameclash with heprez
+elocal-src(){    echo base/local.bash ; }
+elocal-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(elocal-src)} ; }
+elocal-vi(){     vi $(elocal-source) ; }
+
 local-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(local-src)} ; }
 local-vi(){     vi $(local-source) ; }
 local-systail(){ sudo tail -f  /var/log/system.log ; }

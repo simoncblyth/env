@@ -45,6 +45,14 @@ Here documents, must **not** do any escaping (also handy for few-liners)::
      > collection()[1]
      > EOQ
 
+From a bash function (uses another function to format arguments as an XQuery sequence)::
+
+     rezlatex-code2latex-(){ qxml - << EOQ
+     import module namespace my="http://my" at "my.xqm" ; 
+     my:code2latex($(rezlatex-xqseq $*)) 
+     EOQ
+     }
+
 Start turning command into script::
 
      cat - << EOQ > demo.xq
@@ -67,10 +75,12 @@ Quick module import and invoke::
      echo 'import module namespace my="http://my" at "my.xqm" ; my:metadata(collection()[100]) ' | qxml -
      echo 'import module namespace my="http://my" at "my.xqm" ; my:code2latex("211") ' | qxml -
      # 
-     # CONSIDERING configurable xquery module import prolog allowing 
-     #              echo 'my:code2latex("211")' | qxml -      
+     # CONSIDERING configurable xquery module import prolog invoked via module command line option
+     #  
+     #              echo 'my:code2latex("211")' | qxml - -m my -m rz    
      #
-     #  (simple way of doing this would offset error line numbers )
+     #  Simple way of doing this would offset error line numbers, but can pony up imports on 1st line, 
+     #  register module library tags such as "my" in the config. 
      #
 
 Issues/Enhancements/Ideas
@@ -103,6 +113,9 @@ Issues/Enhancements/Ideas
    gives "multiple occurrences", change handling to
        * last one wins
        * OR immediate exit if it makes no sense for the option
+
+* re-arrange python extension build to avoid littering wc with swig artifacts
+
 
 
 Configurable loading of indices and generic access
