@@ -223,7 +223,7 @@ XmlResults Map::execute(XmlTransaction &txn, XmlManager &mgr, const XmlArguments
 	    arg1.next(val1);
 	    string key = val1.asString() ;     
 	    const string& val = _resolver->mapLookup( mapk , key );  
-	    clog << "lookup mapk " << mapk << " key " << key << " ==> " << val << endl ;
+	    //clog << "lookup mapk " << mapk << " key " << key << " ==> " << val << endl ;
 	    XmlValue vret(val);
 	    ret.add(vret);
         }

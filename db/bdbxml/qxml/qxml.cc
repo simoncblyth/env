@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <streambuf>
 #include <sstream>
+#include <ctime>
 
 #include "dbxml/DbXml.hpp"
 
@@ -40,7 +41,7 @@ string read_query( const string& xqpath )
          fin.open( xqpath.c_str() );
          char c = fin.peek();
          if(c == '#'){
-             char shebang[256];
+             char shebang[256];  
 	     fin.getline( shebang , 256 );
              qss << "(:" << shebang << ":)" << endl ;  	 
          }	
@@ -50,6 +51,15 @@ string read_query( const string& xqpath )
      return qss.str() ;
 }
 
+
+string local_timestring()
+{
+    //  Get the local time  TODO : move to boost time and UTC
+     time_t now = time( 0 );
+     char timeString[100];
+     strftime(timeString, 100, "%Y/%m/%d:%H:%M:%S", localtime( &now ) );
+     return string(timeString);
+}
 
 int configure_dbenv( DB_ENV*& env , const string& envdir )
 {
@@ -71,6 +81,19 @@ int configure_dbenv( DB_ENV*& env , const string& envdir )
      env->open(env, envdir.c_str() , env_flags, 0);
 }
 
+
+
+string cfg_lookup( sssmap& cfg , string fold, string key )
+{
+   string val ;
+   sssmap::const_iterator fit = cfg.find( fold );
+   if( fit != cfg.end() ){
+
+       ssmap::const_iterator kit = cfg[fold].find( key );
+       if( kit != cfg[fold].end() ) val = cfg[fold][key] ;	       
+   }  
+   return val ;
+}
 
 
 int main(int argc, char **argv)
@@ -123,7 +146,7 @@ int main(int argc, char **argv)
 
       
         t_preload = boost::chrono::system_clock::now();
-	resolver.readGlyphs(mgr);  // TODO: move this heprez specific elsewhere 
+	//resolver.readGlyphs(mgr);  // TODO: move this heprez specific elsewhere 
 	//resolver.dumpGlyphs();
         resolver.loadMaps(mgr, cfg["maps"] );
 
@@ -148,15 +171,22 @@ int main(int argc, char **argv)
         t_prequery = boost::chrono::system_clock::now();
         XmlResults res = mgr.query( q , qc);
         t_postquery = boost::chrono::system_clock::now();
+	
 
         if (outXml == "" ){
 
 	    // this is the only **cout**, to make it possible to output valid XML
+	    int count = 0 ;
 	    XmlValue value;
-            while (res.next(value)) cout << value.asString() << endl;
+            while (res.next(value)){
+		 cout << value.asString() << endl;
+		 count += 1 ;   
+	    }	 
+            clog << "sequence count " << count << endl ;
 
         } else {
 
+	     string qxmlns = cfg_lookup( cfg, "namespaces" , "qxml" );	
              string outContainerTag = "tmp" ;		 
              ssmap::const_iterator it = cfg["containers"].find(outContainerTag) ;
              if( it == cfg["containers"].end() ){
@@ -175,6 +205,9 @@ int main(int argc, char **argv)
 	         XmlEventReader& outRdr = outValue.asEventReader(); 
                  XmlDocument outDoc = mgr.createDocument();
                  outDoc.setName(outXml);
+		 XmlValue createStamp(local_timestring());      // modify ?
+		 clog << "setting createStamp ns " << qxmlns << " : created : " << createStamp.asString() << endl ;  
+		 outDoc.setMetaData( qxmlns , "created", createStamp ); 
                  outDoc.setContentAsEventReader( outRdr );
 	         outContainer.putDocument( outDoc , uc );   
 	     }	

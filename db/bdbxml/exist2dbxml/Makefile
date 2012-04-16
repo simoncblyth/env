@@ -1,4 +1,6 @@
 
+# THIS IS DEPRECATED : SEE ../qxml/exist2qxml.py
+
 CC = g++
 NAME = exist2dbxml
 BOOST_HOME = /opt/local

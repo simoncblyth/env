@@ -1,5 +1,25 @@
 #!/usr/bin/env python
 """
+Configured by the file pointed to by QXML_CONFIG in particular the below:: 
+
+	[container.srcdir]
+	srcdir = /tmp/check/db/hfagc_prod/end_of_2011/indv
+
+	[container.path]
+	path = /tmp/hfagc/avg.dbxml
+
+	[container.tag]
+	tag = avg
+
+
+All non-metadata xml files beneath the `srcdir` are ingested into container dbxml 
+at the path specified which is subsequently referred to with qxml via the 
+configured tag or alias eg with::
+
+   collection('avg')/dbxml:metadata('dbxml:name')
+
+
+
 """
 import os, logging
 log = logging.getLogger(__name__)
@@ -23,6 +43,9 @@ def ingest_root( tag, srcdir , dbxml ):
     elif not(os.path.isdir(srcdir)):
 	log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbxml ))     
 	return
+    elif os.path.exists(dbxml):
+        log.warn("tag %s dbxml \"%s\" exists already : delete it and rerun to update from srcdir \"%s\"  " % ( tag, dbxml, srcdir ))     
+        return
     else:
         log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcdir ))
 	pass

@@ -1,5 +1,8 @@
 /*
- 
+
+ THIS IS DEPRECATED : SEE ../qxml/exist2qxml.py
+
+
   Creates Berkeley DB XML container and inserts all xml files
   (eg from an eXist backup) beneath a root directory into it, 
   with root relative names.

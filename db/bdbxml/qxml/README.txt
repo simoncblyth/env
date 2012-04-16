@@ -83,19 +83,39 @@ Quick module import and invoke::
      #  register module library tags such as "my" in the config. 
      #
 
+
+
+Mapping element nodes in larger docs, eg SVG
+=============================================
+
+Element handle do not encode the container and will become invalid if document changed. Usable from XQuery::
+
+    echo 'let $nod := doc("tmp/qtag2latex.xml")//qtag[10] let $hdl := $nod/dbxml:node-to-handle() return ($nod,$hdl,dbxml:handle-to-node("tmp",$hdl))' | qxml -
+
+And in C++::
+
+    string hdl = val.getNodeHandle(); // from XmlValue ... 
+    cont.getNode(hdl);
+
+
 Issues/Enhancements/Ideas
 ==========================
+
+* make configured maps to load command line controllable, check error handling when maps are missing 
 
 * avoid absolute paths in config file 
    * maybe allow envvar interpolation for a list of named envvars, eg HEPREZ_HOME QXML_TMP 
       * use python style eg  %(HEPREZ_HOME)s/some/path  
            * makes python implementation easy  
-           * cpp easier than shell style $HEPREZ_HOME/some/path
+           * cpp easier than shell style $HEPREZ_HOME/some/path  
+   *  documentation mentions that container resolution defaults be being relative to the environment dir 
+      currently have not used this, instead have been specifying absolute paths in config and using them via aliases.
+      Potentially moving to relative addressing could cut down the number of absolute paths in the config.       
 
 * ``dbxml`` shell like capabilities for ``qxml`` that hook into the qxml configuration  
    /usr/local/env/db/dbxml-2.5.16/dbxml/src/utils/shell/dbxmlsh.cpp
 
-* resolver rationalization
+* resolver rationalization : THIS IS TIED TO DYLIB LOADING 
    * python resolver / C++ resolver / swigged C++ resolver 
    * python resolver palm off to swigged C++ resolver ? 
    * separate ns for python and swigged C++ for implementation comparisons
@@ -131,7 +151,7 @@ which are loaded into ``std::map<string,XmlValue>``::
         [map.query]	 
         query = for $glyph in collection('dbxml:/sys')/*[dbxml:metadata('dbxml:name')='pdgs.xml' or dbxml:metadata('dbxml:name')='extras.xml' ]//glyph return (data($glyph/@code), data($glyph/@latex)) 
 
-Such maps could be accessible by generic extension function my:map('code2latex',$key )
+Such maps are accessible by generic extension function my:map('code2latex',$key )
 
 Keeping qxml generic
 ~~~~~~~~~~~~~~~~~~~~~
@@ -216,6 +236,12 @@ Observations on Berkeley DB XML XQuerying
 
 #. does not auto-coerce xs:string into xs:integer
 
+#. using baseuri setting in hfagc.ini ``dbxml.baseuri = dbxml:/`` (this is the default without qxml) affords collection specification by alias alone::
 
-
+      echo 'for $a in tokenize("tmp hfc sys"," ") return count(collection($a)) ' | qxml -     
+      echo 'doc("tmp/qtag2latex.xml")' | qxml -
+      echo 'for $q in doc("tmp/qtag2latex.xml")//qtag return (data($q/@value),data($q/latex))' | qxml -
+      echo 'for $q in doc("tmp/qtag2latex.xml")//qtag return ($q/@value/string(),$q/latex/string())' | qxml -     
+ 
+      ## CAUTION WITH SHELL ESCAPING 
 
