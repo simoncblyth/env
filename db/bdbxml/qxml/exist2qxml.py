@@ -19,6 +19,14 @@ configured tag or alias eg with::
    collection('avg')/dbxml:metadata('dbxml:name')
 
 
+TODO: split ingest_dir into
+   
+       `ingest_backup` 
+             with source the path to the __contents__.xml 
+	     operating via traversing __contents__.xml files 
+
+       `ingest_dir` 
+             loading generic directories of xml files via directory walk
 
 """
 import os, logging
@@ -27,15 +35,123 @@ from dbxml import *
 from config import qxml_config
 
 # os.path.relpath only from py26
-relpath = lambda path,root:path[len(root):]      # keep leading slash or not ?
+relpath = lambda path,root:path[len(root):]      # keep leading slash to allow referring to '/' as root of all
 	
 from existmeta import ExistMeta
 
-def ingest_root( tag, srcdir , dbxml ):
+class ExistIngester(object):
+    def __init__(self, mgr ): 
+        self.mgr = mgr
+        qctx = mgr.createQueryContext()
+        qctx.setNamespace("", ExistMeta.namespace )      # empty prefix sets uri as default namespace
+        query = mgr.prepare("/result/collection/*", qctx )
+        self.query = query
+        self.qctx = qctx
+
+
+    def urldoc(self, url, other=""):
+	"""
+	"""
+        stm = self.mgr.createURLInputStream(other, url)
+        doc = self.mgr.createDocument()
+        doc.setContentAsXmlInputStream( stm )
+        return doc
+
+
+    def walk( self, dirurl ):
+	"""
+	:param dirurl: exist servlet directory URL, ending in slash  
+
+        recursive walk of exist servlet urls such as http://localhost/servlet/db/hfagc/
+        following os.walk pattern
+
+        Each directory url returns XML of structure::
+
+            result
+	       collection
+	            collection
+		    collection
+		    resource
+		    resource
+
+        Note that the structure differs from the backup __contents__.xml files, 
+        although holding the same information  
+	
+	Why the ns prefixes ?
+
+	"""
+	assert dirurl.endswith('/')
+	doc = self.urldoc( dirurl )
+        ctx = XmlValue(doc)
+
+        collections = []
+	resources = []
+
+	for v in self.query.execute( ctx, self.qctx ):
+	    d = dict([(att.getNodeName(),att.getNodeValue()) for att in v.getAttributes()])
+            name = v.getNodeName()
+	    if name == 'exist:resource':   
+		resources.append( d )    
+            elif name == 'exist:collection': 		
+		collections.append( d['name'] )    
+	    else:
+		log.warn("ignoring unhandled element %s " % name )     
+
+        yield (dirurl, collections, resources )      # topdown traverse
+        for collection in collections:
+	    for x in self.walk( "%s%s/" % ( dirurl, collection )):
+                yield x    
+
+
+
+def ingest_url( tag, srcurl, dbxml ):
+    """	
+    :parm tag: alias string of the container to be created
+    :param srcurl: exist servlet url such as  http://localhost/servlet/db/hfagc/
+    :param dbxml: path of dbxml container to be created
+    """
+    if not(srcurl.startswith("http://")):
+	log.debug("skipping tag %s dbxml %s as invalid srcurl %s " % ( tag, dbxml, srcurl ))
+	return
+    else:
+        log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcurl ))
+	pass
+
+    try:
+        mgr = XmlManager()
+        ing = ExistIngester(mgr)
+	cont = mgr.createContainer(dbxml)
+	ctx = mgr.createUpdateContext()
+ 
+        for (urlpath, collections, resources) in ing.walk( srcurl ):
+	    rurl = '/' + relpath(urlpath, srcurl )   
+            print rurl
+	    for d in resources:
+		name = d['name']    
+                p = os.path.join(urlpath,name)  
+                n = os.path.join(rurl,name)
+	        print p, n	
+		doc = ing.urldoc( p )
+		doc.setName(n)
+		for key, val in d.items():
+                    doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
+		    pass
+                cont.putDocument( doc , ctx, 0 ) 
+
+    except XmlException, e:
+	print "XmlException (", e.exceptionCode,"): ", e.what
+	if e.exceptionCode == DATABASE_ERROR:
+	    print "Database error code:",e.dbError
+    pass 
+
+
+
+def ingest_dir( tag, srcdir , dbxml ):
     """
     :parm tag: alias string of the container to be created
     :param srcdir: exist backup directory to ingest into dbxml container
     :param dbxml: path of dbxml container to be created
+
     """
     if srcdir == "":
 	log.debug("skipping tag %s dbxml %s as invalid srcdir " % ( tag, dbxml ))
@@ -43,9 +159,6 @@ def ingest_root( tag, srcdir , dbxml ):
     elif not(os.path.isdir(srcdir)):
 	log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbxml ))     
 	return
-    elif os.path.exists(dbxml):
-        log.warn("tag %s dbxml \"%s\" exists already : delete it and rerun to update from srcdir \"%s\"  " % ( tag, dbxml, srcdir ))     
-        return
     else:
         log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcdir ))
 	pass
@@ -76,7 +189,6 @@ def ingest_root( tag, srcdir , dbxml ):
                     doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
 		    pass
                 cont.putDocument( doc , ctx, 0 ) 
-                #cont.putDocument( n, stm, ctx , 0)
 	    pass
 
 
@@ -86,14 +198,25 @@ def ingest_root( tag, srcdir , dbxml ):
 	    print "Database error code:",e.dbError
     pass 
 
-if __name__ == '__main__':
+def main():
     cfg = qxml_config()
-
-    tagsrc = cfg['srcdir'].keys()
+    tagsrc = cfg['source'].keys()
     tagcon = cfg['containers'].keys()
     assert tagsrc == tagcon , (tagsrc, tagcon )
-
     for tag in tagsrc:
-	srcdir = cfg['srcdir'][tag]    
+	src = cfg['source'][tag]    
 	dbxml  = cfg['containers'][tag]    
-        ingest_root( tag, srcdir, dbxml )	    
+        if os.path.exists(dbxml):
+            log.warn("tag %s dbxml \"%s\" exists already : delete it and rerun to update from src \"%s\"  " % ( tag, dbxml, src ))     
+            continue
+	if src.startswith('http://'):  
+            ingest_url( tag, src, dbxml )	   
+ 	else:	
+            ingest_dir( tag, src, dbxml )	   
+	pass    
+    pass
+
+if __name__ == '__main__':
+    pass	
+    main()
+     

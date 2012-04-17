@@ -48,7 +48,7 @@ def parse_config(path):
     cfg['dbxml'] = dict((k,v) for k,v in raw.items() if k.startswith('dbxml.')) 
     cfg['containers'] = kv_zip(raw,"container.tag.tag","container.path.path") 
     cfg['namespaces'] = kv_zip(raw,"namespace.name.name","namespace.uri.uri") 
-    cfg['srcdir']     = kv_zip(raw,"container.tag.tag","container.srcdir.srcdir") 
+    cfg['source']     = kv_zip(raw,"container.tag.tag","container.source.source") 
     return cfg
 
 def kv_zip( cfg , kname, vname ):

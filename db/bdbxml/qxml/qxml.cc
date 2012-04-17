@@ -54,10 +54,12 @@ string read_query( const string& xqpath )
 
 string local_timestring()
 {
-    //  Get the local time  TODO : move to boost time and UTC
+    //  TODO: move to boost time and local with UTC offset 
+    //     '2012-04-16T14:38:11+08:00'
+    //
      time_t now = time( 0 );
      char timeString[100];
-     strftime(timeString, 100, "%Y/%m/%d:%H:%M:%S", localtime( &now ) );
+     strftime(timeString, 100, "%Y-%m-%dT%H:%M:%S+08:00", localtime( &now ) );
      return string(timeString);
 }
 
