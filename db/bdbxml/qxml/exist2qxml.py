@@ -7,6 +7,7 @@ Usage for full ingests::
 For selective ingests, eg into container with tag 'sys'::
 
          EXIST2QXML_SELECT=sys@@http://localhost/servlet/db/hfagc_system/v2qtags.xml ./exist2qxml.py
+         EXIST2QXML_SELECT=sys@@http://localhost/servlet/db/hfagc_system/qtag2latex.xml ./exist2qxml.py
 
 Configured by the file pointed to by QXML_CONFIG in particular the below:: 
 
@@ -59,9 +60,10 @@ from config import qxml_config
 relpath = lambda path,root:path[len(root):]      # keep leading slash to allow referring to '/' as root of all
 	
 from existmeta import ExistMeta
-from common import existsDoc
+from common import existsDoc, urlDoc, ExistDirQuery
 
-class ExistIngester(object):
+
+class ExistWalk(object):
     """
     Provides remote pulling of exist resources into local dbxml containers using exist servlet urls.
     This avoids the traditional propagation approach of going via an exist backup::
@@ -72,72 +74,21 @@ class ExistIngester(object):
     """
     def __init__(self, mgr ): 
         self.mgr = mgr
-        qctx = mgr.createQueryContext()
-        qctx.setNamespace("", ExistMeta.namespace )      # empty prefix sets uri as default namespace
-        query = mgr.prepare("/result/collection/*", qctx )
-        self.query = query
-        self.qctx = qctx
-
-
-    def urldoc(self, url, other=""):
-	"""
-	"""
-        stm = self.mgr.createURLInputStream(other, url)
-        doc = self.mgr.createDocument()
-        doc.setContentAsXmlInputStream( stm )
-        return doc
-
+        self.edq = ExistDirQuery(mgr)
 
     def walk( self, dirurl ):
 	"""
-	:param dirurl: exist servlet directory URL, ending in slash  
+	:param dirurl: exist servlet directory URL, typically ending in a slash  
 
         recursive walk of exist servlet urls such as http://localhost/servlet/db/hfagc/
         following os.walk pattern
-
-        Each directory url returns XML of structure::
-
-            result
-	       collection
-	            collection
-		    collection
-		    resource
-		    resource
-
-        Note that the structure differs from the backup __contents__.xml files, 
-        although holding the same information  
-	
-	Why the ns prefixes ?
-
 	"""
-	if not(dirurl.endswith('/')):
-	    dirurl = dirurl + '/'
-	doc = self.urldoc( dirurl )
-        ctx = XmlValue(doc)
-
-        collections = []
-	resources = []
-
-	for v in self.query.execute( ctx, self.qctx ):
-	    d = dict([(att.getNodeName(),att.getNodeValue()) for att in v.getAttributes()])
-
-            ## fix to match attribute name with those from backups
-            if 'modified' not in d and 'last-modified' in d:
-                d['modified'] = d['last-modified']
-                del d['last-modified']
-
-            name = v.getNodeName()
-	    if name == 'exist:resource':   
-		resources.append( d )    
-            elif name == 'exist:collection': 		
-		collections.append( d['name'] )    
-	    else:
-		log.warn("ignoring unhandled element %s " % name )     
-
+        collections, resources = self.edq( dirurl )
         yield (dirurl, collections, resources )      # topdown traverse
         for collection in collections:
 	    for x in self.walk( "%s%s/" % ( dirurl, collection )):
                 yield x    
+
 
 
 
@@ -176,13 +127,13 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
 
     try:
         mgr = XmlManager()
-        ing = ExistIngester(mgr)
+        ing = ExistWalk(mgr)
         update = srcpfx != None
         if update:
 	    cont = mgr.openContainer(dbxml)
         else:  
 	    cont = mgr.createContainer(dbxml)
-	ctx = mgr.createUpdateContext()
+	uctx = mgr.createUpdateContext()
  
         for (urlpath, collections, resources) in ing.walk( srcurl ):
 	    rurl = relpath(urlpath, srcurl )   
@@ -198,18 +149,11 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
                 else:
                     log.info("ingesting %s %s " % ( p, n ))
 
-		doc = ing.urldoc( p )
-		doc.setName(n)
-           	for key, val in d.items():
-                    doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
-		    pass
-
+		doc = urlDoc( mgr, p, name=n, meta=d )
 		if existsDoc( n, cont):
 		    log.info("deleting pre-existing document %s " % n )	
-		    uc = mgr.createUpdateContext()
-		    cont.deleteDocument( n , uc ) 	
-
-                cont.putDocument( doc , ctx, 0 ) 
+		    cont.deleteDocument( n , uctx ) 	
+                cont.putDocument( doc , uctx, 0 ) 
 
     except XmlException, e:
 	print "XmlException (", e.exceptionCode,"): ", e.what

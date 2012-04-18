@@ -31,6 +31,10 @@ def parse_args():
     parser.add_option("-v", "--val" ,   action="append" )
     parser.add_option("-i", "--inputfile"  )
 
+    # used by transfer.py
+    parser.add_option("-u", "--url"  )    
+    parser.add_option("-t", "--target" , default='sys' )   
+
     cli, args = parser.parse_args()
     if not cli.inputfile and len(args)==1:
         cli.inputfile = args[0]	    
@@ -40,24 +44,7 @@ def parse_args():
 	kv = dict(zip(cli.key,cli.val))
     else:
 	kv = {}    
-    return dict(config=cli.config,variables=kv,level=cli.level,inputfile=cli.inputfile), args 
-
-def parse_config(path):
-    raw = raw_parse_config(path)	
-    cfg = {}
-    cfg['dbxml'] = dict((k,v) for k,v in raw.items() if k.startswith('dbxml.')) 
-    cfg['containers'] = kv_zip(raw,"container.tag.tag","container.path.path") 
-    cfg['namespaces'] = kv_zip(raw,"namespace.name.name","namespace.uri.uri") 
-    cfg['source']     = kv_zip(raw,"container.tag.tag","container.source.source") 
-    return cfg
-
-def kv_zip( cfg , kname, vname ):
-    if kname in cfg and vname in cfg:
-	keys,vals = cfg[kname], cfg[vname]
-	assert len(keys) == len(vals)
-        return dict(zip(keys,vals))
-    else:
-	return None    
+    return dict(config=cli.config,variables=kv,level=cli.level,inputfile=cli.inputfile,url=cli.url, target=cli.target), args 
 
 def raw_parse_config(path):
     """
@@ -118,6 +105,26 @@ def raw_parse_config(path):
     return cfg
 
 
+class Cfg(dict):
+    def __repr__(self):return pformat(dict(self))
+
+def kv_zip( cfg , kname, vname ):
+    if kname in cfg and vname in cfg:
+	keys,vals = cfg[kname], cfg[vname]
+	assert len(keys) == len(vals)
+        return dict(zip(keys,vals))
+    else:
+	return None    
+
+def parse_config(path):
+    raw = raw_parse_config(path)	
+    cfg = Cfg()
+    cfg['dbxml'] = dict((k,v) for k,v in raw.items() if k.startswith('dbxml.')) 
+    cfg['containers'] = kv_zip(raw,"container.tag.tag","container.path.path") 
+    cfg['namespaces'] = kv_zip(raw,"namespace.name.name","namespace.uri.uri") 
+    cfg['source']     = kv_zip(raw,"container.tag.tag","container.source.source") 
+    return cfg
+
 
 def read_xquery( path ):
     placeholder = r"""
@@ -139,7 +146,7 @@ def qxml_config():
     variables = cli.pop('variables')
     cfg['cli'] = cli
     cfg['variables'] = variables
-    log.debug(pformat(cfg))    
+    log.debug(cfg)    
     cfg['query'] = read_xquery(cfg['cli']['inputfile'])
     return cfg
 
@@ -147,7 +154,7 @@ def qxml_config():
 
 if __name__ == '__main__':
     cfg = qxml_config()
-    print pformat(cfg) 
+    print cfg 
 
 
 

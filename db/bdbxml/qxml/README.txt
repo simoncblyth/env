@@ -101,6 +101,10 @@ And in C++::
 Issues/Enhancements/Ideas
 ==========================
 
+* install more python into $ENV_PREFIX/lib/ to allow use from anywhere 
+
+* ensure qxml return codes are appropriate when xquery or other errors occur
+
 * make configured maps to load command line controllable, check error handling when maps are missing 
 
 * avoid absolute paths in config file 
@@ -122,7 +126,7 @@ Issues/Enhancements/Ideas
 
 * on writing xml into dbxml containers fill in created/modified/owner metadata
 
-* configuration of indices
+* configuration of dbxml indices
  
 * logging/verbosity control
    * boost.log 
