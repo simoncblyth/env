@@ -124,8 +124,6 @@ Issues/Enhancements/Ideas
    * python resolver palm off to swigged C++ resolver ? 
    * separate ns for python and swigged C++ for implementation comparisons
 
-* on writing xml into dbxml containers fill in created/modified/owner metadata
-
 * configuration of dbxml indices
  
 * logging/verbosity control
@@ -140,6 +138,11 @@ Issues/Enhancements/Ideas
 
 * re-arrange python extension build to avoid littering wc with swig artifacts
 
+
+Done
+~~~~~~
+
+ * on writing xml into dbxml containers fill in created/modified/owner metadata
 
 
 Configurable loading of indices and generic access
@@ -228,6 +231,42 @@ A script containg dbxml commands can save some typing::
 
 	dbxml>  query 'collection("dbxml:/hfc")'
 	226 objects returned for eager expression 'collection("dbxml:/hfc")'
+
+
+
+dbxml shell as debugging tool
+=============================
+
+It can be very useful to use the dbxml shell for debugging without all the conveniences of qxml
+getting in the way. For example whilst debugging a single resource transfer script found that 
+it seemed to transfer OK but created invisible docs from the point of view of qxml queries like::
+
+    echo 'for $a in collection("sys") return $a/dbxml:metadata("dbxml:name")' | qxml -
+    echo 'for $a in collection("sys") return $a/dbxml:metadata("exist:name")' | qxml -
+
+
+Checking with dbxml shell (**have observed inconsistencies when not using the same envdir as qxml**)::
+
+   dbxml -h /tmp/dbxml
+   Joined existing environment
+
+   dbxml> openContainer /tmp/hfagc/hfagc_system.dbxml
+   dbxml> query 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+   16 objects returned for eager expression 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+
+   dbxml> print
+   pdgs.xml
+   pdg.xml
+   ...
+
+   dbxml> getDocument lhcb_winter2011_BcX.xml
+   1 documents found
+
+   dbxml> print 
+   <rez:rez xmlns:rez="http://hfag.phys.ntu.edu.tw/hfagc/rez" xmlns:exist="http://exist.sourceforge.net/NS/exist" exist:id="1" exist:source="/db/test/lhcb_winter2011_BcX.xml">
+	    <rez:header mode="pro" time="2012-04-08T00:36:44.088+0800" stamp="1333816604088" stamp_hash="ixml:content-hash:lhcb_winter2011_BcX.xml/db/hfagc/lhcb/yasmine/lhcb_winter2011_BcX.xmlyasminelhcb2012-04-08T00:21:26.978+08:001.0-dev/data/heprez/install/exist/eXist-snapshot-20051026/unpack/4" stamp_id="2" stamp_source="/db/hfagc/lhcb/yasmine/lhcb_winter2011_BcX.xml">
+		<rez:origin>
+                ...
 
 
 

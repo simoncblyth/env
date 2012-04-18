@@ -30,18 +30,18 @@ log = logging.getLogger(__name__)
 
 from bsddb3.db import *
 from dbxml import *
-from extfun import myResolver
+#from extfun import myResolver
 from config import qxml_config, remove_droppings
 from pprint import pformat
 
-resolver = myResolver()    ## letting resolver go out of scope, results in XmlExceptions
+#resolver = myResolver()    ## letting resolver go out of scope, results in XmlExceptions
+resolver = None
 
 class QXML(dict):
     def __init__(self, *args, **kwargs ):	
 	dict.__init__(self, *args, **kwargs)    
 	if len(args) == 0:
-            d = qxml_config()
-            self.update(d)
+            self.cfg = qxml_config()
 	log.debug("QXML __init__ after qxml_config")    
 	self.bootstrap()
 	log.debug("QXML __init__ DONE")    
@@ -58,18 +58,22 @@ class QXML(dict):
 
 	"""
         env = DBEnv()   # no thisown for C wrapper  
-        envdir = self["dbxml"]["dbxml.environment_dir"]
+        envdir = self.cfg["dbxml"]["dbxml.environment_dir"]
         env.open(envdir, DB_CREATE|DB_INIT_MPOOL, 0)
 	mgr = XmlManager(env, DBXML_ALLOW_EXTERNAL_ACCESS|DBXML_ADOPT_DBENV) 
 	mgr.thisown = False
 
-        resolver.xqmpath = self["dbxml"]["dbxml.xqmpath"]
-	mgr.registerResolver(resolver)
+        if resolver:
+            resolver.xqmpath = self.cfg["dbxml"]["dbxml.xqmpath"]
+	    mgr.registerResolver(resolver)
+
 	self._containers(mgr) 	
 
 	ctx = mgr.createQueryContext()       
 	ctx.thisown = False
-	ctx.setNamespace("my", resolver.getUri() )
+        if resolver:
+	    ctx.setNamespace("my", resolver.getUri() )
+
         self._ctx( ctx )
 
         self.mgr = mgr 
@@ -78,7 +82,7 @@ class QXML(dict):
 
     def __call__(self, q=None ):
 	if not q:
-	    q = self['query']	
+	    q = self.cfg['query']	
         return self.mgr.query( q , self.ctx )
 	#for i, value in enumerate(res):
         #    log.info("value %-3s: %s", i, value.asString()) 
@@ -99,7 +103,7 @@ class QXML(dict):
 
 	There are not enough containers to worry about leaking.
 	"""
-	for tag,path in self['containers'].items():
+	for tag,path in self.cfg['containers'].items():
 	    if os.path.exists(path):
 		log.debug("openContainer %s : %s " % ( tag, path) )    
                 cont = mgr.openContainer(path)
@@ -110,14 +114,14 @@ class QXML(dict):
 		raise Exception("No such container %s " % path )
 
     def _ctx( self, ctx ):
-        ctx.setDefaultCollection( self["dbxml"]["dbxml.default_collection"] )
-        ctx.setBaseURI( self["dbxml"]["dbxml.baseuri"])
+        ctx.setDefaultCollection( self.cfg["dbxml"]["dbxml.default_collection"] )
+        ctx.setBaseURI( self.cfg["dbxml"]["dbxml.baseuri"])
 
-        for name,uri in self['namespaces'].items():
+        for name,uri in self.cfg['namespaces'].items():
 	    log.debug("namespaces %s = %s  " % ( name, uri )) 	
 	    ctx.setNamespace(name, uri)
 
-	for k,v in self['variables'].items():
+	for k,v in self.cfg['variables'].items():
 	    log.info(" setVariableValue $%s := %s  " % ( k, v )) 	
 	    ctx.setVariableValue( k, XmlValue(v) )
 

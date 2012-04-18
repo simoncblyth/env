@@ -177,13 +177,16 @@ int main(int argc, char **argv)
 
         if (outXml == "" ){
 
-	    // this is the only **cout**, to make it possible to output valid XML
+	    // the below is the only **cout**, to make it possible to output valid XML
+
+            clog << endl ;		
 	    int count = 0 ;
 	    XmlValue value;
             while (res.next(value)){
 		 cout << value.asString() << endl;
 		 count += 1 ;   
 	    }	 
+            clog << endl ;		
             clog << "sequence count " << count << endl ;
 
         } else {
