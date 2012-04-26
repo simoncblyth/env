@@ -7,6 +7,15 @@ macports-usage(){
      macports-src : $(macports-src)
      macports-dir : $(macports-dir)
 
+
+
+   COMMANDS
+
+       port installed
+       port list installed     ## not the same as above, and much slower 
+
+
+
 #######################################################################################################
 #
 #  to work with system /usr/bin/python (eg for trac) formerly commented  

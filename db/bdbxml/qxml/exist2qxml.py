@@ -125,6 +125,11 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
         log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcurl ))
 	pass
 
+    fold = os.path.dirname(dbxml)
+    if not os.path.exists(fold):
+	log.info("creating folder %s " % fold )     
+	os.makedirs(fold)     
+
     try:
         mgr = XmlManager()
         ing = ExistWalk(mgr)

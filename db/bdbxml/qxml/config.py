@@ -84,6 +84,7 @@ def raw_parse_config(path):
     vptn = re.compile("^(?P<var>\S*)\s*=\s*(?P<val>\S*)")
     sect = None
     for line in  fp.readlines():
+	if line[0]=='#':continue     
         sm = sptn.match(line)
 	if sm:
 	    sect = sm.groupdict()['sect']	
