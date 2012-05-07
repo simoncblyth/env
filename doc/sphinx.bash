@@ -14,6 +14,11 @@ sphinx-usage(){
         possibly jima:avg jython related 
 
 
+   C2 (newone May 2012) [WHILE BEST TO NOT DO MUCH ON REPO SERVER MACHINE : DOCS WOULD BE HANDY]
+
+        easy_install pip
+	pip install sphinx 
+
 
   == extension ideas ==
 
