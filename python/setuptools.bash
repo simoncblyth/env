@@ -25,7 +25,7 @@ setuptools-get(){
 
     local ezpy=ez_setup.py
     [ ! -f $ezpy ] && curl -L -O http://peak.telecommunity.com/dist/$ezpy
-    local cmd="$(local-sudo) python $ezpy"
+    local cmd="$SSUDO python $ezpy"
     echo $cmd ... from $PWD
     eval $cmd
 

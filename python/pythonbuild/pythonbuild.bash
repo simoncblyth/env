@@ -108,14 +108,15 @@ pythonbuild-cd(){
 
 pythonbuild-get(){
 
+    python-   
+
     local msg="=== $FUNCNAME :" 
-    local nam=$PYTHON_NAME
+    local nam=$(python-name)          ## MULTIPLE PYTHON FLEXIBILITY NOT WORTH THE HASSLE
     local tgz=$nam.tgz
     local ver=${nam/*-/}
     local url=http://www.python.org/ftp/python/$ver/$tgz
 
-
-    [ -n "$nam" ] && echo $msg ABORT PYTHON_NAME is not defined .... maybe first do \"python- source\" && return 1 
+    [ -z "$nam" ] && echo $msg ABORT python-name is not defined .... maybe first do \"python- source\" && sleep 100000000000000000 && return 1
 
     local dir=$(dirname $(pythonbuild-dir))
 

@@ -24,7 +24,6 @@ apachebuild-usage(){
                
       apachebuild-cd
       apachebuild-dir  : $(apachebuild-dir)
-      apachebuild-home : $(apachebuild-home)
      
 
  
@@ -55,22 +54,20 @@ apachebuild-get(){
 
   local nam=$APACHE_NAME
   local tgz=$nam.tar.gz
-  local url=http://ftp.mirror.tw/pub/apache/httpd/$tgz
+  #local url=http://ftp.mirror.tw/pub/apache/httpd/$tgz
+  local url=http://ftp.asia.edu.tw/ftp/Apache//httpd/$tgz
 
   cd $SYSTEM_BASE
   mkdir -p apache
   cd apache 
   
-  [ ! -f $tgz ]   && curl -O $url
+  [ ! -f $tgz ]   && curl -L -O $url
   mkdir -p build
   [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
 }
 
 
-apachebuild-home(){
-  #echo $SYSTEM_BASE/apache/$APACHE_NAME
-  echo $APACHE_HOME
-}
+#apachebuild-home(){ echo $APACHE_HOME ; }
 
 apachebuild-dir(){
    echo $SYSTEM_BASE/apache/build/$APACHE_NAME
@@ -97,7 +94,7 @@ apachebuild-configure(){
    # $ASUDO ./configure --prefix=$(apachebuild-home) --enable-modules=most --enable-shared --enable-so
    
    #$SUDO ./configure --prefix=$(apachebuild-home) --enable-dav --enable-ssl
-   $ASUDO ./configure --prefix=$(apachebuild-home) --enable-dav 
+   $ASUDO ./configure --prefix=$APACHE_HOME --enable-dav 
    
 }
 

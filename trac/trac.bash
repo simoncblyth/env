@@ -297,7 +297,7 @@ fullblog-(){          . $ENV_HOME/trac/package/fullblog.bash    && fullblog-env 
 
 silvercity-(){        . $ENV_HOME/trac/package/silvercity.bash && silvercity-env   $* ; }
 pygments-(){          . $ENV_HOME/trac/package/pygments.bash   && pygments-env   $* ; }
-docutils-(){          . $ENV_HOME/trac/package/docutils.bash   && docutils-env   $* ; }
+#docutils-(){          . $ENV_HOME/trac/package/docutils.bash   && docutils-env   $* ; }
 textile-(){           . $ENV_HOME/trac/package/textile.bash    && textile-env   $* ; }
 
 ofc2dz-(){            . $(env-home)/trac/ofc2dz.bash && ofc2dz-env $* ; }

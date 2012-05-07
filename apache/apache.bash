@@ -117,16 +117,22 @@ apache-again(){
 
 apache-env(){
    elocal-
-   export APACHE_MODE=$(apache-mode $*)
+   export APACHE_MODE=$(apache-mode)
+   export APACHE_NAME=$(apache-name)
+   export APACHE_HOME=$(apache-home)
+}
 
+apache-path(){
    ## path setting to put the desired apachectl in the path 
    local bin=$(apache-bin)  
-   local ctl=$(which apachectl 2> /dev/null)
-   local curbin
-   [ -n "$ctl" ] && curbin=$(dirname $ctl) || curbin=none 
-   if [ "$curbin" != "$bin" ]; then 
-      env-remove $curbin
-      env-prepend $bin
+   if [ -d "$bin" ]; then 
+       local ctl=$(which apachectl 2> /dev/null)
+       local curbin
+       [ -n "$ctl" ] && curbin=$(dirname $ctl) || curbin=none 
+       if [ "$curbin" != "$bin" ]; then 
+           env-remove $curbin
+           env-prepend $bin
+       fi
    fi
 }
 
@@ -146,12 +152,27 @@ apache-eggcache(){
 }
 
 
+apache-initd(){
+   local msg="=== $FUNCNAME :"
+   local dir=/etc/init.d
+   local ctl=$(apache-bin)/apachectl   
+   [ ! -d "$dir" ] && echo $msg this is for Linux systems with $dir && return 1
+   [ ! -f "$ctl" ] && echo $msg ERROR no $ctl && return 2
+   [ -f $dir/httpd ] && echo $msg a ABORT httpd file exists already $(ls -l $dir/httpd)  && return 3
 
+   cd $dir
+   local cmd="sudo ln -s $ctl httpd"
+   read -p "Enter YES to proceed with : $cmd : " ans
+   [ "$ans" != "YES" ] && echo $msg SKIPPING && return 0
+
+   eval $cmd
+}
 
 
 apache-name(){
    case ${1:-$NODE_TAG} in 
       H) echo httpd-2.0.59 ;;
+     C2) echo httpd-2.0.64 ;;
       *) echo httpd-2.0.63 ;;
    esac
 }
@@ -162,8 +183,12 @@ apache-name(){
 ##   apache user / group 
 ##
    
-apache-user(){ perl -n -e 's,^User\s+(\S*),$1, && print ' $(apache-conf) ;  } ## local only 
-apache-user-deprecated(){
+apache-user(){ 
+  local cnf=$(apache-conf)
+  [ -f "$cnf" ] &&  perl -n -e 's,^User\s+(\S*),$1, && print ' $cnf || apache-user-default ;
+} 
+
+apache-user-default(){
    case ${1:-$NODE_TAG} in 
      G) echo www ;;
   C|C2) echo nobody ;;

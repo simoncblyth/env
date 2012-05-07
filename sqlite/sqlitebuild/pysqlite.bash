@@ -32,7 +32,10 @@ pysqlite-env(){
 }
 
 pysqlite-name(){
-    echo pysqlite-2.3.3
+   case ${1:-$NODE_TAG} in
+    C2) echo pysqlite-2.6.3 ;;
+     *) echo pysqlite-2.3.3 ;;
+   esac
 }
 
 pysqlite-home(){
@@ -53,26 +56,24 @@ pysqlite-builddir(){
 
 
 pysqlite-again(){
-
    echo NOTE no wiping implemented ye  ... perhaps could be easy installed ? BUT do need a cfg change 
    pysqlite-get
    pysqlite-install
-
 }
-
-
 
 pysqlite-get(){
   
   local nam=$(pysqlite-name)
   local tgz=$nam.tar.gz
-  local url=http://initd.org/pub/software/pysqlite/releases/2.3/2.3.3/$tgz
-  
+  local url=http://pysqlite.googlecode.com/files/$tgz
+
+  #local url=http://initd.org/pub/software/pysqlite/releases/2.3/2.3.3/$tgz
+
   cd $SYSTEM_BASE
   mkdir -p pysqlite
   cd pysqlite 
 
-  test -f $tgz || curl -O $url
+  test -f $tgz || curl -L -O $url
   mkdir -p  build
   test -d build/$nam || tar -C build -zxvf $tgz 
 }

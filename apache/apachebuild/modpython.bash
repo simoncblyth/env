@@ -53,9 +53,26 @@ modpython-usage(){
              ... check pythonbuild-solibfix and http://code.google.com/p/modwsgi/wiki/InstallationIssues
         
         
+
+
+
+
+
+Now don't forget to edit your main config and add
+    LoadModule python_module /data/env/system/apache/httpd-2.0.64/modules/mod_python.so
+and if your configuration uses ClearModuleList, then also
+    AddModule mod_python.c
+
+
+
+
+
+
         
      do it all again from scratch    
         $(type modpython-again)
+
+
 
  
 
@@ -104,7 +121,9 @@ modpython-get(){
   
   local nam=$MODPYTHON_NAME
   local tgz=$nam.tgz
-  local url=http://apache.cdpa.nsysu.edu.tw/httpd/modpython/$tgz
+  #local url=http://apache.cdpa.nsysu.edu.tw/httpd/modpython/$tgz
+  local url=http://archive.apache.org/dist/httpd/modpython/$tgz
+
 
   cd $SYSTEM_BASE
   mkdir -p mod_python
@@ -147,8 +166,7 @@ modpython-install(){
    
     cd $(modpython-dir)
     make
-	$ASUDO make install
-
+    $ASUDO make install
 }
 
 
@@ -200,43 +218,9 @@ modpython-again(){
 }
 
 
-
-
-
-
 modpython-ldd(){
     ldd $(apache-modulesdir)/mod_python.so
 }
-
-
-
-
-#
-#
-#modpython-apache2-configure(){
-#  
-#   echo adding :  LoadModule python_module libexec/mod_python.so  to $APACHE2_CONF
-#   apache2-add-module python
-#   
-#}
-#   
-#PythonPath 'sys.path'
-#PythonPath "sys.path + ['/path/to/trac']"
-#
-#
-#
-#
-# Leopard install against stock apache2 + python :
-#
-#	 installs mod_python.so into  /usr/libexec/apache2
-#    creating /Library/Python/2.5/site-packages/mod_python
-#  	  Writing /Library/Python/2.5/site-packages/mod_python-3.3.1-py2.5.egg-info
-#
-
-
-
-
-
 
 
 

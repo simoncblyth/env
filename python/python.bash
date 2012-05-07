@@ -118,8 +118,9 @@ python-version-system(){  local v=$(python -V 2>&1) ; echo ${v/Python} ;  }
 python-version-source(){
    local tag=${1:-$NODE_TAG}
    case $tag in 
-     C2) echo 2.5.1 ;;
-      *) echo 2.5.1 ;;
+     formerC2) echo 2.5.1 ;;
+     C2|C2R) echo 2.5.6 ;;
+          *) echo 2.5.1 ;;
    esac
 }
 python-version(){
@@ -193,7 +194,7 @@ python-env(){
    else
       export PYTHON_MODE=source
       #echo $msg mode $mode source branch
-      python-path $(python-home)
+
       export PYTHON_MAJOR=$(python-major)
       export PYTHON_NAME=$(python-name)
       export PYTHON_HOME=$(python-home)
@@ -201,6 +202,9 @@ python-env(){
   
      ## THIS IS USED FOR BACKUP PURPOSES ... HENCE CAUTION NEEDED WRT CHANGING THIS 
       export REFERENCE_PYTHON_HOME=$PYTHON_HOME
+      #export LD_LIBRARY_PATH=$PYTHON_HOME/lib:$LD_LIBRARY_PATH
+      #export PATH=$PYTHON_HOME/bin:$PATH
+      python-path $PYTHON_HOME
    fi
    export PYTHON_SUDO=$(python-sudo)
 }
@@ -228,6 +232,7 @@ python-ldconfig(){
 python-libdir(){
    case $NODE_TAG in 
       C) echo $PYTHON_HOME/lib ;;
+      C2|C2R) echo $PYTHON_HOME/lib ;;
       *) echo ${VIRTUAL_ENV:-ERROR-NO-VIRTUALENV-PYTHON}/lib ;;
    esac
 }

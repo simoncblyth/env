@@ -59,15 +59,20 @@ swigbuild-get(){
  
     local nam=$SWIG_NAME
     local tgz=$nam.tar.gz
-    local url=http://jaist.dl.sourceforge.net/sourceforge/swig/$tgz
+    #local url=http://jaist.dl.sourceforge.net/sourceforge/swig/$tgz
+    local url=http://downloads.sourceforge.net/sourceforge/swig/$tgz
 
     cd $SYSTEM_BASE
     mkdir -p swig
     cd swig
 
-    [ ! -f $tgz ] && curl -O $url
+    [ ! -f $tgz ] && curl -L -O $url
+    [ ! -f $tgz ] && echo $msg failed to download $tgz from $url && sleep 1000000 
+    local siz=$(stat -c "%s" $tgz)
+    [ $siz -lt 2000 ] && echo $msg tgz $tgz too small && sleep 10000000 
+   
     mkdir -p  build
-    [ ! -d build/$nam ] && tar -C build -zxvf $tgz 
+    [ ! -d build/$nam ] && tar -C build -zxvf $tgz || echo $msg build/$nam exists already
 }
 
 

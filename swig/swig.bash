@@ -4,11 +4,19 @@ swig-source(){   echo ${BASH_SOURCE:-$(env-home)/$(swig-src)} ; }
 swig-vi(){       vi $(swig-source) ; }
 swig-env(){      
    elocal- ; 
-   #export SWIG_NAME=swig-1.3.29
-   #export SWIG_HOME=$SYSTEM_BASE/swig/$SWIG_NAME
+   export SWIG_NAME=swig-1.3.29
+   export SWIG_HOME=$SYSTEM_BASE/swig/$SWIG_NAME
 }
 swig-usage(){
   cat << EOU
+
+
+
+Quoting from swigbuild-
+
+      $(svnbuild-dir)/subversion/bindings/swig/INSTALL
+     specifically suitable versions of swig for binding with subversion 1.4.2 are  1.3.24 - 1.3.29
+      (system version on cms01 is 1.3.21 ... so no go, and have to be cautions that it is not used by accident )
 
 
 

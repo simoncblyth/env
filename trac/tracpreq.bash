@@ -51,6 +51,13 @@ tracpreq-again(){ tracpreq-again-$(tracpreq-mode) ; }
 tracpreq-again-system(){
    [ "$(tracpreq-mode)" != "system" ] && echo $msg ABORT this is for tracpreq-mode:system  only && return 1
 
+   tracpreq-py
+
+}
+
+
+tracpreq-py(){
+
    setuptools-
    setuptools-get
 
@@ -75,9 +82,11 @@ tracpreq-again-source(){
    python- 
    pythonbuild-       
    pythonbuild-again   | log-- $FUNCNAME pythonbuild-again
-   
-   configobj-          
-   configobj-get       | log-- $FUNCNAME configobj-get 
+  
+
+  # THIS NEEDS svn WHICH DONT HAVE YET  
+  # configobj-          
+  # configobj-get       | log-- $FUNCNAME configobj-get 
    
    
    swig-               
@@ -93,6 +102,9 @@ tracpreq-again-source(){
 
    sqlite-
    sqlite-again        | log-- $FUNCNAME sqlite-again
+
+
+   tracpreq-py
 
 
 }

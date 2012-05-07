@@ -218,7 +218,7 @@ local-tags(){
    esac
 }
 
-local-ping(){ ping $(local-tag2ip $1) ;}
+
 local-tag2ip(){
   case ${1:-$NODE_TAG} in
        AB|AR) echo aberdeentunnel.dyndns.org ;;

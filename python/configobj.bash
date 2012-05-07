@@ -35,13 +35,23 @@ configobj-build(){
   
    local msg="=== $FUNCNAME :"
    configobj-get
+
+   configobj-build- 
+   configobj-install
+
    ! configobj-check && echo $msg FAILED sleeping && sleep 1000000000000
 }
 
 
+configobj-build-(){
+   configobj-cd
+   python setup.py build
+}
+
+
 configobj-install(){
-   python-
-   local cmd="sudo easy_install configobj "
+   configobj-cd
+   local cmd="$SSUDO python setup.py install"
    echo $cmd 
    eval $cmd
 }

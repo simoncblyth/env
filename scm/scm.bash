@@ -1,6 +1,23 @@
 scm-src(){ echo scm/scm.bash  ;}
 scm-source(){ echo ${BASH_SOURCE:-$(env-home)/$(scm-src)} ; }
 scm-vi(){    vi $(scm-source) ; }
+
+scm-log(){ cat << EOL
+
+
+   2012 March 7 
+
+        Bringing SVN back online on replacement cms02 required rerun 
+        for newer python 2.5.1 => 2.5.6
+             [blyth@cms02 hooks]$ TRAC_INSTANCE=env scm-postcommit
+
+
+
+
+EOL
+}
+
+
 scm-usage(){
   
    cat << EOU
@@ -126,7 +143,7 @@ scm-postcommit(){
    sqlite-
    scm-postcommit- > $tmp
 
-   local cmd="sudo diff $path $tmp"
+   local cmd="diff $path $tmp"
    echo $msg $cmd
    eval $cmd    
    
