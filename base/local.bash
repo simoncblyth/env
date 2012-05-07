@@ -186,6 +186,7 @@ local-tag2node(){
          XX) echo dyb2 ;;
          H1) echo hep1 ;;
           N) echo belle7 ;;
+         N1) echo belle1 ;;
     S2|P|G1) echo grid1 ;;
          G3) echo g3pb ;;
           G) echo g4pb ;; 
@@ -196,7 +197,7 @@ local-tag2node(){
 local-tag2user(){
   case ${1:-$NODE_TAG} in
     SC2|S2|S) echo dayabayscp ;;
- H1|C|H|N|C2) echo blyth ;;
+ H1|C|H|N|N1|C2) echo blyth ;;
           AB) echo aberdeen ;;
           AR) echo root ;;
          C2R) echo root ;;
@@ -212,12 +213,12 @@ local-tag2user(){
 local-scponly-tags(){   echo S SC2 S2 ; }
 local-tags(){
    case ${1:-$NODE_TAG} in 
-           G) echo M AB AR N NE I BNL C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
+           G) echo M AB AR N N1 NE I BNL C C2 C2R H H1 X P G1 T LX  $(local-scponly-tags) ;;
            *) local-backup-tag ;;
    esac
 }
 
-
+local-ping(){ ping $(local-tag2ip $1) ;}
 local-tag2ip(){
   case ${1:-$NODE_TAG} in
        AB|AR) echo aberdeentunnel.dyndns.org ;;
@@ -226,6 +227,7 @@ local-tag2ip(){
      S2|G1|P) echo 140.112.102.250 ;;
           #N) echo belle7.nuu.edu.tw ;;
            N) echo 203.64.184.126 ;;
+          N1) echo 203.64.184.127 ;;
            M) echo 140.112.101.50 ;;
           NE) echo pdsf.nersc.gov ;;
        #    I) echo lxslc05.ihep.ac.cn ;;  lxslc05 needs klog and has flaky xauth 

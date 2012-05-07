@@ -4,6 +4,97 @@ trac-vi(){     vi $(trac-source) ; }
 trac-usage(){
 cat << EOU
 
+
+   == belle1 : try epel 5 trac 0.10.5 == 
+
+
+
+   [blyth@belle1 ~]$ sudo yum --enablerepo=epel install trac
+   Loaded plugins: kernel-module
+   Setting up Install Process
+   Package trac-0.10.5-3.el5.noarch already installed and latest version
+   Nothing to do
+   [blyth@belle1 ~]$ 
+   [blyth@belle1 ~]$ 
+   [blyth@belle1 ~]$ 
+   [blyth@belle1 ~]$ rpm -ql trac
+   /etc/httpd/conf.d/trac.conf
+   /usr/bin/trac-admin
+   /usr/lib/python2.4/site-packages/trac
+   /usr/lib/python2.4/site-packages/trac/About.py
+   /usr/lib/python2.4/site-packages/trac/About.pyc
+   /usr/lib/python2.4/site-packages/trac/About.pyo
+   ..
+/usr/lib/python2.4/site-packages/trac/wiki/web_ui.pyo
+/usr/sbin/tracd
+/usr/share/doc/trac-0.10.5
+/usr/share/doc/trac-0.10.5/AUTHORS
+/usr/share/doc/trac-0.10.5/COPYING
+/usr/share/doc/trac-0.10.5/ChangeLog
+/usr/share/doc/trac-0.10.5/INSTALL
+/usr/share/doc/trac-0.10.5/README
+/usr/share/doc/trac-0.10.5/README.tracd
+/usr/share/doc/trac-0.10.5/RELEASE
+/usr/share/doc/trac-0.10.5/THANKS
+/usr/share/doc/trac-0.10.5/UPGRADE
+/usr/share/doc/trac-0.10.5/contrib
+/usr/share/doc/trac-0.10.5/contrib/README
+/usr/share/doc/trac-0.10.5/contrib/bugzilla2trac.py
+/usr/share/doc/trac-0.10.5/contrib/emailfilter.py
+/usr/share/doc/trac-0.10.5/contrib/htdigest.py
+/usr/share/doc/trac-0.10.5/contrib/migrateticketmodel.py
+/usr/share/doc/trac-0.10.5/contrib/sourceforge2trac.py
+/usr/share/doc/trac-0.10.5/contrib/trac-post-commit-hook
+/usr/share/doc/trac-0.10.5/contrib/trac-post-commit-hook.cmd
+/usr/share/doc/trac-0.10.5/contrib/trac-pre-commit-hook
+/usr/share/man/man1/trac-admin.1.gz
+/usr/share/man/man8/tracd.8.gz
+/usr/share/trac
+/usr/share/trac/conf
+/usr/share/trac/htdocs
+/usr/share/trac/htdocs/README
+/usr/share/trac/htdocs/asc.png
+/usr/share/trac/htdocs/attachment.png
+/usr/share/trac/htdocs/changeset.png
+/usr/share/trac/htdocs/closedticket.png
+/usr/share/trac/htdocs/css
+...
+/usr/share/trac/wiki-macros/TracGuideToc.pyc
+/usr/share/trac/wiki-macros/TracGuideToc.pyo
+/var/www/cgi-bin/trac.cgi
+/var/www/cgi-bin/trac.fcgi
+
+
+
+
+   uh oh, epel aint so smooth:
+
+
+[blyth@belle1 trac-0.10.5]$ cat  /etc/httpd/conf.d/trac.conf
+# Replace all occurrences of /srv/trac with your trac root below
+# and uncomment the respective SetEnv and PythonOption directives.
+<LocationMatch /cgi-bin/trac\.f?cgi>
+    #SetEnv TRAC_ENV /srv/trac
+    </LocationMatch>
+    <IfModule mod_python.c>
+    <Location /cgi-bin/trac.cgi>
+        SetHandler mod_python
+	    PythonHandler trac.web.modpython_frontend
+	        #PythonOption TracEnv /srv/trac
+		</Location>
+		</IfModule>
+
+
+
+
+
+
+
+
+
+
+
+
    Trac Customizations to adopt ?
        http://webmail.inoi.fi/open/trac/eunuchs
           Nice slim trac instance navigator at top of page, with "select-trac" CSS 

@@ -46,6 +46,32 @@ Preparing...                ########################################### [100%]
       yum --enablerepo=epel search pycurl
 
 
+
+
+ == hookup new cms02 (former hep6) ==
+
+
+   http://mirror01.idc.hinet.net/EPEL/4/i386/repoview/epel-release.html
+
+
+[blyth@cms02 ~]$ sudo rpm -Uvh http://mirror01.idc.hinet.net/EPEL/4/i386/epel-release-4-10.noarch.rpm
+Retrieving http://mirror01.idc.hinet.net/EPEL/4/i386/epel-release-4-10.noarch.rpm
+warning: /var/tmp/rpm-xfer.rVOqvU: V3 DSA signature: NOKEY, key ID 217521f6
+Preparing...                ########################################### [100%]
+   1:epel-release           ########################################### [100%]
+
+
+[blyth@cms02 ~]$  rpm -ql epel-release-4-10
+/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL
+/etc/yum.repos.d/epel-testing.repo
+/etc/yum.repos.d/epel.repo
+/usr/share/doc/epel-release-4
+/usr/share/doc/epel-release-4/GPL
+[blyth@cms02 ~]$ 
+
+
+
+
 EOU
 }
 redhat-dir(){ echo $(local-base)/env/base/base-redhat ; }
@@ -61,7 +87,8 @@ redhat-vers(){
 }
 
 redhat-epel4(){
-   sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-9.noarch.rpm
+   #sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-9.noarch.rpm
+   sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-10.noarch.rpm
 }
 
 redhat-epel5(){
