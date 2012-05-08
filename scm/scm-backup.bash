@@ -820,6 +820,22 @@ scm-backup-tdir(){
    esac
 }
 
+scm-backup-rsync-all-to-node(){
+
+   local msg="# === $FUNCNAME : "
+   local tag=$1
+   [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT tag $tag is the same as current NODE_TAG $NODE_TAG ... ABORT && return 1
+   
+   local cmd="rsync -e ssh -razvt $(scm-backup-dir) $tag:$(scm-backup-dir $tag) "
+   echo $cmd
+
+   read -p "$msg Enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg ABORTed && return 1
+   echo $msg proceeding ...
+   eval $cmd
+}
+
+
 
 scm-backup-rsync-from-node(){
 

@@ -17,7 +17,7 @@
 #
 #
 # 
-
+apache2-vi(){ vi $(env-home)/apache/apache2.bash ; }
 apache2-usage(){
 
 cat << EOU

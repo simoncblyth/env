@@ -218,9 +218,18 @@ shutdown                Shut the remote supervisord down.
       Starting sv-blyth: /data/env/system/python/Python-2.5.1/bin/python: error while loading shared libraries: libpython2.5.so.1.0: cannot open shared object file: No such file or directory
 
 
-       
+  ===  May 2nd 2012 : power cut yesterday ===
 
+      [blyth@cms01 log]$ sudo vi messages
 
+        5019 May  2 12:27:42 cms01 sendmail: sm-client startup succeeded
+        5020 May  2 12:27:42 cms01 sv-blyth: wrong python Python 2.3.4
+        5021 May  2 12:27:42 cms01 rc: Starting sv-blyth:  failed
+          
+
+      wrong python prevents sv-blyth auto-startup 
+      but it seems that only mysql and nginx in sv config and they are both not being used anyhow
+ 
 
   == ini issue ... running on the wrong python == 
 

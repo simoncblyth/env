@@ -8,6 +8,15 @@ svnsetup-usage(){
 
   cat << EOU 
 
+
+
+
+
+       mod_dav_svn.i386 : Apache server module for Subversion server.
+
+        
+
+
     == Hooking SVN/Trac to Apache ==
 
      Infrequently used setup of svn + apache ...  
