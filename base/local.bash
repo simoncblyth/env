@@ -335,7 +335,7 @@ local-backup-tag(){
       G) echo A ;;
       H) echo C  ;;
       C) echo H1 C2 P H ;;
- C2|C2R) echo  C N H1 ;;    ## exclude P as cannot get to work see #262 exclude H as out of space
+ C2|C2R) echo  C N H1 N1 ;;    ## exclude P as cannot get to work see #262 exclude H as out of space
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
      XX) echo ZZ S ;;

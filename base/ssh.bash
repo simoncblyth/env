@@ -6,6 +6,29 @@ ssh--vi(){ vi $(ssh--source) ; }
 ssh--env(){ elocal- ; }
 #ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
 
+
+ssh--log(){ cat << EOL
+
+   2012 May 7 
+       From scratch setup on replacement cms02 to allow scm-backup-rsync
+
+        [root@cms02 ~]# sshconf-
+        [root@cms02 ~]# local-tags                        ## corresponds to backup nodes
+        C N H1
+        [root@cms02 ~]# sshconf-gen                       ## generate .ssh/config with sections for the local-tags
+
+        [root@cms02 .ssh]# mv id_rsa id_rsa.pub former/   ## move aside old keys that I do not has passphrases for
+        [root@cms02 .ssh]# ssh--keygen
+        [root@cms02 ~]# ssh--putkeys                      ## mammoth session of password and passphrase entry to all backup nodes
+
+        [root@cms02 ~]# ssh--agent-start
+        [root@cms02 ~]# scm-backup-rsync                  ## manual test of backup 
+
+
+
+EOL
+}
+
 ssh--usage(){
 
 cat << EOU

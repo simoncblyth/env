@@ -290,6 +290,17 @@ svn-mode-default(){
 }
 
 
+
+svn-ver(){
+  case ${1:-$NODE_TAG} in 
+    C) echo 1.4.2 ;;
+C2|C2R) echo 1.4.6 ;;
+   XX) echo 1.4.3 ;; 
+   YY) echo 1.4.3 ;;
+    *) echo 1.4.0 ;;
+  esac
+}
+
 svn-env(){
 
   elocal-
@@ -298,14 +309,7 @@ svn-env(){
   [ "$NODE_APPROACH" == "stock" ] && return 0
   [ "$(svn-mode)" == "system" ]   && return 0
 
-  local ver
-  case $NODE_TAG in 
-    C) ver=1.4.2 ;;
-   XX) ver=1.4.3 ;; 
-   YY) ver=1.4.3 ;;
-    *) ver=1.4.0 ;;
-  esac
-  
+  local ver=$(svn-ver)
   export SVN_NAME=subversion-$ver
   export SVN_NAME2=subversion-deps-$ver  
     

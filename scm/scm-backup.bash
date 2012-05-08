@@ -3,6 +3,53 @@ scm-backup-source(){  echo $(env-home)/$(scm-backup-src) ; }
 scm-backup-url(){     echo $(env-url)/$(scm-backup-src) ; }
 scm-backup-vi(){      vi $(scm-backup-source) ; }
 
+
+scm-backup-log(){  cat << EOL
+
+2012 May 7th removing cms02 native inhibiters
+
+	[root@cms02 repos]# cd /var/scm/repos
+	[root@cms02 repos]# ll *-scm-recover-repo
+	lrwxrwxrwx  1 root root 75 May  4 19:05 aberdeen-scm-recover-repo -> /var/scm/backup/cms02/repos/aberdeen/2012/05/01/130104/aberdeen-1599.tar.gz
+	lrwxrwxrwx  1 root root 65 May  4 19:05 data-scm-recover-repo -> /var/scm/backup/cms02/repos/data/2012/05/01/130104/data-23.tar.gz
+	lrwxrwxrwx  1 root root 65 May  4 19:05 env-scm-recover-repo -> /var/scm/backup/cms02/repos/env/2012/05/01/130104/env-3443.tar.gz
+	lrwxrwxrwx  1 root root 70 May  4 19:05 heprez-scm-recover-repo -> /var/scm/backup/cms02/repos/heprez/2012/05/01/130104/heprez-764.tar.gz
+	lrwxrwxrwx  1 root root 71 May  4 19:05 newtest-scm-recover-repo -> /var/scm/backup/cms02/repos/newtest/2012/05/01/130104/newtest-20.tar.gz
+	lrwxrwxrwx  1 root root 72 May  4 19:05 tracdev-scm-recover-repo -> /var/scm/backup/cms02/repos/tracdev/2012/05/01/130104/tracdev-123.tar.gz
+	[root@cms02 repos]# rm *-scm-recover-repo 
+
+	[root@cms02 tracs]# ll *-scm-recover-repo
+	lrwxrwxrwx  1 root root 70 May  4 19:05 aberdeen-scm-recover-repo -> /var/scm/backup/cms02/tracs/aberdeen/2012/05/01/130104/aberdeen.tar.gz
+	lrwxrwxrwx  1 root root 62 May  4 20:06 data-scm-recover-repo -> /var/scm/backup/cms02/tracs/data/2012/05/01/130104/data.tar.gz
+	lrwxrwxrwx  1 root root 66 May  4 20:06 dybaux-scm-recover-repo -> /var/scm/backup/cms02/tracs/dybaux/2012/05/01/130104/dybaux.tar.gz
+	lrwxrwxrwx  1 root root 66 May  4 20:09 dybsvn-scm-recover-repo -> /var/scm/backup/cms02/tracs/dybsvn/2011/10/17/183533/dybsvn.tar.gz
+	lrwxrwxrwx  1 root root 60 May  4 20:10 env-scm-recover-repo -> /var/scm/backup/cms02/tracs/env/2012/05/01/130104/env.tar.gz
+	lrwxrwxrwx  1 root root 66 May  4 20:12 heprez-scm-recover-repo -> /var/scm/backup/cms02/tracs/heprez/2012/05/01/130104/heprez.tar.gz
+	lrwxrwxrwx  1 root root 68 May  4 20:13 newtest-scm-recover-repo -> /var/scm/backup/cms02/tracs/newtest/2012/05/01/130104/newtest.tar.gz
+	lrwxrwxrwx  1 root root 66 May  4 20:13 toysvn-scm-recover-repo -> /var/scm/backup/cms02/tracs/toysvn/2012/05/01/130104/toysvn.tar.gz
+	lrwxrwxrwx  1 root root 68 May  4 20:13 tracdev-scm-recover-repo -> /var/scm/backup/cms02/tracs/tracdev/2012/05/01/130104/tracdev.tar.gz
+	[root@cms02 tracs]# 
+	[root@cms02 tracs]# rm *-scm-recover-repo
+	rm: remove symbolic link `aberdeen-scm-recover-repo'? y
+	rm: remove symbolic link `data-scm-recover-repo'? n
+	rm: remove symbolic link `dybaux-scm-recover-repo'? n
+	rm: remove symbolic link `dybsvn-scm-recover-repo'? n
+	rm: remove symbolic link `env-scm-recover-repo'? y
+	rm: remove symbolic link `heprez-scm-recover-repo'? y
+	rm: remove symbolic link `newtest-scm-recover-repo'? y
+	rm: remove symbolic link `toysvn-scm-recover-repo'? n
+	rm: remove symbolic link `tracdev-scm-recover-repo'? y
+	[root@cms02 tracs]# 
+
+
+
+
+EOL
+}
+
+
+
+
 scm-backup-usage(){
 cat << EOU
 
@@ -296,7 +343,7 @@ scm-backup-is-locked(){
    local msg="=== $FUNCNAME :"
    [ -z "$SCM_FOLD" ] && echo $msg ABORT SCM_FOLD not defined && return 0    ## yep locking is conservative
    if [ -d "$SCM_FOLD/LOCKED" ]; then 
-       echo $msg GLOBALLY locked
+       echo $msg GLOBALLY locked $SCM_FOLD/LOCKED
        ls -alst "$SCM_FOLD/LOCKED" 
        return 0 
    fi
@@ -1079,8 +1126,8 @@ scm-backup-rsync(){
            case $tag in 
                H1)  echo $msg skip invoke remote DNA check to destination $tag  ;;
                 S)  echo $msg skip invoke remote DNA check to destination $tag  ;;
-               G3)  echo $msg remote DNA check && ssh $tag "export ENV_HOME=~/env ; . ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
-                *)  echo $msg remote DNA check && ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote "   ;;
+               G3)  echo $msg remote DNA check && ssh $tag "export ENV_HOME=~/env ; . ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
+                *)  echo $msg remote DNA check && ssh $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
            esac
        fi 
 
