@@ -17,7 +17,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 .PHONY: default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 
-default: dirhtml
+default: dirhtml rsync
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
 rsync:

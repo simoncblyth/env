@@ -36,9 +36,8 @@ Docs
 -----
 
 #. improve the ``env-index``
-#. sphinx sidebar cross links to Trac + SVN + Sphinx (of self and others) 
 #. svn postcommit hook to autorun the sphinx docs Makefile following commits into docs 
-#. dated and revisioned docs in index.rst : like OUM
+#. dated and revisioned docs in index.rst : can this be done without resort to templates 
 
 Repository Migration to shared services ?
 ------------------------------------------
