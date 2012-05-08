@@ -27,10 +27,12 @@ cpprun(){
    [ ! -d $(dirname $exe) ] && mkdir -p $(dirname $exe)
 
    local src=$name.cc
-   [ $src -nt $exe ] && echo recompiling $src to create $exe  &&  g++ -o $exe $src 
+   [ $src -nt $exe ] && echo recompiling $src to create $exe  &&  g++ -o $exe -g $src 
    $exe $*
 
    cd $iwd
 }
 
 seed(){ cpprun $FUNCNAME ; }
+strx(){ cpprun $FUNCNAME ; }
+

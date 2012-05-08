@@ -800,6 +800,53 @@ env-columns(){
 
 }
 
+
+
+
+
+env-index-head-(){ cat << EOH 
+<html>
+<head>
+</head>
+<body>
+<table>
+  <tr>
+      <td> Trac </td>
+      <td> SVN </td>
+      <td> Sphinx </td>
+  </tr>
+EOH
+}
+
+env-index(){
+  $FUNCNAME-head-
+  $FUNCNAME-body-  /tracs/env/     /repos/env/trunk/       /edocs
+  $FUNCNAME-body-  /tracs/heprez/  /repos/heprez/trunk/    /hdocs
+  $FUNCNAME-body-  /tracs/tracdev/ /repos/tracdev/
+  $FUNCNAME-tail-
+}
+
+
+env-index-body-(){ cat << EOB
+  <tr>
+      <td>  <a href="$1" > $1 </a> </td>
+      <td>  <a href="$2" > $2 </a> </td>
+      <td>  <a href="$3" > $3 </a> </td>
+  </tr>
+EOB
+}
+
+env-index-tail-(){ cat << EOT
+</table>
+</body>
+</html>
+EOT
+}
+
+
+
+
+
 env-htdocs-up(){
    local msg="=== $FUNCNAME :"
    local path=$1
@@ -975,7 +1022,7 @@ analog-(){      . $(env-home)/apache/analog.bash && analog-env $* ; }
 tornado-(){      . $(env-home)/messaging/tornado.bash && tornado-env $* ; }
 svnprecommit-(){      . $(env-home)/svn/svnprecommit.bash && svnprecommit-env $* ; }
 dcs-(){      . $(env-home)/offline/dcs.bash && dcs-env $* ; }
-scr-(){      . $(env-home)/offline/scr.bash && scr-env $* ; }
+#scr-(){      . $(env-home)/offline/scr.bash && scr-env $* ; }
 drush-(){      . $(env-home)/drush/drush.bash && drush-env $* ; }
 videola-(){  . $(env-home)/videola/videola.bash && videola-env $* ; }
 mediamosa-(){      . $(env-home)/mediamosa/mediamosa.bash && mediamosa-env $* ; }

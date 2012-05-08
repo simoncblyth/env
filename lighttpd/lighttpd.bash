@@ -229,6 +229,6 @@ lighttpd-adduser-(){
 }
 
 lighttpd-adduser(){
-   lighttpd-adduser- $* >> $(lighttpd-users) "
+   lighttpd-adduser- $* >> $(lighttpd-users) 
 }
 
