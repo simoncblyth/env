@@ -755,7 +755,24 @@ Generate ssh config and setup keys for auto rsync::
 Bogged down by big dybsvn tarballs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Move big fat foreigners into dedicated folder::
 
+        [blyth@cms02 scm]$ mkdir -p foreign/cms02/tracs
+        [blyth@cms02 scm]$ mv backup/cms02/tracs/toysvn foreign/cms02/tracs/
+        [blyth@cms02 scm]$ mv backup/cms02/tracs/dybsvn foreign/cms02/tracs/
+        [blyth@cms02 scm]$ mv backup/cms02/tracs/dybaux foreign/cms02/tracs/
+
+
+Also remote DNA checking
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Restrict remote DNA check to the source ``LOCAL_NODE`` to avoid slow irrelevant DNA checks 
+
+
+Add belle1 to backup nodes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. add to ``local-tags`` , ``sshconf-gen`` adding to ssh config and ``ssh--putkey N1`` from **C2R**
 
 
 DNA check failures from a disappearing L (python version difference?)

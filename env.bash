@@ -1,12 +1,10 @@
 
 env-docs(){
    cd $(env-home)/docs
-   case $NODE_TAG in  
-      G) make SPHINXBUILD=sphinx-build-2.5   ;;
-      *) make ;;
-   esac   
+   make 
 }
 
+env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-log(){ vi $(${FUNCNAME}path) ; }
 

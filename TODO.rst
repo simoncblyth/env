@@ -2,21 +2,44 @@
 TODO
 =====
 
-Server Recreation 
-------------------
+Dayabay
+--------
+
+#. check on Shandong backups
+
+
+Server Rebuild 
+----------------
+
+Lockdown
+^^^^^^^^^
+
+#. move to ssh keyed access only 
+
+Exported Working Copies
+^^^^^^^^^^^^^^^^^^^^^^^
+
+#. bring work done during server outtage (mostly exported env) in from the cold : on belle1 + ? 
 
 Backups
 ^^^^^^^^^
 
-#. cms02 backups 
-#. add more backup nodes, 3 is not enough: belle1 + ? 
+#. cms02 backups + cron test
 #. make dna mismatches get reported more loudly, or will they appear in the notification mail ?
+#. backups are owned by **blyth** : lock em to prevent accidents ? 
 
+#. aberdeen elog announce resumption
+
+
+Docs 
+-----
+
+#. sphinx sidebar cross links to Trac + SVN + Sphinx (of self and others) 
 
 Repository Migration to shared services ?
 ------------------------------------------
 
- * investigate moving more to github, **especially env** 
+ * investigate moving more to github, especially **env**, **tracdev**  
  * aberdeen repository is fat : and cannot be open source ?  
  * http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities
 
