@@ -686,5 +686,143 @@ Post commit failure::
 
 
 
+cms02 : backups + rsync + chkconfig
+=====================================
+
+
+C2R env hookup
+----------------
+
+Hookup **root@cms02** ``ssh C2R`` to env to do backups, in ``.bash_profile``::
+
+        export ENV_HOME=/home/blyth/env  ; env-(){      [ -r $ENV_HOME/env.bash ]           && . $ENV_HOME/env.bash            && env-env $* ; }
+        #env-
+
+
+scm-backup-all misses svnlook
+-------------------------------
+
+Wrong svn version dumped::
+
+
+        [root@cms02 ~]# scm-backup-all
+        === scm-backup-all : starting from pwd /root
+        === scm-backup-lock : /var/scm/LOCKED/scm-backup-all-started-2012-05-07@18:25:42
+        /data/env/system/python/Python-2.5.6/bin/python
+        /data/env/system/sqlite/sqlite-3.3.16/lib
+        /data/env/system/python/Python-2.5.6/lib
+        /data/env/system/svn/subversion-1.4.0/lib/svn-python/libsvn
+        /data/env/system/svn/subversion-1.4.0/lib/svn-python/svn
+
+        === scm-backup-all : svn === skip non-folder /var/scm/svn/*
+        === scm-backup-repo : name aberdeen path /var/scm/repos/aberdeen base /var/scm/backup/cms02 stamp 2012/05/07/182542 site ntu ===
+        === scm-backup-repo : mkdir -p /var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542 && /data/env/system/svn/build/subversion-1.4.6/tools/backup/hot-backup.py --archive-type=gz /var/scm/repos/aberdeen /var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542 && cd /var/scm/backup/cms02/repos/aberdeen && rm -f last && ln -s 2012/05/07/182542 last
+        Beginning hot backup of '/var/scm/repos/aberdeen'.
+        Youngest revision is 1599
+        Backing up repository to '/var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-1599'...
+        Done.
+        Archiving backup to '/var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-1599.tar.gz'...
+        Archive created, removing backup '/var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-1599'...
+        -bash: svnlook: command not found
+        tar: /var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-.tar.gz: Cannot open: No such file or directory
+        tar: Error is not recoverable: exiting now
+        tar: Child returned status 2
+        tar: Error exit delayed from previous errors
+        === scm-tgzcheck-ztvf : tgz /var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-.tar.gz integrity check FAILURE 2
+        === scm-backup-repo : tgz /var/scm/backup/cms02/repos/aberdeen/2012/05/07/182542/aberdeen-.tar.gz rev integrity check failure 2
+        [root@cms02 aberdeen]# 
+        [root@cms02 aberdeen]# 
+
+
+scm-backup-rsync (TODO)
+--------------------------
+
+Generate ssh config and setup keys for auto rsync::
+
+        [root@cms02 ~]# sshconf-
+        [root@cms02 ~]# local-tags                        ## corresponds to backup nodes
+        C N H1
+        [root@cms02 ~]# sshconf-gen                       ## generate .ssh/config with sections for the local-tags
+
+        [root@cms02 .ssh]# mv id_rsa id_rsa.pub former/   ## move aside old keys that I do not has passphrases for
+        [root@cms02 .ssh]# ssh--keygen
+        [root@cms02 ~]# ssh--putkeys                      ## mammoth session of password and passphrase entry to all backup nodes
+
+        [root@cms02 ~]# ssh--agent-start
+        [root@cms02 ~]# scm-backup-rsync                  ## manual test of backup 
+
+
+Bogged down by big dybsvn tarballs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+DNA check failures from a disappearing L (python version difference?)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Digest matches but the size has lost an *L*::
+
+        === scm-backup-dnachecktgzs : OK /var/scm/backup/cms02/tracs/env/2012/05/01/130104/env.tar.gz
+        1c1
+        < {'dig': '9e1a36c02cdb837c55404d38b33def8b', 'size': 53648743}
+        ---
+        > {'dig': '9e1a36c02cdb837c55404d38b33def8b', 'size': 53648743L}
+
+Reproduce::
+
+        [root@cms02 ~]# scm-backup-dnachecktgzs /var/scm/backup/cms02/repos/heprez
+        1c1
+        < {'dig': 'df6aa49ac8917b8d4144de5abb1a02cc', 'size': 4215148L}
+        ---
+        > {'dig': 'df6aa49ac8917b8d4144de5abb1a02cc', 'size': 4215148}
+        === scm-backup-dnachecktgzs : FAIL /var/scm/backup/cms02/repos/heprez/2012/05/01/130104/heprez-764.tar.gz
+        === scm-backup-dnachecktgzs : OK /var/scm/backup/cms02/repos/heprez/2012/05/07/183131/heprez-764.tar.gz
+        1c1
+        < {'dig': '6a1024a2b03e128bfd65aad168ff3c90', 'size': 4214891L}
+        ---
+        > {'dig': '6a1024a2b03e128bfd65aad168ff3c90', 'size': 4214891}
+        === scm-backup-dnachecktgzs : FAIL /var/scm/backup/cms02/repos/heprez/2012/04/29/130108/heprez-764.tar.gz
+        1c1
+        < {'dig': '2f02f6b5e844ac07c665ebf82850e561', 'size': 4214780L}
+        ---
+        > {'dig': '2f02f6b5e844ac07c665ebf82850e561', 'size': 4214780}
+        === scm-backup-dnachecktgzs : FAIL /var/scm/backup/cms02/repos/heprez/2012/04/30/130103/heprez-764.tar.gz
+        [root@cms02 ~]# 
+        [root@cms02 ~]# 
+        [root@cms02 ~]# 
+        [root@cms02 ~]# ll /var/scm/backup/cms02/repos/heprez/2012/05/07/183131/heprez-764.tar.gz.dna
+        -rw-r--r--  1 root root 61 May  7 18:33 /var/scm/backup/cms02/repos/heprez/2012/05/07/183131/heprez-764.tar.gz.dna
+        [root@cms02 ~]# cat  /var/scm/backup/cms02/repos/heprez/2012/05/07/183131/heprez-764.tar.gz.dna
+        {'dig': 'f3e450f405704c1cabb3f32f4196af96', 'size': 4226393}
+        [root@cms02 ~]# 
+
+
+Seems harmless, will go away once have all new ``.tar.gz.dna``
+
+
+
+chkconfig setup : allowing auto-revival on reboot
+----------------------------------------------------
+
+Add chkconfig lines to:: 
+
+        [blyth@cms02 init.d]$ ls -l httpd
+        lrwxrwxrwx  1 root root 50 May  7 15:34 httpd -> /data/env/system/apache/httpd-2.0.64/bin/apachectl
+
+::        
+
+        # chkconfig: 345 95 05
+        # description: source apache serving Trac + SVN repositories via mod python and mod_dav_svn
+
+
+
+cron hookup + notification mail (TODO)
+----------------------------------------
+
+Adapt root and blyth cronlines from G::
+
+     (export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env- ; scm-backup-  ; scm-backup-rsync ; scm-backup-mail ) > /var/log/cronlog/blyth/scm-backup-rsync.log  2>&1
+     (export HOME=/Users/blyth ; export ENV_HOME=/Users/blyth/env ; . /Users/blyth/env/env.bash ; env- ; scm-backup-  ; scm-backup-all ) > /var/log/cronlog/root/scm-backup-all.log 2>&1
 
 

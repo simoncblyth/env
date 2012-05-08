@@ -7,6 +7,9 @@ env-docs(){
    esac   
 }
 
+env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
+env-log(){ vi $(${FUNCNAME}path) ; }
+
 env-usage(){ cat << EOU
 #
 #     type name        list a function definition 
