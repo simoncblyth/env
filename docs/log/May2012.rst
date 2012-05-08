@@ -734,8 +734,8 @@ Wrong svn version dumped::
         [root@cms02 aberdeen]# 
 
 
-scm-backup-rsync (TODO)
---------------------------
+scm-backup-rsync 
+-----------------
 
 Generate ssh config and setup keys for auto rsync::
 
@@ -762,12 +762,10 @@ Move big fat foreigners into dedicated folder::
         [blyth@cms02 scm]$ mv backup/cms02/tracs/dybsvn foreign/cms02/tracs/
         [blyth@cms02 scm]$ mv backup/cms02/tracs/dybaux foreign/cms02/tracs/
 
-
 Also remote DNA checking
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Restrict remote DNA check to the source ``LOCAL_NODE`` to avoid slow irrelevant DNA checks 
-
 
 Add belle1 to backup nodes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -833,13 +831,12 @@ Add chkconfig lines to::
         # description: source apache serving Trac + SVN repositories via mod python and mod_dav_svn
 
 
-
-cron hookup + notification mail (TODO)
-----------------------------------------
+cron hookup + notification mail 
+---------------------------------
 
 Adapt root and blyth cronlines from G::
 
-     (export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env- ; scm-backup-  ; scm-backup-rsync ; scm-backup-mail ) > /var/log/cronlog/blyth/scm-backup-rsync.log  2>&1
-     (export HOME=/Users/blyth ; export ENV_HOME=/Users/blyth/env ; . /Users/blyth/env/env.bash ; env- ; scm-backup-  ; scm-backup-all ) > /var/log/cronlog/root/scm-backup-all.log 2>&1
+        SHELL = /bin/bash
+        59 13 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-nightly ) >  /var/scm/log/scm-backup-nightly.log 2>&1
 
 

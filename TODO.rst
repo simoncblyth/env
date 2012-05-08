@@ -5,8 +5,12 @@ TODO
 Dayabay
 --------
 
-#. check on Shandong backups
+Backups
+^^^^^^^
 
+#. check on Shandong backups
+#. check parasitic backups 
+#. check offline_db backups
 
 Server Rebuild 
 ----------------
@@ -24,17 +28,17 @@ Exported Working Copies
 Backups
 ^^^^^^^^^
 
-#. cms02 backups + cron test
-#. make dna mismatches get reported more loudly, or will they appear in the notification mail ?
+#. manual backup checking : beyond operational basics
+#. make dna mismatches get reported more loudly
 #. backups are owned by **blyth** : lock em to prevent accidents ? 
-
-#. aberdeen elog announce resumption
-
 
 Docs 
 -----
 
+#. improve the ``env-index``
 #. sphinx sidebar cross links to Trac + SVN + Sphinx (of self and others) 
+#. svn postcommit hook to autorun the sphinx docs Makefile following commits into docs 
+#. dated and revisioned docs in index.rst : like OUM
 
 Repository Migration to shared services ?
 ------------------------------------------
@@ -50,12 +54,11 @@ Reboot Behaviour
 
     * hfag starts too much
     * cms01 fails to start "sv-blyth" 
-    * cms02 not yet hooked up
+    * cms02 : httpd is now added to chkconfig 
 
 
 hfag chkconfig : starts undesired services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
 ::
 

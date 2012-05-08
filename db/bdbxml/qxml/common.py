@@ -2,6 +2,7 @@
 from dbxml import *
 from existmeta import ExistMeta
 import os
+from datetime import datetime
 
 def existsDoc( docname, cont ):
     try:
@@ -35,6 +36,19 @@ def urlDoc(mgr, url, other="", name=None, meta=None ):
     return doc
 
 
+class DateTimeFix(object):
+    def __init__(self, ifmt="%b %d, %Y %H:%M:%S" , ofmt="%Y-%m-%dT%H:%M:%SZ" ):
+	"""
+	:param ifmt: default is format used in exist:modified
+	:param ofmt: default is format that works with xs:dateTime
+	"""
+        self.ifmt = ifmt
+        self.ofmt = ofmt 
+    def __call__(self, s ):
+        t = datetime.strptime(s, self.ifmt)
+	return t.strftime(self.ofmt)   
+
+
 class ExistDirQuery(object):
     def __init__(self, mgr ): 	
         qctx = mgr.createQueryContext()
@@ -43,6 +57,7 @@ class ExistDirQuery(object):
         self.query = mgr.prepare("/result/collection/*", qctx )
         self.qctx = qctx
 	self.mgr = mgr
+	self.dtf = DateTimeFix()
 
     def __call__(self, dirurl ):
 	"""
@@ -79,7 +94,8 @@ class ExistDirQuery(object):
 
             ## fix to match attribute name with those from backups
             if 'modified' not in d and 'last-modified' in d:
-                d['modified'] = d['last-modified']
+                #d['modified'] = d['last-modified']
+                d['modified'] = self.dtf(d['last-modified'])
                 del d['last-modified']
 
             name = v.getNodeName()
