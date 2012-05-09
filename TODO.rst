@@ -15,6 +15,16 @@ Backups
 Server Rebuild 
 ----------------
 
+
+Rsync Timeouts to N and N1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Interactive scm-backup-rsync suffering timeouts whereas
+not in the log from cron /var/scm/log/scm-backup-nightly.log 
+
+#. am i correctly collecting stderr
+
+
 Lockdown
 ^^^^^^^^^
 
