@@ -11,15 +11,30 @@ contains http references followed by content use::
 
     asciicheck.py b2charm_end_of_2011_v005_tables.tex http://
 
+TODO:
+
+#. more flexible context matching via regexp	
+
 """
 from __future__ import with_statement
+
+nascii_ = lambda _:not(0 <= ord(_) < 128) 
+
+def highlight(line):
+    out = ""	
+    for c in line:
+        if nascii_(c):
+	    out += "[" + c + "]"
+        else:
+	    out += c
+    return out	    
+
 def asciicheck(path, ctxmatch=None):
     """
     :param path: path to file to check for non-ascii characters
     :param ctxmatch: beginning of line to output for providing context to ascii violating lines
     :return:  count of non-ascii char containing lines in the file
     """  
-    nascii_ = lambda _:not(0 <= ord(_) < 128) 
     naline = 0 
     ctx = None
     with open(path,"r") as fp:
@@ -31,7 +46,7 @@ def asciicheck(path, ctxmatch=None):
                 if ctx:
 		    print ctx,
 		    ctx = None
-		print i+1, line
+		print i+1, highlight(line)
 		naline += 1
     return naline		
 

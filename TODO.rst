@@ -16,6 +16,68 @@ Server Rebuild
 ----------------
 
 
+cms01 httpd start error
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+        [blyth@cms01 logs]$ heprez-svc start tomcat httpd
+        ...
+        === heprez-svc : sleeping for 5 before start httpd
+        Starting httpd: Syntax error on line 15 of /etc/httpd/conf/svnsetup/tracs.conf:
+        Invalid command 'PythonHandler', perhaps mis-spelled or defined by a module not included in the server configuration
+        [FAILED]
+
+        
+comment the ``apache-edit`` left over from cms02 search for stand-in
+
+::
+
+        #Include /etc/httpd/conf/svnsetup/setup.conf 
+
+
+Succeeded to preview and edit, **cms01 survived powercut unscathed**
+
+* http://cms01.phys.ntu.edu.tw/rezdb/db/test/
+
+
+
+
+Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. cms01 : cannot access cms01, no ping::
+
+        simon:env blyth$ date
+        Thu 10 May 2012 14:17:36 CST
+        simon:env blyth$ ping cms01.phys.ntu.edu.tw
+        PING cms01.phys.ntu.edu.tw (140.112.101.190): 56 data bytes
+
+     #. from console, twas stuck at BIOS initialization ... powercycling regained access
+
+     #. usual manual mount:: 
+     
+           [blyth@cms01 ~]$ sudo mount /data  
+
+     #. do a manual ``exist-start`` as improper shutdown, this hangs ... but doing a exist-service-start succeeds
+        and the XMLDB is operational, succeeded to to a heprez-propagate to G for backup
+
+     #. this iptables setting was not presisted::
+    
+            [blyth@cms01 ~]$ iptables- ; IPTABLES_PORT=9090 iptables-webopen-ip $(local-tag2ip G)
+
+
+#. cms02 :  httpd was not auto started, and no error messages in /var/log/messages ... needs some further chkconfig magic ?, manual start succeeded::
+
+        [root@cms02 log]# /sbin/service httpd start
+
+#. hfag : again started too much, manually stop tomcat and exist, httpd OK::
+
+        [blyth@hfag blyth]$ sudo /sbin/service tomcat stop
+        [blyth@hfag blyth]$ sudo /sbin/service exist stop
+
+
+
 Rsync Timeouts to N and N1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
