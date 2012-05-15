@@ -107,9 +107,13 @@ Backups
 Docs 
 -----
 
-#. improve the ``env-index``
+#. improve the ``env-index`` : 
+
+   #. **DEDICATE A SPHINX-STANCE TO HOLDING THE LINKS** easier .rst source management
+
 #. svn postcommit hook to autorun the sphinx docs Makefile following commits into docs 
 #. dated and revisioned docs in index.rst : can this be done without resort to templates 
+
 
 Repository Migration to shared services ?
 ------------------------------------------
