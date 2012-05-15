@@ -15,7 +15,6 @@ Backups
 Server Rebuild 
 ----------------
 
-
 cms01 httpd start error
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -39,8 +38,6 @@ comment the ``apache-edit`` left over from cms02 search for stand-in
 Succeeded to preview and edit, **cms01 survived powercut unscathed**
 
 * http://cms01.phys.ntu.edu.tw/rezdb/db/test/
-
-
 
 
 Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
@@ -78,13 +75,22 @@ Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 
 
 
+hfag auto ntp not working
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Note that hfag is ~60 min behind.
+
+
 Rsync Timeouts to N and N1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Interactive scm-backup-rsync suffering timeouts whereas
 not in the log from cron /var/scm/log/scm-backup-nightly.log 
 
-#. am i correctly collecting stderr
+#. seems to be network issue, cannot ping belle7 OR belle1 by name of number 
+#. look for alternate backup targets... use mars
+
+
 
 
 Lockdown

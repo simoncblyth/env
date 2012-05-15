@@ -34,6 +34,11 @@ ssh--usage(){
 cat << EOU
 
 
+  == ssh debugging ==
+
+      http://blog.codefront.net/2007/02/28/debugging-ssh-public-key-authentication-problems/
+
+
    == Issues : openssh openssl version mismatch ==
 
 

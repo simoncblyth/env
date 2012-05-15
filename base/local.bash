@@ -219,6 +219,14 @@ local-tags(){
 }
 
 
+local-ping(){ 
+   local tag=$1
+   shift 
+   local cmd="ping $(local-tag2ip $tag) $*"
+   echo $cmd
+   eval $cmd
+}
+
 local-tag2ip(){
   case ${1:-$NODE_TAG} in
        AB|AR) echo aberdeentunnel.dyndns.org ;;
