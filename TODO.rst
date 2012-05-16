@@ -41,6 +41,17 @@ cms02 Lockdown
 
 #. move to ssh keyed access only for replacement cms02
 
+
+NUU Network
+^^^^^^^^^^^^
+
+::
+
+        [blyth@belle7 env]$ svn up
+        svn: OPTIONS of 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk': could not connect to server (http://dayabay.phys.ntu.edu.tw)
+        [blyth@belle7 env]$ 
+
+
 Rsync Timeouts to N and N1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

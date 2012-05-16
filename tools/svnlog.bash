@@ -3,10 +3,19 @@ svnlog-src(){      echo tools/svnlog.bash ; }
 svnlog-source(){   echo ${BASH_SOURCE:-$(env-home)/$(svnlog-src)} ; }
 svnlog-vi(){       vi $(svnlog-source)  ; }
 svnlog-env(){      elocal- ; }
-svnlog-usage(){
-  cat << EOU
-     svnlog-src : $(svnlog-src)
-     svnlog-dir : $(svnlog-dir)
+svnlog-usage(){ cat << EOU
+
+svnlog
+=======
+
+Queries SVN for commit messages 
+
+Usage::
+          
+   svnlog-
+   svnlog -h
+
+   svnlog -a blyth     ## invoke from SVN working copy 
 
 
 EOU

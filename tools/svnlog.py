@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 """
-This script derives from that used by the dybsvn svnlog step, enables querying the SVN commit log 
-usage examples:: 
+This script queries the commit log of the SVN repository
+corresponding to the working copy of the invoking directory.
+Invoking from outside SVN working copy results in an error.
+
+Usage examples:: 
+
+    svnlog -w 52 -a blyth     ## dump 52 weeks of commit messages for single author
+
+    svnlog --limit 1000000 -w 52 -a blyth > 2012.txt    ## up the limit to avoid truncation
 
     svnlog --limit 1000000 -v debug -a blyth  
     svnlog --limit 1000000 -v debug -a blyth > ~/2011.txt
+
 
 NB during development, duplicate arguments precisely to benefit from caching 
 
@@ -271,13 +279,13 @@ class Msgs(list):
 
     def parse_args( cls ):
         from optparse import OptionParser
-        op = OptionParser()
+        op = OptionParser(usage=__doc__)
         d = cls.defaults
-        op.add_option("-l", "--limit" ,     help="limit number of revisions to look at  "  )
+        op.add_option("-l", "--limit" ,     help="limit number of revisions to look at. Default %(limit)s " % d  )
         op.add_option("-r", "--revision" ,  help="OVERRIDE auto determined revision sequence, FOR DEBUGGING ONLY eg use 10891:1  "  )
-        op.add_option("-v", "--loglevel",   help="logging level : INFO, WARN, DEBUG ... " )
-        op.add_option("-w", "--weeks" ,     help="weeks of logs to example" )
-        op.add_option("-a", "--author" ,    help="restrict selection to single author" )
+        op.add_option("-v", "--loglevel",   help="logging level : INFO, WARN, DEBUG ... Default %(loglevel)s " % d )
+        op.add_option("-w", "--weeks" ,     help="weeks of logs to dump. Default %(weeks)s " % d )
+        op.add_option("-a", "--author" ,    help="restrict selection to single author. Default %(author)s " % d )
         op.set_defaults( **cls.defaults )
         return op.parse_args()
     parse_args = classmethod( parse_args )
