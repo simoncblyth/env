@@ -840,3 +840,34 @@ Adapt root and blyth cronlines from G::
         59 13 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-nightly ) >  /var/scm/log/scm-backup-nightly.log 2>&1
 
 
+hfag chkconfig : starts undesired services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Tidied up the extraneous apache links in /etc/init.d/
+
+
+Recovering from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. cms01 : cannot access cms01, no ping::
+
+        simon:env blyth$ date
+        Thu 10 May 2012 14:17:36 CST
+        simon:env blyth$ ping cms01.phys.ntu.edu.tw
+        PING cms01.phys.ntu.edu.tw (140.112.101.190): 56 data bytes
+
+     #. from console, twas stuck at BIOS initialization ... powercycling regained access
+
+     #. usual manual mount:: 
+     
+           [blyth@cms01 ~]$ sudo mount /data  
+
+     #. do a manual ``exist-start`` as improper shutdown, this hangs ... but doing a exist-service-start succeeds
+        and the XMLDB is operational, succeeded to to a heprez-propagate to G for backup
+
+#. hfag : again started too much, manually stop tomcat and exist, httpd OK::
+
+        [blyth@hfag blyth]$ sudo /sbin/service tomcat stop
+        [blyth@hfag blyth]$ sudo /sbin/service exist stop
+
+
