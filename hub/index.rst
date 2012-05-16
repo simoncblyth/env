@@ -3,6 +3,9 @@
 Hub Links
 ==========
 
+:Version: |version|
+:Date: |today|
+
 
 cms01 : heprez data entry and testing server
 ==============================================
@@ -60,5 +63,9 @@ ihep
 * http://dayabay.ihep.ac.cn/tracs/dybaux/timeline
 
 
+cuhk
+=====
+
+* http://theta13.phy.cuhk.edu.hk/elog/
 
 

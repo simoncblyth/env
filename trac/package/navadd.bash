@@ -26,19 +26,55 @@ navadd-notes(){
 
 cat << EON
 
+testing manual addition ...
+
+   navadd-conf-manual-
+
+to control button ordering need entry in trac/mainnav:: 
+
+	[trac] 
+	...
+	; mainnav added for control of docs button position
+	mainnav = wiki,timeline,roadmap,browser,report,newticket,search,tags,admin,blog,build,query,docs
+
+
+
+
+
 
 EON
+}
+
+navadd-conf-manual-(){
+
+
+cat << EOC
+[navadd]
+add_items = query,docs
+
+query.title = Query
+query.url = /tracs/$TRAC_INSTANCE/query
+query.perm = REPORT_VIEW
+query.target = mainnav   # metanav
+
+docs.title = Docs
+docs.url = /${TRAC_INSTANCE:0:1}docs
+docs.perm = REPORT_VIEW
+docs.target = mainnav   # metanav
+
+EOC
 }
 
 
 navadd-conf-(){
 cat << EOC
 [navadd]
-add_items = query 
+add_items = query,docs
 query.title = Query
 query.url = /tracs/$TRAC_INSTANCE/query
 query.perm = REPORT_VIEW
 query.target = mainnav   # metanav
+
 EOC
 }
 

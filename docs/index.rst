@@ -1,10 +1,9 @@
-.. HepRez documentation master file, created by
-   sphinx-quickstart on Mon Apr 23 14:02:59 2012.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Env Development Log
 =======================
+
+:Version: |version|
+:Date: |today|
+
 
 Objectives for these pages.
 
