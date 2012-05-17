@@ -14,7 +14,21 @@ Usage examples::
     svnlog --limit 1000000 -v debug -a blyth > ~/2011.txt
 
 
+The log returned corresponds to the root of the repository as 
+determined by ``svn info`` rather than the specific invoking directory.
+
 NB during development, duplicate arguments precisely to benefit from caching 
+
+TODO:
+   * fix over-enthusiastic caching, perhaps by including the **day** in the cache identity 
+     as old ``svn info`` query gets stuck in craw resulting in outdated revision ranges being used
+
+
+   * investigate why many warnings::
+
+	WARNING:__main__:getElementsByTagName unexpected lec [] author 
+	WARNING:__main__:getElementsByTagName unexpected lec [] author 
+
 
 """
 import re, os, logging, md5
@@ -65,7 +79,7 @@ class Node(list):
             if lec[0].firstChild:  ## special handling for empty elements
                 return lec[0].firstChild.data       
         else:
-            log.warn("getElementsByTagName unexpected lec %s %s " % (lec,tag) )
+            log.warn("getElementsByTagName unexpected lec %s %s %s " % (lec,tag, str(self) ) )
             return None 
     def _get_data(self):
         return self.node.firstChild.data
