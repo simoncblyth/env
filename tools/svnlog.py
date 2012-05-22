@@ -30,6 +30,14 @@ TODO:
 	WARNING:__main__:getElementsByTagName unexpected lec [] author 
 
 
+For interactive testing::
+
+   ipython  $(env-home)/tools/svnlog.py -- --limit 10000 -a blyth -d 
+
+
+Due to the limited options of ``svn log`` the author and age selection is done after 
+a large initial query with just the limit to restrict it.  So this is slow.
+
 """
 import re, os, logging, md5
 from xml.dom import minidom 
@@ -165,7 +173,7 @@ class SVNLog(Node):
     t = property( lambda self:self[0].t )
     _cmd = "svn log --limit %(limit)s --verbose --xml --revision %(revision)s %(base)s "
     def __init__(self, base, revision, opts , maxage=timedelta(0,60*60), verbose=False ):
-        log.info("SVNLog base %s " % base )
+        log.info("SVNLog base %s revision %s opts %s" % (base,revision,opts) )
         if opts.get('revision',None):
             log.warn("option override of revision %s to %s ", revision, opts['revision'] )
             revision = opts['revision']  
@@ -289,7 +297,7 @@ class Msgs(list):
     and collected into this list of commit messages. 
 
     """
-    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52", author=None )
+    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52", author=None, details=False )
 
     def parse_args( cls ):
         from optparse import OptionParser
@@ -300,6 +308,7 @@ class Msgs(list):
         op.add_option("-v", "--loglevel",   help="logging level : INFO, WARN, DEBUG ... Default %(loglevel)s " % d )
         op.add_option("-w", "--weeks" ,     help="weeks of logs to dump. Default %(weeks)s " % d )
         op.add_option("-a", "--author" ,    help="restrict selection to single author. Default %(author)s " % d )
+        op.add_option("-d", "--details" , action="store_true",   help="Path details for each commit. Default %(details)s " % d )
         op.set_defaults( **cls.defaults )
         return op.parse_args()
     parse_args = classmethod( parse_args )
@@ -312,9 +321,10 @@ class Msgs(list):
         log.info("args %s opts %s " % ( repr(args), repr(vars(opts)) ) )
 
         maxage = timedelta(weeks=int(opts.weeks))
+        details=opts.details
         info = Info()
         log.info("%r" % info )
-        slog = SVNLog( info.rooturl, "%s:%s" % (info.revision,1) , vars(opts), maxage=maxage )   
+        slog = SVNLog( info.rooturl, "%s:%s" % (info.revision,1) , vars(opts), maxage=maxage, verbose=details )   
 
         #self[:] = slog.msgs()
         self.slog = slog 
