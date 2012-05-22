@@ -26,6 +26,29 @@ ssh--log(){ cat << EOL
 
 
 
+   Hardening suggestions
+   ~~~~~~~~~~~~~~~~~~~~~~~ 
+
+In /etc/sshd_config you might want to uncomment the lines:
+
+     PasswordAuthentication no
+     PermitEmptyPasswords no
+
+  Also, you want to make sure you have
+   
+     RSAAuthentication yes
+     PubkeyAuthentication yes
+
+ After this is done, you need to restart the ssh daemon. This is done in OSX with the following commands:
+     
+     sudo launchctl stop com.openssh.sshd
+     sudo launchctl start com.openssh.sshd
+
+ Then, you can generate yourself an SSH key for logging in. A good command for this is 
+
+      ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
+
+
 EOL
 }
 

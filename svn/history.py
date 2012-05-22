@@ -7,6 +7,9 @@ Usage::
    cd NuWa-trunk/dybgaudi
    python ~/e/svn/history.py > history.txt
 
+See svnlog- ``~/env/tools/svnlog.py`` for a more standalone approach to doing this.
+
+
 """
 import os, sys
 from datetime import timedelta

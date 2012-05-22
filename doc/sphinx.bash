@@ -41,6 +41,14 @@ sphinx-usage(){
       RTD Theme now includes sweet mobile styles using media queries.
  
 
+  == advanced sphinx ==
+
+     sphinx docs do not cover standard rst, although sphinx extends a lot of  
+     of standard docutils so must be familiar with docutils to grok how
+     Sphinx works
+
+        http://docutils.sourceforge.net/docs/ref/rst/directives.html
+
 
   == SphinxReport : Using Sphinx for data access ==  
 

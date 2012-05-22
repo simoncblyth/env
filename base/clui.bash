@@ -23,7 +23,7 @@ clui-alias(){
    alias x='exit'
    alias l="ls -l "
    alias lz="ls -la -Z"
-   alias ll="ls -la "
+   alias ll="ls -ltra "
    alias lt="ls -lt $se "
    alias p="ps aux $se"
    alias n="nosetests"
