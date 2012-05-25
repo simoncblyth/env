@@ -46,7 +46,7 @@ def asciicheck(path, ctxmatch=None):
                 if ctx:
 		    print ctx,
 		    ctx = None
-		print i+1, highlight(line)
+		print path, i+1, highlight(line)
 		naline += 1
     return naline		
 
