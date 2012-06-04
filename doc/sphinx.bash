@@ -20,6 +20,13 @@ sphinx-usage(){
 	pip install sphinx 
 
 
+  == reStructuredText ==
+
+    http://wolfmanx.bitbucket.org/ws-docutils/README-inline-comments.html
+
+        tagging and comments in rst
+
+
   == extension ideas ==
 
     A mobile compatible theme/builder would be useful ...

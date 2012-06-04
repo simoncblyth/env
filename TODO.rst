@@ -17,7 +17,6 @@ Backups
 #. check offline_db backups
 
 
-
 Env
 ----
 
@@ -36,13 +35,8 @@ SVNlog not working as desired, has older revision stuck in craw ``02/08/12 12:12
         WARNING:__main__:getElementsByTagName unexpected lec [] author 
 
 
-
-
-
-
 Sys Admin
 -----------
-
 
 Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -75,6 +69,88 @@ NUU Network
         [blyth@belle7 env]$ svn up
         svn: OPTIONS of 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk': could not connect to server (http://dayabay.phys.ntu.edu.tw)
         [blyth@belle7 env]$ 
+
+
+
+
+Failed ssh from C2 to N  (other machines to N are OK)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+.. digraph:: foo
+
+
+   subgraph nuu {
+      style = "filled";
+      N [label="belle7"] ;
+      N1 [label="belle1"] ;
+      label = "NUU" ; 
+   };
+
+   subgraph ntu {
+
+      G [label="simon"];
+      C [label="cms01"];
+      C2 [label="cms02"];
+      H1 [label="hep1"];
+      H [label="hfag"];
+
+      label = "NTU" ; 
+   };
+
+
+   G -> N;
+   G -> N1;
+   G -> C;
+   G -> C2;
+   G -> H;
+
+   C -> C2;
+   C -> H;
+   C -> N;
+   C -> N1 ;
+
+   C2 -> N [label=hangs, color=red] ;
+   C2 -> N1 [label=hangs, color=red] ;
+   C2 -> C;
+   C2 -> H1;
+   C2 -> H [label=denied, color=purple] ;
+
+   H -> N ;
+
+
+Something is messed up with C2 and C2R ssh configuration.
+
+::
+
+        [blyth@hfag ssh]$  ssh -v -v 203.64.184.126
+        OpenSSH_3.6.1p2, SSH protocols 1.5/2.0, OpenSSL 0x0090701f
+        debug1: Reading configuration data /home/blyth/.ssh/config
+        debug1: Reading configuration data /etc/ssh/ssh_config
+        debug1: Applying options for *
+        debug1: Rhosts Authentication disabled, originating port will not be trusted.
+        debug2: ssh_connect: needpriv 0
+        debug1: Connecting to 203.64.184.126 [203.64.184.126] port 22.
+        debug1: Connection established.                     
+        debug1: identity file /home/blyth/.ssh/identity type -1
+        debug1: identity file /home/blyth/.ssh/id_rsa type -1
+
+
+::
+
+
+        [root@cms02 .ssh]# ssh -v -v -v N
+        OpenSSH_3.9p1, OpenSSL 0.9.7a Feb 19 2003
+        debug1: Reading configuration data /root/.ssh/config
+        debug1: Applying options for N
+        debug1: Reading configuration data /etc/ssh/ssh_config
+        debug1: Applying options for *
+        debug2: ssh_connect: needpriv 0
+        debug1: Connecting to 203.64.184.126 [203.64.184.126] port 22.
+
+
+Following the ``tail -f /var/log/secure`` on N while attempting to connect shows not getting through.
+Nothing glaring in the iptables.
 
 
 
@@ -179,6 +255,12 @@ Backups
 
 Docs 
 -----
+
+
+#. trac rst preview of sphinx flavored rst, has some errors due to unrecognized directived
+
+   #. http://dayabay.phys.ntu.edu.tw/tracs/heprez/browser/trunk/log/end_of_2011.rst  **can trac be educated a bit for the most common ones**
+
 
 #. NO NEED : DO THIS AS EDITING ANYHOW : svn postcommit hook to autorun the sphinx docs Makefile following commits into docs 
 #. reposition sphinx control at top level allowing rst inclusion from anywhere in repo without symbolic links

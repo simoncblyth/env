@@ -1039,3 +1039,4 @@ boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
 boost-(){      . $(env-home)/boost/boost.bash && boost-env $* ; }
 boostlog-(){      . $(env-home)/boost/boostlog.bash && boostlog-env $* ; }
 docutils-(){      . $(env-home)/python/docutils.bash && docutils-env $* ; }
+fabric-(){      . $(env-home)/tools/fabric.bash && fabric-env $* ; }

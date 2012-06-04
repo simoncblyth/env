@@ -31,7 +31,9 @@ extensions = ['sphinx.ext.autodoc',
 	      'sphinx.ext.todo', 
 	      'sphinx.ext.mathjax', 
 	      'sphinx.ext.ifconfig', 
-	      'sphinx.ext.viewcode']
+	      'sphinx.ext.viewcode',
+	      'sphinx.ext.graphviz',
+	      ]
 
 
 extlinks = {

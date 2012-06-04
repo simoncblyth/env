@@ -63,4 +63,9 @@ aberdeen
 
 * http://theta13.phy.cuhk.edu.hk/elog/
 
+localhost
+=========
+
+* http://localhost/wdocs/
+
 
