@@ -16,24 +16,8 @@ Backups
 #. check parasitic backups 
 #. check offline_db backups
 
-
 Env
 ----
-
-
-SVNlog not working as desired, has older revision stuck in craw ``02/08/12 12:12:49 (3 months ago)``
-
-::
-
-        [blyth@cms01 dybgaudi]$  svnlog --limit 1000000 -w 52 > 2012.txt 
-        INFO:__main__:args [] opts {'author': None, 'loglevel': 'INFO', 'base': '.', 'limit': '1000000', 'weeks': '52', 'revision': None} 
-        WARNING:__main__:reading from xmlcache /tmp/blyth/env/tools/svnlog/c1f4f22758749e1b672e413484c2144c.xmlcache 
-        INFO:__main__:Info http://dayabay.ihep.ac.cn/svn/dybsvn /data/env/local/dyb/trunk/NuWa-trunk/dybgaudi 15835 
-        INFO:__main__:SVNLog base http://dayabay.ihep.ac.cn/svn/dybsvn 
-        WARNING:__main__:reading from xmlcache /tmp/blyth/env/tools/svnlog/cca5255cd16fa1ec9ac4421fb53e2950.xmlcache 
-        WARNING:__main__:getElementsByTagName unexpected lec [] author 
-        WARNING:__main__:getElementsByTagName unexpected lec [] author 
-
 
 Sys Admin
 -----------
@@ -54,7 +38,6 @@ Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 #. hfag: auto ntpupdate not working?  ~60 min behind.
 #. hfag: reboot starts tomcat : must disable the chkconfig
 
-
 cms02 Lockdown
 ^^^^^^^^^^^^^^^
 
@@ -69,8 +52,6 @@ NUU Network
         [blyth@belle7 env]$ svn up
         svn: OPTIONS of 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk': could not connect to server (http://dayabay.phys.ntu.edu.tw)
         [blyth@belle7 env]$ 
-
-
 
 
 Failed ssh from C2 to N  (other machines to N are OK)
@@ -273,6 +254,7 @@ Repository Migration to shared services ?
  * investigate moving more to github, especially **env**, **tracdev**  
  * aberdeen repository is fat : and cannot be open source ?  
  * http://en.wikipedia.org/wiki/Comparison_of_open_source_software_hosting_facilities
+ * https://bitbucket.org/  offers unlimited git or hg public and private repos, free for up to 5 users
 
 
 

@@ -22,6 +22,21 @@ Issues:
 
     #. NOT directly beside sources ? would introduce updating derived errors and mess up svn status
 
+
+Alternative more manual approach:
+
+#. pull in usage text via manual use of sphinx extension
+
+    #. avoids two tree problem, the manual tree needs to be in command as the code tree often needs changing 
+    #. the usage texts are often pseudo-tracwikitext anyhow
+
+Over the top autodoc style approach:
+	
+#. Sphinx domain for my flavor of bash functions
+
+    #. despite the snazzyness, this still suffers from two trees issue somewhat  
+
+
 """
 from __future__ import with_statement
 import logging

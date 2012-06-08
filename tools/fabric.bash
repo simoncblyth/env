@@ -46,6 +46,16 @@ fabric-usage(){ cat << EOU
   installs
   ============
 
+    C2 :
+
+        [blyth@cms02 scm]$ which python
+	/data/env/system/python/Python-2.5.6/bin/python
+	[blyth@cms02 scm]$ which pip
+	/data/env/system/python/Python-2.5.6/bin/pip
+	[blyth@cms02 scm]$ pip install fabric
+
+
+
     G : 
           macports fabric is old  py25-fabric @0.1.1 (python)  
 	  get 1.4.2 via  pip-2.5
