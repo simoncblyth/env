@@ -1041,3 +1041,4 @@ boostlog-(){      . $(env-home)/boost/boostlog.bash && boostlog-env $* ; }
 docutils-(){      . $(env-home)/python/docutils.bash && docutils-env $* ; }
 fabric-(){      . $(env-home)/tools/fabric.bash && fabric-env $* ; }
 cuisine-(){      . $(env-home)/tools/cuisine.bash && cuisine-env $* ; }
+daemonwatch-(){      . $(env-home)/tools/daemonwatch.bash && daemonwatch-env $* ; }
