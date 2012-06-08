@@ -65,6 +65,9 @@ http://www.slideshare.net/confoo/server-administration-in-python-with-fabric-cui
 
 
 
+#. i dont see the integration between daemonwatch and the others, daemonwatch looks to be entirely localnode
+
+
 ::
 
         #!/usr/bin/env python

@@ -1,1 +1,1 @@
-docs/log/May2012.rst
+log/May2012.rst
