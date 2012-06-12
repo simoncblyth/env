@@ -57,8 +57,9 @@ NUU Network
 Failed ssh from C2 to N  (other machines to N are OK)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Comments the digraph to allow sphinx building on dotless C2
 
-.. digraph:: foo
+.. .. digraph:: foo
 
 
    subgraph nuu {

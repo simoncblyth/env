@@ -14,14 +14,23 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
+
+EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/edocs
+
 .PHONY: default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 
 default: dirhtml rsync
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
+
+ifeq ($(shell uname -n),cms02.phys.ntu.edu.tw)
 rsync:
-	rsync -av _build/dirhtml/ C2:/data/env/system/apache/httpd-2.0.64/htdocs/edocs/
+	rsync -av _build/dirhtml/ $(EDOCS)/
+else
+rsync:
+	rsync -av _build/dirhtml/ C2:$(EDOCS)/
+endif
 
 
 help:

@@ -37,6 +37,8 @@ to control button ordering need entry in trac/mainnav::
 	; mainnav added for control of docs button position
 	mainnav = wiki,timeline,roadmap,browser,report,newticket,search,tags,admin,blog,build,query,docs
 
+	; mainnav added for control of docs button position
+	mainnav = wiki,timeline,roadmap,browser,tickets,newticket,search,tags,admin,blog,build,query,wdocs
 
 
 

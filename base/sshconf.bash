@@ -98,7 +98,7 @@ sshconf-gen(){
    local msg="=== $FUNCNAME:"
    [ -d $HOME/.ssh ] || mkdir $HOME/.ssh 
    local cfg=$HOME/.ssh/config
-   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
+   local tmp=/tmp/$USER/env/$FUNCNAME && mkdir -p $tmp
    local tfg=$tmp/config
 
    sshconf-gen- > $tfg 
