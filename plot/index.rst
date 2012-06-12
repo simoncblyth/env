@@ -5,5 +5,5 @@ Plotting
 .. toctree::
 
     graph
-
+    fromcsv
 

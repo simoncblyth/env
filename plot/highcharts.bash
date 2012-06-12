@@ -6,6 +6,9 @@ highcharts-env(){      elocal- ; }
 highcharts-usage(){ cat << EOU
 
 
+   http://www.highcharts.com/
+
+   http://www.highcharts.com/ref/
 
 
 

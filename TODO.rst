@@ -22,6 +22,30 @@ Env
 Sys Admin
 -----------
 
+Improve SCM logging
+^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   Unfortunately the log /var/log/env/scm-backup.log
+   has overwritten the one with the original failure
+   (I will look into improving logging to prevent that in future).
+
+Improve Monitoring
+^^^^^^^^^^^^^^^^^^^
+
+#. use fabric from a cron job to capture daily backup metrics (collected from various ssh keyed remote nodes), 
+#. persist results into csv file (or maybe sqlite3 db). 
+#. present these using highstocks or highchart from within sphinx 
+
+   #. a cron controlled sphinx build donw on C2 ?
+
+Thus can merge tens of daily tedious monitoring emails into a single
+glance at a web page (which could be emailed as html), or even none once 
+I trust the range checking.
+
+
+
 Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
