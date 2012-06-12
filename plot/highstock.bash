@@ -34,3 +34,10 @@ highstock-get(){
    [ ! -d $nam ] && unzip $zip -d $nam
 
 }
+
+highstock-ln(){
+   ln -s $(highstock-dir)/js $(env-home)/_static/highstock 
+}
+
+
+
