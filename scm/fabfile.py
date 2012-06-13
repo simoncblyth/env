@@ -5,75 +5,57 @@ Usage::
     fab -R svn scm_backup_check    # on nodes with role 'svn'
 
 
+Approach:
+
+#. keep fabfile simple, 
+
+   #. just the shim to do the remote commands 
+   #. pass returned vales on to checkers implemented elsewhere    
+
+
 For bare ipython interactive tests::
 
-   from fabric.api import run, env
-   env.use_ssh_config = True
-   env.hosts = ["WW"]
-   paths = run("find $SCM_FOLD/backup/$LOCAL_NODE -name '*.gz' ")
+    from fabric.api import run, env
+    env.use_ssh_config = True
+    env.hosts = ["WW"]
+    cmd = "find $SCM_FOLD/backup/$LOCAL_NODE -name '*.gz' -exec du --block-size=1M {} \;"
+    paths = run(cmd)
 
+Check whats in DB with::
+
+    echo .dump tgzs | sqlite3 scm_backup_check.db 
+
+Regards monitoring organization:
+
+#. repo nodes are most appropriate for running the check, 
+
+   #. they have all keys already 
+   #. they are webservers and hence can sphinx present the status
+ 
 
 """
 
-import os, re
-from datetime import datetime
 from fabric.api import run, env, abort
 from fabric.state import output
+import logging
+log = logging.getLogger(__name__)
+
+from scm_monitor import GZCheck
+
 output.stdout = False
 env.use_ssh_config = True
-env.hosts = ["WW"]
 
-
-class Path(str):
-    """	
-    paths of interest are assumed to contain a datetime encoding string such as 2012/02/21/093002
-    NB pattern extent and strptime fmt extent must correspond precisely to allow correct parsing of
-    string into datetime
-    """
-    ptn = re.compile("\/\d{4}\/\d{2}\/\d{2}\/\d{6}\/")
-    fmt = "/%Y/%m/%d/%H%M%S/"
-
-    def __init__(self, path):
-	str.__init__(self, path)    
-	m = self.ptn.search(path)
-	assert m, "failed to match path %s " % path 
-	start, end = m.span()
-        self.bef = path[:start]
-	self.dat = path[start:end]
-	self.aft = path[end:]
-	self.dt  = datetime.strptime(self.dat,self.fmt) 
-
-    def __repr__(self):
-	return "%s %s(%s)%s [%s]" % ( self.__class__.__name__, self.bef, self.dat, self.aft, self.dt.strftime("%c") )     
-
+#env.hosts = ["WW"]
+env.hosts = ["C"]
 
 
 def scm_backup_check():
     """
-    Avoid many remote connections by pulling datetime info encoded into path
-    rather than querying remote file system.
-
-    #. maybe mac related there are ``\r\n`` in the returned string not ``\n`` 
-
     """
-    paths = run("find $SCM_FOLD/backup/$LOCAL_NODE -name '*.gz' ")
-    assert paths.return_code == 0, paths.return_code
-    
-    pp = map(Path,paths.split())   
-    #befs = list(set(map(lambda _:_.bef, pp)))
-
-    # group paths according to their folder, ie string before the date
-    dex = {}
-    for path in pp:  
-        if path.bef not in dex:
-            dex[path.bef]=[]
-        dex[path.bef].append(path)
-
-    # dump paths within each folder ordered by date
-    for k in dex.keys():
-        print k
-	for p in sorted(dex[k],key=lambda _:_.dt):
-            print repr(p)		
-
-
-
+    logging.basicConfig(level=logging.INFO)
+    gzk = GZCheck("scm_backup_check.db")
+    ret = run(gzk.cmd)
+    assert ret.return_code == 0, "non zero rc %s from %s " % ( ret.return_code, gzk.cmd )
+    #print ret.split("\r\n")
+    gzk(ret.split("\r\n"), env.host_string )   # why the windows newline ? CR+LF   
+    gzk.check()
