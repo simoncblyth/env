@@ -172,7 +172,7 @@ apache-initd(){
 apache-name(){
    case ${1:-$NODE_TAG} in 
       H) echo httpd-2.0.59 ;;
-     C2) echo httpd-2.0.64 ;;
+     C2|C2R) echo httpd-2.0.64 ;;
       *) echo httpd-2.0.63 ;;
    esac
 }

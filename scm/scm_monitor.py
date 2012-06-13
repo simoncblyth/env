@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-Provide the checks used in the fabfile, 
+Provides the checker classes eg ``GZCheck`` used from the fabric fabfile to 
+run remote commands and parse the responses and persist into sqlite DB 
 
 #. keep fabric specifics in the fabfile 
 #. minimize remote connections by
@@ -8,16 +9,25 @@ Provide the checks used in the fabfile,
     #. doing a single remote find to get the paths and sizes   
     #. pulling datetime info encoded into path rather than querying remote file system.
 
-Curiously:
 
-#. there are windows newlines ``\r\n`` in the returned string not ``\n`` 
+
+Dependencies (not needed for 2.6+)
+
+  #. ``pip install simplejson``
 
 
 """
+from __future__ import with_statement
 import os, re, platform, logging
 log = logging.getLogger(__name__)
+
 from datetime import datetime
 from simtab import Table
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 
 class Path(str):
@@ -49,16 +59,17 @@ class Path(str):
 	return "%s %s(%s)%s [%s] [%s]" % ( self.__class__.__name__, self.dir, self.dat, self.aft, self.date, self.size )     
 
 
-
 class GZCheck(object):
-    def __init__(self, dbpath):
+    def __init__(self, dbpath, tn ):
         """
-        :param dbpath: path to SQLite db 
+        :param dbpath: path to SQLite db
+        :param tn: name of DB table   
         """
         localnode = platform.node()
         self.cmd = "find $SCM_FOLD/backup/%s -name '*.gz' -exec du --block-size=1M {} \;" % localnode.split(".")[0]
-        self.tgzs = Table(dbpath, "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" )
-   
+        self.tab = Table(dbpath, tn, nodepath="text primary key", node="text", dir="text", date="text", size="real" )
+        self.tn = tn   
+
     def __call__(self, lines, node ):
         """
         Parse the response from the remote command and update local database,    
@@ -75,9 +86,9 @@ class GZCheck(object):
             path = Path(path_)
             path.size = size
             nodepath="%s:%s" % ( node, path )
-            self.tgzs.add( node=node, nodepath=nodepath, size=size, dir=path.dir, date=path.date )
+            self.tab.add( node=node, nodepath=nodepath, size=size, dir=path.dir, date=path.date )
             pass 
-        self.tgzs.insert()    # new entries added, changed entries replace older ones
+        self.tab.insert()    # new entries added, changed entries replace older ones
 
     def check(self):
         self._check_current()
@@ -85,10 +96,14 @@ class GZCheck(object):
     def _check_current(self):
         """
         Checking the current entries, without using persisted prior entries
+
+        NB despite the use of ``tab`` this is just the current in memory entries 
+
+        #. group paths according to their folder, ie string before the date
+
         """
-        # group paths according to their folder, ie string before the date
         dex = {}
-        for d in self.tgzs:  
+        for d in self.tab:  
             dir = d['dir']
             if dir not in dex:
                 dex[dir]=[]
@@ -100,6 +115,27 @@ class GZCheck(object):
 	    for p in sorted(dex[k],key=lambda _:_['date'] ):
                 print repr(p)		
 
+    def jsondump(self, path):
+        """
+        :param path: in which to dump the json series 
+        """
+        log.info("write series to %s " % path ) 
+        series = []
+        dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s" % self.tn))
+        for dir in dirs:
+            data = []
+            sql = "select strftime('%s',date)*1000, size from %s where dir='%s' order by date" % ( "%s", self.tn, dir )
+            for d in self.tab(sql):
+                data.append(d) 
+            series.append( dict(name=dir, data=data) )
+        with open(path,"w") as fp:
+            json.dump(series,fp)
+
 
 if __name__ == '__main__':
     pass
+    t = Table("scm_backup_check.db", "tgzs")
+    print t.fields
+
+
+

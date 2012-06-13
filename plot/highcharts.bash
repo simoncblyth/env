@@ -28,3 +28,9 @@ highcharts-get(){
    [ ! -d $nam ] && unzip $zip -d $nam
 
 }
+
+
+highcharts-ln(){
+   ln -s $(highcharts-dir)/js $(env-home)/_static/highcharts
+}
+

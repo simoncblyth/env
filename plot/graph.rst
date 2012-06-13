@@ -45,7 +45,7 @@ Where the ``js`` is refering to::
 
 And using a raw html directive to embed the javascript(use show source on right to see this) that accesses the data and configures the plot:
 
-.. .. raw:: html
+.. raw:: html
 
     <script type="text/javascript" >
     $(function() {
@@ -78,44 +78,25 @@ And using a raw html directive to embed the javascript(use show source on right 
     </script>
 
 
-.. raw:: html
+.. .. raw:: html
 
     <script type="text/javascript" >
 
     var chart1; // globally available
     $(document).ready(function() {
-    chart1 = new Highcharts.StockChart({
+        chart1 = new Highcharts.StockChart(
+                     {
                        chart: { renderTo: 'container' }, 
                rangeSelector: { selected: 1 },
                       series: [{
                                  name: 'demo',
-                                 data: [
-                [1335830400000,582.13],
-                [1335916800000,585.98],
-                [1336003200000,581.82],
-                [1336089600000,565.25],
-                [1336348800000,569.48],
-                [1336435200000,568.18],
-                [1336521600000,569.18],
-                [1336608000000,570.52],
-                [1336694400000,566.71],
-                [1336953600000,558.22],
-                [1337040000000,553.17],
-                [1337126400000,546.08],
-                [1337212800000,530.12],
-                [1337299200000,530.38],
-                [1337558400000,561.28],
-                [1337644800000,556.97],
-                [1337731200000,570.56],
-                [1337817600000,565.32],
-                [1337904000000,562.29],
-                [1338249600000,572.27],
-                [1338336000000,579.17],
-                [1338422400000,577.73]]
-
+                                 data: [[1335830400000,582.13],
+                                        [1335916800000,585.98],
+                                        [1336003200000,581.82],
+                                        [1338422400000,577.73]]
                               }]
-                                     });
-                                    });
+                     });
+      });
 
     </script>
 

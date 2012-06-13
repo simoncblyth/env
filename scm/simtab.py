@@ -74,9 +74,16 @@ class Table(list):
          self.cursor.executemany('INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals(), entries )
          self.conn.commit()
         
-    def __call__(self, sql ):
+    def __call__(self, sql , fdict=False ):
+        """
+        :param sql: sql to perform
+        :param fdict: when the sql is of form ``select * from tgzs`` can use this to return field dicts, not usable for general queries
+        """ 
         for row in self.cursor.execute(sql):
-            yield dict(zip(self.fields,row))
+            if fdict: 
+                yield dict(zip(self.fields,row))
+            else:
+                yield row
 
 
 def demo():
@@ -94,6 +101,6 @@ if __name__ == '__main__':
     #t = Table("scm_backup_check.db", "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" )
     t = Table("scm_backup_check.db", "tgzs") 
     print t.fields
-    for d in t("select * from tgzs"):
+    for d in t("select * from tgzs", fdict=True):
         print d 
 
