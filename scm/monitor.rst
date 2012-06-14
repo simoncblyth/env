@@ -127,3 +127,24 @@ Todo
 #. send html mail
 
 
+highstock with jsfiddle
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Try out changes interactively
+
+#. http://jsfiddle.net/jswrY/
+
+
+
+serverside highcharts/highstock with nodejs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* :google:`node.js highcharts`
+* http://blog.davidpadbury.com/2010/10/03/using-nodejs-to-render-js-charts-on-server/
+* https://github.com/davidpadbury/node-highcharts
+* https://github.com/davidpadbury/node-highcharts/blob/master/lib/node-highcharts.js
+* http://stackoverflow.com/questions/8071442/generation-of-svg-on-server-side-using-highcharts
+* http://highslide.com/forum/viewtopic.php?f=12&t=16380
+* http://nodejs.org/
+* https://github.com/tmpvar/jsdom#readme
+
