@@ -56,8 +56,8 @@ output.stdout = False
 env.use_ssh_config = True
 
 #env.hosts = ["WW"]
-#env.hosts = ["C", "H1"]
-env.hosts = ["H1"]
+env.hosts = ["C", "H1"]
+#env.hosts = ["H1"]
 
 
 def scm_backup_monitor():
