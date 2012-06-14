@@ -120,6 +120,7 @@ apache-env(){
    export APACHE_MODE=$(apache-mode)
    export APACHE_NAME=$(apache-name)
    export APACHE_HOME=$(apache-home)
+   export APACHE_HTDOCS=$(apache-htdocs)
 }
 
 apache-path(){

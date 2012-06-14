@@ -9,8 +9,6 @@ run remote commands and parse the responses and persist into sqlite DB
     #. doing a single remote find to get the paths and sizes   
     #. pulling datetime info encoded into path rather than querying remote file system.
 
-
-
 Dependencies (not needed for 2.6+)
 
   #. ``pip install simplejson``
@@ -53,10 +51,9 @@ class Path(str):
         dt  = datetime.strptime(self.dat,self.fmt) 
         self.dt = dt 
 	self.date = dt.strftime("%Y-%m-%dT%H:%M:%S")   # SQLite can handle this 
-        self.size = None
 
     def __repr__(self):
-	return "%s %s(%s)%s [%s] [%s]" % ( self.__class__.__name__, self.dir, self.dat, self.aft, self.date, self.size )     
+	return "%s %s(%s)%s [%s]" % ( self.__class__.__name__, self.dir, self.dat, self.aft, self.date )     
 
 
 class GZCheck(object):
@@ -73,6 +70,8 @@ class GZCheck(object):
     def __call__(self, lines, node ):
         """
         Parse the response from the remote command and update local database,    
+	new entries are added, changed entries (based on ``nodepath`` identity) 
+	replace older ones.
 
         :param lines: list of strings response from the cmd
         :param node: ssh tag or alias of remote node on which the command was performed  
@@ -84,11 +83,10 @@ class GZCheck(object):
             assert len(fields) == 2, "unexpected field count : %s " % repr(fields)
             size, path_ = fields
             path = Path(path_)
-            path.size = size
-            nodepath="%s:%s" % ( node, path )
+            nodepath= "%s:%s" % ( node, path_ )
             self.tab.add( node=node, nodepath=nodepath, size=size, dir=path.dir, date=path.date )
             pass 
-        self.tab.insert()    # new entries added, changed entries replace older ones
+        self.tab.insert()    
 
     def check(self):
         self._check_current()
@@ -122,6 +120,8 @@ class GZCheck(object):
         log.info("write series to %s " % path ) 
         series = []
         dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s" % self.tn))
+        pfx = os.path.commonprefix(dirs)
+        log.info("commonprefix %s" % pfx )
         for dir in dirs:
             data = []
             sql = "select strftime('%s',date)*1000, size from %s where dir='%s' order by date" % ( "%s", self.tn, dir )
