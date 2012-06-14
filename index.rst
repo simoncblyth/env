@@ -36,6 +36,7 @@ Contents:
    LOG <log/May2012>
    Sys Admin <sysadmin/index>
    Plotting <plot/index>
+   SCM <scm/index>
 
 Indices and tables
 ==================

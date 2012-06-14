@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 
 from datetime import datetime
 from simtab import Table
+from jsonify import jsonify, jsdict
+
 
 try:
     import json
@@ -117,33 +119,97 @@ class GZCheck(object):
 	    for p in sorted(dex[k],key=lambda _:_['date'] ):
                 print repr(p)		
 
-    def jsondump(self, path, select=[]):
+    def options(self, node, select ):
         """
-        :param path: in which to dump the json series 
 	:param select: list of strings requires to be included in the names 
+
         """
-        log.info("write series to %s " % path ) 
-        series = []
-        dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s" % self.tn))
+        dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s where node='%s' " % (self.tn, node)))
         pfx = os.path.commonprefix(dirs)
         nams = map(lambda _:_[len(pfx):], dirs)
-
         log.info("commonprefix %s select %s " % (pfx, repr(select)) )
 
-
+	hso = HSOptions()
+        hso['title'] = "%s %s" % ( node, pfx )
+	hso['renderTo'] = "container_%s" % node
+        hso['series'] = []
 
         for name,dir in zip(nams,dirs):
             if len(select) == 0 or name in select: 
                 data = []
-                sql = "select strftime('%s',date)*1000, size from %s where dir='%s' order by date" % ( "%s", self.tn, dir )
+                sql = "select strftime('%s',date)*1000, size from %s where dir='%s' and node='%s' order by date" % ( "%s", self.tn, dir, node )
                 for d in self.tab(sql):
-                    data.append(d) 
-	        series.append( dict(name=name, data=data) )
+		    l = list(d)	
+	            if l[1]<11.:l[1] = l[1]*10.    # arbitaryish scaling for visibiity		  
+                    data.append(l)
+
+                #hss = HSSeries(name=name, data=data)
+	        hss = dict(name=name, data=data, tooltip=dict(valueDecimals=2)) 
+	        hso['series'].append( hss )
 		log.info("append series %s %s of length %s  " % (name,dir, len(data)) )     
             else:		
 		log.info("skipping %s %s " % (name,dir) )     
+
+        return hso
+
+    def jsondump(self, path, node=None, select=[]):
+	"""
+        :param path: in which to dump the json series 
+	"""
+        log.info("write json to %s " % path ) 
+	hso = self.options(node, select)
         with open(path,"w") as fp:
-            json.dump(series,fp)
+            fp.write(repr(hso))
+
+
+
+class HSSeries(dict):
+    """
+    Not working 
+    """
+    js = jsonify(r'''
+            {
+                  name : %(name)s,
+		  data : %(data)s,
+                tooltip : {
+	                      valueDecimals : 2
+			  },
+	    }
+              ''')
+    def __repr__(self):
+	return self.js % jsdict(self)    
+ 
+
+class HSOptions(dict):
+    """
+    Dict containing options to be converted to JSON and passed
+    to javascript function via jQuery ajax call::
+
+	window.chart = new Highcharts.StockChart(options);
+
+    """
+    js = jsonify(r'''
+             {
+                        chart : {
+                                renderTo : %(renderTo)s
+                        },
+
+                        rangeSelector : {
+                                selected : 1
+                        },
+
+                        title : {
+                                text : %(title)s
+                        },
+                        
+                        series : %(series)s
+             }
+	     ''')
+    def __repr__(self):
+	return self.js % jsdict(self)    
+    
+
+
 
 
 if __name__ == '__main__':

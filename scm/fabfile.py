@@ -1,8 +1,8 @@
 """
 Usage::
 
-    fab        scm_backup_check    # on the env.hosts nodes
-    fab -R svn scm_backup_check    # on nodes with role 'svn'
+    fab        scm_backup_monitor    # on the env.hosts nodes
+    fab -R svn scm_backup_monitor   # on nodes with role 'svn'
 
 
 Approach:
@@ -23,11 +23,11 @@ For bare ipython interactive tests::
 
 Check whats in DB with::
 
-    echo .dump tgzs | sqlite3 $LOCAL_BASE/env/scm/scm_backup_check.db
+    echo .dump tgzs | sqlite3 $LOCAL_BASE/env/scm/scm_backup_monitor.db
 
 Check and prettyprint the json with::
 
-    cat $APACHE_HTDOCS/data/scm_backup_check.json | python -m simplejson.tool
+    cat $APACHE_HTDOCS/data/scm_backup_monitor.json | python -m simplejson.tool
 
 
 Regards monitoring organization:
@@ -56,30 +56,39 @@ output.stdout = False
 env.use_ssh_config = True
 
 #env.hosts = ["WW"]
-env.hosts = ["C"]
+#env.hosts = ["C", "H1"]
+env.hosts = ["H1"]
 
 
-def scm_backup_check():
+def scm_backup_monitor():
     """
+    Note that fabric ``run`` returns multiline strings delimited by windows newline ? CR+LF   
+
+
+    Node splitting 
     """
     logging.basicConfig(level=logging.INFO)
 
-    db   = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_check.db")   # into SCM_FOLD maybe ? /var/scm
-    json = os.path.expandvars("$APACHE_HTDOCS/data/scm_backup_check.json") 
+    node = env.host_string
+    tn = "tgzs"
+    dbp   = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   # into SCM_FOLD maybe ? /var/scm
+    jsonp = os.path.expandvars("$APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json" % locals() ) 
 
-    assert os.path.exists(os.path.dirname(json)), json
-    if not os.path.exists(os.path.dirname(db)):
-        os.makedirs(os.path.dirname(db))
+    assert os.path.exists(os.path.dirname(jsonp)), jsonp
+    if not os.path.exists(os.path.dirname(dbp)):
+        os.makedirs(os.path.dirname(dbp))
 
-    gzk = GZCheck(db, "tgzs")
+    gzk = GZCheck(dbp, tn)
     ret = run(gzk.cmd)
-    assert ret.return_code == 0, "non zero rc %s from %s " % ( ret.return_code, gzk.cmd )
-    gzk(ret.split("\r\n"), env.host_string )   # why the windows newline ? CR+LF   
+    gzk(ret.split("\r\n"), node )  
+    
     gzk.check()
 
     select = ["%s/%s" % ( type, proj) for type in ("tracs","repos","svn") for proj in ("env","heprez","dybaux","dybsvn","tracdev","aberdeen",)]
-    gzk.jsondump(json, select=select)
+    gzk.jsondump(jsonp, node=env.host_string, select=select)
+
     pass
 
-
+    log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
+    log.info("to check: cat %s | python -m simplejson.tool " % jsonp )
 

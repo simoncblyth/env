@@ -1645,4 +1645,9 @@ scm-backup-df(){
 
 }
 
-
+scm-backup-monitor(){
+   local iwd=$PWD
+   cd $(env-home)/scm 
+   fab scm_backup_monitor
+   cd $iwd
+}

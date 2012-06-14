@@ -91,6 +91,7 @@ release = VERSION
 # directories to ignore when looking for source files.
 exclude_patterns = ['_build', 
 		    'LOG.rst',  # convenience symbolic link 
+		    'hub/index.rst', # a separate Sphinxtance
 		    ]
 
 # The reST default role (used for this markup: `text`) to use for all documents.

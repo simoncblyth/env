@@ -16,6 +16,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 
 EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/edocs
+#EDOCS = $(APACHE_HTDOCS)/edocs
 
 .PHONY: default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 

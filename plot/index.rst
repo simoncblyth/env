@@ -6,5 +6,4 @@ Plotting
 
     graph
     fromcsv
-    monitor
 
