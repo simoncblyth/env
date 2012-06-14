@@ -51,10 +51,7 @@ static files are created by the ``scm-backup-monitor`` which using **fabric** to
 If had large numbers of plots to render, it would be silly to re-render in browser
 for quntities that are only updated daily.  But that is what this is doing.  
 
-* can the plot be rendered as an image on the server ? 
-
-   * would allow this to be done once only 
-
+* can the plot be rendered as an image on the server ? allow this to be done once only 
 
 
 Dev notes
@@ -62,25 +59,71 @@ Dev notes
 
 #. Initally had a bug of out of time order series, the resulting drawing caused js timeouts
 
-To update::
+To manually update from **C2R**, updating the SQLite DB and writing the json files into htdocs/data/scm_backup_check_<node>.json::
 
-   ssh C2R
+    [root@cms02 ~]# env-
+    [root@cms02 ~]# scm-backup-
+    [root@cms02 ~]# scm-backup-monitor
 
-   scm-backup-
-   scm-backup-monitor     # updates DB and writes the htdocs/data/scm_backup_check_<node>.json 
+
+To update the html docs that present the plots, do a sphinx run. This is not  
+not needed every time, as the JSON gets loaded on page load::
 
    cd $(env-home)
-   make                   # sphinx run : not needed every time, as the JSON gets loaded on page load
+   make                 
    
-   open http://localhost/edocs/scm/monitor/
-   open http://dayabay.phys.ntu.edu.tw/edocs/scm/monitor/
+Check the results:
+
+#. http://localhost/edocs/scm/monitor/
+#. http://dayabay.phys.ntu.edu.tw/edocs/scm/monitor/
 
 
-To do:
+automated updating
+~~~~~~~~~~~~~~~~~~~~~
 
+cronjob on C2R runs the **scm-backup-monitor** with cronline::
+
+   30 19 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-monitor ) >  /var/scm/log/scm-backup-monitor-$(date +"\%a").log 2>&1
+
+this doese the fabric run, sqlite persisting and json dumping
+
+
+highstock and highcharts interference ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Plots refusing to appear when served from cms02 when the ``templates/layout.html`` contains
+**_static/highcharts/highcharts.js** whereas OK locally on G ?
+
+
+::
+
+	[blyth@cms02 e]$ svn diff  _templates/layout.html
+	Index: _templates/layout.html
+	===================================================================
+	--- _templates/layout.html      (revision 3487)
+	+++ _templates/layout.html      (working copy)
+	@@ -1,6 +1,6 @@
+	{% extends "!layout.html" %}
+	 
+	-{% set script_files = script_files + ["_static/highstock/highstock.js","_static/highstock/modules/exporting.js", "_static/highcharts/highcharts.js" ] %}
+	+{% set script_files = script_files + ["_static/highstock/highstock.js","_static/highstock/modules/exporting.js" ] %}
+	 
+	{% block rootrellink %}
+	     <li><a href="/tracs/env/timeline">env</a> &raquo;</li>
+
+
+Maybe related to murky practice of building html on G and rsyncing to C2 for presentation rather
+than building on C2.
+
+
+
+Todo
+~~~~~~
+
+#. logging output is mixed up eg ``/var/scm/log/scm-backup-monitor-Thu.log``  : maybe regain the main from **fab** ?
 #. currently arbitrarily scaling to improve visibility of disparate valued
 #. prepare a separate sphinx for monitoring ?
-#. automate the fabric run and sqlite persisting and json dumping
+#. limit checking 
 #. send html mail
 
 

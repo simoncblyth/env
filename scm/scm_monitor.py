@@ -16,12 +16,13 @@ Dependencies (not needed for 2.6+)
 
 """
 from __future__ import with_statement
-import os, re, platform, logging
+import os, re, platform, logging, pwd
 log = logging.getLogger(__name__)
 
 from datetime import datetime
 from simtab import Table
 from jsonify import jsonify, jsdict
+
 
 
 try:
@@ -67,8 +68,14 @@ class GZCheck(object):
         localnode = platform.node()
 
         srvnode = localnode.split(".")[0]
-        if srvnode == 'simon':srvnode = "cms02"    # for development running from non srv G
+        if srvnode == 'simon':
+            srvnode = "cms02"    # for development running from non srv G
+        else:
+            user = pwd.getpwuid(os.getuid())[0]
+            assert user == 'root' , "expect this to be run by root, not '%s' " % user 
 
+
+        log.info("opening DB %s " % dbpath )
         self.cmd = "find $SCM_FOLD/backup/%s -name '*.gz' -exec du --block-size=1M {} \;" % srvnode
         self.tab = Table(dbpath, tn, nodepath="text primary key", node="text", dir="text", date="text", size="real" )
         self.tn = tn   
@@ -129,8 +136,11 @@ class GZCheck(object):
         nams = map(lambda _:_[len(pfx):], dirs)
         log.info("commonprefix %s select %s " % (pfx, repr(select)) )
 
+
+        now = datetime.now().strftime("%c")
+
 	hso = HSOptions()
-        hso['title'] = "%s %s" % ( node, pfx )
+        hso['title'] = "%s %s %s" % ( node, pfx, now )
 	hso['renderTo'] = "container_%s" % node
         hso['series'] = []
 
