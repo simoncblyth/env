@@ -23,7 +23,12 @@ For bare ipython interactive tests::
 
 Check whats in DB with::
 
-    echo .dump tgzs | sqlite3 scm_backup_check.db 
+    echo .dump tgzs | sqlite3 $LOCAL_BASE/env/scm/scm_backup_check.db
+
+Check and prettyprint the json with::
+
+    cat $APACHE_HTDOCS/data/scm_backup_check.json | python -m simplejson.tool
+
 
 Regards monitoring organization:
 
@@ -60,9 +65,9 @@ def scm_backup_check():
     logging.basicConfig(level=logging.INFO)
 
     db   = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_check.db")   # into SCM_FOLD maybe ? /var/scm
-    json = os.path.expandvars("$APACHE_HOME/htdocs/data/scm_backup_check.json") 
+    json = os.path.expandvars("$APACHE_HTDOCS/data/scm_backup_check.json") 
 
-    assert os.path.exists(os.path.dirname(json))
+    assert os.path.exists(os.path.dirname(json)), json
     if not os.path.exists(os.path.dirname(db)):
         os.makedirs(os.path.dirname(db))
 
@@ -71,6 +76,10 @@ def scm_backup_check():
     assert ret.return_code == 0, "non zero rc %s from %s " % ( ret.return_code, gzk.cmd )
     gzk(ret.split("\r\n"), env.host_string )   # why the windows newline ? CR+LF   
     gzk.check()
-    gzk.jsondump(json)
+
+    select = ["%s/%s" % ( type, proj) for type in ("tracs","repos","svn") for proj in ("env","heprez","dybaux","dybsvn","tracdev","aberdeen",)]
+    gzk.jsondump(json, select=select)
+    pass
+
 
 

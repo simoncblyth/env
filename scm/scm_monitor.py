@@ -63,7 +63,11 @@ class GZCheck(object):
         :param tn: name of DB table   
         """
         localnode = platform.node()
-        self.cmd = "find $SCM_FOLD/backup/%s -name '*.gz' -exec du --block-size=1M {} \;" % localnode.split(".")[0]
+
+        srvnode = localnode.split(".")[0]
+        if srvnode == 'simon':srvnode = "cms02"    # for development running from non srv G
+
+        self.cmd = "find $SCM_FOLD/backup/%s -name '*.gz' -exec du --block-size=1M {} \;" % srvnode
         self.tab = Table(dbpath, tn, nodepath="text primary key", node="text", dir="text", date="text", size="real" )
         self.tn = tn   
 
@@ -113,21 +117,31 @@ class GZCheck(object):
 	    for p in sorted(dex[k],key=lambda _:_['date'] ):
                 print repr(p)		
 
-    def jsondump(self, path):
+    def jsondump(self, path, select=[]):
         """
         :param path: in which to dump the json series 
+	:param select: list of strings requires to be included in the names 
         """
         log.info("write series to %s " % path ) 
         series = []
         dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s" % self.tn))
         pfx = os.path.commonprefix(dirs)
-        log.info("commonprefix %s" % pfx )
-        for dir in dirs:
-            data = []
-            sql = "select strftime('%s',date)*1000, size from %s where dir='%s' order by date" % ( "%s", self.tn, dir )
-            for d in self.tab(sql):
-                data.append(d) 
-            series.append( dict(name=dir, data=data) )
+        nams = map(lambda _:_[len(pfx):], dirs)
+
+        log.info("commonprefix %s select %s " % (pfx, repr(select)) )
+
+
+
+        for name,dir in zip(nams,dirs):
+            if len(select) == 0 or name in select: 
+                data = []
+                sql = "select strftime('%s',date)*1000, size from %s where dir='%s' order by date" % ( "%s", self.tn, dir )
+                for d in self.tab(sql):
+                    data.append(d) 
+	        series.append( dict(name=name, data=data) )
+		log.info("append series %s %s of length %s  " % (name,dir, len(data)) )     
+            else:		
+		log.info("skipping %s %s " % (name,dir) )     
         with open(path,"w") as fp:
             json.dump(series,fp)
 
