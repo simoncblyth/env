@@ -31,6 +31,9 @@ Improve SCM logging
    has overwritten the one with the original failure
    (I will look into improving logging to prevent that in future).
 
+   Done on cms02, propagate to Q after port 22 opened 
+
+
 Improve Monitoring
 ^^^^^^^^^^^^^^^^^^^
 
@@ -44,28 +47,34 @@ Thus can merge tens of daily tedious monitoring emails into a single
 glance at a web page (which could be emailed as html), or even none once 
 I trust the range checking.
 
+   #. rendering charts to png non-trivial in absence of browser, so do checks on hub and email if notifications required
 
 
 Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. cms01 reboot fails to start "sv-blyth" (wrong python message)
+
+   #. trouble is what to do depends on point in b2c work cycle
+
 #. cms01 iptables setting was not presisted::
     
       [blyth@cms01 ~]$ iptables- ; IPTABLES_PORT=9090 iptables-webopen-ip $(local-tag2ip G)
 
 #. cms02: httpd not auto started, and no error messages in /var/log/messages ... needs some further chkconfig magic ? manual start::
 
-        [root@cms02 log]# /sbin/service httpd start
-
+      [root@cms02 log]# /sbin/service httpd start
 
 #. hfag: auto ntpupdate not working?  ~60 min behind.
 #. hfag: reboot starts tomcat : must disable the chkconfig
+
 
 cms02 Lockdown
 ^^^^^^^^^^^^^^^
 
 #. move to ssh keyed access only for replacement cms02
+
+   #. AWAITING NORMAL NETWORK RESUMPTION
 
 
 NUU Network
@@ -76,9 +85,6 @@ NUU Network
         [blyth@belle7 env]$ svn up
         svn: OPTIONS of 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk': could not connect to server (http://dayabay.phys.ntu.edu.tw)
         [blyth@belle7 env]$ 
-
-
-
 
 
 Rsync and scp Timeouts from C2R to N and N1
@@ -102,7 +108,6 @@ C2 timeout::
         debug2: ssh_connect: needpriv 0
         debug1: Connecting to belle7.nuu.edu.tw [203.64.184.126] port 22.
         ssh: connect to host 203.64.184.126 port 22: Connection timed out
-
 
 C succeeds::
 
@@ -175,7 +180,6 @@ Backups
 #. cms02 backups are owned by **blyth** : lock em to prevent accidents ? 
 
 
-
 Docs 
 -----
 
@@ -183,7 +187,6 @@ Docs
 #. trac rst preview of sphinx flavored rst, has some errors due to unrecognized directived
 
    #. http://dayabay.phys.ntu.edu.tw/tracs/heprez/browser/trunk/log/end_of_2011.rst  **can trac be educated a bit for the most common ones**
-
 
 #. NO NEED : DO THIS AS EDITING ANYHOW : svn postcommit hook to autorun the sphinx docs Makefile following commits into docs 
 #. reposition sphinx control at top level allowing rst inclusion from anywhere in repo without symbolic links

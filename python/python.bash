@@ -3,70 +3,86 @@ python-src(){   echo python/python.bash ; }
 python-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(python-src)} ; }
 python-vi(){     vi $(python-source) ; }
 python-url(){    echo $(env-url)/$python-src ; }
-python-usage(){
-
-cat << EOU
-
+python-syspath(){ python -c "import sys ; print '\n'.join(sys.path) " ; }
+python-usage(){ cat << EOU
 
 
-   == G : macports python_select python26 ==
+Python
+=======
 
-        sudo port -v install py26-ipython -scientific
-        sudo port -v install py26-setuptools
-        sudo port -v install py26-nose
-
-     
-       sudo port select --set python python26
-       python -V
-       sudo port select --set ipython ipython26
+Functions
+---------
 
 
+python-pygments-get
+python-crack-egg
 
+python-uninstall <name>
+      invoke python-unegg and python-uneasy
 
+python-uneasy <name>  
+      remove the name entry from  $PYTHON_SITE/easy-install.pth
 
-
-    PYTHON_SITE : $PYTHON_SITE
-
-    python-pygments-get
-    python-crack-egg
-
-    python-uninstall <name>
-         invoke python-unegg and python-uneasy
-
-    python-uneasy <name>  
-         remove the name entry from  $PYTHON_SITE/easy-install.pth
-
-    python-unegg  <name>
-         delete the egg directory from $PYTHON_SITE
+python-unegg  <name>
+      delete the egg directory from $PYTHON_SITE
     
-    python-pth
-         cat the easy-install.pth 
+python-pth
+      cat the easy-install.pth 
     
-    python-isdevelopdir- <dir>
-        return code indicates if the passed directory is egglinked into python syspath 
+python-isdevelopdir- <dir>
+      return code indicates if the passed directory is egglinked into python syspath 
     
-    python-ls
-         ls -l $PYTHON_SITE/
+python-ls
+      ls -l $PYTHON_SITE/
          
-    python-ldconfig
-        does no harm to run this more that once ...
+python-ldconfig
+      does no harm to run this more that once ...
         === env-ldconfig : the dir /data/env/system/python/Python-2.5.1/lib is already there /etc/ld.so.conf
          
-    python-cd <rel>    
+python-cd <rel>    
        cd $(python-site)/<rel>  
 
+python-mail 
+       echo hello testing python-mail  | python-mail `local-email` 
 
-    python-mail 
-           echo hello testing python-mail  | python-mail `local-email` 
+python-mail-test
 
-    python-mail-test
+        python-mail-test
+            Attempting to send email to recipient:[blyth@hep1.phys.ntu.edu.tw] from:[me@localhost] message lines:[4] 
 
-           python-mail-test
-           >  Attempting to send email to recipient:[blyth@hep1.phys.ntu.edu.tw] from:[me@localhost] message lines:[4] 
+        NB for the mailing to work, a mailer needs to be running, eg on G : *sudo postfix start*
 
-        NB for the mailing to work, a mailer needs to be running, eg on G :
-            sudo postfix start
-            > postfix/postfix-script: starting the Postfix mail system
+
+Python lib structure
+---------------------
+          
+Currently piecemeal with multiple setup.py scripts 
+
+python-syspath
+     dump the syspath
+
+
+The *qxml/pyextfun* extension uses::
+
+	      python setup.py install --prefix $(ENV_PREFIX)
+
+Writing into  */usr/local/env/lib/python2.5/site-packages/*
+
+
+
+Macports Python Selection
+--------------------------
+
+::
+
+    sudo port -v install py26-ipython -scientific
+    sudo port -v install py26-setuptools
+    sudo port -v install py26-nose
+
+    sudo port select --set python python26
+    python -V
+    sudo port select --set ipython ipython26
+
 
 
 

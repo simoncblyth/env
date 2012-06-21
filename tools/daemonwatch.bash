@@ -8,6 +8,9 @@ daemonwatch-usage(){ cat << EOU
 Daemonwatch
 ============
 
+The code is not very inspiring 
+
+
 
 Installs
 ---------

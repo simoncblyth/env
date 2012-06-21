@@ -843,8 +843,18 @@ env-index-tail-(){ cat << EOT
 EOT
 }
 
-
-
+env-pth(){
+  local nam=${1:-env}
+  local msg="=== $FUNCNAME :"
+  python-
+  local site=$PYTHON_SITE
+  [ ! -d "$site" ] && echo $msg site $site does not exist && return 
+  local pth=$site/$nam.pth
+  local lib=$(echo $nam-home)
+  [ -f "$pth" ] && echo $msg pth $pth exists already && cat $pth && ls -l $pth && return 
+  echo $msg writing lib $lib to pth $pth 
+  sudo bash -c "echo $lib  > $pth"
+}
 
 
 env-htdocs-up(){
@@ -1044,3 +1054,5 @@ cuisine-(){      . $(env-home)/tools/cuisine.bash && cuisine-env $* ; }
 daemonwatch-(){      . $(env-home)/tools/daemonwatch.bash && daemonwatch-env $* ; }
 highstock-(){      . $(env-home)/plot/highstock.bash && highstock-env $* ; }
 highcharts-(){      . $(env-home)/plot/highcharts.bash && highcharts-env $* ; }
+nodehighcharts-(){      . $(env-home)/nodejs/nodehighcharts.bash && nodehighcharts-env $* ; }
+sphinxcontrib-(){      . $(env-home)/doc/sphinxcontrib.bash && sphinxcontrib-env $* ; }

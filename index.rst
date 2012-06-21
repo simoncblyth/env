@@ -37,6 +37,7 @@ Contents:
    Sys Admin <sysadmin/index>
    Plotting <plot/index>
    SCM <scm/index>
+   Python <python/index>
 
 Indices and tables
 ==================

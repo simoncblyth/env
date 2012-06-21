@@ -33,6 +33,7 @@ extensions = ['sphinx.ext.autodoc',
 	      'sphinx.ext.ifconfig', 
 	      'sphinx.ext.viewcode',
 	      'sphinx.ext.graphviz',
+	      'env.sphinxext.bashinclude',
 	      ]
 
 

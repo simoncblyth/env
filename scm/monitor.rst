@@ -36,10 +36,6 @@ H1 : hep1
     <div id="container_H1" style="height: 500px; min-width: 500px"></div>
 
 
-
-
-
-
 How it works
 ---------------
 
@@ -52,6 +48,14 @@ If had large numbers of plots to render, it would be silly to re-render in brows
 for quntities that are only updated daily.  But that is what this is doing.  
 
 * can the plot be rendered as an image on the server ? allow this to be done once only 
+
+Doing this on dayabay.ihep.ac.cn ?
+------------------------------------
+
+Sphinx installs, but gives runtime unicode error
+
+  #. fixed on other nodes by upping python version to 2.5.8?  that is not easy to do on WW
+  #. sphinx not really needed, just a spot of html to invoke the getJSON ?
 
 
 Dev notes
