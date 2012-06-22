@@ -53,6 +53,13 @@ EOL
 scm-backup-usage(){
 cat << EOU
 
+
+
+   NON-STANDARD PORT
+
+        -e "ssh -p $portNumber"
+
+
    STATE OF LOCK ADDITIONS
 
        * cannot incorp the scm-backup-rsync LOCKS in the IHEP->NTU transfers due to 
@@ -1090,6 +1097,16 @@ scm-backup-rsync-unlock(){
 }
 
 
+scm-backup-essh(){
+    local tgt=$1
+    local port=$(local-port-sshd $tgt)
+    [ -z "$port" ] && port=22
+    case $port in
+      22) echo "-e ssh"  ;;
+       *) echo "-e \"ssh -p $port\"" ;;
+    esac
+}
+
 scm-backup-rsync(){
 
    # 
@@ -1126,7 +1143,9 @@ scm-backup-rsync(){
        local starttime=$(scm-backup-date)
        echo $msg starting transfer to tag $tag at $starttime
        echo $msg transfer $source to $tag:$remote/ 
-       local cmd="time rsync -e ssh --delete-after --stats -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
+
+       local essh=$(scm-backup-essh $tag) 
+       local cmd="time rsync $essh --delete-after --stats -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
        echo $msg $cmd
        eval $cmd
 

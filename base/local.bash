@@ -257,7 +257,14 @@ local-tag2ip(){
   esac 
 }
 
-
+local-port-sshd(){
+   case ${1:-$NODE_TAG} in
+       C) echo 1234 ;;
+      Z9) echo 229 ;;
+     SDU) echo 22 ;;
+       *) echo 22 ;;
+    esac     
+}
 
 local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
@@ -472,7 +479,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
         C) echo /data/var ;;
         S) echo /data/var ;;
         H) echo /data/var ;;
-      A|B) echo /volume1/var ;;
+   A|B|Z9) echo /volume1/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
       SDU) echo  /raid/dybsdu/dybbackup/var ;;
