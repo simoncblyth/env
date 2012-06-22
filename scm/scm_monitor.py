@@ -16,7 +16,7 @@ Dependencies (not needed for 2.6+)
 
 """
 from __future__ import with_statement
-import os, re, platform, logging, pwd
+import os, re, logging
 log = logging.getLogger(__name__)
 
 from datetime import datetime
@@ -60,20 +60,12 @@ class Path(str):
 
 
 class GZCheck(object):
-    def __init__(self, dbpath, tn ):
+    def __init__(self, dbpath, tn , srvnode ):
         """
         :param dbpath: path to SQLite db
         :param tn: name of DB table   
+
         """
-        localnode = platform.node()
-
-        srvnode = localnode.split(".")[0]
-        if srvnode == 'simon':
-            srvnode = "cms02"    # for development running from non srv G
-        else:
-            user = pwd.getpwuid(os.getuid())[0]
-            assert user == 'root' , "expect this to be run by root, not '%s' " % user 
-
 
         log.info("opening DB %s " % dbpath )
         self.cmd = "find $SCM_FOLD/backup/%s -name '*.gz' -exec du --block-size=1M {} \;" % srvnode
@@ -88,8 +80,10 @@ class GZCheck(object):
 
         :param lines: list of strings response from the cmd
         :param node: ssh tag or alias of remote node on which the command was performed  
+        :param roles: list of roles, using to correspond to hub node 
 
         """
+
         log.info("%s lines from node %s " % ( len(lines), node ) ) 
         for line in lines: 
             fields = line.split("\t")

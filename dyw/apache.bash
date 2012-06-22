@@ -1,6 +1,11 @@
 
 ##
 ##
+apache-usage(){ cat << EOU
+
+EOU
+}
+
 
 apache-x(){ scp $HOME/$DYW_BASE/apache.bash ${1:-$TARGET_NODE}:$DYW_BASE ; }
 

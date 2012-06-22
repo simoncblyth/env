@@ -1,6 +1,15 @@
 
 
-.. bashinclude:: python.bash
+.. .. bashinclude:: python.bash
+
+
+python
+=======
+
+.. bashtoctree::
+
+    python.bash    
+    concurrent/index
 
 
 todo

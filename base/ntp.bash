@@ -1,3 +1,9 @@
+ntp-usage(){ cat << EOU
+
+EOU
+}
+
+
 ntp-setup(){
 
    cat << EOH

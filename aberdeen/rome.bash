@@ -1,4 +1,13 @@
 
+rome-usage(){ cat << EOU
+
+Rome
+=====
+
+
+EOU
+}
+
 
 
 rome-env(){

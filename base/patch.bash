@@ -1,3 +1,9 @@
+patch-usage(){ cat << EOU
+
+EOU
+}
+
+
 patch-test(){
 
    #

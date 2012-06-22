@@ -9,6 +9,7 @@ env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-log(){ vi $(${FUNCNAME}path) ; }
 
+
 env-usage(){ cat << EOU
 #
 #     type name        list a function definition 
@@ -379,45 +380,6 @@ md-(){  local f=${FUNCNAME/-} && local p=$(env-home)/$f/$f.bash && [ -r $p ] && 
  
 ee(){ cd $(env-home)/$1 ; }
  
-env-usage(){
-cat << EOU
-#
-#     type name        list a function definition 
-#     set               list all functions
-#     unset -f name     to remove a function
-#     typeset -F        lists just the names
-#
-#  http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
-#  http://www-128.ibm.com/developerworks/library/l-bash-test.html
-#
-#
-
-
-     ff(){ local a="hello" ; local ; }   list locals 
-
-     env-dbg
-           invoke with bash rather than . when debugging to see 
-           line numbers of errors, CAUTION error reporting can be a line off
-
-     env-rsync        top-level-fold <target-node>
-           propagate a top-level-folder without svn, caution can
-           leave SVN wc state awry ... usually easiest to delete working
-           copy and "svn up" when want to come clean and go back to SVN
-     
-     env-rsync-all    <target-node>
-           bootstrapping a node that does not have svn 
-
-     env-again
-           delete working copy and checkout again 
-     env-u
-           update the working copy ... aliased to "eu" 
-          
-          
-
-
-EOU
-}
-
 env-dbg(){
    bash $(env-home)/env.bash
 }

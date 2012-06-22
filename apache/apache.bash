@@ -620,9 +620,9 @@ apache-configtest(){
 
 
 apache-get-test(){
-   local urls=$(cat << EOU
+   local urls=$(cat << EOX
 http://hfag.phys.ntu.edu.tw/tracs/heprez/wiki
-EOU)
+EOX)
    local count=0
    for url in $urls ; do
       count=$(($count+1))

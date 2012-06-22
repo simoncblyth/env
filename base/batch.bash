@@ -1,9 +1,12 @@
-
+batch-usage(){ cat << EOU
 
 #
 #  example of testing...
 #      batch-submit jobs/test hello world
 #
+
+EOU
+}
 
 
 batch-env(){

@@ -10,7 +10,11 @@ service-env(){
    local msg="=== $FUNCNAME :"
 }
 
+service-usage(){ cat << EOU
 
+
+EOU
+}
 
 service-setup(){
 

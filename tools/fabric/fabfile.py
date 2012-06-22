@@ -13,16 +13,19 @@ env.skip_bad_hosts = True
 env.use_ssh_config = True
 
 
-
-env.hosts = ["N","N1","C","C2","H"]
+#env.hosts = ["N","N1","C","C2","H"]
 #env.hosts = ["C2","WW"]
 #env.hosts = ["C2"]
 #env.hosts = ["WW"]
 
 env.roledefs = {
+    'local':['Z9'],
     'svn':['C2','WW'],
     'web':['C2','C1','H'],
 }
+
+
+print "env.host_string %s" % env.host_string
 
 
 def file_exists(location):
@@ -40,7 +43,6 @@ def file_attribs_get(location):
 	return {'mode': mode, 'owner': owner, 'group': group}
     else:
 	return None
-
 
 def hostname():
     fp = run('uname -n')

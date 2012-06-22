@@ -6,6 +6,13 @@
 #
 #=========================== JAIDA ==========================
 
+
+aida-usage(){ cat << EOU
+
+EOU
+}
+
+
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/aida.bash
 
 

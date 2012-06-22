@@ -1,4 +1,7 @@
+boost-usage(){ cat << EOU
 
+EOU
+}
 
 alias p-boost="scp $HOME/.bash_boost P:"
 

@@ -9,6 +9,12 @@ modwsgi-use-env(){
 }
 
 
+modwsgi-use-usage(){ cat << EOU
+
+EOU
+}
+
+
 modwsgi-use-app(){
    
    name=${1:-dummy}

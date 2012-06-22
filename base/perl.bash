@@ -1,4 +1,10 @@
 
+perl-usage(){ cat << EOU
+
+EOU
+}
+
+
 ##  NB for cpan config
 ##       vi .cpan/CPAN/MyConfig.pm
 ## echo $PATH | grep $CPAN_HOME/usr/local/bin || export PATH=$CPAN_HOME/usr/local/bin:$PATH

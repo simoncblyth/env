@@ -1,4 +1,8 @@
+network-usage(){ cat << EOU
 
+
+EOU
+}
 
 network-test(){
 	net=`hostname -s`

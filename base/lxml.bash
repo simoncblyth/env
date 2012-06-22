@@ -1,4 +1,10 @@
 
+lxml-usage(){ cat << EOU
+
+EOU
+}
+
+
 ##   http://codespeak.net/lxml/installation.html
 lxml-install(){
    easy_install lxml

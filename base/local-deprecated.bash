@@ -1,4 +1,9 @@
 
+local-deprecated-usage(){ cat << EOU
+
+EOU
+}
+
 local-nodetag-deprecated(){
 
 

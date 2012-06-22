@@ -1,3 +1,9 @@
+av-usage(){ cat << EOU
+
+EOU
+}
+
+
 ##  ================ Recipe to perform auto validation ======================
 ##
 ##  P>  av-config ## creates the config file specifying the date to compare to and output directory 

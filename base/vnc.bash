@@ -1,3 +1,9 @@
+vnc-usage(){ cat << EOU
+
+EOU
+}
+
+
 vnc-tunnel(){
 
   ## ssh username@hostname -L 5901/127.0.0.1/5901

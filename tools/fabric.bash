@@ -12,6 +12,30 @@ fabric-usage(){ cat << EOU
   pip-2.5 search fabric
 
 
+  fabric and non-standard ports
+  -----------------------------
+
+     Seems the port must be in the host string it is not good enough to get the port 
+     via the SSH config.  Thus must do::
+
+           fab -H Z9:229 hostname
+
+     Rather than::
+
+	   fab -H Z9 hostname
+
+
+     Related to 
+
+     * https://github.com/fabric/fabric/issues/138
+
+
+  flexible host setting
+  ======================
+
+     http://stackoverflow.com/questions/2326797/how-to-set-target-hosts-in-fabric-file 
+
+
   alternatives
   =============
 
@@ -40,7 +64,6 @@ fabric-usage(){ cat << EOU
       env.use_ssh_config = True
 
       http://stackoverflow.com/questions/3077281/pythons-fabric-connect-to-a-host-listed-ssh-config
-
 
 
   installs

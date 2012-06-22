@@ -16,6 +16,15 @@ aberdeen-libname(){ echo AbtDataModel ; }
 aberdeen-libdir(){ echo $ABERDEEN_HOME/DataModel/lib ; }
 aberdeen-incdir(){ echo $ABERDEEN_HOME/DataModel/include ; }
 
+aberdeen-usage(){ cat << EOU
+
+Aberdeen
+=========
+
+
+
+EOU
+}
 
 
 ## NB moving away from this kitchen sink approach ... the envirobnment should bring in 

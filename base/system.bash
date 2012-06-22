@@ -1,4 +1,7 @@
+system-usage(){ cat << EOU
 
+EOU
+}
 
 system-log(){
 

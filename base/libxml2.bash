@@ -6,7 +6,10 @@
 ##        Using Tiger? xmllint and libxml2 version 2.6.16 are built-in! xsltproc and libxslt version 1.1.11 are also included
 ##
 
+libxml2-usage(){ cat << EOU
 
+EOU
+}
 
 libxml2-env(){
 

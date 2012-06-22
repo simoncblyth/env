@@ -9,9 +9,16 @@ AdLidSensor Scraper
 
 #. hook up nosetests monitoring, from Christine
 
+Docs
+^^^^^
+
+#. bashtoctree
+
+
 Backups
 ^^^^^^^
 
+#. find other node for backups, as cms02 to belleX is likely to take awhile to fix
 #. check on Shandong backups
 #. check parasitic backups 
 #. check offline_db backups

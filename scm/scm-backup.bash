@@ -1667,6 +1667,7 @@ scm-backup-df(){
 scm-backup-monitor(){
    local iwd=$PWD
    cd $(env-home)/scm 
-   fab scm_backup_monitor
+   # the role specifies hub nodes, such as C2 from where the tarballs emanate  
+   fab -R C2 scm_backup_monitor
    cd $iwd
 }

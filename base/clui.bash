@@ -16,6 +16,10 @@ clui-env(){
     
 }
 
+clui-usage(){ cat << EOU
+
+EOU
+}
 
 
 clui-alias(){

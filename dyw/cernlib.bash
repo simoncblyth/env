@@ -1,5 +1,9 @@
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/cernlib.bash
 
+cernlib-usage(){ cat << EOU
+
+EOU
+}
 
 ##
 ##

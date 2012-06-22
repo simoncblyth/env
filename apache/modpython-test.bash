@@ -17,7 +17,10 @@
 #
 #
 #
+modpython-test-usage(){ cat << EOU
 
+EOU
+}
 
 
 

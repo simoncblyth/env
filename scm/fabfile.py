@@ -44,7 +44,8 @@ Curiously:
 
 """
 
-import os
+import os, platform, pwd
+#import fabric_patches
 from fabric.api import run, env, abort
 from fabric.state import output
 import logging
@@ -52,12 +53,17 @@ log = logging.getLogger(__name__)
 
 from scm_monitor import GZCheck
 
+from pprint import pformat
+
 output.stdout = False
 env.use_ssh_config = True
 
-#env.hosts = ["WW"]
-env.hosts = ["C", "H1"]
-#env.hosts = ["H1"]
+env.roledefs = {
+   'C2':"C H1".split(),
+   'G':"Z9:229".split(),
+}
+
+role2srvnode = dict(C2="cms02",G="g4pb")
 
 
 def scm_backup_monitor():
@@ -69,7 +75,11 @@ def scm_backup_monitor():
     """
     logging.basicConfig(level=logging.INFO)
 
+    log.info("env.host_string %s " % env.host_string )
+    #log.info("env %s " % pformat(env) )
+
     node = env.host_string
+    roles = env.roles
     tn = "tgzs"
     dbp   = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   # into SCM_FOLD maybe ? /var/scm
     jsonp = os.path.expandvars("$APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json" % locals() ) 
@@ -78,13 +88,27 @@ def scm_backup_monitor():
     if not os.path.exists(os.path.dirname(dbp)):
         os.makedirs(os.path.dirname(dbp))
 
-    gzk = GZCheck(dbp, tn)
+
+    ## intended to normally run from the hub nodes(where repositories are), but for G often testing remote hubs
+    localnode = platform.node()
+    srvnode = localnode.split(".")[0]
+
+    assert len(roles) == 1 , "expecting one role %s " % repr(roles)
+    role = roles[0]
+    srvnode = role2srvnode[role]
+    if srvnode == 'cms02':
+        user = pwd.getpwuid(os.getuid())[0]
+        assert user == 'root' , "expect this to be run by root, not '%s' " % user 
+    else:
+	pass    
+
+    gzk = GZCheck(dbp, tn, srvnode)
     ret = run(gzk.cmd)
     gzk(ret.split("\r\n"), node )  
     
     gzk.check()
 
-    select = ["%s/%s" % ( type, proj) for type in ("tracs","repos","svn") for proj in ("env","heprez","dybaux","dybsvn","tracdev","aberdeen",)]
+    select = ["%s/%s" % ( type, proj) for type in ("tracs","repos","svn") for proj in ("env","heprez","dybaux","dybsvn","tracdev","aberdeen","workflow")]
     gzk.jsondump(jsonp, node=env.host_string, select=select)
 
     pass

@@ -22,12 +22,12 @@ ssh--(){       . $(env-home)/base/ssh.bash    && ssh--env $* ; }
  
 
 base-usage(){
-   cat << EOB
+   cat << EOU
 
        base-datestamp
        base-pathstamp 
 
-EOB
+EOU
 
 
 }

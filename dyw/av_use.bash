@@ -1,3 +1,9 @@
+
+av-use-usage(){ cat << EOU
+
+EOU
+}
+
 #
 #
 #   av-use-sub         submit the autovalidation jobs to condor ... with xml logging
