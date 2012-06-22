@@ -288,6 +288,7 @@ local-nodetag(){
  thho-desktop) echo T ;;
         hkvme) echo HKVME ;;
         grid1) local-nodetag-grid1 $USER ;;
+          Arc) echo A ;;
          rh02) echo SDU ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
