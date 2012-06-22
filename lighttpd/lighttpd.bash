@@ -2,6 +2,7 @@
 lighttpd-src(){      echo lighttpd/lighttpd.bash ; }
 lighttpd-source(){   echo ${BASH_SOURCE:-$(env-home)/$(lighttpd-src)} ; }
 lighttpd-vi(){       vi $(lighttpd-source) ; }
+lighttpd-vim(){      vim $(lighttpd-source) ; }
 lighttpd-env(){      pkgr- ; }
 lighttpd-usage(){
   cat << EOU

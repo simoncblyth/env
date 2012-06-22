@@ -1,3 +1,4 @@
+[ -e ~/env.local.bash ] && . ~/env.local.bash 
 
 env-docs(){
    cd $(env-home)/docs
@@ -19,6 +20,7 @@ env-usage(){ cat << EOU
 #  http://www-128.ibm.com/developerworks/library/l-bash-test.html
 #
 #
+
 
      ff(){ local a="hello" ; local ; }   list locals 
 
@@ -52,7 +54,6 @@ env-usage(){ cat << EOU
 
 EOU
 }
-
 
 env-home(){     [ -n "$BASH_SOURCE" ] && [ "${BASH_SOURCE:0:1}" != "." ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 env-source(){   echo $(env-home)/env.bash ; }
