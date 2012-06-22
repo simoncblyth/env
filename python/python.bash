@@ -6,13 +6,11 @@ python-url(){    echo $(env-url)/$python-src ; }
 python-syspath(){ python -c "import sys ; print '\n'.join(sys.path) " ; }
 python-usage(){ cat << EOU
 
-
 Python
 =======
 
 Functions
 ---------
-
 
 python-pygments-get
 python-crack-egg
@@ -69,7 +67,6 @@ The *qxml/pyextfun* extension uses::
 Writing into  */usr/local/env/lib/python2.5/site-packages/*
 
 
-
 Macports Python Selection
 --------------------------
 
@@ -82,8 +79,6 @@ Macports Python Selection
     sudo port select --set python python26
     python -V
     sudo port select --set ipython ipython26
-
-
 
 
 EOU

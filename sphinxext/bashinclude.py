@@ -14,6 +14,14 @@ def bashrst(path,base,delim="EOU"):
    Extract the usage message from the bash function file and writes to a file 
    in `_build/bashrst/`
 
+   Problems:
+
+   #. backticks as needed for rst referencing have special meaning for bash
+   
+      #. maybe by un-shell-escaping here   
+      #. could run the bash function, in order to fill out vars 
+
+
    """
    with open(path,"r") as fp:
        content = fp.read()

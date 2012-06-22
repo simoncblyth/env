@@ -38,6 +38,7 @@ Contents:
    Plotting <plot/index>
    SCM <scm/index>
    Python <python/index>
+   ROOT <root/index>
 
 Indices and tables
 ==================
