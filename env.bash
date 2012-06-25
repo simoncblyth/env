@@ -1019,3 +1019,4 @@ highstock-(){      . $(env-home)/plot/highstock.bash && highstock-env $* ; }
 highcharts-(){      . $(env-home)/plot/highcharts.bash && highcharts-env $* ; }
 nodehighcharts-(){      . $(env-home)/nodejs/nodehighcharts.bash && nodehighcharts-env $* ; }
 sphinxcontrib-(){      . $(env-home)/doc/sphinxcontrib.bash && sphinxcontrib-env $* ; }
+trace-(){      . $(env-home)/sysadmin/trace.bash && trace-env $* ; }

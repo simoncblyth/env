@@ -465,6 +465,7 @@ apache-confd(){
 ##
 ##
 
+apache-htdocs-ls(){ ls -alst $(apache-htdocs)/$1 ; }
 apache-htdocs-check-(){ [ -d "$(apache-htdocs)" ] && return 0 || return 1 ; }
 apache-htdocs(){ local tag=${1:-$NODE_TAG} ; apache-issystem- $tag && apache-htdocs-system $tag  || apache-htdocs-source $tag ; }
 apache-htdocs-source(){
