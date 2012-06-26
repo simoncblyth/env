@@ -65,6 +65,18 @@ Useful following server downtime::
 
 
 
+======
+FUNCS
+======
+
+.. toctree::
+
+    python/python
+
+
+
+
+
 EOU
 }
 

@@ -18,10 +18,10 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/edocs
 #EDOCS = $(APACHE_HTDOCS)/edocs
 
-.PHONY: default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: rstbash default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 
-default: dirhtml rsync
+default: rstbash dirhtml rsync
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
 
@@ -34,8 +34,13 @@ rsync:
 endif
 
 
+rstbash:
+	python rstbash.py	
+
+
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "  rstbash    generate the rst docs from the bash usage functions"
 	@echo "  html       to make standalone HTML files"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"

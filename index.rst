@@ -37,9 +37,8 @@ Contents:
    Sys Admin <sysadmin/index>
    Plotting <plot/index>
    SCM <scm/index>
-   Python <python/index>
    ROOT <root/index>
-   ENV <docs/env>
+   ENV <_docs/env>
 
 Indices and tables
 ==================
