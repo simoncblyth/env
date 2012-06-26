@@ -682,6 +682,7 @@ scm-backup-purge(){
 
   for path in $SCM_FOLD/backup/$node/{tracs,repos,svn,folders}/* 
   do
+     [ ! -d "$(dirname $path)" ] && echo skip $path && continue	  
      cd $path 
      
      name=$(basename $path)
