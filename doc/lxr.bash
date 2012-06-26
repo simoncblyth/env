@@ -3,12 +3,9 @@ lxr-src(){      echo doc/lxr.bash ; }
 lxr-source(){   echo ${BASH_SOURCE:-$(env-home)/$(lxr-src)} ; }
 lxr-vi(){       vi $(lxr-source) ; }
 lxr-env(){      elocal- ; }
-lxr-usage(){
-  cat << EOU
-     lxr-src : $(lxr-src)
-     lxr-dir : $(lxr-dir)
+lxr-usage(){ cat << EOU
 
-     http://sourceforge.net/projects/lxr/
+http://sourceforge.net/projects/lxr/
 
 EOU
 }

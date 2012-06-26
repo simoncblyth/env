@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 """
+TODO:
+
+* relative path handling needs fixin	
 
 """
 from __future__ import with_statement
@@ -41,9 +44,13 @@ class BashRst(object):
 
 	Only files linked via toctree are walked
 	"""
-        conv, paths = bashrst(path, self.srcdir, delim="EOU", gbase=self.gendir, kids=True )
+	apath = os.path.abspath(path)
+	log.info("path %s apath %s " % (path,apath) )
+	adir = os.path.dirname(apath)
+        conv, paths = bashrst(path, adir, delim="EOU", gbase=self.gendir, kids=True )
         for p in paths:
-            self.walk( p + ".bash" )		
+	    ppath = os.path.join( adir, p )	
+            self.walk( ppath + ".bash" )		
         
 
 def main(root):
