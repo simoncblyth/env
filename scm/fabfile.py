@@ -2,7 +2,12 @@
 Usage::
 
     fab        scm_backup_monitor    # on the env.hosts nodes
-    fab -R svn scm_backup_monitor   # on nodes with role 'svn'
+    fab -R C2 scm_backup_monitor     # on nodes with role 'C2'
+
+Typically cron invoked with bash functions::
+
+   scm-backup-monitor
+   scm-backup-monitorw
 
 
 Approach:
@@ -66,6 +71,14 @@ env.roledefs = {
 role2srvnode = dict(C2="cms02",G="g4pb")
 
 
+def target_localize():
+    if env.host_string in ("Z9","A","Z9:229"):
+        env.shell = '/opt/bin/bash -l -c'	
+    else:
+        env.shell = '/bin/bash -l -c'	
+    #log.info("env %s " % pformat(env) )
+    log.info("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
+
 def scm_backup_monitor():
     """
     Note that fabric ``run`` returns multiline strings delimited by windows newline ? CR+LF   
@@ -74,9 +87,7 @@ def scm_backup_monitor():
     Node splitting 
     """
     logging.basicConfig(level=logging.INFO)
-
-    log.info("env.host_string %s " % env.host_string )
-    #log.info("env %s " % pformat(env) )
+    target_localize()
 
     node = env.host_string
     roles = env.roles

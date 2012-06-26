@@ -645,7 +645,17 @@ scm-recover-destination(){
 }
 
 
-
+scm-backup-prune(){
+  local msg="=== $FUNCNAME :"
+  local node=${1:-$LOCAL_NODE} 
+  local cmd="sudo find $SCM_FOLD/backup/$node -type d -empty -depth -exec rmdir {} \; "
+  echo $msg $cmd
+  local ans
+  read -p "Enter YES to delete empty dirs with above command :" ans
+  [ "$ans" != "YES" ] && echo $msg skipping && return
+  echo $msg Proceeding..
+  eval $cmd
+}
 
 
 scm-backup-purge(){
@@ -943,12 +953,6 @@ scm-backup-nightly(){
 
 }
 
-
-
-scm-backup-rsync-opts(){
-  echo ${SCM_BACKUP_RSYNC_OPTS:-}
-}
-
 scm-backup-rsync-dayabay-pull-from-cms01(){
 
     local msg="=== $FUNCNAME :"
@@ -1107,6 +1111,13 @@ scm-backup-essh(){
     esac
 }
 
+scm-backup-rsync-opts(){
+   case $1 in 
+     A|Z9) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --rsync-path=/opt/bin/rsync ;; 
+        *) echo ${SCM_BACKUP_RSYNC_OPTS:-}  ;;
+   esac	   
+}
+
 scm-backup-rsync(){
 
    # 
@@ -1144,8 +1155,9 @@ scm-backup-rsync(){
        echo $msg starting transfer to tag $tag at $starttime
        echo $msg transfer $source to $tag:$remote/ 
 
-       local essh=$(scm-backup-essh $tag) 
-       local cmd="time rsync $essh --delete-after --stats -razvt $source $tag:$remote/ $(scm-backup-rsync-opts) "
+       local essh=$(scm-backup-essh $tag)
+       local opts=$(scm-backup-rsync-opts $tag)
+       local cmd="time rsync $essh --delete-after --stats -razvt $source $tag:$remote/ $opts  "
        echo $msg $cmd
        eval $cmd
 
@@ -1664,10 +1676,21 @@ scm-backup-df(){
 
 }
 
-scm-backup-monitor(){
+scm-backup-monitor-(){
+   local msg="=== $FUNCNAME :"
+   local hub=${1:-C2}
+   shift 
    local iwd=$PWD
    cd $(env-home)/scm 
-   # the role specifies hub nodes, such as C2 from where the tarballs emanate  
-   fab -R C2 scm_backup_monitor
+   # the role specifies the hub nodes, such as C2 from where the tarballs emanate  
+   local cmd="fab -R $hub scm_backup_monitor "
+   echo $msg $cmd
+   eval $cmd 
    cd $iwd
 }
+
+scm-backup-monitor(){  scm-backup-monitor- C2 ; }
+scm-backup-monitorw(){ scm-backup-monitor- G ; }
+
+
+

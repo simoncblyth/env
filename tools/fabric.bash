@@ -7,9 +7,14 @@ fabric-usage(){ cat << EOU
 
 
 
+  FABRIC
+  ======
+
+
   http://docs.fabfile.org/en/1.4.2/index.html
   http://awaseroot.wordpress.com/2012/04/25/fabric-tutorial-2-file-transfer-error-handling/
   pip-2.5 search fabric
+
 
 
   fabric and non-standard ports
@@ -83,12 +88,10 @@ fabric-usage(){ cat << EOU
           macports fabric is old  py25-fabric @0.1.1 (python)  
 	  get 1.4.2 via  pip-2.5
 
-
           surprised where the fab went 
 	       ll  /opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/fab
 
           rather than cope with side-effects from PATH changes, 
-
 
 	  simon:~ blyth$ sudo pip-2.5 install Fabric
 
@@ -126,7 +129,8 @@ Installing collected packages: Fabric, ssh, pycrypto
 EOU
 }
 fabric-dir(){ echo $(local-base)/env/tools/tools-fabric ; }
-fabric-cd(){  cd $(fabric-dir); }
+fabric-cd(){  cd $(fabric-dir) ;  }
+fabric-scd(){  cd $(python-site)/fabric ;  }
 fabric-mate(){ mate $(fabric-dir) ; }
 fabric-get(){
    local dir=$(dirname $(fabric-dir)) &&  mkdir -p $dir && cd $dir
