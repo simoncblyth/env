@@ -8,6 +8,10 @@ export GRAXML_HOME=$GRAXML_FOLDER/GraXML
 alias graxml="$GRAXML_FOLDER/GraXML/bin/GraXML.sh" 
 alias graxmlconvertor="$GRAXML_FOLDER/GraXML/bin/GraXMLConvertor.sh" 
 
+graxml-usage(){ cat << EOU
+
+EOU
+}
 
 #
 #  .gdml issues... 

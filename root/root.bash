@@ -242,7 +242,7 @@ root-test-gl(){  root-test-tute $ROOTSYS/tutorials/gl  $* ; }
 
 
 
-root-usage-deprecated(){ cat << EOU
+root-usage-deprecated(){ cat << EOX
 
     After changing the root version you will need to run :
         cmt-gensitereq
@@ -259,7 +259,7 @@ root-usage-deprecated(){ cat << EOU
    Changing root version will require rebuilding libs that are 
    linked against the old root version, that includes dynamically created libs
 
-EOU
+EOX
 }
 
 

@@ -2,6 +2,11 @@
 
 alias p-openmotif="scp $HOME/.bash_openmotif P:"
 
+openmotif-usage(){ cat << EOU
+
+EOU
+}
+
 ###### G4 override , as darwinports motif incompatible with Coin3d SoXt
 
 XM_NAME=openMotif-2.2.3

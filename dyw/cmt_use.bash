@@ -1,6 +1,11 @@
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/cmt_use.bash
 
+cmt_use_usage(){ cat << EOU
+
 ##  SUDO removed ... set in base/local.bash
+
+EOU
+}
 
 CMT_FOLDER=$LOCAL_BASE/cmt
 if ([ "$NODE_TAG" == "G" ]); then

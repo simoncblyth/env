@@ -4,6 +4,10 @@ pexpect-env(){
   local msg="=== $FUNCNAME :"
 }
 
+pexpect-usage(){ cat << EOU
+
+EOU
+}
 
 pexpect-get(){
 

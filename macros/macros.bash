@@ -1,4 +1,7 @@
+macros-usage(){ cat << EOU
 
+EOU
+}
 
 
 macros-gui(){

@@ -436,7 +436,7 @@ mysql-admin(){
 }
 
 mysql-notes(){
-  cat << EOU
+  cat << EON
 
     Installed 4.1.22 with yum $(env-wikiurl)/MySQL onto C2
         http://dev.mysql.com/doc/refman/4.1/en/
@@ -472,7 +472,8 @@ drwx------  2 mysql mysql     4096 Mar 27 14:10 mysql
 srwxrwxrwx  1 mysql mysql        0 Mar 27 14:10 mysql.sock
 drwx------  2 mysql mysql     4096 Mar 27 14:10 test
 [blyth@cms02 ~]$ 
-EOU
+
+EON
 
 }
 

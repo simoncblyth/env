@@ -1,24 +1,28 @@
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/coin3d.bash
 
+coind3d-usage(){ cat << EOU
 
-##
-##   
-##   coin3d is an open source OpenInventor like implementation from SIM (Systems in Motion )
-##   it together with the soxt glue allows X11 based programs to have the nice
-##   OpenInventor 3D GUI
-##
-##  src and build positions between Darwin and AMD64 have diverged
-##  but the install location is the same 
-##
-##    usage :
-##          G> p-coin       ( transfer this script )
-##          P> ini          ( pickup modified functions/env )
-##
-##          P> coin-get
-##          P> coin-configure
-##          P> coin-build
-##
-##
+   
+coin3d is an open source OpenInventor like implementation from SIM (Systems in Motion )
+it together with the soxt glue allows X11 based programs to have the nice
+OpenInventor 3D GUI
+
+src and build positions between Darwin and AMD64 have diverged
+but the install location is the same 
+
+usage::
+
+          G> p-coin       ( transfer this script )
+          P> ini          ( pickup modified functions/env )
+
+          P> coin-get
+          P> coin-configure
+	  P> coin-build
+  
+EOU  
+}
+
+
 
 COIN_NAME=Coin-2.4.5
 

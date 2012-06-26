@@ -39,6 +39,7 @@ Contents:
    SCM <scm/index>
    Python <python/index>
    ROOT <root/index>
+   ENV <docs/env>
 
 Indices and tables
 ==================

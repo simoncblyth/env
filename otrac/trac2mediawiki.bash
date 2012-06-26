@@ -1,4 +1,8 @@
 
+trac2mediawiki-usage(){ cat << EOU
+
+EOU
+}
 
 trac2mediawiki-get(){
 

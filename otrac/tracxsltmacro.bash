@@ -1,4 +1,8 @@
 
+tracxsltmacro-usage(){ cat << EOU
+
+EOU
+}
 
 tracxsltmacro-get(){
 

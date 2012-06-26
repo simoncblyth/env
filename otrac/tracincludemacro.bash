@@ -1,7 +1,13 @@
-tracincludemacro-get(){
+tracincludemacro-usage(){ cat << EOU
 
    #  documented at 
    #  http://trac-hacks.org/wiki/IncludeMacro
+
+EOU
+}
+
+tracincludemacro-get(){
+
 
    cd $LOCAL_BASE/trac
    [ -d "plugins" ] || mkdir -p plugins

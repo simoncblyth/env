@@ -1,5 +1,9 @@
 
 
+trac-plugin-restrictedarea-usage(){  cat << EOU
+
+EOU
+}
 
 trac-plugin-restrictedarea-install(){
 

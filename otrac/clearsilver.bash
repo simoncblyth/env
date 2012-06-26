@@ -155,7 +155,9 @@ clearsilver(){
 
 }
 
-
+clearsilver-usage(){ cat << EOU
+EOU
+}
 
 
 clearsilver-patch(){

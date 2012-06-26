@@ -36,7 +36,10 @@ dyw-env(){
 }
 
 
+dyw-usage(){ cat << EOU
 
+EOU
+}
 
 
 

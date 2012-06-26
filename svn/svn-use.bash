@@ -1,4 +1,7 @@
+svn-use-usage(){ cat << EOU
 
+EOU
+}
 
 svn-use-env(){
 

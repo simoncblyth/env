@@ -1,6 +1,7 @@
 
 alias p-dayabay-extra="scp $HOME/.bash_dayabay_extra P:"
 
+extra-usage(){ cat << EOU
 #
 #   usage 
 #
@@ -21,6 +22,8 @@ alias p-dayabay-extra="scp $HOME/.bash_dayabay_extra P:"
 #
 #
 #
+EOU
+}
 
 
 export EXTRA_NAME=G4dybViz

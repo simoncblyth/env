@@ -1,5 +1,9 @@
 
 
+dyw-rootcint-kludge-usage(){ cat << EOU
+
+EOU
+}
 
 dyw-rootcint-kludge(){
 

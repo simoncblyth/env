@@ -1,4 +1,5 @@
 
+trac-macro-latexformulamacro-usage(){ cat << EOU
 #
 #     http://trac-hacks.org/wiki/LatexFormulaMacro 
 #  allows writing latex formulas in wiki text, that get converted to images 
@@ -10,6 +11,10 @@
 #    3) sudo -u $APACHE2_USER $ENV_HOME/scm/trac-macro-latexformulamacro.sh env
 #
 #
+EOU
+}
+
+
 
 trac-macro-latexformulamacro-get(){
  

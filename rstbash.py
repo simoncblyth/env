@@ -4,11 +4,11 @@ from env.sphinxext.bashrst import bashrst
 
 
 class BashRst(object): 
-    def __init__(self, srcdir=None, gendir=None, suffix=".bash"):
+    def __init__(self, srcdir=None, gendir=None, suffix=".bash", outdir="docs" ):
         if not srcdir:
             srcdir = os.getcwd()
         if not gendir: 
-            gendir = os.path.join(srcdir, "_bashrst" )
+            gendir = os.path.join(srcdir, outdir )
         if not os.path.isdir(gendir):
    	    os.makedirs(gendir)   
 	pass    
@@ -34,6 +34,6 @@ class BashRst(object):
 
 if __name__ == '__main__':
  
-    br = BashRst()
+    br = BashRst(suffix=".bash",outdir="docs")
     br.walk()
 

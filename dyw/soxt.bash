@@ -1,21 +1,25 @@
 alias p-soxt="scp $HOME/.bash_soxt P:"
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/soxt.bash
-##
-##    This provides the glue between coin3d , openmotif and X11
-##    allowing OpenInventor style 3D GUI to be used from X11 apps
-##
-##    Usage:
-##            G> p-soxt
-## 
-##            P> ini
-##            P> soxt-get
-##            P> soxt-configure
-##            P> soxt-edit-libtool
-##            P> soxt-install
-##
-##
+
+soxt-usage(){ cat << EOU
 
 
+This provides the glue between coin3d , openmotif and X11
+allowing OpenInventor style 3D GUI to be used from X11 apps
+
+Usage::
+
+	G> p-soxt
+	P> ini
+	P> soxt-get
+	P> soxt-configure
+	P> soxt-edit-libtool
+	P> soxt-install
+
+
+
+EOU
+}
 
 soxt-env(){
 

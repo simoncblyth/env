@@ -1,4 +1,6 @@
 
+svn-learn-usage(){ cat << EOU
+
 #
 #   svn-learn-create-repo
 #   svn-learn-create
@@ -6,7 +8,8 @@
 #
 #
 
-
+EOU
+}
 
 
 #

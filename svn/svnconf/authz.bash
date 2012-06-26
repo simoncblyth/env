@@ -2,6 +2,10 @@ authz-env(){    elocal- ; }
 authz-src(){    echo svn/svnconf/authz.bash ; }
 authz-source(){ echo ${BASH_SOURCE:-$(env-home)/$(authz-src)} ; }
 authz-vi(){     vi $(authz-source) ; }
+authz-usage(){ cat << EOU
+
+EOU
+}
 authz(){
 
   local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui, wunsyonghe, cjchen"

@@ -17,6 +17,11 @@ export GDML_XSD=$GDML_HOME/GDMLSchema/gdml.xsd
 #export DYLD_LIBRARY_PATH=${GDML_LIB}/dylib:$DYLD_LIBRARY_PATH 
 
 
+gdml-usage(){ cat << EOU
+
+EOU
+}
+
 gdml-build(){
 
   #  initially fails because $G4INCLUDE directory is not filled with headers

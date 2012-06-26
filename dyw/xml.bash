@@ -1,4 +1,4 @@
-#
+xml-usage(){ cat << EOU
 #
 #   Utilities for xml logging 
 #
@@ -13,10 +13,10 @@
 #   xml-env-element
 #   xml-ldd-element
 #   xml-llp-element
-#
-#
-#
-#
+
+EOU
+}
+
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/xml.bash
 
 xml-x(){ scp $HOME/$DYW_BASE/xml.bash ${1:-$TARGET_TAG}:$DYW_BASE; }

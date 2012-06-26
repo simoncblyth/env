@@ -1,5 +1,8 @@
 
+otrac-usage(){ cat << EOU
 
+EOU
+}
  ## DEPRECATED THIS IS BEING MIGRATED TO trac/trac.bash 
 
 

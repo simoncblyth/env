@@ -20,6 +20,12 @@ else
    export   LD_LIBRARY_PATH=$XERCESCROOT/lib:$LD_LIBRARY_PATH
 fi
 
+xercesc-usage(){ cat << EOU
+
+EOU
+}
+
+
 xercesc-get(){
 
   n=$XERCESC_NAME

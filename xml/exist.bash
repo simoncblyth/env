@@ -104,6 +104,12 @@
 #
 
 
+exist-usage(){ cat << EOU
+
+EOU
+}
+
+
 exist-env(){
 
 EXIST_NIK=exist

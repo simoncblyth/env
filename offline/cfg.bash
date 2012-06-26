@@ -1,4 +1,5 @@
-#
+
+cfg-usage(){ cat << EOU
 #
 #   http://ajdiaz.wordpress.com/2008/02/09/bash-ini-parser/
 #
@@ -7,6 +8,9 @@
 #          CFGDBG=1 . cfg.bash
 #
 #
+EOU
+}
+
 
 cfg.parser () {
     local IFS=$'\n' && ini=( $(<$1) )        # convert to line-array

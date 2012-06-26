@@ -1,24 +1,34 @@
 
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/clhep.bash
 
+clhep-usage(){ cat << EOU
 
-##
-##  NB compiling clhep is compulsory for G4dyb , as CMT gets the CLHEP info
-##      from the clhep-config script , 
-##
-##   Usage 
-##           G> p-clhep
-##
-##           P> ini  
-##           P> clhep-get
-##           P> clhep-configure
-##           P> clhep-build
-##
-## version 1.9.2.3 recommended for Geant4 8.1
-## version 2.0.3.1 recommended for Geant4 8.2
-## NB changing the clhep version means recompiling VGM, G4, ... etc
-##
-##
+CLHEP
+======
+
+NB compiling clhep is compulsory for G4dyb , as CMT gets the CLHEP info
+from the clhep-config script , 
+
+Usage::
+    
+   G> p-clhep
+
+   P> ini  
+   P> clhep-get
+   P> clhep-configure
+   P> clhep-build
+
+version 1.9.2.3 recommended for Geant4 8.1
+version 2.0.3.1 recommended for Geant4 8.2
+NB changing the clhep version means recompiling VGM, G4, ... etc
+
+
+EOU
+}
+
+
+
+
 #CLHEP_VERS="1.9.2.3"   
 CLHEP_VERS="2.0.3.1" 
 CLHEP_NAME=clhep-$CLHEP_VERS

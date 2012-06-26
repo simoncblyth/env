@@ -5,19 +5,23 @@
 
 cmt-x(){ scp $HOME/$DYW_BASE/cmt.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 
-##
-##   usage example
-##
-##        G>  x-cmt         ( transfer just this file to TARGET_TAG node ) 
-##        G>  x-cmt P       ( transfer just this file to node P  ) 
-##
-##        P>  ini           ( pick up the modified environment on target node )
-##
-##        P>  cmt-use-info  ( list CMT env vars )
-##        P>  cmt-get       ( gets the CMT distro and unpacks )
-##        P>  cmt-setup     ( compiles CMT )
-##       
-##
+
+cmt-usage(){ cat << EOU
+
+usage example::
+
+   G>  x-cmt         ( transfer just this file to TARGET_TAG node ) 
+   G>  x-cmt P       ( transfer just this file to node P  ) 
+
+   P>  ini           ( pick up the modified environment on target node )
+
+   P>  cmt-use-info  ( list CMT env vars )
+   P>  cmt-get       ( gets the CMT distro and unpacks )
+   P>  cmt-setup     ( compiles CMT )
+
+EOU
+}
+
 
 
 

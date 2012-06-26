@@ -2,6 +2,12 @@
 condor-test-x(){ scp $HOME/$DYW_BASE/condor_test.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 condor-test-i(){ .   $HOME/$DYW_BASE/condor_test.bash ; }
 
+
+condor-test-usage(){ cat << EOU
+
+EOU
+}
+
 x-cmd-test(){
 
   ## OK	

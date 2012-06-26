@@ -2,7 +2,7 @@
 condor-use-x(){ scp $HOME/$DYW_BASE/condor_use.bash ${1:-$TARGET_TAG}:$DYW_BASE ; }
 condor-use-i(){ .   $HOME/$DYW_BASE/condor_use.bash ; }
 
-#
+condor-use-usage(){ cat << EOU
 #
 #    condor-use-submit
 #       condor-use-script
@@ -53,6 +53,10 @@ condor-use-i(){ .   $HOME/$DYW_BASE/condor_use.bash ; }
 #   use the "ID" given by condor_q to remove jobs
 #   condor_rm ID
 #
+
+EOU
+}
+
 
 
 condor-use-lookup(){

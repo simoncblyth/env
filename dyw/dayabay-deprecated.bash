@@ -1,4 +1,9 @@
 
+dayabay-deprecated-usage(){ cat << EOU
+EOU
+}
+
+
 ############## To setup the DayaBay utility bash scripts : ################
 #  
 #    Follow instructions in .bash_dyw to prepare the prerequisite exvironment

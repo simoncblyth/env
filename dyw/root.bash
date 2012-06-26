@@ -1,7 +1,7 @@
 root-vi(){ vi $BASH_SOURCE ; }
 root-info(){
 
-  cat << EOI
+  cat << EOU
 
    root-mode     : $(root-mode $*)
       if not "binary" source is assumed
@@ -52,7 +52,7 @@ root-info(){
 
 
 
-EOI
+EOU
 
 }
 

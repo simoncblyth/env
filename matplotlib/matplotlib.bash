@@ -166,7 +166,7 @@ function showValue(newValue)
 EOU
 }
 
-matplotlib-issues(){ cat << EOU
+matplotlib-issues(){ cat << EOI
 
   == ISSUE : pip install matplotlib ... plucks 0.91.1 (from 2007) ==
 
@@ -364,7 +364,7 @@ ImportError: No module named ma
 
 
 
-EOU
+EOI
 }
 
 matplotlib-name(){

@@ -71,7 +71,6 @@ sent 'Third message to send' to 224.0.0.112346
 sent 'Fourth message to send' to 224.0.0.112346
 sendSocket closed
 Command: build/default/node /data1/env/local/env/nodejs/build/node/test/simple/test-dgram-multicast.js
---- TIMEOUT ---
 [01:19|% 100|+ 132|-   2]: Done                                       
 make: *** [test] Error 1
 }}}
@@ -99,7 +98,6 @@ sent 'Third message to send' to 224.0.0.112346
 sent 'Fourth message to send' to 224.0.0.112346
 sendSocket closed
 Command: build/default/node /data1/env/local/env/nodejs/build/node/test/simple/test-dgram-multicast.js
---- TIMEOUT ---
 [01:19|% 100|+ 126|-   1]: Done                                       
 make: *** [test] Error 1
 }}}

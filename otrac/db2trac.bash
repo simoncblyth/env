@@ -1,4 +1,7 @@
+db2trac-usage(){ cat << EOU
 
+EOU
+}
 
 db2trac-dir(){
 

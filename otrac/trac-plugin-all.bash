@@ -1,4 +1,8 @@
 
+trac-plugin-all-usage(){ cat << EOU
+
+EOU
+}
 
 trac-plugin-all-enable(){
 

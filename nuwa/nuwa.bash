@@ -2,7 +2,7 @@ nuwa-src(){    echo nuwa/nuwa.bash ; }
 nuwa-source(){ echo ${BASH_SOURCE:-$(env-home)/$(nuwa-src)} ; }
 nuwa-vi(){     vi $(nuwa-source) ; }
 nuwa-utils(){
-  cat << EOU
+  cat << EOX
 
        nuwa-genpkgdir 
            generate the nuwa-pkgdir function based on the output of "cmt show packages"
@@ -42,7 +42,7 @@ nuwa-utils(){
 
 
 
-EOU
+EOX
 
 
 

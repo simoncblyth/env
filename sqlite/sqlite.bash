@@ -36,7 +36,7 @@ EOU
 
 sqlite-notes(){
 
-   cat << EOU
+   cat << EON
    
    prerequisites to trac 
       SQLite, version 3.3.4 and above preferred.
@@ -44,7 +44,7 @@ sqlite-notes(){
 
      i believe pysqlite is included in python 2.5
 
-EOU
+EON
 
 
 }

@@ -21,7 +21,7 @@ export PATH=$DAWN_HOME:$PATH
 #setenv DAWN_BFC_MODE 0/1 (Backface-culling mode off/on) 
 #setenv DAWN_USE_STENCIL 0/1 (Skip/do drawing edges in OpenGL mode) 
 						  
-
+dawn-usage(){ cat << EOU
 
 ## cannot control the filename... g4_00.prim (or incremented if preexisting) 
 ## but can control the output directory  
@@ -29,6 +29,10 @@ export PATH=$DAWN_HOME:$PATH
 ## export G4DAWNFILE_DEST_DIR="/tmp/"   ## dawn needs trailing slash
 ## do not sully the normal environment with this ...
 ## set this as its needed
+
+EOU
+}
+
 
 
 dawn-get(){

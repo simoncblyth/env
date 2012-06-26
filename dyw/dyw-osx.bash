@@ -1,4 +1,7 @@
+dyw-osx-usage(){ cat << EOU
 
+EOU
+}
 
 dyw-osx-xcconfig(){
 

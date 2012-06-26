@@ -1,3 +1,8 @@
+dbi-usage(){ cat << EOU
+
+EOU
+}
+
 dbi-get(){
 
  #

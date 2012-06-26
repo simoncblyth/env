@@ -1,4 +1,8 @@
 
+trachttpauth-usage(){ cat << EOU
+
+EOU
+}
 
 trachttpauth-get(){
 

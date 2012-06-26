@@ -1,10 +1,13 @@
-
+trac-wiki-usage(){ cat << EOU
 #
 #  backup and restore of wiki pages via xmlrpc 
 #
 #    issues :
 #         somehow getting permission error ... the log/trac.log becomes owned by root UNCONFIRMED 
 #
+EOU
+}
+
 
 trac-wiki-backup(){
   

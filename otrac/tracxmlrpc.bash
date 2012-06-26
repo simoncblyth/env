@@ -9,6 +9,10 @@
 #             -open
 #
 
+tracxmlrpc-usage(){ cat << EOU
+
+EOU
+}
 
 tracxmlrpc-test(){
 

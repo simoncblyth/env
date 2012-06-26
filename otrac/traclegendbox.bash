@@ -1,7 +1,12 @@
+traclegendbox-usage(){ cat << EOU
+   
+# http://trac.edgewall.org/wiki/ProcessorBazaar
+
+EOU
+}
 
 traclegendbox-get(){
 
-   # http://trac.edgewall.org/wiki/ProcessorBazaar
 
    local macro=legendbox 
    local name=LegendBox-0.10.py 

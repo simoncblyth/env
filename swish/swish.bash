@@ -31,7 +31,7 @@ EOU
 
 swish-notes(){
 
-   cat << EOU
+   cat << EON
    
        Swish-e is a fast, flexible, and free open source system for indexing collections of Web pages or other files. 
    Swish-e is ideally suited for collections of a million documents or smaller. Using the GNOME? libxml2 parser and 
@@ -43,7 +43,7 @@ swish-notes(){
 
    Swish-e is descended from the original web indexing program SWISH by WWW Hall of Famer Kevin Hughes.
 
-EOU
+EON
 
 
 }

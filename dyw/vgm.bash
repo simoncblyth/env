@@ -1,5 +1,13 @@
 alias p-vgm="scp $HOME/.bash_vgm P:"
 [ "$DYW_DBG" == "1" ] && echo $DYW_BASE/vgm.bash
+
+
+vgm-usage(){ cat << EOU
+
+
+EOU
+}
+
 ##
 ## VGM Virtual Geometry Model ...
 ##     provides conversions between:

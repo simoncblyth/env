@@ -1,5 +1,10 @@
 
 
+trac-plugin-accountmanager-usage(){ cat << EOU
+
+EOU
+}
+
 trac-plugin-accountmanager-get-and-install(){
 
    easy_install -Z http://trac-hacks.org/svn/accountmanagerplugin/0.10

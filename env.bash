@@ -1,55 +1,67 @@
 [ -e ~/env.local.bash ] && . ~/env.local.bash 
 
-env-docs(){
-   cd $(env-home)/docs
-   make 
-}
-
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-log(){ vi $(${FUNCNAME}path) ; }
 
 
 env-usage(){ cat << EOU
-#
-#     type name        list a function definition 
-#     set               list all functions
-#     unset -f name     to remove a function
-#     typeset -F        lists just the names
-#
-#  http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
-#  http://www-128.ibm.com/developerworks/library/l-bash-test.html
-#
-#
+
+===================
+ENV BASH FUNCTIONS
+===================
 
 
-     ff(){ local a="hello" ; local ; }   list locals 
+Bash function reminders
+------------------------
 
-     env-dbg
-           invoke with bash rather than . when debugging to see 
-           line numbers of errors, CAUTION error reporting can be a line off
+type name        
+    list a function definition 
+set               
+    list all functions
+unset -f name     
+    remove a function
+typeset -F        
+    lists just the names
+local 
+    from inside a function lists the locals, eg::
+    
+        ff(){ local a="hello" ; local b="world" ; local ; }  
+	ff
 
-     env-rsync        top-level-fold <target-node>
-           propagate a top-level-folder without svn, caution can
-           leave SVN wc state awry ... usually easiest to delete working
-           copy and "svn up" when want to come clean and go back to SVN
+
+* http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
+* http://www-128.ibm.com/developerworks/library/l-bash-test.html
+
+env functions
+---------------
+
+env-dbg
+     invoke with bash rather than . when debugging to see 
+     line numbers of errors, CAUTION error reporting can be a line off
+
+env-rsync top-level-fold <target-node>
+     propagate a top-level-folder without svn, caution can
+     leave SVN wc state awry ... usually easiest to delete working
+     copy and "svn up" when want to come clean and go back to SVN
      
-     env-rsync-all    <target-node>
-           rsync env working copy excluding .svn etc..
-	   to a list of remote nodes specified by ssh node tag 
+env-rsync-all    <target-node>
+     rsync env working copy excluding .svn etc..
+     to a list of remote nodes specified by ssh node tag 
 
-     env-again
-           delete working copy and checkout again 
-     env-u
-           update the working copy ... aliased to "eu" 
+env-again
+     delete working copy and checkout again 
+
+env-u
+     update the working copy, aliased to "eu" 
           
 
+absorbing an exported env working copy 
+-----------------------------------------
 
+Useful following server downtime::
 
-   BRINGING EXPORTED env BACK INTO SVN FOLD (eg following server downtime)
-
-
-[blyth@cms02 ~]$ diff -r --brief env env.keep | grep -v .svn | grep differ | perl -p -e 's,Files (\S*) and (\S*) differ,cp $2 $1, ' -
+     [blyth@cms02 ~]$ diff -r --brief env env.keep | grep -v .svn | grep differ | perl -p -e 's,Files (\S*) and (\S*) differ,cp $2 $1, ' -
 
 
 
@@ -77,6 +89,12 @@ env-export(){
    mkdir -p $(dirname $dir)
    svn export $(env-home) $dir
 }
+
+env-docs(){
+   cd $(env-home)
+   python rstbash.py
+}
+
 
 env-mode(){   echo dbg ; }
 env-modedir(){  echo $(env-home)/scons-out/$(env-mode) ; }

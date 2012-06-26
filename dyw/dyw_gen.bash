@@ -29,7 +29,10 @@
 #            src/dywGenerator2.cc
 #
 
+gen-usage(){ cat << EOU
 
+EOU
+}
 
 gen-lookup(){
    local generator=${1:-inversebeta}

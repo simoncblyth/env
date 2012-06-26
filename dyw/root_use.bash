@@ -1,4 +1,7 @@
+root-use-usage(){ cat << EOU
 
+EOU
+}
 
 root-use-conf(){
 

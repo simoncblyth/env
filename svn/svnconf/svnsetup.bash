@@ -347,7 +347,7 @@ svnsetup-setup-(){
   local msg="=== $FUNCNAME : "
   local dir=$(svn-setupdir)
 
-cat << EOU 
+cat << EOS 
 #
 #  $msg $BASH_SOURCE $(date)
 #
@@ -357,7 +357,7 @@ Include $dir/repos.conf
 Include $dir/svn.conf
 Include $dir/tracs.conf
 
-EOU
+EOS
 
 
 }
