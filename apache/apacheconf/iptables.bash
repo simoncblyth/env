@@ -118,6 +118,15 @@ iptables-list(){
    eval $cmd
 }
 
+iptables-undrop-ip(){
+   local msg="=== $FUNCNAME :"
+   local ip=$1
+   local cmd="sudo /sbin/iptables -D INPUT -s $ip -j DROP"
+   echo $msg $cmd
+   eval $cmd
+}
+
+
 iptables-webopen(){
    local msg="=== $FUNCNAME :"
    local name=$(iptables-name)

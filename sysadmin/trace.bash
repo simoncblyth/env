@@ -36,7 +36,7 @@ trace-opts(){
    esac
 }
 trace(){
-   local msg=
+   local msg="== $FUNCNAME :"
    local host=$(trace-host) 
    local opts=$(trace-opts $host)
    local target=$(trace-target $host)
@@ -44,5 +44,9 @@ trace(){
    for opt in $opts ; do
       [ "$opt" == "-" ] && opt="" 	    
       local cmd="traceroute $opt $target"
+      echo $msg $cmd : $(date)
+      eval $cmd
    done	   
 }
+
+

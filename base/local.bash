@@ -259,7 +259,7 @@ local-tag2ip(){
 
 local-port-sshd(){
    case ${1:-$NODE_TAG} in
-       C) echo 1234 ;;
+       C) echo 22 ;;
       Z9) echo 229 ;;
      SDU) echo 22 ;;
        *) echo 22 ;;
