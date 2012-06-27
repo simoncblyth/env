@@ -65,6 +65,7 @@ env.use_ssh_config = True
 
 env.roledefs = {
    'C2':"C H1".split(),
+  'C2R':"C H1".split(),
    'G':"Z9:229".split(),
 }
 
