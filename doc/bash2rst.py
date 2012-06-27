@@ -1,62 +1,185 @@
 #!/usr/bin/env python
 """
-TODO:
-
-* relative path handling needs fixin	
-
 """
 from __future__ import with_statement
 import os, logging
 log = logging.getLogger(__name__)
-from env.sphinxext.bashrst import bashrst 
+
+def bashtoc( content ):
+    """
+    :param content:  the documentation content
+    :return: list of relative paths extracted from single toctree
+
+    Find the toctree and collect the paths::
+
+        [0  ] .. toctree:: 
+	[0  ]  
+	[1  ]     python/python 
+	[2  ]     python/python 
+	[-1 ]  
+
+    TODO:
+
+    #. generalize to support the titled form of toctree referencing
+
+    """
+    count = -1
+    paths = []
+    for line in content.split("\n"):
+        if line.startswith(".. toctree::"):
+	    count = 0
+        elif len(line) == 0:   # blank line
+	    if count == 0:     # immediately following the toctree
+		pass    
+	    else:              # terminating blank 
+		count = -1         
+        else:
+	    if count > -1:	
+                count += 1		 
+        pass
+        if count > 0:
+            path = line.strip().rstrip()
+	    paths.append(path)
+        else:
+	    path = ""	
+
+        #print "[%-3s] %s [%s]" % ( count, line, path )
+        pass
+    return paths
 
 
-class BashRst(object): 
-    def __init__(self, srcdir=None, gendir=None, suffix=None, outdir=None ):
-        if not srcdir:srcdir = os.getcwd()
-	if not outdir:outdir = "_docs"
-        if not gendir:gendir = os.path.join(srcdir, outdir )
-        if not suffix:suffix = ".bash"	
-        if not os.path.isdir(gendir):
-   	    os.makedirs(gendir)   
-	pass    
-        self.srcdir = srcdir
-        self.gendir = gendir
-	self.suffix = suffix
+class Bash(list):
+    """
+    Problems:
 
-    def allwalk(self):
+    #. backticks as needed for rst referencing have special meaning for bash
+   
+       #. maybe by un-shell-escaping here   
+       #. could run the bash function, in order to fill out vars 
+       #. just live with it, almost never actually use fn-usage anyhow typically use fn-vi
+
+    The docs are organized such that a repeated name implicitly indicates an "index" eg "tools/tools.bash" 
+    references "tools/sleepwatcher.bash" and plays the role of index.
+    This is not acted upon, perhaps it could and result in generation of "tools/index" ? Which would
+    avoid the extra level in the resultant URLs
+
+    """
+    def __init__(self, path ):
 	"""
-	Walking all .bash (not currently used)
+	:param path: to bash function file
 	"""
-        for dirpath, dirs, names in os.walk(self.srcdir):
-            rdir = dirpath[len(self.srcdir)+1:]
-            for name in names:
-                root, ext = os.path.splitext(name)
-                if not ext == self.suffix: 
-                    continue
-                path = os.path.join(dirpath, name)
-                conv = bashrst(path, self.srcdir, delim="EOU", gbase=self.gendir, kids=False )
-                print conv
+        log.info("path %s " % path )
 
-    def walk(self, path):
-	"""
-	:param path: to root bash file eg ``env.bash``
+        apath = os.path.abspath(path)
+        rdir = os.path.dirname(apath)
+        root = os.getcwd()
+        rpath = apath[len(root)+1:]
+        rname, type = os.path.splitext( rpath )
+        assert type == ".bash", (type, path )
+        content = self._rst_read(apath)
+        paths = bashtoc(content)
 
-	Only files linked via toctree are walked
+	self.root = root
+        gpath = self._genpath( rname )
+
+	self.path = path
+	self.rdir = rdir
+        self.apath = apath
+        self.rpath = rpath         # relative to root, ie cwd
+        self.gpath = gpath
+	self.content = content
+        self.extend( paths ) 
+
+    def _genpath(self, rname ):
 	"""
-	apath = os.path.abspath(path)
-	log.info("path %s apath %s " % (path,apath) )
-	adir = os.path.dirname(apath)
-        conv, paths = bashrst(path, adir, delim="EOU", gbase=self.gendir, kids=True )
-        for p in paths:
-	    ppath = os.path.join( adir, p )	
-            self.walk( ppath + ".bash" )		
-        
+	:param rname: root relative name
+	:return: generated absolute rst path, with index swap-ins
+	"""
+        iname = self.place_index(rname)
+        return os.path.join( self.root, "_docs" , iname + ".rst" )
+
+    def remove_index(self, rname):
+	"""
+	Replace a toctree reference to an index like "mobkp/index" with 
+	the bash function argot of "mobkp/mobkp"
+
+	Actually need to write the index
+	"""
+        parts = rname.split("/")
+        if len(parts)>1:
+            if parts[-1] == "index":
+		parts[-1] = parts[-2]    
+        return "/".join(parts)
+
+    def place_index(self, rname):
+	"""
+	Looking for names like::
+
+	   green/red/red
+
+        where the last 2 leaves are the same, implying index behavior return green/red/index
+	"""
+        parts = rname.split("/")
+	if len(parts) > 1: 
+	    if parts[-2] == parts[-1]:
+		parts[-1] = "index"    
+        return "/".join(parts)
+
+
+    def _rst_read(self, path, delim="EOU"):
+        """	
+        Extract rst documentation from the bash function file
+
+        :return: extracted content as a single string 
+        """
+        with open(path,"r") as fp:
+            content = fp.read()
+        bits = content.split(delim)
+        assert len(bits) == 3, "expect 3 bits delimited by %s in %s not %s " % ( delim, path, len(bits)) 
+        return bits[1]
+
+    def write_rst(self):
+        """
+        Write the content to the supplied path 
+        """
+	gpath = self.gpath
+        gdir = os.path.dirname(gpath)
+        if not os.path.exists(gdir):
+            os.makedirs(gdir)
+	log.info("writing %s " % gpath )    
+        with open(gpath,"w") as fp:
+            fp.write(self.content)
+        return gpath
+
+    def Walk(cls, path):
+	"""
+	Recursive conversion of a tree of bash function usage strings
+	into a tree of Sphinx rst documentation files. Where the linkage
+	is defined by toctree directives within the usage content.
+	NB only files linked via toctree are walked
+
+	:param path: to bash file eg ``env.bash``
+	"""
+	parent = cls(path)
+	parent.write_rst()
+	log.debug("paths %s " % (repr(parent)) )
+        for child in parent:
+	    a = os.path.join( parent.rdir, child )	
+	    log.debug("child %s a %s " % (child, a) )
+
+            parts = a.split("/")
+	    if len(parts) > 1:
+		if parts[-1] == "index":
+	             parts[-1] = parts[-2]		
+	    aa = "/".join(parts)	    
+
+            cls.Walk( aa + ".bash" )		
+    Walk = classmethod(Walk)
+
+
 
 def main(root):
-    br = BashRst()
-    br.walk(root)
-
+    Bash.Walk(root)
 
 if __name__ == '__main__':
     main("env.bash")

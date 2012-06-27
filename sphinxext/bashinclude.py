@@ -2,7 +2,8 @@ import os
 
 from docutils.parsers.rst import Directive, directives
 from docutils.parsers.rst.directives.misc import Include as BaseInclude
-from bashrst import bashrst
+
+from env.doc.bash2rst import Bash
 
 class BashInclude(BaseInclude):
     """
@@ -12,7 +13,9 @@ class BashInclude(BaseInclude):
     def run(self):
        	env = self.state.document.settings.env
 	rel_filename, filename = env.relfn2path(self.arguments[0])
-	self.arguments[0] = bashrst(filename, os.getcwd() )
+        b = Bash(filename)
+        gpath = b.write_rst()
+	self.arguments[0] = gpath
 	return BaseInclude.run(self)
 
 
