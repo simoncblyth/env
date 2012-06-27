@@ -64,6 +64,15 @@ Useful following server downtime::
      [blyth@cms02 ~]$ diff -r --brief env env.keep | grep -v .svn | grep differ | perl -p -e 's,Files (\S*) and (\S*) differ,cp $2 $1, ' -
 
 
+toctree hookup
+---------------
+
+When referring to implicit indices such as "python/python.bash" or "tools/tools.bash" use the 
+form "python/index". The bash2rst tool does the appropriate path swapping to generated a
+cleaner output tree without repeated levels.
+
+.. warning:: this could be confusing when using manual index.rst together with auto generated *_docs* 
+
 
 ======
 FUNCS
@@ -71,7 +80,7 @@ FUNCS
 
 .. toctree::
 
-    python/python
+    python/index
 
 
 

@@ -29,7 +29,7 @@ within the bash functions themselves. For example:
 
 Contents:
 
-.. bashtoctree::
+.. toctree::
    :maxdepth: 3
 
    TODO <TODO>

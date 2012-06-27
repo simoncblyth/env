@@ -13,7 +13,7 @@ sysadmin + Trac/SVN repository server
 env
 ----
 
-* http://dayabay.phys.ntu.edu.tw/edocs/
+* http://dayabay.phys.ntu.edu.tw/e/
 * http://dayabay.phys.ntu.edu.tw/tracs/env/timeline
 * http://dayabay.phys.ntu.edu.tw/tracs/env
 * http://dayabay.phys.ntu.edu.tw/repos/env/trunk
@@ -32,7 +32,7 @@ hfag b2charm
 heprez
 -------
 
-* http://dayabay.phys.ntu.edu.tw/hdocs/
+* http://dayabay.phys.ntu.edu.tw/h/
 * http://dayabay.phys.ntu.edu.tw/tracs/heprez/timeline
 * http://dayabay.phys.ntu.edu.tw/tracs/heprez
 * http://dayabay.phys.ntu.edu.tw/repos/heprez/trunk
@@ -66,6 +66,6 @@ aberdeen
 localhost
 =========
 
-* http://localhost/wdocs/
+* http://localhost/w/
 
 

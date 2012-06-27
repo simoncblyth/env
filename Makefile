@@ -15,13 +15,13 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 
-EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/edocs
+EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
 #EDOCS = $(APACHE_HTDOCS)/edocs
 
-.PHONY: rstbash default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 
-default: rstbash dirhtml rsync
+default: bash2rst dirhtml rsync
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
 
@@ -34,13 +34,13 @@ rsync:
 endif
 
 
-rstbash:
-	python rstbash.py	
+bash2rst:
+	bash2rst.py env.bash	
 
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  rstbash    generate the rst docs from the bash usage functions"
+	@echo "  bash2rst    generate the rst docs from the bash usage functions"
 	@echo "  html       to make standalone HTML files"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
@@ -62,7 +62,7 @@ help:
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
 clean:
-	-rm -rf $(BUILDDIR)/*
+	-rm -rf $(BUILDDIR)/* _docs/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
