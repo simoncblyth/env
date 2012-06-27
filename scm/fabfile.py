@@ -9,6 +9,11 @@ Typically cron invoked with bash functions::
    scm-backup-monitor
    scm-backup-monitorw
 
+How to run init code ?
+
+#. avoid repeating logging setup for example without doing it at module level
+
+
 
 Approach:
 
@@ -53,24 +58,29 @@ import os, platform, pwd
 #import fabric_patches
 from fabric.api import run, env, abort
 from fabric.state import output
+from fabric.exceptions import NetworkError
+
 import logging
 log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 from scm_monitor import GZCheck
-
 from pprint import pformat
 
 output.stdout = False
 env.use_ssh_config = True
+env.timeout = 3
+env.abort_on_prompts = True
+env.skip_bad_hosts = True
 
 env.roledefs = {
    'C2':"C H1".split(),
   'C2R':"C H1".split(),
    'G':"Z9:229".split(),
+   'T2':"C H1 N".split(),
 }
 
 role2srvnode = dict(C2="cms02",G="g4pb")
-
 
 def target_localize():
     if env.host_string in ("Z9","A","Z9:229"):
@@ -80,14 +90,28 @@ def target_localize():
     #log.info("env %s " % pformat(env) )
     log.info("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
 
+def scm_sshcheck():
+    """
+    http://stackoverflow.com/questions/1956777/how-to-make-fabric-ignore-offline-hosts-in-the-env-hosts-list
+    """
+    target_localize()   
+    name = None
+    try:
+        name = run("uname -n")
+    except NetworkError, ne:
+        log.warn("NetworkError against %s : %s" % ( env.host_string, ne ))
+    except Exception, ex:
+        raise ex
+
+    log.info("env.host_string %s name %s " % ( env.host_string, name ) )
+
+
 def scm_backup_monitor():
     """
     Note that fabric ``run`` returns multiline strings delimited by windows newline ? CR+LF   
 
-
     Node splitting 
     """
-    logging.basicConfig(level=logging.INFO)
     target_localize()
 
     node = env.host_string
@@ -114,6 +138,7 @@ def scm_backup_monitor():
     else:
 	pass    
 
+    ## parse the response and update DB table accordingly 
     gzk = GZCheck(dbp, tn, srvnode)
     ret = run(gzk.cmd)
     gzk(ret.split("\r\n"), node )  
