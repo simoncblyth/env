@@ -81,8 +81,7 @@ FUNCS
 .. toctree::
 
     python/index
-
-
+    tools/index
 
 
 
@@ -396,6 +395,11 @@ db-(){          . $(env-home)/db/db.bash     && db-env $*     ; }
 
 
 
+
+
+pexpect-(){      . $ENV_HOME/python/pexpect.bash   && pexpect-env   $* ; }
+configobj-(){    . $ENV_HOME/python/configobj.bash && configobj-env $* ; }
+pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-env $* ; }
 python-(){      . $(env-home)/python/python.bash  && python-env $*  ; }
 ipython-(){     . $(env-home)/python/ipython.bash && ipython-env $* ; }
 
@@ -1059,3 +1063,4 @@ highcharts-(){      . $(env-home)/plot/highcharts.bash && highcharts-env $* ; }
 nodehighcharts-(){      . $(env-home)/nodejs/nodehighcharts.bash && nodehighcharts-env $* ; }
 sphinxcontrib-(){      . $(env-home)/doc/sphinxcontrib.bash && sphinxcontrib-env $* ; }
 trace-(){      . $(env-home)/sysadmin/trace.bash && trace-env $* ; }
+tools-(){      . $(env-home)/tools/tools.bash && tools-env $* ; }

@@ -22,11 +22,12 @@ pythonbuild-configure
      note the the --enable-shared is required to create ./Python-2.5.1/lib/libpython2.5.so
 
 pythonbuild-install
+     build and install into the prefixed dir
      
 pythonbuild-wipe  :
      delete the build dir
 
-pythonbuild-wipe-install :
+pythonbuild-wipe-install 
      delete the install dir called $PYTHON_NAME
     
 pythonbuild-solibfix
@@ -34,12 +35,12 @@ pythonbuild-solibfix
      to keep modpython nice an slim.
      http://code.google.com/p/modwsgi/wiki/InstallationIssues
     
-    
 pythonbuild-again
      wipe and rebuild
                 
 pythonbuild-setuptools-get 
-                           
+     some extras
+
   
 sudo python chestnut via LD_RUN_PATH
 --------------------------------------- 
@@ -59,26 +60,27 @@ When building must:
      directory where the library will eventually be installed "
 
   
-Other approaches...
+environment control
+~~~~~~~~~~~~~~~~~~~~
+
+without such a setup need to do fiddly management of 
+the environment of the root::
     
-       1) control the environment
+  sudo bash -c ". $ENV_HOME/env.bash ; python- ; python " 
   
-    without such a setup need to do fiddly management of 
-    the environment of the root 
-    
-       sudo bash -c ". $ENV_HOME/env.bash ; python- ; python " 
+making env.bash executable and putting ENV_HOME into the path can do::
+
+  sudo bash -c ". env.bash ; python- ; python " 
   
-    making env.bash executable and putting ENV_HOME into the path can do ... 
-       sudo bash -c ". env.bash ; python- ; python " 
-  
-  
-       2)  use ldconfig   ... inflexible when have multiple pythons
+ldconfig
+~~~~~~~~~
+
+Systemwide, so mostly unwise for multi-use machines
   
   
 EOU
 
 }
-
 
 
 pythonbuild-env(){
@@ -122,15 +124,15 @@ pythonbuild-get(){
 
 pythonbuild-configure(){
 
-	cd $(pythonbuild-dir)
-	./configure --prefix=$(pythonbuild-prefix) --enable-shared 
+     cd $(pythonbuild-dir)
+     ./configure --prefix=$(pythonbuild-prefix) --enable-shared 
 }
 
 pythonbuild-install(){
 
     cd $(pythonbuild-dir)
-	make
-	make install
+    make
+    make install
 }
 
 

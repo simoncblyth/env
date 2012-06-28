@@ -52,10 +52,20 @@ for quntities that are only updated daily.  But that is what this is doing.
 Doing this on dayabay.ihep.ac.cn ?
 ------------------------------------
 
-Sphinx installs, but gives runtime unicode error
+Need:
+
+#. fabric 
+#. sphinx + docutils etc... : Sphinx installs, but gives runtime unicode error
 
   #. fixed on other nodes by upping python version to 2.5.8?  that is not easy to do on WW
+
+     #. caution due to apache/modpython/trac usage of /etc/httpd/conf/svnsetup/tracs.conf system /usr/lib/python2.3/site-packages
+
   #. sphinx not really needed, just a spot of html to invoke the getJSON ?
+
+::
+
+        [dayabay] /home/scm > find  backup/dayabay/ -name '*.tar.gz' -exec du --si {} \;
 
 
 Dev notes

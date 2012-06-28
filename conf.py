@@ -38,6 +38,7 @@ extensions = ['sphinx.ext.autodoc',
 
 
 extlinks = {
+	'e':('http://dayabay.phys.ntu.edu.tw/e/%s',       'e:'),
 	'env':('http://dayabay.phys.ntu.edu.tw/tracs/env/intertrac/%s',       'env:'),
 	'local':('http://localhost/%s',        'local:'),
 	'cms01':('http://cms01.phys.ntu.edu.tw/%s', 'cms01:'),

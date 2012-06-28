@@ -10,17 +10,11 @@ Daemonwatch
 
 The code is not very inspiring 
 
-
-
 Installs
 ---------
 
 G
    
-
-
-
-
 
 EOU
 }

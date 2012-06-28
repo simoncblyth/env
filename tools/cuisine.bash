@@ -8,16 +8,17 @@ cuisine-usage(){ cat << EOU
 Cuisine
 ========
 
-http://dayabay.phys.ntu.edu.tw/edocs/sysadmin/monitoring/
-
+http://dayabay.phys.ntu.edu.tw/e/sysadmin/monitoring/
 
 Installs
 ---------
 
 G
+~~
     ``sudo python setup.py install``   /opt/local/lib/python2.5/site-packages/cuisine-0.2.8-py2.5.egg
 
 C2
+~~~
      
 
 

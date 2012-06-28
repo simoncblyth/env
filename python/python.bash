@@ -89,10 +89,6 @@ EOU
 }
 
 
-pexpect-(){      . $ENV_HOME/python/pexpect.bash   && pexpect-env   $* ; } 
-configobj-(){    . $ENV_HOME/python/configobj.bash && configobj-env $* ; }
-pythonbuild-(){  . $ENV_HOME/python/pythonbuild/pythonbuild.bash && pythonbuild-env $* ; } 
-
 
 python-mdir(){ 
    local iwd=$PWD
@@ -101,12 +97,7 @@ python-mdir(){
    cd $iwd
 }
 python-mate(){ mate $(python-mdir $*) ; }
-
-python-ls(){
-
-   ls -l $(python-site)/
-
-}
+python-ls(){ ls -l $(python-site)/ ; }
 
 python-versions(){
    python -V
@@ -130,6 +121,7 @@ python-version-source(){
    local tag=${1:-$NODE_TAG}
    case $tag in 
      formerC2) echo 2.5.1 ;;
+         WW) echo 2.5.6 ;;
      C2|C2R) echo 2.5.6 ;;
           *) echo 2.5.1 ;;
    esac
