@@ -429,6 +429,7 @@ ssh--agent-check-user(){
    local user=${1:-$USER}
    local msg="=== $FUNCNAME :"
    local pid=$(pgrep -u $user ssh-agent)
+   echo $msg $(date)
    if [ "$pid" == "" ]; then 
        echo $msg ssh-agent for user $user NOT FOUND
        return 1

@@ -1,74 +1,65 @@
 pythonbuild-src(){    echo python/pythonbuild/pythonbuild.bash ; }
 pythonbuild-source(){ echo ${BASH_SOURCE:-$ENV_HOME/$(pythonbuild-src)} ; }
 pythonbuild-vi(){     vi $(pythonbuild-source) ; }
-pythonbuild-usage(){
+pythonbuild-usage(){ cat << EOU
+ 
+pythonbuild-
+=============
 
-  cat << EOU
-  
-   separate off build related funcs for modularity ...
+Build related funcs for modularity ...
    
    
-     PYTHON_NAME :  $PYTHON_NAME
-   
-     pythonbuild-dir     :  $(pythonbuild-dir)
-     pythonbuild-prefix  :  $(pythonbuild-prefix)
-                   installation prefix
-     pythonbuild-cd      :
-                    to \$(pythonbuild-dir)  
+pythonbuild-dir    
+     emit build dir 
 
-   
-     pythonbuild-get
-         download and unpack 
-         
-     pythonbuild-configure
-         note the the --enable-shared is required to create 
-         ./Python-2.5.1/lib/libpython2.5.so
+pythonbuild-prefix  
+     emit prefix 
+
+pythonbuild-get
+     download and unpack 
+
+pythonbuild-configure
+     note the the --enable-shared is required to create ./Python-2.5.1/lib/libpython2.5.so
+
+pythonbuild-install
      
-     pythonbuild-install
-     
-     pythonbuild-wipe  :
-            delete the build dir
-     pythonbuild-wipe-install :
-            delete the install dir called $PYTHON_NAME
-     
+pythonbuild-wipe  :
+     delete the build dir
+
+pythonbuild-wipe-install :
+     delete the install dir called $PYTHON_NAME
     
-     pythonbuild-solibfix
-            place a link in python config dir to the libpython2.5.so two levels up
-            to keep modpython nice an slim ... 
-               http://code.google.com/p/modwsgi/wiki/InstallationIssues
+pythonbuild-solibfix
+     place a link in python config dir to the libpython2.5.so two levels up
+     to keep modpython nice an slim.
+     http://code.google.com/p/modwsgi/wiki/InstallationIssues
     
     
-    
-    == redo the lot ==
-    
-    $(type pythonbuild-again)
+pythonbuild-again
+     wipe and rebuild
                 
-                
-     == extras ==         
-               
-     pythonbuild-setuptools-get 
+pythonbuild-setuptools-get 
                            
   
-  
-  
-    Improvements ...
+sudo python chestnut via LD_RUN_PATH
+--------------------------------------- 
     
-       to avoid a common problem ... "sudo python" not finding libpython2.5.so 
-       when the python is in a different place than the system python...
-       due to the LD_LIBRARY_PATH not being set in root users environment , can use LD_RUN_PATH when 
-       building python according to ...
-          http://www.modpython.org/pipermail/mod_python/2007-March/023309.html
+To avoid a common problem : "sudo python" not finding libpython2.5.so 
+when the python is in a different place than the system python...
+due to the LD_LIBRARY_PATH not being set in root users environment , can use LD_RUN_PATH when 
+building python according to http://www.modpython.org/pipermail/mod_python/2007-March/023309.html
   
-       this embeds the location of the libs into the python executable, avoiding the need
-       to manage LD_LIBRARY_PATH henceforth by doing the library search at link time rather 
-       than at run time
+this embeds the location of the libs into the python executable, avoiding the need
+to manage LD_LIBRARY_PATH henceforth by doing the library search at link time rather 
+than at run time
   
-       when building must ..
-         "set the environment variable LD_RUN_PATH to be the
-          directory where the library will eventually be installed "
+When building must:
+
+    "set the environment variable LD_RUN_PATH to be the
+     directory where the library will eventually be installed "
 
   
-    Other approaches...
+Other approaches...
     
        1) control the environment
   

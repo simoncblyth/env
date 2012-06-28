@@ -19,6 +19,13 @@ sphinx-usage(){
         easy_install pip
 	pip install sphinx 
 
+   WW pip installed v1.1.3, probably need newer python than 2.5.1 (but dont want to touch that on webserver)
+
+       Exception occurred:
+       File "/home/blyth/local/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
+             from pygments.lexers.web import HtmlLexer
+          UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
+
 
   == reStructuredText ==
 
