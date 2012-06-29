@@ -11,7 +11,6 @@ env-usage(){ cat << EOU
 ENV BASH FUNCTIONS
 ===================
 
-
 Bash function reminders
 ------------------------
 
