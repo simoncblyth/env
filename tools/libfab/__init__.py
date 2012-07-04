@@ -55,14 +55,16 @@ observations
 
 """
 import logging, os, pwd
-from ConfigParser import RawConfigParser
+
+
+
 log = logging.getLogger(__name__)
 from fabric.api import env, run
 from fabric.state import output
 from fabric.network import disconnect_all
 from fabric.exceptions import NetworkError
 from pprint import pformat
-
+from env.tools.cnf import Cnf
 
 
 def rrun(cmd):
@@ -100,9 +102,9 @@ def localize(host):
     env.host_string = host
     log.info("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
 
-def setup(khosts):
+def setup(hubcnf):
     """
-    :param khosts: hosts key pointing to key in HOSTS section or hosts string
+    :param hubcnf: hosts key pointing to key in HOSTS section or hosts string
 
     Read ini format config file ~/.libfab.cnf and sets global defaults 
 
@@ -124,12 +126,19 @@ def setup(khosts):
     # {'status': True, 'warnings': True, 'stdout': True, 'running': True, 'user': True, 'stderr': True, 'aborts': True, 'debug': False}
     """
 
-    RawConfigParser.optionxform = str    # case sensitive keys 
-    cnf = RawConfigParser()
-    path = os.path.expanduser("~/.libfab.cnf")
-    cnf.read(path)
-    env.libfabcnf = cnf    # non-standard tack on 
+    if isinstance( hubcnf, dict ):
+	hub = hubcnf['HUB']    
+    elif isinstance( hubcnf, basestring):
+	hub = hubcnf
+	hubcnf = dict(HUB=hub)
+    else:
+        raise Exception("hub undefined ")
 
+    lfc = "~/.libfab.cnf"
+    cnf = Cnf()
+    cnf.read(lfc)
+    
+    env.libfabcnf = cnf    # non-standard tack on 
     env.use_ssh_config = True
     env.abort_on_prompts = True
     env.skip_bad_hosts = True
@@ -137,16 +146,16 @@ def setup(khosts):
 
     logging.basicConfig(level=logging.WARN)
 
-    dhosts = {}
-    if cnf and cnf.has_section('HOSTS'):
-        for key in cnf.options('HOSTS'):    
-	    dhosts[key] = cnf.get('HOSTS',key)
+    dhub = {}
+    if cnf:
+        dhub = cnf.sectiondict('HUB')   
 
-    print dhosts
+    hosts = dhub.get(hub, None)
+    if not hosts:
+        raise Exception("no hosts are defined for hub %s in HUB section of %s " % (hub, lfc) )     
 
-    hosts = dhosts.get(khosts, khosts)    
     env.hosts = hosts.split()
-    log.warn("khosts %s env.hosts %s " % (khosts, repr(env.hosts)) )
+    log.warn("hubcnf %s env.hosts %s " % (repr(hubcnf), repr(env.hosts)) )
 
     if cnf and cnf.has_section('ENV'):
         for key in cnf.options('ENV'):    
@@ -161,24 +170,28 @@ def setup(khosts):
     output.status = verbose
 
 
+    cfg = hubcnf
+    return cfg
 
-def fabloop( khosts , task=lambda _:_):
+
+
+def fabloop( hubcnf , task=lambda _:_):
     """
-    :param khosts: space delimited string containg host ssh tags or key to a list of groups 
+    :param hubcnf: dict containg HUB key that is included 
     :param task: fabric function to be performed on each host
     :return: dict keyed by host containing the return from teh task
     """
-    setup(khosts)
+    cfg = setup(hubcnf)
     ret = {}
     for host in env.hosts:
         localize(host)
-        ret[host] = task(host)
+	cfg['HOST'] = host
+        ret[host] = task(cfg)
     teardown()	
     return ret
 
 def teardown():
     disconnect_all()
-
 
 
 def file_exists(path):

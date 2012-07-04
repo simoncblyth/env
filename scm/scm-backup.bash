@@ -1655,13 +1655,9 @@ scm-backup-monitor-(){
    local msg="=== $FUNCNAME :"
    local hub=${1:-C2}
    shift 
-   local iwd=$PWD
-   cd $(env-home)/scm 
-   # the role specifies the hub nodes, such as C2 from where the tarballs emanate  
-   local cmd="fab -R $hub monitor "
+   local cmd="$(env-home)/scm/monitor.py $hub"
    echo $msg $cmd
    eval $cmd 
-   cd $iwd
 }
 
 scm-backup-monitor(){  scm-backup-monitor- C2 ; }

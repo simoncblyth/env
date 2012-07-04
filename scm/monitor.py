@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """
-Frontend for running Fabric monitor
-
+Frontend for running Fabric monitoring
 """
 import os, logging
 log = logging.getLogger(__name__)
@@ -9,28 +8,63 @@ logging.basicConfig(level=logging.INFO)
 
 from fabric.api import env
 from env.tools.libfab import fabloop, rrun
+from env.tools.cnf import Cnf
 from env.scm.tgz import TGZ
 from env.scm.tgzplot import TGZPlot
+from pprint import pformat
 
+def cfg_(hub):
+    """	
+    :param hub: tag of hub node, typically C2R, G or ZZ
+    :return: dict config section for the hub
 
-def monitor(node):
+    Loads hub specific config parameters from ``~/.scm_monitor.cnf`` of format::
+
+	[C2R]
+	srvnode = cms02
+	dbpath = $LOCAL_BASE/env/scm/scm_backup_monitor.db
+	jspath = $APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json
+	select = repos/env tracs/env repos/aberdeen tracs/aberdeen repos/tracdev tracs/tracdev repos/heprez tracs/heprez
+
+    NB before the config dict arrives as parameter of monitor, which is invoked per remote node, additonal
+    keys are added such as HOST
+
+    Note the context keyholing around the fabloop in order to workaround the fabric features.
     """
+    cnf = Cnf()
+    cnf.read("~/.scm_monitor.cnf")  
+    hubcnf = cnf.sectiondict(hub)
+    hubcnf['HUB'] = hub
+    return hubcnf
+
+
+def monitor(cfg):
+    """
+    :param cfg: dict containing both hub and node config
+
+    Task invoked by the fabloop for each remote node configured for the hub
+    NB config is spread between:
+
+    #. ~/.scm_monitor.cnf hub specific
+    #. ~/.libfab.cnf node specific
+
     Workaround for fabric strictures by writing to DB separately for each remote and 
     benefiting from the uniqing (re-runability) built into the SQL. 
 
     TODO:
 
     #. handle failed connection presentationally [current time and a -1 ?]
-    #. configure this hub dependant things : specifier g4pb/cms02 + selection  ?
 
     """
+    print "monitor cfg: %s " % pformat(cfg) 
+    node = cfg['HOST']
+    assert node == env.host_string 
     tn    = "tgzs"
-    srvnode = "g4pb"     
-    select = ["%s/%s" % ( type, proj) for type in ("tracs","repos","svn") for proj in ("env","heprez","dybaux","dybsvn","tracdev","aberdeen","workflow")]
-
-    dbp   = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   
-    jsonp = os.path.expandvars("$APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json" % locals() ) 
-    assert os.path.exists(os.path.dirname(jsonp)), jsonp
+    srvnode = cfg['srvnode']   
+    select = cfg['select'].split()
+    dbp = os.path.expandvars(cfg['dbpath'])
+    jsp = os.path.expandvars(cfg['jspath'] % dict(node=cfg['HOST']))
+    assert os.path.exists(os.path.dirname(jsp)), jsp
 
     tgz = TGZ(dbp, tn)
     cmd = tgz.cmd % locals()
@@ -39,20 +73,22 @@ def monitor(node):
         tgz.parse(ret.split("\r\n"), node )  
 
     plt = TGZPlot(tgz)
-    plt.jsondump(jsonp, node=env.host_string, select=select)
-
-    pass
+    plt.jsondump(jsp, node=env.host_string, select=select)
     log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
-    log.info("to check: cat %s | python -m simplejson.tool " % jsonp )
+    log.info("to check: cat %s | python -m simplejson.tool " % jsp )
 
 
 def main():
+    """
+    """
     import sys	
     if len(sys.argv) > 1:
-        khosts = sys.argv[1]
+        hub = sys.argv[1]
     else:
-	khosts = os.environ['NODE_TAG']    
-    fabloop( khosts, monitor )
+	hub = os.environ['NODE_TAG']    
+
+    hubcnf = cnf_(hub)
+    fabloop( hubcnf, monitor )
 
 
 if __name__ == '__main__':
