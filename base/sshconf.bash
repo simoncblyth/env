@@ -36,6 +36,17 @@ sshconf-usage(){
     TCPKeepAlive
 
 
+  Sharing connections sockets for faster adding of subsequent ones
+
+     http://www.revsys.com/writings/quicktips/ssh-faster-connections.html
+
+
+  Host *
+  ControlMaster auto 
+  ControlPath /tmp/%r@%h:%p
+
+
+
 EOU
 
 }

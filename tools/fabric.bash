@@ -110,7 +110,7 @@ EOU
 }
 fabric-dir(){ echo $(local-base)/env/tools/tools-fabric ; }
 fabric-cd(){  cd $(fabric-dir) ;  }
-fabric-scd(){  cd $(python-site)/fabric ;  }
+fabric-scd(){  python- ; cd $(python-site)/fabric ;  }
 fabric-mate(){ mate $(fabric-dir) ; }
 fabric-get(){
    local dir=$(dirname $(fabric-dir)) &&  mkdir -p $dir && cd $dir

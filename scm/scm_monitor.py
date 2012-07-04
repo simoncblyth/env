@@ -20,8 +20,8 @@ import os, re, logging
 log = logging.getLogger(__name__)
 
 from datetime import datetime
-from simtab import Table
-from jsonify import jsonify, jsdict
+from env.db.simtab import Table
+from env.db.jsonify import jsonify, jsdict
 
 
 

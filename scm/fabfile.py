@@ -90,7 +90,7 @@ def target_localize():
     #log.info("env %s " % pformat(env) )
     log.info("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
 
-def scm_sshcheck():
+def sshcheck():
     """
     http://stackoverflow.com/questions/1956777/how-to-make-fabric-ignore-offline-hosts-in-the-env-hosts-list
     """
@@ -106,7 +106,7 @@ def scm_sshcheck():
     log.info("env.host_string %s name %s " % ( env.host_string, name ) )
 
 
-def scm_backup_monitor():
+def monitor():
     """
     Note that fabric ``run`` returns multiline strings delimited by windows newline ? CR+LF   
 

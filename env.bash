@@ -848,18 +848,19 @@ env-index-tail-(){ cat << EOT
 EOT
 }
 
-env-pth(){
-  local nam=${1:-env}
-  local msg="=== $FUNCNAME :"
-  python-
-  local site=$PYTHON_SITE
-  [ ! -d "$site" ] && echo $msg site $site does not exist && return 
-  local pth=$site/$nam.pth
-  local lib=$(echo $nam-home)
-  [ -f "$pth" ] && echo $msg pth $pth exists already && cat $pth && ls -l $pth && return 
-  echo $msg writing lib $lib to pth $pth 
-  sudo bash -c "echo $lib  > $pth"
-}
+# just using symbolic link works more simply 
+#env-pth(){
+#  local libdir=${1:-$(env-home)}
+#  local libnam=${2:-$(basename $libdir)}
+#  local msg="=== $FUNCNAME :"
+#  python-
+#  local site=$PYTHON_SITE
+#  [ ! -d "$site" ] && echo $msg site $site does not exist && return 
+#  local pth=$site/$libnam.pth
+#  [ -f "$pth" ] && echo $msg pth $pth exists already && cat $pth && ls -l $pth && return 
+#  echo $msg writing libnam $libnam to pth $pth 
+#  sudo bash -c "echo $libdir  > $pth"
+#}
 
 
 env-htdocs-up(){
