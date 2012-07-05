@@ -12,8 +12,13 @@ from env.tools.cnf import Cnf
 from env.scm.tgz import TGZ
 from env.scm.tgzplot import TGZPlot
 from pprint import pformat
-    
-writable = lambda path:os.access(os.path.expandvars(path), os.W_OK)
+   
+
+def writable(path):
+    path = os.path.expandvars(path)
+    if os.path.exists(path) and not os.access(path, os.W_OK):
+        return False
+    return True
 
 def cnf_(hub, smc="~/.scm_monitor.cnf"):
     """	
@@ -39,7 +44,8 @@ def cnf_(hub, smc="~/.scm_monitor.cnf"):
         raise Exception("Config file does not exist at  %s " % smc )
     hubcnf = cnf.sectiondict(hub)
 
-    if not writable(hubcnf['dbpath']):
+    path = hubcnf['dbpath']
+    if not writable(path):
         raise Exception("cannot write to path %s " % path )
 
     hubcnf['HUB'] = hub
@@ -73,7 +79,8 @@ def monitor(cfg):
     dbp = os.path.expandvars(cfg['dbpath'])
     jsp = os.path.expandvars(cfg['jspath'] % dict(node=cfg['HOST']))
     assert os.path.exists(os.path.dirname(jsp)), jsp
-    assert writable(jsp), "jsp %s is not writable " % jsp
+    if not writable(jsp):
+        raise Exception("jsp %s is not writable " % jsp)
 
     tgz = TGZ(dbp, tn)
    

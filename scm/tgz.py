@@ -23,7 +23,7 @@ class TGZ(object):
 	if not dbpath:
             dbpath = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   
         if not os.path.exists(os.path.dirname(dbpath)):
-            os.makedirs(os.path.dirname(dbp))
+            os.makedirs(os.path.dirname(dbpath))
 
         log.info("opening DB %s " % dbpath )
         self.cmd = "find $SCM_FOLD/backup/%(srvnode)s -name '*.gz' -exec du --block-size=1M {} \;"

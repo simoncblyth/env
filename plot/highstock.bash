@@ -15,6 +15,14 @@ http://www.highcharts.com/download
 http://chartit.shutupandship.com./
 
 
+Hookup on WW
+---------------
+
+  highstock-
+  highstock-get
+  highstock-ln
+
+
 
 
 

@@ -10,16 +10,15 @@ nginx-env(){
 
 nginx-usage(){
   cat << EOU
-     nginx-src : $(nginx-src)
 
-     http://wiki.nginx.org/Main
-     http://wiki.nginx.org/NginxXSendfile
-     http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
+http://wiki.nginx.org/Main
+http://wiki.nginx.org/NginxXSendfile
+http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
 
      http://wiki.nginx.org/NginxCommandLine
         -s stop/quit/reopen/reload. (version >= 0.7.53)
 
-     Putting nginx under supervisord control 
+Putting nginx under supervisord control 
         http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
 
@@ -59,10 +58,6 @@ nginx-usage(){
 
           comes with a perl module interface to the nginx HTTP server API
              http://sysoev.ru/nginx/docs/http/ngx_http_perl_module.html
-
-
-
-
 
 EOU
 }
@@ -108,10 +103,19 @@ nginx-chown(){
   eval $cmd 
 }
 
+nginx-mode(){
+   case $NODE_TAG in 
+     WW) echo src ;;
+      *) echo $(pkgr-cmd) ;;
+   esac
 
+}
 
-nginx-name(){ echo nginx-0.7.61 ; }
-nginx-url(){  echo http://sysoev.ru/nginx/$(nginx-name).tar.gz ; }
+#nginx-name(){ echo nginx-0.7.61 ; }
+#nginx-url(){  echo http://sysoev.ru/nginx/$(nginx-name).tar.gz ; }
+nginx-name(){ echo nginx-1.3.2 ; }
+nginx-url(){  echo http://nginx.org/download/$(nginx-name).tar.gz ; }
+
 nginx-dir(){  echo $(local-base)/env/nginx/$(nginx-name) ; }
 nginx-get(){
    local msg="=== $FUNCNAME :"
@@ -125,17 +129,17 @@ nginx-build(){
    cd $(nginx-dir)
 
    ## using default prefix of /usr/local/nginx
-   ./configure
+   ./configure --prefix=$(local-base)/nginx
    make
-   sudo make install
+   $SUDO make install
 }
 
 
 nginx-prefix(){
-  case $(pkgr-cmd) in 
+  case $(nginx-mode) in 
     port) echo /opt/local ;; 
     ipkg) echo /opt ;;
-     src) echo /usr/local/nginx     ;;   ## change this when revisit nginx on C
+     src) echo $(local-base)/nginx ;;  
      yum) echo -n     ;;  
   esac
 }
@@ -161,7 +165,14 @@ nginx-diff(){  sudo diff $(nginx-conf).default $(nginx-conf) ; }
 
 nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
 nginx-confd(){    echo $(nginx-prefix $*)/etc/nginx ; }
-nginx-conf(){    echo $(nginx-confd $*)/nginx.conf ; }
+nginx-conf(){
+   case $NODE_TAG in 
+     WW) echo $(nginx-prefix)/conf/nginx.conf ;;
+      *) echo $(nginx-confd $*)/nginx.conf ;;
+   esac
+}    
+
+nginx--(){ $(nginx-sbin)/nginx $* ; }
 
  ## Since version 0.6.7 the filename path is relative to directory of nginx configuration file nginx.conf, but not to nginx prefix 
 nginx-users(){   echo $(nginx-prefix)/etc/nginx/users.txt ; }
@@ -243,7 +254,7 @@ nginx-adduser(){
 
 
 
-nginx-edit(){  sudo vim $(nginx-conf) ; }
+nginx-edit(){  $SUDO vim $(nginx-conf) ; }
 nginx-ps(){ ps aux | grep nginx ; }
 
 # this is only for newer nginx
@@ -252,7 +263,7 @@ nginx-ps(){ ps aux | grep nginx ; }
 #}
 
 nginx-check(){
-   sudo $(nginx-sbin)/nginx -c $(nginx-conf) -t 
+   $SUDO $(nginx-sbin)/nginx -c $(nginx-conf) -t 
 }
 
 

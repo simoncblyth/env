@@ -52,20 +52,44 @@ for quntities that are only updated daily.  But that is what this is doing.
 Doing this on dayabay.ihep.ac.cn ?
 ------------------------------------
 
-Need:
+Done:
 
-#. fabric 
-#. sphinx + docutils etc... : Sphinx installs, but gives runtime unicode error
+#. python2.5.6 + sphinx + docutils etc... into  ~/local python
+#. fabric + simplejson 
+#. caution this will not work in the system python2.3 (used by apache/modpython/trac)
+#. nginx running on 8080
+#. add env symbolic link to nginx docs
+#. hook up the javascript with link in _static::
 
-  #. fixed on other nodes by upping python version to 2.5.8?  that is not easy to do on WW
+g4pb-2:~ blyth$ ls -l ~/e/_static/
+total 8
+lrwxr-xr-x  1 blyth  staff  38 12 Jun 19:45 highstock -> /usr/local/env/plot/Highstock-1.1.6/js
+g4pb-2:~ blyth$ 
 
-     #. caution due to apache/modpython/trac usage of /etc/httpd/conf/svnsetup/tracs.conf system /usr/lib/python2.3/site-packages
 
-  #. sphinx not really needed, just a spot of html to invoke the getJSON ?
+Hmm the link approach not working with nginx on WW
 
-::
+  * http://dayabay.phys.ntu.edu.tw/e/_static/highstock/highstock.js
+  * http://dayabay.ihep.ac.cn:8080/e/_static/highstock/highstock.js
 
-        [dayabay] /home/scm > find  backup/dayabay/ -name '*.tar.gz' -exec du --si {} \;
+
+
+
+C : cms01 (checking on the C backup of C2, as no SDU access)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. raw:: html
+
+    <script type="text/javascript" >
+    $(function() {
+	$.getJSON('/data/scm_backup_monitor_C.json', function(options) {
+		window.chart = new Highcharts.StockChart(options);
+	});
+    });
+    </script>
+    <div id="container_C" style="height: 500px; min-width: 500px"></div>
+
 
 
 Dev notes

@@ -5,54 +5,72 @@ sphinx-vi(){       vi $(sphinx-source) ; }
 sphinx-env(){      elocal- ; }
 sphinx-usage(){
   cat << EOU
+
+Sphinx
+======
     
- == installs ==
+installs
+---------
 
-   G   macports py25-sphinx   used for ~/heprez/docs  
+G  
+~~~
+
+macports py25-sphinx   used for ~/heprez/docs  
    
-        py25 in use with heprez for un-recalled compatibility reasons
-        possibly jima:avg jython related 
+py25 in use with heprez for un-recalled compatibility reasons
+possibly jima:avg jython related 
 
+C2 
+~~~
 
-   C2 (newone May 2012) [WHILE BEST TO NOT DO MUCH ON REPO SERVER MACHINE : DOCS WOULD BE HANDY]
+(newone May 2012) [WHILE BEST TO NOT DO MUCH ON REPO SERVER MACHINE : DOCS WOULD BE HANDY]
 
-        easy_install pip
-	pip install sphinx 
+easy_install pip
+pip install sphinx 
 
-   WW pip installed v1.1.3, probably need newer python than 2.5.1 (but dont want to touch that on webserver)
+WW 
+~~~
+
+pip installed v1.1.3, probably need newer python than 2.5.1 (but dont want to touch that on webserver)
+
+::
 
        Exception occurred:
        File "/home/blyth/local/python/Python-2.5.1/lib/python2.5/site-packages/pygments/lexers/other.py", line 18, in <module>
              from pygments.lexers.web import HtmlLexer
           UnicodeDecodeError: 'rawunicodeescape' codec can't decode bytes in position 12-0: \Uxxxxxxxx out of range
 
+reStructuredText
+-------------------
 
-  == reStructuredText ==
-
-    http://wolfmanx.bitbucket.org/ws-docutils/README-inline-comments.html
+http://wolfmanx.bitbucket.org/ws-docutils/README-inline-comments.html
 
         tagging and comments in rst
 
 
-  == extension ideas ==
+extension ideas 
+----------------
 
     A mobile compatible theme/builder would be useful ...
        * there is a html for chm option, but compiling M$ 
          chm on linux is problematic and demands chm reader on device 
 
- == readthedocs ==
+readthedocs
+-------------
 
-    Interesting marriage of django + sphinx .
-    Suspect that progress on mobile themes made in this proj 
+Interesting marriage of django + sphinx .
+Suspect that progress on mobile themes made in this proj 
 
-       * http://readthedocs.org/ ... 
-           * https://github.com/rtfd/readthedocs.org
-           * http://ericholscher.com/blog/2011/jan/11/read-docs-updates/
-           * http://twitter.com/readthedocs    
+ * http://readthedocs.org/ 
+
+    * https://github.com/rtfd/readthedocs.org
+    * http://ericholscher.com/blog/2011/jan/11/read-docs-updates/
+    * http://twitter.com/readthedocs    
        
-   Mar 1st 2011 tweet...
-      Pushed out the RTD Theme to everyone using the 'default' theme today. 
-      RTD Theme now includes sweet mobile styles using media queries.
+Mar 1st 2011 tweet
+
+Pushed out the RTD Theme to everyone using the 'default' theme today. 
+RTD Theme now includes sweet mobile styles using media queries.
  
 
   == advanced sphinx ==

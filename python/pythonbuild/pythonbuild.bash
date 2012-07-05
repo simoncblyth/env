@@ -182,7 +182,11 @@ pythonbuild-solibfix(){
 }
 
 
+pythonbuild-extras(){
 
+    pythonbuild-setuptools-get 
+    easy_install pip
+}
 
 
 
@@ -190,25 +194,11 @@ pythonbuild-solibfix(){
 pythonbuild-setuptools-get(){
 
   [ "$PYTHON_HOME/bin" == $(dirname $(which python)) ] || ( echo your path to python is incorrect aborting && return  )
-
   cd $SYSTEM_BASE/python 
   test -f ez_setup.py || curl -O  http://peak.telecommunity.com/dist/ez_setup.py
-
   mkdir -p $(python-site)    ##  perhaps need to use the lowtech one ?? python-site-
 
   python  ez_setup.py
-
-#
-#Downloading http://cheeseshop.python.org/packages/2.5/s/setuptools/setuptools-0.6c5-py2.5.egg
-#Processing setuptools-0.6c5-py2.5.egg
-#Copying setuptools-0.6c5-py2.5.egg to /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages
-#Adding setuptools 0.6c5 to easy-install.pth file
-#Installing easy_install script to /disk/d4/dayabay/local/python/Python-2.5.1/bin
-#Installing easy_install-2.5 script to /disk/d4/dayabay/local/python/Python-2.5.1/bin
-#
-#Installed /disk/d4/dayabay/local/python/Python-2.5.1/lib/python2.5/site-packages/setuptools-0.6c5-py2.5.egg
-#Processing dependencies for setuptools==0.6c5
-#
 
    ## this puts easy_install in the PYTHON_HOME/bin
    which easy_install
