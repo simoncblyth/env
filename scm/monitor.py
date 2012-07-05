@@ -12,8 +12,10 @@ from env.tools.cnf import Cnf
 from env.scm.tgz import TGZ
 from env.scm.tgzplot import TGZPlot
 from pprint import pformat
+    
+writable = lambda path:os.access(os.path.expandvars(path), os.W_OK)
 
-def cnf_(hub):
+def cnf_(hub, smc="~/.scm_monitor.cnf"):
     """	
     :param hub: tag of hub node, typically C2R, G or ZZ
     :return: dict config section for the hub
@@ -32,8 +34,14 @@ def cnf_(hub):
     Note the context keyholing around the fabloop in order to workaround the fabric features.
     """
     cnf = Cnf()
-    cnf.read("~/.scm_monitor.cnf")  
+    r = cnf.read(smc)  
+    if len(r) == 0:
+        raise Exception("Config file does not exist at  %s " % smc )
     hubcnf = cnf.sectiondict(hub)
+
+    if not writable(hubcnf['dbpath']):
+        raise Exception("cannot write to path %s " % path )
+
     hubcnf['HUB'] = hub
     return hubcnf
 
@@ -65,6 +73,7 @@ def monitor(cfg):
     dbp = os.path.expandvars(cfg['dbpath'])
     jsp = os.path.expandvars(cfg['jspath'] % dict(node=cfg['HOST']))
     assert os.path.exists(os.path.dirname(jsp)), jsp
+    assert writable(jsp), "jsp %s is not writable " % jsp
 
     tgz = TGZ(dbp, tn)
    
@@ -79,6 +88,8 @@ def monitor(cfg):
     plt.jsondump(jsp, node=env.host_string, select=select)
     log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
     log.info("to check: cat %s | python -m simplejson.tool " % jsp )
+
+
 
 
 def main():
