@@ -13,7 +13,7 @@ from env.scm.tgz import TGZ
 from env.scm.tgzplot import TGZPlot
 from pprint import pformat
 
-def cfg_(hub):
+def cnf_(hub):
     """	
     :param hub: tag of hub node, typically C2R, G or ZZ
     :return: dict config section for the hub
@@ -67,10 +67,13 @@ def monitor(cfg):
     assert os.path.exists(os.path.dirname(jsp)), jsp
 
     tgz = TGZ(dbp, tn)
-    cmd = tgz.cmd % locals()
-    ret = rrun(cmd)
-    if ret:
-        tgz.parse(ret.split("\r\n"), node )  
+   
+    pull = True
+    if pull:
+        cmd = tgz.cmd % locals()
+        ret = rrun(cmd)
+        if ret:
+            tgz.parse(ret.split("\r\n"), node )  
 
     plt = TGZPlot(tgz)
     plt.jsondump(jsp, node=env.host_string, select=select)

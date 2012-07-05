@@ -72,6 +72,27 @@ class TGZ(object):
         log.info("commonprefix %s  " % (pfx) )
 	return zip(nams,dirs)
 
+
+    def okdata(self, node):
+	"""    
+        Tarballs in the past 10 days
+
+
+        sqlite> select date(date),date from tgzs ;      date is not a good name for a field
+
+        select * from tgzs where strftime('%s',date('now','-10 day')) < strftime('%s',date) ;
+
+        select strftime('%s',date)*1000,count(*) as N,    from %s where node='%s' group by ( strftime('%s',date) - strftime('%s',date('now')) )/86400   ;
+
+        """
+        data = []
+	sql = "select strftime('%s',date(date))*1000,count(*) from %s where node='%s' group by date(date) " % ( "%s", self.tn, node ) 
+        for d in self.tab(sql):
+	    l = list(d)	
+            data.append(l)
+        return data
+
+
     def data(self, node, item ):
         """
 	:param node: 

@@ -2,7 +2,7 @@
 from __future__ import with_statement
 import os, logging
 log = logging.getLogger(__name__)
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from env.plot.highstock import HSOptions
 
@@ -19,12 +19,33 @@ class TGZPlot(object):
 	hso = HSOptions()
         hso['series'] = []
 
+        now = datetime.now()
+	beg = now + timedelta(days=-30)
+        hso['xmin'] = beg.strftime("%s000")
+        hso['xmax'] = now.strftime("%s000")
+
+        okdata = self.tgz.okdata( node )
+
+        hok = dict(name="OK", 
+			   data=okdata,
+			 marker=dict(enabled=True, radius=3),
+		        tooltip=dict(valueDecimals=2), 
+			 yAxis=1,
+			  )
+	hso['series'].append( hok )
+
         for _ in self.tgz.items(node):
             name, dir = _
             if len(select) == 0 or name in select: 
                 data = self.tgz.data( node, _ )
-	        hss = dict(name=name, data=data, tooltip=dict(valueDecimals=2)) 
+	        hss = dict(name=name, 
+		           data=data, 
+			 marker=dict(enabled=True, radius=3),
+		        tooltip=dict(valueDecimals=2), 
+				) 
 	        hso['series'].append( hss )
+
+
 		log.info("append series %s %s of length %s  " % (name,dir, len(data)) )     
             else:		
 		log.info("skipping %s %s " % (name,dir) )     
