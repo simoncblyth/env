@@ -82,6 +82,15 @@ On G, only after /usr/bin/easy_install (targetting the system python) does:
 	Finished processing dependencies for TracXMLRPC==1.1.2
 
 
+
+Test is giving permission denied.  This issue is mentioned in http://trac-hacks.org/wiki/XmlRpcPlugin
+as interfence with http://trac-hacks.org/wiki/AccountManagerPlugin 
+With a workaround in the form of. 
+
+http://trac-hacks.org/wiki/HttpAuthPlugin
+
+
+
 EOU
 }
 

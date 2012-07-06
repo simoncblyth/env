@@ -1,23 +1,26 @@
 
 trachttpauth-usage(){ cat << EOU
 
+http://trac-hacks.org/wiki/HttpAuthPlugin
+
+Workaround interference between XMLRPCPlugin and AccountManagerPlugin
+
+
 EOU
 }
+
+
 
 trachttpauth-get(){
 
   local msg=" === $FUNCNAME needed for authenticated xmlrpc access while form based logins in use"
   echo $msg 
 
-  # http://trac-hacks.swapoff.org/wiki/HttpAuthPlugin 
-
   cd /tmp
-  svn co http://trac-hacks.org/svn/httpauthplugin/0.10
   
-  cd 0.10
+  svn co http://trac-hacks.org/svn/httpauthplugin/trunk httpauthplugin 
 
-
-  
+  #cd 0.10
 
 }
 

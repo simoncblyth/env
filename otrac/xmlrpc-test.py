@@ -7,13 +7,19 @@ Getting::
 	xmlrpclib.Fault: <Fault 403: 'XML_RPC privileges are required to perform this operation'>
 
 """
-import os
-import xmlrpclib
+import sys, os
+from xmlrpclib import ServerProxy 
 
 if __name__ == '__main__':
-   url = os.environ['TRAC_ENV_XMLRPC']	
+
+   if len(sys.argv)>1:
+       url = sys.argv[1]
+   else:    
+       url = os.environ['TRAC_ENV_XMLRPC']	
+
    print url
-   server = xmlrpclib.ServerProxy(url)
+   server = ServerProxy(url)
+   print server.system.getAPIVersion()
    pages = server.wiki.getAllPages()
    for page in pages:
        print page	   
