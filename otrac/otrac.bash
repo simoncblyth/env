@@ -1,4 +1,4 @@
-
+otrac-vi(){ vi $BASH_SOURCE ; }
 otrac-usage(){ cat << EOU
 
 EOU
@@ -8,23 +8,24 @@ EOU
 
  ## new style... reduce env pollution and startup time 
 
- silvercity-(){        . $ENV_HOME/scm/trac/silvercity.bash ; }
- docutils-(){          . $ENV_HOME/scm/trac/docutils.bash   ; }
+ osilvercity-(){        . $ENV_HOME/otrac/silvercity.bash ; }
+ odocutils-(){          . $ENV_HOME/otrac/docutils.bash   ; }
 
- trac2mediawiki-(){    . $ENV_HOME/scm/trac/trac2mediawiki.bash   ; }
- trac2latex-(){        . $ENV_HOME/scm/trac/trac2latex.bash   ; }
- traclxml-(){          . $ENV_HOME/scm/trac/traclxml.bash   ; } 
- tractoc-(){           . $ENV_HOME/scm/trac/tractoc.bash   ; } 
- tracxsltmacro-(){     . $ENV_HOME/scm/trac/tracxsltmacro.bash   ; }
- traclegendbox-(){     . $ENV_HOME/scm/trac/traclegendbox.bash   ; }
- tracincludemacro-(){  . $ENV_HOME/scm/trac/tracincludemacro.bash   ; }
- db2trac-(){           . $ENV_HOME/scm/trac/db2trac.bash   ; }
- tracenv-(){           . $ENV_HOME/scm/trac/tracenv.bash   ; }
- hepreztrac-(){        . $ENV_HOME/scm/trac/hepreztrac.bash   ; }
+ otrac2mediawiki-(){    . $ENV_HOME/otrac/trac2mediawiki.bash   ; }
+ otrac2latex-(){        . $ENV_HOME/otrac/trac2latex.bash   ; }
+ otraclxml-(){          . $ENV_HOME/otrac/traclxml.bash   ; } 
+ otractoc-(){           . $ENV_HOME/otrac/tractoc.bash   ; } 
+ otracxsltmacro-(){     . $ENV_HOME/otrac/tracxsltmacro.bash   ; }
+ otraclegendbox-(){     . $ENV_HOME/otrac/traclegendbox.bash   ; }
+ otracincludemacro-(){  . $ENV_HOME/otrac/tracincludemacro.bash   ; }
+ odb2trac-(){           . $ENV_HOME/otrac/db2trac.bash   ; }
+ otracenv-(){           . $ENV_HOME/otrac/tracenv.bash   ; }
+ ohepreztrac-(){        . $ENV_HOME/otrac/hepreztrac.bash   ; }
 
- tracxmlrpc-(){        . $ENV_HOME/scm/trac/tracxmlrpc.bash ; }
- trachttpauth-(){      . $ENV_HOME/scm/trac/trachttpauth.bash ; }
+ otrachttpauth-(){      . $ENV_HOME/otrac/trachttpauth.bash ; }
 
+# tracxmlrpc- moved to env.bash
+  
 
 otrac-env(){
 
@@ -47,12 +48,7 @@ otrac-base(){
  # export TRAC_APACHE2_CONF=$APACHE2_LOCAL/trac.conf 
  # export TRAC_EGG_CACHE=/tmp/trac-egg-cache
 
-  export TRAC_ENV_XMLRPC="http://$USER:$(private-val NON_SECURE_PASS)@$SCM_HOST:$SCM_PORT/tracs/$SCM_TRAC/login/xmlrpc"
-
   export TRAC_SHARE_FOLD=$PYTHON_HOME/share/trac
-
-
-
 
 }
 

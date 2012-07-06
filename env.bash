@@ -1064,3 +1064,7 @@ nodehighcharts-(){      . $(env-home)/nodejs/nodehighcharts.bash && nodehighchar
 sphinxcontrib-(){      . $(env-home)/doc/sphinxcontrib.bash && sphinxcontrib-env $* ; }
 trace-(){      . $(env-home)/sysadmin/trace.bash && trace-env $* ; }
 tools-(){      . $(env-home)/tools/tools.bash && tools-env $* ; }
+
+tracxmlrpc-(){   . $(env-home)/otrac/tracxmlrpc.bash && tracxmlrpc-env $* ; }
+
+
