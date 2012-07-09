@@ -39,7 +39,10 @@ def bashtoc( content ):
         pass
         if count > 0:
             path = line.strip().rstrip()
-	    paths.append(path)
+	    if path.endswith('/'):
+	        print "skip %s " % path
+	    else:	
+	        paths.append(path)
         else:
 	    path = ""	
 
@@ -76,8 +79,14 @@ class Bash(list):
         rpath = apath[len(root)+1:]
         rname, type = os.path.splitext( rpath )
         assert type == ".bash", (type, path )
+
+        if rname.endswith('/'):
+            print "[%s]" % rname
+
         content = self._rst_read(apath)
         paths = bashtoc(content)
+
+        log.info("path %s => %s " % (path, repr(paths) ))
 
 	self.root = root
         gpath = self._genpath( rname )
@@ -132,6 +141,10 @@ class Bash(list):
 
         :return: extracted content as a single string 
         """
+        if not os.path.exists(path):
+	    log.warn("path %s does not exist " % path )
+	    return ""
+
         with open(path,"r") as fp:
             content = fp.read()
         bits = content.split(delim)

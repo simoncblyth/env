@@ -6,4 +6,5 @@ Sys Admin Docs
 
     monitoring
     mars
+    migration/index
 

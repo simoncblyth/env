@@ -25,3 +25,19 @@ tools-get(){
    local dir=$(dirname $(tools-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+
+tools-escape-zap(){
+   local path=$1
+   perl -i.bk -pe 's/\x1b//g ' $path
+   diff $path.bk $path
+}
+
+tools-nonascii-zap(){
+   local msg="=== $FUNCNAME :"
+   local tab=$1
+   echo $msg zapping $tab 
+   perl -i.bk -pe 's/[^[:ascii:]]//g;' $tab
+   diff $tab.bk $tab
+}
+

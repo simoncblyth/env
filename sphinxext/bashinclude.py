@@ -19,6 +19,12 @@ class BashInclude(BaseInclude):
 	return BaseInclude.run(self)
 
 
+
+
+
+
+
+
 def setup(app):
     app.add_directive('bashinclude', BashInclude)
 

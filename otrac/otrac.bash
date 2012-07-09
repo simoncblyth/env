@@ -22,8 +22,7 @@ EOU
  otracenv-(){           . $ENV_HOME/otrac/tracenv.bash   ; }
  ohepreztrac-(){        . $ENV_HOME/otrac/hepreztrac.bash   ; }
 
- otrachttpauth-(){      . $ENV_HOME/otrac/trachttpauth.bash ; }
-
+# otrachttpauth-(){      . $ENV_HOME/otrac/trachttpauth.bash ; }
 # tracxmlrpc- moved to env.bash
   
 

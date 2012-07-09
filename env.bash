@@ -1066,5 +1066,6 @@ trace-(){      . $(env-home)/sysadmin/trace.bash && trace-env $* ; }
 tools-(){      . $(env-home)/tools/tools.bash && tools-env $* ; }
 
 tracxmlrpc-(){   . $(env-home)/otrac/tracxmlrpc.bash && tracxmlrpc-env $* ; }
+trachttpauth-(){ . $(env-home)/otrac/trachttpauth.bash && trachttpauth-env $* ; }
 
 

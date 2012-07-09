@@ -6,46 +6,8 @@ tracxmlrpc
  
 http://www.trac-hacks.org/wiki/XmlRpcPlugin
 
-::
-
-tracxmlrpc-test
-             -get
-             -prepare
-             -install
-             -enable
-             -permission
-
-
 tracxmlrpc-open
-   WSDL style descripion of the protocol
-
-
-#  cd xmlrpcplugin/0.10
-#  python setup.py install
-#
-#  cd  $PYTHON_HOME/lib/python2.5/site-packages
-#  ls -alst TracXMLRPC-0.1-py2.5.egg
-#  cat easy-install.pth
-#
-#  i used the above "install" method that puts the egg into site-packages 
-#   ... but http://www.trac-hacks.org/wiki/XmlRpcPlugin
-#  suggests the below..   i assume the difference is egg positioning only 
-#
-#
-#  nope get ... 
-#      ExtractionError: Can't extract file(s) to egg cache
-#   [Errno 13] Permission denied: '/home/blyth/.python-eggs'
-#
-#
-# seems that if you test things too quickly after restart the log file becomes owned by
-# "root" ... presumably the request is handled by the primary apache process , prior to it spawning 
-# resulting in the rootified trac.log 
-# 
-#  can fix with : 
-#       sudo chown www $SCM_FOLD/tracs/$name/log/trac.log
-#
-# tracxmlrpc-test    
-#
+   WSDL style description of the protocol
 
 
 ::
@@ -65,7 +27,6 @@ tracxmlrpc-open
 	> docs.target = mainnav# metanav
 
 
-
 On G, only after /usr/bin/easy_install (targetting the system python) does:
   
   * the plugin appear in admin, http://localhost/tracs/workflow/admin/general/plugin
@@ -80,7 +41,6 @@ On G, only after /usr/bin/easy_install (targetting the system python) does:
 	Installed /Library/Python/2.5/site-packages/TracXMLRPC-1.1.2-py2.5.egg
 	Processing dependencies for TracXMLRPC==1.1.2
 	Finished processing dependencies for TracXMLRPC==1.1.2
-
 
 
 Test is giving permission denied.  This issue is mentioned in http://trac-hacks.org/wiki/XmlRpcPlugin

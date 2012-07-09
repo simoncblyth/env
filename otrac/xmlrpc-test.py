@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 """
 I guess it should not matter which python os being used
-
-Getting::
-
-	xmlrpclib.Fault: <Fault 403: 'XML_RPC privileges are required to perform this operation'>
-
 """
 import sys, os
 from xmlrpclib import ServerProxy 
@@ -21,7 +16,15 @@ if __name__ == '__main__':
    server = ServerProxy(url)
    print server.system.getAPIVersion()
    pages = server.wiki.getAllPages()
-   for page in pages:
+   for page in sorted(pages):
        print page	   
+       if os.path.exists(page):
+           log.info("skip preexisting file %s " % page )    
+       else:
+           content=server.wiki.getPage(page)
+           out=file(page,'w')
+           out.write( content.encode("utf-8"))
+           out.close()
+
 
 
