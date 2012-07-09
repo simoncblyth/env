@@ -1067,5 +1067,5 @@ tools-(){      . $(env-home)/tools/tools.bash && tools-env $* ; }
 
 tracxmlrpc-(){   . $(env-home)/otrac/tracxmlrpc.bash && tracxmlrpc-env $* ; }
 trachttpauth-(){ . $(env-home)/otrac/trachttpauth.bash && trachttpauth-env $* ; }
-
+trac2mediawiki-(){ . $(env-home)/trac/package/hide/trac2mediawiki.bash && trac2mediawiki-env $* ; }
 

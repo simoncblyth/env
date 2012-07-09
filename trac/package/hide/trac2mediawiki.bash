@@ -1,3 +1,4 @@
+trac2mediawiki-vi(){ vi $BASH_SOURCE ; }
 trac2mediawiki-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU
