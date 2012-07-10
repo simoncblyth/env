@@ -1,5 +1,11 @@
 Conversion of Trac wiki to Sphinx rst
 =======================================
+   
+.. contents:: :local:
+
+
+Strategy
+----------
 
 Approaches:
 
@@ -17,8 +23,6 @@ Approaches:
       * this nicely fits with XMLRPC access to the wikitext   
       * https://bitbucket.org/pcaro/trac2rst/src/9d1b605ac030/src/trac2rst/core.py  
       * would need to add support for my common trac wiki usage patterns  
-
-
 
 
 Trac Formatter based
@@ -50,16 +54,73 @@ Crucial part of ``trac.wiki.formatter``, are the internal handlers with method s
                     return internal_handler(match, fullmatch)
 
 
-
 Metadata preservation
 --------------------------
 
 Need to find Sphinx/RST equivalent representation of Trac metadata, and preserve this in migration:
 
 #. modification time stamps 
+
+   #. migration issue only? 
+
 #. trac tags 
 #. tag lists (not really like toctree)
 
+
+Sphinx access to docinfo metadata
+-----------------------------------
+
+https://groups.google.com/forum/?fromgroups#!topic/sphinx-dev/Hszmw8clhrM
+
+Investigate in ``env.sphinxext.taglist`` looks like only specific metadata keys are read
+
+
+Trac Macros that I use 
+-----------------------
+
+TracNav(ReponameNav) : sidebar navigation panel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Not really equivalent to the Sphinx toctree: 
+
+  * multi document index, not needed at single doc level with Sphinx
+  * will need manual organization as Trac is effectively flat and Sphinx uses a tree 
+    
+PageOutline
+~~~~~~~~~~~~
+
+Inpage content list, translate to::
+
+::
+
+   .. contents:: :local:
+
+TagCloud
+~~~~~~~~~
+
+Only a few of these
+
+TagList + per-page tag listing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Need a Sphinx extension to handle this, maybe use standard top of doc fieldlist:
+
+::
+
+    :tags: Red, Green, Blue
+
+And/or extension (assuming can grab the page context and get the metadats tags on that page with local)
+
+::
+
+     .. taglist:: :local:
+
+
+  * http://sphinx.pocoo.org/markup/misc.html
+
+Trac taglists are dynamic and provide links to pages featuring those tags, 
+
+  * how to do that possible in Sphinx ?
 
 
 

@@ -31,6 +31,17 @@ Reference
  * http://sphinx.pocoo.org/rest.html
  * http://sphinx.pocoo.org/markup/inline.html#inline-markup
 
+ * http://trac-hacks.org/browser/downloadsplugin/0.11/tracdownloads/tags.py
+
+     * for example of usage of TracTags by another plugin
+
+
+ * /usr/local/env/trac/package/tractags/trunk/tractags
+
+
+
+
+
 Testing
 -------
 

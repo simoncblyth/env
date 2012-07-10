@@ -1,3 +1,8 @@
+
+:modified: 2012-07-10 08:42:54+00:00
+:tags: Sphinx
+
+
 Monitor
 =========
 
@@ -59,12 +64,15 @@ Done:
 #. caution this will not work in the system python2.3 (used by apache/modpython/trac)
 #. nginx running on 8080
 #. add env symbolic link to nginx docs
-#. hook up the javascript with link in _static::
+#. hook up the javascript with link in _static
 
-g4pb-2:~ blyth$ ls -l ~/e/_static/
-total 8
-lrwxr-xr-x  1 blyth  staff  38 12 Jun 19:45 highstock -> /usr/local/env/plot/Highstock-1.1.6/js
-g4pb-2:~ blyth$ 
+
+::
+
+        g4pb-2:~ blyth$ ls -l ~/e/_static/
+        total 8
+        lrwxr-xr-x  1 blyth  staff  38 12 Jun 19:45 highstock -> /usr/local/env/plot/Highstock-1.1.6/js
+        g4pb-2:~ blyth$ 
 
 
 Hmm the link approach not working with nginx on WW

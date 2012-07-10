@@ -1,8 +1,15 @@
+:modified: 2012-07-10 08:42:54+00:00
+:tags: Red,Green,Blue
+
 Env Development Log
 =======================
 
 :Version: |version|
 :Date: |today|
+
+
+
+.. taglist::
 
 
 Objectives for these pages.
