@@ -20,6 +20,37 @@ Approaches:
 
 
 
+
+Trac Formatter based
+----------------------
+
+Checkout the trac source
+
+:: 
+    trac-
+    tractrac-
+    tractrac-cd
+
+Crucial part of ``trac.wiki.formatter``, are the internal handlers with method signature convention ``_<type>_formatter(match, fullmatch)``
+
+::
+   # -- Wiki engine
+    
+    def handle_match(self, fullmatch):
+        for itype, match in fullmatch.groupdict().items():
+            if match and not itype in self.wikiparser.helper_patterns:
+                # Check for preceding escape character '!'
+                if match[0] == '!':
+                    return escape(match[1:])
+                if itype in self.wikiparser.external_handlers:
+                    external_handler = self.wikiparser.external_handlers[itype]
+                    return external_handler(self, match, fullmatch)
+                else:
+                    internal_handler = getattr(self, '_%s_formatter' % itype)
+                    return internal_handler(match, fullmatch)
+
+
+
 Metadata preservation
 --------------------------
 
@@ -28,5 +59,7 @@ Need to find Sphinx/RST equivalent representation of Trac metadata, and preserve
 #. modification time stamps 
 #. trac tags 
 #. tag lists (not really like toctree)
+
+
 
 

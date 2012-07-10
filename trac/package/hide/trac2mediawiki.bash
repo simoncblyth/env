@@ -9,7 +9,17 @@ trac2mediawiki-usage(){
    
    hmm there is a boat load of wiki-macros too 
    
-   
+
+Investigate the hookup to system python on G::
+
+   /usr/bin/python -c "import sys ; print '\n'.join(sys.path)" 
+
+Done via egg: /Library/Python/2.5/site-packages/Trac2MediaWiki-0.0.2-py2.5.egg
+
+
+
+
+
 EOU
 
 }
@@ -17,13 +27,15 @@ EOU
 trac2mediawiki-env(){
   elocal-
   package-
-  
-  local branch
-  case $(trac-major) in 
-     0.11) branch=trunk/0.11 ;;  ## give it a go
-        *) echo $msg ABORT trac-major $(trac-major) not handled ;;
-  esac
-  export TRAC2MEDIAWIKI_BRANCH=$branch
+  trac-
+
+  #local branch=trunk/0.11
+  #case $(trac-major) in 
+  #   0.11) branch=trunk/0.11 ;;  ## give it a go
+  #      *) echo $msg ABORT trac-major $(trac-major) not handled ;;
+  #esac
+
+  export TRAC2MEDIAWIKI_BRANCH=trunk/0.11
 
 }
 
