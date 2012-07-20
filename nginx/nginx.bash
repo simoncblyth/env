@@ -184,14 +184,15 @@ nginx-pidpath(){
   esac
 }    
     
-    
+
+ 
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
 nginx-stop(){    sudo kill -QUIT $(nginx-pid) ; }
 nginx-start(){   
    local msg="=== $FUNCNAME :"
    local pid=$(nginx-pid)
    [ -n "$pid" ] && echo $msg looks like nginx is running already with pid $pid from pidfile $(nginx-pidpath) ... stop it first && return 0
-   sudo nginx ; 
+   sudo /usr/sbin/nginx ; 
 }
 
 nginx-strings(){

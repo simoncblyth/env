@@ -1060,6 +1060,7 @@ cuisine-(){      . $(env-home)/tools/cuisine.bash && cuisine-env $* ; }
 daemonwatch-(){      . $(env-home)/tools/daemonwatch.bash && daemonwatch-env $* ; }
 highstock-(){      . $(env-home)/plot/highstock.bash && highstock-env $* ; }
 highcharts-(){      . $(env-home)/plot/highcharts.bash && highcharts-env $* ; }
+njs-(){      . $(env-home)/nodejs/njs.bash && njs-env $* ; }
 nodehighcharts-(){      . $(env-home)/nodejs/nodehighcharts.bash && nodehighcharts-env $* ; }
 sphinxcontrib-(){      . $(env-home)/doc/sphinxcontrib.bash && sphinxcontrib-env $* ; }
 trace-(){      . $(env-home)/sysadmin/trace.bash && trace-env $* ; }
