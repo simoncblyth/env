@@ -4,6 +4,13 @@ TODO
 Dayabay
 --------
 
+Dates : Kambiu Talk July 19th 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ * 6AD run ends   : 28 July 2012
+ * 8AD run starts : early Oct 2012
+ * IHEP 7-10 Jan 2013 (To be conf.)
+
 AdLidSensor Scraper
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -14,7 +21,6 @@ Docs
 
 #. bashtoctree
 
-
 hep1
 ^^^^^
 
@@ -23,8 +29,6 @@ hep1
         g4pb-2:~ blyth$ ssh H1
         ssh_exchange_identification: Connection closed by remote host
         g4pb-2:~ blyth$ 
-
-
 
 Backups
 ^^^^^^^
@@ -67,7 +71,6 @@ I trust the range checking.
 
    #. rendering charts to png non-trivial in absence of browser, so do checks on hub and email if notifications required
 
-
 Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -85,7 +88,6 @@ Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 
 #. hfag: auto ntpupdate not working?  ~60 min behind.
 #. hfag: reboot starts tomcat : must disable the chkconfig
-
 
 cms02 Lockdown
 ^^^^^^^^^^^^^^^
@@ -142,8 +144,6 @@ C succeeds::
         ...
 
 
-
-
 compare openssh versions between C and C2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -172,7 +172,6 @@ compare openssh versions between C and C2
         openssh-server.i386                      4.3p2-6.cern           installed       
 
 
-
 Exported Working Copies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -197,10 +196,8 @@ Backups
 #. make dna mismatches get reported more loudly
 #. cms02 backups are owned by **blyth** : lock em to prevent accidents ? 
 
-
 Docs 
 -----
-
 
 #. trac rst preview of sphinx flavored rst, has some errors due to unrecognized directived
 

@@ -2,7 +2,6 @@
 LOG
 ====
 
-
 Review Lessons from recovery
 =============================
 
@@ -31,7 +30,6 @@ Failed to find viable interim server
 
 #. belle1, made some progress but balked at having to downgrade 0.11 to 0.10.5 (and expectation that this would entail lots of trac config effort) 
 
-
 cms01 as stand-in server ?
 ===========================
 
@@ -59,7 +57,6 @@ cms01 as stand-in server ?
 	-rwxr-xr-x  1 root root 426545 Dec 31  2007 /usr/lib/httpd/modules/mod_dav_svn.so
 
 
-
 Key precursor for apache config is ``svnsetup-``, mismatch::
  
         [Wed May 02 17:36:03 2012] [notice] Apache/2.0.52 (Scientific Linux) configured -- resuming normal operations
@@ -67,10 +64,8 @@ Key precursor for apache config is ``svnsetup-``, mismatch::
         [Wed May 02 17:36:19 2012] [error] make_obcallback: could not import mod_python.apache.\n
 
 
-
 belle1 as stand-in : balked at trac downgrade 0.11 to 0.10.5
 ==============================================================
-
 
 EPEL distro trac 0.10.5
 ------------------------
@@ -88,7 +83,6 @@ Yum epel based installation on belle1 : lighttpd/fastcgi/trac + apache/mod_dav_s
 ::
 
           sqlite3 db/trac.db "update system set value=20 where name='database_version'"
-
 
 
 EPEL distro config is not very smooth::
@@ -306,11 +300,9 @@ replacement cms02 evaluation
 	[blyth@belle7 repos]$ cat /etc/redhat-release 
 	Scientific Linux SL release 5.1 (Boron)
 
-
 #. check distro versions
 
   * trac version from EPEL for SL4 is 0.9.3 ``sudo yum --enablerepo=epel info trac`` : too old for compatibility 
-
 
 
 basic yum installs 
