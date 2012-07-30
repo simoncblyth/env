@@ -1394,12 +1394,13 @@ scm-backup-uninhibit(){
 
 
 scm-backup-synctrac(){
+   local msg="=== $FUNCNAME :"
    local name=${1:dummy}
    [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
    trac-
 
    local vers=$(trac-version)
-   case $version in 
+   case $vers in 
      0.11*) scm-backup-synctrac-11 $name ;;
      0.12*) scm-backup-synctrac-post11 $name ;;
    esac
@@ -1417,16 +1418,33 @@ scm-backup-synctrac-post11(){
                
      echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
 
+     local inst=$(trac-envpath $name)
      local repo=$(trac-repopath $name)
      [ ! -d "$repo" ] && echo $msg repodir $repo for $name does not exist && return 1
 
      TRAC_INSTANCE=$name trac-admin-- upgrade
-     TRAC_INSTANCE=$name trac-admin-- repository add $repo $name
+     TRAC_INSTANCE=$name trac-admin-- repository add $name $repo
      TRAC_INSTANCE=$name trac-admin-- repository resync $name
+     TRAC_INSTANCE=$name trac-admin-- permission add jimmy TRAC_ADMIN
+     scm-backup-chcon $repo
+     scm-backup-chcon $inst
 
      echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
      apache-
      sudo find $(trac-envpath $name) -group root -exec chown $(apache-user):$(apache-group) {} \; 
+
+}
+
+scm-backup-chcon(){
+
+     local msg="=== $FUNCNAME :"
+     [ "$(which chcon 2>/dev/null)" == "" ] && echo $msg no chcon && return
+     local dir=$1
+     [ ! -d "$dir" ] && echo $msg no such dir $dir && return 1
+
+     local cmd="sudo chcon -R -t httpd_sys_content_t $dir"
+     echo $msg $cmd
+     eval $cmd
 
 }
 
