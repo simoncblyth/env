@@ -357,6 +357,7 @@ local-backup-tag(){
      XX) echo ZZ S ;;
      ZZ) echo XX S ;;
      WW) echo S ;;
+     AA) echo D8 C2  ;;
      *) echo U ;;
    esac  
 }
