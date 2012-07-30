@@ -21,7 +21,7 @@ EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
 .PHONY: bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 
-default: bash2rst dirhtml rsync
+default: bash2rst dirhtml 
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
 

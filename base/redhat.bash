@@ -88,10 +88,12 @@ redhat-vers(){
 
 redhat-epel4(){
    #sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-9.noarch.rpm
-   sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-10.noarch.rpm
+   #sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/4/i386/epel-release-4-10.noarch.rpm
+   sudo rpm -Uvh http://download.fedoraproject.org/pub/epel/4/i386/epel-release-4-10.noarch.rpm
 }
 
 redhat-epel5(){
-  sudo rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-3.noarch.rpm
+  #sudo rpm -Uvh http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-3.noarch.rpm
+  sudo rpm -Uvh http://download.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 }
 
