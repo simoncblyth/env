@@ -1,3 +1,4 @@
+accountmanager-vi(){ vi $BASH_SOURCE ; }
 accountmanager-usage(){
    package-usage  ${FUNCNAME/-*/}
    cat << EOU

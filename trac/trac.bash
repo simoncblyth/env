@@ -342,6 +342,7 @@ trac-version(){
      H) echo 0.10.4  ;;
      P) echo 0.11    ;;
      C) echo 0.11    ;;
+    AA) echo 0.12.3  ;;
      *) echo 0.11    ;;
    esac
 }

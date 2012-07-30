@@ -534,7 +534,7 @@ ssh--putkey(){
 
 }
 
-
+ssh--pk2(){  cat $2 | ssh $1 "cat - >> ~/.ssh/authorized_keys2" ; }
 
 
 ssh--key2ak(){

@@ -1392,14 +1392,50 @@ scm-backup-uninhibit(){
 }
 
 
-scm-backup-synctrac(){
-  
-     local msg="=== $FUNCNAME :"
-     local name=${1:dummy}
-     [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
-     echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
-     trac-
 
+scm-backup-synctrac(){
+   local name=${1:dummy}
+   [ "$name" == "dummy" ] && echo $msg ERROR the name must be given && return 1 
+   trac-
+
+   local vers=$(trac-version)
+   case $version in 
+     0.11*) scm-backup-synctrac-11 $name ;;
+     0.12*) scm-backup-synctrac-post11 $name ;;
+   esac
+}
+
+scm-backup-synctrac-post11(){
+ 
+     local name=$1
+
+     local msg="=== $FUNCNAME :"
+     echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
+     ## setting permissions 
+     $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
+     SUDO=$SUDO trac-configure-instance $name
+               
+     echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
+
+     local repo=$(trac-repopath $name)
+     [ ! -d "$repo" ] && echo $msg repodir $repo for $name does not exist && return 1
+
+     TRAC_INSTANCE=$name trac-admin-- upgrade
+     TRAC_INSTANCE=$name trac-admin-- repository add $repo $name
+     TRAC_INSTANCE=$name trac-admin-- repository resync $name
+
+     echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
+     apache-
+     sudo find $(trac-envpath $name) -group root -exec chown $(apache-user):$(apache-group) {} \; 
+
+}
+
+scm-backup-synctrac-11(){
+  
+     local name=$1
+
+     local msg="=== $FUNCNAME :"
+     echo $msg invoking trac-configure-instance for $name to customize server specific paths etc..
      ## setting permissions 
      $SUDO find $(trac-envpath $name) -type d -exec chmod go+rx {} \;
      SUDO=$SUDO trac-configure-instance $name
