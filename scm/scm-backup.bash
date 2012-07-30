@@ -1477,7 +1477,12 @@ scm-backup-repo(){
    # 
    #  inside $target_fold , which must exist
    # 
-     
+
+
+   local fsfsconf=$path/db/fsfs.conf
+   [ ! -f "$fsfsconf" ] && echo $msg touching $fsfsconf : workaround for subversion \"fix\" post 1.6.11 && touch $fsfsconf     
+
+ 
    local hot_backup=$(svn-hotbackuppath)      
    [ ! -x $hot_backup ] && echo $msg ABORT no hot_backup script $hot_backup && return 1
                   			  	  
