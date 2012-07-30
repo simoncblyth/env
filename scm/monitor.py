@@ -100,7 +100,7 @@ def monitor(cfg):
     log.info("to check: cat %s | python -m simplejson.tool " % jsp )
 
     msg = "subject\nbody line 1\nbody line 2\n"
-    email = cfg.email  
+    email = cfg['email']  
     if email:
         sendmail( msg, email ) 
 
