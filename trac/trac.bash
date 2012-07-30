@@ -329,6 +329,7 @@ trac-instance(){
               G) echo workflow ;;
      C|C2|N|P|H) echo env      ;;
        XX|YY|ZZ) echo dybsvn   ;;
+             AA) echo aberdeen ;;
               *) echo env      ;;
    esac
 }
@@ -525,7 +526,7 @@ trac-admin-sqlite-check(){
      "sqlite_version_string:3.3.6 have_pysqlite:2") echo $msg MAYBE OK $v ON N WITH SYSTEM python ;;
      "sqlite_version_string:3.4.0 have_pysqlite:2" ) echo $msg OK $v ... apples sqlite3 ;;
      "sqlite_version_string:3.7.5 have_pysqlite:2" ) echo $msg UNKNOWN  ;;
-                                                  *) echo $msg ABORT non-supported sqlite/pysqlite version $v ... see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 1 ;;  
+                                                  *) echo $msg WARNING non-supported sqlite/pysqlite version $v ... see $(env-wikiurl)/TracSQLiteMemoryExhaustion && return 0 ;;  
    esac
 }
 
@@ -565,12 +566,12 @@ trac-edit-ini(){
    local tpath=$tmp/$(basename $path)
    
    ## edit a temporary copy of the ini file
-   local cmd="cp $path $tpath "
+   local cmd="$SUDO cp $path $tpath "
    eval $cmd
    python $ENV_HOME/base/ini.py $tpath $*  
    
    
-   local dmd="diff $path $tpath" 
+   local dmd="$SUDO diff $path $tpath" 
    echo $msg $dmd
    eval $dmd
 
