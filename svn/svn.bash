@@ -283,9 +283,9 @@ svn-authzcheck(){
 svn-mode(){ echo ${SVN_MODE:-$(svn-mode-default $*)} ; }
 svn-mode-default(){
   case ${1:-$NODE_TAG} in
-      ZZ|C) echo system ;;
-         G) echo systemport ;;
-         *) echo source ;;
+      ZZ|C|AA) echo system ;;
+            G) echo systemport ;;
+            *) echo source ;;
   esac
 }
 
@@ -325,12 +325,18 @@ svn--(){
    sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; svn- ; $* "
 }
 
+svn-hotbackuppath-system(){
+   svntools-
+   case ${1:-$NODE_TAG} in
+      AA) echo /usr/share/doc/subversion-1.6.11/tools/backup/hot-backup.py ;;
+       *) echo $(svntools-dir)/tools/backup/hot-backup.py  ;;  ## as stock svn doesnt come with the tools
+   esac
+}
 
 svn-hotbackuppath(){
   local mode=$(svn-mode)
   if [ "${mode:0:6}" == "system" ]; then
-      svntools-
-      echo $(svntools-dir)/tools/backup/hot-backup.py   ## as stock svn doesnt come with the tools
+      svn-hotbackuppath-system     
   elif [ "$mode" == "source" ]; then  
       svnbuild-
       echo $(svnbuild-dir)/tools/backup/hot-backup.py    
