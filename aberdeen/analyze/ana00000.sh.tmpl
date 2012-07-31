@@ -1,0 +1,11 @@
+
+logdir=%(batchdir)s/log
+mkdir -p $logdir
+log=$logdir/ana%(run)s
+
+date > $log
+echo hello %(run)s  %(dir)s  >> $log
+ls -l >> $log
+
+
+
