@@ -211,20 +211,29 @@ nginx-htdocs(){
   esac
 }
 
-nginx-logd(){   
+nginx-logd-(){   
    case $(pkgr-cmd) in 
      port)  echo $(pkgr-logd)/nginx  ;;
      ipkg)  echo $(nginx-prefix)/var/nginx/log ;;
       yum)  echo $(nginx-prefix)/var/log/nginx ;;
    esac  
 }
+
+nginx-logd(){
+   case ${1:-$NODE_TAG} in 
+      WW) echo /home/blyth/local/nginx/logs ;;
+       *) nginx-logd- ;;
+   esac 
+}
+
+
 nginx-cd(){     cd $(nginx-logd) ; }
 nginx-log(){    echo $(nginx-logd)/sv.log ; }
 nginx-elog(){   echo $(nginx-logd)/error.log ; }
 nginx-alog(){   echo $(nginx-logd)/access.log ; }
-nginx-tail(){  sudo tail -f $(nginx-log) ; }
-nginx-etail(){  sudo tail -f $(nginx-elog) ; }
-nginx-atail(){  sudo tail -f $(nginx-alog) ; }
+nginx-tail(){   $SUDO tail -f $(nginx-log) ; }
+nginx-etail(){  $SUDO tail -f $(nginx-elog) ; }
+nginx-atail(){  $SUDO tail -f $(nginx-alog) ; }
 
 
 
