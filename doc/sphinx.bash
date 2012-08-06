@@ -12,6 +12,18 @@ Sphinx
 installs
 ---------
 
+N : system python 2.4
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sphinx dependency issues, Pygments 1.5 has py24 incompatibility, downgrade to 1.4 with::
+
+    sudo pip uninstall Pygments
+    sudo pip install Pygments==1.4
+
+Upgrade docutils from 0.6 to 0.9.1::
+
+    sudo pip uninstall docutils
+    sudo pip install docutils
 G  
 ~~~
 

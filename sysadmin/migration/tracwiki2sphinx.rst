@@ -38,6 +38,7 @@ Checkout the trac source
 Crucial part of ``trac.wiki.formatter``, are the internal handlers with method signature convention ``_<type>_formatter(match, fullmatch)``
 
 ::
+
    # -- Wiki engine
     
     def handle_match(self, fullmatch):
@@ -90,8 +91,6 @@ PageOutline
 ~~~~~~~~~~~~
 
 Inpage content list, translate to::
-
-::
 
    .. contents:: :local:
 

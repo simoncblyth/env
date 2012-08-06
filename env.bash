@@ -45,6 +45,12 @@ On N::
 
    export  ENV_HOME=/home/blyth/eenv ; ## modify in .bash_profile to use the exported
 
+Make changes on G then::
+
+   svn export --force . ~/eenv
+   rsync -av ~/eenv N:
+
+
 
 env functions
 ---------------
