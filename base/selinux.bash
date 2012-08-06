@@ -15,14 +15,8 @@ selinux-usage(){
        -l read input since the last reload
        -i input file ... the logfile with the denials
 
-
-
-
     selinux-a2a
          http://docs.fedoraproject.org//selinux-faq-fc5/#id2961385
-
-
-
 
 
 EOU

@@ -32,6 +32,20 @@ local
 * http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
 * http://www-128.ibm.com/developerworks/library/l-bash-test.html
 
+
+workaround belle7 svn blockage
+------------------------------
+
+On G::
+
+   cd ~/e ;  svn export . ~/eenv
+   rsync -av ~/eenv N:
+
+On N::
+
+   export  ENV_HOME=/home/blyth/eenv ; ## modify in .bash_profile to use the exported
+
+
 env functions
 ---------------
 

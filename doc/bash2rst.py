@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-from __future__ import with_statement
+#from __future__ import with_statement
 import os, logging
 log = logging.getLogger(__name__)
 
@@ -145,8 +145,10 @@ class Bash(list):
 	    log.warn("path %s does not exist " % path )
 	    return ""
 
-        with open(path,"r") as fp:
-            content = fp.read()
+        fp = open(path,"r") 
+        content = fp.read()
+        fp.close()
+
         bits = content.split(delim)
         assert len(bits) == 3, "expect 3 bits delimited by %s in %s not %s " % ( delim, path, len(bits)) 
         return bits[1]
@@ -160,8 +162,9 @@ class Bash(list):
         if not os.path.exists(gdir):
             os.makedirs(gdir)
 	log.info("writing %s " % gpath )    
-        with open(gpath,"w") as fp:
-            fp.write(self.content)
+        fp = open(gpath,"w") 
+        fp.write(self.content)
+	fp.close()
         return gpath
 
     def Walk(cls, path):

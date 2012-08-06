@@ -1,6 +1,12 @@
 TODO
 =====
 
+env / scm-backup
+------------------
+
+#. move to full nodename for /var/scm/backup/NODENAME
+
+
 Dayabay
 --------
 
@@ -28,7 +34,6 @@ hep1
 
         g4pb-2:~ blyth$ ssh H1
         ssh_exchange_identification: Connection closed by remote host
-        g4pb-2:~ blyth$ 
 
 Backups
 ^^^^^^^
@@ -43,6 +48,10 @@ Env
 
 Sys Admin
 -----------
+
+SCM 
+^^^^
+
 
 Improve SCM logging
 ^^^^^^^^^^^^^^^^^^^^^
