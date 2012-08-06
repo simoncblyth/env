@@ -204,7 +204,13 @@ EOI
 }
 
 
-nginx-htdocs(){ echo $(nginx-eprefix)/share/nginx/html ; }
+nginx-htdocs(){ 
+  case ${1:-$NODE_TAG} in 
+    WW) echo /home/blyth/local/nginx/html ;;
+     *) echo $(nginx-eprefix)/share/nginx/html ;;
+  esac
+}
+
 nginx-logd(){   
    case $(pkgr-cmd) in 
      port)  echo $(pkgr-logd)/nginx  ;;
