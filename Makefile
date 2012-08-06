@@ -34,6 +34,9 @@ rsync:
 endif
 
 
+rsync_WW:
+	rsync -av _build/dirhtml/ /home/blyth/local/nginx/html/e/
+
 bash2rst:
 	bash2rst.py env.bash	
 
