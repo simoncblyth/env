@@ -8,8 +8,10 @@
      recipient email address as the first argumemnt
 """
 import os 
-def sendmail( lines , to , fr=os.environ.get('FROM',"me@localhost") ):
+def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
     """
+
+
          the first line is used as the subject of the message
          
          creates a text/plain message and sends
@@ -20,7 +22,8 @@ def sendmail( lines , to , fr=os.environ.get('FROM',"me@localhost") ):
     except ImportError:
         from email.MIMEText import MIMEText
 
-    msg = MIMEText("".join(lines))
+    lines = text.split(delim)
+    msg = MIMEText(delim.join(lines))
     msg['Subject'] = lines[0]
     msg['From'] = fr
     msg['To'] = to
@@ -36,7 +39,7 @@ def sendmail( lines , to , fr=os.environ.get('FROM',"me@localhost") ):
 if __name__=='__main__':
     import sys
     if len(sys.argv)>1:
-    	sendmail( sys.stdin.readlines() , sys.argv[1] )
+    	sendmail( sys.stdin.read() , sys.argv[1] )
     else:
 	print sys.modules[__name__].__doc__
 

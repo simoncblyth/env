@@ -14,7 +14,7 @@ from env.scm.tgzplot import TGZPlot
 from pprint import pformat
 
 from env.tools.sendmail import sendmail
-   
+
 
 def writable(path):
     path = os.path.expandvars(path)
@@ -53,6 +53,14 @@ def cnf_(hub, smc="~/.scm_monitor.cnf"):
 
     hubcnf['HUB'] = hub
     return hubcnf
+
+
+def notify(cfg):
+    """
+    """
+    email = cfg.email  
+    msg = "subject\nbody line 1\nbody line 2\n"
+    sendmail( msg, email )
 
 
 def monitor(cfg):
