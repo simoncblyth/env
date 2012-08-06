@@ -33,9 +33,9 @@ rsync:
 	rsync -av _build/dirhtml/ C2:$(EDOCS)/
 endif
 
-
-rsync_WW:
-	rsync -av _build/dirhtml/ /home/blyth/local/nginx/html/e/
+#  nginx is OK with symbolic links : so no need for this 
+#rsync_WW:
+#	rsync -av _build/dirhtml/ /home/blyth/local/nginx/html/e/
 
 bash2rst:
 	bash2rst.py env.bash	

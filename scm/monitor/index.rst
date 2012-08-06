@@ -6,12 +6,16 @@
 Monitor
 =========
 
+Plots monitoring tarball sizes and counts 
+for Trac and Subversion instances that hail from **hub** servers 
+at various institutions. Typically plots for multiple backup nodes are 
+listed for each hub server.
+
 .. toctree::
 
     hku
     ntu
     ihep
-    dev
 
 
 How it works
@@ -26,5 +30,12 @@ If had large numbers of plots to render, it would be silly to re-render in brows
 for quntities that are only updated daily.  But that is what this is doing.  
 
 * can the plot be rendered as an image on the server ? allow this to be done once only 
+
+More details on mechanicas and dev notes:
+
+.. toctree::
+
+    dev
+    
 
 

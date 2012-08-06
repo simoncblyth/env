@@ -183,11 +183,15 @@ nginx-pidpath(){
      yum) echo $(nginx-prefix)/var/run/nginx.pid ;;
   esac
 }    
-    
+
+
+# OK without sudo at IHEP    
+nginx-sstop(){   $SUDO nginx -s stop ; }
+nginx-sstart(){  $SUDO nginx  ; }
 
  
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
-nginx-sstop(){  $SUDO nginx -s stop ; }
+
 nginx-stop(){    sudo kill -QUIT $(nginx-pid) ; }
 nginx-start(){   
    local msg="=== $FUNCNAME :"

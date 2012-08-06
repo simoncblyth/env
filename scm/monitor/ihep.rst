@@ -1,6 +1,6 @@
 
-Backups of repos and tracs at IHEP
--------------------------------------
+IHEP (hub WW)
+--------------
 
 Doing this on dayabay.ihep.ac.cn ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14,19 +14,11 @@ Done:
 #. add env symbolic link to nginx docs
 #. hook up the javascript with link in _static
 
+Todo:
 
-::
+#. test fabric run 
+#. deploy to real transfers : rather than current cross test 
 
-        g4pb-2:~ blyth$ ls -l ~/e/_static/
-        total 8
-        lrwxr-xr-x  1 blyth  staff  38 12 Jun 19:45 highstock -> /usr/local/env/plot/Highstock-1.1.6/js
-        g4pb-2:~ blyth$ 
-
-
-Hmm the link approach not working with nginx on WW
-
-  * http://dayabay.phys.ntu.edu.tw/e/_static/highstock/highstock.js
-  * http://dayabay.ihep.ac.cn:8080/e/_static/highstock/highstock.js
 
 
 

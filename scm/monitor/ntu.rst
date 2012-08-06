@@ -1,8 +1,8 @@
-Backups of repos and tracs at NTU
--------------------------------------
+NTU (hub C2)
+-------------
 
-C : cms01 (checking on the C backup of C2)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C : cms01
+~~~~~~~~~~
 
  * `scm_backup_monitor_C.json </data/scm_backup_monitor_C.json>`_
 
