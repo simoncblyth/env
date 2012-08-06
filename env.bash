@@ -33,23 +33,17 @@ local
 * http://www-128.ibm.com/developerworks/library/l-bash-test.html
 
 
-workaround belle7 svn blockage
-------------------------------
+workaround blockade of cms02 from belle7
+------------------------------------------
 
 On G::
 
-   cd ~/e ;  svn export . ~/eenv
-   rsync -av ~/eenv N:
+   svn up ~/env ; svn export --force ~/env ~/eenv
+   cd ; rsync -av eenv N:                ## deletes do not get propagated with this
 
 On N::
 
    export  ENV_HOME=/home/blyth/eenv ; ## modify in .bash_profile to use the exported
-
-Make changes on G then::
-
-   svn export --force . ~/eenv
-   rsync -av ~/eenv N:
-
 
 
 env functions

@@ -5,7 +5,7 @@ Backups of repos and tracs at NTU
 C : cms01 (checking on the C backup of C2)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- * `data source C.json </data/scm_backup_monitor_C.json>`_
+ * `scm_backup_monitor_C.json </data/scm_backup_monitor_C.json>`_
 
 .. raw:: html
 
@@ -19,10 +19,18 @@ C : cms01 (checking on the C backup of C2)
     <div id="container_C" style="height: 500px; min-width: 500px"></div>
 
 
+
+After copying a demo json from C onto WW this is still failing to present at IHEP
+with 404 from
+
+  * http://dayabay.ihep.ac.cn:8080/e/_static/highstock/highstock.js
+  * http://dayabay.ihep.ac.cn:8080/e/_static/highstock/modules/exporting.js
+
+
 H1 : hep1
 ~~~~~~~~~~
 
- * `data source H1.json </data/scm_backup_monitor_H1.json>`_
+ * `scm_backup_monitor_H1.json </data/scm_backup_monitor_H1.json>`_
 
 .. raw:: html
 
