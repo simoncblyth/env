@@ -80,6 +80,18 @@ Try out changes interactively
 #. http://jsfiddle.net/jswrY/
 
 
+nginx config
+~~~~~~~~~~~~~~~~~
+
+After copying a demo json from C onto WW this is still failing to present at IHEP
+with 404 from the below, whereas they work from N
+
+  * `/e/_static/highstock/highstock.js </e/_static/highstock/highstock.js>`_
+  * `/e/_static/highstock/modules/exporting.js </e/_static/highstock/modules/exporting.js>`_
+
+Cause turned out to be an extraneous location direction at WW.
+
+
 
 serverside highcharts/highstock with nodejs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

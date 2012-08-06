@@ -187,6 +187,7 @@ nginx-pidpath(){
 
  
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
+nginx-sstop(){  $SUDO nginx -s stop ; }
 nginx-stop(){    sudo kill -QUIT $(nginx-pid) ; }
 nginx-start(){   
    local msg="=== $FUNCNAME :"
