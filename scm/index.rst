@@ -4,5 +4,5 @@ SCM
 
 .. toctree::
 
-    monitor
+    monitor/index
 

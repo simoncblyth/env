@@ -96,7 +96,25 @@ apache-usage(){
 
              http://apache.webthing.com/mod_proxy_html/  
 
-      
+     
+Allowing Symbolic Links
+-------------------------
+
+::
+
+    [Mon Aug 06 16:29:03 2012] [error] [client 140.112.102.77] Symbolic link not allowed: /data/env/system/apache/httpd-2.0.64/htdocs/e
+
+
+
+Investigate this:
+
+#. check for `` Options FollowSymLinks`` in apache config
+#. check permissions on the directory for the user that runs httpd ``sudo -u nobody ls wherever``
+
+Even changing ownership of directory to nobody failed to serve up via symbolic links on C2. 
+Suspect maybe something hard coded wrt user nobody uid 99.  I have attempted to sort this
+out before, always turns out to be less effort to rsync directories to publish under htdocs.
+
 
  
 EOU

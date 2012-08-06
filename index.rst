@@ -8,10 +8,6 @@ Env Development Log
 :Date: |today|
 
 
-
-.. taglist::
-
-
 Objectives for these pages.
 
 #. TODO list  
@@ -46,6 +42,8 @@ Contents:
    SCM <scm/index>
    ROOT <root/index>
    ENV <_docs/env>
+   sphinxext/index
+   
 
 Indices and tables
 ==================
