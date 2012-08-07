@@ -7,7 +7,9 @@
      will become the subject of the message, and provide the 
      recipient email address as the first argumemnt
 """
-import os 
+import os, socket, logging
+log = logging.getLogger(__name__)
+
 def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
     """
 
@@ -30,11 +32,14 @@ def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
 
     import smtplib
     s = smtplib.SMTP()
-    s.connect()
-    print "Attempting to send email to recipient:[%s] from:[%s] message lines:[%s] " % ( to, fr, len(lines) )
-    s.sendmail(fr, to, msg.as_string())
-    s.close()
-
+    try:
+        s.connect()
+        log.info("Attempting to send email to recipient:[%s] from:[%s] message lines:[%s] " % ( to, fr, len(lines) ))
+        s.sendmail(fr, to, msg.as_string())
+    except socket.error, se:
+	log.warn("socket.error while attempting to sendmail : %s " % se  )  
+    finally:
+        s.close()
 
 if __name__=='__main__':
     import sys

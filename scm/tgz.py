@@ -1,9 +1,19 @@
 #!/usr/bin/env python
 """
+On G needs py26::
+
+    python2.6 tgz.py
+
+TODO:
+
+#. impose limits and color the table red/green accordingly
+#. integrate with sendmail notification + smry health cut to decide if notification needed 
 
 """
 import os, logging
 log = logging.getLogger(__name__)
+from pprint import pformat
+from datetime import datetime
 from env.db.simtab import Table
 from env.scm.datepath import Path
 
@@ -15,6 +25,8 @@ class TGZ(object):
     #. querying DB table to extract time series data (eg for plotting)
 
     """
+    msday = 24*60*60*1000 
+    smrycol = ('name','ltime','lsize','ldays','ldate')
     def __init__(self, dbpath=None, tn="tgzs" ):
         """
         :param dbpath: path to SQLite db
@@ -61,10 +73,24 @@ class TGZ(object):
 	return self._pfx[node]
 
     def dirs(self, node):
+	"""
+	:param node: tag of remote node
+	:return: list of distinct directories for the remote node
+	"""
         dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s where node='%s' " % (self.tn, node)))
         return dirs
 
     def items(self, node ):
+	"""
+	:param node: tag of remote node
+	:return: list of 2-tuples with (short name with common prefix removed,absolute dir)
+
+	For example::
+
+		(u'repos/data', u'/volume1/var/scm/backup/g4pb/repos/data')
+		(u'tracs/data', u'/volume1/var/scm/backup/g4pb/tracs/data')
+
+	"""
 	dirs = self.dirs(node)    
         pfx = os.path.commonprefix(dirs)
 	self._pfx[node] = pfx
@@ -93,28 +119,70 @@ class TGZ(object):
         return data
 
 
-    def data(self, node, item ):
+    def summary(self, node):
+        """
+	:param node:
+	:return: list of dict summarizing tarballs from remote backup node
+	"""
+        now = int(datetime.now().strftime("%s"))*1000
+        smry = []
+        for _ in self.items(node):
+	    name, dir = _
+	    last = self.data(node, _, "desc limit 1")
+	    assert len(last) == 1, len(last)
+            ltime,lsize = last[0]
+	    ldays = float(now - ltime)/float(self.msday)
+	    ldate = datetime.utcfromtimestamp(ltime/1000)
+	    smry.append(dict(zip(self.smrycol,[name,ltime,lsize,ldays,ldate])))
+        pass
+        return smry
+
+
+    def data(self, node, item , xsql="" ):
         """
 	:param node: 
 	:param item: specifier tuple as returned by items
-	:return: list of 2 element lists 
+	:param xsql: extra SQL to tack on to the query, eg "desc limit 1 " to get the last value
+	:return: list of 2 element lists with the time series of tarball sizes in date order
         """
         name, dir = item
         data = []
-        sql = "select strftime('%s',date)*1000, size from %s where dir='%s' and node='%s' order by date" % ( "%s", self.tn, dir, node )
+        sql = "select strftime('%s',date)*1000, size from %s where dir='%s' and node='%s' order by date %s " % ( "%s", self.tn, dir, node, xsql )
         for d in self.tab(sql):
 	    l = list(d)	
 	    if l[1]<11.:l[1] = l[1]*10.    # arbitaryish scaling for visibiity		  
             data.append(l)
         return data
 
+    def dump(self, node):
+	"""    
+        """
+        for _ in tgz.items(node):
+  	    name, dir = _
+	    print name
+	    data = self.data(node, _)
+	    print data
+        pass
+
 
 if __name__ == '__main__':
+
+
     logging.basicConfig(level=logging.INFO)	
     tgz = TGZ()
+
     node = 'Z9:229'
+
+    dirs = tgz.dirs(node)
+    print "\n".join(dirs)
     for _ in tgz.items(node):
-	print _[0]   
-	data = tgz.data(node, _)
-	print data
+        print _
+
+    smry = tgz.summary(node)
+    #print pformat(smry)
+
+    from converter.tabular import TabularData
+    tsmry = TabularData(smry)
+    print tsmry.as_rst(cols=tgz.smrycol)
+
 
