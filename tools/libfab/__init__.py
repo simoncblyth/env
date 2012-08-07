@@ -155,7 +155,7 @@ def setup(hubcnf):
         raise Exception("no hosts are defined for hub %s in HUB section of %s " % (hub, lfc) )     
 
     env.hosts = hosts.split()
-    log.warn("hubcnf %s env.hosts %s " % (repr(hubcnf), repr(env.hosts)) )
+    log.warn("hubcnf %s env.hosts %s " % (pformat(hubcnf), repr(env.hosts)) )
 
     if cnf and cnf.has_section('ENV'):
         for key in cnf.options('ENV'):    

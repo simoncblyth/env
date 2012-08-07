@@ -225,7 +225,7 @@ converter-get(){
     local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
     [ -d converter ] && echo $msg converter dir exists already delete and rerun ... or use git && return 0
     
-    local cmd="$SUDO $PIP install -e git+$(converter-url)#egg=converter"
+    local cmd="$SUDO ${PIP:-pip} install -e git+$(converter-url)#egg=converter"
     echo $msg $cmd
     eval $cmd 
    
