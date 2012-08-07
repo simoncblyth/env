@@ -35,6 +35,7 @@ extensions = ['sphinx.ext.autodoc',
 	      'sphinx.ext.graphviz',
 	      'env.sphinxext.bashinclude',
 	      'env.sphinxext.taglist',
+	      'env.sphinxext.stockchart',
 	      ]
 
 

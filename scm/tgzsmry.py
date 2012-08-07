@@ -115,10 +115,11 @@ class TGZSmry(object):
 
     def rst_tables(self, nodes):
 	rst = {}    
+	rst['roles'] = ".. include:: /sphinxext/roles.txt\n\n" 
         for node in nodes:
             rst[node] = self.summary_table(node)
         rst['all'] = self.status_table()
-	return rst['all'] + "\n" + "\n".join( map(lambda _:rst[_], nodes)) 
+	return rst['roles'] + rst['all'] + "\n" + "\n".join( map(lambda _:rst[_], nodes)) 
 
 if __name__ == '__main__':
 

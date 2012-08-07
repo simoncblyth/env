@@ -1,0 +1,14 @@
+
+.. raw:: html
+
+    <style type="text/css">
+        span.alarm { color: red; } 
+        span.warn { color: orange; } 
+        span.ok { color: green; } 
+    </style>
+
+.. role:: alarm
+.. role:: warn
+.. role:: ok
+
+

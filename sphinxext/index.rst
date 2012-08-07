@@ -13,18 +13,23 @@ Accessing file level docinfo/metadata with **taglist** extension.
 htmlrole
 ----------
 
-.. raw:: html
+Raw html style and roles are included with::
 
-    <style type="text/css">
-        span.alarm { color: red; } 
-        span.warn { color: orange; } 
-        span.ok { color: green; } 
-    </style>
+   .. include:: /sphinxext/roles.txt
 
-.. role:: alarm
-.. role:: warn
-.. role:: ok
+Note that absolute include paths are actually relative to sphinx source directory.
+
+.. include:: /sphinxext/roles.txt
+
+For this page simply including **roles.txt** would work.
+
+Here is an example of using the roles :alarm:`some alarming text` and :warn:`some warning text` and :ok:`some ok text` and back to normal
 
 
-Here is an example of using :alarm:`some alarming text` and :warn:`some warning text` and :ok:`some ok text` and back to normal
+
+stockchart
+------------
+
+.. stockchart:: /data/scm_backup_monitor_C.json container_C
+
 
