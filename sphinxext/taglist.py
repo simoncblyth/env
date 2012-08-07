@@ -25,9 +25,6 @@ class TagList(Directive):
 
         The meta is not not document specific::
 
-
-	     
-
         """ 
         env = self.state.document.settings.env
         content = u'\n'.join(self.content)

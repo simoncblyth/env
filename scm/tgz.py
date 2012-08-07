@@ -1,13 +1,5 @@
 #!/usr/bin/env python
 """
-On G needs py26::
-
-    python2.6 tgz.py
-
-TODO:
-
-#. impose limits and color the table red/green accordingly
-#. integrate with sendmail notification + smry health cut to decide if notification needed 
 
 """
 import os, logging
@@ -17,6 +9,7 @@ from datetime import datetime
 from env.db.simtab import Table
 from env.scm.datepath import Path
 
+
 class TGZ(object):
     """
     Interface to backup tarball SQLite DB table, encompassing 
@@ -25,8 +18,6 @@ class TGZ(object):
     #. querying DB table to extract time series data (eg for plotting)
 
     """
-    msday = 24*60*60*1000 
-    smrycol = ('name','ltime','lsize','ldays','ldate')
     def __init__(self, dbpath=None, tn="tgzs" ):
         """
         :param dbpath: path to SQLite db
@@ -118,26 +109,6 @@ class TGZ(object):
             data.append(l)
         return data
 
-
-    def summary(self, node):
-        """
-	:param node:
-	:return: list of dict summarizing tarballs from remote backup node
-	"""
-        now = int(datetime.now().strftime("%s"))*1000
-        smry = []
-        for _ in self.items(node):
-	    name, dir = _
-	    last = self.data(node, _, "desc limit 1")
-	    assert len(last) == 1, len(last)
-            ltime,lsize = last[0]
-	    ldays = float(now - ltime)/float(self.msday)
-	    ldate = datetime.utcfromtimestamp(ltime/1000)
-	    smry.append(dict(zip(self.smrycol,[name,ltime,lsize,ldays,ldate])))
-        pass
-        return smry
-
-
     def data(self, node, item , xsql="" ):
         """
 	:param node: 
@@ -156,6 +127,9 @@ class TGZ(object):
 
     def dump(self, node):
 	"""    
+	:param node: 
+
+	debug dumping 
         """
         for _ in tgz.items(node):
   	    name, dir = _
@@ -177,12 +151,5 @@ if __name__ == '__main__':
     print "\n".join(dirs)
     for _ in tgz.items(node):
         print _
-
-    smry = tgz.summary(node)
-    #print pformat(smry)
-
-    from converter.tabular import TabularData
-    tsmry = TabularData(smry)
-    print tsmry.as_rst(cols=tgz.smrycol)
 
 
