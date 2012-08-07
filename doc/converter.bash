@@ -3,46 +3,48 @@ converter-src(){      echo doc/converter.bash ; }
 converter-source(){   echo ${BASH_SOURCE:-$(env-home)/$(converter-src)} ; }
 converter-vi(){       vi $(converter-source) ; }
 converter-env(){      elocal- ; }
-converter-usage(){
-  cat << EOU
-     converter-src : $(converter-src)
-     converter-dir : $(converter-dir)
+converter-usage(){ cat << EOU
 
 
-    For converting latex into sphinx reStructured text (Georg Brandl)
-         http://svn.python.org/projects/doctools/converter/
-         http://svn.python.org/view/doctools/converter/
+Converter
+==========
 
-           as used by python project to migrate from latex to rst doc sources
+For converting latex into sphinx reStructured text (Georg Brandl)
+as used by python project to migrate from latex to rst doc sources
 
-    For trial docbuilding on non-nuwa capable nodes ...
-            scp -r N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Database/DybDbi/genDbi .
+  * http://svn.python.org/projects/doctools/converter/
+  * http://svn.python.org/view/doctools/converter/
 
-           (docs)simon:fig blyth$ scp N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/fig/\*.png .
+For trial docbuilding on non-nuwa capable nodes::
 
-    hookup to local apache with :
-            apache-ln $PWD/_build/dirhtml oum
+   scp -r N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Database/DybDbi/genDbi .
+   (docs)simon:fig blyth$ scp N:/data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/fig/\*.png .
+
+hookup to local apache with::
+
+   apache-ln $PWD/_build/dirhtml oum
           
 
+Usage 
+------
 
-    == Usage ==
+converter-get
+      checkout my fork from github
+      On G, went into unexpected python: /Library/Python/2.5/site-packages/converter.egg-link 
 
-        converter-get
-                checkout from SVN and patch 
+converter-ln
+      hookup to python
 
-        converter-ln
-                 hookup to python
+Pre-requisites
+~~~~~~~~~~~~~~~
 
-    == Pre-requisites ==
+ * py25+  (py24 is NOT supported)
+ * docutils
 
-      * py25+  (py24 is NOT supported)
-      * docutils
+rst tips
+~~~~~~~~~
 
-
-   == rst tips ==
-
-      * finiky with indenting ... if it dont work make sure lined up, and try adding some more space 
-
+ * finiky with indenting : if it dont work make sure lined up, and try adding some more space 
 
    == nuwa sphinx ==
 
@@ -219,10 +221,13 @@ converter-url(){
 }
 
 converter-get(){
+    local msg="=== $FUNCNAME :"
     local dir=$(dirname $(converter-dir)) &&  mkdir -p $dir && cd $dir
     [ -d converter ] && echo $msg converter dir exists already delete and rerun ... or use git && return 0
     
-    pip install -e git+$(converter-url)#egg=converter
+    local cmd="$SUDO $PIP install -e git+$(converter-url)#egg=converter"
+    echo $msg $cmd
+    eval $cmd 
    
 }
 
