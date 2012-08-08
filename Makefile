@@ -26,7 +26,7 @@ default: bash2rst dirhtml
 
 rsync:
 	@echo sync into apache $(EDOCS) as workaround for finnicky apache config wrt symbolic links
-	rsync -av _build/dirhtml/ $(EDOCS)/
+	test -L $(EDOCS) && echo skip rsync as EDOCS $(EDOCS) is symbolic link || rsync -av _build/dirhtml/ $(EDOCS)/ 
 
 bash2rst:
 	bash2rst.py env.bash	
