@@ -685,7 +685,7 @@ scm-backup-rls-(){
      ssh--
      ! ssh--agent-check && echo $msg ABORT SSH AGENT PROBLEM ... remote $smry && return 1 
      echo $msg remote $smry
-     ssh $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
+     ssh -o "ConnectTimeout 2" $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
   fi
 }
 
@@ -1081,8 +1081,8 @@ scm-backup-essh(){
     local port=$(local-port-sshd $tgt)
     [ -z "$port" ] && port=22
     case $port in
-      22) echo "-e ssh"  ;;
-       *) echo "-e \"ssh -p $port\"" ;;
+      22) echo "-e \"ssh -o 'ConnectTimeout 2'\""  ;;
+       *) echo "-e \"ssh -o 'ConnectTimeout 2' -p $port\"" ;;
     esac
 }
 
@@ -1190,7 +1190,7 @@ scm-backup-checkscp(){
 
    for tag in $tags ; do
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
-       local cmd="scp $nonce $tag:/tmp/" 
+       local cmd="scp -o \"ConnectTimeout 2\" $nonce $tag:/tmp/" 
        echo;echo $msg $cmd
        eval $cmd
   done 

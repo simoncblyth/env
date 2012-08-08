@@ -80,7 +80,11 @@ def monitor(tgz):
 
     TODO:
 
+    #. configured instance selection needs to be applied to alarms too
+    #. check can run sphinx html updating from cron 
+    #. adopt real limits + sending real notification mails  
     #. handle failed connection presentationally [current time and a -1 ?]
+    #. look into using apache to serve rather than nginx, for WW usage
 
     """
 
@@ -89,7 +93,6 @@ def monitor(tgz):
     node = cfg['HOST']
     assert node == env.host_string 
     srvnode = cfg['srvnode']   
-    select = cfg['select'].split()
 
     jsp = os.path.expandvars(cfg['jspath'] % dict(node=cfg['HOST']))
     assert os.path.exists(os.path.dirname(jsp)), jsp
@@ -104,19 +107,12 @@ def monitor(tgz):
             tgz.parse(ret.split("\r\n"), node )  
 
     plt = TGZPlot(tgz)
-    plt.jsondump(jsp, node=env.host_string, select=select)
+    plt.jsondump(jsp, node=env.host_string)
     
     tgz.stat.collect_summary( tgz, env.host_string )
 
     #log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
     #log.info("to check: cat %s | python -m simplejson.tool " % jsp )
-
-
-if 0:
-    msg = "subject\nbody line 1\nbody line 2\n"
-    email = cfg['email']  
-    if email:
-        sendmail( msg, email ) 
 
 
 def main():
@@ -130,15 +126,16 @@ def main():
 
     hubcnf = cnf_(hub)
     cfg = setup(hubcnf)
+    
+    reporturl = cfg['reporturl'] % cfg   
     srvnode = cfg['srvnode']   
-
+    select = cfg['select'].split()
     tn    = "tgzs"
     dbp = os.path.expandvars(cfg['dbpath'])
 
-    tgz = TGZ(dbp, tn)
+    tgz = TGZ(dbp, tn, select=select )
     tgz.cfg  = cfg
     tgz.stat = TGZStat(hub=hub)
-
 
     print 'cfg:', pformat(cfg)
     ret = {}
@@ -148,16 +145,24 @@ def main():
         ret[host] = monitor(tgz)
     teardown()	
 
-
     smry = TGZSmry(tgz.stat)
     rst = smry.hub_summary()
+    ref = "\n * `%(reporturl)s <%(reporturl)s>`_ " % locals()
+    rep = ref + "\n" + str(rst)
 
     out = os.path.expandvars("$ENV_HOME/scm/monitor/%s.rst" % srvnode )
     print "writing summary rst for hub %s backup nodes %s to %s " % (hub, repr(env.hosts), out ) 
     fp = open(out,"w")
-    fp.write(str(rst))
+    fp.write(rep)
     fp.close()
 
+    conc = tgz.stat.conclusion
+    if not conc == "ok":
+        subj = "scm_backup_monitor FAIL for hub %s with conclusion %s " % ( hub, conc ) 
+        msg = "\n".join([ subj, rep]) 
+        email = cfg['email']  
+        if email:
+            sendmail( msg, email ) 
 
 
 

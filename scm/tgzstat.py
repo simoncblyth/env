@@ -9,7 +9,7 @@ from datetime import datetime
 class TGZStat(object):
     """
     """
-    maxage = 25   # maximum allowable tarball age in days, typically 1 day  
+    maxage = 1   # maximum allowable tarball age in days, typically 1 day  
     msday = 24*60*60*1000 
     smrycol = ('name','ltime','lsize','ldays','ldate')
     statcol = ("node","nok","nwarn","nalarm","status")
@@ -90,6 +90,18 @@ class TGZStat(object):
         self.smry[node] = smry 
         self.stat[node] = stat 
 
+    def _conclusion(self):
+        """
+        """ 
+        sts = []
+        for stat in self.status():
+            if stat['status'] == "ok":
+                pass
+            else:
+                sts.append(stat['status'])
+        return ":".join(sts) if len(sts) > 0 else "ok" 
+    conclusion = property(_conclusion)
+
     def status(self):
         return map(lambda _:self.stat[_], self.nodes)
 
@@ -108,3 +120,7 @@ if __name__ == '__main__':
     stat = TGZStat(hub="C2")
     stat.collect_summary( tgz, "C" )
     print stat
+    print "conclusion:", stat.conclusion
+
+    
+

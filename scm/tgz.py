@@ -18,10 +18,11 @@ class TGZ(object):
     #. querying DB table to extract time series data (eg for plotting)
 
     """
-    def __init__(self, dbpath=None, tn="tgzs" ):
+    def __init__(self, dbpath=None, tn="tgzs", select=[] ):
         """
         :param dbpath: path to SQLite db
-        :param tn: name of DB table   
+        :param tn: name of DB table
+        :param select: list of instance names to include in plots/tables or empty for all
         """
 	if not dbpath:
             dbpath = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   
@@ -32,6 +33,7 @@ class TGZ(object):
         self.cmd = "find $SCM_FOLD/backup/%(srvnode)s -name '*.gz' -exec du --block-size=1M {} \;"
         self.tab = Table(dbpath, tn, nodepath="text primary key", node="text", dir="text", date="text", size="real" )
         self.tn = tn   
+        self.select = select
 	self._pfx = {}
 
     def parse(self, lines, node ):
@@ -87,7 +89,8 @@ class TGZ(object):
 	self._pfx[node] = pfx
 	nams = map(lambda _:_[len(pfx):], dirs)
         log.info("commonprefix %s  " % (pfx) )
-	return zip(nams,dirs)
+        itms = zip(nams,dirs)
+	return itms if len(self.select) == 0 else filter(lambda _:_[0] in self.select,itms) 
 
 
     def okdata(self, node):
@@ -145,8 +148,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)	
     tgz = TGZ()
 
-    node = 'Z9:229'
-
+    #node = 'Z9:229'
+    node = 'C'
     dirs = tgz.dirs(node)
     print "\n".join(dirs)
     for _ in tgz.items(node):

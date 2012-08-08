@@ -26,8 +26,8 @@ class HubRst(list):
 
 .. include:: /sphinxext/roles.txt
 
-%(hub)s hub
--------------
+%(hub)s hub : %(conclusion)s
+-----------------------------------
   
 """ 
     def __init__(self, **kwa ):
@@ -78,7 +78,7 @@ class TGZSmry(object):
         return tstat.as_rst(cols=self.stat.statcol,annonly=False)
 
     def hub_summary(self):
-        hr = HubRst(hub=self.stat.hub)
+        hr = HubRst(hub=self.stat.hub, conclusion=self.stat.conclusion)
         stat_table = self.status_table()
         hr.append( stat_table )
         for node in self.stat.nodes:
