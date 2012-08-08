@@ -19,8 +19,27 @@ not needed every time, as the JSON gets loaded on page load::
    
 Check the results:
 
-#. http://localhost/edocs/scm/monitor/
+#. http://localhost/e/scm/monitor/
 #. http://dayabay.phys.ntu.edu.tw/edocs/scm/monitor/
+
+
+
+Deploying to  dayabay.ihep.ac.cn ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Done:
+
+#. python2.5.6 + sphinx + docutils etc... into  ~/local python
+#. fabric + simplejson 
+#. caution this will not work in the system python2.3 (used by apache/modpython/trac)
+#. nginx running on 8080 (start nginx with command: ``nginx`` not ``nginx-start`` as do not have sudo and not needed for 8080 running)
+#. add env symbolic link to nginx docs
+#. hook up the javascript with link in _static
+#. test fabric run 
+
+Todo:
+
+#. get Qiumei install git, in order to install converter for table handling 
+#. deploy to real WW hub transfers to SDU : rather than current cross testing to backup node C of hub C2  
 
 
 automated updating

@@ -12,12 +12,9 @@ at various institutions. Typically plots for multiple backup nodes are
 listed for each hub server.
 
 .. toctree::
+    :glob:
 
-    hku
-    ihep
-    cms02
-    g4pb
-
+    *
 
 How it works
 ---------------
@@ -32,11 +29,6 @@ for quntities that are only updated daily.  But that is what this is doing.
 
 * can the plot be rendered as an image on the server ? allow this to be done once only 
 
-More details on mechanicas and dev notes:
-
-.. toctree::
-
-    dev
-    
+   
 
 
