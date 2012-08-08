@@ -18,45 +18,28 @@ ISSUES
 """
 import os, logging
 log = logging.getLogger(__name__)
-from env.doc.tabledoc import TabularData
+from env.doc.tabledoc import AnnotatedTabularData
 
 
-class TGZSmry(object):
+class HubRst(list):
+    tmpl = r"""
 
-    def __init__(self, stat ):
-        self.stat = stat
+.. include:: /sphinxext/roles.txt
 
-    def _annotate(self, node, stat ):
-	"""
-	:param node:
+%(hub)s hub
+-------------
+  
+""" 
+    def __init__(self, **kwa ):
+        self.kwa = kwa
+        list.__init__(self)
 
-	Inplace annotates the collected summary dict based on allowable limits 
-	and appends to the collective per-node status list 
-
-	Seems that docutils is converting backticks into ordinary quotes 
-	"""
-        f = {}
-        f['ok']    = lambda _:r":ok:`%s`" % _
-        f['alarm'] = lambda _:r":alarm:`%s`" % _
-        f['warn']  = lambda _:r":warn:`%s`" % _
-
-    def summary_table(self, node ):
-        smry = self.stat.smry[node]
-	self.annotate_smry( node, smry )
-        tsmry = TabularData(smry)
-        rst = tsmry.as_rst(cols=self.smrycol)
-	rst = rst.replace("'","`")	
-	return rst
-
-    def status_table(self):
-        tstat = TabularData(self.stat.status)
-        rst = tstat.as_rst(cols=self.stat.statcol)
-	rst = rst.replace("'","`")	
-	return rst
+    def __str__(self):
+	return "\n".join( [self.tmpl % self.kwa] + map(str, self) )
 
 
-    def node_summary(self, node, table=""):
-        tmpl = r"""
+class NodeRst(dict):
+    tmpl = r"""
 %(node)s
 ~~~~~~~~~
 
@@ -66,26 +49,45 @@ class TGZSmry(object):
 
 .. stockchart:: /data/scm_backup_monitor_%(node)s.json container_%(node)s
 
+    """
+    def __str__(self):return self.tmpl % self
+
+
+
+
+
+
+class TGZSmry(object):
+    """
+    Presentation of TGZStat 
+    """ 
+    def __init__(self, stat ):
         """
-        return tmpl % locals()
+        :param stat: TGZStat instance
+        """
+        self.stat = stat
 
+    def node_table(self, node ):
+        smry = self.stat.smry[node]
+        tsmry = AnnotatedTabularData(smry)
+        return tsmry.as_rst(cols=self.stat.smrycol,annonly=True)
 
-    def hub_summary(self, tgz, nodes):
-        head = r"""
+    def status_table(self):
+        status = self.stat.status()
+        tstat = AnnotatedTabularData(status)
+        return tstat.as_rst(cols=self.stat.statcol,annonly=False)
 
-.. include:: /sphinxext/roles.txt
+    def hub_summary(self):
+        hr = HubRst(hub=self.stat.hub)
+        stat_table = self.status_table()
+        hr.append( stat_table )
+        for node in self.stat.nodes:
+            node_table = self.node_table(node)
+            nr = NodeRst(node=node, table=node_table)
+            hr.append(nr) 
+        pass
+        return hr     
 
-NTU (hub C2)
--------------
-  
-""" 
-        body = ""
-        for node in nodes:
-            table = self.summary_table(tgz, node)
-            body += self.node_summary( node, table=table )
-
-        stat = self.status_table()
-	return head + stat + "\n" + body
 
 
 if __name__ == '__main__':
@@ -93,12 +95,16 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)	
 
     from env.scm.tgz import TGZ
-    smy = TGZSmry()
-    tgz = TGZ()
-    sta = TGZStat()
+    from env.scm.tgzstat import TGZStat
 
-    node = 'Z9:229'
-    print smy.hub_summary( tgz, [node] )
+    tgz = TGZ()
+
+    stat = TGZStat(hub="C2")
+    stat.collect_summary( tgz, "C" )
+    #print stat
+
+    smry = TGZSmry(stat)
+    print smry.hub_summary()
 
 
  

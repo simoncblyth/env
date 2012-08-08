@@ -14,10 +14,11 @@ class TGZStat(object):
     smrycol = ('name','ltime','lsize','ldays','ldate')
     statcol = ("node","nok","nwarn","nalarm","status")
 
-    def __init__(self):
+    def __init__(self, hub=None):
+        self.hub = hub
+        self.nodes = []
         self.smry = {}
         self.stat = {}
-	self.status = []
 
     def _summary(self, tgz, node ):
         """
@@ -26,7 +27,7 @@ class TGZStat(object):
 
         :param tgz:
 	:param node:
-	:return: list of dict summarizing tarballs from remote backup node
+	:return: list of dict summarizing tarballs for each item 
 	"""
         now = int(datetime.now().strftime("%s"))*1000
         smry = []
@@ -42,7 +43,15 @@ class TGZStat(object):
         return smry
 
     def _status(self, node, smry ):
+        """
+        :param node:
+        :param smry:
+        :return: status dict for the node  
 
+        Out of range values are annotated via promotion of 
+        simple values (numbers and strings) into dicts.
+        This is inplace editing the retained smry dict 
+        """
 	nok = 0
 	nwarn = 0
 	nalarm = 0
@@ -50,6 +59,8 @@ class TGZStat(object):
         for d in smry:
 	    if d['ldays'] > self.maxage:		
 		 nalarm += 1
+                 d['ldays'] = dict(v=d['ldays'], msg="overage", st="alarm")
+                 d['name']  = dict(v=d['name'], msg="overage", st="alarm")
             else:
 		 nok += 1   
 
@@ -60,22 +71,31 @@ class TGZStat(object):
 	    st = "alarm"
 
         stat = {}
-        stat['node'] = node
+        stat['node'] = dict(v=node,st=st)
         stat['nok'] = nok
         stat['nwarn'] = nwarn
         stat['nalarm'] = nalarm
         stat['status'] = st
         return stat
 
-    def add_summary(self, tgz, node ):
+    def collect_summary(self, tgz, node ):
         """
-        Using convention that methods beginning with a single underscore set no state
+        :param tgz:
+        :param node: 
         """
 	smry = self._summary(tgz, node)
         stat = self._status(node, smry )
         pass
+        self.nodes.append(node)
         self.smry[node] = smry 
         self.stat[node] = stat 
+
+    def status(self):
+        return map(lambda _:self.stat[_], self.nodes)
+
+    def __str__(self):
+        return "\n".join( map(pformat, self.smry.items() + self.stat.items()))
+
 
 
 if __name__ == '__main__':
@@ -84,12 +104,7 @@ if __name__ == '__main__':
 
     from env.scm.tgz import TGZ
 
-    stat = TGZStat()
     tgz = TGZ()
-
-    node = "C"
-    stat.add_summary( tgz, node )
-    print pformat(stat.smry[node]) 
-    print pformat(stat.stat[node]) 
-
-
+    stat = TGZStat(hub="C2")
+    stat.collect_summary( tgz, "C" )
+    print stat

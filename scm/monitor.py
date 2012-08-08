@@ -15,6 +15,7 @@ from env.tools.sendmail import sendmail
 from env.scm.tgz import TGZ
 from env.scm.tgzplot import TGZPlot
 from env.scm.tgzsmry import TGZSmry
+from env.scm.tgzstat import TGZStat
 
 
 def writable(path):
@@ -104,6 +105,8 @@ def monitor(tgz):
 
     plt = TGZPlot(tgz)
     plt.jsondump(jsp, node=env.host_string, select=select)
+    
+    tgz.stat.collect_summary( tgz, env.host_string )
 
     #log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
     #log.info("to check: cat %s | python -m simplejson.tool " % jsp )
@@ -132,9 +135,10 @@ def main():
     tn    = "tgzs"
     dbp = os.path.expandvars(cfg['dbpath'])
 
-    smy = TGZSmry()
     tgz = TGZ(dbp, tn)
-    tgz.cfg = cfg
+    tgz.cfg  = cfg
+    tgz.stat = TGZStat(hub=hub)
+
 
     print 'cfg:', pformat(cfg)
     ret = {}
@@ -144,11 +148,14 @@ def main():
         ret[host] = monitor(tgz)
     teardown()	
 
-    rst = smy.hub_summary( tgz, env.hosts )
+
+    smry = TGZSmry(tgz.stat)
+    rst = smry.hub_summary()
+
     out = os.path.expandvars("$ENV_HOME/scm/monitor/%s.rst" % srvnode )
     print "writing summary rst for hub %s backup nodes %s to %s " % (hub, repr(env.hosts), out ) 
     fp = open(out,"w")
-    fp.write(rst)
+    fp.write(str(rst))
     fp.close()
 
 

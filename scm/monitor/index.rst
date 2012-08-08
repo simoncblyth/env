@@ -14,8 +14,8 @@ listed for each hub server.
 .. toctree::
 
     hku
-    ntu
     ihep
+    cms02
 
 
 How it works
