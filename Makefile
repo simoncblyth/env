@@ -15,8 +15,8 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 
-EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
-#EDOCS = $(APACHE_HTDOCS)/edocs
+#EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
+EDOCS = $(APACHE_HTDOCS)/e
 
 .PHONY: bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
@@ -24,18 +24,9 @@ EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
 default: bash2rst dirhtml 
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
 
-
-ifeq ($(shell uname -n),cms02.phys.ntu.edu.tw)
 rsync:
+	@echo sync into apache $(EDOCS) as workaround for finnicky apache config wrt symbolic links
 	rsync -av _build/dirhtml/ $(EDOCS)/
-else
-rsync:
-	rsync -av _build/dirhtml/ C2:$(EDOCS)/
-endif
-
-#  nginx is OK with symbolic links : so no need for this 
-#rsync_WW:
-#	rsync -av _build/dirhtml/ /home/blyth/local/nginx/html/e/
 
 bash2rst:
 	bash2rst.py env.bash	

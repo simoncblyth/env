@@ -16,6 +16,7 @@ listed for each hub server.
     hku
     ihep
     cms02
+    g4pb
 
 
 How it works
