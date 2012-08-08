@@ -83,6 +83,8 @@ class AnnotatedTabularData(object):
                 cl.append(c)
 
         td = TabularData(cl)
+        if len(td) == 0:     # avoid rst build warnings from empty table
+            return ""
         rst = td.as_rst( cols )
         return rst.replace("'","`") 
 

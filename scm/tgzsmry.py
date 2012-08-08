@@ -28,7 +28,10 @@ class HubRst(list):
 
 %(hub)s hub : %(conclusion)s
 -----------------------------------
-  
+ 
+.. contents:: :local:
+
+ 
 """ 
     def __init__(self, **kwa ):
         self.kwa = kwa
@@ -40,8 +43,8 @@ class HubRst(list):
 
 class NodeRst(dict):
     tmpl = r"""
-%(node)s
-~~~~~~~~~
+%(node)s : %(status)s
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 %(table)s
 
@@ -83,7 +86,7 @@ class TGZSmry(object):
         hr.append( stat_table )
         for node in self.stat.nodes:
             node_table = self.node_table(node)
-            nr = NodeRst(node=node, table=node_table)
+            nr = NodeRst(node=node, table=node_table, status=self.stat.stat[node]['status'] )
             hr.append(nr) 
         pass
         return hr     

@@ -80,11 +80,8 @@ def monitor(tgz):
 
     TODO:
 
-    #. configured instance selection needs to be applied to alarms too
-    #. check can run sphinx html updating from cron 
-    #. adopt real limits + sending real notification mails  
     #. handle failed connection presentationally [current time and a -1 ?]
-    #. look into using apache to serve rather than nginx, for WW usage
+    #. look into using apache to serve rather than nginx, for WW usage : avoiding another process
 
     """
 
@@ -92,27 +89,24 @@ def monitor(tgz):
     print "monitor cfg: %s " % pformat(cfg) 
     node = cfg['HOST']
     assert node == env.host_string 
-    srvnode = cfg['srvnode']   
 
+    srvnode = cfg['srvnode']    # for interpolation filling
     jsp = os.path.expandvars(cfg['jspath'] % dict(node=cfg['HOST']))
     assert os.path.exists(os.path.dirname(jsp)), jsp
     if not writable(jsp):
         raise Exception("jsp %s is not writable " % jsp)
    
-    pull = True
-    if pull:
-        cmd = tgz.cmd % locals()
-        ret = rrun(cmd)
-        if ret:
-            tgz.parse(ret.split("\r\n"), node )  
+    cmd = tgz.cmd % locals()
+    ret = rrun(cmd)
+    if ret:
+        tgz.parse(ret.split("\r\n"), node )  
 
     plt = TGZPlot(tgz)
-    plt.jsondump(jsp, node=env.host_string)
+    plt.jsondump(jsp, node=node )
+    log.info("to check: cat %s | python -m simplejson.tool " % jsp )
     
-    tgz.stat.collect_summary( tgz, env.host_string )
+    tgz.stat.collect_summary( tgz, node )
 
-    #log.info("to check:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
-    #log.info("to check: cat %s | python -m simplejson.tool " % jsp )
 
 
 def main():
@@ -132,6 +126,7 @@ def main():
     select = cfg['select'].split()
     tn    = "tgzs"
     dbp = os.path.expandvars(cfg['dbpath'])
+    log.info("to check db:  echo .dump %s | sqlite3 %s  " % (tn,dbp) )
 
     tgz = TGZ(dbp, tn, select=select )
     tgz.cfg  = cfg
@@ -160,9 +155,12 @@ def main():
     if not conc == "ok":
         subj = "scm_backup_monitor FAIL for hub %s with conclusion %s " % ( hub, conc ) 
         msg = "\n".join([ subj, rep]) 
+        log.warn(subj)
         email = cfg['email']  
         if email:
             sendmail( msg, email ) 
+        else:
+            log.warn("email address for notification not configured")
 
 
 
