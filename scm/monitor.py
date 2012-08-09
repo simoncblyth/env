@@ -57,14 +57,6 @@ def cnf_(hub, smc="~/.scm_monitor.cnf"):
     return hubcnf
 
 
-def notify(cfg):
-    """
-    """
-    email = cfg.email  
-    msg = "subject\nbody line 1\nbody line 2\n"
-    sendmail( msg, email )
-
-
 def monitor(tgz):
     """
     :param cfg: dict containing both hub and node config
@@ -152,16 +144,26 @@ def main():
     fp.close()
 
     conc = tgz.stat.conclusion
-    if not conc == "ok":
-        subj = "scm_backup_monitor FAIL for hub %s with conclusion %s " % ( hub, conc ) 
-        msg = "\n".join([ subj, rep]) 
-        log.warn(subj)
-        email = cfg['email']  
-        if email:
-            sendmail( msg, email ) 
-        else:
-            log.warn("email address for notification not configured")
+    subj = "scm_backup_monitor for hub %s : conclusion %s " % ( hub, conc ) 
+    msg = "\n".join([ subj, rep]) 
 
+    if not conc == "ok":
+        notify(cfg['email'], msg )
+        log.warn(subj)
+    else:
+        log.info(subj)
+
+
+def notify(email, msg, delim=" "):
+    email = cfg['email']  
+    if email:
+        if delim in email:
+            for _ in email.split(delim):
+                sendmail( msg, _ ) 
+        else:
+            sendmail( msg, _ ) 
+    else:
+        log.warn("email address for notification not configured")
 
 
 if __name__ == '__main__':

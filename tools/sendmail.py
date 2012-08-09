@@ -10,6 +10,7 @@
 import os, socket, logging
 log = logging.getLogger(__name__)
 
+
 def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
     """
 
