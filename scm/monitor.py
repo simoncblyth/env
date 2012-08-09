@@ -132,7 +132,7 @@ def main():
     tgz.cfg  = cfg
     tgz.stat = TGZStat(hub=hub)
 
-    print 'cfg:', pformat(cfg)
+    #print 'cfg:', pformat(cfg)
     ret = {}
     for host in env.hosts:
         localize(host)

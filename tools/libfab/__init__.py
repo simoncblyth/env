@@ -100,7 +100,7 @@ def localize(host):
 	    pass
         pass
     env.host_string = host
-    log.info("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
+    log.debug("for env.host_string %s using shell %s " % ( env.host_string, env.shell ))
 
 def setup(hubcnf):
     """
@@ -155,13 +155,13 @@ def setup(hubcnf):
         raise Exception("no hosts are defined for hub %s in HUB section of %s " % (hub, lfc) )     
 
     env.hosts = hosts.split()
-    log.warn("hubcnf %s env.hosts %s " % (pformat(hubcnf), repr(env.hosts)) )
+    log.debug("hubcnf %s env.hosts %s " % (pformat(hubcnf), repr(env.hosts)) )
 
     if cnf and cnf.has_section('ENV'):
         for key in cnf.options('ENV'):    
             val = cnf.get('ENV',key)
             setattr(env, key, val )
-            log.warn("ENV setting (key,val)  (%s,%s) " % ( key,val ))
+            log.info("ENV setting (key,val)  (%s,%s) " % ( key,val ))
 	    pass
 
     verbose = getattr(env, 'verbose', False)

@@ -24,6 +24,13 @@ hookup to local apache with::
 
    apache-ln $PWD/_build/dirhtml oum
           
+Installs
+---------
+
+Anon (readonly) installs onto WW:: 
+
+    USER=anon converter-get
+
 
 Usage 
 ------
