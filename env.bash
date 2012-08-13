@@ -458,6 +458,7 @@ env-env(){
   base-  
   svn-
  
+  PATH=$(env-home)/bin:$PATH
  
   cd $iwd
   

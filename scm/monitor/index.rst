@@ -6,34 +6,46 @@
 Monitor
 =========
 
-Plots monitoring tarball sizes and counts 
-for Trac and Subversion instances that hail from **hub** servers 
-at various institutions. Typically plots for multiple backup nodes are 
-listed for each hub server.
+.. contents:: :local:
+
+Plots monitoring tarball sizes and counts for Trac and Subversion instances 
+that reside on **hub** servers at various institutions. Typically each hub has multiple backup nodes 
+with the corresponding plots being presented by hub.
 
 .. toctree::
     :glob:
 
     *
 
-How it works
----------------
+Setup
+-------
 
-Sphinx ``.. raw:: html`` directives are used to embed javascript (use show source on right to see this) and a single **div** into the html built version of this 
-page. On page load the javascript runs an ajax query to pull in the plot data and options from a static JSON files for each remote node residing in `</data/>`_. These 
-static files are created by the ``scm-backup-monitor`` which using **fabric** to gather info from remote nodes and updates an SQLite DB.
+To setup the auto-monitoring script on a new node requires the below
+steps as described on this page.
+
+#. configuring
+#. manual testing 
+#. automation
 
 
-If had large numbers of plots to render, it would be silly to re-render in browser
-for quntities that are only updated daily.  But that is what this is doing.  
+How the plotting work
+-----------------------
 
-* can the plot be rendered as an image on the server ? allow this to be done once only 
+A globbed toctree directive is used to pull in all rst pages from `env/scm/monitor/`
+These pages use the sphinx extension `env.sphinxext.stockchart` to embed raw html
+containing javascript and a single div element into the html output derived from
+the reStructuredText source (use show source to see this).
 
-   
-Setup auto-monitoring on dayabay.ihep.ac.cn
-----------------------------------------------
+On page load the javascript runs an ajax query to pull in the plot data and options from 
+static JSON files for each remote node residing in `</data/>`_. 
+These static files are created by the ``scm-backup-monitor`` which uses **fabric** 
+to gather info from remote nodes and updates an SQLite DB.
 
-To test the auto-monitoring script requires:
+.. note:: the plots are rendered on the client, this approach as it stands is thus limited to small numbers of things to monitor
+
+ 
+Configuring the monitoring 
+-----------------------------
 
 #. update env checkout in **root** home directory
 #. copy two config files into **root** home::
@@ -80,12 +92,123 @@ to run commands over ssh::
 	timeout = 2
 
 
+Manual Testing
+----------------
+
 To manually test operation run the `monitor.py` script as shown below::
 
-         mkdir -p /var/www/html/data    ## create output dir for json plot data
+         mkdir -p /var/www/html/data    ## create output dir for json plot data if not already existing
          cd ~/env/scm
+
+         env-                
+         scm-backup-      
+                          ## setup environment, eg APACHE_HTDOCS, LOCAL_BASE referred to in the config
+ 
+         export LD_LIBRARY_PATH=/home/blyth/local/python/Python-2.5.6/lib
          ~blyth/local/python/Python-2.5.6/bin/python monitor.py      
-                ## have to use my python to pickup needed modules : fabric, converter, ...
+
+                          ## have to use my python to pickup needed modules : fabric, converter, ...
+
+
+Automation
+------------
+
+The running of the `monitor.py` is done as part of the standard `scm-backup-nightly` function which can
+be invoked via a crontab line such as the below::
+
+
+	[root@cms02 env]# crontab -l
+	SHELL = /bin/bash
+	16 18 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-nightly ) >  /var/scm/log/scm-backup-nightly-$(date +"\%a").log 2>&1
+
+
+When adding a new node, the `scm-backup-nightly` needs updating to add the running of the monitor script.::
+
+
+	[root@cms02 env]# scm-backup-
+	[root@cms02 env]# t scm-backup-nightly
+	scm-backup-nightly is a function
+	scm-backup-nightly () 
+	{ 
+	    local msg="=== $FUNCNAME :";
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-checkscp;
+	    scm-backup-checkscp;
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-all;
+	    scm-backup-all;
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-rsync ... performing transfers that i control;
+	    scm-backup-rsync;
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs;
+	    case $NODE_TAG in 
+		C2 | C2R)
+		    scm-backup-parasitic ZZ C
+		;;
+		*)
+		    echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG
+		;;
+	    esac;
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-monitor ... fabric remote tarball checking;
+	    case $NODE_TAG in 
+		G)
+		    scm-backup-monitor- G
+		;;
+		C2 | C2R)
+		    scm-backup-monitor- C2
+		;;
+		*)
+		    echo $msg scm-backup-monitor not yet implemented on $NODE_TAG
+		;;
+	    esac;
+	    echo;
+	    echo $msg $(date) @@@ scm-backup-nightly ... completed;
+	    echo
+	}
+	[root@cms02 env]# 
+
+
+
+Improvement Ideas
+-------------------
+
+
+The inclusion of inline RST status tables (indicating what caused problems) 
+in the output means that the html must be updated after each monitoring run.  
+This is done by `scm-backup-monitor-` and is a potential source of fragility as documentation is
+updated for the project.
+Prior to adding these RST tables it was not necessary to update the html every time as the plots 
+are dynamically included by the javascript loading the json on page load. Possibly a javascript
+library for rendering tables might avoid the need to regenerate the html every time allowing the 
+table content to be pulled in from static json files.
+
+Somewhat conversly it is limiting that precisely the same plots are re-rendered 
+for every client in the browser. It would be more efficient to render plots once when data is updated 
+and have the clients simply load an image.  Doing this in a manner that benefits from 
+the javascript library code is non trivial. Google V8 Javascript engine tied with node.js for 
+javascript on the server is a likely way this might be done in future.   
+
+  * http://blog.davidpadbury.com/2010/10/03/using-nodejs-to-render-js-charts-on-server/
+
+For this to work smoothly needs effort from js library authors, basically it is porting the 
+js to a non-standard **browser** that can live on the server.
+
+  * http://highslide.com/forum/viewtopic.php?f=12&t=16380
+     
+     * some noise indicating might happen by version 3.0 of highcharts
+
+  * http://www.highcharts.com/support/roadmap
+ 
+     * not in offical roadmap
+     
+
+
+
+
+
+
 
 
 
