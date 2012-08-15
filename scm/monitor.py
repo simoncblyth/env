@@ -155,7 +155,6 @@ def main():
 
 
 def notify(email, msg, delim=" "):
-    email = cfg['email']  
     if email:
         if delim in email:
             for _ in email.split(delim):
