@@ -484,7 +484,8 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
    A|B|Z9) echo /volume1/var ;;
        C2) echo $(local-root $t)/var ;;
        H1) echo $(local-root $t)/var ;;
-      SDU) echo  /raid/dybsdu/dybbackup/var ;;
+  SDU_old) echo  /raid/dybsdu/dybbackup/var ;;
+      SDU) echo  /raid4/dybsdu/dybbackup/var ;;
         *) echo  /var ;; 
    esac
 }
