@@ -932,6 +932,32 @@ scm-backup-nightly(){
 
 }
 
+scm-backup-monitor-ihep(){
+
+   local msg="=== $FUNCNAME :"
+   local hub=${1:-ZZ}
+
+   echo $msg $(date)  @@@ invoke the monitor.py for hub $hub
+   echo
+
+   ## setup to use local python and sphinx-build
+   export LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
+   export LD_LIBRARY_PATH=$LOCAL_PYTHON/lib
+   export PATH=$LOCAL_PYTHON/bin:$PATH 
+
+   ~/env/scm/monitor.py $hub
+
+   echo $msg $(date)  @@@ update the html summary using sphinx 
+   echo
+
+   [ -z "$(which sphinx-build 2>/dev/null)" ] && echo $msg ERROR no sphinx-build || echo $msg ok found sphinx-build 
+   cd $ENV_HOME && PATH=$ENV_HOME/bin:$PATH make && make rsync 
+
+   echo $msg $(date)  @@@ completed
+}
+
+
+
 scm-backup-rsync-dayabay-pull-from-cms01(){
 
     local msg="=== $FUNCNAME :"

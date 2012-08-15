@@ -98,16 +98,19 @@ Manual Testing
 To manually test operation run the `monitor.py` script as shown below::
 
          mkdir -p /var/www/html/data    ## create output dir for json plot data if not already existing
-         cd ~/env/scm
+
+         ## have to use local python to pickup needed modules : fabric, converter, ...
 
          env-                
          scm-backup-      
                           ## setup environment, eg APACHE_HTDOCS, LOCAL_BASE referred to in the config
- 
-         export LD_LIBRARY_PATH=/home/blyth/local/python/Python-2.5.6/lib
-         ~blyth/local/python/Python-2.5.6/bin/python monitor.py      
 
-                          ## have to use my python to pickup needed modules : fabric, converter, ...
+         export LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
+         export LD_LIBRARY_PATH=$LOCAL_PYTHON/lib 
+         export PATH=$LOCAL_PYTHON/bin:$PATH
+ 
+         ~/env/scm/monitor.py      
+
 
 
 Automation

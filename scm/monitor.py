@@ -138,7 +138,7 @@ def main():
     rep = ref + "\n" + str(rst)
 
     out = os.path.expandvars("$ENV_HOME/scm/monitor/%s.rst" % srvnode )
-    print "writing summary rst for hub %s backup nodes %s to %s " % (hub, repr(env.hosts), out ) 
+    log.info("writing summary rst for hub %s backup nodes %s to %s " % (hub, repr(env.hosts), out ))
     fp = open(out,"w")
     fp.write(rep)
     fp.close()
