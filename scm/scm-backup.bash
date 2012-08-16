@@ -685,7 +685,9 @@ scm-backup-rls-(){
      ssh--
      ! ssh--agent-check && echo $msg ABORT SSH AGENT PROBLEM ... remote $smry && return 1 
      echo $msg remote $smry
-     ssh -o "ConnectTimeout 2" $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
+
+     local sshopts=$(scm-backup-ssh-opts $tag)
+     ssh -o "$sshopts" $tag "find  $bkpdir -name '*.gz' -exec du -hs {} \; | grep $day"
   fi
 }
 
@@ -1119,9 +1121,16 @@ scm-backup-essh(){
 scm-backup-rsync-opts(){
    case $1 in 
      A|Z9) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --rsync-path=/opt/bin/rsync ;; 
-        *) echo ${SCM_BACKUP_RSYNC_OPTS:-}  ;;
+        *) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --timeout 10 ;;
    esac	   
 }
+
+scm-backup-ssh-opts(){
+   case $1 in 
+     *)  echo ConnectTimeout 10 ;;
+   esac
+}
+
 
 scm-backup-rsync(){
 
@@ -1154,7 +1163,8 @@ scm-backup-rsync(){
        local source=$(scm-backup-dir)/$LOCAL_NODE
 
        ## have to skip from XX as do not have permission to ssh 
-       [ $NODE_TAG != "XX" ] && ssh -o "ConnectTimeout 2" $tag "mkdir -p  $remote"
+       local sshopts=$(scm-backup-ssh-opts $tag)
+       [ $NODE_TAG != "XX" ] && ssh -o "$sshopts" $tag "mkdir -p  $remote"
 
        local starttime=$(scm-backup-date)
        echo $msg starting transfer to tag $tag at $starttime
@@ -1162,7 +1172,8 @@ scm-backup-rsync(){
 
        local essh=$(scm-backup-essh $tag)
        local opts=$(scm-backup-rsync-opts $tag)
-       local cmd="time rsync $essh --timeout 2 --delete-after --stats -razvt $source $tag:$remote/ $opts  "
+       local sshopts=$(scm-backup-ssh-opts $tag)
+       local cmd="time rsync $essh --delete-after --stats -razvt $source $tag:$remote/ $opts  "
        echo $msg $cmd
        eval $cmd
 
@@ -1178,8 +1189,8 @@ scm-backup-rsync(){
            case $tag in 
                H1)  echo $msg skip invoke remote DNA check to destination $tag  ;;
                 S)  echo $msg skip invoke remote DNA check to destination $tag  ;;
-               G3)  echo $msg remote DNA check && ssh -o "ConnectTimeout 2" $tag "export ENV_HOME=~/env ; . ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
-                *)  echo $msg remote DNA check && ssh -o "ConnectTimeout 2" $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
+               G3)  echo $msg remote DNA check && ssh -o "$sshopts" $tag "export ENV_HOME=~/env ; . ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
+                *)  echo $msg remote DNA check && ssh -o "$sshopts" $tag ". ~/env/env.bash && env-env && hostname && uname && date && scm-backup- && scm-backup-dnachecktgzs $remote/$LOCAL_NODE "   ;;
            esac
        fi 
 
@@ -1200,7 +1211,8 @@ scm-backup-checkssh(){
    for tag in $tags ; do
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
        local remote=$(scm-backup-dir $tag)
-       local cmd="ssh -o \"ConnectTimeout 2\" $tag df -h $remote" 
+       local sshopts=$(scm-backup-ssh-opts $tag)
+       local cmd="ssh -o \"$sshopts\" $tag df -h $remote" 
        echo;echo $msg $cmd
        eval $cmd
   done 
@@ -1220,7 +1232,8 @@ scm-backup-checkscp(){
 
    for tag in $tags ; do
        [ "$tag" == "$NODE_TAG" ] && echo $msg ABORT cannot rsync to self  && return 1
-       local cmd="scp -o \"ConnectTimeout 2\" $nonce $tag:/tmp/" 
+       local sshopts=$(scm-backup-ssh-opts $tag)
+       local cmd="scp -o \"$sshopts\" $nonce $tag:/tmp/" 
        echo;echo $msg $cmd
        eval $cmd
   done 
