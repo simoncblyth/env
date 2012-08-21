@@ -354,9 +354,9 @@ local-backup-tag(){
  C2|C2R) echo  C N H1 N1 ;;    ## exclude P as cannot get to work see #262 exclude H as out of space
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
-     XX) echo ZZ S ;;
-     ZZ) echo XX S ;;
-     WW) echo S ;;
+     XX) echo ZZ SDU ;;
+     ZZ) echo XX SDU ;;
+     WW) echo SDU ;;
      AA) echo D8R  ;;
      *) echo U ;;
    esac  
