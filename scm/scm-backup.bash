@@ -1510,7 +1510,18 @@ scm-backup-synctrac-11(){
 
 }
 
-
+scm-backup-repo-tgzrev(){
+   local tgzd=$1
+   local iwd=$PWD
+   cd $tgzd
+   ## there should only be one tar.gz in there, but tail anyhow to pluck the last 
+   local tgz=$(ls -1 *.tar.gz 2>/dev/null| tail -1)       # eg data-23.tar.gz
+   local name_rev=${tgz/.tar.gz}  # now data-23
+   local name=${name_rev/-*/}     # extract "data"
+   local rev=${name_rev/*-/}      # extract "23" :  multiple dashes eg data-23-1 would return the "1" which would fail tgz existance check later
+   cd $iwd 
+   echo $rev
+}
 
 scm-backup-repo(){
 
@@ -1555,8 +1566,29 @@ scm-backup-repo(){
 
    [ "$rc" != "0" ] && echo $msg ERROR $rc && return $rc
 
-   local rev=$(svnlook youngest $path)
+
+   #
+   # USING SVNLOOK WAS AN EGREGIOUS AND DIFFICULT TO DETECT BUG : 
+   #
+   #   local rev=$(svnlook youngest $path)
+   #
+   #     THE HOT BACKUP SCRIPT INTERNALLY DETERMINES THE REPO REVISION ABOVE AND
+   #     SPITS OUT THE TGZ.  SVNLOOKing AGAIN WILL YIELD A DIFFERENT REV
+   #     IF THERE WERE ANY COMMITS DURING THE HOT BACKUP 
+   #     RESULTING IN THE LOCKED 
+   # 
+   #
+
+   local rev=$(scm-backup-repo-tgzrev $target_fold)
    local tgz=${target_fold}/${name}-${rev}.tar.gz
+
+   if [ -f "$tgz" ]; then
+       echo $msg found tgz $tgz rev $rev in target_fold $target_fold
+   else
+       echo $msg ERROR : EXPECTED tgz $tgz NOT FOUND IN target_fold $target_fold
+       return 1
+   fi 
+
    scm-tgzcheck-ztvf $tgz
    rc=$?
    [ "$rc" != "0" ] && echo $msg tgz $tgz rev $rev integrity check failure $rc && return $rc 
