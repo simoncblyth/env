@@ -1121,6 +1121,7 @@ scm-backup-essh(){
 scm-backup-rsync-opts(){
    case $1 in 
      A|Z9) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --rsync-path=/opt/bin/rsync ;; 
+    ZZ|WW) echo ${SCM_BACKUP_RSYNC_OPTS:-}   ;;
         *) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --timeout 10 ;;
    esac	   
 }
