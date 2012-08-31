@@ -350,8 +350,9 @@ scm-backup-all(){
    local msg="=== $FUNCNAME :"
    local stamp=$(base-datestamp now %Y/%m/%d/%H%M%S)
    local base=${SCM_BACKUP_TEST_FOLD:-$SCM_FOLD/backup/$LOCAL_NODE}   ## SCM_BACKUP_TEST_FOLD not standardly set, use inline for interactive checking 
+   local envv=$(svnversion $ENV_HOME) 
 
-   echo $msg starting from pwd $PWD
+   echo $msg starting from pwd $PWD ENV_HOME $ENV_HOME envv $envv NODE_TAG $NODE_TAG
 
    scm-backup-is-locked && echo $msg ABORT due to lock && return 1 
    scm-backup-lock $FUNCNAME
@@ -1119,9 +1120,10 @@ scm-backup-essh(){
 }
 
 scm-backup-rsync-opts(){
+   ## NB these are options regarding syncs to the node tag target NOT THE SOURCE
    case $1 in 
      A|Z9) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --rsync-path=/opt/bin/rsync ;; 
-    ZZ|WW) echo ${SCM_BACKUP_RSYNC_OPTS:-}   ;;
+      SDU) echo ${SCM_BACKUP_RSYNC_OPTS:-}   ;;
         *) echo ${SCM_BACKUP_RSYNC_OPTS:-}  --timeout 10 ;;
    esac	   
 }
