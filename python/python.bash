@@ -81,6 +81,14 @@ Macports Python Selection
     sudo port select --set ipython ipython26
 
 
+GDB Extensions for Python Debugging
+--------------------------------------
+
+* https://fedoraproject.org/wiki/Features/EasierPythonDebugging
+
+
+
+
 EOU
 
 

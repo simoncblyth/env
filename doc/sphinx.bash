@@ -60,6 +60,17 @@ http://wolfmanx.bitbucket.org/ws-docutils/README-inline-comments.html
         tagging and comments in rst
 
 
+cross referencing 
+------------------
+
+**ref**
+        tedious need to plant label
+
+**doc**
+        relative file name referencing, http://sphinx.pocoo.org/markup/inline.html#role-doc  from 0.6
+
+
+
 extension ideas 
 ----------------
 

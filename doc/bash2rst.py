@@ -41,6 +41,8 @@ def bashtoc( content ):
             path = line.strip().rstrip()
 	    if path.endswith('/'):
 	        print "skip %s " % path
+	    elif len(path) == 0:
+		pass     
 	    else:	
 	        paths.append(path)
         else:
@@ -71,7 +73,7 @@ class Bash(list):
 	"""
 	:param path: to bash function file
 	"""
-        log.info("path %s " % path )
+        log.debug("path %s " % path )
 
         apath = os.path.abspath(path)
         rdir = os.path.dirname(apath)

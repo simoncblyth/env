@@ -1,6 +1,14 @@
 TODO
 =====
 
+heprez
+-------
+
+#. add new users for Yasmine CDF and D0 updating + open for editing
+
+   #. http://dayabay.phys.ntu.edu.tw/tracs/heprez/ticket/104
+
+
 env / scm-backup
 ------------------
 
@@ -52,34 +60,6 @@ Sys Admin
 SCM 
 ^^^^
 
-
-Improve SCM logging
-^^^^^^^^^^^^^^^^^^^^^
-
-::
-
-   Unfortunately the log /var/log/env/scm-backup.log
-   has overwritten the one with the original failure
-   (I will look into improving logging to prevent that in future).
-
-   Done on cms02, propagate to Q after port 22 opened 
-
-
-Improve Monitoring
-^^^^^^^^^^^^^^^^^^^
-
-#. use fabric from a cron job to capture daily backup metrics (collected from various ssh keyed remote nodes), 
-#. persist results into csv file (or maybe sqlite3 db). 
-#. present these using highstocks or highchart from within sphinx 
-
-   #. a cron controlled sphinx build donw on C2 ?
-
-Thus can merge tens of daily tedious monitoring emails into a single
-glance at a web page (which could be emailed as html), or even none once 
-I trust the range checking.
-
-   #. rendering charts to png non-trivial in absence of browser, so do checks on hub and email if notifications required
-
 Hang over from Yet Another NTU Powercut,  Thu 10 May 2012 ~13:30
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -114,72 +94,6 @@ NUU Network
         [blyth@belle7 env]$ svn up
         svn: OPTIONS of 'http://dayabay.phys.ntu.edu.tw/repos/env/trunk': could not connect to server (http://dayabay.phys.ntu.edu.tw)
         [blyth@belle7 env]$ 
-
-
-Rsync and scp Timeouts from C2R to N and N1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Interactive scm-backup-rsync suffering timeouts whereas
-not in the log from cron /var/scm/log/scm-backup-nightly.log 
-
-#. seems to be network issue, cannot ping belle7 OR belle1 by name of number 
-#. look for alternate backup targets... use mars
-
-
-C2 timeout::
-
-
-        [blyth@cms02 ~]$ ssh -v -v -v belle7.nuu.edu.tw
-        OpenSSH_3.9p1, OpenSSL 0.9.7a Feb 19 2003
-        debug1: Reading configuration data /home/blyth/.ssh/config
-        debug1: Reading configuration data /etc/ssh/ssh_config
-        debug1: Applying options for *
-        debug2: ssh_connect: needpriv 0
-        debug1: Connecting to belle7.nuu.edu.tw [203.64.184.126] port 22.
-        ssh: connect to host 203.64.184.126 port 22: Connection timed out
-
-C succeeds::
-
-
-        [blyth@cms01 ~]$ ssh -v -v -v belle7.nuu.edu.tw
-        OpenSSH_4.3p2-6.cern-hpn, OpenSSL 0.9.7a Feb 19 2003
-        ssh(14212) debug1: Reading configuration data /home/blyth/.ssh/config
-        ssh(14212) debug1: Reading configuration data /etc/ssh/ssh_config
-        ssh(14212) debug1: Applying options for *
-        ssh(14212) debug2: ssh_connect: needpriv 0
-        ssh(14212) debug1: Connecting to belle7.nuu.edu.tw [203.64.184.126] port 22.
-        ssh(14212) debug1: Connection established.
-        ssh(14212) debug3: Not a RSA1 key file /home/blyth/.ssh/id_rsa.
-        ...
-
-
-compare openssh versions between C and C2
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-::
-
-        [blyth@cms02 ~]$ cat /etc/redhat-release 
-        Scientific Linux SL release 4.5 (Beryllium)
-
-        [blyth@cms02 ~]$ sudo yum list installed | grep ssh
-        openssh.x86_64                           3.9p1-11.el4_7         installed       
-        openssh-clients.x86_64                   3.9p1-11.el4_7         installed       
-        openssh-server.x86_64                    3.9p1-11.el4_7         installed       
-
-
-::
-
-        [blyth@cms01 ~]$ cat /etc/redhat-release 
-        Scientific Linux CERN SLC release 4.8 (Beryllium)
-
-        [blyth@cms01 ~]$ sudo yum list installed | grep ssh
-        Password:
-        gsiopenssh.i386                          VDT1.6.0x86_rhas_4-1   installed       
-        openssh.i386                             4.3p2-6.cern           installed       
-        openssh-clients.i386                     4.3p2-6.cern           installed       
-        openssh-server.i386                      4.3p2-6.cern           installed       
-
 
 Exported Working Copies
 ^^^^^^^^^^^^^^^^^^^^^^^
