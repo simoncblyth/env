@@ -32,6 +32,10 @@ EOU
 
 }
 
+sqlite-tables(){
+  local db=${1:-dybsvn/db/trac.db}
+  echo .schema | sqlite3 $db | perl -ne 's,CREATE TABLE (\S*),$1, && print "$1\n"' - 
+}
 
 
 sqlite-notes(){
