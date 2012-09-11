@@ -6,7 +6,7 @@ http://www.sqlite.org/lang_conflict.html
 http://www.sqlite.org/lang_insert.html
 
 """
-import sqlite3, logging
+import os, sqlite3, logging
 log = logging.getLogger(__name__)
 
 class Table(list):
@@ -15,7 +15,13 @@ class Table(list):
     """
     def __init__(self, path, tn=None , **kwa ):
          list.__init__(self)
-         conn = sqlite3.connect(path)
+	 pathv = os.path.expanduser(os.path.expandvars(path))
+	 dirv = os.path.dirname(pathv)
+	 if not os.path.isdir(dirv):
+             log.info("creating directory %s " % dirv )		 
+             os.makedirs(dirv)		 
+	 log.info("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
+         conn = sqlite3.connect(pathv)
          cursor = conn.cursor()
          self.path = path
          self.conn = conn 
