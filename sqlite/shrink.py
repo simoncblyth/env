@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 """
+
 Extract trac.db from tarball and interactively check with::
 
 	[dayabay] /tmp/tt > tar zxf dybsvn.tar.gz dybsvn/db/trac.db
@@ -52,8 +53,6 @@ Use this script to run some queries on the sqlite db::
 	bitten_step                    : 300033 
 	bitten_report_item             : 18051235     ## more than 18M 
 	bitten_log_message             : 39656123     ## almost 40M 
-
-
 
 sqlite> .schema bitten_log_message
 CREATE TABLE bitten_log_message (
@@ -109,6 +108,41 @@ Symbolically::
 
 
 
+sqlite> .schema bitten_build    
+CREATE TABLE bitten_build (
+    id integer PRIMARY KEY,
+    config text,
+    rev text,
+    rev_time integer,
+    platform integer,
+    slave text,
+    started integer,
+    stopped integer,
+    status text
+);
+CREATE INDEX bitten_build_config_rev_slave_idx ON bitten_build (config,rev,slave);
+sqlite> 
+
+
+   The rev is text, to support git and others with digest revisions
+
+sqlite> select cast(rev as integer) from bitten_build limit 10 ;
+3953
+3952
+3957
+
+
+sqlite> select count(*) from bitten_build where cast(rev as int) < 10000 ;
+3175
+
+sqlite> select count(distinct(id)) from bitten_build where cast(rev as int) < 10000 ;
+3175
+
+sqlite> select count(distinct(id)) from bitten_build where cast(rev as int) > 10000 ;
+9995
+
+
+
 
 sqlite> SELECT min(rev+0),max(rev+0) FROM bitten_build  ;
 3952|17979
@@ -124,6 +158,11 @@ sqlite> SELECT count(*) FROM bitten_build where rev+0 > 10000 ;
 9995
 sqlite> SELECT count(distinct(id)) FROM bitten_build where rev+0 > 10000 ;
 9995
+
+
+
+
+
 
 
 
@@ -150,10 +189,6 @@ opt.dybinst
 
 
 
-
-
-
-
 """
 import logging, sys, sqlite3
 log = logging.getLogger(__name__)
@@ -166,6 +201,7 @@ class DB(object):
         conn=sqlite3.connect(path)
         cur=conn.cursor()
         self.conn = conn
+        self.path = path
         self.count = -1
         self.tables = self.tables_() 
 
@@ -197,7 +233,7 @@ class DB(object):
         """
         count={}
         for tab in self.tables:
-            #if tab.startswith('bitten'):continue  # skip biggies for speed
+            if tab.startswith('bitten'):continue  # skip biggies for speed
             sql = "select count(*) from %(tab)s" % locals()
             ret = self(sql)
             assert len(ret) == 1, ret
@@ -207,14 +243,51 @@ class DB(object):
         return count
 
 
+    def db_open(self):
+        """
+        standin for trac/admin/console API
+        """ 
+        return self.conn
+
+    def arbitary_(self, path ):
+        """
+        http://trac.edgewall.org/pysqlite.org-mirror/ticket/259
+
+        How to test the corners of errorspace here ?
+        How to test in contentious environment ?
+        """
+        sql = open(path,"r").read()
+        cnx = self.db_open()
+        cur = cnx.cursor()
+        try:
+            print 'Running arbitary script %s sql %s against %s ...' % (script, sql, self.path),
+            cur.executescript(sql)
+        except sqlite3.Error:
+            cnx.rollback()
+            raise
+        else:
+            cnx.commit()   # Error from this commit are not caught 
+        finally:
+            cur.close()
+
+
+    def builds_(self, where="cast(rev as int) < 10000"):
+        sql = "select id from bitten_build where %(where)s " % locals()
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
-    path = sys.argv[1] if len(sys.argv) > 0 else None 
+
+    n = len(sys.argv)
+    path = sys.argv[1] if n > 1 else None 
+    script = sys.argv[2] if n > 2 else None
     db = DB(path)
     print db.tables
-    cnt = db.count_()
-    print "\n".join(["%-30s : %s " % (t, cnt[t]) for t in sorted(cnt, key=lambda _:cnt[_])])
+    if script:
+        db.arbitary_(script) 
+    else:
+        cnt = db.count_()
+        print "\n".join(["%-30s : %s " % (t, cnt[t]) for t in sorted(cnt, key=lambda _:cnt[_])])
 
 
 

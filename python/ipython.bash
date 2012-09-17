@@ -37,6 +37,36 @@ make it less objectionable by changing config to use "colors NoColor"
    vi ~/.ipython/ipythonrc
 
 
+
+
+IHEP with local python 2.5.6
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Later versions of ipython require py2.6::
+
+	[dayabay] /home/blyth > rm -rf build
+	[dayabay] /home/blyth > pip install ipython==0.10
+	Downloading/unpacking ipython==0.10
+	  Downloading ipython-0.10.tar.gz (5.8Mb): 5.8Mb downloaded
+	  Running setup.py egg_info for package ipython
+	Installing collected packages: ipython
+	  Running setup.py install for ipython
+	    Installing iptest script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing ipythonx script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing ipcluster script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing ipython script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing pycolor script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing ipcontroller script to /home/blyth/local/python/Python-2.5.6/bin
+	    Installing ipengine script to /home/blyth/local/python/Python-2.5.6/bin
+	Successfully installed ipython
+	Cleaning up...
+	[dayabay] /home/blyth > 
+
+
+
+
+
+
 EOU
 }
 
