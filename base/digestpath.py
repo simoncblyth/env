@@ -21,6 +21,16 @@ http://stackoverflow.com/questions/1131220/get-md5-hash-of-a-files-without-open-
 Typical usage, need to find and digest a load of tarballs and record results into a dict that 
 can be transferred and compared at other end of transfer/or at a later time 
 
+There is a python version change problem in comparisons, with some pythons emitting the size with an L
+and some not::
+
+	< {'dig': 'f2191c11e0304b1cd52c19f970bf8a83', 'size': 8947425}
+	---
+	> {'dig': 'f2191c11e0304b1cd52c19f970bf8a83', 'size': 8947425L}
+	=== scm-backup-dnachecktgzs : FAIL /data/var/scm/backup/cms02/tracs/heprez/2012/09/17/123022/heprez.tar.gz
+
+
+
 
 """
 # dont use logging/argparse/optparse as want to stay ancient python compatible 
@@ -47,7 +57,7 @@ def dnapath( path , times=False ):
         hash.update(chunk)
     f.close()
     dig = hash.hexdigest()
-    dna = dict(dig=dig,size=sz)
+    dna = dict(dig=dig,size=int(sz))
 
     t1 = time.time()
     if times:dna['t'] = t1 - t0   ## not standardly part of dna, as will change 
