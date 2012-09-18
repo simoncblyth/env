@@ -23,6 +23,14 @@ Check the results:
 #. http://dayabay.phys.ntu.edu.tw/edocs/scm/monitor/
 
 
+Deficiencies
+~~~~~~~~~~~~~~~
+
+#. failure took a day to cause monitoring alarm, for example a node restart without reauthentication of the agent (the most common cause of failure) 
+   might not trigger alarm directly approx 50% of time depending on precise timing at which the check is made 
+
+    * adjusted the cut to 0.25 days to circumvent this, should always yield an alarm on first monitoring run following a failed backup/sync
+
 
 Deploying to  dayabay.ihep.ac.cn ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,9 +43,6 @@ Done:
 #. add env symbolic link to nginx docs
 #. hook up the javascript with link in _static
 #. test fabric run 
-
-Todo:
-
 #. get Qiumei install git, in order to install converter for table handling 
 #. deploy to real WW hub transfers to SDU : rather than current cross testing to backup node C of hub C2  
 

@@ -8,8 +8,10 @@ from datetime import datetime
 
 class TGZStat(object):
     """
+    Tarball status checking, for example verifying 
+    maximum allowable tarball age in days, eg 0.25 days    
     """
-    maxage = 1   # maximum allowable tarball age in days, typically 1 day  
+    maxage = 0.25   
     msday = 24*60*60*1000 
     smrycol = ('name','ltime','lsize','ldays','ldate')
     statcol = ("node","nok","nwarn","nalarm","status")
