@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 """
+
+Usage::
+
+   ~/e/sqlite/db.py /tmp/env/blyth/shrink/dybsvn/db/trac.db
+
+
 General purpose pysqlite access to SQLite DB, put schema specifics 
 in other modules keeping this general purpose.
 
@@ -31,8 +37,25 @@ class DB(object):
         self.count = -1
         self.tables = self.tables_() 
 
+    def versions(self):
+        """
+        :return: pysqlite version, underlying sqlite version
+        """ 
+        #return (sqlite3.version, sqlite3._sqlite.sqlite_version())
+        return (sqlite3.version, sqlite3.sqlite_version )
+
     def __call__(self, sql):
         return self.fetchall(sql)
+
+    def line_by_line(self, path ):
+        with open(path,"r") as fp:
+            for line in fp.readlines():
+                line = line.strip()
+                if not line:continue
+                assert line[-1] == ";" , ("expecting simple semicolon terminated sql statements on each non-blank line ", line)
+                print "[%s]" % line 
+                ret = self(line)
+                print ret 
 
     def execute_(self, sql):
         cursor = self.conn.cursor()
@@ -75,18 +98,18 @@ class DB(object):
         """ 
         return self.conn
 
-    def arbitary_(self, path ):
+    def arbitary_(self, sqlpath ):
         """
         http://trac.edgewall.org/pysqlite.org-mirror/ticket/259
 
         How to test the corners of errorspace here ?
         How to test in contentious environment ?
         """
-        sql = open(path,"r").read()
+        sql = open(sqlpath,"r").read()
         cnx = self.db_open()
         cur = cnx.cursor()
         try:
-            print 'Running arbitary script %s sql %s against %s ...' % (script, sql, self.path),
+            print 'Running arbitary script %s sql %s against %s ...' % (sqlpath, sql, self.path),
             cur.executescript(sql)
         except sqlite3.Error:
             cnx.rollback()
@@ -105,6 +128,8 @@ if __name__ == '__main__':
     script = sys.argv[2] if n > 2 else None
 
     db = DB(path, skip='bitten')
+    print db.versions()
+
     print db.tables
     if script:
         db.arbitary_(script) 
