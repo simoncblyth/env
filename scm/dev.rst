@@ -32,6 +32,13 @@ Deficiencies
     * adjusted the cut to 0.25 days to circumvent this, should always yield an alarm on first monitoring run following a failed backup/sync
 
 
+#. failure of remote DNA checks do not trigger fails of the backup
+
+    * currently implemented via a remote command that depends on a remote env installation (so can be behind in its SVN revision)
+    * tis failing at the moment due to python version `L` difference on the size
+    * move this to use the fabric approach, and cause alarms on failed checks 
+
+
 Deploying to  dayabay.ihep.ac.cn ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Done:
