@@ -1,9 +1,120 @@
 Shrinkage
 ==========
 
-The Trac DB needs to be shrunk, currently at 5.5G 
+.. contents:: :local:
 
-How to do the shrinkage ? 
+Fat Trac DB 
+-------------
+
+The Trac DB needs to be shrunk, currently at 5.5G 
+Extract trac.db from tarball and interactively check with::
+
+	[dayabay] /tmp/tt > tar zxf dybsvn.tar.gz dybsvn/db/trac.db
+	[dayabay] /tmp/tt > du -h dybsvn/db/trac.db
+	5.5G    dybsvn/db/trac.db
+	[dayabay] /tmp/tt > sqlite3 dybsvn/db/trac.db
+	SQLite version 3.3.3
+	Enter ".help" for instructions
+	sqlite> .tables
+	attachment          bitten_report       node_change         ticket
+	auth_cookie         bitten_report_item  permission          ticket_change
+	bitten_build        bitten_rule         report              ticket_custom
+	bitten_config       bitten_slave        revision            version
+	bitten_error        bitten_step         session             wiki
+	bitten_log          component           session_attribute
+	bitten_log_message  enum                system
+	bitten_platform     milestone           tags
+	sqlite> 
+
+
+Which tables hold the fat::
+
+        ./count.py /tmp/tt/dybsvn/db/trac.db
+
+	bitten_config                  : 5 
+	bitten_platform                : 16 
+	bitten_rule                    : 16 
+	bitten_error                   : 8164 
+	bitten_build                   : 13170 
+	bitten_report                  : 98520 
+	bitten_slave                   : 162784 
+	bitten_log                     : 298469 
+	bitten_step                    : 300033 
+	bitten_report_item             : 18051235     ## more than 18M 
+	bitten_log_message             : 39656123     ## almost 40M 
+
+Schema of fatties::
+
+
+	sqlite> .schema bitten_log_message
+	CREATE TABLE bitten_log_message (
+	    log integer,
+	    line integer,
+	    level text,
+	    message text,
+	    UNIQUE (log,line)
+	);
+
+	sqlite> .schema bitten_report_item  
+	CREATE TABLE bitten_report_item (
+	    report integer,
+	    item integer,
+	    name text,
+	    value text,
+	    UNIQUE (report,item,name)
+	);
+
+	sqlite> select max(length(message)) from bitten_log_message ;
+	3571
+
+	sqlite> select sum(length(message)) from bitten_log_message ;
+	2048409596      ## 2 billion chars of log messages
+
+
+Work out the query::
+
+
+	sqlite> select count(*) FROM bitten_log_message WHERE log < (SELECT max(id) FROM bitten_log WHERE build < 10000 ) ;
+	10478700
+
+	sqlite> SELECT max(id) FROM bitten_log WHERE build < 10000 ;
+	148781
+
+	sqlite> select count(*) FROM bitten_log_message ;
+	39656123
+	sqlite> 
+
+	sqlite> select cast(rev as integer) from bitten_build limit 10 ;
+	3953
+	3952
+	3957
+
+	sqlite> select count(*) from bitten_build where cast(rev as int) < 10000 ;
+	3175
+
+	sqlite> select count(distinct(id)) from bitten_build where cast(rev as int) < 10000 ;
+	3175
+
+	sqlite> select count(distinct(id)) from bitten_build where cast(rev as int) > 10000 ;
+	9995
+
+	sqlite> SELECT min(rev+0),max(rev+0) FROM bitten_build  ;
+	3952|17979
+
+Hmm will killing all of a configs builds cause problems for Trac/Bitten web interface::
+
+
+	sqlite> select distinct(config) from bitten_build;
+	detdesc
+	dybinst
+	dybdoc
+	dybdaily
+	opt.dybinst
+
+
+
+How to slim 
+---------------
 
 The 10 slaves are calling home every 5 minutes so lots of contention potential 
 for what is probably an expensive sequence of deletes, and the probable vacuuming. 
