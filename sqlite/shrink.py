@@ -24,30 +24,12 @@ Use this script to run some queries on the sqlite db::
 
         ./count.py /tmp/tt/dybsvn/db/trac.db
 
-	ticket_custom                  : 0 
 	bitten_config                  : 5 
-	system                         : 5 
-	tags                           : 12 
-	enum                           : 13 
-	report                         : 15 
 	bitten_platform                : 16 
 	bitten_rule                    : 16 
-	version                        : 21 
-	milestone                      : 26 
-	component                      : 34 
-	permission                     : 38 
-	auth_cookie                    : 68 
-	attachment                     : 157 
-	session                        : 193 
-	wiki                           : 298 
-	session_attribute              : 742 
-	ticket                         : 1249 
 	bitten_error                   : 8164 
-	ticket_change                  : 8681 
 	bitten_build                   : 13170 
-	revision                       : 17981 
 	bitten_report                  : 98520 
-	node_change                    : 120796 
 	bitten_slave                   : 162784 
 	bitten_log                     : 298469 
 	bitten_step                    : 300033 
@@ -88,23 +70,42 @@ CREATE TABLE bitten_report_item (
 
 
 
-DELETE FROM bitten_log_message WHERE log IN (SELECT id FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk'))
-
-DELETE FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_error WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_step WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-
-DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
 
 
 
+The build id are monotonic with rev (or nearly so) : can just kill up to a certain manually determined build id
 
-Symbolically::
+DELETE FROM bitten_build  WHERE id < 10000 
 
-    kill_rev = 10000
-    kill_build = (SELECT id FROM bitten_build WHERE rev+0 < %(kill_rev)s ) 
-    kill_log   = (SELECT id FROM bitten_log   WHERE build IN (SELECT id FROM bitten_build WHERE rev+0 < %(kill_rev)s ))
+DELETE FROM bitten_error  WHERE build < 10000 
+DELETE FROM bitten_step   WHERE build < 10000 
+DELETE FROM bitten_slave  WHERE build < 10000 
+
+DELETE FROM bitten_log     WHERE build < 10000 
+DELETE FROM bitten_report  WHERE build < 10000 
+
+
+DELETE
+select count(*) FROM bitten_log_message WHERE log < (SELECT max(id) FROM bitten_log WHERE build < 10000 )
+
+
+sqlite> select count(*) FROM bitten_log_message WHERE log < (SELECT max(id) FROM bitten_log WHERE build < 10000 ) ;
+10478700
+sqlite> SELECT max(id) FROM bitten_log WHERE build < 10000 ;
+148781
+sqlite> select count(*) FROM bitten_log_message ;
+39656123
+sqlite> 
+
+
+select count(*) FROM bitten_report_item WHERE report < (SELECT max(id) FROM bitten_report WHERE build < 10000 )
+
+
+
+
+
+
+
 
 
 
@@ -174,8 +175,6 @@ DELETE FROM bitten_error WHERE build IN (SELECT id FROM bitten_build WHERE rev <
 DELETE FROM bitten_step WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
 DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
 DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
-
-
 
 
 
