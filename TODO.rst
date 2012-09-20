@@ -13,35 +13,16 @@ env / scm-backup
 ------------------
 
 #. move to full nodename for /var/scm/backup/NODENAME
+#. hub based monitoring is convenient to check on the spokes, but means do not get notified when hub goes catatonic
 
 
 Dayabay
 --------
 
-Dates : Kambiu Talk July 19th 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
- * 6AD run ends   : 28 July 2012
- * 8AD run starts : early Oct 2012
- * IHEP 7-10 Jan 2013 (To be conf.)
-
 AdLidSensor Scraper
 ^^^^^^^^^^^^^^^^^^^^
 
 #. hook up nosetests monitoring, from Christine
-
-Docs
-^^^^^
-
-#. bashtoctree
-
-hep1
-^^^^^
-
-::
-
-        g4pb-2:~ blyth$ ssh H1
-        ssh_exchange_identification: Connection closed by remote host
 
 Backups
 ^^^^^^^
