@@ -1,8 +1,33 @@
 #!/usr/bin/env python
 """
 Getting PDFs and other binaries out of a source tree and into
-a parallel hierarcy, typically for apache presentation from there.
+a parallel hierarcy, typically for local webserver presentation from there.
 The veracity of the copy is checked via digests.  
+
+.. note:: the advantage is organization within single tree heirarchy tree, without clutering repo with binaries
+
+.. warn:: deletes questionmarked directories from working copy, so cleanup svn status manually before using this to complete the task
+          potentially loosing files if their extensions do not correspond to the selected ones
+
+
+Avoid copying around trash like .aux .log and _build
+
+#. setting svn ignores to skip them from status, eg  
+
+   * globally in `~/.subversion/config` 
+   * locally with `svn pe svn:ignore .` in the directory
+
+Avoid folder deletions by
+
+#. adding them to repo 
+#. setting global or local svn ignores to avoid "?" svn status
+
+
+Issues
+~~~~~~~~
+
+#. .numbers "files" are seen as directories and thus skipped from the sweep
+
 
 This script just looks and suggests the commands to run, it does not do anything.  
 To act on suggestions pipe the output to the shell.
@@ -89,12 +114,13 @@ class DPath(object):
 	"""
 	self.path = path 
         self.digest = digest_(path)
+	self.isdir = os.path.isdir(path)
 	if svnst:
             self.svnst = svnst
         else:    
 	    self.svnst = svnstatus_(path)
     def __repr__(self):
-	return "[%s] %s %s" % ( self.svnst, self.path, self.digest )     
+	return "[%s] %s %s DIR:%s " % ( self.svnst, self.path, self.digest, self.isdir )     
 
 
 class Sweeper(list):
@@ -109,21 +135,32 @@ class Sweeper(list):
        * eg does not delete at target on changing source directory names, so orphans will result
 
     """
-    def __init__(self, src, tgt, exts='.pdf .txt .html .xml'):	
+    def __init__(self, src, tgt, exts=None , skipd=None ):	
 	"""
 	:param src: source directory
 	:param tgt: target directory
-	:param exts: filetype to be sweeped if they have svn status of **?**
-	:params skipd: directory names to not recurse into, in new walk this is not needed 
+	:param exts: default of None sweeps all working copy detritus with svn status of `?`
+
+                     if a whitespace delimited string is provided such as ".txt .rst" then a
+		     simple filesystem walk is used rather than svn status running
+
+        :param skip: space delimited list of dirnames to skip in the dir_walk (ignored in status_walk) eg "_build _sources"
+
 	"""
 	xx_ = lambda _:os.path.expandvars(os.path.expanduser(_))
         self.src = xx_(src)
 	self.tgt = xx_(tgt)
-	self.exts = exts.split()
-        self.cmds = []
-        self.walk()
 
-    def walk(self):
+        self.cmds = []
+	self.skipd = skipd.split() if skipd else []
+        if not exts:
+	    self.exts = None
+            self.status_walk()
+        else:
+	    self.exts = exts.split()
+            self.dir_walk()
+
+    def status_walk(self):
 	"""
 	Pattern match the `svn status` of the `src` directory  passing all matches to `handle`
 	Note that only a single `svn status` is required, so much more efficient compared to oldwalk.
@@ -138,30 +175,45 @@ class Sweeper(list):
 		 stat_,atat_,path = groups
 		 stat = stat_.rstrip()
 		 log.debug( "[%s][%s] %s " % ( stat, atat_, path ))
-		 self.handle( path, stat )
+		 self.clean_handle( path, stat )
             else:
 		 log.info("no match %s " % line )   
 
-    def oldwalk(self):
+    def dir_walk(self):
 	"""
-	Old way used ordinary os.walk and then `svn status` separately for every path, 
-	requiring separate svn status checks for each path within `handle`
+	Simple os.walk the source tree handling files with extensions matching the 
+	selected ones.
 	"""
         for dirpath, dirs, names in os.walk(self.src):
 	    rdir = dirpath[len(self.src)+1:]	
-            #for skp in self.skipd:		 
-	    #    if skp in dirs:
-	    #        dirs.remove(skp)  
+            for skp in self.skipd:		 
+	        if skp in dirs:
+	            dirs.remove(skp)  
 	    for name in names:
                 root, ext = os.path.splitext(name)
                 if not ext in self.exts: 
                     continue
                 spath = os.path.join(dirpath, name)
-                self.handle(spath)
+                self.copy_handle(spath)
 
-    def handle(self, spath, svnst=None):
+    def copy_handle(self, spath):
+        """
+	:param spath: full path 
+	""" 
+	rpath = spath[len(self.src)+1:]
+	sp = DPath(spath, svnst="-") 
+        tpath = os.path.join(self.tgt,rpath)
+	tp = DPath(tpath, svnst="-") 
+        if sp.digest == tp.digest:
+	    log.info("no update needed %r " % sp ) 	    
+	else:   
+	    log.info("sp %s " % ( sp ))
+	    log.info("tp %s " % ( tp ))
+	    cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
+            self.cmds.append(cmd)
+
+    def clean_handle(self, spath, svnst=None):
 	"""
-
         Considers a source path and appends shell commands to either:
 
 	#. create target directory if not created and copy the binary littering source to target
@@ -171,13 +223,21 @@ class Sweeper(list):
 	:param svnst: svn status string
 	"""
 	rpath = spath[len(self.src)+1:]
+
 	sp = DPath(spath, svnst=svnst) 
         if sp.svnst != '?':
 	    return 
+
+        if sp.isdir:
+	    log.warn("skipping uncommitted directory : %r " % sp )	
+            return		 
+
         tpath = os.path.join(self.tgt,rpath)
 	tp = DPath(tpath, svnst="-") 
 	log.info("sp %s" % sp )
 	log.info("tp %s" % tp )
+
+
         if sp.digest == tp.digest:
 	    cmd = "rm -f \"%s\" " % ( spath ) 	    
 	else:   
