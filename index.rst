@@ -43,7 +43,7 @@ Contents:
    ROOT <root/index>
    ENV <_docs/env>
    sphinxext/index
-   
+   matplotlib/index   
 
 Indices and tables
 ==================

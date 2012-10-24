@@ -205,7 +205,7 @@ class Sweeper(list):
         tpath = os.path.join(self.tgt,rpath)
 	tp = DPath(tpath, svnst="-") 
         if sp.digest == tp.digest:
-	    log.info("no update needed %r " % sp ) 	    
+	    log.debug("no update needed %r " % sp ) 	    
 	else:   
 	    log.info("sp %s " % ( sp ))
 	    log.info("tp %s " % ( tp ))

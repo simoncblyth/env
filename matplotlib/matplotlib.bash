@@ -5,162 +5,171 @@ matplotlib-vi(){       vi $(matplotlib-source) ; }
 matplotlib-env(){      elocal- ; }
 matplotlib-usage(){
   cat << EOU
-     matplotlib-src : $(matplotlib-src)
-     matplotlib-dir : $(matplotlib-dir)
+
+Matplotlib
+===========
+
+OSX installation 
+------------------
+
+On trying a basic plot using matplotlib installed into virtual python based on 
+macports python26::
 
 
-  == OSX installation ==
+	import matplotlib.pyplot as plt
+	import numpy as np
+	x = np.random.randn(1000)
+	plt.hist( x, 20)
+	plt.grid()
+	plt.title(r'Normal: $\mu=%.2f, \sigma=%.2f$'%(x.mean(), x.std()))
+	plt.show()
 
-    On trying a basic plot using matplotlib installed into virtual python based on 
-    macports python26 
+The plot appears, but get a not-a-framework warning::
 
-{{{
-import matplotlib.pyplot as plt
-import numpy as np
-x = np.random.randn(1000)
-plt.hist( x, 20)
-plt.grid()
-plt.title(r'Normal: $\mu=%.2f, \sigma=%.2f$'%(x.mean(), x.std()))
-plt.show()
-}}}
-
-   The plot appears, but get a not-a-framework warning:
-{{{
-In [5]: plt.hist( x, 20)
-/usr/local/env/matplotlib/matplotlib-1.0.0/lib/matplotlib/backends/backend_macosx.py:235: 
-UserWarning: 
-  Python is not installed as a framework. 
-  The MacOSX backend may not work correctly if Python is not installed as a framework. 
-  Please see the Python documentation for more information on installing Python as a framework on Mac OS X
-}}} 
+	In [5]: plt.hist( x, 20)
+	/usr/local/env/matplotlib/matplotlib-1.0.0/lib/matplotlib/backends/backend_macosx.py:235: 
+	UserWarning: 
+	  Python is not installed as a framework. 
+	  The MacOSX backend may not work correctly if Python is not installed as a framework. 
+	  Please see the Python documentation for more information on installing Python as a framework on Mac OS X
 
 
+matplotlib.sphinxext.ipython_directive 
+-----------------------------------------
 
-  == matplotlib.sphinxext.ipython_directive ==
-
-    * this hails from the src install on N, on G 
+ * this hails from the src install on N, on G 
 
 
-[blyth@belle7 sphinxext]$ pwd
-/home/blyth/rst/src/matplotlib/lib/matplotlib/sphinxext
-[blyth@belle7 sphinxext]$ ll
-total 116
-drwxrwxr-x  3 blyth blyth  4096 Jan  4 19:55 .
-drwxrwxr-x 11 blyth blyth  4096 Jan  4 19:54 ..
--rw-rw-r--  1 blyth blyth     1 Jan  4 15:28 __init__.py
--rw-rw-r--  1 blyth blyth   154 Jan  4 19:44 __init__.pyc
--rw-rw-r--  1 blyth blyth  4183 Jan  4 15:28 ipython_console_highlighting.py
--rw-rw-r--  1 blyth blyth  3266 Jan  4 19:55 ipython_console_highlighting.pyc
--rw-rw-r--  1 blyth blyth 15656 Jan  4 15:28 ipython_directive.py
--rw-rw-r--  1 blyth blyth 11909 Jan  4 19:54 ipython_directive.pyc
--rw-rw-r--  1 blyth blyth  3781 Jan  4 15:28 mathmpl.py
--rw-rw-r--  1 blyth blyth  5040 Jan  4 19:51 mathmpl.pyc
--rw-rw-r--  1 blyth blyth  2109 Jan  4 15:28 only_directives.py
--rw-rw-r--  1 blyth blyth  3603 Jan  4 19:44 only_directives.pyc
--rw-rw-r--  1 blyth blyth 18563 Jan  4 15:28 plot_directive.py
--rw-rw-r--  1 blyth blyth 15100 Jan  4 19:44 plot_directive.pyc
-drwxrwxr-x  6 blyth blyth  4096 Jan  4 15:32 .svn
+::
+
+	[blyth@belle7 sphinxext]$ pwd
+	/home/blyth/rst/src/matplotlib/lib/matplotlib/sphinxext
+	[blyth@belle7 sphinxext]$ ll
+	total 116
+	drwxrwxr-x  3 blyth blyth  4096 Jan  4 19:55 .
+	drwxrwxr-x 11 blyth blyth  4096 Jan  4 19:54 ..
+	-rw-rw-r--  1 blyth blyth     1 Jan  4 15:28 __init__.py
+	-rw-rw-r--  1 blyth blyth   154 Jan  4 19:44 __init__.pyc
+	-rw-rw-r--  1 blyth blyth  4183 Jan  4 15:28 ipython_console_highlighting.py
+	-rw-rw-r--  1 blyth blyth  3266 Jan  4 19:55 ipython_console_highlighting.pyc
+	-rw-rw-r--  1 blyth blyth 15656 Jan  4 15:28 ipython_directive.py
+	-rw-rw-r--  1 blyth blyth 11909 Jan  4 19:54 ipython_directive.pyc
+	-rw-rw-r--  1 blyth blyth  3781 Jan  4 15:28 mathmpl.py
+	-rw-rw-r--  1 blyth blyth  5040 Jan  4 19:51 mathmpl.pyc
+	-rw-rw-r--  1 blyth blyth  2109 Jan  4 15:28 only_directives.py
+	-rw-rw-r--  1 blyth blyth  3603 Jan  4 19:44 only_directives.pyc
+	-rw-rw-r--  1 blyth blyth 18563 Jan  4 15:28 plot_directive.py
+	-rw-rw-r--  1 blyth blyth 15100 Jan  4 19:44 plot_directive.pyc
+	drwxrwxr-x  6 blyth blyth  4096 Jan  4 15:32 .svn
 
 
 
-  == installation ==
+installation 
+--------------
 
-     Pre-requisites, numpy and mysql_numpy (my fork of mysql_python that adding the pulling of numpy arrays from 
-     mysql query results)::
+Pre-requisites, 
+
+#. numpy (my fork with a few fixes, they should be incoporated upstream now?)
+#. mysql_numpy (my fork of mysql_python 1.2.3 that adds the pulling of numpy arrays from mysql query results)::
 
          pip install -E ~/v/docs -e git+git://github.com/scb-/numpy.git#egg=numpy                ## maybe better to use the writable access technique         
          pip install -E ~/v/docs -e git://github.com/scb-/mysql_numpy.git#egg=mysql_numpy 
 
-     Hmm "mysql_numpy" fails as setup.py is not at top level ... have to::
+Hmm "mysql_numpy" fails as setup.py is not at top level, have to::
 
          cd ~/v/docs/src/mysql-numpy/MySQLdb/
          python setup.py install
 
-    Then matplotlib (fails if numpy not installed)
+Then matplotlib (fails if numpy not installed)::
 
          pip install -E ~/v/docs -f http://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-1.0/matplotlib-1.0.0.tar.gz -U matplotlib
 
-
-
-
-    For testing and interactive dev::
+For testing and interactive dev::
 
          pip install -E ~/v/docs -U ipython
          pip install -E ~/v/docs -U nose
 
-    env hookup 
+env hookup::
+
          cd ~/v/docs/lib/python2.6/site-packages 
          ln -sf ~/env env
 
-    ipython gotcha
+ipython gotcha
           despite what "which ipython" would have you imagine, be explicit in the 
           virtual ipython invocation in order to have the full virtual sys.path 
 
           ~/v/docs/bin/ipython dcspmthv.py 
 
+tracker : appears neglected
 
-   tracker : appears neglected
-       http://sourceforge.net/tracker/?atid=560720&group_id=80706&func=browse
+ * http://sourceforge.net/tracker/?atid=560720&group_id=80706&func=browse
 
-   primitive archive views
-       http://sourceforge.net/mail/?group_id=80706
-       http://sourceforge.net/mailarchive/forum.php?forum_name=matplotlib-users
+primitive archive views
+ 
+ * http://sourceforge.net/mail/?group_id=80706
+ * http://sourceforge.net/mailarchive/forum.php?forum_name=matplotlib-users
   
-   better interface 
-       http://news.gmane.org/gmane.comp.python.matplotlib.general
-       http://news.gmane.org/gmane.comp.python.matplotlib.devel
+better interface 
 
-   primitive svn browser
-       http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/
+  * http://news.gmane.org/gmane.comp.python.matplotlib.general
+  * http://news.gmane.org/gmane.comp.python.matplotlib.devel
 
-   git mirror .. 
-       https://github.com/astraw/matplotlib#readme
+primitive svn browser
 
-   huh lots of activity in maintenance branch ?
-      http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/branches/v1_0_maint/lib/matplotlib/
+  * http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/
+
+git mirror .. 
+
+  * https://github.com/astraw/matplotlib#readme
+
+huh lots of activity in maintenance branch ?
+
+  * http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/branches/v1_0_maint/lib/matplotlib/
 
 
- == install ==
+install
+~~~~~~~~~~
 
-    pypi entry for matplotlib is buggered ... causing an out of date install
-    workaround, use a source install 
+pypi entry for matplotlib is buggered ... causing an out of date install
+workaround, use a source install::
 
      pip -v -E ~/v/docs install -e svn+https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib/#egg=matplotlib
 
 
-  == interactive plotting approaches ==
+interactive plotting approaches 
+---------------------------------
    
-   Thinking about how to implement interactive plots using SVG 
-   brought me to matplotlib as a higher level way of proceeding.
+Thinking about how to implement interactive plots using SVG 
+brought me to matplotlib as a higher level way of proceeding.
   
-   I looked into  
-        * http://raphaeljs.com/       (hindered by supporting IE canvas... not an SVG API)
-   Interactive SVG 
-        * http://www.svgopen.org/2009/papers/14-Interactive_SVG_with_JSXGraph/  
+I looked into  
+ * http://raphaeljs.com/       (hindered by supporting IE canvas... not an SVG API)
+
+Interactive SVG 
+ * http://www.svgopen.org/2009/papers/14-Interactive_SVG_with_JSXGraph/  
       
-   html5 : sliders are trivial with html5 ... just a range input 
-        * http://webhole.net/2010/04/24/html-5-slider-input-tutorial/
-{{{
-<html>
-<body>
-<input type="range" min="0" max="50" value="0" step="5" onchange="showValue(this.value)" />
-<span id="range">0</span>
-<script type="text/javascript">
-function showValue(newValue)
-{
-	document.getElementById("range").innerHTML=newValue;
-}
-</script>
-</body>
-</html>
-}}} 
+html5 : sliders are trivial with html5 ... just a range input 
+ * http://webhole.net/2010/04/24/html-5-slider-input-tutorial/
+
+::
+
+	<html>
+	<body>
+	<input type="range" min="0" max="50" value="0" step="5" onchange="showValue(this.value)" />
+	<span id="range">0</span>
+	<script type="text/javascript">
+	function showValue(newValue)
+	{
+		document.getElementById("range").innerHTML=newValue;
+	}
+	</script>
+	</body>
+	</html>
 
 
-   svg slider ...
-       * http://www.carto.net/papers/svg/gui/slider/
-       * http://www.carto.net/papers/svg/gui/slider/index.svg     
-   
-   
+svg slider ...
+  * http://www.carto.net/papers/svg/gui/slider/
+  * http://www.carto.net/papers/svg/gui/slider/index.svg     
 
 
 EOU
