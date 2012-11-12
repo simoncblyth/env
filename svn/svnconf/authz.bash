@@ -12,7 +12,7 @@ authz(){
   local hk="jimmy, antony, soap, talent, alex, henoch, cuikx"
   local cn="tianxc, maqm, litsh08"
   local us="littlejohn"
-  local hz="simon, cjl, tosi, cecilia, b2c, andrzej, gigi, matteo, yasmine"
+  local hz="simon, cjl, tosi, cecilia, b2c, andrzej, gigi, matteo, yasmine, thomas"
 
 cat << EOA
 #
