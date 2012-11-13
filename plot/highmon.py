@@ -75,7 +75,7 @@ class HighMon(list):
         msg = repr(self)
         log.warn("%s violations, sending email\n%s\n" % ( len(self), msg ))
         if self.email:
-            for _ in self.email.split():
+            for _ in self.email.split(","):
                 log.warn("sendmail to %s " % _ )
                 sendmail( msg, _ )
         else:

@@ -7,10 +7,15 @@
    ./tgzmon.py http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json
 
    ./tgzmon.py http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json  -e blyth@hep1.phys.ntu.edu.tw
-
+   ./tgzmon.py http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json  -e blyth@hep1.phys.ntu.edu.tw,maqm@ihep.ac.cn
 
 Pull JSON data and apply `monitor_` methods. 
 When constraint violations are found send notification emails
+
+Usage from cron 
+
+    cd $ENV_HOME/scm ; python- ; ./tgzmon.py -e blyth@hep1.phys.ntu.edu.tw http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
+
 
 """
 import logging
@@ -68,11 +73,12 @@ class TGZMon(HighMon):
 
 if __name__ == '__main__':
     opts, args = args_()
+    email = opts.email if opts.email else os.environ.get('MAILTO',None)
     loc = pytz.timezone(opts.timezone)   
     logging.basicConfig(level=getattr(logging, opts.level.upper()))
     assert len(args) > 0, "at least one argument URL from which to pull JSON plot data is required " 
     for url in args:
-        mon = TGZMon(url, email=opts.email )
+        mon = TGZMon(url, email=email )
         mon()
 
 

@@ -1223,6 +1223,13 @@ scm-backup-checkssh(){
 
 }
 
+
+scm-backup-tgzmon-(){ $ENV_HOME/scm/tgzmon.py $* ;  }
+scm-backup-tgzmon(){
+   $FUNCNAME- http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
+   $FUNCNAME- http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json
+}
+
 scm-backup-checkscp(){
 
    local tags=${1:-$BACKUP_TAG}   
