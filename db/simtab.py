@@ -14,13 +14,13 @@ class Table(list):
     Interact with sqlite3 tables, append dicts to this list then insert them 
     """
     def __init__(self, path, tn=None , **kwa ):
-         list.__init__(self)
-	 pathv = os.path.expanduser(os.path.expandvars(path))
-	 dirv = os.path.dirname(pathv)
-	 if not os.path.isdir(dirv):
-             log.info("creating directory %s " % dirv )		 
-             os.makedirs(dirv)		 
-	 log.info("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
+         list.__init__(self) 
+         pathv = os.path.expanduser(os.path.expandvars(path))
+         dirv = os.path.dirname(pathv)
+         if not os.path.isdir(dirv):
+             log.info("creating directory %s " % dirv )         
+             os.makedirs(dirv)         
+         log.info("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
          conn = sqlite3.connect(pathv)
          cursor = conn.cursor()
          self.path = path

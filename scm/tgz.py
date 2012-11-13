@@ -151,11 +151,23 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)    
     tgz = TGZ()
 
+    import pytz
+    tpe = pytz.timezone('Asia/Taipei')
+    utc = pytz.utc
+
     #node = 'Z9:229'
     node = 'C'
     dirs = tgz.dirs(node)
+    kludge = -60*60*8
+    fmt = '%Y-%m-%d %H:%M:%S %Z%z'
     print "\n".join(dirs)
     for _ in tgz.items(node):
         print _
-
+        data = tgz.data(node, _ )
+        data.append([0,0])   # this should mean 1970-01-01 00:00 +08:00
+        print data
+        for stamp, value in data:
+            dt = datetime.utcfromtimestamp(stamp/1000+kludge).replace(tzinfo=utc)
+            lt = dt.astimezone( tpe )
+            print stamp, dt.strftime(fmt), lt.strftime(fmt), value
 

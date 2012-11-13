@@ -36,7 +36,7 @@ def cnf_(hub, smc="~/.scm_monitor.cnf"):
 	dbpath = $LOCAL_BASE/env/scm/scm_backup_monitor.db
 	jspath = $APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json
 	select = repos/env tracs/env repos/aberdeen tracs/aberdeen repos/tracdev tracs/tracdev repos/heprez tracs/heprez
-        email = user@emailhost
+    email = user@emailhost
 
     NB before the config dict arrives as parameter of monitor, which is invoked per remote node, additonal
     keys are added such as HOST

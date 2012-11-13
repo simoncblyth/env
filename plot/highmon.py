@@ -25,7 +25,7 @@ def read_json( url ):
 
 class Violation(dict):
     def __repr__(self):
-        return "method:%(method)s series:%(name)s msg:%(msg)s" % self
+        return "method:%(method)s series:%(series)s msg:%(msg)s" % self
 
 class HighMon(list):
     @classmethod
@@ -47,7 +47,7 @@ class HighMon(list):
         return "\n".join(map(repr, self))
 
     def add_violation(self, method, series, msg ):
-        v = Violation(method=method, name=name, msg=msg )
+        v = Violation(method=method, series=series, msg=msg )
         self.append(v)
 
     def _load(self):
