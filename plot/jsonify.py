@@ -55,9 +55,7 @@ def jsdict( d ):
     """
     jsd = {}
     if d:
-	 for k,v in d.items(): 
-            
-
+        for k,v in d.items(): 
             jsd[k] = json.dumps( v )
     return jsd
 

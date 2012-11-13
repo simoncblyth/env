@@ -24,7 +24,7 @@ class TGZ(object):
         :param tn: name of DB table
         :param select: list of instance names to include in plots/tables or empty for all
         """
-	if not dbpath:
+        if not dbpath:
             dbpath = os.path.expandvars("$LOCAL_BASE/env/scm/scm_backup_monitor.db")   
         if not os.path.exists(os.path.dirname(dbpath)):
             os.makedirs(os.path.dirname(dbpath))
@@ -34,13 +34,13 @@ class TGZ(object):
         self.tab = Table(dbpath, tn, nodepath="text primary key", node="text", dir="text", date="text", size="real" )
         self.tn = tn   
         self.select = select
-	self._pfx = {}
+        self._pfx = {}
 
     def parse(self, lines, node ):
         """
         Parse the response from the remote command and update local database,    
-	new entries are added, changed entries (based on ``nodepath`` identity) 
-	replace older ones.
+        new entries are added, changed entries (based on ``nodepath`` identity) 
+        replace older ones.
 
         :param lines: list of strings response from the cmd
         :param node: ssh tag or alias of remote node on which the command was performed  
@@ -59,42 +59,45 @@ class TGZ(object):
         self.tab.insert()    
 
     def pfx(self, node):
-	if not self._pfx.get(node, None):    
-	    dirs = self.dirs(node)    
+        """
+
+        """
+        if not self._pfx.get(node, None):    
+            dirs = self.dirs(node)    
             pfx = os.path.commonprefix(dirs)
             self._pfx[node] = pfx
-	return self._pfx[node]
+        return self._pfx[node]
 
     def dirs(self, node):
-	"""
-	:param node: tag of remote node
-	:return: list of distinct directories for the remote node
-	"""
+        """
+        :param node: tag of remote node
+        :return: list of distinct directories for the remote node
+        """
         dirs = map(lambda _:_[0], self.tab("select distinct(dir) from %s where node='%s' " % (self.tn, node)))
         return dirs
 
     def items(self, node ):
-	"""
-	:param node: tag of remote node
-	:return: list of 2-tuples with (short name with common prefix removed,absolute dir)
+        """
+        :param node: tag of remote node
+        :return: list of 2-tuples with (short name with common prefix removed,absolute dir)
 
-	For example::
+        For example::
 
-		(u'repos/data', u'/volume1/var/scm/backup/g4pb/repos/data')
-		(u'tracs/data', u'/volume1/var/scm/backup/g4pb/tracs/data')
+            (u'repos/data', u'/volume1/var/scm/backup/g4pb/repos/data')
+            (u'tracs/data', u'/volume1/var/scm/backup/g4pb/tracs/data')
 
-	"""
-	dirs = self.dirs(node)    
+        """
+        dirs = self.dirs(node)    
         pfx = os.path.commonprefix(dirs)
-	self._pfx[node] = pfx
-	nams = map(lambda _:_[len(pfx):], dirs)
+        self._pfx[node] = pfx
+        nams = map(lambda _:_[len(pfx):], dirs)
         log.info("commonprefix %s  " % (pfx) )
         itms = zip(nams,dirs)
-	return itms if len(self.select) == 0 else filter(lambda _:_[0] in self.select,itms) 
+        return itms if len(self.select) == 0 else filter(lambda _:_[0] in self.select,itms) 
 
 
     def okdata(self, node):
-	"""    
+        """    
         Tarballs in the past 10 days
 
 
@@ -106,46 +109,46 @@ class TGZ(object):
 
         """
         data = []
-	sql = "select strftime('%s',date(date))*1000,count(*) from %s where node='%s' group by date(date) " % ( "%s", self.tn, node ) 
+        sql = "select strftime('%s',date(date))*1000,count(*) from %s where node='%s' group by date(date) " % ( "%s", self.tn, node ) 
         for d in self.tab(sql):
-	    l = list(d)	
+            l = list(d)    
             data.append(l)
         return data
 
     def data(self, node, item , xsql="" ):
         """
-	:param node: 
-	:param item: specifier tuple as returned by items
-	:param xsql: extra SQL to tack on to the query, eg "desc limit 1 " to get the last value
-	:return: list of 2 element lists with the time series of tarball sizes in date order
+        :param node: 
+        :param item: specifier tuple as returned by items
+        :param xsql: extra SQL to tack on to the query, eg "desc limit 1 " to get the last value
+        :return: list of 2 element lists with the time series of tarball sizes in date order
         """
         name, dir = item
         data = []
         sql = "select strftime('%s',date)*1000, size from %s where dir='%s' and node='%s' order by date %s " % ( "%s", self.tn, dir, node, xsql )
         for d in self.tab(sql):
-	    l = list(d)	
-	    if l[1]<11.:l[1] = l[1]*10.    # arbitaryish scaling for visibiity		  
+            l = list(d)    
+            if l[1]<11.:l[1] = l[1]*10.    # arbitaryish scaling for visibiity          
             data.append(l)
         return data
 
     def dump(self, node):
-	"""    
-	:param node: 
+        """    
+        :param node: 
 
-	debug dumping 
+        debug dumping 
         """
         for _ in tgz.items(node):
-  	    name, dir = _
-	    print name
-	    data = self.data(node, _)
-	    print data
+            name, dir = _
+        print name
+        data = self.data(node, _)
+        print data
         pass
 
 
 if __name__ == '__main__':
 
 
-    logging.basicConfig(level=logging.INFO)	
+    logging.basicConfig(level=logging.INFO)    
     tgz = TGZ()
 
     #node = 'Z9:229'
