@@ -18,7 +18,7 @@ Usage from cron
 
 
 """
-import logging
+import os, logging
 from datetime import datetime, timedelta
 log = logging.getLogger(__name__)
 from env.plot.highmon import HighMon
@@ -43,7 +43,7 @@ class TGZMon(HighMon):
     """
     def __init__(self, *args, **kwa ):
         HighMon.__init__(self, *args, **kwa )
-        self.maxage = timedelta(hours=10)   
+        self.maxage = timedelta(hours=24)   
 
     def monitor_age(self, method, series ):
         """
@@ -58,9 +58,13 @@ class TGZMon(HighMon):
         to be sweeped under the carpet. This also allows time handling to follow recommended
         patterns, after the kludge.
 
+        For some good guidelines on python datetime usage, see pytz docs
+
+        * http://pytz.sourceforge.net/
+
         """
         now_utc = datetime.utcnow().replace(tzinfo=utc)   
-        ts = series['data'][-1][0]/1000 - 60*60*8            # mysterious 8 hrs kludge 
+        ts = series['data'][-1][0]/1000 - 60*60*8            # 8 hrs kludge 
         dt_utc = datetime.utcfromtimestamp(ts).replace(tzinfo=utc)
         dt_loc = dt_utc.astimezone( loc )
         age = now_utc - dt_utc                         

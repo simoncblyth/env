@@ -34,19 +34,26 @@ class HighMon(list):
     def introspect_monitor_methods(cls):
         return [(k,v) for k,v in inspect.getmembers(cls) if k[0:8] == 'monitor_']
 
-    def __init__(self, url, email=None):
+    def __init__(self, url, email=None, reminder='Tue'):
         """
+        :param url: from which to pull JSON data
+        :param email: comma delimited string with notification email addresses
+        :param reminder:  abbreviated day of week on which to send notifications, even when no problems
+                          as weekly reassurance that the cron task is active 
+
         Defer loading js to the `__call__`, as that might fail and wish to 
         handle failures by sending notification emails
         """
         self.url = url
         self.email = email
+        today = datetime.utcnow().strftime("%a") 
+        self.reminder = reminder if today == reminder else ""
         self.mm = self.introspect_monitor_methods()
         self.js = None
         list.__init__(self)
 
     def hdr(self):
-        return "%s %s %s" % ( self.__class__.__name__ , self.url , fmt_(datetime.now()) )
+        return "%s [%s] %s %s" % ( self.__class__.__name__ , self.reminder, self.url , fmt_(datetime.now()) )
 
     def __repr__(self):
         return "\n".join([self.hdr()]+map(repr, self))
@@ -69,11 +76,11 @@ class HighMon(list):
                 method(self, method=method_name, series=series )
 
     def _notify(self):
-        if len(self) == 0:
-            log.info("no violations, not sending email")
+        if not self.reminder and len(self) == 0:
+            log.info("no violations, not sending email" )
             return
         msg = repr(self)
-        log.warn("%s violations, sending email\n%s\n" % ( len(self), msg ))
+        log.warn("%s violations, reminder? [%s],  sending email\n%s\n" % ( len(self), self.reminder, msg ))
         if self.email:
             for _ in self.email.split(","):
                 log.warn("sendmail to %s " % _ )
