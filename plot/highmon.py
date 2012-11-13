@@ -6,8 +6,10 @@ Base class for monitoring JSON data in HighStock format, usage::
 
 """
 import os, inspect, urllib2, logging
+from datetime import datetime
 from env.tools.sendmail import sendmail
 log = logging.getLogger(__name__)
+fmt_ = lambda _:_.strftime('%Y-%m-%d %H:%M:%S %Z%z')
 
 try:
     import json
@@ -43,8 +45,11 @@ class HighMon(list):
         self.js = None
         list.__init__(self)
 
+    def hdr(self):
+        return "%s %s %s" % ( self.__class__.__name__ , self.url , fmt_(datetime.now()) )
+
     def __repr__(self):
-        return "\n".join(map(repr, self))
+        return "\n".join([self.hdr()]+map(repr, self))
 
     def add_violation(self, method, series, msg ):
         v = Violation(method=method, series=series, msg=msg )
