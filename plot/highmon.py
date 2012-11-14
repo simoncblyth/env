@@ -27,16 +27,16 @@ def read_json( url ):
 
 class Violation(dict):
     def __repr__(self):
-        return "method:%(method)s series:%(series)s msg:%(msg)s" % self
+        return "%(url)s %(method)s %(series)s %(msg)s" % self
 
 class HighMon(list):
     @classmethod
     def introspect_monitor_methods(cls):
         return [(k,v) for k,v in inspect.getmembers(cls) if k[0:8] == 'monitor_']
 
-    def __init__(self, url, email=None, reminder='Tue'):
+    def __init__(self, urls, email=None, reminder='Tue'):
         """
-        :param url: from which to pull JSON data
+        :param urls: list of urls from which to pull JSON data
         :param email: comma delimited string with notification email addresses
         :param reminder:  abbreviated day of week on which to send notifications, even when no problems
                           as weekly reassurance that the cron task is active 
@@ -44,36 +44,37 @@ class HighMon(list):
         Defer loading js to the `__call__`, as that might fail and wish to 
         handle failures by sending notification emails
         """
-        self.url = url
+        self.urls = urls
         self.email = email
         today = datetime.utcnow().strftime("%a") 
         self.reminder = reminder if today == reminder else ""
         self.mm = self.introspect_monitor_methods()
-        self.js = None
+        self.js = {}
         list.__init__(self)
 
     def hdr(self):
-        return "%s [%s] %s %s" % ( self.__class__.__name__ , self.reminder, self.url , fmt_(datetime.now()) )
+        return "%s [%s] %s URLs %s" % ( self.__class__.__name__ , self.reminder, len(self.urls) , fmt_(datetime.now()) )
 
     def __repr__(self):
-        return "\n".join([self.hdr()]+map(repr, self))
+        return "\n".join([self.hdr()]+[""]+self.urls+[""]+map(repr, self))
 
-    def add_violation(self, method, series, msg ):
-        v = Violation(method=method, series=series, msg=msg )
+    def add_violation(self, url, method, series, msg ):
+        v = Violation(url=url,method=method, series=series, msg=msg )
         self.append(v)
 
-    def _load(self):
-        self.js = read_json(self.url)
-        if not self.js:
-            self.add_violation( method="_load", name="", msg="failed to load JSON from url %s " % self.url )                
+    def _load(self, url):
+        log.info("_load json from %s " % url )
+        self.js[url] = read_json(url)
+        if not self.js[url]:
+            self.add_violation( url=url, method="_load", name="", msg="failed to load JSON from url %s " % self.url )                
 
-    def _constrain(self):
-        if not self.js:
-            log.warn("skip method calls as json not loaded")
+    def _constrain(self, url):
+        if not self.js[url]:
+            log.warn("skip method calls failed to load json from url %s " % url )
             return
-        for series in self.js['series']:
+        for series in self.js[url]['series']:
             for method_name, method in self.mm:
-                method(self, method=method_name, series=series )
+                method(self, url=url, method=method_name, series=series )
 
     def _notify(self):
         if not self.reminder and len(self) == 0:
@@ -89,31 +90,43 @@ class HighMon(list):
             log.warn("email address(s) for notification not configured")
 
     def __call__(self):
-        self._load()
-        self._constrain()
+        for url in self.urls:
+            self._load(url)
+            self._constrain(url)
+            pass
         self._notify()
 
 
 
 class ExampleHighMon(HighMon):
-    def __init__(self, url ):
-        HighMon.__init__(self, url )
-    def monitor_somename(self, method, series ):
-        print method
-    def monitor_othername(self, method, series ):
-        print method
-    def monitor_example_(self, method, series):
+    def __init__(self, urls, **kwa ):
+        HighMon.__init__(self, urls, **kwa )
+    def monitor_somename(self, url, method, series ):
+        pass
+    def monitor_othername(self, url, method, series ):
+        pass
+    def monitor_example_(self, url, method, series):
+        """
+        .. warn:: no violations added here
+        """
         name = series['name']
         data = series['data']
         last = data[-1]
-        log.info( "method %s name %s len data %s last %r  " % (method,name,len(data),last ))
+        ts = data[-1][0]/1000 - 60*60*8
+        dt =  datetime.fromtimestamp(ts)
+        log.info( "method %s name %-30s len data %s last %-40s %s " % (method,name,len(data),last, fmt_(dt) ))
 
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    url = "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json"
-    ehm = ExampleHighMon(url, email=os.environ['SCM_HIGHMON_EMAIL'] )
+    urls = (
+            "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
+            "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
+            "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
+            "http://localhost/data/scm_backup_monitor_Z9:229.json",
+            )
+    ehm = ExampleHighMon(urls, email=os.environ['SCM_HIGHMON_EMAIL'] )
     ehm()     
 
 

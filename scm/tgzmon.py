@@ -16,6 +16,11 @@ Usage from cron
 
     cd $ENV_HOME/scm ; python- ; ./tgzmon.py -e blyth@hep1.phys.ntu.edu.tw http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
 
+IDEAS:
+
+#. handle multiple urls within TGZMon to allow collective monitoring with one notification mail ? pass url to monitor methods for reporting
+
+
 
 """
 import os, logging
@@ -45,8 +50,9 @@ class TGZMon(HighMon):
         HighMon.__init__(self, *args, **kwa )
         self.maxage = timedelta(hours=24)   
 
-    def monitor_age(self, method, series ):
+    def monitor_age(self, url, method, series ):
         """
+        :param url: of the JSON data being monitored
         :param method: name 
         :param series: 
 
@@ -69,10 +75,10 @@ class TGZMon(HighMon):
         dt_loc = dt_utc.astimezone( loc )
         age = now_utc - dt_utc                         
 
-        log.info("series %-20s ts %s dt_utc %s dt_loc %s age %s " % ( series['name'], ts, fmt_(dt_utc), fmt_(dt_loc), age ))
+        log.info("series %-20s ts %s   %s    %s    age %s " % ( series['name'], ts, fmt_(dt_utc), fmt_(dt_loc), age ))
         if age > self.maxage:
             msg="age %r exceeds maximum allowable %r  " % ( age, self.maxage ) 
-            self.add_violation( method=method, series=series['name'], msg=msg )
+            self.add_violation( url=url, method=method, series=series['name'], msg=msg )
 
 
 if __name__ == '__main__':
@@ -80,10 +86,19 @@ if __name__ == '__main__':
     email = opts.email if opts.email else os.environ.get('MAILTO',None)
     loc = pytz.timezone(opts.timezone)   
     logging.basicConfig(level=getattr(logging, opts.level.upper()))
-    assert len(args) > 0, "at least one argument URL from which to pull JSON plot data is required " 
-    for url in args:
-        mon = TGZMon(url, email=email )
-        mon()
+    if len(args) == 0:
+        log.warn("applying TGZMon to default list of JSON URLs ")
+        urls = [
+            "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
+            "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
+            "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
+            "http://localhost/data/scm_backup_monitor_Z9:229.json",
+            ]
+    else:    
+        urls = args
+    pass    
+    mon = TGZMon(urls, email=email )
+    mon()
 
 
 

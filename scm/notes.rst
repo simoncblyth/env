@@ -46,6 +46,26 @@ Starting point is the file system strings::
     ./repos/heprez/2012/11/13/161023/heprez-822.tar.gz
 
 
+Which are parsed by `datepath.py` into datetime and written into SQLite DB as strings::
+
+
+    g4pb-3:scm blyth$ sqlite3 $LOCAL_BASE/env/scm/scm_backup_monitor.db
+
+    sqlite> select date, strftime("%s",date)*1000  from tgzs order by date desc limit 10 ;
+    date                 strftime("%s",date)*1000
+    -------------------  ------------------------
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-13T10:20:03  1342174803000           
+    2012-07-12T14:10:03  1342102203000           
+    2012-07-12T14:10:03  1342102203000           
+    2012-07-12T14:10:03  1342102203000           
+
+
 In the DB::
 
     [blyth@cms02 env]$ sqlite3 $LOCAL_BASE/env/scm/scm_backup_monitor.db
@@ -99,7 +119,7 @@ All so far in localtime
 
    http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json
 
-Now in the JSON, something is shunting it forwards 8hrs::
+Now in the JSON, something is shunting it forwards 8hrs (local interpreted as UTC)::
 
     imon:scm blyth$ ./tgzmon.py 
     INFO:__main__:series OK                   last [1352764800000L, 12] ts 1352764800 stamp 2012-11-13 08:00:00 
@@ -112,43 +132,25 @@ Now in the JSON, something is shunting it forwards 8hrs::
     INFO:__main__:series repos/env            last [1352823023000L, 100.0] ts 1352823023 stamp 2012-11-14 00:10:23 
     INFO:__main__:series repos/tracdev        last [1352823023000L, 10.0] ts 1352823023 stamp 2012-11-14 00:10:23 
     INFO:env.plot.highmon:no violations, not sending email
-    simon:scm blyth$ 
-
-
-
-
-TZ trace
----------
-
-
-Which are parsed by `datepath.py` into datetime and written into SQLite DB as strings::
-
-
-    g4pb-3:scm blyth$ sqlite3 $LOCAL_BASE/env/scm/scm_backup_monitor.db
-
-    sqlite> select date, strftime("%s",date)*1000  from tgzs order by date desc limit 10 ;
-    date                 strftime("%s",date)*1000
-    -------------------  ------------------------
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-13T10:20:03  1342174803000           
-    2012-07-12T14:10:03  1342102203000           
-    2012-07-12T14:10:03  1342102203000           
-    2012-07-12T14:10:03  1342102203000           
+    
+datetime.fromtimestamp returns local
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These ms timestamps get converted back to datetimes by::
 
     In [82]: datetime.fromtimestamp(1342102203000/1000)
     Out[82]: datetime.datetime(2012, 7, 12, 22, 10, 3)
 
-    In [86]: datetime.fromtimestamp(0)
+    In [86]: datetime.fromtimestamp(0)               ## treats stamp as local
     Out[86]: datetime.datetime(1970, 1, 1, 8, 0)
 
+    In [176]: datetime.utcfromtimestamp(0)           ## treats stamp as UTC 
+    Out[176]: datetime.datetime(1970, 1, 1, 0, 0)
 
+
+
+sqlite not offsetting
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Not from SQLite::
 
