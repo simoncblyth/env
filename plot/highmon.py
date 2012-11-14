@@ -22,8 +22,12 @@ def read_json( url ):
     """
     req = urllib2.Request( url )
     opener = urllib2.build_opener()
-    f = opener.open(req)
-    return json.load(f)
+    try:
+        f = opener.open(req)
+    except urllib2.HTTPError:
+        log.warn("failed to load from url %s " % url )
+        f = None
+    return json.load(f) if f else None
 
 class Violation(dict):
     def __repr__(self):
@@ -44,7 +48,7 @@ class HighMon(list):
         Defer loading js to the `__call__`, as that might fail and wish to 
         handle failures by sending notification emails
         """
-        self.urls = urls
+        self.urls = list(urls)
         self.email = email
         today = datetime.utcnow().strftime("%a") 
         self.reminder = reminder if today == reminder else ""
@@ -66,7 +70,7 @@ class HighMon(list):
         log.info("_load json from %s " % url )
         self.js[url] = read_json(url)
         if not self.js[url]:
-            self.add_violation( url=url, method="_load", name="", msg="failed to load JSON from url %s " % self.url )                
+            self.add_violation( url=url, method="_load", series="", msg="failed to load JSON from url %s " % url )                
 
     def _constrain(self, url):
         if not self.js[url]:
@@ -126,7 +130,7 @@ if __name__ == '__main__':
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
             "http://localhost/data/scm_backup_monitor_Z9:229.json",
             )
-    ehm = ExampleHighMon(urls, email=os.environ['SCM_HIGHMON_EMAIL'] )
+    ehm = ExampleHighMon(urls, email=os.environ.get('MAILTO',None) )
     ehm()     
 
 
