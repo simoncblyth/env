@@ -44,11 +44,18 @@ class TGZMon(HighMon):
     """
     Reads the JSON plot data, runs `monitor_` methods and 
     sends email in case of violations.
-
     """
     def __init__(self, *args, **kwa ):
         HighMon.__init__(self, *args, **kwa )
         self.maxage = timedelta(hours=24)   
+
+    def monitor_val(self, url, method, series ):
+        """
+        Wide applicability contraint ideas, looking for big changes:
+        
+        #. deviation of latest value from defined period rolling averages exceeds percentage bounds
+        """
+        pass
 
     def monitor_age(self, url, method, series ):
         """
@@ -67,6 +74,11 @@ class TGZMon(HighMon):
         For some good guidelines on python datetime usage, see pytz docs
 
         * http://pytz.sourceforge.net/
+
+
+        Modulo the TZ shenanigans this monitoring mightbe widely applicable
+        to any web accessible HighCharts JSON plot. Motivation to apply a 
+        onetime fix to make DB content use UTC.
 
         """
         now_utc = datetime.utcnow().replace(tzinfo=utc)   
@@ -92,8 +104,9 @@ if __name__ == '__main__':
             "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
-            "http://localhost/data/scm_backup_monitor_Z9:229.json",
             ]
+         if os.environ.get('NODE_TAG',None) == 'G': 
+             urls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
     else:    
         urls = args
     pass    
