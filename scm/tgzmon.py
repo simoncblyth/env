@@ -18,31 +18,58 @@ Usage from cron
     cd $ENV_HOME/scm ; python- ; ./tgzmon.py -e blyth@hep1.phys.ntu.edu.tw http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
 
 
+TODO:
+
+#. currently too much TZ noise in this monitoring 
+
+    #. factor this downwards, tis such a common task duplication needs to be avoided
+
+
 """
 import os, logging
 from datetime import datetime, timedelta
 log = logging.getLogger(__name__)
-from env.plot.highmon import HighMon
+from env.plot.highmon import HighMon, CnfMon
 
 import pytz
 utc = pytz.utc
-fmt_ = lambda _:_.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+dt_utc_ = lambda ts:datetime.utcfromtimestamp(ts).replace(tzinfo=utc)
+nw_utc_ = lambda:datetime.utcnow().replace(tzinfo=utc)   
+dt_loc_ = lambda dt,tz:dt.astimezone(tz)
 
-def args_():
-    from optparse import OptionParser
-    parser = OptionParser(usage=__doc__)
-    parser.add_option("-l", "--level", default="INFO", help="logging level")
-    parser.add_option("-z", "--timezone", default="Asia/Taipei", help="pytz timezone string used for localtime outputs ")
-    parser.add_option("-e", "--email",    default="", help="Comma delimited email addresses for notification")
-    return parser.parse_args()
+def kludge_( series ):
+    """
+    :param series:
+    :return: dt_utc  tz aware datetime instance in UTC 
+
+    The times in the SQLite DB appear to be in CST (naughty naughty boy) hence
+    the kludge bringing the timestamp down to UTC to allow that transgression 
+    to be sweeped under the carpet. This also allows time handling to follow recommended
+    patterns, after the kludge.
+
+    For some good guidelines on python datetime usage, see pytz docs
+
+    * http://pytz.sourceforge.net/
+
+    """
+    return series['data'][-1][0]/1000 - 60*60*8            # 8 hrs kludge 
+
+    
 
 class TGZMon(HighMon):
     """
-    Reads the JSON plot data, runs `monitor_` methods and 
-    sends email in case of violations.
+    This `HighMon` subclass collects `monitor_` methods 
+    intended to constrain the content of JSON plot data.
+
+    Calling instances of this class, results in the following steps
+
+    #. reads the JSON plot data for each URL
+    #. runs all the below `monitor_` methods 
+    #. sends single email in case of violations present in any of the URLs
+
     """
-    def __init__(self, *args, **kwa ):
-        HighMon.__init__(self, *args, **kwa )
+    def __init__(self, cnf ):
+        HighMon.__init__(self, cnf )
         self.maxage = timedelta(hours=24)   
 
     def monitor_val(self, url, method, series ):
@@ -53,37 +80,33 @@ class TGZMon(HighMon):
         """
         pass
 
+    def monitor_list(self, url, method, series ):
+        """
+        TODO: sweep some of the mess into functions  
+        """
+        fmt_ = self.cnf.fmt_
+        ts = kludge_(series) 
+
+        dt_utc = dt_utc_(ts)
+        dt_loc = dt_loc_(dt_utc,self.cnf.loc)
+        msg = " %s  %s " % ( fmt_(dt_utc), fmt_(dt_loc) ) 
+        self.add_note( url=url, method=method, series=series['name'], msg=msg )
+
     def monitor_age(self, url, method, series ):
         """
         :param url: of the JSON data being monitored
         :param method: name 
         :param series: 
 
-        This method (due to its name beginning with 'monitor_' )
-        is invoked by the `__call__` on the base class. The 
-
-        The times in the SQLite DB appear to be in CST (naughty naughty boy) hence
-        the kludge bringing the timestamp down to UTC to allow that transgression 
-        to be sweeped under the carpet. This also allows time handling to follow recommended
-        patterns, after the kludge.
-
-        For some good guidelines on python datetime usage, see pytz docs
-
-        * http://pytz.sourceforge.net/
-
-
         Modulo the TZ shenanigans this monitoring mightbe widely applicable
         to any web accessible HighCharts JSON plot. Motivation to apply a 
         onetime fix to make DB content use UTC.
-
         """
-        now_utc = datetime.utcnow().replace(tzinfo=utc)   
-        ts = series['data'][-1][0]/1000 - 60*60*8            # 8 hrs kludge 
-        dt_utc = datetime.utcfromtimestamp(ts).replace(tzinfo=utc)
-        dt_loc = dt_utc.astimezone( loc )
-        age = now_utc - dt_utc                         
+        ts = kludge_(series) 
+        dt_utc = dt_utc_(ts) 
+        nw_utc = nw_utc_()
+        age = nw_utc - dt_utc                         
 
-        log.debug("series %-20s ts %s   %s    %s    age %s " % ( series['name'], ts, fmt_(dt_utc), fmt_(dt_loc), age ))
         if age > self.maxage:
             msg="age %-25s exceeds maximum allowable %s  " % ( age, self.maxage ) 
             self.add_violation( url=url, method=method, series=series['name'], msg=msg )
@@ -92,26 +115,17 @@ class TGZMon(HighMon):
             self.add_note( url=url, method=method, series=series['name'], msg=msg )
 
 
-
 if __name__ == '__main__':
-    opts, args = args_()
-    email = opts.email if opts.email else os.environ.get('MAILTO',None)
-    loc = pytz.timezone(opts.timezone)   
-    logging.basicConfig(level=getattr(logging, opts.level.upper()))
-    if len(args) == 0:
-        log.debug("applying TGZMon to default list of JSON URLs ")
-        urls = [
+
+    durls = [
             "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
             ]
-        if os.environ.get('NODE_TAG',None) == 'G': 
-            urls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
-    else:    
-        urls = args
-    pass    
-    mon = TGZMon(urls, email=email )
+    if os.environ.get('NODE_TAG',None) == 'G': 
+        durls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
+
+    cmon = CnfMon(__doc__)
+    cnf = cmon(durls)
+    mon = TGZMon(cnf)
     mon()
-
-
-

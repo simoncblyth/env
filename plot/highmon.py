@@ -8,7 +8,7 @@ Lots of what this is doing follows nosetesting.
 Perhaps nose could be used here in an indirect manner.
 
 """
-import os, inspect, urllib2, logging
+import os, inspect, urllib2, logging, pytz
 from datetime import datetime
 from env.tools.sendmail import sendmail
 log = logging.getLogger(__name__)
@@ -59,27 +59,67 @@ class Notes(dict):
           return "\n".join(ret)
               
 
+class CnfMon(object):
+    def __init__(self, doc ):
+        """
+        :param doc:  docstring
+
+        Note using OptionParser rather than argparser for older python compatibility, but 
+        doing things in an argparser manner.
+
+        The setup and parsing is split to allow the addition of options from callers.
+        """
+        from optparse import OptionParser
+        parser = OptionParser(usage=doc)
+        parser.add_option("-l", "--level", default="INFO", help="logging level")
+        parser.add_option("-z", "--timezone", default="Asia/Taipei", help="pytz timezone string used for localtime outputs ")
+        parser.add_option("-e", "--email",    default=os.environ.get('MAILTO', None), help="Comma delimited email addresses for notification")
+        parser.add_option(      "--reminder", default="Tue",  help="Abbreviated day of week `strtime %a` on which to send reminder email, even when no violations.")
+        self.parser = parser
+
+    def __call__(self, urls_):
+        """
+        :param urls_: default JSON urls
+        :return: OptionParser instance, with some tack-ons `.loc` and `.urls` `.fmt_`
+        """
+        opts, args = self.parser.parse_args()
+        logging.basicConfig(level=getattr(logging, opts.level.upper()))
+        opts.loc = pytz.timezone(opts.timezone)   
+        opts.urls = urls_ if len(args) == 0 else args    # poor-mans argparser
+        opts.fmt_ = lambda _:_.strftime('%Y-%m-%d %H:%M:%S %Z%z')
+        return opts
+
+
 class HighMon(list):
     @classmethod
     def introspect_monitor_methods(cls):
         return [(k,v) for k,v in inspect.getmembers(cls) if k[0:8] == 'monitor_']
 
-    def __init__(self, urls, email=None, reminder='Tue'):
+    def __init__(self, cnf):
         """
-        :param urls: list of urls from which to pull JSON data
-        :param email: comma delimited string with notification email addresses
-        :param reminder:  abbreviated day of week on which to send notifications, even when no problems
-                          as weekly reassurance that the cron task is active 
+        :param cnf: Instance of `CnfMon` including properties
+
+        `urls`
+                list of urls from which to pull
+        `email`
+                comma delimited string with notification email addresses
+        `reminder`
+                abbreviated day of week on which to send notifications, even when no problems
+                as weekly reassurance that the cron task is active 
 
         Defer loading js to the `__call__`, as that might fail and wish to 
         handle failures by sending notification emails
         """
-        urls = list(urls)
+
+        self.cnf = cnf
+        urls = list(cnf.urls)
         self.urls = urls
+        self.email = cnf.email
+
         self.notes = Notes(urls)
-        self.email = email
         today = datetime.utcnow().strftime("%a") 
-        self.reminder = reminder if today == reminder else ""
+
+        self.reminder = cnf.reminder if today == cnf.reminder else ""
         self.mm = self.introspect_monitor_methods()
         self.js = {}
         list.__init__(self)
@@ -105,14 +145,17 @@ class HighMon(list):
         if not self.js[url]:
             self.add_violation( url=url, method="_load", series="", msg="failed to load JSON from url %s " % url )                
         else:
-            self.add_note( url=url, method="_load", series="", msg="succeeded to load JSON from url %s " % url )                
+            self.add_note( url=url, method="_load", series="", msg="succeeded to load JSON " )                
 
     def _constrain(self, url):
         if not self.js[url]:
             log.warn("skip method calls failed to load json from url %s " % url )
             return
-        for series in self.js[url]['series']:
-            for method_name, method in self.mm:
+        #for series in self.js[url]['series']:
+        #    for method_name, method in self.mm:
+        #        method(self, url=url, method=method_name, series=series )
+        for method_name, method in self.mm:
+            for series in self.js[url]['series']:
                 method(self, url=url, method=method_name, series=series )
 
     def _notify(self):
