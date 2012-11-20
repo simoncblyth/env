@@ -4,6 +4,9 @@ Base class for monitoring JSON data in HighStock format, usage::
 
     from env.plot.highmon import HighMon
 
+Lots of what this is doing follows nosetesting. 
+Perhaps nose could be used here in an indirect manner.
+
 """
 import os, inspect, urllib2, logging
 from datetime import datetime
@@ -31,7 +34,30 @@ def read_json( url ):
 
 class Violation(dict):
     def __repr__(self):
-        return "%(url)s %(method)s %(series)s %(msg)s" % self
+        return "FAIL : %(url)s %(method)s %(series)-30s %(msg)s" % self
+class Note(dict):
+    def __repr__(self):
+        return "PASS : %(method)s %(series)-30s %(msg)s" % self
+
+
+class Notes(dict):
+     """
+     URL keyed dict-of-lists of notes : allowing notes presentation per-URL
+     """
+     def __init__(self, urls):
+         dict.__init__(self)
+         self.urls = urls
+         for url in urls:
+             self[url] = []
+     def __repr__(self):
+          ret = []
+          for url in self.urls:
+              ret.append("")
+              ret.append(url)
+              ret.append("")
+              ret.append( "\n".join( map(repr,self[url]) ))
+          return "\n".join(ret)
+              
 
 class HighMon(list):
     @classmethod
@@ -48,7 +74,9 @@ class HighMon(list):
         Defer loading js to the `__call__`, as that might fail and wish to 
         handle failures by sending notification emails
         """
-        self.urls = list(urls)
+        urls = list(urls)
+        self.urls = urls
+        self.notes = Notes(urls)
         self.email = email
         today = datetime.utcnow().strftime("%a") 
         self.reminder = reminder if today == reminder else ""
@@ -58,19 +86,26 @@ class HighMon(list):
 
     def hdr(self):
         return "%s [%s] %s URLs %s" % ( self.__class__.__name__ , self.reminder, len(self.urls) , fmt_(datetime.now()) )
+   
 
     def __repr__(self):
-        return "\n".join([self.hdr()]+[""]+self.urls+[""]+map(repr, self))
+        return "\n".join([self.hdr()]+[""]+self.urls+[""]+map(repr, self)+[""]+[repr(self.notes)])
 
     def add_violation(self, url, method, series, msg ):
         v = Violation(url=url,method=method, series=series, msg=msg )
         self.append(v)
+
+    def add_note(self, url, method, series, msg ):
+        n = Note(url=url,method=method, series=series, msg=msg )
+        self.notes[url].append(n)
 
     def _load(self, url):
         log.info("_load json from %s " % url )
         self.js[url] = read_json(url)
         if not self.js[url]:
             self.add_violation( url=url, method="_load", series="", msg="failed to load JSON from url %s " % url )                
+        else:
+            self.add_note( url=url, method="_load", series="", msg="succeeded to load JSON from url %s " % url )                
 
     def _constrain(self, url):
         if not self.js[url]:

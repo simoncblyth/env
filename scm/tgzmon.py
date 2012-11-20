@@ -2,6 +2,7 @@
 """
 
    ./tgzmon.py --help
+   ./tgzmon.py        ##  defaults to checking a standard set of JSON URLs which depend on the NODE_TAG 
    ./tgzmon.py http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
    ./tgzmon.py http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json
    ./tgzmon.py http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json
@@ -15,11 +16,6 @@ When constraint violations are found send notification emails
 Usage from cron 
 
     cd $ENV_HOME/scm ; python- ; ./tgzmon.py -e blyth@hep1.phys.ntu.edu.tw http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json 
-
-IDEAS:
-
-#. handle multiple urls within TGZMon to allow collective monitoring with one notification mail ? pass url to monitor methods for reporting
-
 
 
 """
@@ -51,7 +47,7 @@ class TGZMon(HighMon):
 
     def monitor_val(self, url, method, series ):
         """
-        Wide applicability contraint ideas, looking for big changes:
+        Wide applicability constraint ideas, looking for big changes:
         
         #. deviation of latest value from defined period rolling averages exceeds percentage bounds
         """
@@ -87,10 +83,14 @@ class TGZMon(HighMon):
         dt_loc = dt_utc.astimezone( loc )
         age = now_utc - dt_utc                         
 
-        log.info("series %-20s ts %s   %s    %s    age %s " % ( series['name'], ts, fmt_(dt_utc), fmt_(dt_loc), age ))
+        log.debug("series %-20s ts %s   %s    %s    age %s " % ( series['name'], ts, fmt_(dt_utc), fmt_(dt_loc), age ))
         if age > self.maxage:
-            msg="age %r exceeds maximum allowable %r  " % ( age, self.maxage ) 
+            msg="age %-25s exceeds maximum allowable %s  " % ( age, self.maxage ) 
             self.add_violation( url=url, method=method, series=series['name'], msg=msg )
+        else:
+            msg="age %-25s within allowable range %s  " % ( age, self.maxage ) 
+            self.add_note( url=url, method=method, series=series['name'], msg=msg )
+
 
 
 if __name__ == '__main__':
@@ -99,14 +99,14 @@ if __name__ == '__main__':
     loc = pytz.timezone(opts.timezone)   
     logging.basicConfig(level=getattr(logging, opts.level.upper()))
     if len(args) == 0:
-        log.warn("applying TGZMon to default list of JSON URLs ")
+        log.debug("applying TGZMon to default list of JSON URLs ")
         urls = [
             "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
             ]
-         if os.environ.get('NODE_TAG',None) == 'G': 
-             urls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
+        if os.environ.get('NODE_TAG',None) == 'G': 
+            urls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
     else:    
         urls = args
     pass    
