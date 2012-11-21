@@ -50,6 +50,7 @@ class Anno(dict):
      def __repr__(self):
           ret = []
           for url in self.urls:
+              if len(self[url]) == 0:continue
               ret.append("")
               ret.append(url)
               ret.append("")
@@ -138,7 +139,7 @@ class HighMon(object):
         return "%s [%s] %s URLs %s Violations per URL : %r " % ( self.__class__.__name__ , self.reminder, len(self.urls) , fmt_(datetime.now()), self.violations.ucounts() )
 
     def __repr__(self):
-        return "\n".join([self.hdr()]+[""]+self.urls+[""]+[repr(self.violations)]+[""]+[repr(self.notes)])
+        return "\n".join([self.hdr()]+[repr(self.violations)]+[repr(self.notes)])
 
     def add_violation(self, url, method, series, msg ):
         v = Violation(url=url,method=method, series=series, msg=msg )

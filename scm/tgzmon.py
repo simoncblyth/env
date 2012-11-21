@@ -127,8 +127,6 @@ if __name__ == '__main__':
 
     cmon = CnfMon(__doc__)
     cnf = cmon(durls)
-
-    print cnf.urls
-
     mon = TGZMon(cnf)
     mon()
+    print mon
