@@ -38,9 +38,7 @@ class Violation(dict):
 class Note(dict):
     def __repr__(self):
         return "PASS : %(method)s %(series)-30s %(msg)s" % self
-
-
-class Notes(dict):
+class Anno(dict):
      """
      URL keyed dict-of-lists of notes : allowing notes presentation per-URL
      """
@@ -57,7 +55,21 @@ class Notes(dict):
               ret.append("")
               ret.append( "\n".join( map(repr,self[url]) ))
           return "\n".join(ret)
-              
+     def ucountd(self):
+         """
+         :return: url keyed dict with list count values
+         """
+         return dict(map(lambda url:(url,len(self[url])),self.urls))
+     def ucounts(self):
+         """
+         :return: list of counts in url order
+         """
+         return map(lambda url:len(self[url]), self.urls)
+     def _count(self):
+         ucounts = self.ucounts()
+         return sum(ucounts)
+     count = property(_count)
+
 
 class CnfMon(object):
     def __init__(self, doc ):
@@ -90,7 +102,7 @@ class CnfMon(object):
         return opts
 
 
-class HighMon(list):
+class HighMon(object):
     @classmethod
     def introspect_monitor_methods(cls):
         return [(k,v) for k,v in inspect.getmembers(cls) if k[0:8] == 'monitor_']
@@ -115,25 +127,22 @@ class HighMon(list):
         urls = list(cnf.urls)
         self.urls = urls
         self.email = cnf.email
-
-        self.notes = Notes(urls)
+        self.notes = Anno(urls)
+        self.violations = Anno(urls)
         today = datetime.utcnow().strftime("%a") 
-
         self.reminder = cnf.reminder if today == cnf.reminder else ""
         self.mm = self.introspect_monitor_methods()
         self.js = {}
-        list.__init__(self)
 
     def hdr(self):
-        return "%s [%s] %s URLs %s" % ( self.__class__.__name__ , self.reminder, len(self.urls) , fmt_(datetime.now()) )
-   
+        return "%s [%s] %s URLs %s Violations per URL : %r " % ( self.__class__.__name__ , self.reminder, len(self.urls) , fmt_(datetime.now()), self.violations.ucounts() )
 
     def __repr__(self):
-        return "\n".join([self.hdr()]+[""]+self.urls+[""]+map(repr, self)+[""]+[repr(self.notes)])
+        return "\n".join([self.hdr()]+[""]+self.urls+[""]+[repr(self.violations)]+[""]+[repr(self.notes)])
 
     def add_violation(self, url, method, series, msg ):
         v = Violation(url=url,method=method, series=series, msg=msg )
-        self.append(v)
+        self.violations[url].append(v)
 
     def add_note(self, url, method, series, msg ):
         n = Note(url=url,method=method, series=series, msg=msg )
@@ -151,19 +160,16 @@ class HighMon(list):
         if not self.js[url]:
             log.warn("skip method calls failed to load json from url %s " % url )
             return
-        #for series in self.js[url]['series']:
-        #    for method_name, method in self.mm:
-        #        method(self, url=url, method=method_name, series=series )
         for method_name, method in self.mm:
             for series in self.js[url]['series']:
                 method(self, url=url, method=method_name, series=series )
 
     def _notify(self):
-        if not self.reminder and len(self) == 0:
+        if not self.reminder and self.violations.count == 0:
             log.info("no violations, not sending email" )
             return
         msg = repr(self)
-        log.warn("%s violations, reminder? [%s],  sending email\n%s\n" % ( len(self), self.reminder, msg ))
+        log.warn("%s violations, reminder? [%s],  sending email\n%s\n" % ( self.violations.count, self.reminder, msg ))
         if self.email:
             for _ in self.email.split(","):
                 log.warn("sendmail to %s " % _ )
@@ -181,8 +187,8 @@ class HighMon(list):
 
 
 class ExampleHighMon(HighMon):
-    def __init__(self, urls, **kwa ):
-        HighMon.__init__(self, urls, **kwa )
+    def __init__(self, cnf  ):
+        HighMon.__init__(self, cnf )
     def monitor_somename(self, url, method, series ):
         pass
     def monitor_othername(self, url, method, series ):
@@ -202,14 +208,19 @@ class ExampleHighMon(HighMon):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    urls = (
+
+    class Cnf(object):
+        email = os.environ.get('MAILTO',None) 
+        reminder = 'Wed'
+        urls = (
             "http://dayabay.ihep.ac.cn/data/scm_backup_monitor_SDU.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_C.json",
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
             "http://localhost/data/scm_backup_monitor_Z9:229.json",
             )
-    ehm = ExampleHighMon(urls, email=os.environ.get('MAILTO',None) )
-    ehm()     
 
+    cnf = Cnf()    
+    ehm = ExampleHighMon(cnf)
+    ehm()     
 
 

@@ -123,9 +123,12 @@ if __name__ == '__main__':
             "http://dayabay.phys.ntu.edu.tw/data/scm_backup_monitor_H1.json",
             ]
     if os.environ.get('NODE_TAG',None) == 'G': 
-        durls += "http://localhost/data/scm_backup_monitor_Z9:229.json"
+        durls += ["http://localhost/data/scm_backup_monitor_Z9:229.json"]
 
     cmon = CnfMon(__doc__)
     cnf = cmon(durls)
+
+    print cnf.urls
+
     mon = TGZMon(cnf)
     mon()

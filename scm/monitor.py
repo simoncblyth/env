@@ -25,17 +25,17 @@ def writable(path):
     return True
 
 def cnf_(hub, smc="~/.scm_monitor.cnf"):
-    """	
+    """
     :param hub: tag of hub node, typically C2R, G or ZZ
     :return: dict config section for the hub
 
     Loads hub specific config parameters from ``~/.scm_monitor.cnf`` of format::
 
-	[C2R]
-	srvnode = cms02
-	dbpath = $LOCAL_BASE/env/scm/scm_backup_monitor.db
-	jspath = $APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json
-	select = repos/env tracs/env repos/aberdeen tracs/aberdeen repos/tracdev tracs/tracdev repos/heprez tracs/heprez
+    [C2R]
+    srvnode = cms02
+    dbpath = $LOCAL_BASE/env/scm/scm_backup_monitor.db
+    jspath = $APACHE_HTDOCS/data/scm_backup_monitor_%(node)s.json
+    select = repos/env tracs/env repos/aberdeen tracs/aberdeen repos/tracdev tracs/tracdev repos/heprez tracs/heprez
     email = user@emailhost
 
     NB before the config dict arrives as parameter of monitor, which is invoked per remote node, additonal
@@ -108,7 +108,7 @@ def main():
     if len(sys.argv) > 1:
         hub = sys.argv[1]
     else:
-	hub = os.environ['NODE_TAG']    
+        hub = os.environ['NODE_TAG']    
 
     hubcnf = cnf_(hub)
     cfg = setup(hubcnf)
@@ -128,7 +128,7 @@ def main():
     ret = {}
     for host in env.hosts:
         localize(host)
-	cfg['HOST'] = host
+        cfg['HOST'] = host
         ret[host] = monitor(tgz)
     teardown()	
 
@@ -166,5 +166,5 @@ def notify(email, msg, delim=" "):
 
 
 if __name__ == '__main__':
-    main()	
+    main()
 
