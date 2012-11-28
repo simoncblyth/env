@@ -18,6 +18,9 @@ Usage::
    svnlog -a blyth     ## invoke from SVN working copy 
 
 
+.. warning:: a shim svnlog.py script has been added to ENV_HOME/bin/ largely removing the need for this svnlog- precursor 
+
+
 EOU
 }
 svnlog-dir(){ echo $(local-base)/env/tools/tools-svnlog ; }

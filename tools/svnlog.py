@@ -6,12 +6,12 @@ Invoking from outside SVN working copy results in an error.
 
 Usage examples:: 
 
-    svnlog -w 52 -a blyth     ## dump 52 weeks of commit messages for single author
+    svnlog.py -w 52 -a blyth     ## dump 52 weeks of commit messages for single author
 
-    svnlog --limit 1000000 -w 52 -a blyth > 2012.txt    ## up the limit to avoid truncation
+    svnlog.py --limit 1000000 -w 52 -a blyth > 2012.txt    ## up the limit to avoid truncation
 
-    svnlog --limit 1000000 -v debug -a blyth  
-    svnlog --limit 1000000 -v debug -a blyth > ~/2011.txt
+    svnlog.py --limit 1000000 -v debug -a blyth  
+    svnlog.py --limit 1000000 -v debug -a blyth > ~/2011.txt
 
 
 The log returned corresponds to the root of the repository as 
@@ -19,16 +19,27 @@ determined by ``svn info`` rather than the specific invoking directory.
 
 NB during development, duplicate arguments precisely to benefit from caching 
 
-TODO:
+NOTES
+~~~~~~~
+
+#. reported time deltas are from the last commit time, 
+   thus to get that relative to **now** make a commit and update
+
+
+DONE ?
+~~~~~~~~~
+
    * fix over-enthusiastic caching, perhaps by including the **day** in the cache identity 
      as old ``svn info`` query gets stuck in craw resulting in outdated revision ranges being used
-
 
    * investigate why many warnings::
 
 	WARNING:__main__:getElementsByTagName unexpected lec [] author 
 	WARNING:__main__:getElementsByTagName unexpected lec [] author 
 
+
+TESTING
+~~~~~~~~~
 
 For interactive testing::
 
@@ -332,12 +343,15 @@ class Msgs(list):
     def __repr__(self):
         return "%r" % self.slog + "\n" + "\n".join([m for m in self if m])  
 
-  
-if __name__ == '__main__':
+
+def main():
     msgs = Msgs()
     for le in msgs.slog.selection(lambda _:_.sauthor and _.selected):
         print repr(le)
  
+
+if __name__ == '__main__':
+    main()
 
 
 
