@@ -1,0 +1,7 @@
+Trac
+====
+
+.. toctree::
+
+    admin/index
+

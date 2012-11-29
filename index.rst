@@ -33,13 +33,15 @@ within the bash functions themselves. For example:
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    TODO <TODO>
    LOG <log/May2012>
    Sys Admin <sysadmin/index>
    Plotting <plot/index>
    SCM <scm/index>
+   Trac <trac/index>
+   npy/index
    ROOT <root/index>
    ENV <_docs/env>
    sphinxext/index

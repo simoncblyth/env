@@ -1,0 +1,7 @@
+Trac Admin
+===========
+
+.. toctree:: 
+
+    shrinkage
+
