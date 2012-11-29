@@ -406,7 +406,7 @@ make: *** [dirhtml] Error 1
 EOU
 }
 sphinx-dir(){ echo $(local-base)/env/doc/sphinx ; }
-sphinx-cd(){  cd $(sphinx-dir); }
+sphinx-cd(){  cd $(sphinx-dir)/$1; }
 sphinx-mate(){ mate $(sphinx-dir) ; }
 sphinx-get(){
    local dir=$(dirname $(sphinx-dir)) &&  mkdir -p $dir && cd $dir

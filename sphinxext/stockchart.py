@@ -7,7 +7,13 @@ from sphinx.util import parselinenos
 
 class StockChart(Directive):
     """
-    Attempt to avoid duplicating the stockchart snippet for every plot 
+    Avoid duplicating stockchart javascript and div snippet for every plot 
+    using this directive.  
+    
+    Usage::
+
+        .. stockchart:: /data/scm_backup_monitor_C.json container_C
+
     """
     has_content = True
     required_arguments = 2
@@ -18,7 +24,6 @@ class StockChart(Directive):
     }
 
     tmpl = r"""
-
     <script type="text/javascript" >
     $(function() {
         $.getJSON('%(jsonurl)s', function(options) {
@@ -27,15 +32,14 @@ class StockChart(Directive):
     });
     </script>
     <div id="%(id)s" style="height: 500px; min-width: 500px"></div>
-
-"""
+    """
 
     def run(self):
         jsonurl = self.arguments[0]
-	id = self.arguments[1]
+        id = self.arguments[1]
         html = self.tmpl % locals()
         raw = nodes.raw('',html, format = 'html')
-	raw.document = self.state.document
+        raw.document = self.state.document
         return [raw]
 
 

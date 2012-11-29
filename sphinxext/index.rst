@@ -21,10 +21,16 @@ Note that absolute include paths are actually relative to sphinx source director
 
 .. include:: /sphinxext/roles.txt
 
-For this page simply including **roles.txt** would work.
+For this page simply including **roles.txt** would work. That include is invisible, so a literalinclude
+to allow to see the source.
+
+.. literalinclude:: roles.txt
 
 Here is an example of using the roles :alarm:`some alarming text` and :warn:`some warning text` and :ok:`some ok text` and back to normal
 
+The RST of the above line is::
+
+    Here is an example of using the roles :alarm:`some alarming text` and :warn:`some warning text` and :ok:`some ok text` and back to normal
 
 
 stockchart
