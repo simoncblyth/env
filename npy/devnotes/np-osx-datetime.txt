@@ -1,0 +1,123 @@
+
+On Linux ...
+{{{
+ i 0  row[i] 25 offset 0 fmt %ld type 7 NPY_LONG rc 1 inbuffer 25
+ i 1  row[i] 2010-09-22 12:26:59 offset 4 fmt %Ld type 18 NPY_DATETIME rc 1 inbuffer 2010
+ i 2  row[i] 1285129619 offset 12 fmt %Ld type 18 NPY_DATETIME rc 1 inbuffer 1285129619
+ i 3  row[i] 1285129619 offset 20 fmt %Ld type 9 NPY_LONGLONG rc 1 inbuffer 1285129619
+array([ (17, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (18, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (19, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (20, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (21, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (22, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 6, 21, 7, 49, 24), 1277106564L),
+       (23, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 9, 16, 6, 31, 34), 1284618694L),
+       (24, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 9, 21, 5, 48, 57), 1285048137L),
+       (25, datetime.datetime(1970, 1, 1, 0, 33, 30), datetime.datetime(2010, 9, 22, 4, 26, 59), 1285129619L)], 
+      dtype=[('SEQNO', '<i4'), ('TIMESTART', ('<M8[s]', {})), ('T', ('<M8[s]', {})), ('I', '<i8')])
+[blyth@cms01 MySQLdb]$ 
+}}}
+
+
+On OSX ...
+{{{
+ i 1  row[i] 2010-09-22 12:26:59 offset 4 fmt %Ld type 18 NPY_DATETIME rc 1 inbuffer 2010
+ i 2  row[i] 1285129619 offset 12 fmt %Ld type 18 NPY_DATETIME rc 1 inbuffer 1285129619
+ i 3  row[i] 1285129619 offset 20 fmt %Ld type 9 NPY_LONGLONG rc 1 inbuffer 1285129619
+array([ (17, datetime.datetime(13391, 4, 4, 21, 13, 41), datetime.datetime(65535, 1, 6, 20, 22, 24), 5485130926262545779L),
+       (18, datetime.datetime(13449, 12, 8, 4, 8, 14), datetime.datetime(65535, 1, 94, 1, 53, 4), 5485130927773725696L),
+       (19, datetime.datetime(13417, 4, 6, 19, 29, 4), datetime.datetime(65535, 1, 177, 3, 16, 16), 5485130925886931504L),
+       (20, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 6, 20, 22, 24), 5485130925886930944L),
+       (21, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 6, 20, 22, 24), 5485130925886930944L),
+       (22, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 6, 20, 22, 24), 5485130925886930944L),
+       (23, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 247, 16, 17, 4), 5517395278560231424L),
+       (24, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 208, 5, 39, 12), 5519239722200727552L),
+       (25, datetime.datetime(13391, 3, 19, 22, 56), datetime.datetime(65535, 1, 238, 4, 43, 44), 5519589684725940224L)], 
+      dtype=[('SEQNO', '>i4'), ('TIMESTART', ('>M8[s]', {})), ('T', ('>M8[s]', {})), ('I', '>i8')])
+
+}}}
+
+Buffer content matches ... but the interpretation as array is messed up 
+   * possibly endianness issue ... hmm probably no, would expect the same for each  ... alignment issue ???
+
+{{{
+In [17]: b = np.ones( 1 , dtype=np.dtype("<q8") )
+
+In [18]: b
+Out[18]: array([1], dtype=int64)
+
+In [19]: b.view(dtype=np.dtype(">q8"))
+Out[19]: array([72057594037927936], dtype=int64)
+
+}}}
+
+Attempt to specify endianness ... is ignored and the default '''datetime64[us]''' is used
+{{{
+In [23]: np.ones( 1 , dtype=np.dtype(">M8[s]") )
+Out[23]: array([1970-01-01 00:00:00.000001], dtype=datetime64[us])
+
+In [24]: np.ones( 1 , dtype=np.dtype("<M8[s]") )
+Out[24]: array([1970-01-01 00:00:00.000001], dtype=datetime64[us])
+}}}
+
+{{{
+In [26]: np.ones( 1 , dtype=np.dtype("M8[s]") )
+Out[26]: array([1970-01-01 00:00:01], dtype=datetime64[s])
+}}}
+
+
+  * http://projects.scipy.org/numpy/browser/branches/1.5.x/doc/neps/datetime-proposal.rst?rev=8716
+
+{{{
+In [32]: a.view(dtype=np.dtype("<q8"))
+Out[32]: array([72057594037927936], dtype=int64)
+
+5517395278560231424
+72057594037927936
+
+In [33]: a.view(dtype=np.dtype(">q8"))
+Out[33]: array([1], dtype=int64)
+
+}}}
+
+
+On OSX (PPC) :
+{{{
+
+In [35]: a = np.array( [1277106564], dtype=np.dtype("M8[s]") )
+
+In [36]: a
+Out[36]: array([2010-06-21 07:49:24], dtype=datetime64[s])
+
+In [38]: a.view(dtype=np.dtype("q8"))
+Out[38]: array([1277106564], dtype=int64)
+
+In [39]: a.view(dtype=np.dtype(">q8"))
+Out[39]: array([1277106564], dtype=int64)
+
+In [40]: a.view(dtype=np.dtype("<q8"))
+Out[40]: array([-8928070375007322112], dtype=int64)
+
+}}}
+
+
+On Linux :
+{{{
+In [1]: import numpy as np
+
+In [2]: a = np.array( [1277106564], dtype=np.dtype("M8[s]") )
+
+In [3]: a.view(dtype=np.dtype("q8"))
+Out[3]: array([1277106564], dtype=int64)
+
+In [4]: a
+Out[4]: array([2010-06-21 07:49:24], dtype=datetime64[s])
+
+In [5]: a.view(dtype=np.dtype(">q8"))
+Out[5]: array([-8928070375007322112], dtype=int64)
+
+In [6]: a.view(dtype=np.dtype("<q8"))
+Out[6]: array([1277106564], dtype=int64)
+}}}
+
+

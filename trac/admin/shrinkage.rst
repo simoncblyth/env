@@ -264,4 +264,85 @@ No motivation to stuff into git for cleaner maintenance that current patch appro
 
 
 
+Caution uncommitted on C2
+---------------------------
+
+
+::
+
+        [blyth@cms02 trac-0.11]$ svn diff trac/admin/console.py
+        Index: trac/admin/console.py
+        ===================================================================
+        --- trac/admin/console.py       (revision 7236)
+        +++ trac/admin/console.py       (working copy)
+        @@ -254,7 +254,7 @@
+             _help_help = [('help', 'Show documentation')]
+         
+             def all_docs(cls):
+        -        return (cls._help_help + cls._help_initenv + cls._help_hotcopy +
+        +        return (cls._help_help + cls._help_initenv + cls._help_hotcopy + cls._help_arbitary +
+                         cls._help_resync + cls._help_upgrade + cls._help_deploy +
+                         cls._help_permission + cls._help_wiki +
+                         cls._help_ticket + cls._help_ticket_type + 
+        @@ -1151,6 +1151,35 @@
+         
+                 print 'Hotcopy done.'
+         
+        +    _help_arbitary = [('arbitary <path/to/sql/script>',
+        +                      'Run arbitary sql script against the SQLite DB (expensive/dangerous query sequences should use transactions)')]
+        +    def do_arbitary(self, line):
+        +        arg = self.arg_tokenize(line)
+        +        if arg[0]:
+        +            script = arg[0]
+        +        else:
+        +            self.do_help('arbitary')
+        +            return
+        +
+        +        if not os.path.exists(script):
+        +            raise TracError(_("arbitary can't read script '%(script)s'",
+        +                              script=script))
+        +
+        +        sql = open(script,"r").read()
+        +        cnx = self.db_open()
+        +        cursor = cnx.cursor()
+        +        try:
+        +            print 'Running arbitary script %s sql %s against %s ...' % (script, sql, self.__env.path),
+        +            self.db_update(sql, cursor)
+        +        except:
+        +            cursor.close()
+        +            cnx.rollback()
+        +        finally:
+        +            cnx.commit()
+        +        print 'Arbitary done.'
+        +
+        +
+        + 
+             _help_deploy = [('deploy <directory>',
+                              'Extract static resources from Trac and all plugins.')]
+        
+
+
+
+testing on C2
+---------------
+
+
+::
+
+        [root@cms02 dayabay]# pwd
+        /var/scm/backup/dayabay
+        [root@cms02 dayabay]# mkdir -p tracs/dybsvn/2012/09/18/120001
+        [root@cms02 dayabay]# scp WW:/home/scm/backup/dayabay/tracs/dybsvn/2012/09/18/120001/dybsvn.tar.gz.dna tracs/dybsvn/2012/09/18/120001/
+        [root@cms02 dayabay]# screen time scp WW:/home/scm/backup/dayabay/tracs/dybsvn/2012/09/18/120001/dybsvn.tar.gz tracs/dybsvn/2012/09/18/120001/
+        [screen is terminating]
+        [root@cms02 dayabay]# time screen scp WW:/home/scm/backup/dayabay/svn/dybsvn/2012/09/18/120001/dybsvn-18208.tar.gz svn/dybsvn/2012/09/18/120001/
+        [screen is terminating]
+        real    44m12.252s
+        user    0m0.001s
+        sys     0m0.003s
+
+
+
+
+
 

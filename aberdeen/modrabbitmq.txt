@@ -1,0 +1,264 @@
+
+
+=== codename '''LiveLog''' ===
+
+   Strophe/Speeqe ... provide xmpp chat client inside the browser talking to ejabberd server
+   ModRabbitMQ .  ... ejabberd plugin bridging to rabbitmq ... 
+                      allowing events on rabbitmq AMQP backbone to be propagated to xmpp        
+                      ie run started .. with these params , temperature over limit 
+                      
+   Want credential sharing betwixt 
+   
+        * Trac-SVN / django / ejabberd
+        * rabbitmq should be kept separate ... only 
+                      
+=== abtviz is TTimer polling ===
+  
+      * when entering text into abtviz ... 
+        * takes 5s to update text msgs  in abtviz whereas almost immediately appears in iChat
+        * ... maybe can call g_.SetOther() from observer callback within the locked thread ?
+        * OR use a separate timer for checking the text queues
+
+
+== xmpp clients ==
+
+   * monal refuses to add buddy with "/abt.test.string" resource 
+   
+   
+{{{
+
+[blyth@cms01 home]$ rabbitmq-bindings
+exchange_name              routing_key  queue_name 
+                           consume.py@cms01.phys.ntu.edu.tw  consume.py@cms01.phys.ntu.edu.tw 
+                           g4pb.local  g4pb.local 
+                           ichat@cms01.phys.ntu.edu.tw  ichat@cms01.phys.ntu.edu.tw 
+                           implus@cms01.phys.ntu.edu.tw  implus@cms01.phys.ntu.edu.tw 
+                           monal@cms01.phys.ntu.edu.tw  monal@cms01.phys.ntu.edu.tw 
+                           mundu@cms01.phys.ntu.edu.tw  mundu@cms01.phys.ntu.edu.tw 
+abt                        implus@cms01.phys.ntu.edu.tw             
+abt                        mundu@cms01.phys.ntu.edu.tw             
+abt                        consume.py@cms01.phys.ntu.edu.tw  #.string   
+abt                        ichat@cms01.phys.ntu.edu.tw  #.string   
+abt                        g4pb.local  abt.#      
+abt                        ichat@cms01.phys.ntu.edu.tw  abt.test.string
+
+}}}
+
+
+Trying to help out implus by pre-setting bindings with pika...
+{{{
+pika-consume -q implus@cms01.phys.ntu.edu.tw -x abt --routing-key=""
+pika-consume -q implus@cms01.phys.ntu.edu.tw -x abt --routing-key="#.string"
+}}}
+
+
+=  google:"xmpp resource handling" =
+
+
+== adium resource handling ... ==
+
+  * http://trac.adium.im/wiki/XMPP#Defectsbrokenfeatures
+{{{
+Multiple resources for someone on the contact list are handled, 
+but not shown in the user interface. The resource to send to can also not be selected (like in Psi). 
+}}}
+
+  * http://trac.adium.im/ticket/78
+
+
+This gets thru to Adium ...
+{{{
+simon:env blyth$ pika-send --routing-key=""
+}}}
+
+Also with bunny 
+{{{
+cms01.phys.ntu.edu.tw./: help send_message
+        send_message <exchange>:<msg>
+        Sends message to the given exchange.
+cms01.phys.ntu.edu.tw./: send_message abt:hello from bunny
+
+
+}}}
+
+But this does not :
+{{{
+simon:env blyth$ pika-send --routing-key="abt.test.string"
+}}}
+
+After add an additional binding ...
+{{{
+pika-consume --only-bind -q adium@cms01.phys.ntu.edu.tw -x abt -k abt.test.string
+}}}
+
+{{{
+[blyth@cms01 e]$ rabbitmq-bindings
+exchange_name              routing_key  queue_name 
+                           adium@cms01.phys.ntu.edu.tw  adium@cms01.phys.ntu.edu.tw 
+                           consume.py@cms01.phys.ntu.edu.tw  consume.py@cms01.phys.ntu.edu.tw 
+                           g4pb.local  g4pb.local 
+                           ichat@cms01.phys.ntu.edu.tw  ichat@cms01.phys.ntu.edu.tw 
+                           implus@cms01.phys.ntu.edu.tw  implus@cms01.phys.ntu.edu.tw 
+                           monal@cms01.phys.ntu.edu.tw  monal@cms01.phys.ntu.edu.tw 
+                           mundu@cms01.phys.ntu.edu.tw  mundu@cms01.phys.ntu.edu.tw 
+abt                        adium@cms01.phys.ntu.edu.tw             
+abt                        implus@cms01.phys.ntu.edu.tw             
+abt                        mundu@cms01.phys.ntu.edu.tw             
+abt                        consume.py@cms01.phys.ntu.edu.tw  #.string   
+abt                        ichat@cms01.phys.ntu.edu.tw  #.string   
+abt                        implus@cms01.phys.ntu.edu.tw  #.string   
+abt                        g4pb.local  abt.#      
+abt                        adium@cms01.phys.ntu.edu.tw  abt.test.string     ### binding added using pika 
+abt                        ichat@cms01.phys.ntu.edu.tw  abt.test.string 
+abt                        implus@cms01.phys.ntu.edu.tw  abt.test.string
+abt                        mundu@cms01.phys.ntu.edu.tw  abt.test.string      ### binding added using pika
+
+}}}
+
+Messages now get thru to adium with :
+{{{
+simon:env blyth$ pika-send --routing-key="abt.test.string"
+}}}
+
+And also with :
+{{{
+rootmq-sendobj 
+}}}
+
+Same trick works for mundu..
+{{{
+simon:pika blyth$ pika-consume --only-bind -q mundu@cms01.phys.ntu.edu.tw -x abt -k abt.test.string
+}}}
+
+
+
+
+  
+ 
+
+
+
+
+
+== C : updating erlang ==
+
+{{{
+erlang.i386                              R11B-2.4.el4           epel            
+Matched from:
+erlang
+Erlang is a general-purpose programming language and runtime
+environment. Erlang has built-in support for concurrency, distribution
+and fault tolerance. Erlang is used in several large telecommunication
+systems from Ericsson.
+http://www.erlang.org
+
+erlang.i386                              R11B-2.3.el4           installed       
+Matched from:
+erlang
+Erlang is a general-purpose programming language and runtime
+environment. Erlang has built-in support for concurrency, distribution
+and fault tolerance. Erlang is used in several large telecommunication
+systems from Ericsson.
+http://www.erlang.org
+}}}
+
+
+{{{
+
+[blyth@cms01 home]$ sudo yum --enablerepo=epel install erlang 
+Password:
+Loading "kernel-module" plugin
+Loading "protectbase" plugin
+Loading "versionlock" plugin
+Loading "tsflags" plugin
+Loading "changelog" plugin
+Loading "installonlyn" plugin
+Setting up Install Process
+Setting up repositories
+Reading repository metadata in from local files
+33 packages excluded due to repository protections
+Reading version lock configuration
+Parsing package install arguments
+Resolving Dependencies
+--> Populating transaction set with selected packages. Please wait.
+---> Package erlang.i386 0:R11B-2.4.el4 set to be updated
+--> Running transaction check
+
+Dependencies Resolved
+
+=============================================================================
+ Package                 Arch       Version          Repository        Size 
+=============================================================================
+Updating:
+ erlang                  i386       R11B-2.4.el4     epel               36 M
+
+Transaction Summary
+=============================================================================
+Install      0 Package(s)         
+Update       1 Package(s)         
+Remove       0 Package(s)         
+Total download size: 36 M
+Is this ok [y/N]: y
+Downloading Packages:
+(1/1): erlang-R11B-2.4.el 100% |=========================|  36 MB    03:26     
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Updating  : erlang                       ######################### [1/2] 
+  Cleanup   : erlang                       ######################### [2/2]
+
+Updated: erlang.i386 0:R11B-2.4.el4
+Complete!
+
+}}}
+
+
+
+
+On C ...
+{{{
+rpm -ql erlang
+}}}
+
+   * shows that a very well behaved distro : everything is in {{{/usr/lib/erlang}}} other than 
+{{{
+/usr/bin/erl
+/usr/bin/erlc
+}}}
+
+And {{{/usr/bin/erl}}} is a script...
+{{{
+#!/bin/sh
+ROOTDIR=/usr/lib/erlang
+BINDIR=$ROOTDIR/erts-5.5.2/bin
+EMU=beam
+PROGNAME=`echo $0 | sed 's/.*\///'`
+export EMU
+export ROOTDIR
+export BINDIR
+export PROGNAME
+exec $BINDIR/erlexec ${1+"$@"}
+}}}
+
+{{{
+[blyth@cms01 home]$ ldd /usr/bin/erlc
+        libdl.so.2 => /lib/libdl.so.2 (0x00c6f000)
+        libm.so.6 => /lib/tls/libm.so.6 (0x00c4a000)
+        libpthread.so.0 => /lib/tls/libpthread.so.0 (0x00dd9000)
+        libc.so.6 => /lib/tls/libc.so.6 (0x00b18000)
+        /lib/ld-linux.so.2 (0x00afe000)
+
+}}}
+
+
+
+
+Same server works without from 
+{{{
+var msg = new Strophe.Builder( "message", {"to":"ichat@belle7.nuu.edu.tw","type":"chat"}).c("body").t("hello")
+var msg = new Strophe.Builder( "message", {"to":"ichat@cms01.phys.ntu.edu.tw","from":"adium@belle7.nuu.edu.tw", "type":"chat"}).c("body").t("hello")
+}}}
+
+
+

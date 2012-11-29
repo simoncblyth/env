@@ -1,0 +1,37 @@
+
+Announcement of pika 0.9.1a, with tornado ioloop support 
+   * http://groups.google.com/group/python-tornado/browse_thread/thread/9addbcb27df7d4cf/12c2835fb75e7c0f
+   * http://tonyg.github.com/pika/connecting.html
+   * https://github.com/facebook/tornado/blob/master/tornado/ioloop.py
+
+   * http://codeidol.com/python/python3/GUI-Coding-Techniques/
+   * http://codeidol.com/python/python3/GUI-Coding-Techniques/GUIs,-Threads,-and-Queues/
+
+Because only the main thread should generally update a GUI's display, though, threads you start to handle long-running tasks or to avoid blocking input/output calls cannot update the display with results themselves. Rather, they must place data on a queue (or other mechanism), to be picked up and displayed by the main GUI thread. To make this work, the main thread typically runs a counter loop that periodically checks the thread for new results to be displayed. Spawned threads produce data but know nothing about the GUI; the main GUI thread consumes and displays results but does not generate them.
+
+As a more concrete example, suppose your GUI needs to display telemetry data sent in real time from a satellite over sockets (a network interface we'll meet later). Your program has to be responsive enough to not lose incoming data, but it also cannot get stuck waiting for or processing that data. To achieve both goals, spawn threads that fetch the incoming data and throw it on a queue, to be picked up and displayed periodically by the main GUI thread. With such a separation of labor, the GUI isn't blocked by the satellite, nor vice versathe GUI itself will run independently of the data streams, but because the data stream threads can run at full speed, they'll be able to pick up incoming data as fast as it's sent. GUI event loops are not generally responsive enough to handle real-time inputs. Without the data stream threads, we might lose incoming telemetry; with them, we'll receive data as it is sent and display it as soon as the GUI's event loop gets around to picking it up off the queueplenty fast for the real human user to see. If no data is sent, only the spawned threads wait, not the GUI itself.
+
+
+   * http://codeidol.com/python/python3/Parallel-System-Tools/Threads/
+   
+            ... SOME GOOD EXAMPLES USING Queue module ...
+
+Thread synchronization and queues
+
+    Secondly, the fact that threads share global memory and resources is both good news and bad newsit provides a communication mechanism, but we have to be careful to synchronize a variety of operations. Even operations such as printing are a potential conflict since there is only one sys.stdout per process, which is shared by all threads.
+
+    Luckily, the Python Queue module, described in this section, makes this simple: realistic threaded programs are usually structured as one or more producer threads that add data to a queue, along with one or more consumer threads that take the data off the queue and process it. In a typical threaded GUI, for example, producers may download or compute data and place it on the queue; the consumerthe main GUI threadchecks the queue for data periodically with a timer event and displays it in the GUI when it arrives.
+
+
+ROOT GUI threads
+  * http://root.cern.ch/phpBB3/viewtopic.php?t=9792
+
+
+Can the MQ avoid the need for a separate thread 
+ 
+
+
+Console shows issues with spotlight and erlang install ... but port did not complain ?
+{{{
+Feb 17 18:32:15 simon /System/Library/Frameworks/CoreServices.framework/Frameworks/Metadata.framework/Versions/A/Support/mdworker[55219]: tar importer countered an error (512) scanning "/opt/local/var/macports/build/_opt_local_var_macports_sources_rsync.macports.org_release_ports_lang_erlang/work/erlang-R14B01/lib/stdlib/test/tar_SUITE_data/bad_checksum.tar"
+}}}

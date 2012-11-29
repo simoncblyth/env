@@ -1,0 +1,370 @@
+
+== Low level mysql-python ==
+
+  * using the C sourced '''_mysql''' python module
+  * http://mysql-python.sourceforge.net/MySQLdb.html
+
+{{{
+import _mysql
+conn = _mysql.connect( read_default_file="~/.my.cnf", read_default_group="client" )
+conn.query("SHOW TABLES")
+r = conn.store_result()   ## entire set at once ... or use_result for huge datasets  
+r.fetch_row()
+r.fetch_row()
+
+In [24]: r.fetch_row(1,1)   
+Out[24]: ({'Tables_in_offline_db_20101111': 'LOCALSEQNO'},)
+
+In [25]: r.fetch_row(5,1)   ## max rows and how to present em ... 0 tuple, 1 dict 
+Out[25]: 
+({'Tables_in_offline_db_20101111': 'SimPmtSpec'},
+ {'Tables_in_offline_db_20101111': 'SimPmtSpecVld'})
+
+}}}
+
+Crucial differnt operating modes ... '''use''' needed to very large result sets 
+  || store  ||  The entire result set is stored on the client side.   ||
+  || use    ||  The result set is stored on the server side and is transferred row by row using fetch operations || 
+
+
+== Dustman thread ==
+
+  * http://mail.scipy.org/pipermail/numpy-discussion/2000-April/000129.html
+
+
+On Fri, 14 Apr 2000, Tim Churches wrote:
+
+> Andy Dustman wrote:
+> 
+> Yes, but the problem with mysql_store_result() is the large amount of
+> memory required to store the result set. Couldn't the user be
+> responsible for predetermining the size of the array via a query such as
+> "select count(*) from sometable where...." and then pass this value as a
+> parameter to the executeNumPy() method? In MySQL at least such count(*)
+> queries are resolved very quickly so such an approach wouldn't take
+> twice the time. Then mysql_use_result() could be used to populate the
+> initialised NumPy array with data row, so there so only ever one
+> complete copy of the data in memory, and that copy is in the NumPy
+> array.
+
+After some more thought on this subject, and some poking around at NumPy,
+I came to the following conclusions:
+
+Since NumPy arrays are fixed-size, but otherwise sequences (in the
+multi-dimensional case, sequences of sequences), the best approach would
+be for the user to pass in a pre-sized array (i.e. from zeros(), and btw,
+the docstring for zeros is way wrong), and _mysql would simply access it
+through the Sequence object protocol, and update as many values as it
+could: If you passed a 100-row array, it would fill 100 rows or as many as
+were in the result set, whichever is less.
+
+Since this requires no special knowledge of NumPy, it could be a standard
+addition (no conditional compiliation required). This method (tentatively
+_mysql.fetch_rows_into_array(array)) would return the array argument as
+the result. IndexError would likely be raised if the array was too narrow
+(too many columns in result set). Probably this would not be a
+MySQLdb.Cursor method, but perhaps I can have a seperate module with a
+cursor subclass which returns NumPy arrays.
+
+> > Question: Would it be adequate to put all columns returned into the array?
+> > If label columns need to be returned, this could pose a problem. They may
+> > have to be returned as a separate query. Or else non-numeric columns would
+> > be excluded and returned in a list of tuples (this would be harder).
+> 
+> Yes, more thought needed here - my initial thought was one NumPy array
+> per column, particularly since NumPy arrays must be homogenous wrt data
+> type. Each NumPy array could be named the same as the column from which
+> it is derived.
+
+Okay, I think I know what you mean here. You are wanting to return each
+column as a (vertical) vector, whereas I am thinking along the lines of
+returning the result set as a matrix. Is that correct? Since it appears
+you can efficiently slice out column vectors as a[:,n], is my idea
+acceptable? i.e.
+
+>>> a=Numeric.multiarray.zeros( (2,2),'d')
+>>> a[1,1]=2
+>>> a[0,1]=-1
+>>> a[1,0]=-3
+>>> a
+array([[ 0., -1.],
+       [-3.,  2.]])
+>>> a[:,0]
+array([ 0., -3.])
+>>> a[:,1]
+array([-1.,  2.])
+
+-- 
+andy dustman       |     programmer/analyst     |      comstar.net, inc.
+telephone: 770.485.6025 / 706.549.7689 | icq: 32922760 | pgp: 0xc72f3f1d
+"Therefore, sweet knights, if you may doubt your strength or courage, 
+come no further, for death awaits you all, with nasty, big, pointy teeth!"
+
+
+== low level numpy ==
+
+  * google:"numpy Sequence object protocol"
+  * http://docs.scipy.org/doc/numpy/reference/arrays.interface.html
+  * http://docs.scipy.org/doc/numpy/reference/arrays.html
+
+  * http://docs.scipy.org/doc/numpy/user/c-info.how-to-extend.html#getting-at-ndarray-memory-and-accessing-elements-of-the-ndarray
+  * http://docs.scipy.org/doc/numpy/user/c-info.beyond-basics.html#iterating-over-elements-in-the-array
+
+  * https://github.com/numpy/numpy/blob/master/doc/cython/setup.py
+     * using cython to build numpy extension 
+
+
+  * http://www.scipy.org/Cookbook/A_Numerical_Agnostic_Pyrex_Class
+
+
+
+
+  * '''python buffer API changes in 2.6'''
+  * http://wiki.cython.org/tutorials/numpy
+
+
+
+
+
+
+
+== _mysql : tracing the result ==
+
+ * only need to add a different '''_mysql_ConnectionObject_get_result''' that fills a numpy ndarray of recarray type
+
+
+From '''cursors.py'''
+{{{
+
+
+  ### in cursors.py 
+
+def _query(self, query):
+     """Low-level; executes query, gets result, sets up decoders."""
+     connection = self._get_db()
+     self._flush()
+     self._executed = query
+     connection.query(query)
+     self._result = Result(self)
+
+
+
+class Result(object):
+
+    def __init__(self, cursor):
+        self.cursor = cursor
+        db = cursor._get_db()
+        result = db.get_result(cursor.use_result)
+        self.result = result                       ## PyObject pulled from the C side     _result.result 
+        decoders = cursor.decoders
+        self.row_formatter = cursor.row_formatter
+        self.max_buffer = 1000
+        self.rows = []
+        self.row_start = 0
+...
+
+}}}
+
+  * seems to be iteration over the result PyObject pulled from the C side ????
+     * yep the {{{__iter__  + next}}} are defined on the C side
+
+{{{
+
+static PyObject *
+_mysql_ResultObject_next(
+	_mysql_ResultObject *self,
+	PyObject *unused)
+{
+	PyObject *row;
+	check_result_connection(self);
+	row = _mysql_ResultObject_fetch_row(self, NULL);
+	if (row == Py_None) {
+		Py_DECREF(row);
+		PyErr_SetString(PyExc_StopIteration, "");
+		return NULL;
+	}
+	return row;
+}
+
+}}}
+
+
+
+
+{{{
+
+static char _mysql_ResultObject_fetch_row__doc__[] =
+"fetchrow()\n\
+  Fetches one row as a tuple of strings.\n\
+  NULL is returned as None.\n\
+  A single None indicates the end of the result set.\n\
+";
+
+static PyObject *
+_mysql_ResultObject_fetch_row(
+	_mysql_ResultObject *self,
+ 	PyObject *unused)
+ {
+	unsigned int n, i;
+	unsigned long *length;
+	PyObject *r=NULL;
+	MYSQL_ROW row;
+	
+ 	check_result_connection(self);
+ 	
+	if (!self->use)
+		row = mysql_fetch_row(self->result);
+	else {
+ 		Py_BEGIN_ALLOW_THREADS;
+		row = mysql_fetch_row(self->result);
+ 		Py_END_ALLOW_THREADS;
+	}
+	if (!row && mysql_errno(&(((_mysql_ConnectionObject *)(self->conn))->connection))) {
+		_mysql_Exception((_mysql_ConnectionObject *)self->conn);
+		goto error;
+	}
+	if (!row) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	n = mysql_num_fields(self->result);
+	if (!(r = PyTuple_New(n))) return NULL;
+	length = mysql_fetch_lengths(self->result);
+	for (i=0; i<n; i++) {
+		PyObject *v;
+		if (row[i]) {
+			v = PyString_FromStringAndSize(row[i], length[i]);
+			if (!v) goto error;
+		} else /* NULL */ {
+			v = Py_None;
+			Py_INCREF(v);
+ 		}
+		PyTuple_SET_ITEM(r, i, v);
+ 	}
+	return r;
+  error:
+	Py_XDECREF(r);
+	return NULL;
+}
+
+
+}}}
+   * need to go straight from the mysql provided C string into ndarray ... with exceptions if wrong shape numpy array 
+
+
+
+
+
+
+
+
+
+
+
+
+{{{
+
+typedef struct {
+	PyObject_HEAD
+	PyObject *conn;
+	MYSQL_RES *result;
+	int nfields;
+	int use;
+	PyObject *fields;
+} _mysql_ResultObject;
+
+extern PyTypeObject _mysql_ResultObject_Type;
+
+}}}
+
+
+
+
+
+{{{
+static PyObject *
+_mysql_ConnectionObject_get_result(
+	_mysql_ConnectionObject *self,
+	PyObject *args,
+	PyObject *kwargs)
+{
+	PyObject *arglist=NULL, *kwarglist=NULL, *result=NULL;
+	static char *kwlist[] = {"use", NULL};
+	_mysql_ResultObject *r=NULL;
+	int use = 0;
+	
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i:get_result", kwlist, &use)) return NULL;
+	check_connection(self);
+	arglist = Py_BuildValue("(Oi)", self, use);
+	if (!arglist) goto error;
+	kwarglist = PyDict_New();
+	if (!kwarglist) goto error;
+	r = MyAlloc(_mysql_ResultObject, _mysql_ResultObject_Type);
+	if (!r) goto error;
+	if (_mysql_ResultObject_Initialize(r, arglist, kwarglist))          ######## mysql_store/use_result done here 
+		goto error;
+	result = (PyObject *) r;
+	if (!(r->result)) {
+		Py_DECREF(result);
+		Py_INCREF(Py_None);
+		result = Py_None;
+	}
+  error:
+	Py_XDECREF(arglist);
+	Py_XDECREF(kwarglist);
+	return result;
+}
+
+}}}
+
+
+
+{{{
+int
+_mysql_ResultObject_Initialize(
+	_mysql_ResultObject *self,
+	PyObject *args,
+	PyObject *kwargs)
+{
+	static char *kwlist[] = {"connection", "use", NULL};
+	MYSQL_RES *result;
+	_mysql_ConnectionObject *conn = NULL;
+	int use = 0;
+	int n;
+
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|i", kwlist,
+					  &conn, &use))
+		return -1;
+
+	self->conn = (PyObject *) conn;
+	Py_INCREF(conn);
+	self->use = use;
+	Py_BEGIN_ALLOW_THREADS ;
+	if (use)
+		result = mysql_use_result(&(conn->connection));
+	else
+		result = mysql_store_result(&(conn->connection));
+	self->result = result;
+	Py_END_ALLOW_THREADS ;
+	if (!result) {
+		return 0;
+	}
+	n = mysql_num_fields(result);
+	self->nfields = n;
+	self->fields = _mysql_ResultObject_get_fields(self, NULL);
+
+	return 0;
+}
+
+
+
+}}}
+
+
+
+
+
+
+
+

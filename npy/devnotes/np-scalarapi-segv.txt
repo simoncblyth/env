@@ -1,0 +1,345 @@
+{{{
+
+descr field type ... offset 4 
+'bbbb'dtype('float32')<nil>
+descr field type done 
+
+Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread -1209103840 (LWP 1495)]
+0x00133293 in LONG_copyswap (dst=0x0, src=0x9b84420, swap=0, __NPY_UNUSED_TAGGEDarr=0x9bbaad8) at numpy/core/src/multiarray/arraytypes.c.src:1854
+1854            memcpy(dst, src, sizeof(@type@));
+(gdb) bt
+#0  0x00133293 in LONG_copyswap (dst=0x0, src=0x9b84420, swap=0, __NPY_UNUSED_TAGGEDarr=0x9bbaad8) at numpy/core/src/multiarray/arraytypes.c.src:1854
+#1  0x001345bb in VOID_copyswap (dst=0x0, src=0x9b84420 "{", swap=0, arr=0x9bbaad8) at numpy/core/src/multiarray/arraytypes.c.src:2249
+#2  0x0016c637 in PyArray_Scalar (data=0x9b84420, descr=0xb7b99a30, base=0x9bbaad8) at numpy/core/src/multiarray/scalarapi.c:778
+#3  0x0017822a in array_subscript_nice (self=0x9bbaad8, op=0x999ff68) at numpy/core/src/multiarray/mapping.c:86
+#4  0x00db452f in PyObject_GetItem (o=0x9bbaad8, key=0x999ff68) at Objects/abstract.c:120
+#5  0x00e2a93c in PyEval_EvalFrameEx (f=0x9bd1824, throwflag=0) at Python/ceval.c:1192
+#6  0x00e2f7c8 in PyEval_EvalFrameEx (f=0x9bd1394, throwflag=0) at Python/ceval.c:3650
+#7  0x00e2fead in PyEval_EvalCodeEx (co=0xb7c4fd10, globals=0xb7c4346c, locals=0x0, args=0x99de72c, argcount=6, kws=0x99de744, kwcount=0, defs=0xb7c56618, defcount=2, closure=0x0) at Python/ceval.c:2831
+#8  0x00e2dec4 in PyEval_EvalFrameEx (f=0x99de5cc, throwflag=0) at Python/ceval.c:3659
+#9  0x00e2fead in PyEval_EvalCodeEx (co=0xb7c4fda0, globals=0xb7c4346c, locals=0x0, args=0x9bdbf20, argcount=7, kws=0x9bdbf3c, kwcount=0, defs=0xb7c5a2d8, defcount=6, closure=0x0) at Python/ceval.c:2831
+#10 0x00e2dec4 in PyEval_EvalFrameEx (f=0x9bdbdd4, throwflag=0) at Python/ceval.c:3659
+#11 0x00e2fead in PyEval_EvalCodeEx (co=0xb7c4f2a8, globals=0xb7c432d4, locals=0x0, args=0xb7ed25d8, argcount=1, kws=0x0, kwcount=0, defs=0xb7c5b718, defcount=3, closure=0x0) at Python/ceval.c:2831
+#12 0x00dd3cf4 in function_call (func=0xb7c55f44, arg=0xb7ed25cc, kw=0x0) at Objects/funcobject.c:517
+#13 0x00db531c in PyObject_Call (func=0x0, arg=0xb7ed25cc, kw=0x0) at Objects/abstract.c:1860
+#14 0x00e28044 in PyEval_CallObjectWithKeywords (func=0xb7c55f44, arg=0xb7ed25cc, kw=0x0) at Python/ceval.c:3433
+#15 0x00155ce3 in array_str (self=0x9bbaad8) at numpy/core/src/multiarray/arrayobject.c:393
+#16 0x00de6a7a in _PyObject_Str (v=0x7b) at Objects/object.c:406
+#17 0x00de6b61 in PyObject_Str (v=0x9bbaad8) at Objects/object.c:426
+#18 0x00de6c3b in internal_print (op=0x9bbaad8, fp=0xb645c0, flags=Variable "flags" is not available.
+) at Objects/object.c:292
+
+}}}
+
+
+{{{
+gdb) c
+Continuing.
+
+Breakpoint 9, PyArray_Scalar (data=0x839d3c0, descr=0x1aa2a0, base=0x83aebf8) at numpy/core/src/multiarray/scalarapi.c:778
+778         copyswap(destptr, data, swap, base);
+(gdb) p destptr
+$17 = (void *) 0x844b730
+(gdb) p data
+$18 = (void *) 0x839d3c0
+(gdb) p swap
+$19 = 0
+(gdb) p base
+$20 = (PyObject *) 0x83aebf8
+
+
+}}}
+
+
+{{{
+[blyth@cms01 numpy]$  find . -name '*.c' -exec grep -H PyArray_ToScalar {} \;
+./core/src/multiarray/iterators.c:        ret = PyArray_ToScalar(it->dataptr, it->ao);
+./core/src/multiarray/iterators.c:            r = PyArray_ToScalar(self->dataptr, self->ao);
+./core/src/multiarray/iterators.c:            return PyArray_ToScalar(self->dataptr, self->ao);
+./core/src/multiarray/iterators.c:                r = PyArray_ToScalar(self->dataptr, self->ao);
+./core/src/multiarray/iterators.c:                             PyArray_ToScalar(it->dataptr, it->ao));
+./core/src/multiarray/scalarapi.c:        return PyArray_ToScalar(PyArray_DATA(object), object);
+./core/src/multiarray/scalarapi.c:        ret = PyArray_ToScalar(mp->data, mp);
+./core/src/multiarray/mapping.c:            ret = PyArray_ToScalar(mp->data, mp);
+./core/src/multiarray/multiarraymodule.c:            PyObject* arg = PyArray_ToScalar(PyArray_ITER_DATA(it), it->ao);
+./core/src/multiarray/multiarraymodule.c:        PyObject* item = PyArray_ToScalar(in_iter->dataptr, in_iter->ao);
+[blyth@cms01 numpy]$
+
+}}}
+
+
+{{{
+[blyth@cms01 numpy]$  find . -name '*.c' -exec grep -H PyArray_Scalar {} \;
+./core/src/umath/ufunc_object.c:            new = PyArray_ScalarKind(arg_types[i], NULL);
+./core/src/umath/ufunc_object.c:            scalars[i] = PyArray_ScalarKind(arg_types[i], &(mps[i]));
+./core/src/multiarray/calculation.c:    if (PyArray_ScalarKind(newdescr->type_num, NULL) >
+./core/src/multiarray/calculation.c:        PyArray_ScalarKind(self->descr->type_num, NULL)) {
+./core/src/multiarray/convert_datatype.c:            intypekind = PyArray_ScalarKind(intype->type_num, NULL);
+./core/src/multiarray/convert_datatype.c:            scalarkind = PyArray_ScalarKind(newtype->type_num, NULL);
+./core/src/multiarray/scalarapi.c:PyArray_ScalarAsCtype(PyObject *scalar, void *ctypeptr)
+./core/src/multiarray/scalarapi.c:PyArray_ScalarFromObject(PyObject *object)
+./core/src/multiarray/scalarapi.c:PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
+./core/src/multiarray/mapping.c:        return PyArray_Scalar(item, self->descr, (PyObject *)self);
+./core/src/multiarray/mapping.c:        return PyArray_Scalar(item, self->descr, (PyObject *)self);
+./core/src/multiarray/ctors.c: * that special cases Arrays and PyArray_Scalars up front
+./core/src/multiarray/multiarraymodule.c:PyArray_ScalarKind(int typenum, PyArrayObject **arr)
+./core/src/multiarray/multiarraymodule.c:         * this comparison, which PyArray_ScalarKind would not.
+./core/src/multiarray/multiarraymodule.c:    ret = PyArray_Scalar(dptr, typecode, NULL);
+[blyth@cms01 numpy]$
+
+}}}
+
+
+{{{
+[blyth@cms01 numpy]$  find . -name '*.c' -exec grep -H PyTypeNum_ISUSERDEF {} \;
+./core/src/umath/ufunc_object.c:            if (PyTypeNum_ISUSERDEF(arg_types[i])) {
+./core/src/umath/ufunc_object.c:            if (!(PyTypeNum_ISUSERDEF(userdef))) {
+./core/src/multiarray/usertypes.c:    if (!PyTypeNum_ISUSERDEF(totype)) {
+./core/src/multiarray/usertypes.c:    if (!PyTypeNum_ISUSERDEF(descr->type_num) &&
+./core/src/multiarray/usertypes.c:                                        !PyTypeNum_ISUSERDEF(totype)) {
+./core/src/multiarray/descriptor.c:    if (PyTypeNum_ISUSERDEF(self->type_num)) {
+./core/src/multiarray/descriptor.c:    if (PyTypeNum_ISUSERDEF(self->type_num)) {
+./core/src/multiarray/descriptor.c:    if (PyTypeNum_ISUSERDEF(self->type_num)
+./core/src/multiarray/multiarraymodule.c:    } else if (PyTypeNum_ISUSERDEF(typenum)) {
+./core/src/multiarray/multiarraymodule.c:        if (!PyTypeNum_ISUSERDEF(thistype)) {
+}}}
+
+
+
+{{{
+(gdb) p obj
+$18 = (PyObject *) 0x8c07590
+(gdb) p descr
+$19 = (PyArray_Descr *) 0xb7c8da30
+(gdb) p descr->type_num
+$20 = 256
+(gdb) c
+Continuing.
+
+Breakpoint 5, PyArray_Scalar (data=0x8c09420, descr=0xb7c8da30, base=0x8c3fad8) at numpy/core/src/multiarray/scalarapi.c:778
+778         copyswap(destptr, data, swap, base);
+(gdb) p destptr
+$21 = (void *) 0x0
+(gdb)
+
+}}}
+
+
+The cause of the segmentation :
+{{{
+
+Breakpoint 6, scalar_value (scalar=0x8a9f590, descr=0xb7b94a30) at numpy/core/src/multiarray/scalarapi.c:138
+138                 return ((PyVoidScalarObject *)scalar)->obval;
+(gdb) p scalar
+$8 = (PyObject *) 0x8a9f590
+(gdb) p (PyVoidScalarObject *)scalar
+$9 = (struct {...} *) 0x8a9f590
+(gdb) p  ((PyVoidScalarObject *)scalar)->obval
+$10 = 0x0
+(gdb)
+
+}}}
+
+
+   * ./core/include/numpy/arrayscalars.h
+
+{{{
+
+ 140 typedef struct {
+ 141         PyObject_VAR_HEAD
+ 142         char *obval;
+ 143         PyArray_Descr *descr;
+ 144         int flags;
+ 145         PyObject *base;
+ 146 } PyVoidScalarObject;
+ 147
+
+
+(gdb) p (PyVoidScalarObject *)scalar
+$9 = (struct {...} *) 0x8a9f590
+(gdb) p  ((PyVoidScalarObject *)scalar)->obval
+$10 = 0x0
+(gdb) p  ((PyVoidScalarObject *)scalar)->descr
+$11 = (PyArray_Descr *) 0x0
+(gdb) p  ((PyVoidScalarObject *)scalar)->flags
+$12 = 0
+(gdb) p  ((PyVoidScalarObject *)scalar)->base
+$13 = (PyObject *) 0x0
+(gdb)
+
+}}}
+
+
+{{{
+[blyth@cms01 numpy]$  find . -name '*.c' -exec grep -H PyVoidScalarObject {} \;
+./core/src/multiarray/scalarapi.c:            return ((PyVoidScalarObject *)scalar)->obval;
+./core/src/multiarray/scalarapi.c:            return ((PyVoidScalarObject *)scalar)->obval;
+./core/src/multiarray/scalarapi.c:            !(((PyVoidScalarObject *)scalar)->flags & OWNDATA) &&
+./core/src/multiarray/scalarapi.c:                ((PyVoidScalarObject *)scalar)->obval,
+./core/src/multiarray/scalarapi.c:                ((PyVoidScalarObject *)scalar)->flags,
+./core/src/multiarray/scalarapi.c:        descr = ((PyVoidScalarObject *)sc)->descr;
+./core/src/multiarray/scalarapi.c:            descr->elsize = Py_SIZE((PyVoidScalarObject *)sc);
+./core/src/multiarray/scalarapi.c:            PyVoidScalarObject *vobj = (PyVoidScalarObject *)obj;
+[blyth@cms01 numpy]$ 
+[blyth@cms01 numpy]$ 
+[blyth@cms01 numpy]$ 
+[blyth@cms01 numpy]$ vi ./core/src/multiarray/scalarapi.c
+
+}}}
+
+{{{
+
+Program received signal SIGSEGV, Segmentation fault.
+PyArray_DescrFromScalar (sc=0x8292590) at numpy/core/src/multiarray/scalarapi.c:518
+518             Py_INCREF(descr);
+(gdb) bt
+#0  PyArray_DescrFromScalar (sc=0x8292590) at numpy/core/src/multiarray/scalarapi.c:518
+#1  0x008c93e5 in PyArray_FromScalar (scalar=0x8292590, outcode=0x0) at numpy/core/src/multiarray/scalarapi.c:278
+#2  0x008d7803 in gentype_str (self=0x8292590) at numpy/core/src/multiarray/scalartypes.c.src:339
+#3  0x0052da7a in _PyObject_Str (v=0x0) at Objects/object.c:406
+#4  0x0052db61 in PyObject_Str (v=0x8292590) at Objects/object.c:426
+#5  0x0053776e in string_new (type=0x5de780, args=0xb7ec0f8c, kwds=0x0) at Objects/stringobject.c:3892
+#6  0x0053fda8 in type_call (type=0x5de780, args=0xb7ec0f8c, kwds=0x0) at Objects/typeobject.c:422
+#7  0x004fc31c in PyObject_Call (func=0x8292590, arg=0xb7ec0f8c, kw=0x0) at Objects/abstract.c:1860
+#8  0x00570c94 in PyEval_EvalFrameEx (f=0x82e1824, throwflag=0) at Python/ceval.c:3775
+#9  0x005767c8 in PyEval_EvalFrameEx (f=0x82e1394, throwflag=0) at Python/ceval.c:3650
+#10 0x00576ead in PyEval_EvalCodeEx (co=0xb7c84d10, globals=0xb7c7846c, locals=0x0, args=0x80ee72c, argcount=6, kws=0x80ee744, kwcount=0, defs=0xb7c8b618, defcount=2, closure=0x0) at Python/ceval.c:2831
+#11 0x00574ec4 in PyEval_EvalFrameEx (f=0x80ee5cc, throwflag=0) at Python/ceval.c:3659
+#12 0x00576ead in PyEval_EvalCodeEx (co=0xb7c84da0, globals=0xb7c7846c, locals=0x0, args=0x82ebf20, argcount=7, kws=0x82ebf3c, kwcount=0, defs=0xb7c8f2d8, defcount=6, closure=0x0) at Python/ceval.c:2831
+#13 0x00574ec4 in PyEval_EvalFrameEx (f=0x82ebdd4, throwflag=0) at Python/ceval.c:3659
+#14 0x00576ead in PyEval_EvalCodeEx (co=0xb7c842a8, globals=0xb7c782d4, locals=0x0, args=0xb7f075d8, argcount=1, kws=0x0, kwcount=0, defs=0xb7c90718, defcount=3, closure=0x0) at Python/ceval.c:2831
+#15 0x0051acf4 in function_call (func=0xb7c8af44, arg=0xb7f075cc, kw=0x0) at Objects/funcobject.c:517
+#16 0x004fc31c in PyObject_Call (func=0x8292590, arg=0xb7f075cc, kw=0x0) at Objects/abstract.c:1860
+#17 0x0056f044 in PyEval_CallObjectWithKeywords (func=0xb7c8af44, arg=0xb7f075cc, kw=0x0) at Python/ceval.c:3433
+#18 0x008bcce3 in array_str (self=0x82caad8) at numpy/core/src/multiarray/arrayobject.c:393
+#19 0x0052da7a in _PyObject_Str (v=0x0) at Objects/object.c:406
+#20 0x0052db61 in PyObject_Str (v=0x82caad8) at Objects/object.c:426
+#21 0x0052dc3b in internal_print (op=0x82caad8, fp=0xb645c0, flags=Variable "flags" is not available.
+) at Objects/object.c:292
+#22 0x080494b2 in main (argc=1, argv=0xbfe51534) at PyArray_SimpleNewFromData.c:246
+(gdb) p descr
+$12 = (PyArray_Descr *) 0x0
+
+}}}
+
+
+
+
+
+{{{
+1252 #define PyTypeNum_ISFLEXIBLE(type) (((type) >=NPY_STRING) &&  \
+ 1253                                     ((type) <=NPY_VOID))
+ 1254 
+ 1255 #define PyTypeNum_ISDATETIME(type) (((type) >=NPY_DATETIME) &&  \
+ 1256                                     ((type) <=NPY_TIMEDELTA))
+ 1257 
+ 1258 #define PyTypeNum_ISUSERDEF(type) (((type) >= NPY_USERDEF) && \
+ 1259                                    ((type) < NPY_USERDEF+     \
+ 1260                                     NPY_NUMUSERTYPES))
+ 1261 
+ 1262 #define PyTypeNum_ISEXTENDED(type) (PyTypeNum_ISFLEXIBLE(type) ||  \
+ 1263                                     PyTypeNum_ISUSERDEF(type))
+ 1264 
+ 1265 #define PyTypeNum_ISOBJECT(type) ((type) == NPY_OBJECT)
+}}}
+
+
+
+
+
+Little kludge to avoid the NULL ..  moves the seg 
+
+{{{
+137         if (_CHK(Void)) {
+  138             char* ov = ((PyVoidScalarObject *)scalar)->obval;
+  139             if(ov) return ov ;
+}}}
+
+
+
+Problem ... is with NULLed out array scaler...
+{{{
+516     if (PyArray_IsScalar(sc, Void)) {
+517         descr = ((PyVoidScalarObject *)sc)->descr;
+518         Py_INCREF(descr);
+519         return descr;
+520     }
+
+}}}
+
+
+
+
+
+
+{{{
+
+333 static PyObject *
+ 334 gentype_str(PyObject *self)
+ 335 {
+ 336     PyArrayObject *arr;
+ 337     PyObject *ret;
+ 338 
+ 339     arr = (PyArrayObject *)PyArray_FromScalar(self, NULL);
+ 340     if (arr == NULL) {
+ 341         return NULL;
+ 342     }
+ 343     ret = PyObject_Str((PyObject *)arr);
+ 344     Py_DECREF(arr);
+ 345     return ret;
+ 346 }
+ 347 
+ 348 
+ 349 static PyObject *
+ 350 gentype_repr(PyObject *self)
+ 351 {
+ 352     PyArrayObject *arr;
+ 353     PyObject *ret;
+ 354 
+ 355     arr = (PyArrayObject *)PyArray_FromScalar(self, NULL);
+ 356     if (arr == NULL) {
+ 357         return NULL;
+ 358     }
+ 359     ret = PyObject_Str((PyObject *)arr);
+ 360     Py_DECREF(arr);
+ 361     return ret;
+ 362 }
+
+}}}
+
+
+
+
+{{{
+
+[blyth@cms01 numpy]$ git diff
+diff --git a/numpy/core/src/multiarray/scalarapi.c b/numpy/core/src/multiarray/scalarapi.c
+index 87e140c..55e2381 100644
+--- a/numpy/core/src/multiarray/scalarapi.c
++++ b/numpy/core/src/multiarray/scalarapi.c
+@@ -135,7 +135,8 @@ scalar_value(PyObject *scalar, PyArray_Descr *descr)
+             return (void *)PyUnicode_AS_DATA(scalar);
+         }
+         if (_CHK(Void)) {
+-            return ((PyVoidScalarObject *)scalar)->obval;
++            char* ov = ((PyVoidScalarObject *)scalar)->obval;
++            if(ov) return ov ;
+         }
+     }
+     else {
+@@ -674,7 +675,8 @@ PyArray_Scalar(void *data, PyArray_Descr *descr, PyObject *base)
+         memcpy(&(((PyDatetimeScalarObject *)obj)->obmeta), dt_data,
+                sizeof(PyArray_DatetimeMetaData));
+     }
+-    if (PyTypeNum_ISFLEXIBLE(type_num)) {
++    //if (PyTypeNum_ISFLEXIBLE(type_num)) {
++    if (PyTypeNum_ISEXTENDED(type_num)) {
+         if (type_num == PyArray_STRING) {
+             destptr = PyString_AS_STRING(obj);
+             ((PyStringObject *)obj)->ob_shash = -1;
+[blyth@cms01 numpy]$ 
+[blyth@cms01 numpy]$
+
+}}}
+
