@@ -13,10 +13,10 @@ def bashtoc( content ):
     Find the toctree and collect the paths::
 
         [0  ] .. toctree:: 
-	[0  ]  
-	[1  ]     python/python 
-	[2  ]     python/python 
-	[-1 ]  
+        [0  ]  
+        [1  ]     python/python 
+        [2  ]     python/python 
+        [-1 ]  
 
     TODO:
 
@@ -27,27 +27,26 @@ def bashtoc( content ):
     paths = []
     for line in content.split("\n"):
         if line.startswith(".. toctree::"):
-	    count = 0
+            count = 0
         elif len(line) == 0:   # blank line
-	    if count == 0:     # immediately following the toctree
-		pass    
-	    else:              # terminating blank 
-		count = -1         
+            if count == 0:     # immediately following the toctree
+                pass    
+            else:              # terminating blank 
+                count = -1         
         else:
-	    if count > -1:	
-                count += 1		 
-        pass
+            if count > -1:
+                count += 1
+            pass
         if count > 0:
             path = line.strip().rstrip()
-	    if path.endswith('/'):
-	        print "skip %s " % path
-	    elif len(path) == 0:
-		pass     
-	    else:	
-	        paths.append(path)
+            if path.endswith('/'):
+                print "skip %s " % path
+            elif len(path) == 0:
+                pass     
+            else:
+                paths.append(path)
         else:
-	    path = ""	
-
+            path = ""
         #print "[%-3s] %s [%s]" % ( count, line, path )
         pass
     return paths
@@ -70,9 +69,9 @@ class Bash(list):
 
     """
     def __init__(self, path ):
-	"""
-	:param path: to bash function file
-	"""
+        """
+        :param path: to bash function file
+        """
         log.debug("path %s " % path )
 
         apath = os.path.abspath(path)
@@ -90,62 +89,62 @@ class Bash(list):
 
         log.info("path %s => %s " % (path, repr(paths) ))
 
-	self.root = root
+        self.root = root
         gpath = self._genpath( rname )
 
-	self.path = path
-	self.rdir = rdir
+        self.path = path
+        self.rdir = rdir
         self.apath = apath
         self.rpath = rpath         # relative to root, ie cwd
         self.gpath = gpath
-	self.content = content
+        self.content = content
         self.extend( paths ) 
 
     def _genpath(self, rname ):
-	"""
-	:param rname: root relative name
-	:return: generated absolute rst path, with index swap-ins
-	"""
+        """
+        :param rname: root relative name
+        :return: generated absolute rst path, with index swap-ins
+        """
         iname = self.place_index(rname)
         return os.path.join( self.root, "_docs" , iname + ".rst" )
 
     def remove_index(self, rname):
-	"""
-	Replace a toctree reference to an index like "mobkp/index" with 
-	the bash function argot of "mobkp/mobkp"
+        """
+        Replace a toctree reference to an index like "mobkp/index" with 
+        the bash function argot of "mobkp/mobkp"
 
-	Actually need to write the index
-	"""
+        Actually need to write the index
+        """
         parts = rname.split("/")
         if len(parts)>1:
             if parts[-1] == "index":
-		parts[-1] = parts[-2]    
+                parts[-1] = parts[-2]    
         return "/".join(parts)
 
     def place_index(self, rname):
-	"""
-	Looking for names like::
+        """
+        Looking for names like::
 
-	   green/red/red
+        green/red/red
 
         where the last 2 leaves are the same, implying index behavior return green/red/index
-	"""
+        """
         parts = rname.split("/")
-	if len(parts) > 1: 
-	    if parts[-2] == parts[-1]:
-		parts[-1] = "index"    
+        if len(parts) > 1: 
+            if parts[-2] == parts[-1]:
+                parts[-1] = "index"    
         return "/".join(parts)
 
 
     def _rst_read(self, path, delim="EOU"):
-        """	
+        """
         Extract rst documentation from the bash function file
 
         :return: extracted content as a single string 
         """
         if not os.path.exists(path):
-	    log.warn("path %s does not exist " % path )
-	    return ""
+            log.warn("path %s does not exist " % path )
+            return ""
 
         fp = open(path,"r") 
         content = fp.read()
@@ -159,39 +158,39 @@ class Bash(list):
         """
         Write the content to the supplied path 
         """
-	gpath = self.gpath
+        gpath = self.gpath
         gdir = os.path.dirname(gpath)
         if not os.path.exists(gdir):
             os.makedirs(gdir)
-	log.info("writing %s " % gpath )    
+            log.info("writing %s " % gpath )    
         fp = open(gpath,"w") 
         fp.write(self.content)
-	fp.close()
+        fp.close()
         return gpath
 
     def Walk(cls, path):
-	"""
-	Recursive conversion of a tree of bash function usage strings
-	into a tree of Sphinx rst documentation files. Where the linkage
-	is defined by toctree directives within the usage content.
-	NB only files linked via toctree are walked
+        """
+        Recursive conversion of a tree of bash function usage strings
+        into a tree of Sphinx rst documentation files. Where the linkage
+        is defined by toctree directives within the usage content.
+        NB only files linked via toctree are walked
 
-	:param path: to bash file eg ``env.bash``
-	"""
-	parent = cls(path)
-	parent.write_rst()
-	log.debug("paths %s " % (repr(parent)) )
+        :param path: to bash file eg ``env.bash``
+        """
+        parent = cls(path)
+        parent.write_rst()
+        log.debug("paths %s " % (repr(parent)) )
         for child in parent:
-	    a = os.path.join( parent.rdir, child )	
-	    log.debug("child %s a %s " % (child, a) )
+            a = os.path.join( parent.rdir, child )	
+            log.debug("child %s a %s " % (child, a) )
 
             parts = a.split("/")
-	    if len(parts) > 1:
-		if parts[-1] == "index":
-	             parts[-1] = parts[-2]		
-	    aa = "/".join(parts)	    
+            if len(parts) > 1:
+                if parts[-1] == "index":
+                    parts[-1] = parts[-2]
+            aa = "/".join(parts)
 
-            cls.Walk( aa + ".bash" )		
+            cls.Walk( aa + ".bash" )
     Walk = classmethod(Walk)
 
 

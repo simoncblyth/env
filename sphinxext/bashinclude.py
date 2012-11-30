@@ -11,21 +11,12 @@ class BashInclude(BaseInclude):
     usage message string from a collection of bash functions  
     """
     def run(self):
-       	env = self.state.document.settings.env
-	rel_filename, filename = env.relfn2path(self.arguments[0])
+        env = self.state.document.settings.env
+        rel_filename, filename = env.relfn2path(self.arguments[0])
         b = Bash(filename)
         gpath = b.write_rst()
-	self.arguments[0] = gpath
-	return BaseInclude.run(self)
-
-
-
-
-
-
-
+        self.arguments[0] = gpath
+        return BaseInclude.run(self)
 
 def setup(app):
     app.add_directive('bashinclude', BashInclude)
-
-

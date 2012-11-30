@@ -39,3 +39,12 @@ stockchart
 .. stockchart:: /data/scm_backup_monitor_C.json container_C
 
 
+bashinclude
+------------
+
+Directive to extract the RST from a standard bash usage function.  Did not pursue this approach, instead using 
+`bash2rst.py` script  to extract RST from bash usage messages and walk toctrees that are embedded therein.  This 
+way the migration to RST documentation for bash functions can be done piecemeal as it is useful to so so.
+
+
+
