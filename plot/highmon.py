@@ -42,17 +42,19 @@ class Anno(dict):
      """
      URL keyed dict-of-lists of notes : allowing notes presentation per-URL
      """
-     def __init__(self, urls):
+     def __init__(self, urls, type="Violations" ):
          dict.__init__(self)
          self.urls = urls
+         self.type = type
          for url in urls:
              self[url] = []
      def __repr__(self):
           ret = []
           for url in self.urls:
-              if len(self[url]) == 0:continue
+              nvi = len(self[url]) 
+              if nvi == 0:continue
               ret.append("")
-              ret.append(url)
+              ret.append(url + " %s:%s" % (self.type, nvi) )
               ret.append("")
               ret.append( "\n".join( map(repr,self[url]) ))
           return "\n".join(ret)
@@ -128,8 +130,8 @@ class HighMon(object):
         urls = list(cnf.urls)
         self.urls = urls
         self.email = cnf.email
-        self.notes = Anno(urls)
-        self.violations = Anno(urls)
+        self.notes = Anno(urls, "notes")
+        self.violations = Anno(urls, "violations")
         today = datetime.utcnow().strftime("%a") 
         self.reminder = cnf.reminder if today == cnf.reminder else ""
         self.mm = self.introspect_monitor_methods()
