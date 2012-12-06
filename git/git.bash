@@ -3,14 +3,22 @@ git-src(){      echo git/git.bash ; }
 git-source(){   echo ${BASH_SOURCE:-$(env-home)/$(git-src)} ; }
 git-vi(){       vi $(git-source) ; }
 git-env(){      elocal- ; }
-git-usage(){
-  cat << EOU
-     git-src : $(git-src)
-     git-dir : $(git-dir)
+git-usage(){ cat << EOU
 
-     http://gitref.org/remotes/#fetch
+Git
+====
 
-     http://book.git-scm.com/book.pdf 
+Reference
+------------
+
+* http://gitref.org/remotes/#fetch
+* http://book.git-scm.com/book.pdf 
+
+Updating from remote branch
+----------------------------
+
+  git pull origin master    # 
+
 
 
 

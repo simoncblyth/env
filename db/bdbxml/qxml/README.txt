@@ -245,6 +245,23 @@ it seemed to transfer OK but created invisible docs from the point of view of qx
     echo 'for $a in collection("sys") return $a/dbxml:metadata("exist:name")' | qxml -
 
 
+environment
+------------
+
+::
+
+    simon:dayabay blyth$ dbxml -h /tmp/dbxml
+    -bash: dbxml: command not found
+    simon:dayabay blyth$ db-
+    simon:dayabay blyth$ bdbxml-
+    simon:dayabay blyth$ dbxml -h /tmp/dbxml
+    Joined existing environment
+
+    dbxml> 
+
+Examples
+---------
+
 Checking with dbxml shell (**have observed inconsistencies when not using the same envdir as qxml**)::
 
    dbxml -h /tmp/dbxml
@@ -267,6 +284,39 @@ Checking with dbxml shell (**have observed inconsistencies when not using the sa
 	    <rez:header mode="pro" time="2012-04-08T00:36:44.088+0800" stamp="1333816604088" stamp_hash="ixml:content-hash:lhcb_winter2011_BcX.xml/db/hfagc/lhcb/yasmine/lhcb_winter2011_BcX.xmlyasminelhcb2012-04-08T00:21:26.978+08:001.0-dev/data/heprez/install/exist/eXist-snapshot-20051026/unpack/4" stamp_id="2" stamp_source="/db/hfagc/lhcb/yasmine/lhcb_winter2011_BcX.xml">
 		<rez:origin>
                 ...
+
+
+Hmm, hfagc system container empty
+----------------------------------- 
+
+::
+
+    simon:dayabay blyth$ dbxml -h /tmp/dbxml
+    Joined existing environment
+
+    dbxml>  openContainer /tmp/hfagc/hfagc_system.dbxml
+
+    dbxml> query 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+    0 objects returned for eager expression 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+
+    dbxml> print
+
+    dbxml> openContainer /tmp/hfagc/hfagc.dbxml
+
+    dbxml>  query 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+    256 objects returned for eager expression 'for $a in collection() return $a/dbxml:metadata("dbxml:name")'
+
+    dbxml> print
+    /babar/cecilia/b0d0kpi.xml
+    /babar/cecilia/b0dsa02.xml
+    /babar/cecilia/b0dspi.xml
+    /babar/cecilia/b0dsstardstar.xml
+    ...
+
+
+
+
+
 
 
 
