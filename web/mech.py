@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 """
+
+   ./mech.py shiftcheck -n 6                
+   ./mech.py shiftcheck -n 1000
+
 Status
 -------
 
@@ -10,6 +14,7 @@ Status
 from __future__ import with_statement
 import mechanize, logging, os, re
 from ConfigParser import ConfigParser 
+from optparse import OptionParser
 from pprint import pformat
 from urlparse import urlparse
 from lxml import etree
@@ -21,10 +26,12 @@ from shiftcheck import Visitor
 
 log = logging.getLogger(__name__)
 
-def cnf_(path, siteconf):
+def cnf_(path, site):
     cpr=ConfigParser()
     cpr.read(os.path.expanduser(path))
-    return dict(cpr.items(siteconf))
+    d = dict(cpr.items(site))
+    d['site'] = site
+    return d
 
 def parse_( content ):
     return etree.parse( StringIO(content), etree.HTMLParser() ).getroot()
@@ -35,13 +42,13 @@ class Browser(object):
     Expanding mechanize access to new sites typically requires
     ipython interactive sessions to determine how to gain automatic access.
 
-
     https://views.scraperwiki.com/run/python_mechanize_cheat_sheet/?
     """
     def __init__(self, cnf ):
+        """
+        #. circumvent robots.txt restriction by pretending to be a browser
+        """
         br  = mechanize.Browser()
-
-        # circumvent robots.txt restriction by pretending to be a browser
         br.set_handle_robots(False)
         br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
         #br.addheaders = [('X_REQUESTED_WITH','XMLHttpRequest')]
@@ -51,24 +58,21 @@ class Browser(object):
         self.cnf = cnf 
         self.br = br
         self.links = []
-        self.tree = None
-
-        if cnf.get('visitor',None):
-            path = os.path.expandvars(cnf['visitor'])
-            visitor = Visitor(path=path,aprefix=cnf['visitor_aprefix'])
-        else:     
-            visitor = None
-        self.visitor = visitor    
 
     def _basic(self, br, cnf):
+        """
+        BASIC http authentication
+        """
         if cnf['basic_url']:
-            log.info('basic hookup')
+            log.debug('basic hookup')
             br.add_password(cnf['basic_url'], cnf['basic_user'], cnf['basic_pass'] )
         else:    
-            log.warn("basic_url not configured, skip basic hookup")
+            log.debug("basic_url not configured, skip basic hookup")
 
     def _form(self, br, cnf):
         """
+        FORM http authentication
+
         Note that sometimes forms are present despite not being displayed in 
         ordinary browsers::
 
@@ -88,46 +92,28 @@ class Browser(object):
         br.open(cnf['form_url'])
         br.select_form(nr=int(cnf['form_nr']))
         f = br.form
-        #print f
         f[cnf['form_userkey']] = cnf['form_user']
         f[cnf['form_passkey']] = cnf['form_pass']
         br.submit()
         html = br.response().read()
-        #print html
 
+    def shiftcheck(self, tree, npull=1 ):
+        """
+        :param tree: lxml parsed root node of html page
+        :param limit: restrict PNGs to be retrieved
+        """
+        visitor = Visitor(tree,aprefix=self.cnf['visitor_aprefix'])
+        stat = visitor.retrieve( self, npull=npull )
+        log.info("STAT\n%s\n" % pformat(stat))
 
-    def shiftcheck(self):
-        assert self.visitor
-        takes = []
-        skips = dict(take_ptn=[],skip_ptn=[],preexist=[],ext=[],start=[],httperror=[])
-        for n,item in enumerate(self.visitor):
-            #if n>1:continue
-            print "%-4s %-60s %s " % ( n, item.name, item['href'][0:100])
-            name = "%s.png" % item.name
-            url = item['href']
-            try:
-                log.info("retrieve %s %s " % ( name, url ))
+    def retrieve(self, url, filename ):
+        try:
+            ret = self.br.retrieve( url, filename=filename )
+        except mechanize.HTTPError:
+            log.debug("retrieve error for %s %s " % ( filename, url))
+            ret = None
+        return ret    
 
-                tree = self.open_(url, parse=True)
-                imgs = tree.xpath('.//img')
-                assert len(imgs) == 3, imgs
-                #for img in imgs:
-                #    print tostring(img)
-                src = imgs[-1].attrib['src']
-                usrc = "http://dcs2.dyb.ihep.ac.cn/%s" % src
-                print usrc
-
-                r = self.br.retrieve( usrc, filename=name )
-                takes.append(name)
-            except mechanize.HTTPError:
-                log.debug("retrieve error for %s %s " % ( name, url))
-                skips['httperror'].append(name)
-        self.skips = skips
-        self.takes = takes
-        log.info("SKIPS\n%s\n" % pformat(skips))
-        log.info("TAKES\n%s\n" % pformat(takes))
-
- 
     def links_(self, skip_ptn="^NOTHING" , take_ptn=".*", exts=[] , start=None ):
         """
 
@@ -147,8 +133,6 @@ class Browser(object):
         Out[9]: 'DayaBayAD1_Flasher_2inchPMT.png'
 
         """ 
-
-
         takes = []
         skips = dict(take_ptn=[],skip_ptn=[],preexist=[],ext=[],start=[],httperror=[])
         skip = re.compile(skip_ptn) if skip_ptn else None 
@@ -195,35 +179,27 @@ class Browser(object):
         log.info("TAKES\n%s\n" % pformat(takes))
 
     def open_(self, url, parse=False):
-        log.info("opening %s " % url )
+        log.debug("opening %s " % url )
         self.br.open(url)
         if parse:
             html = self.br.response().read()
             tree = parse_( html )
         else:
             tree = None
-        self.tree = tree
         return tree
 
+    def chdir_(self, target):
+        """
+        Create output directory corresponding to a target URL and change directory to it
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    #site = 'dybsvn_trac'
-    site = 'shiftcheck'
-    #site = 'dqtests'
-    os.environ.setdefault('SITECONF',site)
-    siteconf = os.environ['SITECONF']
-    cnf =  cnf_("~/.env.cnf", siteconf )
-    print pformat(cnf)
-    br = Browser( cnf )
-
-    targets = cnf.get('targets',"").split()
-    for target in targets:
+        :param target: URL 
+        """
+        tmpd = self.cnf['tmpd']
         urlt = urlparse(target)
         host = urlt.hostname
         path = urlt.path
         assert path.startswith('/') and len(path)>10, "invalid path extracted from url %s %s " % ( path, urlt )
-        outd = "/tmp/env/web/%s%s" % (host, path) 
+        outd = "%s/%s%s" % (tmpd,host, path) 
         if not os.path.isdir(outd):
             log.info("creating output dir %s " % outd )
             os.makedirs(outd)
@@ -231,15 +207,35 @@ if __name__ == '__main__':
             log.info("retreiving into pre-existing dir %s " % outd ) 
         pass    
         os.chdir(outd)    
-        br.open_(target, parse=True)
+        return outd
 
-        if siteconf == 'shiftcheck':
-            br.shiftcheck()
+
+
+def args_(doc):
+    parser = OptionParser(doc)
+    parser.add_option("-l", "--level", help="loglevel", default="INFO" )
+    parser.add_option("-n", "--npull", type=int, help="restrict retreival to first n links", default=10 )
+    (options, args) = parser.parse_args()
+    logging.basicConfig(level=getattr(logging,options.level.upper()))
+    return options, args
+
+
+
+if __name__ == '__main__':
+    cnfpath = "~/.env.cnf"
+    opts, args = args_(__doc__)
+    assert len(args) == 1, "must supply siteconf section name present in %s " % cnfpath
+    site = args[0]
+    cnf =  cnf_(cnfpath, site )
+    log.debug("opts %s cnf %s " % ( opts, cnf ))
+    br = Browser( cnf )
+    for target in cnf.get('targets',"").split():
+        br.chdir_(target)
+        tree = br.open_(target, parse=True)
+        if site == 'shiftcheck':
+            br.shiftcheck(tree, npull=opts.npull)
         else:    
             br.links_(skip_ptn=cnf.get('skip_ptn',None), take_ptn=cnf.get('take_ptn',None), exts=cnf.get('exts',"").split() )
-
-
-
 
 
 
