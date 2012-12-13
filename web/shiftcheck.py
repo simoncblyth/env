@@ -5,7 +5,46 @@ Usage::
    ./shiftcheck.py
 
 Parses the ShiftCheck html, extracting and naming all links corresponsing to DCS monitoring pages
+
+
+Indice mismatch between the PNG and the html, PNG indices::
+
+        '200_DBNS_DBNS_pool___product_water_resistivity.png',
+        '201_LANS_LANS_pool___product_water_resistivity.png',
+        '202_FARS_FARS_pool___product_water_resistivity.png',
+        '203_DBNS_DBNS_inflow___outflow_water_oxygen.png',
+        '204_LANS_LANS_inflow___outflow_water_oxygen.png',
+        '205_FARS_FARS_inflow___outflow_water_oxygen.png',
+        '206_Hall_4_outflow_water_pressure.png',
+        '207_Hall_4_EDI_water_resistivity.png',
+        '208_Hall_4_EDI_water_oxygen.png',
+        '209_Hall_4_reverse_osmosis_water__PH_conductivity_level_low.png',
+
+And these are the annotated HTML indices::
+
+Hall 4: 
+    [200] outflow water pressure 
+    [201] EDI water resistivity 
+    [202] EDI water oxygen 
+    [203] reverse osmosis water: PH, conductivity, level low 
+
+EH1/EH2/EH3 (DBNS/LANS/FARS) product resistivity should be above ~(14/16/13).
+
+    [204] DBNS pool & product water resistivity 
+    [205] LANS pool & product water resistivity 
+    [206] FARS pool & product water resistivity 
+
+DBNS/LANS/FARS inflow and outflow water oxygen
+
+    [207] DBNS inflow & outflow water oxygen 
+    [208] LANS inflow & outflow water oxygen 
+    [209] FARS inflow & outflow water oxygen 
+
+
+
+
 """
+from __future__ import with_statement
 import logging
 from lxml import etree
 from lxml.etree import tostring
@@ -50,12 +89,15 @@ class Item(dict):
 
 
 class Visitor(list):
-    def __init__(self, tree, aprefix=None):
+    def __init__(self, tree, aprefix=None,annotate=False):
         """
         :param tree:  lxml root node of tree to walk 
         :param aprefix:
+        :param annotate:
         """
+        self.tree = tree
         self.aprefix = aprefix
+        self.annotate = annotate
         self.ctx = None
         self.walk_(tree)
         self.de_dupe()
@@ -94,8 +136,11 @@ class Visitor(list):
                 uctx = self.ctx
                 if not uctx: 
                     uctx = self._ctx_from_link_label(text) 
-                item = Item(ctx=uctx,text=text,href=href)
+                index = len(self)+1    
+                item = Item(index=index,ctx=uctx,text=text,href=href)
                 self.append(item)
+                if self.annotate:
+                    node.text = "[%0.3d] %s" % ( index, node.text )
         else:
             pass
 
@@ -128,17 +173,17 @@ class Visitor(list):
         :param limit:  restrict the number of items to retreive, set to low value for testing
         """
         stat = dict(ok=[],httperror=[])
-        for n,item in enumerate(self):
-            if n>=npull:continue
-            log.info("%0.3d %-60s %s " % ( n+1, item.name, item['href'][0:100]))
-            name = "%0.3d_%s.png" % (n+1,item.name)
+        for item in self:
+            if item['index']>=npull:continue
+            log.info("%0.3d %-60s %s " % ( item['index'], item.name, item['href'][0:100]))
+            name = "%0.3d_%s.png" % (item['index'],item.name)
             url = item['href']
             log.debug("retrieve %s %s " % ( name, url ))
-            tree = br.open_(url, parse=True)
-            imgs = tree.xpath('.//img')
+            subtree = br.open_(url, parse=True)
+            imgs = subtree.xpath('.//img')
             assert len(imgs) == 3, imgs
             src = imgs[-1].attrib['src']
-            usrc = "http://dcs2.dyb.ihep.ac.cn/%s" % src
+            usrc = "http://dcs2.dyb.ihep.ac.cn/%s" % src   # not nice, need better way to convert a relative to absolute URL
             r = br.retrieve( usrc, filename=name )
             if not r:
                 stat['httperror'].append(name)
@@ -148,15 +193,22 @@ class Visitor(list):
         return stat
 
 
+    def write_annotated(self, path):
+        if self.annotate:
+            log.info("writing annotated tree to %s " % path )
+            with open(path,"w") as fp:
+                fp.write(tostring(self.tree))
+
+
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    tree = parse_(path="ShiftCheck.html")
-    #print tostring(tree)
-    v = Visitor(tree,aprefix='http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php')
-    for n,item in enumerate(v):
-        print "%-4s %-60s %s " % ( n, item.name, item['href'][0:100])
+    logging.basicConfig(level=logging.DEBUG)
+    name="ShiftCheck.html"
+    tree = parse_(path=name)
+    v = Visitor(tree,aprefix='http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php',annotate=True)
+    for item in v:
+        print "%0.3d %-60s %s " % ( item['index'], item.name, item['href'][0:100])
     print "items %s " % len(v)
-
+    v.write_annotated("annotated_%s" % name )
 
 

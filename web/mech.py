@@ -1,13 +1,24 @@
 #!/usr/bin/env python
 """
 
-   ./mech.py shiftcheck -n 6                
-   ./mech.py shiftcheck -n 1000
+   ./mech.py shiftcheck -n 6          # for the hourly check       
+   ./mech.py shiftcheck -n 1000       # for the 4-hour check
+
+
+   ./mech.py dqtests -n 10            
+
+   ./mech.py dybsvn_trac              # needs shakedown
 
 Status
 -------
 
 #. succeeds to mechanically login to dybsvn Trac, for automated response time measurements
+
+
+Ideas
+------
+
+#. metadata-ize the retreived to indicate where they came from ?
 
 
 """
@@ -123,9 +134,6 @@ class Browser(object):
         In [6]: l.base_url
         Out[6]: 'http://neutrino2.physics.sjtu.edu.cn/DQTests/figures_last_8_hours/webpage.EH1.html'
 
-        In [7]: l.tag
-        Out[7]: 'a'
-
         In [8]: l.text
         Out[8]: 'AD1 2inchPMT Flashing Rate'
 
@@ -167,7 +175,7 @@ class Browser(object):
                 continue
             try:
                 log.info("retrieve %s %s " % ( name, url ))
-                #r = self.br.retrieve( url, filename=name )
+                r = self.br.retrieve( url, filename=name )
                 takes.append(name)
                 self.links.append(link)
             except mechanize.HTTPError:
@@ -220,7 +228,6 @@ def args_(doc):
     return options, args
 
 
-
 if __name__ == '__main__':
     cnfpath = "~/.env.cnf"
     opts, args = args_(__doc__)
@@ -236,6 +243,7 @@ if __name__ == '__main__':
             br.shiftcheck(tree, npull=opts.npull)
         else:    
             br.links_(skip_ptn=cnf.get('skip_ptn',None), take_ptn=cnf.get('take_ptn',None), exts=cnf.get('exts',"").split() )
+
 
 
 
