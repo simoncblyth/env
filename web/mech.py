@@ -47,6 +47,10 @@ def cnf_(path, site):
 def parse_( content ):
     return etree.parse( StringIO(content), etree.HTMLParser() ).getroot()
 
+def serialize_(tree, path):
+    with open(path,"w") as fp:
+         fp.write(tostring(tree))
+
 
 class Browser(object):
     """
@@ -108,14 +112,15 @@ class Browser(object):
         br.submit()
         html = br.response().read()
 
-    def shiftcheck(self, tree, npull=1 ):
+    def shiftcheck(self, tree, pull=range(1) ):
         """
         :param tree: lxml parsed root node of html page
-        :param limit: restrict PNGs to be retrieved
+        :param pull: list of indices to pull
         """
-        visitor = Visitor(tree,aprefix=self.cnf['visitor_aprefix'])
-        stat = visitor.retrieve( self, npull=npull )
-        log.info("STAT\n%s\n" % pformat(stat))
+        v = Visitor(tree,aprefix=self.cnf['visitor_aprefix'],pull=pull )
+        v.retrieve_( self )
+        log.info("STAT\n%s\n" % pformat(v.stat))
+        v.write_tree("annotated.html")
 
     def retrieve(self, url, filename ):
         try:
@@ -189,11 +194,9 @@ class Browser(object):
     def open_(self, url, parse=False):
         log.debug("opening %s " % url )
         self.br.open(url)
-        if parse:
-            html = self.br.response().read()
-            tree = parse_( html )
-        else:
-            tree = None
+        if not parse:return None
+        html = self.br.response().read()
+        tree = parse_( html )
         return tree
 
     def chdir_(self, target):
@@ -236,11 +239,14 @@ if __name__ == '__main__':
     cnf =  cnf_(cnfpath, site )
     log.debug("opts %s cnf %s " % ( opts, cnf ))
     br = Browser( cnf )
-    for target in cnf.get('targets',"").split():
+
+    targets = cnf.get('targets',"").split()
+
+    for target in targets:
         br.chdir_(target)
         tree = br.open_(target, parse=True)
         if site == 'shiftcheck':
-            br.shiftcheck(tree, npull=opts.npull)
+            br.shiftcheck(tree, pull=range(1,opts.npull+1) )   # link indices count from 1, for better human interface
         else:    
             br.links_(skip_ptn=cnf.get('skip_ptn',None), take_ptn=cnf.get('take_ptn',None), exts=cnf.get('exts',"").split() )
 
