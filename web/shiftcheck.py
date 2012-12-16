@@ -6,7 +6,6 @@ Usage::
 
 Parses the ShiftCheck html, extracting and naming all links corresponsing to DCS monitoring pages
 
-
 """
 from __future__ import with_statement
 import os, logging
@@ -53,7 +52,6 @@ class Visitor(dict):
 
         self.aprefix = aprefix
         self.pull = pull
-        self.stat = dict(ok=[],error=[])
 
         self.ctx = None
         self.count = 0
@@ -75,6 +73,7 @@ class Visitor(dict):
         Some links suffer from not being within an ordinary li and colon context,
         determine a context for these based on the text of the link
         """
+        uctx = ""
         if text[0:4] in ("DBNS","LANS","FARS"):
             uctx = text[0:4]
         if text[0:3] in ("EH1","EH2","EH3"):
@@ -123,16 +122,12 @@ class Visitor(dict):
         url = node.attrib['href']
         name = sanitize("%(index)0.3d_%(ctx)s_%(text)s.png" % metadata) 
 
-        if index in self.pull:
-            ret = self.imgsrc_retrieve( br, url, name, nimg=-1)
-            if not ret:
-                mark = "E"
-                self.stat['error'].append(index)
-            else:
-                mark = "."
-                self.stat['ok'].append(index)
-        else:        
-            mark = " "
+        if index not in self.pull:
+            return
+
+        ret = self.imgsrc_retrieve( br, url, name, nimg=-1)
+        mark = "." if ret else "E"
+        self[index] = mark 
 
         log.info("%s %-60s  %s ..." % (mark, name, url[0:100] ))
         node.text = "[%(index)0.3d] %(text)s" % metadata  # caution tree diddling, providing the link index in labels 
@@ -198,7 +193,6 @@ if __name__ == '__main__':
     br = None
     v.retrieve_(br)
     v.write_tree("annotated_%s" % name )
-
-    print pformat(v.stat) 
+    print v 
 
 
