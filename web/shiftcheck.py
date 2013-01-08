@@ -1,10 +1,68 @@
 #!/usr/bin/env python
 """
-Usage::
+Mechanized Shiftcheck
+=======================
 
-   ./shiftcheck.py
+::
 
-Parses the ShiftCheck html, extracting and naming all links corresponsing to DCS monitoring pages
+   ./shiftcheck.py -n 6          # for the hourly check       
+   ./shiftcheck.py -n 1000       # for the 4-hour check
+
+   ./shiftcheck.py -n 6 -o /tmp/1hr    # convenient to write 1hr PNGs in separate folder
+
+   open /tmp/1hr          # coverflow in Finder is sufficient for 6 PNGs
+
+   open file:///tmp/env/web/dayawane.ihep.ac.cn/twiki/bin/view/Internal/ShiftCheck/annotated.html    
+
+        # make sure to refer to the annotated page corresponding to the shiftcheck run to avoid confusion
+        # arising from twiki updates 
+
+1hr Check
+----------
+
+::
+
+    simon:web blyth$ ./shiftcheck.py -n 6 -o /tmp/1hr
+    INFO:__main__:retreiving into pre-existing dir /tmp/1hr 
+    INFO:shiftcheck:. 001_EH1__Temperature.png                                      http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=DBNS_PTH_T1&ParaNames%5B%5D=DBNS_PTH_T2 ...
+    INFO:shiftcheck:. 002_EH1__Humidity.png                                         http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=DBNS_PTH_H1&ParaNames%5B%5D=DBNS_PTH_H2 ...
+    INFO:shiftcheck:. 003_EH2__Temperature.png                                      http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=LANS_PTH_T1&ParaNames%5B%5D=LANS_PTH_T2 ...
+    INFO:shiftcheck:. 004_EH2__Humidity.png                                         http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=LANS_PTH_H1&ParaNames%5B%5D=LANS_PTH_H2 ...
+    INFO:shiftcheck:. 005_EH3__Temperature.png                                      http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FARS_PTH_T1&ParaNames%5B%5D=FARS_PTH_T2 ...
+    INFO:shiftcheck:. 006_EH3__Humidity.png                                         http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FARS_PTH_H1&ParaNames%5B%5D=FARS_PTH_H2 ...
+    INFO:__main__:STAT
+    {1: '.', 2: '.', 3: '.', 4: '.', 5: '.', 6: '.'}
+
+    INFO:__main__:wrote annotated target page to /private/tmp/1hr/annotated.html 
+    simon:web blyth$ open /private/tmp/1hr/annotated.html                               # ShiftCheck with links indexed corresponding to above PNG name
+
+
+4hr Check
+-----------
+
+::
+
+    simon:web blyth$ time ./shiftcheck.py -n 1000 -o /tmp/4hr
+    INFO:__main__:creating output dir /tmp/4hr 
+    INFO:shiftcheck:. 001_EH1__Temperature.png                                      http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=DBNS_PTH_T1&ParaNames%5B%5D=DBNS_PTH_T2 ...
+    INFO:shiftcheck:. 002_EH1__Humidity.png                                         http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=DBNS_PTH_H1&ParaNames%5B%5D=DBNS_PTH_H2 ...
+    INFO:shiftcheck:. 003_EH2__Temperature.png                                      http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=LANS_PTH_T1&ParaNames%5B%5D=LANS_PTH_T2 ...
+    INFO:shiftcheck:. 004_EH2__Humidity.png                                         http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=LANS_PTH_H1&ParaNames%5B%5D=LANS_PTH_H2 ...
+    ...
+    INFO:shiftcheck:. 238_EH3__Weights.png                                          http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=weight_isobutane&ParaNames%5B%5D=weight ...
+    INFO:shiftcheck:. 239_EH3__Pressures.png                                        http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=pressure_argon&ParaNames%5B%5D=pressure ...
+    INFO:shiftcheck:. 240_EH1_EH1_RPC_VME_Temperature.png                           http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FanTemperature&ParaNames%5B%5D=Temperat ...
+    INFO:shiftcheck:. 241_EH2_EH2_RPC_VME_Temperature.png                           http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FanTemperature&ParaNames%5B%5D=Temperat ...
+    INFO:shiftcheck:. 242_EH3_EH3_RPC_VME_Temperature.png                           http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FanTemperature&TimeSpan=1440&Interval=1 ...
+    INFO:shiftcheck:. 243_SAB_Temperature___Last_30_Minutes.png                     http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=DBNS_SAB_Temp_PT1&ParaNames%5B%5D=DBNS_ ...
+    INFO:shiftcheck:. 244_VME_Crate_Temperature___Last_30_Minutes.png               http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php?ParaNames%5B%5D=FanTemperature&ParaNames%5B%5D=Temperat ...
+    INFO:__main__:wrote annotated target page to /private/tmp/4hr/annotated.html 
+
+    real    2m1.255s
+    user    0m5.214s
+    sys     0m1.989s
+
+
 
 """
 from __future__ import with_statement
@@ -186,13 +244,22 @@ class Visitor(dict):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    name="ShiftCheck.html"
-    tree = parse_(path=name)
-    v = Visitor(tree,aprefix='http://dcs2.dyb.ihep.ac.cn/RealtimeChart.php')
-    br = None
-    v.retrieve_(br)
-    v.write_tree("annotated_%s" % name )
-    print v 
 
+    from cnf import cnf_
+    from autobrowser import AutoBrowser
+    cnf = cnf_(__doc__)
+
+    br = AutoBrowser(cnf)
+    targets = cnf.get('targets',"").split()
+    for target in targets:
+        outd = br.chdir_(target)
+        tree = br.open_(target, parse=True)
+
+        pull=range(1,cnf.npull+1)  
+        v = Visitor(tree,aprefix=cnf['visitor_aprefix'],pull=pull )
+        v.retrieve_( br )
+        log.info("STAT\n%s\n" % pformat(v))
+        path = os.path.abspath("annotated.html")
+        v.write_tree(path)
+        log.info("wrote annotated target page to %s " % path )
 
