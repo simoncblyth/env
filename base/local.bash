@@ -355,7 +355,7 @@ local-backup-tag(){
  #C2|C2R) echo C ;;
       P) echo H1 C H N C2 ;;
      XX) echo ZZ SDU ;;
-     ZZ) echo XX SDU ;;
+     ZZ) echo SDU ;;
      WW) echo SDU ;;
      AA) echo D8R  ;;
      *) echo U ;;
