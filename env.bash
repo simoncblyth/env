@@ -1088,3 +1088,4 @@ tracwiki2sphinx-(){ . $(env-home)/trac/package/hide/tracwiki2sphinx.bash    && t
 
 twiki-(){      . $(env-home)/twiki/twiki.bash && twiki-env $* ; }
 ttocplugin-(){      . $(env-home)/twiki/ttocplugin.bash && ttocplugin-env $* ; }
+mysqludfsys-(){     . $(env-home)/db/mysqludfsys.bash && mysqludfsys-env $* ; }

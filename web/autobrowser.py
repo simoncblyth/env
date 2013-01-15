@@ -20,13 +20,16 @@ def serialize_(tree, path):
 
 class AutoBrowser(object):
     """
-    Expanding mechanize access to new sites typically requires
-    ipython interactive sessions to determine how to gain automatic access.
-
-    https://views.scraperwiki.com/run/python_mechanize_cheat_sheet/?
+    Automated and authenticated browser, with html parsing 
     """
     def __init__(self, cnf, useragent='Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'):
         """
+        :param cnf:
+        :param useragent:
+
+        Instanciation creates mechanize Browser and authenticates
+        using form and/or basic methods. 
+
         #. circumvent robots.txt restriction by pretending to be a browser
         """
         br  = mechanize.Browser()
@@ -42,6 +45,10 @@ class AutoBrowser(object):
     def _basic(self, br, cnf):
         """
         BASIC http authentication
+
+        :param br: mechanize browser instance
+        :param cnf: Cnf instance
+
         """
         if cnf['basic_url']:
             log.debug('basic hookup')
@@ -58,6 +65,10 @@ class AutoBrowser(object):
 
         The advantage in using mechanize over lower level approaches is that it 
         handles the form tokens. 
+
+        :param br: mechanize browser instance
+        :param cnf: Cnf instance
+
         """
         if not cnf.get('form_url',None):return
         br.open(cnf['form_url'])
@@ -100,6 +111,7 @@ class AutoBrowser(object):
         Create output directory corresponding to a target URL and change directory to it
 
         :param target: URL 
+        :return: output directory 
         """
         outd = self.outd_(target)
         if not os.path.isdir(outd):
@@ -113,6 +125,12 @@ class AutoBrowser(object):
 
 
     def retrieve(self, url, filename ):
+        """
+        Download from url, saving into the filename 
+
+        :param url:
+        :param filename:
+        """ 
         try:
             ret = self.br.retrieve( url, filename=filename )
         except mechanize.HTTPError:

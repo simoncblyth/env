@@ -62,8 +62,6 @@ Mechanized Shiftcheck
     user    0m5.214s
     sys     0m1.989s
 
-
-
 """
 from __future__ import with_statement
 import os, logging
@@ -73,20 +71,6 @@ from lxml.etree import tostring
 from urlparse import urlparse
 from StringIO import StringIO
 log = logging.getLogger(__name__)
-
-def parse_( content=None, path=None ):
-    """
-    Perform lxml etree HTML parse on html string or path to a file
-    and return etree root instance 
-
-    :param content: string html content
-    :param path: to html file
-    :return: lxml etree root instance
-    """
-    if not content:
-        content = open(path).read()
-    root = etree.parse( StringIO(content), etree.HTMLParser() ).getroot()
-    return root
 
 def sanitize(txt):
     """
@@ -107,19 +91,15 @@ class Visitor(dict):
         """
         dict.__init__(self)
         self.tree = tree
-
         self.aprefix = aprefix
         self.pull = pull
-
         self.ctx = None
         self.count = 0
         self._visit_walk_(tree)
 
-
     def _visit_walk_( self, node ):
         """
         Recursive walk visiting every node
-
         :param node:
         """
         self._visit_node( node )
@@ -130,6 +110,7 @@ class Visitor(dict):
         """
         Some links suffer from not being within an ordinary li and colon context,
         determine a context for these based on the text of the link
+
         """
         uctx = ""
         if text[0:4] in ("DBNS","LANS","FARS"):
@@ -147,6 +128,9 @@ class Visitor(dict):
         #. for `li` nodes with text containing ":" take the text as `ctx`
         #. for selected `a` nodes which have href starting with `self.aprefix` 
            add metadata annotation attributes to the tree
+
+        IDEA: could eliminate context extraction and just use the index, 
+        making the code much less fragile : at the expense of less meaningful filenames
 
         """
         text = node.text.lstrip() if node.text else None
@@ -171,6 +155,8 @@ class Visitor(dict):
 
     def retrieve_node_(self, br, node):
         """
+        :param br:
+        :param node:
         """
         metadata = self.get_metadata(node)
         if not metadata:
