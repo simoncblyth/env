@@ -50,7 +50,7 @@ class AutoBrowser(object):
         :param cnf: Cnf instance
 
         """
-        if cnf['basic_url']:
+        if cnf.get('basic_url',None):
             log.debug('basic hookup')
             br.add_password(cnf['basic_url'], cnf['basic_user'], cnf['basic_pass'] )
         else:    
@@ -70,8 +70,10 @@ class AutoBrowser(object):
         :param cnf: Cnf instance
 
         """
-        if not cnf.get('form_url',None):return
-        br.open(cnf['form_url'])
+        form_url = cnf.get('form_url',None)
+        if not form_url:return
+        log.debug("form authentication to %s " % form_url )
+        br.open(form_url)
         br.select_form(nr=int(cnf['form_nr']))
         f = br.form
         f[cnf['form_userkey']] = cnf['form_user']
@@ -85,12 +87,27 @@ class AutoBrowser(object):
         :param parse:
         :return: parsed tree of the html content returned from the url, or None if parse is False
         """
-        log.debug("opening %s " % url )
+        log.debug("open_ %s " % url )
         self.br.open(url)
         if not parse:return None
         html = self.br.response().read()
         tree = parse_( html )
         return tree
+
+
+    def xmlopen_(self, url, data=None ):
+        """
+        http://osdir.com/ml/python.wwwsearch.general/2007-10/msg00009.html
+
+        Try to tickle a form protected XMLRPC API ?
+        """
+        log.debug("xmlopen_ %s " % url )
+        #req = mechanize.Request(url, data, {"Content-type": "text/xml", "Foo": "bar"})
+        #self.br.open(req)
+
+        self.br.open(url)
+        xml = self.br.response().read()
+        print xml
 
     def outd_(self, target):
         """
