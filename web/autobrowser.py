@@ -86,13 +86,17 @@ class AutoBrowser(object):
         :param url:
         :param parse:
         :return: parsed tree of the html content returned from the url, or None if parse is False
+
+        .. warn: changed behavior, with parse False formerly returned None now return raw content 
+
         """
         log.debug("open_ %s " % url )
         self.br.open(url)
-        if not parse:return None
         html = self.br.response().read()
-        tree = parse_( html )
-        return tree
+        if parse:
+            tree = parse_( html )
+            return tree
+        return html    
 
     def outd_(self, target):
         """

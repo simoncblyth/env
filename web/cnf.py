@@ -3,7 +3,7 @@
 
 """
 import logging, os
-from ConfigParser import ConfigParser 
+from ConfigParser import RawConfigParser 
 from optparse import OptionParser
 log = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ def cnf_(doc):
     logging.basicConfig(level=getattr(logging,opts.level.upper()))
 
     #assert len(args) == 1, "must supply siteconf section name present in %s " % opts.cnfpath
-    cpr=ConfigParser()
+    cpr=RawConfigParser()
     site = args[0] if len(args)>0 else opts.site
     cpr.read(os.path.expanduser(opts.cnfpath))
     d = Cnf(cpr.items(site))

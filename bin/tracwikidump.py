@@ -37,6 +37,50 @@ This can be defined with::
    trac-  
    tracxmlrpc-  # uses the default TRAC_INSTANCE name for the node
 
+
+TODO
+~~~~~
+
+#. propagate metadata about wiki pages, maybe into a sidecar JSON file
+
+   #. tags
+   #. last modification time
+   #. last author 
+   #. drop the wikipage history of changes : not sufficiently useful to preserve
+
+       * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/WikiStart?action=history
+
+#. does the XMLRPC API provide access to this information ?
+
+   #. no access to tags 
+   #. getPageInfo provides a dict::
+
+    {'comment': '', 'lastModified': <DateTime '20100405T06:11:50' at 70ccb0>, 'version': 1, 'name': 'ArcDjimg', 'author': 'blyth'}
+
+   #. maybe do twostep of smuggling tags in the comment field 
+   #. OR directly via SQL query interface to trac
+
+       * http://localhost/tracs/workflow/report/12?format=csv&NAME=PageName&USER=blyth  works in browser, kicked to login from curl
+
+
+info via SQL reports
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://localhost/tracs/workflow/report/12?format=csv&USER=blyth
+
+   * need to defeat pagination, try 
+
+::
+
+   -- @LIMIT_OFFSET@
+
+* if cannot do so would need to grab tags for each page 
+
+
+
+
+
+
 Issues
 ~~~~~~~
 
@@ -105,6 +149,9 @@ def tracwikidump( url , dbgpages=[]):
            xmlrpclib.ExpatParser = DbgExpatParser
        else:
            xmlrpclib.ExpatParser = ExpatParser
+
+       info=server.wiki.getPageInfo(page)
+       print page, info
 
        path = "%s.txt" % page
        if os.path.exists(path):
