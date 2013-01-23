@@ -94,21 +94,6 @@ class AutoBrowser(object):
         tree = parse_( html )
         return tree
 
-
-    def xmlopen_(self, url, data=None ):
-        """
-        http://osdir.com/ml/python.wwwsearch.general/2007-10/msg00009.html
-
-        Try to tickle a form protected XMLRPC API ?
-        """
-        log.debug("xmlopen_ %s " % url )
-        #req = mechanize.Request(url, data, {"Content-type": "text/xml", "Foo": "bar"})
-        #self.br.open(req)
-
-        self.br.open(url)
-        xml = self.br.response().read()
-        print xml
-
     def outd_(self, target):
         """
         :param target: URL of page with the links to harvest from
