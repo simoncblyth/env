@@ -6,13 +6,10 @@ Invoking from outside SVN working copy results in an error.
 
 Usage examples:: 
 
-    svnlog.py -w 52 -a blyth     ## dump 52 weeks of commit messages for single author
-
-    svnlog.py --limit 1000000 -w 52 -a blyth > 2012.txt    ## up the limit to avoid truncation
-
-    svnlog.py --limit 1000000 -v debug -a blyth  
-    svnlog.py --limit 1000000 -v debug -a blyth > ~/2011.txt
-
+    cd ~/env
+    svnlog.py -w 52 -a blyth                                         ## dump 52 weeks of commit messages for single author
+    svnlog.py --limit 1000000 -w 52 -a blyth           > 2012.txt    ## up the limit to avoid truncation
+    svnlog.py --limit 1000000 -w 52 -a blyth --details > 2012d.txt
 
 The log returned corresponds to the root of the repository as 
 determined by ``svn info`` rather than the specific invoking directory.
@@ -32,7 +29,7 @@ DONE ?
    * fix over-enthusiastic caching, perhaps by including the **day** in the cache identity 
      as old ``svn info`` query gets stuck in craw resulting in outdated revision ranges being used
 
-   * investigate why many warnings::
+   * investigate why many warnings (suspect was due to empty commit messages from naughty authors)::
 
 	WARNING:__main__:getElementsByTagName unexpected lec [] author 
 	WARNING:__main__:getElementsByTagName unexpected lec [] author 

@@ -30,7 +30,7 @@ db-usage(){
           ... relies on sort order of the names 
 
      db-backup <dbname>
-           backup db using mysqldump
+           mysqldump creating <dbname>.sql.gz in db-backup-daydir
            the password/user/host defaults are obtained from
             /etc/my.cnf avoiding keeping config info in this script
 
@@ -293,7 +293,7 @@ db-recover(){
 
 #  ${DB_TIME} mysql --no-defaults --host=$host --user=$(private-val RECOVER_USER) --password=$(private-val RECOVER_PASSWORD) $1
 
-  ${DB_TIME}mysql --defaults-file=$cfg 
+  ${DB_TIME} mysql --defaults-file=$cfg 
 
   [ ${#cfg} -lt ${#HOME} -o ${#cfg} -lt 10 ] && echo $msg SANITY CHECK FAILURE FOR cfg $cfg && return 1
   [ -f "$cfg" ] && rm -f "$cfg"
@@ -357,7 +357,7 @@ db-backup-recover-sqz(){
   echo $msg recovering from sqz $sqz into DB $dbrecover 
 
   echo "create database if not exists $dbrecover ;" | db-recover 
-  gunzip -c $sqz                                  | DB_TIME=time db-recover $dbrecover
+  gunzip -c $sqz                                  | DB_TIME=time  db-recover $dbrecover
   
 
 }
