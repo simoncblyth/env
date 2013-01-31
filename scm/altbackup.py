@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 """
-Alt backup via scp to C
+Alternative Simple Backup using scp rather than rsync
+=======================================================
+
+Suspect more digest checks than needed are being done, trusting the 
+remote sidecar should reduce this a bit.
+
+TODO: target purge/retain last 5 or whatever to prevent filling disk 
+
 """
-import logging, os, subprocess, shlex
+import logging, os, subprocess, shlex, stat
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
 from datetime import datetime
+try: 
+    from hashlib import md5
+except ImportError: 
+    from md5 import md5
+
 
 def findpath(base, pathfilter=lambda _:True):
     for root, dirs, files in os.walk(base):
@@ -20,8 +32,8 @@ def find_todays_tarballs( source, wanted=[]):
     :param wanted: list of tarball names prefixes to return
     :return: list of tarball paths relative to source 
     """
-    log.info("looking for source tarballs beneath %s " % source )
     today = datetime.now().strftime("%Y/%m/%d")
+    log.info("looking for %s source tarballs beneath %s from %s " % (repr(wanted), source, today) )
     tgzs = []
     for path, name in findpath(source, lambda p:p[-7:] == '.tar.gz' and today in p):
         if not os.path.exists(path+'.dna'):
@@ -29,13 +41,12 @@ def find_todays_tarballs( source, wanted=[]):
             continue
         wnames = filter(lambda _:name.startswith(_), wanted )  # check if the name matches any of the wanted ones
         if len(wnames) == 0:
-            log.info("skip name %s " % name )
+            log.debug("skip name %s " % name )
             continue
-        pass
         spath = path[len(source)+1:]
         tgzs.append(spath)
+    log.info("found %s matching tarballs" % len(tgzs) )
     return tgzs 
-
 
 def do0(cmd):
     elem = shlex.split(cmd)
@@ -44,6 +55,15 @@ def do0(cmd):
     ret = p.stdout.read()
     rc = p.stdout.close()
     return rc, ret  
+
+def do(cmd, verbose=False):
+    p = os.popen(cmd,'r')
+    ret = p.read()
+    rc = p.close()
+    if verbose:
+        print "rc:%s ret:%s " % ( rc, ret )
+    return rc, ret
+
 
 def interpret_as_int(ret):
     ival=None
@@ -60,32 +80,31 @@ def interpret_as_md5sum(ret):
     if len(elem) == 2:
         dval = elem[0]
     else:
-        log.warn("failed to inerpret %s as md5sum " % ret )
+        log.debug("failed to inerpret %s as md5sum " % ret )
     return dval 
          
 
-
-def do(cmd, verbose=False):
-    p = os.popen(cmd,'r')
-    ret = p.read()
-    rc = p.close()
-    if verbose:
-        print "rc:%s ret:%s " % ( rc, ret )
-    return rc, ret
-
-def source_dna(path, checksize=False, checkdigest=False):
+def sidecar_dna(path):
     """
-    Reads the sidecar, hmm maybe should do the sum 
+    Reads the sidecar
     """
-    sdna = open(path+'.dna','r').read()  
+    sdna = open(path+'.dna','r').read().strip()  
+    assert sdna[0] == '{' and sdna[-1] == '}', "DNA has mutated %s     " % sdna
     dna = eval(sdna)
-    if checksize:
-        ssize = getsize(path)
-        dsize = dna['size']
-        assert ssize == dsize , ("size mismatch between a tarball DNA record and file system", ssize, dsize, path )
-        log.info(" %-50s %s %s " % (path, ssize, dsize )) 
     return dna
 
+def source_dna( path ):
+    hash = md5()
+    size = 64*128   # 8192
+    st = os.stat(path)
+    sz = st[stat.ST_SIZE]
+    f = open(path,'rb') 
+    for chunk in iter(lambda: f.read(size), ''): 
+        hash.update(chunk)
+    f.close()
+    dig = hash.hexdigest()
+    dna = dict(dig=dig,size=int(sz))
+    return dna
 
 def target_dna( tpath, targetnode="C" ):
     fmt = "%s"
@@ -129,10 +148,15 @@ if __name__ == '__main__':
     targetnode = "C"        
 
     for relpath in find_todays_tarballs(source, wanted=wanted.split()):
-        spath = join(source, relpath)
-        tpath = join(target, relpath)
 
-        sdna  = source_dna(spath, checksize=True, checkdigest=False )
+        # source 
+        spath = join(source, relpath)
+        xdna  = sidecar_dna(spath)
+        sdna  = source_dna(spath)
+        assert xdna == sdna , ("mismatch between sidecar and recomputed dna %s %s " % ( xdna, sdna ))
+
+        # target 
+        tpath = join(target, relpath)
         tdna  = target_dna(tpath, targetnode=targetnode )
 
         if tdna and tdna == sdna:
