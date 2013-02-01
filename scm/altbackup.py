@@ -6,7 +6,9 @@ Alternative Simple Backup using scp rather than rsync
 Suspect more digest checks than needed are being done, trusting the 
 remote sidecar should reduce this a bit.
 
-TODO: target purge/retain last 5 or whatever to prevent filling disk 
+
+TODO: prune empty old directories when purging 
+
 
 """
 import logging, os, subprocess, shlex, stat
@@ -48,7 +50,7 @@ def find_todays_tarballs( source, wanted=[]):
     log.info("found %s matching tarballs" % len(tgzs) )
     return tgzs 
 
-def do0(cmd):
+def do_not_working(cmd):
     elem = shlex.split(cmd)
     print elem
     p= subprocess.Popen(elem, shell=True, stdout=subprocess.PIPE )
@@ -56,12 +58,16 @@ def do0(cmd):
     rc = p.stdout.close()
     return rc, ret  
 
-def do(cmd, verbose=False):
+def do(cmd, verbose=False, stderr=True):
+    if not stderr:
+        cmd = cmd + " 2>/dev/null"
+    if verbose:
+        print cmd 
     p = os.popen(cmd,'r')
-    ret = p.read()
+    ret = p.read().strip()
     rc = p.close()
     if verbose:
-        print "rc:%s ret:%s " % ( rc, ret )
+        print "rc:%s len(ret):%s\n[%s]" % ( rc, len(ret), ret )
     return rc, ret
 
 
@@ -83,7 +89,10 @@ def interpret_as_md5sum(ret):
         log.debug("failed to inerpret %s as md5sum " % ret )
     return dval 
          
-
+def interpret_as_linelist(ret, delim="\n"):
+    elem = ret.strip().split(delim)
+    return elem
+ 
 def sidecar_dna(path):
     """
     Reads the sidecar
@@ -114,9 +123,7 @@ def target_dna( tpath, targetnode="C" ):
            ]
     tdna = {}
     for cmd in chks:
-        cmd = cmd % locals()
-        print cmd
-        rc, ret = do(cmd,verbose=True)
+        rc, ret = do(cmd % locals(),verbose=True)
         if 'stat --format' in cmd:
             tdna['size'] = interpret_as_int(ret)
         if 'md5sum' in cmd:
@@ -131,22 +138,17 @@ def transfer( spath, tpath , targetnode="C" , ext='' ):
               "time scp %(spath)s%(ext)s %(targetnode)s:%(tpath)s%(ext)s ", 
            ]
     for cmd in cmds:
-        cmd = cmd % locals()
-        print cmd
-        rc, ret = do(cmd,verbose=True)
+        rc, ret = do(cmd % locals(),verbose=True)
 
 
-if __name__ == '__main__':
-    
-    logging.basicConfig(level=logging.INFO)
 
-    #wanted = "dybsvn dybaux svnsetup"
-    #wanted = "svnsetup"
-    wanted = "dybsvn"
-    source = "/home/scm/backup/dayabay"
-    target = "/data/var/scm/alt.backup/dayabay"
-    targetnode = "C"        
-
+def altbackup( source, target, targetnode, wanted ):
+    """
+    :param source: base directory holding tarballs
+    :param target: base directory where tarballs are to be scp copied
+    :param targetnode: ssh config name eg C
+    :param wanted: list of tarball name prefixes
+    """
     for relpath in find_todays_tarballs(source, wanted=wanted.split()):
 
         # source 
@@ -172,5 +174,109 @@ if __name__ == '__main__':
             transfer( spath, tpath , targetnode=targetnode , ext='.dna')
         else:
             log.warn("dna mismatch %s %s " % (sdna, rdna))
-        
+
+
+def rmd_(cmd, targetnode):
+    rmd = "ssh %(targetnode)s \"" + cmd + "\"" if targetnode != "LOCAL" else cmd
+    return rmd
+
+def findfiles_( basefold, targetnode, ext ):
+    cmd = "find %(basefold)s -name '*" + ext + "' "    
+    rmd = rmd_(cmd, targetnode=targetnode)
+    rc, ret = do( rmd % locals(), verbose=False, stderr=True )
+    tgzs = interpret_as_linelist(ret, delim="\n")
+    return tgzs
+
+def subfolds_( basefold, targetnode ):
+    cmd = "ls -1d %(basefold)s/*" 
+    rmd = rmd_(cmd, targetnode=targetnode)
+    rc, ret = do(rmd % locals(),verbose=False, stderr=False)   
+    subfolds = interpret_as_linelist(ret, delim="\n")
+    return subfolds
+
+def rmfile_( subfold, path , targetnode, ext ):
+    assert path[-len(ext):] == ext and path[:len(subfold)] == subfold, "path sanity check fails for %s " % path
+    #cmd = "echo rm -f %(path)s"     
+    cmd = "rm -f %(path)s"     
+    if targetnode == 'LOCAL':
+        assert cmd[0:4] == "echo", "local testing must just echo" 
+    rmd = rmd_(cmd, targetnode=targetnode)
+    rc, ret = do( rmd % locals(), verbose=True, stderr=True )
+
+
+def altpurge_cat( catfold, targetnode, ext='.tar.gz', keep=3 ):
+    """
+    :param catfold:  category folder in which to look for tarballs eg tracs svn repos folders
+    :param targetnode:
+    :param keep: number of tarballs to keep of each variety
+
+     NB the file path of tarballs is assumed to be of the form that 
+     sorting the paths puts them into date order
+
+    """
+    if catfold[-6:] == 'LOCKED':
+         log.info("skipping %s " % catfold )
+         return
+
+    subfolds = subfolds_( catfold, targetnode=targetnode )
+    nsubfold = len(subfolds)
+
+    log.info("catfold %(catfold)s has %(nsubfold)s subfolders " % locals())
+    for subfold in subfolds:
+        paths = findfiles_( subfold, targetnode, ext )  
+        paths = sorted(paths, reverse=True)  # NB reverse date order, most recent first 
+        npath = len(paths)
+        log.info("    subfold %(subfold)s has %(npath)s paths with ext %(ext)s " % locals())
+        for i, path in enumerate(paths): 
+            mrk = "D" if i+1 > keep else ""
+            log.info("        %-5s %-3s %s " % (i+1, mrk, path))  
+            if mrk == "D":
+                rmfile_( subfold, path, targetnode, ext )
+
+def altpurge( target, targetnode, ext='.tar.gz', keep=3 ):
+    """
+    :param target:
+    :param targetnode:
+    :param keep:
+
+    NB this method together with altpurge_cat assumes a two level hierarchy to the
+    directory structure used to keep the tarballs. With purging taking place amongst the 
+    set of tarballs found within the subfold.
+
+    ::
+ 
+          target/<catfold>/<subfold>/....
+                 tracs      dybsvn 
+                 svn        dybaux
+                 repos
+                 folders
+
+    Within each category folder eg "tracs", "svn", "repos", "folders" 
+    there are multiple subfolders eg "dybsvn", "dybaux", "env" and
+    within those are day folders containing the leaf tarballs
+
+    """
+    catfolds = subfolds_( target, targetnode=targetnode )
+    ncatfold = len(catfolds)
+    log.info("altpurge for target %(target)s looking into %(ncatfold)s catfolds %(catfolds)s on targetnode %(targetnode)s keep %(keep)s " % locals() )
+    for catfold in catfolds:
+        altpurge_cat( catfold, targetnode, ext=ext, keep=keep )  
+
+
+if __name__ == '__main__':
+    
+    logging.basicConfig(level=logging.INFO)
+
+    #wanted = "dybsvn dybaux svnsetup"
+    wanted = "svnsetup"
+    #wanted = "dybsvn"
+    source = "/home/scm/backup/dayabay"
+    target = "/data/var/scm/alt.backup/dayabay"
+    targetnode = "C"        
+
+    altbackup( source, target, targetnode, wanted )   
+    #altpurge( target, targetnode=targetnode, keep=3 )   ## real remote action 
+
+    #altpurge( source, targetnode="LOCAL", keep=3 )       ## local testing
+
 
