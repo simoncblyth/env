@@ -41,11 +41,12 @@ Contents:
    Plotting <plot/index>
    SCM <scm/index>
    Trac <trac/index>
-   npy/index
    ROOT <root/index>
    ENV <_docs/env>
    sphinxext/index
    matplotlib/index   
+   npy/index
+   pypy/index
 
 Indices and tables
 ==================

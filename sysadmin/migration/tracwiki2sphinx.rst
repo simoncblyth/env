@@ -4,6 +4,29 @@ Conversion of Trac wiki to Sphinx rst
 .. contents:: :local:
 
 
+Status of TracWiki2Sphinx
+----------------------------
+
+Made start (copy of the Trac2MediaWiki) plugin:
+
+* http://dayabay.phys.ntu.edu.tw/tracs/tracdev/browser/tracwiki2sphinx/trunk/tracwiki2sphinx/converter.py
+* http://localhost/tracs/workflow/wiki/TracWiki2Sphinx
+
+::
+
+    trac-
+    tracwiki2sphinx-
+    tracwiki2sphinx-vi 
+
+
+establish development cycle without the webserver
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DONE with standalone MediaWiki converter
+
+* http://dayabay.phys.ntu.edu.tw/tracs/tracdev/changeset/126
+
+
 Strategy
 ----------
 
@@ -13,7 +36,7 @@ Approaches:
 
      * adapt something like this to generate rst, it deals in trac APIs for converters and formatters 
        so offers some higher lever wins over bare regexp handling, at expense of getting intimate with Trac API  
-     * the dependence on trac makes for more complicated development and testing
+     * the dependence on trac makes for more complicated development and testing : knocked this for six with standalone converter
      * XMLRPC access not so useful here, depends on impinging on the Trac conversion machinery that normally creats
        html from wikitext, and instead creates rst 
 
@@ -35,7 +58,11 @@ Checkout the trac source
     tractrac-
     tractrac-cd
 
-Crucial part of ``trac.wiki.formatter``, are the internal handlers with method signature convention ``_<type>_formatter(match, fullmatch)``
+
+Formatters such as Trac2MediaWiki work by extending the trac.wiki.formatter.Formatter 
+with a large-ish number of specialization formatter methods.
+Crucial part of `trac.wiki.formatter.Formatter` subclasses, are the internal handlers with method signature convention `_<type>_formatter(match, fullmatch)`.
+The formatter methods as invoked by the `handle_match` method.
 
 ::
 
@@ -53,6 +80,16 @@ Crucial part of ``trac.wiki.formatter``, are the internal handlers with method s
                 else:
                     internal_handler = getattr(self, '_%s_formatter' % itype)
                     return internal_handler(match, fullmatch)
+
+The formatter is plugged into trac component system via::
+
+    class Trac2MediaWikiPlugin(Component):
+        implements(IContentConverter)
+
+
+
+
+
 
 
 Metadata preservation

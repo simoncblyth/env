@@ -21,13 +21,13 @@ from __future__ import with_statement
 nascii_ = lambda _:not(0 <= ord(_) < 128) 
 
 def highlight(line):
-    out = ""	
+    out = ""
     for c in line:
         if nascii_(c):
-	    out += "[" + c + "]"
+            out += "[" + c + "]"
         else:
-	    out += c
-    return out	    
+            out += c
+    return out
 
 def asciicheck(path, ctxmatch=None):
     """
@@ -38,17 +38,17 @@ def asciicheck(path, ctxmatch=None):
     naline = 0 
     ctx = None
     with open(path,"r") as fp:
-	for i, line in enumerate(fp.readlines()):
+        for i, line in enumerate(fp.readlines()):
             nascii = filter(nascii_, line )
             if ctxmatch and line.startswith(ctxmatch):
-		ctx = "%s %s" % ( i+1, line )
+                ctx = "%s %s" % ( i+1, line )
             if len(nascii)>0:
                 if ctx:
-		    print ctx,
-		    ctx = None
-		print path, i+1, highlight(line)
-		naline += 1
-    return naline		
+                    print ctx,
+                ctx = None
+                print path, i+1, highlight(line)
+                naline += 1
+    return naline
 
 if __name__ == '__main__':
     import sys
