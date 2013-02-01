@@ -49,7 +49,7 @@ incase of slow backups
 
 
 """
-import logging, os, sys, subprocess, shlex, stat, pprint
+import logging, os, sys, stat, pprint
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
 from datetime import datetime
@@ -88,26 +88,16 @@ def find_todays_files( source, wanted=[], ext='.tar.gz'):
     log.info("found %s matching tarballs" % len(tgzs) )
     return tgzs 
 
-def do_not_working(cmd):
-    elem = shlex.split(cmd)
-    print elem
-    p= subprocess.Popen(elem, shell=True, stdout=subprocess.PIPE )
-    ret = p.stdout.read()
-    rc = p.stdout.close()
-    return rc, ret  
-
 def do(cmd, verbose=False, stderr=True):
     if not stderr:
         cmd = cmd + " 2>/dev/null"
-
-    #verbose = True 
     if verbose:
         print cmd 
+    log.debug("do %s " % cmd )
     p = os.popen(cmd,'r')
     ret = p.read().strip()
     rc = p.close()
-    if verbose:
-        print "rc:%s len(ret):%s\n[%s]" % ( rc, len(ret), ret )
+    log.debug("rc:%s len(ret):%s\n[%s]" % ( rc, len(ret), ret ))
     return rc, ret
 
 
@@ -147,6 +137,7 @@ def sidecar_dna(path):
     return interpret_as_dna(sdna)
 
 def local_dna( path ):
+    log.debug("local_dna  determine size and digest of %s " % path )
     hash = md5()
     size = 64*128   # 8192
     st = os.stat(path)
@@ -384,7 +375,8 @@ if __name__ == '__main__':
         elif arg == 'check_source':
             alt_check( source, cfg )
         elif arg == 'check_target':
-            assert os.environ['NODE_TAG'] == targetnode, "%s is intended to be run on the target node %s " % ( arg , targetnode )
+            node = os.environ['NODE_TAG']
+            assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
             alt_check( target, cfg )
         elif arg == 'dump':
             log.info(pprint.pformat(cfg))
