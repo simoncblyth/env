@@ -4,49 +4,33 @@ Alternative Simple Backup using scp rather than rsync
 =======================================================
 
 This relies on the scm-backup machinery running on the source node
-to create the source tarballs and dna sidecar files. The reason for
-existance is that the scm rsyncing to SDU has been halted for
-more than a month due to a bad target disk.  Requests to fix have 
-not been successful.
+to create the source tarballs and dna sidecar files. 
+This exists as the scm rsyncing to SDU has been halted for
+more than a month due to a bad target disk.  
+Requests to Shandong colleages to fix or find and alterative
+target have not been successful.
 
-I formerly rsynced to NTU, stopping when that got too time consuming
+I formerly rsynced with the scm-backup to NTU, 
+Only stopping when the time to complete was approaching 24hrs 
 with growing tarball sizes.
 
 Used a few changes to make offbox transfer more efficient:
 
 #. use simple scp rather than rsync
 #. restrict to transferring todays dybsvn tarballs only (exclude dybaux)
+#. possibly some throttling might be encountered
 
-Possible further logic changes for efficiency:
+TODO 
+-----
 
-#. trust the transfered digest sidecars 
-
-TODO: 
-
-#. notifications concerning completion
-
-   * experience suggests best to do that in a separate cron job on target node
-
+#. time and size logging to sqlite to allow plotting, in same way as scm-backup does 
 #. prune empty old directories when purging 
 
 
-Deployment as cron task on WW
--------------------------------
+Deployment as cron tasks on source and target
+-----------------------------------------------
 
-The separate scm backup managed by Qiumei (needs to run as root) 
-typically completes around 13:00 so time should be moved to later 
-incase of slow backups 
-
-::
-
-	SHELL=/bin/bash
-	HOME=/home/blyth
-	ENV_HOME=/home/blyth/env
-	CRONLOG_DIR=/home/blyth/cronlog
-	NODE_TAG_OVERRIDE=WW
-	#
-	50 13 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; cd $ENV_HOME/scm ; ./altbackup.py ) > $CRONLOG_DIR/altbackup.log 2>&1
-
+This is done via script altbackup.sh see usage notes within that.
 
 """
 import logging, os, sys, stat, pprint

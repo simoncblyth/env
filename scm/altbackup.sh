@@ -18,11 +18,31 @@ Crontab examples
 
 On the sending **source** node::
 
-	16 17 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
+	SHELL=/bin/bash
+	HOME=/home/blyth
+	ENV_HOME=/home/blyth/env
+	CRONLOG_DIR=/home/blyth/cronlog
+	NODE_TAG_OVERRIDE=WW
+        MAILTO=blyth@hep1.phys.ntu.edu.tw
+        #
+	00 16 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 On the receiving **target** node::
 
-	16 18 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
+	SHELL=/bin/bash
+	HOME=/home/blyth
+	ENV_HOME=/home/blyth/env
+	CRONLOG_DIR=/home/blyth/cronlog
+        MAILTO=blyth@hep1.phys.ntu.edu.tw
+        #	
+	00 22 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
+
+
+Caution with the times the daily scm-backup, managed by Qiumei as it needs to run as root 
+typically completes around 13:00 so time should be moved to later 
+incase of slow backups, the scp transfers invoked from the source 
+are expected to complete in under 2hrs. 
+
 
 Notification
 -------------
