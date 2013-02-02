@@ -108,8 +108,10 @@ def interpret_as_linelist(ret, delim="\n"):
     return elem
  
 def interpret_as_dna( ret ):
-    assert ret[0] == '{' and ret[-1] == '}', "DNA has mutated %s     " % ret
-    dna = eval(ret)
+    if len(ret) > 0 and ret[0] == '{' and ret[-1] == '}':
+        dna = eval(ret)
+    else:
+        dna = None
     log.debug("interpret_as_dna %s => %s " % ( ret, dna ))
     return dna  
 
@@ -162,7 +164,9 @@ def remote_dna( rpath, node, cheat=False, sidecar_ext='.dna' ):
                 rdna['size'] = interpret_as_int(ret)
             if 'md5sum' in cmd:
                 rdna['dig'] = interpret_as_md5sum(ret) 
-    return rdna if len(rdna) == 2 else None
+    if rdna and len(rdna) == 2:
+        return rdna
+    return None
 
 
 def transfer( spath, tpath , targetnode="C" , sidecar_ext='' ):
