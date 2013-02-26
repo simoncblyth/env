@@ -25,7 +25,7 @@ On the sending **source** node::
 	NODE_TAG_OVERRIDE=WW
         MAILTO=blyth@hep1.phys.ntu.edu.tw
         #
-	00 16 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
+	00 13 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 On the receiving **target** node::
 
@@ -35,13 +35,31 @@ On the receiving **target** node::
 	CRONLOG_DIR=/home/blyth/cronlog
         MAILTO=blyth@hep1.phys.ntu.edu.tw
         #	
-	00 22 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
+	30 15 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 
-Caution with the times the daily scm-backup, managed by Qiumei as it needs to run as root 
-typically completes around 13:00 so time should be moved to later 
-incase of slow backups, the scp transfers invoked from the source 
-are expected to complete in under 2hrs. 
+
+Scheduling
+-------------
+
+* ~11:30 scm-backup completes
+* 13:00 source node altbackup cron starts 
+* ~14:30 source node altbackup completes
+* 15:30 target node check starts
+
+The root controlled scm backup (managed by Qiumei) typically completes before noon, as indicated by timestamps on the dna sidecars::
+
+	[dayabay] /home/blyth/e/scm > find /home/scm/backup/dayabay  -name '*.tar.gz.dna' -exec ls -l {} \; | grep dybsvn
+	-rw-r--r--  1 root root 65 Feb 26 11:03 /home/scm/backup/dayabay/svn/dybsvn/2013/02/26/104701/dybsvn-19844.tar.gz.dna
+	-rw-r--r--  1 root root 65 Feb 25 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/25/104702/dybsvn-19839.tar.gz.dna
+	-rw-r--r--  1 root root 65 Feb 23 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/23/104702/dybsvn-19839.tar.gz.dna
+	-rw-r--r--  1 root root 65 Feb 24 11:04 /home/scm/backup/dayabay/svn/dybsvn/2013/02/24/104702/dybsvn-19839.tar.gz.dna
+	-rw-r--r--  1 root root 64 Feb 26 11:25 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/26/104701/dybsvn.tar.gz.dna
+	-rw-r--r--  1 root root 64 Feb 25 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/25/104702/dybsvn.tar.gz.dna
+	-rw-r--r--  1 root root 64 Feb 23 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/23/104702/dybsvn.tar.gz.dna
+	-rw-r--r--  1 root root 64 Feb 24 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/24/104702/dybsvn.tar.gz.dna
+	[dayabay] /home/blyth/e/scm > 
+
 
 
 Notification

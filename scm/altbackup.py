@@ -73,7 +73,7 @@ This is done via script altbackup.sh see usage notes within that.
 
 """
 import logging, os, sys, stat, pprint
-#assert tuple(sys.version_info)[0:2] == (2,7), "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
+assert tuple(sys.version_info)[0:2] in [(2,5),(2,6),(2,7)] , "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
 from datetime import datetime
@@ -328,10 +328,10 @@ def alt_purge_cat( catfold, cfg ):
             log.info("        %-5s %-3s %s " % (i+1, mrk, path))  
             if mrk == "D":
                 rmfile_( subfold, path, cfg.targetnode, cfg.ext, cfg.echo )
-                rmfile_( subfold, path + '.dna', cfg.targetnode, cfg.ext + '.dna', True )
+                rmfile_( subfold, path + '.dna', cfg.targetnode, cfg.ext + '.dna', cfg.echo )
 
         for edir in sorted(edirs):
-            log.info("empty folder [%s] " % edir )
+            log.debug("empty folder [%s] " % edir )
             rmdir_( subfold, edir, cfg.targetnode, cfg.echo ) 
 
 
