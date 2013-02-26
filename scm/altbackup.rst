@@ -35,5 +35,60 @@ Failed to reproduce the below issue
 
 
 
+manual target check
+---------------------
 
+::
+
+	[blyth@cms01 dayabay]$ find /data/var/scm/alt.backup/dayabay
+	/data/var/scm/alt.backup/dayabay
+	/data/var/scm/alt.backup/dayabay/svn
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/26
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/26/104701
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/26/104701/dybsvn-19844.tar.gz
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/26/104701/dybsvn-19844.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/25
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/25/104702
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/25/104702/dybsvn-19839.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/25/104702/dybsvn-19839.tar.gz
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/24
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/24/104702
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/24/104702/dybsvn-19839.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/svn/dybsvn/2013/02/24/104702/dybsvn-19839.tar.gz
+	/data/var/scm/alt.backup/dayabay/tracs
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/26
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/26/104701
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/26/104701/dybsvn.tar.gz
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/26/104701/dybsvn.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/25
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/25/104702
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/25/104702/dybsvn.tar.gz
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/25/104702/dybsvn.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/24
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/24/104702
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/24/104702/dybsvn.tar.gz
+	/data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/02/24/104702/dybsvn.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/folders
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/26
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/26/104701
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/26/104701/svnsetup.tar.gz
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/26/104701/svnsetup.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/25
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/25/104702
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/25/104702/svnsetup.tar.gz
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/25/104702/svnsetup.tar.gz.dna
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/24
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/24/104702
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/24/104702/svnsetup.tar.gz
+	/data/var/scm/alt.backup/dayabay/folders/svnsetup/2013/02/24/104702/svnsetup.tar.gz.dna
+	[blyth@cms01 dayabay]$ 
 
