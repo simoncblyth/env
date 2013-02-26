@@ -217,12 +217,16 @@ def rmd_(cmd, targetnode):
     rmd = "ssh %(targetnode)s \"" + cmd + "\"" if targetnode != "LOCAL" else cmd
     return rmd
 
-def findfiles_( basefold, targetnode, ext ):
-    cmd = "find %(basefold)s -name '*" + ext + "' "    
+def find_( targetnode, cmd ):
     rmd = rmd_(cmd, targetnode=targetnode)
     rc, ret = do( rmd % locals(), verbose=False, stderr=True )
-    tgzs = interpret_as_linelist(ret, delim="\n")
-    return tgzs
+    paths = interpret_as_linelist(ret, delim="\n")
+    return paths
+
+def findfiles_( basefold, targetnode, ext ):
+    return find_( targetnode, "find %(basefold)s -name '*" + ext + "' " % locals() )    
+def findempty_(basefold, targetnode ):
+    return find_( targetnode, "find %(basefold)s -type d -empty" % locals() )
 
 def subfolds_( basefold, targetnode ):
     cmd = "ls -1d %(basefold)s/*" 
@@ -268,6 +272,7 @@ def alt_purge_cat( catfold, cfg ):
             log.info("        %-5s %-3s %s " % (i+1, mrk, path))  
             if mrk == "D":
                 rmfile_( subfold, path, cfg.targetnode, cfg.ext, cfg.echo )
+                rmfile_( subfold, path + '.dna', cfg.targetnode, cfg.ext + '.dna', True )
 
 def alt_purge( target, cfg ):
     """

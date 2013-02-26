@@ -160,7 +160,7 @@ def notify(email, msg, delim=" "):
             for _ in email.split(delim):
                 sendmail( msg, _ ) 
         else:
-            sendmail( msg, _ ) 
+            sendmail( msg, email ) 
     else:
         log.warn("email address for notification not configured")
 
