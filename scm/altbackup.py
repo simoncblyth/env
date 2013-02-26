@@ -3,6 +3,45 @@
 Alternative Simple Backup using scp rather than rsync
 =======================================================
 
+Multiple command arguments are accepted togther with configuration options::
+
+   ./altbackup.py --help
+   ./altbackup.py check_source
+   ./altbackup.py dump check_source transfer purge_target
+
+Available commands:
+
+*transfer*
+      scp matched files from source to target 
+
+*purge_target*
+      deletes remote files with the subfold on the targetnode 
+      retaining only the last `cfg.keep` files within each <catfold>/<subfold>
+      Also deletes empty remote directories within the subfold, 
+      only one search for empties is made within each subfold
+      so repeated invokation is typically needed to purge all empty directories. 
+
+      **NB assumes lexically sorted file paths are in date order**  
+
+
+
+
+*check_source*
+      list matched files
+
+*check_target*
+      should be run on the configured targetnode,
+      lists matched files
+
+*dump*
+      print configuration parameters
+
+"""
+
+notes=r"""
+Notes
+--------
+
 This relies on the scm-backup machinery running on the source node
 to create the source tarballs and dna sidecar files. 
 This exists as the scm rsyncing to SDU has been halted for
@@ -34,6 +73,7 @@ This is done via script altbackup.sh see usage notes within that.
 
 """
 import logging, os, sys, stat, pprint
+#assert tuple(sys.version_info)[0:2] == (2,7), "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
 from datetime import datetime
@@ -104,7 +144,11 @@ def interpret_as_md5sum(ret):
     return dval 
          
 def interpret_as_linelist(ret, delim="\n"):
-    elem = ret.strip().split(delim)
+    sret = ret.strip()
+    if len(sret) == 0:
+        elem = []
+    else:
+        elem = sret.split(delim)
     return elem
  
 def interpret_as_dna( ret ):
@@ -217,16 +261,17 @@ def rmd_(cmd, targetnode):
     rmd = "ssh %(targetnode)s \"" + cmd + "\"" if targetnode != "LOCAL" else cmd
     return rmd
 
-def find_( targetnode, cmd ):
+def find_( basefold, targetnode, condition , verbose=False):
+    cmd = "find %(basefold)s " + condition 
     rmd = rmd_(cmd, targetnode=targetnode)
-    rc, ret = do( rmd % locals(), verbose=False, stderr=True )
+    rc, ret = do( rmd % locals(), verbose=verbose, stderr=True )
     paths = interpret_as_linelist(ret, delim="\n")
     return paths
 
 def findfiles_( basefold, targetnode, ext ):
-    return find_( targetnode, "find %(basefold)s -name '*" + ext + "' " % locals() )    
-def findempty_(basefold, targetnode ):
-    return find_( targetnode, "find %(basefold)s -type d -empty" % locals() )
+    return find_( basefold, targetnode, " -name '*" + ext + "' "  )    
+def findempty_(basefold, targetnode , verbose=False):
+    return find_( basefold, targetnode, "  -type d -empty " , verbose=verbose )
 
 def subfolds_( basefold, targetnode ):
     cmd = "ls -1d %(basefold)s/*" 
@@ -238,6 +283,15 @@ def subfolds_( basefold, targetnode ):
 def rmfile_( subfold, path , targetnode, ext , echo=False ):
     assert path[-len(ext):] == ext and path[:len(subfold)] == subfold, "path sanity check fails for %s " % path
     cmd = "echo rm -f %(path)s" if echo else "rm -f %(path)s"     
+    if targetnode == 'LOCAL':
+        assert cmd[0:4] == "echo", "local testing must just echo" 
+    rmd = rmd_(cmd, targetnode=targetnode)
+    rc, ret = do( rmd % locals(), verbose=True, stderr=True )
+
+
+def rmdir_( subfold, path, targetnode, echo=False ):
+    assert path[:len(subfold)] == subfold, "path sanity check fails for %s " % path
+    cmd = "echo rmdir %(path)s" if echo else "rmdir %(path)s"     
     if targetnode == 'LOCAL':
         assert cmd[0:4] == "echo", "local testing must just echo" 
     rmd = rmd_(cmd, targetnode=targetnode)
@@ -266,13 +320,21 @@ def alt_purge_cat( catfold, cfg ):
         paths = findfiles_( subfold, cfg.targetnode, cfg.ext )  
         paths = sorted(paths, reverse=True)  # NB reverse date order, most recent first 
         npath = len(paths)
-        log.info("    subfold %(subfold)s has %(npath)s paths with ext %(ext)s " % locals())
+        edirs = findempty_( subfold, cfg.targetnode , verbose=True )  
+        nedir = len(edirs)
+        log.info("    subfold %(subfold)s has %(npath)s paths with ext %(ext)s empty dirs %(nedir)s" % locals())
         for i, path in enumerate(paths): 
             mrk = "D" if i+1 > cfg.keep else ""
             log.info("        %-5s %-3s %s " % (i+1, mrk, path))  
             if mrk == "D":
                 rmfile_( subfold, path, cfg.targetnode, cfg.ext, cfg.echo )
                 rmfile_( subfold, path + '.dna', cfg.targetnode, cfg.ext + '.dna', True )
+
+        for edir in sorted(edirs):
+            log.info("empty folder [%s] " % edir )
+            rmdir_( subfold, edir, cfg.targetnode, cfg.echo ) 
+
+
 
 def alt_purge( target, cfg ):
     """
