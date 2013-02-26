@@ -369,7 +369,7 @@ def alt_check( dir, cfg ):
     """
     """
     wanted = cfg.wanted.split()
-    log.info("alt_check %s %s : checking transferred sidecar dna matches locally recomputed   " % ( dir, wanted ) )
+    log.info("alt_check %s %s : checking sidecar dna matches locally recomputed   " % ( dir, wanted ) )
     expect = dict(svnsetup=1,dybsvn=2,dybaux=2)
 
     for want in wanted:
