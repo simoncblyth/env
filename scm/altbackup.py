@@ -23,15 +23,14 @@ Available commands:
 
       **NB assumes lexically sorted file paths are in date order**  
 
-
-
-
 *check_source*
-      list matched files
+      find matched files and 
+      checks that the sidecar dna matches the locally recomputed dna
 
 *check_target*
-      should be run on the configured targetnode,
-      lists matched files
+      checks that the sidecar dna matches the locally recomputed dna
+
+      **NB must be run on the configured targetnode**
 
 *dump*
       print configuration parameters
@@ -370,7 +369,7 @@ def alt_check( dir, cfg ):
     """
     """
     wanted = cfg.wanted.split()
-    log.info("alt_check %s %s " % ( dir, wanted ) )
+    log.info("alt_check %s %s : checking transferred sidecar dna matches locally recomputed   " % ( dir, wanted ) )
     expect = dict(svnsetup=1,dybsvn=2,dybaux=2)
 
     for want in wanted:
