@@ -913,12 +913,12 @@ scm-backup-nightly(){
     #echo $msg $(date)  @@@ scm-backup-rls
     #scm-backup-rls
 
-    echo
-    echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
-    case $NODE_TAG in 
-  C2|C2R) scm-backup-parasitic ZZ C ;;
-       *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
-    esac
+    # echo
+    # echo $msg $(date)  @@@ scm-backup-parasitic ... monitoring transfers that i do not control... i just receive the tarballs 
+    # case $NODE_TAG in 
+    # C2|C2R) scm-backup-parasitic ZZ C ;;
+    #      *) echo $msg no parasitic monitoring is configured on NODE_TAG $NODE_TAG ;;
+    # esac
 
     echo
     echo $msg $(date)  @@@ scm-backup-monitor ... fabric remote tarball checking 
