@@ -38,9 +38,9 @@ Usage, takes 2 runs to 1st copy binaries from working copy and then to verify th
 
    cd ~/workflow
    ./sweep.py           ## check the copies/deletions to be done
-   ./sweep.py | sh 	## do them
+   ./sweep.py | sh     ## do them
    ./sweep.py           ## check the copies/deletions to be done
-   ./sweep.py | sh 	## do them 
+   ./sweep.py | sh     ## do them 
 
    cd ~/env
    
@@ -49,8 +49,8 @@ in the root of each svn repository.
 
 Refer to resources with urls like:
 
-  * http://localhost/edocs/whatever.pdf	
-  * http://localhost/wdocs/notes/dev/whatever.pdf	
+  * http://localhost/edocs/whatever.pdf    
+  * http://localhost/wdocs/notes/dev/whatever.pdf    
   * OR :w:`notes/dev/whatever.pdf`
 
 TODO:
@@ -75,16 +75,16 @@ def digest_(path):
 
     Confirmed to give same hexdigest as commandline /sbin/md5::
 
-	    md5 /Users/blyth/workflow/notes/php/property/colliers-4q2011.pdf 
-	    MD5 (/Users/blyth/workflow/notes/php/property/colliers-4q2011.pdf) = 3a63b5232ff7cb6fa6a7c241050ceeed
+        md5 /Users/blyth/workflow/notes/php/property/colliers-4q2011.pdf 
+        MD5 (/Users/blyth/workflow/notes/php/property/colliers-4q2011.pdf) = 3a63b5232ff7cb6fa6a7c241050ceeed
 
     """
     if not os.path.exists(path):return None
     if os.path.isdir(path):return None
     md5 = hashlib.md5()
     with open(path,'rb') as f: 
-	for chunk in iter(lambda: f.read(8192),''): 
-	    md5.update(chunk)
+        for chunk in iter(lambda: f.read(8192),''): 
+            md5.update(chunk)
     return md5.hexdigest()
 
 def svnstatus_(path):
@@ -108,19 +108,19 @@ class DPath(object):
 
     """
     def __init__(self, path, svnst=None):
-	"""
-	:param path: 
-	:param svnst: status string
-	"""
-	self.path = path 
+        """
+        :param path: 
+        :param svnst: status string
+        """
+        self.path = path 
         self.digest = digest_(path)
-	self.isdir = os.path.isdir(path)
-	if svnst:
+        self.isdir = os.path.isdir(path)
+        if svnst:
             self.svnst = svnst
         else:    
-	    self.svnst = svnstatus_(path)
+            self.svnst = svnstatus_(path)
     def __repr__(self):
-	return "[%s] %s %s DIR:%s " % ( self.svnst, self.path, self.digest, self.isdir )     
+        return "[%s] %s %s DIR:%s " % ( self.svnst, self.path, self.digest, self.isdir )     
 
 
 class Sweeper(list):
@@ -135,61 +135,61 @@ class Sweeper(list):
        * eg does not delete at target on changing source directory names, so orphans will result
 
     """
-    def __init__(self, src, tgt, exts=None , skipd=None ):	
-	"""
-	:param src: source directory
-	:param tgt: target directory
-	:param exts: default of None sweeps all working copy detritus with svn status of `?`
+    def __init__(self, src, tgt, exts=None , skipd=None ):    
+        """
+        :param src: source SVN working copy directory 
+        :param tgt: target directory
+        :param exts: default of None sweeps all working copy detritus with svn status of `?`
 
-                     if a whitespace delimited string is provided such as ".txt .rst" then a
-		     simple filesystem walk is used rather than svn status running
+        if a whitespace delimited string is provided such as ".txt .rst" then a
+        simple filesystem walk is used rather than svn status running
 
         :param skip: space delimited list of dirnames to skip in the dir_walk (ignored in status_walk) eg "_build _sources"
 
-	"""
-	xx_ = lambda _:os.path.expandvars(os.path.expanduser(_))
+        """
+        xx_ = lambda _:os.path.expandvars(os.path.expanduser(_))
         self.src = xx_(src)
-	self.tgt = xx_(tgt)
+        self.tgt = xx_(tgt)
 
         self.cmds = []
-	self.skipd = skipd.split() if skipd else []
+        self.skipd = skipd.split() if skipd else []
         if not exts:
-	    self.exts = None
+            self.exts = None
             self.status_walk()
         else:
-	    self.exts = exts.split()
+            self.exts = exts.split()
             self.dir_walk()
 
     def status_walk(self):
-	"""
-	Pattern match the `svn status` of the `src` directory  passing all matches to `handle`
-	Note that only a single `svn status` is required, so much more efficient compared to oldwalk.
-	"""
-	cmd = "svn status %s " % self.src
-	ptn = re.compile("^(\S)\s*(\S?)\s*(%s.*)\s*$" % self.src)
-	for line in os.popen(cmd).readlines():
+        """
+        Pattern match the `svn status` of the `src` directory  passing all matches to `handle`
+        Note that only a single `svn status` is required, so much more efficient compared to oldwalk.
+        """
+        cmd = "svn status %s " % self.src
+        ptn = re.compile("^(\S)\s*(\S?)\s*(%s.*)\s*$" % self.src)
+        for line in os.popen(cmd).readlines():
             m = ptn.match(line)
             if m:
-		 groups = m.groups()
-		 assert len(groups) == 3 
-		 stat_,atat_,path = groups
-		 stat = stat_.rstrip()
-		 log.debug( "[%s][%s] %s " % ( stat, atat_, path ))
-		 self.clean_handle( path, stat )
+                groups = m.groups()
+                assert len(groups) == 3 
+                stat_,atat_,path = groups
+                stat = stat_.rstrip()
+                log.debug( "[%s][%s] %s " % ( stat, atat_, path ))
+                self.clean_handle( path, stat )
             else:
-		 log.info("no match %s " % line )   
+                log.info("no match %s " % line )   
 
     def dir_walk(self):
-	"""
-	Simple os.walk the source tree handling files with extensions matching the 
-	selected ones.
-	"""
+        """
+        Simple os.walk the source tree handling files with extensions matching the 
+        selected ones.
+        """
         for dirpath, dirs, names in os.walk(self.src):
-	    rdir = dirpath[len(self.src)+1:]	
-            for skp in self.skipd:		 
-	        if skp in dirs:
-	            dirs.remove(skp)  
-	    for name in names:
+            rdir = dirpath[len(self.src)+1:]    
+            for skp in self.skipd:         
+                if skp in dirs:
+                    dirs.remove(skp)  
+            for name in names:
                 root, ext = os.path.splitext(name)
                 if not ext in self.exts: 
                     continue
@@ -198,55 +198,54 @@ class Sweeper(list):
 
     def copy_handle(self, spath):
         """
-	:param spath: full path 
-	""" 
-	rpath = spath[len(self.src)+1:]
-	sp = DPath(spath, svnst="-") 
+        :param spath: full path 
+        """ 
+        rpath = spath[len(self.src)+1:]
+        sp = DPath(spath, svnst="-") 
         tpath = os.path.join(self.tgt,rpath)
-	tp = DPath(tpath, svnst="-") 
+        tp = DPath(tpath, svnst="-") 
         if sp.digest == tp.digest:
-	    log.debug("no update needed %r " % sp ) 	    
-	else:   
-	    log.info("sp %s " % ( sp ))
-	    log.info("tp %s " % ( tp ))
-	    cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
+            log.debug("no update needed %r " % sp )         
+        else:   
+            log.info("sp %s " % ( sp ))
+            log.info("tp %s " % ( tp ))
+            cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
             self.cmds.append(cmd)
 
     def clean_handle(self, spath, svnst=None):
-	"""
+        """
         Considers a source path and appends shell commands to either:
 
-	#. create target directory if not created and copy the binary littering source to target
-	#. remove the littering binary from working copy source if digests of verify a good copy to target 
+        #. create target directory if not created and copy the binary littering source to target
+        #. remove the littering binary from working copy source if digests of verify a good copy to target 
 
-	:param spath: full path 
-	:param svnst: svn status string
-	"""
-	rpath = spath[len(self.src)+1:]
+        :param spath: full path 
+        :param svnst: svn status string
+        """
+        rpath = spath[len(self.src)+1:]
 
-	sp = DPath(spath, svnst=svnst) 
+        sp = DPath(spath, svnst=svnst) 
         if sp.svnst != '?':
-	    return 
+            return 
 
         if sp.isdir:
-	    log.warn("skipping uncommitted directory : %r " % sp )	
-            return		 
+            log.warn("skipping uncommitted directory : %r " % sp )    
+            return         
 
         tpath = os.path.join(self.tgt,rpath)
-	tp = DPath(tpath, svnst="-") 
-	log.info("sp %s" % sp )
-	log.info("tp %s" % tp )
-
+        tp = DPath(tpath, svnst="-") 
+        log.info("sp %s" % sp )
+        log.info("tp %s" % tp )
 
         if sp.digest == tp.digest:
-	    cmd = "rm -f \"%s\" " % ( spath ) 	    
-	else:   
-	    cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
+            cmd = "rm -f \"%s\" " % ( spath )         
+        else:   
+            cmd = "mkdir -p \"%s\" && cp \"%s\" \"%s\" " % ( os.path.dirname(tpath), spath, tpath )
         self.cmds.append(cmd)
 
     def __repr__(self):
         return "\n".join(self.cmds)
-	    
+        
 
 if __name__ == '__main__':
     pass
