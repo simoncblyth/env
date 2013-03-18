@@ -2,7 +2,7 @@
 """
 Usage for full ingests::
 
-	./exist2qxml.py
+    ./exist2qxml.py
 
 For selective ingests, eg into container with tag 'sys'::
 
@@ -11,14 +11,14 @@ For selective ingests, eg into container with tag 'sys'::
 
 Configured by the file pointed to by QXML_CONFIG in particular the below:: 
 
-	[container.source]
-	source = /tmp/check/db/hfagc_prod/end_of_2011/indv
+    [container.source]
+    source = /tmp/check/db/hfagc_prod/end_of_2011/indv
 
-	[container.path]
-	path = /tmp/hfagc/avg.dbxml
+    [container.path]
+    path = /tmp/hfagc/avg.dbxml
 
-	[container.tag]
-	tag = avg
+    [container.tag]
+    tag = avg
 
 
 To suppress the leading slash in db names, supply a trailing slash in the source.
@@ -32,6 +32,23 @@ configured tag or alias eg with::
    collection('avg')/dbxml:metadata('dbxml:name')
 
 
+
+Issues
+========
+
+When attempting to read from a non-running eXist server, such as below, the
+error is not informative::
+
+    simon:~ blyth$ rm /tmp/hfagc/hfagc_system.dbxml 
+    simon:~ blyth$ heprez-exist2qxml
+    INFO:__main__:using srcpfx_ None 
+    INFO:__main__:ingest sys creating /tmp/hfagc/hfagc_system.dbxml from xml files from http://localhost/servlet/db/hfagc_system/ 
+    XmlException ( 4 ):  Error: XML Indexer: Fatal Parse error in document at line 1, char 50. Parser message: whitespace expected
+    WARNING:__main__:tag hfc dbxml "/tmp/hfagc/hfagc.dbxml" exists already : delete it and rerun to update from src "/data/heprez/data/backup/part/localhost/last/db/hfagc"  
+    WARNING:__main__:tag rem dbxml "/tmp/hfagc/remote.dbxml" exists already : delete it and rerun to update from src "http://cms01.phys.ntu.edu.tw/servlet/db/hfagc/"  
+    simon:~ blyth$ 
+
+
 TODO
 =====
 
@@ -39,7 +56,7 @@ TODO
    
        `ingest_backup` 
              with source the path to the __contents__.xml 
-	     operating via traversing __contents__.xml files 
+         operating via traversing __contents__.xml files 
 
        `ingest_dir` 
              loading generic directories of xml files via directory walk
@@ -58,7 +75,7 @@ from config import qxml_config
 
 # os.path.relpath only from py26
 relpath = lambda path,root:path[len(root):]      # keep leading slash to allow referring to '/' as root of all
-	
+    
 from existmeta import ExistMeta
 from common import existsDoc, urlDoc, ExistDirQuery
 
@@ -77,23 +94,22 @@ class ExistWalk(object):
         self.edq = ExistDirQuery(mgr)
 
     def walk( self, dirurl ):
-	"""
-	:param dirurl: exist servlet directory URL, typically ending in a slash  
+        """
+        :param dirurl: exist servlet directory URL, typically ending in a slash  
 
         recursive walk of exist servlet urls such as http://localhost/servlet/db/hfagc/
         following os.walk pattern
-	"""
+        """
         collections, resources = self.edq( dirurl )
         yield (dirurl, collections, resources )      # topdown traverse
         for collection in collections:
-	    for x in self.walk( "%s%s/" % ( dirurl, collection )):
+            for x in self.walk( "%s%s/" % ( dirurl, collection )):
                 yield x    
 
 
 
-
 def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
-    """	
+    """    
     :parm tag: alias string of the container to be created
     :param srcurl: exist servlet url such as  http://localhost/servlet/db/hfagc/
     :param dbxml: path of dbxml container to be created
@@ -104,10 +120,10 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
 
     Attribute names from servlet dir listings::
 
-	<exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist">
-  	    <exist:collection name="/db/hfagc/lhcb/yasmine" owner="yasmine" group="lhcb" permissions="rwur-ur-u">
-	        <exist:resource name="lhcb_winter2011_BsDst1Xmunu.xml" created="Apr 7, 2012 04:03:00" last-modified="Apr 8, 2012 01:54:31" owner="yasmine" group="lhcb" permissions="rwur-ur--"/>
-	        <exist:resource name="lhcb_winter2011_Lb2Lcpipipi.xml" created="Apr 7, 2012 05:26:59" last-modified="Apr 7, 2012 06:10:05" owner="yasmine" group="lhcb" permissions="rwur-ur--"/>
+    <exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist">
+          <exist:collection name="/db/hfagc/lhcb/yasmine" owner="yasmine" group="lhcb" permissions="rwur-ur-u">
+            <exist:resource name="lhcb_winter2011_BsDst1Xmunu.xml" created="Apr 7, 2012 04:03:00" last-modified="Apr 8, 2012 01:54:31" owner="yasmine" group="lhcb" permissions="rwur-ur--"/>
+            <exist:resource name="lhcb_winter2011_Lb2Lcpipipi.xml" created="Apr 7, 2012 05:26:59" last-modified="Apr 7, 2012 06:10:05" owner="yasmine" group="lhcb" permissions="rwur-ur--"/>
                 ...
 
     From backup __contents__.xml::
@@ -119,51 +135,50 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
 
     """
     if not(srcurl.startswith("http://")):
-	log.debug("skipping tag %s dbxml %s as invalid srcurl %s " % ( tag, dbxml, srcurl ))
-	return
+        log.debug("skipping tag %s dbxml %s as invalid srcurl %s " % ( tag, dbxml, srcurl ))
+        return
     else:
         log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcurl ))
-	pass
+    pass
 
     fold = os.path.dirname(dbxml)
     if not os.path.exists(fold):
-	log.info("creating folder %s " % fold )     
-	os.makedirs(fold)     
+        log.info("creating folder %s " % fold )     
+        os.makedirs(fold)     
 
     try:
         mgr = XmlManager()
         ing = ExistWalk(mgr)
         update = srcpfx != None
         if update:
-	    cont = mgr.openContainer(dbxml)
+            cont = mgr.openContainer(dbxml)
         else:  
-	    cont = mgr.createContainer(dbxml)
-	uctx = mgr.createUpdateContext()
- 
+            cont = mgr.createContainer(dbxml)
+        uctx = mgr.createUpdateContext()
         for (urlpath, collections, resources) in ing.walk( srcurl ):
-	    rurl = relpath(urlpath, srcurl )   
-	    for d in resources:
-		name = d['name']    
+            rurl = relpath(urlpath, srcurl )   
+            for d in resources:
+                name = d['name']    
                 p = os.path.join(urlpath,name)  
                 n = os.path.join(rurl,name)
-		if srcpfx: 
-		    if p.startswith(srcpfx):    # restrict ingest via srcpfx
-			log.info("selective ingest of %s %s " % (p,n) )    
-		    else:
-		        continue
+                if srcpfx: 
+                    if p.startswith(srcpfx):    # restrict ingest via srcpfx
+                        log.info("selective ingest of %s %s " % (p,n) )    
+                    else:
+                        continue
                 else:
                     log.info("ingesting %s %s " % ( p, n ))
 
-		doc = urlDoc( mgr, p, name=n, meta=d )
-		if existsDoc( n, cont):
-		    log.info("deleting pre-existing document %s " % n )	
-		    cont.deleteDocument( n , uctx ) 	
+                doc = urlDoc( mgr, p, name=n, meta=d )
+                if existsDoc( n, cont):
+                    log.info("deleting pre-existing document %s " % n )    
+                    cont.deleteDocument( n , uctx )     
                 cont.putDocument( doc , uctx, 0 ) 
 
     except XmlException, e:
-	print "XmlException (", e.exceptionCode,"): ", e.what
-	if e.exceptionCode == DATABASE_ERROR:
-	    print "Database error code:",e.dbError
+        print "XmlException (", e.exceptionCode,"): ", e.what
+        if e.exceptionCode == DATABASE_ERROR:
+            print "Database error code:",e.dbError
     pass 
 
 
@@ -176,86 +191,84 @@ def ingest_dir( tag, srcdir , dbxml , srcpfx='/' ):
 
     """
     if srcdir == "":
-	log.debug("skipping tag %s dbxml %s as invalid srcdir " % ( tag, dbxml ))
-	return
+        log.debug("skipping tag %s dbxml %s as invalid srcdir " % ( tag, dbxml ))
+        return
     elif not(os.path.isdir(srcdir)):
-	log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbxml ))     
-	return
+        log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbxml ))     
+        return
     else:
         log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcdir ))
-	pass
+    pass
 
     try:
         mgr = XmlManager()
-	xmeta = ExistMeta(mgr)
+        xmeta = ExistMeta(mgr)
         metaname = ExistMeta.metaname
-	cont = mgr.createContainer(dbxml)
-	ctx = mgr.createUpdateContext()
+        cont = mgr.createContainer(dbxml)
+        ctx = mgr.createUpdateContext()
     
         for (dirpath, dirnames, filenames) in os.walk( srcdir ):
-	    rdir = relpath(dirpath, srcdir )
+            rdir = relpath(dirpath, srcdir )
 
             if metaname in filenames:
-		dirmeta = xmeta( os.path.join( dirpath, metaname ) ) 
+                dirmeta = xmeta( os.path.join( dirpath, metaname ) ) 
 
-	    for name in filter(lambda _:_ != metaname, filenames):
+            for name in filter(lambda _:_ != metaname, filenames):
                 p = os.path.join(dirpath,name)  
                 n = os.path.join(rdir,name)
-		if not(p.startswith(srcpfx)):    # restrict ingest via srcpfx
-		    continue	
-		xm = dirmeta[name]
+                if not(p.startswith(srcpfx)):    # restrict ingest via srcpfx
+                    continue    
+                xm = dirmeta[name]
                 print xm
-	        stm = mgr.createLocalFileInputStream(p)
+                stm = mgr.createLocalFileInputStream(p)
                 doc = mgr.createDocument()
-		doc.setName(n)
-		doc.setContentAsXmlInputStream(stm)
-		for key, val in xm.items():
+                doc.setName(n)
+                doc.setContentAsXmlInputStream(stm)
+                for key, val in xm.items():
                     doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
-		    pass
+                pass
                 cont.putDocument( doc , ctx, 0 ) 
-	    pass
-
-
+        pass
     except XmlException, e:
-	print "XmlException (", e.exceptionCode,"): ", e.what
-	if e.exceptionCode == DATABASE_ERROR:
-	    print "Database error code:",e.dbError
+        print "XmlException (", e.exceptionCode,"): ", e.what
+        if e.exceptionCode == DATABASE_ERROR:
+            print "Database error code:",e.dbError
     pass 
 
 def main():
     """
     resort to EXIST2QXML_SELECT environ as specific to exist2qxml 
-    and do not want to mess with qxml_config arg parsing for this 	
+    and do not want to mess with qxml_config arg parsing for this     
     """
     cfg = qxml_config()
     tagsrc = cfg['source'].keys()
     tagcon = cfg['containers'].keys()
     assert tagsrc == tagcon , (tagsrc, tagcon )
 
-    select = os.environ.get('EXIST2QXML_SELECT',None )	   
+    select = os.environ.get('EXIST2QXML_SELECT',None )       
 
     srcpfx = {}
     if select:
-	stag, pfx = select.split("@@")    
+        stag, pfx = select.split("@@")    
         log.info("select %s stag %s pfx %s " % ( select, stag, pfx ))
         srcpfx[stag] = pfx
 
     for tag in tagsrc:
-	src = cfg['source'][tag]    
-	dbxml  = cfg['containers'][tag]    
+        src = cfg['source'][tag]    
+        dbxml  = cfg['containers'][tag]    
         if os.path.exists(dbxml) and tag not in srcpfx:
             log.warn("tag %s dbxml \"%s\" exists already : delete it and rerun to update from src \"%s\"  " % ( tag, dbxml, src ))     
             continue
-	if src.startswith('http://'):  
-	    srcpfx_ = srcpfx.get(tag, None) 
-	    log.info("using srcpfx_ %s " % srcpfx_ )
-	    ingest_url( tag, src, dbxml , srcpfx_ )	   
- 	else:	
-            ingest_dir( tag, src, dbxml )	   
-	pass    
+        if src.startswith('http://'):  
+            srcpfx_ = srcpfx.get(tag, None) 
+            log.info("using srcpfx_ %s " % srcpfx_ )
+            ingest_url( tag, src, dbxml , srcpfx_ )       
+        else:    
+            ingest_dir( tag, src, dbxml )       
+        pass
     pass
 
 if __name__ == '__main__':
-    pass	
     main()
-     
+
+
