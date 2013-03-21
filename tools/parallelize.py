@@ -139,6 +139,14 @@ class Parallelize(list):
     def __repr__(self):
         return "\n".join(self.cmds)
         
+    def __call__(self):
+        n = len(self.cmds)
+        for i, cmd in enumerate(self.cmds):
+            log.info("[%0.3d/%0.3d] %s " % ( i+1, n, cmd))
+            for line in os.popen(cmd).readlines():
+                log.info("    %s " % line.strip())
+
+
 
 def read_cnf_( path ):
     from ConfigParser import SafeConfigParser
@@ -152,9 +160,10 @@ def read_cnf_( path ):
 def parse_args_(doc):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
-    op.add_option("-c", "--cnfpath", default="~/.workflow.cnf", help="Path to config file that holds URLs and access keys for the API" )
-    op.add_option("-s", "--cnfsect", default="html2wdocs", help="Section of config file to read" )
+    op.add_option("-c", "--cnfpath", default="~/.workflow.cnf", help="Path to config file, default %default, that holds URLs and access keys for the API" )
+    op.add_option("-s", "--cnfsect", default="html2wdocs", help="Section of config file to read, default %default " )
     op.add_option("-g", "--logpath", default=None )
+    op.add_option(      "--PROCEED", action="store_true", default=False, help="Proceed to run the commands, default %default " )
     op.add_option("-t", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
     op.add_option("-l", "--loglevel", default="INFO", help=" default %default " )
     opts, args = op.parse_args()
@@ -175,7 +184,14 @@ def main():
     assert argv0 == cfg['argv0'], ( argv0, cfg, "config argv0 mismatch with script" )
     log.info(cfg) 
     pz = Parallelize( cfg['source'], cfg['target'] )     
-    print pz
+
+    if opts.PROCEED:
+       log.warn("proceeding")
+       pz()
+    else:
+       print pz
+       log.warn("run again with --PROCEED to do this commands")
+
 
 if __name__ == '__main__':
     main()
