@@ -37,7 +37,8 @@ Issues
 ========
 
 When attempting to read from a non-running eXist server, such as below, the
-error is not informative::
+error is not informative and an empty container is created that requires manual
+deletion before rerunning::
 
     simon:~ blyth$ rm /tmp/hfagc/hfagc_system.dbxml 
     simon:~ blyth$ heprez-exist2qxml

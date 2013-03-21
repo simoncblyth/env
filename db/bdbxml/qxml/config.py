@@ -118,6 +118,7 @@ def kv_zip( cfg , kname, vname ):
 	return None    
 
 def parse_config(path):
+    log.info("reading config from %s " % path )
     raw = raw_parse_config(path)	
     cfg = Cfg()
     cfg['dbxml'] = dict((k,v) for k,v in raw.items() if k.startswith('dbxml.')) 
