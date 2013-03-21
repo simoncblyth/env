@@ -28,6 +28,8 @@ G
 ~~~
 
 macports py25-sphinx   used for ~/heprez/docs  
+
+      /opt/local/lib/python2.5/site-packages/sphinx      
    
 py25 in use with heprez for un-recalled compatibility reasons
 possibly jima:avg jython related 
@@ -431,4 +433,8 @@ sphinx-test(){
 
 }
 
-
+sphinx-build-speed(){
+   local python=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/Resources/Python.app/Contents/MacOS/Python 
+   $python -c "import sphinx ; print sphinx.__version__"
+   $python -c "import jinja2 ; print jinja2.__version__"
+}
