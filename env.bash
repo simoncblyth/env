@@ -1090,4 +1090,7 @@ twiki-(){      . $(env-home)/twiki/twiki.bash && twiki-env $* ; }
 ttocplugin-(){      . $(env-home)/twiki/ttocplugin.bash && ttocplugin-env $* ; }
 getgitorious-(){      . $(env-home)/git/getgitorious.bash && getgitorious-env $* ; }
 mysqludfsys-(){     . $(env-home)/db/mysqludfsys.bash && mysqludfsys-env $* ; }
+jinja2-(){      . $(env-home)/tools/jinja2.bash && jinja2-env $* ; }
+fossil-(){      . $(env-home)/fossil/fossil.bash && fossil-env $* ; }
 envcap-(){      . $(env-home)/tools/envcap.bash && envcap-env $* ; }
+
