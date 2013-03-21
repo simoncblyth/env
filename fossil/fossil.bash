@@ -35,3 +35,7 @@ fossil-build(){
    make
 }
 fossil-bin(){ echo $(fossil-dir)/build/fossil ; }
+
+fossil-install(){ [ ! -x $(env-home)/bin/fossil ] &&  ln -s $(fossil-bin) $(env-home)/bin/fossil ; }
+   
+
