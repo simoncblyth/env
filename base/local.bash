@@ -50,6 +50,8 @@ EOU
 
 }
 
+local-ip(){ curl ifconfig.me ; } # http://ifconfig.me/  determine external ip
+
 local-info(){
 
    local t=${1:-$NODE_TAG}
