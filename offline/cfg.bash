@@ -12,7 +12,7 @@ EOU
 }
 
 
-cfg.parser () {
+ini_parser () {
     local IFS=$'\n' && ini=( $(<$1) )        # convert to line-array
     ini=( ${ini[*]//\#*/} )                  # remove comments
     ini=( ${ini[*]/\ =\ /=} )                # remove anything with a space around ' = '
@@ -32,10 +32,10 @@ cfg.parser () {
 }
 
 ## generate and evaluate bash functions for each section in the ini 
-cfg.parser ~/.dybdb.ini
+ini_parser ~/.my.cnf
 
 ## invoke a section function to define the variables $var1 etc..
-cfg.section.testdb
+cfg.section.client
 
 
 

@@ -1093,4 +1093,5 @@ mysqludfsys-(){     . $(env-home)/db/mysqludfsys.bash && mysqludfsys-env $* ; }
 jinja2-(){      . $(env-home)/tools/jinja2.bash && jinja2-env $* ; }
 fossil-(){      . $(env-home)/fossil/fossil.bash && fossil-env $* ; }
 envcap-(){      . $(env-home)/tools/envcap.bash && envcap-env $* ; }
+cfg-(){         . $(env-home)/tools/cfg.bash && cfg-env $* ; }
 
