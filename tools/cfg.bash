@@ -108,6 +108,30 @@ cfg-get(){                                             # defines the sect variab
    cfg-val $2
 }
 
+cfg-context(){
+  # node+userid specific context from ini file 
+  local sect=${1:-fossil}
+  local path=${2:-~/.env.cnf}    
+  cfg-parse $path
+  cfg-sect $sect   
+}
+
+cfg-filltmpl-(){
+  local tmpl=${1:-path-to-template}
+  local sect=${2:-cfg-sect-name}
+  local path=${3:-~/.env.cnf}
+
+  cfg-parse $path
+  cfg-sect $sect   
+
+  local IFS=''   # preserve whitespace 
+  local line
+  while read line ; do
+      eval "echo \"$line\" "
+  done < $tmpl 
+}
+
+
 
 cfg-demo(){
    local sect=${1:-client}

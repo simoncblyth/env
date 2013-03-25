@@ -1,0 +1,15 @@
+# default: on
+# description: The fossil server packs most apache+SVN+Trac functionality into a tiny single binary 
+service fossil
+{
+    type = UNLISTED
+    port = $port
+    protocol = tcp
+    socket_type     = stream
+    wait            = no
+    user            = $user
+    cps             = 1000
+    server          =  $binpath
+    server_args     = http $repodir
+}
+

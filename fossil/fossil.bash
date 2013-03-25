@@ -1,9 +1,11 @@
 # === func-gen- : fossil/fossil fgp fossil/fossil.bash fgn fossil fgh fossil
 fossil-src(){      echo fossil/fossil.bash ; }
 fossil-source(){   echo ${BASH_SOURCE:-$(env-home)/$(fossil-src)} ; }
+fossil-sdir(){     echo $(dirname $(fossil-source)) ; }
 fossil-vi(){       vi $(fossil-source) ; }
 fossil-env(){      
-    elocal- ; 
+    elocal- 
+    cfg- 
 }
 fossil-usage(){ cat << EOU
 Fossil
@@ -28,6 +30,37 @@ After placing the config, need to restart the xinetd service::
 	[blyth@cms01 e]$ curl http://localhost:591
 	<h1>Not Found</h1>
 
+
+Darwin serving with launchctl
+------------------------------
+
+::
+
+    simon:fossil blyth$ sudo launchctl unload $(fossil-cfg-path)
+    simon:fossil blyth$ sudo launchctl load $(fossil-cfg-path)
+
+
+
+configure local options
+-------------------------
+
+::
+
+    simon:fossil-src-20130216000435 blyth$ ./configure --help
+      Local Options:               
+      --with-openssl=path|auto|none  Look for openssl in the given path, or auto or none
+      --with-zlib=path               Look for zlib in the given path
+      --with-tcl=path                Enable Tcl integration, with Tcl in the specified path
+      --with-tcl-stubs               Enable Tcl integration via stubs mechanism
+      --disable-internal-sqlite      Don't use the internal sqlite, use the system one
+      --static                       Link a static executable
+      --disable-lineedit             Disable line editing
+      --fossil-debug                 Build with fossil debugging enabled
+      --json                         Build with fossil JSON API enabled
+      --markdown                     Build with markdown engine enabled
+
+
+
 EOU
 }
 
@@ -45,50 +78,72 @@ fossil-get(){
    [ ! -d "$nam" ] && tar zxvf $tgz
 }
 
-fossil-build(){
+
+fossil-cd-build(){
    fossil-cd
    mkdir -p build
    cd build
+}
+
+fossil-build(){
+   fossil-cd-build
+   make clean
    ../configure
+   make
+}
+
+fossil-build-custom(){
+   fossil-cd-build
+   make clean
+   ../configure --json --markdown --fossil-debug
    make
 }
 fossil-bin(){ echo $(fossil-dir)/build/fossil ; }
 fossil-install(){ [ ! -x $(env-home)/bin/fossil ] &&  ln -s $(fossil-bin) $(env-home)/bin/fossil ; }
-fossil-xinetd-(){ 
 
-  # try new config approach that 
-  # puts config values from fossil section 
-  # of ini file into namespace
 
-  cfg-
-  cfg-parse ~/.env.cnf
-  cfg-sect fossil   
-  local binpath=$(fossil-bin)
-  cat << EOC
-# default: on
-# description: The fossil server packs most apache+SVN+Trac functionality into a tiny single binary 
-service fossil
-{
-    type = UNLISTED
-    port = $port
-    protocol = tcp
-    socket_type     = stream
-    wait            = no
-    user            = $user
-    cps             = 1000
-    server          =  $binpath
-    server_args     = http $repodir
-}
-EOC
+
+
+# server related funcs
+
+fossil-cfg-path(){
+   case $(uname) in 
+     Darwin) echo /Library/LaunchDaemons/org.fossil-scm.fossil.plist ;;
+     Linux)  echo /etc/xinet.d/fossil ;;
+   esac    
 }
 
-fossil-xinetd(){
-   local tgt=/etc/xinetd.d/fossil
-   local tmp=/tmp/$FUNCNAME/fossil && mkdir -p $(dirname $tmp)
-   fossil-xinetd- > $tmp
-   sudo cp $tmp $tgt
+fossil-cfg-edit(){
+   local cmd="sudo vi $(fossil-cfg-path)"
+   echo $msg $cmd
+   eval $cmd
+}
+
+fossil-tmpl(){ echo $(fossil-sdir)/$(basename $(fossil-cfg-path)).template ; } 
+
+fossil-cfg-(){
+   cfg-filltmpl- $(fossil-tmpl) fossil
+}
+
+fossil-cfg(){
+   local msg=" == $FUNCNAME "
+   local tgt=$(fossil-cfg-path)
+   local tmp=/tmp/$FUNCNAME/$(basename $tgt) && mkdir -p $(dirname $tmp)
+   fossil-cfg- > $tmp
+
+   cat $tmp 
+   local ans
+   read -p "$msg write above filled template $tmp to target $tgt ? YES to proceed" ans
+   
+   if [ "$ans" == "YES" ]; then  
+       local cmd="sudo cp $tmp $tgt"
+       echo $msg $cmd
+       eval $cmd
+   else
+       echo $msg skipping
+   fi
    rm $tmp
-   cat $tgt
 }
+
 
 
