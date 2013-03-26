@@ -22,7 +22,9 @@ Generate bash functions with names prefixed by `cfg.` for each section of `~/.my
 
 For debugging::
 
-    simon:e blyth$ CFGDBG=1 cfg-parse
+    simon:e blyth$ cfg-;CFGDBG=1 cfg-parse
+    [blyth@cms01 ~]$ cfg-;CFGDBG=1 cfg-parse ~/.env.cnf
+
 
 For accessing a single value use `cfg-get`::
 
@@ -83,33 +85,6 @@ Issue with cms01, the initial read mangles some lines
 cms01 is messing up the linearraytest in flaky manner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
-
-	[blyth@cms01 ~]$ cfg-linearraytest ~/.env.cnf
-	1,3c1
-	< 
-	< [fossilred]
-	< 
-	---
-	> e
-	6d3
-	< 
-	8d4
-	< 
-	12,14c8
-	< 
-	< [test]
-	< 
-	---
-	> e
-	17,19d10
-	< 
-	< 
-	< 
-
-
-
-
 
 EOU
 }
@@ -150,13 +125,15 @@ cfg-parse(){
     local pfx="_cfg."
     local IFS
 
-# this is flaky on cms01
-#    IFS=$'\n' 
-#    ini=( $(<$path) )        # convert to line-array
-
-    IFS='' 
-    ini=()  
-    while read line ; do ini[${#ini[@]}]=$(echo "$line") ; done < $path
+    if [ $(hostname) == "cms01.phys.ntu.edu.tw" ]; then 
+        IFS='' 
+        ini=()  
+        while read line ; do ini[${#ini[*]}]=$(echo "$line") ; done < $path
+    else
+         # this is flaky on cms01
+         IFS=$'\n' 
+         ini=( $(<$path) )        # convert to line-array
+    fi 
 
     [ -n "$CFGDBG" ] && echo read $path into line array  
 
@@ -171,8 +148,13 @@ cfg-parse(){
     ini=( ${ini[*]/%/ \)} )                  # close array parenthesis
     ini=( ${ini[*]/%\( \)/\(\) \{} )         # convert text2function (2)
     ini=( ${ini[*]/%\} \)/\}} )              # remove extra parenthesis
+
+    [ -n "$CFGDBG" ] && echo completed replacements
+
     ini[0]=''                                # remove first element
     ini[${#ini[*]} + 1]='}'                  # add the last brace
+
+    [ -n "$CFGDBG" ] && echo completed head and tail
 
 
     [ -n "$CFGDBG" ] && echo "${ini[*]}"     # echo the generated functions
