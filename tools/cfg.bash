@@ -80,20 +80,56 @@ Issue with cms01, the initial read mangles some lines
 	password = whatever
 
 
+cms01 is messing up the linearraytest in flaky manner
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+	[blyth@cms01 ~]$ cfg-linearraytest ~/.env.cnf
+	1,3c1
+	< 
+	< [fossilred]
+	< 
+	---
+	> e
+	6d3
+	< 
+	8d4
+	< 
+	12,14c8
+	< 
+	< [test]
+	< 
+	---
+	> e
+	17,19d10
+	< 
+	< 
+	< 
+
+
+
+
 
 EOU
 }
 
 
 
-
-
 cfg-linearraytest-(){
    local path=$1
-   local IFS=$'\n'  && ini=( $(<$path) )
-   for line in ${ini[*]} ; do 
-       echo $line 
-   done
+   #local ini
+
+   # method1 which is flaky on cms01
+   # local IFS=$'\n' 
+   # ini=( $(<$path) )
+
+   # method2
+   local IFS
+   local line
+   ini=() ; IFS='' ; while read line ; do ini[${#ini[@]}]=$(echo "$line") ; done < $path
+
+   for line in ${ini[*]} ; do echo "$line" ; done
 }
 
 cfg-linearraytest(){
@@ -112,7 +148,18 @@ cfg-parse(){
     #  for line in ${ini[*]} ; do echo $line; done   
 
     local pfx="_cfg."
-    local IFS=$'\n' && ini=( $(<$path) )        # convert to line-array
+    local IFS
+
+# this is flaky on cms01
+#    IFS=$'\n' 
+#    ini=( $(<$path) )        # convert to line-array
+
+    IFS='' 
+    ini=()  
+    while read line ; do ini[${#ini[@]}]=$(echo "$line") ; done < $path
+
+    [ -n "$CFGDBG" ] && echo read $path into line array  
+
     ini=( ${ini[*]//\#*/} )                  # remove comments
     ini=( ${ini[*]/\ =\ /=} )                # remove anything with a space around ' = '
     ini=( ${ini[*]// /} )                    # kill all spaces ... means no meaningful spaves in config values 
