@@ -22,11 +22,11 @@ Generate bash functions with names prefixed by `cfg.` for each section of `~/.my
 
 For debugging::
 
-        [blyth@cms01 e]$ CFGDBG=1 cfg-get
+    simon:e blyth$ CFGDBG=1 cfg-parse
 
 For accessing a single value use `cfg-get`::
 
-	[blyth@cms01 e]$ cfg-get client database
+	[blyth@cms01 e]$ cfg-context client ~/.my.cnf
 	offline_db_20130315
 
 When need to access multiple values, using `cfg-sect` then multiple `cfg-val` is faster::
@@ -72,9 +72,12 @@ EOU
 }
 
 cfg-parse(){
-    local path=$1
+    local path=${1:-~/.env.cnf}
     export CFG_PATH=$path
     #echo $msg parsing $path into section functions
+    # to understand how this works do the below line by line on commandline dumping with:
+    #  for line in ${ini[*]} ; do echo $line; done   
+
     local pfx="_cfg."
     local IFS=$'\n' && ini=( $(<$path) )        # convert to line-array
     ini=( ${ini[*]//\#*/} )                  # remove comments
@@ -82,7 +85,7 @@ cfg-parse(){
     ini=( ${ini[*]// /} )                    # kill all spaces ... means no meaningful spaves in config values 
     ini=( ${ini[*]//\%\(/\$} )               # replace the %( of python interpolation var %(var)s 
     ini=( ${ini[*]//\)s/} )                  # replace the )s of python interpolation var %(var)s 
-    ini=( ${ini[*]/#[/\}$'\n'$pfx} )         # set section prefix
+    ini=( ${ini[*]/#[/\}$'\n'$pfx} )         # set section prefix by replacing [sectname] with  }\n_cfg.sectname]
     ini=( ${ini[*]/%]/ \(} )                 # convert text2function (1)
     ini=( ${ini[*]/=/=\( } )                 # convert item to array
     ini=( ${ini[*]/%/ \)} )                  # close array parenthesis
@@ -90,9 +93,33 @@ cfg-parse(){
     ini=( ${ini[*]/%\} \)/\}} )              # remove extra parenthesis
     ini[0]=''                                # remove first element
     ini[${#ini[*]} + 1]='}'                  # add the last brace
+
+
     [ -n "$CFGDBG" ] && echo "${ini[*]}"     # echo the generated functions
     eval "$(echo "${ini[*]}")"               # eval the result
+
+    
+    # below succeeds to prefix with local, but then have no access duh 
+    # hmm maybe
+    #    a) generate argument handling allowing controlled disclosure  
+    #
+    # fin=()
+    # local N=${#ini[@]}
+    # for ((i=1;i<=$N;++i)) ; do 
+    #     local line=${ini[$i]} 
+    #     local loc=$(cfg-localize $line) 
+    #     fin[$i]=$loc
+    # done
+    # eval "$(echo "${fin[*]}")"               # eval the localized result
 }
+
+cfg-localize(){
+    case $1 in
+       [^a-zA-Z0-9-]* ) echo $1 ;; 
+                    * ) echo local $1 ;;
+    esac
+}
+
 
 cfg-vals(){ 
   local keys=$*
@@ -108,10 +135,11 @@ cfg-get(){                                             # defines the sect variab
    cfg-val $2
 }
 
+
 cfg-context(){
   # node+userid specific context from ini file 
   local sect=${1:-fossil}
-  local path=${2:-~/.env.cnf}    
+  local path=${2}    
   cfg-parse $path
   cfg-sect $sect   
 }
@@ -119,10 +147,9 @@ cfg-context(){
 cfg-filltmpl-(){
   local tmpl=${1:-path-to-template}
   local sect=${2:-cfg-sect-name}
-  local path=${3:-~/.env.cnf}
+  local path=${3}
 
-  cfg-parse $path
-  cfg-sect $sect   
+  cfg-context $sect $path   # globally polluting context, non-trivial to impinge "local" in func generation
 
   local IFS=''   # preserve whitespace 
   local line
@@ -130,6 +157,8 @@ cfg-filltmpl-(){
       eval "echo \"$line\" "
   done < $tmpl 
 }
+
+
 
 
 
