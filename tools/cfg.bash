@@ -68,8 +68,41 @@ TODO
 #. avoid spilling the beans quite to much
 
 
+Issue with cms01, the initial read mangles some lines
+
+	[blyth@cms01 ~]$ IFS=$'\n'  && ini=( $(<$path) ) ; for line in ${ini[*]} ; do echo $line ; done
+	[fossil]
+	repodir = /data/var/scm/fossil
+	port = 591
+	user = root
+	e
+	user = blyth
+	password = whatever
+
+
+
 EOU
 }
+
+
+
+
+
+cfg-linearraytest-(){
+   local path=$1
+   local IFS=$'\n'  && ini=( $(<$path) )
+   for line in ${ini[*]} ; do 
+       echo $line 
+   done
+}
+
+cfg-linearraytest(){
+   local path=$1
+   local tmp=/tmp/env/$FUNCNAME/$(basename $path) && mkdir -p $(dirname $tmp)
+   cfg-linearraytest- $path > $tmp
+   diff $path $tmp
+}
+
 
 cfg-parse(){
     local path=${1:-~/.env.cnf}
