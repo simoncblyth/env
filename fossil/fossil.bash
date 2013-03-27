@@ -2,7 +2,7 @@
 fossil-src(){      echo fossil/fossil.bash ; }
 fossil-source(){   echo ${BASH_SOURCE:-$(env-home)/$(fossil-src)} ; }
 fossil-sdir(){     echo $(dirname $(fossil-source)) ; }
-fossil-vi(){       vi $(fossil-source) ; }
+fossil-vi(){       vi $(fossil-source) $* ; }
 fossil-env(){      
     elocal- 
     cfg- 
@@ -113,11 +113,12 @@ fossil-cfg-path(){
    esac    
 }
 
-fossil-cfg-edit(){
-   local cmd="sudo vi $(fossil-cfg-path)"
-   echo $msg $cmd
-   eval $cmd
-}
+# dont do that edit template OR config
+#fossil-cfg-edit(){
+#   local cmd="sudo vi $(fossil-cfg-path)"
+#   echo $msg $cmd
+#   eval $cmd
+#}
 
 fossil-tmpl(){ echo $(fossil-sdir)/$(basename $(fossil-cfg-path)).template ; } 
 
@@ -145,5 +146,18 @@ fossil-cfg(){
    rm $tmp
 }
 
+fossil-reload(){
+   local cmd
+   cmd=$(fossil-launchctl unload)
+   echo $cmd
+   eval $cmd
+   cmd=$(fossil-launchctl load)
+   echo $cmd
+   eval $cmd
+}
+
+fossil-launchctl(){
+   echo sudo launchctl $1 $(fossil-cfg-path)
+}
 
 

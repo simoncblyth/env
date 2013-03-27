@@ -1095,3 +1095,4 @@ fossil-(){      . $(env-home)/fossil/fossil.bash && fossil-env $* ; }
 envcap-(){      . $(env-home)/tools/envcap.bash && envcap-env $* ; }
 cfg-(){         . $(env-home)/tools/cfg.bash && cfg-env $* ; }
 
+f-(){      . $(env-home)/fossil/f.bash && f-env $* ; }
