@@ -69,7 +69,8 @@ class Cnf(dict):
     def __init__(self, sect, cnfpath="~/.env.cnf" ):
         cpr = ConfigParser()
         cpr.read(os.path.expanduser(cnfpath))
-        self.update(cpr.items(sect)) 
+        for k,v in cpr.items(sect):# spell it out for py2.3
+            self[k] = v 
         self['sect'] = sect
         self['sections'] = cpr.sections()
 
@@ -82,7 +83,9 @@ def parse_args(doc):
     op.add_option("-s", "--sect",      default="oomon", help="section of config file... Default %default"  )
     opts, args = op.parse_args()
     loglevel = getattr( logging, opts.loglevel.upper() )
-    logging.basicConfig(level=loglevel)
+    logging.basicConfig()   # for py2.3 compatibility
+    logging.getLogger().setLevel(loglevel)
+
     cnf = Cnf(opts.sect, opts.cnfpath)
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, cnf))  
     return cnf, args

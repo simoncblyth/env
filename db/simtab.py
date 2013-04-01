@@ -6,8 +6,14 @@ http://www.sqlite.org/lang_conflict.html
 http://www.sqlite.org/lang_insert.html
 
 """
-import os, sqlite3, logging
+import os, logging
 log = logging.getLogger(__name__)
+
+try:
+    import sqlite3 as sqlite
+except ImportError:
+    import sqlite 
+
 
 class Table(list):
     """
@@ -26,15 +32,20 @@ class Table(list):
              log.info("creating directory %s " % dirv )         
              os.makedirs(dirv)         
          log.info("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
-         conn = sqlite3.connect(pathv)
+         conn = sqlite.connect(pathv)
          cursor = conn.cursor()
          self.path = path
          self.conn = conn 
          self.cursor = cursor 
+         self.tn = tn
 
          if kwa:
              self._create(tn, kwa)
-         self._tableinfo(tn)
+             self.qxn = ",".join(["?" for _ in range(len(kwa.keys()))] )
+             self.fields = kwa.keys()
+         else:
+             self._tableinfo(tn)   
+             # pragma table_info not working for py2.3 (or maybe old sqlite) so must always spell out the kwa in that case
 
     def add(self, **kwa):
         self.append(kwa)
@@ -55,7 +66,9 @@ class Table(list):
          """ 
          fields = []
          types = []
-         for row in self.cursor.execute("pragma table_info(%s)" %  tn ):
+         ti = self.cursor.execute("pragma table_info(%s)" %  tn )
+         print ti
+         for row in ti:
              index,name,dtype,nonnull,default,primary = row
              fields.append(name)
              types.append(dtype)
@@ -64,10 +77,12 @@ class Table(list):
          self.fields = fields
          self.types = types
          self.qxn = ",".join(["?" for _ in range(len(fields))] )
-         self.tn = tn
+
+    def smry(self):
+         return "%s %s %s " % ( self.__class__.__name__, self.tn, repr(dict(zip(self.fields,self.types))) )
 
     def __repr__(self):
-         return "%s %s %s " % ( self.__class__.__name__, self.tn, repr(dict(zip(self.fields,self.types))) )
+         return "%s %s " % ( self.__class__.__name__, self.tn )
 
 
     def insert(self):
@@ -81,8 +96,10 @@ class Table(list):
          for d in self:
              vals = map( lambda k:d.get(k,'NULL'), self.fields ) 
              entries.append(  vals )
-         log.debug("entries %s " % entries)     
-         self.cursor.executemany('INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals(), entries )
+         log.info("entries %s " % entries)     
+         sql = 'INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals()
+         log.info("sql %s " % sql )     
+         self.cursor.executemany(sql, entries )
          self.conn.commit()
         
     def __call__(self, sql , fdict=False ):
@@ -107,11 +124,11 @@ def demo():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig()
 
     #t = Table("scm_backup_check.db", "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" )
-    t = Table("scm_backup_check.db", "tgzs") 
-    print t.fields
+    t = Table("/tmp/env/simtab/tscm_backup_check.db", "tgzs") 
+    #print t.fields
     for d in t("select * from tgzs", fdict=True):
         print d 
 
