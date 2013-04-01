@@ -15,6 +15,11 @@ Simple, high-reliability, distributed software configuration management
 
   * http://www.fossil-scm.org/fossil/doc/trunk/www/index.wiki
 
+  * http://www.fossil-scm.org/download.html
+
+      * release notes
+
+
 Linux serving with xinetd 
 --------------------------
 
@@ -65,11 +70,17 @@ EOU
 }
 
 
-fossil-nam(){ echo fossil-src-20130216000435 ; }
-fossil-dir(){ echo $(local-base)/env/fossil/$(fossil-nam) ; }
+#fossil-nam(){ echo fossil-src-20130216000435 ; }
+#fossil-dir(){ echo $(local-base)/env/fossil/$(fossil-nam) ; }
+fossil-nam(){ echo fossil ; }
+fossil-dir(){ echo $HOME/$(fossil-nam) ; }
+
 fossil-cd(){  cd $(fossil-dir); }
 fossil-mate(){ mate $(fossil-dir) ; }
 fossil-get(){
+  echo now using the cloned trunk for latest fossil rather than tgz
+}
+fossil-get-from-tgz(){
    local dir=$(dirname $(fossil-dir)) &&  mkdir -p $dir && cd $dir
    local nam=$(fossil-nam)
    local tgz=$nam.tar.gz
@@ -134,7 +145,7 @@ fossil-cfg(){
 
    cat $tmp 
    local ans
-   read -p "$msg write above filled template $tmp to target $tgt ? YES to proceed" ans
+   read -p "$msg write above filled template $tmp to target $tgt ? YES to proceed: " ans
    
    if [ "$ans" == "YES" ]; then  
        local cmd="sudo cp $tmp $tgt"

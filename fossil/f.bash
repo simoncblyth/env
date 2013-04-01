@@ -20,12 +20,16 @@ to keep fossil repos and wcdirs.
 f-clone url name
 
    f-clone http://fossil.wanderinghorse.net/repos/cson/index.cgi cson
+   f-clone http://www.fossil-scm.org  fossil 
 
 f-open name
 
-   create working copy dir if it doesnt exist and `fossil open` the repo into it
-   equivalent of `svn checkout` 
-  
+   create working copy dir if it doesnt exist, cd into it and `fossil open` the repo there.
+   Equivalent of `svn checkout` 
+
+   CAUTION `fossil open` unlike `svn checkout` acts in PWD,
+   so this function creates a new `name` wcdir and  changes directory to it before opening
+ 
 f-ui name
 
     local only access
@@ -38,6 +42,32 @@ f-web name
     open http://localhost:591/cson/
 
 f-pw
+ 
+    open the password setting page in webinterface, in order to set it something more memorable
+    than the randomlu assigned password that the `f-clone` yielded
+
+f-global
+
+    lists all repositories and checkouts on the node as recorded 
+    in the global_config table of the ~/.fossil DB
+
+
+Fossil cloning SOP
+-----------------------
+
+#. run `f-clone url name` notice the generated password for the $USER
+#. open web interface at http://localhost:591/name/
+#. login as $USER using generated password 
+#. click [Admin], [Users], [$USER]
+#. edit the password to something memorable and click [Apply Changes], then [Login]
+
+Fossil Config 
+----------------
+
+Kept in :file:`~/.env.cnf` 
+
+   * server level in `[fossil]` section
+   * repo level in `[name.fossil]` sections
 
 
 
@@ -51,6 +81,17 @@ f-cd(){
 }
 f-ls(){ ls -l $repodir ; }
 
+f-global(){ 
+   local init=~/.sqlite3_width_50_100
+   [ ! -f "$init" ] && echo ".width 50 100" > $init
+   echo "select * from global_config ;" | sqlite3 -init $init -column ~/.fossil
+}
+f-all(){
+   echo REPO:
+   fossil all ls
+   echo CKOUT:
+   fossil all ls --ckout
+}
 f-wcdir(){ echo $HOME/$1 ; }
 f-repo(){ echo $repodir/$1.fossil ; }
 f-lurl(){ echo http://localhost:$port/$1/ ; }

@@ -14,6 +14,11 @@ class Table(list):
     Interact with sqlite3 tables, append dicts to this list then insert them 
     """
     def __init__(self, path, tn=None , **kwa ):
+         """
+         :param path: to sqlite3 DB file 
+         :param tn: table name
+         :param kwa: key value pairs defining field names and types
+         """ 
          list.__init__(self) 
          pathv = os.path.expanduser(os.path.expandvars(path))
          dirv = os.path.dirname(pathv)

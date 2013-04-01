@@ -7,6 +7,9 @@ envcap-usage(){ cat << EOU
 
 
 
+    env | sort | perl -n -e 'm,([^=]*)=(.*), && print "export $1=$2\n" ' - > /tmp/encap.sh 
+    cat ~/env-fast.sh | sort > /tmp/env-fast-sorted.sh
+    diff /tmp/encap.sh /tmp/env-fast-sorted.sh
 
 
 EOU
