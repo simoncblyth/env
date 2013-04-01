@@ -112,6 +112,15 @@ class Table(list):
                 yield dict(zip(self.fields,row))
             else:
                 yield row
+    def iterdict(self, sql):
+        """
+        :param sql: sql to perform
+
+        Caution sql needs to be of general form ``select * from whatever``
+        """ 
+        for row in self.cursor.execute(sql):
+            yield dict(zip(self.fields,row))
+
 
 
 def demo():
