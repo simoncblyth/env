@@ -17,6 +17,12 @@ Usage::
     $ENV_HOME/db/valmon.py -s oomon
 
 
+On C2, not working with system py2.3 so use source python::
+
+     LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python ~blyth/env/db/valmon.py -s oomon rec
+     LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python ~blyth/env/db/valmon.py -s oomon ls
+
+
 """
 import os, logging
 from pprint import pformat
