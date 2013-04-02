@@ -51,11 +51,14 @@ def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
     import smtplib
     s = smtplib.SMTP()
     try:
-        s.connect()
-        log.info("Attempting to send email to recipient:[%s] from:[%s] message lines:[%s] " % ( to, fr, len(lines) ))
-        s.sendmail(fr, to, msg.as_string())
-    except socket.error, se:
-	log.warn("socket.error while attempting to sendmail : %s " % se  )  
+        try:
+            s.connect()
+            log.info("Attempting to send email to recipient:[%s] from:[%s] message lines:[%s] " % ( to, fr, len(lines) ))
+            s.sendmail(fr, to, msg.as_string())
+        except socket.error, se:
+	    log.warn("socket.error while attempting to sendmail : %s " % se  )  
+        else:
+            pass
     finally:
         s.close()
 
