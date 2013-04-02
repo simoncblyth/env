@@ -92,7 +92,13 @@ f-all(){
    echo CKOUT:
    fossil all ls --ckout
 }
-f-wcdir(){ echo $HOME/$1 ; }
+f-wcdir(){ 
+   local name=$1
+   case $name in 
+     env) echo $HOME/$name.f ;; 
+       *) echo $HOME/$name  ;;
+   esac 
+}
 f-repo(){ echo $repodir/$1.fossil ; }
 f-lurl(){ echo http://localhost:$port/$1/ ; }
 f-purl(){ echo http://localhost:$port/$1/setup_uedit?id=1 ; }

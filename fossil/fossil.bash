@@ -106,7 +106,8 @@ fossil-build(){
 fossil-build-custom(){
    fossil-cd-build
    make clean
-   ../configure --json --markdown --fossil-debug
+   #../configure --json --markdown --fossil-debug
+   ../configure --json --markdown 
    make
 }
 fossil-bin(){ echo $(fossil-dir)/build/fossil ; }
@@ -169,6 +170,31 @@ fossil-reload(){
 
 fossil-launchctl(){
    echo sudo launchctl $1 $(fossil-cfg-path)
+}
+
+
+
+
+
+# migration related
+
+fossil-fromgit(){
+    local msg=" === $FUNCNAME : "
+    local name=$(basename $PWD)
+    [ ! -d ".git" ]  && echo $msg this needs to run from a git repo top level directory which contains a .git directory  && return 1
+
+    local ans
+    read -p "$msg fast-export from git in $PWD into $name.fossil ? enter YES to proceed : " ans
+    [ "$ans" != "YES" ] && echo $msg skipping && return 0
+
+    date
+    which git
+    git --version
+    which fossil
+    fossil version
+    git fast-export --all | fossil import --git $name.fossil
+    date
+
 }
 
 
