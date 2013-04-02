@@ -24,6 +24,18 @@ from datetime import datetime
 log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from simtab import Table
+from env.tools.sendmail import notify
+
+
+"""
+def decide():
+    msg = "\n".join([ subj, rep]) 
+    if not conc == "ok":
+        notify(cfg['email'], msg )
+        log.warn(subj)
+    else:
+        log.info(subj)
+"""
 
 
 class ValueMon(object):
@@ -54,6 +66,26 @@ class ValueMon(object):
         for d in self.tab(sql):
             print d
 
+    def rep(self):
+        return os.popen("echo \"select * from %(tn)s order by date desc limit 24 ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
+
+    def mon(self):
+        last = self.tab.iterdict("select * from %(tn)s order by date desc limit 1" % self.cnf).next()
+        last['valmax'] = -1
+        val_high = last['val'] > last['valmax']
+        if val_high: 
+            subj = "WARNING last entry from %(date)s,  val %(val)s > max %(valmax)s " 
+        else: 
+            subj = "OK last entry from %(date)s, val %(val)s < max %(valmax)s "
+        subj = subj % last 
+        if val_high:
+            msg = "\n".join([subj, self.rep()]) 
+            log.warn("sending notification as: %s " % subj )
+            notify(self.cnf['email'], msg )
+        else:
+            log.info("no notification: %s " % subj )
+
+
     def __call__(self, args):
         for arg in args:
             log.info("arg %s" % arg )
@@ -61,6 +93,10 @@ class ValueMon(object):
                 self.rec(self.cnf['cmd'])
             elif arg == 'ls':
                 self.ls()
+            elif arg == 'mon':
+                self.mon()
+            elif arg == 'rep':
+                print self.rep()
             else:
                 log.warn("unhandled arg %s " % arg ) 
 
