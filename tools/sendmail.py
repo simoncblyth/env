@@ -11,6 +11,23 @@ import os, socket, logging
 log = logging.getLogger(__name__)
 
 
+
+def notify(email, msg, delim=" "):
+    """
+    :param email: one or more email addresses 
+    :param msg: string message comprising lines with newlines, subject taken from first line
+    :param delim: delimiter between potentially multiple email address of recipients, defaults to space
+    """
+    if email:
+        if delim in email:
+            for _ in email.split(delim):
+                sendmail( msg, _ ) 
+        else:
+            sendmail( msg, email ) 
+    else:
+        log.warn("email address for notification not configured")
+
+
 def sendmail( text, to , fr=os.environ.get('FROM',"me@localhost"), delim="\n" ):
     """
 

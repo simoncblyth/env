@@ -36,6 +36,8 @@ Issues
 ~~~~~~~
 
 #. lacks authenticated access, so the report has to be publically accessible
+#. re-reading causes duplication, need to establsh iddentity without primary keying email, which is too draconian
+
 
 """
 import os, logging
