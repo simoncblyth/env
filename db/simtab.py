@@ -5,6 +5,19 @@ Quick and dirty sqlite, for cases when using SQLAlchemy or django is overkill
 http://www.sqlite.org/lang_conflict.html
 http://www.sqlite.org/lang_insert.html
 
+Operation with python2.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to work correctly with py2.3 which does not include sqlite3 as
+standard it is necessary to install the `pysqlite2` module allowing::
+
+    from pysqlite2 import dbapi2 as sqlite
+
+Install that with yum via (you might need to enable EPEL repository to find it)::
+
+   sudo yum install python-sqlite2
+
+
 """
 import os, logging
 log = logging.getLogger(__name__)
@@ -12,7 +25,7 @@ log = logging.getLogger(__name__)
 try:
     import sqlite3 as sqlite
 except ImportError:
-    import sqlite 
+    from pysqlite2 import dbapi2 as sqlite
 
 
 class Table(list):
@@ -135,9 +148,10 @@ def demo():
 if __name__ == '__main__':
     logging.basicConfig()
 
-    #t = Table("scm_backup_check.db", "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" )
-    t = Table("/tmp/env/simtab/tscm_backup_check.db", "tgzs") 
-    #print t.fields
-    for d in t("select * from tgzs", fdict=True):
+    dbp = "/tmp/env/simtab/tscm_backup_check.db"
+    #t = Table(dbp, "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" ) 
+    t = Table(dbp, "tgzs") 
+    print t.fields
+    for d in t.iterdict("select * from tgzs"):
         print d 
 

@@ -9,19 +9,20 @@ Config::
     [oomon]
 
     cmd = grep oom /var/log/messages | wc -l  
+    valmax = 0
     dbpath = ~/.env/oomon.sqlite
     tn = oomon
 
 Usage::
 
-    $ENV_HOME/db/valmon.py -s oomon
+    $ENV_HOME/db/valmon.py -s oomon rec ls rep mon
 
+Crontab::
 
-On C2, not working with system py2.3 so use source python::
+        #50 * * * * ( export HOME=/root ; LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
+	50 * * * * ( export HOME=/root ; /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
 
-     LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python ~blyth/env/db/valmon.py -s oomon rec
-     LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python ~blyth/env/db/valmon.py -s oomon ls
-
+On C2, was forced to use source rather than system python 2.3 until yum installed python-sqlite2, see simtab for notes on this.
 
 """
 import os, logging
@@ -31,17 +32,6 @@ log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from simtab import Table
 from env.tools.sendmail import notify
-
-
-"""
-def decide():
-    msg = "\n".join([ subj, rep]) 
-    if not conc == "ok":
-        notify(cfg['email'], msg )
-        log.warn(subj)
-    else:
-        log.info(subj)
-"""
 
 
 class ValueMon(object):
@@ -77,7 +67,7 @@ class ValueMon(object):
 
     def mon(self):
         last = self.tab.iterdict("select * from %(tn)s order by date desc limit 1" % self.cnf).next()
-        last['valmax'] = -1
+        last['valmax'] = float(self.cnf['valmax'])
         val_high = last['val'] > last['valmax']
         if val_high: 
             subj = "WARNING last entry from %(date)s,  val %(val)s > max %(valmax)s " 
