@@ -409,6 +409,9 @@ EOU
 }
 sphinx-dir(){ echo $(local-base)/env/doc/sphinx ; }
 sphinx-cd(){  cd $(sphinx-dir)/$1; }
+
+sphinx-cds(){ cd /opt/local/lib/python2.5/site-packages/sphinx  ; }
+
 sphinx-mate(){ mate $(sphinx-dir) ; }
 sphinx-get(){
    local dir=$(dirname $(sphinx-dir)) &&  mkdir -p $dir && cd $dir

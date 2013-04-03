@@ -1,3 +1,7 @@
+:tags: svn git
+:other: svn git
+
+
 Investigating SVN 2 Git Migration
 ====================================
 

@@ -13,6 +13,10 @@
 
 import sys, os
 
+import logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -74,12 +78,13 @@ copyright = u'2012, Simon C Blyth'
 
 # top and tail RST for every source file 
 rst_prolog = r"""
-.. note:: rst level prolog
+
+
 """
 rst_epilog= r"""
-.. note:: rst level epilog
-"""
+.. docmeta::
 
+"""
 
 
 # The version info for the project you're documenting, acts as replacement for
