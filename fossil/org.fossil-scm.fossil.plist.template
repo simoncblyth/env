@@ -16,6 +16,11 @@
         <string>http</string>
         <string>$repodir</string>
     </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>TZ</key>
+        <string>$tz</string>
+    </dict>
     <key>Sockets</key>
     <dict>
                 <key>Listeners</key>

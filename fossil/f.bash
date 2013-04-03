@@ -51,6 +51,41 @@ f-global
     lists all repositories and checkouts on the node as recorded 
     in the global_config table of the ~/.fossil DB
 
+f-localtime <name>
+
+   http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg08359.html
+   Use localtime on timeline rather than UTC
+
+   Hmm, didnt work::
+
+       simon:env.f blyth$ fossil sql
+       ...
+       sqlite>  SELECT datetime('now','localtime') ;
+       datetime('now','localtime')
+       ---------------------------
+       2013-04-02 11:55:33     
+
+
+
+
+f-sqlite3 <name>
+
+    command line sqlite3 shell connected to repo
+    NB not precisely the same as running `fossil sql` from a checkout, eg note
+    that localtime works::
+     
+        simon:e blyth$ f-sqlite3 env
+        sqlite3 /var/scm/fossil/env.fossil
+        ...
+        sqlite> SELECT datetime('now','localtime') ;
+        datetime('now','localtime')
+        ---------------------------
+        2013-04-02 19:59:45        
+        sqlite> 
+
+
+
+
 
 Fossil cloning SOP
 -----------------------
@@ -92,6 +127,22 @@ f-all(){
    echo CKOUT:
    fossil all ls --ckout
 }
+
+f-localtime(){
+  local repo=$(f-repo ${1:-dummy})
+  [ ! -f "$repo" ] && echo $msg no such repo at $repo && return 1 
+  echo "REPLACE INTO config(name,value) VALUES('timeline-utc','2'); " | sqlite3 $repo
+}
+
+
+f-sqlite3(){
+  local repo=$(f-repo ${1:-dummy})
+  [ ! -f "$repo" ] && echo $msg no such repo at $repo && return 1 
+  local cmd="sqlite3 $repo"
+  echo $msg $cmd
+  eval $cmd
+}
+
 f-wcdir(){ 
    local name=$1
    case $name in 

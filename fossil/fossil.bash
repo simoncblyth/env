@@ -125,12 +125,12 @@ fossil-cfg-path(){
    esac    
 }
 
-# dont do that edit template OR config
-#fossil-cfg-edit(){
-#   local cmd="sudo vi $(fossil-cfg-path)"
-#   echo $msg $cmd
-#   eval $cmd
-#}
+fossil-cfg-edit(){
+   echo $msg WARNING : changes will be overriddedn by template filling : use only to test new config prior to altering template OR config 
+   local cmd="sudo vi $(fossil-cfg-path)"
+   echo $msg $cmd
+   eval $cmd
+}
 
 fossil-tmpl(){ echo $(fossil-sdir)/$(basename $(fossil-cfg-path)).template ; } 
 
@@ -156,6 +156,9 @@ fossil-cfg(){
        echo $msg skipping
    fi
    rm $tmp
+
+   echo $msg remember to fossil-reload to act upon the change now
+
 }
 
 fossil-reload(){

@@ -11,19 +11,24 @@ nginx-env(){
 nginx-usage(){
   cat << EOU
 
-http://wiki.nginx.org/Main
-http://wiki.nginx.org/NginxXSendfile
-http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
+NGINX
+======
 
-     http://wiki.nginx.org/NginxCommandLine
-        -s stop/quit/reopen/reload. (version >= 0.7.53)
+* http://wiki.nginx.org/Main
+* http://wiki.nginx.org/NginxCommandLine
+* http://wiki.nginx.org/NginxXSendfile
+
+   * http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
 
 Putting nginx under supervisord control 
-        http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
+
+* http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
 
+HOW TO EXPOSE SOME STATIC HTML DOCS
+--------------------------------------
 
-   == HOW TO EXPOSE SOME STATIC HTML DOCS ==
+For example the numpy documentation::
 
         cd `nginx-htdocs` 
         sudo ln -s /data/env/local/env/npy/numpy/doc/build/html np
@@ -32,32 +37,55 @@ Putting nginx under supervisord control
         
         ##  sv will auto restart with the new config
         visit http://cms01.phys.ntu.edu.tw/np/
-     
+   
 
-    == PASSWORD PROTECTED DIR ==
+FUNCTIONS
+----------
 
-    nginx-users  : $(nginx-users)
-    nginx-adduser <username>
+nginx-users  : $(nginx-users)
+
+nginx-adduser <username>
+
           you will be prompted for 
+
                * password 
                * salt (enter 2 chars at random)
-   
-          The protected location needs the following directives :
-               auth_basic "realm-name-given-to-challengers" ;
-               auth_basic_user_file  users.txt ;
+  
+Protecting directory
+-----------------------
+
+#. Create users. 
+#. add config directives::
+
+  auth_basic "realm-name-given-to-challengers" ;
+  auth_basic_user_file  users.txt ;
 
 
-    == redhat : installs from EPEL ==
+INSTALLS
+-----------
+
+======== =================
+ node      version
+======== =================  
+   C      0.6.39-4.el4 
+   N      0.6.39-4.el5 
+======== =================  
+
+::
+
+        -s stop/quit/reopen/reload. (version >= 0.7.53)
+
+
+From EPEL::
 
      sudo yum --enablerepo=epel install nginx
-         
-       C      0.6.39-4.el4 
-       N      0.6.39-4.el5 
+     rpm -ql nginx  
 
-      rpm -ql nginx  
+comes with a perl module interface to the nginx HTTP server API
 
-          comes with a perl module interface to the nginx HTTP server API
-             http://sysoev.ru/nginx/docs/http/ngx_http_perl_module.html
+ * http://sysoev.ru/nginx/docs/http/ngx_http_perl_module.html
+
+
 
 EOU
 }

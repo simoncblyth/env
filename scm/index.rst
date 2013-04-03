@@ -8,5 +8,6 @@ SCM
     monitor/index
     altbackup
     dev
+    svn2git
 
 

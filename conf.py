@@ -71,12 +71,24 @@ master_doc = 'index'
 project = u'Env'
 copyright = u'2012, Simon C Blyth'
 
+
+# top and tail RST for every source file 
+rst_prolog = r"""
+.. note:: rst level prolog
+"""
+rst_epilog= r"""
+.. note:: rst level epilog
+"""
+
+
+
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
 # The short X.Y version.
-VERSION = os.popen("svnversion").read().strip()
+#VERSION = os.popen("svnversion").read().strip()
+VERSION = ''  # this makes post commit builds full builds 
 version = VERSION
 # The full version, including alpha/beta/rc tags.
 release = VERSION
