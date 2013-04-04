@@ -46,6 +46,7 @@ Contents:
    sphinxext/index
    matplotlib/index   
    nose/index
+   svn/index
    npy/index
    pypy/index
 
