@@ -45,6 +45,7 @@ Contents:
    ENV <_docs/env>
    sphinxext/index
    matplotlib/index   
+   nose/index
    npy/index
    pypy/index
 

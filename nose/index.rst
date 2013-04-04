@@ -1,0 +1,6 @@
+nose
+====
+
+.. toctree::
+
+    plugins/index
