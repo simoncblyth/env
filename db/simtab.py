@@ -34,6 +34,11 @@ class Table(list):
     """
     def __init__(self, path, tn=None , **kwa ):
          """
+         Open or create SQLite DB at `path`, if `tn` and `kwa` are provided create the 
+         table with fields specified by the `kwa` if the table does not exist already.
+
+         If you want to change a table schema, make sure to drop it first with interactive `sqlite3`
+
          :param path: to sqlite3 DB file 
          :param tn: table name
          :param kwa: key value pairs defining field names and types
@@ -64,6 +69,13 @@ class Table(list):
         self.append(kwa)
 
     def _create(self, tn, kwa):
+        """
+        Creates table `tn` if one of that name does not already exists with
+        fieldnames and types as specified by the `kwa`.
+
+        :param tn: table name
+        :param kwa: `dict` of field names and types  
+        """
         fields = kwa.keys()
         types = kwa.values()
         fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)])
@@ -73,6 +85,9 @@ class Table(list):
   
     def _tableinfo(self, tn):
          """
+         Introspect information about an existing table, allowing subsequent 
+         access to a table to do so just by name.
+
          http://www.sqlite.org/pragma.html#pragma_table_info
 
          column name, data type, whether or not the column can be NULL, and the default value for the column
@@ -96,7 +111,6 @@ class Table(list):
 
     def __repr__(self):
          return "%s %s " % ( self.__class__.__name__, self.tn )
-
 
     def insert(self):
          """
@@ -125,6 +139,9 @@ class Table(list):
                 yield dict(zip(self.fields,row))
             else:
                 yield row
+            pass
+        pass    
+
     def iterdict(self, sql):
         """
         :param sql: sql to perform

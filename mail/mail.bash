@@ -22,6 +22,9 @@ EOU
 
 }
 
+
+
+
 mail-offline-cache(){ echo ~/Library/Mail/IMAP-$(mail-user)\@$(mail-host)/.OfflineCache ;  }
 mail-offline-cache-cd(){ cd $(mail-offline-cache) ; } 
 mail-offline-cache-ls(){ ls -l $(mail-offline-cache) ; } 

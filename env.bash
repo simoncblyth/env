@@ -1097,3 +1097,4 @@ cfg-(){         . $(env-home)/tools/cfg.bash && cfg-env $* ; }
 
 f-(){      . $(env-home)/fossil/f.bash && f-env $* ; }
 gitlab-(){      . $(env-home)/git/gitlab.bash && gitlab-env $* ; }
+lapdftext-(){      . $(env-home)/tools/lapdftext.bash && lapdftext-env $* ; }
