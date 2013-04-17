@@ -51,6 +51,7 @@ class Table(list):
              os.makedirs(dirv)         
          log.debug("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
          conn = sqlite.connect(pathv)
+         conn.text_factory = str    # rather than unicode default, see http://stackoverflow.com/questions/3425320/sqlite3-programmingerror-you-must-not-use-8-bit-bytestrings-unless-you-use-a-te
          cursor = conn.cursor()
          self.path = path
          self.conn = conn 
