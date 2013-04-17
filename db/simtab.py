@@ -49,7 +49,7 @@ class Table(list):
          if not os.path.isdir(dirv):
              log.info("creating directory %s " % dirv )         
              os.makedirs(dirv)         
-         log.info("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
+         log.debug("opening DB path %s resolves to %s dir %s " % (path,pathv,dirv) ) 
          conn = sqlite.connect(pathv)
          cursor = conn.cursor()
          self.path = path
@@ -81,7 +81,7 @@ class Table(list):
         fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)])
         create_sql = "CREATE TABLE IF NOT EXISTS %(tn)s (%(fields_sql)s)" % locals()
         self.cursor.execute(create_sql)
-        log.info("_create: %s " % create_sql )
+        log.debug("_create: %s " % create_sql )
   
     def _tableinfo(self, tn):
          """
@@ -116,6 +116,8 @@ class Table(list):
          """
          Uses ``insert or replace`` so new entries with the same PK as existing ones will 
          replace them.  
+
+         Note that the dicts in the list can contain more key:value pairs than needed without harm
          """
          qxn = self.qxn
          tn = self.tn
@@ -123,9 +125,8 @@ class Table(list):
          for d in self:
              vals = map( lambda k:d.get(k,'NULL'), self.fields ) 
              entries.append(  vals )
-         log.info("entries %s " % entries)     
          sql = 'INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals()
-         log.info("sql %s " % sql )     
+         log.debug("sql %s " % sql )     
          self.cursor.executemany(sql, entries )
          self.conn.commit()
         
