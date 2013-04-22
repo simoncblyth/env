@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 """
 
+IOError 
+        too many from /dev/stdout 
+
+
 """
 import sys, logging
 log = logging.getLogger(__name__)
