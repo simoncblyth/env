@@ -83,7 +83,7 @@ TODO
 
 
 """
-import os, logging
+import os, logging, time
 from pprint import pformat
 from datetime import datetime
 log = logging.getLogger(__name__)
@@ -109,7 +109,8 @@ class StatMon(object):
         """
 
         kwa = {}
-        kwa['rc'] = "int"   # exit code from the logfile checking script
+        kwa['rc'] = "int"      # exit code from the logfile checking script
+        kwa['ltime'] = "int"   # look time
         for k in statk:
             kwa[k] = "int"   # spell it out for py23 
 
@@ -137,6 +138,7 @@ class StatMon(object):
         if not status:
             status = 0
         rec['rc'] = os.WEXITSTATUS(status)
+        rec['ltime'] = int(time.time()) 
 
         log.info("rec %s " % (rec)) 
         self.tab.add( **rec ) 
@@ -165,7 +167,7 @@ class StatMon(object):
 
         """
         dt_ = lambda f:"datetime(%s,'unixepoch','localtime') as %s" % (f,f) 
-        fields = ",".join( map(dt_,("ctime","mtime","atime")) + "size nlink rc".split() ) 
+        fields = ",".join( map(dt_,("ltime","ctime","mtime","atime")) + "size nlink rc".split() ) 
         sql = "select %(fields)s from %(tn)s order by %(orderfield)s desc limit %(limit)s " % dict(self.cnf, fields=fields, limit=10 )
         log.info(sql)
         return os.popen("echo \"" + sql + " ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
@@ -177,7 +179,7 @@ class StatMon(object):
         """
         last = self.tab.iterdict("select * from %(tn)s order by %(orderfield)s desc limit 1" % self.cnf).next()
 
-        for k in ('mtime','ctime','atime'):
+        for k in 'ltime mtime ctime atime'.split():
             t = datetime.fromtimestamp(last[k])
             last[k] = t.strftime(self.tfmt)
 
@@ -224,7 +226,7 @@ class StatMon(object):
 
 class Cnf(dict):
     expect = [
-        ("orderfield", "mtime",           "Field to use to entry ordering", ),
+        ("orderfield", "ltime",           "Field to use to entry ordering", ),
         ("path",       "~/.bash_profile", "Filepath to monitor", ),
     ]
     def __init__(self, sect, cnfpath ):
