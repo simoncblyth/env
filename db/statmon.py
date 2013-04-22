@@ -9,14 +9,38 @@ with the path as its last argument into an SQLite DB
 Objective
 ----------
 
-Allowing for example to watch a logfile an provide notification
+Allowing for example to watch a logfile and provide notification
 of abnormalities such as 
 
 #. not updating
 #. unexpected growth 
 #. particular contained strings
 
-Example
+Usage
+------
+
+::
+
+    ~/env/db/statmon.py -s dybslvmon ls rec mon rep
+
+Command strings can be used singly or together:
+
+rec 
+    capture the stat of the configured path and RC of configured command
+
+mon
+    apply monitoring checks to the entries in the DB, potentially sending notification
+    emails when expectations are violated
+
+ls
+    dump entries in DB table as dicts
+
+rep
+    sqlite3 table presentation 
+
+
+
+Examples
 --------
 
 Configuring path to monitor and content check command
@@ -26,21 +50,29 @@ Config section::
 
     [profilemon]
 
+    path = ~/.bash_profile
     dbpath = ~/.env/profilemon.sqlite
     tn = profile
     orderfield = mtime
+    cmd = ls %%(path)s
+    email = blyth@hep1.phys.ntu.edu.tw
 
-    path = ~/.bash_profile
-    #cmd = ~/env/db/logcheck.py
-    cmd = ls 
-    cmd_note = the path to be monitored is appended to the above configured cmd string
+    [dybslvmon]
 
+    path = /data1/env/local/dyb/dybinst-slave.log
+    dbpath = ~/.env/dybslvmon.sqlite
+    tn = dybslv
+    orderfield = mtime
+    cmd = ~/env/db/dybslvmon.py %%(path)s
     email = blyth@hep1.phys.ntu.edu.tw
 
 
 Cron config
 ~~~~~~~~~~~
 
+::
+
+   35 * * * * ( cd $ENV_HOME ; $ENV_HOME/db/statmon.py -s dybslvmon dybinst )  > $CRONLOG_DIR/dybslvmon_.log 2>&1
 
 
 
@@ -112,7 +144,7 @@ class StatMon(object):
 
     def ls(self):
         """
-        Dump all entried in the configured table
+        Dump all entries in the configured table
         """
         sql = "select * from %(tn)s " % self.cnf
         for d in self.tab(sql):
@@ -121,8 +153,22 @@ class StatMon(object):
     def rep(self):
         """
         Use sqlite3 binary to present the last few entries in the configured table
+        ::
+		 
+		ctime                mtime                atime                size        rc          nlink     
+		-------------------  -------------------  -------------------  ----------  ----------  ----------
+		2013-04-22 13:20:00  2013-04-22 13:20:00  2013-04-16 18:24:12  1021700529  0           1         
+		2013-04-22 13:20:00  2013-04-22 13:20:00  2013-04-16 18:24:12  1021700529  0           1         
+		2013-04-22 13:30:46  2013-04-22 13:30:46  2013-04-16 18:24:12  1021702521  0           1         
+		2013-04-22 13:30:46  2013-04-22 13:30:46  2013-04-16 18:24:12  1021702521  0           1         
+		2013-04-22 13:30:46  2013-04-22 13:30:46  2013-04-16 18:24:12  1021702521  0           1         
+
         """
-        return os.popen("echo \"select * from %(tn)s order by %(orderfield)s desc limit 24 ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
+        dt_ = lambda f:"datetime(%s,'unixepoch','localtime') as %s" % (f,f) 
+        fields = ",".join( map(dt_,("ctime","mtime","atime")) + "size nlink rc".split() ) 
+        sql = "select %(fields)s from %(tn)s order by %(orderfield)s desc limit %(limit)s " % dict(self.cnf, fields=fields, limit=10 )
+        log.info(sql)
+        return os.popen("echo \"" + sql + " ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
 
     def mon(self):
         """
@@ -152,9 +198,9 @@ class StatMon(object):
 
     def _cmd(self):
          """
-         :return: configured command with the file to be monitored appended
+         :return: configured command 
          """
-         return "%s %s" % ( expand_(self.cnf['cmd']), self.cnf['path'] )
+         return expand_(self.cnf['cmd'])
 
     def __call__(self, args):
         """
@@ -212,7 +258,7 @@ def parse_args(doc):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
     op.add_option("-c", "--cnfpath",    default="~/.env.cnf", help="path to config file Default %default"  )
-    op.add_option("-s", "--sect",       default="profilemon", help="section of config file... Default %default"  )
+    op.add_option("-s", "--sect",       default="dybslvmon", help="section of config file... Default %default"  )
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
 
     opts, args = op.parse_args()
@@ -226,9 +272,12 @@ def parse_args(doc):
     return cnf, args
 
 
-if __name__ == '__main__':
+def main():
     cnf, args = parse_args(__doc__)
     print pformat(cnf)
     StatMon(cnf)(args)
 
+
+if __name__ == '__main__':
+    main()
 
