@@ -49,6 +49,7 @@ Contents:
    svn/index
    npy/index
    pypy/index
+   tools/index
 
 Indices and tables
 ==================
