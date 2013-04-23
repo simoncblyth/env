@@ -57,32 +57,60 @@ class Table(list):
          self.conn = conn 
          self.cursor = cursor 
          self.tn = tn
+         self.conf = dict(tn=tn, path=pathv)
 
          if kwa:
              self._create(tn, kwa)
-             self.qxn = ",".join(["?" for _ in range(len(kwa.keys()))] )
-             self.fields = kwa.keys()
          else:
              self._tableinfo(tn)   
              # pragma table_info not working for py2.3 (or maybe old sqlite) so must always spell out the kwa in that case
 
     def add(self, **kwa):
+        _insert = kwa.pop('_insert',False)
         self.append(kwa)
+        if _insert:
+            self.insert(clear=True)
 
     def _create(self, tn, kwa):
         """
         Creates table `tn` if one of that name does not already exists with
         fieldnames and types as specified by the `kwa`.
 
+        For single column PK can specify the pk along with the type ie::
+
+              id="int primary key"
+
+        For compound PK specify the primary key columns separately with::
+
+              pk="col1, col2"
+
+        This will be used to construct SQL of structure::
+
+              CREATE TABLE something (col1, col2, col3, PRIMARY KEY (col1, col2)); 
+
         :param tn: table name
         :param kwa: `dict` of field names and types  
         """
+
+        pk = kwa.pop('pk',None)   # optionally use comma delimited 
+            
         fields = kwa.keys()
         types = kwa.values()
-        fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)])
+
+        if pk:
+            pkf = ["PRIMARY KEY( %s )" % pk] 
+        else:    
+            pkf = []
+
+        fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)] + pkf )
         create_sql = "CREATE TABLE IF NOT EXISTS %(tn)s (%(fields_sql)s)" % locals()
         self.cursor.execute(create_sql)
         log.debug("_create: %s " % create_sql )
+
+        self.qxn = ",".join(["?" for _ in range(len(kwa.keys()))] )
+        self.fields = kwa.keys()
+
+
   
     def _tableinfo(self, tn):
          """
@@ -113,8 +141,10 @@ class Table(list):
     def __repr__(self):
          return "%s %s " % ( self.__class__.__name__, self.tn )
 
-    def insert(self):
+    def insert(self, clear=False):
          """
+         :param clear: when `True` clear the collected list of dicts after insertion
+
          Uses ``insert or replace`` so new entries with the same PK as existing ones will 
          replace them.  
 
@@ -124,13 +154,19 @@ class Table(list):
          tn = self.tn
          entries = [] 
          for d in self:
-             vals = map( lambda k:d.get(k,'NULL'), self.fields ) 
+             def value(k):
+                 return d.get(k,'NULL')
+             vals = map( value, self.fields ) 
              entries.append(  vals )
          sql = 'INSERT OR REPLACE INTO %(tn)s VALUES (%(qxn)s)' % locals()
          log.debug("sql %s " % sql )     
+         log.debug("\n".join(map(str,entries)) )     
          self.cursor.executemany(sql, entries )
          self.conn.commit()
-        
+         if clear:
+             self[:]=[]
+       
+
     def __call__(self, sql , fdict=False ):
         """
         :param sql: sql to perform
@@ -144,16 +180,50 @@ class Table(list):
             pass
         pass    
 
-    def iterdict(self, sql):
+    def asdict(self, kf, vf, sql=None ):
+        """
+        :param kf:
+        :param vf:
+        :param sql:
+        """
+        if not sql:
+            sql = "select * from %(tn)s "
+        d = {}
+        for r in self(sql % self.conf, fdict=True):
+            d[r[kf]] = r[vf]
+        return d
+
+    def iterdict(self, sql, fields=None):
         """
         :param sql: sql to perform
 
         Caution sql needs to be of general form ``select * from whatever``
         """ 
+        if fields:
+            fields = fields.split(",") 
+        else:
+            fields = self.fields
         for row in self.cursor.execute(sql):
-            yield dict(zip(self.fields,row))
+            yield dict(zip(fields,row))
 
+    def listdict(self, sql, fields=None):
+        """
+        :param sql: sql to perform
 
+        Caution sql needs to be of general form ``select * from whatever``
+        """ 
+        if fields:
+            fields = fields.split(",") 
+        else:
+            fields = self.fields
+        l = []
+        for row in self.cursor.execute(sql):
+            l.append(dict(zip(fields,row)))
+        return l    
+
+    def dump(self, sql="select * from %(tn)s ;" ):
+        ctx = dict(self.conf, sql=sql % self.conf )
+        print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
 
 def demo():
     t = Table("demo.db", "tgzs", date="text", size="real" )
@@ -163,14 +233,27 @@ def demo():
     t.insert()
 
 
-
-if __name__ == '__main__':
-    logging.basicConfig()
-
+def test_iterdict():
     dbp = "/tmp/env/simtab/tscm_backup_check.db"
     #t = Table(dbp, "tgzs", nodepath="text primary key", node="text", dir="text", date="text", size="real" ) 
     t = Table(dbp, "tgzs") 
     print t.fields
     for d in t.iterdict("select * from tgzs"):
         print d 
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    
+    urls = "a b c d e f g".split()
+
+    rt = Table("/tmp/repos.db", "repos" , id="integer", url="text primary key"  )
+    for url in urls:
+        rd = rt.asdict(kf="url", vf="id" )              # convenient approach for small tables
+        rid = rd.get(url, max(rd.values() or [0])+1 )   # when url already stored get the id from that otherwise increment the max id by one
+        rt.add( id=rid, url=url, _insert=True )  
+    pass     
+    rt.dump()
+
+
+
 

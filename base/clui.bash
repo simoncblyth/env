@@ -25,7 +25,7 @@ EOU
 clui-alias(){
 
    alias x='exit'
-   alias l="ls -l "
+   alias l="ls -lt "
    alias lz="ls -la -Z"
    alias ll="ls -ltra "
    alias lt="ls -lt $se "

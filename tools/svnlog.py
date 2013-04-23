@@ -10,6 +10,7 @@ Usage examples::
     svnlog.py -w 52 -a blyth                                         ## dump 52 weeks of commit messages for single author
     svnlog.py --limit 1000000 -w 52 -a blyth           > 2012.txt    ## up the limit to avoid truncation
     svnlog.py --limit 1000000 -w 52 -a blyth --details > 2012d.txt
+    svnlog.py --limit 1000000 -w 52 -a blyth --details --commitdb /tmp/commits.db
 
 The log returned corresponds to the root of the repository as 
 determined by ``svn info`` rather than the specific invoking directory.
@@ -50,8 +51,12 @@ a large initial query with just the limit to restrict it.  So this is slow.
 import re, os, logging, md5
 from xml.dom import minidom 
 from dt import DT
-from datetime import timedelta
+from datetime import datetime, timedelta
+import time
 from misc import getuser 
+from env.db.simtab import Table
+        
+datetime2timestamp_ = lambda _:int(time.mktime(_.timetuple()))
 
 log = logging.getLogger(__name__)
 
@@ -305,7 +310,7 @@ class Msgs(list):
     and collected into this list of commit messages. 
 
     """
-    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52", author=None, details=False )
+    defaults = dict(loglevel="INFO", limit="30", base="." , weeks="52", author=None, details=False, commitdb=None )
 
     def parse_args( cls ):
         from optparse import OptionParser
@@ -316,6 +321,7 @@ class Msgs(list):
         op.add_option("-v", "--loglevel",   help="logging level : INFO, WARN, DEBUG ... Default %(loglevel)s " % d )
         op.add_option("-w", "--weeks" ,     help="weeks of logs to dump. Default %(weeks)s " % d )
         op.add_option("-a", "--author" ,    help="restrict selection to single author. Default %(author)s " % d )
+        op.add_option("-c", "--commitdb" ,  help="Export commit info into SQLite DB of commits. Default %(commitdb)s " % d )
         op.add_option("-d", "--details" , action="store_true",   help="Path details for each commit. Default %(details)s " % d )
         op.set_defaults( **cls.defaults )
         return op.parse_args()
@@ -323,7 +329,9 @@ class Msgs(list):
 
     def __init__(self):
 
-        opts,args = Msgs.parse_args()
+        opts,args = self.parse_args()
+        self.opts = opts  
+        self.args = args
         loglevel = getattr( logging, opts.loglevel.upper() , logging.INFO )
         logging.basicConfig(level=loglevel)
         log.info("args %s opts %s " % ( repr(args), repr(vars(opts)) ) )
@@ -336,16 +344,57 @@ class Msgs(list):
 
         #self[:] = slog.msgs()
         self.slog = slog 
+        self.info = info
+
+
+    def repo_id(self, dbpath, url ):
+        """
+        Creates and retrieves repository id integers for urls.
+
+        The full table is read into a dict, a convenient technique for
+        small tables.
+
+        :param dbpath: path to sqlite3 DB 
+        :param url: repo url to be stored, if not already present
+        :return: integer id corresponding to the repo url
+        """
+        rt = Table(dbpath, "repos" , id="integer", url="text primary key"  )
+        rd = rt.asdict(kf="url", vf="id" )              
+        rid = rd.get(url, max(rd.values() or [0])+1 ) # when url already stored get the id from that otherwise increment the max id by one
+        rt.add( id=rid, url=url, _insert=True )  
+        return int(rid)
+
+    def commitdb(self, dbpath ):
+        """
+        :param path: 
+        """
+        rid = self.repo_id(dbpath, self.info.rooturl )
+        ct = Table(dbpath, "commits" , date="int", msg="text", rev="text", rid="integer" , pk="rid, rev" ) 
+        log.info("collecting for repo %s id %s " % (self.info.rooturl, rid ) )
+        for le in self.slog.selection(lambda _:_.sauthor and _.selected):
+            ct.add( msg=le.msg, rev=str(le.revision), rid=rid, date=datetime2timestamp_(le.t) )
+        log.info("inserting %s entries" % len(self))
+        ct.insert()
+        log.info("completed insert")
 
     def __repr__(self):
         return "%r" % self.slog + "\n" + "\n".join([m for m in self if m])  
 
+    def dump(self):
+        for le in self..slog.selection(lambda _:_.sauthor and _.selected):
+            print repr(le)
+
+    def __call__(self):
+        for arg in self.args:
+            if arg == "dump":
+                self.dump()
+        if self.opts.commitdb:    
+            self.commitdb(os.path.expanduser(os.path.expandvars(self.opts.commitdb))
+        
 
 def main():
     msgs = Msgs()
-    for le in msgs.slog.selection(lambda _:_.sauthor and _.selected):
-        print repr(le)
- 
+    msgs()
 
 if __name__ == '__main__':
     main()

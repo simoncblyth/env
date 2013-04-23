@@ -65,6 +65,7 @@ EOD
 svnlog-collect(){
   local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
   local dir
+  local cdb=~/.env/svnlog.db
   local name
   svnlog-wcdirs- | while read dir ; do
      [ ! -d "$dir" ] && echo $msg $dir does not exist && return 1
@@ -74,8 +75,9 @@ svnlog-collect(){
      echo $msg ============================== $name : $dir
      echo
      svn up $dir
-     svnlog.py  --limit 1000000 -w 52 -a blyth > $tmp/${name}.txt 
-     svnlog.py  --limit 1000000 -w 52 -a blyth --details  > $tmp/${name}d.txt 
+     svnlog.py  --limit 1000000 -w 52 -a blyth --commitdb $cdb 
+     #svnlog.py  --limit 1000000 -w 52 -a blyth            dump > $tmp/${name}.txt
+     #svnlog.py  --limit 1000000 -w 52 -a blyth --details  dump > $tmp/${name}d.txt 
   done
 }
 
