@@ -17,6 +17,21 @@ determined by ``svn info`` rather than the specific invoking directory.
 
 NB during development, duplicate arguments precisely to benefit from caching 
 
+
+`--commitdb` option
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This allows creation of an SQLite DB that collects the commits
+from multiple repositories allowing queries to be performed to 
+allow more flexible reporting.
+
+Example query::
+
+   echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | sqlite3 ~/.env/svnlog.db
+
+
+
+
 NOTES
 ~~~~~~~
 
@@ -372,8 +387,9 @@ class Msgs(list):
         ct = Table(dbpath, "commits" , date="int", msg="text", rev="text", rid="integer" , pk="rid, rev" ) 
         log.info("collecting for repo %s id %s " % (self.info.rooturl, rid ) )
         for le in self.slog.selection(lambda _:_.sauthor and _.selected):
+            #print repr(le)
             ct.add( msg=le.msg, rev=str(le.revision), rid=rid, date=datetime2timestamp_(le.t) )
-        log.info("inserting %s entries" % len(self))
+        log.info("potentially inserting %s entries" % len(ct))
         ct.insert()
         log.info("completed insert")
 
@@ -381,7 +397,7 @@ class Msgs(list):
         return "%r" % self.slog + "\n" + "\n".join([m for m in self if m])  
 
     def dump(self):
-        for le in self..slog.selection(lambda _:_.sauthor and _.selected):
+        for le in self.slog.selection(lambda _:_.sauthor and _.selected):
             print repr(le)
 
     def __call__(self):
@@ -389,7 +405,8 @@ class Msgs(list):
             if arg == "dump":
                 self.dump()
         if self.opts.commitdb:    
-            self.commitdb(os.path.expanduser(os.path.expandvars(self.opts.commitdb))
+            self.commitdb(os.path.expanduser(os.path.expandvars(self.opts.commitdb)))
+        pass    
         
 
 def main():

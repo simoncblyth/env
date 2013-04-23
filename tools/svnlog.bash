@@ -49,35 +49,45 @@ EOU
 svnlog-dir(){ echo $(local-base)/env/tools/tools-svnlog ; }
 svnlog-cd(){  cd $(svnlog-dir); }
 svnlog-mate(){ mate $(svnlog-dir) ; }
-svnlog(){
-   python $(env-home)/tools/svnlog.py $*
-}
+svnlog(){ python $(env-home)/tools/svnlog.py $* ;  }   # tis on PATH now so little point in this
 
+svnlog-tmpd(){ echo /tmp/env/svnlog ; }
+svnlog-db(){   echo ~/.env/svnlog.db ; }
+
+svnlog-collect-(){
+   local dir=${1:-$PWD}
+   local name=$(basename $dir) 
+   local tmp=$(svnlog-tmpd) && mkdir -p $tmp
+   cd $dir
+   echo
+   echo $msg ============================== $name : $dir
+   echo
+   svn up $dir
+   svnlog.py  --limit 1000000 -w 52 -a blyth --commitdb $(svnlog-db) 
+   #svnlog.py  --limit 1000000 -w 52 -a blyth            dump > $tmp/${name}.txt
+   #svnlog.py  --limit 1000000 -w 52 -a blyth --details  dump > $tmp/${name}d.txt 
+}
 
 svnlog-wcdirs-(){  cat << EOD
 $ENV_HOME
 $HEPREZ_HOME
 $DYB/NuWa-trunk/dybgaudi
-$DYB/installation/trunk/dybinst
 EOD
 }
 
 svnlog-collect(){
-  local tmp=/tmp/env/$FUNCNAME && mkdir -p $tmp
   local dir
-  local cdb=~/.env/svnlog.db
-  local name
   svnlog-wcdirs- | while read dir ; do
      [ ! -d "$dir" ] && echo $msg $dir does not exist && return 1
-     cd $dir
-     name=$(basename $dir) 
-     echo
-     echo $msg ============================== $name : $dir
-     echo
-     svn up $dir
-     svnlog.py  --limit 1000000 -w 52 -a blyth --commitdb $cdb 
-     #svnlog.py  --limit 1000000 -w 52 -a blyth            dump > $tmp/${name}.txt
-     #svnlog.py  --limit 1000000 -w 52 -a blyth --details  dump > $tmp/${name}d.txt 
   done
 }
+
+
+svnlog-q(){
+  echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | sqlite3 $(svnlog-db)
+  echo "select rid, count(*) as N from commits group by rid  ; " | sqlite3 $(svnlog-db)
+  echo "select * from repos ; " | sqlite3 $(svnlog-db)
+
+}
+
 
