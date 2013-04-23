@@ -52,7 +52,8 @@ svnlog-mate(){ mate $(svnlog-dir) ; }
 svnlog(){ python $(env-home)/tools/svnlog.py $* ;  }   # tis on PATH now so little point in this
 
 svnlog-tmpd(){ echo /tmp/env/svnlog ; }
-svnlog-db(){   echo ~/.env/svnlog.db ; }
+svnlog-dbp(){   echo ~/.env/svnlog.db ; }
+svnlog-db(){ sqlite3 $(svnlog-dbp) ; }
 
 svnlog-collect-(){
    local dir=${1:-$PWD}
@@ -63,7 +64,7 @@ svnlog-collect-(){
    echo $msg ============================== $name : $dir
    echo
    svn up $dir
-   svnlog.py  --limit 1000000 -w 52 -a blyth --commitdb $(svnlog-db) 
+   svnlog.py  --limit 1000000 -w 52 -a blyth --commitdb $(svnlog-dbp) 
    #svnlog.py  --limit 1000000 -w 52 -a blyth            dump > $tmp/${name}.txt
    #svnlog.py  --limit 1000000 -w 52 -a blyth --details  dump > $tmp/${name}d.txt 
 }
@@ -79,14 +80,16 @@ svnlog-collect(){
   local dir
   svnlog-wcdirs- | while read dir ; do
      [ ! -d "$dir" ] && echo $msg $dir does not exist && return 1
+     $FUNCNAME- $dir
   done
 }
 
 
+
 svnlog-q(){
-  echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | sqlite3 $(svnlog-db)
-  echo "select rid, count(*) as N from commits group by rid  ; " | sqlite3 $(svnlog-db)
-  echo "select * from repos ; " | sqlite3 $(svnlog-db)
+  echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | svnlog-db
+  echo "select rid, count(*) as N from commits group by rid  ; " | svnlog-db
+  echo "select * from repos ; " | svnlog-db
 
 }
 
