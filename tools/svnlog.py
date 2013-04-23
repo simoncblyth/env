@@ -17,19 +17,16 @@ determined by ``svn info`` rather than the specific invoking directory.
 
 NB during development, duplicate arguments precisely to benefit from caching 
 
-
 `--commitdb` option
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 This allows creation of an SQLite DB that collects the commits
 from multiple repositories allowing queries to be performed to 
-allow more flexible reporting.
+allow more integrated reporting across all repos
 
 Example query::
 
    echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | sqlite3 ~/.env/svnlog.db
-
-
 
 
 NOTES
@@ -168,6 +165,7 @@ class LogEntry(Node):
     msg    = property( lambda self:self._get_one("msg") or "naughty author ... no commit message" )
     selected = property( lambda self:self.age < self.parent.maxage )
     sauthor = property( lambda self:self.author == self.parent.author )
+    details = property(lambda self:"\n".join( [repr(c) for c in self]) + "\n")
 
     def __init__(self, node):
         Node.__init__(self, node)
@@ -176,7 +174,7 @@ class LogEntry(Node):
     def __repr__(self):
         ok = ["","**"][self.selected] 
         if self.rootnode.verbose: 
-            v = "\n".join( [repr(c) for c in self]) + "\n"
+            v = self.details
         else:
             v = ""
         return "%s %s %s %s %s \n    %s\n" % ( ok, self.age, self.revision, self.author, self.date, self.msg ) + v
@@ -384,11 +382,11 @@ class Msgs(list):
         :param path: 
         """
         rid = self.repo_id(dbpath, self.info.rooturl )
-        ct = Table(dbpath, "commits" , date="int", msg="text", rev="text", rid="integer" , pk="rid, rev" ) 
+        ct = Table(dbpath, "commits" , date="int", msg="text", rev="text", rid="integer" , details="text", pk="rid, rev" ) 
         log.info("collecting for repo %s id %s " % (self.info.rooturl, rid ) )
         for le in self.slog.selection(lambda _:_.sauthor and _.selected):
             #print repr(le)
-            ct.add( msg=le.msg, rev=str(le.revision), rid=rid, date=datetime2timestamp_(le.t) )
+            ct.add( msg=le.msg, rev=str(le.revision), rid=rid, date=datetime2timestamp_(le.t), details=le.details )
         log.info("potentially inserting %s entries" % len(ct))
         ct.insert()
         log.info("completed insert")

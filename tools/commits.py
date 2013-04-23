@@ -5,15 +5,11 @@ gathers all my SVN commit messages from all repositories over the past year.
 
 .. warning:: Handle revisions as opaque strings rather than integers, for future git/fossil/etc.. compatibility
 
-
 select strftime('%Y/%W', datetime(date,'unixepoch','localtime') ) as W, count(*) as N, count(case when rid=1 then 1 end) as N1,count(case when rid=2 then 1 end) as N2, count(case when rid=3 then 1 end) as N3 from commits group by W order by W  ;
-
 
 """
 import os
 from env.db.simtab import Table
-
-
 
 class QWeekly(object):
 
@@ -45,10 +41,7 @@ class QWeekly(object):
     def sql_(self, repos):
         table = "commits"
         cols = self.cols_(repos)
-        labels = map(lambda _:_.split(" as ")[1].rstrip(), cols)
-        assert len(cols) == len(labels)
-        #for c,l in zip(cols,labels):
-        #    print "%-100s => %-100s " % (c, l )
+        labels = map(lambda _:_.split(" as ")[1].rstrip(), cols)  # caution keep the spacing around the " as "
         cols = ",".join(cols)
         sql = "select %(cols)s from %(table)s group by week order by week ;" % locals()
         return sql, labels 
@@ -57,10 +50,8 @@ class QWeekly(object):
         repos = self.repos_(path)
         sql, labels = self.sql_(repos)
         self.repos = repos
-
         commits = Table(path, "commits" )
         commd = commits.asdict(lambda d:"%s:%s"%(d['rid'],d['rev']), lambda d:d['msg'] ) 
-        self.commits = commits
         print sql 
         for week in commits.listdict( sql , labels=",".join(labels)):
             print 
