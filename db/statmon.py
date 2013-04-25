@@ -53,7 +53,8 @@ Config section::
     path = ~/.bash_profile
     dbpath = ~/.env/profilemon.sqlite
     tn = profile
-    orderfield = mtime
+    orderfield = ltime
+    lookback = days:7  
     cmd = ls %%(path)s
     email = blyth@hep1.phys.ntu.edu.tw
 
@@ -62,7 +63,8 @@ Config section::
     path = /data1/env/local/dyb/dybinst-slave.log
     dbpath = ~/.env/dybslvmon.sqlite
     tn = dybslv
-    orderfield = mtime
+    orderfield = ltime
+    lookback = days:7  
     cmd = ~/env/db/dybslvmon.py %%(path)s
     email = blyth@hep1.phys.ntu.edu.tw
 
