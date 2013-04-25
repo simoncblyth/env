@@ -85,7 +85,7 @@ TODO
 """
 import os, logging, time
 from pprint import pformat
-from datetime import datetime
+from datetime import datetime, timedelta
 log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from simtab import Table
@@ -94,6 +94,7 @@ from env.tools.sendmail import notify
 statk = "mode ino dev nlink uid gid size atime mtime ctime".split()
 stat_ = lambda path:dict(zip(statk,os.stat(os.path.expandvars(os.path.expanduser(path)))))   # dict with stat information
 expand_ = lambda path:os.path.expanduser(os.path.expandvars(path))
+tfmt_ = lambda _:_.strftime("%Y-%m-%d %H:%M:%S")
 
 class StatMon(object):
     tfmt = "%Y-%m-%dT%H:%M:%S"
@@ -151,6 +152,78 @@ class StatMon(object):
         sql = "select * from %(tn)s " % self.cnf
         for d in self.tab(sql):
             print d
+
+    def growth(self):
+        """
+        Are any periods of flatlining logsize OK ? 
+        Would not think so as slave tries to talk to master every 5 mins.::
+
+		2013-04-24 01:15:01 1023171347 13392
+		2013-04-24 01:30:01 1023179602 8255
+		2013-04-24 01:45:01 1023192331 12729
+		2013-04-24 02:00:01 1023196560 4229
+		2013-04-24 02:15:01 1023196560 0
+		2013-04-24 02:30:01 1023196560 0
+		2013-04-24 02:45:01 1023196560 0
+		2013-04-24 03:00:01 1023196560 0
+		2013-04-24 03:15:01 1023196560 0
+		2013-04-24 03:30:01 1023196560 0
+		2013-04-24 03:45:01 1023196560 0
+		2013-04-24 04:00:02 1023196560 0
+		2013-04-24 04:15:02 1023196560 0
+		2013-04-24 04:30:01 1023196560 0
+		2013-04-24 04:45:01 1023209322 12762
+		2013-04-24 05:00:02 1023209972 650
+		2013-04-24 05:15:01 1023211901 1929
+		2013-04-24 05:30:01 1023211901 0
+		2013-04-24 05:45:01 1023220203 8302
+		2013-04-24 06:00:01 1023258033 37830
+		2013-04-24 06:15:01 1023270669 12636   
+
+                      corresponds to end of a spate of grep urlopen\ error dybinst-slave.log  erros
+                      followed by slave getting stuck at init_sockobject lockup
+                         http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/293 
+
+		2013-04-24 06:30:02 1023270669 0
+		2013-04-24 06:45:01 1023270669 0
+		2013-04-24 07:00:01 1023270669 0
+		2013-04-24 07:15:01 1023270669 0
+		2013-04-24 07:30:01 1023270669 0
+		2013-04-24 07:45:02 1023270669 0
+		2013-04-24 08:00:01 1023270669 0
+		2013-04-24 08:15:01 1023270669 0
+		2013-04-24 08:30:01 1023270669 0
+		2013-04-24 08:45:01 1023270669 0
+		2013-04-24 09:00:01 1023270669 0
+		2013-04-24 09:15:02 1023270669 0
+		2013-04-24 09:30:01 1023270669 0
+		2013-04-24 09:45:01 1023270669 0
+		2013-04-24 10:00:01 1023270669 0
+
+         During timeconsuming steps like::
+
+		2013-04-25 13:37:41,580 [bitten.build.shtools] INFO:     Configuring rest of dybgaudi ...done
+		2013-04-25 14:47:04,920 [bitten.build.shtools] INFO:     Building dybgaudi ...done
+		2013-04-25 14:47:05,121 [bitten.build.api] DEBUG: bash exited with code 0
+		2013-04-25 14:47:05,121 [bitten.slave] INFO: Build step dybgaudi completed successfully
+
+         Growth flatlined for an hour::
+
+		2013-04-25 13:30:01 1023270669 0
+		2013-04-25 13:45:01 1023304204 33535
+		2013-04-25 14:00:01 1023304204 0
+		2013-04-25 14:15:01 1023304204 0
+		2013-04-25 14:30:02 1023304204 0
+		2013-04-25 14:45:01 1023304204 0
+		2013-04-25 15:00:01 1023317590 13386
+
+        """
+        sql = "select size, ltime from %(tn)s where ltime > %(tzero)s order by ltime" % self.cnf
+        psize = 0
+        for d in self.tab.listdict(sql, fields="size,ltime"):
+            print datetime.fromtimestamp(d['ltime']), d['size'], d['size'] - psize
+            psize = d['size']
+
 
     def rep(self):
         """
@@ -220,6 +293,8 @@ class StatMon(object):
                 self.mon()
             elif arg == 'rep':
                 print self.rep()
+            elif arg == 'gro':
+                self.growth()
             else:
                 log.warn("unhandled arg %s " % arg ) 
 
@@ -227,6 +302,7 @@ class StatMon(object):
 class Cnf(dict):
     expect = [
         ("orderfield", "ltime",           "Field to use to entry ordering", ),
+        ("lookback",   "days:10",         "string period specification used to create a timedelta", ),
         ("path",       "~/.bash_profile", "Filepath to monitor", ),
     ]
     def __init__(self, sect, cnfpath ):
@@ -249,6 +325,28 @@ class Cnf(dict):
             k, example, msg = _
             assert k in self, "Missing expected config key \"%s\" from %s : eg %s : %s " % ( k, repr(self), example, msg  )  
 
+def parse_timedelta(s):
+    """
+    :param s: timedelta string such as "days:7"
+    :return: timedelta object representing the period
+    """
+    l = s.split(":")
+    assert len(l) == 2, "expecting string like days:7"
+    t = timedelta(**{l[0]:int(l[1])})  # transient dict to allow dynamic keyword 
+    return t 
+
+def tzero(lookback_, now=None):
+    """
+    :param lookback_: string representing a `timedelta` instance 
+    :return: unix timestamp corresponding to start of period 
+    """
+    lookback = parse_timedelta(lookback_)
+    if not now:
+        now = datetime.now()
+    dt0 = now - lookback
+    ts0 = int(time.mktime(dt0.timetuple()))  # convert datetime into unix timestamp
+    log.info("converted lookback_ %s from now %s into dt0 %s ts0 %s " % (lookback_, tfmt_(now), tfmt_(dt0), ts0 ))
+    return ts0
 
 def parse_args(doc):
     """
@@ -270,6 +368,7 @@ def parse_args(doc):
 
     cnf = Cnf(opts.sect, opts.cnfpath)
     cnf.check()
+    cnf['tzero'] = tzero(cnf['lookback'])
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, cnf))  
     return cnf, args
 

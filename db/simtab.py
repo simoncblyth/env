@@ -44,12 +44,6 @@ class Table(list):
          :param kwa: key value pairs defining field names and types
          """ 
          list.__init__(self) 
-         conf = dict(tn=tn, path=path)
-         ## also kwa begging with _ are taken into conf which is used for sql interpolation
-         for k,v in kwa.items():
-             if k[0] == '_':
-                 conf[k[1:]] = kwa.pop(k)
-
          pathv = os.path.expanduser(os.path.expandvars(path))
          dirv = os.path.dirname(pathv)
          if not os.path.isdir(dirv):
@@ -63,7 +57,7 @@ class Table(list):
          self.conn = conn 
          self.cursor = cursor 
          self.tn = tn
-         self.conf = conf
+         self.conf = dict(tn=tn, path=pathv)
 
          if kwa:
              self._create(tn, kwa)
@@ -188,15 +182,15 @@ class Table(list):
 
     def asdict(self, kf, vf, sql=None ):
         """
-        :param kf: function with single query dict argument that returns the desired key 
-        :param vf: function with single query dict argument that returns the desired key 
+        :param kf:
+        :param vf:
         :param sql:
         """
         if not sql:
             sql = "select * from %(tn)s "
         d = {}
         for r in self(sql % self.conf, fdict=True):
-            d[kf(r)] = vf(r)
+            d[r[kf]] = r[vf]
         return d
 
     def iterdict(self, sql, fields=None):
@@ -212,24 +206,27 @@ class Table(list):
         for row in self.cursor.execute(sql):
             yield dict(zip(fields,row))
 
-    def listdict(self, sql, labels=None):
+    def listdict(self, sql, fields=None):
         """
         :param sql: sql to perform
+        :param fields: comma delimited ordered list of column labels used for dict keys 
+        :return: list of dicts
 
-        Caution sql needs to be of general form ``select * from whatever``
+        Caution field/label list must correspond to the columns returned by the 
+        query unless the query is of the form ``select * from whatever`` in which 
+        case the full list of fields is used.
         """ 
-        if labels:
-            labels = labels.split(",") 
+        if fields:
+            fields = fields.split(",") 
         else:
-            labels = self.fields
+            fields = self.fields
         l = []
         for row in self.cursor.execute(sql):
-            l.append(dict(zip(labels,row)))
+            l.append(dict(zip(fields,row)))
         return l    
 
     def dump(self, sql="select * from %(tn)s ;" ):
         ctx = dict(self.conf, sql=sql % self.conf )
-        print self.conf
         print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
 
 def demo():
