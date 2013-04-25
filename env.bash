@@ -28,13 +28,12 @@ local
         ff(){ local a="hello" ; local b="world" ; local ; }  
 	ff
 
-
 * http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
 * http://www-128.ibm.com/developerworks/library/l-bash-test.html
 
 
-workaround blockade of cms02 from belle7
-------------------------------------------
+bad workaround blockade of cms02 from belle7
+----------------------------------------------
 
 On G::
 
@@ -45,6 +44,13 @@ On N::
 
    export  ENV_HOME=/home/blyth/eenv ; ## modify in .bash_profile to use the exported
 
+better workaround via reverse proxy on H 
+------------------------------------------
+
+#. requies nginx to be running on H 
+#. one time `svn switch --relocate` is needed to keep working with the env WC on N:: 
+
+	[blyth@belle7 e]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/env http://hfag.phys.ntu.edu.tw:90/repos/env
 
 env functions
 ---------------
