@@ -31,7 +31,6 @@ local
 * http://www.network-theory.co.uk/docs/bashref/ShellFunctions.html
 * http://www-128.ibm.com/developerworks/library/l-bash-test.html
 
-
 bad workaround blockade of cms02 from belle7
 ----------------------------------------------
 
