@@ -301,6 +301,7 @@ local-nodetag(){
 local-nodetag-hfag(){
    case ${1:-$USER} in
       blyth) echo H ;;
+       root) echo H ;;
       exist) echo X ;;
           *) echo U ;;
    esac

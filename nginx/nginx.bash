@@ -86,6 +86,47 @@ comes with a perl module interface to the nginx HTTP server API
  * http://sysoev.ru/nginx/docs/http/ngx_http_perl_module.html
 
 
+hfag.phys.ntu.edu.tw as reverse proxy to dayabay.phys.ntu.edu.tw
+-------------------------------------------------------------------
+
+#. Configured `--without-http_rewrite_module` as no PCRE on H.
+
+::
+
+	[root@hfag e]# date
+	Thu Apr 25 18:57:58 GMT+8 2013
+
+	[root@hfag e]# which nginx
+	/data/usr/local/nginx/sbin/nginx
+
+	[root@hfag e]# nginx -h
+	nginx version: nginx/1.3.2
+	Usage: nginx [-?hvVtq] [-s signal] [-c filename] [-p prefix] [-g directives]
+
+	Options:
+	  -?,-h         : this help
+	  -v            : show version and exit
+	  -V            : show version and configure options then exit
+	  -t            : test configuration and exit
+	  -q            : suppress non-error messages during configuration testing
+	  -s signal     : send signal to a master process: stop, quit, reopen, reload
+	  -p prefix     : set prefix path (default: /data/usr/local/nginx/)
+	  -c filename   : set configuration file (default: conf/nginx.conf)
+	  -g directives : set global directives out of configuration file
+
+
+Setup reverse proxy with `nginx-edit` from H to C2 to subvert the `N -> C2` blockade that is again applied::
+
+       location / {
+              proxy_pass     http://dayabay.phys.ntu.edu.tw ;
+              proxy_redirect http://dayabay.phys.ntu.edu.tw/ /;
+              proxy_set_header  X-Real-IP  \$remote_addr;
+        }
+
+Switch the SVN source on N, spitting in the face of the network bstards that blocked me yet again::
+
+	[blyth@belle7 e]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/env http://hfag.phys.ntu.edu.tw:90/repos/env
+
 
 EOU
 }
@@ -133,7 +174,7 @@ nginx-chown(){
 
 nginx-mode(){
    case $NODE_TAG in 
-     WW) echo src ;;
+     WW|H) echo src ;;
       *) echo $(pkgr-cmd) ;;
    esac
 
@@ -150,14 +191,18 @@ nginx-get(){
    local dir=$(dirname $(nginx-dir)) && mkdir -p $dir
    cd $dir
    local ans
-   read -p "$msg use your systems packager for simplicity ... " ans
+   read -p "$msg consider using your systems packager for simplicitym or enter YES to proceed ... " ans
+   [ "$ans" != "YES" ] && echo $msg OK skipping && return 
    [ ! -d "$(nginx-name)" ] && curl -L -O $(nginx-url) && tar zxvf $(nginx-name).tar.gz  
 }
 nginx-build(){
    cd $(nginx-dir)
-
    ## using default prefix of /usr/local/nginx
-   ./configure --prefix=$(local-base)/nginx
+   local node=$(uname -n)
+   case $node in 
+     hfag.phys.ntu.edu.tw) ./configure --prefix=$(local-base)/nginx --without-http_rewrite_module  ;;
+                        *) ./configure --prefix=$(local-base)/nginx ;;
+   esac
    make
    $SUDO make install
 }
@@ -195,8 +240,8 @@ nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
 nginx-confd(){    echo $(nginx-prefix $*)/etc/nginx ; }
 nginx-conf(){
    case $NODE_TAG in 
-     WW) echo $(nginx-prefix)/conf/nginx.conf ;;
-      *) echo $(nginx-confd $*)/nginx.conf ;;
+     WW|H) echo $(nginx-prefix)/conf/nginx.conf ;;
+        *) echo $(nginx-confd $*)/nginx.conf ;;
    esac
 }    
 
