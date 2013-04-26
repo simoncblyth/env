@@ -89,8 +89,8 @@ sv-usage(){
     Bug tracker of sorts ...
        http://www.plope.com/search?SearchableText=supervisord
 
-    Guessed url  
-       http://svn.supervisord.org
+    Repo:
+       https://github.com/supervisor/supervisor
 
   == supervisor documentation ==
 
@@ -398,8 +398,13 @@ sv-baseurl(){  echo http://svn.supervisord.org ; }
 
 sv-get-trunk(){
    local dir=$(sv-dir) && mkdir -p $dir && cd $dir
-   svn co $(sv-baseurl)/supervisor/trunk supervisor
-   svn co $(sv-baseurl)/superlance/trunk superlance
+   #svn co $(sv-baseurl)/supervisor/trunk supervisor
+   #svn co $(sv-baseurl)/superlance/trunk superlance
+
+   local base=https://github.com/Supervisor 
+   git clone $base/supervisor.git
+   git clone $base/superlance.git
+
 }
 
 sv-trunk-html(){
