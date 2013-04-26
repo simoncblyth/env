@@ -5,9 +5,18 @@ Alternative Simple Backup using scp rather than rsync
 
 Multiple command arguments are accepted togther with configuration options::
 
-   ./altbackup.py --help
-   ./altbackup.py check_source
-   ./altbackup.py dump check_source transfer purge_target
+   altbackup.py --help
+   altbackup.py check_source
+   altbackup.py dump check_source transfer purge_target
+
+On target node only::
+
+   altbackup.py check_target              # digest recomputation and comparison against sidecar dna
+   altbackup.py extract_tracdb            # todays tarball if already copied over
+   altbackup.py extract_tracdb --day -1   # yesterdays tarball
+   altbackup.py extract_tracdb --day 2013/04/13    
+         # specific tarball, only a few days tarballs are retained
+
 
 Available commands:
 
@@ -31,6 +40,12 @@ Available commands:
       checks that the sidecar dna matches the locally recomputed dna
 
       **NB must be run on the configured targetnode**
+
+*extract_tracdb*
+      extract trac.db out of the last backup tarball on the targetnode
+
+      **NB must be run on the configured targetnode**
+
 
 *dump*
       print configuration parameters
@@ -72,10 +87,11 @@ This is done via script altbackup.sh see usage notes within that.
 
 """
 import logging, os, sys, stat, pprint
+import tarfile # new in 2.3
 assert tuple(sys.version_info)[0:2] in [(2,5),(2,6),(2,7)] , "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
-from datetime import datetime
+from datetime import datetime, timedelta
 try: 
     from hashlib import md5
 except ImportError: 
@@ -89,16 +105,18 @@ def findpath(base, pathfilter=lambda _:True):
             if pathfilter(path):
                 yield path, name
 
-def find_todays_files( source, wanted=[], ext='.tar.gz'):
+def find_day_files( source, wanted=[], ext='.tar.gz', day=None):
     """
     :param source: local directory 
     :param wanted: list of tarball names prefixes to return
+    :param ext: file extension, defaults to .tar.gz
+    :param day: date string in format 2013/04/13, defaults to todays date
     :return: list of tarball paths relative to source 
     """
-    today = datetime.now().strftime("%Y/%m/%d")
-    log.info("looking for %s source tarballs beneath %s from %s " % (repr(wanted), source, today) )
+    assert day
+    log.info("looking for %s source tarballs beneath %s from %s " % (repr(wanted), source, day) )
     tgzs = []
-    for path, name in findpath(source, lambda p:p[-len(ext):] == ext and today in p):
+    for path, name in findpath(source, lambda p:p[-len(ext):] == ext and day in p):
         if not os.path.exists(path+'.dna'):
             log.warn("SKIPPING AS no dna for path %s " % path )
             continue
@@ -230,7 +248,7 @@ def alt_transfer( source, target, cfg ):
     :param target: base directory where tarballs are to be scp copied
     :param cfg: 
     """
-    for relpath in find_todays_files(source, wanted=cfg.wanted.split(), ext=cfg.ext ):
+    for relpath in find_day_files(source, wanted=cfg.wanted.split(), ext=cfg.ext, day=cfg.day ):
 
         spath = join(source, relpath)
         xdna  = sidecar_dna(spath)
@@ -373,7 +391,7 @@ def alt_check( dir, cfg ):
     expect = dict(svnsetup=1,dybsvn=2,dybaux=2)
 
     for want in wanted:
-        relpaths = find_todays_files(dir, wanted=[want],ext=cfg.ext )
+        relpaths = find_day_files(dir, wanted=[want],ext=cfg.ext, day=cfg.day  )
         for relpath in relpaths:
             path = join(dir, relpath)
             xdna  = sidecar_dna(path)
@@ -381,6 +399,46 @@ def alt_check( dir, cfg ):
             assert xdna == sdna , ("mismatch between sidecar and recomputed dna %s %s " % ( xdna, sdna ))
         npaths = len(relpaths)
         assert npaths == expect[want], "expecting %s paths for %s BUT got %s  " % (expect[want], want, relpaths ) 
+
+
+def alt_extract_tracdb( dir, cfg ):
+    """
+    """
+    for trac in ("dybsvn",):
+        relpaths = find_day_files(dir, wanted=[trac],ext=cfg.ext, day=cfg.day  )
+        for relpath in relpaths:
+            path = join(dir, relpath)
+            name = os.path.basename(path)
+            if name == "%s%s" % (trac,cfg.ext):
+                log.info("extract_tracdb path %s relpath %s " % (path,relpath) )
+                tgz = tarfile.open(path,"r")
+                tracdb = "%s/db/trac.db" % trac
+                fold = os.path.join( cfg.base, os.path.dirname(relpath) )
+                if not os.path.exists(fold):
+                    log.info("create output folder for extraction %s " % fold )
+                    os.makedirs(fold)
+                log.info("extracting %s into %s this will take a while " % (tracdb, fold ))
+                tgz.extract(tracdb, path=base )
+                log.info("completed extraction ")
+            else:
+                log.info("exclude tarball %s " % path )
+
+def interpret_day( s ):
+    """
+    :param s: None for today, "-1" "-2" "-3" for days past, OR "2013/04/13" for specific day
+    :return: date string in standard format
+    """
+    tfmt = "%Y/%m/%d" 
+    now = datetime.now()
+    if not s:
+        t = now
+    elif s[0] == "-":
+        t = now + timedelta(days=int(s))    
+    else:
+        t = datetime.strptime(s,tfmt)
+    ss = t.strftime(tfmt)
+    log.info("interpreted day string %s into %s " % (s,ss))
+    return ss
 
 
 def parse_args_(doc):
@@ -391,30 +449,32 @@ def parse_args_(doc):
     op.add_option("-l", "--loglevel", default="INFO" )
     op.add_option("-s", "--source",  default = "/home/scm/backup/dayabay", help="directory on the source node" )
     op.add_option("-t", "--target",  default = "/data/var/scm/alt.backup/dayabay", help="directory on the target node"  )
+    op.add_option("-d", "--day",  default = None, help="date string in format '2013/04/13' or default of None corresponding to today or -1 for yesterday, -2 for day before yesterday"  )
     op.add_option("-x", "--ext",     default = ".tar.gz", help="file type being managed"  )
     op.add_option("-n", "--targetnode",  default = "C" )
     op.add_option("-k", "--keep",  default = 3 )
+    op.add_option("-b", "--base",  default = "/data/env/tmp", help="base directory under which extracted trac.db are placed")
     op.add_option("-e", "--echo", action="store_true", default = False )
     op.add_option("-w", "--wanted",  default = "dybsvn svnsetup" )  #  currently excludes dybaux
     opts, args = op.parse_args()
     level=getattr(logging,opts.loglevel.upper()) 
-
     if opts.logpath:
         logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
     else:
         logging.basicConfig(format=opts.logformat,level=level)
+    pass
+    opts.day = interpret_day(opts.day) 
     return opts, args
 
 
-if __name__ == '__main__':
-    
+def main():    
     cfg, args = parse_args_(__doc__)
 
     source = cfg.source
     target = cfg.target
     cfg.source = None    # convenient for getting the values but not subsequently 
     cfg.target = None
-    allowed = "dump transfer purge_target check_target check_source".split()
+    allowed = "dump transfer purge_target check_target check_source extract_tracdb".split()
             
     if len(args) == 0: 
         print "expecting arguments such as %s " % allowed
@@ -432,6 +492,10 @@ if __name__ == '__main__':
             node = os.environ['NODE_TAG']
             assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
             alt_check( target, cfg )
+        elif arg == 'extract_tracdb':
+            node = os.environ['NODE_TAG']
+            assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
+            alt_extract_tracdb( target, cfg )
         elif arg == 'dump':
             log.info(pprint.pformat(cfg))
             log.info("source     : %(source)s " % locals())
@@ -440,4 +504,6 @@ if __name__ == '__main__':
             pass
 
 
+if __name__ == '__main__':
+    main()
 
