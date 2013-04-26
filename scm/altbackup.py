@@ -17,6 +17,8 @@ On target node only::
    altbackup.py extract_tracdb --day 2013/04/13    
          # specific tarball, only a few days tarballs are retained
 
+   altbackup.py examine_tracdb --day -1   # yesterdays tarball
+
 
 Available commands:
 
@@ -36,15 +38,17 @@ Available commands:
       find matched files and 
       checks that the sidecar dna matches the locally recomputed dna
 
+
+Commands which can be run on the configured targetnode only:
+
 *check_target*
       checks that the sidecar dna matches the locally recomputed dna
-
-      **NB must be run on the configured targetnode**
 
 *extract_tracdb*
       extract trac.db out of the last backup tarball on the targetnode
 
-      **NB must be run on the configured targetnode**
+*examine_tracdb*
+      examine trac.db out of the last backup tarball 
 
 
 *dump*
@@ -401,27 +405,59 @@ def alt_check( dir, cfg ):
         assert npaths == expect[want], "expecting %s paths for %s BUT got %s  " % (expect[want], want, relpaths ) 
 
 
+def alt_examine_tracdb( dir, cfg ):
+    for trac in cfg.wanted.split():
+        for relpath in find_day_files(dir, wanted=[trac],ext=cfg.ext, day=cfg.day  ):
+            fold = os.path.join( cfg.base, os.path.dirname(relpath) )
+            dbpath = os.path.join(fold,"%s/db/trac.db" % trac)
+            if not os.path.exists(dbpath):
+                log.warn("skip non existing %s " % dbpath )
+            else:
+                log.info("dbpath %s " % dbpath)
+ 
+
 def alt_extract_tracdb( dir, cfg ):
     """
     """
-    for trac in ("dybsvn",):
+    for trac in cfg.wanted.split():
         relpaths = find_day_files(dir, wanted=[trac],ext=cfg.ext, day=cfg.day  )
         for relpath in relpaths:
             path = join(dir, relpath)
             name = os.path.basename(path)
             if name == "%s%s" % (trac,cfg.ext):
-                log.info("extract_tracdb path %s relpath %s " % (path,relpath) )
-                tgz = tarfile.open(path,"r")
-                tracdb = "%s/db/trac.db" % trac
                 fold = os.path.join( cfg.base, os.path.dirname(relpath) )
-                if not os.path.exists(fold):
-                    log.info("create output folder for extraction %s " % fold )
-                    os.makedirs(fold)
-                log.info("extracting %s into %s this will take a while " % (tracdb, fold ))
-                tgz.extract(tracdb, path=base )
-                log.info("completed extraction ")
+                tracdb = "%s/db/trac.db" % trac
+                dbpath = os.path.join(fold,tracdb)
+                if os.path.exists(dbpath):
+                    log.info("already extracted %s nothing to do " % dbpath )
+                else:
+                    log.info("extract_tracdb path %s relpath %s " % (path,relpath) )
+                    tgz = tarfile.open(path,"r")
+                    if not os.path.exists(fold):
+                        log.info("create output folder for extraction %s " % fold )
+                        os.makedirs(fold)
+                    try:
+                        tin = tgz.getmember(tracdb)
+                    except KeyError:
+                        tin = None
+                        log.info("failed to find %s in the tarball " % tracdb )
+                    if not tin:
+                        log.warn("skip extraction ")
+                    else: 
+                        log.info("extracting %s into %s this will take a while " % (tracdb, fold ))
+                        tgz.extract(tracdb, path=fold )
+                        assert os.path.exists(dbpath)
+                        log.info("completed extraction to %s " % dbpath )
+                pass
+                if os.path.exists(dbpath):
+                    log.info( os.popen("du -h %(dbpath)s" % locals()).read() )
             else:
                 log.info("exclude tarball %s " % path )
+
+
+
+
+
 
 def interpret_day( s ):
     """
@@ -474,7 +510,7 @@ def main():
     target = cfg.target
     cfg.source = None    # convenient for getting the values but not subsequently 
     cfg.target = None
-    allowed = "dump transfer purge_target check_target check_source extract_tracdb".split()
+    allowed = "dump transfer purge_target check_target check_source extract_tracdb examine_tracdb".split()
             
     if len(args) == 0: 
         print "expecting arguments such as %s " % allowed
@@ -496,6 +532,10 @@ def main():
             node = os.environ['NODE_TAG']
             assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
             alt_extract_tracdb( target, cfg )
+        elif arg == 'examine_tracdb':
+            node = os.environ['NODE_TAG']
+            assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
+            alt_examine_tracdb( target, cfg )
         elif arg == 'dump':
             log.info(pprint.pformat(cfg))
             log.info("source     : %(source)s " % locals())
