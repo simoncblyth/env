@@ -112,7 +112,7 @@ class Node(list):
             if lec[0].firstChild:  ## special handling for empty elements
                 return lec[0].firstChild.data       
         else:
-            log.warn("getElementsByTagName unexpected lec %s %s %s " % (lec,tag, str(self) ) )
+            #log.warn("getElementsByTagName unexpected lec %s %s %s " % (lec,tag, str(self) ) )
             return None 
     def _get_data(self):
         return self.node.firstChild.data
@@ -372,7 +372,7 @@ class Msgs(list):
         :return: integer id corresponding to the repo url
         """
         rt = Table(dbpath, "repos" , id="integer", url="text primary key"  )
-        rd = rt.asdict(kf="url", vf="id" )              
+        rd = rt.asdict(kf=lambda d:d["url"], vf=lambda d:d["id"] )              
         rid = rd.get(url, max(rd.values() or [0])+1 ) # when url already stored get the id from that otherwise increment the max id by one
         rt.add( id=rid, url=url, _insert=True )  
         return int(rid)

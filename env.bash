@@ -47,9 +47,13 @@ better workaround via reverse proxy on H
 ------------------------------------------
 
 #. requies nginx to be running on H 
-#. one time `svn switch --relocate` is needed to keep working with the env WC on N:: 
+#. one time `svn switch --relocate` is needed to keep working with the env WC on N::
 
 	[blyth@belle7 e]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/env http://hfag.phys.ntu.edu.tw:90/repos/env
+
+#. ditto for heprez::
+        [blyth@belle7 heprez]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/heprez http://hfag.phys.ntu.edu.tw:90/repos/heprez   
+
 
 env functions
 ---------------
