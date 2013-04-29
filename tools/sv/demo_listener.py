@@ -4,6 +4,7 @@ Supervisord Event Listeners
 ==============================
 
 http://supervisord.org/events.html
+http://supervisord.org/events.html#process-log-event-type
 
 An event listener implementation is a program that is willing to accept
 structured input on its stdin stream and produce structured output on its

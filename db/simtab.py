@@ -124,7 +124,7 @@ class Table(list):
          fields = []
          types = []
          ti = self.cursor.execute("pragma table_info(%s)" %  tn )
-         print ti
+         #print ti
          for row in ti:
              index,name,dtype,nonnull,default,primary = row
              fields.append(name)
@@ -182,15 +182,15 @@ class Table(list):
 
     def asdict(self, kf, vf, sql=None ):
         """
-        :param kf:
-        :param vf:
-        :param sql:
+        :param kf: function that returns key from the dict of query columns 
+        :param vf: function that returns value from the dict of query columns 
+        :param sql: query, default of None corresponds to `select * from %(tn)s`
         """
         if not sql:
             sql = "select * from %(tn)s "
         d = {}
         for r in self(sql % self.conf, fdict=True):
-            d[r[kf]] = r[vf]
+            d[kf(r)] = vf(r)
         return d
 
     def iterdict(self, sql, fields=None):
@@ -206,23 +206,23 @@ class Table(list):
         for row in self.cursor.execute(sql):
             yield dict(zip(fields,row))
 
-    def listdict(self, sql, fields=None):
+    def listdict(self, sql, labels=None):
         """
         :param sql: sql to perform
-        :param fields: comma delimited ordered list of column labels used for dict keys 
+        :param labels: comma delimited ordered list of column labels used for dict keys 
         :return: list of dicts
 
         Caution field/label list must correspond to the columns returned by the 
         query unless the query is of the form ``select * from whatever`` in which 
         case the full list of fields is used.
         """ 
-        if fields:
-            fields = fields.split(",") 
+        if labels:
+            labels = labels.split(",") 
         else:
-            fields = self.fields
+            labels = self.fields
         l = []
         for row in self.cursor.execute(sql):
-            l.append(dict(zip(fields,row)))
+            l.append(dict(zip(labels,row)))
         return l    
 
     def dump(self, sql="select * from %(tn)s ;" ):
