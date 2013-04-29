@@ -57,6 +57,7 @@ svnlog-db(){ sqlite3 $(svnlog-dbp) ; }
 
 svnlog-collect-(){
    local dir=${1:-$PWD}
+   [ ! -d "$dir" ] && echo $msg $dir does not exist && return 1
    local name=$(basename $dir) 
    local tmp=$(svnlog-tmpd) && mkdir -p $tmp
    cd $dir
@@ -73,13 +74,13 @@ svnlog-wcdirs-(){  cat << EOD
 $ENV_HOME
 $HEPREZ_HOME
 $DYB/NuWa-trunk/dybgaudi
+$WORKFLOW_HOME
 EOD
 }
 
 svnlog-collect(){
   local dir
   svnlog-wcdirs- | while read dir ; do
-     [ ! -d "$dir" ] && echo $msg $dir does not exist && return 1
      $FUNCNAME- $dir
   done
 }

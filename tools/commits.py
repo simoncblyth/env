@@ -85,14 +85,19 @@ class QWeekly(object):
             week = dweek['week']
             note = anno.get(week,{}).get('note',"")
             dweek.update(note=note)
-            if len(args) == 0 or week in args:
-                print 
-                print "**%(week)s**  %(note)s  " % dweek
-                print 
-                for ridrev in dweek['revs'].split(","):
-                    print ridrev, self.cdict[ridrev]['msg']
-                    print  
-                    print self.cdict[ridrev]['details']
+            select = len(args) == 0 or week in args
+            if select:
+                if self.opts.terse:
+                    print self.opts.titlefmt % dweek
+                else:
+                    print 
+                    print self.opts.titlefmt % dweek
+                    print 
+                    for ridrev in dweek['revs'].split(","):
+                        print "%-8s %s " % ( ridrev, self.cdict[ridrev]['msg'] )
+                        if self.opts.verbose: 
+                            print  
+                            print self.cdict[ridrev]['details']
                 pass     
             pass    
         return self
@@ -113,7 +118,6 @@ class Annotate(dict):
             self[sect] = dict(cpr.items(sect))
          
 
-
 def parse_args(doc):
     """
     Return config dict and commandline arguments 
@@ -126,7 +130,12 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-d", "--dbpath",   default="~/.env/svnlog.db", help="Path to multi-repo collection of SVN commit messages. Default %default"  )
     op.add_option("-a", "--annopath",   default="~/.env/annoweek.cnf", help="Path to weekly annotation config file. Default %default"  )
+    op.add_option("-v", "--verbose",  action="store_true", help="Details of the commits as well as messages and totals. Default %default"  )
+    op.add_option("-t", "--terse",  action="store_true", help="Summary and totals only. Default %default"  )
+    op.add_option("-f", "--titlefmt", default="**%(week)s**   e%(Nenv)-2s h%(Nheprez)-2s d%(Ndybsvn)-2s w%(Nworkflow)-2s     %(note)s   " )
+
     opts, args = op.parse_args()
+    assert not(opts.verbose and opts.terse), "those options are incompatible"
     level = getattr( logging, opts.loglevel.upper() )
     logging.basicConfig(level=level, format="%(asctime)s %(name)s %(levelname)-8s %(message)s")
     return opts, args
