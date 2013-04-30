@@ -3,7 +3,7 @@
 
 """
 import sys, logging
-from env.tools.svnlog import main
+from env.tools.repolog.svnlog import main
 
 if __name__ == '__main__':
     main()

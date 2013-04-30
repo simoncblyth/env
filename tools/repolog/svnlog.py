@@ -29,6 +29,11 @@ Example query::
    echo "select rid, rev, msg, datetime(date,'unixepoch','localtime') as cdate from commits order by date ;" | sqlite3 ~/.env/svnlog.db
 
 
+TODO
+~~~~~
+
+#. efficient update collection 
+
 NOTES
 ~~~~~~~
 

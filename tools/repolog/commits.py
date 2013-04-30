@@ -10,24 +10,28 @@ Usage::
 
 .. warning:: Handle revisions as opaque strings rather than integers, for future git/fossil/etc.. compatibility
 
+
+Debugging::
+
+    simon:~ blyth$ svnlog-db
+    -- Loading resources from /Users/blyth/.sqliterc
+
+    SQLite version 3.7.14.1 2012-10-04 19:37:12
+    Enter ".help" for instructions
+    Enter SQL statements terminated with a ";"
+    sqlite> .tables
+    commits  repos  
+    sqlite> 
+
+
+
+
 """
 import os, logging
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
 
 class QWeekly(object):
-
-    def repos_(self, path):
-        """
-        :param path: to svnlog sqlite3 DB
-        :return: dict like  `{1: 'env', 2: 'heprez', 3: 'dybsvn'}`
-        """
-        r = Table(path, "repos" )
-        repos = {}
-        for url,id in r.asdict(lambda d:d["url"],lambda d:d["id"]).items():
-            repos[id] = os.path.basename(url)
-        return repos
-
     def weekly_cols_(self, repos):
         """
         :param repos:
@@ -70,18 +74,15 @@ class QWeekly(object):
         sql = "select %(cols)s from %(table)s group by week order by week ;" % locals()
         return sql, labels 
 
-    def __init__(self, opts):
+    def __init__(self, db, opts):
+        self.db = db 
         self.opts = opts
-        self.repos = self.repos_(opts.dbpath)
-        log.debug("from %s find repos %s " % (opts.dbpath, self.repos) )  
-        commits = Table(opts.dbpath, "commits" )
-        self.cdict = commits.asdict(lambda d:"%s:%s"%(d['rid'],d['rev']), lambda d:d ) # keyed by the ridrev ie "1:500" repo 1 revision 500 
-        self.commits = commits
+        self.cdict = db.commits.asdict(lambda d:"%s:%s"%(d['rid'],d['rev']), lambda d:d ) # keyed by the ridrev ie "1:500" repo 1 revision 500 
 
     def __call__(self, args, anno={}):
         log.debug("args %s " % args )
-        sql, labels = self.weekly_sql_(self.repos)
-        for dweek in self.commits.listdict( sql , labels=",".join(labels)):
+        sql, labels = self.weekly_sql_(self.db.repos)
+        for dweek in self.db.commits.listdict( sql , labels=",".join(labels)):
             week = dweek['week']
             note = anno.get(week,{}).get('note',"")
             dweek.update(note=note)
@@ -103,6 +104,41 @@ class QWeekly(object):
         return self
 
 
+class Commits(object):
+    """
+    """
+    def __init__(self, dbpath):
+        self.repos = self.repos_(dbpath)
+        log.debug("from %s find repos %s " % (dbpath, self.repos) )  
+        self.commits = Table(dbpath, "commits") 
+        self.lastrev = self.lastrev_()
+        pass 
+
+    def __repr__(self):
+        return "%s %s" % ( self.__class__.__name__ , repr(self.lastrev)) 
+
+    def repos_(self, dbpath):
+        """
+        :param path: to svnlog sqlite3 DB
+        :return: dict like  `{1: 'env', 2: 'heprez', 3: 'dybsvn'}`
+        """
+        r = Table(dbpath, "repos" )
+        repos = {}
+        for url,id in r.asdict(lambda d:d["url"],lambda d:d["id"]).items():
+            name = os.path.basename(url)
+            repos[id] = name
+        return repos
+
+    def lastrev_(self):    
+        """
+        Query for last revisions from each repo. 
+        NB resisted temptation to assume integer revision codes as that is not future safe.
+        """
+        last = {}
+        for id,name in self.repos.items():
+            sql  = "select rev from commits where rid=%(id)s order by date desc limit 1 " % locals()
+            last[name] = self.commits.listdict(sql,labels="rev" )[0]['rev']
+        return last
 
 class Annotate(dict):
     def __init__(self, cnfpath ):
@@ -116,7 +152,7 @@ class Annotate(dict):
         cpr.read(os.path.expanduser(cnfpath))
         for sect in cpr.sections():
             self[sect] = dict(cpr.items(sect))
-         
+
 
 def parse_args(doc):
     """
@@ -143,8 +179,11 @@ def parse_args(doc):
 
 def main():
     opts, args = parse_args(__doc__)
+     
     anno = Annotate(opts.annopath)
-    q = QWeekly(opts)(args, anno=anno)
+    db = Commits(opts.dbpath)  
+    print db
+    q = QWeekly(db, opts)(args, anno=anno)
 
 
 if __name__ == '__main__':
