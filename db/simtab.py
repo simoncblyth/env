@@ -193,18 +193,18 @@ class Table(list):
             d[kf(r)] = vf(r)
         return d
 
-    def iterdict(self, sql, fields=None):
+    def iterdict(self, sql, labels=None):
         """
         :param sql: sql to perform
 
         Caution sql needs to be of general form ``select * from whatever``
         """ 
-        if fields:
-            fields = fields.split(",") 
+        if labels:
+            labels = labels.split(",") 
         else:
-            fields = self.fields
+            labels = self.fields
         for row in self.cursor.execute(sql):
-            yield dict(zip(fields,row))
+            yield dict(zip(labels,row))
 
     def listdict(self, sql, labels=None):
         """

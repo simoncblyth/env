@@ -22,7 +22,7 @@ NB during development, duplicate arguments precisely to benefit from caching
 
 This allows creation of an SQLite DB that collects the commits
 from multiple repositories allowing queries to be performed to 
-allow more integrated reporting across all repos
+allow integrated reporting across all repos
 
 Example query::
 

@@ -22,14 +22,35 @@ Debugging::
     sqlite> .tables
     commits  repos  
     sqlite> 
-
-
-
+    sqlite> select date, strftime('%Y:%W', datetime(date,"unixepoch","localtime")) as week, rid, rev, msg  from commits order by date desc limit 3 ;
+    date        week        rid         rev         msg                                                        
+    ----------  ----------  ----------  ----------  -----------------------------------------------------------
+    1367208613  2013:17     1           3695        update svnlog for more flexible functional asdict approach 
+    1367207549  2013:17     1           3694        improve presentation and querying of the all-repo weekly re
+    1367201583  2013:17     4           929         arc lighttpd webacces config and curl access               
+    sqlite> 
 
 """
 import os, logging
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
+
+
+time_ = lambda field, tfmt, label:"""
+      strftime('%(tfmt)s',datetime(%(field)s,'unixepoch','localtime')) as %(label)s """ % locals()
+ 
+# kludge to pluck the 2nd as label by using "))as integer" rather than spaced ")) as integer" 
+weekday_ = lambda field, wfmt, label:"""
+      case cast (strftime('%(wfmt)s',datetime(%(field)s,'unixepoch','localtime'))as integer)     
+           when 0 then 'Sun'
+           when 1 then 'Mon'
+           when 2 then 'Tue'
+           when 3 then 'Wed'
+           when 4 then 'Thu'
+           when 5 then 'Fri'
+           else 'Sat' 
+       end as %(label)s"""  % locals()
+
 
 class QWeekly(object):
     def weekly_cols_(self, repos):
@@ -74,10 +95,27 @@ class QWeekly(object):
         sql = "select %(cols)s from %(table)s group by week order by week ;" % locals()
         return sql, labels 
 
+
+    def commitly_sql_(self):
+        table = "commits"
+        tfmt = "%Y/%m/%d %H:%M:%S"
+        cols = ["rid as rid", "rev as rev", "date as date", "rid||':'||rev as ridrev", "msg as msg","details as details",time_("date",tfmt,"time"), weekday_("date","%w","weekday")] 
+        labels = map(lambda _:_.split(" as ")[1].rstrip(), cols)  # caution keep the spacing around the " as "
+        cols = ",".join(cols)
+        sql = "select %(cols)s from %(table)s ;" % locals()
+        return sql, labels
+
     def __init__(self, db, opts):
         self.db = db 
         self.opts = opts
-        self.cdict = db.commits.asdict(lambda d:"%s:%s"%(d['rid'],d['rev']), lambda d:d ) # keyed by the ridrev ie "1:500" repo 1 revision 500 
+        csql, clabels = self.commitly_sql_()
+        #log.info(csql)
+        cdict = {}
+        for d in db.commits.iterdict(csql,",".join(clabels)):
+            ridrev = "%s:%s"%(d['rid'],d['rev'])
+            cdict[ridrev] = d
+        self.cdict = cdict
+        # keyed by the ridrev ie "1:500" repo 1 revision 500 
 
     def __call__(self, args, anno={}):
         log.debug("args %s " % args )
@@ -94,11 +132,18 @@ class QWeekly(object):
                     print 
                     print self.opts.titlefmt % dweek
                     print 
-                    for ridrev in dweek['revs'].split(","):
-                        print "%-8s %s " % ( ridrev, self.cdict[ridrev]['msg'] )
-                        if self.opts.verbose: 
-                            print  
-                            print self.cdict[ridrev]['details']
+                    ridrevs = dweek['revs'].split(",")
+                    ridrevs = sorted(ridrevs,key=lambda _:self.cdict[_]['date'])
+                    weekdays = map( lambda _:self.cdict[_]['weekday'] , ridrevs )
+                    for day in 'Sun Mon Tue Wed Thu Fri Sat'.split():
+                        print 
+                        for ridrev in filter(lambda _:self.cdict[_]['weekday'] == day,ridrevs):
+                            drev = self.cdict[ridrev]
+                            assert drev['ridrev'] == ridrev, ridrev
+                            print self.opts.commitfmt % drev
+                            if self.opts.verbose: 
+                                print  
+                                print drev['details']
                 pass     
             pass    
         return self
@@ -169,6 +214,7 @@ def parse_args(doc):
     op.add_option("-v", "--verbose",  action="store_true", help="Details of the commits as well as messages and totals. Default %default"  )
     op.add_option("-t", "--terse",  action="store_true", help="Summary and totals only. Default %default"  )
     op.add_option("-f", "--titlefmt", default="**%(week)s**   e%(Nenv)-2s h%(Nheprez)-2s d%(Ndybsvn)-2s w%(Nworkflow)-2s     %(note)s   " )
+    op.add_option("-c", "--commitfmt", default="%(ridrev)-8s    %(time)s [%(weekday)s]     %(msg)s " )
 
     opts, args = op.parse_args()
     assert not(opts.verbose and opts.terse), "those options are incompatible"
