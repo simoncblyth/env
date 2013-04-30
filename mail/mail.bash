@@ -22,8 +22,15 @@ EOU
 
 }
 
-
-
+mail-db-path(){      echo /tmp/$USER/env/mail.db ; }
+mail-db-origpath(){  echo ~/Library/Mail/Envelope\ Index ; }
+mail-db-(){
+   local src="$(mail-db-origpath)"
+   local tgt="$(mail-db-path)"
+   mkdir -p $(dirname $tgt)
+   [ "$tgt" -nt "$src" -o ! -f "$tgt" ] && echo $msg copying from "$src" to "$tgt" && cp "$src" "$tgt"
+   sqlite3 $(mail-db-path)
+}
 
 mail-offline-cache(){ echo ~/Library/Mail/IMAP-$(mail-user)\@$(mail-host)/.OfflineCache ;  }
 mail-offline-cache-cd(){ cd $(mail-offline-cache) ; } 
