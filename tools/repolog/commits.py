@@ -9,7 +9,11 @@ Ideas:
 #. integrate other "event" sources
 
    * Trac/fossil/github ticket changes
-   * email message titles and bodies (see applescript in :workflow:`r879`)
+   * email message titles and bodies, primarily sent mails
+   
+       * via applescript in :workflow:`r879` is one way 
+       * but spelunking the Mail.app sqlite DB may be easier (see `mail-db` ),
+         although liable to breakage with version changes
 
 #. search across all events
 #. adopt rst formatting 
@@ -277,10 +281,9 @@ def parse_args(doc):
 
 def main():
     opts, weeks = parse_args(__doc__)
-    log.info("weeks: %s " % repr(weeks) )
+    log.debug("weeks: %s " % repr(weeks) )
     anno = Annotate(opts.annopath)
     db = Commits(opts.dbpath)  
-    print db
     q = QWeekly(db, opts)(weeks, anno=anno)
 
 
