@@ -376,10 +376,11 @@ class Msgs(list):
         :param url: repo url to be stored, if not already present
         :return: integer id corresponding to the repo url
         """
-        rt = Table(dbpath, "repos" , id="integer", url="text primary key"  )
+        rt = Table(dbpath, "repos" , id="integer", url="text primary key" ) # name="text"  )
         rd = rt.asdict(kf=lambda d:d["url"], vf=lambda d:d["id"] )              
         rid = rd.get(url, max(rd.values() or [0])+1 ) # when url already stored get the id from that otherwise increment the max id by one
-        rt.add( id=rid, url=url, _insert=True )  
+        #name = os.path.basename(url)   # unfortunately did not do this previously 
+        rt.add( id=rid, url=url, _insert=True )  # name=name  
         return int(rid)
 
     def commitdb(self, dbpath ):

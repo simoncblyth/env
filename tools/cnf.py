@@ -100,14 +100,14 @@ class BashFn(dict):
 
     Actually as bash looses the newlines have to explicity join with semicolons::
 
-        simon:tools blyth$ fntext=$(./cnf.py -s fossil)
+        simon:tools blyth$ fntext=$(cnf.py -s fossil)
         simon:tools blyth$ echo $fntext
         _cfg_fossil(){ cnfpath=~/.env.cnf format=bashfn loglevel=INFO binpath=/usr/local/env/fossil/fossil-src-20130216000435/build/fossil sect=fossil repodir=/var/scm/fossil sections=('heprez_trac' 'dybsvn_trac' 'dqtests' 'env_trac' 'fossil' 'workflow_trac' 'shiftcheck') port=591 user=root }
 
     Enabling::
 
-        eval $(./cnf.py -s fossil) ; _cfg_fossil
-        sect=fossil ; eval $(./cnf.py -s $sect) ; _cfg_$sect ; type _cfg_$sect
+        eval $(cnf.py -s fossil) ; _cfg_fossil
+        sect=fossil ; eval $(cnf.py -s $sect) ; _cfg_$sect ; type _cfg_$sect
 
 
 
@@ -152,8 +152,11 @@ def parse_args(doc):
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, pformat(d) ))  
     return opts, args, d
 
-if __name__ == '__main__':
+def main():
     opts, args, d = parse_args(__doc__)
     log.debug(pformat(d))
     print str(BashFn(d))  # the only print everything else goes to stderr
+
+if __name__ == '__main__':
+    main()
 

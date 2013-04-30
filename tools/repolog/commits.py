@@ -3,13 +3,34 @@
 Prepare useful reports from the :file:`~/.env/svnlog.db` created by `svnlog-collect` that 
 gathers all my SVN commit messages from all repositories over the past year.
 
-Usage::
+Ideas:
 
-     commits.py 2013:11   # report all commits within the specified week in all repositories
-     commits.py           # report all collected commits      
+#. automated commit message collection from all repos, improved update efficiency
+#. integrate other "event" sources
+
+   * Trac/fossil/github ticket changes
+   * email message titles and bodies (see applescript in :workflow:`r879`)
+
+#. search across all events
+#. adopt rst formatting 
+
+Reporting on commits from single weeks::
+
+     commits.py 2013:11      # report all commits within the specified week in all repositories
+     commits.py 2013:01      # canonical week specification
+     commits.py 2013:1       # non-canonical is converted
+     commits.py  1           # shortform week specification with default year, ie current year 
+     commits.py -y 2012 51   # shortform week specification with non-default year
+     commits.py 15 -r1,2,3   # restrict repos from which commits are reported 
+     commits.py 15 -r1 -v    # restrict to one repo with id=1 and use verbose reporting, showing details of paths altered
+
+Reporting all commits::
+
+     commits.py              # report all collected commits      
+     commits.py -r2 -N       # all commits from repo with id=2 without weekly annotation notes
+
 
 .. warning:: Handle revisions as opaque strings rather than integers, for future git/fossil/etc.. compatibility
-
 
 Debugging::
 
@@ -32,6 +53,7 @@ Debugging::
 
 """
 import os, logging
+from datetime import datetime
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
 
@@ -50,6 +72,7 @@ weekday_ = lambda field, wfmt, label:"""
            when 5 then 'Fri'
            else 'Sat' 
        end as %(label)s"""  % locals()
+
 
 
 class QWeekly(object):
@@ -97,6 +120,13 @@ class QWeekly(object):
 
 
     def commitly_sql_(self):
+        """
+        It would be convenient to have the repo name in the query columns too, but sqlite3 string handling 
+        is painful::
+
+            select rid, url, msg  from commits C inner join repos R on C.rid = R.id limit 10 ;
+
+        """
         table = "commits"
         tfmt = "%Y/%m/%d %H:%M:%S"
         cols = ["rid as rid", "rev as rev", "date as date", "rid||':'||rev as ridrev", "msg as msg","details as details",time_("date",tfmt,"time"), weekday_("date","%w","weekday")] 
@@ -108,6 +138,8 @@ class QWeekly(object):
     def __init__(self, db, opts):
         self.db = db 
         self.opts = opts
+        self.rids = map(int,opts.rids.split(","))
+        #log.info("rids %s " % str(self.rids))
         csql, clabels = self.commitly_sql_()
         #log.info(csql)
         cdict = {}
@@ -123,6 +155,8 @@ class QWeekly(object):
         for dweek in self.db.commits.listdict( sql , labels=",".join(labels)):
             week = dweek['week']
             note = anno.get(week,{}).get('note',"")
+            if self.opts.nonote:
+                note = ""
             dweek.update(note=note)
             select = len(args) == 0 or week in args
             if select:
@@ -135,15 +169,19 @@ class QWeekly(object):
                     ridrevs = dweek['revs'].split(",")
                     ridrevs = sorted(ridrevs,key=lambda _:self.cdict[_]['date'])
                     weekdays = map( lambda _:self.cdict[_]['weekday'] , ridrevs )
+
                     for day in 'Sun Mon Tue Wed Thu Fri Sat'.split():
-                        print 
-                        for ridrev in filter(lambda _:self.cdict[_]['weekday'] == day,ridrevs):
-                            drev = self.cdict[ridrev]
-                            assert drev['ridrev'] == ridrev, ridrev
-                            print self.opts.commitfmt % drev
-                            if self.opts.verbose: 
-                                print  
-                                print drev['details']
+                        selrevs = filter(lambda _:self.cdict[_]['weekday'] == day and self.cdict[_]['rid'] in self.rids,ridrevs)
+                        if len(selrevs) > 0:
+                            print 
+                            for ridrev in selrevs:
+                                drev = self.cdict[ridrev]
+                                drev['msg'] = drev['msg'].split("\n")[0]   # first line of message only 
+                                assert drev['ridrev'] == ridrev, ridrev
+                                print self.opts.commitfmt % drev
+                                if self.opts.verbose: 
+                                    print  
+                                    print drev['details']
                 pass     
             pass    
         return self
@@ -213,23 +251,37 @@ def parse_args(doc):
     op.add_option("-a", "--annopath",   default="~/.env/annoweek.cnf", help="Path to weekly annotation config file. Default %default"  )
     op.add_option("-v", "--verbose",  action="store_true", help="Details of the commits as well as messages and totals. Default %default"  )
     op.add_option("-t", "--terse",  action="store_true", help="Summary and totals only. Default %default"  )
-    op.add_option("-f", "--titlefmt", default="**%(week)s**   e%(Nenv)-2s h%(Nheprez)-2s d%(Ndybsvn)-2s w%(Nworkflow)-2s     %(note)s   " )
+    op.add_option("-f", "--titlefmt", default="**%(week)s**   e%(Nenv)-2s h%(Nheprez)-2s d%(Ndybsvn)-2s w%(Nworkflow)-2s\n%(note)s   " )
     op.add_option("-c", "--commitfmt", default="%(ridrev)-8s    %(time)s [%(weekday)s]     %(msg)s " )
+    op.add_option("-y", "--year", default=datetime.now().strftime("%Y") )
+    op.add_option("-r", "--rids", default="1,2,3,4" , help="repoid from which to report commits, default %default " )
+    op.add_option("-N", "--nonote", action="store_true", help="Dont report annotation notes, default %default " )
 
     opts, args = op.parse_args()
     assert not(opts.verbose and opts.terse), "those options are incompatible"
     level = getattr( logging, opts.loglevel.upper() )
     logging.basicConfig(level=level, format="%(asctime)s %(name)s %(levelname)-8s %(message)s")
-    return opts, args
+
+    weeks = []
+    for arg in args:
+        elems = arg.split(":")
+        assert len(elems) in (1,2)
+        if len(elems) == 2:
+            yrwk = elems
+        else:
+            yrwk = [opts.year,elems[0]]
+        week = "%s:%0.2d" % tuple(map(int,yrwk))
+        weeks.append(week)
+    return opts, weeks
 
 
 def main():
-    opts, args = parse_args(__doc__)
-     
+    opts, weeks = parse_args(__doc__)
+    log.info("weeks: %s " % repr(weeks) )
     anno = Annotate(opts.annopath)
     db = Commits(opts.dbpath)  
     print db
-    q = QWeekly(db, opts)(args, anno=anno)
+    q = QWeekly(db, opts)(weeks, anno=anno)
 
 
 if __name__ == '__main__':
