@@ -12,6 +12,7 @@ clui-env(){
    export EDITOR=vi
    
    clui-alias
+   clui-cd-with-history
    clui-tty 
     
 }
@@ -21,6 +22,11 @@ clui-usage(){ cat << EOU
 EOU
 }
 
+
+clui-cd-with-history(){
+  ## use "cd --" for history  "cd -5" to jump  
+  . $ENV_HOME/bash/acd_func.sh   
+}
 
 clui-alias(){
 
