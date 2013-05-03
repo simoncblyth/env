@@ -9,14 +9,30 @@ Simple monitoring and recording the output of commands that
 return a single value. The result is stored with a timestamp
 in an sqlite DB
 
-Config::
+Config example::
 
     [oomon]
 
+    note = despite notification being enabled this failed to notify me, apparently the C2 OOM issue made the machine incapable of sending email ?
     cmd = grep oom /var/log/messages | wc -l  
-    valmax = 0
+    constraints = ( val == 0, )
     dbpath = ~/.env/oomon.sqlite
     tn = oomon
+
+    [envmon]
+
+    note = check C2 server from cron on C, 
+    cmd = curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ | grep trunk | wc -l
+    valmin = -100
+    valmax = 100 
+    constraints = ( val == 1 and val < valmax, val > valmin, val < valmax, )
+    instruction = 
+                  the simple python constraint expression is evaluated within the scope of the other config values 
+                  the constraints string needs to evaluate to a tuple of one or more bools
+
+    dbpath = ~/.env/envmon.sqlite
+    tn = envmon
+
 
 Usage::
 
@@ -59,11 +75,25 @@ class ValueMon(object):
         :return: integer or None if the string cannot be coerced into an integer
         """
         try:
-           val = int(ret)
+           val = typ(ret)
         except ValueError:
            log.warn("non integer returned by cmd %s " % ret )
            val = None
         return val   
+
+    def float_or_asis(self, arg):
+        """
+        :param arg: arg that is possibly representing a float
+        :return: float from the arg OR unchanged arg if could not be coerced
+        """
+        try:
+           v = float(arg)
+        except ValueError:
+           v = arg
+        except TypeError:
+           v = arg
+        return v 
+
 
     def rec(self, cmd):
         """
@@ -96,25 +126,73 @@ class ValueMon(object):
         """
         return os.popen("echo \"select * from %(tn)s order by date desc limit 24 ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
 
+
+    def constrain_(self, last):
+        """
+        :param last: dict of last DB entry 
+
+        #. hmm a general solution would allow constraints specified by configured expression strings  
+        
+            * need a sanitizing expression parser to operate within the context of the last dict variables  
+            * http://effbot.org/zone/simple-top-down-parsing.htm
+
+        BUT i do not need the complexity, just a very simple expression parsing
+
+        Hmm constraining the scope of eval looks attractive::
+
+	   In [55]: eval(" ( val > valmax, val == valmax, val < valmax ,  valmin <= val <= valmax) ", dict(val=70,valmax=99,valmin=50) , {} )
+	   Out[55]: (False, False, True, True)
+
+        BUT do not use this in situations where security of the strings is less than python code,
+        as the strings must be considered to be python code::
+
+          In [53]: print eval("open('.bash_profile').read()", {},{})  ## succeeds to print 
+
+        """
+        ctx = {}
+        for k,v in last.items():
+            ctx[k] = v
+        for k,v in self.cnf.items():
+            ctx[k] = self.float_or_asis(v)    
+
+        strip_ = lambda _:_.strip().lstrip()
+        constraints = strip_(self.cnf['constraints'])
+        assert constraints[0] == '(' and constraints[-1] == ')', ("unexpected constraints", constraints )
+        lbls = filter(len,map(strip_,constraints[1:-1].split(",")))
+        evls = eval(constraints, ctx, {} )
+        del ctx['__builtins__']             # rm messy side effect of the eval  
+        assert len(lbls) == len(evls)
+        edict = dict(zip(lbls,evls))
+        return edict, ctx
+
     def mon(self):
         """
         Examine last entry in the configured DB table, and compares value to configured constraints
         When excursions are seen send notification email, to configured email addresses
         """
         last = self.tab.iterdict("select * from %(tn)s order by date desc limit 1" % self.cnf).next()
-        last['valmax'] = float(self.cnf['valmax'])
-        val_high = last['val'] > last['valmax']
-        if val_high: 
-            subj = "WARNING last entry from %(date)s,  val %(val)s > max %(valmax)s " 
-        else: 
-            subj = "OK last entry from %(date)s, val %(val)s < max %(valmax)s "
+        edict, ctx = self.constrain_(last)
+        log.debug("ctx:\n %s " % pformat(ctx))
+        log.debug("edict:\n %s " % pformat(edict))
+
+        subj = "last entry from %(date)s" 
         subj = subj % last 
-        if val_high:
+        oks =  map(lambda _:_[0],filter(lambda _:_[1],     edict.items() ))
+        exc =  map(lambda _:_[0],filter(lambda _:not _[1], edict.items() ))
+
+        if len(exc) > 0: 
+            subj += "WARN: " + "  ****  ".join(exc) 
+
+        if len(oks) > 0:
+            subj += "OK: " + "  ____  ".join(oks) 
+
+        if len(exc) > 0:
             msg = "\n".join([subj, self.rep()]) 
             log.warn("sending notification as: %s " % subj )
             notify(self.cnf['email'], msg )
         else:
             log.info("no notification: %s " % subj )
+
 
     def __call__(self, args):
         """
