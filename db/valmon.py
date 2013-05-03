@@ -9,7 +9,7 @@ Simple monitoring and recording the output of commands that
 return a single value. The result is stored with a timestamp
 in an sqlite DB
 
-Config example::
+Config examples::
 
     [oomon]
 
@@ -21,27 +21,38 @@ Config example::
 
     [envmon]
 
+    note = check C2 server from cron on other nodes
+    cmd = curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ | grep trunk | wc -l
+    constraints = ( val == 1, )
+    instruction = require a single trunk to be found, verifying that the apache interface to SVN is working 
+    dbpath = ~/.env/envmon.sqlite
+    tn = envmon
+
+    [envmon_demo]
+
     note = check C2 server from cron on C, 
     cmd = curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ | grep trunk | wc -l
     valmin = -100
     valmax = 100 
-    constraints = ( val == 1 and val < valmax, val > valmin, val < valmax, )
+    constraints = ( val == 1 and val < valmax, val > valmin , val < valmax )
     instruction = 
-                  the simple python constraint expression is evaluated within the scope of the other config values 
-                  the constraints string needs to evaluate to a tuple of one or more bools
+        the simple python `constraints` expression is evaluated within the scope of 
+        the section config values (with things that can be coerced to floats so coerced)
+        the constraint needs to evaluate to a tuple of one or more bools. 
+        To specify a one element tuple a trailing comma is needed, eg "( val > valmin, )"
 
     dbpath = ~/.env/envmon.sqlite
     tn = envmon
 
-
 Usage::
 
-    $ENV_HOME/db/valmon.py -s oomon rec ls rep mon
+    valmon.py -s oomon rec ls rep mon
+    valmon.py -s envmon rec mon
 
 Crontab::
 
     #50 * * * * ( export HOME=/root ; LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
-	50 * * * * ( export HOME=/root ; /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
+    50 * * * * ( export HOME=/root ; /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
 
 On C2, was forced to use source rather than system python 2.3 until `yum installed python-sqlite2`, see simtab for notes on this.
 
@@ -75,7 +86,7 @@ class ValueMon(object):
         :return: integer or None if the string cannot be coerced into an integer
         """
         try:
-           val = typ(ret)
+           val = int(ret)
         except ValueError:
            log.warn("non integer returned by cmd %s " % ret )
            val = None
@@ -140,8 +151,8 @@ class ValueMon(object):
 
         Hmm constraining the scope of eval looks attractive::
 
-	   In [55]: eval(" ( val > valmax, val == valmax, val < valmax ,  valmin <= val <= valmax) ", dict(val=70,valmax=99,valmin=50) , {} )
-	   Out[55]: (False, False, True, True)
+       In [55]: eval(" ( val > valmax, val == valmax, val < valmax ,  valmin <= val <= valmax) ", dict(val=70,valmax=99,valmin=50) , {} )
+       Out[55]: (False, False, True, True)
 
         BUT do not use this in situations where security of the strings is less than python code,
         as the strings must be considered to be python code::
@@ -215,20 +226,37 @@ class ValueMon(object):
 
 
 class Cnf(dict):
-    def __init__(self, sect, cnfpath="~/.env.cnf" ):
+    def __init__(self, cnfpath="~/.env.cnf" ):
         """
         Read `sect` section of config file into this dict
 
-        :param sect: section name in 
         :param cnfpath: config file path
         """
         cpr = ConfigParser()
         cpr.read(os.path.expanduser(cnfpath))
-        for k,v in cpr.items(sect):# spell it out for py2.3
+        pass
+        self.cpr = cpr
+        self.cnfpath = cnfpath
+        self.sections = cpr.sections()
+
+    def has_sect(self, sect):
+        return sect in self.sections 
+
+    def read(self, sect):
+        """
+        :param sect: section name in 
+        """
+        if not self.has_sect(sect):
+            log.info("no section '%s' amongst the cnf '%s' sections %s " % (sect, self.cnfpath,str(self.sections) ))  
+            assert 0
+        for k,v in self.cpr.items(sect):# spell it out for py2.3
             self[k] = v 
         self['sect'] = sect
-        self['sections'] = cpr.sections()
+        self['sections'] = self.sections
 
+    def __repr__(self):
+        return "%s %s %s %s " % ( self.__class__.__name__, self.cnfpath, str(self.sections), repr(dict(self)) )
+   
 
 def parse_args(doc):
     """
@@ -241,20 +269,25 @@ def parse_args(doc):
     op = OptionParser(usage=doc)
     op.add_option("-c", "--cnfpath",   default="~/.env.cnf", help="path to config file Default %default"  )
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
-    op.add_option("-s", "--sect",      default="oomon", help="section of config file... Default %default"  )
+    op.add_option("-s", "--sect",      default=None , help="section of config file... Default %default"  )
     opts, args = op.parse_args()
     loglevel = getattr( logging, opts.loglevel.upper() )
     logging.basicConfig()   # for py2.3 compatibility
     logging.getLogger().setLevel(loglevel)
+    return opts, args
 
-    cnf = Cnf(opts.sect, opts.cnfpath)
+def main():
+    opts, args = parse_args(__doc__)
+    cnf = Cnf(opts.cnfpath)
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, cnf))  
-    return cnf, args
+    if cnf.has_sect(opts.sect):
+        cnf.read(opts.sect) 
+        ValueMon(cnf)(args)
+    else: 
+        log.info("no such section %s in conf : %s " % (opts.sect, repr(cnf)) )
 
 
 if __name__ == '__main__':
-    cnf, args = parse_args(__doc__)
-    ValueMon(cnf)(args)
-
+    main()
 
 
