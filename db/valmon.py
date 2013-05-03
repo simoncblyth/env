@@ -22,7 +22,10 @@ Config examples::
     [envmon]
 
     note = check C2 server from cron on other nodes
-    cmd = curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ | grep trunk | wc -l
+    hostport = dayabay.phys.ntu.edu.tw
+    # from N need to get to C2 via nginx reverse proxy on H
+    #hostport = hfag.phys.ntu.edu.tw:90  
+    cmd = curl -s --connect-timeout 3 http://%(hostport)s/repos/env/ | grep trunk | wc -l
     constraints = ( val == 1, )
     instruction = require a single trunk to be found, verifying that the apache interface to SVN is working 
     dbpath = ~/.env/envmon.sqlite
@@ -186,7 +189,7 @@ class ValueMon(object):
         log.debug("ctx:\n %s " % pformat(ctx))
         log.debug("edict:\n %s " % pformat(edict))
 
-        subj = "last entry from %(date)s" 
+        subj = "last entry from %(date)s " 
         subj = subj % last 
         oks =  map(lambda _:_[0],filter(lambda _:_[1],     edict.items() ))
         exc =  map(lambda _:_[0],filter(lambda _:not _[1], edict.items() ))
