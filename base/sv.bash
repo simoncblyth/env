@@ -382,7 +382,8 @@ EOU
 }
 sv-dir(){  
    case $NODE_TAG in      
-      G) echo /opt/local/etc ;; 
+      G) echo /tmp/s ;; 
+      #G) echo /opt/local/etc ;; 
       *) echo $(local-base)/env/sv ;;
    esac
 }

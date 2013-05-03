@@ -92,6 +92,32 @@ if needed to restore from yesterdays backup.
 cms02 : restarting scm backup system after a reboot
 ------------------------------------------------------
 
+check/remove LOCKED backup dirs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Do this first, as tends to be otherwise forgotten causing subsequent backup failures::
+
+    [root@cms02 ~]# cd /var/scm
+    [root@cms02 scm]# ls -l 
+    total 64
+    drwxr-xr-x   4 blyth  blyth  4096 Sep 18  2012 backup
+    drwxr-xr-x   2 nobody nobody 4096 Mar 19 12:45 conf
+    drwxr-xr-x   3 blyth  blyth  4096 May  8  2012 foreign
+    drwxr-xr-x   2 root   root   4096 Apr  1 21:19 LOCKED
+    drwxr-xr-x   2 root   root   4096 Apr  1 15:50 log
+    drwxr-xr-x   8 nobody nobody 4096 May  7  2012 repos
+    drwxr-xr-x   2 nobody nobody 4096 May  4  2012 svn
+    drwxr-xr-x  11 nobody nobody 4096 May  7  2012 tracs
+    [root@cms02 scm]# ll LOCKED
+    total 4
+    -rw-r--r--  1 root root 0 Apr  1 21:19 scm-backup-rsync-started-2013-04-01@21:19:28
+    [root@cms02 scm]# date
+    Tue Apr  2 12:11:21 CST 2013
+    [root@cms02 scm]# rm -rf LOCKED
+    [root@cms02 scm]# 
+
+
+
 restore ssh agent
 ~~~~~~~~~~~~~~~~~~
 
@@ -116,32 +142,6 @@ check/edit crontab times
     15 21 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-nightly ) >  /var/scm/log/scm-backup-nightly-$(date +"\%d").log 2>&1
     15 22 * * *  ( export HOME=/root ; export NODE=cms02 ; export MAILTO=blyth@hep1.phys.ntu.edu.tw ; export ENV_HOME=/home/blyth/env ; . /home/blyth/env/env.bash ; env-  ; scm-backup- ; scm-backup-tgzmon ) >  /var/scm/log/scm-backup-tgzmon-$(date +"\%d").log 2>&1
     50 * * * * ( export HOME=/root ; LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python /home/blyth/env/db/valmon.py -s oomon rec ; ) > /var/scm/log/oomon.log 2>&1
-
-
-check/remove LOCKED backup dirs
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    [root@cms02 ~]# cd /var/scm
-    [root@cms02 scm]# ls -l 
-    total 64
-    drwxr-xr-x   4 blyth  blyth  4096 Sep 18  2012 backup
-    drwxr-xr-x   2 nobody nobody 4096 Mar 19 12:45 conf
-    drwxr-xr-x   3 blyth  blyth  4096 May  8  2012 foreign
-    drwxr-xr-x   2 root   root   4096 Apr  1 21:19 LOCKED
-    drwxr-xr-x   2 root   root   4096 Apr  1 15:50 log
-    drwxr-xr-x   8 nobody nobody 4096 May  7  2012 repos
-    drwxr-xr-x   2 nobody nobody 4096 May  4  2012 svn
-    drwxr-xr-x  11 nobody nobody 4096 May  7  2012 tracs
-    [root@cms02 scm]# ll LOCKED
-    total 4
-    -rw-r--r--  1 root root 0 Apr  1 21:19 scm-backup-rsync-started-2013-04-01@21:19:28
-    [root@cms02 scm]# date
-    Tue Apr  2 12:11:21 CST 2013
-    [root@cms02 scm]# rm -rf LOCKED
-    [root@cms02 scm]# 
-
 
 
 
