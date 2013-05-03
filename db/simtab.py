@@ -90,6 +90,17 @@ class Table(list):
 
         :param tn: table name
         :param kwa: `dict` of field names and types  
+
+
+        Old SQLite dont like "CREATE TABLE IF NOT EXISTS"
+
+
+sqlite> SELECT sql FROM sqlite_master WHERE type='table' AND name='oomon';
+sql                                    
+---------------------------------------
+CREATE TABLE oomon (date text,val real)
+
+
         """
 
         pk = kwa.pop('pk',None)   # optionally use comma delimited 
@@ -103,10 +114,18 @@ class Table(list):
             pkf = []
 
         fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)] + pkf )
-        create_sql = "CREATE TABLE IF NOT EXISTS %(tn)s (%(fields_sql)s)" % locals()
-        self.cursor.execute(create_sql)
-        log.debug("_create: %s " % create_sql )
 
+        create_sql = "CREATE TABLE %(tn)s (%(fields_sql)s)" % locals()
+        check_schema = self.cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='%(tn)s'" % locals() ).fetchall()
+        log.debug("check_schema : %s " % str(check_schema)) 
+        if len(check_schema) == 0:
+            log.debug("_create: %s " % create_sql )
+            self.cursor.execute(create_sql)
+        else:
+            check_schema = check_schema[0][0]
+            assert check_schema == create_sql , ("schema mismatch", check_schema, create_sql )
+            log.debug("table %(tn)s exists already and has expected schema :" % locals() + check_schema  )
+        pass
         self.qxn = ",".join(["?" for _ in range(len(kwa.keys()))] )
         self.fields = kwa.keys()
 
