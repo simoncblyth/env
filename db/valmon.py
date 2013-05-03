@@ -59,6 +59,16 @@ Crontab::
 
 On C2, was forced to use source rather than system python 2.3 until `yum installed python-sqlite2`, see simtab for notes on this.
 
+The envmon check of C2 from C uses source python, necessitating::
+
+     SHELL=/bin/bash
+     HOME=/home/blyth
+     ENV_HOME=/home/blyth/env
+     CRONLOG_DIR=/home/blyth/cronlog
+     PATH=/home/blyth/env/bin:/data/env/system/python/Python-2.5.1/bin:/usr/bin:/bin
+     LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.1/lib
+     42 * * * * * ( valmon.py -s envmon rec rep mon ) > $CRONLOG_DIR/envmon.log 2>&1 
+
 """
 import os, logging
 from pprint import pformat
