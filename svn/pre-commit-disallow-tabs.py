@@ -61,7 +61,22 @@ Hmm the hook is noting the tab but the commit it not being stopped::
     simon:hooks blyth$ 
 
 Presumably the pre-commit command runs in some funny environment ?
+Yep after using explicit path to svnlook::
 
+    simon:dummy blyth$ ci -m "another "
+    Adding         red.py
+    Transmitting file data .svn: E165001: Commit failed (details follow):
+    svn: E165001: Commit blocked by pre-commit hook (exit code 255) with output:
+    INFO:__main__:/opt/local/bin/svnlook %s /tmp/repos/dummy --transaction 5-c 
+    WARNING:__main__:tab detected in red.py 
+
+::
+
+    simon:dummy blyth$ ci -m "another with tab removed"
+    Adding         red.py
+    Transmitting file data .
+    Committed revision 6.
+    simon:dummy blyth$ 
 
 """
 import os, sys, subprocess, logging
@@ -90,13 +105,14 @@ def main():
     from optparse import OptionParser
     log.debug("pre-commit hook operating\n")
     parser = OptionParser(__doc__)
-    parser.add_option("-r", "--revision", help="Test mode. TXN actually refers to a revision.", action="store_true", default=False)
+    parser.add_option("-t", "--testmode", help="Test mode. TXN actually refers to a revision.", action="store_true", default=False)
     (opts, (repos, txn_or_rvn)) = parser.parse_args()
 
-    if opts.revision:
-        look_cmd = "svnlook %s %s --revision %s " % ("%s", repos, txn_or_rvn)
+    bin = "/opt/local/bin/svnlook"
+    if opts.testmode:
+        look_cmd = "%s %s %s --revision %s " % (bin,"%s", repos, txn_or_rvn)  # place holder for "cat" or "contents" is left as "%s"
     else:
-        look_cmd = "svnlook %s %s --transaction %s " % ("%s", repos, txn_or_rvn)
+        look_cmd = "%s %s %s --transaction %s " % (bin,"%s", repos, txn_or_rvn)
 
     log.info(look_cmd)
     aufiles = au_files(look_cmd, ".cpp .cxx .h .py")
