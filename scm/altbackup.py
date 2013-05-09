@@ -48,7 +48,7 @@ Commands which can be run on the configured targetnode only:
       extract trac.db out of the last backup tarball on the targetnode
 
 *examine_tracdb*
-      examine trac.db out of the last backup tarball 
+      examine trac.db out of the last backup tarball, printing last build times from each of the slaves
 
 
 *dump*
@@ -414,7 +414,43 @@ def alt_examine_tracdb( dir, cfg ):
                 log.warn("skip non existing %s " % dbpath )
             else:
                 log.info("dbpath %s " % dbpath)
- 
+                query( dbpath )
+
+def query(dbpath):
+    """
+    Use the trac.db extracted from the backup tarball to determine the laststart times of the last build
+    from each of the slaves, query restricts to last 30 days to skip retired slaves::
+
+
+	slave                 id          rev         lastrevtime           laststarted         
+	--------------------  ----------  ----------  --------------------  --------------------
+	lxslc507.ihep.ac.cn   20630       20453       2013-05-02 11:43:14   2013-05-02 12:04:01 
+	farm4.dyb.local       20629       20453       2013-05-02 11:43:14   2013-05-02 12:07:55 
+	lxslc504.ihep.ac.cn   20626       20453       2013-05-02 11:43:14   2013-05-02 13:03:01 
+	belle7.nuu.edu.tw     20652       20479       2013-05-08 00:23:01   2013-05-08 03:40:09 
+	daya0001.rcf.bnl.gov  20654       20479       2013-05-08 00:23:01   2013-05-08 08:43:41 
+	daya0004.rcf.bnl.gov  20658       20479       2013-05-08 00:23:01   2013-05-08 09:20:28 
+	pdyb-02               20661       20479       2013-05-08 00:23:01   2013-05-08 09:48:35 
+	farm2.dyb.local       20655       20479       2013-05-08 00:23:01   2013-05-08 11:22:42 
+	pdyb-03               20657       20479       2013-05-08 00:23:01   2013-05-09 00:13:52 
+
+    """ 
+    dt_ = lambda field,label:"datetime(%(field)s,'unixepoch') as %(label)s" % locals()
+    cols = ",".join(["slave","max(id) id", "max(rev) rev", "max(rev_time) as _lastrevtime", dt_("max(rev_time)", "lastrevtime"), "max(started) as _laststart", dt_("max(started)","laststart") ])
+    keys = ("slave","id","rev","_lastrevtime","lastrevtime","_laststart","laststart",)
+    modifier = "-30 days"
+    sql = "select %(cols)s from bitten_build where datetime(rev_time,'unixepoch') > datetime('now','%(modifier)s') group by slave having slave != '' order by _laststart " % locals()
+    
+    #print "\n"+os.popen("echo \"%(sql)s ; \" | sqlite3 -header -column  %(dbpath)s " % locals()).read()  # with the sqlite3 binary 
+    import sqlite3 
+    conn = sqlite3.connect(dbpath)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    fmt = " %(slave)-20s  %(id)-7s %(rev)-7s     %(lastrevtime)-20s    %(laststart)-20s  " 
+    print fmt % dict((k,k) for k in keys)
+    for row in cursor.execute(sql):
+        d = dict((k,row[k]) for k in keys)
+        print fmt % d
 
 def alt_extract_tracdb( dir, cfg ):
     """
