@@ -85,10 +85,55 @@ Despite adding the below to the dybslv config so far did not receive log updatin
 
 In order to make dybslv audible with added config above had to `stop`, `remove` then `add` the dybslv.
 
-::
+
+event buffer overflowed
+-------------------------
+
+* http://supervisord.org/events.html
+
+A listener pool has an event buffer queue. The queue is sized via the listener
+pools `buffer_size` config file option. If the queue is full and supervisor
+attempts to buffer an event, supervisor will throw away the oldest event in the
+buffer and log an error.
+
+Maybe my listener is not properly expunging events as they appear to be handled but show
+up in the discarded::
 
 
+    N> tail -f demo_listener stderr
+    ==> Press Ctrl-C to exit <==
+    2013-05-10 20:44:58,289 __main__ INFO     handling event PROCESS_LOG_STDOUT 
+    2013-05-10 20:44:58,289 __main__ INFO     headers  : [{'ver': '3.0', 'poolserial': '103593', 'len': '139', 'server': 'supervisor', 'eventname': 'PROCESS_LOG_STDOUT', 'serial': '103758', 'pool': 'demo_listener'}]
+    2013-05-10 20:44:58,290 __main__ INFO     pheaders : [{'processname': 'demo_logger', 'pid': '31611', 'channel': 'stdout', 'groupname': 'demo_logger'}]
+    2013-05-10 20:44:58,290 __main__ INFO     pdata    : [2013-05-10 20:44:58,289 __main__ INFO     hi using index 0 delay 3]
+    2013-05-10 20:45:00,293 __main__ INFO     handling event TICK_60 
+    2013-05-10 20:45:00,293 __main__ INFO     headers  : [{'ver': '3.0', 'poolserial': '103594', 'len': '15', 'server': 'supervisor', 'eventname': 'TICK_60', 'serial': '103759', 'pool': 'demo_listener'}]
+    2013-05-10 20:45:00,293 __main__ INFO     payload  : [when:1368189900]
+    2013-05-10 20:45:01,290 __main__ INFO     handling event PROCESS_LOG_STDOUT 
+    2013-05-10 20:45:01,290 __main__ INFO     headers  : [{'ver': '3.0', 'poolserial': '103595', 'len': '139', 'server': 'supervisor', 'eventname': 'PROCESS_LOG_STDOUT', 'serial': '103760', 'pool': 'demo_listener'}]
+    2013-05-10 20:45:01,290 __main__ INFO     pheaders : [{'processname': 'demo_logger', 'pid': '31611', 'channel': 'stdout', 'groupname': 'demo_logger'}]
+    2013-05-10 20:45:01,290 __main__ INFO     pdata    : [2013-05-10 20:45:01,289 __main__ INFO     hi using index 0 delay 3]
 
+    N> maintail
+    2013-05-10 20:44:49,288 ERRO pool demo_listener event buffer overflowed, discarding event 103745
+    2013-05-10 20:44:52,289 ERRO pool demo_listener event buffer overflowed, discarding event 103746
+    2013-05-10 20:44:55,289 ERRO pool demo_listener event buffer overflowed, discarding event 103747
+    2013-05-10 20:44:58,289 ERRO pool demo_listener event buffer overflowed, discarding event 103748
+    2013-05-10 20:45:00,292 ERRO pool demo_event_listener event buffer overflowed, discarding event 103543
+    2013-05-10 20:45:00,292 ERRO pool demo_listener event buffer overflowed, discarding event 103749
+    2013-05-10 20:45:01,290 ERRO pool demo_listener event buffer overflowed, discarding event 103750
+    2013-05-10 20:45:04,290 ERRO pool demo_listener event buffer overflowed, discarding event 103751
+    2013-05-10 20:45:07,291 ERRO pool demo_listener event buffer overflowed, discarding event 103752
+
+
+Changing logging delay from 3 to 10 s, changed the discard pulse accordingly::
+
+    2013-05-10 20:51:00,275 ERRO pool demo_event_listener event buffer overflowed, discarding event 103672
+    2013-05-10 20:51:00,275 ERRO pool demo_listener event buffer overflowed, discarding event 103874
+    2013-05-10 20:51:04,274 ERRO pool demo_listener event buffer overflowed, discarding event 103875
+    2013-05-10 20:51:14,274 ERRO pool demo_listener event buffer overflowed, discarding event 103876
+    2013-05-10 20:51:24,274 ERRO pool demo_listener event buffer overflowed, discarding event 103877
+    2013-05-10 20:51:34,274 ERRO pool demo_listener event buffer overflowed, discarding event 103878
 
 
 """
