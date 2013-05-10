@@ -124,6 +124,20 @@ except ImportError:
     from md5 import md5
 
 
+seconds = {}
+
+def timing(func):
+    def wrapper(*arg,**kw):
+        '''source: http://www.daniweb.com/code/snippet368.html'''
+        t1 = time.time()
+        res = func(*arg,**kw)
+        t2 = time.time()
+        global seconds
+        seconds[func.func_name] = (t2-t1)
+        return res 
+    return wrapper
+
+
 def findpath(base, pathfilter=lambda _:True):
     for root, dirs, files in os.walk(base):
         for name in files:
@@ -557,6 +571,7 @@ def parse_args_(doc):
     else:
         logging.basicConfig(format=opts.logformat,level=level)
     pass
+    log.info(" ".join(sys.argv))
     opts.day = interpret_day(opts.day) 
     return opts, args
 
@@ -576,6 +591,7 @@ def main():
 
     for arg in args:
         assert arg in allowed, "arg %s is not allowed %s " % ( arg, allowed )
+        log.info("================================ %s " % arg )
         if arg == 'transfer':
             alt_transfer( source, target, cfg )   
         elif arg == 'purge_target':
