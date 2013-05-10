@@ -54,6 +54,28 @@ Commands which can be run on the configured targetnode only:
 *dump*
       print configuration parameters
 
+
+
+Issues
+--------
+
+truncated transfer due to connection timeout
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+::
+
+    [blyth@cms01 05]$ pwd
+    /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05
+
+    [blyth@cms01 05]$ find . -type f  -name '*.tar.gz' -exec ls -l {} \;
+    -rw-r--r--  1 blyth blyth 1529629254 May  8 14:06 ./08/104701/dybsvn.tar.gz
+    -rw-r--r--  1 blyth blyth 1531229474 May  9 14:01 ./09/104702/dybsvn.tar.gz
+    -rw-r--r--  1 blyth blyth 1147682816 May 10 14:08 ./10/104701/dybsvn.tar.gz
+
+
+
+
 """
 
 notes=r"""

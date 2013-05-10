@@ -18,24 +18,24 @@ Crontab examples
 
 On the sending **source** node::
 
-	SHELL=/bin/bash
-	HOME=/home/blyth
-	ENV_HOME=/home/blyth/env
-	CRONLOG_DIR=/home/blyth/cronlog
-	NODE_TAG_OVERRIDE=WW
-        MAILTO=blyth@hep1.phys.ntu.edu.tw
-        #
-	00 13 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
+    SHELL=/bin/bash
+    HOME=/home/blyth
+    ENV_HOME=/home/blyth/env
+    CRONLOG_DIR=/home/blyth/cronlog
+    NODE_TAG_OVERRIDE=WW
+    MAILTO=blyth@hep1.phys.ntu.edu.tw
+    #
+    00 13 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_source transfer purge_target  ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 On the receiving **target** node::
 
-	SHELL=/bin/bash
-	HOME=/home/blyth
-	ENV_HOME=/home/blyth/env
-	CRONLOG_DIR=/home/blyth/cronlog
-        MAILTO=blyth@hep1.phys.ntu.edu.tw
-        #	
-	30 15 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
+    SHELL=/bin/bash
+    HOME=/home/blyth
+    ENV_HOME=/home/blyth/env
+    CRONLOG_DIR=/home/blyth/cronlog
+    MAILTO=blyth@hep1.phys.ntu.edu.tw
+    #
+    30 15 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 
 
@@ -49,16 +49,16 @@ Scheduling
 
 The root controlled scm backup (managed by Qiumei) typically completes before noon, as indicated by timestamps on the dna sidecars::
 
-	[dayabay] /home/blyth/e/scm > find /home/scm/backup/dayabay  -name '*.tar.gz.dna' -exec ls -l {} \; | grep dybsvn
-	-rw-r--r--  1 root root 65 Feb 26 11:03 /home/scm/backup/dayabay/svn/dybsvn/2013/02/26/104701/dybsvn-19844.tar.gz.dna
-	-rw-r--r--  1 root root 65 Feb 25 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/25/104702/dybsvn-19839.tar.gz.dna
-	-rw-r--r--  1 root root 65 Feb 23 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/23/104702/dybsvn-19839.tar.gz.dna
-	-rw-r--r--  1 root root 65 Feb 24 11:04 /home/scm/backup/dayabay/svn/dybsvn/2013/02/24/104702/dybsvn-19839.tar.gz.dna
-	-rw-r--r--  1 root root 64 Feb 26 11:25 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/26/104701/dybsvn.tar.gz.dna
-	-rw-r--r--  1 root root 64 Feb 25 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/25/104702/dybsvn.tar.gz.dna
-	-rw-r--r--  1 root root 64 Feb 23 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/23/104702/dybsvn.tar.gz.dna
-	-rw-r--r--  1 root root 64 Feb 24 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/24/104702/dybsvn.tar.gz.dna
-	[dayabay] /home/blyth/e/scm > 
+    [dayabay] /home/blyth/e/scm > find /home/scm/backup/dayabay  -name '*.tar.gz.dna' -exec ls -l {} \; | grep dybsvn
+    -rw-r--r--  1 root root 65 Feb 26 11:03 /home/scm/backup/dayabay/svn/dybsvn/2013/02/26/104701/dybsvn-19844.tar.gz.dna
+    -rw-r--r--  1 root root 65 Feb 25 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/25/104702/dybsvn-19839.tar.gz.dna
+    -rw-r--r--  1 root root 65 Feb 23 11:05 /home/scm/backup/dayabay/svn/dybsvn/2013/02/23/104702/dybsvn-19839.tar.gz.dna
+    -rw-r--r--  1 root root 65 Feb 24 11:04 /home/scm/backup/dayabay/svn/dybsvn/2013/02/24/104702/dybsvn-19839.tar.gz.dna
+    -rw-r--r--  1 root root 64 Feb 26 11:25 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/26/104701/dybsvn.tar.gz.dna
+    -rw-r--r--  1 root root 64 Feb 25 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/25/104702/dybsvn.tar.gz.dna
+    -rw-r--r--  1 root root 64 Feb 23 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/23/104702/dybsvn.tar.gz.dna
+    -rw-r--r--  1 root root 64 Feb 24 11:28 /home/scm/backup/dayabay/tracs/dybsvn/2013/02/24/104702/dybsvn.tar.gz.dna
+    [dayabay] /home/blyth/e/scm > 
 
 
 
