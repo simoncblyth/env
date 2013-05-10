@@ -3,7 +3,7 @@ envcap-src(){      echo tools/envcap.bash ; }
 envcap-source(){   echo ${BASH_SOURCE:-$(env-home)/$(envcap-src)} ; }
 envcap-vi(){       vi $(envcap-source) ; }
 envcap-env(){      elocal- ; }
-envcap-usage(){ cat << EOU
+envcap-notes(){ cat << EON
 
 
 
@@ -12,7 +12,7 @@ envcap-usage(){ cat << EOU
     diff /tmp/encap.sh /tmp/env-fast-sorted.sh
 
 
-EOU
+EON
 }
 envcap-dir(){ echo $(local-base)/env/tools/envcap ; }
 envcap-cd(){  cd $(envcap-dir); }
@@ -56,8 +56,11 @@ envcap(){
 }
 envcap-paths(){ env | grep PATH | perl -n -e 'm,(.*PATH)=, && print "$1\n" ' - ; }
 
+envcap-dif-(){
+  diff $(envcap-bef) $(envcap-aft) 
+}
 envcap-dif(){
-  diff $(envcap-bef) $(envcap-aft) | perl -n -e 'm/^> (.*)$/ && print "export $1\n" ' - | grep -v "PWD="  > $(envcap-fst)
+  $FUNCNAME- | perl -n -e 'm/^> (.*)$/ && print "export $1\n" ' - | grep -v "PWD="  > $(envcap-fst)
 }
 
 envcap-befv(){ perl -n -e "m,^$1=(\S*), && print \$1"  $(envcap-bef) ; }
