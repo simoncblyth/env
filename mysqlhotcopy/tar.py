@@ -2,7 +2,7 @@
 """
 """
 import os, logging, shutil, tarfile, copy
-from common import timing, seconds
+from common import timing, seconds, scp
 from datetime import datetime
 log = logging.getLogger(__name__)
 
@@ -101,6 +101,17 @@ class Tar(object):
         wtf.extractall(extractdir, select) 
         tf.close() 
 
+    @timing
+    def transfer(self, remotenode):
+        """
+        """
+        assert os.path.exists(self.path), "path %s does not exist " % self.path 
+        spath = self.path
+        tpath = self.path
+        scp( spath, tpath, remotenode )
+        
+
+ 
 class TarFileWrapper(object):
     """
     Extractall only appears in 2.7 so back port from there into this wrapper from use from 2.3. 2.4, 2.5, 2.6  
