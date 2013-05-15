@@ -158,7 +158,14 @@ class LogListener(object):
                 return True
         return False
 
+
     def __call__(self):
+        while 1:
+            headers, payload = childutils.listener.wait(self.stdin, self.stdout)
+            self.dispatch(headers, payload)
+            childutils.listener.ok(self.stdout)
+
+    def __call__old(self):
         while 1:
             headers, payload = childutils.listener.wait(self.stdin, self.stdout)
             if not self.dispatch(headers, payload):
@@ -191,7 +198,7 @@ class LogListener(object):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)-8s %(message)s")
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)-8s %(message)s", stream=sys.stderr)
     LogListener()()
 
 if __name__ == '__main__':
