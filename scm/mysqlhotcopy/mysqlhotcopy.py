@@ -9,16 +9,32 @@ MySQL Hotcopy wrapper
 
 TODO:
 
-#. tarball digest dna 
-#. tarball scp (experience suggests that is more reliable than scp on long term )
-#. tarball purging 
+#. recovery feature
 
+#. offboxing 
+
+    #. tarball digest dna 
+    #. tarball scp (experience suggests that is more reliable than rsync for long term usage )
+    #. tarball purging 
 
 Intended to be used in system python from sudo, operating from non-pristine 
 env will cause errors related to setuptools.
 Requires MySQLdb, check that and operating env with::
 
     sudo python -c "import MySQLdb"
+
+
+mysqlhotcopy options
+----------------------
+
+`--allowold`
+           Move any existing version of the destination to a backup directory
+           for the duration of the copy. If the copy successfully completes, the backup
+           directory is deleted - unless the --keepold flag is set.  If the copy fails,
+           the backup directory is restored.
+
+           The backup directory name is the original name with "_old" appended.
+           Any existing versions of the backup directory are deleted.
 
 Issues
 -------
@@ -41,16 +57,21 @@ Usage steps
 
     [mysqlhotcopy]
     socket    = /var/lib/mysql/mysql.sock
-    database  = tmp_offline_db
     host      = localhost
     user      = root
     password  = ***
+    database = information_schema
+    # 
+    # NB needs a database specified to allow DB connection to make the locks, 
+    # but database to backup is provided as an argument to mysqlhotbackup 
+    # mitigate the duplicity by using the system metadata `information_schema` 
+    
 
 The hotcopy is very fast compared to the tgz creation, these 
 are done separated (not in a pipe for example) so the time the DB is locked is 
 kept to a minimum::
 
-    [blyth@belle7 scm]$ sudo python mysqlhotcopy.py 
+    [blyth@belle7 scm]$ sudo python mysqlhotcopy.py tmp_offline_db hotcopy
     2013-05-14 18:32:12,881 __main__ INFO     mysqlhotcopy.py tmp_offline_db
     2013-05-14 18:32:12,884 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy tmp_offline_db /var/scm/mysqlhotcopy/20130514_1832   
     2013-05-14 18:32:13,442 __main__ INFO     seconds {'_hotcopy': 0.560593843460083} 
@@ -90,26 +111,15 @@ Size of hotcopy directory close to that estimated from DB, tgz is factor of 3 sm
 """
 
 # keep this standalone, ie no DybPython.DB
-import os, logging, sys, tarfile, time
+import os, logging, sys, tarfile, time, shutil
 from datetime import datetime
 from fsutils import disk_usage
 from db import DB
 from cmd import CommandLine
 log = logging.getLogger(__name__)
+from common import timing, seconds
+from tar import Tar
 
-seconds = {}
-def timing(func):
-    def wrapper(*arg,**kw):
-        '''source: http://www.daniweb.com/code/snippet368.html'''
-        t1 = time.time()
-        res = func(*arg,**kw)
-        t2 = time.time()
-        global seconds
-        seconds[func.func_name] = (t2-t1)
-        return res 
-    return wrapper
-
-    
 class MySQLHotCopy(CommandLine):
     """
     """
@@ -118,22 +128,38 @@ class MySQLHotCopy(CommandLine):
 
 
 class HotBackup(object):
+    verbs = "hotcopy restore".split()
     def __init__(self, opts ):
-        self.opts = opts
-        self.tag = datetime.now().strftime("%Y%m%d_%H%M")
-        self.tagd = os.path.join(self.opts.base, self.tag ) 
-        self.path = os.path.join(self.opts.base, "%s.tar.gz" % self.tag )
+        self.database = opts.database
+        self.tagd = os.path.join(opts.backupdir, opts.tag ) 
+        self.path = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
+        self.restoredir = opts.restoredir
 
-    def __call__(self):
+    def __call__(self, verb):
+        """
+        :param verb: 
+        """
+        if verb == "hotcopy":
+            self.hotcopy()
+        elif verb == "restore":
+            self.restore()
+        else:
+            log.warn("unhandled verb %s " % verb ) 
+
+    def restore(self):
         """
         """
-        database = self.opts.database
-        outd = self.tagd
-        path = self.path
-
-        self._hotcopy(database, outd)
+        tf = Tar(self.path)
+        tf.extract(self.tagd, topleveldir=self.database) 
         log.info("seconds %s " % seconds )
-        self._make_tgz(outd, path )
+
+    def hotcopy(self):
+        """
+        """ 
+        self._hotcopy(self.database, self.tagd)
+        log.info("seconds %s " % seconds )
+        tf = Tar(self.path)
+        tf.create(self.tagd)  # self.tagd contains the database named directory  
         log.info("seconds %s " % seconds )
 
     @timing
@@ -152,15 +178,6 @@ class HotBackup(object):
         log.info("proceed with %s " % cmd )
         cmd() 
 
-    @timing
-    def _make_tgz(self, outd , tgzpath):
-        log.info("creating %s " % tgzpath )
-        tgz = tarfile.open(tgzpath, "w:gz")
-        tgz.add(outd, arcname="") 
-        tgz.close() 
-        os.rmdir(outd)
-
-
 def parse_args_(doc):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
@@ -168,7 +185,10 @@ def parse_args_(doc):
     op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
     op.add_option("-l", "--loglevel", default="INFO" )
     op.add_option("-s", "--sect",  default = "mysqlhotcopy", help="name of config section in :file:`~/.my.cnf` " )
-    op.add_option("-b", "--base",  default = "/var/scm/mysqlhotcopy", help="base directory under which hotcopy backup tarballs are arranged in dated folders" )
+    op.add_option("-b", "--backupdir",   default = "/var/scm/mysqlhotcopy", help="base directory under which hotcopy backup tarballs are arranged in dated folders. Default %default " )
+    op.add_option("-r", "--restoredir",  default = "/var/mysql/lib", help="MySQL data dir under which folders for each database reside, Default %default " )
+    op.add_option("-z", "--sizefactor",  default = 2.5,  help="Scale factor between DB size estimate and free space demanded, 2.0 is agressive (3.0 should be safe) as remember need space for tarball as well as backupdir. Default %default " )
+    op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
     opts, args = op.parse_args()
 
     level=getattr(logging,opts.loglevel.upper()) 
@@ -179,16 +199,20 @@ def parse_args_(doc):
     pass
     log.info(" ".join(sys.argv))
 
-    db = DB(opts.sect)
-    opts.database = db.dbc['database']
-    return opts, args, db 
+    assert len(args) == 2, "expect 2 arguments with database name and command verb "
+    database, verb = args
+    allowed = HotBackup.verbs
+    assert verb in allowed, "verb %s is not one if the allowed %s " % ( verb, repr(allowed))
+    db = DB(opts.sect, database=database)
+    opts.database = database
+    return opts, verb, db 
 
 
 def main():    
-    opts, args, db = parse_args_(__doc__)
+    opts, verb, db = parse_args_(__doc__)
     log.info("db size in MB %s " % db.size )
-    mb_required = 2.0*db.size   
-    du = disk_usage(opts.base)
+    mb_required = opts.sizefactor*db.size   
+    du = disk_usage(opts.backupdir)
     mb_free = du['mb_free']
 
     if mb_free < mb_required:
@@ -196,7 +220,7 @@ def main():
     else:
         log.info("sufficient free space,      required %s MB less than    free %s MB " % (mb_required, mb_free))
         hb = HotBackup(opts)
-        hb()
+        hb(verb)
 
 
 if __name__ == '__main__':
