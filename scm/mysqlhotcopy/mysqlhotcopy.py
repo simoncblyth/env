@@ -9,8 +9,6 @@ MySQL Hotcopy wrapper
 
 TODO:
 
-#. recovery feature
-
 #. offboxing 
 
     #. tarball digest dna 
@@ -22,7 +20,6 @@ env will cause errors related to setuptools.
 Requires MySQLdb, check that and operating env with::
 
     sudo python -c "import MySQLdb"
-
 
 mysqlhotcopy options
 ----------------------
@@ -36,19 +33,12 @@ mysqlhotcopy options
            The backup directory name is the original name with "_old" appended.
            Any existing versions of the backup directory are deleted.
 
-Issues
--------
-
-mysqlhotcopy does low level file copying, making version closeness important  
-
-::
-
-   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
-   belle7.nuu.edu.tw        5.0.77-log Source distribution
-   cms01.phys.ntu.edu.tw    4.1.22-log
-   
+  
 Usage steps
 -----------
+
+hotcopy
+~~~~~~~~~
 
 #. create mysqlhotcopy section in :file:`~/.my.cnf` ie `/root/.my.cnf` as this must be 
    run as root in order to have access to the mysql DB files
@@ -71,26 +61,60 @@ The hotcopy is very fast compared to the tgz creation, these
 are done separated (not in a pipe for example) so the time the DB is locked is 
 kept to a minimum::
 
-    [blyth@belle7 scm]$ sudo python mysqlhotcopy.py tmp_offline_db hotcopy
-    2013-05-14 18:32:12,881 __main__ INFO     mysqlhotcopy.py tmp_offline_db
-    2013-05-14 18:32:12,884 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy tmp_offline_db /var/scm/mysqlhotcopy/20130514_1832   
-    2013-05-14 18:32:13,442 __main__ INFO     seconds {'_hotcopy': 0.560593843460083} 
-    2013-05-14 18:32:13,443 __main__ INFO     creating /var/scm/mysqlhotcopy/20130514_1832.tar.gz 
-    2013-05-14 18:36:31,429 __main__ INFO     seconds {'_make_tgz': 257.9861190319061, '_hotcopy': 0.560593843460083} 
-    [blyth@belle7 scm]$ 
-
-    [blyth@belle7 mysqlhotcopy]$ sudo tar ztvf 20130514_1832.tar.gz
-    drwxr-xr-x root/root         0 2013-05-14 18:32:12 /
-    drwxr-x--- mysql/mysql       0 2013-05-14 18:32:13 tmp_offline_db/
-    -rw-rw---- mysql/mysql       0 2013-04-30 18:28:16 tmp_offline_db/SupernovaTrigger.MYD
-    -rw-rw---- mysql/mysql    8908 2012-08-17 20:06:30 tmp_offline_db/CalibPmtFineGainVld.frm
-    -rw-rw---- mysql/mysql 3119296 2012-08-17 20:06:34 tmp_offline_db/HardwareID.MYD
-    -rw-rw---- mysql/mysql    1024 2013-04-30 18:28:16 tmp_offline_db/SupernovaTrigger.MYI
-    -rw-rw---- mysql/mysql 14858000 2013-05-11 20:18:46 tmp_offline_db/DqChannelPacked.MYD
-    -rw-rw---- mysql/mysql      561 2012-11-20 14:26:31 tmp_offline_db/DemoVld.MYD
-    ...
+    [root@belle7 mysqlhotcopy]# ./mysqlhotcopy.py tmp_offline_db hotcopy
+    2013-05-15 17:25:07,072 __main__ INFO     ./mysqlhotcopy.py tmp_offline_db hotcopy
+    2013-05-15 17:25:07,095 __main__ INFO     db size in MB 152.27 
+    2013-05-15 17:25:07,096 __main__ INFO     sufficient free space,      required 380.675 MB less than    free 497786.996094 MB 
+    2013-05-15 17:25:07,096 __main__ INFO     hotcopy of database tmp_offline_db into outd /var/scm/mysqlhotcopy/20130515_1725 
+    2013-05-15 17:25:07,100 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy tmp_offline_db /var/scm/mysqlhotcopy/20130515_1725   
+    2013-05-15 17:25:07,637 __main__ INFO     tagd /var/scm/mysqlhotcopy/20130515_1725  into Tar /var/scm/mysqlhotcopy/20130515_1725.tar.gz tmp_offline_db gz  
+    2013-05-15 17:25:07,637 tar INFO     creating /var/scm/mysqlhotcopy/20130515_1725.tar.gz from /var/scm/mysqlhotcopy/20130515_1725/tmp_offline_db 
+    2013-05-15 17:29:25,943 __main__ INFO     seconds {'_hotcopy': 0.54047489166259766, 'archive': 258.30557799339294, '_archive': 258.30591607093811} 
+    [root@belle7 mysqlhotcopy]# 
 
 
+extract
+~~~~~~~~
+
+
+::
+
+    [root@belle7 mysqlhotcopy]# ./mysqlhotcopy.py -m -t 20130515_1725 tmp_offline_db extract
+    2013-05-15 17:46:26,870 __main__ INFO     ./mysqlhotcopy.py -m -t 20130515_1725 tmp_offline_db extract
+    2013-05-15 17:46:26,889 __main__ INFO     db size in MB 152.27 
+    2013-05-15 17:46:26,889 __main__ INFO     sufficient free space,      required 380.675 MB less than    free 497584.421875 MB 
+    2013-05-15 17:46:26,889 __main__ INFO     extract Tar /var/scm/mysqlhotcopy/20130515_1725.tar.gz tmp_offline_db gz  into extractdir /var/lib/mysql   
+    2013-05-15 17:46:26,890 tar WARNING  moving aside pre-existing tgt dir /var/lib/mysql/tmp_offline_db to /var/lib/mysql/tmp_offline_db_20130515_174626 
+    2013-05-15 17:46:26,890 tar INFO     extracting /var/scm/mysqlhotcopy/20130515_1725.tar.gz with toplevelname tmp_offline_db into extractdir /var/lib/mysql 
+    2013-05-15 17:46:32,249 __main__ INFO     seconds {'_extract': 5.3598589897155762, 'extract': 5.3596851825714111} 
+    [root@belle7 mysqlhotcopy]# 
+
+
+Any preexisting DB is moved aside::
+
+    mysql> show tables ;
+    +------------------------------------------+
+    | Tables_in_tmp_offline_db_20130515_174626 |
+    +------------------------------------------+
+    | CableMap                                 | 
+    | CableMapVld                              | 
+    | CalibPmtFineGain                         | 
+
+
+Issues
+-------
+
+mysqlhotcopy does low level file copying, making version closeness important  
+
+::
+
+   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
+   belle7.nuu.edu.tw        5.0.77-log Source distribution
+   cms01.phys.ntu.edu.tw    4.1.22-log
+
+
+Size estimation 
+-------------------
 Size of hotcopy directory close to that estimated from DB, tgz is factor of 3 smaller::
 
     [blyth@belle7 DybPython]$ echo "select round(sum((data_length+index_length-data_free)/1024/1024),2) as TOT_MB from information_schema.tables where table_schema = 'tmp_offline_db' " | mysql -t 
@@ -128,55 +152,78 @@ class MySQLHotCopy(CommandLine):
 
 
 class HotBackup(object):
-    verbs = "hotcopy restore".split()
+    verbs = "hotcopy extract".split()
     def __init__(self, opts ):
-        self.database = opts.database
-        self.tagd = os.path.join(opts.backupdir, opts.tag ) 
-        self.path = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
-        self.restoredir = opts.restoredir
+        database = opts.database
+        tagd = os.path.join(opts.backupdir, opts.tag ) 
+        tgzp = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
+        tar = Tar(tgzp, toplevelname=database)
+        pass
+        self.database = database
+        self.tagd = tagd                     # where hot copies are created
+        self.extractdir = opts.extractdir    # where tarballs are extracted
+        self.tar = tar
+        self.opts = opts                     # getting peripheral things via opts is OK, but not good style for criticals
 
     def __call__(self, verb):
         """
         :param verb: 
         """
         if verb == "hotcopy":
-            self.hotcopy()
-        elif verb == "restore":
-            self.restore()
+            self._hotcopy(self.database, self.tagd)
+            log.info("seconds %s " % seconds )
+            self._archive()
+        elif verb == "extract":
+            self._extract()
         else:
             log.warn("unhandled verb %s " % verb ) 
-
-    def restore(self):
-        """
-        """
-        tf = Tar(self.path)
-        tf.extract(self.tagd, topleveldir=self.database) 
         log.info("seconds %s " % seconds )
 
-    def hotcopy(self):
+    @timing
+    def _extract(self):
         """
-        """ 
-        self._hotcopy(self.database, self.tagd)
-        log.info("seconds %s " % seconds )
-        tf = Tar(self.path)
-        tf.create(self.tagd)  # self.tagd contains the database named directory  
-        log.info("seconds %s " % seconds )
+        `self.extractdir` contains the database named directory  
+        """
+        msg = "extract %s into extractdir %s   " % (self.tar, self.extractdir)
+        if self.opts.dryrun:
+            log.info("dryrun: " + msg )
+            return 
+        log.info(msg)
+        self.tar.extract(self.extractdir, self.opts.moveaside) 
+
+    @timing
+    def _archive(self):
+        """
+        `self.tagd` contains the database named directory  
+        """
+        msg = "tagd %s  into %s " % (self.tagd, self.tar) 
+        if self.opts.dryrun:
+            log.info("dryrun: " + msg )
+            return 
+        log.info(msg)
+        self.tar.archive(self.tagd, self.opts.deleteafter) 
 
     @timing
     def _hotcopy(self, database, outd ):
         """
-        Make sure the `outd` exists and is empty then invoke the hotcopy into it
+        Makes sure the `outd` exists and is empty then invoke the hotcopy into it
         a sub-folder named after the database is created within the outd
 
         :param database:
         :param outd:
         """
+        msg = "hotcopy of database %s into outd %s " % (database, outd) 
+        if self.opts.dryrun:
+             log.info("dryrun: " + msg )
+             return 
+        log.info(msg)
         cmd = MySQLHotCopy(database=database, outd=outd)
         if os.path.exists(outd):
             os.rmdir(outd)
         os.makedirs(outd)
         log.info("proceed with %s " % cmd )
         cmd() 
+
 
 def parse_args_(doc):
     from optparse import OptionParser
@@ -186,8 +233,11 @@ def parse_args_(doc):
     op.add_option("-l", "--loglevel", default="INFO" )
     op.add_option("-s", "--sect",  default = "mysqlhotcopy", help="name of config section in :file:`~/.my.cnf` " )
     op.add_option("-b", "--backupdir",   default = "/var/scm/mysqlhotcopy", help="base directory under which hotcopy backup tarballs are arranged in dated folders. Default %default " )
-    op.add_option("-r", "--restoredir",  default = "/var/mysql/lib", help="MySQL data dir under which folders for each database reside, Default %default " )
+    op.add_option("-x", "--extractdir",  default = "/var/lib/mysql", help="MySQL data dir under which folders for each database reside, Default %default " )
     op.add_option("-z", "--sizefactor",  default = 2.5,  help="Scale factor between DB size estimate and free space demanded, 2.0 is agressive (3.0 should be safe) as remember need space for tarball as well as backupdir. Default %default " )
+    op.add_option("-m", "--moveaside",  action="store_true",  help="When restoring and a preexisting database directory exists move it aside with a datestamp. If this is not selected the extract will abort. Default %default " )
+    op.add_option("-D", "--nodeleteafter",  dest="deleteafter", action="store_false",  help="Normally directories are deleted after creation of archives, this option will inhibit the deletion. Default %default " )
+    op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
     opts, args = op.parse_args()
 
@@ -214,7 +264,6 @@ def main():
     mb_required = opts.sizefactor*db.size   
     du = disk_usage(opts.backupdir)
     mb_free = du['mb_free']
-
     if mb_free < mb_required:
         log.warn("insufficient free space,   required %s MB greater than free %s MB " % (mb_required, mb_free))
     else:

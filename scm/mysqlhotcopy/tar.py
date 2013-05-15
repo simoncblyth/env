@@ -3,38 +3,28 @@
 """
 import os, logging, shutil, tarfile, copy
 from common import timing, seconds
+from datetime import datetime
 log = logging.getLogger(__name__)
 
 
 class Tar(object):
-    def __init__(self, path, mode="gz"):
+    def __init__(self, path, toplevelname="", mode="gz"):
+        """
+        :param path: to the tarball to be created, extracted or examined
+        :param toplevelname: relative to the sourcedir or extractdir, 
+
+        if a `toplevelname` is specified only members within that directory 
+        are tarballed or extracted
+        """
+        assert len(toplevelname) > 1, "as safety measure a non-blank toplevelname is required" 
         self.path = path 
+        self.toplevelname = toplevelname
         self.mode = mode
 
+    def __repr__(self):
+        return self.__class__.__name__ + " %s %s %s " % ( self.path, self.toplevelname, self.mode )
+
     @timing
-    def create(self, fromd, delete=True):
-        """
-        NB the below stores paths within the `tmp_offline_db` folder:: 
-    
-           t = Tar("/tmp/out/out.tar.gz")
-           t.create("/tmp/out/tmp_offline_db")
-           t.examine()
-
-        ie::       
- 
-            <TarInfo './' at -0x48153114>
-            <TarInfo 'SupernovaTrigger.MYD' at -0x48156b74>
-            <TarInfo 'CalibPmtFineGainVld.frm' at -0x48156f94>
-            <TarInfo 'HardwareID.MYD' at -0x48156a54>
-
-        """
-        log.info("creating %s from %s " %  (self.path, fromd) )
-        tgz = tarfile.open(self.path, "w:%s" % self.mode )
-        tgz.add(fromd, arcname="") 
-        tgz.close() 
-        if delete:
-            shutil.rmtree(fromd)
-
     def examine(self):
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
         log.info("examining %s " % (self.path) )
@@ -44,37 +34,72 @@ class Tar(object):
         print dir(ti)
         tf.close() 
 
+    @timing
+    def archive(self, sourcedir, deleteafter=False):
+        """
+        :param sourcedir: directory containing the `toplevelname` which will be the root of the archive 
+        :param deleteafter:
+
+        In the below example paths from `/tmp/out/tmp_offline_db` folder are archived:: 
+    
+           t = Tar("/tmp/out/out.tar.gz", toplevelname="tmp_offline_db")
+           t.archive("/tmp/out")  # expects to find /tmp/out/tmp_offline_db 
+           t.examine()
+
+        Under toplevelname `tmp_offline_db` within the archive::       
+ 
+            <TarInfo './' at -0x48153114>
+            <TarInfo 'SupernovaTrigger.MYD' at -0x48156b74>
+            <TarInfo 'CalibPmtFineGainVld.frm' at -0x48156f94>
+            <TarInfo 'HardwareID.MYD' at -0x48156a54>
+
+        To reproduce the layout on another node would then need::
+
+           t = Tar("/tmp/out/out.tar.gz", toplevelname="tmp_offline_db")
+           t.extract("/tmp/out")  # creates /tmp/out/tmp_offline_db 
+
+
+        """
+        src = os.path.join(sourcedir, self.toplevelname) 
+        assert len(self.toplevelname) > 3 , "sanity check for toplevelname %s fails" % self.toplevelname
+        log.info("creating %s from %s " %  (self.path, src) )
+        assert os.path.exists(src) and os.path.isdir(src), "src directory %s does not exist " % src
+        tgz = tarfile.open(self.path, "w:%s" % self.mode )
+        tgz.add(src, arcname=self.toplevelname) 
+        tgz.close() 
+        if deleteafter:
+            log.warn("deleting src %s directory following archive creation " % src )
+            shutil.rmtree(src)
 
     @timing
-    def extract(self, extractdir, topleveldir=None, clobber=False):
+    def extract(self, extractdir, moveaside=False):
         """
-        :param extractdir:
-        :param topleveldir: if specified only members within the topleveldir are extracted, protection against exploding tarballs
-        :param clobber:
-
-        hmm need to know the directories inside the tarfile
+        :param extractdir: 
+        :param moveaside:
         """
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
-        if os.path.exists(extractdir):
-            if not clobber:
-                log.warn("extractdir %s exists already, use clobber option to delete it and proceed" % extractdir )        
+        tgt = os.path.join(extractdir, self.toplevelname) 
+        if os.path.exists(tgt):
+            if not moveaside:
+                log.warn("tgt dir %s exists already, ABORTING EXTRACTION, use --moveaside option to delete it and proceed" % tgt )        
                 return
             else:
-                pass
-                #log.warn("deleting extractdir %s " % extractdir )  
-                ## hmm no cant do that its the tld created by the extraction that need to delete, 
+                stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                aside = tgt + "_" + stamp
+                log.warn("moving aside pre-existing tgt dir %s to %s " % (tgt, aside) )  
+                assert not os.path.exists(aside), (aside, "huh the aside dir exists already ")
+                os.rename(tgt, aside)
 
-        log.info("extracting %s into %s " % (self.path,extractdir) )
+        assert not os.path.exists(tgt), "huh should not exist at this point "
+        log.info("extracting %s with toplevelname %s into extractdir %s " % (self.path,self.toplevelname, extractdir) )
         tf = tarfile.open(self.path, "r:gz")
-        if topleveldir:
-            members = filter(lambda ti:ti.name.split('/')[0] == topleveldir, tf)
-        else:
-            members = None
-
+        members = tf.getmembers()
+        select = filter(lambda tinfo:tinfo.name.split('/')[0] == self.toplevelname, members)
+        assert len(members) == len(select), (len(members), len(select), "extraction filtering misses some members not beneath toplevelname %s " % self.toplevelname ) 
+        pass
         wtf = TarFileWrapper(tf)
-        wtf.extractall(extractdir, members) 
+        wtf.extractall(extractdir, select) 
         tf.close() 
-
 
 class TarFileWrapper(object):
     """
@@ -123,15 +148,14 @@ class TarFileWrapper(object):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    t = Tar("/var/scm/mysqlhotcopy/20130515_1249.tar.gz")
-    t.examine()
-    #t.extract("/tmp/out")
 
-    #t = Tar("/tmp/out/out.tar.gz")
-    #t.create("/tmp/out/tmp_offline_db")
+    tgz = "/var/scm/mysqlhotcopy/20130515_1606.tar.gz"
+    t = Tar(tgz, toplevelname="tmp_offline_db")
+    #t.examine()
+    t.extract("/tmp/out")
     #t.examine()
 
-
+    log.info(seconds)
 
 
 
