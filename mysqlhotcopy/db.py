@@ -94,7 +94,11 @@ class MyCnf(dict):
         """
         my2mp = dict(host="host",user="user",password="passwd",database="db" )
         my = self.section(sect)
-        mp = dict((my2mp[k],my[k]) for k in filter(lambda k:k in my2mp,my.keys()))  # key translation, mysql to mysql-python
+     
+        mp = {}
+        for k in filter(lambda k:k in my2mp,my.keys()):  # key translation, mysql to mysql-python
+            mp[my2mp[k]] =  my[k]
+
         if database:
             mp["db"] = database 
         log.debug("translate mysql config %s into mysql-python config %s " % ( my , mp ))
