@@ -8,7 +8,7 @@ log = logging.getLogger(__name__)
 
 
 class Tar(object):
-    def __init__(self, path, toplevelname="", mode="gz"):
+    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" ):
         """
         :param path: to the tarball to be created, extracted or examined
         :param toplevelname: relative to the sourcedir or extractdir, 
@@ -20,6 +20,14 @@ class Tar(object):
         self.path = path 
         self.toplevelname = toplevelname
         self.mode = mode
+        if len(remoteprefix)>0:
+            remotepath = os.path.join(remoteprefix, path[1:])   # have to get rid of path leading slash for the join
+        else:
+            remotepath = path
+        pass
+        self.remotepath = remotepath
+        self.remotenode = remotenode
+
 
     def __repr__(self):
         return self.__class__.__name__ + " %s %s %s " % ( self.path, self.toplevelname, self.mode )
@@ -39,7 +47,13 @@ class Tar(object):
         :param sourcedir: directory containing the `toplevelname` which will be the root of the archive 
         :param deleteafter:
 
-        In the below example paths from `/tmp/out/tmp_offline_db` folder are archived:: 
+        Create the archive and examine::
+
+           t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
+           t.archive("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941")
+           t.examine()
+
+        Examine what is in the archive:: 
     
            t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
            t.examine()
@@ -102,13 +116,11 @@ class Tar(object):
         tf.close() 
     extract = timing(extract)
 
-    def transfer(self, remotenode, remoteprefix):
+    def transfer(self):
         """
         """
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
-        spath = self.path
-        tpath = os.path.join(remoteprefix, self.path)
-        scp( spath, tpath, remotenode )
+        scp( self.path, self.remotepath, self.remotenode )
     transfer = timing(transfer)
         
 

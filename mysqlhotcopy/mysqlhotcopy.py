@@ -40,7 +40,7 @@ Examples of usage::
 
     ./mysqlhotbackup.py tmp_ligs_offline_db  hotcopy archive transfer 
 
-          # 1st argument is DB name, subsequenct are the actions to take
+          # 1st argument is DB name, subsequent are the actions to take
           # the **hotcopy** action is the one during which the DB tables are locked
 
     ./mysqlhotbackup.py -t 20130516_1711 tmp_ligs_offline_db transfer 
@@ -114,10 +114,6 @@ kept to a minimum::
     [root@belle7 blyth]# 
 
 
-
-
-
-
 When doing `archive`, `transfer` (or `extract`) separately from the `hotcopy` specifying the timestamp
 is required as shown below.
 
@@ -167,22 +163,23 @@ MySQL `datadir` introspection::
     +-----------------+
     1 row in set (0.00 sec)
 
+
 mysqlhotcopy options
 ----------------------
 
 `--allowold`
-           Move any existing version of the destination to a backup directory
-           for the duration of the copy. If the copy successfully completes, the backup
-           directory is deleted - unless the --keepold flag is set.  If the copy fails,
-           the backup directory is restored.
+   Move any existing version of the destination to a backup directory
+   for the duration of the copy. If the copy successfully completes, the backup
+   directory is deleted - unless the --keepold flag is set.  If the copy fails,
+   the backup directory is restored.
 
-           The backup directory name is the original name with "_old" appended.
-           Any existing versions of the backup directory are deleted.
-
+   The backup directory name is the original name with "_old" appended.
+   Any existing versions of the backup directory are deleted.
 
 
 Size estimation 
 -------------------
+
 Size of hotcopy directory close to that estimated from DB, tgz is factor of 3 smaller::
 
     [blyth@belle7 DybPython]$ echo "select round(sum((data_length+index_length-data_free)/1024/1024),2) as TOT_MB from information_schema.tables where table_schema = 'tmp_offline_db' " | mysql -t 
@@ -211,10 +208,30 @@ Prepare directories on target for the transfer
     [blyth@cms01 dbbackup]$ sudo chown -R dayabayscp /data/var/dbbackup/mysqlhotcopy/dybdb2.ihep.ac.cn/tmp_ligs_offline_db/
 
 
+Table-by-table hotcopy, to minimise table lock time ?
+-------------------------------------------------------
+
+Whilst possible to handle DBI tables in separate hotcopies of payload+validity pairs 
+using `--addtodest` option this might not be a consistent backup, and there is the LOCALSEQNO
+too to cause problems.
+
+
+`--addtodest`
+   Don't rename target directory if it already exists, just add the copied files into it.
+
+   This is most useful when backing up a database with many large tables and
+   you don't want to have all the tables locked for the whole duration.
+
+   In this situation, if you are happy for groups of tables to be backed up
+   separately (and thus possibly not be logically consistant with one another)
+   then you can run mysqlhotcopy several times on the same database each with
+   different db_name./table_regex/.  All but the first should use the --addtodest
+   option so the tables all end up in the same directory.
+
+
 TODO:
 -------
 
-#. partial backups, ie not all tables
 #. tarball digest dna 
 #. tarball purging 
 
@@ -244,7 +261,7 @@ class HotBackup(object):
         database = opts.database
         tagd = os.path.join(opts.backupdir, opts.tag ) 
         tgzp = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
-        tar = Tar(tgzp, toplevelname=database)
+        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode )
         pass
         self.database = database
         self.tagd = tagd                     # where hot copies are created
@@ -296,12 +313,12 @@ class HotBackup(object):
         """
         The path of the tar is assumed to be the same on the remote node
         """
-        msg = "transfer %s to remotenode %s remoteprefix %s  " % (self.tar, self.opts.remotenode, self.opts.remoteprefix )
+        msg = "transfer %s to remotenode   " % (self.tar )
         if self.opts.dryrun:
             log.info("dryrun: " + msg )
             return 
         log.info(msg)
-        self.tar.transfer(self.opts.remotenode, self.opts.remoteprefix) 
+        self.tar.transfer() 
     _transfer = timing(_transfer)
 
     def _extract(self):
@@ -367,6 +384,12 @@ class HotBackup(object):
 
 
 
+
+
+
+
+
+
 def parse_args_(doc):
     from optparse import OptionParser
     op = OptionParser(usage=doc)
@@ -388,11 +411,19 @@ def parse_args_(doc):
     opts, args = op.parse_args()
     assert len(args) > 1, "expect at least 2 arguments,  the first is database name followed by one or more command verbs"
     level=getattr(logging,opts.loglevel.upper()) 
-    if opts.logpath:
+   
+    if opts.logpath:  # logs to file as well as console
         logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        formatter = logging.Formatter(opts.logformat)
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)  # add the handler to the root logger
     else:
         logging.basicConfig(format=opts.logformat,level=level)
     pass
+
+
     log.info(" ".join(sys.argv))
 
     database = args.pop(0)
