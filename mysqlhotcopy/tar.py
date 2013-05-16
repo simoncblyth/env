@@ -102,12 +102,12 @@ class Tar(object):
         tf.close() 
     extract = timing(extract)
 
-    def transfer(self, remotenode):
+    def transfer(self, remotenode, remoteprefix):
         """
         """
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
         spath = self.path
-        tpath = self.path
+        tpath = os.path.join(remoteprefix, self.path)
         scp( spath, tpath, remotenode )
     transfer = timing(transfer)
         

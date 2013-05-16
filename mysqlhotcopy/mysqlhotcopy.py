@@ -37,14 +37,25 @@ Examples of usage::
 
     cd env/mysqlhotbackup
     ./mysqlhotbackup.py --help
+
     ./mysqlhotbackup.py tmp_ligs_offline_db  hotcopy archive transfer 
-          ## 1st argument is DB name, subsequenct are the actions to take
-          ## the **hotcopy** action is the one during which the DB tables are locked
+
+          # 1st argument is DB name, subsequenct are the actions to take
+          # the **hotcopy** action is the one during which the DB tables are locked
 
     ./mysqlhotbackup.py -t 20130516_1711 tmp_ligs_offline_db transfer 
-          ## if need to transfer or archive separately from the hotcopy 
-          ## then must specify the time tag corresponding to the hotcopy and archive 
-          ## to be transferred
+
+          # if need to transfer or archive separately from the hotcopy 
+          # then must specify the time tag corresponding to the hotcopy and archive 
+          # to be transferred
+
+    ./mysqlhotcopy.py --regex './^\(DqChannelStatus\|DqChannelStatusVld\)/'  tmp_ligs_offline_db hotcopy archive transfer      
+
+          # using regex to only include 2 tables  
+
+    ./mysqlhotcopy.py --regex './^\(DqChannelPacked\|DqChannelPackedVld\)/'  tmp_offline_db hotcopy       
+
+          # have to escape the brackets and pipe symbol to protect from shell interpretation
 
 
 hotcopy, archive, transfer
@@ -71,17 +82,40 @@ The hotcopy is very fast compared to the tgz creation, these
 are done separated (not in a pipe for example) so the time the DB is locked is 
 kept to a minimum::
 
-    [root@belle7 mysqlhotcopy]# ./mysqlhotcopy.py tmp_offline_db hotcopy archive transfer
+    [root@belle7 blyth]# mysqlhotcopy.py tmp_offline_db hotcopy archive transfer
+    2013-05-16 17:11:16,649 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py tmp_offline_db hotcopy archive transfer
+    2013-05-16 17:11:16,653 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db 
+    2013-05-16 17:11:16,673 env.mysqlhotcopy.mysqlhotcopy INFO     db size in MB 152.27 
+    2013-05-16 17:11:16,673 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== hotcopy 
+    2013-05-16 17:11:16,673 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 380.675 MB less than    free 497384.726562 MB 
+    2013-05-16 17:11:16,673 env.mysqlhotcopy.mysqlhotcopy INFO     hotcopy of database tmp_offline_db into outd /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711 
+    2013-05-16 17:11:16,685 env.mysqlhotcopy.mysqlhotcopy INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy tmp_offline_db /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711   
+    2013-05-16 17:11:17,256 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_hotcopy': 0.58285903930664062} 
+    2013-05-16 17:11:17,257 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== archive 
+    2013-05-16 17:11:17,257 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 380.675 MB less than    free 497231.179688 MB 
+    2013-05-16 17:11:17,257 env.mysqlhotcopy.mysqlhotcopy INFO     tagd /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711  into Tar /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz tmp_offline_db gz  
+    2013-05-16 17:11:17,258 env.mysqlhotcopy.tar INFO     creating /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz from /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711/tmp_offline_db 
+    2013-05-16 17:15:35,201 env.mysqlhotcopy.tar WARNING  deleting src /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711/tmp_offline_db directory following archive creation 
+    2013-05-16 17:15:35,241 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_hotcopy': 0.58285903930664062, 'archive': 257.98302602767944, '_archive': 257.98317098617554} 
+    2013-05-16 17:15:35,241 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== transfer 
+    2013-05-16 17:15:35,241 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 380.675 MB less than    free 497335.757812 MB 
+    2013-05-16 17:15:35,241 env.mysqlhotcopy.mysqlhotcopy INFO     transfer Tar /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz tmp_offline_db gz  to remotenode C   
+    2013-05-16 17:15:35,242 env.mysqlhotcopy.common INFO     transfer /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz C  
+    ssh C "mkdir -p /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db " 
+    ssh: connect to host 140.112.101.190 port 22: Connection timed out
+    time scp /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz C:/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz 
+    ssh: connect to host 140.112.101.190 port 22: Connection timed out
+    lost connection
 
-    2013-05-15 17:25:07,072 __main__ INFO     ./mysqlhotcopy.py tmp_offline_db hotcopy
-    2013-05-15 17:25:07,095 __main__ INFO     db size in MB 152.27 
-    2013-05-15 17:25:07,096 __main__ INFO     sufficient free space,      required 380.675 MB less than    free 497786.996094 MB 
-    2013-05-15 17:25:07,096 __main__ INFO     hotcopy of database tmp_offline_db into outd /var/scm/mysqlhotcopy/20130515_1725 
-    2013-05-15 17:25:07,100 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy tmp_offline_db /var/scm/mysqlhotcopy/20130515_1725   
-    2013-05-15 17:25:07,637 __main__ INFO     tagd /var/scm/mysqlhotcopy/20130515_1725  into Tar /var/scm/mysqlhotcopy/20130515_1725.tar.gz tmp_offline_db gz  
-    2013-05-15 17:25:07,637 tar INFO     creating /var/scm/mysqlhotcopy/20130515_1725.tar.gz from /var/scm/mysqlhotcopy/20130515_1725/tmp_offline_db 
-    2013-05-15 17:29:25,943 __main__ INFO     seconds {'_hotcopy': 0.54047489166259766, 'archive': 258.30557799339294, '_archive': 258.30591607093811} 
-    [root@belle7 mysqlhotcopy]# 
+    real    3m9.056s
+    user    0m0.000s
+    sys     0m0.007s
+    2013-05-16 17:21:53,351 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'transfer': 378.10944199562073, '_hotcopy': 0.58285903930664062, '_transfer': 378.10959100723267, 'archive': 257.98302602767944, '_archive': 257.98317098617554} 
+    [root@belle7 blyth]# 
+
+
+
+
 
 
 When doing `archive`, `transfer` (or `extract`) separately from the `hotcopy` specifying the timestamp
@@ -165,14 +199,24 @@ Size of hotcopy directory close to that estimated from DB, tgz is factor of 3 sm
     [blyth@belle7 mysqlhotcopy]$ sudo du -h 20130514_1832.tar.gz 
     49M     20130514_1832.tar.gz
 
+
+Prepare directories on target for the transfer
+-----------------------------------------------
+
+::
+
+    [blyth@cms01 dbbackup]$ sudo mkdir -p /data/var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/
+    [blyth@cms01 dbbackup]$ sudo mkdir -p /data/var/dbbackup/mysqlhotcopy/dybdb2.ihep.ac.cn/tmp_ligs_offline_db/
+    [blyth@cms01 dbbackup]$ sudo chown -R dayabayscp /data/var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/
+    [blyth@cms01 dbbackup]$ sudo chown -R dayabayscp /data/var/dbbackup/mysqlhotcopy/dybdb2.ihep.ac.cn/tmp_ligs_offline_db/
+
+
 TODO:
 -------
 
-#. offboxing 
-
-    #. tarball digest dna 
-    #. tarball scp (experience suggests that is more reliable than rsync for long term usage )
-    #. tarball purging 
+#. partial backups, ie not all tables
+#. tarball digest dna 
+#. tarball purging 
 
 
 """
@@ -191,7 +235,7 @@ class MySQLHotCopy(CommandLine):
     """
     """
     _exenames = ['mysqlhotcopy','mysqlhotcopy5']
-    _cmd = "%(exepath)s %(database)s %(outd)s "
+    _cmd = "%(exepath)s %(database)s%(regex)s %(outd)s "
 
 
 class HotBackup(object):
@@ -252,12 +296,12 @@ class HotBackup(object):
         """
         The path of the tar is assumed to be the same on the remote node
         """
-        msg = "transfer %s to remotenode %s   " % (self.tar, self.opts.remotenode )
+        msg = "transfer %s to remotenode %s remoteprefix %s  " % (self.tar, self.opts.remotenode, self.opts.remoteprefix )
         if self.opts.dryrun:
             log.info("dryrun: " + msg )
             return 
         log.info(msg)
-        self.tar.transfer(self.opts.remotenode) 
+        self.tar.transfer(self.opts.remotenode, self.opts.remoteprefix) 
     _transfer = timing(_transfer)
 
     def _extract(self):
@@ -307,7 +351,13 @@ class HotBackup(object):
              log.info("dryrun: " + msg )
              return 
         log.info(msg)
-        cmd = MySQLHotCopy(database=database, outd=outd)
+
+        if self.opts.regex:
+            regex = self.opts.regex
+        else:
+            regex = ""
+
+        cmd = MySQLHotCopy(database=database, outd=outd, regex=regex)
         if os.path.exists(outd):
             os.rmdir(outd)
         os.makedirs(outd)
@@ -329,7 +379,9 @@ def parse_args_(doc):
     op.add_option("-z", "--sizefactor",  default = 2.5,  help="Scale factor between DB size estimate and free space demanded, 2.0 is agressive (3.0 should be safe) as remember need space for tarball as well as backupdir. Default %default " )
     op.add_option("-m", "--moveaside",  action="store_true",  help="When restoring and a preexisting database directory exists move it aside with a datestamp. If this is not selected the extract will abort. Default %default " )
     op.add_option("-D", "--nodeleteafter",  dest="deleteafter", default=True, action="store_false",  help="Normally directories are deleted after creation of archives, this option will inhibit the deletion. Default %default " )
+    op.add_option(      "--regex",       default=None,  help="Regular expression string appended to dbname first argument of mysqlhotcopy used to include or exclude tables OR None to indicate all table. Default %default " )
     op.add_option("-r", "--remotenode",  default="C",  help="Remote node which the transfer command will scp the tarball to. Default %default " )
+    op.add_option(      "--remoteprefix",  default="/data",  help="Prefix to tarball paths on remote node. Default %default " )
     op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
