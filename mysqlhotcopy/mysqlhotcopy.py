@@ -207,6 +207,10 @@ Prepare directories on target for the transfer
     [blyth@cms01 dbbackup]$ sudo chown -R dayabayscp /data/var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/
     [blyth@cms01 dbbackup]$ sudo chown -R dayabayscp /data/var/dbbackup/mysqlhotcopy/dybdb2.ihep.ac.cn/tmp_ligs_offline_db/
 
+And for testing N to H transfers::
+
+    [blyth@hfag data]$ sudo mkdir -p /data/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db 
+
 
 Table-by-table hotcopy, to minimise table lock time ?
 -------------------------------------------------------
