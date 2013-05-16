@@ -24,7 +24,6 @@ class Tar(object):
     def __repr__(self):
         return self.__class__.__name__ + " %s %s %s " % ( self.path, self.toplevelname, self.mode )
 
-    @timing
     def examine(self):
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
         log.info("examining %s " % (self.path) )
@@ -33,8 +32,8 @@ class Tar(object):
             print ti.name
         print dir(ti)
         tf.close() 
+    examine = timing(examine)
 
-    @timing
     def archive(self, sourcedir, deleteafter=False):
         """
         :param sourcedir: directory containing the `toplevelname` which will be the root of the archive 
@@ -42,22 +41,21 @@ class Tar(object):
 
         In the below example paths from `/tmp/out/tmp_offline_db` folder are archived:: 
     
-           t = Tar("/tmp/out/out.tar.gz", toplevelname="tmp_offline_db")
-           t.archive("/tmp/out")  # expects to find /tmp/out/tmp_offline_db 
+           t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
            t.examine()
 
         Under toplevelname `tmp_offline_db` within the archive::       
- 
-            <TarInfo './' at -0x48153114>
-            <TarInfo 'SupernovaTrigger.MYD' at -0x48156b74>
-            <TarInfo 'CalibPmtFineGainVld.frm' at -0x48156f94>
-            <TarInfo 'HardwareID.MYD' at -0x48156a54>
+
+            tmp_offline_db/
+            tmp_offline_db/SupernovaTrigger.MYD
+            tmp_offline_db/CalibPmtFineGainVld.frm
+            tmp_offline_db/HardwareID.MYD
+            ...
 
         To reproduce the layout on another node would then need::
 
-           t = Tar("/tmp/out/out.tar.gz", toplevelname="tmp_offline_db")
-           t.extract("/tmp/out")  # creates /tmp/out/tmp_offline_db 
-
+           t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
+           t.extract("/tmp")  # creates /tmp/tmp_offline_db 
 
         """
         src = os.path.join(sourcedir, self.toplevelname) 
@@ -70,8 +68,10 @@ class Tar(object):
         if deleteafter:
             log.warn("deleting src %s directory following archive creation " % src )
             shutil.rmtree(src)
+        else:
+            log.warn("not deleteing after")
+    archive = timing(archive)
 
-    @timing
     def extract(self, extractdir, moveaside=False):
         """
         :param extractdir: 
@@ -81,7 +81,7 @@ class Tar(object):
         tgt = os.path.join(extractdir, self.toplevelname) 
         if os.path.exists(tgt):
             if not moveaside:
-                log.warn("tgt dir %s exists already, ABORTING EXTRACTION, use --moveaside option to delete it and proceed" % tgt )        
+                log.warn("tgt dir %s exists already, ABORTING EXTRACTION, use --moveaside option to rename it and proceed" % tgt )        
                 return
             else:
                 stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -100,8 +100,8 @@ class Tar(object):
         wtf = TarFileWrapper(tf)
         wtf.extractall(extractdir, select) 
         tf.close() 
+    extract = timing(extract)
 
-    @timing
     def transfer(self, remotenode):
         """
         """
@@ -109,6 +109,7 @@ class Tar(object):
         spath = self.path
         tpath = self.path
         scp( spath, tpath, remotenode )
+    transfer = timing(transfer)
         
 
  
@@ -160,10 +161,10 @@ class TarFileWrapper(object):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    tgz = "/var/scm/mysqlhotcopy/20130515_1606.tar.gz"
+    tgz = "/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz"
     t = Tar(tgz, toplevelname="tmp_offline_db")
-    #t.examine()
-    t.extract("/tmp/out")
+    t.examine()
+    #t.extract("/tmp/out")
     #t.examine()
 
     log.info(seconds)

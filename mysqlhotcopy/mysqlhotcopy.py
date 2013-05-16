@@ -7,38 +7,48 @@ MySQL Hotcopy wrapper
    from DB queries and file system free space checking 
 #. creates tarballs in dated folders
 
-TODO:
-
-#. offboxing 
-
-    #. tarball digest dna 
-    #. tarball scp (experience suggests that is more reliable than rsync for long term usage )
-    #. tarball purging 
-
 Intended to be used in system python from sudo, operating from non-pristine 
 env will cause errors related to setuptools.
 Requires MySQLdb, check that and operating env with::
 
     sudo python -c "import MySQLdb"
 
-mysqlhotcopy options
-----------------------
+If that gives errors will need to::
 
-`--allowold`
-           Move any existing version of the destination to a backup directory
-           for the duration of the copy. If the copy successfully completes, the backup
-           directory is deleted - unless the --keepold flag is set.  If the copy fails,
-           the backup directory is restored.
+    sudo yum install MySQL-python
 
-           The backup directory name is the original name with "_old" appended.
-           Any existing versions of the backup directory are deleted.
+
+Features of mysqlhotcopy
+---------------------------
+
+mysqlhotcopy does low level file copying, making version closeness important  
+
+::
+
+   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
+   belle7.nuu.edu.tw        5.0.77-log Source distribution
+   cms01.phys.ntu.edu.tw    4.1.22-log
 
   
 Usage steps
 -----------
 
-hotcopy
-~~~~~~~~~
+Examples of usage::
+
+    cd env/mysqlhotbackup
+    ./mysqlhotbackup.py --help
+    ./mysqlhotbackup.py tmp_ligs_offline_db  hotcopy archive transfer 
+          ## 1st argument is DB name, subsequenct are the actions to take
+          ## the **hotcopy** action is the one during which the DB tables are locked
+
+    ./mysqlhotbackup.py -t 20130516_1711 tmp_ligs_offline_db transfer 
+          ## if need to transfer or archive separately from the hotcopy 
+          ## then must specify the time tag corresponding to the hotcopy and archive 
+          ## to be transferred
+
+
+hotcopy, archive, transfer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. create mysqlhotcopy section in :file:`~/.my.cnf` ie `/root/.my.cnf` as this must be 
    run as root in order to have access to the mysql DB files
@@ -54,7 +64,7 @@ hotcopy
     # 
     # NB needs a database specified to allow DB connection to make the locks, 
     # but database to backup is provided as an argument to mysqlhotbackup 
-    # mitigate the duplicity by using the system metadata `information_schema` 
+    # mitigate the duplicity by using the system metadata databse `information_schema` 
     
 
 The hotcopy is very fast compared to the tgz creation, these 
@@ -74,26 +84,28 @@ kept to a minimum::
     [root@belle7 mysqlhotcopy]# 
 
 
-When doing `archive`, `transfer` or `extract` separately from the `hotcopy` specifying the timestamp
+When doing `archive`, `transfer` (or `extract`) separately from the `hotcopy` specifying the timestamp
 is required as shown below.
 
 
 extract
 ~~~~~~~~
 
+Due to the potential for damage from tampering with the mysql datadir, **extraction** requres a few options
+and interactive confirmation.
 
 ::
 
-    [root@belle7 mysqlhotcopy]# ./mysqlhotcopy.py -m -t 20130515_1725 tmp_offline_db extract
-    2013-05-15 17:46:26,870 __main__ INFO     ./mysqlhotcopy.py -m -t 20130515_1725 tmp_offline_db extract
-    2013-05-15 17:46:26,889 __main__ INFO     db size in MB 152.27 
-    2013-05-15 17:46:26,889 __main__ INFO     sufficient free space,      required 380.675 MB less than    free 497584.421875 MB 
-    2013-05-15 17:46:26,889 __main__ INFO     extract Tar /var/scm/mysqlhotcopy/20130515_1725.tar.gz tmp_offline_db gz  into extractdir /var/lib/mysql   
-    2013-05-15 17:46:26,890 tar WARNING  moving aside pre-existing tgt dir /var/lib/mysql/tmp_offline_db to /var/lib/mysql/tmp_offline_db_20130515_174626 
-    2013-05-15 17:46:26,890 tar INFO     extracting /var/scm/mysqlhotcopy/20130515_1725.tar.gz with toplevelname tmp_offline_db into extractdir /var/lib/mysql 
-    2013-05-15 17:46:32,249 __main__ INFO     seconds {'_extract': 5.3598589897155762, 'extract': 5.3596851825714111} 
-    [root@belle7 mysqlhotcopy]# 
-
+    [root@belle7 blyth]# mysqlhotcopy.py --moveaside --ALLOWEXTRACT -t 20130516_1711 tmp_offline_db extract
+    2013-05-16 17:50:56,837 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py --moveaside --ALLOWEXTRACT -t 20130516_1711 tmp_offline_db extract
+    2013-05-16 17:50:56,841 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db 
+    2013-05-16 17:50:56,865 env.mysqlhotcopy.mysqlhotcopy INFO     db size in MB 152.27 
+    2013-05-16 17:50:56,865 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== extract 
+    2013-05-16 17:50:56,866 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 380.675 MB less than    free 496874.898438 MB 
+    DO YOU REALLY WANT TO extract Tar /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz tmp_offline_db gz  into extractdir /var/lib/mysql    ? ENTER "YES" TO PROCEED : 
+    2013-05-16 17:50:59,271 env.mysqlhotcopy.mysqlhotcopy INFO     OK skipping [ != YES] 
+    2013-05-16 17:50:59,271 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_extract': 2.404871940612793} 
+    [root@belle7 blyth]# 
 
 Any preexisting DB is moved aside::
 
@@ -106,16 +118,33 @@ Any preexisting DB is moved aside::
     | CalibPmtFineGain                         | 
 
 
-Issues
--------
 
-mysqlhotcopy does low level file copying, making version closeness important  
 
-::
+Possibilities
+--------------
 
-   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
-   belle7.nuu.edu.tw        5.0.77-log Source distribution
-   cms01.phys.ntu.edu.tw    4.1.22-log
+MySQL `datadir` introspection::
+
+    mysql> select @@datadir as datadir ;
+    +-----------------+
+    | datadir         |
+    +-----------------+
+    | /var/lib/mysql/ | 
+    +-----------------+
+    1 row in set (0.00 sec)
+
+mysqlhotcopy options
+----------------------
+
+`--allowold`
+           Move any existing version of the destination to a backup directory
+           for the duration of the copy. If the copy successfully completes, the backup
+           directory is deleted - unless the --keepold flag is set.  If the copy fails,
+           the backup directory is restored.
+
+           The backup directory name is the original name with "_old" appended.
+           Any existing versions of the backup directory are deleted.
+
 
 
 Size estimation 
@@ -135,6 +164,15 @@ Size of hotcopy directory close to that estimated from DB, tgz is factor of 3 sm
 
     [blyth@belle7 mysqlhotcopy]$ sudo du -h 20130514_1832.tar.gz 
     49M     20130514_1832.tar.gz
+
+TODO:
+-------
+
+#. offboxing 
+
+    #. tarball digest dna 
+    #. tarball scp (experience suggests that is more reliable than rsync for long term usage )
+    #. tarball purging 
 
 
 """
@@ -210,7 +248,6 @@ class HotBackup(object):
         log.info("seconds %s " % seconds )
 
 
-    @timing
     def _transfer(self):
         """
         The path of the tar is assumed to be the same on the remote node
@@ -221,21 +258,30 @@ class HotBackup(object):
             return 
         log.info(msg)
         self.tar.transfer(self.opts.remotenode) 
+    _transfer = timing(_transfer)
 
-
-    @timing
     def _extract(self):
         """
         `self.extractdir` contains the database named directory  
         """
         msg = "extract %s into extractdir %s   " % (self.tar, self.extractdir)
+        if not self.opts.ALLOWEXTRACT:
+            log.warn("extraction is not allowed without --ALLOWEXTRACT option, for protection ")
+            return   
         if self.opts.dryrun:
             log.info("dryrun: " + msg )
             return 
-        log.info(msg)
-        self.tar.extract(self.extractdir, self.opts.moveaside) 
+        pass
+        really = raw_input("DO YOU REALLY WANT TO %s ? ENTER \"YES\" TO PROCEED : "  % msg )
+        if really == "YES":
+            log.info("proceeding") 
+            log.info(msg)
+            self.tar.extract(self.extractdir, self.opts.moveaside) 
+        else:
+            log.info("OK skipping [%s != YES] " % really )
+        pass
+    _extract = timing(_extract)
 
-    @timing
     def _archive(self):
         """
         `self.tagd` contains the database named directory  
@@ -246,8 +292,8 @@ class HotBackup(object):
             return 
         log.info(msg)
         self.tar.archive(self.tagd, self.opts.deleteafter) 
+    _archive = timing(_archive)
 
-    @timing
     def _hotcopy(self, database, outd ):
         """
         Makes sure the `outd` exists and is empty then invoke the hotcopy into it
@@ -267,6 +313,7 @@ class HotBackup(object):
         os.makedirs(outd)
         log.info("proceed with %s " % cmd )
         cmd() 
+    _hotcopy = timing(_hotcopy)
 
 
 
@@ -283,6 +330,7 @@ def parse_args_(doc):
     op.add_option("-m", "--moveaside",  action="store_true",  help="When restoring and a preexisting database directory exists move it aside with a datestamp. If this is not selected the extract will abort. Default %default " )
     op.add_option("-D", "--nodeleteafter",  dest="deleteafter", default=True, action="store_false",  help="Normally directories are deleted after creation of archives, this option will inhibit the deletion. Default %default " )
     op.add_option("-r", "--remotenode",  default="C",  help="Remote node which the transfer command will scp the tarball to. Default %default " )
+    op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
     opts, args = op.parse_args()
