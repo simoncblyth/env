@@ -1108,3 +1108,4 @@ f-(){      . $(env-home)/fossil/f.bash && f-env $* ; }
 gitlab-(){      . $(env-home)/git/gitlab.bash && gitlab-env $* ; }
 distribute-(){      . $(env-home)/python/distribute.bash && distribute-env $* ; }
 find-(){      . $(env-home)/tools/find.bash && find-env $* ; }
+psutil-(){      . $(env-home)/tools/psutil.bash && psutil-env $* ; }
