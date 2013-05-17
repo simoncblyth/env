@@ -9,6 +9,10 @@ Simple monitoring and recording the output of commands that
 return a single value. The result is stored with a timestamp
 in an sqlite DB
 
+TODO:
+
+#. record the time to run the command in the DB
+
 Config examples::
 
     [oomon]
@@ -28,6 +32,7 @@ Config examples::
     cmd = curl -s --connect-timeout 3 http://%(hostport)s/repos/env/ | grep trunk | wc -l
     constraints = ( val == 1, )
     instruction = require a single trunk to be found, verifying that the apache interface to SVN is working 
+    observations = may 16, 2013 observing variable response times that triggering notifications with a 3s timeout    
     dbpath = ~/.env/envmon.sqlite
     tn = envmon
 

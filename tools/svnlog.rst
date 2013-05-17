@@ -1,9 +1,9 @@
 SVNLog
 =======
 
-.. include::
-   :begin-after: cat << EOU
-   :stop-before: EOU
+.. include:: svnlog.bash
+   :start-after: cat << EOU
+   :end-before: EOU
 
 
 

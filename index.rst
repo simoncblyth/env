@@ -50,6 +50,7 @@ Contents:
    npy/index
    pypy/index
    tools/index
+   mysqlhotcopy/index
 
 Indices and tables
 ==================

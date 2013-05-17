@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 """
 """
-import os, logging, shutil, tarfile, copy
+import os, logging, shutil, tarfile, copy, re
 from common import timing, seconds, scp
 from datetime import datetime
 log = logging.getLogger(__name__)
 
 
 class Tar(object):
-    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" ):
+    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" , confirm=True ):
         """
         :param path: to the tarball to be created, extracted or examined
         :param toplevelname: relative to the sourcedir or extractdir, 
@@ -27,6 +27,7 @@ class Tar(object):
         pass
         self.remotepath = remotepath
         self.remotenode = remotenode
+        self.confirm = confirm 
 
 
     def __repr__(self):
@@ -79,9 +80,24 @@ class Tar(object):
         tgz = tarfile.open(self.path, "w:%s" % self.mode )
         tgz.add(src, arcname=self.toplevelname) 
         tgz.close() 
+
+        datedfolder_ptn = re.compile("^\d{8}_\d{4}$") # eg 20130515_1941
         if deleteafter:
-            log.warn("deleting src %s directory following archive creation " % src )
-            shutil.rmtree(src)
+            leaf = sourcedir.split("/")[-1]
+            if not datedfolder_ptn.match(leaf):
+                log.warn("NOT deleting sourcedir %s with leaf %s as the leaf is not a dated folder " % ( sourcedir, leaf ))
+            else:
+                log.info("deleting sourcedir %s with leaf %s as the leaf is a dated folder " % ( sourcedir, leaf ))
+                if self.confirm:
+                    confirm = raw_input("enter \"YES\" to confirm deletion of sourcedir %s :" % sourcedir )
+                else:
+                    confirm = "YES"
+                pass 
+                if confirm == "YES":
+                    shutil.rmtree(sourcedir)
+                else:
+                    log.info("skipping deletion of %s " % sourcedir ) 
+                pass
         else:
             log.warn("not deleteing after")
     archive = timing(archive)

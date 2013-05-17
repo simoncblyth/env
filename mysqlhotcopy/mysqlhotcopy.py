@@ -18,6 +18,32 @@ If that gives errors will need to::
     sudo yum install MySQL-python
 
 
+Commands
+---------
+
+The first argument of the `mysqlhotcopy.py` script specifies the name of a mysql database
+to operate upon.  Subsequent arguments specify actions to take. Order is important. 
+
+
+`hotcopy`
+      use *mysqlhotcopy* to copy the mysql datadir for a single database into a dated folder under `backupdir`
+
+`archive`
+      archives the dated folder into a tarball and deletes the dated folder
+
+`transfer`
+      uses *scp* to copy a tarball to a remote node
+
+`extract`
+      extracts the content from a tarball into the mysql datadir, **CAUTION THIS IS DANGEROUS** test on non-critical servers first
+
+`ls`
+      list the tarballs for a database
+
+`purge`
+      purge the tarballs for a database, keeping the configured number
+
+
 Features of mysqlhotcopy
 ---------------------------
 
@@ -56,6 +82,11 @@ Examples of usage::
     ./mysqlhotcopy.py --regex './^\(DqChannelPacked\|DqChannelPackedVld\)/'  tmp_offline_db hotcopy       
 
           # have to escape the brackets and pipe symbol to protect from shell interpretation
+
+    ./mysqlhotcopy.py -C --regex './^LOCALSEQNO/' tmp_offline_db hotcopy archive 
+
+          # for quick machinery testing, restrict to just handling a small table and disable interactive confirmations
+          # note that hotcopy will delete a pre-existing same minute folder however
 
 
 hotcopy, archive, transfer
@@ -243,7 +274,7 @@ TODO:
 """
 
 # keep this standalone, ie no DybPython.DB
-import os, logging, sys, tarfile, time, shutil, platform
+import os, logging, sys, tarfile, time, shutil, platform, re
 from datetime import datetime
 from fsutils import disk_usage
 from db import DB
@@ -260,12 +291,12 @@ class MySQLHotCopy(CommandLine):
 
 
 class HotBackup(object):
-    verbs = "hotcopy archive extract transfer".split()
+    verbs = "hotcopy archive extract transfer ls purge".split()
     def __init__(self, opts, db ):
         database = opts.database
         tagd = os.path.join(opts.backupdir, opts.tag ) 
         tgzp = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
-        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode )
+        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode, confirm=opts.confirm)
         pass
         self.database = database
         self.tagd = tagd                     # where hot copies are created
@@ -308,10 +339,35 @@ class HotBackup(object):
             self._extract()
         elif verb == "transfer":
             self._transfer()
+        elif verb == "ls":
+            self._ls()
+        elif verb == "purge":
+            self._purge()
         else:
             log.warn("unhandled verb %s " % verb ) 
         log.info("seconds %s " % seconds )
 
+    def _purge(self):
+        dir = self.opts.backupdir
+        keep = self.opts.keep
+        tgz_ptn = re.compile("^\d{8}_\d{4}\.tar\.gz$")
+        tgzs = sorted(filter(lambda _:tgz_ptn.match(_), os.listdir(dir)), reverse=True)
+        log.info("purging tarballs from %s keeping latest %s " % ( dir, keep )) 
+        count = 0  
+        for i, tgz in enumerate(tgzs):
+            path = os.path.join(dir, tgz)
+            if i + 1 > keep:
+                act = "*purge*"
+                os.remove(path) 
+                count += 1
+            else:
+                act = ""
+            log.info("%-4s %s %s " % ( i, path, act ))
+            pass
+        log.info("purged %s tarballs from %s " % ( count, dir )) 
+
+    def _ls(self):
+        print os.popen("ls -l %s" % self.opts.backupdir).read()
 
     def _transfer(self):
         """
@@ -411,7 +467,9 @@ def parse_args_(doc):
     op.add_option(      "--remoteprefix",  default="/data",  help="Prefix to tarball paths on remote node. Default %default " )
     op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
+    op.add_option("-C", "--noconfirm", dest="confirm",  default=True, action="store_false",  help="Disable interactive confirmation of deletion of hotcopy folders. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
+    op.add_option("-k", "--keep",  default = 3,  help="Number of dated tarballs to retain within each backupdir when purging, ie for each node and database. Default %default " )
     opts, args = op.parse_args()
     assert len(args) > 1, "expect at least 2 arguments,  the first is database name followed by one or more command verbs"
     level=getattr(logging,opts.loglevel.upper()) 

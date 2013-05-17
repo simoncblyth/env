@@ -17,6 +17,7 @@ class DB(object):
         dbc = MyCnf("~/.my.cnf").mysqldb_pars(sect, database=database)
         self.dbc = dbc
         self.database = dbc.get('db', None)
+        log.debug("connecting to %s " % dbc )
         try:  
             conn = MySQLdb.connect( **dbc )   # huh, version variation in accepted params
         except MySQLdb.Error, e: 
@@ -64,6 +65,7 @@ class MyCnf(dict):
         prime = {}
         cfp = ConfigParser(prime)
         paths = cfp.read( [os.path.expandvars(os.path.expanduser(p)) for p in path.split(":")] )
+        log.debug("MyCnf read %s " % repr(paths) )
         self.cfp = cfp 
         self.sections = cfp.sections() 
         self.path = path
