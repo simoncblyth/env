@@ -6,7 +6,7 @@ Usage::
    ./db.py 
 
 """
-import os, logging
+import os, sys, logging
 log = logging.getLogger(__name__)
 import sqlite3 
 
@@ -34,9 +34,10 @@ class DB(object):
 
         The `Row` class provides a dict like interface, but its not a dict
         """
+        log.debug(self.versions())
         if not path:
             path = os.environ['DBPATH']
-        log.info("connecting to %s " % path )
+        log.debug("connecting to %s " % path )
         conn = sqlite3.connect(path)
         conn.row_factory = dict_factory
         pass
@@ -48,10 +49,32 @@ class DB(object):
         print "\n"+os.popen("echo \"%(sql)s ; \" | sqlite3 -header -column  %(path)s " % locals()).read()  # with the sqlite3 binary 
 
     def __call__(self, sql ):
-        log.info(sql)
+        log.debug(sql)
         conn = self.conn
         cursor = conn.cursor()
         return cursor.execute(sql)
+
+    def versions(self):
+        """
+        * http://www.sqlite.org/changes.html
+
+        2009-05-19 (3.6.14.1)  possibly obscure `group_concat` bug fixed http://www.sqlite.org/cvstrac/tktview?tn=3841 
+        2007-12-14 (3.5.4) `group_concat` introduced 
+
+        ::
+ 
+            python -c "import platform, sys, sqlite3 ; print '%s %s %s' % ( platform.node(), '.'.join(map(str,sys.version_info[0:3])), sqlite3.sqlite_version ) "
+
+        ::
+
+            belle7.nuu.edu.tw       2.7.0   3.6.8        nuwa python
+            simon.phys.ntu.edu.tw   2.5.6   3.7.14.1     macports 
+            cms01.phys.ntu.edu.tw   2.5.1   3.1.2        source python
+            cms01.phys.ntu.edu.tw   2.7.0   3.6.8        nuwa python
+
+        """
+        pyver = ".".join(map(str,sys.version_info[0:3]))
+        return "python %s sqlite3.version = %s sqlite3.sqlite_version = %s " % ( pyver, sqlite3.version, sqlite3.sqlite_version )
 
 
 if __name__ == '__main__':

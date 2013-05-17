@@ -105,6 +105,17 @@ TODO
 #. time and size logging to sqlite to allow plotting, in same way as scm-backup does 
 #. prune empty old directories when purging 
 
+#. add `purge` command to remove old extracted trac.db::
+
+	[blyth@cms01 dybsvn]$ pwd
+	/data/env/tmp/tracs/dybsvn
+	[blyth@cms01 dybsvn]$ find .  -name 'trac.db' -exec du -h {} \;
+	6.7G    ./2013/04/25/104702/dybsvn/db/trac.db
+	6.7G    ./2013/05/09/104702/dybsvn/db/trac.db
+	6.7G    ./2013/05/16/104702/dybsvn/db/trac.db
+	[blyth@cms01 dybsvn]$ rm -f  ./2013/04/25/104702/dybsvn/db/trac.db
+	[blyth@cms01 dybsvn]$ rm -f  ./2013/05/09/104702/dybsvn/db/trac.db
+
 
 Deployment as cron tasks on source and target
 -----------------------------------------------
