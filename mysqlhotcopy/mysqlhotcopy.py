@@ -482,9 +482,16 @@ def parse_args_(doc):
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)  # add the handler to the root logger
     else:
-        logging.basicConfig(format=opts.logformat,level=level)
+        try: 
+            logging.basicConfig(format=opts.logformat,level=level)
+        except TypeError:
+            hdlr = logging.StreamHandler()
+            formatter = logging.Formatter(opts.logformat)
+            hdlr.setFormatter(formatter)
+            log.addHandler(hdlr)
+            log.setLevel(logging.INFO)
+        pass
     pass
-
 
     log.info(" ".join(sys.argv))
 
