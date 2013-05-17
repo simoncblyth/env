@@ -8,7 +8,11 @@ Usage::
 """
 import os, sys, logging
 log = logging.getLogger(__name__)
-import sqlite3 
+
+try:
+    import sqlite3 as sqlite
+except ImportError:
+    from pysqlite2 import dbapi2 as sqlite
 
 
 def dict_factory(cursor, row):
@@ -16,7 +20,7 @@ def dict_factory(cursor, row):
     Hookup to the connection with::
  
         conn.row_factory = dict_factory
-        #conn.row_factory = sqlite3.Row 
+        #conn.row_factory = sqlite.Row 
 
     The faster `Row` alternative has a pseudo-dict interface, 
     real dicts are more convenient for development.
@@ -38,7 +42,7 @@ class DB(object):
         if not path:
             path = os.environ['DBPATH']
         log.debug("connecting to %s " % path )
-        conn = sqlite3.connect(path)
+        conn = sqlite.connect(path)
         conn.row_factory = dict_factory
         pass
         self.path = path
@@ -74,7 +78,7 @@ class DB(object):
 
         """
         pyver = ".".join(map(str,sys.version_info[0:3]))
-        return "python %s sqlite3.version = %s sqlite3.sqlite_version = %s " % ( pyver, sqlite3.version, sqlite3.sqlite_version )
+        return "python %s sqlite3.version = %s sqlite3.sqlite_version = %s " % ( pyver, sqlite.version, sqlite.sqlite_version )
 
 
 if __name__ == '__main__':

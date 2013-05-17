@@ -125,7 +125,8 @@ This is done via script altbackup.sh see usage notes within that.
 """
 import logging, os, sys, stat, pprint
 import tarfile # new in 2.3
-assert tuple(sys.version_info)[0:2] in [(2,5),(2,6),(2,7)] , "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
+assert tuple(sys.version_info)[0:2] in [(2,4),(2,5),(2,6),(2,7)] , "unexpected python version %s \n%s" % ( repr(sys.version_info) , __doc__ )
+# (2,4) might work for sphinx doc building only 
 log = logging.getLogger(__name__)
 from os.path import join, getsize, dirname
 from datetime import datetime, timedelta
@@ -326,7 +327,10 @@ def alt_transfer( source, target, cfg ):
 
 
 def rmd_(cmd, targetnode):
-    rmd = "ssh %(targetnode)s \"" + cmd + "\"" if targetnode != "LOCAL" else cmd
+    if targetnode != "LOCAL":
+        rmd = "ssh %(targetnode)s \"" + cmd + "\"" 
+    else:
+        rmd = cmd
     return rmd
 
 def find_( basefold, targetnode, condition , verbose=False):
@@ -350,16 +354,22 @@ def subfolds_( basefold, targetnode ):
 
 def rmfile_( subfold, path , targetnode, ext , echo=False ):
     assert path[-len(ext):] == ext and path[:len(subfold)] == subfold, "path sanity check fails for %s " % path
-    cmd = "echo rm -f %(path)s" if echo else "rm -f %(path)s"     
+    cmd = echo_("rm -f %(path)s",echo)     
     if targetnode == 'LOCAL':
         assert cmd[0:4] == "echo", "local testing must just echo" 
     rmd = rmd_(cmd, targetnode=targetnode)
     rc, ret = do( rmd % locals(), verbose=True, stderr=True )
 
+def echo_(cmd, echo):
+    if echo: 
+        ret = "echo " + cmd 
+    else:
+        ret = cmd
+    return ret
 
 def rmdir_( subfold, path, targetnode, echo=False ):
     assert path[:len(subfold)] == subfold, "path sanity check fails for %s " % path
-    cmd = "echo rmdir %(path)s" if echo else "rmdir %(path)s"     
+    cmd = echo_("rmdir %(path)s",echo)     
     if targetnode == 'LOCAL':
         assert cmd[0:4] == "echo", "local testing must just echo" 
     rmd = rmd_(cmd, targetnode=targetnode)
@@ -392,7 +402,10 @@ def alt_purge_cat( catfold, cfg ):
         nedir = len(edirs)
         log.info("    subfold %(subfold)s has %(npath)s paths with ext %(ext)s empty dirs %(nedir)s" % locals())
         for i, path in enumerate(paths): 
-            mrk = "D" if i+1 > cfg.keep else ""
+            if i+1 > cfg.keep:
+                mrk = "D"
+            else:
+                mrk = ""
             log.info("        %-5s %-3s %s " % (i+1, mrk, path))  
             if mrk == "D":
                 rmfile_( subfold, path, cfg.targetnode, cfg.ext, cfg.echo )
