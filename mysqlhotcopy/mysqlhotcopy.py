@@ -489,7 +489,7 @@ def parse_args_(doc):
             formatter = logging.Formatter(opts.logformat)
             hdlr.setFormatter(formatter)
             log.addHandler(hdlr)
-            log.setLevel(logging.INFO)
+            log.setLevel(level)
         pass
     pass
 
