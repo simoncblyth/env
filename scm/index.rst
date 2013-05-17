@@ -6,9 +6,9 @@ SCM
 
     notes
     monitor/index
-    altbackup
     dev
     svn2git
+    altbackup
     altquery 
 
 
