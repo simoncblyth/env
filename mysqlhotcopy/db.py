@@ -17,7 +17,7 @@ class DB(object):
         dbc = MyCnf("~/.my.cnf").mysqldb_pars(sect, database=database)
         self.dbc = dbc
         self.database = dbc.get('db', None)
-        log.debug("connecting to %s " % dbc )
+        log.debug("connecting to %s " % dict(dbc, passwd="***"))
         try:  
             conn = MySQLdb.connect( **dbc )   # huh, version variation in accepted params
         except MySQLdb.Error, e: 
@@ -94,7 +94,7 @@ class MyCnf(dict):
 
         but when need to impinge `database/db` settings this is not possible.
         """
-        my2mp = dict(host="host",user="user",password="passwd",database="db" )
+        my2mp = dict(host="host",user="user",password="passwd",database="db", socket="unix_socket")
         my = self.section(sect)
      
         mp = {}
@@ -103,7 +103,7 @@ class MyCnf(dict):
 
         if database:
             mp["db"] = database 
-        log.debug("translate mysql config %s into mysql-python config %s " % ( my , mp ))
+        log.debug("translate mysql config %s into mysql-python config %s " % ( dict(my,password="***") , dict(mp,passwd="***") ))
         return mp 
 
 

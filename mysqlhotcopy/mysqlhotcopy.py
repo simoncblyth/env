@@ -99,6 +99,7 @@ hotcopy, archive, transfer
 
     [mysqlhotcopy]
     socket    = /var/lib/mysql/mysql.sock
+    # if somehow the socket config is ignored by mysqlhotcopy then use option `--socket /tmp/mysql.sock`
     host      = localhost
     user      = root
     password  = ***
@@ -287,7 +288,7 @@ class MySQLHotCopy(CommandLine):
     """
     """
     _exenames = ['mysqlhotcopy','mysqlhotcopy5']
-    _cmd = "%(exepath)s %(database)s%(regex)s %(outd)s "
+    _cmd = "%(exepath)s %(socket)s %(database)s%(regex)s %(outd)s "
 
 
 class HotBackup(object):
@@ -434,7 +435,12 @@ class HotBackup(object):
         else:
             regex = ""
 
-        cmd = MySQLHotCopy(database=database, outd=outd, regex=regex)
+        if self.opts.socket:
+             socket = "--socket=%s" % self.opts.socket
+        else:
+             socket = "" 
+
+        cmd = MySQLHotCopy(database=database, outd=outd, regex=regex, socket=socket)
         if os.path.exists(outd):
             os.rmdir(outd)
         os.makedirs(outd)
@@ -469,6 +475,7 @@ def parse_args_(doc):
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option("-C", "--noconfirm", dest="confirm",  default=True, action="store_false",  help="Disable interactive confirmation of deletion of hotcopy folders. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
+    op.add_option(      "--socket",  default = None,  help="Path to mysql socket used by mysqlhotcopy command, use this if fails to read from [mysqlhotcopy] section.  Default %default " )
     op.add_option("-k", "--keep",  default = 3,  help="Number of dated tarballs to retain within each backupdir when purging, ie for each node and database. Default %default " )
     opts, args = op.parse_args()
     assert len(args) > 1, "expect at least 2 arguments,  the first is database name followed by one or more command verbs"
