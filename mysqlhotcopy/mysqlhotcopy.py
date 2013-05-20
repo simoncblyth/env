@@ -72,6 +72,7 @@ Examples of usage::
           # 1st argument is DB name, subsequent are the actions to take
           # the **hotcopy** action is the one during which the DB tables are locked
 
+
     ./mysqlhotbackup.py -t 20130516_1711 tmp_ligs_offline_db transfer 
 
           # if need to transfer or archive separately from the hotcopy 
@@ -80,7 +81,12 @@ Examples of usage::
 
     ./mysqlhotcopy.py --regex './^\(DqChannelStatus\|DqChannelStatusVld\)/'  tmp_ligs_offline_db hotcopy archive transfer      
 
-          # using regex to only include 2 tables  
+          # using regex to only include 2 tables, this regex is tacked on to the mysqhotcopy 
+          # database argument and subsequently interpreted as a perl regular expression 
+    
+    ./mysqlhotcopy.py -l debug --regex "^DqChannelPacked" tmp_offline_db coldcopy 
+
+          # NB when using coldcopy the regex must be a python compatible regexp to select tables to include
 
     ./mysqlhotcopy.py --regex './^\(DqChannelPacked\|DqChannelPackedVld\)/'  tmp_offline_db hotcopy       
 
@@ -306,12 +312,17 @@ TODO:
 # keep this standalone, ie no DybPython.DB
 import os, logging, sys, tarfile, time, shutil, platform, re
 from datetime import datetime
-from fsutils import disk_usage
+import fsutils
 from db import DB
 from cmd import CommandLine
 log = logging.getLogger(__name__)
 from common import timing, seconds
 from tar import Tar
+
+
+
+
+
 
 class MySQLHotCopy(CommandLine):
     """
@@ -347,7 +358,7 @@ class HotBackup(object):
             log.info("creating backupdir %s " % dir )
             os.makedirs(dir)
         pass
-        du = disk_usage(dir)
+        du = fsutils.disk_usage(dir)
         mb_required = self.opts.sizefactor*self.db.size   
         mb_free = du['mb_free']
         enough = mb_free > mb_required 
@@ -488,9 +499,9 @@ class HotBackup(object):
     def _ensure_empty_dateddir(self, outd):
         assert self.match_dateddir(outd), "outd %s leaf not a dated dir" % outd
         if os.path.exists(outd):
-            os.rmdir(outd)
+            shutil.rmtree(outd)
         os.makedirs(outd)
- 
+
     def _coldcopy(self, database, outd):
         """
         :param database: name
@@ -505,8 +516,18 @@ class HotBackup(object):
             return 
         log.info(msg)
         self._ensure_empty_dateddir(outd) 
-        shutil.copytree( src, tgt ) 
 
+        if self.opts.regex == None:
+            _ignore = None
+        else:
+            log.debug("_coldcopy interpreting regex %s as python pattern " % self.opts.regex )
+            ptn = re.compile(self.opts.regex)
+            def _ignore(dir, names):
+                return filter(lambda name:not ptn.match(name), names)
+            pass
+        fsutils.copytree( src, tgt, ignore=_ignore ) 
+        pass
+    _coldcopy = timing(_coldcopy)
 
 
 
