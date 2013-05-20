@@ -109,11 +109,15 @@ Examples of usage::
 
           # quick full hotcopy chain testing 
 
+    mysqlhotcopy.py --regex "^DqChannelPacked"  -l debug --ALLOWEXTRACT --flattop -C --rename tmp_offline_db_ext tmp_offline_db coldcopy archive examine extract  
+ 
+          # after this, can immediately "use tmp_offline_db_ext" and query against the coldcopied tables 
 
-Ownership issue
-~~~~~~~~~~~~~~~~~
 
-::
+Ownership issue FIXED
+~~~~~~~~~~~~~~~~~~~~~~
+
+During development the ownership of `coldcopy` directories was initially not preserved, until r3745::
 
      rm -rf /tmp/tmp_offline_db && mysqlhotcopy.py --regex "./^LOCALSEQNO/"  -l debug --ALLOWEXTRACT -x /tmp --flattop -C tmp_offline_db hotcopy archive examine extract  && ll tmp_offline_db/ &&  [ $(id -u mysql) -eq $(stat -c %u /tmp) ] && echo OK || echo NOPE
 
