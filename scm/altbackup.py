@@ -54,6 +54,17 @@ Commands which can be run on the configured targetnode only:
 *dump*
       print configuration parameters
 
+*tls* OR *ls*
+      list target tarballs on targetnode (unenforced)
+
+*sls* 
+      list source tarballs on sourcenode (unenforced)
+
+Timings and cron invokation
+----------------------------
+
+See commentry in the bash wrapper script `altbackup.sh` that invokes this python script 
+and handles email notifications of non=zero return codes.
 
 
 Issues
@@ -180,6 +191,11 @@ def find_day_files( source, wanted=[], ext='.tar.gz', day=None):
         tgzs.append(spath)
     log.info("found %s matching tarballs" % len(tgzs) )
     return tgzs 
+
+def ls_(dir, ext=".tar.gz"):
+    cmd = "find %(dir)s -name '*%(ext)s' -exec ls -lh {} \;" % locals()
+    log.info(cmd)
+    log.info("\n"+os.popen(cmd).read())
 
 def do(cmd, verbose=False, stderr=True):
     if not stderr:
@@ -607,7 +623,7 @@ def main():
     target = cfg.target
     cfg.source = None    # convenient for getting the values but not subsequently 
     cfg.target = None
-    allowed = "dump transfer purge_target check_target check_source extract_tracdb examine_tracdb".split()
+    allowed = "dump transfer purge_target check_target check_source extract_tracdb examine_tracdb tls sls ls".split()
             
     if len(args) == 0: 
         print "expecting arguments such as %s " % allowed
@@ -634,6 +650,10 @@ def main():
             node = os.environ['NODE_TAG']
             assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
             alt_examine_tracdb( target, cfg )
+        elif arg == 'tls' or arg == 'ls':
+            ls_(target) 
+        elif arg == 'sls':
+            ls_(source) 
         elif arg == 'dump':
             log.info(pprint.pformat(cfg))
             log.info("source     : %(source)s " % locals())
