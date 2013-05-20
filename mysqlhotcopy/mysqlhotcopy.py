@@ -34,6 +34,10 @@ to operate upon.  Subsequent arguments specify actions to take. Order is importa
 `archive`
       archives the dated folder into a tarball and deletes the dated folder
 
+`examine`
+      examines the paths within the tarball and determines their common prefix path and classifies as flattop or otherwise
+      `examine` must be run before doing `extract`
+
 `transfer`
       uses *scp* to copy a tarball to a remote node
 
@@ -96,6 +100,24 @@ Examples of usage::
 
           # for quick machinery testing, restrict to just handling a small table and disable interactive confirmations
           # note that hotcopy will delete a pre-existing same minute folder however
+
+    rm -rf /tmp/tmp_offline_db && mysqlhotcopy.py --regex "^LOCALSEQNO"  -l debug --ALLOWEXTRACT -x /tmp -C tmp_offline_db coldcopy archive examine extract  
+
+          # quick full coldcopy chain testing 
+
+    rm -rf /tmp/tmp_offline_db && mysqlhotcopy.py --regex "./^LOCALSEQNO/"  -l debug --ALLOWEXTRACT -x /tmp -C tmp_offline_db hotcopy archive examine extract  
+
+          # quick full hotcopy chain testing 
+
+
+Ownership issue
+~~~~~~~~~~~~~~~~~
+
+::
+
+     rm -rf /tmp/tmp_offline_db && mysqlhotcopy.py --regex "./^LOCALSEQNO/"  -l debug --ALLOWEXTRACT -x /tmp --flattop -C tmp_offline_db hotcopy archive examine extract  && ll tmp_offline_db/ &&  [ $(id -u mysql) -eq $(stat -c %u /tmp) ] && echo OK || echo NOPE
+
+         # succeeds  
 
 
 hotcopy, archive, transfer
@@ -332,7 +354,6 @@ class MySQLHotCopy(CommandLine):
 
 
 class HotBackup(object):
-    verbs = "hotcopy archive extract transfer ls purge".split()
     datestamp_ptn = re.compile("^\d{8}_\d{4}$")
 
     def match_dateddir(self, dir):
@@ -343,12 +364,19 @@ class HotBackup(object):
         database = opts.database
         tagd = os.path.join(opts.backupdir, opts.tag ) 
         tgzp = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
-        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode, confirm=opts.confirm)
+        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode, confirm=opts.confirm, moveaside=opts.moveaside)
         pass
         self.database = database
         self.tagd = tagd                     # where hot copies are created
-        self.extractdir = opts.extractdir    # where tarballs are extracted
-        self.datadir = db("select @@datadir as datadir")[0]['datadir']
+        datadir = db("select @@datadir as datadir")[0]['datadir']
+        # where tarballs are extracted defaults to the mysql datadir
+        if opts.containerdir is None:
+            containerdir = datadir
+        else:
+            containerdir = opts.containerdir        
+        pass
+        self.containerdir = containerdir
+        self.datadir = datadir           
         self.tar = tar
         self.opts = opts                     # getting peripheral things via opts is OK, but not good style for criticals
         self.db = db
@@ -385,6 +413,8 @@ class HotBackup(object):
             self._coldcopy(self.database, self.tagd)
         elif verb == "archive":
             self._archive()
+        elif verb == "examine":
+            self._examine()
         elif verb == "extract":
             self._extract()
         elif verb == "transfer":
@@ -433,24 +463,32 @@ class HotBackup(object):
         self.tar.transfer() 
     _transfer = timing(_transfer)
 
+
+    def _examine(self):
+        """
+        """
+        self.tar.examine()
+    _examine = timing(_examine)
+
     def _extract(self):
         """
-        `self.extractdir` is normally the same as `self.datadir`
+        `self.containerdir` is normally the same as `self.datadir`
         """
-
-        msg = "extract %s into extractdir %s   " % (self.tar, self.extractdir)
+        msg = "extract %s into containerdir %s   " % (self.tar, self.containerdir)
         if not self.opts.ALLOWEXTRACT:
             log.warn("extraction is not allowed without --ALLOWEXTRACT option, for protection ")
             return   
-        if self.opts.dryrun:
-            log.info("dryrun: " + msg )
-            return 
         pass
-        really = raw_input("DO YOU REALLY WANT TO %s ? ENTER \"YES\" TO PROCEED : "  % msg )
+
+        if self.opts.confirm and not self.opts.dryrun:
+            really = raw_input("DO YOU REALLY WANT TO %s ? ENTER \"YES\" TO PROCEED : "  % msg )
+        else:
+            really = "YES"
+        pass
         if really == "YES":
             log.info("proceeding") 
             log.info(msg)
-            self.tar.extract(self.extractdir, self.opts.moveaside) 
+            self.tar.extract(self.containerdir, toplevelname=self.opts.rename, dryrun=self.opts.dryrun) 
         else:
             log.info("OK skipping [%s != YES] " % really )
         pass
@@ -465,7 +503,7 @@ class HotBackup(object):
             log.info("dryrun: " + msg )
             return 
         log.info(msg)
-        self.tar.archive(self.tagd, self.opts.deleteafter) 
+        self.tar.archive(self.tagd, self.opts.deleteafter, self.opts.flattop) 
     _archive = timing(_archive)
 
     def _hotcopy(self, database, outd ):
@@ -541,7 +579,7 @@ def parse_args_(doc):
     op.add_option("-l", "--loglevel", default="INFO" )
     op.add_option("-s", "--sect",  default = "mysqlhotcopy", help="name of config section in :file:`~/.my.cnf` " )
     op.add_option("-b", "--backupdir",   default = "/var/dbbackup/mysqlhotcopy/%(node)s/%(database)s", help="base directory under which hotcopy backup tarballs are arranged in dated folders. Default %default " )
-    op.add_option("-x", "--extractdir",  default = "/var/lib/mysql", help="MySQL data dir under which folders for each database reside, Default %default " )
+    op.add_option("-x", "--containerdir",  default = None, help="MySQL datadir under which folders for each database reside, when not specified is discerned from the DB. Default %default " )
     op.add_option("-z", "--sizefactor",  default = 2.5,  help="Scale factor between DB size estimate and free space demanded, 2.0 is agressive (3.0 should be safe) as remember need space for tarball as well as backupdir. Default %default " )
     op.add_option("-m", "--moveaside",  action="store_true",  help="When restoring and a preexisting database directory exists move it aside with a datestamp. If this is not selected the extract will abort. Default %default " )
     op.add_option("-D", "--nodeleteafter",  dest="deleteafter", default=True, action="store_false",  help="Normally directories are deleted after creation of archives, this option will inhibit the deletion. Default %default " )
@@ -550,6 +588,8 @@ def parse_args_(doc):
     op.add_option(      "--remoteprefix",  default="/data",  help="Prefix to tarball paths on remote node. Default %default " )
     op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
+    op.add_option(      "--flattop",  action="store_true",  help="Use flat top structure for created archives, allowing toplevelname changes. Default %default " )
+    op.add_option(      "--rename",  default=None,  help="Extract archive into `rename` directory withinn `containerdir`. Default %default " )
     op.add_option("-C", "--noconfirm", dest="confirm",  default=True, action="store_false",  help="Disable interactive confirmation of deletion of hotcopy folders. Default %default " )
     op.add_option("-t", "--tag", default=datetime.now().strftime("%Y%m%d_%H%M"), help="a string used to identify a backup directory and tarball. Defaults to current time string, %default " )
     op.add_option(      "--socket",  default = None,  help="Path to mysql socket used by mysqlhotcopy command, use this if fails to read from [mysqlhotcopy] section.  Default %default " )

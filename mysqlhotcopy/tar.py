@@ -3,12 +3,13 @@
 """
 import os, logging, shutil, tarfile, copy, re
 from common import timing, seconds, scp
+import fsutils
 from datetime import datetime
 log = logging.getLogger(__name__)
 
 
 class Tar(object):
-    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" , confirm=True ):
+    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" , confirm=True, moveaside=True):
         """
         :param path: to the tarball to be created, extracted or examined
         :param toplevelname: relative to the sourcedir or extractdir, 
@@ -32,25 +33,40 @@ class Tar(object):
         self.remotepath = remotepath
         self.remotenode = remotenode
         self.confirm = confirm 
-
+        self.moveaside = moveaside
+        self.names = None
+        self.prefix = None
+        self.flattop = None 
 
     def __repr__(self):
         return self.__class__.__name__ + " %s %s %s " % ( self.path, self.toplevelname, self.mode )
 
+    def names_(self):
+        tf = tarfile.open(self.path, "r:gz")
+        names = map(lambda ti:ti.name, tf)
+        tf.close() 
+        return names
+
     def examine(self):
         assert os.path.exists(self.path), "path %s does not exist " % self.path 
         log.info("examining %s " % (self.path) )
-        tf = tarfile.open(self.path, "r:gz")
-        for ti in tf:
-            print ti.name
-        print dir(ti)
-        tf.close() 
+        names = self.names_()
+        prefix = os.path.commonprefix(names)
+        flattop = prefix == ""
+
+        log.info("archive contains %s items with commonprefix \"%s\" flattop %s " % ( len(names), prefix, flattop  ))
+        log.debug("\n".join(names))
+
+        self.names = names
+        self.prefix = prefix
+        self.flattop = flattop 
     examine = timing(examine)
 
-    def archive(self, sourcedir, deleteafter=False):
+    def archive(self, sourcedir, deleteafter=False, flattop=False):
         """
         :param sourcedir: directory containing the `toplevelname` which will be the root of the archive 
         :param deleteafter:
+        :param flattop:
 
         Create the archive and examine::
 
@@ -63,7 +79,7 @@ class Tar(object):
            t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
            t.examine()
 
-        Under toplevelname `tmp_offline_db` within the archive::       
+        Under toplevelname `tmp_offline_db` within the archive when `flattop=False`::
 
             tmp_offline_db/
             tmp_offline_db/SupernovaTrigger.MYD
@@ -71,6 +87,13 @@ class Tar(object):
             tmp_offline_db/HardwareID.MYD
             ...
 
+        Under toplevelname `tmp_offline_db` within the archive when `flattop=True`::
+
+            SupernovaTrigger.MYD
+            CalibPmtFineGainVld.frm
+            HardwareID.MYD
+            ...
+ 
         To reproduce the layout on another node would then need::
 
            t = Tar("/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz", toplevelname="tmp_offline_db")
@@ -82,7 +105,12 @@ class Tar(object):
         log.info("creating %s from %s " %  (self.path, src) )
         assert os.path.exists(src) and os.path.isdir(src), "src directory %s does not exist " % src
         tgz = tarfile.open(self.path, "w:%s" % self.mode )
-        tgz.add(src, arcname=self.toplevelname) 
+        if flattop:
+            arcname = ""
+        else:
+            arcname = self.toplevelname 
+        pass
+        tgz.add(src, arcname=arcname) 
         tgz.close() 
 
         datedfolder_ptn = re.compile("^\d{8}_\d{4}$") # eg 20130515_1941
@@ -106,34 +134,125 @@ class Tar(object):
             log.warn("not deleteing after")
     archive = timing(archive)
 
-    def extract(self, extractdir, moveaside=False):
-        """
-        :param extractdir: 
-        :param moveaside:
-        """
-        assert os.path.exists(self.path), "path %s does not exist " % self.path 
-        tgt = os.path.join(extractdir, self.toplevelname) 
-        if os.path.exists(tgt):
-            if not moveaside:
-                log.warn("tgt dir %s exists already, ABORTING EXTRACTION, use --moveaside option to rename it and proceed" % tgt )        
-                return
-            else:
-                stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                aside = tgt + "_" + stamp
-                log.warn("moving aside pre-existing tgt dir %s to %s " % (tgt, aside) )  
-                assert not os.path.exists(aside), (aside, "huh the aside dir exists already ")
-                os.rename(tgt, aside)
 
-        assert not os.path.exists(tgt), "huh should not exist at this point "
-        log.info("extracting %s with toplevelname %s into extractdir %s " % (self.path,self.toplevelname, extractdir) )
-        tf = tarfile.open(self.path, "r:gz")
-        members = tf.getmembers()
-        select = filter(lambda tinfo:tinfo.name.split('/')[0] == self.toplevelname, members)
-        assert len(members) == len(select), (len(members), len(select), "extraction filtering misses some members not beneath toplevelname %s " % self.toplevelname ) 
+    def moveaside(self, target, dryrun=False):
+        assert os.path.exists(target), target
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        aside = target + "_" + stamp
+        msg = "moving aside pre-existing tgt dir %s to %s " % (target, aside) 
+        assert not os.path.exists(aside), (aside, "huh the aside dir exists already ")
+        if dryrun:
+            log.info("dryrun : " + msg )
+            return
         pass
+        log.info(msg) 
+        os.rename(target, aside)
+
+
+    def _folder_extract(self, containerdir, toplevelname, dryrun=False):
+        """  
+        :param containerdir:
+        :param toplevelname:
+        :param dryrun:
+
+        Folder extraction takes all paths from the archive that are within 
+        a particular toplevelname within the archive and places then 
+        within the `containerdir/` folder. By virtue of the `toplevelname` 
+        paths within the archive the result will be 
+        `containerdir/toplevelname` folder in the filesystem.
+
+        This approach has the advantage of a non-exploding tarball, but is 
+        inconvenient for renaming. 
+
+        The `toplevelname` dir will be created by the extraction.
+
+        """
+        assert self.flattop is False , "_folder_extract requires non-flattop archive "
+        assert self.toplevelname == toplevelname ,"_folder_extract requires default toplevelname %s %s " % (self.toplevelname, toplevelname)
+        tf = tarfile.open(self.path, "r:gz")
         wtf = TarFileWrapper(tf)
-        wtf.extractall(extractdir, select) 
+        members = tf.getmembers()
+        select_ = lambda tinfo:tinfo.name.split('/')[0] == toplevelname
+        select = filter(select_, members)
+        assert len(members) == len(select), (len(members), len(select), "extraction filtering misses some members, toplevelname %s " % (toplevelname) ) 
+        target = os.path.join(containerdir, toplevelname)
+
+        if os.path.exists(target) and self.moveaside:
+            self.moveaside(target, dryrun=dryrun)
+        pass
+
+        msg = "_folder_extract into containerdir %s for %s members with toplevelname %s  " % ( containerdir, len(members), toplevelname )
+        if dryrun:
+            log.info("dryrun: " + msg )
+        else:
+            log.info(msg)
+            assert not os.path.exists(target), "target dir %s exists already, ABORTING EXTRACTION, use --moveaside option to rename it " % target
+            wtf.extractall(containerdir, members) 
+        pass
         tf.close() 
+
+
+    def _flat_extract(self, containerdir, toplevelname, dryrun=False):
+        """
+        :param containerdir:
+        :param toplevelname:
+        :param dryrun:
+
+        Flat extraction takes all paths from the archive and places
+        them within the `containerdir/toplevelname` folder 
+
+        The `toplevelname` dir must be created before the extraction.
+
+        """
+        assert self.flattop is True , "_flat_extract requires flattop archive "
+        tf = tarfile.open(self.path, "r:gz")
+        wtf = TarFileWrapper(tf)
+        members = tf.getmembers()
+        target = os.path.join(containerdir, toplevelname)
+        msg = "_flat_extract into target %s for %s members with toplevelname %s " % ( target, len(members),toplevelname )
+        if dryrun:
+            log.info("dryrun: " + msg )
+        else:
+            log.info(msg)
+            assert not os.path.exists(target), "target dir %s exists already, ABORTING EXTRACTION use --rename newname " % target 
+            wtf.extractall(target, members) 
+        pass
+        tf.close() 
+
+
+        print os.popen("ls -l %(target)s " % locals()).read()
+        user, group = fsutils._get_usergroup(target)
+        assert user == "mysql" and group == "mysql", "oops user %s group %s " % (user, group )
+
+
+
+    def extract(self, containerdir, toplevelname=None, dryrun=False):
+        """
+        :param containerdir: folder within which the toplevelname dir resides
+        :param toplevelname: default of None corresponds to original db name
+        :param dryrun:
+
+        The actual extraction method depends on the type of archive detected:
+
+        #. `_flat_extract` for a flattop aka exploding archive 
+        #. `_folder_extract` for a folder top archive  
+
+        Flat extraction has the advantage of easy renaming  
+        """
+        if toplevelname is None:
+            toplevelname = self.toplevelname
+        pass
+        assert os.path.exists(self.path), "path %s does not exist " % self.path 
+        assert os.path.exists(containerdir), "containerdir %s does not exist" % containerdir
+        assert not self.flattop is None, "ABORT must `examine` before can `extract` "
+
+        if self.flattop:
+             self._flat_extract(containerdir, toplevelname, dryrun=dryrun)
+        else: 
+             self._folder_extract(containerdir, toplevelname, dryrun=dryrun)
+
+
+
     extract = timing(extract)
 
     def transfer(self):
@@ -193,7 +312,7 @@ class TarFileWrapper(object):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
-    tgz = "/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130515_1941.tar.gz"
+    tgz = "/var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130520_1353.tar.gz"
     t = Tar(tgz, toplevelname="tmp_offline_db")
     t.examine()
     #t.extract("/tmp/out")
