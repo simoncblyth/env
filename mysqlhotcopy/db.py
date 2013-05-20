@@ -54,6 +54,10 @@ class DB(object):
         sql = "select distinct(table_schema) from information_schema.tables"
         return map(lambda _:_['table_schema'],self(sql))
     databases = property(_get_databases, doc="List of database names obtained from information_schema.tables") 
+
+    def _get_datadir(self):
+        return self("select @@datadir as datadir")[0]['datadir']
+    datadir = property(_get_datadir, doc="Query DB server to find the datadir, eg /var/lib/mysql/ OR /data/mysql/ ")
         
     def __call__(self, cmd):
         log.debug(cmd)
@@ -111,6 +115,7 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     srv = DB("mysqlhotcopy")  
+    print "datadir:", srv.datadir
     for database in srv.databases:
         db = DB("mysqlhotcopy", database=database)
         print "%-40s %7s " % ( database,  db.size)

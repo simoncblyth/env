@@ -348,6 +348,7 @@ class HotBackup(object):
         self.database = database
         self.tagd = tagd                     # where hot copies are created
         self.extractdir = opts.extractdir    # where tarballs are extracted
+        self.datadir = db("select @@datadir as datadir")[0]['datadir']
         self.tar = tar
         self.opts = opts                     # getting peripheral things via opts is OK, but not good style for criticals
         self.db = db
@@ -434,8 +435,9 @@ class HotBackup(object):
 
     def _extract(self):
         """
-        `self.extractdir` contains the database named directory  
+        `self.extractdir` is normally the same as `self.datadir`
         """
+
         msg = "extract %s into extractdir %s   " % (self.tar, self.extractdir)
         if not self.opts.ALLOWEXTRACT:
             log.warn("extraction is not allowed without --ALLOWEXTRACT option, for protection ")
@@ -507,7 +509,7 @@ class HotBackup(object):
         :param database: name
         :param outd: dated output folder, which is emptied before doing the coldcopy 
         """
-        datadir = self.db("select @@datadir as datadir")[0]['datadir']
+        datadir = self.datadir
         src = os.path.join(datadir, database)
         tgt = os.path.join(outd, database)
         msg = "coldcopy from src %s to tgt %s **without locking**   " % (src, tgt)

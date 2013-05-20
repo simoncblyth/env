@@ -15,6 +15,10 @@ class Tar(object):
 
         if a `toplevelname` is specified only members within that directory 
         are tarballed or extracted
+
+        Hmm embedding the toplevel name withing the tarball, is not so flexible 
+        when want to test an extracted mysql DB tarball, would be more convenient to just flat 
+        archive the files. 
         """
         assert len(toplevelname) > 1, "as safety measure a non-blank toplevelname is required" 
         self.path = path 
