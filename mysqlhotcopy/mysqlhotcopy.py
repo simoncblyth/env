@@ -326,7 +326,7 @@ class HotBackup(object):
 
     def match_dateddir(self, dir):
         leaf = dir.split("/")[-1]
-        return self.datestamp_ptn.match(leaf):
+        return self.datestamp_ptn.match(leaf)
 
     def __init__(self, opts, db ):
         database = opts.database
