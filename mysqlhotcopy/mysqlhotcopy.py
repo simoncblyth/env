@@ -28,6 +28,9 @@ to operate upon.  Subsequent arguments specify actions to take. Order is importa
 `hotcopy`
       use *mysqlhotcopy* to copy the mysql datadir for a single database into a dated folder under `backupdir`
 
+`coldcopy`
+       Manual file system copy **without locking** the DB. Used for investigating crashed DBs, DO NOT USE FOR RELIABLE BACKUPS. TREAT WITH CAUTION
+
 `archive`
       archives the dated folder into a tarball and deletes the dated folder
 
@@ -265,6 +268,32 @@ too to cause problems.
    option so the tables all end up in the same directory.
 
 
+
+Behaviour with crashed tables
+-------------------------------
+
+* http://www.databasejournal.com/features/mysql/article.php/3300511/Repairing-Database-Corruption-in-MySQL.htm
+
+::
+
+	[root@dybdb1 mysqlhotcopy]#   ./mysqlhotcopy.py -l debug tmp_ligs_offline_db hotcopy archive  
+	2013-05-20 11:15:01,291 __main__ INFO     ./mysqlhotcopy.py -l debug tmp_ligs_offline_db hotcopy archive
+	2013-05-20 11:15:01,294 __main__ INFO     backupdir /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db 
+	2013-05-20 11:15:01,311 __main__ INFO     db size in MB 3760.22 
+	2013-05-20 11:15:01,312 __main__ INFO     ================================== hotcopy 
+	2013-05-20 11:15:01,312 __main__ INFO     sufficient free space,      required 9400.55 MB less than    free 20069.015625 MB 
+	2013-05-20 11:15:01,312 __main__ INFO     hotcopy of database tmp_ligs_offline_db into outd /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115 
+	2013-05-20 11:15:01,333 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy  tmp_ligs_offline_db /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115   
+	DBD::mysql::db do failed: Table './tmp_ligs_offline_db/DqChannelStatus' is marked as crashed and should be repaired at /usr/bin/mysqlhotcopy line 467.
+	2013-05-20 11:15:01,828 __main__ INFO     seconds {'_hotcopy': 0.51553797721862793} 
+	2013-05-20 11:15:01,828 __main__ INFO     ================================== archive 
+	2013-05-20 11:15:01,828 __main__ INFO     sufficient free space,      required 9400.55 MB less than    free 20069.0078125 MB 
+	2013-05-20 11:15:01,828 __main__ INFO     tagd /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115  into Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115.tar.gz tmp_ligs_offline_db gz  
+	enter "YES" to confirm deletion of sourcedir /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115 :YES
+	2013-05-20 11:15:42,169 __main__ INFO     seconds {'_hotcopy': 0.51553797721862793, 'archive': 40.34028697013855, '_archive': 40.340435981750488}
+
+
+
 TODO:
 -------
 
@@ -293,6 +322,12 @@ class MySQLHotCopy(CommandLine):
 
 class HotBackup(object):
     verbs = "hotcopy archive extract transfer ls purge".split()
+    datestamp_ptn = re.compile("^\d{8}_\d{4}$")
+
+    def match_dateddir(self, dir):
+        leaf = dir.split("/")[-1]
+        return self.datestamp_ptn.match(leaf):
+
     def __init__(self, opts, db ):
         database = opts.database
         tagd = os.path.join(opts.backupdir, opts.tag ) 
@@ -334,6 +369,8 @@ class HotBackup(object):
             return 
         if verb == "hotcopy":
             self._hotcopy(self.database, self.tagd)
+        elif verb == "coldcopy":
+            self._coldcopy(self.database, self.tagd)
         elif verb == "archive":
             self._archive()
         elif verb == "extract":
@@ -347,6 +384,8 @@ class HotBackup(object):
         else:
             log.warn("unhandled verb %s " % verb ) 
         log.info("seconds %s " % seconds )
+
+
 
     def _purge(self):
         dir = self.opts.backupdir
@@ -422,7 +461,7 @@ class HotBackup(object):
         a sub-folder named after the database is created within the outd
 
         :param database:
-        :param outd:
+        :param outd: the dated folder 
         """
         msg = "hotcopy of database %s into outd %s " % (database, outd) 
         if self.opts.dryrun:
@@ -441,17 +480,32 @@ class HotBackup(object):
              socket = "" 
 
         cmd = MySQLHotCopy(database=database, outd=outd, regex=regex, socket=socket)
-        if os.path.exists(outd):
-            os.rmdir(outd)
-        os.makedirs(outd)
+        self._ensure_empty_dateddir(outd)    
         log.info("proceed with %s " % cmd )
         cmd() 
     _hotcopy = timing(_hotcopy)
 
-
-
-
-
+    def _ensure_empty_dateddir(self, outd):
+        assert self.match_dateddir(outd), "outd %s leaf not a dated dir" % outd
+        if os.path.exists(outd):
+            os.rmdir(outd)
+        os.makedirs(outd)
+ 
+    def _coldcopy(self, database, outd):
+        """
+        :param database: name
+        :param outd: dated output folder, which is emptied before doing the coldcopy 
+        """
+        datadir = self.db("select @@datadir as datadir")[0]['datadir']
+        src = os.path.join(datadir, database)
+        tgt = os.path.join(outd, database)
+        msg = "coldcopy from src %s to tgt %s **without locking**   " % (src, tgt)
+        if self.opts.dryrun:
+            log.info("dryrun: " + msg )
+            return 
+        log.info(msg)
+        self._ensure_empty_dateddir(outd) 
+        shutil.copytree( src, tgt ) 
 
 
 
