@@ -22,9 +22,22 @@ Usage from cron::
 Separation of concerns
 -----------------------
 
-The `valmon.py` is kept generic, with all the specifics of obtaining the values 
-handled within the command called and choosing constraints to apply to them
-via config alone.
+The value monitoring in `valmon.py` is kept generic, with all the specifics 
+of obtaining the values handled within the command called and choosing constraints 
+to apply to them within the config.
+
+For example the `diskmon` section uses the `disk_usage.py` script which returns a dict string::
+
+    [blyth@cms01 e]$ disk_usage.py 
+    {'gb_total': '131.74', 'gb_free': '24.90', 'percent_free': '18.90', 'percent_used': '76.02'}
+
+Other sections like `oomon` monitors the single integer returned by the below command:: 
+
+    [root@cms02 ~]# grep oom /var/log/messages | wc -l 
+    0 
+
+This approach allows the value monitoring and persistence framework to be reused for
+monitoring any quantity which commands or scripts can be written to obtain.
 
 
 Command arguments
@@ -41,7 +54,6 @@ Command arguments
      a blank msg indicates that no email would be sent
 `ls`
      a simple query against the table for the configured section, for debugging
-
 
 
 Schema Versions
