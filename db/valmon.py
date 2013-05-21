@@ -86,7 +86,7 @@ Examples::
     [diskmon]
 
     note = stores the dict returned by the command as a string in the DB without interpretation
-    cmd = disk_usage.py
+    cmd = disk_usage.py /data
     valmon_version = 0.2 
     return = dict
     constraints = ( gb_free > 10, )
