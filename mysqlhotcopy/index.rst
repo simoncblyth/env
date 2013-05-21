@@ -6,6 +6,7 @@ MySQL hotcopy
 
     locking 
     mysqlhotcopy
+    mysql_repair_table
 
 
 
