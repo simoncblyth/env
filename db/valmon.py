@@ -6,22 +6,80 @@ Value Monitoring
 .. warning:: Keeping this operational with ancient python23 is advantageous
 
 Simple monitoring and recording the output of commands that 
-return a single value. The result is stored with a timestamp
-in an sqlite DB
+return a single value or a dict string. 
+The results are stored with a timestamp in a sqlite DB
 
-TODO:
+Usage with `diskmon` section is shown below. 
+The section must correspond to a section name in the config file, which defaults to :file:`~/.env.cnf`::
 
-#. record the time to run the command in the DB
+    valmon.py -s diskmon rec rep mon 
 
-Config examples::
+Usage from cron::
+
+    52 * * * * ( valmon.py -s diskmon rec rep mon ) > $CRONLOG_DIR/diskmon.log 2>&1 
+
+
+Separation of concerns
+-----------------------
+
+The `valmon.py` is kept generic, with all the specifics of obtaining the values 
+handled within the command called and choosing constraints to apply to them
+via config alone.
+
+
+Command arguments
+-------------------
+
+`rec`
+     record status into the SQLite DB, but running the configured command and storing results 
+`mon` 
+     check if the last entry in the DB table conforms to the expectations, if not set notification email 
+`rep`
+     status report based on the DB entries
+`msg`
+     show what the notification email and subject would be without sending email, 
+     a blank msg indicates that no email would be sent
+`ls`
+     a simple query against the table for the configured section, for debugging
+
+
+
+Schema Versions
+----------------
+
+`0.1`
+     `date`, `val` 
+`0.2`
+     `date`, `val`, `runtime`, `rc`, `ret`
+
+
+Configuration
+--------------
+
+The command to run and the constraints applied to what it returns 
+are obtained from config.  This approach is taken to allow most typical 
+changes of varying constraints to be done via configuration only. 
+
+Examples::
 
     [oomon]
 
     note = despite notification being enabled this failed to notify me, apparently the C2 OOM issue made the machine incapable of sending email ?
     cmd = grep oom /var/log/messages | wc -l  
+    return = int
     constraints = ( val == 0, )
     dbpath = ~/.env/oomon.sqlite
     tn = oomon
+
+    [diskmon]
+
+    note = stores the dict returned by the command as a string in the DB without interpretation
+    cmd = disk_usage.py
+    valmon_version = 0.2 
+    return = dict
+    constraints = ( gb_free > 10, )
+    dbpath = ~/.env/envmon.sqlite
+    tn = diskmon
 
     [envmon]
 
@@ -30,6 +88,7 @@ Config examples::
     # from N need to get to C2 via nginx reverse proxy on H
     #hostport = hfag.phys.ntu.edu.tw:90  
     cmd = curl -s --connect-timeout 3 http://%(hostport)s/repos/env/ | grep trunk | wc -l
+    return = int
     constraints = ( val == 1, )
     instruction = require a single trunk to be found, verifying that the apache interface to SVN is working 
     observations = may 16, 2013 observing variable response times that triggering notifications with a 3s timeout    
@@ -40,6 +99,7 @@ Config examples::
 
     note = check C2 server from cron on C, 
     cmd = curl -s --connect-timeout 3 http://dayabay.phys.ntu.edu.tw/repos/env/ | grep trunk | wc -l
+    return = int
     valmin = -100
     valmax = 100 
     constraints = ( val == 1 and val < valmax, val > valmin , val < valmax )
@@ -52,19 +112,13 @@ Config examples::
     dbpath = ~/.env/envmon.sqlite
     tn = envmon
 
-Usage::
 
-    valmon.py -s oomon rec ls rep mon
-    valmon.py -s envmon rec mon
 
-Crontab::
+Source python cron
+~~~~~~~~~~~~~~~~~~~
 
-    #50 * * * * ( export HOME=/root ; LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.6/lib /data/env/system/python/Python-2.5.6/bin/python /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
-    50 * * * * ( export HOME=/root ; /home/blyth/env/db/valmon.py -s oomon rec mon ; ) > /var/scm/log/oomon.log 2>&1
-
-On C2, was forced to use source rather than system python 2.3 until `yum installed python-sqlite2`, see simtab for notes on this.
-
-The envmon check of C2 from C uses source python, necessitating::
+When forced to use source rather than system python 2.3 on C2 had to 
+setup the cron environment accordingly::
 
      SHELL=/bin/bash
      HOME=/home/blyth
@@ -74,14 +128,21 @@ The envmon check of C2 from C uses source python, necessitating::
      LD_LIBRARY_PATH=/data/env/system/python/Python-2.5.1/lib
      42 * * * * * ( valmon.py -s envmon rec rep mon ) > $CRONLOG_DIR/envmon.log 2>&1 
 
+Avoided this complication by `yum install python-sqlite2`, see simtab for notes on this.
+
+
 """
-import os, logging
+import os, sys, logging, time, platform, pwd
 from pprint import pformat
 from datetime import datetime
 log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from simtab import Table
 from env.tools.sendmail import notify
+
+def excepthook(*args):
+    log.error('Uncaught exception:', exc_info=args)
+sys.excepthook = excepthook # without this assert tracebacks and messages do not make it into the log 
 
 
 class ValueMon(object):
@@ -95,8 +156,18 @@ class ValueMon(object):
 
         :param cnf:
         """
+        log.debug(str(cnf))
+        version = cnf.get('valmon_version','0.1')
+        if version == '0.1':
+            tab = Table(cnf['dbpath'], cnf['tn'], date="text", val="real")
+        elif version == '0.2':
+            tab = Table(cnf['dbpath'], cnf['tn'], date="text", val="real", runtime="real", rc="int", ret="text" )
+        else:
+            assert 0, ("unexpected valmon_version %s " % version, cnf)  
+        pass
         self.cnf = cnf
-        self.tab = Table(cnf['dbpath'], cnf['tn'], date="text", val="real" )
+        self.version = version
+        self.tab = tab
 
     def interpret_as_int(self, ret):
         """
@@ -109,6 +180,16 @@ class ValueMon(object):
            log.warn("non integer returned by cmd %s " % ret )
            val = None
         return val   
+
+    def interpret_as_dict(self, ret):
+        """
+        :param ret: string returned by a command
+        :return: dict 
+        """
+        s = ret.lstrip().strip()
+        assert s[0] == '{' and s[-1] == '}', "doesnt look like a dict >>>%s<<< " % s 
+        d = eval(s)
+        return d
 
     def float_or_asis(self, arg):
         """
@@ -133,12 +214,32 @@ class ValueMon(object):
         :param cmd:
         """
         log.info("running cmd %s " % cmd)
-        ret = os.popen(cmd).read().strip()
-        val = self.interpret_as_int(ret)
-        log.info("ret %s val %s " % (ret, val )) 
+        t0 = time.time()
+        pipe = os.popen(cmd)
+        ret = pipe.read().strip()
+        t1 = time.time()
+        rc = pipe.close()
+        if rc is None:
+            rc = 0 
+        rc = os.WEXITSTATUS(rc)
+        runtime = t1 - t0
+
+        return_ = self.cnf['return']
+        if return_ == 'int': 
+            val = self.interpret_as_int(ret)
+        elif return_ == 'dict' or return_ == 'json':
+            # no simple way to store a string dict or json in sqlite table in a digested form, so leave as a string 
+            val = 0
+        else:
+            raise Exception("return_ %s not handled" % return_ )
+            val = None
+        pass
+        log.info("ret %s val %s rc %s runtime %s return_ %s  " % (ret, val, rc, runtime, return_ )) 
         if val != None:
-            dt = datetime.now()
-            self.tab.add( val=val, date=dt.strftime("%Y-%m-%dT%H:%M:%S") ) 
+            kwa = dict(val=val, date=datetime.fromtimestamp(t0).strftime("%Y-%m-%dT%H:%M:%S"))
+            if self.version == '0.2':
+                kwa.update(runtime=runtime, ret=ret, rc=rc) 
+            self.tab.add(**kwa) 
             self.tab.insert()
 
     def ls(self):
@@ -153,8 +254,9 @@ class ValueMon(object):
         """
         Use sqlite3 binary to present the last few entries in the configured table
         """
-        return os.popen("echo \"select * from %(tn)s order by date desc limit 24 ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
-
+        hdr = str(self.cnf)
+        bdy = os.popen("echo \"select * from %(tn)s order by date desc limit 24 ;\" | sqlite3 %(dbpath)s " % self.cnf).read() 
+        return "\n".join(["",hdr,"",bdy])
 
     def constrain_(self, last):
         """
@@ -179,10 +281,25 @@ class ValueMon(object):
 
         """
         ctx = {}
+        ret = last.pop('ret',None)
+
+        if ret and self.cnf.get('return',None) == 'dict':
+            dret = self.interpret_as_dict(ret)
+            log.info("interpreted %s into %s " % ( ret, str(dret) ))
+        else:
+            dret = None
+       
         for k,v in last.items():
             ctx[k] = v
+
+        if dret:
+            for k,v in dret.items():
+                ctx[k] = self.float_or_asis(v)    
+
         for k,v in self.cnf.items():
             ctx[k] = self.float_or_asis(v)    
+
+        log.debug(pformat(ctx)) 
 
         strip_ = lambda _:_.strip().lstrip()
         constraints = strip_(self.cnf['constraints'])
@@ -194,20 +311,24 @@ class ValueMon(object):
         edict = dict(zip(lbls,evls))
         return edict, ctx
 
-    def mon(self):
+
+    def msg(self):
         """
-        Examine last entry in the configured DB table, and compares value to configured constraints
-        When excursions are seen send notification email, to configured email addresses
+        Report preparation
         """
         last = self.tab.iterdict("select * from %(tn)s order by date desc limit 1" % self.cnf).next()
         edict, ctx = self.constrain_(last)
         log.debug("ctx:\n %s " % pformat(ctx))
         log.debug("edict:\n %s " % pformat(edict))
 
-        subj = "last entry from %(date)s " 
-        subj = subj % last 
         oks =  map(lambda _:_[0],filter(lambda _:_[1],     edict.items() ))
         exc =  map(lambda _:_[0],filter(lambda _:not _[1], edict.items() ))
+
+        nok = len(oks)
+        nex = len(exc)
+
+        subj = "last entry from %(date)s " 
+        subj = subj % last  
 
         if len(exc) > 0: 
             subj += "WARN: " + "  ****  ".join(exc) 
@@ -217,11 +338,25 @@ class ValueMon(object):
 
         if len(exc) > 0:
             msg = "\n".join([subj, self.rep()]) 
+        else:
+            msg = ""
+
+        log.info("subj: %s " % subj )
+        log.info("msg : %s " % msg )
+        return msg  
+
+    def mon(self):
+        """
+        Examine last entry in the configured DB table, and compares value to configured constraints
+        When excursions are seen send notification email, to configured email addresses
+        """
+        msg = self.msg()
+        if len(msg) > 0:
+            subj = msg.split("\n")[0]
             log.warn("sending notification as: %s " % subj )
             notify(self.cnf['email'], msg )
         else:
             log.info("no notification: %s " % subj )
-
 
     def __call__(self, args):
         """
@@ -237,6 +372,8 @@ class ValueMon(object):
                 self.ls()
             elif arg == 'mon':
                 self.mon()
+            elif arg == 'msg':  # same as mon but doesnt send notification emails, for report development
+                self.msg()
             elif arg == 'rep':
                 print self.rep()
             else:
@@ -250,6 +387,8 @@ class Cnf(dict):
 
         :param cnfpath: config file path
         """
+        dict.__init__(self)
+        self['sect'] = None
         cpr = ConfigParser()
         cpr.read(os.path.expanduser(cnfpath))
         pass
@@ -272,6 +411,15 @@ class Cnf(dict):
         self['sect'] = sect
         self['sections'] = self.sections
 
+    def __str__(self):
+        node = platform.node()
+        user = pwd.getpwuid(os.getuid())[0]
+        cmt = "%% %s %s@%s " % ( self.cnfpath, user, node )   
+        hdr = "[%s]" % self['sect'] 
+        skip = "sect sections".split()
+        bdy = "\n".join( ["%s = %s " % (k, self[k]) for k in filter(lambda k:k not in skip,self.keys()) ] )
+        return "\n".join([cmt, hdr, bdy])
+
     def __repr__(self):
         return "%s %s %s %s " % ( self.__class__.__name__, self.cnfpath, str(self.sections), repr(dict(self)) )
    
@@ -285,13 +433,35 @@ def parse_args(doc):
     """
     from optparse import OptionParser
     op = OptionParser(usage=doc)
-    op.add_option("-c", "--cnfpath",   default="~/.env.cnf", help="path to config file Default %default"  )
+    op.add_option("-o", "--logpath", default=None )
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
+    op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+    op.add_option("-c", "--cnfpath",   default="~/.env.cnf", help="path to config file Default %default"  )
     op.add_option("-s", "--sect",      default=None , help="section of config file... Default %default"  )
     opts, args = op.parse_args()
-    loglevel = getattr( logging, opts.loglevel.upper() )
-    logging.basicConfig()   # for py2.3 compatibility
-    logging.getLogger().setLevel(loglevel)
+    level = getattr( logging, opts.loglevel.upper() )
+
+    if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)
+        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        formatter = logging.Formatter(opts.logformat)
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)  # add the handler to the root logger
+    else:
+        try: 
+            logging.basicConfig(format=opts.logformat,level=level)
+        except TypeError:
+            hdlr = logging.StreamHandler()              # py2.3 has unusable basicConfig that takes no arguments
+            formatter = logging.Formatter(opts.logformat)
+            hdlr.setFormatter(formatter)
+            log.addHandler(hdlr)
+            log.setLevel(level)
+        pass
+    pass
+
+    log.info(" ".join(sys.argv))
+    #logging.getLogger().setLevel(loglevel)
     return opts, args
 
 def main():

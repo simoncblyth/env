@@ -51,6 +51,7 @@ Contents:
    pypy/index
    tools/index
    mysqlhotcopy/index
+   db/index
 
 Indices and tables
 ==================

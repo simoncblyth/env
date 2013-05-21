@@ -222,7 +222,17 @@ class disk_usage(dict):
         self['mb_total'] = self['bytes_total']*b2mb
         self['mb_used'] = self['bytes_used']*b2mb
 
-
+    def asdict(self, keys="percent_used percent_free gb_free gb_total".split()):
+        """
+        truncated summary dict, suitable for storage
+        """
+        s = {}
+        for k in filter(lambda k:k in keys, self.keys()):
+            v = "%6.2f" % self[k]
+            s[k] = v.lstrip().strip()
+        return s
+    def __str__(self):
+        return repr(self.asdict())
     def __repr__(self):
         return self.__class__.__name__ + self.tmpl % self
 
