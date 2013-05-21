@@ -3,8 +3,15 @@
 
 """
 import os, logging
-import MySQLdb
 from ConfigParser import ConfigParser
+
+# allows non MySQL-python nodes to autodoc
+try:
+    import MySQLdb
+except ImportError:
+    MySQLdb = None
+
+
 log = logging.getLogger(__name__)
 
 class DB(object):
