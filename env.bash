@@ -137,6 +137,13 @@ env-docs(){
    python rstbash.py
 }
 
+env-sphinx(){
+   python-
+   local msg="=== $FUNCNAME"
+   cmd="cd $(env-home) && PATH=$(env-home)/bin:$PATH make && make rsync "
+   echo $msg $cmd updating html 
+   eval $cmd 
+}
 
 env-mode(){   echo dbg ; }
 env-modedir(){  echo $(env-home)/scons-out/$(env-mode) ; }

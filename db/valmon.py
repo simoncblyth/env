@@ -18,6 +18,10 @@ Usage from cron::
 
     52 * * * * ( valmon.py -s diskmon rec rep mon ) > $CRONLOG_DIR/diskmon.log 2>&1 
 
+TODO
+-----
+
+#. Maybe consolidate into a monolithic script, for easy installation by others.
 
 Separation of concerns
 -----------------------
@@ -123,7 +127,6 @@ Examples::
 
     dbpath = ~/.env/envmon.sqlite
     tn = envmon
-
 
 
 Source python cron
