@@ -77,6 +77,316 @@ they replicate to replication slaves. To suppress logging, specify the optional
 
 
 
+MyISAM repairs
+------------------
+
+From http://dev.mysql.com/doc/refman/5.0/en/myisam-repair.html
+
+::
+
+    [root@belle7 tmp_offline_db_ext]# man myisamchk
+    [root@belle7 tmp_offline_db_ext]# myisamchk -vvv *.MYI
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Checking MyISAM file: DqChannelPacked.MYI
+    Data records:  323000   Deleted blocks:       0
+    - check file-size
+    - check record delete-chain
+    No recordlinks
+    - check key delete-chain
+    block_size 1024:
+    - check index reference
+    - check data record references index: 1
+
+    ---------
+
+    Checking MyISAM file: DqChannelPackedVld.MYI
+    Data records:  323000   Deleted blocks:       0
+    - check file-size
+    - check record delete-chain
+    No recordlinks
+    - check key delete-chain
+    block_size 1024:
+    - check index reference
+    - check data record references index: 1
+    [root@belle7 tmp_offline_db_ext]# 
+
+
+
+
+Following sections `Stage 3: Difficult repair` and `Stage 2: Easy safe repair`
+--------------------------------------------------------------------------------
+
+* http://dev.mysql.com/doc/refman/5.0/en/myisam-repair.html
+
+move MYI and MYD into keep
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simulate a missing MYI::
+
+    [root@belle7 tmp_offline_db_ext]# mkdir ../tmp_offline_db_ext_keep
+    [root@belle7 tmp_offline_db_ext]# mv DqChannelPacked.MYI DqChannelPacked.MYD ../tmp_offline_db_ext_keep
+    [root@belle7 tmp_offline_db_ext]# ll  ../tmp_offline_db_ext_keep
+    total 19072
+    -rw-rw----  1 mysql mysql 14858000 May 21 13:43 DqChannelPacked.MYD
+    -rw-rw----  1 mysql mysql  4621312 May 21 13:46 DqChannelPacked.MYI
+    drwxr-xr-x 41 mysql mysql     4096 May 22 18:56 ..
+    drwxr-xr-x  2 root  root      4096 May 22 18:57 .
+
+
+truncate the moved table, recreating a 1024 byte MYI and empty MYD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    mysql> show tables ;
+    +------------------------------+
+    | Tables_in_tmp_offline_db_ext |
+    +------------------------------+
+    | DqChannelPacked              | 
+    | DqChannelPackedVld           | 
+    +------------------------------+
+    2 rows in set (0.00 sec)
+
+    mysql> SET autocommit=1;
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> truncate table DqChannelPacked  ;
+    Query OK, 0 rows affected (0.02 sec)
+
+    mysql> quit
+    Bye
+
+::
+
+    [root@belle7 tmp_offline_db_ext]# ll
+    total 19392
+    -rw-rw----  1 mysql mysql     8908 May 10 18:18 DqChannelPackedVld.frm
+    -rw-rw----  1 mysql mysql     8896 May 10 18:18 DqChannelPacked.frm
+    -rw-rw----  1 mysql mysql 16473000 May 11 20:18 DqChannelPackedVld.MYD
+    -rw-rw----  1 mysql mysql  3314688 May 14 15:04 DqChannelPackedVld.MYI
+    drwxr-xr-x 41 mysql mysql     4096 May 22 18:56 ..
+    -rw-rw----  1 mysql mysql     1024 May 22 18:59 DqChannelPacked.MYI
+    -rw-rw----  1 mysql mysql        0 May 22 18:59 DqChannelPacked.MYD
+    drwxr-x---  2 mysql mysql     4096 May 22 18:59 .
+
+
+Copy the MYD back from keep ontop of the empty MYD
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Copy the old data file back onto the newly created data file. (Do not just move
+the old file back onto the new file. You want to retain a copy in case
+something goes wrong.)
+
+::
+
+    [root@belle7 tmp_offline_db_ext]# cp ../tmp_offline_db_ext_keep/DqChannelPacked.MYD .
+    cp: overwrite `./DqChannelPacked.MYD'? y
+
+    [root@belle7 tmp_offline_db_ext]# ll
+    total 33924
+    -rw-rw----  1 mysql mysql     8908 May 10 18:18 DqChannelPackedVld.frm
+    -rw-rw----  1 mysql mysql     8896 May 10 18:18 DqChannelPacked.frm
+    -rw-rw----  1 mysql mysql 16473000 May 11 20:18 DqChannelPackedVld.MYD
+    -rw-rw----  1 mysql mysql  3314688 May 14 15:04 DqChannelPackedVld.MYI
+    drwxr-xr-x 41 mysql mysql     4096 May 22 18:56 ..
+    -rw-rw----  1 mysql mysql     1024 May 22 18:59 DqChannelPacked.MYI
+    drwxr-x---  2 mysql mysql     4096 May 22 18:59 .
+    -rw-rw----  1 mysql mysql 14858000 May 22 19:06 DqChannelPacked.MYD
+
+The result so far is a drastically shrunk MYI.  
+
+
+Repopulate the index with `myisamchk -r -q`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+From `Stage 2: Easy safe repair` of http://dev.mysql.com/doc/refman/5.0/en/myisam-repair.html
+
+This attempts to repair the index file without touching the data file. If the
+data file contains everything that it should and the delete links point at the
+correct locations within the data file, this should work, and the table is
+fixed.
+
+
+::
+
+    [root@belle7 tmp_offline_db_ext]# myisamchk -r -q DqChannelPacked
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    - check record delete-chain
+    - recovering (with sort) MyISAM-table 'DqChannelPacked'
+    Data records: 0
+    - Fixing index 1
+    Data records: 323000
+    [root@belle7 tmp_offline_db_ext]# 
+
+Those warnings are a know bug http://bugs.mysql.com/bug.php?id=33785  reported for 5.0.54 fixed in 5.0 series at 5.0.87 
+The values adjusted to are 4G::
+
+    In [86]: ( 1 << 32 ) - 1
+    Out[86]: 4294967295L
+
+    In [21]: (4294967295+1)/1024/1024/1024
+    Out[21]: 4L
+
+
+From `Stage 2: Easy safe repair`
+
+If you want a repair operation to go much faster, you should set the values of
+the `sort_buffer_size` and `key_buffer_size` variables each to about 25% of your
+available memory when running myisamchk.
+
+Unfortunately I do not have 16G of memory, so potentially a repair will run out of memory with these settings.
+
+
+After that succeed to create MYI of precisely the prior size, but different content::
+
+    [root@belle7 tmp_offline_db_ext]# ll DqChannelPacked.MYI ../tmp_offline_db_ext_keep/DqChannelPacked.MYI
+    -rw-rw---- 1 mysql mysql 4621312 May 21 13:46 ../tmp_offline_db_ext_keep/DqChannelPacked.MYI
+    -rw-rw---- 1 mysql mysql 4621312 May 22 19:08 DqChannelPacked.MYI
+    [root@belle7 tmp_offline_db_ext]# 
+    [root@belle7 tmp_offline_db_ext]# diff -b  DqChannelPacked.MYI ../tmp_offline_db_ext_keep/DqChannelPacked.MYI
+    Binary files DqChannelPacked.MYI and ../tmp_offline_db_ext_keep/DqChannelPacked.MYI differ
+    [root@belle7 tmp_offline_db_ext]# 
+
+Hexdump comparison::
+
+    [root@belle7 tmp_offline_db_ext]# xxd -c 64 DqChannelPacked.MYI > /tmp/s/DqChannelPacked_MYI_recreated.xxd
+    [root@belle7 tmp_offline_db_ext]# xxd -c 64 ../tmp_offline_db_ext_keep/DqChannelPacked.MYI > /tmp/s/DqChannelPacked_MYI_original.xxd
+
+Shows differences only within first 4 lines of the dump (256 bytes of the MYI). Just header differences perhaps::
+
+    [root@belle7 tmp_offline_db_ext]# diff  /tmp/s/DqChannelPacked_MYI_original.xxd /tmp/s/DqChannelPacked_MYI_recreated.xxd
+    1,4c1,4
+    < 0000000: fefe 0701 0000 01b0 00b0 0064 00c8 0002 0000 0100 0801 0000 0000 20ff 0000 0000 0004 edb8 0000 0000 0000 0000 0000 0000 0004 edb8 ffff ffff ffff ffff 0000 0000  ...........d.............. .....................................
+    < 0000040: 0046 8400 0000 0000 00e2 b710 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 ef79 cdce 0000 615b 0000 0011 0000 0000 0000 0001 0000 0000  .F.......................................y....a[................
+    < 0000080: 0046 8000 ffff ffff ffff ffff 0000 0000 0000 0000 519b 0976 0000 0000 0000 0001 0000 0000 519b 0975 0000 0000 0000 0000 0000 0000 519b 0a20 0000 0000 0004 edb8  .F..................Q..v............Q..u............Q.. ........
+    < 00000c0: 0000 0001 0000 0001 0000 0000 0000 0400 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 002e 0000 002e 0000 002e  ................................................................
+    ---
+    > 0000000: fefe 0701 0000 01b0 00b0 0064 00c8 0002 0000 0100 0801 0000 0000 28ff 0000 0000 0004 edb8 0000 0000 0000 0000 0000 0000 0004 edb8 ffff ffff ffff ffff 0000 0000  ...........d..............(.....................................
+    > 0000040: 0046 8400 0000 0000 00e2 b710 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 1a2b 0000 0004 0000 0000 0000 0001 0000 0000  .F.............................................+................
+    > 0000080: 0046 8000 ffff ffff ffff ffff 0000 0000 0000 0000 519c a52f 0000 0000 0000 0001 0000 0000 519c a52f 0000 0000 0000 0000 0000 0000 519c a74b 0000 0000 0004 edb8  .F..................Q../............Q../............Q..K........
+    > 00000c0: 0000 0000 0000 0000 0000 0000 0000 0400 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 002e 0000 002e 0000 002e  ................................................................
+
+
+Check the table survived this trauma
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Seems so::
+
+    mysql> show tables ;
+    +------------------------------+
+    | Tables_in_tmp_offline_db_ext |
+    +------------------------------+
+    | DqChannelPacked              | 
+    | DqChannelPackedVld           | 
+    +------------------------------+
+    2 rows in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelPacked   ;
+    +----------+
+    | count(*) |
+    +----------+
+    |   323000 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select * from DqChannelPacked where SEQNO=101010 ;
+    +--------+-------------+-------+--------+------------+------------+------------+------------+------------+------------+-------+
+    | SEQNO  | ROW_COUNTER | RUNNO | FILENO | MASK0      | MASK1      | MASK2      | MASK3      | MASK4      | MASK5      | MASK6 |
+    +--------+-------------+-------+--------+------------+------------+------------+------------+------------+------------+-------+
+    | 101010 |           1 | 21520 |    245 | 2147483647 | 2147483647 | 2147483647 | 2147483647 | 2147483647 | 2147483647 |    63 | 
+    +--------+-------------+-------+--------+------------+------------+------------+------------+------------+------------+-------+
+    1 row in set (0.00 sec)
+
+
+
+
+
+myisamcheck memory
+-------------------
+
+* http://dev.mysql.com/doc/refman/5.0/en/myisamchk-memory.html
+
+On N have 4G of memory, so need to restrict to 1G::
+
+    [blyth@belle7 ~]$ free -m
+                 total       used       free     shared    buffers     cached
+    Mem:          4052       1639       2412          0        576        684
+    -/+ buffers/cache:        378       3673
+    Swap:         1983          0       1983
+
+::
+
+    myisamchk --sort_buffer_size=256M --key_buffer_size=512M --read_buffer_size=64M --write_buffer_size=64M       # suggestion for 512MB available
+    myisamchk --sort_buffer_size=512M --key_buffer_size=1024M --read_buffer_size=128M --write_buffer_size=128M     # suggestion for 512MB available doubled
+   
+
+No speed difference, but maybe as nothing to fix::
+
+    [root@belle7 tmp_offline_db_ext]# time myisamchk --sort_buffer_size=512M --key_buffer_size=1024M --read_buffer_size=128M --write_buffer_size=128M    -r -q DqChannelPacked
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    - check record delete-chain
+    - recovering (with sort) MyISAM-table 'DqChannelPacked'
+    Data records: 323000
+    - Fixing index 1
+              
+    real    0m0.291s
+    user    0m0.235s
+    sys     0m0.050s
+
+    [root@belle7 tmp_offline_db_ext]# time myisamchk  -r -q DqChannelPacked
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    - check record delete-chain
+    - recovering (with sort) MyISAM-table 'DqChannelPacked'
+    Data records: 323000
+    - Fixing index 1
+              
+    real    0m0.290s
+    user    0m0.242s
+    sys     0m0.048s
+
+Help variable dumping suggests it gets the message despite the warnings::
+
+    [root@belle7 tmp_offline_db_ext]# myisamchk --help | grep size
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    key_buffer_size                   520192
+    key_cache_block_size              1024
+    myisam_block_size                 1024
+    read_buffer_size                  262136
+    write_buffer_size                 262136
+    sort_buffer_size                  2097144
+    [root@belle7 tmp_offline_db_ext]# 
+    [root@belle7 tmp_offline_db_ext]# 
+    [root@belle7 tmp_offline_db_ext]# myisamchk --sort_buffer_size=512M --key_buffer_size=1024M --read_buffer_size=128M --write_buffer_size=128M  | grep size
+    Warning: option 'key_buffer_size': unsigned value 18446744073709551615 adjusted to 4294963200
+    Warning: option 'read_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'write_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    Warning: option 'sort_buffer_size': unsigned value 18446744073709551615 adjusted to 4294967295
+    key_buffer_size                   1073741824
+    key_cache_block_size              1024
+    myisam_block_size                 1024
+    read_buffer_size                  134217728
+    write_buffer_size                 134217728
+    sort_buffer_size                  536870912
+    [root@belle7 tmp_offline_db_ext]# 
+
+
+
+
 Create a throwaway DB
 -----------------------
 
