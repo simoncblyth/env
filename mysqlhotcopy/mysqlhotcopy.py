@@ -101,6 +101,11 @@ Examples of usage::
           # for quick machinery testing, restrict to just handling a small table and disable interactive confirmations
           # note that hotcopy will delete a pre-existing same minute folder however
 
+    ./mysqlhotcopy.py -l debug --flattop --remotenode S --regex '^(DqChannelStatus|DqChannelStatusVld)\.[^.]*$'  tmp_ligs_offline_db_0  coldcopy 
+
+         # more realistic coldcopy python regex to just handle a single pair of DBI tables, note that the pattern has to match that of 
+         # names of the internal mysql files ie `.MYI` `.MYD` `.frm`
+
     rm -rf /tmp/tmp_offline_db && mysqlhotcopy.py --regex "^LOCALSEQNO"  -l debug --ALLOWEXTRACT -x /tmp -C tmp_offline_db coldcopy archive examine extract  
 
           # quick full coldcopy chain testing 
@@ -603,10 +608,13 @@ class HotBackup(object):
         if self.opts.regex == None:
             _ignore = None
         else:
-            log.debug("_coldcopy interpreting regex %s as python pattern " % self.opts.regex )
+            log.info("_coldcopy interpreting regex %s as python pattern " % self.opts.regex )
             ptn = re.compile(self.opts.regex)
             def _ignore(dir, names):
-                return filter(lambda name:not ptn.match(name), names)
+                log.info("_coldcopy copytree : from %s names : %s " % ( len(names), repr(names) ))
+                ignored = filter(lambda name:not ptn.match(name), names)
+                log.info("_coldcopy copytree :  %s ignored : %s " % ( len(ignored), repr(ignored) ))
+                return ignored
             pass
         fsutils.copytree( src, tgt, ignore=_ignore ) 
         pass

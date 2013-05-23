@@ -2,13 +2,73 @@
 MySQL repair table live
 =========================
 
+.. contents:: :local:
 
-Extraction of dybdb1.ihep.ac.cn tarball onto belle7
------------------------------------------------------
+Timeline Summary
+------------------
 
-The tarball obtained by *coldcopy* on dybdb1 extracted onto belle7 without incident.
+April 30
+       corruption occurs (assumed to be due to a killed KUP job) it goes unnoticed the table continuing to be written to 
+May 13
+       while performing a test compression run on DqChannelStatus corrupt SEQNO 323575 in DqChannelStatus is discovered :dybsvn:`ticket:1347#comment:20`   
+May 14
+       begin development of :env:`source:trunk/mysqlhotcopy/mysqlhotcopy.py` with `hotcopy/archive/extract/transfer` capabilities
+May 15
+       formulate plan of action the first step of which is making a hotcopy backup 
+May 16 
+       start working with Qiumei get to `mysqlhotcopy.py` operational on dybdb1.ihep.ac.cn, Miao notifies us that CQ filling is suspended
+May 17-23
+       development via email (~18 email exchanges and ~20 env commits later, numerous issues every one of which required email exchange and related delays)
+May 19
+       `2013-05-19 08:22:20` CQ filling resumes (contrary to expectations), but writes are Validity only due to the crashed payload table
+May 20
+       1st attempt to perform hotcopy on dybdb1 meets error due to crashed table, originally thought that the hotcopy *flush* might have
+       caused the crashed state, but the timing of the last validity insert `2013-05-19 22:26:55` is suggestive that the crash was due to this
+May 21
+       Gaosong notes that cannot access the DqChannelStatus table at all, due to crashed status
+May 23
+       finally a coldcopy (hotcopy fails due to crashed table) tarball transferred to NUU, and is extracted into DB and repaired 
 
-#. repeatable nature of the extraction means I can proceed with recovery efforts, without any need for caution
+
+hotcopy crash
+~~~~~~~~~~~~~~~~
+::
+
+    2013-05-20 11:15:01,333 __main__ INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy  tmp_ligs_offline_db /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130520_1115   
+    340     DBD::mysql::db do failed: Table './tmp_ligs_offline_db/DqChannelStatus' is marked as crashed and should be repaired at /usr/bin/mysqlhotcopy line 467.   
+
+
+all queries fail for crashed table
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+::
+
+    mysql> select count(*) from DqChannelStatus   ;
+    ERROR 145 (HY000): Table './tmp_ligs_offline_db_0/DqChannelStatus' is marked as crashed and should be repaired
+ 
+relevant INSERTs
+~~~~~~~~~~~~~~~~~
+
+::
+
+    mysql> select * from  tmp_ligs_offline_db_0.DqChannelStatusVld where SEQNO in (323575,340817,341125) ;
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | SEQNO  | TIMESTART           | TIMEEND             | SITEMASK | SIMMASK | SUBSITE | TASK | AGGREGATENO | VERSIONDATE         | INSERTDATE          |
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | 323575 | 2013-04-01 09:59:43 | 2013-04-01 10:12:13 |        2 |       1 |       2 |    0 |          -1 | 2013-04-01 09:59:43 | 2013-04-30 10:14:06 |   ## corrupted SEQNO
+    | 340817 | 2013-05-16 08:11:38 | 2013-05-16 08:24:05 |        2 |       1 |       1 |    0 |          -1 | 2013-05-16 08:11:38 | 2013-05-16 11:14:59 |   ## max SEQNO in payload table DqChannelStatus
+    | 341125 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       1 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:55 |   ## max SEQNO in validity table DqChannelStatus
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    3 rows in set (0.00 sec)
+ 
+
+
+Extraction of dybdb1.ihep.ac.cn tarball onto belle7 into `tmp_ligs_offline_db_0`
+-----------------------------------------------------------------------------------
+
+The tarball obtained by *coldcopy* on dybdb1 extracted onto belle7 without incident. The command 
+creates the DB `tmp_ligs_offline_db_0`
+
+* repeatable nature of the extraction means I can proceed with recovery efforts, without any need for caution
 
 ::
 
@@ -40,9 +100,8 @@ The tarball obtained by *coldcopy* on dybdb1 extracted onto belle7 without incid
     [root@belle7 ~]# 
 
 
-
-Repairing crashed DqChannelStatus table
-------------------------------------------
+Repairing crashed DqChannelStatus table in `tmp_ligs_offline_db_0` 
+--------------------------------------------------------------------
 
 #. crashed nature was propagated, as expected
 
@@ -91,7 +150,9 @@ Repairing crashed DqChannelStatus table
     +---------------------------------------+-------+----------+-----------------------------------------------------------+
     6 rows in set (25.21 sec)
 
-::
+
+
+Using local prevents replication, if were in a replication chain:: 
 
     mysql> repair local table  DqChannelStatus ;
     +---------------------------------------+--------+----------+--------------------------------------------------+
@@ -102,7 +163,7 @@ Repairing crashed DqChannelStatus table
     +---------------------------------------+--------+----------+--------------------------------------------------+
     2 rows in set (3 min 34.62 sec)
 
-
+Wouldnt skipping things from replication cause divergence ? Good thing this table is excluded from replication.
 
 
 DqChannelStatus health checks
@@ -117,7 +178,6 @@ DqChannelStatus health checks
     | 65436731 | 
     +----------+
     1 row in set (0.06 sec)
-        
 
 ::
  
@@ -137,8 +197,6 @@ DqChannelStatus health checks
     |          1 |     340817 |                0 |              192 | 
     +------------+------------+------------------+------------------+
     1 row in set (26.50 sec)
-
-
 
 ::
 
@@ -246,7 +304,7 @@ Make mysqldump with bad SEQNO excluded
     [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannelStatus.sql --where 'SEQNO != 323575' --tables 'DqChannelStatus DqChannelStatusVld'         ## check the dump  command
     [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannelStatus.sql --where 'SEQNO != 323575' --tables 'DqChannelStatus DqChannelStatusVld' | sh    ## do it 
 
-Huh mysqldump 2GB of SQL is quick::
+Huh mysqldump 2GB of SQL is very quick::
 
     [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannelStatus.sql --where 'SEQNO != 323575' --tables 'DqChannelStatus DqChannelStatusVld' | sh 
 
@@ -271,14 +329,247 @@ Inspecting the dump file
     [blyth@belle7 DybPython]$ head -c 2000 ~/tmp_ligs_offline_db_0.DqChannelStatus.sql    ## looked OK,
     [blyth@belle7 DybPython]$ tail -c 2000 ~/tmp_ligs_offline_db_0.DqChannelStatus.sql    ## no truncation
 
-                      
-Recreate tables from the dump
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    
+Digest, compress, publish, test url and digest
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 ~]$ md5sum tmp_ligs_offline_db_0.DqChannelStatus.sql
+    46b747d88ad74caa4b1d21be600265a4  tmp_ligs_offline_db_0.DqChannelStatus.sql
+    [blyth@belle7 ~]$ gzip -c tmp_ligs_offline_db_0.DqChannelStatus.sql > tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    [blyth@belle7 ~]$ du -hs tmp_ligs_offline_db_0.DqChannelStatus.sql*
+    2.1G    tmp_ligs_offline_db_0.DqChannelStatus.sql
+    335M    tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    [blyth@belle7 ~]$ sudo mv tmp_ligs_offline_db_0.DqChannelStatus.sql.gz $(nginx-htdocs)/data/
+    [blyth@belle7 ~]$ cd /tmp
+    [blyth@belle7 tmp]$ curl -O http://belle7.nuu.edu.tw/data/tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    [blyth@belle7 tmp]$ du -h tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    335M    tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    [blyth@belle7 tmp]$ gunzip tmp_ligs_offline_db_0.DqChannelStatus.sql.gz
+    [blyth@belle7 tmp]$ md5sum tmp_ligs_offline_db_0.DqChannelStatus.sql
+    46b747d88ad74caa4b1d21be600265a4  tmp_ligs_offline_db_0.DqChannelStatus.sql
+
+                 
+Features of the dump `tmp_ligs_offline_db_0.DqChannelStatus.sql`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. bad SEQNO 323575 is excluded
+#. 308 SEQNO `> 340817` are validity only, namely `340818:341125` 
+
+                  
+Recreate tables from the dump into `tmp_ligs_offline_db_1`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
     [blyth@belle7 ~]$ echo create database tmp_ligs_offline_db_1 | mysql 
     [blyth@belle7 ~]$ cat ~/tmp_ligs_offline_db_0.DqChannelStatus.sql |  mysql  tmp_ligs_offline_db_1     ## taking much longer to load than to dump, lunchtime
+
+
+* looks like Vld continues to be written after the payload crashed ??
+
+::
+
+    mysql> show tables ;
+    +---------------------------------+
+    | Tables_in_tmp_ligs_offline_db_1 |
+    +---------------------------------+
+    | DqChannelStatus                 | 
+    | DqChannelStatusVld              | 
+    +---------------------------------+
+    2 rows in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelStatus  ;
+    +----------+
+    | count(*) |
+    +----------+
+    | 65436672 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelStatusVld  ;
+    +----------+
+    | count(*) |
+    +----------+
+    |   341124 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from DqChannelStatusVld ;
+    +------------+------------+-------------------------+--------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N      |
+    +------------+------------+-------------------------+--------+
+    |          1 |     341125 |                  341125 | 341124 | 
+    +------------+------------+-------------------------+--------+
+    1 row in set (0.00 sec)
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from DqChannelStatus ;
+    +------------+------------+-------------------------+----------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N        |
+    +------------+------------+-------------------------+----------+
+    |          1 |     340817 |                  340817 | 65436672 | 
+    +------------+------------+-------------------------+----------+
+    1 row in set (0.01 sec)
+
+    mysql> select 341125 -  340817 ;   /* huh 308 more validity SEQNO than payload SEQNO : DBI is not crashed payload table savvy   */
+    +------------------+
+    | 341125 -  340817 |
+    +------------------+
+    |              308 | 
+    +------------------+
+    1 row in set (0.03 sec)
+
+
+Compare the repaired with the recreated from dump
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`tmp_ligs_offline_db_0`
+              DB in which `DqChannelStatus` was repaired
+`tmp_ligs_offline_db_1`
+              freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
+
+
+#. the SEQNO indicate that the Validity table continued to be updated even after the payload table had crashed
+
+
+::
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from tmp_ligs_offline_db_0.DqChannelStatusVld ;
+    +------------+------------+-------------------------+--------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N      |
+    +------------+------------+-------------------------+--------+
+    |          1 |     341125 |                  341125 | 341125 | 
+    +------------+------------+-------------------------+--------+
+    1 row in set (0.04 sec)
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from tmp_ligs_offline_db_1.DqChannelStatusVld ;
+    +------------+------------+-------------------------+--------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N      |
+    +------------+------------+-------------------------+--------+
+    |          1 |     341125 |                  341125 | 341124 |    /* expected difference of 1 due to the skipped bad SEQNO */
+    +------------+------------+-------------------------+--------+
+    1 row in set (0.00 sec)
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from tmp_ligs_offline_db_0.DqChannelStatus ;
+    +------------+------------+-------------------------+----------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N        |
+    +------------+------------+-------------------------+----------+
+    |          1 |     340817 |                  340817 | 65436731 | 
+    +------------+------------+-------------------------+----------+
+    1 row in set (0.05 sec)
+
+    mysql> select min(SEQNO),max(SEQNO),max(SEQNO)-min(SEQNO)+1, count(*) as N  from tmp_ligs_offline_db_1.DqChannelStatus ;
+    +------------+------------+-------------------------+----------+
+    | min(SEQNO) | max(SEQNO) | max(SEQNO)-min(SEQNO)+1 | N        |
+    +------------+------------+-------------------------+----------+
+    |          1 |     340817 |                  340817 | 65436672 | 
+    +------------+------------+-------------------------+----------+
+    1 row in set (0.00 sec)
+
+    mysql> select 65436731 -  65436672,  341125 -  340817 ;    /* the expected 59 more payloads, 308 more vld */
+    +----------------------+------------------+
+    | 65436731 -  65436672 | 341125 -  340817 |
+    +----------------------+------------------+
+    |                   59 |              308 | 
+    +----------------------+------------------+
+    1 row in set (0.00 sec)
+
+
+
+
+Validity/Payload divergence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* 2-3 days of validity only writes
+
+::
+
+    mysql> select * from tmp_ligs_offline_db_0.DqChannelStatusVld where SEQNO in (340817,341125) ;
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | SEQNO  | TIMESTART           | TIMEEND             | SITEMASK | SIMMASK | SUBSITE | TASK | AGGREGATENO | VERSIONDATE         | INSERTDATE          |
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | 340817 | 2013-05-16 08:11:38 | 2013-05-16 08:24:05 |        2 |       1 |       1 |    0 |          -1 | 2013-05-16 08:11:38 | 2013-05-16 11:14:59 | 
+    | 341125 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       1 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:55 | 
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    2 rows in set (0.03 sec)
+
+    mysql> select * from tmp_ligs_offline_db_1.DqChannelStatusVld where SEQNO in (340817,341125) ;
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | SEQNO  | TIMESTART           | TIMEEND             | SITEMASK | SIMMASK | SUBSITE | TASK | AGGREGATENO | VERSIONDATE         | INSERTDATE          |
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | 340817 | 2013-05-16 08:11:38 | 2013-05-16 08:24:05 |        2 |       1 |       1 |    0 |          -1 | 2013-05-16 08:11:38 | 2013-05-16 11:14:59 | 
+    | 341125 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       1 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:55 | 
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    2 rows in set (0.00 sec)
+
+
+Validity only writes, 308 SEQNO 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Somehow DBI continued to write into the validity table despite the payload from be crashed and unwritable between 2013-05-16 and 2013-05-19 
+
+::
+
+    mysql> select * from  tmp_ligs_offline_db_0.DqChannelStatusVld where INSERTDATE > '2013-05-16 10:30:00' ;
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | SEQNO  | TIMESTART           | TIMEEND             | SITEMASK | SIMMASK | SUBSITE | TASK | AGGREGATENO | VERSIONDATE         | INSERTDATE          |
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | 340808 | 2013-05-16 08:09:49 | 2013-05-16 08:19:41 |        1 |       1 |       2 |    0 |          -1 | 2013-05-16 08:09:49 | 2013-05-16 10:30:35 | 
+    | 340809 | 2013-05-16 08:09:49 | 2013-05-16 08:19:41 |        1 |       1 |       1 |    0 |          -1 | 2013-05-16 08:09:49 | 2013-05-16 10:30:37 | 
+    | 340810 | 2013-05-16 07:59:53 | 2013-05-16 08:09:49 |        1 |       1 |       2 |    0 |          -1 | 2013-05-16 07:59:53 | 2013-05-16 10:41:41 | 
+    | 340811 | 2013-05-16 07:59:53 | 2013-05-16 08:09:49 |        1 |       1 |       1 |    0 |          -1 | 2013-05-16 07:59:53 | 2013-05-16 10:41:43 | 
+    | 340812 | 2013-05-16 07:53:39 | 2013-05-16 08:09:57 |        4 |       1 |       4 |    0 |          -1 | 2013-05-16 07:53:39 | 2013-05-16 10:48:29 | 
+    | 340813 | 2013-05-16 07:53:39 | 2013-05-16 08:09:57 |        4 |       1 |       2 |    0 |          -1 | 2013-05-16 07:53:39 | 2013-05-16 10:48:31 | 
+    | 340814 | 2013-05-16 07:53:39 | 2013-05-16 08:09:57 |        4 |       1 |       3 |    0 |          -1 | 2013-05-16 07:53:39 | 2013-05-16 10:48:32 | 
+    | 340815 | 2013-05-16 07:53:39 | 2013-05-16 08:09:57 |        4 |       1 |       1 |    0 |          -1 | 2013-05-16 07:53:39 | 2013-05-16 10:48:35 | 
+    | 340816 | 2013-05-16 08:11:38 | 2013-05-16 08:24:05 |        2 |       1 |       2 |    0 |          -1 | 2013-05-16 08:11:38 | 2013-05-16 11:14:58 | 
+    | 340817 | 2013-05-16 08:11:38 | 2013-05-16 08:24:05 |        2 |       1 |       1 |    0 |          -1 | 2013-05-16 08:11:38 | 2013-05-16 11:14:59 | 
+    | 340818 | 2013-05-03 03:38:35 | 2013-05-03 03:38:51 |        2 |       1 |       2 |    0 |          -1 | 2013-05-03 03:38:35 | 2013-05-19 08:22:20 |   <<< validity only SEQNO begin 
+    | 340819 | 2013-05-03 03:38:35 | 2013-05-03 03:38:51 |        2 |       1 |       1 |    0 |          -1 | 2013-05-03 03:38:35 | 2013-05-19 08:22:21 | 
+    | 340820 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       4 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:37 | 
+    | 340821 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       2 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:39 | 
+    | 340822 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       3 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:40 | 
+    | 340823 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       1 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:41 | 
+    | 340824 | 2013-05-03 02:11:12 | 2013-05-03 02:18:29 |        1 |       1 |       2 |    0 |          -1 | 2013-05-03 02:11:12 | 2013-05-19 09:13:33 | 
+    | 340825 | 2013-05-03 02:11:12 | 2013-05-03 02:18:29 |        1 |       1 |       1 |    0 |          -1 | 2013-05-03 02:11:12 | 2013-05-19 09:13:35 | 
+    | 340826 | 2013-05-09 17:37:11 | 2013-05-09 17:53:25 |        4 |       1 |       4 |    0 |          -1 | 2013-05-09 17:37:11 | 2013-05-19 09:15:57 | 
+    | 340827 | 2013-05-09 17:37:11 | 2013-05-09 17:53:25 |        4 |       1 |       2 |    0 |          -1 | 2013-05-09 17:37:11 | 2013-05-19 09:15:59 | 
+
+
+::
+
+    mysql> select max(SEQNO) from DqChannelStatus ; 
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |     340817 | 
+    +------------+
+    1 row in set (0.00 sec)
+
+    mysql> select * from DqChannelStatusVld where SEQNO > 340817  ;
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | SEQNO  | TIMESTART           | TIMEEND             | SITEMASK | SIMMASK | SUBSITE | TASK | AGGREGATENO | VERSIONDATE         | INSERTDATE          |
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    | 340818 | 2013-05-03 03:38:35 | 2013-05-03 03:38:51 |        2 |       1 |       2 |    0 |          -1 | 2013-05-03 03:38:35 | 2013-05-19 08:22:20 | 
+    | 340819 | 2013-05-03 03:38:35 | 2013-05-03 03:38:51 |        2 |       1 |       1 |    0 |          -1 | 2013-05-03 03:38:35 | 2013-05-19 08:22:21 | 
+    | 340820 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       4 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:37 | 
+    | 340821 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       2 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:39 | 
+    | 340822 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       3 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:40 | 
+    | 340823 | 2013-05-08 23:49:10 | 2013-05-08 23:49:28 |        4 |       1 |       1 |    0 |          -1 | 2013-05-08 23:49:10 | 2013-05-19 08:24:41 | 
+    | 340824 | 2013-05-03 02:11:12 | 2013-05-03 02:18:29 |        1 |       1 |       2 |    0 |          -1 | 2013-05-03 02:11:12 | 2013-05-19 09:13:33 | 
+    ...
+    | 341122 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       4 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:30 | 
+    | 341123 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       2 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:38 | 
+    | 341124 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       3 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:47 | 
+    | 341125 | 2013-05-11 10:26:58 | 2013-05-11 10:43:11 |        4 |       1 |       1 |    0 |          -1 | 2013-05-11 10:26:58 | 2013-05-19 22:26:55 | 
+    +--------+---------------------+---------------------+----------+---------+---------+------+-------------+---------------------+---------------------+
+    308 rows in set (0.02 sec)
+
+
+
+
 
 
 
