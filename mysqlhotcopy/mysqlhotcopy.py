@@ -185,50 +185,71 @@ When doing `archive`, `transfer` (or `extract`) separately from the `hotcopy` sp
 is required as shown below.
 
 
-extract
-~~~~~~~~
+extract dryrun
+~~~~~~~~~~~~~~~~~
 
 Due to the potential for damage from tampering with the mysql datadir, **extraction** requres a few options
-and interactive confirmation.
+
+Extraction of the `dybdb1.ihep.ac.cn` tarball onto belle7.  As no DB called `tmp_ligs_offline_db` 
+exists on `belle7` it is necessary to provide the appropriate datadir for the node 
+with `--containerdir /var/lib/mysql`
+
+This is a dryrun due to option `-n` in order to check the paths are as expected:
+::
+
+    [root@belle7 ~]# mysqlhotcopy.py -t 20130522_1541 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 --containerdir /var/lib/mysql --ALLOWEXTRACT -n tmp_ligs_offline_db examine extract
+    2013-05-23 12:01:37,782 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py -t 20130522_1541 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 --containerdir /var/lib/mysql --ALLOWEXTRACT -n tmp_ligs_offline_db examine extract
+    2013-05-23 12:01:37,782 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db 
+    2013-05-23 12:01:37,794 env.mysqlhotcopy.mysqlhotcopy INFO     failed to instanciate connection to database tmp_ligs_offline_db with exception Error 1049: Unknown database 'tmp_ligs_offline_db'  
+    2013-05-23 12:01:37,794 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== examine 
+    2013-05-23 12:01:37,794 env.mysqlhotcopy.tar INFO     examining /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz 
+    2013-05-23 12:02:13,057 env.mysqlhotcopy.tar INFO     archive contains 7 items with commonprefix "" flattop True 
+    2013-05-23 12:02:13,057 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 35.262603998184204, 'examine': 35.262594938278198} 
+    2013-05-23 12:02:13,057 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== extract 
+    2013-05-23 12:02:13,057 env.mysqlhotcopy.mysqlhotcopy WARNING  no valid db connection using static opts.mb_required 2000 
+    2013-05-23 12:02:13,058 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 2000 MB less than    free 494499.9375 MB 
+    2013-05-23 12:02:13,058 env.mysqlhotcopy.mysqlhotcopy INFO     proceeding
+    2013-05-23 12:02:13,058 env.mysqlhotcopy.mysqlhotcopy INFO     extract Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz tmp_ligs_offline_db gz  into containerdir /var/lib/mysql   
+    2013-05-23 12:02:13,058 env.mysqlhotcopy.tar INFO     _flat_extract opening tarfile /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz 
+    2013-05-23 12:02:48,471 env.mysqlhotcopy.tar INFO     dryrun: _flat_extract into target /var/lib/mysql/tmp_ligs_offline_db_0 for 7 members with toplevelname tmp_ligs_offline_db_0 
+    2013-05-23 12:02:48,472 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 35.262603998184204, 'examine': 35.262594938278198, 'extract': 35.413694858551025, '_extract': 35.414549112319946} 
+    [root@belle7 ~]# 
+
+
+actual extraction
+~~~~~~~~~~~~~~~~~~
+
+An interactive confirmation of **YES** is required before the extraction is done.
 
 ::
 
-    [root@belle7 blyth]# mysqlhotcopy.py --moveaside --ALLOWEXTRACT -t 20130516_1711 tmp_offline_db extract
-    2013-05-16 17:50:56,837 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py --moveaside --ALLOWEXTRACT -t 20130516_1711 tmp_offline_db extract
-    2013-05-16 17:50:56,841 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db 
-    2013-05-16 17:50:56,865 env.mysqlhotcopy.mysqlhotcopy INFO     db size in MB 152.27 
-    2013-05-16 17:50:56,865 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== extract 
-    2013-05-16 17:50:56,866 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 380.675 MB less than    free 496874.898438 MB 
-    DO YOU REALLY WANT TO extract Tar /var/dbbackup/mysqlhotcopy/belle7.nuu.edu.tw/tmp_offline_db/20130516_1711.tar.gz tmp_offline_db gz  into extractdir /var/lib/mysql    ? ENTER "YES" TO PROCEED : 
-    2013-05-16 17:50:59,271 env.mysqlhotcopy.mysqlhotcopy INFO     OK skipping [ != YES] 
-    2013-05-16 17:50:59,271 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_extract': 2.404871940612793} 
-    [root@belle7 blyth]# 
+    [root@belle7 ~]# mysqlhotcopy.py -t 20130522_1541 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 --containerdir /var/lib/mysql --ALLOWEXTRACT  tmp_ligs_offline_db examine extract
+    2013-05-23 12:06:33,546 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py -t 20130522_1541 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 --containerdir /var/lib/mysql --ALLOWEXTRACT tmp_ligs_offline_db examine extract
+    2013-05-23 12:06:33,546 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db 
+    2013-05-23 12:06:33,561 env.mysqlhotcopy.mysqlhotcopy INFO     failed to instanciate connection to database tmp_ligs_offline_db with exception Error 1049: Unknown database 'tmp_ligs_offline_db'  
+    2013-05-23 12:06:33,561 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== examine 
+    2013-05-23 12:06:33,562 env.mysqlhotcopy.tar INFO     examining /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz 
+    2013-05-23 12:07:08,913 env.mysqlhotcopy.tar INFO     archive contains 7 items with commonprefix "" flattop True 
+    2013-05-23 12:07:08,913 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 35.351444005966187, 'examine': 35.35143518447876} 
+    2013-05-23 12:07:08,913 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== extract 
+    2013-05-23 12:07:08,914 env.mysqlhotcopy.mysqlhotcopy WARNING  no valid db connection using static opts.mb_required 2000 
+    2013-05-23 12:07:08,914 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 2000 MB less than    free 494499.882812 MB 
+    DO YOU REALLY WANT TO extract Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz tmp_ligs_offline_db gz  into containerdir /var/lib/mysql    ? ENTER "YES" TO PROCEED : YES
+    2013-05-23 12:07:48,589 env.mysqlhotcopy.mysqlhotcopy INFO     proceeding
+    2013-05-23 12:07:48,589 env.mysqlhotcopy.mysqlhotcopy INFO     extract Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz tmp_ligs_offline_db gz  into containerdir /var/lib/mysql   
+    2013-05-23 12:07:48,589 env.mysqlhotcopy.tar INFO     _flat_extract opening tarfile /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130522_1541.tar.gz 
+    2013-05-23 12:08:23,906 env.mysqlhotcopy.tar INFO     _flat_extract into target /var/lib/mysql/tmp_ligs_offline_db_0 for 7 members with toplevelname tmp_ligs_offline_db_0 
+    2013-05-23 12:09:06,346 env.mysqlhotcopy.tar INFO     total 2429412
+    -rw-rw---- 1 mysql mysql       8746 Feb  4 16:07 DqChannelStatus.frm
+    -rw-rw---- 1 mysql mysql 1439608104 May 16 19:15 DqChannelStatus.MYD
+    -rw-rw---- 1 mysql mysql 1024402432 May 16 19:42 DqChannelStatus.MYI
+    -rw-rw---- 1 mysql mysql       8908 May 13 13:16 DqChannelStatusVld.frm
+    -rw-rw---- 1 mysql mysql   17397375 May 20 06:26 DqChannelStatusVld.MYD
+    -rw-rw---- 1 mysql mysql    3826688 May 20 06:26 DqChannelStatusVld.MYI
 
-Any preexisting DB is moved aside::
+    2013-05-23 12:09:06,347 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 35.351444005966187, 'examine': 35.35143518447876, 'extract': 77.757769107818604, '_extract': 117.43390297889709} 
+    [root@belle7 ~]# 
 
-    mysql> show tables ;
-    +------------------------------------------+
-    | Tables_in_tmp_offline_db_20130515_174626 |
-    +------------------------------------------+
-    | CableMap                                 | 
-    | CableMapVld                              | 
-    | CalibPmtFineGain                         | 
-
-
-
-
-Possibilities
---------------
-
-MySQL `datadir` introspection::
-
-    mysql> select @@datadir as datadir ;
-    +-----------------+
-    | datadir         |
-    +-----------------+
-    | /var/lib/mysql/ | 
-    +-----------------+
-    1 row in set (0.00 sec)
 
 
 mysqlhotcopy options
@@ -369,7 +390,12 @@ class HotBackup(object):
         pass
         self.database = database
         self.tagd = tagd                     # where hot copies are created
-        datadir = db("select @@datadir as datadir")[0]['datadir']
+
+        if db:
+            datadir = db("select @@datadir as datadir")[0]['datadir']
+        else:
+            datadir = None
+
         # where tarballs are extracted defaults to the mysql datadir
         if opts.containerdir is None:
             containerdir = datadir
@@ -381,21 +407,29 @@ class HotBackup(object):
         self.tar = tar
         self.opts = opts                     # getting peripheral things via opts is OK, but not good style for criticals
         self.db = db
+        self.enough = None
 
-    def enoughspace(self):
+    def _space(self):
         dir = self.opts.backupdir 
         if not os.path.exists(dir):
             log.info("creating backupdir %s " % dir )
             os.makedirs(dir)
         pass
         du = fsutils.disk_usage(dir)
-        mb_required = self.opts.sizefactor*self.db.size   
+
+        if not self.db:
+            mb_required = self.opts.mb_required
+            log.warn("no valid db connection using static opts.mb_required %s " % mb_required )
+        else:
+            mb_required = self.opts.sizefactor*self.db.size   
+
         mb_free = du['mb_free']
         enough = mb_free > mb_required 
         if enough:
             log.info("sufficient free space,      required %s MB less than    free %s MB " % (mb_required, mb_free))
         else:
             log.warn("insufficient free space,   required %s MB greater than free %s MB " % (mb_required, mb_free))
+        self.enough = enough
         return enough 
 
     def __call__(self, verb):
@@ -403,15 +437,12 @@ class HotBackup(object):
         :param verb: 
         """
         log.info("================================== %s " % verb )
-
-        enough = self.enoughspace()
-        if not enough:
-            log.warn("ABORT %s as not enough space" % verb )
-            return 
         if verb == "hotcopy":
             self._hotcopy(self.database, self.tagd)
         elif verb == "coldcopy":
             self._coldcopy(self.database, self.tagd)
+        elif verb == "space":
+            self._space()
         elif verb == "archive":
             self._archive()
         elif verb == "examine":
@@ -428,7 +459,14 @@ class HotBackup(object):
             log.warn("unhandled verb %s " % verb ) 
         log.info("seconds %s " % seconds )
 
-
+    def _space_check(self):
+        enough = self._space()
+        if not enough:
+            msg = "ABORT as not enough space" 
+            log.fatal(msg)
+            raise Exception(msg)
+        else:
+            pass
 
     def _purge(self):
         dir = self.opts.backupdir
@@ -475,6 +513,7 @@ class HotBackup(object):
         """
         `self.containerdir` is normally the same as `self.datadir`
         """
+        self._space_check()
         msg = "extract %s into containerdir %s   " % (self.tar, self.containerdir)
         if not self.opts.ALLOWEXTRACT:
             log.warn("extraction is not allowed without --ALLOWEXTRACT option, for protection ")
@@ -499,6 +538,7 @@ class HotBackup(object):
         """
         `self.tagd` contains the database named directory  
         """
+        self._space_check()
         msg = "tagd %s  into %s " % (self.tagd, self.tar) 
         if self.opts.dryrun:
             log.info("dryrun: " + msg )
@@ -515,6 +555,7 @@ class HotBackup(object):
         :param database:
         :param outd: the dated folder 
         """
+        self._space_check()
         msg = "hotcopy of database %s into outd %s " % (database, outd) 
         if self.opts.dryrun:
              log.info("dryrun: " + msg )
@@ -548,6 +589,7 @@ class HotBackup(object):
         :param database: name
         :param outd: dated output folder, which is emptied before doing the coldcopy 
         """
+        self._space_check()
         datadir = self.datadir
         src = os.path.join(datadir, database)
         tgt = os.path.join(outd, database)
@@ -580,6 +622,7 @@ def parse_args_(doc):
     op.add_option("-l", "--loglevel", default="INFO" )
     op.add_option("-s", "--sect",  default = "mysqlhotcopy", help="name of config section in :file:`~/.my.cnf` " )
     op.add_option("-b", "--backupdir",   default = "/var/dbbackup/mysqlhotcopy/%(node)s/%(database)s", help="base directory under which hotcopy backup tarballs are arranged in dated folders. Default %default " )
+    op.add_option(      "--node",  default = None, help="Node from which a tarball originates, when not specified is assumed to be invoking machine. Default %default " )
     op.add_option("-x", "--containerdir",  default = None, help="MySQL datadir under which folders for each database reside, when not specified is discerned from the DB. Default %default " )
     op.add_option("-z", "--sizefactor",  default = 2.5,  help="Scale factor between DB size estimate and free space demanded, 2.0 is agressive (3.0 should be safe) as remember need space for tarball as well as backupdir. Default %default " )
     op.add_option("-m", "--moveaside",  action="store_true",  help="When restoring and a preexisting database directory exists move it aside with a datestamp. If this is not selected the extract will abort. Default %default " )
@@ -587,6 +630,7 @@ def parse_args_(doc):
     op.add_option(      "--regex",       default=None,  help="Regular expression string appended to dbname first argument of mysqlhotcopy used to include or exclude tables OR None to indicate all table. Default %default " )
     op.add_option("-r", "--remotenode",  default="C",  help="Remote node which the transfer command will scp the tarball to. Default %default " )
     op.add_option(      "--remoteprefix",  default="/data",  help="Prefix to tarball paths on remote node. Default %default " )
+    op.add_option(      "--mb_required",  type=int, default=2000,  help="Free space requirement used when there is no valid DB connection, eg when extracting a DB onto a new node. Default %default " )
     op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option(      "--flattop",  action="store_true",  help="Use flat top structure for created archives, allowing toplevelname changes. Default %default " )
@@ -621,11 +665,21 @@ def parse_args_(doc):
     log.info(" ".join(sys.argv))
 
     database = args.pop(0)
+
+    if opts.node is None:
+        opts.node = platform.node()
+
     if '%' in opts.backupdir:
-        opts.backupdir = opts.backupdir % dict(node=platform.node(), database=database)
+        opts.backupdir = opts.backupdir % dict(node=opts.node, database=database)
     log.info("backupdir %s " % opts.backupdir )
 
-    db = DB(opts.sect, database=database)
+
+    try:
+        db = DB(opts.sect, database=database)
+    except Exception, e:
+        log.info("failed to instanciate connection to database %s with exception %s " % (database, e))
+        db = None
+
     opts.database = database
 
     return opts, args, db 
@@ -633,7 +687,8 @@ def parse_args_(doc):
 
 def main():    
     opts, args, db = parse_args_(__doc__)
-    log.info("db size in MB %s " % db.size )
+    if db:
+        log.info("db size in MB %s " % db.size )
     hb = HotBackup(opts, db)
     for verb in args: 
         hb(verb)

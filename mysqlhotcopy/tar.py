@@ -205,6 +205,7 @@ class Tar(object):
 
         """
         assert self.flattop is True , "_flat_extract requires flattop archive "
+        log.info("_flat_extract opening tarfile %s " % self.path )
         tf = tarfile.open(self.path, "r:gz")
         wtf = TarFileWrapper(tf)
         members = tf.getmembers()
@@ -216,13 +217,12 @@ class Tar(object):
             log.info(msg)
             assert not os.path.exists(target), "target dir %s exists already, ABORTING EXTRACTION use --rename newname " % target 
             wtf.extractall(target, members) 
+            pass 
+            log.info( os.popen("ls -l %(target)s " % locals()).read() )
+            user, group = fsutils._get_usergroup(target)
+            assert user == "mysql" and group == "mysql", "oops user %s group %s " % (user, group )
         pass
         tf.close() 
-
-
-        print os.popen("ls -l %(target)s " % locals()).read()
-        user, group = fsutils._get_usergroup(target)
-        assert user == "mysql" and group == "mysql", "oops user %s group %s " % (user, group )
 
 
 
