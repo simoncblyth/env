@@ -391,7 +391,7 @@ class HotBackup(object):
         database = opts.database
         tagd = os.path.join(opts.backupdir, opts.tag ) 
         tgzp = os.path.join(opts.backupdir, "%s.tar.gz" % opts.tag )
-        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode, confirm=opts.confirm, moveaside=opts.moveaside)
+        tar = Tar(tgzp, toplevelname=database, remoteprefix=opts.remoteprefix, remotenode=opts.remotenode, confirm=opts.confirm, moveaside=opts.moveaside, ALLOWCLOBBER=opts.ALLOWCLOBBER)
         pass
         self.database = database
         self.tagd = tagd                     # where hot copies are created
@@ -640,6 +640,7 @@ def parse_args_(doc):
     op.add_option(      "--remoteprefix",  default="/data",  help="Prefix to tarball paths on remote node. Default %default " )
     op.add_option(      "--mb_required",  type=int, default=2000,  help="Free space requirement used when there is no valid DB connection, eg when extracting a DB onto a new node. Default %default " )
     op.add_option(      "--ALLOWEXTRACT",  action="store_true",  help="Avoid accidental extraction by requiring this option setting for this potentially destructive command. Default %default " )
+    op.add_option(      "--ALLOWCLOBBER",  action="store_true",  help="Avoid accidental clobbering existing paths by requiring this option setting for extraction ontop of preexisting paths. Default %default " )
     op.add_option("-n", "--dryrun",  action="store_true",  help="Describe what will be done without doing it. Default %default " )
     op.add_option(      "--flattop",  action="store_true",  help="Use flat top structure for created archives, allowing toplevelname changes. Default %default " )
     op.add_option(      "--rename",  default=None,  help="Extract archive into `rename` directory withinn `containerdir`. Default %default " )
@@ -683,7 +684,7 @@ def parse_args_(doc):
 
 
     try:
-        db = DB(opts.sect, database=database)
+        db = DB(opts.sect, database="information_schema")   # use information_schema DB as that should always be present
     except Exception, e:
         log.info("failed to instanciate connection to database %s with exception %s " % (database, e))
         db = None

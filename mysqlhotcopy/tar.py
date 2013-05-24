@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 """
-import os, logging, shutil, tarfile, copy, re
+import os, logging, shutil, tarfile, copy, re, pickle
 from common import timing, seconds, scp
 import fsutils
 from datetime import datetime
@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class Tar(object):
-    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" , confirm=True, moveaside=True):
+    def __init__(self, path, toplevelname="", mode="gz", remoteprefix="", remotenode="C" , confirm=True, moveaside=True, ALLOWCLOBBER=False):
         """
         :param path: to the tarball to be created, extracted or examined
         :param toplevelname: relative to the sourcedir or extractdir, 
@@ -34,6 +34,7 @@ class Tar(object):
         self.remotenode = remotenode
         self.confirm = confirm 
         self.moveaside = moveaside
+        self.ALLOWCLOBBER = ALLOWCLOBBER
         self.names = None
         self.prefix = None
         self.flattop = None 
@@ -41,10 +42,35 @@ class Tar(object):
     def __repr__(self):
         return self.__class__.__name__ + " %s %s %s " % ( self.path, self.toplevelname, self.mode )
 
+    def members_(self):
+        """
+        Caches the members list from tarballs into a sidecar `.pc` file
+        to avoid a 70s wait to access the members of a compressed tarball
+        """
+        path = self.path
+        mtime_ = lambda _:os.path.getmtime(_)
+        pc = "%s.pc" % path
+        members = None
+        if os.path.exists(pc):
+            if mtime_(pc) > mtime_(path):
+                log.warn("load pickled members file %s " % pc )
+                members = pickle.load(file(pc,"r")) 
+            else:
+                log.warn("pickled members exists but is outdated")
+            pass
+        pass 
+        if not members:
+            tf = tarfile.open(path, "r:gz")
+            members = tf.getmembers() 
+            pickle.dump( members, file(pc,"w")) 
+            log.info("saving pickled members file: %s " % pc)
+            tf.close() 
+        pass
+        return members
+
     def names_(self):
-        tf = tarfile.open(self.path, "r:gz")
-        names = map(lambda ti:ti.name, tf)
-        tf.close() 
+        members = self.members_()
+        names = map(lambda ti:ti.name, members)
         return names
 
     def examine(self):
@@ -192,6 +218,30 @@ class Tar(object):
         tf.close() 
 
 
+    def _check_clobber(self, target, members ):
+        """
+        :param target: directory in which the members are to be extracted
+        :param members: from the tarfile
+        :return: list of paths that would be clobberd by the extraction
+        """
+        clobber = []
+        fmt = "%-110s :  %s " 
+        for member in members:
+            name = member.name
+            path = os.path.join(target, name)
+            if os.path.exists(path):
+                if name == './':
+                    log.warn(fmt % (name, "SKIP TOPDIR" ))
+                else:
+                    clobber.append(name)
+                    log.warn(fmt % (name, "**CLOBBER**" ))
+            else:
+                log.debug(fmt % (name, "" ))
+            pass
+        pass
+        return clobber
+
+
     def _flat_extract(self, containerdir, toplevelname, dryrun=False):
         """
         :param containerdir:
@@ -210,6 +260,17 @@ class Tar(object):
         wtf = TarFileWrapper(tf)
         members = tf.getmembers()
         target = os.path.join(containerdir, toplevelname)
+
+        clobber = self._check_clobber( target, members )
+        if len(clobber) > 0:
+            if not self.ALLOWCLOBBER:
+                log.warn("extraction would clobber %s existing paths, need `--ALLOWCLOBBER` option to do this : %s " % ( len(clobber), "\n".join(clobber) ))   
+            else:
+                low.warn("proceeding to clobber %s existing paths curtesy of `--ALLOWCLOBBER` option : %s " %  ( len(clobber), "\n".join(clobber) )) 
+        else:
+            log.info("extraction into target %s does not clobber any existing paths " % target )   
+
+
         msg = "_flat_extract into target %s for %s members with toplevelname %s " % ( target, len(members),toplevelname )
         if dryrun:
             log.info("dryrun: " + msg )
