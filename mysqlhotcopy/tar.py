@@ -46,13 +46,18 @@ class Tar(object):
         """
         Caches the members list from tarballs into a sidecar `.pc` file
         to avoid a 70s wait to access the members of a compressed tarball
+
+        http://userprimary.net/posts/2007/11/18/ctime-in-unix-means-last-change-time-not-create-time/
+
+             ctime means change time
         """
         path = self.path
         mtime_ = lambda _:os.path.getmtime(_)
+        ctime_ = lambda _:os.path.getctime(_)
         pc = "%s.pc" % path
         members = None
         if os.path.exists(pc):
-            if mtime_(pc) > mtime_(path):
+            if ctime_(pc) > ctime_(path):
                 log.warn("load pickled members file %s " % pc )
                 members = pickle.load(file(pc,"r")) 
             else:
@@ -276,12 +281,11 @@ class Tar(object):
             log.info("dryrun: " + msg )
         else:
             log.info(msg)
-            assert not os.path.exists(target), "target dir %s exists already, ABORTING EXTRACTION use --rename newname " % target 
+            if not self.ALLOWCLOBBER:
+                assert not os.path.exists(target), "target dir %s exists already, ABORTING EXTRACTION use --rename newname " % target 
             wtf.extractall(target, members) 
             pass 
             log.info( os.popen("ls -l %(target)s " % locals()).read() )
-            user, group = fsutils._get_usergroup(target)
-            assert user == "mysql" and group == "mysql", "oops user %s group %s " % (user, group )
         pass
         tf.close() 
 
