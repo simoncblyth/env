@@ -8,6 +8,7 @@ MySQL hotcopy
     mysqlhotcopy
     mysql_repair_table
     mysql_repair_table_live
+    lessons
 
 
 

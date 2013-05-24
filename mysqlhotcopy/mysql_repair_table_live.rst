@@ -661,6 +661,155 @@ Before and during the table crash::
 
 
 
+Extraction of `DqChannel` tarball into `tmp_ligs_offline_db_0`
+----------------------------------------------------------------
+
+::
+
+
+    [root@belle7 tmp_ligs_offline_db]# mysqlhotcopy.py -t 20130523_1623 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 tmp_ligs_offline_db --ALLOWEXTRACT --ALLOWCLOBBER examine extract 
+    2013-05-24 19:51:36,983 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py -t 20130523_1623 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 tmp_ligs_offline_db --ALLOWEXTRACT --ALLOWCLOBBER examine extract
+    2013-05-24 19:51:36,984 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db 
+    2013-05-24 19:51:37,004 env.mysqlhotcopy.mysqlhotcopy INFO     db size in MB 0.0 
+    2013-05-24 19:51:37,004 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== examine 
+    2013-05-24 19:51:37,004 env.mysqlhotcopy.tar INFO     examining /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130523_1623.tar.gz 
+    2013-05-24 19:51:37,004 env.mysqlhotcopy.tar WARNING  load pickled members file /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130523_1623.tar.gz.pc 
+    2013-05-24 19:51:37,007 env.mysqlhotcopy.tar INFO     archive contains 7 items with commonprefix "" flattop True 
+    2013-05-24 19:51:37,007 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 0.0028290748596191406, 'examine': 0.0028209686279296875} 
+    2013-05-24 19:51:37,007 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== extract 
+    2013-05-24 19:51:37,008 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 0.0 MB less than    free 477552.570312 MB 
+    DO YOU REALLY WANT TO extract Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130523_1623.tar.gz tmp_ligs_offline_db gz  into containerdir /var/lib/mysql/    ? ENTER "YES" TO PROCEED : YES
+    2013-05-24 19:51:39,842 env.mysqlhotcopy.mysqlhotcopy INFO     proceeding
+    2013-05-24 19:51:39,843 env.mysqlhotcopy.mysqlhotcopy INFO     extract Tar /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130523_1623.tar.gz tmp_ligs_offline_db gz  into containerdir /var/lib/mysql/   
+    2013-05-24 19:51:39,843 env.mysqlhotcopy.tar INFO     _flat_extract opening tarfile /var/dbbackup/mysqlhotcopy/dybdb1.ihep.ac.cn/tmp_ligs_offline_db/20130523_1623.tar.gz 
+    2013-05-24 19:52:51,413 env.mysqlhotcopy.tar WARNING  ./                                                                                                             :  SKIP TOPDIR 
+    2013-05-24 19:52:51,413 env.mysqlhotcopy.tar INFO     extraction into target /var/lib/mysql/tmp_ligs_offline_db_0 does not clobber any existing paths 
+    2013-05-24 19:52:51,413 env.mysqlhotcopy.tar INFO     _flat_extract into target /var/lib/mysql/tmp_ligs_offline_db_0 for 7 members with toplevelname tmp_ligs_offline_db_0 
+    2013-05-24 19:54:04,216 env.mysqlhotcopy.tar INFO     total 6044204
+    -rw-rw---- 1 mysql mysql       8892 Feb  4 16:07 DqChannel.frm
+    -rw-rw---- 1 mysql mysql 2750541696 May 20 06:26 DqChannel.MYD
+    -rw-rw---- 1 mysql mysql 1015181312 May 20 06:26 DqChannel.MYI
+    -rw-rw---- 1 mysql mysql       8746 May 23 12:28 DqChannelStatus.frm
+    -rw-rw---- 1 mysql mysql 1439608082 May 23 12:28 DqChannelStatus.MYD
+    -rw-rw---- 1 mysql mysql  935564288 May 23 12:28 DqChannelStatus.MYI
+    -rw-rw---- 1 mysql mysql       8908 May 13 13:16 DqChannelStatusVld.frm
+    -rw-rw---- 1 mysql mysql   17397375 May 20 06:26 DqChannelStatusVld.MYD
+    -rw-rw---- 1 mysql mysql    3826688 May 20 06:26 DqChannelStatusVld.MYI
+    -rw-rw---- 1 mysql mysql       8908 Feb  4 16:07 DqChannelVld.frm
+    -rw-rw---- 1 mysql mysql   17395539 May 20 06:26 DqChannelVld.MYD
+    -rw-rw---- 1 mysql mysql    3606528 May 20 06:26 DqChannelVld.MYI
+
+    2013-05-24 19:54:04,217 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_examine': 0.0028290748596191406, 'examine': 0.0028209686279296875, 'extract': 144.37399792671204, '_extract': 147.20948314666748} 
+    [root@belle7 tmp_ligs_offline_db]# 
+
+
+basic check
+~~~~~~~~~~~~~
+
+::
+
+    mysql> use tmp_ligs_offline_db_0 
+
+    mysql> show tables ;
+    +---------------------------------+
+    | Tables_in_tmp_ligs_offline_db_0 |
+    +---------------------------------+
+    | DqChannel                       | 
+    | DqChannelStatus                 | 
+    | DqChannelStatusVld              | 
+    | DqChannelVld                    | 
+    +---------------------------------+
+    4 rows in set (0.00 sec)
+
+    mysql> select count(*) from DqChannel ;
+    +----------+
+    | count(*) |
+    +----------+
+    | 65489088 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelStatus ;
+    +----------+
+    | count(*) |
+    +----------+
+    | 65436731 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelVld ;
+    +----------+
+    | count(*) |
+    +----------+
+    |   341089 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+    mysql> select count(*) from DqChannelStatusVld ; 
+    +----------+
+    | count(*) |
+    +----------+
+    |   341125 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+
+establishing correspondence
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+What is the criteria for establishing correspondence between DqChannel and DqChannelStatus ?
+
+::
+
+    mysql> select * from DqChannelStatus S inner join DqChannel C on S.SEQNO = C.SEQNO and S.ROW_COUNTER = C.ROW_COUNTER  where C.RUNNO != S.RUNNO limit 100 ;
+    +-------+-------------+-------+--------+-----------+--------+-------+-------------+-------+--------+-----------+-----------+----------+---------+---------+----------+
+    | SEQNO | ROW_COUNTER | RUNNO | FILENO | CHANNELID | STATUS | SEQNO | ROW_COUNTER | RUNNO | FILENO | CHANNELID | OCCUPANCY | DADCMEAN | DADCRMS | HVMEAN  | HVRMS    |
+    +-------+-------------+-------+--------+-----------+--------+-------+-------------+-------+--------+-----------+-----------+----------+---------+---------+----------+
+    |   202 |           1 | 37325 |    380 |  33621505 |      1 |   202 |           1 | 37322 |    474 |  16844289 |  0.442898 |  24.4573 | 12.6612 | 1393.67 | 0.117647 | 
+    |   202 |           2 | 37325 |    380 |  33621506 |      1 |   202 |           2 | 37322 |    474 |  16844290 |  0.558667 |  25.1346 | 13.5269 |  1400.2 |        0 | 
+    |   202 |           3 | 37325 |    380 |  33621507 |      1 |   202 |           3 | 37322 |    474 |  16844291 |  0.539644 |  24.8702 | 13.0955 |  1461.6 |        0 | 
+    |   202 |           4 | 37325 |    380 |  33621508 |      1 |   202 |           4 | 37322 |    474 |  16844292 |  0.511816 |  24.9096 |  12.813 | 1478.53 | 0.096547 | 
+    |   202 |           5 | 37325 |    380 |  33621509 |      1 |   202 |           5 | 37322 |    474 |  16844293 |  0.553629 |  25.0572 | 13.0162 |    1487 |        0 | 
+    |   202 |           6 | 37325 |    380 |  33621510 |      1 |   202 |           6 | 37322 |    474 |  16844294 |  0.508821 |   24.332 | 12.6048 |  1527.2 |        0 | 
+    |   202 |           7 | 37325 |    380 |  33621511 |      1 |   202 |           7 | 37322 |    474 |  16844295 |   0.56627 |  27.1641 | 13.5695 | 1378.29 | 0.099827 | 
+    |   202 |           8 | 37325 |    380 |  33621512 |      1 |   202 |           8 | 37322 |    474 |  16844296 |  0.477464 |  24.8158 | 12.7517 |  1457.4 |        0 | 
+
+
+::
+
+    mysql> select SEQNO, count(*) as N, RUNNO, FILENO from DqChannelStatus group by SEQNO limit 10 ;
+    +-------+-----+-------+--------+
+    | SEQNO | N   | RUNNO | FILENO |
+    +-------+-----+-------+--------+
+    |     1 | 192 | 21223 |      1 | 
+    |     2 | 192 | 21223 |      1 | 
+    |     3 | 192 | 21223 |      1 | 
+    |     4 | 192 | 37322 |    442 | 
+    |     5 | 192 | 37322 |    442 | 
+    |     6 | 192 | 37322 |    441 | 
+    |     7 | 192 | 37322 |    441 | 
+    |     8 | 192 | 37325 |    351 | 
+    |     9 | 192 | 37325 |    351 | 
+    |    10 | 192 | 37325 |    352 | 
+    +-------+-----+-------+--------+
+    10 rows in set (0.01 sec)
+
+    mysql> select SEQNO, count(*) as N, RUNNO, FILENO from DqChannel group by SEQNO limit 10 ;
+    +-------+-----+-------+--------+
+    | SEQNO | N   | RUNNO | FILENO |
+    +-------+-----+-------+--------+
+    |     1 | 192 | 21223 |      1 | 
+    |     2 | 192 | 21223 |      1 | 
+    |     3 | 192 | 21223 |      1 | 
+    |     4 | 192 | 37322 |    442 | 
+    |     5 | 192 | 37322 |    442 | 
+    |     6 | 192 | 37322 |    441 | 
+    |     7 | 192 | 37322 |    441 | 
+    |     8 | 192 | 37325 |    351 | 
+    |     9 | 192 | 37325 |    351 | 
+    |    10 | 192 | 37325 |    352 | 
+    +-------+-----+-------+--------+
+    10 rows in set (0.01 sec)
 
 
 
