@@ -759,22 +759,32 @@ establishing correspondence
 
 What is the criteria for establishing correspondence between DqChannel and DqChannelStatus ?
 
+
+Quick and dirty
+^^^^^^^^^^^^^^^^^
+
 ::
 
-    mysql> select * from DqChannelStatus S inner join DqChannel C on S.SEQNO = C.SEQNO and S.ROW_COUNTER = C.ROW_COUNTER  where C.RUNNO != S.RUNNO limit 100 ;
-    +-------+-------------+-------+--------+-----------+--------+-------+-------------+-------+--------+-----------+-----------+----------+---------+---------+----------+
-    | SEQNO | ROW_COUNTER | RUNNO | FILENO | CHANNELID | STATUS | SEQNO | ROW_COUNTER | RUNNO | FILENO | CHANNELID | OCCUPANCY | DADCMEAN | DADCRMS | HVMEAN  | HVRMS    |
-    +-------+-------------+-------+--------+-----------+--------+-------+-------------+-------+--------+-----------+-----------+----------+---------+---------+----------+
-    |   202 |           1 | 37325 |    380 |  33621505 |      1 |   202 |           1 | 37322 |    474 |  16844289 |  0.442898 |  24.4573 | 12.6612 | 1393.67 | 0.117647 | 
-    |   202 |           2 | 37325 |    380 |  33621506 |      1 |   202 |           2 | 37322 |    474 |  16844290 |  0.558667 |  25.1346 | 13.5269 |  1400.2 |        0 | 
-    |   202 |           3 | 37325 |    380 |  33621507 |      1 |   202 |           3 | 37322 |    474 |  16844291 |  0.539644 |  24.8702 | 13.0955 |  1461.6 |        0 | 
-    |   202 |           4 | 37325 |    380 |  33621508 |      1 |   202 |           4 | 37322 |    474 |  16844292 |  0.511816 |  24.9096 |  12.813 | 1478.53 | 0.096547 | 
-    |   202 |           5 | 37325 |    380 |  33621509 |      1 |   202 |           5 | 37322 |    474 |  16844293 |  0.553629 |  25.0572 | 13.0162 |    1487 |        0 | 
-    |   202 |           6 | 37325 |    380 |  33621510 |      1 |   202 |           6 | 37322 |    474 |  16844294 |  0.508821 |   24.332 | 12.6048 |  1527.2 |        0 | 
-    |   202 |           7 | 37325 |    380 |  33621511 |      1 |   202 |           7 | 37322 |    474 |  16844295 |   0.56627 |  27.1641 | 13.5695 | 1378.29 | 0.099827 | 
-    |   202 |           8 | 37325 |    380 |  33621512 |      1 |   202 |           8 | 37322 |    474 |  16844296 |  0.477464 |  24.8158 | 12.7517 |  1457.4 |        0 | 
+    mysql> select max(cs.seqno) from DqChannelStatusVld cs, DqChannelVld c where cs.seqno=c.seqno and cs.insertdate=c.insertdate;
+    +---------------+
+    | max(cs.seqno) |
+    +---------------+
+    |        323573 |
+    +---------------+
+    1 row in set (1.64 sec)
+
+This query indicates when the synchronized writing
+starts to go a long way astray but it is
+not a reliable technique due to flawed assumptions.
+
+* same second inserts to two tables
+* SEQNO correspondence between two tables
 
 
+Better but slower way
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Based on run range comparisons of "group by SEQNO" queries for each and comparing the RUNNO/FILENO
 ::
 
     mysql> select SEQNO, count(*) as N, RUNNO, FILENO from DqChannelStatus group by SEQNO limit 10 ;
@@ -812,8 +822,100 @@ What is the criteria for establishing correspondence between DqChannel and DqCha
     10 rows in set (0.01 sec)
 
 
+I checked correspondence between  DqChannel and the repaired DqChannelStatus in `tmp_ligs_offline_db_0` at NUU.
+
+http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/cq_zip_check.py
+
+Many ordering swaps are apparent.
+
+Presumably the explanation of this is that multiple instances of the filling script
+are closing ingredients and summary writers concurrently.
+This breaks the sequentiality of closing of the two writers
+from any one instance of your script preventing them having the
+same SEQNO in the two tables (at least not reliably).
+
+If sequential KUP job running is not possible then
+in order to make syncronized SEQNO writing to two tables
+you will need to try wrapping the closing in lock/unlock.
+Something like::
+
+         db("lock tables DqChannel WRITE, DqChannelVld WRITE, DqChannelStatus WRITE, DqChannelStatusVld WRITE")
+         wseqno = wrt.Close()
+         wseqno_status = wrt_status.Close()
+         db("unlock tables")
+         assert wseqno ==  wseqno_status
+
+In this way the first instance of the script to take the lock will be able
+to sequentially perform its writes before releasing its lock.  Other scripts
+will hang around until the first is done and so on.
+
+This should allow synchronized writing in future, but does not
+fix the existing lack of synchronized nature in the tables so far.
+I will prepare a dump with the "SEQNO <= 323573" cut to allow you to
+check out my observations.
+
+
+Did this with :dybsvn:`source:dybgaudi/trunk/Database/Scraper/python/Scraper/dq/cq_zip_check.py`
+
+
+Concurrent DBI Writing
+------------------------
+
+Some small DBI mods allow to disable the DBI locking and this together with 
+another trick to use a single session gives controlled concurrent writing.
+
+* :dybsvn:`changeset:20618`
+* :dybsvn:`changeset:20619`
+* :dybsvn:`changeset:20620`
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi/tests/test_dbi_locking.sh
+
+Most of the time this works providing controlled concurrent writing with external locking. 
+But there is enough concurrent flakiness (maybe 1 out of 5 runs of the above test) 
+that result in failed writes that it cannot be recommended at the moment.  
+
+The case for synced DBI writing to multiple tables is 
+not strong enough to merit much more work on this.
+
+
+Four Table Dump 
+------------------
+
+::
+
+    [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql --where 'SEQNO <= 323573' --tables 'DqChannelStatus DqChannelStatusVld DqChannel DqChannelVld'  
+    [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql --where 'SEQNO <= 323573' --tables 'DqChannelStatus DqChannelStatusVld DqChannel DqChannelVld'  | sh 
+
+    real    8m37.035s
+    user    3m3.306s
+    sys     0m23.131s
+    [blyth@belle7 DybPython]$ du -h  ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    5.7G    /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+
+    [blyth@belle7 DybPython]$ tail -c 1000  ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    [blyth@belle7 DybPython]$ head -c 1000  ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    [blyth@belle7 DybPython]$ grep CREATE ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    CREATE TABLE `DqChannelStatus` (
+    CREATE TABLE `DqChannelStatusVld` (
+    CREATE TABLE `DqChannel` (
+    CREATE TABLE `DqChannelVld` (
+    [blyth@belle7 DybPython]$ grep DROP ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    [blyth@belle7 DybPython]$ md5sum ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    ea8a5a4d076febbfd940a90171707a72  /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+
+Create DB `_2` from the four table dump
+------------------------------------------
+
+::
+
+    [blyth@belle7 DybPython]$ echo create database tmp_ligs_offline_db_2 | mysql 
+    [blyth@belle7 DybPython]$ cat ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql | mysql tmp_ligs_offline_db_2
+
 
 
 Repair on primary server, or propagate the fixed ?
 ----------------------------------------------------
+
+
+
 
