@@ -881,6 +881,11 @@ not strong enough to merit much more work on this.
 Four Table Dump 
 ------------------
 
+mysqldump are fast to dump (8 min), but very slow to load  (70 min)
+
+* possibly load options can be tweaked to go faster
+* or alternate dump technique used
+
 ::
 
     [blyth@belle7 DybPython]$ dbdumpload.py tmp_ligs_offline_db_0 dump ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql --where 'SEQNO <= 323573' --tables 'DqChannelStatus DqChannelStatusVld DqChannel DqChannelVld'  
@@ -902,6 +907,40 @@ Four Table Dump
     [blyth@belle7 DybPython]$ grep DROP ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
     [blyth@belle7 DybPython]$ md5sum ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
     ea8a5a4d076febbfd940a90171707a72  /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+
+
+Alternative dump/load technique
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://dev.mysql.com/doc/refman/5.0/en/insert-speed.html
+
+::
+
+    blyth@belle7 DybPython]$ time ./dbsrv.py  tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
+    DEBUG:__main__:MyCnf read ['/home/blyth/.my.cnf'] 
+    DEBUG:__main__:translate mysql config {'host': 'belle7.nuu.edu.tw', 'password': '***', 'user': 'root', 'database': 'tmp_ligs_offline_db_0'} into mysql-python config {'passwd': '***', 'host': 'belle7.nuu.edu.tw', 'db': 'tmp_ligs_offline_db_0', 'user': 'root'} 
+    DEBUG:__main__:connecting to {'passwd': '***', 'host': 'belle7.nuu.edu.tw', 'db': 'tmp_ligs_offline_db_0', 'user': 'root'} 
+    DEBUG:__main__:select distinct(table_name) from information_schema.tables where table_schema='tmp_ligs_offline_db_0'
+    DEBUG:__main__:show create table DqChannel
+    DEBUG:__main__:select * from DqChannel where SEQNO <= 323573 into outfile '/home/blyth/tmp_ligs_offline_db_0/DqChannel.csv' fields terminated by ',' optionally enclosed by '"' 
+    DEBUG:__main__:show create table DqChannelStatus
+    DEBUG:__main__:select * from DqChannelStatus where SEQNO <= 323573 into outfile '/home/blyth/tmp_ligs_offline_db_0/DqChannelStatus.csv' fields terminated by ',' optionally enclosed by '"' 
+    DEBUG:__main__:show create table DqChannelStatusVld
+    DEBUG:__main__:select * from DqChannelStatusVld where SEQNO <= 323573 into outfile '/home/blyth/tmp_ligs_offline_db_0/DqChannelStatusVld.csv' fields terminated by ',' optionally enclosed by '"' 
+    DEBUG:__main__:show create table DqChannelVld
+    DEBUG:__main__:select * from DqChannelVld where SEQNO <= 323573 into outfile '/home/blyth/tmp_ligs_offline_db_0/DqChannelVld.csv' fields terminated by ',' optionally enclosed by '"' 
+
+    real    8m11.323s
+    user    0m0.269s
+    sys     0m0.087s
+    [blyth@belle7 DybPython]$ 
+
+
+::
+
+    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug
+
+
 
 
 Fake LOCALSEQNO
@@ -962,10 +1001,50 @@ Create DB `_2` from the four table dump with faked LOCALSEQNO
 try alternative load to check time
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+Almost same time as piped cat::
 
     [blyth@belle7 ~]$ db=tmp_ligs_offline_db_3 && echo drop database if exists $db | mysql && echo create database $db | mysql 
     [blyth@belle7 ~]$ time mysql $db < ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql  
+    real    72m24.332s
+    user    2m44.720s
+    sys     0m13.221s
+    [blyth@belle7 ~]$ 
+
+
+
+
+loading alternatives
+~~~~~~~~~~~~~~~~~~~~~~
+
+#. slow mysqldump
+#. csv style `forced_rloadcat` with `--local` on server thus used the fast `LOAD DATA LOCAL INFILE`
+
+#. mysqlhotcopy.py archive and extract
+
+   * its really fast 
+   * BUT: concern about mysql version differnce between table creation server and table repair sever 
+
+
+
+dump alternatives
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    mysql> show tables ;
+    +---------------------------------+
+    | Tables_in_tmp_ligs_offline_db_0 |
+    +---------------------------------+
+    | DqChannel                       | 
+    | DqChannelStatus                 | 
+    | DqChannelStatusVld              | 
+    | DqChannelVld                    | 
+    +---------------------------------+
+    4 rows in set (0.00 sec)
+
+    mysql> select * from DqChannel where SEQNO < 100 into outfile '/tmp/DqChannel.csv' fields terminated by ',' optionally enclosed by '"' ;
+    Query OK, 19008 rows affected (0.38 sec)
+
 
 
 
@@ -1010,6 +1089,14 @@ The RUNNO/FILENO duplication is from different site/subsite presumably::
     10 rows in set (0.01 sec)
 
 
+
+
+Insitu repair and trim
+------------------------
+
+DBI trim::
+
+    delete P,V from CableMap P join CableMapVld V on P.SEQNO = V.SEQNO  where P.SEQNO > 398 ;
 
 
 
