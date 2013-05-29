@@ -903,13 +903,136 @@ Four Table Dump
     [blyth@belle7 DybPython]$ md5sum ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
     ea8a5a4d076febbfd940a90171707a72  /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
 
-Create DB `_2` from the four table dump
-------------------------------------------
+
+Fake LOCALSEQNO
+----------------
 
 ::
 
-    [blyth@belle7 DybPython]$ echo create database tmp_ligs_offline_db_2 | mysql 
-    [blyth@belle7 DybPython]$ cat ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql | mysql tmp_ligs_offline_db_2
+    [blyth@belle7 ~]$ path=~/LOCALSEQNO.sql 
+    [blyth@belle7 ~]$ dbdumpload.py -t LOCALSEQNO --no-data tmp_offline_db dump $path | sh 
+    [blyth@belle7 ~]$ maxseqno=323573 
+    [blyth@belle7 ~]$ echo "INSERT INTO LOCALSEQNO VALUES ('*',0),('DqChannel',$maxseqno),('DqChannelStatus',$maxseqno);" >> $path
+    [blyth@belle7 ~]$ echo drop database if exists test_localseqno | mysql 
+    [blyth@belle7 ~]$ echo create database test_localseqno | mysql 
+    [blyth@belle7 ~]$ cat $path | mysql test_localseqno 
+    [blyth@belle7 ~]$ echo select \* from LOCALSEQNO | mysql test_localseqno -t
+    +-----------------+---------------+
+    | TABLENAME       | LASTUSEDSEQNO |
+    +-----------------+---------------+
+    | *               |             0 | 
+    | DqChannel       |        323573 | 
+    | DqChannelStatus |        323573 | 
+    +-----------------+---------------+
+
+
+Append LOCALSEQNO onto the dump 
+---------------------------------
+
+::
+
+    [blyth@belle7 ~]$ cat $path >> ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql 
+    [blyth@belle7 ~]$ du -hs ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql 
+    5.7G    /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    [blyth@belle7 ~]$ md5sum ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql 
+    8aed64440efb14d3676b8fda1bc85e5e  /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+
+
+Create DB `_2` from the four table dump with faked LOCALSEQNO
+----------------------------------------------------------------
+
+::
+
+    [blyth@belle7 ~]$ db=tmp_ligs_offline_db_2
+    [blyth@belle7 ~]$ echo drop database if exists $db | mysql 
+    [blyth@belle7 ~]$ echo create database $db | mysql 
+    [blyth@belle7 ~]$ time cat ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql | mysql $db
+    real    72m18.139s
+    user    3m0.786s
+    sys     0m24.214s
+
+
+* OUCH: 72 min to load the dump, this is liable to kill the server for other users 
+
+
+.. warning:: disk space usage from the cat could easily be more than 3 times the size of the dump due to the new DB and mysql logging
+
+
+
+try alternative load to check time
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 ~]$ db=tmp_ligs_offline_db_3 && echo drop database if exists $db | mysql && echo create database $db | mysql 
+    [blyth@belle7 ~]$ time mysql $db < ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql  
+
+
+
+
+Basic checks on `_2`
+----------------------
+
+The RUNNO/FILENO duplication is from different site/subsite presumably::
+
+    mysql> select SEQNO,count(*) N,RUNNO,FILENO from DqChannelStatus group by SEQNO order by SEQNO desc limit 10 ;
+    +--------+-----+-------+--------+
+    | SEQNO  | N   | RUNNO | FILENO |
+    +--------+-----+-------+--------+
+    | 323573 | 192 | 38860 |    284 | 
+    | 323572 | 192 | 38886 |    343 | 
+    | 323571 | 192 | 38886 |    343 | 
+    | 323570 | 192 | 38860 |    285 | 
+    | 323569 | 192 | 38860 |    285 | 
+    | 323568 | 192 | 38886 |    340 | 
+    | 323567 | 192 | 38886 |    340 | 
+    | 323566 | 192 | 38886 |    336 | 
+    | 323565 | 192 | 38886 |    336 | 
+    | 323564 | 192 | 38886 |    339 | 
+    +--------+-----+-------+--------+
+    10 rows in set (0.01 sec)
+
+    mysql> select SEQNO,count(*) N,RUNNO,FILENO from DqChannel group by SEQNO order by SEQNO desc limit 10 ;
+    +--------+-----+-------+--------+
+    | SEQNO  | N   | RUNNO | FILENO |
+    +--------+-----+-------+--------+
+    | 323573 | 192 | 38860 |    284 | 
+    | 323572 | 192 | 38886 |    343 | 
+    | 323571 | 192 | 38886 |    343 | 
+    | 323570 | 192 | 38860 |    285 | 
+    | 323569 | 192 | 38860 |    285 | 
+    | 323568 | 192 | 38886 |    340 | 
+    | 323567 | 192 | 38886 |    340 | 
+    | 323566 | 192 | 38886 |    336 | 
+    | 323565 | 192 | 38886 |    336 | 
+    | 323564 | 192 | 38886 |    339 | 
+    +--------+-----+-------+--------+
+    10 rows in set (0.01 sec)
+
+
+
+
+
+Aside on MySQL comments
+------------------------
+
+Comments in the mysql log can be handy for seeing what commands lead to what SQL in the log::
+
+    [blyth@belle7 ~]$ echo "/* hello without -c does not get into the mysql log */" | mysql  
+    [blyth@belle7 ~]$ echo "/* hello with -c gets into the mysql log */" | mysql -c 
+
+How to do that from *mysql-python*::
+
+    In [2]: from DybPython import DB
+    In [3]: db = DB()
+    In [4]: db("/* hello from DybPython.DB */")
+    Out[4]: ()
+
+OR what about DBI::
+
+    In [5]: from DybDbi import gDbi
+    In [7]: gDbi.comment("/* hello from gDbi.comment */")    ## HMM NOT WORKING ANY MORE ?
+
 
 
 
