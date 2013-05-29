@@ -86,6 +86,33 @@ truncated transfer due to connection timeout
 
 
 
+slow transfer leading to monitor warning 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+altbackup notification email received at 15:30::
+
+    === altbackup_notify: FAILURE Wed May 29 15:33:12 CST 2013 /home/blyth/cronlog/altbackup.log cms01.phys.ntu.edu.tw 
+
+    2013-05-29 15:30:05,374 __main__ INFO     ================================ check_target 
+    2013-05-29 15:30:05,374 __main__ INFO     alt_check /data/var/scm/alt.backup/dayabay ['dybsvn', 'svnsetup'] : checking sidecar dna matches locally recomputed   
+    2013-05-29 15:30:05,374 __main__ INFO     looking for ['dybsvn'] source tarballs beneath /data/var/scm/alt.backup/dayabay from 2013/05/29 
+    2013-05-29 15:30:05,564 __main__ WARNING  SKIPPING AS no dna for path /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05/29/104701/dybsvn.tar.gz 
+    2013-05-29 15:30:05,707 __main__ INFO     found 1 matching tarballs
+
+Repeating the command, dont get the warning::
+
+   [blyth@cms01 ~]$ altbackup.py dump check_target
+
+Doing a find reveals the transfer to be more than an hour slower than usual causing the dna not to be in place when the 
+monitoring is done. If this repeats will need to move the cron time::
+
+    [blyth@cms01 ~]$ find /data/var/scm/alt.backup/dayabay -name 'dybsvn.tar.gz.dna' -exec ls -l {} \; 
+    -rw-r--r--  1 blyth blyth 64 May 27 14:24 /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05/27/104701/dybsvn.tar.gz.dna
+    -rw-r--r--  1 blyth blyth 64 May 29 15:32 /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05/29/104701/dybsvn.tar.gz.dna
+    -rw-r--r--  1 blyth blyth 64 May 28 14:07 /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05/28/104701/dybsvn.tar.gz.dna
+
+
 
 """
 
