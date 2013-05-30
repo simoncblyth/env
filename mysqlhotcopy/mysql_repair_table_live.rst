@@ -878,8 +878,8 @@ The case for synced DBI writing to multiple tables is
 not strong enough to merit much more work on this.
 
 
-Four Table Dump 
-------------------
+Four Table Dump/load, 8/70 min 
+-------------------------------
 
 mysqldump are fast to dump (8 min), but very slow to load  (70 min)
 
@@ -909,8 +909,8 @@ mysqldump are fast to dump (8 min), but very slow to load  (70 min)
     ea8a5a4d076febbfd940a90171707a72  /home/blyth/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
 
 
-Alternative dump/load technique
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Alternative dump/load technique, 8/32 min  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * http://dev.mysql.com/doc/refman/5.0/en/insert-speed.html
 
@@ -938,7 +938,27 @@ Alternative dump/load technique
 
 ::
 
-    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug
+    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
+    ...
+      PRIMARY KEY  (`SEQNO`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=341090 DEFAULT CHARSET=latin1
+    DEBUG:__main__:LOAD DATA LOCAL INFILE '/home/blyth/tmp_ligs_offline_db_0/DqChannelVld.csv' IGNORE INTO TABLE DqChannelVld FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' IGNORE 0 LINES 
+
+    real    32m38.231s
+    user    0m1.639s
+    sys     0m6.183s
+    [blyth@belle7 DybPython]$ 
+
+
+    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_4 summary                                                        
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-30 13:54:33             2013-05-30 14:11:53           
+    DqChannelStatus                 62126016    2013-05-30 14:11:54             2013-05-30 14:26:55           
+    DqChannelStatusVld              323573      2013-05-30 14:26:56             None                          
+    DqChannelVld                    323573      2013-05-30 14:26:58             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -997,7 +1017,6 @@ Create DB `_2` from the four table dump with faked LOCALSEQNO
 .. warning:: disk space usage from the cat could easily be more than 3 times the size of the dump due to the new DB and mysql logging
 
 
-
 try alternative load to check time
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1009,7 +1028,6 @@ Almost same time as piped cat::
     user    2m44.720s
     sys     0m13.221s
     [blyth@belle7 ~]$ 
-
 
 
 
@@ -1044,6 +1062,312 @@ dump alternatives
 
     mysql> select * from DqChannel where SEQNO < 100 into outfile '/tmp/DqChannel.csv' fields terminated by ',' optionally enclosed by '"' ;
     Query OK, 19008 rows affected (0.38 sec)
+
+
+
+
+Deciding how to proceed
+--------------------------
+
+I have a recovery dump file for tmp_ligs_offline_db, 
+however load times are too long to be used on 
+the primary server.
+
+* 70 min : from mysqldump
+* 35 min : from CSV based data with "LOAD DATA LOCAL INFILE" 
+
+An alternative would be to extract a "mysqlhotcopy" tarball 
+created elsewhere onto dybdb1.ihep.ac.cn.  
+That would probably take less than 10 min and it does not impose 
+such a high load on the server.
+  
+I could make the hotcopy on belle7 (server version 5.0.77) 
+and archive it into a tarball to be extracted on dybdb1.ihep.ac.cn
+(server version  5.0.45). But that might cause problems in 
+future as creating tables on a version of MySQL different 
+from the version on which you might in future need to make repairs 
+limits repair techniques that can be used.
+
+      http://dev.mysql.com/doc/refman/5.0/en/repair-table.html
+
+(The recent incident required repairing elsewhere as we had no 
+available backup in hand and you never want to attempt a repair 
+without having an available and verified backup.)
+
+
+* decide to install MySQL 5.0.45 RPM on DB virgin belle1
+
+
+
+MySQL Server versions and repair table limitation
+---------------------------------------------------
+
+Server versions, our primary servers use ``5.0.45``
+
+    =======================  ========================
+     node                         server version
+    =======================  ========================
+     dybdb1.ihep.ac.cn        5.0.45
+     dybdb2.ihep.ac.cn        5.0.45
+     dayabay.ihep.ac.cn       5.1.36
+     belle7.nuu.edu.tw        5.0.77 
+     belle1.nuu.edu.tw        5.0.45 see `mysqlrpm-` 
+     cms01.phys.ntu.edu.tw    4.1.22
+    =======================  ========================
+  
+version shifting repair issue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://dev.mysql.com/doc/refman/5.0/en/repair-table.html
+
+Prior to MySQL 5.0.62, do not use USE_FRM if your table was created by a
+different version of the MySQL server. Doing so risks the loss of all rows in
+the table. It is particularly dangerous to use USE_FRM after the server returns
+this message::
+
+    Table upgrade required. Please do
+    "REPAIR TABLE `tbl_name`" to fix it!
+
+Does **different version of the MySQL server** refer to major or minor versions ?
+
+what this means
+~~~~~~~~~~~~~~~~~~
+
+It is better for tables to be created on the same server version as they are 
+used and potentially repaired. Thus install 5.0.45 from RPM on belle1 in 
+order to be able to create a same version hotcopy for extraction into dybdb1.
+See `mysqlrpm-` for the install sage.
+
+
+Compare MySQL servers on belle1 and dybdb1
+-------------------------------------------
+
+dybddb1
+~~~~~~~~
+
+Remote connection to dybdb1 from belle7::
+
+    mysql> status ;
+    --------------
+    /data1/env/local/dyb/external/mysql/5.0.67/i686-slc5-gcc41-dbg/bin/mysql  Ver 14.12 Distrib 5.0.67, for redhat-linux-gnu (i686) using  EditLine wrapper
+
+    Connection id:          610209
+    Current database:       tmp_ligs_offline_db
+    Current user:           ligs@belle7.nuu.edu.tw
+    SSL:                    Not in use
+    Current pager:          stdout
+    Using outfile:          ''
+    Using delimiter:        ;
+    Server version:         5.0.45-community-log MySQL Community Edition (GPL)
+    Protocol version:       10
+    Connection:             dybdb1.ihep.ac.cn via TCP/IP
+    Server characterset:    latin1
+    Db     characterset:    latin1
+    Client characterset:    latin1
+    Conn.  characterset:    latin1
+    TCP port:               3306
+    Uptime:                 12 days 6 hours 51 min 8 sec
+
+    Threads: 8  Questions: 171104994  Slow queries: 79  Opens: 335  Flush tables: 1  Open tables: 302  Queries per second avg: 161.197
+    --------------
+
+
+::
+
+    mysql>  select table_schema, table_name, table_collation from information_schema.tables where table_schema = 'tmp_ligs_offline_db' ;
+    +---------------------+-----------------------+-------------------+
+    | table_schema        | table_name            | table_collation   |
+    +---------------------+-----------------------+-------------------+
+    | tmp_ligs_offline_db | ChannelQuality        | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | ChannelQualityVld     | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | DaqRawDataFileInfo    | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | DaqRawDataFileInfoVld | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | DqChannel             | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | DqChannelStatus       | NULL              | 
+    | tmp_ligs_offline_db | DqChannelStatusVld    | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | DqChannelVld          | latin1_swedish_ci | 
+    | tmp_ligs_offline_db | LOCALSEQNO            | latin1_swedish_ci | 
+    +---------------------+-----------------------+-------------------+
+    9 rows in set (0.07 sec)
+
+
+belle1
+~~~~~~~
+
+Local connection to belle1::
+
+    mysql> status 
+    --------------
+    mysql  Ver 14.12 Distrib 5.0.45, for pc-linux-gnu (i686) using readline 5.0
+
+    Connection id:          28
+    Current database:       information_schema
+    Current user:           root@localhost
+    SSL:                    Not in use
+    Current pager:          stdout
+    Using outfile:          ''
+    Using delimiter:        ;
+    Server version:         5.0.45-community MySQL Community Edition (GPL)
+    Protocol version:       10
+    Connection:             127.0.0.1 via TCP/IP
+    Server characterset:    latin1
+    Db     characterset:    utf8
+    Client characterset:    latin1
+    Conn.  characterset:    latin1
+    TCP port:               3306
+    Uptime:                 50 min 57 sec
+
+    Threads: 2  Questions: 114  Slow queries: 0  Opens: 23  Flush tables: 1  Open tables: 17  Queries per second avg: 0.037
+
+
+
+Only difference is Db characterset
+
+* http://dev.mysql.com/doc/refman/5.0/en/charset-database.html
+
+
+::
+
+    mysql> select @@character_set_database ;
+    +--------------------------+
+    | @@character_set_database |
+    +--------------------------+
+    | utf8                     | 
+    +--------------------------+
+    1 row in set (0.00 sec)
+
+
+The character set and collation for the default database can be determined from
+the values of the character_set_database and collation_database system
+variables. The server sets these variables whenever the default database
+changes. If there is no default database, the variables have the same value as
+the corresponding server-level system variables, character_set_server and
+collation_server.
+
+::
+
+    mysql> select table_name, table_collation from tables where table_schema = 'channelquality_db' ;
+    +--------------------+-------------------+
+    | table_name         | table_collation   |
+    +--------------------+-------------------+
+    | DqChannel          | latin1_swedish_ci | 
+    | DqChannelStatus    | latin1_swedish_ci | 
+    | DqChannelStatusVld | latin1_swedish_ci | 
+    | DqChannelVld       | latin1_swedish_ci | 
+    | LOCALSEQNO         | latin1_swedish_ci | 
+    +--------------------+-------------------+
+    5 rows in set (0.00 sec)
+
+
+
+
+Load the dump into belle1
+---------------------------
+
+::
+
+    [blyth@belle1 ~]$ md5sum tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    8aed64440efb14d3676b8fda1bc85e5e  tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql
+    8aed64440efb14d3676b8fda1bc85e5e   
+    [blyth@belle1 ~]$ echo 8aed64440efb14d3676b8fda1bc85e5e    # matches digest from belle7
+    [blyth@belle1 ~]$ 
+    [blyth@belle1 ~]$ echo create database channelquality_db | mysql 
+    [blyth@belle1 ~]$ time mysql channelquality_db < ~/tmp_ligs_offline_db_0.DqChannel_and_DqChannelStatus.sql 
+    real    77m19.981s
+    user    2m45.547s
+    sys     0m12.736s
+    [blyth@belle1 ~]$ 
+
+
+Checking the load as it progresses::
+
+    mysql> select TABLE_NAME, TABLE_TYPE, ENGINE, TABLE_ROWS, CREATE_TIME, UPDATE_TIME from information_schema.tables where table_schema = 'channelquality_db' ;
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    | TABLE_NAME         | TABLE_TYPE | ENGINE | TABLE_ROWS | CREATE_TIME         | UPDATE_TIME         |
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    | DqChannel          | BASE TABLE | MyISAM |   59651813 | 2013-05-30 18:52:51 | 2013-05-30 19:33:07 | 
+    | DqChannelStatus    | BASE TABLE | MyISAM |   62126016 | 2013-05-30 18:17:42 | 2013-05-30 18:52:44 | 
+    | DqChannelStatusVld | BASE TABLE | MyISAM |     323573 | 2013-05-30 18:52:44 | 2013-05-30 18:52:51 | 
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    3 rows in set (0.00 sec)
+
+At completion::
+
+    mysql> select TABLE_NAME, TABLE_TYPE, ENGINE, TABLE_ROWS, CREATE_TIME, UPDATE_TIME from information_schema.tables where table_schema = 'channelquality_db' ;
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    | TABLE_NAME         | TABLE_TYPE | ENGINE | TABLE_ROWS | CREATE_TIME         | UPDATE_TIME         |
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    | DqChannel          | BASE TABLE | MyISAM |   62126016 | 2013-05-30 18:52:51 | 2013-05-30 19:34:55 | 
+    | DqChannelStatus    | BASE TABLE | MyISAM |   62126016 | 2013-05-30 18:17:42 | 2013-05-30 18:52:44 | 
+    | DqChannelStatusVld | BASE TABLE | MyISAM |     323573 | 2013-05-30 18:52:44 | 2013-05-30 18:52:51 | 
+    | DqChannelVld       | BASE TABLE | MyISAM |     323573 | 2013-05-30 19:34:55 | 2013-05-30 19:35:02 | 
+    | LOCALSEQNO         | BASE TABLE | MyISAM |          3 | 2013-05-30 19:35:02 | 2013-05-30 19:35:02 | 
+    +--------------------+------------+--------+------------+---------------------+---------------------+
+    5 rows in set (0.00 sec)
+
+
+
+belle1 hotcopy
+---------------
+
+After dealing with a mysqlhotcopy perl issue, `mysqlrpm-`
+
+::
+
+    [root@belle1 ~]#  mysqlhotcopy.py -l debug channelquality_db hotcopy archive
+    2013-05-30 20:29:40,578 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py -l debug channelquality_db hotcopy archive
+    2013-05-30 20:29:40,582 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db 
+    2013-05-30 20:29:40,582 env.mysqlhotcopy.db DEBUG    MyCnf read ['/root/.my.cnf'] 
+    2013-05-30 20:29:40,582 env.mysqlhotcopy.db DEBUG    translate mysql config {'host': 'localhost', 'user': 'root', 'database': 'information_schema', 'password': '***', 'socket': '/var/lib/mysql/mysql.sock'} into mysql-python config {'unix_socket': '/var/lib/mysql/mysql.sock', 'host': 'localhost', 'user': 'root', 'passwd': '***', 'db': 'information_schema'} 
+    2013-05-30 20:29:40,582 env.mysqlhotcopy.db DEBUG    connecting to {'unix_socket': '/var/lib/mysql/mysql.sock', 'host': 'localhost', 'user': 'root', 'passwd': '***', 'db': 'information_schema'} 
+    2013-05-30 20:29:40,583 env.mysqlhotcopy.mysqlhotcopy INFO     failed to instanciate connection to database channelquality_db with exception 'NoneType' object has no attribute 'Error' 
+    2013-05-30 20:29:40,583 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== hotcopy 
+    2013-05-30 20:29:40,583 env.mysqlhotcopy.mysqlhotcopy WARNING  no valid db connection using static opts.mb_required 2000 
+    2013-05-30 20:29:40,583 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 2000 MB less than    free 72771.5898438 MB 
+    2013-05-30 20:29:40,583 env.mysqlhotcopy.mysqlhotcopy INFO     hotcopy of database channelquality_db into outd /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029 
+    2013-05-30 20:29:40,586 env.mysqlhotcopy.mysqlhotcopy INFO     proceed with MySQLHotCopy /usr/bin/mysqlhotcopy  channelquality_db /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029   
+    2013-05-30 20:29:40,586 env.mysqlhotcopy.cmd DEBUG    MySQLHotCopy /usr/bin/mysqlhotcopy  channelquality_db /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029  
+    2013-05-30 20:34:38,323 env.mysqlhotcopy.mysqlhotcopy INFO     seconds {'_hotcopy': 297.73979902267456} 
+    2013-05-30 20:34:38,323 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== archive 
+    2013-05-30 20:34:38,324 env.mysqlhotcopy.mysqlhotcopy WARNING  no valid db connection using static opts.mb_required 2000 
+    2013-05-30 20:34:38,324 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 2000 MB less than    free 63394.0234375 MB 
+    2013-05-30 20:34:38,324 env.mysqlhotcopy.mysqlhotcopy INFO     tagd /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029  into Tar /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz channelquality_db gz  
+    2013-05-30 20:34:38,324 env.mysqlhotcopy.tar INFO     creating /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz from /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db 
+
+
+
+The hotcopy step only took 5min for 9 GB of hotcopied directory:: 
+
+
+    [root@belle1 ~]# du -hs /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/
+    9.2G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/
+    [root@belle1 ~]# 
+    [root@belle1 ~]# du -hs /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/*
+    4.0K    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/db.opt
+    12K     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannel.frm
+    2.5G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannel.MYD
+    2.8G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannel.MYI
+    12K     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatus.frm
+    1.3G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatus.MYD
+    2.8G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatus.MYI
+    12K     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatusVld.frm
+    16M     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatusVld.MYD
+    3.5M    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelStatusVld.MYI
+    12K     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelVld.frm
+    16M     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelVld.MYD
+    3.3M    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/DqChannelVld.MYI
+    12K     /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/LOCALSEQNO.frm
+    4.0K    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/LOCALSEQNO.MYD
+    4.0K    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db/LOCALSEQNO.MYI
+    [root@belle1 ~]# 
+
+
+
+Compressing this into archive is too slow::
+
+    [root@belle1 ~]# du -h /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz 
+    479M    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    [root@belle1 ~]# 
 
 
 
