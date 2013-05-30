@@ -273,7 +273,7 @@ local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
    g4pb|simon) echo G ;;
-        omars) echo OM ;;
+         mars) echo M ;;
          coop) echo CO ;;
          hep1) echo H1 ;;
         hep52) echo H52 ;;
@@ -283,7 +283,7 @@ local-nodetag(){
          dyb1) echo YY ;;
          dyb2) echo ZZ ;;
        belle7) echo N ;;
-       belle1) echo M ;;
+       belle1) echo N1 ;;
       gateway) echo B ;;
          g3pb) echo G ;;
           pal) echo L ;;
@@ -412,6 +412,7 @@ local-root(){
    case ${1:-$NODE_TAG} in
       C) echo -n ;;
       N) echo /data1 ;;
+     N1) echo /data1 ;;
       M) echo /data1 ;;
      H1) echo /home/hep/blyth ;;
      *) echo -n ;;

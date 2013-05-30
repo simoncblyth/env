@@ -30,6 +30,7 @@ clui-cd-with-history(){
 
 clui-alias(){
 
+   alias ss-="sudo su -"
    alias x='exit'
    alias l="ls -lt "
    alias lz="ls -la -Z"
