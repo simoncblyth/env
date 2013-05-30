@@ -165,7 +165,7 @@ CREATE TABLE oomon (date text,val real)
          :param clear: when `True` clear the collected list of dicts after insertion
 
          Uses ``insert or replace`` so new entries with the same PK as existing ones will 
-         replace them.  
+         replace them.  But this is minting new hidden `rowid`, so try `insert or update`
 
          Note that the dicts in the list can contain more key:value pairs than needed without harm
          """
@@ -244,7 +244,7 @@ CREATE TABLE oomon (date text,val real)
             l.append(dict(zip(labels,row)))
         return l    
 
-    def dump(self, sql="select * from %(tn)s ;" ):
+    def dump(self, sql="select rowid, * from %(tn)s ;" ):
         ctx = dict(self.conf, sql=sql % self.conf )
         print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
 
@@ -264,11 +264,8 @@ def test_iterdict():
     for d in t.iterdict("select * from tgzs"):
         print d 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    
+def test_small_table_id():
     urls = "a b c d e f g".split()
-
     rt = Table("/tmp/repos.db", "repos" , id="integer", url="text primary key"  )
     for url in urls:
         rd = rt.asdict(kf="url", vf="id" )              # convenient approach for small tables
@@ -276,6 +273,18 @@ if __name__ == '__main__':
         rt.add( id=rid, url=url, _insert=True )  
     pass     
     rt.dump()
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    ct = Table("/tmp/colors.db", "colors", label="text primary key" )
+    ct("CREATE UNIQUE INDEX idx_colors ON colors (label);") 
+    colors = "red green blue red green blue".split()
+    for col in colors:
+        ct.add( label=col , _insert=True)
+        print "lastrowid ", ct.cursor.lastrowid 
+
+    ct.dump()
 
 
 
