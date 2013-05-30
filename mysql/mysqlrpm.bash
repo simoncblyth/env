@@ -9,6 +9,7 @@ MySQL from rpms
 ===================
 
 * http://dev.mysql.com/doc/refman/5.0/en/source-installation.html
+* http://dev.mysql.com/doc/refman/5.0/en/linux-installation-rpm.html
 * http://downloads.mysql.com/archives.php?p=mysql-5.0&v=5.0.45
 
 belle1 installation
@@ -40,6 +41,7 @@ Using the version *5.0.45* to precisely match that used on the official servers:
 	Starting MySQL[  OK  ]
 	Giving mysqld 2 seconds to start
 	[blyth@belle1 env]$ 
+
 
 
 client install
@@ -109,6 +111,80 @@ Add client section, remember to protect it::
 
 
 
+OOPS : mysqlhotcopy not working
+---------------------------------
+
+perlmodule DBD::MySQL needed for mysqlhotcopy
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Yuck CPAN
+
+* http://search.cpan.org/dist/DBD-mysql/lib/DBD/mysql.pm#INSTALLATION
+
+::
+
+	[root@belle1 ~]# perl -mDBD::mysql -e ''
+	Can't locate DBD/mysql.pm in @INC (@INC contains: /usr/lib/perl5/site_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/site_perl/5.8.8 /usr/lib/perl5/site_perl /usr/lib/perl5/vendor_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/vendor_perl/5.8.8 /usr/lib/perl5/vendor_perl /usr/lib/perl5/5.8.8/i386-linux-thread-multi /usr/lib/perl5/5.8.8 .).
+	BEGIN failed--compilation aborted.  
+
+
+yum fails, maybe as are using non-standard version for dybdb1 correspondence::
+
+	[root@belle1 ~]# yum install perl-DBD-MySQL 
+	Loaded plugins: kernel-module
+	Setting up Install Process
+	Resolving Dependencies
+	There are unfinished transactions remaining. You might consider running yum-complete-transaction first to finish them.
+	The program yum-complete-transaction is found in the yum-utils package.
+	--> Running transaction check
+	---> Package perl-DBD-MySQL.i386 0:3.0007-1.fc6 set to be updated
+	--> Processing Dependency: libmysqlclient.so.15 for package: perl-DBD-MySQL
+	--> Processing Dependency: libmysqlclient.so.15(libmysqlclient_15) for package: perl-DBD-MySQL
+	--> Running transaction check
+	---> Package mysql.i386 0:5.0.95-5.el5_9 set to be updated
+	--> Processing Conflict: mysql conflicts MySQL
+	--> Finished Dependency Resolution
+	mysql-5.0.95-5.el5_9.i386 from sl-security has depsolving problems
+	  --> mysql conflicts with MySQL-server-community
+	Beginning Kernel Module Plugin
+	Finished Kernel Module Plugin
+	Error: mysql conflicts with MySQL-server-community
+	 You could try using --skip-broken to work around the problem
+	 You could try running: package-cleanup --problems
+				package-cleanup --dupes
+				rpm -Va --nofiles --nodigest
+	The program package-cleanup is found in the yum-utils package.
+	[root@belle1 ~]# 
+
+
+install the shared too
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+	[blyth@belle1 env]$ rpm -i MySQL-shared-community-5.0.45-0.rhel5.i386.rpm
+	error: can't create transaction lock on /var/lib/rpm/__db.000
+	[blyth@belle1 env]$ sudo rpm -i MySQL-shared-community-5.0.45-0.rhel5.i386.rpm
+	[sudo] password for blyth: 
+	[blyth@belle1 env]$ 
+
+
+
+try again after installing the shared succeeds
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+	[root@belle1 ~]# yum install perl-DBD-MySQL 
+	...
+	Installed:
+	  perl-DBD-MySQL.i386 0:3.0007-1.fc6                                                                                                                                                                                                                              
+	Complete!
+	[root@belle1 ~]# 
+	[root@belle1 ~]# perl -mDBD::mysql -e ''
+	[root@belle1 ~]# 
+
 
 EOU
 }
@@ -121,6 +197,7 @@ mysqlrpm-get(){
   
    $FUNCNAME-server
    $FUNCNAME-client
+   $FUNCNAME-shared
 
 }
 
@@ -136,12 +213,20 @@ mysqlrpm-get-server(){
    local nam=$(basename $url)
    [ ! -f "$nam" ] && curl -O $url
 }
-
 mysqlrpm-get-client(){
    local url=$(mysqlrpm-url client)
    local nam=$(basename $url)
    [ ! -f "$nam" ] && curl -O $url
 }
+mysqlrpm-get-shared(){
+   local url=$(mysqlrpm-url shared)
+   local nam=$(basename $url)
+   [ ! -f "$nam" ] && curl -O $url
+}
+
+
+
+
 
 mysqlrpm-rpm-check(){
    rpm -qpl $1 | while read path ; do  [ -f $path ] && echo would clobber $path  ; done 

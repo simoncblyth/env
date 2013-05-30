@@ -18,6 +18,22 @@ If that gives errors will need to::
     sudo yum install MySQL-python
 
 
+
+Pre-requisites for mysqlhotcopy
+--------------------------------
+
+Perl module `DBD::mysql`
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+	install_driver(mysql) failed: Can't locate DBD/mysql.pm 
+
+	[root@belle1 ~]# perl -mDBD::mysql -e ''
+	Can't locate DBD/mysql.pm in @INC (@INC contains: /usr/lib/perl5/site_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/site_perl/5.8.8 /usr/lib/perl5/site_perl /usr/lib/perl5/vendor_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/vendor_perl/5.8.8 /usr/lib/perl5/vendor_perl /usr/lib/perl5/5.8.8/i386-linux-thread-multi /usr/lib/perl5/5.8.8 .).
+	BEGIN failed--compilation aborted.
+
+
 Commands
 ---------
 
@@ -26,7 +42,9 @@ to operate upon.  Subsequent arguments specify actions to take. Order is importa
 
 
 `hotcopy`
-      use *mysqlhotcopy* to copy the mysql datadir for a single database into a dated folder under `backupdir`
+      use *mysqlhotcopy* to copy the mysql datadir for a single database into a dated folder under `backupdir`, 
+      with path of form `/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_1954`
+      the folder and its parent folders are created if necessary 
 
 `coldcopy`
        Manual file system copy **without locking** the DB. Used for investigating crashed DBs, DO NOT USE FOR RELIABLE BACKUPS. TREAT WITH CAUTION

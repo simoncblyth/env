@@ -435,7 +435,7 @@ local-base(){
       H52) echo /data/local ;;
         T) echo /usr/local ;;
         N) echo $(local-root $t)/env/local ;;
-        M) echo $(local-root $t)/env/local ;;
+       N1) echo $(local-root $t)/env/local ;;
     OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         C) echo         $(local-root $t)/data/env/local ;;
