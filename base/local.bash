@@ -239,7 +239,7 @@ local-tag2ip(){
           #N) echo belle7.nuu.edu.tw ;;
            N) echo 203.64.184.126 ;;
           N1) echo 203.64.184.127 ;;
-           M) echo 140.112.101.50 ;;
+          OM) echo 140.112.101.50 ;;
           NE) echo pdsf.nersc.gov ;;
        #    I) echo lxslc05.ihep.ac.cn ;;  lxslc05 needs klog and has flaky xauth 
            I) echo lxslc21.ihep.ac.cn ;;
@@ -273,7 +273,7 @@ local-nodetag(){
   [ -n "$NODE_TAG_OVERRIDE" ] && echo $NODE_TAG_OVERRIDE && return 0
   case ${1:-$LOCAL_NODE} in
    g4pb|simon) echo G ;;
-         mars) echo M ;;
+        omars) echo OM ;;
          coop) echo CO ;;
          hep1) echo H1 ;;
         hep52) echo H52 ;;
@@ -283,6 +283,7 @@ local-nodetag(){
          dyb1) echo YY ;;
          dyb2) echo ZZ ;;
        belle7) echo N ;;
+       belle1) echo M ;;
       gateway) echo B ;;
          g3pb) echo G ;;
           pal) echo L ;;
@@ -411,6 +412,7 @@ local-root(){
    case ${1:-$NODE_TAG} in
       C) echo -n ;;
       N) echo /data1 ;;
+      M) echo /data1 ;;
      H1) echo /home/hep/blyth ;;
      *) echo -n ;;
    esac
@@ -432,6 +434,7 @@ local-base(){
       H52) echo /data/local ;;
         T) echo /usr/local ;;
         N) echo $(local-root $t)/env/local ;;
+        M) echo $(local-root $t)/env/local ;;
     OLD_C) echo                         /data/env/local ;;
 MBACKUP_C) echo $(local-mbackup-disk $t)/data/env/local ;;
         C) echo         $(local-root $t)/data/env/local ;;
