@@ -1370,14 +1370,237 @@ Compressing this into archive is too slow::
     [root@belle1 ~]# 
 
 
+Did it from cron::
+
+    [root@belle1 ~]# crontab -l
+    SHELL = /bin/bash
+    PATH=/home/blyth/env/bin:/usr/bin:/bin
+    04 21 * * * ( mysqlhotcopy.py -l debug -t 20130530_2029 channelquality_db archive > /root/mysqlhotcopy.log 2>&1 )
+    [root@belle1 ~]# 
+
+Archiving a 9.2G directory down to 2.3G tarball took 4 hrs, unimportant error from forgetting no-confirm option for sourcedir deletion::
+
+    [root@belle1 ~]# cat mysqlhotcopy.log 
+    2013-05-30 21:04:01,229 env.mysqlhotcopy.mysqlhotcopy INFO     /home/blyth/env/bin/mysqlhotcopy.py -l debug -t 20130530_2029 channelquality_db archive
+    2013-05-30 21:04:01,232 env.mysqlhotcopy.mysqlhotcopy INFO     backupdir /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db 
+    2013-05-30 21:04:01,233 env.mysqlhotcopy.db DEBUG    MyCnf read ['/root/.my.cnf'] 
+    2013-05-30 21:04:01,233 env.mysqlhotcopy.db DEBUG    translate mysql config {'host': 'localhost', 'user': 'root', 'database': 'information_schema', 'password': '***', 'socket': '/var/lib/mysql/mysql.sock'} into mysql-python config {'unix_socket': '/var/lib/mysql/mysql.sock', 'host': 'localhost', 'user': 'root', 'passwd': '***', 'db': 'information_schema'} 
+    2013-05-30 21:04:01,233 env.mysqlhotcopy.db DEBUG    connecting to {'unix_socket': '/var/lib/mysql/mysql.sock', 'host': 'localhost', 'user': 'root', 'passwd': '***', 'db': 'information_schema'} 
+    2013-05-30 21:04:01,233 env.mysqlhotcopy.mysqlhotcopy INFO     failed to instanciate connection to database channelquality_db with exception 'NoneType' object has no attribute 'Error' 
+    2013-05-30 21:04:01,234 env.mysqlhotcopy.mysqlhotcopy INFO     ================================== archive 
+    2013-05-30 21:04:01,234 env.mysqlhotcopy.mysqlhotcopy WARNING  no valid db connection using static opts.mb_required 2000 
+    2013-05-30 21:04:01,234 env.mysqlhotcopy.mysqlhotcopy INFO     sufficient free space,      required 2000 MB less than    free 63394.015625 MB 
+    2013-05-30 21:04:01,234 env.mysqlhotcopy.mysqlhotcopy INFO     tagd /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029  into Tar /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz channelquality_db gz  
+    2013-05-30 21:04:01,234 env.mysqlhotcopy.tar INFO     creating /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz from /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/channelquality_db 
+    2013-05-31 00:59:05,021 env.mysqlhotcopy.tar INFO     deleting sourcedir /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029 with leaf 20130530_2029 as the leaf is a dated folder 
+    enter "YES" to confirm deletion of sourcedir /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029 :Traceback (most recent call last):
+      File "/home/blyth/env/bin/mysqlhotcopy.py", line 4, in ?
+        main()
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/mysqlhotcopy.py", line 721, in main
+        hb(verb)
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/mysqlhotcopy.py", line 470, in __call__
+        self._archive()
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/common.py", line 13, in wrapper
+        res = func(*arg,**kw)
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/mysqlhotcopy.py", line 570, in _archive
+        self.tar.archive(self.tagd, self.opts.deleteafter, self.opts.flattop) 
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/common.py", line 13, in wrapper
+        res = func(*arg,**kw)
+      File "/usr/lib/python2.4/site-packages/env/mysqlhotcopy/tar.py", line 155, in archive
+        confirm = raw_input("enter \"YES\" to confirm deletion of sourcedir %s :" % sourcedir )
+    EOFError: EOF when reading a line
+    [root@belle1 ~]# 
+    [root@belle1 ~]# 
+    [root@belle1 ~]# du -hs /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/
+    9.2G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029/
+
+    [root@belle1 ~]# du -h /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    2.3G    /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+
+    [root@belle1 ~]# tar ztvf  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    drwxr-x--- mysql/mysql       0 2013-05-30 20:34:38 channelquality_db/
+    -rw-rw---- mysql/mysql    8618 2013-05-30 19:35:02 channelquality_db/LOCALSEQNO.frm
+    -rw-rw---- mysql/mysql 3646464 2013-05-30 20:29:40 channelquality_db/DqChannelStatusVld.MYI
+    -rw-rw---- mysql/mysql    8746 2013-05-30 18:17:42 channelquality_db/DqChannelStatus.frm
+    -rw-rw---- mysql/mysql 2609292672 2013-05-30 19:34:55 channelquality_db/DqChannel.MYD
+    -rw-rw---- mysql/mysql 2901941248 2013-05-30 20:29:40 channelquality_db/DqChannel.MYI
+    -rw-rw---- mysql/mysql         65 2013-05-30 18:17:10 channelquality_db/db.opt
+    -rw-rw---- mysql/mysql       2048 2013-05-30 20:29:40 channelquality_db/LOCALSEQNO.MYI
+    -rw-rw---- mysql/mysql 2905288704 2013-05-30 20:29:40 channelquality_db/DqChannelStatus.MYI
+    -rw-rw---- mysql/mysql 1366772352 2013-05-30 18:52:44 channelquality_db/DqChannelStatus.MYD
+    -rw-rw---- mysql/mysql   16502223 2013-05-30 18:52:51 channelquality_db/DqChannelStatusVld.MYD
+    -rw-rw---- mysql/mysql       8908 2013-05-30 19:34:55 channelquality_db/DqChannelVld.frm
+    -rw-rw---- mysql/mysql       8892 2013-05-30 18:52:51 channelquality_db/DqChannel.frm
+    -rw-rw---- mysql/mysql   16502223 2013-05-30 19:35:02 channelquality_db/DqChannelVld.MYD
+    -rw-rw---- mysql/mysql        207 2013-05-30 19:35:02 channelquality_db/LOCALSEQNO.MYD
+    -rw-rw---- mysql/mysql       8908 2013-05-30 18:52:44 channelquality_db/DqChannelStatusVld.frm
+    -rw-rw---- mysql/mysql    3427328 2013-05-30 20:29:40 channelquality_db/DqChannelVld.MYI
+    [root@belle1 ~]# 
+    [root@belle1 ~]# 
+    [root@belle1 ~]# 
+
+
+OOPS didnt use `--flattop`. Takes too long to rerun for this though. 
+Actually that simplifies manual extraction, but makes database renaming problematic.
+As the name is already as desired "channelquality_db" thats no problem.
+
+
+Test extraction of belle1 hotcopy onto belle7
+-----------------------------------------------
+
+Prepare directory for the tarball on belle7 and scp it over from belle1, taking 3.5 min::
+
+    [root@belle7 ~]# mkdir -p  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/
+    [root@belle7 ~]# time scp N1:/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/
+    real    3m28.167s
+    user    1m19.160s
+    sys     0m24.959s
+
+Verify the digests match::
+
+    [root@belle7 ~]# ssh N1 md5sum /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    2631bcc9b9c747e238338a4b50c04ad5  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    [root@belle7 ~]# md5sum /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    2631bcc9b9c747e238338a4b50c04ad5  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+
+Check to see what the mysql datadir is::
+
+    [root@belle7 ~]# vim .my.cnf   # check the "client" section is appropriate 
+    [root@belle7 ~]# echo select \@\@datadir | mysql  
+    @@datadir
+    /var/lib/mysql/
+
+Extract into belle7 datadir, took less than 5 min to extract out to 9.2 G::
+
+    [root@belle7 ~]# cd /var/lib/mysql
+    [root@belle7 mysql]# time tar zxvf /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    channelquality_db/
+    channelquality_db/LOCALSEQNO.frm
+    channelquality_db/DqChannelStatusVld.MYI
+    channelquality_db/DqChannelStatus.frm
+    channelquality_db/DqChannel.MYD
+    channelquality_db/DqChannel.MYI
+    channelquality_db/db.opt
+    channelquality_db/LOCALSEQNO.MYI
+    channelquality_db/DqChannelStatus.MYI
+    channelquality_db/DqChannelStatus.MYD
+    channelquality_db/DqChannelStatusVld.MYD
+    channelquality_db/DqChannelVld.frm
+    channelquality_db/DqChannel.frm
+    channelquality_db/DqChannelVld.MYD
+    channelquality_db/LOCALSEQNO.MYD
+    channelquality_db/DqChannelStatusVld.frm
+    channelquality_db/DqChannelVld.MYI
+
+    real    4m30.838s
+    user    1m34.536s
+    sys     0m40.571s
+    [root@belle7 mysql]# 
+    [root@belle7 mysql]# du -hs channelquality_db
+    9.2G    channelquality_db
+
+
+basic checks OK
+~~~~~~~~~~~~~~~~~~
+
+    mysql> use channelquality_db 
+    Database changed
+    mysql> show tables ;
+    +-----------------------------+
+    | Tables_in_channelquality_db |
+    +-----------------------------+
+    | DqChannel                   | 
+    | DqChannelStatus             | 
+    | DqChannelStatusVld          | 
+    | DqChannelVld                | 
+    | LOCALSEQNO                  | 
+    +-----------------------------+
+    5 rows in set (0.00 sec)
+
+    mysql> select max(SEQNO) from  DqChannel ;
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |     323573 | 
+    +------------+
+    1 row in set (0.01 sec)
+
+
+place tarball on cms01 where Qiumei has access
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prepare directory on S::
+
+    [root@cms01 ~]# mkdir -p /data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/
+    [root@cms01 ~]# chown -R dayabayscp.dayabayscp  /data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/
+
+Go around the NUU-NTU blockade via my laptop::
+
+    simon:~ blyth$ scp N:/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz .
+    simon:~ blyth$ scp 20130530_2029.tar.gz S:/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    simon:~ blyth$ ssh S md5sum /data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz          ## nope the dayabayscp user has restricted shell
+    simon:~ blyth$ ssh C md5sum /data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+    2631bcc9b9c747e238338a4b50c04ad5  /data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+
+
+dybdb1 extraction instructions for Qiumei
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. sidebar:: how hotcopy tarball was prepared
+
+     On belle1, I installed MySQL-server 5.0.45 precisely matching the version on dybdb1.  
+     This is to avoid potential repair limitations in future. Also tarball extraction of the 
+     prepared DB is the approach that minimizes load on dybdb1. Alternatives like loading 
+     mysqldumps or CSVs were found to make the server unresponsive for long periods, 30-60 mins.
+
+
+Grab the tarball from S, and check its digest matches those above::
+
+    dybdb1> mkdir -p /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/
+    dybdb1> scp S:/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz
+             ## its 2.3 GB, so will probably take 30-60 min 
+
+    dybdb1> md5sum  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz    ## should be 2631bcc9b9c747e238338a4b50c04ad5
+
+
+Drop the empty "channelquality_db" database::
+
+    mysql > status                               # check are talking to dybdb1
+    mysql > drop database channelquality_db ;
+    mysql > select @@datadir ;                  # check where mysql keeps its data, I expect /data/mysql 
+
+
+From that datadir, check the paths within the tarball, and then extract it should create directory "channelquality_db"::
+
+    dybdb1 > cd /data/mysql
+    dybdb1 > tar ztvf  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz   # check the paths of what will be extracted
+              ## a minute or so
+
+    dybdb1 > tar zxvf  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz   # do the extraction, creating channelquality_db  
+              ## took less than 5 min on belle7 
 
 
 
-Basic checks on `_2`
-----------------------
+
+Basic checks of `channelquality_db` on belle7
+------------------------------------------------
 
 The RUNNO/FILENO duplication is from different site/subsite presumably::
 
+    mysql> show tables ;
+    +-----------------------------+
+    | Tables_in_channelquality_db |
+    +-----------------------------+
+    | DqChannel                   | 
+    | DqChannelStatus             | 
+    | DqChannelStatusVld          | 
+    | DqChannelVld                | 
+    | LOCALSEQNO                  | 
+    +-----------------------------+
+    5 rows in set (0.00 sec)
+
+    mysql> 
+    mysql> 
     mysql> select SEQNO,count(*) N,RUNNO,FILENO from DqChannelStatus group by SEQNO order by SEQNO desc limit 10 ;
     +--------+-----+-------+--------+
     | SEQNO  | N   | RUNNO | FILENO |
@@ -1393,7 +1616,7 @@ The RUNNO/FILENO duplication is from different site/subsite presumably::
     | 323565 | 192 | 38886 |    336 | 
     | 323564 | 192 | 38886 |    339 | 
     +--------+-----+-------+--------+
-    10 rows in set (0.01 sec)
+    10 rows in set (0.02 sec)
 
     mysql> select SEQNO,count(*) N,RUNNO,FILENO from DqChannel group by SEQNO order by SEQNO desc limit 10 ;
     +--------+-----+-------+--------+
@@ -1410,7 +1633,11 @@ The RUNNO/FILENO duplication is from different site/subsite presumably::
     | 323565 | 192 | 38886 |    336 | 
     | 323564 | 192 | 38886 |    339 | 
     +--------+-----+-------+--------+
-    10 rows in set (0.01 sec)
+    10 rows in set (0.05 sec)
+
+
+
+
 
 
 
