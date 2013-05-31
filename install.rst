@@ -65,5 +65,5 @@ Edit crontab with `crontab -e`::
     40 05 * * * ( . $ENV_HOME/env.bash ; db- ; db-backup-rsync-monitor )  > $CRONLOG_DIR/db-backup-rsync-monitor.log 2>&1
     52 * * * * ( valmon.py -s diskmon rec rep mon )                       > $CRONLOG_DIR/diskmon.log 2>&1 
 
-
+For more on the `valmon.py` script see :doc:`/db/valmon`.
 
