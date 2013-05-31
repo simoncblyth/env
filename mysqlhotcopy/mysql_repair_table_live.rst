@@ -1544,7 +1544,9 @@ Go around the NUU-NTU blockade via my laptop::
 
 
 dybdb1 extraction instructions for Qiumei
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
+
+
 
 .. sidebar:: how hotcopy tarball was prepared
 
@@ -1553,6 +1555,26 @@ dybdb1 extraction instructions for Qiumei
      prepared DB is the approach that minimizes load on dybdb1. Alternatives like loading 
      mysqldumps or CSVs were found to make the server unresponsive for long periods, 30-60 mins.
 
+.. contents:: :local:
+
+
+replication config to exclude `channelquality_db`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before proceeding with the extraction you should exclude `channelquality_db`
+from the replication in addition to the already excluded `tmp_ligs_offline_db`.
+
+
+Check free space on the server
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before extraction check the free space on the server.
+The uncompressed DB directory is 9.2G and tarball 2.3G
+so you should have at least 25 G free in order to proceed.
+
+
+Get the tarball and check digest
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Grab the tarball from S, and check its digest matches those above::
 
@@ -1563,12 +1585,18 @@ Grab the tarball from S, and check its digest matches those above::
     dybdb1> md5sum  /var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz    ## should be 2631bcc9b9c747e238338a4b50c04ad5
 
 
+Remove empty `channelquality_db`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Drop the empty "channelquality_db" database::
 
     mysql > status                               # check are talking to dybdb1
     mysql > drop database channelquality_db ;
     mysql > select @@datadir ;                  # check where mysql keeps its data, I expect /data/mysql 
 
+
+Perform extraction into mysql datadir
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 From that datadir, check the paths within the tarball, and then extract it should create directory "channelquality_db"::
 
