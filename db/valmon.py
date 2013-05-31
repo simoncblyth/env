@@ -18,10 +18,13 @@ Usage from cron::
 
     52 * * * * ( valmon.py -s diskmon rec rep mon ) > $CRONLOG_DIR/diskmon.log 2>&1 
 
-TODO
------
+Installation
+-------------
 
-#. Maybe consolidate into a monolithic script, for easy installation by others.
+Usage of the `valmon.py` script and the **env** python modules that 
+it is based upon requires these to be installed as described at :doc:`/install`.
+Essentially this just requires a symbolic link from python `site-packages` and 
+a PATH setting to give easy access to scripts from eg `/root/env/bin`
 
 Separation of concerns
 -----------------------
@@ -265,6 +268,13 @@ class ValueMon(object):
         for d in self.tab(sql):
             print d
 
+
+    def cnf_(self):
+        """
+        Dump the config for the section
+        """
+        return str(self.cnf)
+
     def rep(self):
         """
         Use sqlite3 binary to present the last few entries in the configured table
@@ -391,6 +401,8 @@ class ValueMon(object):
                 self.msg()
             elif arg == 'rep':
                 print self.rep()
+            elif arg == 'cnf':
+                print self.cnf_()
             else:
                 log.warn("unhandled arg %s " % arg ) 
 
@@ -425,6 +437,13 @@ class Cnf(dict):
             self[k] = v 
         self['sect'] = sect
         self['sections'] = self.sections
+        if not 'email' in self:
+           mailto = os.environ.get('MAILTO',None)
+           if mailto:
+               log.info("no email section configured, but MAILTO envvar is defined, so use that: %s" % mailto ) 
+               self['email'] = mailto
+           else:
+               log.warn("no email section configures and no MAILTO envvar, NOTIFICATION WILL FAIL")
 
     def __str__(self):
         node = platform.node()
