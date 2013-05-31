@@ -101,6 +101,10 @@ class DB(object):
         return self("select min(%(group_by)s) as min, max(%(group_by)s) as max from %(dbtab)s " % locals())[0]
 
     def digest_table_scan(self, a, b, chunk=1000 ):
+        """
+        This approach is too slow ot be useful with big tables.  
+        Too much done in python.  
+        """ 
         ar = self.group_by_range(a)
         br = self.group_by_range(b)
 
