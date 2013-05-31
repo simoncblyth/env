@@ -35,6 +35,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   install
    TODO <TODO>
    LOG <log/May2012>
    Sys Admin <sysadmin/index>
