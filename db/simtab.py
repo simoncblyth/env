@@ -276,7 +276,15 @@ def test_small_table_id():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    level=logging.DEBUG
+    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    hdlr = logging.StreamHandler()
+    formatter = logging.Formatter(logformat)
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(level)
+
+
     ct = Table("/tmp/colors.db", "colors", label="text primary key" )
     ct("CREATE UNIQUE INDEX idx_colors ON colors (label);") 
     colors = "red green blue red green blue".split()
