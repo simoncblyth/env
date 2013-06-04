@@ -430,7 +430,6 @@ Compare the repaired with the recreated from dump
 `tmp_ligs_offline_db_1`
               freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
 
-
 #. the SEQNO indicate that the Validity table continued to be updated even after the payload table had crashed
 
 
@@ -664,7 +663,7 @@ Before and during the table crash::
 Extraction of `DqChannel` tarball into `tmp_ligs_offline_db_0`
 ----------------------------------------------------------------
 
-::
+This is adding the IHEP `tmp_ligs_offline_db` hotcopy containing `DqChannel` tables into `tmp_ligs_offline_db_0` together with the repaired `DqChannelStatus`::
 
 
     [root@belle7 tmp_ligs_offline_db]# mysqlhotcopy.py -t 20130523_1623 --node dybdb1.ihep.ac.cn --rename tmp_ligs_offline_db_0 tmp_ligs_offline_db --ALLOWEXTRACT --ALLOWCLOBBER examine extract 
@@ -737,6 +736,15 @@ basic check
     +----------+
     1 row in set (0.00 sec)
 
+    mysql> select count(*) from DqChannelStatusVld ; 
+    +----------+
+    | count(*) |
+    +----------+
+    |   341125 | 
+    +----------+
+    1 row in set (0.00 sec)
+
+
     mysql> select count(*) from DqChannelVld ;
     +----------+
     | count(*) |
@@ -745,13 +753,6 @@ basic check
     +----------+
     1 row in set (0.00 sec)
 
-    mysql> select count(*) from DqChannelStatusVld ; 
-    +----------+
-    | count(*) |
-    +----------+
-    |   341125 | 
-    +----------+
-    1 row in set (0.00 sec)
 
 
 establishing correspondence
@@ -1778,10 +1779,135 @@ OR what about DBI::
 
 
 
+Review belle7 Databases
+--------------------------
 
-Repair on primary server, or propagate the fixed ?
-----------------------------------------------------
+`tmp_ligs_offline_db_0`
+              DB in which `DqChannelStatus` was repaired
+`tmp_ligs_offline_db_1`
+              freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
+`tmp_ligs_offline_db_2`
+`tmp_ligs_offline_db_3`
+              look to be the same, four tables with faked LOCALSEQNO 
+`tmp_ligs_offline_db_4`
+              created while testing dumplocal/loadlocal, omitted LOCALSEQNO::
+ 
+                    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
+                    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
+
+`channelquality_db`
+              DB created from extraction of belle1 hotcopy tarball `/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz`
+
+
+::
+
+    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_\\d summary
+
+    tmp_ligs_offline_db_0
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       65489088    2013-05-27 13:10:54             2013-05-27 13:26:26           
+    DqChannelStatus                 65436731    2013-05-27 13:36:35             2013-05-27 13:51:36           
+    DqChannelStatusVld              341125      2013-02-04 16:07:56             2013-05-13 13:16:02           
+    DqChannelVld                    341089      2013-02-04 16:07:51             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    tmp_ligs_offline_db_1    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannelStatus                 65436672    2013-05-23 14:03:34             None                          
+    DqChannelStatusVld              341124      2013-05-23 14:13:29             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    tmp_ligs_offline_db_2
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-29 14:59:36             2013-05-29 14:59:37           
+    DqChannelStatus                 62126016    2013-05-29 14:26:08             2013-05-29 14:26:09           
+    DqChannelStatusVld              323573      2013-05-29 14:59:30             None                          
+    DqChannelVld                    323573      2013-05-29 15:38:21             None                          
+    LOCALSEQNO                      3           2013-05-29 15:38:27             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    tmp_ligs_offline_db_3
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-29 18:15:48             2013-05-29 18:15:49           
+    DqChannelStatus                 62126016    2013-05-29 17:42:09             2013-05-29 17:42:10           
+    DqChannelStatusVld              323573      2013-05-29 18:15:42             None                          
+    DqChannelVld                    323573      2013-05-29 18:54:28             None                          
+    LOCALSEQNO                      3           2013-05-29 18:54:34             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    tmp_ligs_offline_db_4
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-30 13:54:33             2013-05-30 14:11:53           
+    DqChannelStatus                 62126016    2013-05-30 14:11:54             2013-05-30 14:26:55           
+    DqChannelStatusVld              323573      2013-05-30 14:26:56             None                          
+    DqChannelVld                    323573      2013-05-30 14:26:58             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    tmp_ligs_offline_db_5
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       9600        2013-06-03 19:44:16             2013-06-03 19:44:16           
+    DqChannelStatus                 9600        2013-06-03 19:44:17             2013-06-03 19:44:17           
+    DqChannelStatusVld              50          2013-06-03 19:44:17             None                          
+    DqChannelVld                    50          2013-06-03 19:44:17             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [blyth@belle7 DybPython]$ 
 
 
 
+    [blyth@belle7 DybPython]$ ./dbsrv.py channelquality_db summary
 
+    channelquality_db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-30 18:52:51             2013-05-30 18:52:51           
+    DqChannelStatus                 62126016    2013-05-30 18:17:42             2013-05-30 18:17:42           
+    DqChannelStatusVld              323573      2013-05-30 18:52:44             None                          
+    DqChannelVld                    323573      2013-05-30 19:34:55             None                          
+    LOCALSEQNO                      3           2013-05-30 19:35:02             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    [blyth@belle7 DybPython]$ 
+
+
+Test use of partitioned dumplocal for large table diffing 
+-----------------------------------------------------------
+
+::
+
+    [blyth@belle7 DybPython]$ ./dbsrv.py channelquality_db dumplocal /tmp/cq/channelquality_db --partition --partitioncfg 10000,0,2
+    INFO:__main__:names: ['channelquality_db'] 
+    INFO:__main__:/* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000 
+    INFO:__main__:dumplocal partition 0 SEQNO,0 1:10000 --partitioncfg 10000,0,2 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannel.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannel.csv took 16.26 seconds 
+          1 SHELL=/bin/bash
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatus.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatus.csv took  6.35 seconds 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.csv took  0.16 seconds 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelVld.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelVld.csv took  0.28 seconds 
+    INFO:__main__:/* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000 
+    INFO:__main__:dumplocal partition 1 SEQNO,0 10001:20000 --partitioncfg 10000,0,2 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannel.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannel.csv took 15.52 seconds 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatus.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatus.csv took  5.74 seconds 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatusVld.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatusVld.csv took  0.06 seconds 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelVld.csv 
+    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelVld.csv took  0.05 seconds 
+    [blyth@belle7 DybPython]$ 
+    [blyth@belle7 DybPython]$ 
