@@ -1787,17 +1787,26 @@ Review belle7 Databases
 `tmp_ligs_offline_db_1`
               freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
 `tmp_ligs_offline_db_2`
+              four tables with faked LOCALSEQNO 
 `tmp_ligs_offline_db_3`
-              look to be the same, four tables with faked LOCALSEQNO 
+              looks to be the same as `_2`
 `tmp_ligs_offline_db_4`
-              created while testing dumplocal/loadlocal, omitted LOCALSEQNO::
- 
-                    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
-                    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
-
+              created while testing dumplocal/loadlocal, omitted LOCALSEQNO
 `channelquality_db`
               DB created from extraction of belle1 hotcopy tarball `/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz`
 
+
+creation of  `tmp_ligs_offline_db_4`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+ 
+    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
+    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
+
+
+database summaries
+~~~~~~~~~~~~~~~~~~~~
 
 ::
 

@@ -1,6 +1,4 @@
 
-pysqlite2
-==========
 
 .. include:: pysqlite.bash
     :start-after: cat << EOU

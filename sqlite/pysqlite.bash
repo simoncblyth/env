@@ -1,62 +1,41 @@
 pysqlite-vi(){  vi $BASH_SOURCE ; }
 pysqlite-usage(){ cat << EOU
 
-pysqlite2
-===========
+pysqlite 
+=========
 
 * https://pypi.python.org/pypi/pysqlite
 * https://code.google.com/p/pysqlite/
 
-From https://code.google.com/p/pysqlite/downloads/list  June 2013
-only the following src distributions are available
+SQLite Python Binding Versions
+----------------------------------
+
+* https://code.google.com/p/pysqlite/downloads/list  
+
+From June 2013 only the following pysqlite src distributions are available
 
 * 2.6.3, 2.6.2, 2.6.0
 * 2.5.6, 2.5.5
 
+belle7 before and after static amalgamation install::
 
-Review setup.py 
-----------------
+    [blyth@belle7 pysqlite-2.6.3]$ pysqlite-version
+    ('/usr/lib/python2.4/site-packages/pysqlite2/dbapi2.pyc', '3.3.6', (3, 3, 6), '2.3.3', (2, 3, 3))
 
-#. has capability to download sqlite amalgamation 
+    [blyth@belle7 pysqlite-2.6.3]$ pysqlite-version 
+    ('/usr/lib/python2.4/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
 
-
-Bash Functions
-----------------
-
-pysqlite-name    
-        $(pysqlite-name)
-pysqlite-home     
-        $(pysqlite-home)
-pysqlite-builddir 
-        $(pysqlite-builddir)
-pysqlite-get
-
-pysqlite-install
-          this needs  "python-devel" when running against system python 
-
-pysqlite-test
+NB the SQLite version 3.7.17 is distinct from the pysqlite one 2.6.3
 
 
-
-::
-
-    [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python -c "import sqlite ; print sqlite.__file__"
-    /usr/lib/python2.3/site-packages/sqlite/__init__.pyc
-    [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python -c "import pysqlite2 ; print pysqlite2.__file__ "
-    /usr/lib/python2.3/site-packages/pysqlite2/__init__.pyc
-    [blyth@cms01 db]$ /usr/bin/python -c "from pysqlite2 import dbapi2 as _ ; print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) "
-    ('/usr/lib/python2.3/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
-
-
-
-Recommended build for older nodes 
-----------------------------------
+Static amalgamation install
+---------------------------
 
 Old Redhat nodes use a python sqlite binding for their yum installations
 which makes it problematic to upgrade to newer sqlite and python sqlite 
 bindings using rpm OR yum techniques.
 
-The older versions live under module *sqlite*::
+The older versions live under python module *sqlite*::
 
     [blyth@cms01 yum]$ /usr/bin/python -c "import sqlite as _ ; print (_.__file__,_._sqlite.sqlite_version(),_._sqlite.sqlite_version_info())"
     ('/usr/lib/python2.3/site-packages/sqlite/__init__.pyc', '3.3.6', (3, 3, 6))
@@ -81,12 +60,14 @@ Build like that using the *pysqlite-* bash functions::
 
      pysqlite-static-install
 
+                      # installs into the system python at /usr/bin/python
+
      pysqlite-version 
 
-                      # check the version is as expected
+                      # check the version is as expected for system python /usr/bin/python
 
 
-The *pysqlite-version* function just does the below::
+The *pysqlite-version* function does::
 
     [blyth@cms01 yum]$ /usr/bin/python -c "from pysqlite2 import dbapi2 as _ ; print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) "
     ('/usr/lib/python2.3/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
