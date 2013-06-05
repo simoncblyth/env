@@ -1,29 +1,29 @@
 sqlitebuild-src(){    echo sqlite/sqlitebuild/sqlitebuild.bash ; }
 sqlitebuild-source(){ echo ${BASH_SOURCE:-$(env-home)/$(sqlitebuild-src)} ; }
 sqlitebuild-vi(){     vi $(sqlitebuild-source) ; }
-sqlitebuild-usage(){
-  
-   cat << EOU
+sqlitebuild-usage(){ cat << EOU
+
+SQLite Building for Trac
+=========================
 
    
-      sqlitebuild-dir   :   $(sqlitebuild-dir) 
+sqlitebuild-dir   :   $(sqlitebuild-dir) 
    
-      sqlitebuild-get/configure/install/wipe/wipe-install
+sqlitebuild-get/configure/install/wipe/wipe-install
       
-      sqlitebuild-copy-to-node  <node-tag>
+sqlitebuild-copy-to-node  <node-tag>
               copy the tarball to another node
 
-      sqlitebuild-copy-from-node  <node-tag>
+sqlitebuild-copy-from-node  <node-tag>
               copy the tarball from another node
 
-      sqlitebuild-tgz-from-backup tgz
-
+sqlitebuild-tgz-from-backup tgz
               extract from the heprez backup tarball
               sqlite source tarball distribution has changed a lot,
               a brief look does not yield the old tarballs... so grab from backup
 
 
-      $(type sqlitebuild-again)
+$(type sqlitebuild-again)
 
 
 

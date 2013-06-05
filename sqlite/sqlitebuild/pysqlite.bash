@@ -1,7 +1,19 @@
 pysqlite-vi(){  vi $BASH_SOURCE ; }
-pysqlite-usage(){
+pysqlite-usage(){ cat << EOU
 
-  cat << EOU
+PySQLITE 
+==========
+
+https://pypi.python.org/pypi/pysqlite
+https://code.google.com/p/pysqlite/
+
+From https://code.google.com/p/pysqlite/downloads/list  June 2013
+only the following src distributions are available
+
+* 2.6.3, 2.6.2, 2.6.0
+* 2.5.6, 2.5.5
+
+
 
      pysqlite-name     :  $(pysqlite-name)
      pysqlite-home     :  $(pysqlite-home)
@@ -34,7 +46,8 @@ pysqlite-env(){
 pysqlite-name(){
    case ${1:-$NODE_TAG} in
     C2) echo pysqlite-2.6.3 ;;
-     *) echo pysqlite-2.3.3 ;;
+     *) echo pysqlite-2.6.3 ;;
+    GONE) echo pysqlite-2.3.3 ;;
    esac
 }
 
@@ -67,22 +80,15 @@ pysqlite-get(){
   local tgz=$nam.tar.gz
   local url=http://pysqlite.googlecode.com/files/$tgz
 
-  #local url=http://initd.org/pub/software/pysqlite/releases/2.3/2.3.3/$tgz
-
-  cd $SYSTEM_BASE
-  mkdir -p pysqlite
-  cd pysqlite 
-
-  test -f $tgz || curl -L -O $url
-  mkdir -p  build
-  test -d build/$nam || tar -C build -zxvf $tgz 
+  local dir=$(dirname $(dirname $(pysqlite-builddir))) &&  mkdir -p $dir && cd $dir 
+  [ ! -f "$tgz" ] && curl -L -O $url
+  [ ! -d build/$nam ] && mkdir -p buil && tar -C build -zxvf $tgz 
 }
 
 pysqlite-cd(){ cd $(pysqlite-builddir) ; }
 
 pysqlite-install(){
 
-   # http://initd.org/pub/software/pysqlite/doc/install-source.html
  
    local msg="=== $FUNCNAME :"
    sqlite-

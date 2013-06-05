@@ -1117,3 +1117,6 @@ distribute-(){      . $(env-home)/python/distribute.bash && distribute-env $* ; 
 find-(){      . $(env-home)/tools/find.bash && find-env $* ; }
 psutil-(){      . $(env-home)/tools/psutil.bash && psutil-env $* ; }
 mysqlrpm-(){      . $(env-home)/mysql/mysqlrpm.bash && mysqlrpm-env $* ; }
+pysqlite-(){    . $(env-home)/sqlite/sqlitebuild/pysqlite.bash    && pysqlite-env $* ; }
+
+

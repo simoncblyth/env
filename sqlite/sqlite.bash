@@ -2,30 +2,33 @@ sqlite-src(){    echo sqlite/sqlite.bash ; }
 sqlite-source(){ echo ${BASH_SOURCE:-$(env-home)/$(sqlite-src)} ; }
 sqlite-vi(){     vi $(sqlite-source) ; }
 sqlitebuild-(){ . $ENV_HOME/sqlite/sqlitebuild/sqlitebuild.bash && sqlitebuild-env $* ; }
-pysqlite-(){    . $ENV_HOME/sqlite/sqlitebuild/pysqlite.bash    && pysqlite-env $* ; }
 
-sqlite-usage(){
-
-   cat << EOU
+sqlite-usage(){ cat << EOU
  
-     sqlite-name   :  $(sqlite-name)
-     sqlite-home   :  $(sqlite-home)
-     which sqlite3 :  $(which sqlite3)       
+SQLite for Trac
+=================
+
+These functions and the precursors: sqlitebuild- and pysqlite-
+were prepared with Trac usage in mind. 
+
+
+sqlite-name   :  $(sqlite-name)
+sqlite-home   :  $(sqlite-home)
+which sqlite3 :  $(which sqlite3)       
             
-     sqlite-env :
+sqlite-env :
                    invoked by precursor
                    sets up the PATH and LD_LIBRARY_PATH or ldconfig
 
-     $(type sqlite-again)
+$(type sqlite-again)
 
-     sqlite-test 
+sqlite-test 
      
                    
-     Precursors...
+Precursors...
             
-     sqlitebuild-
-     pysqlite-
-
+sqlitebuild-
+pysqlite-
 
 
 EOU

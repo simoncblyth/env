@@ -18,6 +18,28 @@ Install that with yum via (you might need to enable EPEL repository to find it):
    sudo yum install python-sqlite2
 
 
+py2.3 where EPEL mirror doesnt provide dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Grab RPMs::
+
+    curl -L -O http://download.fedoraproject.org/pub/epel/4/i386/python-sqlite2-2.3.3-4.el4.i386.rpm
+    curl -L -O http://download.fedoraproject.org/pub/epel/4/i386/sqlite-3.3.6-0.3.el4.i386.rpm
+    curl -L -O http://download.fedoraproject.org/pub/epel/4/i386/sqlite-devel-3.3.6-0.3.el4.i386.rpm
+
+Check their content::
+
+    rpm -qlp python-sqlite2-2.3.3-4.el4.i386.rpm
+    rpm -qlp sqlite-devel-3.3.6-0.3.el4.i386.rpm
+    rpm -qlp sqlite-3.3.6-0.3.el4.i386.rpm
+
+And install::
+
+    rpm -i python-sqlite2-2.3.3-4.el4.i386.rpm
+    rpm -i sqlite-devel-3.3.6-0.3.el4.i386.rpm
+    rpm -i sqlite-3.3.6-0.3.el4.i386.rpm
+
+
 """
 import os, logging
 log = logging.getLogger(__name__)
