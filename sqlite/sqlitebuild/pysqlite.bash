@@ -44,8 +44,39 @@ pysqlite-test
     /usr/lib/python2.3/site-packages/sqlite/__init__.pyc
     [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python -c "import pysqlite2 ; print pysqlite2.__file__ "
     /usr/lib/python2.3/site-packages/pysqlite2/__init__.pyc
+    [blyth@cms01 db]$ /usr/bin/python -c "from pysqlite2 import dbapi2 as _ ; print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) "
+    ('/usr/lib/python2.3/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
 
-   
+
+Static Build
+--------------
+
+It is static in the sense that it doesnt use the system sqlite shared lib, but 
+rather uses the SQLite amalgamation statically compiled into the pysqlite2 extension.
+
+::
+
+    [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python setup.py build_static
+    running build_static
+    running build_py
+    running build_ext
+    building 'pysqlite2._sqlite' extension
+    ...
+    gcc -pthread -shared 
+         build/temp.linux-i686-2.3/src/module.o 
+         build/temp.linux-i686-2.3/src/connection.o 
+         build/temp.linux-i686-2.3/src/cursor.o 
+         build/temp.linux-i686-2.3/src/cache.o 
+         build/temp.linux-i686-2.3/src/microprotocols.o 
+         build/temp.linux-i686-2.3/src/prepare_protocol.o 
+         build/temp.linux-i686-2.3/src/statement.o 
+         build/temp.linux-i686-2.3/src/util.o 
+         build/temp.linux-i686-2.3/src/row.o 
+         build/temp.linux-i686-2.3/amalgamation/sqlite3.o
+      -o build/lib.linux-i686-2.3/pysqlite2/_sqlite.so
+
+
+       
 
 Test Failures
 ----------------
@@ -111,7 +142,42 @@ pysqlite-get(){
 
 pysqlite-cd(){ cd $(pysqlite-builddir) ; }
 
-pysqlite-install(){
+
+
+pysqlite-get-amalgamation(){
+  # visit http://sqlite.org/download.html and pick latest amalgamation name
+  local nam=sqlite-amalgamation-3071700
+  local zip=$nam.zip
+  local url=http://sqlite.org/2013/$zip
+  [ ! -f "$zip" ] && curl -L -O $url
+  pysqlite-cd
+  mkdir -p amalgamation
+  unzip -p $zip $nam/sqlite3.c > amalgamation/sqlite3.c
+  unzip -p $zip $nam/sqlite3.h > amalgamation/sqlite3.h
+}
+
+pysqlite-wipe(){
+  cd /usr/lib/python2.3/site-packages && rm -rf pysqlite2 
+}
+
+pysqlite-static-install(){
+  pysqlite-cd
+  pysqlite-get-amalgamation
+  sudo /usr/bin/python setup.py build_static install
+}
+
+pysqlite-version(){
+  /usr/bin/python -c "from pysqlite2 import dbapi2 as _ ; print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) "
+}
+
+
+
+
+
+
+
+
+pysqlite-shared-install(){
 
  
    local msg="=== $FUNCNAME :"

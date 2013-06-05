@@ -280,6 +280,8 @@ local-nodetag(){
         cms01) echo C ;;
         cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo ZZ ;;
+       dybdb1) echo D1 ;;
+       dybdb2) echo D2 ;;
          dyb1) echo YY ;;
          dyb2) echo ZZ ;;
        belle7) echo N ;;
@@ -465,6 +467,8 @@ local-system-base(){
         XX) echo /usr/local ;;
         YY) echo /usr/local ;;
         ZZ) echo /usr/local ;;
+        D1) echo /soft  ;;
+        D2) echo /soft  ;;
          *) echo $(local-base $*) ;;
    esac
 }

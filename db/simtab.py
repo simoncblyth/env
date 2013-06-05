@@ -49,6 +49,9 @@ try:
 except ImportError:
     from pysqlite2 import dbapi2 as sqlite
 
+def version_info():
+    _ = sqlite 
+    print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) 
 
 class Table(list):
     """
@@ -306,6 +309,7 @@ if __name__ == '__main__':
     log.addHandler(hdlr)
     log.setLevel(level)
 
+    version_info()
 
     ct = Table("/tmp/colors.db", "colors", label="text primary key" )
     ct("CREATE UNIQUE INDEX idx_colors ON colors (label);") 
