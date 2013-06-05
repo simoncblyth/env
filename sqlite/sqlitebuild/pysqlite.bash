@@ -1,8 +1,8 @@
 pysqlite-vi(){  vi $BASH_SOURCE ; }
 pysqlite-usage(){ cat << EOU
 
-PySQLITE 
-==========
+pysqlite2
+===========
 
 https://pypi.python.org/pypi/pysqlite
 https://code.google.com/p/pysqlite/
@@ -14,25 +14,49 @@ only the following src distributions are available
 * 2.5.6, 2.5.5
 
 
+Review setup.py 
+----------------
 
-     pysqlite-name     :  $(pysqlite-name)
-     pysqlite-home     :  $(pysqlite-home)
-     pysqlite-builddir : $(pysqlite-builddir)
-     
-     $(type pysqlite-again)
-    
-           NOTE no wiping implemented ye  ... perhaps could be easy installed ? BUT do need a cfg change
+#. has capability to download sqlite amalgamation 
 
-     pysqlite-get
 
-     pysqlite-install
+Bash Functions
+----------------
+
+pysqlite-name    
+        $(pysqlite-name)
+pysqlite-home     
+        $(pysqlite-home)
+pysqlite-builddir 
+        $(pysqlite-builddir)
+pysqlite-get
+
+pysqlite-install
           this needs  "python-devel" when running against system python 
 
+pysqlite-test
 
-     pysqlite-test
-         1/173 fails on grid1
-         cannot run on cms01 due to lack of bz2 
-         (python build on cms01 missing the module)
+
+
+::
+
+    [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python -c "import sqlite ; print sqlite.__file__"
+    /usr/lib/python2.3/site-packages/sqlite/__init__.pyc
+    [blyth@cms01 pysqlite-2.6.3]$ /usr/bin/python -c "import pysqlite2 ; print pysqlite2.__file__ "
+    /usr/lib/python2.3/site-packages/pysqlite2/__init__.pyc
+
+   
+
+Test Failures
+----------------
+
+grid1
+      1/173 fails 
+      
+cms01
+      cannot run due to lack of bz2, the 
+      python build misses the module
+
 
 
 EOU
@@ -82,7 +106,7 @@ pysqlite-get(){
 
   local dir=$(dirname $(dirname $(pysqlite-builddir))) &&  mkdir -p $dir && cd $dir 
   [ ! -f "$tgz" ] && curl -L -O $url
-  [ ! -d build/$nam ] && mkdir -p buil && tar -C build -zxvf $tgz 
+  [ ! -d build/$nam ] && mkdir -p build && tar -C build -zxvf $tgz 
 }
 
 pysqlite-cd(){ cd $(pysqlite-builddir) ; }
