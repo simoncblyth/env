@@ -36,6 +36,7 @@ Contents:
    :maxdepth: 2
 
    install
+   base/index
    TODO <TODO>
    LOG <log/May2012>
    Sys Admin <sysadmin/index>

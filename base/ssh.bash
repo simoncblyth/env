@@ -7,281 +7,296 @@ ssh--env(){ elocal- ; }
 #ssh--(){   . $(ssh--source) && ssh--env $* ; }  ## non standard locatio for precursor 
 
 
-ssh--log(){ cat << EOL
+ssh--usage(){ cat << EOU
 
-   2012 May 7 
-       From scratch setup on replacement cms02 to allow scm-backup-rsync
+*ssh--* Bash Functions
+==========================
 
-        [root@cms02 ~]# sshconf-
-        [root@cms02 ~]# local-tags                        ## corresponds to backup nodes
-        C N H1
-        [root@cms02 ~]# sshconf-gen                       ## generate .ssh/config with sections for the local-tags
+.. contents:: :local:
 
-        [root@cms02 .ssh]# mv id_rsa id_rsa.pub former/   ## move aside old keys that I do not has passphrases for
-        [root@cms02 .ssh]# ssh--keygen
-        [root@cms02 ~]# ssh--putkeys                      ## mammoth session of password and passphrase entry to all backup nodes
+References
+------------
 
-        [root@cms02 ~]# ssh--agent-start
-        [root@cms02 ~]# scm-backup-rsync                  ## manual test of backup 
+* debugging tips http://blog.codefront.net/2007/02/28/debugging-ssh-public-key-authentication-problems/
 
+Passwordless SSH setup
+-----------------------------
 
+.. warning:: the permissions setting is crucial, without this the passwordless connection fails, with no error message the keys are just silently ignored
 
-   Hardening suggestions
-   ~~~~~~~~~~~~~~~~~~~~~~~ 
+Create keys on source machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In /etc/sshd_config you might want to uncomment the lines:
+Remember to kill the agent if a prior one is running:: 
 
-     PasswordAuthentication no
-     PermitEmptyPasswords no
-
-  Also, you want to make sure you have
-   
-     RSAAuthentication yes
-     PubkeyAuthentication yes
-
- After this is done, you need to restart the ssh daemon. This is done in OSX with the following commands:
+    source> ssh--keygen 
      
-     sudo launchctl stop com.openssh.sshd
-     sudo launchctl start com.openssh.sshd
+A passphrase will be promted for twice, and key pairs created at::
 
- Then, you can generate yourself an SSH key for logging in. A good command for this is 
-
-      ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa
-
-
-EOL
-}
-
-ssh--usage(){
-
-cat << EOU
+    ~/.ssh/id_rsa
+    ~/.ssh/id_dsa
+    ~/.ssh/id_rsa.pub
+    ~/.ssh/id_dsa.pub
 
 
-  == ssh debugging ==
+Copy public keys to target
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-      http://blog.codefront.net/2007/02/28/debugging-ssh-public-key-authentication-problems/
+If you have password access to the target::
 
+    source> ssh--putkey target
+  
+Otherwise copy/paste or attach the public *.pub* keys 
+to an email and send to administrator of target machine.
 
-   == Issues : openssh openssl version mismatch ==
+Start the SSH agent on source machine
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Start the agent and give it the keys on the source machine,
+the passphrase used at key creation will be prompted for 
 
-      * http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/328
+::
 
-       resolved by uninstall/reinstall : but git was casualty
-
-	simon:~ blyth$ sudo port uninstall openssh @5.5p1_2
-	--->  Unable to uninstall openssh @5.5p1_2, the following ports depend on it:
-	--->  	git-core @1.6.3.1_0+doc+svn
-	--->  	git-core @1.7.2.2_0+doc
-	Error: port uninstall failed: Please uninstall the ports that depend on openssh first.
-	simon:~ blyth$ 
-
-
-
-    == Basic Setup ==
-
-    NB the permissions setting is crucial, without this the passwordless
-    connection fails, with no error message ... the keys are just silently ignored
-   
-     to setup passwordless from source to target need :
-   
-        create the keys on the source machine
-            source> ssh--keygen 
-        remember to kill the agent if a prior one is running 
-   
-        copy the public keys to the target machine
-            source> ssh--putkey target
-   
-         start the agent and give it the keys on the source machine,
-         the passphrase used at key creation will be prompted for 
-
-            source>  ssh--agent-start
+    source>  ssh--agent-start
 
 
-    == connecting without using keys (ie force revert to passwords) ==
+Debugging Tips
+----------------
+
+Connect without the keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For debugging or to avoid running a "forced" command (eg from gateway to internal node)
+it is sometimes useful to revert to password authentication. Do so with::
+
+     source> ssh -o PubkeyAuthentication=no VT
+
+This setting can be persisted in the config file under a new host name
+(add to ~/.ssh-local-config then *sshconf-gen*  if using *sshconf-*)
+::
+
+     host VTN
+          hostname gateway.domain
+          protocol 2
+          PubkeyAuthentication no
 
 
-        For debugging or to avoid running a "forced" command (eg from gateway to internal node)
-        it is sometimes useful to revert to password authentication... do so with
+Troubleshoot Passwordless access not working
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-             ssh -o PubkeyAuthentication=no VT
+ssh works via client-daemon with config files for 
+both client (man ssh_config) and daemon (man sshd_config) 
+on both the nodes you are connecting 
 
-        Persist this setting in the config file under a new name (add to ~/.ssh-local-config then sshconf-gen  )
+All 4 config files need to be reviewed and have:
 
-             host VTN
-                hostname gateway.domain
-                protocol 2
-                PubkeyAuthentication no
-
-
-     == Troubleshoot Passwordless access not working ==
-
-        ssh uses client-daemon with config files for 
-        both client (man ssh_config) and daemon (man sshd_config) 
-        on both the nodes you are connecting 
-
-        all 4 config files need to be reviewed and have :
-          *  client settings should use "Protocol 2" or "2,1" (NOT with 1 first)  
-          *  daemon settings should use 
-                 AuthorizedKeysFile .ssh/authorized_keys2
+* client settings should use "Protocol 2" or "2,1" (NOT with 1 first)
+* daemon settings should use *AuthorizedKeysFile .ssh/authorized_keys2*
 
 
+Recover from a forgotten passphrase 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-     == recover from forgotten passphrase ==
+#. create a new key pair 
+#. transfer public keys to target and append to authorized_keys2
 
-        #. create a new key pair 
-        #. transfer public keys to target 
-           and append to authorized_keys2
+::
 
-               scp ~/Downloads/id_dsa.pub C:.ssh/dybdb1.id_dsa.pub
-               scp ~/Downloads/id_rsa.pub C:.ssh/dybdb1.id_rsa.pub
-               C >  cd .ssh ; cat dybdb1.id_dsa.pub dybdb1.id_rsa.pub >> authorized_keys2
+   scp ~/Downloads/id_dsa.pub C:.ssh/dybdb1.id_dsa.pub
+   scp ~/Downloads/id_rsa.pub C:.ssh/dybdb1.id_rsa.pub
+   C >  cd .ssh ; cat dybdb1.id_dsa.pub dybdb1.id_rsa.pub >> authorized_keys2
 
-         NB this can be automated with ``ssh--putkey`` when you have control of both ends 
+NB this can be automated with *ssh--putkey* when you have control of both ends 
+
+Appending keys for restricted no-login shell identity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sudo vi  ~dayabayscp/.ssh/authorized_keys2
+    sudo bash -c "cat dybdb1.* >>  ~dayabayscp/.ssh/authorized_keys2"  
 
 
-               sudo vi  ~dayabayscp/.ssh/authorized_keys2
-               sudo bash -c "cat dybdb1.* >>  ~dayabayscp/.ssh/authorized_keys2"  
 
 
-     == Server/Backup Management ==
+How to handle scponly nodes + roots keys ? 
+----------------------------------------------
 
-         
-     ssh--designated-key  : $(ssh--designated-key)
-           the pubkey for the node that is currently the designated server
+Receive keys as copy/pastes within email on Mac laptop. Paste em into files and scp over to target::
 
-     ssh--designated-tags : $(ssh--designated-tags)
-           tags of the backup nodes for the designated server 
+    simon:~ blyth$ pbpaste > D2.id_rsa.pub
+    simon:~ blyth$ pbpaste > D2.id_dsa.pub
+    simon:~ blyth$ scp D2* C:
 
-     ssh--server-authkeys
-           Grabs the designated key, is not already present and distributes 
-           it to the backup nodes that need it. 
+    [blyth@cms01 ~]$ sudo bash -c "cat D2* >> ~dayabayscp/.ssh/authorized_keys2 "
+    [blyth@cms01 ~]$ sudo vi  /home/dayabayscp/.ssh/authorized_keys2    # manually added some new lines
 
-           This needs to be rerun 
-              * after changing backup tags or designated server
-              
-           OR can be re-run just to check the keys  are inplace 
-              
 
-     == User Level Utilities ==
 
-     ssh--info
+Utilities and informational functions
+----------------------------------------
+
+*ssh--info*
           dump agent pid etc..
 
-     ssh--tunnel <tag:N> <port:8080>
+*ssh--tunnel <tag:N> <port:8080>*
           tunnel remote port onto local machine ...
-          remember yiou will probably also need to edit 
-          ~/e/proxy/socks.pac and reload it in 
+          remember you will probably also need to edit 
+          *~/e/proxy/socks.pac* and reload it in 
           Firefox > Preferences > 
 
           An issue with this is that privileged ports can only be
-          forwarded by root ... but the nodes that would want to tunnel
+          forwarded by root, but the nodes that would want to tunnel
           to usually would have password access switched off so that means
-          would have to setup ssh keys for root ... 
+          would have to setup ssh keys for root.
 
           So probably easier to prick holes in the iptables for specific ips
           while testing 
 
-
-     ssh--lskey 
+*ssh--lskey* 
           list keys in local authorized_keys2
       
-          NB the entries indicate nodes/accounts from which this one can be 
-             accessed vi  ssh key ... should be kept to the minimum needed 
+          the entries indicate nodes/accounts from which this one can be 
+          accessed via ssh key. These should be kept to the minimum needed 
 
-     ssh--tags : $(ssh--tags)
-     ssh--rlskey 
-         list keys in all the remote nodes
+*ssh--tags* 
+          list of remote nodes that are ssh accessible
+     
+*ssh--rlskey* 
+          list keys in all the remote nodes
 
 
-     == Deprecated early incarnation ==
+Server/Backup Management
+--------------------------
 
- 
-     ssh--rmkey <type> <name> <node>
+.. warning:: not yet operational
+
+When using a hub node which is backed up to 
+multiple backup nodes, there can be quite a few keys to juggle.
+
+         
+*ssh--designated-key*
+           the pubkey for the node that is currently the designated server
+
+*ssh--designated-tags* 
+           tags of the backup nodes for the designated server 
+
+*ssh--server-authkeys*
+           Grabs the designated key, is not already present and distributes 
+           it to the backup nodes that need it. 
+
+           This needs to be rerun 
+           after changing backup tags or designated server
+           OR can be re-run just to check the keys  are inplace 
+              
+
+Deprecated early incarnation 
+-----------------------------
+
+*ssh--rmkey <type> <name> <node>*
+
           delete keys from local authorized_keys2
-          things that fit into a perlre can be used ie
+          things that fit into a perlre can be used ie::
          
              ssh--rmkey ".*" ".*" "pal.nuu.edu.tw"
              ssh--rmkey "..." "blyth" "al14"            
              ssh--rmkey  ".*" "blyth" "C2" 
 
 
+Basis functions for key management 
+------------------------------------
 
-     == Basis functions for key management ==  
+*ssh--delkey <tag> <path-to-key>*
+        delete remote pubkey entry in authorized_keys{,2}
 
-     ssh--delkey <tag> <path-to-key>
-           delete remote pubkey entry in authorized_keys{,2}           
+*ssh--haskey <tag> <path-to-key>*
+        remote grep of authorized_keys{,2} to see if pubkey is present 
 
-     ssh--haskey <tag> <path-to-key>
-           remote grep of authorized_keys{,2} to see if pubkey is present 
-
-     ssh--addkey <tag> <path-to-key>
-
-        Usage example :
-           cd /tmp  ; scp N:.ssh/id_rsa.pub id_rsa.pub   ## grab the key of the new node
-           ssh--addkey H id_rsa.pub                   ## append it on the target 
-           rm id_rsa.pub
-
-        This is useful to extend access to a node that accepts login only via key 
+*ssh--addkey <tag> <path-to-key>*
+        This is useful to extend access to a node that accepts login only via key
         to a new node, via transferring the nodes key via a
-        node that already has keyed access. 
+        node that already has keyed access.::
 
-     ssh--inikey <tag> <path-to-key>
-
-         Like addkey but scrub prior authorized_keys{,2} entries 
-
-     ssh--distribute-key  <path-to-key> tag1 tag2 ...
-          distribute the public key into the authorized_keys2 on the 
-          destination tags 
-
-     ssh--retract-key  <path-to-key> tag1 tag2 ...
-          delete the public key from the authorized keys of the destination tags 
+            cd /tmp  ; scp N:.ssh/id_rsa.pub id_rsa.pub   ## grab the key of the new node
+            ssh--addkey H id_rsa.pub                      ## append it on the target 
+            rm id_rsa.pub
 
 
-    == Functions depending/supporting a key naming convention ==  
+*ssh--inikey <tag> <path-to-key>*
+        Like addkey but scrub prior authorized_keys{,2} entries
 
-     ssh--designated-key : $(ssh--designated-key) 
-     ssh--key2base <path-to-key>
-     ssh--key2tag  <path-to-key>
-          extract the tag and base when the key name conforms to convention 
-          eg for name P.id_rsa ... would return base id_rsa and tag P
+*ssh--distribute-key  <path-to-key> tag1 tag2 etc*
+        distribute the public key into the authorized_keys2 on the destination tags
 
-     ssh--grab-key <local-path-to-key>
-           Copy the key from remote node and store at the specified path, the 
-           form of the basename must follow the naming convention in order to identify 
-           which node to get it from and which type of key to get
-             eg:
-                ssh--grab-key $HOME/.ssh/YY.id_rsa.pub
-
-                would get  YY:.ssh/id_rsa.pub
+*ssh--retract-key  <path-to-key> tag1 tag2 etc*
+        delete the public key from the authorized keys of the destination tags
 
 
-    == Ideas ==
-  
-    ssh--appendtag <target-tag> <new-tag> 
-        NOT YET IMPLEMENTED
-        
-        Automate the key grabbing and cleanup of the above example allowing : 
-            ssh--appendtag H N
+Functions depending/supporting a key naming convention 
+---------------------------------------------------------
+
+*ssh--designated-key*
+          path to designated key 
+
+*ssh--key2base <path-to-key>*
+          extracted base eg **id_rsa** assuming key naming convention  
+
+*ssh--key2tag  <path-to-key>*
+          extracted tag eg **P** for name **P.id_rsa**
+
+*ssh--grab-key <local-path-to-key>*
+          Copy the key from remote node and store at the specified path, the 
+          form of the basename must follow the naming convention in order to identify 
+          which node to get it from and which type of key to get. eg::
+
+                ssh--grab-key $HOME/.ssh/YY.id_rsa.pub   # grab remote key YY:.ssh/id_rsa.pub
+
+Issues
+-------
+
+openssh/openssl version mismatch 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://dayabay.phys.ntu.edu.tw/tracs/env/ticket/328
+
+resolved by uninstall/reinstall : but git was a casualty
+
+::
+
+    simon:~ blyth$ sudo port uninstall openssh @5.5p1_2
+    --->  Unable to uninstall openssh @5.5p1_2, the following ports depend on it:
+    --->  git-core @1.6.3.1_0+doc+svn
+    --->  git-core @1.7.2.2_0+doc
+    Error: port uninstall failed: Please uninstall the ports that depend on openssh first.
+    simon:~ blyth$
 
 
-    == How to handle scponly nodes + roots keys ?  ==
 
-        Need to identify same node neibour tag which is sudoer  
-        and manipulate from there ...         
-  
-            sudo bash -c "cat .ssh/authorized_keys2 >> ../dayabayscp/.ssh/authorized_keys2 "
+SSH Hardening suggestions
+----------------------------
+
+In /etc/sshd_config you might want to uncomment the lines::
+
+     PasswordAuthentication no
+     PermitEmptyPasswords no
+
+Also, you want to make sure you have::
+   
+     RSAAuthentication yes
+     PubkeyAuthentication yes
+
+After this is done, you need to restart the ssh daemon. This is done in OSX with the following commands::
+     
+     sudo launchctl stop com.openssh.sshd
+     sudo launchctl start com.openssh.sshd
 
 
+Related
+--------
 
-
-    == Related ==
-
-     Related function precursors ..
-          sshconf-     ## used for generating the .ssh/config file
+*sshconf-*     
+        generates the *.ssh/config* file based on env managed node specifications. See *local-vi*
           
-     The details of the specific nodes etc... are in :
-          local-vi
 
 
 EOU

@@ -5,6 +5,7 @@ Tools
 .. toctree::
 
     svnlog
+    psutil
 
 
 
