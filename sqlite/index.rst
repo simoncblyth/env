@@ -1,0 +1,8 @@
+
+SQLite
+=======
+
+.. toctree::
+
+    pysqlite
+

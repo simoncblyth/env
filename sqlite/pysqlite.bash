@@ -4,8 +4,8 @@ pysqlite-usage(){ cat << EOU
 pysqlite2
 ===========
 
-https://pypi.python.org/pypi/pysqlite
-https://code.google.com/p/pysqlite/
+* https://pypi.python.org/pypi/pysqlite
+* https://code.google.com/p/pysqlite/
 
 From https://code.google.com/p/pysqlite/downloads/list  June 2013
 only the following src distributions are available
@@ -48,8 +48,62 @@ pysqlite-test
     ('/usr/lib/python2.3/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
 
 
-Static Build
---------------
+
+Recommended build for older nodes 
+----------------------------------
+
+Old Redhat nodes use a python sqlite binding for their yum installations
+which makes it problematic to upgrade to newer sqlite and python sqlite 
+bindings using rpm OR yum techniques.
+
+The older versions live under module *sqlite*::
+
+    [blyth@cms01 yum]$ /usr/bin/python -c "import sqlite as _ ; print (_.__file__,_._sqlite.sqlite_version(),_._sqlite.sqlite_version_info())"
+    ('/usr/lib/python2.3/site-packages/sqlite/__init__.pyc', '3.3.6', (3, 3, 6))
+
+To get around the impasse install pysqlite2 from its source distribution 
+in *build_static* mode, in order to grab the lastest sqlite3 amalgamation and 
+compile that directly into the python extension, avoiding issues of linking 
+against the old shared sqlite libs, or accidentally upgrading them.
+
+Build like that using the *pysqlite-* bash functions::
+
+     cd ~/env
+     svn up           # update env 
+     env-
+     pysqlite-
+
+     pysqlite-get     # download the pysqlite source distribute
+
+     pysqlite-get-amalgamation http://sqlite.org/2013/sqlite-amalgamation-3071700.zip
+
+                      # determine the amalgamation url by perusing http://sqlite.org/download.html
+
+     pysqlite-static-install
+
+     pysqlite-version 
+
+                      # check the version is as expected
+
+
+The *pysqlite-version* function just does the below::
+
+    [blyth@cms01 yum]$ /usr/bin/python -c "from pysqlite2 import dbapi2 as _ ; print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) "
+    ('/usr/lib/python2.3/site-packages/pysqlite2/dbapi2.pyc', '3.7.17', (3, 7, 17), '2.6.3', (2, 6, 3))
+
+Note that the updated version is typically accessed via python import::
+
+     from pysqlite2 import dbapi2 as sqlite     
+
+This means that existing users of the ancient python sqlite bindings such as yum are not disturbed, 
+and can continue to::
+ 
+     import sqlite
+
+
+
+Build Static pysqlite
+------------------------
 
 It is static in the sense that it doesnt use the system sqlite shared lib, but 
 rather uses the SQLite amalgamation statically compiled into the pysqlite2 extension.
@@ -76,7 +130,7 @@ rather uses the SQLite amalgamation statically compiled into the pysqlite2 exten
       -o build/lib.linux-i686-2.3/pysqlite2/_sqlite.so
 
 
-       
+
 
 Test Failures
 ----------------
@@ -130,11 +184,12 @@ pysqlite-again(){
 }
 
 pysqlite-get(){
-  
+  local msg="=== $FUNCNAME :"
   local nam=$(pysqlite-name)
   local tgz=$nam.tar.gz
   local url=http://pysqlite.googlecode.com/files/$tgz
 
+  echo $msg url $url
   local dir=$(dirname $(dirname $(pysqlite-builddir))) &&  mkdir -p $dir && cd $dir 
   [ ! -f "$tgz" ] && curl -L -O $url
   [ ! -d build/$nam ] && mkdir -p build && tar -C build -zxvf $tgz 
@@ -142,13 +197,13 @@ pysqlite-get(){
 
 pysqlite-cd(){ cd $(pysqlite-builddir) ; }
 
-
-
 pysqlite-get-amalgamation(){
-  # visit http://sqlite.org/download.html and pick latest amalgamation name
-  local nam=sqlite-amalgamation-3071700
-  local zip=$nam.zip
-  local url=http://sqlite.org/2013/$zip
+  local msg="=== $FUNCNAME :"
+  local url=$1
+  local zip=$(basename $url)
+  local nam=${zip/.zip}
+  echo $msg url $url zip $zip nam $nam 
+
   [ ! -f "$zip" ] && curl -L -O $url
   pysqlite-cd
   mkdir -p amalgamation
@@ -157,12 +212,11 @@ pysqlite-get-amalgamation(){
 }
 
 pysqlite-wipe(){
-  cd /usr/lib/python2.3/site-packages && rm -rf pysqlite2 
+  cd /usr/lib/python2.3/site-packages && sudo rm -rf pysqlite2 
 }
 
 pysqlite-static-install(){
   pysqlite-cd
-  pysqlite-get-amalgamation
   sudo /usr/bin/python setup.py build_static install
 }
 

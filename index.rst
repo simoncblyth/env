@@ -53,6 +53,7 @@ Contents:
    tools/index
    mysqlhotcopy/index
    mysql/index
+   sqlite/index
    db/index
 
 Indices and tables
