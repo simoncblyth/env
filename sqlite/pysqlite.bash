@@ -185,8 +185,8 @@ pysqlite-get-amalgamation(){
   local nam=${zip/.zip}
   echo $msg url $url zip $zip nam $nam 
 
-  [ ! -f "$zip" ] && curl -L -O $url
   pysqlite-cd
+  [ ! -f "$zip" ] && curl -L -O $url
   mkdir -p amalgamation
   unzip -p $zip $nam/sqlite3.c > amalgamation/sqlite3.c
   unzip -p $zip $nam/sqlite3.h > amalgamation/sqlite3.h
