@@ -1782,35 +1782,25 @@ OR what about DBI::
 Review belle7 Databases
 --------------------------
 
-`tmp_ligs_offline_db_0`
-              DB in which `DqChannelStatus` was repaired
-`tmp_ligs_offline_db_1`
-              freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
-`tmp_ligs_offline_db_2`
-              four tables with faked LOCALSEQNO 
-`tmp_ligs_offline_db_3`
-              looks to be the same as `_2`
-`tmp_ligs_offline_db_4`
-              created while testing dumplocal/loadlocal, omitted LOCALSEQNO
-`channelquality_db`
-              DB created from extraction of belle1 hotcopy tarball `/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz`
-
-
-creation of  `tmp_ligs_offline_db_4`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
- 
-    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
-    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
-
-
 database summaries
 ~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_\\d summary
+    [blyth@belle7 DybPython]$ ./dbsrv.py channelquality_db summary
+
+    channelquality_db
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    DqChannel                       62126016    2013-05-30 18:52:51             2013-05-30 18:52:51           
+    DqChannelStatus                 62126016    2013-05-30 18:17:42             2013-05-30 18:17:42           
+    DqChannelStatusVld              323573      2013-05-30 18:52:44             None                          
+    DqChannelVld                    323573      2013-05-30 19:34:55             None                          
+    LOCALSEQNO                      3           2013-05-30 19:35:02             None                          
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    [blyth@belle7 DybPython]$ ./dbsrv.py tmp_ligs_offline_db_\\d summary      ## regexp argument to dbsrv.py
 
     tmp_ligs_offline_db_0
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1875,48 +1865,408 @@ database summaries
 
 
 
-    [blyth@belle7 DybPython]$ ./dbsrv.py channelquality_db summary
+`tmp_ligs_offline_db_0`
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-    channelquality_db
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    TABLE_NAME                      TABLE_ROWS  CREATE_TIME                     CHECK_TIME                    
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    DqChannel                       62126016    2013-05-30 18:52:51             2013-05-30 18:52:51           
-    DqChannelStatus                 62126016    2013-05-30 18:17:42             2013-05-30 18:17:42           
-    DqChannelStatusVld              323573      2013-05-30 18:52:44             None                          
-    DqChannelVld                    323573      2013-05-30 19:34:55             None                          
-    LOCALSEQNO                      3           2013-05-30 19:35:02             None                          
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    [blyth@belle7 DybPython]$ 
+#. DB in which `DqChannelStatus` was repaired, and `DqChannel` added in, both from hotcopy tarballs
+#. retains  `AUTO_INCREMENT=341126`  
+
+`tmp_ligs_offline_db_1`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. freshly created DB populated via the mysqldump obtained from `_0` with the bad SEQNO excluded 
+#. `AUTO_INCREMENT` not preserved
+
+`tmp_ligs_offline_db_2`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. four tables with faked LOCALSEQNO, obtained from a mysqldump of `_0` with  `SEQNO <= 323573` 
+#. `AUTO_INCREMENT` not preserved
+
+`tmp_ligs_offline_db_3`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. looks to be the same as `_2`
+
+`tmp_ligs_offline_db_4`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. created while testing dumplocal/loadlocal, omitted LOCALSEQNO
+#. `AUTO_INCREMENT=341126`    dbsrv.py dumplocal/loadlocal from `_0` 
+
+::
+ 
+    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_0 dumplocal ~/tmp_ligs_offline_db_0 --where 'SEQNO <= 323573' -l debug 
+    [blyth@belle7 DybPython]$ time ./dbsrv.py tmp_ligs_offline_db_4 loadlocal ~/tmp_ligs_offline_db_0  -l debug --DB_DROP_CREATE -C
 
 
-Test use of partitioned dumplocal for large table diffing 
------------------------------------------------------------
+`tmp_ligs_offline_db_5`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. `AUTO_INCREMENT=341126`   small partitioned load check with dbsrv.py dumplocal/loadlocal from `_0`
+
+`channelquality_db`
+~~~~~~~~~~~~~~~~~~~~~
+
+#. DB created from extraction of belle1 hotcopy tarball `/data/var/dbbackup/mysqlhotcopy/belle1.nuu.edu.tw/channelquality_db/20130530_2029.tar.gz`
+#. no `AUTO_INCREMENT` as lost that via the mysqldump that created 
+
+`channelquality_db_0`
+~~~~~~~~~~~~~~~~~~~~~~~
+
+#. DB created from partitioned dump of `channelquality_db`
+
+Partitioned dumplocal/loadlocal::
+
+    #17 19 * * * ( $DYBPYTHON_DIR/dbsrv.py channelquality_db dumplocal /tmp/cq/channelquality_db --partition --partitioncfg 10000,0,33 ) >  $CRONLOG_DIR/dbsrv_dump_.log 2>&1
+    #03 20 * * * ( $DYBPYTHON_DIR/dbsrv.py channelquality_db_0 loadlocal  /tmp/cq/channelquality_db --partition --partitioncfg 10000,0,33 --DB_DROP_CREATE -C ) > $CRONLOG_DIR/dbsrv_load_.log 2>&1
+
+
+
+testing DB diffing
+~~~~~~~~~~~~~~~~~~~~
+
+Dumping 10k SEQNO takes about 30s::
+
+
+    [blyth@belle7 ~]$ dbsrv tmp_ligs_offline_db_0 dumplocal /tmp/cq/tmp_ligs_offline_db_0 --partition --partitioncfg 10000,0,2 
+    2013-06-05 17:50:34,911 __main__ INFO     /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000 
+    2013-06-05 17:50:48,550 __main__ INFO     dumplocal partition 0 SEQNO,0 1:10000 --partitioncfg 10000,0,2 
+    2013-06-05 17:50:48,550 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannel.csv 
+    2013-06-05 17:51:05,411 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannel.csv took 16.86 seconds 
+    2013-06-05 17:51:05,411 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatus.csv 
+    2013-06-05 17:51:12,441 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatus.csv took  7.03 seconds 
+    2013-06-05 17:51:12,442 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatusVld.csv 
+    2013-06-05 17:51:12,514 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatusVld.csv took  0.07 seconds 
+    2013-06-05 17:51:12,515 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelVld.csv 
+    2013-06-05 17:51:12,794 __main__ INFO     partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelVld.csv took  0.28 seconds 
+    2013-06-05 17:51:13,092 __main__ INFO     /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000 
+    2013-06-05 17:51:29,136 __main__ INFO     dumplocal partition 1 SEQNO,0 10001:20000 --partitioncfg 10000,0,2 
+    2013-06-05 17:51:29,195 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannel.csv 
+    2013-06-05 17:51:46,344 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannel.csv took 17.15 seconds 
+    2013-06-05 17:51:46,345 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelStatus.csv 
+    2013-06-05 17:51:53,409 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelStatus.csv took  7.06 seconds 
+    2013-06-05 17:51:53,410 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelStatusVld.csv 
+    2013-06-05 17:51:53,468 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelStatusVld.csv took  0.06 seconds 
+    2013-06-05 17:51:53,468 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelVld.csv 
+    2013-06-05 17:51:53,674 __main__ INFO     partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/tmp_ligs_offline_db_0/10000/1/DqChannelVld.csv took  0.21 seconds 
+    [blyth@belle7 ~]$ 
+
+
+Hmm difference with validity table SEQNO autoincrement ?::
+
+    [blyth@belle7 ~]$ diff -r --brief /tmp/cq/channelquality_db/10000/0/ /tmp/cq/tmp_ligs_offline_db_0/10000/0/
+    Files /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatusVld.schema differ
+    Files /tmp/cq/channelquality_db/10000/0/DqChannelVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelVld.schema differ
+    [blyth@belle7 ~]$ 
+    [blyth@belle7 ~]$ diff /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.schema   /tmp/cq/tmp_ligs_offline_db_0/10000/0/DqChannelStatusVld.schema -y
+    CREATE TABLE `DqChannelStatusVld` (                             CREATE TABLE `DqChannelStatusVld` (
+      `SEQNO` int(11) NOT NULL,                                   |   `SEQNO` int(11) NOT NULL auto_increment,
+      ... 
+      `TIMEEND` datetime NOT NULL,                                    `TIMEEND` datetime NOT NULL,
+      PRIMARY KEY  (`SEQNO`)                                          PRIMARY KEY  (`SEQNO`)
+    ) ENGINE=MyISAM DEFAULT CHARSET=latin1                        | ) ENGINE=MyISAM AUTO_INCREMENT=341126 DEFAULT CHARSET=latin1[blyth@belle7 ~]$ 
+
+
+Cause of the diff::
+
+    [blyth@belle7 ~]$ echo show create table DqChannelStatusVld | tmp_ligs_offline_db_0 | grep ENGINE
+    ) ENGINE=MyISAM AUTO_INCREMENT=341126 DEFAULT CHARSET=latin1 | 
+
+    [blyth@belle7 ~]$ echo show create table DqChannelStatusVld | channelquality_db  | grep ENGINE
+    ) ENGINE=MyISAM DEFAULT CHARSET=latin1 | 
+
+    [blyth@belle1 ~]$ echo show create table DqChannelStatusVld | channelquality_db | grep ENGINE
+    ) ENGINE=MyISAM DEFAULT CHARSET=latin1 | 
+
+
+Checking for autoincrement::
+
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_0   # AUTO_INCREMENT=341126   from hotcopy extractions
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_1   # nope                   
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_2   # nope
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_3   # nope
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_4   # AUTO_INCREMENT=341126    dbsrv.py dumplocal from _0 then loadlocal 
+     echo show create table DqChannelStatusVld | tmp_ligs_offline_db_5   # AUTO_INCREMENT=341126    small partitioned check using dbsrv.py dumplocal locallocal
+     echo show create table DqChannelStatusVld | channelquality_db       # nope  from dbdumpload.py   
+     echo show create table DqChannelStatusVld | channelquality_db_0     # nope
+
+
+dbdumpload.py is omitting auto increment settings ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    [blyth@belle7 DybPython]$ ./dbsrv.py channelquality_db dumplocal /tmp/cq/channelquality_db --partition --partitioncfg 10000,0,2
-    INFO:__main__:names: ['channelquality_db'] 
-    INFO:__main__:/* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000 
-    INFO:__main__:dumplocal partition 0 SEQNO,0 1:10000 --partitioncfg 10000,0,2 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannel.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannel.csv took 16.26 seconds 
-          1 SHELL=/bin/bash
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatus.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatus.csv took  6.35 seconds 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelStatusVld.csv took  0.16 seconds 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelVld.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 1  /2  */ SEQNO >= 1 and SEQNO <= 10000  writing /tmp/cq/channelquality_db/10000/0/DqChannelVld.csv took  0.28 seconds 
-    INFO:__main__:/* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000 
-    INFO:__main__:dumplocal partition 1 SEQNO,0 10001:20000 --partitioncfg 10000,0,2 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannel.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannel.csv took 15.52 seconds 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatus.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatus.csv took  5.74 seconds 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatusVld.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelStatusVld.csv took  0.06 seconds 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelVld.csv 
-    INFO:__main__:partition_dumplocal___ /* 10000-partition 2  /2  */ SEQNO >= 10001 and SEQNO <= 20000  writing /tmp/cq/channelquality_db/10000/1/DqChannelVld.csv took  0.05 seconds 
-    [blyth@belle7 DybPython]$ 
-    [blyth@belle7 DybPython]$ 
+    [blyth@belle7 ~]$ dbdumpload.py --no-data --tables "DqChannelVld DqChannelStatusVld" tmp_ligs_offline_db_0 dump /dev/stdout  | sh 
+
+
+
+
+mysql bug wrt dumping `AUTO_INCREMENT`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Somehow `AUTO_INCREMENT` setting got lost OR was included when it should not be
+
+* http://bugs.mysql.com/bug.php?id=20786
+* http://bugs.mysql.com/bug.php?id=22941
+
+* http://dev.mysql.com/doc/refman/5.0/en/mysqldump.html
+
+
+create table and autoincrement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* http://dev.mysql.com/doc/refman/5.0/en/create-table.html
+
+An integer or floating-point column can have the additional attribute
+`AUTO_INCREMENT`. When you insert a value of NULL (recommended) or 0 into an
+indexed `AUTO_INCREMENT` column, the column is set to the next sequence value.
+Typically this is value+1, where value is the largest value for the column
+currently in the table. `AUTO_INCREMENT` sequences begin with 1.
+
+
+
+The initial `AUTO_INCREMENT` value for the table. In MySQL 5.0, this works for
+MyISAM and MEMORY tables. It is also supported for InnoDB as of MySQL 5.0.3. To
+set the first auto-increment value for engines that do not support the
+`AUTO_INCREMENT` table option, insert a *dummy* row with a value one less than
+the desired value after creating the table, and then delete the dummy row.
+
+For engines that support the `AUTO_INCREMENT` table option in `CREATE TABLE`
+statements, you can also use `ALTER TABLE tbl_name AUTO_INCREMENT = N` to reset
+the `AUTO_INCREMENT` value. The value cannot be set lower than the maximum value
+currently in the column.
+
+
+
+altering `auto_increment`
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* DBI will probably ignore the `AUTO_INCREMENT` and come up with its own next SEQNO
+* but can alter table to set it anyhow
+
+::
+
+    mysql> show create table CableMapVld ;
+    +-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | Table       | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+    +-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    | CableMapVld | CREATE TABLE `CableMapVld` (
+      `SEQNO` int(11) NOT NULL auto_increment,
+      `TIMESTART` datetime NOT NULL,
+      `TIMEEND` datetime NOT NULL,
+      `SITEMASK` tinyint(4) default NULL,
+      `SIMMASK` tinyint(4) default NULL,
+      `SUBSITE` int(11) default NULL,
+      `TASK` int(11) default NULL,
+      `AGGREGATENO` int(11) default NULL,
+      `VERSIONDATE` datetime NOT NULL,
+      `INSERTDATE` datetime NOT NULL,
+      PRIMARY KEY  (`SEQNO`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=476 DEFAULT CHARSET=latin1 | 
+    +-------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+    1 row in set (0.00 sec)
+
+    mysql> alter table CableMapVld AUTO_INCREMENT = 500 ;
+    Query OK, 398 rows affected (0.02 sec)
+    Records: 398  Duplicates: 0  Warnings: 0
+
+    mysql> show create table CableMapVld ;
+    ...
+    ) ENGINE=MyISAM AUTO_INCREMENT=500 DEFAULT CHARSET=latin1 | 
+
+    mysql> alter table CableMapVld AUTO_INCREMENT = 476 ;
+    Query OK, 398 rows affected (0.00 sec)
+    Records: 398  Duplicates: 0  Warnings: 0
+
+    mysql> show create table CableMapVld ;
+    ...
+    ) ENGINE=MyISAM AUTO_INCREMENT=476 DEFAULT CHARSET=latin1 | 
+
+
+::
+
+    mysql> select concat(table_schema,'.',table_name) as dbtable,  auto_increment, create_time, update_time from information_schema.tables where table_schema like 'tmp_ligs_offline_db%' or table_schema like 'channelquality_db%'  ;
+    +------------------------------------------+----------------+---------------------+---------------------+
+    | dbtable                                  | auto_increment | create_time         | update_time         |
+    +------------------------------------------+----------------+---------------------+---------------------+
+    | channelquality_db.DqChannel              |           NULL | 2013-05-30 18:52:51 | 2013-05-30 19:34:55 | 
+    | channelquality_db.DqChannelStatus        |           NULL | 2013-05-30 18:17:42 | 2013-05-30 18:52:44 | 
+    | channelquality_db.DqChannelStatusVld     |           NULL | 2013-05-30 18:52:44 | 2013-05-30 18:52:51 | 
+    | channelquality_db.DqChannelVld           |           NULL | 2013-05-30 19:34:55 | 2013-05-30 19:35:02 | 
+    | channelquality_db.LOCALSEQNO             |           NULL | 2013-05-30 19:35:02 | 2013-05-30 19:35:02 | 
+    | channelquality_db_0.DqChannel            |           NULL | 2013-06-04 20:03:01 | 2013-06-04 21:18:00 | 
+    | channelquality_db_0.DqChannelStatus      |           NULL | 2013-06-04 20:03:22 | 2013-06-04 21:19:18 | 
+    | channelquality_db_0.DqChannelStatusVld   |           NULL | 2013-06-04 20:03:41 | 2013-06-04 21:19:18 | 
+    | channelquality_db_0.DqChannelVld         |           NULL | 2013-06-04 20:03:41 | 2013-06-04 21:19:18 | 
+    | tmp_ligs_offline_db_0.DqChannel          |           NULL | 2013-05-27 13:10:54 | 2013-05-27 13:18:17 | 
+    | tmp_ligs_offline_db_0.DqChannelStatus    |           NULL | 2013-05-27 13:36:35 | 2013-05-27 13:43:50 | 
+    | tmp_ligs_offline_db_0.DqChannelStatusVld |         341126 | 2013-02-04 16:07:56 | 2013-05-20 06:26:55 | 
+    | tmp_ligs_offline_db_0.DqChannelVld       |         341090 | 2013-02-04 16:07:51 | 2013-05-20 06:26:54 | 
+    | tmp_ligs_offline_db_1.DqChannelStatus    |           NULL | 2013-05-23 14:03:34 | 2013-05-23 14:13:28 | 
+    | tmp_ligs_offline_db_1.DqChannelStatusVld |           NULL | 2013-05-23 14:13:29 | 2013-05-23 14:13:36 | 
+    | tmp_ligs_offline_db_2.DqChannel          |           NULL | 2013-05-29 14:59:36 | 2013-05-29 15:38:21 | 
+    | tmp_ligs_offline_db_2.DqChannelStatus    |           NULL | 2013-05-29 14:26:08 | 2013-05-29 14:59:30 | 
+    | tmp_ligs_offline_db_2.DqChannelStatusVld |           NULL | 2013-05-29 14:59:30 | 2013-05-29 14:59:35 | 
+    | tmp_ligs_offline_db_2.DqChannelVld       |           NULL | 2013-05-29 15:38:21 | 2013-05-29 15:38:26 | 
+    | tmp_ligs_offline_db_2.LOCALSEQNO         |           NULL | 2013-05-29 15:38:27 | 2013-05-29 15:38:27 | 
+    | tmp_ligs_offline_db_3.DqChannel          |           NULL | 2013-05-29 18:15:48 | 2013-05-29 18:54:27 | 
+    | tmp_ligs_offline_db_3.DqChannelStatus    |           NULL | 2013-05-29 17:42:09 | 2013-05-29 18:15:41 | 
+    | tmp_ligs_offline_db_3.DqChannelStatusVld |           NULL | 2013-05-29 18:15:42 | 2013-05-29 18:15:46 | 
+    | tmp_ligs_offline_db_3.DqChannelVld       |           NULL | 2013-05-29 18:54:28 | 2013-05-29 18:54:33 | 
+    | tmp_ligs_offline_db_3.LOCALSEQNO         |           NULL | 2013-05-29 18:54:34 | 2013-05-29 18:54:34 | 
+    | tmp_ligs_offline_db_4.DqChannel          |           NULL | 2013-05-30 13:54:33 | 2013-05-30 14:03:58 | 
+    | tmp_ligs_offline_db_4.DqChannelStatus    |           NULL | 2013-05-30 14:11:54 | 2013-05-30 14:19:39 | 
+    | tmp_ligs_offline_db_4.DqChannelStatusVld |         341126 | 2013-05-30 14:26:56 | 2013-05-30 14:26:58 | 
+    | tmp_ligs_offline_db_4.DqChannelVld       |         341090 | 2013-05-30 14:26:58 | 2013-05-30 14:27:01 | 
+    | tmp_ligs_offline_db_5.DqChannel          |           NULL | 2013-06-03 19:44:16 | 2013-06-03 19:44:17 | 
+    | tmp_ligs_offline_db_5.DqChannelStatus    |           NULL | 2013-06-03 19:44:17 | 2013-06-03 19:44:17 | 
+    | tmp_ligs_offline_db_5.DqChannelStatusVld |         341126 | 2013-06-03 19:44:17 | 2013-06-03 19:44:17 | 
+    | tmp_ligs_offline_db_5.DqChannelVld       |         341090 | 2013-06-03 19:44:17 | 2013-06-03 19:44:17 | 
+    +------------------------------------------+----------------+---------------------+---------------------+
+    33 rows in set (0.01 sec)
+
+
+    mysql> select max(SEQNO) from tmp_ligs_offline_db_0.DqChannelStatusVld ;
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |     341125 | 
+    +------------+
+    1 row in set (0.03 sec)
+
+    mysql> select max(SEQNO) from tmp_ligs_offline_db_0.DqChannelVld  ;
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |     341089 | 
+    +------------+
+    1 row in set (0.04 sec)
+
+    mysql> select concat(table_schema,'.',table_name) as dbtable,  auto_increment, create_time, update_time from information_schema.tables where auto_increment > 10 and auto_increment < 1000 ;
+    +--------------------------------------+----------------+---------------------+---------------------+
+    | dbtable                              | auto_increment | create_time         | update_time         |
+    +--------------------------------------+----------------+---------------------+---------------------+
+    | fake_dcs.DBNS_AD_HV_Imon             |            295 | 2012-08-31 09:09:25 | 2012-08-31 09:09:25 | 
+    | fake_dcs.DBNS_AD_HV_Pw               |            296 | 2012-08-31 09:09:25 | 2012-08-31 09:09:25 | 
+    | fake_dcs.DBNS_AD_HV_Vmon             |            295 | 2012-08-31 09:09:25 | 2012-08-31 09:09:25 | 
+    | fake_dcs.ins_location                |             23 | 2012-08-31 09:09:26 | 2012-08-31 09:09:26 | 
+    | fix_offline_db.CableMapVld           |            476 | 2013-06-05 19:54:21 | 2013-06-05 19:54:21 | 
+    | mydb.auth_permission                 |             34 | 2009-05-27 15:26:38 | 2009-08-14 18:01:09 | 
+    | mydb.auth_user_user_permissions      |             27 | 2009-05-27 15:25:54 | 2009-06-08 16:13:34 | 
+    | mydb.django_content_type             |             14 | 2009-05-27 15:25:54 | 2009-08-14 18:01:09 | 
+    | tmp_cascade_1.DbiDemoData1Vld        |            204 | 2011-08-19 19:03:49 | 2011-08-19 19:03:49 | 
+    | tmp_cascade_1.DbiDemoData2Vld        |            635 | 2011-08-19 19:03:49 | 2011-08-19 19:03:49 | 
+    | tmp_dbitest_1.DbiDemoData1Vld        |            204 | 2013-06-04 13:05:14 | 2013-06-04 13:05:14 | 
+    | tmp_dbitest_1.DbiDemoData2Vld        |            635 | 2013-06-04 13:05:14 | 2013-06-04 13:05:14 | 
+    | tmp_dybdbitest_1.DbiDemoData1Vld     |            204 | 2013-06-04 13:05:33 | 2013-06-04 13:05:33 | 
+    | tmp_dybdbitest_1.DbiDemoData2Vld     |            635 | 2013-06-04 13:05:33 | 2013-06-04 13:05:33 | 
+    | tmp_dybdbitest_2.DbiDemoData1Vld     |            204 | 2013-06-04 13:05:33 | 2013-06-04 13:05:33 | 
+    | tmp_dybdbitest_2.DbiDemoData2Vld     |            635 | 2013-06-04 13:05:33 | 2013-06-04 13:05:33 | 
+    | tmp_offline_db.DemoVld               |             50 | 2013-05-28 18:26:02 | 2013-05-28 18:39:55 | 
+    | tmp_tmp_offline_db_1.DbiDemoData1Vld |            204 | 2011-03-29 18:59:10 | 2011-03-29 18:59:10 | 
+    | tmp_tmp_offline_db_1.DbiDemoData2Vld |            635 | 2011-03-29 18:59:10 | 2011-03-29 18:59:10 | 
+    +--------------------------------------+----------------+---------------------+---------------------+
+    19 rows in set (0.10 sec)
+
+    mysql> 
+    mysql> 
+    mysql> select max(SEQNO) from tmp_tmp_offline_db_1.DbiDemoData1Vld ;
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |        203 | 
+    +------------+
+    1 row in set (0.00 sec)
+
+    mysql> select max(SEQNO) from tmp_offline_db.DemoVld  ;
+    +------------+
+    | max(SEQNO) |
+    +------------+
+    |         49 | 
+    +------------+
+    1 row in set (0.00 sec)
+
+
+altering auto increment
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* seems cannot combine the query and alter, even trying to use variables failed
+
+::
+
+    mysql> select max(SEQNO)+1 from CableMapVld ;
+    +--------------+
+    | max(SEQNO)+1 |
+    +--------------+
+    |          399 | 
+    +--------------+
+    1 row in set (0.00 sec)
+
+    mysql> alter table CableMapVld auto_increment = 399 ;
+    Query OK, 398 rows affected (0.01 sec)
+    Records: 398  Duplicates: 0  Warnings: 0
+
+
+avoid all the duplicated schema files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@belle7 10000]$ mkdir _
+    [blyth@belle7 10000]$ mv 0/*.schema _/
+    [blyth@belle7 10000]$ rm [0-9]/*.schema
+    [blyth@belle7 10000]$ rm 1[0-9]/*.schema
+    [blyth@belle7 10000]$ rm 2[0-9]/*.schema
+    [blyth@belle7 10000]$ rm 3[0-9]/*.schema
+
+::
+
+    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/0/ /tmp/cq/tmp_ligs_offline_db_0/10000/0/
+    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/1/ /tmp/cq/tmp_ligs_offline_db_0/10000/1/
+    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/_/ /tmp/cq/tmp_ligs_offline_db_0/10000/_/
+    Files /tmp/cq/channelquality_db/10000/_/DqChannelStatusVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/_/DqChannelStatusVld.schema differ
+    Files /tmp/cq/channelquality_db/10000/_/DqChannelVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/_/DqChannelVld.schema differ
+
+
+Test use of partitioned dumplocal for large DB diffing 
+-----------------------------------------------------------
+
+Diff all tables partition of 10k SEQNO at a time, taking approx 2-5s.  
+Thus 2-3 min to diff 10G of DB.
+
+::
+
+    [blyth@belle7 cq]$  diff -r --brief channelquality_db/10000/_ tmp_ligs_offline_db_0/10000/_                     ## the auto increment issue
+    Files channelquality_db/10000/_/DqChannelStatusVld.schema and tmp_ligs_offline_db_0/10000/_/DqChannelStatusVld.schema differ
+    Files channelquality_db/10000/_/DqChannelVld.schema and tmp_ligs_offline_db_0/10000/_/DqChannelVld.schema differ
+
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/1 tmp_ligs_offline_db_0/10000/0                      ## oops must line up the patitions
+    Files channelquality_db/10000/1/DqChannel.csv and tmp_ligs_offline_db_0/10000/0/DqChannel.csv differ
+    Files channelquality_db/10000/1/DqChannelStatus.csv and tmp_ligs_offline_db_0/10000/0/DqChannelStatus.csv differ
+    Files channelquality_db/10000/1/DqChannelStatusVld.csv and tmp_ligs_offline_db_0/10000/0/DqChannelStatusVld.csv differ
+    Files channelquality_db/10000/1/DqChannelVld.csv and tmp_ligs_offline_db_0/10000/0/DqChannelVld.csv differ
+
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/0 tmp_ligs_offline_db_0/10000/0
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/1 tmp_ligs_offline_db_0/10000/1
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/2 tmp_ligs_offline_db_0/10000/2
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/3 tmp_ligs_offline_db_0/10000/3
+    [blyth@belle7 cq]$ diff -r --brief channelquality_db/10000/4 tmp_ligs_offline_db_0/10000/4
+    [blyth@belle7 cq]$ time diff -r --brief channelquality_db/10000/5 tmp_ligs_offline_db_0/10000/5
+    real    0m5.352s
+    user    0m0.736s
+    sys     0m0.265s
+
+    [blyth@belle7 cq]$ time diff -r --brief channelquality_db/10000/6 tmp_ligs_offline_db_0/10000/6
+    real    0m2.658s
+    user    0m0.648s
+    sys     0m0.235s
+
+    [blyth@belle7 cq]$ time diff -r --brief channelquality_db/10000/7 tmp_ligs_offline_db_0/10000/7
+    real    0m6.171s
+    user    0m0.686s
+    sys     0m0.277s
+
+
+
+
