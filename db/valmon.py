@@ -381,7 +381,7 @@ class ValueMon(object):
             log.warn("sending notification as: %s " % subj )
             notify(self.cnf['email'], msg )
         else:
-            log.info("no notification: %s " % subj )
+            log.info("no notification" )
 
     def __call__(self, args):
         """
