@@ -166,7 +166,7 @@ def copytree(src, dst, symlinks=False, ignore=None):
 
 
 
-class disk_usage(dict):
+class DiskUsage(dict):
     """
     http://docs.python.org/2/library/statvfs.html
 
@@ -239,7 +239,7 @@ class disk_usage(dict):
 
 
 if __name__ == '__main__':
-    du = disk_usage()
+    du = DiskUsage()
     print du
     assert du['gb_free'] > 10 , du 
 
