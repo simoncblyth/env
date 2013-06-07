@@ -2208,27 +2208,6 @@ altering auto increment
     Records: 398  Duplicates: 0  Warnings: 0
 
 
-avoid all the duplicated schema files
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    [blyth@belle7 10000]$ mkdir _
-    [blyth@belle7 10000]$ mv 0/*.schema _/
-    [blyth@belle7 10000]$ rm [0-9]/*.schema
-    [blyth@belle7 10000]$ rm 1[0-9]/*.schema
-    [blyth@belle7 10000]$ rm 2[0-9]/*.schema
-    [blyth@belle7 10000]$ rm 3[0-9]/*.schema
-
-::
-
-    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/0/ /tmp/cq/tmp_ligs_offline_db_0/10000/0/
-    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/1/ /tmp/cq/tmp_ligs_offline_db_0/10000/1/
-    [blyth@belle7 10000]$ diff -r --brief /tmp/cq/channelquality_db/10000/_/ /tmp/cq/tmp_ligs_offline_db_0/10000/_/
-    Files /tmp/cq/channelquality_db/10000/_/DqChannelStatusVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/_/DqChannelStatusVld.schema differ
-    Files /tmp/cq/channelquality_db/10000/_/DqChannelVld.schema and /tmp/cq/tmp_ligs_offline_db_0/10000/_/DqChannelVld.schema differ
-
-
 Test use of partitioned dumplocal for large DB diffing 
 -----------------------------------------------------------
 
@@ -2268,5 +2247,113 @@ Thus 2-3 min to diff 10G of DB.
     sys     0m0.277s
 
 
+
+
+
+
+
+Validating Recovered DB 
+--------------------------
+
+Procedure if had verified backups available
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. a verified and daily updated backup would be available on a remote node 
+#. on finding corruption in a table, repairs could be performed in situ and 
+   the result could be compared against the verified backup.
+
+   * if losses/problems were seen as a result of the repair would need to 
+     revert to the backup and refill the entries that were lost 
+
+Our procedure without verified backups
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: Poor situation arising due to a non backed-up `tmp_` DB morphing into a critical one  
+
+
+#. corruption found
+#. hotcopy of the tables made and transferred to a remote node, 
+   where a repair was done, appearing to be successful
+
+   * but cannot be sure of that without a backup to compare against ? 
+
+#. forced to assume the 
+
+
+Strategy
+~~~~~~~~~~
+
+#. get confidence in the techniques developed by validating 
+   the three non-crashed tables up to `SEQNO <= 323573` by comparison of partitioned dumps::
+
+      DqChannel
+      DqChannelVld
+      DqChannelStatusVld
+
+   success of this indicates are doing no harm, for these three
+
+
+Insitu repair
+~~~~~~~~~~~~~~~~~
+
+Doing a repair on the server and comparing with 
+the repair done on belle7 would give a crosscheck,
+but not certainty.
+
+Although the repair was simple to do on belle7 (and took only ~4 min)
+it can potentially loose all data in the table. 
+Thus you should never normally do it without having a verified backup.
+
+
+Databases compared
+~~~~~~~~~~~~~~~~~~~~~
+
+===========  ===========================  ========================
+home sect    sect                         note     
+===========  ===========================  ========================
+dybdb1_ligs   tmp_ligs_offline_db_dybdb1   original on dybdb1
+dybdb2_ligs   channelquality_db_dybdb2     recovered on dybdb2
+loopback      channelquality_db_belle7     recovered onto belle7 from hotcopy created on belle1
+===========  ===========================  ========================
+
+
+Partitioning
+~~~~~~~~~~~~~~~
+
+Partition tables in SEQNO chunks. 
+The chunking allows DB diffs to be made using filesystem "diff -r --brief" 
+applied to the chunk directories.  
+This results in drastically faster diffing than 
+for example creating digests from queries.
+Also this will allow efficient incremental 
+backups of very large tables.
+
+Using 
+
+* :dybsvn:`source:dybgaudi/trunk/DybPython/python/DybPython/dbsrv.py`
+* :dybsvn:`source:dybgaudi/trunk/DybPython/python/DybPython/diff.py`
+
+Partitioned dumping (in 10000 SEQNO chunks) created CSV files for each table::
+
+    [blyth@belle7 10000]$ pwd
+    /tmp/cq/channelquality_db_dybdb2/10000
+    [blyth@belle7 10000]$ l 0/
+    total 115512
+    -rw-r--r-- 1 blyth blyth   1038894 Jun  6 18:54 DqChannelStatusVld.csv
+    -rw-r--r-- 1 blyth blyth   1038894 Jun  6 18:54 DqChannelVld.csv
+    -rw-r--r-- 1 blyth blyth 116074010 Jun  6 18:54 DqChannel.csv
+    [blyth@belle7 10000]$ 
+
+This allowed comparison using commands like::
+
+     diff -r --brief /tmp/cq/channelquality_db_belle7/10000/0 /tmp/cq/channelquality_db_dybdb2/10000/0
+
+Only an insignificant formatting difference was encountered in one file
+
+* http://belle7.nuu.edu.tw/oum/api/dbsrv/#oops-a-difference-but-its-just-different-formatting-of-0-0001-or-1e-04
+
+More details at 
+
+* http://belle7.nuu.edu.tw/oum/api/dbsrv/       
 
 
