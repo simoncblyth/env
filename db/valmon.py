@@ -100,6 +100,18 @@ Examples::
     dbpath = ~/.env/envmon.sqlite
     tn = diskmon
 
+    [dbsrvmon]
+
+    note = currently set to fail via age
+    chdir = /var/dbbackup/dbsrv/belle7.nuu.edu.tw/channelquality_db_belle7/archive/10000
+    cmd = digestpath.py 
+    valmon_version = 0.2 
+    return = dict
+    constraints = ( tarball_count >= 34, dna_mismatch == 0, age < 86400 , age < 1000, )
+    dbpath = ~/.env/dbsrvmon.sqlite
+    tn = channelquality_db
+
+
     [envmon]
 
     note = check C2 server from cron on other nodes
@@ -231,7 +243,14 @@ class ValueMon(object):
 
         :param cmd:
         """
-        log.info("running cmd %s " % cmd)
+
+        chdir = self.cnf.get('chdir',None) 
+        if not chdir is None:
+            log.info("chdir %s " % (chdir))
+            os.chdir(chdir)
+        pass 
+        dir = os.getcwd()
+        log.info("running cmd %s from directory %s " % (cmd, dir))
         t0 = time.time()
         pipe = os.popen(cmd)
         ret = pipe.read().strip()
@@ -359,7 +378,7 @@ class ValueMon(object):
             subj += "WARN: " + "  ****  ".join(exc) 
 
         if len(oks) > 0:
-            subj += "OK: " + "  ____  ".join(oks) 
+            subj += "  " + "OK: " + "  ____  ".join(oks) 
 
         if len(exc) > 0:
             msg = "\n".join([subj, self.rep()]) 

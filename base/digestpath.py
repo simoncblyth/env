@@ -76,13 +76,79 @@ def dnatree( top, ptn , start ):
             name = line.strip()
             path = os.path.abspath(os.path.join( top, name ))
             d[name] = dnapath( path )
-            sys.stderr.write("%s:%s" % ( name, d[name] ) )
+            #sys.stderr.write("%s:%s" % ( name, d[name] ) )
     return d 
 
-if __name__ == '__main__':
+
+def read_dna(path, sidecar_ext=".dna"):
+    dnap = path + sidecar_ext
+    if os.path.exists(dnap):
+        sdna = open(dnap,"r").read().strip()
+        assert sdna[0] == '{' and sdna[-1] == '}', sdna
+        rdna = eval(sdna)
+    else:
+        rdna = None
+    return rdna
+
+def check_tarball_dna(top, ptn, start, verbose=False):
+    """
+    Lack of a DNA sidecar is indicative of the transfer 
+    still be in progress or failed.
+
+    :return: summary dict to stdout
+
+
+    `tarball_count`
+                   Number of tarballs 
+    `dna_missing`
+                   Number of tarballs without DNA sidecar 
+    `dna_match`
+                   Number of tarballs which recalculated digest matching the sidecar 
+    `dna_mismatch`
+                   Number of tarballs which recalculated digest not matching the sidecar 
+
+    `lookstamp`
+                   Epoch timestamp when the check was made
+    `lastchange`
+                   Timestamp on the last changed tarball
+    `age`
+                   Age in seconds of the last changed tarball
+
+    """
+    smry = dict(dna_match=0,tarball_count=0,dna_mismatch=0,dna_missing=0)
+    look = time.time() 
+    ctime = {}
+    dt = dnatree(top, ptn, start)
+    for path, dna in dt.items():
+        smry['tarball_count'] += 1
+        ctime[path] = os.path.getctime(path)
+        rdna = read_dna(path)
+        if verbose:
+            sys.stderr.write("%-30s %s %s " % ( path, dna, rdna ))
+        if rdna is None:
+            smry['dna_missing'] += 1    
+        else:
+            if dna == rdna:
+                smry['dna_match'] +=1  
+            else:
+                smry['dna_mismatch'] +=1  
+            pass
+        pass
+    pass
+    smry['lookstamp']  = look
+    smry['lastchange'] = max(ctime.values())
+    smry['age'] = smry['lookstamp'] - smry['lastchange']
+    return smry  
+
+def main():
     narg = len(sys.argv)
-    if narg == 2:
+    if narg == 1:
+        print check_tarball_dna(os.getcwd(), '*.tar.gz','.')  
+    elif narg == 2:
         print dnapath(sys.argv[1])
     elif narg == 4: 
         print dnatree(*sys.argv[1:])
+
+if __name__ == '__main__':
+    main()
 
