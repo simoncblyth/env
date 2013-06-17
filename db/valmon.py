@@ -521,6 +521,12 @@ def main():
     opts, args = parse_args(__doc__)
     cnf = Cnf(opts.cnfpath)
     log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, cnf))  
+
+    if opts.sect is None:
+        msg = "must specify one of the sections in %s  \n " % opts.cnfpath + "\n".join(map(lambda _:"   %s" % _, cnf.sections))
+        log.fatal(msg)
+        return 
+        
     if cnf.has_sect(opts.sect):
         cnf.read(opts.sect) 
         ValueMon(cnf)(args)
