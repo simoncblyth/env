@@ -56,6 +56,7 @@ Contents:
    mysql/index
    sqlite/index
    db/index
+   qxml/index
 
 Indices and tables
 ==================

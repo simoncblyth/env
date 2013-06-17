@@ -6,5 +6,6 @@ DB scripts
 
      valmon
      sqlite3
+     bdbxml/qxml/index
 
 

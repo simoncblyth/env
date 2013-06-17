@@ -1,24 +1,78 @@
 #!/usr/bin/env python
 """
+Exist to QXML migration
+=========================
+
+QXML is a lightweight XML querying python script and equivalent 
+C tool built on top of Berkely DB XML (BDBXML).  QXML is hosted in 
+the **env** repository to reflect the intention to keep it a general
+tool for XML querying.
+
+This *exist2qxml.py* script migrates eXist backup dumps OR 
+the contents of live eXist servers into BDBXML containers.  
+While QXML is currently ancillary to the main workflow 
+of the heprez machinery, due to speed of querying 
+the BDBXML compared to eXist they are very useful for rapid 
+querying the content of large numbers of XML files. 
+
 Usage for full ingests::
 
     ./exist2qxml.py
+
+The required :envvar:`QXML_CONFIG` points to the config file::
+
+    simon:qxml blyth$ echo $QXML_CONFIG
+    /Users/blyth/env/db/bdbxml/qxml/hfagc.cfg
 
 For selective ingests, eg into container with tag 'sys'::
 
          EXIST2QXML_SELECT=sys@@http://localhost/servlet/db/hfagc_system/v2qtags.xml ./exist2qxml.py
          EXIST2QXML_SELECT=sys@@http://localhost/servlet/db/hfagc_system/qtag2latex.xml ./exist2qxml.py
 
-Configured by the file pointed to by QXML_CONFIG in particular the below:: 
+
+QXML Config
+------------
+
+Configured by the file pointed to by QXML_CONFIG. 
+
+General Config
+~~~~~~~~~~~~~~~~
+
+Crucial settings include the default collection that querying addresses and the 
+search path for XQuery modules that can be included into queries.
+
+::
+
+    [dbxml]
+    environment_dir = /tmp/dbxml
+    default_collection = dbxml:////tmp/hfagc/hfagc.dbxml
+    baseuri = dbxml:/
+    xqmpath = /Users/blyth/heprez/qxml/lib:/Users/blyth/env/db/bdbxml/xq
+
+
+Container Config
+~~~~~~~~~~~~~~~~~
+
+The container config defines the locations for the Berkely DB containers and the 
+source of the XML for them, which can be local directories OR exist instances::
 
     [container.source]
-    source = /tmp/check/db/hfagc_prod/end_of_2011/indv
+    source = 
+    source = http://localhost/servlet/db/hfagc_system/
+    source = /data/heprez/data/backup/part/localhost/last/db/hfagc
+    source = http://cms01.phys.ntu.edu.tw/servlet/db/hfagc/
 
     [container.path]
-    path = /tmp/hfagc/avg.dbxml
+    path = /tmp/hfagc/scratch.dbxml
+    path = /tmp/hfagc/hfagc_system.dbxml
+    path = /tmp/hfagc/hfagc.dbxml
+    path = /tmp/hfagc/remote.dbxml
 
     [container.tag]
-    tag = avg
+    tag = tmp
+    tag = sys
+    tag = hfc
+    tag = rem
 
 
 To suppress the leading slash in db names, supply a trailing slash in the source.
@@ -32,9 +86,40 @@ configured tag or alias eg with::
    collection('avg')/dbxml:metadata('dbxml:name')
 
 
+Namespace Config
+~~~~~~~~~~~~~~~~~~
+
+Shorthand strings for namespace uri used when querying::
+
+    [namespace.name]
+    name = rez 
+    name = exist
+    name = qxml
+
+    [namespace.uri]
+    uri = http://hfag.phys.ntu.edu.tw/hfagc/rez
+    uri = http://exist.sourceforge.net/NS/exist
+    uri = http://dayabay.phys.ntu.edu.tw/qxml
+
+Map Config
+~~~~~~~~~~~~
+
+Often some snippets of XML need to be very frequently accessed, eg the latex string corresponding to a particle code
+or the latex corresponding to a decay quantity tag. In order to optimize access to these snippets 
+a map is created at QXML startup which can be very rapidly accesses subsequently::
+
+    [map.name]
+    name = code2latex
+    name = qtag2latex
+
+    [map.query]      
+    query = for $glyph in collection('sys')/*[dbxml:metadata('dbxml:name')='pdgs.xml' or dbxml:metadata('dbxml:name')='extras.xml' ]//glyph return (data($glyph/@code), data($glyph/@latex)) 
+    query = for $qtag in doc("sys/qtag2latex.xml")//qtag return ($qtag/@value/string(),$qtag/latex/string())
+
+
 
 Issues
-========
+-------
 
 When attempting to read from a non-running eXist server, such as below, the
 error is not informative and an empty container is created that requires manual
@@ -241,7 +326,8 @@ def main():
     resort to EXIST2QXML_SELECT environ as specific to exist2qxml 
     and do not want to mess with qxml_config arg parsing for this     
     """
-    cfg = qxml_config()
+    cfg = qxml_config(__doc__)
+    dryrun = cfg.get('dryrun',False)  
     tagsrc = cfg['source'].keys()
     tagcon = cfg['containers'].keys()
     assert tagsrc == tagcon , (tagsrc, tagcon )
@@ -257,15 +343,22 @@ def main():
     for tag in tagsrc:
         src = cfg['source'][tag]    
         dbxml  = cfg['containers'][tag]    
+        log.debug( "tag %s src %s dbxml %s " % (tag, src, dbxml))
         if os.path.exists(dbxml) and tag not in srcpfx:
             log.warn("tag %s dbxml \"%s\" exists already : delete it and rerun to update from src \"%s\"  " % ( tag, dbxml, src ))     
             continue
         if src.startswith('http://'):  
             srcpfx_ = srcpfx.get(tag, None) 
-            log.info("using srcpfx_ %s " % srcpfx_ )
-            ingest_url( tag, src, dbxml , srcpfx_ )       
+            log.info( "source prefix restricting the ingest, srcpfx_ %s " % (srcpfx_ ))
+            if dryrun:   
+                log.info( "dryrun ")
+            else:
+                ingest_url( tag, src, dbxml , srcpfx_ )       
         else:    
-            ingest_dir( tag, src, dbxml )       
+            if dryrun:
+                log.info( "dryrun ")
+            else:     
+                ingest_dir( tag, src, dbxml )       
         pass
     pass
 

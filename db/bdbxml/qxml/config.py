@@ -20,15 +20,16 @@ def remove_droppings():
     for file in files:
         os.remove(file)
 
-def parse_args():
+def parse_args(doc):
     """
     Try to duplicate the boost_program_options interface in C++ qxml
     """
-    parser = OptionParser()
+    parser = OptionParser(doc)
     parser.add_option("-l", "--level",  default="INFO" )
     parser.add_option("-c", "--config", default=os.environ.get("QXML_CONFIG","no-qxml-config-envvar")  )
     parser.add_option("-k", "--key" ,   action="append" )
     parser.add_option("-v", "--val" ,   action="append" )
+    parser.add_option("-n", "--dryrun", action="store_true"  )
     parser.add_option("-i", "--inputfile"  )
 
     # used by transfer.py
@@ -141,8 +142,8 @@ for $a in collection() return dbxml:metadata("dbxml:name", $a)
     q = "".join(lines)
     return q
 
-def qxml_config():
-    cli, args = parse_args()
+def qxml_config(doc):
+    cli, args = parse_args(doc)
     logging.basicConfig(level=getattr(logging, cli['level'].upper()))
     cfg = parse_config(cli['config'])
     variables = cli.pop('variables')

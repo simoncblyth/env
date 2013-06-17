@@ -1,14 +1,20 @@
 
+QXML Examples
+===============
+
+.. contents:: :local:
+
+
 STDIN query piping and shebang line running
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------
 
 Usage examples assuming bash shell.
 Piping from echo (must escape some chars from shell, handy for one-liners)::
 
      echo collection\(\)[1]               | qxml -
-     echo "collection()[1]//rez:quote[1]" | qxml -
-     echo "count(collection())"           | qxml -
-     echo "count(collection()/rez:rez)"   | qxml -
+     echo "collection()[1]//rez:quote[1]" | qxml -   # first quote of first item
+     echo "count(collection())"           | qxml -   # number of items
+     echo "count(collection()/rez:rez)"   | qxml -   # 
 
 NB use of configured default container avoids::
 
@@ -16,9 +22,11 @@ NB use of configured default container avoids::
     echo "collection('dbxml:/tmp')[1]"   | qxml -
           ## containers identified by configured aliases or tags
 
-    echo "collection('dbxml:////tmp/hfagc/hfagc.dbxml')/dbxml:metadata('dbxml:name')" | qxml -  
-          ## explicit file path to the container
+Three queries that are the same::
 
+    echo "collection('dbxml:////tmp/hfagc/hfagc.dbxml')/dbxml:metadata('dbxml:name')" | qxml -  ## explicit file path to the container
+    echo "collection('hfc')/dbxml:metadata('dbxml:name')" | qxml -     # using the tag name  
+    echo "collection()/dbxml:metadata('dbxml:name')" | qxml -          # using the default container
 
 Useful for quick syntax checking::
 
@@ -30,7 +38,9 @@ Grabbing a resource by name::
 
      echo "collection()/*[dbxml:metadata('dbxml:name')='/cdf/cjl/cdf_summer2007_BsDsK.xml']" | qxml -
      echo "collection()/*[dbxml:metadata('dbxml:name')='/cdf/cjl/cdf_summer2007_BsDsK.xml']" | qxml - > out.xml
-          # redirect stdout to file
+          # redirect stdout to file, 
+          # meta output goes to stderr allowing queries to yield valid XML
+
      echo "collection()/*[dbxml:metadata('dbxml:name')='/cdf/cjl/cdf_summer2007_BsDsK.xml']" | qxml - -o cdf.xml
           # writing into configured container with DB
   
@@ -86,7 +96,7 @@ Quick module import and invoke::
 
 
 Mapping element nodes in larger docs, eg SVG
-=============================================
+----------------------------------------------
 
 Element handle do not encode the container and will become invalid if document changed. Usable from XQuery::
 
@@ -99,7 +109,7 @@ And in C++::
 
 
 Issues/Enhancements/Ideas
-==========================
+---------------------------
 
 * install more python into $ENV_PREFIX/lib/ to allow use from anywhere 
 
@@ -138,7 +148,6 @@ Issues/Enhancements/Ideas
 
 * re-arrange python extension build to avoid littering wc with swig artifacts
 
-
 Done
 ~~~~~~
 
@@ -169,18 +178,19 @@ Such specifics should be being developed elsewhere (in heprez repository for exa
 
 Some generic extfun will be needed however, so probably best to have an umbrella
 resolver that handles
-   * dynamic resolver loading
-   * hands out resolve requests based on namespace uri.
+
+* dynamic resolver loading
+* hands out resolve requests based on namespace uri.
 
 See ~/env/dlfcn for tutorial of dlopen technique, the proxy registration 
 approach described could be used to register per-library namespace keyed resolvers
 which the umbrella resolver which lives in global main manages in a map.
  
-http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
+* http://www.faqs.org/docs/Linux-mini/C++-dlopen.html
 
 
 Steps to add a C++ extension function
-=======================================
+----------------------------------------
 
 #. implement in ``extfun.{cc,hh}`` 
 #. add argument signature to ``extresolve.cc``
@@ -189,28 +199,27 @@ Steps to add a C++ extension function
 
 
 Steps to make C++ extension available from python main XQueries
-===============================================================
+----------------------------------------------------------------
 
 #. setup swig wrapping in ``extfun.i``
 
 Using the python API
-=====================
+----------------------
 
 Very close to C++, but not the same need to examine::
 
     vi /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/dbxml.py
     or dbxml-py 
 
-
 Using C++ API
-==============
+---------------
 
 .. warning:: DB XML docs have mismatches to header signatures, **trust headers above documentation**
 
 Get there quick with dbxml-cpp
 
 Using dbxml shell
-===================
+------------------
 
 A script containg dbxml commands can save some typing::
 
@@ -235,7 +244,7 @@ A script containg dbxml commands can save some typing::
 
 
 dbxml shell as debugging tool
-=============================
+--------------------------------
 
 It can be very useful to use the dbxml shell for debugging without all the conveniences of qxml
 getting in the way. For example whilst debugging a single resource transfer script found that 
@@ -316,12 +325,8 @@ Hmm, hfagc system container empty
 
 
 
-
-
-
-
 Observations on Berkeley DB XML XQuerying
-==========================================
+-------------------------------------------
 
 #. ``document-uri(root($smth))``  fails to provide the originating uri in more involved querying 
      * suspect a steps removed effect (fragments of fragments loose touch with their roots)
