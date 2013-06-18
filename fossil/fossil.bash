@@ -45,6 +45,33 @@ Darwin serving with launchctl
     simon:fossil blyth$ sudo launchctl load $(fossil-cfg-path)
 
 
+Debug OSX config
+------------------
+
+Something on 591::
+
+        simon:src blyth$ curl http://localhost:591
+        launchproxy[179]: execv(): No such file or directory
+        simon:src blyth$ curl http://localhost:592
+        curl: (7) couldn't connect to host
+
+From launchd plist::
+
+    simon:~ blyth$ fossil-cfg-path
+    /Library/LaunchDaemons/org.fossil-scm.fossil.plist
+
+Expecting missing binary::
+
+      <key>ProgramArguments</key>
+        <array>
+            <string>/Users/blyth/fossil/build/fossil</string>
+            <string>http</string>
+            <string>/var/scm/fossil</string>
+        </array>
+
+
+
+
 
 configure local options
 -------------------------
