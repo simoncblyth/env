@@ -355,6 +355,45 @@ class ValueMon(object):
         edict = dict(zip(lbls,evls))
         return edict, ctx
 
+    def present_edict(self, edict, ctx, constraint=None, summary=False):
+        """
+        :param edict:
+        :param constraint: None, True, False where None corresponds to True OR False
+
+        Presesent the edict 
+        """
+        all = edict.keys()
+        if constraint is None:
+            keys = all
+        else:
+            keys = filter(lambda _:edict[_] == constraint, all) 
+
+        true_ = filter(lambda k:edict[k] == True, all)
+        false_ = filter(lambda k:edict[k] == False, all)
+
+        # summarize context, plucking just qtys that are used in the constraints 
+        sctx = {}
+        for k in all:
+           for e in k.lstrip().strip().split():
+               if e in ctx:
+                   sctx[e] = ctx[e]
+
+        log.debug("sctx:\n%s" % pformat(sctx))
+
+        if summary: 
+            fmt = "   %s : %s "
+        else:
+            fmt = "   %-40s : %s "
+
+        psmy = fmt % ("summary", "all:%s True:%s False:%s " % (len(all),len(true_),len(false_)))
+        pctx = fmt % ("context", repr(sctx))
+        items = [ fmt % (k,edict[k]) for k in sorted(keys, key=lambda _:edict[_]) ]
+
+        if summary:
+            return "".join(items)   # CAUTION this must return a zero length string when all is peachy
+        else:
+            return "\n".join( [""] + items + ["",psmy,pctx,""] )
+
 
     def msg(self):
         """
@@ -365,26 +404,15 @@ class ValueMon(object):
         log.debug("ctx:\n %s " % pformat(ctx))
         log.debug("edict:\n %s " % pformat(edict))
 
-        oks =  map(lambda _:_[0],filter(lambda _:_[1],     edict.items() ))
-        exc =  map(lambda _:_[0],filter(lambda _:not _[1], edict.items() ))
-
-        nok = len(oks)
-        nex = len(exc)
-
-        subj = "last entry from %(date)s " 
-        subj = subj % last  
-
-        if len(exc) > 0: 
-            subj += "WARN: " + "  ****  ".join(exc) 
-
-        if len(oks) > 0:
-            subj += "  " + "OK: " + "  ____  ".join(oks) 
-
-        if len(exc) > 0:
-            msg = "\n".join([subj, self.rep()]) 
-        else:
+        subj = "%(node)s : valmon.py -s %(sect)s : %(date)s : " % dict(last, sect=self.cnf['sect'], node=platform.node() ) 
+        smry = self.present_edict(edict, ctx, constraint=False, summary=True )
+        subj += smry 
+        pass
+        if len(smry) == 0:
             msg = ""
-
+        else:
+            msg = "\n".join([subj, self.present_edict(edict, ctx, constraint=None, summary=False), self.rep()]) 
+        pass
         log.info("subj: %s " % subj )
         log.info("msg : %s " % msg )
         return msg  

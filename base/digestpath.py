@@ -30,8 +30,6 @@ and some not::
 	=== scm-backup-dnachecktgzs : FAIL /data/var/scm/backup/cms02/tracs/heprez/2012/09/17/123022/heprez.tar.gz
 
 
-
-
 """
 # dont use logging/argparse/optparse as want to stay ancient python compatible 
 import os, sys, time, stat
