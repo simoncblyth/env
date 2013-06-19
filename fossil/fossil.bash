@@ -138,19 +138,80 @@ Migration Functions
        exploring migrations from git into fossil
 
 
+Non-standard build
+--------------------
+
+* http://www.fossil-scm.org/fossil/info/de9c2f08d7
+
+::
+
+    fossil-switch jimtcl    
+          # defines FOSSIL_NAME which is used by the other functions
+    echo $FOSSIL_NAME
+    fossil-get
+    fossil-build
+
 EOU
 }
 
 
-fossil-name(){ echo fossil-src-20130216000435 ; }
+fossil-name(){ echo ${FOSSIL_NAME:-$(fossil-name- default)} ; }
 fossil-dir(){ echo $(local-base)/env/fossil/$(fossil-name) ; }
 fossil-cd(){  cd $(fossil-dir); }
 fossil-mate(){ mate $(fossil-dir) ; } 
+
+fossil-digest(){
+  case $1 in 
+     jimtcl) echo de9c2f08d7406839 ;; 
+  esac
+}
+
+fossil-info(){ cat << EOI
+
+   fossil-name   : $(fossil-name)
+   fossil-dir    : $(fossil-dir)
+   fossil-tgzurl : $(fossil-tgzurl $(fossil-name))
+
+EOI
+}
+
+fossil-name-(){
+   local tag=${1:-default}
+   case $tag in 
+      jimtcl) echo Fossil-$(fossil-digest $tag) ;;
+           *) echo fossil-src-20130216000435 ;;
+   esac     
+}
+
+fossil-switch(){
+   local msg=" == $FUNCNAME :"
+   local tag=${1:-jimtcl}
+   local name=$(fossil-name- $tag)
+   echo $msg tag $tag name $name defining FOSSIL_NAME
+   export FOSSIL_NAME=$name
+   env | grep FOSSIL
+}
+
+fossil-tgzurl(){
+  # tgz url from name 
+   case $1 in 
+         Fossil-*) echo "http://www.fossil-scm.org/fossil/tarball/$1.tar.gz" ;; 
+      fossil-src*) echo "http://www.fossil-scm.org/download/$1.tar.gz" ;;
+  esac
+}
+
+
+
+
 fossil-get(){
    local dir=$(dirname $(fossil-dir)) &&  mkdir -p $dir && cd $dir
    local name=$(fossil-name)
-   local tgz=$name.tar.gz
-   local url=http://www.fossil-scm.org/download/$tgz
+   local url=$(fossil-tgzurl $name)
+   local tgz=$(basename $url)
+   local nam=${tgz/.tar.gz}
+
+   echo $msg name $name url $url tgz $tgz nam $nam
+   [ "$name" != "$nam" ] && echo name mismatch && sleep 10000
    [ ! -f "$tgz" ] && curl -L -O $url
    [ ! -d "$name" ] && tar zxvf "$tgz"
 }
