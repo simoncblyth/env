@@ -141,7 +141,10 @@ Migration Functions
 Non-standard build
 --------------------
 
+The jimtcl branch, adds hooks, needs compilation with FOSSIL_ENABLE_TCL ?
+
 * http://www.fossil-scm.org/fossil/info/de9c2f08d7
+* http://lists.fossil-scm.org:8080/pipermail/fossil-users/2012-February/008230.html
 
 ::
 
