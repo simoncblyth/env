@@ -1,0 +1,7 @@
+Fossil
+=======
+
+.. toctree::
+
+    f
+    fossil

@@ -13,16 +13,17 @@ f-usage(){ cat << EOU
 FOSSIL USAGE
 =============
 
-See `fossil-` for details on building, installation and serving.
+See :doc:`/fossil/fossil` for details on building, installation and serving.
 This is to collect usage shortcuts and adhere to standard places
 to keep fossil repos and wcdirs.
 
-f-clone url name
+
+*f-clone url name*
 
    f-clone http://fossil.wanderinghorse.net/repos/cson/index.cgi cson
    f-clone http://www.fossil-scm.org  fossil 
 
-f-open name
+*f-open name*
 
    create working copy dir if it doesnt exist, cd into it and `fossil open` the repo there.
    Equivalent of `svn checkout` 
@@ -30,28 +31,28 @@ f-open name
    CAUTION `fossil open` unlike `svn checkout` acts in PWD,
    so this function creates a new `name` wcdir and  changes directory to it before opening
  
-f-ui name
+*f-ui name*
 
     local only access
 
-f-web name 
+*f-web name* 
   
-    open the launctl configured daemon on server port : which is remotely accessible if firewall allows
+    open the launctl configured daemon on server port : which is remotely accessible if firewall allows::
 
-    simon:cson blyth$ f-web cson
-    open http://localhost:591/cson/
+        simon:cson blyth$ f-web cson
+        open http://localhost:591/cson/
 
-f-pw
+*f-pw*
  
     open the password setting page in webinterface, in order to set it something more memorable
     than the randomlu assigned password that the `f-clone` yielded
 
-f-global
+*f-global*
 
     lists all repositories and checkouts on the node as recorded 
     in the global_config table of the ~/.fossil DB
 
-f-localtime <name>
+*f-localtime name*
 
    http://www.mail-archive.com/fossil-users@lists.fossil-scm.org/msg08359.html
    Use localtime on timeline rather than UTC
@@ -66,12 +67,10 @@ f-localtime <name>
        2013-04-02 11:55:33     
 
 
-
-
-f-sqlite3 <name>
+*f-sqlite3 name*
 
     command line sqlite3 shell connected to repo
-    NB not precisely the same as running `fossil sql` from a checkout, eg note
+    NB not precisely the same as running *fossil sql* from a checkout, eg note
     that localtime works::
      
         simon:e blyth$ f-sqlite3 env
@@ -84,13 +83,10 @@ f-sqlite3 <name>
         sqlite> 
 
 
-
-
-
 Fossil cloning SOP
 -----------------------
 
-#. run `f-clone url name` notice the generated password for the $USER
+#. run *f-clone url name* notice the generated password for the $USER
 #. open web interface at http://localhost:591/name/
 #. login as $USER using generated password 
 #. click [Admin], [Users], [$USER]
@@ -99,10 +95,10 @@ Fossil cloning SOP
 Fossil Config 
 ----------------
 
-Kept in :file:`~/.env.cnf` 
+Kept in *~/.env.cnf* 
 
-   * server level in `[fossil]` section
-   * repo level in `[name.fossil]` sections
+* server level in *[fossil]* section
+* repo level in *[name.fossil]* sections
 
 
 

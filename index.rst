@@ -57,6 +57,7 @@ Contents:
    sqlite/index
    db/index
    qxml/index
+   fossil/index
 
 Indices and tables
 ==================

@@ -8,16 +8,21 @@ fossil-env(){
     cfg- 
 }
 fossil-usage(){ cat << EOU
-Fossil
-========
+Fossil SCM
+===========
+
+.. contents:: :local:
 
 Simple, high-reliability, distributed software configuration management
 
-  * http://www.fossil-scm.org/fossil/doc/trunk/www/index.wiki
+* http://www.fossil-scm.org/fossil/doc/trunk/www/index.wiki
+* http://www.fossil-scm.org/download.html
 
-  * http://www.fossil-scm.org/download.html
 
-      * release notes
+FOSSIL URLs
+------------
+
+* http://localhost:591/env/timeline
 
 
 Linux serving with xinetd 
@@ -35,7 +40,6 @@ After placing the config, need to restart the xinetd service::
 	[blyth@cms01 e]$ curl http://localhost:591
 	<h1>Not Found</h1>
 
-
 Darwin serving with launchctl
 ------------------------------
 
@@ -44,33 +48,7 @@ Darwin serving with launchctl
     simon:fossil blyth$ sudo launchctl unload $(fossil-cfg-path)
     simon:fossil blyth$ sudo launchctl load $(fossil-cfg-path)
 
-
-Debug OSX config
-------------------
-
-Something on 591::
-
-        simon:src blyth$ curl http://localhost:591
-        launchproxy[179]: execv(): No such file or directory
-        simon:src blyth$ curl http://localhost:592
-        curl: (7) couldn't connect to host
-
-From launchd plist::
-
-    simon:~ blyth$ fossil-cfg-path
-    /Library/LaunchDaemons/org.fossil-scm.fossil.plist
-
-Expecting missing binary::
-
-      <key>ProgramArguments</key>
-        <array>
-            <string>/Users/blyth/fossil/build/fossil</string>
-            <string>http</string>
-            <string>/var/scm/fossil</string>
-        </array>
-
-
-
+Alternatively the function *fossil-reload* does this
 
 
 configure local options
@@ -92,30 +70,90 @@ configure local options
       --markdown                     Build with markdown engine enabled
 
 
+Functions
+-----------
+
+Operational Functions
+~~~~~~~~~~~~~~~~~~~~~~~
+
+*fossil-url-check [url]*
+       check fossil is responding::
+
+            simon:e blyth$ fossil-url-check                     
+            === fossil-url-check : INFO fossil running OK at http://localhost:591
+            simon:e blyth$ fossil-url-check http://localhost:592
+            === fossil-url-check : WARN FOSSIL NOT RUNNING AT http://localhost:592
+
+Build related functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+*fossil-get*
+       download and unpack the tarball distribution
+
+*fossil-cd-build*
+       cd to the fossil build directory, creating it if it doesnt exist
+
+*fossil-build*
+       build with plain vanilla config 
+
+*fossil-build-custom*
+       build with non default config options such as markdown and json support
+
+*fossil-bin*
+       location of fossil binary in the build directory
+
+*fossil-install*
+       plan symbolic link to binary 
+
+Config Functions
+~~~~~~~~~~~~~~~~~~~
+
+*fossil-cfg-path*
+       path to the config file
+
+*fossil-cfg-edit*
+       direct editing the config to test changes before persisting them in the template 
+
+*fossil-tmpl*
+       path to the config template
+
+*fossil-cfg-*
+       fill the template and emit to stdout for checking, the context used for filling comes
+       from the *[fossil]* section of the ini config file *~/.env.cnf*
+
+*fossil-cfg*
+       uses *fossil-cfg-* to generate config and copy it into the needed location
+
+*fossil-reload*
+       *OSX specific* : uses launchctl to unload, then load the fossil config
+
+*fossil-launchctl cmd*
+       launchctl *cmd* operations on the *fossil-cfg-path*
+
+
+Migration Functions
+~~~~~~~~~~~~~~~~~~~~~
+
+*fossil-fromgit*
+       exploring migrations from git into fossil
+
 
 EOU
 }
 
 
-#fossil-nam(){ echo fossil-src-20130216000435 ; }
-#fossil-dir(){ echo $(local-base)/env/fossil/$(fossil-nam) ; }
-fossil-nam(){ echo fossil ; }
-fossil-dir(){ echo $HOME/$(fossil-nam) ; }
-
+fossil-name(){ echo fossil-src-20130216000435 ; }
+fossil-dir(){ echo $(local-base)/env/fossil/$(fossil-name) ; }
 fossil-cd(){  cd $(fossil-dir); }
-fossil-mate(){ mate $(fossil-dir) ; }
+fossil-mate(){ mate $(fossil-dir) ; } 
 fossil-get(){
-  echo now using the cloned trunk for latest fossil rather than tgz
-}
-fossil-get-from-tgz(){
    local dir=$(dirname $(fossil-dir)) &&  mkdir -p $dir && cd $dir
-   local nam=$(fossil-nam)
-   local tgz=$nam.tar.gz
+   local name=$(fossil-name)
+   local tgz=$name.tar.gz
    local url=http://www.fossil-scm.org/download/$tgz
    [ ! -f "$tgz" ] && curl -L -O $url
-   [ ! -d "$nam" ] && tar zxvf $tgz
+   [ ! -d "$name" ] && tar zxvf "$tgz"
 }
-
 
 fossil-cd-build(){
    fossil-cd
@@ -202,8 +240,16 @@ fossil-launchctl(){
    echo sudo launchctl $1 $(fossil-cfg-path)
 }
 
+fossil-url(){
+   echo http://localhost:591
+   # caution duplication of port defined in ~/.env.cnf [fossil]
+}
 
-
+fossil-url-check(){
+   local msg=" === $FUNCNAME : "
+   local url=${1:-$(fossil-url)}
+   [ "$(curl -s $url)" == "<h1>Not Found</h1>" ] && echo $msg INFO fossil running OK at $url  || echo $msg WARN FOSSIL NOT RUNNING AT $url
+}
 
 
 # migration related
