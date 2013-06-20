@@ -13,13 +13,30 @@ Trac Tickets to Bitbucket zip
 * https://confluence.atlassian.com/display/BITBUCKET/Export+or+Import+Issue+Data
 * https://confluence.atlassian.com/pages/viewpage.action?pageId=330796872
 
+
+Bitbucket issue ZIP import
+-----------------------------
+
+One time migration, clobbering any preexisting issues.
+
+
 trac2bb
 --------
+
+* https://bitbucket.org/unayok/trac2bb
 
 #. GPLv3 converter from trac.db into db-1.0.json 
 #. does not handle attachements OR zip file creation
 #. not very modular style, nevertheless interesting for the mappings 
    to translate trac table columns into JSON fields
+
+trac2bitbucket
+--------------
+
+* https://bitbucket.org/thesheep/trac2bitbucket
+
+#. operates via API https://api.bitbucket.org/1.0 rather than json file
+
 
 
 EOU
