@@ -58,25 +58,31 @@ better workaround via reverse proxy on H
 env functions
 ---------------
 
-env-dbg
+*env-dbg*
      invoke with bash rather than . when debugging to see 
      line numbers of errors, CAUTION error reporting can be a line off
 
-env-rsync top-level-fold <target-node>
+*env-rsync top-level-fold [target-node]*
      propagate a top-level-folder without svn, caution can
      leave SVN wc state awry ... usually easiest to delete working
      copy and "svn up" when want to come clean and go back to SVN
      
-env-rsync-all    <target-node>
+*env-rsync-all   [target-node]*
      rsync env working copy excluding .svn etc..
      to a list of remote nodes specified by ssh node tag 
 
-env-again
+*env-again*
      delete working copy and checkout again 
 
-env-u
+*env-u*
      update the working copy, aliased to "eu" 
           
+*env-rst name.bash*
+     create rst wrapper to include the usage bash function
+
+*env-toc*
+     create index.rst toctree referencing all .rst in PWD 
+
 
 absorbing an exported env working copy 
 -----------------------------------------
@@ -125,6 +131,46 @@ env-rel(){
 }
 
 env-gen(){ func-;func-gen $*;}
+
+env-toc-(){ cat << EOX
+
+$(basename $PWD)
+=========================
+
+.. toctree::
+
+EOX
+  ls -1 *.rst | grep -v index.rst | while read line ; do printf "   %s\n" ${line/.rst} ;  done 
+
+echo ""
+}
+
+env-toc(){
+   [ -f index.rst ] && echo index.rst exists already in PWD $PWD, delete and rerun to proceed && return
+   $FUNCNAME- > index.rst
+}
+
+env-rst-(){  
+  cat << EOZ 
+
+.. include:: $name
+   :start-after: cat << EO$token
+   :end-before: EO$token
+
+EOZ
+}
+
+env-rst(){
+   local path=$1
+   local token=${2:-U}   # have to avoid saying E O U together due to bash2rst 
+   local dir=$(dirname $path)
+   local name=$(basename $path)
+   local base=${name/.bash}
+   local rstpath=$dir/$base.rst
+   [ -f "$rstpath" ] && echo $msg rst $rstpath exists already, delete and rerun to proceed && return 
+   $FUNCNAME- > $rstpath
+}
+
 
 env-export(){
    local dir=/tmp/export/env
@@ -1120,3 +1166,4 @@ mysqlrpm-(){      . $(env-home)/mysql/mysqlrpm.bash && mysqlrpm-env $* ; }
 pysqlite-(){    . $(env-home)/sqlite/pysqlite.bash && pysqlite-env $* ; }
 
 
+trac2bitbucket-(){      . $(env-home)/scm/bitbucket/trac2bitbucket.bash && trac2bitbucket-env $* ; }

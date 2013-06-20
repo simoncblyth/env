@@ -10,5 +10,6 @@ SCM
     svn2git
     altbackup
     altquery 
+    bitbucket/index
 
 
