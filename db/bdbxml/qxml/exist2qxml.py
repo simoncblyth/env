@@ -156,7 +156,10 @@ exist2qxml.py
 """
 import os, logging
 log = logging.getLogger(__name__)
-from dbxml import *
+try:
+    import dbxml
+except ImportError:
+    dbxml = None      # for autodoc without the module
 from config import qxml_config
 
 # os.path.relpath only from py26
@@ -194,7 +197,7 @@ class ExistWalk(object):
 
 
 
-def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
+def ingest_url( tag, srcurl, dbx , srcpfx=None ):
     """    
     :parm tag: alias string of the container to be created
     :param srcurl: exist servlet url such as  http://localhost/servlet/db/hfagc/
@@ -221,25 +224,25 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
 
     """
     if not(srcurl.startswith("http://")):
-        log.debug("skipping tag %s dbxml %s as invalid srcurl %s " % ( tag, dbxml, srcurl ))
+        log.debug("skipping tag %s dbxml %s as invalid srcurl %s " % ( tag, dbx, srcurl ))
         return
     else:
-        log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcurl ))
+        log.info("ingest %s creating %s from xml files from %s " % ( tag, dbx, srcurl ))
     pass
 
-    fold = os.path.dirname(dbxml)
+    fold = os.path.dirname(dbx)
     if not os.path.exists(fold):
         log.info("creating folder %s " % fold )     
         os.makedirs(fold)     
 
     try:
-        mgr = XmlManager()
+        mgr = dbxml.XmlManager()
         ing = ExistWalk(mgr)
         update = srcpfx != None
         if update:
-            cont = mgr.openContainer(dbxml)
+            cont = mgr.openContainer(dbx)
         else:  
-            cont = mgr.createContainer(dbxml)
+            cont = mgr.createContainer(dbx)
         uctx = mgr.createUpdateContext()
         for (urlpath, collections, resources) in ing.walk( srcurl ):
             rurl = relpath(urlpath, srcurl )   
@@ -261,7 +264,7 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
                     cont.deleteDocument( n , uctx )     
                 cont.putDocument( doc , uctx, 0 ) 
 
-    except XmlException, e:
+    except dbxml.XmlException, e:
         print "XmlException (", e.exceptionCode,"): ", e.what
         if e.exceptionCode == DATABASE_ERROR:
             print "Database error code:",e.dbError
@@ -269,28 +272,28 @@ def ingest_url( tag, srcurl, dbxml , srcpfx=None ):
 
 
 
-def ingest_dir( tag, srcdir , dbxml , srcpfx='/' ):
+def ingest_dir( tag, srcdir , dbx , srcpfx='/' ):
     """
     :parm tag: alias string of the container to be created
     :param srcdir: exist backup directory to ingest into dbxml container
-    :param dbxml: path of dbxml container to be created
+    :param dbx: path of dbxml container to be created
 
     """
     if srcdir == "":
-        log.debug("skipping tag %s dbxml %s as invalid srcdir " % ( tag, dbxml ))
+        log.debug("skipping tag %s dbxml %s as invalid srcdir " % ( tag, dbx ))
         return
     elif not(os.path.isdir(srcdir)):
-        log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbxml ))     
+        log.warn("srcdir \"%s\" does not exist skip ingest into %s " % ( srcdir , dbx ))     
         return
     else:
-        log.info("ingest %s creating %s from xml files from %s " % ( tag, dbxml, srcdir ))
+        log.info("ingest %s creating %s from xml files from %s " % ( tag, dbx, srcdir ))
     pass
 
     try:
-        mgr = XmlManager()
+        mgr = dbxml.XmlManager()
         xmeta = ExistMeta(mgr)
         metaname = ExistMeta.metaname
-        cont = mgr.createContainer(dbxml)
+        cont = mgr.createContainer(dbx)
         ctx = mgr.createUpdateContext()
     
         for (dirpath, dirnames, filenames) in os.walk( srcdir ):
@@ -311,11 +314,11 @@ def ingest_dir( tag, srcdir , dbxml , srcpfx='/' ):
                 doc.setName(n)
                 doc.setContentAsXmlInputStream(stm)
                 for key, val in xm.items():
-                    doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
+                    doc.setMetaData( ExistMeta.namespace , key, dbxml.XmlValue(val) )
                 pass
                 cont.putDocument( doc , ctx, 0 ) 
         pass
-    except XmlException, e:
+    except dbxml.XmlException, e:
         print "XmlException (", e.exceptionCode,"): ", e.what
         if e.exceptionCode == DATABASE_ERROR:
             print "Database error code:",e.dbError
