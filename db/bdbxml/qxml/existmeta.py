@@ -7,7 +7,11 @@ http://www.oracle.com/technetwork/database/berkeleydb/xml-faq-088319.html#Howcan
 """
 import os, logging
 log = logging.getLogger(__name__)
-from dbxml import *
+
+try:
+    import dbxml
+except ImportError:
+    dbxml = None
 
 
 class ExistMeta(object):
@@ -32,7 +36,7 @@ class ExistMeta(object):
 	pass
         doc = mgr.createDocument()
         doc.setContent( open(path).read() )
-        ctx = XmlValue(doc)
+        ctx = dbxml.XmlValue(doc)
         meta = {}
         for v in qe.execute( ctx, qctx ):
 	    d = dict([(att.getNodeName(),att.getNodeValue()) for att in v.getAttributes()])
@@ -66,7 +70,7 @@ if __name__ == '__main__':
 
     path = "/data/heprez/data/backup/part/localhost/last/db/hfagc_system/__contents__.xml"
     try:
-        mgr = XmlManager()
+        mgr = dbxml.XmlManager()
         #meta = existmeta( mgr , path )
 
         em = ExistMeta(mgr)
@@ -74,7 +78,7 @@ if __name__ == '__main__':
 
 	print meta
 
-    except XmlException, e:
+    except dbxml.XmlException, e:
 	print "XmlException (", e.exceptionCode,"): ", e.what
 	if e.exceptionCode == DATABASE_ERROR:
 	    print "Database error code:",e.dbError

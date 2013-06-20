@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-from dbxml import *
+try:
+    import dbxml
+except ImportError:
+    dbxml = None 
 from existmeta import ExistMeta
 import os
 from datetime import datetime
@@ -10,10 +13,10 @@ def existsDoc( docname, cont ):
     :param cont: 
     """
     try:
-        doc = cont.getDocument(docname, DBXML_LAZY_DOCS)
+        doc = cont.getDocument(docname, dbxml.DBXML_LAZY_DOCS)
         ret = True
-    except XmlException, e:
-        if e.exceptionCode == DOCUMENT_NOT_FOUND:
+    except dbxml.XmlException, e:
+        if e.exceptionCode == dbxml.DOCUMENT_NOT_FOUND:
             ret = False
         else:
             throw    
@@ -36,7 +39,7 @@ def urlDoc(mgr, url, other="", name=None, meta=None ):
     doc.setName( name )
     if meta:
         for key, val in meta.items():
-            doc.setMetaData( ExistMeta.namespace , key, XmlValue(val) )
+            doc.setMetaData( ExistMeta.namespace , key, dbxml.XmlValue(val) )
     return doc
 
 
@@ -88,7 +91,7 @@ class ExistDirQuery(object):
         if not(dirurl.endswith('/')):
             dirurl = dirurl + '/'
         doc = urlDoc( self.mgr, dirurl )
-        ctx = XmlValue(doc)
+        ctx = dbxml.XmlValue(doc)
 
         collections = []
         resources = []
@@ -117,7 +120,7 @@ if __name__ == '__main__':
 
     from config import qxml_config
     cfg = qxml_config()
-    mgr = XmlManager()
+    mgr = dbxml.XmlManager()
     cnt = mgr.openContainer(cfg['containers']['sys'])
 
     checks = 'v1qtags.xml v2qtags.xml v3qtags.xml'

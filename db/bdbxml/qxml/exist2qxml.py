@@ -135,24 +135,6 @@ deletion before rerunning::
     simon:~ blyth$ 
 
 
-TODO
-=====
-
- 1) split ingest_dir into
-   
-       `ingest_backup` 
-             with source the path to the __contents__.xml 
-         operating via traversing __contents__.xml files 
-
-       `ingest_dir` 
-             loading generic directories of xml files via directory walk
-
-  2) provide argument handling to propagate single files across
-
-exist2qxml.py
-
-
-
 """
 import os, logging
 log = logging.getLogger(__name__)
