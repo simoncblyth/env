@@ -257,6 +257,7 @@ local-tag2ip(){
           ZZ) echo dayabay.ihep.ac.cn ;;
           WW) echo 202.122.32.203 ;;
          SDU) echo rh02.hepg.sdu.edu.cn ;; 
+           K) echo 130.87.106.59 ;;
   esac 
 }
 
