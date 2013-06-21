@@ -6,21 +6,23 @@ cron-vi(){     vi $(cron-source) ; }
 cron-usage(){
 cat << EOU
 
-   cron-list <username>   : list the crontab for the user   , note in particular the path to the logfiles  
-   cron-delete <username> : 
+CRON FABRICATION
+==================
 
-  
-   cron-backup-reset           : invoke the below 
-     cron-setup-backup blyth   : setup of rsyncing the backups off box
-     cron-setup-backup root    : setup of doing the backups 
+.. warning:: Usage of cron fabrication is deprecated, its easier to do this manually 
 
-   cron-log                  : ls \$CRON_LOGDIR $CRON_LOGDIR  
+*cron-list username*   
+         list the crontab for the user   , note in particular the path to the logfiles  
 
+*cron-delete username*  
 
-
+*cron-backup-reset*           
+        invoke the below for blyth and root
+    
+*cron-setup-backup username*   
+         setup of rsyncing the backups off box
 
 EOU
-
 }
 
 

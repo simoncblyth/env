@@ -262,6 +262,19 @@ FUNCTIONS
          copy over the reps for a specific day 
 
 
+*scm-backup-eup*
+
+         updates the env sphinx docs, including the SCM backup tarball monitoring pages and plots.
+         
+         On repo node C2, this is done automatically via root crontab running *scm-backup-monitor* 
+         This means that in order to update env docs on C2, must do so as root::
+
+              ssh C2 /data/env/system/svn/subversion-1.4.6/bin/svn up \~/env
+              ssh C2R
+                       scm-backup-
+                       scm-backup-eup
+
+
 Common issues 
 ----------------
 
@@ -275,18 +288,19 @@ compare::
         scm-backup-rls
 
 check base/cron.bash ... usually some environment change has broken the env setup for cron
-after modifications reset the cron backups..
+after modifications reset the cron backups::
     
        cron-
        cron-usage
        cron-backup-reset
        cron-list root
        cron-list blyth
+  
 
-   
+.. warning:: Usage of cron fabrication is deprecated, its easier to do this manually 
+ 
 backups done but not synced off box
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     
      
 Probably the agent needs restarting.. this is needs to be done manually after a reboot see::
  
