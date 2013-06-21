@@ -159,16 +159,34 @@ env-rst-(){
 
 EOZ
 }
+env-rst-xml-(){  
+  cat << EOZ 
+
+.. include:: $name
+   :start-after: <description>
+   :end-before: </description>
+
+EOZ
+}
 
 env-rst(){
    local path=$1
    local token=${2:-U}   # have to avoid saying E O U together due to bash2rst 
    local dir=$(dirname $path)
    local name=$(basename $path)
-   local base=${name/.bash}
+   local base
+   if [ "$name" == "build.xml" ]; then 
+       base=${name/.xml}
+   else
+       base=${name/.bash}
+   fi
    local rstpath=$dir/$base.rst
    [ -f "$rstpath" ] && echo $msg rst $rstpath exists already, delete and rerun to proceed && return 
-   $FUNCNAME- > $rstpath
+
+   case $name in 
+     build.xml) $FUNCNAME-xml- > $rstpath ;;
+             *) $FUNCNAME-     > $rstpath ;;
+   esac
 }
 
 
