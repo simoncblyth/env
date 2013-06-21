@@ -14,55 +14,70 @@ EOL
 
 
 
-scm-backup-usage(){
-cat << EOU
+scm-backup-usage(){ cat << EOU
 
+SCM BACKUP
+============
 
+.. contents:: :local:
 
-   NON-STANDARD PORT
+NON-STANDARD PORT
+------------------
+
+::
 
         -e "ssh -p $portNumber"
 
 
-   STATE OF LOCK ADDITIONS
+STATE OF LOCK ADDITIONS
+-------------------------
 
-       * cannot incorp the scm-backup-rsync LOCKS in the IHEP->NTU transfers due to 
-         lack of permissions : working with Q to incorp the scm-backup-rsync into the root cron task 
-         by reviving the ssh-agent hook up 
+* cannot incorp the *scm-backup-rsync* LOCKS in the IHEP to NTU transfers due to 
+  lack of permissions : working with Q to incorp the *scm-backup-rsync* into the root cron task 
+  by reviving the ssh-agent hook up 
 
-   ABOUT LOCKING : GLOBAL AND RSYNC LOCKS
+ABOUT LOCKING : GLOBAL AND RSYNC LOCKS
+----------------------------------------
 
-      * during scm-backup-all the "global" LOCKED directory $SCM_FOLD/LOCKED is created 
-      * scm-backup-rsync pays attention to this LOCKED, and will abort if present
-      * during scm-backup-rsync both the global LOCKED as described above and additional rsync LOCKED 
-        are planted in eg $SCM_FOLD/backup/cms02/LOCKED/ during each transfer to partnered remote nodes
-      * following rsync completion the rsync LOCKED is removed and a quick re-rsync is done to remove the LOCKED
+* during *scm-backup-all* the "global" LOCKED directory $SCM_FOLD/LOCKED is created 
+* *scm-backup-rsync* pays attention to this LOCKED, and will abort if present
+* during *scm-backup-rsync* both the global LOCKED as described above and additional rsync LOCKED 
+  are planted in eg $SCM_FOLD/backup/cms02/LOCKED/ during each transfer to partnered remote nodes
+* following rsync completion the rsync LOCKED is removed and a quick re-rsync is done to remove the LOCKED
     
-     Note that the rsync LOCKED status is propagated to the remote directory during the rsync transfer, thus
-     avoiding usage during transfers.
+Note that the rsync LOCKED status is propagated to the remote directory during the rsync transfer, thus
+avoiding usage during transfers.
 
-   INTEGRITY CHECKS
+INTEGRITY CHECKS
+----------------
 
-      Locking now prevents backup/rsync/recover functions both locally and remotely from touching partials.
-      The backup procedures are purported to be hotcopy of themselves although mismatches 
-      between what gets into the trac instance backup and the svn repo backup are possible.
-      Such mismatches would not cause corruption however, probably just warnings from Trac syncing. 
+Locking now prevents backup/rsync/recover functions both locally and remotely from touching partials.
+The backup procedures are purported to be hotcopy of themselves although mismatches 
+between what gets into the trac instance backup and the svn repo backup are possible.
+Such mismatches would not cause corruption however, probably just warnings from Trac syncing. 
 
-      The DNA check ensures that the tarball content immediately after creation corresponds 
-      precisely to the tarball at the other end of the transfers.
+The DNA check ensures that the tarball content immediately after creation corresponds 
+precisely to the tarball at the other end of the transfers.
 
-      * scm-backup-trac 
-           * scm-tgzcheck-trac  : does a ztvf to /dev/null, extracts trac.db from tgz, dumps trac sql using sqlite3 
-           * scm-backup-dna     : writes python dict containing md5 digest and size of tgz in sidecar .dna file
-      * scm-backup-repo
-           * scm-tgzcheck-ztvf  : does a ztvf to /dev/null
-           * scm-backup-dna     : as above
+* scm-backup-trac 
 
-      * scm-backup-rsync
-           * performs remote DNA check for each paired backup node with scm-backup-dnachecktgzs : 
-             finds .tar.gz.dna and looks for mutants (by comparing sidecar DNA with recomputed)
+   * scm-tgzcheck-trac  : does a ztvf to /dev/null, extracts trac.db from tgz, dumps trac sql using sqlite3 
+   * scm-backup-dna     : writes python dict containing md5 digest and size of tgz in sidecar .dna file
+
+* scm-backup-repo
+
+   * scm-tgzcheck-ztvf  : does a ztvf to /dev/null
+   * scm-backup-dna     : as above
+
+* scm-backup-rsync
+
+   * performs remote DNA check for each paired backup node with scm-backup-dnachecktgzs : 
+     finds .tar.gz.dna and looks for mutants (by comparing sidecar DNA with recomputed)
                 
-    DURING AN RSYNC TRANSFER, BOTH SIZE AND DIGEST DIFFER 
+DURING AN RSYNC TRANSFER, BOTH SIZE AND DIGEST DIFFER 
+--------------------------------------------------------
+
+::
 
          [dayabay] /home/blyth/env > ~/e/base/digestpath.py  /home/scm/backup/dayabay/svn/dybaux/2011/10/19/100802/dybaux-5086.tar.gz
          {'dig': '7b87e78cc03ea544e2ad3abae46eecd1', 'size': 1915051630L}
@@ -74,39 +89,45 @@ cat << EOU
          {'dig': 'da39aee61a748602a15c98e3db25d008', 'size': 1915004348L}
                        sometime later, there is no change : transfer stalled  ?
 
+ISSUES WITH NEW INTEGRITY TESTS
+----------------------------------
 
-   ISSUES WITH NEW INTEGRITY TESTS
-       * SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
-       * expensive 
-       * temporarily take loadsa disk space ~4GB (liable to cause non-interesting problems)
+* SCM_BACKUP_TEST_FOLD  ignored by scm-backup-purge
+* expensive 
+* temporarily take loadsa disk space ~4GB (liable to cause non-interesting problems)
 
-   IHEP CRON RUNNING OF THE BACKUPS ...
-       changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
+IHEP CRON RUNNING OF THE BACKUPS 
+----------------------------------
 
-
-   POTENTIAL scm-backup-repo ISSUE AT 2GB 
-
-      http://subversion.apache.org/faq.html#hotcopy-large-repos
-
-           Early versions of APR on its 0.9 branch, which Apache 2.0.x and Subversion 1.x use, 
-           have no support for copying large files (2Gb+). 
-           A fix which solves the 'svnadmin hotcopy' problem has been applied and 
-           is included in APR 0.9.5+ and Apache 2.0.50+. 
-           The fix doesn't work on all platforms, but works on Linux.
-
-      On C2 are using source apache  /data/env/system/apache/httpd-2.0.63 
+changed Aug 2011 :  Cron jobs time changed to 15pm(Beijing Time) and 09am(beijing).
 
 
-   HOW TO RECOVER dayabay TARBALLS ONTO cms02, run from C2 (sudo is used)
+POTENTIAL scm-backup-repo ISSUE AT 2GB 
+----------------------------------------
 
-      1) from C2  : scm-backup-rsync-dayabay-pull-from-cms01
-      2) from C2  : scm-recover-all dayabay
+* http://subversion.apache.org/faq.html#hotcopy-large-repos
 
-    Note potential issue of incomplete tarballs, to reduce change 
+Early versions of APR on its 0.9 branch, which Apache 2.0.x and Subversion 1.x use, 
+have no support for copying large files (2Gb+). 
+A fix which solves the 'svnadmin hotcopy' problem has been applied and 
+is included in APR 0.9.5+ and Apache 2.0.50+. 
+The fix doesn't work on all platforms, but works on Linux.
 
-   HOW TO TEST SOME IMPROVED ERROR CHECKING WITH SINGLE REPO/TRAC BACKUPS
+On C2 are using source apache  /data/env/system/apache/httpd-2.0.63 
 
-     Run as root, eg from C2R::
+
+HOW TO RECOVER dayabay TARBALLS ONTO cms02, run from C2 (sudo is used)
+-----------------------------------------------------------------------
+
+#. from C2 : scm-backup-rsync-dayabay-pull-from-cms01
+#. from C2 : scm-recover-all dayabay
+
+Note potential issue of incomplete tarballs, to reduce change 
+
+HOW TO TEST SOME IMPROVED ERROR CHECKING WITH SINGLE REPO/TRAC BACKUPS
+------------------------------------------------------------------------
+
+Run as root, eg from C2R::
 
          scm-backup-         ## pick up changes
          t scm-backup-repo   ## check the function   
@@ -118,9 +139,10 @@ cat << EOU
          scm-backup-trac newtest /var/scm/tracs/newtest /tmp/bkp dummystamp
 
 
-   TESTING FULL BACKUP INTO TMP DIRECTORY
+TESTING FULL BACKUP INTO TMP DIRECTORY
+---------------------------------------
 
-     Run as root, eg from C2R::
+Run as root, eg from C2R::
 
          scm-backup-
          t scm-backup-all   ## check the function   
@@ -130,144 +152,164 @@ cat << EOU
          cd /tmp ; SCM_BACKUP_TEST_FOLD=/tmp/bkptest scm-backup-all
 
 
-    SLIMMING THE TRAC TGZ ... ALL THOSE BITTEN LOGS
+SLIMMING THE TRAC TGZ ... ALL THOSE BITTEN LOGS
+-------------------------------------------------
 
-         http://bitten.edgewall.org/ticket/519
+* http://bitten.edgewall.org/ticket/519
 
-{{{
-DELETE FROM bitten_log_message WHERE log IN (SELECT id FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk'))
-DELETE FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_error WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_step WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
-DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
-}}}
+::
 
-
-
+    DELETE FROM bitten_log_message WHERE log IN (SELECT id FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk'))
+    DELETE FROM bitten_log WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+    DELETE FROM bitten_error WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+    DELETE FROM bitten_step WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+    DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
+    DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
 
 
-   \$SCM_FOLD   : $SCM_FOLD
-   \$BACKUP_TAG : $BACKUP_TAG
 
-   scm-backup-du   :   local  backup .gz sizes  in \$SCM_FOLD 
-   scm-backup-rls  :   remote ls the .gz on the paired backup node $BACKUP_TAG
-   scm-backup-mail :   send mail with the remote list  
+FUNCTIONS
+----------
 
-   scm-backup-check :  find tarballs on all backup nodes
-   scm-backup-df    :  check freespace on server and all backup nodes
+*scm-backup-du*   
+        local  backup .gz sizes  in \$SCM_FOLD 
+*scm-backup-rls*  
+        remote ls the .gz on the paired backup node $BACKUP_TAG
+*scm-backup-mail* 
+        send mail with the remote list  
+*scm-backup-check*
+        find tarballs on all backup nodes
+*scm-backup-df*    
+        check freespace on server and all backup nodes
 
-   scm-backup-postfix-start  
+*scm-backup-postfix-start*  
     
-    
-   scm-backup-bootstrap   <no arguments>
-          rsync the tarballs from the backup node of the designated server node
-          for this node and recover from them
+*scm-backup-bootstrap*
+        rsync the tarballs from the backup node of the designated server node
+        for this node and recover from them
 
-
-   scm-backup-nightly-as-root :   does it as root ... as done in the crontab
-   scm-backup-all-as-root :   does the below as root ... as done in the crontab
+*scm-backup-nightly-as-root*    
+        does it as root ... as done in the crontab
+*scm-backup-all-as-root*   
+        does the below as root ... as done in the crontab
     
-   scm-backup-all :   invokes the below 
-      scm-backup-repo
-      scm-backup-trac
-      scm-backup-folder   for the apache-confdir   
-      scm-backup-purge   : retain the backups from the last 7 days only
-      
-   scm-recover-all  <fromnode>
+*scm-backup-all* 
+        invokes the below::
+
+              scm-backup-repo
+              scm-backup-trac
+              scm-backup-folder   for the apache-confdir   
+              scm-backup-purge   : retain the backups from the last 7 days only
+              
+*scm-recover-all fromnode*
    
-      NB the folders are not recovered by this, as is installation
-      specific, nevertheless tis important that the users file is
-      backed up...
+         NB the folders are not recovered by this, as is installation
+         specific, nevertheless tis important that the users file is
+         backed up...
 
-      BUT it does invoke scm-recover-users 
+         BUT it does invoke *scm-recover-users* 
 
-   scm-recover-users <fromnode>
+*scm-recover-users fromnode*
 
-      extract the users file from the last svnsetup tarball, 
-      called by scm-recover-all
-      NB the other svnsetup files are sourced from the repository 
-      and contain system specific paths ... so more direct to re-generate 
-      them rather than using the backups  
+         extract the users file from the last svnsetup tarball, 
+         called by *scm-recover-all*
+         NB the other svnsetup files are sourced from the repository 
+         and contain system specific paths ... so more direct to re-generate 
+         them rather than using the backups  
 
-      The users file is different because it is edited thru the webadmin 
-      interface     
+         The users file is different because it is edited thru the webadmin 
+         interface     
 
   
-   scm-recover-folders <fromnode>
-       still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
+*scm-recover-folders fromnode*
+         still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
        
-       recovers the users and permissions files from the last backup
+         recovers the users and permissions files from the last backup
   
-   scm-recover-lastlinks  <typ>     
+*scm-recover-lastlinks typ*     
       
-      <typ> defaults to tar.gz
+         typ defaults to tar.gz
       
-       this must be run from the backup folder that should contain
-       the "last" link eg :
-            /var/scm/backup/cms01/tracs/env
-                    last -> 2008/08/14/174749
+         this must be run from the backup folder that should contain
+         the "last" link eg::
+
+              /var/scm/backup/cms01/tracs/env
+              last -> 2008/08/14/174749
      
-       if the "last" link exists then exit without doing anything, 
-       however if the last link has been collapsed into a folder 
-       (eg by web transfers or non-careful copying) 
-       then delete that folder and attempt to recreate the 
-       "last" link to the directory containing the last file of type
+         if the "last" link exists then exit without doing anything, 
+         however if the last link has been collapsed into a folder 
+         (eg by web transfers or non-careful copying) 
+         then delete that folder and attempt to recreate the 
+         "last" link to the directory containing the last file of type
        
   
   
-   scm-backup-rsync :   to the paired node
-         to override and send the backup to non-standard destination,
-        eg while not inside home internal network need to use G3R
+*scm-backup-rsync*    
+
+        to the paired node
+        to override and send the backup to non-standard destination,
+        eg while not inside home internal network need to use G3R::
+
              BACKUP_TAG=G3R scm-backup-rsync
 
 
-   scm-backup-rsync-from-node : 
-                   rsync the backups from a remote node 
+*scm-backup-rsync-from-node*
 
-   scm-backup-dybsvn-from-node : 
-                  copy over the reps for a specific day 
+         rsync the backups from a remote node 
+
+*scm-backup-dybsvn-from-node*
+
+         copy over the reps for a specific day 
 
 
-  Common issues ...
+Common issues 
+----------------
+
   
-     1) backups stopped :
+backups stopped 
+~~~~~~~~~~~~~~~~~
     
-    compare :
+compare::
+
         scm-backup-du
         scm-backup-rls
-    check base/cron.bash ... usually some environment change has broken the env setup for cron
-    after modifications reset the cron backups..
+
+check base/cron.bash ... usually some environment change has broken the env setup for cron
+after modifications reset the cron backups..
     
        cron-
        cron-usage
        cron-backup-reset
        cron-list root
        cron-list blyth
+
    
-    2) backups done but not synced off box
+backups done but not synced off box
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      
      
-     Probably the agent needs restarting.. this is needs to be done manually after a reboot
-     see 
+Probably the agent needs restarting.. this is needs to be done manually after a reboot see::
+ 
         ssh--usage
         ssh--agent-start
-     then check offbox passwordless access with
+
+then check offbox passwordless access with::
+
         scm-backup-
         scm-backup-rls
       
-         
-  Do an emergency backup and rsync, with :
+Do an emergency backup and rsync, with::
   
     scm-backup-all-as-root 
     scm-backup-rsync       
     scm-backup-rls      ## check the remote tgz
 
 
-  TODO : 
+TODO 
+----
   
-     1) divided reposnsibilities between here and cron.bash is a mess
-     2) not easy to add things to crontab because of this morass 
+#. divided reposnsibilities between here and cron.bash is a mess
+#. not easy to add things to crontab because of this morass 
 
 
 
@@ -1799,11 +1841,17 @@ scm-backup-monitor-(){
    echo $msg $cmd
    eval $cmd 
 
-   cmd="cd $(env-home) && PATH=$(env-home)/bin:$PATH make && make rsync "
+   scm-backup-eup
+}
+
+
+scm-backup-eup(){
+   local msg="=== $FUNCNAME :"
+   local cmd="cd $(env-home) && PATH=$(env-home)/bin:$PATH make && make rsync "
    echo $msg $cmd updating html 
    eval $cmd 
-
 }
+
 
 scm-backup-monitor(){  scm-backup-monitor- C2 ; }
 scm-backup-monitorw(){ scm-backup-monitor- G ; }

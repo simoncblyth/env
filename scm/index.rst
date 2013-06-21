@@ -4,6 +4,7 @@ SCM
 
 .. toctree::
 
+    scm-backup
     notes
     monitor/index
     dev
@@ -11,5 +12,6 @@ SCM
     altbackup
     altquery 
     bitbucket/index
+    
 
 
