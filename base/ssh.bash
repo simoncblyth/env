@@ -117,6 +117,135 @@ Appending keys for restricted no-login shell identity
     sudo bash -c "cat dybdb1.* >>  ~dayabayscp/.ssh/authorized_keys2"  
 
 
+Private web server access over SSH 
+------------------------------------
+
+The problem: a remote node K is running a web server that you wish to 
+test from your laptop but the remote node is not web accessible. 
+How can you conveniently check webserver responses 
+from browsers or commandlines on your laptop ?
+
+Fork a tunnel
+~~~~~~~~~~~~~~
+
+Start the tunnel from a separate Terminal.app window on your laptop 
+to avoid accidental termination::
+
+    simon:~ blyth$ ssh--
+    simon:~ blyth$ ssh--tunnel K 9090
+
+         -D Specifies a local dynamic'' application-level port forwarding.  This works by allocating a socket to listen to port on the local side, optionally bound to the specified bind_address. 
+         -N no remote command, just forward
+         -f go to background 
+
+       kill the process to stop the tunnel 
+
+    opening tunnel with command ...  ssh -fND localhost:9090 K
+
+Alternatively without the *ssh--tunnel* bash function can just directly do::
+
+    ssh -fND localhost:9090 K
+
+Check the tunnel process::
+
+    simon:e blyth$ ps aux | grep localhost:9090
+    blyth    20464   0.0  0.0    77864    488   ??  Ss   12:43pm   0:00.01 ssh -fND localhost:9090 K
+
+Direct access does not work
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because the request is not going via the local 9090 port setup::
+
+    simon:~ blyth$ curl http://130.87.106.59:9090/servlet/db/
+    ^C
+
+Socks aware commandline clients like curl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some commandline tools support routing requests via the SOCKS proxy::
+
+    simon:~ blyth$ curl --socks5 localhost:9090 http://130.87.106.59:9090/servlet/db/
+    <exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist">
+        <exist:collection name="/db" owner="admin" group="dba" permissions="rwurwurwu">
+            <exist:collection name="test" created="Jun 20, 2013 08:56:20" owner="guest" group="guest" permissions="rwur-ur-u"/>
+            <exist:collection name="hfagc_tags" created="Jun 20, 2013 08:56:20" owner="admin" group="dba" permissions="rwur-ur-u"/>
+            <exist:collection name="hfagc" created="Jun 20, 2013 08:56:14" owner="admin" group="dba" permissions="rwur-ur-u"/>
+        </exist:collection>
+    </exist:result>
+
+
+That is equivalent to sshing into the remote node and running the query locally::
+
+    b2mc:~ heprez$ curl http://130.87.106.59:9090/servlet/db/
+    <exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist">
+        <exist:collection name="/db" owner="admin" group="dba" permissions="rwurwurwu">
+            <exist:collection name="test" created="Jun 20, 2013 08:56:20" owner="guest" group="guest" permissions="rwur-ur-u"/>
+            <exist:collection name="hfagc_tags" created="Jun 20, 2013 08:56:20" owner="admin" group="dba" permissions="rwur-ur-u"/>
+            <exist:collection name="hfagc" created="Jun 20, 2013 08:56:14" owner="admin" group="dba" permissions="rwur-ur-u"/>
+        </exist:collection>
+    </exist:result>
+
+
+Configure OSX Safari to use the SOCKS proxy 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Add an *if* section to the *~/env/proxy/socks.pac* file  
+corresponding to the URL want to check::
+
+   function FindProxyForURL(url, host) {
+   ...
+   if (url.substring(0,25) ==   "http://130.87.106.59:9090" ){
+      return "SOCKS 127.0.0.1:9090" ;
+   }  
+   ...
+   return "DIRECT" ;
+   }
+
+
+.. warning:: experience suggests it is more reliable to use IP addresses rather than names 
+
+
+#. go to *System Preferences/Network/Advanced.../Ethernet/Proxies/Configure Proxies:Using a PAC file*
+#. select the file *~/env/proxy/socks.pac*
+#. Then click *APPLY* button and close the window with top left red icon
+#. exit Safari.app if already running and open it again 
+
+* :env:`/wiki/Tunneling`
+
+#. test by enterinng URLs into Safari URL bar like, 
+
+   * http://130.87.106.59:9090/servlet/db/
+   * http://130.87.106.59:9090/xmldb/db/
+
+
+NB this will stop working when the session establishing the tunnel is closed 
+
+
+Resuming a broken tunnel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Check the tunnel process::
+
+    simon:e blyth$ ps aux | grep localhost:9090
+    blyth    20464   0.0  0.0    77864    488   ??  Ss   12:43pm   0:00.01 ssh -fND localhost:9090 K
+
+
+After killing the tunnel process, curl responds with *connection fails* almost instantaneously::
+
+    simon:e blyth$ kill -9 20464 
+    simon:e blyth$ curl --socks5 localhost:9090 http://130.87.106.59:9090/servlet/db/
+    curl: (7) couldnt connect to host
+    simon:proxy blyth$ 
+
+Similarly Safari says "Contacting 130.87.106.59" and after a minute or so gives an error page::
+
+    Safari cant open the page.
+    Safari cant open the page http://130.87.106.59:9090/xmldb/db/test/ because the server where this page is located isnt responding.
+
+
+Starting another tunnel immediately gives curl and Safari access again.
+
+
 
 
 How to handle scponly nodes + roots keys ? 

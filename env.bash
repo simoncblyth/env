@@ -1167,3 +1167,4 @@ pysqlite-(){    . $(env-home)/sqlite/pysqlite.bash && pysqlite-env $* ; }
 
 
 trac2bitbucket-(){      . $(env-home)/scm/bitbucket/trac2bitbucket.bash && trac2bitbucket-env $* ; }
+proxy-(){      . $(env-home)/proxy/proxy.bash && proxy-env $* ; }

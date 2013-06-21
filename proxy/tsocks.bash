@@ -3,9 +3,36 @@ tsocks-src(){      echo proxy/tsocks.bash ; }
 tsocks-source(){   echo ${BASH_SOURCE:-$(env-home)/$(tsocks-src)} ; }
 tsocks-vi(){       vi $(tsocks-source) ; }
 tsocks-env(){      elocal- ; }
-tsocks-usage(){
-  cat << EOU
-     tsocks-src : $(tsocks-src)
+tsocks-usage(){ cat << EOU
+
+TSOCKS : Transparent Socks Proxying
+======================================
+
+tsocks allows non SOCKS aware applications (e.g telnet, ssh, ftp etc) 
+to use SOCKS without any modification. It does this by intercepting
+the calls that applications make to establish network connections and
+negotating them through a SOCKS server as necessary.
+
+
+* http://tsocks.sourceforge.net/
+* http://blog.yimingliu.com/2009/03/05/ssh-subversion-through-socks-proxy-on-mac-os-x/
+* http://alexborisov.org/tunnel-your-apps-via-ssh-with-tsocks/
+* :env:`/wiki/SSHSocksProxy`
+
+
+Create SOCKS proxy server with SSH
+------------------------------------
+
+
+
+
+Alternatives
+-------------
+
+* https://github.com/haad/proxychains
+
+
+
 
 EOU
 }
