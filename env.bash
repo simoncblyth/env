@@ -1186,3 +1186,5 @@ pysqlite-(){    . $(env-home)/sqlite/pysqlite.bash && pysqlite-env $* ; }
 
 trac2bitbucket-(){      . $(env-home)/scm/bitbucket/trac2bitbucket.bash && trac2bitbucket-env $* ; }
 proxy-(){      . $(env-home)/proxy/proxy.bash && proxy-env $* ; }
+jni_hello_world-(){      . $(env-home)/java/jni/jni_hello_world.bash && jni_hello_world-env $* ; }
+jexec-(){      . $(env-home)/java/commons/exec/jexec.bash && jexec-env $* ; }

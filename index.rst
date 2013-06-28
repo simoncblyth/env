@@ -58,6 +58,7 @@ Contents:
    db/index
    qxml/index
    fossil/index
+   java/index
 
 Indices and tables
 ==================

@@ -9,26 +9,27 @@ modpython-(){   . $ENV_HOME/apache/apachebuild/modpython.bash   && modpython-env
 mpinfo-(){      . $ENV_HOME/apache/apachebuild/mpinfo.bash      && mpinfo-env $* ; } 
 iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env $* ; }
 
-apache-usage(){
+apache-usage(){ cat << EOU
 
-   cat << EOU
+APACHE
+=======
 
-    DONT YOU JUST HATE THE WAY APACHE SPREADS ITS CONFIG 
-    LIKE CONFETTI ALL OVER THE SERVER ... 
+DONT YOU JUST HATE THE WAY APACHE SPREADS ITS CONFIG 
+LIKE CONFETTI ALL OVER THE SERVER ... 
 
-    Potential approach to avoid every server needing 
-    to know intimate details on the other servers 
-    (apache mode, file layout)  and the mess of these functions
-    is to move to using rsync daemons.
-    These allow important locations like htdocs to be
-    referenced via "module" name, corresponding to named sections 
-    of rsyncd.conf files of each rsyncd daemon that point 
-    to local directories.  [Analogous to method call, rather than 
-    member access]. 
+Potential approach to avoid every server needing 
+to know intimate details on the other servers 
+(apache mode, file layout)  and the mess of these functions
+is to move to using rsync daemons.
+These allow important locations like htdocs to be
+referenced via "module" name, corresponding to named sections 
+of rsyncd.conf files of each rsyncd daemon that point 
+to local directories.  [Analogous to method call, rather than 
+member access]. 
        
-    This moves the hassle into many rsyncd.conf rather than all 
-    together here ... overall advantageous I think, treating the 
-    server as an opaque object.
+This moves the hassle into many rsyncd.conf rather than all 
+together here ... overall advantageous I think, treating the 
+server as an opaque object.
  
      apache-src      : $(apache-src)
      apache-vi
@@ -319,6 +320,7 @@ EOI
 apache-mode-default(){
    case ${1:-$NODE_TAG} in
          G) echo systemapple      ;;
+         K) echo systemapple      ;;
     C|N|ZZ|WW) echo system      ;;
         C2) echo source      ;;
          H) echo source      ;;
