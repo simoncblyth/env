@@ -1,12 +1,16 @@
 /*
 
-
 * http://commons.apache.org/proper/commons-exec/
 * http://stackoverflow.com/questions/7340452/process-output-from-apache-commons-exec
 
 Usage::
 
-    javac -cp $(jexec-jar) CommonsExec.java && java -cp .:$(jexec-jar) CommonsExec
+    javac -cp $(jexec-jar) CommonsExec.java && java -cp .:$(jexec-jar)  -Dscript.path=/Users/heprez/e/java/commons/exec/demo.pl -Dscript.args="red green blue yellow purple" CommonsExec
+
+
+Note 
+
+#. property settings have to come before the classname on commandline
 
 */
 
@@ -18,20 +22,13 @@ class CommonsExec {
     {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
         ByteArrayOutputStream stderr = new ByteArrayOutputStream();
-        //ByteArrayOutputStream stdout = new ByteArrayOutputStream();
-
-        //PipedOutputStream stdout = new PipedOutputStream();
-        //PipedOutputStream stderr = new PipedOutputStream();
-        //PipedInputStream stdin = new PipedInputStream();
-
         PumpStreamHandler psh = new PumpStreamHandler(stdout, stderr);
 
-        String cmd = null ; 
+        String script_path = System.getProperty("script.path", "" );
+        String script_args = System.getProperty("script.args", "" );
+        String cmd = script_path + " " + script_args ; 
 
-        cmd = "perl -V" ; 
-        //cmd = "env" ;  
-        //cmd = "perl -MStorable -MData::Dumper -e 'print Dumper(retrieve $ARGV[0]);' /Users/heprez/data/data/images/pdgparse/pdg.store " ;  
-        //cmd = "perl -MStorable -MData::Dumper -e 'print \"hello\";' " ;  
+        System.out.println("CommonsExec : " + cmd );
 
         CommandLine cl = CommandLine.parse(cmd);
         DefaultExecutor exec = new DefaultExecutor();

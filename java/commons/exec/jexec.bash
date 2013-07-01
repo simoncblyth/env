@@ -2,7 +2,10 @@
 jexec-src(){      echo java/commons/exec/jexec.bash ; }
 jexec-source(){   echo ${BASH_SOURCE:-$(env-home)/$(jexec-src)} ; }
 jexec-vi(){       vi $(jexec-source) ; }
-jexec-env(){      elocal- ; }
+jexec-env(){      
+   elocal- ; 
+   export APACHE_COMMONS_EXEC_JAR=$(jexec-jar)
+}
 jexec-usage(){ cat << EOU
 
 JAVA COMMONS EXEC
@@ -43,8 +46,10 @@ jexec-get(){
 
    local name=$(jexec-name)
    local nam=$(jexec-nam $name)
-   local url=$(jexec-url $nam)
+   local url=$(jexec-url $name)
    local tgz=$(basename $url)
+
+   echo $msg name $name nam $nam url $url tgz $tgz
 
    [ ! -f "$tgz" ] && curl -L -O "$url"
    [ ! -d "$nam" ] && tar zxvf $tgz
