@@ -43,6 +43,8 @@ After placing the config, need to restart the xinetd service::
 Darwin serving with launchctl
 ------------------------------
 
+* http://stackoverflow.com/questions/1370901/very-simple-launchd-plist-not-running-my-script
+
 ::
 
     simon:fossil blyth$ sudo launchctl unload $(fossil-cfg-path)
