@@ -128,8 +128,8 @@ from browsers or commandlines on your laptop ?
 Fork a tunnel
 ~~~~~~~~~~~~~~
 
-Start the tunnel from a separate Terminal.app window on your laptop 
-to avoid accidental termination::
+Start the tunnel on laptop. The process goes to background so the terminal session can
+be closed without stopping the tunnel process::
 
     simon:~ blyth$ ssh--
     simon:~ blyth$ ssh--tunnel K 9090
@@ -150,6 +150,10 @@ Check the tunnel process::
 
     simon:e blyth$ ps aux | grep localhost:9090
     blyth    20464   0.0  0.0    77864    488   ??  Ss   12:43pm   0:00.01 ssh -fND localhost:9090 K
+
+
+.. warning:: This ties up localhost:9090 so attempting to connect a local server instance on port 9090 at the same time as the tunnel is running fails 
+
 
 Direct access does not work
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,7 +178,7 @@ Some commandline tools support routing requests via the SOCKS proxy::
     </exist:result>
 
 
-That is equivalent to sshing into the remote node and running the query locally::
+That is equivalent to ssh-ing into the remote node and running the query locally::
 
     b2mc:~ heprez$ curl http://130.87.106.59:9090/servlet/db/
     <exist:result xmlns:exist="http://exist.sourceforge.net/NS/exist">
