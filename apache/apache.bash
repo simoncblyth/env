@@ -158,6 +158,23 @@ apache-path(){
 
 
 
+# https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man5/launchd.plist.5.html
+apache-ps(){ ps aux | grep httpd ; }
+apache-launchctl-path(){ echo /System/Library/LaunchDaemons/org.apache.httpd.plist ; }
+apache-launchctl(){   
+    local cmd="sudo launchctl $* $(apache-launchctl-path)" 
+    echo $cmd
+    eval $cmd 
+ }
+apache-unload(){ apache-launchctl unload -w ; }
+apache-load(){   apache-launchctl   load -w ; }
+apache-reload(){ 
+   apache-unload
+   apache-load
+}
+
+
+
 apache-eggcache(){
    local msg="=== $FUNCNAME :"
    local cache=$1
