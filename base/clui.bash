@@ -68,7 +68,7 @@ clui-tty(){
 
    ## this is the bash equivalent of "bindkey -v"
 
-  if [ "$USER" == "blyth" ]; then
+  if [ "$USER" == "blyth" -o "$USER" == "heprez" ]; then
     set -o vi     # vi or emacs CLI editing 
    ##fix delete key operation in vi
     [ -t 0 ] && stty erase '^?'
