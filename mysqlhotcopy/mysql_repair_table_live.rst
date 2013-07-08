@@ -34,12 +34,77 @@ May 23-30
 
 May 24  
        Simon suggests name change from "tmp_ligs_offline_db" to reflect the critical nature of the DB. 
-       Gaosong aggrees suggesting "channelquality_db"
+       Gaosong agrees suggesting "channelquality_db" and using a clean cut approach to chop off inconsistent SEQNO
 
+May 27
+       Uncover non-alignment of DqChannel and DqChannelStatus tables due to concurrent DBI writing
+       using http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/cq_zip_check.py
+
+May 29
+       Investigations of concurrent DBI writing using external locking conclude that the reward is not 
+       worth the effort  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi/tests/test_dbi_locking.sh
+
+May 30
+       Tests of recovery at NUU using mysqldump took 70 min during which time the server was unresponsive. This is too long 
+       for comfort on primary server. Also tests of loading CSV dumps are uncomfortably long ~40 min for such large tables.
+       Test approach of creating and populating tables on version matched server on belle1 then simply using mysqlhotcopy.py 
+       archiving and extraction functionality to transfer the pre-cooked tables. This minimises load on the primary server, with 
+       the server continuing to function normally during 5 min of extracting the table tarball out to 9.2 G
 
 May ~30
        stood up  MySQL server of version  precisely matching that of dybdb1/2 :e:`/mysql/mysqlrpm` due to concerns about limitations 
        regards repairing tables created on different versions http://dev.mysql.com/doc/refman/5.0/en/repair-table.html
+
+May 31
+       Instruct Qiumei how to recover repaired tables into a newly created DB on dybdb2 channelquality_db
+       http://belle7.nuu.edu.tw/e/mysqlhotcopy/mysql_repair_table_live/#dybdb1-extraction-instructions-for-qiumei
+
+       Turns out to be not enough disk space on server to safely do the restoration. 
+
+June 4-6
+       Qiumei installs disk usage monitoring scripts on dybdb1 and dybdb2 http://belle7.nuu.edu.tw/e/db/valmon/
+       Delayed by a very old server with ancient sqlite forcing from source install of pysqlite 
+       http://belle7.nuu.edu.tw/e/sqlite/pysqlite/#static-amalgamation-install
+
+June 5
+       Qiumei suceeds to install the repaired tables into a new DB channelquality_db on dybdb2
+
+June 6 
+       Validate DqChannel is the same up to the cutoff SEQNO between::
+
+           dybdb1.tmp_ligs_offline_db.DqChannel + Vld
+           dybdb2.channelquality_db.DqChannel + Vld
+
+June 8
+       New disks installed on dybdb1 and dybdb2, thanks to Miao/Weidong for the speedy upgrade
+
+June 11
+       Validate `dybdb2.channelquality_db.DqChannelStatus` by reimplementation of the python CQ judge method
+       as a MySQL query (using nested case statements) applied to the ingredients table. 
+       Allowing all 62M judgements to be redone in 40 min independently 
+       confirming the validity of the repaired DqChannelStatus table.
+       
+       *  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/CQJudge.py
+       *  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/CQValidate.py
+
+June 13
+      Instruct Qiumei to setup partitioned channelquality_db backup system on dybdb2. Multi gigabyte DB are handled 
+      by dividing into partitions of 10k SEQNO drastically reducing backup load.
+
+      * http://dayabay.bnl.gov/oum/api/dbsrv/#installation-on-dybdb2 
+
+June 19
+      After fixing some ssh issues Qiumei succeeds to get interactive partitioned backups of `channelquality_db` from dybdb2 to NTU operational.
+      
+June 24
+     Following several interations(crontab errors,ssh environment) automated cron controlled partitioned backups are operational although 
+     ongoing careful monitoring of logs is needed until have gone through a complete state cycle (new partitions etc..)
+
+June 26
+     Confirm that the `channelquality_db` can be precisely restored from the partitioned backup. Request that Miao/Gaosong 
+     proceed to re-fill the lost entries. 
+ 
+
 
 
 
