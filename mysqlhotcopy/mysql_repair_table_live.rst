@@ -29,6 +29,20 @@ May 21
 May 23
        finally a coldcopy (hotcopy fails due to crashed table) tarball transferred to NUU, and is extracted into DB and repaired 
 
+May 23-30
+       investigate approaches to getting recovered tables onto dybdb1 without long outtages. Using 
+
+May 24  
+       Simon suggests name change from "tmp_ligs_offline_db" to reflect the critical nature of the DB. 
+       Gaosong aggrees suggesting "channelquality_db"
+
+
+May ~30
+       stood up  MySQL server of version  precisely matching that of dybdb1/2 :e:`/mysql/mysqlrpm` due to concerns about limitations 
+       regards repairing tables created on different versions http://dev.mysql.com/doc/refman/5.0/en/repair-table.html
+
+
+
 
 hotcopy crash
 ~~~~~~~~~~~~~~~~
