@@ -4,109 +4,11 @@ MySQL repair table live
 
 .. contents:: :local:
 
-Timeline Summary
-------------------
+History Timeline has Moved 
+----------------------------
 
-April 30
-       corruption occurs (assumed to be due to a killed KUP job) it goes unnoticed the table continuing to be written to 
-May 13
-       while performing a test compression run on DqChannelStatus corrupt SEQNO 323575 in DqChannelStatus is discovered :dybsvn:`ticket:1347#comment:20`   
-May 14
-       begin development of :env:`source:trunk/mysqlhotcopy/mysqlhotcopy.py` with `hotcopy/archive/extract/transfer` capabilities
-May 15
-       formulate plan of action the first step of which is making a hotcopy backup 
-May 16 
-       start working with Qiumei get to `mysqlhotcopy.py` operational on dybdb1.ihep.ac.cn, Miao notifies us that CQ filling is suspended
-May 17-23
-       development via email (~18 email exchanges and ~20 env commits later, numerous issues every one of which required email exchange and related delays)
-May 19
-       `2013-05-19 08:22:20` CQ filling resumes (contrary to expectations), but writes are Validity only due to the crashed payload table
-May 20
-       1st attempt to perform hotcopy on dybdb1 meets error due to crashed table, originally thought that the hotcopy *flush* might have
-       caused the crashed state, but the timing of the last validity insert `2013-05-19 22:26:55` is suggestive that the crash was due to this
-May 21
-       Gaosong notes that cannot access the DqChannelStatus table at all, due to crashed status
-May 23
-       finally a coldcopy (hotcopy fails due to crashed table) tarball transferred to NUU, and is extracted into DB and repaired 
-
-May 23-30
-       investigate approaches to getting recovered tables onto dybdb1 without long outtages. Using 
-
-May 24  
-       Simon suggests name change from "tmp_ligs_offline_db" to reflect the critical nature of the DB. 
-       Gaosong agrees suggesting "channelquality_db" and using a clean cut approach to chop off inconsistent SEQNO
-
-May 27
-       Uncover non-alignment of DqChannel and DqChannelStatus tables due to concurrent DBI writing
-       using http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/cq_zip_check.py
-
-May 29
-       Investigations of concurrent DBI writing using external locking conclude that the reward is not 
-       worth the effort  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/DybDbi/tests/test_dbi_locking.sh
-
-May 30
-       Tests of recovery at NUU using mysqldump took 70 min during which time the server was unresponsive. This is too long 
-       for comfort on primary server. Also tests of loading CSV dumps are uncomfortably long ~40 min for such large tables.
-       Test approach of creating and populating tables on version matched server on belle1 then simply using mysqlhotcopy.py 
-       archiving and extraction functionality to transfer the pre-cooked tables. This minimises load on the primary server, with 
-       the server continuing to function normally during 5 min of extracting the table tarball out to 9.2 G
-
-May ~30
-       stood up  MySQL server of version  precisely matching that of dybdb1/2 :e:`/mysql/mysqlrpm` due to concerns about limitations 
-       regards repairing tables created on different versions http://dev.mysql.com/doc/refman/5.0/en/repair-table.html
-
-May 31
-       Instruct Qiumei how to recover repaired tables into a newly created DB on dybdb2 channelquality_db
-       http://belle7.nuu.edu.tw/e/mysqlhotcopy/mysql_repair_table_live/#dybdb1-extraction-instructions-for-qiumei
-
-       Turns out to be not enough disk space on server to safely do the restoration. 
-
-June 4-6
-       Qiumei installs disk usage monitoring scripts on dybdb1 and dybdb2 http://belle7.nuu.edu.tw/e/db/valmon/
-       Delayed by a very old server with ancient sqlite forcing from source install of pysqlite 
-       http://belle7.nuu.edu.tw/e/sqlite/pysqlite/#static-amalgamation-install
-
-June 5
-       Qiumei suceeds to install the repaired tables into a new DB channelquality_db on dybdb2
-
-June 6 
-       Validate DqChannel is the same up to the cutoff SEQNO between::
-
-           dybdb1.tmp_ligs_offline_db.DqChannel + Vld
-           dybdb2.channelquality_db.DqChannel + Vld
-
-June 8
-       New disks installed on dybdb1 and dybdb2, thanks to Miao/Weidong for the speedy upgrade
-
-June 11
-       Validate `dybdb2.channelquality_db.DqChannelStatus` by reimplementation of the python CQ judge method
-       as a MySQL query (using nested case statements) applied to the ingredients table. 
-       Allowing all 62M judgements to be redone in 40 min independently 
-       confirming the validity of the repaired DqChannelStatus table.
-       
-       *  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/CQJudge.py
-       *  http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Database/Scraper/python/Scraper/dq/CQValidate.py
-
-June 13
-      Instruct Qiumei to setup partitioned channelquality_db backup system on dybdb2. Multi gigabyte DB are handled 
-      by dividing into partitions of 10k SEQNO drastically reducing backup load.
-
-      * http://dayabay.bnl.gov/oum/api/dbsrv/#installation-on-dybdb2 
-
-June 19
-      After fixing some ssh issues Qiumei succeeds to get interactive partitioned backups of `channelquality_db` from dybdb2 to NTU operational.
-      
-June 24
-     Following several interations(crontab errors,ssh environment) automated cron controlled partitioned backups are operational although 
-     ongoing careful monitoring of logs is needed until have gone through a complete state cycle (new partitions etc..)
-
-June 26
-     Confirm that the `channelquality_db` can be precisely restored from the partitioned backup. Request that Miao/Gaosong 
-     proceed to re-fill the lost entries. 
- 
-
-
-
+* http://belle7.nuu.edu.tw/oum/aop/dbrepair/history/
+* http://dayabay.bnl.gov/oum/aop/dbrepair/history/
 
 
 hotcopy crash

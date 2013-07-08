@@ -3,12 +3,30 @@
 MySQL Hotcopy wrapper 
 =======================
 
-#. avoids filling disk by estimating space required for hotcopy, 
-   from DB queries and file system free space checking 
-#. creates tarballs in dated folders
+Provides a higher level wrapper on top of *mysqlhotcopy* adding 
+features like
 
-Intended to be used in system python from sudo, operating from non-pristine 
-env will cause errors related to setuptools.
+#. archive tarball creation/restoration/organization/transfers in dated folders
+#. disk space estimation by DB queries and file system free space checking before performing *hotcopy* 
+
+
+Installation
+-------------
+
+Checkout directory from **env** repo with::
+
+     svn co http://dayabay.phys.ntu.edu.tw/repos/env/trunk/mysqlhotcopy 
+     cd mysqlhotcopy
+
+Test runs to ensure pre-requisite `MySQL-python` is present::
+
+     ./mysqlhotcopy.py --help
+     ./mysqlhotcopy.py --dryrun tmp_ligs_offline_db hotcopy   # dryrun check of space available etc..
+
+Pre-requisites for mysqlhotcopy.py
+------------------------------------
+
+
 Requires MySQLdb, check that and operating env with::
 
     sudo python -c "import MySQLdb"
@@ -17,6 +35,8 @@ If that gives errors will need to::
 
     sudo yum install MySQL-python
 
+Intended to be used in system python from sudo, operating from non-pristine 
+env may cause errors related to setuptools.
 
 
 Pre-requisites for mysqlhotcopy
@@ -25,7 +45,7 @@ Pre-requisites for mysqlhotcopy
 Perl module `DBD::mysql`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
+Without this perl module errors like the below are observed::
 
 	install_driver(mysql) failed: Can't locate DBD/mysql.pm 
 
@@ -34,12 +54,22 @@ Perl module `DBD::mysql`
 	BEGIN failed--compilation aborted.
 
 
+Features of mysqlhotcopy
+---------------------------
+
+mysqlhotcopy does low level file copying, making version closeness important  
+
+::
+
+   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
+   belle7.nuu.edu.tw        5.0.77-log Source distribution
+   cms01.phys.ntu.edu.tw    4.1.22-log
+
 Commands
 ---------
 
 The first argument of the `mysqlhotcopy.py` script specifies the name of a mysql database
 to operate upon.  Subsequent arguments specify actions to take. Order is important. 
-
 
 `hotcopy`
       use *mysqlhotcopy* to copy the mysql datadir for a single database into a dated folder under `backupdir`, 
@@ -67,18 +97,6 @@ to operate upon.  Subsequent arguments specify actions to take. Order is importa
 
 `purge`
       purge the tarballs for a database, keeping the configured number
-
-
-Features of mysqlhotcopy
----------------------------
-
-mysqlhotcopy does low level file copying, making version closeness important  
-
-::
-
-   dybdb1.ihep.ac.cn        5.0.45-community-log MySQL Community Edition (GPL)
-   belle7.nuu.edu.tw        5.0.77-log Source distribution
-   cms01.phys.ntu.edu.tw    4.1.22-log
 
   
 Usage steps
@@ -373,7 +391,6 @@ Behaviour with crashed tables
 TODO:
 -------
 
-#. tarball digest dna 
 #. tarball purging 
 
 
