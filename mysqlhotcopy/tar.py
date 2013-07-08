@@ -3,7 +3,6 @@
 """
 import os, logging, shutil, tarfile, copy, re, pickle
 from common import timing, seconds, scp
-import fsutils
 from datetime import datetime
 log = logging.getLogger(__name__)
 

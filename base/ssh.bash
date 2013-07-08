@@ -81,6 +81,29 @@ This setting can be persisted in the config file under a new host name
           PubkeyAuthentication no
 
 
+SSH from cron issues
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Passwordless ssh requires the ssh-agent to be running and authenticates
+and some envvars to identify the agent.
+
+::
+
+    [blyth@belle7 ~]$ env -i SSH_AUTH_SOCK=/tmp/ssh-pXBvj24135/agent.24135 SSH_AGENT_PID=24136 ssh N1 hostname
+    belle1.nuu.edu.tw
+    [blyth@belle7 ~]$ env -i SSH_AUTH_SOCK=/tmp/ssh-pXBvj24135/agent.24135 ssh N1 hostname
+    belle1.nuu.edu.tw
+    [blyth@belle7 ~]$ env -i ssh N1 hostname
+    Enter passphrase for key '/home/blyth/.ssh/id_dsa': 
+
+    [blyth@belle7 ~]$ cat .ssh-agent-info-N 
+    SSH_AUTH_SOCK=/tmp/ssh-pXBvj24135/agent.24135; export SSH_AUTH_SOCK;
+    SSH_AGENT_PID=24136; export SSH_AGENT_PID;
+#echo Agent pid 24136;
+
+
+
+
 Troubleshoot Passwordless access not working
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
