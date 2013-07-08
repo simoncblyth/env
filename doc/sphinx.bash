@@ -8,7 +8,18 @@ sphinx-usage(){
 
 Sphinx
 ======
-    
+
+extensions
+-----------
+
+* https://pypi.python.org/pypi/sphinxcontrib-newsfeed/0.1.1
+
+   * RSS + DisQus + blog 
+
+* https://pypi.python.org/pypi/sphinxcontrib-googleanalytics/
+   
+
+ 
 installs
 ---------
 
