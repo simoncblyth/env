@@ -99,9 +99,7 @@ and some envvars to identify the agent.
     [blyth@belle7 ~]$ cat .ssh-agent-info-N 
     SSH_AUTH_SOCK=/tmp/ssh-pXBvj24135/agent.24135; export SSH_AUTH_SOCK;
     SSH_AGENT_PID=24136; export SSH_AGENT_PID;
-#echo Agent pid 24136;
-
-
+    #echo Agent pid 24136;
 
 
 Troubleshoot Passwordless access not working
