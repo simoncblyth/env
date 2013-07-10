@@ -35,6 +35,10 @@ function FindProxyForURL(url, host) {
    if (url.substring(0,25) ==   "http://130.87.106.59:8080" ){
       return "SOCKS 127.0.0.1:8080" ;
    }
+
+   if (url.substring(0,25) ==   "http://130.87.106.59:7070" ){
+      return "SOCKS 127.0.0.1:7070" ;
+   }
  
    if (url.substring(0,33) == "http://cms01.phys.ntu.edu.tw:9090" ){
       return "SOCKS 127.0.0.1:9090" ;
