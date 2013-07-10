@@ -18,11 +18,17 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 #EDOCS = /data/env/system/apache/httpd-2.0.64/htdocs/e
 EDOCS = $(APACHE_HTDOCS)/e
 
-.PHONY: bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: test bash2rst default rsync help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
+withoutstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),,$(rst)))
+withstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),$(rst),))
 
 default: bash2rst dirhtml 
 	@echo dirhtml done $(shell ls -ld _build/dirhtml)
+
+test:
+	@echo test withstring $(withstring)
+	@echo test withoutstring $(withoutstring)
 
 rsync:
 	@echo sync into apache $(EDOCS) as workaround for finnicky apache config wrt symbolic links
