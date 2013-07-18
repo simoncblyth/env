@@ -13,6 +13,9 @@ CYTHON OVERVIEW
 #. Cython is Python with C data types.
 
 
+
+
+
 CYTHON REFERENCES
 ~~~~~~~~~~~~~~~~~~~
 
@@ -101,6 +104,11 @@ fortunately this did not stomp on /opt/local/lib/python2.5/site-packages/
 	... 
         /opt/local/share/doc/py25-cython/index.html
         ...
+
+
+
+MACPORTS py26 ON G
+~~~~~~~~~~~~~~~~~~~~
 
 
 
