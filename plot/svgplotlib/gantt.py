@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2.6
 """
   File "gantt.py", line 3, in <module>
       from svgplotlib import Gantt, Duration

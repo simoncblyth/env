@@ -1,17 +1,20 @@
 # === func-gen- : plot/svgcharts fgp plot/svgcharts.bash fgn svgcharts fgh plot
-svgcharts-src(){      echo plot/svgcharts.bash ; }
+svgcharts-src(){      echo plot/svgcharts/svgcharts.bash ; }
 svgcharts-source(){   echo ${BASH_SOURCE:-$(env-home)/$(svgcharts-src)} ; }
 svgcharts-vi(){       vi $(svgcharts-source) ; }
 svgcharts-env(){      elocal- ; }
 svgcharts-usage(){ cat << EOU
 
+SVGCHARTS
+============
 
 * https://pypi.python.org/pypi/svg.charts
 * http://svg-charts.sourceforge.net/
 
 
 
-
+G py26 install
+--------------
 
 ::
 

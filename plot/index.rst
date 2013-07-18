@@ -6,4 +6,6 @@ Plotting
 
     graph
     fromcsv
+    svgcharts/index
+    svgplotlib/index
 

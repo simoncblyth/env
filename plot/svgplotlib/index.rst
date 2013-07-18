@@ -1,0 +1,8 @@
+
+svgplotlib
+=========================
+
+.. toctree::
+
+   svgplotlib
+

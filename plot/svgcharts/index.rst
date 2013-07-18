@@ -1,0 +1,9 @@
+
+svgcharts
+=========================
+
+.. toctree::
+
+   svgcharts
+   cqpack
+
