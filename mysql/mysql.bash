@@ -1,209 +1,253 @@
 mysql-src(){    echo mysql/mysql.bash ; }
 mysql-source(){ echo ${BASH_SOURCE:-$(env-home)/$(mysql-src)} ; }
 mysql-vi(){     vim $(mysql-source) ; }
-mysql-usage(){
-  cat << EOU
+mysql-usage(){ cat << EOU
 
-   == VERSIONS ==
+MYSQL
+=====
 
-    Determine from   "echo status | mysql"     
+versions
+----------
 
-        dybdb1   :   5.0.45-community-log MySQL Community Edition (GPL)
-        belle7   :   5.0.77-log Source distribution
-        cms01    :   4.1.22-log
+Determine from::   
 
-    CAUTION :
-        * user creation changed significantly between 4.1 and 5.0 
+   echo status | mysql
 
+* dybdb1 : 5.0.45-community-log MySQL Community Edition (GPL)
+* belle7 : 5.0.77-log Source distribution
+* cms01 : 4.1.22-log
 
-   == grants ==
+* NB user creation changed significantly between 4.1 and 5.0 
 
+control options
+-----------------
 
+Flavors of control ...
 
+* sv via pidproxy
+* mysql-start 
+* /sbin/service mysql start 
+* launchctl on OSX ?
+* redhat service
 
-   === for mysql debugging (eg on trying to switch on logging ) ===
-
-    Flavors of control ...
-       * sv via pidproxy
-       * mysql-start 
-       * /sbin/service mysql start 
-
-    CONSOLIDATION NEED ...  
-
-   ===
+redhat service
+~~~~~~~~~~~~~~~
    
-    Traditional redhat control :
+::
 
        sudo /sbin/service mysqld start
        sudo /sbin/service mysqld status
        sudo /sbin/service mysqld stop
 
-    When network access is enabled the mysql port is $(local-port mysql)
-      [blyth@cms01 rootmq]$ sudo lsof -i :$(local-port mysql)
+port used
+------------
 
-    mysql-sv
-        Add to supervisor control ...
-        needs to be configured to run as root
+When network access is enabled the mysql port is *local-port mysql*::
 
-
-    mysql-triplet-edit "mysqld|log-bin|binlog"
-
-
-
-    mysql-showdatabase
-
-    mysql-dumpall [basedir]
-
-          CAUTION AS EACH db is dumped separately it is possible that the tables in 
-          different DB will be inconsistent if one were to operate 
-          in a writing related tables to separate DB manner ?
-  
+    [blyth@belle7 ~]$ sudo lsof -i :3306
+    [sudo] password for blyth: 
+    COMMAND   PID  USER   FD   TYPE    DEVICE SIZE NODE NAME
+    mysqld  24923 mysql   11u  IPv4 157220234       TCP *:mysql (LISTEN)
+    mysqld  24923 mysql   14u  IPv4 270422956       TCP localhost.localdomain:mysql->localhost.localdomain:37026 (ESTABLISHED)
+    mysqld  24923 mysql   17u  IPv4 270422958       TCP localhost.localdomain:mysql->localhost.localdomain:37027 (ESTABLISHED)
+    mysqld  24923 mysql   19u  IPv4 270434694       TCP localhost.localdomain:mysql->localhost.localdomain:36868 (ESTABLISHED)
+    python  28294 blyth    4u  IPv4 270422951       TCP belle7.nuu.edu.tw:47411->dybdb2.ihep.ac.cn:mysql (ESTABLISHED)
+    python  28294 blyth    5u  IPv4 270422953       TCP belle7.nuu.edu.tw:47412->dybdb2.ihep.ac.cn:mysql (ESTABLISHED)
+    python  28294 blyth    6u  IPv4 270422955       TCP localhost.localdomain:37026->localhost.localdomain:mysql (ESTABLISHED)
+    python  28294 blyth    7u  IPv4 270422957       TCP localhost.localdomain:37027->localhost.localdomain:mysql (ESTABLISHED)
+    python  28294 blyth    8u  IPv4 270434693       TCP localhost.localdomain:36868->localhost.localdomain:mysql (ESTABLISHED)
 
 
-    mysql-stop
-      
+FUNCTIONS
+------------
+
+
+*mysql-sv*
+        Add to supervisor control, needs to be configured to run as root
+
+
+*mysql-triplet-edit "mysqld|log-bin|binlog"*
+
+
+*mysql-showdatabase*
+
+*mysql-dumpall basedir*
+       CAUTION AS EACH db is dumped separately it is possible that the tables in 
+       different DB will be inconsistent if one were to operate 
+       in a writing related tables to separate DB manner ?
+
+*mysql-stop*
        sudo /opt/local/share/mysql5/mysql/mysql.server stop  
        ERROR! MySQL manager or server PID file could not be found!
 
-       failing for want of pidof on OSX ?       
-          sudo port install proctools 
+       failing for want of pidof on OSX ?::
+
+           sudo port install proctools 
                yielded pgrep/pfind/pkill but no pidof
+
        so cheat : 
-          sudo ln -s /opt/local/bin/pgrep /opt/local/bin/pidof
+
+           sudo ln -s /opt/local/bin/pgrep /opt/local/bin/pidof
 
        no joy, the problem is that the server pid file name is based of
-       the hostname which tends to change ... 
+       the hostname which tends to change::
 
           cd /opt/local/var/db/mysql5
-          sudo cp  g4pb.local.pid $(hostname).pid
+          sudo cp  g4pb.local.pid *hostname*.pid
 
 
-     Opening mysql to access from a remote webserver...
+MYSQL ACCESS
+--------------
 
-         1) set "bind-address" in mysql config of server 
+
+Opening mysql to access from a remote webserver...
+
+#. set "bind-address" in mysql config of server and open the port::
    
          IPTABLES_PORT=3306 iptables-webopen-ip 140.###.###.###
 
 
+remote mysql dump
+-------------------
 
-   == remote mysql dump ==
+Following powercut cms01 is indisposed again, so do remote dump 
+(have to use *--skip-opt* as do not have permission to lock the tables )
 
-      Following powercut cms01 is indisposed again...  so do remote dump 
-     (have to use --skip-opt as do not have permission to lock the tables )
+::
 
-[blyth@belle7 ~]$ mysqldump --skip-opt testdb SimPmtSpec SimPmtSpecVld > SimPmtSpec.sql
-Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
-Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
-
-
-
-   == set up passwords ==
-
-      http://dev.mysql.com/doc/refman/5.1/en/default-privileges.html
-
-mysql> SELECT User, Host, Password FROM mysql.user;
-+------+-------------------+----------+
-| User | Host              | Password |
-+------+-------------------+----------+
-| root | localhost         |          | 
-| root | belle7.nuu.edu.tw |          | 
-| root | 127.0.0.1         |          | 
-+------+-------------------+----------+
-3 rows in set (0.01 sec)
-
-       SET PASSWORD FOR 'root'@'localhost' = PASSWORD('***');
-       SET PASSWORD FOR 'root'@'belle7.nuu.edu.tw' = PASSWORD('***');
-       SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('***');
+    [blyth@belle7 ~]$ mysqldump --skip-opt testdb SimPmtSpec SimPmtSpecVld > SimPmtSpec.sql
+    Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
+    Warning: mysqldump: ignoring option '--databases' due to invalid value 'testdb'
 
 
 
-   == useful selects to debug permissions ==
+set up passwords
+------------------
 
-{{{
-mysql> select Host, User, Password, Select_priv, Insert_priv,Update_priv,Drop_priv, File_priv from mysql.user ;
-+-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
-| Host                  | User    | Password                                  | Select_priv | Insert_priv | Update_priv | Drop_priv | File_priv |
-+-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
+* http://dev.mysql.com/doc/refman/5.1/en/default-privileges.html
 
-}}}
+::
 
+    mysql> SELECT User, Host, Password FROM mysql.user;
+    +------+-------------------+----------+
+    | User | Host              | Password |
+    +------+-------------------+----------+
+    | root | localhost         |          | 
+    | root | belle7.nuu.edu.tw |          | 
+    | root | 127.0.0.1         |          | 
+    +------+-------------------+----------+
+    3 rows in set (0.01 sec)
 
-
-
-    == Switching on logging ... ==
-
-       * find that the logfile has to exist already 
-
-
-100707 19:03:36  mysqld started
-/usr/libexec/mysqld: File '/var/log/mysqld_out.log' not found (Errcode: 13)
-100707 19:03:36 [ERROR] Could not use /var/log/mysqld_out.log for logging (error 13). Turning logging off for the whole duration of the MySQL server process. To turn it on again: fix the cause, shutdown the MySQL server and restart it.
-100707 19:03:36  InnoDB: Started; log sequence number 0 44756
-/usr/libexec/mysqld: ready for connections.
-Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source distribution
-[blyth@cms01 log]$ 
-[blyth@cms01 log]$ sudo touch  /var/log/mysqld_out.log
-[blyth@cms01 log]$ sudo chown mysql.mysql  /var/log/mysqld_out.log
+    SET PASSWORD FOR 'root'@'localhost' = PASSWORD('***');
+    SET PASSWORD FOR 'root'@'belle7.nuu.edu.tw' = PASSWORD('***');
+    SET PASSWORD FOR 'root'@'127.0.0.1' = PASSWORD('***');
 
 
-   == Opening access to all with the password .. ==
+useful selects to debug permissions 
+------------------------------------
+
+::
+
+    mysql> select Host, User, Password, Select_priv, Insert_priv,Update_priv,Drop_priv, File_priv from mysql.user ;
+    +-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
+    | Host                  | User    | Password                                  | Select_priv | Insert_priv | Update_priv | Drop_priv | File_priv |
+    +-----------------------+---------+-------------------------------------------+-------------+-------------+-------------+-----------+-----------+
 
 
-     1) the firewall
-           IPTABLES_PORT=3306 iptables-webopen
-
-     2) db-grant DAYABAY 
-           the version of mysql on cms01 4.1 does not have "create user"
 
 
-   == how about opening resrtricted access to the log ... ==
+Switching on logging
+----------------------
 
-     1) BUT tis very big ... as it swallows the mysqldump 
-     
-          tailing a logfile thru a web server ... more effort than gain 
-              http://www.xinotes.org/notes/note/155/
-
-     2) truncate/rotate/purge  the logs ... 
-
-        not convenient to do with the db-backup-recover cronline, as that runs as me 
-        and the logs are owned by mysql ... set up log rotation in separate root cronline
-
-        using logrotate to manage the logs 
+* find that the logfile has to exist already 
 
 
-  == what happended to /etc/logrotate.d/mysql ==
+::
 
-    *  rpm -ql mysql-server  | grep log
+    100707 19:03:36  mysqld started
+    /usr/libexec/mysqld: File '/var/log/mysqld_out.log' not found (Errcode: 13)
+    100707 19:03:36 [ERROR] Could not use /var/log/mysqld_out.log for logging (error 13). Turning logging off for the whole duration of the MySQL server process. To turn it on again: fix the cause, shutdown the MySQL server and restart it.
+    100707 19:03:36  InnoDB: Started; log sequence number 0 44756
+    /usr/libexec/mysqld: ready for connections.
+    Version: '4.1.22-log'  socket: '/var/lib/mysql/mysql.sock'  port: 3306  Source distribution
+    [blyth@cms01 log]$ 
+    [blyth@cms01 log]$ sudo touch  /var/log/mysqld_out.log
+    [blyth@cms01 log]$ sudo chown mysql.mysql  /var/log/mysqld_out.log
 
-     mysql appears not to be a good citizen :
+
+how about opening resrtricted access to the log 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. BUT tis very big, as it swallows the mysqldump 
+
+#. truncate/rotate/purge the logs 
+
+   not convenient to do with the db-backup-recover cronline, as that runs as me 
+   and the logs are owned by mysql ... set up log rotation in separate root cronline
+   using logrotate to manage the logs 
+
+
+what happended to /etc/logrotate.d/mysql
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    rpm -ql mysql-server  | grep log
+
+mysql appears not to be a good citizen::
+
          [blyth@belle7 logrotate.d]$ yum whatprovides "*/logrotate.d/*"  | grep mysql 
 
 
-    * http://www.mail-archive.com/rhelv5-list@redhat.com/msg00781.html
+Opening access to all with the password 
+-----------------------------------------
+
+#. the firewall::
+
+    IPTABLES_PORT=3306 iptables-webopen
+
+#. *db-grant DAYABAY* 
+   
+   * the version of mysql on cms01 4.1 does not have "create user"
 
 
-/var/log/mysql/mysql.err /var/log/mysql/mysql.log /var/log/mysql/mysqld.err {
-   monthly
-   create 660 mysql mysql
-   notifempty
-   size 5M
-   sharedscripts
-   missingok
-   postrotate
-     /bin/kill -HUP `cat /var/run/mysqld/mysqld.pid`
-   endscript
-}
+note regards pausing mysql slave replication 
+---------------------------------------------
 
+* http://dev.mysql.com/doc/refman/5.0/en/replication-howto-masterbaseconfig.html
 
-
-  == note regards pausing mysql slave replication ==
-
-    
-     * http://dev.mysql.com/doc/refman/5.0/en/replication-howto-masterbaseconfig.html
-
-         set master server-id to 0 to disable slave connections ???
+     * set master server-id to 0 to disable slave connections 
     
 
+
+OSX macports mysql5-server
+-----------------------------
+
+::
+
+    simon:~ blyth$ sudo port contents mysql5-server
+    Password:
+    Warning: port definitions are more than two weeks old, consider using selfupdate
+    Port mysql5-server contains:
+      /Library/LaunchDaemons/org.macports.mysql5.plist
+      /opt/local/etc/LaunchDaemons/org.macports.mysql5/mysql5.wrapper
+      /opt/local/etc/LaunchDaemons/org.macports.mysql5/org.macports.mysql5.plist
+      /opt/local/var/db/mysql5/.turd_mysql5-server
+      /opt/local/var/log/mysql5/.turd_mysql5-server
+      /opt/local/var/run/mysql5/.turd_mysql5-server
+    simon:~ blyth$ 
+
+Curious loading via macports::
+
+    simon:~ blyth$ sudo port load mysql5-server
+
+Note a hostname specific pid file, that will cause issues::
+
+    simon:~ blyth$ ps aux | grep mysql5
+    _mysql    2442   0.0  0.7   114492  14068   ??  S     6:31pm   0:00.20 /opt/local/libexec/mysqld --basedir=/opt/local --datadir=/opt/local/var/db/mysql5 --user=_mysql --log-error=/opt/local/var/db/mysql5/simon.phys.ntu.edu.tw.err --pid-file=/opt/local/var/db/mysql5/simon.phys.ntu.edu.tw.pid
+    root      2389   0.0  0.0    75944    784   ??  S     6:31pm   0:00.06 /bin/sh /opt/local/lib/mysql5/bin/mysqld_safe --datadir=/opt/local/var/db/mysql5 --pid-file=/opt/local/var/db/mysql5/simon.phys.ntu.edu.tw.pid
+    root      2380   0.0  0.0    75428    760   ??  Ss    6:31pm   0:00.02 /opt/local/bin/daemondo --label=mysql5 --start-cmd /opt/local/etc/LaunchDaemons/org.macports.mysql5/mysql5.wrapper start ; --stop-cmd /opt/local/etc/LaunchDaemons/org.macports.mysql5/mysql5.wrapper stop ; --restart-cmd /opt/local/etc/LaunchDaemons/org.macports.mysql5/mysql5.wrapper restart ; --pid=none
+    simon:~ blyth$ 
 
 
 EOU
