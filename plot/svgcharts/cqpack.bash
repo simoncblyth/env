@@ -30,11 +30,17 @@ cqpack-mate(){ mate $(cqpack-dir) ; }
 
 cqpack-makesvg(){
   local dir=$(cqpack-dir) ; mkdir -p $dir
+  local txt=$dir/$FUNCNAME.txt
+  local dat=$dir/$FUNCNAME.dat
 
-  ssh N grep -H seconds: /data1/env/local/dyb/NuWa-trunk/logs/CQCatchup/\*.log > $dir/seconds.txt
-  perl -n -e 'm,_(\d{4}).log.*{(.*)}, && print "{ \"index\":\"$1\",  $2 }\n" ' $dir/seconds.txt > $dir/seconds.dat
+  if [ -f "$dat" ]; then 
+      echo $msg dat $dat exists already : delete this and rerun to update
+  else
+      ssh N grep -H seconds: /data1/env/local/dyb/NuWa-trunk/logs/CQCatchup/\*.log > $txt
+      perl -n -e 'm,_(\d{4}).log.*{(.*)}, && print "{ \"index\":\"$1\",  $2 }\n" ' $txt > $dat
+  fi  
 
-  $(env-home)/plot/svgcharts/cqpack.py $dir/seconds.dat 
+  $(env-home)/plot/svgcharts/cqpack.py $dat 
 }
 
 cqpack-open(){

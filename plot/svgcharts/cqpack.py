@@ -32,6 +32,14 @@ def make_series( dl, xk, yks , yfmt="%5.2f"):
     for key in yks:
         xys = map(lambda d:(int(d[xk]),float(yfmt % float(d[key]))), dl)
         m[key] = list(sum(xys, ()))
+
+    a = 0    
+    for k,v in m.items():
+        s = sum(v)
+        a += s
+        log.info("subtotal %s : %s   %s  " % (k, s, s/60./60.))
+    pass    
+    log.info(" TOTAL %s : %s   %s  " % ("all", a, a/60./60.))
     return m 
 
 
