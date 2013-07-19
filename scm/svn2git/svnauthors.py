@@ -2,6 +2,25 @@
 """
 Collects authors within a set of Trac+SVN repos into sqlite3 DB 
 
+Prepare authors file
+----------------------
+
+Git associates commits with email addresses rather than user named like SVN.
+So need to prepare a mapping file
+
+Using trac report 11 is csv format 
+
+  * http://dayabay.phys.ntu.edu.tw/tracs/env/report/11?format=csv 
+ 
+  * :env:`trunk/scm/svnauthors.py`
+
+::
+
+   ~/env/scm/svnauthors.py read                    # reads the trac report 11 and inserts into sqlite3 DB
+   ~/env/scm/svnauthors.py git > ~/svnusers.txt    # reads from DB, dumping in git author format
+
+
+
 Usage
 ~~~~~~
 
@@ -41,10 +60,11 @@ Issues
 
 """
 import os, logging
+log = logging.getLogger(__name__)
+
 from pprint import pformat
 from datetime import datetime
-log = logging.getLogger(__name__)
-from ConfigParser import ConfigParser
+from config import parse_args
 
 from env.db.simtab import Table
 import csv
@@ -66,27 +86,6 @@ def read_csv(url):
         log.warn("HTTPError opening %s " % url )
         f = None
     return csv.DictReader(f, delimiter=',') if f else []
-
-class Cnf(dict):
-    def __init__(self, sect, cnfpath="~/.env.cnf" ):
-        cpr = ConfigParser()
-        cpr.read(os.path.expanduser(cnfpath))
-        self.update(cpr.items(sect)) 
-        self['sect'] = sect
-        self['sections'] = cpr.sections()
-
-def parse_args(doc):
-    from optparse import OptionParser
-    op = OptionParser(usage=doc)
-    op.add_option("-c", "--cnfpath",   default="~/.env.cnf", help="path to config file Default %default"  )
-    op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
-    op.add_option("-s", "--sect",      default="svnauthors", help="section of config file... Default %default"  )
-    opts, args = op.parse_args()
-    loglevel = getattr( logging, opts.loglevel.upper() )
-    logging.basicConfig(level=loglevel)
-    cnf = Cnf(opts.sect, opts.cnfpath)
-    log.debug("reading config from sect %s of %s :\n%s " % (opts.sect, opts.cnfpath, cnf))  
-    return cnf, args
 
 class GitAuthor(dict):
     __str__ = lambda _:"""%(Account)s = %(Name)s <%(Email)s>""" % _
@@ -117,35 +116,27 @@ class Authors(object):
         tab[:] = []
 
     def ls(self):
-        for d in self.tab("select * from %(table)s ;" % self.cnf):
-            print d
+        return "\n".join([str(d) for d in self.tab("select * from %(table)s ;" % self.cnf)])
 
     def git(self):
-        for d in map(GitAuthor, self.tab.iterdict("select * from %(table)s order by Last_visit ;" % self.cnf)):
-            if d['Email'] == 'None':continue
-            print d
+        return "\n".join([str(d) for d in filter(lambda ga:ga['Email'] != 'None',map(GitAuthor, self.tab.iterdict("select * from %(table)s order by Last_visit ;" % self.cnf)))])
 
     def dbg(self):
         cmd = "echo \"select * from %(table)s ;\" | sqlite3 %(dbpath)s " % self.cnf
-        for line in os.popen(cmd).readlines():
-            print line,
-
+        return os.popen(cmd).read()
 
     def __call__(self, args):
         for arg in args:
-            if arg == 'read':
-                self.read()
-            elif arg == 'ls':
-                self.ls()
-            elif arg == 'git':
-                self.git()
-            elif arg == 'dbg':
-                self.dbg()
-
+            meth = getattr(self, arg, None) 
+            if meth is None:
+                log.warn("no method %s " % arg )
+            else:
+                log.info("call method %s " % arg )
+                return meth() 
 
 if __name__ == '__main__':
     cnf, args = parse_args(__doc__)
-    Authors(cnf)(args)
+    print Authors(cnf)(args)
 
 
 

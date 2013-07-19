@@ -8,7 +8,7 @@ SCM
     notes
     monitor/index
     dev
-    svn2git
+    svn2git/index
     altbackup
     altquery 
     bitbucket/index
