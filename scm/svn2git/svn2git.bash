@@ -49,6 +49,12 @@ Otherwise the clone stops::
             A       db2trac/test.sh
     Author: admin not defined in /usr/local/env/scm/svn2git/users.txt file
 
+Then after adding an email for admin, by deletion and recreation of user in trac admin::
+
+    r358 = 1c56cbb812de3438cca33c2d12cd5083f607eecf (refs/remotes/trunk)
+            M       compilation/blurb.tex
+    Author: tosi not defined in /usr/local/env/scm/svn2git/users.txt file
+
 
 EOU
 }
