@@ -415,6 +415,39 @@ make: *** [dirhtml] Error 1
 
 
 
+G macports py26-sphinx
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    simon:docs blyth$ sudo port install py26-sphinx
+    Password:
+    Warning: port definitions are more than two weeks old, consider using selfupdate
+    --->  Computing dependencies for py26-sphinx
+    --->  Dependencies to be installed: py26-docutils py26-jinja2 py26-markupsafe py26-pygments
+    --->  Fetching archive for py26-docutils
+    --->  Attempting to fetch py26-docutils-0.9.1_0.darwin_9.noarch.tbz2 from http://packages.macports.org/py26-docutils
+    --->  Attempting to fetch py26-docutils-0.9.1_0.darwin_9.noarch.tbz2 from http://lil.fr.packages.macports.org/py26-docutils
+    --->  Attempting to fetch py26-docutils-0.9.1_0.darwin_9.noarch.tbz2 from http://mse.uk.packages.macports.org/sites/packages.macports.org/py26-docutils
+    --->  Fetching distfiles for py26-docutils
+    --->  Attempting to fetch docutils-0.9.1.tar.gz from http://nchc.dl.sourceforge.net/project/docutils/docutils/0.9.1/
+    --->  Verifying checksum(s) for py26-docutils
+    --->  Extracting py26-docutils
+    --->  Configuring py26-docutils
+    --->  Building py26-docutils
+    --->  Staging py26-docutils into destroot
+    --->  Installing py26-docutils @0.9.1_0
+    --->  Activating py26-docutils @0.9.1_0
+    Error: org.macports.activate for port py26-docutils returned: Image error: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2xetex.py already exists and does not belong to a registered port.  Unable to activate port py26-docutils. Use 'port -f activate py26-docutils' to force the activation.
+    Error: Failed to install py26-docutils
+    Please see the log file for port py26-docutils for details:
+        /opt/local/var/macports/logs/_opt_local_var_macports_sources_rsync.macports.org_release_ports_python_py-docutils/py26-docutils/main.log
+    Error: The following dependencies were not installed: py26-docutils py26-jinja2 py26-markupsafe py26-pygments
+    To report a bug, follow the instructions in the guide:
+        http://guide.macports.org/#project.tickets
+    Error: Processing of port py26-sphinx failed
+    simon:docs blyth$ 
+
 
 EOU
 }

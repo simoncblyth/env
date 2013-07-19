@@ -1192,3 +1192,4 @@ launchctl-(){      . $(env-home)/osx/launchctl.bash && launchctl-env $* ; }
 svgplotlib-(){      . $(env-home)/plot/svgplotlib/svgplotlib.bash && svgplotlib-env $* ; }
 svgcharts-(){      . $(env-home)/plot/svgcharts/svgcharts.bash && svgcharts-env $* ; }
 cqpack-(){      . $(env-home)/plot/svgcharts/cqpack.bash && cqpack-env $* ; }
+svn2git-(){      . $(env-home)/scm/svn2git/svn2git.bash && svn2git-env $* ; }
