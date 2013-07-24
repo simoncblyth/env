@@ -1193,3 +1193,4 @@ svgplotlib-(){      . $(env-home)/plot/svgplotlib/svgplotlib.bash && svgplotlib-
 svgcharts-(){      . $(env-home)/plot/svgcharts/svgcharts.bash && svgcharts-env $* ; }
 cqpack-(){      . $(env-home)/plot/svgcharts/cqpack.bash && cqpack-env $* ; }
 svn2git-(){      . $(env-home)/scm/svn2git/svn2git.bash && svn2git-env $* ; }
+opw-(){      . $(env-home)/muon_simulation/optical_photon_weighting/opw.bash && opw-env $* ; }
