@@ -56,6 +56,8 @@ if __name__ == '__main__':
 
     m = make_series(dl, xk, yks )
     opts = {
+        'width':640, 
+        'height':480, 
         'min_x_value': 0,
         'min_y_value': 0,
         'area_fill': True,
