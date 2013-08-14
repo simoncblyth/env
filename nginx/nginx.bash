@@ -24,6 +24,22 @@ Putting nginx under supervisord control
 
 * http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
+INSTALLS
+----------
+
+hfag.phys.ntu.edu.tw
+~~~~~~~~~~~~~~~~~~~~~
+
+Used as reverse proxy for SVN on C2, allowing NUU nodes that are routinely 
+blocked from accessing node C2 apache (for SVN) to have access to the repositories. 
+The NUU blocks are assumed to be due to C2s habit of transferring 
+gigabytes per day of backup tarballs. 
+
+*Not auto-started on reboot*, to start::
+
+   nginx-
+   nginx--sstart
+ 
 
 HOW TO EXPOSE SOME STATIC HTML DOCS
 --------------------------------------
