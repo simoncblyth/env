@@ -50,13 +50,19 @@ opw-gen-muons(){
     du -hs $smpl
 }
 
+
+opw-chk(){
+    [ "$(which nuwa.py 2> /dev/null)" == "" ] && echo $msg setup nuwa environment first laddie && sleep 1000000000
+}
+
+opw-tag(){ echo ${OPW_TAG:-226} ; }
 opw-sim(){
    type $FUNCNAME
-    [ "$(which nuwa.py 2> /dev/null)" == "" ] && echo $msg setup nuwa environment first laddie && return 1
    opw-cd
+   opw-chk
 
    mkdir -p out log 
-   local tag=226
+   local tag=$(opw-tag)
    time nuwa.py -R 3 -n 1000 -m "$(opw-sim-args)" -o out/$tag.root >& log/$tag.log &
    #time nuwa.py -R 3 -n 1000 -m "$(opw-sim-args)" -o out/$tag.root 
 }
@@ -72,3 +78,18 @@ opw-sim-args(){ cat << EOA
 EOA
 }
 
+
+opw-ana(){
+   opw-chk
+   opw-cd
+   local tag=$(opw-tag)
+   #nuwa.py -n -1 -m "opa" out/$tag.root >& log/${tag}opa.log
+   nuwa.py -n -1 -m "opa" out/$tag.root 
+}
+
+opw-plt(){
+   opw-chk
+   opw-cd
+   
+
+}
