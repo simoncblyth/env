@@ -59,6 +59,8 @@ Contents:
    qxml/index
    fossil/index
    java/index
+   geant4/index
+   muon_simulation/index
 
 Indices and tables
 ==================

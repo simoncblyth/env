@@ -6,6 +6,7 @@ Tools
 
     svnlog
     psutil
+    fast
 
 
 
