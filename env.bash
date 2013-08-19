@@ -1194,6 +1194,7 @@ svgcharts-(){      . $(env-home)/plot/svgcharts/svgcharts.bash && svgcharts-env 
 cqpack-(){      . $(env-home)/plot/svgcharts/cqpack.bash && cqpack-env $* ; }
 svn2git-(){      . $(env-home)/scm/svn2git/svn2git.bash && svn2git-env $* ; }
 opw-(){      . $(env-home)/muon_simulation/optical_photon_weighting/opw.bash && opw-env $* ; }
-gperftools-(){      . $(env-home)/tools/gperftools.bash && gperftools-env $* ; }
 chroma-(){      . $(env-home)/muon_simulation/chroma/chroma.bash && chroma-env $* ; }
-fast-(){      . $(env-home)/tools/fast.bash && fast-env $* ; }
+fast-(){      . $(env-home)/tools/fast/fast.bash && fast-env $* ; }
+gperftools-(){      . $(env-home)/tools/gperftools/gperftools.bash && gperftools-env $* ; }
+kcachegrind-(){      . $(env-home)/tools/kcachegrind.bash && kcachegrind-env $* ; }

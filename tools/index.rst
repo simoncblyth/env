@@ -6,7 +6,8 @@ Tools
 
     svnlog
     psutil
-    fast
+    fast/index
+    gperftools/index
 
 
 

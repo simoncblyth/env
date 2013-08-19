@@ -1,5 +1,5 @@
 
-.. include:: fast.bash
+.. include:: gperftools.bash
    :start-after: cat << EOU
    :end-before: EOU
 
