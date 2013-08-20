@@ -7,4 +7,5 @@ muon_simulation
    overview
    techniques
    optical_photon_weighting/index
+   profiling/index
    chroma/index

@@ -66,7 +66,8 @@ opw-chk(){
 
 
 opw-executions(){ echo 10 ; }
-opw-tag(){ echo ${OPW_TAG:-226} ; }
+#opw-tag(){ echo ${OPW_TAG:-226} ; }
+opw-tag(){ echo ${OPW_TAG:-base} ; }
 opw-prefix(){  echo ${OPW_PREFIX:-profrun} ; }
 opw-stamp-(){ date +"%Y%m%d-%H%M" ; }
 opw-stamp(){ echo ${OPW_STAMP:-$(opw-stamp-)} ; }
@@ -91,24 +92,28 @@ opw-sim(){
    echo $msg generate script $script in $PWD
    cat $script
 
-   local cmdline="profrun $(which python) $script >& log/$tag.log "
-   echo $msg "$cmdline"
+   #local cmdline="profrun $(which python) $script >& log/$tag.log "
+   #echo $msg "$cmdline"
    #eval $cmdline
 
+}
+
+
+opw-prof-(){ cat << EOC
+LD_PRELOAD=/usr/local/lib/libprofiler.so CPUPROFILE=$PWD/$(opw-tag).prof $(which python) opw-sim.py 
+EOC
+}
+
+opw-prof(){
+    local msg="=== $FUNCNAME :" 
+    echo $msg cmdline below
+    $FUNCNAME-
 }
 
 
 opw-hostid(){
   # nuwa.py relies on running hostid binary in separate process which 
    python -c "from DybPython.hostid import hostid ; print hostid()"
-}
-
-
-opw-prof(){
-
-   export LD_PRELOAD
-   LD_PRELOAD=$
-
 }
 
 
@@ -136,7 +141,12 @@ import shlex
 import sys
 import os
 
-modargs = r"""
+modargs = {}
+modargs['base'] = r"""
+     fmcpmuon --use-pregenerated-muons --use-basic-physics --disable-op-weighting
+"""
+
+modargs['red'] = r"""
      fmcpmuon --use-pregenerated-muons --use-basic-physics 
         --wsLimit=1 
         --wsWeight=1 
@@ -145,9 +155,11 @@ modargs = r"""
         --adWeights=[1,100,100]
 """
 
+modtag='$tag'
+
 quote = lambda _:"\""+_+"\""
-modargl = shlex.split(modargs, posix=False)
-argl = "--hostid $(opw-hostid) -R 3 -n $(opw-executions) -m " + quote(" ".join(modargl)) + " -o out/$tag.root "
+modargl = shlex.split(modargs[modtag], posix=False)
+argl = "--hostid $(opw-hostid) -R 3 -n $(opw-executions) -m " + quote(" ".join(modargl)) + " -o $tag.root "
 print argl
 
 sys.argv[1:] = shlex.split(argl)
