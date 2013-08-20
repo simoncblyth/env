@@ -5,3 +5,6 @@ gperftools
 .. toctree::
 
    gperftools
+   profiling
+
+

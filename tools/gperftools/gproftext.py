@@ -12,99 +12,123 @@ Meaning the columns
 5. `psub` Percentage of profiling samples in this function and its callees
 6. `name` Function name
 
+The examples are from the "base" muon simulation with optical photon 
+reweighting optimization switched off.
 
 Usage::
 
-    [blyth@belle7 gperftools]$  gproftext.py  /tmp/nuwa.perf.txt --filter 'psub > 5 and nsmp > 0'  --sort psub --reverse
-    Total: 51006 samples
 
-    filter : psub > 5 and nsmp > 0      sort : psub    reverse : True
+    [blyth@belle7 20130820-1318]$ gproftext.py base.prof.txt -r --filter 'psub > 2 and nsmp > 0' --sort psub --pattern ::
+    Total: 721927 samples
 
-      nsmp       psmp %       fsmp             nsub       psub %         name 
-      42.0        0.1 %       79.3             47777.0    93.7 %          _init@80579cc 
-      3.0         0.0 %       98.4             42679.0    83.7 %          PyEval_EvalFrameEx 
-      68.0        0.1 %       70.3             26885.0    52.7 %          G4TrackingManager::ProcessOneTrack 
-      16.0        0.0 %       91.4             26902.0    52.7 %          G4EventManager::DoProcessing 
-      174.0       0.3 %       47.8             26035.0    51.0 %          G4SteppingManager::Stepping 
-      110.0       0.2 %       58.7             12153.0    23.8 %          G4EventManager::StackTracks 
-      99.0        0.2 %       61.3             11895.0    23.3 %          G4StackManager::PushOneTrack 
-      687.0       1.3 %       21.1             11143.0    21.8 %          DsFastMuonStackAction::ClassifyNewTrack 
-      50.0        0.1 %       76.6             9303.0     18.2 %          G4SteppingManager::InvokePostStepDoItProcs 
-      186.0       0.4 %       45.3             9145.0     17.9 %          G4SteppingManager::InvokePSDIP 
-      1.0         0.0 %       99.2             8316.0     16.3 %          DataSvc::retrieveEntry 
-      1.0         0.0 %       99.2             8316.0     16.3 %          DataSvc::retrieveObject@938080 
-      4.0         0.0 %       97.5             8189.0     16.1 %          .L2198 
-      2.0         0.0 %       98.6             8200.0     16.1 %          DataSvc::loadObject@938dfc 
-      12.0        0.0 %       93.8             8183.0     16.0 %          XmlGenericCnv::createObj 
-      1.0         0.0 %       99.9             7453.0     14.6 %          xercesc_2_8::DOMDeepNodeListImpl::item 
-      182.0       0.4 %       46.4             7410.0     14.5 %          xercesc_2_8::DOMDeepNodeListImpl::cacheItem 
-      4924.0      9.7 %       9.7              6471.0     12.7 %          xercesc_2_8::DOMDeepNodeListImpl::nextMatchingElementAfter 
-      140.0       0.3 %       52.0             6276.0     12.3 %          G4SteppingManager::DefinePhysicalStepLength 
-      98.0        0.2 %       61.7             5946.0     11.7 %          GiGaStepActionSequence::UserSteppingAction 
-      1.0         0.0 %       99.2             5543.0     10.9 %          DetectorElement::childIDetectorElements 
-      348.0       0.7 %       32.1             5516.0     10.8 %          GetTouchableName 
-      8.0         0.0 %       95.8             4743.0      9.3 %          G4VProcess::AlongStepGPIL 
-      370.0       0.7 %       30.7             4634.0      9.1 %          UnObserverStepAction::UserSteppingAction 
-      117.0       0.2 %       56.5             4590.0      9.0 %          G4Transportation::AlongStepGetPhysicalInteractionLength 
-      138.0       0.3 %       52.3             4378.0      8.6 %          G4Navigator::ComputeStep 
-      1701.0      3.3 %       13.0             4092.0      8.0 %          std::vector::operator[] 
-      8.0         0.0 %       95.8             3565.0      7.0 %          TH2DE::GetBestDetectorElement 
-      137.0       0.3 %       52.5             3471.0      6.8 %          G4VoxelNavigation::ComputeStep 
-      111.0       0.2 %       58.5             3250.0      6.4 %          std::ostream::operator<< 
-      89.0        0.2 %       62.2             3120.0      6.1 %          RuleParser::AndRule::select 
-      57.0        0.1 %       74.9             3101.0      6.1 %          std::num_put::do_put 
-      163.0       0.3 %       49.1             3054.0      6.0 %          RuleParser::EQ_Rule::select 
-      36.0        0.1 %       81.3             2845.0      5.6 %          CLHEP::operator<< 
-      277.0       0.5 %       36.9             2588.0      5.1 %          DsG4OpBoundaryProcess::PostStepDoIt 
-
-
-    [blyth@belle7 20130816-1754]$ gproftext.py  /tmp/nuwa.perf.txt --pattern "G4.*"
-    Total: 51006 samples
-
-    filter : psub > 10 and nsmp > 0      sort : psub    reverse : False
+    filter : psub > 2 and nsmp > 0      sort : psub    reverse : True
 
       nsmp       psmp %       fsmp             nsub       psub %         name 
-      140.0       0.3 %       52.0             6276.0     12.3 %          G4SteppingManager::DefinePhysicalStepLength 
-      186.0       0.4 %       45.3             9145.0     17.9 %          G4SteppingManager::InvokePSDIP 
-      50.0        0.1 %       76.6             9303.0     18.2 %          G4SteppingManager::InvokePostStepDoItProcs 
-      99.0        0.2 %       61.3             11895.0    23.3 %          G4StackManager::PushOneTrack 
-      110.0       0.2 %       58.7             12153.0    23.8 %          G4EventManager::StackTracks 
-      174.0       0.3 %       47.8             26035.0    51.0 %          G4SteppingManager::Stepping 
-      68.0        0.1 %       70.3             26885.0    52.7 %          G4TrackingManager::ProcessOneTrack 
-      16.0        0.0 %       91.4             26902.0    52.7 %          G4EventManager::DoProcessing 
+      2.0         0.0 %       99.9             708995.0   98.2 %          DsPullEvent::execute 
+      357.0       0.0 %       90.1             705979.0   97.8 %          G4EventManager::DoProcessing 
+      1607.0      0.2 %       64.8             705402.0   97.7 %          G4TrackingManager::ProcessOneTrack 
+      5959.0      0.8 %       30.3             678848.0   94.0 %          G4SteppingManager::Stepping 
+      2027.0      0.3 %       58.7             214554.0   29.7 %          G4SteppingManager::InvokePostStepDoItProcs 
+      4888.0      0.7 %       38.4             209391.0   29.0 %          G4SteppingManager::InvokePSDIP 
+      3011.0      0.4 %       48.8             205794.0   28.5 %          GiGaStepActionSequence::UserSteppingAction 
+      4576.0      0.6 %       39.0             197716.0   27.4 %          G4SteppingManager::DefinePhysicalStepLength 
+      14264.0     2.0 %       8.9              162729.0   22.5 %          UnObserverStepAction::UserSteppingAction 
+      3746.0      0.5 %       42.4             152794.0   21.2 %          G4Transportation::AlongStepGetPhysicalInteractionLength 
+      297.0       0.0 %       92.3             153389.0   21.2 %          G4VProcess::AlongStepGPIL 
+      3743.0      0.5 %       42.9             146694.0   20.3 %          G4Navigator::ComputeStep 
+      5017.0      0.7 %       36.3             116872.0   16.2 %          G4VoxelNavigation::ComputeStep 
+      2995.0      0.4 %       49.2             101018.0   14.0 %          RuleParser::AndRule::select 
+      5993.0      0.8 %       29.4             100221.0   13.9 %          RuleParser::EQ_Rule::select 
+      8346.0      1.2 %       21.0             85920.0    11.9 %          DsG4OpBoundaryProcess::PostStepDoIt 
+      30380.0     4.2 %       4.2              71103.0     9.8 %          std::vector::operator[] 
+      3160.0      0.4 %       46.2             54907.0     7.6 %          G4Transportation::PostStepDoIt 
+      12168.0     1.7 %       14.3             51787.0     7.2 %          G4VoxelNavigation::LocateNextVoxel 
+      545.0       0.1 %       84.9             47110.0     6.5 %          G4Navigator::LocateGlobalPointAndUpdateTouchableHandle 
+      7980.0      1.1 %       22.1             37398.0     5.2 %          HistorianStepAction::UserSteppingAction 
+      11258.0     1.6 %       15.9             34217.0     4.7 %          std::vector::size 
+      1493.0      0.2 %       66.7             32324.0     4.5 %          G4VProcess::PostStepGPIL 
+      3583.0      0.5 %       43.4             31541.0     4.4 %          G4Navigator::LocateGlobalPointAndSetup 
+      2188.0      0.3 %       56.4             31461.0     4.4 %          G4SteppingManager::InvokeAlongStepDoItProcs 
+      259.0       0.0 %       93.5             31815.0     4.4 %          QueriableStepAction::getDetectorId@6e276 
+      354.0       0.0 %       90.3             30990.0     4.3 %          TH2DE::GetBestDetectorElement 
+      621.0       0.1 %       83.5             29124.0     4.0 %          QueriableStepAction::getDetectorElement 
+      1076.0      0.1 %       73.3             27837.0     3.9 %          TH2DE::CheckCache 
+      9160.0      1.3 %       18.7             26659.0     3.7 %          G4Step::UpdateTrack 
+      19914.0     2.8 %       7.0              23656.0     3.3 %          std::vector::begin 
+      5448.0      0.8 %       33.4             23853.0     3.3 %          DsG4Scintillation::PostStepDoIt 
+      2617.0      0.4 %       51.1             23982.0     3.3 %          std::map::operator[] 
+      2793.0      0.4 %       50.0             22204.0     3.1 %          G4LogicalSkinSurface::GetSurface 
+      1779.0      0.2 %       62.7             22660.0     3.1 %          G4VDiscreteProcess::PostStepGetPhysicalInteractionLength 
+      2218.0      0.3 %       55.2             20397.0     2.8 %          G4DisplacedSolid::Inside 
+      6271.0      0.9 %       28.6             19463.0     2.7 %          GaudiCommon::verbose 
+      959.0       0.1 %       75.8             19091.0     2.6 %          RuleParser::OrRule::select 
+      496.0       0.1 %       86.4             17776.0     2.5 %          G4Navigator::CreateTouchableHistory 
+      7272.0      1.0 %       23.1             16566.0     2.3 %          G4MaterialPropertiesTable::GetProperty 
+      3156.0      0.4 %       46.6             16440.0     2.3 %          G4MaterialPropertyVector::GetProperty 
+      986.0       0.1 %       74.7             16401.0     2.3 %          G4VoxelNavigation::LevelLocate 
+      518.0       0.1 %       85.7             16507.0     2.3 %          std::map::lower_bound 
+      4254.0      0.6 %       40.8             15751.0     2.2 %          G4Track::GetVelocity 
+      954.0       0.1 %       76.1             15590.0     2.2 %          G4SteppingManager::SetInitialStep 
+      13166.0     1.8 %       12.7             14938.0     2.1 %          __gnu_cxx::__normal_iterator::operator+ 
+      4364.0      0.6 %       39.6             15493.0     2.1 %          std::_Rb_tree::lower_bound 
+      2606.0      0.4 %       51.5             15364.0     2.1 %          G4SubtractionSolid::Inside 
+      1343.0      0.2 %       68.8             15318.0     2.1 %          G4TouchableHistory::G4TouchableHistory 
+    [blyth@belle7 20130820-1318]$ 
+    [blyth@belle7 20130820-1318]$ 
 
 
-    [blyth@belle7 20130816-1754]$ gproftext.py  /tmp/nuwa.perf.txt --pattern "PostStepDoIt" --filter 1==1 
-    Total: 51006 samples
+    [blyth@belle7 20130820-1318]$ gproftext.py base.prof.txt -r --pattern 'G4'
+    Total: 721927 samples
 
-    filter : 1==1      sort : psub    reverse : False
+    filter : psub > 10 and nsmp > 0      sort : psub    reverse : True
 
       nsmp       psmp %       fsmp             nsub       psub %         name 
-      7.0         0.0 %       96.2             10.0        0.0 %          G4VRestDiscreteProcess::PostStepDoIt 
-      3.0         0.0 %       98.3             8.0         0.0 %          G4VDiscreteProcess::PostStepDoIt 
-      2.0         0.0 %       98.7             25.0        0.0 %          G4LowEnergyRayleigh::PostStepDoIt 
-      1.0         0.0 %       99.3             3.0         0.0 %          DsG4OpRayleigh::PostStepDoIt 
-      1.0         0.0 %       99.4             20.0        0.0 %          G4OpAbsorption::PostStepDoIt 
-      0.0         0.0 %       100.0            12.0        0.0 %          G4LowEnergyBremsstrahlung::PostStepDoIt 
-      0.0         0.0 %       100.0            1.0         0.0 %          G4LowEnergyGammaConversion::PostStepDoIt 
-      0.0         0.0 %       100.0            9.0         0.0 %          G4LowEnergyPhotoElectric::PostStepDoIt 
-      0.0         0.0 %       100.0            16.0        0.0 %          G4VEnergyLossProcess::PostStepDoIt 
-      2.0         0.0 %       98.7             37.0        0.1 %          G4LowEnergyCompton::PostStepDoIt 
-      2.0         0.0 %       98.8             72.0        0.1 %          G4VMultipleScattering::PostStepDoIt 
-      1.0         0.0 %       99.3             38.0        0.1 %          G4LowEnergyIonisation::PostStepDoIt 
-      81.0        0.2 %       65.6             719.0       1.4 %          DsG4Cerenkov::PostStepDoIt 
-      87.0        0.2 %       63.4             1663.0      3.3 %          G4Transportation::PostStepDoIt 
-      393.0       0.8 %       28.4             2332.0      4.6 %          DsG4Scintillation::PostStepDoIt 
-      277.0       0.5 %       36.9             2588.0      5.1 %          DsG4OpBoundaryProcess::PostStepDoIt 
-      50.0        0.1 %       76.6             9303.0     18.2 %          G4SteppingManager::InvokePostStepDoItProcs 
+      357.0       0.0 %       90.1             705979.0   97.8 %          G4EventManager::DoProcessing 
+      1607.0      0.2 %       64.8             705402.0   97.7 %          G4TrackingManager::ProcessOneTrack 
+      5959.0      0.8 %       30.3             678848.0   94.0 %          G4SteppingManager::Stepping 
+      2027.0      0.3 %       58.7             214554.0   29.7 %          G4SteppingManager::InvokePostStepDoItProcs 
+      4888.0      0.7 %       38.4             209391.0   29.0 %          G4SteppingManager::InvokePSDIP 
+      4576.0      0.6 %       39.0             197716.0   27.4 %          G4SteppingManager::DefinePhysicalStepLength 
+      3746.0      0.5 %       42.4             152794.0   21.2 %          G4Transportation::AlongStepGetPhysicalInteractionLength 
+      297.0       0.0 %       92.3             153389.0   21.2 %          G4VProcess::AlongStepGPIL 
+      3743.0      0.5 %       42.9             146694.0   20.3 %          G4Navigator::ComputeStep 
+      5017.0      0.7 %       36.3             116872.0   16.2 %          G4VoxelNavigation::ComputeStep 
+      8346.0      1.2 %       21.0             85920.0    11.9 %          DsG4OpBoundaryProcess::PostStepDoIt 
 
+
+    [blyth@belle7 20130820-1318]$ gproftext.py base.prof.txt -r --pattern 'PostStepDoIt' --filter True
+    Total: 721927 samples
+
+    filter : True      sort : psub    reverse : True
+
+      nsmp       psmp %       fsmp             nsub       psub %         name 
+      2027.0      0.3 %       58.7             214554.0   29.7 %          G4SteppingManager::InvokePostStepDoItProcs 
+      8346.0      1.2 %       21.0             85920.0    11.9 %          DsG4OpBoundaryProcess::PostStepDoIt 
+      3160.0      0.4 %       46.2             54907.0     7.6 %          G4Transportation::PostStepDoIt 
+      5448.0      0.8 %       33.4             23853.0     3.3 %          DsG4Scintillation::PostStepDoIt 
+      191.0       0.0 %       95.3             414.0       0.1 %          G4VDiscreteProcess::PostStepDoIt 
+      94.0        0.0 %       97.8             573.0       0.1 %          G4OpAbsorption::PostStepDoIt 
+      72.0        0.0 %       98.4             740.0       0.1 %          DsG4Cerenkov::PostStepDoIt 
+      184.0       0.0 %       95.5             235.0       0.0 %          G4VRestDiscreteProcess::PostStepDoIt 
+      38.0        0.0 %       99.1             135.0       0.0 %          DsG4OpRayleigh::PostStepDoIt 
+      8.0         0.0 %       99.8             32.0        0.0 %          G4FastSimulationManagerProcess::PostStepDoIt 
+      6.0         0.0 %       99.8             6.0         0.0 %          G4SteppingManager::GetfN2ndariesPostStepDoIt 
+      4.0         0.0 %       99.9             87.0        0.0 %          G4VMultipleScattering::PostStepDoIt 
+      2.0         0.0 %       99.9             37.0        0.0 %          G4LowEnergyCompton::PostStepDoIt 
+      1.0         0.0 %       100.0            9.0         0.0 %          G4LowEnergyPhotoElectric::PostStepDoIt 
+      1.0         0.0 %       100.0            9.0         0.0 %          G4LowEnergyRayleigh::PostStepDoIt 
+      1.0         0.0 %       100.0            3.0         0.0 %          G4VEnergyLossProcess::PostStepDoIt 
+      0.0         0.0 %       100.0            24.0        0.0 %          G4FastSimulationManager::InvokePostStepDoIt 
+      0.0         0.0 %       100.0            13.0        0.0 %          G4LowEnergyBremsstrahlung::PostStepDoIt 
+      0.0         0.0 %       100.0            46.0        0.0 %          G4LowEnergyIonisation::PostStepDoIt 
+    [blyth@belle7 20130820-1318]$ 
 
 
 Parse and sort the text columns from googleperftools created with commands like::
 
-    [blyth@belle7 20130816-1754]$ pprof --text $(which python) /tmp/nuwa.perf > /tmp/nuwa.perf.txt
+    [blyth@belle7 20130820-1318]$ pprof --text $(which python) base.prof > base.prof.txt
     Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
-    Using local file /tmp/nuwa.perf.
+    Using local file base.prof
     Removing _init from all stack traces. 
 
 For a top-down "container" view filter as below, the nsmp > 0 avoids uninteresting "global" containers
