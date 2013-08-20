@@ -1,6 +1,12 @@
 stepping
 ==========
 
+.. contents:: :local:
+
+
+G4SteppingManager::Stepping
+-----------------------------
+
 94% of CPU samples within `G4SteppingManager::Stepping`, for *base* muon simulation::
 
     [blyth@belle7 20130820-1318]$  pprof --list=G4SteppingManager::Stepping $(which python) base.prof 
@@ -163,125 +169,152 @@ stepping
 
 
 
-
-
-
-
-
-G4TrackingManager::ProcessOneTrack
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`Stepping` invoked in while loop looking at `fpTrack->GetTrackStatus()`
+G4SteppingManager::InvokePostStepDoItProcs
+-------------------------------------------
 
 
 ::
 
-    [blyth@belle7 20130820-1318]$  pprof --list=G4TrackingManager::ProcessOneTrack $(which python) base.prof 
+    [blyth@belle7 20130820-1318]$  pprof --list=G4SteppingManager::InvokePostStepDoItProcs $(which python) base.prof 
     Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
     Using local file base.prof.
     Removing _init from all stack traces.
-    ROUTINE ====================== G4TrackingManager::ProcessOneTrack in /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/tracking/src/G4TrackingManager.cc
-      1607 705402 Total samples (flat / cumulative)
-         .      .   63:   delete fpSteppingManager;
-         .      .   64:   if (fpUserTrackingAction) delete fpUserTrackingAction;
-         .      .   65: }
-         .      .   66: 
-         .      .   67: ////////////////////////////////////////////////////////////////
+    ROUTINE ====================== G4SteppingManager::InvokePostStepDoItProcs in /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/tracking/src/G4SteppingManager2.cc
+      2027 214554 Total samples (flat / cumulative)
+         .      .  469:    }
+         .      .  470: 
+         .      .  471: }
+         .      .  472: 
+         .      .  473: ////////////////////////////////////////////////////////
     ---
-        16     16   68: void G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)
-         .      .   69: ////////////////////////////////////////////////////////////////
-         .      .   70: {
-         .      .   71: 
-         .      .   72:   // Receiving a G4Track from the EventManager, this funciton has the
-         .      .   73:   // responsibility to trace the track till it stops.
-         1      1   74:   fpTrack = apValueG4Track;
-         .      .   75:   EventIsAborted = false;
-         .      .   76: 
-         .      .   77:   // Clear 2ndary particle vector
-         .      .   78:   //  GimmeSecondaries()->clearAndDestroy();    
-         .      .   79:   //  std::vector<G4Track*>::iterator itr;
-         .      .   80:   size_t itr;
-         .      .   81:   //  for(itr=GimmeSecondaries()->begin();itr=GimmeSecondaries()->end();itr++){ 
-        79    148   82:   for(itr=0;itr<GimmeSecondaries()->size();itr++){ 
-         .      .   83:      delete (*GimmeSecondaries())[itr];
-         .      .   84:   }
-         3    282   85:   GimmeSecondaries()->clear();  
-         .      .   86:    
-        50     50   87:   if(verboseLevel>0 && (G4VSteppingVerbose::GetSilent()!=1) ) TrackBanner();
-         .      .   88:   
-         .      .   89:   // Give SteppingManger the pointer to the track which will be tracked 
-         7  15623   90:   fpSteppingManager->SetInitialStep(fpTrack);
-         .      .   91: 
-         .      .   92:   // Pre tracking user intervention process.
-        70     70   93:   fpTrajectory = 0;
-        10     10   94:   if( fpUserTrackingAction != NULL ) {
-        10    223   95:      fpUserTrackingAction->PreUserTrackingAction(fpTrack);
-         .      .   96:   }
-         .      .   97: #ifdef G4_STORE_TRAJECTORY
-         .      .   98:   // Construct a trajectory if it is requested
-        29     29   99:   if(StoreTrajectory&&(!fpTrajectory)) { 
-         .      .  100:     // default trajectory concrete class object
-         .      .  101:     switch (StoreTrajectory) {
-         .      .  102:     default:
-         .      .  103:     case 1: fpTrajectory = new G4Trajectory(fpTrack); break;
-         .      .  104:     case 2: fpTrajectory = new G4SmoothTrajectory(fpTrack); break;
-         .      .  105:     case 3: fpTrajectory = new G4RichTrajectory(fpTrack); break;
-         .      .  106:     }
-         .      .  107:   }
-         .      .  108: #endif
-         .      .  109: 
-         .      .  110:   // Give SteppingManger the maxmimum number of processes 
-         1    625  111:   fpSteppingManager->GetProcessNumber();
-         .      .  112: 
-         .      .  113:   // Give track the pointer to the Step
-        88     91  114:   fpTrack->SetStep(fpSteppingManager->GetStep());
-         .      .  115: 
-         .      .  116:   // Inform beginning of tracking to physics processes 
-        49   5085  117:   fpTrack->GetDefinition()->GetProcessManager()->StartTracking(fpTrack);
-         .      .  118: 
-         .      .  119:   // Track the particle Step-by-Step while it is alive
-         .      .  120:   G4StepStatus stepStatus;
-         .      .  121: 
-       367    381  122:   while( (fpTrack->GetTrackStatus() == fAlive) ||
-         .      .  123:          (fpTrack->GetTrackStatus() == fStopButAlive) ){
-         .      .  124: 
-        54     79  125:     fpTrack->IncrementCurrentStepNumber();
-       364 679688  126:     stepStatus = fpSteppingManager->Stepping();
-         .      .  127: #ifdef G4_STORE_TRAJECTORY
-       183    183  128:     if(StoreTrajectory) fpTrajectory->
-         .      .  129:                         AppendStep(fpSteppingManager->GetStep()); 
-         .      .  130: #endif
-        29     29  131:     if(EventIsAborted) {
-         .      .  132:       fpTrack->SetTrackStatus( fKillTrackAndSecondaries );
-         .      .  133:     }
-         .      .  134:   }
-         .      .  135:   // Inform end of tracking to physics processes 
-        70   2439  136:   fpTrack->GetDefinition()->GetProcessManager()->EndTracking();
-         .      .  137: 
-         .      .  138:   // Post tracking user intervention process.
-        54     54  139:   if( fpUserTrackingAction != NULL ) {
-        41    264  140:      fpUserTrackingAction->PostUserTrackingAction(fpTrack);
-         .      .  141:   }
-         .      .  142: 
-         .      .  143:   // Destruct the trajectory if it was created
-         .      .  144: #ifdef G4VERBOSE
-        31     31  145:   if(StoreTrajectory&&verboseLevel>10) fpTrajectory->ShowTrajectory();
-         .      .  146: #endif
-         .      .  147:   if( (!StoreTrajectory)&&fpTrajectory ) {
-         .      .  148:       delete fpTrajectory;
-         .      .  149:       fpTrajectory = 0;
-         .      .  150:   }
-         1      1  151: }
+        19     19  474: void G4SteppingManager::InvokePostStepDoItProcs()
+         .      .  475: ////////////////////////////////////////////////////////
+         .      .  476: {
+         .      .  477: 
+         .      .  478: // Invoke the specified discrete processes
+       151    151  479:    for(size_t np=0; np < MAXofPostStepLoops; np++){
+         .      .  480:    //
+         .      .  481:    // Note: DoItVector has inverse order against GetPhysIntVector
+         .      .  482:    //       and SelectedPostStepDoItVector.
+         .      .  483:    //
+       606   3267  484:      G4int Cond = (*fSelectedPostStepDoItVector)[MAXofPostStepLoops-np-1];
+        80     80  485:      if(Cond != InActivated){
+       206    206  486:        if( ((Cond == NotForced) && (fStepStatus == fPostStepDoItProc)) ||
+         .      .  487:        ((Cond == Forced) && (fStepStatus != fExclusivelyForcedProc)) ||
+         .      .  488:        ((Cond == Conditionally) && (fStepStatus == fAlongStepDoItProc)) ||
+         .      .  489:        ((Cond == ExclusivelyForced) && (fStepStatus == fExclusivelyForcedProc)) || 
+         .      .  490:        ((Cond == StronglyForced) ) 
+         .      .  491:       ) {
+         .      .  492: 
+        97 195545  493:      InvokePSDIP(np);
+         .      .  494:        }
+         .      .  495:      } //if(*fSelectedPostStepDoItVector(np)........
+         .      .  496: 
+         .      .  497:      // Exit from PostStepLoop if the track has been killed,
+         .      .  498:      // but extra treatment for processes with Strongly Forced flag
+       743    832  499:      if(fTrack->GetTrackStatus() == fStopAndKill) {
+        54     54  500:        for(size_t np1=np+1; np1 < MAXofPostStepLoops; np1++){ 
+        37    191  501:      G4int Cond2 = (*fSelectedPostStepDoItVector)[MAXofPostStepLoops-np1-1];
+         4      4  502:      if (Cond2 == StronglyForced) {
+         4  14179  503:        InvokePSDIP(np1);
+         .      .  504:          }
+         .      .  505:        }
+         5      5  506:        break;
+         .      .  507:      }
+         .      .  508:    } //for(size_t np=0; np < MAXofPostStepLoops; np++){
+        21     21  509: }
     ---
-         .      .  152: 
-         .      .  153: void G4TrackingManager::SetTrajectory(G4VTrajectory* aTrajectory)
-         .      .  154: {
-         .      .  155: #ifndef G4_STORE_TRAJECTORY
-         .      .  156:   G4Exception("G4TrackingManager::SetTrajectory is invoked without G4_STORE_TRAJECTORY compilor option");
+         .      .  510: 
+         .      .  511: 
+         .      .  512: 
+         .      .  513: void G4SteppingManager::InvokePSDIP(size_t np)
+         .      .  514: {
     [blyth@belle7 20130820-1318]$ 
 
 
 
+G4SteppingManager::InvokePSDIP
+---------------------------------
+
+::
+
+    [blyth@belle7 20130820-1318]$  pprof --list=G4SteppingManager::InvokePSDIP $(which python) base.prof 
+    Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
+    Using local file base.prof.
+    Removing _init from all stack traces.
+    ROUTINE ====================== G4SteppingManager::InvokePSDIP in /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/tracking/src/G4SteppingManager2.cc
+      4888 209391 Total samples (flat / cumulative)
+         .      .  508:    } //for(size_t np=0; np < MAXofPostStepLoops; np++){
+         .      .  509: }
+         .      .  510: 
+         .      .  511: 
+         .      .  512: 
+    ---
+       105    105  513: void G4SteppingManager::InvokePSDIP(size_t np)
+         .      .  514: {
+       408   2005  515:          fCurrentProcess = (*fPostStepDoItVector)[np];
+         .      .  516:          fParticleChange 
+       917 168266  517:             = fCurrentProcess->PostStepDoIt( *fTrack, *fStep);
+         .      .  518: 
+         .      .  519:          // Update PostStepPoint of Step according to ParticleChange
+       238  14920  520:      fParticleChange->UpdateStepForPostStep(fStep);
+         .      .  521: #ifdef G4VERBOSE
+         .      .  522:                  // !!!!! Verbose
+       549    549  523:            if(verboseLevel>0) fVerbose->PostStepDoItOneByOne();
+         .      .  524: #endif
+         .      .  525:          // Update G4Track according to ParticleChange after each PostStepDoIt
+        31  17005  526:          fStep->UpdateTrack();
+         .      .  527: 
+         .      .  528:          // Update safety after each invocation of PostStepDoIts
+       890   4360  529:          fStep->GetPostStepPoint()->SetSafety( CalculateSafety() );
+         .      .  530: 
+         .      .  531:          // Now Store the secondaries from ParticleChange to SecondaryList
+         .      .  532:          G4Track* tempSecondaryTrack;
+         .      .  533:          G4int    num2ndaries;
+         .      .  534: 
+       448    499  535:          num2ndaries = fParticleChange->GetNumberOfSecondaries();
+         .      .  536: 
+       231    231  537:          for(G4int DSecLoop=0 ; DSecLoop< num2ndaries; DSecLoop++){
+        28     70  538:             tempSecondaryTrack = fParticleChange->GetSecondary(DSecLoop);
+         .      .  539:    
+        15     37  540:             if(tempSecondaryTrack->GetDefinition()->GetApplyCutsFlag())
+         .      .  541:             { ApplyProductionCut(tempSecondaryTrack); }
+         .      .  542: 
+         .      .  543:             // Set parentID 
+        22     24  544:             tempSecondaryTrack->SetParentID( fTrack->GetTrackID() );
+         .      .  545:         
+         .      .  546:         // Set the process pointer which created this track 
+        10     14  547:         tempSecondaryTrack->SetCreatorProcess( fCurrentProcess );
+         .      .  548: 
+         .      .  549:             // If this 2ndry particle has 'zero' kinetic energy, make sure
+         .      .  550:             // it invokes a rest process at the beginning of the tracking
+        40     62  551:         if(tempSecondaryTrack->GetKineticEnergy() <= DBL_MIN){
+         .      .  552:           G4ProcessManager* pm = tempSecondaryTrack->GetDefinition()->GetProcessManager();
+         .      .  553:           if (pm->GetAtRestProcessVector()->entries()>0){
+         .      .  554:             tempSecondaryTrack->SetTrackStatus( fStopButAlive );
+         .      .  555:             fSecondary->push_back( tempSecondaryTrack );
+         .      .  556:                 fN2ndariesPostStepDoIt++;
+         .      .  557:           } else {
+         .      .  558:             delete tempSecondaryTrack;
+         .      .  559:           }
+         .      .  560:         } else {
+         3     90  561:           fSecondary->push_back( tempSecondaryTrack );
+        18     18  562:               fN2ndariesPostStepDoIt++;
+         .      .  563:         }
+         .      .  564:          } //end of loop on secondary 
+         .      .  565: 
+         .      .  566:          // Set the track status according to what the process defined
+       310    366  567:          fTrack->SetTrackStatus( fParticleChange->GetTrackStatus() );
+         .      .  568: 
+         .      .  569:          // clear ParticleChange
+       221    366  570:          fParticleChange->Clear();
+       404    404  571: }
+    ---
+         .      .  572: 
+         .      .  573: #include "G4EnergyLossTables.hh"
+         .      .  574: #include "G4ProductionCuts.hh"
+         .      .  575: #include "G4ProductionCutsTable.hh"
+         .      .  576: 
 
 
 

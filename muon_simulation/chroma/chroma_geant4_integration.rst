@@ -1,6 +1,95 @@
 Chroma Geant4 Interaction
 ==========================
 
+Open Questions
+----------------
+
+how/when to give photons back to G4/reconstruction code ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* add tracks to Geant4 ? 
+
+
+G4UserTrackingAction
+------------------------
+
+G4EventManager allows setting the G4UserTrackingAction on the G4TrackingManager::
+
+    [blyth@cms01 source]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source
+    [blyth@cms01 source]$ vi event/src/G4EventManager.cc
+
+    308 void G4EventManager::SetUserAction(G4UserEventAction* userAction)
+    309 {   
+    310   userEventAction = userAction;
+    311   if(userEventAction) userEventAction->SetEventManager(this);
+    312 }
+    313 
+    314 void G4EventManager::SetUserAction(G4UserStackingAction* userAction)
+    315 {
+    316   userStackingAction = userAction;
+    317   trackContainer->SetUserStackingAction(userAction);
+    318 }
+    319 
+    320 void G4EventManager::SetUserAction(G4UserTrackingAction* userAction)
+    321 {     
+    322   userTrackingAction = userAction;
+    323   trackManager->SetUserAction(userAction);
+    324 }
+    325 
+    326 void G4EventManager::SetUserAction(G4UserSteppingAction* userAction)
+    327 {
+    328   userSteppingAction = userAction;
+    329   trackManager->SetUserAction(userAction);
+    330 }
+
+
+The  `PreUserTrackingAction` is invoked at `G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)`  
+allowing track status changes, like kills::
+
+     91 
+     92   // Pre tracking user intervention process.
+     93   fpTrajectory = 0;
+     94   if( fpUserTrackingAction != NULL ) {
+     95      fpUserTrackingAction->PreUserTrackingAction(fpTrack);
+     96   }
+
+::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H G4UserTrackingAction {} \;
+    ./error_propagation/src/G4ErrorPropagator.cc:  const G4UserTrackingAction* fpUserTrackingAction =
+    ./error_propagation/src/G4ErrorPropagator.cc:    const_cast<G4UserTrackingAction*>(fpUserTrackingAction)
+    ./error_propagation/src/G4ErrorPropagator.cc:  const G4UserTrackingAction* fpUserTrackingAction =
+    ./error_propagation/src/G4ErrorPropagator.cc:    const_cast<G4UserTrackingAction*>(fpUserTrackingAction)
+    ./error_propagation/src/G4ErrorPropagatorManager.cc:void G4ErrorPropagatorManager::SetUserAction(G4UserTrackingAction* userAction)
+    ./error_propagation/src/G4ErrorRunManagerHelper.cc:void G4ErrorRunManagerHelper::SetUserAction(G4UserTrackingAction* userAction)
+    ./event/src/G4EventManager.cc:void G4EventManager::SetUserAction(G4UserTrackingAction* userAction)
+    ./tracking/src/G4UserTrackingAction.cc:// $Id: G4UserTrackingAction.cc,v 1.10 2006/06/29 21:16:19 gunter Exp $
+    ./tracking/src/G4UserTrackingAction.cc:// G4UserTrackingAction.cc
+    ./tracking/src/G4UserTrackingAction.cc:#include "G4UserTrackingAction.hh"
+    ./tracking/src/G4UserTrackingAction.cc:G4UserTrackingAction::G4UserTrackingAction()
+    ./tracking/src/G4UserTrackingAction.cc:   msg =  " You are instantiating G4UserTrackingAction BEFORE your\n";
+    ./tracking/src/G4UserTrackingAction.cc:   msg += "such as G4UserTrackingAction.";
+    ./tracking/src/G4UserTrackingAction.cc:   G4Exception("G4UserTrackingAction::G4UserTrackingAction()",
+    ./tracking/src/G4UserTrackingAction.cc:G4UserTrackingAction::~G4UserTrackingAction()
+    ./tracking/src/G4UserTrackingAction.cc:void G4UserTrackingAction::
+    [blyth@cms01 source]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source
+
+
+::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H PreUserTrackingAction {} \;
+    ./visualization/management/src/G4VisCommandsSceneAdd.cc:     "\nin PreUserTrackingAction.");
+    ./visualization/RayTracer/src/G4RTTrackingAction.cc:void G4RTTrackingAction :: PreUserTrackingAction(const G4Track*)
+    ./error_propagation/src/G4ErrorPropagator.cc:  InvokePreUserTrackingAction( theG4Track );  
+    ./error_propagation/src/G4ErrorPropagator.cc:void G4ErrorPropagator::InvokePreUserTrackingAction( G4Track* fpTrack )
+    ./error_propagation/src/G4ErrorPropagator.cc:      ->PreUserTrackingAction((fpTrack) );
+    ./tracking/src/G4TrackingManager.cc:     fpUserTrackingAction->PreUserTrackingAction(fpTrack);
+
+
+
+
 Boost python C++ `_g4chroma`
 -----------------------------
 
