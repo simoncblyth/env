@@ -6,4 +6,7 @@ geant4
 
    geant4_gpu
    geant4_profiling
+   verbosity
+   docs
+   giga
 

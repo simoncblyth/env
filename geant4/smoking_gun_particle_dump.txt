@@ -1,0 +1,282 @@
+[blyth@belle7 20130816-1754]$ gdb $(which python) 
+GNU gdb Red Hat Linux (6.5-25.el5rh)
+Copyright (C) 2006 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux-gnu"...Using host libthread_db library "/lib/libthread_db.so.1".
+
+(gdb) set args opw-sim.py
+(gdb) b main
+Breakpoint 1 at 0x8058813: file ./Modules/python.c, line 11.
+(gdb) c
+The program is not being run.
+(gdb) r
+Starting program: /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python opw-sim.py
+[Thread debugging using libthread_db enabled]
+[New process 14468]
+[New Thread -1208661808 (LWP 14468)]
+[Switching to Thread -1208661808 (LWP 14468)]
+
+Breakpoint 1, main (argc=2, argv=0xbfa3ccc4) at ./Modules/python.c:11
+11      {
+(gdb) b 'G4ParticleTable::DumpTable(G4String const&)'
+Function "G4ParticleTable::DumpTable(G4String const&)" not defined.
+Make breakpoint pending on future shared library load? (y or [n]) y
+Breakpoint 2 ('G4ParticleTable::DumpTable(G4String const&)') pending.
+(gdb) c
+Continuing.
+--hostid 1087078072 -R 3 -n 10  -m "fmcpmuon --use-pregenerated-muons --use-basic-physics --wsLimit=1 --wsWeight=1 --adVolumes=['oil','lso','gds'] --adLimits=[1,3000,1000] --adWeights=[1,100,100]" -o out/226.root 
+AES is turned on and trimming window is set to  0.0  seconds
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll> for level 0; ignored
+Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll> for level 0; ignored
+Embedded Catalog is available with the following settings:
+  URL of Catalog web service is "http://dayabay.lbl.gov/warehouse-ws/pdsf/CatalogBean"
+DybEventMgr: configuring EventDataSvc with use_aes= True
+input_streams= {}
+output_streams= {'default': 'out/226.root'}
+Configuring Dyb services:
+        CalibDataSvc is StaticCalibDataSvc
+        CableSvc is StaticCableSvc
+        SimDataSvc is StaticSimDataSvc
+Importing module "fmcpmuon" ["--use-pregenerated-muons", "--use-basic-physics", "--wsLimit=1", "--wsWeight=1", "--adVolumes=['oil','lso','gds']", "--adLimits=[1,3000,1000]", "--adWeights=[1,100,100]"]
+Trying to call configure() on fmcpmuon
+INFO:fmcpmuon:{'Enable_Debug': False,
+ 'adLimits': '[1,3000,1000]',
+ 'adVolumes': "['oil','lso','gds']",
+ 'adWeights': '[1,100,100]',
+ 'disable_op_weighting': None,
+ 'maxTimeForWeighting': '300*nanosecond',
+ 'mode': 'Full',
+ 'site': 'DayaBay',
+ 'start_time': '0',
+ 'step': 'DetSim',
+ 'useDynamicWeighting': True,
+ 'use_basic_physics': True,
+ 'use_pregenerated_muons': True,
+ 'wsLimit': 1,
+ 'wsWeight': 1}
+Generating Muon sample in DayaBay
+======================================================
+Begin JOB TIME =  2013-08-20T08:26:04
+Random seed:  3
+Number of Muon from Muon.exe:  1000
+Target volume:  /dd/Structure/Pool/db-ows
+======================================================
+Read muon data from  /data1/env/local/dyb/NuWa-trunk/../external/data/0.0/Muon
+ Not using data from /data1/env/local/dyb/NuWa-trunk/../external/data/0.0/Muon ! USING PREGENERATED MUONS 
+ muon source  /data1/env/local/env/muon_simulation/optical_photon_weighting/OPW/tenthousandmuons
+ musicSite: DYB, and RandomSeed: 3
+FMCPMUON: Configuring DetSim to use basic physics list only for site DayaBay
+ENABLE volume-based weighting of optical photons using DsFastMuonStackAction
+Using DybArchiveOutput to trigger output and do AES trimming
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr $Revision: 1.77 $
+                                          running on belle7.nuu.edu.tw on Tue Aug 20 16:26:05 2013
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+Trying to call run() on fmcpmuon
+Starting run with these top algorithms: ['DybShuffle/random_seeder', 'GtGenerator/Generator', 'GaudiSequencer/GaudiSequencer', 'DybArchiveOutput/DybArchiveOutput', 'RunDataWriterAlg/RunDataWriterAlg', 'JobInfoWriterAlg/JobInfoWriterAlg']
+EventPersistencySvc                   INFO  'CnvServices':[ 'RootIOCnvSvc/RootIOCnvSvc' ]
+EventDataSvc                          INFO Using [EvtDataSvc] as the archive service
+RootIOCnvSvc                          INFO  default output = "" output file map (1 entries):
+        "default" ==> "out/226.root"
+RootIOCnvSvc                          INFO  default input = "" input file map (0 entries):
+RootIOCnvSvc                       WARNING  no "default" input file name specified, unregistered TES paths will not be saved.
+StaticCalibDataSvc                    INFO User specified PmtDataFile is []
+StaticCalibDataSvc                    INFO Loading Master.pmtCalibMap.txt
+StaticCalibDataSvc                    INFO Loading Master.feeCalibMap.txt
+StaticSimDataSvc                      INFO Opened input file: /data1/env/local/dyb/NuWa-trunk/dybgaudi/DataModel/DataSvc/share/pmtDataTable.txt
+StaticSimDataSvc                      INFO Opening input file: /data1/env/local/dyb/NuWa-trunk/dybgaudi/DataModel/DataSvc/share/feeDataTable.txt
+RndmGenSvc.Engine                     INFO Generator engine type:HepRootRandom
+RndmGenSvc.Engine                     INFO Current Seed:1234567 Luxury:3
+RndmGenSvc.Engine                     INFO This is the GEANT4 engine!
+RndmGenSvc                            INFO Using Random engine:HepRndm::Engine<HepRootRandom>
+ToolSvc.tenthousandmuonsHepEvt        INFO GtHepEvtGenTool::initialize()
+Generator                             INFO Added gen tool GtHepEvtGenTool/tenthousandmuonsHepEvt
+Generator                             INFO Added gen tool GtPositionerTool/tenthousandmuonsPositioner
+ToolSvc.tenthousandmuonsTimerator     INFO initialize timer tool with mean delta time of 1
+Generator                             INFO Added gen tool GtTimeratorTool/tenthousandmuonsTimerator
+DetectorPersistencySvc                INFO  'CnvServices':[ 'XmlCnvSvc/XmlCnvSvc' ]
+DetectorPersistencySvc                INFO Added successfully Conversion service:XmlCnvSvc
+DetectorDataSvc                    SUCCESS Detector description database: /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/dayabay.xml
+EventClockSvc.FakeEventTime           INFO Event times generated from 0 with steps of 0
+Generator                             INFO Added gen tool GtTransformTool/tenthousandmuonsTransformer
+Breakpoint 3 at 0xb5cef51f: file src/G4ParticleTable.cc, line 433.
+Pending breakpoint "'G4ParticleTable::DumpTable(G4String const&)'" resolved
+GaudiSequencer                        INFO Member list: GiGaInputStream, DsPushKine, DsPullEvent
+ToolSvc.SequencerTimerTool            INFO This machine has a speed about   2.33 times the speed of a 2.8 GHz Xeon.
+ChronoStatSvc                         INFO  Number of skipped events for MemStat-1
+
+*************************************************************
+ Geant4 version Name: geant4-09-02-patch-01    (13-March-2009)
+                      Copyright : Geant4 Collaboration
+                      Reference : NIM A 506 (2003), 250-303
+                            WWW : http://cern.ch/geant4
+*************************************************************
+
+GiGa.GiGaPhysListModular              INFO GiGaPhysListModular initializing
+GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsGeneral
+GiGa.GiGaPhysListModular.DsPhysC...   INFO Photons prescaling is on for Cerenkov. Preliminary applied efficiency is 0.32 (weight=3.125)
+GiGa.GiGaPhysListModular.DsPhysC...   INFO Photons prescaling is on for Scintillation. Preliminary applied efficiency is 0.32 (weight=3.125)
+GiGa.GiGaPhysListModular.DsPhysC...   INFO WaterQE is turned on for Cerenkov.
+GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsOptical
+GiGa.GiGaPhysListModular              INFO Registered GiGa.GiGaPhysListModular.DsPhysConsEM
+GiGa.GiGaPhysListModular.DsPhysC...   INFO Set PDG code for opticalphoton to 20022
+
+Breakpoint 3, G4ParticleTable::DumpTable (this=0xb5d41b40, particle_name=@0xbfa3a090) at src/G4ParticleTable.cc:433
+433       CheckReadiness();
+Current language:  auto; currently c++
+(gdb) bt
+#0  G4ParticleTable::DumpTable (this=0xb5d41b40, particle_name=@0xbfa3a090) at src/G4ParticleTable.cc:433
+#1  0x0695b56f in G4RunManagerKernel::SetPhysics (this=0xbbbd268, uPhys=0xbbd3598) at src/G4RunManagerKernel.cc:223
+#2  0xb4813200 in G4RunManager::SetUserInitialization (this=0xbbbc5e4, userInit=0xbbd3598) at /data1/env/local/dyb/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/G4RunManager.hh:270
+#3  0xb4811cdc in GiGaRunManager::declare (this=0xbbbc410, obj=0xbbd3598) at ../src/component/GiGaRunManagerInterface.cpp:212
+#4  0xb47e7e7c in GiGa::operator<< (this=0xbbbba18, obj=0xbbd3598) at ../src/component/GiGaIGiGaSetUpSvc.cpp:167
+#5  0xb47f62d6 in GiGa::initialize (this=0xbbbba18) at ../src/component/GiGa.cpp:205
+#6  0x0428e879 in Service::sysInitialize (this=0xbbbba18) at ../src/Lib/Service.cpp:71
+#7  0x08e578b7 in ServiceManager::makeService (this=0xaef52a8, nam=@0xbfa3acd0, svc=@0xbfa3ad58) at ../src/ApplicationMgr/ServiceManager.cpp:120
+#8  0x08e59c9b in ServiceManager::getService (this=0xaef52a8, nam=@0xbfa3ae54, svc=@0xbfa3ad58, createIf=true) at ../src/ApplicationMgr/ServiceManager.cpp:186
+#9  0x0617b2a9 in ISvcLocator::service<IGiGaSvc> (this=0xaef5314, name=@0xbfa3ae54, svc=@0xbfa3adb4, createIf=true) at /data1/env/local/dyb/NuWa-trunk/gaudi/InstallArea/include/GaudiKernel/ISvcLocator.h:69
+#10 0xb4a3da95 in GaudiCommon<Algorithm>::svc<IGiGaSvc> (this=0xbbad7f0, name=@0xbfa3ae54, create=true) at /data1/env/local/dyb/NuWa-trunk/gaudi/InstallArea/include/GaudiAlg/GaudiCommonImp.h:184
+#11 0xb4a3fc18 in DsPushKine::initialize (this=0xbbad7f0) at ../src/DsPushKine.cc:30
+#12 0x04013729 in Algorithm::sysInitialize (this=0xbbad7f0) at ../src/Lib/Algorithm.cpp:148
+#13 0x020eada4 in GaudiSequencer::initialize (this=0xb6717e8) at ../src/lib/GaudiSequencer.cpp:68
+#14 0x04013729 in Algorithm::sysInitialize (this=0xb6717e8) at ../src/Lib/Algorithm.cpp:148
+#15 0x0409298e in MinimalEventLoopMgr::initialize (this=0xb22e358) at ../src/Lib/MinimalEventLoopMgr.cpp:195
+#16 0x04b2034b in DybEventLoopMgr::initialize (this=0xb22e358) at ../src/DybEventLoopMgr.cpp:32
+#17 0x0428e879 in Service::sysInitialize (this=0xb22e358) at ../src/Lib/Service.cpp:71
+#18 0x08e58a5d in ServiceManager::initializeServices (this=0xaef52a8) at ../src/ApplicationMgr/ServiceManager.cpp:381
+#19 0x08c0c734 in ApplicationMgr::initialize (this=0xaef4e68) at ../src/ApplicationMgr/ApplicationMgr.cpp:556
+#20 0x02abeee6 in method_4812 (retaddr=0xb129b78, o=0xaef5298) at ../i686-slc5-gcc41-dbg/dict/GaudiKernel/dictionary_dict.cpp:10987
+#21 0x0018fadd in ROOT::Cintex::Method_stub_with_context (context=0xafb0158, result=0xb3ecaa4, libp=0xb3ecafc) at cint/cintex/src/CINTFunctional.cxx:319
+#22 0x04695034 in ?? ()
+#23 0x0afb0158 in ?? ()
+#24 0x0b3ecaa4 in ?? ()
+#25 0x00000000 in ?? ()
+(gdb) u
+434       if (( particle_name == "ALL" ) || (particle_name == "all")){
+(gdb) list
+429
+430     ////////////////////
+431     void G4ParticleTable::DumpTable(const G4String &particle_name)  
+432     {
+433       CheckReadiness();
+434       if (( particle_name == "ALL" ) || (particle_name == "all")){
+435         // dump all particles 
+436         G4PTblDicIterator *piter = fIterator; 
+437         piter -> reset();
+438         while( (*piter)() ){
+(gdb) 
+439           (piter->value())->DumpTable();
+440         }
+441       } else {
+442         // dump only particle with name of  particle_name
+443         G4ParticleDefinition *ptr;
+444         ptr = FindParticle(particle_name);
+445         if ( ptr != 0) {
+446           ptr->DumpTable();
+447         } else { 
+448           G4cout << " G4ParticleTable::DumpTable : " 
+(gdb) p particle_name
+$1 = (const G4String &) @0xbfa3a090: {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, 
+      _M_p = 0xbc74dbc "ALL"}}, <No data fields>}
+(gdb) b 439
+Breakpoint 4 at 0xb5cef584: file src/G4ParticleTable.cc, line 439.
+(gdb) c
+Continuing.
+
+Breakpoint 4, G4ParticleTable::DumpTable (this=0xb5d41b40, particle_name=@0xbfa3a090) at src/G4ParticleTable.cc:439
+439           (piter->value())->DumpTable();
+(gdb) c
+Continuing.
+
+--- G4ParticleDefinition ---
+ Particle Name : GenericIon
+ PDG particle code : 0 [PDG anti-particle code: 0]
+ Mass [GeV/c2] : 0.938272     Width : 0
+ Lifetime [nsec] : -1
+ Charge [e]: 1
+ Spin : 1/2
+ Parity : 1
+ Charge conjugation : 0
+ Isospin : (I,Iz): (1/2 , 1/2 ) 
+ GParity : 0
+ Quark contents     (d,u,s,c,b,t) : 0, 0, 0, 0, 0, 0
+ AntiQuark contents               : 0, 0, 0, 0, 0, 0
+ Lepton number : 0 Baryon number : 1
+ Particle type : nucleus [generic]
+ Stable : stable
+
+Breakpoint 4, G4ParticleTable::DumpTable (this=0xb5d41b40, particle_name=@0xbfa3a090) at src/G4ParticleTable.cc:439
+439           (piter->value())->DumpTable();
+(gdb) c
+Continuing.
+
+--- G4ParticleDefinition ---
+ Particle Name : He3
+ PDG particle code : 1000020030 [PDG anti-particle code: 0]
+ Mass [GeV/c2] : 2.80839     Width : 0
+ Lifetime [nsec] : -1
+ Charge [e]: 2
+ Spin : 1/2
+ Parity : 1
+ Charge conjugation : 0
+ Isospin : (I,Iz): (0/2 , 0/2 ) 
+ GParity : 0
+ MagneticMoment [MeV/T] : -6.70723e-14
+ Quark contents     (d,u,s,c,b,t) : 5, 4, 0, 0, 0, 0
+ AntiQuark contents               : 0, 0, 0, 0, 0, 0
+ Lepton number : 0 Baryon number : 3
+ Particle type : nucleus [static]
+ Stable : stable
+
+Breakpoint 4, G4ParticleTable::DumpTable (this=0xb5d41b40, particle_name=@0xbfa3a090) at src/G4ParticleTable.cc:439
+439           (piter->value())->DumpTable();
+
+
+
+
+(gdb) frame 1
+#1  0x0695b56f in G4RunManagerKernel::SetPhysics (this=0xbbbd268, uPhys=0xbbd3598) at src/G4RunManagerKernel.cc:223
+223       if(verboseLevel>2) G4ParticleTable::GetParticleTable()->DumpTable();
+(gdb) list
+218     void G4RunManagerKernel::SetPhysics(G4VUserPhysicsList* uPhys)
+219     {
+220       physicsList = uPhys;
+221       G4ParticleTable::GetParticleTable()->SetReadiness();
+222       physicsList->ConstructParticle();
+223       if(verboseLevel>2) G4ParticleTable::GetParticleTable()->DumpTable();
+224       if(verboseLevel>1)
+225       {
+226         G4cout << "List of instantiated particles ============================================" << G4endl;
+227         G4int nPtcl = G4ParticleTable::GetParticleTable()->entries();
+(gdb) p verboseLevel
+$2 = 100
+(gdb) frame 2
+#2  0xb4813200 in G4RunManager::SetUserInitialization (this=0xbbbc5e4, userInit=0xbbd3598) at /data1/env/local/dyb/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/G4RunManager.hh:270
+270           kernel->SetPhysics(userInit);
+(gdb) list 
+265         inline void SetUserInitialization(G4VUserDetectorConstruction* userInit)
+266         { userDetector = userInit; }
+267         inline void SetUserInitialization(G4VUserPhysicsList* userInit)
+268         {
+269           physicsList = userInit;
+270           kernel->SetPhysics(userInit);
+271         }
+272         inline void SetUserAction(G4UserRunAction* userAction)
+273         { userRunAction = userAction; }
+274         inline void SetUserAction(G4VUserPrimaryGeneratorAction* userAction)
+(gdb) p this 
+$3 = (class G4RunManager * const) 0xbbbc5e4
+(gdb) p this->GetVerboseLevel()
+$4 = 100
+(gdb) p this->SetVerboseLevel(2)
+$5 = void
+(gdb) p this->GetVerboseLevel()
+$6 = 2
+(gdb)  
+
