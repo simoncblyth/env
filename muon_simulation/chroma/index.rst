@@ -9,4 +9,6 @@ chroma
    propagate
    pycuda
    refs
+   chroma_geometry
+   bvh
 

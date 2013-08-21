@@ -199,6 +199,117 @@ G4EventManager::DoProcessing
 
 
 
+G4TrackingManager::ProcessOneTrack 
+------------------------------------
+
+::
+
+    [blyth@belle7 20130820-1318]$ pprof --list=G4TrackingManager::ProcessOneTrack $(which python) base.prof
+    Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
+    Using local file base.prof.
+    Removing _init from all stack traces.
+    ROUTINE ====================== G4TrackingManager::ProcessOneTrack in /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/tracking/src/G4TrackingManager.cc
+      1607 705402 Total samples (flat / cumulative)
+         .      .   63:   delete fpSteppingManager;
+         .      .   64:   if (fpUserTrackingAction) delete fpUserTrackingAction;
+         .      .   65: }
+         .      .   66: 
+         .      .   67: ////////////////////////////////////////////////////////////////
+    ---
+        16     16   68: void G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)
+         .      .   69: ////////////////////////////////////////////////////////////////
+         .      .   70: {
+         .      .   71: 
+         .      .   72:   // Receiving a G4Track from the EventManager, this funciton has the
+         .      .   73:   // responsibility to trace the track till it stops.
+         1      1   74:   fpTrack = apValueG4Track;
+         .      .   75:   EventIsAborted = false;
+         .      .   76: 
+         .      .   77:   // Clear 2ndary particle vector
+         .      .   78:   //  GimmeSecondaries()->clearAndDestroy();    
+         .      .   79:   //  std::vector<G4Track*>::iterator itr;
+         .      .   80:   size_t itr;
+         .      .   81:   //  for(itr=GimmeSecondaries()->begin();itr=GimmeSecondaries()->end();itr++){ 
+        79    148   82:   for(itr=0;itr<GimmeSecondaries()->size();itr++){ 
+         .      .   83:      delete (*GimmeSecondaries())[itr];
+         .      .   84:   }
+         3    282   85:   GimmeSecondaries()->clear();  
+         .      .   86:    
+        50     50   87:   if(verboseLevel>0 && (G4VSteppingVerbose::GetSilent()!=1) ) TrackBanner();
+         .      .   88:   
+         .      .   89:   // Give SteppingManger the pointer to the track which will be tracked 
+         7  15623   90:   fpSteppingManager->SetInitialStep(fpTrack);
+         .      .   91: 
+         .      .   92:   // Pre tracking user intervention process.
+        70     70   93:   fpTrajectory = 0;
+        10     10   94:   if( fpUserTrackingAction != NULL ) {
+        10    223   95:      fpUserTrackingAction->PreUserTrackingAction(fpTrack);
+         .      .   96:   }
+         .      .   97: #ifdef G4_STORE_TRAJECTORY
+         .      .   98:   // Construct a trajectory if it is requested
+        29     29   99:   if(StoreTrajectory&&(!fpTrajectory)) { 
+         .      .  100:     // default trajectory concrete class object
+         .      .  101:     switch (StoreTrajectory) {
+         .      .  102:     default:
+         .      .  103:     case 1: fpTrajectory = new G4Trajectory(fpTrack); break;
+         .      .  104:     case 2: fpTrajectory = new G4SmoothTrajectory(fpTrack); break;
+         .      .  105:     case 3: fpTrajectory = new G4RichTrajectory(fpTrack); break;
+         .      .  106:     }
+         .      .  107:   }
+         .      .  108: #endif
+         .      .  109: 
+         .      .  110:   // Give SteppingManger the maxmimum number of processes 
+         1    625  111:   fpSteppingManager->GetProcessNumber();
+         .      .  112: 
+         .      .  113:   // Give track the pointer to the Step
+        88     91  114:   fpTrack->SetStep(fpSteppingManager->GetStep());
+         .      .  115: 
+         .      .  116:   // Inform beginning of tracking to physics processes 
+        49   5085  117:   fpTrack->GetDefinition()->GetProcessManager()->StartTracking(fpTrack);
+         .      .  118: 
+         .      .  119:   // Track the particle Step-by-Step while it is alive
+         .      .  120:   G4StepStatus stepStatus;
+         .      .  121: 
+       367    381  122:   while( (fpTrack->GetTrackStatus() == fAlive) ||
+         .      .  123:          (fpTrack->GetTrackStatus() == fStopButAlive) ){
+         .      .  124: 
+        54     79  125:     fpTrack->IncrementCurrentStepNumber();
+       364 679688  126:     stepStatus = fpSteppingManager->Stepping();
+         .      .  127: #ifdef G4_STORE_TRAJECTORY
+       183    183  128:     if(StoreTrajectory) fpTrajectory->
+         .      .  129:                         AppendStep(fpSteppingManager->GetStep()); 
+         .      .  130: #endif
+        29     29  131:     if(EventIsAborted) {
+         .      .  132:       fpTrack->SetTrackStatus( fKillTrackAndSecondaries );
+         .      .  133:     }
+         .      .  134:   }
+         .      .  135:   // Inform end of tracking to physics processes 
+        70   2439  136:   fpTrack->GetDefinition()->GetProcessManager()->EndTracking();
+         .      .  137: 
+         .      .  138:   // Post tracking user intervention process.
+        54     54  139:   if( fpUserTrackingAction != NULL ) {
+        41    264  140:      fpUserTrackingAction->PostUserTrackingAction(fpTrack);
+         .      .  141:   }
+         .      .  142: 
+         .      .  143:   // Destruct the trajectory if it was created
+         .      .  144: #ifdef G4VERBOSE
+        31     31  145:   if(StoreTrajectory&&verboseLevel>10) fpTrajectory->ShowTrajectory();
+         .      .  146: #endif
+         .      .  147:   if( (!StoreTrajectory)&&fpTrajectory ) {
+         .      .  148:       delete fpTrajectory;
+         .      .  149:       fpTrajectory = 0;
+         .      .  150:   }
+         1      1  151: }
+    ---
+         .      .  152: 
+         .      .  153: void G4TrackingManager::SetTrajectory(G4VTrajectory* aTrajectory)
+         .      .  154: {
+         .      .  155: #ifndef G4_STORE_TRAJECTORY
+         .      .  156:   G4Exception("G4TrackingManager::SetTrajectory is invoked without G4_STORE_TRAJECTORY compilor option");
+    [blyth@belle7 20130820-1318]$ 
+
+
+
 
 
 

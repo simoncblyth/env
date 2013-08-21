@@ -4,6 +4,9 @@ Propagate
 python side
 -------------
 
+
+
+
 ::
 
     096     @profile_if_possible
@@ -70,9 +73,33 @@ python side
 
 
 
+cuda entry points
+-------------------
 
-cuda side
------------
+::
+
+    simon:cuda blyth$ grep -l blockIdx *.*
+    bvh.cu
+    daq.cu
+    hybrid_render.cu
+    mesh.h
+    pdf.cu
+    propagate.cu
+    random.h
+    render.cu
+    tools.cu
+    transform.cu
+
+
+cuda propagate
+----------------
+
+Entry point is **propagate**, communication via numpy arrays curtesy of pycuda. 
+
+* **self.flags** on corresponds to  **histories** array 
+* **id** identifies the CUDA thread, corresponding to a single photon
+* photon parameters indexed into the arrays with `photon_id` 
+
 
 ::
 
