@@ -4,6 +4,205 @@ stepping
 .. contents:: :local:
 
 
+G4EventManager::DoProcessing
+-------------------------------
+
+::
+
+    [blyth@belle7 20130820-1318]$ pprof --list=G4EventManager::DoProcessing $(which python) base.prof
+    Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
+    Using local file base.prof.
+    Removing _init from all stack traces.
+    ROUTINE ====================== G4EventManager::DoProcessing in /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/event/src/G4EventManager.cc
+       355 705977 Total samples (flat / cumulative)
+         .      .   93: G4int G4EventManager::operator!=(const G4EventManager &right) const { }
+         .      .   94: */
+         .      .   95: 
+         .      .   96: 
+         .      .   97: 
+    ---
+         .      .   98: void G4EventManager::DoProcessing(G4Event* anEvent)
+         .      .   99: {
+         .      .  100:   G4StateManager* stateManager = G4StateManager::GetStateManager();
+         .      .  101:   G4ApplicationState currentState = stateManager->GetCurrentState();
+         .      .  102:   if(currentState!=G4State_GeomClosed)
+         .      .  103:   {
+         .      .  104:     G4Exception("G4EventManager::ProcessOneEvent",
+         .      .  105:                 "IllegalApplicationState",
+         .      .  106:                 JustWarning,
+         .      .  107:                 "Geometry is not closed : cannot process an event.");
+         .      .  108:     return;
+         .      .  109:   }
+         .      .  110:   currentEvent = anEvent;
+         .      .  111:   stateManager->SetNewState(G4State_EventProc);
+         .      .  112:   if(storetRandomNumberStatusToG4Event>1)
+         .      .  113:   {
+         .      .  114:     std::ostringstream oss;
+         .      .  115:     CLHEP::HepRandom::saveFullState(oss);
+         .      .  116:     randomNumberStatusToG4Event = oss.str();
+         .      .  117:     currentEvent->SetRandomNumberStatusForProcessing(randomNumberStatusToG4Event); 
+         .      .  118:   }
+         .      .  119: 
+         .      .  120:   // Reseting Navigator has been moved to G4Eventmanager, so that resetting
+         .      .  121:   // is now done for every event.
+         .      .  122:   G4ThreeVector center(0,0,0);
+         .      .  123:   G4Navigator* navigator =
+         .      1  124:       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
+         .      .  125:   navigator->LocateGlobalPointAndSetup(center,0,false);
+         .      .  126:                                                                                       
+         .      .  127:   G4Track * track;
+         .      .  128:   G4TrackStatus istop;
+         .      .  129: 
+         .      .  130: #ifdef G4VERBOSE
+         .      .  131:   if ( verboseLevel > 0 )
+         .      .  132:   {
+         .      .  133:     G4cout << "=====================================" << G4endl;
+         .      .  134:     G4cout << "  G4EventManager::ProcessOneEvent()  " << G4endl;
+         .      .  135:     G4cout << "=====================================" << G4endl;
+         .      .  136:   }
+         .      .  137: #endif
+         .      .  138: 
+         .      .  139:   trackContainer->PrepareNewEvent();
+         .      .  140: 
+         .      .  141: #ifdef G4_STORE_TRAJECTORY
+         .      .  142:   trajectoryContainer = 0;
+         .      .  143: #endif
+         .      .  144: 
+         .      .  145:   sdManager = G4SDManager::GetSDMpointerIfExist();
+         .      .  146:   if(sdManager)
+         .      .  147:   { currentEvent->SetHCofThisEvent(sdManager->PrepareNewEvent()); }
+         .      .  148: 
+         .      .  149:   if(userEventAction) userEventAction->BeginOfEventAction(currentEvent);
+         .      .  150: 
+         .      .  151: #ifdef G4VERBOSE
+         .      .  152:   if ( verboseLevel > 1 )
+         .      .  153:   {
+         .      .  154:     G4cout << currentEvent->GetNumberOfPrimaryVertex()
+         .      .  155:          << " vertices passed from G4Event." << G4endl;
+         .      .  156:   }
+         .      .  157: #endif
+         .      .  158: 
+         .      .  159:   if(!abortRequested)
+         .      .  160:   { StackTracks( transformer->GimmePrimaries( currentEvent, trackIDCounter ),true ); }
+         .      .  161: 
+         .      .  162: #ifdef G4VERBOSE
+         .      .  163:   if ( verboseLevel > 0 )
+         .      .  164:   {
+         .      .  165:     G4cout << trackContainer->GetNTotalTrack() << " primaries "
+         .      .  166:          << "are passed from G4EventTransformer." << G4endl;
+         .      .  167:     G4cout << "!!!!!!! Now start processing an event !!!!!!!" << G4endl;
+         .      .  168:   }
+         .      .  169: #endif
+         .      .  170:   
+         .      .  171:   G4VTrajectory* previousTrajectory;
+         .      .  172:   while( ( track = trackContainer->PopNextTrack(&previousTrajectory) ) != 0 )
+         .      .  173:   {
+         .      .  174: 
+         .      .  175: #ifdef G4VERBOSE
+        12     12  176:     if ( verboseLevel > 1 )
+         .      .  177:     {
+         .      .  178:       G4cout << "Track " << track << " (trackID " << track->GetTrackID()
+         .      .  179:      << ", parentID " << track->GetParentID() 
+         .      .  180:      << ") is passed to G4TrackingManager." << G4endl;
+         .      .  181:     }
+         .      .  182: #endif
+         .      .  183: 
+        16     16  184:     tracking = true;
+         5 705523  185:     trackManager->ProcessOneTrack( track );
+       144    148  186:     istop = track->GetTrackStatus();
+         .      .  187:     tracking = false;
+         .      .  188: 
+         .      .  189: #ifdef G4VERBOSE
+        20     20  190:     if ( verboseLevel > 0 )
+         .      .  191:     {
+         .      .  192:       G4cout << "Track (trackID " << track->GetTrackID()
+         .      .  193:      << ", parentID " << track->GetParentID()
+         .      .  194:          << ") is processed with stopping code " << istop << G4endl;
+         .      .  195:     }
+         .      .  196: #endif
+         .      .  197: 
+         .      .  198:     G4VTrajectory * aTrajectory = 0;
+         .      .  199: #ifdef G4_STORE_TRAJECTORY
+        66     67  200:     aTrajectory = trackManager->GimmeTrajectory();
+         .      .  201: 
+        10     10  202:     if(previousTrajectory)
+         .      .  203:     {
+         .      .  204:       previousTrajectory->MergeTrajectory(aTrajectory);
+         .      .  205:       delete aTrajectory;
+         .      .  206:       aTrajectory = previousTrajectory;
+         .      .  207:     }
+         .      .  208:     if(aTrajectory&&(istop!=fStopButAlive)&&(istop!=fSuspend))
+         .      .  209:     {
+         .      .  210:       if(!trajectoryContainer)
+         .      .  211:       { trajectoryContainer = new G4TrajectoryContainer; 
+         .      .  212:         currentEvent->SetTrajectoryContainer(trajectoryContainer); }
+         .      .  213:       trajectoryContainer->insert(aTrajectory);
+         .      .  214:     }
+         .      .  215: #endif
+         .      .  216: 
+        61    159  217:     G4TrackVector * secondaries = trackManager->GimmeSecondaries();
+        21     21  218:     switch (istop)
+    ---
+         .      .  219:     {
+         .      .  220:       case fStopButAlive:
+         .      .  221:       case fSuspend:
+         .      .  222:         trackContainer->PushOneTrack( track, aTrajectory );
+         .      .  223:         StackTracks( secondaries );
+
+
+                    224         break;
+                    225 
+                    226       case fPostponeToNextEvent:
+                    227         trackContainer->PushOneTrack( track );
+                    228         StackTracks( secondaries );
+                    229         break;
+                    230 
+                    231       case fStopAndKill:
+                    232         StackTracks( secondaries );
+                    233         delete track;
+                    234         break;
+                    235 
+                    236       case fAlive:
+                    237         G4cout << "Illeagal TrackStatus returned from G4TrackingManager!"
+                    238              << G4endl;
+                    239       case fKillTrackAndSecondaries:
+                    240         //if( secondaries ) secondaries->clearAndDestroy();
+                    241         if( secondaries )
+                    242         {
+                    243           for(size_t i=0;i<secondaries->size();i++)
+                    244           { delete (*secondaries)[i]; }
+                    245           secondaries->clear();
+                    246         }
+                    247         delete track;
+                    248         break;
+                    249     }
+                    250   }
+                    251 
+                    252 #ifdef G4VERBOSE
+                    253   if ( verboseLevel > 0 )
+                    254   {
+                    255     G4cout << "NULL returned from G4StackManager." << G4endl;
+                    256     G4cout << "Terminate current event processing." << G4endl;
+                    257   }
+                    258 #endif
+                    259 
+                    260   if(sdManager)
+                    261   { sdManager->TerminateCurrentEvent(currentEvent->GetHCofThisEvent()); }
+                    262 
+                    263   if(userEventAction) userEventAction->EndOfEventAction(currentEvent);
+                    264 
+                    265   stateManager->SetNewState(G4State_GeomClosed);
+                    266   currentEvent = 0;
+                    267   abortRequested = false;
+                    268 }
+
+
+
+
+
+
+
+
 G4SteppingManager::Stepping
 -----------------------------
 

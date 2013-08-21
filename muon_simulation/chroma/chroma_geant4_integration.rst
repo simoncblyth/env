@@ -1,17 +1,82 @@
 Chroma Geant4 Interaction
 ==========================
 
+
+Objective
+----------
+
+* harness massively parallel processing to propagate large numbers of optical photons
+
+
+
+
 Open Questions
 ----------------
 
-how/when to give photons back to G4/reconstruction code ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+how/when to give OP tracks back to G4/reconstruction code ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* add tracks to Geant4 ? 
+Maybe **DsOpGPUStackAction**
+
+#. collect OP into `fWaiting` stack (similar to DsOpStackAction)  
+#. at `NewStage` 
+
+  * make **interesting-or-not judgement**
+  * translate OP G4Tracks into numpy arrays ready for Chroma/GPU  
+  * perform OP cohort external propagation on GPU
+
+     * where to stop GPU propagation ? defined SD volume ?  
+
+  * translate back from numpy arrays diddling the waiting G4Tracks [where/access?]
+
+     * `NewStage` invokes a reclassify `stackManager->ReClassify();` giving access
+        to all the tracks in the *ClassifyNewTrack* allowing diddling then like the photon reweighting of
+        `G4ClassificationOfNewTrack DsFastMuonStackAction::ClassifyNewTrack (const G4Track* aTrack)`
+
+  * resume the G4 tracks by returning as `fUrgent`, which should immediately proceed into sens det handling 
+
+     * how does SD/hit handover work /data/env/local/dyb/trunk/NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsPmtSensDet.cc
+
+
+how does G4 OP propagation end ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+translation of DYB solid geomety into surface tris
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+what about some  magic *optransport* physics process ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NO, as need to deal with the OP as a cohort, not individually.
+Physics processes act on individual OP.
+
+
+OP collection and propagation, kicked off where ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `G4ClassificationOfNewTrack DsOpStackAction::ClassifyNewTrack (const G4Track* aTrack)` 
+
+   * assigns fWaiting status to OP, causing collection of OP tracks in the waiting stack 
+
+* status is flipped to proceed with OP propagation only for events deemed to be interesting
+* the judgement and kick-off happens in `void DsOpStackAction::NewStage()` which is invoked
+  when the `fUrgent` stack is empty (ie everything other than the waiting tracks have been tracked) 
+  and `fWaiting` stack has entries
+
+
+* a similar structure seems good for GPU propagation
+
+   * collect all the OP to benefit from massive parallelisation
+
 
 
 G4UserTrackingAction
 ------------------------
+
+* http://geant4.slac.stanford.edu/Tips/event/5.html
 
 G4EventManager allows setting the G4UserTrackingAction on the G4TrackingManager::
 
@@ -44,7 +109,7 @@ G4EventManager allows setting the G4UserTrackingAction on the G4TrackingManager:
     330 }
 
 
-The  `PreUserTrackingAction` is invoked at `G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)`  
+The  `G4UserTrackingAction::PreUserTrackingAction` is invoked at `G4TrackingManager::ProcessOneTrack(G4Track* apValueG4Track)`  
 allowing track status changes, like kills::
 
      91 
@@ -88,6 +153,43 @@ allowing track status changes, like kills::
     ./tracking/src/G4TrackingManager.cc:     fpUserTrackingAction->PreUserTrackingAction(fpTrack);
 
 
+G4TrackStatus
+----------------
+
+::
+
+    track/include/G4Track.hh
+
+    174   // track status, flags for tracking
+    175    G4TrackStatus GetTrackStatus() const;
+    176    void SetTrackStatus(const G4TrackStatus aTrackStatus);
+
+
+Curious, more states accessible cf StackAction classification::
+
+     track/include/G4TrackStatus.hh
+
+     49 //////////////////
+     50 enum G4TrackStatus
+     51 //////////////////
+     52 {
+     53 
+     54   fAlive,             // Continue the tracking
+     55   fStopButAlive,      // Invoke active rest physics processes and
+     56                       // and kill the current track afterward
+     57   fStopAndKill,       // Kill the current track
+     58 
+     59   fKillTrackAndSecondaries,
+     60                       // Kill the current track and also associated
+     61                       // secondaries.
+     62   fSuspend,           // Suspend the current track
+     63   fPostponeToNextEvent
+     64                       // Postpones the tracking of thecurrent track 
+     65                       // to the next event.
+     66 
+     67 };
+
+
 
 
 Boost python C++ `_g4chroma`
@@ -96,6 +198,8 @@ Boost python C++ `_g4chroma`
 * `src/mute.cc` control G4 stdout
 * `src/G4chroma.hh`
 * `src/G4chroma.cc`
+
+One-by-one collection and G4 `fStopAndKill` of optical photons.
 
 Boost python module `_g4chroma` implementation in C++ providing a G4UserTrackingAction *PhotonTrackingAction* 
 that collects opticalphotons and provides accessors to them, and snuffs them out with *fStopAndKill* ::
