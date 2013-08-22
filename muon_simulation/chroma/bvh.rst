@@ -65,9 +65,10 @@ A bounding volume hierarchy for a triangle mesh.
 For the purposes of Chroma, a BVH is a tree with the following properties:
 
 * Each node consists of an axis-aligned bounding box, a child ID
-number, and a boolean flag indicating whether the node is a
-leaf.  The bounding box is represented as a lower and upper
-bound for each Cartesian axis.
+  number, and a boolean flag indicating whether the node is a
+  leaf.  The bounding box is represented as a lower and upper
+  bound for each Cartesian axis.
+
 
 chroma/cuda/geometry_types.h
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
