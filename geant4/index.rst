@@ -9,4 +9,5 @@ geant4
    verbosity
    docs
    giga
+   api
 

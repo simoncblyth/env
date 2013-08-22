@@ -61,6 +61,8 @@ Contents:
    java/index
    geant4/index
    muon_simulation/index
+   graphics/index
+   cuda/index
 
 Indices and tables
 ==================
