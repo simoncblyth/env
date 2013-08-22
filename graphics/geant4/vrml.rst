@@ -1,24 +1,28 @@
 VRML
 =====
 
-* http://geant4.kek.jp/GEANT4/vis/GEANT4/VRML_file_driver.html
+.. contents:: :local:
+
+Versions
+-----------
+
 * http://en.wikipedia.org/wiki/VRML
 
-VRML is a rather high level format, not too distant from Geant4 collection 
-of C++ instances of solid representing classes. Thus Geant4 to VRML conversion is not difficult.
+In 1997, a new version of the format was finalized, as VRML97 (also known as VRML2 or VRML 2.0), and became an ISO standard.
 
-::
+
+Export From Geant4
+---------------------
+
+VRML is not too distant from Geant4 geometry representation as collection of C++ instances of solid representing classes. 
+Thus Geant4 to VRML conversion should not be too difficult. At least the code looks straightforward::
 
     [blyth@cms01 src]$ vi G4VRML2SceneHandlerFunc.icc
     [blyth@cms01 src]$ pwd
     /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src
 
 
-
-
-Export
--------
-
+* http://geant4.kek.jp/GEANT4/vis/GEANT4/VRML_file_driver.html
 * http://geant4.slac.stanford.edu/Presentations/vis/G4VisCommands.pdf
 * http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DAWNTutorial.html
 
@@ -30,13 +34,6 @@ Extrapolating from DAWNFILE tutorial the macro commands to export detector geome
     /vis/open VRML2FILE 
     /vis/drawVolume
     /vis/viewer/flush  
-
-
-::
-
-    GiGa                                  INFO Visualisation Manager is not required to be created.
-
-
 
 
 VRML Viewers
