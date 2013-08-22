@@ -131,6 +131,15 @@ SVG node diagram
 .. image:: base.prof.svg
 
 
+To pan/zoom around the above SVG image open it in a separate tab or window, 
+or use base_prof_svg_ 
+
+.. _base_prof_svg: //_images/base.prof.svg
+
+* :e:`//_images/base.prof.svg`
+
+
+
 ::
 
     pprof --svg $(which python) base.prof > base.prof.svg

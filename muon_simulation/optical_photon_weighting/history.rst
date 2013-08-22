@@ -8,7 +8,7 @@ DavidJ
 
 Nicely documented study, a good starting point. 
 
-* :dybgaudi:`Simulation/DetSim/src/DsFastMuonSimulation.cc`
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSim/src/DsFastMuonSimulation.cc
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSim/src/DsFastMuonStackAction.h
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Simulation/DetSim/src/DsFastMuonStackAction.cc
 
