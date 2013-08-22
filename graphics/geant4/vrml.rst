@@ -42,12 +42,46 @@ Extrapolating from DAWNFILE tutorial the macro commands to export detector geome
 VRML Viewers
 -------------
 
+* http://www.web3d.org/x3d/vrml/tools/viewers_and_browsers/
+
 InstantReality
 ~~~~~~~~~~~~~~~
 
+* http://doc.instantreality.org/documentation/getting-started/
 * http://doc.instantreality.org/media/uploads/downloads/2.3.0/InstantPlayer-MacOS-10.4-universal-2.3.0.25322.dmg
 * http://www.instantreality.org/story/modules/
 * http://doc.instantreality.org/tutorial/installation-on-mac-os-x/
+
+
+::
+
+    simon:geant4 blyth$ cd ~/Desktop
+    simon:Desktop blyth$ curl -L -O http://doc.instantreality.org/media/uploads/downloads/2.3.0/InstantPlayer-MacOS-10.4-universal-2.3.0.25322.dmg
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+    100  148M  100  148M    0     0   167k      0  0:15:06  0:15:06 --:--:--  183k
+
+
+
+Viewing the .wrl geometry is painfully slow, and brings molasses to entire machine UI. But something is visible.
+
+
+FreeWRL
+~~~~~~~~~
+
+* http://freewrl.sourceforge.net/
+
+Build issues.
+
+
+Blender
+~~~~~~~~
+
+* http://www.blender.org/forum/viewtopic.php?t=12402
+* http://sourceforge.net/projects/vrml97import/
+
+
+
 
 
 

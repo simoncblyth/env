@@ -1199,3 +1199,4 @@ fast-(){      . $(env-home)/tools/fast/fast.bash && fast-env $* ; }
 gperftools-(){      . $(env-home)/tools/gperftools/gperftools.bash && gperftools-env $* ; }
 kcachegrind-(){      . $(env-home)/tools/kcachegrind.bash && kcachegrind-env $* ; }
 meshlab-(){      . $(env-home)/graphics/mesh/meshlab.bash && meshlab-env $* ; }
+freewrl-(){      . $(env-home)/graphics/vrml/freewrl.bash && freewrl-env $* ; }
