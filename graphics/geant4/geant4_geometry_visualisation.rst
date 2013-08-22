@@ -6,10 +6,13 @@ geometry conversion. So tools that do these should be mined for possibilities.
 
 * :google:`geant4 visualization geometry conversion`
 
+* http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch08.html
 * http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Visualization/visdrivers.html
 * http://nuclear.unh.edu/~maurik/GEANT4/GEANT4_GEOM.html
 
 Drivers: OpenGL, HepRep, VRML, DAVID, DAWN
+
+* :doc:`vrml` is looking the most promising, as its the most widely supported format exportable
 
 
 Drivers
@@ -48,22 +51,6 @@ debugging, physical-volume surfaces are automatically decomposed into 3D
 polygons, and intersections of the generated polygons are investigated. If a
 polygon intersects with another one, physical volumes which these polygons
 belong to are visualized in color (red is the default).
-
-
-VRMLFILE
----------
-
-* http://geant4.kek.jp/GEANT4/vis/GEANT4/VRML_file_driver.html
-* http://en.wikipedia.org/wiki/VRML
-
-VRML is rather high level format, not too distant from Geant4 collection 
-of C++ instances of solids representing classes. Thus Geant4 to VRML conversion is not difficult.
-
-::
-
-    [blyth@cms01 src]$ vi G4VRML2SceneHandlerFunc.icc
-    [blyth@cms01 src]$ pwd
-    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src
 
 
 OpenGL

@@ -1,0 +1,357 @@
+
+====================================================================
+
+Start closing geometry.
+G4GeometryManager::ReportVoxelStats -- Voxel Statistics
+
+    Total memory consumed for geometry optimisation:   4325 kByte
+    Total CPU time elapsed for geometry optimisation: 15 seconds
+
+    Voxelisation: top CPU users:
+    Percent   Total CPU    System CPU       Memory  Volume
+    -------   ----------   ----------     --------  ----------
+      59.09         8.74         0.00         3001k /dd/Geometry/Pool/lvNearPoolOWS
+      28.19         4.17         0.01          900k /dd/Geometry/Pool/lvNearPoolIWS
+      10.48         1.55         0.00          317k /dd/Geometry/AD/lvOIL
+       0.54         0.08         0.00            8k /dd/Geometry/CalibrationBox/lvDomeInterior
+       0.41         0.06         0.00           43k /dd/Geometry/RPCSupport/lvNearHbeamBigUnit
+       0.34         0.05         0.00            8k /dd/Geometry/AD/lvLSO
+       0.20         0.03         0.00           19k /dd/Geometry/RPCSupport/lvNearHbeamSmallUnit
+       0.14         0.02         0.00           13k /dd/Geometry/RPC/lvNearRPCRoof
+       0.07         0.01         0.00            0k /dd/Geometry/CalibrationSources/lvAmCCo60SourceAssy
+       0.07         0.01         0.00            3k /dd/Geometry/AD/lvADE
+
+    Voxelisation: top memory users:
+    Percent     Memory      Heads    Nodes   Pointers    Total CPU    Volume
+    -------   --------     ------   ------   --------   ----------    ----------
+      69.38       3001k      7781    66522     201512         8.74    /dd/Geometry/Pool/lvNearPoolOWS
+      20.79        899k      2793    19051      60620         4.17    /dd/Geometry/Pool/lvNearPoolIWS
+       7.32        316k      1115     6994      17652         1.55    /dd/Geometry/AD/lvOIL
+       0.98         42k       118     1023       2196         0.06    /dd/Geometry/RPCSupport/lvNearHbeamBigUnit
+       0.44         18k        72      433        870         0.03    /dd/Geometry/RPCSupport/lvNearHbeamSmallUnit
+       0.29         12k        51      304        442         0.02    /dd/Geometry/RPC/lvNearRPCRoof
+       0.19          8k        33      191        366         0.08    /dd/Geometry/CalibrationBox/lvDomeInterior
+       0.17          7k        30      157        432         0.05    /dd/Geometry/AD/lvLSO
+       0.07          2k        11       70        124         0.01    /dd/Geometry/AD/lvADE
+       0.06          2k        16       41        152         0.00    /dd/Geometry/Sites/lvNearHallBot
+/vis/sceneHandler/create VRML2FILE
+G4VisManager::SetCurrentGraphicsSystem: system now VRML2FILE
+Graphics system set to VRML2FILE
+New scene handler "scene-handler-0" created.
+/vis/viewer/create ! ! 600
+G4VisManager::CreateViewer: new viewer created.
+ view parameters are:
+  View parameters and options:
+  Drawing style: wireframe
+  Auxiliary edges: invisible
+  Representation style: polyhedron
+  Culling: on
+  Culling invisible objects: on
+  Density culling: off
+  Culling daughters covered by opaque mothers: off
+  Section flag: false
+  No cutaway planes
+  Explode factor: 1 about centre: (0,0,0)
+  No. of sides used in circle polygon approximation: 24
+  Viewpoint direction:  (0,0,1)
+  Up vector:            (0,1,0)
+  Field half angle:     0
+  Zoom factor:          1
+  Scale factor:         (1,1,1)
+  Current target point: (0,0,0)
+  Dolly distance:       0
+  Light does not move with camera
+  Relative lightpoint direction: (1,1,1)
+  Actual lightpoint direction: (1,1,1)
+  Derived parameters for standard view of object of unit radius:
+    Camera distance:   1
+    Near distance:     1e-06
+    Far distance:      2
+    Front half height: 1
+  Default VisAttributes:
+  G4VisAttributes: visible, daughters visible, colour: (1,1,1,1)
+  linestyle: solid, line width: 1
+  drawing style: not forced, auxiliary edge visibility: not forced
+  line segments per circle: not forced.
+  time range: (-1.79769e+308,1.79769e+308)
+  G4AttValue pointer is zero, G4AttDef pointer is zero
+  Default TextVisAttributes:
+  G4VisAttributes: visible, daughters visible, colour: (0,0,1,1)
+  linestyle: solid, line width: 1
+  drawing style: not forced, auxiliary edge visibility: not forced
+  line segments per circle: not forced.
+  time range: (-1.79769e+308,1.79769e+308)
+  G4AttValue pointer is zero, G4AttDef pointer is zero
+  Default marker: G4VMarker: position: (0,0,0), world size: 0, screen size: 5
+           fill style: no fill
+           No Visualization Attributes
+  Global marker scale: 1
+  Global lineWidth scale: 1
+  Marker not hidden by surfaces.
+  Window size hint: 600x600
+  X geometry string: 600x600
+  Auto refresh: false
+  Background colour: (0,0,0,1)
+  Picking requested: false
+NOTE: objects with visibility flag set to "false" will not be drawn!
+  "/vis/viewer/set/culling global false" to Draw such objects.
+  Also see other "/vis/viewer/set" commands.
+New viewer "viewer-0 (VRML2FILE)" created.
+Issue /vis/viewer/refresh to see effect.
+/vis/scene/create
+New empty scene "scene-0" created.
+/vis/scene/add/volume world
+First occurrence of "Universe"
+  found at depth 0,
+  with a requested depth of further descent of <0 (unlimited),
+  has been added to scene "scene-0".
+/vis/sceneHandler/attach
+Scene "scene-0" attached to scene handler "scene-handler-0.
+  (You may have to refresh with "/vis/viewer/flush" if view is not "auto-refresh".)
+NOTE: For systems which are not "auto-refresh" you will need to
+  issue "/vis/viewer/refresh" or "/vis/viewer/flush".
+/vis/viewer/refresh viewer-0
+Refreshing viewer "viewer-0 (VRML2FILE)"...
+===========================================
+Output VRML 2.0 file: g4_00.wrl
+Maximum number of files in the destination directory: 100
+  (Customizable with the environment variable: G4VRMLFILE_MAX_FILE_NUM) 
+===========================================
+Traversing scene data...
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::assembleFace(74) : could not find next edge of the contour
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseEE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseEE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+Viewer "viewer-0 (VRML2FILE)" refreshed.
+  (You might also need "/vis/viewer/update".)
+/vis/viewer/update viewer-0
+Viewer "viewer-0 (VRML2FILE)" post-processing triggered.
+*** VRML 2.0 File  g4_00.wrl  is generated.
+MESSAGE from VRML2FILE driver:
+    Set an environmental variable  G4VRMLFILE_VIEWER
+    if you want to visualize the generated VRML file
+    automatically.  For example, 
+    setenv  G4VRMLFILE_VIEWER  vrwave 
+Viewer "viewer-0 (VRML2FILE)" flushed.
+Start Run processing.
+
+Warning: G4MaterialPropertyVector::GetProperty
+==> attempt to Retrieve Property above range
+
+Warning: G4MaterialPropertyVector::GetProperty
+==> attempt to Retrieve Property above range
+
+Warning: G4MaterialPropertyVector::GetProperty

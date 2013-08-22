@@ -1,0 +1,54 @@
+VRML
+=====
+
+* http://geant4.kek.jp/GEANT4/vis/GEANT4/VRML_file_driver.html
+* http://en.wikipedia.org/wiki/VRML
+
+VRML is a rather high level format, not too distant from Geant4 collection 
+of C++ instances of solid representing classes. Thus Geant4 to VRML conversion is not difficult.
+
+::
+
+    [blyth@cms01 src]$ vi G4VRML2SceneHandlerFunc.icc
+    [blyth@cms01 src]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src
+
+
+
+
+Export
+-------
+
+* http://geant4.slac.stanford.edu/Presentations/vis/G4VisCommands.pdf
+* http://geant4.slac.stanford.edu/Presentations/vis/G4DAWNTutorial/G4DAWNTutorial.html
+
+Opening a driver eg OGL,DAWNFILE,HepRepFile,VRML2FILE.
+Extrapolating from DAWNFILE tutorial the macro commands to export detector geometry
+(not hits etc) are probably::
+
+    # Use this open statement to create a .wrl file suitable for viewing in a VRML viewer
+    /vis/open VRML2FILE 
+    /vis/drawVolume
+    /vis/viewer/flush  
+
+
+::
+
+    GiGa                                  INFO Visualisation Manager is not required to be created.
+
+
+
+
+VRML Viewers
+-------------
+
+InstantReality
+~~~~~~~~~~~~~~~
+
+* http://doc.instantreality.org/media/uploads/downloads/2.3.0/InstantPlayer-MacOS-10.4-universal-2.3.0.25322.dmg
+* http://www.instantreality.org/story/modules/
+* http://doc.instantreality.org/tutorial/installation-on-mac-os-x/
+
+
+
+

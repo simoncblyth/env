@@ -126,25 +126,19 @@ PostStepDoIt to see relevant processes
 SVG node diagram
 -------------------
 
-* http://belle7.nuu.edu.tw/muon_simulation/profiling/base/base.prof.svg
+To pan/zoom around the below SVG image open it in a separate tab or window, 
+or use :download:`base.prof.svg`
+
 
 .. image:: base.prof.svg
 
 
-To pan/zoom around the above SVG image open it in a separate tab or window, 
-or use base_prof_svg_ 
-
-.. _base_prof_svg: //_images/base.prof.svg
-
-* :e:`//_images/base.prof.svg`
-
-
-
-::
+The SVG was created with the below which incorporates javascript panning code::
 
     pprof --svg $(which python) base.prof > base.prof.svg
 
-Position the initial viewport by setting a transform matrix, in ~/e/muon_simulation/base.prof.svg::
+
+The initial viewport is controlled by setting the transform matrix in the SVG source ~/e/muon_simulation/profiling/base/base.prof.svg::
 
      246 ]]></script>
      247 <!--g id="viewport" transform="translate(0,0)"-->
