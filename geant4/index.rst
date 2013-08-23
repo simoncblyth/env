@@ -10,4 +10,5 @@ geant4
    docs
    giga
    api
+   opticalphoton
 

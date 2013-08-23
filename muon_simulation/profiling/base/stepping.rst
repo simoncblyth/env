@@ -9,6 +9,26 @@ G4EventManager::DoProcessing
 
 ::
 
+    (gdb) b 'G4EventManager::DoProcessing(G4Event*)' 
+    Breakpoint 1 at 0xb7b9fd94: file src/G4EventManager.cc, line 100.
+    (gdb) p verboseLevel = 1
+    $2 = 1
+    (gdb) p verboseLevel
+    $3 = 1
+    (gdb) c
+    Continuing.
+    =====================================
+      G4EventManager::ProcessOneEvent()  
+    =====================================
+    1 primaries are passed from G4EventTransformer.
+    !!!!!!! Now start processing an event !!!!!!!
+    Track (trackID 1, parentID 0) is processed with stopping code 4
+    Track (trackID 57, parentID 1) is processed with stopping code 2
+    ...
+
+
+::
+
     [blyth@belle7 20130820-1318]$ pprof --list=G4EventManager::DoProcessing $(which python) base.prof
     Using local file /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python.
     Using local file base.prof.
@@ -625,6 +645,88 @@ G4SteppingManager::InvokePSDIP
          .      .  574: #include "G4ProductionCuts.hh"
          .      .  575: #include "G4ProductionCutsTable.hh"
          .      .  576: 
+
+
+
+
+
+How are the relevant processes determined ?
+----------------------------------------------
+
+::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H fPostStepDoItVector {} \;
+    ./tracking/src/G4SteppingManager2.cc:   fPostStepDoItVector = pm->GetPostStepProcessVector(typeDoIt);
+    ./tracking/src/G4SteppingManager2.cc:         fCurrentProcess = (*fPostStepDoItVector)[np];
+    ./tracking/src/G4SteppingVerbose.cc:             ptProcManager = (*fPostStepDoItVector)[np];
+    ./tracking/src/G4SteppingVerbose.cc:             ptProcManager = (*fPostStepDoItVector)[np];
+    ./tracking/src/G4VSteppingVerbose.cc:   fPostStepDoItVector = fManager->GetfPostStepDoItVector();
+    [blyth@cms01 source]$ 
+
+
+::
+
+     56 /////////////////////////////////////////////////
+     57 void G4SteppingManager::GetProcessNumber()
+     58 /////////////////////////////////////////////////
+     59 {
+     60 #ifdef debug
+     61   G4cout<<"G4SteppingManager::GetProcessNumber: is called track="<<fTrack<<G4endl;
+     62 #endif
+     63 
+     64   G4ProcessManager* pm= fTrack->GetDefinition()->GetProcessManager();
+     65         if(!pm)
+     66   {
+     67     G4cout<<"G4SteppingManager::GetProcessNumber: ProcessManager=0 for particle="
+     68           <<fTrack->GetDefinition()->GetParticleName()<<", PDG_code="
+     69           <<fTrack->GetDefinition()->GetPDGEncoding()<<G4endl;
+     70                 G4Exception("G4SteppingManager::GetProcessNumber: Process Manager is not found.");
+     71   }
+     72 
+     73 // AtRestDoits
+     74    MAXofAtRestLoops =        pm->GetAtRestProcessVector()->entries();
+     75    fAtRestDoItVector =       pm->GetAtRestProcessVector(typeDoIt);
+     76    fAtRestGetPhysIntVector = pm->GetAtRestProcessVector(typeGPIL);
+     77 #ifdef debug
+     78   G4cout<<"G4SteppingManager::GetProcessNumber: #ofAtRest="<<MAXofAtRestLoops<<G4endl;
+     79 #endif
+     80 
+     81 // AlongStepDoits
+     82    MAXofAlongStepLoops = pm->GetAlongStepProcessVector()->entries();
+     83    fAlongStepDoItVector = pm->GetAlongStepProcessVector(typeDoIt);
+     84    fAlongStepGetPhysIntVector = pm->GetAlongStepProcessVector(typeGPIL);
+     85 #ifdef debug
+     86             G4cout<<"G4SteppingManager::GetProcessNumber:#ofAlongStp="<<MAXofAlongStepLoops<<G4endl;
+     87 #endif
+     88 
+     89 // PostStepDoits
+     90    MAXofPostStepLoops = pm->GetPostStepProcessVector()->entries();
+     91    fPostStepDoItVector = pm->GetPostStepProcessVector(typeDoIt);
+     92    fPostStepGetPhysIntVector = pm->GetPostStepProcessVector(typeGPIL);
+     93 #ifdef debug
+     94             G4cout<<"G4SteppingManager::GetProcessNumber: #ofPostStep="<<MAXofPostStepLoops<<G4endl;
+     95 #endif
+     96 
+     97    if (SizeOfSelectedDoItVector<MAXofAtRestLoops    ||
+     98        SizeOfSelectedDoItVector<MAXofAlongStepLoops ||
+     99        SizeOfSelectedDoItVector<MAXofPostStepLoops  )
+     100             {
+     101               G4cout<<"G4SteppingManager::GetProcessNumber: SizeOfSelectedDoItVector="
+     102            <<SizeOfSelectedDoItVector<<" is smaller then one of MAXofAtRestLoops="
+     103            <<MAXofAtRestLoops<<" or MAXofAlongStepLoops="<<MAXofAlongStepLoops
+     104            <<" or MAXofPostStepLoops="<<MAXofPostStepLoops<<G4endl;
+     105                     G4Exception("G4SteppingManager::GetProcessNumber: The array size is smaller than the actutal number of processes. Chnage G4SteppingManager.hh and recompile is needed.");
+     106    }
+     107 }
+
+
+
+
+
+
+Breakpointing
+--------------
+
 
 
 
