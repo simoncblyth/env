@@ -228,3 +228,30 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
 
 
 
+
+`chroma/cuda/photon.h`
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    584 __device__ int
+    585 propagate_at_surface(Photon &p, State &s, curandState &rng, Geometry *geometry,
+    586                      bool use_weights=false)
+    587 {
+    588     Surface *surface = geometry->surfaces[s.surface_index];
+    589 
+    590     if (surface->model == SURFACE_COMPLEX)
+    591         return propagate_complex(p, s, rng, surface, use_weights);
+    592     else if (surface->model == SURFACE_WLS)
+    593         return propagate_at_wls(p, s, rng, surface, use_weights);
+    594     else {
+    595         // use default surface model: do a combination of specular and
+    596         // diffuse reflection, detection, and absorption based on relative
+    597         // probabilties
+
+
+
+* `chroma/doc/source/surface.rst`
+
+
+

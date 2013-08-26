@@ -11,4 +11,6 @@ geant4
    giga
    api
    opticalphoton
+   processes
+   medical
 

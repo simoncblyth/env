@@ -92,6 +92,19 @@ Geant4 OP processes
     G4OpWLS.hh:  G4OpWLS(const G4String& processName = "OpWLS",
 
 
+`g4optical/include/G4OpProcessSubType.hh`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    enum G4OpProcessSubType 
+    { 
+      fOpAbsorption = 31,
+      fOpBoundary = 32,
+      fOpRayleigh = 33,
+      fOpWLS = 34
+    };
+
 
 
 G4OpBoundaryProcess.hh patch
@@ -124,4 +137,135 @@ G4OpBoundaryProcess.hh patch
     >           theFacetNormal = (NewMomentum - OldMomentum).unit();
     >         }
     >         // wz
+
+
+
+
+DayaBay DetSim specializations
+-------------------------------
+
+::
+
+    [blyth@cms01 src]$ grep public\ G4VDiscreteProcess *.h
+    DsG4OpBoundaryProcess.h:class DsG4OpBoundaryProcess : public G4VDiscreteProcess
+    DsG4OpRayleigh.h:class DsG4OpRayleigh : public G4VDiscreteProcess 
+    [blyth@cms01 src]$ pwd
+    /data/env/local/dyb/trunk/NuWa-trunk/dybgaudi/Simulation/DetSim/src
+
+
+
+:dybsvn:`source:dybgaudi/trunk/Simulation/DetSim/src/DsG4OpBoundaryProcess.h`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Same difference as noted above, plus name changes::
+
+    [blyth@cms01 src]$ diff ~/g4optical/include/G4OpBoundaryProcess.hh DsG4OpBoundaryProcess.h
+
+
+::
+
+     93 enum DsG4OpBoundaryProcessStatus {  Undefined,
+     94                                   FresnelRefraction, FresnelReflection,
+     95                                   TotalInternalReflection,
+     96                                   LambertianReflection, LobeReflection,
+     97                                   SpikeReflection, BackScattering,
+     98                                   Absorption, Detection, NotAtBoundary,
+     99                                   SameMaterial, StepTooSmall, NoRINDEX };
+     100 
+     101 class DsG4OpBoundaryProcess : public G4VDiscreteProcess
+     102 {
+     103 
+
+
+
+:dybsvn:`source:dybgaudi/trunk/Simulation/DetSim/src/DsG4OpBoundaryProcess.cc`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@cms01 src]$ diff ~/g4optical/src/G4OpBoundaryProcess.cc DsG4OpBoundaryProcess.cc
+    ...
+    < G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
+    ---
+    > DsG4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
+    179c181
+    <           G4cerr << " G4OpBoundaryProcess/PostStepDoIt(): "
+    ---
+    >           G4cerr << " DsG4OpBoundaryProcess/PostStepDoIt(): "
+    186a189,195
+    >         if(theGlobalNormal.mag() == 0) {
+    >           abNormalCounter++;
+    >           std::cout << "Because of normal = 0, the number of the killed optical photons is " << abNormalCounter << std::endl;
+    >           aParticleChange.ProposeTrackStatus(fStopAndKill);
+    >           return G4VDiscreteProcess::PostStepDoIt(aTrack, aStep);
+    >         }
+    > 
+    189c198
+    <            G4cerr << " G4OpBoundaryProcess/PostStepDoIt(): "
+    ---
+    >            G4cerr << " DsG4OpBoundaryProcess/PostStepDoIt(): "
+    301a311,336
+    >                  if(OpticalSurface->GetName().contains("ESRAir")) {
+    >                    G4double inciAngle = GetIncidentAngle();
+    >                    //ESR in air
+    >                    if(inciAngle*180./pi > 40) {
+    >                      theReflectivity = (theReflectivity - 0.993) + 0.973572 + 9.53233e-04*(inciAngle*180./pi) - 1.22184e-05*((inciAngle*180./pi))*((inciAngle*180./pi));
+    >                    }
+
+
+
+:dybsvn:`source:dybgaudi/trunk/Simulation/DetSim/src/DsG4OpRayleigh.h`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@cms01 src]$ diff ~/g4optical/include/G4OpRayleigh.hh DsG4OpRayleigh.h
+    1a2,12
+    > /**
+    >  * \class DsG4OpRayleigh
+    >  *
+    >  * \brief A slightly modified version of G4OpRayleigh
+    >  *
+    >  * It is modified to make the Rayleigh Scattering happen with different waters defined in /dd/Material/
+    >  *
+    >  * This was taken from G4.9.1p1
+    >  *
+    >  * zhangh@bnl.gov on 8th, July
+    >  */
+
+
+:dybsvn:`source:dybgaudi/trunk/Simulation/DetSim/src/DsG4OpRayleigh.cc`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Specialization to handle `/dd/Materials/Water` etc.. names for  "Water"
+
+::
+
+    [blyth@cms01 src]$ diff ~/g4optical/src/G4OpRayleigh.cc DsG4OpRayleigh.cc
+    ...
+    < void G4OpRayleigh::BuildThePhysicsTable()
+    ---
+    > void DsG4OpRayleigh::BuildThePhysicsTable()
+    226c238,241
+    <                 if ((*theMaterialTable)[i]->GetName() == "Water")
+    ---
+    >                 if ((*theMaterialTable)[i]->GetName() == "/dd/Materials/Water" || 
+    >                   (*theMaterialTable)[i]->GetName() == "/dd/Materials/OwsWater" ||
+    >                   (*theMaterialTable)[i]->GetName() == "/dd/Materials/IwsWater"
+    >                   )
+    246c261
+    < G4double G4OpRayleigh::GetMeanFreePath(const G4Track& aTrack,
+    ---
+    > G4double DsG4OpRayleigh::GetMeanFreePath(const G4Track& aTrack,
+    257c272,275
+    <         if (aMaterial->GetName() == "Water" && DefaultWater){
+    ---
+    >       if ((strcmp(aMaterial->GetName(), "/dd/Materials/Water") == 0 ||
+    >            strcmp(aMaterial->GetName(), "/dd/Materials/OwsWater") == 0 ||
+    >            strcmp(aMaterial->GetName(), "/dd/Materials/IwsWater") == 0 )
+    >           && DefaultWater){
+    294c312
+
+
+
 

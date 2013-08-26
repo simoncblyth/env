@@ -4,6 +4,7 @@ chroma
 
 .. toctree::
 
+   questions
    chroma_geant4_integration
    cuda
    propagate
@@ -12,4 +13,5 @@ chroma
    refs
    chroma_geometry
    bvh
+   detector
 

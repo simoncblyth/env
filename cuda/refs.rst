@@ -10,3 +10,7 @@ CUDA Reference
     06:00.0 3D controller: nVidia Corporation GT200 [Tesla C1060 / Tesla S1070] (rev a1)
 
 
+
+* http://www.rcuda.net/
+
+   * Remote CUDA

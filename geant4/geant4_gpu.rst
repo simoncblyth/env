@@ -18,4 +18,19 @@ Geant4 Particle Transportation on GPU
     May 9, 2012
 
 
+Status of the GPU Simulation prototype 
+----------------------------------------
 
+* http://indico.cern.ch/getFile.py/access?contribId=5&resId=0&materialId=slides&confId=255451
+
+::
+
+   Soon Yung Jun 
+   Philippe Canal
+   Jun 5 2013 Concurrency Forum
+
+
+GPU computing in medical physics: A review
+--------------------------------------------
+
+* http://online.medphys.org/resource/1/mphya6/v38/i5/p2685_s1
