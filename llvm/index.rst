@@ -1,10 +1,8 @@
 
-cuda
+llvm
 =========================
 
 .. toctree::
 
-   cudatoolkit
-   refs
-
+   llvm
 

@@ -59,8 +59,10 @@ Contents:
    qxml/index
    fossil/index
    java/index
+   cuda/index
    geant4/index
    muon_simulation/index
+   llvm/index
    graphics/index
    cuda/index
 

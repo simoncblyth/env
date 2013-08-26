@@ -5,4 +5,5 @@ Base Tools
 
      ssh 
      macports
+     gcc
 

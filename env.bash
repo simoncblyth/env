@@ -1198,5 +1198,9 @@ chroma-(){      . $(env-home)/muon_simulation/chroma/chroma.bash && chroma-env $
 fast-(){      . $(env-home)/tools/fast/fast.bash && fast-env $* ; }
 gperftools-(){      . $(env-home)/tools/gperftools/gperftools.bash && gperftools-env $* ; }
 kcachegrind-(){      . $(env-home)/tools/kcachegrind.bash && kcachegrind-env $* ; }
+ocelot-(){      . $(env-home)/cuda/ocelot.bash && ocelot-env $* ; }
+cudatoolkit-(){      . $(env-home)/cuda/cudatoolkit.bash && cudatoolkit-env $* ; }
+gcc-(){      . $(env-home)/base/gcc.bash && gcc-env $* ; }
+llvm-(){      . $(env-home)/llvm/llvm.bash && llvm-env $* ; }
 meshlab-(){      . $(env-home)/graphics/mesh/meshlab.bash && meshlab-env $* ; }
 freewrl-(){      . $(env-home)/graphics/vrml/freewrl.bash && freewrl-env $* ; }
