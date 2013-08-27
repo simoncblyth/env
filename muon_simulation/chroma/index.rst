@@ -14,4 +14,7 @@ chroma
    chroma_geometry
    bvh
    detector
+   prerequisites
+   hardware
+   zeromq
 

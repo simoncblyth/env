@@ -1204,3 +1204,5 @@ gcc-(){      . $(env-home)/base/gcc.bash && gcc-env $* ; }
 llvm-(){      . $(env-home)/llvm/llvm.bash && llvm-env $* ; }
 meshlab-(){      . $(env-home)/graphics/mesh/meshlab.bash && meshlab-env $* ; }
 freewrl-(){      . $(env-home)/graphics/vrml/freewrl.bash && freewrl-env $* ; }
+vrml97import-(){      . $(env-home)/graphics/vrml/vrml97import.bash && vrml97import-env $* ; }
+blender-(){      . $(env-home)/graphics/blender/blender.bash && blender-env $* ; }
