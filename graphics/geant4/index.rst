@@ -6,7 +6,7 @@ geant4
 
    geant4_geometry_visualisation
    vrml
-   export
+   geometry/index
 
 
 
