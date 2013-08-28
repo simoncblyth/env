@@ -13,4 +13,5 @@ geant4
    opticalphoton
    processes
    medical
+   geometry/index
 

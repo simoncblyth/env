@@ -6,5 +6,5 @@ Graphics
 
     cgal/index
     mesh/index
-    geant4/index
+    vrml/index
 

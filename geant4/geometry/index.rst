@@ -7,4 +7,5 @@ geometry
    export
    gdml
    other
+   visualisation
 
