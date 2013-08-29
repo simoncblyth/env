@@ -12,7 +12,7 @@ geometry conversion. So tools that do these should be mined for possibilities.
 
 Drivers: OpenGL, HepRep, VRML, DAVID, DAWN
 
-* :doc:`vrml` is looking the most promising, as its the most widely supported format exportable
+* :doc:`/graphics/vrml/vrml` is looking the most promising, as its the most widely supported format exportable
 
 
 Drivers
