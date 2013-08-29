@@ -7,5 +7,6 @@ geometry
    export
    gdml
    other
+   cad
    visualisation
 

@@ -23,6 +23,15 @@ complex solids.
 All constructed solids can stream out their contents via appropriate methods and streaming operators.
 
 
+Geometry Source
+----------------
+
+::
+
+    [blyth@belle7 DDDB]$ pwd
+    /data1/env/local/dyb/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB
+
+
 HepRep
 -------
 
@@ -41,5 +50,21 @@ Geant4 . It can be also seen as a Geant4 application implemented via the VMC
 interfaces. It implements all Geant4 user mandatory classes and user action
 classes, which provide the default Geant4 VMC behaviour, that can be then
 customized by a user in many ways.
+
+
+
+InSTEP
+-------
+
+* http://www.solveering.com/instep.htm
+
+InStep supports import & export of the following formats:
+
+#. STL (Ascii/Text and Binary)
+#. OBJ
+#. DAE (for triangulated bodies)
+#. VRML
+#. X3D
+#. GDML (with limited definition of domains/materials)
 
 

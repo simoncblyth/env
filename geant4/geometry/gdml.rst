@@ -32,8 +32,25 @@ Overviews
 * http://cao-gdml.in2p3.fr/presentations/GDML_orsay.pdf
 
 
-Geant4 GDML Module Examples
------------------------------
+Extensions
+-----------
+
+Linear Collider Detector Description (LCDD)    
+extends GDML with Geant4 specific information    
+(sensitive detectors, physics cuts, etc)  
+   
+Full Detector Simulation using SLIC and LCDD  
+  * http://www.slac.stanford.edu/cgi-wrap/getdoc/slac-pub-11418.pdf
+
+
+Geant4 GDML 
+------------
+
+* http://geant4.slac.stanford.edu/SLACTutorial09/Geometry3.pdf
+
+
+Module Examples
+~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -57,8 +74,8 @@ Geant4 GDML Module Examples
     See the README file inside each example for more detail.
 
 
-Geant4 GDML Module Sources
----------------------------
+Module Sources
+~~~~~~~~~~~~~~~
 
 ::
 
