@@ -6,4 +6,5 @@ mesh
 
    mesh_generation
    meshlab
+   meshpy
 
