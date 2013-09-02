@@ -1,0 +1,212 @@
+#VRML V2.0 utf8
+#
+#airplane.wrl
+
+Viewpoint {
+  position 20 3 0
+  orientation 0 1 0 1.57
+  description "default camera"
+} # end view 
+
+Group {
+  children [
+
+    DEF PLANE Transform {
+
+      children [
+    
+        DEF FUSELAGE Transform {
+          rotation 1 0 0 1.57
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end appearance
+              geometry Cylinder {
+                height 10
+                radius 1
+              } # end  geometry
+            } # end shape
+          ] # end children
+        } # end fuselage
+    
+        DEF WING Transform {
+          translation 0 0 1
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end Appearance
+              geometry Box {
+                size 15 .1 2
+              } # end box
+            } # end shape
+          ] # end children
+        } # end Wing
+    
+        DEF LWING Transform {
+          translation 0 -1 1
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end Appearance
+              geometry Box {
+                size 15 .1 2
+              } # end box
+            } # end shape
+          ] # end children
+        } # end lWing
+    
+        DEF UWING Transform {
+          translation 0 1 1
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end Appearance
+              geometry Box {
+                size 15 .1 2
+              } # end box
+            } # end shape
+          ] # end children
+        } # end uWing
+    
+        DEF PILOT Transform {
+          translation 0 1.1 -0.5
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor .4 .4 .1
+                } # end material
+                 #  texture ImageTexture {
+                 #    url "pilot.gif"
+                 #  } # end texture
+              } # end appearance
+              geometry Sphere {
+                radius .4
+              } # end sphere
+            } # end shape
+          ] # end children
+        } # end pilot
+    
+        DEF SCARF Transform {
+          translation 0 1.2 -1.3
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 1 1
+                } # end material
+              } # end appearance
+              geometry Box {
+                size .1 .3 1
+              } # end geometry
+            } # end shape
+          ] # end children
+        } # end scarf
+    
+        DEF HORSTAB Transform {
+          translation 0 2 -4 
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+                #texture ImageTexture {
+                #  url "tail.gif"
+                #} # end texture
+              } # end Appearance
+              geometry Box {
+                size 0.01 3 2
+              } # end box
+            } # end shape
+          ] # end children
+        } # end HorStab
+    
+        DEF VERSTAB Transform {
+          translation 0 1 -4 
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end Appearance
+              geometry Box {
+                size 4 0.1 2
+              } # end box
+            } # end shape
+          ] # end children
+        } # end VerStab
+    
+        DEF NOSE Transform {
+          translation 0 0 6 
+          rotation 1 0 0 1.57
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 1 0 0
+                } # end material
+              } # end Appearance
+              geometry Cone {
+                height 2
+                bottomRadius 1
+              } # end cone
+            } # end nosecone shape
+          ] # end children
+        } # end Nose
+    
+        DEF PROP Transform {
+          translation 0 0 6
+          rotation 1 0 0 1.57
+          children [
+            Shape {
+              appearance Appearance {
+                material Material {
+                  diffuseColor 0 0 1
+                  transparency .5
+                } # end material
+              } # end appearance
+              geometry Cylinder {
+                radius 2
+                height .25
+              } # end geometry
+            } # end shape
+          ] # end children
+        } # end prop    
+      ] # end children
+    } # end transform
+
+    DEF SENSOR SphereSensor { }
+
+  ] # end children
+} # end group
+
+Background {
+  skyColor [
+    0.0 0.2 0.7,
+    0.0 0.5 1.0,
+    1.0 1.0 1.0
+  ] # end skyColor
+  skyAngle [ 1.309, 1.571 ] 
+} # end background
+
+ROUTE SENSOR.rotation_changed TO PLANE.set_rotation
+
+
+
+
+
+

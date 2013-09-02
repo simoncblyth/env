@@ -1206,3 +1206,7 @@ meshlab-(){      . $(env-home)/graphics/mesh/meshlab.bash && meshlab-env $* ; }
 freewrl-(){      . $(env-home)/graphics/vrml/freewrl.bash && freewrl-env $* ; }
 vrml97import-(){      . $(env-home)/graphics/vrml/vrml97import.bash && vrml97import-env $* ; }
 blender-(){      . $(env-home)/graphics/blender/blender.bash && blender-env $* ; }
+pyopencl-(){      . $(env-home)/opencl/pyopencl.bash && pyopencl-env $* ; }
+meshpy-(){      . $(env-home)/graphics/mesh/meshpy.bash && meshpy-env $* ; }
+vtk-(){      . $(env-home)/graphics/vtk/vtk.bash && vtk-env $* ; }
+pycuda-(){      . $(env-home)/cuda/pycuda/pycuda.bash && pycuda-env $* ; }

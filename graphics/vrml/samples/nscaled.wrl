@@ -1,0 +1,32 @@
+#---------- SOLID: /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab8.1008
+        Shape {
+                appearance Appearance {
+                        material Material {
+                                diffuseColor 1 1 1
+                                transparency 0.7
+                        }
+                }
+                geometry IndexedFaceSet {
+                        coord Coordinate {
+                                point [
+                                        -15035.3 -795200 -12260,
+                                        -14972.4 -794906 -12260,
+                                        -19127 -794016 -12260,
+                                        -19189.9 -794309 -12260,
+                                        -15035.3 -795200 -2260,
+                                        -14972.4 -794906 -2260,
+                                        -19127 -794016 -2260,
+                                        -19189.9 -794309 -2260,
+                                ]
+                        }
+                        coordIndex [
+                                0, 3, 2, 1, -1,
+                                4, 7, 3, 0, -1,
+                                7, 6, 2, 3, -1,
+                                6, 5, 1, 2, -1,
+                                5, 4, 0, 1, -1,
+                                4, 5, 6, 7, -1,
+                        ]
+                        solid FALSE
+                }
+        }

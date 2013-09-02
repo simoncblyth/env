@@ -65,6 +65,8 @@ Contents:
    llvm/index
    graphics/index
    cuda/index
+   opencl/index
+   linux/index
 
 Indices and tables
 ==================
