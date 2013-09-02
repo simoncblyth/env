@@ -21,8 +21,8 @@ Stan Seibert,  Anthony LaTorre, University of Pennsylvania, PXPS, June 18, 2012
 * https://indico.fnal.gov/getFile.py/access?contribId=85&sessionId=14&resId=0&materialId=slides&confId=5276
 
 Stan Seibert's Homepage
-* http://mtrr.org/
 
+* http://mtrr.org/
 
 
 CUDA
@@ -31,13 +31,12 @@ CUDA
 * http://www.nvidia.com/object/cuda_home_new.html
 
 
-
 GPU from python, PyCuda PyOpenCL
 -----------------------------------
 
 * http://wiki.tiker.net/CudaVsOpenCL
 
-Very limited compatibility with CUDA, presumably OpenCL is better in this regard.
+CUDA is for Nvidia GPUs only, OpenCL is better in this regard.
 
 PyCuda
 ~~~~~~~~
@@ -48,7 +47,6 @@ PyOpenCL
 ~~~~~~~~~
 
 * http://documen.tician.de/pyopencl/index.html
-
 
 
 Geant4Py aka g4py
