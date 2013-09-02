@@ -19,6 +19,12 @@ Simple, high-reliability, distributed software configuration management
 * http://www.fossil-scm.org/download.html
 
 
+Fossil weaknesses
+-------------------
+
+#. pre-commit hooks, eg disallow tabs in python
+
+
 FOSSIL URLs
 ------------
 

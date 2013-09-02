@@ -110,6 +110,15 @@ svn-usage(){
          Do patches fully capture deletion and additions correctly ??
 
 
+
+
+PRE-COMMIT HOOK IDEAS
+-----------------------
+
+Disallowing tabs in python files
+
+#. http://wordaligned.org/articles/a-subversion-pre-commit-hook
+
                          
 EOU
 
