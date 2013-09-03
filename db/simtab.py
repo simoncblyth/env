@@ -225,6 +225,11 @@ CREATE TABLE oomon (date text,val real)
             pass
         pass    
 
+    def getone(self, sql):
+         lret = map(lambda _:_[0],self(sql))
+         assert len(lret) == 1, lret
+         return lret[0]
+
     def asdict(self, kf, vf, sql=None ):
         """
         :param kf: function that returns key from the dict of query columns 
