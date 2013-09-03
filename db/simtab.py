@@ -165,15 +165,16 @@ CREATE TABLE oomon (date text,val real)
 
          column name, data type, whether or not the column can be NULL, and the default value for the column
          """ 
+            
          fields = []
          types = []
-         ti = self.cursor.execute("pragma table_info(%s)" %  tn )
-         #print ti
-         for row in ti:
-             index,name,dtype,nonnull,default,primary = row
-             fields.append(name)
-             types.append(dtype)
-             pass
+         if not tn is None:
+             ti = self.cursor.execute("pragma table_info(%s)" %  tn )
+             for row in ti:
+                 index,name,dtype,nonnull,default,primary = row
+                 fields.append(name)
+                 types.append(dtype)
+                 pass
 
          self.fields = fields
          self.types = types

@@ -124,6 +124,35 @@ Small number of shapes are repeated in different positions, eg PMT rotations.
 
 
 
+Shape extents
+--------------
+
+::
+
+    sqlite> create table xshape as select sid, count(*) as npo,  max(x)-min(x) as dx, max(y)-min(y) as dy, max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid limit 10 ;
+    sqlite> 
+    sqlite> select * from xshape ;
+    sid         npo         dx          dy          dz          ax          ay          az        
+    ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
+    1           8           69139.8     69140.0     37994.2     -16519.99   -802110.0   3892.9    
+    2           16          36494.56    45091.0     15000.29    -11482.888  -808975.25  2639.855  
+    3           40          13823.07    15602.0     44.0        -15876.303  -803178.07  -2088.0   
+    4           8           3019.4      3010.0      78.0        -11612.4    -799007.25  683.904   
+    5           8           2911.3      2911.0      75.0        -11611.25   -799018.5   683.904   
+    6           8           2897.5      2897.0      6.0         -11611.25   -799018.5   669.904   
+    7           8           2869.9      2870.0      2.0         -11611.25   -799018.25  669.904   
+    8           8           1896.7      1332.0      2.0         -11124.675  -799787.25  669.904   
+    9           8           1896.6      1332.0      2.0         -11263.7    -799567.75  669.904   
+    10          8           1896.7      1332.0      2.0         -11402.725  -799348.0   669.904   
+
+    sqlite> create table xshape as select sid, count(*) as npo,  min(x) as minx, max(x) as maxx, max(x)-min(x) as dx, min(y) as miny, max(y) as maxy, max(y)-min(y) as dy, min(z) as minz, max(z) as max(z), max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid ;
+    Error: table xshape already exists
+    sqlite> drop table xshape ;
+    sqlite> create table xshape as select sid, count(*) as npo,  max(x)-min(x) as dx, max(y)-min(y) as dy, max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid ;
+    sqlite> select count(*) from xshape ;
+    count(*)  
+    ----------
+    12229     
 
 
 
@@ -165,12 +194,13 @@ class WRLRegion(object):
              if not token:
                   if region == "point":
                       assert s[-1] == ",", s
-                      xyz = s[:-1].split(" ") 
-                      print "%s : %s " % ( region, xyz ) 
+                      xyz = map(float,s[:-1].split(" "))
+                      self.point.append(xyz) 
+                      #print "%s : %s " % ( region, xyz ) 
                   elif region == "coordIndex":
                       assert s[-1] == ",", s
                       cdx = s[:-1].split(", ") 
-                      print "%s : %s " % ( region , cdx )
+                      #print "%s : %s " % ( region , cdx )
 
 
 class WRLParser(list):
@@ -222,41 +252,113 @@ class WRLParser(list):
             log.info("remove pre-existing db file %s " % path)
             os.remove(path)
         pass
-        log.info("saving geometry into file %s " % path )  
 
-        schema = dict(name="text", src="blob", len="int", indx="int" )
+        shape = Table(path, "shape", id="int",name="text", src="blob", len="int", )
+        point = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
 
-        tab = Table(path, "shape", **schema)
+        log.info("gathering geometry ")  
         for sh in self:
             if sh.name == 'camera':
                 pass
             else:
-                rec = dict(name=sh.name, indx=sh.indx, src="".join(sh.src), len=len(sh.src))
-                tab.add(**rec)
-
+                sid = sh.indx
+                shape.add(id=sid,name=sh.name, src="".join(sh.src), len=len(sh.src))
                 sh()
-
+                for pid,(x,y,z) in enumerate(sh.point):
+                    point.add(id=pid,sid=sid,x=x,y=y,z=z)
             pass
-        tab.insert()   # writes to the DB all at once
+        # writes to the DB a table at a time
+        log.info("start persisting to %s " % path ) 
+        shape.insert()   
+        point.insert()   
+        log.info("completed persisting to %s " % path ) 
+
+
+    def extend(self, path, tn="xshape"):
+        dummy = Table(path)
+        ammd_ = lambda _:"avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
+        xsql = "select sid, count(*) as npo, " + ",".join(map(ammd_, ("x","y","z"))) + " from point group by sid "
+        sqls = ["drop table if exists %(tn)s " % locals(),
+                "create table %(tn)s as " % locals() + xsql ]
+        for sql in sqls:        
+            log.info(sql)
+            for ret in dummy(sql):
+                log.info(ret) 
+
 
     def dump(self):
         for sh in wrlp:
             print repr(sh)
 
 
+def parse_args(doc):
+    """
+    Return config dict and commandline arguments 
+
+    :param doc:
+    :return: cnf, args  
+    """
+    from optparse import OptionParser
+    op = OptionParser(usage=doc)
+    op.add_option("-o", "--logpath", default=None )
+    op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
+    op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
+    op.add_option("-q", "--quick", action="store_true", help="Quick run just on the head of the input file.", default=False )
+    op.add_option("-c", "--create", action="store_true", help="Create the DB from the source wrl.", default=False )
+    op.add_option("-x", "--extend", action="store_true", help="Create the extents table from the pre-created DB.", default=False )
+    opts, args = op.parse_args()
+    level = getattr( logging, opts.loglevel.upper() )
+
+    if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)
+        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        formatter = logging.Formatter(opts.logformat)
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)  # add the handler to the root logger
+    else:
+        try: 
+            logging.basicConfig(format=opts.logformat,level=level)
+        except TypeError:
+            hdlr = logging.StreamHandler()              # py2.3 has unusable basicConfig that takes no arguments
+            formatter = logging.Formatter(opts.logformat)
+            hdlr.setFormatter(formatter)
+            log.addHandler(hdlr)
+            log.setLevel(level)
+        pass
+    pass
+
+    log.info(" ".join(sys.argv))
+    #logging.getLogger().setLevel(loglevel)
+    return opts, args
+
+
+
+
+
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    opts, args = parse_args(__doc__)
+    path = args[0]
+    base, ext = os.path.splitext(path)
+    dbpath = os.path.abspath(base + ".db")
 
     wrlp = WRLParser()
 
-    path = sys.argv[1]
+    if opts.create:
+        log.info("create") 
+        if opts.quick:
+            wrlp(path=None,cmd="head -100 %(path)s " % locals()) # head only testing
+        else:      
+            wrlp(path)
+        pass     
+        wrlp.save(dbpath)
+    else:
+        log.info("skip create") 
 
-    wrlp(path=None,cmd="head -100 %(path)s " % locals()) # head only testing
-    #wrlp(path)
 
-    base, ext = os.path.splitext(path)
-    dbpath = base + ".db"
-    wrlp.save(dbpath)
-
-
+    if opts.extend:
+        log.info("extend") 
+        wrlp.extend(dbpath, "xshape")
+    else:    
+        log.info("skip extend") 
 
