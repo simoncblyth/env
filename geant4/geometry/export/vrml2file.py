@@ -7,39 +7,42 @@ Parse VRML2 files created by the Geant4 VRML2FILE driver
 and insert the shapes found into an Sqlite3 DB for 
 easy inspection.
 
-Usage::
+Quick testing
+-------------
 
-    [blyth@belle7 export]$ time ./vrml2file.py g4_00.wrl
-    INFO:__main__:remove pre-existing db file /home/blyth/env/geant4/geometry/export/g4_00.db 
-    INFO:__main__:saving geometry into file /home/blyth/env/geant4/geometry/export/g4_00.db 
+For speed only the head of the .wrl is processed::
 
-    real    0m9.140s
-    user    0m6.706s
-    sys     0m1.005s
+     ./vrml2file.py --create --quick g4_00.wrl
+     ./vrml2file.py --create --quick --extend g4_00.wrl
 
-Takes about 10s to parse and persist an 85M WRL::
+Full run
+----------
 
-    blyth@belle7 export]$ du -h g4_00.*
-    85M     g4_00.db
-    82M     g4_00.wrl
+Formerly before `point` and `xshape` tables were added the parse and
+persist of the 85M wrl took only 10s. After adding `point` and `shape` 
+it now takes 8 minutes::
+
+    simon:export blyth$ ./vrml2file.py --create --extend g4_00.wrl
+    2013-09-04 18:13:26,551 __main__ INFO     ./vrml2file.py --create --extend g4_00.wrl
+    2013-09-04 18:13:26,553 __main__ INFO     create
+    2013-09-04 18:14:13,130 __main__ INFO     remove pre-existing db file /Users/blyth/env/geant4/geometry/export/g4_00.db 
+    2013-09-04 18:14:13,216 __main__ INFO     gathering geometry 
+    2013-09-04 18:16:48,891 __main__ INFO     start persisting to /Users/blyth/env/geant4/geometry/export/g4_00.db 
+    2013-09-04 18:21:17,016 __main__ INFO     completed persisting to /Users/blyth/env/geant4/geometry/export/g4_00.db 
+    2013-09-04 18:21:18,227 __main__ INFO     extend
+    2013-09-04 18:21:18,230 __main__ INFO     drop table if exists xshape 
+    2013-09-04 18:21:18,232 __main__ INFO     create table xshape as select sid, count(*) as npo, sum(x) as sumx, avg(x) as ax, min(x) as minx, max(x) as maxx, max(x) - min(x) as dx,sum(y) as sumy, avg(y) as ay, min(y) as miny, max(y) as maxy, max(y) - min(y) as dy,sum(z) as sumz, avg(z) as az, min(z) as minz, max(z) as maxz, max(z) - min(z) as dz from point group by sid 
+    simon:export blyth$ 
+
+    simon:export blyth$ du -hs g4_00.*
+    128M    g4_00.db
+     81M    g4_00.wrl
 
 
-TODO
------
 
-#. deeper parsing and persisting to pull out the coordinates, 
-#. allow dynamic repositioning of shapes to the origin, blender having trouble with large coordinates
 
 Inspect Shapes
 ---------------
-
-Everything is white with transparency 0.7::
-
-    sqlite> select distinct(substr(src,60,21)) from shape ;
-                            diffuseColor 1 1 1
-
-    sqlite> select distinct(substr(src,82,20)) from shape ;
-                                    transparency 0.7
 
 Heads of all shapes are identical::
 
@@ -58,11 +61,9 @@ Heads of all shapes are identical::
 
 ::
 
-    echo select \* from shape \; | sqlite3 g4_00.db
-
-
-    [blyth@belle7 export]$ echo select name, src from shape where indx=12222 \; | sqlite3 g4_00.db 
-    /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab2.1002|    Shape {
+    simon:export blyth$ echo select src from shape where id=12222 \; | sqlite3 -noheader g4_00.db 
+    #---------- SOLID: /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab2.1002
+            Shape {
                     appearance Appearance {
                             material Material {
                                     diffuseColor 1 1 1
@@ -95,13 +96,95 @@ Heads of all shapes are identical::
             }
 
 
-Only ~53 different lengths of src but 12k distinct src. 
-Small number of shapes are repeated in different positions, eg PMT rotations.
-
+Full Overlapping volumes, dodgy dozen
+---------------------------------------
 ::
 
     sqlite> select count(distinct(src)) from shape ; 
     12223
+
+    simon:export blyth$ echo "select count(distinct(src)) from shape ;" | sqlite3 -noheader g4_00.db 
+    12229       
+
+#. 6 more after including the volume name comment metadata first line suggests a small number of absolute position duplicated shapes with different volume names
+#. confirmed that assertion using `shape.hash` digest that excludes the name metadata 
+
+The dodgy dozen, six pairs of volumes are precisely co-located::
+
+    sqlite> select hash, group_concat(name), group_concat(id)  from shape group by hash having count(*) > 1 ;
+    hash                              group_concat(name)                                                                                                                           group_concat(id)
+    --------------------------------  ---------------------------------------------------------------------------------------------                                                ----------------
+    036f14cfb2e7bbe62226d213bd3e7780  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6400,6401       
+    2043a400a35f062979ddfa73254cac9d  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6318,6319       
+    547dd4e8ad4c711815456951753d8fa9  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4570,4571       
+    b7e229d741481e47f3c06236dbc2961d  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6230,6231       
+    be270355bc36384aa290479074aaec4e  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4658,4659       
+    c35f0b07cfa25126ec1b156aca3364d8  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4740,4741       
+    sqlite> 
+
+
+    sqlite> select substr(src,0,600) from shape where id = 6401 ;
+    #---------- SOLID: /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000
+            Shape {
+                    appearance Appearance {
+                            material Material {
+                                    diffuseColor 1 1 1
+                                    transparency 0.7
+                            }
+                    }
+                    geometry IndexedFaceSet {
+                            coord Coordinate {
+                                    point [
+                                            -15954.9 -805788 -4145.32,
+                                            -15953.4 -805788 -4145.32,
+                                            -15951.7 -805789 -4145.32,
+                                            -15950 -805789 -4145.32,
+                                            -15948.4 -805788 -4145.32,
+                                            -15946.9 -805787 -4145.32,
+                                            -15945.8 -805786 -4145.32,
+                                            -15945 -805784 -4145.32,
+                                            -15944.6 -805783 -4145.32,
+                                            -15944.7 -805781 -4145.32,
+                                            -15945.3 -8
+    sqlite> 
+    sqlite> 
+    sqlite> 
+    sqlite> select substr(src,0,600) from shape where id = 6400 ;
+    #---------- SOLID: /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+            Shape {
+                    appearance Appearance {
+                            material Material {
+                                    diffuseColor 1 1 1
+                                    transparency 0.7
+                            }
+                    }
+                    geometry IndexedFaceSet {
+                            coord Coordinate {
+                                    point [
+                                            -15954.9 -805788 -4145.32,
+                                            -15953.4 -805788 -4145.32,
+                                            -15951.7 -805789 -4145.32,
+                                            -15950 -805789 -4145.32,
+                                            -15948.4 -805788 -4145.32,
+                                            -15946.9 -805787 -4145.32,
+                                            -15945.8 -805786 -4145.32,
+                                            -15945 -805784 -4145.32,
+                                            -15944.6 -805783 -4145.32,
+                                            -15944.7 -805781 -4145.32,
+                                            -15945.3 -805779 -414
+
+
+
+
+
+Small number of different src lengths
+----------------------------------------
+
+Only ~53 different lengths of src but 12k distinct src. 
+Small number of shapes are repeated in different positions, eg PMT rotations.
+
+
+::
 
     sqlite> select len,count(*) as N from shape group by len order by len ;
     31|5362
@@ -159,6 +242,7 @@ Shape extents
 """
 import os, sys, logging
 from env.db.simtab import Table
+from md5 import md5
 log = logging.getLogger(__name__) 
 
 
@@ -168,6 +252,7 @@ class WRLRegion(object):
    pfx_close_region = ']'
    def __init__(self, src, name=None, indx=None):
         self.src = src[:] 
+        self.hash = md5("".join(src[1:])).hexdigest()
         self.name = name
         self.indx = indx
         self.point = []
@@ -232,6 +317,10 @@ class WRLParser(list):
             self.buffer[:] = []
 
     def parse_line(self, line):
+        """
+        The token lines are used to mark the 
+        end of the prior region, and the start of a new one. 
+        """  
         token = False 
         if line[0:self.lpfx_camera] == self.pfx_camera:
             token, name = True, 'camera'
@@ -243,8 +332,8 @@ class WRLParser(list):
         if token: 
             self._add_region()             
             self.region = name 
-        else:
-            self.buffer.append(line) 
+            pass
+        self.buffer.append(line) 
 
     def save(self, path ):
         path = os.path.abspath(path)
@@ -253,7 +342,7 @@ class WRLParser(list):
             os.remove(path)
         pass
 
-        shape = Table(path, "shape", id="int",name="text", src="blob", len="int", )
+        shape = Table(path, "shape", id="int",name="text", src="blob", len="int", hash="text")
         point = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
 
         log.info("gathering geometry ")  
@@ -262,7 +351,7 @@ class WRLParser(list):
                 pass
             else:
                 sid = sh.indx
-                shape.add(id=sid,name=sh.name, src="".join(sh.src), len=len(sh.src))
+                shape.add(id=sid,name=sh.name, src="".join(sh.src), len=len(sh.src), hash=sh.hash )
                 sh()
                 for pid,(x,y,z) in enumerate(sh.point):
                     point.add(id=pid,sid=sid,x=x,y=y,z=z)
@@ -276,8 +365,8 @@ class WRLParser(list):
 
     def extend(self, path, tn="xshape"):
         dummy = Table(path)
-        ammd_ = lambda _:"avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
-        xsql = "select sid, count(*) as npo, " + ",".join(map(ammd_, ("x","y","z"))) + " from point group by sid "
+        sammd_ = lambda _:"sum(%(_)s) as sum%(_)s, avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
+        xsql = "select sid, count(*) as npo, " + ",".join(map(sammd_, ("x","y","z"))) + " from point group by sid "
         sqls = ["drop table if exists %(tn)s " % locals(),
                 "create table %(tn)s as " % locals() + xsql ]
         for sql in sqls:        
@@ -347,7 +436,7 @@ if __name__ == '__main__':
     if opts.create:
         log.info("create") 
         if opts.quick:
-            wrlp(path=None,cmd="head -100 %(path)s " % locals()) # head only testing
+            wrlp(path=None,cmd="head -226 %(path)s " % locals()) # head only testing, fine tuned to avoid shapes without any points arising from truncation 
         else:      
             wrlp(path)
         pass     

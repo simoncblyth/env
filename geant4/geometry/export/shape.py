@@ -16,14 +16,33 @@ Shape random access and transformations
    ./shape.py --mode dup 1      # duplicated at line splitting level, should always match ori 
    ./shape.py --mode gen 1      # potentially with transformations
 
+
+Region restriction by query
+----------------------------
+
+::
+
+    simon:export blyth$ ./shape.py --query "select sid from xshape where abs(ax+16444.75) < 100 and abs(ay+811537.5) < 100 ;" --center > ss.wrl 
+    2013-09-04 20:36:03,791 __main__ INFO     ./shape.py --query select sid from xshape where abs(ax+16444.75) < 100 and abs(ay+811537.5) < 100 ; --center
+    2013-09-04 20:36:03,928 __main__ INFO     getting 12 ids from opts.query "select sid from xshape where abs(ax+16444.75) < 100 and abs(ay+811537.5) < 100 ;" 
+    2013-09-04 20:36:04,016 __main__ INFO     ShapeSet center of 12 shapes is at (-16504.801041666666, -811595.20833333337, -1337.5170833333334) 
+    2013-09-04 20:36:06,313 __main__ INFO     {'-faces': 28, '-points': 19, 'points': 10, 'faces': 21}
+    2013-09-04 20:36:06,315 __main__ INFO     sid 299 npo 8 mode gen name /dd/Geometry/RPC/lvNearRPCRoof#pvNearUnSlopModArray#pvNearUnSlopModOne:1#pvNearUnSlopMod:6#pvNearSlopModUnit.1
+    2013-09-04 20:36:06,317 __main__ INFO     collecting points
+    2013-09-04 20:36:07,977 __main__ INFO     collected 8  points
+    2013-09-04 20:36:10,310 __main__ INFO     {'-faces': 28, '-points': 19, 'points': 10, 'faces': 21}
+    2013-09-04 20:36:10,312 __main__ INFO     sid 300 npo 8 mode gen name /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000
+    2013-09-04 20:36:10,313 __main__ INFO     collecting points
+    ... 
+
+
 TODO
 -----
 
 #. remove duplication between this and vrml2file.py 
-#. name metadata, just like in original .WRL
 #. extra metadata using xshape extents table
 #. test full duplication of the original 82M .WRL
-#. transformations using the xshape extents table
+
 
 """
 import os, sys, logging
@@ -37,7 +56,8 @@ class Shape(dict):
     NB the tabs in the template must be retained in order 
     for original mapping to work
     """
-    tmpl = r"""	Shape {
+    tmpl = r"""#---------- SOLID: %(x_name)s
+	Shape {
 		appearance Appearance {
 			material Material {
 				diffuseColor 1 1 1
@@ -65,24 +85,26 @@ class Shape(dict):
             path = cls.default_path
         return Table(os.path.abspath(path), None)
 
-    def __init__(self, sid, mode="gen", db=None, path=None ):
+    def __init__(self, sid, opts=None, db=None, path=None):
          if db is None:
              db = self.dbase(path) 
          self.db = db 
+         self.opts = opts
          self['sid'] = sid
-         self['mode'] = mode
+         self['mode'] = opts.mode
          self['npo'] = int(self.original_npo())
+         self['name'] = self.original_name()
+
          ori = self.original_src().split("\n")
          mreg = self.map_regions(ori)
 
-         self['ori'] = "\n".join(ori)
-
          # line by line reconstruct from original
+         self['ori'] = "\n".join(ori)
          self['ori_points'] = "\n".join(ori[mreg['points']+1:mreg['-points']])
          self['ori_faces'] = "\n".join(ori[mreg['faces']+1:mreg['-faces']])
 
          self.mreg = mreg
-         log.info("sid %(sid)s npo %(npo)s mode %(mode)s " % self )
+         log.info("sid %(sid)s npo %(npo)s mode %(mode)s name %(name)s" % self )
          self.points = []
          self.collect_points()
 
@@ -119,9 +141,23 @@ class Shape(dict):
              self.points.append(xyz)
          log.info("collected %s  points" % len(self.points))
     def gen_points(self):
-         def fmt_point(xyz):
-             return "\t\t\t\t\t%s %s %s," % xyz
-         return "\n".join(map(fmt_point,self.points))
+        if self.opts.center_xyz is None:
+            cx,cy,cz =  0.,0.,0.
+        else:    
+            cx,cy,cz = map(float, self.opts.center_xyz)
+
+        if self.opts.scale is None:
+            sx,sy,sz =  1.,1.,1.
+        else:
+            sc = float(self.opts.scale)
+            sx,sy,sz =  sc,sc,sc
+
+        # this should be using numpy, could do with an sqlite numpy inteface too
+        def fmt_point(xyz):
+            txyz = (xyz[0] - cx)*sx, (xyz[1] - cy)*sy, (xyz[2] - cz)*sz
+            return "\t\t\t\t\t%s %s %s," % txyz
+        pass  
+        return "\n".join(map(fmt_point,self.points))
 
     def __str__(self):
          return self.filltmpl(self['mode'])
@@ -145,21 +181,22 @@ class Shape(dict):
              return self['ori'] 
 
          ctx = {}
+         ctx['x_name'] = self["name"]
+         ctx['x_faces'] = self["ori_faces"]
          if mode == "dup":
              ctx['x_points'] = self["ori_points"]
-             ctx['x_faces'] = self["ori_faces"]
          elif mode == "gen":
              ctx['x_points'] = self.gen_points()
-             ctx['x_faces'] = self["ori_faces"]
          else:
              ctx['x_points'] = "# mode %(mode)s not implemented "  % locals()
-             ctx['x_faces'] = "# mode %(mode)s not implemented " % locals()
          return self.tmpl % ctx
 
     def original_npo(self):
          return self.db.getone("select npo from xshape where sid=%(sid)s" % self )
     def original_src(self):
          return self.db.getone("select src from shape where id=%(sid)s" % self )
+    def original_name(self):
+         return self.db.getone("select name from shape where id=%(sid)s" % self )
 
     def dump(self):
         print "\n".join(["### ori", self['ori'], "#########"])
@@ -177,6 +214,7 @@ def check_shape(sid, db ):
 def test_shape():
     db = Shape.dbase()
     nid = db.getone("select max(id) from shape")
+    log.info("test_shape nid %s " % nid )
     for n in range(100):
         sid = randrange(1, nid+1)
         yield check_shape, sid, db 
@@ -191,6 +229,9 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
     op.add_option("-m", "--mode", default="gen", help="Mode of output: ori, dup, gen " )
+    op.add_option("-q", "--query", default="select id from shape where id in (1,2,3)", help="An SQL query that returns shape id integers to print." )
+    op.add_option("-c", "--center", action="store_true", help="Before any scaling subtract the average coordinates of a shape/shapeset from all points therein, in order to center the shapeset." )
+    op.add_option("-s", "--scale", default=None, help="After translations have been done, scale all point coordinates by this factor. Default %default" )
     op.add_option("-T", "--TEST", action="store_true", help="Duplication testing  multiple randomly chosen shapes." )
     op.add_option("-D", "--DUMP", action="store_true", help="Debug dumping." )
     opts, args = op.parse_args()
@@ -221,20 +262,71 @@ def parse_args(doc):
 
 
 
+class ShapeSet(object):
+    """
+    Averaging a shapeset
+    ----------------------
+
+    Use a pair from the degenerate dozen to demo shapeset averaging::
+
+        sqlite> select npo, sumx, sumy, sumz, sumx/npo, sumy/npo, sumz/npo, ax,ay,az  from xshape where sid in (6400,6401) ;
+        npo         sumx        sumy         sumz        sumx/npo    sumy/npo    sumz/npo           ax          ay          az               
+        ----------  ----------  -----------  ----------  ----------  ----------  -----------------  ----------  ----------  -----------------
+        50          -797559.0   -40289110.0  -207856.0   -15951.18   -805782.2   -4157.12000000001  -15951.18   -805782.2   -4157.12000000001
+        50          -797559.0   -40289110.0  -207856.0   -15951.18   -805782.2   -4157.12000000001  -15951.18   -805782.2   -4157.12000000001
+        sqlite> 
+        sqlite> select sum(sumx) from  xshape where sid in (6400,6401) ;
+        sum(sumx) 
+        ----------
+        -1595118.0
+        sqlite> select sum(sumx)/sum(npo) from  xshape where sid in (6400,6401) ;
+        sum(sumx)/sum(npo)
+        ------------------
+        -15951.18         
+        sqlite> select sum(sumx)/sum(npo) as ssx, sum(sumy)/sum(npo) as ssy, sum(sumz)/sum(npo) as ssz from  xshape where sid in (6400,6401) ;
+        ssx         ssy         ssz              
+        ----------  ----------  -----------------
+        -15951.18   -805782.2   -4157.12000000001
+        sqlite> 
+
+    """ 
+    def __init__(self, ids, db):
+        self.ids = ids
+        self.db = db 
+
+    def xyz(self):
+        sids = ",".join(map(str,self.ids))
+        sql = "select sum(sumx)/sum(npo) as ssx, sum(sumy)/sum(npo) as ssy, sum(sumz)/sum(npo) as ssz from  xshape where sid in (%s) " % sids
+        lret = map(lambda _:(_[0],_[1],_[2]),self.db(sql))
+        assert len(lret) == 1 , (lret, sql)
+        return lret[0]
+
 def main():
     opts, args = parse_args(__doc__)
     db = Shape.dbase()
-    if opts.TEST:
-        for _ in test_shape():
-            _[0](*_[1:])
-    elif opts.DUMP:
-        sid = args[0]
-        shape = Shape(sid, mode=opts.mode, db=db)
-        shape.dump()
+    if len(args)>0:
+        ids = sorted(map(int,args))
+        log.info("getting %s ids from args : %s " % ( len(ids), ids) )
     else:
-        sid = args[0]
-        shape = Shape(sid, mode=opts.mode, db=db)
-        print str(shape)
+        ids = map(lambda _:int(_[0]), db(opts.query))
+        log.info("getting %s ids from opts.query \"%s\" " % (len(ids),opts.query) )
+
+
+    if opts.center:
+        ss = ShapeSet(ids, db )
+        xyz = ss.xyz()
+        log.info("ShapeSet center of %s shapes is at %s " % (len(ids), xyz))
+        opts.center_xyz = xyz 
+    else:
+        opts.center_xyz = None
+
+
+    for sid in ids: 
+        shape = Shape(sid, opts=opts, db=db)
+        if opts.DUMP:
+            shape.dump()
+        else:
+            print str(shape)
 
 
 if __name__ == '__main__':
