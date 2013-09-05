@@ -217,26 +217,7 @@ def test_shape():
 def main():
     opts, args = parse_args(__doc__)
     db = ShapeDB()
-
-    if len(args)>0:
-        ids = sorted(map(int,args))
-        log.info("Operate on %s shapes, selected by args : %s " % ( len(ids), ids) )
-    else:
-        if opts.around:
-            ids = db.around( opts.around )
-            log.info("Operate on %s shapes, selected by opts.around query \"%s\"  " % (len(ids),opts.around) )
-        elif opts.query:
-            ids = db.qids(opts.query)
-            log.info("Operate on %s shapes, selected by opts.query \"%s\" " % (len(ids),opts.query) )
-        else:
-            pass
-
-    if opts.center:
-        xyz = db.centroid(ids)
-        log.info("opts.center selected, will translate all %s shapes such that centroid of all is at origin, original coordinate centroid at %s " % (len(ids), xyz))
-        opts.center_xyz = xyz 
-    else:
-        opts.center_xyz = None
+    ids = db.handle_input( opts, args )
 
     if opts.dryrun:
         return

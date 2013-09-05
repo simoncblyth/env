@@ -259,6 +259,7 @@ local-tag2ip(){
          SDU) echo rh02.hepg.sdu.edu.cn ;; 
           CC) echo deliberately.trying.to.avoid.putting.in.repo ;; 
            K) echo 130.87.106.59 ;;
+           M) echo dummy ;;
   esac 
 }
 

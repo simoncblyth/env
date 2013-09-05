@@ -12,5 +12,6 @@ cuda
     emulation
     opencl
     cudatoolkit
+    pycuda/index
 
 

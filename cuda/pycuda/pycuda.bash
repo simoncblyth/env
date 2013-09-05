@@ -35,6 +35,36 @@ Inspect Versions
     gcc (Ubuntu 4.3.3-5ubuntu4) 4.3.3
 
 
+Prerequisites
+---------------
+
+Assume a local user build is required, ie no system access.
+
+Argh, its a major pain to live without package management maybe 
+worthwhile to attack the old chrootnut :doc:`/linux/non-root-package-management`
+
+
+python 
+~~~~~~
+
+::
+
+    python-name  # check than an appropriate version is slated to be locally source built, eg 2.6.8 
+    pythonbuild-get
+    pythonbuild-configure
+    pythonbuild-install
+    python-        # environment to access the local python
+
+::
+
+    -bash-3.2$ which python
+    /usr/bin/python
+    -bash-3.2$ python-
+    -bash-3.2$ which python
+    ~/local/python/Python-2.6.8/bin/python
+    -bash-3.2$ python -V
+    Python 2.6.8
+
 
 
 

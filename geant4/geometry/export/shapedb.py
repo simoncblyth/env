@@ -5,6 +5,7 @@
 import os, sys, logging
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
+from shapecnf import parse_args
 
 class ShapeDB(Table):
     default_path = os.path.join(os.path.dirname(__file__),"g4_00.db")
@@ -41,8 +42,13 @@ class ShapeDB(Table):
         fields = ["sid"] + xfields
         sql = self.dump_query(ids, ",".join(fields))
         print lfmt % tuple(fields)
-        for _ in self(sql):
-            print fmt % _
+
+        if len(ids) < 1000:
+            for _ in self(sql):
+                print fmt % _
+        else:
+            log.info("too many ids to dump %s , restrict selection and try again " % len(ids) )
+
 
     def centroid(self, ids):
         """
@@ -70,14 +76,39 @@ class ShapeDB(Table):
         return lret[0]
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    def handle_input(self, opts, args):
+        if len(args)>0:
+            ids = sorted(map(int,args))
+            log.info("Operate on %s shapes, selected by args : %s " % ( len(ids), ids) )
+        else:
+            if opts.around:
+                ids = self.around( opts.around )
+                log.info("Operate on %s shapes, selected by opts.around query \"%s\"  " % (len(ids),opts.around) )
+            elif opts.query:
+                ids = self.qids(opts.query)
+                log.info("Operate on %s shapes, selected by opts.query \"%s\" " % (len(ids),opts.query) )
+            else:
+                ids = None
+
+        if opts.center:
+            xyz = self.centroid(ids)
+            log.info("opts.center selected, will translate all %s shapes such that centroid of all is at origin, original coordinate centroid at %s " % (len(ids), xyz))
+            opts.center_xyz = xyz 
+        else:
+            opts.center_xyz = None
+
+        return ids
+
+
+
+def main():
+    opts, args = parse_args(__doc__)
     db = ShapeDB()
-    print db.centroid([6400,6401])
-    ids = db.around("-16444.75,-811537.5,-1350,100")
-    print ids
+    ids = db.handle_input( opts, args )
     db.dump(ids)
 
+if __name__ == '__main__':
+    main()
 
 
 
