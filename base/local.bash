@@ -257,6 +257,7 @@ local-tag2ip(){
           ZZ) echo dayabay.ihep.ac.cn ;;
           WW) echo 202.122.32.203 ;;
          SDU) echo rh02.hepg.sdu.edu.cn ;; 
+          CC) echo deliberately.trying.to.avoid.putting.in.repo ;; 
            K) echo 130.87.106.59 ;;
   esac 
 }
@@ -297,6 +298,7 @@ local-nodetag(){
         grid1) local-nodetag-grid1 $USER ;;
           Arc) echo A ;;
          rh02) echo SDU ;;
+          n98) echo CC ;;
             *) local-nodetag-other $(uname -n) ;;
   esac
 
@@ -470,6 +472,7 @@ local-system-base(){
         ZZ) echo /usr/local ;;
         D1) echo /soft  ;;
         D2) echo /soft  ;;
+        CC) echo /home/guest/guest06/local ;;
          *) echo $(local-base $*) ;;
    esac
 }

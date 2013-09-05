@@ -131,6 +131,7 @@ python-version-source(){
      formerC2) echo 2.5.1 ;;
          WW) echo 2.5.6 ;;
      C2|C2R) echo 2.5.6 ;;
+         CC) echo 2.6.8 ;;
           *) echo 2.5.1 ;;
    esac
 }
@@ -148,7 +149,7 @@ python-mode(){ echo ${PYTHON_MODE:-$(python-mode-default $*)} ; }
 python-mode-default(){
   case ${1:-$NODE_TAG} in
           ZZ|C) echo system ;;
-     YY|C2|C2R|WW) echo source ;;
+     YY|C2|C2R|WW|CC) echo source ;;
              *) echo system ;;
   esac
 }
