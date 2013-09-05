@@ -47,8 +47,9 @@ TODO
 """
 import os, sys, logging
 log = logging.getLogger(__name__)
-from env.db.simtab import Table
 from random import randrange
+from shapecnf import parse_args
+from shapedb import ShapeDB
 
 
 class Shape(dict):
@@ -77,17 +78,10 @@ class Shape(dict):
 		}
 	}
 """
-    default_path = os.path.join(os.path.dirname(__file__),"g4_00.db")
-
-    @classmethod
-    def dbase(cls, path=None):
-        if path is None:
-            path = cls.default_path
-        return Table(os.path.abspath(path), None)
 
     def __init__(self, sid, opts=None, db=None, path=None):
          if db is None:
-             db = self.dbase(path) 
+             db = ShapeDB(path)
          self.db = db 
          self.opts = opts
          self['sid'] = sid
@@ -220,106 +214,32 @@ def test_shape():
         yield check_shape, sid, db 
 
 
-def parse_args(doc):
-    """
-    """
-    from optparse import OptionParser
-    op = OptionParser(usage=doc)
-    op.add_option("-o", "--logpath", default=None )
-    op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
-    op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
-    op.add_option("-m", "--mode", default="gen", help="Mode of output: ori, dup, gen " )
-    op.add_option("-q", "--query", default="select id from shape where id in (1,2,3)", help="An SQL query that returns shape id integers to print." )
-    op.add_option("-c", "--center", action="store_true", help="Before any scaling subtract the average coordinates of a shape/shapeset from all points therein, in order to center the shapeset." )
-    op.add_option("-s", "--scale", default=None, help="After translations have been done, scale all point coordinates by this factor. Default %default" )
-    op.add_option("-T", "--TEST", action="store_true", help="Duplication testing  multiple randomly chosen shapes." )
-    op.add_option("-D", "--DUMP", action="store_true", help="Debug dumping." )
-    opts, args = op.parse_args()
-    level = getattr( logging, opts.loglevel.upper() )
-
-    if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)
-        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
-        console = logging.StreamHandler()
-        console.setLevel(level)
-        formatter = logging.Formatter(opts.logformat)
-        console.setFormatter(formatter)
-        logging.getLogger('').addHandler(console)  # add the handler to the root logger
-    else:
-        try: 
-            logging.basicConfig(format=opts.logformat,level=level)
-        except TypeError:
-            hdlr = logging.StreamHandler()              # py2.3 has unusable basicConfig that takes no arguments
-            formatter = logging.Formatter(opts.logformat)
-            hdlr.setFormatter(formatter)
-            log.addHandler(hdlr)
-            log.setLevel(level)
-        pass
-    pass
-
-    log.info(" ".join(sys.argv))
-    #logging.getLogger().setLevel(loglevel)
-    return opts, args
-
-
-
-class ShapeSet(object):
-    """
-    Averaging a shapeset
-    ----------------------
-
-    Use a pair from the degenerate dozen to demo shapeset averaging::
-
-        sqlite> select npo, sumx, sumy, sumz, sumx/npo, sumy/npo, sumz/npo, ax,ay,az  from xshape where sid in (6400,6401) ;
-        npo         sumx        sumy         sumz        sumx/npo    sumy/npo    sumz/npo           ax          ay          az               
-        ----------  ----------  -----------  ----------  ----------  ----------  -----------------  ----------  ----------  -----------------
-        50          -797559.0   -40289110.0  -207856.0   -15951.18   -805782.2   -4157.12000000001  -15951.18   -805782.2   -4157.12000000001
-        50          -797559.0   -40289110.0  -207856.0   -15951.18   -805782.2   -4157.12000000001  -15951.18   -805782.2   -4157.12000000001
-        sqlite> 
-        sqlite> select sum(sumx) from  xshape where sid in (6400,6401) ;
-        sum(sumx) 
-        ----------
-        -1595118.0
-        sqlite> select sum(sumx)/sum(npo) from  xshape where sid in (6400,6401) ;
-        sum(sumx)/sum(npo)
-        ------------------
-        -15951.18         
-        sqlite> select sum(sumx)/sum(npo) as ssx, sum(sumy)/sum(npo) as ssy, sum(sumz)/sum(npo) as ssz from  xshape where sid in (6400,6401) ;
-        ssx         ssy         ssz              
-        ----------  ----------  -----------------
-        -15951.18   -805782.2   -4157.12000000001
-        sqlite> 
-
-    """ 
-    def __init__(self, ids, db):
-        self.ids = ids
-        self.db = db 
-
-    def xyz(self):
-        sids = ",".join(map(str,self.ids))
-        sql = "select sum(sumx)/sum(npo) as ssx, sum(sumy)/sum(npo) as ssy, sum(sumz)/sum(npo) as ssz from  xshape where sid in (%s) " % sids
-        lret = map(lambda _:(_[0],_[1],_[2]),self.db(sql))
-        assert len(lret) == 1 , (lret, sql)
-        return lret[0]
-
 def main():
     opts, args = parse_args(__doc__)
-    db = Shape.dbase()
+    db = ShapeDB()
+
     if len(args)>0:
         ids = sorted(map(int,args))
-        log.info("getting %s ids from args : %s " % ( len(ids), ids) )
+        log.info("Operate on %s shapes, selected by args : %s " % ( len(ids), ids) )
     else:
-        ids = map(lambda _:int(_[0]), db(opts.query))
-        log.info("getting %s ids from opts.query \"%s\" " % (len(ids),opts.query) )
-
+        if opts.around:
+            ids = db.around( opts.around )
+            log.info("Operate on %s shapes, selected by opts.around query \"%s\"  " % (len(ids),opts.around) )
+        elif opts.query:
+            ids = db.qids(opts.query)
+            log.info("Operate on %s shapes, selected by opts.query \"%s\" " % (len(ids),opts.query) )
+        else:
+            pass
 
     if opts.center:
-        ss = ShapeSet(ids, db )
-        xyz = ss.xyz()
-        log.info("ShapeSet center of %s shapes is at %s " % (len(ids), xyz))
+        xyz = db.centroid(ids)
+        log.info("opts.center selected, will translate all %s shapes such that centroid of all is at origin, original coordinate centroid at %s " % (len(ids), xyz))
         opts.center_xyz = xyz 
     else:
         opts.center_xyz = None
 
+    if opts.dryrun:
+        return
 
     for sid in ids: 
         shape = Shape(sid, opts=opts, db=db)
