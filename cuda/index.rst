@@ -10,7 +10,6 @@ cuda
     atomic
     cuda_capability
     emulation
-    opencl
     cudatoolkit
     pycuda/index
 
