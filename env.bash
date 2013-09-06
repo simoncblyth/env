@@ -1211,3 +1211,4 @@ meshpy-(){      . $(env-home)/graphics/mesh/meshpy.bash && meshpy-env $* ; }
 vtk-(){      . $(env-home)/graphics/vtk/vtk.bash && vtk-env $* ; }
 pycuda-(){      . $(env-home)/cuda/pycuda/pycuda.bash && pycuda-env $* ; }
 google-translate-cli-(){      . $(env-home)/tools/google-translate-cli.bash && google-translate-cli-env $* ; }
+pyrtf-(){      . $(env-home)/tools/pyrtf.bash && pyrtf-env $* ; }

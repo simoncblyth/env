@@ -4,7 +4,7 @@ geometry
 
 .. toctree::
 
-   export
+   vrml2file_export
    gdml
    other
    cad
