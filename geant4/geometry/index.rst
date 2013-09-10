@@ -10,4 +10,6 @@ geometry
    cad
    visualisation
    export/index
+   detdesc_creation
+   
 
