@@ -12,5 +12,6 @@ cuda
     emulation
     cudatoolkit
     pycuda/index
+    rcuda
 
 
