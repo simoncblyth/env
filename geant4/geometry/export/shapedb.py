@@ -16,15 +16,18 @@ class ShapeDB(Table):
         Table.__init__(self, path, tn )
 
     def qids(self, sql ): 
-        """
-        :param sql: 
-        """
         return map(lambda _:int(_[0]), self(sql))
 
     def around_query(self, xyzd, fields="sid"):
-        x,y,z,d = map(float, xyzd.split(","))
-        print x,y,z,d
-        dx,dy,dz = d, d, d
+        vals = map(float, xyzd.split(","))
+        if len(vals) == 4:
+            x,y,z,d = vals
+            dx,dy,dz = d, d, d
+        elif len(vals) == 6:
+            x,y,z,dx,dy,dz = vals
+        else:
+            assert 0, "unsupported about parameters, expecting either 4 or 6 comma delimited floats "
+        pass
         return "select %(fields)s from xshape where abs(ax-(%(x)s)) < %(dx)s and abs(ay-(%(y)s)) < %(dy)s and abs(az-(%(z)s)) < %(dz)s ;" % locals()
 
     def around(self, xyzd):

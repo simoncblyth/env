@@ -17,6 +17,19 @@ Shape random access and transformations
    ./shape.py --mode gen 1      # potentially with transformations
 
 
+
+Region restriction by around query
+------------------------------------
+
+::
+
+    simon:export blyth$ shape.py --around=-18644.9,-798825.5,-8993.5,1000,1000,4000 --center > cc.wrl
+    2013-09-06 19:52:01,291 env.geant4.geometry.export.shapecnf INFO     /Users/blyth/env/bin/shape.py --around=-18644.9,-798825.5,-8993.5,1000,1000,4000 --center
+    2013-09-06 19:52:01,527 env.geant4.geometry.export.shapedb INFO     Operate on 100 shapes, selected by opts.around query "-18644.9,-798825.5,-8993.5,1000,1000,4000"  
+    2013-09-06 19:52:01,726 env.geant4.geometry.export.shapedb INFO     opts.center selected, will translate all 100 shapes such that centroid of all is at origin, original coordinate centroid at (-19222.868650817793, -798345.191159482, -7550.7662023469311) 
+
+
+
 Region restriction by query
 ----------------------------
 
@@ -130,6 +143,27 @@ class Shape(dict):
         return mreg 
 
     def collect_points(self):
+         """
+         This is slow.  
+         
+         Better to find an sqlite numpy interface that can do a single query grab into
+         an numpy array.
+
+         http://stackoverflow.com/questions/7901853/numpy-arrays-with-sqlite
+         http://code.google.com/p/esutil/source/browse/trunk/esutil/sqlite_util.py
+
+         Need a pysqlite_numpy pysqlite fork that does type conversions from sqlite 
+         into numpy dtype, just like mysql_numpy does for mysql_python 
+         (actually that was a bad name mysql_python_numpy would be better)
+
+         OR plump for pytables (based on HDF + numpy) 
+
+         http://www.pytables.org 
+         http://www.hdfgroup.org/HDF5/whatishdf5.html
+
+
+
+         """
          log.info("collecting points")
          for xyz in self.db("select x,y,z from point where sid=%(sid)s" % self ):
              self.points.append(xyz)
