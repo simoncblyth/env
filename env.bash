@@ -1212,3 +1212,10 @@ vtk-(){      . $(env-home)/graphics/vtk/vtk.bash && vtk-env $* ; }
 pycuda-(){      . $(env-home)/cuda/pycuda/pycuda.bash && pycuda-env $* ; }
 google-translate-cli-(){      . $(env-home)/tools/google-translate-cli.bash && google-translate-cli-env $* ; }
 pyrtf-(){      . $(env-home)/tools/pyrtf.bash && pyrtf-env $* ; }
+mysql_numpy-(){      . $(env-home)/npy/mysql_numpy.bash && mysql_numpy-env $* ; }
+pytables-(){      . $(env-home)/npy/pytables.bash && pytables-env $* ; }
+virtualbox-(){      . $(env-home)/virtualization/virtualbox.bash && virtualbox-env $* ; }
+xen-(){      . $(env-home)/virtualization/xen.bash && xen-env $* ; }
+vgpu-(){      . $(env-home)/virtualization/vgpu.bash && vgpu-env $* ; }
+rcuda-(){      . $(env-home)/cuda/rcuda.bash && rcuda-env $* ; }
+xenserver-(){      . $(env-home)/virtualization/xenserver.bash && xenserver-env $* ; }
