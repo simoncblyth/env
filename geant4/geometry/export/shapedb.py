@@ -1,6 +1,81 @@
 #!/usr/bin/env python
 """
 
+Wildcarded like query::
+
+    simon:export blyth$ shapedb.py -k /dd/Geometry/PMT/lvPmt% -x 2700
+    2013-09-11 19:09:25,802 env.geant4.geometry.export.shapecnf INFO     /Users/blyth/env/bin/shapedb.py -k /dd/Geometry/PMT/lvPmt% -x 2700
+    2013-09-11 19:09:27,127 env.geant4.geometry.export.shapedb INFO     Operate on 2688 shapes, selected by opts.around "None" opts.like "/dd/Geometry/PMT/lvPmt%" query  
+            sid        npo          ax          ay          az          dx          dy          dz 
+           3200        338   -16587.30  -801452.67    -8842.50      262.00      277.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3201        482   -16635.24  -801396.40    -8842.50      164.80      150.00      196.29  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000 
+           3202        242   -16579.28  -801462.12    -8842.50      165.30      152.00      196.28  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom.1001 
+           3203         50   -16520.08  -801531.74    -8842.50      149.50      162.00       55.00  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode.1002 
+           3206        338   -16184.36  -801006.80    -8842.50      285.30      249.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3207        482   -16245.24  -800964.77    -8842.50      137.40      172.00      196.29  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000 
+           3208        242   -16174.18  -801013.88    -8842.50      144.00      172.00      196.28  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom.1001 
+           3209         50   -16098.99  -801065.72    -8842.50      167.80      139.00       55.00  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode.1002 
+           3212        338   -15910.57  -800471.74    -8842.50      295.70      205.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+
+Single name like query::
+
+    simon:~ blyth$ shapedb.py -k '/dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000'         
+    2013-09-12 16:05:08,112 env.geant4.geometry.export.shapecnf INFO     /Users/blyth/env/bin/shapedb.py -k /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000
+    2013-09-12 16:05:08,114 env.geant4.geometry.export.shapedb INFO     opening /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 16:05:08,346 env.geant4.geometry.export.shapedb INFO     Operate on 672 shapes, selected by opts.around "None" opts.like "/dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000" query  
+            sid        npo          ax          ay          az          dx          dy          dz 
+           3200        338   -16587.30  -801452.67    -8842.50      262.00      277.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3206        338   -16184.36  -801006.80    -8842.50      285.30      249.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3212        338   -15910.57  -800471.74    -8842.50      295.70      205.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+
+
+Comma delimited like query::
+
+    simon:~ blyth$ shapedb.py -k '/dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000,/dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000'  -x 1400   
+    2013-09-12 16:51:22,533 env.geant4.geometry.export.shapecnf INFO     /Users/blyth/env/bin/shapedb.py -k /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000,/dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000 -x 1400
+    2013-09-12 16:51:22,535 env.geant4.geometry.export.shapedb INFO     opening /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 16:51:22,714 env.geant4.geometry.export.shapedb INFO     Operate on 1344 shapes, selected by opts.around "None" opts.like "/dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000,/dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000" query  
+            sid        npo          ax          ay          az          dx          dy          dz 
+           3200        338   -16587.30  -801452.67    -8842.50      262.00      277.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3201        482   -16635.24  -801396.40    -8842.50      164.80      150.00      196.29  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000 
+           3206        338   -16184.36  -801006.80    -8842.50      285.30      249.00      198.00  /dd/Geometry/PMT/lvPmtHemi#pvPmtHemiVacuum.1000 
+           3207        482   -16245.24  -800964.77    -8842.50      137.40      172.00      196.29  /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiCathode.1000 
+
+::
+
+    In [128]: 672*4
+    Out[128]: 2688
+
+
+
+Group by queries to generate geometries
+----------------------------------------
+
+::
+
+    sqlite> select sid,group_concat(x||' '||y||' '||z,x'0A') from point join shape on shape.id = point.sid where sid in (1,2) group by sid ;
+    sid         group_concat(x||' '||y||' '||z,x'0A')                                                                                                                                                                                    
+    ----------  ---------------------------------------------------------------------------------------------                                                                                                                            
+    1           18049.9 -809521.0 22890.0
+    -9108.86 -767540.0 22890.0
+    -51089.9 -794699.0 22890.0
+    -23931.1 -836680.0 22890.0
+    -23931.1 -836680.0 -15104.2
+    18049.9 -809521.0 -15104.2
+    -51089.9 -794699.0 -15104.2
+    -9108.86 -767540.0 -15104.2
+    2           -3828.12 -807000.0 -2110.0
+    -18493.8 -784331.0 -2110.0
+    -31088.1 -792478.0 -2110.0
+    -16422.4 -815148.0 -2110.0
+    -3828.12 -807000.0 12890.0
+    -18493.8 -784331.0 12890.0
+    -31088.1 -792478.0 12890.0
+    -16422.4 -815148.0 12890.0
+    5
+
+
+
 """
 import os, sys, logging
 log = logging.getLogger(__name__)
@@ -8,50 +83,119 @@ from env.db.simtab import Table
 from shapecnf import parse_args
 
 class ShapeDB(Table):
-    default_path = os.path.join(os.path.dirname(__file__),"g4_00.db")
+    header=r"""#VRML V2.0 utf8
+# Generated by VRML 2.0 driver of GEANT4
+
+
+#---------- CAMERA
+Viewpoint {
+	position 0 0 111042
+}
+"""
     def __init__(self, path=None, tn=None ):
-        if path is None:
-            path = self.default_path
         path = os.path.abspath(path)
+        log.info("opening %s " % path)
         Table.__init__(self, path, tn )
 
     def qids(self, sql ): 
         return map(lambda _:int(_[0]), self(sql))
 
-    def around_query(self, xyzd, fields="sid"):
-        vals = map(float, xyzd.split(","))
-        if len(vals) == 4:
-            x,y,z,d = vals
-            dx,dy,dz = d, d, d
-        elif len(vals) == 6:
-            x,y,z,dx,dy,dz = vals
-        else:
-            assert 0, "unsupported about parameters, expecting either 4 or 6 comma delimited floats "
-        pass
-        return "select %(fields)s from xshape where abs(ax-(%(x)s)) < %(dx)s and abs(ay-(%(y)s)) < %(dy)s and abs(az-(%(z)s)) < %(dz)s ;" % locals()
+    def group_points_sql(self, ids, cxyz=None,sxyz=None):
+        """
+        .. warning:: Not yet working
 
-    def around(self, xyzd):
-        sql = self.around_query(xyzd)
+        Using `group by having` seems much slower
+        """
+        sids = ",".join(map(str,ids))
+
+        # special case identity transform, to allow exact diff check
+        # BUT not working see number formatting differences
+        if cxyz is None and sxyz is None:
+            sql_point_xyz  = "x||' '||y||' '||z||','"
+        else:    
+            if cxyz is None:
+                cx, cy, cz = 0,0,0
+            else:
+                cx, cy, cz = map(float,cxyz)
+            if sxyz is None:
+                sx, sy, sz = 1,1,1
+            else:
+                sx, sy, sz = map(float,sxyz)
+            pass
+            sql_point_xyz  = "(%(sx)s*(x-(%(cx)s)))||' '||(%(sy)s*(y-(%(cy)s)))||' '||(%(sz)s*(z-(%(cz)s)))||','"
+
+        # ascii codes 09:TAB, 0A:LF 
+        sql_head = "src_head"
+        sql_tabs =  "x'09'||x'09'||x'09'||x'09'||x'09'||"
+        sql_body = "group_concat(" + sql_tabs + sql_point_xyz + ",x'0A')"
+        sql_tail = "src_tail"
+        sql_from = "from point join shape on shape.id = point.sid where sid in (%(sids)s) group by sid ;"
+        sql = "select " + "||x'0A'||".join([sql_head,sql_body,sql_tail]) + " " + sql_from 
+        return sql % locals()
+
+    def around_query(self, xyzd, like, fields="sid"):
+        if xyzd is None:
+            around_ = "1"
+        else:    
+            vals = map(float, xyzd.split(","))
+            if len(vals) == 4:
+                x,y,z,d = vals
+                dx,dy,dz = d, d, d
+            elif len(vals) == 6:
+                x,y,z,dx,dy,dz = vals
+            else:
+                assert 0, "unsupported about parameters, expecting either 4 or 6 comma delimited floats "
+            pass
+            around_ = " abs(ax-(%(x)s)) < %(dx)s and abs(ay-(%(y)s)) < %(dy)s and abs(az-(%(z)s)) < %(dz)s " % locals()
+
+        if like is None:
+            like_ = "1"
+        else:    
+            like_ = "( " +" or ".join(map(lambda _:"name like '%s'" % _,like.split(","))) + " )"
+        pass    
+        return "select %(fields)s from xshape where %(around_)s and %(like_)s ;" % locals()
+
+    def around(self, xyzd, like ):
+        sql = self.around_query(xyzd, like )
         return self.qids(sql)
 
-    def dump_query(self, ids, fields ):
+    def dump_query(self, ids, fields):
         sids = ",".join(map(str,ids))
-        return "select %(fields)s from xshape where sid in (%(sids)s) ;" % locals()
+        return "select %(fields)s,name from xshape where sid in (%(sids)s) ;" % locals()
 
-    def dump(self, ids, xfields="ax,ay,az,dx,dy,dz" ):
+    def dump(self, ids, xfields="ax,ay,az,dx,dy,dz", maxids=1000):
         xfields = xfields.split(",")
-        fmt = " %10d " + " %10.2f " * len(xfields)
-        lfmt = " %10s " + " %10s " * len(xfields)
-        fields = ["sid"] + xfields
+        fmt =  "# %10d %10d " + " %10.2f " * len(xfields) + " %s "
+        lfmt = "# %10s %10s " + " %10s " * len(xfields)
+        fields = ["sid","npo"] + xfields
+
         sql = self.dump_query(ids, ",".join(fields))
-        print lfmt % tuple(fields)
-
-        if len(ids) < 1000:
+        log.info(lfmt % tuple(fields))
+        if len(ids) < maxids:
             for _ in self(sql):
-                print fmt % _
+                log.info(fmt % _)
         else:
-            log.info("too many ids to dump %s , restrict selection and try again " % len(ids) )
+            log.info("too many ids to dump %s maxids %s , restrict selection and try again " % (len(ids),maxids) )
 
+    def print_(self, ids, opts):
+        """
+        Doing all at once gives::
+
+            sqlite3.OperationalError: disk I/O error
+
+        """
+        if not opts.dryrun:
+            print self.header
+        chunksize = opts.chunksize
+        for x in range(0,len(ids),chunksize):
+            chunk_ids = ids[x:x+chunksize] 
+            self.dump(chunk_ids, maxids=opts.maxids)
+            sql = self.group_points_sql(chunk_ids, cxyz=opts.center, sxyz=opts.scale )
+            log.info(sql)
+            if not opts.dryrun:
+                batch = self.all(sql)
+                for sh in batch:
+                    print sh[0]
 
     def centroid(self, ids):
         """
@@ -84,9 +228,9 @@ class ShapeDB(Table):
             ids = sorted(map(int,args))
             log.info("Operate on %s shapes, selected by args : %s " % ( len(ids), ids) )
         else:
-            if opts.around:
-                ids = self.around( opts.around )
-                log.info("Operate on %s shapes, selected by opts.around query \"%s\"  " % (len(ids),opts.around) )
+            if opts.around or opts.like:
+                ids = self.around( opts.around, opts.like )
+                log.info("Operate on %s shapes, selected by opts.around \"%s\" opts.like \"%s\" query  " % (len(ids),opts.around, opts.like) )
             elif opts.query:
                 ids = self.qids(opts.query)
                 log.info("Operate on %s shapes, selected by opts.query \"%s\" " % (len(ids),opts.query) )
@@ -96,20 +240,22 @@ class ShapeDB(Table):
         if opts.center:
             xyz = self.centroid(ids)
             log.info("opts.center selected, will translate all %s shapes such that centroid of all is at origin, original coordinate centroid at %s " % (len(ids), xyz))
-            opts.center_xyz = xyz 
-        else:
-            opts.center_xyz = None
+            opts.center = xyz 
+
+        if opts.scale:
+            xyz = map(float,(opts.scale, opts.scale, opts.scale))
+            log.info("opts.scale selected, will scale all %s shapes sxyz %s " % (len(ids), xyz))
+            opts.scale = xyz 
 
         return ids
 
-
-
 def main():
     opts, args = parse_args(__doc__)
-    db = ShapeDB()
+    db = ShapeDB(opts.dbpath)
     ids = db.handle_input( opts, args )
-    db.dump(ids)
+    db.print_(ids, opts )
 
+   
 if __name__ == '__main__':
     main()
 

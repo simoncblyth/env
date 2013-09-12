@@ -18,6 +18,17 @@ BLENDER
 * http://accad.osu.edu/~pgerstma/class/vnv/resources/info/AnnotatedVrmlRef/ch3-323.htm
 
 
+BLENDER INTERFACE ON OSX Laptop
+--------------------------------
+
+* http://devnulldb.blogspot.tw/2012/07/using-blender-on-macbook.html
+* https://pqrs.org/macosx/keyremap4macbook/
+
+Emulate Numpad checkbox, is in *User Preferences/Input* section  
+
+In OSX, Sys Preferences, Trackpad select "Tap trackpad using two fingers for secondary click"
+
+
 PYTHON CONSOLE ACCESS OSX Blender 2.59
 ----------------------------------------
 

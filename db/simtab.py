@@ -225,10 +225,17 @@ CREATE TABLE oomon (date text,val real)
             pass
         pass    
 
+
+    def all(self, sql):
+        """
+        """ 
+        self.cursor.execute(sql)
+        return self.cursor.fetchall()
+
     def getone(self, sql):
-         lret = map(lambda _:_[0],self(sql))
-         assert len(lret) == 1, (sql,lret)
-         return lret[0]
+        lret = map(lambda _:_[0],self(sql))
+        assert len(lret) == 1, (sql,lret)
+        return lret[0]
 
     def asdict(self, kf, vf, sql=None ):
         """

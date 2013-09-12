@@ -12,11 +12,37 @@ Quick testing
 
 For speed only the head of the .wrl is processed::
 
-     ./vrml2file.py --create --quick g4_00.wrl
-     ./vrml2file.py --create --quick --extend g4_00.wrl
+     ./vrml2file.py --create --quick g4_01.wrl
+     ./vrml2file.py --create --quick --extend g4_01.wrl
 
-Full run
-----------
+     ./vrml2file.py -cq g4_01.wrl
+     ./vrml2file.py -cqx g4_01.wrl 
+
+Refactored Full run
+---------------------
+
+Attempting to do the time consuming things here, to make subsequent shape querying faster.
+As this initial parse is done infrequently::
+
+    simon:export blyth$ ./vrml2file.py -cx g4_01.wrl 
+    2013-09-12 13:36:31,755 __main__ INFO     ./vrml2file.py -cx g4_01.wrl
+    2013-09-12 13:36:31,758 __main__ INFO     create
+    2013-09-12 13:37:34,184 __main__ INFO     remove pre-existing db file /Users/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 13:37:34,207 __main__ INFO     gathering geometry, using idoffset 1 
+    2013-09-12 13:40:44,221 __main__ INFO     start persisting to /Users/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 13:47:22,216 __main__ INFO     completed persisting to /Users/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 13:47:23,402 __main__ INFO     extend
+    2013-09-12 13:47:23,405 __main__ INFO     drop table if exists xshape 
+    2013-09-12 13:47:23,441 __main__ INFO     create table xshape as select sid, count(*) as npo, sum(x) as sumx, avg(x) as ax, min(x) as minx, max(x) as maxx, max(x) - min(x) as dx,sum(y) as sumy, avg(y) as ay, min(y) as miny, max(y) as maxy, max(y) - min(y) as dy,sum(z) as sumz, avg(z) as az, min(z) as minz, max(z) as maxz, max(z) - min(z) as dz ,name from point join shape on point.sid = shape.id group by sid 
+    simon:export blyth$ 
+    simon:export blyth$ du -hs g4_01.*
+    253M    g4_01.db
+     81M    g4_01.wrl
+
+
+
+Prior Full run
+---------------
 
 Formerly before `point` and `xshape` tables were added the parse and
 persist of the 85M wrl took only 10s. After adding `point` and `shape` 
@@ -38,254 +64,109 @@ it now takes 8 minutes::
     128M    g4_00.db
      81M    g4_00.wrl
 
+Dev
+----
 
+Make volume construction by query simple, to give optimisation possibilities.
+Ordinary newlines not working, so use raw ascii 10::
 
-
-Inspect Shapes
----------------
-
-Heads of all shapes are identical::
-
-    sqlite> select distinct(substr(src,0,178)) from shape ;
-            Shape {
-                    appearance Appearance {
-                            material Material {
-                                    diffuseColor 1 1 1
-                                    transparency 0.7
-                            }
-                    }
-                    geometry IndexedFaceSet {
-                            coord Coordinate {
-                                    point [
-
-
-::
-
-    simon:export blyth$ echo select src from shape where id=12222 \; | sqlite3 -noheader g4_00.db 
-    #---------- SOLID: /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab2.1002
-            Shape {
-                    appearance Appearance {
-                            material Material {
-                                    diffuseColor 1 1 1
-                                    transparency 0.7
-                            }
-                    }
-                    geometry IndexedFaceSet {
-                            coord Coordinate {
-                                    point [
-                                            -22540.9 -796477 -12260,
-                                            -22834.2 -796414 -12260,
-                                            -23724.9 -800569 -12260,
-                                            -23431.5 -800632 -12260,
-                                            -22540.9 -796477 -2260,
-                                            -22834.2 -796414 -2260,
-                                            -23724.9 -800569 -2260,
-                                            -23431.5 -800632 -2260,
-                                    ]
-                            }
-                            coordIndex [
-                                    0, 3, 2, 1, -1,
-                                    4, 7, 3, 0, -1,
-                                    7, 6, 2, 3, -1,
-                                    6, 5, 1, 2, -1,
-                                    5, 4, 0, 1, -1,
-                                    4, 5, 6, 7, -1,
-                            ]
-                            solid FALSE
-                    }
-            }
-
-
-Full Overlapping volumes, dodgy dozen
----------------------------------------
-::
-
-    sqlite> select count(distinct(src)) from shape ; 
-    12223
-
-    simon:export blyth$ echo "select count(distinct(src)) from shape ;" | sqlite3 -noheader g4_00.db 
-    12229       
-
-#. 6 more after including the volume name comment metadata first line suggests a small number of absolute position duplicated shapes with different volume names
-#. confirmed that assertion using `shape.hash` digest that excludes the name metadata 
-
-The dodgy dozen, six pairs of volumes are precisely co-located::
-
-    sqlite> select hash, group_concat(name), group_concat(id)  from shape group by hash having count(*) > 1 ;
-    hash                              group_concat(name)                                                                                                                           group_concat(id)
-    --------------------------------  ---------------------------------------------------------------------------------------------                                                ----------------
-    036f14cfb2e7bbe62226d213bd3e7780  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6400,6401       
-    2043a400a35f062979ddfa73254cac9d  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6318,6319       
-    547dd4e8ad4c711815456951753d8fa9  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4570,4571       
-    b7e229d741481e47f3c06236dbc2961d  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  6230,6231       
-    be270355bc36384aa290479074aaec4e  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4658,4659       
-    c35f0b07cfa25126ec1b156aca3364d8  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4740,4741       
-    sqlite> 
-
-
-    sqlite> select substr(src,0,600) from shape where id = 6401 ;
-    #---------- SOLID: /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000
-            Shape {
-                    appearance Appearance {
-                            material Material {
-                                    diffuseColor 1 1 1
-                                    transparency 0.7
-                            }
-                    }
-                    geometry IndexedFaceSet {
-                            coord Coordinate {
-                                    point [
-                                            -15954.9 -805788 -4145.32,
-                                            -15953.4 -805788 -4145.32,
-                                            -15951.7 -805789 -4145.32,
-                                            -15950 -805789 -4145.32,
-                                            -15948.4 -805788 -4145.32,
-                                            -15946.9 -805787 -4145.32,
-                                            -15945.8 -805786 -4145.32,
-                                            -15945 -805784 -4145.32,
-                                            -15944.6 -805783 -4145.32,
-                                            -15944.7 -805781 -4145.32,
-                                            -15945.3 -8
-    sqlite> 
-    sqlite> 
-    sqlite> 
-    sqlite> select substr(src,0,600) from shape where id = 6400 ;
-    #---------- SOLID: /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
-            Shape {
-                    appearance Appearance {
-                            material Material {
-                                    diffuseColor 1 1 1
-                                    transparency 0.7
-                            }
-                    }
-                    geometry IndexedFaceSet {
-                            coord Coordinate {
-                                    point [
-                                            -15954.9 -805788 -4145.32,
-                                            -15953.4 -805788 -4145.32,
-                                            -15951.7 -805789 -4145.32,
-                                            -15950 -805789 -4145.32,
-                                            -15948.4 -805788 -4145.32,
-                                            -15946.9 -805787 -4145.32,
-                                            -15945.8 -805786 -4145.32,
-                                            -15945 -805784 -4145.32,
-                                            -15944.6 -805783 -4145.32,
-                                            -15944.7 -805781 -4145.32,
-                                            -15945.3 -805779 -414
-
-
-
-
-
-Small number of different src lengths
-----------------------------------------
-
-Only ~53 different lengths of src but 12k distinct src. 
-Small number of shapes are repeated in different positions, eg PMT rotations.
-
-
-::
-
-    sqlite> select len,count(*) as N from shape group by len order by len ;
-    31|5362
-    36|1
-    45|163
-    47|160
-    52|1
-    ...
-    859|672
-    892|6
-    941|64
-    961|2
-    979|672
-    1031|2
-    1291|672
-    1588|6
-    1707|2
-    1869|2
-
-
-
-
-Shape extents
---------------
-
-::
-
-    sqlite> create table xshape as select sid, count(*) as npo,  max(x)-min(x) as dx, max(y)-min(y) as dy, max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid limit 10 ;
-    sqlite> 
-    sqlite> select * from xshape ;
-    sid         npo         dx          dy          dz          ax          ay          az        
-    ----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------
-    1           8           69139.8     69140.0     37994.2     -16519.99   -802110.0   3892.9    
-    2           16          36494.56    45091.0     15000.29    -11482.888  -808975.25  2639.855  
-    3           40          13823.07    15602.0     44.0        -15876.303  -803178.07  -2088.0   
-    4           8           3019.4      3010.0      78.0        -11612.4    -799007.25  683.904   
-    5           8           2911.3      2911.0      75.0        -11611.25   -799018.5   683.904   
-    6           8           2897.5      2897.0      6.0         -11611.25   -799018.5   669.904   
-    7           8           2869.9      2870.0      2.0         -11611.25   -799018.25  669.904   
-    8           8           1896.7      1332.0      2.0         -11124.675  -799787.25  669.904   
-    9           8           1896.6      1332.0      2.0         -11263.7    -799567.75  669.904   
-    10          8           1896.7      1332.0      2.0         -11402.725  -799348.0   669.904   
-
-    sqlite> create table xshape as select sid, count(*) as npo,  min(x) as minx, max(x) as maxx, max(x)-min(x) as dx, min(y) as miny, max(y) as maxy, max(y)-min(y) as dy, min(z) as minz, max(z) as max(z), max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid ;
-    Error: table xshape already exists
-    sqlite> drop table xshape ;
-    sqlite> create table xshape as select sid, count(*) as npo,  max(x)-min(x) as dx, max(y)-min(y) as dy, max(z)-min(z) as dz, avg(x) as ax, avg(y) as ay,  avg(z) as az from point group by sid ;
-    sqlite> select count(*) from xshape ;
-    count(*)  
-    ----------
-    12229     
+    simon:export blyth$ echo "select src_head||x'0A'||src_points||x'0A'||src_tail from shape where id=1 ;" | sqlite3 -noheader g4_01.db > a.wrl
+    simon:export blyth$ echo select src from shape where id=1 \; | sqlite3 -noheader g4_01.db > b.wrl
+    simon:export blyth$ diff a.wrl b.wrl
+    simon:export blyth$ 
 
 
 
 """
-import os, sys, logging
+import os, sys, logging, string
 from env.db.simtab import Table
 from md5 import md5
 log = logging.getLogger(__name__) 
 
 
 class WRLRegion(object):
-   pfx_point_region = 'point ['
-   pfx_coordIndex_region = 'coordIndex ['
-   pfx_close_region = ']'
-   def __init__(self, src, name=None, indx=None):
-        self.src = src[:] 
-        self.hash = md5("".join(src[1:])).hexdigest()
+    tmpl = r"""#---------- SOLID: %(x_name)s
+	Shape {
+		appearance Appearance {
+			material Material {
+				diffuseColor 1 1 1
+				transparency 0.7
+			}
+		}
+		geometry IndexedFaceSet {
+			coord Coordinate {
+				point [
+%(x_points)s
+				]
+			}
+			coordIndex [
+%(x_faces)s
+			]
+			solid FALSE
+		}
+	}
+"""
+    def __init__(self, src, name=None, indx=None):
+        self.src = map(string.rstrip,src)      # strip the newlines
         self.name = name
         self.indx = indx
+        pass
+        self.hash = md5("".join(self.src[1:])).hexdigest()   # NB first metadata comment line with volume name is skipped from hash source
         self.point = []
-        self.coordIndex = []
+        pass
+        mreg = self.map_regions(self.src)
+        assert mreg['valid'], mreg
+        pass
+        self.src_head   = self.src[:mreg['points']+1]
+        self.src_points = self.src[mreg['points']+1:mreg['-points']]
+        self.src_tail   = self.src[mreg['-points']:]
+        pass
+        self.src_faces  = self.src[mreg['faces']+1:mreg['-faces']]
 
-   def __repr__(self):
+    def __repr__(self):
         return "# [%-6s] (%10s) :  %s " % ( self.indx, len(self.src), self.name )
-   def __str__(self):
+    def __str__(self):
         return "\n".join( [repr(self), "".join(self.src)] ) 
 
-   def __call__(self):
-        token, region = False, None
-        for line in self.src:
-             s = line.lstrip().strip()
-             if s == self.pfx_point_region:
-                  token, region = True, "point"
-             elif s == self.pfx_coordIndex_region:
-                  token, region = True, "coordIndex"
-             elif s == self.pfx_close_region:
-                  token, region = True, None
-             else:
-                  token = False
+    def map_regions(self, ori ):  
+        """
+        For interesting lines within the template find 
+        the corresponding line indices within the original
 
-             if not token:
-                  if region == "point":
-                      assert s[-1] == ",", s
-                      xyz = map(float,s[:-1].split(" "))
-                      self.point.append(xyz) 
-                      #print "%s : %s " % ( region, xyz ) 
-                  elif region == "coordIndex":
-                      assert s[-1] == ",", s
-                      cdx = s[:-1].split(", ") 
-                      #print "%s : %s " % ( region , cdx )
+        NB the exact template line including tabs is expected
+        to be found within the original
+        """
+        log.debug("\n".join(ori))
+        region, mreg = None, {}
+        sreg = dict(points='point [',faces='coordIndex [',close=']')
+        valid = True
+        for line in self.tmpl.split("\n"):
+            if line[-len(sreg['points']):] == sreg['points']:
+                token, region= True, "points"
+            elif line[-len(sreg['faces']):] == sreg['faces']:
+                token, region= True, "faces" 
+            elif line[-len(sreg['close']):] == sreg['close']:
+                token, region= True, "-" + region 
+            else:
+                token = False
+            if token:
+                try:
+                    idx = ori.index(line)   
+                except ValueError:
+                    log.debug("failed for find line \"%s\" in region\n%s" % (line, region) ) 
+                    idx = None 
+                    valid = False
+                mreg[region] = idx 
+            pass    
+        mreg['valid'] = valid 
+        return mreg 
+
+    def parse_points(self):
+        for line in self.src_points:
+            assert line[-1] == ",", "expecting a trailing comma [%s]" % line
+            xyz = map(float,line[:-1].split(" "))  
+            self.point.append(xyz)
+
 
 
 class WRLParser(list):
@@ -312,8 +193,12 @@ class WRLParser(list):
 
     def _add_region(self):
         if not self.region is None:
-            reg = WRLRegion( self.buffer, self.region, indx=len(self))  
-            self.append( reg )
+            if self.region == 'camera':
+                pass
+            else:    
+                reg = WRLRegion( self.buffer, self.region, indx=len(self))  
+                self.append( reg )
+            pass    
             self.buffer[:] = []
 
     def parse_line(self, line):
@@ -328,45 +213,52 @@ class WRLParser(list):
             token, name = True, line[self.lpfx_solid:-1]
         else:
             pass
-
         if token: 
             self._add_region()             
             self.region = name 
             pass
         self.buffer.append(line) 
 
-    def save(self, path ):
+    def save(self, path, idoffset=0):
         path = os.path.abspath(path)
         if os.path.exists(path):
             log.info("remove pre-existing db file %s " % path)
             os.remove(path)
         pass
 
-        shape = Table(path, "shape", id="int",name="text", src="blob", len="int", hash="text")
-        point = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
+        shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
+        point_t = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
 
-        log.info("gathering geometry ")  
-        for sh in self:
-            if sh.name == 'camera':
-                pass
-            else:
-                sid = sh.indx
-                shape.add(id=sid,name=sh.name, src="".join(sh.src), len=len(sh.src), hash=sh.hash )
-                sh()
-                for pid,(x,y,z) in enumerate(sh.point):
-                    point.add(id=pid,sid=sid,x=x,y=y,z=z)
+        log.info("gathering geometry, using idoffset %s " % idoffset )  
+        for rg in self:
+            sid = rg.indx + idoffset
+            shape_t.add(id=sid,name=rg.name,hash=rg.hash,
+                        src="\n".join(rg.src), 
+                        src_faces="\n".join(rg.src_faces),    
+                        src_points="\n".join(rg.src_points),
+                        src_head="\n".join(rg.src_head),
+                        src_tail="\n".join(rg.src_tail),
+                        )
+
+            rg.parse_points()  
+            for pid,(x,y,z) in enumerate(rg.point):
+                point_t.add(id=pid,sid=sid,x=x,y=y,z=z)
             pass
         # writes to the DB a table at a time
         log.info("start persisting to %s " % path ) 
-        shape.insert()   
-        point.insert()   
+        shape_t.insert()   
+        point_t.insert()   
         log.info("completed persisting to %s " % path ) 
 
 
-    def extend(self, path, tn="xshape"):
+    def extend(self, path, tn="xshape", name=True):
         dummy = Table(path)
         sammd_ = lambda _:"sum(%(_)s) as sum%(_)s, avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
-        xsql = "select sid, count(*) as npo, " + ",".join(map(sammd_, ("x","y","z"))) + " from point group by sid "
+        xsql = "select sid, count(*) as npo, " + ",".join(map(sammd_, ("x","y","z")))
+        if name:
+            xsql += " ,name from point join shape on point.sid = shape.id group by sid "
+        else:    
+            xsql += " from point group by sid "
         sqls = ["drop table if exists %(tn)s " % locals(),
                 "create table %(tn)s as " % locals() + xsql ]
         for sql in sqls:        
@@ -395,6 +287,7 @@ def parse_args(doc):
     op.add_option("-q", "--quick", action="store_true", help="Quick run just on the head of the input file.", default=False )
     op.add_option("-c", "--create", action="store_true", help="Create the DB from the source wrl.", default=False )
     op.add_option("-x", "--extend", action="store_true", help="Create the extents table from the pre-created DB.", default=False )
+    op.add_option(      "--idoffset", type="int", default=1, help="Offset of shape indices. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
 
@@ -440,7 +333,7 @@ if __name__ == '__main__':
         else:      
             wrlp(path)
         pass     
-        wrlp.save(dbpath)
+        wrlp.save(dbpath, opts.idoffset)
     else:
         log.info("skip create") 
 

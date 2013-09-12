@@ -79,6 +79,38 @@ It takes a little while to issue all the stops::
 
 
 
+hfag restart requires manual F2 keypress
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+hfag nginx reverse proxy 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Used as reverse proxy for SVN on C2, allowing NUU nodes that are routinely 
+blocked from accessing node C2 apache (for SVN) to have access to the repositories. 
+The NUU blocks are assumed to be due to C2s habit of transferring 
+gigabytes per day of backup tarballs. 
+
+*Not auto-started on reboot*, to start::
+
+    nginx-
+    nginx-sstart
+
+    [blyth@hfag blyth]$ t nginx-sstart
+    nginx-sstart is a function
+    nginx-sstart () 
+    { 
+        $SUDO nginx
+    }
+
+
+Without this get::
+
+    [blyth@belle7 e]$ svn up
+    svn: OPTIONS of 'http://hfag.phys.ntu.edu.tw:90/repos/env/trunk': could not connect to server (http://hfag.phys.ntu.edu.tw:90)
+
 
 
 cms02  : as repo server this one goes last

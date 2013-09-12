@@ -76,6 +76,21 @@ After adding /opt/local/bin to PATH in ~/.bash_profile::
 	base.tar
 
 
+::
+
+    simon:e blyth$ date
+    Mon  9 Sep 2013 15:26:11 CST
+    simon:e blyth$ sudo port selfupdate
+    Password:
+    --->  Updating MacPorts base sources using rsync
+    MacPorts base version 2.1.2 installed,
+    MacPorts base version 2.2.0 downloaded.
+    --->  Updating the ports tree
+    --->  MacPorts base is outdated, installing new version 2.2.0
+    Installing new MacPorts release in /opt/local as root:admin; permissions 0755; Tcl-Package in /Library/Tcl
+    The ports tree has been updated. To upgrade your installed ports, you should run
+      port upgrade outdated
+
 
 
 
