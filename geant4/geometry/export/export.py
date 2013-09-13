@@ -64,6 +64,8 @@ def configure(argv=None):
     grac = GiGaRunActionCommand("GiGa.GiGaRunActionCommand")
     grac.BeginOfRunCommands = [ 
              "/vis/open VRML2FILE",
+             "/vis/viewer/set/culling global false",
+             "/vis/viewer/set/culling coveredDaughters false",
              "/vis/drawVolume",
              "/vis/viewer/flush"
     ]    
