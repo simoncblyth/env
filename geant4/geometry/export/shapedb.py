@@ -68,6 +68,9 @@ Name diddling
     sqlite> 
 
 
+    select replace(src_head,'Material {','DEF M'||id||' Material {') from shape limit 2 ;
+
+
 
 
 """
@@ -125,7 +128,7 @@ Viewpoint {
 
         # ascii codes 09:TAB, 0A:LF 
         if opts.nameshape:
-            sql_head = "substr(src_head,0,instr(src_head,x'0A')+1)||'DEF S'||id||' '||substr(src_head,instr(src_head,x'0A')+1)"
+            sql_head = "substr(src_head,0,instr(src_head,x'0A')+1)||'DEF S'||shape.id||' '||substr(src_head,instr(src_head,x'0A')+1)"
         else:
             sql_head = "src_head"
 

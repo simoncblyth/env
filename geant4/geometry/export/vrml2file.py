@@ -201,6 +201,14 @@ class WRLParser(list):
             pass    
             self.buffer[:] = []
 
+
+
+    def head(self, hdl, id, idlabel):
+        s = "\n".join(hdl)
+        if not idlabel:
+            return s
+        return s.replace('Shape', 'DEF S%s Shape' % id ).replace('Material','DEF M%s Material' % id )
+
     def parse_line(self, line):
         """
         The token lines are used to mark the 
@@ -219,7 +227,8 @@ class WRLParser(list):
             pass
         self.buffer.append(line) 
 
-    def save(self, path, idoffset=0):
+    def save(self, path, opts):
+        idlabel, idoffset = opts.idoffset, opts.idlabel
         path = os.path.abspath(path)
         if os.path.exists(path):
             log.info("remove pre-existing db file %s " % path)
@@ -229,14 +238,14 @@ class WRLParser(list):
         shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
         point_t = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
 
-        log.info("gathering geometry, using idoffset %s " % idoffset )  
+        log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
         for rg in self:
             sid = rg.indx + idoffset
             shape_t.add(id=sid,name=rg.name,hash=rg.hash,
                         src="\n".join(rg.src), 
                         src_faces="\n".join(rg.src_faces),    
                         src_points="\n".join(rg.src_points),
-                        src_head="\n".join(rg.src_head),
+                        src_head=self.head(rg.src_head,sid,idlabel=idlabel),
                         src_tail="\n".join(rg.src_tail),
                         )
 
@@ -288,6 +297,7 @@ def parse_args(doc):
     op.add_option("-c", "--create", action="store_true", help="Create the DB from the source wrl.", default=False )
     op.add_option("-x", "--extend", action="store_true", help="Create the extents table from the pre-created DB.", default=False )
     op.add_option(      "--idoffset", type="int", default=1, help="Offset of shape indices. Default %default " )
+    op.add_option(      "--noidlabel", action="store_false", dest="idlabel",  default=True, help="Add VRML DEF names to shapes and materials to allow EAI access. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
 
@@ -322,7 +332,10 @@ if __name__ == '__main__':
     opts, args = parse_args(__doc__)
     path = args[0]
     base, ext = os.path.splitext(path)
-    dbpath = os.path.abspath(base + ".db")
+    if opts.quick:
+        dbpath = os.path.abspath(base + ".quick.db")
+    else:
+        dbpath = os.path.abspath(base + ".db")
 
     wrlp = WRLParser()
 
@@ -333,7 +346,7 @@ if __name__ == '__main__':
         else:      
             wrlp(path)
         pass     
-        wrlp.save(dbpath, opts.idoffset)
+        wrlp.save(dbpath, opts)
     else:
         log.info("skip create") 
 
