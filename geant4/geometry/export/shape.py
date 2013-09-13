@@ -3,6 +3,9 @@
 Shape VRML2 access by index
 ==============================
 
+.. warning:: DEPRECATED : use shapedb.py FOR A FASTER APPROACH, THIS WILL BE DELETED AFTER A SALVAGE HAS BEEN DONE
+
+
 Shape random access and transformations
 
 ::
@@ -314,7 +317,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    #main()
+    print "you should be using shapedb.py not this"
     
 
 

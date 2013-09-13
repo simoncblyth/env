@@ -48,31 +48,25 @@ Comma delimited like query::
 
 
 
-Group by queries to generate geometries
-----------------------------------------
+Name diddling
+-------------
 
 ::
 
-    sqlite> select sid,group_concat(x||' '||y||' '||z,x'0A') from point join shape on shape.id = point.sid where sid in (1,2) group by sid ;
-    sid         group_concat(x||' '||y||' '||z,x'0A')                                                                                                                                                                                    
-    ----------  ---------------------------------------------------------------------------------------------                                                                                                                            
-    1           18049.9 -809521.0 22890.0
-    -9108.86 -767540.0 22890.0
-    -51089.9 -794699.0 22890.0
-    -23931.1 -836680.0 22890.0
-    -23931.1 -836680.0 -15104.2
-    18049.9 -809521.0 -15104.2
-    -51089.9 -794699.0 -15104.2
-    -9108.86 -767540.0 -15104.2
-    2           -3828.12 -807000.0 -2110.0
-    -18493.8 -784331.0 -2110.0
-    -31088.1 -792478.0 -2110.0
-    -16422.4 -815148.0 -2110.0
-    -3828.12 -807000.0 12890.0
-    -18493.8 -784331.0 12890.0
-    -31088.1 -792478.0 12890.0
-    -16422.4 -815148.0 12890.0
-    5
+    sqlite> select substr(src_head,0,instr(src_head,x'0A')+1)||'DEF S'||id||substr(src_head,instr(src_head,x'0A')+1) from shape limit 10,1 ;
+    #---------- SOLID: /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:4#pvStrip14Unit.4
+    DEF S11 Shape {
+                    appearance Appearance {
+                            material Material {
+                                    diffuseColor 1 1 1
+                                    transparency 0.7
+                            }
+                    }
+                    geometry IndexedFaceSet {
+                            coord Coordinate {
+                                    point [
+    sqlite> 
+
 
 
 
@@ -106,13 +100,12 @@ Viewpoint {
     def qids(self, sql ): 
         return map(lambda _:int(_[0]), self(sql))
 
-    def group_points_sql(self, ids, cxyz=None,sxyz=None):
+    def group_points_sql(self, ids, opts):
         """
-        .. warning:: Not yet working
-
         Using `group by having` seems much slower
         """
         sids = ",".join(map(str,ids))
+        cxyz, sxyz = opts.center, opts.scale 
 
         # special case identity transform, to allow exact diff check
         # BUT not working see number formatting differences
@@ -131,7 +124,11 @@ Viewpoint {
             sql_point_xyz  = "(%(sx)s*(x-(%(cx)s)))||' '||(%(sy)s*(y-(%(cy)s)))||' '||(%(sz)s*(z-(%(cz)s)))||','"
 
         # ascii codes 09:TAB, 0A:LF 
-        sql_head = "src_head"
+        if opts.nameshape:
+            sql_head = "substr(src_head,0,instr(src_head,x'0A')+1)||'DEF S'||id||' '||substr(src_head,instr(src_head,x'0A')+1)"
+        else:
+            sql_head = "src_head"
+
         sql_tabs =  "x'09'||x'09'||x'09'||x'09'||x'09'||"
         sql_body = "group_concat(" + sql_tabs + sql_point_xyz + ",x'0A')"
         sql_tail = "src_tail"
@@ -196,7 +193,7 @@ Viewpoint {
         for x in range(0,len(ids),chunksize):
             chunk_ids = ids[x:x+chunksize] 
             self.dump(chunk_ids, maxids=opts.maxids)
-            sql = self.group_points_sql(chunk_ids, cxyz=opts.center, sxyz=opts.scale )
+            sql = self.group_points_sql(chunk_ids, opts)
             log.info(sql)
             if not opts.dryrun:
                 batch = self.all(sql)

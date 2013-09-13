@@ -1,7 +1,79 @@
 instant reality player
 =======================
 
+
+* http://doc.instantreality.org/tutorial/getting-started/
 In app menu choose `View > Statistic > Keyboard Mapping` for some guidance
+
+
+
+Need to add some viewpoints
+----------------------------
+
+
+From the tutorial::
+
+    Examine Mode Navigation:
+    Zoom: Scroll with the mouse wheel or click the right mouse button and move the cursor vertical.
+    Shove: Click the middle mouse button and move the cursor around.
+    Rotate: Click the left mouse button and move the cursor around or press the arrow keys.
+
+    Cameras: Select a defined Viewpoint in the scene. The Viewpoint node must have the description field set in order to get listed.
+
+
+Web Interface
+---------------
+
+* http://doc.instantreality.org/tutorial/web-interface/
+
+When running the player a web server is available at 
+
+* http://localhost:35668/
+
+This allows to change Node properties, such as `emissiveColor` at URLs like the below.
+
+* http://localhost:35668/Node.html?node=200910384
+
+BUT, the volume names are not currently propagated into VRML, they are just comments by geant4 vrml2file
+that I parse and stuff into the shapedb name field. 
+
+
+Try promoting the comment to actual node name::
+
+    [blyth@belle7 wrl]$ cp around_dupe.wrl around_dupe_names.wrl
+    [blyth@belle7 wrl]$ vi around_dupe_names.wrl 
+    [blyth@belle7 wrl]$ perl -pi -e 's,#---------- SOLID:,DEF,gc ' around_dupe_names.wrl
+    [blyth@belle7 wrl]$ 
+
+Need to fixup the names. As hashes are not appreciated.::
+
+    sqlite> select replace(name,"#","_") from shape limit 10 ;
+    replace(name,"#","_")                                                                                                                                                                                   
+    ---------------------------------------------------------------------------------------------                                                                                                           
+    /dd/Structure/Sites/db-rock.1000                                                                                                                                                                        
+    /dd/Geometry/Sites/lvNearSiteRock_pvNearHallTop.1000                                                                                                                                                    
+    /dd/Geometry/Sites/lvNearHallTop_pvNearTopCover.1000                                                                                                                                                    
+    /dd/Geometry/Sites/lvNearHallTop_pvNearTeleRpc_pvNearTeleRpc:1.1                                                                                                                                        
+    /dd/Geometry/RPC/lvRPCMod_pvRPCFoam.1000                                                                                                                                                                
+    /dd/Geometry/RPC/lvRPCFoam_pvBarCham14Array_pvBarCham14ArrayOne:1_pvBarCham14Unit.1                                                                                                                     
+    /dd/Geometry/RPC/lvRPCBarCham14_pvRPCGasgap14.1000                            
+
+
+Does VRML2 Support Metadata ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+Navigation
+-----------
+
+Most useful navigation modes keys to swap between:
+
+lookat(l)
+          click on volume to go have a look
+examine(e)
+          3D rotate around by dragging 
 
 
 Keyboard Mapping
@@ -18,7 +90,7 @@ Find the text of the help message by grepping the dylibs and stringing the hit::
       increase navigation speed 
 -
       decrease navigation speed
-      (it is far too fast, this seems to not work)
+      (it is far too fast, this seems to not work, better when you center the coordinates)
 B
        toggle fast ray intersect on/off
 C
@@ -26,9 +98,9 @@ C
 D
        dump the message List to the System Log
 E
-       switch tp GEOEXAMINE navigation mode
+       switch to GEOEXAMINE navigation mode
 F
-       switch tp FREEFLY navigation mode
+       switch to FREEFLY navigation mode
 G
        grep and dump the current scene to an image file
 I
@@ -53,6 +125,7 @@ X
        Increase the culling feature (e.g. pixel, threshold)
 a
        change camera transformation to show whole scene
+       (very useful, to get started)
 b
        start the backend web interface
 c
@@ -71,6 +144,7 @@ i
        toggle lazy Interaction evaluation
 l
        switch to LOOKAT navigation mode
+       (handy, can click on volumes to go and have a close look)
 m
        switch polygon draw mode (point/line/fill)
 n

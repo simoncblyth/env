@@ -240,5 +240,59 @@ Simple binned querying
     group by b.min_value
 
 
+xshape
+--------
+
+That 2 is the 2 ADs::
+
+    sqlite> select sid,npo,count(*) as N,group_concat(round(ax,1)),group_concat(round(ay,1)),group_concat(round(az,1)),group_concat(round(dx,1)),group_concat(round(dy,1)),group_concat(round(dz,1)),name from xshape where name like '/dd/Geometry/AD/%' group by name ;
+    sid         npo         N           group_concat(round(a  group_concat(round(a  group_concat(round(a  group_concat(round(d  group_concat(round(d  group_concat(round(d  name                                                                                                                                                  
+    ----------  ----------  ----------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  ---------------------------------------------------------------------------------------------                                                         
+    6434        16          2           -20200.1,-17081.2     -801071.4,-805892.4   -7100.0,-7100.0       66.2,66.2             72.0,72.0             5000.0,5000.0         /dd/Geometry/AD/lvADE#pvAdVertiCableTray.1005                                                                                                         
+    6193        50          2           -18014.5,-14895.6     -799605.4,-804426.4   -3955.5,-3955.5       798.1,798.1           798.0,798.0           689.0,689.0           /dd/Geometry/AD/lvADE#pvCenterCalibE.1001                                                                                                             
+    6443        50          2           -17778.8,-14659.9     -801337.5,-806158.6   -4469.8,-4469.8       608.2,608.2           609.0,608.0           260.4,260.4           /dd/Geometry/AD/lvADE#pvElectricalDistributionBoxE.1007                                                                                               
+    6352        50          2           -19021.1,-15902.1     -801064.4,-805885.4   -4105.5,-4105.5       798.1,798.1           798.0,798.0           989.0,989.0           /dd/Geometry/AD/lvADE#pvGCatCalibE.1004                                                                                                               
+    6436        50          2           -18380.1,-15261.2     -798061.4,-802882.5   -4469.8,-4469.8       608.2,608.2           608.0,609.0           260.4,260.4           /dd/Geometry/AD/lvADE#pvGasDistributionBoxE.1006                                                                                                      
+    6450        50          2           -17454.6,-14335.7     -797668.4,-802489.5   -4492.5,-4492.5       437.7,437.7           437.0,437.0           215.0,215.0           /dd/Geometry/AD/lvADE#pvMOClarityBoxE.1008                                                                                                            
+    6270        50          2           -17248.0,-14129.1     -798494.1,-803315.3   -4105.5,-4105.5       798.1,798.1           798.0,798.0           989.0,989.0           /dd/Geometry/AD/lvADE#pvOffCenterCalibE.1003                                                                                                          
+    6264        366         2           -18057.8,-14938.9     -799668.1,-804489.2   -4380.5,-4380.5       2027.4,2027.4         2027.0,2027.0         300.0,300.0           /dd/Geometry/AD/lvADE#pvOflTnkContainer.1002                                                                                                          
+    4814        50          2           -18079.5,-14960.5     -799699.4,-804520.6   -7100.0,-7100.0       4993.6,4993.6         4993.0,4993.0         5000.0,5000.0         /dd/Geometry/AD/lvADE#pvSST.1000                                                                                                                      
+    6457        50          2           -16620.4,-13501.5     -800706.0,-805527.0   -4451.5,-4451.5       1315.7,1315.7         1316.0,1316.0         297.0,297.0           /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE1.1009                                                                                                       
+    6465        50          2           -19538.5,-16419.6     -798693.0,-803514.0   -4451.5,-4451.5       1315.7,1315.7         1316.0,1316.0         297.0,297.0           /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE2.1010                                                                                                       
+    4819        146         2           -18079.5,-14960.5     -799699.4,-804520.5   -6062.9,-6062.9       3096.1,3096.1         3096.0,3096.0         3159.4,3159.4         /dd/Geometry/AD/lvIAV#pvGDS.1000                                                                                                                      
+    4820        48          2           -18846.0,-15727.1     -800810.7,-805631.7   -5549.0,-5549.0       62.9,62.9             63.0,63.0             18.0,18.0             /dd/Geometry/AD/lvIAV#pvOcrGdsInIAV.1001                                                                                                              
+    4822        192         2           -18079.5,-14960.5     -799699.5,-804520.5   -5345.0,-5345.0       299.7,299.7           299.0,299.0           30.0,30.0             /dd/Geometry/AD/lvLSO#pvCtrGdsOflBotClp.1002                                                                                                          
+    4824        50          2           -18079.5,-14960.5     -799699.4,-804520.6   -5245.5,-5245.5       62.9,62.9             63.0,63.0             460.2,460.2           /dd/Geometry/AD/lvLSO#pvCtrGdsOflInLso.1004                                                                                                           
+
+
+
+::
+
+    sqlite> select sid,npo,count(*) as N,group_concat(round(ax,1)),group_concat(round(ay,1)),group_concat(round(az,1)),group_concat(round(dx,1)),group_concat(round(dy,1)),group_concat(round(dz,1)),name from xshape where name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000 group by name ;
+    sid         npo         N           group_concat(round(a  group_concat(round(a  group_concat(round(a  group_concat(round(d  group_concat(round(d  group_concat(round(d  name                                                                                                                                                  
+    ----------  ----------  ----------  --------------------  --------------------  --------------------  --------------------  --------------------  --------------------  ---------------------------------------------------------------------------------------------                                                         
+    6264        366         2           -18057.8,-14938.9     -799668.1,-804489.2   -4380.5,-4380.5       2027.4,2027.4         2027.0,2027.0         300.0,300.0           /dd/Geometry/AD/lvADE#pvOflTnkContainer.1002                                                                                                          
+    4814        50          2           -18079.5,-14960.5     -799699.4,-804520.6   -7100.0,-7100.0       4993.6,4993.6         4993.0,4993.0         5000.0,5000.0         /dd/Geometry/AD/lvADE#pvSST.1000                                                                                                                      
+    6457        50          2           -16620.4,-13501.5     -800706.0,-805527.0   -4451.5,-4451.5       1315.7,1315.7         1316.0,1316.0         297.0,297.0           /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE1.1009                                                                                                       
+    6465        50          2           -19538.5,-16419.6     -798693.0,-803514.0   -4451.5,-4451.5       1315.7,1315.7         1316.0,1316.0         297.0,297.0           /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE2.1010                                                                                                       
+    4819        146         2           -18079.5,-14960.5     -799699.4,-804520.5   -6062.9,-6062.9       3096.1,3096.1         3096.0,3096.0         3159.4,3159.4         /dd/Geometry/AD/lvIAV#pvGDS.1000                                                                                                                      
+    4818        148         2           -18079.5,-14960.6     -799699.6,-804520.7   -6066.1,-6066.1       3126.0,3125.9         3126.0,3126.0         3174.5,3174.5         /dd/Geometry/AD/lvLSO#pvIAV.1000                                    
+
+
+
+For a simple view of just the bigger bits of geometry::
+
+    [blyth@belle7 export]$ shapedb.py -cq "select sid from xshape where name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000" > ads.wrl
+    2013-09-12 20:38:38,914 env.geant4.geometry.export.shapecnf INFO     /home/blyth/env/bin/shapedb.py -c -q select sid from xshape where name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000
+    2013-09-12 20:38:38,914 env.geant4.geometry.export.shapedb INFO     opening /usr/lib/python2.4/site-packages/env/geant4/geometry/export/g4_01.db 
+    2013-09-12 20:38:38,938 env.geant4.geometry.export.shapedb INFO     Operate on 70 shapes, selected by opts.query "select sid from xshape where name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000" 
+    2013-09-12 20:38:38,958 env.geant4.geometry.export.shapedb INFO     opts.center selected, will translate all 70 shapes such that centroid of all is at origin, original coordinate centroid at (-16521.718058206105, -802112.48974236636, -5897.2523902671737) 
+
+
+
+
+
+
+
 
 
