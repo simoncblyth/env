@@ -1219,3 +1219,4 @@ xen-(){      . $(env-home)/virtualization/xen.bash && xen-env $* ; }
 vgpu-(){      . $(env-home)/virtualization/vgpu.bash && vgpu-env $* ; }
 rcuda-(){      . $(env-home)/cuda/rcuda.bash && rcuda-env $* ; }
 xenserver-(){      . $(env-home)/virtualization/xenserver.bash && xenserver-env $* ; }
+sqlite3-(){      . $(env-home)/sqlite/sqlite3.bash && sqlite3-env $* ; }

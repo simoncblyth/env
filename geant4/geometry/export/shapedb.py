@@ -92,6 +92,12 @@ Viewpoint {
 	position 0 0 111042
 }
 """
+
+    shape_header = r"""
+
+
+    """ 
+
     def __init__(self, path=None, tn=None ):
         path = os.path.abspath(path)
         log.info("opening %s " % path)

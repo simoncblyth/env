@@ -1,39 +1,3 @@
-
-====================================================================
-
-Start closing geometry.
-G4GeometryManager::ReportVoxelStats -- Voxel Statistics
-
-    Total memory consumed for geometry optimisation:   4325 kByte
-    Total CPU time elapsed for geometry optimisation: 15 seconds
-
-    Voxelisation: top CPU users:
-    Percent   Total CPU    System CPU       Memory  Volume
-    -------   ----------   ----------     --------  ----------
-      59.09         8.74         0.00         3001k /dd/Geometry/Pool/lvNearPoolOWS
-      28.19         4.17         0.01          900k /dd/Geometry/Pool/lvNearPoolIWS
-      10.48         1.55         0.00          317k /dd/Geometry/AD/lvOIL
-       0.54         0.08         0.00            8k /dd/Geometry/CalibrationBox/lvDomeInterior
-       0.41         0.06         0.00           43k /dd/Geometry/RPCSupport/lvNearHbeamBigUnit
-       0.34         0.05         0.00            8k /dd/Geometry/AD/lvLSO
-       0.20         0.03         0.00           19k /dd/Geometry/RPCSupport/lvNearHbeamSmallUnit
-       0.14         0.02         0.00           13k /dd/Geometry/RPC/lvNearRPCRoof
-       0.07         0.01         0.00            0k /dd/Geometry/CalibrationSources/lvAmCCo60SourceAssy
-       0.07         0.01         0.00            3k /dd/Geometry/AD/lvADE
-
-    Voxelisation: top memory users:
-    Percent     Memory      Heads    Nodes   Pointers    Total CPU    Volume
-    -------   --------     ------   ------   --------   ----------    ----------
-      69.38       3001k      7781    66522     201512         8.74    /dd/Geometry/Pool/lvNearPoolOWS
-      20.79        899k      2793    19051      60620         4.17    /dd/Geometry/Pool/lvNearPoolIWS
-       7.32        316k      1115     6994      17652         1.55    /dd/Geometry/AD/lvOIL
-       0.98         42k       118     1023       2196         0.06    /dd/Geometry/RPCSupport/lvNearHbeamBigUnit
-       0.44         18k        72      433        870         0.03    /dd/Geometry/RPCSupport/lvNearHbeamSmallUnit
-       0.29         12k        51      304        442         0.02    /dd/Geometry/RPC/lvNearRPCRoof
-       0.19          8k        33      191        366         0.08    /dd/Geometry/CalibrationBox/lvDomeInterior
-       0.17          7k        30      157        432         0.05    /dd/Geometry/AD/lvLSO
-       0.07          2k        11       70        124         0.01    /dd/Geometry/AD/lvADE
-       0.06          2k        16       41        152         0.00    /dd/Geometry/Sites/lvNearHallBot
 /vis/sceneHandler/create VRML2FILE
 G4VisManager::SetCurrentGraphicsSystem: system now VRML2FILE
 Graphics system set to VRML2FILE
@@ -346,12 +310,3 @@ MESSAGE from VRML2FILE driver:
     automatically.  For example, 
     setenv  G4VRMLFILE_VIEWER  vrwave 
 Viewer "viewer-0 (VRML2FILE)" flushed.
-Start Run processing.
-
-Warning: G4MaterialPropertyVector::GetProperty
-==> attempt to Retrieve Property above range
-
-Warning: G4MaterialPropertyVector::GetProperty
-==> attempt to Retrieve Property above range
-
-Warning: G4MaterialPropertyVector::GetProperty
