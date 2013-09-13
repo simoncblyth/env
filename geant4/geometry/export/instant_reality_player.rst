@@ -1,9 +1,38 @@
 instant reality player
 =======================
 
-
+* http://doc.instantreality.org/tutorial/
 * http://doc.instantreality.org/tutorial/getting-started/
 In app menu choose `View > Statistic > Keyboard Mapping` for some guidance
+
+
+
+Control from java
+-------------------
+
+* http://doc.instantreality.org/tutorial/external-authoring-interface-javanet/
+
+::
+
+    simon:Instant Player.app blyth$ jar tvf ~/Desktop/Instant\ Player.app/Contents/MacOS/instantreality.jar
+     75176 Thu Jul 18 14:19:30 CST 2013 META-INF/MANIFEST.MF
+     75297 Thu Jul 18 14:19:30 CST 2013 META-INF/IR.SF
+      1966 Thu Jul 18 14:19:30 CST 2013 META-INF/IR.RSA
+         0 Thu Jul 18 13:42:22 CST 2013 META-INF/
+        70 Wed Jan 26 14:45:22 CST 2011 vrml.properties
+        78 Wed Jan 26 14:45:22 CST 2011 x3d.properties
+         0 Thu Jul 18 13:42:20 CST 2013 org/
+         0 Thu Jul 18 13:42:18 CST 2013 org/gnu/
+         0 Thu Jul 18 13:42:18 CST 2013 org/gnu/common/
+      1732 Thu Jul 18 13:42:18 CST 2013 org/gnu/common/FNMatch.class
+         0 Thu Jul 18 13:42:20 CST 2013 org/instantreality/
+         0 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/
+      7379 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/BaseEvent.class
+      1116 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/BrowserEvent.class
+      1203 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/Client$BrowserListenerThread.class
+       463 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/Client$Flag.class
+
+
 
 
 
@@ -102,11 +131,11 @@ E
 F
        switch to FREEFLY navigation mode
 G
-       grep and dump the current scene to an image file
+       grep and dump the current scene to an image file, dumps `~/Desktop/out.png` with scene image
 I
        toggle front collision while navigating
 N
-       export the backend graph as a BIN file
+       export the backend graph as a BIN file, writes 340K binary file to `~/Desktop/out.osb`
 O 
        switch Occulsion culling mode
 R
@@ -116,9 +145,9 @@ S
 T
        toggle sorting of transparent objects
 V
-       export the scene-graph as VRML file
+       export the scene-graph as VRML file, dumps `~/Desktop/out.wrl` but IndexedFaceSet geometry is empty 
 X
-       export the scene-graph as X3D file
+       export the scene-graph as X3D file, dumped file `~/Desktop/out.x3d` again with empty geomerty 
 [
        Decrease the culling feature (e.g. pixel, threshold)
 ]

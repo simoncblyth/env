@@ -104,6 +104,29 @@ Check the viscinity of 4570::
 * http://belle7.nuu.edu.tw/wrl/dupe.wrl
 
 
+* S4425 pick large extent volumes to be easy to spot
+* http://localhost:35668/Node.html?node=S4425
+* http://localhost:35668/setFieldValue?node=S4425&field=diffuseColor&value=0+1+0
+* http://localhost:35668/setFieldValue?node=265938224&field=diffuseColor&value=0+1+0
+
+* http://localhost:35668/setFieldValue?node=265938224&field=5&value=TRUE&link=referer
+
+
+Toggle the bbox for a volume from commandline, unfortunately need to use internal node id, not my name::
+
+    simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=265938224&field=5&value=TRUE&link=referer"
+    simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=265938224&field=5&value=FALSE&link=referer"
+    simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=265938224&field=5&value=TRUE&link=referer"
+    simon:export blyth$ 
+
+Works with external names too::
+
+    simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=S4425&field=5&value=FALSE&link=referer"
+    simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=S4425&field=5&value=TRUE&link=referer"
+
+
+
+
 first degenerate pair
 ~~~~~~~~~~~~~~~~~~~~~~~
 
