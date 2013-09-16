@@ -26,6 +26,15 @@ The spec is almost readable.
 * http://www.web3d.org/x3d/specifications/vrml/ISO-IEC-14772-VRML97/part2/javaBind.html
 
 
+Scene Attribute Editing on the fly
+-------------------------------------
+
+Commandline parsed with apache commons cli, and EAI is used to apply those
+edits to the materials with node names passed ::
+
+    eai-edit -emissiveColor 0,1,0 -transparency 0 -ambientIntensity 1 M4605 M4606 M4607 M4608
+
+
 Is the VRML model defining the class ?
 ----------------------------------------
 
@@ -93,5 +102,11 @@ eai-framework(){ javac -cp $(eai-jar) EAIFramework.java && java -cp $(eai-jar):.
 eai-example(){ javac -cp $(eai-jar) EAIExample.java && java -cp $(eai-jar):. EAIExample ; } 
 eai-traverse(){ javac -cp $(eai-jar) Traverse.java  && java -cp $(eai-jar):. Traverse ; } 
 
+eai-edit(){
+   type $FUNCNAME
+   jcli-
+   eai-cd
+   javac -cp $(jcli-jar):$(eai-jar) SceneEdit.java && java -cp $(jcli-jar):$(eai-jar):. SceneEdit $*  
+}
 
 

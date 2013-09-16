@@ -64,7 +64,6 @@ class Traverse
                 vrml.eai.field.EventOutSFNode matOut = (vrml.eai.field.EventOutSFNode) app.getEventOut("material");
                 vrml.eai.Node mat = matOut.getValue() ;
                 vrml.eai.field.EventOutSFColor diffuseColorOut = (vrml.eai.field.EventOutSFColor)mat.getEventOut("diffuseColor_changed");
-                
                 float diffuseColor[] = diffuseColorOut.getValue();
 
 		        System.out.println("matOut = \"" + matOut + '"');
