@@ -3,6 +3,7 @@ instant reality player
 
 * http://doc.instantreality.org/tutorial/
 * http://doc.instantreality.org/tutorial/getting-started/
+
 In app menu choose `View > Statistic > Keyboard Mapping` for some guidance
 
 
@@ -115,9 +116,9 @@ Find the text of the help message by grepping the dylibs and stringing the hit::
     simon:MacOS blyth$ strings libavalonNavigationNodePool.dylib
 
 
-+
+`+`
       increase navigation speed 
--
+`-`
       decrease navigation speed
       (it is far too fast, this seems to not work, better when you center the coordinates)
 B
@@ -148,9 +149,9 @@ V
        export the scene-graph as VRML file, dumps `~/Desktop/out.wrl` but IndexedFaceSet geometry is empty 
 X
        export the scene-graph as X3D file, dumped file `~/Desktop/out.x3d` again with empty geomerty 
-[
+`[`
        Decrease the culling feature (e.g. pixel, threshold)
-]
+`]`
        Increase the culling feature (e.g. pixel, threshold)
 a
        change camera transformation to show whole scene
@@ -196,9 +197,9 @@ w
        switch to WALK navigation mode
 x
        toggle global Shadow state
-{
+`{`
        switch to prev allowed nav mode
-}
+`}`
        switch to next allowed nav mode
 HOME
        switch to the first Viewpoint
