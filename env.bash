@@ -1222,3 +1222,4 @@ xenserver-(){      . $(env-home)/virtualization/xenserver.bash && xenserver-env 
 h3d-(){      . $(env-home)/graphics/vrml/h3d.bash && h3d-env $* ; }
 sqlite3-(){      . $(env-home)/sqlite/sqlite3.bash && sqlite3-env $* ; }
 eai-(){      . $(env-home)/graphics/vrml/instant_reality_player/eai.bash && eai-env $* ; }
+jcli-(){      . $(env-home)/java/commons/cli/jcli.bash && jcli-env $* ; }
