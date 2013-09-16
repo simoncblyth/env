@@ -4,8 +4,10 @@ VRML2 PARSE AND PERSIST
 ========================
 
 Parse VRML2 files created by the Geant4 VRML2FILE driver 
-and insert the shapes found into an Sqlite3 DB for 
-easy inspection.
+and insert the shapes found into an Sqlite3 DB to provide
+
+#. easy inspection.
+#. generation of sub-geometry .wrl files selecting particular volumes
 
 Quick testing
 -------------
@@ -39,6 +41,23 @@ As this initial parse is done infrequently::
     253M    g4_01.db
      81M    g4_01.wrl
 
+Only a couple of minutes on N::
+
+    [blyth@belle7 export]$ ./vrml2file.py -cx g4_01.wrl 
+    2013-09-16 12:44:09,184 __main__ INFO     ./vrml2file.py -cx g4_01.wrl
+    2013-09-16 12:44:09,184 __main__ INFO     create
+    2013-09-16 12:44:21,066 __main__ INFO     remove pre-existing db file /home/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-16 12:44:21,129 __main__ INFO     gathering geometry, using idoffset True idlabel 1 
+    2013-09-16 12:44:47,263 __main__ INFO     start persisting to /home/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-16 12:45:34,089 __main__ INFO     completed persisting to /home/blyth/env/geant4/geometry/export/g4_01.db 
+    2013-09-16 12:45:34,260 __main__ INFO     extend
+    2013-09-16 12:45:34,265 __main__ INFO     drop table if exists xshape 
+    2013-09-16 12:45:34,265 __main__ INFO     create table xshape as select sid, count(*) as npo, sum(x) as sumx, avg(x) as ax, min(x) as minx, max(x) as maxx, max(x) - min(x) as dx,sum(y) as sumy, avg(y) as ay, min(y) as miny, max(y) as maxy, max(y) - min(y) as dy,sum(z) as sumz, avg(z) as az, min(z) as minz, max(z) as maxz, max(z) - min(z) as dz ,name from point join shape on point.sid = shape.id group by sid 
+
+    [blyth@belle7 export]$ du -hs g4_01.*
+    254M    g4_01.db
+    20K     g4_01.quick.db
+    82M     g4_01.wrl
 
 
 Prior Full run

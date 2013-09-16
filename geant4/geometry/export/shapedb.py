@@ -89,11 +89,15 @@ Viewpoint {
 	position 0 0 111042
 }
 """
+    group_open = r"""
+DEF %(group)s Group {
+     children [
+"""
+    group_close = r"""
+]
+}
+""" 
 
-    shape_header = r"""
-
-
-    """ 
 
     def __init__(self, path=None, tn=None ):
         path = os.path.abspath(path)
@@ -128,6 +132,7 @@ Viewpoint {
 
         # ascii codes 09:TAB, 0A:LF 
         if opts.nameshape:
+            assert 0, "nameshape option is no longer needed, as do this are initial vrml2file.py "
             sql_head = "substr(src_head,0,instr(src_head,x'0A')+1)||'DEF S'||shape.id||' '||substr(src_head,instr(src_head,x'0A')+1)"
         else:
             sql_head = "src_head"
@@ -192,6 +197,9 @@ Viewpoint {
         """
         if not opts.dryrun:
             print self.header
+        if opts.group:
+            print self.group_open % dict(group=opts.group)
+
         chunksize = opts.chunksize
         for x in range(0,len(ids),chunksize):
             chunk_ids = ids[x:x+chunksize] 
@@ -202,6 +210,11 @@ Viewpoint {
                 batch = self.all(sql)
                 for sh in batch:
                     print sh[0]
+
+        if opts.group:
+            print self.group_close % dict(group=opts.group)
+
+
 
     def centroid(self, ids):
         """

@@ -14,7 +14,6 @@ After including the the name line, are 6 more distinct::
     simon:export blyth$ echo "select count(distinct(src)) from shape ;" | sqlite3 -noheader g4_00.db 
     12229       
 
-
 Observe:
 
 #. 6 more after including the volume name comment metadata first line suggests a small number of absolute position duplicated shapes with different volume names
@@ -39,7 +38,7 @@ The dodgy dozen, six pairs of volumes are precisely co-located::
     sqlite> 
 
 
-All size of those names are overlapped::
+All six of those names are overlapped::
 
     sqlite> select * from xshape where name like '/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000' ;
     sid     npo     sumx    ax      minx    maxx    dx      sumy    ay      miny    maxy    dy      sumz    az      minz    maxz    dz      name                                                                                                
@@ -100,8 +99,9 @@ Check the viscinity of 4570::
     2013-09-13 12:52:23,420 env.geant4.geometry.export.shapedb INFO     #       4427        578   -18379.17  -799831.91    -4987.95     4440.30     4441.00        0.10  /dd/Geometry/AdDetails/lvTopRefGap#pvTopESR.1000 
 
 
+In Instant Reality Player use `File > Open Location` and enter the URL
 
-* http://belle7.nuu.edu.tw/wrl/dupe.wrl
+* http://belle7.nuu.edu.tw/wrl/around_dupe.wrl
 
 
 * S4425 pick large extent volumes to be easy to spot
