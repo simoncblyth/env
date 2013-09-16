@@ -11,10 +11,19 @@ INSTANT REALITY PLAYER EXTERNAL AUTHORING INTERFACE EAI
 * http://doc.instantreality.org/tutorial/external-authoring-interface-javanet/
 
 * :google:`java VRML EAI`
+* :google:`VRML EAI tricks`
+
 * http://tecfa.unige.ch/guides/vrml/vrml97/ExternalInterface.html
+* http://doc.instantreality.org/media/apidocs/java/index.html
+
+Java Binding Spec
+------------------
+
+The spec is almost readable.
 
 * http://www.web3d.org/x3d/specifications/vrml/ISO-IEC-14772-VRML97/
-* http://doc.instantreality.org/media/apidocs/java/index.html
+* http://www.web3d.org/x3d/specifications/vrml/ISO-IEC-14772-VRML97/part1/java.html
+* http://www.web3d.org/x3d/specifications/vrml/ISO-IEC-14772-VRML97/part2/javaBind.html
 
 
 Is the VRML model defining the class ?
@@ -29,7 +38,6 @@ Is the VRML model defining the class ?
             at EAIFramework.main(EAIFramework.java:25)
 
 
-
 * http://www.cs.auckland.ac.nz/references/vrml/x3d/part2/javaBind.html
 * http://graphcomp.com/info/specs/sgi/vrml/spec/part1/nodesRef.html#Shape
 
@@ -39,8 +47,6 @@ Shape spec::
       exposedField SFNode appearance NULL
       exposedField SFNode geometry   NULL
     }
-
-
 
 
 Making sense of VRML
@@ -53,8 +59,6 @@ Making sense of VRML
     * its worth rooting around in the cache for the above
 
     * http://tecfa.unige.ch/guides/vrml/vrmlman/node27.html
-
-
 
 ::
 
@@ -85,13 +89,9 @@ eai-get(){
 }
 
 
-eai-framework(){ 
-   javac -cp $(eai-jar) EAIFramework.java
-   java -cp $(eai-jar):. EAIFramework 
-} 
-eai-example(){ 
-   javac -cp $(eai-jar) EAIExample.java
-   java -cp $(eai-jar):. EAIExample 
-} 
+eai-framework(){ javac -cp $(eai-jar) EAIFramework.java && java -cp $(eai-jar):. EAIFramework ; } 
+eai-example(){ javac -cp $(eai-jar) EAIExample.java && java -cp $(eai-jar):. EAIExample ; } 
+eai-traverse(){ javac -cp $(eai-jar) Traverse.java  && java -cp $(eai-jar):. Traverse ; } 
+
 
 
