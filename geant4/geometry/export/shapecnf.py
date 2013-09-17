@@ -17,6 +17,7 @@ class Defaults(object):
     chunksize = 100
     nameshape = False   # no longer needed as all volumes and materials now named in vrml2file.py 
     group = None
+    distance = '12000'
 
 def parse_args(doc):
     """
@@ -31,6 +32,7 @@ def parse_args(doc):
     op.add_option("-q", "--query", default=defopts.query, help="An SQL query that returns shape id integers to print." )
     op.add_option("-c", "--center", action="store_true", help="Before any scaling subtract the average coordinates of a shape/shapeset from all points therein, in order to center the shapeset." )
     op.add_option("-s", "--scale", default=defopts.scale, help="After translations have been done, scale all point coordinates by this factor. Default %default" )
+    op.add_option("-e", "--distance", default=defopts.distance, help="Viewpoint distance. Default %default" )
     op.add_option("-a", "--around", default=defopts.around, help="Four floats delimited by commas x,y,z,d . Volumes with centroids within the box are included in output. Default %default. Using this replaces manual SQL query option. " )  
     op.add_option("-k", "--like",  default=defopts.like, help="Comma delimited SQLite like string for volume selection by name. Default %default. Using this replaces manual SQL query option. " )  
     op.add_option("-n", "--dryrun", action="store_true", help="Just do volume identification, not WRL generation. For debugging `around` OR `query` options without time consuming steps.")
