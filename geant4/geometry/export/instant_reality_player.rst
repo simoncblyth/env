@@ -36,19 +36,28 @@ Control from java
 
 
 
-
-Need to add some viewpoints
+Navigation Tips
 ----------------------------
 
 
-From the tutorial::
+`Zoom` 
+    Scroll with the mouse wheel or click the right mouse button and move the cursor vertical.
+    On OSX laptop use move two fingers up/down on trackpad to zoom in/out.
 
-    Examine Mode Navigation:
-    Zoom: Scroll with the mouse wheel or click the right mouse button and move the cursor vertical.
-    Shove: Click the middle mouse button and move the cursor around.
-    Rotate: Click the left mouse button and move the cursor around or press the arrow keys.
+`Shove` 
+    Click the middle mouse button and move the cursor around.
 
-    Cameras: Select a defined Viewpoint in the scene. The Viewpoint node must have the description field set in order to get listed.
+`Rotate`
+    Click the left mouse button and move the cursor around or press the arrow keys.
+
+`Cameras`
+    Select a defined Viewpoint in the scene using *Navigation > Cameras* 
+    The Viewpoint node must have the description field set in order to get listed.
+
+`CenterOfRotation`
+    Double click on object to redefine the center of rotation at that point
+
+
 
 
 Web Interface

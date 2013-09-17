@@ -1,6 +1,8 @@
 Fully Overlapping volumes, dodgy dozen
 =======================================
 
+.. contents:: :local:
+
 distinct volume count discrepancy
 ---------------------------------
 
@@ -104,13 +106,16 @@ In Instant Reality Player use `File > Open Location` and enter the URL
 * http://belle7.nuu.edu.tw/wrl/around_dupe.wrl
 
 
+
+Scene Attribute edits via web interface
+----------------------------------------
+
 * S4425 pick large extent volumes to be easy to spot
+
 * http://localhost:35668/Node.html?node=S4425
 * http://localhost:35668/setFieldValue?node=S4425&field=diffuseColor&value=0+1+0
 * http://localhost:35668/setFieldValue?node=265938224&field=diffuseColor&value=0+1+0
-
 * http://localhost:35668/setFieldValue?node=265938224&field=5&value=TRUE&link=referer
-
 
 Toggle the bbox for a volume from commandline, unfortunately need to use internal node id, not my name::
 
@@ -124,6 +129,74 @@ Works with external names too::
     simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=S4425&field=5&value=FALSE&link=referer"
     simon:export blyth$ curl "http://localhost:35668/setFieldValue?node=S4425&field=5&value=TRUE&link=referer"
 
+
+
+
+Volume selection with the dupes and context volumes
+----------------------------------------------------
+
+* http://belle7.nuu.edu.tw/wrl/adcalib2.wrl
+
+::
+
+    [blyth@belle7 wrl]$ shapedb.py -cq "select sid from xshape where (name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000 ) or (name like '/dd/Geometry/CalibrationSources/%' ) ; " > adcalib2.wrl
+    2013-09-17 12:20:53,485 env.geant4.geometry.export.shapecnf INFO     /home/blyth/env/bin/shapedb.py -cq select sid from xshape where (name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000 ) or (name like '/dd/Geometry/CalibrationSources/%' ) ; 
+    2013-09-17 12:20:53,485 env.geant4.geometry.export.shapedb INFO     opening /usr/lib/python2.4/site-packages/env/geant4/geometry/export/g4_01.db 
+    2013-09-17 12:20:53,524 env.geant4.geometry.export.shapedb INFO     Operate on 418 shapes, selected by opts.query "select sid from xshape where (name like '/dd/Geometry/AD/%' and dx > 1000 and dy > 1000 ) or (name like '/dd/Geometry/CalibrationSources/%' ) ; " 
+    2013-09-17 12:20:53,548 env.geant4.geometry.export.shapedb INFO     opts.center selected, will translate all 418 shapes such that centroid of all is at origin, original coordinate centroid at (-16704.83929964064, -802106.49254530168, -4649.1902775441531) 
+
+    [blyth@belle7 wrl]$ du -hs adcalib2.wrl
+    2.3M    adcalib2.wrl
+
+
+
+highlight the dupes
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sqlite> select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where name like '/dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000' ;
+    sid         npo         ax          ay          az                 dx                dy          dz                name                                                            
+    ----------  ----------  ----------  ----------  -----------------  ----------------  ----------  ----------------  ----------------------------------------------------------------
+    4570        50          -18063.584  -799502.16  -4157.12000000001  13.0999999999985  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    4658        50          -17296.992  -798390.84  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    4740        50          -19070.092  -800961.16  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6230        50          -14944.676  -804323.16  -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6318        50          -14178.092  -803212.0   -4157.12000000001  13.0              14.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6400        50          -15951.18   -805782.2   -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+
+::
+
+    simon:instant_reality_player blyth$ eai-edit -emissiveColor 1,0,0 -transparency 0 4570 4658 4740 6230 6318 6400 
+    eai-edit is a function
+    eai-edit () 
+    { 
+        type $FUNCNAME;
+        jcli-;
+        eai-cd;
+        javac -cp $(jcli-jar):$(eai-jar) SceneEdit.java && java -cp $(jcli-jar):$(eai-jar):. SceneEdit $*
+    }
+    Browser.Name = "Avalon"
+    Browser.Version = "V2.3.0 build: R-25322 Jul 18 2013 Mac OS X ppc"
+    Browser.CurrentSpeed = 1.0
+    Browser.CurrentFrameRate = 23.016539
+    Browser.WorldURL = "http://belle7.nuu.edu.tw/wrl/adcalib.wrl"
+    applyEdit to node : M4570 type : [Material] : org.instantreality.vrml.eai.net.Node@2f8b5a
+    changeFloat transparency from 0.7 to 0.0
+    applyEdit to node : M4658 type : [Material] : org.instantreality.vrml.eai.net.Node@7a1767
+    changeFloat transparency from 0.7 to 0.0
+    applyEdit to node : M4740 type : [Material] : org.instantreality.vrml.eai.net.Node@968fda
+    changeFloat transparency from 0.7 to 0.0
+    applyEdit to node : M6230 type : [Material] : org.instantreality.vrml.eai.net.Node@be41ec
+    changeFloat transparency from 0.7 to 0.0
+    applyEdit to node : M6318 type : [Material] : org.instantreality.vrml.eai.net.Node@7ec9f7
+    changeFloat transparency from 0.7 to 0.0
+    applyEdit to node : M6400 type : [Material] : org.instantreality.vrml.eai.net.Node@fd918a
+    changeFloat transparency from 0.7 to 0.0
+
+
+
+.. image:: six-dupes.png
 
 
 

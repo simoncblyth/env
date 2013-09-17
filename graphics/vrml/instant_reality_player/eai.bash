@@ -35,6 +35,15 @@ edits to the materials with node names passed ::
     eai-edit -emissiveColor 0,1,0 -transparency 0 -ambientIntensity 1 M4605 M4606 M4607 M4608
 
 
+Usage
+~~~~~~
+
+#. launch instant reality player and load a scene eg with *File > Load Location*
+
+    * http://belle7.nuu.edu.tw/wrl/around_dupe.wrl
+
+
+
 Is the VRML model defining the class ?
 ----------------------------------------
 
@@ -101,6 +110,7 @@ eai-get(){
 eai-framework(){ javac -cp $(eai-jar) EAIFramework.java && java -cp $(eai-jar):. EAIFramework ; } 
 eai-example(){ javac -cp $(eai-jar) EAIExample.java && java -cp $(eai-jar):. EAIExample ; } 
 eai-traverse(){ javac -cp $(eai-jar) Traverse.java  && java -cp $(eai-jar):. Traverse ; } 
+eai-viewpoint(){ javac -cp $(eai-jar) Viewpoint.java  && java -cp $(eai-jar):. Viewpoint ; } 
 
 eai-edit(){
    type $FUNCNAME
