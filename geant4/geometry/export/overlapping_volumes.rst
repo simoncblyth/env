@@ -16,11 +16,7 @@ After including the the name line, are 6 more distinct::
     simon:export blyth$ echo "select count(distinct(src)) from shape ;" | sqlite3 -noheader g4_00.db 
     12229       
 
-Observe:
-
-#. 6 more after including the volume name comment metadata first line suggests a small number of absolute position duplicated shapes with different volume names
-#. confirmed that assertion using `shape.hash` digest that excludes the name metadata 
-
+#. This suggests six absolute position duplicated shapes with different volume names
 
 confirmation of shape overlapping
 ----------------------------------
@@ -39,6 +35,157 @@ The dodgy dozen, six pairs of volumes are precisely co-located::
     c35f0b07cfa25126ec1b156aca3364d8  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000,/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000  4740,4741       
     sqlite> 
 
+
+
+slice of detdesc xml
+~~~~~~~~~~~~~~~~~~~~~~~
+
+* :dybsvn:`dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml`
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml?annotate=blame&rev=19722 4 year old XML from Dan
+
+::
+
+    [blyth@cms01 DDDB]$ find . -name '*.xml' -exec grep -H /dd/Geometry/CalibrationSources/lvMainSSTube {} \;
+    ./CalibrationSources/sources.xml:             logvol="/dd/Geometry/CalibrationSources/lvMainSSTube">
+    [blyth@cms01 DDDB]$ find . -name '*.xml' -exec grep -H /dd/Geometry/CalibrationSources/lvMainSSCavity {} \;
+    ./CalibrationSources/sources.xml:             logvol="/dd/Geometry/CalibrationSources/lvMainSSCavity">
+
+::
+
+    443   <!-- AmCCo60 Source SS Tube Structure -->
+    444   <logvol name="lvMainSSTube" material="StainlessSteel">
+    445     <tubs name="MainSSTube" 
+    446           outerRadius="SSTubeOuterRadius"      ### 7.94*mm
+    447           sizeZ="SSTubeHeight-2*SSSpringPinOffSet"/>   ## 29.72*mm   29.72-(2*.815)=28.09
+    448 
+    449     <physvol name="pvMainSSCavity" 
+    450              logvol="/dd/Geometry/CalibrationSources/lvMainSSCavity">
+    451       <posXYZ x="0*m" y="0*m" z="0*m" />
+    452     </physvol>
+    453 
+    454   </logvol>
+    455 
+    456   <logvol name="lvMainSSCavity" material="Air">
+    457     <tubs name="MainSSCavity" 
+    458           sizeZ="AmCCo60AcrylicHeight"            ### 23.6*mm
+    459           outerRadius="AmCCo60AcrylicRadius" />   ### 6.55*mm
+    460 
+    461     <physvol name="pvAmCCo60SourceAcrylic"
+    462              logvol="/dd/Geometry/CalibrationSources/lvAmCCo60SourceAcrylic">
+    463       <posXYZ x="0*m" y="0*m" z="0*m" />
+    464     </physvol>
+    465 
+    466   </logvol>
+
+
+parameters.xml::
+
+     68 <parameter name="AmCCo60SourceAcrylicRadius" value="10.035*mm"/>
+     69 <parameter name="AmCCo60SourceAcrylicHeight" value="49.8*mm"/>
+     70 <parameter name="AmCCo60AcrylicHeight" value="23.6*mm"/>              ### MATCHES
+     71 <parameter name="AmCCo60AcrylicRadius" value="6.55*mm"/>
+     72 <parameter name="SSTubeOuterRadius" value="7.94*mm"/>
+     73 <parameter name="SSTubeHeight" value="29.72*mm"/>
+     74 <parameter name="AcrylicSideCavityRadius" value="6.35*mm"/>
+     75 <parameter name="AcrylicSideCavityHeight" value="3.8*mm"/>
+     76 <parameter name="Co60AlRadius" value="2.5*mm"/>
+     77 <parameter name="Co60AlHeight" value="5.0*mm"/>
+     78 <parameter name="Co60SourceRadius" value="1.0*mm"/>
+     79 <parameter name="Co60SourceHeight" value="2.0*mm"/>
+     80 <parameter name="Co60OffSet" value="1.5*mm"/>
+     81 <parameter name="AmCContainerOuterRadius" value="3.25*mm"/>
+     82 <parameter name="AmCContainerHeight" value="2.0*mm"/>
+     83 <parameter name="AmCOffSet" value="2.3*mm"/>
+     84 <parameter name="AmCSourceRadius" value="2.5*mm"/>
+     85 <parameter name="AmCSourceHeight" value="1.0*mm"/>
+     86 <parameter name="AmCSourceCupHeight" value="1.3*mm"/>
+     .. 
+     88 <parameter name="SSSpringPinRadius" value=".815*mm"/>
+     89 <parameter name="SSSpringPinOffSet" value="3.05*mm"/>
+
+
+
+correlate extents of exported shapes with expectations 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sqlite> select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where name like '/dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000' or name like '/dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAcrylic.1000' ;
+    sid         npo         ax          ay          az                 dx                dy          dz                name                                                            
+    ----------  ----------  ----------  ----------  -----------------  ----------------  ----------  ----------------  ----------------------------------------------------------------
+    4570        50          -18063.584  -799502.16  -4157.12000000001  13.0999999999985  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    4571        50          -18063.584  -799502.16  -4157.12000000001  13.0999999999985  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    4658        50          -17296.992  -798390.84  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    4659        50          -17296.992  -798390.84  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    4740        50          -19070.092  -800961.16  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    4741        50          -19070.092  -800961.16  -4157.12000000001  13.0              13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    6230        50          -14944.676  -804323.16  -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6231        50          -14944.676  -804323.16  -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    6318        50          -14178.092  -803212.0   -4157.12000000001  13.0              14.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6319        50          -14178.092  -803212.0   -4157.12000000001  13.0              14.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    6400        50          -15951.18   -805782.2   -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000
+    6401        50          -15951.18   -805782.2   -4157.12000000001  13.1000000000004  13.0        23.6000000000004  /dd/Geometry/CalibrationSources/lvMainSSCavity#pvAmCCo60SourceAc
+    sqlite> 
+
+::
+
+    [blyth@belle7 export]$ shapedb.py -ce 100 4570 > $(nginx-htdocs)/wrl/4570.wrl
+    2013-09-18 16:54:27,945 env.geant4.geometry.export.shapecnf INFO     /home/blyth/env/bin/shapedb.py -ce 100 4570
+    2013-09-18 16:54:27,945 env.geant4.geometry.export.shapedb INFO     opening /usr/lib/python2.4/site-packages/env/geant4/geometry/export/g4_01.db 
+    2013-09-18 16:54:27,946 env.geant4.geometry.export.shapedb INFO     Operate on 1 shapes, selected by args : [4570] 
+    2013-09-18 16:54:27,966 env.geant4.geometry.export.shapedb INFO     opts.center selected, will translate all 1 shapes such that centroid of all is at origin, original coordinate centroid at (-18063.583999999995, -799502.16000000003, -4157.1200000000053) 
+    2013-09-18 16:54:27,966 env.geant4.geometry.export.shapedb INFO     #        sid        npo          ax          ay          az          dx          dy          dz 
+    2013-09-18 16:54:27,986 env.geant4.geometry.export.shapedb INFO     #       4570         50   -18063.58  -799502.16    -4157.12       13.10       13.00       23.60  /dd/Geometry/CalibrationSources/lvMainSSTube#pvMainSSCavity.1000 
+    2013-09-18 16:54:27,987 env.geant4.geometry.export.shapedb INFO     select src_head||x'0A'||group_concat(x'09'||x'09'||x'09'||x'09'||x'09'||(1*(x-(-18063.584)))||' '||(1*(y-(-799502.16)))||' '||(1*(z-(-4157.12)))||',',x'0A')||x'0A'||src_tail from point join shape on shape.id = point.sid where sid in (4570) group by sid ;
+
+* http://belle7.nuu.edu.tw/wrl/4570.wrl
+
+
+.. image:: 4570.png
+
+   Grotty 50 point (24+24+1+1) representation of a Tubs. Possibly the overlapping causes the grottiness.
+  
+
+::
+
+    [blyth@cms01 DDDB]$ find . -name '*.xml' -exec grep -H AmCCo60AcrylicRadius {} \;
+    ./CalibrationSources/sources.xml:          outerRadius="AmCCo60AcrylicRadius" />
+    ./CalibrationSources/sources.xml:          outerRadius="AmCCo60AcrylicRadius"
+    ./CalibrationSources/sources.xml:          sizeZ="2*AmCCo60AcrylicRadius"/>
+    ./CalibrationSources/sources.xml:          outerRadius="AmCCo60AcrylicRadius"
+    ./CalibrationSources/sources.xml:          outerRadius="AmCCo60AcrylicRadius" />
+    ./CalibrationSources/parameters.xml:<parameter name="AmCCo60AcrylicRadius" value="6.55*mm"/>
+    [blyth@cms01 DDDB]$ 
+    [blyth@cms01 DDDB]$ find . -name '*.xml' -exec grep -H SSTubeOuterRadius {} \;
+    ./CalibrationSources/sources.xml:            outerRadius="SSTubeOuterRadius"
+    ./CalibrationSources/sources.xml:          outerRadius="SSTubeOuterRadius"
+    ./CalibrationSources/sources.xml:          outerRadius="SSTubeOuterRadius"
+    ./CalibrationSources/sources.xml:          outerRadius="SSTubeOuterRadius"
+    ./CalibrationSources/parameters.xml:<parameter name="SSTubeOuterRadius" value="7.94*mm"/>
+    [blyth@cms01 DDDB]$ 
+
+
+
+working hypothesis
+~~~~~~~~~~~~~~~~~~~
+
+The closeness of the two tubs with difference of radii `7.94-6.55=1.39 mm` 
+(representing the thin stainless steel source shell) triggered 
+some overlap (vertex moving) code in the export that results 
+in the merging of the volumes.
+
+This merging got done twice resulting in exactly the same shape on both occasions. 
+
+how to check this ?
+~~~~~~~~~~~~~~~~~~~
+
+#. export parameter tweaking 
+
+
+
+Look for others with those names
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All six of those names are overlapped::
 
@@ -256,5 +403,63 @@ first degenerate pair
                                             -15945.3 -805779 -414
 
 
+
+checking the detdesc source
+-----------------------------
+
+::
+
+    [blyth@cms01 XmlDetDesc]$ svn log --limit 5 -v DDDB/CalibrationSources 
+    ------------------------------------------------------------------------
+    r19722 | goowenq | 2013-02-16 16:00:27 +0800 (Sat, 16 Feb 2013) | 1 line
+    Changed paths:
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
+
+    replace Am with Acrylic in strongAmC minor
+    ------------------------------------------------------------------------
+    r19236 | chenxh | 2013-01-07 20:11:15 +0800 (Mon, 07 Jan 2013) | 1 line
+    Changed paths:
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
+
+    fix the bug to run regular AmC simulation
+    ------------------------------------------------------------------------
+    r18863 | caogf | 2012-11-30 19:03:44 +0800 (Fri, 30 Nov 2012) | 1 line
+    Changed paths:
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/ADEPhysVols.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationBox/structure.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/geometry.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/manual-calib.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/parameters.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/structure.xml
+
+    add several source geometry
+    ------------------------------------------------------------------------
+    r12888 | ligs | 2011-07-08 01:04:03 +0800 (Fri, 08 Jul 2011) | 1 line
+    Changed paths:
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/ExtraMaterials.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/materials_dry.xml
+
+    define scint ball geometry
+    ------------------------------------------------------------------------
+    r12830 | ligs | 2011-07-01 09:40:22 +0800 (Fri, 01 Jul 2011) | 1 line
+    Changed paths:
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/GDSPhysVols.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/structure.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/ExtraMaterials.xml
+       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/materials_dry.xml
+
+    rm previous commit to recover
+    ------------------------------------------------------------------------
 
 
