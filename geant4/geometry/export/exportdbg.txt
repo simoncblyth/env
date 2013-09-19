@@ -1,0 +1,357 @@
+
+2435
+/dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearRightSpanHbeam2.1003
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (2435) ; 
+sid         npo         ax                 ay          az          dx          dy          dz          name                                                                 
+----------  ----------  -----------------  ----------  ----------  ----------  ----------  ----------  ---------------------------------------------------------------------
+2435        24          -20103.8666666667  -796552.0   -1583.37    9892.5      6398.0      294.4       /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearRightSpanHbeam2.1003
+
+
+3149
+/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner.1000
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (3149) ; 
+sid         npo         ax          ay          az          dx          dy          dz          name                                                 
+----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  -----------------------------------------------------
+3149        50          -16048.293  -803091.86  -7067.9982  13644.59    15422.0     9916.0      /dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner.1000
+
+
+3151
+/dd/Geometry/Pool/lvNearPoolOWS#pvNearPoolCurtain.1000
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (3151) ; 
+sid         npo         ax          ay          az          dx          dy          dz          name                                                  
+----------  ----------  ----------  ----------  ----------  ----------  ----------  ----------  ------------------------------------------------------
+3151        50          -16085.48   -802990.16  -6565.9996  11506.8     13286.0     8912.0      /dd/Geometry/Pool/lvNearPoolOWS#pvNearPoolCurtain.1000
+
+
+3199
+/dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUnit#pvAdPmt.1
+BooleanProcessor::assembleFace(74) : could not find next edge of the contour
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (3199) ; 
+sid         npo         ax                 ay                 az                 dx                dy          dz                name                                                                                                           
+----------  ----------  -----------------  -----------------  -----------------  ----------------  ----------  ----------------  ---------------------------------------------------------------------------------------------                  
+3199        362         -16595.8593922652  -801442.651933702  -8842.50027624308  270.200000000001  286.0       200.580000000002  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUnit#pvAdPmt.1
+
+
+4356
+/dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase.1001
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4356) ; 
+sid         npo         ax          ay          az          dx                dy          dz          name                                                 
+----------  ----------  ----------  ----------  ----------  ----------------  ----------  ----------  -----------------------------------------------------
+4356        50          -18289.832  -800004.44  -4826.5     60.7999999999993  61.0        53.0        /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase.1001
+
+
+4447
+/dd/Geometry/AD/lvOIL#pvSstBotCirRib#SstBotCirRib:7.7
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4447) ; 
+sid         npo         ax           ay           az          dx          dy          dz          name                                                 
+----------  ----------  -----------  -----------  ----------  ----------  ----------  ----------  -----------------------------------------------------
+4447        16          -18423.7625  -797823.375  -9355.0     1481.6      330.0       430.0       /dd/Geometry/AD/lvOIL#pvSstBotCirRib#SstBotCirRib:7.7
+
+
+4463
+/dd/Geometry/AD/lvOIL#pvSstTopTshapeRibs#SstTopTshapeRibs:7#SstTopTshapeRot.7
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4463) ; 
+sid         npo         ax                 ay                 az                 dx                dy          dz                name                                                                         
+----------  ----------  -----------------  -----------------  -----------------  ----------------  ----------  ----------------  -----------------------------------------------------------------------------
+4463        22          -17784.9136363636  -798325.590909091  -4814.55772727273  553.700000000001  2147.0      258.730000000001  /dd/Geometry/AD/lvOIL#pvSstTopTshapeRibs#SstTopTshapeRibs:7#SstTopTshapeRot.7
+
+
+4539
+/dd/Geometry/CalibrationBox/lvDomeInterior#pvTurntableLowerPlate.1002
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseEE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4539) ; 
+sid         npo         ax                 ay                 az                 dx                dy          dz                name                                                                 
+----------  ----------  -----------------  -----------------  -----------------  ----------------  ----------  ----------------  ---------------------------------------------------------------------
+4539        203         -18014.5467980295  -799605.369458128  -4226.93871921181  525.299999999999  525.0       12.6999999999998  /dd/Geometry/CalibrationBox/lvDomeInterior#pvTurntableLowerPlate.1002
+
+
+4540
+/dd/Geometry/CalibrationBox/lvDomeInterior#pvLedSourceAssyInAcu.1003
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4540) ; 
+sid         npo         ax                 ay               az                 dx                dy          dz          name                                                                
+----------  ----------  -----------------  ---------------  -----------------  ----------------  ----------  ----------  --------------------------------------------------------------------
+4540        629         -18079.3666136725  -799699.3354531  -4117.22529411766  20.0999999999985  20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvLedSourceAssyInAcu.1003
+
+
+4542
+/dd/Geometry/CalibrationSources/lvLedSourceShell#pvDiffuserBall.1000
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4542) ; 
+sid         npo         ax                 ay                 az                 dx                dy          dz                name                                                                
+----------  ----------  -----------------  -----------------  -----------------  ----------------  ----------  ----------------  --------------------------------------------------------------------
+4542        267         -18079.4528089888  -799699.445692884  -4157.12000000001  15.9000000000015  15.0        15.8800000000001  /dd/Geometry/CalibrationSources/lvLedSourceShell#pvDiffuserBall.1000
+
+
+4550
+/dd/Geometry/CalibrationSources/lvLedSourceAssy#pvLedWeightCableBot.1004
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::triangulateFace : too small contour
+BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4550) ; 
+sid         npo         ax          ay          az                 dx                 dy          dz                name                                                                    
+----------  ----------  ----------  ----------  -----------------  -----------------  ----------  ----------------  ------------------------------------------------------------------------
+4550        50          -18079.46   -799699.44  -4194.72000000001  0.599999999998545  1.0         25.3999999999996  /dd/Geometry/CalibrationSources/lvLedSourceAssy#pvLedWeightCableBot.1004
+
+
+4551
+/dd/Geometry/CalibrationBox/lvDomeInterior#pvGe68SourceAssyInAcu.1004
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4551) ; 
+sid         npo         ax                 ay                 az                 dx          dy          dz          name                                                                 
+----------  ----------  -----------------  -----------------  -----------------  ----------  ----------  ----------  ---------------------------------------------------------------------
+4551        357         -17900.4431372549  -799614.672268908  -4125.39173669466  20.0        20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvGe68SourceAssyInAcu.1004
+
+
+4565
+/dd/Geometry/CalibrationSources/lvGe68SourceAssy#pvWeightCableBot.1004
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::execute : unknown faces !!!
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4565) ; 
+sid         npo         ax          ay          az                 dx                 dy          dz                name                                                                  
+----------  ----------  ----------  ----------  -----------------  -----------------  ----------  ----------------  ----------------------------------------------------------------------
+4565        50          -17900.608  -799614.56  -4194.72000000001  0.600000000002183  1.0         25.3999999999996  /dd/Geometry/CalibrationSources/lvGe68SourceAssy#pvWeightCableBot.1004
+
+
+4566
+/dd/Geometry/CalibrationBox/lvDomeInterior#pvAmCCo60SourceAssyInAcu.1005
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseEE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4566) ; 
+sid         npo         ax                 ay                 az                 dx          dy          dz          name                                                                    
+----------  ----------  -----------------  -----------------  -----------------  ----------  ----------  ----------  ------------------------------------------------------------------------
+4566        296         -18063.5753378378  -799502.097972973  -4106.41881756756  20.0        20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvAmCCo60SourceAssyInAcu.1005
+
+
+4605
+/dd/Geometry/OverflowTanks/lvOflTnkContainer#pvOflTnkCnrSpace.1000
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor::caseIE : unimplemented case
+BooleanProcessor: boolean operation failed
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (4605) ; 
+sid         npo         ax                 ay                 az                 dx          dy          dz          name                                                              
+----------  ----------  -----------------  -----------------  -----------------  ----------  ----------  ----------  ------------------------------------------------------------------
+4605        172         -18056.4389534884  -799666.110465117  -4389.40313953487  1845.7      1845.0      299.99      /dd/Geometry/OverflowTanks/lvOflTnkContainer#pvOflTnkCnrSpace.1000
+
+select sid,npo,ax,ay,az,dx,dy,dz,name from xshape where sid in (2435,3149,3151,3199,4356,4447,4463,4539,4540,4542,4550,4551,4565,4566,4605) ; 
+sid         npo         ax                 ay          az          dx          dy          dz          name                                                                 
+----------  ----------  -----------------  ----------  ----------  ----------  ----------  ----------  ---------------------------------------------------------------------
+2435        24          -20103.8666666667  -796552.0   -1583.37    9892.5      6398.0      294.4       /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearRightSpanHbeam2.1003
+3149        50          -16048.293         -803091.86  -7067.9982  13644.59    15422.0     9916.0      /dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner.1000                
+3151        50          -16085.48          -802990.16  -6565.9996  11506.8     13286.0     8912.0      /dd/Geometry/Pool/lvNearPoolOWS#pvNearPoolCurtain.1000               
+3199        362         -16595.8593922652  -801442.65  -8842.5002  270.200000  286.0       200.580000  /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInC
+4356        50          -18289.832         -800004.44  -4826.5     60.7999999  61.0        53.0        /dd/Geometry/PMT/lvHeadonPmtAssy#pvHeadonPmtBase.1001                
+4447        16          -18423.7625        -797823.37  -9355.0     1481.6      330.0       430.0       /dd/Geometry/AD/lvOIL#pvSstBotCirRib#SstBotCirRib:7.7                
+4463        22          -17784.9136363636  -798325.59  -4814.5577  553.700000  2147.0      258.730000  /dd/Geometry/AD/lvOIL#pvSstTopTshapeRibs#SstTopTshapeRibs:7#SstTopTsh
+4539        203         -18014.5467980295  -799605.36  -4226.9387  525.299999  525.0       12.6999999  /dd/Geometry/CalibrationBox/lvDomeInterior#pvTurntableLowerPlate.1002
+4540        629         -18079.3666136725  -799699.33  -4117.2252  20.0999999  20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvLedSourceAssyInAcu.1003 
+4542        267         -18079.4528089888  -799699.44  -4157.1200  15.9000000  15.0        15.8800000  /dd/Geometry/CalibrationSources/lvLedSourceShell#pvDiffuserBall.1000 
+4550        50          -18079.46          -799699.44  -4194.7200  0.59999999  1.0         25.3999999  /dd/Geometry/CalibrationSources/lvLedSourceAssy#pvLedWeightCableBot.1
+4551        357         -17900.4431372549  -799614.67  -4125.3917  20.0        20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvGe68SourceAssyInAcu.1004
+4565        50          -17900.608         -799614.56  -4194.7200  0.60000000  1.0         25.3999999  /dd/Geometry/CalibrationSources/lvGe68SourceAssy#pvWeightCableBot.100
+4566        296         -18063.5753378378  -799502.09  -4106.4188  20.0        20.0        204.61      /dd/Geometry/CalibrationBox/lvDomeInterior#pvAmCCo60SourceAssyInAcu.1
+4605        172         -18056.4389534884  -799666.11  -4389.4031  1845.7      1845.0      299.99      /dd/Geometry/OverflowTanks/lvOflTnkContainer#pvOflTnkCnrSpace.1000   
+
+shapedb.py -c 2435 3149 3151 3199 4356 4447 4463 4539 4540 4542 4550 4551 4565 4566 4605
