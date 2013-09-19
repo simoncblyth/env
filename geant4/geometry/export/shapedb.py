@@ -201,6 +201,16 @@ DEF %(group)s Group {
 }
 """ 
 
+    anchor_open = r"""
+     Anchor {
+        description %(lquo)s%(description)s%(rquo)s
+        url %(lquo)s%(url)s%(rquo)s
+        children [
+"""
+    anchor_close = r"""
+]
+}
+"""
 
     def __init__(self, path=None, tn=None ):
         path = os.path.abspath(path)
@@ -240,11 +250,32 @@ DEF %(group)s Group {
         else:
             sql_head = "src_head"
 
+
+
+        # hmm when everyshape has an anchor it is more difficult to navigate 
+        sql_pre = ""
+        sql_post = ""
+        if opts.urlanchor:
+            sql_pre = self.anchor_open % dict(lquo="\"||x'22'||",rquo="||x'22'",description="shape.id||x'3F'||shape.name",url="\"\"")
+            sql_post = self.anchor_close
+
+        def q_(lsql):
+            lines = lsql.split("\n")
+            qlines = []
+            for line in lines:
+                if line[-7:] == "||x'22'":
+                    ql = "\"%s" % line
+                else:
+                    ql = "\"%s\"" % line
+                qlines.append(ql)
+            return qlines
+
+
         sql_tabs =  "x'09'||x'09'||x'09'||x'09'||x'09'||"
         sql_body = "group_concat(" + sql_tabs + sql_point_xyz + ",x'0A')"
         sql_tail = "src_tail"
         sql_from = "from point join shape on shape.id = point.sid where sid in (%(sids)s) group by sid ;"
-        sql = "select " + "||x'0A'||".join([sql_head,sql_body,sql_tail]) + " " + sql_from 
+        sql = "select " + "||x'0A'||".join(q_(sql_pre)+[sql_head,sql_body,sql_tail]+q_(sql_post)) + " " + sql_from 
         return sql % locals()
 
     def around_query(self, xyzd, like, fields="sid"):
@@ -347,9 +378,14 @@ DEF %(group)s Group {
 
 
     def handle_input(self, opts, args):
+        annotate = False
         if len(args)>0:
-            ids = sorted(map(int,args))
-            log.info("Operate on %s shapes, selected by args : %s " % ( len(ids), ids) )
+            ids = map(int,args)
+            nds = filter(lambda _:_ < 0,ids)
+            pds = filter(lambda _:_ >= 0,ids)
+            ids = sorted(map(abs, ids))
+            annotate = len(nds) > 0  
+            log.info("Operate on %s shapes [negated %s], selected by args : %s " % ( len(ids), len(nds), args) )
         else:
             if opts.around or opts.like:
                 ids = self.around( opts.around, opts.like )
@@ -370,13 +406,21 @@ DEF %(group)s Group {
             log.info("opts.scale selected, will scale all %s shapes sxyz %s " % (len(ids), xyz))
             opts.scale = xyz 
 
+        if annotate:
+             log.info("presence of negated ids signals split print, negated ids will be annotated (useful for small volumes, not so good with big ones as interferes with navigation)")
+             self.print_( map(abs,nds), opts )
+             opts_urlanchor = opts.urlanchor
+             opts.urlanchor = False
+             self.print_( map(abs,pds), opts )
+             opts.urlanchor = opts_urlanchor
+        else:
+             self.print_(ids, opts )
         return ids
 
 def main():
     opts, args = parse_args(__doc__)
     db = ShapeDB(opts.dbpath)
     ids = db.handle_input( opts, args )
-    db.print_(ids, opts )
 
    
 if __name__ == '__main__':

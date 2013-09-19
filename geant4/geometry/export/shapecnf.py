@@ -18,6 +18,7 @@ class Defaults(object):
     nameshape = False   # no longer needed as all volumes and materials now named in vrml2file.py 
     group = None
     distance = '12000'
+    urlanchor = True
 
 def parse_args(doc):
     """
@@ -40,6 +41,7 @@ def parse_args(doc):
     op.add_option("-z", "--chunksize", type="int", default=defopts.chunksize, help="Maximum number of shapes to group by query at once. Default %default.")
     op.add_option("-g", "--group", default=defopts.group, help="Name of node in which all others are placed, or None for no such group. A common choice of name is \"root\". Default %default.")
     op.add_option(      "--nonameshape", action="store_false", dest="nameshape", default=defopts.nameshape, help="Name the shapes in VRML eg S1,S2 etc... Default %default.")
+    op.add_option("-U", "--nourlanchor", default=defopts.urlanchor, action="store_false", dest="urlanchor", help="Include url anchors in generated geometry. Default %default.")
     op.add_option("-d", "--dbpath", default=defopts.dbpath, help="Path to shape DB file. Either an absolute path beginning with a '/' or a source directory relative path not beginning with '/'. Default %default.")
     op.add_option("-T", "--TEST", action="store_true", help="Duplication testing  multiple randomly chosen shapes." )
     op.add_option("-D", "--DUMP", action="store_true", help="Debug dumping." )
