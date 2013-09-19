@@ -8,5 +8,7 @@ export
    explore
    instant_reality_player
    overlapping_volumes
+   debug
+   visualize
    
 

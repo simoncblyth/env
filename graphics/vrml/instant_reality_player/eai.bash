@@ -97,7 +97,8 @@ EOU
 }
 eai-dir(){ echo $(env-home)/graphics/vrml/instant_reality_player  ; }
 eai-cd(){  cd $(eai-dir); }
-eai-jar(){ echo /Users/blyth/Desktop/Instant_Player.app/Contents/MacOS/instantreality.jar ; }
+eai-jar(){ echo /Applications/Instant_Player.app/Contents/MacOS/instantreality.jar ; }
+eai-ls(){ jar tvf $(eai-jar) ; }
 eai-get(){
     local names="EAIFramework.java EAIExample.wrl EAIExample.java"
     local urlbase="http://doc.instantreality.org/tutorial/external-authoring-interface-javanet"
