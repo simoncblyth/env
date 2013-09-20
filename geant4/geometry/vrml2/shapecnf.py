@@ -13,7 +13,7 @@ class Defaults(object):
     loglevel = "INFO"
     logpath = None
     maxids = 1000
-    dbpath = 'g4_01.db'
+    dbpath = '$LOCAL_BASE/env/geant4/geometry/vrml2/g4_01.db'
     chunksize = 100
     nameshape = False   # no longer needed as all volumes and materials now named in vrml2file.py 
     group = None
@@ -67,8 +67,12 @@ def parse_args(doc):
         pass
     pass
     log.info(" ".join(sys.argv))
-    if not opts.dbpath[0] == '/':
-        opts.dbpath = os.path.join(os.path.dirname(__file__),opts.dbpath)
+    dbpath = os.path.expandvars(os.path.expanduser(opts.dbpath))
+    if not dbpath[0] == '/':
+        opts.dbpath = os.path.join(os.path.dirname(__file__),dbpath)
+    else:
+        opts.dbpath = dbpath 
+    assert os.path.exists(dbpath), (dbpath,"DB file not at the new expected location, please create the directory and move the .db  there, please")
     pass    
     return opts, args
 
