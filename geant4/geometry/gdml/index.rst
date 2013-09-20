@@ -5,7 +5,7 @@ gdml
 .. toctree::
 
    intro
-   export
+   gdml_export
 
 
 

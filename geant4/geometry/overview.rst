@@ -19,9 +19,11 @@ Requirements
 * sensitive detectors, handled via a special material index
 * optical surface properties, presumably can be handled via material index
   
-* if 2 materials/colors per tri not supported would have to copy and flip faces
-  to provide a place to attach the 2nd material ? But need to collapse down to 
-  16 bits in STL later anyhow ?
+* if 2 materials/colors per tri not supported 
+
+  * copy and flip faces to provide a place to attach the 2nd material ?
+  * pack both materials in the place of one ? 
+  * does this have to get collapsed down to 16 bits in STL later anyhow ?
 
 * originating volume identity, probably not needed (but useful for development)
 
@@ -53,10 +55,5 @@ Commercial Converters
 
 * http://www.solveering.com/instep.htm includes GDML support/conversions
 
-Collada dae 
--------------
-
-* :google:`collada mesh vertices triangles example`
-* :google:`collada double sided surfaces`
 
 
