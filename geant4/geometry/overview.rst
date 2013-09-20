@@ -1,0 +1,62 @@
+Overview
+===========
+
+.. contents:: :local:
+
+Objective
+---------
+
+Convert a Geant4 geometry into a surface based STL file format for use on GPUs.
+
+* :google:`Convert a Geant4 geometry into a surface based STL file format`
+* :google:`ST-Viewer step tools GDML`
+
+Requirements
+--------------
+
+* reduce to the simplicity of a bunch of triangles
+* two material indices, inside+outside for every tri
+* sensitive detectors, handled via a special material index
+* optical surface properties, presumably can be handled via material index
+  
+* if 2 materials/colors per tri not supported would have to copy and flip faces
+  to provide a place to attach the 2nd material ? But need to collapse down to 
+  16 bits in STL later anyhow ?
+
+* originating volume identity, probably not needed (but useful for development)
+
+
+Geometry Representations
+-------------------------
+
+detdesc
+        source xml
+geant4
+        in memory tree of PV+LV+Solid instances 
+gdml
+        xml persistence, with model close to geant4
+vrml2
+        visualization targetted, a list of shapes each composed of triangle/quad faces and vertices
+x3d
+        later incarnation of vrml2 
+stl
+        triangles only, normal + 3 vertices + UINT16 per-tri color
+        http://en.wikipedia.org/wiki/STL_(file_format)
+collada
+        widely supported (including OSX SceneKit, Xcode, Preview), flexible
+        http://en.wikipedia.org/wiki/COLLADA
+        http://collada.org/
+
+
+Commercial Converters
+----------------------
+
+* http://www.solveering.com/instep.htm includes GDML support/conversions
+
+Collada dae 
+-------------
+
+* :google:`collada mesh vertices triangles example`
+* :google:`collada double sided surfaces`
+
+

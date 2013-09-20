@@ -4,39 +4,20 @@ VRML2FILE Geometry Export
 
 .. contents:: :local:
 
-
-Objective
-----------
-
-Convert a Geant4 geometry into a surface based STL file format.
-
-* :google:`Convert a Geant4 geometry into a surface based STL file format`
-* :google:`ST-Viewer step tools GDML`
-
-
 TODO
 -----
 
-#. prevent culling
-#. chase export warnings
+#. prevent culling, 
+
+   * DONE, only World volume was being culled
+
+#. chase export warnings, 
+
+   * DONE, but what to do about them not clear
+
 #. validation that complete geometry exported 
-#. does workflow retain solid identity into resulting mesh ?
 
-   * surface properties
-   * material types
-   * sensitive detectors
-
-Alternatives to VRML2
-------------------------
-
-GDML and an extension LCDD are interesting as Geant4 persistency
-but cannot find converter from GDML to STL 
-
-* http://www.solveering.com/instep.htm
-
-
-* :doc:`gdml`
-* :doc:`other`
+   * seems OK, from dumping of the pv names BUT comparison against a GDML export would be good
 
 
 GiGa python export
