@@ -4,11 +4,10 @@ export
 
 .. toctree::
 
-   inspection
-   explore
+   shapedb
    instant_reality_player
    overlapping_volumes
    debug
-   visualize
+   polyhedron
    
 

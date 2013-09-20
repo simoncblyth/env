@@ -1,7 +1,51 @@
-Fully Overlapping volumes, dodgy dozen
-=======================================
+Fully Overlapping volumes, due to imprecise export
+==================================================
 
 .. contents:: :local:
+
+executive summary
+------------------
+
+The large y dimension values: `-805788` are resulting in a loss of precision
+due to use of default streaming in the exported VRML2 geometries. 
+Six mother volumes end up exactly overlapping their six daughters, they are very close
+concentric tubs.
+
+G4Point3D streaming
+--------------------
+
+global/HEPGeometry/include/G4Point3D.hh::
+
+     33 #include "globals.hh"
+     34 #include <CLHEP/Geometry/Point3D.h>
+     36 typedef HepGeom::Point3D<G4double> G4Point3D;
+
+external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src/G4VRML2SceneHandlerFunc.icc::
+
+    209         G4Point3D point = polyhedron.GetVertex(i);
+    211         point.transform( *fpObjectTransformation );
+    214         fDest <<                   point.x() << " ";
+    215         fDest <<                   point.y() << " ";
+    216         fDest <<                   point.z() << "," << "\n";
+ 
+::
+
+     std::ofstream     fDest ;
+
+
+Probable Fix
+---------------
+
+external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src/G4VRML2FileSceneHandler.cc::
+
+    041 #include <iomanip>   // SCB 
+    ...
+    190     
+    191     G4cerr << "Using setprecision(5) and fixed floating point notation for veracity of output [SCB PATCH] " << G4endl;
+    192     fDest << std::setprecision(5) << std::fixed ; // SCB
+    193 
+    194 }
+
 
 distinct volume count discrepancy
 ---------------------------------
@@ -36,9 +80,8 @@ The dodgy dozen, six pairs of volumes are precisely co-located::
     sqlite> 
 
 
-
-slice of detdesc xml
-~~~~~~~~~~~~~~~~~~~~~~~
+check detdesc source xml
+--------------------------
 
 * :dybsvn:`dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml`
 
@@ -144,8 +187,8 @@ correlate extents of exported shapes with expectations
 
 .. image:: 4570.png
 
-   Grotty 50 point (24+24+1+1) representation of a Tubs. Possibly the overlapping causes the grottiness.
-  
+Grotty 50 point (24+24+1+1) representation of a Tubs.
+Numerical imprecision of the export is the cause of the grottiness.
 
 ::
 
@@ -167,7 +210,7 @@ correlate extents of exported shapes with expectations
 
 
 
-working hypothesis
+initial hypothesis
 ~~~~~~~~~~~~~~~~~~~
 
 The closeness of the two tubs with difference of radii `7.94-6.55=1.39 mm` 
@@ -177,11 +220,7 @@ in the merging of the volumes.
 
 This merging got done twice resulting in exactly the same shape on both occasions. 
 
-how to check this ?
-~~~~~~~~~~~~~~~~~~~
-
-#. export parameter tweaking 
-
+* NOPE: tis simple imprecise export formatting 
 
 
 Look for others with those names
@@ -350,6 +389,10 @@ highlight the dupes
 first degenerate pair
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+The large y dimension values: `-805788` are resulting in a loss of precision
+due to use of default streaming.
+
+
 ::
 
     sqlite> select substr(src,0,600) from shape where id = 6401 ;
@@ -401,65 +444,4 @@ first degenerate pair
                                             -15944.6 -805783 -4145.32,
                                             -15944.7 -805781 -4145.32,
                                             -15945.3 -805779 -414
-
-
-
-checking the detdesc source
------------------------------
-
-::
-
-    [blyth@cms01 XmlDetDesc]$ svn log --limit 5 -v DDDB/CalibrationSources 
-    ------------------------------------------------------------------------
-    r19722 | goowenq | 2013-02-16 16:00:27 +0800 (Sat, 16 Feb 2013) | 1 line
-    Changed paths:
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
-
-    replace Am with Acrylic in strongAmC minor
-    ------------------------------------------------------------------------
-    r19236 | chenxh | 2013-01-07 20:11:15 +0800 (Mon, 07 Jan 2013) | 1 line
-    Changed paths:
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
-
-    fix the bug to run regular AmC simulation
-    ------------------------------------------------------------------------
-    r18863 | caogf | 2012-11-30 19:03:44 +0800 (Fri, 30 Nov 2012) | 1 line
-    Changed paths:
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/ADEPhysVols.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationBox/structure.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/geometry.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/manual-calib.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/parameters.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/ManualCalibration/structure.xml
-
-    add several source geometry
-    ------------------------------------------------------------------------
-    r12888 | ligs | 2011-07-08 01:04:03 +0800 (Fri, 08 Jul 2011) | 1 line
-    Changed paths:
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/ExtraMaterials.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/materials_dry.xml
-
-    define scint ball geometry
-    ------------------------------------------------------------------------
-    r12830 | ligs | 2011-07-01 09:40:22 +0800 (Fri, 01 Jul 2011) | 1 line
-    Changed paths:
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/GDSPhysVols.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/structure.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/geometry.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/parameters.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/sources.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/CalibrationSources/structure.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/ExtraMaterials.xml
-       M /dybgaudi/trunk/Detector/XmlDetDesc/DDDB/materials/materials_dry.xml
-
-    rm previous commit to recover
-    ------------------------------------------------------------------------
-
 

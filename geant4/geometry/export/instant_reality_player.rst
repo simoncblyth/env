@@ -1,44 +1,17 @@
 instant reality player
 =======================
 
+.. contents:: :local:
+
+References
+----------
+
 * http://doc.instantreality.org/tutorial/
 * http://doc.instantreality.org/tutorial/getting-started/
-
-In app menu choose `View > Statistic > Keyboard Mapping` for some guidance
-
-
-
-Control from java
--------------------
-
-* http://doc.instantreality.org/tutorial/external-authoring-interface-javanet/
-
-::
-
-    simon:Instant Player.app blyth$ jar tvf ~/Desktop/Instant\ Player.app/Contents/MacOS/instantreality.jar
-     75176 Thu Jul 18 14:19:30 CST 2013 META-INF/MANIFEST.MF
-     75297 Thu Jul 18 14:19:30 CST 2013 META-INF/IR.SF
-      1966 Thu Jul 18 14:19:30 CST 2013 META-INF/IR.RSA
-         0 Thu Jul 18 13:42:22 CST 2013 META-INF/
-        70 Wed Jan 26 14:45:22 CST 2011 vrml.properties
-        78 Wed Jan 26 14:45:22 CST 2011 x3d.properties
-         0 Thu Jul 18 13:42:20 CST 2013 org/
-         0 Thu Jul 18 13:42:18 CST 2013 org/gnu/
-         0 Thu Jul 18 13:42:18 CST 2013 org/gnu/common/
-      1732 Thu Jul 18 13:42:18 CST 2013 org/gnu/common/FNMatch.class
-         0 Thu Jul 18 13:42:20 CST 2013 org/instantreality/
-         0 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/
-      7379 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/BaseEvent.class
-      1116 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/BrowserEvent.class
-      1203 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/Client$BrowserListenerThread.class
-       463 Thu Jul 18 13:42:18 CST 2013 org/instantreality/AEI/Client$Flag.class
-
-
 
 
 Navigation Tips
 ----------------------------
-
 
 `Zoom` 
     Scroll with the mouse wheel or click the right mouse button and move the cursor vertical.
@@ -58,10 +31,8 @@ Navigation Tips
     Double click on object to redefine the center of rotation at that point
 
 
-
-
-Web Interface
----------------
+Primitive Web Interface
+------------------------
 
 * http://doc.instantreality.org/tutorial/web-interface/
 
@@ -70,42 +41,22 @@ When running the player a web server is available at
 * http://localhost:35668/
 
 This allows to change Node properties, such as `emissiveColor` at URLs like the below.
+Tedious to use, as internal node names are used.
 
 * http://localhost:35668/Node.html?node=200910384
 
-BUT, the volume names are not currently propagated into VRML, they are just comments by geant4 vrml2file
-that I parse and stuff into the shapedb name field. 
 
+EAI java Interface
+-------------------
 
-Try promoting the comment to actual node name::
+* http://doc.instantreality.org/tutorial/external-authoring-interface-javanet/
 
-    [blyth@belle7 wrl]$ cp around_dupe.wrl around_dupe_names.wrl
-    [blyth@belle7 wrl]$ vi around_dupe_names.wrl 
-    [blyth@belle7 wrl]$ perl -pi -e 's,#---------- SOLID:,DEF,gc ' around_dupe_names.wrl
-    [blyth@belle7 wrl]$ 
-
-Need to fixup the names. As hashes are not appreciated.::
-
-    sqlite> select replace(name,"#","_") from shape limit 10 ;
-    replace(name,"#","_")                                                                                                                                                                                   
-    ---------------------------------------------------------------------------------------------                                                                                                           
-    /dd/Structure/Sites/db-rock.1000                                                                                                                                                                        
-    /dd/Geometry/Sites/lvNearSiteRock_pvNearHallTop.1000                                                                                                                                                    
-    /dd/Geometry/Sites/lvNearHallTop_pvNearTopCover.1000                                                                                                                                                    
-    /dd/Geometry/Sites/lvNearHallTop_pvNearTeleRpc_pvNearTeleRpc:1.1                                                                                                                                        
-    /dd/Geometry/RPC/lvRPCMod_pvRPCFoam.1000                                                                                                                                                                
-    /dd/Geometry/RPC/lvRPCFoam_pvBarCham14Array_pvBarCham14ArrayOne:1_pvBarCham14Unit.1                                                                                                                     
-    /dd/Geometry/RPC/lvRPCBarCham14_pvRPCGasgap14.1000                            
-
-
-Does VRML2 Support Metadata ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
+Created `SceneEdit.java` to change volume properties, see `eai-` esp `eai-edit`
 
 
 Navigation
 -----------
+
 
 Most useful navigation modes keys to swap between:
 
@@ -117,6 +68,8 @@ examine(e)
 
 Keyboard Mapping
 ------------------
+
+In app menu choose `View > Statistic > Keyboard Mapping` for some guidance
 
 Find the text of the help message by grepping the dylibs and stringing the hit::
 

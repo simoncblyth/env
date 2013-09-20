@@ -5,7 +5,7 @@ geometry
 .. toctree::
 
    vrml2file_export
-   gdml
+   gdml/index
    other
    cad
    visualisation
