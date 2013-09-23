@@ -14,13 +14,17 @@ libG4gdml.so is built with geant4 if the switch is ON NuWa-trunk/lcgcmt/LCG_Buil
      93 set G4LIB_USE_GDML "1" \
      94     dayabay ""
 
+
+
+.. _gdml_build:
+
 Geant4 level manual GDML build
 ---------------------------------
 
 ::
 
-    [blyth@belle7 dyb]$ cd external/build/LCG/geant4.9.2.p01/source/persistency/gdml
-    [blyth@belle7 gdml]$ make CLHEP_BASE_DIR=/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=/data1/env/local/dyb/external/XercesC/2.8.0/i686-slc5-gcc41-dbg
+    [blyth@belle7 dyb]$ cd $DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml
+    [blyth@belle7 gdml]$ make CLHEP_BASE_DIR=$DYB/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$DYB/external/XercesC/2.8.0/i686-slc5-gcc41-dbg
     Making dependency for file src/G4GDMLWriteStructure.cc ...
     Making dependency for file src/G4GDMLWriteSolids.cc ...
     Making dependency for file src/G4GDMLWriteSetup.cc ...
@@ -30,6 +34,9 @@ Geant4 level manual GDML build
     Compiling G4GDMLWriteStructure.cc ...
     Compiling G4STRead.cc ...
     Creating shared library ../../../lib/Linux-g++/libG4gdml.so ...
+
+
+.. _gdml_install:
 
 GDML Manual Install lib and includes
 -------------------------------------
@@ -42,6 +49,7 @@ GDML Manual Install lib and includes
     -rw-r--r-- 1 blyth blyth 2249 Mar 16  2009 /data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/G4STEPEntity.hh
     [blyth@belle7 gdml]$ l $DYB/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/G4GDML*
     ls: /data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/G4GDML*: No such file or directory
+
     [blyth@belle7 gdml]$ cp include/* $DYB/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/include/
 
 
@@ -78,7 +86,10 @@ to base `GiGaRunActionGDML` upon and piggyback the CMT controlled build, from::
     /data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/cmt
 
 
-Invoke from python creating 3.2M file
+
+.. _gdml_export:
+
+Perform Export creating 3.2M file
 --------------------------------------
 
 ::
@@ -107,6 +118,13 @@ Invoke from python creating 3.2M file
     G4GDML: Writing setup...
     G4GDML: Writing 'g4_00.gdml' done !
     Start Run processing.
+
+
+Perform the export::
+
+    [blyth@belle7 gdml]$ cd ~/e/geant4/geometry/gdml
+    [blyth@belle7 gdml]$ fenv
+    [blyth@belle7 gdml]$ ./export.sh
 
 
 
@@ -192,4 +210,121 @@ $DYB/external/build/LCG/geant4.9.2.p01/examples/extended/persistency/gdml/G02/sr
     170 
 
 
+Annoying physvol name truncation + uniqing
+---------------------------------------------
+
+#. physvol names are trucated to 99 chars
+#. names are sometimes but not always uniqued by appending pointer address
+
+::
+
+    30017       <physvol name="/dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pv">
+    30018         <volumeref ref="/dd/Geometry/PoolDetails/lvCornerParRib20xbc9ee78"/>
+    30019         <position name="/dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pv" unit="mm" x="-5743.97485196094" y="-2743.97485196094" z="1944"/>
+    30020         <rotation name="/dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pv" unit="deg" x="0" y="0" z="-135"/>
+    30021       </physvol>
+
+
+Yep traversing the gdml and dumping physvol names, confirms the truncation::
+
+    71 /dd/Geometry/AdDetails/lvCtrLsoOflInOil#pvCtrGdsOflTfbInLsoOfl0xbe03178
+    68 /dd/Geometry/AdDetails/lvOcrGdsTfbInLsoOfl#pvOcrGdsInLsoOfl0xbadf408
+    66 /dd/Geometry/AdDetails/lvOcrGdsLsoOfl#pvOcrGdsTfbInLsoOfl0xbb77f40
+    82 /dd/Geometry/CalibrationSources/lvWallLedSourceAssy#pvWallLedDiffuserBall0xc065178
+    80 /dd/Geometry/CalibrationSources/lvWallLedSourceAssy#pvWallLedAcrylicRod0xbd92aa0
+    36 /dd/Geometry/AD/lvOIL#pvOAV0xbf66370
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUn
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:1#pvAdPmtUn
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:2#pvAdPmtUn
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:2#pvAdPmtUn
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:3#pvAdPmtUn
+    99 /dd/Geometry/AD/lvOIL#pvAdPmtArray#pvAdPmtArrayRotated#pvAdPmtRingInCyl:1#pvAdPmtInRing:3#pvAdPmtUn
+
+
+Compare against the shape shapes from the VRML2FILE export::
+
+    sqlite> select name,length(name) from shape where name like '/dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pv%' ;
+    name                                                                                                                                                                                                      length(name)
+    ---------------------------------------------------------------------------------------------                                                                                                             ------------
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerLinerParRib1.2                                                              140         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerLinerParRib2.2                                                              140         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerCurtainParRib1.2                                                            142         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerCurtainParRib2.2                                                            142         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerLinerVerRib1.2                                                              140         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerLinerVerRib2.2                                                              140         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerCurtainVerRib1#pvBotVertiRibUnit.2                                          160         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerCurtainVerRib2#pvBotVertiRibUnit.2                                          160         
+    /dd/Geometry/Pool/lvNearPoolOWS#pvNearUnistruts#pvNearHalfUnistruts:2#pvNearQuadCornerUnistrus:1#pvCornerUnistrut1#pvBotCornerLinerVerRib0.2                                                              140         
+
+
+Hunt the truncation::
+
+
+    [blyth@cms01 src]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src
+
+    [blyth@cms01 src]$ grep 99 *.*
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode(name,tempStr,99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode(value,tempStr,99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode(name,tempStr,99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode(str,tempStr,99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode(name,tempStr,99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode("LS", tempStr, 99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode("Range", tempStr, 99);
+    G4GDMLWrite.cc:   xercesc::XMLString::transcode("gdml", tempStr, 99);
+    [blyth@cms01 src]$ 
+
+
+
+Rebuild GDML with simple fix
+-----------------------------
+
+::
+
+    [blyth@belle7 gdml]$ cd $DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src
+    [blyth@belle7 src]$  vi ../include/G4GDMLWrite.hh
+
+
+::
+
+    099  private:
+    100 
+    101    static G4bool addPointerToName;
+    102    xercesc::DOMDocument* doc;
+    103    //XMLCh tempStr[100];
+           const static int tempStrSize = 256;
+           XMLCh tempStr[tempStrSize];
+           
+    104 
+    105 };
+
+
+::
+
+    80    xercesc::XMLString::transcode(name,tempStr,99);
+    :.,$s,99,tempStrSize-1,gc
+
+
+Repeat the  above steps:
+
+* :ref:`gdml_build`
+* :ref:`gdml_install`
+* :ref:`gdml_export`
+
+
+Confirm the fix
+------------------
+
+::
+
+    [blyth@belle7 gdml]$ du -hs g4_00.gdml
+    4.0M    g4_00.gdml
+    [blyth@belle7 gdml]$ mv  g4_00.gdml  $LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml
+
+
+Address uniqing causes too many diffs.
+
+::
+
+    simon:gdml blyth$ scp N:/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml  $LOCAL_BASE/env/geant4/geometry/gdml/
 
