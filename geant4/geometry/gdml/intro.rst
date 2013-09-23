@@ -2,6 +2,8 @@ GDML
 =====
 
 * http://gdml.web.cern.ch/GDML/
+* http://gdml.web.cern.ch/GDML/gdmlexample.html
+
 
 The Geometry Description Markup Language is an application-indepedent geometry
 description format based on XML. It can be used as the primary geometry
@@ -30,6 +32,10 @@ Overviews
 -----------
 
 * http://cao-gdml.in2p3.fr/presentations/GDML_orsay.pdf
+
+   * GDML reader/write are part of the Geant4 and ROOT releases
+   * volumes can have auxiliary fields for storing any key/value pairs, eg sensdet
+   
 
 
 Extensions
@@ -123,6 +129,39 @@ one needs to have:
 Once the above setup is defined in the user's environment, the GDML module in Geant4 
 will be built using the standard build procedure applicable for Geant4. 
 
+
+Schema Highlights
+-------------------
+
+* http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd
+
+VolumeType
+    Represents a top of a geometrical sub-hierarchy not placed in space.
+    None of its children can coincide with its boundary defined by an associated
+    solid. Two different placements of the same logical volume represent two
+    different geometrical hierarchies in space
+
+
+
+* http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml_core.xsd
+* http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml_solids.xsd
+
+::
+
+    <xs:element name="opticalsurface" substitutionGroup="SurfaceProperty">
+    <xs:annotation>
+    <xs:documentation>Optical surface used by Geant4 optical processes</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+    <xs:complexContent>
+    <xs:extension base="SurfacePropertyType">
+    <xs:attribute name="model" type="xs:string" default="glisur"/>
+    <xs:attribute name="finish" type="xs:string" default="polished"/>
+    <xs:attribute name="value" type="xs:string" default="1.0"/>
+    </xs:extension>
+    </xs:complexContent>
+    </xs:complexType>
+    </xs:element>
 
 
 
