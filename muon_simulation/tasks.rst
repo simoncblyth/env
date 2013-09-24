@@ -3,35 +3,83 @@ Tasks
 
 .. contents:: :local:
 
-Geant4 Profiling
------------------
+Geant4 Profiling [DONE]
+------------------------
 
 * verify expectations of where CPU time is spent, check what the potential gains really are
-* DONE :doc:`/muon_simulation/profiling/base/index`
-
+* :doc:`/muon_simulation/profiling/base/index`
 
 Convert Detector Geometry from Solid to Surface representation
 ---------------------------------------------------------------
 
-* convert Geant4 geometry into STL mesh needed for Chroma/GPUs
+Requirement
+~~~~~~~~~~~~
 
-   * geant4 export VRML2 with VRML2FILE driver into a .wrl file 
+Convert Geant4 geometry representation of solids and materials 
+into surfaces (triangles) with inside/outside materials for each triangle. 
+This simpler representation is needed in order to bring geometry onto GPU.
 
-       * DONE with caveats :doc:`/graphics/geant4/vrml` 
+Geant4 Exports [DONE]
+~~~~~~~~~~~~~~~~~~~~~~
 
-   * meshlab import VRML2 :doc:`/graphics/mesh/meshlab`
-   * meshlab export STL 
-   * mesh visualization with meshlab, blender, freewrl 
+Learn details of existing Geant4 geometry functionality, to see what 
+can be reused.
+
+* geant4 export VRML2 with VRML2FILE driver into a .wrl file 
+
+  * :doc:`/graphics/geant4/vrml` 
+  * :doc:`/geant4/geometry/vrml2` 
+  * precision issues in export observed
+  
+    * TODO: check if already fixed in later geant4, otherwise submit patch 
+
+* geant4 export GDML 
+
+  * DONE :doc:`/geant4/geometry/gdml` 
+  * truncation of volume names observed+fixed
+
+    * TODO: check if already fixed in later geant4, otherwise submit patch 
+
+Geant4 Collada exporter [PURSUING]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create Geant4 Collada(widely supported 3D format) exporter. 
+Using a form of geometry representation that can easily be converted 
+to the STL(a very simple 3D format) needed by Chroma. 
+
+* Actually probably pycollada can be used to allow Chroma to directly access triangles from .dae files
+
+Collada is in some sense intermediate to VRML2 and GDML, 
+so the new exporter can draw upon those existing exporters.
+
+Alternatives [ON HOLD] 
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternate workflows for G4 export and mesh conversion
+
+* HepRep ? 
+* other geometry libraries: CGAL, BRL-CAD, ... 
+
+Decided that best to start from Geant4 and develop in that 
+context initially.
+
+Meshlab [ON HOLD]
+~~~~~~~~~~~~~~~~~~
+
+Although meshlab can convert VRML2 into STL, this misses 
+the material information. 
+
+* meshlab import VRML2 :doc:`/graphics/mesh/meshlab`
+* meshlab export STL 
+* mesh visualization with meshlab, blender, freewrl 
 
 
-* geometry validation ?
+Geometry Validation
+~~~~~~~~~~~~~~~~~~~~
 
-   * visualisation with meshlab, blender
-   * surface properties, retaining volume/surface identity into a mesh representation 
-   * alternate workflows for G4 export and mesh conversion
+* visualisation with meshlab, blender
+* surface properties, retaining volume/surface identity into a mesh representation 
 
-       * HepRep ? 
-       * other geometry libraries: CGAL, BRL-CAD, ... 
 
 
 Geant4/Chroma integration
@@ -58,18 +106,20 @@ give back to G4 at sensitive detectors
     
 Need seemless integration with the rest of the reconstruction chain
 
-
 maybe more general approach
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Drop in replacement for some Geant4 classes which provide 
-the GPU acceleration with minimal disturbance.  Perhaps:
+the GPU acceleration with minimal disturbance.  
+Perhaps:
 
    * processes/transportation/src/G4Transportation.cc
    * geometry/navigation/src/G4TransportationManager.cc
 
 Usual Geant4 API approach of eg providing UserStackingAction
 requires custom handling. Complications: geometry conversion.
+
+
 
 CUDA/Chroma testing
 -----------------------------------

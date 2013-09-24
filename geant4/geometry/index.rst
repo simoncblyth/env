@@ -9,6 +9,7 @@ Geant4 Geometry Export
    export/index
    vrml2/index
    gdml/index
+   collada/index
    detdesc
    other
    cad
