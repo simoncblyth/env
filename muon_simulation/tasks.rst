@@ -27,15 +27,14 @@ can be reused.
 
 * geant4 export VRML2 with VRML2FILE driver into a .wrl file 
 
-  * :doc:`/graphics/geant4/vrml` 
-  * :doc:`/geant4/geometry/vrml2` 
+  * :doc:`/geant4/geometry/vrml2/index` 
   * precision issues in export observed
   
     * TODO: check if already fixed in later geant4, otherwise submit patch 
 
 * geant4 export GDML 
 
-  * DONE :doc:`/geant4/geometry/gdml` 
+  * DONE :doc:`/geant4/geometry/gdml/index` 
   * truncation of volume names observed+fixed
 
     * TODO: check if already fixed in later geant4, otherwise submit patch 

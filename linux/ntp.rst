@@ -1,8 +1,7 @@
 Network Time Protocol
 ======================
 
-* http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch24_:_The_NTP_Server
-
+* `http://www.linuxhomenetworking.com/wiki/index.php/Quick_HOWTO_:_Ch24_:_The_NTP_Server`
 
 
 Update the datetime
