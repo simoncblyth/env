@@ -80,7 +80,19 @@ Geometry Validation
 * visualisation with meshlab, blender
 * surface properties, retaining volume/surface identity into a mesh representation 
 
+Chroma Installation
+--------------------
 
+Need an easily reproducible installation approach for NuWa+Chroma 
+and its many dependencies http://chroma.bitbucket.org/install/details.html
+Extending `dybinst` and `NuWa/LCG_Builders` presumably the way to go,  
+
+  * probably the CUDA toolkit needs to be excluded, using the local installs
+
+Chroma is aggressive about versions, how critical these are is unknown
+
+  * `GEANT4.9.5 or later` [lots of work needed to bring all of geant4 up to 4.9.5, maybe just patches for issues?]
+  * `ROOT 5.32 or later` 
 
 Geant4/Chroma integration
 ---------------------------
