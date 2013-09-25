@@ -32,6 +32,13 @@ so `apt-get update` will stop working and will not be able to install updates.
 
 * http://www.canonical.com/enterprise-services/support/server/support-life-cycles
 
+
+Diagram of lifecycles.  
+
+* https://wiki.ubuntu.com/LTS
+
+
+
 After death Ubuntu
 --------------------
 

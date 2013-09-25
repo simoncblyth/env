@@ -17,4 +17,5 @@ chroma
    prerequisites
    hardware
    zeromq
+   chroma_server
 

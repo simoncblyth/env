@@ -1,10 +1,13 @@
 Chroma Prerequisites
 =====================
 
+* http://chroma.bitbucket.org/install/details.html
+
 Difficult hardware and software requirements, lots of pre-requisites.
 
 * Are they all really, really needed ?
 * what are they for ?
+
 
 Software
 ---------
