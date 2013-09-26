@@ -13,5 +13,6 @@ cuda
     cudatoolkit
     pycuda/index
     rcuda
+    cuda_cloud
 
 

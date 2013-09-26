@@ -5,4 +5,5 @@ collada
 .. toctree::
 
    intro
+   export
 
