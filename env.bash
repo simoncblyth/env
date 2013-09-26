@@ -1225,3 +1225,4 @@ eai-(){      . $(env-home)/graphics/vrml/instant_reality_player/eai.bash && eai-
 jcli-(){      . $(env-home)/java/commons/cli/jcli.bash && jcli-env $* ; }
 shapedb-(){      . $(env-home)/geant4/geometry/vrml2/shapedb.bash && shapedb-env $* ; }
 
+pycollada-(){      . $(env-home)/graphics/collada/pycollada.bash && pycollada-env $* ; }
