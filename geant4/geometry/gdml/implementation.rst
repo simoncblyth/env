@@ -14,7 +14,7 @@ Contary to expectations from the name `G4GDMLWriteStructure` is top dog inheriti
 from all the other `G4GDMLWrite*` classes including `G4GDMLWrite` at the base.
 Inheritance misused for categorisation.
 
-NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaRunActionGDML.cpp::
+$DYB/NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaRunActionGDML.cpp::
 
      55    G4VPhysicalVolume* wpv = G4TransportationManager::GetTransportationManager()->
      56       GetNavigatorForTracking()->GetWorldVolume();
@@ -27,7 +27,7 @@ NuWa-trunk/lhcb/Sim/GaussTools/src/Components/GiGaRunActionGDML.cpp::
      63        parser.Write(outFilePath, wpv);
      64    }
 
-external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLParser.cc::
+$DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLParser.cc::
 
      37 G4GDMLParser::G4GDMLParser()
      38   : ucode(false)
@@ -37,7 +37,7 @@ external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLParser.cc::
      42   xercesc::XMLPlatformUtils::Initialize();
      43 }
 
-external/build/LCG/geant4.9.2.p01/source/persistency/gdml/include/G4GDMLParser.icc::
+$DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/include/G4GDMLParser.icc::
 
      47 inline
      48 void G4GDMLParser::Write(const G4String& filename,
@@ -65,7 +65,7 @@ external/build/LCG/geant4.9.2.p01/source/persistency/gdml/include/G4GDMLParser.i
      70   writer->Write(filename,lvol,schemaLocation,depth,refs);
      71 }
 
-external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWrite.cc::
+$DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWrite.cc::
 
     107 G4Transform3D G4GDMLWrite::Write(const G4String& fname,
     108                                  const G4LogicalVolume* const logvol,
@@ -91,7 +91,7 @@ external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWrite.cc::
     217 }
 
 
-external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWriteStructure.cc::
+$DYB/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWriteStructure.cc::
 
     189 G4Transform3D G4GDMLWriteStructure::
     190 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
@@ -137,7 +137,9 @@ external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src/G4GDMLWriteStructu
     262       {                         // a separate module!
     263          daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
     ...
-    ...   hmm, how come not getting a deeper GDML structure then ?
+    ...   Q: hmm, how come not getting a deeper GDML structure then ?
+    ...   A: because no matter what depth of the recursion the resulting volumeElement with 0 or more child physvol
+    ...      are appended to the fixed structureElement gdml/structure/
     ...
     264       }
     265       else

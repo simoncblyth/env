@@ -3,16 +3,18 @@ Collada Exporter
 
 .. contents:: :local:
 
+About Collada
+--------------
+
+General Collada notes are in :doc:`/graphics/collada/index`
+keep this area for Geant4 specifics related to Collada.
+
+
 Geant4 docs 
 ------------
 
 * http://geant4.cern.ch/support/userdocuments.shtml
 * http://www-geant4.kek.jp/Reference/
-
-About Collada
---------------
-
-* :doc:`/graphics/collada/index`
 
 How to implement ?
 --------------------

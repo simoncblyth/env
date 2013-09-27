@@ -1,0 +1,21 @@
+# === func-gen- : graphics/collada/collada fgp graphics/collada/collada.bash fgn collada fgh graphics/collada
+collada-src(){      echo graphics/collada/collada.bash ; }
+collada-source(){   echo ${BASH_SOURCE:-$(env-home)/$(collada-src)} ; }
+collada-vi(){       vi $(collada-source) ; }
+collada-env(){      elocal- ; }
+collada-usage(){ cat << EOU
+
+COLLADA
+=========
+
+
+
+EOU
+}
+collada-dir(){ echo $(env-home)/graphics/collada ; }
+collada-cd(){  cd $(collada-dir); }
+collada-mate(){ mate $(collada-dir) ; }
+collada-get(){
+   local dir=$(dirname $(collada-dir)) &&  mkdir -p $dir && cd $dir
+
+}

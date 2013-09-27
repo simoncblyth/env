@@ -9,6 +9,30 @@ Objective
 Learn about elements of Collada needed to 
 represent Geant4 geometry models.
 
+For more Geant4 exporter implementation specifics :doc:`/geant4/geometry/collada`
+
+
+References
+-----------
+
+* http://collada.org/mediawiki/index.php/Using_URIs_in_COLLADA
+
+
+
+
+Mapping between Collada model and Geant4 model
+------------------------------------------------
+
+================  =============================================
+Geant4             Collada
+================  =============================================
+Solid              instance_geometry OR geometry ?
+LogicalVolume      node 
+PhysicalVolume     instance_node
+================  =============================================
+
+
+
 input
 -------
 
@@ -31,6 +55,11 @@ document. To use the data, a consumer declares a connection to it with the desir
         <vertices id="cubeverts-array-vertices">
           <input source="#cubeverts-array" semantic="POSITION"/>
         </vertices>
+
+library_node
+--------------
+
+Child elements: One or more nodes.
 
 node
 -----
@@ -57,20 +86,12 @@ COLLADA uses the term node to denote interior nodes. Arcs are also called paths.
 
 The *node* element represents a context in which the child transformation elements are composed in the 
 order that they occur. All the other child elements are affected equally by the accumulated transformations 
-in the scope of the 
-*node* element. 
+in the scope of the *node* element. 
 
 The transformation elements transform the coordinate system of the 
-*node* element. Mathematically, this 
-means that the transformation elements are converted to matrices and postmultiplied in the order in which 
-they are specified within the 
+*node* element. Mathematically, this means that the transformation elements 
+are converted to matrices and postmultiplied in the order in which they are specified within the 
 *node* to compose the coordinate system. 
-
-
-library_node
---------------
-
-Child elements: One or more nodes.
 
 
 instance_node
@@ -110,7 +131,6 @@ matrix
 --------
 
 Parent element: *node*
-
 
 
 library_geometries
