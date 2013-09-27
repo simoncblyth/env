@@ -174,7 +174,7 @@ class ExistWalk(object):
         collections, resources = self.edq( dirurl )
         yield (dirurl, collections, resources )      # topdown traverse
         for collection in collections:
-            for x in self.walk( "%s%s/" % ( dirurl, collection )):
+            for x in self.walk( "%s%s/" % ( dirurl, collection )):   # recursive yield trick, avoids yielding a generator via the anonymous iteration
                 yield x    
 
 

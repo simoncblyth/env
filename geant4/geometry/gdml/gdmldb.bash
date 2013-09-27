@@ -18,6 +18,7 @@ gdmldb-get(){
    local dir=$(dirname $(gdmldb-dir)) &&  mkdir -p $dir && cd $dir
 
 }
-
-gdmldb-path(){ echo $(local-base)/env/geant4/geometry/gdml/g4_01.gdml.db ; }
-gdmldb-sh(){ sqlite3 $(gdmldb-path) ; }
+gdmldb-xmlvi(){ vi $(gdmldb-xmlpath) ; }
+gdmldb-xmlpath(){ echo $(local-base)/env/geant4/geometry/gdml/g4_01.gdml ; }
+gdmldb-dbpath(){ echo $(gdmldb-xmlpath).db ; }
+gdmldb-sh(){ sqlite3 $(gdmldb-dbpath) ; }
