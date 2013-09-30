@@ -1228,3 +1228,4 @@ shapedb-(){      . $(env-home)/geant4/geometry/vrml2/shapedb.bash && shapedb-env
 pycollada-(){      . $(env-home)/graphics/collada/pycollada.bash && pycollada-env $* ; }
 collada-(){      . $(env-home)/graphics/collada/collada.bash && collada-env $* ; }
 gdmldb-(){      . $(env-home)/geant4/geometry/gdml/gdmldb.bash && gdmldb-env $* ; }
+g4beta-(){      . $(env-home)/geant4/g4beta.bash && g4beta-env $* ; }
