@@ -36,6 +36,27 @@ Geant4 level manual GDML build
     Creating shared library ../../../lib/Linux-g++/libG4gdml.so ...
 
 
+
+Subsequent Geant4Py build misses libG4persistency
+---------------------------------------------------
+
+Need to invoke the global target to make that::
+
+    [blyth@belle7 ~]$ cd $DYB/external/build/LCG/geant4.9.2.p01/source/persistency/
+    [blyth@belle7 persistency]$ vi ../../config/globlib.gmk
+    [blyth@belle7 persistency]$ make CLHEP_BASE_DIR=$DYB/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$DYB/external/XercesC/2.8.0/i686-slc5-gcc41-dbg global
+    Nothing to be done for libG4persistency in mctruth/.
+    Nothing to be done for libG4persistency in ascii/.
+    Nothing to be done for libG4persistency in gdml/.
+    Creating global shared library ../../lib/Linux-g++/libG4persistency.so ...
+    [blyth@belle7 persistency]$ 
+
+Manual install::
+
+     
+
+
+
 .. _gdml_install:
 
 GDML Manual Install lib and includes
