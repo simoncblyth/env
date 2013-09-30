@@ -12,5 +12,6 @@ VRML2
    overlapping_volumes
    booleanprocessor_warnings
    polyhedron
+   vrml2file_implementation
    
 

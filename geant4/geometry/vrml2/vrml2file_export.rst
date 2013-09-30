@@ -124,7 +124,7 @@ export settings
 ----------------
 
 Need to avoid culling for a complete export.
-
+Observe that the only volume being culled was the World volume.
 
 ::
 
@@ -546,10 +546,10 @@ vis recursion
 
 Need to follow the recursion to make sense of this.
 
-* visualization/modeling/include/G4PhysicalVolumeModel.hh
-* visualization/modeling/src/G4PhysicalVolumeModel.cc
- 
-::
+
+* $DYB/external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4PhysicalVolumeModel.hh
+
+$DYB/external/build/LCG/geant4.9.2.p01/source/visualization/modeling/src/G4PhysicalVolumeModel.cc::
 
     336 void G4PhysicalVolumeModel::DescribeAndDescend
     337 (G4VPhysicalVolume* pVPV,
@@ -821,158 +821,6 @@ Writing polyhedron primitives
     249 }
 
 
-
-what steers this
-~~~~~~~~~~~~~~~~~
-
-::
-
-    (gdb) b 'G4VRML2FileSceneHandler::AddPrimitive(G4Polyhedron const&)' 
-    Breakpoint 1 at 0x46c7fcf: file src/G4VRML2SceneHandlerFunc.icc, line 175.
-    (gdb) 
-    ...
-    /vis/sceneHandler/attach
-    Scene "scene-0" attached to scene handler "scene-handler-0.
-      (You may have to refresh with "/vis/viewer/flush" if view is not "auto-refresh".)
-    NOTE: For systems which are not "auto-refresh" you will need to
-      issue "/vis/viewer/refresh" or "/vis/viewer/flush".
-    /vis/viewer/refresh viewer-0
-    Refreshing viewer "viewer-0 (VRML2FILE)"...
-    ===========================================
-    Output VRML 2.0 file: g4_03.wrl
-    Maximum number of files in the destination directory: 100
-      (Customizable with the environment variable: G4VRMLFILE_MAX_FILE_NUM) 
-    ===========================================
-    Traversing scene data...
-
-    Breakpoint 1, G4VRML2FileSceneHandler::AddPrimitive (this=0x1024ab10, polyhedron=@0x1024aaa8) at src/G4VRML2SceneHandlerFunc.icc:175
-    175             if (polyhedron.GetNoFacets() == 0) return;
-    (gdb) bt
-    #0  G4VRML2FileSceneHandler::AddPrimitive (this=0x1024ab10, polyhedron=@0x1024aaa8) at src/G4VRML2SceneHandlerFunc.icc:175
-    #1  0xb709af73 in G4VSceneHandler::RequestPrimitives (this=0x1024ab10, solid=@0xbb7cce0) at src/G4VSceneHandler.cc:453
-    #2  0xb709999b in G4VSceneHandler::AddSolid (this=0x1024ab10, solid=@0xbb7cce0) at src/G4VSceneHandler.cc:252
-    #3  0x046c8889 in G4VRML2FileSceneHandler::AddSolid (this=0x1024ab10, vsolid=@0xbb7cce0) at src/G4VRML2SceneHandlerFunc.icc:78
-    #4  0x0458f405 in G4SubtractionSolid::DescribeYourselfTo (this=0xbb7cce0, scene=@0x1024ab10) at src/G4SubtractionSolid.cc:459
-    #5  0xb5ef6186 in G4PhysicalVolumeModel::DescribeSolid (this=0x1024b0c0, theAT=@0xbfabb230, pSol=0xbb7cce0, pVisAttribs=0x1024cdc8, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:551
-    #6  0xb5ef7bf2 in G4PhysicalVolumeModel::DescribeAndDescend (this=0x1024b0c0, pVPV=0xba26fd0, requestedDepth=-2, pLV=0xbb61578, pSol=0xbb7cce0, pMaterial=0xbb7e670, theAT=@0xbfabba10, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:456
-    #7  0xb5ef6ba3 in G4PhysicalVolumeModel::VisitGeometryAndGetVisReps (this=0x1024b0c0, pVPV=0xba26fd0, requestedDepth=-2, theAT=@0xbfabba10, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:222
-    #8  0xb5ef7dc1 in G4PhysicalVolumeModel::DescribeAndDescend (this=0x1024b0c0, pVPV=0xbc0f528, requestedDepth=-1, pLV=0xba26c80, pSol=0xba26c00, pMaterial=0xbe623f8, theAT=@0xbfabbf80, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:523
-    #9  0xb5ef6ba3 in G4PhysicalVolumeModel::VisitGeometryAndGetVisReps (this=0x1024b0c0, pVPV=0xbc0f528, requestedDepth=-1, theAT=@0xbfabbf80, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:222
-    #10 0xb5ef8219 in G4PhysicalVolumeModel::DescribeYourselfTo (this=0x1024b0c0, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:170
-    #11 0xb709a9f2 in G4VSceneHandler::ProcessScene (this=0x1024ab10) at src/G4VSceneHandler.cc:516
-    #12 0xb70a162b in G4VViewer::ProcessView (this=0x1024cc58) at src/G4VViewer.cc:122
-    #13 0x046c980c in G4VRML2FileViewer::DrawView (this=0x1024cc58) at src/G4VRML2FileViewer.cc:83
-    #14 0xb70d81d7 in G4VisCommandViewerRefresh::SetNewValue (this=0xbf8a760, newValue=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc1d8 "o2$\020\001"}}, <No data fields>}) at src/G4VisCommandsViewer.cc:1141
-    #15 0x072c1dc4 in G4UIcommand::DoIt (this=0xbf8b010, parameterList=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc28c "$2$\020\023"}}, <No data fields>}) at src/G4UIcommand.cc:210
-    #16 0x072ce32b in G4UImanager::ApplyCommand (this=0xbe49a98, aCmd=0x1024aeec "/vis/viewer/refresh viewer-0") at src/G4UImanager.cc:410
-    #17 0x072ce47a in G4UImanager::ApplyCommand (this=0xbe49a98, aCmd=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc2f8 "i(R)$\020i(R)$\020THaN(w\r\005"}}, <No data fields>}) at src/G4UImanager.cc:354
-    #18 0xb70d8adb in G4VisCommandViewerFlush::SetNewValue (this=0xbf89e98, newValue=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc438 "d2$\020\001"}}, <No data fields>}) at src/G4VisCommandsViewer.cc:801
-    #19 0x072c1dc4 in G4UIcommand::DoIt (this=0xbf8a028, parameterList=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc4ec "1/4\233\200\004yyyy\021"}}, <No data fields>}) at src/G4UIcommand.cc:210
-    #20 0x072ce32b in G4UImanager::ApplyCommand (this=0xbe49a98, aCmd=0xbf7075c "/vis/viewer/flush") at src/G4UImanager.cc:410
-    #21 0x072ce47a in G4UImanager::ApplyCommand (this=0xbe49a98, aCmd=
-              {<std::basic_string<char,std::char_traits<char>,std::allocator<char> >> = {static npos = 4294967295, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0xbfabc5c8 "\\\a/\v\230\232a\vO\204\032\005~O]OAE<<?\022}\030\005h0o\vpC$\020 AE<<?O\226e\vAXja"}}, <No data fields>}) at src/G4UImanager.cc:354
-    #22 0xb744c4f2 in GiGaRunActionCommand::BeginOfRunAction (this=0xbf63068, run=0x1024c770) at ../src/Components/GiGaRunActionCommand.cpp:79
-    #23 0x05187d12 in G4RunManager::RunInitialization (this=0xbe9c014) at src/G4RunManager.cc:203
-    #24 0xb45dd722 in GiGaRunManager::initializeRun (this=0xbe9be40) at ../src/component/GiGaRunManager.cpp:347
-    #25 0xb45dd984 in GiGaRunManager::prepareTheEvent (this=0xbe9be40, vertex=0xbb24038) at ../src/component/GiGaRunManager.cpp:250
-    #26 0xb45bae97 in GiGa::prepareTheEvent (this=0xbe9b448, vertex=0xbb24038) at ../src/component/GiGa.cpp:444
-    #27 0xb45b7620 in GiGa::operator<< (this=0xbe9b448, vertex=0xbb24038) at ../src/component/GiGaIGiGaSvc.cpp:52
-    #28 0xb4806ad5 in DsPushKine::execute (this=0xbe8d218) at ../src/DsPushKine.cc:55
-    #29 0x0226c408 in Algorithm::sysExecute (this=0xbe8d218) at ../src/Lib/Algorithm.cpp:558
-    #30 0x0601768f in GaudiAlgorithm::sysExecute (this=0xbe8d218) at ../src/lib/GaudiAlgorithm.cpp:161
-    #31 0x0607ffd4 in GaudiSequencer::execute (this=0xb951210) at ../src/lib/GaudiSequencer.cpp:100
-    #32 0x0226c408 in Algorithm::sysExecute (this=0xb951210) at ../src/Lib/Algorithm.cpp:558
-    #33 0x0601768f in GaudiAlgorithm::sysExecute (this=0xb951210) at ../src/lib/GaudiAlgorithm.cpp:161
-    #34 0x022e841a in MinimalEventLoopMgr::executeEvent (this=0xb50e180) at ../src/Lib/MinimalEventLoopMgr.cpp:450
-    #35 0x03e12956 in DybEventLoopMgr::executeEvent (this=0xb50e180, par=0x0) at ../src/DybEventLoopMgr.cpp:125
-    #36 0x03e1318a in DybEventLoopMgr::nextEvent (this=0xb50e180, maxevt=10) at ../src/DybEventLoopMgr.cpp:188
-    #37 0x022e6dbd in MinimalEventLoopMgr::executeRun (this=0xb50e180, maxevt=10) at ../src/Lib/MinimalEventLoopMgr.cpp:400
-    #38 0x090a46d9 in ApplicationMgr::executeRun (this=0xb1d4cb8, evtmax=10) at ../src/ApplicationMgr/ApplicationMgr.cpp:867
-    #39 0x07021f57 in method_3426 (retaddr=0xbf9d3f0, o=0xb1d50e4, arg=@0xb240e30) at ../i686-slc5-gcc41-dbg/dict/GaudiKernel/dictionary_dict.cpp:4375
-    #40 0x007ccadd in ROOT::Cintex::Method_stub_with_context (context=0xb240e28, result=0xbfe6224, libp=0xbfe627c) at cint/cintex/src/CINTFunctional.cxx:319
-    #41 0x03921034 in ?? ()
-    #42 0x0b240e28 in ?? ()
-    #43 0x0bfe6224 in ?? ()
-    #44 0x00000000 in ?? ()
-    (gdb) 
-
-    (gdb) frame 13
-    #13 0x046c980c in G4VRML2FileViewer::DrawView (this=0x1024cc58) at src/G4VRML2FileViewer.cc:83
-    83              ProcessView();
-    (gdb) list
-    78              // Viewpoint node
-    79              SendViewParameters(); 
-    80
-    81              // Here is a minimal DrawView() function.
-    82              NeedKernelVisit();
-    83              ProcessView();
-    84              FinishView();
-    85      }
-    86
-
-    (gdb) frame 12
-    #12 0xb70a162b in G4VViewer::ProcessView (this=0x1024cc58) at src/G4VViewer.cc:122
-    122         fSceneHandler.ProcessScene (*this);
-    (gdb) list
-    117       // DrawView)...
-    118       if (fNeedKernelVisit) {
-    119         // Reset flag.  This must be done before ProcessScene to prevent
-    120         // recursive calls when recomputing transients...
-    121         fNeedKernelVisit = false;
-    122         fSceneHandler.ProcessScene (*this);
-    123       }
-    124     }
-    125
-
-    (gdb) frame 11
-    #11 0xb709a9f2 in G4VSceneHandler::ProcessScene (this=0x1024ab10) at src/G4VSceneHandler.cc:516
-    516           pModel -> DescribeYourselfTo (*this);
-    (gdb) list
-    511           // pModel->GetTransformation().  The model must take care of
-    512           // this in pModel->DescribeYourselfTo(*this).  See, for example,
-    513           // G4PhysicalVolumeModel and /vis/scene/add/logo.
-    514           pModel -> SetModelingParameters (pMP);
-    515           SetModel (pModel);  // Store for use by derived class.
-    516           pModel -> DescribeYourselfTo (*this);
-    517           pModel -> SetModelingParameters (0);
-    518         }
-    519
-    520         // Repeat if required...
-
-    (gdb) frame 10
-    #10 0xb5ef8219 in G4PhysicalVolumeModel::DescribeYourselfTo (this=0x1024b0c0, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:170
-    170          sceneHandler);
-    (gdb) list
-    165
-    166       VisitGeometryAndGetVisReps
-    167         (fpTopPV,
-    168          fRequestedDepth,
-    169          startingTransformation,
-    170          sceneHandler);
-    171
-
-    (gdb) frame 9 
-    #9  0xb5ef6ba3 in G4PhysicalVolumeModel::VisitGeometryAndGetVisReps (this=0x1024b0c0, pVPV=0xbc0f528, requestedDepth=-1, theAT=@0xbfabbf80, sceneHandler=@0x1024ab10) at src/G4PhysicalVolumeModel.cc:222
-    222                             theAT, sceneHandler);
-    (gdb) list
-    217       if (!(pVPV -> IsReplicated ())) {
-    218         // Non-replicated physical volume.
-    219         pSol = pLV -> GetSolid ();
-    220         pMaterial = pLV -> GetMaterial ();
-    221         DescribeAndDescend (pVPV, requestedDepth, pLV, pSol, pMaterial,
-    222                             theAT, sceneHandler);
-    223       }
-    224       else {
-    225         // Replicated or parametrised physical volume.
-    226         EAxis axis;
-
-
-
 vrml2file driver 
 -----------------
 
@@ -1067,119 +915,6 @@ The header.
     506         fDest << "# Generated by VRML 2.0 driver of GEANT4\n" << "\n";
     507     }
     508 }
-
-
-
-
-source/visualization/VRML/include/G4VRML2SceneHandler.hh
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Hmm, looks to duplicate much of `G4VRML2FileSceneHandler.hh`. Presumably just different
-destinations, live graphics OR file.
-
-::
-
-     49 class G4VRML2SceneHandler: public G4VSceneHandler {
-     50 
-     51     enum { MAX_CONNECTION_TRIAL = 10 } ;
-     52 
-     53 // methods (public) 
-     54 public:
-     55     G4VRML2SceneHandler(G4VRML2& system, const G4String& name = "");
-     56     virtual ~G4VRML2SceneHandler();
-     57     void AddSolid(const G4Box&);
-     58     void AddSolid(const G4Cons&);
-     59     void AddSolid(const G4Tubs&);
-
-
-::
-
-    [blyth@cms01 include]$ diff G4VRML2FileSceneHandler.hh G4VRML2SceneHandler.hh
-    27c27
-    < // $Id: G4VRML2FileSceneHandler.hh,v 1.16 2006/06/29 21:25:39 gunter Exp $
-    ---
-    > // $Id: G4VRML2SceneHandler.hh,v 1.13 2006/06/29 21:25:43 gunter Exp $
-    30c30
-    < // G4VRML2FileSceneHandler.hh
-    ---
-    > // G4VRML2SceneHandler.hh
-
-    ...
-    98c101
-    <       void connectPort();
-    ---
-    >       void connectPort(int max_trial = MAX_CONNECTION_TRIAL );
-    ...
-    140c135
-    <       std::ofstream     fDest ;
-    ---
-    >       G4FRClient fDest ;
-
-
-
-
-
-Visualization Steering
-----------------------
-
-::
-
-    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H Traversing {} \;
-    ./visualization/management/src/G4VSceneHandler.cc:      G4cout << "Traversing scene data..." << G4endl;
-
-::
-
-    471 void G4VSceneHandler::ProcessScene (G4VViewer&) {
-    472 
-    473   if (!fpScene) return;
-    474 
-    475   G4VisManager* visManager = G4VisManager::GetInstance();
-    476 
-    477   if (!visManager->GetConcreteInstance()) return;
-    478 
-    479   G4VisManager::Verbosity verbosity = visManager->GetVerbosity();
-    480 
-    481   fReadyForTransients = false;
-    482 
-    483   // Clear stored scene, if any, i.e., display lists, scene graphs.
-    484   ClearStore ();
-    485 
-    486   // Reset fMarkForClearingTransientStore.  No need to clear transient
-    487   // store since it has just been cleared above.  (Leaving
-    488   // fMarkForClearingTransientStore true causes problems with
-    489   // recomputing transients below.)  Restore it again at end...
-    490   G4bool tmpMarkForClearingTransientStore = fMarkForClearingTransientStore;
-    491   fMarkForClearingTransientStore = false;
-    492 
-    493   // Traverse geometry tree and send drawing primitives to window(s).
-    494 
-    495   const std::vector<G4VModel*>& runDurationModelList =
-    496     fpScene -> GetRunDurationModelList ();
-    497 
-    498   if (runDurationModelList.size ()) {
-    499     if (verbosity >= G4VisManager::confirmations) {
-    500       G4cout << "Traversing scene data..." << G4endl;
-    501     }
-    502 
-    503     BeginModeling ();
-    504 
-    505     // Create modeling parameters from view parameters...
-    506     G4ModelingParameters* pMP = CreateModelingParameters ();
-    507 
-    508     for (size_t i = 0; i < runDurationModelList.size (); i++) {
-    509       G4VModel* pModel = runDurationModelList[i];
-    510       // Note: this is not the place to take action on
-    511       // pModel->GetTransformation().  The model must take care of
-    512       // this in pModel->DescribeYourselfTo(*this).  See, for example,
-    513       // G4PhysicalVolumeModel and /vis/scene/add/logo.
-    514       pModel -> SetModelingParameters (pMP);
-    515       SetModel (pModel);  // Store for use by derived class.
-    516       pModel -> DescribeYourselfTo (*this);
-    517       pModel -> SetModelingParameters (0);
-    518     }
-    519 
-    520     // Repeat if required...
-    521     if (fSecondPassRequested) {
 
 
 
