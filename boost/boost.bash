@@ -112,16 +112,60 @@ bootstrap
        - Boost.Build documentation:
          http://www.boost.org/boost-build2/doc/html/index.html
 
+boost python build
+--------------------
+
+
+
 EOU
 }
 boost-dir(){ echo $(local-base)/env/boost/$(boost-name) ; }
 boost-bdir(){  echo $(boost-dir).build ; }
 boost-prefix(){  echo $(boost-dir).local ; }
 
+boost-ver(){ 
+    #echo nuwa
+    echo 1.54.0 
+}
+
+boost-nuwa-plat(){
+  case $NODE_TAG in
+     N) echo i686-slc5-gcc41-dbg ;;
+     C) echo i686-slc4-gcc34-dbg ;;
+  esac
+}
+boost-libdir(){  
+   case $(boost-ver) in 
+     nuwa) echo $DYB/external/Boost/1.38.0_python2.7/$(boost-nuwa-plat)/lib ;;
+        *) echo  $(boost-prefix)/lib ;;
+   esac
+}
+boost-incdir(){  
+   case $(boost-ver) in 
+    nuwa) echo $DYB/external/Boost/1.38.0_python2.7/$(boost-nuwa-plat)/include/boost-1_38 ;; 
+       *) echo  $(boost-prefix)/include ;; 
+   esac
+}
+
+boost-python-lib(){
+   case $(boost-ver) in 
+     nuwa) echo $(boost-python-lib-nuwa) ;; 
+        *) echo boost_python ;; 
+   esac
+}
+
+boost-python-lib-nuwa(){
+  case $NODE_TAG in 
+     N) echo boost_python-gcc41-mt ;;
+     C) echo boost_python-gcc34-mt ;;
+  esac   
+}
+
+
 boost-cd(){  cd $(boost-dir); }
 boost-mate(){ mate $(boost-dir) ; }
 
-boost-ver(){ echo 1.54.0 ; }
+
 boost-name(){ 
   case $(boost-ver) in 
     1.54.0) echo boost_1_54_0 ;; 
@@ -133,16 +177,13 @@ boost-url(){
   esac
 }
 
-
 boost-get(){
    local dir=$(dirname $(boost-dir)) &&  mkdir -p $dir && cd $dir
-
    local url=$(boost-url)
    local nam=$(boost-name)
    local tgz=$(basename $url)
    [ ! -f "$tgz" ] && curl -L -O $url 
    [ ! -d "$nam" ] && tar zxvf $tgz
-
 }
 
 
@@ -164,7 +205,7 @@ EOE
 }
 boost-example(){
   # when compiling from stdin need to specify the language eg with -x c++ 
-  $FUNCNAME- | c++ -x c++ -I$(boost-dir) - -o example
+  $FUNCNAME- | c++ -x c++ -I$(boost-incdir) - -o example
   echo 1 2 3 4 5 6 7 8 9 | ./example 
 }
 
@@ -180,7 +221,7 @@ boost-bootstrap-build(){
 
 boost-build(){
   boost-cd
-  ./b2 --build-dir=$(boost-bdir)
+  ./b2 --build-dir=$(boost-bdir) install
 }
 
 

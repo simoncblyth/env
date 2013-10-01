@@ -2,11 +2,13 @@
 g4py-src(){      echo geant4/g4py/g4py.bash ; }
 g4py-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4py-src)} ; }
 g4py-vi(){       vi $(g4py-source) ; }
-g4py-env(){      elocal- ; }
 g4py-usage(){ cat << EOU
 
 Geant4Py
 =========
+
+* https://bitbucket.org/seibert/g4py/commits/all
+
 
 The configure is plumping for system python include dir even when 
 give the argument pointing elsewhere. Prevent this with "/no/way/jose".
@@ -26,6 +28,9 @@ external/build/LCG/geant4.9.2.p01/environments/g4py/configure::
 
 Install on N 
 --------------
+
+Build needs geant4 global libs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Missing libG4persistency::
 
@@ -65,7 +70,10 @@ Subsequently miss digits_hits, pilot error::
      [blyth@belle7 source]$ cp ../lib/Linux-g++/libG4digits_hits.so $DYB/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/
  
 
-After that succeed to build and install. But somehow the system, libboost_python is stepping in::
+Wrong boost_python
+~~~~~~~~~~~~~~~~~~~~~
+
+After building global g4 libs succeed to build and install. But somehow the system, libboost_python is stepping in::
 
     [blyth@belle7 ~]$ PYTHONPATH=$(g4py-dir)/lib python -c "import Geant4 "
     Traceback (most recent call last):
@@ -93,7 +101,7 @@ After that succeed to build and install. But somehow the system, libboost_python
     Checking for Boost lib dir ... /data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib
     Checking for Boost Python lib name ... libboost_python-gcc41-mt.so
     Checking for OpenGL support ...yes
-    Checking for physics list support ...yes
+Checking for physics list support ...yes
     Checking for GDML support ...yes
     Checking for Xerces-C include dir ...yes
     Checking for Xerces-C lib dir ...yes
@@ -163,6 +171,40 @@ Now onto a boost python problem rather than a config one::
 * https://svn.boost.org/trac/boost/changeset/53731/sandbox-branches/bhy/py3k
 
 
+Finally
+~~~~~~~~~
+
+After building boost_python from latest boost 1_54_0 succeed to import::
+
+    [blyth@belle7 g4py]$ PYTHONPATH=$(g4py-libdir):$PYTHONPATH ipython
+    Python 2.7 (r27:82500, Feb 16 2011, 11:40:18) 
+    Type "copyright", "credits" or "license" for more information.
+
+    IPython 0.9.1 -- An enhanced Interactive Python.
+    ?         -> Introduction and overview of IPython's features.
+    %quickref -> Quick reference.
+    help      -> Python's own help system.
+    object?   -> Details about 'object'. ?object also works, ?? prints more.
+
+    In [1]: import Geant4
+    /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py:29: RuntimeWarning: to-Python converter for std::vector<G4Element*, std::allocator<G4Element*> > already registered; second conversion method ignored.
+      from G4materials import *
+
+    *************************************************************
+     Geant4 version Name: geant4-09-02-patch-01    (13-March-2009)
+                          Copyright : Geant4 Collaboration
+                          Reference : NIM A 506 (2003), 250-303
+                                WWW : http://cern.ch/geant4
+    *************************************************************
+
+    Visualization Manager instantiating...
+
+    In [2]: 
+
+
+
+
+
 FUNCTIONS
 -----------
 
@@ -173,14 +215,16 @@ g4py-g4global
 
 EOU
 }
+g4py-env(){     
+    elocal- 
+    boost- 
+}
 g4py-dir(){ echo $DYB/external/build/LCG/geant4.9.2.p01/environments/g4py ; }
 g4py-cd(){  cd $(g4py-dir); }
 g4py-mate(){ mate $(g4py-dir) ; }
 g4py-get(){
    local dir=$(dirname $(g4py-dir)) &&  mkdir -p $dir && cd $dir
-
 }
-
 
 g4py-prefix(){ echo $(g4py-dir) ; }
 g4py-libdir(){ echo $(g4py-prefix)/lib ; }
@@ -192,13 +236,6 @@ g4py-plat(){
   esac
 }
 
-g4py-boost-python-lib(){
-  case $NODE_TAG in 
-     N) echo boost_python-gcc41-mt ;;
-     C) echo boost_python-gcc34-mt ;;
-  esac   
-}
-
 
 g4py-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(g4py-plat) ; }
 g4py-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
@@ -206,8 +243,6 @@ g4py-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 g4py-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(g4py-plat) ; } 
 g4py-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
 
-
-g4py-boost-idir(){ echo $DYB/external/Boost/1.38.0_python2.7/$(g4py-plat) ; } 
 g4py-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(g4py-plat) ; }
 g4py-python-idir(){ echo $DYB/external/Python/2.7/$(g4py-plat) ; }
 
@@ -221,13 +256,13 @@ g4py-configure(){
                 --with-clhep-incdir=$(g4py-clhep-idir)/include \
                 --with-clhep-libdir=$(g4py-clhep-idir)/lib \
                    --with-clhep-lib=$(g4py-clhep-lib) \
-                --with-boost-incdir=$(g4py-boost-idir)/include/boost-1_38 \
-                --with-boost-libdir=$(g4py-boost-idir)/lib \
+                --with-boost-incdir=$(boost-incdir) \
+                --with-boost-libdir=$(boost-libdir) \
                 --with-xercesc-incdir=$(g4py-xercesc-idir)/include \
                 --with-xercesc-libdir=$(g4py-xercesc-idir)/lib \
                 --with-python-incdir=$(g4py-python-idir)/include/python2.7 \
                 --with-python-libdir=$(g4py-python-idir)/lib \
-                --with-boost-python-lib=$(g4py-boost-python-lib) \
+                --with-boost-python-lib=$(boost-python-lib) \
                 --with-extra-dir=/dev/null
 
 }
