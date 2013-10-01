@@ -17,15 +17,11 @@ version history
 
 http://www.boost.org/users/history/
 
-
-
 notable libs
 ~~~~~~~~~~~~~
 
 file:///opt/local/share/doc/boost/doc/html/accumulators/user_s_guide.html
    probably a good start for re-implementing jima:avg in C++
-
-
 
 installed documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,13 +37,32 @@ https://svn.boost.org/trac/boost/wiki/DocsOrganization
 sudo port install docbook-xml-4.2 docbook-xsl libxslt doxygen
 
 
-
 EOU
 }
-boost-dir(){ echo $(local-base)/env/boost/boost-boost ; }
+boost-dir(){ echo $(local-base)/env/boost/$(boost-name) ; }
 boost-cd(){  cd $(boost-dir); }
 boost-mate(){ mate $(boost-dir) ; }
+
+boost-ver(){ echo 1.54.0 ; }
+boost-name(){ 
+  case $(boost-ver) in 
+    1.54.0) echo boost_1_54_0 ;; 
+  esac       
+}
+boost-url(){ 
+  case $(boost-ver) in 
+    1.54.0) echo http://downloads.sourceforge.net/project/boost/boost/1.54.0/boost_1_54_0.tar.gz ;; 
+  esac
+}
+
+
 boost-get(){
    local dir=$(dirname $(boost-dir)) &&  mkdir -p $dir && cd $dir
+
+   local url=$(boost-url)
+   local nam=$(boost-name)
+   local tgz=$(basename $url)
+   [ ! -f "$tgz" ] && curl -L -O $url 
+   [ ! -d "$nam" ] && tar zxvf $tgz
 
 }

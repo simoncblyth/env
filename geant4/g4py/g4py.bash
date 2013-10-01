@@ -117,7 +117,7 @@ Maybe rpath problem::
         libboost_python.so.2 => /usr/lib/libboost_python.so.2 (0x00745000)
         ...
 
-Up verbosity::
+Up verbosity, shows the link is using libboost_python.so despite the config telling it otherwise::
 
     [blyth@belle7 g4py]$ make CPPVERBOSE=1
 
@@ -149,7 +149,25 @@ Now onto a boost python problem rather than a config one::
       File "/data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py", line 21, in <module>
         from G4global import *
     AttributeError: 'Boost.Python.StaticProperty' object attribute '__doc__' is read-only
-    [blyth@belle7 env]$ 
+
+    [blyth@cms01 cmt]$ g4py-test
+    pypath /data/env/local/dyb/trunk/external/Python/2.7/i686-slc4-gcc34-dbg/bin/python is OK
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py", line 21, in <module>
+        from G4global import *
+    AttributeError: 'Boost.Python.StaticProperty' object attribute '__doc__' is read-only
+
+
+* https://bugs.launchpad.net/ubuntu/+source/boost1.38/+bug/457688
+* https://svn.boost.org/trac/boost/changeset/53731/sandbox-branches/bhy/py3k
+
+
+FUNCTIONS
+-----------
+
+g4py-g4global
+              builds the geant4 global libs, these are needed for g4py 
 
 
 
@@ -167,10 +185,28 @@ g4py-get(){
 g4py-prefix(){ echo $(g4py-dir) ; }
 g4py-libdir(){ echo $(g4py-prefix)/lib ; }
 
-g4py-plat(){ echo i686-slc5-gcc41-dbg ; }
+g4py-plat(){ 
+  case $NODE_TAG in
+     N) echo i686-slc5-gcc41-dbg ;;
+     C) echo i686-slc4-gcc34-dbg ;;
+  esac
+}
+
+g4py-boost-python-lib(){
+  case $NODE_TAG in 
+     N) echo boost_python-gcc41-mt ;;
+     C) echo boost_python-gcc34-mt ;;
+  esac   
+}
+
+
 g4py-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(g4py-plat) ; }
+g4py-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
+
 g4py-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(g4py-plat) ; } 
 g4py-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
+
+
 g4py-boost-idir(){ echo $DYB/external/Boost/1.38.0_python2.7/$(g4py-plat) ; } 
 g4py-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(g4py-plat) ; }
 g4py-python-idir(){ echo $DYB/external/Python/2.7/$(g4py-plat) ; }
@@ -191,41 +227,64 @@ g4py-configure(){
                 --with-xercesc-libdir=$(g4py-xercesc-idir)/lib \
                 --with-python-incdir=$(g4py-python-idir)/include/python2.7 \
                 --with-python-libdir=$(g4py-python-idir)/lib \
-                --with-boost-python-lib=boost_python-gcc41-mt \
+                --with-boost-python-lib=$(g4py-boost-python-lib) \
                 --with-extra-dir=/dev/null
 
+}
 
 
+g4py-pycheck(){
+   local pypath=$(which python)  
+   case $pypath in 
+     $DYB*) echo pypath $pypath is OK && return 0  ;;
+         *) echo try again with the python that are building against in the path not $pypath && return 1;;
+   esac
 }
 
 g4py-make(){
    cd $(g4py-dir)
-   fenv 
-   which python   # should be same python are building against, namely NuWa python
-   make
+   g4py-pycheck && make CPPVERBOSE=1
+}
+
+g4py-install(){
+   cd $(g4py-dir)
+   g4py-pycheck && make install CPPVERBOSE=1
 }
 
 g4py-test(){
-   fenv
-   which python
-   PYTHONPATH=$(g4py-libdir) python -c "import Geant4"
+   g4py-pycheck && PYTHONPATH=$(g4py-libdir) python -c "import Geant4"
 }
 
-g4py-dbg(){
+g4py-g4global(){
+   cd $(g4py-g4-bdir)/source
+   make CLHEP_BASE_DIR=$(g4py-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1  global
+}
 
-    g4py-cd source/track 
-    g++ -m32 -Wl,-rpath,/data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib:/data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib:/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/lib:  \
-         -Wl,-soname,G4track.so -shared -o \
-             G4track.so \
-            pyG4Step.o  pyG4StepPoint.o  pyG4StepStatus.o  pyG4Track.o  pyG4TrackStatus.o  pymodG4track.o  \
-            -L/data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib -lboost_python \
-            -L/data1/env/local/dyb/external/XercesC/2.8.0/i686-slc5-gcc41-dbg/lib -lxerces-c \
-            -L/data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib -lG4persistency -lG4readout -lG4run -lG4event -lG4tracking \
-                         -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms \
-                         -lG4interfaces -lG4global -lG4physicslists  -lG4FR -lG4visHepRep -lG4RayTracer -lG4VRML -lG4Tree -lG4OpenGL -lG4vis_management -lG4modeling \
-            -L/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/lib -lCLHEP-2.0.4.2
+g4py-g4global-libs-(){ cat << EOL
+G4persistency
+G4parmodels
+G4global
+G4geometry
+G4particles
+G4processes
+G4physicslists
+G4interfaces
+G4digits_hits
+EOL
+}
 
-
+g4py-g4global-install(){
+     local msg="$FUNCNAME :"
+     cd $(g4py-g4-bdir)/source
+     local lib
+     local libpath
+     local dest=$(g4py-g4-idir)/lib
+     [ ! -d "$dest" ] && echo $msg destination dir missing $dest && return 1
+     g4py-g4global-libs- | while read lib ; do
+        libpath=../lib/Linux-g++/lib$lib.so
+        [ ! -f "$libpath" ] && echo $msg missing library $libpath && return 1
+        [ -f "$libpath" ] && echo $msg cp $libpath $dest && cp $libpath $dest 
+     done
 }
 
 
