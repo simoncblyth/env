@@ -140,7 +140,16 @@ Another config buglet $DYB/external/build/LCG/geant4.9.2.p01/environments/g4py/c
      37    LOPT += -l$(Q_BOOST_PYTHON_LIB)
      38 endif
 
+Now onto a boost python problem rather than a config one::
 
+    [blyth@belle7 env]$ g4py-test
+    /data1/env/local/dyb/external/Python/2.7/i686-slc5-gcc41-dbg/bin/python
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py", line 21, in <module>
+        from G4global import *
+    AttributeError: 'Boost.Python.StaticProperty' object attribute '__doc__' is read-only
+    [blyth@belle7 env]$ 
 
 
 
