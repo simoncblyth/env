@@ -133,6 +133,14 @@ Up verbosity::
             -L/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/lib -lCLHEP-2.0.4.2
 
 
+Another config buglet $DYB/external/build/LCG/geant4.9.2.p01/environments/g4py/config/module.gmk::
+
+     35 #LOPT  += -lboost_python
+     36 ifdef Q_BOOST_PYTHON_LIB
+     37    LOPT += -l$(Q_BOOST_PYTHON_LIB)
+     38 endif
+
+
 
 
 
@@ -193,4 +201,23 @@ g4py-test(){
    which python
    PYTHONPATH=$(g4py-libdir) python -c "import Geant4"
 }
+
+g4py-dbg(){
+
+    g4py-cd source/track 
+    g++ -m32 -Wl,-rpath,/data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib:/data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib:/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/lib:  \
+         -Wl,-soname,G4track.so -shared -o \
+             G4track.so \
+            pyG4Step.o  pyG4StepPoint.o  pyG4StepStatus.o  pyG4Track.o  pyG4TrackStatus.o  pymodG4track.o  \
+            -L/data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib -lboost_python \
+            -L/data1/env/local/dyb/external/XercesC/2.8.0/i686-slc5-gcc41-dbg/lib -lxerces-c \
+            -L/data1/env/local/dyb/external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib -lG4persistency -lG4readout -lG4run -lG4event -lG4tracking \
+                         -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms \
+                         -lG4interfaces -lG4global -lG4physicslists  -lG4FR -lG4visHepRep -lG4RayTracer -lG4VRML -lG4Tree -lG4OpenGL -lG4vis_management -lG4modeling \
+            -L/data1/env/local/dyb/external/clhep/2.0.4.2/i686-slc5-gcc41-dbg/lib -lCLHEP-2.0.4.2
+
+
+}
+
+
 
