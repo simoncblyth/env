@@ -1230,3 +1230,4 @@ collada-(){      . $(env-home)/graphics/collada/collada.bash && collada-env $* ;
 gdmldb-(){      . $(env-home)/geant4/geometry/gdml/gdmldb.bash && gdmldb-env $* ; }
 g4beta-(){      . $(env-home)/geant4/g4beta.bash && g4beta-env $* ; }
 g4py-(){      . $(env-home)/geant4/g4py/g4py.bash && g4py-env $* ; }
+gdml-(){      . $(env-home)/geant4/geometry/gdml/gdml.bash && gdml-env $* ; }

@@ -51,6 +51,18 @@ EOX
 
 nuwa-env(){ 
    elocal- 
+}
+
+nuwa-plat(){ 
+  case $NODE_TAG in
+     N) echo i686-slc5-gcc41-dbg ;;
+     C) echo i686-slc4-gcc34-dbg ;;
+  esac
+}
+
+
+
+nuwa-env-deprecated(){ 
    local msg="=== $FUNCNAME :"
    local v=$(nuwa-version $*)
    if [ "$(nuwa-isinstalled $*)" == "NO" ]; then

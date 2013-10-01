@@ -217,6 +217,7 @@ EOU
 }
 g4py-env(){     
     elocal- 
+    nuwa-
     boost- 
 }
 g4py-dir(){ echo $DYB/external/build/LCG/geant4.9.2.p01/environments/g4py ; }
@@ -229,22 +230,15 @@ g4py-get(){
 g4py-prefix(){ echo $(g4py-dir) ; }
 g4py-libdir(){ echo $(g4py-prefix)/lib ; }
 
-g4py-plat(){ 
-  case $NODE_TAG in
-     N) echo i686-slc5-gcc41-dbg ;;
-     C) echo i686-slc4-gcc34-dbg ;;
-  esac
-}
 
-
-g4py-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(g4py-plat) ; }
+g4py-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 g4py-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 
-g4py-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(g4py-plat) ; } 
+g4py-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(nuwa-plat) ; } 
 g4py-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
 
-g4py-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(g4py-plat) ; }
-g4py-python-idir(){ echo $DYB/external/Python/2.7/$(g4py-plat) ; }
+g4py-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(nuwa-plat) ; }
+g4py-python-idir(){ echo $DYB/external/Python/2.7/$(nuwa-plat) ; }
 
 g4py-configure(){
    cd $(g4py-dir)
