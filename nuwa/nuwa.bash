@@ -60,6 +60,23 @@ nuwa-plat(){
   esac
 }
 
+nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
+nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
+nuwa-g4-incdir(){ echo $(nuwa-g4-idir)/include ; }
+nuwa-g4-libdir(){ echo $(nuwa-g4-idir)/lib ; }
+
+nuwa-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(nuwa-plat) ; } 
+nuwa-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
+nuwa-clhep-incdir(){ echo $(nuwa-clhep-idir)/include ; } 
+nuwa-clhep-libdir(){ echo $(nuwa-clhep-idir)/lib ; } 
+
+nuwa-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(nuwa-plat) ; }
+nuwa-xercesc-incdir(){ echo $(nuwa-xercesc-idir)/include ; }
+nuwa-xercesc-libdir(){ echo $(nuwa-xercesc-idir)/lib ; }
+
+nuwa-python-idir(){ echo $DYB/external/Python/2.7/$(nuwa-plat) ; }
+nuwa-python-incdir(){ echo $(nuwa-python-idir)/include/python2.7 ; }
+nuwa-python-libdir(){ echo $(nuwa-python-idir)/lib ; }
 
 
 nuwa-env-deprecated(){ 

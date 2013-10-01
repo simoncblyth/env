@@ -171,6 +171,27 @@ Now onto a boost python problem rather than a config one::
 * https://svn.boost.org/trac/boost/changeset/53731/sandbox-branches/bhy/py3k
 
 
+On C
+~~~~~~
+
+::
+
+    [blyth@cms01 g4py]$ ./conftest
+    ./conftest: error while loading shared libraries: libboost_python.so.1.54.0: cannot open shared object file: No such file or directory
+    [blyth@cms01 g4py]$ 
+    [blyth@cms01 g4py]$ LD_LIBRARY_PATH=/data/env/local/env/boost/boost_1_54_0.local/lib:$LD_LIBRARY_PATH ./conftest
+
+
+Another g4py configure kludge::
+
+    373 echo g++ -o conftest -I$boost_incdir -I$python_incdir -L$boost_libdir -l$boost_python_lib -L$python_libdir -lpython2.7 conftest.cc 
+    374 g++ -o conftest -I$boost_incdir -I$python_incdir -L$boost_libdir -l$boost_python_lib -L$python_libdir -lpython2.7 conftest.cc
+    375 g++ -o conftest -I$boost_incdir -I$python_incdir -L$boost_libdir -l$boost_python_lib -L$python_libdir -lpython2.7 conftest.cc > /dev/null 2>&1
+    376 LD_LIBRARY_PATH=$boost_libdir:$LD_LIBRARY_PATH ./conftest
+    377 q_boost_version=$?
+
+
+
 Finally
 ~~~~~~~~~
 
@@ -202,6 +223,47 @@ After building boost_python from latest boost 1_54_0 succeed to import::
     In [2]: 
 
 
+    [blyth@cms01 g4py]$ g4py-test
+    pypath /data/env/local/dyb/trunk/external/Python/2.7/i686-slc4-gcc34-dbg/bin/python is OK
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py:29: RuntimeWarning: to-Python converter for std::vector<G4Element*, std::allocator<G4Element*> > already registered; second conversion method ignored.
+      from G4materials import *
+
+    *************************************************************
+     Geant4 version Name: geant4-09-02-patch-01    (13-March-2009)
+                          Copyright : Geant4 Collaboration
+                          Reference : NIM A 506 (2003), 250-303
+                                WWW : http://cern.ch/geant4
+    *************************************************************
+
+    Visualization Manager instantiating...
+
+
+
+But still issue on C
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@cms01 gdml]$ ./g4gdml.py 
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/environments/g4py/lib/Geant4/__init__.py:29: RuntimeWarning: to-Python converter for std::vector<G4Element*, std::allocator<G4Element*> > already registered; second conversion method ignored.
+      from G4materials import *
+
+    *************************************************************
+     Geant4 version Name: geant4-09-02-patch-01    (13-March-2009)
+                          Copyright : Geant4 Collaboration
+                          Reference : NIM A 506 (2003), 250-303
+                                WWW : http://cern.ch/geant4
+    *************************************************************
+
+    Visualization Manager instantiating...
+    Traceback (most recent call last):
+      File "./g4gdml.py", line 63, in <module>
+        prs = Geant4.G4GDMLParser()
+    AttributeError: 'module' object has no attribute 'G4GDMLParser'
+    [blyth@cms01 gdml]$ 
+
+
+Argh, GDML needs to be built. Specifically need libG4gdml.so and libG4persistency.so
 
 
 
@@ -220,7 +282,7 @@ g4py-env(){
     nuwa-
     boost- 
 }
-g4py-dir(){ echo $DYB/external/build/LCG/geant4.9.2.p01/environments/g4py ; }
+g4py-dir(){ echo $(nuwa-g4-bdir)/environments/g4py ; }
 g4py-cd(){  cd $(g4py-dir); }
 g4py-mate(){ mate $(g4py-dir) ; }
 g4py-get(){
@@ -231,31 +293,22 @@ g4py-prefix(){ echo $(g4py-dir) ; }
 g4py-libdir(){ echo $(g4py-prefix)/lib ; }
 
 
-g4py-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
-g4py-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
-
-g4py-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(nuwa-plat) ; } 
-g4py-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
-
-g4py-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(nuwa-plat) ; }
-g4py-python-idir(){ echo $DYB/external/Python/2.7/$(nuwa-plat) ; }
-
 g4py-configure(){
    cd $(g4py-dir)
    ./configure  linux \
                   --prefix=$(g4py-prefix) \
                   --libdir=$(g4py-libdir) \
-                  --with-g4-incdir=$(g4py-g4-idir)/include \
-                   --with-g4-libdir=$(g4py-g4-idir)/lib \
-                --with-clhep-incdir=$(g4py-clhep-idir)/include \
-                --with-clhep-libdir=$(g4py-clhep-idir)/lib \
-                   --with-clhep-lib=$(g4py-clhep-lib) \
+                  --with-g4-incdir=$(nuwa-g4-incdir) \
+                   --with-g4-libdir=$(nuwa-g4-libdir) \
+                --with-clhep-incdir=$(nuwa-clhep-incdir) \
+                --with-clhep-libdir=$(nuwa-clhep-libdir) \
+                   --with-clhep-lib=$(nuwa-clhep-lib) \
                 --with-boost-incdir=$(boost-incdir) \
                 --with-boost-libdir=$(boost-libdir) \
-                --with-xercesc-incdir=$(g4py-xercesc-idir)/include \
-                --with-xercesc-libdir=$(g4py-xercesc-idir)/lib \
-                --with-python-incdir=$(g4py-python-idir)/include/python2.7 \
-                --with-python-libdir=$(g4py-python-idir)/lib \
+                --with-xercesc-incdir=$(nuwa-xercesc-incdir) \
+                --with-xercesc-libdir=$(nuwa-xercesc-libdir) \
+                --with-python-incdir=$(nuwa-python-incdir) \
+                --with-python-libdir=$(nuwa-python-libdir) \
                 --with-boost-python-lib=$(boost-python-lib) \
                 --with-extra-dir=/dev/null
 

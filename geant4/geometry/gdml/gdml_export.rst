@@ -53,8 +53,6 @@ Need to invoke the global target to make that::
 
 Manual install::
 
-     
-
 
 
 .. _gdml_install:
