@@ -10,6 +10,9 @@ Colons are mentioned as not being allowed but I supect the problem is the slash 
     PYTHONPATH=$(g4py-libdir):$PYTHONPATH python g4gdml.py
 
 
+NCName validiation issue
+---------------------------
+
 Validation problem with names::
 
     G4GDML: VALIDATION ERROR! Datatype error: Type:InvalidDatatypeValueException, Message:Value '/dd/Geometry/Sites/lvNearSiteRock0xb82e578' is not valid NCName . at line: 30935
@@ -30,6 +33,8 @@ Validation problem with names::
     In [14]: vpv
     Out[14]: <Geant4.G4geometry.G4PVPlacement object at 0x9ad4a3c>
 
+
+
 """
 import os, sys
 sys.path.insert(1,os.path.expandvars('$DYB/external/build/LCG/geant4.9.2.p01/environments/g4py/lib'))
@@ -43,11 +48,14 @@ class Traverse(object):
     def print_(self, pv, lv, nd):
         pvn = pv.GetName()
         lvn = lv.GetName()
+        lso = lv.GetSolid()
+        lma = lv.GetMaterial()
         print "%6s %3s %-50s %s " % ( self.count, nd, lvn, pvn )
 
     def recurse(self, pv, fn):
         lv = pv.GetLogicalVolume()
         nd = lv.GetNoDaughters()
+
         fn(pv, lv, nd) 
         self.count += 1 
         for i in range(nd): 
