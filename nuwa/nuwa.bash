@@ -78,6 +78,18 @@ nuwa-python-idir(){ echo $DYB/external/Python/2.7/$(nuwa-plat) ; }
 nuwa-python-incdir(){ echo $(nuwa-python-idir)/include/python2.7 ; }
 nuwa-python-libdir(){ echo $(nuwa-python-idir)/lib ; }
 
+nuwa-export(){
+  export NUWA_G4_INCDIR=$(nuwa-g4-incdir)
+  export NUWA_G4_LIBDIR=$(nuwa-g4-libdir)
+  export NUWA_CLHEP_LIBDIR=$(nuwa-clhep-libdir)
+  export NUWA_CLHEP_INCDIR=$(nuwa-clhep-incdir)
+  export NUWA_CLHEP_LIB=$(nuwa-clhep-lib)
+  export NUWA_XERCESC_LIBDIR=$(nuwa-xercesc-libdir)
+  export NUWA_XERCESC_INCDIR=$(nuwa-xercesc-incdir)
+ 
+}
+
+
 
 nuwa-env-deprecated(){ 
    local msg="=== $FUNCNAME :"

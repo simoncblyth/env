@@ -91,6 +91,14 @@ g4beta-pyconfigure(){
 }
 
 
+g4beta-diff(){
+   nuwa-
 
+   local def="source/visualization/management/include/G4VSceneHandler.hh"
+   local path=${1:-$def}
+   local cmd="diff $(nuwa-g4-bdir)/$path $(g4beta-dir)/$path"
+   echo $cmd
+   eval $cmd
+}
 
 
