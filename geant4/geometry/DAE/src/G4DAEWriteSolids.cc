@@ -3,30 +3,48 @@
 #include <sstream>
 
 void G4DAEWriteSolids::
-AccessorXYZWrite(xercesc::DOMElement* techniqueCommonElement,
+AccessorXYZWrite(xercesc::DOMElement* element,
              const G4String& source, G4int count, G4int stride)
 {
+   xercesc::DOMElement* tcElement = NewElement("technique_common");
    xercesc::DOMElement* accessorElement = NewElement("accessor");
+
    accessorElement->setAttributeNode(NewAttribute("source",source));
    accessorElement->setAttributeNode(NewAttribute("count",count));
    accessorElement->setAttributeNode(NewAttribute("stride",stride));
   
-   xercesc::DOMElement* x = NewElement("param");
-   x->setAttributeNode(NewAttribute("name","X"));
-   x->setAttributeNode(NewAttribute("type","float"));
+   xercesc::DOMElement* x = NewElementTwoAtt("param","name","X","type","float");
+   xercesc::DOMElement* y = NewElementTwoAtt("param","name","Y","type","float");
+   xercesc::DOMElement* z = NewElementTwoAtt("param","name","Z","type","float");
+
    accessorElement->appendChild(x);
-
-   xercesc::DOMElement* y = NewElement("param");
-   y->setAttributeNode(NewAttribute("name","Y"));
-   y->setAttributeNode(NewAttribute("type","float"));
    accessorElement->appendChild(y);
-
-   xercesc::DOMElement* z = NewElement("param");
-   z->setAttributeNode(NewAttribute("name","Z"));
-   z->setAttributeNode(NewAttribute("type","float"));
    accessorElement->appendChild(z);
 
-   techniqueCommonElement->appendChild(accessorElement);
+   tcElement->appendChild(accessorElement);
+   element->appendChile(tcElement);
+}
+
+
+void G4DAEWriteSolids::
+FloatArrayWrite(xercesc::DOMElement* element,
+             const G4String& id, G4int count, const G4String& content)
+{
+   xercesc::DOMElement* fa = NewTextElement("float_array", content);
+   fa->setAttributeNode(NewAttribute("id",id));
+   fa->setAttributeNode(NewAttribute("count",count));
+   element->appendChild(fa);
+}
+
+void G4DAEWriteSolids::
+InputWrite(xercesc::DOMElement* element,
+             const G4String& semantic, const G4String& source, G4int offset)
+{
+   xercesc::DOMElement* inputElement = NewElement("input");
+   inputElement->setAttributeNode(NewAttribute("semantic",semantic));
+   inputElement->setAttributeNode(NewAttribute("source",  source));
+   inputElement->setAttributeNode(NewAttribute("offset",  offset));
+   element->appendChild(inputElement);
 }
 
 
@@ -37,53 +55,62 @@ SourceVerticesWrite(xercesc::DOMElement* meshElement,
    const G4String& name = GenerateName(solid->GetName(),solid);
    G4Polyhedron* pPolyhedron = solid->GetPolyhedron();
    const G4Polyhedron& polyhedron = *pPolyhedron ; 
-   G4int count = polyhedron.GetNoVertices();
-  
-   G4String sourceId(name) ;
-   sourceId += "-pos" ; 
-   G4String arrayId(sourceId);
-   arrayId += "-array" ; 
+   G4int nvert = polyhedron.GetNoVertices();
 
-   G4String refArrayId("#");
-   refArrayId += arrayId ;
-   G4String refSourceId("#");
-   refSourceId += sourceId ;
-
-   G4String verticesId(name);
-   verticesId += "-vtx" ;
- 
-   xercesc::DOMElement* sourceElement = NewElement("source");
-   sourceElement->setAttributeNode(NewAttribute("id",sourceId));
    std::ostringstream t;
    G4int i, j;
-   for (i = 1, j = count ; j; j--, i++) {
+   for (i = 1, j = nvert ; j; j--, i++) {
         G4Point3D point = polyhedron.GetVertex(i);
-        t << "\t\t\t\t\t";
+        t << "\n\t\t\t\t\t";
         t << point.x() << " " ;
         t << point.y() << " " ;
         t << point.z() << "\n" ;
    }
-   std::string ts = t.str();
+   std::string vertices = t.str();
 
-   xercesc::DOMElement* floatArrayElement = NewTextElement("float_array", ts.c_str());
-   floatArrayElement->setAttributeNode(NewAttribute("id",arrayId));
-   floatArrayElement->setAttributeNode(NewAttribute("count",count));
-   sourceElement->appendChild(floatArrayElement);
+   G4int nface = polyhedron.GetNoFacets();
+ 
+ 
+   G4String pos(name) ;
+   pos += "-pos" ; 
+   G4String posRef("#");
+   posRef += pos ;
 
-   xercesc::DOMElement* techniqueCommonElement = NewElement("technique_common");
-   AccessorXYZWrite( techniqueCommonElement, refArrayId, count/3, 3 ); 
-   sourceElement->appendChild(techniqueCommonElement);
-   
-   meshElement->appendChild(sourceElement);
+   G4String aPos(pos);
+   aPos += "-array" ; 
+   G4String aPosRef("#");
+   aPosRef += aPos ;
 
-   xercesc::DOMElement* verticesElement = NewElement("vertices");
-   verticesElement->setAttributeNode(NewAttribute("id",verticesId));
-   xercesc::DOMElement* inputElement = NewElement("input");
-   inputElement->setAttributeNode(NewAttribute("semantic","POSITION"));
-   inputElement->setAttributeNode(NewAttribute("source", refSourceId));
-   verticesElement->appendChild(inputElement);
+   xercesc::DOMElement* posElement = NewElementOneAtt("source","id",pos);
+   FloatArrayWrite( posElement, aPos, nvert*3, vertices.c_str() ); 
+   AccessorXYZWrite( posElement, aPosRef, nvert, 3 ); 
+   meshElement->appendChild( posElement);
 
-   meshElement->appendChild(verticesElement);
+   G4String vtx(name);
+   vtx += "-vtx" ;
+   xercesc::DOMElement* vtxElement = NewElementOneAtt("vertices","id",vtx);
+   InputWrite(vtxElement, "POSITION", posRef , 0 );
+
+   meshElement->appendChild(vtxElement);
+
+
+
+   // facet loop   
+   G4int f;
+   for (f = nface; f; f--) {
+
+        // edge loop  
+        G4bool notLastEdge;
+        G4int index = -1, edgeFlag = 1;
+        fDest << "\t\t\t\t";
+        do {
+            notLastEdge = polyhedron.GetNextVertexIndex(index, edgeFlag);
+            fDest << index - 1 << ", ";
+        } while (notLastEdge);
+        fDest << "-1," << "\n";
+   }
+
+
 }
  
 

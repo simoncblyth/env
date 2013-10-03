@@ -69,6 +69,22 @@ xercesc::DOMElement* G4DAEWrite::NewElement(const G4String& name)
    return doc->createElement(tempStr);
 }
 
+xercesc::DOMElement* G4DAEWrite::NewElementOneAtt(const G4String& name, const G4String& att, const G4String& val)
+{
+   xercesc::DOMElement* element = NewElement(name);
+   element->setAttributeNode(NewAttribute(att,val));
+   return element ; 
+}
+
+xercesc::DOMElement* G4DAEWrite::NewElementTwoAtt(const G4String& name, const G4String& att1, const G4String& val1, const G4String& att2, const G4String& val2)
+{
+   xercesc::DOMElement* element = NewElement(name);
+   element->setAttributeNode(NewAttribute(att1,val1));
+   element->setAttributeNode(NewAttribute(att2,val2));
+   return element ; 
+}
+
+
 
 xercesc::DOMElement* G4DAEWrite::NewTextElement(const G4String& name, const G4String& text)
 {
