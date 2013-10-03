@@ -36,7 +36,8 @@ DAEFILE
 xdaefile
     Geant4 main executable xdaefile that uses libDAEFILE.so to read a GDML file and export WRL (and maybe DAE) 
 DAE
-    Extraction of relevant parts of GDML persistency writing from Geant4, enabling creation of libDAE.so
+    Extraction of relevant parts of GDML persistency writing from Geant4, enabling creation of libDAE.so. Starting from 
+    `cp -R /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/persistency/gdml DAE`
 xdae
     Use of libDAE.so
 

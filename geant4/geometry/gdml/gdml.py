@@ -25,9 +25,10 @@ TODO:
 
 
 """
-import os, logging
+import os, sys, logging
 log = logging.getLogger(__name__)
 import xml.etree.cElementTree as ET
+#import xml.etree.ElementTree as ET
 
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 
@@ -141,7 +142,14 @@ class GDML(object):
 
 def main():
     logging.basicConfig(level=logging.INFO)
-    gdml = GDML("$LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml")
+    args = sys.argv[1:]
+    if len(args) == 0:
+        path = "$LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml"
+    else:
+        path = args[0]
+    log.info("reading gdml from %s " % path )
+
+    gdml = GDML(path)
 
     #for i,volume in enumerate(gdml.walk()):
     #    print i, volume 
@@ -158,8 +166,6 @@ def main():
             lv, pos, rot = gdml.physvol[pv]
             print "    ", ipv, lv, pos, rot 
             #plv,pmat,psol,ppvs = gdml.volume[lv]
-
-
 
 
 if __name__ == '__main__':

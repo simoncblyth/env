@@ -1,0 +1,178 @@
+//
+// ********************************************************************
+// * License and Disclaimer                                           *
+// *                                                                  *
+// * The  Geant4 software  is  copyright of the Copyright Holders  of *
+// * the Geant4 Collaboration.  It is provided  under  the terms  and *
+// * conditions of the Geant4 Software License,  included in the file *
+// * LICENSE and available at  http://cern.ch/geant4/license .  These *
+// * include a list of copyright holders.                             *
+// *                                                                  *
+// * Neither the authors of this software system, nor their employing *
+// * institutes,nor the agencies providing financial support for this *
+// * work  make  any representation or  warranty, express or implied, *
+// * regarding  this  software system or assume any liability for its *
+// * use.  Please see the license in the file  LICENSE  and URL above *
+// * for the full disclaimer and the limitation of liability.         *
+// *                                                                  *
+// * This  code  implementation is the result of  the  scientific and *
+// * technical work of the GEANT4 collaboration.                      *
+// * By using,  copying,  modifying or  distributing the software (or *
+// * any work based  on the software)  you  agree  to acknowledge its *
+// * use  in  resulting  scientific  publications,  and indicate your *
+// * acceptance of all terms of the Geant4 Software license.          *
+// ********************************************************************
+//
+//
+// $Id: G4DAEParser.icc,v 1.7.2.1 2009/03/03 10:55:46 gcosmo Exp $
+// GEANT4 tag $Name: geant4-09-02-patch-01 $
+//
+//
+// class G4DAEParser inline methods
+//
+// -------------------------------------------------------------------------
+
+inline 
+void G4DAEParser::Read(const G4String& filename, G4bool validate)
+{   
+  reader->Read(filename,validate,false);
+}
+
+inline 
+void G4DAEParser::ReadModule(const G4String& filename, G4bool validate)
+{   
+  reader->Read(filename,validate,true);
+}
+
+inline
+void G4DAEParser::Write(const G4String& filename,
+                         const G4VPhysicalVolume* const pvol,
+                               G4bool refs,
+                         const G4String& schemaLocation)
+{ 
+  const G4int depth = 0;
+  G4LogicalVolume* lvol = 0;
+
+  if (!pvol)
+  {
+    G4VPhysicalVolume* worldPV = GetWorldVolume();
+    if (!worldPV)
+    {
+      G4Exception("G4DMLParser::Write()", "InvalidSetup", FatalException,
+                  "Detector-Construction needs to be registered first!");
+    }
+    lvol = worldPV->GetLogicalVolume();
+  }
+  else
+  {
+    lvol = pvol->GetLogicalVolume();
+  }
+  writer->Write(filename,lvol,schemaLocation,depth,refs);
+}
+
+inline 
+G4LogicalVolume* G4DAEParser::ParseST(const G4String& filename,
+                                             G4Material* medium,
+                                             G4Material* solid)
+{   
+  G4STRead reader;
+  return reader.Read(filename, medium, solid);
+}
+
+//
+// Methods for Reader
+//
+
+inline 
+G4double G4DAEParser::GetConstant(const G4String& name)
+{
+  return reader->GetConstant(name);
+}
+
+inline 
+G4double G4DAEParser::GetVariable(const G4String& name)
+{
+  return reader->GetVariable(name);
+}
+
+inline 
+G4double G4DAEParser::GetQuantity(const G4String& name)
+{
+  return reader->GetQuantity(name);
+}
+
+inline 
+G4ThreeVector G4DAEParser::GetPosition(const G4String& name)
+{
+  return reader->GetPosition(name);
+}
+
+inline 
+G4ThreeVector G4DAEParser::GetRotation(const G4String& name)
+{
+  return reader->GetRotation(name);
+}
+
+inline 
+G4ThreeVector G4DAEParser::GetScale(const G4String& name)
+{
+  return reader->GetScale(name);
+}
+
+inline 
+G4DAEMatrix G4DAEParser::GetMatrix(const G4String& name)
+{
+  return reader->GetMatrix(name);
+}
+
+inline 
+G4LogicalVolume* G4DAEParser::GetVolume(const G4String& name)
+{
+  return reader->GetVolume(name);
+}
+
+inline 
+G4VPhysicalVolume* G4DAEParser::GetWorldVolume(const G4String& setupName)
+{
+  return reader->GetWorldVolume(setupName);
+}
+
+inline 
+G4DAEAuxListType
+G4DAEParser::GetVolumeAuxiliaryInformation(const G4LogicalVolume* const logvol)
+{
+  return reader->GetVolumeAuxiliaryInformation(logvol);
+}
+
+inline
+void G4DAEParser::StripNamePointers() const
+{
+  reader->StripNames();
+}
+
+inline void G4DAEParser::SetOverlapCheck(G4bool flag)
+{
+  reader->OverlapCheck(flag);
+}
+
+//
+// Methods for Writer
+//
+
+inline 
+void G4DAEParser::AddModule(const G4VPhysicalVolume* const physvol)
+{
+  writer->AddModule(physvol);
+}
+
+inline 
+void G4DAEParser::AddModule(const G4int depth)
+{
+  writer->AddModule(depth);
+}
+
+inline 
+void G4DAEParser::SetAddPointerToName(G4bool set)
+{
+  writer->SetAddPointerToName(set);
+}
