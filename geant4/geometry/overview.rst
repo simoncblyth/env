@@ -28,19 +28,17 @@ Requirements
 * originating volume identity, probably not needed (but useful for development)
 
 
-DAE file creation approaches
+Subfolder purposes
 -----------------------------
 
 DAEFILE
-~~~~~~~
-
-Based on VRML2FILE visualization 
-
+    Extraction of relevant parts of VRML2FILE visualization from Geant4, enabling creation of libDAEFILE.so
+xdaefile
+    Geant4 main executable xdaefile that uses libDAEFILE.so to read a GDML file and export WRL (and maybe DAE) 
 DAE
-~~~
-
-Based on GDML persistancy  
-
+    Extraction of relevant parts of GDML persistency writing from Geant4, enabling creation of libDAE.so
+xdae
+    Use of libDAE.so
 
 
 Geometry Representations

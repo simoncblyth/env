@@ -93,7 +93,6 @@ g4beta-pyconfigure(){
 
 g4beta-diff(){
    nuwa-
-
    local def="source/visualization/management/include/G4VSceneHandler.hh"
    local path=${1:-$def}
    local cmd="diff $(nuwa-g4-bdir)/$path $(g4beta-dir)/$path"
@@ -101,4 +100,17 @@ g4beta-diff(){
    eval $cmd
 }
 
+
+g4beta-rdiff-(){
+   nuwa-
+   local def="source/persistency/gdml"
+   local path=${1:-$def}
+   local cmd="diff -r --brief $(nuwa-g4-bdir)/$path $(g4beta-dir)/$path"
+   echo $cmd
+   eval $cmd
+}
+
+g4beta-rdiff(){
+   $FUNCNAME- | perl -pe 's,Files (\S*) and (\S*) differ,diff $1 $2,gc' - 
+}
 
