@@ -28,6 +28,21 @@ Requirements
 * originating volume identity, probably not needed (but useful for development)
 
 
+DAE file creation approaches
+-----------------------------
+
+DAEFILE
+~~~~~~~
+
+Based on VRML2FILE visualization 
+
+DAE
+~~~
+
+Based on GDML persistancy  
+
+
+
 Geometry Representations
 -------------------------
 

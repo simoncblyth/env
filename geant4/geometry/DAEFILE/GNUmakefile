@@ -1,7 +1,7 @@
 # $Id: GNUmakefile 66373 2012-12-18 09:41:34Z gcosmo $
 
 # lib name
-name := G4DAE
+name := G4DAEFILE
 
 ifndef G4INSTALL
   G4INSTALL = ../../..
