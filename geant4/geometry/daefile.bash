@@ -32,6 +32,7 @@ daefile-build(){
 
 
 daefile-install(){
+   nuwa-
    local name=libG4DAEFILE.so
    local blib=$(nuwa-g4-bdir)/lib/Linux-g++/$name
    local ilib=$(nuwa-g4-idir)/lib/$name

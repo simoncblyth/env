@@ -1,5 +1,5 @@
 
-name := xdae
+name := xdaefile
 G4TARGET := $(name)
 G4EXLIB := true
 
@@ -11,8 +11,8 @@ ifndef XERCESCROOT
 endif
 
 CPPFLAGS += -DG4VIS_USE_DAEFILE 
-CPPFLAGS += -I./include -I../DAE/include
-EXTRALIBS := -lG4DAE
+CPPFLAGS += -I./include -I../DAEFILE/include
+EXTRALIBS := -lG4DAEFILE
 
 .PHONY: all 
 all: lib bin 
