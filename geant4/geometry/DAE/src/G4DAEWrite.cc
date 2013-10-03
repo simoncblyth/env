@@ -1,38 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4DAEWrite.cc,v 1.50.2.1 2009/03/03 10:55:46 gcosmo Exp $
-// GEANT4 tag $Name: geant4-09-02-patch-01 $
-//
-// class G4DAEWrite Implementation
-//
-// Original author: Zoltan Torzsok, November 2007
-//
-// --------------------------------------------------------------------
-
 #include "G4DAEWrite.hh"
 
 G4bool G4DAEWrite::addPointerToName = true;
@@ -104,6 +69,19 @@ xercesc::DOMElement* G4DAEWrite::NewElement(const G4String& name)
    return doc->createElement(tempStr);
 }
 
+
+xercesc::DOMElement* G4DAEWrite::NewTextElement(const G4String& name, const G4String& text)
+{
+   xercesc::XMLString::transcode(name,tempStr,tempStrSize-1);
+   xercesc::DOMElement* e = doc->createElement(tempStr);
+   xercesc::XMLString::transcode(text,tempStr,tempStrSize-1);
+   e->setTextContent(tempStr);
+   return e; 
+}
+
+
+
+
 G4Transform3D G4DAEWrite::Write(const G4String& fname,
                                  const G4LogicalVolume* const logvol,
                                  const G4String& setSchemaLocation,
@@ -131,9 +109,9 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
      xercesc::DOMImplementationRegistry::getDOMImplementation(tempStr);
    xercesc::XMLString::transcode("Range", tempStr, tempStrSize-1);
    impl = xercesc::DOMImplementationRegistry::getDOMImplementation(tempStr);
-   xercesc::XMLString::transcode("gdml", tempStr, tempStrSize-1);
+   xercesc::XMLString::transcode("COLLADA", tempStr, tempStrSize-1);
    doc = impl->createDocument(0,tempStr,0);
-   xercesc::DOMElement* gdml = doc->getDocumentElement();
+   xercesc::DOMElement* dae = doc->getDocumentElement();
 
 #if XERCES_VERSION_MAJOR >= 3
                                              // DOM L3 as per Xerces 3.0 API
@@ -153,16 +131,21 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
 
 #endif
 
-   gdml->setAttributeNode(NewAttribute("xmlns:xsi",
-                          "http://www.w3.org/2001/XMLSchema-instance"));
-   gdml->setAttributeNode(NewAttribute("xsi:noNamespaceSchemaLocation",
-                          SchemaLocation));
+   dae->setAttributeNode(NewAttribute("xmlns",
+                          "http://www.collada.org/2005/11/COLLADASchema"));
+   dae->setAttributeNode(NewAttribute("version","1.4.1"));
 
-   DefineWrite(gdml);
-   MaterialsWrite(gdml);
-   SolidsWrite(gdml);
-   StructureWrite(gdml);
-   SetupWrite(gdml,logvol);
+   //dae->setAttributeNode(NewAttribute("xmlns",
+   //                       "http://www.collada.org/2008/03/COLLADASchema");
+   //dae->setAttributeNode(NewAttribute("version","1.5.0"));
+
+
+   AssetWrite(dae);
+   EffectsWrite(dae);
+   MaterialsWrite(dae);
+   SolidsWrite(dae);
+   StructureWrite(dae);
+   SetupWrite(dae,logvol);
 
    G4Transform3D R = TraverseVolumeTree(logvol,depth);
 

@@ -1,38 +1,3 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4DAEWriteMaterials.cc,v 1.20 2008/07/16 15:46:34 gcosmo Exp $
-// GEANT4 tag $Name: geant4-09-02 $
-//
-// class G4DAEWriteMaterials Implementation
-//
-// Original author: Zoltan Torzsok, November 2007
-//
-// --------------------------------------------------------------------
-
 #include "G4DAEWriteMaterials.hh"
 
 void G4DAEWriteMaterials::
@@ -121,17 +86,27 @@ void G4DAEWriteMaterials::ElementWrite(const G4Element* const elementPtr)
 
 void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
 {
+   const G4String name = GenerateName(materialPtr->GetName(), materialPtr);
+   G4String url("#");
+   url += name ;
+
+   xercesc::DOMElement* materialElement = NewElement("material");
+   materialElement->setAttributeNode(NewAttribute("id",name));
+   xercesc::DOMElement* instanceEffectElement = NewElement("instance_effect");
+   instanceEffectElement->setAttributeNode(NewAttribute("url",url));
+
+   materialElement->appendChild(instanceEffectElement);
+
+
+  /*
    G4String state_str("undefined");
    const G4State state = materialPtr->GetState();
    if (state==kStateSolid) { state_str = "solid"; } else
    if (state==kStateLiquid) { state_str = "liquid"; } else
    if (state==kStateGas) { state_str = "gas"; }
 
-   const G4String name = GenerateName(materialPtr->GetName(), materialPtr);
-
-   xercesc::DOMElement* materialElement = NewElement("material");
-   materialElement->setAttributeNode(NewAttribute("name",name));
    materialElement->setAttributeNode(NewAttribute("state",state_str));
+   
 
    if (materialPtr->GetTemperature() != STP_Temperature)
      { TWrite(materialElement,materialPtr->GetTemperature()); }
@@ -163,6 +138,7 @@ void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
       materialElement->setAttributeNode(NewAttribute("Z",materialPtr->GetZ()));
       AtomWrite(materialElement,materialPtr->GetA());
    }
+   */
 
    materialsElement->appendChild(materialElement);
      // Append the material AFTER all the possible components are appended!
@@ -170,9 +146,9 @@ void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
 
 void G4DAEWriteMaterials::MaterialsWrite(xercesc::DOMElement* element)
 {
-   G4cout << "G4DAE: Writing materials..." << G4endl;
+   G4cout << "G4DAE: Writing library_materials..." << G4endl;
 
-   materialsElement = NewElement("materials");
+   materialsElement = NewElement("library_materials");
    element->appendChild(materialsElement);
 
    isotopeList.clear();

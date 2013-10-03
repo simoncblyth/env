@@ -1,10 +1,10 @@
-#ifndef _G4DAEWRITEDEFINE_INCLUDED_
-#define _G4DAEWRITEDEFINE_INCLUDED_
+#ifndef _G4DAEWRITEASSET_INCLUDED_
+#define _G4DAEWRITEASSET_INCLUDED_
 
 #include "G4DAEWrite.hh"
 #include <sstream>
 
-class G4DAEWriteDefine : public G4DAEWrite
+class G4DAEWriteAsset : public G4DAEWrite
 {
 
  protected:
@@ -43,11 +43,16 @@ class G4DAEWriteDefine : public G4DAEWrite
                              const G4String&, const G4ThreeVector&);
    void Position_vectorWrite(xercesc::DOMElement*, const G4String&,
                              const G4String&, const G4ThreeVector&);
-   void DefineWrite(xercesc::DOMElement*);
+
+
+ private:
+
+   void AssetWrite(xercesc::DOMElement*);
 
  private:
 
    xercesc::DOMElement* defineElement;
+   xercesc::DOMElement* assetElement;
 
 };
 

@@ -62,6 +62,8 @@ nuwa-plat(){
 
 nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
+nuwa-g4-xdir(){ echo $(nuwa-g4-bdir)/bin/Linux-g++ ; }
+
 nuwa-g4-incdir(){ echo $(nuwa-g4-idir)/include ; }
 nuwa-g4-libdir(){ echo $(nuwa-g4-idir)/lib ; }
 

@@ -325,6 +325,7 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
    VolumeMap()[volumePtr] = R;
 
+   G4DAEWriteEffects::AddEffectMaterial(volumePtr->GetMaterial());
    G4DAEWriteMaterials::AddMaterial(volumePtr->GetMaterial());
      // Add the involved materials and solids!
 

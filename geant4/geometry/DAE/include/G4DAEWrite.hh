@@ -39,7 +39,10 @@ class G4DAEWrite
    xercesc::DOMAttr* NewAttribute(const G4String&, const G4String&);
    xercesc::DOMAttr* NewAttribute(const G4String&, const G4double&);
    xercesc::DOMElement* NewElement(const G4String&);
-   virtual void DefineWrite(xercesc::DOMElement*)=0;
+   xercesc::DOMElement* NewTextElement(const G4String&, const G4String&);
+   virtual void AssetWrite(xercesc::DOMElement*)=0;
+
+   virtual void EffectsWrite(xercesc::DOMElement*)=0;
    virtual void MaterialsWrite(xercesc::DOMElement*)=0;
    virtual void SolidsWrite(xercesc::DOMElement*)=0;
    virtual void StructureWrite(xercesc::DOMElement*)=0;

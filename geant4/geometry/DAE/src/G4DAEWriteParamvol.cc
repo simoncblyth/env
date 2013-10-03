@@ -287,6 +287,8 @@ ParametersWrite(xercesc::DOMElement* paramvolElement,
    xercesc::DOMElement* parametersElement = NewElement("parameters");
    parametersElement->setAttributeNode(NewAttribute("number",index+1));
 
+
+   // from Asset
    PositionWrite(parametersElement, name+sncopie+"_pos",
                  paramvol->GetObjectTranslation());
    Angles=GetAngles(paramvol->GetObjectRotationValue());

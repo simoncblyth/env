@@ -1,45 +1,11 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4DAEWriteDefine.cc,v 1.18 2008/07/16 15:46:34 gcosmo Exp $
-// GEANT4 tag $Name: geant4-09-02 $
-//
-// class G4DAEWriteDefine Implementation
-//
-// Original author: Zoltan Torzsok, November 2007
-//
-// --------------------------------------------------------------------
+#include "G4DAEWriteAsset.hh"
 
-#include "G4DAEWriteDefine.hh"
 
-const G4double G4DAEWriteDefine::kRelativePrecision = DBL_EPSILON;
-const G4double G4DAEWriteDefine::kAngularPrecision = DBL_EPSILON;
-const G4double G4DAEWriteDefine::kLinearPrecision = DBL_EPSILON;
+const G4double G4DAEWriteAsset::kRelativePrecision = DBL_EPSILON;
+const G4double G4DAEWriteAsset::kAngularPrecision = DBL_EPSILON;
+const G4double G4DAEWriteAsset::kLinearPrecision = DBL_EPSILON;
 
-G4ThreeVector G4DAEWriteDefine::GetAngles(const G4RotationMatrix& mat)
+G4ThreeVector G4DAEWriteAsset::GetAngles(const G4RotationMatrix& mat)
 {
    G4double x,y,z;
 
@@ -61,7 +27,7 @@ G4ThreeVector G4DAEWriteDefine::GetAngles(const G4RotationMatrix& mat)
    return G4ThreeVector(x,y,z);
 }
 
-void G4DAEWriteDefine::
+void G4DAEWriteAsset::
 Scale_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
                   const G4String& name, const G4ThreeVector& scl)
 {
@@ -80,7 +46,7 @@ Scale_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
    element->appendChild(scaleElement);
 }
 
-void G4DAEWriteDefine::
+void G4DAEWriteAsset::
 Rotation_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
                      const G4String& name, const G4ThreeVector& rot)
 {
@@ -97,7 +63,7 @@ Rotation_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
    element->appendChild(rotationElement);
 }
 
-void G4DAEWriteDefine::
+void G4DAEWriteAsset::
 Position_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
                      const G4String& name, const G4ThreeVector& pos)
 {
@@ -114,10 +80,26 @@ Position_vectorWrite(xercesc::DOMElement* element, const G4String& tag,
    element->appendChild(positionElement);
 }
 
-void G4DAEWriteDefine::DefineWrite(xercesc::DOMElement* element)
+
+
+
+void G4DAEWriteAsset::AssetWrite(xercesc::DOMElement* element)
 {
-   G4cout << "G4DAE: Writing definitions..." << G4endl;
+   G4cout << "G4DAE: Writing asset metadata..." << G4endl;
 
    defineElement = NewElement("define");
    element->appendChild(defineElement);
+
+   G4String created = "2005-11-14T02:16:38Z" ;
+   G4String modified = "2005-11-14T02:16:38Z" ;
+   G4String revision = "1.0" ;
+
+   assetElement = NewElement("asset");
+   assetElement->appendChild(NewTextElement("created", created));
+   assetElement->appendChild(NewTextElement("modified", modified));
+   assetElement->appendChild(NewTextElement("revision", revision));
+
+   element->appendChild(assetElement);
+   
+
 }

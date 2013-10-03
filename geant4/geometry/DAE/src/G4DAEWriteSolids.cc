@@ -1,39 +1,112 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4DAEWriteSolids.cc,v 1.59 2008/11/21 09:32:46 gcosmo Exp $
-// GEANT4 tag $Name: geant4-09-02 $
-//
-// class G4DAEWriteSolids Implementation
-//
-// Original author: Zoltan Torzsok, November 2007
-//
-// --------------------------------------------------------------------
-
 #include "G4DAEWriteSolids.hh"
+#include "G4Polyhedron.hh"
+#include <sstream>
+
+void G4DAEWriteSolids::
+AccessorXYZWrite(xercesc::DOMElement* techniqueCommonElement,
+             const G4String& source, G4int count, G4int stride)
+{
+   xercesc::DOMElement* accessorElement = NewElement("accessor");
+   accessorElement->setAttributeNode(NewAttribute("source",source));
+   accessorElement->setAttributeNode(NewAttribute("count",count));
+   accessorElement->setAttributeNode(NewAttribute("stride",stride));
+  
+   xercesc::DOMElement* x = NewElement("param");
+   x->setAttributeNode(NewAttribute("name","X"));
+   x->setAttributeNode(NewAttribute("type","float"));
+   accessorElement->appendChild(x);
+
+   xercesc::DOMElement* y = NewElement("param");
+   y->setAttributeNode(NewAttribute("name","Y"));
+   y->setAttributeNode(NewAttribute("type","float"));
+   accessorElement->appendChild(y);
+
+   xercesc::DOMElement* z = NewElement("param");
+   z->setAttributeNode(NewAttribute("name","Z"));
+   z->setAttributeNode(NewAttribute("type","float"));
+   accessorElement->appendChild(z);
+
+   techniqueCommonElement->appendChild(accessorElement);
+}
+
+
+void G4DAEWriteSolids::
+SourceVerticesWrite(xercesc::DOMElement* meshElement,
+             const G4VSolid* const solid)
+{
+   const G4String& name = GenerateName(solid->GetName(),solid);
+   G4Polyhedron* pPolyhedron = solid->GetPolyhedron();
+   const G4Polyhedron& polyhedron = *pPolyhedron ; 
+   G4int count = polyhedron.GetNoVertices();
+  
+   G4String sourceId(name) ;
+   sourceId += "-pos" ; 
+   G4String arrayId(sourceId);
+   arrayId += "-array" ; 
+
+   G4String refArrayId("#");
+   refArrayId += arrayId ;
+   G4String refSourceId("#");
+   refSourceId += sourceId ;
+
+   G4String verticesId(name);
+   verticesId += "-vtx" ;
+ 
+   xercesc::DOMElement* sourceElement = NewElement("source");
+   sourceElement->setAttributeNode(NewAttribute("id",sourceId));
+   std::ostringstream t;
+   G4int i, j;
+   for (i = 1, j = count ; j; j--, i++) {
+        G4Point3D point = polyhedron.GetVertex(i);
+        t << "\t\t\t\t\t";
+        t << point.x() << " " ;
+        t << point.y() << " " ;
+        t << point.z() << "\n" ;
+   }
+   std::string ts = t.str();
+
+   xercesc::DOMElement* floatArrayElement = NewTextElement("float_array", ts.c_str());
+   floatArrayElement->setAttributeNode(NewAttribute("id",arrayId));
+   floatArrayElement->setAttributeNode(NewAttribute("count",count));
+   sourceElement->appendChild(floatArrayElement);
+
+   xercesc::DOMElement* techniqueCommonElement = NewElement("technique_common");
+   AccessorXYZWrite( techniqueCommonElement, refArrayId, count/3, 3 ); 
+   sourceElement->appendChild(techniqueCommonElement);
+   
+   meshElement->appendChild(sourceElement);
+
+   xercesc::DOMElement* verticesElement = NewElement("vertices");
+   verticesElement->setAttributeNode(NewAttribute("id",verticesId));
+   xercesc::DOMElement* inputElement = NewElement("input");
+   inputElement->setAttributeNode(NewAttribute("semantic","POSITION"));
+   inputElement->setAttributeNode(NewAttribute("source", refSourceId));
+   verticesElement->appendChild(inputElement);
+
+   meshElement->appendChild(verticesElement);
+}
+ 
+
+
+void G4DAEWriteSolids::
+MeshWrite(xercesc::DOMElement* solidsElement,
+             const G4VSolid* const solid)
+{
+ 
+   const G4String& name = GenerateName(solid->GetName(),solid);
+   xercesc::DOMElement* geometryElement = NewElement("geometry");
+
+   geometryElement->setAttributeNode(NewAttribute("name",name));
+   geometryElement->setAttributeNode(NewAttribute("id",name));
+
+   xercesc::DOMElement* meshElement = NewElement("mesh");
+
+   SourceVerticesWrite( meshElement, solid );
+
+   geometryElement->appendChild(meshElement); 
+   solidsElement->appendChild(geometryElement);
+}
+
 
 void G4DAEWriteSolids::
 BooleanWrite(xercesc::DOMElement* solidsElement,
@@ -728,12 +801,12 @@ ZplaneWrite(xercesc::DOMElement* element, const G4double& z,
    element->appendChild(zplaneElement);
 }
 
-void G4DAEWriteSolids::SolidsWrite(xercesc::DOMElement* gdmlElement)
+void G4DAEWriteSolids::SolidsWrite(xercesc::DOMElement* daeElement)
 {
-   G4cout << "G4DAE: Writing solids..." << G4endl;
+   G4cout << "G4DAE: Writing library_geometries..." << G4endl;
 
-   solidsElement = NewElement("solids");
-   gdmlElement->appendChild(solidsElement);
+   solidsElement = NewElement("library_geometries");
+   daeElement->appendChild(solidsElement);
 
    solidList.clear();
 }
@@ -747,6 +820,11 @@ void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr)
 
    solidList.push_back(solidPtr);
 
+   MeshWrite( solidsElement, solidPtr);
+
+
+   /*
+ 
    if (const G4BooleanSolid* const booleanPtr
      = dynamic_cast<const G4BooleanSolid*>(solidPtr))
      { BooleanWrite(solidsElement,booleanPtr); } else
@@ -825,4 +903,8 @@ void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr)
      G4Exception("G4DAEWriteSolids::AddSolid()", "ReadError",
                  FatalException, error_msg);
    }
+
+   */
+
+
 }
