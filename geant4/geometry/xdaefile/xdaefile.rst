@@ -1,5 +1,5 @@
-XDAE
-======
+XDAEFILE
+==========
 
 .. contents:: :local:
 

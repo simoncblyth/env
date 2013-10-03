@@ -6,13 +6,10 @@ Geant4 Geometry Export
 
    overview
    introduction
-   export/index
    vrml2/index
+   xdaefile/index
    gdml/index
    collada/index
-   detdesc
-   other
-   cad
-   visualisation
+   other/index
    
 
