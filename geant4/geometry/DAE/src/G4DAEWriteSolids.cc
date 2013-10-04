@@ -56,6 +56,7 @@ SourceVerticesWrite(xercesc::DOMElement* meshElement,
    G4Polyhedron* pPolyhedron = solid->GetPolyhedron();
    const G4Polyhedron& polyhedron = *pPolyhedron ; 
    G4int nvert = polyhedron.GetNoVertices();
+   G4int nface = polyhedron.GetNoFacets();
 
    std::ostringstream t;
    G4int i, j;
@@ -68,7 +69,6 @@ SourceVerticesWrite(xercesc::DOMElement* meshElement,
    }
    std::string vertices = t.str();
 
-   G4int nface = polyhedron.GetNoFacets();
  
  
    G4String pos(name) ;

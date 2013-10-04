@@ -15,13 +15,9 @@ DAE based on GDML code
 
 EOU
 }
-dae-dir(){ echo $(local-base)/env/geant4/geometry/geant4/geometry-dae ; }
+dae-dir(){ echo $(env-home)/geant4/geometry/DAE ; }
 dae-cd(){  cd $(dae-dir); }
 dae-mate(){ mate $(dae-dir) ; }
-dae-get(){
-   local dir=$(dirname $(dae-dir)) &&  mkdir -p $dir && cd $dir
-
-}
 
 
 dae-install(){
