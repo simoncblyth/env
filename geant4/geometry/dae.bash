@@ -8,8 +8,26 @@ dae-usage(){ cat << EOU
 DAE based on GDML code
 ========================
 
-::
+GDML inheritance heirarchy::
 
+     G4GDMLWriteStructure
+     G4GDMLWriteParamvol 
+     G4GDMLWriteSetup
+     G4GDMLWriteSolids
+     G4GDMLWriteMaterials 
+     G4GDMLWriteDefine        
+     G4GDMLWrite              
+
+DAE inheritance heirarchy::
+
+     G4DAEWriteStructure   library_nodes         (based on G4GDMLWriteStructure)
+     G4DAEWriteParamvol
+     G4DAEWriteSetup       library_visual_scenes (based on G4GDMLWriteSetup)
+     G4DAEWriteSolids      library_geometries    (based on G4GDMLWriteSolids) 
+     G4DAEWriteMaterials   library_materials     (based on G4GDMLWriteMaterials) 
+     G4DAEWriteEffects     library_effects       (originated) 
+     G4DAEWriteAsset       asset                 (based on G4GDMLWriteDefine)             
+     G4DAEWrite            COLLADA    
 
 
 

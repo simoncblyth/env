@@ -26,10 +26,12 @@ G4DAEWrite::DepthMapType& G4DAEWrite::DepthMap()
    return instance;
 }
 
-G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr)
+G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref)
 {
    G4String nameOut;
-   std::stringstream stream; stream << name;
+   std::stringstream stream; 
+   if(ref) stream << "#" ; 
+   stream << name;
    if (addPointerToName) { stream << ptr; };
 
    nameOut=G4String(stream.str());
@@ -38,6 +40,7 @@ G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr)
 
    return nameOut;
 }
+
 
 xercesc::DOMAttr* G4DAEWrite::NewAttribute(const G4String& name,
                                             const G4String& value)
@@ -90,8 +93,13 @@ xercesc::DOMElement* G4DAEWrite::NewTextElement(const G4String& name, const G4St
 {
    xercesc::XMLString::transcode(name,tempStr,tempStrSize-1);
    xercesc::DOMElement* e = doc->createElement(tempStr);
-   xercesc::XMLString::transcode(text,tempStr,tempStrSize-1);
-   e->setTextContent(tempStr);
+
+   // text content can potentially be much larger than tags/attributes 
+   // so transcode dynamically rather than with a fixed buffer
+   XMLCh* content = xercesc::XMLString::transcode(text);
+   e->setTextContent(content);
+   xercesc::XMLString::release(&content);
+
    return e; 
 }
 
@@ -156,12 +164,14 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
    //dae->setAttributeNode(NewAttribute("version","1.5.0"));
 
 
+
    AssetWrite(dae);
    EffectsWrite(dae);
    MaterialsWrite(dae);
    SolidsWrite(dae);
-   StructureWrite(dae);
-   SetupWrite(dae,logvol);
+   StructureWrite(dae);   // writing order does not follow inheritance order
+
+   SetupWrite(dae, logvol);
 
    G4Transform3D R = TraverseVolumeTree(logvol,depth);
 

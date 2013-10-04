@@ -1,5 +1,6 @@
 #include "G4DAEWriteSolids.hh"
 #include "G4Polyhedron.hh"
+#include "G4DAEPolyhedron.hh"
 #include <sstream>
 
 void G4DAEWriteSolids::
@@ -22,19 +23,9 @@ AccessorXYZWrite(xercesc::DOMElement* element,
    accessorElement->appendChild(z);
 
    tcElement->appendChild(accessorElement);
-   element->appendChile(tcElement);
+   element->appendChild(tcElement);
 }
 
-
-void G4DAEWriteSolids::
-FloatArrayWrite(xercesc::DOMElement* element,
-             const G4String& id, G4int count, const G4String& content)
-{
-   xercesc::DOMElement* fa = NewTextElement("float_array", content);
-   fa->setAttributeNode(NewAttribute("id",id));
-   fa->setAttributeNode(NewAttribute("count",count));
-   element->appendChild(fa);
-}
 
 void G4DAEWriteSolids::
 InputWrite(xercesc::DOMElement* element,
@@ -46,92 +37,107 @@ InputWrite(xercesc::DOMElement* element,
    inputElement->setAttributeNode(NewAttribute("offset",  offset));
    element->appendChild(inputElement);
 }
+ 
+G4String G4DAEWriteSolids::
+FloatArrayWrite(xercesc::DOMElement* srcElement,
+             const G4String& srcId, G4int count, const G4String& data)
+{
+   G4String faId(srcId); 
+   faId += "-array" ; 
+
+   xercesc::DOMElement* fa = NewTextElement("float_array", data);
+   fa->setAttributeNode(NewAttribute("id",faId));
+   fa->setAttributeNode(NewAttribute("count",count));
+   srcElement->appendChild(fa);
+
+   G4String faIdRef("#");
+   faIdRef += faId ;
+   return faIdRef; 
+}
+
+G4String G4DAEWriteSolids::
+SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, G4int items, G4int stride, const G4String& data)
+{
+   G4String srcId(geoId);
+   srcId += ext ;           // eg -Pos -Normal 
+
+   xercesc::DOMElement* srcElement = NewElementOneAtt("source","id",srcId);
+   G4String faRef = FloatArrayWrite( srcElement, srcId, items*stride,  data ); 
+   AccessorXYZWrite( srcElement, faRef, items, stride ); 
+   meshElement->appendChild( srcElement );
+
+   G4String srcIdRef("#");
+   srcIdRef += srcId ;
+   return srcIdRef; 
+}
+
+G4String G4DAEWriteSolids::
+VerticesWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, const G4String& posRef)
+{
+   G4String vtxId(geoId);
+   vtxId += ext ;          // eg -Vtx
+   xercesc::DOMElement* vtxElement = NewElementOneAtt("vertices","id",vtxId);
+   InputWrite(vtxElement, "POSITION", posRef , 0 );
+   meshElement->appendChild(vtxElement);
+
+   G4String vtxIdRef("#");
+   vtxIdRef += vtxId ;
+   return vtxIdRef; 
+}
 
 
 void G4DAEWriteSolids::
-SourceVerticesWrite(xercesc::DOMElement* meshElement,
-             const G4VSolid* const solid)
+PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, const G4String& material)
 {
-   const G4String& name = GenerateName(solid->GetName(),solid);
+   xercesc::DOMElement* polygonsElement = NewElement("polygons");
+
+   G4int count = facets.size();
+   polygonsElement->setAttributeNode(NewAttribute("count",  count));
+   polygonsElement->setAttributeNode(NewAttribute("material", material));
+   InputWrite(polygonsElement, "VERTEX", vtxRef , 0 );
+   InputWrite(polygonsElement, "NORMAL", nrmRef , 1 );
+
+   for(std::vector<std::string>::iterator it = facets.begin(); it != facets.end(); ++it) {
+        xercesc::DOMElement* pElement = NewTextElement("p", *it);
+        polygonsElement->appendChild(pElement);  
+   }  
+
+   meshElement->appendChild( polygonsElement );
+}
+
+
+G4String G4DAEWriteSolids::
+GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
+{
    G4Polyhedron* pPolyhedron = solid->GetPolyhedron();
    const G4Polyhedron& polyhedron = *pPolyhedron ; 
    G4int nvert = polyhedron.GetNoVertices();
    G4int nface = polyhedron.GetNoFacets();
+   G4String dummy("");
 
-   std::ostringstream t;
-   G4int i, j;
-   for (i = 1, j = nvert ; j; j--, i++) {
-        G4Point3D point = polyhedron.GetVertex(i);
-        t << "\n\t\t\t\t\t";
-        t << point.x() << " " ;
-        t << point.y() << " " ;
-        t << point.z() << "\n" ;
-   }
-   std::string vertices = t.str();
-
- 
- 
-   G4String pos(name) ;
-   pos += "-pos" ; 
-   G4String posRef("#");
-   posRef += pos ;
-
-   G4String aPos(pos);
-   aPos += "-array" ; 
-   G4String aPosRef("#");
-   aPosRef += aPos ;
-
-   xercesc::DOMElement* posElement = NewElementOneAtt("source","id",pos);
-   FloatArrayWrite( posElement, aPos, nvert*3, vertices.c_str() ); 
-   AccessorXYZWrite( posElement, aPosRef, nvert, 3 ); 
-   meshElement->appendChild( posElement);
-
-   G4String vtx(name);
-   vtx += "-vtx" ;
-   xercesc::DOMElement* vtxElement = NewElementOneAtt("vertices","id",vtx);
-   InputWrite(vtxElement, "POSITION", posRef , 0 );
-
-   meshElement->appendChild(vtxElement);
-
-
-
-   // facet loop   
-   G4int f;
-   for (f = nface; f; f--) {
-
-        // edge loop  
-        G4bool notLastEdge;
-        G4int index = -1, edgeFlag = 1;
-        fDest << "\t\t\t\t";
-        do {
-            notLastEdge = polyhedron.GetNextVertexIndex(index, edgeFlag);
-            fDest << index - 1 << ", ";
-        } while (notLastEdge);
-        fDest << "-1," << "\n";
+   if( nface > 10 ){
+        //G4Cout << "solids with > 10 faces for easier debugging " << G4endl ; 
+        return dummy ;
    }
 
+   const G4String& geoId = GenerateName(solid->GetName(),solid);
+   G4String material = "WHITE" ;   // hmm, seems better to defer material to later ?
 
-}
- 
-
-
-void G4DAEWriteSolids::
-MeshWrite(xercesc::DOMElement* solidsElement,
-             const G4VSolid* const solid)
-{
- 
-   const G4String& name = GenerateName(solid->GetName(),solid);
-   xercesc::DOMElement* geometryElement = NewElement("geometry");
-
-   geometryElement->setAttributeNode(NewAttribute("name",name));
-   geometryElement->setAttributeNode(NewAttribute("id",name));
-
+   xercesc::DOMElement* geometryElement = NewElementTwoAtt("geometry", "name", geoId, "id", geoId);
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
-   SourceVerticesWrite( meshElement, solid );
+   G4DAEPolyhedron p(polyhedron);
+   G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, p.GetVertices() ); 
+   G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, p.GetNormals() ); 
+   G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
+   PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
 
    geometryElement->appendChild(meshElement); 
    solidsElement->appendChild(geometryElement);
+
+   G4String geoIdRef("#");
+   geoIdRef += geoId ;
+   return geoIdRef; 
 }
 
 
@@ -847,8 +853,7 @@ void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr)
 
    solidList.push_back(solidPtr);
 
-   MeshWrite( solidsElement, solidPtr);
-
+   G4String geoRef = GeometryWrite( solidsElement, solidPtr);
 
    /*
  

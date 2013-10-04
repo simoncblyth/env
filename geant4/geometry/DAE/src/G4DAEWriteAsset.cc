@@ -87,8 +87,8 @@ void G4DAEWriteAsset::AssetWrite(xercesc::DOMElement* element)
 {
    G4cout << "G4DAE: Writing asset metadata..." << G4endl;
 
-   defineElement = NewElement("define");
-   element->appendChild(defineElement);
+   //defineElement = NewElement("define");
+   //element->appendChild(defineElement);
 
    G4String created = "2005-11-14T02:16:38Z" ;
    G4String modified = "2005-11-14T02:16:38Z" ;

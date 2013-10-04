@@ -1233,3 +1233,4 @@ g4py-(){      . $(env-home)/geant4/g4py/g4py.bash && g4py-env $* ; }
 gdml-(){      . $(env-home)/geant4/geometry/gdml/gdml.bash && gdml-env $* ; }
 daefile-(){    . $(env-home)/geant4/geometry/daefile.bash && daefile-env $* ; }
 dae-(){      . $(env-home)/geant4/geometry/dae.bash && dae-env $* ; }
+g4-(){      . $(env-home)/geant4/g4.bash && g4-env $* ; }

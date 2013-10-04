@@ -1,7 +1,7 @@
 #!/bin/bash -l
 nuwa-
 
-out=daetest.gdml
+out=test.dae
 
 rm $out
 $(nuwa-g4-xdir)/xdae

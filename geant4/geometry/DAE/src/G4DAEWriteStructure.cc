@@ -178,12 +178,12 @@ void G4DAEWriteStructure::ReplicavolWrite(xercesc::DOMElement* volumeElement,
    volumeElement->appendChild(replicavolElement);
 }
 
-void G4DAEWriteStructure::StructureWrite(xercesc::DOMElement* gdmlElement)
+void G4DAEWriteStructure::StructureWrite(xercesc::DOMElement* daeElement)
 {
-   G4cout << "G4DAE: Writing structure..." << G4endl;
+   G4cout << "G4DAE: Writing structure/library_nodes..." << G4endl;
 
-   structureElement = NewElement("structure");
-   gdmlElement->appendChild(structureElement);
+   structureElement = NewElement("library_nodes");
+   daeElement->appendChild(structureElement);
 }
 
 G4Transform3D G4DAEWriteStructure::
@@ -240,6 +240,27 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
    const G4String solidref
          = GenerateName(solidPtr->GetName(),solidPtr);
 
+
+   // DAE
+   G4String matSymbol = "WHITE" ;  // whats this ?
+   G4Material* materialPtr = volumePtr->GetMaterial();
+   G4bool ref = true ; 
+   const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, ref );
+   const G4String geoRef = GenerateName(solidPtr->GetName(), solidPtr, ref );
+
+   xercesc::DOMElement* nodeElement = NewElementOneAtt("node","id", name);
+   xercesc::DOMElement* igElement = NewElementOneAtt("instance_geometry","url", geoRef);
+   xercesc::DOMElement* bmElement = NewElement("bind_material");
+   xercesc::DOMElement* tcElement = NewElement("technique_common");
+   xercesc::DOMElement* imElement = NewElementTwoAtt("instance_material", "symbol", matSymbol, "target", matRef );
+   tcElement->appendChild(imElement);
+   bmElement->appendChild(tcElement);
+   igElement->appendChild(bmElement);
+   nodeElement->appendChild(igElement);
+
+
+
+   // GDML
    xercesc::DOMElement* volumeElement = NewElement("volume");
    volumeElement->setAttributeNode(NewAttribute("name",name));
    xercesc::DOMElement* materialrefElement = NewElement("materialref");
@@ -319,7 +340,12 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
       }
    }
 
-   structureElement->appendChild(volumeElement);
+
+     // GDML 
+     // structureElement->appendChild(volumeElement);
+     // DAE
+     structureElement->appendChild(nodeElement);
+
      // Append the volume AFTER traversing the children so that
      // the order of volumes will be correct!
 

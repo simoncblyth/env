@@ -337,6 +337,11 @@ g4py-test(){
    g4py-pycheck && PYTHONPATH=$(g4py-libdir) python -c "import Geant4"
 }
 
+g4py(){
+   g4py-pycheck && echo to use access g4py : import Geant4 as g4  && PYTHONPATH=$(g4py-libdir):$PYTHONPATH ipython
+}
+
+
 g4py-g4global(){
    cd $(g4py-g4-bdir)/source
    make CLHEP_BASE_DIR=$(g4py-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1  global

@@ -42,8 +42,14 @@ class G4DAEWriteSolids : public G4DAEWriteMaterials
  private:
 
    void AccessorXYZWrite(xercesc::DOMElement*, const G4String&, G4int, G4int );
-   void SourceVerticesWrite(xercesc::DOMElement*, const G4VSolid* const);
-   void MeshWrite(xercesc::DOMElement*, const G4VSolid* const);
+   void InputWrite(xercesc::DOMElement*, const G4String&, const G4String&, G4int offset);
+   G4String FloatArrayWrite(xercesc::DOMElement* srcElement, const G4String& srcId, G4int count, const G4String& data);
+   G4String SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, G4int items, G4int stride, const G4String& data);
+   G4String VerticesWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, const G4String& posRef);
+   void PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, const G4String& material);
+   G4String GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid);
+
+
 
    void BooleanWrite(xercesc::DOMElement*, const G4BooleanSolid* const);
    void BoxWrite(xercesc::DOMElement*, const G4Box* const);
