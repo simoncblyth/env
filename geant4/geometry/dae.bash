@@ -8,6 +8,19 @@ dae-usage(){ cat << EOU
 DAE based on GDML code
 ========================
 
+* http://www.khronos.org/files/collada_spec_1_4.pdf 
+* https://github.com/KhronosGroup/COLLADA-CTS/blob/master/StandardDataSets/collada/library_nodes/node/1inst2inLN/1inst2inLN.dae
+
+  * a good source of non-trivial collada examples 
+
+The *rotate* element contains a list of four floating-point values, 
+similar to rotations in the OpenGL and RenderMan specification. 
+These values are organized into a column vector [X,Y,Z] 
+specifying the axis of rotation followed by an angle in degrees. 
+
+
+
+
 GDML inheritance heirarchy::
 
      G4GDMLWriteStructure
@@ -28,6 +41,10 @@ DAE inheritance heirarchy::
      G4DAEWriteEffects     library_effects       (originated) 
      G4DAEWriteAsset       asset                 (based on G4GDMLWriteDefine)             
      G4DAEWrite            COLLADA    
+
+Maybe can restructure making G4DAE* chain of classes to inherit 
+from the G4GDML* ones. This would avoid duplication and allow
+G4DAE to incorporate GDML into extra tags.
 
 
 

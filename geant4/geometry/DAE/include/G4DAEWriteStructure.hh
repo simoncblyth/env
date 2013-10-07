@@ -25,6 +25,9 @@ class G4DAEWriteStructure : public G4DAEWriteParamvol
    void StructureWrite(xercesc::DOMElement*);
    G4Transform3D TraverseVolumeTree(const G4LogicalVolume* const topVol,
                                     const G4int depth);
+
+   void MatrixWrite(xercesc::DOMElement* nodeElement, const G4Transform3D& T);
+
  private:
 
    xercesc::DOMElement* structureElement;

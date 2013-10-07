@@ -1,39 +1,5 @@
-//
-// ********************************************************************
-// * License and Disclaimer                                           *
-// *                                                                  *
-// * The  Geant4 software  is  copyright of the Copyright Holders  of *
-// * the Geant4 Collaboration.  It is provided  under  the terms  and *
-// * conditions of the Geant4 Software License,  included in the file *
-// * LICENSE and available at  http://cern.ch/geant4/license .  These *
-// * include a list of copyright holders.                             *
-// *                                                                  *
-// * Neither the authors of this software system, nor their employing *
-// * institutes,nor the agencies providing financial support for this *
-// * work  make  any representation or  warranty, express or implied, *
-// * regarding  this  software system or assume any liability for its *
-// * use.  Please see the license in the file  LICENSE  and URL above *
-// * for the full disclaimer and the limitation of liability.         *
-// *                                                                  *
-// * This  code  implementation is the result of  the  scientific and *
-// * technical work of the GEANT4 collaboration.                      *
-// * By using,  copying,  modifying or  distributing the software (or *
-// * any work based  on the software)  you  agree  to acknowledge its *
-// * use  in  resulting  scientific  publications,  and indicate your *
-// * acceptance of all terms of the Geant4 Software license.          *
-// ********************************************************************
-//
-//
-// $Id: G4DAEWriteStructure.cc,v 1.74 2008/11/13 16:48:19 gcosmo Exp $
-// GEANT4 tag $Name: geant4-09-02 $
-//
-// class G4DAEWriteStructure Implementation
-//
-// Original author: Zoltan Torzsok, November 2007
-//
-// --------------------------------------------------------------------
-
 #include "G4DAEWriteStructure.hh"
+#include <sstream>
 
 void
 G4DAEWriteStructure::DivisionvolWrite(xercesc::DOMElement* volumeElement,
@@ -73,63 +39,50 @@ G4DAEWriteStructure::DivisionvolWrite(xercesc::DOMElement* volumeElement,
    volumeElement->appendChild(divisionvolElement);
 }
 
-void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* volumeElement,
+void G4DAEWriteStructure::MatrixWrite(xercesc::DOMElement* nodeElement, const G4Transform3D& T)
+{
+    std::ostringstream ss ;
+    // row-major order 
+
+    ss << "\n\t\t\t\t" ;
+    ss << T.xx() << " " ;
+    ss << T.xy() << " " ;
+    ss << T.xz() << " " ;
+    ss << T.dx() << "\n" ;
+
+    ss << T.yx() << " " ;
+    ss << T.yy() << " " ;
+    ss << T.yz() << " " ;
+    ss << T.dy() << "\n" ;
+
+    ss << T.zx() << " " ;
+    ss << T.zy() << " " ;
+    ss << T.zz() << " " ;
+    ss << T.dz() << "\n" ;
+
+    ss << "0.0 0.0 0.0 1.0\n" ;
+
+    std::string fourbyfour = ss.str(); 
+    xercesc::DOMElement* matrixElement = NewTextElement("matrix", fourbyfour);
+    nodeElement->appendChild(matrixElement);
+}
+
+
+void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
                                         const G4VPhysicalVolume* const physvol,
                                         const G4Transform3D& T,
                                         const G4String& ModuleName)
 {
-   HepGeom::Scale3D scale;
-   HepGeom::Rotate3D rotate;
-   HepGeom::Translate3D translate;
+   const G4String pvname = GenerateName(physvol->GetName(),physvol);
+   const G4String lvref = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume(), true);
 
-   T.getDecomposition(scale,rotate,translate);
+   xercesc::DOMElement* childNodeElement = NewElementOneAtt("node","name",pvname);
+   MatrixWrite( childNodeElement, T );
 
-   const G4ThreeVector scl(scale(0,0),scale(1,1),scale(2,2));
-   const G4ThreeVector rot = GetAngles(rotate.getRotation());
-   const G4ThreeVector pos = T.getTranslation();
+   xercesc::DOMElement* instanceNodeElement = NewElementOneAtt("instance_node", "url", lvref );
 
-   const G4String name = GenerateName(physvol->GetName(),physvol);
-
-   xercesc::DOMElement* physvolElement = NewElement("physvol");
-   physvolElement->setAttributeNode(NewAttribute("name",name));
-   volumeElement->appendChild(physvolElement);
-
-   const G4String volumeref
-         = GenerateName(physvol->GetLogicalVolume()->GetName(),
-                        physvol->GetLogicalVolume());
-
-   if (ModuleName.empty())
-   {
-      xercesc::DOMElement* volumerefElement = NewElement("volumeref");
-      volumerefElement->setAttributeNode(NewAttribute("ref",volumeref));
-      physvolElement->appendChild(volumerefElement);
-   }
-   else
-   {
-      xercesc::DOMElement* fileElement = NewElement("file");
-      fileElement->setAttributeNode(NewAttribute("name",ModuleName));
-      fileElement->setAttributeNode(NewAttribute("volname",volumeref));
-      physvolElement->appendChild(fileElement);
-   }
-
-   if (std::fabs(pos.x()) > kLinearPrecision
-    || std::fabs(pos.y()) > kLinearPrecision
-    || std::fabs(pos.z()) > kLinearPrecision)
-   {
-     PositionWrite(physvolElement,name+"_pos",pos);
-   }
-   if (std::fabs(rot.x()) > kAngularPrecision
-    || std::fabs(rot.y()) > kAngularPrecision
-    || std::fabs(rot.z()) > kAngularPrecision)
-   {
-     RotationWrite(physvolElement,name+"_rot",rot);
-   }
-   if (std::fabs(scl.x()-1.0) > kRelativePrecision
-    || std::fabs(scl.y()-1.0) > kRelativePrecision
-    || std::fabs(scl.z()-1.0) > kRelativePrecision)
-   {
-     ScaleWrite(physvolElement,name+"_scl",scl);
-   }
+   childNodeElement->appendChild(instanceNodeElement);
+   parentNodeElement->appendChild(childNodeElement);
 }
 
 void G4DAEWriteStructure::ReplicavolWrite(xercesc::DOMElement* volumeElement,
@@ -191,64 +144,21 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 {
    if (VolumeMap().find(volumePtr) != VolumeMap().end())
    {
-     return VolumeMap()[volumePtr]; // Volume is already processed
+       return VolumeMap()[volumePtr]; // Volume is already processed
    }
 
    G4VSolid* solidPtr = volumePtr->GetSolid();
    G4Transform3D R,invR;
-   G4int reflected = 0;
 
-   while (true) // Solve possible displacement/reflection
-   {            // of the referenced solid!
-      if (reflected>maxReflections)
-      {
-        G4String ErrorMessage = "Referenced solid in volume '"
-                              + volumePtr->GetName()
-                              + "' was displaced/reflected too many times!";
-        G4Exception("G4DAEWriteStructure::TraverseVolumeTree()",
-                    "InvalidSetup", FatalException, ErrorMessage);
-      }
+   const G4String lvname = GenerateName(volumePtr->GetName(),volumePtr);
 
-      if (G4ReflectedSolid* refl = dynamic_cast<G4ReflectedSolid*>(solidPtr))
-      {
-         R = R*refl->GetTransform3D();
-         solidPtr = refl->GetConstituentMovedSolid();
-         reflected++;
-         continue;
-      }
-
-      if (G4DisplacedSolid* disp = dynamic_cast<G4DisplacedSolid*>(solidPtr))
-      {
-         R = R*G4Transform3D(disp->GetObjectRotation(),
-                             disp->GetObjectTranslation());
-         solidPtr = disp->GetConstituentMovedSolid();
-         reflected++;
-         continue;
-      }
-
-      break;
-   }
-
-   if (reflected>0) { invR = R.inverse(); }
-     // Only compute the inverse when necessary!
-
-   const G4String name
-         = GenerateName(volumePtr->GetName(),volumePtr);
-   const G4String materialref
-         = GenerateName(volumePtr->GetMaterial()->GetName(),
-                        volumePtr->GetMaterial());
-   const G4String solidref
-         = GenerateName(solidPtr->GetName(),solidPtr);
-
-
-   // DAE
    G4String matSymbol = "WHITE" ;  // whats this ?
    G4Material* materialPtr = volumePtr->GetMaterial();
    G4bool ref = true ; 
    const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, ref );
    const G4String geoRef = GenerateName(solidPtr->GetName(), solidPtr, ref );
 
-   xercesc::DOMElement* nodeElement = NewElementOneAtt("node","id", name);
+   xercesc::DOMElement* nodeElement = NewElementOneAtt("node","id", lvname);
    xercesc::DOMElement* igElement = NewElementOneAtt("instance_geometry","url", geoRef);
    xercesc::DOMElement* bmElement = NewElement("bind_material");
    xercesc::DOMElement* tcElement = NewElement("technique_common");
@@ -258,19 +168,10 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
    igElement->appendChild(bmElement);
    nodeElement->appendChild(igElement);
 
-
-
-   // GDML
-   xercesc::DOMElement* volumeElement = NewElement("volume");
-   volumeElement->setAttributeNode(NewAttribute("name",name));
-   xercesc::DOMElement* materialrefElement = NewElement("materialref");
-   materialrefElement->setAttributeNode(NewAttribute("ref",materialref));
-   volumeElement->appendChild(materialrefElement);
-   xercesc::DOMElement* solidrefElement = NewElement("solidref");
-   solidrefElement->setAttributeNode(NewAttribute("ref",solidref));
-   volumeElement->appendChild(solidrefElement);
-
    const G4int daughterCount = volumePtr->GetNoDaughters();
+
+
+   // NB the heirarchy is divied out into multiple nodes
 
    for (G4int i=0;i<daughterCount;i++)   // Traverse all the children!
    {
@@ -279,82 +180,27 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
       G4Transform3D daughterR;
 
-      if (ModuleName.empty())   // Check if subtree requested to be 
-      {                         // a separate module!
-         daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
-      }
-      else
-      {   
-         G4DAEWriteStructure writer;
-         daughterR = writer.Write(ModuleName,physvol->GetLogicalVolume(),
-                                  SchemaLocation,depth+1);
-      }
+      daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
 
-      if (const G4PVDivision* const divisionvol
-         = dynamic_cast<const G4PVDivision*>(physvol)) // Is it division?
+      G4RotationMatrix rot;
+      if (physvol->GetFrameRotation() != 0)
       {
-         if (!G4Transform3D::Identity.isNear(invR*daughterR,kRelativePrecision))
-         {
-            G4String ErrorMessage = "Division volume in '"
-                                  + name
-                                  + "' can not be related to reflected solid!";
-            G4Exception("G4DAEWriteStructure::TraverseVolumeTree()",
-                        "InvalidSetup", FatalException, ErrorMessage);
-         }
-         DivisionvolWrite(volumeElement,divisionvol); 
-      } else 
-      if (physvol->IsParameterised())   // Is it a paramvol?
-      {
-         if (!G4Transform3D::Identity.isNear(invR*daughterR,kRelativePrecision))
-         {
-            G4String ErrorMessage = "Parameterised volume in '"
-                                  + name
-                                  + "' can not be related to reflected solid!";
-            G4Exception("G4DAEWriteStructure::TraverseVolumeTree()",
-                        "InvalidSetup", FatalException, ErrorMessage);
-         }
-         ParamvolWrite(volumeElement,physvol);
-      } else
-      if (physvol->IsReplicated())   // Is it a replicavol?
-      {
-         if (!G4Transform3D::Identity.isNear(invR*daughterR,kRelativePrecision))
-         {
-            G4String ErrorMessage = "Replica volume in '"
-                                  + name
-                                  + "' can not be related to reflected solid!";
-            G4Exception("G4DAEWriteStructure::TraverseVolumeTree()",
-                        "InvalidSetup", FatalException, ErrorMessage);
-         }
-         ReplicavolWrite(volumeElement,physvol); 
+         rot = *(physvol->GetFrameRotation());
       }
-      else   // Is it a physvol?
-      {
-         G4RotationMatrix rot;
-
-         if (physvol->GetFrameRotation() != 0)
-         {
-           rot = *(physvol->GetFrameRotation());
-         }
-         G4Transform3D P(rot,physvol->GetObjectTranslation());
-         PhysvolWrite(volumeElement,physvol,invR*P*daughterR,ModuleName);
-      }
+      G4Transform3D P(rot,physvol->GetObjectTranslation());
+      PhysvolWrite(nodeElement,physvol,invR*P*daughterR,ModuleName);
    }
 
 
-     // GDML 
-     // structureElement->appendChild(volumeElement);
-     // DAE
-     structureElement->appendChild(nodeElement);
+   structureElement->appendChild(nodeElement);
 
-     // Append the volume AFTER traversing the children so that
-     // the order of volumes will be correct!
+   // Append the volume AFTER traversing the children so that
+   // the order of volumes will be correct!
 
    VolumeMap()[volumePtr] = R;
 
-   G4DAEWriteEffects::AddEffectMaterial(volumePtr->GetMaterial());
-   G4DAEWriteMaterials::AddMaterial(volumePtr->GetMaterial());
-     // Add the involved materials and solids!
-
+   G4DAEWriteEffects::AddEffectMaterial(materialPtr);
+   G4DAEWriteMaterials::AddMaterial(materialPtr);
    G4DAEWriteSolids::AddSolid(solidPtr);
 
    return R;

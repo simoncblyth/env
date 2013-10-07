@@ -67,8 +67,10 @@ nuwa-g4-xdir(){ echo $(nuwa-g4-bdir)/bin/Linux-g++ ; }
 nuwa-g4-incdir(){ echo $(nuwa-g4-idir)/include ; }
 nuwa-g4-libdir(){ echo $(nuwa-g4-idir)/lib ; }
 
-nuwa-clhep-idir(){ echo $DYB/external/clhep/2.0.4.2/$(nuwa-plat) ; } 
-nuwa-clhep-lib(){ echo CLHEP-2.0.4.2 ; } 
+nuwa-clhep-ver(){  echo 2.0.4.2 ; }
+nuwa-clhep-bdir(){ echo $DYB/external/build/LCG/clhep/$(nuwa-clhep-ver) ; }
+nuwa-clhep-idir(){ echo $DYB/external/clhep/$(nuwa-clhep-ver)/$(nuwa-plat) ; } 
+nuwa-clhep-lib(){ echo CLHEP-$(nuwa-clhep-ver) ; } 
 nuwa-clhep-incdir(){ echo $(nuwa-clhep-idir)/include ; } 
 nuwa-clhep-libdir(){ echo $(nuwa-clhep-idir)/lib ; } 
 
