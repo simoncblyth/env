@@ -1,12 +1,12 @@
 #!/bin/bash -l
 nuwa-
 
-out=test.dae
+dae=test.dae
 
-rm $out
+rm $dae
 $(nuwa-g4-xdir)/xdae
-
-head -20 $out
+head -20 $dae
+xmllint --noout --schema ../DAE/schema/collada_schema_1_4.xsd $dae
 
 
 

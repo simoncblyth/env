@@ -32,3 +32,29 @@ Excercising the GDML code based intended DAE exporter.
       61828  206690 8211817 total
 
 
+
+pycollada check
+-----------------
+
+* http://pycollada.github.io/structure.html
+
+Iterate the nodes finding all bound geometry
+
+* http://pycollada.github.io/reference/generated/collada.scene.Scene.html#collada.scene.Scene.objects
+
+::
+
+    In [34]: boundgeoms = list(dae.scene.objects('geometry'))    # objects method applies transforms
+
+    In [35]: len(boundgeoms)
+    Out[35]: 12230
+
+    In [36]: boundgeoms[0]
+    Out[36]: <BoundGeometry id=WorldBox0xb3e6f60, 1 primitives>
+
+    In [37]: boundgeoms[-1]
+    Out[37]: <BoundGeometry id=near-radslab-box-90xb3e6bd0, 1 primitives>
+
+
+
+
