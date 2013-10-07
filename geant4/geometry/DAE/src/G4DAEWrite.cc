@@ -45,7 +45,7 @@ G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G
 
    std::replace(nameOut.begin(), nameOut.end(), ':','_');
    std::replace(nameOut.begin(), nameOut.end(), '/','_');
-   std::replace(nameOut.begin(), nameOut.end(), '#','_');
+   std::replace(nameOut.begin()+1, nameOut.end(), '#','_');  // do not replace url #refs
 
    return nameOut;
 }

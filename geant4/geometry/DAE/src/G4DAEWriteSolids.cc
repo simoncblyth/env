@@ -115,10 +115,10 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    G4int nface = polyhedron.GetNoFacets();
    G4String dummy("");
 
-   if( nface > 10 ){
-        //G4Cout << "solids with > 10 faces for easier debugging " << G4endl ; 
-        return dummy ;
-   }
+   //if( nface > 10 ){
+   //     //G4Cout << "solids with > 10 faces for easier debugging " << G4endl ; 
+   //     return dummy ;
+   //}
 
    const G4String& geoId = GenerateName(solid->GetName(),solid);
    G4String material = "WHITE" ;   // hmm, seems better to defer material to later ?

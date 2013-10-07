@@ -87,55 +87,14 @@ void G4DAEWriteMaterials::ElementWrite(const G4Element* const elementPtr)
 void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
 {
    const G4String matId = GenerateName(materialPtr->GetName(), materialPtr);
-   G4bool ref = true ;
-   const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, ref );
+   const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, true);
+   //G4bool ref = true ;
+   //G4String matRef("#");
+   //matRef += matId ;
 
    xercesc::DOMElement* materialElement = NewElementOneAtt("material","id",matId);
    xercesc::DOMElement* instanceEffectElement = NewElementOneAtt("instance_effect","url",matRef);
    materialElement->appendChild(instanceEffectElement);
-
-
-  /*
-   G4String state_str("undefined");
-   const G4State state = materialPtr->GetState();
-   if (state==kStateSolid) { state_str = "solid"; } else
-   if (state==kStateLiquid) { state_str = "liquid"; } else
-   if (state==kStateGas) { state_str = "gas"; }
-
-   materialElement->setAttributeNode(NewAttribute("state",state_str));
-   
-
-   if (materialPtr->GetTemperature() != STP_Temperature)
-     { TWrite(materialElement,materialPtr->GetTemperature()); }
-   if (materialPtr->GetPressure() != STP_Pressure)
-     { PWrite(materialElement,materialPtr->GetPressure()); }
-   DWrite(materialElement,materialPtr->GetDensity());
-  
-   const size_t NumberOfElements = materialPtr->GetNumberOfElements();
-
-   if (NumberOfElements>1)
-   {
-      const G4double* MassFractionVector = materialPtr->GetFractionVector();
-
-      for (size_t i=0;i<NumberOfElements;i++)
-      {
-         const G4String fractionref =
-                        GenerateName(materialPtr->GetElement(i)->GetName(),
-                                     materialPtr->GetElement(i));
-         xercesc::DOMElement* fractionElement = NewElement("fraction");
-         fractionElement->setAttributeNode(NewAttribute("n",
-                                           MassFractionVector[i]));
-         fractionElement->setAttributeNode(NewAttribute("ref",fractionref));
-         materialElement->appendChild(fractionElement);
-         AddElement(materialPtr->GetElement(i));
-      }
-   }
-   else
-   {
-      materialElement->setAttributeNode(NewAttribute("Z",materialPtr->GetZ()));
-      AtomWrite(materialElement,materialPtr->GetA());
-   }
-   */
 
    materialsElement->appendChild(materialElement);
      // Append the material AFTER all the possible components are appended!
