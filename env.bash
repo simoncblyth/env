@@ -1231,7 +1231,10 @@ gdmldb-(){      . $(env-home)/geant4/geometry/gdml/gdmldb.bash && gdmldb-env $* 
 g4beta-(){      . $(env-home)/geant4/g4beta.bash && g4beta-env $* ; }
 g4py-(){      . $(env-home)/geant4/g4py/g4py.bash && g4py-env $* ; }
 gdml-(){      . $(env-home)/geant4/geometry/gdml/gdml.bash && gdml-env $* ; }
+cmake-(){      . $(env-home)/tools/cmake.bash && cmake-env $* ; }
 daefile-(){    . $(env-home)/geant4/geometry/daefile.bash && daefile-env $* ; }
 dae-(){      . $(env-home)/geant4/geometry/dae.bash && dae-env $* ; }
 g4-(){      . $(env-home)/geant4/g4.bash && g4-env $* ; }
+panda3d-(){      . $(env-home)/graphics/panda3d/panda3d.bash && panda3d-env $* ; }
+meshtool-(){      . $(env-home)/graphics/collada/meshtool.bash && meshtool-env $* ; }
 clhep-(){      . $(env-home)/geant4/clhep.bash && clhep-env $* ; }
