@@ -18,8 +18,16 @@ similar to rotations in the OpenGL and RenderMan specification.
 These values are organized into a column vector [X,Y,Z] 
 specifying the axis of rotation followed by an angle in degrees. 
 
+Schema Validation
+------------------
+
+* attribute 'id': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:ID'
+* attribute 'sid': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:NCName'
 
 
+
+Code Organisation
+--------------------
 
 GDML inheritance heirarchy::
 
@@ -83,4 +91,7 @@ dae-mv(){
 }
 
 
-
+dae-validate(){
+   local dae=${1:-test.dae}
+   xmllint --noout --schema $(env-home)/geant4/geometry/DAE/schema/collada_schema_1_4.xsd $dae
+}

@@ -1,4 +1,5 @@
 #include "G4DAEWrite.hh"
+#include <algorithm>  
 
 G4bool G4DAEWrite::addPointerToName = true;
 
@@ -26,6 +27,8 @@ G4DAEWrite::DepthMapType& G4DAEWrite::DepthMap()
    return instance;
 }
 
+
+
 G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref)
 {
    G4String nameOut;
@@ -35,8 +38,14 @@ G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G
    if (addPointerToName) { stream << ptr; };
 
    nameOut=G4String(stream.str());
+
    if(nameOut.contains(' '))
    nameOut.erase(std::remove(nameOut.begin(),nameOut.end(),' '),nameOut.end());
+
+
+   std::replace(nameOut.begin(), nameOut.end(), ':','_');
+   std::replace(nameOut.begin(), nameOut.end(), '/','_');
+   std::replace(nameOut.begin(), nameOut.end(), '#','_');
 
    return nameOut;
 }

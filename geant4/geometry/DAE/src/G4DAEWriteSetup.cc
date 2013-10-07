@@ -11,9 +11,11 @@ void G4DAEWriteSetup::SetupWrite(xercesc::DOMElement* daeElement,
    const G4String& lvId = GenerateName(logvol->GetName(),logvol);
    G4String lvIdRef("#");
    lvIdRef += lvId ; 
-   xercesc::DOMElement* niElement = NewElementOneAtt("instance_node","url", lvIdRef);
-   vsElement->appendChild(niElement);
 
+   xercesc::DOMElement* noElement = NewElement("node");
+   xercesc::DOMElement* niElement = NewElementOneAtt("instance_node","url", lvIdRef);
+   noElement->appendChild(niElement);
+   vsElement->appendChild(noElement);
    lvsElement->appendChild(vsElement);
    daeElement->appendChild(lvsElement);
 

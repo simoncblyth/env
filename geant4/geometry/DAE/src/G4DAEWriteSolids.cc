@@ -34,7 +34,7 @@ InputWrite(xercesc::DOMElement* element,
    xercesc::DOMElement* inputElement = NewElement("input");
    inputElement->setAttributeNode(NewAttribute("semantic",semantic));
    inputElement->setAttributeNode(NewAttribute("source",  source));
-   inputElement->setAttributeNode(NewAttribute("offset",  offset));
+   if(offset > -1) inputElement->setAttributeNode(NewAttribute("offset",  offset));
    element->appendChild(inputElement);
 }
  
@@ -77,7 +77,7 @@ VerticesWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4S
    G4String vtxId(geoId);
    vtxId += ext ;          // eg -Vtx
    xercesc::DOMElement* vtxElement = NewElementOneAtt("vertices","id",vtxId);
-   InputWrite(vtxElement, "POSITION", posRef , 0 );
+   InputWrite(vtxElement, "POSITION", posRef , -1 );
    meshElement->appendChild(vtxElement);
 
    G4String vtxIdRef("#");
