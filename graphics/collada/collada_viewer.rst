@@ -14,7 +14,10 @@ From OSX 10.6 Preview.app (and Xcode.app) supports it
 Blender
 ---------
 
-Painfully slow for complicated models.
+So slow for full model (on OSX 10.5) that did not succeed to load (just like VRML2). 
+
+Need to work out how to select and extract valid sub geometries using pycollada 
+for this to be usable.
 
 
 GLC Player
@@ -34,10 +37,9 @@ Sketch Up
 -------------
 
 No go with 10.5. 
-Using an app from an untrusted source is not wise
+Using an old version of the app from an untrusted source is not wise
 
 * http://www.oldapps.com/mac/sketchup.php?system=mac_os_x_10.5_leopard_powerpc
-
 
 ColladaViewer2 
 ----------------
@@ -52,8 +54,19 @@ meshtool
 * https://github.com/pycollada/meshtool
 * http://www.panda3d.org/download.php?sdk&version=1.7.2
 
+Project by the pycollada author based on panda3d.
 
- 
+
+daeview
+---------
+
+A demo viewer that comes with pycollada `$(collada-dir)/examples/daeview` depending on pyglet.
+It access the triangles/vertices with pycollada and converts to the needed OpenGL vbo etc.. structures
+(GLSL renderer only ~250 lines).
+
+::
+
+    sudo port install py26-pyglet 
 
 
 

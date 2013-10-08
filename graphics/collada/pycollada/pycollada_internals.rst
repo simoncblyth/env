@@ -4,12 +4,38 @@ PyCOLLADA Internals
 Examinine pycollada to see how to extract info needed for Chroma.
 
 
+XML parsing into IndexLists
+------------------------------
 
 Collada object holds IndexLists `_geometries` `_nodes` that behave like both 
 lists and dicts based on `id`::
 
-    In [106]: dae._geometries['near-radslab-box-10xb3e60a0']
+    In [106]: dae._geometries['near-radslab-box-10xb3e60a0']   
     Out[106]: <Geometry id=near-radslab-box-10xb3e60a0, 1 primitives>
+
+    In [118]: len(dae.geometries)   // properties provide dict and list access to these IndexedLists
+    Out[118]: 249
+
+    In [125]: len(dae.nodes)
+    Out[125]: 249
+
+    In [126]: len(dae.materials)
+    Out[126]: 36
+
+    In [119]: dae.geometries['near-radslab-box-10xb3e60a0']
+    Out[119]: <Geometry id=near-radslab-box-10xb3e60a0, 1 primitives>
+
+    In [120]: dae.geometries[-1]
+    Out[120]: <Geometry id=WorldBox0xb3e6f60, 1 primitives>
+
+    In [121]: dae.geometries[-2]
+    Out[121]: <Geometry id=near_rock0xb3e6e30, 1 primitives>
+
+    In [122]: dae.geometries[0]
+    Out[122]: <Geometry id=near_top_cover_box0x9390f48, 1 primitives>
+
+    In [123]: dae.geometries[1]
+    Out[123]: <Geometry id=RPCStrip0x9391088, 1 primitives>
 
 
 collada/__init__.py::
@@ -26,8 +52,15 @@ collada/__init__.py::
     406                             N = scene.loadNode(self, node, {})
     407                         except scene.DaeInstanceNotLoadedError as ex:
     408                             tried_loading.append((node, ex))
+    409                         except DaeError as ex:
+    410                             self.handleError(ex)
+    411                         else:
+    412                             if N is not None:
+    413                                 self.nodes.append(N)
+    414                                 succeeded = True
 
-collada/scene.py::
+
+Node classes for each XML tag collada/scene.py::
 
     829 def loadNode( collada, node, localscope ):
     830     """Generic scene node loading from a xml `node` and a `collada` object.
@@ -54,6 +87,11 @@ collada/scene.py::
     851     else: raise DaeUnsupportedError('Unknown scene node %s' % str(node.tag))
 
 
+Note:
+
+#. transform subnodes are appended to transforms which is used to construct the parent `Node`
+   other subnodes become the children
+
 collada/scene.py::
 
     402     @staticmethod
@@ -77,6 +115,37 @@ collada/scene.py::
     420     def __str__(self):
     421         return '<Node transforms=%d, children=%d>' % (len(self.transforms), len(self.children))
 
+
+Dump source xml::
+
+    In [131]: from collada.xmlutil import etree as ElementTree
+
+    In [136]: print ElementTree.tostring(dae.nodes[-1].xmlnode)
+
+    <node xmlns="http://www.collada.org/2005/11/COLLADASchema" id="World0xb5b2048">
+          <instance_geometry url="#WorldBox0xb3e6f60">
+            <bind_material>
+              <technique_common>
+                <instance_material symbol="WHITE" target="#_dd_Materials_Vacuum0x93ab6a0"/>
+              </technique_common>
+            </bind_material>
+          </instance_geometry>
+          <node name="_dd_Structure_Sites_db-rock0xb5b2188">
+            <matrix>
+                                    -0.543174 0.83962 0 -16520
+    -0.83962 -0.543174 0 -802110
+    0 0 1 -2110
+    0.0 0.0 0.0 1.0
+    </matrix>
+            <instance_node url="#_dd_Geometry_Sites_lvNearSiteRock0xb5b1f08"/>
+          </node>
+        </node>
+
+
+
+
+Binding objects to a list of transforms
+----------------------------------------
 
 ::
 
@@ -139,6 +208,43 @@ collada/scene.py::
     356 
     357     def __str__(self):
     358         return '<BoundGeometry id=%s, %d primitives>' % (self.original.id, len(self))
+
+
+
+
+SceneNodes
+~~~~~~~~~~~~
+::
+
+     43 class SceneNode(DaeObject):
+     44     """Abstract base class for all nodes within a scene."""
+     45 
+     46     def objects(self, tipo, matrix=None):
+     47         """Iterate through all objects under this node that match `tipo`.
+     48         The objects will be bound and transformed via the scene transformations.
+     49 
+     50         :param str tipo:
+     51           A string for the desired object type. This can be one of 'geometry',
+     52           'camera', 'light', or 'controller'.
+     53         :param numpy.matrix matrix:
+     54           An optional transformation matrix
+     55 
+     56         :rtype: generator that yields the type specified
+     57 
+     58         """
+     59         pass
+
+::
+
+    simon:collada blyth$ grep SceneNode *.py
+    scene.py:class SceneNode(DaeObject):
+    scene.py:class Node(SceneNode):
+    scene.py:class GeometryNode(SceneNode):
+    scene.py:class ControllerNode(SceneNode):
+    scene.py:class MaterialNode(SceneNode):
+    scene.py:class CameraNode(SceneNode):
+    scene.py:class LightNode(SceneNode):
+    scene.py:class ExtraNode(SceneNode):
 
 
 

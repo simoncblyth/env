@@ -35,7 +35,12 @@ but still use the BoundGeometry transformation calcs ?
 
 
 """
+import logging
+log = logging.getLogger(__name__)
 import collada as co
+import monkey_collada
+
+
 class Traverse(object):
     def __init__(self, dae):
         self.dae = dae
@@ -96,11 +101,13 @@ def object_count(dae):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     dae = co.Collada("test.dae")
     print dae
-    t = Traverse(dae)
-    t()
-    print t 
+    object_count(dae)
+    #t = Traverse(dae)
+    #t()
+    #print t 
 
 
 
