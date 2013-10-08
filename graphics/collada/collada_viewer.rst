@@ -72,9 +72,10 @@ It access the triangles/vertices with pycollada and converts to the needed OpenG
 
     $(pycollada-dir)/examples/daeview/daeview.py $(env-home)/graphics/collada/pycollada/test.dae
 
-::
 
-    Unsupported mesh used: BoundPolygons
+After switching from `polygons` to `polylist` daeview succeeds to load the geometry, but nothing 
+visible is apparent.
+
 
 
 

@@ -70,15 +70,22 @@ class GLSLRenderer:
 
         print 'Creating GL buffer objects for geometry...'
         if self.dae.scene is not None:
-            for geom in self.dae.scene.objects('geometry'):
+            for geom in list(self.dae.scene.objects('geometry'))[-10:]:
                 for prim in geom.primitives():
                     mat = prim.material
+                    print mat
                     diff_color = VecF(0.3,0.3,0.3,1.0)
                     spec_color = None 
                     shininess = None
                     amb_color = None
                     tex_id = None
-                    shader_prog = self.shaders[mat.effect.shadingtype]
+                    shadingtype = mat.effect.shadingtype
+                    #shadingtype = "constant"   doing this kills the screen server it seems, forcing a reboot
+                    shader_prog = self.shaders[shadingtype]
+                   
+                    print mat.effect
+                    print mat.effect.supported
+
                     for prop in mat.effect.supported:
                         value = getattr(mat.effect, prop)
                         # it can be a float, a color (tuple) or a Map
@@ -147,10 +154,11 @@ class GLSLRenderer:
                         triangles.generateNormals()
                         # We will need flat lists for VBO (batch) initialization
                         vertices = triangles.vertex.flatten().tolist()
+                        print vertices
+
                         batch_len = len(vertices)//3
                         indices = triangles.vertex_index.flatten().tolist()
                         normals = triangles.normal.flatten().tolist()
-
                         batch = pyglet.graphics.Batch()
 
                         # Track maximum and minimum Z coordinates

@@ -60,7 +60,7 @@ treated as ancestors. Probably some id stomping is happening::
 
 
 """
-import logging, random, sys
+import logging, random, sys, numpy
 log = logging.getLogger(__name__)
 from monkey_collada import MonkeyCollada as Collada
 
@@ -95,7 +95,15 @@ if __name__ == '__main__':
     else: 
         arg = None
 
-    dae = Collada("test.dae")
+    text = r""" 1 0 0 0 
+                0 1 0 0
+                0 0 1 -22890.    
+                0 0 0 1 """
+
+    matrix = numpy.fromstring(text, dtype=numpy.float32, sep=' ')
+    matrix.shape = (4,4)
+    print matrix
+    dae = Collada("test.dae", matrix=matrix)
     examine(dae, arg)
 
 

@@ -90,14 +90,18 @@ class MonkeyCollada(collada.Collada):
     A list of :class:`collada.geometry.BoundGeometry` objects. Can also be indexed by id""" )
 
     def __init__(self, *args, **kwa):
+         """
+         **MONKEYPATCHED** to add top level matrix applied to all BoundGeometry
+         """
+         matrix = kwa.pop('matrix')
          self._bound_geometries = IndexedList([], ('id',))
          log.info("MonkeyCollada start normal loading ")
          original_Collada.__init__(self, *args, **kwa)
-         self._loadBoundGeometries()
+         self._loadBoundGeometries(matrix)
 
-    def _loadBoundGeometries(self):
+    def _loadBoundGeometries(self, matrix=None):
         log.info("_loadBoundGeometries starting") 
-        for bg in self.scene.objects('geometry'):
+        for bg in self.scene.objects('geometry', matrix):
             self.bound_geometries.append(bg) 
         log.info("_loadBoundGeometries loaded %s " % len(self.bound_geometries)) 
 
@@ -132,7 +136,7 @@ class MonkeyGeometry(collada.geometry.Geometry):
 
 
 class MonkeyScene(collada.scene.Scene):
-    def objects(self, tipo):
+    def objects(self, tipo, matrix=None):
         """Iterate through all objects in the scene that match `tipo`.
         The objects will be bound and transformed via the scene transformations.
 
@@ -143,7 +147,6 @@ class MonkeyScene(collada.scene.Scene):
         :rtype: generator that yields the type specified
 
         """
-        matrix = None
         path = []
         for node in self.nodes:
             for obj in node.objects(tipo, matrix, path=path+[node]): yield obj
