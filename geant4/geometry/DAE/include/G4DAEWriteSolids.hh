@@ -47,6 +47,7 @@ class G4DAEWriteSolids : public G4DAEWriteMaterials
    G4String SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, G4int items, G4int stride, const G4String& data);
    G4String VerticesWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, const G4String& posRef);
    void PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, const G4String& material);
+   void PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& material);
    G4String GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid);
 
 

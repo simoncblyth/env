@@ -76,6 +76,9 @@ void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface )
     G4int ifacet[4];
     polyhedron.GetFacet(iface, nedge, ivertex, iedgeflag, ifacet);
     std::ostringstream ss ;
+    std::ostringstream vv ;
+    vv << nedge << " " ;
+
     G4int iedge = 0;
     for(iedge = 0; iedge < nedge; ++iedge) {
         // collada expects zero based indices
@@ -84,6 +87,9 @@ void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface )
     ss << " " ;
     std::string facet = ss.str() ; 
     fFacets.push_back( facet );
+
+    std::string vcount = vv.str() ; 
+    fVcount.push_back( vcount );
 }
 
 

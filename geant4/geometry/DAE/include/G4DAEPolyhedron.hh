@@ -53,6 +53,7 @@ class G4DAEPolyhedron
     std::string GetVertices(){ return fVertices ; }
     std::string GetNormals(){ return fNormals ; }
     std::vector<std::string>& GetFacets(){ return fFacets ; }
+    std::vector<std::string>& GetVcount(){ return fVcount ; }
  
   private:
 
@@ -64,6 +65,7 @@ class G4DAEPolyhedron
     std::string fVertices ; 
     std::string fNormals ;
     std::vector<std::string> fFacets ;
+    std::vector<std::string> fVcount ;
 };
 
 

@@ -106,6 +106,40 @@ PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4
 }
 
 
+void G4DAEWriteSolids::
+PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& material)
+{
+   xercesc::DOMElement* polylistElement = NewElement("polylist");
+
+   G4int count = facets.size();
+   polylistElement->setAttributeNode(NewAttribute("count",  count));
+   polylistElement->setAttributeNode(NewAttribute("material", material));
+   InputWrite(polylistElement, "VERTEX", vtxRef , 0 );
+   InputWrite(polylistElement, "NORMAL", nrmRef , 1 );
+
+   std::stringstream vv ;
+   for(std::vector<std::string>::iterator it = vcount.begin(); it != vcount.end(); ++it) {
+      vv << *it ; 
+   }  
+   xercesc::DOMElement* vcountElement = NewTextElement("vcount", vv.str());
+
+   std::stringstream pp ;
+   for(std::vector<std::string>::iterator it = facets.begin(); it != facets.end(); ++it) {
+      pp << *it ; 
+   }  
+   xercesc::DOMElement* pElement = NewTextElement("p", pp.str());
+
+   polylistElement->appendChild(vcountElement);  
+   polylistElement->appendChild(pElement);  
+   meshElement->appendChild( polylistElement );
+}
+
+
+
+
+
+
+
 G4String G4DAEWriteSolids::
 GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
 {
@@ -130,7 +164,8 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, p.GetVertices() ); 
    G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, p.GetNormals() ); 
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
-   PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
+   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
+   PolylistWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), p.GetVcount(), material ); 
 
    geometryElement->appendChild(meshElement); 
    solidsElement->appendChild(geometryElement);
