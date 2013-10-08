@@ -68,6 +68,14 @@ It access the triangles/vertices with pycollada and converts to the needed OpenG
 
     sudo port install py26-pyglet 
 
+::
+
+    $(pycollada-dir)/examples/daeview/daeview.py $(env-home)/graphics/collada/pycollada/test.dae
+
+::
+
+    Unsupported mesh used: BoundPolygons
+
 
 
 

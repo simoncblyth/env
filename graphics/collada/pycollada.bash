@@ -62,6 +62,12 @@ pycollada-get(){
 }
 
 
+pycollada-daeview(){
+   local cmd="$(pycollada-dir)/examples/daeview/daeview.py $(env-home)/graphics/collada/pycollada/test.dae "
+   echo $cmd
+   eval $cmd
+}
+
 pycollada-build(){
    pycollada-cd
    python setup.py build 
