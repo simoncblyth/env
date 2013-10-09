@@ -24,6 +24,13 @@ Schema Validation
 * attribute 'id': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:ID'
 * attribute 'sid': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:NCName'
 
+Curiously get 'xs:ID' validation errors on G, but not N 
+
+* http://www.schemacentral.com/sc/xsd/t-xsd_ID.html
+
+  * The type xsd:ID is used for an attribute that uniquely identifies an element in an XML document. 
+
+
 Code Organisation
 --------------------
 
