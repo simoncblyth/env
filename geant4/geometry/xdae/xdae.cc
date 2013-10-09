@@ -46,7 +46,7 @@ int main(int argc, char** argv)
 {
   DetectorConstruction* detector = new DetectorConstruction;
   detector->ReadGDML("/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml");
-  detector->WriteDAE("test.dae");
+  detector->WriteDAE("/data1/env/local/env/geant4/geometry/xdae/g4_01.dae");
 
 }
 
