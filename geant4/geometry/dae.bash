@@ -24,8 +24,6 @@ Schema Validation
 * attribute 'id': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:ID'
 * attribute 'sid': '/dd/Materials/PPE0x92996b8' is not a valid value of the atomic type 'xs:NCName'
 
-
-
 Code Organisation
 --------------------
 
@@ -53,6 +51,13 @@ DAE inheritance heirarchy::
 Maybe can restructure making G4DAE* chain of classes to inherit 
 from the G4GDML* ones. This would avoid duplication and allow
 G4DAE to incorporate GDML into extra tags.
+
+
+FUNCTIONS
+----------
+
+dae-get
+        grab latest .dae from N via http
 
 
 
@@ -90,8 +95,30 @@ dae-mv(){
    done
 }
 
-
 dae-validate(){
-   local dae=${1:-test.dae}
-   xmllint --noout --schema $(env-home)/geant4/geometry/DAE/schema/collada_schema_1_4.xsd $dae
+   local pth=${1:-$(dae-pth)}
+   xmllint --noout --schema $(dae-xsd) $pth
 }
+
+dae-name(){ echo g4_01.dae ; }
+dae-xsd(){  echo $(env-home)/geant4/geometry/DAE/schema/collada_schema_1_4.xsd  ; }
+dae-url(){  echo http://belle7.nuu.edu.tw/dae/$(dae-name) ; }
+dae-pth(){  echo $LOCAL_BASE/env/geant4/geometry/xdae/$(dae-name) ; }
+dae-get(){
+   local url=$(dae-url)
+   local pth=$(dae-pth)
+   local nam=$(basename $url)
+   local cmd="curl -o $pth $url "
+   echo $cmd
+   eval $cmd
+
+   dae-info
+}
+
+dae-info(){
+   local pth=$(dae-pth)
+   ls -l $pth
+   du -h $pth
+   wc -l $pth
+}
+

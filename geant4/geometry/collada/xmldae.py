@@ -3,6 +3,8 @@
 XMLDAE
 =======
 
+Grab latest .dae from N with *dae-;dae-get*
+
 XML level view of a collada .dae, for debugging 
 
 Objective is not to recreate pycollada, but merely to 
