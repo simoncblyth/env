@@ -16,6 +16,27 @@ Questions
 
 #. Would the xml documument ids be unique without the pointers 0x.... ?
 
+   * checking the .gdml there are dupes in the subtraction/union solids and between element/material names
+     see ~/e/tools/checkxml.py 
+   * checking the GDML writing on which the DAE writing is based,  there is currently only a global addPointerToName 
+     switch so cannot easily turn it off for volumes and not for solids as would break references to solids
+
+#. Can I reproduce VRML2 output from the DAE ? As a validation of all those transformations and everything else.
+
+   * PV count now matches
+   * PV name matching, the NCName IDref XML restriction forced replacing 3 chars ":/#" with  "_"
+   
+     * that is difficult to reverse, need some more unused acceptable chars (single chars would be best)
+     * iterating on dae-edit;dae-validate find that "." is acceptable on other than the first char 
+     * http://www.schemacentral.com/sc/xsd/t-xsd_NCName.html
+
+  * TODO:
+
+    * add checkxml.py collection of all id characters to see if "." is used 
+
+  
+
+
 Usage
 ------
 
@@ -31,11 +52,11 @@ Usage
 
 """
 import os, sys, logging
-log = logging.getLogger(__name__)
+log = logging.getlogger(__name__)
 
-#import xml.etree.cElementTree as ET
-#import xml.etree.ElementTree as ET
-import lxml.etree as ET
+#import xml.etree.celementtree as et
+#import xml.etree.elementtree as et
+import lxml.etree as et
 
 
 COLLADA_NS='http://www.collada.org/2005/11/COLLADASchema'
@@ -434,26 +455,6 @@ def parse_args(doc):
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
     return opts, args
 
-
-def checkid(xml):
-    """
-    Check if document id are distinct without the pointer appendage 
-    """
-    allid=set()
-    alljd=set()
-    ecount = 0 
-    for elem in xml.findall('.//*[@id]'):
-        ecount += 1
-        id = elem.attrib['id']
-        if id[-9:-7] == '0x':
-            jd = id[:-9]
-        else:
-            jd = id
-            print jd
-        allid.add(id)
-        alljd.add(jd)
-    print "elements with id attributes: %s : distinct id %s distinct jd %s " % (ecount, len(allid), len(alljd))     
-    assert ecount == len(allid) == len(alljd)
 
 
 def main():

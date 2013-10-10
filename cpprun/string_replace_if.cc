@@ -26,11 +26,12 @@ int main()
     cout << s << '\n';
  
     //replace(s.begin(), s.end(), ":", "_");  this doesnt compile, must be single quotes to demote characters
+    replace(s.begin(), s.end(), '/', '^');
     replace(s.begin(), s.end(), ':', '_');
     cout << s << '\n';
 
-    replace_if(s.begin(), s.end(), &colon_or_slash, '_');
-    cout << s << '\n';
+    //replace_if(s.begin(), s.end(), &colon_or_slash, '_');
+    //cout << s << '\n';
 
     return 0 ;
 }
