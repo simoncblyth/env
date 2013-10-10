@@ -106,33 +106,114 @@ def kvselect( nodes, args ):
 
 class Node(list):
     fmt = "  %(index)-4s %(id)-100s  %(nsub)-4s tgt:%(target)s  ref:%(ref)s matrix:%(matrix)s "  
+    registry = {}
+    xmlcache = {}
 
-    id = property(lambda self:self.meta['id'])
-    def __init__(self, xmlnode, index=None, opts=None):
+    @classmethod
+    def make(cls, dae, xmlnode):
+        if xmlnode is None:
+            return None
+        id = Node.id_(xmlnode)
+        if id in cls.registry:
+            log.info("node id  %s is already registered " % id )
+            node = cls.registry[id]
+        else:    
+            node = cls(dae, xmlnode, len(cls.registry))
+            cls.registry[node.id] = node
+        return node
+
+    @classmethod
+    def resolve(cls, dae, ref):
+        """
+        First look in the registry for pre-existing Node objects, if not there 
+        check the xmlcache and pull the Node object into existance.
+        """
+        if ref[0] == '#':ref = ref[1:]
+        node = None
+        if ref in cls.registry:
+            node = cls.registry[ref]
+        if node is None:
+            node =  cls.xmlresolve(dae, ref)
+        if node:
+            log.info("resolved %s to %s " % ( ref, node) )
+        else:
+            log.info("failed to resolve %s cache lenth %s " % (ref,len(cls.xmlcache)) )
+            cref = len(ref) - 10 
+            for k in cls.xmlcache:
+                if k[0:cref] == ref[0:cref]:
+                    print "[%s]" % k
+        return node
+
+    @classmethod
+    def id_(cls, xmlnode):
+        return xmlnode.attrib['id']
+
+    @classmethod
+    def xmlfind(cls, xml, ref ):
+        if ref[0] == '#':
+            ref = ref[1:]
+        for node in xml.findall('.//{%s}node' % COLLADA_NS ):
+            id = node.attrib['id']
+            if id == ref:
+                return node
+        return None      
+ 
+    @classmethod
+    def xmlresolve(cls, dae, ref ):
+        xmlnode = cls.xmlfind( dae.xml, ref )
+        node = Node.make(dae, xmlnode)
+        return node
+
+    @classmethod
+    def collect_xmlcache(cls, xml):
+        allnode=xml.findall('.//{%s}node' % COLLADA_NS )
+        uid = set()
+        for node in allnode:
+            id = str(node.attrib['id'])
+            uid.add(id)
+            cls.xmlcache[id] = node
+        assert len(cls.xmlcache) == len(allnode) == len(uid), ("missing or duplicated node id ", len(allnode), len(uid))
+        log.info("collect_xmlcache found %s nodes " % len(cls.xmlcache))
+
+    @classmethod
+    def xmlcache_resolve(cls, dae, ref ):
+        if ref[0] == '#':
+            ref = ref[1:]
+        if len(cls.xmlcache) == 0:
+            cls.collect_xmlcache(dae.xml)
+        xmlnode = cls.xmlcache.get(ref, None)
+        node = Node.make(dae, xmlnode)
+        return node
+
+
+    def __init__(self, dae, xmlnode, index):
         list.__init__(self)
-        self.opts = opts
         self.meta = {}
+        self.dae = dae
+        self.opts = dae.opts
         self.xmlnode = xmlnode
-        id = xmlnode.attrib['id']
-        subnodes = findall( xmlnode, "node")
-        self.meta = dict(id=id, index=index, nsub=len(subnodes), target=None, ref=None, geourl=None, matrix=None)
+        self.id = Node.id_(xmlnode)
+        self.index = index
+        self.meta = dict(id=self.id, index=index, target=None, ref=None, geourl=None, matrix=None)
 
         for elem in self.xmlnode:
             if elem.tag == qname('instance_geometry'):
                 self.collect_geometry(elem)
             elif elem.tag == qname('matrix'):
-                self.meta['matrix']=elem.text.lstrip().rstrip()
+                self.meta['matrix']=elem.text.lstrip().rstrip().replace("\t","").replace("\n",", ")
             elif elem.tag == qname('instance_node'):
                 url = elem.attrib['url'] 
-                assert url[0] == '#', url
-                self.meta['ref'] = url[1:] 
-            
-        for subindex,xmlsubnode in enumerate(subnodes):
-            log.debug("creating subnode from \n%s " % tostring_(xmlsubnode))
-            subnode = Node(xmlsubnode, subindex, opts)
-            log.debug("submode: %s " % subnode)
+                self.meta['ref'] = url
+                refnode = Node.resolve(self.dae, url)
+                if refnode:
+                    self.append(refnode)
+
+        xmlsubnodes = findall( xmlnode, "node")
+        for xmlsubnode in xmlsubnodes:
+            subnode = Node.make(dae, xmlsubnode)
             self.append(subnode)
-        assert len(self) == len(subnodes) 
+
+        self.meta['nsub'] = len(self)    
 
     def collect_geometry(self, instance_geometry):
         geourl = instance_geometry.attrib['url']
@@ -150,7 +231,8 @@ class Node(list):
         return "\n".join(lines)    
 
 class XMLDAE(object):
-    def __init__(self, dae, opts):
+    def __init__(self, xml, opts):
+        self.xml = xml
         self.opts = opts
 
         self.effect = {}
@@ -161,7 +243,7 @@ class XMLDAE(object):
         self.node = {}
         self.scene = {}
 
-        self.examine(dae)
+        self.examine(xml)
 
     def examine_geometries(self, geometries):
         count = 0 
@@ -185,47 +267,54 @@ class XMLDAE(object):
         for s in findall(scenes,"visual_scene"):
             id = s.attrib['id']
             self.scene[id] = findone( s, "node/instance_node", att="url")
-        log.debug("scenes %s " % self.scene)
+        log.info("scenes %s " % self.scene)
 
     def examine_scene(self, scene):
-        self.scene_url = findone(scene,"instance_visual_scene", att="url")
+        url = findone(scene,"instance_visual_scene", att="url")
+        assert url[0] == '#', url
+        url = url[1:]
+        self.rooturl = self.scene[url]
+        log.info("scene url: %s rooturl:%s " % (url, self.rooturl) )
 
     def examine_library_nodes(self, library_nodes):
-        count = 0 
-        for index, xmlnode in enumerate(findall(library_nodes, 'node')):
-            count += 1 
-            node = Node(xmlnode, index, self.opts)
-            self.topnode[node.id] = node
-        assert len(self.topnode) == count , "top level node count mismatch"    
-        log.debug("examine_nodes found %s" % len(self.topnode))    
+        """
+        Hmm, I do not like document order index. The recursive traverse index has more meaning.
+        """
+        pass
+        #count = 0 
+        #for index, xmlnode in enumerate(findall(library_nodes, 'node')):
+        #    count += 1 
+        #    node = Node.make(self, xmlnode, index)
+        #    self.topnode[node.id] = node
+        #assert len(self.topnode) == count , "top level node count mismatch"    
+        #log.debug("examine_nodes found %s" % len(self.topnode))    
 
-    def examine(self, dae):
-        effects = find(dae,"library_effects")
-        materials = find(dae,"library_materials")
-        geometries = find(dae,"library_geometries")
-        library_nodes = find(dae,"library_nodes")
-        scenes = find(dae,"library_visual_scenes")
-        scene = find(dae,"scene")
+    def examine(self, xml):
+        effects = find(xml,"library_effects")
+        materials = find(xml,"library_materials")
+        geometries = find(xml,"library_geometries")
+        library_nodes = find(xml,"library_nodes")
+        scenes = find(xml,"library_visual_scenes")
+        scene = find(xml,"scene")
         pass
         self.examine_effects(effects)
         self.examine_materials(materials)
         self.examine_geometries(geometries)
-        self.examine_library_nodes(library_nodes)
+        #self.examine_library_nodes(library_nodes)
         self.examine_scenes(scenes)
         self.examine_scene(scene)
 
-    def walk(self, argrootid):
-        ns = kvselect(self.topnode, argrootid)         
-        assert len(ns) == 1, ns
-        rootnode = ns[0]
-        log.info("walk starting from argrootid %s rootid %s " % ( argrootid, rootnode['id']))
-        print rootnode
-        #print tostring_(rootnode['xmlnode'])
-       
+    def walk(self):
+        rootnode = Node.resolve(self, self.rooturl) 
+        log.info("walk starting from rooturl %s rootid %s " % ( self.rooturl, rootnode.id))
+        self.recurse(rootnode)
     def recurse(self, node):
+        self.visit(node)
         for subnode in node:
             self.recurse(subnode)
-         
+    def visit(self, node):
+        pass
+        #print node
 
 
 
@@ -296,23 +385,31 @@ class Defaults(object):
 def main():
     opts, args = parse_args(__doc__) 
     log.info("reading %s " % opts.daepath )
-    dae = parse_(opts.daepath)
+    xml = parse_(opts.daepath)
 
     if opts.debug:
-        xml_world = findall(dae, 'library_nodes/node')[-1]
-        #print 'world\n',tostring_(xml_world)
-        xml_node = findall(xml_world, 'node')[0]
-        #print 'xml_node\n',tostring_(xml_node)
-        #xml_instance_node = findall(xml_node, 'instance_node')[0]
-        #print 'instance_node\n',tostring_(xml_instance_node)
+        allnode=xml.findall('.//{%s}node' % COLLADA_NS )
+        uid = set()
+        for i,node in enumerate(allnode):
+            id = node.attrib['id']
+            uid.add(id)
+        assert len(allnode) == len(uid)
+        print "allnode", len(allnode)
+        #for id in list(uid):
+        #    node = Node.xmlfind(xml, id)
+        #    print id, node
 
-        node = Node(xml_node, index=0, opts=opts)    # this is failing to see the instance_node
-        print 'node\n', node.meta
-        print tostring_(node.xmlnode)
-      
+        allrefnode=xml.findall('.//{%s}instance_node' % COLLADA_NS )
+        print "refnode", len(allrefnode)
+        for i,refnode in enumerate(allrefnode):
+            ref = refnode.attrib['url'][1:]
+            print i, ref
+            assert ref in uid
+            node = Node.xmlfind(xml, ref)
+            print node
 
     if opts.traverse or opts.walk:
-        xmldae = XMLDAE(dae, opts)
+        xmldae = XMLDAE(xml, opts)
     else:
         return
 
@@ -326,11 +423,7 @@ def main():
                         print subnode
 
     if opts.walk:          
-         if len(args) > 0:
-             rootid = args[0]
-         else:
-             rootid = 'World'
-         xmldae.walk(rootid)
+        xmldae.walk()
 
 
 if __name__ == '__main__':
