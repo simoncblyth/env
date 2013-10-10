@@ -12,7 +12,7 @@ void G4DAEWriteSetup::SetupWrite(xercesc::DOMElement* daeElement,
    G4String lvIdRef("#");
    lvIdRef += lvId ; 
 
-   xercesc::DOMElement* noElement = NewElement("node");
+   xercesc::DOMElement* noElement = NewElementOneAtt("node","id","top");
    xercesc::DOMElement* niElement = NewElementOneAtt("instance_node","url", lvIdRef);
    noElement->appendChild(niElement);
    vsElement->appendChild(noElement);

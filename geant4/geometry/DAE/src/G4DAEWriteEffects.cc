@@ -34,7 +34,7 @@ void G4DAEWriteEffects::EffectWrite(const G4Material* const materialPtr)
 {
    // NB assuming 1to1 between materials and effects
 
-   const G4String name = GenerateName(materialPtr->GetName(), materialPtr);
+   const G4String name = GenerateName(materialPtr->GetName(), materialPtr) + "_fx" ;
    const G4String& id = name ;
    const G4String& sid = name ;
 

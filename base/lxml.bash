@@ -1,5 +1,13 @@
 
+lxml-vi(){ vi $(env-home)/base/lxml.bash ; }
 lxml-usage(){ cat << EOU
+
+lxml
+=====
+
+::
+
+    [blyth@belle7 ~]$ sudo yum --enablerepo=epel install python-lxml
 
 EOU
 }
