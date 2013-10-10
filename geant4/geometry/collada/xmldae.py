@@ -11,22 +11,23 @@ Objective is not to recreate pycollada, but merely to
 be a convenient debugging tool to ask XML based questions 
 of the DAE.
 
+Questions
+----------
+
+#. Would the xml documument ids be unique without the pointers 0x.... ?
 
 Usage
 ------
 
-List all topnodes with more that 0 children::
+`xmldae.py -w -y PV`   
+     recursive walk dumping PV 
 
-     xmldae.py -c 0 
+`xmldae.py -w -y PV -r`   
+     recursive walk dumping PV, dump parent node (the LV) also 
 
+`xmldae.py -w -y PV -z 6`
+     truncate recursion depth to level 6, for speed
 
-
-Specify topnode id string or index on commandline, or no args to look at all::
-
-    simon:collada blyth$ ./xmldae.py _dd_Geometry_PoolDetails_lvOutInWaterPipeNearTub0xb91c4b0  230 231 
-      230  _dd_Geometry_PoolDetails_lvOutInWaterPipeNearTub0xb91c4b0                                             0    #_dd_Materials_PVC0x981a5e8 
-      230  _dd_Geometry_PoolDetails_lvOutInWaterPipeNearTub0xb91c4b0                                             0    #_dd_Materials_PVC0x981a5e8 
-      231  _dd_Geometry_PoolDetails_lvOutOutWaterPipeNearTub0xb91c558                                            0    #_dd_Materials_PVC0x981a5e8 
 
 """
 import os, sys, logging
@@ -39,7 +40,6 @@ import lxml.etree as ET
 
 COLLADA_NS='http://www.collada.org/2005/11/COLLADASchema'
 tag = lambda _:str(ET.QName(COLLADA_NS,_))
-
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 tostring_ = lambda _:ET.tostring(_)
 isorted_ = lambda d,idx:sorted(d.items(),key=lambda kv:d[kv[0]].meta[idx]) 
@@ -71,75 +71,70 @@ def find(elem, name):
    return elem.find(qname(name))
 
                 
-                
-def kvfindidx(nodes, index):               
-   kvs = filter(lambda kv:kv[1].meta['index']==int(index),nodes.items())
-   assert len(kvs) == 1, (len(kvs), "\n", kvs)
-   return kvs[0][1]
-
-def kvfindone(nodes, id):
-   kvs = filter(lambda kv:kv[0].startswith(id),isorted_(nodes,'index'))
-   assert len(kvs) == 1, kvs
-   return kvs[0][1]
-
-def kvfindall(nodes, id):
-   kvs = filter(lambda kv:kv[0].startswith(id),isorted_(nodes,'index'))
-   return map(lambda _:_[1], kvs)
-
-def kvselect( nodes, args ):
-    if len(args) == 0:args = range(0,len(nodes))
-    tns = []
-    for arg in args:
-        try:
-            int(arg)
-            tn = kvfindidx(nodes, int(arg))
-            tns.append(tn)
-        except ValueError:
-            all = kvfindall(nodes, str(arg))
-            tns.extend(all)
-    pass   
-    log.debug("args %s yielded %s topnode " % (args,len(tns)))    
-    return tns
-
-
-
-
-
 class Node(list):
-    fmt = "  %(index)-4s %(id)-100s  %(nsub)-4s tgt:%(target)s  ref:%(ref)s matrix:%(matrix)s "  
-    registry = {}
     xmlcache = {}
 
     @classmethod
-    def make(cls, dae, xmlnode):
+    def find_uid(cls, xid):
+        """
+        :param xid: XML document id attribute value 
+
+        Find a unique id for the emerging tree Node, distinct from the source xml node id
+        Note that the LV and PV registries are separate
+        """
+        count = 0 
+        uid = None
+        while uid is None or uid in cls.registry: 
+            uid = "%s.%s" % (xid,count)
+            count += 1
+        return uid
+
+    @classmethod
+    def make(cls, dae, xmlnode, depth, parent=None ):
         """
         NB distinction between xml id `xid` and refs `xref` which correspond 
         to XML document ids and refs
         and the unique `uid` corresponding to the tree that the recursion creates 
 
+        NB put placeholder in the registry prior to node instanction  
+        as ctor recursion means that all descendants of a node will be created 
+        before that nodes ctor completes
         """
+        if depth > dae.opts.depthmax:
+            log.debug("recursion truncated at depth %s depthmax %s  " % (depth, dae.opts.depthmax) )
+            return None
+
         assert xmlnode is not None
         xid = Node.id_(xmlnode)
+        uid = cls.find_uid(xid)
 
-        count = 0 
-        uid_ = lambda _,c:"%s.%s" % (_, c)  
-        uid = None
-        while uid is None or uid in cls.registry: 
-            uid = uid_(xid,count)
-            count += 1
+        if parent is None:
+            log.warn("not registering uid %s " % uid ) 
+            index = 0                   # only the World is not registered, that lives at index 0
+        else:    
+            cls.registry[uid] = True    # place holder
+            index = len(cls.registry)   # start from 1
 
-        #log.info("uid %s " % uid )    
-        node = cls(dae, xmlnode, uid, len(cls.registry))
-        key = node.id
-        assert key not in cls.registry 
-        cls.registry[key] = node
+        node = cls(dae, xmlnode, uid, index, depth, parent )
+
+        if parent is not None:
+            cls.registry[uid] = node 
+            assert node.id == uid 
+
+        cls.created += 1
+        if cls.created % 1000 == 0:
+            print node
         return node
 
     @classmethod
     def resolve_xmlnode(cls, xml, xref):
         """
-        First look in the registry for pre-existing Node objects, if not there 
-        check the xmlcache and pull the Node object into existance.
+        First look in the cache for pre-existing xmlnode elements, 
+        if not there try a document findall, if still not found
+        take a spin over the cache again.
+
+        Bizarrely it seems that reliably access the element at this
+        third attempt.
         """
         if xref[0] == '#':xref = xref[1:]
        
@@ -200,10 +195,7 @@ class Node(list):
             cls.build_xmlcache(xml)
         return cls.xmlcache.get(xref, None)  # somthing dodgy about getting xml elems of of cache
 
-
-
-
-    def __init__(self, dae, xmlnode, uid, index):
+    def __init__(self, dae, xmlnode, uid, index, depth, parent ):
         list.__init__(self)
         self.meta = {}
         self.dae = dae
@@ -212,8 +204,11 @@ class Node(list):
         self.xid = Node.id_(xmlnode)
         self.id = uid         
         self.index = index
-        self.meta = dict(xid=self.xid, id=self.id, index=index, target=None, ref=None, geourl=None, matrix=None)
+        self.depth = depth
+        self.parent = parent
+        self.meta = dict(xid=self.xid, depth=depth, id=self.id, index=index, target=None, geourl=None, matrix=None)
 
+        # over immediate sub-elements, not recursively 
         for elem in self.xmlnode:
             if elem.tag == qname('instance_geometry'):
                 self.collect_geometry(elem)
@@ -221,16 +216,17 @@ class Node(list):
                 self.meta['matrix']=elem.text.lstrip().rstrip().replace("\t","").replace("\n",", ")
             elif elem.tag == qname('instance_node'):
                 url = elem.attrib['url'] 
-                self.meta['ref'] = url
                 rxnode = Node.resolve_xmlnode(dae.xml, url)
                 assert rxnode is not None, "failed to resolve instance_node url %s " % url 
-                refnode = Node.make(dae, rxnode)
-                self.append(refnode)
+                refnode = LV.make(dae, rxnode, depth + 1, parent=self)  # can also be recursive here too 
+                if refnode is not None:
+                    self.append(refnode)
 
         xmlsubnodes = findall( xmlnode, "node")
         for xmlsubnode in xmlsubnodes:
-            subnode = Node.make(dae, xmlsubnode)
-            self.append(subnode)
+            subnode = PV.make(dae, xmlsubnode, depth + 1, parent=self)   # NB recursive tree creation here
+            if subnode is not None:
+                self.append(subnode)
 
         self.meta['nsub'] = len(self)    
 
@@ -249,6 +245,20 @@ class Node(list):
             lines.append(tostring_(self.xmlnode))
         return "\n".join(lines)    
 
+
+class PV(Node):
+    registry = {}
+    created = 0
+    fmt = "PV  %(index)-4s %(depth)-3s %(nsub)-2s %(id)-100s  mtx:%(matrix)s "  
+    pass
+class LV(Node):
+    registry = {}
+    created = 0
+    fmt = "LV  %(index)-4s %(depth)-3s %(nsub)-2s %(id)-100s  %(target)-30s  %(geourl)-20s "  
+    pass
+
+
+
 class XMLDAE(object):
     def __init__(self, xml, opts):
         self.xml = xml
@@ -257,12 +267,31 @@ class XMLDAE(object):
         self.effect = {}
         self.material = {}
         self.geometry = {}
-        self.topnode = {}    # top level immediately under library_nodes
-        self.subnode = {}
-        self.node = {}
         self.scene = {}
 
         self.examine(xml)
+
+    def __str__(self):
+        lines = []
+        lines.append("effect: %s " % len(self.effect))
+        lines.append("material: %s " % len(self.material))
+        lines.append("geometry: %s " % len(self.geometry))
+        lines.append("scene: %s " % len(self.scene))
+        lines.append("rooturl: %s " % self.rooturl)
+        return "\n".join(lines)
+
+    def examine(self, xml):
+        effects = find(xml,"library_effects")
+        materials = find(xml,"library_materials")
+        geometries = find(xml,"library_geometries")
+        scenes = find(xml,"library_visual_scenes")
+        scene = find(xml,"scene")
+        pass
+        self.examine_effects(effects)
+        self.examine_materials(materials)
+        self.examine_geometries(geometries)
+        self.examine_scenes(scenes)
+        self.examine_scene(scene)
 
     def examine_geometries(self, geometries):
         count = 0 
@@ -286,52 +315,64 @@ class XMLDAE(object):
         for s in findall(scenes,"visual_scene"):
             id = s.attrib['id']
             self.scene[id] = findone( s, "node/instance_node", att="url")
-        log.info("scenes %s " % self.scene)
+        log.debug("scenes %s " % self.scene)
 
     def examine_scene(self, scene):
         url = findone(scene,"instance_visual_scene", att="url")
         assert url[0] == '#', url
         url = url[1:]
         self.rooturl = self.scene[url]
-        log.info("scene url: %s rooturl:%s " % (url, self.rooturl) )
+        log.debug("scene url: %s rooturl:%s " % (url, self.rooturl) )
 
-    def examine_library_nodes(self, library_nodes):
-        """
-        Hmm, I do not like document order index. The recursive traverse index has more meaning.
-        """
-        pass
-
-    def examine(self, xml):
-        effects = find(xml,"library_effects")
-        materials = find(xml,"library_materials")
-        geometries = find(xml,"library_geometries")
-        library_nodes = find(xml,"library_nodes")
-        scenes = find(xml,"library_visual_scenes")
-        scene = find(xml,"scene")
-        pass
-        self.examine_effects(effects)
-        self.examine_materials(materials)
-        self.examine_geometries(geometries)
-        #self.examine_library_nodes(library_nodes)
-        self.examine_scenes(scenes)
-        self.examine_scene(scene)
-
-    def walk(self):
+    def create_tree(self):
+        log.info("create_tree starting from root %s " % ( self.rooturl))
         xnode = Node.resolve_xmlnode(self.xml, self.rooturl) 
-        rootnode = Node.make( self, xnode)
-        log.info("walk starting from rooturl %s rootid %s " % ( self.rooturl, rootnode.id))
-        self.recurse(rootnode)
-    def recurse(self, node):
-        self.visit(node)
+        depth = 0
+        root = LV.make( self, xnode, depth, parent=None)
+        self.root = root
+        log.info("create_tree completed from root")
+        self.summary()
+
+    def walk(self):    
+        log.info("walk starting " )
+        self.recurse(self.root, 0)
+        log.info("walk done " )
+    def recurse(self, node, rdepth):
+        self.visit(node, rdepth)
         for subnode in node:
-            self.recurse(subnode)
-    def visit(self, node):
-        pass
-        print node.index, node.id
+            self.recurse(subnode, rdepth+1)
+    def visit(self, node, rdepth):
+        assert rdepth == node.depth 
+        if self.opts.voltype is not None and self.opts.voltype != node.__class__.__name__:
+            return
+        if node.depth < self.opts.depthmax:
+            if node.index >= self.opts.indexmin and node.index <= self.opts.indexmax: 
+                if self.opts.parent:
+                    print "p ", node.parent
+                print "  ", node
 
 
 
+    def summary(self):
+        print "PV registry %s created %s " % (len(PV.registry), PV.created)
+        print "LV registry %s created %s " % (len(LV.registry), LV.created)
+        print "xmlcache %s " % len(Node.xmlcache)
 
+class Defaults(object):
+    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    loglevel = "INFO"
+    logpath = None
+    childgt = -1 
+    subnode = False 
+    walk = False 
+    traverse = False 
+    debug = False 
+    xmldump = False 
+    parent = False 
+    depthmax = 100 
+    indexminmax = "0,100000"
+    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    voltype = None
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -345,8 +386,12 @@ def parse_args(doc):
     op.add_option("-w", "--walk",  action="store_true" ,  default=defopts.walk, help="recursive walk ")
     op.add_option("-t", "--traverse",  action="store_true" ,  default=defopts.traverse, help="non-recursive node traversal")
     op.add_option("-p", "--daepath", default=defopts.daepath )
+    op.add_option("-r", "--parent", action="store_true", default=defopts.parent )
+    op.add_option("-z", "--depthmax", type=int, default=defopts.depthmax )
+    op.add_option("-i", "--indexminmax", default=defopts.indexminmax, help="comma delimited min,max index integers" )
     op.add_option("-d", "--debug", action="store_true", default=defopts.debug )
     op.add_option("-x", "--xmldump", action="store_true", default=defopts.xmldump )
+    op.add_option("-y", "--voltype", default=defopts.voltype, help="PV or LV or None for both" )
 
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
@@ -379,21 +424,37 @@ def parse_args(doc):
     base, ext = os.path.splitext(os.path.abspath(daepath))
     dbpath = base + ".dae.db"
     opts.dbpath = dbpath
+
+
+    minmax = map(int,opts.indexminmax.split(","))
+    assert len(minmax) == 2
+    opts.indexmin = minmax[0]
+    opts.indexmax = minmax[1]
+
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
-    pass    
     return opts, args
 
-class Defaults(object):
-    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
-    loglevel = "INFO"
-    logpath = None
-    childgt = -1 
-    subnode = False 
-    walk = False 
-    traverse = False 
-    debug = False 
-    xmldump = False 
-    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+
+def checkid(xml):
+    """
+    Check if document id are distinct without the pointer appendage 
+    """
+    allid=set()
+    alljd=set()
+    ecount = 0 
+    for elem in xml.findall('.//*[@id]'):
+        ecount += 1
+        id = elem.attrib['id']
+        if id[-9:-7] == '0x':
+            jd = id[:-9]
+        else:
+            jd = id
+            print jd
+        allid.add(id)
+        alljd.add(jd)
+    print "elements with id attributes: %s : distinct id %s distinct jd %s " % (ecount, len(allid), len(alljd))     
+    assert ecount == len(allid) == len(alljd)
+
 
 def main():
     opts, args = parse_args(__doc__) 
@@ -401,45 +462,17 @@ def main():
     xml = parse_(opts.daepath)
 
     if opts.debug:
-        allnode=xml.findall('.//{%s}node' % COLLADA_NS )
-        uid = set()
-        for i,node in enumerate(allnode):
-            id = node.attrib['id']
-            uid.add(id)
-        assert len(allnode) == len(uid)
-        print "allnode", len(allnode)
-        #for id in list(uid):
-        #    node = Node.xmlfind(xml, id)
-        #    print id, node
-
-        allrefnode=xml.findall('.//{%s}instance_node' % COLLADA_NS )
-        print "refnode", len(allrefnode)
-        for i,refnode in enumerate(allrefnode):
-            ref = refnode.attrib['url'][1:]
-            print i, ref
-            assert ref in uid
-            node = Node.xmlfind(xml, ref)
-            print node
+        checkid(xml)
 
     if opts.traverse or opts.walk:
         xmldae = XMLDAE(xml, opts)
-    else:
-        return
+        xmldae.create_tree()
 
     if opts.traverse:
-        nodes = kvselect( xmldae.topnode, args )
-        for node in nodes:
-            if len(node) > opts.childgt:
-                print node
-                if opts.subnode:
-                    for subnode in node:
-                        print subnode
+        pass
 
     if opts.walk:          
         xmldae.walk()
-        print "registry %s " % len(Node.registry)
-        print "xmlcache %s " % len(Node.xmlcache)
-
 
 
 if __name__ == '__main__':
