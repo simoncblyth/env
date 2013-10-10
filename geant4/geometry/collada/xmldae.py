@@ -31,9 +31,10 @@ Specify topnode id string or index on commandline, or no args to look at all::
 """
 import os, sys, logging
 log = logging.getLogger(__name__)
-import xml.etree.cElementTree as ET
-#import xml.etree.ElementTree as ET
 
+#import xml.etree.cElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 
 COLLADA_NS='http://www.collada.org/2005/11/COLLADASchema'
@@ -111,90 +112,107 @@ class Node(list):
 
     @classmethod
     def make(cls, dae, xmlnode):
-        if xmlnode is None:
-            return None
-        id = Node.id_(xmlnode)
-        if id in cls.registry:
-            log.info("node id  %s is already registered " % id )
-            node = cls.registry[id]
-        else:    
-            node = cls(dae, xmlnode, len(cls.registry))
-            cls.registry[node.id] = node
+        """
+        NB distinction between xml id `xid` and refs `xref` which correspond 
+        to XML document ids and refs
+        and the unique `uid` corresponding to the tree that the recursion creates 
+
+        """
+        assert xmlnode is not None
+        xid = Node.id_(xmlnode)
+
+        count = 0 
+        uid_ = lambda _,c:"%s.%s" % (_, c)  
+        uid = None
+        while uid is None or uid in cls.registry: 
+            uid = uid_(xid,count)
+            count += 1
+
+        #log.info("uid %s " % uid )    
+        node = cls(dae, xmlnode, uid, len(cls.registry))
+        key = node.id
+        assert key not in cls.registry 
+        cls.registry[key] = node
         return node
 
     @classmethod
-    def resolve(cls, dae, ref):
+    def resolve_xmlnode(cls, xml, xref):
         """
         First look in the registry for pre-existing Node objects, if not there 
         check the xmlcache and pull the Node object into existance.
         """
-        if ref[0] == '#':ref = ref[1:]
-        node = None
-        if ref in cls.registry:
-            node = cls.registry[ref]
-        if node is None:
-            node =  cls.xmlresolve(dae, ref)
-        if node:
-            log.info("resolved %s to %s " % ( ref, node) )
+        if xref[0] == '#':xref = xref[1:]
+       
+        xmlnode = cls.xmlnode_from_cache( xml, xref )
+        if xmlnode is None:
+            xmlnode = cls.xmlnode_from_findall( xml, xref )
+        if xmlnode is None:
+            for xid, xnode in cls.xmlcache.items():
+                if xid == xref:
+                    xmlnode = xnode
+                    break
+        # try again from xmlcache  : why is it necessary to try again ?
+        assert xmlnode is not None
+        if xmlnode is None:
+            log.info("Still FAILED to resolve %s cache lenth %s " % (xref,len(cls.xmlcache)) )
+            cref = len(xref) - 10 
+            for xid, xnode in cls.xmlcache.items():
+                if xid == xref:
+                    print "[%s]MATCH : HOW DID IT MANAGE TO FAIL" % xid
+                elif xid[0:cref] == xref[0:cref]:
+                    print "[%s]NEAR" % xid
+                else:
+                    pass
         else:
-            log.info("failed to resolve %s cache lenth %s " % (ref,len(cls.xmlcache)) )
-            cref = len(ref) - 10 
-            for k in cls.xmlcache:
-                if k[0:cref] == ref[0:cref]:
-                    print "[%s]" % k
-        return node
+            log.debug("resolved %s to %s " % ( xref, xmlnode) )
+        return xmlnode
 
     @classmethod
     def id_(cls, xmlnode):
         return xmlnode.attrib['id']
 
-    @classmethod
-    def xmlfind(cls, xml, ref ):
-        if ref[0] == '#':
-            ref = ref[1:]
-        for node in xml.findall('.//{%s}node' % COLLADA_NS ):
-            id = node.attrib['id']
-            if id == ref:
-                return node
-        return None      
- 
-    @classmethod
-    def xmlresolve(cls, dae, ref ):
-        xmlnode = cls.xmlfind( dae.xml, ref )
-        node = Node.make(dae, xmlnode)
-        return node
 
     @classmethod
-    def collect_xmlcache(cls, xml):
-        allnode=xml.findall('.//{%s}node' % COLLADA_NS )
+    def xmlnode_from_findall(cls, xml, xref ):
+        if xref[0] == '#':
+            xref = xref[1:]
+        for node in xml.findall('.//{%s}node' % COLLADA_NS ):
+            xid = node.attrib['id']
+            if xid == xref:
+                return node
+        return None      
+
+    @classmethod
+    def build_xmlcache(cls, xml):
         uid = set()
-        for node in allnode:
-            id = str(node.attrib['id'])
-            uid.add(id)
-            cls.xmlcache[id] = node
-        assert len(cls.xmlcache) == len(allnode) == len(uid), ("missing or duplicated node id ", len(allnode), len(uid))
+        for xmlnode in xml.findall('.//{%s}node' % COLLADA_NS ):
+            xid = xmlnode.attrib['id']
+            uid.add(xid)
+            cls.xmlcache[xid] = xmlnode
+        assert len(cls.xmlcache) == len(uid), ("missing or duplicated node id ", len(cls.xmlcache), len(uid))
         log.info("collect_xmlcache found %s nodes " % len(cls.xmlcache))
 
     @classmethod
-    def xmlcache_resolve(cls, dae, ref ):
-        if ref[0] == '#':
-            ref = ref[1:]
+    def xmlnode_from_cache(cls, xml, xref ):
+        if xref[0] == '#':
+            xref = xref[1:]
         if len(cls.xmlcache) == 0:
-            cls.collect_xmlcache(dae.xml)
-        xmlnode = cls.xmlcache.get(ref, None)
-        node = Node.make(dae, xmlnode)
-        return node
+            cls.build_xmlcache(xml)
+        return cls.xmlcache.get(xref, None)  # somthing dodgy about getting xml elems of of cache
 
 
-    def __init__(self, dae, xmlnode, index):
+
+
+    def __init__(self, dae, xmlnode, uid, index):
         list.__init__(self)
         self.meta = {}
         self.dae = dae
         self.opts = dae.opts
         self.xmlnode = xmlnode
-        self.id = Node.id_(xmlnode)
+        self.xid = Node.id_(xmlnode)
+        self.id = uid         
         self.index = index
-        self.meta = dict(id=self.id, index=index, target=None, ref=None, geourl=None, matrix=None)
+        self.meta = dict(xid=self.xid, id=self.id, index=index, target=None, ref=None, geourl=None, matrix=None)
 
         for elem in self.xmlnode:
             if elem.tag == qname('instance_geometry'):
@@ -204,9 +222,10 @@ class Node(list):
             elif elem.tag == qname('instance_node'):
                 url = elem.attrib['url'] 
                 self.meta['ref'] = url
-                refnode = Node.resolve(self.dae, url)
-                if refnode:
-                    self.append(refnode)
+                rxnode = Node.resolve_xmlnode(dae.xml, url)
+                assert rxnode is not None, "failed to resolve instance_node url %s " % url 
+                refnode = Node.make(dae, rxnode)
+                self.append(refnode)
 
         xmlsubnodes = findall( xmlnode, "node")
         for xmlsubnode in xmlsubnodes:
@@ -281,13 +300,6 @@ class XMLDAE(object):
         Hmm, I do not like document order index. The recursive traverse index has more meaning.
         """
         pass
-        #count = 0 
-        #for index, xmlnode in enumerate(findall(library_nodes, 'node')):
-        #    count += 1 
-        #    node = Node.make(self, xmlnode, index)
-        #    self.topnode[node.id] = node
-        #assert len(self.topnode) == count , "top level node count mismatch"    
-        #log.debug("examine_nodes found %s" % len(self.topnode))    
 
     def examine(self, xml):
         effects = find(xml,"library_effects")
@@ -305,7 +317,8 @@ class XMLDAE(object):
         self.examine_scene(scene)
 
     def walk(self):
-        rootnode = Node.resolve(self, self.rooturl) 
+        xnode = Node.resolve_xmlnode(self.xml, self.rooturl) 
+        rootnode = Node.make( self, xnode)
         log.info("walk starting from rooturl %s rootid %s " % ( self.rooturl, rootnode.id))
         self.recurse(rootnode)
     def recurse(self, node):
@@ -314,7 +327,7 @@ class XMLDAE(object):
             self.recurse(subnode)
     def visit(self, node):
         pass
-        #print node
+        print node.index, node.id
 
 
 
@@ -424,6 +437,9 @@ def main():
 
     if opts.walk:          
         xmldae.walk()
+        print "registry %s " % len(Node.registry)
+        print "xmlcache %s " % len(Node.xmlcache)
+
 
 
 if __name__ == '__main__':

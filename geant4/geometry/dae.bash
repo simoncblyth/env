@@ -111,6 +111,7 @@ dae-name(){ echo g4_01.dae ; }
 dae-xsd(){  echo $(env-home)/geant4/geometry/DAE/schema/collada_schema_1_4.xsd  ; }
 dae-url(){  echo http://belle7.nuu.edu.tw/dae/$(dae-name) ; }
 dae-pth(){  echo $LOCAL_BASE/env/geant4/geometry/xdae/$(dae-name) ; }
+dae-edit(){ vi $(dae-pth) ; }
 dae-get(){
    local url=$(dae-url)
    local pth=$(dae-pth)
