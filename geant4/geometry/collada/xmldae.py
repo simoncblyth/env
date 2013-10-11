@@ -27,14 +27,39 @@ Questions
    * PV name matching, the NCName IDref XML restriction forced replacing 3 chars ":/#" with  "_"
    
      * that is difficult to reverse, need some more unused acceptable chars (single chars would be best)
-     * iterating on dae-edit;dae-validate find that "." is acceptable on other than the first char 
+     * iterating on dae-edit;dae-validate find that "." and "-" are acceptable on other than the first char 
+
      * http://www.schemacentral.com/sc/xsd/t-xsd_NCName.html
+     * http://stackoverflow.com/questions/1631396/what-is-an-xsncname-type-and-when-should-it-be-used
+     * http://docs.marklogic.com/xdmp:encode-for-NCName
+     * :google:`NCName encoding decoding`
+     * https://nees.org/tools/vees/browser/xerces/src/xercesc/util/XMLString.cpp
+     * http://msdn.microsoft.com/en-us/library/system.xml.xmlconvert.aspx 
 
   * TODO:
 
     * add checkxml.py collection of all id characters to see if "." is used 
 
-  
+
+
+Reversible Char Swaps
+~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    /  ->   _
+    :  ->   -      (colon always precedes digits eg :1 )  
+    #  ->   .
+
+
+The only '-' containg names that beings with '/'::
+
+    /dd/Structure/Sites/db-rock0xc633af8
+    /dd/Structure/Sites/db-rock0xc633af8_pos
+    /dd/Structure/Sites/db-rock0xc633af8_rot
+
+
+
 
 
 Usage

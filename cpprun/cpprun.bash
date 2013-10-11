@@ -37,3 +37,4 @@ seed(){ cpprun $FUNCNAME ; }
 strx(){ cpprun $FUNCNAME ; }
 stream_setprecision_fixed_scientific(){ cpprun $FUNCNAME ; }
 string_replace_if(){ cpprun $FUNCNAME ; }
+string_replace_all(){ cpprun $FUNCNAME ; }

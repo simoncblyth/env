@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 """
 
+Various Checks on XML files
+===========================
+
+
+Checking duplicated id/name attributes
+----------------------------------------
+
 ::
 
-     checkxml.py $LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae
-     checkxml.py --att name $LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml
+     checkxml.py --dupe --att id   $LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae
+     checkxml.py --dupe --att name $LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml
+
 
 ::
 
@@ -54,7 +62,16 @@
        [2] /dd/Materials/Nitrogen 
        [2] /dd/Materials/Gd_158 
 
-    simon:~ blyth$ 
+
+
+Check id/name characters
+-------------------------
+
+::
+
+     checkxml.py --char --att id   $LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae
+     checkxml.py --char --att name $LOCAL_BASE/env/geant4/geometry/gdml/g4_01.gdml
+
 
 
 
@@ -73,7 +90,7 @@ tostring_ = lambda _:ET.tostring(_)
 isorted_ = lambda d,idx:sorted(d.items(),key=lambda kv:d[kv[0]].meta[idx]) 
 
 
-def checkid(xml, opts):
+def check_duplicated_id(xml, opts):
     """
     Check if document id are distinct without the pointer appendage 
     """
@@ -130,25 +147,43 @@ def checkid(xml, opts):
         print "######### ", jd 
         for _ in jdup[jd]:
             print _ 
-    
-
-
 
     #assert ecount == len(allid) == len(alljd)
+
+
+def check_characters_id(xml, opts):
+    att = opts.att
+    xpath = './/*[@' + att + ']'
+    log.info("xml findall %s " % xpath )
+    for elem in xml.findall(xpath):
+        id = elem.attrib[att]
+        #if ':' in id:   # ':' always preceded digits in GDML
+        #    print id
+
+        if id[0] == '/' or id[0] == '_':
+            if '-' in id:    # '-' only in solid named not volume paths
+                print id
+            if '.' in id:    # '-' only in solid named not volume paths
+                print id
+  
 
 
 class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     loglevel = "INFO"
     att = 'id'
+    dupe = False
+    char = False
 
 def parse_args(doc):
     from optparse import OptionParser
     defopts = Defaults()
     op = OptionParser(usage=doc)
-    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat )
+    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-a", "--att",   default=defopts.att)
+    op.add_option( "--dupe",  action="store_true",  default=defopts.dupe)
+    op.add_option( "--char",  action="store_true",  default=defopts.char)
 
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
@@ -163,7 +198,12 @@ def main():
     path = args[0]
     log.info("reading %s " % path )
     xml = parse_(path)
-    checkid(xml, opts)
+
+    if opts.dupe:
+        check_duplicated_id(xml, opts)
+    if opts.char:
+        check_characters_id(xml, opts)
+
 
 if __name__ == '__main__':
     main()
