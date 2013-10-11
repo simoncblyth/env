@@ -74,14 +74,127 @@ Usage
 `xmldae.py -w -y PV -z 6`
      truncate recursion depth to level 6, for speed
 
+`xmldae.py -w -y PV -n > daenames.txt`
+     dump the PV names, cleaned up to correspond to originals 
+
+
+Compare daenames with wrlnames
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Succeed to match the bases, but not the `.1001` extensions::
+
+    echo "select rtrim(substr(name,0,instr(name,'.'))) from shape ;" | sqlite3 -noheader $(shapedb-path) > wrlnames.txt
+    cat wrlnames.txt | cut -d" " -f1 > wrlnames.cut.txt    # get rid of bizarre whitespace padding 
+    diff wrlnames.cut.txt daenames.txt   # they match 
+
+The WRL names, are actually coming from `G4PhysicalVolumeModel::GetCurrentTag`
+
+external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src/G4VRML2SceneHandlerFunc.icc::
+
+    182     // Current Model
+    183     const G4VModel* pv_model  = GetModel();
+    184     G4String pv_name = "No model";
+    185         if (pv_model) pv_name = pv_model->GetCurrentTag() ;
+    186 
+    187     // VRML codes are generated below
+    188 
+    189     fDest << "#---------- SOLID: " << pv_name << "\n";
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4VModel.hh::
+
+    74   virtual G4String GetCurrentTag () const;
+    75   // A tag which depends on the current state of the model.
+
+::
+
+    [blyth@cms01 source]$ find . -name '*.hh' -exec grep -H GetCurrentTag {} \;
+    ./visualization/modeling/include/G4PhysicalVolumeModel.hh:  G4String GetCurrentTag () const;
+    ./visualization/modeling/include/G4VModel.hh:  virtual G4String GetCurrentTag () const;
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/include/G4PhysicalVolumeModel.hh::
+
+     67 class G4PhysicalVolumeModel: public G4VModel {
+     68 
+     69 public: // With description
+     70 
+     71   enum {UNLIMITED = -1};
+     72 
+     73   enum ClippingMode {subtraction, intersection};
+     74 
+     75   class G4PhysicalVolumeNodeID {
+     76   public:
+     77     G4PhysicalVolumeNodeID
+     78     (G4VPhysicalVolume* pPV = 0, G4int iCopyNo = 0, G4int depth = 0):
+     79       fpPV(pPV), fCopyNo(iCopyNo), fNonCulledDepth(depth) {}
+     80     G4VPhysicalVolume* GetPhysicalVolume() const {return fpPV;}
+     81     G4int GetCopyNo() const {return fCopyNo;}
+     82     G4int GetNonCulledDepth() const {return fNonCulledDepth;}
+     83     G4bool operator< (const G4PhysicalVolumeNodeID& right) const;
+     84   private:
+     85     G4VPhysicalVolume* fpPV;
+     86     G4int fCopyNo;
+     87     G4int fNonCulledDepth;
+     88   };
+     89   // Nested class for identifying physical volume nodes.
+     ...
+     205   G4VPhysicalVolume* fpCurrentPV;    // Current physical volume.
+
+Suspect the CopyNo should hail from::
+
+    geometry/volumes/src/G4PVPlacement.cc
+    geometry/volumes/include/G4PVPlacement.hh
+
+
+G4PhysicalVolumeNodeID::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -H G4PhysicalVolumeNodeID {} \;
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:G4bool G4PhysicalVolumeModel::G4PhysicalVolumeNodeID::operator<
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID& right) const
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:  (std::ostream& os, const G4PhysicalVolumeModel::G4PhysicalVolumeNodeID node)
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:    (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:      (G4PhysicalVolumeNodeID(fpCurrentPV,copyNo,fCurrentDepth));
+    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/Tree/src/G4VTreeSceneHandler.cc:  typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc:                 typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/XXX/src/G4XXXSGSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc:    typedef G4PhysicalVolumeModel::G4PhysicalVolumeNodeID PVNodeID;
+    [blyth@cms01 source]$ 
+
+PVPath::
+
+    [blyth@cms01 source]$ find . -name '*.cc' -exec grep -l PVPath {} \;
+    ./visualization/modeling/src/G4PhysicalVolumeModel.cc
+    ./visualization/Tree/src/G4ASCIITreeSceneHandler.cc
+    ./visualization/Tree/src/G4VTreeSceneHandler.cc
+    ./visualization/HepRep/src/G4HepRepFileSceneHandler.cc
+    ./visualization/XXX/src/G4XXXSGSceneHandler.cc
+    ./visualization/OpenInventor/src/G4OpenInventorSceneHandler.cc
+
+
+external/build/LCG/geant4.9.2.p01/source/visualization/modeling/src/G4PhysicalVolumeModel.cc::
+
+    181 G4String G4PhysicalVolumeModel::GetCurrentTag () const
+    182 {
+    183   if (fpCurrentPV) {
+    184     std::ostringstream o;
+    185     o << fpCurrentPV -> GetCopyNo ();
+    186     return fpCurrentPV -> GetName () + "." + o.str();
+    187   }
+    188   else {
+    189     return "WARNING: NO CURRENT VOLUME - global tag is " + fGlobalTag;
+    190   }
+    191 }
+
 
 """
-import os, sys, logging
-log = logging.getlogger(__name__)
+import os, sys, logging, re
+log = logging.getLogger(__name__)
 
-#import xml.etree.celementtree as et
-#import xml.etree.elementtree as et
-import lxml.etree as et
+#import xml.etree.cElementTree as ET
+#import xml.etree.ElementTree as ET
+import lxml.etree as ET
 
 
 COLLADA_NS='http://www.collada.org/2005/11/COLLADASchema'
@@ -116,12 +229,39 @@ def findall(elem, name, att=None, fn=None):
 def find(elem, name):
    return elem.find(qname(name))
 
-                
+
+
+
+
+class ID(object):
+   map = {
+           "/":"__", 
+           "#":"--",
+           ":":"..",
+         }   
+   def __init__(self, val):
+       self.val = val
+   def translate(self, reverse=False):
+       ret = self.val
+       for f,t in self.map.items():
+           if tree:
+               ret = ret.replace(f,t)
+           else:    
+               ret = ret.replace(t,f) 
+       return ret    
+   tid = property(lambda self:self.translate(reverse=True))
+   xid = property(lambda self:self.translate(reverse=False))
+class XID(ID):pass
+class TID(ID):pass
+ 
+    
+
+
 class Node(list):
     xmlcache = {}
 
     @classmethod
-    def find_uid(cls, xid):
+    def find_uid(cls, xid, decodeNCName=True):
         """
         :param xid: XML document id attribute value 
 
@@ -130,10 +270,34 @@ class Node(list):
         """
         count = 0 
         uid = None
+        if decodeNCName:
+            xid = xid.replace("__","/").replace("--","#").replace("..",":")
+
         while uid is None or uid in cls.registry: 
             uid = "%s.%s" % (xid,count)
             count += 1
         return uid
+
+    @classmethod
+    def origname(cls, uid ):
+         """
+         /dd/Geometry/Pool/lvNearPoolIWS#pvVetoPmtNearInn#pvNearInnWall4#pvNearInnWall4:4#pvVetoPmtUnit#pvPmtMount#pvMountRib1s#pvMountRib1s:3#pvMountRib1unit0xb38feb8.10
+
+         Split the tree uniqifying '.10' and the pointer 0xb38feb8 to return the origin name
+         """ 
+         ptn = re.compile("^(.*)\.(\d*)$")
+         m = ptn.match(uid)
+         if m:
+             base, ext = m.groups()
+         if base[-9:-7] == '0x':
+             orig = base[:-9]
+         else:
+             orig = base
+         return orig     
+
+    @classmethod
+    def summary(cls):
+        log.info("%s registry %s created %s xmlcache %s " %  (cls.__name__, len(cls.registry), cls.created, len(cls.xmlcache)))
 
     @classmethod
     def make(cls, dae, xmlnode, depth, parent=None ):
@@ -152,7 +316,7 @@ class Node(list):
 
         assert xmlnode is not None
         xid = Node.id_(xmlnode)
-        uid = cls.find_uid(xid)
+        uid = cls.find_uid(xid, decodeNCName=True)
 
         if parent is None:
             log.warn("not registering uid %s " % uid ) 
@@ -169,7 +333,7 @@ class Node(list):
 
         cls.created += 1
         if cls.created % 1000 == 0:
-            print node
+            log.info(node)
         return node
 
     @classmethod
@@ -193,7 +357,12 @@ class Node(list):
                     xmlnode = xnode
                     break
         # try again from xmlcache  : why is it necessary to try again ?
-        assert xmlnode is not None
+
+        if xmlnode is None:
+            for k, v in cls.xmlcache.items()[0:10]:
+                print k, v 
+
+        assert xmlnode is not None, (xref)
         if xmlnode is None:
             log.info("Still FAILED to resolve %s cache lenth %s " % (xref,len(cls.xmlcache)) )
             cref = len(xref) - 10 
@@ -247,12 +416,11 @@ class Node(list):
         self.dae = dae
         self.opts = dae.opts
         self.xmlnode = xmlnode
-        self.xid = Node.id_(xmlnode)
         self.id = uid         
         self.index = index
         self.depth = depth
         self.parent = parent
-        self.meta = dict(xid=self.xid, depth=depth, id=self.id, index=index, target=None, geourl=None, matrix=None)
+        self.meta = dict(depth=depth, id=self.id, index=index, target=None, geourl=None, matrix=None)
 
         # over immediate sub-elements, not recursively 
         for elem in self.xmlnode:
@@ -395,14 +563,14 @@ class XMLDAE(object):
             if node.index >= self.opts.indexmin and node.index <= self.opts.indexmax: 
                 if self.opts.parent:
                     print "p ", node.parent
-                print "  ", node
-
-
+                if self.opts.names:
+                    print Node.origname(node.id)
+                else:    
+                    print "  ", node
 
     def summary(self):
-        print "PV registry %s created %s " % (len(PV.registry), PV.created)
-        print "LV registry %s created %s " % (len(LV.registry), LV.created)
-        print "xmlcache %s " % len(Node.xmlcache)
+        PV.summary()
+        LV.summary()
 
 class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
@@ -419,6 +587,7 @@ class Defaults(object):
     indexminmax = "0,100000"
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
     voltype = None
+    names = False
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -438,6 +607,7 @@ def parse_args(doc):
     op.add_option("-d", "--debug", action="store_true", default=defopts.debug )
     op.add_option("-x", "--xmldump", action="store_true", default=defopts.xmldump )
     op.add_option("-y", "--voltype", default=defopts.voltype, help="PV or LV or None for both" )
+    op.add_option("-n", "--names", action="store_true", default=defopts.names, help="Just dump names" )
 
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )

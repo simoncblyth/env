@@ -157,14 +157,14 @@ def check_characters_id(xml, opts):
     log.info("xml findall %s " % xpath )
     for elem in xml.findall(xpath):
         id = elem.attrib[att]
+        print id
         #if ':' in id:   # ':' always preceded digits in GDML
         #    print id
-
-        if id[0] == '/' or id[0] == '_':
-            if '-' in id:    # '-' only in solid named not volume paths
-                print id
-            if '.' in id:    # '-' only in solid named not volume paths
-                print id
+        #if id[0] == '/' or id[0] == '_':
+        #    if '-' in id:    # '-' only in solid named not volume paths
+        #        print id
+        #    if '.' in id:    # '-' only in solid named not volume paths
+        #        print id
   
 
 
