@@ -35,11 +35,13 @@ class G4DAEWrite
 
    VolumeMapType& VolumeMap();
 
-   G4String GenerateName(const G4String&,const void* const, G4bool ref=false);
+   G4String GenerateName(const G4String&,const void* const, G4bool ref=false, G4bool escape=false);
+   xercesc::DOMAttr* NewNCNameAttribute(const G4String&, const G4String&);
    xercesc::DOMAttr* NewAttribute(const G4String&, const G4String&);
    xercesc::DOMAttr* NewAttribute(const G4String&, const G4double&);
    xercesc::DOMElement* NewElement(const G4String&);
    xercesc::DOMElement* NewElementOneAtt(const G4String& name, const G4String& att, const G4String& val);
+   xercesc::DOMElement* NewElementOneNCNameAtt(const G4String& name, const G4String& att, const G4String& val);
    xercesc::DOMElement* NewElementTwoAtt(const G4String& name, const G4String& att1, const G4String& val1, const G4String& att2, const G4String& val2);
    xercesc::DOMElement* NewTextElement(const G4String&, const G4String&);
    virtual void AssetWrite(xercesc::DOMElement*)=0;

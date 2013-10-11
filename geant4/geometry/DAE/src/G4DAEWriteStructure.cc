@@ -76,7 +76,7 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
    const G4String lvref = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume(), true);
 
-   xercesc::DOMElement* childNodeElement = NewElementOneAtt("node","id",pvname);
+   xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
 
    xercesc::DOMElement* instanceNodeElement = NewElementOneAtt("instance_node", "url", lvref );
@@ -158,7 +158,7 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
    const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, ref );
    const G4String geoRef = GenerateName(solidPtr->GetName(), solidPtr, ref );
 
-   xercesc::DOMElement* nodeElement = NewElementOneAtt("node","id", lvname);
+   xercesc::DOMElement* nodeElement = NewElementOneNCNameAtt("node","id", lvname);
    xercesc::DOMElement* igElement = NewElementOneAtt("instance_geometry","url", geoRef);
    xercesc::DOMElement* bmElement = NewElement("bind_material");
    xercesc::DOMElement* tcElement = NewElement("technique_common");
