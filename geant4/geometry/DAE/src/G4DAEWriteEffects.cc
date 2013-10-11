@@ -34,16 +34,13 @@ void G4DAEWriteEffects::EffectWrite(const G4Material* const materialPtr)
 {
    // NB assuming 1to1 between materials and effects
 
-   const G4String name = GenerateName(materialPtr->GetName(), materialPtr) + "_fx" ;
+   const G4String name = GenerateName(materialPtr->GetName() + "_fx_" , materialPtr) ;
    const G4String& id = name ;
    const G4String& sid = name ;
 
-   xercesc::DOMElement* effectElement = NewElement("effect");
-   effectElement->setAttributeNode(NewAttribute("id",id));
-
+   xercesc::DOMElement* effectElement = NewElementOneNCNameAtt("effect","id",id);
    xercesc::DOMElement* profileElement = NewElement("profile_COMMON");
-   xercesc::DOMElement* techniqueElement = NewElement("technique");
-   techniqueElement->setAttributeNode(NewAttribute("sid", sid));
+   xercesc::DOMElement* techniqueElement = NewElementOneNCNameAtt("technique","sid",sid);
   
    const G4Color& color = G4Color::White();
    G4double shininess = 20. ;

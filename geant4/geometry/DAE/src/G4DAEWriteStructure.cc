@@ -74,12 +74,12 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
                                         const G4String& ModuleName)
 {
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
-   const G4String lvref = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume(), true);
+   const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
 
-   xercesc::DOMElement* instanceNodeElement = NewElementOneAtt("instance_node", "url", lvref );
+   xercesc::DOMElement* instanceNodeElement = NewElementOneNCNameAtt("instance_node", "url", lvname , true);
 
    childNodeElement->appendChild(instanceNodeElement);
    parentNodeElement->appendChild(childNodeElement);
@@ -154,15 +154,16 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
    G4String matSymbol = "WHITE" ;  // whats this ?
    G4Material* materialPtr = volumePtr->GetMaterial();
-   G4bool ref = true ; 
-   const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, ref );
-   const G4String geoRef = GenerateName(solidPtr->GetName(), solidPtr, ref );
+   const G4String matname = GenerateName(materialPtr->GetName(), materialPtr );
+   const G4String geoname = GenerateName(solidPtr->GetName(), solidPtr );
 
+   G4bool ref = true ; 
    xercesc::DOMElement* nodeElement = NewElementOneNCNameAtt("node","id", lvname);
-   xercesc::DOMElement* igElement = NewElementOneAtt("instance_geometry","url", geoRef);
+   xercesc::DOMElement* igElement = NewElementOneNCNameAtt("instance_geometry","url", geoname, ref);
    xercesc::DOMElement* bmElement = NewElement("bind_material");
    xercesc::DOMElement* tcElement = NewElement("technique_common");
-   xercesc::DOMElement* imElement = NewElementTwoAtt("instance_material", "symbol", matSymbol, "target", matRef );
+   xercesc::DOMElement* imElement = NewElementOneNCNameAtt("instance_material", "target", matname, ref );
+   imElement->setAttributeNode(NewAttribute("symbol", matSymbol ));
    tcElement->appendChild(imElement);
    bmElement->appendChild(tcElement);
    igElement->appendChild(bmElement);

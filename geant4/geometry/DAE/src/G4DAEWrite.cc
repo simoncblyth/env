@@ -1,6 +1,7 @@
 #include "G4DAEWrite.hh"
 #include <algorithm>  
 #include <xercesc/util/XMLChar.hpp>
+#include "G4DAEUtil.hh"
 
 G4bool G4DAEWrite::addPointerToName = true;
 
@@ -30,7 +31,7 @@ G4DAEWrite::DepthMapType& G4DAEWrite::DepthMap()
 
 
 
-G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref, G4bool escape)
+G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref )
 {
    G4String nameOut;
    std::stringstream stream; 
@@ -42,31 +43,29 @@ G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G
 
    if(nameOut.contains(' '))
    nameOut.erase(std::remove(nameOut.begin(),nameOut.end(),' '),nameOut.end());
-
-   if(escape){
-       std::replace(nameOut.begin(), nameOut.end(), ':','_');
-       std::replace(nameOut.begin(), nameOut.end(), '/','_');
-       std::replace(nameOut.begin()+1, nameOut.end(), '#','_');  // do not replace url #refs
-   }
-
    return nameOut;
 }
 
 xercesc::DOMAttr* G4DAEWrite::NewNCNameAttribute(const G4String& name,
-                                            const G4String& value)
+                                            const G4String& value, G4bool ref)
 {
    xercesc::XMLString::transcode(name,tempStr,tempStrSize-1);
    xercesc::DOMAttr* att = doc->createAttribute(tempStr);
 
-   xercesc::XMLString::transcode(value,tempStr,tempStrSize-1);
-   if(!xercesc::XMLString::isValidNCName(tempStr)){
-      G4cout << "WARNING not NCName " <<  name << " " << value << G4endl; 
+   G4String val(value);
+   G4DAEUtil::encodeNCName( val );
 
-      G4String newvalue(value);
-      std::replace(newvalue.begin(), newvalue.end(), '/','_');
-      std::replace(newvalue.begin(), newvalue.end(), ':','.');
-      std::replace(newvalue.begin(), newvalue.end(), '#','-');
+   int offset = 0 ;
+   if(ref){
+       G4String hash("#");
+       val = hash + val ; 
+       offset = 1; 
+   }
+   
+   xercesc::XMLString::transcode(val,tempStr,tempStrSize-1);
 
+   if(!xercesc::XMLString::isValidNCName(tempStr+offset)){
+      G4cout << "WARNING despite encoding still not a valid NCName " <<  name << " " << val << G4endl; 
    }
 
    att->setValue(tempStr);
@@ -111,10 +110,10 @@ xercesc::DOMElement* G4DAEWrite::NewElementOneAtt(const G4String& name, const G4
    return element ; 
 }
 
-xercesc::DOMElement* G4DAEWrite::NewElementOneNCNameAtt(const G4String& name, const G4String& att, const G4String& val)
+xercesc::DOMElement* G4DAEWrite::NewElementOneNCNameAtt(const G4String& name, const G4String& att, const G4String& val, G4bool ref )
 {
    xercesc::DOMElement* element = NewElement(name);
-   element->setAttributeNode(NewNCNameAttribute(att,val));
+   element->setAttributeNode(NewNCNameAttribute(att,val,ref));
    return element ; 
 }
 

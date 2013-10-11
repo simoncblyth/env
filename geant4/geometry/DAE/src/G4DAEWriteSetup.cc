@@ -8,12 +8,10 @@ void G4DAEWriteSetup::SetupWrite(xercesc::DOMElement* daeElement,
    xercesc::DOMElement* lvsElement = NewElement("library_visual_scenes");
    xercesc::DOMElement* vsElement = NewElementOneAtt("visual_scene","id","DefaultScene");
 
-   const G4String& lvId = GenerateName(logvol->GetName(),logvol);
-   G4String lvIdRef("#");
-   lvIdRef += lvId ; 
+   const G4String& lvname = GenerateName(logvol->GetName(),logvol);
 
    xercesc::DOMElement* noElement = NewElementOneAtt("node","id","top");
-   xercesc::DOMElement* niElement = NewElementOneAtt("instance_node","url", lvIdRef);
+   xercesc::DOMElement* niElement = NewElementOneNCNameAtt("instance_node","url", lvname, true);
    noElement->appendChild(niElement);
    vsElement->appendChild(noElement);
    lvsElement->appendChild(vsElement);
