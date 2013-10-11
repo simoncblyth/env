@@ -76,6 +76,9 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
+   G4int copyNo = physvol->GetCopyNo();  //why always zero ?
+   if(copyNo != 0) G4cout << "G4DAEWriteStructure::PhysvolWrite " << pvname << " " << copyNo << G4endl ;
+
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
 
