@@ -81,7 +81,7 @@ from collada.util import IndexedList
 original_Collada = collada.Collada
 
 import numpy
-import logging
+import os, logging
 log = logging.getLogger(__name__)
 
 
@@ -93,9 +93,9 @@ class MonkeyCollada(collada.Collada):
          """
          **MONKEYPATCHED** to add top level matrix applied to all BoundGeometry
          """
-         matrix = kwa.pop('matrix')
+         matrix = kwa.pop('matrix', None)
          self._bound_geometries = IndexedList([], ('id',))
-         log.info("MonkeyCollada start normal loading ")
+         log.info("MonkeyCollada start normal loading %s  " % args )
          original_Collada.__init__(self, *args, **kwa)
          self._loadBoundGeometries(matrix)
 
@@ -130,7 +130,10 @@ class MonkeyGeometry(collada.geometry.Geometry):
         bg = MonkeyBoundGeometry(self, matrix, materialnodebysymbol)
         bg.path = path
         assert path[-2].__class__.__name__ == 'MonkeyNodeNode', "unexpected geometry structure, %s expecting to refer to geomety via an instance_node" % path[-2].__class__.__name__
-        bg.id = path[-2] # formerly path[-2].id suffering stomping   
+
+        id = path[-2] # formerly path[-2].id suffering stomping   
+
+        bg.id = id 
         ## setting MonkeyBoundGeometry id the same as the MonkeyNodeNode which referred to it, ie the instance_node pluck 
         return bg 
 
@@ -209,7 +212,8 @@ collada.scene.Scene = MonkeyScene
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    dae = collada.Collada("test.dae")
+    path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
+    dae = collada.Collada(path)
     for i, bg in enumerate(dae.bound_geometries):
         print i, bg, bg.materialnodebysymbol
 

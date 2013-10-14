@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-
+DID NOT PURSUE THIS APPROACH, AS TOO INDIRECT GOING VIA GDML
 
 """
 import os, logging

@@ -86,11 +86,11 @@ void G4DAEWriteMaterials::ElementWrite(const G4Element* const elementPtr)
 
 void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
 {
-   const G4String matId = GenerateName(materialPtr->GetName(), materialPtr);
-   const G4String matRef = GenerateName(materialPtr->GetName(), materialPtr, true);
+   const G4String matname = GenerateName(materialPtr->GetName(), materialPtr);
+   const G4String fxname = GenerateName(materialPtr->GetName() + "_fx_", materialPtr);
 
-   xercesc::DOMElement* materialElement = NewElementOneNCNameAtt("material","id",matId);
-   xercesc::DOMElement* instanceEffectElement = NewElementOneAtt("instance_effect","url",matRef);
+   xercesc::DOMElement* materialElement = NewElementOneNCNameAtt("material","id",matname);
+   xercesc::DOMElement* instanceEffectElement = NewElementOneNCNameAtt("instance_effect","url",fxname, true);
    materialElement->appendChild(instanceEffectElement);
 
    materialsElement->appendChild(materialElement);
