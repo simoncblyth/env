@@ -15,6 +15,7 @@ class VNode(list):
     created = 0
     root = None
     pkpath = "vnode.pk"
+    rawcount = 0
 
     @classmethod
     def recurse(cls, node , ancestors=[] ):
@@ -44,12 +45,18 @@ class VNode(list):
             12 8 <MGeometryNode geometry=near_top_cover_box0x92ecf48>
 
         """
+        cls.rawcount += 1
+        if cls.rawcount < 10:
+            print node
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             cls.make( ancestors + [node])
         else:
             for child in node.children:
                 cls.recurse(child, ancestors + [node] )
 
+    @classmethod
+    def summary(cls):
+        log.info("rawcount %s " % cls.rawcount )
 
     @classmethod
     def save(cls):
@@ -134,7 +141,7 @@ class VNode(list):
         Use of id means that will change from run to run. 
         """
         dig = hashlib.md5("".join(map(lambda _:str(id(_)),nodepath))).hexdigest() 
-        print dig, nodepath
+        #print dig, nodepath
         return dig
 
     def __init__(self, nodepath):
@@ -183,13 +190,14 @@ if __name__ == '__main__':
     path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
     import collada 
     dae = collada.Collada(path)
+    top = dae.scene.nodes[0]
 
     log.info("dae parse completed, now create VNode heirarchy ")
     if os.path.exists(VNode.pkpath):
         VNode.load()
     else:
-        top = dae.scene.nodes[0]
         VNode.recurse(top)
+        VNode.summary()
         VNode.save()
 
     VNode.walk()
