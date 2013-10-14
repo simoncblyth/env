@@ -73,15 +73,14 @@ log = logging.getLogger(__name__)
 from monkey_collada import MonkeyCollada as Collada
 
 
-def examine(dae, ibg=None):
-    if ibg is None:
-        ibg = random.randint(0,len(dae.bound_geometries)-1)
 
-    bg = dae.bound_geometries[ibg]
-    log.info("ibg %s %s " % (ibg, bg))    
-    print bg 
+def trace_ancestry( bg ):
+    """
+    collect geometry child nodes of ancestors of this bound geometry node
+    but they are not bound to a position in the tree 
 
-    # collect geometry child nodes of ancestors of this bound geometry node
+    Difficult to operate without a bound geometry tree
+    """
     bgs = []
     for i, ancestor in enumerate(bg.path):
         print "%5s %5s %s " % ( i, len(ancestor.children), ancestor)
@@ -92,16 +91,25 @@ def examine(dae, ibg=None):
             print "         %s " % gn  
             bgs.append(gn)
         pass    
-
     bgs += [bg]
+    return bgs
+
+
+
+def examine(dae, ibgs=[]):
+    if len(ibgs) == 0:
+        ibgs = [random.randint(0,len(dae.bound_geometries)-1)]
+
+    for ibg in ibgs:
+        bg = dae.bound_geometries[ibg]
+        log.info("ibg %s %s " % (ibg, bg))    
+        print bg 
+    pass
+    bgs = trace_ancestry(bg)
     for i,g in enumerate(bgs): 
         print i, g
         for p in g.primitives():
             print p
-            #tris = p.triangleset()
-            #ntri += len(tris)
-            #nvtx += len(bp.vertex)
-            #print tris
             print "vtxmax", p.vertex.max(axis=0)
             print "vtxmin", p.vertex.min(axis=0)
             print "vtxdif", p.vertex.max(axis=0)-p.vertex.min(axis=0)
@@ -111,9 +119,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
 
     if len(sys.argv)>1:
-        arg = int(sys.argv[1])
+        args = map(int,sys.argv[1:])
     else: 
-        arg = None
+        args = []
 
     text = r""" 1 0 0 0 
                 0 1 0 0
@@ -125,7 +133,7 @@ if __name__ == '__main__':
     print matrix
     path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
     dae = Collada(path, matrix=matrix)
-    examine(dae, arg)
+    examine(dae, args)
 
 
 

@@ -38,6 +38,10 @@ lists and dicts based on `id`::
     Out[123]: <Geometry id=RPCStrip0x9391088, 1 primitives>
 
 
+
+collada._loadNodes
+--------------------
+
 collada/__init__.py::
 
     397     def _loadNodes(self):
@@ -59,6 +63,9 @@ collada/__init__.py::
     413                                 self.nodes.append(N)
     414                                 succeeded = True
 
+
+scene.loadNode
+~~~~~~~~~~~~~~~~~
 
 Node classes for each XML tag collada/scene.py::
 
@@ -87,13 +94,24 @@ Node classes for each XML tag collada/scene.py::
     851     else: raise DaeUnsupportedError('Unknown scene node %s' % str(node.tag))
 
 
-Note:
+
+
+Node.load
+~~~~~~~~~~~~~
 
 #. transform subnodes are appended to transforms which is used to construct the parent `Node`
    other subnodes become the children
 
+#. source XML id is reused, this *id* will not be unique after instance-ing reuse in scene graph formation
+
 collada/scene.py::
 
+    307 class Node(SceneNode):
+    308     """Represents a node object, which is a point on the scene graph, as defined in the collada <node> tag.
+    309 
+    310     Contains the list of transformations effecting the node as well as any children.
+    311     """
+    ...
     402     @staticmethod
     403     def load( collada, node, localscope ):
     404         id = node.get('id')
@@ -114,6 +132,11 @@ collada/scene.py::
     419
     420     def __str__(self):
     421         return '<Node transforms=%d, children=%d>' % (len(self.transforms), len(self.children))
+
+
+
+
+
 
 
 Dump source xml::

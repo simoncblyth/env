@@ -5,6 +5,19 @@ Monkeypatch pycollada classes
 
 Attempt to modify pycollada such that BoundGeometry 
 instances know where they are in the scene graph.
+
+Need to heed the distinction between the trees
+
+#. xml document tree of xmlnodes
+#. Scene Node tree constructed from the xmlnodes, but with considerable 
+   re-usage of xmlnodes, such that just copying XML node IDs into 
+   scene graph lead to non-unique IDs
+
+Probably the use of `instance_node` NodeNode or `instance_geometry` GeometryNode 
+should be the point at which new unique IDs needs to be minted ? 
+Probably scene.loadNode ?
+
+
 This is in to allow access to the material 
 of the parent/grandparent nodes.
 
@@ -81,9 +94,16 @@ from collada.util import IndexedList
 original_Collada = collada.Collada
 
 import numpy
-import os, logging
+import pickle
+import os, logging, hashlib
 log = logging.getLogger(__name__)
 
+ncount = 0
+ocount = 0
+rcount = 0
+
+nid = set()
+oid = set()
 
 class MonkeyCollada(collada.Collada):
     bound_geometries = property( lambda s: s._bound_geometries, lambda s,v: s._setIndexedList('_bound_geometries', v), doc="""
@@ -97,7 +117,7 @@ class MonkeyCollada(collada.Collada):
          self._bound_geometries = IndexedList([], ('id',))
          log.info("MonkeyCollada start normal loading %s  " % args )
          original_Collada.__init__(self, *args, **kwa)
-         self._loadBoundGeometries(matrix)
+         #self._loadBoundGeometries(matrix)
 
     @classmethod
     def find_unique_id(cls, collection, bid ):
@@ -146,6 +166,9 @@ class MonkeyGeometry(collada.geometry.Geometry):
         * `path[-2].id` copies the LV id (only 249 of those)
         * `path[-3].id` copies the PV id (5643 of those)
 
+        Need to access the containing BoundGeometry 
+
+
         """
         bg = MonkeyBoundGeometry(self, matrix, materialnodebysymbol)
         assert path[-2].__class__.__name__ == 'MonkeyNodeNode', "unexpected geometry structure, %s expecting to refer to geomety via an instance_node" % path[-2].__class__.__name__
@@ -174,18 +197,109 @@ class MonkeyScene(collada.scene.Scene):
 
 class MonkeyGeometryNode(collada.scene.GeometryNode):
     children = property(lambda s:[])
+    def visit(self):
+        """
+        MonkeyGeometryNode count : 12230 distinct instances : 249  
+        """
+        global ocount
+        global oid
+        oid.add(id(self))
+        ocount += 1
+        if ocount % 100 == 0:
+            print ocount, self
+
     def objects(self, tipo, matrix=None, path=[]):
         """Yields a :class:`collada.geometry.BoundGeometry` if ``tipo=='geometry'``"""
         if tipo == 'geometry':
-            #log.info("monkey GeometryNode") 
             if matrix is None: matrix = numpy.identity(4, dtype=numpy.float32)
             materialnodesbysymbol = {}
             for mat in self.materials:
                 materialnodesbysymbol[mat.symbol] = mat 
+            self.visit()
             yield self.geometry.bind(matrix, materialnodesbysymbol, path=path)
 
+    def __str__(self):
+       return '<MGeometryNode geometry=%s>' % (self.geometry.id,)
 
 class MonkeyNode(collada.scene.Node):
+    def visit_node(self):
+        """
+        Spins over 24460=12230*2 Nodes alternating between PV and corresponding LV 
+        that the PV refers to via an instance_node reference.
+
+        Are these really distinct Node instances or are nodes being recycled ? 
+        These are recycled, with only distinct MonkeyNode instances : 5892  
+
+        ::
+
+            1 <MNode top transforms=0, children=1>
+            2 <MNode World0xb50dfb8 transforms=0, children=2>
+            3 <MNode __dd__Structure__Sites__db-rock0xb50e0f8 transforms=1, children=1>
+            4 <MNode __dd__Geometry__Sites__lvNearSiteRock0xb50de78 transforms=0, children=3>
+            5 <MNode __dd__Geometry__Sites__lvNearSiteRock--pvNearHallTop0xb50dce0 transforms=1, children=1>
+            6 <MNode __dd__Geometry__Sites__lvNearHallTop0xb356a70 transforms=0, children=6>
+            7 <MNode __dd__Geometry__Sites__lvNearHallTop--pvNearTopCover0xb356790 transforms=1, children=1>
+            8 <MNode __dd__Geometry__PoolDetails__lvNearTopCover0xb342fe8 transforms=0, children=1>
+            9 <MNode __dd__Geometry__Sites__lvNearHallTop--pvNearTeleRpc--pvNearTeleRpc..10xb356ac8 transforms=1, children=1>
+            ..... 
+            24459 <MNode __dd__Geometry__Sites__lvNearHallBot--pvNearHallRadSlabs--pvNearHallRadSlab90xb50dca8 transforms=1, children=1>
+            24460 <MNode __dd__Geometry__RadSlabs__lvNearRadSlab90xb50d530 transforms=0, children=1>
+
+
+            116814       <node id="__dd__Geometry__Sites__lvNearHallBot--pvNearHallRadSlabs--pvNearHallRadSlab90xb50dca8">
+            116815         <matrix>
+            116820         </matrix>
+            116821         <instance_node url="#__dd__Geometry__RadSlabs__lvNearRadSlab90xb50d530"/>
+            116822       </node>
+
+        """
+        global ncount
+        global nid
+        nid.add(id(self))
+        ncount += 1
+        maxcount = 24460
+        if ncount < 10 or ncount > maxcount - 10: 
+            print ncount, self    
+        if ncount == maxcount:
+            print "distinct MonkeyNode instances : %s " % len(nid)
+
+    def recurse(self, node=None, ancestors=[] ):
+        """
+        This recursively visits 12230*3 = 36690 Nodes.  
+        The below pattern of triplets of node types is followed precisely, due to 
+        the node/instance_node/instance_geometry layout adopted for the dae file.
+
+        The triplets are collected into VNode on every 3rd leaf node.
+
+        ::
+
+            1 0 <MNode top transforms=0, children=1>
+            2 1 <NodeNode node=World0xb50dfb8>
+            3 2 <MGeometryNode geometry=WorldBox0xb342f60>
+
+            4 2 <MNode __dd__Structure__Sites__db-rock0xb50e0f8 transforms=1, children=1>
+            5 3 <NodeNode node=__dd__Geometry__Sites__lvNearSiteRock0xb50de78>
+            6 4 <MGeometryNode geometry=near_rock0xb342e30>
+
+            7 4 <MNode __dd__Geometry__Sites__lvNearSiteRock--pvNearHallTop0xb50dce0 transforms=1, children=1>
+            8 5 <NodeNode node=__dd__Geometry__Sites__lvNearHallTop0xb356a70>
+            9 6 <MGeometryNode geometry=near_hall_top_dwarf0x92eee48>
+
+            10 6 <MNode __dd__Geometry__Sites__lvNearHallTop--pvNearTopCover0xb356790 transforms=1, children=1>
+            11 7 <NodeNode node=__dd__Geometry__PoolDetails__lvNearTopCover0xb342fe8>
+            12 8 <MGeometryNode geometry=near_top_cover_box0x92ecf48>
+
+        """
+        if node is None:
+            node = self
+
+        if len(node.children) == 0:
+            VNode.make( ancestors + [node])
+
+        for child in node.children:
+            self.recurse(child, ancestors + [node] )
+
+
     def objects(self, tipo, matrix=None, path=[]):
         """Iterate through all objects under this node that match `tipo`.
         The objects will be bound and transformed via the scene transformations.
@@ -202,8 +316,10 @@ class MonkeyNode(collada.scene.Node):
         """
         if matrix != None: M = numpy.dot( matrix, self.matrix )
         else: M = self.matrix
+        #self.visit_node() 
         for node in self.children:
             for obj in node.objects(tipo, M, path=path+[node]):
+                # summing obj here is mis-leading as every object call will multiply up 
                 yield obj
 
     def __str__(self):
@@ -232,26 +348,33 @@ collada.scene.NodeNode = MonkeyNodeNode
 collada.scene.Scene = MonkeyScene
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
-    dae = collada.Collada(path)
-    log.info("dae formation completed")
+def bound(dae):
     uid = set()
     for i, bg in enumerate(dae.bound_geometries):
         uid.add(bg.id)
         if i % 1000 == 0:
             print i, bg
-            #print "bg.id", bg.id
-            #print "bg.materialnodebysumbol", bg.materialnodebysymbol
-            #for j,_ in enumerate(bg.path):
-            #    print j, _
         pass
     pass    
     assert len(dae.bound_geometries) == len(uid)
     log.info("bound_geometries : %s    distinct id : %s " % (len(dae.bound_geometries),len(uid)) )
+    log.info("MonkeyGeometryNode count : %s distint instances : %s  " % (ocount, len(oid)) ) 
 
-       
-     
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
+    dae = collada.Collada(path)
+
+    log.info("dae parse completed, now create VNode heirarchy ")
+    if os.path.exists(VNode.pkpath):
+        VNode.load()
+    else:
+        top = dae.scene.nodes[0]
+        top.recurse()
+        VNode.save()
+
+    VNode.walk()
 
 
