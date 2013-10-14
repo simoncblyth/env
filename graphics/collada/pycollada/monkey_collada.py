@@ -99,6 +99,21 @@ class MonkeyCollada(collada.Collada):
          original_Collada.__init__(self, *args, **kwa)
          self._loadBoundGeometries(matrix)
 
+    @classmethod
+    def find_unique_id(cls, collection, bid ):
+        """
+        :param bid: basis id to be extended with `.0` etc..
+
+        Find a unique id for the emerging tree Node, distinct from the source xml node id
+        Note that the LV and PV registries are separate
+        """
+        count = 0 
+        uid = None
+        while uid is None or uid in collection: 
+            uid = "%s.%s" % (bid,count)
+            count += 1
+        return uid 
+
     def _loadBoundGeometries(self, matrix=None):
         log.info("_loadBoundGeometries starting") 
         for bg in self.scene.objects('geometry', matrix):
@@ -108,7 +123,7 @@ class MonkeyCollada(collada.Collada):
 
 class MonkeyBoundGeometry(collada.geometry.BoundGeometry):
     def __str__(self):
-        return '<MBoundGeometry id=%s geom=%s, %d primitives, node depth %d>' % (self.id, self.original.id, len(self), len(self.path))
+        return '<MBoundGeometry %s geom=%s, %d primitives, node depth %d>' % (self.id, self.original.id, len(self), len(self.path))
 
 
 class MonkeyGeometry(collada.geometry.Geometry):
@@ -126,15 +141,17 @@ class MonkeyGeometry(collada.geometry.Geometry):
 
         :rtype: :class:`collada.geometry.BoundGeometry`
 
+        Choosing an id for the BoundGeometry 
+        
+        * `path[-2].id` copies the LV id (only 249 of those)
+        * `path[-3].id` copies the PV id (5643 of those)
+
         """
         bg = MonkeyBoundGeometry(self, matrix, materialnodebysymbol)
-        bg.path = path
         assert path[-2].__class__.__name__ == 'MonkeyNodeNode', "unexpected geometry structure, %s expecting to refer to geomety via an instance_node" % path[-2].__class__.__name__
 
-        id = path[-2] # formerly path[-2].id suffering stomping   
-
-        bg.id = id 
-        ## setting MonkeyBoundGeometry id the same as the MonkeyNodeNode which referred to it, ie the instance_node pluck 
+        bg.path = path
+        bg.id = self.collada.find_unique_id( self.collada.bound_geometries, path[-3].id )  # based on the PV id
         return bg 
 
 
@@ -156,6 +173,7 @@ class MonkeyScene(collada.scene.Scene):
 
 
 class MonkeyGeometryNode(collada.scene.GeometryNode):
+    children = property(lambda s:[])
     def objects(self, tipo, matrix=None, path=[]):
         """Yields a :class:`collada.geometry.BoundGeometry` if ``tipo=='geometry'``"""
         if tipo == 'geometry':
@@ -188,6 +206,10 @@ class MonkeyNode(collada.scene.Node):
             for obj in node.objects(tipo, M, path=path+[node]):
                 yield obj
 
+    def __str__(self):
+        return '<MNode %s transforms=%d, children=%d>' % (self.id, len(self.transforms), len(self.children))
+
+
 class MonkeyNodeNode(collada.scene.NodeNode):
     def objects(self, tipo, matrix=None, path=[]):
         """
@@ -214,8 +236,20 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
     dae = collada.Collada(path)
+    log.info("dae formation completed")
+    uid = set()
     for i, bg in enumerate(dae.bound_geometries):
-        print i, bg, bg.materialnodebysymbol
+        uid.add(bg.id)
+        if i % 1000 == 0:
+            print i, bg
+            #print "bg.id", bg.id
+            #print "bg.materialnodebysumbol", bg.materialnodebysymbol
+            #for j,_ in enumerate(bg.path):
+            #    print j, _
+        pass
+    pass    
+    assert len(dae.bound_geometries) == len(uid)
+    log.info("bound_geometries : %s    distinct id : %s " % (len(dae.bound_geometries),len(uid)) )
 
        
      

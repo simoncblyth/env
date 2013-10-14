@@ -5,33 +5,11 @@ scp N:env/geant4/geometry/xdae/test.dae .
 
 ::
 
-    npol 1824947
-    ntri 2483650
-    nvtx 1264049
-
 
 Observations
 -------------
 
 #. transformation matrices living on the anonymous nodes
-
-
-TODO
-
-* check the matrix transforms, by comparison against VRML2 output 
-
-::
-
-    In [85]: bp.vertex.min(axis=0) - bp.vertex.min(axis=0)
-    Out[85]: array([ 0.,  0.,  0.], dtype=float32)
-
-    In [86]: bp.vertex.min(axis=0) - bp.vertex.max(axis=0)
-    Out[86]: array([-13823.15625, -15602.0625 ,   -300.     ], dtype=float32)
-
-
-
-Can I recurse manually, in order to access the mother material,  
-but still use the BoundGeometry transformation calcs ?
 
 
 """

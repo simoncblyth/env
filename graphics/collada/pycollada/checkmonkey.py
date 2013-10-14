@@ -5,6 +5,14 @@ TODO
 * check the matrix transforms, by comparison against VRML2 output 
 
 
+::
+
+    npol 1824947
+    ntri 2483650
+    nvtx 1264049
+
+
+
 OBSERVATIONS
 
 Russian doll Containment expectation is broken at the end, suggesting siblings being 
@@ -60,7 +68,7 @@ treated as ancestors. Probably some id stomping is happening::
 
 
 """
-import logging, random, sys, numpy
+import os, logging, random, sys, numpy
 log = logging.getLogger(__name__)
 from monkey_collada import MonkeyCollada as Collada
 
@@ -73,18 +81,30 @@ def examine(dae, ibg=None):
     log.info("ibg %s %s " % (ibg, bg))    
     print bg 
 
-    bgs = [dae.bound_geometries[n] for n in filter(lambda _:_.__class__.__name__ =='MonkeyNodeNode',bg.path)] + [bg] 
+    # collect geometry child nodes of ancestors of this bound geometry node
+    bgs = []
+    for i, ancestor in enumerate(bg.path):
+        print "%5s %5s %s " % ( i, len(ancestor.children), ancestor)
+        gns = filter(lambda _:_.__class__.__name__ == 'MonkeyGeometryNode',ancestor.children)
+        assert len(gns) <= 1 
+        if len(gns) == 1:
+            gn = gns[0]
+            print "         %s " % gn  
+            bgs.append(gn)
+        pass    
 
+    bgs += [bg]
     for i,g in enumerate(bgs): 
         print i, g
         for p in g.primitives():
             print p
             #tris = p.triangleset()
+            #ntri += len(tris)
+            #nvtx += len(bp.vertex)
             #print tris
             print "vtxmax", p.vertex.max(axis=0)
             print "vtxmin", p.vertex.min(axis=0)
             print "vtxdif", p.vertex.max(axis=0)-p.vertex.min(axis=0)
-
 
 
 if __name__ == '__main__':
@@ -97,13 +117,14 @@ if __name__ == '__main__':
 
     text = r""" 1 0 0 0 
                 0 1 0 0
-                0 0 1 -22890.    
+                0 0 1 0    
                 0 0 0 1 """
 
     matrix = numpy.fromstring(text, dtype=numpy.float32, sep=' ')
     matrix.shape = (4,4)
     print matrix
-    dae = Collada("test.dae", matrix=matrix)
+    path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
+    dae = Collada(path, matrix=matrix)
     examine(dae, arg)
 
 
