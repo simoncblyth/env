@@ -1238,3 +1238,5 @@ g4-(){      . $(env-home)/geant4/g4.bash && g4-env $* ; }
 panda3d-(){      . $(env-home)/graphics/panda3d/panda3d.bash && panda3d-env $* ; }
 meshtool-(){      . $(env-home)/graphics/collada/meshtool.bash && meshtool-env $* ; }
 clhep-(){      . $(env-home)/geant4/clhep.bash && clhep-env $* ; }
+chromaserver-(){      . $(env-home)/chroma/chromaserver.bash && chromaserver-env $* ; }
+webpy-(){      . $(env-home)/webpy/webpy.bash && webpy-env $* ; }

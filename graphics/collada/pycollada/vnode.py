@@ -1,39 +1,52 @@
 #!/usr/bin/env python
 """
+Geant4 level interpretation of G4DAEWrite exported pycollada geometry
+=======================================================================
+
 Attempt to create the VNode heirarcy out of a raw collada traverse 
 without monkeying around.
 
-::
 
-    In [21]: len(VNode.registry)
-    Out[21]: 12230
+Web server access
+------------------
 
-    In [22]: len(boundgeom)
-    Out[22]: 12230
+Access the geometry via a web server (using webpy) from curl or browser
+avoiding the overhead of parsing/traversing the entire .dae just 
+to look at a selection of volumes::
 
-    In [23]: boundgeom[1000]
-    Out[23]: <BoundGeometry id=RPCStrip0x92ed088, 1 primitives>
+     http://localhost:8080/dump/1000:1100
+     http://localhost:8080/dump/0:10,100:110?ancestors=1
 
-    In [25]: VNode.registry[1000].pv 
-    Out[25]: '__dd__Geometry__RPC__lvRPCGasgap23--pvStrip23Array--pvStrip23ArrayOne..6--pvStrip23Unit0xb3445c8'
+From CLI remember to escape the ampersand::
 
-    In [26]: VNode.registry[1000].lv
-    Out[26]: '__dd__Geometry__RPC__lvRPCStrip0xb3431d8'
+    curl http://localhost:8080/dump/1000?ancestors=1\&other=yes
+    curl http://localhost:8080/dump/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..2--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xb35ffb0.1?ancestors=1
+    curl http://localhost:8080/dump/__dd__Geometry__AD__lvSST--pvOIL0xb36eb48.1?ancestors=1
 
-    In [27]: VNode.registry[1000].geo
-    Out[27]: 'RPCStrip0x92ed088'
+TODO:
 
+#. look again at avoiding the ptr references in the DAE ids, 
+   as they make references only live until the next .dae export is done
+
+#. use xmlnode elements OR a higher level pycollada approach to piece together .dae 
+   sub-selections of the tree of volumes, for visual checking eg with pyglet 
 
 
 """
+import sys, os, logging, hashlib
 import pickle
-import os, logging, hashlib
-log = logging.getLogger(__name__)
 
+try:
+    import web 
+except ImportError:
+    web = None
+
+log = logging.getLogger(__name__)
 
 class VNode(object):
     registry = []
     lookup = {}
+    idlookup = {}
     ids = set()
     created = 0
     root = None
@@ -69,11 +82,12 @@ class VNode(object):
 
         """
         cls.rawcount += 1
-        if cls.rawcount < 10:
-            log.info("recurse [%s] %s : %s " % (cls.rawcount, id(node), node ))
-        if not limit is None and cls.rawcount > limit:
-            log.warn("truncating recurse at rawcount %s " % cls.rawcount )
-            return
+
+        #if cls.rawcount < 10:
+        #    log.info("recurse [%s] %s : %s " % (cls.rawcount, id(node), node ))
+        #if not limit is None and cls.rawcount > limit:
+        #    log.warn("truncating recurse at rawcount %s " % cls.rawcount )
+        #    return
 
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             cls.make( ancestors + [node])
@@ -100,9 +114,38 @@ class VNode(object):
                 break
 
     @classmethod
-    def find_uid(cls, bid, decodeNCName=True):
+    def interpret_ids(cls, arg):
+        """
+        Interpret an arg like 0:10,400:410,300,40,top.0
+        into a list of integer VNode indices 
+        """
+        if "," in arg:
+            args = arg.split(",")
+        else:
+            args = [arg]
+        ids = []
+        for arg in args:
+            if ":" in arg:
+                iarg=range(*map(int,arg.split(":")))
+                ids.extend(iarg)
+            else:
+                try:
+                    int(arg)
+                    ids.append(int(arg))
+                except ValueError:
+                    node = cls.idlookup.get(arg,None)
+                    if node:
+                        ids.append(node.index)
+                    else:
+                        log.warn("failed to lookup VNode for arg %s " % arg)
+        return ids
+
+
+    @classmethod
+    def find_uid(cls, bid, decodeNCName=False):
         """
         :param bid: basis ID
+        :param decodeNCName: more convenient not to decode for easy URL/cmdline  arg passing without escaping 
 
         Find a unique id for the emerging VNode
         """
@@ -126,6 +169,7 @@ class VNode(object):
         cls.registry.append(node)
         # digest keyed lookup gives fast access to node parents
         # the digest represents a path through the tree of nodes 
+        cls.idlookup[node.id] = node   
         cls.lookup[node.digest] = node   
         cls.created += 1
 
@@ -195,7 +239,7 @@ class VNode(object):
         log.info("index linking completed")    
 
 
-    def ancestors(self):
+    def ancestors(self,andself=False):
         """
         ::
 
@@ -213,6 +257,8 @@ class VNode(object):
             VNode(1,3)[0,top.0]
 
         """
+        if andself:
+            yield self
         p = self.parent
         while p is not None:
             yield p
@@ -253,21 +299,51 @@ class VNode(object):
         self.id = self.find_uid( pv.id , False)
         self.index = len(self.registry)
 
+    def matdict(self):
+        if not hasattr(self, 'boundgeom'):
+            return {}
+        bg = self.boundgeom
+        msi = bg.materialnodebysymbol.items()
+        assert len(msi) == 1 
+        symbol, matnode= msi[0]
+        matid = matnode.target.id
+        return dict(matid=matid, symbol=symbol)
+
+    def primitives(self):
+        if not hasattr(self, 'boundgeom'):
+            return []
+        bg = self.boundgeom
+        lprim = list(bg.primitives())
+        ret = ["nprim %s " % len(lprim)]
+        for bp in lprim:
+            ret.append("bp %s nvtx %s " % (str(bp),len(bp.vertex)))
+            ret.append("vtxmax %s " % str(bp.vertex.max(axis=0)))
+            ret.append("vtxmin %s " % str(bp.vertex.min(axis=0)))
+            ret.append("vtxdif %s " % str(bp.vertex.max(axis=0)-bp.vertex.min(axis=0)))
+        return ret
+
     def __str__(self):
         lines = []
-        lines.append("VNode(%s,%s)[%s,%s]" % (self.rootdepth,self.leafdepth,self.index, self.id) )
-        #lines.append("  dig:%s" % (self.digest) )
-        #lines.append(" pdig:%s" % (self.parent_digest) )
+        matdict = self.matdict()
+        lines.append("VNode(%s,%s)[%s,%s] %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+        lines.extend(self.primitives())
         return "\n".join(lines)
 
     __repr__ = __str__
 
 
+def parse_collada( path , usecache=False ):
+    """
+    :param path: to collada file
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    path = os.path.expandvars("$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae")
+    #. parse the .dae with pycollada and obtain list of bound geometry
+    #. traverse the raw pycollada node tree, creating an easier to navigate VNode heirarchy 
+       which has one VNode per bound geometry  
+    #. cross reference between the bound geometry list and the VNode tree
+
+    """
     import collada 
+    path = os.path.expandvars(path)
     log.info("pycollada parse %s " % path )
     dae = collada.Collada(path)
     log.info("pycollada parse completed ")
@@ -276,16 +352,115 @@ if __name__ == '__main__':
     log.info("pycollada binding completed, found %s  " % len(boundgeom))
 
     log.info("create VNode heirarchy ")
-    usecache = False
     if usecache and os.path.exists(VNode.pkpath):
         VNode.load()
     else:
         VNode.recurse(top, limit=None)
         VNode.summary()
-        VNode.save()
+        if usecache:
+            VNode.save()
     
     VNode.indexlink( boundgeom )
-    VNode.walk()
+    #VNode.walk()
+    return boundgeom
 
+
+class _index:
+    def GET(self):
+        return "_index %s " % len(VNode.registry)
+
+class _dump:
+    def GET(self, arg):
+        ids = VNode.interpret_ids(arg)
+        req = web.input()
+        hdr = ["_dump [%s] => [%s] ids " % (arg, len(ids)), "req %s " % req , "" ]
+        vnode_ = lambda _:VNode.registry[_] 
+
+        out = []
+        if not hasattr(req,'ancestors'):
+            out = map(vnode_, ids)
+        else:
+            amode = req.ancestors
+            log.info("amode %s " % amode )
+            for id in ids:
+                node = vnode_(id)
+                out.append(id)
+                out.append(node)
+                for _ in node.ancestors():
+                    out.append(_) 
+
+        return "\n".join(map(str,hdr+out))
+
+class Defaults(object):
+    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    loglevel = "INFO"
+    logpath = None
+    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    webserver = False
+
+
+def parse_args(doc):
+    from optparse import OptionParser
+    defopts = Defaults()
+    op = OptionParser(usage=doc)
+    op.add_option("-o", "--logpath", default=defopts.logpath )
+    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
+    op.add_option("-f", "--logformat", default=defopts.logformat )
+    op.add_option("-p", "--daepath", default=defopts.daepath )
+    op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
+
+    opts, args = op.parse_args()
+    del sys.argv[1:]   # avoid confusing webpy with the arguments
+
+    level = getattr( logging, opts.loglevel.upper() )
+
+    if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)
+        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        formatter = logging.Formatter(opts.logformat)
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)  # add the handler to the root logger
+    else:
+        try: 
+            logging.basicConfig(format=opts.logformat,level=level)
+        except TypeError:
+            hdlr = logging.StreamHandler()              # py2.3 has unusable basicConfig that takes no arguments
+            formatter = logging.Formatter(opts.logformat)
+            hdlr.setFormatter(formatter)
+            log.addHandler(hdlr)
+            log.setLevel(level)
+        pass
+    pass
+    log.info(" ".join(sys.argv))
+    daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+    if not daepath[0] == '/':
+        opts.daepath = os.path.join(os.path.dirname(__file__),daepath)
+    else:
+        opts.daepath = daepath 
+    assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
+    return opts, args
+
+
+def webserver():
+    log.info("starting webserver ")
+    urls = ( 
+             '/', '_index', 
+             '/dump/(.+)?', '_dump' )
+    for i in range(len(urls)/2):
+        log.info("%-30s %s " % (urls[i*2+0], urls[i*2+1])) 
+    pass    
+    app = web.application(urls, globals())
+    app.run() 
+
+def main():
+    opts, args = parse_args(__doc__) 
+    log.info("reading %s " % opts.daepath )
+    boundgeom = parse_collada( opts.daepath )
+    if opts.webserver:
+        webserver()
+
+if __name__ == '__main__':
+    main()
 
 
