@@ -19,6 +19,27 @@ So slow for full model (on OSX 10.5) that did not succeed to load (just like VRM
 Need to work out how to select and extract valid sub geometries using pycollada 
 for this to be usable.
 
+Need to find the code, but looks to be rather limited importer
+
+* http://wiki.blender.org/index.php/Doc:2.6/Manual/Data_System/Files/Import/COLLADA
+
+
+test subcopy.dae import
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    found bundled python: /usr/local/env/graphics/blender/blender-2.59-OSX_10.5_ppc/blender.app/Contents/MacOS/2.59/python
+    Cannot find node to instanciate.   ### this repeated 49 times
+    cannot find Object for Node with id="top"
+    cannot find Object for Node with id="top"
+    cannot find Object for Node with id="top"
+    cannot find Object for Node with id="top"
+    got 50 library nodes to free
+
+Swapping the order of instance_node in the .dae succeeds to get them all into blender.
+But looks like heirarcy is lost.
+
 
 GLC Player
 ------------
