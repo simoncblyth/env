@@ -32,6 +32,30 @@ TODO:
    sub-selections of the tree of volumes, for visual checking eg with pyglet 
 
 
+Partial DAE geometry
+-----------------------
+
+How to copy selected parts of the  geometry into a new collada object ?
+
+::
+
+   co = collada.Collada()
+   
+   ceff = collada.material.Effect.load( co, {},  mat.effect.xmlnode )    # yep 
+   co.effects.append(ceff)                                               # must append the fx before can load the material that refers to it 
+
+   cmat = collada.material.Material.load( co, {} , mat.xmlnode )
+   co.materials.append(cmat)
+
+   co.save()                                                           # update the co.xmlnode
+
+   print ElementTree.tostring(co.xmlnode)
+
+
+
+
+
+
 """
 import sys, os, logging, hashlib
 import pickle
