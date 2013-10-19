@@ -35,48 +35,20 @@ From CLI remember to escape the ampersand::
     curl http://localhost:8080/dump/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..2--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xb35ffb0.1?ancestors=1
     curl http://localhost:8080/dump/__dd__Geometry__AD__lvSST--pvOIL0xb36eb48.1?ancestors=1
 
-TODO:
-
-#. look again at avoiding the ptr references in the DAE ids, 
-   as they make references only live until the next .dae export is done
-
-#. use xmlnode elements OR a higher level pycollada approach to piece together .dae 
-   sub-selections of the tree of volumes, for visual checking eg with pyglet 
-
-
-
 Subcopy
 ---------
 
 ::
 
-    vnode.py -s __dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0
-
-
-
-Partial DAE geometry
------------------------
-
-How to copy selected parts of the  geometry into a new collada object ?
-
-::
-
-   co = collada.Collada()
-   
-   ceff = collada.material.Effect.load( co, {},  mat.effect.xmlnode )    # yep 
-   co.effects.append(ceff)                                               # must append the fx before can load the material that refers to it 
-
-   cmat = collada.material.Material.load( co, {} , mat.xmlnode )
-   co.materials.append(cmat)
-
-   co.save()                                                           # update the co.xmlnode
-
-   print ElementTree.tostring(co.xmlnode)
+    ./vnode.py -e -s __dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0
+    ./vnode.py -e -s __dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
+    ./vnode.py -e -s top.0
 
 
 """
 import collada 
 from collada.xmlutil import etree as ET
+from lxml.builder import E
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 
 import sys, os, logging, hashlib
@@ -381,7 +353,11 @@ class VNode(object):
     def __str__(self):
         lines = []
         matdict = self.matdict()
-        lines.append("VNode(%s,%s)[%s,%s] %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+        lines.append("VNode(%s,%s)[%s]               %s " % (self.rootdepth,self.leafdepth,self.index, matdict.get('matid',"-") ) )
+        lines.append("      id         %s " % self.id )
+        lines.append("    pvid         %s " % self.pv.id )
+        lines.append("    lvid         %s " % self.lv.id )
+        lines.append("    ggid         %s " % self.geo.geometry.id )
         #lines.extend(self.primitives())
         return "\n".join(lines)
 
@@ -440,11 +416,23 @@ class VCopy(object):
     The situation is not so clear with  the MaterialNode, GeometryNode, NodeNode, Node
     which live in a containment heirarcy, and for Node can contain others inside them.
     """
-    def __init__(self, top, orig ):
-        self.top = top
+    def __init__(self, top, extra=None):
+
         self.dae = collada.Collada()
-        self.orig = orig
-        self( top )
+        cpvtop = self( top )
+       
+        content = []
+        content.append(cpvtop)
+
+        if extra is not None:
+            cextra = collada.scene.ExtraNode( extra )
+            content.append(cextra) 
+
+        cscene = collada.scene.Scene("DefaultScene", content )
+        self.dae.scenes.append(cscene)
+        self.dae.scene = cscene
+        self.dae.save() 
+
 
     def load_effect( self, effect ):
         """
@@ -497,55 +485,165 @@ class VCopy(object):
             cmaterials.append(cmatnode)
         pass     
         cgeonode = collada.scene.GeometryNode( cgeometry, cmaterials )
+        #cgeonode.save()
+        #print tostring_(cgeonode)
         return cgeonode
 
-    def visit(self, node, depth, index):
-        log.info("    " * depth + "[%d.%d] %s " % (depth, index, node))
-        pvnode, lvnode, geonode = node.pv, node.lv, node.geo
+ 
+    def __call__(self, vnode, depth=0, index=0, lv=False):
+        """
+        Need to flip-flop PV/LV treatment using different structures each time node/instance_node
 
-        cgeonode = self.copy_geometry_node( geonode )
-        cgeonode.save()
-        print tostring_(cgeonode)
+        The translation of the Geant4 model into Collada being used has:
 
-    def __call__(self, node, depth=0, index=0 ):
-        self.visit(node, depth, index) 
-        if not hasattr(node,'children') or len(node.children) == 0:# leaf
+        * LV nodes contain instance_geometry and 0 or more node(PV)  elements  
+        * PV nodes containg matrix and instance_node (pointing to an LV node)
+
+        VNode are created by collada raw nodes traverse hitting leaves, ie
+        with recursion node path  Node/NodeNode/GeometryNode or xml structure
+        node/instance_node/instance_geometry 
+
+        NodeNode children are those of the referred to node
+
+
+        :: 
+
+             63868     <node id="__dd__Geometry__RPC__lvRPCGasgap140xa8c0268">
+             63869       <instance_geometry url="#RPCGasgap140x886a0f0">
+             63870         <bind_material>
+             63871           <technique_common>
+             63872             <instance_material symbol="WHITE" target="#__dd__Materials__Air0x8838278"/>
+             63873           </technique_common>
+             63874         </bind_material>
+             63875       </instance_geometry>
+             63876       <node id="__dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..1--pvStrip14Unit0xa8c02c0">
+             63877         <matrix>
+             63878                 6.12303e-17 1 0 -910
+             63879                 -1 6.12303e-17 0 0
+             63880                  0 0 1 0
+             63881                  0.0 0.0 0.0 1.0
+             63882         </matrix>
+             63883         <instance_node url="#__dd__Geometry__RPC__lvRPCStrip0xa8c01d8"/>
+             63884       </node>
+
+
+        Schematically::
+
+              <node id="lvname1" >         
+                 <instance_geometry url="#geo1" ... />
+                 <node id="pvname1" >   "PV"  
+                    <matrix/>
+                    <instance_node url="#lvname2" >  "LV"
+                        
+                         metaphorically the instance node passes 
+                         thru to the referred to node for the raw collada recurse
+                         and makes that node element "invisble"
+                         (not appearing in the nodepath used to create the VNode)
+                         hence  Node/NodeNode/GeometryNode
+                                 pv     lv        geo      <<< SO PV is the parent of the LV, not the same volume ???
+
+                           <node id="lvname2">      "LV"
+                               <instance_geometry url="#geo2" />   "GEO"
+
+                               <node id="pvname3" >
+                                    <matrix/>
+                                    <instance_node url="#lvname4" />
+                               </node>
+                               ...
+                           </node> 
+
+                    </instance_node>
+                 </node>
+                 <node id="pvname2" >            
+                    <matrix/>
+                    <instance_node url="#lvname3" />
+                 </node>
+                 ...
+              </node>
+
+        """
+        mode = "LV" if lv else "PV"
+        log.info( mode + "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
+
+        pvnode, lvnode, geonode = vnode.pv, vnode.lv, vnode.geo
+
+        cnodes = []
+        if not lv:
+            pass  # kick off in PV mode, have to to recurse first to have an lv to refer to 
+        else:    
+            cgeonode = self.copy_geometry_node( geonode )
+            cnodes.append(cgeonode)                # add the instance_geometry for LV mode 
+
+        if not hasattr(vnode,'children') or len(vnode.children) == 0:# leaf
             pass
         else:
-            for index, child in enumerate(node.children):
-                self(child, depth + 1, index)
+            for index, child in enumerate(vnode.children):
+                cnode = self(child, depth + 1, index, not lv)
+                cnodes.append(cnode)
+                pass    
+            pass
+        pass    
+
+        if not lv:
+            cpvnode = collada.scene.Node( pvnode.id , children=cnodes, transforms=None ) 
+            rnode = cpvnode
+        else:    
+            clvnode = collada.scene.Node( lvnode.id , children=cnodes, transforms=None ) 
+            self.dae.nodes.append(clvnode)
+            cnodenode = collada.scene.NodeNode( clvnode ) 
+            rnode = cnodenode
+
+        return rnode
+
 
     def __str__(self):
         out = StringIO()
         self.dae.write(out)
         return out.getvalue()
 
+
+
 def subcopy(arg, cfg ):
+    """
+    VNode kinda merges LV and PV, but this should be a definite place, so regard as PV
+    """
     indices = VNode.interpret_ids(arg)
     assert len(indices) == 1 
     index = indices[0]
     log.info("subcopy %s => %s " % (arg, index) )
-    top = VNode.indexget(index)
-    vc = VCopy(top, VNode.orig )
-    return str(vc)
+    top = VNode.indexget(index)  
+
+    meta = E.extra(E.meta("subcopy arg %s index %s " % (arg, index) ))
+    vc = VCopy(top, meta)
+    svc = str(vc)
+    subpath = "%s.xml" % index
+    if cfg.get('daesave',False) == True:
+        log.info("daesave to %s " % subpath )
+        with open(subpath, "w") as fp:
+            fp.write(svc)
+    return svc
+
+
 
 def textdump(arg, cfg ):
     ancestors = cfg.get('ancestors', None)
+    children  = cfg.get('children', None)
+
     ids = VNode.interpret_ids(arg)
-    hdr = ["_dump [%s] => [%s] ids " % (arg, len(ids)), "cfg %s " % cfg, "" ]
+    hdr = ["_dump [%s] => ids %s " % (arg, str(ids) ), "cfg %s " % cfg, "" ]
  
     vnode_ = lambda _:VNode.registry[_] 
+    nodes = map(vnode_, ids )
+
     out = []
-    if ancestors is None:
-        out = map(vnode_, ids)
-    else:
-        log.info("amode %s " % ancestors )
-        for id in ids:
-            node = vnode_(id)
-            out.append(id)
-            out.append(node)
-            for _ in node.ancestors():
-                out.append(_) 
+    for node in nodes:
+        out.append(node)
+        if ancestors:
+            for a in node.ancestors():
+                out.insert(0,"a %s" % a) 
+        if children:
+            for c in node.children:
+                out.append("c %s" % c) 
     pass            
     return "\n".join(map(str,hdr+out))
 
@@ -571,6 +669,7 @@ class Defaults(object):
     texttree = False
     textdump = False
     subcopy = False
+    daesave = False
     ancestors = "YES"
 
 def parse_args(doc):
@@ -581,6 +680,7 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat )
     op.add_option("-p", "--daepath", default=defopts.daepath )
+    op.add_option("-e", "--daesave", action="store_true",  default=defopts.daesave )
     op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
     op.add_option("-t", "--texttree", action="store_true", default=defopts.texttree )
     op.add_option("-d", "--textdump", action="store_true", default=defopts.textdump )
@@ -633,7 +733,8 @@ def main():
     elif opts.textdump:
         print textdump(args[0], vars(opts))
     elif opts.subcopy:
-        print subcopy(args[0], vars(opts))
+        #print subcopy(args[0], vars(opts))
+        subcopy(args[0], vars(opts))
 
 
 if __name__ == '__main__':

@@ -339,6 +339,7 @@ class DAECopy(object):
         self.define_target( uid , copy_ancestors=copy_ancestors )
         self.targetted_recurse()
         top = self.ctop
+        
         cscene = collada.scene.Scene("DefaultScene", [top])
         self.copy.scenes.append(cscene)
         self.copy.scene = cscene
