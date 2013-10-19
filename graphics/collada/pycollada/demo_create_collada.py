@@ -5,20 +5,21 @@ http://pycollada.github.io/creating.html
 """
 
 import collada as co, numpy as np
+from StringIO import StringIO
 
-mesh = co.Collada()
+dae = co.Collada()
 effect = co.material.Effect("effect0", [], "phong", diffuse=(1,0,0), specular=(0,1,0))
 mat = co.material.Material("material0", "mymaterial", effect)
 
-mesh.effects.append(effect)
-mesh.materials.append(mat)
+dae.effects.append(effect)
+dae.materials.append(mat)
 
 vert_floats = [-50,50,50,50,50,50,-50,-50,50,50,-50,50,-50,50,-50,50,50,-50,-50,-50,-50,50,-50,-50]
 normal_floats = [0,0,1,0,0,1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0,-1,0,0,-1,0,0,-1,0,0,-1,0,-1,0,0,-1,0,0,-1,0,0,-1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0,0,-1, 0,0,-1,0,0,-1,0,0,-1]
 
 vert_src = co.source.FloatSource("cubeverts-array", np.array(vert_floats), ('X', 'Y', 'Z'))
 normal_src = co.source.FloatSource("cubenormals-array", np.array(normal_floats), ('X', 'Y', 'Z'))
-geom = co.geometry.Geometry(mesh, "geometry0", "mycube", [vert_src, normal_src])
+geom = co.geometry.Geometry(dae, "geometry0", "mycube", [vert_src, normal_src])
 
 input_list = co.source.InputList()
 input_list.addInput(0, 'VERTEX', "#cubeverts-array")
@@ -28,15 +29,20 @@ indices = np.array([0,0,2,1,3,2,0,0,3,2,1,3,0,4,1,5,5,6,0,4,5,6,4,7,6,8,7,9,3,10
 triset = geom.createTriangleSet(indices, input_list, "materialref")
 
 geom.primitives.append(triset)
-mesh.geometries.append(geom)
+dae.geometries.append(geom)
 
 matnode = co.scene.MaterialNode("materialref", mat, inputs=[])
-geomnode = co.scene.GeometryNode(geom, [matnode])
-node = co.scene.Node("node0", children=[geomnode])
+geonode = co.scene.GeometryNode(geom, [matnode])
+node = co.scene.Node("node0", children=[geonode])
 myscene = co.scene.Scene("myscene", [node])
 
-mesh.scenes.append(myscene)
-mesh.scene = myscene
-mesh.write('/tmp/test2.dae')
+dae.scenes.append(myscene)
+dae.scene = myscene
+
+out = StringIO()
+dae.write(out)
+
+
+print out.getvalue()
 
 

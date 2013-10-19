@@ -46,6 +46,8 @@ L.insert(0,b)
 L.insert(0,c) 
 
 print L
+print "a in L", a in L
+print "a.id in L", a.id in L
 
 
 #C = deepcopy(L)

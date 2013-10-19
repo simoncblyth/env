@@ -17,6 +17,18 @@ to look at a selection of volumes::
      http://localhost:8080/dump/1000:1100
      http://localhost:8080/dump/0:10,100:110?ancestors=1
 
+Text presentation of volume tree::
+
+     http://localhost:8080/tree/6370
+     http://localhost:8080/tree/3154
+     http://localhost:8080/tree/__dd__Geometry__AD__lvADE--pvSST0xa906040.0
+     http://localhost:8080/tree/__dd__Geometry__AD__lvADE--pvSST0xa906040.1
+
+Equivalent to commandline::
+
+     ./vnode.py -t __dd__Geometry__AD__lvADE--pvSST0xa906040.0
+
+
 From CLI remember to escape the ampersand::
 
     curl http://localhost:8080/dump/1000?ancestors=1\&other=yes
@@ -30,6 +42,16 @@ TODO:
 
 #. use xmlnode elements OR a higher level pycollada approach to piece together .dae 
    sub-selections of the tree of volumes, for visual checking eg with pyglet 
+
+
+
+Subcopy
+---------
+
+::
+
+    vnode.py -s __dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0
+
 
 
 Partial DAE geometry
@@ -52,20 +74,20 @@ How to copy selected parts of the  geometry into a new collada object ?
    print ElementTree.tostring(co.xmlnode)
 
 
-
-
-
-
 """
+import collada 
+from collada.xmlutil import etree as ET
+tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
+
 import sys, os, logging, hashlib
-import pickle
+log = logging.getLogger(__name__)
+from StringIO import StringIO
 
 try:
     import web 
 except ImportError:
     web = None
 
-log = logging.getLogger(__name__)
 
 class VNode(object):
     registry = []
@@ -74,11 +96,35 @@ class VNode(object):
     ids = set()
     created = 0
     root = None
-    pkpath = "vnode.pk"
     rawcount = 0
 
     @classmethod
-    def recurse(cls, node , ancestors=[], limit=None ):
+    def parse( cls, path ):
+        """
+        :param path: to collada file
+
+        #. `collada.Collada` parses the .dae 
+        #. a list of bound geometry is obtained from `dae.scene.objects`
+        #. `VNode.recurse` traverses the raw pycollada node tree, creating 
+           an easier to navigate VNode heirarchy which has one VNode per bound geometry  
+        #. cross reference between the bound geometry list and the VNode tree
+
+        """
+        path = os.path.expandvars(path)
+        log.info("VNode.parse pycollada parse %s " % path )
+        dae = collada.Collada(path)
+        log.info("pycollada parse completed ")
+        boundgeom = list(dae.scene.objects('geometry'))
+        top = dae.scene.nodes[0]
+        log.info("pycollada binding completed, found %s  " % len(boundgeom))
+        log.info("create VNode heirarchy ")
+        VNode.orig = dae
+        VNode.recurse(top)
+        VNode.summary()
+        VNode.indexlink( boundgeom )
+
+    @classmethod
+    def recurse(cls, node , ancestors=[] ):
         """
         This recursively visits 12230*3 = 36690 Nodes.  
         The below pattern of triplets of node types is followed precisely, due to 
@@ -107,35 +153,23 @@ class VNode(object):
         """
         cls.rawcount += 1
 
-        #if cls.rawcount < 10:
-        #    log.info("recurse [%s] %s : %s " % (cls.rawcount, id(node), node ))
-        #if not limit is None and cls.rawcount > limit:
-        #    log.warn("truncating recurse at rawcount %s " % cls.rawcount )
-        #    return
-
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             cls.make( ancestors + [node])
         else:
             for child in node.children:
-                cls.recurse(child, ancestors = ancestors + [node], limit = limit )
+                cls.recurse(child, ancestors = ancestors + [node] )
 
     @classmethod
     def summary(cls):
         log.info("rawcount %s " % cls.rawcount )
 
     @classmethod
-    def save(cls):
-        log.info("saving to %s " % cls.pkpath )
-        pickle.dump( cls.registry, open( cls.pkpath, "wb" ) ) 
+    def indexget(cls, index):
+        return VNode.registry[index]
 
     @classmethod
-    def load(cls):
-        log.info("loading from %s " % cls.pkpath )
-        cls.registry = pickle.load( open( cls.pkpath, "rb" ) ) 
-        for v in cls.registry:
-            if v.index == 0:
-                cls.root = v
-                break
+    def idget(cls, id):
+        return cls.idlookup.get(id, None)
 
     @classmethod
     def interpret_ids(cls, arg):
@@ -186,13 +220,18 @@ class VNode(object):
 
     @classmethod
     def make(cls, nodepath ):
+        """
+        Creates `VNode` instances and positions them within the volume tree
+        by setting the `parent` and `children` attributes.
+
+        A digest keyed lookup gives fast access to node parents,
+        the digest represents a path through the tree of nodes.
+        """
         node = cls(nodepath)
         if node.index == 0:
             cls.root = node
 
         cls.registry.append(node)
-        # digest keyed lookup gives fast access to node parents
-        # the digest represents a path through the tree of nodes 
         cls.idlookup[node.id] = node   
         cls.lookup[node.digest] = node   
         cls.created += 1
@@ -200,7 +239,7 @@ class VNode(object):
         parent = cls.lookup.get(node.parent_digest)
         node.parent = parent
         if parent is None:
-            log.warn("failed to find parent for %s " % node )
+            log.warn("failed to find parent for %s (failure expected only for root node)" % node )
         else:
             parent.children.append(node)  
 
@@ -208,18 +247,8 @@ class VNode(object):
             log.info("make %s : [%s] %s " % ( cls.created, id(node), node ))
         return node
 
-
-    def has_parent(self, other):
-        """
-        Check if the other `VNode` is the parent of this one
-        """
-        if other.leafdepth != self.rootdepth:
-            return False
-        else:
-            return other.digest == self.parent_digest
-
     @classmethod
-    def walk(cls, node=None, vdepth=0):
+    def walk(cls, node=None, depth=0):
         if node is None:
             cls.wcount = 0
             node=cls.root
@@ -229,9 +258,11 @@ class VNode(object):
             log.info("walk %s %s %s " % ( cls.wcount, vdepth, node ))
             if hasattr(node,'boundgeom'):
                 print node.boundgeom
+
         for subnode in node.children:
-            cls.walk(subnode, vdepth+1)
-                
+            cls.walk(subnode, depth+1)
+               
+
     @classmethod
     def md5digest(cls, nodepath ):
         """
@@ -259,7 +290,7 @@ class VNode(object):
         for vn,bg in zip(VNode.registry,boundgeom):
             vn.boundgeom = bg
             bg.vnode = vn
-            assert vn.geo == bg.original.id   
+            assert vn.geo.geometry.id == bg.original.id   
         log.info("index linking completed")    
 
 
@@ -315,10 +346,11 @@ class VNode(object):
         self.digest = self.md5digest( nodepath[0:leafdepth-1] )
         self.parent_digest = self.md5digest( nodepath[0:rootdepth-1] )
 
-        # store ids to allow pickling 
-        self.pv = pv.id
-        self.lv = lv.id   
-        self.geo = geo.geometry.id
+        # formerly stored ids rather than instances to allow pickling 
+        self.pv = pv
+        self.lv = lv   
+        self.geo = geo
+        #self.geo = geo.geometry.id
         pass
         self.id = self.find_uid( pv.id , False)
         self.index = len(self.registry)
@@ -350,70 +382,185 @@ class VNode(object):
         lines = []
         matdict = self.matdict()
         lines.append("VNode(%s,%s)[%s,%s] %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
-        lines.extend(self.primitives())
+        #lines.extend(self.primitives())
         return "\n".join(lines)
 
     __repr__ = __str__
 
 
-def parse_collada( path , usecache=False ):
-    """
-    :param path: to collada file
-
-    #. parse the .dae with pycollada and obtain list of bound geometry
-    #. traverse the raw pycollada node tree, creating an easier to navigate VNode heirarchy 
-       which has one VNode per bound geometry  
-    #. cross reference between the bound geometry list and the VNode tree
-
-    """
-    import collada 
-    path = os.path.expandvars(path)
-    log.info("pycollada parse %s " % path )
-    dae = collada.Collada(path)
-    log.info("pycollada parse completed ")
-    boundgeom = list(dae.scene.objects('geometry'))
-    top = dae.scene.nodes[0]
-    log.info("pycollada binding completed, found %s  " % len(boundgeom))
-
-    log.info("create VNode heirarchy ")
-    if usecache and os.path.exists(VNode.pkpath):
-        VNode.load()
-    else:
-        VNode.recurse(top, limit=None)
-        VNode.summary()
-        if usecache:
-            VNode.save()
-    
-    VNode.indexlink( boundgeom )
-    #VNode.walk()
-    return boundgeom
 
 
+class RPrint(list):
+    cut = 5
+    def __init__(self, top ):
+        list.__init__(self)
+        self( top )
+
+    __str__ = lambda _:"\n".join(_)
+
+    def __call__(self, node, depth=0, index=0 ):
+        self.append("    " * depth + "[%d.%d] %s " % (depth, index, node))
+        if not hasattr(node,'children') or len(node.children) == 0:# leaf
+            pass
+        else:
+            shorten = len(node.children) > self.cut*2    
+            for index, child in enumerate(node.children):
+                if shorten:
+                    if index < self.cut or index > len(node.children) - self.cut:
+                        pass
+                    elif index == self.cut:    
+                        child = "..."
+                    else:
+                        continue
+                self(child, depth + 1, index)
+
+
+
+# webpy interface glue
 class _index:
     def GET(self):
-        return "_index %s " % len(VNode.registry)
-
-class _dump:
+        return "\n".join(["_index %s " % len(VNode.registry), __doc__ ])
+class _textdump:
     def GET(self, arg):
-        ids = VNode.interpret_ids(arg)
-        req = web.input()
-        hdr = ["_dump [%s] => [%s] ids " % (arg, len(ids)), "req %s " % req , "" ]
-        vnode_ = lambda _:VNode.registry[_] 
+        return textdump(arg, dict(web.input().items()))
+class _texttree:
+    def GET(self, arg):
+        return texttree(arg)   
+class _subcopy:
+    def GET(self, arg):
+        return subcopy(arg, dict(web.input().items()))
 
-        out = []
-        if not hasattr(req,'ancestors'):
-            out = map(vnode_, ids)
+
+class VCopy(object):
+    """
+    Non-Node objects, ie Effect, Material, Geometry have clearly defined places 
+    to go within the `library_` elements and there is no need to place other
+    elements inside those.
+
+    The situation is not so clear with  the MaterialNode, GeometryNode, NodeNode, Node
+    which live in a containment heirarcy, and for Node can contain others inside them.
+    """
+    def __init__(self, top, orig ):
+        self.top = top
+        self.dae = collada.Collada()
+        self.orig = orig
+        self( top )
+
+    def load_effect( self, effect ):
+        """
+        :param effect: to be copied  
+
+        Creates an effect from the xmlnode of an old one into 
+        the new collada document being created
+        """
+        ceffect = collada.material.Effect.load( self.dae, {},  effect.xmlnode ) 
+        self.dae.effects.append(ceffect)  # pycollada managed not adding duplicates 
+        return ceffect
+
+    def load_material( self, material ):    
+        """
+        :param material:
+
+        must append the effect before can load the material that refers to it 
+        """
+        cmaterial = collada.material.Material.load( self.dae, {} , material.xmlnode )
+        self.dae.materials.append(cmaterial)
+        return cmaterial
+
+    def load_geometry( self, geometry  ):
+        """
+        :param geometry:
+        """
+        cgeometry = collada.geometry.Geometry.load( self.dae, {}, geometry.xmlnode)
+        self.dae.geometries.append(cgeometry)
+        return cgeometry
+ 
+    def copy_geometry_node( self, geonode ):
+        """
+        ::
+
+            <instance_geometry url="#RPCStrip0x886a088">
+               <bind_material>
+                  <technique_common>
+                      <instance_material symbol="WHITE" target="#__dd__Materials__MixGas0x8837740"/>
+                 </technique_common>
+               </bind_material>
+            </instance_geometry>
+        """
+        cgeometry = self.load_geometry( geonode.geometry )
+        cmaterials = []    # actually matnodes
+        for matnode in geonode.materials:
+            material = matnode.target
+            ceffect = self.load_effect( material.effect )
+            cmaterial = self.load_material( material )
+            cmatnode = collada.scene.MaterialNode( matnode.symbol, cmaterial, matnode.inputs )
+            cmaterials.append(cmatnode)
+        pass     
+        cgeonode = collada.scene.GeometryNode( cgeometry, cmaterials )
+        return cgeonode
+
+    def visit(self, node, depth, index):
+        log.info("    " * depth + "[%d.%d] %s " % (depth, index, node))
+        pvnode, lvnode, geonode = node.pv, node.lv, node.geo
+
+        cgeonode = self.copy_geometry_node( geonode )
+        cgeonode.save()
+        print tostring_(cgeonode)
+
+    def __call__(self, node, depth=0, index=0 ):
+        self.visit(node, depth, index) 
+        if not hasattr(node,'children') or len(node.children) == 0:# leaf
+            pass
         else:
-            amode = req.ancestors
-            log.info("amode %s " % amode )
-            for id in ids:
-                node = vnode_(id)
-                out.append(id)
-                out.append(node)
-                for _ in node.ancestors():
-                    out.append(_) 
+            for index, child in enumerate(node.children):
+                self(child, depth + 1, index)
 
-        return "\n".join(map(str,hdr+out))
+    def __str__(self):
+        out = StringIO()
+        self.dae.write(out)
+        return out.getvalue()
+
+def subcopy(arg, cfg ):
+    indices = VNode.interpret_ids(arg)
+    assert len(indices) == 1 
+    index = indices[0]
+    log.info("subcopy %s => %s " % (arg, index) )
+    top = VNode.indexget(index)
+    vc = VCopy(top, VNode.orig )
+    return str(vc)
+
+def textdump(arg, cfg ):
+    ancestors = cfg.get('ancestors', None)
+    ids = VNode.interpret_ids(arg)
+    hdr = ["_dump [%s] => [%s] ids " % (arg, len(ids)), "cfg %s " % cfg, "" ]
+ 
+    vnode_ = lambda _:VNode.registry[_] 
+    out = []
+    if ancestors is None:
+        out = map(vnode_, ids)
+    else:
+        log.info("amode %s " % ancestors )
+        for id in ids:
+            node = vnode_(id)
+            out.append(id)
+            out.append(node)
+            for _ in node.ancestors():
+                out.append(_) 
+    pass            
+    return "\n".join(map(str,hdr+out))
+
+
+def texttree(arg):
+    """
+    Present a text tree of the volume heirarchy from the root(s) defined 
+    by the argument. 
+    """
+    indices = VNode.interpret_ids(arg)
+    nodes = map(lambda _:VNode.indexget(_), indices )
+    tt = map(RPrint, nodes)
+    return "\n".join(map(str, tt))
+
+
 
 class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
@@ -421,7 +568,10 @@ class Defaults(object):
     logpath = None
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
     webserver = False
-
+    texttree = False
+    textdump = False
+    subcopy = False
+    ancestors = "YES"
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -432,6 +582,10 @@ def parse_args(doc):
     op.add_option("-f", "--logformat", default=defopts.logformat )
     op.add_option("-p", "--daepath", default=defopts.daepath )
     op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
+    op.add_option("-t", "--texttree", action="store_true", default=defopts.texttree )
+    op.add_option("-d", "--textdump", action="store_true", default=defopts.textdump )
+    op.add_option("-s", "--subcopy",  action="store_true", default=defopts.subcopy )
+    op.add_option("-a", "--ancestors", default=defopts.ancestors )
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments
@@ -446,15 +600,7 @@ def parse_args(doc):
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)  # add the handler to the root logger
     else:
-        try: 
-            logging.basicConfig(format=opts.logformat,level=level)
-        except TypeError:
-            hdlr = logging.StreamHandler()              # py2.3 has unusable basicConfig that takes no arguments
-            formatter = logging.Formatter(opts.logformat)
-            hdlr.setFormatter(formatter)
-            log.addHandler(hdlr)
-            log.setLevel(level)
-        pass
+        logging.basicConfig(format=opts.logformat,level=level)
     pass
     log.info(" ".join(sys.argv))
     daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
@@ -465,24 +611,30 @@ def parse_args(doc):
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
     return opts, args
 
-
 def webserver():
     log.info("starting webserver ")
     urls = ( 
-             '/', '_index', 
-             '/dump/(.+)?', '_dump' )
-    for i in range(len(urls)/2):
-        log.info("%-30s %s " % (urls[i*2+0], urls[i*2+1])) 
-    pass    
+             '/',          '_index', 
+             '/dump/(.+)?', '_textdump', 
+             '/tree/(.+)?', '_texttree', 
+             '/subcopy/(.+)?', '_subcopy', 
+           )
     app = web.application(urls, globals())
     app.run() 
 
+
 def main():
     opts, args = parse_args(__doc__) 
-    log.info("reading %s " % opts.daepath )
-    boundgeom = parse_collada( opts.daepath )
+    VNode.parse( opts.daepath )
     if opts.webserver:
         webserver()
+    elif opts.texttree:
+        print texttree(args[0])
+    elif opts.textdump:
+        print textdump(args[0], vars(opts))
+    elif opts.subcopy:
+        print subcopy(args[0], vars(opts))
+
 
 if __name__ == '__main__':
     main()

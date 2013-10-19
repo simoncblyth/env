@@ -2,18 +2,18 @@
 """
 In [1]: import collada as co
 
-In [2]: mesh = co.Collada('/tmp/test.dae')
+In [2]: dae = co.Collada('/tmp/test.dae')
 
-In [3]: mesh
+In [3]: dae
 Out[3]: <Collada geometries=1>
 
-In [4]: mesh.geometries
+In [4]: dae.geometries
 Out[4]: [<Geometry id=geometry0, 1 primitives>]
 
-In [5]: mesh.geometries[0]
+In [5]: dae.geometries[0]
 Out[5]: <Geometry id=geometry0, 1 primitives>
 
-In [6]: geom = mesh.geometries[0]
+In [6]: geom = dae.geometries[0]
 
 In [7]: geom.
 geom.bind               geom.createLineSet      geom.createPolylist     geom.double_sided       geom.load               geom.primitives         geom.sourceById         

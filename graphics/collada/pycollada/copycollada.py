@@ -41,6 +41,7 @@ import os, logging
 from copy import copy
 log = logging.getLogger(__name__)
 import collada
+from collada.util import IndexedList
 from collada.xmlutil import etree as ElementTree
 
 collada.scene.Node.__str__ = lambda self:'<Node %s %s transforms=%d, children=%d>' % (" " * 8, self.id, len(self.transforms), len(self.children))
@@ -48,6 +49,7 @@ collada.scene.NodeNode.__str__ = lambda self:'<NodeNode node=%s nodechildren=%d>
 
 def shorten_id( id ):
     d = [
+           ("__dd__Geometry__Sites__lv", "GS"),
            ("__dd__Geometry__AdDetails__lv","ADD"),
            ("__dd__Geometry__AD__lv","AD"),
            ("__dd__Geometry__Pool__","P"),
@@ -69,10 +71,7 @@ def unique_id( id, container ):
 
 class DAENode(object):
    """
-   Used for random access into the collada tree and for all unique node 
-   wrapping to allow tree pruning. The wrapping allows pruning portions
-   of the tree without reference breaking concerns as there is no node 
-   reuse for DAENode.
+   Used for random access into the collada tree 
    """
    registry = {}
    def __init__(self, node, ancestors ):
@@ -117,7 +116,7 @@ class DAECopy(object):
         self.orig = dae
         self.topnode = dae.scene.nodes[0]
         self.copy = collada.Collada()
-        self.index_tree(dae)
+        self.index_tree()
 
     def fullcopy(self):
         self.copy_asset()
@@ -170,7 +169,9 @@ class DAECopy(object):
         cscene = collada.scene.Scene.load( self.copy, scene.xmlnode )
         self.copy.scenes.append(cscene)
 
-    def index_tree( self,  dae):
+
+
+    def index_tree( self ):
         """
         Recurse over the tree collecting nodes into the `DAENode` registry, a uid keyed dict 
         containing DAENode instances which represent all potential target nodes and their
@@ -179,106 +180,141 @@ class DAECopy(object):
         log.info("index_tree assigning unique id to nodes")
         self.leafcount = 0 
         self.nodecount = 0 
-        self.recurse()
-        log.info("index_tree : leafcount %s nodecount %s DAENode.registry %s " % (self.leafcount, self.nodecount, len(DAENode.registry)))
+        self.index_recurse()
+        log.info("index_tree : leafcount %s nodecount %s DAENode.registry %s refnodes %s  " % (self.leafcount, self.nodecount, len(DAENode.registry), len(self.refnodes) ))
 
-
-    def recurse( self, node=None, ancestors=[] , parent_dnode=None):
+    def index_recurse( self, node=None, ancestors=[] ):
         """
         Recurse collecting DAENode instances into DAENode.registry
-        and wrap the original collada tree in DAENode 
         """
-        top = False
         if node is None:
             node = self.topnode
-            top = True
+            self.topdnode = None
+            self.refnodes = IndexedList([],('id',))
 
+        if node.__class__.__name__ == 'NodeNode':
+            if not node.node.id in self.refnodes:
+                self.refnodes.append(node.node)
+ 
         dnode = DAENode(node, ancestors) 
-        if top:
+        if self.topdnode is None:
             self.topdnode = dnode
-
-        if parent_dnode is not None: 
-            parent_dnode.children.append(dnode)
 
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             self.leafcount += 1 
         else:
             self.nodecount += 1 
             for child in node.children:
-                self.recurse(child, ancestors=ancestors + [node], parent_dnode=dnode)
+                self.index_recurse(child, ancestors=ancestors + [node] )   
 
-    def define_target(self, uid ):
+
+    def define_target(self, uid , copy_ancestors ):
         target = DAENode.registry[uid]
+        self.ctop = None
+        self.copy_ancestors = copy_ancestors
         self.target = target
         self.target_node = target.node
         self.target_ancestors = target.ancestors
         log.info("define_target uid %s  " % (uid))
         log.info(target)  
 
-    def targetted_recurse( self, node=None, depth=0, after_target=False, parent=None ):
+
+    def traverse_volume_tree( self, lvnode , depth=0 ):
+        pass 
+
+    def targetted_recurse( self, node=None, depth=0, after_target=False, parent=None, lastchild=False ):
         """
         Constrain recursive traverse to go directly to a target node
         and only after hitting it to recurse normally.
 
-        Regarding subcopy : pruning the existing tree is tempting, 
-        but node re-use probably make that difficult. Would need to 
-        encase the tree in DAENode 
+        Comparing with the initial DAE creation in `G4DAEWriteStructure::PhysvolWrite` 
+        which creates and appends to parent the below.  
+        This operates with id/url only, avoiding the problem of `NodeNode` 
+        needing a preexisting `Node` instance (maybe could introduce a `NodeRef` 
+        placeholder to allow doing the same ?)::
+
+              <node id="pvname">
+                  <matrix ... />
+                  <instance_node url="#lvname" />
+              </node> 
+
+
+
         """
-        root = False       
         if node is None:
             node = self.topnode
-            root = True
 
-        fmt = "tgtrec %s [%s] %s " 
-        if hasattr(node,'children') and len(node.children) > 0:# non-leaf
-            if after_target:
-                proceed, mkr = True, "--" 
-            elif node in self.target_ancestors:
-                proceed, mkr = True, ">>" 
-            elif node == self.target_node:   # hmm node non-uniquess may mess this up, would need to traverse the DAENode
-                proceed, mkr = True, "**" 
-                after_target = True
-            else:
-                proceed, mkr = False,"##" 
-            pass
-            if proceed:    
-                log.info(fmt  % ( mkr * depth, depth, node )) 
-                cnode = self.copynode(node)  # needs to be before recurse below in order to have somewhere to hang the children
-                if root:
+        # classify where we are in the tree by comparison of this node with targetted nodes
+        # hmm node non-uniquess may mess this up, would need to traverse the DAENode
+        if after_target:
+            proceed, copy, mkr = True, True, "--" 
+        elif node in self.target_ancestors:
+            proceed, copy, mkr = True, self.copy_ancestors, ">>" 
+        elif node == self.target_node:                        
+            proceed, copy, mkr = True, True, "**" 
+            after_target = True
+        else:
+            proceed, copy, mkr = False,False,"##" 
+        pass
+        cp = "*" if copy else " "
+
+        fmt = "tgtrec %s %s [%s] %s " 
+        if proceed:    
+            log.info(fmt  % ( cp, mkr * depth, depth, node )) 
+            if copy:
+                # copynode needs to be before recurse below in order to have somewhere to hang the children, 
+                # unless returned children from the recurse
+                cnode = self.copynode(node)  
+                if self.ctop is None:
                     self.ctop = cnode
                 if parent is not None:
                     parent.children.append(cnode)
+                    if lastchild:
+                        if parent in self.refnodes:
+                            log.info("parent in refnodes %s " % parent )
+                            self.addlibnode(parent) 
+                        else:
+                            log.info("parent NOT in refnodes %s " % parent )
+            else:
+                cnode = None
+            pass    
+            if hasattr(node,'children') and len(node.children) > 0:# non-leaf
                 for child in node.children:
-                    self.targetted_recurse(child, depth=depth+1, after_target=after_target, parent=cnode )
-                
-        else:#leaf
-            mkr = ".."
-            log.info(fmt % ( mkr * depth, depth, node )) 
-            cnode = self.copynode(node)
-            if parent is not None:
-                parent.children.append(cnode)
-              
-    def traverse( self, node, visit_leaf=lambda _:_ , visit_nonleaf=lambda _:_ ):
+                    lastchild = child == node.children[-1]
+                    self.targetted_recurse(child, depth=depth+1, after_target=after_target, parent=cnode, lastchild=lastchild )
+
+
+    def addlibnode(self, node):
         """
-        """ 
-        if not hasattr(node,'children') or len(node.children) == 0:# leaf
-            visit_leaf(node)
-        else:
-            visit_nonleaf(node)
-            for child in node.children:
-                self.traverse(child, visit_leaf, visit_nonleaf )
+        reverse node order, for blender import benefit
+        """
+        if node not in self.copy.nodes:
+            log.info("addlibnode %s " % node )
+            if len(self.copy.nodes) == 0: 
+                self.copy.nodes.append(node)   
+            else:    
+                self.copy.nodes.insert(0, node)
+        else:        
+            log.info("addlibnode skip %s " % node )
 
     def copynode(self, node):
+        """
+        """
         if node.__class__.__name__ == 'Node':
-            cnode = collada.scene.Node( shorten_id(node.id) , children=[], transforms=node.transforms )   # hmm should be copying transforms too 
+            #cid = shorten_id(node.id)
+            cid = node.id
+            cnode = collada.scene.Node( cid , children=[], transforms=node.transforms )   # hmm should be copying transforms too 
         elif node.__class__.__name__ == 'NodeNode':
-            crefnode = self.copynode( node.node )  # these LV nodes referred to by NodeNode (aka instance_node) must be added to library_nodes for sure
-            if crefnode not in self.copy.nodes:
-                # reverse node order, for blender import benefit
-                if len(self.copy.nodes) == 0: 
-                    self.copy.nodes.append(crefnode)   
-                else:    
-                    self.copy.nodes.insert(0, crefnode)   
+            #
+            # CAUTION NodeNode `id/children/matrix` are properties that pass thru to the referred `node`  
+            #
+            # the LV nodes referred to by NodeNode (aka instance_node) must be added to library_nodes for sure
+            # but the nodes will usually  be incomplete (lacking children) at the time of the traverse visits instance_node
+            # so just keep a note of the nodes and add them to library_nodes after the traverse
+            #
+            #  i need to here refer to a node that cannot yet exist ?
+            # 
+            crefnode = self.copynode( node.node )  
             cnode = collada.scene.NodeNode( node=crefnode )
         elif node.__class__.__name__ == 'GeometryNode':
             cmatnodes = []
@@ -292,17 +328,15 @@ class DAECopy(object):
             assert 0, "unxpected node %s " % node 
         return cnode 
 
+    def subcopy(self, uid, copy_ancestors=True ):
 
-    def handle_geometry(self, node):
-        self.copy_geometry( node.geometry )
-        for matnode in node.materials:
-            material = matnode.target
-            self.copy_material(material)
+        log.info("refnodes_traverse finds %s %s " % ( len(self.refnodes), len(set(self.refnodes))))
+        for _ in self.refnodes:
+            log.info(_)
 
-    def subcopy(self, uid ):
         self.copy_asset()
 
-        self.define_target( uid )
+        self.define_target( uid , copy_ancestors=copy_ancestors )
         self.targetted_recurse()
         top = self.ctop
         cscene = collada.scene.Scene("DefaultScene", [top])
@@ -311,39 +345,6 @@ class DAECopy(object):
 
         self.copy.save() 
 
-
-    def subcopy_old(self, uid ):
-        """
-        :param uid: of root node to be copied
-
-        From recursive traverses starting from the identified root node
-        extract the parts of the original model that need to be copied
-        to construct a sub-collada document.
-
-        """
-
-        self.copy_asset( self.orig.assetInfo )
-        self.traverse( subroot, self.handle_geometry ) 
-
-        self.refnodes = []
-        self.subnodes = []
-        self.traverse( subroot, lambda _:_ , self.collect_nodes ) 
-        log.info("collected refnodes: %s subnodes: %s  " % (len(self.refnodes),len(self.subnodes)))
-
-        for node in reversed(self.refnodes):
-            self.copy_node(node)
-
-
-        refroot = collada.scene.NodeNode( subroot )
-        top = collada.scene.Node("top", [refroot])
-        self.rcopy( subroot, top, present=True )
-
-        cscene = collada.scene.Scene("DefaultScene", [top])
-        self.copy.scenes.append(cscene)
-        self.copy.scene = cscene
-
-
-        self.copy.save() 
 
 
 
@@ -395,7 +396,7 @@ if __name__ == '__main__':
     #uid = "World0xaa8afb8.0"   TODO test fullcopy starting from World, its slow
     #uid = "__dd__Geometry__AD__lvLSO0xa8d48e8.0"
     uid = "__dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0"    # maybe not so sensical doing this with an LV, PV uniqified makes more sense
-    dc.subcopy(uid)
+    dc.subcopy(uid, copy_ancestors=True )
 
     scpath = "subcopy.dae"
     dc.copy.write(scpath)
