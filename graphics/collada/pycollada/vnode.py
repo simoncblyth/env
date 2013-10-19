@@ -48,8 +48,9 @@ Subcopy
 """
 import collada 
 from collada.xmlutil import etree as ET
-from lxml.builder import E
+from collada.xmlutil import writeXML, COLLADA_NS, E
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
+#from lxml.builder import E
 
 import sys, os, logging, hashlib
 log = logging.getLogger(__name__)
@@ -485,19 +486,20 @@ class VCopy(object):
             cmaterials.append(cmatnode)
         pass     
         cgeonode = collada.scene.GeometryNode( cgeometry, cmaterials )
-        #cgeonode.save()
-        #print tostring_(cgeonode)
         return cgeonode
 
  
-    def __call__(self, vnode, depth=0, index=0, lv=False):
+    def __call__(self, vnode, depth=0, index=0 ):
         """
         Need to flip-flop PV/LV treatment using different structures each time node/instance_node
 
         The translation of the Geant4 model into Collada being used has:
 
         * LV nodes contain instance_geometry and 0 or more node(PV)  elements  
-        * PV nodes containg matrix and instance_node (pointing to an LV node)
+        * PV nodes contain matrix and instance_node (pointing to an LV node) **ONLY**
+          
+        The PV nodes are placements within the holding LV node. As such do not 
+        recurse on PV mode VNode. 
 
         VNode are created by collada raw nodes traverse hitting leaves, ie
         with recursion node path  Node/NodeNode/GeometryNode or xml structure
@@ -562,43 +564,39 @@ class VCopy(object):
               </node>
 
         """
-        mode = "LV" if lv else "PV"
-        log.info( mode + "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
-
+        log.info( "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
         pvnode, lvnode, geonode = vnode.pv, vnode.lv, vnode.geo
 
+        # deal with LV, add the instance_geometry node then the contained PV  
         cnodes = []
-        if not lv:
-            pass  # kick off in PV mode, have to to recurse first to have an lv to refer to 
-        else:    
-            cgeonode = self.copy_geometry_node( geonode )
-            cnodes.append(cgeonode)                # add the instance_geometry for LV mode 
-
+        cgeonode = self.copy_geometry_node( geonode )
+        cnodes.append(cgeonode)  
         if not hasattr(vnode,'children') or len(vnode.children) == 0:# leaf
             pass
         else:
-            for index, child in enumerate(vnode.children):
-                cnode = self(child, depth + 1, index, not lv)
+            for index, child in enumerate(vnode.children):  
+                cnode = self(child, depth + 1, index )
                 cnodes.append(cnode)
-                pass    
             pass
-        pass    
+        clvnode = collada.scene.Node( lvnode.id , children=cnodes, transforms=None ) 
+        self.dae.nodes.append(clvnode)
+        
+        # deal with PV, that references the above LV  
+        refnode = self.dae.nodes[lvnode.id]  
+        cnodenode = collada.scene.NodeNode( refnode ) 
+        cpvnode = collada.scene.Node( pvnode.id , children=[cnodenode], transforms=None ) 
 
-        if not lv:
-            cpvnode = collada.scene.Node( pvnode.id , children=cnodes, transforms=None ) 
-            rnode = cpvnode
-        else:    
-            clvnode = collada.scene.Node( lvnode.id , children=cnodes, transforms=None ) 
-            self.dae.nodes.append(clvnode)
-            cnodenode = collada.scene.NodeNode( clvnode ) 
-            rnode = cnodenode
-
-        return rnode
+        log.debug("cpvnode %s " % tostring_(cpvnode) )
+        return cpvnode
 
 
     def __str__(self):
+        self.dae.save()
+        # kill the name attrib (that just duplicate the id) to match the original
+        for xnode in self.dae.xmlnode.findall(".//{%s}node" % COLLADA_NS ):
+            del xnode.attrib['name']
         out = StringIO()
-        self.dae.write(out)
+        writeXML(self.dae.xmlnode, out )
         return out.getvalue()
 
 
