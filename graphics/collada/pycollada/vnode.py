@@ -7,6 +7,14 @@ Attempt to create the VNode heirarcy out of a raw collada traverse
 without monkeying around.
 
 
+cProfile running
+-----------------
+
+::
+ 
+    python -m cProfile -o vnode.cprofile vnode.py -e -s 0 
+
+
 Web server access
 ------------------
 
@@ -49,6 +57,11 @@ Subcopy
 import collada 
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
+
+# relying on a load signature that is not uniformly followed, works for Transforms, but too much action-at-a-distance
+#collada.common.DaeObject.copy = lambda self:self.load(collada, self.xmlnode )  
+#collada.scene.Transform.copy = lambda self:self.load(collada, self.xmlnode )  
+
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 #from lxml.builder import E
 
@@ -70,6 +83,7 @@ class VNode(object):
     created = 0
     root = None
     rawcount = 0
+    verbosity = 1   # 0:almost no output, 1:one liners, 2:several lines, 3:extreme  
 
     @classmethod
     def parse( cls, path ):
@@ -354,12 +368,14 @@ class VNode(object):
     def __str__(self):
         lines = []
         matdict = self.matdict()
-        lines.append("VNode(%s,%s)[%s]               %s " % (self.rootdepth,self.leafdepth,self.index, matdict.get('matid',"-") ) )
-        lines.append("      id         %s " % self.id )
-        lines.append("    pvid         %s " % self.pv.id )
-        lines.append("    lvid         %s " % self.lv.id )
-        lines.append("    ggid         %s " % self.geo.geometry.id )
-        #lines.extend(self.primitives())
+        if self.verbosity > 0:
+            lines.append("VNode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+        if self.verbosity > 1:    
+            lines.append("    pvid         %s " % self.pv.id )
+            lines.append("    lvid         %s " % self.lv.id )
+            lines.append("    ggid         %s " % self.geo.geometry.id )
+        if self.verbosity > 2:    
+            lines.extend(self.primitives())
         return "\n".join(lines)
 
     __repr__ = __str__
@@ -491,22 +507,29 @@ class VCopy(object):
  
     def __call__(self, vnode, depth=0, index=0 ):
         """
-        Need to flip-flop PV/LV treatment using different structures each time node/instance_node
-
         The translation of the Geant4 model into Collada being used has:
 
         * LV nodes contain instance_geometry and 0 or more node(PV)  elements  
         * PV nodes contain matrix and instance_node (pointing to an LV node) **ONLY**
+          they are merely placements within their holding LV node. 
           
-        The PV nodes are placements within the holding LV node. As such do not 
-        recurse on PV mode VNode. 
-
         VNode are created by collada raw nodes traverse hitting leaves, ie
         with recursion node path  Node/NodeNode/GeometryNode or xml structure
         node/instance_node/instance_geometry 
 
-        NodeNode children are those of the referred to node
+        Thus VNode instances correspond to::
+        
+             containing PV
+                instance_node referenced LV
+                    LV referenced geometry 
 
+        NB this means the PV and LV are referring to different volumes, the PV
+        being the containing parent PV. Because of this it is incorrect to recurse
+        on the PV, its only the LV that (maybe) holds child PV that require to
+        be recursed to.   Stating another way, the PV is the containing parent volume
+        so its just plain wrong to recurse on it.
+
+        NodeNode children are those of the referred to node
 
         :: 
 
@@ -566,11 +589,15 @@ class VCopy(object):
         """
         log.info( "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
         pvnode, lvnode, geonode = vnode.pv, vnode.lv, vnode.geo
+        # NB the lvnode is a NodeNode instance
 
-        # deal with LV, add the instance_geometry node then the contained PV  
+
+        # copy the instance_geometry node referred to by the LV  
         cnodes = []
         cgeonode = self.copy_geometry_node( geonode )
         cnodes.append(cgeonode)  
+
+        # collect children of the referred to LV, ie the contained PV
         if not hasattr(vnode,'children') or len(vnode.children) == 0:# leaf
             pass
         else:
@@ -578,23 +605,30 @@ class VCopy(object):
                 cnode = self(child, depth + 1, index )
                 cnodes.append(cnode)
             pass
-        clvnode = collada.scene.Node( lvnode.id , children=cnodes, transforms=None ) 
-        self.dae.nodes.append(clvnode)
+
+        # bring together the LV copy , NB the lv a  NodeNode instance, hence the `.node` referral in the below 
+        # (properties hide this referral for id/children but not for transforms : being explicit below for clarity )
+        copy_ = lambda _:_.load(collada, _.xmlnode)     # create a collada object from the xmlnode representation of another
+        clvnode = collada.scene.Node( lvnode.node.id , children=cnodes, transforms=map(copy_,lvnode.node.transforms) ) 
+
+        # unlike the other library_ pycollada does not prevent library_nodes/node duplication 
+        if not lvnode.node.id in self.dae.nodes:
+            self.dae.nodes.append(clvnode)
         
-        # deal with PV, that references the above LV  
+        # deal with the containing/parent PV, that references the above LV  
         refnode = self.dae.nodes[lvnode.id]  
         cnodenode = collada.scene.NodeNode( refnode ) 
-        cpvnode = collada.scene.Node( pvnode.id , children=[cnodenode], transforms=None ) 
+        cpvnode = collada.scene.Node( pvnode.id , children=[cnodenode], transforms=map(copy_,pvnode.transforms) ) 
 
-        log.debug("cpvnode %s " % tostring_(cpvnode) )
+        #log.debug("cpvnode %s " % tostring_(cpvnode) )
         return cpvnode
 
 
     def __str__(self):
         self.dae.save()
         # kill the name attrib (that just duplicate the id) to match the original
-        for xnode in self.dae.xmlnode.findall(".//{%s}node" % COLLADA_NS ):
-            del xnode.attrib['name']
+        #for xnode in self.dae.xmlnode.findall(".//{%s}node" % COLLADA_NS ):
+        #    del xnode.attrib['name']
         out = StringIO()
         writeXML(self.dae.xmlnode, out )
         return out.getvalue()
