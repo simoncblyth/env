@@ -433,16 +433,17 @@ class VCopy(object):
     The situation is not so clear with  the MaterialNode, GeometryNode, NodeNode, Node
     which live in a containment heirarcy, and for Node can contain others inside them.
     """
-    def __init__(self, top, extra=None):
+    def __init__(self, top, opts ):
 
+        self.opts = opts 
         self.dae = collada.Collada()
-        cpvtop = self( top )
-       
-        content = []
-        content.append(cpvtop)
 
-        if extra is not None:
-            cextra = collada.scene.ExtraNode( extra )
+        cpvtop = self( top )    # recursive copier
+        self.cpvtop = cpvtop
+
+        content = [cpvtop]
+        if 'meta' in opts:
+            cextra = collada.scene.ExtraNode( opts['meta']  )
             content.append(cextra) 
 
         cscene = collada.scene.Scene("DefaultScene", content )
@@ -504,7 +505,12 @@ class VCopy(object):
         cgeonode = collada.scene.GeometryNode( cgeometry, cmaterials )
         return cgeonode
 
- 
+
+    def make_id(self, bid ):
+        if self.opts.get('blender',False):
+            return bid[-8:]     # just the ptr, eg xa8bffe8 as blender is long id challenged
+        return bid 
+
     def __call__(self, vnode, depth=0, index=0 ):
         """
         The translation of the Geant4 model into Collada being used has:
@@ -609,30 +615,45 @@ class VCopy(object):
         # bring together the LV copy , NB the lv a  NodeNode instance, hence the `.node` referral in the below 
         # (properties hide this referral for id/children but not for transforms : being explicit below for clarity )
         copy_ = lambda _:_.load(collada, _.xmlnode)     # create a collada object from the xmlnode representation of another
-        clvnode = collada.scene.Node( lvnode.node.id , children=cnodes, transforms=map(copy_,lvnode.node.transforms) ) 
+        clvnode = collada.scene.Node( self.make_id(lvnode.node.id) , children=cnodes, transforms=map(copy_,lvnode.node.transforms) ) 
 
         # unlike the other library_ pycollada does not prevent library_nodes/node duplication 
-        if not lvnode.node.id in self.dae.nodes:
+        if not clvnode.id in self.dae.nodes:
             self.dae.nodes.append(clvnode)
         
         # deal with the containing/parent PV, that references the above LV  
-        refnode = self.dae.nodes[lvnode.id]  
+        refnode = self.dae.nodes[clvnode.id]  
         cnodenode = collada.scene.NodeNode( refnode ) 
-        cpvnode = collada.scene.Node( pvnode.id , children=[cnodenode], transforms=map(copy_,pvnode.transforms) ) 
+        cpvnode = collada.scene.Node( self.make_id(pvnode.id) , children=[cnodenode], transforms=map(copy_,pvnode.transforms) ) 
 
         #log.debug("cpvnode %s " % tostring_(cpvnode) )
         return cpvnode
 
 
     def __str__(self):
+        """
+        Even after popping the top node id blender still complains::
+
+            cannot find Object for Node with id=""
+            cannot find Object for Node with id=""
+            cannot find Object for Node with id=""
+            cannot find Object for Node with id=""
+
+        """
         self.dae.save()
+
         # kill the name attrib (that just duplicate the id) to match the original
         #for xnode in self.dae.xmlnode.findall(".//{%s}node" % COLLADA_NS ):
         #    del xnode.attrib['name']
+
+        if self.opts.get('blender',False):
+            if self.cpvtop.xmlnode.attrib.has_key('id'):
+                topid = self.cpvtop.xmlnode.attrib.pop('id')
+                log.info("popped the top for blender %s " % topid )
+
         out = StringIO()
         writeXML(self.dae.xmlnode, out )
         return out.getvalue()
-
 
 
 def subcopy(arg, cfg ):
@@ -645,14 +666,16 @@ def subcopy(arg, cfg ):
     log.info("subcopy %s => %s " % (arg, index) )
     top = VNode.indexget(index)  
 
-    meta = E.extra(E.meta("subcopy arg %s index %s " % (arg, index) ))
-    vc = VCopy(top, meta)
+    cfg['meta'] = E.extra(E.meta("subcopy arg %s index %s " % (arg, index) ))
+    vc = VCopy(top, cfg )
     svc = str(vc)
-    subpath = "%s.xml" % index
+
+    subpath = "%s.%s" % (index, cfg['subext'])
     if cfg.get('daesave',False) == True:
         log.info("daesave to %s " % subpath )
         with open(subpath, "w") as fp:
             fp.write(svc)
+
     return svc
 
 
@@ -702,7 +725,9 @@ class Defaults(object):
     textdump = False
     subcopy = False
     daesave = False
+    blender = False
     ancestors = "YES"
+    subext = "dae"
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -712,11 +737,13 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat )
     op.add_option("-p", "--daepath", default=defopts.daepath )
+    op.add_option("-x", "--subext", default=defopts.subext)
     op.add_option("-e", "--daesave", action="store_true",  default=defopts.daesave )
     op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
     op.add_option("-t", "--texttree", action="store_true", default=defopts.texttree )
     op.add_option("-d", "--textdump", action="store_true", default=defopts.textdump )
     op.add_option("-s", "--subcopy",  action="store_true", default=defopts.subcopy )
+    op.add_option("-b", "--blender",  action="store_true", default=defopts.blender )
     op.add_option("-a", "--ancestors", default=defopts.ancestors )
 
     opts, args = op.parse_args()

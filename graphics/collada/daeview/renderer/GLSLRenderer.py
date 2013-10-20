@@ -70,7 +70,7 @@ class GLSLRenderer:
 
         print 'Creating GL buffer objects for geometry...'
         if self.dae.scene is not None:
-            for geom in list(self.dae.scene.objects('geometry'))[-10:]:
+            for geom in list(self.dae.scene.objects('geometry')):
                 for prim in geom.primitives():
                     mat = prim.material
                     print mat
@@ -84,7 +84,7 @@ class GLSLRenderer:
                     shader_prog = self.shaders[shadingtype]
                    
                     print mat.effect
-                    print mat.effect.supported
+                    #print mat.effect.supported
 
                     for prop in mat.effect.supported:
                         value = getattr(mat.effect, prop)
@@ -153,8 +153,12 @@ class GLSLRenderer:
                     if triangles is not None:
                         triangles.generateNormals()
                         # We will need flat lists for VBO (batch) initialization
+
+                        print "trivtx %s " % len(triangles.vertex)
+                        print  "max", triangles.vertex.max(axis=0)
+                        print  "min", triangles.vertex.min(axis=0)
+                        print  "dif", triangles.vertex.max(axis=0) - triangles.vertex.min(axis=0)
                         vertices = triangles.vertex.flatten().tolist()
-                        print vertices
 
                         batch_len = len(vertices)//3
                         indices = triangles.vertex_index.flatten().tolist()
@@ -171,6 +175,8 @@ class GLSLRenderer:
                         mi = min(vertices[2::3])
                         if mi < self.z_min:
                             self.z_min = mi
+
+                        print "z_min %s z_max %s " % ( self.z_min, self.z_max )
 
                         if tex_id is not None:
 
