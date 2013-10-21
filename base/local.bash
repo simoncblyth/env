@@ -283,6 +283,7 @@ local-nodetag(){
         cms01) echo C ;;
         cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo ZZ ;;
+     dayabay1) echo Y1 ;;
        dybdb1) echo D1 ;;
        dybdb2) echo D2 ;;
          dyb1) echo YY ;;
@@ -437,6 +438,7 @@ local-base(){
         P) echo /disk/d3/dayabay/local ;;
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
+       Y1) echo /usr/local ;;
        H1) echo $(local-root $t)/local ;;
       H52) echo /data/local ;;
         T) echo /usr/local ;;
@@ -470,6 +472,7 @@ local-system-base(){
         XT) echo /home/tianxc/system ;;
         XX) echo /usr/local ;;
         YY) echo /usr/local ;;
+        Y1) echo /usr/local ;;
         ZZ) echo /usr/local ;;
         D1) echo /soft  ;;
         D2) echo /soft  ;;
@@ -492,6 +495,7 @@ local-var-base(){
        XT) echo /home/tianxc ;; 
        XX) echo /home/zhuanghl ;; 
        YY) echo /home ;;
+       Y1) echo /var ;;
        ZZ) echo /home ;;
      IHEP) echo /home ;;  
     OLD_C) echo /var ;;
@@ -512,6 +516,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
 local-scm-fold(){
    case ${1:-$NODE_TAG} in 
      WW) echo /home/scm ;;  
+     Y1) echo /home/scm ;;  
       *) echo $(local-var-base $*)/scm ;;
    esac
 }
