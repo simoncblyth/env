@@ -23,13 +23,16 @@ ENV and DYBSVN repo Trac wikis
    * http://dayabay.phys.ntu.edu.tw/tracs/env
    * http://dayabay.ihep.ac.cn/tracs/dybsvn
 
+Official Trac pages
+
+   * http://trac.edgewall.org/wiki/0.11/TracInstall
+
 
 ENV Trac Wiki
 --------------
 
 Prior migrations were some years ago. So most docs likely to be 
 in ENV Trac wiki rather than the more recent era RST/Sphinx docs.
-
 
 Wikiology  
 ~~~~~~~~~~~
@@ -40,12 +43,18 @@ Mining Trac tagged wikipages
 
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/TracFromScratch   (Aug 2008)
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/CMS02TracFromScratch  (Mar 2009)
+* http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/CMS01Recover  (Mar 2009)
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/Belle7TracFromScratch (Mar/Apr 2009)
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/CMS02TracFromScratchAgain  (end Apr 2009)   
 
   * introduced toplevel `trac-build`
 
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/Dyb01Trac  (Mar 2009) (debug communication between Simon and Qiumei)
+* http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/TracWithSystemApache  (April 2009)
+* http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/TracSVNMigrationJuly2009  (July 2009)
+
+  * forensics on an uncontrolled migration gone awry
+
 * http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/Dyb02Trac (July 2009)
 
   * the **Dyb02Trac** page looks to be **VERY RELEVANT** to current task 
