@@ -90,6 +90,7 @@ Double hop required to get in::
      16:08:44 up 52 days, 11:59, 28 users,  load average: 1.19, 0.96, 1.07
     **********************************************************************
     TEL:5037(office);83050656
+
     -bash-3.2$ ssh NN
     Last login: Fri Sep 13 16:07:57 2013 from lxslc514.ihep.ac.cn
 
@@ -153,7 +154,6 @@ svn version migration
 This looks forced as we have been using system 1.4 and the new system uses 1.6.
 
 
-
 trac version migration 
 ----------------------
 
@@ -165,6 +165,25 @@ Problematic due to bitten, the patches that have been applied, and the large num
 
 On old machine we use python2.3 site-packages level install, not system level with `/usr/lib/python2.3/site-packages/Trac-0.11-py2.3.egg`
 
+
+version pinned due to bitten and patches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The bitten trac plugin provides a master/slave system that requires (from bitter experience) 
+that the slaves (installed at BNL,LBNL,IHEP,NTU,NUU) use precisely 
+the same version of bitten that the master Trac instance does.  This effectively pins the 
+bitten version of the master, without having to reinstall all the slaves.
+
+Other reasons to keep the same version:
+
+  * Pinned revisions of ~15 plugins are known to work with the current version
+
+       * http://dayabay.phys.ntu.edu.tw/repos/env/trunk/trac/package/  
+
+  * ~8 patches to trac and plugins require precisely the same revisions to be used
+
+       * http://dayabay.phys.ntu.edu.tw/repos/env/trunk/trac/patch/ 
+ 
 
 what to change ?
 ~~~~~~~~~~~~~~~~~
