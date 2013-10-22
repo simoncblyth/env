@@ -1401,10 +1401,10 @@ scm-backup-last-of-type(){
 scm-recover-repo-svnsetup(){
    local msg="$FUNNAME :"
    local fromnode=${1:-dayabay}
-   local typ="folders"
+   local type="folders"
    local name=svnsetup
    local path=$SCM_FOLD/backup/$fromnode/$type
-   local dest=$SCM_FOLD/$typ
+   local dest=$SCM_FOLD/$type
    [ -d "$dest" ] && echo $msg destination folder $dest exists already : move it aside before running this potentially destructive recovery && return 1 
    local cmd="scm-recover-repo svnsetup $name $path $dest"
    local ans
