@@ -1153,11 +1153,52 @@ package-archive(){
     popd >& /dev/null
 }
 
-package-archive-download() {
-    echo -n
+package-archive-download-fs() {
+    local name=$1
+    local dest=$2
+    local arxivname=$(package-archive-construct-tar-name $name)
+    local arxivfull=$(package-archive-baseurl-fs download)/$arxivname
+
+    cp $arxivfull $dest
 }
 
+package-archive-download() {
+    package-archive-download-fs $*
+}
 
+package-archive-download-dest() {
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    # setup the package
+    $name-
+    # if setup failed, return
+    if [ "$?" != "0" ] 
+    then
+        echo "setup $name failed"
+        exit
+    fi
+    local bnm=$(basename $(package-odir- $name))
+ 
+    local arxivdir=$(package-archive-path $name)
+    echo $arxivdir
+}
+
+package-get-from-archive() {
+    # package name
+    local name=$1
+    # setup the package
+    $name-
+    # if setup failed, return
+    if [ "$?" != "0" ] 
+    then
+        echo "setup $name failed"
+        return
+    fi
+    local dest=$(package-archive-download-dest $name)
+    cd $dest
+    package-archive-download $name $dest
+    tar zxvf $(package-archive-construct-tar-name $name)
+}
 
 
 
