@@ -1,16 +1,40 @@
 # === func-gen- : geant4/g4py/g4py fgp geant4/g4py/g4py.bash fgn g4py fgh geant4/g4py
 g4py-src(){      echo geant4/g4py/g4py.bash ; }
 g4py-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4py-src)} ; }
-g4py-vi(){       vi $(g4py-source) ; }
+g4py-vi(){       vi $(g4py-source) $* ; }
 g4py-usage(){ cat << EOU
 
 Geant4Py
 =========
 
+Executive Summary
+------------------
+
+After considerable installation woes documented below, it turns out 
+that g4py misses the boost_python glue to expose the `G4VSolid::GetPolygons` 
+that is needed to extract quads/tris from Geant4 geometry.  Possibly that 
+is a simple omission, or exposing that might require exposing other
+classes. 
+
+Once reaching this impasse, I reverted to using standard Geant4 in memory 
+geometry tree as the starting point to creating a COLLADA 
+exporter based upon the GDML exporter.
+
+For development convenience the geometry is loaded from a
+GDML file.
+
+Sources/Examples
+------------------
+
+* https://github.com/nepahwin/Geant4.9.6/blob/master/environments/g4py/examples/gdml/write_gdml.py
+* http://geant4.cern.ch/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/apas09.html
+* http://bugzilla-geant4.kek.jp/show_bug.cgi?id=1317#c4
 * https://bitbucket.org/seibert/g4py/commits/all
 
+g4py configure has issues
+----------------------------
 
-The configure is plumping for system python include dir even when 
+The LCG configure is plumping for system python include dir even when 
 give the argument pointing elsewhere. Prevent this with "/no/way/jose".
 
 external/build/LCG/geant4.9.2.p01/environments/g4py/configure::

@@ -5,7 +5,7 @@ Attempt to access the Polyhedron from Geant4Py failed.
 Unsure if just an omission. Need to learn more `boost_python` to try adding it to G4Py
 but meanwhile just do it in C++.
 
-This means need to use collada com for dae creation rather than pycollada.
+This means need to use collada dom for dae creation rather than pycollada.
  
 
 ::

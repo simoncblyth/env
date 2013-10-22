@@ -1,9 +1,8 @@
 
-Geant4 Collada Export
+g4py
 =========================
 
 .. toctree::
 
-   export
-   xmldae
+   g4py
 

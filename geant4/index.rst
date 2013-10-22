@@ -16,4 +16,5 @@ geant4
    processes
    medical
    geometry/index
+   g4py/index
 
