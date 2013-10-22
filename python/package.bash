@@ -1006,9 +1006,156 @@ package-branchname(){
    echo $bn
 }
 
+package-archive-baseurl-svn() {
+    echo http://dayabay.phys.ntu.edu.tw/repos/env/trunk/lintao/archive;
+}
 
+package-archive-url-last-svn() {
+    local lastdir=$(package-archive-baseurl-svn)/$(date +"%Y-%m-%d")/
+    svn ls $lastdir
+    local laststatus=$?
+    if [ "$laststatus" != "0" ] 
+    then
+        svn mkdir "$lastdir" -m "create archive directory in $(date +"%Y-%m-%d")"
+    fi
+    svn ls $lastdir
+    local laststatus=$?
+    if [ "$laststatus" != 0 ] 
+    then
+        echo "FAILED to locate the archive directory."
+        return 255
+    fi
+    echo $lastdir
+    # update the last dir
+    svn propedit "env:last" --editor-cmd "echo $(date +"%Y-%m-%d")>" `package-archive-baseurl` -m "add the latest directory." >& /dev/null
+}
 
+package-archive-url-svn() {
+    local thelast=$(svn propget "evn:last" `package-archive-baseurl-svn`)
+    echo $thelast
+}
 
+package-archive-upload-svn() {
+    local durl=$(package-archive-url-last-svn)
+    local laststatus=$?
+    if [ "$laststatus" != "0" ] 
+    then
+        echo "Can't locate the destination url."
+        return 255
+    fi
+
+    local name=$1
+    svn import $name "$durl/$name" -m "add $name"
+}
+
+package-archive-basename() {
+    echo "archive"
+}
+
+# Functions for archive in local file system.
+package-archive-baseurl-fs() {
+    # $name controls upload and download urls.
+    name=$1
+    case $name in
+        "upload")
+            echo $(apache-htdocs)/$(package-archive-basename)
+            ;;
+        "download")
+            echo $(apache-htdocs)/$(package-archive-basename)
+        ;;
+        *)
+            echo $(apache-htdocs)/$(package-archive-basename)
+            ;;
+    esac
+}
+
+package-archive-upload-fs() {
+    local srctar=$1
+    if [ ! -e "$srctar" ]
+    then
+        echo "The File $srctar does not exist"
+        return 255
+    fi
+    local dest=$(package-archive-baseurl-fs)
+    if [ ! -d "$dest" ]
+    then
+        echo Create directory: "$dest"
+        mkdir -p "$dest"
+    fi
+    echo Copy File "$srctar" to "$dest"
+    \cp -fu $srctar $dest
+}
+
+# interface
+
+package-archive-path() {
+    local name=$1
+    ${name}-
+    ${name}-archive-path >& /dev/null
+    local laststatus=$?
+    if [ "$laststatus" != "0" ]
+    then
+        # if the ${package}-archive-path does not exist,
+        # use the default directory for package-get
+        echo $(dirname $($name-dir))
+    else
+        echo $($name-archive-path)
+    fi
+}
+
+package-archive-construct-tar-name() {
+    local name=$1
+    if [ "$name" == "" ]
+    then
+        echo "dummy.tar.gz"
+        return 255
+    fi
+    local bnm=$(basename $(package-odir- $name))
+    rev=$(package-revision $name)
+    arxivname="$name-$bnm-$rev.tar.gz"
+    echo $arxivname
+}
+
+# interface 
+package-archive-upload(){
+    package-archive-upload-fs $*
+}
+
+package-archive(){
+    local msg="=== $FUNCNAME :"
+    local name=$1
+    # setup the package
+    $name-
+    # if setup failed, return
+    if [ "$?" != "0" ] 
+    then
+        echo "setup $name failed"
+        return
+    fi
+    local bnm=$(basename $(package-odir- $name))
+ 
+    local arxivdir=$(package-archive-path $name)
+    echo "goto " $arxivdir
+    pushd $arxivdir >& /dev/null
+    cd $arxivdir 
+    if [ -d "$bnm" ]
+    then
+        rm -rf "$bnm"
+    fi
+    package-get $name
+    # create tar.gz
+    cd $arxivdir
+    arxivname=$(package-archive-construct-tar-name $name)
+    tar zcvf "$arxivname" "$bnm"
+    pwd
+    # upload the file.
+    package-archive-upload "$arxivname"
+    popd >& /dev/null
+}
+
+package-archive-download() {
+    echo -n
+}
 
 
 
