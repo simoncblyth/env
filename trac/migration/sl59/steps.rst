@@ -193,6 +193,7 @@ Pre-installation of any of these packages is liable to cause issues.  It is simp
 uninstall them if they are already present in the python being used.
 
 
+
 test migration of dybsvn to dayabay1 (Oct 2013)
 -------------------------------------------------
 
@@ -201,10 +202,24 @@ Initially perform staight copy of dayabay/dybsvn with no version changes or othe
 Problems encountered:
 
 #. `configobj-build` had to be done manually, why not automated ?
-#. `tracbuild-auto` ran 
-#. Trac configuration stomps upon  "query,daily" changing to "query"
+
+#. `tracbuild-auto` ran into missing bittennotify, due to remote SVN server no longer being accessible
+
+#. `navadd-` Trac configuration stomps upon  "query,daily" changing to "query"
 
    * probably the "daily" was added manually, without inclusion into the functions
+
+#. `scm-recover-lastlinks` omitted to set up a last links to the recovered 
+   svnsetup dated directory which forced manual definition of the symbolic link 
+   in order to allow login to Trac
+
+#. issue with the SVN authz file, it had to be manually scp from dayabay to dayabay1
+
+   * the backup system needs to be improved 
+
+#. ssh from dayabay (WW) to dayabay1 (Y1) is blocked, preventing setting up dayabay1 as
+   a backup target from dayabay.  Workaround was to manually pull (scp) 
+   the SVN/Trac/svnsetup tarballs from the dayabay1 end.
 
 
 improvements
@@ -212,5 +227,16 @@ improvements
 
 #. AccountManager plugin is outdated (has security issues), and needs to be updated
 #. bitten build html formatting need to be made wider
+
+
+other tasks
+-------------
+
+#. backup system, cron jobs on dayabay1 to run backup scripts
+
+#. dybaux migration has SVN pre-commit hook complications 
+
+
+
 
 
