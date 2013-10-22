@@ -80,6 +80,9 @@ tracbuild-makepatch(){   tracbuild-f makepatch ;  }
 tracbuild-auto(){        
    tracbuild-f auto 
 }
+tracbuild-archive(){
+   tracbuild-f archive
+}
 tracbuild-revs(){        tracbuild-f revs ;  }
 
 

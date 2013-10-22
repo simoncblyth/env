@@ -10,6 +10,9 @@ EOU
 
 }
 
+pygments-vi(){
+  vim ${BASH_SOURCE:-$ENV_HOME/trac/package/pygments.bash}
+}
 
 pygments-env(){
    elocal-

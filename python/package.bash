@@ -470,6 +470,14 @@ package-cd(){
   cd $dir 
 }
 
+package-mode(){
+  case $NODE_TAG in
+    Y1) echo archive-get
+    ;;
+    *) echo get
+    ;;
+  esac
+}
 
 package-auto(){
 
@@ -488,13 +496,24 @@ package-auto(){
    
        case $act in 
            skip) echo $msg $name ===\> $act ... nothing to do  && return 0  ;;
-            get) $name-get     ;;
+            get) package-helper-get $name  ;;
         install) $name-install ;;  
           abort) echo $msg $name ===\> $act ... ABORTING && sleep 10000000 ;;
               *) echo $msg $name ===\> $act ... ERROR act not handled && sleep 10000000 ;;
        esac
    done
 
+}
+
+package-helper-get() {
+   local name=$1
+   local mode=$(package-mode)
+   if [ "$mode" == "get" ]
+   then
+       $name-get
+   else
+       package-archive-get $name
+   fi
 }
 
 package-status(){
@@ -1183,7 +1202,7 @@ package-archive-download-dest() {
     echo $arxivdir
 }
 
-package-get-from-archive() {
+package-archive-get() {
     # package name
     local name=$1
     # setup the package
