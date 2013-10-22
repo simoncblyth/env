@@ -14,6 +14,10 @@ EOU
 
 }
 
+genshi-vi() {
+   vim $ENV_HOME/trac/package/genshi.bash
+}
+
 genshi-env(){
   elocal-
   package-

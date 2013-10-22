@@ -19,6 +19,8 @@ setuptools-tmp(){ echo /tmp/env/setuptools ; }
 setuptools-version(){ python -c "import setuptools as _ ; print _.__version__" ; }
 setuptools-get(){
     local msg="=== $FUNCNAME :"
+    [ "$(which easy_install 2> /dev/null)" != "" ] && echo $msg exists already && return
+    
     local iwd=$PWD
     local tmp=$(setuptools-tmp) && mkdir -p $tmp
     cd $tmp

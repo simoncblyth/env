@@ -547,7 +547,7 @@ scm-recover-all(){
    for type in $types
    do
       local base
-      if [ "$fromnode" == "dayabay"  ]; then
+      if [ "$fromnode" == "tdayabay" ]; then
           base=$(scm-backup-tdir)/$fromnode/$type    ## updated manually by dayabay-pull from C2R (from the parasitic C1 backups from IHEP) 
       else
           base=$SCM_FOLD/backup/$fromnode/$type

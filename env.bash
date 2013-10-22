@@ -300,6 +300,7 @@ env-designated(){
   case ${1:-$NODE_TAG} in
     YY) echo YY ;;
     ZZ) echo ZZ ;;
+    Y1) echo Y1 ;;
      *) echo $(env-sourcetag) ;;
   esac
 }
@@ -379,6 +380,7 @@ env-localserver(){
 C2|C2R) echo $(env-ntu dayabay) ;;
     XX) echo $(env-ihep dyb2) ;;
     YY) echo $(env-ihep dyb1) ;;
+    Y1) echo http://202.122.39.101 ;;
     ZZ) echo $(env-ihep dayabay) ;;
   esac  
 }

@@ -67,6 +67,7 @@ local-info(){
    local-system-base :  $(local-system-base $t)
    local-base        :  $(local-base $t)
    local-var-base    :  $(local-var-base $t)
+   local-base-env    :  $(local-base-env $t)
    local-scm-fold    :  $(local-scm-fold $t)
    local-user-base   :  $(local-user-base $t)
    local-output-base :  $(local-output-base $t)
