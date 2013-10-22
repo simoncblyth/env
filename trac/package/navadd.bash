@@ -1,6 +1,6 @@
 navadd-src(){    echo trac/package/navadd.bash ; }
 navadd-source(){ echo ${BASH_SOURCE:-$(env-home)/$(navadd-source)} ; }
-navadd-vi(){     vi  $(navadd-source) ; }
+navadd-vi(){     vim  $(navadd-source) ; }
 
 
 navadd-usage(){
@@ -80,15 +80,54 @@ query.target = mainnav   # metanav
 EOC
 }
 
+
+navadd-tabnames(){
+  case ${1:-$TRAC_INSTANCE} in 
+    dybsvn) echo query daily ;;
+         *) echo query ;;
+  esac
+}
+navadd-tabtitle(){
+  case $1 in 
+    query) echo Query ;;
+    daily) echo Daily ;;
+  esac     
+}
+navadd-taburl(){
+  case $1 in 
+    query) echo /tracs/$TRAC_INSTANCE/query ;;
+    daily) echo /tracs/$TRAC_INSTANCE/daily/dybinst ;;
+  esac     
+}
+navadd-tabperm(){
+  case $1 in 
+    query) echo REPORT_VIEW ;;
+    daily) echo TIMELINE_VIEW ;;
+  esac     
+}
+
+
+navadd-triplets-auto(){
+   local tabnames=$(navadd-tabnames)
+   local tablist=${tabnames/ /,} 
+   cat << EAI
+      navadd:add_items:$tablist
+EAI
+   local name
+   for name in $tabnames ; do
+         navadd-triplets $name $(navadd-tabtitle $name) $(navadd-taburl $name) $(navadd-tabperm $name) 
+   done    
+}
+
 navadd-triplets(){ 
    local  name=${1:-query}
    local title=${2:-Query}
    local   url=${3:-/tracs/$TRAC_INSTANCE/query}
+   local  perm=${4:-REPORT_VIEW}
    cat << EOT
-      navadd:add_items:$name
       navadd:$name.title:$title
       navadd:$name.url:$url
-      navadd:$name.perm:REPORT_VIEW
+      navadd:$name.perm:$perm
       navadd:$name.target:mainnav 
 EOT
 }

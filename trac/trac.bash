@@ -1009,7 +1009,7 @@ trac-triplets(){
       tags:ticket_fields:keywords
       ticket:restrict_owner:true
 $(trac-delete-triplets $name)
-$(navadd-triplets query Query /tracs/$name/query)
+$(TRAC_INSTANCE=$name navadd-triplets-auto)
       $(trac-defaulthandler-triplets $name)
       $(trac-defaultquery-triplets $name)
       $(trac-mainnav-triplets $name)
