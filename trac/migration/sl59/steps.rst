@@ -205,9 +205,12 @@ Problems encountered:
 
 #. `tracbuild-auto` ran into missing bittennotify, due to remote SVN server no longer being accessible
 
+   * Lin Tao is working in archiving all remote dependencies with `package-` functions 
+
 #. `navadd-` Trac configuration stomps upon  "query,daily" changing to "query"
 
    * probably the "daily" was added manually, without inclusion into the functions
+   * UNTESTED FIX IN :env:`r4007` 
 
 #. `scm-recover-lastlinks` omitted to set up a last links to the recovered 
    svnsetup dated directory which forced manual definition of the symbolic link 
@@ -215,11 +218,13 @@ Problems encountered:
 
 #. issue with the SVN authz file, it had to be manually scp from dayabay to dayabay1
 
-   * the backup system needs to be improved 
+   * the backup system needs to be improved to include this authz file
 
 #. ssh from dayabay (WW) to dayabay1 (Y1) is blocked, preventing setting up dayabay1 as
    a backup target from dayabay.  Workaround was to manually pull (scp) 
    the SVN/Trac/svnsetup tarballs from the dayabay1 end.
+
+   * netstat/iptables/sshd-on-other-port investigations fruitless, maybe a cc blockage ?
 
 
 improvements

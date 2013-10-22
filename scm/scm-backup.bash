@@ -550,7 +550,7 @@ scm-recover-all(){
       if [ "$fromnode" == "tdayabay" ]; then
           base=$(scm-backup-tdir)/$fromnode/$type    ## updated manually by dayabay-pull from C2R (from the parasitic C1 backups from IHEP) 
       else
-          base=$SCM_FOLD/backup/$fromnode/$type
+          base=$SCM_FOLD/backup/$fromnode/$type    # eg /home/scm/backup/dayabay/tracs  
       fi   
 
       local lockd=$(dirname $base)/LOCKED
@@ -561,17 +561,18 @@ scm-recover-all(){
       
       [ ! -d $dest ] && $SUDO mkdir -p $dest && [ "$SUDO" != "" ] && $SUDO chown $user:$user $dest       
       
-      for path in $base/*
+      # base contains dirs names after instances eg "dybsvn" for the tracs/repos/svn type  (OR "svnsetup" for the "folders" type)
+      for path in $base/*    
       do  
 	     if [ -d $path ]; then 
                 local name=$(basename $path)
-	        if [ "$(scm-recover-exclude $name)" != "YES"  ]; then 
+	            if [ "$(scm-recover-exclude $name)" != "YES"  ]; then 
                      scm-recover-repo $name $path $dest
                 else
-		     echo === scm-recover-all skip excluded, see ... scm-recover-exclude $name : $(scm-recover-exclude $name)
+		             echo === scm-recover-all skip excluded, see ... scm-recover-exclude $name : $(scm-recover-exclude $name)
                 fi
 	     else
-		     echo === scm-recover-all skip non-folder $path  
+		        echo === scm-recover-all skip non-folder $path  
 	     fi   
 		  #
 		  #  eg:
@@ -590,8 +591,14 @@ scm-recover-all(){
 
 }
 
-
-
+#
+# backup layout 
+#    treats "folders" as peer of "tracs" and "repos" 
+#    treats "svnsetup" as peer of instance name eg dybsvn   
+#
+# problem comes from lack of a "last" link
+#
+scm-recover-users-tgz(){ echo $(local-scm-fold)/backup/${fromnode:-dayabay}/folders/svnsetup/last/svnsetup.tar.gz ; }
 scm-recover-users(){
 
   local msg="=== $FUNCNAME :"
@@ -1391,6 +1398,21 @@ scm-backup-last-of-type(){
    fi
 }
 
+scm-recover-repo-svnsetup(){
+   local msg="$FUNNAME :"
+   local fromnode=${1:-dayabay}
+   local typ="folders"
+   local name=svnsetup
+   local path=$SCM_FOLD/backup/$fromnode/$type
+   local dest=$SCM_FOLD/$typ
+   [ -d "$dest" ] && echo $msg destination folder $dest exists already : move it aside before running this potentially destructive recovery && return 1 
+   local cmd="scm-recover-repo svnsetup $name $path $dest"
+   local ans
+   read -p "$msg proceed with cmd \"$cmd\" ?  Enter\"YES\" to continue: " ans
+   [ "$ans" != "YES" ] && echo $msg OK skipping && return
+   echo $cmd
+   eval $cmd
+}
 
 scm-recover-repo(){
 
