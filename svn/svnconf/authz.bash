@@ -10,7 +10,7 @@ authz(){
 
   local tw="thho, bzhu, wei, adiar, chwang, glin, fengshui, wunsyonghe, cjchen"
   local hk="jimmy, antony, soap, talent, alex, henoch, cuikx"
-  local cn="tianxc, maqm, litsh08"
+  local cn="tianxc, maqm, litsh08, lint"
   local us="littlejohn"
   local hz="simon, cjl, tosi, cecilia, b2c, andrzej, gigi, matteo, yasmine, thomas"
 

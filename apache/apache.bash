@@ -11,6 +11,17 @@ iptables-(){    . $ENV_HOME/apache/apacheconf/iptables.bash     && iptables-env 
 
 apache-usage(){ cat << EOU
 
+
+Had to resort to the below to do a restart on C2 ?
+Something wrong with the sv- setup ?
+
+::
+
+    [blyth@cms02 env]$ sudo /data/env/system/apache/httpd-2.0.64/bin/apachectl stop
+    [blyth@cms02 env]$ sudo /data/env/system/apache/httpd-2.0.64/bin/apachectl start
+
+
+
 APACHE
 =======
 
