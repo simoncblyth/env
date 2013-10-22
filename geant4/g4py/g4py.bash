@@ -107,6 +107,7 @@ After building global g4 libs succeed to build and install. But somehow the syst
     ImportError: /usr/lib/libboost_python.so.2: undefined symbol: PyUnicodeUCS4_FromEncodedObject
     [blyth@belle7 ~]$ 
 
+
 ::
 
     [blyth@belle7 source]$ g4py-configure

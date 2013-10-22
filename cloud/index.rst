@@ -1,0 +1,6 @@
+Cloud
+======
+
+.. toctree::
+
+    openstack/index
