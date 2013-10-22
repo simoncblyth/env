@@ -126,7 +126,7 @@ After building global g4 libs succeed to build and install. But somehow the syst
     Checking for Boost lib dir ... /data1/env/local/dyb/external/Boost/1.38.0_python2.7/i686-slc5-gcc41-dbg/lib
     Checking for Boost Python lib name ... libboost_python-gcc41-mt.so
     Checking for OpenGL support ...yes
-Checking for physics list support ...yes
+    Checking for physics list support ...yes
     Checking for GDML support ...yes
     Checking for Xerces-C include dir ...yes
     Checking for Xerces-C lib dir ...yes

@@ -67,6 +67,7 @@ Contents:
    cuda/index
    opencl/index
    linux/index
+   cloud/index
 
 Indices and tables
 ==================
