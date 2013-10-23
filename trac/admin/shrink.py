@@ -46,8 +46,7 @@ CHECKED
    * not widely deployed on my nodes and in any case requires schema changes to support this stuff, so a no no
 
 """
-from __future__ import with_statement
-import os, logging, sys, sqlite3
+import os, logging, sys
 from env.sqlite.db import DB
 log = logging.getLogger(__name__)
 
@@ -93,8 +92,9 @@ class Shrink(dict):
         if not os.path.exists(dir):
             os.makedirs(dir)
         log.info("writing to %s " % path )
-        with open(path,"w") as fp:
-            fp.write(repr(self))
+        fp = open(path,"w")
+        fp.write(repr(self))
+        fp.close()
 
 
 
@@ -102,25 +102,54 @@ def builds_(where="cast(rev as int) < 10000"):
     sql = "select id from bitten_build where %(where)s " % locals()
     return sql 
 
+def get_database_from_tarball(dest, relpath, name="dybsvn"):
+    p = "$SCM_FOLD/backup/dayabay/tracs/%(name)s/last/%(name)s.tar.gz"%locals()
+    p = os.path.expandvars(p)
+    reldir = os.path.dirname(relpath)
+
+    fulldir ="%(dest)s/%(reldir)s"%locals()
+    if not os.path.exists(fulldir):
+        os.makedirs(fulldir)
+
+
+    cmd = "tar zxf %(p)s %(relpath)s -C %(dest)s"%locals()
+
+    print cmd
+
+    #os.system(cmd)
+    
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    base="/tmp/env/blyth/shrink"
-    db = DB(path="%s/dybsvn/db/trac.db" % base, skip="bitten")
+    import os
+    username = os.getlogin()
+
+    base="/tmp/env/%s/shrink"%username
+    if not os.path.exists(base):
+        os.makedirs(base)
+    relpath = "dybsvn/db/trac.db"
+    get_database_from_tarball(dest=base, relpath=relpath)
+
+    db = DB(path="%s/%s" % (base,relpath), skip="bitten")
     print db.tables
 
     bid=10000
 
-    count_path = "/tmp/env/shrink/count.sql" 
+    count_path = "%s/count.sql" %base
     count = Shrink(action="select count(*)", bid=bid)
     count.write(count_path )
 
-    delete_path = "/tmp/env/shrink/delete.sql" 
+    delete_path = "%s/delete.sql" %base
     delete = Shrink(action="delete", bid=bid)
     delete.write(delete_path )
 
-    #db.line_by_line( count_path )
+    db.line_by_line( count_path )
     #db.arbitary_( count_path )
+    db.line_by_line( delete_path )
 
+"""
     db.arbitary_( delete_path )
 
+"""
