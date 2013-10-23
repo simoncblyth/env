@@ -209,6 +209,7 @@ Problems encountered:
 
 #. `navadd-` Trac configuration stomps upon  "query,daily" changing to "query"
 
+   * this means the migrated Trac omits the extra "daily" tab
    * probably the "daily" was added manually, without inclusion into the functions
    * UNTESTED FIX IN :env:`r4007` 
 
@@ -227,19 +228,51 @@ Problems encountered:
    * netstat/iptables/sshd-on-other-port investigations fruitless, maybe a cc blockage ?
 
 
+other migration tasks
+------------------------
+
+#. backup system, cron jobs on dayabay1 to run backup scripts
+#. dybaux migration has SVN pre-commit hook complications 
+#. dybaux trac sqlite db is bloated from bitten logs, dev work is
+   need to purge old entries
+
+
 improvements
 ---------------
 
 #. AccountManager plugin is outdated (has security issues), and needs to be updated
 #. bitten build html formatting need to be made wider
 
+minor future work
+---------------------
 
-other tasks
--------------
+A few dependencies are still being grabbed from uncontrolled 
+remote repositories by `tracpreq-py`:
 
-#. backup system, cron jobs on dayabay1 to run backup scripts
+* setuptools
+* configobj
 
-#. dybaux migration has SVN pre-commit hook complications 
+
+more significant future work
+-----------------------------
+
+longterm  *env* operability
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *env* repository is currently hosted at NTU.  
+Longer term support of this repository after summer 2014 cannot be relied upon. 
+As this contains the scripts that build/maintain/backup the dayabay repositories a 
+migration of *env* (or probably a subset of it) to another server distinct 
+from the one that runs dybsvn is needed.
+
+It needs to be on a distinct server as the means to recover from a backup 
+are contained within env. 
+
+One possibility to avoid the maintenance burden is to migrate 
+the relevant portions of *env* into public hosting servers 
+such as bitbucket or github, from where it can be forked into 
+relevant administrators accounts. 
+
 
 
 
