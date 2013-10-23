@@ -1,0 +1,18 @@
+#! /bin/bash
+# backup svn & trac daily
+
+export HOME=/root
+export MAILTO=maqm@ihep.ac.cn 
+export ENV_HOME=$HOME/env
+env-(){ . $HOME/env/env.bash && env-env $* ; }
+
+env-
+scm-backup-
+type scm-backup-all
+
+scm-backup-all
+scm-backup-rsync
+scm-backup-monitor-ihep
+scm-backup-mail
+
+exit 0
