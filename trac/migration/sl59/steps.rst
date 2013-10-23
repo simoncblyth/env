@@ -203,6 +203,9 @@ Problems encountered:
 
 #. `configobj-build` had to be done manually, why not automated ?
 
+   * now added to `tracpreq-py`, unsure why this was omitted 
+   * UNTESTED FIX IN :env:`r4013`
+
 #. `tracbuild-auto` ran into missing bittennotify, due to remote SVN server no longer being accessible
 
    * Lin Tao is working in archiving all remote dependencies with `package-` functions 
@@ -211,15 +214,19 @@ Problems encountered:
 
    * this means the migrated Trac omits the extra "daily" tab
    * probably the "daily" was added manually, without inclusion into the functions
+
    * UNTESTED FIX IN :env:`r4007` 
 
 #. `scm-recover-lastlinks` omitted to set up a last links to the recovered 
    svnsetup dated directory which forced manual definition of the symbolic link 
    in order to allow login to Trac
 
+   * UNTESTED FIX IN :env:`r4013`
+
 #. issue with the SVN authz file, it had to be manually scp from dayabay to dayabay1
 
-   * the backup system needs to be improved to include this authz file
+   * UNTESTED FIX IN :env:`r4013`
+
 
 #. ssh from dayabay (WW) to dayabay1 (Y1) is blocked, preventing setting up dayabay1 as
    a backup target from dayabay.  Workaround was to manually pull (scp) 
