@@ -564,6 +564,7 @@ scm-recover-all(){
    trac-inherit-setup
 
    local types="repos svn tracs"
+   #local types="folders"
    for type in $types
    do
       local base
@@ -705,6 +706,7 @@ scm-recover-folders(){
       else
          echo $msg  skip non-folder $path  
       fi
+
   done
 
   cd $iwd
@@ -712,8 +714,8 @@ scm-recover-folders(){
 }
 
 scm-recover-destination(){
-  case $1 in 
-         local|svnsetup|apache2) echo /tmp/$FUNCNAME/$(dirname $(svn-setupdir)) ;;
+  case $1 in
+      local|apache2|svnsetup) echo /tmp/$FUNCNAME/$(dirname $(svn-setupdir)) ;;
   esac  
   ## local name still in use on G, apache2 on H,  svnsetup elsewhere 
 }
@@ -1442,22 +1444,6 @@ scm-backup-last-of-type(){
    else
       echo -n
    fi
-}
-
-scm-recover-repo-svnsetup(){
-   local msg="$FUNNAME :"
-   local fromnode=${1:-dayabay}
-   local type="folders"
-   local name=svnsetup
-   local path=$SCM_FOLD/backup/$fromnode/$type
-   local dest=$SCM_FOLD/$type
-   [ -d "$dest" ] && echo $msg destination folder $dest exists already : move it aside before running this potentially destructive recovery && return 1 
-   local cmd="scm-recover-repo svnsetup $name $path $dest"
-   local ans
-   read -p "$msg proceed with cmd \"$cmd\" ?  Enter\"YES\" to continue: " ans
-   [ "$ans" != "YES" ] && echo $msg OK skipping && return
-   echo $cmd
-   eval $cmd
 }
 
 
