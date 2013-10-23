@@ -59,10 +59,10 @@ tracpreq-again-system(){
 tracpreq-py(){
 
    setuptools-
-   setuptools-get
+   setuptools-get    # downloads and runs the installer script
 
    configobj-          
-   configobj-get   
+   configobj-build   # does get(from SVN trunk)/build-/install
 
 }
 

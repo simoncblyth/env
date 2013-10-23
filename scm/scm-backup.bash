@@ -1,7 +1,7 @@
 scm-backup-src(){ echo scm/scm-backup.bash ; }
 scm-backup-source(){  echo $(env-home)/$(scm-backup-src) ; }
 scm-backup-url(){     echo $(env-url)/$(scm-backup-src) ; }
-scm-backup-vi(){      vi $(scm-backup-source) ; }
+scm-backup-vi(){      vim $(scm-backup-source) ; }
 
 
 scm-backup-log(){  cat << EOL
@@ -202,12 +202,27 @@ FUNCTIONS
               scm-backup-purge   : retain the backups from the last 7 days only
               
 *scm-recover-all fromnode*
-   
-         NB the folders are not recovered by this, as is installation
-         specific, nevertheless tis important that the users file is
-         backed up...
+  
+         In addition to the Trac and SVN repos this also now
+         recovers the users.conf and authz.conf with *scm-recover-config* 
+         in a careful manner prompting for confirmation before replacing this
+         critial apache/svn/Trac config files.
 
-         BUT it does invoke *scm-recover-users* 
+
+*scm-recover-config fromnode*
+
+         Extracts the users.conf and authz.conf from the svnsetup.tar.gz backup file 
+         into a temporary location. Compares these temporaries with the corresponding 
+         config files within *apache-confdir*. If there are preexisting config files, the 
+         diffs are show and a confirmation dialog is required to replace them with the 
+         extractions.
+
+         This calls:
+
+             scm-recover-folders   # contrary to the name this just places a last link to identify the last tarball folder
+             scm-recover-users 
+             scm-recover-authz
+
 
 *scm-recover-users fromnode*
 
@@ -219,6 +234,11 @@ FUNCTIONS
 
          The users file is different because it is edited thru the webadmin 
          interface     
+
+*scm-recover-authz fromnode*
+
+          Analogous to *scm-recover-users* for the authz file
+
 
   
 *scm-recover-folders fromnode*
@@ -583,11 +603,8 @@ scm-recover-all(){
       
    done 
 
-   if [ "$fromnode" == "dayabay" ]; then
-      echo $msg auto mated usersfile recovery is not possible from $fromnode ... you will need to manually merge usersfiles, see $(env-wikiurl)/ServerHistory 
-   else
-      scm-recover-users $fromnode
-   fi
+   # sometimes manual usersfile merging might be needed, see $(env-wikiurl)/ServerHistory 
+   scm-recover-config $fromnode
 
 }
 
@@ -598,53 +615,76 @@ scm-recover-all(){
 #
 # problem comes from lack of a "last" link
 #
-scm-recover-users-tgz(){ echo $(local-scm-fold)/backup/${fromnode:-dayabay}/folders/svnsetup/last/svnsetup.tar.gz ; }
-scm-recover-users(){
+scm-recover-users(){  scm-recover-conf-file svnsetup/users.conf ${1:-dummy} ; }
+scm-recover-authz(){  scm-recover-conf-file svnsetup/authz.conf ${1:-dummy} ; }
+scm-recover-conf-tgz(){ echo $(local-scm-fold)/backup/${fromnode:-dayabay}/folders/svnsetup/last/svnsetup.tar.gz ; }
+scm-recover-conf-file(){
 
   local msg="=== $FUNCNAME :"
-  local fromnode=${1:-dummy}
-  [ "$fromnode" == "dummy" ] && echo scm-recover-users needs a fromnode argument && return 1
+  local relpath=${1:-svnsetup/users.conf}   # relative to apache-confdir eg /etc/httpd/conf AND also to the root of the svnsetup tarball 
+  local fromnode=${2:-dummy}
+
+  [ "$fromnode" == "dummy" ] && echo $FUNCNAME needs a fromnode argument && return 1
   local iwd=$PWD
-  local tmp=/tmp/$FUNCNAME && mkdir -p $tmp
-  local usr=svnsetup/users.conf
-  local tgz=`local-scm-fold`/backup/$fromnode/folders/svnsetup/last/svnsetup.tar.gz
-  echo $msg recovering $usr from tgz $tgz into $tmp
-  
-  cd $tmp
-  tar zxvf $tgz $usr 
-  cd $iwd
+  local tmp=/tmp/$USER/env/$FUNCNAME/$relpath && mkdir -p $(dirname $tmp)
+  local tgz=$(scm-recover-conf-tgz $fromnode)
+
+  [ ! -f "$tgz" ] && echo $msg recovered tgz $tgz not found : use scm-recover-folders first && return 1
+  echo $msg extracting $relpath from tgz $tgz into $tmp
+ 
+  tar zxf $tgz $relpath -O | cat > $tmp    
 
   local dir=`apache-confdir`
   [ ! -d "$dir" ] && echo $msg ERROR no apache-confdir $dir && return 1 
 
-  local cur=$dir/$usr
-  local rec=$tmp/$usr
-  local ans 
+  local cur=$dir/$relpath   # current active config file that is used by Trac/SVN/apache
+
+  local cmd  
+  local ans=NO 
+  local rc
   if [ -f "$cur" ]; then
-      diff $cur $rec 
-      read -p "Replace existing users file $cur with recovered one $rec , YES to proceed " ans
+      cmd="diff $cur $tmp"
+      echo $msg $cmd
+      eval $cmd
+      rc=$?
+      if [ "$rc" == "0" ]; then 
+          echo $msg no differnce between existing conf file $cur and extracted $tmp 
+          rm -f $tmp
+          ans=NO
+      else
+          echo $msg differences observed
+          read -p "Replace existing $relpath file $cur with recovered one $tmp , YES to proceed " ans
+      fi    
   else
-      read -p "Recover users file $rec , YES to proceed " ans
+      read -p "Recover $relpath file $tmp , YES to proceed " ans
   fi
 
   [ "$ans" != "YES" ] && echo $msg SKIPPING && return 1
 
-  
-
-  local cmd="sudo mkdir -p $(dirname $cur) ; sudo cp $rec $cur "
+  cmd="sudo mkdir -p $(dirname $cur) ; sudo cp $tmp $cur "
   echo $cmd
   eval $cmd
   apache-chown $cur
 }
 
 
+scm-recover-config(){
+   local msg="=== $FUNCNAME :"
+   local fromnode=${1:-dummy}
+
+   scm-recover-folders $fromnode 
+   scm-recover-users $fromnode
+   scm-recover-authz $fromnode
+}
+
 
 scm-recover-folders(){
   
    local msg="=== $FUNCNAME :"
    local fromnode=${1:-dummy}
-   [ "$fromnode" == "dummy" ] && echo scm-recover-all needs a fromnode argument && return 1
-   
+   [ "$fromnode" == "dummy" ] && echo $FUNCNAME needs a fromnode argument && return 1
+   local iwd=$PWD
+
    local base=$SCM_FOLD/backup/$fromnode/folders
    for path in $base/*
    do
@@ -653,15 +693,21 @@ scm-recover-folders(){
          local dest=$(scm-recover-destination $name)
          [ -z $dest ]   && echo $msg ABORT no destination for name $name path $path && return 1
          
-             mkdir -p $dest   ## TESTING ONLY
+         mkdir -p $dest   ## TESTING ONLY
              
          [ ! -d $dest ] && echo $msg ABORT dest $dest does not exist    && return 1  
      
-         scm-recover-repo $name $path $dest 
+         # its unclear where to explode the svnsetup tarball, but do not really need to 
+         # do so as only need to grab a few files from it, so just recover the last links
+         cd $path  
+         scm-recover-lastlinks tar.gz
+
       else
          echo $msg  skip non-folder $path  
       fi
   done
+
+  cd $iwd
 
 }
 
@@ -1413,6 +1459,7 @@ scm-recover-repo-svnsetup(){
    echo $cmd
    eval $cmd
 }
+
 
 scm-recover-repo(){
 
