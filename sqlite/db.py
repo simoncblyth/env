@@ -15,8 +15,24 @@ TODO:
 
 
 """
-from __future__ import with_statement
-import logging, sys, sqlite3
+
+try:
+    import pysqlite2.dbapi2 as sqlite
+    have_pysqlite = 2
+except ImportError:
+    try:
+        import sqlite3 as sqlite
+        have_pysqlite = 2
+    except ImportError:
+        try:
+            import sqlite
+            have_pysqlite = 1
+        except ImportError:
+            have_pysqlite = 0
+
+
+
+import logging, sys
 log = logging.getLogger(__name__)
 
 class DB(object):
@@ -29,7 +45,7 @@ class DB(object):
             path = 'dybsvn/db/trac.db'   # specific leaking in as default
 
         log.info("opening %s " % path )
-        conn=sqlite3.connect(path)
+        conn=sqlite.connect(path)
         cur=conn.cursor()
         self.conn = conn
         self.path = path
@@ -42,20 +58,21 @@ class DB(object):
         :return: pysqlite version, underlying sqlite version
         """ 
         #return (sqlite3.version, sqlite3._sqlite.sqlite_version())
-        return (sqlite3.version, sqlite3.sqlite_version )
+        return (sqlite.version, sqlite.sqlite_version )
 
     def __call__(self, sql):
         return self.fetchall(sql)
 
     def line_by_line(self, path ):
-        with open(path,"r") as fp:
-            for line in fp.readlines():
-                line = line.strip()
-                if not line:continue
-                assert line[-1] == ";" , ("expecting simple semicolon terminated sql statements on each non-blank line ", line)
-                print "[%s]" % line 
-                ret = self(line)
-                print ret 
+        fp = open(path,"r")
+        for line in fp.readlines():
+            line = line.strip()
+            if not line:continue
+            assert line[-1] == ";" , ("expecting simple semicolon terminated sql statements on each non-blank line ", line)
+            print "[%s]" % line 
+            ret = self(line)
+            print ret 
+        fp.close()
 
     def execute_(self, sql):
         cursor = self.conn.cursor()
@@ -111,21 +128,27 @@ class DB(object):
         try:
             print 'Running arbitary script %s sql %s against %s ...' % (sqlpath, sql, self.path),
             cur.executescript(sql)
-        except sqlite3.Error:
+        except sqlite.Error:
             cnx.rollback()
             raise
         else:
             cnx.commit()   # Error from this commit are not caught 
-        finally:           # a SyntaxError here indicates you are using an old python, try python- to pick up source one
-            cur.close()
+        cur.close()
+
 
 
 if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
     n = len(sys.argv)
-    path = sys.argv[1] if n > 1 else None 
-    script = sys.argv[2] if n > 2 else None
+    if n>1:
+        path = sys.argv[1] 
+    else:
+        path = None 
+    if n > 2:
+        script = sys.argv[2] 
+    else:
+        script = None
 
     db = DB(path, skip='bitten')
     print db.versions()

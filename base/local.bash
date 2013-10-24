@@ -371,6 +371,7 @@ local-backup-tag(){
      ZZ) echo SDU ;;
      WW) echo SDU ;;
      AA) echo D8R  ;;
+     Y1) echo LT ;;
      *) echo U ;;
    esac  
 }
@@ -509,6 +510,7 @@ MBACKUP_C) echo $(local-mbackup-disk $t)/var ;;
        H1) echo $(local-root $t)/var ;;
   SDU_old) echo  /raid/dybsdu/dybbackup/var ;;
       SDU) echo  /raid4/dybsdu/dybbackup/var ;;
+       LT) echo /tmp ;;
         *) echo  /var ;; 
    esac
 }

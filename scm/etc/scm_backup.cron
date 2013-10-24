@@ -12,7 +12,13 @@ type scm-backup-all
 
 scm-backup-all
 scm-backup-rsync
-scm-backup-monitor-ihep
+case $NODE_TAG in
+  Y1)
+    ;;
+   *)
+    scm-backup-monitor-ihep
+    ;;
+esac
 scm-backup-mail
 
 exit 0
