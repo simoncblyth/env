@@ -24,7 +24,7 @@ withoutstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),,$(
 withstring := $(foreach rst,$(wildcard *.rst),$(if $(findstring O,$(rst)),$(rst),))
 
 default: bash2rst dirhtml 
-	@echo dirhtml done $(shell ls -ld _build/dirhtml)
+	@echo dirhtml done PWD: [$(shell pwd)] [$(shell ls -ld _build/dirhtml)]
 
 test:
 	@echo test withstring $(withstring)

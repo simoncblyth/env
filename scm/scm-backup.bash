@@ -1070,7 +1070,7 @@ scm-backup-monitor-make(){
 scm-backup-monitor-ihep(){
 
    local msg="=== $FUNCNAME :"
-   local hub=${1:-ZZ}
+   local hub=${1:-$NODE_TAG}
 
    echo $msg $(date)  @@@ invoke the monitor.py for hub $hub
    echo
@@ -1082,7 +1082,7 @@ scm-backup-monitor-ihep(){
 
 
    #[ -z "$(which sphinx-build 2>/dev/null)" ] && echo $msg ERROR no sphinx-build || echo $msg ok found sphinx-build 
-   cd $ENV_HOME && "$(scm-backup-monitor-make)"  && "$(scm-backup-monitor-sphinx)" rsync 
+   cd $ENV_HOME && "$(scm-backup-monitor-make)"  && "$(scm-backup-monitor-make) rsync"
 
    echo $msg $(date)  @@@ completed
 }

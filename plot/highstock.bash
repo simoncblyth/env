@@ -37,7 +37,7 @@ highstock-get(){
 
    local nam=$(highstock-name)
    local zip=$nam.zip
-   local url=http://www.highcharts.com/downloads/zips/$zip
+   local url=http://code.highcharts.com/zips/$zip
    [ ! -f $zip ] && curl -L -O $url
    [ ! -d $nam ] && unzip $zip -d $nam
 
