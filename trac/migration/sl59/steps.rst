@@ -127,6 +127,9 @@ The primary entry point bash functions are:
 `svnsetup-sysapache`
        writes apache config files for Trac/SVN to be included into httpd.conf
 
+`scm-backup-rsync-from-node`
+       Grab tarballs from source node if not already backup in target.
+
 `scm-recover-all`
        expands the backup tarballs for the Trac and SVN instances and does configurations
 
