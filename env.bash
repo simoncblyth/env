@@ -121,6 +121,12 @@ env-source(){   echo $(env-home)/env.bash ; }
 env-cd(){   cd $(env-home) ; }
 env-vi(){       vi $(env-source) ; }
 env-ini(){      . $(env-source) ; }
+env-check-svn() {
+    [  ! -z $(env-lastrev) ] && return 0
+    local msg="=== $FUNCNAME"
+    echo $msg "SVN issue, check env-lastrev"
+    return 1
+}
 env-lastrev(){  svn- ; svn-lastrev $(env-home) ; }
 env-override-path(){ echo $(env-home)/local/$(uname -n).bash ; }
 env-rel(){

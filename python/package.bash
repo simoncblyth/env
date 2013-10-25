@@ -459,7 +459,7 @@ package-rev(){
 package-initial-rev(){
   local name=$1
   local dir=$($name-dir)
-  [ ! -d "$dir/.svn" ] && echo -1 && return 
+  #[ ! -d "$dir/.svn" ] && echo -1 && return 
   svn info $dir  | env -i perl -n -e 'm/^Revision: (\d*)/ && print $1 ' -
 }
 
@@ -873,10 +873,11 @@ package-look-version(){
 
 
 package-install(){
+   local iwd=$(pwd)
    local name=$1
    
    local msg="=== $FUNCNAME :"
-   echo $msg $name 
+   echo $msg $name $iwd
    
    
    package-applypatch $name 
@@ -899,6 +900,8 @@ package-install(){
    # that gives no opportunity for customization..
    # 
    #  easy_install -Z http://trac-hacks.org/svn/$macro/0.10/
+
+   cd $iwd
    
 }
 
@@ -1153,35 +1156,44 @@ package-archive(){
     fi
     local bnm=$(basename $(package-odir- $name))
  
+    local iwd=$(pwd)
     local arxivdir=$(package-archive-path $name)
-    echo "goto " $arxivdir
-    pushd $arxivdir >& /dev/null
-    cd $arxivdir 
+    if [ ! -d "$arxivdir" ]
+    then
+        mkdir -p "$arxivdir"
+    fi
+    echo $msg "goto " $arxivdir
+    cd "$arxivdir" 
     if [ -d "$bnm" ]
     then
         rm -rf "$bnm"
     fi
     package-get $name
     # create tar.gz
-    cd $arxivdir
+    cd "$arxivdir"
     arxivname=$(package-archive-construct-tar-name $name)
     tar zcvf "$arxivname" "$bnm"
     pwd
     # upload the file.
     package-archive-upload "$arxivname"
-    popd >& /dev/null
+    cd "$iwd"
 }
 
 package-archive-download-fs() {
+    local msg="=== $FUNCNAME :"
     local name=$1
     local dest=$2
     local arxivname=$(package-archive-construct-tar-name $name)
     local arxivfull=$(package-archive-baseurl-fs download)/$arxivname
 
-    cp $arxivfull $dest
+    
+    local cmd="cp $arxivfull $dest"
+    echo $msg $cmd
+    eval $cmd
 }
 
 package-archive-download() {
+    echo $msg download from archive $name to $dest
     package-archive-download-fs $*
 }
 
@@ -1203,6 +1215,8 @@ package-archive-download-dest() {
 }
 
 package-archive-get() {
+    local iwd=$(pwd)
+    local msg="=== $FUNCNAME :"
     # package name
     local name=$1
     # setup the package
@@ -1214,9 +1228,14 @@ package-archive-get() {
         return
     fi
     local dest=$(package-archive-download-dest $name)
+    if [ ! -d "$dest" ]
+    then 
+        mkdir -p $dest
+    fi
     cd $dest
     package-archive-download $name $dest
     tar zxvf $(package-archive-construct-tar-name $name)
+    cd $(iwd)
 }
 
 

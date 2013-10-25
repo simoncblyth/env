@@ -34,12 +34,14 @@ EOU
 configobj-build(){
   
    local msg="=== $FUNCNAME :"
+   local iwd=$(pwd)
    configobj-get
 
    configobj-build- 
    configobj-install
 
    ! configobj-check && echo $msg FAILED sleeping && sleep 1000000000000
+   cd "$iwd"
 }
 
 
