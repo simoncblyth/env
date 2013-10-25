@@ -27,7 +27,7 @@ def init_repo(src, dst):
     :param src: eg. dayabay http://dayabay.ihep.ac.cn/svn/dybsvn
     :param dst: eg. dayabay1 http://202.122.39.101/svn/dybsvn
     """
-    print os.popen("svnsync intialize %s %s"%(dst, src)).read()
+    print os.popen("svnsync initialize %s %s"%(dst, src)).read()
 
 def sync_repo(dst):
     """

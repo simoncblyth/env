@@ -670,6 +670,9 @@ svn-lastrev(){
   done 
 }
 
+svn-uuid-(){
+  svn info $1 | env -i perl -n -e 'm/^Repository UUID: (\S*)$/ && print "$1\n" '
+}
 
 
 
