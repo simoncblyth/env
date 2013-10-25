@@ -16,17 +16,139 @@ EOL
 
 scm-backup-usage(){ cat << EOU
 
+
 SCM BACKUP
 ============
 
 .. contents:: :local:
 
-NON-STANDARD PORT
-------------------
+FUNCTIONS
+----------
 
-::
+*scm-backup-du*   
+        local  backup .gz sizes  in \$SCM_FOLD 
+*scm-backup-rls*  
+        remote ls the .gz on the paired backup node $BACKUP_TAG
+*scm-backup-mail* 
+        send mail with the remote list  
+*scm-backup-check*
+        find tarballs on all backup nodes
+*scm-backup-df*    
+        check freespace on server and all backup nodes
 
-        -e "ssh -p $portNumber"
+*scm-backup-postfix-start*  
+    
+*scm-backup-bootstrap*
+        rsync the tarballs from the backup node of the designated server node
+        for this node and recover from them
+
+*scm-backup-nightly-as-root*    
+        does it as root ... as done in the crontab
+*scm-backup-all-as-root*   
+        does the below as root ... as done in the crontab
+    
+*scm-backup-all* 
+        invokes the below::
+
+              scm-backup-repo
+              scm-backup-trac
+              scm-backup-folder   for the apache-confdir   
+              scm-backup-purge   : retain the backups from the last 7 days only
+              
+*scm-recover-all fromnode*
+  
+         In addition to the Trac and SVN repos this also now
+         recovers the users.conf and authz.conf with *scm-recover-config* 
+         in a careful manner prompting for confirmation before replacing this
+         critial apache/svn/Trac config files.
+
+
+*scm-recover-config fromnode*
+
+         Extracts the users.conf and authz.conf from the svnsetup.tar.gz backup file 
+         into a temporary location. Compares these temporaries with the corresponding 
+         config files within *apache-confdir*. If there are preexisting config files, the 
+         diffs are show and a confirmation dialog is required to replace them with the 
+         extractions.
+
+         This calls:
+
+             scm-recover-folders   # contrary to the name this just places a last link to identify the last tarball folder
+             scm-recover-users 
+             scm-recover-authz
+
+
+*scm-recover-users fromnode*
+
+         extract the users file from the last svnsetup tarball, 
+         called by *scm-recover-all*
+         NB the other svnsetup files are sourced from the repository 
+         and contain system specific paths ... so more direct to re-generate 
+         them rather than using the backups  
+
+         The users file is different because it is edited thru the webadmin 
+         interface     
+
+*scm-recover-authz fromnode*
+
+          Analogous to *scm-recover-users* for the authz file
+
+
+  
+*scm-recover-folders fromnode*
+         still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
+       
+         recovers the users and permissions files from the last backup
+  
+*scm-recover-lastlinks typ*     
+      
+         typ defaults to tar.gz
+      
+         this must be run from the backup folder that should contain
+         the "last" link eg::
+
+              /var/scm/backup/cms01/tracs/env
+              last -> 2008/08/14/174749
+     
+         if the "last" link exists then exit without doing anything, 
+         however if the last link has been collapsed into a folder 
+         (eg by web transfers or non-careful copying) 
+         then delete that folder and attempt to recreate the 
+         "last" link to the directory containing the last file of type
+
+*scm-backup-purge from-node number-to-keep*
+  
+  
+*scm-backup-rsync*    
+
+        to the paired node
+        to override and send the backup to non-standard destination,
+        eg while not inside home internal network need to use G3R::
+
+             BACKUP_TAG=G3R scm-backup-rsync
+
+
+*scm-backup-rsync-from-node*
+
+         rsync the backups from a remote node 
+
+*scm-backup-dybsvn-from-node*
+
+         copy over the reps for a specific day 
+
+
+*scm-backup-eup*
+
+         updates the env sphinx docs, including the SCM backup tarball monitoring pages and plots.
+         
+         On repo node C2, this is done automatically via root crontab running *scm-backup-monitor* 
+         This means that in order to update env docs on C2, must do so as root::
+
+              ssh C2 /data/env/system/svn/subversion-1.4.6/bin/svn up \~/env
+              ssh C2R
+                       scm-backup-
+                       scm-backup-eup
+
 
 
 STATE OF LOCK ADDITIONS
@@ -166,133 +288,6 @@ SLIMMING THE TRAC TGZ ... ALL THOSE BITTEN LOGS
     DELETE FROM bitten_slave WHERE build IN (SELECT id FROM bitten_build WHERE rev < 23000 AND config = 'trunk')
     DELETE FROM bitten_build WHERE rev < 23000 AND config = 'trunk'
 
-
-
-FUNCTIONS
-----------
-
-*scm-backup-du*   
-        local  backup .gz sizes  in \$SCM_FOLD 
-*scm-backup-rls*  
-        remote ls the .gz on the paired backup node $BACKUP_TAG
-*scm-backup-mail* 
-        send mail with the remote list  
-*scm-backup-check*
-        find tarballs on all backup nodes
-*scm-backup-df*    
-        check freespace on server and all backup nodes
-
-*scm-backup-postfix-start*  
-    
-*scm-backup-bootstrap*
-        rsync the tarballs from the backup node of the designated server node
-        for this node and recover from them
-
-*scm-backup-nightly-as-root*    
-        does it as root ... as done in the crontab
-*scm-backup-all-as-root*   
-        does the below as root ... as done in the crontab
-    
-*scm-backup-all* 
-        invokes the below::
-
-              scm-backup-repo
-              scm-backup-trac
-              scm-backup-folder   for the apache-confdir   
-              scm-backup-purge   : retain the backups from the last 7 days only
-              
-*scm-recover-all fromnode*
-  
-         In addition to the Trac and SVN repos this also now
-         recovers the users.conf and authz.conf with *scm-recover-config* 
-         in a careful manner prompting for confirmation before replacing this
-         critial apache/svn/Trac config files.
-
-
-*scm-recover-config fromnode*
-
-         Extracts the users.conf and authz.conf from the svnsetup.tar.gz backup file 
-         into a temporary location. Compares these temporaries with the corresponding 
-         config files within *apache-confdir*. If there are preexisting config files, the 
-         diffs are show and a confirmation dialog is required to replace them with the 
-         extractions.
-
-         This calls:
-
-             scm-recover-folders   # contrary to the name this just places a last link to identify the last tarball folder
-             scm-recover-users 
-             scm-recover-authz
-
-
-*scm-recover-users fromnode*
-
-         extract the users file from the last svnsetup tarball, 
-         called by *scm-recover-all*
-         NB the other svnsetup files are sourced from the repository 
-         and contain system specific paths ... so more direct to re-generate 
-         them rather than using the backups  
-
-         The users file is different because it is edited thru the webadmin 
-         interface     
-
-*scm-recover-authz fromnode*
-
-          Analogous to *scm-recover-users* for the authz file
-
-
-  
-*scm-recover-folders fromnode*
-         still experimental .. NEEDS FURTHER CHECKING PRIOR TO REAL USAGE
-       
-         recovers the users and permissions files from the last backup
-  
-*scm-recover-lastlinks typ*     
-      
-         typ defaults to tar.gz
-      
-         this must be run from the backup folder that should contain
-         the "last" link eg::
-
-              /var/scm/backup/cms01/tracs/env
-              last -> 2008/08/14/174749
-     
-         if the "last" link exists then exit without doing anything, 
-         however if the last link has been collapsed into a folder 
-         (eg by web transfers or non-careful copying) 
-         then delete that folder and attempt to recreate the 
-         "last" link to the directory containing the last file of type
-       
-  
-  
-*scm-backup-rsync*    
-
-        to the paired node
-        to override and send the backup to non-standard destination,
-        eg while not inside home internal network need to use G3R::
-
-             BACKUP_TAG=G3R scm-backup-rsync
-
-
-*scm-backup-rsync-from-node*
-
-         rsync the backups from a remote node 
-
-*scm-backup-dybsvn-from-node*
-
-         copy over the reps for a specific day 
-
-
-*scm-backup-eup*
-
-         updates the env sphinx docs, including the SCM backup tarball monitoring pages and plots.
-         
-         On repo node C2, this is done automatically via root crontab running *scm-backup-monitor* 
-         This means that in order to update env docs on C2, must do so as root::
-
-              ssh C2 /data/env/system/svn/subversion-1.4.6/bin/svn up \~/env
-              ssh C2R
-                       scm-backup-
-                       scm-backup-eup
 
 
 Common issues 
@@ -744,7 +739,7 @@ scm-backup-purge(){
   #
 
   local node=${1:-$LOCAL_NODE} 
-  local nmax=4
+  local nmax=${2:-4}
   local name
   local tgzs
   local itgz
@@ -1046,6 +1041,19 @@ scm-backup-nightly(){
 
 }
 
+scm-backup-monitor-python() {
+    case $NODE_TAG in
+        Y1) python2.6 $*
+            ;;
+        WW|ZZ) 
+            local LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
+            LD_LIBRARY_PATH=$LOCAL_PYTHON/lib $LOCAL_PYTHON/bin/python $*
+            ;;
+        *) python $*
+        ;;
+    esac
+}
+
 scm-backup-monitor-ihep(){
 
    local msg="=== $FUNCNAME :"
@@ -1054,12 +1062,7 @@ scm-backup-monitor-ihep(){
    echo $msg $(date)  @@@ invoke the monitor.py for hub $hub
    echo
 
-   ## setup to use local python and sphinx-build
-   export LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
-   export LD_LIBRARY_PATH=$LOCAL_PYTHON/lib
-   export PATH=$LOCAL_PYTHON/bin:$PATH 
-
-   ~/env/scm/monitor.py $hub
+   scm-backup-monitor-python ~/env/scm/monitor.py $hub
 
    echo $msg $(date)  @@@ update the html summary using sphinx 
    echo
