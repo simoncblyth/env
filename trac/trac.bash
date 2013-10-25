@@ -378,7 +378,8 @@ trac-url(){
 
 trac-build--(){     screen bash -lc "trac-;trac-build" ; }
 trac-build(){
-
+   local msg="=== $FUNCNAME :" 
+   [ -n "$(env-check-svn)" ] && echo $msg env-check-svn FAILED ... SLEEPING && sleep 100000000000000 
 
    ## create the base folders
    local-

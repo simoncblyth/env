@@ -393,6 +393,7 @@ local-first(){        echo $1 ; }
 local-email(){
    case ${1:-$NODE_TAG} in
      XX|YY|ZZ) echo maqm@ihep.ac.cn ;;
+           Y1) echo lintao@ihep.ac.cn ;;
             *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
 }
