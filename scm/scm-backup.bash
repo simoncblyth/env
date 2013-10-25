@@ -1054,6 +1054,19 @@ scm-backup-monitor-python() {
     esac
 }
 
+scm-backup-monitor-make(){
+    case $NODE_TAG in
+        Y1) make $*
+            ;;
+        WW|ZZ) 
+            local LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
+	    LD_LIBRARY_PATH=$LOCAL_PYTHON/lib PATH=$LOCAL_PYTHON/bin:$ENV_HOME/bin:$PATH make $*
+            ;;
+        *) make $*
+        ;;
+    esac
+}
+
 scm-backup-monitor-ihep(){
 
    local msg="=== $FUNCNAME :"
@@ -1067,8 +1080,9 @@ scm-backup-monitor-ihep(){
    echo $msg $(date)  @@@ update the html summary using sphinx 
    echo
 
-   [ -z "$(which sphinx-build 2>/dev/null)" ] && echo $msg ERROR no sphinx-build || echo $msg ok found sphinx-build 
-   cd $ENV_HOME && PATH=$ENV_HOME/bin:$PATH make && make rsync 
+
+   #[ -z "$(which sphinx-build 2>/dev/null)" ] && echo $msg ERROR no sphinx-build || echo $msg ok found sphinx-build 
+   cd $ENV_HOME && "$(scm-backup-monitor-make)"  && "$(scm-backup-monitor-sphinx)" rsync 
 
    echo $msg $(date)  @@@ completed
 }
