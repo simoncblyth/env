@@ -1235,7 +1235,7 @@ package-archive-get() {
     cd $dest
     package-archive-download $name $dest
     tar zxvf $(package-archive-construct-tar-name $name)
-    cd $(iwd)
+    cd ${iwd}
 }
 
 
