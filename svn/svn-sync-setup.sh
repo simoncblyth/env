@@ -25,7 +25,10 @@ EOU
 }
 
 svn-sync-initialize() {
-  $FUNCNAME- http://dayabay.ihep.ac.cn/svn/dybaux http://202.122.39.101/svn/dybaux
+  reponame=${1:-dybaux}
+  srcserver=${2:-http://dayabay.ihep.ac.cn/svn/}
+  dstserver=${3:-http://202.122.39.101/svn/}
+  $FUNCNAME- $srcserver/$reponame $dstserver/$reponame
 }
 svn-sync-initialize-() {
   local src="$1"
