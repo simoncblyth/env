@@ -238,6 +238,22 @@ Problems encountered:
    * netstat/iptables/sshd-on-other-port investigations fruitless, maybe a cc blockage ?
 
 
+2nd pass issues
+----------------
+
+#. Chinese LANG setting prevented patch application 
+
+#. missing bitextra package (from tracdev annobit), prevented daily tab from appearing 
+
+
+migration planning
+-------------------
+
+#. will the name dayabay.ihep.ac.cn be retained ? 
+
+   * decide on the sequence of steps, tests to do 
+
+
 other migration tasks
 ------------------------
 
