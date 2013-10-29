@@ -11,9 +11,20 @@ cProfile running
 -----------------
 
 ::
- 
-    python -m cProfile -o vnode.cprofile vnode.py -e -s 0 
 
+    cd $LOCAL_BASE/env/graphics/collada 
+    simon:collada blyth$ python -m cProfile -o vnode.cprofile $(which vnode.py) --daesave --subcopy -O 000.xml 0 
+    2013-10-28 14:06:38,504 env.graphics.collada.pycollada.vnode INFO     /Users/blyth/env/bin/vnode.py
+    2013-10-28 14:06:38,509 env.graphics.collada.pycollada.vnode INFO     VNode.parse pycollada parse /usr/local/env/geant4/geometry/xdae/g4_01.dae 
+
+    simon:collada blyth$ gprof2dot.py -f pstats vnode.cprofile | dot -Tsvg -o vnode.svg
+
+
+
+
+
+Profiling points to 35% from multiarray.fromstring, especially in geometry load (50%). 
+Look into deepcopying rather than going back to XML. 
 
 Web server access
 ------------------
@@ -53,6 +64,36 @@ Subcopy
     ./vnode.py -e -s top.0
 
 
+Alternatively to avoid the overhead of repeating the initial parse use the `--webserver` option and subcopy volumes
+selected by uniqued pvname (with the .0 .1 etc..) thru commandline or browser::
+
+    curl -O http://localhost:8080/subcopy/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
+
+
+vnode.py eats its own dogfood
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    simon:collada blyth$ vnode.py --daepath=0000000.xml --subcopy --subpath=0000000_dogfood.xml --daesave 0
+    2013-10-29 12:17:26,499 env.graphics.collada.pycollada.vnode INFO     /Users/blyth/env/bin/vnode.py
+    ...
+    2013-10-29 12:18:33,953 env.graphics.collada.pycollada.vnode INFO     daesave to 0000000_dogfood.xml 
+    simon:collada blyth$ diff 0000000.xml 0000000_dogfood.xml
+    3,4c3,4
+    <     <created>2013-10-28T17:20:00.303554</created>
+    <     <modified>2013-10-28T17:20:00.303589</modified>
+    ---
+    >     <created>2013-10-29T12:17:40.367896</created>
+    >     <modified>2013-10-29T12:17:40.367933</modified>
+
+
+
+
+
+
+
+
 """
 import collada 
 from collada.xmlutil import etree as ET
@@ -62,10 +103,15 @@ from collada.xmlutil import writeXML, COLLADA_NS, E
 #collada.common.DaeObject.copy = lambda self:self.load(collada, self.xmlnode )  
 #collada.scene.Transform.copy = lambda self:self.load(collada, self.xmlnode )  
 
+# disable saves, which update the xmlnode, as the preexisting xmlnode for 
+# the basis objects are being copied anyhow
+collada.geometry.Geometry.save = lambda _:_
+collada.material.Material.save = lambda _:_
+
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 #from lxml.builder import E
 
-import sys, os, logging, hashlib
+import sys, os, logging, hashlib, copy
 log = logging.getLogger(__name__)
 from StringIO import StringIO
 
@@ -384,6 +430,11 @@ class VNode(object):
 
 
 class RPrint(list):
+    """
+    Recursively creates a list-of-strings representation 
+    of a tree structure. Requires the nodes to have a children
+    attribute which lists other nodes.
+    """
     cut = 5
     def __init__(self, top ):
         list.__init__(self)
@@ -405,23 +456,8 @@ class RPrint(list):
                         child = "..."
                     else:
                         continue
+                pass         
                 self(child, depth + 1, index)
-
-
-
-# webpy interface glue
-class _index:
-    def GET(self):
-        return "\n".join(["_index %s " % len(VNode.registry), __doc__ ])
-class _textdump:
-    def GET(self, arg):
-        return textdump(arg, dict(web.input().items()))
-class _texttree:
-    def GET(self, arg):
-        return texttree(arg)   
-class _subcopy:
-    def GET(self, arg):
-        return subcopy(arg, dict(web.input().items()))
 
 
 class VCopy(object):
@@ -449,7 +485,7 @@ class VCopy(object):
         cscene = collada.scene.Scene("DefaultScene", content )
         self.dae.scenes.append(cscene)
         self.dae.scene = cscene
-        self.dae.save() 
+        self.dae.save()             #  the save takes ~60% of total CPU time
 
 
     def load_effect( self, effect ):
@@ -459,7 +495,9 @@ class VCopy(object):
         Creates an effect from the xmlnode of an old one into 
         the new collada document being created
         """
-        ceffect = collada.material.Effect.load( self.dae, {},  effect.xmlnode ) 
+        #ceffect = collada.material.Effect.load( self.dae, {},  effect.xmlnode ) 
+        #ceffect = copy.copy( effect )
+        ceffect = effect 
         self.dae.effects.append(ceffect)  # pycollada managed not adding duplicates 
         return ceffect
 
@@ -469,15 +507,37 @@ class VCopy(object):
 
         must append the effect before can load the material that refers to it 
         """
-        cmaterial = collada.material.Material.load( self.dae, {} , material.xmlnode )
+        #cmaterial = collada.material.Material.load( self.dae, {} , material.xmlnode )
+        #cmaterial = copy.copy( material )
+        cmaterial = material
         self.dae.materials.append(cmaterial)
         return cmaterial
 
     def load_geometry( self, geometry  ):
         """
         :param geometry:
+
+        Profiling points to this consuming half the time
+        attempts to use a deepcopy instead lead to 
+
+        ::
+
+             File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/copy.py", line 189, in deepcopy
+                 y = _reconstruct(x, rv, 1, memo)
+             File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/copy.py", line 329, in _reconstruct
+                 y.append(item)
+             File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pycollada-0.4-py2.6.egg/collada/util.py", line 226, in append
+                 self._addindex(obj)
+             File "/opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/pycollada-0.4-py2.6.egg/collada/util.py", line 152, in _addindex
+                 _idx = self._index
+             AttributeError: 'IndexedList' object has no attribute '_index'
+
         """
-        cgeometry = collada.geometry.Geometry.load( self.dae, {}, geometry.xmlnode)
+        #cgeometry = collada.geometry.Geometry.load( self.dae, {}, geometry.xmlnode)   # this consumes 43% of time
+        #cgeometry = copy.deepcopy( geometry )
+        #cgeometry = copy.copy( geometry )
+        cgeometry = geometry
+
         self.dae.geometries.append(cgeometry)
         return cgeometry
  
@@ -505,6 +565,18 @@ class VCopy(object):
         cgeonode = collada.scene.GeometryNode( cgeometry, cmaterials )
         return cgeonode
 
+
+    def faux_copy_geometry_node(self, geonode):
+        """
+        Not really copying, just borrowing objects owned from the original .dae into the subcopy one
+        """
+        self.dae.geometries.append( geonode.geometry )
+        for matnode in geonode.materials:
+            material = matnode.target
+            self.dae.effects.append( material.effect ) 
+            self.dae.materials.append( material ) 
+        pass    
+        return geonode
 
     def make_id(self, bid ):
         if self.opts.get('blender',False):
@@ -593,7 +665,7 @@ class VCopy(object):
               </node>
 
         """
-        log.info( "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
+        #log.debug( "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
         pvnode, lvnode, geonode = vnode.pv, vnode.lv, vnode.geo
         # NB the lvnode is a NodeNode instance
 
@@ -601,6 +673,7 @@ class VCopy(object):
         # copy the instance_geometry node referred to by the LV  
         cnodes = []
         cgeonode = self.copy_geometry_node( geonode )
+        #cgeonode = self.faux_copy_geometry_node( geonode )
         cnodes.append(cgeonode)  
 
         # collect children of the referred to LV, ie the contained PV
@@ -640,11 +713,7 @@ class VCopy(object):
             cannot find Object for Node with id=""
 
         """
-        self.dae.save()
-
-        # kill the name attrib (that just duplicate the id) to match the original
-        #for xnode in self.dae.xmlnode.findall(".//{%s}node" % COLLADA_NS ):
-        #    del xnode.attrib['name']
+        #self.dae.save()   this stay save was almost doubling CPU time 
 
         if self.opts.get('blender',False):
             if self.cpvtop.xmlnode.attrib.has_key('id'):
@@ -660,6 +729,9 @@ def subcopy(arg, cfg ):
     """
     VNode kinda merges LV and PV, but this should be a definite place, so regard as PV
     """
+    if arg.endswith('.dae') or arg.endswith('.xml'): # facilitate web interface curling to file
+        arg = arg[:-4]
+
     indices = VNode.interpret_ids(arg)
     assert len(indices) == 1 
     index = indices[0]
@@ -670,15 +742,13 @@ def subcopy(arg, cfg ):
     vc = VCopy(top, cfg )
     svc = str(vc)
 
-    subpath = "%s.%s" % (index, cfg['subext'])
-    if cfg.get('daesave',False) == True:
+    subpath = cfg.get('subpath', None)
+    if not subpath is None and cfg.get('daesave',False) == True:
         log.info("daesave to %s " % subpath )
         with open(subpath, "w") as fp:
             fp.write(svc)
 
     return svc
-
-
 
 def textdump(arg, cfg ):
     ancestors = cfg.get('ancestors', None)
@@ -702,7 +772,6 @@ def textdump(arg, cfg ):
     pass            
     return "\n".join(map(str,hdr+out))
 
-
 def texttree(arg):
     """
     Present a text tree of the volume heirarchy from the root(s) defined 
@@ -712,6 +781,9 @@ def texttree(arg):
     nodes = map(lambda _:VNode.indexget(_), indices )
     tt = map(RPrint, nodes)
     return "\n".join(map(str, tt))
+
+
+
 
 
 
@@ -727,7 +799,7 @@ class Defaults(object):
     daesave = False
     blender = False
     ancestors = "YES"
-    subext = "dae"
+    subpath = "subcopy.dae"
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -737,7 +809,7 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat )
     op.add_option("-p", "--daepath", default=defopts.daepath )
-    op.add_option("-x", "--subext", default=defopts.subext)
+    op.add_option("-O", "--subpath", default=defopts.subpath)
     op.add_option("-e", "--daesave", action="store_true",  default=defopts.daesave )
     op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
     op.add_option("-t", "--texttree", action="store_true", default=defopts.texttree )
@@ -764,11 +836,27 @@ def parse_args(doc):
     log.info(" ".join(sys.argv))
     daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
     if not daepath[0] == '/':
-        opts.daepath = os.path.join(os.path.dirname(__file__),daepath)
-    else:
-        opts.daepath = daepath 
+        daepath = os.path.abspath(daepath)
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
+    opts.daepath = daepath
     return opts, args
+
+
+
+
+# webpy interface glue
+class _index:
+    def GET(self):
+        return "\n".join(["_index %s " % len(VNode.registry), __doc__ ])
+class _textdump:
+    def GET(self, arg):
+        return textdump(arg, dict(web.input().items()))
+class _texttree:
+    def GET(self, arg):
+        return texttree(arg)   
+class _subcopy:
+    def GET(self, arg):
+        return subcopy(arg, dict(web.input().items()))
 
 def webserver():
     log.info("starting webserver ")
