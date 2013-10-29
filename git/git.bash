@@ -19,7 +19,14 @@ Updating from remote branch
 
   git pull origin master    # 
 
+Simple branching
+------------------
 
+* http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging
+
+::
+
+    git checkout -b py25compat    # shorthand for "git branch" "git checkout" of the named branch  
 
 
 EOU
