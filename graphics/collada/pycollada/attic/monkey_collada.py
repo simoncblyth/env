@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 """
+
+**ABANDONED THIS APPROACH : AS TOO COMPLICATED WRAPPING HEAD AROUND THE 
+  PYCOLLADA OBJECT RECURSION, MY OWN VNODE.PY RECURSION IS MORE TRACTABLE**
+
+
 Monkeypatch pycollada classes
 ===============================
 
