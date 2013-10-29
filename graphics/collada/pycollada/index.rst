@@ -6,4 +6,5 @@ pycollada
 
    pycollada_internals
    triangulation
+   wrl_crosscheck
 

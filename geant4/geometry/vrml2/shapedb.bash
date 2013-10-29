@@ -22,3 +22,8 @@ shapedb-cd(){  cd $(shapedb-dir); }
 shapedb-path(){ echo $(shapedb-dir)/$(shapedb-name) ; }
 shapedb-name(){ echo g4_01.db ; }
 shapedb-sh(){ sqlite3 $(shapedb-path) ; }
+
+
+shapedb-shape(){ echo select src from shape where id=${1:-0} limit 1 \; | sqlite3 -noheader -list   $(shapedb-path) ; }
+
+

@@ -121,6 +121,16 @@ except ImportError:
     web = None
 
 
+
+def present_geometry( bg ):
+    out = []
+    out.append(bg)
+    for bp in bg.primitives():
+        out.append("nvtx:%s" % len(bp.vertex))
+        out.append(bp.vertex)
+    return out
+
+
 class VNode(object):
     registry = []
     lookup = {}
@@ -753,6 +763,7 @@ def subcopy(arg, cfg ):
 def textdump(arg, cfg ):
     ancestors = cfg.get('ancestors', None)
     children  = cfg.get('children', None)
+    geometry = cfg.get('geometry', None)
 
     ids = VNode.interpret_ids(arg)
     hdr = ["_dump [%s] => ids %s " % (arg, str(ids) ), "cfg %s " % cfg, "" ]
@@ -763,6 +774,8 @@ def textdump(arg, cfg ):
     out = []
     for node in nodes:
         out.append(node)
+        if geometry:
+            out.extend( present_geometry(node.boundgeom))
         if ancestors:
             for a in node.ancestors():
                 out.insert(0,"a %s" % a) 
@@ -799,6 +812,7 @@ class Defaults(object):
     daesave = False
     blender = False
     ancestors = "YES"
+    geometry = "YES"
     subpath = "subcopy.dae"
 
 def parse_args(doc):
@@ -817,6 +831,7 @@ def parse_args(doc):
     op.add_option("-s", "--subcopy",  action="store_true", default=defopts.subcopy )
     op.add_option("-b", "--blender",  action="store_true", default=defopts.blender )
     op.add_option("-a", "--ancestors", default=defopts.ancestors )
+    op.add_option("-g", "--geometry", default=defopts.geometry )
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments
