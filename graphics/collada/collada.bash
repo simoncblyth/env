@@ -12,7 +12,7 @@ COLLADA
 
 EOU
 }
-collada-dir(){ echo $(env-home)/graphics/collada ; }
+collada-dir(){ echo $(local-base)/env/graphics/collada ; }
 collada-cd(){  cd $(collada-dir); }
 collada-mate(){ mate $(collada-dir) ; }
 collada-get(){

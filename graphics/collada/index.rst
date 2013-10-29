@@ -9,4 +9,5 @@ collada
    collada_viewer
    collada_xml
    pycollada/index
+   meshtool
 

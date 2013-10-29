@@ -48,6 +48,31 @@ With py25 many errors at install, but build seemed ok.  Select py26 and try agai
     Python 2.6.8
 
 
+G system python
+~~~~~~~~~~~~~~~~~~
+
+Use of meshtools/pycollada/panda3d/Cg.framework for viewing collada docs
+provides a reason to backport pycollada to system py2.5.1 on OSX. Hence::
+
+    simon:pycollada blyth$ git checkout -b "py25compat"
+    Switched to a new branch 'py25compat'
+
+    simon:pycollada blyth$ git branch --list 
+      master
+    * py25compat
+
+
+
+Switching as to comma and adding a few from future with_statement imports
+succeeds to get pycollada to install into system py25
+
+::
+
+     perl -pi -e 's,(except )(\S*)( as )(ex:),$1$2\,$4,' *.py 
+
+     sudo ppython setup.py install
+
+
 
 
 EOU
