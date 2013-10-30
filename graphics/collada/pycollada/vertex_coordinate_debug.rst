@@ -534,6 +534,185 @@ achieves a match for PV1
 
 
 
+
+G4DAEWriteStructure::MatrixWrite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+     42 void G4DAEWriteStructure::MatrixWrite(xercesc::DOMElement* nodeElement, const G4Transform3D& T)
+     43 {
+     44     std::ostringstream ss ;
+     45     // row-major order 
+     46 
+     47     ss << "\n\t\t\t\t" ;
+     48     ss << T.xx() << " " ;
+     49     ss << T.xy() << " " ;
+     50     ss << T.xz() << " " ;
+     51     ss << T.dx() << "\n" ;
+     52 
+     53     ss << T.yx() << " " ;
+     54     ss << T.yy() << " " ;
+     55     ss << T.yz() << " " ;
+     56     ss << T.dy() << "\n" ;
+     57 
+     58     ss << T.zx() << " " ;
+     59     ss << T.zy() << " " ;
+     60     ss << T.zz() << " " ;
+     61     ss << T.dz() << "\n" ;
+     62 
+     63     ss << "0.0 0.0 0.0 1.0\n" ;
+     64 
+     65     std::string fourbyfour = ss.str();
+     66     xercesc::DOMElement* matrixElement = NewTextElement("matrix", fourbyfour);
+     67     nodeElement->appendChild(matrixElement);
+     68 }
+
+::
+
+     71 void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
+     72                                         const G4VPhysicalVolume* const physvol,
+     73                                         const G4Transform3D& T,
+     74                                         const G4String& ModuleName)
+     75 {
+     76    const G4String pvname = GenerateName(physvol->GetName(),physvol);
+     77    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
+     78 
+     79    G4int copyNo = physvol->GetCopyNo();  //why always zero ?
+     80    if(copyNo != 0) G4cout << "G4DAEWriteStructure::PhysvolWrite " << pvname << " " << copyNo << G4endl ;
+     81 
+     82    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
+     83    MatrixWrite( childNodeElement, T );
+     84 
+     85    xercesc::DOMElement* instanceNodeElement = NewElementOneNCNameAtt("instance_node", "url", lvname , true);
+     86 
+     87    childNodeElement->appendChild(instanceNodeElement);
+     88    parentNodeElement->appendChild(childNodeElement);
+     89 }
+
+::
+
+    145 G4Transform3D G4DAEWriteStructure::
+    146 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
+    147 {
+    148    if (VolumeMap().find(volumePtr) != VolumeMap().end())
+    149    {
+    150        return VolumeMap()[volumePtr]; // Volume is already processed
+    151    }
+    152 
+    153    G4VSolid* solidPtr = volumePtr->GetSolid();
+    154    G4Transform3D R,invR;
+    ...
+    175    const G4int daughterCount = volumePtr->GetNoDaughters();
+    ...
+    180    for (G4int i=0;i<daughterCount;i++)   // Traverse all the children!
+    181    {
+    182       const G4VPhysicalVolume* const physvol = volumePtr->GetDaughter(i);
+    ...
+    185       G4Transform3D daughterR;
+    187       daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
+    188 
+    189       G4RotationMatrix rot;
+    190       if (physvol->GetFrameRotation() != 0)
+    191       {
+    192          rot = *(physvol->GetFrameRotation());
+    193       }
+    194       G4Transform3D P(rot,physvol->GetObjectTranslation());
+    195       PhysvolWrite(nodeElement,physvol,invR*P*daughterR,ModuleName);
+    196    }
+    ...
+    199    structureElement->appendChild(nodeElement);  
+    ...  // appended after  traversing children
+    203 
+    204    VolumeMap()[volumePtr] = R;
+    ...  
+    210    return R;
+    211 }
+
+
+Need to debug thus, 
+
+#. looks like `R,invR,daughterR` will all always be identity matrices, 
+#. makes the `P` transform blissfully PV local, this is kinda what is needed  
+#. hmm the PhysvolRead inverts the rotation 
+
+::
+
+    256 void G4GDMLReadStructure::
+    257 PhysvolRead(const xercesc::DOMElement* const physvolElement)
+    258 {
+    ...
+    318    G4Transform3D transform(GetRotationMatrix(rotation).inverse(),position);
+    319    transform = transform*G4Scale3D(scale.x(),scale.y(),scale.z());
+    320 
+    321    G4String pv_name = logvol->GetName() + "_PV";
+    322    G4PhysicalVolumesPair pair = G4ReflectionFactory::Instance()
+    323      ->Place(transform,pv_name,logvol,pMotherLogical,false,0,check);
+    324 
+    325    if (pair.first != 0) { GeneratePhysvolName(name,pair.first); }
+    326    if (pair.second != 0) { GeneratePhysvolName(name,pair.second); }
+
+
+
+PyCollada Recursive Transformations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Within a node the matrix is composed from `I*t[0]*t[1]` for G4DAEWrite a single matrix is written only
+so no complications here.
+
+::
+
+    307 class Node(SceneNode):
+    308     """Represents a node object, which is a point on the scene graph, as defined in the collada <node> tag.
+    309 
+    310     Contains the list of transformations effecting the node as well as any children.
+    311     """
+    312 
+    313     def __init__(self, id, children=None, transforms=None, xmlnode=None):
+    ...
+    335         self.transforms = []
+    336         if transforms is not None:
+    337             self.transforms = transforms
+    338         """A list of transformations effecting the node. This can
+    339           contain any object that inherits from :class:`collada.scene.Transform`"""
+    340         self.matrix = numpy.identity(4, dtype=numpy.float32)
+    341         """A numpy.array of size 4x4 containing a transformation matrix that
+    342         combines all the transformations in :attr:`transforms`. This will only
+    343         be updated after calling :meth:`save`."""
+    344 
+    345         for t in self.transforms:
+    346             self.matrix = numpy.dot(self.matrix, t.matrix)
+    ...
+    358     def objects(self, tipo, matrix=None):
+    359         """Iterate through all objects under this node that match `tipo`.
+    360         The objects will be bound and transformed via the scene transformations.
+    361 
+    362         :param str tipo:
+    363           A string for the desired object type. This can be one of 'geometry',
+    364           'camera', 'light', or 'controller'.
+    365         :param numpy.matrix matrix:
+    366           An optional transformation matrix
+    367 
+    368         :rtype: generator that yields the type specified
+    369 
+    370         """
+    371         if matrix != None: M = numpy.dot( matrix, self.matrix )
+    372         else: M = self.matrix
+    373         for node in self.children:
+    374             for obj in node.objects(tipo, M):
+    375                 yield obj
+
+
+
+Current recursion level matrix `self.matrix` post-multiplies the the matrix passed from parent, 
+so where the `matrix` from above is in brackets you end up with::
+
+    ( PV0 ) * PV1        
+    ( PV0 * PV1 ) * PV2       
+    ( PV0 * PV1 * PV2 ) * PV3     
+
+
+
  
 Geant4 Transform handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
