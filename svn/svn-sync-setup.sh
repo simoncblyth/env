@@ -14,6 +14,9 @@ cat << EOU
   # if the repo is empty::  
   svnsync initialize http://202.122.39.101/svn/dybaux http://dayabay.ihep.ac.cn/svn/dybaux --source-username lint
 
+  Please note, the svn:sync-last-merged-rev should be the lower number
+  of the src and target repositories.
+
   # if the target is not empty::
     svn info http://dayabay.ihep.ac.cn/svn/dybaux
     svn propset --revprop -r0 svn:sync-from-uuid e4312ef9-e36e-0410-b6ce-a2946f6b7755 http://202.122.39.101/svn/dybaux
@@ -34,7 +37,10 @@ svn-sync-initialize-() {
   local src="$1"
   local dst="$2"
 
-  local rev=$(svn-lastrev- $src)
+  local rev_src=$(svn-lastrev- $src)
+  local rev_dst=$(svn-lastrev- $dst)
+  # get the min($rev_src,$rev_dst)
+  local rev=$(($rev_dst<$rev_src?$rev_dst:$rev_src))
   local uuid=$(svn-uuid- $src)
   
   cat << EOC
