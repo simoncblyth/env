@@ -1,22 +1,46 @@
 #!/usr/bin/env python
 """
+DAEGEOM
+========
 
-::
+Dump geometry information addressed by PV index, and compare with 
+info gleaned from VRML2 exports.
 
-     collada-;collada-cd
-     daegeom.py 3199.dae 0
+Usage with default dae file::
 
-     daegeom.py $LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae 1
-     daegeom.py $LOCAL_BASE/env/graphics/collada/0.dae 1
+    simon:~ blyth$ daegeom.py 1000
+    2013-10-31 20:10:47,914 env.graphics.collada.pycollada.daegeom INFO     /Users/blyth/env/bin/daegeom.py 1000
+    2013-10-31 20:10:47,917 env.graphics.collada.pycollada.daegeom INFO     loading /usr/local/env/geant4/geometry/xdae/g4_01.dae 
+    2013-10-31 20:10:56,084 env.graphics.collada.pycollada.daegeom INFO     dump_geom from /usr/local/env/geant4/geometry/xdae/g4_01.dae boundgeom index 1000 
+    bpl <BoundPolylist length=6> nvtx: 8
+    [[ -19283.215125   -800360.74824449   -1364.19516943]
+     [ -20404.93646086 -798609.13837592   -1364.19516943]
+     [ -20623.6247397  -798749.18514814   -1376.9351691 ]
+     [ -19501.90340384 -800500.79501671   -1376.9351691 ]
+     [ -19283.29765277 -800360.80109482   -1362.19757138]
+     [ -20405.01898863 -798609.19122625   -1362.19757138]
+     [ -20623.70726747 -798749.23799847   -1374.93757105]
+     [ -19501.98593161 -800500.84786704   -1374.93757105]]
+    from VRML2DB: 8 
+    [[ -19283.19921875 -800361.           -1364.18994141]
+     [ -20404.90039062 -798609.           -1364.18994141]
+     [ -20623.59960938 -798749.           -1376.93005371]
+     [ -19501.90039062 -800501.           -1376.93005371]
+     [ -19283.30078125 -800361.           -1362.18994141]
+     [ -20405.         -798609.           -1362.18994141]
+     [ -20623.69921875 -798749.           -1374.93005371]
+     [ -19502.         -800501.           -1374.93005371]]
+
+When using subgeometries the coordinates will not align, even when using index offset
+as different node transformations are applied to get to the targeted volume::
+
+    daegeom.py -p $LOCAL_BASE/env/graphics/collada/3199.dae 0 -x 3199
 
 """
-
-import os, logging, sys
-log = logging.getLogger(__name__)
-
+import os, logging, sys, collada, numpy
 from env.geant4.geometry.vrml2.vrml2db import VRML2DB
-import collada
-import numpy
+
+log = logging.getLogger(__name__)
 
 def primfix(self):
     """
@@ -90,15 +114,23 @@ def _monkey_matrix_load(_collada,node, diddle=True):
 collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
 
 
-def dump_geom(path, index):
-    db = VRML2DB()
-    vpo = db.points(index)    
+def dump_geom(args, opts):
 
+    rindex = int(args[0])    # root relative index
+    aindex = int(args[0]) + opts.indexoffset   # absolute index
+
+    log.info("root relative index %s absolute index %s " % ( rindex, aindex )) 
+
+    path = opts.daepath
+    log.info("loading %s " % path )
     dae = collada.Collada(path)
+
     top = dae.scene.nodes[0]
-    log.info("dump_geom from %s boundgeom index %s " % (path, index))
+    log.info("dump_geom from %s boundgeom rindex %s " % (path, rindex))
+
     boundgeom = list(top.objects('geometry'))
-    bg = boundgeom[int(index)]
+    bg = boundgeom[rindex]
+
     prim = list(bg.primitives())
     assert len(prim) == 1, len(prim)
     bp = prim[0]
@@ -106,20 +138,71 @@ def dump_geom(path, index):
 
     print "bpl", bpl, "nvtx:", len(bpl.vertex)
     print bpl.vertex
-    for i, po in enumerate(bpl):
-        print i, po, po.indices
+
+    if opts.primitives:
+        for i, po in enumerate(bpl):
+            print i, po, po.indices
 
     #  primfix not needed when using monkey patched matrix loading 
     #primfix(bpl)
     #print "after primfix", bpl, "nvtx:", len(bpl.vertex)
     #print bpl.vertex
 
-    print "from VRML2DB: %s \n" % len(vpo), vpo
+    db = VRML2DB()
+    if aindex == 0:
+        vpo = "no shapedb entry for aindex %s " % aindex
+    else:    
+        vpo = db.points(aindex)    
+    print "from VRML2DB: aindex %s %s \n" % (aindex, len(vpo)) , vpo
+
+
+class Defaults(object):
+    logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
+    loglevel = "INFO"
+    logpath = None
+    primitives = False
+    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    indexoffset = 0
+
+def parse_args(doc):
+    from optparse import OptionParser
+    defopts = Defaults()
+    op = OptionParser(usage=doc)
+
+    op.add_option("-o", "--logpath", default=defopts.logpath )
+    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
+    op.add_option("-f", "--logformat", default=defopts.logformat )
+    op.add_option("-m", "--primitives", action="store_true",  default=defopts.primitives )
+    op.add_option("-p", "--daepath", default=defopts.daepath )
+    op.add_option("-x", "--indexoffset", type=int, default=defopts.indexoffset )
+
+    opts, args = op.parse_args()
+    level = getattr( logging, opts.loglevel.upper() )
+
+    if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)
+        logging.basicConfig(format=opts.logformat,level=level,filename=opts.logpath)
+        console = logging.StreamHandler()
+        console.setLevel(level)
+        formatter = logging.Formatter(opts.logformat)
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)  # add the handler to the root logger
+    else:
+        logging.basicConfig(format=opts.logformat,level=level)
+    pass
+    log.info(" ".join(sys.argv))
+
+    daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
+    if not daepath[0] == '/':
+        daepath = os.path.abspath(daepath)
+    assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
+    opts.daepath = daepath
+    pass 
+    return opts, args
 
 
 def main():
-    logging.basicConfig(level=logging.INFO)
-    dump_geom(*sys.argv[1:])
+    opts, args = parse_args(__doc__)
+    dump_geom(args, opts)
 
 
 if __name__ == '__main__':
