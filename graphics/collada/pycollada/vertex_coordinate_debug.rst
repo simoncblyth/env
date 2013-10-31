@@ -361,9 +361,23 @@ reconcile PV1 vertices, VRML2 cf pycollada
             [-34569.8515625 ,   7411.14941406, -12993.79980469],
             [  7411.14941406,  34569.8515625 , -12993.79980469]], dtype=float32)
 
+
+    In [363]: numpy.dot( C0, boundgeom[1].matrix[:3,:3] )         ## simpler way to do the above avoiding the transposing and keeping post-multiplication
+    Out[363]: 
+    array([[ 34569.8515625 ,  -7411.14941406,  25000.        ],
+           [  7411.14941406,  34569.8515625 ,  25000.        ],
+           [-34569.8515625 ,   7411.14941406,  25000.        ],
+           [ -7411.14941406, -34569.8515625 ,  25000.        ],
+           [ -7411.14941406, -34569.8515625 , -12993.79980469],
+           [ 34569.8515625 ,  -7411.14941406, -12993.79980469],
+           [-34569.8515625 ,   7411.14941406, -12993.79980469],
+           [  7411.14941406,  34569.8515625 , -12993.79980469]], dtype=float32)
+
+
+
     In [287]: C0 * M[:3,:3]                   # post multiplication (as done by pycollada) leads to vertices that look vaguely similar, with maybe an xy swap, 
                                               # but failed to find a rotation + reflection to line them up 
-                                              # which is correct pre/post multiplication ?  VRML2 or pycollada
+                                              # .... the problem was the transpose done to the rotation matrix , sign flip issue
     Out[287]: 
     matrix([[ -7411.14941406,  34569.8515625 ,  25000.        ],
             [-34569.8515625 ,  -7411.14941406,  25000.        ],
@@ -473,32 +487,8 @@ PyCollada transformations, hmm inconsistent pre/post-multiplication a bug somewh
 PyCollada Primitive Fix
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-::
-
-    def primfix(self):
-        """
-        Original pycollada uses post multiplication for lineset,polylist,triangleset::
-     
-            self._vertex = None if pl._vertex is None else numpy.asarray(pl._vertex * M[:3,:3]) + matrix[:3,3]
-            self._normal = None if pl._normal is None else numpy.asarray(pl._normal * M[:3,:3])
-
-        This works for PV1, but not below.
-        """
-        assert self.__class__.__name__ in ('BoundLineSet','BoundPolylist','BoundTriangleSet'), self
-        M = numpy.asmatrix(self.matrix).transpose()
-        if self.original._vertex is None:
-            self._vertex = None 
-        else: 
-            self._vertex = numpy.asarray(( M[:3,:3] * self.original._vertex.T ).T ) + self.matrix[:3,3]
-
-        if self.original._normal is None:
-            self._normal = None 
-        else: 
-            self._normal = numpy.asarray(( M[:3,:3] * self.original._normal.T ).T ) 
-
-
-Testing the above in daegeom.py shows that switching to pre-multiplication 
-achieves a match for PV1
+Testing primfix in daegeom.py shows that switching to using non-transposed rotation matrix and 
+keeping post-multiplication achieves a match for PV1
 
 ::
 
@@ -634,6 +624,11 @@ Need to debug thus,
 
 #. looks like `R,invR,daughterR` will all always be identity matrices, 
 #. makes the `P` transform blissfully PV local, this is kinda what is needed  
+
+
+G4GDMLReadStructure::PhysvolRead  rotation inverted ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 #. hmm the PhysvolRead inverts the rotation 
 
 ::
@@ -653,12 +648,35 @@ Need to debug thus,
     326    if (pair.second != 0) { GeneratePhysvolName(name,pair.second); }
 
 
+G4Transform3D::G4Transform3D
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+source/global/HEPGeometry/include/G4Transform3D.hh::
+
+     34 #include <CLHEP/Geometry/Transform3D.h>
+     35 
+     36 typedef HepGeom::Transform3D G4Transform3D;
+     37 
+     38 typedef HepGeom::Rotate3D G4Rotate3D;
+     39 typedef HepGeom::RotateX3D G4RotateX3D;
+     40 typedef HepGeom::RotateY3D G4RotateY3D;
+     41 typedef HepGeom::RotateZ3D G4RotateZ3D;
+     42 
+     43 typedef HepGeom::Translate3D G4Translate3D;
+     44 typedef HepGeom::TranslateX3D G4TranslateX3D;
+     45 typedef HepGeom::TranslateY3D G4TranslateY3D;
+     46 typedef HepGeom::TranslateZ3D G4TranslateZ3D;
+
+
+* /data1/env/local/dyb/external/build/LCG/clhep/2.0.4.2/CLHEP/Geometry/Geometry/Transform3D.h
+* /data1/env/local/dyb/external/build/LCG/clhep/2.0.4.2/CLHEP/Geometry/Geometry/Transform3D.icc
+
 
 PyCollada Recursive Transformations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Within a node the matrix is composed from `I*t[0]*t[1]` for G4DAEWrite a single matrix is written only
-so no complications here.
+so no complications here. However moving to decomposed R and T might be beneficial.
 
 ::
 
