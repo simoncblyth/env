@@ -19,22 +19,21 @@ cProfile running
 
     simon:collada blyth$ gprof2dot.py -f pstats vnode.cprofile | dot -Tsvg -o vnode.svg
 
-
-
-
-
 Profiling points to 35% from multiarray.fromstring, especially in geometry load (50%). 
 Look into deepcopying rather than going back to XML. 
 
-Web server access
+Node Dumping
 ------------------
 
 Access the geometry via a web server (using webpy) from curl or browser
 avoiding the overhead of parsing/traversing the entire .dae just 
 to look at a selection of volumes::
 
-     http://localhost:8080/dump/1000:1100
-     http://localhost:8080/dump/0:10,100:110?ancestors=1
+     http://localhost:8080/node/1000:1100
+     http://localhost:8080/node/0:10,100:110?ancestors=1
+
+Tree Dumping
+--------------
 
 Text presentation of volume tree::
 
@@ -43,6 +42,9 @@ Text presentation of volume tree::
      http://localhost:8080/tree/__dd__Geometry__AD__lvADE--pvSST0xa906040.0
      http://localhost:8080/tree/__dd__Geometry__AD__lvADE--pvSST0xa906040.1
 
+     http://localhost:8080/tree/2431___5?ancestors=1     # the ___5 specifies maxdepth of 5 from PV 2431 
+
+
 Equivalent to commandline::
 
      ./vnode.py -t __dd__Geometry__AD__lvADE--pvSST0xa906040.0
@@ -50,9 +52,9 @@ Equivalent to commandline::
 
 From CLI remember to escape the ampersand::
 
-    curl http://localhost:8080/dump/1000?ancestors=1\&other=yes
-    curl http://localhost:8080/dump/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..2--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xb35ffb0.1?ancestors=1
-    curl http://localhost:8080/dump/__dd__Geometry__AD__lvSST--pvOIL0xb36eb48.1?ancestors=1
+    curl http://localhost:8080/node/1000?ancestors=1\&other=yes
+    curl http://localhost:8080/node/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..2--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xb35ffb0.1?ancestors=1
+    curl http://localhost:8080/node/__dd__Geometry__AD__lvSST--pvOIL0xb36eb48.1?ancestors=1
 
 Subcopy
 ---------
@@ -67,15 +69,28 @@ Subcopy
 Alternatively to avoid the overhead of repeating the initial parse use the `--webserver` option and subcopy volumes
 selected by uniqued pvname (with the .0 .1 etc..) thru commandline or browser::
 
-    curl -O http://localhost:8080/subcopy/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
+    curl -O http://localhost:8080/geom/__dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
 
 
+Depth Restricted
+~~~~~~~~~~~~~~~~~~
+
+The maxdepth controls how much recursion from the target volume is included in the subcopy. 
+The default is the entire tree beneath the target volume.
+A maxdepth of zero inhibits any recursion, so just the single targetted volume is copied. 
+
+::
+
+    vnode.py --maxdepth 0 -s 0
+    curl http://localhost:8080/geom/3199.dae?maxdepth=0
+    curl -sO http://localhost:8080/geom/3199___0.dae        
+ 
 vnode.py eats its own dogfood
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    simon:collada blyth$ vnode.py --daepath=0000000.xml --subcopy --subpath=0000000_dogfood.xml --daesave 0
+    simon:collada blyth$ vnode.py --daepath=0000000.xml --geom --subpath=0000000_dogfood.xml --daesave 0
     2013-10-29 12:17:26,499 env.graphics.collada.pycollada.vnode INFO     /Users/blyth/env/bin/vnode.py
     ...
     2013-10-29 12:18:33,953 env.graphics.collada.pycollada.vnode INFO     daesave to 0000000_dogfood.xml 
@@ -89,8 +104,74 @@ vnode.py eats its own dogfood
 
 
 
+Webserver flakiness
+---------------------
+
+From webserver, there is a tendency to loose the registry after any type of error is encountered ? 
+Forcing a restart of the webserver.  Hmm perhaps webpy can adopt a forking server approach to avoid 
+this issue and hence improve robustness.
+
+Possibly webpy has some session timeout, as seems to happen when make a query after some delay.
 
 
+Visualizing Collada Files
+--------------------------
+
+Best way so far is with "meshtool", a python based viewer from the pycollada author
+which is built upon Panda3D/OpenGL::
+
+     meshtool-view http://localhost:8080/subcopy/3___3.dae 
+
+I patched this to allow grabbing geometry from a url, allowing viewing geometry 
+dynamically pulled off a webserver.
+
+::
+
+    simon:collada blyth$ meshtool-
+    simon:collada blyth$ t meshtool-view
+    meshtool-view is a function
+    meshtool-view () 
+    { 
+        meshtool --load_collada $* --viewer
+        }
+    simon:collada blyth$ t meshtool
+    meshtool is a function
+    meshtool () 
+    { 
+        /usr/bin/python -c "from meshtool.__main__ import main ; main() " $*
+    }
+
+
+Other ways, include:
+
+#. pycollada-view   # based on daeview, which is finnicky : possibly due to fixed light/view/camera positioning 
+#. blender          # slow for large geometries, awful interface 
+#. Preview.app/Xcode.app on newer Macs
+
+
+finding promising volumes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    collada-cd ; vi vnodetree.txt   # 
+    curl -sO http://localhost:8080/geom/3154___3.dae
+    meshtool-view 3154___3.dae
+
+    curl -sO http://localhost:8080/subcopy/
+
+
+    http://localhost:8080/node/3154?ancestors=1&children=1
+
+
+rpc 
+~~~~
+
+::
+
+    http://localhost:8080/tree/2431___5?ancestors=1   # text presentation of node tree 
+    curl -sO http://localhost:8080/geom/2431___5.dae
+    meshtool-view 2431___5.dae
 
 
 
@@ -111,7 +192,7 @@ collada.material.Material.save = lambda _:_
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
 #from lxml.builder import E
 
-import sys, os, logging, hashlib, copy
+import sys, os, logging, hashlib, copy, re
 log = logging.getLogger(__name__)
 from StringIO import StringIO
 
@@ -140,6 +221,16 @@ class VNode(object):
     root = None
     rawcount = 0
     verbosity = 1   # 0:almost no output, 1:one liners, 2:several lines, 3:extreme  
+
+    @classmethod
+    def summary(cls):
+        log.info("registry %s " % len(cls.registry) )
+        log.info("lookup %s " % len(cls.lookup) )
+        log.info("idlookup %s " % len(cls.idlookup) )
+        log.info("ids %s " % len(cls.ids) )
+        log.info("rawcount %s " % cls.rawcount )
+        log.info("created %s " % cls.created )
+        log.info("root %s " % cls.root )
 
     @classmethod
     def parse( cls, path ):
@@ -201,10 +292,6 @@ class VNode(object):
         else:
             for child in node.children:
                 cls.recurse(child, ancestors = ancestors + [node] )
-
-    @classmethod
-    def summary(cls):
-        log.info("rawcount %s " % cls.rawcount )
 
     @classmethod
     def indexget(cls, index):
@@ -446,8 +533,9 @@ class RPrint(list):
     attribute which lists other nodes.
     """
     cut = 5
-    def __init__(self, top ):
+    def __init__(self, top, maxdepth=-1 ):
         list.__init__(self)
+        self.maxdepth = maxdepth
         self( top )
 
     __str__ = lambda _:"\n".join(_)
@@ -457,17 +545,20 @@ class RPrint(list):
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             pass
         else:
-            shorten = len(node.children) > self.cut*2    
-            for index, child in enumerate(node.children):
-                if shorten:
-                    if index < self.cut or index > len(node.children) - self.cut:
-                        pass
-                    elif index == self.cut:    
-                        child = "..."
-                    else:
-                        continue
-                pass         
-                self(child, depth + 1, index)
+            if depth == self.maxdepth:
+                pass
+            else:    
+                shorten = len(node.children) > self.cut*2    
+                for index, child in enumerate(node.children):
+                    if shorten:
+                        if index < self.cut or index > len(node.children) - self.cut:
+                            pass
+                        elif index == self.cut:    
+                            child = "..."
+                        else:
+                            continue
+                    pass         
+                    self(child, depth + 1, index)
 
 
 class VCopy(object):
@@ -483,6 +574,7 @@ class VCopy(object):
 
         self.opts = opts 
         self.dae = collada.Collada()
+        self.maxdepth = int(self.opts.get('maxdepth',-1))
 
         cpvtop = self( top )    # recursive copier
         self.cpvtop = cpvtop
@@ -690,9 +782,12 @@ class VCopy(object):
         if not hasattr(vnode,'children') or len(vnode.children) == 0:# leaf
             pass
         else:
-            for index, child in enumerate(vnode.children):  
-                cnode = self(child, depth + 1, index )
-                cnodes.append(cnode)
+            if depth == self.maxdepth:  # stop the recursion when hit maxdepth
+                pass
+            else:
+                for index, child in enumerate(vnode.children):  
+                    cnode = self(child, depth + 1, index )       ####### THE RECURSIVE CALL ##########
+                    cnodes.append(cnode)
             pass
 
         # bring together the LV copy , NB the lv a  NodeNode instance, hence the `.node` referral in the below 
@@ -735,20 +830,17 @@ class VCopy(object):
         return out.getvalue()
 
 
-def subcopy(arg, cfg ):
+def geom(arg, cfg ):
     """
     VNode kinda merges LV and PV, but this should be a definite place, so regard as PV
     """
-    if arg.endswith('.dae') or arg.endswith('.xml'): # facilitate web interface curling to file
-        arg = arg[:-4]
-
     indices = VNode.interpret_ids(arg)
     assert len(indices) == 1 
     index = indices[0]
-    log.info("subcopy %s => %s " % (arg, index) )
+    log.info("geom subcopy arg %s => index %s cfg %s " % (arg, index, cfg) )
     top = VNode.indexget(index)  
 
-    cfg['meta'] = E.extra(E.meta("subcopy arg %s index %s " % (arg, index) ))
+    cfg['meta'] = E.extra(E.meta("subcopy arg %s index %s maxdepth %s " % (arg, index, cfg['maxdepth']) ))
     vc = VCopy(top, cfg )
     svc = str(vc)
 
@@ -760,10 +852,13 @@ def subcopy(arg, cfg ):
 
     return svc
 
-def textdump(arg, cfg ):
-    ancestors = cfg.get('ancestors', None)
-    children  = cfg.get('children', None)
-    geometry = cfg.get('geometry', None)
+def node(arg, cfg ):
+    """
+    Present info for a single node
+    """
+    ancestors = cfg.get('ancestors', cfg.get('a',None))
+    children  = cfg.get('children', cfg.get('c',None))
+    geometry = cfg.get('geometry', cfg.get('g',None))
 
     ids = VNode.interpret_ids(arg)
     hdr = ["_dump [%s] => ids %s " % (arg, str(ids) ), "cfg %s " % cfg, "" ]
@@ -785,19 +880,24 @@ def textdump(arg, cfg ):
     pass            
     return "\n".join(map(str,hdr+out))
 
-def texttree(arg):
+def tree(arg, cfg):
     """
     Present a text tree of the volume heirarchy from the root(s) defined 
     by the argument. 
     """
+    ancestors = cfg.get('ancestors', cfg.get('a',None))
     indices = VNode.interpret_ids(arg)
-    nodes = map(lambda _:VNode.indexget(_), indices )
-    tt = map(RPrint, nodes)
-    return "\n".join(map(str, tt))
+    assert len(indices) == 1
+    index = indices[0]
+    node = VNode.indexget(index)
 
+    anc = []
+    if ancestors:
+        for a in node.ancestors():
+            anc.insert(0,"a %s" % a)
 
-
-
+    tre = RPrint(node, maxdepth=int(cfg.get('maxdepth','-1')))
+    return "\n".join(map(str,anc+tre))
 
 
 class Defaults(object):
@@ -806,32 +906,40 @@ class Defaults(object):
     logpath = None
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
     webserver = False
-    texttree = False
-    textdump = False
-    subcopy = False
+    tree = False
+    node = False
+    geom = False
     daesave = False
     blender = False
     ancestors = "YES"
     geometry = "YES"
     subpath = "subcopy.dae"
+    maxdepth = -1
 
 def parse_args(doc):
     from optparse import OptionParser
     defopts = Defaults()
     op = OptionParser(usage=doc)
-    op.add_option("-o", "--logpath", default=defopts.logpath )
-    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG ... Default %default"  )
-    op.add_option("-f", "--logformat", default=defopts.logformat )
-    op.add_option("-p", "--daepath", default=defopts.daepath )
-    op.add_option("-O", "--subpath", default=defopts.subpath)
-    op.add_option("-e", "--daesave", action="store_true",  default=defopts.daesave )
-    op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver )
-    op.add_option("-t", "--texttree", action="store_true", default=defopts.texttree )
-    op.add_option("-d", "--textdump", action="store_true", default=defopts.textdump )
-    op.add_option("-s", "--subcopy",  action="store_true", default=defopts.subcopy )
-    op.add_option("-b", "--blender",  action="store_true", default=defopts.blender )
-    op.add_option("-a", "--ancestors", default=defopts.ancestors )
-    op.add_option("-g", "--geometry", default=defopts.geometry )
+    op.add_option("-o", "--logpath", default=defopts.logpath , help="logging path" )
+    op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG. Default %default"  )
+    op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
+
+    op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
+
+    # three way split 
+    op.add_option("-d", "--node", action="store_true", default=defopts.node , help="Text representation of a single volume. Default %default." )
+    op.add_option("-t", "--tree", action="store_true", default=defopts.tree , help="Text representation of the tree from the target volume. Default %default.")
+    op.add_option("-s", "--geom",  action="store_true", default=defopts.geom, help="Perform a recursive subcopy of the geometry. Default %default. ")
+
+    op.add_option("-a", "--ancestors", default=defopts.ancestors , help="Include ancestor nodes in the text dumps. Default %default.")
+    op.add_option("-g", "--geometry", default=defopts.geometry ,  help="Include geometry details in the text dumps. Default %default.")
+
+    op.add_option("-w", "--webserver", action="store_true", default=defopts.webserver, help="Start a webserver on local node. Default %default." )
+
+    op.add_option("-e", "--daesave", action="store_true",  default=defopts.daesave , help="Save the subgeometry to a file. Default %default." )
+    op.add_option("-O", "--subpath", default=defopts.subpath , help="Path in which to save subgeometry, when `-e/--daesave` option is used. Default %default." )
+    op.add_option("-x", "--maxdepth", type=int, default=defopts.maxdepth, help="Restrict the tree depth of the copy, -1 for full tree from the specified root volume. Default %default " )
+    op.add_option("-b", "--blender",  action="store_true", default=defopts.blender , help="Change some aspects of exported geometry for blender compatibility. Default %default. ")
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments
@@ -860,26 +968,49 @@ def parse_args(doc):
 
 
 # webpy interface glue
+
+class WebInput(object):
+    ptn = re.compile("^(\S*)___(\d*)")   
+    def __call__( self, arg, cfg ):
+        if arg.endswith('.dae') or arg.endswith('.xml'): # facilitate curling to file
+            arg = arg[:-4]
+        match = self.ptn.match(arg)
+        if match:
+            arg, maxdepth = match.groups()
+            cfg['maxdepth'] = maxdepth
+            log.info("WebInput arg maxdepth handling %s %s " % (arg, maxdepth))
+        return arg, cfg 
+
+webin = WebInput()
+
 class _index:
     def GET(self):
         return "\n".join(["_index %s " % len(VNode.registry), __doc__ ])
-class _textdump:
+class _node:
     def GET(self, arg):
-        return textdump(arg, dict(web.input().items()))
-class _texttree:
+        arg, cfg = webin( arg, dict(web.input().items()) ) 
+        return node(arg, cfg)
+class _tree:
     def GET(self, arg):
-        return texttree(arg)   
-class _subcopy:
+        arg, cfg = webin( arg, dict(web.input().items()) ) 
+        return tree(arg, cfg )   
+class _geom:
     def GET(self, arg):
-        return subcopy(arg, dict(web.input().items()))
+        log.info("_geom.GET %s " % arg )
+        VNode.summary()
+        arg, cfg = webin( arg, dict(web.input().items()) ) 
+        out = geom(arg, cfg)
+        log.info("_geom GET completed ")
+        VNode.summary()
+        return out
 
 def webserver():
     log.info("starting webserver ")
     urls = ( 
-             '/',          '_index', 
-             '/dump/(.+)?', '_textdump', 
-             '/tree/(.+)?', '_texttree', 
-             '/subcopy/(.+)?', '_subcopy', 
+             '/',           '_index', 
+             '/node/(.+)?', '_node', 
+             '/tree/(.+)?', '_tree', 
+             '/geom/(.+)?', '_geom', 
            )
     app = web.application(urls, globals())
     app.run() 
@@ -890,13 +1021,12 @@ def main():
     VNode.parse( opts.daepath )
     if opts.webserver:
         webserver()
-    elif opts.texttree:
-        print texttree(args[0])
-    elif opts.textdump:
-        print textdump(args[0], vars(opts))
-    elif opts.subcopy:
-        #print subcopy(args[0], vars(opts))
-        subcopy(args[0], vars(opts))
+    elif opts.node:
+        print node(args[0])
+    elif opts.tree:
+        print tree(args[0], vars(opts))
+    elif opts.geom:
+        print geom(args[0], vars(opts))
 
 
 if __name__ == '__main__':

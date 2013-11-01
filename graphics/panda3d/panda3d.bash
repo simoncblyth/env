@@ -16,9 +16,32 @@ OSX
 ----
 
 * http://www.panda3d.org/manual/index.php/Getting_Started_on_OSX
+* /Developer/Panda3D
+* GUI dmg installer places examples in /Developer/Examples/Panda3D/
 
-GUI dmg installer places examples in /Developer/Examples/Panda3D/
 
+Config
+--------
+
+* /Developer/Panda3D/etc/Config.prc 
+* http://panda3d.cvs.sourceforge.net/viewvc/panda3d/panda/src/doc/howto.use_config.txt
+
+This approach at config failed to work, has to edit the original::
+
+    simon:etc blyth$ mkdir ~/.panda3d
+    simon:etc blyth$ cp Config.prc ~/.panda3d/
+    simon:etc blyth$ pwd
+    /Developer/Panda3D/etc
+
+    export PRC_PATH=$HOME/.panda3d
+
+
+
+
+
+
+OSX Intallation
+------------------
 
 Need to use the system python 2.5.1
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

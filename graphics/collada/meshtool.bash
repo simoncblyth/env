@@ -90,6 +90,28 @@ meshtool-get(){
 }
 
 
-meshtool(){ /usr/bin/python -c "from meshtool.__main__ import main ; main() " $* ;  }
+meshtool(){ 
+   export PRC_PATH=$HOME/.panda3d
+   /usr/bin/python -c "from meshtool.__main__ import main ; main() " $* 
+}
+meshtool-view(){ 
+   local msg="=== $FUNCNAME :"
+   local arg=$1   
+   local dae=${arg/.dae}.dae  # strip any preexisting .dae 
+   local url=http://localhost:8080/geom/$dae
+   collada-
+   collada-cd
+   if [ -f "$dae" ]; then 
+      echo $msg use pre-existing $dae
+      ls -l $dae
+   else
+      echo $msg downloading dae from url $url
+      curl -sO $url
+   fi
+   local cmd="meshtool --load_collada $dae --viewer"
+   echo $msg $cmd
+   eval $cmd
+}
+
 
 

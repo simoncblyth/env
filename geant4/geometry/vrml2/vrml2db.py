@@ -14,17 +14,32 @@ class VRML2DB(object):
         src = self("select src from shape where id=%s limit 1" % id )
         return VRML2SRC(src)
 
+
 class VRML2SRC(object):
     def __init__(self, src):
         self.src = src
 
-    def _points(self):
+    def _extract(self, tok):
         s = self.src
-        lines = filter(None,map(lambda _:_.lstrip(),s[s.index("point [")+7:s.index("]")-1].lstrip().rstrip().split(",")))
-        return numpy.fromstring(" ".join(lines), dtype=numpy.float32, sep=' ').reshape( (len(lines),3) )
+        beg = s.index(tok)
+        end = s.index("]", beg)
+        strip_ = lambda _:_.lstrip().rstrip()
+        return filter(None,map(strip_,s[beg+len(tok):end-1].replace(","," ").split("\n")))
         
-    points = property(_points)    
-    
+    def _points(self):
+        lines = self._extract(tok="point [")
+        return numpy.fromstring(" ".join(lines), dtype=numpy.float32, sep=' ').reshape(len(lines), 3 )
+
+    def _faces(self):
+        arr = []
+        for line in self._extract(tok="coordIndex ["):
+            assert line[-3:] == ' -1', line
+            line = line[:-3].rstrip().replace("  "," ") 
+            arr.append(map(int,line.split(" ")))
+        return arr
+
+    points = property(_points)
+    faces = property(_faces)    
 
 
 def main():
@@ -32,6 +47,8 @@ def main():
     sh = db.shape(sys.argv[1])
     print "*" * 100, "\n",sh.src
     print "*" * 100, "\n",sh.points
+    print "*" * 100
+    for _ in sh.faces:print _
 
 
 if __name__ == '__main__':

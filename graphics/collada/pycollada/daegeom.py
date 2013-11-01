@@ -149,12 +149,10 @@ def dump_geom(args, opts):
     #print bpl.vertex
 
     db = VRML2DB()
-    if aindex == 0:
-        vpo = "no shapedb entry for aindex %s " % aindex
-    else:    
-        vpo = db.points(aindex)    
+    sh = db.shape(aindex)
+    vpo = sh.points
     print "from VRML2DB: aindex %s %s \n" % (aindex, len(vpo)) , vpo
-
+    for _ in sh.faces:print _
 
 class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
