@@ -20,11 +20,13 @@ OSX
 * GUI dmg installer places examples in /Developer/Examples/Panda3D/
 
 
-Config
---------
+Config, switch on Direct Tools
+---------------------------------
 
 * /Developer/Panda3D/etc/Config.prc 
 * http://panda3d.cvs.sourceforge.net/viewvc/panda3d/panda/src/doc/howto.use_config.txt
+* http://www.panda3d.org/manual/index.php/Enhanced_Mouse_Navigation
+
 
 This approach at config failed to work, has to edit the original::
 

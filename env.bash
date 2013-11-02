@@ -1251,3 +1251,4 @@ webpy-(){      . $(env-home)/webpy/webpy.bash && webpy-env $* ; }
 gprof2dot-(){      . $(env-home)/tools/gprof2dot.bash && gprof2dot-env $* ; }
 cg-(){      . $(env-home)/graphics/cg/cg.bash && cg-env $* ; }
 networkx-(){      . $(env-home)/tools/networkx.bash && networkx-env $* ; }
+webglbook-(){      . $(env-home)/graphics/webgl/webglbook.bash && webglbook-env $* ; }

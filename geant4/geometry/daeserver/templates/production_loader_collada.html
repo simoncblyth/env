@@ -1,0 +1,98 @@
+$def with (arg, node, subtree)
+<!DOCTYPE html>
+<html>
+<head>
+<title> $arg </title>
+
+    <link  href="../static/css/webglbook.css" rel="stylesheet" /> 
+    <script src="../static/libs/Three.js"></script>
+    <script src="../static/libs/jquery-1.6.4.js"></script>
+    <script src="../static/libs/jquery.mousewheel.js"></script>
+    <script src="../static/libs/RequestAnimationFrame.js"></script>
+    <script src="../static/sim/sim.js"></script>
+    <script src="../static/sim/ColladaLoader.js"></script>
+    <script src="../static/ch7/modelViewer.js"></script>
+    <script src="../static/ch7/colladaModel.js"></script>
+    <script>
+
+    var renderer = null;
+    var scene = null;
+    var camera = null;
+    var mesh = null;
+    
+    $$(document).ready(
+        function() {
+            var container = document.getElementById("container");
+            
+            var app = new ModelViewer();
+            app.init({ container: container });
+
+            var model = new ColladaModel();
+            model.init({ url : "${arg}.dae", scale:0.005});          
+            app.addModel(model);
+
+            //model.object3D.rotation.x = -Math.PI / 2;
+            model.object3D.position.x += 10 ;   //    +X to the right 
+            model.object3D.position.y += 2 ;    //    +Y up
+            model.object3D.position.z += 10 ;    //    +Z out of screen (towards viewpoint)
+
+            app.run();
+        }
+    );
+    </script>
+
+</head>
+<body>
+    <center><h1>Loading a COLLADA Model</h1></center>
+    <div id="container" style="width:95%; height:80%; position:absolute;"></div>
+    <div id="prompt" style="width:95%; height:6%; bottom:30px; text-align:center; position:absolute;">
+    Click the mouse to manipulate the model: Left = rotate, Right = Pan 
+    </div>
+
+<table>
+$for a in reversed(node.ancestors(andself=True)):      
+       <tr>
+          <td>A</td> 
+          <td>$a.index</td>
+          <td>${a.rootdepth}:${a.leafdepth}</td>
+          <td>
+             <a href="${a.index}___0.html">0</a>
+             <a href="${a.index}___1.html">1</a>
+             <a href="${a.index}___2.html">2</a>
+             <a href="${a.index}___3.html">3</a>
+             <a href="${a.index}___4.html">4</a>
+          </td>
+          <td>$a.id</td>
+          <td>$a.matid</td>
+          <td>$a.symbol</td>
+       </tr>
+
+$for c, depth, sibdex, indent in subtree:
+       $if indent == "...":
+           <tr>
+           </tr>
+       $else:
+           <tr>
+              <td>${depth}/${sibdex}</td> 
+              <td>$c.index</td>
+              <td>${c.rootdepth}:${c.leafdepth}</td>
+              <td>
+                 <a href="${c.index}___0.html">0</a>
+                 <a href="${c.index}___1.html">1</a>
+                 <a href="${c.index}___2.html">2</a>
+                 <a href="${c.index}___3.html">3</a>
+                 <a href="${c.index}___4.html">4</a>
+              </td>
+              <td>$c.id</td>
+              <td>$c.matid</td>
+              <td>$c.symbol</td>
+              <td>$indent</td> 
+           </tr>
+
+</table>
+
+
+</body>
+</html>
+
+

@@ -107,6 +107,11 @@ python-mdir(){
 python-mate(){ mate $(python-mdir $*) ; }
 python-ls(){ ls -l $(python-site)/ ; }
 
+python-srv(){
+   python -m SimpleHTTPServer  # serves the invoking directory  on http://localhost:8000
+}
+
+
 python-versions(){
    python -V
    echo ipython $(ipython -V)

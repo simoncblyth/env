@@ -3,7 +3,7 @@
 Geant4 level interpretation of G4DAEWrite exported pycollada geometry
 =======================================================================
 
-Attempt to create the VNode heirarcy out of a raw collada traverse 
+Attempt to create the DAENode heirarcy out of a raw collada traverse 
 without monkeying around.
 
 
@@ -13,11 +13,11 @@ cProfile running
 ::
 
     cd $LOCAL_BASE/env/graphics/collada 
-    simon:collada blyth$ python -m cProfile -o vnode.cprofile $(which vnode.py) --daesave --subcopy -O 000.xml 0 
-    2013-10-28 14:06:38,504 env.graphics.collada.pycollada.vnode INFO     /Users/blyth/env/bin/vnode.py
-    2013-10-28 14:06:38,509 env.graphics.collada.pycollada.vnode INFO     VNode.parse pycollada parse /usr/local/env/geant4/geometry/xdae/g4_01.dae 
+    simon:collada blyth$ python -m cProfile -o daenode.cprofile $(which daenode.py) --daesave --subcopy -O 000.xml 0 
+    2013-10-28 14:06:38,504 env.graphics.collada.pycollada.daenode INFO     /Users/blyth/env/bin/daenode.py
+    2013-10-28 14:06:38,509 env.graphics.collada.pycollada.daenode INFO     DAENode.parse pycollada parse /usr/local/env/geant4/geometry/xdae/g4_01.dae 
 
-    simon:collada blyth$ gprof2dot.py -f pstats vnode.cprofile | dot -Tsvg -o vnode.svg
+    simon:collada blyth$ gprof2dot.py -f pstats daenode.cprofile | dot -Tsvg -o daenode.svg
 
 Profiling points to 35% from multiarray.fromstring, especially in geometry load (50%). 
 Look into deepcopying rather than going back to XML. 
@@ -47,7 +47,7 @@ Text presentation of volume tree::
 
 Equivalent to commandline::
 
-     ./vnode.py -t __dd__Geometry__AD__lvADE--pvSST0xa906040.0
+     ./daenode.py -t __dd__Geometry__AD__lvADE--pvSST0xa906040.0
 
 
 From CLI remember to escape the ampersand::
@@ -61,9 +61,9 @@ Subcopy
 
 ::
 
-    ./vnode.py -e -s __dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0
-    ./vnode.py -e -s __dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
-    ./vnode.py -e -s top.0
+    ./daenode.py -e -s __dd__Geometry__AD__lvOAV--pvLSO0xa8d68e0.0
+    ./daenode.py -e -s __dd__Geometry__AD__lvOIL--pvAdPmtArray--pvAdPmtArrayRotated--pvAdPmtRingInCyl..1--pvAdPmtInRing..1--pvAdPmtUnit--pvAdPmt0xa8d92d8.0
+    ./daenode.py -e -s top.0
 
 
 Alternatively to avoid the overhead of repeating the initial parse use the `--webserver` option and subcopy volumes
@@ -81,19 +81,19 @@ A maxdepth of zero inhibits any recursion, so just the single targetted volume i
 
 ::
 
-    vnode.py --maxdepth 0 -s 0
+    daenode.py --maxdepth 0 -s 0
     curl http://localhost:8080/geom/3199.dae?maxdepth=0
     curl -sO http://localhost:8080/geom/3199___0.dae        
  
-vnode.py eats its own dogfood
+daenode.py eats its own dogfood
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    simon:collada blyth$ vnode.py --daepath=0000000.xml --geom --subpath=0000000_dogfood.xml --daesave 0
-    2013-10-29 12:17:26,499 env.graphics.collada.pycollada.vnode INFO     /Users/blyth/env/bin/vnode.py
+    simon:collada blyth$ daenode.py --daepath=0000000.xml --geom --subpath=0000000_dogfood.xml --daesave 0
+    2013-10-29 12:17:26,499 env.graphics.collada.pycollada.daenode INFO     /Users/blyth/env/bin/daenode.py
     ...
-    2013-10-29 12:18:33,953 env.graphics.collada.pycollada.vnode INFO     daesave to 0000000_dogfood.xml 
+    2013-10-29 12:18:33,953 env.graphics.collada.pycollada.daenode INFO     daesave to 0000000_dogfood.xml 
     simon:collada blyth$ diff 0000000.xml 0000000_dogfood.xml
     3,4c3,4
     <     <created>2013-10-28T17:20:00.303554</created>
@@ -212,7 +212,7 @@ def present_geometry( bg ):
     return out
 
 
-class VNode(object):
+class DAENode(object):
     registry = []
     lookup = {}
     idlookup = {}
@@ -221,6 +221,7 @@ class VNode(object):
     root = None
     rawcount = 0
     verbosity = 1   # 0:almost no output, 1:one liners, 2:several lines, 3:extreme  
+    argptn = re.compile("^(\S*)___(\d*)")   
 
     @classmethod
     def summary(cls):
@@ -239,23 +240,23 @@ class VNode(object):
 
         #. `collada.Collada` parses the .dae 
         #. a list of bound geometry is obtained from `dae.scene.objects`
-        #. `VNode.recurse` traverses the raw pycollada node tree, creating 
-           an easier to navigate VNode heirarchy which has one VNode per bound geometry  
-        #. cross reference between the bound geometry list and the VNode tree
+        #. `DAENode.recurse` traverses the raw pycollada node tree, creating 
+           an easier to navigate DAENode heirarchy which has one DAENode per bound geometry  
+        #. cross reference between the bound geometry list and the DAENode tree
 
         """
         path = os.path.expandvars(path)
-        log.info("VNode.parse pycollada parse %s " % path )
+        log.info("DAENode.parse pycollada parse %s " % path )
         dae = collada.Collada(path)
         log.info("pycollada parse completed ")
         boundgeom = list(dae.scene.objects('geometry'))
         top = dae.scene.nodes[0]
         log.info("pycollada binding completed, found %s  " % len(boundgeom))
-        log.info("create VNode heirarchy ")
-        VNode.orig = dae
-        VNode.recurse(top)
-        VNode.summary()
-        VNode.indexlink( boundgeom )
+        log.info("create DAENode heirarchy ")
+        cls.orig = dae
+        cls.recurse(top)
+        cls.summary()
+        cls.indexlink( boundgeom )
 
     @classmethod
     def recurse(cls, node , ancestors=[] ):
@@ -264,7 +265,7 @@ class VNode(object):
         The below pattern of triplets of node types is followed precisely, due to 
         the node/instance_node/instance_geometry layout adopted for the dae file.
 
-        The triplets are collected into VNode on every 3rd leaf node.
+        The triplets are collected into DAENode on every 3rd leaf node.
 
         ::
 
@@ -295,17 +296,45 @@ class VNode(object):
 
     @classmethod
     def indexget(cls, index):
-        return VNode.registry[index]
+        return cls.registry[index]
 
     @classmethod
     def idget(cls, id):
         return cls.idlookup.get(id, None)
 
     @classmethod
+    def get(cls, arg ):
+        indices = cls.interpret_ids(arg)
+        index = indices[0]
+        node = cls.registry[index]
+        log.info("arg %s => indices %s => node %s " % ( arg, indices, node ))
+        return node
+
+    @classmethod
+    def interpret_arg(cls, arg):
+        """
+        Interpret arguments like:
+
+        #. 0
+        #. __dd__some__path.0
+        #. __dd__some__path.0___0
+        #. 0___0
+        #. top.0___0
+
+        Where the triple underscore ___\d* signified the maxdepth to recurse.
+        """
+        match = cls.argptn.match(arg)
+        if match:
+            arg, maxdepth = match.groups()
+        else:
+            maxdepth = -1
+        return arg, maxdepth
+
+    @classmethod
     def interpret_ids(cls, arg):
         """
         Interpret an arg like 0:10,400:410,300,40,top.0
-        into a list of integer VNode indices 
+        into a list of integer DAENode indices 
         """
         if "," in arg:
             args = arg.split(",")
@@ -317,6 +346,8 @@ class VNode(object):
                 iarg=range(*map(int,arg.split(":")))
                 ids.extend(iarg)
             else:
+                if "___" in arg:
+                    arg = arg.split("___")[0]   # get rid of the maxdepth indicator eg "___0"
                 try:
                     int(arg)
                     ids.append(int(arg))
@@ -325,7 +356,7 @@ class VNode(object):
                     if node:
                         ids.append(node.index)
                     else:
-                        log.warn("failed to lookup VNode for arg %s " % arg)
+                        log.warn("failed to lookup DAENode for arg %s " % arg)
         return ids
 
 
@@ -335,7 +366,7 @@ class VNode(object):
         :param bid: basis ID
         :param decodeNCName: more convenient not to decode for easy URL/cmdline  arg passing without escaping 
 
-        Find a unique id for the emerging VNode
+        Find a unique id for the emerging DAENode
         """
         if decodeNCName:
             bid = bid.replace("__","/").replace("--","#").replace("..",":")
@@ -351,7 +382,7 @@ class VNode(object):
     @classmethod
     def make(cls, nodepath ):
         """
-        Creates `VNode` instances and positions them within the volume tree
+        Creates `DAENode` instances and positions them within the volume tree
         by setting the `parent` and `children` attributes.
 
         A digest keyed lookup gives fast access to node parents,
@@ -409,17 +440,17 @@ class VNode(object):
         index linked cross referencing
 
         For this to be correct the ordering that pycollada comes
-        up with for the boundgeom must match the VNode ordering
+        up with for the boundgeom must match the DAENode ordering
 
         The geometry id comparison performed is a necessary condition, 
         but it does not imply correctness of the cross referencing due
         to a lot of id recycling.
         """
-        log.info("index linking VNode with boundgeom %s volumes " % len(boundgeom)) 
+        log.info("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
         assert len(cls.registry) == len(boundgeom)
-        for vn,bg in zip(VNode.registry,boundgeom):
+        for vn,bg in zip(cls.registry,boundgeom):
             vn.boundgeom = bg
-            bg.vnode = vn
+            bg.daenode = vn
             assert vn.geo.geometry.id == bg.original.id   
         log.info("index linking completed")    
 
@@ -442,12 +473,14 @@ class VNode(object):
             VNode(1,3)[0,top.0]
 
         """
+        anc = []
         if andself:
-            yield self
+            anc.append(self)
         p = self.parent
         while p is not None:
-            yield p
+            anc.append(p)
             p = p.parent
+        return anc    
 
     def __init__(self, nodepath):
         """
@@ -455,7 +488,7 @@ class VNode(object):
         :param rootdepth: depth 
         :param leafdepth: 
 
-        Currently `rootdepth == leafdepth - 2`,  making each VNode be constructed out 
+        Currently `rootdepth == leafdepth - 2`,  making each DAENode be constructed out 
         of three raw recursion levels.
 
         `digest` represents the identity of the specific instances(memory addresses) 
@@ -486,14 +519,22 @@ class VNode(object):
         self.index = len(self.registry)
 
     def matdict(self):
+        if hasattr(self, '_matdict'):
+            return self._matdict
         if not hasattr(self, 'boundgeom'):
-            return {}
-        bg = self.boundgeom
-        msi = bg.materialnodebysymbol.items()
-        assert len(msi) == 1 
-        symbol, matnode= msi[0]
-        matid = matnode.target.id
-        return dict(matid=matid, symbol=symbol)
+            _matdict =  {}
+        else:    
+            bg = self.boundgeom
+            msi = bg.materialnodebysymbol.items()
+            assert len(msi) == 1 
+            symbol, matnode= msi[0]
+            matid = matnode.target.id
+            _matdict = dict(matid=matid, symbol=symbol)
+        self._matdict = _matdict    
+        return self._matdict
+
+    matid  = property(lambda self:self.matdict().get('matid',None))
+    symbol = property(lambda self:self.matdict().get('symbol',None))
 
     def primitives(self):
         if not hasattr(self, 'boundgeom'):
@@ -512,7 +553,7 @@ class VNode(object):
         lines = []
         matdict = self.matdict()
         if self.verbosity > 0:
-            lines.append("VNode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+            lines.append("DAENode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
         if self.verbosity > 1:    
             lines.append("    pvid         %s " % self.pv.id )
             lines.append("    lvid         %s " % self.lv.id )
@@ -526,22 +567,31 @@ class VNode(object):
 
 
 
-class RPrint(list):
+class DAESubTree(list):
     """
     Recursively creates a list-of-strings representation 
     of a tree structure. Requires the nodes to have a children
     attribute which lists other nodes.
     """
     cut = 5
-    def __init__(self, top, maxdepth=-1 ):
+    def __init__(self, top, maxdepth=-1, text=True):
         list.__init__(self)
         self.maxdepth = maxdepth
+        self.text = text
         self( top )
 
     __str__ = lambda _:"\n".join(_)
 
-    def __call__(self, node, depth=0, index=0 ):
-        self.append("    " * depth + "[%d.%d] %s " % (depth, index, node))
+    def __call__(self, node, depth=0, sibdex=0 ):
+        if self.text:
+            obj = "    " * depth + "[%d.%d] %s " % (depth, sibdex, node)
+        else:
+            if type(node) == str:
+                indent = node
+            else:    
+                indent = "  +" * depth 
+            obj = (node, depth, sibdex, indent)
+        self.append( obj )
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             pass
         else:
@@ -549,19 +599,22 @@ class RPrint(list):
                 pass
             else:    
                 shorten = len(node.children) > self.cut*2    
-                for index, child in enumerate(node.children):
+                for sibdex, child in enumerate(node.children):
                     if shorten:
-                        if index < self.cut or index > len(node.children) - self.cut:
+                        if sibdex < self.cut or sibdex > len(node.children) - self.cut:
                             pass
-                        elif index == self.cut:    
+                        elif sibdex == self.cut:    
                             child = "..."
                         else:
                             continue
                     pass         
-                    self(child, depth + 1, index)
+                    self(child, depth + 1, sibdex)
 
 
-class VCopy(object):
+
+
+
+class DAECopy(object):
     """
     Non-Node objects, ie Effect, Material, Geometry have clearly defined places 
     to go within the `library_` elements and there is no need to place other
@@ -693,11 +746,11 @@ class VCopy(object):
         * PV nodes contain matrix and instance_node (pointing to an LV node) **ONLY**
           they are merely placements within their holding LV node. 
           
-        VNode are created by collada raw nodes traverse hitting leaves, ie
+        DAENode are created by collada raw nodes traverse hitting leaves, ie
         with recursion node path  Node/NodeNode/GeometryNode or xml structure
         node/instance_node/instance_geometry 
 
-        Thus VNode instances correspond to::
+        Thus DAENode instances correspond to::
         
              containing PV
                 instance_node referenced LV
@@ -743,7 +796,7 @@ class VCopy(object):
                          metaphorically the instance node passes 
                          thru to the referred to node for the raw collada recurse
                          and makes that node element "invisble"
-                         (not appearing in the nodepath used to create the VNode)
+                         (not appearing in the nodepath used to create the DAENode)
                          hence  Node/NodeNode/GeometryNode
                                  pv     lv        geo      <<< SO PV is the parent of the LV, not the same volume ???
 
@@ -767,7 +820,7 @@ class VCopy(object):
               </node>
 
         """
-        #log.debug( "    " * depth + "[%d.%d] %s " % (depth, index, vnode))
+        #log.debug( "    " * depth + "[%d.%d] %s " % (depth, index, daenode))
         pvnode, lvnode, geonode = vnode.pv, vnode.lv, vnode.geo
         # NB the lvnode is a NodeNode instance
 
@@ -830,18 +883,25 @@ class VCopy(object):
         return out.getvalue()
 
 
-def geom(arg, cfg ):
+
+def getSubCollada(arg, cfg ):
     """
-    VNode kinda merges LV and PV, but this should be a definite place, so regard as PV
+    DAENode kinda merges LV and PV, but this should be a definite place, so regard as PV
+
+    :return: collada XML string for sub geometry
     """
-    indices = VNode.interpret_ids(arg)
+    arg, maxdepth = DAENode.interpret_arg(arg)
+    cfg['maxdepth'] = maxdepth
+    log.info("getSubCollada arg maxdepth handling %s %s " % (arg, maxdepth))
+
+    indices = DAENode.interpret_ids(arg)
     assert len(indices) == 1 
     index = indices[0]
     log.info("geom subcopy arg %s => index %s cfg %s " % (arg, index, cfg) )
-    top = VNode.indexget(index)  
+    top = DAENode.indexget(index)  
 
     cfg['meta'] = E.extra(E.meta("subcopy arg %s index %s maxdepth %s " % (arg, index, cfg['maxdepth']) ))
-    vc = VCopy(top, cfg )
+    vc = DAECopy(top, cfg )
     svc = str(vc)
 
     subpath = cfg.get('subpath', None)
@@ -856,14 +916,17 @@ def node(arg, cfg ):
     """
     Present info for a single node
     """
+    arg, maxdepth = DAENode.interpret_arg(arg)
+    cfg['maxdepth'] = maxdepth
+
     ancestors = cfg.get('ancestors', cfg.get('a',None))
     children  = cfg.get('children', cfg.get('c',None))
     geometry = cfg.get('geometry', cfg.get('g',None))
 
-    ids = VNode.interpret_ids(arg)
+    ids = DAENode.interpret_ids(arg)
     hdr = ["_dump [%s] => ids %s " % (arg, str(ids) ), "cfg %s " % cfg, "" ]
  
-    vnode_ = lambda _:VNode.registry[_] 
+    vnode_ = lambda _:DAENode.registry[_] 
     nodes = map(vnode_, ids )
 
     out = []
@@ -885,18 +948,21 @@ def tree(arg, cfg):
     Present a text tree of the volume heirarchy from the root(s) defined 
     by the argument. 
     """
+    arg, maxdepth = DAENode.interpret_arg(arg)
+    cfg['maxdepth'] = maxdepth
+
     ancestors = cfg.get('ancestors', cfg.get('a',None))
-    indices = VNode.interpret_ids(arg)
+    indices = DAENode.interpret_ids(arg)
     assert len(indices) == 1
     index = indices[0]
-    node = VNode.indexget(index)
+    node = DAENode.indexget(index)
 
     anc = []
     if ancestors:
         for a in node.ancestors():
             anc.insert(0,"a %s" % a)
 
-    tre = RPrint(node, maxdepth=int(cfg.get('maxdepth','-1')))
+    tre = DAESubTree(node, maxdepth=int(cfg.get('maxdepth','-1')))
     return "\n".join(map(str,anc+tre))
 
 
@@ -966,43 +1032,33 @@ def parse_args(doc):
 
 
 
-
 # webpy interface glue
-
-class WebInput(object):
-    ptn = re.compile("^(\S*)___(\d*)")   
-    def __call__( self, arg, cfg ):
-        if arg.endswith('.dae') or arg.endswith('.xml'): # facilitate curling to file
-            arg = arg[:-4]
-        match = self.ptn.match(arg)
-        if match:
-            arg, maxdepth = match.groups()
-            cfg['maxdepth'] = maxdepth
-            log.info("WebInput arg maxdepth handling %s %s " % (arg, maxdepth))
-        return arg, cfg 
-
-webin = WebInput()
-
 class _index:
     def GET(self):
-        return "\n".join(["_index %s " % len(VNode.registry), __doc__ ])
+        return "\n".join(["_index %s " % len(DAENode.registry), __doc__ ])
 class _node:
     def GET(self, arg):
-        arg, cfg = webin( arg, dict(web.input().items()) ) 
-        return node(arg, cfg)
+        return node(arg, dict(web.input().items()))
 class _tree:
     def GET(self, arg):
-        arg, cfg = webin( arg, dict(web.input().items()) ) 
-        return tree(arg, cfg )   
+        return tree(arg, dict(web.input().items()))
 class _geom:
     def GET(self, arg):
         log.info("_geom.GET %s " % arg )
-        VNode.summary()
-        arg, cfg = webin( arg, dict(web.input().items()) ) 
-        out = geom(arg, cfg)
-        log.info("_geom GET completed ")
-        VNode.summary()
-        return out
+        return getSubCollada(arg, dict(web.input().items()))
+
+def main():
+    opts, args = parse_args(__doc__) 
+    DAENode.parse( opts.daepath )
+    if opts.webserver:
+        webserver()
+    elif opts.node:
+        print node(args[0])
+    elif opts.tree:
+        print tree(args[0], vars(opts))
+    elif opts.geom:
+        print getSubCollada(args[0], vars(opts))
+
 
 def webserver():
     log.info("starting webserver ")
@@ -1014,19 +1070,6 @@ def webserver():
            )
     app = web.application(urls, globals())
     app.run() 
-
-
-def main():
-    opts, args = parse_args(__doc__) 
-    VNode.parse( opts.daepath )
-    if opts.webserver:
-        webserver()
-    elif opts.node:
-        print node(args[0])
-    elif opts.tree:
-        print tree(args[0], vars(opts))
-    elif opts.geom:
-        print geom(args[0], vars(opts))
 
 
 if __name__ == '__main__':
