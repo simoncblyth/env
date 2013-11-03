@@ -5,6 +5,36 @@ numpy-vi(){       vi $(numpy-source) ; }
 numpy-env(){      elocal- ; }
 numpy-usage(){
   cat << EOU
+
+
+
+#. numpy 1.8.0 requires py26+
+
+::
+
+    [blyth@belle7 pycollada]$ sudo bash -c "LD_LIBRARY_PATH=$LD_LIBRARY_PATH easy_install numpy==1.7.1" 
+    Searching for numpy==1.7.1
+    Reading http://pypi.python.org/simple/numpy/
+    Best match: numpy 1.7.1
+    Downloading https://pypi.python.org/packages/source/n/numpy/numpy-1.7.1.zip#md5=9a72db3cad7a6286c0d22ee43ad9bc6c
+    Processing numpy-1.7.1.zip
+    Running numpy-1.7.1/setup.py -q bdist_egg --dist-dir /tmp/easy_install-8lHRyq/numpy-1.7.1/egg-dist-tmp-cbtX4y
+    Running from numpy source directory.
+    error: SandboxViolation: open('/dev/null', 'w') {}
+
+    The package setup script has attempted to modify files on your system
+    that are not within the EasyInstall build area, and has been aborted.
+
+    This package cannot be safely installed by EasyInstall, and may not
+    support alternate installation locations even if you run its setup
+    script by hand.  Please inform the package's author and the EasyInstall
+    maintainers to find out if a fix or workaround is available.
+    [blyth@belle7 pycollada]$ 
+
+
+
+
+
      numpy-src : $(numpy-src)
      numpy-dir : $(numpy-dir)
      
@@ -187,6 +217,11 @@ index 87e140c..0f84d87 100644
 
           pip install -e git+git://github.com/scb-/numpy.git@datetime64s-hours-more-than-24#egg=numpy 
                ## un-pushable clone
+
+
+
+
+
 
 EOU
 }

@@ -91,6 +91,7 @@ meshtool-get(){
 
 
 meshtool(){ 
+   type  $FUNCNAME
    export PRC_PATH=$HOME/.panda3d
    /usr/bin/python -c "from meshtool.__main__ import main ; main() " $* 
 }
