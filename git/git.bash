@@ -13,6 +13,7 @@ Reference
 
 * http://gitref.org/remotes/#fetch
 * http://book.git-scm.com/book.pdf 
+* http://www.git-scm.com/book/en/Git-Basics-Getting-a-Git-Repository
 
 Updating from remote branch
 ----------------------------
@@ -29,6 +30,14 @@ Simple branching
     git checkout -b py25compat    # shorthand for "git branch" "git checkout" of the named branch  
 
 
+Sharing a git repo
+---------------------
+
+* http://www.git-scm.com/book/en/Git-on-the-Server-The-Protocols#The-HTTP/S-Protocol
+
+
+
+
 EOU
 }
 git-dir(){ echo $(local-base)/env/git/git-git ; }
@@ -37,6 +46,19 @@ git-mate(){ mate $(git-dir) ; }
 git-get(){
    local dir=$(dirname $(git-dir)) &&  mkdir -p $dir && cd $dir
 
+}
+
+
+git-bare(){
+  local msg="=== $FUNCNAME :"
+  echo $msg following recipe from http://www.git-scm.com/book/en/Git-on-the-Server-The-Protocols#The-HTTP/S-Protocol
+  local path=$1
+  [ ! -f "${path}/.git" ] && echo $msg needs path to got repo argument && return 1
+  local name=$(basename $path)
+  apache-
+  local hook=$name.git/hooks/post-update
+  local cmd="cd $(apache-htdocs) ; git clone --bare $path $name.git ; mv $hook.sample $hook ; chmod a+x $hook/post-update "
+  echo $cmd
 }
 
 
