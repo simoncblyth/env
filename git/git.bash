@@ -36,29 +36,62 @@ Sharing a git repo
 * http://www.git-scm.com/book/en/Git-on-the-Server-The-Protocols#The-HTTP/S-Protocol
 
 
+FUNCTIONS
+----------
+
+*git-bare*
+       when invoked from the root of git working copy this
+       creates a bare repo in *git-bare-dir* eg /var/scm/git 
+
+*git-bare-scp name tag* 
+       scp the bare git repo to remote node  
 
 
 EOU
 }
-git-dir(){ echo $(local-base)/env/git/git-git ; }
+git-dir(){ echo $(local-scm-fold)/git ; }
 git-cd(){  cd $(git-dir); }
 git-mate(){ mate $(git-dir) ; }
-git-get(){
-   local dir=$(dirname $(git-dir)) &&  mkdir -p $dir && cd $dir
-
+git-make(){
+   local dir=$(git-dir) &&  mkdir -p $dir 
 }
 
+git-bare-dir(){ echo $(git-dir) ; }
+git-bare-path(){ echo $(git-bare-dir)/${1:-dummy}.git ; }
+git-bare-name(){ echo ${GIT_BARE_NAME:-pycollada} ;}
 
 git-bare(){
   local msg="=== $FUNCNAME :"
   echo $msg following recipe from http://www.git-scm.com/book/en/Git-on-the-Server-The-Protocols#The-HTTP/S-Protocol
-  local path=$1
-  [ ! -f "${path}/.git" ] && echo $msg needs path to got repo argument && return 1
+  local path=$PWD
+  [ ! -d "${path}/.git" ] && echo $msg needs to be invoked from toplevel of git checkout containing .git folder   && return 1
   local name=$(basename $path)
-  apache-
-  local hook=$name.git/hooks/post-update
-  local cmd="cd $(apache-htdocs) ; git clone --bare $path $name.git ; mv $hook.sample $hook ; chmod a+x $hook/post-update "
-  echo $cmd
+  local bare=$(git-bare-path $name)
+  local hook=$bare/hooks/post-update
+  [ -d "$bare" ] && echo $msg bare repo exists already at $bare && return 1
+  local cmd="git clone --bare $path $bare ; mv $hook.sample $hook ; chmod a+x $hook  "
+  echo $msg $cmd
+  eval $cmd
+}
+
+git-bare-scp(){
+  local msg="=== $FUNCNAME :"
+  local name=${1:-$(git-bare-name)}
+  local tag=${2:-N}
+  [ "$NODE_TAG" == "$tag" ] && echo $msg cannot scp to self $tag && return 1 
+  local cmd="scp -r $(git-bare-path $name) $tag:$(NODE_TAG=$tag git-bare-dir)"
+  echo $msg $cmd
+  eval $cmd
+}
+
+git-bare-clone(){
+  local msg="=== $FUNCNAME :"
+  local name=${1:-$(git-bare-name)}
+  local bare=$(git-bare-path $name)
+  [ ! -d "$bare" ] && echo $msg no bare git repo at $bare && return 1
+  local cmd="git clone $bare"
+  echo $msg $cmd
+  eval $cmd 
 }
 
 

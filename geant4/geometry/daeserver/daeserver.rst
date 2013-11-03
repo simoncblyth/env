@@ -2,9 +2,16 @@ DAESERVER
 ==========
 
 requirements
-------------
+---------------
 
-#. running apache, with SCGI configured as below
+#. python packages
+
+   * webpy
+   * numpy
+   * collada, `pycollada-vi` : nominally needs py26, 
+     but succeded to backport to system py25 on G (for use with system panda3d/Cg)
+
+#. apache, with SCGI configured as below
 #. daeserver.py webpy process running, start with::
 
     simon:~ blyth$ daeserver.py
