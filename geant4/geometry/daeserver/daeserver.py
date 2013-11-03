@@ -4,7 +4,9 @@
 Usage::
 
    daeserver.py --help
-   daeserver.py 
+   daeserver.py                              # scgi/apache on G 
+   daeserver.py -w "127.0.0.1:8080 fcgi"     # fastcgi/nginx on N 
+
    daeserver.py --daepath $LOCAL_BASE/env/graphics/collada/3199.dae  
       # starting from a small DAE file is convenient for parsing speed during development
       # NB volume indices will then be relative to that sub-root  
