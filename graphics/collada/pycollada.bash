@@ -24,6 +24,19 @@ REQUIREMENTS
 INSTALLS
 ---------
 
+
+N
+~~
+
+
+
+
+C2
+~~~
+
+#. system python 2.3.4 to old to attempt, source python 2.5.6, would need access to my py25compat git branch
+#. machine is currently network blocked, have to access via H
+
 G
 ~~
 
@@ -61,9 +74,7 @@ provides a reason to backport pycollada to system py2.5.1 on OSX. Hence::
       master
     * py25compat
 
-
-
-Switching as to comma and adding a few from future with_statement imports
+Switching "as" to "comma" and adding a few "from future import with_statement" 
 succeeds to get pycollada to install into system py25
 
 ::
