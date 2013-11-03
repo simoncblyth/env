@@ -907,8 +907,9 @@ def getSubCollada(arg, cfg ):
     subpath = cfg.get('subpath', None)
     if not subpath is None and cfg.get('daesave',False) == True:
         log.info("daesave to %s " % subpath )
-        with open(subpath, "w") as fp:
-            fp.write(svc)
+        fp = open(subpath, "w") 
+        fp.write(svc)
+        fp.close()
 
     return svc
 

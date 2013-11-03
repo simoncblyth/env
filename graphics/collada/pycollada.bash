@@ -24,10 +24,23 @@ REQUIREMENTS
 INSTALLS
 ---------
 
+history
+~~~~~~~~
+
+#. installed on G first using "git clone" from github, made py25 backport in py25compat git branch
+#. install on N clones from local bare repo at /var/scm/git/pycollada.git  
 
 N
 ~~
 
+Into source python 2.5.1::
+
+    python- source
+    pycollada-get   # from bare git repo clone /var/scm/git/pycollada.git grabbed with git-bare-scp from G
+    pycollada-build
+    pycollada-install   
+        # this attempted and failed to grab numpy 1.8.0 but that needs py26+ 
+        # so install 1.7.1 with *np-* functions
 
 
 
@@ -55,7 +68,6 @@ With py25 many errors at install, but build seemed ok.  Select py26 and try agai
 
     simon:pycollada blyth$ sudo port select --set ipython ipython26
     Selecting 'ipython26' for 'ipython' succeeded. 'ipython26' is now active.
-
 
     simon:~ blyth$ python -V
     Python 2.6.8
@@ -94,8 +106,21 @@ pycollada-scd(){  cd $(env-home)/graphics/collada/pycollada ; }
 pycollada-mate(){ mate $(pycollada-dir) ; }
 pycollada-get(){
    local dir=$(dirname $(pycollada-dir)) &&  mkdir -p $dir && cd $dir
-   [ ! -d pycollada ] && git clone git://github.com/pycollada/pycollada.git pycollada 
+   local nam=$(basename $(pycollada-dir))
+   [ -d $nam ] && echo $msg directory $nam exists already 
+
+   case $NODE_TAG in 
+      N) git clone /var/scm/git/pycollada.git pycollada ;;
+      *) git clone git://github.com/pycollada/pycollada.git pycollada  ;;
+   esac
+
 }
+
+pycollada-impcheck(){
+   which python
+   python -c "import collada as _ ; print _.__file__"
+}
+
 
 
 pycollada-daeview-orig(){
@@ -118,15 +143,21 @@ pycollada-daeview(){
    eval $cmd
 }
 
+pycollada-pycheck(){
+   [ "$NODE_TAG" == "N" -a "$(python -V 2>&1)" != "Python 2.5.1" ] && echo $msg unexpected python on $NODE_TAG && return 1 
+   return 0
+}
 
 pycollada-build(){
    pycollada-cd
+   ! pycollada-pycheck && return 
    python setup.py build 
 }
 
 pycollada-install(){
    pycollada-cd
-   sudo python setup.py install
+   ! pycollada-pycheck && return 
+   sudo bash -c "LD_LIBRARY_PATH=$LD_LIBRARY_PATH $(which python) setup.py install"
 }
 
 pycollada-wipe(){

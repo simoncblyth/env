@@ -15,7 +15,6 @@ NGINX
 ======
 
 * http://wiki.nginx.org/Main
-* http://wiki.nginx.org/NginxCommandLine
 * http://wiki.nginx.org/NginxXSendfile
 
    * http://www.bitbucket.org/chris1610/satchmo/src/tip/satchmo/apps/satchmo_store/shop/views/download.py
@@ -24,8 +23,46 @@ Putting nginx under supervisord control
 
 * http://www.vps.net/forum/public-forums/tutorials-and-how-tos/1102-how-to-spawn-php-with-supervisord-for-nginx-on-debian
 
+fastcgi
+--------
+
+* http://wiki.nginx.org/HttpFastcgiModule
+
+
+Commandline
+------------
+
+* http://wiki.nginx.org/NginxCommandLine
+
+
 INSTALLS
 ----------
+
+N
+~~
+
+Controlled via supervisord::
+
+    [blyth@belle7 ~]$ sv
+    demo_listener                    RUNNING    pid 3030, uptime 90 days, 6:38:18
+    demo_listener_raw                RUNNING    pid 3029, uptime 90 days, 6:38:18
+    demo_logger                      RUNNING    pid 3047, uptime 90 days, 6:38:18
+    dybslv                           RUNNING    pid 20321, uptime 0:43:56
+    hgweb                            RUNNING    pid 3045, uptime 90 days, 6:38:18
+    mysql                            RUNNING    pid 3046, uptime 90 days, 6:38:18
+    nginx                            FATAL      Exited too quickly (process log may have details)
+    N> stop nginx
+    nginx: ERROR (not running)
+    N> start nginx
+    nginx: started
+    N> tail -f nginx
+    ==> Press Ctrl-C to exit <==
+    2013/11/03 15:13:44 [emerg] 1596#0: open() "/etc/nginx/scgi_params" failed (2: No such file or directory) in /etc/nginx/nginx.conf:126
+    2013/11/03 15:13:45 [emerg] 1827#0: open() "/etc/nginx/scgi_params" failed (2: No such file or directory) in /etc/nginx/nginx.conf:126
+    2013/11/03 15:13:48 [emerg] 2249#0: open() "/etc/nginx/scgi_params" failed (2: No such file or directory) in /etc/nginx/nginx.conf:126
+    2013/11/03 15:13:51 [emerg] 2611#0: open() "/etc/nginx/scgi_params" failed (2: No such file or directory) in /etc/nginx/nginx.conf:126
+
+
 
 hfag.phys.ntu.edu.tw
 ~~~~~~~~~~~~~~~~~~~~~
@@ -53,7 +90,7 @@ For example the numpy documentation::
         
         ##  sv will auto restart with the new config
         visit http://cms01.phys.ntu.edu.tw/np/
-   
+
 
 FUNCTIONS
 ----------
@@ -144,6 +181,144 @@ Switch the SVN source on N, spitting in the face of the network bstards that blo
 	[blyth@belle7 e]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/env http://hfag.phys.ntu.edu.tw:90/repos/env
 
 
+SCGI Mounting
+----------------
+
+* http://wiki.nginx.org/HttpScgiModule
+
+  * module first appeared in nginx-0.8.42
+
+
+attempt to upgrade nginx on N
+------------------------------
+
+::
+
+    [blyth@belle7 daeserver]$ sudo yum --enablerepo=epel info nginx
+    Loaded plugins: kernel-module
+    epel                      100% |=========================| 3.6 kB    00:00     
+    epel/primary_db           100% |=========================| 3.1 MB    00:40     
+    Installed Packages
+    Name       : nginx
+    Arch       : i386
+    Version    : 0.6.39
+    Release    : 4.el5
+    Size       : 710 k
+    Repo       : installed
+    Summary    : Robust, small and high performance http and reverse proxy server
+    URL        : http://nginx.net/
+    License    : BSD
+    Description: Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
+               : proxy server written by Igor Sysoev.
+               : 
+               : One third party module, nginx-upstream-fair, has been added.
+
+    Available Packages
+    Name       : nginx
+    Arch       : i386
+    Version    : 0.8.55
+    Release    : 3.el5
+    Size       : 391 k
+    Repo       : epel
+    Summary    : Robust, small and high performance HTTP and reverse proxy server
+    URL        : http://nginx.net/
+    License    : BSD
+    Description: Nginx [engine x] is an HTTP(S) server, HTTP(S) reverse proxy and IMAP/POP3
+               : proxy server written by Igor Sysoev.
+
+
+
+::
+
+    [blyth@belle7 ~]$ sudo tail -18  /var/log/nginx/error.log
+    2013/11/03 14:35:11 [error] 4410#0: *126288 open() "/usr/share/nginx/html/rootdoc/src/THistPainter.h.html" failed (2: No such file or directory), client: 5.10.83.73, server: _, request: "GET /rootdoc/src/THistPainter.h.html HTTP/1.1", host: "belle7.nuu.edu.tw"
+    panic: MUTEX_LOCK (22) [op.c:352].
+    2013/11/03 15:21:09 [emerg] 31049#0: eventfd() failed (38: Function not implemented)
+    2013/11/03 15:21:09 [alert] 31011#0: worker process 31049 exited with fatal code 2 and can not be respawn
+    2013/11/03 15:23:37 [notice] 19916#0: signal process started
+    2013/11/03 15:23:37 [error] 19916#0: invalid PID number "" in "/var/run/nginx.pid"
+    2013/11/03 15:24:03 [notice] 23282#0: signal process started
+    2013/11/03 15:24:03 [error] 23282#0: invalid PID number "" in "/var/run/nginx.pid"
+    2013/11/03 15:24:18 [emerg] 25263#0: eventfd() failed (38: Function not implemented)
+    2013/11/03 15:24:18 [alert] 25255#0: worker process 25263 exited with fatal code 2 and can not be respawn
+    2013/11/03 15:24:30 [notice] 26924#0: signal process started
+    2013/11/03 15:24:30 [error] 26924#0: open() "/var/run/nginx.pid" failed (2: No such file or directory)
+    2013/11/03 15:24:37 [notice] 27757#0: signal process started
+    2013/11/03 15:24:37 [error] 27757#0: open() "/var/run/nginx.pid" failed (2: No such file or directory)
+    2013/11/03 15:26:20 [emerg] 9847#0: eventfd() failed (38: Function not implemented)
+    2013/11/03 15:26:20 [alert] 9843#0: worker process 9847 exited with fatal code 2 and can not be respawn
+    2013/11/03 15:31:21 [emerg] 21271#0: eventfd() failed (38: Function not implemented)
+    2013/11/03 15:31:21 [alert] 20776#0: worker process 21271 exited with fatal code 2 and can not be respawn
+    [blyth@belle7 ~]$ 
+
+
+* http://forum.nginx.org/read.php?2,150853,150853
+
+nginx binary was compiled with file aio support (on another
+host), but your system doesn't have proper interfaces (lacks
+eventfd() syscall).
+
+Solution is to recompile nginx without file aio support.
+
+It's not compiled in by default, so just don't specify
+--with-file-aio flag to configure.
+
+
+
+Erase the broken yum/epel nginx
+--------------------------------
+
+First grab customized things::
+
+    [blyth@belle7 ~]$ nginx-conf
+    /etc/nginx/nginx.conf
+    [blyth@belle7 ~]$ cp /etc/nginx/nginx.conf .
+    [blyth@belle7 ~]$ cp /etc/nginx/users.txt .
+
+Check what about to erase::
+
+    [blyth@belle7 ~]$ rpm -ql nginx
+    ...
+    /etc/nginx
+    /etc/nginx/fastcgi.conf
+    /etc/nginx/fastcgi.conf.default
+    /etc/nginx/fastcgi_params
+    /etc/nginx/nginx.conf
+    /etc/nginx/nginx.conf.default
+    /etc/nginx/scgi_params
+    ...
+
+    [blyth@belle7 ~]$ sudo yum erase nginx
+    ---> Package nginx.i386 0:0.8.55-3.el5 set to be erased
+    warning: /etc/nginx/nginx.conf saved as /etc/nginx/nginx.conf.rpmsave
+    Complete!
+
+After::
+
+    [blyth@belle7 ~]$ l /etc/nginx/
+    total 16
+    -rw-r--r-- 1 root root 5304 Nov  3 15:21 nginx.conf.rpmsave
+    -rw-r--r-- 1 root root 3234 Feb 22  2013 nginx.conf.rpmnew
+    -rw-r--r-- 1 root root   36 Jul  5  2010 users.txt
+
+Build from source
+------------------
+
+::
+  
+    nginx-get
+    nginx-build
+
+
+Fail to follow symlinks
+--------------------------
+
+Following upgrade and a change of root the old one, nginx would not
+follow symlinks.  Resolved by using the default htdocs and copying the 
+links in there.
+
+
+
 EOU
 }
 
@@ -190,7 +365,7 @@ nginx-chown(){
 
 nginx-mode(){
    case $NODE_TAG in 
-     WW|H) echo src ;;
+     WW|H|N) echo src ;;
       *) echo $(pkgr-cmd) ;;
    esac
 
@@ -199,6 +374,7 @@ nginx-mode(){
 #nginx-name(){ echo nginx-0.7.61 ; }
 #nginx-url(){  echo http://sysoev.ru/nginx/$(nginx-name).tar.gz ; }
 nginx-name(){ echo nginx-1.3.2 ; }
+#nginx-name(){ echo nginx-0.8.55 ; }
 nginx-url(){  echo http://nginx.org/download/$(nginx-name).tar.gz ; }
 
 nginx-dir(){  echo $(local-base)/env/nginx/$(nginx-name) ; }
@@ -213,15 +389,18 @@ nginx-get(){
 }
 nginx-build(){
    cd $(nginx-dir)
-   ## using default prefix of /usr/local/nginx
-   local node=$(uname -n)
-   case $node in 
+   case $(uname -n) in 
      hfag.phys.ntu.edu.tw) ./configure --prefix=$(local-base)/nginx --without-http_rewrite_module  ;;
                         *) ./configure --prefix=$(local-base)/nginx ;;
    esac
    make
+}
+
+nginx-install(){
+   cd $(nginx-dir)
    $SUDO make install
 }
+
 
 
 nginx-prefix(){
@@ -256,12 +435,11 @@ nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
 nginx-confd(){    echo $(nginx-prefix $*)/etc/nginx ; }
 nginx-conf(){
    case $NODE_TAG in 
-     WW|H) echo $(nginx-prefix)/conf/nginx.conf ;;
-        *) echo $(nginx-confd $*)/nginx.conf ;;
+     WW|H|N) echo $(nginx-prefix)/conf/nginx.conf ;;
+          *) echo $(nginx-confd $*)/nginx.conf ;;
    esac
 }    
 
-nginx--(){ $(nginx-sbin)/nginx $* ; }
 
  ## Since version 0.6.7 the filename path is relative to directory of nginx configuration file nginx.conf, but not to nginx prefix 
 nginx-users(){   echo $(nginx-prefix)/etc/nginx/users.txt ; }
@@ -275,8 +453,14 @@ nginx-pidpath(){
 
 
 # OK without sudo at IHEP    
-nginx-sstop(){   $SUDO nginx -s stop ; }
-nginx-sstart(){  $SUDO nginx  ; }
+nginx--(){ $SUDO $(nginx-sbin)/nginx $* ; }
+nginx-sstop(){   nginx-- -s stop ; }
+nginx-sstart(){  nginx--  ; }
+nginx-srestart(){  
+   nginx-sstop
+   nginx-sstart
+ }
+
 
  
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
@@ -298,8 +482,14 @@ EOI
 }
 
 
+nginx-syshtdocs(){
+  echo /usr/share/nginx/html
+}
+
+
 nginx-htdocs(){ 
   case ${1:-$NODE_TAG} in 
+     N) echo $(nginx-prefix)/html ;; 
     WW) echo /home/blyth/local/nginx/html ;;
      *) echo $(nginx-eprefix)/share/nginx/html ;;
   esac
@@ -439,5 +629,21 @@ nginx-ln(){
 nginx-ls(){
  ls -l  `nginx-htdocs`/
 }
+
+
+nginx-links(){
+  cd $(nginx-htdocs)
+  $SUDO ln -s /home/blyth/env/muon_simulation muon_simulation
+  $SUDO ln -s /usr/local/share/doc/gperftools-2.1 gperftools
+  $SUDO ln -s /home/blyth/fast fast
+  $SUDO ln -s /home/blyth/env/_build/dirhtml e
+  $SUDO ln -s /data1/env/local/dyb/external/ROOT/5.26.00e_python2.7/i686-slc5-gcc41-dbg/root/htmldoc rootdoc
+  $SUDO ln -s /data1/env/local/dyb/users/blyth/dbiscan/sphinx/_build/dirhtml dbiscan
+  $SUDO ln -s /data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex/_build/dirhtml oum
+  $SUDO ln -s /data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/DoxyManual/dox doc
+  $SUDO ln -s /data1/env/local/dyb/NuWa-trunk/dybgaudi/Documentation/OfflineUserManual/tex manual
+}
+
+
 
 

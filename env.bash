@@ -1253,3 +1253,4 @@ cg-(){      . $(env-home)/graphics/cg/cg.bash && cg-env $* ; }
 networkx-(){      . $(env-home)/tools/networkx.bash && networkx-env $* ; }
 webglbook-(){      . $(env-home)/graphics/webgl/webglbook.bash && webglbook-env $* ; }
 daeserver-(){      . $(env-home)/geant4/geometry/daeserver/daeserver.bash && daeserver-env $* ; }
+np-(){      . $(env-home)/python/np.bash && np-env $* ; }
