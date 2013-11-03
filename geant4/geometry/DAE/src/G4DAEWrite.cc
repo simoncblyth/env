@@ -206,8 +206,8 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
 
    AssetWrite(dae);
    EffectsWrite(dae);
+   SolidsWrite(dae);   // geometry before materials to match pycollada
    MaterialsWrite(dae);
-   SolidsWrite(dae);
 
    StructureWrite(dae);   // writing order does not follow inheritance order
 
