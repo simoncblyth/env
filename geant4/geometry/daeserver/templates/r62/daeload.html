@@ -6,16 +6,65 @@ $def with (arg, node, subtree)
   <script src="../static/r62/lib/three.min.js"></script>
   <script src="../static/r62/lib/query.js"></script>
   <script src="../static/r62/lib/ColladaLoader.js"></script>
-  <script src="../static/r62/lib/daeload.js"></script>
+  <script src="../static/r62/daeload.js"></script>
   <script>
     function onLoad()
     {
-        DAELOAD.load(QUERY);
+        var param = QUERY ;
+        param.url = "${arg}.dae" ;
+        DAELOAD.load(param);
     } 
    </script>
 </head>
 <body onLoad="onLoad()">
    <center><h1>DAE Loading</h1></center>
    <div id="container" style="width:95%; height:80%; position:absolute;"></div>
+
+
+<table>
+$for a in reversed(node.ancestors(andself=True)):      
+       <tr>
+          <td>A</td> 
+          <td>$a.index</td>
+          <td>${a.rootdepth}:${a.leafdepth}</td>
+          <td>
+             <a href="${a.index}___0.html">0</a>
+             <a href="${a.index}___1.html">1</a>
+             <a href="${a.index}___2.html">2</a>
+             <a href="${a.index}___3.html">3</a>
+             <a href="${a.index}___4.html">4</a>
+          </td>
+          <td>$a.id</td>
+          <td>$a.matid</td>
+          <td>$a.symbol</td>
+       </tr>
+
+$for c, depth, sibdex, indent in subtree:
+       $if indent == "...":
+           <tr>
+           </tr>
+       $else:
+           <tr>
+              <td>${depth}/${sibdex}</td> 
+              <td>$c.index</td>
+              <td>${c.rootdepth}:${c.leafdepth}</td>
+              <td>
+                 <a href="${c.index}___0.html">0</a>
+                 <a href="${c.index}___1.html">1</a>
+                 <a href="${c.index}___2.html">2</a>
+                 <a href="${c.index}___3.html">3</a>
+                 <a href="${c.index}___4.html">4</a>
+              </td>
+              <td>$c.id</td>
+              <td>$c.matid</td>
+              <td>$c.symbol</td>
+              <td>$indent</td> 
+           </tr>
+
+</table>
+
+
+
+
 </body>
 </html>

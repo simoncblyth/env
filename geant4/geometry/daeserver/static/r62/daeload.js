@@ -35,18 +35,8 @@ DAELOAD = function(){
         }
 
         function load( _param ){
-
             param = _param ;
-
-            if ( typeof param.url === "undefined" )
-            {
-                url = "../models/demo.dae" ; 
-            }
-            else
-            {
-                 url = "http://belle7.nuu.edu.tw/dae/tree/" + param.url + ".dae" ;
-            }
-
+            url = param.url || "../static/models/demo.dae"  ;
 		    var loader = new THREE.ColladaLoader();
 		    loader.options.convertUpAxis = true;
 		    loader.load( url , handle_load );
