@@ -66,8 +66,9 @@ def parse_args(doc):
     return opts, args
 
 
-webglbook_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/webglbook'))
-r62_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/r62'))
+cache = False
+webglbook_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/webglbook'),cache=cache)
+r62_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/r62'),cache=cache)
 
 class _index:
     def GET(self):
@@ -77,38 +78,33 @@ class _tree_dae:
     def GET(self, arg):
         return getSubCollada(arg, dict(web.input().items()))
 
-class _tree_html:
+maxdepth_ = lambda arg:arg.split("___")[1] if '___' in arg else -1
+
+class _tree_webglbook_html:
     def GET(self, arg):
-        if '___' in arg: 
-            maxdepth = arg.split("___")[1]
-        else:
-            maxdepth = -1
         node = DAENode.get(arg)
-        subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
+        subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
         return webglbook_render.production_loader_collada(arg, node, subtree )
 
-class _tree_htm:
+class _tree_r62_html:
     def GET(self, arg):
-        if '___' in arg: 
-            maxdepth = arg.split("___")[1]
-        else:
-            maxdepth = -1
         node = DAENode.get(arg)
-        subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
+        subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
         return r62_render.daeload(arg, node, subtree )
 
 
 URLS = (
-          '/',                    '_index', 
-          '/tree/(.+)?.html',     '_tree_html',
-          '/tree/(.+)?.htm',      '_tree_htm',
-          '/tree/(.+)?.dae',      '_tree_dae',
+          '/',                              '_index', 
+          '/tree/(.+)?.webglbook.html',     '_tree_webglbook_html',
+          '/tree/(.+)?.html',               '_tree_r62_html',
+          '/tree/(.+)?.dae',                '_tree_dae',
        )
 
 def main():
     opts, args = parse_args(__doc__) 
+    log.info("daeserver startup with webpy %s " % web.__version__ ) 
     DAENode.parse( opts.daepath )
-    app = web.application(URLS, globals())
+    app = web.application(URLS, globals() ) 
     app.run() 
 
 if __name__ == "__main__":

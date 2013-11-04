@@ -39,28 +39,6 @@ $for a in reversed(node.ancestors(andself=True)):
           <td>$a.symbol</td>
        </tr>
 
-$for c, depth, sibdex, indent in subtree:
-       $if indent == "...":
-           <tr>
-           </tr>
-       $else:
-           <tr>
-              <td>${depth}/${sibdex}</td> 
-              <td>$c.index</td>
-              <td>${c.rootdepth}:${c.leafdepth}</td>
-              <td>
-                 <a href="${c.index}___0.html">0</a>
-                 <a href="${c.index}___1.html">1</a>
-                 <a href="${c.index}___2.html">2</a>
-                 <a href="${c.index}___3.html">3</a>
-                 <a href="${c.index}___4.html">4</a>
-              </td>
-              <td>$c.id</td>
-              <td>$c.matid</td>
-              <td>$c.symbol</td>
-              <td>$indent</td> 
-           </tr>
-
 </table>
 
 
