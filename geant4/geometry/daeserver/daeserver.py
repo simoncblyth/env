@@ -66,7 +66,8 @@ def parse_args(doc):
     return opts, args
 
 
-render = web.template.render(os.path.join(os.path.dirname(__file__),'templates'))
+webglbook_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/webglbook'))
+r62_render = web.template.render(os.path.join(os.path.dirname(__file__),'templates/r62'))
 
 class _index:
     def GET(self):
@@ -84,11 +85,23 @@ class _tree_html:
             maxdepth = -1
         node = DAENode.get(arg)
         subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
-        return render.production_loader_collada(arg, node, subtree )
+        return webglbook_render.production_loader_collada(arg, node, subtree )
+
+class _tree_htm:
+    def GET(self, arg):
+        if '___' in arg: 
+            maxdepth = arg.split("___")[1]
+        else:
+            maxdepth = -1
+        node = DAENode.get(arg)
+        subtree = DAESubTree( node, maxdepth=maxdepth, text=False )
+        return r62_render.daeload(arg, node, subtree )
+
 
 URLS = (
           '/',                    '_index', 
           '/tree/(.+)?.html',     '_tree_html',
+          '/tree/(.+)?.htm',      '_tree_htm',
           '/tree/(.+)?.dae',      '_tree_dae',
        )
 
