@@ -1,0 +1,21 @@
+$def with (arg, node, subtree)
+<!DOCTYPE html>
+<html>
+<head>
+<title> CUBELIB </title>
+  <script src="../static/r62/lib/three.min.js"></script>
+  <script src="../static/r62/lib/query.js"></script>
+  <script src="../static/r62/lib/ColladaLoader.js"></script>
+  <script src="../static/r62/lib/daeload.js"></script>
+  <script>
+    function onLoad()
+    {
+        DAELOAD.load(QUERY);
+    } 
+   </script>
+</head>
+<body onLoad="onLoad()">
+   <center><h1>DAE Loading</h1></center>
+   <div id="container" style="width:95%; height:80%; position:absolute;"></div>
+</body>
+</html>
