@@ -105,3 +105,46 @@ daeserver-get(){
    local dir=$(dirname $(daeserver-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+daeserver-start-args(){
+  case $NODE_TAG in
+      N) echo 127.0.0.1:8080 fcgi ;;
+      G) echo 127.0.0.1:8080 scgi ;;
+      *) echo -n ;;
+  esac
+}
+
+daeserver-start-cmd(){
+  cat << EOC
+$(which python) $(daeserver-dir)/daeserver.py $(daeserver-start-args)
+EOC
+}
+
+daeserver-log(){ echo $(local-base)/env/geant4/geometry/daeserver/logs/sv.log ; }
+
+
+daeserver-sv-(){ 
+
+mkdir -p $(dirname $(daeserver-log))
+cat << EOX
+[program:daeserver]
+environment=LD_LIBRARY_PATH=$LD_LIBRARY_PATH,LOCAL_BASE=$LOCAL_BASE
+command=$(daeserver-start-cmd)
+process_name=%(program_name)s
+autostart=true
+autorestart=true
+
+redirect_stderr=true
+stdout_logfile=$(daeserver-log)
+stdout_logfile_maxbytes=5MB
+stdout_logfile_backups=10
+
+
+EOX
+}
+daeserver-sv(){
+  sv- 
+  $FUNCNAME- | sv-plus daeserver.ini
+}
+
+

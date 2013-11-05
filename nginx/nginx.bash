@@ -366,9 +366,8 @@ nginx-chown(){
 nginx-mode(){
    case $NODE_TAG in 
      WW|H|N) echo src ;;
-      *) echo $(pkgr-cmd) ;;
+          *) echo $(pkgr-cmd) ;;
    esac
-
 }
 
 #nginx-name(){ echo nginx-0.7.61 ; }
@@ -489,27 +488,19 @@ nginx-syshtdocs(){
 
 nginx-htdocs(){ 
   case ${1:-$NODE_TAG} in 
-     N) echo $(nginx-prefix)/html ;; 
-    WW) echo /home/blyth/local/nginx/html ;;
+     N|WW) echo $(nginx-prefix)/html ;; 
      *) echo $(nginx-eprefix)/share/nginx/html ;;
   esac
 }
 
-nginx-logd-(){   
-   case $(pkgr-cmd) in 
+nginx-logd(){   
+   case $(nginx-mode) in 
+      src)  echo $(nginx-prefix)/logs ;;
      port)  echo $(pkgr-logd)/nginx  ;;
      ipkg)  echo $(nginx-prefix)/var/nginx/log ;;
       yum)  echo $(nginx-prefix)/var/log/nginx ;;
    esac  
 }
-
-nginx-logd(){
-   case ${1:-$NODE_TAG} in 
-      WW) echo /home/blyth/local/nginx/logs ;;
-       *) nginx-logd- ;;
-   esac 
-}
-
 
 nginx-cd(){     cd $(nginx-logd) ; }
 nginx-log(){    echo $(nginx-logd)/sv.log ; }
