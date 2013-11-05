@@ -29,8 +29,6 @@ requirements
 
 #. test at http://localhost/dae/hello/hello.html?name=simon
 
-
-
 nginx
 ------
 
@@ -87,6 +85,15 @@ Dynamics do
 * http://localhost/geo/?name=simon
 
 
+
+development sources
+---------------------
+
+::
+
+    simon:daeserver blyth$ cp $(threejs-dir)/src/extras/helpers/AxisHelper.js static/r62/lib/
+    simon:daeserver blyth$ cp $(threejs-dir)/src/extras/helpers/BoxHelper.js static/r62/lib/
+    simon:daeserver blyth$ cp $(threejs-dir)/src/extras/helpers/ArrowHelper.js static/r62/lib/
 
 
 EOU

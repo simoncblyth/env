@@ -176,8 +176,29 @@ DAELOAD = function(){
         } 
 
      
+
+        function instrument_object( obj  ){
+
+            if ( obj.geometry.boundingBox === null ) {
+                obj.geometry.computeBoundingBox();
+            }
+
+            var bb = obj.geometry.boundingBox ; 
+            var size = Math.max( 
+                          Math.abs(bb.min.x), Math.abs(bb.max.x), 
+                          Math.abs(bb.min.y), Math.abs(bb.max.y), 
+                          Math.abs(bb.min.z), Math.abs(bb.max.z)
+                          ); 
+
+            obj.add(new THREE.DoubleAxisHelper( size * 1.2 ));
+            obj.add(new THREE.DoubleAxisHelper(-size * 1.2 ));
+            obj.add(new THREE.BoxHelper(obj)) ; 
+        }
+
+
         function init_scene( param ){
             scene = new THREE.Scene();
+            instrument_object( mesh );
             scene.add( mesh ); 
         }
 
