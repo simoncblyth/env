@@ -4,8 +4,8 @@
 Usage::
 
    daeserver.py --help
-   daeserver.py                              # scgi/apache on G 
-   daeserver.py -w "127.0.0.1:8080 fcgi"     # fastcgi/nginx on N 
+   daeserver.py             # default of scgi for apache on G 
+   daeserver.py -w fcgi     # fastcgi for nginx on N 
 
    daeserver.py --daepath $LOCAL_BASE/env/graphics/collada/3199.dae  
       # starting from a small DAE file is convenient for parsing speed during development
@@ -31,7 +31,8 @@ class Defaults(object):
     loglevel = "INFO"
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
-    webpy = "127.0.0.1:8080 scgi"
+    port = "8080"
+    webpy = "scgi"
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -41,10 +42,12 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG. Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
-    op.add_option("-w", "--webpy", default=defopts.webpy , help="Webserving config argv passed to webpy. Default %default ")
+    op.add_option(      "--port",  default=defopts.port , help="Webserving port passed to webpy. Default %default ")
+    op.add_option("-w", "--webpy", default=defopts.webpy , help="Webserving protocal config argv passed to webpy eg scgi fcgi. Default %default ")
 
     opts, args = op.parse_args()
-    sys.argv[1:] = opts.webpy.split()   # set argv for webpy 
+    webpyarg = "127.0.0.1:%s %s" % ( opts.port, opts.webpy ) 
+    sys.argv[1:] = webpyarg.split()   # set argv for webpy 
 
     level = getattr( logging, opts.loglevel.upper() )
     if opts.logpath:  # logs to file as well as console, needs py2.4 + (?)

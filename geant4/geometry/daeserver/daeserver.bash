@@ -108,15 +108,15 @@ daeserver-get(){
 
 daeserver-start-args(){
   case $NODE_TAG in
-      N) echo 127.0.0.1:8080 fcgi ;;
-      G) echo 127.0.0.1:8080 scgi ;;
+      N) echo -w fcgi ;;
+      G) echo -w scgi ;;  
       *) echo -n ;;
   esac
 }
 
 daeserver-start-cmd(){
   cat << EOC
-$(which python) $(daeserver-dir)/daeserver.py $(daeserver-start-args)
+$(which python) $(daeserver-dir)/daeserver.py $(daeserver-start-args) 
 EOC
 }
 

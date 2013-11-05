@@ -2,6 +2,10 @@
 
   * TODO:
 
+    * this fiddle has much more responsive controls that mine, why ? maybe param tuning 
+
+      * http://jsfiddle.net/RnFqz/22/  
+
     * parent link 
     * form controls, webpy POST such that dont need to remember the query param names but can still use them
     * face highlighting 
