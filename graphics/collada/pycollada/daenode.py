@@ -327,7 +327,7 @@ class DAENode(object):
         if match:
             arg, maxdepth = match.groups()
         else:
-            maxdepth = -1
+            maxdepth = 0  # default to zero
         return arg, maxdepth
 
     @classmethod
@@ -626,8 +626,12 @@ class DAECopy(object):
     def __init__(self, top, opts ):
 
         self.opts = opts 
-        self.dae = collada.Collada()
-        self.maxdepth = int(self.opts.get('maxdepth',-1))
+
+        dae = collada.Collada()
+        dae.assetInfo.upaxis = 'Z_UP'    # default is Y_UP
+
+        self.dae = dae
+        self.maxdepth = int(self.opts.get('maxdepth',0))   # default to no-recursion
 
         cpvtop = self( top )    # recursive copier
         self.cpvtop = cpvtop
@@ -653,6 +657,7 @@ class DAECopy(object):
         #ceffect = collada.material.Effect.load( self.dae, {},  effect.xmlnode ) 
         #ceffect = copy.copy( effect )
         ceffect = effect 
+        ceffect.double_sided = True  
         self.dae.effects.append(ceffect)  # pycollada managed not adding duplicates 
         return ceffect
 
@@ -665,6 +670,7 @@ class DAECopy(object):
         #cmaterial = collada.material.Material.load( self.dae, {} , material.xmlnode )
         #cmaterial = copy.copy( material )
         cmaterial = material
+        cmaterial.double_sided = True   
         self.dae.materials.append(cmaterial)
         return cmaterial
 
@@ -714,6 +720,7 @@ class DAECopy(object):
             material = matnode.target
             ceffect = self.load_effect( material.effect )
             cmaterial = self.load_material( material )
+            # cmaterial.double_sided = True   # geo node keeps a reference to the material, so changing this doesnt help ?
             cmatnode = collada.scene.MaterialNode( matnode.symbol, cmaterial, matnode.inputs )
             cmaterials.append(cmatnode)
         pass     
@@ -728,7 +735,6 @@ class DAECopy(object):
         self.dae.geometries.append( geonode.geometry )
         for matnode in geonode.materials:
             material = matnode.target
-            material.double_sided = True  
             self.dae.effects.append( material.effect ) 
             self.dae.materials.append( material ) 
         pass    

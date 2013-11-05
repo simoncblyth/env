@@ -26,6 +26,15 @@
  
      * bizarre shark animation
 
+   * http://localhost/dae/tree/3155___1.html?cam=2,2,2
+
+     * depth is not enough to protect from heavy geometry for some volumes, maybe could cull excessive siblings 
+
+   * http://localhost/dae/tree/2___1.html?cam=0.5,0.5,0.5
+
+
+
+
 
 */
 
@@ -93,21 +102,22 @@ DAELOAD = function(){
 
         function init_camera( param ){
 
-            var defaults = { fov:75, near:1, far:10000, cam:"0,0,1000", look:"0,0,0",  bbcam:"0" };
+            var defaults = { fov:"75", near:"0.1", far:"100", cam:"2,2,2", look:"0,0,0",  bbunit:"1" };
 
-            var fov = param.fov || defaults.fov ;
-            var near = param.near || defaults.near ;
-            var far = param.far || defaults.far ; 
+            var fov = parseFloat(param.fov || defaults.fov) ;   // vertical fov in degrees
+ 
+            var bbunit = THREE_enum_bool[param.bbunit || defaults.bbunit ];        // determines the unit of the positions
+
+            var near = parseFloat(param.near || defaults.near) ;
+            var far = parseFloat(param.far || defaults.far) ; 
             var cam = THREE_Vector3_fromString( param.cam || defaults.cam );
             var look = THREE_Vector3_fromString( param.look || defaults.look );
 
-            var bbcam = THREE_enum_bool[param.bbcam || defaults.bbcam ];
-
-            if ( bbcam ){
+            if ( bbunit ){
                 //
-                // when using `bbcam=1` the `cam=1,1,1` arg is regarded to be in units 
+                // when using `bbunit=1` the `cam=1,1,1` and look args are 
+                // regarded to be in units 
                 // of the bounding size obtained from the below for each dimension
-                //     `max(abs(bb.max),abs(bb.min))` 
                 //
                 // this allows the camera to positioned inside OR outside an
                 // unknown geometry such that on rotating around the geometry should
@@ -115,13 +125,26 @@ DAELOAD = function(){
                 //
                 geometry.computeBoundingBox();
                 var bb = geometry.boundingBox  ; 
-                //var bbsize = new THREE.Vector3( bb.max.x - bb.min.x, bb.max.y - bb.min.y , bb.max.z - bb.min.z ); 
-                var bbsize = new THREE.Vector3( 
-                      Math.max(Math.abs(bb.max.x),Math.abs(bb.min.x)), 
-                      Math.max(Math.abs(bb.max.y),Math.abs(bb.min.y)), 
-                      Math.max(Math.abs(bb.max.z),Math.abs(bb.min.z))) ;
 
-                cam.set( cam.x * bbsize.x , cam.y * bbsize.y , cam.z * bbsize.z );  
+                //  max extent along each axis
+                //
+                //  var bbsize = new THREE.Vector3( 
+                //      Math.max(Math.abs(bb.max.x),Math.abs(bb.min.x)), 
+                //      Math.max(Math.abs(bb.max.y),Math.abs(bb.min.y)), 
+                //      Math.max(Math.abs(bb.max.z),Math.abs(bb.min.z))) ;
+                //  cam.set( cam.x * bbsize.x , cam.y * bbsize.y , cam.z * bbsize.z );  
+
+                // max extent along any axis
+                var bbsize = Math.max(
+                                Math.abs(bb.max.x),Math.abs(bb.min.x), 
+                                Math.abs(bb.max.y),Math.abs(bb.min.y), 
+                                Math.abs(bb.max.z),Math.abs(bb.min.z)
+                             );
+
+                cam.multiplyScalar( bbsize );
+                look.multiplyScalar( bbsize );
+                near = near * bbsize ;
+                far = far * bbsize ;
             }
 
 
@@ -137,6 +160,7 @@ DAELOAD = function(){
             {
                 camera = new THREE.PerspectiveCamera( fov, width / height, near, far );
             }
+
 
             camera.position.copy(cam);
             camera.lookAt(look);
@@ -163,8 +187,8 @@ DAELOAD = function(){
         function init_loaded( param ){
 
             var defaults = { obj:"0,0,0" };
-            var obj = THREE_Vector3_fromString( param.obj || defaults.obj );
 
+            var obj = THREE_Vector3_fromString( param.obj || defaults.obj );
             var root = dae ;
             var ppv = root.children[0] ; 
             var  lv = ppv.children[0] ; 
@@ -174,31 +198,39 @@ DAELOAD = function(){
 
             mesh.position.copy(obj);
         } 
-
      
 
-        function instrument_object( obj  ){
+        function instrument_object( obj , param ){
 
-            if ( obj.geometry.boundingBox === null ) {
-                obj.geometry.computeBoundingBox();
-            }
+            var defaults = { axes:"1" , bbox:"1" };
 
-            var bb = obj.geometry.boundingBox ; 
-            var size = Math.max( 
+            var axes = THREE_enum_bool[param.axes || defaults.axes] ;
+            var bbox = THREE_enum_bool[param.bbox || defaults.bbox] ;
+
+            if( axes ){
+
+               if ( obj.geometry.boundingBox === null ) {
+                    obj.geometry.computeBoundingBox();
+               }
+               var bb = obj.geometry.boundingBox ; 
+               var size = Math.max( 
                           Math.abs(bb.min.x), Math.abs(bb.max.x), 
                           Math.abs(bb.min.y), Math.abs(bb.max.y), 
                           Math.abs(bb.min.z), Math.abs(bb.max.z)
                           ); 
+                obj.add(new THREE.DoubleAxisHelper( size * 1.2 ));
+                obj.add(new THREE.DoubleAxisHelper( size * -1.2 ));
+            }
 
-            obj.add(new THREE.DoubleAxisHelper( size * 1.2 ));
-            obj.add(new THREE.DoubleAxisHelper(-size * 1.2 ));
-            obj.add(new THREE.BoxHelper(obj)) ; 
+            if( bbox ){
+                obj.add(new THREE.BoxHelper(obj)) ; 
+            }
         }
 
 
         function init_scene( param ){
             scene = new THREE.Scene();
-            instrument_object( mesh );
+            instrument_object( mesh , param );
             scene.add( mesh ); 
         }
 
