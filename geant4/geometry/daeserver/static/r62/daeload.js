@@ -1,14 +1,33 @@
 /**
 
+  * TODO:
 
+    * bbox dimensions output
+    * rotation controls 
+    * canvas size
+    * html links not working 
+    * form controls, webpy POST
+    * cull excessive siblings
+    * transparency
+    * html tree
 
-   * http://belle7.nuu.edu.tw/dae/tree/3154___0.html?bbcam=1&cam=0,4,0&anim=0&fov=30&rotation=0.0,0.01,0.01
+   * http://belle7.nuu.edu.tw/dae/tree/3154.html
 
-     * the AD is on its side : fix up axis
-          
-   * http://belle7.nuu.edu.tw/dae/tree/3154___0.html?bbcam=1&cam=0,0,0&anim=0&fov=30&rotation=0.0,0.01,0.01
+     * the AD is on its side : fixed by changing to Z_UP at DAECopy stage
+   
+   * http://belle7.nuu.edu.tw/dae/tree/3154.html?cam=0.1,0.1,0.1&anim=1&rotate=0,0.1,0
+
+     * TODO: change to spec axis of rotation and delta ?
+       
+   * http://belle7.nuu.edu.tw/dae/tree/3154___0.html?cam=0.1,0.1,0.1
 
      * see nothing here, with camera at center : need to fix double sided 
+     * now double sided and sides visble, but curious culling
+
+  * http://belle7.nuu.edu.tw/dae/tree/3154.html?fov=0
+  * http://belle7.nuu.edu.tw/dae/tree/2___1.html?cam=0.5,0.5,0.5&fov=0
+  
+    * frame filling from orthographic ?
 
    * http://belle7.nuu.edu.tw/dae/tree/3154___0.html?bbcam=1&cam=0,4,1&anim=1&fov=80&rotation=0.0,0.0,0.01
        
@@ -17,22 +36,17 @@
    * http://belle7.nuu.edu.tw/dae/tree/3153___0.html?bbcam=1&cam=0,4,1&anim=1&fov=80&rotation=0.0,0.0,0.01
 
      * evern wierder cutting 
- 
-   * http://belle7.nuu.edu.tw/dae/tree/3153___0.html?bbcam=1&cam=0,4,1&anim=1&fov=50&rotation=0.0,0.0,0.01&far=1000
-
-     * any setting of far makes it dissappear
-
-   * http://belle7.nuu.edu.tw/dae/tree/3152___0.html?bbcam=1&cam=0,4,1&anim=1&fov=120&rotation=0.0,0.0,0.01
- 
-     * bizarre shark animation
 
    * http://localhost/dae/tree/3155___1.html?cam=2,2,2
 
-     * depth is not enough to protect from heavy geometry for some volumes, maybe could cull excessive siblings 
+     * depth is not enough to protect from heavy geometry for some volumes, 
+       maybe could cull excessive siblings 
 
    * http://localhost/dae/tree/2___1.html?cam=0.5,0.5,0.5
 
+   * http://belle7.nuu.edu.tw/dae/tree/0.html?cam=0.1,0.1,0.1&anim=1
 
+     * with double sided on, the view from inside is kinda confusing
 
 
 
@@ -102,7 +116,7 @@ DAELOAD = function(){
 
         function init_camera( param ){
 
-            var defaults = { fov:"75", near:"0.1", far:"100", cam:"2,2,2", look:"0,0,0",  bbunit:"1" };
+            var defaults = { fov:"75", near:"0.1", far:"100", cam:"2,2,2", look:"0,0,0",  bbunit:"1" , orth:"10,10,1" };
 
             var fov = parseFloat(param.fov || defaults.fov) ;   // vertical fov in degrees
  
@@ -112,6 +126,7 @@ DAELOAD = function(){
             var far = parseFloat(param.far || defaults.far) ; 
             var cam = THREE_Vector3_fromString( param.cam || defaults.cam );
             var look = THREE_Vector3_fromString( param.look || defaults.look );
+            var orth = THREE_Vector3_fromString( param.orth || defaults.orth );
 
             if ( bbunit ){
                 //
@@ -150,11 +165,9 @@ DAELOAD = function(){
 
             if ( fov == 0 )
             {
-                var right = width / 2 ; 
-                var left = - right ; 
-                var top = height  ; 
-                var bottom = - top ; 
-                camera = new THREE.OrthographicCamera( left, right, top, bottom, near, far );
+                var right = orth.x * width * 0.5  ; 
+                var top   = orth.y * height * 0.5 ; 
+                camera = new THREE.OrthographicCamera( -right, right, top, -top, near, far );
             }
             else
             {
