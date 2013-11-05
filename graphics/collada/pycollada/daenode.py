@@ -728,6 +728,7 @@ class DAECopy(object):
         self.dae.geometries.append( geonode.geometry )
         for matnode in geonode.materials:
             material = matnode.target
+            material.double_sided = True  
             self.dae.effects.append( material.effect ) 
             self.dae.materials.append( material ) 
         pass    
