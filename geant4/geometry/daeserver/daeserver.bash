@@ -148,3 +148,11 @@ daeserver-sv(){
 }
 
 
+daeserver-libd(){ echo $(daeserver-dir)/static/r62/lib ; }
+daeserver-collect(){
+   threejs-
+   daeserver-cd
+   cp  $(threejs-dir)/examples/js/controls/TrackballControls.js $(daeserver-libd)/
+   cp  $(threejs-dir)/examples/js/controls/OrbitControls.js $(daeserver-libd)/
+}
+

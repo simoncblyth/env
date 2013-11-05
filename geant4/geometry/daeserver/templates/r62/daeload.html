@@ -7,21 +7,22 @@ $def with (arg, node, subtree)
   <script src="../static/r62/lib/query.js"></script>
   <script src="../static/r62/lib/ColladaLoader.js"></script>
   <script src="../static/r62/lib/DoubleAxisHelper.js"></script>
+  <script src="../static/r62/lib/OrbitControls.js"></script>
+  <script src="../static/r62/lib/TrackballControls.js"></script>
   <script src="../static/r62/daeload.js"></script>
   <script>
     function onLoad()
     {
         var param = QUERY ;
         param.url = "${arg}.dae" ;
-        DAELOAD.load(param);
+        DAELOAD.init(param);
     } 
    </script>
 </head>
 <body onLoad="onLoad()">
-   <center><h1>DAE Loading</h1></center>
-   <div id="container" style="width:95%; height:80%; position:absolute;"></div>
-
-
+   <!--center><h1>DAE Loading</h1></center-->
+   <div id="container" style="width:100%; height:100%; position:absolute;"></div>
+   <!--div id="container"></div-->
 <table>
 $for a in reversed(node.ancestors(andself=True)):      
        <tr>
