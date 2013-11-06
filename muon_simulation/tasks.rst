@@ -3,6 +3,26 @@ Tasks
 
 .. contents:: :local:
 
+
+.. slide:: 200x Faster NuWa + Chroma Photon Propagation
+   :level: 1
+
+   What needs to be done to turn that into reality
+
+
+.. slide:: Tasks slide
+   :level: 1 
+
+   Content of Tasks slide
+
+
+
+.. slide:: Tasks slide
+   :level: 2 
+
+   Content of Tasks slide
+
+
 Geant4 Profiling [DONE]
 ------------------------
 

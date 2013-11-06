@@ -1255,3 +1255,7 @@ webglbook-(){      . $(env-home)/graphics/webgl/webglbook.bash && webglbook-env 
 daeserver-(){      . $(env-home)/geant4/geometry/daeserver/daeserver.bash && daeserver-env $* ; }
 np-(){      . $(env-home)/python/np.bash && np-env $* ; }
 threejs-(){      . $(env-home)/graphics/webgl/threejs/threejs.bash && threejs-env $* ; }
+hieroglyph-(){      . $(env-home)/doc/hieroglyph.bash && hieroglyph-env $* ; }
+s5-(){      . $(env-home)/doc/s5.bash && s5-env $* ; }
+sphinxhtmlslide-(){      . $(env-home)/doc/sphinxhtmlslide.bash && sphinxhtmlslide-env $* ; }
+rst2s5-(){      . $(env-home)/doc/rst2s5.bash && rst2s5-env $* ; }

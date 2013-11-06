@@ -13,13 +13,37 @@ extensions
 -----------
 
 * https://pypi.python.org/pypi/sphinxcontrib-newsfeed/0.1.1
-
-   * RSS + DisQus + blog 
-
 * https://pypi.python.org/pypi/sphinxcontrib-googleanalytics/
-   
 
- 
+update
+--------
+
+Macports sphinx is too old::
+
+    py26-sphinx @1.1.3_1 (python, textproc, devel)
+        Python documentation generator
+
+::
+
+    simon:doc blyth$ sphinx-cd .. 
+    simon:doc blyth$ mv sphinx sphinx.dec2010
+    simon:doc blyth$ sphinx-get
+
+
+Careful where you check from::
+
+    simon:sphinx blyth$ python -c "import sphinx ; print sphinx.__version__"
+    1.2b3
+    simon:sphinx blyth$ ( cd ; python -c "import sphinx ; print sphinx.__version__" )
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+    ImportError: No module named sphinx
+
+
+
+
+
+       
 installs
 ---------
 
@@ -44,6 +68,45 @@ macports py25-sphinx   used for ~/heprez/docs
    
 py25 in use with heprez for un-recalled compatibility reasons
 possibly jima:avg jython related 
+
+Sphinx/Docutils Issue in attempt to use hieroglyph
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* :google:`docutils AssertionError: Losing "ids" attribute`
+
+  * https://bitbucket.org/birkenfeld/sphinx/issue/1160/citation-target-missing-assertionerror
+
+::
+
+     18   File "/opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/sphinx/environment.py", line 1504, in resolve_references
+     19     builder.app.emit('doctree-resolved', doctree, fromdocname)
+     20   File "/opt/local/lib/python2.5/site-packages/sphinx/application.py", line 314, in emit
+     21     results.append(callback(self, *args))
+     22   File "/opt/local/lib/python2.5/site-packages/hieroglyph-0.6.5.dev-py2.5.egg/hieroglyph/directives.py", line 193, in process_slideconf_nodes
+     23     filter_doctree_for_slides(doctree)
+     24   File "/opt/local/lib/python2.5/site-packages/hieroglyph-0.6.5.dev-py2.5.egg/hieroglyph/directives.py", line 171, in filter_doctree_for_slides
+     25     child.traverse(no_autoslides_filter)
+     26   File "/opt/local/lib/python2.5/site-packages/docutils/nodes.py", line 692, in replace_self
+     27     'Losing "%s" attribute: %s' % (att, self[att])
+     28 AssertionError: Losing "ids" attribute: ['todo']
+
+
+Make a dirty fix, as dont want to try to update Sphinx just now::
+
+    simon:hieroglyph.env blyth$ sudo vi /opt/local/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/sphinx/environment.py
+
+    1483                 elif typ == 'citation':
+    1484                     docname, labelid = self.citations.get(target, ('', ''))
+    1485                     if docname:
+    1486                         newnode = make_refnode(builder, fromdocname, docname,
+    1487                                                labelid, contnode)
+    1488                     elif 'ids' in node:       ###  SCB DIRTY FIX  https://bitbucket.org/birkenfeld/sphinx/commits/72dceb35264e
+    1489                         del node['ids'][:]    ###  SCB DIRTY FIX 
+    1490                 # no new node found? try the missing-reference event
+    1491                 if newnode is None:
+
+
+
 
 C2 
 ~~~
@@ -448,6 +511,32 @@ G macports py26-sphinx
     Error: Processing of port py26-sphinx failed
     simon:docs blyth$ 
 
+Had to force install it::
+
+    simon:bin blyth$ sudo port install -f py26-docutils
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    --->  Computing dependencies for py26-docutils
+    --->  Activating py26-docutils @0.11_0
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2xetex.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2xetex.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/languages/lt.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/parsers/rst/languages/lt.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/__init__.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/code_analyzer.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/punctuation_chars.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/utils/roman.pyc.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/latex2e/xelatex.tex already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/latex2e/xelatex.tex.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.py already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.py.mp_1383719108.
+    Warning: File /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.pyc already exists.  Moving to: /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/docutils/writers/xetex/__init__.pyc.mp_1383719108.
+    --->  Cleaning py26-docutils
+
+
+
 
 EOU
 }
@@ -462,26 +551,29 @@ sphinx-get(){
    hg clone http://bitbucket.org/birkenfeld/sphinx 
 }
 
+sphinx-install(){
+   sphinx-cd
+   which python
+   python -V
+   sudo python setup.py install 
+}
+
+
 sphinx-path(){
    if [ "$(uname)" == "Darwin" ]; then
       export PATH=/opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin:$PATH
    fi
 }
 
-
 sphinx-version(){   python -c "import sphinx as _ ; print _.__version__  " ; }
 sphinx-pkgsource(){ python -c "import sphinx as _ ; print _.__file__  " ;   }
-
-sphinx-test(){
-   cd  /tmp/env/converter-test
-   cd database
-
-   
-
-}
-
 sphinx-build-speed(){
    local python=/opt/local/Library/Frameworks/Python.framework/Versions/2.5/Resources/Python.app/Contents/MacOS/Python 
    $python -c "import sphinx ; print sphinx.__version__"
    $python -c "import jinja2 ; print jinja2.__version__"
 }
+
+
+#sphinx-build(){
+#   /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+#}

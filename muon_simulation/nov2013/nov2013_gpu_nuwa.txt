@@ -1,0 +1,90 @@
+.. include:: <s5defs.txt>
+
+======================================================================
+:small:`200x Faster Optical Photon Propagation with NuWa + Chroma_ ?`
+======================================================================
+
+.. sidebar:: Objective 
+
+    .. class:: :small:
+
+        Simple NuWa + Chroma installer providing 
+        GPU accelerated Optical Photon Propagation
+
+.. class:: small
+
+    #. Geometry Conversion
+    #. Installation 
+    #. GPU Hardware access
+    #. :red:`Geant4/Chroma Integration`
+    #. :red:`Validation`
+
+
+Also introduction to Chroma from 
+
+.. _Chroma: http://chroma.bitbucket.org
+
+.. raw:: html
+
+   <a href="http://chroma.bitbucket.org" style="font-size:20pt;font-style:monaco;" > http://chroma.bitbucket.org </a>
+
+
+Chroma : Ultra-fast Photon MC
+------------------------------
+
+.. class:: small
+
+      Developed by Stan Seibert, University of Pennsylvania.
+
+      Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+      simulating processes like diffuse and specular reflections, 
+      refraction, Rayleigh scattering and absorption.
+
+      Triangle meshes eliminate geometry code : :red:`just one code path` 
+
+      200x performance claim:
+
+         *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+         in a detector with 29k photomultiplier tubes. This is
+         200x faster than GEANT4.*
+
+:rawlink:`http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf`
+
+.. raw:: html
+
+   <a href="http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf" style="font-size:12pt;font-style:monaco;" > http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf </a>
+
+
+G4DAE : Triangulate G4 Geometry
+--------------------------------
+
+:tiny:`http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/DAE` 
+
+.. image:: images/G4DAEWrite.png 
+   :width: 600px
+   :align: center
+
+Installing NuWa and Chroma
+---------------------------
+
+Many dependencies
+
+GPU Hardware
+-------------
+
+
+* NTU
+* NUU
+* BNL
+* LBNL
+
+Chroma Geant4 Integration
+--------------------------
+
+Whats needed
+
+
+Validation
+-----------
+
+How ?

@@ -5,13 +5,11 @@ gcc-vi(){       vi $(gcc-source) ; }
 gcc-env(){      elocal- ; }
 gcc-usage(){ cat << EOU
 
-
 MULTIPLE gcc/g++ HANDLING
 ============================
 
 * http://gcc.gnu.org/
 * http://gcc.gnu.org/releases.html
-
 
 
 update-alternatives

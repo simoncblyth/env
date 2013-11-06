@@ -7,6 +7,13 @@ Env Development Log
 :Version: |version|
 :Date: |today|
 
+::
+
+    .. slide:: 200x Faster NuWa + Chroma Photon Propagation
+       :level: 1
+
+       What needs to be done to turn that into reality
+
 
 Objectives for these pages.
 
@@ -29,6 +36,10 @@ code changes is invaluable.
 Very structured information closely linked to bash functions should be logged
 within the bash functions themselves. For example:
 
+Disabled::
+
+   TODO
+
 
 Contents:
 
@@ -37,7 +48,6 @@ Contents:
 
    install
    base/index
-   TODO <TODO>
    LOG <log/May2012>
    Sys Admin <sysadmin/index>
    Plotting <plot/index>

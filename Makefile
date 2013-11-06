@@ -3,7 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
+#SPHINXBUILD   = /opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/sphinx-build
+SPHINXBUILD   = /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/sphinx-build
 PAPER         =
 BUILDDIR      = _build
 
@@ -78,6 +79,17 @@ singlehtml:
 	$(SPHINXBUILD) -b singlehtml $(ALLSPHINXOPTS) $(BUILDDIR)/singlehtml
 	@echo
 	@echo "Build finished. The HTML page is in $(BUILDDIR)/singlehtml."
+
+slides:
+	$(SPHINXBUILD) -b slides $(ALLSPHINXOPTS) $(BUILDDIR)/slides
+	@echo
+	@echo "Build finished. The hieroglyph HTML slides are in $(BUILDDIR)/slides."
+
+dirslides:
+	$(SPHINXBUILD) -b dirslides $(ALLSPHINXOPTS) $(BUILDDIR)/dirslides
+	@echo
+	@echo "Build finished. The hieroglyph HTML slides are in $(BUILDDIR)/dirslides."
+
 
 pickle:
 	$(SPHINXBUILD) -b pickle $(ALLSPHINXOPTS) $(BUILDDIR)/pickle

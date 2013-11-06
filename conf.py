@@ -40,6 +40,7 @@ extensions = ['sphinx.ext.autodoc',
 	      'env.sphinxext.bashinclude',
 	      'env.sphinxext.taglist',
 	      'env.sphinxext.stockchart',
+          'hieroglyph', 
 	      ]
 
 
@@ -86,6 +87,18 @@ rst_epilog= r"""
 .. docmeta::
 
 """
+
+
+#
+# hieroglyph-
+#
+
+autoslides = False
+slide_numbers = True
+
+
+
+
 
 
 # The version info for the project you're documenting, acts as replacement for
