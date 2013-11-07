@@ -142,39 +142,102 @@ Recursion depth below target can be specified:
    http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
 
 
-G4DAE Server Camera Controls
---------------------------------
+G4DAE Server : 3D web viewer using three.js
+------------------------------------------------
+.. class:: small
 
-Query parameters meanings and defaults. 
+   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/static/r62/daeload.js 
 
-* http://belle7.nuu.edu.tw/dae/tree/3148.html
+.. class:: small
+ 
+   ``r/renderer=auto/webgl/svg/canvas``
+         default setting of auto used WebGLRenderer when available
+         otherwise fallback to CanvasRenderer
+   ``bb/bbunit=1``   
+         default unit is maximum absolute extent along any axis
+         of current root volume bounding box
+   ``n/near=0.1``   
+         camera near plane (the screen)
+   ``a/far=100``   
+         camera far plane 
+   ``c/cam=2,2,2``   
+         camera position 
+   ``l/look=0,0,0``   
+         camera target
+   ``f/fov=50``
+         field of view in degrees, set to zero for orthographic camera
+   ``o/orth=10,10,1``   
+         orthographic camera left-right and up-down multiples 
+
+.. class:: tiny
+
+   Implemented using ``three.js`` 3D framework.
+
+ 
+G4DAE Server Example 1
+-------------------------
+
+.. image:: images/3155___1.png
+   :width: 800px
+   :align: center
+
+G4DAE Server Example 2
+------------------------
+
+.. image:: images/3199.png
+   :width: 800px
+   :align: center
+
+Restricting recursion depth, allows even ancient machines
+to view the geometry with reasonable interactivity.
+
+
+G4DAE : 3148___4 outside pool 
+------------------------------------------
+
+.. image:: images/3148___4_outside.png
+   :width: 800px
+   :align: center
+
+.. class:: tiny
+
+   Render by : Esko Studio Viewer iPad App
+
+
+G4DAE : 3148___4 inside pool 
+-----------------------------------------
+
+.. image:: images/3148___4_inside.png
+   :width: 800px
+   :align: center
 
 .. class:: small
 
-         ``bb/bbunit=1``   
-                 the default of 1 specifies all dimensions in units of the 
-                 current root volume bounding box 
-                 (maximum absolute extent along any axis) 
-                 when using 0, dimensions are in mm 
+   Recursion maxdepth of 4 means ADs are excluded
 
-         ``n/near=0.1``   
-                 camera near plane (the screen)
 
-         ``a/far=100``   
-                 camera far plane 
+G4DAE : 3155__1 outside AD
+--------------------------------
 
-         ``c/cam=2,2,2``   
-                 camera position 
+.. image:: images/3155___1_outside.png
+   :width: 800px
+   :align: center
 
-         ``l/look=0,0,0``   
-                 camera target
+.. class:: small
 
-         ``f/fov=50``
-                 field of view in degrees, set to zero for orthographic camera
+   Change root volume to see AD
 
-         ``o/orth=10,10,1``   
-                 orthographic camera left-right and up-down multiples 
 
+G4DAE : 3155__1 inside AD
+-----------------------------------------
+
+.. image:: images/3155___1_inside.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+   Maybe an issue with PMT pointing ?
 
 
 
