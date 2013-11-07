@@ -13,7 +13,6 @@ RST2S5
 
   * http://meyerweb.com/eric/tools/s5/themes/
 
-* http://docutils.sourceforge.net/docs/howto/rst-roles.html
 
 
 ::
@@ -30,6 +29,14 @@ RST2S5
     sources.  Reads from <source> (default is stdin) and writes to <destination>
     (default is stdout).  See <http://docutils.sf.net/docs/user/config.html> for
     the full reference.
+
+
+RST Roles
+----------
+
+* http://docutils.sourceforge.net/docs/ref/rst/roles.html
+* http://docutils.sourceforge.net/docs/howto/rst-roles.html
+
 
 
 Themes

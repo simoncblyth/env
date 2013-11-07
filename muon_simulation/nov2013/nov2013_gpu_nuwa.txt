@@ -69,7 +69,7 @@ Retains G4 materials and volume hierarchy into the DAE.
 .. sidebar:: General Exporter
 
    Can be used to extract most G4 geometries 
-   (not parametric or reflection volumes)
+   (not parametric or reflection volumes as not used by Dayabay)
 
 Implementation based on:
 
@@ -118,8 +118,8 @@ Full geometry file ``4.9M`` is too big for fast handling.
    http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/graphics/collada/pycollada/daenode.py 
 
 
-DAEServer : web access to G4DAE volumes
------------------------------------------
+G4DAE Server : web access to any volume
+-------------------------------------------
 
 ``daeserver.py`` exposes ``daenode.py`` as a web service providing
 3D interactive access to any volume tree.
@@ -142,8 +142,38 @@ Recursion depth below target can be specified:
    http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
 
 
-DAE Viewers
---------------
+G4DAE Server Camera Controls
+--------------------------------
+
+Query parameters meanings and defaults. 
+
+* http://belle7.nuu.edu.tw/dae/tree/3148.html
+
+.. class:: small
+
+         ``bb/bbunit=1``   
+                 the default of 1 specifies all dimensions in units of the 
+                 current root volume bounding box 
+                 (maximum absolute extent along any axis) 
+                 when using 0, dimensions are in mm 
+
+         ``n/near=0.1``   
+                 camera near plane (the screen)
+
+         ``a/far=100``   
+                 camera far plane 
+
+         ``c/cam=2,2,2``   
+                 camera position 
+
+         ``l/look=0,0,0``   
+                 camera target
+
+         ``f/fov=50``
+                 field of view in degrees, set to zero for orthographic camera
+
+         ``o/orth=10,10,1``   
+                 orthographic camera left-right and up-down multiples 
 
 
 

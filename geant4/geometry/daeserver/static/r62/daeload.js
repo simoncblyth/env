@@ -61,10 +61,17 @@
 THREE_enum_side = { 'double':THREE.DoubleSide, 'front':THREE.FrontSide, 'back':THREE.BackSide };
 THREE_enum_bool = { '1':true , '0':false };
 THREE_Vector3_fromString = function( s ){
-   var xyz = s.split(",");
-   x = parseFloat(xyz[0]) || 0 ;
-   y = parseFloat(xyz[1]) || 0 ;
-   z = parseFloat(xyz[2]) || 0 ;
+  var xyz = s.split(",");
+  var x,y,z ;
+  if( xyz.length == 1 ){  
+      x = parseFloat(xyz[0]) || 0 ;
+      y = x;
+      z = x; 
+  } else {
+      x = parseFloat(xyz[0]) || 0 ;
+      y = parseFloat(xyz[1]) || 0 ;
+      z = parseFloat(xyz[2]) || 0 ;
+   } 
    return new THREE.Vector3(x,y,z) ;
 }
 
@@ -178,10 +185,10 @@ DAELOAD = function(){
         function init_loaded(){
 
             console.log("init_loaded");
-            var defaults = { face:"-1" , wireframe:"0" };
+            var defaults = { face:"-1" , wireframe:"1" };
 
             var iface = parseInt(param.face || defaults.face ) ;
-            var wireframe = THREE_enum_bool[param.wireframe || defaults.wireframe ] ;
+            var wireframe = THREE_enum_bool[param.wireframe || param.w || defaults.wireframe ] ;
 
             var root = dae ;
             var ppv = root.children[0] ; 
@@ -247,19 +254,48 @@ DAELOAD = function(){
         }
 
 
+
         function init_camera(){
+  /*
+
+         `bb/bbunit=1`   
+                 the default of 1 specifies all dimensions in units of the 
+                 current root volume bounding box 
+                 (maximum absolute extent along any axis) 
+                 when using 0, dimensions are in mm 
+                 Using mm is difficult, will need to fiddle with parameters to 
+                 see anything.
+
+         `n/near=0.1`   
+                 camera near plane (the screen)
+
+         `a/far=100`   
+                 camera far plane 
+
+         `c/cam=2,2,2`   
+                 camera position 
+
+         `l/look=0,0,0`   
+                 camera target
+
+         `f/fov=50`
+                 vertical field of view in degrees, set to zero for orthographic camera
+
+         `o/orth=10,10,1`   
+                 orthographic camera left-right and up-down multiples 
+
+  */
 
             console.log("init_camera");
             var defaults = { fov:"50", near:"0.1", far:"100", cam:"2,2,2", look:"0,0,0",  bbunit:"1" , orth:"10,10,1" };
  
-            var bbunit = THREE_enum_bool[param.bbunit || defaults.bbunit ];        // determines the unit of the positions
-            var near = parseFloat(param.near || defaults.near) ;
-            var far = parseFloat(param.far || defaults.far) ; 
-            var cam = THREE_Vector3_fromString( param.cam || defaults.cam );
-            var look = THREE_Vector3_fromString( param.look || defaults.look );
-
-            var fov = parseFloat(param.fov || defaults.fov) ;   // vertical fov in degrees
-            var orth = THREE_Vector3_fromString( param.orth || defaults.orth );
+            var bbunit = THREE_enum_bool[param.bbunit || param.bb || defaults.bbunit ];        // determines the unit of the positions
+            var near = parseFloat(param.near || param.n || defaults.near) ;
+            var far = parseFloat(param.far   || param.a || defaults.far) ; 
+            var cam = THREE_Vector3_fromString( param.cam || param.c || defaults.cam );
+            var look = THREE_Vector3_fromString( param.look || param.l || defaults.look );
+            var fov = parseFloat(param.fov || param.f || defaults.fov) ;   
+            var orth = THREE_Vector3_fromString( param.orth || param.o || defaults.orth );
 
             if ( bbunit ){
                 //

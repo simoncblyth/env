@@ -2,7 +2,7 @@ $def with (arg, node, subtree)
 <!DOCTYPE html>
 <html>
 <head>
-<title> CUBELIB </title>
+<title>G4DAE Server</title>
   <script src="../static/r62/lib/three.min.js"></script>
   <script src="../static/r62/lib/query.js"></script>
   <script src="../static/r62/lib/ColladaLoader.js"></script>
@@ -20,9 +20,7 @@ $def with (arg, node, subtree)
    </script>
 </head>
 <body onLoad="onLoad()">
-   <!--center><h1>DAE Loading</h1></center-->
    <div id="container" style="width:100%; height:100%; position:absolute;"></div>
-   <!--div id="container"></div-->
 <table>
 $for a in reversed(node.ancestors(andself=True)):      
        <tr>
@@ -40,11 +38,6 @@ $for a in reversed(node.ancestors(andself=True)):
           <td>$a.matid</td>
           <td>$a.symbol</td>
        </tr>
-
 </table>
-
-
-
-
 </body>
 </html>
