@@ -141,6 +141,19 @@ DAELOAD = function(){
             table.appendChild( tr );
         } 
 
+
+        function info_div(){
+            var info = document.createElement( 'div' );
+            info.style.position = 'absolute';
+            info.style.top = '10px';
+            info.style.width = '100%';
+            info.style.textAlign = 'left';
+
+            table = param_table();
+            info.appendChild( table );
+            return info ;
+        }
+
         function param_table(){
              var table = document.createElement('table') ;
              param_table_add( table, "location", window.location , true );
@@ -152,32 +165,59 @@ DAELOAD = function(){
              return table ;
         }
 
+        function webgl_or_canvas_renderer() {
+             var r ;
+             if ( Detector.webgl ){
+                   r = new THREE.WebGLRenderer() ;
+                   param_table_add( table, "renderer", "WebGL",  false );
+             } else {
+                   r = new THREE.CanvasRenderer();
+                   param_table_add( table, "renderer", "Canvas fallback",  false );
+             }
+             return r ;
+        }
+
         function init_renderer() {
+           /*
+                ``id``
+                           container id
+                ``r/renderer``
+                           one of auto, webgl, svg, canvas default: auto
+                ``clear``
+                           clear color
+
+            */
 
             console.log("init_renderer");
-            var defaults = { id:"container" , clear:"dddddd" } ;
+            var defaults = { id:"container" , clear:"dddddd", renderer:"auto" } ;
             var id = param.id || defaults.id ;
-            var clearColor = parseInt(param.clear || defaults.clear,16) ;  // hex color 
+
+            var clear  = parseInt(param.clear || defaults.clear,16) ;  // hex color 
+            var rdr    = param.renderer || param.r || defaults.renderer ;  
+            rdr = rdr.charAt(0);
 
             var container = document.getElementById(id);
             width = container.offsetWidth ;
             height = container.offsetHeight ;
-
-            var info = document.createElement( 'div' );
-            info.style.position = 'absolute';
-            info.style.top = '10px';
-            info.style.width = '100%';
-            info.style.textAlign = 'left';
-            //info.innerHTML = 'Model: <a href="' + param.url + '">' + param.url + '</a><br/>' ;
-
-            table = param_table();
-            info.appendChild( table );
+            var info = info_div();
             container.appendChild( info );
 
-
-            renderer = new THREE.CanvasRenderer();
+            switch ( rdr ){
+                case 'c': 
+                          renderer = new THREE.CanvasRenderer();
+                          break;
+                case 'w': 
+                          renderer = new THREE.WebGLRenderer();
+                          break;
+                case 's': 
+                          renderer = new THREE.SVGRenderer();
+                          break;
+                case 'a': 
+                          renderer = webgl_or_canvas_renderer();
+                          break;
+            }
             renderer.setSize( width, height );
-            renderer.setClearColor( clearColor , 1 );
+            renderer.setClearColor( clear , 1 );
             container.appendChild( renderer.domElement );
         }
 
