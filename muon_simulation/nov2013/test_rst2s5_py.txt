@@ -1,0 +1,152 @@
+.. include:: <s5defs.txt>
+
+.. default-role:: small
+
+.. role:: raw-html(raw)
+   :format: html
+
+.. role:: raw-link(rawlink)
+   :format: html
+
+.. raw:: html
+
+   <style type="text/css">
+   <!-- does this get into the html-->
+
+    h1, h2, h3, h4, h5, h6, p.topic-title {
+      font-family: sans-serif, font-color: red; }
+
+   </style> 
+
+
+================================================================
+Test RST to S5 slide creation
+================================================================
+
+
+References
+----------
+
+* http://docutils.sourceforge.net/docs/ref/rst/directives.html#including-an-external-document-fragment
+* http://docutils.sourceforge.net/docs/user/rst/quickref.html
+* http://atuan.com/s5/
+
+
+CSS font sizing
+---------------
+
+* http://www.sitepoint.com/new-css3-relative-font-size/
+
+  * em units are relative to their parent container so nested lists have decreasing font sizes
+
+.. raw:: html
+
+    <style>
+    body  { font-size: 100%; }
+    p, li { font-size: 0.75em; }
+    </style>
+
+    <p> 12px text </p>
+
+    <ul>
+    <li> 12px text
+    <ul><li> 9px text </li></ul>
+    </li>
+    </ul>
+
+
+rem is similar to em except that its relative to the root element rather than the parent. 
+Changing the li selector to 0.75rem will ensure all nested lists remain at 12px.
+
+.. raw:: html
+
+    <style>
+    body  { font-size: 100%; }
+    p, li
+    {
+      font-size: 12px;
+      font-size: 0.75rem;
+    }
+    </style>
+
+    <p> 12px text </p>
+
+    <ul>
+    <li> 12px text
+    <ul><li> 9px text </li></ul>
+    </li>
+    </ul>
+
+
+
+
+Inline Markup
+--------------
+
+* *emphasis*
+* **strong emphasis**
+* `interpreted text`
+* ``inline literal``
+
+Referencing
+----------------------
+
+* reference_
+* anonymous__  The target of a double undercore anonymous reference is a reference 
+* `phrase reference`_
+* http://docutils.sf.net/
+* ``http://docutils.sf.net/``
+
+__ reference_
+
+.. _reference: target for reference
+.. _phrase reference: target for phrase reference
+
+
+Target notes for callout referencing
+-------------------------------------
+
+RST html output default does not include the urls just providing links,
+by I like to see the urls.
+
+* http://documentation-style-guide-sphinx.readthedocs.org/en/latest/style-guide.html
+
+Some text which includes links to `Example website`_ and many other links.
+
+`Example website`_ can be referenced multiple times.
+And at the end of the document...
+
+
+.. target-notes::
+
+.. _`Example website`: http://www.example.com/
+
+
+
+s5defs
+---------
+
+The line::
+
+   .. include:: <s5defs.txt>
+
+Pulls in ``$(python-site)/docutils/parsers/rst/include/s5defs.txt``
+which contains just role declarations, eg::
+
+   .. role:: red
+
+Which declares can used inline red role eg  :red:`red`
+
+Style Customisation
+----------------------
+
+* http://docutils.sourceforge.net/docs/howto/html-stylesheets.html
+
+
+Mechanics Check
+----------------
+
+* Raw role :raw-html:`<div style="font-size:20pt;font-style:monaco;"> this is 20pt monaco </div>`
+* Rawlink role :raw-link:`http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf`
+
+

@@ -1,68 +1,152 @@
 .. include:: <s5defs.txt>
 
+.. role:: raw-html(raw)
+   :format: html
+
+.. role:: raw-link(rawlink)
+   :format: html
+
+.. raw:: html
+
+   <!-- 
+       from raw html direct in RST source
+       this gets into the html just before the first slide div
+       BUT injecting via monkey patch goes into head : which is better
+   -->
+   <style type="text/css">
+   </style> 
+
 ======================================================================
-:small:`200x Faster Optical Photon Propagation with NuWa + Chroma_ ?`
+200x Faster Optical Photon Propagation with NuWa + Chroma ?
 ======================================================================
 
 .. sidebar:: Objective 
 
-    .. class:: :small:
+   Simple NuWa + Chroma installer providing 
+   GPU accelerated Optical Photon Propagation
 
-        Simple NuWa + Chroma installer providing 
-        GPU accelerated Optical Photon Propagation
+#. Geometry Conversion
+#. Installation 
+#. GPU Hardware access
+#. :red:`Geant4/Chroma Integration`
+#. :red:`Validation`
 
-.. class:: small
+Introducing Chroma 
 
-    #. Geometry Conversion
-    #. Installation 
-    #. GPU Hardware access
-    #. :red:`Geant4/Chroma Integration`
-    #. :red:`Validation`
-
-
-Also introduction to Chroma from 
-
-.. _Chroma: http://chroma.bitbucket.org
-
-.. raw:: html
-
-   <a href="http://chroma.bitbucket.org" style="font-size:20pt;font-style:monaco;" > http://chroma.bitbucket.org </a>
-
+* http://chroma.bitbucket.org
 
 Chroma : Ultra-fast Photon MC
 ------------------------------
 
+**Developed by Stan Seibert, University of Pennsylvania.**
+
+Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+simulating processes like diffuse and specular reflections, 
+refraction, Rayleigh scattering and absorption. Using triangle meshes 
+eliminate geometry code as :red:`just one code path`.
+
+200x performance claim:
+
+   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+   in a detector with 29k photomultiplier tubes. This is
+   200x faster than GEANT4.*
+
+**BUT:** Chroma needs : :red:`triangles + inside/outside materials`
+
 .. class:: small
 
-      Developed by Stan Seibert, University of Pennsylvania.
+   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
 
-      Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
-      simulating processes like diffuse and specular reflections, 
-      refraction, Rayleigh scattering and absorption.
+G4DAE : Exports G4 Geometry to DAE
+-----------------------------------
 
-      Triangle meshes eliminate geometry code : :red:`just one code path` 
+Retains G4 materials and volume hierarchy into the DAE.
 
-      200x performance claim:
+.. class:: small
 
-         *With a CUDA GPU Chroma has propagated 2.5M photons per second 
-         in a detector with 29k photomultiplier tubes. This is
-         200x faster than GEANT4.*
+   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/DAE
 
-:rawlink:`http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf`
+.. sidebar:: General Exporter
 
-.. raw:: html
+   Can be used to extract most G4 geometries 
+   (not parametric or reflection volumes)
 
-   <a href="http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf" style="font-size:12pt;font-style:monaco;" > http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf </a>
+Implementation based on:
 
-
-G4DAE : Triangulate G4 Geometry
---------------------------------
-
-:tiny:`http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/DAE` 
+* Geant4 GDML exporter
+* ``G4Polyhedron* G4VSolid::GetPolyhedron()`` (like VRML2 exporter)
 
 .. image:: images/G4DAEWrite.png 
    :width: 600px
    :align: center
+
+
+COLLADA 3D Digital Asset Exchange (DAE) 
+------------------------------------------
+
+http://www.khronos.org/collada/
+
+    COLLADA defines an XML-based schema to make it easy to transport 3D assets between applications
+
+Supporting libraries for Python and Javascript:
+
+    * https://github.com/pycollada/pycollada 
+    * https://github.com/mrdoob/three.js/ Javascript 3D Library
+
+* OSX Snow Leopard 10.6+ : Preview, Quicklook, Xcode
+
+
+G4DAE Partial Tree "Branch" Access
+-----------------------------------------
+
+Full geometry file ``4.9M`` is too big for fast handling. 
+
+``daenode.py`` 
+
+   * recreates Geant4 volume tree from DAE
+   * extracts :red:`sub-tree` DAE files specified
+     by volume name/index and recursion depth
+
+::
+
+    daenode.py --maxdepth 0 3148 --geom > subgeom.dae
+    du -h subgeom.dae 
+    24K    subgeom.dae
+
+.. class:: small
+
+   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/graphics/collada/pycollada/daenode.py 
+
+
+DAEServer : web access to G4DAE volumes
+-----------------------------------------
+
+``daeserver.py`` exposes ``daenode.py`` as a web service providing
+3D interactive access to any volume tree.
+
+Specify volume by name or index, 
+
+.. class:: small
+
+    * http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xaa8a0b0.0.html
+    * http://belle7.nuu.edu.tw/dae/tree/3148.html
+
+Recursion depth below target can be specified:
+
+*  ``<path>.html`` : no recursion, just the target volume
+*  ``<path>___0.html`` : same as above default
+*  ``<path>___3.html`` : target volume and levels below
+
+.. class:: small
+
+   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
+
+
+DAE Viewers
+--------------
+
+
+
 
 Installing NuWa and Chroma
 ---------------------------
