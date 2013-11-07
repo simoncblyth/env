@@ -25,15 +25,18 @@
    Simple NuWa + Chroma installer providing 
    GPU accelerated Optical Photon Propagation
 
-#. Geometry Conversion
-#. Installation 
-#. GPU Hardware access
-#. :red:`Geant4/Chroma Integration`
-#. :red:`Validation`
-
 Introducing Chroma 
 
 * http://chroma.bitbucket.org
+
+Fivefold path:
+
+#. :green:`Geometry Conversion`
+#. :green:`Software Installation` 
+#. :red:`GPU Hardware access`
+#. :blue:`Geant4/Chroma Integration`
+#. :blue:`Validation`
+
 
 Chroma : Ultra-fast Photon MC
 ------------------------------
@@ -144,6 +147,7 @@ Recursion depth below target can be specified:
 
 G4DAE Server : 3D web viewer using three.js
 ------------------------------------------------
+
 .. class:: small
 
    http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/static/r62/daeload.js 
@@ -171,25 +175,36 @@ G4DAE Server : 3D web viewer using three.js
 
 .. class:: tiny
 
-   Implemented using ``three.js`` 3D framework.
+   View control settings currently only via URL query parameters eg ``?fov=60``
 
  
-G4DAE Server Example 1
--------------------------
+G4DAE Server Example 3155___1
+-------------------------------
+
+.. class:: small
+
+   http://belle7.nuu.edu.tw/dae/tree/3155___1.html (HEAVY FOR OLD BROWSERS)
 
 .. image:: images/3155___1.png
    :width: 800px
    :align: center
 
-G4DAE Server Example 2
-------------------------
+G4DAE Server Example 3199
+---------------------------
+
+.. sidebar:: Recursion depth control
+   :class: tiny
+
+   allows even ancient machines
+   to view the geometry with reasonable interactivity.
+
+.. class:: small
+
+   http://belle7.nuu.edu.tw/dae/tree/3199.html
 
 .. image:: images/3199.png
    :width: 800px
    :align: center
-
-Restricting recursion depth, allows even ancient machines
-to view the geometry with reasonable interactivity.
 
 
 G4DAE : 3148___4 outside pool 
@@ -240,28 +255,114 @@ G4DAE : 3155__1 inside AD
    Maybe an issue with PMT pointing ?
 
 
+G4DAE Geometry Validation
+-------------------------------------
 
-Installing NuWa and Chroma
----------------------------
+A random comparison of a handful of volumes finds 
+some discrepant volumes:
 
-Many dependencies
+* differnt numbers of vertices, but many vertices matching 
+* suspect subtraction solid triangulation difference
 
-GPU Hardware
--------------
+.. sidebar:: Comparison in progress
+
+   Developing more systematic comparison,
+   extending sqlite3 DB with the VRML2 data to add G4DAE.
+
+Comparing volumes/vertices/faces between VRML2 and G4DAE exports.
+
+==========  =========  ==========  =====================
+ Qty        ``VRML2``  ``G4DAE``
+==========  =========  ==========  =====================
+Volumes       12229      12229
+Triangles     -          2.5M              
+Faces         
+==========  =========  ==========  =====================
+
+.. class:: tiny
+
+   Initially all vertices were discrepant, due to an inverted rotation matrix.
 
 
-* NTU
-* NUU
-* BNL
-* LBNL
+Chroma : Software requirements 
+--------------------------------
 
-Chroma Geant4 Integration
---------------------------
+.. sidebar:: Dependencies have dependencies
+   :class: small
 
-Whats needed
+   Naturally this list is just the top of the dependency tree
+   http://chroma.bitbucket.org/install/details.html
+
+.. class:: small
+
+   #. RHEL SL6 (or other contemporary distros)
+   #. Python 2.6 or later
+   #. CUDA 4.1 Toolkit and NVIDIA driver (not Nouveau Linux driver)
+   #. Boost Python
+   #. Numpy 1.6 or later
+   #. Pygame
+   #. Matplotlib
+   #. uncertainties
+   #. PyCUDA 2011.2 or later
+   #. PyUblas
+   #. ZeroMQ
+   #. GEANT4.9.5 or later (Dayabay at geant4.9.2.p01)
+   #. Patched version of g4py
+   #. ROOT 5.32 or later (Dayabay currently at root_v5.26.00e) 
 
 
-Validation
------------
+Chroma : Hardware requirements 
+--------------------------------
 
-How ?
+.. sidebar:: Suitable GPUs only ~250-350 USD
+
+   eg NVIDIA GeForce GTX 680 (1536 CUDA cores, 2048 MB, Compute Capability 3.0) ~ 330 USD
+
+* NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
+* 1.5G of GPU memory (estimated minimum for Dayabay geometry)
+
+GPU Access Options
+--------------------
+
+``NTUCC``
+      current cluster (10 nodes, 20 GPUs) CCC 1.3, upgrade to 3.0
+      scheduled for next ~Feb
+``NUU``
+      Chung Hsiang may be able to purchase a GPU card
+``NCTU``
+      Node is CCC 1.3 
+``BNL``
+      available GPU nodes are too old
+``LBNL``
+      have made enquiry to Craig Tull
+
+
+NuWa + Chroma : Status along Fivefold path 
+-------------------------------------------
+
+.. class:: small
+
+    #. :blue:`Geometry Conversion` progress:
+
+       * G4DAE exports triangles into DAE files, validation ongoing
+       * Chroma glue code using pycollada to read the DAE needs to be developed
+
+    #. :blue:`Software Installation` plan:
+
+       * extend NuWA installer to cover Chroma and its dependency tree
+
+    #. :red:`GPU Hardware access : **uncertain**`
+
+    #. :blue:`Geant4/Chroma Integration` questions:
+
+       * where to take the photons from Geant4 
+       * whether to give back to Geant4 OR form hits on GPU
+
+       Need to gain Chroma usage/validation experience to determine the 
+       appropriate answers.
+
+    #. :blue:`Validation` plan:
+
+       * comparison against conventional simulation production runs
+
+
