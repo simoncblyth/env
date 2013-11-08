@@ -523,13 +523,20 @@ apache-htdocs-source(){
     *) echo $(apache-home $tag)/htdocs  ;;
   esac  
 }
+apache-htdocs-system-yum(){
+  local tag=${1:-$NODE_TAG}
+  case $tag in
+    Y2) echo /home/webroot ;;
+     *) echo /var/www/html ;;
+  esac
+}
 apache-htdocs-system(){
   local tag=${1:-$NODE_TAG}
   local flavor=$(apache-sysflavor $tag)
   case $flavor in 
        apple) echo /Library/WebServer/Documents ;;
         port) echo /opt/local/apache2/htdocs  ;;
-         yum) echo /var/www/html ;;
+         yum) echo $(apache-htdocs-system-yum $tag) ;;
            *) echo failed-$FUNCNAME ;;
   esac  
 }
