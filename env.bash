@@ -307,6 +307,7 @@ env-designated(){
     YY) echo YY ;;
     ZZ) echo ZZ ;;
     Y1) echo Y1 ;;
+    Y2) echo Y2 ;;
      *) echo $(env-sourcetag) ;;
   esac
 }
@@ -387,6 +388,7 @@ C2|C2R) echo $(env-ntu dayabay) ;;
     XX) echo $(env-ihep dyb2) ;;
     YY) echo $(env-ihep dyb1) ;;
     Y1) echo http://202.122.39.101 ;;
+    Y2) echo $(env-ihep dayabay-new) ;;
     ZZ) echo $(env-ihep dayabay) ;;
   esac  
 }

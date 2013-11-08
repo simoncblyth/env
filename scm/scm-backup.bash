@@ -1043,7 +1043,7 @@ scm-backup-nightly(){
 
 scm-backup-monitor-python() {
     case $NODE_TAG in
-        Y1) python2.6 $*
+        Y1|Y2) python2.6 $*
             ;;
         WW|ZZ) 
             local LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6
@@ -1056,7 +1056,7 @@ scm-backup-monitor-python() {
 
 scm-backup-monitor-make(){
     case $NODE_TAG in
-        Y1) make $*
+        Y1|Y2) make $*
             ;;
         WW|ZZ) 
             local LOCAL_PYTHON=/home/blyth/local/python/Python-2.5.6

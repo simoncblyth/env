@@ -41,7 +41,7 @@ tracpreq-env(){
 tracpreq-mode(){ echo ${TRACPREQ_MODE:-$(tracpreq-mode-default $*)} ; }
 tracpreq-mode-default(){
    case ${1:-$NODE_TAG} in
-     ZZ|C|Y1) echo system ;;
+  ZZ|C|Y1|Y2) echo system ;;
            *) echo source ;;
    esac
 }

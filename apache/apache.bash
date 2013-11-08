@@ -349,7 +349,7 @@ apache-mode-default(){
    case ${1:-$NODE_TAG} in
          G) echo systemapple      ;;
          K) echo systemapple      ;;
-C|N|ZZ|WW|Y1) echo system      ;;
+C|N|ZZ|WW|Y1|Y2) echo system      ;;
         C2) echo source      ;;
          H) echo source      ;;
          *) echo source      ;; 

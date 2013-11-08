@@ -285,6 +285,7 @@ local-nodetag(){
         cms02) local-nodetag-cms02 $USER ;;
       dayabay) echo ZZ ;;
      dayabay1) echo Y1 ;;
+  dayabay-new) echo Y2 ;;
        dybdb1) echo D1 ;;
        dybdb2) echo D2 ;;
          dyb1) echo YY ;;
@@ -372,6 +373,7 @@ local-backup-tag(){
      WW) echo SDU ;;
      AA) echo D8R  ;;
      Y1) echo LT ;;
+     Y2) echo LT ;;
      *) echo U ;;
    esac  
 }
@@ -394,6 +396,7 @@ local-email(){
    case ${1:-$NODE_TAG} in
      XX|YY|ZZ) echo maqm@ihep.ac.cn ;;
            Y1) echo lintao@ihep.ac.cn ;;
+           Y2) echo lintao@ihep.ac.cn ;;
             *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
 }
@@ -442,6 +445,7 @@ local-base(){
         L) echo /usr/local ;;
         H) echo /data/usr/local ;;
        Y1) echo /usr/local ;;
+       Y2) echo /usr/local ;;
        H1) echo $(local-root $t)/local ;;
       H52) echo /data/local ;;
         T) echo /usr/local ;;
@@ -476,6 +480,7 @@ local-system-base(){
         XX) echo /usr/local ;;
         YY) echo /usr/local ;;
         Y1) echo /usr/local ;;
+        Y2) echo /usr/local ;;
         ZZ) echo /usr/local ;;
         D1) echo /soft  ;;
         D2) echo /soft  ;;
@@ -499,6 +504,7 @@ local-var-base(){
        XX) echo /home/zhuanghl ;; 
        YY) echo /home ;;
        Y1) echo /var ;;
+       Y2) echo /var ;;
        ZZ) echo /home ;;
      IHEP) echo /home ;;  
     OLD_C) echo /var ;;
@@ -521,6 +527,7 @@ local-scm-fold(){
    case ${1:-$NODE_TAG} in 
      WW) echo /home/scm ;;  
      Y1) echo /home/scm ;;  
+     Y2) echo /home/scm ;;  
       *) echo $(local-var-base $*)/scm ;;
    esac
 }
