@@ -23,7 +23,7 @@ With webpy SCGI deployment with apache
 import os, sys, logging
 log = logging.getLogger(__name__)
 import web
-from env.graphics.collada.pycollada.daenode import DAENode, getSubCollada, DAESubTree
+from env.graphics.collada.pycollada.daenode import DAENode, getSubCollada, DAESubTree, getTextTree
 
 
 class Defaults(object):
@@ -80,6 +80,9 @@ class _index:
 class _tree_dae:
     def GET(self, arg):
         return getSubCollada(arg, dict(web.input().items()))
+class _tree_txt:
+    def GET(self, arg):
+        return getTextTree(arg, dict(web.input().items())) 
 
 maxdepth_ = lambda arg:arg.split("___")[1] if '___' in arg else -1
 
@@ -95,12 +98,12 @@ class _tree_r62_html:
         subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
         return r62_render.daeload(arg, node, subtree )
 
-
 URLS = (
           '/',                              '_index', 
           '/tree/(.+)?.webglbook.html',     '_tree_webglbook_html',
           '/tree/(.+)?.html',               '_tree_r62_html',
           '/tree/(.+)?.dae',                '_tree_dae',
+          '/tree/(.+)?.txt',                '_tree_txt',
        )
 
 def main():

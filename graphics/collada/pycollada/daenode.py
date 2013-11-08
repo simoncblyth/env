@@ -6,21 +6,15 @@ Geant4 level interpretation of G4DAEWrite exported pycollada geometry
 Attempt to create the DAENode heirarcy out of a raw collada traverse 
 without monkeying around.
 
-
-cProfile running
------------------
+Usage Examples
+----------------
 
 ::
 
-    cd $LOCAL_BASE/env/graphics/collada 
-    simon:collada blyth$ python -m cProfile -o daenode.cprofile $(which daenode.py) --daesave --subcopy -O 000.xml 0 
-    2013-10-28 14:06:38,504 env.graphics.collada.pycollada.daenode INFO     /Users/blyth/env/bin/daenode.py
-    2013-10-28 14:06:38,509 env.graphics.collada.pycollada.daenode INFO     DAENode.parse pycollada parse /usr/local/env/geant4/geometry/xdae/g4_01.dae 
+   daenode.py --tree 0 > 0.txt            # single line just the world volume, as no recursion by default
+   daenode.py --tree 0___2 > 0___2.txt    # 
 
-    simon:collada blyth$ gprof2dot.py -f pstats daenode.cprofile | dot -Tsvg -o daenode.svg
 
-Profiling points to 35% from multiarray.fromstring, especially in geometry load (50%). 
-Look into deepcopying rather than going back to XML. 
 
 Node Dumping
 ------------------
@@ -112,6 +106,22 @@ Forcing a restart of the webserver.  Hmm perhaps webpy can adopt a forking serve
 this issue and hence improve robustness.
 
 Possibly webpy has some session timeout, as seems to happen when make a query after some delay.
+
+
+cProfile running
+-----------------
+
+::
+
+    cd $LOCAL_BASE/env/graphics/collada 
+    simon:collada blyth$ python -m cProfile -o daenode.cprofile $(which daenode.py) --daesave --subcopy -O 000.xml 0 
+    2013-10-28 14:06:38,504 env.graphics.collada.pycollada.daenode INFO     /Users/blyth/env/bin/daenode.py
+    2013-10-28 14:06:38,509 env.graphics.collada.pycollada.daenode INFO     DAENode.parse pycollada parse /usr/local/env/geant4/geometry/xdae/g4_01.dae 
+
+    simon:collada blyth$ gprof2dot.py -f pstats daenode.cprofile | dot -Tsvg -o daenode.svg
+
+Profiling points to 35% from multiarray.fromstring, especially in geometry load (50%). 
+Look into deepcopying rather than going back to XML. 
 
 
 Visualizing Collada Files
@@ -573,24 +583,25 @@ class DAESubTree(list):
     of a tree structure. Requires the nodes to have a children
     attribute which lists other nodes.
     """
-    cut = 5
-    def __init__(self, top, maxdepth=-1, text=True):
+    def __init__(self, top, maxdepth=-1, text=True, maxsibling = 5):
         list.__init__(self)
         self.maxdepth = maxdepth
         self.text = text
+        self.cut = maxsibling 
         self( top )
 
     __str__ = lambda _:"\n".join(_)
 
-    def __call__(self, node, depth=0, sibdex=0 ):
+    def __call__(self, node, depth=0, sibdex=-1, nsibling=-1 ):
         if self.text:
-            obj = "    " * depth + "[%d.%d] %s " % (depth, sibdex, node)
+            obj = "    " * depth + "[%d.%d/%d] %s " % (depth, sibdex, nsibling, node)
         else:
             if type(node) == str:
                 indent = node
             else:    
                 indent = "  +" * depth 
             obj = (node, depth, sibdex, indent)
+        pass     
         self.append( obj )
         if not hasattr(node,'children') or len(node.children) == 0:# leaf
             pass
@@ -598,17 +609,18 @@ class DAESubTree(list):
             if depth == self.maxdepth:
                 pass
             else:    
-                shorten = len(node.children) > self.cut*2    
+                nchildren = len(node.children)
+                shorten = nchildren > self.cut*2    
                 for sibdex, child in enumerate(node.children):
                     if shorten:
-                        if sibdex < self.cut or sibdex > len(node.children) - self.cut:
+                        if sibdex < self.cut or sibdex > nchildren - self.cut:
                             pass
                         elif sibdex == self.cut:    
                             child = "..."
                         else:
                             continue
                     pass         
-                    self(child, depth + 1, sibdex)
+                    self(child, depth + 1, sibdex, nchildren )
 
 
 
@@ -951,7 +963,7 @@ def node(arg, cfg ):
     pass            
     return "\n".join(map(str,hdr+out))
 
-def tree(arg, cfg):
+def getTextTree(arg, cfg):
     """
     Present a text tree of the volume heirarchy from the root(s) defined 
     by the argument. 
@@ -961,17 +973,17 @@ def tree(arg, cfg):
 
     ancestors = cfg.get('ancestors', cfg.get('a',None))
     indices = DAENode.interpret_ids(arg)
-    assert len(indices) == 1
+    assert len(indices) == 1 , "currently restricting to single roots "
     index = indices[0]
-    node = DAENode.indexget(index)
 
+    node = DAENode.indexget(index)
     anc = []
     if ancestors:
         for a in node.ancestors():
             anc.insert(0,"a %s" % a)
 
     tre = DAESubTree(node, maxdepth=int(cfg.get('maxdepth','-1')))
-    return "\n".join(map(str,anc+tre))
+    return "\n".join(map(str,anc+tre+[""])) 
 
 
 class Defaults(object):
@@ -1063,7 +1075,7 @@ def main():
     elif opts.node:
         print node(args[0])
     elif opts.tree:
-        print tree(args[0], vars(opts))
+        print getTextTree(args[0], vars(opts))
     elif opts.geom:
         print getSubCollada(args[0], vars(opts))
 
