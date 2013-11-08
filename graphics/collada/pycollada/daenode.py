@@ -14,6 +14,15 @@ Usage Examples
    daenode.py --tree 0 > 0.txt            # single line just the world volume, as no recursion by default
    daenode.py --tree 0___2 > 0___2.txt    # 
 
+Heavy Geometries timeout through web interface
+-------------------------------------------------
+
+::
+
+   daenode.py -e -s 1___100    > 1___100.dae 
+   daenode.py -e -s 3148___100 > 3148___100.dae    
+   daenode.py -e -s 3148___6   > 3148___6.dae 
+
 
 
 Node Dumping
@@ -563,8 +572,9 @@ class DAENode(object):
         lines = []
         matdict = self.matdict()
         if self.verbosity > 0:
-            lines.append("DAENode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+            lines.append("  %s             %s " % (self.id, matdict.get('matid',"-") ) )
         if self.verbosity > 1:    
+            lines.append("DAENode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
             lines.append("    pvid         %s " % self.pv.id )
             lines.append("    lvid         %s " % self.lv.id )
             lines.append("    ggid         %s " % self.geo.geometry.id )
@@ -593,23 +603,34 @@ class DAESubTree(list):
     __str__ = lambda _:"\n".join(_)
 
     def __call__(self, node, depth=0, sibdex=-1, nsibling=-1 ):
-        if self.text:
-            obj = "    " * depth + "[%d.%d/%d] %s " % (depth, sibdex, nsibling, node)
+        """
+        Setting the node to a string acts to stop the recursion
+        """
+        if not hasattr(node,'children'):
+            nchildren = 0  
         else:
-            if type(node) == str:
-                indent = node
-            else:    
-                indent = "  +" * depth 
+            nchildren = len(node.children) 
+        pass
+        elided = type(node) == str
+        indent = "   " * depth     # done here as difficult to do in a webpy template
+        if self.text:
+            if elided:
+                obj = "..."
+            else:
+                nodelabel = "%-2d %-5d %-3d" % (depth, node.index, nchildren )
+                obj = "[%s] %s %3d/%3d : %s " % (nodelabel, indent, sibdex, nsibling, node)
+        else:
             obj = (node, depth, sibdex, indent)
         pass     
         self.append( obj )
-        if not hasattr(node,'children') or len(node.children) == 0:# leaf
+
+
+        if nchildren == 0:# leaf
             pass
         else:
             if depth == self.maxdepth:
                 pass
             else:    
-                nchildren = len(node.children)
                 shorten = nchildren > self.cut*2    
                 for sibdex, child in enumerate(node.children):
                     if shorten:
