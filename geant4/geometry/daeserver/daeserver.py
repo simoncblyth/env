@@ -19,6 +19,9 @@ With webpy SCGI deployment with apache
 * http://localhost/dae/tree/0___0.dae
 
 
+
+
+
 """
 import os, sys, logging
 log = logging.getLogger(__name__)
@@ -79,6 +82,7 @@ class _index:
 
 class _tree_dae:
     def GET(self, arg):
+        web.header('Content-Type', 'model/vnd.collada+xml' )  # IANA mime type for DAE
         return getSubCollada(arg, dict(web.input().items()))
 class _tree_txt:
     def GET(self, arg):

@@ -167,6 +167,8 @@ DAELOAD = function(){
 
         function param_table(){
              var table = document.createElement('table') ;
+             param_table_add( table, "background", "../../muon_simulation/nov2013/nov2013_gpu_nuwa.html" , true );
+             param_table_add( table, "samples", "../../muon_simulation/samples/" , true );
              param_table_add( table, "location", window.location , true );
              for (var k in param) {
                  if (param.hasOwnProperty(k)) {
@@ -184,6 +186,7 @@ DAELOAD = function(){
              } else {
                    r = new THREE.CanvasRenderer();
                    param_table_add( table, "renderer", "Canvas fallback",  false );
+                   param_table_add( table, "To get WebGL:", "http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation", true );
              }
              return r ;
         }
