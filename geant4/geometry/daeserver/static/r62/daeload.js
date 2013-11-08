@@ -114,16 +114,27 @@ DAELOAD = function(){
             init_controls_trackball();
             //init_controls_orbit();
 
-            var defaults = { anim:"1" , rotation:"0.01,0.01,0.01" };
-            var anim = THREE_enum_bool[param.anim || defaults.anim] ;
+            var maxdepth = param.url.split("___")[1] || 0  ; 
+            param_table_add( table, "maxdepth", maxdepth , false );
+
+            var defaults = { animdepth:"1", rotation:"0.01,0.01,0.01" };
+            var animdepth = parseInt[param.animdepth || defaults.animdepth] ;
+            param_table_add( table, "animdepth", animdepth , false );
+
+            var defanim = ( maxdepth > animdepth ) ? "0" : "1" ;          // disable animation for depth > animdepth 
+            var anim = THREE_enum_bool[param.anim || defanim ] ;
+            param_table_add( table, "defanim", defanim , false );
+
             rotation = THREE_Vector3_fromString( param.rotation || defaults.rotation );
 
             if( anim )
             {
+                param_table_add( table, "animation", "ENABLED", false );
                 animate();
             }
             else
             {
+                param_table_add( table, "animation", "DISABLED to override ?anim=1", false );
                 render();
             }
         }
