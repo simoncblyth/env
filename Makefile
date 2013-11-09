@@ -4,7 +4,7 @@
 # You can set these variables from the command line.
 SPHINXOPTS    =
 #SPHINXBUILD   = /opt/local/Library/Frameworks/Python.framework/Versions/2.5/bin/sphinx-build
-SPHINXBUILD   = /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/sphinx-build
+SPHINXBUILD   ?= /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/sphinx-build
 PAPER         =
 BUILDDIR      = _build
 
