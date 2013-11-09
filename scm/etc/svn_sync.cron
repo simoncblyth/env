@@ -1,0 +1,12 @@
+#! /bin/bash
+export      ENV_HOME=$HOME/env       
+env-(){    
+      [ -r $ENV_HOME/env.bash ]  && . $ENV_HOME/env.bash && env-env $* 
+}
+env-
+for repo in dybaux dybsvn toysvn
+do 
+  echo $(date +"%Y-%m-%d %H:%M:%S") sync $repo
+  svnsync synchronize $(env-localserver)/svn/$repo
+done
+
