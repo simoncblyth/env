@@ -4,6 +4,7 @@
 export HOME=/root
 export MAILTO=maqm@ihep.ac.cn 
 export ENV_HOME=$HOME/env
+export SPHINXBUILD=sphinx-build
 env-(){ . $HOME/env/env.bash && env-env $* ; }
 
 env-
