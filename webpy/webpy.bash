@@ -12,12 +12,20 @@ Lightweight web server.
 
 * http://webpy.org/docs/0.3/tutorial
 * http://webpy.org/src/
+* http://johnpaulett.com/2008/09/20/getting-restful-with-webpy/
 
 
 Requirements:
 
 * flup
 * http://www.web2pyslices.com/slice/show/1466/nginx-and-scgi
+
+
+Accepting PUT
+---------------
+
+
+
 
 
 INSTALLS
