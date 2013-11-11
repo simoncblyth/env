@@ -127,11 +127,41 @@ From the source, VRML gets translated into X3D first.
     ./meshlab/src/meshlabplugins/io_x3d/vrml/Scanner.cpp:   keywords.set(L"VRML", 9);
 
 
+
+Navigation with Mac Laptop
+----------------------------
+
+shift-cmd-H
+             return to home position 
+double click
+             change center of rotation
+one finger drag
+             move viewpoint about rotation position 
+
+two-finger 
+             dolly forward/backward
+shift+two-finger
+             change camera field of view
+cmd+two-finger
+             change near clipping place
+
+shift+cmd+one-finger
+             change light direction         
+
+opt/alt-return
+             toggle fullscreen mode
+
+
+
+
+
+
+
  
 
 EOU
 }
-meshlab-dir(){ echo $(local-base)/env/graphics/mesh/graphics/meshlab/meshlab ; }
+meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab ; }
 meshlab-cd(){  cd $(meshlab-dir); }
 meshlab-mate(){ mate $(meshlab-dir) ; }
 meshlab-get(){

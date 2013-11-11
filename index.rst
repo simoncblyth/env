@@ -78,6 +78,7 @@ Contents:
    opencl/index
    linux/index
    cloud/index
+   package_management/index
 
 Indices and tables
 ==================

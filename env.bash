@@ -1261,3 +1261,7 @@ hieroglyph-(){      . $(env-home)/doc/hieroglyph.bash && hieroglyph-env $* ; }
 s5-(){      . $(env-home)/doc/s5.bash && s5-env $* ; }
 sphinxhtmlslide-(){      . $(env-home)/doc/sphinxhtmlslide.bash && sphinxhtmlslide-env $* ; }
 rst2s5-(){      . $(env-home)/doc/rst2s5.bash && rst2s5-env $* ; }
+rst2pdf-(){      . $(env-home)/doc/rst2pdf.bash && rst2pdf-env $* ; }
+reportlab-(){      . $(env-home)/doc/reportlab.bash && reportlab-env $* ; }
+vcglib-(){      . $(env-home)/graphics/mesh/vcglib.bash && vcglib-env $* ; }
+qt4-(){      . $(env-home)/ui/qt4.bash && qt4-env $* ; }
