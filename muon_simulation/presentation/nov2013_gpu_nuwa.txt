@@ -37,6 +37,7 @@ Fivefold path:
 #. :blue:`Geant4/Chroma Integration`
 #. :blue:`Validation`
 
+* http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.html 
 
 Chroma : Ultra-fast Photon MC
 ------------------------------
