@@ -553,9 +553,30 @@ function startup() {
 		document.onclick = clicker;
 	}
     // SCB : allow jumping to a page via #3 #10 url hash extensions 
-    var page = window.location.hash.substring(1) || 0 ;
+    // var page = window.location.hash.substring(1) || 0 ;
+    //
+    // hash linda oblematic as does not cause a reload on changing, so try ?page=10
+    //
+    var param = QUERY ; 
+    var page = param.page || param.p || 0 ; 
     goTo(page);
 }
+
+
+QUERY = function(){
+        var result = {}; 
+        if (window.location.search)
+        {
+            var params = window.location.search.slice(1).split("&");
+            for (var i = 0; i < params.length; i++)
+            {
+                var tmp = params[i].split("=");
+                result[tmp[0]] = unescape(tmp[1]);
+            }
+        }
+        return result;
+    }();
+
 
 window.onload = startup;
 window.onresize = function(){setTimeout('fontScale()', 50);}
