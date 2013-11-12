@@ -11,6 +11,8 @@ RST2PDF
 * https://code.google.com/p/rst2pdf/
 * http://rst2pdf.ralsina.com.ar/
 * http://rst2pdf.ralsina.com.ar/handbook.html
+* http://ralsina.me/stories/BBS52.html
+
 
 Dependencies
 --------------
@@ -63,6 +65,13 @@ Readable PDF pages (not slide style though), including images on first try, desp
     simon:nov2013 blyth$ 
 
 
+But to get it to match the s5 presentation would need considerable style tweaking ?
+
+ALTERNATIVES
+-------------
+
+* http://code.google.com/p/wkhtmltopdf/
+
 
 
 
@@ -84,3 +93,11 @@ rst2pdf-get(){
    [ ! -d "$nam" ] && tar zxvf $tgz
 
 }
+
+
+rst2pdf-slides-get(){
+   local url="http://lateral.netmanagers.com.ar/static/rst2pdf-slides/slides.style"
+   local nam=$(basename $url)
+   [ ! -f "$nam" ] && curl -L -O $url
+}
+
