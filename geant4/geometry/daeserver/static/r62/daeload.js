@@ -85,6 +85,7 @@ DAELOAD = function(){
 
         var param ;
         var table ;
+        var rtable ;
         var punit ;
         var renderer, width, height ; 
         var camera ;
@@ -109,18 +110,32 @@ DAELOAD = function(){
             var nextras = extras.length || 0 ; 
 	        for ( var i = 0; i < nextras; i ++ ) {
 	            for ( var j = 0; j < extras[i].childNodes.length; j ++ ) {
-    			    var child = extras[i].childNodes[ j ];
-	 		        if ( child.nodeType != 1 ) continue;
-			        switch ( child.nodeName ) {
+    			    var elem = extras[i].childNodes[ j ];
+	 		        if ( elem.nodeType != 1 ) continue;
+			        switch ( elem.nodeName ) {
 				        case 'meta':
-                            param_table_add( table, "meta", child.textContent , false );
+                            param_table_add( rtable, "meta", elem.textContent , false );
 					        break;
-
+                        case 'ancestor':
+                            var index = elem.textContent ;
+                            var id = elem.getAttribute( 'id' ); 
+                            param_table_add( rtable, "A " + index, id + ".html" , true );
+					        break;
+                        case 'subroot':
+                            var index = elem.textContent ;
+                            var id = elem.getAttribute( 'id' ); 
+                            param_table_add( rtable, "* " + index, id + ".html" , true );
+					        break;
+                        case 'child':
+                            var index = elem.textContent ;
+                            var id = elem.getAttribute( 'id' ); 
+                            param_table_add( rtable, "C " + index, id + ".html" , true );
+					        break;
 				        default:
 					        break;
 			        }
                 }      // children of each "extra" element
-            }          // over "extra" elements  
+            }          // over "extra" element
        } 
 
         function handle_load( collada ){
@@ -179,16 +194,31 @@ DAELOAD = function(){
         } 
 
 
-        function info_div(){
-            var info = document.createElement( 'div' );
-            info.style.position = 'absolute';
-            info.style.top = '10px';
-            info.style.width = '100%';
-            info.style.textAlign = 'left';
+        function left_div(){
+            var left = document.createElement( 'div' );
+            left.style.position = 'absolute';
+            left.style.top = '10px';
+            left.style.width = '100%';
+            left.style.textAlign = 'left';
 
             table = param_table();
-            info.appendChild( table );
-            return info ;
+            left.appendChild( table );
+            return left ;
+        }
+
+        function right_div(){
+            var right = document.createElement( 'div' );
+            right.style.position = 'absolute';
+            right.style.top = '10px';
+            right.style.right = '10px';
+            right.style.width = '40%';
+            right.style.textAlign = 'right';
+
+            rtable = document.createElement('table');
+            //param_table_add( rtable, "right_div", "created", false );  
+
+            right.appendChild( rtable );
+            return right ;
         }
 
         function param_table(){
@@ -239,8 +269,8 @@ DAELOAD = function(){
             var container = document.getElementById(id);
             width = container.offsetWidth ;
             height = container.offsetHeight ;
-            var info = info_div();
-            container.appendChild( info );
+            container.appendChild( left_div() );
+            container.appendChild( right_div() );
 
             switch ( rdr ){
                 case 'c': 

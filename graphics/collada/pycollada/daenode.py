@@ -23,6 +23,17 @@ Heavy Geometries timeout through web interface
    daenode.py -e -s 3148___100 > 3148___100.dae    
    daenode.py -e -s 3148___6   > 3148___6.dae 
 
+Notable Volumes
+----------------
+
+
+* http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xaa88da8.0.html
+
+  * needs sibling culling
+
+* http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xa9883f0.0.html
+ 
+  * 2 ADs split 
 
 
 Node Dumping
@@ -209,7 +220,6 @@ collada.geometry.Geometry.save = lambda _:_
 collada.material.Material.save = lambda _:_
 
 tostring_ = lambda _:ET.tostring(getattr(_,'xmlnode'))
-#from lxml.builder import E
 
 import sys, os, logging, hashlib, copy, re
 log = logging.getLogger(__name__)
@@ -670,9 +680,10 @@ class DAECopy(object):
         self.cpvtop = cpvtop
 
         content = [cpvtop]
-        if 'meta' in opts:
-            cextra = collada.scene.ExtraNode( opts['meta']  )
+        if 'extra' in opts:
+            cextra = collada.scene.ExtraNode( opts['extra']  )
             content.append(cextra) 
+
 
         cscene = collada.scene.Scene("DefaultScene", content )
         self.dae.scenes.append(cscene)
@@ -940,7 +951,22 @@ def getSubCollada(arg, cfg ):
     log.info("geom subcopy arg %s => index %s cfg %s " % (arg, index, cfg) )
     top = DAENode.indexget(index)  
 
-    cfg['meta'] = E.extra(E.meta("subcopy arg %s index %s maxdepth %s " % (arg, index, cfg['maxdepth']) ))
+
+    extra = E.extra()
+    meta = E.meta("subcopy arg %s index %s maxdepth %s " % (arg, index, cfg['maxdepth']) )
+    extra.append(meta)
+    for a in reversed(top.ancestors()):
+        ancestor = E.ancestor(str(a.index), id=a.id)
+        extra.append(ancestor)
+    pass
+    extra.append(E.subroot(str(top.index), id=top.id))
+    pass
+    for c in top.children:
+        child = E.child(str(c.index), id=c.id)
+        extra.append(child)
+    pass
+    cfg['extra'] = extra
+
     vc = DAECopy(top, cfg )
     svc = str(vc)
 
