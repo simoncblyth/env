@@ -1632,6 +1632,7 @@ THREE.ColladaLoader = function () {
 		this.id = "";
 		this.name = "";
 		this.nodes = [];
+		this.extras = [];
 		this.scene = new THREE.Object3D();
 
 	};
@@ -1677,6 +1678,7 @@ THREE.ColladaLoader = function () {
 		this.id = element.getAttribute( 'id' );
 		this.name = element.getAttribute( 'name' );
 		this.nodes = [];
+		this.extras = [];
 
 		for ( var i = 0; i < element.childNodes.length; i ++ ) {
 
@@ -1688,6 +1690,11 @@ THREE.ColladaLoader = function () {
 				case 'node':
 
 					this.nodes.push( ( new Node() ).parse( child ) );
+					break;
+
+                case 'extra': 
+
+					this.extras.push( child );
 					break;
 
 				default:

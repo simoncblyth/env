@@ -103,11 +103,37 @@ DAELOAD = function(){
 		    loader.load( url , handle_load );
         } 
 
+
+     function interpret_meta( extras )
+     {
+            var nextras = extras.length || 0 ; 
+	        for ( var i = 0; i < nextras; i ++ ) {
+	            for ( var j = 0; j < extras[i].childNodes.length; j ++ ) {
+    			    var child = extras[i].childNodes[ j ];
+	 		        if ( child.nodeType != 1 ) continue;
+			        switch ( child.nodeName ) {
+				        case 'meta':
+                            param_table_add( table, "meta", child.textContent , false );
+					        break;
+
+				        default:
+					        break;
+			        }
+                }      // children of each "extra" element
+            }          // over "extra" elements  
+       } 
+
         function handle_load( collada ){
             console.log("handle_load");
 		    dae = collada.scene;
 
-            init_renderer(); 
+            init_renderer();
+
+            var extras = collada.dae.scene.extras ;
+            if (typeof(extras) !== 'undefined'){
+                interpret_meta( extras );
+            }
+
             init_loaded() ;
             init_scene();
             init_camera();

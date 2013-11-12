@@ -1,16 +1,16 @@
-$def with (arg, node, subtree)
+$def with (arg, node, subtree, cachekiller)
 <!DOCTYPE html>
 <html>
 <head>
 <title>G4DAE Server</title>
   <script src="../static/r62/lib/three.min.js"></script>
   <script src="../static/r62/lib/query.js"></script>
-  <script src="../static/r62/lib/ColladaLoader.js"></script>
+  <script src="../static/r62/lib/ColladaLoader.js${cachekiller}"></script>
   <script src="../static/r62/lib/DoubleAxisHelper.js"></script>
   <script src="../static/r62/lib/OrbitControls.js"></script>
   <script src="../static/r62/lib/TrackballControls.js"></script>
   <script src="../static/r62/lib/Detector.js"></script>
-  <script src="../static/r62/daeload.js"></script>
+  <script src="../static/r62/daeload.js${cachekiller}"></script>
   <script>
     function onLoad()
     {

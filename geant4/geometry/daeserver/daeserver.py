@@ -20,7 +20,7 @@ With webpy SCGI deployment with apache
 
 
 """
-import os, sys, logging
+import os, sys, logging, time
 log = logging.getLogger(__name__)
 import web
 from env.graphics.collada.pycollada.daenode import DAENode, getSubCollada, DAESubTree, getTextTree
@@ -102,7 +102,9 @@ class _tree_r62_html:
     def GET(self, arg):
         node = DAENode.get(arg)
         subtree = DAESubTree( node, maxdepth=maxdepth_(arg), text=False )
-        return r62_render.daeload(arg, node, subtree )
+        #cachekiller = "?cachekiller=%s" % time.time() 
+        cachekiller = ""  # Argh this kills Safari JS debugging too, will not stop on breakpoints 
+        return r62_render.daeload(arg, node, subtree, cachekiller )
 
 
 def find_unique_path( dir, name):
