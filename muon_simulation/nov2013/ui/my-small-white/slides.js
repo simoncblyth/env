@@ -552,6 +552,9 @@ function startup() {
 		document.onkeypress = trap;
 		document.onclick = clicker;
 	}
+    // SCB : allow jumping to a page via #3 #10 url hash extensions 
+    var page = window.location.hash.substring(1) || 0 ;
+    goTo(page);
 }
 
 window.onload = startup;
