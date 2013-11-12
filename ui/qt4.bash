@@ -20,9 +20,11 @@ G
 
 Fails with::
 
+    
        
 
 * http://trac.macports.org/ticket/34902
+* http://trac.macports.org/changeset/96486
 
 ::
 

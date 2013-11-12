@@ -10,11 +10,59 @@ RST2PDF
 
 * https://code.google.com/p/rst2pdf/
 * http://rst2pdf.ralsina.com.ar/
+* http://rst2pdf.ralsina.com.ar/handbook.html
 
 Dependencies
 --------------
 
 * reportlab-
+
+INSTALLS
+----------
+
+G
+~~
+
+After preparing reportlab with macports install::
+
+    simon:rst2pdf-0.93 blyth$ sudo python setup.py install
+    ...
+    creating /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/rst2pdf-0.93.dev-py2.6.egg
+    Extracting rst2pdf-0.93.dev-py2.6.egg to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages
+    Adding rst2pdf 0.93.dev to easy-install.pth file
+    Installing rst2pdf script to /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin
+    Installed /opt/local/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/rst2pdf-0.93.dev-py2.6.egg
+    ...
+
+numpy ABI issue::
+
+    simon:e blyth$ /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2pdf --help
+    RuntimeError: module compiled against ABI version 2000000 but this version of numpy is 1000009
+    Usage: rst2pdf [options]
+    ...
+
+    simon:e blyth$ python -c "import numpy ; print numpy.__version__ "
+    1.6.2
+
+USAGE
+------
+
+Readable PDF pages (not slide style though), including images on first try, despite warnings::
+
+    simon:nov2013 blyth$ ./pdf.sh 
+    RuntimeError: module compiled against ABI version 2000000 but this version of numpy is 1000009
+    nov2013_gpu_nuwa.txt:6: (ERROR/3) Unknown interpreted text role "rawlink".
+
+    .. role:: raw-link(rawlink)
+       :format: html
+
+    [WARNING] styles.py:548 Using undefined style 'green', aliased to style 'normal'.
+    [WARNING] styles.py:548 Using undefined style 'red', aliased to style 'normal'.
+    [WARNING] styles.py:548 Using undefined style 'blue', aliased to style 'normal'.
+    [WARNING] styles.py:548 Using undefined style 'small', aliased to style 'normal'.
+    simon:nov2013 blyth$ 
+
+
 
 
 
