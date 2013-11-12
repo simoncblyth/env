@@ -4,6 +4,7 @@ muon_simulation
 
 .. toctree::
 
+   presentation/index
    tasks
    overview
    techniques
