@@ -14,6 +14,53 @@ Usage Examples
    daenode.py --tree 0 > 0.txt            # single line just the world volume, as no recursion by default
    daenode.py --tree 0___2 > 0___2.txt    # 
 
+
+Use from ipython
+-----------------
+
+::
+
+    In [60]: from env.graphics.collada.pycollada.daenode import DAENode, Defaults
+    In [61]: Defaults.daepath
+    Out[61]: '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'
+    In [62]: DAENode.parse(Defaults.daepath)
+    In [63]: DAENode.summary()
+    In [64]: import logging
+    In [65]: logging.basicConfig(level=logging.INFO)        ## logging is needed to see any output
+    In [66]: DAENode.summary()
+    INFO:env.graphics.collada.pycollada.daenode:registry 12230 
+    INFO:env.graphics.collada.pycollada.daenode:lookup 12230 
+    INFO:env.graphics.collada.pycollada.daenode:idlookup 12230 
+    INFO:env.graphics.collada.pycollada.daenode:ids 12230 
+    INFO:env.graphics.collada.pycollada.daenode:rawcount 36690 
+    INFO:env.graphics.collada.pycollada.daenode:created 12230 
+    INFO:env.graphics.collada.pycollada.daenode:root   top.0             
+
+    In [71]: node = DAENode.get("1000")
+    INFO:env.graphics.collada.pycollada.daenode:arg 1000 => indices [1000] => node   __dd__Geometry__RPC__lvRPCGasgap23--pvStrip23Array--pvStrip23ArrayOne..6--pvStrip23Unit0xa8c15c8.46             __dd__Materials__MixGas0x8837740  
+
+    In [72]: node
+    Out[72]:   __dd__Geometry__RPC__lvRPCGasgap23--pvStrip23Array--pvStrip23ArrayOne..6--pvStrip23Unit0xa8c15c8.46             __dd__Materials__MixGas0x8837740 
+
+    In [73]: node.children
+    Out[73]: []
+
+    In [74]: node.ancestors
+    Out[74]: <bound method DAENode.ancestors of   __dd__Geometry__RPC__lvRPCGasgap23--pvStrip23Array--pvStrip23ArrayOne..6--pvStrip23Unit0xa8c15c8.46             __dd__Materials__MixGas0x8837740 >
+
+    In [75]: node.ancestors()
+    Out[75]: 
+    [  __dd__Geometry__RPC__lvRPCBarCham23--pvRPCGasgap230xa8c1918.46             __dd__Materials__Air0x8838278 ,
+       __dd__Geometry__RPC__lvRPCFoam--pvBarCham23Array--pvBarCham23ArrayOne..1--pvBarCham23Unit0xa8c1b80.23             __dd__Materials__Bakelite0x8838888 ,
+       __dd__Geometry__RPC__lvRPCMod--pvRPCFoam0xa8c1d58.23             __dd__Materials__Foam0x8838a98 ,
+       __dd__Geometry__RPC__lvNearRPCRoof--pvNearUnSlopModArray--pvNearUnSlopModOne..4--pvNearUnSlopMod..4--pvNearSlopModUnit0xa8c3868.0             __dd__Materials__Aluminium0x88391b8 ,
+       __dd__Geometry__Sites__lvNearHallTop--pvNearRPCRoof0xa8d3ca8.0             __dd__Materials__Air0x8838278 ,
+       __dd__Geometry__Sites__lvNearSiteRock--pvNearHallTop0xaa8ace0.0             __dd__Materials__Air0x8838278 ,
+       __dd__Structure__Sites__db-rock0xaa8b0f8.0             __dd__Materials__Rock0x8868188 ,
+       top.0             - ]
+
+
+
 Heavy Geometries timeout through web interface
 -------------------------------------------------
 
@@ -1033,11 +1080,14 @@ def getTextTree(arg, cfg):
     return "\n".join(map(str,anc+tre+[""])) 
 
 
+
+
 class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     loglevel = "INFO"
     logpath = None
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    dbpath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.db"
     webserver = False
     tree = False
     node = False
