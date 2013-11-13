@@ -74,6 +74,8 @@ nuwa-clhep-lib(){ echo CLHEP-$(nuwa-clhep-ver) ; }
 nuwa-clhep-incdir(){ echo $(nuwa-clhep-idir)/include ; } 
 nuwa-clhep-libdir(){ echo $(nuwa-clhep-idir)/lib ; } 
 
+
+nuwa-xercesc-bdir(){ echo $DYB/external/build/LCG/xerces-c-src_2_8_0 ; }
 nuwa-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(nuwa-plat) ; }
 nuwa-xercesc-incdir(){ echo $(nuwa-xercesc-idir)/include ; }
 nuwa-xercesc-libdir(){ echo $(nuwa-xercesc-idir)/lib ; }
