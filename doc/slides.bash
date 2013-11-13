@@ -134,10 +134,22 @@ slides-make(){
 }
 
 slides-publish(){
+  case $NODE_TAG in 
+     C2|C2R) $FUNCNAME-rsync ;;
+          *) $FUNCNAME-ln ;;
+  esac
+}
+
+slides-publish-ln(){
    local pdir=$(slides-pdir)
    mkdir -p $(dirname $pdir)
    ln -svf $(slides-dir)/ $pdir
    ls -l $(dirname $pdir)
+}
+slides-publish-rsync(){
+   local pdir=$(slides-pdir)
+   mkdir -p $(dirname $pdir)
+   rsync -av $(slides-dir)/ $pdir/
 }
 
 slides-capture(){

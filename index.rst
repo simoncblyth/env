@@ -7,13 +7,6 @@ Env Development Log
 :Version: |version|
 :Date: |today|
 
-::
-
-    .. slide:: 200x Faster NuWa + Chroma Photon Propagation
-       :level: 1
-
-       What needs to be done to turn that into reality
-
 
 Objectives for these pages.
 

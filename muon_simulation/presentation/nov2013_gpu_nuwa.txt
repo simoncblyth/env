@@ -22,9 +22,9 @@ Fivefold path:
 
 .. class:: small
 
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/ov2013_gpu_nuwa.txt
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/ov2013_gpu_nuwa.pdf
-    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/ov2013_gpu_nuwa.html
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.txt
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.pdf
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.html
 
 
 
