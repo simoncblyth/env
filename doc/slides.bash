@@ -1,0 +1,160 @@
+# === func-gen- : muon_simulation/presentation/slides fgp muon_simulation/presentation/slides.bash fgn slides fgh muon_simulation/presentation
+slides-src(){      echo muon_simulation/presentation/slides.bash ; }
+slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
+slides-vi(){       vi $(slides-source) ; }
+slides-env(){      elocal- ; }
+slides-usage(){ cat << EOU
+
+S5 SLIDES PDF 
+================
+
+Creates PDF documents from a sequence of cropped browser 
+screen capture PNGs. 
+
+This is particularly useful with S5 slides created with 
+rst2s5.py as this avoids having to duplicate the layout exercise 
+for the pdf.  A PDF can be created from the rst via several routes
+but it will not look like the S5 slides without duplicated styling 
+effort.
+
+The disadvantage is bitmapped PDFs lacking clickable links. 
+Mitigate this (and gain some html traffic) by providing a 
+prominent reference to the online html version of the slides.
+
+The advantage of having slides in html, generated from 
+plain text RST files outweighs the disadvantage.  
+
+SPHINX INTEGRATION
+-------------------
+
+Minimal integration with html docs created by Sphinx is 
+achieved by placing the S5 html and pdf within the Sphinx
+build directory at the appropriate place in the tree
+corresponding to the RST sources, which are in *.txt* 
+to distinguish from the Sphinx sources.
+
+
+FUNCTIONS
+----------
+
+*slides-get N M*
+                performs the below functions, does screencaptures to PNG, 
+                cropping PNG and converting to PDF, usage::
+
+                     slides-get 0 5    
+
+
+*slides-capture N M*
+                screencapture a sequence of Safari pages, eg S5 slides
+
+                During operation the sequence of Browser pages will load
+                one by one.  As each URL is visited, user intervention 
+                to click the window is required. As the tabs are left it is 
+                preferable to start with only a small number of 
+                Safari tabs before running the script.
+
+                For each load:
+
+                #. focus will shift to the new page
+                #. wait until onload javascript has completed
+                #. screencapture will kick in and color the browser blue with a camera icon
+                #. click the browser window to take the capture
+
+*slides-crop*
+              runs python cropper on all NN.png, creating NN_crop.png
+*slides-convert*
+              uses convert to concatenate NN_crop.png into name.pdf
+
+
+*slides-rst2pdf-convert*
+              DID NOT PURSUE THIS TECHNIQUE AS TOO MUCH STYLING REINVENTION
+
+
+TODO:
+
+#. update proxied links
+#. recreate 
+#. link to pdf from html, 
+#. announce the link 
+
+
+EOU
+}
+
+slides-dir(){ echo $(env-home)/_build/dirhtml/$(slides-rdir)/$(slides-name) ; }
+slides-cd(){  cd $(slides-dir); }
+slides-mate(){ mate $(slides-dir) ; }
+slides-mkdir(){ mkdir -p $(slides-dir) ; }
+slides-get(){
+   slides-mkdir
+   slides-cd
+   slides-capture $*
+   slides-crop
+   slides-convert
+}
+
+slides-url(){       echo ${SLIDES_URL:-http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.html} ; }
+slides-rdir(){      echo ${SLIDES_RDIR:-muon_simulation/presentation} ; } 
+
+slides-base(){      echo $(basename $(slides-url)) ; }
+slides-name(){      local base=$(slides-base) && echo ${base/.html} ; }  
+slides-url-page(){  echo "$(slides-url)?p=$1" ; }
+
+slides-pages(){
+  local i
+  local START=${1:-0}
+  local END=${2:-0}
+  typeset -i START END 
+  for ((i=START;i<=END;++i)); do echo $i; done
+}
+
+slides-capture(){
+   local msg="=== $FUNCNAME "
+   slides-cd
+   local pages=$(slides-pages $1 $2)
+   local page
+   local url
+   local zpage
+   for page in $pages ; do
+      url=$(slides-url $page)
+      zpage=$(printf "%0.2d" $page)
+      echo $msg opening url "$url" 
+      open "$url"
+      cmd="screencapture -T0 -w -i -o $zpage.png"
+      #
+      #    -T<seconds>  Take the picture after a delay of <seconds>, default is 5 
+      #    -w           only allow window selection mode
+      #    -i           capture screen interactively, by selection or window
+      #    -o           in window capture mode, do not capture the shadow of the window
+      #
+      echo $msg about to do $cmd : tap browser window once loaded and highlighted blue
+      sleep 3
+      eval $cmd
+   done
+}
+slides-crop(){
+   local msg="=== $FUNCNAME "
+   slides-cd
+   echo $msg cropping PNG 
+   crop.py ??.png   
+}
+slides-convert(){
+   local msg="=== $FUNCNAME "
+   local pdf=$(slides-name).pdf   
+   slides-cd
+   echo $msg converting PNG into $pdf 
+   convert ??_crop.png $pdf
+}
+
+
+
+slides-rst2pdf(){
+   /opt/local/Library/Frameworks/Python.framework/Versions/2.6/bin/rst2pdf $* 
+}
+slides-rst2pdf-convert(){
+  local name=$(slides-name)
+  #slides-rst2pdf $name.txt -o $name.pdf
+  slides-rst2pdf $name.txt -b1 -s slides.style -o $name.pdf
+}
+
+

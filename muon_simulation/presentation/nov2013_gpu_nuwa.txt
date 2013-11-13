@@ -1,21 +1,5 @@
 .. include:: <s5defs.txt>
 
-.. role:: raw-html(raw)
-   :format: html
-
-.. role:: raw-link(rawlink)
-   :format: html
-
-.. raw:: html
-
-   <!-- 
-       from raw html direct in RST source
-       this gets into the html just before the first slide div
-       BUT injecting via monkey patch goes into head : which is better
-   -->
-   <style type="text/css">
-   </style> 
-
 ======================================================================
 200x Faster Optical Photon Propagation with NuWa + Chroma ?
 ======================================================================
@@ -37,7 +21,10 @@ Fivefold path:
 #. :blue:`Geant4/Chroma Integration`
 #. :blue:`Validation`
 
-http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.html 
+.. class:: small
+
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.html 
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.pdf
 
 Chroma : Ultra-fast Photon MC
 ------------------------------
@@ -68,7 +55,7 @@ Retains G4 materials and volume hierarchy into the DAE.
 
 .. class:: small
 
-   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/DAE
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/DAE
 
 .. sidebar:: General Exporter
 
@@ -119,7 +106,7 @@ Full geometry file ``4.9M`` is too big for fast handling.
 
 .. class:: small
 
-   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/graphics/collada/pycollada/daenode.py 
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/graphics/collada/pycollada/daenode.py 
 
 
 G4DAE Server : web access to any volume
@@ -143,7 +130,7 @@ Recursion depth below target can be specified:
 
 .. class:: small
 
-   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
 
 
 G4DAE Server : 3D web viewer using three.js
@@ -151,7 +138,7 @@ G4DAE Server : 3D web viewer using three.js
 
 .. class:: small
 
-   http://hfag.phys.ntu.edu.tw:90/tracs/env/browser/trunk/geant4/geometry/daeserver/static/r62/daeload.js 
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/daeserver/static/r62/daeload.js 
 
 .. class:: small
  

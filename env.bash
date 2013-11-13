@@ -1265,3 +1265,4 @@ rst2pdf-(){      . $(env-home)/doc/rst2pdf.bash && rst2pdf-env $* ; }
 reportlab-(){      . $(env-home)/doc/reportlab.bash && reportlab-env $* ; }
 vcglib-(){      . $(env-home)/graphics/mesh/vcglib.bash && vcglib-env $* ; }
 qt4-(){      . $(env-home)/ui/qt4.bash && qt4-env $* ; }
+slides-(){      . $(env-home)/doc/slides.bash && slides-env $* ; }

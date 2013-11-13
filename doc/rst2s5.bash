@@ -8,6 +8,14 @@ rst2s5-usage(){ cat << EOU
 RST2S5
 =======
 
+See also::
+
+    simon:e blyth$ ls -l ~/e/doc/rst2s5
+    total 64
+    -rw-r--r--  1 blyth  staff  25327 13 Nov 12:53 slide-shows.txt
+    -rw-r--r--  1 blyth  staff   3316 13 Nov 12:53 test_rst2s5_py.txt
+
+
 * http://docutils.sourceforge.net/docs/user/slide-shows.html
 * :google:`s5 themes`
 

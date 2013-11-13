@@ -8,6 +8,19 @@
 .. role:: raw-link(rawlink)
    :format: html
 
+
+
+.. raw:: html
+
+   <!-- 
+       from raw html direct in RST source
+       this gets into the html just before the first slide div
+       BUT injecting via monkey patch goes into head : which is better
+   -->
+   <style type="text/css">
+   </style> 
+
+
 .. raw:: html
 
    <style type="text/css">
