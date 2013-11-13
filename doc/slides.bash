@@ -24,15 +24,21 @@ prominent reference to the online html version of the slides.
 The advantage of having slides in html, generated from 
 plain text RST files outweighs the disadvantage.  
 
-SPHINX INTEGRATION
--------------------
+MINIMAL SPHINX INTEGRATION
+-----------------------------
 
 Minimal integration with html docs created by Sphinx is 
-achieved by placing the S5 html and pdf within the Sphinx
-build directory at the appropriate place in the tree
-corresponding to the RST sources, which are in *.txt* 
-to distinguish from the Sphinx sources.
+achieved by:
 
+#. plain docutils sources for rst2s5 (not sphinx) 
+   are named *.txt* rather than *.rst* 
+
+#. generated S5 html and pdf are placed within the Sphinx
+   build directory at the appropriate place in the tree
+   corresponding to the RST sources
+
+#. the Sphinx index.rst contains a raw html list of links
+   to the rst2s5 generated html and pdf 
 
 FUNCTIONS
 ----------
@@ -69,35 +75,41 @@ FUNCTIONS
 *slides-rst2pdf-convert*
               DID NOT PURSUE THIS TECHNIQUE AS TOO MUCH STYLING REINVENTION
 
+TODO
+------
 
-TODO:
+#. recreate PDF once links/structure finalized
 
-#. update proxied links
-#. recreate 
-#. link to pdf from html, 
 #. announce the link 
 
 
 EOU
 }
 
-slides-dir(){ echo $(env-home)/_build/dirhtml/$(slides-rdir)/$(slides-name) ; }
+slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
+slides-dir(){   echo $(local-base)/env/$(slides-fold) ; }
+slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
+slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
+
 slides-cd(){  cd $(slides-dir); }
+slides-scd(){  cd $(slides-sdir); }
 slides-mate(){ mate $(slides-dir) ; }
 slides-mkdir(){ mkdir -p $(slides-dir) ; }
 slides-get(){
+
    slides-mkdir
    slides-cd
    slides-capture $*
    slides-crop
    slides-convert
+
 }
 
-slides-url(){       echo ${SLIDES_URL:-http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa.html} ; }
-slides-rdir(){      echo ${SLIDES_RDIR:-muon_simulation/presentation} ; } 
-
-slides-base(){      echo $(basename $(slides-url)) ; }
-slides-name(){      local base=$(slides-base) && echo ${base/.html} ; }  
+slides-name(){      echo ${SLIDES_NAME:-nov2013_gpu_nuwa} ; }
+slides-branch(){    echo ${SLIDES_BRANCH:-muon_simulation/presentation} ; }        # env relative path to where .txt sources reside
+slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
+slides-urlbase(){   echo ${SLIDES_URLBASE:-http://$(slides-host)/e} ; }   
+slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
 slides-pages(){
@@ -108,6 +120,26 @@ slides-pages(){
   for ((i=START;i<=END;++i)); do echo $i; done
 }
 
+slides-make(){
+   local msg="=== $FUNCNAME "
+   slides-scd
+
+   echo $msg creating S5 html slides from txt source
+   make
+
+   local outdir=$(slides-dir)
+   mkdir -p $outdir
+   echo $msg rsync S5 html slides and sources to $outdir
+   make rsync OUTDIR=$outdir
+}
+
+slides-publish(){
+   local pdir=$(slides-pdir)
+   mkdir -p $(dirname $pdir)
+   ln -svf $(slides-dir)/ $pdir
+   ls -l $(dirname $pdir)
+}
+
 slides-capture(){
    local msg="=== $FUNCNAME "
    slides-cd
@@ -116,7 +148,7 @@ slides-capture(){
    local url
    local zpage
    for page in $pages ; do
-      url=$(slides-url $page)
+      url=$(slides-url-page $page)
       zpage=$(printf "%0.2d" $page)
       echo $msg opening url "$url" 
       open "$url"
@@ -145,7 +177,6 @@ slides-convert(){
    echo $msg converting PNG into $pdf 
    convert ??_crop.png $pdf
 }
-
 
 
 slides-rst2pdf(){
