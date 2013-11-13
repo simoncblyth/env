@@ -75,13 +75,6 @@ FUNCTIONS
 *slides-rst2pdf-convert*
               DID NOT PURSUE THIS TECHNIQUE AS TOO MUCH STYLING REINVENTION
 
-TODO
-------
-
-#. recreate PDF once links/structure finalized
-
-#. announce the link 
-
 
 EOU
 }
@@ -90,7 +83,10 @@ slides-fold(){  echo $(slides-branch)/$(slides-name) ; }
 slides-dir(){   echo $(local-base)/env/$(slides-fold) ; }
 slides-sdir(){  echo $(env-home)/$(slides-branch) ; } 
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
+slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
+slides-open(){  open $(slides-path $*) ; } 
 
+slides-ls(){  ls -l $(slides-dir); }
 slides-cd(){  cd $(slides-dir); }
 slides-scd(){  cd $(slides-sdir); }
 slides-mate(){ mate $(slides-dir) ; }
@@ -108,8 +104,8 @@ slides-get(){
 slides-name(){      echo ${SLIDES_NAME:-nov2013_gpu_nuwa} ; }
 slides-branch(){    echo ${SLIDES_BRANCH:-muon_simulation/presentation} ; }        # env relative path to where .txt sources reside
 slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
-slides-urlbase(){   echo ${SLIDES_URLBASE:-http://$(slides-host)/e} ; }   
 slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
+slides-ppath(){     echo $(apache-htdocs $1)/e/$(slides-fold)/$(slides-name).${2:-pdf} ; }   
 slides-url-page(){  echo "$(slides-url)?p=$1" ; }
 
 slides-pages(){
@@ -131,6 +127,7 @@ slides-make(){
    mkdir -p $outdir
    echo $msg rsync S5 html slides and sources to $outdir
    make rsync OUTDIR=$outdir
+   make clean
 }
 
 slides-publish(){
@@ -188,6 +185,24 @@ slides-convert(){
    slides-cd
    echo $msg converting PNG into $pdf 
    convert ??_crop.png $pdf
+}
+slides-scp(){
+   local msg="=== $FUNCNAME "
+   local tag=${1:-C2R}
+   local scp="scp $(slides-path pdf) $tag:$(NODE_TAG=$tag slides-path pdf)"
+   echo $msg $scp 
+   eval $scp
+   echo $msg : NB may need to do a slides-publish on the destination to make the PDF accessible
+}
+
+slides-scp-htdocs(){
+   # apache on C2R resisting serving the pdf
+   local msg="=== $FUNCNAME "
+   local tag=${1:-C2R}
+   apache-
+   local scp="scp $(slides-path pdf) $tag:$(slides-ppath $tag pdf)"
+   echo $msg $scp 
+   eval $scp
 }
 
 
