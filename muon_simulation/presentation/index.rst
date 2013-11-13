@@ -12,6 +12,7 @@ Muon Simulation Presentation
         <ul>  
            <li> <a href="nov2013_gpu_nuwa.html" > nov2013_gpu_nuwa.html </a> </li>
            <li> <a href="nov2013_gpu_nuwa.txt" > nov2013_gpu_nuwa.txt </a> </li>
+           <li> <a href="nov2013_gpu_nuwa.pdf" > nov2013_gpu_nuwa.pdf </a> </li>
         </ul>
    </li>
    </ul>
