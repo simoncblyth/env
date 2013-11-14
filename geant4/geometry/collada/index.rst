@@ -1,6 +1,6 @@
 
-pycollada
-=========================
+Geant4 Geometry in Collada 
+===========================
 
 .. toctree::
 
@@ -11,4 +11,5 @@ pycollada
    triangulation
    wrl_crosscheck
    vertex_coordinate_debug
+   dae_cf_wrl
 
