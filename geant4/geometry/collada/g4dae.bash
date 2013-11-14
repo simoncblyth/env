@@ -18,7 +18,7 @@ EOU
 }
 g4dae-dir(){ echo $(env-home)/geant4/geometry/collada ; }
 g4dae-ddir(){ echo $(local-base)/env/geant4/geometry/collada ; }
-g4dae-cd(){  cd $(g4dae-dir); }
+g4dae-cd(){  cd $(g4dae-dir)/$1 ; }
 g4dae-mate(){ mate $(g4dae-dir) ; }
 g4dae-get(){
    local dir=$(dirname $(g4dae-dir)) &&  mkdir -p $dir && cd $dir

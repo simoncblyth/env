@@ -136,6 +136,8 @@ Discrepancies grouped by geometry id
     weight-shell             342         50          -292             36          4543,4547,4558,4562,4591,4595
 
 
+
+
 Check GDML
 ------------
 
@@ -290,4 +292,72 @@ Visual check of discrepants : lots of interesting shapes
 * http://belle7.nuu.edu.tw/dae/tree/4521.html wall-led-assy   
 
   * cylinder touching a sphere
+
+
+Compare G4DAE and VRML2 geometry handling code
+------------------------------------------------
+
+#. comparing VRML2 and G4DAE code for vertices : looks identical,
+
+   * maybe some parameters : dont think so, all seem at defaults
+   * precision issue 
+   
+.. sidebar:: Possible Explanation
+
+   DAE creation so far uses expedient of running from a Geant4 geometry created from an exported GDML file, for development speed. 
+   **BUT** that compounds precision issues.  The polyhedron creation algorithm appears sensitive to precise geometry especially
+   when you have subtraction/union solids.
+   Check this by testing DAE creation direct from original in memory model, not the one loaded from the GDML. This 
+   allows to compare apples-to-apples rather than comparison against 2nd generation geometry filtered thru GDML precision.
+
+
+Geant4
+-------
+
+
+geometry/solids/Boolean/src/G4UnionSolid.cc::
+
+    453 G4Polyhedron*
+    454 G4UnionSolid::CreatePolyhedron () const
+    455 {
+    456   G4Polyhedron* pA = fPtrSolidA->GetPolyhedron();
+    457   G4Polyhedron* pB = fPtrSolidB->GetPolyhedron();
+    458   if (pA && pB) {
+    459     G4Polyhedron* resultant = new G4Polyhedron (pA->add(*pB));
+    460     return resultant;
+    461   } else {
+    462     std::ostringstream oss;
+    463     oss << GetName() <<
+    464       ": one of the Boolean components has no corresponding polyhedron.";
+    465     G4Exception("G4UnionSolid::CreatePolyhedron",
+    466         "", JustWarning, oss.str().c_str());
+    467     return 0;
+    468   }
+    469 }
+
+geometry/solids/Boolean/src/G4SubtractionSolid.cc::
+
+    466 G4Polyhedron*
+    467 G4SubtractionSolid::CreatePolyhedron () const
+    468 {
+    469   G4Polyhedron* pA = fPtrSolidA->GetPolyhedron();
+    470   G4Polyhedron* pB = fPtrSolidB->GetPolyhedron();
+    471   if (pA && pB)
+    472   {
+    473     G4Polyhedron* resultant = new G4Polyhedron (pA->subtract(*pB));
+    474     return resultant;
+    475   }
+    476   else
+    477   {
+    478     std::ostringstream oss;
+    479     oss << "Solid - " << GetName()
+    480         << " - one of the Boolean components has no" << G4endl
+    481         << " corresponding polyhedron. Returning NULL !";
+    482     G4Exception("G4SubtractionSolid::CreatePolyhedron()", "InvalidSetup",
+    483                 JustWarning, oss.str().c_str());
+    484     return 0;
+    485   }
+    486 }
+
+
 
