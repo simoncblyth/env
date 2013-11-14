@@ -7,10 +7,10 @@ Geant4 Geometry Export
    overview
    introduction
    vrml2/index
+   collada/index
    xdae/index
    xdaefile/index
    gdml/index
-   collada/index
    other/index
    
 
