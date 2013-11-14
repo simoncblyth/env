@@ -23,7 +23,7 @@ With webpy SCGI deployment with apache
 import os, sys, logging, time
 log = logging.getLogger(__name__)
 import web
-from env.graphics.collada.pycollada.daenode import DAENode, getSubCollada, DAESubTree, getTextTree
+from env.geant4.geometry.collada.daenode import DAENode, getSubCollada, DAESubTree, getTextTree
 
 opts = None
 

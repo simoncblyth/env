@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from env.graphics.collada.pycollada.daegeom import main
+from env.geant4.geometry.collada.daegeom import main
 if __name__ == '__main__':
     main()
 
