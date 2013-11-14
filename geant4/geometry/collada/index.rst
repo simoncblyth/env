@@ -4,6 +4,7 @@ pycollada
 
 .. toctree::
 
+   tools
    export
    xmldae
    pycollada_internals

@@ -1,7 +1,9 @@
-XMLDAE
-=======
+XMLDAE : first look at raw G4DAE node structure
+====================================================
 
 Raw Node tree has the lv as well as pv, wherese VRML2 tree has only pv ?
+
+   * the raw collada node tree triples the Geant4 volume tree nodes into a regular PPV/LV/GEO per volume structure
 
 
 ::
@@ -36,22 +38,7 @@ Raw Node tree has the lv as well as pv, wherese VRML2 tree has only pv ?
     7 93 _dd_Geometry_RPC_lvRPCMod_pvRPCFoam0xabb1b48.1
     8 94 _dd_Geometry_RPC_lvRPCFoam0xabb1778.1
 
-
-::
-
-    sqlite> select name from shape limit 10 ;
-    name                                                                                                                                                                                                                                                            
-    ---------------------------------------------------------------------------------------------                                                                                                                                                                   
-    /dd/Structure/Sites/db-rock.1000                                                                                                                                                                                                                                
-    /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000                                                                                                                                                                                                            
-    /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover.1000                                                                                                                                                                                                            
-    /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1.1                                                                                                                                                                                                
-    /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000                                                                                                                                                                                                                        
-    /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit.1                                                                                                                                                                             
-    /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14.1000                                                                                                                                                                                                              
-    /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit.1                                                                                                                                                                               
-    /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit.2                                                                                                                                                                               
-    /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:3#pvStrip14Unit.3                                                                                                                                                                               
+                                                                                                                                                           
     sqlite> select count(*) from shape ;
     count(*)                                                                                                                                                                                                                                                        
     ---------------------------------------------------------------------------------------------                                                                                                                                                                   
@@ -110,6 +97,8 @@ Raw Node tree has the lv as well as pv, wherese VRML2 tree has only pv ?
 
 Looks to be a pattern that the LV referenced by instance_node are skipped in the VRML2 list.
 
+  * yes, the VRML2 has just the PV 
+
 ::
 
     sqlite> select id, name from shape where name like '/dd/Geometry/Sites/lvNearSiteRock%' ;
@@ -140,31 +129,6 @@ Looks to be a pattern that the LV referenced by instance_node are skipped in the
     12228       /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab8.1008                         
     12229       /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab9.1009                         
     sqlite> 
-
-
-
-Does is make more sense to pass the matrix ?
-
-::
-
-    0   0    World0xad7b048.0                                                                                      1    tgt:_dd_Materials_Vacuum0x8b746a0  ref:None matrix:None 
-    1   1    _dd_Structure_Sites_db-rock0xad7b188.0                                                                1    tgt:None  ref:#_dd_Geometry_Sites_lvNearSiteRock0xad7af08 matrix:-0.543174 0.83962 0 -16520, -0.83962 -0.543174 0 -802110, 0 0 1 -2110, 0.0 0.0 0.0 1.0 
-    2   2    _dd_Geometry_Sites_lvNearSiteRock0xad7af08.0                                                          2    tgt:_dd_Materials_Rock0x8b58188  ref:None matrix:None 
-    3   3    _dd_Geometry_Sites_lvNearSiteRock_pvNearHallTop0xad7ad70.0                                            1    tgt:None  ref:#_dd_Geometry_Sites_lvNearHallTop0xabc3670 matrix:1 0 0 2500, 0 1 0 -500, 0 0 1 7500, 0.0 0.0 0.0 1.0 
-    4   4    _dd_Geometry_Sites_lvNearHallTop0xabc3670.0                                                           5    tgt:_dd_Materials_Air0x8b28278  ref:None matrix:None 
-    5   5    _dd_Geometry_Sites_lvNearHallTop_pvNearTopCover0xabc3390.0                                            1    tgt:None  ref:#_dd_Geometry_PoolDetails_lvNearTopCover0xabaffe8 matrix:1 0 0 -2500, 0 1 0 500, 0 0 1 -7478, 0.0 0.0 0.0 1.0 
-    6   6    _dd_Geometry_PoolDetails_lvNearTopCover0xabaffe8.0                                                    0    tgt:_dd_Materials_PPE0x8b066b8  ref:None matrix:None 
-    5   7    _dd_Geometry_Sites_lvNearHallTop_pvNearTeleRpc_pvNearTeleRpc_10xabc36c8.0                             1    tgt:None  ref:#_dd_Geometry_RPC_lvRPCMod0xabb1b80 matrix:0.99995 -0.0100372 0 -2560.55, 0.0100372 0.99995 0 -5305.87, 0 0 1 -4706.1, 0.0 0.0 0.0 1.0 
-    6   8    _dd_Geometry_RPC_lvRPCMod0xabb1b80.0                                                                  1    tgt:_dd_Materials_Aluminium0x8b291b8  ref:None matrix:None 
-    7   9    _dd_Geometry_RPC_lvRPCMod_pvRPCFoam0xabb1b48.0                                                        1    tgt:None  ref:#_dd_Geometry_RPC_lvRPCFoam0xabb1778 matrix:1 0 0 -10, 0 1 0 5, 0 0 1 0, 0.0 0.0 0.0 1.0 
-    8   10   _dd_Geometry_RPC_lvRPCFoam0xabb1778.0                                                                 4    tgt:_dd_Materials_Foam0x8b28a98  ref:None matrix:None 
-    5   91   _dd_Geometry_Sites_lvNearHallTop_pvNearTeleRpc_pvNearTeleRpc_20xabc3800.0                             1    tgt:None  ref:#_dd_Geometry_RPC_lvRPCMod0xabb1b80 matrix:-0.999932 -0.011669 0 -2508.09, 0.011669 -0.999932 0 6048.3, 0 0 1 -4667.34, 0.0 0.0 0.0 1.0 
-    6   92   _dd_Geometry_RPC_lvRPCMod0xabb1b80.1                                                                  1    tgt:_dd_Materials_Aluminium0x8b291b8  ref:None matrix:None 
-    7   93   _dd_Geometry_RPC_lvRPCMod_pvRPCFoam0xabb1b48.1                                                        1    tgt:None  ref:#_dd_Geometry_RPC_lvRPCFoam0xabb1778 matrix:1 0 0 -10, 0 1 0 5, 0 0 1 0, 0.0 0.0 0.0 1.0 
-    8   94   _dd_Geometry_RPC_lvRPCFoam0xabb1778.1                                                                 4    tgt:_dd_Materials_Foam0x8b28a98  ref:None matrix:None 
-
-
-
 
 
 

@@ -11,11 +11,11 @@ import os, logging
 log = logging.getLogger(__name__)
 
 from env.db.simtab import Table
+from daenode import DAENode, Defaults
 
 if __name__ == '__main__':
     pass
     logging.basicConfig(level=logging.INFO)
-    from daenode import DAENode, Defaults
     DAENode.parse(Defaults.daepath)
 
     geom_t = Table(Defaults.dbpath, "geom", idx="int",name="text", nvertex="int", lvid="text", geoid="text" )

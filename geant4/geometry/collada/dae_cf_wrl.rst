@@ -1,0 +1,293 @@
+DAE cf WRL
+============
+
+
+.. contents:: :local:
+
+Attaching two DB in sqlite3
+------------------------------
+::
+
+    cat << EOS > /tmp/dae_cf_wrl.sql 
+    attach database "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.db" as dae ;
+    attach database "$LOCAL_BASE/env/geant4/geometry/vrml2/g4_01.db" as wrl ;
+    .databases
+    EOS
+    sqlite3 -init /tmp/dae_cf_wrl.sql 
+
+Function for that::
+
+    simon:e blyth$ t g4dae-cf
+    g4dae-cf is a function
+    g4dae-cf () 
+    { 
+        local sql=$(g4dae-cf-path);
+        mkdir -p $(dirname $sql);
+        $FUNCNAME- > $sql;
+        sqlite3 -init $sql
+    }
+    simon:e blyth$ g4dae-cf-
+    attach database "/usr/local/env/geant4/geometry/xdae/g4_01.db" as dae ;
+    attach database "/usr/local/env/geant4/geometry/vrml2/g4_01.db" as wrl ;
+    .databases
+    simon:e blyth$ 
+
+
+Consistent counts
+--------------------
+
+::
+
+    sqlite> select count(*) from dae.geom ;
+    12230                                                                                                                                                                                                                                                         
+    sqlite> select count(*) from wrl.shape ;   # world volume was culled for this wrl export
+    12229
+    sqlite> select count(*) from wrl.xshape ;
+    12229
+
+
+Volume index join between WRL and DAE tables in separate DB
+------------------------------------------------------------
+
+::
+
+    sqlite> select d.idx, w.name, d.name from wrl.xshape w inner join dae.geom d on w.sid = d.idx limit 10 ;
+    idx         name                                                                                                  name                                                                                                
+    ----------  ---------------------------------------------------------------------------------------------         ---------------------------------------------------------------------------------------------       
+    1           /dd/Structure/Sites/db-rock.1000                                                                      __dd__Structure__Sites__db-rock0xaa8b0f8.0                                                          
+    2           /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000                                                  __dd__Geometry__Sites__lvNearSiteRock--pvNearHallTop0xaa8ace0.0                                     
+    3           /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover.1000                                                  __dd__Geometry__Sites__lvNearHallTop--pvNearTopCover0xa8d3790.0                                     
+    4           /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1.1                                      __dd__Geometry__Sites__lvNearHallTop--pvNearTeleRpc--pvNearTeleRpc..10xa8d3ac8.0                    
+    5           /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000                                                              __dd__Geometry__RPC__lvRPCMod--pvRPCFoam0xa8c1d58.0                                                 
+    6           /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit.1                   __dd__Geometry__RPC__lvRPCFoam--pvBarCham14Array--pvBarCham14ArrayOne..1--pvBarCham14Unit0xa8c19e0.0
+    7           /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14.1000                                                    __dd__Geometry__RPC__lvRPCBarCham14--pvRPCGasgap140xa8c10f0.0                                       
+    8           /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit.1                     __dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..1--pvStrip14Unit0xa8c02c0.0  
+    9           /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit.2                     __dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..2--pvStrip14Unit0xa8c0390.0  
+    10          /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:3#pvStrip14Unit.3                     __dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..3--pvStrip14Unit0xa8c08a0.0  
+
+    sqlite> select count(*) from wrl.xshape w inner join dae.geom d on w.sid = d.idx  ;
+    count(*)  
+    ----------
+    12229     
+
+
+Vertex Count Discrepancy for 1688/12230 volumes (14 %)
+--------------------------------------------------------
+
+::
+
+    sqlite> select count(*) from wrl.xshape w inner join dae.geom d on w.sid = d.idx where w.npo != d.nvertex ;
+    1688              # ouch 14% of volumes have different vertex counts  
+
+    sqlite> select count(*) from wrl.xshape w inner join dae.geom d on w.sid = d.idx where w.npo = d.nvertex ;
+    10541     
+
+
+
+Discrepancies grouped by geometry id
+------------------------------------------
+
+#. 34 shapes out of 249 are vertex count discrepant
+#. all are discrepant in the same way : with same vertex counts for all instances of that geometry
+
+
+::
+
+    sqlite> select count(distinct(geoid)) from dae.geom ;   
+    249
+
+    sqlite> select d.geoid, group_concat(distinct(d.nvertex)) as dae_nvtx, group_concat(distinct(w.npo)) as wrl_npo, w.npo-d.nvertex, count(*) as N, group_concat(distinct(d.idx)) from wrl.xshape w inner join dae.geom d on w.sid = d.idx where w.npo != d.nvertex  group by d.geoid ;
+    geoid                    dae_nvtx    wrl_npo     w.npo-d.nvertex  N           group_concat(distinct(d.idx))
+    -----------------------  ----------  ----------  ---------------  ----------  -----------------------------
+    AmCCo60AcrylicContainer  342         233         -109             6           4567,4655,4737,6227,6315,6397      # union of union
+    AmCCo60Cavity            150         194         44               6           4568,4656,4738,6228,6316,6398      # u of u 
+    IavTopRib                22          16          -6               16          3187,3188,3189,3190,3191,3192      # subtraction of subtraction
+    LsoOflTnk                480         192         -288             2           4606,6266                          # u of u  
+    OavTopRib                16          33          17               16          4497,4498,4499,4500,4501,4502      # s of s 
+    OcrCalLso                49          98          49               2           4520,6180                          #    
+    OcrCalLsoPrt             288         192         -96              2           4517,6177                    
+    OcrGdsInLsoOfl           49          98          49               2           4516,6176                    
+    OcrGdsLsoInOil           49          98          49               2           4514,6174                    
+    OcrGdsLsoPrt             288         192         -96              2           4511,6171                    
+    OcrGdsPrt                192         288         96               2           3165,4825                    
+    OcrGdsTfbInLsoOfl        98          49          -49              2           4515,6175                    
+    OflTnkContainer          344         366         22               2           4604,6264                    
+    SstBotRib                15          35          20               16          4431,4432,4433,4434,4435,4436
+    SstTopCirRibBase         48          34          -14              16          4465,4466,4467,4468,4469,4470
+    SstTopHub                192         96          -96              2           4464,6124                    
+    amcco60-source-assy      775         296         -479             6           4566,4654,4736,6226,6314,6396
+    headon-pmt-assy          122         100         -22              12          4351,4358,4365,4372,4379,4386    # union
+    headon-pmt-mount         192         96          -96              12          4357,4364,4371,4378,4385,4392    # union
+    led-source-assy          778         629         -149             6           4540,4628,4710,6200,6288,6370
+    led-source-shell         342         50          -292             6           4541,4629,4711,6201,6289,6371
+    lso                      170         168         -2               2           3157,4817                        # union
+    near-radslab-box-9       34          50          16               1           12229                        
+    near_hall_top_dwarf      20          16          -4               1           2                            
+    near_pentagon_iron_box   10          12          2                144         2389,2390,2391,2392,2393,2394
+    near_pool_dead_box       50          34          -16              1           3148                         
+    near_pool_liner_box      34          50          16               1           3149                         
+    near_pool_ows_box        78          53          -25              1           3150                         
+    near_top_cover_box       34          40          6                1           3                            
+    pmt-hemi                 360         362         2                672         3199,3205,3211,3217,3223,3229
+    pmt-hemi-vac             334         338         4                672         3200,3206,3212,3218,3224,3230
+    source-assy              780         357         -423             6           4551,4639,4721,6211,6299,6381
+    source-shell             342         50          -292             6           4552,4640,4722,6212,6300,6382
+    wall-led-assy            316         360         44               6           4521,4524,4527,6181,6184,6187
+    weight-shell             342         50          -292             36          4543,4547,4558,4562,4591,4595
+
+
+Check GDML
+------------
+
+Sampling the GDML, all checked are unions or subtraction solids.
+
+::
+
+     1456     <union name="AmCCo60AcrylicContainer0xbb640b8">
+     1457       <first ref="AcrylicCylinder+ChildForAmCCo60AcrylicContainer0xbb63c38"/>
+     1458       <second ref="LowerAcrylicHemisphere0xbb648e8"/>
+     1459       <position name="AmCCo60AcrylicContainer0xbb640b8_pos" unit="mm" x="0" y="0" z="-14.865"/>
+     1460       <rotation name="AmCCo60AcrylicContainer0xbb640b8_rot" unit="deg" x="-90" y="0" z="0"/>
+     1461     </union>
+
+::
+
+     1436     <union name="AmCCo60MainCavity+ChildForAmCCo60Cavity0xbb64188">
+     1437       <first ref="AmCCo60MainCavity0xb91bd38"/>
+     1438       <second ref="UpperAmCCo60SideCavity0xb91bfd0"/>
+     1439       <position name="AmCCo60MainCavity+ChildForAmCCo60Cavity0xbb64188_pos" unit="mm" x="0" y="0" z="16.76"/>
+     1440     </union>
+     1441     <tube aunit="deg" deltaphi="360" lunit="mm" name="LowerAmCCo60SideCavity0xb91c1a0" rmax="6.35" rmin="0" startphi="0" z="3.8"/>
+     1442     <union name="AmCCo60Cavity0xb91c2a0">
+     1443       <first ref="AmCCo60MainCavity+ChildForAmCCo60Cavity0xbb64188"/>
+     1444       <second ref="LowerAmCCo60SideCavity0xb91c1a0"/>
+     1445       <position name="AmCCo60Cavity0xb91c2a0_pos" unit="mm" x="0" y="0" z="-16.76"/>
+     1446     </union>
+
+
+IavTopRib subtraction of subtraction::
+
+      607     <subtraction name="IavTopRibBase-ChildForIavTopRib0xba42f70">
+      608       <first ref="IavTopRibBase0xba428e0"/>
+      609       <second ref="IavTopRibSidCut0xba42f30"/>
+      610       <position name="IavTopRibBase-ChildForIavTopRib0xba42f70_pos" unit="mm" x="639.398817652391" y="0" z="40.875"/>
+      611       <rotation name="IavTopRibBase-ChildForIavTopRib0xba42f70_rot" unit="deg" x="0" y="30" z="0"/>
+      612     </subtraction>
+      613     <cone aunit="deg" deltaphi="360" lunit="mm" name="IavTopRibBotCut0xba43130" rmax1="1520.39278882354" rmax2="100" rmin1="0" rmin2="0" startphi="0" z="74.4396317718873"/>
+      614     <subtraction name="IavTopRib0xba43230">
+      615       <first ref="IavTopRibBase-ChildForIavTopRib0xba42f70"/>
+      616       <second ref="IavTopRibBotCut0xba43130"/>
+      617       <position name="IavTopRib0xba43230_pos" unit="mm" x="-810.196394411769" y="0" z="-17.2801841140563"/>
+      618     </subtraction>
+
+
+lso union of cylinder and polycone::
+
+      619     <tube aunit="deg" deltaphi="360" lunit="mm" name="lso_cyl0xb85b498" rmax="1982" rmin="0" startphi="0" z="3964"/>
+      620     <polycone aunit="deg" deltaphi="360" lunit="mm" name="lso_polycone0xbbd58d0" startphi="0">
+      621       <zplane rmax="1930" rmin="0" z="3964"/>
+      622       <zplane rmax="125" rmin="0" z="4058.59604160589"/>
+      623       <zplane rmax="50" rmin="0" z="4058.59604160589"/>
+      624       <zplane rmax="50" rmin="0" z="4076.62074383385"/>
+      625     </polycone>
+      626     <union name="lso0xb85b048">
+      627       <first ref="lso_cyl0xb85b498"/>
+      628       <second ref="lso_polycone0xbbd58d0"/>
+      629       <position name="lso0xb85b048_pos" unit="mm" x="0" y="0" z="-1982"/>
+      630     </union>
+
+
+
+
+Visual check of discrepants : lots of interesting shapes
+----------------------------------------------------------
+
+
+* http://belle7.nuu.edu.tw/dae/tree/4567.html  AmCCo60AcrylicContainer 
+
+  * funny shape, looks like some internal triangles are scrubbed in WRL case
+
+* http://belle7.nuu.edu.tw/dae/tree/4568.html  AmCCo60Cavity (Air)
+
+  * concentric cylinders with inner one poking out, again internal triangles are not scrubbed
+
+* http://belle7.nuu.edu.tw/dae/tree/3187.html  IavTopRib (Acrylic)
+* http://belle7.nuu.edu.tw/dae/tree/4497.html  OavTopRib 
+
+  * looks like a broken triangle
+
+* http://belle7.nuu.edu.tw/dae/tree/4606.html LsoOflTnk 
+
+  * wheel shape, concave
+
+* http://belle7.nuu.edu.tw/dae/tree/4520.html OcrCalLso 
+* http://belle7.nuu.edu.tw/dae/tree/4516.html OcrGdsInLsoOfl 
+
+  * cylindrical, with tris inscribed into a circle at one end
+
+* http://belle7.nuu.edu.tw/dae/tree/4517.html OcrCalLsoPrt 
+
+  * complicated shape
+
+* http://belle7.nuu.edu.tw/dae/tree/4511.html OcrGdsLsoPrt   
+
+  * appears to have disconnected halo
+
+* http://belle7.nuu.edu.tw/dae/tree/3165.html OcrGdsPrt 
+
+  * with a hole 
+
+* http://belle7.nuu.edu.tw/dae/tree/4515.html  OcrGdsTfbInLsoOfl 
+ 
+  * disconnected disc
+
+* http://belle7.nuu.edu.tw/dae/tree/4604.html OflTnkContainer 
+
+  * dustbin lid
+
+* http://belle7.nuu.edu.tw/dae/tree/4431.html SstBotRib 
+* http://belle7.nuu.edu.tw/dae/tree/4465.html SstTopCirRibBase  
+
+  * clamshell telephone offset from origin
+
+* http://belle7.nuu.edu.tw/dae/tree/4464.html SstTopHub
+* http://belle7.nuu.edu.tw/dae/tree/4566.html amcco60-source-assy
+* http://belle7.nuu.edu.tw/dae/tree/4540.html led-source-assy 
+* http://belle7.nuu.edu.tw/dae/tree/4551.html source-assy
+
+  * 3 disconnected cylindal objs with a wire 
+
+* http://belle7.nuu.edu.tw/dae/tree/4351.html headon-pmt-assy
+
+  * parent is mineral oil 
+
+* http://belle7.nuu.edu.tw/dae/tree/4357.html headon-pmt-mount  
+
+  * with hole
+
+* http://belle7.nuu.edu.tw/dae/tree/4541.html led-source-shell 
+* http://belle7.nuu.edu.tw/dae/tree/4552.html source-shell 
+* http://belle7.nuu.edu.tw/dae/tree/4543.html weight-shell
+
+  * internal tris
+
+* http://belle7.nuu.edu.tw/dae/tree/3157.html lso
+* http://belle7.nuu.edu.tw/dae/tree/12229.html near-radslab-box-9
+* http://belle7.nuu.edu.tw/dae/tree/2.html   near_hall_top_dwarf 
+
+  * clearly a subtraction solid
+
+* http://belle7.nuu.edu.tw/dae/tree/2389.html near_pentagon_iron_box  
+* http://belle7.nuu.edu.tw/dae/tree/3148.html near_pool_dead_box   
+* http://belle7.nuu.edu.tw/dae/tree/3149.html near_pool_liner_box 
+* http://belle7.nuu.edu.tw/dae/tree/3150.html near_pool_ows_box   
+
+  * many children
+
+* http://belle7.nuu.edu.tw/dae/tree/3.html near_top_cover_box 
+* http://belle7.nuu.edu.tw/dae/tree/3199.html  pmt-hemi 
+* http://belle7.nuu.edu.tw/dae/tree/3200.html  pmt-hemi-vac (only child of 3199)
+* http://belle7.nuu.edu.tw/dae/tree/4521.html wall-led-assy   
+
+  * cylinder touching a sphere
+

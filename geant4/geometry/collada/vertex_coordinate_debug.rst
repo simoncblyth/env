@@ -1,8 +1,8 @@
 
 .. _vertex_coordinate_debug:
 
-Vertex Coordinate Debug
-============================
+Vertex Coordinate Debug : finding the invertex rotation matrix
+================================================================
 
 .. contents:: :local:
 

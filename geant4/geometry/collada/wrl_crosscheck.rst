@@ -1,8 +1,7 @@
-WRL Crosscheck
-================
+WRL Crosscheck : reveals mangled vertex coordinates
+======================================================
 
 Initial issue identified below, pursued in :ref:`vertex_coordinate_debug`
-
 
 ::
 
