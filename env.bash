@@ -1267,3 +1267,4 @@ reportlab-(){      . $(env-home)/doc/reportlab.bash && reportlab-env $* ; }
 vcglib-(){      . $(env-home)/graphics/mesh/vcglib.bash && vcglib-env $* ; }
 qt4-(){      . $(env-home)/ui/qt4.bash && qt4-env $* ; }
 slides-(){      . $(env-home)/doc/slides.bash && slides-env $* ; }
+g4dae-(){      . $(env-home)/geant4/geometry/collada/g4dae.bash && g4dae-env $* ; }

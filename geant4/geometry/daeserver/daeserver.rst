@@ -1,6 +1,9 @@
 DAESERVER
 ==========
 
+
+
+
 gather pieces
 ---------------
 
@@ -24,13 +27,11 @@ gather pieces
     simon:static blyth$ cp Chapter\ 7/modelViewer.js .
 
 
-
 ideas
 ------
 
 * volume coloring to distinguish levels/materials
 * cannot copy/paste from the text as it causes rotations
-
 
 bits of geometry
 ------------------
