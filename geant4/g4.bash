@@ -18,3 +18,7 @@ g4-get(){
    local dir=$(dirname $(g4-dir)) &&  mkdir -p $dir && cd $dir
 
 }
+
+g4-vrml(){ g4-cd source/visualization/VRML/src/$1 ; }
+g4-gdml(){ g4-cd source/persistency/gdml/src/$1 ; }
+

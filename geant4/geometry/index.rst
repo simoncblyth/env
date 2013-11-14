@@ -6,6 +6,7 @@ Geant4 Geometry Export
 
    overview
    introduction
+   exports
    vrml2/index
    collada/index
    daeserver/index

@@ -1087,7 +1087,7 @@ class Defaults(object):
     loglevel = "INFO"
     logpath = None
     daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
-    dbpath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.db"
+    daedbpath = None
     webserver = False
     tree = False
     node = False
@@ -1108,6 +1108,7 @@ def parse_args(doc):
     op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
 
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
+    op.add_option(      "--daedbpath", default=defopts.daedbpath , help="Path to the summary SQLite DB, when None use daepath with '.db' appended. Default %default ")
 
     # three way split 
     op.add_option("-d", "--node", action="store_true", default=defopts.node , help="Text representation of a single volume. Default %default." )
@@ -1140,11 +1141,15 @@ def parse_args(doc):
         logging.basicConfig(format=opts.logformat,level=level)
     pass
     log.info(" ".join(sys.argv))
+
     daepath = os.path.expandvars(os.path.expanduser(opts.daepath))
     if not daepath[0] == '/':
         daepath = os.path.abspath(daepath)
     assert os.path.exists(daepath), (daepath,"DAE file not at the new expected location, please create the directory and move the .dae  there, please")
     opts.daepath = daepath
+    if opts.daedbpath is None:
+        opts.daedbpath = opts.daepath + '.db'
+
     return opts, args
 
 

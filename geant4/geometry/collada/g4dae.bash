@@ -22,19 +22,36 @@ g4dae-cd(){  cd $(g4dae-dir)/$1 ; }
 g4dae-mate(){ mate $(g4dae-dir) ; }
 g4dae-get(){
    local dir=$(dirname $(g4dae-dir)) &&  mkdir -p $dir && cd $dir
-
 }
+
+g4dae-daedbpath(){
+  case ${1:-1} in
+    0) echo "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.db"     ;;
+    1) echo "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae.db" ;;
+   10) echo "$LOCAL_BASE/env/geant4/geometry/gdml/g4_10.dae.db" ;;
+  esac
+}
+g4dae-wrldbpath(){
+  case ${1:-0} in
+    0) echo "$LOCAL_BASE/env/geant4/geometry/vrml2/g4_01.db"  ;;
+  esac
+}
+
 
 g4dae-cf-path(){ echo  $(g4dae-ddir)/g4dae-cf.sql ; }
 g4dae-cf-(){  cat << EOS
-attach database "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.db" as dae ;
-attach database "$LOCAL_BASE/env/geant4/geometry/vrml2/g4_01.db" as wrl ;
+attach database "$(g4dae-daedbpath $1)" as dae ;
+attach database "$(g4dae-wrldbpath $2)" as wrl ;  
 .databases
 EOS
 }
 g4dae-cf(){
    local sql=$(g4dae-cf-path)
    mkdir -p $(dirname $sql)
-   $FUNCNAME- > $sql
-   sqlite3 -init $sql
+   $FUNCNAME- $* > $sql
+   sqlite3-
+   case $NODE_TAG in 
+      N) sqlite3-- -init $sql ;;    # avoid glacial system sqlite3 on N
+      *) sqlite3   -init $sql ;;
+   esac
 }

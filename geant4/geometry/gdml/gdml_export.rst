@@ -51,9 +51,6 @@ Need to invoke the global target to make that::
     Creating global shared library ../../lib/Linux-g++/libG4persistency.so ...
     [blyth@belle7 persistency]$ 
 
-Manual install::
-
-
 
 .. _gdml_install:
 
@@ -105,6 +102,70 @@ to base `GiGaRunActionGDML` upon and piggyback the CMT controlled build, from::
     /data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/cmt
 
 
+Manually install G4DAE includes into NuWa/G4 location
+--------------------------------------------------------
+
+* perhaps a G4 dybinst patch is the eay to go for G4DAE, rather than this manual juggling 
+
+::
+
+    blyth@belle7 cmt]$ t dae-install-inc
+    dae-install-inc is a function
+    dae-install-inc () 
+    { 
+        nuwa-;
+        local blib=$(env-home)/geant4/geometry/DAE/include;
+        local ilib=$(nuwa-g4-idir)/include;
+        ls --color=tty -l $blib;
+        local cmd="cp $blib/G4DAE*.{hh,icc} $ilib/";
+        echo "$cmd";
+        eval $cmd;
+        ls --color=tty -l $ilib/G4DAE*
+    }
+
+
+Build modified GaussTools 
+--------------------------
+
+With G4GDML and G4DAE switched on::
+
+    [blyth@belle7 cmt]$ svn diff
+    Index: requirements
+    ===================================================================
+    --- requirements        (revision 21750)
+    +++ requirements        (working copy)
+    @@ -31,6 +31,9 @@
+     apply_pattern     component_library library=GaussTools
+     apply_pattern     linker_library    library=GaussToolsLib
+     
+    +# SCB : enable GDML and DAE export by GiGaRunActionGDML
+    +macro_append GaussTools_cppflags " -DHAVE_G4GDML=1 -DHAVE_G4DAE=1 "
+    +macro_append GaussTools_linkopts " -lG4DAE "
+    +
+
+::
+
+    [blyth@belle7 cmt]$ pwd
+    /data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/cmt
+    [blyth@belle7 cmt]$ fenv
+    [blyth@belle7 cmt]$ cmt config
+    Removing all previous make fragments from i686-slc5-gcc41-dbg
+    Creating setup scripts.
+    Creating cleanup scripts.
+    cmt directory already installed
+    src directory already installed
+    doc directory already installed
+    GaussTools directory already installed
+    [blyth@belle7 cmt]$ . setup.sh
+    [blyth@belle7 cmt]$ pwd
+    /data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/cmt
+    [blyth@belle7 cmt]$ export VERBOSE=1
+    [blyth@belle7 cmt]$ cmt make
+
+
+
+
+
 
 .. _gdml_export:
 
@@ -144,6 +205,81 @@ Perform the export::
     [blyth@belle7 gdml]$ cd ~/e/geant4/geometry/gdml
     [blyth@belle7 gdml]$ fenv
     [blyth@belle7 gdml]$ ./export.sh
+
+
+NuWa integration GDML export functionality
+--------------------------------------------
+
+``GiGaRunActionGDML`` is floating in working copy on N, as expect it will
+not compile/link with standard NuWa with GDML switched OFF.::
+
+    [blyth@belle7 Components]$ st 
+    A  +    GiGaRunActionGDML.cpp
+    A  +    GiGaRunActionGDML.h
+    [blyth@belle7 Components]$ pwd
+    /data1/env/local/dyb/NuWa-trunk/lhcb/Sim/GaussTools/src/Components
+
+Rejig the code so it will compile and do nothing when ``HAVE_G4DAE`` and ``HAVE_G4GDML`` are not set. 
+
+The headers and lib are present on C (I dont recall tampering there, but it seems I must have)::
+
+    [blyth@cms01 include]$ l G4GDML*
+    ...
+    -rw-r--r--  1 blyth blyth 2300 Oct  1 18:03 G4GDMLWriteSetup.hh
+    -rw-r--r--  1 blyth blyth 4894 Oct  1 18:03 G4GDMLWriteSolids.hh
+    -rw-r--r--  1 blyth blyth 3306 Oct  1 18:03 G4GDMLWriteStructure.hh
+    [blyth@cms01 include]$ pwd
+    /data/env/local/dyb/trunk/external/geant4/4.9.2.p01/i686-slc4-gcc34-dbg/include
+
+    [blyth@cms01 lib]$ l libG4gdml.so 
+    -rwxrwxr-x  1 blyth blyth 592988 Oct  1 18:03 libG4gdml.so
+
+    [blyth@cms01 lib]$ pwd
+    /data/env/local/dyb/trunk/external/geant4/4.9.2.p01/i686-slc4-gcc34-dbg/lib
+
+How to preprocessor protect entire classes with NuWa/cmt ? 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It would be good to avoid branching just for a few extra classes, if can 
+avoid interference.
+
+Example of private test code NuWa-trunk/dybgaudi/RootIO/RootIOSvc/cmt/requirements::
+
+     28 # Below is for test code
+     29 
+     30 private
+     31 
+     32 pattern  public_include include_dirs ${<package>_cmtpath}/include
+     33 pattern private_include include_dirs ../include
+     34 pattern test_application \
+     35         public ; \
+     36         apply_pattern executable_path ; \
+     37         private ; \
+     38         apply_pattern public_include ; \
+     39         application <name> -group=test <files>
+     40 
+     41 
+     42 
+     43 use CLHEP v* LCG_Interfaces         # in lcgcmt
+     44 use CLHEPRflx v* Dictionaries           # in relax
+     45 
+     46 macro_append ROOT_linkopts " -lCLHEPRflx -lCintex "
+     47 test_application name=RootIOTest files=../test-bin/RootIOTest.cc
+     48 macro_append RootIOTestlinkopts " -L$(RootIODir) -lRootIO "
+     49 
+
+
+Example pre-processor setting NuWa-trunk/dybgaudi/DaqFormat/RawRecordPool/cmt/requirements::
+
+      1 package RawRecordPool
+      2 
+      3 use DybPolicy
+      4 
+      5 library RawRecordPool  *.cc
+      6 
+      7 macro_append RawRecordPool_cppflags " -DRPC_ERROR_DEBUG=10 "
+      8 
+      9 apply_pattern install_more_includes more=RawRecordPool
 
 
 
@@ -346,4 +482,62 @@ Address uniqing causes too many diffs.
 ::
 
     simon:gdml blyth$ scp N:/data1/env/local/env/geant4/geometry/gdml/g4_01.gdml  $LOCAL_BASE/env/geant4/geometry/gdml/
+
+
+
+Consolidated DAE and GDML export
+---------------------------------
+
+::
+
+    [blyth@belle7 gdml]$ pwd
+    /home/blyth/e/geant4/geometry/gdml
+    [blyth@belle7 gdml]$ cat export.sh
+    #!/bin/sh
+    cd $ENV_HOME/geant4/geometry/gdml
+    nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export
+    [blyth@belle7 gdml]$ ./export.sh 
+
+::
+
+    ...
+    GiGaRunActionGDML::BeginOfRunAction writing GDML to g4_00.gdml
+    G4GDML: Writing 'g4_00.gdml'...
+    G4GDML: Writing definitions...
+    G4GDML: Writing materials...
+    G4GDML: Writing solids...
+    G4GDML: Writing structure...
+    G4GDML: Writing setup...
+    G4GDML: Writing 'g4_00.gdml' done !
+    GiGaRunActionGDML::BeginOfRunAction writing COLLADA to g4_00.dae
+    G4DAE: Writing 'g4_00.dae'...
+    G4DAE: Writing asset metadata...
+    G4DAE: Writing library_effects...
+    G4DAE: Writing library_geometries...
+    G4DAE: Writing library_materials...
+    G4DAE: Writing structure/library_nodes...
+    G4DAE: Writing library_visual_scenes...
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover0xbd581c0 1000
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit0xc2244b0 1
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit0xc225438 2
+    ...
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearRightSpanHbeam10xbe18010 1001
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearLeftSpanHbeam20xbe180b0 1002
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearRightSpanHbeam20xbe18150 1003
+    BooleanProcessor::triangulateContour : could not generate a triangle (infinite loop)
+    BooleanProcessor: boolean operation failed
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearUpSideBigHbeam0xbe18188 1004
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearDownSideBigHbeam0xbe18590 1005
+    G4DAEWriteStructure::PhysvolWrite /dd/Geometry/RPCSupport/lvNearHbeamBigUnit#pvNearThwartLongAILeftUpY10xbe18cb0 1006
+    ...
+
+
+::
+
+    [blyth@belle7 gdml]$ du -h g4_00.*
+    5.0M    g4_00.dae
+    4.0M    g4_00.gdml
+
+
+
 

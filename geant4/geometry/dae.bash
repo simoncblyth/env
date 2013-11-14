@@ -74,8 +74,24 @@ dae-dir(){ echo $(env-home)/geant4/geometry/DAE ; }
 dae-cd(){  cd $(dae-dir); }
 dae-mate(){ mate $(dae-dir) ; }
 
-
 dae-install(){
+   dae-install-lib
+   dae-install-inc
+}
+
+dae-install-inc(){
+   nuwa-
+   local blib=$(env-home)/geant4/geometry/DAE/include
+   local ilib=$(nuwa-g4-idir)/include
+   ls -l $blib
+   #ls -l $ilib
+   local cmd="cp $blib/G4DAE*.{hh,icc} $ilib/"
+   echo "$cmd"
+   eval $cmd
+   ls -l $ilib/G4DAE*
+}
+
+dae-install-lib(){
    nuwa-
    local name=libG4DAE.so
    local blib=$(nuwa-g4-bdir)/lib/Linux-g++/$name
