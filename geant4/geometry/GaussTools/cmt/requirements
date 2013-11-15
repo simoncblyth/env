@@ -31,8 +31,8 @@ library           GaussTools              Components/*.cpp
 apply_pattern     component_library library=GaussTools
 apply_pattern     linker_library    library=GaussToolsLib
 
-# SCB : enable GDML and DAE export by GiGaRunActionGDML
-macro_append GaussTools_cppflags " -DHAVE_G4GDML=1 -DHAVE_G4DAE=1 "
+# SCB : enable GDML,DAE,WRL export by GiGaRunActionGDML
+macro_append GaussTools_cppflags " -DEXPORT_G4GDML=1 -DEXPORT_G4DAE=1 -DEXPORT_G4WRL=1 "
 macro_append GaussTools_linkopts " -lG4DAE "
 
 

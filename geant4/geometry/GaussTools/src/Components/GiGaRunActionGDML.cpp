@@ -1,16 +1,21 @@
-#include "GaudiKernel/DeclareFactoryEntries.h" 
+#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/PropertyMgr.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4TransportationManager.hh"
 
-#ifdef HAVE_G4GDML
+#ifdef EXPORT_G4GDML
 #include "G4GDMLParser.hh"
 #endif
 
-#ifdef HAVE_G4DAE
+#ifdef EXPORT_G4DAE
 #include "G4DAEParser.hh"
 #endif
+
+#ifdef EXPORT_G4WRL
+#include "G4UImanager.hh"
+#endif
+
 
 /// Local 
 #include "GiGaRunActionGDML.h"
@@ -61,7 +66,7 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
    G4VPhysicalVolume* wpv = G4TransportationManager::GetTransportationManager()->
       GetNavigatorForTracking()->GetWorldVolume();
 
-#ifdef HAVE_G4GDML
+#ifdef EXPORT_G4GDML
    G4String gdmlFilePath("g4_00.gdml");
    G4GDMLParser gdmlparser ;
    if(wpv)
@@ -75,7 +80,7 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
    }
 #endif
 
-#ifdef HAVE_G4DAE
+#ifdef EXPORT_G4DAE
    G4String daeFilePath("g4_00.dae");
    G4DAEParser daeparser ;
    if(wpv)
@@ -88,6 +93,18 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
        std::cout << "GiGaRunActionGDML::BeginOfRunAction  Null pointer to world pv" << std::endl;
    }
 #endif
+
+
+#ifdef EXPORT_G4WRL
+   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
+   ui->ApplyCommand("/vis/open VRML2FILE");
+   ui->ApplyCommand("/vis/viewer/set/culling global false");
+   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
+   ui->ApplyCommand("/vis/drawVolume");
+   ui->ApplyCommand("/vis/viewer/flush");
+#endif
+
+
 
 
 };

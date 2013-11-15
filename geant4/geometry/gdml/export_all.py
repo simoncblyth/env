@@ -16,7 +16,10 @@ Based on opw/fmcpmuon.py from David Jaffe,
 
 
 """
-import os
+import os, logging
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 def configure(argv=None):
     
     #if argv:
@@ -58,24 +61,37 @@ def configure(argv=None):
     gigarm = GiGaRunManager("GiGa.GiGaMgr")
     gigarm.Verbosity = 2
 
+
     # --- WRL + GDML + DAE geometry export ---------------------------------
     from GaussTools.GaussToolsConf import GiGaRunActionGDML, GiGaRunActionCommand, GiGaRunActionSequence
-    runseq = GiGaRunActionSequence("GiGa.GiGaRunActionSequence")
     gdml = GiGaRunActionGDML("GiGa.GiGaRunActionGDML")
-    wrl  = GiGaRunActionCommand("GiGa.GiGaRunActionCommand")
-    wrl.BeginOfRunCommands = [ 
-             "/vis/open VRML2FILE",
-             "/vis/viewer/set/culling global false",
-             "/vis/viewer/set/culling coveredDaughters false",
-             "/vis/drawVolume",
-             "/vis/viewer/flush"
-    ] 
-    giga = GiGa()
-    giga.addTool( runseq , name="RunSeq" )
-    giga.RunSeq.Members.append( gdml )
-    giga.RunSeq.Members.append( wrl )
+    
+    #   NOT WORKING :  RunSeq fails to do the vis : only the GDML+DAE gets exported
+    #
+    #wrl  = GiGaRunActionCommand("GiGa.GiGaRunActionCommand")
+    #wrl.BeginOfRunCommands = [ 
+    #         "/vis/open VRML2FILE",
+    #         "/vis/viewer/set/culling global false",
+    #         "/vis/viewer/set/culling coveredDaughters false",
+    #         "/vis/drawVolume",
+    #         "/vis/viewer/flush"
+    #] 
+    #runseq = GiGaRunActionSequence("GiGa.GiGaRunActionSequence")
+    #giga.addTool( runseq , name="RunSeq" )
+    #giga.RunSeq.Members += ["GiGaRunActionCommand"]
+    #giga.RunSeq.Members += ["GiGaRunActionGDML"]
+    #giga.RunAction = "GiGaRunActionSequence/RunSeq"     
+
+    giga.RunAction = gdml
     giga.VisManager = "GiGaVisManager/GiGaVis"
 
+    # why so many ways to address things ? Duplication is evil  
+
+    for ext in 'dae wrl gdml'.split():
+        name = 'g4_00.%s' % ext
+        if os.path.exists(name):
+            log.warn("deleting preexisting file %s " % name)
+            os.remove(name)
      
     import DetSim 
     DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)

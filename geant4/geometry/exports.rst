@@ -29,7 +29,6 @@ Prior exports::
 
     [blyth@belle7 gdml]$ l $(local-base)/env/geant4/geometry/xdae/
     total 5008
-    -rw-r--r-- 1 blyth blyth       0 Nov 14 12:16 g4_01.db
     -rw-rw-r-- 1 blyth blyth 5115547 Oct 17 09:55 g4_01.dae
 
 Newly minted::
