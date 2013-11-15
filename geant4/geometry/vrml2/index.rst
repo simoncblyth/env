@@ -4,6 +4,7 @@ VRML2
 
 .. toctree::
 
+   tools
    vrml2file_export
    vrml2file_format
    vrml2file_patch

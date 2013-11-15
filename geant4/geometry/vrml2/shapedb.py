@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+shapedb
+==========
 
 Wildcarded like query::
 
