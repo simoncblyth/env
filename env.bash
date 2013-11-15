@@ -119,6 +119,31 @@ EOU
 env-home(){     [ -n "$BASH_SOURCE" ] && [ "${BASH_SOURCE:0:1}" != "." ] &&  echo $(dirname $BASH_SOURCE) || echo $ENV_HOME ; }
 env-source(){   echo $(env-home)/env.bash ; }
 env-cd(){   cd $(env-home) ; }
+
+
+env-rdir(){
+  local home=$(env-home)
+  local para=$(local-base)/env
+  local here=$(pwd -P)  # physical with symlinks resolved
+  case $here in 
+    $home*) echo ${here/$home\/} ;;
+    $para*) echo ${here/$para\/} ;;
+         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 
+  esac 
+}
+env-pdir(){
+  local home=$(env-home)
+  local para=$(local-base)/env
+  local here=$(pwd -P)  # physical with symlinks resolved
+  case $here in 
+    $home*) echo $para/${here/$home\/} ;;
+    $para*) echo $home/${here/$para\/} ;;
+         *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 
+  esac 
+}
+env-para(){ cd $(env-pdir) ; }
+pd(){ env-para ; pwd ; }
+
 env-vi(){       vi $(env-source) ; }
 env-ini(){      . $(env-source) ; }
 env-check-svn() {
