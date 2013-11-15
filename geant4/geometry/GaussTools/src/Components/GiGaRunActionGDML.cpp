@@ -66,6 +66,19 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
    G4VPhysicalVolume* wpv = G4TransportationManager::GetTransportationManager()->
       GetNavigatorForTracking()->GetWorldVolume();
 
+
+
+#ifdef EXPORT_G4WRL
+   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
+   ui->ApplyCommand("/vis/open VRML2FILE");
+   ui->ApplyCommand("/vis/viewer/set/culling global false");
+   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
+   ui->ApplyCommand("/vis/drawVolume");
+   ui->ApplyCommand("/vis/viewer/flush");
+#endif
+
+
+
 #ifdef EXPORT_G4GDML
    G4String gdmlFilePath("g4_00.gdml");
    G4GDMLParser gdmlparser ;
@@ -92,16 +105,6 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
    {
        std::cout << "GiGaRunActionGDML::BeginOfRunAction  Null pointer to world pv" << std::endl;
    }
-#endif
-
-
-#ifdef EXPORT_G4WRL
-   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
-   ui->ApplyCommand("/vis/open VRML2FILE");
-   ui->ApplyCommand("/vis/viewer/set/culling global false");
-   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
-   ui->ApplyCommand("/vis/drawVolume");
-   ui->ApplyCommand("/vis/viewer/flush");
 #endif
 
 

@@ -344,17 +344,13 @@ def parse_args(doc):
     return opts, args
 
 
-
-
-
-if __name__ == '__main__':
+def main():
     opts, args = parse_args(__doc__)
     path = args[0]
-    base, ext = os.path.splitext(path)
     if opts.quick:
-        dbpath = os.path.abspath(base + ".quick.db")
+        dbpath = os.path.abspath(path + ".quick.db")
     else:
-        dbpath = os.path.abspath(base + ".db")
+        dbpath = os.path.abspath(path + ".db")
 
     wrlp = WRLParser()
 
@@ -375,4 +371,7 @@ if __name__ == '__main__':
         wrlp.extend(dbpath, "xshape")
     else:    
         log.info("skip extend") 
+
+if __name__ == '__main__':
+    main()
 

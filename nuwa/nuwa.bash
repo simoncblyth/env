@@ -60,6 +60,8 @@ nuwa-plat(){
   esac
 }
 
+nuwa-dybgaudi-dir(){ echo $DYB/NuWa-trunk/dybgaudi ; } 
+nuwa-lhcb-dir(){ echo $DYB/NuWa-trunk/lhcb ; } 
 nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 nuwa-g4-xdir(){ echo $(nuwa-g4-bdir)/bin/Linux-g++ ; }
