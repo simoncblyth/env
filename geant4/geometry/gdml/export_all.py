@@ -81,17 +81,16 @@ def configure(argv=None):
     #giga.RunSeq.Members += ["GiGaRunActionCommand"]
     #giga.RunSeq.Members += ["GiGaRunActionGDML"]
     #giga.RunAction = "GiGaRunActionSequence/RunSeq"     
+    # why so many ways to address things ? Duplication is evil  
 
     giga.RunAction = gdml
     giga.VisManager = "GiGaVisManager/GiGaVis"
 
-    # why so many ways to address things ? Duplication is evil  
-
-    for ext in 'dae wrl gdml'.split():
-        name = 'g4_00.%s' % ext
-        if os.path.exists(name):
-            log.warn("deleting preexisting file %s " % name)
-            os.remove(name)
+    #for ext in 'dae wrl gdml'.split():
+    #    name = 'g4_00.%s' % ext
+    #    if os.path.exists(name):
+    #        log.warn("deleting preexisting file %s " % name)
+    #        os.remove(name)
      
     import DetSim 
     DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)

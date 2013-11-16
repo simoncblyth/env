@@ -92,3 +92,69 @@ Comparing the interfered
     [blyth@belle7 gdml]$ vrml2file.py -cx gdml_dae_wrl/g4_00.wrl     ## this is taking >20 min ??? 
     
 
+
+Add Sequence flexibility
+--------------------------
+
+Using sequence with WRL first::
+
+   G4DAE_EXPORT_SEQUENCE VVVDDDGGGVVVVDVDVD
+
+Suggests that what matters is who exports first (perhaps creating Polyhedron that are then reused perhaps)::
+
+    [blyth@belle7 gdml]$ cd  /data1/env/local/env/geant4/geometry/gdml/20131116-1645/ 
+    [blyth@belle7 20131116-1645]$ l *.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:49 g4_08.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_07.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_06.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_05.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_04.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_03.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:48 g4_02.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:47 g4_01.wrl
+    -rw-rw-r-- 1 blyth blyth 85400082 Nov 16 16:47 g4_00.wrl
+    [blyth@belle7 20131116-1645]$ 
+    [blyth@belle7 20131116-1645]$ l *.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:49 g4_05.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:48 g4_04.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:48 g4_03.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:48 g4_02.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:48 g4_01.dae
+    -rw-rw-r-- 1 blyth blyth 4852486 Nov 16 16:48 g4_00.dae
+    [blyth@belle7 20131116-1645]$ 
+    [blyth@belle7 20131116-1645]$ l *.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 16:48 g4_02.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 16:48 g4_01.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 16:48 g4_00.gdml
+
+
+Changing sequence to  DAE first ``DVVVDDDGGGVVVVDVDVD`` confirms this, 
+the first export influences all::
+
+    [blyth@belle7 20131116-1659]$ l *.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 17:02 g4_02.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 17:02 g4_01.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 16 17:02 g4_00.gdml
+    [blyth@belle7 20131116-1659]$ l *.dae 
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:03 g4_06.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:02 g4_05.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:02 g4_04.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:02 g4_03.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:02 g4_02.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:02 g4_01.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 16 17:01 g4_00.dae
+    [blyth@belle7 20131116-1659]$ l *.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:03 g4_08.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_07.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_06.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_05.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_04.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_03.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_02.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:01 g4_01.wrl
+    -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:01 g4_00.wrl
+
+
+
+
+

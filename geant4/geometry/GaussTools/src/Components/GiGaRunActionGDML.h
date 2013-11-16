@@ -48,7 +48,16 @@ public:
   
   // destructor (virtual and protected)
   virtual ~GiGaRunActionGDML( );
-  
+
+  void WriteVis(const char* driver);
+  void WriteDAE(G4VPhysicalVolume* wpv, const G4String& path );
+  void WriteGDML(G4VPhysicalVolume* wpv, const G4String& path );
+
+  G4String GetEnv( const char* envvar , const char* def );
+  G4String FreeFilePath( const G4String& base, const G4String& ext );
+  G4String FilePath( const G4String& base , G4int index, const G4String& ext , G4bool free );
+  G4bool FileExists(const char *fileName);
+ 
 private:
   
   ///no default constructor
@@ -57,6 +66,8 @@ private:
   GiGaRunActionGDML( const GiGaRunActionGDML& );  
   /// no assignement 
   GiGaRunActionGDML& operator=( const GiGaRunActionGDML& );
+
+
 
 private:
 

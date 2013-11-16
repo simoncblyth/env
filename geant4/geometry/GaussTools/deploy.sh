@@ -11,7 +11,6 @@ liable not to compile with vanilla NuWa install.
     DEPLOY_MODE="ls -l" ./deploy.sh 
     DEPLOY_MODE="cp" ./deploy.sh 
 
-
 EOU
 }
 
@@ -60,5 +59,5 @@ deploy-build(){
 }
 
 deploy-main
-
+deploy-usage
 

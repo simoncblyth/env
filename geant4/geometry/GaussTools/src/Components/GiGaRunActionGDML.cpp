@@ -17,6 +17,10 @@
 #endif
 
 
+#include <sstream>
+#include <fstream>
+#include <stdlib.h>  
+
 /// Local 
 #include "GiGaRunActionGDML.h"
 
@@ -54,9 +58,115 @@ GiGaRunActionGDML::~GiGaRunActionGDML()
 {
 };
 
-/** performe the action at the begin of each run 
- *  @param run pointer to Geant4 run object 
- */
+void GiGaRunActionGDML::WriteGDML(G4VPhysicalVolume* wpv, const G4String& path )
+{
+#ifdef EXPORT_G4GDML
+   if(path.length() == 0 || wpv == 0){
+       std::cout << "GiGaRunActionGDML::WriteGDML invalid path OR NULL PV  " << path << std::endl ;
+       return ;  
+   }
+   std::cout << "GiGaRunActionGDML::WriteGDML to " << path << std::endl ;
+   G4GDMLParser parser ;
+   parser.Write(path, wpv);
+#endif
+}
+
+void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path )
+{
+#ifdef EXPORT_G4DAE
+   if(path.length() == 0 || wpv == 0){
+       std::cout << "GiGaRunActionGDML::WriteDAE invalid path OR NULL PV  " << path << std::endl ;
+       return ;  
+   }
+   std::cout << "GiGaRunActionGDML::WriteDAE to " << path << std::endl ;
+   G4DAEParser parser ;
+   parser.Write(path, wpv);
+#endif
+}
+
+G4bool GiGaRunActionGDML::FileExists(const char *fileName){
+    std::ifstream infile(fileName);
+    return infile.good();
+}
+
+G4String GiGaRunActionGDML::FilePath( const G4String& base , G4int index, const G4String& ext , G4bool wantfree )
+{
+   /*
+         base 
+              prefix path eg "/path/to/directory/g4_" "g4_" 
+         counter
+              0,1,..,99 
+         ext 
+              ".gdml"
+         wantfree
+              if true return a blank string if the path is already existing
+              if false return path regardless of existance 
+             
+   */
+   std::ostringstream ss;
+   ss << base << std::setw(2) << std::setfill('0') << index << ext << std::setfill(' ') ;
+   std::string path = ss.str();
+   G4bool exists_ = FileExists(path.c_str());
+   if( wantfree && exists_ ){
+        std::cout << "path " << path << " exists already " << std::endl ;
+        return G4String("") ; 
+   } 
+   return G4String(path);
+}
+
+G4String GiGaRunActionGDML::FreeFilePath( const G4String& base, const G4String& ext )
+{
+    G4int imax(99);
+    G4int i(0);
+    G4String path("") ; 
+    while(path.length() == 0){
+        path = FilePath( base,  i++, ext , true );
+        std::cout << "FreeFilePath " << path << " i " << i <<  std::endl ;
+        if( i == imax ) break ; 
+    }
+    std::cout << "FreeFilePath  return " << path << " i " << i <<  std::endl ;
+    return path ; 
+}
+
+
+void GiGaRunActionGDML::WriteVis(const char* driver)
+{
+/*
+
+For VRML2FILE driver
+
+#. Output directory can be controlled by envvar G4VRMLFILE_DEST_DIR
+#. File naming is g4_00.wrl g4_01.wrl etc depending on preexisting files
+   in that directory 
+
+
+http://hypernews.slac.stanford.edu/HyperNews/geant4/get/visualization/710/1.html
+
+*/
+
+#ifdef EXPORT_G4WRL
+   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
+
+   G4String vis_open("/vis/open ");
+   vis_open += driver ; 
+   ui->ApplyCommand(vis_open.c_str());
+
+   ui->ApplyCommand("/vis/viewer/set/culling global false");
+   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
+   //ui->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");    
+   ui->ApplyCommand("/vis/drawVolume");
+   ui->ApplyCommand("/vis/viewer/flush");
+#endif
+}
+
+G4String GiGaRunActionGDML::GetEnv( const char* envvar , const char* def )
+{
+   char const* tmp = getenv(envvar);   // no trailing slash 
+   G4String val = ( tmp == NULL ) ? def : tmp ;  
+   return val ; 
+}
+
+
 void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
 {
 
@@ -67,55 +177,45 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
       GetNavigatorForTracking()->GetWorldVolume();
 
 
+   // setup output directories
+   G4String xdir = GetEnv("G4DAE_EXPORT_DIR", ".");   // no trailing slash 
+   G4String vdir(xdir);
+   vdir += "/" ;       // VRML needs a trailing slash 
+   setenv("G4VRMLFILE_DEST_DIR", vdir.c_str(), 0 );
 
-#ifdef EXPORT_G4WRL
-   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
-   ui->ApplyCommand("/vis/open VRML2FILE");
-   ui->ApplyCommand("/vis/viewer/set/culling global false");
-   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
-   ui->ApplyCommand("/vis/drawVolume");
-   ui->ApplyCommand("/vis/viewer/flush");
-#endif
+   G4String base(xdir);
+   base += "/g4_" ; 
 
+   // write geometry, multiple times and interleaved for DAE/WRL interference testing 
+   G4String xseq = GetEnv("G4DAE_EXPORT_SEQUENCE","VVVDDDGGGVVVVDVDVD");
+   const char* seq = xseq.c_str();
 
-
-#ifdef EXPORT_G4GDML
-   G4String gdmlFilePath("g4_00.gdml");
-   G4GDMLParser gdmlparser ;
-   if(wpv)
-   {
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction writing GDML to " << gdmlFilePath << std::endl ;
-       gdmlparser.Write(gdmlFilePath, wpv);
-   } 
-   else
-   {
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction  Null pointer to world pv" << std::endl;
+   for (int i = 0; i < strlen(seq); i++){
+       char c = seq[i];
+       std::cout << "GiGaRunActionGDML::BeginOfRunAction i " << i << " c " << c << std::endl ;  
+       switch (c) 
+       {
+          case 'V':
+                 WriteVis("VRML2FILE");
+                 break;
+          case 'G':
+                 WriteGDML( wpv, FreeFilePath(base, ".gdml"));
+                 break;
+          case 'D':
+                 WriteDAE( wpv, FreeFilePath(base, ".dae"));
+                 break;
+       }
    }
-#endif
 
-#ifdef EXPORT_G4DAE
-   G4String daeFilePath("g4_00.dae");
-   G4DAEParser daeparser ;
-   if(wpv)
-   {
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction writing COLLADA to " << daeFilePath << std::endl ;
-       daeparser.Write(daeFilePath, wpv);
-   } 
-   else
-   {
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction  Null pointer to world pv" << std::endl;
+   G4String xexit = GetEnv("G4DAE_EXPORT_EXIT","0");
+   if( xexit == "1" ){
+       std::cout << "GiGaRunActionGDML::BeginOfRunAction EXIT due to G4DAE_EXPORT_EXIT: " << xexit << std::endl ;  
+       exit(0);
    }
-#endif
 
-
-
-
+  
 };
 
-/** performe the action at the end of each run 
- *  @param run pointer to Geant4 run object 
- */
-// ============================================================================
 void GiGaRunActionGDML::EndOfRunAction( const G4Run* run )
 {
   if( 0 == run ) 
