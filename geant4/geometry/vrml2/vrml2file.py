@@ -138,6 +138,7 @@ class WRLRegion(object):
         pass
         self.src_head   = self.src[:mreg['points']+1]
         self.src_points = self.src[mreg['points']+1:mreg['-points']]
+        self.npoints = len(self.src_points)
         self.src_tail   = self.src[mreg['-points']:]
         pass
         self.src_faces  = self.src[mreg['faces']+1:mreg['-faces']]
@@ -185,7 +186,8 @@ class WRLRegion(object):
             assert line[-1] == ",", "expecting a trailing comma [%s]" % line
             xyz = map(float,line[:-1].split(" "))  
             self.point.append(xyz)
-
+        pass
+        assert self.npoints == len(self.point), (self.npoints, len(self.point)) 
 
 
 class WRLParser(list):
@@ -254,12 +256,15 @@ class WRLParser(list):
             os.remove(path)
         pass
 
+        geom_t  = Table(path, "geom", idx="int",name="text", nvertex="int" )   # summary schema for fast comparison against daedb.py geom
         shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
-        point_t = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
+        if opts.points:
+            point_t = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
 
         log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
         for rg in self:
             sid = rg.indx + idoffset
+
             shape_t.add(id=sid,name=rg.name,hash=rg.hash,
                         src="\n".join(rg.src), 
                         src_faces="\n".join(rg.src_faces),    
@@ -268,14 +273,18 @@ class WRLParser(list):
                         src_tail="\n".join(rg.src_tail),
                         )
 
-            rg.parse_points()  
-            for pid,(x,y,z) in enumerate(rg.point):
-                point_t.add(id=pid,sid=sid,x=x,y=y,z=z)
+            geom_t.add(idx=sid,name=rg.name,nvertex=rg.npoints)
+            if opts.points:
+                rg.parse_points()  
+                for pid,(x,y,z) in enumerate(rg.point):
+                    point_t.add(id=pid,sid=sid,x=x,y=y,z=z)
             pass
         # writes to the DB a table at a time
         log.info("start persisting to %s " % path ) 
+        geom_t.insert()   
         shape_t.insert()   
-        point_t.insert()   
+        if opts.points: 
+            point_t.insert()   
         log.info("completed persisting to %s " % path ) 
 
 
@@ -317,6 +326,7 @@ def parse_args(doc):
     op.add_option("-x", "--extend", action="store_true", help="Create the extents table from the pre-created DB.", default=False )
     op.add_option(      "--idoffset", type="int", default=1, help="Offset of shape indices. Default %default " )
     op.add_option(      "--noidlabel", action="store_false", dest="idlabel",  default=True, help="Add VRML DEF names to shapes and materials to allow EAI access. Default %default " )
+    op.add_option( "-P","--nopoints", action="store_false", dest="points",  default=True, help="Record vertices into points table. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
 

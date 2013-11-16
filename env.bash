@@ -120,12 +120,20 @@ env-home(){     [ -n "$BASH_SOURCE" ] && [ "${BASH_SOURCE:0:1}" != "." ] &&  ech
 env-source(){   echo $(env-home)/env.bash ; }
 env-cd(){   cd $(env-home) ; }
 
+env-pwdx(){
+   # determine cwd of another process on OSX, on Linux just use pwdx 
+   local pid=$1
+   lsof -a -p $pid -d cwd -Fn | cut -c2- | grep -v $pid
+}
+
 
 env-rdir(){
   local home=$(env-home)
   local para=$(local-base)/env
   local here=$(pwd -P)  # physical with symlinks resolved
   case $here in 
+     $home) echo -n ;;
+     $para) echo -n ;;
     $home*) echo ${here/$home\/} ;;
     $para*) echo ${here/$para\/} ;;
          *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 
@@ -136,6 +144,8 @@ env-pdir(){
   local para=$(local-base)/env
   local here=$(pwd -P)  # physical with symlinks resolved
   case $here in 
+     $home) echo $para ;;
+     $para) echo $home ;;
     $home*) echo $para/${here/$home\/} ;;
     $para*) echo $home/${here/$para\/} ;;
          *) echo here $here is not inside home $home or para $para 1>&2 && echo .  ;; 

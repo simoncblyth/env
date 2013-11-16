@@ -128,8 +128,8 @@ From the source, VRML gets translated into X3D first.
 
 
 
-Navigation with Mac Laptop
-----------------------------
+Navigation with Intel Mac Laptop
+---------------------------------
 
 shift-cmd-H
              return to home position 
@@ -153,11 +153,55 @@ opt/alt-return
 
 
 
+G Build
+---------
 
+Following
 
+* http://sourceforge.net/apps/mediawiki/meshlab/index.php?title=Compiling
+* http://www.sentex.net/~mwandel/jhead/  
 
+  * jpeg metadata extractor ? why is that ``absolutely required``
 
- 
+::
+
+    simon:meshlab blyth$ qmake -v    
+    QMake version 2.01a
+    Using Qt version 4.8.5 in /opt/local/lib
+    simon:meshlab blyth$ 
+    simon:meshlab blyth$ pwd
+    /usr/local/env/graphics/meshlab
+    simon:meshlab blyth$ find . -name '*.pro'    # look for qmake project files
+    ./meshlab/src/common/common.pro
+    ./meshlab/src/external/ann_1.1.1/ANN.pro
+    ./meshlab/src/external/bzip2-1.0.5/bzip2-1.0.5.pro
+    ./meshlab/src/external/external.pro
+    ./meshlab/src/external/jhead-2.95/jhead-2.95.pro
+    ./meshlab/src/external/levmar-2.3/levmar-2.3.pro
+    ./meshlab/src/external/lib3ds-1.3.0/lib3ds/lib3ds.pro
+    ...
+    simon:meshlab blyth$ find . -name '*.pro' | wc -l 
+         179
+
+    simon:meshlab blyth$ find . -name external.pro
+    ./meshlab/src/external/external.pro
+    simon:meshlab blyth$ vi meshlab/src/external/external.pro
+    simon:meshlab blyth$ cat  meshlab/src/external/external.pro
+    config += debug_and_release
+
+    TEMPLATE      = subdirs
+
+    SUBDIRS       = lib3ds-1.3.0/lib3ds \
+                    bzip2-1.0.5/bzip2-1.0.5.pro \
+                    muparser_v132/src \
+                    levmar-2.3/levmar-2.3.pro \
+                    structuresynth/structuresynth.pro \
+                                    OpenCTM-1.0.3/openctm.pro \
+                    jhead-2.95/jhead-2.95.pro
+#                openkinect/openkinect.pro
+    simon:meshlab blyth$ 
+
+     
 
 EOU
 }

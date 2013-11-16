@@ -92,6 +92,19 @@ Comparing the interfered
     [blyth@belle7 gdml]$ vrml2file.py -cx gdml_dae_wrl/g4_00.wrl     ## this is taking >20 min ??? 
     
 
+DB extend takinh ages and filling disk
+----------------------------------------
+
+Argh its filling the disk::
+
+    simon:gdml_dae_wrl blyth$ du -hs *
+    4.9M    g4_00.dae
+    2.4M    g4_00.dae.db
+    3.9M    g4_00.gdml
+     82M    g4_00.wrl
+    253M    g4_00.wrl.db
+    simon:gdml_dae_wrl blyth$ rm g4_00.wrl.db
+
 
 Add Sequence flexibility
 --------------------------
@@ -153,7 +166,6 @@ the first export influences all::
     -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:02 g4_02.wrl
     -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:01 g4_01.wrl
     -rw-rw-r-- 1 blyth blyth 86458076 Nov 16 17:01 g4_00.wrl
-
 
 
 

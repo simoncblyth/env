@@ -570,4 +570,92 @@ geometry/solids/Boolean/src/G4SubtractionSolid.cc::
     486 }
 
 
+Same process DAE then WRL : vertex counts match
+-------------------------------------------------
+
+::
+
+    simon:gdml_dae_wrl blyth$ sqlite3 -init cf.sql
+    -- Loading resources from cf.sql
+    seq  name             file                                                      
+    ---  ---------------  ----------------------------------------------------------
+    0    main                                                                       
+    2    dae              /usr/local/env/geant4/geometry/gdml/gdml_dae_wrl/g4_00.dae
+    3    wrl              /usr/local/env/geant4/geometry/gdml/gdml_dae_wrl/g4_00.wrl
+
+
+    sqlite> select d.idx, w.name, d.name from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 limit 10 ;
+    idx         name                                                                                                  name                                                                                                
+    ----------  ---------------------------------------------------------------------------------------------         ---------------------------------------------------------------------------------------------       
+    0           Universe.0                                                                                            top.0                                                                                               
+    1           /dd/Structure/Sites/db-rock.1000                                                                      __dd__Structure__Sites__db-rock0xc109960.0                                                          
+    2           /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000                                                  __dd__Geometry__Sites__lvNearSiteRock--pvNearHallTop0xb4f3440.0                                     
+    3           /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover.1000                                                  __dd__Geometry__Sites__lvNearHallTop--pvNearTopCover0xb1ff6c8.0                                     
+    4           /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1.1                                      __dd__Geometry__Sites__lvNearHallTop--pvNearTeleRpc--pvNearTeleRpc..10xb3dee08.0                    
+    5           /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000                                                              __dd__Geometry__RPC__lvRPCMod--pvRPCFoam0xb2fc9e0.0                                                 
+    6           /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit.1                   __dd__Geometry__RPC__lvRPCFoam--pvBarCham14Array--pvBarCham14ArrayOne..1--pvBarCham14Unit0xb6cd140.0
+    7           /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14.1000                                                    __dd__Geometry__RPC__lvRPCBarCham14--pvRPCGasgap140xb6cc3e8.0                                       
+    8           /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit.1                     __dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..1--pvStrip14Unit0xb6cb9b8.0  
+    9           /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit.2                     __dd__Geometry__RPC__lvRPCGasgap14--pvStrip14Array--pvStrip14ArrayOne..2--pvStrip14Unit0xb6cc940.0  
+
+    sqlite> select d.idx, w.name, d.name from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 limit 10000,10 ;
+    idx         name                                                                                                  name                                                                                                
+    ----------  ---------------------------------------------------------------------------------------------         ---------------------------------------------------------------------------------------------       
+    10000       /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiBottom.1001                                                 __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiBottom0xb5e55c8.588                                  
+    10001       /dd/Geometry/PMT/lvPmtHemiVacuum#pvPmtHemiDynode.1002                                                 __dd__Geometry__PMT__lvPmtHemiVacuum--pvPmtHemiDynode0xb2e6ff0.588                                  
+    10002       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10003       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10004       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10005       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10006       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10007       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10008       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    10009       /dd/Geometry/Pool/lvNearPoolOWS#pvVetoPmtNearOutFacein#pvNearOutFaceinWall9#pvNearOutFaceinWall9:4#p  __dd__Geometry__Pool__lvNearPoolOWS--pvVetoPmtNearOutFacein--pvNearOutFaceinWall9--pvNearOutFaceinWa
+    sqlite> 
+
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 ;
+    count(*)  
+    ----------
+    12230     
+
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 where w.nvertex != d.nvertex ;
+    count(*)  
+    ----------
+    0         
+
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 where w.nvertex = d.nvertex ;
+    count(*)  
+    ----------
+    12230     
+
+
+
+Same process WRL then DAE : vertex counts match
+-------------------------------------------------
+
+::
+
+    simon:wrl_gdml_dae blyth$ vrml2file.py -c -P g4_00.wrl
+    2013-11-16 18:45:28,206 env.geant4.geometry.vrml2.vrml2file INFO     /Users/blyth/env/bin/vrml2file.py -c -P g4_00.wrl
+    2013-11-16 18:45:28,208 env.geant4.geometry.vrml2.vrml2file INFO     create
+    2013-11-16 18:46:27,520 env.geant4.geometry.vrml2.vrml2file INFO     gathering geometry, using idoffset True idlabel 1 
+    2013-11-16 18:46:32,328 env.geant4.geometry.vrml2.vrml2file INFO     start persisting to /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.wrl.db 
+
+
+    simon:wrl_gdml_dae blyth$ sqlite3 -init cf.sql
+    -- Loading resources from cf.sql
+    seq  name             file                                                      
+    ---  ---------------  ----------------------------------------------------------
+    0    main                                                                       
+    2    dae              /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.dae
+    3    wrl              /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.wrl
+
+
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 ;
+    12230     
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 where w.nvertex != d.nvertex ;
+    0         
+    sqlite> select count(*) from wrl.geom w inner join dae.geom d on w.idx = d.idx + 1 where w.nvertex = d.nvertex ;
+    12230     
+
 

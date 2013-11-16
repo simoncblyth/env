@@ -139,6 +139,20 @@ macports-get(){
 
 }
 
+macports-clean(){
+   local msg="=== $FUNCNAME :"
+   local cmd="sudo port clean --all all"
+   echo $msg $cmd
+   eval $cmd
+}
+
+macports-space(){
+   local space=space.txt
+   [ ! -f $space ] && sudo port space installed > $space
+   grep MiB $space | sort -g -r | head -40
+}
+
+
 macports-env(){
    elocal- 
    ## avoid stomping on the virtualenv
