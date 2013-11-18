@@ -4,6 +4,7 @@ Graphics
 
 .. toctree::
 
+    meshlab/index
     collada/index
     cgal/index
     mesh/index

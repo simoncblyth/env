@@ -1,5 +1,5 @@
 # === func-gen- : graphics/mesh/vcglib fgp graphics/mesh/vcglib.bash fgn vcglib fgh graphics/mesh
-vcglib-src(){      echo graphics/mesh/vcglib.bash ; }
+vcglib-src(){      echo graphics/meshlab/vcglib.bash ; }
 vcglib-source(){   echo ${BASH_SOURCE:-$(env-home)/$(vcglib-src)} ; }
 vcglib-vi(){       vi $(vcglib-source) ; }
 vcglib-env(){      elocal- ; }
@@ -13,7 +13,7 @@ VCGLIB
 
 EOU
 }
-vcglib-dir(){ echo $(local-base)/env/graphics/mesh/vcglib ; }
+vcglib-dir(){ echo $(local-base)/env/graphics/meshlab/vcglib ; }
 vcglib-cd(){  cd $(vcglib-dir); }
 vcglib-mate(){ mate $(vcglib-dir) ; }
 vcglib-get(){

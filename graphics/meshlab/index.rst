@@ -1,9 +1,8 @@
 
-mesh
+meshlab
 =========================
 
 .. toctree::
 
-   mesh_generation
-   meshpy
+   meshlab
 

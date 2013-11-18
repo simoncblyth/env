@@ -659,3 +659,22 @@ Same process WRL then DAE : vertex counts match
     12230     
 
 
+Built Meshlab in order to read DAE and WRL 
+-------------------------------------------
+
+But its real slow at reading DAE. I can adhoc parse WRL quicker. 
+WRL import hidden in x3d
+
+* /usr/local/env/graphics/meshlab/meshlab/src/meshlabplugins/io_x3d/io_x3d.h
+
+
+Also no VRML support in 
+
+* http://assimp.sourceforge.net/main_features_formats.html
+
+* :google:`open source 3D VRML import`
+
+  * https://helixtoolkit.codeplex.com/discussions/403825
+
+
+

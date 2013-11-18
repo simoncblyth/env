@@ -1247,7 +1247,7 @@ ocelot-(){      . $(env-home)/cuda/ocelot.bash && ocelot-env $* ; }
 cudatoolkit-(){      . $(env-home)/cuda/cudatoolkit.bash && cudatoolkit-env $* ; }
 gcc-(){      . $(env-home)/base/gcc.bash && gcc-env $* ; }
 llvm-(){      . $(env-home)/llvm/llvm.bash && llvm-env $* ; }
-meshlab-(){      . $(env-home)/graphics/mesh/meshlab.bash && meshlab-env $* ; }
+meshlab-(){      . $(env-home)/graphics/meshlab/meshlab.bash && meshlab-env $* ; }
 freewrl-(){      . $(env-home)/graphics/vrml/freewrl.bash && freewrl-env $* ; }
 vrml97import-(){      . $(env-home)/graphics/vrml/vrml97import.bash && vrml97import-env $* ; }
 blender-(){      . $(env-home)/graphics/blender/blender.bash && blender-env $* ; }
@@ -1299,7 +1299,7 @@ sphinxhtmlslide-(){      . $(env-home)/doc/sphinxhtmlslide.bash && sphinxhtmlsli
 rst2s5-(){      . $(env-home)/doc/rst2s5.bash && rst2s5-env $* ; }
 rst2pdf-(){      . $(env-home)/doc/rst2pdf.bash && rst2pdf-env $* ; }
 reportlab-(){      . $(env-home)/doc/reportlab.bash && reportlab-env $* ; }
-vcglib-(){      . $(env-home)/graphics/mesh/vcglib.bash && vcglib-env $* ; }
+vcglib-(){      . $(env-home)/graphics/meshlab/vcglib.bash && vcglib-env $* ; }
 qt4-(){      . $(env-home)/ui/qt4.bash && qt4-env $* ; }
 slides-(){      . $(env-home)/doc/slides.bash && slides-env $* ; }
 g4dae-(){      . $(env-home)/geant4/geometry/collada/g4dae.bash && g4dae-env $* ; }
