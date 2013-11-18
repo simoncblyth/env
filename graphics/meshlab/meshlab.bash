@@ -293,7 +293,7 @@ qmake workaround, inplace edit the Makefiles
 The macports Portfile is a mess, so just kludge it::
 
     simon:src blyth$ qmake -recursive meshlab_mini.pro
-    simon:src blyth$ find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;
+    simon:src blyth$ find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;     ## now in qt4-kludge
     simon:src blyth$ open distrib/meshlab.app
 
 launch crash
@@ -395,6 +395,37 @@ Did g4_00.dae collada import from a gdb run.
 Observe that every face imported is being logged.  
 Thats going to slowdown import substantially!
 
+30 min to load::
+
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/gdml_dae_wrl/g4_00.dae in 1827120 msec
+    LOG: 0 All files opened in 1835861 msec
+
+Snapshot directory "." goes into the same dir as the mesh::
+
+    simon:io_collada blyth$ cd  /usr/local/env/geant4/geometry/gdml/gdml_dae_wrl/
+    simon:gdml_dae_wrl blyth$ open  snapshot00.png 
+
+TODO
+
+#. find out about qt logging and how to switch it off : for faster collada loading
+
+
+X3D PLUGIN
+=============
+
+Compiled it but no show in dialog ?
+
+
+OSX GUI APP ISSUE
+===================
+
+When launched in a GUI manner or with open it seems that the plugins are not found, 
+as the import mesh dialog does not popup.
+But the plugins are found when started in commandline way::
+
+   simon:MacOS blyth$ ./meshlab 
+
+
 
 EOU
 }
@@ -406,7 +437,12 @@ meshlab-get(){
 
    local tar=MeshLabSrc_AllInc_v132.tar
    echo  SF DOWNLOADING IS BROKEN : HAVE TO DO MANUALLY : mv ~/Dowloads/$tar . 
+}
 
+
+meshlab-launch(){
+   cd $(meshlab-dir)/src/distrib/meshlab.app/Contents/MacOS
+   ./meshlab
 }
 
 

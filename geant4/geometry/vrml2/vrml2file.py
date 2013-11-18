@@ -14,11 +14,18 @@ Quick testing
 
 For speed only the head of the .wrl is processed::
 
-     ./vrml2file.py --create --quick g4_01.wrl
-     ./vrml2file.py --create --quick --extend g4_01.wrl
+    vrml2file.py --head 124 --save g4_00.wrl -l debug
+    vrml2file.py --head 124 --save g4_00.wrl 
+    vrml2file.py --save --head 226 --extend g4_01.wrl
 
-     ./vrml2file.py -cq g4_01.wrl
-     ./vrml2file.py -cqx g4_01.wrl 
+
+Full run but skip shape table for speed and slim DB
+------------------------------------------------------
+
+::
+
+    vrml2file.py --save --noshape g4_00.wrl      
+
 
 Refactored Full run
 ---------------------
@@ -98,6 +105,7 @@ Ordinary newlines not working, so use raw ascii 10::
 
 """
 import os, sys, logging, string
+import numpy
 from env.db.simtab import Table
 from md5 import md5
 log = logging.getLogger(__name__) 
@@ -138,10 +146,11 @@ class WRLRegion(object):
         pass
         self.src_head   = self.src[:mreg['points']+1]
         self.src_points = self.src[mreg['points']+1:mreg['-points']]
-        self.npoints = len(self.src_points)
         self.src_tail   = self.src[mreg['-points']:]
         pass
         self.src_faces  = self.src[mreg['faces']+1:mreg['-faces']]
+        pass
+        self.npoints = len(self.src_points)
 
     def __repr__(self):
         return "# [%-6s] (%10s) :  %s " % ( self.indx, len(self.src), self.name )
@@ -182,11 +191,11 @@ class WRLRegion(object):
         return mreg 
 
     def parse_points(self):
-        for line in self.src_points:
-            assert line[-1] == ",", "expecting a trailing comma [%s]" % line
-            xyz = map(float,line[:-1].split(" "))  
-            self.point.append(xyz)
-        pass
+        #log.info("parse_points %s " % self.npoints) 
+        #log.info(self.src_points) 
+        data = numpy.fromstring( "".join(map(lambda line:line[:-1],self.src_points)), dtype=numpy.float32, sep=' ')
+        data.shape = (-1, 3)
+        self.point = data
         assert self.npoints == len(self.point), (self.npoints, len(self.point)) 
 
 
@@ -198,6 +207,7 @@ class WRLParser(list):
         self.lpfx_solid = len(self.pfx_solid)
         self.lpfx_camera = len(self.pfx_camera)
         self.buffer = []
+        self.nregion = 0 
 
     def __call__(self, path=None, cmd=None):
         if not path is None:
@@ -218,11 +228,10 @@ class WRLParser(list):
                 pass
             else:    
                 reg = WRLRegion( self.buffer, self.region, indx=len(self))  
+                reg.parse_points()  
                 self.append( reg )
             pass    
             self.buffer[:] = []
-
-
 
     def head(self, hdl, id, idlabel):
         s = "\n".join(hdl)
@@ -249,7 +258,8 @@ class WRLParser(list):
         self.buffer.append(line) 
 
     def save(self, path, opts):
-        idlabel, idoffset = opts.idoffset, opts.idlabel
+        idlabel = opts.idlabel
+        idoffset = opts.idoffset
         path = os.path.abspath(path)
         if os.path.exists(path):
             log.info("remove pre-existing db file %s " % path)
@@ -257,32 +267,36 @@ class WRLParser(list):
         pass
 
         geom_t  = Table(path, "geom", idx="int",name="text", nvertex="int" )   # summary schema for fast comparison against daedb.py geom
-        shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
+        if opts.shape:
+            shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
         if opts.points:
-            point_t = Table(path, "point", id="int",sid="int",x="float",y="float",z="float")
+            point_t = Table(path, "point", id="int",idx="int",x="float",y="float",z="float")
 
         log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
         for rg in self:
-            sid = rg.indx + idoffset
+            idx = rg.indx + idoffset
 
-            shape_t.add(id=sid,name=rg.name,hash=rg.hash,
+            geom_t.add(idx=idx,name=rg.name,nvertex=rg.npoints)
+
+            if opts.shape:
+                shape_t.add(id=idx,name=rg.name,hash=rg.hash,
                         src="\n".join(rg.src), 
                         src_faces="\n".join(rg.src_faces),    
                         src_points="\n".join(rg.src_points),
-                        src_head=self.head(rg.src_head,sid,idlabel=idlabel),
+                        src_head=self.head(rg.src_head,idx,idlabel=idlabel),
                         src_tail="\n".join(rg.src_tail),
                         )
 
-            geom_t.add(idx=sid,name=rg.name,nvertex=rg.npoints)
             if opts.points:
-                rg.parse_points()  
-                for pid,(x,y,z) in enumerate(rg.point):
-                    point_t.add(id=pid,sid=sid,x=x,y=y,z=z)
+                for pid,xyz in enumerate(rg.point):
+                    x,y,z = map(float,xyz)
+                    point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
             pass
         # writes to the DB a table at a time
         log.info("start persisting to %s " % path ) 
         geom_t.insert()   
-        shape_t.insert()   
+        if opts.shape: 
+            shape_t.insert()   
         if opts.points: 
             point_t.insert()   
         log.info("completed persisting to %s " % path ) 
@@ -293,9 +307,9 @@ class WRLParser(list):
         sammd_ = lambda _:"sum(%(_)s) as sum%(_)s, avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
         xsql = "select sid, count(*) as npo, " + ",".join(map(sammd_, ("x","y","z")))
         if name:
-            xsql += " ,name from point join shape on point.sid = shape.id group by sid "
+            xsql += " ,name from point join shape on point.idx = shape.id group by idx "
         else:    
-            xsql += " from point group by sid "
+            xsql += " from point group by idx "
         sqls = ["drop table if exists %(tn)s " % locals(),
                 "create table %(tn)s as " % locals() + xsql ]
         for sql in sqls:        
@@ -321,12 +335,13 @@ def parse_args(doc):
     op.add_option("-o", "--logpath", default=None )
     op.add_option("-l", "--loglevel",   default="INFO", help="logging level : INFO, WARN, DEBUG ... Default %default"  )
     op.add_option("-f", "--logformat", default="%(asctime)s %(name)s %(levelname)-8s %(message)s" )
-    op.add_option("-q", "--quick", action="store_true", help="Quick run just on the head of the input file.", default=False )
-    op.add_option("-c", "--create", action="store_true", help="Create the DB from the source wrl.", default=False )
+    op.add_option(      "--head", default=None, help="Quick run just on head lines of the input file.")
+    op.add_option("-s", "--save", action="store_true", help="Save parsed geometry info into DB", default=False )
     op.add_option("-x", "--extend", action="store_true", help="Create the extents table from the pre-created DB.", default=False )
-    op.add_option(      "--idoffset", type="int", default=1, help="Offset of shape indices. Default %default " )
+    op.add_option(      "--idoffset", type="int", default=0, help="Offset of shape indices. Default %default " )
     op.add_option(      "--noidlabel", action="store_false", dest="idlabel",  default=True, help="Add VRML DEF names to shapes and materials to allow EAI access. Default %default " )
-    op.add_option( "-P","--nopoints", action="store_false", dest="points",  default=True, help="Record vertices into points table. Default %default " )
+    op.add_option( "-P","--nopoints", action="store_false", dest="points",  default=True, help="Skip Recording vertices into points table. Default %default " )
+    op.add_option( "-S","--noshape",  action="store_false", dest="shape",  default=True, help="Skip Recording full shape in the shape table. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
 
@@ -357,24 +372,30 @@ def parse_args(doc):
 def main():
     opts, args = parse_args(__doc__)
     path = args[0]
-    if opts.quick:
-        dbpath = os.path.abspath(path + ".quick.db")
+    if not opts.head is None:
+        dbpath = os.path.abspath(path + ".head%s.db" % opts.head )
     else:
         dbpath = os.path.abspath(path + ".db")
 
     wrlp = WRLParser()
 
-    if opts.create:
-        log.info("create") 
-        if opts.quick:
-            wrlp(path=None,cmd="head -226 %(path)s " % locals()) # head only testing, fine tuned to avoid shapes without any points arising from truncation 
+    parse = True
+    if parse:
+        log.info("parse") 
+        if not opts.head is None:
+            head = opts.head
+            wrlp(path=None,cmd="head -%(head)s %(path)s " % locals()) 
+            # head only testing, must fine tune the head lines to avoid splitting regions 
         else:      
             wrlp(path)
         pass     
-        wrlp.save(dbpath, opts)
-    else:
-        log.info("skip create") 
+    else:    
+        log.info("skip parse") 
 
+    if opts.save:
+        wrlp.save(dbpath, opts)
+    else:    
+        log.info("skip save") 
 
     if opts.extend:
         log.info("extend") 

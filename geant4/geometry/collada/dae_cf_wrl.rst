@@ -4,6 +4,19 @@ DAE cf WRL
 
 .. contents:: :local:
 
+Questions
+----------
+
+#. why are AD PMTs in the iPad and meshlab renders all pointing in same direction, and not towards center ?
+
+   * that render was without the ``monkey_matrix_load`` fix ? 
+
+#. VRML2 Y is being rounded to the nearest mm, and X often to nearest 0.1 mm
+
+#. why do the boolean volume vertices depending on which export is done first DAE or WRL  ?
+
+   * this causes between process exports to differ (for boolean volumes), if they differ in export ordering 
+
 
 Create DAE DB
 ---------------
@@ -676,5 +689,289 @@ Also no VRML support in
 
   * https://helixtoolkit.codeplex.com/discussions/403825
 
+
+Nov 18 2013 : Same Process export : WRL then DAE
+--------------------------------------------------
+
+Prep the DB::
+
+    daedb.py --daepath g4_00.dae
+    vrml2file.py --save --noshape g4_00.wrl 
+
+Make point comparison::
+
+    simon:wrl_gdml_dae blyth$ cat cf.sql 
+    attach database "g4_00.dae.db" as dae ;
+    attach database "g4_00.wrl.db" as wrl ;
+    .databases
+    .mode column
+    .header on 
+    --
+    -- sqlite3 -init cf.sql
+    --
+    simon:wrl_gdml_dae blyth$ sqlite3 -init cf.sql
+    -- Loading resources from cf.sql
+    seq  name             file                                                      
+    ---  ---------------  ----------------------------------------------------------
+    0    main                                                                       
+    2    dae              /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.dae
+    3    wrl              /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.wrl
+
+    SQLite version 3.8.0.2 2013-09-03 17:11:13
+
+
+    sqlite> select count(*) from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id ; 
+    count(*)  
+    ----------
+    1246046   
+
+    sqlite> select count(*) from dae.point ;
+    count(*)  
+    ----------
+    1246046   
+
+    sqlite> select count(*) from wrl.point ;
+    count(*)  
+    ----------
+    1246046   
+
+    sqlite> select d.idx, max(abs(d.x - w.x)), max(abs(d.y - w.y)), max(abs(d.z - w.z))  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx ;
+
+            -- maximum x,y,z absolute deviations for each solid , 
+            --
+            --      y deviations up to 0.5 mm      <<<< ROUNDED TO   1 MM 
+            --      x,z more like 0.05 mm          <<<< ROUNDED TO 0.1 MM      
+            --
+            --  I THOUGHT I PATCHED THE VRML2 EXPORT TO AVOID THIS Y ROUNDING ?
+            --
+
+    ....
+    12223       0.0394991636276245   0.499330341815948    0.0                
+    12224       0.0418918146169744   0.46747952979058     0.0                
+    12225       0.0464650988578796   0.250274777412415    0.0                
+    12226       0.0406980668867618   0.454132347600535    0.0                
+    12227       0.0394991636276245   0.499330341815948    0.0                
+    12228       0.0418918146169744   0.46747952979058     0.0                
+    12229       0.0516570425825194   0.415786688914523    0.0482940673828125 
+    sqlite> 
+
+
+WRL coordinate roundings again
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+WRL x/y roundings: 0.1/1 mm::
+
+                geometry IndexedFaceSet {
+                        coord Coordinate {
+                                point [
+                                        -11149.5 -797803 668.904,
+                                        -12907.2 -798915 668.904,
+                                        -12768.2 -799135 668.904,
+                                        -11010.5 -798023 668.904,
+                                        -11149.5 -797803 670.904,
+                                        -12907.2 -798915 670.904,
+                                        -12768.2 -799135 670.904,
+                                        -11010.5 -798023 670.904,
+                                ]
+
+
+OOPS : FIX IS ON CMS02 BUT NOT BELLE7
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@cms01 src]$ grep SCB *.*
+    G4VRML2FileSceneHandler.cc:#include <iomanip>   // SCB
+    G4VRML2FileSceneHandler.cc:    G4cerr << "Using setprecision(5) and fixed floating point notation for veracity of output [SCB PATCH] " << G4endl; 
+    G4VRML2FileSceneHandler.cc:    fDest << std::setprecision(5) << std::fixed ; // SCB
+    [blyth@cms01 src]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src
+
+
+    [blyth@belle7 src]$ grep SCB *.*
+    G4VRML2SceneHandlerFunc.icc:    std::cerr << "SCB " << pv_name << "\n";
+    [blyth@belle7 src]$ pwd
+    /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01/source/visualization/VRML/src
+
+
+DAE does not suffer from Y rounding as using local (not world) coordinates
+of much smaller magnitude, which do not push precsion.
+
+
+max squared offset per volume
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 1 ;
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.8 ;
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.4 ;
+               --
+               -- NO volumes with maximum squared deviations more than 0.4 mm^2
+               --
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.25  ;
+
+                -- most deviate at about 0.25 mm^2 
+
+    idx         mds              
+    ----------  -----------------
+    102         0.252105649424013
+    110         0.252105649424024
+    118         0.252051923645839
+    119         0.252051923645839
+    364         0.256258896525109
+    372         0.25625889640749 
+    376         0.255689442235299
+    377         0.255689442235299
+    402         0.25356702983926 
+    403         0.25356702983926 
+    435         0.250579669527435
+    436         0.250579669527435
+    438         0.250620243194824
+
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.255  ;
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.255  ;
+    idx         mds              
+    ----------  -----------------
+    364         0.256258896525109
+    372         0.25625889640749 
+    376         0.255689442235299
+    377         0.255689442235299
+    912         0.256639970217134
+    913         0.256639970217134
+    1100        0.259075682699121
+    1101        0.259075682699121
+    1132        0.258564938347323
+    1133        0.258564938347323
+    2456        0.255183839891695
+    2465        0.255183839891695
+    2478        0.255032854157919
+    2487        0.255032936805749
+    2526        0.256215984512191
+    2527        0.256215984512191
+    2638        0.25531043502309 
+    2647        0.25531043502309 
+    2707        0.255310435022713
+    2708        0.255310435022713
+    3308        0.256080675965532
+    3452        0.256080675965532
+    3596        0.256080675965532
+    3740        0.256080675965532
+    3884        0.256080675965532
+    4028        0.256080675965532
+    4172        0.256080675965532
+    4316        0.256080675965532
+    4790        0.257234604314828
+    4791        0.257234604314828
+    4794        0.257234604314828
+    4796        0.257234604314828
+    4896        0.256080675965338
+    5040        0.256080675965338
+    5184        0.256080675965338
+    5328        0.256080675965338
+    5472        0.256080675965338
+    5616        0.256080675965338
+    5760        0.256080675965338
+    5904        0.256080675965338
+    8545        0.256874095728416
+    8562        0.256781381772678
+    9136        0.25735507284098 
+    9170        0.256821185116763
+    9204        0.256818434540021
+    9238        0.256818568269607
+    9980        0.255273145259131
+    10424       0.256093619945864
+    10968       0.255974403689378
+    sqlite> 
+
+
+
+Nov 18 2013 : Same Process export : DAE then WRL
+--------------------------------------------------
+Prep the DB::
+
+    daedb.py --daepath g4_00.dae
+    vrml2file.py --save --noshape g4_00.wrl 
+
+Point comparison::
+
+    sqlite> select d.idx, max(abs(d.x - w.x)), max(abs(d.y - w.y)), max(abs(d.z - w.z))  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx ;
+    ...
+    12217       0.0489782299046055   0.495534300804138    0.0                
+    12218       0.0521936156255833   0.490957915782928    0.0                
+    12219       0.0487635113167926   0.494483592337929    0.0                
+    12220       0.0493128095640714   0.493383262306452    0.0                
+    12221       0.0464650988578796   0.250274777412415    0.0                
+    12222       0.0406980668885808   0.454132347600535    0.0                
+    12223       0.0394991636276245   0.499330341815948    0.0                
+    12224       0.0418918146169744   0.46747952979058     0.0                
+    12225       0.0464650988578796   0.250274777412415    0.0                
+    12226       0.0406980668867618   0.454132347600535    0.0                
+    12227       0.0394991636276245   0.499330341815948    0.0                
+    12228       0.0418918146169744   0.46747952979058     0.0                
+    12229       0.0545820657571312   0.42653064802289     0.0490875244140625 
+    sqlite> 
+    sqlite> 
+
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.255  ;
+    idx         mds              
+    ----------  -----------------
+    364         0.256258896525109
+    372         0.25625889640749 
+    376         0.255689442235299
+    377         0.255689442235299
+    912         0.256639970217134
+    913         0.256639970217134
+    1100        0.259075682699121
+    1101        0.259075682699121
+    1132        0.258564938347323
+    1133        0.258564938347323
+    2456        0.255183839891695
+    2465        0.255183839891695
+    2478        0.255046293993105
+    2487        0.255048144647476
+    2611        0.255303779209358
+    2638        0.25531043502309 
+    2647        0.25531043502309 
+    2707        0.255310435022713
+    2708        0.255310435022713
+    2814        0.255934838260422
+    2858        0.25591536352458 
+    3289        0.256226811362892
+    3433        0.256226811362892
+    3577        0.256226811362892
+    3721        0.256226811362892
+    3865        0.256226811362892
+    4009        0.256226811362892
+    4153        0.256226811362892
+    4297        0.256226811362892
+    4790        0.257234604314828
+    4791        0.257234604314828
+    4794        0.257234604314828
+    4796        0.257234604314828
+    4877        0.256311818725851
+    5021        0.256311818725851
+    5165        0.256311818725851
+    5309        0.256311818725851
+    5453        0.256311818725851
+    5597        0.256311818725851
+    5741        0.256311818725851
+    5885        0.256311818725851
+    8545        0.256874095728416
+    8562        0.256781381772678
+    9136        0.25735507284098 
+    9170        0.256821185116763
+    9204        0.256818434540021
+    9238        0.256818568269607
+    10424       0.256093619945864
+    10968       0.255974403689378
+    sqlite> 
+
+
+Other order leads to the same level of agreement, ie just XY rounding issue.
 
 

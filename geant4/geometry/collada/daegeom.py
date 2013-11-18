@@ -37,8 +37,15 @@ as different node transformations are applied to get to the targeted volume::
     daegeom.py -p $LOCAL_BASE/env/graphics/collada/3199.dae 0 -x 3199
 
 """
-import os, logging, sys, collada, numpy
+import os, logging, sys
+
+import numpy 
+import collada
+from monkey_matrix_load import _monkey_matrix_load
+collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
+
 from env.geant4.geometry.vrml2.vrml2db import VRML2DB
+
 
 log = logging.getLogger(__name__)
 
@@ -83,35 +90,6 @@ def primfix(self):
         self._normal = None 
     else: 
         self._normal = numpy.dot(self.original._normal, self.matrix[:3,:3]) 
-
-
-def _monkey_matrix_load(_collada,node, diddle=True):
-    """
-    Avoid changing pycollada in multiple places by monkey patching 
-    just the matrix loading to diddle the matrix. 
-    The matrix diddling just inverts the rotation portion.
-
-    After doing this it is wring to do the primfix too.
-
-    The advantage over primfix, is that this way also works 
-    appropriately with the recursive Node transformations.
-
-    Could avoid having to use this monkeypatch by doing this diddle
-    within G4DAEWrite, ie writing diddled to the .dae
-    """
-    floats = numpy.fromstring(node.text, dtype=numpy.float32, sep=' ')
-
-    if diddle:
-        original = floats.copy()
-        original.shape = (4,4)
-        matrix = numpy.identity(4)
-        matrix[:3,:3] = original[:3,:3].T   # transpose/invert the 3x3 rotation portion
-        matrix[:3,3] = original[:3,3]       # tack back the translation
-        floats = matrix.ravel()
-
-    return collada.scene.MatrixTransform(floats, node)
-
-collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
 
 
 def dump_geom(args, opts):

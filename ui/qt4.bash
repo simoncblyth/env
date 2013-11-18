@@ -17,6 +17,12 @@ qt4-info(){
    echo QMAKESPEC $QMAKESPEC
 }
 
+qt4-kludge(){
+  local cmd="find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;"
+  echo $cmd
+  eval $cmd
+}
+
 qt4-specs(){
   cd /opt/local/share/qt4/mkspecs
 }

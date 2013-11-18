@@ -253,7 +253,12 @@ rpc
 
 
 """
-import collada 
+
+import numpy 
+import collada
+from monkey_matrix_load import _monkey_matrix_load
+collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)   ## CAUTION MONKEY PATCH DIDDLING TRANSFORMATION MATRIX
+
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
 
@@ -1098,6 +1103,7 @@ class Defaults(object):
     geometry = "YES"
     subpath = "subcopy.dae"
     maxdepth = -1
+    points = True
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -1124,6 +1130,7 @@ def parse_args(doc):
     op.add_option("-O", "--subpath", default=defopts.subpath , help="Path in which to save subgeometry, when `-e/--daesave` option is used. Default %default." )
     op.add_option("-x", "--maxdepth", type=int, default=defopts.maxdepth, help="Restrict the tree depth of the copy, -1 for full tree from the specified root volume. Default %default " )
     op.add_option("-b", "--blender",  action="store_true", default=defopts.blender , help="Change some aspects of exported geometry for blender compatibility. Default %default. ")
+    op.add_option("-P", "--nopoints",  dest="points", action="store_false", default=defopts.points , help="Prevent the timeconsuming persisting all points. Default %default. ")
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments

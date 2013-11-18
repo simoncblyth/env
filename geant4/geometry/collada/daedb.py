@@ -35,25 +35,50 @@ against the WRL one from VRML2.
 import sys, os, logging
 log = logging.getLogger(__name__)
 from env.db.simtab import Table
+
 from daenode import DAENode, parse_args
 
 def main():
     opts, args = parse_args(__doc__) 
     DAENode.parse( opts.daepath )
 
-    geom_t = Table( opts.daedbpath, "geom", idx="int",name="text", nvertex="int", lvid="text", geoid="text" )
+    dbpath = opts.daedbpath 
+    if os.path.exists(dbpath):
+        log.info("remove pre-existing db file %s " % dbpath)
+        os.remove(dbpath)
+
+    geom_t = Table( dbpath, "geom", idx="int",name="text", nvertex="int", lvid="text", geoid="text" )
+    if opts.points:
+        point_t = Table( dbpath, "point", id="int",idx="int",x="float",y="float",z="float")
+
+    log.info("building tables for %s nodes " % len(DAENode.registry))
     for node in DAENode.registry:
         id = node.id
+        idx = node.index
+        lvid = node.lv.id[:-9]  # chop the pointer
+        geoid = node.geo.geometry.id[:-9] 
+        if idx % 1000 == 0:
+            log.info("building tables for node %s %s %s %s " % (idx,id,lvid,geoid))
+
         prim = list(node.boundgeom.primitives())
         assert len(prim) == 1 , prim
         bpl = list(node.boundgeom.primitives())[0]  
         nvertex = len(bpl.vertex)
-        lvid = node.lv.id[:-9]  # chop the pointer
-        geoid = node.geo.geometry.id[:-9]  
-        geom_t.add( idx=node.index, name=node.id, nvertex=nvertex, lvid=lvid, geoid=geoid )
+        pass
+        geom_t.add( idx=idx, name=id, nvertex=nvertex, lvid=lvid, geoid=geoid )
+        pass
+        if opts.points:
+            for pid,xyz in enumerate(bpl.vertex):
+                x,y,z = map(float,xyz)
+                point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
+
     pass
-    log.info("writing to %s " % geom_t.path )
+    log.info("writing geom_t to %s " % dbpath )
     geom_t.insert()
+    if opts.points:
+        log.info("writing point_t to %s " % dbpath )
+        point_t.insert()
+    log.info("completed writing to %s " % dbpath )
 
 if __name__ == '__main__':
     main()
