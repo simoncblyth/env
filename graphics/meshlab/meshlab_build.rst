@@ -32,6 +32,11 @@ Pre-requisites
 Download
 ----------
 
+From    
+
+* http://sourceforge.net/projects/meshlab/files/meshlab/  v132 dates from 2012-08-03
+* 
+
 ::
 
    mv ~/Downloads/MeshLabSrc_AllInc_v132.tar .   ## WARNING : exploding tarball
@@ -93,7 +98,7 @@ Following
                     structuresynth/structuresynth.pro \
                                     OpenCTM-1.0.3/openctm.pro \
                     jhead-2.95/jhead-2.95.pro
-#                openkinect/openkinect.pro
+    #                openkinect/openkinect.pro
     simon:meshlab blyth$ 
 
     
@@ -157,8 +162,7 @@ Default::
      11 CC            = /usr/bin/gcc-4.2
      12 CXX           = clang++
 
-
-``qmake -spec macx-g++40 ``::
+``qmake -spec macx-g++40``::
 
       6 # Command: /opt/local/bin/qmake -spec /opt/local/share/qt4/mkspecs/macx-g++40 -o Makefile common.pro
       ...
@@ -528,6 +532,61 @@ Code looks like it is not doing any caching, repeatedly searching DOM for for ev
 Before profiling/optimising need to check the SVN future of meshlab/vcglib
 ----------------------------------------------------------------------------
 
+Sourceforge yuck.
+
+* http://sourceforge.net/p/meshlab/code/6239/log/?path=/trunk
+
+Slow code is actually in vcglib
+
+* http://vcg.isti.cnr.it/~cignoni/newvcglib/html/
+* http://sourceforge.net/projects/vcg/
+* http://svn.code.sf.net/p/vcg/code/trunk/vcglib/
+
+::
+
+    simon:dae blyth$ vcglib-cd
+    simon:vcglib_trunk blyth$ pwd
+    /usr/local/env/graphics/vcglib_trunk
+    simon:vcglib_trunk blyth$ cd wrap/dae
+    simon:dae blyth$ 
+    simon:dae blyth$ svn log . -v
+    ------------------------------------------------------------------------
+    r4985 | granzuglia | 2013-10-25 04:51:03 +0800 (Fri, 25 Oct 2013) | 1 line
+    Changed paths:
+       M /trunk/vcglib/wrap/dae/poly_triangulator.h
+
+    - added missing include file
+    ------------------------------------------------------------------------
+    r4983 | granzuglia | 2013-10-25 00:18:13 +0800 (Fri, 25 Oct 2013) | 1 line
+    Changed paths:
+       M /trunk/vcglib/wrap/dae/colladaformat.h
+       A /trunk/vcglib/wrap/dae/poly_triangulator.h
+       M /trunk/vcglib/wrap/dae/util_dae.h
+
+    - updated collada format in order to manage alpha channel colour
+    ------------------------------------------------------------------------
+    r4861 | granzuglia | 2013-03-25 03:51:43 +0800 (Mon, 25 Mar 2013) | 2 lines
+    Changed paths:
+       M /trunk/vcglib/wrap/dae/util_dae.h
+       M /trunk/vcglib/wrap/dae/xmldocumentmanaging.h
+
+    - small changes for qt5.0 compatibility
+
+    ------------------------------------------------------------------------
+    r4752 | cignoni | 2012-11-28 06:31:48 +0800 (Wed, 28 Nov 2012) | 1 line
+    Changed paths:
+       M /trunk/vcglib/wrap/dae/colladaformat.h
+       M /trunk/vcglib/wrap/io_trimesh/export_idtf.h
+
+    Added a few missing const specifiers
+    ------------------------------------------------------------------------
+    r4180 | cignoni | 2011-10-05 23:04:40 +0800 (Wed, 05 Oct 2011) | 1 line
+    Changed paths:
+       A /trunk/vcglib (from /trunk/vcglib:4178)
+       R /trunk/vcglib/apps (from /trunk/vcglib/apps:4178)
+       R /trunk/vcglib/apps/metro (from /trunk/vcglib/apps/metro:4178)
+       R /trunk/vcglib/apps/metro/defs.h (from /trunk/vcglib/apps/metro/defs.h:4178)
+       R /trunk/vcglib/apps/metro/history.txt (from /trunk/vcglib/apps/metro/history.txt:4178)
 
 
 

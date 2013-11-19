@@ -13,12 +13,12 @@ VCGLIB
 
 EOU
 }
-vcglib-dir(){ echo $(local-base)/env/graphics/meshlab/vcglib ; }
+vcglib-dir(){ echo $(local-base)/env/graphics/vcglib_trunk ; }
 vcglib-cd(){  cd $(vcglib-dir); }
 vcglib-mate(){ mate $(vcglib-dir) ; }
 vcglib-get(){
    local dir=$(dirname $(vcglib-dir)) &&  mkdir -p $dir && cd $dir
 
-   [ ! -d vcglib ] && svn checkout svn://svn.code.sf.net/p/vcg/code/trunk/vcglib vcglib
+   [ ! -d vcglib_trunk ] && svn checkout svn://svn.code.sf.net/p/vcg/code/trunk/vcglib vcglib_trunk
 
 }
