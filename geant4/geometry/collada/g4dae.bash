@@ -38,16 +38,19 @@ g4dae-wrldbpath(){
 }
 
 
-g4dae-cf-path(){ echo  $(g4dae-ddir)/g4dae-cf.sql ; }
 g4dae-cf-(){  cat << EOS
-attach database "$(g4dae-daedbpath $1)" as dae ;
-attach database "$(g4dae-wrldbpath $2)" as wrl ;  
+attach database "g4_00.dae.db" as dae ;
+attach database "g4_00.wrl.db" as wrl ;
 .databases
+.mode column
+.header on 
+
+-- sqlite3 -init cf.sql
+--
 EOS
 }
 g4dae-cf(){
-   local sql=$(g4dae-cf-path)
-   mkdir -p $(dirname $sql)
+   local sql=cf.sql
    $FUNCNAME- $* > $sql
    sqlite3-
    case $NODE_TAG in 

@@ -675,19 +675,18 @@ Same process WRL then DAE : vertex counts match
 Built Meshlab in order to read DAE and WRL 
 -------------------------------------------
 
-But its real slow at reading DAE. I can adhoc parse WRL quicker. 
-WRL import hidden in x3d
+But its real slow at reading DAE, 30 min import. 
+Initially X3D/WRL/VRML plugin failed to load into meshlab. But 
+a recompilation of x3d plugin succeeds.
 
-* /usr/local/env/graphics/meshlab/meshlab/src/meshlabplugins/io_x3d/io_x3d.h
+The WRL import took under 8 min, thats almost 5 times faster than DAE import.::
 
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/wrl_gdml_dae/g4_00.wrl in 441612 msec
+    LOG: 0 All files opened in 441615 msec
 
-Also no VRML support in 
+Navigation is painful at 0.3 fps though. 
 
-* http://assimp.sourceforge.net/main_features_formats.html
-
-* :google:`open source 3D VRML import`
-
-  * https://helixtoolkit.codeplex.com/discussions/403825
+   * BUT: **the PMT rotations look correct** 
 
 
 Nov 18 2013 : Same Process export : WRL then DAE
@@ -973,5 +972,64 @@ Point comparison::
 
 
 Other order leads to the same level of agreement, ie just XY rounding issue.
+
+
+Nov 19 : recompile N Geant4 with patched VRML2
+--------------------------------------------------
+
+Rebuild libVRML::
+
+    g4-
+    g4-vrml-deploy
+    g4-vrml-make
+
+
+Perform export again::
+
+    [blyth@belle7 ~]$ export_all.sh
+
+::
+
+    [blyth@belle7 ~]$ cd /data1/env/local/env/geant4/geometry/gdml/20131119-1348/
+    [blyth@belle7 20131119-1348]$ ls -l *.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:51 g4_00.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:51 g4_01.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:51 g4_02.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_03.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_04.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_05.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_06.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_07.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 13:52 g4_08.wrl
+    [blyth@belle7 20131119-1348]$ 
+    [blyth@belle7 20131119-1348]$ 
+    [blyth@belle7 20131119-1348]$ ls -l *.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:51 g4_00.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:51 g4_01.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:51 g4_02.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:52 g4_03.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:52 g4_04.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:52 g4_05.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 13:53 g4_06.dae
+    [blyth@belle7 20131119-1348]$ 
+    [blyth@belle7 20131119-1348]$ ls -l *.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 13:52 g4_00.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 13:52 g4_01.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 13:52 g4_02.gdml
+    [blyth@belle7 20131119-1348]$ 
+
+
+Prep DB::
+
+    [blyth@belle7 20131119-1348]$ vrml2file.py --save --noshape g4_00.wrl 
+    2013-11-19 13:58:07,683 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save --noshape g4_00.wrl
+    2013-11-19 13:58:07,683 env.geant4.geometry.vrml2.vrml2file INFO     parse
+    ...
+    [blyth@belle7 20131119-1348]$ python-
+    [blyth@belle7 20131119-1348]$ python- source
+    [blyth@belle7 20131119-1348]$ daedb.py --daepath g4_00.dae
+
+
+
 
 

@@ -63,19 +63,41 @@ double click
              change center of rotation
 one finger drag
              move viewpoint about rotation position 
+cmd-drag
+             pan (a big P appears)
 
-two-finger 
-             dolly forward/backward
-shift+two-finger
-             change camera field of view
-cmd+two-finger
-             change near clipping place
+
+two-finger (wheel) 
+             dolly forward/backward 
+             (mis-named zoom, zoom really means changing FOV)
+shift+two-finger (shift wheel)
+             change camera field of view, 
+             keep reducing it down to 5 degrees to switch to Orthographic
+cmd+two-finger (ctrl wheel)
+             move near clipping plane
+cmd+shift+two-finger (ctrl-shift wheel)
+             move far clipping plane
+
 
 shift+cmd+one-finger
              change light direction         
 
 opt/alt-return
              toggle fullscreen mode
+
+
+Tip for usage on underpowered machine
+---------------------------------------
+
+Switch to point rendering (rather than wireframe or solid) when navigating 
+to where you want to be. 
+
+Point rendering manages ~4 fps whereas the others are difficult 
+to use at 0.3 fps.  Then switch to nicer rendering when in position.
+
+
+
+
 
 Links
 ------
@@ -408,15 +430,19 @@ From the source, VRML gets translated into X3D first.
     ./meshlab/src/meshlabplugins/io_x3d/vrml/Parser.cpp:                    case 9: s = coco_string_create(L"\"VRML\" expected"); break;
     ./meshlab/src/meshlabplugins/io_x3d/vrml/Scanner.cpp:   keywords.set(L"VRML", 9);
 
-
 OSX GUI APP ISSUE
 ------------------
 
-When launched in a GUI manner or with open it seems that the plugins are not found, 
-as the import mesh dialog does not popup.
-But the plugins are found when started in commandline way::
+When launched in a GUI manner or with open the plugins are not found, so no DAE or WRL loading.
+But the plugins are found when started in commandline way, and you get easy visibility to console::
 
    simon:MacOS blyth$ ./meshlab 
+
+
+MESHLAB WINDOW TITLE  MeshLab v1.3.2_64bit
+---------------------------------------------
+
+Why the misnomer, are there large speedup factors to be had ? 
 
 
 FUNCTIONS
