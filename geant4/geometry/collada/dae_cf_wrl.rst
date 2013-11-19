@@ -10,10 +10,13 @@ Questions
 #. why are AD PMTs in the iPad and meshlab renders all pointing in same direction, and not towards center ?
 
    * that render was without the ``monkey_matrix_load`` fix ? 
+   * YES, looking at WRL render in meshlab shows expected PMT directions
 
-#. VRML2 Y is being rounded to the nearest mm, and X often to nearest 0.1 mm
+#. VRML2 Y is being rounded to the nearest 1 mm, and X often to nearest 0.1 mm
 
-#. why do the boolean volume vertices depending on which export is done first DAE or WRL  ?
+   * applying the g4-vrml- fix get max (and avg) offsets down to 0.03 mm 
+
+#. why do the boolean volume vertices depend on which export is done first DAE or WRL  ?
 
    * this causes between process exports to differ (for boolean volumes), if they differ in export ordering 
 
@@ -21,7 +24,7 @@ Questions
 Create DAE DB
 ---------------
 
-Make sure the DB are not preexisting, othewise will add duplicates::
+Preexisting DB are deleted::
 
     daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'    # 2nd generatation, from a GDML import  
     daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/gdml/g4_10.dae'    # 1st generation, direct from NuWa/Geant4 detdesc creation 
@@ -402,8 +405,6 @@ BooleanProcessor
 
 
 
-
-
 G4Polyhedron::SetNumberOfRotationSteps ?
 --------------------------------------------
 
@@ -692,12 +693,12 @@ Navigation is painful at 0.3 fps though.
 Nov 18 2013 : Same Process export : WRL then DAE
 --------------------------------------------------
 
-Prep the DB::
+Prep the DB ``g4dae-prep``::
 
     daedb.py --daepath g4_00.dae
     vrml2file.py --save --noshape g4_00.wrl 
 
-Make point comparison::
+Make point comparison ``g4dae-cf``::
 
     simon:wrl_gdml_dae blyth$ cat cf.sql 
     attach database "g4_00.dae.db" as dae ;
@@ -797,8 +798,8 @@ DAE does not suffer from Y rounding as using local (not world) coordinates
 of much smaller magnitude, which do not push precsion.
 
 
-max squared offset per volume
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+max squared offset per volume, before VRML mm rounding fix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -846,31 +847,7 @@ max squared offset per volume
     1132        0.258564938347323
     1133        0.258564938347323
     2456        0.255183839891695
-    2465        0.255183839891695
-    2478        0.255032854157919
-    2487        0.255032936805749
-    2526        0.256215984512191
-    2527        0.256215984512191
-    2638        0.25531043502309 
-    2647        0.25531043502309 
-    2707        0.255310435022713
-    2708        0.255310435022713
-    3308        0.256080675965532
-    3452        0.256080675965532
-    3596        0.256080675965532
-    3740        0.256080675965532
-    3884        0.256080675965532
-    4028        0.256080675965532
-    4172        0.256080675965532
-    4316        0.256080675965532
-    4790        0.257234604314828
-    4791        0.257234604314828
-    4794        0.257234604314828
-    4796        0.257234604314828
-    4896        0.256080675965338
-    5040        0.256080675965338
-    5184        0.256080675965338
-    5328        0.256080675965338
+    ...
     5472        0.256080675965338
     5616        0.256080675965338
     5760        0.256080675965338
@@ -885,7 +862,6 @@ max squared offset per volume
     10424       0.256093619945864
     10968       0.255974403689378
     sqlite> 
-
 
 
 Nov 18 2013 : Same Process export : DAE then WRL
@@ -929,34 +905,7 @@ Point comparison::
     1101        0.259075682699121
     1132        0.258564938347323
     1133        0.258564938347323
-    2456        0.255183839891695
-    2465        0.255183839891695
-    2478        0.255046293993105
-    2487        0.255048144647476
-    2611        0.255303779209358
-    2638        0.25531043502309 
-    2647        0.25531043502309 
-    2707        0.255310435022713
-    2708        0.255310435022713
-    2814        0.255934838260422
-    2858        0.25591536352458 
-    3289        0.256226811362892
-    3433        0.256226811362892
-    3577        0.256226811362892
-    3721        0.256226811362892
-    3865        0.256226811362892
-    4009        0.256226811362892
-    4153        0.256226811362892
-    4297        0.256226811362892
-    4790        0.257234604314828
-    4791        0.257234604314828
-    4794        0.257234604314828
-    4796        0.257234604314828
-    4877        0.256311818725851
-    5021        0.256311818725851
-    5165        0.256311818725851
-    5309        0.256311818725851
-    5453        0.256311818725851
+    ...
     5597        0.256311818725851
     5741        0.256311818725851
     5885        0.256311818725851
@@ -982,7 +931,6 @@ Rebuild libVRML::
     g4-
     g4-vrml-deploy
     g4-vrml-make
-
 
 Perform export again::
 
@@ -1019,7 +967,7 @@ Perform export again::
     [blyth@belle7 20131119-1348]$ 
 
 
-Prep DB::
+g4dae-prep::
 
     [blyth@belle7 20131119-1348]$ vrml2file.py --save --noshape g4_00.wrl 
     2013-11-19 13:58:07,683 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save --noshape g4_00.wrl
@@ -1029,7 +977,152 @@ Prep DB::
     [blyth@belle7 20131119-1348]$ python- source
     [blyth@belle7 20131119-1348]$ daedb.py --daepath g4_00.dae
 
+g4dae-cf::
 
+    [blyth@belle7 20131119-1348]$ g4dae-cf
+    -- Loading resources from cf.sql
+    seq  name             file                                                      
+    ---  ---------------  ----------------------------------------------------------
+    0    main                                                                       
+    2    dae              /data1/env/local/env/geant4/geometry/gdml/20131119-1348/g4
+    3    wrl              /data1/env/local/env/geant4/geometry/gdml/20131119-1348/g4
+
+    SQLite version 3.8.0.2 2013-09-03 17:11:13
+    Enter ".help" for instructions
+    Enter SQL statements terminated with a ";"
+    sqlite>  select d.idx, max(abs(d.x - w.x)), max(abs(d.y - w.y)), max(abs(d.z - w.z))  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx ;
+    ...
+    12221       0.00441282987594604  0.0112730264663696   0.0                
+    12222       0.00356368305438082  0.0273382695158944   0.0                
+    12223       0.00419008731842041  0.0190313458442688   0.0                
+    12224       0.00595974788302556  0.0325204702094197   0.0                
+    12225       0.00447291135787964  0.0112730264663696   0.0                
+    12226       0.00262916892279463  0.0273382695158944   0.0                
+    12227       0.00346958637237549  0.0190313458442688   0.0                
+    12228       0.00599601340582012  0.0325204702094197   0.0                
+    12229       0.00739222402626183  0.0321993082761765   0.00032806396484375
+    sqlite> 
+
+::
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.025 ; 
+    sqlite> 
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.01 ; 
+    sqlite> 
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.005 ; 
+    sqlite> 
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.001 ; 
+
+    --
+    -- maximum squared offset between DAE and WRL vertices for each volume
+    --
+    --    DAE using pycollada monkey patch matrix diddling 
+    --    WRL using g4-vrml-make to fix world coordinate Y 1mm rounding issue 
+    --
+
+    idx         mds                
+    ----------  -------------------
+    1           0.00328436747986416
+    2           0.00222253675903199
+    3           0.00106225017796422
+    4           0.00106450298543162
+    8           0.00118477510230729
+    9           0.00118477510230729
+    18          0.00118477510230729
+    19          0.00118477510230729
+    47          0.00100555585161196
+    49          0.00107641548805947
+    50          0.0010764154880389 
+    59          0.00107641548805947
+    60          0.0010764154880389 
+    69          0.0010763202976155 
+    77          0.0010763202976155 
+    ...
+    12205       0.00103526764915049
+    12211       0.00103526764914272
+    12213       0.00103526764915049
+    12219       0.00103526764914272
+    12224       0.00106595149374566
+    12228       0.00106595149374566
+    12229       0.00106225017796422
+    sqlite> 
+
+
+::
+
+    In [45]: math.pow(0.00106595, 0.5)
+    Out[45]: 0.0326488897207853            #  .03 mm is good enough
+
+
+Nov 19 : Move Matrix fix from pycollada monkey patch to G4DAEWrite
+---------------------------------------------------------------------
+
+No surpises from /data1/env/local/dyb/external/build/LCG/clhep/2.0.4.2/CLHEP/Vector/Vector/Rotation.icc::
+
+    278 inline HepRotation HepRotation::inverse() const {
+    279   return HepRotation( rxx, ryx, rzx,
+    280               rxy, ryy, rzy,
+    281               rxz, ryz, rzz );
+    282 }
+
+::
+
+    [blyth@belle7 DAE]$ pwd
+    /home/blyth/e/geant4/geometry/DAE
+
+    [blyth@belle7 DAE]$ cat make.sh 
+    #!/bin/bash -l
+    main(){
+      local arg=$1
+      dae-
+      if [ "$arg" == "clean" ]; then 
+         dae-make clean
+         dae-make && dae-install
+      else
+         dae-make && dae-install
+      fi
+    }
+    main $*
+
+    [blyth@belle7 DAE]$ ./make.sh 
+    Making dependency for file src/G4DAEWriteStructure.cc ...
+    ...
+
+re-compare::
+
+    [blyth@belle7 ~]$ cd /data1/env/local/env/geant4/geometry/gdml/20131119-1632/
+    [blyth@belle7 20131119-1632]$ ll *.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_00.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_01.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_02.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_03.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_04.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_05.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:35 g4_06.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:36 g4_07.wrl
+    -rw-rw-r-- 1 blyth blyth 103914464 Nov 19 16:36 g4_08.wrl
+    [blyth@belle7 20131119-1632]$ ll *.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:34 g4_00.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:35 g4_01.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:35 g4_02.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:35 g4_03.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:36 g4_04.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:36 g4_05.dae
+    -rw-rw-r-- 1 blyth blyth 5126579 Nov 19 16:36 g4_06.dae
+    [blyth@belle7 20131119-1632]$ ll *.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 16:35 g4_00.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 16:35 g4_01.gdml
+    -rw-rw-r-- 1 blyth blyth 4111332 Nov 19 16:35 g4_02.gdml
+    [blyth@belle7 20131119-1632]$ 
+
+    [blyth@belle7 20131119-1632]$ g4dae-
+    [blyth@belle7 20131119-1632]$ g4dae-prep
+    2013-11-19 16:38:57,992 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save --noshape g4_00.wrl
+
+
+
+Investigate DAE/WRL between-process export difference
+--------------------------------------------------------
 
 
 

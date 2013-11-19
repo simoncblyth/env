@@ -17,6 +17,11 @@ Usage::
     collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
 
 """
+
+assert 0, "NOV 18 2013 : NO LONGER REQUIRED NOW THAT THE INVROT IS DONE TO THE SOURCE DAE " 
+assert 0, "NOV 18 2013 : NO LONGER REQUIRED NOW THAT THE INVROT IS DONE TO THE SOURCE DAE " 
+assert 0, "NOV 18 2013 : NO LONGER REQUIRED NOW THAT THE INVROT IS DONE TO THE SOURCE DAE " 
+
 import collada, numpy
 
 def _monkey_matrix_load(_collada,node, diddle=True):
