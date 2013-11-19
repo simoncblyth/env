@@ -256,8 +256,10 @@ rpc
 
 import numpy 
 import collada
-from monkey_matrix_load import _monkey_matrix_load
-collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)   ## CAUTION MONKEY PATCH DIDDLING TRANSFORMATION MATRIX
+
+# CAUTION MONKEY PATCH DIDDLING TRANSFORMATION MATRIX : not needed for DAE exported from 20131119-1632
+#from monkey_matrix_load import _monkey_matrix_load
+#collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)   
 
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E

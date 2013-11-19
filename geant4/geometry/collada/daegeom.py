@@ -41,8 +41,10 @@ import os, logging, sys
 
 import numpy 
 import collada
-from monkey_matrix_load import _monkey_matrix_load
-collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
+
+# FOLLOWING DOING THIS IN G4DAEWrite ITS WRONG TO DOUBLE FIX
+#from monkey_matrix_load import _monkey_matrix_load
+#collada.scene.MatrixTransform.load = staticmethod(_monkey_matrix_load)
 
 from env.geant4.geometry.vrml2.vrml2db import VRML2DB
 

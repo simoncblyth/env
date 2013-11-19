@@ -1003,6 +1003,9 @@ g4dae-cf::
     12229       0.00739222402626183  0.0321993082761765   0.00032806396484375
     sqlite> 
 
+
+
+
 ::
 
     sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.025 ; 
@@ -1118,11 +1121,174 @@ re-compare::
     [blyth@belle7 20131119-1632]$ g4dae-
     [blyth@belle7 20131119-1632]$ g4dae-prep
     2013-11-19 16:38:57,992 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save --noshape g4_00.wrl
+    ...
+    2013-11-19 16:40:26,073 env.geant4.geometry.vrml2.vrml2file INFO     skip extend
+    Traceback (most recent call last):
+      File "/home/blyth/env/bin/daedb.py", line 2, in <module>
+        from env.geant4.geometry.collada.daedb import main
+      File "/data1/env/system/python/Python-2.5.1/lib/python2.5/site-packages/env/geant4/geometry/collada/daedb.py", line 39, in <module>
+        from daenode import DAENode, parse_args
+      File "/data1/env/system/python/Python-2.5.1/lib/python2.5/site-packages/env/geant4/geometry/collada/daenode.py", line 259, in <module>
+        from monkey_matrix_load import _monkey_matrix_load
+      File "/data1/env/system/python/Python-2.5.1/lib/python2.5/site-packages/env/geant4/geometry/collada/monkey_matrix_load.py", line 21, in <module>
+        assert 0, "NOV 18 2013 : NO LONGER REQUIRED NOW THAT THE INVROT IS DONE TO THE SOURCE DAE " 
+    AssertionError: NOV 18 2013 : NO LONGER REQUIRED NOW THAT THE INVROT IS DONE TO THE SOURCE DAE 
+    [blyth@belle7 20131119-1632]$ 
+
+
+
+DAE WRL comparison with invrot done in DAE writing
+---------------------------------------------------
+
+After moving the matrix invrot to before DAE writing agreement is worse ? But still good enough. 
+
+::
+
+    sqlite> select d.idx, max(abs(d.x - w.x)), max(abs(d.y - w.y)), max(abs(d.z - w.z))  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx ;
+    ...
+    12223       0.00390625           0.0625               0.0                
+    12224       0.0068359375         0.0                  0.0                
+    12225       0.0048828125         0.0625               0.0                
+    12226       0.0029296875         0.0                  0.0                
+    12227       0.00390625           0.0625               0.0                
+    12228       0.005859375          0.0                  0.0                
+    12229       0.0078125            0.0625               0.0                   
+    sqlite> 
+             --- huh looks like Y is being rounded to 0.25 mm somewhere
+
+::
+
+    In [47]: math.pow(0.0625 , 0.5)
+    Out[47]: 0.25
+
+Many are RPC stripts that are +-1mm in Y 
+
+::
+
+    sqlite> select d.idx, max((d.x-w.x)*(d.x-w.x) + (d.y-w.y)*(d.y-w.y) + (d.z-w.z)*(d.z-w.z)) as mds  from dae.point d join wrl.point w on d.idx = w.idx and d.id = w.id group by d.idx having mds > 0.005 ; 
+    idx         mds               
+    ----------  ------------------
+    116         0.0156595706939697
+    120         0.015658512711525 
+    284         0.0156528949737549     http://belle7.nuu.edu.tw/dae/tree/284.html
+    288         0.0156470686197281
+    447         0.0156452655792236
+    448         0.0156452655792236
+    451         0.0156443119049072
+    452         0.0156452655792236
+    455         0.0156432539224625
+    456         0.0156442075967789
+    494         0.0156452655792236
+    498         0.0156442075967789
+    657         0.0156443119049072
+    658         0.0156481266021729
+    661         0.0156452655792236
+    662         0.0156481266021729
+    665         0.0156442075967789
+    666         0.0156470686197281
+    704         0.0156481266021729
+    708         0.0156518369913101
+    825         0.0156481266021729
+    826         0.0156775861978531
+    829         0.0156595706939697
+    830         0.0156595706939697
+    834         0.0156775861978531
+    867         0.0156528949737549
+    868         0.0156681537628174
+    871         0.0156528949737549
+    872         0.0156595706939697
+    875         0.0156518369913101
+    876         0.015658512711525 
+    914         0.0156528949737549
+    918         0.0156470686197281
+    1040        0.0156775861978531
+    1044        0.0157042890787125    http://belle7.nuu.edu.tw/dae/tree/1044.html
+    1124        0.0156910419464111
+    1128        0.0156775861978531
+    1250        0.0157042890787125
+    1254        0.0157386213541031
+    1502        0.0156481266021729
+    1506        0.0156470686197281
+    1712        0.0156452655792236
+    1716        0.0156470686197281
+    1875        0.0156518369913101
+    1876        0.0156681537628174
+    1879        0.0156595706939697
+    1880        0.0156595706939697
+    1883        0.015658512711525 
+    1884        0.015658512711525 
+    1922        0.0156595706939697
+    1926        0.015658512711525 
+    2043        0.0156775861978531
+    2044        0.0157053470611572
+    2047        0.0156786441802979
+    2048        0.0156786441802979
+    2051        0.0156775861978531
+    2052        0.0157042890787125
+    2090        0.0156786441802979
+    2094        0.0156775861978531
+    2132        0.0156786441802979
+    2136        0.0156775861978531
+    2253        0.0156775861978531
+    2254        0.0157053470611572
+    2257        0.0156786441802979
+    2258        0.0157053470611572
+    2261        0.0156775861978531
+    2262        0.0157042890787125
+    2300        0.0157053470611572
+    2304        0.0157042890787125
+    2360        0.0156488418579102
+    2395        0.0156861692667007
+    2396        0.0156861692667007
+    2420        0.0157205015420914
+    2422        0.0157205015420914
+    sqlite> 
+
+::
+
+    In [48]: math.pow(0.0156595706939697,0.5)
+    Out[48]: 0.12513820637187389
+
+
+::
+
+    sqlite> select idx, id, x, y, z from dae.point where idx=116 ;
+    idx         id          x                  y             z                
+    ----------  ----------  -----------------  ------------  -----------------
+    116         0           -7321.64794921875  -806950.4375  -1338.71520996094
+    116         1           -8443.369140625    -805198.8125  -1338.71520996094
+    116         2           -8662.0576171875   -805338.875   -1351.45520019531
+    116         3           -7540.33642578125  -807090.5     -1351.45520019531
+    116         4           -7321.73046875     -806950.5     -1336.71765136719
+    116         5           -8443.4521484375   -805198.875   -1336.71765136719
+    116         6           -8662.140625       -805338.9375  -1349.45764160156
+    116         7           -7540.4189453125   -807090.5625  -1349.45764160156
+    sqlite> 
+    sqlite> select idx, id, x, y, z from wrl.point where idx=116 ;
+    idx         id          x                  y            z            
+    ----------  ----------  -----------------  -----------  -------------
+    116         0           -7321.64404296875  -806950.375  -1338.7109375
+    116         1           -8443.3671875      -805198.75   -1338.7109375
+    116         2           -8662.0546875      -805338.812  -1351.4509277
+    116         3           -7540.33251953125  -807090.375  -1351.4509277
+    116         4           -7321.7265625      -806950.437  -1336.7132568
+    116         5           -8443.44921875     -805198.812  -1336.7132568
+    116         6           -8662.1376953125   -805338.875  -1349.4532470
+    116         7           -7540.4150390625   -807090.437  -1349.4532470
+    sqlite> 
+
+
+DAE Viz
+---------
+
+
+
+Face Check
+------------
 
 
 
 Investigate DAE/WRL between-process export difference
 --------------------------------------------------------
-
 
 

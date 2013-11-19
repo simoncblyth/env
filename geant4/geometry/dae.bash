@@ -103,6 +103,13 @@ dae-install-lib(){
 }
 
 
+dae-make(){
+   local tgt=$1
+   nuwa-
+   make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 G4LIB_BUILD_GDML=1 G4LIB_USE_GDML=1 XERCESCROOT=$(nuwa-xercesc-idir) G4INSTALL=$(nuwa-g4-bdir) CPPVERBOSE=1  $tgt
+}
+
+
 dae-switch(){
    perl -pi -e 's,GDML,DAE,g' *.*
 }

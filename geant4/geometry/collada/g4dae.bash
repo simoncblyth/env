@@ -38,6 +38,18 @@ g4dae-wrldbpath(){
 }
 
 
+
+
+g4dae-prep(){
+   if [ "$NODE_TAG" == "N" ]; then 
+      python-
+      python- source
+   fi 
+   vrml2file.py --save --noshape g4_00.wrl 
+   daedb.py --daepath g4_00.dae
+}
+
+
 g4dae-cf-(){  cat << EOS
 attach database "g4_00.dae.db" as dae ;
 attach database "g4_00.wrl.db" as wrl ;

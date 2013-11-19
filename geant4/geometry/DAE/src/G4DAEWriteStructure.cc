@@ -186,12 +186,16 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
       daughterR = TraverseVolumeTree(physvol->GetLogicalVolume(),depth+1);
 
-      G4RotationMatrix rot;
+      G4RotationMatrix rot, invrot;
       if (physvol->GetFrameRotation() != 0)
       {
          rot = *(physvol->GetFrameRotation());
+         invrot = rot.inverse();
       }
-      G4Transform3D P(rot,physvol->GetObjectTranslation());
+
+      // G4Transform3D P(rot,physvol->GetObjectTranslation());  GDML does this : not inverting the rotation portion 
+      G4Transform3D P(invrot,physvol->GetObjectTranslation());
+
       PhysvolWrite(nodeElement,physvol,invR*P*daughterR,ModuleName);
    }
 
