@@ -1,0 +1,1 @@
+../geant4/geometry/gdml/export_all.sh
