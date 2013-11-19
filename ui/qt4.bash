@@ -21,6 +21,7 @@ qt4-kludge(){
   local cmd="find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;"
   echo $cmd
   eval $cmd
+  find . -name Makefile -exec grep -H "CXX " {} \;
 }
 
 qt4-specs(){

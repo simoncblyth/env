@@ -2,14 +2,11 @@
 meshlab-src(){      echo graphics/meshlab/meshlab.bash ; }
 meshlab-source(){   echo ${BASH_SOURCE:-$(env-home)/$(meshlab-src)} ; }
 meshlab-vi(){       vi $(meshlab-source) ; }
-meshlab-env(){      elocal- ; }
 meshlab-usage(){ cat << EOU
 MESHLAB
 ========
 
 .. contents:: :local:
-
-
 
 
 Overview
@@ -111,6 +108,8 @@ Quote from http://sourceforge.net/p/meshlab/discussion/499533/thread/836b4da1/
     The source code of MeshLab for iOS and MeshLab for Android is not available for
     the general public. We can provide customized version of it, or license the
     viewing component under a commercial agreement.
+
+
 Pre-requisites
 ---------------
 
@@ -118,33 +117,6 @@ Pre-requisites
 
 * Qt 4.8 (note that Qt 4.7 are required, Qt versions < 4.7 could not compile).
   Current version of MeshLab compiles well against Qt 4.7.4.
-
-
-Repo
-----
-
-* http://svn.code.sf.net/p/meshlab/code/trunk/meshlab/src/
-
-::
-
-    svn checkout svn://svn.code.sf.net/p/meshlab/code/trunk meshlab-code
-    svn checkout http://svn.code.sf.net/p/meshlab/code/trunk meshlab-code
-
-
-VRML/X3D
---------------
-
-From the source, VRML gets translated into X3D first.
-
-::
-
-    simon:meshlab blyth$ find . -name '*.cpp' -exec grep -H VRML {} \;
-    ./meshlab/src/meshlabplugins/io_base/baseio.cpp:        formatList << Format("VRML File Format"                                                 , tr("WRL"));
-    ./meshlab/src/meshlabplugins/io_x3d/io_x3d.cpp: formatList << Format("X3D File Format - VRML encoding", tr("X3DV"));
-    ./meshlab/src/meshlabplugins/io_x3d/io_x3d.cpp: formatList << Format("VRML 2.0 File Format", tr("WRL"));
-    ./meshlab/src/meshlabplugins/io_x3d/vrml/Parser.cpp:                    case 9: s = coco_string_create(L"\"VRML\" expected"); break;
-    ./meshlab/src/meshlabplugins/io_x3d/vrml/Scanner.cpp:   keywords.set(L"VRML", 9);
-
 
 
 
@@ -411,13 +383,34 @@ TODO
 
 
 X3D PLUGIN
-=============
+-------------
 
-Compiled it but no show in dialog ?
+Compiled it but no show in dialog ? Added debug to common/pluginmanager.cpp::
+
+    checking: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+    Attempt pluginLoad: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+    pluginLoad failed: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+
+A recompilation fixes the plugin load::
+
+    checking: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+    Attempt pluginLoad: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+    io pluginLoad: /usr/local/env/graphics/meshlab/meshlab/src/distrib/plugins/libio_x3d.dylib 
+
+From the source, VRML gets translated into X3D first.
+
+::
+
+    simon:meshlab blyth$ find . -name '*.cpp' -exec grep -H VRML {} \;
+    ./meshlab/src/meshlabplugins/io_base/baseio.cpp:        formatList << Format("VRML File Format"                                                 , tr("WRL"));
+    ./meshlab/src/meshlabplugins/io_x3d/io_x3d.cpp: formatList << Format("X3D File Format - VRML encoding", tr("X3DV"));
+    ./meshlab/src/meshlabplugins/io_x3d/io_x3d.cpp: formatList << Format("VRML 2.0 File Format", tr("WRL"));
+    ./meshlab/src/meshlabplugins/io_x3d/vrml/Parser.cpp:                    case 9: s = coco_string_create(L"\"VRML\" expected"); break;
+    ./meshlab/src/meshlabplugins/io_x3d/vrml/Scanner.cpp:   keywords.set(L"VRML", 9);
 
 
 OSX GUI APP ISSUE
-===================
+------------------
 
 When launched in a GUI manner or with open it seems that the plugins are not found, 
 as the import mesh dialog does not popup.
@@ -426,33 +419,55 @@ But the plugins are found when started in commandline way::
    simon:MacOS blyth$ ./meshlab 
 
 
+FUNCTIONS
+-----------
+
+
 
 EOU
 }
-meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab ; }
-meshlab-cd(){  cd $(meshlab-dir); }
+meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab/src ; }
+meshlab-cd(){  cd $(meshlab-dir)/$1 ; }
 meshlab-mate(){ mate $(meshlab-dir) ; }
 meshlab-get(){
-   local dir=$(dirname $(meshlab-dir)) &&  mkdir -p $dir && cd $dir
+   local dir=$(dirname $(dirname $(meshlab-dir))) &&  mkdir -p $dir && cd $dir
 
    local tar=MeshLabSrc_AllInc_v132.tar
-   echo  SF DOWNLOADING IS BROKEN : HAVE TO DO MANUALLY : mv ~/Dowloads/$tar . 
+   echo  SF DOWNLOADING IS BROKEN : HAVE TO DO MANUALLY : mv ~/Downloads/$tar . 
 }
 
-
+meshlab-env(){      elocal- ; qt4- ; }
 meshlab-launch(){
-   cd $(meshlab-dir)/src/distrib/meshlab.app/Contents/MacOS
+   meshlab-cd distrib/meshlab.app/Contents/MacOS
    ./meshlab
 }
 
+meshlab-find(){ find $(meshlab-dir) -name '*.cpp' -exec grep -H $1 {} \; }
+meshlab-plugins-dir(){  echo $(meshlab-dir)/distrib/plugins ; }
+meshlab-plugins-ls(){   ls -l $(meshlab-plugins-dir) ; }
+meshlab-plugins-cd(){   cd $(meshlab-plugins-dir) ; }
+
+meshlab-config(){ 
+   #echo  meshlab_full.pro 
+   echo  meshlab_mini.pro 
+}
 
 meshlab-external(){
-   cd $(meshlab-dir)/src/external
+   type $FUNCNAME
+   meshlab-cd external
    qmake -recursive external.pro
 }
-
-meshlab-build(){
-   cd $(meshlab-dir)/src
-   qmake -recursive meshlab_full.pro
+meshlab-qmake(){
+   type $FUNCNAME
+   meshlab-cd 
+   qmake -recursive $(meshlab-config)
+   qt4-kludge
 }
+meshlab-make(){
+   type $FUNCNAME
+   meshlab-cd 
+   make
+}
+
+
 

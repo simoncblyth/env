@@ -13,6 +13,7 @@ Geant4 Geometry Export
    xdae/index
    xdaefile/index
    gdml/index
+   detdesc/index
    other/index
    
 
