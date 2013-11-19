@@ -192,11 +192,17 @@ class WRLRegion(object):
 
     def parse_points(self):
         #log.info("parse_points %s " % self.npoints) 
-        #log.info(self.src_points) 
         data = numpy.fromstring( "".join(map(lambda line:line[:-1],self.src_points)), dtype=numpy.float32, sep=' ')
         data.shape = (-1, 3)
         self.point = data
         assert self.npoints == len(self.point), (self.npoints, len(self.point)) 
+
+    def parse_faces(self):
+        fstr = "".join(self.src_faces)
+        data = numpy.fromstring( fstr[:-1], dtype=numpy.int, sep=',')
+        #log.info(">>>>%s<<<<<" % fstr[:-1]) 
+        log.info(data) 
+        self.face = data
 
 
 class WRLParser(list):
@@ -229,6 +235,7 @@ class WRLParser(list):
             else:    
                 reg = WRLRegion( self.buffer, self.region, indx=len(self))  
                 reg.parse_points()  
+                reg.parse_faces()  
                 self.append( reg )
             pass    
             self.buffer[:] = []
@@ -271,6 +278,8 @@ class WRLParser(list):
             shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
         if opts.points:
             point_t = Table(path, "point", id="int",idx="int",x="float",y="float",z="float")
+        if opts.faces:
+            face_t = Table(path, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int" )
 
         log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
         for rg in self:
@@ -291,6 +300,11 @@ class WRLParser(list):
                 for pid,xyz in enumerate(rg.point):
                     x,y,z = map(float,xyz)
                     point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
+            if opts.faces:
+                for fid,vindices in enumerate(rg.face):
+                    ii  = map(int,vindices)
+                    face_t.add(id=fid,idx=idx,v0=ii[0],v1=ii[1],v2=ii[2],v3=ii[3])
+
             pass
         # writes to the DB a table at a time
         log.info("start persisting to %s " % path ) 
@@ -299,6 +313,8 @@ class WRLParser(list):
             shape_t.insert()   
         if opts.points: 
             point_t.insert()   
+        if opts.faces: 
+            face_t.insert()   
         log.info("completed persisting to %s " % path ) 
 
 
@@ -341,6 +357,7 @@ def parse_args(doc):
     op.add_option(      "--idoffset", type="int", default=0, help="Offset of shape indices. Default %default " )
     op.add_option(      "--noidlabel", action="store_false", dest="idlabel",  default=True, help="Add VRML DEF names to shapes and materials to allow EAI access. Default %default " )
     op.add_option( "-P","--nopoints", action="store_false", dest="points",  default=True, help="Skip Recording vertices into points table. Default %default " )
+    op.add_option( "-F","--nofaces", action="store_false", dest="faces",  default=True, help="Skip Recording vertex indices into face table. Default %default " )
     op.add_option( "-S","--noshape",  action="store_false", dest="shape",  default=True, help="Skip Recording full shape in the shape table. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )

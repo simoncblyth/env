@@ -1,24 +1,31 @@
 DAE cf WRL
 ============
 
-
 .. contents:: :local:
 
 Questions
-----------
+-----------
+
+#. why do the boolean volume vertices depend on which export is done first DAE or WRL  ?
+
+   * this causes between process exports to differ (for boolean volumes), if they differ in export ordering 
+
+#. do WRL and DAE face indices correspond ? 
+
+
+Answered Questions
+--------------------
 
 #. why are AD PMTs in the iPad and meshlab renders all pointing in same direction, and not towards center ?
 
    * that render was without the ``monkey_matrix_load`` fix ? 
    * YES, looking at WRL render in meshlab shows expected PMT directions
+   * after fixing invrot in DAE, that is also OK : I was wrong in thinking that the daenode 
+     subcopy was doing this 
 
 #. VRML2 Y is being rounded to the nearest 1 mm, and X often to nearest 0.1 mm
 
    * applying the g4-vrml- fix get max (and avg) offsets down to 0.03 mm 
-
-#. why do the boolean volume vertices depend on which export is done first DAE or WRL  ?
-
-   * this causes between process exports to differ (for boolean volumes), if they differ in export ordering 
 
 
 Create DAE DB
@@ -1281,10 +1288,155 @@ Many are RPC stripts that are +-1mm in Y
 DAE Viz
 ---------
 
+After 40 min import into meshlab, see that the PMT rotations look correct 
+following the invrot fix.
 
+Need to check SVN future of vcglib to see if its fixed. Otherwise need to 
+profile. Suspect some trivial cacheing (map of id against parsed geometries, effects).
+Especially geometries : as that repeats approx 250 times.
+ 
 
 Face Check
 ------------
+
+World::
+
+    In [52]: import collada
+    In [53]: dae = collada.Collada("/usr/local/env/geant4/geometry/gdml/20131119-1632/g4_00.dae")
+    In [56]: top = dae.scene.nodes[0]
+    In [59]: geom = list(top.objects('geometry'))
+    In [60]: len(geom)
+    Out[60]: 12230
+    n [61]: geom[0]
+    Out[61]: <BoundGeometry id=WorldBox0xcaa0198, 1 primitives>
+
+    In [62]: w = geom[0]
+    In [63]: w.primitives()
+    Out[63]: <generator object primitives at 0x2519940>
+
+    In [64]: list(w.primitives())
+    Out[64]: [<BoundPolylist length=6>]
+
+    In [65]: bpl = list(w.primitives())[0]
+
+    In [92]: poly = list(bpl.polygons())
+
+    In [93]: poly
+    Out[93]: 
+    [<Polygon vertices=4>,
+     <Polygon vertices=4>,
+     <Polygon vertices=4>,
+     <Polygon vertices=4>,
+     <Polygon vertices=4>,
+     <Polygon vertices=4>]
+
+    In [99]: poly[0].indices
+    Out[99]: array([0, 3, 2, 1])
+
+    In [100]: poly[1].indices
+    Out[100]: array([4, 7, 3, 0])
+
+    In [101]: poly[2].indices
+    Out[101]: array([7, 6, 2, 3])
+
+    In [102]: poly[3].indices
+    Out[102]: array([6, 5, 1, 2])
+
+
+::
+
+    simon:20131119-1632 blyth$ head -100 g4_00.wrl 
+    ...
+    #---------- SOLID: Universe.0
+    ...
+                           coordIndex [
+                                    0, 3, 2, 1, -1,
+                                    4, 7, 3, 0, -1,
+                                    7, 6, 2, 3, -1,
+                                    6, 5, 1, 2, -1,
+                                    5, 4, 0, 1, -1,
+                                    4, 5, 6, 7, -1,
+                            ]
+
+near rock::
+
+    In [108]: list(geom[1].primitives())[0]
+    Out[108]: <BoundPolylist length=11>
+
+    In [109]: bpl = list(geom[1].primitives())[0]
+
+    In [110]: bpl.pol
+    bpl.polygons   bpl.polyindex  
+
+    In [110]: poly = list(bpl.polygons())
+
+    In [111]: poly[0].indices
+    Out[111]: array([0, 1, 2, 3])
+
+    In [112]: poly[1].indices
+    Out[112]: array([4, 5, 0])
+
+    In [113]: poly[2].indices
+    Out[113]: array([0, 3, 4])
+
+::
+
+    #---------- SOLID: /dd/Structure/Sites/db-rock.1000
+                            }
+                            coordIndex [
+                                    0, 1, 2, 3, -1,
+                                    4, 5, 0, -1,
+                                    0, 3, 4, -1,
+                                    6, 4, 3, -1,
+                                    3, 2, 6, -1,
+                                    7, 6, 2, -1,
+                                    2, 1, 7, -1,
+                                    5, 7, 1, -1,
+                                    1, 0, 5, -1,
+                                    5, 4, 6, -1,
+                                    6, 7, 5, -1,
+                            ]
+
+::
+
+    In [124]: map(lambda _:numpy.append(_.indices, -1), poly)         
+    Out[124]: 
+    [array([ 0,  1,  2,  3, -1]),
+     array([ 4,  5,  0, -1]),
+     array([ 0,  3,  4, -1]),
+     array([ 6,  4,  3, -1]),
+     array([ 3,  2,  6, -1]),
+     array([ 7,  6,  2, -1]),
+     array([ 2,  1,  7, -1]),
+     array([ 5,  7,  1, -1]),
+     array([ 1,  0,  5, -1]),
+     array([ 5,  4,  6, -1]),
+     array([ 6,  7,  5, -1])]
+
+    In [125]: numpy.concatenate(map(lambda _:numpy.append(_.indices, -1), poly))  
+    Out[125]: 
+    array([ 0,  1,  2,  3, -1,  4,  5,  0, -1,  0,  3,  4, -1,  6,  4,  3, -1,
+            3,  2,  6, -1,  7,  6,  2, -1,  2,  1,  7, -1,  5,  7,  1, -1,  1,
+            0,  5, -1,  5,  4,  6, -1,  6,  7,  5, -1])
+
+
+    In [138]: wrl
+    Out[138]: 
+    array([ 0,  1,  2,  3, -1,  4,  5,  0, -1,  0,  3,  4, -1,  6,  4,  3, -1,
+            3,  2,  6, -1,  7,  6,  2, -1,  2,  1,  7, -1,  5,  7,  1, -1,  1,
+            0,  5, -1,  5,  4,  6, -1,  6,  7,  5, -1,  0])
+
+    In [139]: wrl =  numpy.fromstring(s[:-2], dtype=numpy.int, sep=',')
+
+    In [140]: wrl
+    Out[140]: 
+    array([ 0,  1,  2,  3, -1,  4,  5,  0, -1,  0,  3,  4, -1,  6,  4,  3, -1,
+            3,  2,  6, -1,  7,  6,  2, -1,  2,  1,  7, -1,  5,  7,  1, -1,  1,
+            0,  5, -1,  5,  4,  6, -1,  6,  7,  5, -1])
+
+    In [143]: numpy.array_equal(wrl, dae)
+    Out[143]: True
+
 
 
 
