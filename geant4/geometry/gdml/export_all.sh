@@ -9,14 +9,23 @@ export_dir(){
    echo $xdir
 }
 
-fenv
 cd $ENV_HOME/geant4/geometry/gdml
 
+fenv
 export G4DAE_EXPORT_DIR=$(export_dir)
-export G4DAE_EXPORT_SEQUENCE="DVVVDDDGGGVVVVDVDVD"
+export G4DAE_EXPORT_SEQUENCE="DVVVDDDGGGXVVVVDVDVD"
 export G4DAE_EXPORT_EXIT="1"  
 
 nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export_all
 
+echo 
+echo 
+echo 
+env | grep G4DAE
+
+echo 
+echo ========== $(export-dir) ==================
+echo 
+ls -l $(export-dir)
 
 

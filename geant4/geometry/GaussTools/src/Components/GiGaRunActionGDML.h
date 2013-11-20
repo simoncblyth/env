@@ -49,6 +49,7 @@ public:
   // destructor (virtual and protected)
   virtual ~GiGaRunActionGDML( );
 
+  void CleanSolidStore();
   void WriteVis(const char* driver);
   void WriteDAE(G4VPhysicalVolume* wpv, const G4String& path );
   void WriteGDML(G4VPhysicalVolume* wpv, const G4String& path );

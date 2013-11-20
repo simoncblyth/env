@@ -3,6 +3,7 @@
 
 #include "G4VPhysicalVolume.hh"
 #include "G4TransportationManager.hh"
+#include "G4SolidStore.hh"
 
 #ifdef EXPORT_G4GDML
 #include "G4GDMLParser.hh"
@@ -128,6 +129,11 @@ G4String GiGaRunActionGDML::FreeFilePath( const G4String& base, const G4String& 
     return path ; 
 }
 
+void GiGaRunActionGDML::CleanSolidStore()
+{
+    std::cout << "GiGaRunActionGDML::CleanSolidStore deleting all solids from the store " <<  std::endl ;
+    G4SolidStore::Clean();
+}
 
 void GiGaRunActionGDML::WriteVis(const char* driver)
 {
@@ -187,7 +193,7 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
    base += "/g4_" ; 
 
    // write geometry, multiple times and interleaved for DAE/WRL interference testing 
-   G4String xseq = GetEnv("G4DAE_EXPORT_SEQUENCE","VVVDDDGGGVVVVDVDVD");
+   G4String xseq = GetEnv("G4DAE_EXPORT_SEQUENCE","VGD");
    const char* seq = xseq.c_str();
 
    for (int i = 0; i < strlen(seq); i++){
@@ -203,6 +209,9 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
                  break;
           case 'D':
                  WriteDAE( wpv, FreeFilePath(base, ".dae"));
+                 break;
+          case 'X':
+                 CleanSolidStore();
                  break;
        }
    }
