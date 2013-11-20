@@ -107,7 +107,7 @@ Ordinary newlines not working, so use raw ascii 10::
 import os, sys, logging, string
 import numpy
 from env.db.simtab import Table
-from md5 import md5
+from hashlib import md5
 log = logging.getLogger(__name__) 
 
 
@@ -151,6 +151,7 @@ class WRLRegion(object):
         self.src_faces  = self.src[mreg['faces']+1:mreg['-faces']]
         pass
         self.npoints = len(self.src_points)
+        self.nfaces  = len(self.src_faces)
 
     def __repr__(self):
         return "# [%-6s] (%10s) :  %s " % ( self.indx, len(self.src), self.name )
@@ -199,11 +200,12 @@ class WRLRegion(object):
 
     def parse_faces(self):
         fstr = "".join(self.src_faces)
-        data = numpy.fromstring( fstr[:-1], dtype=numpy.int, sep=',')
-        #log.info(">>>>%s<<<<<" % fstr[:-1]) 
-        log.info(data) 
-        self.face = data
-
+        arr = numpy.fromstring( fstr[:-1], dtype=numpy.int, sep=',')
+        face = numpy.split(arr,  numpy.where(arr==-1)[0] + 1 )
+        assert len(face[-1]) == 0, (face, "expected trailing empty array ")
+        self.face = face[:-1]   # get rid of trailing empty 
+        #log.info(self.face) 
+        assert self.nfaces == len(self.face), (self.nfaces, len(self.face)) 
 
 class WRLParser(list):
     pfx_camera = '#---------- CAMERA'
@@ -273,20 +275,18 @@ class WRLParser(list):
             os.remove(path)
         pass
 
-        geom_t  = Table(path, "geom", idx="int",name="text", nvertex="int" )   # summary schema for fast comparison against daedb.py geom
+        geom_t  = Table(path, "geom", idx="int",name="text", nvertex="int", nface="int" )   # summary schema for fast comparison against daedb.py geom
         if opts.shape:
             shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
         if opts.points:
             point_t = Table(path, "point", id="int",idx="int",x="float",y="float",z="float")
         if opts.faces:
-            face_t = Table(path, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int" )
+            face_t = Table(path, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int", vx="text", nv="int" )
 
         log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
         for rg in self:
             idx = rg.indx + idoffset
-
-            geom_t.add(idx=idx,name=rg.name,nvertex=rg.npoints)
-
+            geom_t.add(idx=idx,name=rg.name,nvertex=rg.npoints, nface=rg.nfaces)
             if opts.shape:
                 shape_t.add(id=idx,name=rg.name,hash=rg.hash,
                         src="\n".join(rg.src), 
@@ -295,16 +295,23 @@ class WRLParser(list):
                         src_head=self.head(rg.src_head,idx,idlabel=idlabel),
                         src_tail="\n".join(rg.src_tail),
                         )
-
+                pass
+            pass    
             if opts.points:
                 for pid,xyz in enumerate(rg.point):
                     x,y,z = map(float,xyz)
                     point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
+                pass
+            pass    
             if opts.faces:
-                for fid,vindices in enumerate(rg.face):
-                    ii  = map(int,vindices)
-                    face_t.add(id=fid,idx=idx,v0=ii[0],v1=ii[1],v2=ii[2],v3=ii[3])
-
+                for fid,indices in enumerate(rg.face):
+                    ii  = indices.tolist()
+                    assert ii[-1] == -1, (ii, "unexpected face vertex indice")  
+                    assert len(ii) in (4,5) , (ii, "unexpected face vertex indice count") 
+                    nv = len(ii) - 1 
+                    vx  = ",".join(map(str,ii[0:4]))
+                    face_t.add(id=fid,idx=idx,v0=ii[0],v1=ii[1],v2=ii[2],v3=ii[3],vx=vx,nv=nv)
+                pass
             pass
         # writes to the DB a table at a time
         log.info("start persisting to %s " % path ) 

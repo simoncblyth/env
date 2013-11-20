@@ -1106,6 +1106,8 @@ class Defaults(object):
     subpath = "subcopy.dae"
     maxdepth = -1
     points = True
+    faces = True
+    insertsize = 0
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -1133,6 +1135,8 @@ def parse_args(doc):
     op.add_option("-x", "--maxdepth", type=int, default=defopts.maxdepth, help="Restrict the tree depth of the copy, -1 for full tree from the specified root volume. Default %default " )
     op.add_option("-b", "--blender",  action="store_true", default=defopts.blender , help="Change some aspects of exported geometry for blender compatibility. Default %default. ")
     op.add_option("-P", "--nopoints",  dest="points", action="store_false", default=defopts.points , help="Prevent the timeconsuming persisting all points. Default %default. ")
+    op.add_option("-F", "--nofaces",   dest="faces", action="store_false", default=defopts.faces , help="Prevent the timeconsuming persisting all faces. Default %default. ")
+    op.add_option("-i", "--insertsize", type="int", default=defopts.insertsize, help="Control chunk size of DB inserts, zero for all at the end. Default %default. ")
 
     opts, args = op.parse_args()
     del sys.argv[1:]   # avoid confusing webpy with the arguments

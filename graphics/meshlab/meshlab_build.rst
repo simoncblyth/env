@@ -589,4 +589,11 @@ Slow code is actually in vcglib
        R /trunk/vcglib/apps/metro/history.txt (from /trunk/vcglib/apps/metro/history.txt:4178)
 
 
+::
 
+    simon:meshlab blyth$ diff -r --brief $(meshlab-dir)/../../vcglib/wrap/dae $(vcglib-dir)/wrap/dae
+    Files /usr/local/env/graphics/meshlab/meshlab/src/../../vcglib/wrap/dae/colladaformat.h and /usr/local/env/graphics/vcglib_trunk/wrap/dae/colladaformat.h differ
+    Only in /usr/local/env/graphics/vcglib_trunk/wrap/dae: poly_triangulator.h
+    Files /usr/local/env/graphics/meshlab/meshlab/src/../../vcglib/wrap/dae/util_dae.h and /usr/local/env/graphics/vcglib_trunk/wrap/dae/util_dae.h differ
+    Files /usr/local/env/graphics/meshlab/meshlab/src/../../vcglib/wrap/dae/xmldocumentmanaging.h and /usr/local/env/graphics/vcglib_trunk/wrap/dae/xmldocumentmanaging.h differ
+    simon:meshlab blyth$ 

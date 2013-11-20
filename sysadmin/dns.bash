@@ -35,7 +35,15 @@ dns-edit(){
 }
 
 dns-test(){
-   time curl -s http://www.google.com
+
+   local host=${1:-google.com}
+
+   time curl -s http://$host
+   host $host
+   dig $host
+   ping -c 3 $host
+   nslookup $host
+
 }
 
 
