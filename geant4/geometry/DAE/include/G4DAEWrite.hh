@@ -12,6 +12,9 @@
 #include "G4LogicalVolume.hh"
 #include "G4Transform3D.hh"
 #include "G4PVDivision.hh"
+#include "G4VisAttributes.hh"
+
+//class G4VisAttributes ;
 
 class G4DAEWrite
 {
@@ -27,6 +30,9 @@ class G4DAEWrite
                        const G4int depth, G4bool storeReferences=true);
    void AddModule(const G4VPhysicalVolume* const topVol);
    void AddModule(const G4int depth);
+
+   //const G4VisAttributes* GetVisAttributes () const;
+
    static void SetAddPointerToName(G4bool);
 
  protected:

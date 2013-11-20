@@ -160,6 +160,9 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
        return VolumeMap()[volumePtr]; // Volume is already processed
    }
 
+   //G4VisAttributes visatt();
+   //volumePtr->SetVisAttributes(visatt);   SCB
+
    G4VSolid* solidPtr = volumePtr->GetSolid();
    G4Transform3D R,invR;
 
