@@ -210,7 +210,8 @@ class WRLRegion(object):
 class WRLParser(list):
     pfx_camera = '#---------- CAMERA'
     pfx_solid = '#---------- SOLID: '
-    def __init__(self): 
+    def __init__(self, opts):
+        self.opts = opts
         self.region = None
         self.lpfx_solid = len(self.pfx_solid)
         self.lpfx_camera = len(self.pfx_camera)
@@ -266,29 +267,55 @@ class WRLParser(list):
             pass
         self.buffer.append(line) 
 
-    def save(self, path, opts):
-        idlabel = opts.idlabel
-        idoffset = opts.idoffset
-        path = os.path.abspath(path)
+
+    def create_tables(self):
+        path = os.path.abspath(self.opts.dbpath)
         if os.path.exists(path):
             log.info("remove pre-existing db file %s " % path)
             os.remove(path)
         pass
-
         geom_t  = Table(path, "geom", idx="int",name="text", nvertex="int", nface="int" )   # summary schema for fast comparison against daedb.py geom
-        if opts.shape:
-            shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
-        if opts.points:
-            point_t = Table(path, "point", id="int",idx="int",x="float",y="float",z="float")
-        if opts.faces:
-            face_t = Table(path, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int", vx="text", nv="int" )
+        shape_t = None
+        point_t = None
+        face_t = None
 
-        log.info("gathering geometry, using idoffset %s idlabel %s " % (idoffset,idlabel) )  
-        for rg in self:
+        if self.opts.shape:
+            shape_t = Table(path, "shape", id="int",name="text", src="blob", src_points="blob", src_faces="blob", src_head="blob",src_tail="blob", hash="text")
+        if self.opts.points:
+            point_t = Table(path, "point", id="int",idx="int",x="float",y="float",z="float")
+        if self.opts.faces:
+            face_t = Table(path, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int", vx="text", nv="int" )
+        pass
+        self.geom_t = geom_t
+        self.shape_t = shape_t
+        self.point_t = point_t
+        self.face_t = face_t
+
+    def insert(self):
+        # writes to the DB a table at a time
+        log.info("start persisting ") 
+        self.geom_t.insert()   
+        if not self.shape_t is None: 
+            self.shape_t.insert()   
+        if not self.point_t is None: 
+            self.point_t.insert()   
+        if not self.face_t is None: 
+            self.face_t.insert()   
+        log.info("completed persisting") 
+
+    def save(self):
+        self.create_tables()
+        idlabel = self.opts.idlabel
+        idoffset = self.opts.idoffset
+        insertsize = self.opts.insertsize
+        log.info("gathering geometry, using idoffset %s idlabel %s insertsize %s " % (idoffset,idlabel, insertsize) )  
+
+        for irg,rg in enumerate(self):
             idx = rg.indx + idoffset
-            geom_t.add(idx=idx,name=rg.name,nvertex=rg.npoints, nface=rg.nfaces)
-            if opts.shape:
-                shape_t.add(id=idx,name=rg.name,hash=rg.hash,
+            if not self.geom_t is None:
+                self.geom_t.add(idx=idx,name=rg.name,nvertex=rg.npoints, nface=rg.nfaces)
+            if not self.shape_t is None:
+                self.shape_t.add(id=idx,name=rg.name,hash=rg.hash,
                         src="\n".join(rg.src), 
                         src_faces="\n".join(rg.src_faces),    
                         src_points="\n".join(rg.src_points),
@@ -297,36 +324,35 @@ class WRLParser(list):
                         )
                 pass
             pass    
-            if opts.points:
+            if not self.point_t is None:
                 for pid,xyz in enumerate(rg.point):
                     x,y,z = map(float,xyz)
-                    point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
+                    self.point_t.add(id=pid,idx=idx,x=x,y=y,z=z)
                 pass
             pass    
-            if opts.faces:
+            if not self.face_t is None:
                 for fid,indices in enumerate(rg.face):
                     ii  = indices.tolist()
                     assert ii[-1] == -1, (ii, "unexpected face vertex indice")  
                     assert len(ii) in (4,5) , (ii, "unexpected face vertex indice count") 
                     nv = len(ii) - 1 
                     vx  = ",".join(map(str,ii[0:4]))
-                    face_t.add(id=fid,idx=idx,v0=ii[0],v1=ii[1],v2=ii[2],v3=ii[3],vx=vx,nv=nv)
+                    self.face_t.add(id=fid,idx=idx,v0=ii[0],v1=ii[1],v2=ii[2],v3=ii[3],vx=vx,nv=nv)
                 pass
             pass
-        # writes to the DB a table at a time
-        log.info("start persisting to %s " % path ) 
-        geom_t.insert()   
-        if opts.shape: 
-            shape_t.insert()   
-        if opts.points: 
-            point_t.insert()   
-        if opts.faces: 
-            face_t.insert()   
-        log.info("completed persisting to %s " % path ) 
+
+            if insertsize > 0 and irg > 0 and irg % insertsize == 0:
+               log.info("inserting for irg %s insertsize %s " % (irg, insertsize)) 
+               self.insert()
+            pass 
+        log.info("final insert") 
+        self.insert()
+        log.info("final insert done") 
 
 
-    def extend(self, path, tn="xshape", name=True):
-        dummy = Table(path)
+
+    def extend(self, tn="xshape", name=True):
+        dummy = Table(self.opts.dbpath)
         sammd_ = lambda _:"sum(%(_)s) as sum%(_)s, avg(%(_)s) as a%(_)s, min(%(_)s) as min%(_)s, max(%(_)s) as max%(_)s, max(%(_)s) - min(%(_)s) as d%(_)s" % locals() 
         xsql = "select sid, count(*) as npo, " + ",".join(map(sammd_, ("x","y","z")))
         if name:
@@ -366,6 +392,7 @@ def parse_args(doc):
     op.add_option( "-P","--nopoints", action="store_false", dest="points",  default=True, help="Skip Recording vertices into points table. Default %default " )
     op.add_option( "-F","--nofaces", action="store_false", dest="faces",  default=True, help="Skip Recording vertex indices into face table. Default %default " )
     op.add_option( "-S","--noshape",  action="store_false", dest="shape",  default=True, help="Skip Recording full shape in the shape table. Default %default " )
+    op.add_option( "-i","--insertsize",  type="int",  default=0, help="Chunksize in numbers of volumes for DB inserts OR zero for all at once. Default %default " )
     opts, args = op.parse_args()
     level = getattr( logging, opts.loglevel.upper() )
 
@@ -401,7 +428,9 @@ def main():
     else:
         dbpath = os.path.abspath(path + ".db")
 
-    wrlp = WRLParser()
+    opts.dbpath = dbpath
+
+    wrlp = WRLParser(opts)
 
     parse = True
     if parse:
@@ -417,13 +446,13 @@ def main():
         log.info("skip parse") 
 
     if opts.save:
-        wrlp.save(dbpath, opts)
+        wrlp.save()
     else:    
         log.info("skip save") 
 
     if opts.extend:
         log.info("extend") 
-        wrlp.extend(dbpath, "xshape")
+        wrlp.extend("xshape")
     else:    
         log.info("skip extend") 
 
