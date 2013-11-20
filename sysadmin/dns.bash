@@ -10,6 +10,13 @@ DNS
 
 * http://www.rackspace.com/knowledge_center/article/changing-dns-settings-on-linux
 
+FUNCTIONS
+----------
+
+*dns-edit*
+        takes immediate effect, no need to reboot
+
+
 
 EOU
 }
@@ -25,6 +32,10 @@ dns-edit(){
    local cmd="sudo vi /etc/resolv.conf"
    echo $msg $cmd
    eval $cmd
+}
+
+dns-test(){
+   time curl -s http://www.google.com
 }
 
 
