@@ -5,7 +5,7 @@ export_dir(){
    local pwd=$(pwd -P)
    local rdir=${pwd/$ENV_HOME\/}
    local tag=$(date +"%Y%m%d-%H%M")
-   local xdir=$LOCAL_BASE/env/$rdir/$pfx$tag
+   local xdir=$LOCAL_BASE/env/$rdir/${pfx}_${tag}
    mkdir -p $xdir
    echo $xdir
 }

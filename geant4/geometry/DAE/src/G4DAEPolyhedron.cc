@@ -1,4 +1,6 @@
 #include "G4DAEPolyhedron.hh"
+#include "G4VisAttributes.hh"   // for informative streaming 
+
 typedef std::pair<std::string, std::string> KV ;
 
 G4DAEPolyhedron::G4DAEPolyhedron( const G4Polyhedron& polyhedron)
@@ -34,7 +36,8 @@ void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
 
     const G4VisAttributes* visAtt = polyhedron.GetVisAttributes();
     std::ostringstream ss ;
-    ss << visAtt ; 
+    ss << *visAtt << G4endl ; 
+    G4cout << "visAtt " << *visAtt << G4endl; // SCB
     fMetadata.insert(KV("VisAttributes", ss.str()));
 }
 

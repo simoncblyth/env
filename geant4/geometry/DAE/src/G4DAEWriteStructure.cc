@@ -76,15 +76,25 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
-   G4int copyNo = physvol->GetCopyNo();  //why always zero ?
-   if(copyNo != 0) G4cout << "G4DAEWriteStructure::PhysvolWrite " << pvname << " " << copyNo << G4endl ;
+   G4int copyNo = physvol->GetCopyNo();  
+   //if(copyNo != 0) G4cout << "G4DAEWriteStructure::PhysvolWrite " << pvname << " " << copyNo << G4endl ;
 
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
 
    xercesc::DOMElement* instanceNodeElement = NewElementOneNCNameAtt("instance_node", "url", lvname , true);
-
    childNodeElement->appendChild(instanceNodeElement);
+
+   // extra/meta
+   xercesc::DOMElement* extraElement = NewElement("extra");
+   xercesc::DOMElement* metaElement = NewElementOneAtt("meta", "id", pvname );
+   std::ostringstream ss ;
+   ss << copyNo ; 
+   xercesc::DOMElement* kvElement = NewTextElement("copyNo",ss.str());
+   metaElement->appendChild(kvElement);
+   extraElement->appendChild(metaElement);
+   childNodeElement->appendChild(extraElement);
+
    parentNodeElement->appendChild(childNodeElement);
 }
 

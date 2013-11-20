@@ -9,6 +9,19 @@ VRML
 
 Precision fix and debugging/comparing Geant4 VRML exporter with G4DAE exporter.
 
+FUNCTIONS
+----------
+
+*vrml-update*
+         does deploy and make
+
+*vrml-deploy*
+         copies modified geant4 sources from env working copy into Geant4 source tree
+
+*vrml-make*
+         builds and installs library 
+
+
 EOU
 }
 vrml-sdir(){ echo $(env-home)/geant4/geometry/VRML ; }
