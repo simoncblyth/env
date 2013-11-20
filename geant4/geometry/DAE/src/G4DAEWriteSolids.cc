@@ -2,6 +2,8 @@
 #include "G4Polyhedron.hh"
 #include "G4DAEPolyhedron.hh"
 #include <sstream>
+   
+typedef std::map<std::string, std::string> SSMap ; 
 
 void G4DAEWriteSolids::
 AccessorXYZWrite(xercesc::DOMElement* element,
@@ -135,9 +137,19 @@ PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4
 }
 
 
-
-
-
+void G4DAEWriteSolids::
+MetadataWrite(xercesc::DOMElement* meshElement, const G4String& geoId,  std::map<std::string,std::string>& meta ) 
+{
+   xercesc::DOMElement* extraElement = NewElement("extra");
+   xercesc::DOMElement* metaElement = NewElementOneAtt("meta", "id", geoId );
+   SSMap::iterator it ; 
+   for( it = meta.begin() ; it != meta.end() ; ++it ){
+        xercesc::DOMElement* kvElement = NewTextElement(it->first,it->second);
+        metaElement->appendChild(kvElement);        
+   } 
+   extraElement->appendChild( metaElement );
+   meshElement->appendChild( extraElement );
+}
 
 
 G4String G4DAEWriteSolids::
@@ -148,11 +160,6 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    G4int nvert = polyhedron.GetNoVertices();
    G4int nface = polyhedron.GetNoFacets();
    G4String dummy("");
-
-   //if( nface > 10 ){
-   //     //G4Cout << "solids with > 10 faces for easier debugging " << G4endl ; 
-   //     return dummy ;
-   //}
 
    const G4String& geoId = GenerateName(solid->GetName(),solid);
    G4String material = "WHITE" ;   // hmm, seems better to defer material to later ?
@@ -166,6 +173,8 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
    //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
    PolylistWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), p.GetVcount(), material ); 
+
+   MetadataWrite( meshElement, geoId, p.GetMetadata() ); 
 
    geometryElement->appendChild(meshElement); 
    solidsElement->appendChild(geometryElement);

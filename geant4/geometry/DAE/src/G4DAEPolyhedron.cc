@@ -1,4 +1,5 @@
 #include "G4DAEPolyhedron.hh"
+typedef std::pair<std::string, std::string> KV ;
 
 G4DAEPolyhedron::G4DAEPolyhedron( const G4Polyhedron& polyhedron)
 {
@@ -7,9 +8,34 @@ G4DAEPolyhedron::G4DAEPolyhedron( const G4Polyhedron& polyhedron)
     fAftItem  = "\n" ;
     fEnd   = "" ;
 
+    Metadata(polyhedron);   
     Vertices(polyhedron);   
     Normals(polyhedron);   
 
+}
+
+std::string G4DAEPolyhedron::IntAsString( G4int val  )
+{
+    std::ostringstream ss ;
+    ss << val ; 
+    return ss.str();
+}
+
+
+void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
+{
+    //
+    // G4Polyhedron isa : HepPolyhedron, G4Visible
+    //
+    fMetadata.insert(KV("NumberOfRotationStepsAtTimeOfCreation", IntAsString(polyhedron.GetNumberOfRotationStepsAtTimeOfCreation())));
+    fMetadata.insert(KV("NumberOfRotationSteps",                 IntAsString(polyhedron.GetNumberOfRotationSteps())));
+    G4int iebp = polyhedron.IsErrorBooleanProcess() ? 1 : 0 ; 
+    fMetadata.insert(KV("ErrorBooleanProcess",                   IntAsString(iebp)));
+
+    const G4VisAttributes* visAtt = polyhedron.GetVisAttributes();
+    std::ostringstream ss ;
+    ss << visAtt ; 
+    fMetadata.insert(KV("VisAttributes", ss.str()));
 }
 
 void G4DAEPolyhedron::Vertices( const G4Polyhedron& polyhedron )

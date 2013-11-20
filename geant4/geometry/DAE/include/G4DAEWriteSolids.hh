@@ -49,7 +49,7 @@ class G4DAEWriteSolids : public G4DAEWriteMaterials
    void PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, const G4String& material);
    void PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& material);
    G4String GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid);
-
+   void MetadataWrite(xercesc::DOMElement* meshElement, const G4String& geoId, std::map<std::string,std::string>& meta );
 
 
    void BooleanWrite(xercesc::DOMElement*, const G4BooleanSolid* const);

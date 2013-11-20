@@ -1,31 +1,41 @@
 #!/bin/bash -l
 
 export_dir(){
+   local pfx=${1}
    local pwd=$(pwd -P)
    local rdir=${pwd/$ENV_HOME\/}
    local tag=$(date +"%Y%m%d-%H%M")
-   local xdir=$LOCAL_BASE/env/$rdir/$tag
+   local xdir=$LOCAL_BASE/env/$rdir/$pfx$tag
    mkdir -p $xdir
    echo $xdir
 }
+export_banner(){
+   echo 
+   echo ========== $* ==================
+   echo 
+}
 
-cd $ENV_HOME/geant4/geometry/gdml
+export_run(){
+   local arg=${1:-VDG}
+   export G4DAE_EXPORT_SEQUENCE="$arg"
+   export G4DAE_EXPORT_EXIT="1"  
+   export G4DAE_EXPORT_DIR=$(export_dir $G4DAE_EXPORT_SEQUENCE)
 
-fenv
-export G4DAE_EXPORT_DIR=$(export_dir)
-export G4DAE_EXPORT_SEQUENCE="DVVVDDDGGGXVVVVDVDVD"
-export G4DAE_EXPORT_EXIT="1"  
+   nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export_all
 
-nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export_all
+   export_banner G4DAE
+   env | grep G4DAE
 
-echo 
-echo 
-echo 
-env | grep G4DAE
+   export_banner $G4DAE_EXPORT_DIR
+   ls -l $G4DAE_EXPORT_DIR
+}
 
-echo 
-echo ========== $(export-dir) ==================
-echo 
-ls -l $(export-dir)
+export_main(){
+   fenv
+   cd $ENV_HOME/geant4/geometry/gdml
+   export_run VDGVDG
+   export_run DVGDVG
+}
 
+export_main
 

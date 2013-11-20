@@ -37,23 +37,27 @@ for a G4PolyhedronBox
 #include <string>
 #include <sstream>
 #include <vector>
+#include <map>
 
 
 class G4DAEPolyhedron
 {
   public:
-    G4DAEPolyhedron(const G4Polyhedron& polydedon);
+    G4DAEPolyhedron(const G4Polyhedron& polyhedron);
    ~G4DAEPolyhedron(){};
 
-    void Vertices( const G4Polyhedron& polydedon );
-    void Normals(  const G4Polyhedron& polydedon );
-    void Facet(    const G4Polyhedron& polydedon, G4int iface );
+    void Metadata( const G4Polyhedron& polyhedron );
+    void Vertices( const G4Polyhedron& polyhedron );
+    void Normals(  const G4Polyhedron& polyhedron );
+    void Facet(    const G4Polyhedron& polyhedron, G4int iface );
     void Dump();
 
+    std::string IntAsString( G4int val );
     std::string GetVertices(){ return fVertices ; }
     std::string GetNormals(){ return fNormals ; }
     std::vector<std::string>& GetFacets(){ return fFacets ; }
     std::vector<std::string>& GetVcount(){ return fVcount ; }
+    std::map<std::string,std::string>& GetMetadata(){ return fMetadata ; }
  
   private:
 
@@ -66,6 +70,7 @@ class G4DAEPolyhedron
     std::string fNormals ;
     std::vector<std::string> fFacets ;
     std::vector<std::string> fVcount ;
+    std::map<std::string,std::string> fMetadata ;
 };
 
 
