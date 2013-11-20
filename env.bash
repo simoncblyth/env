@@ -1309,3 +1309,4 @@ slides-(){      . $(env-home)/doc/slides.bash && slides-env $* ; }
 g4dae-(){      . $(env-home)/geant4/geometry/collada/g4dae.bash && g4dae-env $* ; }
 dns-(){      . $(env-home)/sysadmin/dns.bash && dns-env $* ; }
 gausstools-(){      . $(env-home)/geant4/geometry/GaussTools/gausstools.bash && gausstools-env $* ; }
+vrml-(){      . $(env-home)/geant4/geometry/VRML/vrml.bash && vrml-env $* ; }
