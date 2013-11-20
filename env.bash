@@ -641,7 +641,11 @@ env-find(){
   cd $(env-home)
   find . -name '*.*' -exec grep -H $q {} \;  | grep -v /.svn
 }
-
+env-rstfind(){
+  local q=${1:-dummy}
+  cd $(env-home)
+  find . -name '*.rst' -exec grep -H $q {} \;  
+}
 env-dfind(){
   local q=${1:-dummy}
 

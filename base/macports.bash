@@ -92,6 +92,48 @@ After adding /opt/local/bin to PATH in ~/.bash_profile::
       port upgrade outdated
 
 
+Partial clean : due to missing Portfile 
+-----------------------------------------
+
+::
+
+    simon:~ blyth$ macports-clean
+    === macports-clean : sudo port clean --all all
+    Password:
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    --->  Cleaning 2Pong
+    --->  Cleaning 3proxy
+    ...
+    --->  Cleaning hs-binary
+    --->  Cleaning hs-blaze-builder
+    --->  Cleaning hs-blaze-html
+    --->  Cleaning hs-blaze-markup
+    Error: Unable to open port: Could not find Portfile in /opt/local/var/macports/sources/rsync.macports.org/release/ports/devel/hs-boolean
+    simon:~ blyth$ 
+    simon:~ blyth$ port info hs-boolean
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    Error: Unable to open port: Could not find Portfile in /opt/local/var/macports/sources/rsync.macports.org/release/ports/devel/hs-boolean
+
+Try to fix the broken port with a selfupdate, in order to complete the clean.
+
+
+selfupdate 20 nov 2013, macports updatdes itself to 2.2.1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    simon:~ blyth$ sudo port -v selfupdate
+    Password:
+    --->  Updating MacPorts base sources using rsync
+    receiving file list ... done
+    ...
+    --->  MacPorts base is outdated, installing new version 2.2.1
+    Installing new MacPorts release in /opt/local as root:admin; permissions 0755; Tcl-Package in /Library/Tcl
+    ...
+    Congratulations, you have successfully upgraded the MacPorts system.
+
+    The ports tree has been updated. To upgrade your installed ports, you should run
+      port upgrade outdated
 
 
 Selecting ports

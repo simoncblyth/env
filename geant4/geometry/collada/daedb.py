@@ -101,7 +101,7 @@ class DAEDB(object):
 
     def insert(self):    
         dbpath = self.dbpath
-        log.info("writing geom_t to %s " % dbpath )
+        log.info("writing tables to %s " % dbpath )
         if self.geom_t:
             log.info("writing geom_t to %s " % dbpath )
             self.geom_t.insert()
