@@ -109,7 +109,7 @@ G4String GiGaRunActionGDML::FilePath( const G4String& base , G4int index, const 
    std::string path = ss.str();
    G4bool exists_ = FileExists(path.c_str());
    if( wantfree && exists_ ){
-        std::cout << "path " << path << " exists already " << std::endl ;
+        //std::cout << "path " << path << " exists already " << std::endl ;
         return G4String("") ; 
    } 
    return G4String(path);
@@ -122,7 +122,6 @@ G4String GiGaRunActionGDML::FreeFilePath( const G4String& base, const G4String& 
     G4String path("") ; 
     while(path.length() == 0){
         path = FilePath( base,  i++, ext , true );
-        std::cout << "FreeFilePath " << path << " i " << i <<  std::endl ;
         if( i == imax ) break ; 
     }
     std::cout << "FreeFilePath  return " << path << " i " << i <<  std::endl ;
@@ -163,8 +162,16 @@ void GiGaRunActionGDML::FlushVis(const char* driver)
 void GiGaRunActionGDML::WriteVis(const char* driver)
 {
 #ifdef EXPORT_G4WRL
-   InitVis(driver);
-   FlushVis(driver);
+   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
+   G4String vis_open("/vis/open ");
+   vis_open += driver ; 
+   ui->ApplyCommand(vis_open.c_str());
+   ui->ApplyCommand("/vis/geometry/list all");
+   ui->ApplyCommand("/vis/viewer/set/culling global false");
+   ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
+   //ui->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");    
+   ui->ApplyCommand("/vis/drawVolume");
+   ui->ApplyCommand("/vis/viewer/flush");
 #endif
 }
 

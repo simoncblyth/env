@@ -1,6 +1,7 @@
 #include "G4DAEUtil.hh"
 //#include <algorithm>
 #include <iostream>
+#include <fstream>
 #include <map>
 
 
@@ -89,6 +90,16 @@ int G4DAEUtil::decodeNCName( std::string& id )
 int G4DAEUtil::encodeNCName( std::string& id )
 {
     return transformNCName( id, true );   
+}
+
+void G4DAEUtil::WriteLines(std::string& fname, std::vector<std::string>& lines)
+{
+   std::cout << "G4DAEUtil::WriteLines " << fname << std::endl ;
+   std::fstream fs;
+   fs.open ( fname.c_str(), std::fstream::out );
+   std::vector<std::string>::iterator it ;
+   for( it = lines.begin() ; it != lines.end() ; it++ ) fs << *it << std::endl ;
+   fs.close();
 }
 
 

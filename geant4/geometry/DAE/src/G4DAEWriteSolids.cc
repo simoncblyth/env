@@ -153,53 +153,34 @@ MetadataWrite(xercesc::DOMElement* meshElement, const G4String& geoId,  std::map
 }
 
 
-
 G4String G4DAEWriteSolids::
 GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
 {
-
-    G4Polyhedron* pPolyhedron ;
-
-    //  visualization/management/src/G4VSceneHandler.cc
-
-    G4int noofsides = 24 ; 
-    G4Polyhedron::SetNumberOfRotationSteps (noofsides);
-    std::stringstream coutbuf;
-    std::stringstream cerrbuf;
-    {
-       cout_redirect out(coutbuf.rdbuf());
-       cerr_redirect err(cerrbuf.rdbuf());
-       pPolyhedron = solid->GetPolyhedron ();
-    }
-    G4Polyhedron::ResetNumberOfRotationSteps ();
-    //pPolyhedron -> SetVisAttributes (fpVisAttribs);
-
-
-
-    const G4Polyhedron& polyhedron = *pPolyhedron ; 
-
-   G4int nvert = polyhedron.GetNoVertices();
-   G4int nface = polyhedron.GetNoFacets();
-   G4String dummy("");
-
    const G4String& geoId = GenerateName(solid->GetName(),solid);
-   G4String material = "WHITE" ;   // hmm, seems better to defer material to later ?
 
    xercesc::DOMElement* geometryElement = NewElementTwoAtt("geometry", "name", geoId, "id", geoId);
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
+   G4DAEPolyhedron poly(solid);
+   G4int nvert = poly.GetNoVertices() ;
+   G4int nface = poly.GetNoFacets() ;
 
-   G4DAEPolyhedron p(polyhedron);
-   p.AddMeta( "cout", coutbuf.str() );
-   p.AddMeta( "cerr", cerrbuf.str() );
+   /*
+   std::stringstream ss ; 
+   ss << "n " << fSummary.size() << " " ; 
+   ss << "v " << nvert << " " ; 
+   ss << "f " << nface << " " ; 
+   fSummary.push_back(ss.str());
+   */
 
-   G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, p.GetVertices() ); 
-   G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, p.GetNormals() ); 
+   G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, poly.GetVertices() ); 
+   G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, poly.GetNormals() ); 
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
-   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
-   PolylistWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), p.GetVcount(), material ); 
 
-   MetadataWrite( meshElement, geoId, p.GetMetadata() ); 
+   G4String material = "WHITE" ;                        // hmm, seems better to defer material to later ?
+   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
+   PolylistWrite( meshElement, vtxRef, nrmRef, poly.GetFacets(), poly.GetVcount(), material ); 
+   MetadataWrite( meshElement, geoId, poly.GetMetadata() ); 
 
    geometryElement->appendChild(meshElement); 
    solidsElement->appendChild(geometryElement);

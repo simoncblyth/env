@@ -36,8 +36,10 @@ vrml-mode(){   echo ${VRML_MODE:-diff} ; }
 vrml-libname(){ echo libG4VRML.so ; }
 
 vrml-paths-(){ cat << EOP
+GNUmakefile
 src/G4VRML2SceneHandlerFunc.icc
 src/G4VRML2FileSceneHandler.cc
+include/G4VRML2FileSceneHandler.hh
 EOP
 }
 
@@ -80,12 +82,15 @@ vrml-make(){
   ls -l $lib $(nuwa-g4-libdir)/$name
 
   export VERBOSE=1
-  rm -f $lib && make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 && cp $lib $(nuwa-g4-libdir)/
+  rm -f $lib && vrml-make- && cp $lib $(nuwa-g4-libdir)/
 
   echo $msg after
   ls -l $lib $(nuwa-g4-libdir)/$name
 }
 
 
+vrml-make-(){
+  make CLHEP_BASE_DIR=$(nuwa-clhep-idir) G4SYSTEM=Linux-g++ G4LIB_BUILD_SHARED=1 $*
+}
 
 

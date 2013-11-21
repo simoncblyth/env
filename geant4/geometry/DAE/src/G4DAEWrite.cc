@@ -262,8 +262,18 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
      G4cout << "G4DAE: Writing module '" << fname << "' done !" << G4endl;
    }
 
+
+   fSummary.push_back(std::string("klop"));
+
+   G4String smry(fname);
+   smry += ".txt" ; 
+   G4cout << "G4DAEWrite writing summary lines '" << smry << G4endl;
+   G4DAEUtil::WriteLines( smry, fSummary );
+
    return R;
 }
+
+
 
 void G4DAEWrite::AddModule(const G4VPhysicalVolume* const physvol)
 {

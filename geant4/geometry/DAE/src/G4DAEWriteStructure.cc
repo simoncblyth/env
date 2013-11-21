@@ -1,4 +1,5 @@
 #include "G4DAEWriteStructure.hh"
+#include "G4DAEPolyhedron.hh"    // for DAE WRL checking 
 #include <sstream>
 
 void
@@ -162,6 +163,21 @@ void G4DAEWriteStructure::SetVisAttributes (const G4VisAttributes& VA)
 G4Transform3D G4DAEWriteStructure::
 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 {
+
+   /* 
+    DUMB POSITIONING : BEFORE THE DONE BEFORE GUARD
+    IN ORDER TO TRY TO MATCH THE VRML2 SEQUENCE OF OPERATIONS 
+    TO DEBUG WRL/DAE POLYHEDRON DIFFERENCE
+   */
+   G4DAEPolyhedron poly(volumePtr->GetSolid());
+   std::stringstream ss ; 
+   ss << "n " << fSummary.size() << " " ; 
+   ss << "v " << poly.GetNoVertices() << " " ; 
+   ss << "f " << poly.GetNoFacets() << " " ; 
+   fSummary.push_back(ss.str());
+   
+
+
    if (VolumeMap().find(volumePtr) != VolumeMap().end())
    {
        return VolumeMap()[volumePtr]; // Volume is already processed

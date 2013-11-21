@@ -67,6 +67,7 @@ def configure(argv=None):
     gdml = GiGaRunActionGDML("GiGa.GiGaRunActionGDML")
     
     #   NOT WORKING :  RunSeq fails to do the vis : only the GDML+DAE gets exported
+    #   so do at C++ level 
     #
     #wrl  = GiGaRunActionCommand("GiGa.GiGaRunActionCommand")
     #wrl.BeginOfRunCommands = [ 
@@ -86,12 +87,6 @@ def configure(argv=None):
     giga.RunAction = gdml
     giga.VisManager = "GiGaVisManager/GiGaVis"
 
-    #for ext in 'dae wrl gdml'.split():
-    #    name = 'g4_00.%s' % ext
-    #    if os.path.exists(name):
-    #        log.warn("deleting preexisting file %s " % name)
-    #        os.remove(name)
-     
     import DetSim 
     DetSim.Configure(physlist=DetSim.physics_list_basic,site=site)
 

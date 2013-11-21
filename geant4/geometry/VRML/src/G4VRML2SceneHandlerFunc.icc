@@ -189,6 +189,14 @@ void G4VRML2SCENEHANDLER::AddPrimitive(const G4Polyhedron& polyhedron)
 	//std::cerr << "SCB " << pv_name << "\n";
 	fDest << "#---------- SOLID: " << pv_name << "\n";
 
+#if defined G4DAE_DEBUG
+    std::stringstream ss ; 
+    ss << "n " <<  fSummary.size() << " " ; 
+    ss << "v " <<  polyhedron.GetNoVertices() << " " ; 
+    ss << "f " <<  polyhedron.GetNoFacets() << " " ; 
+    fSummary.push_back(ss.str()); 
+#endif
+
 	if ( IsPVPickable() ) {
 
 	 fDest << "Anchor {" << "\n";

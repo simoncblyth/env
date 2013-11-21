@@ -39,11 +39,14 @@ for a G4PolyhedronBox
 #include <vector>
 #include <map>
 
+class G4VSolid ; 
+
 
 class G4DAEPolyhedron
 {
   public:
-    G4DAEPolyhedron(const G4Polyhedron& polyhedron);
+    //G4DAEPolyhedron(const G4Polyhedron& polyhedron);
+    G4DAEPolyhedron(const G4VSolid* const solid);
    ~G4DAEPolyhedron(){};
 
     void AddMeta( const std::string& key, const std::string& val );
@@ -53,6 +56,11 @@ class G4DAEPolyhedron
     void Facet(    const G4Polyhedron& polyhedron, G4int iface );
     void Dump();
 
+    G4int GetNoVertices(){ return fNoVertices ; }
+    G4int GetNoFacets(){  return fNoFacets ; }
+    void SetNoVertices(G4int nvert){ fNoVertices = nvert ; }
+    void SetNoFacets(G4int nface){   fNoFacets = nface ; }
+
     std::string IntAsString( G4int val );
     std::string GetVertices(){ return fVertices ; }
     std::string GetNormals(){ return fNormals ; }
@@ -61,6 +69,9 @@ class G4DAEPolyhedron
     std::map<std::string,std::string>& GetMetadata(){ return fMetadata ; }
  
   private:
+
+    G4int fNoVertices; 
+    G4int fNoFacets; 
 
     std::string fStart ; 
     std::string fBefItem ; 

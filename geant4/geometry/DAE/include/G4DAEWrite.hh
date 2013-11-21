@@ -3,6 +3,8 @@
 
 #include <sys/stat.h>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -37,6 +39,7 @@ class G4DAEWrite
 
  protected:
 
+   std::vector<std::string> fSummary ;  
    G4String SchemaLocation;
 
    VolumeMapType& VolumeMap();

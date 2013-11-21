@@ -2,6 +2,7 @@
 #define _G4DAEUTIL_INCLUDED_
 
 #include <iostream>
+#include <vector>
 #include <string>
 #include <streambuf>
 
@@ -15,6 +16,7 @@ public:
    static int encodeNCName( std::string& id );
    static int testNCName( std::string& id );
    static int testNCNameDemo();
+   static void WriteLines(std::string& fname, std::vector<std::string>& lines);
 
 };
 

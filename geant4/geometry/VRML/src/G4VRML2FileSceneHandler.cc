@@ -191,8 +191,13 @@ void G4VRML2FileSceneHandler::connectPort()
     G4cerr << "Using setprecision(5) and fixed floating point notation for veracity of output [SCB PATCH] " << G4endl; 
     fDest << std::setprecision(5) << std::fixed ; // SCB
 
-}
 
+#if defined G4DAE_DEBUG
+    fSummary.push_back(std::string("klop")); 
+#endif
+
+
+}
 
 void G4VRML2FileSceneHandler::closePort()
 {
@@ -207,7 +212,6 @@ void G4VRML2FileSceneHandler::closePort()
 	fDest.close();  fFlagDestOpen = false ;
 	G4cerr << "*** VRML 2.0 File  " << fVRMLFileName << "  is generated." << G4endl;
 
-	
 	// Invoke viewer 
 
 	if ( !strcmp(viewer, NO_VRML_VIEWER )) {
@@ -221,6 +225,26 @@ void G4VRML2FileSceneHandler::closePort()
 		sprintf( command, "%s %s", viewer, fVRMLFileName  );   
 		system( command );
 	}
+
+
+#if defined G4DAE_DEBUG
+    {
+        std::string fname(fVRMLFileName);
+        fname += ".txt" ; 
+        std::cout << "G4VRML2FileSceneHandler::closePort write summary lines " << fname << std::endl ;
+    
+        std::ofstream ofs;
+        ofs.open( fname.c_str() );
+
+        std::vector<std::string>::iterator it ;
+        for( it = fSummary.begin() ; it != fSummary.end() ; it++ ) ofs << *it << std::endl ;
+
+        ofs.close();
+    }
+#endif
+	
+
+
 }
 
 G4int G4VRML2FileSceneHandler::fSceneIdCount = 0;

@@ -1,14 +1,41 @@
 #include "G4DAEPolyhedron.hh"
 #include "G4VisAttributes.hh"   // for informative streaming 
+#include "G4DAEUtil.hh"
+#include "G4VSolid.hh"
 
 typedef std::pair<std::string, std::string> KV ;
 
-G4DAEPolyhedron::G4DAEPolyhedron( const G4Polyhedron& polyhedron)
+G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid )
 {
     fStart = "\n" ;
     fBefItem  = "\t\t\t\t" ;
     fAftItem  = "\n" ;
     fEnd   = "" ;
+
+    G4Polyhedron* pPolyhedron ;
+
+    //  visualization/management/src/G4VSceneHandler.cc
+
+    G4int noofsides = 24 ; 
+    G4Polyhedron::SetNumberOfRotationSteps (noofsides);
+    std::stringstream coutbuf;
+    std::stringstream cerrbuf;
+    {
+       cout_redirect out(coutbuf.rdbuf());
+       cerr_redirect err(cerrbuf.rdbuf());
+       pPolyhedron = solid->GetPolyhedron ();
+    }
+
+    AddMeta( "cout", coutbuf.str() );
+    AddMeta( "cerr", cerrbuf.str() );
+
+    G4Polyhedron::ResetNumberOfRotationSteps ();
+    //pPolyhedron -> SetVisAttributes (fpVisAttribs);
+
+    const G4Polyhedron& polyhedron = *pPolyhedron ; 
+
+    SetNoVertices(polyhedron.GetNoVertices());
+    SetNoFacets(polyhedron.GetNoFacets());
 
     Metadata(polyhedron);   
     Vertices(polyhedron);   
