@@ -582,9 +582,9 @@ class DAENode(object):
         rootdepth = len(nodepath) - 2
 
         pv, lv, geo = nodepath[-3:]
-        assert pv.__class__.__name__ in ('MonkeyNode','Node'), pv
-        assert lv.__class__.__name__ in ('MonkeyNodeNode','NodeNode'), lv
-        assert geo.__class__.__name__ in ('MonkeyGeometryNode','GeometryNode'), geo
+        assert pv.__class__.__name__ in ('Node'), (pv, nodepath)
+        assert lv.__class__.__name__ in ('NodeNode'), (lv, nodepath)
+        assert geo.__class__.__name__ in ('GeometryNode'), (geo, nodepath)
 
         self.children = []
         self.leafdepth = leafdepth

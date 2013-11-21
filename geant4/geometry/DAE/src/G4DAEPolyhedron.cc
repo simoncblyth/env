@@ -5,12 +5,13 @@
 
 typedef std::pair<std::string, std::string> KV ;
 
-G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid )
+G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid, G4bool create )
 {
     fStart = "\n" ;
     fBefItem  = "\t\t\t\t" ;
     fAftItem  = "\n" ;
     fEnd   = "" ;
+
 
     G4Polyhedron* pPolyhedron ;
 
@@ -23,7 +24,13 @@ G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid )
     {
        cout_redirect out(coutbuf.rdbuf());
        cerr_redirect err(cerrbuf.rdbuf());
-       pPolyhedron = solid->GetPolyhedron ();
+       if( create ){     
+           AddMeta( "create", "1" );
+           pPolyhedron = solid->CreatePolyhedron ();  // always create a new poly   
+       } else {
+           AddMeta( "create", "0" );
+           pPolyhedron = solid->GetPolyhedron ();     // if poly created already and no parameter change just provide that one 
+       }
     }
 
     AddMeta( "cout", coutbuf.str() );

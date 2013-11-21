@@ -74,11 +74,25 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
                                         const G4Transform3D& T,
                                         const G4String& ModuleName)
 {
+
+   // DEBUG FOR WRL-DAE CORRESPONDENCE
+   std::string polysmry ; 
+   {
+       G4DAEPolyhedron poly(physvol->GetLogicalVolume()->GetSolid(), true);  // create a new poly  
+       std::stringstream ss ; 
+       ss << "n " << physvol->GetName() << "." << physvol->GetCopyNo() << " " ; 
+       ss << "v " << poly.GetNoVertices() << " " ; 
+       ss << "f " << poly.GetNoFacets() << " " ; 
+       polysmry = ss.str();
+   }
+
+   // NO GOOD FOR WRL COMPARISON, AS NEED TO TRAVERSE THE NODE TREE TO VISIT THEM ALL
+   fSummary.push_back(polysmry); 
+
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
    G4int copyNo = physvol->GetCopyNo();  
-   //if(copyNo != 0) G4cout << "G4DAEWriteStructure::PhysvolWrite " << pvname << " " << copyNo << G4endl ;
 
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
@@ -93,6 +107,7 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    ss << copyNo ; 
    metaElement->appendChild(NewTextElement("copyNo",ss.str()));
    metaElement->appendChild(NewTextElement("ModuleName",ModuleName));
+   metaElement->appendChild(NewTextElement("polysmry",polysmry));
    extraElement->appendChild(metaElement);
 
    childNodeElement->appendChild(extraElement);
@@ -163,20 +178,8 @@ void G4DAEWriteStructure::SetVisAttributes (const G4VisAttributes& VA)
 G4Transform3D G4DAEWriteStructure::
 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 {
-
-   /* 
-    DUMB POSITIONING : BEFORE THE DONE BEFORE GUARD
-    IN ORDER TO TRY TO MATCH THE VRML2 SEQUENCE OF OPERATIONS 
-    TO DEBUG WRL/DAE POLYHEDRON DIFFERENCE
-   */
-   G4DAEPolyhedron poly(volumePtr->GetSolid());
-   std::stringstream ss ; 
-   ss << "n " << fSummary.size() << " " ; 
-   ss << "v " << poly.GetNoVertices() << " " ; 
-   ss << "f " << poly.GetNoFacets() << " " ; 
-   fSummary.push_back(ss.str());
-   
-
+   // "NEAR" GEOMETRY PASSES HERE 5642 TIME ONLY AS  THIS IS LV (NOT PV) 
+   // FOR THE FULL 12230 SEE PhysvolWrite  
 
    if (VolumeMap().find(volumePtr) != VolumeMap().end())
    {

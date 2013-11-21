@@ -45,8 +45,7 @@ class G4VSolid ;
 class G4DAEPolyhedron
 {
   public:
-    //G4DAEPolyhedron(const G4Polyhedron& polyhedron);
-    G4DAEPolyhedron(const G4VSolid* const solid);
+    G4DAEPolyhedron(const G4VSolid* const solid, G4bool create=false);
    ~G4DAEPolyhedron(){};
 
     void AddMeta( const std::string& key, const std::string& val );

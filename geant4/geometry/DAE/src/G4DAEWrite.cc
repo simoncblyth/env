@@ -263,7 +263,7 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
    }
 
 
-   fSummary.push_back(std::string("klop"));
+   //fSummary.push_back(std::string("klop"));
 
    G4String smry(fname);
    smry += ".txt" ; 

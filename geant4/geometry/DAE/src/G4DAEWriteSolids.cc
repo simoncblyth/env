@@ -161,17 +161,9 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    xercesc::DOMElement* geometryElement = NewElementTwoAtt("geometry", "name", geoId, "id", geoId);
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
-   G4DAEPolyhedron poly(solid);
+   G4DAEPolyhedron poly(solid, true);   // create a new poly 
    G4int nvert = poly.GetNoVertices() ;
    G4int nface = poly.GetNoFacets() ;
-
-   /*
-   std::stringstream ss ; 
-   ss << "n " << fSummary.size() << " " ; 
-   ss << "v " << nvert << " " ; 
-   ss << "f " << nface << " " ; 
-   fSummary.push_back(ss.str());
-   */
 
    G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, poly.GetVertices() ); 
    G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, poly.GetNormals() ); 

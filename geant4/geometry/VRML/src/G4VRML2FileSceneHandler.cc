@@ -193,7 +193,7 @@ void G4VRML2FileSceneHandler::connectPort()
 
 
 #if defined G4DAE_DEBUG
-    fSummary.push_back(std::string("klop")); 
+    //fSummary.push_back(std::string("klop")); 
 #endif
 
 

@@ -63,6 +63,8 @@ export_run(){
 export_cf(){
    export_run VDGVDGX
    #export_run DVGDVGX
+
+   export_post
 }
 
 export_dbg(){
@@ -72,6 +74,14 @@ export_dbg(){
    local cmd="gdb $(which python) --args $(which python) $(which nuwa.py) $(export_args)"
    echo $cmd
    eval $cmd 
+
+   export_post
+}
+
+
+export_post(){
+   cd $G4DAE_EXPORT_DIR
+   pwd
 }
 
 export_main(){

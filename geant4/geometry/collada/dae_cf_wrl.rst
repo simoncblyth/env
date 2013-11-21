@@ -1562,4 +1562,22 @@ VRML2 specialisation of above with visualization/VRML/include/G4VRML2SceneHandle
 * visualization/modeling/include/G4ModelingParameters.hh
 
 
+Polysmry for debug
+--------------------
+
+The polysmry txt file allows rapid name/nvertex/nface checking by sorting and uniqing::
+
+    [blyth@belle7 VDGX_20131121-1957]$ sort g4_00.wrl.txt | uniq > g4_00.wrl.txt.su
+    [blyth@belle7 VDGX_20131121-1957]$ sort g4_00.dae.txt | uniq > g4_00.dae.txt.su
+    [blyth@belle7 VDGX_20131121-1957]$ ll *.su
+    -rw-rw-r-- 1 blyth blyth 850219 Nov 21 20:19 g4_00.wrl.txt.su
+    -rw-rw-r-- 1 blyth blyth 850197 Nov 21 20:19 g4_00.dae.txt.su
+    [blyth@belle7 VDGX_20131121-1957]$ diff g4_00.wrl.txt.su g4_00.dae.txt.su
+    5643d5642
+    < n Universe.0 v 8 f 6 
+
+
+
+
+
 
