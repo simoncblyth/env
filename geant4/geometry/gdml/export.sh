@@ -68,7 +68,8 @@ export_cf(){
 }
 
 export_dbg(){
-   export G4DAE_EXPORT_SEQUENCE="VDGX"
+   #export G4DAE_EXPORT_SEQUENCE="VDGX"
+   export G4DAE_EXPORT_SEQUENCE="DVGX"
    export G4DAE_EXPORT_DIR=$(export_dir $G4DAE_EXPORT_SEQUENCE)
    env | grep G4DAE
    local cmd="gdb $(which python) --args $(which python) $(which nuwa.py) $(export_args)"

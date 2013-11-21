@@ -1577,7 +1577,54 @@ The polysmry txt file allows rapid name/nvertex/nface checking by sorting and un
     < n Universe.0 v 8 f 6 
 
 
+Always Create Polyhedron
+---------------------------
 
+Switching to CreatePolyhedron rather than GetPolyhedron allows the difference to 
+be apparent in the same nuwa.py run::
+
+    [blyth@belle7 VDGX_20131121-2043]$ cat g4_00.dae.txt | sort | uniq > g4_00.dae.txt.su
+    [blyth@belle7 VDGX_20131121-2043]$ cat g4_00.wrl.txt  | sort | uniq > g4_00.wrl.txt.su
+    [blyth@belle7 VDGX_20131121-2043]$ 
+    [blyth@belle7 VDGX_20131121-2043]$ diff g4_00.dae.txt.su g4_00.wrl.txt.su
+    27c27
+    < n /dd/Geometry/AdDetails/lvOcrGdsTfbInLsoOfl#pvOcrGdsInLsoOfl.1000 v 49 f 94 
+    ---
+    > n /dd/Geometry/AdDetails/lvOcrGdsTfbInLsoOfl#pvOcrGdsInLsoOfl.1000 v 98 f 188 
+    40c40
+    < n /dd/Geometry/AD/lvADE#pvOflTnkContainer.1002 v 364 f 644 
+    ---
+    > n /dd/Geometry/AD/lvADE#pvOflTnkContainer.1002 v 366 f 648 
+    47c47
+    < n /dd/Geometry/AD/lvLSO#pvIAV.1000 v 170 f 264 
+    ---
+    > n /dd/Geometry/AD/lvLSO#pvIAV.1000 v 148 f 192 
+    58c58
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:1#IavTopRibRot.1 v 27 f 53 
+    ---
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:1#IavTopRibRot.1 v 16 f 28 
+    60,64c60,64
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:3#IavTopRibRot.3 v 24 f 47 
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:4#IavTopRibRot.4 v 19 f 34 
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:5#IavTopRibRot.5 v 24 f 47 
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:6#IavTopRibRot.6 v 19 f 34 
+    < n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:7#IavTopRibRot.7 v 27 f 53 
+    ---
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:3#IavTopRibRot.3 v 16 f 28 
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:4#IavTopRibRot.4 v 16 f 28 
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:5#IavTopRibRot.5 v 16 f 28 
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:6#IavTopRibRot.6 v 16 f 28 
+    > n /dd/Geometry/AD/lvLSO#pvIavTopRibs#IavRibs:7#IavTopRibRot.7 v 16 f 28 
+    77c77
+    ...
+
+Is the difference the same as that between runs ? Not so simple it seems::
+
+    [blyth@belle7 gdml]$ grep NearSiteRock\#pvNearHallTop */*.txt 
+    DVGX_20131121-2053/g4_00.dae.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
+    DVGX_20131121-2053/g4_00.wrl.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 20 f 30 
+    VDGX_20131121-2043/g4_00.dae.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
+    VDGX_20131121-2043/g4_00.wrl.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
 
 
 
