@@ -135,33 +135,36 @@ void GiGaRunActionGDML::CleanSolidStore()
     G4SolidStore::Clean();
 }
 
-void GiGaRunActionGDML::WriteVis(const char* driver)
+
+void GiGaRunActionGDML::InitVis(const char* driver)
 {
-/*
-
-For VRML2FILE driver
-
-#. Output directory can be controlled by envvar G4VRMLFILE_DEST_DIR
-#. File naming is g4_00.wrl g4_01.wrl etc depending on preexisting files
-   in that directory 
-
-
-http://hypernews.slac.stanford.edu/HyperNews/geant4/get/visualization/710/1.html
-
-*/
-
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
 
    G4String vis_open("/vis/open ");
    vis_open += driver ; 
    ui->ApplyCommand(vis_open.c_str());
-
+   ui->ApplyCommand("/vis/geometry/list all");
    ui->ApplyCommand("/vis/viewer/set/culling global false");
    ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
    //ui->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");    
+#endif
+}
+
+void GiGaRunActionGDML::FlushVis(const char* driver)
+{
+#ifdef EXPORT_G4WRL
+   G4UImanager* ui = G4UImanager::GetUIpointer() ; 
    ui->ApplyCommand("/vis/drawVolume");
    ui->ApplyCommand("/vis/viewer/flush");
+#endif
+}
+
+void GiGaRunActionGDML::WriteVis(const char* driver)
+{
+#ifdef EXPORT_G4WRL
+   InitVis(driver);
+   FlushVis(driver);
 #endif
 }
 
@@ -170,6 +173,12 @@ G4String GiGaRunActionGDML::GetEnv( const char* envvar , const char* def )
    char const* tmp = getenv(envvar);   // no trailing slash 
    G4String val = ( tmp == NULL ) ? def : tmp ;  
    return val ; 
+}
+
+void GiGaRunActionGDML::AbruptExit()
+{
+   std::cout << "GiGaRunActionGDML::AbruptExit due to G4DAE_EXPORT_EXIT: " << std::endl ;  
+   exit(0);
 }
 
 
@@ -204,22 +213,25 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
           case 'V':
                  WriteVis("VRML2FILE");
                  break;
+          case 'I':
+                 InitVis("VRML2FILE");
+                 break;
+          case 'F':
+                 FlushVis("VRML2FILE");
+                 break;
           case 'G':
                  WriteGDML( wpv, FreeFilePath(base, ".gdml"));
                  break;
           case 'D':
                  WriteDAE( wpv, FreeFilePath(base, ".dae"));
                  break;
-          case 'X':
+          case 'C':
                  CleanSolidStore();
                  break;
+          case 'X':
+                 AbruptExit();
+                 break;
        }
-   }
-
-   G4String xexit = GetEnv("G4DAE_EXPORT_EXIT","0");
-   if( xexit == "1" ){
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction EXIT due to G4DAE_EXPORT_EXIT: " << xexit << std::endl ;  
-       exit(0);
    }
 
   

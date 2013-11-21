@@ -15,13 +15,42 @@ export_banner(){
    echo 
 }
 
+export_usage(){ cat << EOU
+
+Meaning of the G4DAE_EXPORT_SEQUENCE control characters:
+
+V
+   VRML WriteVis, same as "IF"
+I
+   VRML InitVis  
+F
+   VRML FlushVis  
+
+D
+   Write DAE
+G
+   Write GDML
+C
+   Clean SolidStore
+X
+   Abrupt Exit
+
+
+
+
+EOU
+}
+
+
 export_run(){
    local arg=${1:-VDG}
    export G4DAE_EXPORT_SEQUENCE="$arg"
-   export G4DAE_EXPORT_EXIT="1"  
    export G4DAE_EXPORT_DIR=$(export_dir $G4DAE_EXPORT_SEQUENCE)
 
-   nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export_all
+   local log=$G4DAE_EXPORT_DIR/export_all.log
+   export_banner $msg writing nuwa.py output to $log
+   nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export_all > $log 2>&1
+   export_banner $msg wrote nuwa.py output to $log
 
    export_banner G4DAE
    env | grep G4DAE
@@ -33,8 +62,8 @@ export_run(){
 export_main(){
    fenv
    cd $ENV_HOME/geant4/geometry/gdml
-   export_run VDGVDG
-   export_run DVGDVG
+   export_run IDGVDGX
+   export_run DVGDVGX
 }
 
 export_main

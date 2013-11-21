@@ -1528,7 +1528,38 @@ All well and good, but want to stuff the WRL faces into DB table::
 
 
 
-Investigate DAE/WRL between-process export difference
+Investigate DAE/WRL code path differences
 --------------------------------------------------------
+
+
+visualization/management/src/G4VSceneHandler.cc::
+
+    859 G4int G4VSceneHandler::GetNoOfSides(const G4VisAttributes* pVisAttribs)
+    860 {
+    861   // No. of sides (lines segments per circle) is normally determined
+    862   // by the view parameters, but it can be overriddden by the
+    863   // ForceLineSegmentsPerCircle in the vis attributes.
+    864   G4int lineSegmentsPerCircle = fpViewer->GetViewParameters().GetNoOfSides();
+    865   if (pVisAttribs) {
+    866     if (pVisAttribs->IsForceLineSegmentsPerCircle())
+    867       lineSegmentsPerCircle = pVisAttribs->GetForcedLineSegmentsPerCircle();
+    868     const G4int nSegmentsMin = 12;
+    869     if (lineSegmentsPerCircle < nSegmentsMin) {
+    870       lineSegmentsPerCircle = nSegmentsMin;
+    871       G4cout <<
+    872     "G4VSceneHandler::GetNoOfSides: attempt to set the"
+    873     "\nnumber of line segements per circle < " << nSegmentsMin
+    874          << "; forced to " << lineSegmentsPerCircle << G4endl;
+    875     }
+    876   }
+    877   return lineSegmentsPerCircle;
+    878 }
+
+
+VRML2 specialisation of above with visualization/VRML/include/G4VRML2SceneHandler.hh::
+
+
+* visualization/modeling/include/G4ModelingParameters.hh
+
 
 

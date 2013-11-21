@@ -2,6 +2,7 @@
 #include "G4Polyhedron.hh"
 #include "G4DAEPolyhedron.hh"
 #include <sstream>
+#include "G4DAEUtil.hh"
    
 typedef std::map<std::string, std::string> SSMap ; 
 
@@ -152,11 +153,31 @@ MetadataWrite(xercesc::DOMElement* meshElement, const G4String& geoId,  std::map
 }
 
 
+
 G4String G4DAEWriteSolids::
 GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
 {
-   G4Polyhedron* pPolyhedron = solid->GetPolyhedron();
-   const G4Polyhedron& polyhedron = *pPolyhedron ; 
+
+    G4Polyhedron* pPolyhedron ;
+
+    //  visualization/management/src/G4VSceneHandler.cc
+
+    G4int noofsides = 24 ; 
+    G4Polyhedron::SetNumberOfRotationSteps (noofsides);
+    std::stringstream coutbuf;
+    std::stringstream cerrbuf;
+    {
+       cout_redirect out(coutbuf.rdbuf());
+       cerr_redirect err(cerrbuf.rdbuf());
+       pPolyhedron = solid->GetPolyhedron ();
+    }
+    G4Polyhedron::ResetNumberOfRotationSteps ();
+    //pPolyhedron -> SetVisAttributes (fpVisAttribs);
+
+
+
+    const G4Polyhedron& polyhedron = *pPolyhedron ; 
+
    G4int nvert = polyhedron.GetNoVertices();
    G4int nface = polyhedron.GetNoFacets();
    G4String dummy("");
@@ -167,7 +188,11 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    xercesc::DOMElement* geometryElement = NewElementTwoAtt("geometry", "name", geoId, "id", geoId);
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
+
    G4DAEPolyhedron p(polyhedron);
+   p.AddMeta( "cout", coutbuf.str() );
+   p.AddMeta( "cerr", cerrbuf.str() );
+
    G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, p.GetVertices() ); 
    G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, p.GetNormals() ); 
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 

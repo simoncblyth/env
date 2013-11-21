@@ -46,6 +46,7 @@ class G4DAEPolyhedron
     G4DAEPolyhedron(const G4Polyhedron& polyhedron);
    ~G4DAEPolyhedron(){};
 
+    void AddMeta( const std::string& key, const std::string& val );
     void Metadata( const G4Polyhedron& polyhedron );
     void Vertices( const G4Polyhedron& polyhedron );
     void Normals(  const G4Polyhedron& polyhedron );

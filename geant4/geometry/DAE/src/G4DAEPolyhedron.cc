@@ -23,6 +23,10 @@ std::string G4DAEPolyhedron::IntAsString( G4int val  )
     return ss.str();
 }
 
+void G4DAEPolyhedron::AddMeta( const std::string& key, const std::string& val )
+{
+    fMetadata.insert(KV(key,val));
+}
 
 void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
 {
@@ -37,7 +41,7 @@ void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
     const G4VisAttributes* visAtt = polyhedron.GetVisAttributes();
     std::ostringstream ss ;
     ss << *visAtt << G4endl ; 
-    G4cout << "visAtt " << *visAtt << G4endl; // SCB
+    //G4cout << "visAtt " << *visAtt << G4endl; // SCB
     fMetadata.insert(KV("VisAttributes", ss.str()));
 }
 

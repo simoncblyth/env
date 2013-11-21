@@ -51,6 +51,9 @@ public:
 
   void CleanSolidStore();
   void WriteVis(const char* driver);
+  void InitVis(const char* driver);
+  void FlushVis(const char* driver);
+  void AbruptExit();
   void WriteDAE(G4VPhysicalVolume* wpv, const G4String& path );
   void WriteGDML(G4VPhysicalVolume* wpv, const G4String& path );
 

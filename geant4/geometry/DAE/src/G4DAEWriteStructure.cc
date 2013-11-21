@@ -90,11 +90,11 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    xercesc::DOMElement* metaElement = NewElementOneAtt("meta", "id", pvname );
    std::ostringstream ss ;
    ss << copyNo ; 
-   xercesc::DOMElement* kvElement = NewTextElement("copyNo",ss.str());
-   metaElement->appendChild(kvElement);
+   metaElement->appendChild(NewTextElement("copyNo",ss.str()));
+   metaElement->appendChild(NewTextElement("ModuleName",ModuleName));
    extraElement->appendChild(metaElement);
-   childNodeElement->appendChild(extraElement);
 
+   childNodeElement->appendChild(extraElement);
    parentNodeElement->appendChild(childNodeElement);
 }
 
@@ -152,6 +152,13 @@ void G4DAEWriteStructure::StructureWrite(xercesc::DOMElement* daeElement)
    daeElement->appendChild(structureElement);
 }
 
+/*
+void G4DAEWriteStructure::SetVisAttributes (const G4VisAttributes& VA)
+{
+   fVisAttributes = new G4VisAttributes(VA);
+}
+*/
+
 G4Transform3D G4DAEWriteStructure::
 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 {
@@ -160,8 +167,20 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
        return VolumeMap()[volumePtr]; // Volume is already processed
    }
 
-   //G4VisAttributes visatt();
-   //volumePtr->SetVisAttributes(visatt);   SCB
+   //
+   // Compiler takes exception to::
+   //
+   //    volumePtr->SetVisAttributes(fVisAttributes);   
+   //
+   // due to const correctness from this methods signature 
+   // preventing setting the VisAttributes on the volume (at compile time)
+   // so need to attack the polyhedron, as done by::
+   //
+   //      void G4VSceneHandler::RequestPrimitives (const G4VSolid& solid) 
+   //
+   // from visualization/management/src/G4VSceneHandler.cc
+   //
+   //
 
    G4VSolid* solidPtr = volumePtr->GetSolid();
    G4Transform3D R,invR;
