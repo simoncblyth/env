@@ -20,13 +20,13 @@ Use from ipython
 
 ::
 
-    In [60]: from env.graphics.collada.pycollada.daenode import DAENode, Defaults
+    In [64]: import logging
+    In [65]: logging.basicConfig(level=logging.INFO)        ## logging is needed to see any output
+    In [60]: from env.geant4.geometry.collada.daenode import DAENode, Defaults
     In [61]: Defaults.daepath
     Out[61]: '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'
     In [62]: DAENode.parse(Defaults.daepath)
-    In [63]: DAENode.summary()
-    In [64]: import logging
-    In [65]: logging.basicConfig(level=logging.INFO)        ## logging is needed to see any output
+    In [62]: DAENode.parse("g4_00.dae")
     In [66]: DAENode.summary()
     INFO:env.graphics.collada.pycollada.daenode:registry 12230 
     INFO:env.graphics.collada.pycollada.daenode:lookup 12230 
@@ -342,7 +342,7 @@ class DAENode(object):
         cls.indexlink( boundgeom )
 
     @classmethod
-    def recurse(cls, node , ancestors=[] ):
+    def recurse(cls, node , ancestors=[], extras=[] ):
         """
         This recursively visits 12230*3 = 36690 Nodes.  
         The below pattern of triplets of node types is followed precisely, due to 
@@ -371,11 +371,26 @@ class DAENode(object):
         """
         cls.rawcount += 1
 
-        if not hasattr(node,'children') or len(node.children) == 0:# leaf
-            cls.make( ancestors + [node])
+        children = []
+        xtras = []  
+        if hasattr(node, 'children'):
+            for c in node.children:
+                if isinstance(c, collada.scene.ExtraNode):
+                    xtras.append(c.xmlnode)
+                else:
+                    children.append(c) 
+                pass
+            pass     
+        pass
+        #log.info("node: %s " % node )
+        #log.info("xtras: %s " % xtras )
+        #log.info("extras: %s " % extras )
+
+        if len(children) == 0:# leaf
+            cls.make( ancestors + [node], extras + xtras )
         else:
-            for child in node.children:
-                cls.recurse(child, ancestors = ancestors + [node] )
+            for child in children:
+                cls.recurse(child, ancestors = ancestors + [node] , extras = extras + xtras )
 
     @classmethod
     def indexget(cls, index):
@@ -463,7 +478,7 @@ class DAENode(object):
         return uid 
 
     @classmethod
-    def make(cls, nodepath ):
+    def make(cls, nodepath, extras ):
         """
         Creates `DAENode` instances and positions them within the volume tree
         by setting the `parent` and `children` attributes.
@@ -471,7 +486,7 @@ class DAENode(object):
         A digest keyed lookup gives fast access to node parents,
         the digest represents a path through the tree of nodes.
         """
-        node = cls(nodepath)
+        node = cls(nodepath, extras )
         if node.index == 0:
             cls.root = node
 
@@ -538,6 +553,24 @@ class DAENode(object):
         log.info("index linking completed")    
 
 
+    @classmethod
+    def _metadata(cls, extras):
+        """
+        :param extras: list of xmlnode of extra elements
+
+        Interpret extra/meta/* text elements, converting into a dict 
+        """
+        d = {}
+        extra = None
+        if len(extras)>0:
+            extra = extras[-1]
+        if not extra is None:
+            meta = extra.find("{%s}meta" % COLLADA_NS ) 
+            for elem in meta.findall("*"):
+                tag = elem.tag[len(COLLADA_NS)+2:]
+                d[tag] = elem.text 
+        return d
+
     def ancestors(self,andself=False):
         """
         ::
@@ -565,7 +598,34 @@ class DAENode(object):
             p = p.parent
         return anc    
 
-    def __init__(self, nodepath):
+    @classmethod
+    def format_keys(cls, fmt):
+        ptn = re.compile("\%\((\S*)\)s") 
+        return ptn.findall(fmt)
+
+    def format(self, fmt, keys=None ):
+        if keys is None: 
+            keys = self.format_keys(fmt)
+        pass     
+        nom = self.metadata
+        bgm = self.boundgeom_metadata()
+        pass
+        d = {}
+        for key in keys:
+            x = key[0:2]
+            k = key[2:]
+            if x == 'p_':
+                d["p_%s" % k] = getattr(self, k, "-")
+            elif x == 'n_':
+                d["n_%s" % k] = nom.get(k,"-")
+            elif x == 'g_':
+                d["g_%s" % k] = bgm.get(k,"-")
+            else:
+                pass
+            pass    
+        return fmt % d
+ 
+    def __init__(self, nodepath, extras):
         """
         :param nodepath: list of node instances identifying all ancestors and the leaf geometry node
         :param rootdepth: depth 
@@ -587,6 +647,7 @@ class DAENode(object):
         assert geo.__class__.__name__ in ('GeometryNode'), (geo, nodepath)
 
         self.children = []
+        self.metadata = self._metadata(extras)
         self.leafdepth = leafdepth
         self.rootdepth = rootdepth 
         self.digest = self.md5digest( nodepath[0:leafdepth-1] )
@@ -631,6 +692,12 @@ class DAENode(object):
             ret.append("vtxmin %s " % str(bp.vertex.min(axis=0)))
             ret.append("vtxdif %s " % str(bp.vertex.max(axis=0)-bp.vertex.min(axis=0)))
         return ret
+
+    def boundgeom_metadata(self):
+        if not hasattr(self, 'boundgeom'):
+            return {}
+        extras = self.boundgeom.original.xmlnode.findall(".//{%s}extra" % COLLADA_NS )
+        return self._metadata(extras)
 
     def __str__(self):
         lines = []
