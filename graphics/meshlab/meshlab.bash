@@ -40,9 +40,14 @@ meshlab-get(){
    echo  SF DOWNLOADING IS BROKEN : HAVE TO DO MANUALLY : mv ~/Downloads/$tar . 
 }
 
+meshlab-vcgdir(){ echo $(dirname $(dirname $(meshlab-dir)))/vcglib ; }
+
 meshlab-env(){      
    elocal- 
    qt4- 
+
+   export MESHLAB_DIR=$(meshlab-dir)
+   export MESHLAB_VCGDIR=$(meshlab-vcgdir)
 }
 meshlab-launch(){
    meshlab-cd distrib/meshlab.app/Contents/MacOS

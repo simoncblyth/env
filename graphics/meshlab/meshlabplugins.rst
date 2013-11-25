@@ -21,7 +21,10 @@ Investigation environment
     simon:meshlab blyth$ pwd
     /Users/blyth/e/graphics/meshlab
     simon:meshlab blyth$ cp $(meshlab-dir)/meshlabplugins/io_collada/io_collada.pro meshlabplugins/io_collada/
-
-
+    simon:meshlab blyth$ cp $(meshlab-dir)/meshlabplugins/io_collada/io_collada.cpp meshlabplugins/io_collada/
+    simon:meshlab blyth$ cp $(meshlab-dir)/meshlabplugins/io_collada/io_collada.h meshlabplugins/io_collada/
+    simon:io_collada blyth$ make distclean
+    simon:io_collada blyth$ qmake
+    simon:io_collada blyth$ make
 
 

@@ -1,15 +1,28 @@
-include (../../shared.pri)
+#include ($$(MESHLAB_DIR)/shared.pri)
+
+TEMPLATE      = lib
+
+GLEWDIR = $$(MESHLAB_DIR)/external/glew-1.7.0
+INCLUDEPATH  *= $$(MESHLAB_DIR) $$(MESHLAB_VCGDIR) $$GLEWDIR/include
+
+LIBS += $$(MESHLAB_DIR)/common/libcommon.dylib
+
+
+QT += opengl
+QT += xml 
+QT += xmlpatterns
+QT += script
 
 HEADERS       += io_collada.h \
-		$$VCGDIR/wrap/io_trimesh/export_dae.h \
-		$$VCGDIR/wrap/io_trimesh/import_dae.h \
-		$$VCGDIR/wrap/dae/util_dae.h \
-		$$VCGDIR/wrap/dae/colladaformat.h \
-		$$VCGDIR/wrap/dae/xmldocumentmanaging.h
+		$$(MESHLAB_VCGDIR)/wrap/io_trimesh/export_dae.h \
+		$$(MESHLAB_VCGDIR)/wrap/io_trimesh/import_dae.h \
+		$$(MESHLAB_VCGDIR)/wrap/dae/util_dae.h \
+		$$(MESHLAB_VCGDIR)/wrap/dae/colladaformat.h \
+		$$(MESHLAB_VCGDIR)/wrap/dae/xmldocumentmanaging.h
 
 
 SOURCES       += io_collada.cpp \
-        $$VCGDIR/wrap/dae/xmldocumentmanaging.cpp
+        $$(MESHLAB_VCGDIR)/wrap/dae/xmldocumentmanaging.cpp
 
 TARGET        = io_collada
 
