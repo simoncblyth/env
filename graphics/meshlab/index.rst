@@ -8,4 +8,5 @@ meshlab
    meshlab_usage
    meshlab_functions
    meshlab_build
+   meshlabplugins
 

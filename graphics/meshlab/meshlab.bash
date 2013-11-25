@@ -31,6 +31,7 @@ EOU
 }
 meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab/src ; }
 meshlab-cd(){  cd $(meshlab-dir)/$1 ; }
+meshlab-scd(){  cd $(env-home)/graphics/meshlab/$1 ; }
 meshlab-mate(){ mate $(meshlab-dir) ; }
 meshlab-get(){
    local dir=$(dirname $(dirname $(meshlab-dir))) &&  mkdir -p $dir && cd $dir
