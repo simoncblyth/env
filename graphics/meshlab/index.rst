@@ -9,4 +9,5 @@ meshlab
    meshlab_functions
    meshlab_build
    meshlabplugins
+   meshlab_collada
 

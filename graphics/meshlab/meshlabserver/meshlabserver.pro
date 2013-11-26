@@ -1,11 +1,11 @@
-GLEWDIR = ../external/glew-1.5.1
+GLEWDIR = $$(MESHLAB_DIR)/external/glew-1.5.1
 
 HEADERS        = 
 
 SOURCES        = mainserver.cpp
 
 # to add windows icon 
-RC_FILE = ../meshlab/meshlab.rc
+RC_FILE = $$(MESHLAB_DIR)/meshlab/meshlab.rc
 
 QT           += xml opengl
 QT += xmlpatterns
@@ -18,8 +18,9 @@ macx:QMAKE_POST_LINK ="install_name_tool -change libcommon.1.dylib @executable_p
 # the awful min/max macros of windows and the limits max
 win32:DEFINES += NOMINMAX
 
-mac:LIBS += ../distrib/meshlab.app/Contents/MacOS/libcommon.dylib
 
+#mac:LIBS += ../distrib/meshlab.app/Contents/MacOS/libcommon.dylib
+LIBS += $$(MESHLAB_DIR)/common/libcommon.dylib
 
 win32-msvc2005:  LIBS += -L../distrib -lcommon
 win32-msvc2008:  LIBS += -L../distrib -lcommon
@@ -43,7 +44,7 @@ win32-msvc2010:DEFINES += GLEW_STATIC
 
 #DEFINES += GLEW_STATIC
 
-INCLUDEPATH += . .. ../../../vcglib $$GLEWDIR/include
+INCLUDEPATH += . $$(MESHLAB_DIR) $$(MESHLAB_VCGDIR) $$GLEWDIR/include
 CONFIG += stl 
 CONFIG += console
 

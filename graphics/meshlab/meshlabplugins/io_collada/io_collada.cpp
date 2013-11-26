@@ -101,6 +101,10 @@
 using namespace std;
 using namespace vcg;
 
+
+
+
+
 bool ColladaIOPlugin::open(const QString &formatName, const QString &fileName, MeshModel &m, int& mask, const RichParameterSet &, CallBackPos *cb, QWidget *parent)
 {
 	// initializing mask

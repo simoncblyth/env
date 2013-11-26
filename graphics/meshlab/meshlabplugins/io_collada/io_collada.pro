@@ -1,12 +1,15 @@
 #include ($$(MESHLAB_DIR)/shared.pri)
 
 TEMPLATE      = lib
+CONFIG       += plugin
 
 GLEWDIR = $$(MESHLAB_DIR)/external/glew-1.7.0
 INCLUDEPATH  *= $$(MESHLAB_DIR) $$(MESHLAB_VCGDIR) $$GLEWDIR/include
 
 LIBS += $$(MESHLAB_DIR)/common/libcommon.dylib
 
+
+DEFINES += "SCB_COLLADA_GEOMETRY_CACHE" 
 
 QT += opengl
 QT += xml 

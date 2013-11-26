@@ -6,7 +6,7 @@ Profiling Mechanics
 Example
 -----------------
 
-For usage example see :e:`muon_simuation/profiling/nuwa`
+For usage example see :e:`muon_simulation/profiling/base/analysis/`
 
 
 Process Memory Maps

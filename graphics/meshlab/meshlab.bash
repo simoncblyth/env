@@ -7,6 +7,11 @@ meshlab-usage(){ cat << EOU
 Meshlab
 ========
 
+Note there are two areas with meshlab sources and builds:
+
+#. Standard meshlab in $(meshlab-dir) 
+#. Optimized meshlab collada plugin, and meshlabserver inside the working copy $(env-home)/graphics/meshlab 
+
 
 FUNCTIONS
 ----------
@@ -49,9 +54,21 @@ meshlab-env(){
    export MESHLAB_DIR=$(meshlab-dir)
    export MESHLAB_VCGDIR=$(meshlab-vcgdir)
 }
-meshlab-launch(){
+meshlab--(){
+   # attemping to launch from elsewhere fails to load plugins
    meshlab-cd distrib/meshlab.app/Contents/MacOS
    ./meshlab
+}
+meshlab--server(){
+   # attemping to launch from elsewhere fails to load plugins
+   meshlab-cd distrib/meshlab.app/Contents/MacOS
+   ./meshlabserver $*
+}
+
+
+meshlab-dae(){ echo  /usr/local/env/geant4/geometry/gdml/VDGX_20131121-1957/g4_00.dae ; }
+meshlab--server-test(){
+   meshlab--server -i $(meshlab-dae)
 }
 
 meshlab-find(){ find $(meshlab-dir) -name '*.cpp' -exec grep -H $1 {} \; ;  }
@@ -83,4 +100,64 @@ meshlab-make(){
 
 meshlab-build(){
    meshlab-qmake && meshlab-make
+}
+
+
+
+
+
+
+########### BELOW FOR DEVELOPMENT TESTING OF CUSTOMOMIZED MESHLAB ########################
+
+meshlab-collada-make(){
+   cd $(env-home)/graphics/meshlab/meshlabplugins/io_collada
+   [ -f Makefile ] && make distclean
+   env | grep MESHLAB
+   qmake
+   make
+}
+meshlab-collada-install(){
+   cd $(env-home)/graphics/meshlab/meshlabplugins/io_collada
+   local dest=../../distrib/plugins/
+   mkdir -p $dest
+   local plug=libio_collada.dylib
+   local target=$dest/$plug
+   rm -rf $target
+   [ -f $plug ] && cp $plug $target
+}
+meshlab-collada-ls(){
+   echo $(meshlab-distrib-dir)/plugins/
+   ls -l $(meshlab-distrib-dir)/plugins/
+}
+meshlab-distrib-dir(){ echo $(env-home)/graphics/meshlab/distrib ; }
+meshlab-collada-promote(){
+   echo promoting to the offical meshlab build plugins
+   cp $(meshlab-distrib-dir)/plugins/libio_collada.dylib $(meshlab-dir)/distrib/plugins/
+}
+
+meshlab-server-make(){
+   cd $(env-home)/graphics/meshlab/meshlabserver
+   rm -rf ../distrib/meshlab.app 
+   [ -f Makefile ] && make distclean
+   env | grep MESHLAB
+   qmake
+   make
+}
+meshlab-server-install(){
+   type $FUNCNAME
+   local app=$(meshlab-server-app)
+   cp ${MESHLAB_DIR}/common/*.dylib $app/Contents/MacOS/ 
+   meshlab-collada-install 
+}
+meshlab-server-app(){ echo $(meshlab-distrib-dir)/meshlab.app/ ; }
+meshlab-server-ls(){
+    ls -Ralst $(meshlab-distrib-dir) 
+}
+
+
+meshlab-server-test(){
+    type $FUNCNAME
+    local app=$(meshlab-server-app)
+    cd $app/Contents/MacOS
+    ./meshlabserver -i /usr/local/env/geant4/geometry/gdml/VDGX_20131121-1957/g4_00.dae
 }
