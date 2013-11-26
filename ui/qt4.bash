@@ -6,28 +6,6 @@ qt4-env(){
     elocal- ; 
     export QMAKESPEC=$(qt4-qmakespec)
 }
-
-qt4-qmakespec(){
-  case $NODE_TAG in 
-    G) echo /opt/local/share/qt4/mkspecs/macx-g++ ;; 
-  esac
-}
-
-qt4-info(){
-   echo QMAKESPEC $QMAKESPEC
-}
-
-qt4-kludge(){
-  local cmd="find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;"
-  echo $cmd
-  eval $cmd
-  find . -name Makefile -exec grep -H "CXX " {} \;
-}
-
-qt4-specs(){
-  cd /opt/local/share/qt4/mkspecs
-}
-
 qt4-usage(){ cat << EOU
 
 QT4
@@ -35,6 +13,31 @@ QT4
 
 Installs
 ---------
+
+N
+~~
+
+
+yum qt4 on belle7 is too old for meshlab build
+
+qmake binary hidden on SL5 ? Have to adjust PATH::
+
+    [blyth@belle7 ~]$ which qmake
+    /usr/lib/qt4/bin/qmake
+
+::
+
+    [blyth@belle7 meshlab]$ rpm -ql qt4-devel | grep qmake
+    /usr/lib/qt4/bin/qmake
+
+Look into source install
+
+* http://belle7.nuu.edu.tw/qt4/
+* http://belle7.nuu.edu.tw/qt4/requirements-x11.html
+
+  * so many dependencies, maybe not worth it : I just wanted to be able to profile 
+    the collada loading and cannot install gperftools on PPC
+
 
 G
 ~~
@@ -129,15 +132,39 @@ macports ticket
 
 EOU
 }
-qt4-dir(){ echo $(local-base)/env/ui/ui-qt4 ; }
-qt4-cd(){  cd $(qt4-dir); }
 qt4-mate(){ mate $(qt4-dir) ; }
+qt4-dir(){ echo $(local-base)/env/ui/$(qt4-name) ; }
+qt4-cd(){  cd $(qt4-dir); }
+qt4-name(){ echo qt-everywhere-opensource-src-4.7.4 ;  }
+qt4-url(){ echo http://download.qt-project.org/archive/qt/4.7/$(qt4-name).tar.gz ;  }
 qt4-get(){
    local dir=$(dirname $(qt4-dir)) &&  mkdir -p $dir && cd $dir
-
+   local url=$(qt4-url)
+   local tgz=$(basename $url)
+   [ ! -f "$tgz" ] && curl -L -O "$url"
+   local nam=${tgz/.tar.gz}
+   [ ! -d "$nam" ] && tar zxvf $tgz
 }
 
 
+
+qt4-qmakespec(){
+  case $NODE_TAG in 
+    G) echo /opt/local/share/qt4/mkspecs/macx-g++ ;; 
+  esac
+}
+qt4-info(){
+   echo QMAKESPEC $QMAKESPEC
+}
+qt4-kludge(){
+  local cmd="find . -name Makefile -exec perl -pi -e 's,clang,g,g' {} \;"
+  echo $cmd
+  eval $cmd
+  find . -name Makefile -exec grep -H "CXX " {} \;
+}
+qt4-specs(){
+  cd /opt/local/share/qt4/mkspecs
+}
 qt4-docs(){
   apache-
   cd `apache-htdocs`

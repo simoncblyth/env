@@ -12,6 +12,12 @@ Note there are two areas with meshlab sources and builds:
 #. Standard meshlab in $(meshlab-dir) 
 #. Optimized meshlab collada plugin, and meshlabserver inside the working copy $(env-home)/graphics/meshlab 
 
+Instllation::
+
+    meshlab-get
+    meshlab-external
+    make                  # qmake must be in PATH
+
 
 FUNCTIONS
 ----------
@@ -50,14 +56,21 @@ FUNCTIONS
 EOU
 }
 meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab/src ; }
+meshlab-fold(){ echo $(dirname $(dirname $(meshlab-dir))) ;}
 meshlab-cd(){  cd $(meshlab-dir)/$1 ; }
 meshlab-scd(){  cd $(env-home)/graphics/meshlab/$1 ; }
 meshlab-mate(){ mate $(meshlab-dir) ; }
 meshlab-get(){
-   local dir=$(dirname $(dirname $(meshlab-dir))) &&  mkdir -p $dir && cd $dir
+   local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
+   echo SF IS SUCH A PAIN : IT BEATS ME HOW IT MANAGES TO SURVIVE
 
-   local tar=MeshLabSrc_AllInc_v132.tar
-   echo  SF DOWNLOADING IS BROKEN : HAVE TO DO MANUALLY : mv ~/Downloads/$tar . 
+   pwd
+   local tgz=MeshLabSrc_AllInc_v132.tgz
+   local nam=${tgz/.tgz}
+   [ ! -f "$tgz" ] && curl -L "http://sourceforge.net/projects/meshlab/files/meshlab/MeshLab%20v1.3.2/MeshLabSrc_AllInc_v132.tgz/download?use_mirror=nchc" -o $tgz  
+
+   #   [ ! -d "meshlab" ] && echo CREATING CONTAINER DIR TO HANDLE EXPLODING TGZ && mkdir meshlab && ( cd meshlab && tar zxvf ../$tgz )
+    [ ! -d "meshlab" ] && echo WARNING EXPLODING TGZ && tar zxvf $tgz 
 }
 
 meshlab-vcgdir(){ echo $(dirname $(dirname $(meshlab-dir)))/vcglib ; }
@@ -105,7 +118,10 @@ meshlab-qmake(){
    type $FUNCNAME
    meshlab-cd 
    qmake -recursive $(meshlab-config)
-   qt4-kludge
+
+   case $NODE_TAG in 
+      G) qt4-kludge ;;
+   esac
 }
 meshlab-make(){
    type $FUNCNAME

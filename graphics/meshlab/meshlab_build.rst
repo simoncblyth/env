@@ -53,6 +53,8 @@ Tarball explodes to create the below::
     /usr/local/env/graphics/mesh/graphics/meshlab
 
 
+
+
 G Build
 ---------
 
@@ -130,6 +132,79 @@ After ``make``::
     -rw-r--r--  1 blyth  wheel  584540 18 Nov 11:39 libmuparser.a
     -rw-r--r--  1 blyth  wheel  131748 18 Nov 11:37 libbz2.a
     -rw-r--r--  1 blyth  wheel  146872 18 Nov 11:37 lib3ds.a
+
+
+N structuresynth externals issue 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+qt4 version on N, too old for requirements::
+
+    Qt 4.8 (note that Qt 4.7 are required, Qt versions < 4.7 could not compile). Current version of MeshLab compiles well against Qt 4.7.4.
+
+::
+
+    make[1]: Entering directory `/data1/env/local/env/graphics/meshlab/meshlab/src/external/structuresynth'
+    ...
+    ssynth/StructureSynth/Model/../../SyntopiaCore/GLEngine/EngineWidget.h:176: error: ISO C++ forbids declaration of 'QGLShaderProgram' with no type
+    ssynth/StructureSynth/Model/../../SyntopiaCore/GLEngine/EngineWidget.h:176: error: expected ';' before '*' token
+    make[1]: Leaving directory `/data1/env/local/env/graphics/meshlab/meshlab/src/external/structuresynth'
+    [blyth@belle7 external]$ 
+
+
+Commenting structuresync in the ``external.pro`` completes the other externals.
+
+
+Belle7 Qt4 too old
+---------------------
+
+::
+
+
+    [blyth@belle7 external]$ qmake -version
+    QMake version 2.01a
+    Using Qt version 4.2.1 in /usr/lib/qt4/lib
+
+    [blyth@belle7 src]$ meshlab-qmake
+    meshlab-qmake is a function
+    meshlab-qmake () 
+    { 
+        type $FUNCNAME;
+        meshlab-cd;
+        qmake -recursive $(meshlab-config);
+        case $NODE_TAG in 
+            G)
+                qt4-kludge
+            ;;
+        esac
+    }
+
+    Reading /data1/env/local/env/graphics/meshlab/meshlab/src/common/common.pro
+    Reading /data1/env/local/env/graphics/meshlab/meshlab/src/meshlab/meshlab.pro
+    uic: File generated with too old version of Qt Designer
+    uic: File generated with too old version of Qt Designer
+    uic: File generated with too old version of Qt Designer
+    uic: File generated with too old version of Qt Designer
+    uic: File generated with too old version of Qt Designer
+    uic: File generated with too old version of Qt Designer
+    Reading /data1/env/local/env/graphics/meshlab/meshlab/src/meshlabplugins/io_base/io_base.pro
+    Reading /data1/env/local/env/graphics/meshlab/meshlab/src/meshlabplugins/filter_meshing/filter_meshing.pro
+
+
+Even the non-GUI meshlabserver fails::
+
+    [blyth@belle7 meshlabserver]$ make
+    g++ -c -pipe -O2 -Wall -W -D_REENTRANT  -DQT_NO_DEBUG -DQT_XML_LIB -DQT_OPENGL_LIB -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/lib/qt4/mkspecs/linux-g++ -I. -I/usr/lib/qt4/include/QtCore -I/usr/lib/qt4/include/QtCore -I/usr/lib/qt4/include/QtGui -I/usr/lib/qt4/include/QtGui -I/usr/lib/qt4/include/QtOpenGL -I/usr/lib/qt4/include/QtOpenGL -I/usr/lib/qt4/include/QtXml -I/usr/lib/qt4/include/QtXml -I/usr/lib/qt4/include -I. -I.. -I../../../vcglib -I../external/glew-1.5.1/include -I. -I. -o mainserver.o mainserver.cpp
+    In file included from ../common/interfaces.h:38,
+                     from mainserver.cpp:25:
+    ../common/scriptinterface.h:27:20: error: QtScript: No such file or directory
+    In file included from ../common/scriptinterface.h:29,
+                     from ../common/interfaces.h:38,
+                     from mainserver.cpp:25:
+    ../common/xmlfilterinfo.h:5:48: error: QtXmlPatterns/QAbstractMessageHandler: No such file or directory
+    ../common/xmlfilterinfo.h:6:36: error: QtXmlPatterns/QXmlSchema: No such file or directory
+    ../common/xmlfilterinfo.h:7:45: error: QtXmlPatterns/QXmlSchemaValidator: No such file or directory
+
+
 
 
 Meshlab mini
