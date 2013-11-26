@@ -39,6 +39,34 @@ Pycollada using numpy takes maybe 40 s.  C++ Qt meshlab taking 41 min.
     LOG: 0 All files opened in 2518742 msec
 
 
+11 min after Geometry Cache addition, but exploded! 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Hmm, its faster but geometry is "exploded" into little pieces.
+
+::
+
+    ******                 Reading face[ 95].V(0) =   45  (570-th of the index list) (face has 3 vertices)
+    *******                 Reading face[ 95].V(1) =   43  (572-th of the index list) (face has 3 vertices)
+    *******                 Reading face[ 95].V(2) =   40  (574-th of the index list) (face has 3 vertices)
+    ****** LoadPolygonalListMesh (final  mesh size vn 50 vertsize 50 - fn 192 facesize 192)
+    **** Loading a Geometry Mesh **** (final   mesh size 50 50 - 192 192)
+    ** instance_geometry with url #near-radslab-box-90xc8e73c0 (final mesh size 1246046 1246046 - 2452916 2452916)
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/VDGX_20131121-1957/g4_00.dae in 657315 msec
+    LOG: 0 All files opened in 663948 msec
+
+
+::
+
+    In [7]: 2518742./663948.
+    Out[7]: 3.7935832324218164
+
+    In [8]: 663948./1000./60.
+    Out[8]: 11.065799999999999
+
+
+
 Why is collada importer so slow ?
 ------------------------------------
 
@@ -482,6 +510,36 @@ Install into the separately built meshlabserver with::
         [ -f $plug ] && cp $plug $target
     }
 
+
+
+Exploded due to UpdatePosition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Contrary to assumption that this was just setting a matrix, it is actually iterating 
+over all vertices and multiplying by the matrix.::
+
+     650                         tri::UpdatePosition<ColladaMesh>::Matrix(newMesh,curTr);
+
+Thus the cached ``newMesh`` position keeps changing for each use.
+Isolate the cache from its usage with Append, there is no copy ctor::
+
+     636                         ColladaMesh newMesh ;   // avoid exploding the geometry by keeping the cached mesh and newMesh distinct
+     637                         tri::Append<ColladaMesh,ColladaMesh>::Mesh(newMesh,*cacheMeshPtr);
+
+
+::
+
+    ****** LoadPolygonalListMesh (final  mesh size vn 50 vertsize 50 - fn 192 facesize 192)
+    **** Loading a Geometry Mesh **** (final   mesh size 50 50 - 192 192)
+    ** instance_geometry with url #near-radslab-box-90xc8e73c0 (final mesh size 1246046 1246046 - 2452916 2452916)
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/VDGX_20131121-1957/g4_00.dae in 587294 msec
+    LOG: 0 All files opened in 594080 msec
+
+
+Thats better, geometry looks OK, and loading in less than 10 min on ancient laptop::
+
+    In [9]: 594080./1000./60.
+    Out[9]: 9.9013333333333335
 
 
 

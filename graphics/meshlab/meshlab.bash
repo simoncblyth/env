@@ -31,6 +31,21 @@ FUNCTIONS
 *meshlab-build*
          do above qmake and make functions
 
+*meshlab--*
+         launch the meshlab GUI
+
+
+*meshlab-collada-make*
+         separate build collada plugin
+*meshlab-collada-install*
+         install into separate build plugins folder
+*meshlab-collada-promote*
+         promote from separate build plugins folder into official plugins folder
+
+
+
+
+
 
 EOU
 }
@@ -101,9 +116,6 @@ meshlab-make(){
 meshlab-build(){
    meshlab-qmake && meshlab-make
 }
-
-
-
 
 
 
