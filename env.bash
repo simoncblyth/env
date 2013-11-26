@@ -1312,3 +1312,4 @@ gausstools-(){      . $(env-home)/geant4/geometry/GaussTools/gausstools.bash && 
 vrml-(){      . $(env-home)/geant4/geometry/VRML/vrml.bash && vrml-env $* ; }
 mdworker-(){      . $(env-home)/sysadmin/mdworker.bash && mdworker-env $* ; }
 lsof-(){      . $(env-home)/sysadmin/lsof.bash && lsof-env $* ; }
+meshlabdev-(){      . $(env-home)/graphics/meshlabdev/meshlabdev.bash && meshlabdev-env $* ; }

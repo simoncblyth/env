@@ -10,4 +10,7 @@ meshlab
    meshlab_build
    meshlabplugins
    meshlab_collada
+   meshlab_navigation
+
+
 

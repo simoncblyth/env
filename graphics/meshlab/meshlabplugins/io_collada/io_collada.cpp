@@ -138,7 +138,13 @@ bool ColladaIOPlugin::open(const QString &formatName, const QString &fileName, M
 			qDebug() << "DAE Opening Error" << vcg::tri::io::ImporterDAE<CMeshO>::ErrorMsg(result) << endl;
 			return false;
 		}
-		else _mp.push_back(&m);
+		else
+        {
+#if defined SCB_COLLADA_CACHE
+            m.bbox_cache = info.bbox_cache ;        
+#endif
+            _mp.push_back(&m);
+        } 
 
         if(info.mask & vcg::tri::io::Mask::IOM_WEDGNORMAL)
 			normalsUpdated = true;
