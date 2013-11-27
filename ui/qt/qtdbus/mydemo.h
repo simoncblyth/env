@@ -13,6 +13,7 @@ public:
 public Q_SLOTS:
     void SayBye();
     void SayHello(const QString &name, const QVariantMap &customdata);
+    void SayHelloThere(const QString &name);
 Q_SIGNALS:
     void LateEvent(const QString &eventkind);
  

@@ -5,6 +5,28 @@ Follow along
 
 * http://developer.nokia.com/Community/Wiki/QtDbus_quick_tutorial
 
+In short
+-----------
+
+::
+
+    simon:qtdbus blyth$ ./qdbusxml2cpp.sh 
+    qdbusxml2cpp -v -c DemoIf -p demoif.h:demoif.cpp com.nokia.Demo.xml
+    Warning: deprecated annotation 'com.trolltech.QtDBus.QtTypeName.In1' found; suggest updating to 'org.qtproject.QtDBus.QtTypeName.In1'
+    qdbusxml2cpp -v -c DemoIfAdaptor -a demoifadaptor.h:demoifadaptor.cpp com.nokia.Demo.xml
+    Warning: deprecated annotation 'com.trolltech.QtDBus.QtTypeName.In1' found; suggest updating to 'org.qtproject.QtDBus.QtTypeName.In1'
+    Warning: deprecated annotation 'com.trolltech.QtDBus.QtTypeName.In1' found; suggest updating to 'org.qtproject.QtDBus.QtTypeName.In1'
+    Warning: deprecated annotation 'com.trolltech.QtDBus.QtTypeName.In1' found; suggest updating to 'org.qtproject.QtDBus.QtTypeName.In1'
+    simon:qtdbus blyth$ 
+    simon:qtdbus blyth$ qmake
+    Project MESSAGE: qtAddLibrary: found framework QtDBus in directory /opt/local/Library/Frameworks
+    Project MESSAGE: qtAddLibrary: found framework QtGui in directory /opt/local/Library/Frameworks
+    Project MESSAGE: qtAddLibrary: found framework QtCore in directory /opt/local/Library/Frameworks
+    simon:qtdbus blyth$ make
+    ...
+    simon:qtdbus blyth$ qtdbus.app/Contents/MacOS/qtdbus      ## dbus daemon needs to be running before starting the app
+    MyDemo::MyDemo 
+
 
 Interface description XML
 --------------------------
@@ -154,11 +176,190 @@ needs the dbus server.
 
 * http://trac.macports.org/ticket/20645
 
+Dbus is installed by daemon is not running.
+
+
+Start macports dbus daemon
+----------------------------
+
 ::
 
-    simon:~ blyth$ sudo port -v install dbus 
+    simon:~ blyth$ port notes dbus
+    dbus has the following notes:
+      ############################################################################
+      # Startup items have been generated that will aid in
+      # starting dbus with launchd. They are disabled
+      # by default. Execute the following command to start them,
+      # and to cause them to launch at startup:
+      #
+      # sudo launchctl load -w /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
+      # launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+      ############################################################################
+::
+
+    simon:meshlab blyth$ launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
+    launchctl: CFURLWriteDataAndPropertiesToResource(/Library/LaunchAgents/org.freedesktop.dbus-session.plist) failed: -10
+    simon:meshlab blyth$ 
+
+::
+
+    simon:meshlab blyth$ sudo launchctl load -w /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
+    simon:meshlab blyth$ ps aux | grep dbus
+    messagebus 94546   0.0  0.0    75836    684   ??  Ss    2:05pm   0:00.02 /opt/local/bin/dbus-daemon --system --nofork
 
 
+
+qdbus probing
+----------------
+
+
+::
+
+    simon:~ blyth$ which dbus-send 
+    /opt/local/bin/dbus-send
+
+    simon:~ blyth$ which qdbus
+    /opt/local/bin/qdbus
+
+
+When dbus daemon is not running::
+
+    simon:~ blyth$ qdbus com.nokia.Demo 
+    Dynamic session lookup supported but failed: launchd did not provide a socket path, verify that org.freedesktop.dbus-session.plist is loaded!
+    Could not connect to D-Bus server: org.freedesktop.DBus.Error.NoMemory: Not enough memory
+
+When running::
+
+    simon:~ blyth$ qdbus com.nokia.Demo 
+    /
+
+The daemon knows about the interface::
+
+    simon:~ blyth$ qdbus com.nokia.Demo /
+    signal void com.nokia.Demo.LateEvent(QString eventkind)
+    method void com.nokia.Demo.SayBye()
+    method void com.nokia.Demo.SayHello(QString name, QVariantMap customdata)
+    method QDBusVariant org.freedesktop.DBus.Properties.Get(QString interface_name, QString property_name)
+    method QVariantMap org.freedesktop.DBus.Properties.GetAll(QString interface_name)
+    method void org.freedesktop.DBus.Properties.Set(QString interface_name, QString property_name, QDBusVariant value)
+    method QString org.freedesktop.DBus.Introspectable.Introspect()
+    method QString org.freedesktop.DBus.Peer.GetMachineId()
+    method void org.freedesktop.DBus.Peer.Ping()
+
+
+::
+
+    simon:~ blyth$ dbus-send --type=method_call --print-reply \
+    >     --dest=com.nokia.Demo / org.freedesktop.DBus.Introspectable.Introspect
+    method return sender=:1.0 -> dest=:1.3 reply_serial=2
+       string "<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+    "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+    <node>
+      <interface name="com.nokia.Demo">
+        <method name="SayHello">
+          <annotation value="QVariantMap" name="com.trolltech.QtDBus.QtTypeName.In1"/>
+          <arg direction="in" type="s" name="name"/>
+          <arg direction="in" type="a{sv}" name="customdata"/>
+        </method>
+        <method name="SayBye"/>
+        <signal name="LateEvent">
+          <arg direction="out" type="s" name="eventkind"/>
+        </signal>
+      </interface>
+      <interface name="org.freedesktop.DBus.Properties">
+        <method name="Get">
+          <arg name="interface_name" type="s" direction="in"/>
+          <arg name="property_name" type="s" direction="in"/>
+          <arg name="value" type="v" direction="out"/>
+        </method>
+        <method name="Set">
+          <arg name="interface_name" type="s" direction="in"/>
+          <arg name="property_name" type="s" direction="in"/>
+          <arg name="value" type="v" direction="in"/>
+        </method>
+        <method name="GetAll">
+          <arg name="interface_name" type="s" direction="in"/>
+          <arg name="values" type="a{sv}" direction="out"/>
+          <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+        </method>
+      </interface>
+      <interface name="org.freedesktop.DBus.Introspectable">
+        <method name="Introspect">
+          <arg name="xml_data" type="s" direction="out"/>
+        </method>
+      </interface>
+      <interface name="org.freedesktop.DBus.Peer">
+        <method name="Ping"/>
+        <method name="GetMachineId">
+          <arg name="machine_uuid" type="s" direction="out"/>
+        </method>
+      </interface>
+    </node>
+    "
+
+
+Remote signalling::
+
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayBye
+
+Over at the app console::
+
+    simon:qtdbus blyth$ qtdbus.app/Contents/MacOS/qtdbus 
+    MyDemo::MyDemo 
+    MyDemo::SayBye 
+
+Similarly::
+
+    simon:~ blyth$ dbus-send --type=method_call --print-reply \
+    >     --dest=com.nokia.Demo / com.nokia.Demo.SayBye
+    method return sender=:1.0 -> dest=:1.5 reply_serial=2
+
+
+What about methods with parameters::
+
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayHello simon
+    Invalid number of parameters
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayHello      
+    Error: org.freedesktop.DBus.Error.UnknownMethod
+    No such method 'SayHello' in interface 'com.nokia.Demo' at object path '/' (signature '')
+    simon:~ blyth$ 
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayHello simon b
+    Sorry, can't pass arg of type 'QVariantMap'.
+
+
+* http://forum.kde.org/viewtopic.php?f=17&t=85292
+
+Seems cannot do that from commandline arguments with ``qdbus`` tool. So..
+
+
+Add method that just takes string arg for simplicity
+------------------------------------------------------
+
+Succeeds to invoke methods with string arguments in the running qt app::
+
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayHelloThere simon
+    simon:~ blyth$ qdbus com.nokia.Demo / com.nokia.Demo.SayHelloThere "http://simon?c=2,3,4&other=yes&yo"
+
+::
+
+    simon:qtdbus blyth$ ./run.sh 
+    MyDemo::MyDemo 
+    MyDemo::SayHelloThere [ "simon" ] 
+    MyDemo::SayHelloThere [ "http://simon?c=2,3,4&other=yes&yo" ] 
+
+
+Python dbus
+--------------
+
+For passing dicts need to go beyond ``qdbus``::
+
+    simon:~ blyth$ sudo port install -v dbus-python26 
+    Password:
+    --->  Computing dependencies for gettext
+
+
+* http://dbus.freedesktop.org/doc/dbus-python/
+* http://cgit.freedesktop.org/dbus/dbus-python/tree/examples/example-client.py
 
 
 
