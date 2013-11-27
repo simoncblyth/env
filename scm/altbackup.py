@@ -113,6 +113,18 @@ monitoring is done. If this repeats will need to move the cron time::
     -rw-r--r--  1 blyth blyth 64 May 28 14:07 /data/var/scm/alt.backup/dayabay/tracs/dybsvn/2013/05/28/104701/dybsvn.tar.gz.dna
 
 
+monitor warnings from no dna
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In the past week (late Nov 2013) there have been a several days with 
+monitor mail warnings complaining of no dna.
+Checking on source node at IHEP find an error message in cronlog/altbackup_.log::
+
+    ssh(15574) ssh: cms01.phys.ntu.edu.tw: Temporary failure in name resolution^M
+    lost connection
+
+Switch to the IP rather than the name in .ssh/config
+
 
 """
 
