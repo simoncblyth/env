@@ -208,10 +208,16 @@ Start macports dbus daemon
     messagebus 94546   0.0  0.0    75836    684   ??  Ss    2:05pm   0:00.02 /opt/local/bin/dbus-daemon --system --nofork
 
 
+Seems the session daemon is started automatically from the system daemon as only one successful load yet 
+two daemons, system and session::
+
+    simon:~ blyth$ ps aux | grep dbus
+    blyth    94851   0.0  0.0    75848    804   ??  S     2:10pm   0:00.05 /opt/local/bin/dbus-daemon --nofork --session
+    messagebus 94546   0.0  0.0    75836    684   ??  Ss    2:05pm   0:00.02 /opt/local/bin/dbus-daemon --system --nofork
+
 
 qdbus probing
 ----------------
-
 
 ::
 
@@ -361,7 +367,17 @@ For passing dicts need to go beyond ``qdbus``::
 * http://dbus.freedesktop.org/doc/dbus-python/
 * http://cgit.freedesktop.org/dbus/dbus-python/tree/examples/example-client.py
 
+* http://dbus.freedesktop.org/doc/dbus-python/doc/tutorial.html
 
 
+Too many dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~
 
+::
+
+    simon:~ blyth$ port deps dbus-python26
+    Full Name: dbus-python26 @0.83.2_0
+    Build Dependencies:   pkgconfig
+    Library Dependencies: dbus, dbus-glib, gettext, glib2, libiconv, python26, py26-gobject
+    simon:~ blyth$ 
 
