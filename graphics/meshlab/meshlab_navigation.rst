@@ -148,6 +148,323 @@ Lotsa interesting emits from glarea /usr/local/env/graphics/meshlab/meshlab/src/
 
 
 
+Meshlab ``Windows > Copy Shot  (cmd-C)`` puts the below XML onto clipboard::
+
+    <!DOCTYPE ViewState>
+    <project>
+                 <VCGCamera    
+                               TranslationVector="2047.35 397.133 2045.83 1" 
+                               LensDistortion="0 0" 
+                               ViewportPx="1678 906" 
+                               PixelSizeMm="0.0369161 0.0369161" 
+                               CenterPx="839 453" 
+                               FocalMm="28.9651" 
+                               RotationMatrix="-0.60671 -0.719133 -0.338749 0 -0.435627 0.657238 -0.615034 0 0.66493 -0.225579 -0.712027 0 0 0 0 1 "
+                            />
+
+                <ViewSettings 
+                              NearPlane="1.03109" 
+                              TrackScale="0.00729556" 
+                              FarPlane="13.0311" 
+                            />
+
+                <Render 
+                              Lighting="1" 
+                              DoubleSideLighting="0" 
+                              SelectedVert="0" 
+                              ColorMode="0" 
+                              SelectedFace="0" 
+                              BackFaceCull="0" 
+                              FancyLighting="0" 
+                              DrawMode="5" 
+                              TextureMode="0"
+                            />
+    </project>
+
+
+Then after navigating elsewhere ``Windows > Paste Shot (cmd-V)`` will return to the copy shot viewpoint
+and camera parameters.
+
+
+/usr/local/env/graphics/meshlab/meshlab/src/meshlab/mainwindow_Init.cpp::
+
+     366     copyShotToClipboardAct = new QAction (tr("Copy shot"), this);
+     367     copyShotToClipboardAct->setShortcut(QKeySequence::Copy);
+     368     connect(copyShotToClipboardAct, SIGNAL(triggered()), this, SLOT(copyViewToClipBoard()));
+     369 
+     370     pasteShotFromClipboardAct = new QAction (tr("Paste shot"), this);
+     371     pasteShotFromClipboardAct->setShortcut(QKeySequence::Paste);
+     372     connect(pasteShotFromClipboardAct, SIGNAL(triggered()), this, SLOT(pasteViewFromClipboard()));
+
+
+The paste is very close to what I want, but with control via a simple string (like a http bookmark) 
+identifying the node, camera position and lookat direction in units of the bbox of the node.
+
+
+/usr/local/env/graphics/meshlab/meshlab/src/meshlab/mainwindow_RunTime.cpp::
+
+     623 void MainWindow::viewFrom(QAction *qa)
+     624 {
+     625  if(GLA()) GLA()->createOrthoView(qa->text());
+     626 }
+     627 
+     628 void MainWindow::readViewFromFile()
+     629 {
+     630   if(GLA()) GLA()->viewFromFile();
+     631     updateMenus();
+     632 }
+     633 
+     634 
+     635 void MainWindow::viewFromCurrentMeshShot()
+     636 {
+     637   if(GLA()) GLA()->viewFromCurrentShot("Mesh");
+     638   updateMenus();
+     639 }
+     640 
+     641 void MainWindow::viewFromCurrentRasterShot()
+     642 {
+     643   if(GLA()) GLA()->viewFromCurrentShot("Raster");
+     644   updateMenus();
+     645 }
+     646 
+     647 void MainWindow::copyViewToClipBoard()
+     648 {
+     649   if(GLA()) GLA()->viewToClipboard();
+     650 }
+     //
+     //   TRIGGERING THE PASTE ACTION RESULTS IN THIS BEING SIGNALLED
+     //
+     652 void MainWindow::pasteViewFromClipboard()
+     653 {
+     654   if(GLA()) GLA()->viewFromClipboard();
+     655     updateMenus();
+     656 }
+
+
+glarea.cpp::
+
+    1681 void GLArea::viewFromClipboard()
+    1682 {
+    1683     QClipboard *clipboard = QApplication::clipboard();
+    1684     QString shotString = clipboard->text();
+    1685     QDomDocument doc("StringDoc");
+    1686     doc.setContent(shotString);
+    1687     loadViewFromViewStateFile(doc);
+    1688 }
+
+::
+
+    1597 /* 
+    1598 ViewState file is an xml file format created by Meshlab with the action "copyToClipboard"
+    1599 */
+    1600 void GLArea::loadViewFromViewStateFile(const QDomDocument &doc)
+    1601 {
+    1602     Shotf shot;
+    1603     QDomElement root = doc.documentElement();
+    1604     QDomNode node = root.firstChild();
+    1605 
+    1606     while(!node.isNull())
+    1607     {
+    1608         if (QString::compare(node.nodeName(),"VCGCamera")==0)
+    1609             ReadShotFromQDomNode<Shotf>(shot,node);
+    1610         else if (QString::compare(node.nodeName(),"CamParam")==0)
+    1611             ReadShotFromOLDXML<Shotf>(shot,node);
+    1612 
+    1613         else if (QString::compare(node.nodeName(),"ViewSettings")==0)
+    1614         {
+    1615             QDomNamedNodeMap attr = node.attributes();
+    1616             trackball.track.sca = attr.namedItem("TrackScale").nodeValue().section(' ',0,0).toFloat();
+    1617             nearPlane = attr.namedItem("NearPlane").nodeValue().section(' ',0,0).toFloat();
+    1618             farPlane = attr.namedItem("FarPlane").nodeValue().section(' ',0,0).toFloat();
+    1619             fov = shot.GetFovFromFocal();
+    1620             clipRatioNear = (getCameraDistance()-nearPlane)/2.0f ;
+    1621             clipRatioFar = (farPlane-getCameraDistance())/10.0f ;
+    1622 
+    1623         }
+    1624         else if (QString::compare(node.nodeName(),"Render")==0)
+    1625         {
+    1626             QDomNamedNodeMap attr = node.attributes();
+    1627             rm.drawMode = (vcg::GLW::DrawMode) (attr.namedItem("DrawMode").nodeValue().section(' ',0,0).toInt());
+    1628             rm.colorMode = (vcg::GLW::ColorMode) (attr.namedItem("ColorMode").nodeValue().section(' ',0,0).toInt());
+    1629             rm.textureMode = (vcg::GLW::TextureMode) (attr.namedItem("TextureMode").nodeValue().section(' ',0,0).toInt());
+    1630             rm.lighting = (attr.namedItem("Lighting").nodeValue().section(' ',0,0).toInt() != 0);
+    1631             rm.backFaceCull = (attr.namedItem("BackFaceCull").nodeValue().section(' ',0,0).toInt() != 0);
+    1632             rm.doubleSideLighting = (attr.namedItem("DoubleSideLighting").nodeValue().section(' ',0,0).toInt() != 0);
+    1633             rm.fancyLighting = (attr.namedItem("FancyLighting").nodeValue().section(' ',0,0).toInt() != 0);
+    1634             rm.selectedFace = (attr.namedItem("SelectedFace").nodeValue().section(' ',0,0).toInt() != 0);
+    1635             rm.selectedVert = (attr.namedItem("SelectedVert").nodeValue().section(' ',0,0).toInt() != 0);
+    1636         }
+    1637         node = node.nextSibling();
+    1638     }
+    1639 
+    1640     loadShot(QPair<Shotf, float> (shot,trackball.track.sca));
+    1641 }
+    ....
+    1726 void GLArea::loadShot(const QPair<vcg::Shotf,float> &shotAndScale){
+    1727 
+    1728     Shotf shot = shotAndScale.first;
+    1729 
+    1730     fov = shot.GetFovFromFocal();
+    1731 
+    1732     float cameraDist = getCameraDistance();
+    1733 
+    1734     //reset trackball. The point of view must be set only by the shot
+    1735     trackball.Reset();
+    1736     trackball.track.sca = shotAndScale.second;
+    1737 
+    1738     /*Point3f point = this->md()->bbox().Center();
+    1739     Point3f p1 = ((trackball.track.Matrix()*(point-trackball.center))- Point3f(0,0,cameraDist));*/
+    1740     shot2Track(shot, cameraDist,trackball);
+    1741 
+    ....     just comments here  
+    ....
+    1768     update();
+    1769 }
+
+
+/usr/local/env/graphics/meshlab/meshlab/src/meshlab/glarea.h::
+
+    479     /*
+    480     Given a shot "from" and a trackball "track", updates "track" with "from" extrinsics.
+    481     A traslation involving cameraDistance is included. This is necessary to compensate a trasformation that OpenGL performs
+    482     at the end of the graphic pipeline.
+    483     */
+    484     template <class T>
+    485     void shot2Track(const vcg::Shot<T> &from, const float cameraDist, vcg::Trackball &tb){
+    486 
+    487     vcg::Quaternion<T> qfrom; qfrom.FromMatrix(from.Extrinsics.Rot());
+    488 
+    489         tb.track.rot = vcg::Quaternionf::Construct(qfrom);
+    490         tb.track.tra =  (vcg::Point3f::Construct(-from.Extrinsics.Tra()));
+    491         tb.track.tra += vcg::Point3f::Construct(tb.track.rot.Inverse().Rotate(vcg::Point3f(0,0,cameraDist)))*(1/tb.track.sca);
+    492     }
+
+
+/usr/local/env/graphics/meshlab/vcglib/wrap/qt/shot_qt.h::
+
+     09 template <class ShotType>
+     10     bool ReadShotFromQDomNode(
+     11         ShotType &shot, /// the shot that will contain the read node
+     12         const QDomNode &node) /// The XML node to be read
+     13 {
+     14   typedef typename ShotType::ScalarType ScalarType;
+     15   typedef vcg::Point3<typename ShotType::ScalarType> Point3x;
+     16   if(QString::compare(node.nodeName(),"VCGCamera")==0)
+     17   {
+     18     QDomNamedNodeMap attr = node.attributes();
+     19     Point3x tra;
+     20     tra[0] = attr.namedItem("TranslationVector").nodeValue().section(' ',0,0).toDouble();
+     21     tra[1] = attr.namedItem("TranslationVector").nodeValue().section(' ',1,1).toDouble();
+     22     tra[2] = attr.namedItem("TranslationVector").nodeValue().section(' ',2,2).toDouble();
+     23     shot.Extrinsics.SetTra(-tra);
+     24 
+     25     vcg::Matrix44<ScalarType> rot;
+     26     QStringList values =  attr.namedItem("RotationMatrix").nodeValue().split(" ", QString::SkipEmptyParts);
+     27     for(int y = 0; y < 4; y++)
+     28       for(int x = 0; x < 4; x++)
+     29         rot[y][x] = values[x + 4*y].toDouble();
+     30     shot.Extrinsics.SetRot(rot);
+     31 
+     32     vcg::Camera<ScalarType> &cam = shot.Intrinsics;
+     33     cam.FocalMm = attr.namedItem("FocalMm").nodeValue().toDouble();
+     34     cam.ViewportPx.X() = attr.namedItem("ViewportPx").nodeValue().section(' ',0,0).toInt();
+     35     cam.ViewportPx.Y() = attr.namedItem("ViewportPx").nodeValue().section(' ',1,1).toInt();
+     36     cam.CenterPx[0] = attr.namedItem("CenterPx").nodeValue().section(' ',0,0).toInt();
+     37     cam.CenterPx[1] = attr.namedItem("CenterPx").nodeValue().section(' ',1,1).toInt();
+     38     cam.PixelSizeMm[0] = attr.namedItem("PixelSizeMm").nodeValue().section(' ',0,0).toDouble();
+     39     cam.PixelSizeMm[1] = attr.namedItem("PixelSizeMm").nodeValue().section(' ',1,1).toDouble();
+     40     cam.k[0] = attr.namedItem("LensDistortion").nodeValue().section(' ',0,0).toDouble();
+     41     cam.k[1] = attr.namedItem("LensDistortion").nodeValue().section(' ',1,1).toDouble();
+     42 
+     43     // scale correction should no more exist !!!
+     44     //    float scorr = attr.namedItem("ScaleCorr").nodeValue().toDouble();
+     45     //    if(scorr != 0.0) {
+     46     //      cam.PixelSizeMm[0] *= scorr;
+     47     //      cam.PixelSizeMm[1] *= scorr;
+     48     //    }
+     49     return true;
+     50   }
+     51   return false;
+     52 }
+
+Hmm need some bbox based shot calculations, /usr/local/env/graphics/meshlab/vcglib/wrap/gl/shot.h::
+
+    172 /// given a shot and the mesh bounding box, return near and far plane (exact)
+    173 static void GetNearFarPlanes(vcg::Shot<ScalarType> & shot, vcg::Box3<ScalarType> bbox, ScalarType &nr, ScalarType &fr)
+    174 {
+
+
+    210 /**********************************
+    211 DEFINE SHOT FROM TRACKBALL
+    212 Adds to a given shot the trackball transformations.
+    213 After this operation the trackball should be resetted, to avoid
+    214 multiple apply of the same transformation.
+    215 ***********************************/
+    216 static void FromTrackball(const vcg::Trackball & tr,
+    217                           vcg::Shot<ScalarType> & sShot,
+    218                           vcg::Shot<ScalarType> & shot )
+    219 {
+    220     vcg::Point3<ScalarType>     cen; cen.Import(tr.center);
+    221     vcg::Point3<ScalarType>     tra; tra.Import(tr.track.tra);
+    222     vcg::Matrix44<ScalarType>   trM; trM.FromMatrix(tr.track.Matrix());
+    223 
+    224     vcg::Point3<ScalarType>     vp = Inverse(trM)*(sShot.GetViewPoint()-cen) +cen;// +tra;
+    225 
+    226     shot.SetViewPoint(vp);
+    227     shot.Extrinsics.SetRot(sShot.Extrinsics.Rot()*trM);
+    228 //  shot.Extrinsics.sca =   sShot.Extrinsics.sca*(ScalarType)tr.track.sca;
+    229 }
+    230 };
+
+
+/usr/local/env/graphics/meshlab/vcglib/vcg/math/shot.h::
+
+    185   /// look at (point+up)
+    186   void LookAt(const vcg::Point3<S> & point,const vcg::Point3<S> & up);
+    187 
+    188   /// look at (opengl-like)
+    189   void LookAt(const S & eye_x,const S & eye_y,const S & eye_z,
+    190         const S & at_x,const S & at_y,const S & at_z,
+    191         const S & up_x,const S & up_y,const S & up_z);
+    192 
+    193   /// look towards (dir+up)
+    194   void LookTowards(const vcg::Point3<S> & z_dir,const vcg::Point3<S> & up);
+    ...
+    330 /// look at (point+up)
+    331 template <class S, class RotationType>
+    332 void Shot<S,RotationType>::LookAt(const vcg::Point3<S> & z_dir,const vcg::Point3<S> & up)
+    333 {
+    334     LookTowards(z_dir-GetViewPoint(),up);
+    335 }
+    336 
+    337 /// look at (opengl-like)
+    338 template <class S, class RotationType>
+    339 void Shot<S,RotationType>::LookAt(const S & eye_x, const S & eye_y, const S & eye_z,
+    340            const S & at_x, const S & at_y, const S & at_z,
+    341            const S & up_x,const S & up_y,const S & up_z)
+    342 {
+    343   SetViewPoint(Point3<S>(eye_x,eye_y,eye_z));
+    344   LookAt(Point3<S>(at_x,at_y,at_z),Point3<S>(up_x,up_y,up_z));
+    345 }
+    346 
+    347 /// look towards
+    348 template <class S, class RotationType>
+    349 void Shot<S,RotationType>::LookTowards(const vcg::Point3<S> & z_dir,const vcg::Point3<S> & up)
+    350 {
+    351   vcg::Point3<S> x_dir = up ^-z_dir;
+    352   vcg::Point3<S> y_dir = -z_dir ^x_dir;
+    353 
+    354   Matrix44<S> m;
+    355   m.SetIdentity();
+    356   *(vcg::Point3<S> *)&m[0][0] =  x_dir/x_dir.Norm();
+    357   *(vcg::Point3<S> *)&m[1][0] =  y_dir/y_dir.Norm();
+    358   *(vcg::Point3<S> *)&m[2][0] = -z_dir/z_dir.Norm();
+    359 
+    360   Extrinsics.rot.FromMatrix(m);
+    361 } 
+
+
+
 
 
 

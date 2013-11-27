@@ -154,6 +154,111 @@ See *port help select*, usage example::
 
 	  port select --show python 
 
+
+Freeing space
+---------------
+
+* https://trac.macports.org/wiki/howto/InstallingOlderPort
+
+::
+
+    simon:~ blyth$ sudo port -v uninstall inactive
+    Password:
+    --->  Unable to uninstall subversion-perlbindings @1.6.2_0, the following ports depend on it:
+    --->    p5-svn-simple @0.27_0
+    Error: port uninstall failed: Please uninstall the ports that depend on subversion-perlbindings first.
+    simon:~ blyth$ 
+
+
+Macports space inactive
+-------------------------
+
+::
+
+    simon:~ blyth$ macports-space-inactive
+    Port gdk-pixbuf2 does not contain any file or is not active.
+    Port glib2-devel does not contain any file or is not active.
+    Port gtk2 does not contain any file or is not active.
+    Port liblzma does not contain any file or is not active.
+    Port lighttpd does not contain any file or is not active.
+    Port lzmautils does not contain any file or is not active.
+    Port p5-error does not contain any file or is not active.
+    Port p5-error does not contain any file or is not active.
+    Port p5-locale-gettext does not contain any file or is not active.
+    Port p5-locale-gettext does not contain any file or is not active.
+    Port p5-locale-gettext does not contain any file or is not active.
+    Port py25-setuptools does not contain any file or is not active.
+    Port py26-distribute does not contain any file or is not active.
+    Port py26-distribute does not contain any file or is not active.
+    Port py26-distribute does not contain any file or is not active.
+    Port py26-distribute does not contain any file or is not active.
+    Port subversion-perlbindings does not contain any file or is not active.
+    Port teTeX does not contain any file or is not active.
+    Port texlive-bin-extra does not contain any file or is not active.
+    441.094 MiB llvm-3.0 @3.0_4
+    412.499 MiB boost @1.47.0_2
+    412.499 MiB boost @1.38.0_0
+    412.499 MiB boost @1.35.0_2
+    248.246 MiB erlang @R14B01_1
+    127.195 MiB mysql5 @5.1.50_1
+    127.195 MiB mysql5 @5.1.49_0
+    127.195 MiB mysql5 @5.0.81_0
+    127.195 MiB mysql5 @5.0.81_0
+    89.866 MiB texlive-basic @23152_1
+    78.185 MiB texlive-latex @23089_0
+    76.566 MiB python27 @2.7.2_4
+    67.766 MiB python26 @2.6.7_4
+    67.766 MiB python26 @2.6.7_3
+    67.766 MiB python26 @2.6.6_1
+    67.766 MiB python26 @2.6.6_0
+    58.869 MiB perl5.12 @5.12.4_1
+    58.869 MiB perl5.12 @5.12.3_3
+    58.869 MiB perl5.12 @5.12.3_2
+    55.978 MiB clang-3.0 @3.0_7
+    54.368 MiB python25 @2.5.5_1
+    54.368 MiB python25 @2.5.4_3
+    53.890 MiB ghostscript @9.06_1
+    53.890 MiB ghostscript @9.05_0
+    53.890 MiB ghostscript @9.04_1
+    53.890 MiB ghostscript @9.01_0
+    53.890 MiB ghostscript @8.62_0
+    41.986 MiB perl5.8 @5.8.9_3
+    41.986 MiB perl5.8 @5.8.8_3
+    41.631 MiB glib2 @2.30.3_0
+    41.631 MiB glib2 @2.30.2_2
+    41.631 MiB glib2 @2.30.2_1
+    41.631 MiB glib2 @2.24.2_0
+    41.631 MiB glib2 @2.20.2_0
+    37.376 MiB texlive-bin @2012_4
+    37.376 MiB texlive-bin @2011_5
+    28.733 MiB ImageMagick @6.8.0-2_0
+    28.733 MiB ImageMagick @6.7.3-1_0
+    28.733 MiB ImageMagick @6.3.9-7_0
+    28.539 MiB openmotif @2.3.3_1
+
+
+Secret underscore required::
+
+    simon:~ blyth$ sudo port uninstall boost @1.35.0_2
+    Password:
+    Error: port uninstall failed: Registry error: boost @1.35.0_2 not registered as installed
+
+    simon:~ blyth$ sudo port uninstall boost@1.35.0_2
+    Error: port uninstall failed: Registry error: boost @1.35.0_2 not registered as installed
+
+    simon:~ blyth$ sudo port uninstall boost_@1.35.0_2
+
+
+::
+
+    simon:~ blyth$ sudo port installed  | grep llvm
+      llvm-3.0 @3.0_4
+      llvm-3.0 @3.0_11 (active)
+      llvm_select @0.2_0 (active)
+    simon:~ blyth$ sudo port uninstall -v llvm-3.0_@3.0_4
+
+
+
 Functions
 -----------
 
@@ -188,9 +293,12 @@ macports-clean(){
    eval $cmd
 }
 
+macports-space-installed(){ macports-space installed ; }
+macports-space-inactive(){  macports-space inactive ; }
 macports-space(){
-   local space=space.txt
-   [ ! -f $space ] && sudo port space installed > $space
+   local arg=${1:-installed}
+   local space=space-$arg.txt
+   [ ! -f $space ] && sudo port space $arg > $space
    grep MiB $space | sort -g -r | head -40
 }
 

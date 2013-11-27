@@ -38,7 +38,9 @@ FUNCTIONS
          do above qmake and make functions
 
 *meshlab--*
-         launch the meshlab GUI
+         launch the meshlab GUI. Optionally load a mesh directly::
+
+             meshlab-- $(local-base)/env/geant4/geometry/gdml/3199.dae
 
 
 *meshlab-collada-make*
@@ -85,7 +87,7 @@ meshlab-env(){
 meshlab--(){
    # attemping to launch from elsewhere fails to load plugins
    meshlab-cd distrib/meshlab.app/Contents/MacOS
-   ./meshlab
+   ./meshlab $*
 }
 meshlab--server(){
    # attemping to launch from elsewhere fails to load plugins
