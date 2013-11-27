@@ -72,6 +72,8 @@ Contents:
    linux/index
    cloud/index
    package_management/index
+   ui/index
+
 
 Indices and tables
 ==================

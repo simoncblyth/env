@@ -19,8 +19,12 @@ meshlabdev-cd(){  cd $(meshlabdev-dir); }
 meshlabdev-mate(){ mate $(meshlabdev-dir) ; }
 meshlabdev-get(){
    local dir=$(meshlabdev-dir) &&  mkdir -p $dir && cd $dir
+   svn checkout http://svn.code.sf.net/p/meshlab/code/trunk/  meshlab_trunk
+   svn checkout http://svn.code.sf.net/p/vcg/code/trunk/ vcglib_trunk
+}
 
+meshlabdev-git(){
+   echo TEST BUILDING SVN CHECKOUT BEFORE GIT SVN CLONE : AS LIABLE TO TAKE DAYS TO DOWNLOAD ENTIRE REPO HISTORY
    git svn clone http://svn.code.sf.net/p/meshlab/code/trunk/  meshlab_trunk
    git svn clone http://svn.code.sf.net/p/vcg/code/trunk/ vcglib_trunk
-
 }

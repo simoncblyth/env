@@ -44,21 +44,22 @@ G
 
 * http://localhost/qt4/
 
-qt4-mac-devel failed after many hours of building::
-
-    port install qt4-mac-devel 
-
-* http://trac.macports.org/ticket/34902
-* http://trac.macports.org/changeset/96486
-
 ::
 
-    simon:local blyth$ port dir qt4-mac-devel
-    /opt/local/var/macports/sources/rsync.macports.org/release/ports/aqua/qt4-mac-devel
-    simon:local blyth$ cd /opt/local/var/macports/sources/rsync.macports.org/release/ports/aqua/qt4-mac-devel
+    simon:~ blyth$ qmake -v
+    QMake version 2.01a
+    Using Qt version 4.8.5 in /opt/local/lib
 
-Instead installed qt4-mac, a jumbo install taking several days, literally::
 
+* macports qt4-mac-devel failed after many hours of building, 
+
+  * http://trac.macports.org/ticket/34902
+  * http://trac.macports.org/changeset/96486
+
+* instead installed macports qt4-mac which literally took days gto build::
+
+    simon:~ blyth$ sudo port -v install qt4-mac
+    ...
     ./opt/local/share/qt4/translations/qvfb_ru.qm
     ./opt/local/share/qt4/translations/qvfb_sl.qm
     ./opt/local/share/qt4/translations/qvfb_uk.qm
@@ -70,9 +71,15 @@ Instead installed qt4-mac, a jumbo install taking several days, literally::
     --->  Updating database of binaries: 100.0%
     --->  Scanning binaries for linking errors: 100.0%
     --->  No broken files found.
-    simon:~ blyth$ 
-    simon:~ blyth$ 
-    simon:~ blyth$ sudo port -v install qt4-mac
+
+
+macports debugging
+^^^^^^^^^^^^^^^^^^^^
+::
+
+    simon:local blyth$ port dir qt4-mac-devel
+    /opt/local/var/macports/sources/rsync.macports.org/release/ports/aqua/qt4-mac-devel
+    simon:local blyth$ cd /opt/local/var/macports/sources/rsync.macports.org/release/ports/aqua/qt4-mac-devel
 
 
 
