@@ -140,7 +140,8 @@ bool ColladaIOPlugin::open(const QString &formatName, const QString &fileName, M
 		}
 		else
         {
-#if defined SCB_COLLADA_CACHE
+#if defined SCB_COLLADA_GEOMETRY_CACHE
+            qDebug() << "ColladaIOPlugin::open pass the bbox_cache to the MeshModel " ; 
             m.bbox_cache = info.bbox_cache ;        
 #endif
             _mp.push_back(&m);

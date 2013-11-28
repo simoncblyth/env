@@ -89,6 +89,11 @@ meshlab--(){
    meshlab-cd distrib/meshlab.app/Contents/MacOS
    ./meshlab $*
 }
+
+meshlab-q(){ meshlab-- /usr/local/env/geant4/geometry/gdml/${1:-3199}.dae ; }
+meshlab-v-url(){ echo "http://localhost/dae/tree/${1:-0}.html?fov=30&cam=1&a=0.1,0.1,0.1&up=0,0,1" ; }
+meshlab-v(){ qdbus com.meshlab.navigator / SayHelloThere "$(meshlab-v-url $1)" ; }
+
 meshlab--server(){
    # attemping to launch from elsewhere fails to load plugins
    meshlab-cd distrib/meshlab.app/Contents/MacOS

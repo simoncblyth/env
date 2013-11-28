@@ -332,7 +332,7 @@ glarea.cpp::
     484     template <class T>
     485     void shot2Track(const vcg::Shot<T> &from, const float cameraDist, vcg::Trackball &tb){
     486 
-    487     vcg::Quaternion<T> qfrom; qfrom.FromMatrix(from.Extrinsics.Rot());
+    487         vcg::Quaternion<T> qfrom; qfrom.FromMatrix(from.Extrinsics.Rot());
     488 
     489         tb.track.rot = vcg::Quaternionf::Construct(qfrom);
     490         tb.track.tra =  (vcg::Point3f::Construct(-from.Extrinsics.Tra()));
@@ -464,6 +464,159 @@ Hmm need some bbox based shot calculations, /usr/local/env/graphics/meshlab/vcgl
     361 } 
 
 
+
+
+Succeeded to deliver string to GLArea via DBus and signal/slot
+--------------------------------------------------------------------
+
+::
+
+    simon:src blyth$ t meshlab-v
+    meshlab-v is a function
+    meshlab-v () 
+    { 
+        qdbus com.meshlab.navigator / SayHelloThere ${1:-simon}
+    }
+    simon:src blyth$ meshlab-v yo 
+
+
+::
+
+    Processing Visual Scene child 1 - of type 'extra'
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/3199.dae in 197 msec
+    LOG: 0 All files opened in 3126 msec
+    MyNav::SayHelloThere [ "simon" ] 
+    GLArea::handleNavigateViewer [ "simon" ] 
+    MyNav::SayHelloThere [ "yo" ] 
+    GLArea::handleNavigateViewer [ "yo" ] 
+
+
+
+
+
+::
+
+    <!DOCTYPE ViewState>
+    <project>
+     <VCGCamera TranslationVector="2323.61 303.412 1334.53 1" LensDistortion="0 0" ViewportPx="1678 906" PixelSizeMm="0.0369161 0.0369161" CenterPx="839 453" FocalMm="28.9651" RotationMatrix="1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 "/>
+     <ViewSettings NearPlane="1.03109" TrackScale="0.00729556" FarPlane="13.0311"/>
+     <Render Lighting="1" DoubleSideLighting="0" SelectedVert="0" ColorMode="0" SelectedFace="0" BackFaceCull="0" FancyLighting="0" DrawMode="5" TextureMode="0"/>
+    </project>
+
+
+::
+
+    ColladaIOPlugin::open pass the bbox_cache to the MeshModel  
+    LOG: 0 Opened mesh /usr/local/env/geant4/geometry/gdml/3199.dae in 468 msec
+    LOG: 0 All files opened in 3100 msec
+    MyNav::SayHelloThere [ "simon" ] 
+    GLArea::handleNavigateViewer [ "simon" ] 
+    **    bbox 0    min -2473.613037 -402.842834 -1849.429443   max -2173.610107 -203.982086 -1650.569336 
+
+
+
+
+Trackball
+------------
+
+
+/usr/local/env/graphics/meshlab/vcglib/wrap/gui/trackball.h:: 
+
+    099 class Transform {
+    100 public:
+    101   /*!
+    102     @brief The constructor.
+    103 
+    104     Initialize:
+    105     - track to the identity transform.
+    106     - center to origin 0,0,0.
+    107     - radius to unit size.
+    108   */
+    109   Transform();
+    110   /// A trackball stores a transformation called 'track' that effectively rototranslate the object.
+    111   Similarityf track;
+    112   /// track position in model space.
+    113   Point3f center;
+    114   /// size of the widget in model space.
+    115   float radius;
+    116 };
+    ...
+    167 class Trackball: public Transform {
+    168 public:
+    ...
+    279   // T(c) S R T(t) T(-c) => S R T(S^(-1) R^(-1)(c) + t - c)
+    280   Matrix44f Matrix() const;
+    281   Matrix44f InverseMatrix() const;
+    ...
+
+/usr/local/env/graphics/meshlab/vcglib/vcg/math/similarity.h::
+
+    103 template <class S,class RotationType = Quaternion<S> > class Similarity {
+    104 public:
+    105   Similarity() {}
+    106   Similarity(const RotationType &q) { SetRotate(q); }
+    107   Similarity(const Point3<S> &p) { SetTranslate(p); }
+    108   Similarity(S s) { SetScale(s); }
+    109     Similarity(S alpha, S beta, S gamma)
+    110     {
+    111         rot.FromEulerAngles(alpha, beta, gamma);
+    112         tra = Point3<S>(0, 0, 0);
+    113         sca = 1;
+    114     }
+    115 
+    116   Similarity operator*(const Similarity &affine) const;
+    117   Similarity &operator*=(const Similarity &affine);
+    118   //Point3<S> operator*(const Point3<S> &p) const;
+    119 
+    120 
+    121   Similarity &SetIdentity();
+    122   Similarity &SetScale(const S s);
+    123     Similarity &SetTranslate(const Point3<S> &t);
+    124   ///use radiants for angle.
+    125   Similarity &SetRotate(S angle, const Point3<S> & axis);
+    126   Similarity &SetRotate(const RotationType &q);
+    127 
+    128   Matrix44<S> Matrix() const;
+    129   Matrix44<S> InverseMatrix() const;
+    130   void FromMatrix(const Matrix44<S> &m);
+    131 
+    132   RotationType rot;
+    133   Point3<S> tra;
+    134   S sca;
+    135 };
+
+
+
+/usr/local/env/graphics/meshlab/vcglib/wrap/gui/trackball.cpp::
+
+    33 Transform::Transform() {
+    34   track.SetIdentity();
+    35   radius=1.0f;
+    36   center=Point3f(0,0,0);
+    37 }
+    ...
+    109 void Trackball::Apply () {
+    110   glTranslate (center);
+    111   glMultMatrix (track.Matrix());
+    112   glTranslate (-center);
+    113 }
+    ...
+    129 // T(c) S R T(t) T(-c) => S R T(S^(-1) R^(-1)(c) + t - c)
+    130 Matrix44f Trackball::Matrix() const{
+    131   #ifndef VCG_USE_EIGEN
+    132   Matrix44f r; track.rot.ToMatrix(r);
+    133   Matrix44f sr    = Matrix44f().SetScale(track.sca, track.sca, track.sca) * r;
+    134   Matrix44f s_inv = Matrix44f().SetScale(1/track.sca, 1/track.sca, 1/track.sca);
+    135   Matrix44f t     = Matrix44f().SetTranslate(s_inv*r.transpose()*center + track.tra - center);
+    136 
+    137   return Matrix44f(sr*t);
+    138   #else
+    139   Eigen::Quaternionf rot(track.rot);
+    140   Eigen::Translation3f tr( (1/track.sca) * (rot.inverse() * center) + track.tra - center );
+    141   return ( Eigen::Scaling3f(track.sca) * (rot * tr) ).matrix();
+    142   #endif
+    143 }
+    144 
 
 
 
