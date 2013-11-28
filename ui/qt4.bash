@@ -5,6 +5,9 @@ qt4-vi(){       vi $(qt4-source) ; }
 qt4-env(){    
     elocal- ; 
     export QMAKESPEC=$(qt4-qmakespec)
+    case $NODE_TAG in 
+      N) PATH=/usr/local/Trolltech/Qt-4.8.4/bin:$PATH ;;
+    esac
 }
 qt4-usage(){ cat << EOU
 
@@ -136,14 +139,67 @@ macports ticket
 * https://trac.macports.org/browser/trunk/dports/aqua/qt4-mac/Portfile   YUCK: ~1200 lines 
 
 
+N build of 4.8.4
+------------------
+
+* https://bugreports.qt-project.org/browse/QTBUG-19565
+
+::
+
+    g++ -c -include .pch/release-shared/QtCore -pipe -pthread -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -O2 -fvisibility=hidden -fvisibility-inlines-hidden -Wall -W -D_REENTRANT -fPIC -DQT_SHARED -DQT_BUILD_CORE_LIB -DQT_NO_USING_NAMESPACE -DQT_NO_CAST_TO_ASCII -DQT_ASCII_CAST_WARNINGS -DQT3_SUPPORT -DQT_MOC_COMPAT -DQT_USE_QSTRINGBUILDER -DELF_INTERPRETER=\"/lib/ld-linux.so.2\" -DQLIBRARYINFO_EPOCROOT -DHB_EXPORT=Q_CORE_EXPORT -DQT_NO_DEBUG -DQT_HAVE_MMX -DQT_HAVE_3DNOW -DQT_HAVE_SSE -DQT_HAVE_MMXEXT -DQT_HAVE_SSE2 -DQT_HAVE_SSE3 -DQT_HAVE_SSSE3 -D_LARGEFILE64_SOURCE -D_LARGEFILE_SOURCE -I../../mkspecs/linux-g++ -I. -I../../include -I../../include/QtCore -I.rcc/release-shared -Iglobal -I../../tools/shared -I../3rdparty/harfbuzz/src -I../3rdparty/md5 -I../3rdparty/md4 -I.moc/release-shared -o .obj/release-shared/qmutex_unix.o thread/qmutex_unix.cpp
+    /usr/include/linux/futex.h:96: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:96: error: 'uaddr' was not declared in this scope
+    /usr/include/linux/futex.h:96: error: expected primary-expression before 'int'
+    /usr/include/linux/futex.h:96: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:96: error: expected primary-expression before 'unsigned'
+    /usr/include/linux/futex.h:97: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:97: error: 'uaddr2' was not declared in this scope
+    /usr/include/linux/futex.h:97: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:97: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:97: error: initializer expression list treated as compound expression
+    /usr/include/linux/futex.h:100: error: 'u32' was not declared in this scope
+    /usr/include/linux/futex.h:100: error: 'uaddr' was not declared in this scope
+    /usr/include/linux/futex.h:100: error: expected primary-expression before 'struct'
+    /usr/include/linux/futex.h:100: error: expected primary-expression before 'int'
+    /usr/include/linux/futex.h:100: error: initializer expression list treated as compound expression
+    gmake[1]: *** [.obj/release-shared/qmutex_unix.o] Error 1
+    gmake[1]: Leaving directory `/data1/env/local/env/ui/qt-everywhere-opensource-src-4.8.4/src/corelib'
+    gmake: *** [sub-corelib-make_default-ordered] Error 2
+    [blyth@belle7 qt-everywhere-opensource-src-4.8.4]$ 
+
+Kludged it as suggested in the bugreport::
+
+    [blyth@belle7 qt-everywhere-opensource-src-4.8.4]$ find . -name qmutex_unix.cpp
+    ./src/corelib/thread/qmutex_unix.cpp
+    [blyth@belle7 qt-everywhere-opensource-src-4.8.4]$ vi src/corelib/thread/qmutex_unix.cpp
+
+     58 # include <mach/task.h>
+     59 #elif defined(Q_OS_LINUX)
+     60 // SCB start kludge  https://bugreports.qt-project.org/browse/QTBUG-19565
+     61 //# include <linux/futex.h>
+     62 # define FUTEX_WAIT 0
+     63 # define FUTEX_WAKE 1
+     64 // SCB end kludge
+     65 # include <sys/syscall.h>
+     66 # include <unistd.h>
+     67 # include <QtCore/qelapsedtimer.h>
+     68 #endif
+
+
 
 EOU
 }
 qt4-mate(){ mate $(qt4-dir) ; }
 qt4-dir(){ echo $(local-base)/env/ui/$(qt4-name) ; }
 qt4-cd(){  cd $(qt4-dir); }
-qt4-name(){ echo qt-everywhere-opensource-src-4.7.4 ;  }
-qt4-url(){ echo http://download.qt-project.org/archive/qt/4.7/$(qt4-name).tar.gz ;  }
+
+#qt4-name(){ echo qt-everywhere-opensource-src-4.7.4 ;  }
+#qt4-url(){ echo http://download.qt-project.org/archive/qt/4.7/$(qt4-name).tar.gz ;  }
+
+qt4-name(){ echo qt-everywhere-opensource-src-4.8.4 ;  }
+qt4-url(){ echo http://download.qt-project.org/archive/qt/4.8/4.8.4/$(qt4-name).tar.gz ;  }
+
+
 qt4-get(){
    local dir=$(dirname $(qt4-dir)) &&  mkdir -p $dir && cd $dir
    local url=$(qt4-url)
