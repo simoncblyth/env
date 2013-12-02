@@ -12,6 +12,7 @@ SCM
     altbackup
     altquery 
     bitbucket/index
+    github/index
     
 
 
