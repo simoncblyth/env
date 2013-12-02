@@ -260,56 +260,6 @@ disable SSL checking allows the clone, but its slow::
 
 
 
-Faux Commits
--------------
-
-Divvy out the changes into multiple commits.
-
-::
-
-    [blyth@belle7 ~]$ unzip -l meshlab.zip 
-    Archive:  meshlab.zip
-      Length     Date   Time    Name
-     --------    ----   ----    ----
-         1513  11-27-13 18:26   meshlab/meshlab/src/meshlab_mini.pro
-
-
-        15972  11-19-13 12:12   meshlab/meshlab/src/common/pluginmanager.cpp   # just debug statements
-
-
- X       21964  11-28-13 12:40   meshlab/meshlab/src/common/meshmodel.h          # geocache and bbox cache
- X       18562  11-26-13 18:05   meshlab/vcglib/wrap/dae/util_dae.h
- X       43529  11-28-13 17:35   meshlab/vcglib/wrap/io_trimesh/import_dae.h
-
-----------
-
-
- X       84841  11-28-13 11:48   meshlab/meshlab/src/meshlab/mainwindow_RunTime.cpp    # unused navigator slot ?
- X       15754  11-27-13 20:50   meshlab/meshlab/src/meshlab/mainwindow.h
-
- X       16817  11-29-13 13:18   meshlab/meshlab/src/meshlab/glarea.h
- X       69491  11-29-13 14:39   meshlab/meshlab/src/meshlab/glarea.cpp           # bbox navigation
-
--------------
-
-         3989  11-28-13 11:36   meshlab/meshlab/src/meshlab/main.cpp
- X        4625  11-28-13 12:38   meshlab/meshlab/src/meshlab/meshlab.pro
- X        3789  11-28-13 12:42   meshlab/meshlab/src/common/common.pro             # navigator hookup
-          535  11-27-13 17:34   meshlab/meshlab/src/common/navigator/com.meshlab.navigator.xml
-          515  11-28-13 11:29   meshlab/meshlab/src/common/navigator/mynav.cpp
-          415  11-28-13 11:49   meshlab/meshlab/src/common/navigator/mynav.h
-          664  11-27-13 17:51   meshlab/meshlab/src/common/navigator/navif.cpp
-         1867  11-27-13 17:51   meshlab/meshlab/src/common/navigator/navif.h
-         1396  11-27-13 17:51   meshlab/meshlab/src/common/navigator/navifadaptor.cpp
-         1839  11-27-13 17:51   meshlab/meshlab/src/common/navigator/navifadaptor.h
-         1737  11-27-13 18:51   meshlab/meshlab/src/common/navigator/qdbusxml2cpp.sh
-     --------                   -------
-       309814                   20 files
-    [blyth@belle7 ~]$ 
-
-
-
-
 
 Git Remotes
 ----------------

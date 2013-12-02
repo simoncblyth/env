@@ -12,11 +12,48 @@ Note there are two areas with meshlab sources and builds:
 #. Standard meshlab in $(meshlab-dir) 
 #. Optimized meshlab collada plugin, and meshlabserver inside the working copy $(env-home)/graphics/meshlab 
 
-Instllation::
+
+
+
+Installation steps. 
+
+#. build externals::
 
     meshlab-get
     meshlab-external
     make                  # qmake must be in PATH
+
+#. build meshlab::
+
+    meshlab-cd
+    meshlab-qmake
+    meshlab-make
+
+#. run::
+
+    meshlab--    # default is to load mesh corresponding to 3155___2 
+
+
+DBUS Requirements
+-------------------
+
+For DBUS communication to work need the DBUS session and system daemons
+to be running prior to launching the forked MeshLab
+
+TODO
+------
+
+#. check on DBUS prior to MeshLab launch ? 
+#. migrate MeshLab notes/docs on enhancements out of env and into:
+
+   * bitbucket wiki repo ? 
+   * Hmm not keen on:
+
+     * lock-in aspect
+     * having a separate repo just for a few docs
+     * dealing with doc system inferior to Sphinx  (no toc)
+
+#. So: add a Sphinx style docs directory with toctree to the forked MeshLab 
 
 
 FUNCTIONS
@@ -37,10 +74,11 @@ FUNCTIONS
 *meshlab-build*
          do above qmake and make functions
 
-*meshlab--*
-         launch the meshlab GUI. Optionally load a mesh directly::
+*meshlab---*
+         launch the meshlab GUI. 
 
-             meshlab-- $(local-base)/env/geant4/geometry/gdml/3199.dae
+*meshlab-- <volspec>*
+         launch the meshlab GUI and load mesh corresponding to volspec. Eg 3155___2 
 
 
 *meshlab-collada-make*
@@ -51,10 +89,74 @@ FUNCTIONS
          promote from separate build plugins folder into official plugins folder
 
 
+DAE FILES
+----------
+
+Full files are scp from N::
+
+    simon:daeserver blyth$ pwd
+    /usr/local/env/geant4/geometry/daeserver
+    simon:daeserver blyth$ scp N:/data1/env/local/env/geant4/geometry/daeserver/DVGX_20131121-2053_g4_00.dae .
+    simon:daeserver blyth$ scp N:/data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae .
+
+Sub geometries can be automatically pulled off the daeserver if not already available, 
+by launching meshlab with the appropriate arg eg::
+
+    meshlab-- 3155___2
+    meshlab-- DVGX_20131121-2053_g4_00
+    meshlab-- VDGX_20131121-2043_g4_00
+
+
+EXTERNAL NAVIGATION
+---------------------
+
+Symptom of DBUS server not running
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    simon:bitbucket blyth$ meshlab-v "http://localhost/dae/tree/0.html?c=0.001&a=0,0,-1&fov=60"
+    Dynamic session lookup supported but failed: launchd did not provide a socket path, verify that org.freedesktop.dbus-session.plist is loaded!
+    Could not connect to D-Bus server: org.freedesktop.DBus.Error.NoMemory: Not enough memory
+
+
+Perspective Views
+~~~~~~~~~~~~~~~~~~~
+
+Perspective view with LookAt control::
+
+     meshlab-v "http://localhost/dae/tree/0.html?c=0.001&a=0,0,-1&fov=60"
+     meshlab-v "http://localhost/dae/tree/0.html?c=0.001&a=0,-1,0&fov=60"
+
+
+#. *c=0.001* indicates camera close to center of volume bbox at 0.001,0.001,0.001 
+   (avoid camera position 0,0,0 it causes issues)
+#. *a=0,0,-1* looking down -Z 
+          
+
+TODO: 
+
+#. switching to orthographic with fov=5 causes everything to be clipped
 
 
 
+Orthographic Axis Views
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Orthographic view using **orth** OR **o** param with values l/r/t/b/k/f OR Left/Right/Top/Bottom/Back/Front
+relative to the bounding box of the identified volume::
+
+    meshlab-v "http://localhost/dae/tree/10.html?orth=Left"
+    meshlab-v "http://localhost/dae/tree/10.html?orth=Top"
+    meshlab-v "http://localhost/dae/tree/10.html?orth=Back"
+    meshlab-v "http://localhost/dae/tree/10.html?orth=Front"
+    meshlab-v "http://localhost/dae/tree/10.html?orth=Left"
+    meshlab-v "http://localhost/dae/tree/10.html?o=l"
+    meshlab-v "http://localhost/dae/tree/10.html?o=r"
+    meshlab-v "http://localhost/dae/tree/10.html?o=t"
+    meshlab-v "http://localhost/dae/tree/10.html?o=b"
+    meshlab-v "http://localhost/dae/tree/10.html?o=k"
+    meshlab-v "http://localhost/dae/tree/10.html?o=f"
 EOU
 }
 meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab/src ; }
@@ -88,7 +190,12 @@ meshlab-get(){
    [   -d meshlab ] && echo meshlab exists already && return 1
    [ ! -d meshlab ] && meshlab-clone
 }
-
+meshlab-wiki-get(){
+   local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
+   [   -d meshlab_wiki ] && echo meshlab_wiki exists already && return 1
+   git clone http://bitbucket.org/scb-/meshlab/wiki  meshlab_wiki
+}
+meshlab-wiki-cd(){ cd $(meshlab-fold)/meshlab_wiki ;  }
 
 meshlab-vcgdir(){ echo $(dirname $(dirname $(meshlab-dir)))/vcglib ; }
 
@@ -96,18 +203,48 @@ meshlab-env(){
    elocal- 
    qt4- 
 
-   export MESHLAB_DIR=$(meshlab-dir)
-   export MESHLAB_VCGDIR=$(meshlab-vcgdir)
+  # export MESHLAB_DIR=$(meshlab-dir)
+  # export MESHLAB_VCGDIR=$(meshlab-vcgdir)
 }
+
+
+meshlab-dae-dir(){  echo $LOCAL_BASE/env/geant4/geometry/daeserver ; }
+meshlab-dae-path(){ echo $(meshlab-dae-dir)/${1}.dae ; }
+meshlab-dae-url(){  echo http://belle7.nuu.edu.tw/dae/tree/${1}.dae ; }
+meshlab-dae-ls(){   ls -l $(meshlab-dae-dir) ; }
+meshlab-dae-cd(){   cd $(meshlab-dae-dir) ; }
+meshlab-dae-get(){
+   local path=$(meshlab-dae-path $1)
+   local url=$(meshlab-dae-url $1)
+   local dir=$(dirname $path)
+   mkdir -p $dir
+   local cmd="curl -s $url -o $path "
+   [ ! -f "$path" ] && echo $cmd && eval $cmd
+   ls -l $path
+   du -h $path
+   echo ----------------------- HEAD
+   head $path
+   echo ----------------------- TAIL
+   tail $path
+}
+
 meshlab--(){
-   # attemping to launch from elsewhere fails to load plugins
-   meshlab-cd distrib/meshlab.app/Contents/MacOS
+   local base=${1:-3155___2}
+   local path=$(meshlab-dae-path $base)
+   meshlab-dae-get $base
+   meshlab--- $path
+}
+meshlab---(){
+   meshlab-cd distrib/meshlab.app/Contents/MacOS   # attemping to launch from elsewhere fails to load plugins
    ./meshlab $*
 }
 
-meshlab-q(){ meshlab-- /usr/local/env/geant4/geometry/gdml/${1:-3199}.dae ; }
+
+
+
 meshlab-v-url(){ echo "http://localhost/dae/tree/${1:-0}.html?fov=30&cam=1&a=0.1,0.1,0.1&up=0,0,1" ; }
-meshlab-v(){ qdbus com.meshlab.navigator / SayHelloThere "$(meshlab-v-url $1)" ; }
+meshlab-v(){  qdbus com.meshlab.navigator / SayHelloThere "$1" ; }
+meshlab-vv(){ meshlab-v "$(meshlab-v-url $1)" ; }
 
 meshlab--server(){
    # attemping to launch from elsewhere fails to load plugins

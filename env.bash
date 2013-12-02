@@ -1314,3 +1314,4 @@ mdworker-(){      . $(env-home)/sysadmin/mdworker.bash && mdworker-env $* ; }
 lsof-(){      . $(env-home)/sysadmin/lsof.bash && lsof-env $* ; }
 meshlabdev-(){      . $(env-home)/graphics/meshlabdev/meshlabdev.bash && meshlabdev-env $* ; }
 gitsrc-(){      . $(env-home)/git/gitsrc.bash && gitsrc-env $* ; }
+dbus-(){      . $(env-home)/network/dbus.bash && dbus-env $* ; }

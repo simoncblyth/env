@@ -167,55 +167,6 @@ Try to query server
     Dynamic session lookup supported but failed: launchd did not provide a socket path, verify that org.freedesktop.dbus-session.plist is loaded!
     Could not connect to D-Bus server: org.freedesktop.DBus.Error.NoMemory: Not enough memory
 
-
-macports dbus
----------------
-
-I was hoping could just use cmdline to server communication, but it seems this example
-needs the dbus server.
-
-* http://trac.macports.org/ticket/20645
-
-Dbus is installed by daemon is not running.
-
-
-Start macports dbus daemon
-----------------------------
-
-::
-
-    simon:~ blyth$ port notes dbus
-    dbus has the following notes:
-      ############################################################################
-      # Startup items have been generated that will aid in
-      # starting dbus with launchd. They are disabled
-      # by default. Execute the following command to start them,
-      # and to cause them to launch at startup:
-      #
-      # sudo launchctl load -w /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
-      # launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
-      ############################################################################
-::
-
-    simon:meshlab blyth$ launchctl load -w /Library/LaunchAgents/org.freedesktop.dbus-session.plist
-    launchctl: CFURLWriteDataAndPropertiesToResource(/Library/LaunchAgents/org.freedesktop.dbus-session.plist) failed: -10
-    simon:meshlab blyth$ 
-
-::
-
-    simon:meshlab blyth$ sudo launchctl load -w /Library/LaunchDaemons/org.freedesktop.dbus-system.plist
-    simon:meshlab blyth$ ps aux | grep dbus
-    messagebus 94546   0.0  0.0    75836    684   ??  Ss    2:05pm   0:00.02 /opt/local/bin/dbus-daemon --system --nofork
-
-
-Seems the session daemon is started automatically from the system daemon as only one successful load yet 
-two daemons, system and session::
-
-    simon:~ blyth$ ps aux | grep dbus
-    blyth    94851   0.0  0.0    75848    804   ??  S     2:10pm   0:00.05 /opt/local/bin/dbus-daemon --nofork --session
-    messagebus 94546   0.0  0.0    75836    684   ??  Ss    2:05pm   0:00.02 /opt/local/bin/dbus-daemon --system --nofork
-
-
 qdbus probing
 ----------------
 

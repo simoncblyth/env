@@ -6,4 +6,6 @@ bitbucket
 
    migration
    trac2bitbucket
+   features
+
 
