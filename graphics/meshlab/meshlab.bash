@@ -78,15 +78,16 @@ meshlab-get-original(){
 
 meshlab-get(){
    local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
-
+   local pfx
    case $NODE_TAG in 
-      N) gitsrc- ;;
+      N) gitsrc- && pfx="GIT_SSL_NO_VERIFY=true " ;;
+      *) pfx="GIT_SSL_NO_VERIFY=true " ;;
    esac 
    which git
    git --version
 
    [   -d meshlab ] && echo meshlab exists already && return 1
-   [ ! -d meshlab ] && GIT_SSL_NO_VERIFY=true git clone git://bitbucket.org/scb-/meshlab.git
+   [ ! -d meshlab ] && $pfx git clone https://bitbucket.org/scb-/meshlab.git
 }
 
 
