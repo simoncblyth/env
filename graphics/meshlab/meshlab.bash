@@ -58,36 +58,35 @@ FUNCTIONS
 EOU
 }
 meshlab-dir(){ echo $(local-base)/env/graphics/meshlab/meshlab/src ; }
-meshlab-fold(){ echo $(dirname $(dirname $(meshlab-dir))) ;}
+meshlab-fold(){ echo $(dirname $(dirname $(dirname $(meshlab-dir)))) ;}
 meshlab-cd(){  cd $(meshlab-dir)/$1 ; }
 meshlab-scd(){  cd $(env-home)/graphics/meshlab/$1 ; }
 meshlab-mate(){ mate $(meshlab-dir) ; }
+
+
 meshlab-get-original(){
    local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
    echo SF IS SUCH A PAIN : IT BEATS ME HOW IT MANAGES TO SURVIVE
-
    pwd
    local tgz=MeshLabSrc_AllInc_v132.tgz
    local nam=${tgz/.tgz}
    [ ! -f "$tgz" ] && curl -L "http://sourceforge.net/projects/meshlab/files/meshlab/MeshLab%20v1.3.2/MeshLabSrc_AllInc_v132.tgz/download?use_mirror=nchc" -o $tgz  
-
    #   [ ! -d "meshlab" ] && echo CREATING CONTAINER DIR TO HANDLE EXPLODING TGZ && mkdir meshlab && ( cd meshlab && tar zxvf ../$tgz )
     [ ! -d "meshlab" ] && echo WARNING EXPLODING TGZ && tar zxvf $tgz 
 }
 
-
+meshlab-url(){ echo https://bitbucket.org/scb-/meshlab.git ; }
+meshlab-clone(){
+   local url=$(meshlab-url)
+   case $NODE_TAG in 
+      N)  gitsrc- && which git && git --version && GIT_SSL_NO_VERIFY=true git clone $url ;;
+      *)  git clone $url ;;
+   esac
+}
 meshlab-get(){
    local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
-   local pfx
-   case $NODE_TAG in 
-      N) gitsrc- && pfx="GIT_SSL_NO_VERIFY=true " ;;
-      *) pfx="GIT_SSL_NO_VERIFY=true " ;;
-   esac 
-   which git
-   git --version
-
    [   -d meshlab ] && echo meshlab exists already && return 1
-   [ ! -d meshlab ] && $pfx git clone https://bitbucket.org/scb-/meshlab.git
+   [ ! -d meshlab ] && meshlab-clone
 }
 
 
