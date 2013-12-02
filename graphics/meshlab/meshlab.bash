@@ -62,7 +62,7 @@ meshlab-fold(){ echo $(dirname $(dirname $(meshlab-dir))) ;}
 meshlab-cd(){  cd $(meshlab-dir)/$1 ; }
 meshlab-scd(){  cd $(env-home)/graphics/meshlab/$1 ; }
 meshlab-mate(){ mate $(meshlab-dir) ; }
-meshlab-get(){
+meshlab-get-original(){
    local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
    echo SF IS SUCH A PAIN : IT BEATS ME HOW IT MANAGES TO SURVIVE
 
@@ -74,6 +74,21 @@ meshlab-get(){
    #   [ ! -d "meshlab" ] && echo CREATING CONTAINER DIR TO HANDLE EXPLODING TGZ && mkdir meshlab && ( cd meshlab && tar zxvf ../$tgz )
     [ ! -d "meshlab" ] && echo WARNING EXPLODING TGZ && tar zxvf $tgz 
 }
+
+
+meshlab-get(){
+   local dir=$(meshlab-fold) &&  mkdir -p $dir && cd $dir
+
+   case $NODE_TAG in 
+      N) gitsrc- ;;
+   esac 
+   which git
+   git --version
+
+   [   -d meshlab ] && echo meshlab exists already && return 1
+   [ ! -d meshlab ] && GIT_SSL_NO_VERIFY=true git clone git://bitbucket.org/scb-/meshlab.git
+}
+
 
 meshlab-vcgdir(){ echo $(dirname $(dirname $(meshlab-dir)))/vcglib ; }
 
