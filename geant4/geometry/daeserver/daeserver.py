@@ -18,6 +18,16 @@ With webpy SCGI deployment with apache
 * http://localhost/dae/tree/3199___0.html
 * http://localhost/dae/tree/0___0.dae
 
+Basis Geometry Files
+----------------------
+
+::
+
+    [blyth@belle7 daeserver]$ pwd
+    /data1/env/local/env/geant4/geometry/daeserver
+    [blyth@belle7 daeserver]$ cp ../gdml/VDGX_20131121-2043/g4_00.dae VDGX_20131121-2043_g4_00.dae
+    [blyth@belle7 daeserver]$ cp ../gdml/DVGX_20131121-2053/g4_00.dae DVGX_20131121-2053_g4_00.dae 
+
 
 """
 import os, sys, logging, time
@@ -31,7 +41,10 @@ class Defaults(object):
     logpath = None
     loglevel = "INFO"
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
-    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20131121-2053_g4_00.dae"
+    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
     port = "8080"
     webpy = "scgi"
     uploads = False
