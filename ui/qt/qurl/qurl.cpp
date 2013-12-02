@@ -5,6 +5,7 @@
 #include <QPair>
 #include <QList>
 #include <QChar>
+#include <QMap>
 
 #include <iostream>
 
@@ -34,7 +35,24 @@ int main(){
     qDebug() << "index [" << index << "]" ; 
 
 
+    QMap<QString, QString> kt;  
+    kt["c"] = "v" ; kt["cam"] = "v" ;
+    kt["a"] = "v" ; kt["at"] = "v" ;
+    kt["u"] = "v" ; kt["up"] = "v" ;
+    kt["n"] = "f" ; kt["near"] = "f" ;
+    kt["r"] = "f" ; kt["far"] = "f" ;
+    kt["m"] = "i" ; kt["mode"] = "i" ;
+    kt["o"] = "s" ; kt["orth"] = "s" ;
+
+    QMapIterator<QString, QString> ikt(kt);
+    while (ikt.hasNext()) {
+        ikt.next();
+        qDebug() << ikt.key() << ": " << ikt.value() ;
+    }
+
+
     typedef QPair<QString, QString>   Qpss ;  
+   
     foreach (Qpss kv, url.queryItems())
     {
         qDebug() << "------------------------------------- " ; 
@@ -43,9 +61,9 @@ int main(){
         qDebug() << "[" << k << "] : [" << v << "] " ;    
         std::cout << "[" << k.toStdString() << "] : [" << v.toStdString() << "] " << std::endl ; 
 
-        if(k.startsWith("c") || k.startsWith("a") )
+        QString ktype = kt.value(k,"");
+        if(ktype.startsWith("v"))
         {
-
             QStringList vals = v.split(",");  
             if(vals.size() == 3)
             {
@@ -62,10 +80,20 @@ int main(){
                 qDebug("  xyz  %f %f %f ",x,y,z);
             }  
 
-        } else {
+        } else if(ktype.startsWith("f")) {
 
-            float val = v.toFloat(); 
-            qDebug() << "val " << k << " : " << val ; 
+            float fval = v.toFloat(); 
+            qDebug() << "val " << k << " : " << fval ; 
+
+        } else if(ktype.startsWith("i")) {
+
+            int ival = v.toInt(); 
+            qDebug() << "ival " << k << " : " << ival ; 
+
+        } else if(ktype.startsWith("s")) {
+
+            QString sval(v); 
+            qDebug() << "sval " << k << " : " << sval ; 
 
         } 
     }
