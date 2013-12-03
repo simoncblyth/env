@@ -40,6 +40,9 @@ Look into source install
 
   * so many dependencies, maybe not worth it : I just wanted to be able to profile 
     the collada loading and cannot install gperftools on PPC
+  * delay until have an SL version which supports a new enough Qt out of its distro
+
+
 
 
 G
