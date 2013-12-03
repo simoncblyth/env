@@ -53,7 +53,10 @@ export_run(){
    export G4DAE_EXPORT_DIR=$(export_dir $G4DAE_EXPORT_SEQUENCE)
    local log=$G4DAE_EXPORT_DIR/export_all.log
    export_banner $msg writing nuwa.py output to $log
-   nuwa.py $(export_args)  > $log 2>&1
+
+   # M_CHECK_ACTION of 1 means deatailed error message but continue
+
+   MALLOC_CHECK_=1 nuwa.py $(export_args)  > $log 2>&1
    export_banner $msg wrote nuwa.py output to $log
    export_banner G4DAE
    env | grep G4DAE

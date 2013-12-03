@@ -76,6 +76,9 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
 {
 
    // DEBUG FOR WRL-DAE CORRESPONDENCE
+   // NO GOOD FOR WRL COMPARISON, AS NEED TO TRAVERSE THE NODE TREE TO VISIT THEM ALL
+
+   /*
    std::string polysmry ; 
    {
        G4bool recPoly = GetRecreatePoly(); 
@@ -87,13 +90,17 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
        polysmry = ss.str();
    }
 
-   // NO GOOD FOR WRL COMPARISON, AS NEED TO TRAVERSE THE NODE TREE TO VISIT THEM ALL
    fSummary.push_back(polysmry); 
+   */
 
    const G4String pvname = GenerateName(physvol->GetName(),physvol);
    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
    G4int copyNo = physvol->GetCopyNo();  
+   G4int index = ++fNodeIndex ; 
+   std::ostringstream ni ;
+   ni << index ; 
+   //TODO: tack the index to allow absolute referencing  
 
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
    MatrixWrite( childNodeElement, T );
@@ -103,12 +110,13 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
 
    // extra/meta
    xercesc::DOMElement* extraElement = NewElement("extra");
-   xercesc::DOMElement* metaElement = NewElementOneAtt("meta", "id", pvname );
+
+   xercesc::DOMElement* metaElement = NewElementOneAtt("meta", "id", pvname);
    std::ostringstream ss ;
    ss << copyNo ; 
    metaElement->appendChild(NewTextElement("copyNo",ss.str()));
    metaElement->appendChild(NewTextElement("ModuleName",ModuleName));
-   metaElement->appendChild(NewTextElement("polysmry",polysmry));
+   //metaElement->appendChild(NewTextElement("polysmry",polysmry));
    extraElement->appendChild(metaElement);
 
    childNodeElement->appendChild(extraElement);

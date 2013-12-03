@@ -29,7 +29,7 @@ class G4DAEWrite
    G4Transform3D Write(const G4String& filename,
                        const G4LogicalVolume* const topLog,
                        const G4String& schemaPath,
-                       const G4int depth, G4bool storeReferences=true, G4bool recreatePoly=false );
+                       const G4int depth, G4bool storeReferences=true, G4bool recreatePoly=false , G4int nodeIndex=0 );
    void AddModule(const G4VPhysicalVolume* const topVol);
    void AddModule(const G4int depth);
 
@@ -41,6 +41,7 @@ class G4DAEWrite
 
  protected:
 
+   G4int fNodeIndex ; 
    std::vector<std::string> fSummary ;  
    G4String SchemaLocation;
 

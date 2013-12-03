@@ -42,7 +42,6 @@ class G4DAEWriteStructure : public G4DAEWriteParamvol
 
  private:
 
-
    //const G4VisAttributes* fVisAttributes;
    xercesc::DOMElement* structureElement;
    static const int maxReflections = 8; // Constant for limiting the number

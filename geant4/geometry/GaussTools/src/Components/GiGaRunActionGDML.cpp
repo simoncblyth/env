@@ -82,7 +82,8 @@ void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G
    std::cout << "GiGaRunActionGDML::WriteDAE to " << path << " recreatePoly " << recreatePoly << std::endl ;
    G4DAEParser parser ;
    G4bool refs = true ; 
-   parser.Write(path, wpv, refs, recreatePoly );
+   G4int nodeIndex = -1 ;   // so World is volume 0 
+   parser.Write(path, wpv, refs, recreatePoly, nodeIndex );
 #endif
 }
 
@@ -136,14 +137,11 @@ void GiGaRunActionGDML::CleanSolidStore()
 }
 
 
-void GiGaRunActionGDML::InitVis(const char* driver)
+void GiGaRunActionGDML::InitVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
-
-   G4String vis_open("/vis/open ");
-   vis_open += driver ; 
-   ui->ApplyCommand(vis_open.c_str());
+   ui->ApplyCommand("/vis/open VRML2FILE");
    ui->ApplyCommand("/vis/geometry/list all");
    ui->ApplyCommand("/vis/viewer/set/culling global false");
    ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
@@ -151,7 +149,7 @@ void GiGaRunActionGDML::InitVis(const char* driver)
 #endif
 }
 
-void GiGaRunActionGDML::FlushVis(const char* driver)
+void GiGaRunActionGDML::FlushVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
@@ -161,15 +159,12 @@ void GiGaRunActionGDML::FlushVis(const char* driver)
 }
 
 
-void GiGaRunActionGDML::WriteVis(const char* driver)
+void GiGaRunActionGDML::WriteVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
-   G4String drv(driver); 
-   G4String vis_open("/vis/open ");
-   vis_open += drv ; 
-   G4cout << "GiGaRunActionGDML::WriteVis " << vis_open << G4endl ; 
-   ui->ApplyCommand(vis_open);
+   G4cout << "GiGaRunActionGDML::WriteVis vis open " << G4endl ; 
+   ui->ApplyCommand("/vis/open VRML2FILE");
    G4cout << "GiGaRunActionGDML::WriteVis list geom " << G4endl ; 
    ui->ApplyCommand("/vis/geometry/list all");
    G4cout << "GiGaRunActionGDML::WriteVis set culling 1  " << G4endl ; 

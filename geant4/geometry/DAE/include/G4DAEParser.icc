@@ -49,6 +49,7 @@ void G4DAEParser::Write(const G4String& filename,
                          const G4VPhysicalVolume* const pvol,
                                G4bool refs,
                                G4bool recreatePoly,
+                               G4int  nodeIndex,
                          const G4String& schemaLocation)
 { 
   const G4int depth = 0;
@@ -68,7 +69,7 @@ void G4DAEParser::Write(const G4String& filename,
   {
     lvol = pvol->GetLogicalVolume();
   }
-  writer->Write(filename,lvol,schemaLocation,depth,refs, recreatePoly);
+  writer->Write(filename,lvol,schemaLocation,depth,refs, recreatePoly, nodeIndex);
 }
 
 inline 

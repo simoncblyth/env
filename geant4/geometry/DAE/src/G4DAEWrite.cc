@@ -151,13 +151,15 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
                                  const G4String& setSchemaLocation,
                                  const G4int depth,
                                        G4bool refs,
-                                       G4bool _recreatePoly)
+                                       G4bool _recreatePoly,
+                                       G4int nodeIndex )
 {
    SchemaLocation = setSchemaLocation;
    addPointerToName = refs;
    recreatePoly = _recreatePoly ; 
+   fNodeIndex = nodeIndex ; 
 
-   G4cout << "G4DAEWrite::Write addPointerToName " << addPointerToName << " recreatePoly " << recreatePoly << G4endl ;  
+   G4cout << "G4DAEWrite::Write addPointerToName " << addPointerToName << " recreatePoly " << recreatePoly << " nodeindex " << fNodeIndex << G4endl ;  
    if (depth==0) { G4cout << "G4DAE: Writing '" << fname << "'..." << G4endl; }
    else   { G4cout << "G4DAE: Writing module '" << fname << "'..." << G4endl; }
    

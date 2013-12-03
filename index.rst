@@ -73,6 +73,7 @@ Contents:
    cloud/index
    package_management/index
    ui/index
+   debugging/index
 
 
 Indices and tables

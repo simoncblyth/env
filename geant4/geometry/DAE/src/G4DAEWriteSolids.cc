@@ -161,7 +161,9 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    xercesc::DOMElement* geometryElement = NewElementTwoAtt("geometry", "name", geoId, "id", geoId);
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
-   G4DAEPolyhedron poly(solid, true);   // create a new poly 
+   G4bool recPoly = GetRecreatePoly(); 
+   G4DAEPolyhedron poly(solid, recPoly );  // recPoly=true  always creates a new poly, even when one exists already   
+
    G4int nvert = poly.GetNoVertices() ;
    G4int nface = poly.GetNoFacets() ;
 

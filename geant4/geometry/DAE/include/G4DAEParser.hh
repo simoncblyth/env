@@ -71,6 +71,7 @@ class G4DAEParser
                      const G4VPhysicalVolume* const pvol = 0,
                            G4bool storeReferences = true,
                            G4bool recreatePoly = false,
+                           G4int nodeIndex = 0,
                      const G4String& SchemaLocation = G4DAE_DEFAULT_SCHEMALOCATION);
      //
      // Exports on a DAE file, specified by 'filename' a geometry tree
