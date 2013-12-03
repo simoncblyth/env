@@ -54,7 +54,7 @@ public:
   void InitVis(const char* driver);
   void FlushVis(const char* driver);
   void AbruptExit();
-  void WriteDAE(G4VPhysicalVolume* wpv, const G4String& path );
+  void WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly );
   void WriteGDML(G4VPhysicalVolume* wpv, const G4String& path );
 
   G4String GetEnv( const char* envvar , const char* def );

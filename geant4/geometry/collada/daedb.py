@@ -6,29 +6,24 @@ DAEDB
 Create summary sqlite3 DB of DAE geometry info, for comparison
 against the WRL one from VRML2.
 
-::
+Straightforward write to DB once at the end, takes 5 min::
 
-    [blyth@belle7 ~]$ daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/gdml/g4_10.dae'
-    2013-11-14 19:36:36,534 env.geant4.geometry.collada.daenode INFO     /home/blyth/env/bin/daedb.py
-    2013-11-14 19:36:36,534 env.geant4.geometry.collada.daenode INFO     DAENode.parse pycollada parse /data1/env/local/env/geant4/geometry/gdml/g4_10.dae 
-    2013-11-14 19:36:38,578 env.geant4.geometry.collada.daenode INFO     pycollada parse completed 
-    2013-11-14 19:36:38,891 env.geant4.geometry.collada.daenode INFO     pycollada binding completed, found 12230  
-    2013-11-14 19:36:38,891 env.geant4.geometry.collada.daenode INFO     create DAENode heirarchy 
+    [blyth@belle7 ~]$ daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae'       
+    2013-12-03 15:34:54,665 env.geant4.geometry.collada.daenode INFO     /home/blyth/env/bin/daedb.py
     ...
-    2013-11-14 19:36:41,533 env.geant4.geometry.collada.daenode INFO     registry 12230 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     lookup 12230 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     idlookup 12230 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     ids 12230 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     rawcount 36690 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     created 12230 
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     root   top.0             -  
-    2013-11-14 19:36:41,534 env.geant4.geometry.collada.daenode INFO     index linking DAENode with boundgeom 12230 volumes 
-    2013-11-14 19:36:41,557 env.geant4.geometry.collada.daenode INFO     index linking completed
-    2013-11-14 19:36:44,549 env.geant4.geometry.collada.daedb INFO     writing to /data1/env/local/env/geant4/geometry/gdml/g4_10.dae.db 
+    2013-12-03 15:37:03,314 env.geant4.geometry.collada.daedb INFO     perform final DB insert for inode 12229 insertsize 0 
+    2013-12-03 15:37:03,315 env.geant4.geometry.collada.daedb INFO     writing tables to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:37:03,315 env.geant4.geometry.collada.daedb INFO     writing geom_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:37:03,824 env.geant4.geometry.collada.daedb INFO     writing point_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:38:20,287 env.geant4.geometry.collada.daedb INFO     writing face_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:40:05,296 env.geant4.geometry.collada.daedb INFO     completed writing to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
 
+Specifying a non-zero insertsize prevents holding everything in memory, 
+instead the DB writes are done in chunks corresponding to the entries for the specified numbers of volumes.
 
-    [blyth@belle7 ~]$ echo "select count(*) from geom ;" | sqlite3 $LOCAL_BASE/env/geant4/geometry/gdml/g4_10.dae.db 
-    12230
+    [blyth@belle7 ~]$ daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae'   --insertsize 1000   
+
+For examples of queries see ~/env/geant4/geometry/collada/dae_cf_wrl.rst
 
 
 """
@@ -99,18 +94,24 @@ class DAEDB(object):
         log.info("perform final DB insert for inode %s insertsize %s " % (inode, insertsize ))
         self.insert()
 
-    def insert(self):    
+    def insert(self, clear=True):    
+        """
+        Adding to a simtab table collects the kwa into a list.
+        These are then written to sqlite by the insert.  Specifying
+        ``clear=True`` wipes the list after doing the DB write and
+        is what you normally want.
+        """
         dbpath = self.dbpath
         log.info("writing tables to %s " % dbpath )
         if self.geom_t:
             log.info("writing geom_t to %s " % dbpath )
-            self.geom_t.insert()
+            self.geom_t.insert(clear=clear)
         if self.point_t:
             log.info("writing point_t to %s " % dbpath )
-            self.point_t.insert()
+            self.point_t.insert(clear=clear)
         if self.face_t:
             log.info("writing face_t to %s " % dbpath )
-            self.face_t.insert()
+            self.face_t.insert(clear=clear)
         log.info("completed writing to %s " % dbpath )
 
 

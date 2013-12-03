@@ -72,16 +72,17 @@ void GiGaRunActionGDML::WriteGDML(G4VPhysicalVolume* wpv, const G4String& path )
 #endif
 }
 
-void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path )
+void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly  )
 {
 #ifdef EXPORT_G4DAE
    if(path.length() == 0 || wpv == 0){
        std::cout << "GiGaRunActionGDML::WriteDAE invalid path OR NULL PV  " << path << std::endl ;
        return ;  
    }
-   std::cout << "GiGaRunActionGDML::WriteDAE to " << path << std::endl ;
+   std::cout << "GiGaRunActionGDML::WriteDAE to " << path << " recreatePoly " << recreatePoly << std::endl ;
    G4DAEParser parser ;
-   parser.Write(path, wpv);
+   G4bool refs = true ; 
+   parser.Write(path, wpv, refs, recreatePoly );
 #endif
 }
 
@@ -229,8 +230,11 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
           case 'G':
                  WriteGDML( wpv, FreeFilePath(base, ".gdml"));
                  break;
+          case 'A':
+                 WriteDAE( wpv, FreeFilePath(base, ".dae"), true );
+                 break;
           case 'D':
-                 WriteDAE( wpv, FreeFilePath(base, ".dae"));
+                 WriteDAE( wpv, FreeFilePath(base, ".dae"), false );
                  break;
           case 'C':
                  CleanSolidStore();

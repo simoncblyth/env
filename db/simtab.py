@@ -53,10 +53,12 @@ def version_info():
     _ = sqlite 
     print (_.__file__,_.sqlite_version,_.sqlite_version_info,_.version,_.version_info) 
 
+
 class Table(list):
     """
     Interact with sqlite3 tables, append dicts to this list then insert them 
     """
+    bigtable = False
     def __init__(self, path, tn=None , **kwa ):
          """
          Open or create SQLite DB at `path`, if `tn` and `kwa` are provided create the 
@@ -285,6 +287,14 @@ CREATE TABLE oomon (date text,val real)
     def dump(self, sql="select rowid, * from %(tn)s ;" ):
         ctx = dict(self.conf, sql=sql % self.conf )
         print os.popen("echo '%(sql)s' | sqlite3 %(path)s " % ctx).read()
+
+
+
+
+class BigTable(Table):
+    bigtable = True
+
+
 
 def demo():
     t = Table("demo.db", "tgzs", date="text", size="real" )

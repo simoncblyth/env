@@ -46,6 +46,14 @@ Workaround is to not be in NuWa env or skip the PYTHONPATH::
 
     [blyth@belle7 ~]$ PYTHONPATH=  daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'  
 
+Create WRL DB
+--------------
+
+
+
+
+
+
 
 Attaching two DB in sqlite3
 ------------------------------
@@ -1625,6 +1633,98 @@ Is the difference the same as that between runs ? Not so simple it seems::
     DVGX_20131121-2053/g4_00.wrl.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 20 f 30 
     VDGX_20131121-2043/g4_00.dae.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
     VDGX_20131121-2043/g4_00.wrl.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
+
+
+
+
+[Dec 3, 2013] Back to Face checking after MeshLab Visualisation Interlude
+---------------------------------------------------------------------------
+
+Following fixing the omission of simtab clearing previously the horrendous 
+former performance is explained.
+For DAE, straightforward write to DB once at the end, takes 5 min::
+
+    [blyth@belle7 ~]$ daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae'       
+    2013-12-03 15:34:54,665 env.geant4.geometry.collada.daenode INFO     /home/blyth/env/bin/daedb.py
+    ...
+    2013-12-03 15:37:03,314 env.geant4.geometry.collada.daedb INFO     perform final DB insert for inode 12229 insertsize 0 
+    2013-12-03 15:37:03,315 env.geant4.geometry.collada.daedb INFO     writing tables to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:37:03,315 env.geant4.geometry.collada.daedb INFO     writing geom_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:37:03,824 env.geant4.geometry.collada.daedb INFO     writing point_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:38:20,287 env.geant4.geometry.collada.daedb INFO     writing face_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    2013-12-03 15:40:05,296 env.geant4.geometry.collada.daedb INFO     completed writing to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+
+::
+
+    [blyth@belle7 daeserver]$ vrml2file.py --save  '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.wrl'
+    2013-12-03 16:00:44,574 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save $LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.wrl
+    2013-12-03 16:00:44,575 env.geant4.geometry.vrml2.vrml2file INFO     parse
+    2013-12-03 16:02:06,873 env.geant4.geometry.vrml2.vrml2file INFO     gathering geometry, using idoffset 0 idlabel True insertsize 0 
+    2013-12-03 16:03:24,562 env.geant4.geometry.vrml2.vrml2file INFO     final insert
+    2013-12-03 16:03:24,562 env.geant4.geometry.vrml2.vrml2file INFO     start persisting 
+    2013-12-03 16:06:36,969 env.geant4.geometry.vrml2.vrml2file INFO     completed persisting
+    2013-12-03 16:06:36,973 env.geant4.geometry.vrml2.vrml2file INFO     final insert done
+    2013-12-03 16:06:36,981 env.geant4.geometry.vrml2.vrml2file INFO     skip extend
+    [blyth@belle7 daeserver]$ 
+
+
+Basic DAE queries::
+
+    [blyth@belle7 ~]$ echo "select count(*) from geom ;" | sqlite3 $LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+    12230
+
+    [blyth@belle7 ~]$ sqlite3 /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
+
+    sqlite> select count(*) from point ; 
+    1248274
+    sqlite> select count(*) from geom ; 
+    12230
+
+    sqlite> select count(*) from face ; 
+    1810829
+    sqlite> select count(*) from face where nv=3 ; 
+    1168654        
+    sqlite> select count(*) from face where nv=4 ; 
+    642175         
+    sqlite> select 1168654+642175  ;
+    1810829        
+    sqlite> select sum(nv) from face ; 
+    6074662        
+
+    sqlite> .w 5 5 5 5 5 10 5 5 
+    sqlite> select * from face limit 10 ; 
+    idx    v0     v1     v2     v3     vx          id     nv   
+    -----  -----  -----  -----  -----  ----------  -----  -----
+    0      0      3      2      1      0,3,2,1     0      4    
+    0      4      7      3      0      4,7,3,0     1      4    
+    0      7      6      2      3      7,6,2,3     2      4    
+    0      6      5      1      2      6,5,1,2     3      4    
+    0      5      4      0      1      5,4,0,1     4      4    
+    0      4      5      6      7      4,5,6,7     5      4    
+    1      0      1      2      3      0,1,2,3     0      4    
+    1      4      5      0      -1     4,5,0,-1    1      3    
+    1      0      3      4      -1     0,3,4,-1    2      3    
+    1      6      4      3      -1     6,4,3,-1    3      3    
+    sqlite> 
+    sqlite> 
+    sqlite> select count(distinct(idx)) from face ; 
+    count
+    -----
+    12230
+
+
+Basic WRL queries::
+
+    sqlite> select count(*) from geom ; 
+    12230
+    sqlite> select count(*) from shape ; 
+    12230
+    sqlite> select count(*) from point ;  
+    1246046
+    sqlite> select count(*) from face ; 
+    1806787
+
+
 
 
 

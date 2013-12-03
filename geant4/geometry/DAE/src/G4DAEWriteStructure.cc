@@ -78,7 +78,8 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    // DEBUG FOR WRL-DAE CORRESPONDENCE
    std::string polysmry ; 
    {
-       G4DAEPolyhedron poly(physvol->GetLogicalVolume()->GetSolid(), true);  // create a new poly  
+       G4bool recPoly = GetRecreatePoly(); 
+       G4DAEPolyhedron poly(physvol->GetLogicalVolume()->GetSolid(), recPoly );  // recPoly always creates a new poly, even when one exists already   
        std::stringstream ss ; 
        ss << "n " << physvol->GetName() << "." << physvol->GetCopyNo() << " " ; 
        ss << "v " << poly.GetNoVertices() << " " ; 

@@ -29,12 +29,14 @@ class G4DAEWrite
    G4Transform3D Write(const G4String& filename,
                        const G4LogicalVolume* const topLog,
                        const G4String& schemaPath,
-                       const G4int depth, G4bool storeReferences=true);
+                       const G4int depth, G4bool storeReferences=true, G4bool recreatePoly=false );
    void AddModule(const G4VPhysicalVolume* const topVol);
    void AddModule(const G4int depth);
 
    //const G4VisAttributes* GetVisAttributes () const;
 
+   static void SetRecreatePoly(G4bool);
+   static G4bool GetRecreatePoly();
    static void SetAddPointerToName(G4bool);
 
  protected:
@@ -75,6 +77,7 @@ class G4DAEWrite
  private:
 
    static G4bool addPointerToName;
+   static G4bool recreatePoly;
    xercesc::DOMDocument* doc;
    //XMLCh tempStr[100];
    const static int tempStrSize = 256 ;

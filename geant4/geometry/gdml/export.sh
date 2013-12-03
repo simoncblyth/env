@@ -25,9 +25,10 @@ I
    VRML InitVis  
 F
    VRML FlushVis  
-
 D
-   Write DAE
+   Write DAE, without poly recreation : unless not existing already 
+A
+   Write DAE, with forced poly recreation
 G
    Write GDML
 C

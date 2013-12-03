@@ -67,6 +67,11 @@ Only a couple of minutes on N::
     82M     g4_01.wrl
 
 
+
+Face run
+-----------
+
+
 Prior Full run
 ---------------
 
@@ -291,16 +296,16 @@ class WRLParser(list):
         self.point_t = point_t
         self.face_t = face_t
 
-    def insert(self):
+    def insert(self, clear=True):
         # writes to the DB a table at a time
         log.info("start persisting ") 
-        self.geom_t.insert()   
+        self.geom_t.insert(clear=clear)   
         if not self.shape_t is None: 
-            self.shape_t.insert()   
+            self.shape_t.insert(clear=clear)   
         if not self.point_t is None: 
-            self.point_t.insert()   
+            self.point_t.insert(clear=clear)   
         if not self.face_t is None: 
-            self.face_t.insert()   
+            self.face_t.insert(clear=clear)   
         log.info("completed persisting") 
 
     def save(self):
@@ -422,7 +427,7 @@ def parse_args(doc):
 
 def main():
     opts, args = parse_args(__doc__)
-    path = args[0]
+    path = os.path.expanduser(os.path.expandvars(args[0]))
     if not opts.head is None:
         dbpath = os.path.abspath(path + ".head%s.db" % opts.head )
     else:
