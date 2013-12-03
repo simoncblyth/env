@@ -160,19 +160,28 @@ void GiGaRunActionGDML::FlushVis(const char* driver)
 #endif
 }
 
+
 void GiGaRunActionGDML::WriteVis(const char* driver)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
+   G4String drv(driver); 
    G4String vis_open("/vis/open ");
-   vis_open += driver ; 
-   ui->ApplyCommand(vis_open.c_str());
+   vis_open += drv ; 
+   G4cout << "GiGaRunActionGDML::WriteVis " << vis_open << G4endl ; 
+   ui->ApplyCommand(vis_open);
+   G4cout << "GiGaRunActionGDML::WriteVis list geom " << G4endl ; 
    ui->ApplyCommand("/vis/geometry/list all");
+   G4cout << "GiGaRunActionGDML::WriteVis set culling 1  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/set/culling global false");
+   G4cout << "GiGaRunActionGDML::WriteVis set culling 2  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
    //ui->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");    
+   G4cout << "GiGaRunActionGDML::WriteVis drawVolume  " << G4endl ; 
    ui->ApplyCommand("/vis/drawVolume");
+   G4cout << "GiGaRunActionGDML::WriteVis flush  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/flush");
+   G4cout << "GiGaRunActionGDML::WriteVis done  " << G4endl ; 
 #endif
 }
 
