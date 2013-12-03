@@ -13,6 +13,12 @@ SCM
     altquery 
     bitbucket/index
     github/index
+    sourceforge
+    hosting
+
+
+
+
     
 
 

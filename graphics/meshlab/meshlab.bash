@@ -56,6 +56,21 @@ TODO
 #. So: add a Sphinx style docs directory with toctree to the forked MeshLab 
 
 
+Deployment Thoughts
+-----------------------
+
+Need to create a populated app bundle with the Qt frameworks in place 
+in order for the customized MeshLab (faster DAE loading would be 
+very convenient to have) to work on general machines without
+the macports installed Qt frameworks at system level.
+
+Also will generally be no DBUS operational, so need to consider how
+to degrade on machines without DBUS, or without the DBUS daemon running.
+
+* http://qt-project.org/doc/qt-4.8/deployment-mac.html
+
+
+
 FUNCTIONS
 ----------
 

@@ -29,6 +29,23 @@ labels to start with digits.
 No other symbols, punctuation characters, or white space are permitted.
 
 
+Tarball Distribution ?
+-------------------------
+
+* https://confluence.atlassian.com/pages/viewpage.action?pageId=273877699
+
+
+Keep in mind Bitbucket is a code hosting service not a file sharing service.
+If a lot of your files are extremely large or if your files are binaries or
+executables, you should understand Git or Mercurial will not work well with
+them. You'll find that even locally your repository is barely usable. Moreover,
+Bitbucket can't display diffs on binaries.
+
+For binary or executable storage, we recommend you look into file hosting
+services  such as DropBox, rsync, rsnapshot, rdiff-backup, and so forth.  Still
+not sure what to do? Review this post on stackoverflow for more ideas.
+
+* http://stackoverflow.com/questions/1284669/how-do-i-manage-large-art-assets-appropriately-in-dvcs
 
 
 

@@ -5,4 +5,7 @@ github
 .. toctree::
 
    migration
+   features
+
+
 
