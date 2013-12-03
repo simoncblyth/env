@@ -12,4 +12,5 @@ Geant4 Geometry in Collada
    wrl_crosscheck
    vertex_coordinate_debug
    dae_cf_wrl
+   dae_cf_wrl_code
 

@@ -48,7 +48,7 @@ class DAEDB(object):
         if opts.points:
             point_t = Table( dbpath, "point", id="int",idx="int",x="float",y="float",z="float")
         if opts.faces:
-            face_t = Table( dbpath, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int", vx="text", nv="int" )
+            face_t = Table( dbpath, "face", id="int",idx="int",v0="int",v1="int",v2="int", v3="int", vx="text", nv="int" , _big=True )
         pass    
         self.geom_t = geom_t
         self.point_t = point_t

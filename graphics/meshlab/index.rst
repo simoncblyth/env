@@ -11,6 +11,9 @@ meshlab
    meshlabplugins
    meshlab_collada
    meshlab_navigation
+   meshlab_distribution
+
+
 
 
 

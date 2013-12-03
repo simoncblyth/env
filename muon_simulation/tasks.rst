@@ -40,7 +40,7 @@ can be reused.
 
     * TODO: check if already fixed in later geant4, otherwise submit patch 
 
-Geant4 Collada exporter [PURSUING]
+Geant4 Collada exporter [DONE]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create Geant4 Collada(widely supported 3D format) exporter. 
@@ -51,6 +51,28 @@ to the STL(a very simple 3D format) needed by Chroma.
 
 Collada is in some sense intermediate to VRML2 and GDML, 
 so the new exporter can draw upon those existing exporters.
+
+G4DAE Improvements
+~~~~~~~~~~~~~~~~~~~~
+
+#. avoid pointers in volume id 
+#. workout how to visually distinguish surface types in COLLADA
+
+Meshlab COLLADA loading 
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. added bbox caching in order to allow node navigation with external control via DBUS 
+
+   * rearrange to allow absolute id addressing, otherwise cannot jump to a volume by 
+     absolute index unless operating from the full geometry (which is too slow)
+   * you might think that relative indexing from the index of the subroot would 
+     allow this, but that only works if full depth is used 
+
+
+Web Visualisation Improvements [ON HOLD]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. need development machine that supports WebGL to make progress on this
 
 Alternatives [ON HOLD] 
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,22 +85,53 @@ Alternate workflows for G4 export and mesh conversion
 Decided that best to start from Geant4 and develop in that 
 context initially.
 
-Meshlab [ON HOLD]
-~~~~~~~~~~~~~~~~~~
+Meshlab Visualisation [ONGOING]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. added external numerical control via DBUS 
+#. TODO: add interpolated transitions, otherwise difficult to know where you are
+
+
+
+
+
+Blender Visualisation [NOPE]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Blender GUI is unusable.
+
+
+MeshLab conversions ? [DECIDED AGAINST]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* meshlab imports COLLADA and VRML2 :doc:`/graphics/mesh/meshlab`
+* meshlab export STL 
+* mesh visualization with meshlab, blender, freewrl 
 
 Although meshlab can convert VRML2 into STL, this misses 
 the material information. 
 
-* meshlab import VRML2 :doc:`/graphics/mesh/meshlab`
-* meshlab export STL 
-* mesh visualization with meshlab, blender, freewrl 
+Meshlab turns out to be extremely slow at loading COLLADA (40 min for full geometry). 
+Even with my fixes as available from bitbucket it is still too slow (10 min).
+Also MeshLab (and underlying VCGLIB) dependency on Qt makes it difficult to 
+use widely (especially older linux).
+
+Thus best to use MeshLab for visualization only.
+
+* https://bitbucket.org/scb-/meshlab/overview
+
+Geometry Validation [ON GOING]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Geometry Validation
-~~~~~~~~~~~~~~~~~~~~
 
-* visualisation with meshlab, blender
+Chroma surface property handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 * surface properties, retaining volume/surface identity into a mesh representation 
+
+
+
 
 Chroma Installation
 --------------------

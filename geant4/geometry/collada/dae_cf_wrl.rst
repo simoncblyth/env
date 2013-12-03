@@ -46,13 +46,6 @@ Workaround is to not be in NuWa env or skip the PYTHONPATH::
 
     [blyth@belle7 ~]$ PYTHONPATH=  daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae'  
 
-Create WRL DB
---------------
-
-
-
-
-
 
 
 Attaching two DB in sqlite3
@@ -84,8 +77,8 @@ Function for that::
     simon:e blyth$ 
 
 
-Consistent counts
---------------------
+Consistent Volume counts
+--------------------------
 
 ::
 
@@ -164,7 +157,6 @@ Discrepancies grouped by geometry id
 
 #. 34 shapes out of 249 are vertex count discrepant
 #. all are discrepant in the same way : with same vertex counts for all instances of that geometry
-
 
 ::
 
@@ -392,211 +384,6 @@ Visual check of discrepants : lots of interesting shapes
 * http://belle7.nuu.edu.tw/dae/tree/4521.html wall-led-assy   
 
   * cylinder touching a sphere
-
-
-Compare G4DAE and VRML2 geometry handling code
-------------------------------------------------
-
-#. comparing VRML2 and G4DAE code for vertices : looks identical,
-
-   * maybe some parameters : dont think so, all seem at defaults
-   * precision issue 
-   
-.. sidebar:: Promising explanation but seemingly not the case 
-
-   DAE creation so far uses expedient of running from a Geant4 geometry created from an exported GDML file, for development speed. 
-   **BUT** that compounds precision issues.  The polyhedron creation algorithm appears sensitive to precise geometry especially
-   when you have subtraction/union solids.
-   Checked this by testing DAE creation direct from original in memory model, not the one loaded from the GDML. This 
-   allows to compare apples-to-apples rather than comparison against 2nd generation geometry filtered thru GDML precision.
-   
-   The results of that comparison are precisely the same, perhaps some parameter tweaks in VRML2 ?
-
-
-BooleanProcessor
-----------------
-
-``graphics_reps/src/BooleanProcessor.src`` 
-
-
-
-G4Polyhedron::SetNumberOfRotationSteps ?
---------------------------------------------
-
-Given that the differences are all in subtraction/union solids it seems unlikely to be 
-a difference in such a parameter.  To determine perhaps could add some ``extra`` metadata
-to the exported DAE with param values ? 
-
-
-::
-
-    [blyth@belle7 source]$ find . -exec grep -H G4Polyhedron:: {} \;
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:      G4Polyhedron::SetNumberOfRotationSteps
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:      G4Polyhedron::SetNumberOfRotationSteps(fpMP->GetNoOfSides());
-    ./visualization/modeling/src/G4PhysicalVolumeModel.cc:    G4Polyhedron::ResetNumberOfRotationSteps();
-    ./visualization/management/src/G4VSceneHandler.cc:    G4Polyhedron::SetNumberOfRotationSteps (GetNoOfSides (fpVisAttribs));
-    ./visualization/management/src/G4VSceneHandler.cc:    G4Polyhedron::ResetNumberOfRotationSteps ();
-    ./geometry/solids/specific/src/G4TwistedTubs.cc:    G4int(G4Polyhedron::GetNumberOfRotationSteps() * dA / twopi) + 2;
-    ./geometry/solids/specific/src/G4TwistedTubs.cc:    G4int(G4Polyhedron::GetNumberOfRotationSteps() * fPhiTwist / twopi) + 2;
-    ./geometry/solids/specific/src/G4VTwistedFaceted.cc:    G4int(G4Polyhedron::GetNumberOfRotationSteps() * fPhiTwist / twopi) + 2;
-    ./geometry/solids/specific/src/G4Polycone.cc:          G4int(G4Polyhedron::GetNumberOfRotationSteps()
-    ./geometry/solids/specific/History:  G4Polyhedron::GetNumberOfRotationSteps().
-    ./graphics_reps/include/HepPolyhedron.h://    G4Polyhedron::SetNumberOfRotationSteps
-    ./graphics_reps/include/HepPolyhedron.h://    G4Polyhedron::ResetNumberOfRotationSteps ();
-    ./graphics_reps/src/G4Polyhedron.cc:G4Polyhedron::G4Polyhedron ():
-    ./graphics_reps/src/G4Polyhedron.cc:G4Polyhedron::~G4Polyhedron () {}
-    ./graphics_reps/src/G4Polyhedron.cc:G4Polyhedron::G4Polyhedron (const HepPolyhedron& from)
-    ./graphics_reps/History:- Added G4Polyhedron::Transform and G4Polyhedron::InvertFacets (Evgeni
-    [blyth@belle7 source]$ 
-
-
-``graphics_reps/include/HepPolyhedron.h``::
-
-    105 //   GetNumberOfRotationSteps()   - get number of steps for whole circle;
-    106 //   SetNumberOfRotationSteps (n) - set number of steps for whole circle;
-    107 //   ResetNumberOfRotationSteps() - reset number of steps for whole circle
-    108 //                            to default value;
-    109 //   IsErrorBooleanProcess()- true if there has been an error during the
-    110 //                            processing of a Boolean operation.
-    ...
-    168 #ifndef HEP_POLYHEDRON_HH
-    169 #define HEP_POLYHEDRON_HH
-    170 
-    171 #include <CLHEP/Geometry/Point3D.h>
-    172 #include <CLHEP/Geometry/Normal3D.h>
-    173 
-    174 #ifndef DEFAULT_NUMBER_OF_STEPS
-    175 #define DEFAULT_NUMBER_OF_STEPS 24
-    176 #endif
-
-
-``LCG/geant4.9.2.p01/source/visualization/management/src/G4VSceneHandler.cc``::
-
-    421 void G4VSceneHandler::RequestPrimitives (const G4VSolid& solid) {
-    422   BeginPrimitives (*fpObjectTransformation);
-    423   G4NURBS* pNURBS = 0;
-    424   G4Polyhedron* pPolyhedron = 0;
-    425   switch (fpViewer -> GetViewParameters () . GetRepStyle ()) {
-    426   case G4ViewParameters::nurbs:
-    427     pNURBS = solid.CreateNURBS ();
-    428     if (pNURBS) {
-    429       pNURBS -> SetVisAttributes (fpVisAttribs);
-    430       AddPrimitive (*pNURBS);
-    431       delete pNURBS;
-    432       break;
-    433     }
-    434     else {
-    435       G4VisManager::Verbosity verbosity =
-    436     G4VisManager::GetInstance()->GetVerbosity();
-    437       if (verbosity >= G4VisManager::errors) {
-    438     G4cout <<
-    439       "ERROR: G4VSceneHandler::RequestPrimitives"
-    440       "\n  NURBS not available for "
-    441            << solid.GetName () << G4endl;
-    442     G4cout << "Trying polyhedron." << G4endl;
-    443       }
-    444     }
-    445     // Dropping through to polyhedron...
-    446   case G4ViewParameters::polyhedron:
-    447   default:
-    448     G4Polyhedron::SetNumberOfRotationSteps (GetNoOfSides (fpVisAttribs));
-    449     pPolyhedron = solid.GetPolyhedron ();
-    450     G4Polyhedron::ResetNumberOfRotationSteps ();
-    451     if (pPolyhedron) {
-    452       pPolyhedron -> SetVisAttributes (fpVisAttribs);
-    453       AddPrimitive (*pPolyhedron);
-    454     }
-    455     else {
-    456       G4VisManager::Verbosity verbosity =
-    457     G4VisManager::GetInstance()->GetVerbosity();
-    458       if (verbosity >= G4VisManager::errors) {
-    459     G4cout <<
-    460       "ERROR: G4VSceneHandler::RequestPrimitives"
-    461       "\n  Polyhedron not available for " << solid.GetName () <<
-    462       ".\n  This means it cannot be visualized on most systems."
-    463       "\n  Contact the Visualization Coordinator." << G4endl;
-    464       }
-    465     }
-    466     break;
-    467   }
-    468   EndPrimitives ();
-    469 }
-
-
-
-::
-
-    859 G4int G4VSceneHandler::GetNoOfSides(const G4VisAttributes* pVisAttribs)
-    860 {
-    861   // No. of sides (lines segments per circle) is normally determined
-    862   // by the view parameters, but it can be overriddden by the
-    863   // ForceLineSegmentsPerCircle in the vis attributes.
-    864   G4int lineSegmentsPerCircle = fpViewer->GetViewParameters().GetNoOfSides();
-    865   if (pVisAttribs) {
-    866     if (pVisAttribs->IsForceLineSegmentsPerCircle())
-    867       lineSegmentsPerCircle = pVisAttribs->GetForcedLineSegmentsPerCircle();
-    868     const G4int nSegmentsMin = 12;
-    869     if (lineSegmentsPerCircle < nSegmentsMin) {
-    870       lineSegmentsPerCircle = nSegmentsMin;
-    871       G4cout <<
-    872     "G4VSceneHandler::GetNoOfSides: attempt to set the"
-    873     "\nnumber of line segements per circle < " << nSegmentsMin
-    874          << "; forced to " << lineSegmentsPerCircle << G4endl;
-    875     }
-    876   }
-    877   return lineSegmentsPerCircle;
-    878 }
-
-
-
-
-Geant4
--------
-
-
-geometry/solids/Boolean/src/G4UnionSolid.cc::
-
-    453 G4Polyhedron*
-    454 G4UnionSolid::CreatePolyhedron () const
-    455 {
-    456   G4Polyhedron* pA = fPtrSolidA->GetPolyhedron();
-    457   G4Polyhedron* pB = fPtrSolidB->GetPolyhedron();
-    458   if (pA && pB) {
-    459     G4Polyhedron* resultant = new G4Polyhedron (pA->add(*pB));
-    460     return resultant;
-    461   } else {
-    462     std::ostringstream oss;
-    463     oss << GetName() <<
-    464       ": one of the Boolean components has no corresponding polyhedron.";
-    465     G4Exception("G4UnionSolid::CreatePolyhedron",
-    466         "", JustWarning, oss.str().c_str());
-    467     return 0;
-    468   }
-    469 }
-
-geometry/solids/Boolean/src/G4SubtractionSolid.cc::
-
-    466 G4Polyhedron*
-    467 G4SubtractionSolid::CreatePolyhedron () const
-    468 {
-    469   G4Polyhedron* pA = fPtrSolidA->GetPolyhedron();
-    470   G4Polyhedron* pB = fPtrSolidB->GetPolyhedron();
-    471   if (pA && pB)
-    472   {
-    473     G4Polyhedron* resultant = new G4Polyhedron (pA->subtract(*pB));
-    474     return resultant;
-    475   }
-    476   else
-    477   {
-    478     std::ostringstream oss;
-    479     oss << "Solid - " << GetName()
-    480         << " - one of the Boolean components has no" << G4endl
-    481         << " corresponding polyhedron. Returning NULL !";
-    482     G4Exception("G4SubtractionSolid::CreatePolyhedron()", "InvalidSetup",
-    483                 JustWarning, oss.str().c_str());
-    484     return 0;
-    485   }
-    486 }
 
 
 Same process DAE then WRL : vertex counts match
@@ -1635,13 +1422,11 @@ Is the difference the same as that between runs ? Not so simple it seems::
     VDGX_20131121-2043/g4_00.wrl.txt:n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
 
 
-
-
 [Dec 3, 2013] Back to Face checking after MeshLab Visualisation Interlude
 ---------------------------------------------------------------------------
 
 Following fixing the omission of simtab clearing previously the horrendous 
-former performance is explained.
+former performance of chunked writing is explained. 
 For DAE, straightforward write to DB once at the end, takes 5 min::
 
     [blyth@belle7 ~]$ daedb.py --daepath '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae'       
@@ -1654,7 +1439,7 @@ For DAE, straightforward write to DB once at the end, takes 5 min::
     2013-12-03 15:38:20,287 env.geant4.geometry.collada.daedb INFO     writing face_t to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
     2013-12-03 15:40:05,296 env.geant4.geometry.collada.daedb INFO     completed writing to /data1/env/local/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae.db 
 
-::
+WRL::
 
     [blyth@belle7 daeserver]$ vrml2file.py --save  '$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.wrl'
     2013-12-03 16:00:44,574 env.geant4.geometry.vrml2.vrml2file INFO     /home/blyth/env/bin/vrml2file.py --save $LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.wrl
@@ -1706,10 +1491,7 @@ Basic DAE queries::
     1      0      3      4      -1     0,3,4,-1    2      3    
     1      6      4      3      -1     6,4,3,-1    3      3    
     sqlite> 
-    sqlite> 
     sqlite> select count(distinct(idx)) from face ; 
-    count
-    -----
     12230
 
 
@@ -1725,6 +1507,170 @@ Basic WRL queries::
     1806787
 
 
+Disagree as was using always recreate poly approach.
+
+
+
+
+With Poly reuse : quick polysmry is matching 
+----------------------------------------------
+
+Format the DAE metadata into a poly summary file::
+
+    [blyth@belle7 DVGX_20131203-1719]$ pwd
+    /data1/env/local/env/geant4/geometry/gdml/DVGX_20131203-1719
+
+    [blyth@belle7 DVGX_20131203-1719]$ daemeta.py -p g4_00.dae -f "%(n_polysmry)s" > g4_00.dae.meta.txt
+    [blyth@belle7 DVGX_20131203-1719]$ ll
+    total 115916
+    drwxrwxr-x 7 blyth blyth      4096 Dec  3 17:19 ..
+    -rw-rw-r-- 1 blyth blyth    850213 Dec  3 17:22 g4_00.dae.txt
+    -rw-rw-r-- 1 blyth blyth   7785762 Dec  3 17:22 g4_00.dae
+    -rw-rw-r-- 1 blyth blyth   1383330 Dec  3 17:22 g4_00.wrl.txt
+    -rw-rw-r-- 1 blyth blyth 103033949 Dec  3 17:22 g4_00.wrl
+    -rw-rw-r-- 1 blyth blyth   4111332 Dec  3 17:22 g4_00.gdml
+    drwxrwxr-x 2 blyth blyth      4096 Dec  3 17:35 .
+    -rw-rw-r-- 1 blyth blyth   1383310 Dec  3 17:36 g4_00.dae.meta.txt
+
+
+Compare the polysummary from the DAE metadata with the .txt summary during VRML2 export::
+
+    [blyth@belle7 DVGX_20131203-1719]$ diff g4_00.wrl.txt g4_00.dae.meta.txt    # just the world volume is different 
+    1c1
+    < n Universe.0 v 8 f 6 
+    ---
+    > -
+
+Following switching OFF always recreate poly get polysummary agreement. 
+Polysummary just compares names and vertex and face counts::
+
+    [blyth@belle7 DVGX_20131203-1719]$ head -10  g4_00.wrl.txt
+    n Universe.0 v 8 f 6 
+    n /dd/Structure/Sites/db-rock.1000 v 8 f 11 
+    n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
+    n /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover.1000 v 32 f 60 
+    n /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14.1000 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit.2 v 8 f 6 
+    [blyth@belle7 DVGX_20131203-1719]$ 
+
+    [blyth@belle7 DVGX_20131203-1719]$ head -10 g4_00.dae.meta.txt
+    -
+    n /dd/Structure/Sites/db-rock.1000 v 8 f 11 
+    n /dd/Geometry/Sites/lvNearSiteRock#pvNearHallTop.1000 v 16 f 12 
+    n /dd/Geometry/Sites/lvNearHallTop#pvNearTopCover.1000 v 32 f 60 
+    n /dd/Geometry/Sites/lvNearHallTop#pvNearTeleRpc#pvNearTeleRpc:1.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCMod#pvRPCFoam.1000 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCFoam#pvBarCham14Array#pvBarCham14ArrayOne:1#pvBarCham14Unit.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCBarCham14#pvRPCGasgap14.1000 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:1#pvStrip14Unit.1 v 8 f 6 
+    n /dd/Geometry/RPC/lvRPCGasgap14#pvStrip14Array#pvStrip14ArrayOne:2#pvStrip14Unit.2 v 8 f 6 
+    [blyth@belle7 DVGX_20131203-1719]$ 
+
+::
+
+    sqlite> select idx, count(*) as nface from wrl.face group by idx limit 10 ; 
+    idx         nface     
+    ----------  ----------
+    0           6         
+    1           11        
+    2           12        
+    3           60        
+    4           6         
+    5           6         
+    6           6         
+    7           6         
+    8           6         
+    9           6         
+
+    sqlite> select idx, count(*) as nface from dae.face group by idx limit 10 ;    
+    ## HUH THIS IS INCONSISTENT WITH DAE METADATA POLYSMRY, PyCollada post processing perhaps ? 
+    idx         nface     
+    ----------  ----------
+    0           6         
+    1           11        
+    2           30        **
+    3           64        **  
+    4           6         
+    5           6         
+    6           6         
+    7           6         
+    8           6         
+    9           6         
+
+
+* Hmm is the VRML2, also recreating poly ? 
+
+
+With poly reuse
+-----------------
+
+::
+
+    [blyth@belle7 DVGX_20131203-1719]$ daedb.py --daepath g4_00.dae
+    [blyth@belle7 DVGX_20131203-1719]$ vrml2file.py --save g4_00.wrl
+
+
+::
+
+    [blyth@belle7 DVGX_20131203-1719]$ g4dae-cf- 
+    attach database "g4_00.dae.db" as dae ;
+    attach database "g4_00.wrl.db" as wrl ;
+    .databases
+    .mode column
+    .header on 
+
+    -- sqlite3 -init cf.sql
+    --
+    [blyth@belle7 DVGX_20131203-1719]$ g4dae-cf- > cf.sql 
+    [blyth@belle7 DVGX_20131203-1719]$ sqlite3 -init cf.sql
+    Loading resources from cf.sql
+    seq  name             file                                                      
+    ---  ---------------  ----------------------------------------------------------
+    0    main                                                                       
+    2    dae              /data1/env/local/env/geant4/geometry/gdml/DVGX_20131203-17
+    3    wrl              /data1/env/local/env/geant4/geometry/gdml/DVGX_20131203-17
+    SQLite version 3.3.6
+    Enter ".help" for instructions
+    sqlite> 
+
+
+::
+
+    sqlite> select count(*) from dae.geom ; 
+    12230     
+    sqlite> select count(*) from wrl.geom ; 
+    12230     
+
+    sqlite> select count(*) from dae.point ; 
+    1252843   
+    sqlite> select count(*) from wrl.point ; 
+    1252587   
+
+    sqlite> select count(*) from dae.face ; 
+    1816177   
+    sqlite> select count(*) from wrl.face ; 
+    1811191   
+
+
+
+
+::
+
+    sqlite> select count(*) from dae.geom d join wrl.geom w on w.idx = d.idx where d.nvertex != w.nvertex ; 
+    1208      
+    sqlite> select count(*) from dae.geom d join wrl.geom w on w.idx = d.idx where d.nvertex = w.nvertex ; 
+    11022     
+    sqlite> select 1208+11022 ; 
+    12230     
+    sqlite> select 1208./(1208+11022) ; 
+    0.0987735077677841
+
+    sqlite> select count(*) from dae.geom d join wrl.geom w on w.idx = d.idx where d.nface != w.nface ; 
+    1210      
 
 
 
