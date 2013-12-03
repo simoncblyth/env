@@ -297,14 +297,14 @@ meshlab-build(){
 ########### BELOW FOR DEVELOPMENT TESTING OF CUSTOMOMIZED MESHLAB ########################
 
 meshlab-collada-make(){
-   cd $(env-home)/graphics/meshlab/meshlabplugins/io_collada
+   cd $(meshlab-dir)/meshlabplugins/io_collada
    [ -f Makefile ] && make distclean
    env | grep MESHLAB
    qmake
    make
 }
 meshlab-collada-install(){
-   cd $(env-home)/graphics/meshlab/meshlabplugins/io_collada
+   cd $(meshlab-dir)/meshlabplugins/io_collada
    local dest=../../distrib/plugins/
    mkdir -p $dest
    local plug=libio_collada.dylib
@@ -316,15 +316,11 @@ meshlab-collada-ls(){
    echo $(meshlab-distrib-dir)/plugins/
    ls -l $(meshlab-distrib-dir)/plugins/
 }
-meshlab-distrib-dir(){ echo $(env-home)/graphics/meshlab/distrib ; }
-meshlab-collada-promote(){
-   echo promoting to the offical meshlab build plugins
-   cp $(meshlab-distrib-dir)/plugins/libio_collada.dylib $(meshlab-dir)/distrib/plugins/
-}
+meshlab-distrib-dir(){ echo $(meshlab-dir)/distrib ; }
 
 meshlab-server-make(){
-   cd $(env-home)/graphics/meshlab/meshlabserver
-   rm -rf ../distrib/meshlab.app 
+   cd $(meshlab-dir)/meshlabserver
+   rm -rf ../distrib/meshlab.app/Contents/MacOS/meshlabserver
    [ -f Makefile ] && make distclean
    env | grep MESHLAB
    qmake
