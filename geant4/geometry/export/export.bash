@@ -5,11 +5,22 @@ export-vi(){       vi $(export-source) ; }
 export-env(){      elocal- ; }
 export-usage(){ cat << EOU
 
+EXPORT GEANT4 GEOMETRY INTO VRML, GDML AND DAE 
+================================================
+
 From script usage::
 
-   export.sh VD gdb
+   export.sh VGD 
+   export.sh DGV
+   export.sh VGD gdb
 
 
+ACTION CONTROLLED BY ENVVARS
+------------------------------
+
+**G4DAE_EXPORT_SEQUENCE**
+     envvar is set based on the script argument
+     controls the formats and their order of export
 
 Meaning of the G4DAE_EXPORT_SEQUENCE control characters:
 
@@ -31,6 +42,22 @@ X
    Abrupt Exit
 
 
+BACKGROUND
+-------------
+
+* http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Visualization/visexecutable.html
+
+
+FUNCTIONS
+-----------
+
+**export-cf**
+     parses WRL and DAE files writing SQLite DB with geom, point and face tables. 
+     Connects the DB into an sqlite3 session. 
+
+
+MALLOC DEBUGGING
+-----------------
 
 MALLOC_CHECK_=1 
      Propagated to libc M_CHECK_ACTION, 1 means deatailed error message but continue
@@ -87,6 +114,7 @@ export-run(){
    export-prep $*
    local log=$G4DAE_EXPORT_LOG
    export-banner $msg writing nuwa.py output to $log
+
    LIBC_FATAL_STDERR_=1 MALLOC_CHECK_=1 nuwa.py $(export-args)  > $log 2>&1
 
    export-banner $msg wrote nuwa.py output to $log
@@ -120,6 +148,63 @@ export-main(){
    esac
    export-post
 }
+
+export-cf(){
+   [ -n "$G4DAE_EXPORT_DIR" ] && cd $G4DAE_EXPORT_DIR
+   pwd
+   type $FUNCNAME
+
+   local base=g4_00
+   local dae=$base.dae
+   local wrl=$base.wrl
+   local sql=$base.sql
+
+   [ ! -f "$dae.db" ] && daedb.py --daepath $dae
+   [ ! -f "$wrl.db" ] && vrml2file.py --save $wrl
+   [ ! -f "$sql" ] && export-cf-sql- $base > $sql
+
+   cat $sql
+   which sqlite3
+   sqlite3 -version
+   sqlite3 -init $sql
+
+}
+
+export-cf-sql-(){ 
+   local base=$1
+   cat << EOU
+-- $FUNCNAME $base
+attach database "$base.dae.db" as dae ;
+attach database "$base.wrl.db" as wrl ;
+.databases
+.mode column
+.header on 
+
+-- sqlite3 -init $base.sql
+
+EOU
+}
+
+export-cf-find-(){
+  local def="g4_00.dae.db"
+  local ptn="${1:-$def}"
+  local i=0
+  find . -name "$ptn" | while read line ; do 
+    i=$(( $i + 1 ))
+cat << EOL
+attach database "$line" as db$i ; 
+EOL
+  done
+
+cat << EOT
+.database
+.mode column
+.header on
+EOT
+
+}
+
+
 
 #export-main $*
 
