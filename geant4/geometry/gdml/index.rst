@@ -11,7 +11,6 @@ GDML
    gdml_root
    gdml_g4py
    implementation
-   export_all_debug
 
 
 

@@ -144,9 +144,9 @@ private:
 public: 
 	std::ofstream     fDest ;
 
-#if defined G4DAE_DEBUG
-    std::vector<std::string> fSummary ;
-#endif
+//#if defined G4DAE_DEBUG
+//    std::vector<std::string> fSummary ;
+//#endif
 
 
 };

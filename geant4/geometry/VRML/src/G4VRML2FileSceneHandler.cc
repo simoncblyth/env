@@ -192,11 +192,6 @@ void G4VRML2FileSceneHandler::connectPort()
     fDest << std::setprecision(5) << std::fixed ; // SCB
 
 
-#if defined G4DAE_DEBUG
-    //fSummary.push_back(std::string("klop")); 
-#endif
-
-
 }
 
 void G4VRML2FileSceneHandler::closePort()
@@ -226,7 +221,7 @@ void G4VRML2FileSceneHandler::closePort()
 		system( command );
 	}
 
-
+/*
 #if defined G4DAE_DEBUG
     {
         std::string fname(fVRMLFileName);
@@ -242,7 +237,7 @@ void G4VRML2FileSceneHandler::closePort()
         ofs.close();
     }
 #endif
-	
+*/	
 
 
 }

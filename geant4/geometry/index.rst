@@ -15,5 +15,6 @@ Geant4 Geometry Export
    gdml/index
    detdesc/index
    other/index
+   GaussTools/index
    
 

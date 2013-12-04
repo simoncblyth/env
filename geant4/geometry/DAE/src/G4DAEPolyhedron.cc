@@ -48,7 +48,7 @@ G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid, G4bool create )
        ss << "f " << polyhedron.GetNoFacets() << " " ; 
        polysmry = ss.str();
     }
-    AddMeta( "polysmry", "0" );
+    AddMeta( "polysmry", polysmry );
 
     SetNoVertices(polyhedron.GetNoVertices());
     SetNoFacets(polyhedron.GetNoFacets());

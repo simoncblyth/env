@@ -1,1 +1,1 @@
-../geant4/geometry/gdml/export.sh
+../geant4/geometry/export/export.sh

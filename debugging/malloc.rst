@@ -33,7 +33,6 @@ variables.  For details, see mallopt(3).
 
 Got some more info using ``MALLOC_CHECK_=1`` (continuing beyond the first corruption).
 
-
 Now GDB fails::
 
     GiGaRunActionGDML::BeginOfRunAction i 0 c D
@@ -45,6 +44,13 @@ Now GDB fails::
 
     [blyth@belle7 DVGX_20131203-1719]$ c++filt _ZN10G4DAEWrite5WriteERK8G4StringPK15G4LogicalVolumeS2_ibb
     G4DAEWrite::Write(G4String const&, G4LogicalVolume const*, G4String const&, int, bool, bool)
+
+
+
+I suspect the cause of this was the change and recompilation of G4VRML2FileSceneHandler.hh
+was not accompanied by recompilation of the friend class ? ``friend class G4VRML2FileViewer``
+
+
 
 
 

@@ -97,12 +97,22 @@ void G4DAEWriteStructure::PhysvolWrite(xercesc::DOMElement* parentNodeElement,
    const G4String lvname = GenerateName(physvol->GetLogicalVolume()->GetName(),physvol->GetLogicalVolume() );
 
    G4int copyNo = physvol->GetCopyNo();  
-   G4int index = ++fNodeIndex ; 
-   std::ostringstream ni ;
-   ni << index ; 
-   //TODO: tack the index to allow absolute referencing  
-
    xercesc::DOMElement* childNodeElement = NewElementOneNCNameAtt("node","id",pvname);
+  /*
+   //
+   // NODE RESUSE MEANS CANNOT ASSIGN A USEFUL INDEX AT THIS STAGE
+   // THE INDEX ONLY "HAPPENS" ONCE YOU FLATTEN THE TREE BY TRAVERSAL
+   //
+   G4int index = ++fNodeIndex ; 
+   std::string nis ;
+   {
+       std::ostringstream ss ;
+       ss << index ; 
+       nis = ss.str();
+   }
+   childNodeElement->setAttributeNode(NewAttribute("name",nis));
+  */
+
    MatrixWrite( childNodeElement, T );
 
    xercesc::DOMElement* instanceNodeElement = NewElementOneNCNameAtt("instance_node", "url", lvname , true);
