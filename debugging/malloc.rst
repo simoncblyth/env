@@ -47,10 +47,38 @@ Now GDB fails::
 
 
 
-I suspect the cause of this was the change and recompilation of G4VRML2FileSceneHandler.hh
-was not accompanied by recompilation of the friend class ? ``friend class G4VRML2FileViewer``
+Redirecting Malloc messages doesnt work
+----------------------------------------
+
+* http://stackoverflow.com/questions/7085360/squelching-glibc-memory-corruption-stack-trace-output
+
+::
+
+    The reason you can't redirect it is that it gets written specifically to
+    /dev/tty, unless you have set the environment variable LIBC_FATAL_STDERR_. (I'm
+    not sure this is documented anywhere, but the relevant code can be found here.)
+
+gdb
+-----
+
+**single quotes** needed for GDB breakpoint tab completion
+
+::
+
+    (gdb) b 'G4VSceneHandler::G4VSceneHandler(G4VGraphicsSystem&, int, G4String const&)'                                                                                
+    Breakpoint 2 at 0x7ed79b1: file src/G4VSceneHandler.cc, line 84.
+    (gdb) 
 
 
 
+Resolved by getting rid of fSummary in  G4VRML2FileSceneHandler.hh
+------------------------------------------------------------------------
+
+The culprit looks to be inconsisent class definition, due to not 
+recompiling all the other classes that access this one.
+Moral of the story:
+
+* if possible avoid changing headers of classes under test when debugging those classes
+* instead prefer to *take notes* in other debug only structures 
 
 
