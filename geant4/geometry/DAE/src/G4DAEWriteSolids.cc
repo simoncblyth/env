@@ -110,13 +110,13 @@ PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4
 
 
 void G4DAEWriteSolids::
-PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& material)
+PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& matSymbol)
 {
    xercesc::DOMElement* polylistElement = NewElement("polylist");
 
    G4int count = facets.size();
    polylistElement->setAttributeNode(NewAttribute("count",  count));
-   polylistElement->setAttributeNode(NewAttribute("material", material));
+   polylistElement->setAttributeNode(NewAttribute("material", matSymbol));
    InputWrite(polylistElement, "VERTEX", vtxRef , 0 );
    InputWrite(polylistElement, "NORMAL", nrmRef , 1 );
 
@@ -154,7 +154,7 @@ MetadataWrite(xercesc::DOMElement* meshElement, const G4String& geoId,  std::map
 
 
 G4String G4DAEWriteSolids::
-GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
+GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid, const G4String& matSymbol )
 {
    const G4String& geoId = GenerateName(solid->GetName(),solid);
 
@@ -171,9 +171,8 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid)
    G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, poly.GetNormals() ); 
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
 
-   G4String material = "WHITE" ;                        // hmm, seems better to defer material to later ?
-   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), material ); 
-   PolylistWrite( meshElement, vtxRef, nrmRef, poly.GetFacets(), poly.GetVcount(), material ); 
+   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), matSymbol ); 
+   PolylistWrite( meshElement, vtxRef, nrmRef, poly.GetFacets(), poly.GetVcount(), matSymbol ); 
    MetadataWrite( meshElement, geoId, poly.GetMetadata() ); 
 
    geometryElement->appendChild(meshElement); 
@@ -218,8 +217,9 @@ BooleanWrite(xercesc::DOMElement* solidsElement,
       secondPtr = disp->GetConstituentMovedSolid();
    }
 
-   AddSolid(firstPtr);   // At first add the constituent solids!
-   AddSolid(secondPtr);
+   G4String matSymbol = "unused" ; // THIS IS DEAD CODE ?
+   AddSolid(firstPtr,matSymbol);   // At first add the constituent solids!
+   AddSolid(secondPtr, matSymbol);
 
    const G4String& name = GenerateName(boolean->GetName(),boolean);
    const G4String& firstref = GenerateName(firstPtr->GetName(),firstPtr);
@@ -888,7 +888,7 @@ void G4DAEWriteSolids::SolidsWrite(xercesc::DOMElement* daeElement)
    solidList.clear();
 }
 
-void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr)
+void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr, const G4String& matSymbol )
 {
    for (size_t i=0; i<solidList.size(); i++)   // Check if solid is
    {                                           // already in the list!
@@ -897,7 +897,7 @@ void G4DAEWriteSolids::AddSolid(const G4VSolid* const solidPtr)
 
    solidList.push_back(solidPtr);
 
-   G4String geoRef = GeometryWrite( solidsElement, solidPtr);
+   G4String geoRef = GeometryWrite( solidsElement, solidPtr, matSymbol );
 
    /*
  

@@ -225,8 +225,9 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
    const G4String lvname = GenerateName(volumePtr->GetName(),volumePtr);
 
-   G4String matSymbol = "WHITE" ;  // whats this ?
    G4Material* materialPtr = volumePtr->GetMaterial();
+   G4String matSymbol = GenerateMaterialSymbol(materialPtr->GetName()) ;  
+
    const G4String matname = GenerateName(materialPtr->GetName(), materialPtr );
    const G4String geoname = GenerateName(solidPtr->GetName(), solidPtr );
 
@@ -279,7 +280,7 @@ TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
 
    G4DAEWriteEffects::AddEffectMaterial(materialPtr);
    G4DAEWriteMaterials::AddMaterial(materialPtr);
-   G4DAEWriteSolids::AddSolid(solidPtr);
+   G4DAEWriteSolids::AddSolid(solidPtr, matSymbol);
 
    return R;
 }

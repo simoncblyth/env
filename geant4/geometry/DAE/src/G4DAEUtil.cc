@@ -34,6 +34,9 @@ int G4DAEUtil::testNCName(std::string& id )
 }
 
 
+
+
+
 void G4DAEUtil::replaceAll(std::string& id, std::string const& from, std::string const& to)
 {
     std::size_t lookHere = 0;

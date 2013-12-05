@@ -30,7 +30,17 @@ G4DAEWrite::DepthMapType& G4DAEWrite::DepthMap()
    return instance;
 }
 
-
+G4String G4DAEWrite::GenerateMaterialSymbol(const G4String& mat)
+{
+   G4String matSym ; 
+   G4String prefix("/dd/Materials/");
+   if (!mat.compare(0, prefix.size(), prefix)){
+       matSym = mat.substr(prefix.size());
+   } else {
+       matSym = mat ; 
+   } 
+   return matSym ; 
+}
 
 G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref )
 {

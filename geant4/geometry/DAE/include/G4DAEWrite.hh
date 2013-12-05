@@ -47,6 +47,7 @@ class G4DAEWrite
 
    VolumeMapType& VolumeMap();
 
+   G4String GenerateMaterialSymbol(const G4String& mat);
    G4String GenerateName(const G4String&,const void* const, G4bool ref=false );
    xercesc::DOMAttr* NewNCNameAttribute(const G4String&, const G4String&, G4bool ref=false);
    xercesc::DOMAttr* NewAttribute(const G4String&, const G4String&);
