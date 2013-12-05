@@ -9,4 +9,7 @@ collada
    collada_viewer
    collada_xml
    meshtool
+   collada_materials
+
+
 
