@@ -185,7 +185,8 @@ local-tag2node(){
           M) echo mars  ;;
         C|S) echo cms01 ;;
  C2|SC2|C2R) echo cms02 ;;
-         ZZ) echo dayabay ;;
+         ZZ) echo dayabay-old ;;
+         Y2) echo dayabay ;;
          YY) echo dyb1 ;;
          XX) echo dyb2 ;;
          H1) echo hep1 ;;
@@ -255,7 +256,8 @@ local-tag2ip(){
            L) echo pal.nuu.edu.tw ;;
           YY) echo dyb1.ihep.ac.cn ;;
           XX) echo dyb2.ihep.ac.cn ;;
-          ZZ) echo dayabay.ihep.ac.cn ;;
+          ZZ) echo dayabay-old.ihep.ac.cn ;;
+          Y2) echo dayabay.ihep.ac.cn ;;
           WW) echo 202.122.32.203 ;;
          SDU) echo rh02.hepg.sdu.edu.cn ;; 
           CC) echo deliberately.trying.to.avoid.putting.in.repo ;; 
@@ -283,8 +285,10 @@ local-nodetag(){
         hep52) echo H52 ;;
         cms01) echo C ;;
         cms02) local-nodetag-cms02 $USER ;;
-      dayabay) echo ZZ ;;
+      #dayabay) echo ZZ ;;
+  dayabay-old) echo ZZ ;;
      dayabay1) echo Y1 ;;
+      dayabay) echo Y2 ;;
   dayabay-new) echo Y2 ;;
        #dybdb1) echo D1 ;;
        dybdb1) echo Y1 ;;
@@ -374,7 +378,7 @@ local-backup-tag(){
      WW) echo SDU ;;
      AA) echo D8R  ;;
      Y1) echo LT ;;
-     Y2) echo LT ;;
+     Y2) echo Y1 ;;
      *) echo U ;;
    esac  
 }
