@@ -45,24 +45,30 @@ class G4VSolid ;
 class G4DAEPolyhedron
 {
   public:
-    G4DAEPolyhedron(const G4VSolid* const solid, G4bool create=false);
+    G4DAEPolyhedron(const G4VSolid* const solid, const G4String& matSymbol, G4bool create=false);
    ~G4DAEPolyhedron(){};
 
     void AddMeta( const std::string& key, const std::string& val );
     void Metadata( const G4Polyhedron& polyhedron );
     void Vertices( const G4Polyhedron& polyhedron );
     void Normals(  const G4Polyhedron& polyhedron );
-    void Facet(    const G4Polyhedron& polyhedron, G4int iface );
+    void Texels(   const G4String& matSymbol  );
+    void Facet(    const G4Polyhedron& polyhedron, G4int iface, G4int itexl );
     void Dump();
 
     G4int GetNoVertices(){ return fNoVertices ; }
     G4int GetNoFacets(){  return fNoFacets ; }
+    G4int GetNoTexels(){  return fNoTexels ; }
+
     void SetNoVertices(G4int nvert){ fNoVertices = nvert ; }
     void SetNoFacets(G4int nface){   fNoFacets = nface ; }
+    void SetNoTexels(G4int ntexl){   fNoTexels = ntexl ; }
 
     std::string IntAsString( G4int val );
     std::string GetVertices(){ return fVertices ; }
     std::string GetNormals(){ return fNormals ; }
+    std::string GetTexels(){ return fTexels ; }
+
     std::vector<std::string>& GetFacets(){ return fFacets ; }
     std::vector<std::string>& GetVcount(){ return fVcount ; }
     std::map<std::string,std::string>& GetMetadata(){ return fMetadata ; }
@@ -71,6 +77,7 @@ class G4DAEPolyhedron
 
     G4int fNoVertices; 
     G4int fNoFacets; 
+    G4int fNoTexels; 
 
     std::string fStart ; 
     std::string fBefItem ; 
@@ -79,6 +86,8 @@ class G4DAEPolyhedron
 
     std::string fVertices ; 
     std::string fNormals ;
+    std::string fTexels ;
+
     std::vector<std::string> fFacets ;
     std::vector<std::string> fVcount ;
     std::map<std::string,std::string> fMetadata ;

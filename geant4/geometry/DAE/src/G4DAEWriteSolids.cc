@@ -62,7 +62,7 @@ G4String G4DAEWriteSolids::
 SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, G4int items, G4int stride, const G4String& data)
 {
    G4String srcId(geoId);
-   srcId += ext ;           // eg -Pos -Normal 
+   srcId += ext ;           // eg -Pos -Normal -Tex
 
    xercesc::DOMElement* srcElement = NewElementOneAtt("source","id",srcId);
    G4String faRef = FloatArrayWrite( srcElement, srcId, items*stride,  data ); 
@@ -110,7 +110,7 @@ PolygonsWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4
 
 
 void G4DAEWriteSolids::
-PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& matSymbol)
+PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4String& nrmRef, std::vector<std::string>& facets, std::vector<std::string>& vcount, const G4String& matSymbol, const G4String& texRef )
 {
    xercesc::DOMElement* polylistElement = NewElement("polylist");
 
@@ -119,6 +119,7 @@ PolylistWrite(xercesc::DOMElement* meshElement, const G4String& vtxRef, const G4
    polylistElement->setAttributeNode(NewAttribute("material", matSymbol));
    InputWrite(polylistElement, "VERTEX", vtxRef , 0 );
    InputWrite(polylistElement, "NORMAL", nrmRef , 1 );
+   InputWrite(polylistElement, "TEXCOORD", texRef , 2 );
 
    std::stringstream vv ;
    for(std::vector<std::string>::iterator it = vcount.begin(); it != vcount.end(); ++it) {
@@ -162,17 +163,19 @@ GeometryWrite(xercesc::DOMElement* solidsElement, const G4VSolid* const solid, c
    xercesc::DOMElement* meshElement = NewElement("mesh");
 
    G4bool recPoly = GetRecreatePoly(); 
-   G4DAEPolyhedron poly(solid, recPoly );  // recPoly=true  always creates a new poly, even when one exists already   
+   G4DAEPolyhedron poly(solid, matSymbol, recPoly );  // recPoly=true  always creates a new poly, even when one exists already   
 
    G4int nvert = poly.GetNoVertices() ;
    G4int nface = poly.GetNoFacets() ;
+   G4int ntexl = poly.GetNoTexels() ;
 
    G4String posRef = SourceWrite(  meshElement, geoId, "-Pos" , nvert, 3, poly.GetVertices() ); 
    G4String nrmRef = SourceWrite(  meshElement, geoId, "-Norm", nface, 3, poly.GetNormals() ); 
+   G4String texRef = SourceWrite( meshElement, geoId,  "-Tex" , ntexl, 2, poly.GetTexels()  );
+
    G4String vtxRef = VerticesWrite( meshElement, geoId, "-Vtx", posRef ); 
 
-   //PolygonsWrite( meshElement, vtxRef, nrmRef, p.GetFacets(), matSymbol ); 
-   PolylistWrite( meshElement, vtxRef, nrmRef, poly.GetFacets(), poly.GetVcount(), matSymbol ); 
+   PolylistWrite( meshElement, vtxRef, nrmRef, poly.GetFacets(), poly.GetVcount(), matSymbol, texRef ); 
    MetadataWrite( meshElement, geoId, poly.GetMetadata() ); 
 
    geometryElement->appendChild(meshElement); 

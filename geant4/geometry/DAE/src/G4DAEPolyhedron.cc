@@ -5,7 +5,7 @@
 
 typedef std::pair<std::string, std::string> KV ;
 
-G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid, G4bool create )
+G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid, const G4String& matSymbol, G4bool create )
 {
     fStart = "\n" ;
     fBefItem  = "\t\t\t\t" ;
@@ -52,10 +52,12 @@ G4DAEPolyhedron::G4DAEPolyhedron( const G4VSolid* const solid, G4bool create )
 
     SetNoVertices(polyhedron.GetNoVertices());
     SetNoFacets(polyhedron.GetNoFacets());
+    SetNoTexels(1);
 
     Metadata(polyhedron);   
     Vertices(polyhedron);   
     Normals(polyhedron);   
+    Texels(matSymbol);
 
 }
 
@@ -86,6 +88,20 @@ void G4DAEPolyhedron::Metadata( const G4Polyhedron& polyhedron )
     ss << *visAtt << G4endl ; 
     //G4cout << "visAtt " << *visAtt << G4endl; // SCB
     fMetadata.insert(KV("VisAttributes", ss.str()));
+}
+
+void G4DAEPolyhedron::Texels( const G4String& /*matSymbol*/ )
+{
+    std::ostringstream ss ;
+    ss << fStart ; 
+    {
+        ss << fBefItem ; 
+        ss << "1.0" << " " ;
+        ss << "1.0" << " " ;
+        ss << fAftItem ; 
+    }
+    ss << fEnd ; 
+    fTexels = ss.str();
 }
 
 void G4DAEPolyhedron::Vertices( const G4Polyhedron& polyhedron )
@@ -127,6 +143,8 @@ void G4DAEPolyhedron::Normals( const G4Polyhedron& polyhedron )
     std::ostringstream ss ;
     ss << fStart ; 
 
+    G4int itexl = 1 ; // simplifying assumption of a single texel for entire polyhedron
+
     for (iface = 1, jface = nface; jface; jface--, iface++ ) 
     {
         norm = polyhedron.GetUnitNormal(iface);  
@@ -136,16 +154,18 @@ void G4DAEPolyhedron::Normals( const G4Polyhedron& polyhedron )
         ss << norm.z() << " " ; 
         ss << fAftItem  ; 
 
-        Facet( polyhedron, iface ) ;
+        Facet( polyhedron, iface , itexl ) ;
     }          
     ss << fEnd ; 
     fNormals = ss.str() ;
 }
 
 
-void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface )
+void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface, G4int itexl )
 {
-
+    /*
+      defines single collection of indices of the  "p" element 
+    */
     G4int nedge;
     G4int ivertex[4];
     G4int iedgeflag[4];
@@ -158,7 +178,7 @@ void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface )
     G4int iedge = 0;
     for(iedge = 0; iedge < nedge; ++iedge) {
         // collada expects zero based indices
-        ss << ivertex[iedge] - 1 << " " << iface - 1 << "  " ;  
+        ss << ivertex[iedge] - 1 << " " << iface - 1 << "  " << itexl - 1 << " " ;  
     }
     ss << " " ;
     std::string facet = ss.str() ; 
