@@ -41,7 +41,7 @@ class G4DAEWriteSolids : public G4DAEWriteMaterials
 
  private:
 
-   void AccessorXYZWrite(xercesc::DOMElement*, const G4String&, G4int, G4int );
+   void AccessorWrite(xercesc::DOMElement*, const G4String&, G4int, G4int, const G4String& vars );
    void InputWrite(xercesc::DOMElement*, const G4String&, const G4String&, G4int offset);
    G4String FloatArrayWrite(xercesc::DOMElement* srcElement, const G4String& srcId, G4int count, const G4String& data);
    G4String SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4String& ext, G4int items, G4int stride, const G4String& data);

@@ -7,8 +7,8 @@
 typedef std::map<std::string, std::string> SSMap ; 
 
 void G4DAEWriteSolids::
-AccessorXYZWrite(xercesc::DOMElement* element,
-             const G4String& source, G4int count, G4int stride)
+AccessorWrite(xercesc::DOMElement* element,
+             const G4String& source, G4int count, G4int stride, const G4String& vars )
 {
    xercesc::DOMElement* tcElement = NewElement("technique_common");
    xercesc::DOMElement* accessorElement = NewElement("accessor");
@@ -16,14 +16,11 @@ AccessorXYZWrite(xercesc::DOMElement* element,
    accessorElement->setAttributeNode(NewAttribute("source",source));
    accessorElement->setAttributeNode(NewAttribute("count",count));
    accessorElement->setAttributeNode(NewAttribute("stride",stride));
-  
-   xercesc::DOMElement* x = NewElementTwoAtt("param","name","X","type","float");
-   xercesc::DOMElement* y = NewElementTwoAtt("param","name","Y","type","float");
-   xercesc::DOMElement* z = NewElementTwoAtt("param","name","Z","type","float");
-
-   accessorElement->appendChild(x);
-   accessorElement->appendChild(y);
-   accessorElement->appendChild(z);
+ 
+   for(std::string::iterator it = vars.begin(); it != vars.end(); ++it) {
+       xercesc::DOMElement* param = NewElementTwoAtt("param","name",*it,"type","float");
+       accessorElement->appendChild(param);
+   }  
 
    tcElement->appendChild(accessorElement);
    element->appendChild(tcElement);
@@ -66,7 +63,16 @@ SourceWrite(xercesc::DOMElement* meshElement, const G4String& geoId, const G4Str
 
    xercesc::DOMElement* srcElement = NewElementOneAtt("source","id",srcId);
    G4String faRef = FloatArrayWrite( srcElement, srcId, items*stride,  data ); 
-   AccessorXYZWrite( srcElement, faRef, items, stride ); 
+   G4String vars ;
+   if( stride == 3 ){
+      vars = "XYZ" ;
+   } else if ( stride == 2 ){
+      vars = "UV" ;
+   } else {
+      assert(0); // unexpected stride
+   }
+   AccessorWrite( srcElement, faRef, items, stride, vars ); 
+
    meshElement->appendChild( srcElement );
 
    G4String srcIdRef("#");
