@@ -8,7 +8,7 @@ typedef std::map<std::string, std::string> SSMap ;
 
 void G4DAEWriteSolids::
 AccessorWrite(xercesc::DOMElement* element,
-             const G4String& source, G4int count, G4int stride, const G4String& vars )
+             const G4String& source, G4int count, G4int stride, const G4String& _vars )
 {
    xercesc::DOMElement* tcElement = NewElement("technique_common");
    xercesc::DOMElement* accessorElement = NewElement("accessor");
@@ -16,7 +16,8 @@ AccessorWrite(xercesc::DOMElement* element,
    accessorElement->setAttributeNode(NewAttribute("source",source));
    accessorElement->setAttributeNode(NewAttribute("count",count));
    accessorElement->setAttributeNode(NewAttribute("stride",stride));
- 
+
+   std::string vars(_vars); 
    for(std::string::iterator it = vars.begin(); it != vars.end(); ++it) {
        xercesc::DOMElement* param = NewElementTwoAtt("param","name",*it,"type","float");
        accessorElement->appendChild(param);
