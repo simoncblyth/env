@@ -5,6 +5,21 @@ env-logpath(){ echo $(env-home)/docs/log/$(date +"%b%Y").rst ; }
 env-log(){ vi $(${FUNCNAME}path) ; }
 
 
+env-cache-path(){ echo ~/env-cache.sh ; }
+env-cache(){
+   local path=$(env-cache-path)
+   [ ! -f "$path" ] && env-cache-update
+   echo $msg sourcing env from $path
+   source $path 
+}
+env-cache-update(){
+   local path=$(env-cache-path)
+   local msg="=== $FUNCNAME :"
+   echo $msg writing env to $path
+   env | sort | grep -v SSH_ | grep -v DISPLAY | grep -v TERM | grep -v LS_COLORS | grep -v PWD  | while read line ; do echo export $line ; done > $path
+}
+
+
 env-usage(){ cat << EOU
 
 ===================
