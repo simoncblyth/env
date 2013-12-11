@@ -53,7 +53,7 @@ void G4DAEWriteEffects::EffectWrite(const G4Material* const materialPtr )
    xercesc::DOMElement* libImageElement = NewElementOneNCNameAtt("image","id",img_id);
    xercesc::DOMElement* libInitfromElement = NewTextElement("init_from", texpath );
    libImageElement->appendChild(libInitfromElement);
-   imagesElement->appendChild(libImageElement)
+   imagesElement->appendChild(libImageElement);
 
 
    xercesc::DOMElement* profileElement = NewElement("profile_COMMON");
