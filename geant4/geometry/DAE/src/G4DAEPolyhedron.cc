@@ -178,7 +178,7 @@ void G4DAEPolyhedron::Facet( const G4Polyhedron& polyhedron, G4int iface, G4int 
     G4int iedge = 0;
     for(iedge = 0; iedge < nedge; ++iedge) {
         // collada expects zero based indices
-        ss << ivertex[iedge] - 1 << " " << iface - 1 << "  " << itexl - 1 << " " ;  
+        ss << ivertex[iedge] - 1 << " " << iface - 1 << " " << itexl - 1 << "  " ;  
     }
     ss << " " ;
     std::string facet = ss.str() ; 

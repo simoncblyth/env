@@ -20,6 +20,7 @@ class G4DAEWriteEffects : public G4DAEWriteAsset
  private:
    std::vector<const G4Material*> effectList;
    xercesc::DOMElement* effectsElement;
+   xercesc::DOMElement* imagesElement;
 
 };
 

@@ -32,6 +32,7 @@ class G4DAEWriteMaterials : public G4DAEWriteEffects
    std::vector<const G4Isotope*> isotopeList;
    std::vector<const G4Element*> elementList;
    std::vector<const G4Material*> materialList;
+
    xercesc::DOMElement* materialsElement;
 };
 

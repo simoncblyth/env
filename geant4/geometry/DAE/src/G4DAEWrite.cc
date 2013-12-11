@@ -42,6 +42,17 @@ G4String G4DAEWrite::GenerateMaterialSymbol(const G4String& mat)
    return matSym ; 
 }
 
+G4String G4DAEWrite::GenerateTexturePath(const G4String& name )
+{
+   std::stringstream ss;
+   ss << "./textures/" ; 
+   ss << name ; 
+   ss << ".png" ;
+
+   G4String texpath(ss.str());
+   return texpath ;  
+}
+
 G4String G4DAEWrite::GenerateName(const G4String& name, const void* const ptr, G4bool ref )
 {
    G4String nameOut;

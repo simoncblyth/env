@@ -107,6 +107,7 @@ void G4DAEWriteMaterials::MaterialsWrite(xercesc::DOMElement* element)
    isotopeList.clear();
    elementList.clear();
    materialList.clear();
+
 }
 
 void G4DAEWriteMaterials::AddIsotope(const G4Isotope* const isotopePtr)
