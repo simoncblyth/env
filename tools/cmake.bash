@@ -10,6 +10,20 @@ CMAKE
 
 * http://www.cmake.org/
 
+
+Versions
+---------
+
+::
+
+    g4pb:~ blyth$ cmake -version
+    cmake version 2.8.7
+
+    [blyth@belle7 ~]$ cmake -version
+    cmake version 2.6-patch 4
+
+
+
 EXTERNAL LIBS
 --------------
 

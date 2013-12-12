@@ -1332,3 +1332,6 @@ gitsrc-(){      . $(env-home)/git/gitsrc.bash && gitsrc-env $* ; }
 dbus-(){      . $(env-home)/network/dbus.bash && dbus-env $* ; }
 geotest-(){      . $(env-home)/geant4/geometry/gdml_example_G02/geotest.bash && geotest-env $* ; }
 export-(){      . $(env-home)/geant4/geometry/export/export.bash && export-env $* ; }
+osg-(){      . $(env-home)/graphics/openscenegraph/osg.bash && osg-env $* ; }
+openvpn-(){      . $(env-home)/network/openvpn.bash && openvpn-env $* ; }
+colladadom-(){      . $(env-home)/graphics/collada/colladadom/colladadom.bash && colladadom-env $* ; }

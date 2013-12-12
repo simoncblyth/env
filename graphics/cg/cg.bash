@@ -13,6 +13,9 @@ CG TOOLKIT : Cg a C-like graphics language
 OSX
 -----
 
+Macports is offering cg-toolkit @3.1.2012.04_1 
+I seem to have made a non-macports install.  
+
 PPC still supported, installer is terse in the extreme
 
 * http://developer.download.nvidia.com/cg/Cg_3.1/Cg-3.1_April2012.dmg
@@ -25,6 +28,10 @@ PPC still supported, installer is terse in the extreme
 
     simon:~ blyth$ which cgc
     /usr/bin/cgc
+
+    simon:~ blyth$ cgc -v     
+    cgc: version 3.1.0013, build date Apr 18 2012 12:43:07.
+
     simon:~ blyth$ cgc -h
     Usage: cgc [options] file 
 
@@ -34,6 +41,10 @@ PPC still supported, installer is terse in the extreme
                [-entry id | -noentry] [-o ofile] [-l lfile] 
                [-profile id] [-po|-profileopts opt1,opt2,...]
      
+
+
+
+
 
 
 EOU
