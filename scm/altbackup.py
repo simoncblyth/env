@@ -185,6 +185,18 @@ try:
 except ImportError: 
     from md5 import md5
 
+# Python 2.4 strptime:
+# Refer to http://stackoverflow.com/questions/5585706/datetime-datetime-strptime-not-present-in-python-2-4-1
+
+import time
+
+if hasattr(datetime, 'strptime'):
+    #python 2.6
+    strptime = datetime.strptime
+else:
+    #python 2.4 equivalent
+    strptime = lambda date_string, format: datetime(*(time.strptime(date_string, format)[0:6]))
+
 
 seconds = {}
 
@@ -380,6 +392,38 @@ def alt_transfer( source, target, cfg ):
             else:
                 log.warn("dna mismatch %s %s " % (sdna, rdna))
 
+
+def alt_pull_transfer(source, target, cfg):
+    log.info( "SRC_DIR: %(source)s, TARGET_DIR: %(target)s" % locals() )
+    log.info( cfg )
+
+    
+    sourcenode = cfg.sourcenode
+    ext = cfg.ext
+    spath = join(source)
+    len_spath=len(spath)
+    print spath
+
+    rc, ret = do( "ssh %(sourcenode)s 'find %(spath)s -name \'*%(ext)s\''"%locals())
+    print rc
+    for src_path in ret.splitlines():
+        log.debug("Check whether %(src_path)s is needed"%locals())
+        if cfg.day in src_path:
+            log.info("%(src_path)s will be needed"%locals())
+            reldir = src_path[len_spath:]
+            if reldir.startswith("/"):
+                reldir = reldir[1:]
+            tpath = join(target, reldir)
+            log.debug( tpath )
+            if os.path.exists(tpath):
+                log.info( "Already exists %(tpath)s"%locals())
+                continue
+            tdir = dirname(tpath)
+            log.debug( tdir )
+            do("mkdir -p %(tdir)s"%locals())
+            do("scp %(sourcenode)s:%(src_path)s %(tdir)s"%locals())
+            # scp SOURCE_NODE:SOURCE_DIR TARGET_DIR
+    pass
 
 def rmd_(cmd, targetnode):
     if targetnode != "LOCAL":
@@ -622,7 +666,7 @@ def interpret_day( s ):
     elif s[0] == "-":
         t = now + timedelta(days=int(s))    
     else:
-        t = datetime.strptime(s,tfmt)
+        t = strptime(s,tfmt)
     ss = t.strftime(tfmt)
     log.info("interpreted day string %s into %s " % (s,ss))
     return ss
@@ -639,6 +683,7 @@ def parse_args_(doc):
     op.add_option("-d", "--day",  default = None, help="date string in format '2013/04/13' or default of None corresponding to today or -1 for yesterday, -2 for day before yesterday"  )
     op.add_option("-x", "--ext",     default = ".tar.gz", help="file type being managed"  )
     op.add_option("-n", "--targetnode",  default = "C" )
+    op.add_option("-S", "--sourcenode",  default = "Y2" )
     op.add_option("-k", "--keep",  default = 3 )
     op.add_option("-b", "--base",  default = "/data/env/tmp", help="base directory under which extracted trac.db are placed")
     op.add_option("-e", "--echo", action="store_true", default = False )
@@ -662,7 +707,7 @@ def main():
     target = cfg.target
     cfg.source = None    # convenient for getting the values but not subsequently 
     cfg.target = None
-    allowed = "dump transfer purge_target check_target check_source extract_tracdb examine_tracdb tls sls ls".split()
+    allowed = "dump transfer pull purge_target check_target check_source extract_tracdb examine_tracdb tls sls ls".split()
             
     if len(args) == 0: 
         print "expecting arguments such as %s " % allowed
@@ -689,6 +734,10 @@ def main():
             node = os.environ['NODE_TAG']
             assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
             alt_examine_tracdb( target, cfg )
+        elif arg == 'pull':
+            node = os.environ['NODE_TAG']
+            assert node == cfg.targetnode, "%s is running on node %s : should be run on targetnode %s  " % ( arg , node, cfg.targetnode )
+            alt_pull_transfer( source, target, cfg )
         elif arg == 'tls' or arg == 'ls':
             ls_(target) 
         elif arg == 'sls':
