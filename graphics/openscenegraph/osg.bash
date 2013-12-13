@@ -177,7 +177,44 @@ osgPlugins-3.2.0/osgdb_jp2.so wrong architecture issue
     make: *** [all] Error 2
 
 
+Change /usr/local/env/graphics/openscenegraph/OpenSceneGraph-3.2.0/src/osgPlugins/CMakeLists.txt 
+commenting out jp2, then "make" from the build dir succeeds to not re-do everything, rapidly after 
+approx 1 min getting to the next issue.
+
+
+tiff architecture
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [ 84%] Building CXX object src/osgPlugins/tiff/CMakeFiles/osgdb_tiff.dir/ReaderWriterTIFF.cpp.o
+    Linking CXX shared module ../../../lib/osgPlugins-3.2.0/osgdb_tiff.so
+    ld warning: in /opt/local/lib/libtiff.dylib, file is not of required architecture
+    Undefined symbols for architecture i386:
+      "_TIFFReadScanline", referenced from:
+          simage_tiff_load(std::basic_istream<char, std::char_traits<char> >&, int&, int&, int&, unsigned short&)in ReaderWriterTIFF.cpp.o
+
+
+cmake architectures
+~~~~~~~~~~~~~~~~~~~~~~
+
+From the README.txt::
+
+    097 CMAKE_OSX_ARCHITECTURES - Xcode can create applications, executables,
+    098 libraries, and frameworks that can be run on more than one architecture.
+    099 Use this setting to indicate the architectures on which to build OSG.
+    100 Possibilities include ppc, ppc64, i386, and x86_64. Building OSG using
+    101 either of the 64-bit options (ppc64 and x86_64) has its own caveats
+    102 below.
+
+Maybe CMAKE_OSX_ARCHITECTURES defaults to something inappropriate for PPC ?
+
+
+
+
+
 * http://trac.macports.org/ticket/18112
+
 
 
 Collada Plugin

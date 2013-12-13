@@ -48,6 +48,34 @@ Yuck windows/PS3 Libs in SVN
     257M    colladadom
 
 
+
+::
+
+    g4pb:colladadom blyth$ file dom/external-libs/boost/lib/mac/libboost_filesystem.a
+    dom/external-libs/boost/lib/mac/libboost_filesystem.a: Mach-O universal binary with 2 architectures
+    dom/external-libs/boost/lib/mac/libboost_filesystem.a (for architecture ppc):   current ar archive
+    dom/external-libs/boost/lib/mac/libboost_filesystem.a (for architecture i386):  current ar archive
+
+
+This vagrant libs seems not to be used 
+
+
+    g4pb:lib blyth$ otool -L libcollada-dom2.4-dp.2.4.0.dylib
+    libcollada-dom2.4-dp.2.4.0.dylib:
+            libcollada-dom2.4-dp.0.dylib (compatibility version 0.0.0, current version 2.4.0)
+            /opt/local/lib/libpcre.1.dylib (compatibility version 2.0.0, current version 2.1.0)
+            /opt/local/lib/libpcrecpp.0.dylib (compatibility version 1.0.0, current version 1.0.0)
+            /usr/lib/libz.1.dylib (compatibility version 1.0.0, current version 1.2.3)
+            /opt/local/lib/libboost_filesystem-mt.dylib (compatibility version 0.0.0, current version 0.0.0)
+            /opt/local/lib/libboost_system-mt.dylib (compatibility version 0.0.0, current version 0.0.0)
+            /opt/local/lib/libxml2.2.dylib (compatibility version 12.0.0, current version 12.1.0)
+            /usr/lib/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.4.0)
+            /usr/lib/libgcc_s.1.dylib (compatibility version 1.0.0, current version 1.0.0)
+            /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 111.1.7)
+    g4pb:lib blyth$ 
+
+
+
 G
 ---
 
@@ -251,4 +279,13 @@ colladadom-test(){
 }
 
 
+colladadom-rmlib(){
+   colladadom-cd
+   find . -name '*.a'  -exec svn rm {} \;
+   find . -name '*.lib'  -exec svn rm {} \;
+   # svn st | perl -p -e 's,!,svn rm,' - | sh    # but still doesnt free half the space as held by SVN 
+
+   
+
+}
 

@@ -16,6 +16,12 @@ Best Docs encountered
 * http://www.cmake.org/cmake/help/git-master/command/find_path.html
 * http://www.cmake.org/cmake/help/git-master/command/find_package.html
 
+Tips 
+-----
+
+* http://web.cs.swarthmore.edu/~adanner/tips/cmake.php
+
+
 Other Docs
 ------------
 
@@ -37,11 +43,16 @@ Versions
 
 Debugging
 ----------
-
 ::
 
     cmake --trace .
 
+
+Makefile Debug
+---------------
+::
+
+    set(CMAKE_VERBOSE_MAKEFILE ON)
 
 From Scratch Build
 --------------------
@@ -49,6 +60,11 @@ From Scratch Build
 Build approach that does everything in one, avoiding all caching is useful for CMakeLists.txt iteration::
 
     ( rm -rf build ; mkdir build ; cd build ; cmake .. ; make )
+
+cmake usage examples
+-----------------------
+
+* ~/e/graphics/collada/colladadom/testColladaDOM/CMakeLists.txt
 
 
 Help

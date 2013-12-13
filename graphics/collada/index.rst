@@ -10,6 +10,8 @@ collada
    collada_xml
    meshtool
    collada_materials
+   collada_tools
+
 
 
 
