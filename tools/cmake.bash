@@ -10,6 +10,18 @@ CMAKE
 
 * http://www.cmake.org/
 
+Best Docs encountered
+----------------------
+
+* http://www.cmake.org/cmake/help/git-master/command/find_path.html
+* http://www.cmake.org/cmake/help/git-master/command/find_package.html
+
+Other Docs
+------------
+
+* http://www.cmake.org/cmake/help/cmake2.4docs.html
+* http://www.cmake.org/Wiki/CMakeMacroListOperations
+
 
 Versions
 ---------
@@ -21,6 +33,31 @@ Versions
 
     [blyth@belle7 ~]$ cmake -version
     cmake version 2.6-patch 4
+
+
+Debugging
+----------
+
+::
+
+    cmake --trace .
+
+
+From Scratch Build
+--------------------
+
+Build approach that does everything in one, avoiding all caching is useful for CMakeLists.txt iteration::
+
+    ( rm -rf build ; mkdir build ; cd build ; cmake .. ; make )
+
+
+Help
+-----
+
+::
+
+    cmake --help-command LIST
+
 
 
 

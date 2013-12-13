@@ -1,0 +1,38 @@
+cmake_minimum_required (VERSION 2.6)
+project (testColladaDOM)
+set(SRC_LIST
+    ${PROJECT_NAME}.cpp
+)
+add_executable(${PROJECT_NAME} ${SRC_LIST})
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+find_package(collada_dom 2.4.0 REQUIRED EXACT COMPONENTS 1.4.1 CONFIG )
+set(COLLADA_DOM_LIBRARIES collada-dom2.4-dp)  # kludge as the collada_dom cmake seems broken
+
+# just for dumping the vars
+set(MYLIST 
+  COLLADA_DOM_ROOT_DIR
+  COLLADA_DOM_CXX_FLAGS
+  COLLADA_DOM_LINK_FLAGS
+  COLLADA_DOM_INCLUDE_DIRS
+  COLLADA_DOM_LIBRARIES
+  COLLADA_DOM_Boost_VERSION
+  COLLADA_DOM_CFLAGS_OTHER
+  COLLADA_DOM_LDFLAGS_OTHER
+  COLLADA_DOM_LIBRARY_SUFFIX
+  COLLADA_DOM_SUPPORT14
+  COLLADA_DOM_SUPPORT15
+  COLLADA_DOM_INCLUDE_DIRS_SPEC
+  COLLADA_DOM_NUMCOMPONENTS
+  COLLADA_DOM_VERSIONS_USING
+)
+foreach(var ${MYLIST} )
+   foreach(elt ${${var}})
+       message(STATUS "${var} : "  ${elt} )
+   endforeach(elt)
+endforeach(var)
+
+
+add_definitions(-DNO_BOOST)
+include_directories( ${COLLADA_DOM_INCLUDE_DIRS} ${COLLADA_DOM_INCLUDE_DIRS}/1.4)
+target_link_libraries(${PROJECT_NAME} ${COLLADA_DOM_LIBRARIES})

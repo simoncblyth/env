@@ -9,6 +9,7 @@ pkgconfig-env(){
 pkgconfig-usage(){
   cat << EOU
 
+
      To understand... 
            man pkg-config
            http://pkg-config.freedesktop.org/wiki/

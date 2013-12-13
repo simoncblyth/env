@@ -9,6 +9,11 @@ COLLADA DOM
 =============
 
 * http://collada.org/mediawiki/index.php/DOM_guide:_Setting_up
+* http://collada.org/mediawiki/index.php/Category:COLLADA_DOM
+* http://collada.org/mediawiki/index.php/COLLADA_DOM_user_guide
+* http://collada.org/mediawiki/index.php/DOM_guide:_Importing_documents
+
+* https://github.com/rdiankov/collada-dom/blob/master/CMakeLists.txt
 
 Versions
 ---------
@@ -95,6 +100,116 @@ to split the definitions in the root CMakeLists.txt into five lines::
 
     add_definitions("-Dfopen64=fopen -Dfseeko64=fseeko -Dfseek64=fseek -Dftell64=ftell -Dftello64=ftello")
 
+succeeds to resolve this issue.
+
+install
+~~~~~~~~
+
+::
+
+    g4pb:colladadom.build blyth$ colladadom-install
+    colladadom-install is a function
+    colladadom-install () 
+    { 
+        type $FUNCNAME;
+        cd_func $(colladadom-bdir);
+        sudo make install
+    }
+    Password:
+    [  1%] Built target minizip
+    [ 40%] Built target colladadom141
+    [ 93%] Built target colladadom150
+    [100%] Built target collada-dom
+    Install the project...
+    -- Install configuration: ""
+    -- Installing: /usr/local/lib/pkgconfig/collada-dom.pc
+    -- Installing: /usr/local/lib/pkgconfig/collada-dom-150.pc
+    -- Installing: /usr/local/lib/pkgconfig/collada-dom-141.pc
+    -- Installing: /usr/local/lib/cmake/collada_dom-2.4/collada_dom-config.cmake
+    -- Installing: /usr/local/lib/cmake/collada_dom-2.4/collada_dom-config-version.cmake
+    -- Installing: /usr/local/include/collada-dom2.4/1.5
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domAccessor.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domAnimation.h
+    ...
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domTypes.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domVertices.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domVisual_scene.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.5/dom/domWires.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.4
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom/domAccessor.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom/domAnimation.h
+    ...
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom/domTypes.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom/domVertices.h
+    -- Installing: /usr/local/include/collada-dom2.4/1.4/dom/domVisual_scene.h
+    -- Installing: /usr/local/lib/libcollada-dom2.4-dp.2.4.0.dylib
+    -- Installing: /usr/local/lib/libcollada-dom2.4-dp.0.dylib
+    -- Installing: /usr/local/lib/libcollada-dom2.4-dp.dylib
+    -- Installing: /usr/local/include/collada-dom2.4/dae
+    -- Installing: /usr/local/include/collada-dom2.4/dae/daeArray.h
+    -- Installing: /usr/local/include/collada-dom2.4/dae/daeArrayTypes.h
+    ...
+    -- Installing: /usr/local/include/collada-dom2.4/dae.h
+    -- Installing: /usr/local/include/collada-dom2.4/dom.h
+    g4pb:colladadom.build blyth$ 
+
+
+
+libs
+~~~~~
+
+::
+
+    g4pb:test blyth$ ll /usr/local/lib/libcollada*          
+    lrwxr-xr-x  1 root  wheel        28 12 Dec 20:34 /usr/local/lib/libcollada-dom2.4-dp.dylib -> libcollada-dom2.4-dp.0.dylib
+    -rwxr-xr-x  1 root  wheel  12982096 12 Dec 20:34 /usr/local/lib/libcollada-dom2.4-dp.2.4.0.dylib
+    lrwxr-xr-x  1 root  wheel        32 12 Dec 20:34 /usr/local/lib/libcollada-dom2.4-dp.0.dylib -> libcollada-dom2.4-dp.2.4.0.dylib
+
+
+
+cmake
+~~~~~~~
+
+* http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries
+
+::
+
+    -- Installing: /usr/local/lib/cmake/collada_dom-2.4/collada_dom-config.cmake
+    -- Installing: /usr/local/lib/cmake/collada_dom-2.4/collada_dom-config-version.cmake
+ 
+
+pkg-config
+~~~~~~~~~~~~
+
+::
+
+    g4pb:dae blyth$ pkg-config --list-all | grep collada
+    g4pb:dae blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --list-all | grep collada
+    collada-dom                         collada-dom - COLLADA Document Object Model (DOM), 1.4 support=%OPT_COLLADA14%, 1.5 support=%OPT_COLLADA15%
+    collada-dom-141                     collada14dom - COLLADA 1.4 Document Object Model (DOM)
+    collada-dom-150                     collada14dom - COLLADA 1.5 Document Object Model (DOM)
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --libs collada-dom-141
+    -L/usr/local/lib -lcollada-dom2.4-dp 
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --cflags collada-dom-141
+    -DCOLLADA_DOM_SUPPORT141 -DCOLLADA_DOM_SUPPORT150 -DCOLLADA_DOM_DAEFLOAT_IS64 -DCOLLADA_DOM_USING_141 -I/usr/local/include/collada-dom2.4 -I/usr/local/include/collada-dom2.4/1.4 
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --variable=exec_prefix collada-dom-141
+    /usr/local/bin
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --variable=prefix collada-dom-141
+    /usr/local
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --variable=libdir collada-dom-141
+    /usr/local/lib
+
+    g4pb:test blyth$ PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config --variable=includedir collada-dom-141
+    /usr/local/include/collada-dom2.4
+
+
 
 
 
@@ -102,12 +217,15 @@ EOU
 }
 colladadom-dir(){ echo $(local-base)/env/graphics/collada/colladadom ; }
 colladadom-bdir(){ echo $(colladadom-dir).build ; }
-colladadom-cd(){  cd $(colladadom-dir); }
+colladadom-sdir(){ echo $(env-home)/graphics/collada/colladadom ; }
+colladadom-scd(){  cd $(colladadom-sdir)/$1; }
+colladadom-cd(){  cd $(colladadom-dir)/$1; }
 colladadom-mate(){ mate $(colladadom-dir) ; }
 colladadom-get(){
    local dir=$(dirname $(colladadom-dir)) &&  mkdir -p $dir && cd $dir
    [ ! -d colladadom ] && svn co https://collada-dom.svn.sourceforge.net/svnroot/collada-dom/trunk colladadom
 }
+
 
 colladadom-cmake(){
    local bdir=$(colladadom-bdir)
@@ -118,5 +236,19 @@ colladadom-cmake(){
 
 colladadom-make(){
    cd $(colladadom-bdir)
-   make
+   make $*
 }
+colladadom-install(){
+   type $FUNCNAME
+   cd $(colladadom-bdir)
+   sudo make install
+}
+
+colladadom-test(){
+   colladadom-scd testColladaDOM
+   ./fromscratch.sh 
+   ./build/testColladaDOM
+}
+
+
+

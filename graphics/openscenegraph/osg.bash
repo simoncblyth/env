@@ -11,9 +11,10 @@ OPEN SCENE GRAPH
 * http://www.openscenegraph.org/index.php/download-section/stable-releases
 * http://www.openscenegraph.org/index.php/documentation/10-getting-started
 * https://github.com/openscenegraph/osg
-
+* http://trac.macports.org/search?q=OpenSceneGraph
 
 * http://tech.enekochan.com/2012/06/10/install-openscenegraph-2-8-3-with-collada-support-in-ubuntu-12-04/
+
 
 
 Requirements
@@ -24,6 +25,39 @@ Requirements
 
 G
 ---
+
+Macports
+~~~~~~~~~
+
+COLLADA seems commented for both OpenSceneGraph and OpenSceneGraph-devel
+
+* http://trac.macports.org/browser/trunk/dports/graphics/OpenSceneGraph
+* http://trac.macports.org/browser/trunk/dports/graphics/OpenSceneGraph/Portfile
+* http://trac.macports.org/browser/trunk/dports/graphics/OpenSceneGraph/files/patch-CMakeLists.txt.diff
+* http://trac.macports.org/browser/trunk/dports/graphics/OpenSceneGraph-devel
+* http://trac.macports.org/browser/trunk/dports/graphics/OpenSceneGraph-devel/files/patch-CMakeLists.txt.diff
+
+::
+
+    g4pb:OpenSceneGraph-3.2.0.build blyth$ port info openscenegraph
+    OpenSceneGraph @3.2.0 (graphics)
+    Variants:             debug, universal
+
+    Description:          OpenSceneGraph is a high-performance 3D graphics toolkit useful in fields such as visual simulation, games, virtual reality, scientific visualization and modelling.
+    Homepage:             http://www.openscenegraph.org/
+
+    Extract Dependencies: unzip
+    Build Dependencies:   cmake, pkgconfig
+    Library Dependencies: freetype, jasper, openexr, zlib, gdal, curl, ffmpeg, poppler, librsvg, giflib, tiff, qt4-mac, boost
+    Conflicts with:       OpenSceneGraph-devel
+    Platforms:            darwin
+    License:              wxWidgets-3
+    Maintainers:          nomaintainer@macports.org
+
+
+Manual cmake Attempt
+~~~~~~~~~~~~~~~~~~~~~
+
 
 ::
 
@@ -73,6 +107,10 @@ G
        update your ld.so configuration (system wide)
 
 
+
+FFmpegDecoderAudio compilation issue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Fails to compile src/osgPlugins/ffmpeg/FFmpegDecoderAudio.cpp::
 
     g4pb:OpenSceneGraph-3.2.0.build blyth$ make
@@ -99,6 +137,7 @@ Fails to compile src/osgPlugins/ffmpeg/FFmpegDecoderAudio.cpp::
 
 
 * https://github.com/openscenegraph/osg/issues/6
+* http://trac.macports.org/ticket/38167
 
 Try disabling the ffmpeg plugin by changing src/osgPlugins/CMakeLists.txt::
 
@@ -109,7 +148,36 @@ Try disabling the ffmpeg plugin by changing src/osgPlugins/CMakeLists.txt::
 Then::
 
     osg-cmake
-    osg-make    # looks like does a full rebuild after the cmake change
+    osg-make    # Ouch : does a full rebuild after the small cmake change
+
+
+osgPlugins-3.2.0/osgdb_jp2.so wrong architecture issue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+::
+
+    [ 85%] Built target osgdb_ktx
+    [ 85%] Building CXX object src/osgPlugins/jp2/CMakeFiles/osgdb_jp2.dir/ReaderWriterJP2.cpp.o
+    Linking CXX shared module ../../../lib/osgPlugins-3.2.0/osgdb_jp2.so
+    ld warning: in /opt/local/lib/libjasper.dylib, file is not of required architecture
+    Undefined symbols for architecture i386:
+      "_jas_image_destroy", referenced from:
+          ReaderWriterJP2::readImage(std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, osgDB::Options const*) constin ReaderWriterJP2.cpp.o
+          ReaderWriterJP2::readImage(std::basic_istream<char, std::char_traits<char> >&, osgDB::Options const*) constin ReaderWriterJP2.cpp.o
+          ReaderWriterJP2::writeImage(osg::Image const&, std::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, osgDB::Options const*) constin ReaderWriterJP2.cpp.o
+          ReaderWriterJP2::writeImage(osg::Image const&, std::basic_ostream<char, std::char_traits<char> >&, osgDB::Options const*) constin ReaderWriterJP2.cpp.o
+          ...
+          ReaderWriterJP2::readImage(std::basic_istream<char, std::char_traits<char> >&, osgDB::Options const*) constin ReaderWriterJP2.cpp.o
+    ld: symbol(s) not found for architecture i386
+    collect2: ld returned 1 exit status
+    lipo: can't open input file: /var/folders/Ec/EcFzLXYBGBmHyBnf4ZxShk+++TM/-Tmp-//ccC80UsE.out (No such file or directory)
+    make[2]: *** [lib/osgPlugins-3.2.0/osgdb_jp2.so] Error 1
+    make[1]: *** [src/osgPlugins/jp2/CMakeFiles/osgdb_jp2.dir/all] Error 2
+    make: *** [all] Error 2
+
+
+* http://trac.macports.org/ticket/18112
 
 
 Collada Plugin
@@ -118,7 +186,7 @@ Collada Plugin
 OSG 3.2.0 dae plugin needs COLLADA DOM v1.4.1, according to 
 
 * /usr/local/env/graphics/openscenegraph/OpenSceneGraph-3.2.0/src/osgPlugins/dae/README.txt
-
+* 141 is the schema version, not the project version
 
 
 EOU
