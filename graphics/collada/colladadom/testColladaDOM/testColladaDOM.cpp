@@ -21,6 +21,12 @@ void write_minimal_valid()
 
 int main() {
     DAE dae(NULL,NULL,"1.4.1");  
+
+     // nope cannot do this outside 
+    //daeIOPlugin* plugin = (daeIOPlugin*)new daeLIBXMLPlugin(dae);
+    //plugin->setMeta(
+    //dae.setIOPlugin(plugin);
+
     //DAE dae(NULL,NULL,"1.5.0");  
     //const char* path = "file:///usr/local/env/geant4/geometry/daeserver/0___2.dae";
     const char* path = "/usr/local/env/geant4/geometry/daeserver/0___2.dae";

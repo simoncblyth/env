@@ -356,6 +356,21 @@ Kludged it with CMakeLists.txt hard config::
     INCLUDE_DIRECTORIES( ${COLLADA_INCLUDE_DIR} ${COLLADA_INCLUDE_DIR}/1.4)
 
 
+load debug
+~~~~~~~~~~~~
+
+Its bailing due to no topMeta
+
+::
+
+    g4pb:colladadom blyth$ find . -name '*.h' -exec grep -H getDomCOLLADAID {} \;
+    ./dom/include/dae/daeDom.h:daeInt getDomCOLLADAID(const char* specversion = NULL);
+    g4pb:colladadom blyth$ 
+
+::
+
+    initializeDomMeta
+
 
 EOU
 }
@@ -405,7 +420,7 @@ colladadom-install(){
 colladadom-debug-cmake(){
    colladadom-prep $(colladadom-ddir)
    cd $(colladadom-ddir)
-   cmake -DCMAKE_BUILD_TYPE:STRING=Debug $(colladadom-dir)
+   cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DOPT_COMPILE_TESTS:BOOL=ON -DOPT_COLLADA14:BOOL=ON $(colladadom-dir)
 }
 colladadom-debug-make(){
    cd $(colladadom-ddir)
@@ -416,7 +431,35 @@ colladadom-debug-install(){
    cd $(colladadom-ddir)
    sudo make install
 }
+colladadom-debug-tests(){
+   cd $(colladadom-ddir)
+   local tst
+   local ver=${1:-141}
+   case $ver in 
+     141) tst=./dom/test/1.4/domTest141  ;;
+     150) tst=./dom/test/1.5/domTest150  ;;   ## ACTUALLY ALL 150 ARE PASSING 
+   esac
+   echo $msg tst $tst
+   local name
+   $tst -printTests | while read name ; do
+       echo
+       echo ..... $tst $name
 
+       if [ "$ver" == "141" ] ; then 
+       case $name in
+             charEncoding) echo SKIP THIS ONE AS HANGS ;;
+          compareElements) echo SKIP THIS ONE AS HANGS ;;
+      elementAddFunctions) echo SKIP THIS ONE AS HANGS ;;
+              writeCamera) echo SKIP THIS ONE AS HANGS ;;
+                        *) $tst $name ;;
+       esac
+       else
+           $tst $name
+       fi 
+
+    done
+}
+colladadom-debug-tests-kill(){  pgrep domTest141 ; pkill domTest141 ; }
 
 
 
