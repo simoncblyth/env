@@ -70,6 +70,15 @@ better workaround via reverse proxy on H
         [blyth@belle7 heprez]$ svn switch --relocate http://dayabay.phys.ntu.edu.tw/repos/heprez http://hfag.phys.ntu.edu.tw:90/repos/heprez   
 
 
+
+switch back now that the block is removed
+-------------------------------------------
+::
+
+    svn switch --relocate http://hfag.phys.ntu.edu.tw:90/repos/env http://dayabay.phys.ntu.edu.tw/repos/env
+
+
+
 env functions
 ---------------
 
@@ -1335,3 +1344,5 @@ export-(){      . $(env-home)/geant4/geometry/export/export.bash && export-env $
 osg-(){      . $(env-home)/graphics/openscenegraph/osg.bash && osg-env $* ; }
 openvpn-(){      . $(env-home)/network/openvpn.bash && openvpn-env $* ; }
 colladadom-(){      . $(env-home)/graphics/collada/colladadom/colladadom.bash && colladadom-env $* ; }
+osgdata-(){      . $(env-home)/graphics/openscenegraph/osgdata.bash && osgdata-env $* ; }
+colladadomtest-(){      . $(env-home)/graphics/collada/colladadom/testColladaDOM/colladadomtest.bash && colladadomtest-env $* ; }

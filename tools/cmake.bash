@@ -29,6 +29,14 @@ Other Docs
 * http://www.cmake.org/Wiki/CMakeMacroListOperations
 
 
+Random Projects with good cmake usage docs
+--------------------------------------------
+
+* https://software.sandia.gov/trac/dakota/wiki/CMakeFAQ
+
+
+
+
 Versions
 ---------
 
@@ -46,6 +54,40 @@ Debugging
 ::
 
     cmake --trace .
+    cmake -DCMAKE_BUILD_TYPE:STRING=Debug 
+
+::
+
+    make VERBOSE=1
+
+
+
+avoiding cmake full builds on rerunning
+------------------------------------------
+
+* http://stackoverflow.com/questions/8479929/cmake-add-subdirectory-and-recompiling
+
+
+
+cmake dumping
+-------------
+
+Untried from osgPlugins::
+
+    ##########to get all the variables of Cmake
+    #GET_CMAKE_PROPERTY(MYVARS VARIABLES)
+    #FOREACH(myvar ${MYVARS})
+    #    FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/AllVariables.txt
+    #        "${myvar} -->${${myvar}}<-\n"
+    #    )
+    #ENDFOREACH(myvar)
+
+
+cmake architectures
+------------------------
+
+* http://stackoverflow.com/questions/5334095/cmake-multiarchitecture-compilation
+
 
 
 Makefile Debug

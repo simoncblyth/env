@@ -8,23 +8,69 @@ colladadom-usage(){ cat << EOU
 COLLADA DOM
 =============
 
-* http://collada.org/mediawiki/index.php/DOM_guide:_Setting_up
+Refs
+-----
+
+* http://sourceforge.net/p/collada-dom/bugs/
+* https://github.com/rdiankov/collada-dom
 * http://collada.org/mediawiki/index.php/Category:COLLADA_DOM
+
+Build docs
+-----------
+
+* http://collada.org/mediawiki/index.php/DOM_guide:_Setting_up
+* https://github.com/rdiankov/collada-dom/blob/master/CMakeLists.txt
+
+Usage
+-------
+
 * http://collada.org/mediawiki/index.php/COLLADA_DOM_user_guide
 * http://collada.org/mediawiki/index.php/DOM_guide:_Importing_documents
 
-* https://github.com/rdiankov/collada-dom/blob/master/CMakeLists.txt
-
 Versions
 ---------
+
+sourceforge files
+~~~~~~~~~~~~~~~~~
+
+* http://sourceforge.net/projects/collada-dom/files/Collada%20DOM/
+
+  * only 2.0 to 2.4 are available, there are older downloads too
+
+svn tags
+~~~~~~~~~~~
 
 * https://svn.code.sf.net/p/collada-dom/code/tags/
 
   * starts from 2.0, goes to 2.4.0 
 
-* http://sourceforge.net/projects/collada-dom/files/Collada%20DOM/
+svn trunk
+~~~~~~~~~~~
 
-  * similarly only 2.0 to 2.4 are available, there are older downloads too
+::
+
+    g4pb:colladadom blyth$ svn info
+    Path: .
+    Working Copy Root Path: /usr/local/env/graphics/collada/colladadom
+    URL: https://svn.code.sf.net/p/collada-dom/code/trunk
+    Repository Root: https://svn.code.sf.net/p/collada-dom/code
+    Repository UUID: dfea1ed5-6b0d-0410-973e-e49e28f48b26
+    Revision: 889
+    Node Kind: directory
+    Schedule: normal
+    Last Changed Author: rdiankov
+    Last Changed Rev: 889
+    Last Changed Date: 2013-02-21 09:57:10 +0800 (Thu, 21 Feb 2013)
+
+github master
+~~~~~~~~~~~~~~~
+
+History starts Feb 26, 2013
+
+* https://github.com/rdiankov/collada-dom/commits/master
+* https://github.com/rdiankov/collada-dom/issues/1
+
+  seems the git migration dropped a load of old junk files  
 
 
 Mac+Linux Requirements
@@ -47,8 +93,6 @@ Yuck windows/PS3 Libs in SVN
     g4pb:collada blyth$ du -hs colladadom 
     257M    colladadom
 
-
-
 ::
 
     g4pb:colladadom blyth$ file dom/external-libs/boost/lib/mac/libboost_filesystem.a
@@ -56,9 +100,7 @@ Yuck windows/PS3 Libs in SVN
     dom/external-libs/boost/lib/mac/libboost_filesystem.a (for architecture ppc):   current ar archive
     dom/external-libs/boost/lib/mac/libboost_filesystem.a (for architecture i386):  current ar archive
 
-
 This vagrant libs seems not to be used 
-
 
     g4pb:lib blyth$ otool -L libcollada-dom2.4-dp.2.4.0.dylib
     libcollada-dom2.4-dp.2.4.0.dylib:
@@ -106,7 +148,6 @@ G
     -- Generating done
     -- Build files have been written to: /usr/local/env/graphics/collada/colladadom.build
     g4pb:colladadom.build blyth$ 
-
 
 
 minizip 64bit issue
@@ -238,30 +279,117 @@ pkg-config
     /usr/local/include/collada-dom2.4
 
 
+domType namespacing
+~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    g4pb:dom blyth$ pwd
+    /usr/local/env/graphics/collada/colladadom_git/dom/include/1.4/dom
+    g4pb:dom blyth$ grep -l "#include <1.4/dom/domTypes.h>" *.h | sort > with_domtypes.txt
+    g4pb:dom blyth$ ls -1 *.h | sort > all.txt
+    g4pb:dom blyth$ diff all.txt with_domtypes.txt 
+    32d31
+    < domConstants.h
+    172d170
+    < domTypes.h
+    g4pb:dom blyth$ 
+
+Including any COLLADA_DOM dom headers (other than domConstants.h) results in inclusion
+of "1.4/dom/domTypes.h" 
+
+
+::
+
+      10 #define __DOM141_CONSTANTS_H__
+      11 
+      12 #include <dae/daeDomTypes.h>
+      13 
+      14 class DAE;
+      15 namespace ColladaDOM141 {
+      16 
+
+dae/daeTypes.h implicit namespacing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+dae/daeTypes.h declares the namespaces and does a "using namespace" 
+steered by preprocessor definitions. This include is included by the below.
+Implicit "using namespace" seems a bad idea, as causes mystifying issues.
+
+::
+
+    g4pb:collada-dom2.4 blyth$ find . -name '*.h' -exec grep -l "#include <dae/daeTypes.h>" {} \;
+    ./dae/daeArrayTypes.h
+    ./dae/daeAtomicType.h
+    ./dae/daeDatabase.h
+    ./dae/daeDocument.h
+    ./dae/daeElement.h
+    ./dae/daeErrorHandler.h
+    ./dae/daeIDRef.h
+    ./dae/daeIOPlugin.h
+    ./dae/daeMemorySystem.h
+    ./dae/daeMetaAttribute.h
+    ./dae/daeMetaCMPolicy.h
+    ./dae/daeMetaElement.h
+    ./dae/daeMetaElementAttribute.h
+    ./dae/daeRefCountedObj.h
+    ./dae/daeSIDResolver.h
+    ./dae/daeStringTable.h
+    ./dae/daeURI.h
+    ./dae.h
+    ./modules/stdErrPlugin.h
+
+
+colladadom usage by OSG plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Kludged it with CMakeLists.txt hard config::
+
+    # SCB hardconfig starts
+    set( CMAKE_VERBOSE_MAKEFILE ON )
+    SET( COLLADA_INCLUDE_DIR     /usr/local/include/collada-dom2.4 )
+    SET( COLLADA_DYNAMIC_LIBRARY /usr/local/lib/libcollada-dom2.4-dp.2.4.0.dylib )
+    ADD_DEFINITIONS(-DCOLLADA_DOM_SUPPORT141)
+    ADD_DEFINITIONS(-DCOLLADA_DOM_USING_141)   # for namespace new feature with colladadom 2.4.0
+    # SCB hardconfig ends 
+
+    INCLUDE_DIRECTORIES( ${COLLADA_INCLUDE_DIR} ${COLLADA_INCLUDE_DIR}/1.4)
 
 
 
 EOU
 }
 colladadom-dir(){ echo $(local-base)/env/graphics/collada/colladadom ; }
+colladadom-gdir(){ echo $(colladadom-dir)_git ; }
 colladadom-bdir(){ echo $(colladadom-dir).build ; }
+colladadom-ddir(){ echo $(colladadom-dir).debug ; }
 colladadom-sdir(){ echo $(env-home)/graphics/collada/colladadom ; }
 colladadom-scd(){  cd $(colladadom-sdir)/$1; }
 colladadom-cd(){  cd $(colladadom-dir)/$1; }
+colladadom-gcd(){  cd $(colladadom-gdir)/$1; }
 colladadom-mate(){ mate $(colladadom-dir) ; }
 colladadom-get(){
    local dir=$(dirname $(colladadom-dir)) &&  mkdir -p $dir && cd $dir
    [ ! -d colladadom ] && svn co https://collada-dom.svn.sourceforge.net/svnroot/collada-dom/trunk colladadom
 }
+colladadom-git(){
+   ## NOT CURRENTLY USED, STILL ON SVN TRUNK : TODO CLONE THIS
+   local dir=$(dirname $(colladadom-dir)) &&  mkdir -p $dir && cd $dir
+   [ ! -d colladadom_git ] && git clone https://github.com/rdiankov/collada-dom.git colladadom_git
+}
+
+colladadom-prep(){
+   local dir=$1
+   [ ! -d $dir ] && mkdir -p $dir 
+}
+
 
 
 colladadom-cmake(){
-   local bdir=$(colladadom-bdir)
-   [ ! -d $bdir ] && mkdir -p $bdir 
+   colladadom-prep $(colladadom-bdir)
    cd $(colladadom-bdir)
    cmake $(colladadom-dir) 
 }
-
 colladadom-make(){
    cd $(colladadom-bdir)
    make $*
@@ -271,6 +399,27 @@ colladadom-install(){
    cd $(colladadom-bdir)
    sudo make install
 }
+
+
+
+colladadom-debug-cmake(){
+   colladadom-prep $(colladadom-ddir)
+   cd $(colladadom-ddir)
+   cmake -DCMAKE_BUILD_TYPE:STRING=Debug $(colladadom-dir)
+}
+colladadom-debug-make(){
+   cd $(colladadom-ddir)
+   make $* VERBOSE=1
+}
+colladadom-debug-install(){
+   type $FUNCNAME
+   cd $(colladadom-ddir)
+   sudo make install
+}
+
+
+
+
 
 colladadom-test(){
    colladadom-scd testColladaDOM
@@ -283,6 +432,7 @@ colladadom-rmlib(){
    colladadom-cd
    find . -name '*.a'  -exec svn rm {} \;
    find . -name '*.lib'  -exec svn rm {} \;
+   find . -name '*.dll' -exec svn rm {} \;
    # svn st | perl -p -e 's,!,svn rm,' - | sh    # but still doesnt free half the space as held by SVN 
 
    
