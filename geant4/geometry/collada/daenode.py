@@ -1160,7 +1160,9 @@ class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     loglevel = "INFO"
     logpath = None
-    daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"  # this one has the rotation bug still
+    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
+
     daedbpath = None
     webserver = False
     tree = False
