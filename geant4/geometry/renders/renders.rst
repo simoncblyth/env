@@ -6,7 +6,7 @@ Mac OS X Preview
 -----------------
 
 .. figure:: preview_near_site_render.png 
-   :scale: 100%
+   :scale: 50%
    
    Daya Bay near site pool geometry exported from Geant4 by 
    the G4DAE exporter in COLLADA DAE format.
@@ -19,6 +19,7 @@ MeshLab
 ----------
 
 .. figure:: meshlab_lowres_near_site.png 
+   :scale: 50%
    
    Daya Bay near site pool geometry exported from Geant4 by 
    the G4DAE exporter in COLLADA DAE format. Render created with the MeshLab application,
