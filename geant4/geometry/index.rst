@@ -16,5 +16,7 @@ Geant4 Geometry Export
    detdesc/index
    other/index
    GaussTools/index
+   export/index
+   renders/index
    
 
