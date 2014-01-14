@@ -457,6 +457,20 @@ EOU
 
 }
 
+ssh--osx-keychain-sock(){
+   find /private/tmp -type s -name 'Listeners' 2>/dev/null | head -1
+}
+ssh--osx-keychain-sock-ids(){
+    SSH_AUTH_SOCK=$(ssh--osx-keychain-sock) ssh-add -l
+}
+ssh--osx-keychain-sock-export(){
+    local SOCK=$(ssh--osx-keychain-sock) 
+    SSH_AUTH_SOCK=$SOCK ssh-add -l 2>/dev/null 1>/dev/null && export SSH_AUTH_SOCK=$SOCK || echo $msg CANNOT FIND SSH_AUTH_SOCK OSX login keychain ssh-agent not running ? 
+}
+
+
+
+
 
 
 ssh--tunnel(){

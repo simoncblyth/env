@@ -290,6 +290,7 @@ local-nodetag(){
      dayabay1) echo Y1 ;;
       dayabay) echo Y2 ;;
   dayabay-new) echo Y2 ;;
+        delta) echo D ;;
        #dybdb1) echo D1 ;;
        dybdb1) echo Y1 ;;
        dybdb2) echo D2 ;;

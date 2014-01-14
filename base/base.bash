@@ -37,30 +37,31 @@ base-env(){
 
   local dbg=${1:-0}
   local iwd=$(pwd)
- 
+  local sshinfo=$(env-home)/base/ssh-infofile.bash
 
-   cd $(env-home)/base
+   #cd $(env-home)/base
    elocal-
  
-   
    ## do not need the ssh- funcs when non-interactive but do need the connection to the agent 
    ##  so this is better separate from the ssh-
-   [ -r ssh-infofile.bash ]  && . ssh-infofile.bash
-   
 
    ssh--
+   case $(uname) in 
+      Darwin) ssh--osx-keychain-sock-export ;;
+           *) source $(env-home)/base/ssh-infofile.bash ;;   ## HUH why the split
+   esac
 
    ## caution must exit in same directory as started in 
-   cd $iwd
+   #cd $iwd
    
    [ -t 0 ] || return 
    [ "$dbg" == "t0fake" ]  && echo faked tzero  && return 
  
-   cd $(env-home)/base
+   #cd $(env-home)/base
    
    clui-
  
-   cd $iwd
+   #cd $iwd
 }
 
  
