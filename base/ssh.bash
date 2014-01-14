@@ -463,14 +463,22 @@ ssh--osx-keychain-sock(){
 ssh--osx-keychain-sock-ids(){
     SSH_AUTH_SOCK=$(ssh--osx-keychain-sock) ssh-add -l
 }
-ssh--osx-keychain-sock-export(){
+ssh--osx-keychain-sock-setup(){
     local SOCK=$(ssh--osx-keychain-sock) 
-    SSH_AUTH_SOCK=$SOCK ssh-add -l 2>/dev/null 1>/dev/null && export SSH_AUTH_SOCK=$SOCK || echo $msg CANNOT FIND SSH_AUTH_SOCK OSX login keychain ssh-agent not running ? 
+    SSH_AUTH_SOCK=$SOCK ssh-add -l 2>/dev/null 1>/dev/null && ssh--osx-keychain-sock-persist $SOCK || echo $msg CANNOT FIND SSH_AUTH_SOCK OSX login keychain ssh-agent not running ? 
 }
-
-
-
-
+ssh--osx-keychain-sock-export(){
+    [ ! -f ~/.ssh-agent-info ] && ssh--osx-keychain-sock-setup
+    [   -f ~/.ssh-agent-info ] && source ~/.ssh-agent-info 
+}
+ssh--osx-keychain-sock-persist(){ 
+    $FUNCNAME- $* > ~/.ssh-agent-info
+}
+ssh--osx-keychain-sock-persist-(){  cat << EOP
+# $FUNCNAME 
+SSH_AUTH_SOCK=$1 ; export SSH_AUTH_SOCK     
+EOP
+}
 
 
 ssh--tunnel(){

@@ -20,6 +20,13 @@ env-cache-update(){
 }
 
 
+env-anewer(){
+   cd $(env-home)
+   local path=${1:-graphics/openscenegraph/osg.bash}
+   find . -anewer $path  -type f | grep -v _build | grep -v .svn
+}
+
+
 env-usage(){ cat << EOU
 
 ===================

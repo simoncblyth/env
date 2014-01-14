@@ -372,6 +372,16 @@ Its bailing due to no topMeta
     initializeDomMeta
 
 
+COLLADADOMTEST
+----------------
+
+* https://github.com/sbarthelemy/collada-dom/blob/master/dom/test/1.4/integrationExample.cpp
+
+
+
+
+
+
 EOU
 }
 colladadom-dir(){ echo $(local-base)/env/graphics/collada/colladadom ; }
@@ -393,7 +403,7 @@ colladadom-git(){
    [ ! -d colladadom_git ] && git clone https://github.com/rdiankov/collada-dom.git colladadom_git
 }
 
-colladadom-prep(){
+colladadom-mkdir(){
    local dir=$1
    [ ! -d $dir ] && mkdir -p $dir 
 }
@@ -401,7 +411,7 @@ colladadom-prep(){
 
 
 colladadom-cmake(){
-   colladadom-prep $(colladadom-bdir)
+   colladadom-mkdir $(colladadom-bdir)
    cd $(colladadom-bdir)
    cmake $(colladadom-dir) 
 }
@@ -417,8 +427,11 @@ colladadom-install(){
 
 
 
+colladadom-debug-cd(){
+   cd $(colladadom-ddir)
+}
 colladadom-debug-cmake(){
-   colladadom-prep $(colladadom-ddir)
+   colladadom-mkdir $(colladadom-ddir)
    cd $(colladadom-ddir)
    cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DOPT_COMPILE_TESTS:BOOL=ON -DOPT_COLLADA14:BOOL=ON $(colladadom-dir)
 }
@@ -464,10 +477,38 @@ colladadom-debug-tests-kill(){  pgrep domTest141 ; pkill domTest141 ; }
 
 
 
-colladadom-test(){
+
+colladadom-dae(){
+   local dir=/usr/local/env/geant4/geometry/daeserver
+   #local name=0___2
+   local name=3150___100
+   echo $dir/$name.dae
+}
+
+colladadom-dae-noextra(){
+   local path=${1:-$(colladadom-dae)}
+   local name=$(basename $path)
+   local xname=noextra_$name
+   echo $xname
+}
+
+colladadom-dae-prep(){
    colladadom-scd testColladaDOM
+   local path=$(colladadom-dae)
+   local xname=$(colladadom-dae-noextra $path)
+   local cmd="xsltproc strip-extra.xsl $path > $xname "
+   echo "$cmd"
+   eval $cmd
+}
+
+colladadom-test(){
+   # reading DAE and dumping results from simple queries for sanity check 
+   colladadom-scd testColladaDOM
+
    ./fromscratch.sh 
-   ./build/testColladaDOM
+
+   colladadom-dae-prep
+   ./build/testColladaDOM $(colladadom-dae-noextra)
 }
 
 
@@ -477,8 +518,6 @@ colladadom-rmlib(){
    find . -name '*.lib'  -exec svn rm {} \;
    find . -name '*.dll' -exec svn rm {} \;
    # svn st | perl -p -e 's,!,svn rm,' - | sh    # but still doesnt free half the space as held by SVN 
-
-   
 
 }
 
