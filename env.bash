@@ -1353,3 +1353,4 @@ openvpn-(){      . $(env-home)/network/openvpn.bash && openvpn-env $* ; }
 colladadom-(){      . $(env-home)/graphics/collada/colladadom/colladadom.bash && colladadom-env $* ; }
 osgdata-(){      . $(env-home)/graphics/openscenegraph/osgdata.bash && osgdata-env $* ; }
 colladadomtest-(){      . $(env-home)/graphics/collada/colladadom/testColladaDOM/colladadomtest.bash && colladadomtest-env $* ; }
+cuda-(){      . $(env-home)/cuda/cuda.bash && cuda-env $* ; }

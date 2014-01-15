@@ -5,7 +5,20 @@ virtualenv-vi(){       vi $(virtualenv-source) ; }
 virtualenv-env(){      elocal- ; }
 virtualenv-usage(){
   cat << EOU
-     virtualenv-src : $(virtualenv-src)
+
+virtualenv
+============
+
+* http://www.virtualenv.org/en/latest/virtualenv.html
+
+installs
+----------
+
+
+
+
+
+
 
 EOU
 }

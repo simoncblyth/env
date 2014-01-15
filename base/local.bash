@@ -121,6 +121,8 @@ local-env(){
 
 }
 
+local-tmp(){  echo /tmp ; }
+
 
 local-node-deprecated(){
    case $NODE in 
