@@ -133,7 +133,10 @@ cuda-path(){
     local dir=$(cuda-dir)
     [ ! -d $dir ] && return 1
     export PATH=$dir/bin:$PATH
-    export DYLD_LIBRARY_PATH=$dir/lib:$DYLD_LIBRARY_PATH
+    #export DYLD_LIBRARY_PATH=$dir/lib:$DYLD_LIBRARY_PATH
+    export DYLD_LIBRARY_PATH=/usr/local/cuda/lib:$DYLD_LIBRARY_PATH      # not documented ??? links from this to $dir/lib
+
+    # these are not seen by the pycuda build
 }
 
 cuda-url(){
@@ -166,6 +169,9 @@ cuda-guide(){
    open $(cuda-dir)/doc/html/cuda-c-programming-guide/index.html
 }
 
+cuda-doc(){
+   open $(cuda-dir)/doc/html/index.html
+}
 
 cuda-osx-kextstat(){
    kextstat | grep -i cuda

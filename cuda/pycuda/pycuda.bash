@@ -66,6 +66,27 @@ python
     Python 2.6.8
 
 
+mavericks
+~~~~~~~~~~~
+
+* http://wiki.tiker.net/PyCuda/FrequentlyAskedQuestions
+
+CUDA is composed of two APIs:
+
+#. A low-level API called the CUDA driver API,
+#. A higher-level API called the CUDA runtime API that is implemented on top of the CUDA driver API. 
+
+These APIs are mutually exclusive: **An application should use either one or the other.**
+PyCUDA is based on the driver API. 
+CUBLAS uses the high-level API. 
+One can violate this rule without crashing immediately. But sketchy stuff does happen. 
+Instead, for BLAS-1 operations, PyCUDA comes with a class called GPUArray that essentially 
+reimplements that part of CUBLAS.
+
+
+* http://documen.tician.de/pycuda/
+
+
 
 
 EOU
