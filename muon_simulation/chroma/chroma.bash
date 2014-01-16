@@ -65,8 +65,189 @@ While doing::
 
    * macports cmake is ignored, the http://www.cmake.org/files/v2.8/cmake-2.8.11.tar.gz being attempted to be built again
 
+   * duplicate shrinkwrap repo on delta using shrinkwrap-dupe 
+     and add new geant4-4.9.5.post2.tar.gz which is same as post1 but 
+     with shrinkwrap_requires=["cmake"] commented and with the new version name
+
+     * with this succeed to complete geant4 build
+
+   * subsequent root build fails with freetype header missing 
+
+
+root 5.34.11 freetype issue
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
+    In file included from /usr/local/env/chroma_env/src/root-v5.34.11/graf2d/x11ttf/src/TGX11TTF.cxx:28:
+    In file included from include/TGX11TTF.h:34:
+    In file included from include/TTF.h:30:
+    /usr/X11R6/include/ft2build.h:56:10: fatal error: 'freetype/config/ftheader.h' file not found
+    #include <freetype/config/ftheader.h>
+
+Looks like a missing 2::
+
+    delta:lib blyth$ freetype-config --cflags
+    -I/opt/local/include/freetype2
+    delta:lib blyth$ ll /opt/local/include/freetype2/config/ftheader.h 
+    -rw-r--r--  1 root  admin  25587 Dec 22 17:32 /opt/local/include/freetype2/config/ftheader.h
+
+The /usr/X11R6/include/ft2build.h header with the wrong path::
+
+     55   /* `<prefix>/include/freetype2' must be in your current inclusion path */
+     56 #include <freetype/config/ftheader.h>
+
+::
+
+    freetype-config --cflags
+    -I/opt/local/include/freetype2
+
+Perhaps an XQuartz ROOT incompatibility, try kludge::
+
+   cd /opt/local/include/freetype2 && sudo ln -s . freetype
+
+Makes the header appear at locations expected by both ROOT and Xquartz::
+
+    (chroma_env)delta:freetype2 blyth$ ls -l /opt/local/include/freetype2/config/ftheader.h /opt/local/include/freetype2/freetype/config/ftheader.h
+    -rw-r--r--  1 root  admin  25587 Dec 22 17:32 /opt/local/include/freetype2/config/ftheader.h
+    -rw-r--r--  1 root  admin  25587 Dec 22 17:32 /opt/local/include/freetype2/freetype/config/ftheader.h
+
+
+
+
+* http://trac.macports.org/ticket/41746
+* http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=17190
+
+* https://xquartz.macosforge.org/trac/wiki/Releases 
+
+  * promulgates X11 2.7.5 - 2013.11.10 - First release supported on Mavericks
+  * also mentions use of macports xorg-server or xorg-server-devel
+  * https://trac.macports.org/browser/trunk/dports/x11/xorg-server-devel
+  * https://trac.macports.org/browser/trunk/dports/x11/xorg-server
+
+
+* http://root.cern.ch/drupal/content/root-version-v5-34-00-patch-release-notes
+
+  * claims v5-34-12 (Nov 19, 2013) completes Mavericks support
+
+
+
+rerun root
+~~~~~~~~~~~~
+
+A rerun skips root unless::
+
+   rm -rf build/build_root
+
+Do this with *chroma-deps-rebuild root*
+
+
+g4py_chroma
+~~~~~~~~~~~~~~
+
+Claims to complete OK but looks like python version mixing between
+system and macports python::
+
+        Checking for system type ... macosx
+        Checking for prefix ... /usr/local/env/chroma_env
+        Checking for lib dir ... /usr/local/env/chroma_env/lib/python2.7/site-packages
+        Checking for G4 include dir ... /usr/local/env/chroma_env/include/Geant4
+        Checking for G4 lib dir ... /usr/local/env/chroma_env/lib/
+        Checking for G4 libs are shared libraray ... ok
+        Checking for Python include dir (pyconfig.h) ... /usr/include/python2.7
+        Checking for Python lib dir ... /usr/local/env/chroma_env/lib/python2.7/config
+        Checking for Boost include dir (boost/python.hpp) ... /usr/local/env/chroma_env/include
+        Checking for Boost version ... ok
+        Checking for Boost lib dir ... /usr/local/env/chroma_env/lib
+        Checking for Boost Python lib name ... libboost_python.dylib
+        Checking for OpenGL support ...no
+        Checking for GL2PS support ...no
+        Checking for physics list support ...yes
+        Checking for GDML support ...no
+
+
+Also some funny warnings::
+
+        Building a module G4global.so ...
+        ld: warning: directory not found for option '-L-l'
+        ... intall G4global.so into /usr/local/env/chroma_env/lib/python2.7/site-packages/Geant4
+
+pyzmq
+~~~~~
+
+Claims to complete OK despite this fatality::
+
+        build/temp.macosx-10.9-x86_64-2.7/scratch/vers.c:4:10: fatal error: 'zmq.h' file not found
+        #include "zmq.h"
+                 ^
+        1 error generated.
+    
+        error: command '/usr/bin/clang' failed with exit status 1
+    
+        Warning: Failed to build or run libzmq detection test.
+    
+        If you expected pyzmq to link against an installed libzmq, please check to make sure:
+    
+            * You have a C compiler installed
+            * A development version of Python is installed (including headers)
+            * A development version of ZMQ >= 2.1.4 is installed (including headers)
+            * If ZMQ is not in a default location, supply the argument --zmq=<path>
+            * If you did recently install ZMQ to a default location,
+              try rebuilding the ld cache with `sudo ldconfig`
+              or specify zmq's location with `--zmq=/usr/local`
+    
+        If you expected to get a binary install (egg), we have those for
+        current Pythons on OS X and Windows. These can be installed with
+        easy_install, but PIP DOES NOT SUPPORT EGGS.
+    
+        You can skip all this detection/waiting nonsense if you know
+        you want pyzmq to bundle libzmq as an extension by passing:
+    
+            `--zmq=bundled`
+    
+        I will now try to build libzmq as a Python extension
+        unless you interrupt me (^C) in the next 10 seconds...
+    
+        ************************************************
+        Using bundled libzmq
+        already have bundled/zeromq
+        attempting ./configure to generate platform.hpp
+        Warning: failed to configure libzmq:
+        /bin/sh: ./configure: No such file or directory
+
+
+
+
+markupsafe 
+~~~~~~~~~~~
+
+pip installing it separately gets around the SandboxViolation when installed
+as a dependency of chroma::
+
+    Installed /usr/local/env/chroma_env/lib/python2.7/site-packages/Pygments-1.6-py2.7.egg
+    Searching for markupsafe
+    Reading https://pypi.python.org/simple/markupsafe/
+    Best match: MarkupSafe 0.18
+    Downloading https://pypi.python.org/packages/source/M/MarkupSafe/MarkupSafe-0.18.tar.gz#md5=f8d252fd05371e51dec2fe9a36890687
+    Processing MarkupSafe-0.18.tar.gz
+    Writing /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/easy_install-IYqptm/MarkupSafe-0.18/setup.cfg
+    Running MarkupSafe-0.18/setup.py -q bdist_egg --dist-dir /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/easy_install-IYqptm/MarkupSafe-0.18/egg-dist-tmp-DMeghv
+    error: Setup script exited with error: SandboxViolation: os.open('/var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/tmpKdJUob/SDCV5z', 2818, 384) {}
+
+    The package setup script has attempted to modify files on your system
+    that are not within the EasyInstall build area, and has been aborted.
+
+    This package cannot be safely installed by EasyInstall, and may not
+    support alternate installation locations even if you run its setup
+    script by hand.  Please inform the package's author and the EasyInstall
+    maintainers to find out if a fix or workaround is available.
+
+
+
+pip logs
+~~~~~~~~~
+
+Are overritten at each invokation::
 
    mv /Users/blyth/.pip/pip.log ~/chroma_deps.log
 
@@ -78,6 +259,8 @@ chroma-env(){
     elocal-  
     local dir=$(chroma-dir)
     [ -d $dir ] && source $dir/bin/activate 
+
+    cuda-  # hmm dirty, perhaps do via shrinkwrap $VIRTUAL_ENV/env.d ??
 }
 chroma-cd(){  cd $(chroma-dir); }
 chroma-mate(){ mate $(chroma-dir) ; }
@@ -90,9 +273,16 @@ chroma-get(){
 
 chroma-prepare(){
     chroma-virtualenv
+    chroma-versions
     chroma-deps
 }
 
+chroma-versions(){
+    which python
+    python -V
+    which virtualenv
+    virtualenv --version
+}
 
 chroma-virtualenv(){
     local msg="=== $FUNCNAME :"
@@ -101,11 +291,6 @@ chroma-virtualenv(){
 
     # want access to macports py27 modules like numpy/pygame/matplotlib/... 
     # so use the somewhat dirty --system-site-package option
-
-    which python
-    python -V
-    which virtualenv
-    virtualenv --version
 
     virtualenv --system-site-package  $(chroma-dir)    
 }
@@ -139,15 +324,51 @@ CURAND_LIB_DIR = cuda_lib_dir
 EOS
 }
 
+chroma-pkgs-url(){
+   #echo http://mtrr.org/chroma_pkgs/
+   echo http://localhost/chroma_pkgs/
+}
+
+chroma-deps-env(){
+   local msg="=== $FUNCNAME :"
+   [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR need to be in the virtualenv to proceed && return 1
+   cuda-    # PATH setup for CUDA, expect ignored however these setting coming from aksetup ?
+   chroma-pycuda-aksetup
+   export PIP_EXTRA_INDEX_URL=$(chroma-pkgs-url)
+}
+
 chroma-deps(){
    chroma-  # activate the virtualenv
-   [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR need to be in the virtualenv to proceed && return 1
 
-   cuda-
-   chroma-pycuda-aksetup
-
-   export PIP_EXTRA_INDEX_URL=http://mtrr.org/chroma_pkgs/
-   which pip
-
+   chroma-deps-env
+   cd $VIRTUAL_ENV  
    pip install chroma_deps
 }
+
+chroma-deps-rebuild(){
+   local msg="=== $FUNCNAME :"
+   local name=${1:-root}
+   local builddir=$VIRTUAL_ENV/build/build_$name
+   [ -d "$builddir" ] && echo $msg builddir for $name exists already : $builddir : delete this and rerun to proceed && return 1
+
+   chroma-deps-env
+   cd $VIRTUAL_ENV  
+   pip install -b $builddir $name
+}
+
+
+chroma-build(){
+   local msg="=== $FUNCNAME :"
+   chroma-
+   [ -z "$VIRTUAL_ENV" ] && echo $msg ERROR need to be in the virtualenv to proceed && return 1
+
+
+   pip install markupsafe # gives SandboxViolation when installing as dependency of chroma/Sphinx/Pygments 
+
+   cd $VIRTUAL_ENV/src
+   [ ! -d chroma ] && hg clone https://bitbucket.org/chroma/chroma
+   cd chroma
+   python setup.py develop
+}
+
+

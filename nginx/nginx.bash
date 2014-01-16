@@ -318,6 +318,15 @@ follow symlinks.  Resolved by using the default htdocs and copying the
 links in there.
 
 
+delta Mavericks 10.9.1
+------------------------
+
+Macports install, initial setup::
+
+    cd /opt/local/etc/nginx/ &&  sudo cp nginx.conf.default nginx.conf
+    cd /opt/local/etc/nginx/ &&  sudo cp mime.types.default mime.types
+    nginx-edit
+
 
 EOU
 }
@@ -412,7 +421,10 @@ nginx-prefix(){
 }
 
 nginx-eprefix(){
-  echo $(nginx-prefix)/usr ;
+  case $NODE_TAG in
+     D) echo $(nginx-prefix)  ;;
+     *) echo $(nginx-prefix)/usr ;;
+  esac
 }
 
 
@@ -464,12 +476,14 @@ nginx-srestart(){
  
 nginx-pid(){     cat $(nginx-pidpath) 2>/dev/null ; }
 
-nginx-stop(){    sudo kill -QUIT $(nginx-pid) ; }
+nginx-kill(){    sudo kill -QUIT $(nginx-pid) ; }
+nginx-stop(){    sudo nginx -s stop ; }
 nginx-start(){   
    local msg="=== $FUNCNAME :"
    local pid=$(nginx-pid)
    [ -n "$pid" ] && echo $msg looks like nginx is running already with pid $pid from pidfile $(nginx-pidpath) ... stop it first && return 0
-   sudo /usr/sbin/nginx ; 
+   #sudo /usr/sbin/nginx 
+   sudo nginx   # rely on one in PATH 
 }
 
 nginx-strings(){

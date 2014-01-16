@@ -8,13 +8,32 @@ shrinkwrap-usage(){ cat << EOU
 SHRINKWRAP
 ==========
 
-Python packaging for everything 
+Python packaging for non-python packages
+
+* allows to add install function to *setup.py install* command
+  that for example downloads tarballs, compiles and installs to virtualenv
+* creates $VIRTUAL_ENV/env.d/ for pkgs needing environment setup and
+  patches activate to source those
 
 * https://shrinkwrap.readthedocs.org/en/latest/index.html
+* https://shrinkwrap.readthedocs.org/en/latest/how.html
+* https://bitbucket.org/seibert/shrinkwrap_pkgs/src
+
+Shrinkwrap is auto installed from pypi if not already present when installing
+a shrinkwrap package, but the lastest can be cloned with::
+
+    hg clone http://bitbucket.org/seibert/shrinkwrap
+
+
+
+SETUP LOCAL REPO
+-----------------
 
 ::
 
-    hg clone http://bitbucket.org/seibert/shrinkwrap
+    nginx-
+    cd `nginx-htdocs` && sudo ln -s /tmp/env/chroma_pkgs
+    curl http://localhost/chroma_pkgs/
 
 
 FUNCTIONS
