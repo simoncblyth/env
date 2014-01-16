@@ -1355,3 +1355,4 @@ osgdata-(){      . $(env-home)/graphics/openscenegraph/osgdata.bash && osgdata-e
 colladadomtest-(){      . $(env-home)/graphics/collada/colladadom/testColladaDOM/colladadomtest.bash && colladadomtest-env $* ; }
 cuda-(){      . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
 xquartz-(){      . $(env-home)/gui/xquartz.bash && xquartz-env $* ; }
+shrinkwrap-(){      . $(env-home)/python/shrinkwrap/shrinkwrap.bash && shrinkwrap-env $* ; }

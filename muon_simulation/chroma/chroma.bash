@@ -48,6 +48,23 @@ While doing::
   
 #. linker errors from missing lib "-lcuda", avoid by changing libdir to /usr/local/cuda/lib  
 
+#. pyublas complains: "Setuptools conflict detected", but it proceeds anyhow
+
+   * http://wiki.tiker.net/DistributeVsSetuptools 
+
+#. pip/shrinkwrap/cmake builds dump lots of whitespace, possibly colorful clang warnings, seems 
+   worse with iTerm2.app term setup rather than with Terminal.app 
+
+#. cmake-2.8.11 build issue with cmlibarchive
+
+   * https://github.com/Kitware/CMake/tree/master/Utilities/cmlibarchive
+
+   * try grabbing that externally via macports::
+
+        sudo port -v install cmake  # 
+
+   * macports cmake is ignored, the http://www.cmake.org/files/v2.8/cmake-2.8.11.tar.gz being attempted to be built again
+
 
 ::
 
