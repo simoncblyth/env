@@ -252,6 +252,76 @@ Are overritten at each invokation::
    mv /Users/blyth/.pip/pip.log ~/chroma_deps.log
 
 
+root-5.34.14
+~~~~~~~~~~~~~~~
+
+Bump root to get Mavericks fixes, by adding root-5.34.14.tar.gz 
+to chroma_pkgs with the only change being the version at the 
+below three points.::
+
+    chroma_env)delta:root blyth$ diff -r  root-5.34.11 root-5.34.14
+    diff -r root-5.34.11/PKG-INFO root-5.34.14/PKG-INFO
+    3c3
+    < Version: 5.34.11
+    ---
+    > Version: 5.34.14
+    diff -r root-5.34.11/root.egg-info/PKG-INFO root-5.34.14/root.egg-info/PKG-INFO
+    3c3
+    < Version: 5.34.11
+    ---
+    > Version: 5.34.14
+    diff -r root-5.34.11/setup.py root-5.34.14/setup.py
+    10c10
+    < version = '5.34.11'
+    ---
+    > version = '5.34.14'
+
+
+::
+
+    (chroma_env)delta:chroma_env blyth$ chroma-deps-rebuild root -U
+    === chroma-deps-env : writing /Users/blyth/.aksetup-defaults.py
+    Downloading/unpacking root from http://localhost/chroma_pkgs/root/root-5.34.14.tar.gz
+      Downloading root-5.34.14.tar.gz
+      Running setup.py egg_info for package root
+        
+    Installing collected packages: root
+      Found existing installation: root 5.34.11
+        Uninstalling root:
+          Successfully uninstalled root
+      Running setup.py install for root
+        Downloading ftp://root.cern.ch/root/root_v5.34.14.source.tar.gz
+
+
+TTF : header name clash between freetype and ftgl
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+     6860 
+     6861     In file included from /usr/local/env/chroma_env/src/root-v5.34.14/graf2d/graf/src/TMathText.cxx:15:
+     6862 
+     6863     include/TTF.h:51:4: error: unknown type name 'FT_Glyph'; did you mean 'FTGlyph'?
+     6864 
+     6865        FT_Glyph   fImage; // glyph image
+     6866 
+     6867        ^~~~~~~~
+     6868 
+     6869        FTGlyph
+     6870 
+     6871     include/ftglyph.h:25:19: note: 'FTGlyph' declared here
+     6872 
+     6873     class FTGL_EXPORT FTGlyph
+     6874 
+
+* http://trac.macports.org/ticket/41572
+* https://github.com/root-mirror/root/commit/446a11828dcf577efd15d9057703c5bd099dd148
+* https://sft.its.cern.ch/jira/browse/ROOT-5773
+* http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=17485
+
+
+
+
 EOU
 }
 chroma-dir(){ echo $(local-base)/env/chroma_env ; }
@@ -348,12 +418,14 @@ chroma-deps(){
 chroma-deps-rebuild(){
    local msg="=== $FUNCNAME :"
    local name=${1:-root}
+   shift
+   local args=$*
    local builddir=$VIRTUAL_ENV/build/build_$name
    [ -d "$builddir" ] && echo $msg builddir for $name exists already : $builddir : delete this and rerun to proceed && return 1
 
    chroma-deps-env
    cd $VIRTUAL_ENV  
-   pip install -b $builddir $name
+   pip install -b $builddir $args $name
 }
 
 

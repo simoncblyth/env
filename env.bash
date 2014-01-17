@@ -1356,3 +1356,4 @@ colladadomtest-(){      . $(env-home)/graphics/collada/colladadom/testColladaDOM
 cuda-(){      . $(env-home)/cuda/cuda.bash && cuda-env $* ; }
 xquartz-(){      . $(env-home)/gui/xquartz.bash && xquartz-env $* ; }
 shrinkwrap-(){      . $(env-home)/python/shrinkwrap/shrinkwrap.bash && shrinkwrap-env $* ; }
+pip-(){      . $(env-home)/python/pip.bash && pip-env $* ; }
