@@ -1,8 +1,8 @@
 simple detector example
 ==========================
 
-Runtime Mavericks ROOT/python issue with root-5.34.11
-----------------------------------------------------------
+Runtime Mavericks ROOT/python issue with root-5.34.11 AVOIDED
+---------------------------------------------------------------
 
 ::
 
@@ -27,19 +27,21 @@ Runtime Mavericks ROOT/python issue with root-5.34.11
 * http://root.cern.ch/phpBB3/viewtopic.php?f=14&t=17238
 
   * suggests this issue fixed after root-5.34.11 
-  * TODO: try chroma-rebuild root with the lastest 5.34.12 
-    added to chroma_pkgs
 
 
-#. Moving to 5.34.14 avoids this issue, but get a freetype build issue, using 
-   internal freetype in configure `chroma-kludge-root` avoids that. Fix
-   is expected in as yet unreleased 5.34.15
+* Moving to 5.34.14 avoids this issue, but get a freetype build issue, using 
+  internal freetype in configure `chroma-kludge-root` avoids that. Fix
+  is expected in as yet unreleased 5.34.15
 
 
-Runtime hang, probably zmq ?
-------------------------------
+Runtime hang, probably zmq ? INVALID
+--------------------------------------
 
-Suspect issue with zmq, starts 5 processes which dont take CPU 
+Nope, this was just waiting around to close a hidden mathplotlib window.
+How zmq being used is still a bit mysterious.
+
+
+Initially suspected issue with zmq, starts 5 processes which dont take CPU 
 and seems to hang.::
 
     blyth           39070   0.0  0.8  2778456 136152 s010  S+    2:06PM   0:02.19 python ./simple_detector.py
@@ -121,8 +123,8 @@ After 10 mins of seemingly hanging interrupted and then killed by closing tab::
 
 
 
-XQuartz DISPLAY issue
-----------------------
+XQuartz DISPLAY issue : RESOLVED
+----------------------------------------
 
 * http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=17240
 
@@ -136,8 +138,10 @@ Resolved by logging out and back in again, following the XQuartz install.
 
 
 
-zombie test.root file
------------------------
+zombie test.root file : INVALID
+--------------------------------
+
+This was due to the above "hang" and killing the session.
 
 ::
 
@@ -164,6 +168,151 @@ zombie test.root file
     Warning in <TFile::Init>: no keys recovered, file has been made a Zombie
     root [1] 
     root [1] 
+
+
+
+working
+----------
+
+Curiously try again with some logging added and it seems to work.
+Order 10 "Photon hit time" matplotlib windows are popped up.  
+Have to close them in turn for script to complete::
+
+
+    (chroma_env)delta:test blyth$ ./simple_detector.py 
+    INFO:__main__:start other import
+    INFO:__main__:after import
+    INFO:__main__:starting
+    INFO:__main__:build_detector
+    INFO:chroma:Flattening detector mesh...
+    INFO:chroma:  triangles: 107928
+    INFO:chroma:  vertices:  44970
+    INFO:__main__:load_bvh
+    INFO:chroma:Loading BVH "default" for geometry from cache.
+    INFO:chroma:Optimization: Sufficient memory to move triangles onto GPU
+    INFO:chroma:Optimization: Sufficient memory to move vertices onto GPU
+    INFO:chroma:device usage:
+    ----------
+    nodes           142.2K   2.3M
+    total                    2.3M
+    ----------
+    device total             2.1G
+    device used            157.5M
+    device free              2.0G
+
+    INFO:__main__:start photon_bomb simulation 
+    INFO:__main__:ev <chroma.event.Event object at 0x112a7a190> 
+    INFO:__main__:start gun simulation 
+    (chroma_env)delta:test blyth$ 
+
+
+A root file is created::
+
+    (chroma_env)delta:test blyth$ du -h test.root 
+    253M    test.root
+
+
+Examining distributions in root with TBrowser shows a lot of distributions 
+suggesting the propagation is working::
+
+    root [7] TBrowser b
+
+
+
+how to see what is happening on GPU
+-------------------------------------
+
+* http://on-demand.gputechconf.com/gtc/2012/presentations/S0419B-GTC2012-Profiling-Profiling-Tools.pdf
+* :google:`cuda nvvp`  
+* http://outreach.sbel.wisc.edu/Workshops/GPUworkshop/2012-ncit/presentation-day3.pdf
+
+* https://developer.nvidia.com/nvidia-visual-profiler
+* https://developer.nvidia.com/nsight-eclipse-edition
+
+
+
+with more logging
+-------------------
+
+::
+
+    (chroma_env)delta:test blyth$ ./simple_detector.py 
+    INFO:__main__:start simple_detector 
+    INFO:__main__:after imports
+    INFO:__main__:after first defs
+    INFO:__main__:after second defs
+    INFO:__main__:starting main
+    INFO:__main__:after main imports
+    INFO:__main__:after build_detector
+    INFO:chroma:Flattening detector mesh...
+    INFO:chroma:  triangles: 107928
+    INFO:chroma:  vertices:  44970
+    INFO:__main__:after flatten
+    INFO:chroma:Loading BVH "default" for geometry from cache.
+    INFO:__main__:after load_bvh
+    INFO:chroma:Optimization: Sufficient memory to move triangles onto GPU
+    INFO:chroma:Optimization: Sufficient memory to move vertices onto GPU
+    INFO:chroma:device usage:
+    ----------
+    nodes           142.2K   2.3M
+    total                    2.3M
+    ----------
+    device total             2.1G
+    device used            174.1M
+    device free              2.0G
+
+    INFO:__main__:after sim instanciation
+    INFO:__main__:start photon_bomb simulation 
+    INFO:__main__:ev <chroma.event.Event object at 0x116ce1250> 
+    INFO:__main__:start gun simulation 
+    INFO:__main__:write ev <chroma.event.Event object at 0x116ce1310> 
+    INFO:__main__:detected [False False False ..., False False False] 328430 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c63e710> 
+    INFO:__main__:detected [False False False ..., False  True False] 242802 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c6a2090> 
+    INFO:__main__:detected [False False False ..., False False False] 306569 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c66ded0> 
+    INFO:__main__:detected [False False False ..., False False False] 327345 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c6a23d0> 
+    INFO:__main__:detected [False False False ..., False False False] 336813 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c690750> 
+    INFO:__main__:detected [False False False ..., False False False] 391338 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c6f3290> 
+    INFO:__main__:detected [False False False ..., False False False] 390456 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c738cd0> 
+    INFO:__main__:detected [False False False ..., False False False] 380238 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c72fe90> 
+    INFO:__main__:detected [False False False ..., False False False] 328344 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:write ev <chroma.event.Event object at 0x12c66c810> 
+    INFO:__main__:detected [False False False ..., False False False] 279567 
+    INFO:__main__:show plot
+    INFO:__main__:after show plot
+    INFO:__main__:after gun loop
+    INFO:__main__:after close
+    (chroma_env)delta:test blyth$ 
+
+
+
+need a way to visualize whats happening
+------------------------------------------
 
 
 

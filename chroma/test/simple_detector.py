@@ -2,14 +2,19 @@
 """
 http://chroma.bitbucket.org/examples.html
 
-
 """
+import logging
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+log.info("start simple_detector ")
+
 from chroma import make, view
 from chroma.geometry import Solid, Geometry
 from chroma.transform import make_rotation_matrix
 from chroma.demo.optics import glass, water, vacuum, r7081hqe_photocathode
 from chroma.demo.optics import black_surface
 import numpy as np
+log.info("after imports")
 
 def build_pd(size, glass_thickness):
     """Returns a simple photodetector Solid. The photodetector is a cube of
@@ -70,6 +75,9 @@ def iter_box(nx,ny,nz,spacing):
             # top
             yield (x,y,dz/2), (0,0,-1)
 
+
+log.info("after first defs")
+
 size = 100
 glass_thickness = 10
 
@@ -103,20 +111,28 @@ def build_detector():
     g.add_solid(world)
 
     return g
+log.info("after second defs")
 
 if __name__ == '__main__':
+
+    log.info("starting main")
     from chroma.sim import Simulation
     from chroma.sample import uniform_sphere
     from chroma.event import Photons
     from chroma.loader import load_bvh
     from chroma.generator import vertex
     import matplotlib.pyplot as plt
+    log.info("after main imports")
 
     g = build_detector()
+    log.info("after build_detector")
     g.flatten()
+    log.info("after flatten")
     g.bvh = load_bvh(g)
+    log.info("after load_bvh")
 
     sim = Simulation(g)
+    log.info("after sim instanciation")
 
     # photon bomb from center
     def photon_bomb(n,wavelength,pos):
@@ -132,10 +148,12 @@ if __name__ == '__main__':
 
     # sim.simulate() always returns an iterator even if we just pass
     # a single photon bomb
+    log.info("start photon_bomb simulation ")
     for ev in sim.simulate([photon_bomb(1000,400,(0,0,0))],
                            keep_photons_beg=True,keep_photons_end=True,
                            run_daq=False,max_steps=100):
         # write the python event to a root file
+        log.info("ev %s " % ev )
         f.write_event(ev)
 
     # simulate some electrons!
@@ -144,15 +162,21 @@ if __name__ == '__main__':
                               vertex.isotropic(),
                               vertex.flat(500,1000))
 
+    log.info("start gun simulation ")
     for ev in sim.simulate(gun,keep_photons_beg=True,keep_photons_end=True,
                            run_daq=False,max_steps=100):
+        log.info("write ev %s " % ev )
         f.write_event(ev)                      
 
         detected = (ev.photons_end.flags & (0x1 << 2)).astype(bool)
-
+        log.info("detected %s %s " % (detected,len(detected)) )
         plt.hist(ev.photons_end.t[detected],100)
         plt.xlabel('Time (ns)')
         plt.title('Photon Hit Times')
+        log.info("show plot")
         plt.show()
+        log.info("after show plot")
 
+    log.info("after gun loop")
     f.close()
+    log.info("after close")

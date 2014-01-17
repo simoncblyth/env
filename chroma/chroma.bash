@@ -333,6 +333,7 @@ chroma-env(){
     cuda-  # hmm dirty, perhaps do via shrinkwrap $VIRTUAL_ENV/env.d ??
 }
 chroma-cd(){  cd $(chroma-dir); }
+chroma-scd(){  cd $(chroma-dir)/src/chroma ; }
 chroma-mate(){ mate $(chroma-dir) ; }
 chroma-get(){
    local dir=$(dirname $(chroma-dir)) &&  mkdir -p $dir && cd $dir

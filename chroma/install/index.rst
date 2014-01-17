@@ -1,8 +1,11 @@
 
-install
+install issues
 =========================
 
 .. toctree::
 
    root
+   python
+
+
 
