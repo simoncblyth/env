@@ -4,7 +4,7 @@ chroma
 
 .. toctree::
 
-   questions
+   how_chroma_works
    chroma_geant4_integration
    cuda
    propagate
