@@ -2,32 +2,6 @@
 """
 http://chroma.bitbucket.org/examples.html
 
-::
-
-    (chroma_env)delta:test blyth$ python -i 
-    Python 2.7.6 (default, Nov 18 2013, 15:12:51) 
-    [GCC 4.2.1 Compatible Apple LLVM 5.0 (clang-500.2.79)] on darwin
-    Type "help", "copyright", "credits" or "license" for more information.
-    >>> from chroma.io.root import RootWriter
-    Traceback (most recent call last):
-      File "<stdin>", line 1, in <module>
-      File "/usr/local/env/chroma_env/src/chroma/chroma/io/root.py", line 6, in <module>
-        from chroma.rootimport import ROOT
-      File "/usr/local/env/chroma_env/src/chroma/chroma/rootimport.py", line 6, in <module>
-        import ROOT
-      File "/usr/local/env/chroma_env/src/root-v5.34.11/lib/ROOT.py", line 257, in <module>
-        _root.gPad         = _ExpandMacroFunction( "TVirtualPad",  "Pad" )
-      File "/usr/local/env/chroma_env/src/root-v5.34.11/lib/ROOT.py", line 237, in __init__
-        c = _root.MakeRootClass( klass )
-    AttributeError: type object 'string' has no attribute 'c_str'
-    >>> 
-
-* http://root.cern.ch/phpBB3/viewtopic.php?f=14&t=17238
-
-  * suggests this issue fixed after root-5.34.11 
-  * TODO: try chroma-rebuild root with the lastest 5.34.12 
-    added to chroma_pkgs
-
 
 """
 from chroma import make, view

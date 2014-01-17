@@ -18,4 +18,6 @@ chroma
    hardware
    zeromq
    chroma_server
+   install/index
+   test/index
 

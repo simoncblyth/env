@@ -429,6 +429,28 @@ chroma-deps-rebuild(){
 }
 
 
+chroma-kludge-root(){
+   chroma-
+
+
+   #cd $VIRTUAL_ENV/src/root-v5.34.14.patch01
+   #./configure --enable-minuit2 --enable-roofit --with-python-libdir=$VIRTUAL_ENV/lib/python2.7/config
+   # nope getting same issue
+
+   local version=5.34.14
+   cd $VIRTUAL_ENV/src/root-v$version
+   # workaround is to use builtin freetype
+   ./configure --enable-builtin-freetype  --enable-minuit2 --enable-roofit --with-python-libdir=$VIRTUAL_ENV/lib/python2.7/config
+   make -j8 
+
+   echo "source $VIRTUAL_ENV/src/root-v$version/bin/thisroot.sh" > $VIRTUAL_ENV/env.d/root.sh
+
+   chroma-  # pick up new env
+   env | grep ROOTSYS
+
+}
+
+
 chroma-build(){
    local msg="=== $FUNCNAME :"
    chroma-
