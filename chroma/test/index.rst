@@ -6,4 +6,7 @@ test
 
    cube
    simple_detector
+   unittests
+
+
 
