@@ -65,6 +65,7 @@ Contents:
    cuda/index
    geant4/index
    muon_simulation/index
+   chroma/index
    llvm/index
    graphics/index
    cuda/index
