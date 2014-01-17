@@ -1,5 +1,5 @@
 # === func-gen- : muon_simulation/chroma/chroma fgp muon_simulation/chroma/chroma.bash fgn chroma fgh muon_simulation/chroma
-chroma-src(){      echo muon_simulation/chroma/chroma.bash ; }
+chroma-src(){      echo chroma/chroma.bash ; }
 chroma-source(){   echo ${BASH_SOURCE:-$(env-home)/$(chroma-src)} ; }
 chroma-vi(){       vi $(chroma-source) ; }
 chroma-usage(){ cat << EOU
