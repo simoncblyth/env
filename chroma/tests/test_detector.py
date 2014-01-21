@@ -50,13 +50,17 @@ def _setup():
     # Setup geometry
     log.info("_setup")
     cube = Detector(vacuum)
+    log.info("adding pmt")
     cube.add_pmt(Solid(box(10.0,10,10), vacuum, vacuum, surface=r7081hqe_photocathode))
     cube.set_time_dist_gaussian(1.2, -6.0, 6.0)
     cube.set_charge_dist_gaussian(1.0, 0.1, 0.5, 1.5)
 
     global sim
+    log.info("_setup creating geo")
     geo = create_geometry_from_obj(cube, update_bvh_cache=False)
+    log.info("_setup creating sim")
     sim = Simulation(geo, geant4_processes=0)
+    log.info("_setup creating sim DONE")
  
 
 def _photons( nphotons, toffset=0. ):

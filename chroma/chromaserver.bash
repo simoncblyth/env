@@ -10,6 +10,11 @@ CHROMA SERVER
 
 https://github.com/mastbaum/chroma-server
 
+This appears to now be integrated with chroma implemented
+in chroma/bin/chroma-server
+
+
+
 ZMQ
 ----
 

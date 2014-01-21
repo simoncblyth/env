@@ -4,6 +4,16 @@ How Chroma Works ?
 A collection of lightbulb realizations, from perusing the source and
 playing around running tests etc..
 
+questions
+----------
+
+#. single detector material ? 
+
+   * proper simulation needs to lookup material at generation point of optical photon 
+     that gets generated as a result of physics processes happening to other particles 
+     being tracked
+
+
 chroma/generator/photon.py
 -----------------------------
 
@@ -61,14 +71,7 @@ Simulation
     39             self.photon_generator = None
 
 
-questions
-^^^^^^^^^^
 
-#. single detector material ? 
-
-   * proper simulation needs to lookup material at generation point of optical photon 
-     that gets generated as a result of physics processes happening to other particles 
-     being tracked
 
 
 

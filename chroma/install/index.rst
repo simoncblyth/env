@@ -6,6 +6,7 @@ install issues
 
    root
    python
+   pygame
 
 
 

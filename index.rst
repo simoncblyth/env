@@ -75,6 +75,7 @@ Contents:
    package_management/index
    ui/index
    debugging/index
+   mercurial/index
 
 
 Indices and tables
