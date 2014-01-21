@@ -1,6 +1,9 @@
 bin/chroma-cam
 ================
 
+pygame parachute segmentation fault
+-------------------------------------
+
 ::
 
     (chroma_env)delta:chroma blyth$ chroma-cam @chroma.models.lionsolid
@@ -31,7 +34,78 @@ bin/chroma-cam
     Fatal Python error: (pygame parachute) Segmentation Fault
     (chroma_env)delta:chroma blyth$ 
 
+Refering to models by path has the same behavior::
 
+    (chroma_env)delta:chroma blyth$ chroma-cam chroma/models/liberty.stl 
+    INFO:chroma:Flattening detector mesh...
+    INFO:chroma:  triangles: 17060
+    INFO:chroma:  vertices:  8573
+    INFO:chroma:Building new BVH using recursive grid algorithm.
+    Expanding 217 parent nodes
+    Merging 17060 nodes to 5589 parents
+    Expanding 19 parent nodes
+    Merging 5944 nodes to 1729 parents
+    Merging 1751 nodes to 475 parents
+    Merging 475 nodes to 109 parents
+    Merging 109 nodes to 32 parents
+    Merging 32 nodes to 7 parents
+    Merging 7 nodes to 2 parents
+    Merging 2 nodes to 1 parent
+    INFO:chroma:BVH generated in 0.7 seconds.
+    INFO:chroma:Saving BVH (c61432f54300d20b1b936b38da17a7e6:default) to cache.
+    INFO:chroma:loaded geometry <chroma.geometry.Geometry object at 0x1112261d0> 
+    INFO:chroma:starting view [1024, 576] 
+    INFO:chroma:create Camera 
+    INFO:chroma:Camera.__init__
+    INFO:chroma:Camera.__init__ done
+    INFO:chroma:start Camera 
+    INFO:chroma:join Camera 
+    Fatal Python error: (pygame parachute) Segmentation Fault
+    (chroma_env)delta:chroma blyth$ 
+
+
+Why use multiprocessing, there is only one camera ? One viewer ?
+
+* http://kivy.org/docs/faq.html
+* http://stackoverflow.com/questions/13218362/fatal-python-error-pygame-parachute-segmentation-fault-when-changing-window
+
+
+issue avoided by not forking
+------------------------------
+
+Use my added `view_nofork` or `Camera._run()` that doesnt invoke
+`multiprocessing.run` which does the fork succeeds to run a display the model::
+
+    (chroma_env)delta:tests blyth$ chroma-cam @chroma.models.lionsolid
+    INFO:chroma:Flattening detector mesh...
+    INFO:chroma:  triangles: 74358
+    INFO:chroma:  vertices:  37181
+    INFO:chroma:Loading BVH "default" for geometry from cache.
+    INFO:chroma:loaded geometry <chroma.geometry.Geometry object at 0x11659f650> 
+    INFO:chroma:starting view [1024, 576] 
+    INFO:chroma:create Camera 
+    INFO:chroma:Camera.__init__
+    INFO:chroma:Camera.__init__ done
+    INFO:chroma:_run Camera 
+    INFO:chroma:Optimization: Sufficient memory to move triangles onto GPU
+    INFO:chroma:Optimization: Sufficient memory to move vertices onto GPU
+    INFO:chroma:device usage:
+    ----------
+    nodes           101.4K   1.6M
+    total                    1.6M
+    ----------
+    device total             2.1G
+    device used            231.5M
+    device free              1.9G
+
+
+lldb not informative
+------------------------------
+
+Trying to find a stack trace.
+
+* http://lldb.llvm.org/lldb-gdb.html
+* how to jump process in lldb ?
 
 Hmm as using multiprocessing not easy to debug::
 
@@ -55,8 +129,9 @@ Hmm as using multiprocessing not easy to debug::
     Process 53332 exited with status = 0 (0x00000000) 
 
 
-* http://kivy.org/docs/faq.html
-* http://stackoverflow.com/questions/13218362/fatal-python-error-pygame-parachute-segmentation-fault-when-changing-window
+
+supplying an input file, somehow yields a trace
+-------------------------------------------------
 
 ::
 
@@ -143,10 +218,11 @@ Hmm as using multiprocessing not easy to debug::
 
 
 
-Try to tickle this with pygame examples.
 
+Looking for minimal tickle
+----------------------------
 
-::
+Try to tickle this with pygame examples.::
 
     (chroma_env)delta:test blyth$ python -c "from pygame.macosx import Video_AutoInit ; print '\n'.join(dir(Video_AutoInit))"
     __call__
@@ -156,34 +232,12 @@ Try to tickle this with pygame examples.
 
 
 
+checking the cache
+---------------------
+
 
 ::
 
-    (chroma_env)delta:chroma blyth$ chroma-cam chroma/models/liberty.stl 
-    INFO:chroma:Flattening detector mesh...
-    INFO:chroma:  triangles: 17060
-    INFO:chroma:  vertices:  8573
-    INFO:chroma:Building new BVH using recursive grid algorithm.
-    Expanding 217 parent nodes
-    Merging 17060 nodes to 5589 parents
-    Expanding 19 parent nodes
-    Merging 5944 nodes to 1729 parents
-    Merging 1751 nodes to 475 parents
-    Merging 475 nodes to 109 parents
-    Merging 109 nodes to 32 parents
-    Merging 32 nodes to 7 parents
-    Merging 7 nodes to 2 parents
-    Merging 2 nodes to 1 parent
-    INFO:chroma:BVH generated in 0.7 seconds.
-    INFO:chroma:Saving BVH (c61432f54300d20b1b936b38da17a7e6:default) to cache.
-    INFO:chroma:loaded geometry <chroma.geometry.Geometry object at 0x1112261d0> 
-    INFO:chroma:starting view [1024, 576] 
-    INFO:chroma:create Camera 
-    INFO:chroma:Camera.__init__
-    INFO:chroma:Camera.__init__ done
-    INFO:chroma:start Camera 
-    INFO:chroma:join Camera 
-    Fatal Python error: (pygame parachute) Segmentation Fault
     (chroma_env)delta:chroma blyth$ l ~/.chroma/
     bvh/       geo/       root.C     root_C.d   root_C.so  
     (chroma_env)delta:chroma blyth$ l ~/.chroma/geo/
@@ -198,18 +252,24 @@ Try to tickle this with pygame examples.
     (chroma_env)delta:chroma blyth$ 
 
 
+
+red herrings
+--------------
+
+
+* https://bitbucket.org/pygame/pygame/src/73cefe45328a/src/base.c
+
+  * the code that segments 
+
 * http://osdir.com/ml/python.pygame/2005-10/msg00166.html
  
   * suggests SDL envvars pointing to drivers ?
-
-* https://bitbucket.org/pygame/pygame/src/73cefe45328a/src/base.c
 
 
 * http://stackoverflow.com/questions/18768967/python-segmentation-fault-11-on-osx
 
   * suggests readline related i
 
-* http://lldb.llvm.org/lldb-gdb.html
 
 
 
@@ -221,5 +281,7 @@ Try to tickle this with pygame examples.
     Password:
     (chroma_env)delta:lib-dynload blyth$ sudo mv readline.so.disabled readline.so
     (chroma_env)delta:lib-dynload blyth$ 
+
+
 
 

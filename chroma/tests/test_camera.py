@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """
-
-This is SEG
+Avoiding the use of multiprocessing/forking 
+for GUI things avoids the pygame SEGV on Mavericks 10.9.1
 
 """
-
 
 import chroma
 from chroma.loader import load_geometry_from_string
@@ -19,13 +18,19 @@ print geo.mesh
 print geo.bvh
 
 camera_kwargs = {}
-size = (400, 400 )
+size = (1000, 1000 )
 
 cam = Camera(geo, size, **camera_kwargs)
-print "start"
-cam.start()
-print "join"
-cam.join()
+
+nofork = True
+
+if nofork:
+    cam._run()
+else:
+    print "start"
+    cam.start()
+    print "join"
+    cam.join()
 
 
 

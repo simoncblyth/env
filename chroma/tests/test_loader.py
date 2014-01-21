@@ -69,6 +69,7 @@ if __name__ == '__main__':
 
 
     #chroma.view(mesh)
+    chroma.view_nofork(mesh)
 
 
 

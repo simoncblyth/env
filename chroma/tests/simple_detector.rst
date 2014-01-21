@@ -311,9 +311,5 @@ with more logging
 
 
 
-need a way to visualize whats happening
-------------------------------------------
-
-
 
 
