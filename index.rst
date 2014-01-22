@@ -63,6 +63,7 @@ Contents:
    fossil/index
    java/index
    cuda/index
+   pycuda/index
    geant4/index
    muon_simulation/index
    chroma/index
@@ -76,6 +77,8 @@ Contents:
    ui/index
    debugging/index
    mercurial/index
+   javascript/index
+
 
 
 Indices and tables

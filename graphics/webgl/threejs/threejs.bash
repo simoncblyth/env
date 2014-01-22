@@ -33,4 +33,11 @@ threejs-minified-get(){
     curl -L -O $(threejs-minified-url) ; 
 }
 
+threejs-examples(){
+    cd $(env-home)/graphics/webgl/threejs/examples
+    python -m SimpleHTTPServer
+    open http://localhost:8000
+}
+
+
 

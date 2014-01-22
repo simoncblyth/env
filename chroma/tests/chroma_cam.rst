@@ -73,6 +73,11 @@ Why use multiprocessing, there is only one camera ? One viewer ?
 issue avoided by not forking
 ------------------------------
 
+* http://stackoverflow.com/questions/14719065/pycuda-multiprocessing-issue-on-os-x-10-8
+* http://bugs.python.org/issue8713
+
+
+
 Use my added `view_nofork` or `Camera._run()` that doesnt invoke
 `multiprocessing.run` which does the fork succeeds to run a display the model::
 

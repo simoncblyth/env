@@ -26,6 +26,3 @@ chroma_cam
 chroma_sim
 -----------
 
-
-
-
