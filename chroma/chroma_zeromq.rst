@@ -1,11 +1,11 @@
-ZeroMQ
-=======
+Chroma ZeroMQ
+=================
 
 
 Where does ZeroMQ server fit in ?
 ------------------------------------
 
-::
+Its communication glue between processes.::
 
     simon:chroma blyth$ find . -name '*.py' -exec grep -H zmq {} \;
     ./chroma/generator/photon.py:import zmq
@@ -17,7 +17,6 @@ Where does ZeroMQ server fit in ?
     ./chroma/generator/photon.py:        self.photon_socket = self.zmq_context.socket(zmq.PULL)
     ./setup.py:    install_requires = ['uncertainties','pyzmq-static','spnav', 'pycuda', 
     simon:chroma blyth$ 
-
 
 
 chroma/generator/photon.py
@@ -145,8 +144,12 @@ Would expect some connection request code like::
         socket.connect ("tcp://localhost:%s" % port1)
 
 
-Cannot find client usage of the server in Chroma sources
+Used to communicate between chroma and g4py subprocesses
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `G4ParallelGenerator` uses ZMQ to send vertices and get photons 
+back from its `g4py` sub-processes
+
 
 ::
 

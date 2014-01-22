@@ -26,6 +26,32 @@ LAUNCHCTL
    # appears need the "-w" whrn Disable us true otherwise get "nothing to load" message
 
 
+::
+
+    delta:com.apple.launchd blyth$ launchctl list org.openbsd.ssh-agent
+    {
+        "Label" = "org.openbsd.ssh-agent";
+        "LimitLoadToSessionType" = "Aqua";
+        "OnDemand" = true;
+        "LastExitStatus" = 0;
+        "TimeOut" = 30;
+        "ProgramArguments" = (
+            "/usr/bin/ssh-agent";
+            "-l";
+        );
+        "EnableTransactions" = true;
+        "Sockets" = {
+            "Listeners" = (
+                file-descriptor-object;
+            );
+        };
+    };
+    delta:com.apple.launchd blyth$ pwd
+    /var/log/com.apple.launchd
+
+
+
+
 EOU
 }
 launchctl-dir(){ echo $(local-base)/env/osx/osx-launchctl ; }

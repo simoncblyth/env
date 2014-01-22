@@ -1,19 +1,31 @@
-Propagate
-==========
+Photon Propagation
+===================
 
-python side
--------------
+python side GPUPhotons
+-----------------------
+
+#. transports numpy arrays of photons to/from the GPU
+#. compiles the `propagate.cu`
+#. interesting comment regards single stepping the propagation, to understand what its upto 
+#. 
 
 
-
-
-::
+`chroma/gpu/photon.py` GPUPhotons::
 
     096     @profile_if_possible
     097     def propagate(self, gpu_geometry, rng_states, nthreads_per_block=64,
     098                   max_blocks=1024, max_steps=10, use_weights=False,
     099                   scatter_first=0):
-    ...
+    100         """Propagate photons on GPU to termination or max_steps, whichever
+    101         comes first.
+    102 
+    103         May be called repeatedly without reloading photon information if
+    104         single-stepping through photon history.
+    105 
+    106         ..warning::
+    107             `rng_states` must have at least `nthreads_per_block`*`max_blocks`
+    108             number of curandStates.
+    109         """
     110         nphotons = self.pos.size
     111         step = 0
     112         input_queue = np.empty(shape=nphotons+1, dtype=np.uint32)
@@ -50,6 +62,10 @@ python side
                                  gpu_geometry.gpudata, 
 
                                  block=(nthreads_per_block,1,1), grid=(blocks, 1))
+    ###
+    ###      propagation chunks marshalled by passing first_photon/photons_this_round indices
+    ###      that point into the photon arrays that were loaded at instantiation
+    ###
     132 
     133             step += nsteps
     134             scatter_first = 0 # Only allow non-zero in first pass
@@ -96,12 +112,62 @@ cuda propagate
 
 Entry point is **propagate**, communication via numpy arrays curtesy of pycuda. 
 
+
+::
+
+    (chroma_env)delta:chroma blyth$ find . -name '*.cu' -exec grep -H propagate {} \;
+    ./chroma/cuda/hybrid_render.cu: command = propagate_to_boundary(p, s, rng);
+    ./chroma/cuda/hybrid_render.cu:     command = propagate_at_surface(p, s, rng, g);
+    ./chroma/cuda/hybrid_render.cu: propagate_at_boundary(p, s, rng);
+    ./chroma/cuda/propagate.cu:propagate(int first_photon, int nthreads, unsigned int *input_queue,
+    ./chroma/cuda/propagate.cu: command = propagate_to_boundary(p, s, rng, use_weights, scatter_first);
+    ./chroma/cuda/propagate.cu:   command = propagate_at_surface(p, s, rng, g, use_weights);
+    ./chroma/cuda/propagate.cu: propagate_at_boundary(p, s, rng);
+    ./chroma/cuda/propagate.cu:} // propagate
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ find . -name '*.h' -exec grep -H propagate {} \;
+    ./chroma/cuda/photon.h:enum { BREAK, CONTINUE, PASS }; // return value from propagate_to_boundary
+    ./chroma/cuda/photon.h:int propagate_to_boundary(Photon &p, State &s, curandState &rng,
+    ./chroma/cuda/photon.h:} // propagate_to_boundary
+    ./chroma/cuda/photon.h:propagate_at_boundary(Photon &p, State &s, curandState &rng)
+    ./chroma/cuda/photon.h:} // propagate_at_boundary
+    ./chroma/cuda/photon.h:propagate_at_specular_reflector(Photon &p, State &s)
+    ./chroma/cuda/photon.h:} // propagate_at_specular_reflector
+    ./chroma/cuda/photon.h:propagate_at_diffuse_reflector(Photon &p, State &s, curandState &rng)
+    ./chroma/cuda/photon.h:} // propagate_at_diffuse_reflector
+    ./chroma/cuda/photon.h:propagate_complex(Photon &p, State &s, curandState &rng, Surface* surface, bool use_weights=false)
+    ./chroma/cuda/photon.h:    // calculate s polarization fraction, identical to propagate_at_boundary
+    ./chroma/cuda/photon.h:            return propagate_at_diffuse_reflector(p, s, rng);
+    ./chroma/cuda/photon.h:            return propagate_at_specular_reflector(p, s);
+    ./chroma/cuda/photon.h:} // propagate_complex
+    ./chroma/cuda/photon.h:propagate_at_wls(Photon &p, State &s, curandState &rng, Surface *surface, bool use_weights=false)
+    ./chroma/cuda/photon.h:            return propagate_at_specular_reflector(p, s);
+    ./chroma/cuda/photon.h:            return propagate_at_diffuse_reflector(p, s, rng);
+    ./chroma/cuda/photon.h:} // propagate_at_wls
+    ./chroma/cuda/photon.h:propagate_at_surface(Photon &p, State &s, curandState &rng, Geometry *geometry,
+    ./chroma/cuda/photon.h:        return propagate_complex(p, s, rng, surface, use_weights);
+    ./chroma/cuda/photon.h:        return propagate_at_wls(p, s, rng, surface, use_weights);
+    ./chroma/cuda/photon.h:            return propagate_at_diffuse_reflector(p, s, rng);
+    ./chroma/cuda/photon.h:            return propagate_at_specular_reflector(p, s);
+    ./chroma/cuda/photon.h:} // propagate_at_surface
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ 
+
+
+
+
+
+
+
+
+
 * **self.flags** on corresponds to  **histories** array 
 * **id** identifies the CUDA thread, corresponding to a single photon
 * photon parameters indexed into the arrays with `photon_id` 
 
 
-::
+`chroma/cuda/propagate.cu`::
 
     112 __global__ void
     113 propagate(int first_photon, int nthreads, unsigned int *input_queue,
@@ -118,10 +184,33 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
     124     if (threadIdx.x == 0)
     125     sg = *g;
     //
+    // only grab geometry for the first thread 
     // shared geometry between threads
     //
     126 
     127     __syncthreads();
+
+    //
+    //    https://devtalk.nvidia.com/default/topic/379871/cuda-programming-and-performance/semantics-of-__syncthreads/
+    //
+    //    What more do you want? __syncthreads() is you garden variety thread barrier.
+    //    Any thread reaching the barrier waits until all of the other threads in that
+    //    block also reach it. It is designed for avoiding race conditions when loading
+    //    shared memory, and the compiler will not move memory reads/writes around a
+    //    __syncthreads(). 
+    //
+    //    It is nothing more and nothing less. Unless you are writing to a shared memory
+    //    location in thread i then reading that same location in thread j, you don't
+    //    need __syncthreads().
+    //
+    //
+    //    PRESUMABLY THAT ENSURES ALL THREADS/PHOTONS SEE THE SAME SHARED GEOMETRY,
+    //    BY WAITING FOR THREAD 0 TO COMPLETE SETTING THAT UP BEFORE PROCEEDING
+    //
+    //    BUT NEED TO UNDERSTAND MORE CLEALY WHAT CONSTITUTES A BLOCK FOR 
+    //    PYCUDA/CHROMA
+    //
+
     128 
     129     int id = blockIdx.x*blockDim.x + threadIdx.x;
     //
@@ -151,6 +240,7 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
     151 
     152     if (p.history & (NO_HIT | BULK_ABSORB | SURFACE_DETECT | SURFACE_ABSORB | NAN_ABORT))
     153     return;
+    ///              DEAD ALREADY, AS INDICATED BY THE HISTORY FLAGS
     154 
     155     State s;
     156 
@@ -252,6 +342,8 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
 
 
 * `chroma/doc/source/surface.rst`
+
+
 
 
 

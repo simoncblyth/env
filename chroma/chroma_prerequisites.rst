@@ -29,7 +29,7 @@ From http://chroma.bitbucket.org/install/details.html
    * non-cmake 4.9.4 mentioned in setup.py
    * DYB currently at geant4.9.2.p01 see :doc:`/geant4/release_notes`
 
-#. Patched version of g4py
+#. Patched version of g4py (DID I INSTALL THE PATCHED ONE ? STILL NEEDED ?) 
 #. ROOT 5.32 or later
 
    * DYB currently at root_v5.26.00e :doc:`/root/release_notes`

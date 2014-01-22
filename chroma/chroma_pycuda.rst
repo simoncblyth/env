@@ -1,7 +1,6 @@
 Getting to know how Chroma uses PyCUDA
 =========================================
 
-
 * http://mathema.tician.de/software/pycuda
 * https://developer.nvidia.com/category/zone/cuda-zone
 

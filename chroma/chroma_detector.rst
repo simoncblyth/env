@@ -3,68 +3,10 @@ Chroma Modeling of Sensitive Detectors
 
 .. contents:: :local:
 
-
 Questions 
 -----------
 
 #. How hits are handled in Chroma ?
-
-Thoughts
----------
-
-GPU hit creation maybe a step too far, as stepping too close to areas of detector custom code.
-
-   * perhaps just transport the OPs and hand back to G4 as about to hit sensitive detectors ?
-   * OR creating hits (times and charges)
-
-Look into the nature of G4/DetSim "hits", how difficult to take it to that level ?
-Wherever the handover happens, the approach to material/solid identity on the mesh needs to be understood
-
-
-Geant4/DetSim reminder
-------------------------
-
-::
-
-    (gdb) b 'DsPmtSensDet::ProcessHits(G4Step*, G4TouchableHistory*)' 
-    Breakpoint 2 at 0xb472d1f8: file ../src/DsPmtSensDet.cc, line 324.
-
-
-* works out the volume, determines QE, knarly QE diddling, hit creation   
-
-   * not impossible to duplicate, 
-   * BUT disadvantage is mixing detector specific diddling with OP acceleration
-   
-       * maybe split stage, to keep detector specifics separate 
-
-::
-
-    [blyth@cms01 src]$ pwd
-    /data/env/local/dyb/trunk/NuWa-trunk/dybgaudi/Simulation/DetSim/src
-    [blyth@cms01 src]$ grep ProcessHits *.cc
-    DsPmtSensDet.cc:bool DsPmtSensDet::ProcessHits(G4Step* step,
-    DsPmtSensDet.cc:        error() << "ProcessHits: step has no or empty touchable history" << endreq;
-    DsRpcSensDet.cc:bool DsRpcSensDet::ProcessHits(G4Step* step,
-    DsRpcSensDet.cc:      error() << "ProcessHits: step has no or empty touchable history." 
-    [blyth@cms01 src]$ 
-
-
-DsPmtModel, associating PMT names to volumes::
-
-     04 #include "G4VFastSimulationModel.hh"
-     05 
-     06 class G4LogicalVolume;
-     07 class G4Hooks;                  // opaque
-     08     
-     09 class DsPmtModel : public G4VFastSimulationModel
-     10 {   
-     11 public:
-     12     DsPmtModel(const G4String& name, G4Envelope* volume,
-     13                G4bool unique = false);
-     14     DsPmtModel(const G4String& name);
-     15     virtual ~DsPmtModel ();
-     16     
-
 
 chroma/geometry.py
 ---------------------
@@ -88,7 +30,6 @@ chroma/geometry.py
         266         self.solid_rotations = []
         267         self.solid_displacements = []
         268         self.bvh = None
-
 
 
 chroma/detector.py

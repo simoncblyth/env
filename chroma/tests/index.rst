@@ -4,6 +4,7 @@ tests
 
 .. toctree::
 
+   overview
    benchmark
    chroma_cam
    chroma_sim

@@ -6,7 +6,47 @@ From `benchmark.py` a relevant comment::
      19 # Generator processes need to fork BEFORE the GPU context is setup
      20 g4generator = generator.photon.G4ParallelGenerator(4, water)
 
-This presumably means all processes will use the same GPU context ?
+This presumably means all processes will use their own GPU context ?
+
+
+crux of `chroma-sim`
+---------------------
+
+It appears that there is no provision for setting up dummy 
+materials for model stl files (these are just lists of vertices and faces ?).
+
+
+::
+
+    detector = chroma.loader.load_geometry_from_string(args[0])
+
+    pos = np.array([float(s) for s in options.pos.split(',')], dtype=float)
+    dir = np.array([float(s) for s in options.dir.split(',')], dtype=float)
+
+    ev_gen = constant_particle_gun(particle_name=options.particle, 
+                                   pos=pos, dir=dir, ke=options.ke)
+
+    sim = Simulation(detector, seed=options.seed, cuda_device=options.device,
+                     geant4_processes=options.ngenerators)
+    
+    print 'RNG seed: %i' % sim.seed
+
+    writer = root.RootWriter(options.output_filename)
+
+    start = time.time()
+    for i, ev in \
+            enumerate(sim.simulate(itertools.islice(ev_gen, 
+                                                    options.nevents),
+                                   keep_photons_beg=options.save_photons_beg,
+                                   keep_photons_end=options.save_photons_end)):
+        print '\rEvent: %i' % (i+1),
+        sys.stdout.flush()
+
+        assert ev.nphotons > 0, 'Geant4 generated event with no photons!'
+
+        writer.write_event(ev)
+ 
+
 
 
 Observations
@@ -80,7 +120,7 @@ Observations
         cuda.init()
     pycuda._driver.RuntimeError: cuInit failed: no device
     Exception AttributeError: "'Simulation' object has no attribute 'context'" in <bound method Simulation.__del__ of <chroma.sim.Simulation object at 0x1184675d0>> ignored
-    (chroma_env)delta:bin blyth$ 
+    (chroma_env)delta:bin blyth$ :
 
 
 

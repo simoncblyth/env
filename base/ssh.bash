@@ -457,8 +457,11 @@ EOU
 
 }
 
+ssh--osx-keychain-sock-(){
+   find /private/tmp -type s -name 'Listeners' 2>/dev/null 
+}
 ssh--osx-keychain-sock(){
-   find /private/tmp -type s -name 'Listeners' 2>/dev/null | head -1
+   $FUNCNAME- 2>/dev/null | head -1
 }
 ssh--osx-keychain-sock-ids(){
     SSH_AUTH_SOCK=$(ssh--osx-keychain-sock) ssh-add -l

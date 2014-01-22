@@ -47,7 +47,7 @@ base-env(){
 
    ssh--
    case $(uname) in 
-      Darwin) ssh--osx-keychain-sock-export ;;
+      DebugSkipDarwin) ssh--osx-keychain-sock-export ;;
            *) source $(env-home)/base/ssh-infofile.bash ;;   ## HUH why the split
    esac
 
