@@ -42,8 +42,6 @@ Into source python 2.5.1::
         # this attempted and failed to grab numpy 1.8.0 but that needs py26+ 
         # so install 1.7.1 with *np-* functions
 
-
-
 C2
 ~~~
 
