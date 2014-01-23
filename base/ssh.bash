@@ -567,7 +567,10 @@ ssh--keygen(){
 
 
 ssh--info(){
+    echo -n  # nop
+}
 
+ssh--info-checkpid(){
     local info=$(ssh--infofile)
     local fpid
     if [ -f "$info" ]; then
@@ -590,7 +593,9 @@ ssh--info(){
 
 
 ssh--infofile(){
+  # CAUTION THIS CAN EASILY BREAK BACKUPS
   echo $SSH_INFOFILE
+  #echo $HOME/.ssh-agent-info
 }
 
 ssh--agent-ok-(){

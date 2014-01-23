@@ -5,7 +5,10 @@ pip-vi(){       vi $(pip-source) ; }
 pip-env(){      elocal- ; }
 pip-usage(){ cat << EOU
 
+PIP Installs Packages
+======================
 
+* http://www.pip-installer.org/en/latest/configuration.html
 
 
 
