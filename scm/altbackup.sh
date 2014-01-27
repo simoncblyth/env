@@ -38,6 +38,50 @@ On the receiving **target** node::
     30 15 * * * ( . $ENV_HOME/env.bash ; env- ; python- source ; ssh-- ; $ENV_HOME/scm/altbackup.sh $HOME/cronlog/altbackup.log dump check_target ) > $CRONLOG_DIR/altbackup_.log 2>&1
 
 
+SSH Debugging
+--------------
+
+The most common usage issue encountered with this script are bad SSH config preventing 
+automated transfers. The result is typically a hang of script waiting for password
+input which results in no transfers beoing done.
+
+Note that the NODE_TAG present in the crontab environment is crucial for this, 
+as it is from using this that the appropiate envvars to access the SSH agent are determined::
+
+	[dayabay] /home/blyth > cat .ssh-agent-info-$NODE_TAG
+	SSH_AUTH_SOCK=/tmp/ssh-EcxfAm4848/agent.4848; export SSH_AUTH_SOCK;
+	SSH_AGENT_PID=4849; export SSH_AGENT_PID;
+	#echo Agent pid 4849;
+
+	[dayabay] /home/blyth > echo $NODE_TAG
+	Y2
+
+These get set into the envirobment by *base-env*
+which is invoked by the sequence of bash functions: env-/env-env/base-/base-env::
+
+	[dayabay] /home/blyth/cronlog > t base-env
+	base-env is a function
+	base-env () 
+	{ 
+	    local dbg=${1:-0};
+	    local iwd=$(pwd);
+	    local sshinfo=$(env-home)/base/ssh-infofile.bash;
+	    elocal-;
+	    ssh--;
+	    case $(uname) in 
+		DebugSkipDarwin)
+		    ssh--osx-keychain-sock-export
+		;;
+		*)
+		    source $(env-home)/base/ssh-infofile.bash
+		;;
+	    esac;
+	    [ -t 0 ] || return;
+	    [ "$dbg" == "t0fake" ] && echo faked tzero && return;
+	    clui-
+	}
+
+
 Current Observed Timings, May 2013
 ------------------------------------
 
