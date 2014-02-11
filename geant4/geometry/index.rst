@@ -18,5 +18,6 @@ Geant4 Geometry Export
    GaussTools/index
    export/index
    renders/index
+   materials/index
    
 
