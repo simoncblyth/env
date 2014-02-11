@@ -66,6 +66,9 @@ Command arguments
 Schema Versions
 ----------------
 
+The variables available in context which may be constrained correspond to the 
+fields in the table.  These have changed through various versions.
+
 `0.1`
      `date`, `val` 
 `0.2`
@@ -99,6 +102,17 @@ Examples::
     constraints = ( gb_free > 10, )
     dbpath = ~/.env/envmon.sqlite
     tn = diskmon
+
+    [sshagent_mon]
+
+    note = require an sshagent process is running by constraining the return code from the pgrep command 
+    valmon_version = 0.2
+    email = blyth@hep1.phys.ntu.edu.tw
+    cmd = pgrep ssh-agent 
+    return = int 
+    constraints = ( rc == 0, )
+    dbpath = ~/.env/sshagent_mon.sqlite
+    tn = sshagent_mon
 
     [dbsrvmon]
 
