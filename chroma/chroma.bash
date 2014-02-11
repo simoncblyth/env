@@ -324,16 +324,29 @@ TTF : header name clash between freetype and ftgl
 
 EOU
 }
-chroma-dir(){ echo $(local-base)/env/chroma_env ; }
+chroma-dir(){ 
+   case $NODE_TAG in 
+      D) echo $(local-base)/env/chroma_env ;;
+      *) echo $(local-base)/env/chroma ;;
+   esac
+}
+
+chroma-sdir(){
+   case $NODE_TAG in 
+      D) echo $(chroma-dir)/src/chroma/chroma ;;
+      *) echo $(chroma-dir)/chroma ;;
+   esac
+}
+
+chroma-scd(){  cd $(chroma-sdir) ; }
 chroma-env(){      
     elocal-  
     local dir=$(chroma-dir)
-    [ -d $dir ] && source $dir/bin/activate 
+    [ -f "$dir/bin/activate" ] && source $dir/bin/activate 
 
     cuda-  # hmm dirty, perhaps do via shrinkwrap $VIRTUAL_ENV/env.d ??
 }
 chroma-cd(){  cd $(chroma-dir); }
-chroma-scd(){  cd $(chroma-dir)/src/chroma/chroma ; }
 chroma-mate(){ mate $(chroma-dir) ; }
 chroma-get(){
    local dir=$(dirname $(chroma-dir)) &&  mkdir -p $dir && cd $dir
