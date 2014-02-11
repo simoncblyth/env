@@ -162,6 +162,7 @@ Avoided this complication by `yum install python-sqlite2`, see simtab for notes 
 
 
 """
+
 import os, sys, logging, time, platform, pwd
 from pprint import pformat
 from datetime import datetime
@@ -172,7 +173,9 @@ from env.tools.sendmail import notify
 
 def excepthook(*args):
     log.error('Uncaught exception:', exc_info=args)
-sys.excepthook = excepthook # without this assert tracebacks and messages do not make it into the log 
+#sys.excepthook = excepthook 
+# without this assert tracebacks and messages do not make it into the log 
+# but are missing from the interactive output, thus comment this while debugging
 
 
 class ValueMon(object):
@@ -261,7 +264,7 @@ class ValueMon(object):
         rc = os.WEXITSTATUS(rc)
         runtime = t1 - t0
 
-        return_ = self.cnf['return']
+        return_ = self.cnf.get('return','int')
         if return_ == 'int': 
             val = self.interpret_as_int(ret)
         elif return_ == 'dict' or return_ == 'json':
@@ -272,12 +275,19 @@ class ValueMon(object):
             val = None
         pass
         log.info("ret %s val %s rc %s runtime %s return_ %s  " % (ret, val, rc, runtime, return_ )) 
-        if val != None:
-            kwa = dict(val=val, date=datetime.fromtimestamp(t0).strftime("%Y-%m-%dT%H:%M:%S"))
-            if self.version == '0.2':
-                kwa.update(runtime=runtime, ret=ret, rc=rc) 
-            self.tab.add(**kwa) 
-            self.tab.insert()
+
+        # formerly required non-None val, but want to constain on RC alone : so allow None val
+        kwa = dict(val=val, date=datetime.fromtimestamp(t0).strftime("%Y-%m-%dT%H:%M:%S"))
+        if self.version == '0.2':
+            # spell it out for py23
+            kwa['runtime']=runtime
+            kwa['ret']=ret
+            kwa['rc']=rc 
+        pass
+        self.tab.add(**kwa) 
+        self.tab.insert()
+         
+
 
     def ls(self):
         """
@@ -387,7 +397,17 @@ class ValueMon(object):
 
         psmy = fmt % ("summary", "all:%s True:%s False:%s " % (len(all),len(true_),len(false_)))
         pctx = fmt % ("context", repr(sctx))
-        items = [ fmt % (k,edict[k]) for k in sorted(keys, key=lambda _:edict[_]) ]
+
+
+        log.debug("before items %s " % ( fmt ))
+        log.debug("keys %s " % str(keys) )
+
+        if len(keys) > 0:
+            #items = [ fmt % (k,edict[k]) for k in sorted(keys, key=lambda _:edict[_]) ]
+            items = [ fmt % (k,edict[k]) for k in keys ]
+        else:
+            items = []   # as giving uncaught exceptions somehow 
+        log.debug("after items")
 
         if summary:
             return "".join(items)   # CAUTION this must return a zero length string when all is peachy
@@ -422,13 +442,16 @@ class ValueMon(object):
         Examine last entry in the configured DB table, and compares value to configured constraints
         When excursions are seen send notification email, to configured email addresses
         """
+        log.debug("mon")
         msg = self.msg()
+        log.debug("mon msg %s " % len(msg))
         if len(msg) > 0:
             subj = msg.split("\n")[0]
             log.warn("sending notification as: %s " % subj )
             notify(self.cnf['email'], msg )
         else:
             log.info("no notification" )
+        log.debug("mon completed")
 
     def __call__(self, args):
         """
