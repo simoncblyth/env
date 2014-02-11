@@ -38,6 +38,12 @@ Commandline
 INSTALLS
 ----------
 
+C
+~~
+
+* /usr/local/nginx/sbin/nginx 
+
+
 N
 ~~
 
