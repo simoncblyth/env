@@ -1358,3 +1358,4 @@ xquartz-(){      . $(env-home)/gui/xquartz.bash && xquartz-env $* ; }
 shrinkwrap-(){      . $(env-home)/python/shrinkwrap/shrinkwrap.bash && shrinkwrap-env $* ; }
 pip-(){      . $(env-home)/python/pip.bash && pip-env $* ; }
 pygame-(){      . $(env-home)/pygame/pygame.bash && pygame-env $* ; }
+dybinst-(){      . $(env-home)/nuwa/dybinst.bash && dybinst-env $* ; }

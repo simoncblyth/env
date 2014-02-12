@@ -30,6 +30,14 @@ history
 #. installed on G first using "git clone" from github, made py25 backport in py25compat git branch
 #. install on N clones from local bare repo at /var/scm/git/pycollada.git  
 
+
+
+D
+~~
+
+Into chroma virtual python
+
+
 N
 ~~
 

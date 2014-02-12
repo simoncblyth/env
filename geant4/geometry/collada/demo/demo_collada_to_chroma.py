@@ -32,7 +32,6 @@ if __name__ == '__main__':
    dae = collada.Collada(path)
    log.info("dae %s " % dae ) 
 
-   
    for g in dae.geometries:
        for p in g.primitives:
            log.info("p %s " % p )
