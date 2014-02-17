@@ -564,7 +564,8 @@ trac-edit-ini(){
    shift
    
    local user=$(trac-user)
-   local tmp=/tmp/env/trac/$FUNCNAME && mkdir -p $tmp
+   # suspect change of user would cause permission denied here 
+   local tmp=/tmp/$USER/env/trac/$FUNCNAME && mkdir -p $tmp
    local tpath=$tmp/$(basename $path)
    
    ## edit a temporary copy of the ini file
