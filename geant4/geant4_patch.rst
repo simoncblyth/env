@@ -42,6 +42,29 @@ Material Property Introspection patch
     > 
 
 
+
+Backport GDML Property writing 
+--------------------------------
+
+Not so simple due to geant4 change from use of G4MaterialPropertyVector to G4PhysicsOrderedFreeVector, 
+so as stuck with older geant4 need to workaround limitations of the old G4MaterialPropertyVector.
+
+What planet  are the authors of G4MaterialPropertyVector, no NumEntries API ? 
+Its simpler to patch than to kludge iterate to count entries.
+
+
+
+Usage in geant4.10 GDML writing
+--------------------------------
+
+::
+
+    g4pb:src blyth$ grep GetPropertiesMap *.cc
+    G4GDMLWriteMaterials.cc:                 std::less<G4String> >* pmap = ptable->GetPropertiesMap();
+    g4pb:src blyth$ pwd
+    /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src
+
+
 Geant4 Rebuild
 ----------------
 
