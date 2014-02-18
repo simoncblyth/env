@@ -334,6 +334,17 @@ Macports install, initial setup::
     nginx-edit
 
 
+feb 2014 : get operational on belle7
+----------------------------------------
+
+The EPEL nginx is broken, so rejig sv to use the 
+source nginx.
+
+Adjust nginx config to use "daemon off" move, otherwise
+sv cannot stop it.  
+
+
+
 EOU
 }
 
@@ -341,7 +352,7 @@ EOU
 nginx-sv-(){ cat << EOX
 # $FUNCNAME  ... requires  "daemon off;"  in nginx-edit 
 [program:nginx]
-command=$(which nginx)
+command=$(nginx-bin)
 process_name=%(program_name)s
 autostart=true
 autorestart=true
@@ -416,7 +427,6 @@ nginx-install(){
 }
 
 
-
 nginx-prefix(){
   case $(nginx-mode) in 
     port) echo /opt/local ;; 
@@ -448,6 +458,7 @@ nginx-epel-fixconf(){
 nginx-diff(){  sudo diff $(nginx-conf).default $(nginx-conf) ; } 
 
 
+nginx-bin(){ echo $(nginx-sbin)/nginx ; }
 nginx-sbin(){    echo $(nginx-prefix $*)/sbin ; }
 nginx-confd(){    echo $(nginx-prefix $*)/etc/nginx ; }
 nginx-conf(){
