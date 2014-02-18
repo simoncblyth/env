@@ -29,6 +29,18 @@ Basis Geometry Files
     [blyth@belle7 daeserver]$ cp ../gdml/DVGX_20131121-2053/g4_00.dae DVGX_20131121-2053_g4_00.dae 
 
 
+PUT issue
+-----------
+
+Trying to recive PUTs from shift gives::
+
+    2013-12-12 08:43:45 : Protocol error 'invalid netstring length'
+    2013-12-12 08:43:45,967 scgi-wsgi ERROR    Protocol error 'invalid netstring length'
+    2013-12-12 08:44:05 : Protocol error 'invalid netstring length'
+    2013-12-12 08:44:05,194 scgi-wsgi ERROR    Protocol error 'invalid netstring length'
+
+
+
 """
 import os, sys, logging, time
 log = logging.getLogger(__name__)
@@ -58,7 +70,7 @@ def parse_args(doc):
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG. Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
     op.add_option("-p", "--daepath", default=defopts.daepath , help="Path to the original geometry file. Default %default ")
-    op.add_option(      "--uploads", default=defopts.uploads , help="Allow receiving uploaded PNGs. Default %default ")
+    op.add_option(      "--uploads", action="store_true", default=defopts.uploads , help="Allow receiving uploaded PNGs. Default %default ")
     op.add_option(      "--uploaddir", default=defopts.uploaddir , help="Directory to store uploaded PNGs. Default %default ")
     op.add_option(      "--port",  default=defopts.port , help="Webserving port passed to webpy. Default %default ")
     op.add_option("-w", "--webpy", default=defopts.webpy , help="Webserving protocal config argv passed to webpy eg scgi fcgi. Default %default ")
