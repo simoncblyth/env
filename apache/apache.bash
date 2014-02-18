@@ -128,6 +128,34 @@ Suspect maybe something hard coded wrt user nobody uid 99.  I have attempted to 
 out before, always turns out to be less effort to rsync directories to publish under htdocs.
 
 
+OSX G 
+-------
+
+Claims to be loaded, but its not serving html::
+
+    g4pb:chroma blyth$ sudo apachectl start
+    256
+    org.apache.httpd: Already loaded
+
+Doing a manual start reveals the cause to be the use of
+an IP in the config 10.0.2.1:80 that is not always valid::
+
+    g4pb:e blyth$ sudo /usr/sbin/httpd -k start
+    Password:
+    [Tue Feb 18 10:08:38 2014] [warn] Useless use of AllowOverride in line 16 of /private/etc/apache2/svnsetup/tracs.conf.
+    (49)Can't assign requested address: make_sock: could not bind to address 10.0.2.1:80
+    no listening sockets available, shutting down
+    Unable to open logs
+
+After commenting the invalid IP with apache-edit::
+
+    #Listen 10.0.2.1:80 
+
+Are back to situation where the below works::
+
+   sudo apachectl stop
+   sudo apachectl start
+
  
 EOU
 }
