@@ -17,4 +17,7 @@ geant4
    medical
    geometry/index
    g4py/index
+   geant4_patch
+
+
 

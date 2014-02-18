@@ -42,6 +42,7 @@ Contents:
    install
    base/index
    LOG <log/May2012>
+   DEV
    TODO
    Sys Admin <sysadmin/index>
    Plotting <plot/index>
