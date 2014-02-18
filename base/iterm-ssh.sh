@@ -9,6 +9,8 @@
 ## http://dayabay.phys.ntu.edu.tw/tracs/env/wiki/PasswordLessSSH 
 ##
 ##source ~/.ssh-agent-info-G
+##source ~/.ssh-agent-info
+
 source ~/.ssh-agent-info
 ssh -Y $1
 
