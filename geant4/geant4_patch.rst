@@ -49,13 +49,83 @@ Backport GDML Property writing
 Not so simple due to geant4 change from use of G4MaterialPropertyVector to G4PhysicsOrderedFreeVector, 
 so as stuck with older geant4 need to workaround limitations of the old G4MaterialPropertyVector.
 
-What planet  are the authors of G4MaterialPropertyVector, no NumEntries API ? 
-Its simpler to patch than to kludge iterate to count entries.
+What planet are the authors of G4MaterialPropertyVector from, no API to access NumEntries ? 
+Its simpler to patch than to kludge iterate to count entries, plus patch to match 
+Geant4 future API.
 
 
 
-Usage in geant4.10 GDML writing
---------------------------------
+2014/02/19 compare G4MaterialPropertyVector with G4PhysicsVector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    [blyth@cms01 geant4.9.2.p01]$ cd source/
+    [blyth@cms01 source]$ find . -name 'G4MaterialPropertyVector.cc'
+    ./materials/src/G4MaterialPropertyVector.cc
+    [blyth@cms01 source]$ find . -name 'G4MaterialPropertyVector.hh'
+    ./materials/include/G4MaterialPropertyVector.hh
+
+    [blyth@cms01 source]$ find . -name 'G4PhysicsFreeVector.cc'
+    ./global/management/src/G4PhysicsFreeVector.cc
+    [blyth@cms01 source]$ find . -name 'G4PhysicsFreeVector.hh'
+    ./global/management/include/G4PhysicsFreeVector.hh
+
+    [blyth@cms01 source]$ find . -name 'G4PhysicsOrderedFreeVector.hh'
+    ./global/management/include/G4PhysicsOrderedFreeVector.hh
+    [blyth@cms01 source]$ 
+    [blyth@cms01 source]$ find . -name 'G4PhysicsOrderedFreeVector.cc'
+    ./global/management/src/G4PhysicsOrderedFreeVector.cc
+    [blyth@cms01 source]$ 
+
+
+2014/02/19 Backport G4PhysicsVector API to patch G4MaterialPropertyVector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All this to get MPV to spill the beans::
+
+    [blyth@cms01 source]$ vi materials/src/G4MaterialPropertyVector.cc  materials/include/G4MaterialPropertyVector.hh
+
+
+    public: // SCB getting MPV to spill the beans  
+
+       size_t GetVectorLength() const ;
+       G4double Energy(const size_t binNumber) const ;
+       G4double operator[](const size_t binNumber) const;
+
+
+
+    // SCB getting MPV to spill the beans
+
+    size_t G4MaterialPropertyVector::GetVectorLength() const 
+    {
+        return NumEntries ;
+    }
+
+    G4double G4MaterialPropertyVector::Energy(const size_t binNumber) const 
+    {
+        G4MPVEntry* mpv = MPV[binNumber] ;
+        return mpv->GetPhotonEnergy();
+    }  
+
+    G4double G4MaterialPropertyVector::operator[](const size_t binNumber) const
+    {
+        G4MPVEntry* mpv = MPV[binNumber] ;
+        return mpv->GetProperty();
+    }
+
+
+::
+
+    [blyth@belle7 source]$ cp materials/src/G4MaterialPropertyVector.cc  materials/src/G4MaterialPropertyVector.cc.orig
+    [blyth@belle7 source]$ cp materials/include/G4MaterialPropertyVector.hh materials/include/G4MaterialPropertyVector.hh.orig
+    [blyth@belle7 source]$ vi materials/src/G4MaterialPropertyVector.cc  materials/include/G4MaterialPropertyVector.hh
+    [blyth@belle7 source]$ g4-
+    [blyth@belle7 source]$ g4-libs-rebuild    ## tedious full rebuild of all g4 libs, cmake is in geant4 future so no motivation to improve this back here
+
+
+Usage in future geant4.10 GDML persisting
+--------------------------------------------
 
 ::
 
@@ -65,8 +135,8 @@ Usage in geant4.10 GDML writing
     /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src
 
 
-Geant4 Rebuild
-----------------
+2014/02/18 Geant4 Dybinst Rebuild
+------------------------------------
 
 Simple rebuild is too quick, doing nothing::
 
