@@ -260,6 +260,9 @@ local-tag2ip(){
           XX) echo dyb2.ihep.ac.cn ;;
           ZZ) echo dayabay-old.ihep.ac.cn ;;
           Y2) echo dayabay.ihep.ac.cn ;;
+         HKU) echo dayabay.physics.hku.hk ;;
+         CUT) echo theta13.phy.cuhk.edu.hk ;;
+         CUD) echo dayabay.phy.cuhk.edu.hk ;;
           WW) echo 202.122.32.203 ;;
          SDU) echo rh02.hepg.sdu.edu.cn ;; 
           CC) echo deliberately.trying.to.avoid.putting.in.repo ;; 
@@ -362,7 +365,7 @@ local-nodetag-xinchun(){
 
 local-sudo(){
   case ${1:-$NODE_TAG} in
-  AA|G|H|T|C2|C|YY|N|ZZ|D) echo sudo ;;
+  AA|HKU|G|H|T|C2|C|YY|N|ZZ|D) echo sudo ;;
       *) echo -n ;
   esac
 }
@@ -379,7 +382,8 @@ local-backup-tag(){
      XX) echo ZZ SDU ;;
      ZZ) echo SDU ;;
      WW) echo SDU ;;
-     AA) echo D8R  ;;
+     AA) echo D8R ;;
+    HKU) echo D8R CUT CUD ;;
      Y1) echo LT ;;
      Y2) echo Y1 ;;
      *) echo U ;;
@@ -406,6 +410,7 @@ local-email(){
      XX|YY|ZZ) echo maqm@ihep.ac.cn ;;
            Y1) echo lintao@ihep.ac.cn ;;
            Y2) echo lintao@ihep.ac.cn ;;
+          HKU) echo jimngai@hku.hk ;;
             *) echo blyth@hep1.phys.ntu.edu.tw ;;
    esac
 }

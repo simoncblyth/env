@@ -330,6 +330,7 @@ trac-instance(){
      C|C2|N|P|H) echo env      ;;
  Y2|Y1|XX|YY|ZZ) echo dybsvn   ;;
              AA) echo aberdeen ;;
+            HKU) echo aberdeen ;;
               *) echo env      ;;
    esac
 }
@@ -343,6 +344,7 @@ trac-version(){
      P) echo 0.11    ;;
      C) echo 0.11    ;;
     AA) echo 0.12.3  ;;
+   HKU) echo 0.12.5  ;;
      *) echo 0.11    ;;
    esac
 }

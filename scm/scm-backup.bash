@@ -1031,6 +1031,7 @@ scm-backup-nightly(){
     case $NODE_TAG in
            G) scm-backup-monitor- G ;;
       C2|C2R) scm-backup-monitor- C2 ;;
+         HKU) scm-backup-monitor- HKU ;;
            *) echo $msg scm-backup-monitor not yet implemented on $NODE_TAG ;;
     esac 
 

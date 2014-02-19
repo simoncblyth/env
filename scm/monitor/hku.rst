@@ -1,4 +1,4 @@
-HKU (hub AA)
+HKU (hub HKU)
 -------------
 
 D8R : dayabay8core
