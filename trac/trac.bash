@@ -575,7 +575,7 @@ trac-edit-ini(){
    local tpath=$tmp/$(basename $path)
    
    ## edit a temporary copy of the ini file
-   local cmd="$SUDO cp $path $tpath "
+   local cmd="cp $path $tpath "
    eval $cmd
    python $ENV_HOME/base/ini.py $tpath $*  
    
