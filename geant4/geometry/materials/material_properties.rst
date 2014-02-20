@@ -191,6 +191,229 @@ NuWa surface properties
 
 
 
+Optical Surface modelling in G4
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+`NuWa-trunk/dybgaudi/Simulation/DetSim/src/DsG4OpBoundaryProcess.cc`::
+
+    227         theModel = glisur;
+    228         theFinish = polished;
+    229 
+    230         G4SurfaceType type = dielectric_dielectric;
+    231 
+    232         Rindex = NULL;
+    233         OpticalSurface = NULL;
+    234 
+    235         G4LogicalSurface* Surface = NULL;
+    236 
+    237         Surface = G4LogicalBorderSurface::GetSurface
+    238               (pPreStepPoint ->GetPhysicalVolume(),
+    239                pPostStepPoint->GetPhysicalVolume());
+    240 
+    241         if (Surface == NULL){
+    242       G4bool enteredDaughter=(pPostStepPoint->GetPhysicalVolume()
+    243                   ->GetMotherLogical() ==
+    244                   pPreStepPoint->GetPhysicalVolume()
+    245                   ->GetLogicalVolume());
+    246       if(enteredDaughter){
+    247         Surface = G4LogicalSkinSurface::GetSurface
+    248           (pPostStepPoint->GetPhysicalVolume()->
+    249            GetLogicalVolume());
+    250         if(Surface == NULL)
+    251           Surface = G4LogicalSkinSurface::GetSurface
+    252           (pPreStepPoint->GetPhysicalVolume()->
+    253            GetLogicalVolume());
+    254       }
+    255       else {
+    256         Surface = G4LogicalSkinSurface::GetSurface
+    257           (pPreStepPoint->GetPhysicalVolume()->
+    258            GetLogicalVolume());
+    259         if(Surface == NULL)
+    260           Surface = G4LogicalSkinSurface::GetSurface
+    261           (pPostStepPoint->GetPhysicalVolume()->
+    262            GetLogicalVolume());
+    263       }
+    264     }
+    265 
+    266     if (Surface) OpticalSurface =
+    267            dynamic_cast <G4OpticalSurface*> (Surface->GetSurfaceProperty());
+    268 
+    269     if (OpticalSurface) {
+    270 
+    271            type      = OpticalSurface->GetType();
+    272        theModel  = OpticalSurface->GetModel();
+    273        theFinish = OpticalSurface->GetFinish();
+    274 
+    275        aMaterialPropertiesTable = OpticalSurface->
+    276                     GetMaterialPropertiesTable();
+
+
+GDML persisting optical surface properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Old G4::
+
+    [blyth@cms01 src]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/source/persistency/gdml/src
+
+    [blyth@cms01 src]$ grep G4Optical *.cc
+    G4GDMLReadSolids.cc:   G4OpticalSurfaceModel model; 
+    G4GDMLReadSolids.cc:   G4OpticalSurfaceFinish finish;
+    G4GDMLReadSolids.cc:   new G4OpticalSurface(name,model,finish,type,value);
+    [blyth@cms01 src]$ 
+    [blyth@cms01 src]$ grep G4Optical ../include/*.hh
+    ../include/G4GDMLReadSolids.hh:#include "G4OpticalSurface.hh"
+    [blyth@cms01 src]$ 
+
+New G4::
+
+    g4pb:src blyth$ pwd
+    /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src
+
+    g4pb:src blyth$ grep G4Optical *.cc
+    G4GDMLReadSolids.cc:#include "G4OpticalSurface.hh"
+    G4GDMLReadSolids.cc:   G4OpticalSurfaceModel model; 
+    G4GDMLReadSolids.cc:   G4OpticalSurfaceFinish finish;
+    G4GDMLReadSolids.cc:   new G4OpticalSurface(name,model,finish,type,value);
+    G4GDMLWriteSolids.cc:#include "G4OpticalSurface.hh"
+    G4GDMLWriteSolids.cc:                    const G4OpticalSurface* const surf)
+    G4GDMLWriteSolids.cc:   G4OpticalSurfaceModel smodel = surf->GetModel();
+    G4GDMLWriteStructure.cc:#include "G4OpticalSurface.hh"
+    G4GDMLWriteStructure.cc:     const G4OpticalSurface* opsurf =
+    G4GDMLWriteStructure.cc:       dynamic_cast<const G4OpticalSurface*>(psurf);
+    G4GDMLWriteStructure.cc:     const G4OpticalSurface* opsurf =
+    G4GDMLWriteStructure.cc:       dynamic_cast<const G4OpticalSurface*>(psurf);
+    G4GDMLWriteStructure.cc:   const G4OpticalSurface* osurf = dynamic_cast<const G4OpticalSurface*>(psurf);
+    G4GDMLWriteStructure.cc:   std::vector<const G4OpticalSurface*>::const_iterator pos;
+    g4pb:src blyth$ 
+    g4pb:src blyth$ grep G4Optical ../include/*.hh
+    ../include/G4GDMLWriteSolids.hh:class G4OpticalSurface;
+    ../include/G4GDMLWriteSolids.hh:                    const G4OpticalSurface* const);
+    ../include/G4GDMLWriteStructure.hh:class G4OpticalSurface;
+    ../include/G4GDMLWriteStructure.hh:   std::vector<const G4OpticalSurface*> opt_vec;
+    g4pb:src blyth$ 
+
+
+Reading new GDML persisting code, it looks like the surface property tables are not persisted, 
+although the surface names are::
+
+    g4pb:src blyth$ grep GetMaterialPropertiesTable *.cc
+    G4GDMLReadMaterials.cc:   G4MaterialPropertiesTable* matprop=material->GetMaterialPropertiesTable();
+    G4GDMLWriteMaterials.cc:   if (materialPtr->GetMaterialPropertiesTable())
+    G4GDMLWriteMaterials.cc:   G4MaterialPropertiesTable* ptable = mat->GetMaterialPropertiesTable();
+    g4pb:src blyth$ 
+
+
+From the GDML volume traverse `G4GDMLWriteStructure.cc`::
+
+    359 G4Transform3D G4GDMLWriteStructure::
+    360 TraverseVolumeTree(const G4LogicalVolume* const volumePtr, const G4int depth)
+    361 {
+    ...
+
+    480       else   // Is it a physvol?
+    481       {
+    482          G4RotationMatrix rot;
+    483 
+    484          if (physvol->GetFrameRotation() != 0)
+    485          {
+    486            rot = *(physvol->GetFrameRotation());
+    487          }
+    488          G4Transform3D P(rot,physvol->GetObjectTranslation());
+    489          PhysvolWrite(volumeElement,physvol,invR*P*daughterR,ModuleName);
+    490       }
+    491       BorderSurfaceCache(GetBorderSurface(physvol));
+    492    }
+    493 
+    494    structureElement->appendChild(volumeElement);
+    495      // Append the volume AFTER traversing the children so that
+    496      // the order of volumes will be correct!
+    497 
+    498    VolumeMap()[volumePtr] = R;
+    499 
+    500    AddExtension(volumeElement, volumePtr);
+    501      // Add any possible user defined extension attached to a volume
+    502 
+    503    AddMaterial(volumePtr->GetMaterial());
+    504      // Add the involved materials and solids!
+    505 
+    506    AddSolid(solidPtr);
+    507 
+    508    SkinSurfaceCache(GetSkinSurface(volumePtr));
+    509 
+    510    return R;
+    511 }
+    ...
+    294 const G4LogicalSkinSurface*
+    295 G4GDMLWriteStructure::GetSkinSurface(const G4LogicalVolume* const lvol)
+    296 {
+    297   G4LogicalSkinSurface* surf = 0;
+    298   G4int nsurf = G4LogicalSkinSurface::GetNumberOfSkinSurfaces();
+    299   if (nsurf)
+    300   {
+    301     const G4LogicalSkinSurfaceTable* stable =
+    302           G4LogicalSkinSurface::GetSurfaceTable();
+    303     std::vector<G4LogicalSkinSurface*>::const_iterator pos;
+    304     for (pos = stable->begin(); pos != stable->end(); pos++)
+    305     {
+    306       if (lvol == (*pos)->GetLogicalVolume())
+    307       {
+    308         surf = *pos; break;
+    309       }
+    310     }
+    311   }
+    312   return surf;
+    313 }
+    314 
+    315 const G4LogicalBorderSurface*
+    316 G4GDMLWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
+    317 {
+    318   G4LogicalBorderSurface* surf = 0;
+    319   G4int nsurf = G4LogicalBorderSurface::GetNumberOfBorderSurfaces();
+    320   if (nsurf)
+    321   {
+    322     const G4LogicalBorderSurfaceTable* btable =
+    323           G4LogicalBorderSurface::GetSurfaceTable();
+    324     std::vector<G4LogicalBorderSurface*>::const_iterator pos;
+    325     for (pos = btable->begin(); pos != btable->end(); pos++)
+    326     {
+    327       if (pvol == (*pos)->GetVolume1())  // just the first in the couple 
+    328       {                                  // is enough
+    329         surf = *pos; break;
+    330       }
+    331     }
+    332   }
+    333   return surf;
+
+
+
+G4LogicalSkinSurface and G4LogicalBorderSurface
+-------------------------------------------------
+
+::
+
+    [blyth@cms01 source]$ find . -name G4LogicalSkinSurface.hh
+    ./geometry/volumes/include/G4LogicalSkinSurface.hh
+    [blyth@cms01 source]$ vi geometry/volumes/include/G4LogicalSkinSurface.hh
+
+    34 // A Logical Surface class for the surface surrounding a single logical
+    35 // volume.
+
+
+    [blyth@cms01 source]$ find . -name G4LogicalBorderSurface.hh
+    ./geometry/volumes/include/G4LogicalBorderSurface.hh
+    [blyth@cms01 source]$ vi geometry/volumes/include/G4LogicalBorderSurface.hh
+
+    34 // A Logical Surface class for surfaces defined by the boundary
+    35 // of two physical volumes.
+
+
+
+
+Some Hardcoded reflectivity
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 Hardcoded ESRAir reflectivity as function of incident angle. **this needs to be duplicated Chroma side GPU** 
 
 ::
@@ -521,6 +744,60 @@ accessors to the maps.::
     268       matElement->appendChild(propElement);
     269    }
     270 }
+
+
+Checking DAE Properties
+------------------------
+
+After :doc:`/geant4/geant4_patch` to expose the properties and the adoption of GDML property 
+writer into G4DAE succeed to includ properties in the DAE. But need some veracity checking::
+
+     70373     <material id="__dd__Materials__Acrylic0xa7b6b48">
+     70374       <instance_effect url="#__dd__Materials__Acrylic_fx_0xa7b6b48"/>
+     70375       <extra>
+     70376         <matrix coldim="2" name="ABSLENGTH0xa7b4d78" values="1.55e-06 8000 1.61e-06 8000 2.07e-06 8000 2.48e-06 8000 3.76e-06 8000 4.13e-06 8000 6.2e-06 0.008 1.033e-05 0.008 1.55e-05 0.008"/>
+     70377         <property name="ABSLENGTH" ref="ABSLENGTH0xa7b4d78"/>
+     70378         <matrix coldim="2" name="RAYLEIGH0xa7b4da8" values="1.55e-06 500000 1.7714e-06 300000 2.102e-06 170000 2.255e-06 100000 2.531e-06 62000 2.884e-06 42000 3.024e-06 30000 4.133e-06 7600 6.2e-06 850        1.033e-05 850 1.55e-05 850"/>
+     70379         <property name="RAYLEIGH" ref="RAYLEIGH0xa7b4da8"/>
+     70380         <matrix coldim="2" name="RINDEX0xa504f20" values="1.55e-06 1.4878 1.79505e-06 1.4895 2.10499e-06 1.4925 2.27077e-06 1.4946 2.55111e-06 1.4986 2.84498e-06 1.5022 3.06361e-06 1.5065 4.13281e-06 1.       5358 6.2e-06 1.6279 6.526e-06 1.627 6.889e-06 1.5359 7.294e-06 1.5635 7.75e-06 1.793 8.267e-06 1.7199 8.857e-06"/>
+     70381         <property name="RINDEX" ref="RINDEX0xa504f20"/>
+     70382       </extra>
+     70383     </material>
+
+Confirmed values truncation at 255 chars, maybe extend that buffer or move values to text content::
+
+     70497     <material id="__dd__Materials__ESR0xa56f4b0">
+     70498       <instance_effect url="#__dd__Materials__ESR_fx_0xa56f4b0"/>
+     70499       <extra>
+     70500         <matrix coldim="2" name="ABSLENGTH0xa8080f8" values="1.55e-06 0.001 1.63e-06 0.001 1.68e-06 0.001 1.72e-06 0.001 1.77e-06 0.001 1.82e-06 0.001 1.88e-06 0.001 1.94e-06 0.001 2e-06 0.001 2.07e-06        0.001 2.14e-06 0.001 2.21e-06 0.001 2.3e-06 0.001 2.38e-06 0.001 2.48e-06 0.001 2.58e-06 0.001 2.7e-06 0.001 2.82e"/>
+     70501         <property name="ABSLENGTH" ref="ABSLENGTH0xa8080f8"/>
+     70502       </extra>
+     70503     </material>
+
+What about constant properties ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+
+
+
+
+Need to propagate surface properties too
+------------------------------------------
+
+Recent Reflectivity Change
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/browser/dybgaudi/trunk/Detector/XmlDetDesc/DDDB/AdDetails/properties.xml
+
+Change in surface properties has recently been discussed::
+
+     This is caused by reflectivity of radial shield which was updated by Logan.
+     The number is changed from 0.07 to about 0.04.
+
+
+
 
 
 
