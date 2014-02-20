@@ -126,6 +126,20 @@ EOU
 
 
 svn-revert-(){ svn --recursive revert . ; }
+
+svn-log5(){ svn log --limit 5 -v ; }
+svn-addx(){ $FUNCNAME- $* ; }
+svn-addx-(){ cat << EOC
+svn add $1 && svn ps svn:executable yes $1
+EOC
+}
+
+svn-alias(){
+  alias log5="svn-log5"
+  alias addx="svn-addx"
+}
+
+
 svn-hometag(){   
    local tag=${ENV_HOME/*./}
    [ "$ENV_HOME" == "$tag" ] && echo U || echo $tag 

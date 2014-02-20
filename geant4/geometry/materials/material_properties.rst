@@ -305,6 +305,7 @@ although the surface names are::
     g4pb:src blyth$ 
 
 
+
 From the GDML volume traverse `G4GDMLWriteStructure.cc`::
 
     359 G4Transform3D G4GDMLWriteStructure::
@@ -385,6 +386,38 @@ From the GDML volume traverse `G4GDMLWriteStructure.cc`::
     331     }
     332   }
     333   return surf;
+
+
+
+
+Same in g4ten::
+
+    [blyth@belle7 src]$ grep GetMaterialPropertiesTable *.cc
+    G4GDMLReadMaterials.cc:   G4MaterialPropertiesTable* matprop=material->GetMaterialPropertiesTable();
+    G4GDMLWriteMaterials.cc:   if (materialPtr->GetMaterialPropertiesTable())
+    G4GDMLWriteMaterials.cc:   G4MaterialPropertiesTable* ptable = mat->GetMaterialPropertiesTable();
+    [blyth@belle7 src]$ 
+    [blyth@belle7 src]$ pwd
+    /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src
+
+
+Many diffs but not relevant to G4DAE::
+
+    [blyth@belle7 src]$ diff -r --brief /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml 
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/History and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/History differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include/G4GDMLParameterisation.hh and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/include/G4GDMLParameterisation.hh differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include/G4GDMLReadParamvol.hh and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/include/G4GDMLReadParamvol.hh differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include/G4GDMLReadSolids.hh and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/include/G4GDMLReadSolids.hh differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include/G4GDMLWriteParamvol.hh and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/include/G4GDMLWriteParamvol.hh differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include/G4GDMLWriteSolids.hh and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/include/G4GDMLWriteSolids.hh differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/schema/gdml_parameterised.xsd and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/schema/gdml_parameterised.xsd differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/schema/gdml_solids.xsd and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/schema/gdml_solids.xsd differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLParameterisation.cc and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src/G4GDMLParameterisation.cc differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLReadParamvol.cc and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src/G4GDMLReadParamvol.cc differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLReadSolids.cc and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src/G4GDMLReadSolids.cc differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLWriteParamvol.cc and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src/G4GDMLWriteParamvol.cc differ
+    Files /data1/env/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLWriteSolids.cc and /data1/env/local/env/geant4/geant4.10.00/source/persistency/gdml/src/G4GDMLWriteSolids.cc differ
+    [blyth@belle7 src]$ 
 
 
 

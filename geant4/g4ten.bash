@@ -10,6 +10,8 @@ Geant4 Ten
 
 See also *g4beta-*
 
+* http://geant4.web.cern.ch/geant4/support/download.shtml
+
 INSTALLS 
 ----------
 
