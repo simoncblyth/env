@@ -513,7 +513,11 @@ trac-edit(){    $SUDO vi $(trac-inipath $*) ; }
 trac-logname(){ echo trac.log ; }
 
 trac-admin--(){
-   sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+   if [ -n "$NODE_TAG_OVERRIDE" ]; then
+      sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; export NODE_TAG_OVERRIDE=$NODE_TAG_OVERRIDE ; env- ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+   else
+      sudo bash -c "export ENV_HOME=$ENV_HOME ; . $ENV_HOME/env.bash ; env- ; trac- ; TRAC_INSTANCE=$TRAC_INSTANCE trac-admin- $* "
+   fi
   ## huh this did not change ownership of the trac.log ??
 }
 
