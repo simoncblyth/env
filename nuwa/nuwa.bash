@@ -66,6 +66,7 @@ nuwa-lhcb-dir(){ echo $DYB/NuWa-trunk/lhcb ; }
 nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 nuwa-g4-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/cmt ; }
+nuwa-pkg-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/$1/cmt ; }
 nuwa-g4-xdir(){ echo $(nuwa-g4-bdir)/bin/Linux-g++ ; }
 
 nuwa-g4-incdir(){ echo $(nuwa-g4-idir)/include ; }

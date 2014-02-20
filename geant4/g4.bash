@@ -6,6 +6,17 @@ g4-env(){      elocal- ; nuwa- ;  }
 g4-usage(){ cat << EOU
 
 #. Former g4-vrml- moved to vrml-
+#. see related notes :doc:`geant4/geant4_patch`
+
+g4-install-rebuild
+
+    requires manual step to take action, 
+    as this is kinda expensive to recover from if done by mistake::
+
+        [blyth@belle7 4.9.2.p01]$ pwd
+        /data1/env/local/dyb/external/geant4/4.9.2.p01
+        [blyth@belle7 4.9.2.p01]$ mv i686-slc5-gcc41-dbg i686-slc5-gcc41-dbg.prior 
+
 
 
 EOU
@@ -77,4 +88,28 @@ g4-includes-rebuild(){
    cmt pkg_make 
 
 }
+
+
+
+g4-install-rebuild(){
+
+   g4-rebuild-env
+
+   echo NEEDS A MANUAL STEP TO INSTALL NEW GEANT4 LIBS AND INCLUDES INTO LCG_DESTDIR
+
+   cmt pkg_install
+
+}
+
+
+g4-install-ls(){
+   g4-rebuild-env
+   echo -----------
+   ls -l ${LCG_destdir}/lib
+   echo -----------
+   echo LCG_destdir ${LCG_destdir} 
+   echo LCG_destdir/lib ${LCG_destdir}/lib  COUNT SO LIBS : $(ls -1 ${LCG_destdir}/lib/lib*.so | wc -l )
+   #echo LCG_destdir/include ${LCG_destdir}/include  COUNT HH INCS : $(ls -1 ${LCG_destdir}/include/*.hh | wc -l )
+}
+
 

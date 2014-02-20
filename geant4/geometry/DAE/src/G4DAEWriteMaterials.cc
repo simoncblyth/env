@@ -108,7 +108,13 @@ void G4DAEWriteMaterials::MaterialWrite(const G4Material* const materialPtr)
 
 // adapted from /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLWriteMaterials.cc
 // needs access to property map, so must patch older geant4 to have access to the map
-
+//
+// relies on API from the G4MaterialPropertyVector 
+// "spill the beans" patch for older geant4.9.2.p01
+// patch should not be needed in newer geant4 that typedefs
+// G4MaterialPropertyVector from G4PhysicsOrderedFreeVector  
+//
+//
 
 void G4DAEWriteMaterials::PropertyVectorWrite(const G4String& key,
                            const G4MaterialPropertyVector* const pvec, 
@@ -123,11 +129,7 @@ void G4DAEWriteMaterials::PropertyVectorWrite(const G4String& key,
    for (size_t i=0; i<pvec->GetVectorLength(); i++)
    {
        if (i!=0)  { pvalues << " "; }
-       pvalues << pvec->GetLowEdgeEnergy(i) << " " << (*pvec)[i];
-       //
-       // pvec->GetLowEdgeEnergy(i) is tentative translation 
-       // from future Geant4 Energy(i)
-       //
+       pvalues << pvec->Energy(i) << " " << (*pvec)[i];
    }
    matrixElement->setAttributeNode(NewAttribute("values", pvalues.str()));
 

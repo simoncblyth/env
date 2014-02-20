@@ -2,7 +2,7 @@
 g4ten-src(){      echo geant4/g4ten.bash ; }
 g4ten-source(){   echo ${BASH_SOURCE:-$(env-home)/$(g4ten-src)} ; }
 g4ten-vi(){       vi $(g4ten-source) ; }
-g4ten-env(){      elocal- ; }
+g4ten-env(){      elocal- ; g4ten-export ; }
 g4ten-usage(){ cat << EOU
 
 Geant4 Ten
@@ -33,6 +33,10 @@ g4ten-get(){
    [ ! -d "$nam" ] && tar zxvf $tgz
 
    mkdir -p $(g4ten-bdir)
+}
+g4ten-gdml(){ echo $(g4ten-dir)/source/persistency/gdml ; }
+g4ten-export(){
+  export G4TEN_GDML=$(g4ten-gdml) 
 }
 
 

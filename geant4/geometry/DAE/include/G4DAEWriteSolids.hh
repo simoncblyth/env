@@ -80,10 +80,14 @@ class G4DAEWriteSolids : public G4DAEWriteMaterials
                     const G4double&, const G4double&);
    void SolidsWrite(xercesc::DOMElement*);
 
- private:
+  protected:
 
    std::vector<const G4VSolid*> solidList;
    xercesc::DOMElement* solidsElement;
+
+
+
+
 };
 
 #endif
