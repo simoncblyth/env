@@ -472,7 +472,7 @@ package-cd(){
 
 package-mode(){
   case $NODE_TAG in
- Y2|Y1) echo archive-get
+ Y2|Y1|HKU) echo archive-get
     ;;
     *) echo get
     ;;
