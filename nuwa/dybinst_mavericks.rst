@@ -1,3 +1,8 @@
+NuWa on Mavericks
+===================
+
+
+
 
 Getting NuWa installed on Mavericks, with clang will take effort::
 
@@ -75,6 +80,21 @@ Getting NuWa installed on Mavericks, with clang will take effort::
 
 
 
+Bring new config to NuWa
+--------------------------
 
+Seemingly matching CMTCONFIG that still cause error:
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/257
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/6776
+
+Quoting from the ticket::
+
+   Even when the CMTCONFIG comes out matching ... can get a failure if your combination of
+   targets is not in LCG_basesystem.
+
+Looking at the revisions of others doing this can help
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/log/lcgcmt/trunk/LCG_Settings/cmt/requirements
 
 

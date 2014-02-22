@@ -5,9 +5,6 @@
 #include "G4Isotope.hh"
 #include "G4Material.hh"
 #include "G4String.hh"
-//#include "G4PhysicsOrderedFreeVector.hh"
-#include "G4MaterialPropertyVector.hh"
-
 #include "G4DAEWriteEffects.hh"
 
 class G4DAEWriteMaterials : public G4DAEWriteEffects
@@ -30,16 +27,6 @@ class G4DAEWriteMaterials : public G4DAEWriteEffects
    void MaterialWrite(const G4Material* const);
    void MaterialsWrite(xercesc::DOMElement*);
 
-
-   //  material properties persisted inside extra elements 
-
-   void PropertyVectorWrite(const G4String& key,
-                           const G4MaterialPropertyVector* const pveci, 
-                            xercesc::DOMElement* extraElement);
-
-   void PropertyWrite(xercesc::DOMElement* matElement,
-                      const G4Material* const mat,
-                      xercesc::DOMElement* extraElement);
 
 
  private:

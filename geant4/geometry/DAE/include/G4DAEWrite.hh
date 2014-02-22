@@ -16,6 +16,10 @@
 #include "G4PVDivision.hh"
 #include "G4VisAttributes.hh"
 
+//#include "G4PhysicsOrderedFreeVector.hh"
+#include "G4MaterialPropertyVector.hh"
+
+
 //class G4VisAttributes ;
 
 class G4DAEWrite
@@ -38,6 +42,17 @@ class G4DAEWrite
    static void SetRecreatePoly(G4bool);
    static G4bool GetRecreatePoly();
    static void SetAddPointerToName(G4bool);
+
+
+   //  material properties persisted inside extra elements 
+
+   void PropertyVectorWrite(const G4String& key,
+                           const G4MaterialPropertyVector* const pvec, 
+                            xercesc::DOMElement* extraElement);
+
+   void PropertyWrite(xercesc::DOMElement* matElement,
+                      const G4Material* const mat,
+                      xercesc::DOMElement* extraElement);
 
  protected:
 
@@ -71,6 +86,13 @@ class G4DAEWrite
                            const G4LogicalVolume* const)=0;
    G4String Modularize(const G4VPhysicalVolume* const topvol,
                        const G4int depth);
+
+
+
+
+
+
+
 
  private:
 
