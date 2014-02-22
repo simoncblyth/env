@@ -3,6 +3,12 @@
 #include <xercesc/util/XMLChar.hpp>
 #include "G4DAEUtil.hh"
 
+#include "G4Material.hh"
+#include "G4MaterialPropertyVector.hh"
+
+
+
+
 G4bool G4DAEWrite::addPointerToName = true;
 G4bool G4DAEWrite::recreatePoly = false ;
 
@@ -242,6 +248,8 @@ G4Transform3D G4DAEWrite::Write(const G4String& fname,
 
    G4Transform3D R = TraverseVolumeTree(logvol,depth);
 
+   SurfacesWrite(); 
+
    xercesc::XMLFormatTarget *myFormTarget =
      new xercesc::LocalFileFormatTarget(fname.c_str());
 
@@ -380,4 +388,88 @@ G4bool G4DAEWrite::GetRecreatePoly()
 {
    return recreatePoly ;
 }
+
+
+
+// adapted from /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/src/G4GDMLWriteMaterials.cc
+// needs access to property map, so must patch older geant4 to have access to the map
+//
+// relies on API from the G4MaterialPropertyVector 
+// "spill the beans" patch for older geant4.9.2.p01
+// patch should not be needed in newer geant4 that typedefs
+// G4MaterialPropertyVector from G4PhysicsOrderedFreeVector  
+//
+//
+
+void G4DAEWrite::PropertyVectorWrite(const G4String& key,
+                           const G4MaterialPropertyVector* const pvec, 
+                            xercesc::DOMElement* extraElement)
+{
+   const G4String matrixref = GenerateName(key, pvec);
+   xercesc::DOMElement* matrixElement = NewElement("matrix");
+   matrixElement->setAttributeNode(NewAttribute("name", matrixref));
+   matrixElement->setAttributeNode(NewAttribute("coldim", "2"));
+   std::ostringstream pvalues;
+   for (size_t i=0; i<pvec->GetVectorLength(); i++)
+   {
+       if (i!=0)  { pvalues << " "; }
+       pvalues << pvec->Energy(i) << " " << (*pvec)[i];
+   }
+   matrixElement->setAttributeNode(NewAttribute("values", pvalues.str()));
+
+   extraElement->appendChild(matrixElement);  // was toplevel defineElement for GDML
+}
+
+
+
+void G4DAEWrite::PropertyWrite(xercesc::DOMElement* extraElement,  const G4MaterialPropertiesTable* const ptable)
+{
+   xercesc::DOMElement* propElement;
+   const std::map< G4String, G4MaterialPropertyVector*,
+                 std::less<G4String> >* pmap = ptable->GetPropertiesMap();
+   const std::map< G4String, G4double,
+                 std::less<G4String> >* cmap = ptable->GetPropertiesCMap();
+   std::map< G4String, G4MaterialPropertyVector*,
+                 std::less<G4String> >::const_iterator mpos;
+   std::map< G4String, G4double,
+                 std::less<G4String> >::const_iterator cpos;
+   for (mpos=pmap->begin(); mpos!=pmap->end(); mpos++)
+   {
+      propElement = NewElement("property");
+      propElement->setAttributeNode(NewAttribute("name", mpos->first));
+      propElement->setAttributeNode(NewAttribute("ref",
+                                    GenerateName(mpos->first, mpos->second)));
+      if (mpos->second)
+      {
+         PropertyVectorWrite(mpos->first, mpos->second, extraElement);
+         extraElement->appendChild(propElement);
+      }
+      else
+      {
+         G4String warn_message = "Null pointer for material property -" + mpos->first ;
+         G4Exception("G4DAEWrite::PropertyWrite()", "NullPointer",
+                     JustWarning, warn_message);
+         continue;
+      }
+   }
+   for (cpos=cmap->begin(); cpos!=cmap->end(); cpos++)
+   {
+      propElement = NewElement("property");
+      propElement->setAttributeNode(NewAttribute("name", cpos->first));
+      propElement->setAttributeNode(NewAttribute("ref", cpos->first));
+      xercesc::DOMElement* constElement = NewElement("constant");
+      constElement->setAttributeNode(NewAttribute("name", cpos->first));
+      constElement->setAttributeNode(NewAttribute("value", cpos->second));
+      // tacking onto a separate top level define element for GDML
+      // but that would need separate access on reading 
+
+      //defineElement->appendChild(constElement);
+      extraElement->appendChild(constElement);
+      extraElement->appendChild(propElement);
+   }
+}
+
+
+
+
 

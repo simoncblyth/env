@@ -16,11 +16,10 @@
 #include "G4PVDivision.hh"
 #include "G4VisAttributes.hh"
 
-//#include "G4PhysicsOrderedFreeVector.hh"
-#include "G4MaterialPropertyVector.hh"
+class G4Material ; 
+class G4MaterialPropertyVector ; 
+class G4MaterialPropertiesTable ; 
 
-
-//class G4VisAttributes ;
 
 class G4DAEWrite
 {
@@ -50,9 +49,7 @@ class G4DAEWrite
                            const G4MaterialPropertyVector* const pvec, 
                             xercesc::DOMElement* extraElement);
 
-   void PropertyWrite(xercesc::DOMElement* matElement,
-                      const G4Material* const mat,
-                      xercesc::DOMElement* extraElement);
+   void PropertyWrite(xercesc::DOMElement* extraElement, const G4MaterialPropertiesTable* const ptable);
 
  protected:
 
@@ -82,6 +79,7 @@ class G4DAEWrite
    virtual void StructureWrite(xercesc::DOMElement*)=0;
    virtual G4Transform3D TraverseVolumeTree(const G4LogicalVolume* const,
                                             const G4int)=0;
+   virtual void SurfacesWrite()=0;
    virtual void SetupWrite(xercesc::DOMElement*,
                            const G4LogicalVolume* const)=0;
    G4String Modularize(const G4VPhysicalVolume* const topvol,
