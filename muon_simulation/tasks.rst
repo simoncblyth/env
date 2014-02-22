@@ -104,7 +104,7 @@ Blender GUI is unusable.
 MeshLab conversions ? [DECIDED AGAINST]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* meshlab imports COLLADA and VRML2 :doc:`/graphics/mesh/meshlab`
+* meshlab imports COLLADA and VRML2 :doc:`/graphics/meshlab/index`
 * meshlab export STL 
 * mesh visualization with meshlab, blender, freewrl 
 
@@ -150,7 +150,7 @@ Chroma is aggressive about versions, how critical these are is unknown
 Geant4/Chroma integration
 ---------------------------
 
-* :doc:`/muon_simulation/chroma/chroma_geant4_integration`
+* :doc:`/chroma/chroma_geant4_integration`
 
 grab cohort of optical photons
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,7 +163,7 @@ StackAction better than TrackingAction (currently used), advantages:
 parallel GPU transport 
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-* :doc:`/muon_simulation/chroma/chroma_physics`
+* :doc:`/chroma/chroma_physics`
 * parallel propagate the cohort of OP
 
 give back to G4 at sensitive detectors
@@ -196,6 +196,8 @@ Chroma vs G4 Optical Process Validation
 ----------------------------------------
 
 * establish statistical equivalence between Chroma and G4
+* NuWa settings http://dayabay.ihep.ac.cn/tracs/dybsvn/ticket/1397#comment:7
+
 
 
 

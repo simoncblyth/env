@@ -80,6 +80,8 @@ Contents:
    debugging/index
    mercurial/index
    javascript/index
+   nuwa/index
+   ccgpu/index
 
 
 
