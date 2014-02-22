@@ -232,7 +232,7 @@ BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
                    "InvalidSetup", FatalException, "No optical surface found!");
        return;
      }
-     OpticalSurfaceWrite(solidsElement, opsurf);
+     OpticalSurfaceWrite(extrasurfElement, opsurf);
    }
 
    borderElementVec.push_back(borderElement);
@@ -247,7 +247,7 @@ BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
  * from G4GDMLWriteSolids::OpticalSurfaceWrite
  */
 void G4DAEWriteStructure::
-OpticalSurfaceWrite(xercesc::DOMElement* solElement,
+OpticalSurfaceWrite(xercesc::DOMElement* targetElement,
                     const G4OpticalSurface* const surf)
 {
    xercesc::DOMElement* optElement = NewElement("opticalsurface");
@@ -263,7 +263,7 @@ OpticalSurfaceWrite(xercesc::DOMElement* solElement,
    G4MaterialPropertiesTable* ptable = surf->GetMaterialPropertiesTable();
    PropertyWrite( optElement, ptable );
 
-   solElement->appendChild(optElement);
+   targetElement->appendChild(optElement);
 }
 
 
@@ -303,7 +303,7 @@ SkinSurfaceCache(const G4LogicalSkinSurface* const ssurf)
                    "InvalidSetup", FatalException, "No optical surface found!");
        return;
      }
-     OpticalSurfaceWrite(solidsElement, opsurf);
+     OpticalSurfaceWrite(extrasurfElement, opsurf);
    }
 
    skinElementVec.push_back(skinElement);
@@ -385,11 +385,11 @@ void G4DAEWriteStructure::SurfacesWrite()
    std::vector<xercesc::DOMElement*>::const_iterator pos;
    for (pos = skinElementVec.begin(); pos != skinElementVec.end(); pos++)
    {
-     structureElement->appendChild(*pos);
+     extrasurfElement->appendChild(*pos);
    }
    for (pos = borderElementVec.begin(); pos != borderElementVec.end(); pos++)
    {
-     structureElement->appendChild(*pos);
+     extrasurfElement->appendChild(*pos);
    }
 }
 
@@ -403,6 +403,9 @@ void G4DAEWriteStructure::StructureWrite(xercesc::DOMElement* daeElement)
    G4cout << "G4DAE: Writing structure/library_nodes..." << G4endl;
 
    structureElement = NewElement("library_nodes");
+   extrasurfElement = NewElement("extra");
+   structureElement->appendChild(extrasurfElement);
+
    daeElement->appendChild(structureElement);
 }
 

@@ -958,6 +958,72 @@ Need to find new position inside extra, tacked under geometries is no good::
     157660   </library_nodes>
 
 
+properties too
+~~~~~~~~~~~~~~~~
+
+Added properties inside the opticalsurface element::
+
+      1650     </geometry>
+      1651     <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearPoolCoverSurface" type="0" value="1">
+      1652       <matrix coldim="2" name="REFLECTIVITY0xadabaa8" values="1.5e-06 0 6.5e-06 0"/>
+      1653       <property name="REFLECTIVITY" ref="REFLECTIVITY0xadabaa8"/>
+      1654       <matrix coldim="2" name="RINDEX0xadabc88" values="1.5e-06 0 6.5e-06 0"/>
+      1655       <property name="RINDEX" ref="RINDEX0xadabc88"/>
+      1656     </opticalsurface>
+      1657     <geometry id="RPCStrip0xa4c5e20" name="RPCStrip0xa4c5e20">
+      1658       <mesh>
+      1659         <source id="RPCStrip0xa4c5e20-Pos">
+      1660           <float_array count="24" id="RPCStrip0xa4c5e20-Pos-array">
+      1661                 -1040 -130 -1
+      1662                 1040 -130 -1
+
+
+
+how to position the elements inside DAE extra
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For material properties, its obvious what to do::
+
+     70543   <library_materials>
+     70544     <material id="__dd__Materials__PPE0xa543b68">
+     70545       <instance_effect url="#__dd__Materials__PPE_fx_0xa543b68"/>
+     70546       <extra>
+     70547         <matrix coldim="2" name="ABSLENGTH0xa49fcb8" values="1.55e-06 0.001 6.2e-06 0.001 1.033e-05 0.001 1.55e-05 0.001"/>
+     70548         <property name="ABSLENGTH" ref="ABSLENGTH0xa49fcb8"/>
+     70549       </extra>
+     70550     </material>
+
+Not so obvious for bordersurface or skinsurface, which reference one or two volumes and an opticalsurface element.
+
+
+
+Completeness ?
+-----------------
+
+
+::
+
+    191   <!-- Radial shield with Oil -->
+    192   <tabproperty name="RSOilReflectivity"
+    193                type="REFLECTIVITY"
+    194                xunit="eV"
+    195                yunit=""
+    196                xaxis="Energy"
+    197                yaxis="Reflectivity">
+    198     1.55 0.0393
+    199     1.771 0.0393
+    200     2.066 0.0394
+    201     2.480 0.03975
+    202     2.755 0.04045
+    203     3.010 0.04135
+    204     3.542 0.0432
+    205     4.133 0.04655
+    206     4.959 0.0538
+    207     6.20 0.067
+    208     10.33 0.114
+    209     15.5 0.173
+    210   </tabproperty>
+    211 
 
 
 

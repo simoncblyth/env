@@ -58,7 +58,9 @@ class G4DAEWriteStructure : public G4DAEWriteParamvol
 
  protected:
 
-   xercesc::DOMElement* structureElement;
+   xercesc::DOMElement* structureElement;   // library_nodes
+   xercesc::DOMElement* extrasurfElement;   // extra
+
    std::vector<xercesc::DOMElement*> borderElementVec;
    std::vector<xercesc::DOMElement*> skinElementVec;
 
