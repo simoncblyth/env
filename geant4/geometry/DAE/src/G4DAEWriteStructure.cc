@@ -186,6 +186,17 @@ void G4DAEWriteStructure::ReplicavolWrite(xercesc::DOMElement* volumeElement,
 
 
 
+/*
+ * Creates "bordersurface" element from G4LogicalBorderSurface* with physvolref contained
+ * elements
+ *
+ *     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceTop" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceTop">   
+ *          <physvolref ref="/dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap0xb6d81c8"/>  
+ *          <physvolref ref="/dd/Geometry/AdDetails/lvTopRefGap#pvTopESR0xb657cf0"/>
+ *     </bordersurface>
+ *
+ */
+
 void G4DAEWriteStructure::
 BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
 {
@@ -228,7 +239,13 @@ BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
 }
 
 
-// from G4GDMLWriteSolids::OpticalSurfaceWrite
+
+/*
+ * Create opticalsurface element with attributes from G4OpticalSurface*
+ * append to first argument element
+ * 
+ * from G4GDMLWriteSolids::OpticalSurfaceWrite
+ */
 void G4DAEWriteStructure::
 OpticalSurfaceWrite(xercesc::DOMElement* solElement,
                     const G4OpticalSurface* const surf)
@@ -243,11 +260,18 @@ OpticalSurfaceWrite(xercesc::DOMElement* solElement,
    optElement->setAttributeNode(NewAttribute("type", surf->GetType()));
    optElement->setAttributeNode(NewAttribute("value", sval));
 
+   G4MaterialPropertiesTable* ptable = surf->GetMaterialPropertiesTable();
+   PropertyWrite( optElement, ptable );
+
    solElement->appendChild(optElement);
 }
 
 
-
+/*
+ *  Create skinsurface element for the G4LogicalSkinSurface* with volumeref contained
+ *  record the G4OpticalSurface* in the opt_vec member
+ *  add skinsurface element to the skinElementVec member 
+ */
 
 void G4DAEWriteStructure::
 SkinSurfaceCache(const G4LogicalSkinSurface* const ssurf)
@@ -285,6 +309,14 @@ SkinSurfaceCache(const G4LogicalSkinSurface* const ssurf)
    skinElementVec.push_back(skinElement);
 }
 
+
+/*
+ *  Cast G4SurfaceProperty* to G4OpticalSurface* and append to opt_vec member if not already there
+ *  returns 
+ *       true, if not already present
+ *       false, if already collected 
+ * 
+ */
 G4bool G4DAEWriteStructure::FindOpticalSurface(const G4SurfaceProperty* psurf)
 {
    const G4OpticalSurface* osurf = dynamic_cast<const G4OpticalSurface*>(psurf);
@@ -296,6 +328,10 @@ G4bool G4DAEWriteStructure::FindOpticalSurface(const G4SurfaceProperty* psurf)
    return true;
 }
 
+
+/*
+ *  Return first G4LogicalSkinSurface* associated with a G4LogicalVolume* 
+ */
 const G4LogicalSkinSurface*
 G4DAEWriteStructure::GetSkinSurface(const G4LogicalVolume* const lvol)
 {
@@ -317,6 +353,10 @@ G4DAEWriteStructure::GetSkinSurface(const G4LogicalVolume* const lvol)
   return surf;
 }
 
+
+/*
+ *  Return first G4LogicalBorderSurface* associated with a G4VPhysicalVolume* 
+ */
 const G4LogicalBorderSurface*
 G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
 {
