@@ -829,6 +829,133 @@ Change in surface properties has recently been discussed::
      This is caused by reflectivity of radial shield which was updated by Logan.
      The number is changed from 0.07 to about 0.04.
 
+::
+
+    g4pb:materials blyth$ grep opticalsurface g4_00.dae.2
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearPoolCoverSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/AdDetails/AdSurfacesAll/RSOilSurface" type="0" value="1"/>
+        <opticalsurface finish="0" model="1" name="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceTop" type="0" value="0"/>
+        <opticalsurface finish="0" model="1" name="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceBot" type="0" value="0"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/AdDetails/AdSurfacesAll/SSTOilSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/AdDetails/AdSurfacesAll/AdCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear1" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear2" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtTopRingSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtBaseRingSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtRib1Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtRib2Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtRib3Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/LegInIWSTubSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/TablePanelSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/SupportRib1Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/SupportRib5Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/SlopeRib1Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/SlopeRib5Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/ADVertiCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/ShortParCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearInnInPiperSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearInnOutPiperSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearIWSCurtainSurface" type="0" value="0.2"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/LegInOWSTubSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/UnistrutRib6Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/UnistrutRib7Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib3Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib5Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib4Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib1Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib2Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib8Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/UnistrutRib9Surface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/TopShortCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/TopCornerCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/VertiCableTraySurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOutInPiperSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOutOutPiperSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOWSLinerSurface" type="0" value="0.2"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/PoolSurfacesAll/LegInDeadTubSurface" type="0" value="1"/>
+        <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearDeadLinerSurface" type="0" value="0.2"/>
+    g4pb:materials blyth$ 
+
+
+Need to find new position inside extra, tacked under geometries is no good::
+
+      1648         </extra>
+      1649       </mesh>
+      1650     </geometry>
+      1651     <opticalsurface finish="3" model="1" name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearPoolCoverSurface" type="0" value="1"/>
+      1652     <geometry id="RPCStrip0xb62fda0" name="RPCStrip0xb62fda0">
+      1653       <mesh>
+      1654         <source id="RPCStrip0xb62fda0-Pos">
+      1655           <float_array count="24" id="RPCStrip0xb62fda0-Pos-array">
+      1656                 -1040 -130 -1
+
+
+::
+
+    157517         <instance_node url="#__dd__Geometry__Sites__lvNearSiteRock0xb6131d8"/>
+    157518         <extra>
+    157519           <meta id="/dd/Structure/Sites/db-rock0xbeebd90">
+    157520             <copyNo>1000</copyNo>
+    157521             <ModuleName></ModuleName>
+    157522           </meta>
+    157523         </extra>
+    157524       </node>
+    157525     </node>
+    157526     <skinsurface name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearPoolCoverSurface" surfaceproperty="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearPoolCoverSurface">
+    157527       <volumeref ref="/dd/Geometry/PoolDetails/lvNearTopCover0xb8a6408"/>
+    157528     </skinsurface>
+    157529     <skinsurface name="/dd/Geometry/AdDetails/AdSurfacesAll/RSOilSurface" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/RSOilSurface">
+    157530       <volumeref ref="/dd/Geometry/AdDetails/lvRadialShieldUnit0xb9b5ef0"/>
+    157531     </skinsurface>
+    157532     <skinsurface name="/dd/Geometry/AdDetails/AdSurfacesAll/AdCableTraySurface" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/AdCableTraySurface">
+    157533       <volumeref ref="/dd/Geometry/AdDetails/lvAdVertiCableTray0xba34d38"/>
+    157534     </skinsurface>
+    157535     <skinsurface name="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtTopRingSurface" surfaceproperty="/dd/Geometry/PoolDetails/PoolSurfacesAll/PmtMtTopRingSurface">
+    157536       <volumeref ref="/dd/Geometry/PMT/lvPmtTopRing0xba4f460"/>
+    157537     </skinsurface>
+
+
+
+    157622     <skinsurface name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOutOutPiperSurface" surfaceproperty="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOutOutPiperSurface">
+    157623       <volumeref ref="/dd/Geometry/PoolDetails/lvOutOutWaterPipeNearTub0xbee65d0"/>
+    157624     </skinsurface>
+    157625     <skinsurface name="/dd/Geometry/PoolDetails/PoolSurfacesAll/LegInDeadTubSurface" surfaceproperty="/dd/Geometry/PoolDetails/PoolSurfacesAll/LegInDeadTubSurface">
+    157626       <volumeref ref="/dd/Geometry/PoolDetails/lvLegInDeadTub0xbee6630"/>
+    157627     </skinsurface>
+
+    157628     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceTop" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceTop">
+    157629       <physvolref ref="/dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap0xb6d81c8"/>
+    157630       <physvolref ref="/dd/Geometry/AdDetails/lvTopRefGap#pvTopESR0xb657cf0"/>
+    157631     </bordersurface>
+    157632     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceBot" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/ESRAirSurfaceBot">
+    157633       <physvolref ref="/dd/Geometry/AdDetails/lvBotReflector#pvBotRefGap0xb57a378"/>
+    157634       <physvolref ref="/dd/Geometry/AdDetails/lvBotRefGap#pvBotESR0xb95ad38"/>
+    157635     </bordersurface>
+    157636     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesAll/SSTOilSurface" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesAll/SSTOilSurface">
+    157637       <physvolref ref="/dd/Geometry/AD/lvSST#pvOIL0xb579938"/>
+    157638       <physvolref ref="/dd/Geometry/AD/lvADE#pvSST0xb6aff00"/>
+    157639     </bordersurface>
+    157640     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear1" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear1">
+    157641       <physvolref ref="/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE10xb5a95a8"/>
+    157642       <physvolref ref="/dd/Geometry/AD/lvADE#pvSST0xb6aff00"/>
+    157643     </bordersurface>
+    157644     <bordersurface name="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear2" surfaceproperty="/dd/Geometry/AdDetails/AdSurfacesNear/SSTWaterSurfaceNear2">
+    157645       <physvolref ref="/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE20xb5ad858"/>
+    157646       <physvolref ref="/dd/Geometry/AD/lvADE#pvSST0xb6aff00"/>
+    157647     </bordersurface>
+    157648     <bordersurface name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearIWSCurtainSurface" surfaceproperty="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearIWSCurtainSurface">
+    157649       <physvolref ref="/dd/Geometry/Pool/lvNearPoolCurtain#pvNearPoolIWS0xb914f38"/>
+    157650       <physvolref ref="/dd/Geometry/Pool/lvNearPoolOWS#pvNearPoolCurtain0xb9a79d0"/>
+    157651     </bordersurface>
+    157652     <bordersurface name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOWSLinerSurface" surfaceproperty="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearOWSLinerSurface">
+    157653       <physvolref ref="/dd/Geometry/Pool/lvNearPoolLiner#pvNearPoolOWS0xbe81770"/>
+    157654       <physvolref ref="/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner0xb6772a0"/>
+    157655     </bordersurface>
+    157656     <bordersurface name="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearDeadLinerSurface" surfaceproperty="/dd/Geometry/PoolDetails/NearPoolSurfaces/NearDeadLinerSurface">
+    157657       <physvolref ref="/dd/Geometry/Sites/lvNearHallBot#pvNearPoolDead0xb56ff90"/>
+    157658       <physvolref ref="/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner0xb6772a0"/>
+    157659     </bordersurface>
+    157660   </library_nodes>
 
 
 
