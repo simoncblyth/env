@@ -12,13 +12,12 @@ parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
 
 
-
 if __name__ == '__main__':
 
     args = sys.argv[1:]
     narg = len(args)
 
-    path, qid, qpr = "g4_00.dae","", ""
+    pth, qid, qpr = "g4_00.dae","", ""
     if narg > 0:pth = args[0]
     if narg > 1:qid = args[1]
     if narg > 2:qpr = args[2]
