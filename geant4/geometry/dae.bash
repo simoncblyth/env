@@ -30,6 +30,15 @@ Curiously get 'xs:ID' validation errors on G, but not N
 
   * The type xsd:ID is used for an attribute that uniquely identifies an element in an XML document. 
 
+Strip Extras
+-----------------
+
+The extra nodes need to be stripped to avoid schema validation errors (why are extra content not ignored ?)::
+
+    dae-strip-extra g4_00.dae.6 > g4_00.dae.6.noextra
+    dae-validate  g4_00.dae.6.noextra
+
+
 
 Code Organisation
 --------------------
@@ -73,6 +82,11 @@ EOU
 dae-dir(){ echo $(env-home)/geant4/geometry/DAE ; }
 dae-cd(){  cd $(dae-dir); }
 dae-mate(){ mate $(dae-dir) ; }
+
+
+dae-strip-extra(){
+  xsltproc $(env-home)/geant4/geometry/collada/strip-extra.xsl $1 
+}
 
 dae-install(){
    dae-install-lib
