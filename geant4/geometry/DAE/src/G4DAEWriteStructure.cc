@@ -207,9 +207,8 @@ BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
    // Generate the new element for border-surface
    //
    xercesc::DOMElement* borderElement = NewElement("bordersurface");
-   borderElement->setAttributeNode(NewAttribute("name", bsurf->GetName()));
-   borderElement->setAttributeNode(NewAttribute("surfaceproperty",
-                                                psurf->GetName()));
+   borderElement->setAttributeNode(NewNCNameAttribute("name", bsurf->GetName()));
+   borderElement->setAttributeNode(NewNCNameAttribute("surfaceproperty", psurf->GetName()));
 
    const G4String volumeref1 = GenerateName(bsurf->GetVolume1()->GetName(),
                                             bsurf->GetVolume1());
@@ -217,8 +216,8 @@ BorderSurfaceCache(const G4LogicalBorderSurface* const bsurf)
                                             bsurf->GetVolume2());
    xercesc::DOMElement* volumerefElement1 = NewElement("physvolref");
    xercesc::DOMElement* volumerefElement2 = NewElement("physvolref");
-   volumerefElement1->setAttributeNode(NewAttribute("ref",volumeref1));
-   volumerefElement2->setAttributeNode(NewAttribute("ref",volumeref2));
+   volumerefElement1->setAttributeNode(NewNCNameAttribute("ref",volumeref1));
+   volumerefElement2->setAttributeNode(NewNCNameAttribute("ref",volumeref2));
    borderElement->appendChild(volumerefElement1);
    borderElement->appendChild(volumerefElement2);
 
@@ -254,7 +253,7 @@ OpticalSurfaceWrite(xercesc::DOMElement* targetElement,
    G4OpticalSurfaceModel smodel = surf->GetModel();
    G4double sval = (smodel==glisur) ? surf->GetPolish() : surf->GetSigmaAlpha();
 
-   optElement->setAttributeNode(NewAttribute("name", surf->GetName()));
+   optElement->setAttributeNode(NewNCNameAttribute("name", surf->GetName()));
    optElement->setAttributeNode(NewAttribute("model", smodel));
    optElement->setAttributeNode(NewAttribute("finish", surf->GetFinish()));
    optElement->setAttributeNode(NewAttribute("type", surf->GetType()));
@@ -283,14 +282,11 @@ SkinSurfaceCache(const G4LogicalSkinSurface* const ssurf)
    // Generate the new element for border-surface
    //
    xercesc::DOMElement* skinElement = NewElement("skinsurface");
-   skinElement->setAttributeNode(NewAttribute("name", ssurf->GetName()));
-   skinElement->setAttributeNode(NewAttribute("surfaceproperty",
-                                              psurf->GetName()));
-
-   const G4String volumeref = GenerateName(ssurf->GetLogicalVolume()->GetName(),
-                                           ssurf->GetLogicalVolume());
+   skinElement->setAttributeNode(NewNCNameAttribute("name", ssurf->GetName()));
+   skinElement->setAttributeNode(NewNCNameAttribute("surfaceproperty",psurf->GetName()));
+   const G4String volumeref = GenerateName(ssurf->GetLogicalVolume()->GetName(), ssurf->GetLogicalVolume());
    xercesc::DOMElement* volumerefElement = NewElement("volumeref");
-   volumerefElement->setAttributeNode(NewAttribute("ref",volumeref));
+   volumerefElement->setAttributeNode(NewNCNameAttribute("ref",volumeref));
    skinElement->appendChild(volumerefElement);
 
    if (FindOpticalSurface(psurf))

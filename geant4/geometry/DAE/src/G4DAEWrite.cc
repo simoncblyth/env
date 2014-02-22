@@ -405,17 +405,18 @@ void G4DAEWrite::PropertyVectorWrite(const G4String& key,
                            const G4MaterialPropertyVector* const pvec, 
                             xercesc::DOMElement* extraElement)
 {
-   const G4String matrixref = GenerateName(key, pvec);
-   xercesc::DOMElement* matrixElement = NewElement("matrix");
-   matrixElement->setAttributeNode(NewAttribute("name", matrixref));
-   matrixElement->setAttributeNode(NewAttribute("coldim", "2"));
+
    std::ostringstream pvalues;
    for (size_t i=0; i<pvec->GetVectorLength(); i++)
    {
        if (i!=0)  { pvalues << " "; }
        pvalues << pvec->Energy(i) << " " << (*pvec)[i];
    }
-   matrixElement->setAttributeNode(NewAttribute("values", pvalues.str()));
+
+   xercesc::DOMElement* matrixElement = NewTextElement("matrix",pvalues.str());
+   const G4String matrixref = GenerateName(key, pvec);
+   matrixElement->setAttributeNode(NewAttribute("name", matrixref));
+   matrixElement->setAttributeNode(NewAttribute("coldim", "2"));
 
    extraElement->appendChild(matrixElement);  // was toplevel defineElement for GDML
 }
