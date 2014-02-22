@@ -391,6 +391,13 @@ void G4DAEWriteStructure::SurfacesWrite()
    {
      extrasurfElement->appendChild(*pos);
    }
+
+   //
+   // place here after Traverse as COLLADA spec 
+   // requires "extra" child elements of "library_nodes"
+   // to be after all the "node"
+   // 
+   structureElement->appendChild(extrasurfElement); // 
 }
 
 
@@ -404,7 +411,6 @@ void G4DAEWriteStructure::StructureWrite(xercesc::DOMElement* daeElement)
 
    structureElement = NewElement("library_nodes");
    extrasurfElement = NewElement("extra");
-   structureElement->appendChild(extrasurfElement);
 
    daeElement->appendChild(structureElement);
 }

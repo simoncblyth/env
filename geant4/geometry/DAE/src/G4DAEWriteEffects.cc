@@ -32,17 +32,27 @@ FloatTypeWrite(xercesc::DOMElement* element,const G4String& type, const G4double
 
 void G4DAEWriteEffects::EffectWrite(const G4Material* const materialPtr )
 {
-   // NB assuming 1to1 between materials and effects and texture images
+   // NB assuming 1to1 between materials and effects 
 
    const G4String name = GenerateName(materialPtr->GetName() + "_fx_" , materialPtr) ;
    const G4String& id = name ;
    const G4String& sid = name ;
 
-   G4String matSymbol = GenerateMaterialSymbol(materialPtr->GetName()) ;  
-   const G4String img_id = matSymbol  ;
 
    xercesc::DOMElement* effectElement = NewElementOneNCNameAtt("effect","id",id);
 
+   /*
+   // Problems with textures...
+   //
+   //    * not supported in MeshLab it seems 
+   //    * schema validation issue with non-unique id (probably simple to fix)
+   //
+   // So postpone this purely visual feature that complicates DAE 
+   // usage due to lack of texture supprt.
+   //
+
+   G4String matSymbol = GenerateMaterialSymbol(materialPtr->GetName()) ;  
+   const G4String img_id = matSymbol  ;
    xercesc::DOMElement* imageElement = NewElementOneNCNameAtt("image","id",img_id);
    xercesc::DOMElement* initfromElement = NewTextElement("init_from", img_id );
    imageElement->appendChild(initfromElement);
@@ -53,7 +63,9 @@ void G4DAEWriteEffects::EffectWrite(const G4Material* const materialPtr )
    xercesc::DOMElement* libImageElement = NewElementOneNCNameAtt("image","id",img_id);
    xercesc::DOMElement* libInitfromElement = NewTextElement("init_from", texpath );
    libImageElement->appendChild(libInitfromElement);
-   imagesElement->appendChild(libImageElement);
+   imagesElement->appendChild(libImageElement);   // library_images written by EffectsWrite
+
+   */
 
 
    xercesc::DOMElement* profileElement = NewElement("profile_COMMON");
@@ -92,10 +104,12 @@ void G4DAEWriteEffects::EffectsWrite(xercesc::DOMElement* element)
 
    effectList.clear();
 
+   /*
    G4cout << "G4DAE: Writing library_images..." << G4endl;
 
    imagesElement = NewElement("library_images");
    element->appendChild(imagesElement);
+   */
 
 }
 
