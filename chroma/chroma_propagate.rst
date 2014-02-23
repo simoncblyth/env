@@ -317,6 +317,34 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
     212 } // propagate
 
 
+`chroma/cuda/geometry_types.h`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+     16 enum { SURFACE_DEFAULT, SURFACE_COMPLEX, SURFACE_WLS };
+     17 
+     18 struct Surface
+     19 {
+     20     float *detect;
+     21     float *absorb;
+     22     float *reemit;
+     23     float *reflect_diffuse;
+     24     float *reflect_specular;
+     //
+     // eta,k, only used in SURFACE_COMPLEX ?  
+     //
+     25     float *eta;
+     26     float *k;
+     27     float *reemission_cdf;
+     28 
+     29     unsigned int model;
+     30     unsigned int n;
+     31     unsigned int transmissive;
+     32     float step;
+     33     float wavelength0;
+     34     float thickness;
+     35 };
 
 
 `chroma/cuda/photon.h`
@@ -338,10 +366,126 @@ Entry point is **propagate**, communication via numpy arrays curtesy of pycuda.
     595         // use default surface model: do a combination of specular and
     596         // diffuse reflection, detection, and absorption based on relative
     597         // probabilties
-
+    598 
+    599         // since the surface properties are interpolated linearly, we are
+    600         // guaranteed that they still sum to 1.0.
+    601         float detect = interp_property(surface, p.wavelength, surface->detect);
+    602         float absorb = interp_property(surface, p.wavelength, surface->absorb);
+    603         float reflect_diffuse = interp_property(surface, p.wavelength, surface->reflect_diffuse);
+    604         float reflect_specular = interp_property(surface, p.wavelength, surface->reflect_specular);
+    605 
+    606         float uniform_sample = curand_uniform(&rng);
+    607 
+    608         if (use_weights && p.weight > WEIGHT_LOWER_THRESHOLD
+    609         && absorb < (1.0f - WEIGHT_LOWER_THRESHOLD)) {
+    610             // Prevent absorption and reweight accordingly
+    611             float survive = 1.0f - absorb;
+    612             absorb = 0.0f;
+    613             p.weight *= survive;
+    614 
+    615             // Renormalize remaining probabilities
+    616             detect /= survive;
+    617             reflect_diffuse /= survive;
+    618             reflect_specular /= survive;
+    619         }
+    620 
+    621         if (use_weights && detect > 0.0f) {
+    622             p.history |= SURFACE_DETECT;
+    623             p.weight *= detect;
+    624             return BREAK;
+    625         }
+    626 
+    627         if (uniform_sample < absorb) {
+    628             p.history |= SURFACE_ABSORB;
+    629             return BREAK;
+    630         }
+    631         else if (uniform_sample < absorb + detect) {
+    632             p.history |= SURFACE_DETECT;
+    633             return BREAK;
+    634         }
+    635         else if (uniform_sample < absorb + detect + reflect_diffuse)
+    636             return propagate_at_diffuse_reflector(p, s, rng);
+    637         else
+    638             return propagate_at_specular_reflector(p, s);
+    639     }
+    640 
+    641 } // propagate_at_surface
+    642 
+    643 #endif
+    644 
+    ...
+    342 __device__ int
+    343 propagate_at_specular_reflector(Photon &p, State &s)
+    344 {
+    345     float incident_angle = get_theta(s.surface_normal, -p.direction);
+    346     float3 incident_plane_normal = cross(p.direction, s.surface_normal);
+    347     incident_plane_normal /= norm(incident_plane_normal);
+    348 
+    349     p.direction = rotate(s.surface_normal, incident_angle, incident_plane_normal);
+    350 
+    351     p.history |= REFLECT_SPECULAR;
+    352 
+    353     return CONTINUE;
+    354 } // propagate_at_specular_reflector
+    355 
+    356 __device__ int
+    357 propagate_at_diffuse_reflector(Photon &p, State &s, curandState &rng)
+    358 {
+    359     float ndotv;
+    360     do {
+    361     p.direction = uniform_sphere(&rng);
+    362     ndotv = dot(p.direction, s.surface_normal);
+    363     if (ndotv < 0.0f) {
+    364         p.direction = -p.direction;
+    365         ndotv = -ndotv;
+    366     }
+    367     } while (! (curand_uniform(&rng) < ndotv) );
+    368 
+    369     p.polarization = cross(uniform_sphere(&rng), p.direction);
+    370     p.polarization /= norm(p.polarization);
+    371 
+    372     p.history |= REFLECT_DIFFUSE;
+    373 
+    374     return CONTINUE;
+    375 } // propagate_at_diffuse_reflector
+    ...
+    377 __device__ int
+    378 propagate_complex(Photon &p, State &s, curandState &rng, Surface* surface, bool use_weights=false)
+    379 {
+    380     float detect = interp_property(surface, p.wavelength, surface->detect);
+    381     float reflect_specular = interp_property(surface, p.wavelength, surface->reflect_specular);
+    382     float reflect_diffuse = interp_property(surface, p.wavelength, surface->reflect_diffuse);
+    383     float n2_eta = interp_property(surface, p.wavelength, surface->eta);
+    384     float n2_k = interp_property(surface, p.wavelength, surface->k);
+    385 
+    386     // thin film optical model, adapted from RAT PMT optical model by P. Jones
+    387     cuFloatComplex n1 = make_cuFloatComplex(s.refractive_index1, 0.0f);
+    388     cuFloatComplex n2 = make_cuFloatComplex(n2_eta, n2_k);
+    389     cuFloatComplex n3 = make_cuFloatComplex(s.refractive_index2, 0.0f);
+    390 
 
 
 * `chroma/doc/source/surface.rst`
+
+
+
+surface_index
+~~~~~~~~~~~~~~~~
+
+::
+
+    g4pb:cuda blyth$ pwd
+    /usr/local/env/chroma/chroma/cuda
+    g4pb:cuda blyth$ grep surface_index *.*
+    hybrid_render.cu:       if (s.surface_index != -1) {
+    photon.h:    int surface_index;
+    photon.h:    s.surface_index = convert(0xFF & (material_code >> 8));
+    photon.h:    Surface *surface = geometry->surfaces[s.surface_index];
+    propagate.cu:   if (s.surface_index != -1) {
+    g4pb:cuda blyth$ 
+
+
+
 
 
 

@@ -40,6 +40,174 @@ G4 Docs
     scintillator -> SetMaterialPropertiesTable(MPT);
 
 
+Interfacing to Chroma
+------------------------
+
+
+Many NuWa properties are defined for wavelengths 200-800nm 
+but the chroma standard wavelengths start from 60nm, 
+this leads to flat properties from 60-200nm 
+using the 200nm value.  
+
+That might cause problems ? 
+Perhaps should adjust standard wavelengths to 200:800 nm ?
+to match the range where NuWa properties are defined.
+
+::
+
+        g4pb:materials blyth$ ./material_properties.py g4_00.dae.6
+        ...
+        __dd__Materials__OwsWater0xabb2118.ABSLENGTH : (314) 
+        [[ 196.00020975  273.208     ]
+         [ 197.00020287  369.628     ]
+         [ 198.00001706  491.566     ]
+         ..., 
+         [ 788.00206356  482.415     ]
+         [ 790.00041213  486.647     ]
+         [ 800.00157879  486.681     ]]
+        [[  60.          273.20800781]
+         [  80.          273.20800781]
+         [ 100.          273.20800781]
+         ..., 
+         [ 760.          371.97369385]
+         [ 780.          425.70596313]
+         [ 800.          486.68099976]]
+
+
+Check Length units for ABSLENGTH etc.. in G4 and Chroma
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.researchgate.net/publication/223664774_Water_absorption_length_measurement_with_the_ANTARES_optical_beacon_system
+
+  * 50m in sea water 
+
+
+::
+
+    g4pb:materials blyth$ ./material_properties.py g4_00.dae.6 __dd__Materials__Water ABSLENGTH
+        __dd__Materials__Water0xae9c3c0.ABSLENGTH : (314) 
+    [[   196.00020975    273.208     ]
+     [   197.00020287    369.628     ]
+     [   198.00001706    491.566     ]
+     [   199.0001295     602.2       ]
+     [   200.00007207    691.563     ]
+     [   201.00001245    772.754     ]
+     [   202.00012819    831.749     ]
+     [   202.99994217    907.747     ]
+     [   203.99996821    967.594     ]
+     [   205.00006561   1006.68      ]
+     [   206.00009085   1033.76      ]
+     [   207.00024322   1072.49      ]
+     [   208.00003469   1102.7       ]
+     [   209.000018     1143.13      ]
+     [   210.00005874   1154.75      ]
+     [   211.00001988   1198.39      ]
+     [   212.00012428   1224.04      ]
+     [   213.00023997   1254.03      ]
+     [   214.00023246   1285.14      ]
+     [   214.99996476   1321.42      ]
+     [   216.00004997   1347.67      ]
+     [   216.99998719   1383.31      ]
+     [   218.00002581   1407.86      ]
+     [   219.00004006   1432.05      ]
+     [   220.00029221   1507.14      ]
+     [   221.00026859   1537.25      ]
+     ...
+     [   395.0001809   18471.45      ]
+     [   397.50017779  19007.41      ]
+     [   400.00016996  19849.15      ]
+     [   402.5001836   20634.24      ]
+     [   405.00015542  21308.7       ]
+     [   407.50018103  21907.26      ]
+     [   410.00017189  22540.12      ]
+     [   412.50015905  23146.44      ]
+     [   415.00016127  23696.99      ]
+     [   417.50016973  24222.97      ]
+     [   420.00016016  24671.11      ]
+     [   422.5001635   25069.66      ]
+     [   425.00016687  25569.5       ]
+     [   427.50019897  26073.52      ]
+     [   430.00019796  26518.15      ]
+     [   432.50017173  26991.2       ]
+     [   435.00017115  27337.65      ]
+     [   437.50019957  27494.64      ]
+     [   440.00019405  27600.03      ]
+     [   442.50021077  27645.51      ]
+     [   445.00017598  27722.87      ]
+     [   447.50018518  27602.66      ]
+     [   450.00020209  27372.58      ]
+     [   452.50019947  27469.29      ]
+     [   455.00020947  27970.48      ]
+     [   457.50019162  28461.27      ]
+     [   460.00021623  28732.16      ]
+     [   462.50017693  28962.23      ]
+     [   465.00018182  29355.16      ]
+     [   467.50017715  29720.12      ]
+     [   470.00018757  29804.19      ]
+     [   472.50019419  29966.68      ]         ## almost 30m
+     [   475.0002047   29939.17      ]
+     [   477.50019942  29723.06      ]
+     [   480.00020395  29587.05      ]
+     [   482.50019742  29616.74      ]
+     [   485.00022368  29549.18      ]
+     [   487.50018354  29214.26      ]
+     [   490.00021452  29045.91      ]
+     [   492.50019417  28379.45      ]
+     [   495.00020074  27812.48      ]
+     [   497.50020396  26750.18      ]
+     [   500.00020035  26096.03      ]
+     [   502.50021442  24773.3       ]
+     [   505.00021763  23353.15      ]
+     [   507.50022935  22279.68      ]
+     [   510.00019325  20385.15      ]
+     [   512.50020639  18714.45      ]
+     [   515.00022713  18010.98      ]
+     [   517.50024086  18012.75      ]
+     [   520.00021759  17787.87      ]
+     [   522.50024318  17659.41      ]
+     [   525.00021354  17717.04      ]
+     [   527.50022924  17462.57      ]
+     [   530.00019741  17362.82      ]
+     [   532.50021112  17056.22      ]
+     [   535.00023487  16986.27      ]
+     ...
+     [   774.00175221    404.675     ]
+     [   776.00248277    415.612     ]
+     [   777.99893752    420.511     ]
+     [   780.00078438    425.708     ]
+     [   781.99816258    458.717     ]
+     [   784.00083899    476.198     ]
+     [   785.99885052    475.074     ]
+     [   788.00206356    482.415     ]
+     [   790.00041213    486.647     ]
+     [   800.00157879    486.681     ]]
+
+
+
+
+
+Chroma Units
+~~~~~~~~~~~~
+
+:: 
+
+    g4pb:cuda blyth$ grep SPEED_OF_LIGHT *.*
+    photon.h:            p.time += absorption_distance/(SPEED_OF_LIGHT/s.refractive_index1);
+    photon.h:           p.time += scattering_distance/(SPEED_OF_LIGHT/s.refractive_index1);
+    photon.h:    p.time += s.distance_to_boundary/(SPEED_OF_LIGHT/s.refractive_index1);
+    physical_constants.h:#define SPEED_OF_LIGHT 299.792458f
+    g4pb:cuda blyth$ 
+    g4pb:cuda blyth$ 
+    g4pb:cuda blyth$ vi physical_constants.h
+
+    4 // mm/ns
+    5 #define SPEED_OF_LIGHT 299.792458f
+
+    g4pb:cuda blyth$ pwd
+    /usr/local/env/chroma/chroma/cuda
+
+
+
 
 
 G4 Examples
@@ -71,6 +239,21 @@ G4 Examples
 
 Units
 -------
+
+As I am using internal Geant4 numbers outside of CLHEP/Geant4 so I need to peep behind
+the curtain of the units and understand the raw numbers being persisted::
+
+   eV = electronvolt 
+   electronvolt = 1.e-6*megaelectronvolt 
+   megaelectronvolt = 1. 
+
+   eV = 1.e-6
+
+So the units of the photon energies in G4MaterialPropertyVector are **MeV** 
+and the length values are in **mm**.
+
+
+Chroma optical props are expresses in wavelengths in  **nm**, so 
 
 ::
 
@@ -134,20 +317,6 @@ Units
     161   static const double GeV = gigaelectronvolt;
     162   static const double TeV = teraelectronvolt;
     163   static const double PeV = petaelectronvolt;
-
-
-As I am using internal Geant4 numbers outside of CLHEP/Geant4 so I need to peep behind
-the curtain of the units and understand the raw numbers being persisted::
-
-   eV = electronvolt 
-   electronvolt = 1.e-6*megaelectronvolt 
-   megaelectronvolt = 1. 
-
-   eV = 1.e-6
-
-So the units of the photon energies in G4MaterialPropertyVector are **MeV** 
-
-Chroma looks to opertate in  **nm**, so 
 
   * g4_mpv_x * 1.e6   
 
@@ -796,6 +965,27 @@ Hardcoded ESRAir reflectivity as function of incident angle. **this needs to be 
      53             1.55      1.
      54             1.63      1.
      55             1.68      1.
+     ..
+
+
+/data/env/local/dyb/trunk/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB/materials/water.xml::
+
+     10 
+     11 
+     12     <!-- This is taken from G4dyb's MaterialProperties.xml and massaged to fit -->
+     13     <tabproperty name="WaterAbsorptionLength"
+     14          type="ABSLENGTH"
+     15          xunit="eV"
+     16          yunit="cm"
+     17          xaxis="PhotonEnergy"
+     18          yaxis="AbsorptionLength">
+     19 
+     20          1.5498024  48.66809
+     21          1.5694201  48.66475
+     22          1.5734035  48.24148
+     23          1.5774070  47.50742
+     24          1.5814310  47.61985
+     25          1.5854756  45.87167
      ..
 
 

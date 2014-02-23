@@ -5,11 +5,11 @@
 """
 import os, sys
 import lxml.etree as ET
-from common import as_optical_property_vector
+from common import as_optical_property_vector, interpolate_check
+import numpy as np
 
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
-
 
 if __name__ == '__main__':
 
@@ -43,9 +43,11 @@ if __name__ == '__main__':
                         s = data[ref]
                         assert s, "failed to deref %s " % ref
                         opv = as_optical_property_vector(s)
+                        ipv = interpolate_check( opv )
                         pass
                         print "    %-30s : (%s) " % ("%s.%s" % (id,pr), len(opv) )
                         print opv
+                        print ipv
 
 
 

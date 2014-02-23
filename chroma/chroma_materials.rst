@@ -19,7 +19,7 @@ Material handling in Chroma
     ./demo/optics.py
     ./demo/pmt.py
     ./detector.py
-    ./generator/g4gen.py    # using Material to create G4Material instances
+    ./generator/g4gen.py    # using Material to create G4Material instances, for photon generation within the material
     ./generator/photon.py
     ./geometry.py
     ./gpu/geometry.py
@@ -112,6 +112,9 @@ Material properties passed over to GPU side
 #. reemission_cdf
 
 
+Looks like (from chroma/sim.py) have just one GPUGeometry.
+
+
 ::
 
      13 class GPUGeometry(object):
@@ -155,6 +158,8 @@ Material properties passed over to GPU side
      51             reemission_cdf = interp_material_property(wavelengths, material.reemission_cdf)
      52             reemission_cdf_gpu = ga.to_gpu(reemission_cdf)
      ..
+
+NB all five material properties are linearly interpolated onto the same standard (or provided) wavelengths. 
 
 
 Same class also passes surface properties
