@@ -43,13 +43,10 @@
 import os
 import sys
 import lxml.etree as ET
-
-import numpy as np
-np.set_printoptions(threshold=5)   # eliding mid elements of large arrays 
+from common import as_optical_property_vector
 
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
-
 
 class OpticalSurface(object):
     def __init__(self, elem, index=-1):
@@ -71,16 +68,16 @@ class OpticalSurface(object):
         for matrix in self.elem.findall(".//{%s}matrix" % COLLADA_NS ):
             name = matrix.attrib['name']
             assert matrix.attrib['coldim'] == '2'
-            data[name] = np.fromstring(matrix.text, dtype='float', sep=' ').reshape((-1,2))
+            data[name] = as_optical_property_vector( matrix.text )
         return data
 
     def dump_props(self,qpr):
         for prop in self.elem.findall(".//{%s}property" % COLLADA_NS ):
             name, ref = prop.attrib['name'], prop.attrib['ref']
             if len(qpr)==0 or name.startswith(qpr):
-                vals = self.data[ref] 
-                print "    %-20s : (%s)  " % (name, len(vals)) 
-                print vals
+                opv = self.data[ref] 
+                print "    %-20s : (%s)  " % (name, len(opv)) 
+                print opv
 
 
 class DAE(object):

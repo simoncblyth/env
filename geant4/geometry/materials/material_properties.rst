@@ -8,6 +8,160 @@ Persist material optical properties (some of which are wavelength dependent)
 into G4DAE COLLADA XML using extra tags, thus allowing access from pycollada 
 and thence into Chroma.
 
+
+To Checkout
+------------
+
+* http://wiki.opengatecollaboration.org/Users_Guide_V6.2:Generating_and_tracking_optical_photons
+
+
+G4 Docs
+--------
+
+* http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/ForApplicationDeveloper/html/ch05s02.html#sect.PhysProc.Photo
+
+::
+
+    Example 5.4.  Optical properties added to a G4MaterialPropertiesTable and linked to a G4Material
+
+    const G4int NUMENTRIES = 32;
+
+    G4double ppckov[NUMENTRIES] = {2.034*eV, ......, 4.136*eV};
+    G4double rindex[NUMENTRIES] = {1.3435, ......, 1.3608};
+    G4double absorption[NUMENTRIES] = {344.8*cm, ......, 1450.0*cm];
+
+    G4MaterialPropertiesTable *MPT = new G4MaterialPropertiesTable();
+
+    MPT -> AddConstProperty("SCINTILLATIONYIELD",100./MeV);
+
+    MPT -> AddProperty("RINDEX",ppckov,rindex,NUMENTRIES}->SetSpline(true);
+    MPT -> AddProperty("ABSLENGTH",ppckov,absorption,NUMENTRIES}->SetSpline(true);
+
+    scintillator -> SetMaterialPropertiesTable(MPT);
+
+
+
+
+G4 Examples
+--------------
+
+::
+
+    [blyth@cms01 examples]$ find . -name '*.cc'  -exec grep -H MaterialProperty {} \;
+    ./advanced/air_shower/src/UltraDetectorConstruction.cc:  MPT_Acrylic->AddProperty("ABSLENGTH", new G4MaterialPropertyVector()) ;
+    ./advanced/human_phantom/src/G4HumanPhantomMaterial.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/brachytherapy/src/BrachyDetectorConstruction.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/brachytherapy/src/BrachyDetectorConstructionI.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/brachytherapy/src/BrachyMaterial.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/medical_linac/src/MedLinacHead.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/medical_linac/src/MedLinacTargetAndFilterDecorator.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/medical_linac/src/MedLinacDetectorConstruction.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/medical_linac/src/MedLinacMLCDecorator.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/Rich/src/RichTbMaterial.cc:#include "G4MaterialPropertyVector.hh"
+    ./advanced/radioprotection/src/RemSimMaterial.cc:#include "G4MaterialPropertyVector.hh"
+    ./extended/parallel/ExDiane/src/BrachyDetectorConstruction.cc:#include "G4MaterialPropertyVector.hh"
+    ./extended/parallel/ExDiane/src/BrachyDetectorConstructionI.cc:#include "G4MaterialPropertyVector.hh"
+    ./extended/parallel/ExDiane/src/BrachyDetectorConstructionIr.cc:#include "G4MaterialPropertyVector.hh"
+    ./extended/parallel/ExDiane/src/BrachyDetectorConstructionLeipzig.cc:#include "G4MaterialPropertyVector.hh"
+    ./extended/parallel/ExDiane/src/BrachyMaterial.cc:#include "G4MaterialPropertyVector.hh"
+    [blyth@cms01 examples]$ pwd
+    /data/env/local/dyb/trunk/external/build/LCG/geant4.9.2.p01/examples
+
+
+
+Units
+-------
+
+::
+
+    [blyth@cms01 include]$ grep h_Plan *.hh
+    G4PhysicalConstants.hh:using CLHEP::h_Planck;
+    [blyth@cms01 include]$ vi G4PhysicalConstants.hh
+
+     27 #include <CLHEP/Units/PhysicalConstants.h>
+     ..
+     34 using CLHEP::c_light;
+
+
+`/data/env/local/dyb/trunk/external/clhep/2.0.4.2/i686-slc4-gcc34-dbg/include/CLHEP/Units/PhysicalConstants.h`::
+
+     60 //
+     61 // c   = 299.792458 mm/ns
+     62 // c^2 = 898.7404 (mm/ns)^2 
+     63 //
+     64 static const double c_light   = 2.99792458e+8 * m/s;
+     65 static const double c_squared = c_light * c_light;
+     66 
+     67 //
+     68 // h     = 4.13566e-12 MeV*ns
+     69 // hbar  = 6.58212e-13 MeV*ns
+     70 // hbarc = 197.32705e-12 MeV*mm
+     71 //
+     72 static const double h_Planck      = 6.62606896e-34 * joule*s;
+
+
+`/data/env/local/dyb/trunk/external/clhep/2.0.4.2/i686-slc4-gcc34-dbg/include/CLHEP/Units/SystemOfUnits.h`::
+
+
+    054   static const double millimeter  = 1.;
+    062   static const double meter  = 1000.*millimeter;
+    095   static const double m  = meter;
+    123   static const double nanosecond  = 1.;
+    124   static const double second      = 1.e+9 *nanosecond;
+    ...
+    139   // Electric charge [Q]
+    140   //
+    141   static const double eplus = 1. ;// positron charge
+    142   static const double e_SI  = 1.602176487e-19;// positron charge in coulomb
+    143   static const double coulomb = eplus/e_SI;// coulomb = 6.24150 e+18 * eplus
+    144 
+    145   //
+    146   // Energy [E]
+    147   //
+    148   static const double megaelectronvolt = 1. ;
+    149   static const double     electronvolt = 1.e-6*megaelectronvolt;
+    150   static const double kiloelectronvolt = 1.e-3*megaelectronvolt;
+    151   static const double gigaelectronvolt = 1.e+3*megaelectronvolt;
+    152   static const double teraelectronvolt = 1.e+6*megaelectronvolt;
+    153   static const double petaelectronvolt = 1.e+9*megaelectronvolt;
+    154 
+    155   static const double joule = electronvolt/e_SI;// joule = 6.24150 e+12 * MeV
+    156 
+    157   // symbols
+    158   static const double MeV = megaelectronvolt;
+    159   static const double  eV = electronvolt;
+    160   static const double keV = kiloelectronvolt;
+    161   static const double GeV = gigaelectronvolt;
+    162   static const double TeV = teraelectronvolt;
+    163   static const double PeV = petaelectronvolt;
+
+
+As I am using internal Geant4 numbers outside of CLHEP/Geant4 so I need to peep behind
+the curtain of the units and understand the raw numbers being persisted::
+
+   eV = electronvolt 
+   electronvolt = 1.e-6*megaelectronvolt 
+   megaelectronvolt = 1. 
+
+   eV = 1.e-6
+
+So the units of the photon energies in G4MaterialPropertyVector are **MeV** 
+
+Chroma looks to opertate in  **nm**, so 
+
+  * g4_mpv_x * 1.e6   
+
+
+
+* http://dayabay.bnl.gov/dox/DetSim/html/classDsG4OpRayleigh.html
+
+  * suggests convention for photon energies in G4MaterialPropertyVector is MeV
+  * :google:`"G4MaterialPropertyVector" photon energy unit`
+
+
+
+
+
 G4 Optical processes
 ---------------------
 

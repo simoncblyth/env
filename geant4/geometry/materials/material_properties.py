@@ -5,8 +5,7 @@
 """
 import os, sys
 import lxml.etree as ET
-import numpy as np
-np.set_printoptions(threshold=5)   # eliding mid elements of large arrays 
+from common import as_optical_property_vector
 
 parse_ = lambda _:ET.parse(os.path.expandvars(_)).getroot()
 COLLADA_NS = "http://www.collada.org/2005/11/COLLADASchema"
@@ -42,16 +41,11 @@ if __name__ == '__main__':
                     if len(qpr) == 0 or pr.startswith(qpr):
                         ref = prop.attrib['ref']
                         s = data[ref]
-                        if s == None:
-                            print "failed to deref %s " % ref
-                            b = None
-                        else:
-                            a = np.fromstring(s, dtype=float, sep=' ')
-                            assert len(a) % 2 == 0
-                            b = a.reshape((-1,2))
+                        assert s, "failed to deref %s " % ref
+                        opv = as_optical_property_vector(s)
                         pass
-                        print "    %-30s : (%s) " % ("%s.%s" % (id,pr), len(b) )
-                        print b
+                        print "    %-30s : (%s) " % ("%s.%s" % (id,pr), len(opv) )
+                        print opv
 
 
 
