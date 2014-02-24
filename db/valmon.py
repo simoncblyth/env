@@ -183,7 +183,7 @@ from datetime import datetime
 log = logging.getLogger(__name__)
 from ConfigParser import ConfigParser
 from simtab import Table
-from env.tools.sendmail import notify
+from env.tools import sendmail
 
 def excepthook(*args):
     log.error('Uncaught exception:', exc_info=args)
@@ -462,7 +462,7 @@ class ValueMon(object):
         if len(msg) > 0:
             subj = msg.split("\n")[0]
             log.warn("sending notification as: %s " % subj )
-            notify(self.cnf['email'], msg )
+            sendmail.notify(self.cnf['email'], msg )
         else:
             log.info("no notification" )
         log.debug("mon completed")

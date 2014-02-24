@@ -47,7 +47,10 @@ log = logging.getLogger(__name__)
 try:
     import sqlite3 as sqlite
 except ImportError:
-    from pysqlite2 import dbapi2 as sqlite
+    try:
+        from pysqlite2 import dbapi2 as sqlite
+    except ImportError:
+        import sqlite
 
 def version_info():
     _ = sqlite 
