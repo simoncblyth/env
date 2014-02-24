@@ -143,7 +143,13 @@ CREATE TABLE oomon (date text,val real)
         fields_sql = ",".join(["%s %s" % (k, v) for k,v in zip(fields,types)] + pkf )
 
         create_sql = "CREATE TABLE %(tn)s (%(fields_sql)s)" % locals()
-        check_schema = self.cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='%(tn)s'" % locals() ).fetchall()
+        check_schema_q = self.cursor.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='%(tn)s'" % locals() )
+        if check_schema_q is None:
+            log.debug("check_schema_q is None" )
+            check_schema = []
+        else:    
+            check_schema = check_schema_q.fetchall()
+
         log.debug("check_schema : %s " % str(check_schema)) 
         if len(check_schema) == 0:
             log.debug("_create: %s " % create_sql )
