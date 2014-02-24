@@ -68,7 +68,7 @@ def dnatree( top, ptn , start ):
     :param start: string start for relative paths, use "." for all or "./dayabay" to restrict 
     """ 
     d = {}
-    cmd = "cd %(top)s ; find -name '%(ptn)s' " % locals() 
+    cmd = "cd %(top)s ; find -L -name '%(ptn)s' " % locals() 
     for line in os.popen(cmd).readlines():
         if line.startswith(start):
             name = line.strip()
