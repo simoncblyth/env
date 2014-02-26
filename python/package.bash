@@ -888,11 +888,11 @@ package-install(){
 
    if [ "$PACKAGE_INSTALL_OPT" == "develop" ]; then
       $PSUDO python setup.py develop
+   elif [ -n "$VIRTUAL_ENV" ]; then
+      cd ..
+      tar zcf $($name-basename).tar.gz $($name-basename)
+      easy_install -Z --no-deps $($name-basename).tar.gz
    else
-   
-   
-   
-   
       $PSUDO easy_install -Z --no-deps .  
    fi
    
