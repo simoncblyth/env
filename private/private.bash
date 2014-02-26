@@ -141,7 +141,10 @@ private-ls(){
 
 
 private-check-(){
-  [ "$1" == "-rw-------"  ] && return 0 || return 1
+  case $1 in
+    -rw-------*) return 0 ;;
+              *) return 1 ;;
+  esac
 }
 
 
