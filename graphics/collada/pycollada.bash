@@ -35,7 +35,12 @@ history
 D
 ~~
 
-Into chroma virtual python
+Plain vanilla pycollada from git into chroma virtual python, with a non-sudo install, using::
+
+   pycollada-get
+   pycollada-build
+   pycollada-install
+
 
 
 N
@@ -163,7 +168,13 @@ pycollada-build(){
 pycollada-install(){
    pycollada-cd
    ! pycollada-pycheck && return 
-   sudo bash -c "LD_LIBRARY_PATH=$LD_LIBRARY_PATH $(which python) setup.py install"
+   if [ -n "$VIRTUAL_ENV" ]; then
+      echo $msg VIRTUAL_ENV $VIRTUAL_ENV detected assuming non-sudo install
+      which python
+      python setup.py install
+   else
+      sudo bash -c "LD_LIBRARY_PATH=$LD_LIBRARY_PATH $(which python) setup.py install"
+   fi 
 }
 
 pycollada-wipe(){

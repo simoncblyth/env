@@ -520,7 +520,16 @@ class DAENode(object):
 
         for subnode in node.children:
             cls.walk(subnode, depth+1)
-               
+
+
+    @classmethod
+    def vwalk(cls, visit_=lambda node:None, node=None, depth=0):
+        if node is None:
+            node=cls.root
+        visit_(node) 
+        for subnode in node.children:
+            cls.vwalk(visit_=visit_, node=subnode, depth=depth+1)
+                
 
     @classmethod
     def md5digest(cls, nodepath ):
@@ -548,6 +557,7 @@ class DAENode(object):
         assert len(cls.registry) == len(boundgeom)
         for vn,bg in zip(cls.registry,boundgeom):
             vn.boundgeom = bg
+            vn.matdict = vn.get_matdict()
             bg.daenode = vn
             assert vn.geo.geometry.id == bg.original.id   
         log.info("index linking completed")    
@@ -652,6 +662,7 @@ class DAENode(object):
         self.rootdepth = rootdepth 
         self.digest = self.md5digest( nodepath[0:leafdepth-1] )
         self.parent_digest = self.md5digest( nodepath[0:rootdepth-1] )
+        self.matdict = {}  # maybe filled in during index linking 
 
         # formerly stored ids rather than instances to allow pickling 
         self.pv = pv
@@ -662,23 +673,17 @@ class DAENode(object):
         self.id = self.find_uid( pv.id , False)
         self.index = len(self.registry)
 
-    def matdict(self):
-        if hasattr(self, '_matdict'):
-            return self._matdict
-        if not hasattr(self, 'boundgeom'):
-            _matdict =  {}
-        else:    
-            bg = self.boundgeom
-            msi = bg.materialnodebysymbol.items()
-            assert len(msi) == 1 
-            symbol, matnode= msi[0]
-            matid = matnode.target.id
-            _matdict = dict(matid=matid, symbol=symbol)
-        self._matdict = _matdict    
-        return self._matdict
 
-    matid  = property(lambda self:self.matdict().get('matid',None))
-    symbol = property(lambda self:self.matdict().get('symbol',None))
+    def get_matdict(self):
+        assert hasattr(self, 'boundgeom'), "matdict requires associated boundgeom "
+        msi = self.boundgeom.materialnodebysymbol.items()
+        assert len(msi) == 1 
+        symbol, matnode= msi[0]
+        return dict(matid=matnode.target.id, symbol=symbol, matnode=matnode)
+ 
+    matnode  = property(lambda self:self.matdict.get('matnode',None))
+    matid  = property(lambda self:self.matdict.get('matid',None))
+    symbol = property(lambda self:self.matdict.get('symbol',None))
 
     def primitives(self):
         if not hasattr(self, 'boundgeom'):
@@ -701,11 +706,10 @@ class DAENode(object):
 
     def __str__(self):
         lines = []
-        matdict = self.matdict()
         if self.verbosity > 0:
-            lines.append("  %s             %s " % (self.id, matdict.get('matid',"-") ) )
+            lines.append("  %s             %s " % (self.id, self.matdict.get('matid',"-") ) )
         if self.verbosity > 1:    
-            lines.append("DAENode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, matdict.get('matid',"-") ) )
+            lines.append("DAENode(%s,%s)[%s]    %s             %s " % (self.rootdepth,self.leafdepth,self.index, self.id, self.matdict.get('matid',"-") ) )
             lines.append("    pvid         %s " % self.pv.id )
             lines.append("    lvid         %s " % self.lv.id )
             lines.append("    ggid         %s " % self.geo.geometry.id )

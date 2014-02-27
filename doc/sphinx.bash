@@ -39,13 +39,15 @@ Careful where you check from::
       File "<string>", line 1, in <module>
     ImportError: No module named sphinx
 
-
-
-
-
        
 installs
 ---------
+
+D : macports py27-sphinx (1.2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
 
 N : system python 2.4
 ~~~~~~~~~~~~~~~~~~~~~~~~
