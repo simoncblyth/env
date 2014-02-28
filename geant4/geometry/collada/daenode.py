@@ -254,7 +254,7 @@ rpc
 
 """
 
-import numpy 
+import numpy as np
 import collada
 
 # CAUTION MONKEY PATCH DIDDLING TRANSFORMATION MATRIX : not needed for DAE exported from 20131119-1632
@@ -263,6 +263,9 @@ import collada
 
 from collada.xmlutil import etree as ET
 from collada.xmlutil import writeXML, COLLADA_NS, E
+from collada.common import DaeObject
+
+tag = lambda _:str(ET.QName(COLLADA_NS,_))
 
 # relying on a load signature that is not uniformly followed, works for Transforms, but too much action-at-a-distance
 #collada.common.DaeObject.copy = lambda self:self.load(collada, self.xmlnode )  
@@ -340,6 +343,31 @@ class DAENode(object):
         cls.recurse(top)
         cls.summary()
         cls.indexlink( boundgeom )
+        cls.parse_extra( dae )
+
+    @classmethod
+    def parse_extra( cls, dae ):
+        """
+        """
+        log.info("collecting opticalsurface/boundarysurface/skinsurface info from library_nodes/extra/")
+        library_nodes = dae.xmlnode.find(".//"+tag("library_nodes"))
+        extra = library_nodes.find(tag("extra"))
+        assert extra is not None
+        cls.extra = DAEExtra.load(collada, {}, extra) 
+
+        log.info("collecting extra material properties from library_materials/material/extra ")
+        nextra = 0 
+        for material in dae.materials:
+            extra = material.xmlnode.find(tag("extra"))
+            if extra is None:
+                material.extra = None
+            else:
+                nextra += 1
+                material.extra = MaterialProperties.load(collada, {}, extra)
+            pass 
+        log.info("loaded %s extra elements with MaterialProperties " % nextra )             
+
+
 
     @classmethod
     def recurse(cls, node , ancestors=[], extras=[] ):
@@ -529,7 +557,15 @@ class DAENode(object):
         visit_(node) 
         for subnode in node.children:
             cls.vwalk(visit_=visit_, node=subnode, depth=depth+1)
-                
+
+    @classmethod
+    def vwalks(cls, visits=[], node=None, depth=0):
+        if node is None:
+            node=cls.root
+        for visit_ in visits:
+            visit_(node) 
+        for subnode in node.children:
+            cls.vwalks(visits=visits, node=subnode, depth=depth+1)
 
     @classmethod
     def md5digest(cls, nodepath ):
@@ -718,6 +754,195 @@ class DAENode(object):
         return "\n".join(lines)
 
     __repr__ = __str__
+
+
+
+# follow the pycollada pattern for extra nodes
+
+
+hc_over_GeV = 1.2398424468024265e-06 # h_Planck * c_light / GeV / nanometer #  (approx, hc = 1240 eV.nm )  
+hc_over_MeV = hc_over_GeV*1000.
+hc_over_eV  = hc_over_GeV*1.e9
+
+
+def as_optical_property_vector( s, xunit='MeV', yunit=None ):
+    """ 
+    Units of the input string first column as assumed to be MeV, 
+    (G4MaterialPropertyVector raw numbers photon energies are in units of MeV)
+    these are converted to nm and the order is reversed in the returned
+    numpy array.
+        
+    :param s: string with space delimited floats representing a G4MaterialPropertyVector 
+    :return: numpy array with nm
+    """ 
+    # from chroma/demo/optics.py 
+    a = np.fromstring(s, dtype=float, sep=' ')
+    assert len(a) % 2 == 0
+    b = a.reshape((-1,2))[::-1]   ## reverse energy, for ascending wavelength nm
+
+    if yunit is None or yunit in ('','mm'):
+        val = b[:,1]
+    elif yunit == 'cm':
+        val = b[:,1]*10.
+    else:   
+        assert 0, "unexpected yunit %s " % yunit
+        
+    energy = b[:,0]
+    
+    if xunit=='MeV':
+        e_nm  = hc_over_MeV/energy
+    elif xunit=='eV':
+        e_nm  = hc_over_eV/energy
+    else:       
+        assert 0, "unexpected xunit %s " % xunit
+
+    vv = np.column_stack([e_nm,val])
+    return vv
+    
+
+def read_properties( xmlnode ):
+    data = {}       
+    for matrix in xmlnode.findall(tag("matrix")):
+        xref = matrix.attrib['name']
+        assert matrix.attrib['coldim'] == '2' 
+        data[xref] = as_optical_property_vector( matrix.text )
+    pass
+    properties = {} 
+    for property_ in xmlnode.findall(tag("property")):
+        prop = property_.attrib['name']
+        xref = property_.attrib['ref']
+        assert xref in data
+        properties[prop] = data[xref] 
+    return properties
+
+
+class MaterialProperties(DaeObject):
+    def __init__(self, properties, xmlnode):
+        self.properties = properties
+        self.xmlnode = xmlnode
+    @staticmethod
+    def load(collada, localscope, xmlnode):
+        properties = read_properties(xmlnode)
+        return MaterialProperties( properties, xmlnode ) 
+    def __repr__(self):
+        return "<MaterialProperties keys=%s >" % (str(self.properties.keys())) 
+
+
+class OpticalSurface(DaeObject):
+    @classmethod
+    def lookup(cls, localscope, surfaceproperty):
+        assert surfaceproperty in localscope['surfaceproperty'], localscope
+        return localscope['surfaceproperty'][surfaceproperty]
+
+    def __init__(self, name=None, finish=None, model=None, type_=None, value=None, properties=None, xmlnode=None):
+        self.name = name
+        self.finish = finish
+        self.model = model
+        self.type_ = type_
+        self.value = value
+        self.properties = properties
+        self.xmlnode = xmlnode
+
+    @staticmethod 
+    def load(collada, localscope, xmlnode):
+        name = xmlnode.attrib['name'] 
+        finish = xmlnode.attrib['finish'] 
+        model = xmlnode.attrib['model'] 
+        type_ = xmlnode.attrib['type'] 
+        value = xmlnode.attrib['value'] 
+        properties = read_properties(xmlnode)
+        return OpticalSurface(name, finish, model, type_, value, properties, xmlnode )
+
+    def __repr__(self):
+        return "<OpticalSurface name=%s keys=%s >" % (str(self.name), str(self.properties.keys())) 
+
+
+
+class SkinSurface(DaeObject):
+    def __init__(self, name=None, surfaceproperty=None, volumeref=None, xmlnode=None):
+        self.name = name
+        self.surfaceproperty = surfaceproperty
+        self.volumeref = volumeref
+        self.xmlnode = xmlnode
+    @staticmethod
+    def load(collada, localscope, xmlnode):
+        name = xmlnode.attrib['name']
+        surfaceproperty = xmlnode.attrib['surfaceproperty']
+        surfaceproperty = OpticalSurface.lookup( localscope, surfaceproperty)
+        volumeref = xmlnode.find(tag('volumeref'))
+        assert volumeref is not None
+        volumeref = volumeref.attrib['ref']     
+        return SkinSurface(name, surfaceproperty, volumeref, xmlnode)
+    def __repr__(self):
+        return "<SkinSurface name=%s surfaceproperty=%s >" % (str(self.name), str(self.surfaceproperty)) 
+
+
+class BorderSurface(DaeObject):
+    def __init__(self, name=None, surfaceproperty=None, physvolref1=None, physvolref2=None, xmlnode=None):
+        self.name = name
+        self.surfaceproperty = surfaceproperty
+        self.physvolref1 = physvolref1
+        self.physvolref2 = physvolref2
+        self.xmlnode = xmlnode
+    @staticmethod
+    def load(collada, localscope, xmlnode):
+        name = xmlnode.attrib['name']
+        surfaceproperty = xmlnode.attrib['surfaceproperty']
+        surfaceproperty = OpticalSurface.lookup( localscope, surfaceproperty)
+        physvolref = xmlnode.findall(tag('physvolref'))
+        assert len(physvolref) == 2
+        physvolref1 = physvolref[0].attrib['ref']     
+        physvolref2 = physvolref[1].attrib['ref']     
+        return BorderSurface(name, surfaceproperty, physvolref1, physvolref2, xmlnode)
+    def __repr__(self):
+        return "<BorderSurface name=%s surfaceproperty=%s >" % (str(self.name), str(self.surfaceproperty)) 
+
+
+class DAEExtra(DaeObject):
+    def __init__(self, opticalsurface=None, skinsurface=None, bordersurface=None, volmap=None, xmlnode=None):
+        self.opticalsurface = opticalsurface
+        self.skinsurface = skinsurface
+        self.bordersurface = bordersurface
+        self.volmap = volmap
+
+    @staticmethod 
+    def load(collada, localscope, xmlnode):
+        if 'surfaceproperty' not in localscope:
+            localscope['surfaceproperty'] = {} 
+
+        opticalsurface = []
+        for elem in xmlnode.findall(tag("opticalsurface")):
+            surf = OpticalSurface.load(collada, localscope, elem)
+            localscope['surfaceproperty'][surf.name] = surf
+            opticalsurface.append(surf)
+        log.info("loaded %s opticalsurface " % len(opticalsurface))
+
+        volmap = {}
+        skinsurface = []
+        for elem in xmlnode.findall(tag("skinsurface")):
+            skin = SkinSurface.load(collada, localscope, elem)
+            skinsurface.append(skin)
+            volmap[skin.volumeref] = skin
+
+        log.info("loaded %s skinsurface " % len(skinsurface))
+
+        bordersurface = []
+        for elem in xmlnode.findall(tag("bordersurface")):
+            bord = BorderSurface.load(collada, localscope, elem)
+            bordersurface.append(bord)
+            volmap[bord.physvolref1] = bord
+            volmap[bord.physvolref2] = bord
+        log.info("loaded %s bordersurface " % len(bordersurface))
+
+        pass
+        return DAEExtra(opticalsurface, skinsurface, bordersurface, volmap, xmlnode)
+
+    def __repr__(self):
+        return "%s skinsurface %s bordersurface %s opticalsurface %s volmap %s " % (self.__class__.__name__, len(self.skinsurface),len(self.bordersurface),len(self.opticalsurface), len(self.volmap)) 
+ 
+
+
+
 
 
 
