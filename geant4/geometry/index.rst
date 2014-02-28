@@ -19,5 +19,6 @@ Geant4 Geometry Export
    export/index
    renders/index
    materials/index
+   surfaces/index
    
 
