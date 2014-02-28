@@ -302,6 +302,7 @@ class DAENode(object):
     registry = []
     lookup = {}
     idlookup = {}
+    pvlookup = {}
     ids = set()
     created = 0
     root = None
@@ -343,10 +344,11 @@ class DAENode(object):
         cls.recurse(top)
         cls.summary()
         cls.indexlink( boundgeom )
-        cls.parse_extra( dae )
+        cls.parse_extra_surface( dae )
+        cls.parse_extra_material( dae )
 
     @classmethod
-    def parse_extra( cls, dae ):
+    def parse_extra_surface( cls, dae ):
         """
         """
         log.info("collecting opticalsurface/boundarysurface/skinsurface info from library_nodes/extra/")
@@ -355,6 +357,8 @@ class DAENode(object):
         assert extra is not None
         cls.extra = DAEExtra.load(collada, {}, extra) 
 
+    @classmethod
+    def parse_extra_material( cls, dae ):
         log.info("collecting extra material properties from library_materials/material/extra ")
         nextra = 0 
         for material in dae.materials:
@@ -367,7 +371,14 @@ class DAENode(object):
             pass 
         log.info("loaded %s extra elements with MaterialProperties " % nextra )             
 
-
+    @classmethod
+    def dump_extra_material( cls ):
+        log.info("dump_extra_material")
+        for material in cls.orig.materials:
+            if material.extra is not None:
+                print material
+                print material.extra 
+ 
 
     @classmethod
     def recurse(cls, node , ancestors=[], extras=[] ):
@@ -520,6 +531,13 @@ class DAENode(object):
 
         cls.registry.append(node)
         cls.idlookup[node.id] = node   
+
+        # a list of nodes for each pv.id as uniqueness is not enforced
+        pvid = node.pv.id
+        if pvid not in cls.pvlookup:
+            cls.pvlookup[pvid] = []
+        cls.pvlookup[pvid].append(node) 
+   
         cls.lookup[node.digest] = node   
         cls.created += 1
 
@@ -533,6 +551,10 @@ class DAENode(object):
         if cls.created % 1000 == 0:
             log.info("make %s : [%s] %s " % ( cls.created, id(node), node ))
         return node
+
+    @classmethod
+    def pvfind(cls, pvid ):
+        return cls.pvlookup.get(pvid,[])
 
     @classmethod
     def walk(cls, node=None, depth=0):
@@ -854,16 +876,36 @@ class OpticalSurface(DaeObject):
         return OpticalSurface(name, finish, model, type_, value, properties, xmlnode )
 
     def __repr__(self):
-        return "<OpticalSurface name=%s keys=%s >" % (str(self.name), str(self.properties.keys())) 
+        #return "<OpticalSurface %s >" % (str(",".join(self.properties.keys()))) 
+        return "%s" % (str(",".join(self.properties.keys()))) 
 
 
 
 class SkinSurface(DaeObject):
+    """
+    skinsurface/volumeref/@ref are LV names
+
+    ::
+
+        dump_skinsurface
+        [00] <SkinSurface PoolDetails__NearPoolSurfaces__NearPoolCoverSurface RINDEX,REFLECTIVITY >
+             PoolDetails__lvNearTopCover0xad9a470
+        [01] <SkinSurface AdDetails__AdSurfacesAll__RSOilSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
+             AdDetails__lvRadialShieldUnit0xaea9f58
+        [02] <SkinSurface AdDetails__AdSurfacesAll__AdCableTraySurface RINDEX,REFLECTIVITY >
+             AdDetails__lvAdVertiCableTray0xaf28da0
+        [03] <SkinSurface PoolDetails__PoolSurfacesAll__PmtMtTopRingSurface RINDEX,REFLECTIVITY >
+             PMT__lvPmtTopRing0xaf434c8
+        [04] <SkinSurface PoolDetails__PoolSurfacesAll__PmtMtBaseRingSurface RINDEX,REFLECTIVITY >
+             PMT__lvPmtBaseRing0xaf43520
+
+    """
     def __init__(self, name=None, surfaceproperty=None, volumeref=None, xmlnode=None):
         self.name = name
         self.surfaceproperty = surfaceproperty
         self.volumeref = volumeref
         self.xmlnode = xmlnode
+        self.debug = True
     @staticmethod
     def load(collada, localscope, xmlnode):
         name = xmlnode.attrib['name']
@@ -874,16 +916,99 @@ class SkinSurface(DaeObject):
         volumeref = volumeref.attrib['ref']     
         return SkinSurface(name, surfaceproperty, volumeref, xmlnode)
     def __repr__(self):
-        return "<SkinSurface name=%s surfaceproperty=%s >" % (str(self.name), str(self.surfaceproperty)) 
-
+        elide = "__dd__Geometry__"
+        name = str(self.name)
+        if name.startswith(elide):
+            name = name[len(elide):]
+        smry = "<SkinSurface %s %s >" % (name, str(self.surfaceproperty)) 
+        if self.debug:
+            lvr = self.volumeref
+            if lvr.startswith(elide):
+                lvr=lvr[len(elide):]
+            smry += "\n" + "     %s" % (lvr)
+        return smry
 
 class BorderSurface(DaeObject):
+    """ 
+    Hmm physvolref/@ref attributes are PV names, these cannot directly 
+    be matched against `node.id` as that has a uniquing count tacked on. 
+    Using pvlookup reveals that cannot match to precise PV in many cases
+    getting two possibilites (some from 2 AD).  
+
+    Maybe need to change G4DAE to pluck the uid at C++ level ? Or 
+    could be bug in BorderSurface creation ? Persisting has lost 
+    the association.
+
+    ::
+
+        dump_bordersurface
+
+        [00] <BorderSurface AdDetails__AdSurfacesAll__ESRAirSurfaceTop REFLECTIVITY >
+             pv1 (2) AdDetails__lvTopReflector--pvTopRefGap0xabcc228 
+               __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.0             __dd__Materials__Air0xab09580 
+               __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.1             __dd__Materials__Air0xab09580 
+             pv2 (2) AdDetails__lvTopRefGap--pvTopESR0xab4bd50 
+               __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.0             __dd__Materials__ESR0xaeaaeb8 
+               __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.1             __dd__Materials__ESR0xaeaaeb8 
+
+        [01] <BorderSurface AdDetails__AdSurfacesAll__ESRAirSurfaceBot REFLECTIVITY >
+             pv1 (2) AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8 
+               __dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8.0             __dd__Materials__Air0xab09580 
+               __dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8.1             __dd__Materials__Air0xab09580 
+             pv2 (2) AdDetails__lvBotRefGap--pvBotESR0xae4eda0 
+               __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.0             __dd__Materials__ESR0xaeaaeb8 
+               __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.1             __dd__Materials__ESR0xaeaaeb8 
+
+        [02] <BorderSurface AdDetails__AdSurfacesAll__SSTOilSurface REFLECTIVITY >
+             pv1 (2) AD__lvSST--pvOIL0xaa6d998 
+               __dd__Geometry__AD__lvSST--pvOIL0xaa6d998.0             __dd__Materials__MineralOil0xaecfd78 
+               __dd__Geometry__AD__lvSST--pvOIL0xaa6d998.1             __dd__Materials__MineralOil0xaecfd78 
+             pv2 (2) AD__lvADE--pvSST0xaba3f60 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
+
+        [03] <BorderSurface AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1 REFLECTIVITY >
+             pv1 (1) Pool__lvNearPoolIWS--pvNearADE10xaa9d608 
+               __dd__Geometry__Pool__lvNearPoolIWS--pvNearADE10xaa9d608.0             __dd__Materials__IwsWater0xab82978 
+             pv2 (2) AD__lvADE--pvSST0xaba3f60 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
+
+        [04] <BorderSurface AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2 REFLECTIVITY >
+             pv1 (1) Pool__lvNearPoolIWS--pvNearADE20xaaa18b8 
+               __dd__Geometry__Pool__lvNearPoolIWS--pvNearADE20xaaa18b8.0             __dd__Materials__IwsWater0xab82978 
+             pv2 (2) AD__lvADE--pvSST0xaba3f60 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
+               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
+
+        [05] <BorderSurface PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
+             pv1 (1) Pool__lvNearPoolCurtain--pvNearPoolIWS0xae08fa0 
+               __dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS0xae08fa0.0             __dd__Materials__IwsWater0xab82978 
+             pv2 (1) Pool__lvNearPoolOWS--pvNearPoolCurtain0xae9ba38 
+               __dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xae9ba38.0             __dd__Materials__Tyvek0xab26538 
+
+        [06] <BorderSurface PoolDetails__NearPoolSurfaces__NearOWSLinerSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
+             pv1 (1) Pool__lvNearPoolLiner--pvNearPoolOWS0xaa64f68 
+               __dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xaa64f68.0             __dd__Materials__OwsWater0xabb2118 
+             pv2 (1) Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300 
+               __dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0             __dd__Materials__Tyvek0xab26538 
+
+        [07] <BorderSurface PoolDetails__NearPoolSurfaces__NearDeadLinerSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
+             pv1 (1) Sites__lvNearHallBot--pvNearPoolDead0xaa63ff0 
+               __dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xaa63ff0.0             __dd__Materials__DeadWater0xaabb308 
+             pv2 (1) Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300 
+               __dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0             __dd__Materials__Tyvek0xab26538 
+
+        (chroma_env)delta:demo blyth$ 
+
+    """
     def __init__(self, name=None, surfaceproperty=None, physvolref1=None, physvolref2=None, xmlnode=None):
         self.name = name
         self.surfaceproperty = surfaceproperty
         self.physvolref1 = physvolref1
         self.physvolref2 = physvolref2
         self.xmlnode = xmlnode
+        self.debug = True
     @staticmethod
     def load(collada, localscope, xmlnode):
         name = xmlnode.attrib['name']
@@ -895,7 +1020,29 @@ class BorderSurface(DaeObject):
         physvolref2 = physvolref[1].attrib['ref']     
         return BorderSurface(name, surfaceproperty, physvolref1, physvolref2, xmlnode)
     def __repr__(self):
-        return "<BorderSurface name=%s surfaceproperty=%s >" % (str(self.name), str(self.surfaceproperty)) 
+        def elide_(s): 
+            elide = "__dd__Geometry__"
+            if s.startswith(elide):
+                return s[len(elide):]
+            return s
+        nlin = "\n     "
+        smry = "<BorderSurface %s %s >" % (elide_(self.name), str(self.surfaceproperty)) 
+        if self.debug:
+            pvr1 = elide_(self.physvolref1)
+            pv1 = DAENode.pvfind(self.physvolref1)
+            hdr1 = "pv1 (%s) %s " % (len(pv1), pvr1)
+            smry += nlin + nlin.join([hdr1]+map(str,pv1))
+
+            pvr2 = elide_(self.physvolref2)
+            pv2 = DAENode.pvfind(self.physvolref2)
+            hdr2 = "pv2 (%s) %s " % (len(pv2), pvr2)
+            smry += nlin + nlin.join([hdr2]+map(str,pv2))
+        return smry
+
+
+class VolMap(dict):
+    def __init__(self, *args, **kwa):
+        dict.__init__(self, *args, **kwa)
 
 
 class DAEExtra(DaeObject):
@@ -922,7 +1069,11 @@ class DAEExtra(DaeObject):
         for elem in xmlnode.findall(tag("skinsurface")):
             skin = SkinSurface.load(collada, localscope, elem)
             skinsurface.append(skin)
-            volmap[skin.volumeref] = skin
+
+            if skin.volumeref not in volmap:
+                volmap[skin.volumeref] = []
+            pass
+            volmap[skin.volumeref].append(skin)
 
         log.info("loaded %s skinsurface " % len(skinsurface))
 
@@ -930,8 +1081,15 @@ class DAEExtra(DaeObject):
         for elem in xmlnode.findall(tag("bordersurface")):
             bord = BorderSurface.load(collada, localscope, elem)
             bordersurface.append(bord)
-            volmap[bord.physvolref1] = bord
-            volmap[bord.physvolref2] = bord
+
+            if bord.physvolref1 not in volmap:
+                volmap[bord.physvolref1] = []
+            volmap[bord.physvolref1].append(bord)
+
+            if bord.physvolref2 not in volmap:
+                volmap[bord.physvolref2] = []
+            volmap[bord.physvolref2].append(bord)
+
         log.info("loaded %s bordersurface " % len(bordersurface))
 
         pass
@@ -940,7 +1098,23 @@ class DAEExtra(DaeObject):
     def __repr__(self):
         return "%s skinsurface %s bordersurface %s opticalsurface %s volmap %s " % (self.__class__.__name__, len(self.skinsurface),len(self.bordersurface),len(self.opticalsurface), len(self.volmap)) 
  
-
+    def dump_skinsurface(self):
+        print "dump_skinsurface" 
+        print "\n".join(map(lambda kv:"[%-0.2d] %s" % (kv[0],str(kv[1])),enumerate(self.skinsurface))) 
+    def dump_bordersurface(self):
+        print "dump_bordersurface" 
+        print "\n".join(map(lambda kv:"[%-0.2d] %s" % (kv[0],str(kv[1])),enumerate(self.bordersurface))) 
+    def dump_opticalsurface(self):
+        print "\n".join(map(str,self.opticalsurface)) 
+    def dump_volmap(self):
+       for iv,(v,ss) in enumerate(self.volmap.items()):
+           if len(ss) == 1:continue # focus only on volumes with more than 1 associated surfaces
+           print 
+           print iv, len(ss), v
+           for j, s in enumerate(ss):
+               print "   ", j, s
+           pass 
+       print self
 
 
 
