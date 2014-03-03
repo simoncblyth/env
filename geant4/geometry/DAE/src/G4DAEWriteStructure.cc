@@ -352,6 +352,7 @@ G4DAEWriteStructure::GetSkinSurface(const G4LogicalVolume* const lvol)
 
 /*
  *  Return first G4LogicalBorderSurface* associated with a G4VPhysicalVolume* 
+ *  hmm no regard for CopyNo ?
  */
 const G4LogicalBorderSurface*
 G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
@@ -360,6 +361,7 @@ G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
   G4int nsurf = G4LogicalBorderSurface::GetNumberOfBorderSurfaces();
   if (nsurf)
   {
+    G4cout << "G4DAE::GetBorderSurface ... " << pvol->GetName() << "[" << pvol->GetCopyNo() << "]" << G4endl;
     const G4LogicalBorderSurfaceTable* btable =
           G4LogicalBorderSurface::GetSurfaceTable();
     std::vector<G4LogicalBorderSurface*>::const_iterator pos;
