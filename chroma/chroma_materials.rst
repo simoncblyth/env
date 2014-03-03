@@ -383,3 +383,36 @@ fill_state
    wavelength array properties into COLLADA extra tags
 
 
+
+
+material_codes
+~~~~~~~~~~~~~~~~~
+
+
+packed in `chroma/geometry.py` 4 bytes, high to low: `material1/material2/surface/blank` ::
+
+       material_codes = (((geometry.material1_index & 0xff) << 24) |
+                         ((geometry.material2_index & 0xff) << 16) |
+                         ((geometry.surface_index & 0xff) << 8)).astype(np.uint32)
+       self.material_codes = ga.to_gpu(material_codes)
+
+
+unpacked::
+
+    92 
+    93     unsigned int material_code = g->material_codes[p.last_hit_triangle];
+    94 
+    95     int inner_material_index = convert(0xFF & (material_code >> 24));
+    96     int outer_material_index = convert(0xFF & (material_code >> 16));
+    97     s.surface_index = convert(0xFF & (material_code >> 8));
+ 
+
+
+suggests correspondence:
+
+* material1 is inner
+* material2 is outer
+
+
+
+

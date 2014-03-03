@@ -5,4 +5,6 @@ surfaces
 .. toctree::
 
    bordersurface
+   opticalsurface
+
 

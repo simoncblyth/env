@@ -303,6 +303,7 @@ class DAENode(object):
     lookup = {}
     idlookup = {}
     pvlookup = {}
+    lvlookup = {}
     ids = set()
     created = 0
     root = None
@@ -532,11 +533,18 @@ class DAENode(object):
         cls.registry.append(node)
         cls.idlookup[node.id] = node   
 
-        # a list of nodes for each pv.id as uniqueness is not enforced
+        # a list of nodes for each pv.id, need for a list is not so obvious, maybe GDML PV identity bug ?
         pvid = node.pv.id
         if pvid not in cls.pvlookup:
             cls.pvlookup[pvid] = []
         cls.pvlookup[pvid].append(node) 
+
+        # list of nodes for each lv.id, need for a list is obvious
+        lvid = node.lv.id
+        if lvid not in cls.lvlookup:
+            cls.lvlookup[lvid] = []
+        cls.lvlookup[lvid].append(node) 
+
    
         cls.lookup[node.digest] = node   
         cls.created += 1
@@ -555,6 +563,10 @@ class DAENode(object):
     @classmethod
     def pvfind(cls, pvid ):
         return cls.pvlookup.get(pvid,[])
+
+    @classmethod
+    def lvfind(cls, lvid ):
+        return cls.lvlookup.get(lvid,[])
 
     @classmethod
     def walk(cls, node=None, depth=0):
@@ -857,11 +869,17 @@ class OpticalSurface(DaeObject):
         return localscope['surfaceproperty'][surfaceproperty]
 
     def __init__(self, name=None, finish=None, model=None, type_=None, value=None, properties=None, xmlnode=None):
+        """
+        Reference
+
+        * `materials/include/G4OpticalSurface.hh`
+
+        """
         self.name = name
-        self.finish = finish
-        self.model = model
-        self.type_ = type_
-        self.value = value
+        self.finish = finish # 0:polished (smooth perfectly polished surface) 3:ground (rough surface)   (mostly "ground", ESR interfaces "polished")
+        self.model = model   # 0:glisur  1:UNIFIED  2:LUT   (all are UNIFIED)
+        self.type_ = type_   # 0:dielectric_metal 1:dielectric_dielectric     (all are dielectric_metal)
+        self.value = value   # 1. 0. (ESRAir) or 0.2 (Pool Curtain/Liner)
         self.properties = properties
         self.xmlnode = xmlnode
 
@@ -876,8 +894,8 @@ class OpticalSurface(DaeObject):
         return OpticalSurface(name, finish, model, type_, value, properties, xmlnode )
 
     def __repr__(self):
-        #return "<OpticalSurface %s >" % (str(",".join(self.properties.keys()))) 
-        return "%s" % (str(",".join(self.properties.keys()))) 
+        return "<OpticalSurface f%s m%s t%s v%s p%s >" % (self.finish,self.model,self.type_,self.value,str(",".join(["%s:%s" % (k,len(self.properties[k])) for k in self.properties]))) 
+        #return "%s" % (str(",".join(self.properties.keys()))) 
 
 
 
@@ -925,7 +943,8 @@ class SkinSurface(DaeObject):
             lvr = self.volumeref
             if lvr.startswith(elide):
                 lvr=lvr[len(elide):]
-            smry += "\n" + "     %s" % (lvr)
+            lvn = DAENode.lvfind(self.volumeref)  # lvfind lookup forces the parsing order
+            smry += "\n" + "     %s %s " % (lvr, len(lvn))
         return smry
 
 class BorderSurface(DaeObject):
