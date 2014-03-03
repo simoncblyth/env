@@ -43,48 +43,58 @@ g4-rebuild-env(){
 
 g4-libs-marker(){ echo $G4INSTALL/lib/$G4SYSTEM/libG4run.so ; }
 g4-libs-ls(){ ls -l $G4INSTALL/lib/$G4SYSTEM ; }
-g4-libs-rebuild(){
-
-   g4-rebuild-env
-
+g4-libs-rmmk(){
    local marker=$(g4-libs-marker)
    if [ -f "$marker" ]; then 
       echo $msg : removing $marker
       rm -rf $marker
    fi   
-   cmt pkg_make 
+}
 
+g4-libs-rebuild(){
+   g4-rebuild-env
+   g4-libs-rmmk
+   cmt pkg_make 
 }
 
 
 g4-libname-marker(){ echo $G4INSTALL/lib/$G4SYSTEM/libname.map ; }
 g4-libname-ls(){  ls -l $(g4-libname-marker) ; }
-g4-libname-rebuild(){
-
-   g4-rebuild-env
-
+g4-libname-rmmk(){
    local marker=$(g4-libname-marker)
    if [ -f "$marker" ]; then 
       echo $msg : removing $marker
       rm -rf $marker
-   fi   
+   fi 
+}
+g4-libname-rebuild(){
+   g4-rebuild-env
+   g4-libname-rmmk
    cmt pkg_make 
-
 }
 
 
 
+
+g4-rmmk(){
+   #g4-libs-rmmk
+   g4-includes-rmmk
+   g4-libname-rmmk
+}
+
 g4-includes-marker(){ echo $G4INSTALL/include/G4Version.hh ; }
 g4-includes-ls(){  ls -l $G4INSTALL/include ; }
-g4-includes-rebuild(){
-
-   g4-rebuild-env
-
+g4-includes-rmmk(){
    local marker=$(g4-includes-marker)
    if [ -f "$marker" ]; then 
       echo $msg : removing $marker
       rm -rf $marker
    fi   
+}
+g4-includes-rebuild(){
+
+   g4-rebuild-env
+   g4-includes-rmmk
    cmt pkg_make 
 
 }

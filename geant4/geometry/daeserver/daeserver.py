@@ -50,13 +50,25 @@ from env.geant4.geometry.collada.daenode import DAENode, getSubCollada, DAESubTr
 opts = None
 
 class Defaults(object):
+    """
+    daepath is updated as new features are added via manual copies from 
+    export directories on N, eg with::
+
+        [blyth@belle7 DVGX_20140222-1423]$ pwd
+        /data1/env/local/env/geant4/geometry/export/DVGX_20140222-1423
+        [blyth@belle7 DVGX_20140222-1423]$ cp g4_00.dae ../../daeserver/DVGX_20140222-1423_g4_00.dae
+        [blyth@belle7 DVGX_20140222-1423]$ md5sum ../../daeserver/DVGX_20140222-1423_g4_00.dae
+        133f851d31ff840a75d1ef71f0e13379  ../../daeserver/DVGX_20140222-1423_g4_00.dae
+ 
+    """
     logpath = None
     loglevel = "INFO"
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
 
     #daepath = "$LOCAL_BASE/env/geant4/geometry/xdae/g4_01.dae"
     #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20131121-2053_g4_00.dae"
-    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
+    #daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/VDGX_20131121-2043_g4_00.dae"
+    daepath = "$LOCAL_BASE/env/geant4/geometry/daeserver/DVGX_20140222-1423_g4_00.dae"    # aka g4_00.dae.6
     port = "8080"
     webpy = "scgi"
     uploads = False
