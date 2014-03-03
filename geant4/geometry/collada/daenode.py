@@ -375,8 +375,8 @@ class DAENode(object):
     def dump_extra_material( cls ):
         log.info("dump_extra_material")
         for material in cls.orig.materials:
+            print material
             if material.extra is not None:
-                print material
                 print material.extra 
  
 
@@ -930,175 +930,6 @@ class SkinSurface(DaeObject):
 
 class BorderSurface(DaeObject):
     """ 
-    Hmm physvolref/@ref attributes are PV names, these cannot directly 
-    be matched against `node.id` as that has a uniquing count tacked on. 
-    Using pvlookup reveals that cannot match to precise PV in many cases
-    getting two possibilites one from each of the 2 AD.  
-
-    Maybe need to change G4DAE to pluck the uid at C++ level ? Or 
-    could be bug in BorderSurface creation ? Persisting has lost 
-    the association.
-
-    ::
-
-        dump_bordersurface
-
-        [00] <BorderSurface AdDetails__AdSurfacesAll__ESRAirSurfaceTop REFLECTIVITY >
-
-             pv1 (2) AdDetails__lvTopReflector--pvTopRefGap0xabcc228 
-               __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.0             __dd__Materials__Air0xab09580 
-               __dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.1             __dd__Materials__Air0xab09580 
-
-             pv2 (2) AdDetails__lvTopRefGap--pvTopESR0xab4bd50 
-               __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.0             __dd__Materials__ESR0xaeaaeb8 
-               __dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.1             __dd__Materials__ESR0xaeaaeb8 
-
-
-            Oil http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvSST--pvOIL0xaa6d998.0.html
-                http://belle7.nuu.edu.tw/dae/tree/3155.html  (many children)
-
-            Acr http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvOIL--pvTopReflector0xab22490.0.html
-                http://belle7.nuu.edu.tw/dae/tree/4425.html    (Acrylic, single child)
-
-            pv1 http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.0___4.html
-            pv1 http://belle7.nuu.edu.tw/dae/tree/4426___4.html  (Air, single child)
-
-            pv2 http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.0.html
-            pv2 http://belle7.nuu.edu.tw/dae/tree/4427.html   (EST, leaf )
-          
-
-            http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xabcc228.1___4.html
-            http://belle7.nuu.edu.tw/dae/tree/6086___4.html
-            http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xab4bd50.1.html
-            http://belle7.nuu.edu.tw/dae/tree/6087.html
-            
-            This bordersurface pair are (single-parent)-(single-child) with the child being leaf node
-            The PV ambiguity is between the two ADs.
-            Construction is simarly shaped discs 
-            
-                      Oil-Acrylic-Air-ESR
-                                  pv1 pv2
-
-            Double ambiguity, should yield two border surfaces ... the parent child pairings
-            can be used to break ambiguity ?
-
-
-        [01] <BorderSurface AdDetails__AdSurfacesAll__ESRAirSurfaceBot REFLECTIVITY >
-             pv1 (2) AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8 
-               __dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8.0             __dd__Materials__Air0xab09580 
-               __dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xaa6e3d8.1             __dd__Materials__Air0xab09580 
-             pv2 (2) AdDetails__lvBotRefGap--pvBotESR0xae4eda0 
-               __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.0             __dd__Materials__ESR0xaeaaeb8 
-               __dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xae4eda0.1             __dd__Materials__ESR0xaeaaeb8 
-
-             Presumably same pattern as top reflector 
-
-             Double ambiguity, means this should yield two surfaces... one for each AD
-
-
-        [02] <BorderSurface AdDetails__AdSurfacesAll__SSTOilSurface REFLECTIVITY >
-             pv1 (2) AD__lvSST--pvOIL0xaa6d998 
-               __dd__Geometry__AD__lvSST--pvOIL0xaa6d998.0             __dd__Materials__MineralOil0xaecfd78 
-               __dd__Geometry__AD__lvSST--pvOIL0xaa6d998.1             __dd__Materials__MineralOil0xaecfd78 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvSST--pvOIL0xaa6d998.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3155.html   Oil
-               
-             pv2 (2) AD__lvADE--pvSST0xaba3f60 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvADE--pvSST0xaba3f60.0.html 
-               http://belle7.nuu.edu.tw/dae/tree/3154.html
-                          (4 children, one of which os the Oil)
-
-             child(Oil)-parent(Steel) border
-
-             Thanks to the double ambiguity, this should yield two surfaces ? One for each AD
-
-
-
-        [03] <BorderSurface AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1 REFLECTIVITY >
-             pv1 (1) Pool__lvNearPoolIWS--pvNearADE10xaa9d608 
-               __dd__Geometry__Pool__lvNearPoolIWS--pvNearADE10xaa9d608.0             __dd__Materials__IwsWater0xab82978 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE10xaa9d608.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3153___1.html   cylindrical Iws containing SST
-
-             pv2 (2) AD__lvADE--pvSST0xaba3f60 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvADE--pvSST0xaba3f60.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3154.html
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__AD__lvADE--pvSST0xaba3f60.1.html
-               http://belle7.nuu.edu.tw/dae/tree/4814.html
-
-               Parent(water)-child(Steel), 
-
-        [04] <BorderSurface AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2 REFLECTIVITY >
-             pv1 (1) Pool__lvNearPoolIWS--pvNearADE20xaaa18b8 
-               __dd__Geometry__Pool__lvNearPoolIWS--pvNearADE20xaaa18b8.0             __dd__Materials__IwsWater0xab82978 
-
-             pv2 (2) AD__lvADE--pvSST0xaba3f60 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.0             __dd__Materials__StainlessSteel0xadf7930 
-               __dd__Geometry__AD__lvADE--pvSST0xaba3f60.1             __dd__Materials__StainlessSteel0xadf7930 
-
-             Same for other AD, no ambiguity for pv1 but is for pv2
- 
-
-
-        [05] <BorderSurface PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
-             pv1 (1) Pool__lvNearPoolCurtain--pvNearPoolIWS0xae08fa0 
-               __dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS0xae08fa0.0             __dd__Materials__IwsWater0xab82978 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS0xae08fa0.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3152.html
-
-
-             pv2 (1) Pool__lvNearPoolOWS--pvNearPoolCurtain0xae9ba38 
-               __dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xae9ba38.0             __dd__Materials__Tyvek0xab26538 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xae9ba38.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3151.html
-
-               child-parent
-
-
-
-        [06] <BorderSurface PoolDetails__NearPoolSurfaces__NearOWSLinerSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
-             pv1 (1) Pool__lvNearPoolLiner--pvNearPoolOWS0xaa64f68 
-               __dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xaa64f68.0             __dd__Materials__OwsWater0xabb2118 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xaa64f68.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3150.html
-
-             pv2 (1) Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300 
-               __dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0             __dd__Materials__Tyvek0xab26538 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3149.html
-
-               child-parent 
-
-
-        [07] <BorderSurface PoolDetails__NearPoolSurfaces__NearDeadLinerSurface BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT,REFLECTIVITY,SPECULARLOBECONSTANT >
-
-             pv1 (1) Sites__lvNearHallBot--pvNearPoolDead0xaa63ff0 
-               __dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xaa63ff0.0             __dd__Materials__DeadWater0xaabb308 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xaa63ff0.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3148.html
-
-             pv2 (1) Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300 
-               __dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0             __dd__Materials__Tyvek0xab26538 
-
-               http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xab6b300.0.html
-               http://belle7.nuu.edu.tw/dae/tree/3149.html
-
-             parent-child    
-
-
     """
     def __init__(self, name=None, surfaceproperty=None, physvolref1=None, physvolref2=None, xmlnode=None):
         self.name = name
@@ -1127,7 +958,7 @@ class BorderSurface(DaeObject):
         smry = "<BorderSurface %s %s >" % (elide_(self.name), str(self.surfaceproperty)) 
         if self.debug:
             pvr1 = elide_(self.physvolref1)
-            pv1 = DAENode.pvfind(self.physvolref1)
+            pv1 = DAENode.pvfind(self.physvolref1)  # pvfind lookup forces the parsing order
             hdr1 = "pv1 (%s) %s " % (len(pv1), pvr1)
             smry += nlin + nlin.join([hdr1]+map(str,pv1))
 
@@ -1144,11 +975,12 @@ class VolMap(dict):
 
 
 class DAEExtra(DaeObject):
-    def __init__(self, opticalsurface=None, skinsurface=None, bordersurface=None, volmap=None, xmlnode=None):
+    def __init__(self, opticalsurface=None, skinsurface=None, bordersurface=None, skinmap=None, bordermap=None, xmlnode=None):
         self.opticalsurface = opticalsurface
         self.skinsurface = skinsurface
         self.bordersurface = bordersurface
-        self.volmap = volmap
+        self.skinmap = skinmap
+        self.bordermap = bordermap
 
     @staticmethod 
     def load(collada, localscope, xmlnode):
@@ -1162,39 +994,41 @@ class DAEExtra(DaeObject):
             opticalsurface.append(surf)
         log.info("loaded %s opticalsurface " % len(opticalsurface))
 
-        volmap = {}
+        skinmap = {}
         skinsurface = []
         for elem in xmlnode.findall(tag("skinsurface")):
             skin = SkinSurface.load(collada, localscope, elem)
             skinsurface.append(skin)
 
-            if skin.volumeref not in volmap:
-                volmap[skin.volumeref] = []
+            if skin.volumeref not in skinmap:
+                skinmap[skin.volumeref] = []
             pass
-            volmap[skin.volumeref].append(skin)
+            skinmap[skin.volumeref].append(skin)
 
         log.info("loaded %s skinsurface " % len(skinsurface))
 
+        bordermap = {}
         bordersurface = []
         for elem in xmlnode.findall(tag("bordersurface")):
             bord = BorderSurface.load(collada, localscope, elem)
             bordersurface.append(bord)
 
-            if bord.physvolref1 not in volmap:
-                volmap[bord.physvolref1] = []
-            volmap[bord.physvolref1].append(bord)
+            if bord.physvolref1 not in bordermap:
+                bordermap[bord.physvolref1] = []
+            bordermap[bord.physvolref1].append(bord)
 
-            if bord.physvolref2 not in volmap:
-                volmap[bord.physvolref2] = []
-            volmap[bord.physvolref2].append(bord)
+            if bord.physvolref2 not in bordermap:
+                bordermap[bord.physvolref2] = []
+            bordermap[bord.physvolref2].append(bord)
 
         log.info("loaded %s bordersurface " % len(bordersurface))
 
         pass
-        return DAEExtra(opticalsurface, skinsurface, bordersurface, volmap, xmlnode)
+        return DAEExtra(opticalsurface, skinsurface, bordersurface, skinmap, bordermap, xmlnode)
 
     def __repr__(self):
-        return "%s skinsurface %s bordersurface %s opticalsurface %s volmap %s " % (self.__class__.__name__, len(self.skinsurface),len(self.bordersurface),len(self.opticalsurface), len(self.volmap)) 
+        return "%s skinsurface %s bordersurface %s opticalsurface %s skinmap %s bordermap %s " % (self.__class__.__name__, 
+             len(self.skinsurface),len(self.bordersurface),len(self.opticalsurface), len(self.skinmap),len(self.bordermap)) 
  
     def dump_skinsurface(self):
         print "dump_skinsurface" 
@@ -1204,15 +1038,26 @@ class DAEExtra(DaeObject):
         print "\n".join(map(lambda kv:"[%-0.2d] %s" % (kv[0],str(kv[1])),enumerate(self.bordersurface))) 
     def dump_opticalsurface(self):
         print "\n".join(map(str,self.opticalsurface)) 
-    def dump_volmap(self):
-       for iv,(v,ss) in enumerate(self.volmap.items()):
-           if len(ss) == 1:continue # focus only on volumes with more than 1 associated surfaces
-           print 
-           print iv, len(ss), v
-           for j, s in enumerate(ss):
-               print "   ", j, s
-           pass 
-       print self
+
+    def dump_skinmap(self):
+        print "dump_skinmap" 
+        for iv,(v,ss) in enumerate(self.skinmap.items()):
+            print 
+            print iv, len(ss), v
+            for j, s in enumerate(ss):
+                print "   ", j, s
+            pass 
+        print self
+
+    def dump_bordermap(self):
+        print "dump_bordermap" 
+        for iv,(v,ss) in enumerate(self.bordermap.items()):
+            print 
+            print iv, len(ss), v
+            for j, s in enumerate(ss):
+                print "   ", j, s
+            pass 
+        print self
 
 
 
