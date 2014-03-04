@@ -53,7 +53,27 @@ class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     zippath = None  
     report = False
-    ignoretype = "cmt" 
+    patch = False
+    ignoreflavor = "cmt" 
+    patchdir = 'patches'
+    name = None
+
+
+def name_from_args(args):
+    assert len(args) == 2 , "expecting 2 directory name arguments"
+    a, b = args
+    name = None
+    log.info("a [%s]%s b [%s]%s " % ( len(a), a, len(b), b, ))
+    if len(a) > len(b):
+        log.info("a > b  ")
+        if a.startswith(b):
+            log.info("a > b : a startswith b ")
+            name = b
+    else:
+        if b.startswith(a):
+            log.info("a < b : b startswith a ")
+            name = a
+    return name
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -62,9 +82,12 @@ def parse_args(doc):
     op.add_option("-o", "--logpath", default=defopts.logpath , help="logging path" )
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG. Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
-    op.add_option("-t", "--ignoretype", default=defopts.ignoretype , help="Ignore type string, eg qt/cmt " )
+    op.add_option("-t", "--ignoreflavor", default=defopts.ignoreflavor , help="Ignore flavor string, eg qt/cmt " )
     op.add_option("-z", "--zippath", default=defopts.zippath , help="Path to zipfile to be created. Default %default ")
+    op.add_option("-d", "--patchdir", default=defopts.patchdir , help="Path to patchdir to be created if not existing and populated. Default %default ")
+    op.add_option("-p", "--patch",  action="store_true", default=defopts.patch , help="Switch on patch creation. Default %default ")
     op.add_option("-r", "--report", action="store_true", default=defopts.report , help="Full closure report. Default %default ")
+    op.add_option("-i", "--name",  default=defopts.name , help="Identifier for the diff . Default %default ")
 
     opts, args = op.parse_args()
 
@@ -82,25 +105,14 @@ def parse_args(doc):
     log.info(" ".join(sys.argv))
     if not opts.zippath is None:
         opts.zippath = os.path.expandvars(os.path.expanduser(opts.zippath))
+
+    if opts.name is None:
+        opts.name = name_from_args( args )
+    assert opts.name is not None, "unable to discern a name for the diff from arguments %s , see manually with -i name" % args
+
+    log.info("diff name %s " % opts.name)
     return opts, args
 
-
-
-
-class qt(object):
-    """
-    Specification of files typically generated
-    when building qt projects with qmake. Which 
-    should be ignored when interested in source only.
-    """
-    heads=["moc_","ui_","qrc_","Makefile."]
-    types=[".o",".so",".dylib",".app"]
-    names=["macx","Makefile",".DS_Store"]
-
-class cmt(object):
-    heads=["Makefile."]
-    types=[".o",".so",".dylib",".app"]
-    names=["setup.sh","setup.csh","cleanup.sh","cleanup.csh","Makefile",".DS_Store"]
 
 
 class Diff(dict):
@@ -108,13 +120,11 @@ class Diff(dict):
     For comparing similar directory trees, looking for files
     that differ.
     """ 
-
-    def __init__(self, l,r, ignore=None ):
-        dict.__init__(self, **kwa )
+    def __init__(self, l,r ):
+        dict.__init__(self)
         self.update(diff=[],left=[],right=[])
-        top = dircmp(l,r, ignore.names )
+        top = dircmp(l,r, self.ignore.names )
         self.top = top
-        self.ignore = ignore 
         self.recurse(top)
 
     def collect(self, label, rec):
@@ -150,10 +160,10 @@ class Diff(dict):
 
     def ignore_type(self, name):
         base, ext = os.path.splitext(name)
-        return ext in self['ignore_file_types']
+        return ext in self.ignore.types
 
     def ignore_head(self, name):
-        for ighead in self['ignore_file_heads']:
+        for ighead in self.ignore.heads:
             if name.startswith(ighead):return True
         return False
 
@@ -193,17 +203,86 @@ def zipdiff( diff, zippath, keys ):
     zf.close()
 
 
+class qt(object):
+    """
+    Specification of files typically generated
+    when building qt projects with qmake. Which 
+    should be ignored when interested in source only.
+    """
+    heads=["moc_","ui_","qrc_","Makefile."]
+    types=[".o",".so",".dylib",".app"]
+    names=["macx","Makefile",".DS_Store"]
+
+class cmt(object):
+    heads=["Makefile."]
+    types=[".o",".so",".dylib",".app"]
+    names=["setup.sh","setup.csh","cleanup.sh","cleanup.csh","Makefile",".DS_Store"]
+
+
+class QtDiff(Diff):
+    ignore = qt()
+
+class CMTDiff(Diff):
+    ignore = cmt()
+
+
+def patch( diff, opts ):
+    """
+    Create separate patch files for each file with differences
+    Usage example::
+
+        [blyth@belle7 g4checkpatch]$ diff.py geant4.9.2.p01.orig geant4.9.2.p01 -p
+        [blyth@belle7 g4checkpatch]$ l patches/
+        total 92
+        -rw-rw-r-- 1 blyth blyth  388 Mar  4 20:15 geant4.9.2.p01_environments_g4py_config_module.gmk.patch
+        -rw-rw-r-- 1 blyth blyth  418 Mar  4 20:15 geant4.9.2.p01_environments_g4py_configure.patch
+        -rw-rw-r-- 1 blyth blyth  384 Mar  4 20:15 geant4.9.2.p01_source_digits_hits_utils_src_G4ScoreLogColorMap.cc.patch
+        -rw-rw-r-- 1 blyth blyth  407 Mar  4 20:15 geant4.9.2.p01_source_digits_hits_utils_src_G4VScoreColorMap.cc.patch
+        -rw-rw-r-- 1 blyth blyth 1230 Mar  4 20:15 geant4.9.2.p01_source_geometry_solids_Boolean_src_G4SubtractionSolid.cc.patch
+        -rw-rw-r-- 1 blyth blyth  680 Mar  4 20:15 geant4.9.2.p01_source_materials_include_G4MaterialPropertiesTable.hh.patch
+        -rw-rw-r-- 1 blyth blyth  888 Mar  4 20:15 geant4.9.2.p01_source_materials_include_G4MaterialPropertyVector.hh.patch
+        -rw-rw-r-- 1 blyth blyth  934 Mar  4 20:15 geant4.9.2.p01_source_materials_src_G4MaterialPropertiesTable.cc.patch
+        -rw-rw-r-- 1 blyth blyth 4080 Mar  4 20:15 geant4.9.2.p01_source_materials_src_G4MaterialPropertyVector.cc.patch
+        -rw-rw-r-- 1 blyth blyth  429 Mar  4 20:15 geant4.9.2.p01_source_persistency_gdml_include_G4GDMLWrite.hh.patch
+        -rw-rw-r-- 1 blyth blyth 2346 Mar  4 20:15 geant4.9.2.p01_source_persistency_gdml_src_G4GDMLWrite.cc.patch
+        -rw-rw-r-- 1 blyth blyth 1517 Mar  4 20:15 geant4.9.2.p01_source_processes_electromagnetic_lowenergy_src_G4hLowEnergyLoss.cc.patch
+        -rw-rw-r-- 1 blyth blyth  393 Mar  4 20:15 geant4.9.2.p01_source_processes_hadronic_processes_include_G4ElectronNuclearProcess.hh.patch
+        -rw-rw-r-- 1 blyth blyth  383 Mar  4 20:15 geant4.9.2.p01_source_processes_hadronic_processes_include_G4PhotoNuclearProcess.hh.patch
+        -rw-rw-r-- 1 blyth blyth  898 Mar  4 20:15 geant4.9.2.p01_source_processes_hadronic_processes_include_G4PositronNuclearProcess.hh.patch
+        -rw-rw-r-- 1 blyth blyth  765 Mar  4 20:15 geant4.9.2.p01_source_processes_hadronic_processes_src_G4ElectronNuclearProcess.cc.patch
+        -rw-rw-r-- 1 blyth blyth  737 Mar  4 20:15 geant4.9.2.p01_source_processes_hadronic_processes_src_G4PhotoNuclearProcess.cc.patch
+        -rw-rw-r-- 1 blyth blyth 1307 Mar  4 20:15 geant4.9.2.p01_source_processes_optical_include_G4OpBoundaryProcess.hh.patch
+        -rw-rw-r-- 1 blyth blyth  406 Mar  4 20:15 geant4.9.2.p01_source_visualization_HepRep_include_cheprep_DeflateOutputStreamBuffer.h.patch
+        -rw-rw-r-- 1 blyth blyth  666 Mar  4 20:15 geant4.9.2.p01_source_visualization_VRML_GNUmakefile.patch
+        -rw-rw-r-- 1 blyth blyth  663 Mar  4 20:15 geant4.9.2.p01_source_visualization_VRML_include_G4VRML2FileSceneHandler.hh.patch
+        -rw-rw-r-- 1 blyth blyth 1634 Mar  4 20:15 geant4.9.2.p01_source_visualization_VRML_src_G4VRML2FileSceneHandler.cc.patch
+        -rw-rw-r-- 1 blyth blyth  711 Mar  4 20:15 geant4.9.2.p01_source_visualization_VRML_src_G4VRML2SceneHandlerFunc.icc.patch
+
+    """
+    if not os.path.exists( opts.patchdir ):
+        log.info("creating patchdir %s " % opts.patchdir )
+        os.makedirs(opts.patchdir)
+
+    def identity(_):
+        return "%s_%s" % ( opts.name, _[0].replace("/","_") )
+ 
+    for _ in diff['diff']:
+        ctx = dict(left=_[1], right=_[2], id=identity(_), patchdir=opts.patchdir )
+        cmd = "diff -u %(left)s %(right)s > %(patchdir)s/%(id)s.patch " % ctx 
+        for line in os.popen(cmd).read():
+            print line
+
 
 def main():
     opts, args = parse_args(__doc__) 
-    if opts.ignoretype == "qt":
-        ignore = qt() 
-    elif opts.ignoretype == "cmt":
-        ignore = cmt() 
+    if opts.ignoreflavor == "qt":
+        cls = QtDiff
+    elif opts.ignoreflavor == "cmt":
+        cls = CMTDiff 
     else:
         assert 0, "unhandled ignoretype %s " % opts.ignoretype
 
-    diff = Diff( *args , ignore=ignore )
+    diff = cls( *args )
     if opts.report:
         print diff.top.report_full_closure()
 
@@ -217,6 +296,10 @@ def main():
         keys = "diff right".split()
         log.info("writing %s to zippath %s " % ( keys, zippath ))
         zipdiff( diff, zippath, keys )
+
+    if opts.patch:
+        patch( diff, opts )
+       
 
 
 if __name__ == '__main__':

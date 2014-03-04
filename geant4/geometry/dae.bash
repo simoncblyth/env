@@ -76,6 +76,28 @@ dae-get
         grab latest .dae from N via http
 
 
+LCG Builder-ization
+---------------------
+
+Ape the geant4 build with ::
+
+    fenv
+    cd $SITEROOT/lcgcmt/LCG_Builders/geant4/cmt
+    cmt config
+    . setup.sh
+
+    cmt pkg_get      # looks to not use the script
+    cmt pkg_config
+    cmt pkg_make
+    cmt pkg_install
+
+Considered a separate LCG_Builder for g4dae, but that 
+makes things more complicated. It is essentially a
+rather extended patch against Geant4.
+
+See also geant4/geometry/export/nuwa_integration
+
+
 
 EOU
 }

@@ -40,6 +40,22 @@ nuwa-utils(){
         rather than every new session
 
 
+Greenfield build took about 5hrs::
+
+    [blyth@belle7 dyb]$ ll
+    total 32928
+    -rwxrwxr-x  1 blyth blyth    29654 May 10  2013 dybinst
+    drwxr-xr-x  9 blyth root      4096 Mar  3 14:54 ..
+    drwxrwxr-x  3 blyth blyth     4096 Mar  3 14:55 installation
+    lrwxrwxrwx  1 blyth blyth       27 Mar  3 14:55 dybinst-recent.log -> dybinst-20140303-145546.log
+    drwxrwxr-x 10 blyth blyth     4096 Mar  3 14:57 NuWa-trunk
+    drwxrwxr-x  5 blyth blyth     4096 Mar  3 16:00 .
+    drwxrwxr-x 33 blyth blyth     4096 Mar  3 17:21 external
+    -rw-rw-r--  1 blyth blyth 33617403 Mar  3 20:04 dybinst-20140303-145546.log
+    [blyth@belle7 dyb]$ cd external/
+
+
+
 
 
 EOX
@@ -509,5 +525,16 @@ nuwa-dybinst(){
 
 }
 
+nuwa-fromscratch(){
+   cd $DYB
+   nuwa-dybinst-export
+   [ "$(which python)" != "/usr/bin/python" ] && echo use system python for clean rebuilds && return 1
+   screen ./dybinst trunk all
+}
+
+nuwa-dybinst-export(){
+   svn export $(nuwa-dybinst-url)
+
+}
 
 
