@@ -1,6 +1,91 @@
 patch-usage(){ cat << EOU
+::
+
+    [blyth@belle7 patches]$ pwd
+    /data1/env/local/dyb/external/build/LCG/g4checkpatch/patches
+
+    [blyth@belle7 patches]$ patch-;patch-match geant4.9.2.p01.patch
+    === patch-match : truncating geant4.9.2.p01.patch.patch-match : reconstructing a combi patch from single file patches in matched order
+    geant4.9.2.p01_source_geometry_solids_Boolean_src_G4SubtractionSolid.cc.patch
+    geant4.9.2.p01_source_processes_electromagnetic_lowenergy_src_G4hLowEnergyLoss.cc.patch
+    geant4.9.2.p01_source_processes_hadronic_processes_include_G4ElectronNuclearProcess.hh.patch
+    geant4.9.2.p01_source_processes_hadronic_processes_include_G4PhotoNuclearProcess.hh.patch
+    geant4.9.2.p01_source_processes_hadronic_processes_include_G4PositronNuclearProcess.hh.patch
+    geant4.9.2.p01_source_processes_hadronic_processes_src_G4ElectronNuclearProcess.cc.patch
+    geant4.9.2.p01_source_processes_hadronic_processes_src_G4PhotoNuclearProcess.cc.patch
+    geant4.9.1.p01_source_processes_optical_include_G4OpBoundaryProcess.hh.patch
+    geant4.9.2.p01_source_materials_include_G4MaterialPropertyVector.hh.patch
+    geant4.9.2.p01_source_materials_src_G4MaterialPropertiesTable.cc.patch
+    geant4.9.2.p01_source_materials_src_G4MaterialPropertyVector.cc.patch
+
+Huh this is the new dyb, without my mods... how this diff between the order matched patches ?::
+
+    [blyth@belle7 patches]$ diff geant4.9.2.p01.patch geant4.9.2.p01.patch.patch-match 
+    ...
+    < diff -u -r geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc
+    < --- geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc      2009-03-16 10:06:45.000000000 -0400
+    < +++ geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc   2009-06-11 01:22:12.000000000 -0400
+    ---
+    > --- geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc      2009-03-16 22:06:45.000000000 +0800
+    > +++ geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc   2014-03-04 18:04:57.000000000 +0800
+    168,200c162,163
+    < --- geant4.9.1.p01/source/processes/optical/include/G4OpBoundaryProcess.hh    2007-10-15 17:16:24.000000000 -0400
+    < +++ geant4.9.1.p01/source/processes/optical/include/G4OpBoundaryProcess.hh    2009-04-14 11:28:42.000000000 -0400
+    < @@ -408,10 +408,23 @@
+    <  void G4OpBoundaryProcess::DoReflection()
+    <  {
+    <          if ( theStatus == LambertianReflection ) {
+    < -
+    < -          NewMomentum = G4LambertianRand(theGlobalNormal);
+    < -          theFacetNormal = (NewMomentum - OldMomentum).unit();
+    < -
+    < +       // wangzhe
+    < +       // Original:
+    < +          //NewMomentum = G4LambertianRand(theGlobalNormal);
+    < +          //theFacetNormal = (NewMomentum - OldMomentum).unit();
+    < +       
+    < +       // Temp Fix:
+    < +       if(theGlobalNormal.mag()==0) {
+    < +            std::cout<<"Error. Zero caught. A normal vector with mag be 0. May trigger a infinite loop later."<<std::endl;
+    < +            std::cout<<"A temporary solution: Photon is forced to go back along its original path."<<std::endl;
+    < +            std::cout<<"Test from MDC09a tells the effect of this bug is tiny."<<std::endl;
+    < +         G4ThreeVector myVec(0,0,0);
+    < +         theFacetNormal = (myVec - OldMomentum).unit();
+    < +       } else {
+    < +         NewMomentum = G4LambertianRand(theGlobalNormal);
+    < +         theFacetNormal = (NewMomentum - OldMomentum).unit();
+    < +       }
+    < +       // wz
+    <          }
+    <          else if ( theFinish == ground ) {
+    <  
+
 
 EOU
+}
+
+patch-vi(){ vi $BASH_SOURCE ; }
+
+
+patch-match-line(){
+  shift
+  local path=$1
+  local name=$(echo $path | tr "/" "_").patch
+  echo $name
+}
+patch-match(){
+  local line
+  local mpatch=$1
+  local opatch=$mpatch.$FUNCNAME
+  local msg="=== $FUNCNAME :"
+  echo $msg truncating $opatch : reconstructing a combi patch from single file patches in matched order
+  echo > $opatch
+  local fpatch 
+  grep -- +++ $mpatch | while read line ; do
+      fpatch=$(patch-match-line $line)
+      echo $fpatch
+      [ -f "$fpatch" ] && cat $fpatch >> $opatch
+  done
 }
 
 
