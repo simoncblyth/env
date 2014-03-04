@@ -30,8 +30,8 @@ generated files.
 
 Usage from python example::
 
-    from env.base.diff import Diff
-    dqt = Diff.qt( "meshlab_pristine", "meshlab" )
+    from env.base.diff import Diff, qt 
+    dqt = Diff( "meshlab_pristine", "meshlab", ignore=qt() )
     for label, ls in dqt.items():
         print label
         for _ in ls: 
@@ -53,6 +53,7 @@ class Defaults(object):
     logformat = "%(asctime)s %(name)s %(levelname)-8s %(message)s"
     zippath = None  
     report = False
+    ignoretype = "cmt" 
 
 def parse_args(doc):
     from optparse import OptionParser
@@ -61,6 +62,7 @@ def parse_args(doc):
     op.add_option("-o", "--logpath", default=defopts.logpath , help="logging path" )
     op.add_option("-l", "--loglevel",   default=defopts.loglevel, help="logging level : INFO, WARN, DEBUG. Default %default"  )
     op.add_option("-f", "--logformat", default=defopts.logformat , help="logging format" )
+    op.add_option("-t", "--ignoretype", default=defopts.ignoretype , help="Ignore type string, eg qt/cmt " )
     op.add_option("-z", "--zippath", default=defopts.zippath , help="Path to zipfile to be created. Default %default ")
     op.add_option("-r", "--report", action="store_true", default=defopts.report , help="Full closure report. Default %default ")
 
@@ -83,28 +85,36 @@ def parse_args(doc):
     return opts, args
 
 
+
+
+class qt(object):
+    """
+    Specification of files typically generated
+    when building qt projects with qmake. Which 
+    should be ignored when interested in source only.
+    """
+    heads=["moc_","ui_","qrc_","Makefile."]
+    types=[".o",".so",".dylib",".app"]
+    names=["macx","Makefile",".DS_Store"]
+
+class cmt(object):
+    heads=["Makefile."]
+    types=[".o",".so",".dylib",".app"]
+    names=["setup.sh","setup.csh","cleanup.sh","cleanup.csh","Makefile",".DS_Store"]
+
+
 class Diff(dict):
     """
     For comparing similar directory trees, looking for files
     that differ.
     """ 
-    @classmethod
-    def qt(cls, l, r ):
-        """
-        Compare project directories, ignoring files typically generated
-        when building qt projects with qmake.
-        """
-        dqt = cls(l, r,
-                    ignore_file_heads=["moc_","ui_","qrc_","Makefile."], 
-                    ignore_file_types=[".o",".so",".dylib",".app"], 
-                    ignore_file_names=["macx","Makefile",".DS_Store"])
-        return dqt
 
-    def __init__(self, l,r, **kwa):
+    def __init__(self, l,r, ignore=None ):
         dict.__init__(self, **kwa )
         self.update(diff=[],left=[],right=[])
-        top = dircmp(l,r, self['ignore_file_names'])
+        top = dircmp(l,r, ignore.names )
         self.top = top
+        self.ignore = ignore 
         self.recurse(top)
 
     def collect(self, label, rec):
@@ -186,12 +196,18 @@ def zipdiff( diff, zippath, keys ):
 
 def main():
     opts, args = parse_args(__doc__) 
+    if opts.ignoretype == "qt":
+        ignore = qt() 
+    elif opts.ignoretype == "cmt":
+        ignore = cmt() 
+    else:
+        assert 0, "unhandled ignoretype %s " % opts.ignoretype
 
-    dqt = Diff.qt( *args )
+    diff = Diff( *args , ignore=ignore )
     if opts.report:
-        print dqt.top.report_full_closure()
+        print diff.top.report_full_closure()
 
-    for label, ls in dqt.items():
+    for label, ls in diff.items():
         print label
         for _ in ls:
             print " " * 5, _
@@ -200,7 +216,7 @@ def main():
         zippath = opts.zippath
         keys = "diff right".split()
         log.info("writing %s to zippath %s " % ( keys, zippath ))
-        zipdiff( dqt, zippath, keys )
+        zipdiff( diff, zippath, keys )
 
 
 if __name__ == '__main__':
