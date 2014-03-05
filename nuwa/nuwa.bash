@@ -83,6 +83,7 @@ nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-bdir-old(){ echo $DYB/../dyb.old/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 nuwa-g4-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/cmt ; }
+nuwa-g4-pdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/patches ; }
 nuwa-pkg-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/$1/cmt ; }
 nuwa-g4-xdir(){ echo $(nuwa-g4-bdir)/bin/Linux-g++ ; }
 nuwa-g4-sdir(){ echo $(nuwa-g4-bdir)/source ; }
@@ -536,7 +537,13 @@ nuwa-fromscratch(){
 
 nuwa-dybinst-export(){
    svn export $(nuwa-dybinst-url)
-
 }
+nuwa-xfromscratch(){
+   cd $DYBX
+   [ "$(which python)" != "/usr/bin/python" ] && echo use system python for clean rebuilds && return 1
+   screen ./dybinst -X geant4_with_dae trunk all
+}
+
+
 
 
