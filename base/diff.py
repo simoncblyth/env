@@ -268,7 +268,9 @@ def patch( diff, opts ):
  
     for _ in diff['diff']:
         ctx = dict(left=_[1], right=_[2], id=identity(_), patchdir=opts.patchdir )
-        cmd = "diff -u %(left)s %(right)s > %(patchdir)s/%(id)s.patch " % ctx 
+        patch = "%(patchdir)s/%(id)s.patch " % ctx 
+        dff = "diff -u -r %(left)s %(right)s " % ctx 
+        cmd = "echo %s > %s && %s >> %s " % ( dff, patch, dff, patch )  
         for line in os.popen(cmd).read():
             print line
 

@@ -18,75 +18,77 @@ patch-usage(){ cat << EOU
     geant4.9.2.p01_source_materials_src_G4MaterialPropertiesTable.cc.patch
     geant4.9.2.p01_source_materials_src_G4MaterialPropertyVector.cc.patch
 
-Huh this is the new dyb, without my mods... how this diff between the order matched patches ?::
-
-    [blyth@belle7 patches]$ diff geant4.9.2.p01.patch geant4.9.2.p01.patch.patch-match 
-    ...
-    < diff -u -r geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc
-    < --- geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc      2009-03-16 10:06:45.000000000 -0400
-    < +++ geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc   2009-06-11 01:22:12.000000000 -0400
-    ---
-    > --- geant4.9.2.p01.orig/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc      2009-03-16 22:06:45.000000000 +0800
-    > +++ geant4.9.2.p01/source/processes/hadronic/processes/src/G4PhotoNuclearProcess.cc   2014-03-04 18:04:57.000000000 +0800
-    168,200c162,163
-    < --- geant4.9.1.p01/source/processes/optical/include/G4OpBoundaryProcess.hh    2007-10-15 17:16:24.000000000 -0400
-    < +++ geant4.9.1.p01/source/processes/optical/include/G4OpBoundaryProcess.hh    2009-04-14 11:28:42.000000000 -0400
-    < @@ -408,10 +408,23 @@
-    <  void G4OpBoundaryProcess::DoReflection()
-    <  {
-    <          if ( theStatus == LambertianReflection ) {
-    < -
-    < -          NewMomentum = G4LambertianRand(theGlobalNormal);
-    < -          theFacetNormal = (NewMomentum - OldMomentum).unit();
-    < -
-    < +       // wangzhe
-    < +       // Original:
-    < +          //NewMomentum = G4LambertianRand(theGlobalNormal);
-    < +          //theFacetNormal = (NewMomentum - OldMomentum).unit();
-    < +       
-    < +       // Temp Fix:
-    < +       if(theGlobalNormal.mag()==0) {
-    < +            std::cout<<"Error. Zero caught. A normal vector with mag be 0. May trigger a infinite loop later."<<std::endl;
-    < +            std::cout<<"A temporary solution: Photon is forced to go back along its original path."<<std::endl;
-    < +            std::cout<<"Test from MDC09a tells the effect of this bug is tiny."<<std::endl;
-    < +         G4ThreeVector myVec(0,0,0);
-    < +         theFacetNormal = (myVec - OldMomentum).unit();
-    < +       } else {
-    < +         NewMomentum = G4LambertianRand(theGlobalNormal);
-    < +         theFacetNormal = (NewMomentum - OldMomentum).unit();
-    < +       }
-    < +       // wz
-    <          }
-    <          else if ( theFinish == ground ) {
-    <  
-
 
 EOU
 }
 
 patch-vi(){ vi $BASH_SOURCE ; }
 
-
+patch-match-kludge(){
+   case $1 in 
+       geant4.9.1.p01_source_processes_optical_include_G4OpBoundaryProcess.hh) echo geant4.9.2.p01_source_processes_optical_include_G4OpBoundaryProcess.hh ;;  
+                                                                            *) echo $1 ;; 
+   esac
+}
 patch-match-line(){
   shift
   local path=$1
-  local name=$(echo $path | tr "/" "_").patch
-  echo $name
+  local name=$(echo $path | tr "/" "_")
+  echo $(patch-match-kludge $name).patch
 }
 patch-match(){
   local line
   local mpatch=$1
+  local patchdir=$(dirname $mpatch)
+  local marker=${2:-+++}
+
+  echo $msg mpatch $mpatch patchdir $patchdir marker $marker
   local opatch=$mpatch.$FUNCNAME
   local msg="=== $FUNCNAME :"
   echo $msg truncating $opatch : reconstructing a combi patch from single file patches in matched order
-  echo > $opatch
+  echo -n > $opatch
   local fpatch 
-  grep -- +++ $mpatch | while read line ; do
-      fpatch=$(patch-match-line $line)
+  grep -- $marker $mpatch | while read line ; do
+      fpatch="$patchdir/$(patch-match-line $line)"
       echo $fpatch
       [ -f "$fpatch" ] && cat $fpatch >> $opatch
+      [ ! -f "$fpatch" ] && echo $msg WARNING : FAILED to find $fpatch
   done
 }
+
+
+patch-match-compare(){
+   local msg="=== $FUNCNAME :"
+   local patch=$1
+   local cmd="diff $patch $patch.patch-match"
+   echo $msg $cmd
+   eval $cmd
+   echo $msg $cmd
+}
+
+patch-match-dirty(){
+   type $FUNCNAME
+   local msg="=== $FUNCNAME :"
+   local patch="patches/geant4.9.2.p01.patch"
+   patch-match $patch 
+   echo $msg scrubbing the omitted line in the dirty patch
+   perl -pi -e 's,diff -u -r geant4.9.2.p01.orig/source/processes/optical/include/G4OpBoundaryProcess.hh geant4.9.2.p01/source/processes/optical/include/G4OpBoundaryProcess.hh\n,,' $patch.patch-match
+   patch-match-compare $patch
+}
+
+
+patch-match-clean(){
+   type $FUNCNAME
+   local msg="=== $FUNCNAME :"
+   local patch="patches/geant4.9.2.p01.patch2"
+   # change marker to get rid of ".new"
+   patch-match $patch "---"
+   echo $msg scrubbing all the diff cmdline in patch
+   perl -pi -e 's,^diff -u -r .*\n$,,' $patch.patch-match
+   patch-match-compare $patch
+}
+
+
 
 
 patch-test(){
