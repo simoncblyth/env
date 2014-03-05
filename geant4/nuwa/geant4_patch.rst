@@ -17,7 +17,104 @@ LCG Geant4 patch machinery within NuWa
     goto ${LCG_srcdir}
     apply_patch geant4.9.2.p01.patch 1
     apply_patch geant4.9.2.p01.patch2 1
-    apply_patch geant4.9.2.p01.patch3 1
+
+
+`LCG_srcdir`::
+
+    [blyth@belle7 geant4.9.2.p01]$ ll 
+    total 324
+    -rw-r--r--  1 blyth blyth   4029 Mar 16  2009 LICENSE
+    -rwxr-xr-x  1 blyth blyth 142639 Mar 16  2009 Configure
+    drwxr-xr-x  2 blyth blyth   4096 Mar 16  2009 ReleaseNotes
+    drwxr-xr-x  5 blyth blyth   4096 Mar 16  2009 examples
+    drwxr-xr-x  4 blyth blyth   4096 Mar 16  2009 environments
+    drwxr-xr-x  4 blyth blyth   4096 Mar 16  2009 config
+    -rw-rw-r--  1 blyth blyth      0 Mar  3 16:43 .geant4.9.2.p01.patch2
+    -rw-rw-r--  1 blyth blyth      0 Mar  3 16:43 .geant4.9.2.p01.patch
+    drwxrwxr-x  3 blyth blyth   4096 Mar  3 16:43 lib
+    drwxrwxr-x  2 blyth blyth   4096 Mar  3 16:43 bin
+    drwxr-xr-x 11 blyth blyth   4096 Mar  3 16:43 .
+    drwxrwxr-x  3 blyth blyth   4096 Mar  3 16:43 tmp
+    drwxrwxr-x  2 blyth blyth 135168 Mar  3 17:15 include
+    drwxr-xr-x 22 blyth blyth   4096 Mar  4 17:39 source
+    drwxrwxr-x 30 blyth blyth   4096 Mar  4 18:03 ..
+    [blyth@belle7 geant4.9.2.p01]$ pwd
+    /data1/env/local/dyb/external/build/LCG/geant4.9.2.p01
+
+    [blyth@belle7 geant4.9.2.p01]$ find . -name '*.orig' -exec ls -l {} \;
+    -rw-r--r-- 1 blyth blyth 10395 Mar 16  2009 ./include/G4OpBoundaryProcess.hh.orig
+    -rw-r--r-- 1 blyth blyth 10395 Mar 16  2009 ./source/processes/optical/include/G4OpBoundaryProcess.hh.orig
+    [blyth@belle7 geant4.9.2.p01]$ 
+
+
+Suspect that `G4OpBoundaryProcess.hh.orig` suggests suspect patch application.
+
+
+
+LCG apply_patch
+-----------------
+
+* /data1/env/local/dyb/NuWa-trunk/lcgcmt/LCG_Builders/LCG_BuildPolicy/scripts/common.sh 
+
+::
+
+    108 # Apply given patch with optional strip level (default is 0).  If the
+    109 # patchfile is not found it is looked for as a path relative to
+    110 # Package/patches/ assuming the running script is in Package/scripts/.
+    111 apply_patch () {
+    112     file=$1 ;
+    113     if [ -n "$1" ] ; then shift; fi
+    114     level=${1-"0"}
+    115     if [ -n "$1" ] ; then shift; fi
+    116 
+    117     if [ ! -f "$file" ] ; then
+    118     file=$(dirname $(dirname $0))/patches/$file
+    119     fi
+    120     if [ ! -f "$file" ] ; then
+    121     fatal "failed to find patch file $file"
+    122     fi
+    123 
+    124     been_here=".$(basename $file)"
+    125     if [ -f "$been_here" ] ; then
+    126     info "Already applied patch \"$file\""
+    127     return
+    128     fi
+    129 
+    130     # need quotes since using redirection
+    131     cmd "patch -N -p$level -i $file"
+    132     touch $been_here
+    133 }
+
+
+man patch
+~~~~~~~~~~~
+
+* `-R` looks dangerous
+
+
+`-N` or `--forward`
+        Ignore patches that seem to be reversed or already applied.  See also -R.
+
+`-R` or `--reverse`
+        Assume that this patch was created with the old and new files
+        swapped.  (Yes, I'm afraid that does happen occasionally, human nature being
+        what it is.)  patch attempts to swap each hunk around before applying  it.
+        Rejects  come out in the swapped format.  The -R option does not work with ed
+        diff scripts because there is too little information to reconstruct the reverse
+        operation.
+
+        If  the first hunk of a patch fails, patch reverses the hunk to see
+        if it can be applied that way.  If it can, you are asked if you want to have
+        the -R option set.  If it can't, the patch continues to be applied normally.
+        (Note: this method cannot detect a reversed patch if it is a normal diff and if
+        the first command is an append (i.e. it should have been a delete) since
+        appends always succeed, due to the fact  that  a  null  context  matches
+        anywhere.  Luckily, most patches add or change lines rather than delete them,
+        so most reversed normal diffs begin with a delete, which fails, triggering the
+        heuristic.)
+
+
+
 
 
 Material Property Introspection patch
