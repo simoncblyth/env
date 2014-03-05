@@ -1,0 +1,16 @@
+diff -u -r geant4.9.2.p01.patch.patch2.orig/environments/g4py/config/module.gmk geant4.9.2.p01.patch.patch2/environments/g4py/config/module.gmk
+--- geant4.9.2.p01.patch.patch2.orig/environments/g4py/config/module.gmk	2009-03-16 22:04:32.000000000 +0800
++++ geant4.9.2.p01.patch.patch2/environments/g4py/config/module.gmk	2014-03-04 18:36:23.000000000 +0800
+@@ -32,7 +32,11 @@
+   endif
+ endif
+ 
+-LOPT  += -lboost_python
++#LOPT  += -lboost_python
++ifdef Q_BOOST_PYTHON_LIB
++   LOPT += -l$(Q_BOOST_PYTHON_LIB)
++endif
++
+ 
+ # Xerces-C ...
+ ifdef Q_XERCESC_INCDIR

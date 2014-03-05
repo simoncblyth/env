@@ -31,15 +31,13 @@ vrml-cd(){  cd $(vrml-dir) ; }
 
 vrml-env(){      elocal- ; nuwa- ; }
 vrml-home(){   echo $ENV_HOME/geant4/geometry/VRML ; }
-vrml-target(){ echo $(nuwa-g4-bdir)/source/visualization/VRML ; }
+#vrml-target(){ echo $(nuwa-g4-bdir)/source/visualization/VRML ; }
+vrml-target(){ echo $(nuwa-g4-bdir-old)/source/visualization/VRML ; }
 vrml-mode(){   echo ${VRML_MODE:-diff} ; }
 vrml-libname(){ echo libG4VRML.so ; }
 
 vrml-paths-(){ cat << EOP
-GNUmakefile
-src/G4VRML2SceneHandlerFunc.icc
 src/G4VRML2FileSceneHandler.cc
-include/G4VRML2FileSceneHandler.hh
 EOP
 }
 

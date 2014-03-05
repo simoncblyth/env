@@ -54,7 +54,7 @@ class Defaults(object):
     zippath = None  
     report = False
     patch = False
-    ignoreflavor = "cmt" 
+    ignoreflavor = "g4" 
     patchdir = 'patches'
     name = None
 
@@ -65,13 +65,13 @@ def name_from_args(args):
     name = None
     log.info("a [%s]%s b [%s]%s " % ( len(a), a, len(b), b, ))
     if len(a) > len(b):
-        log.info("a > b  ")
+        log.debug("a > b  ")
         if a.startswith(b):
-            log.info("a > b : a startswith b ")
+            log.debug("a > b : a startswith b ")
             name = b
     else:
         if b.startswith(a):
-            log.info("a < b : b startswith a ")
+            log.debug("a < b : b startswith a ")
             name = a
     return name
 
@@ -132,27 +132,53 @@ class Diff(dict):
             self[label] = []
         self[label].append(rec)
 
-    def visit_only( self, label, cf, name):
+    def skip(self, name, label):
         igtype = self.ignore_type(name)
         ighead = self.ignore_head(name)
         if igtype:
             log.debug("igtype only %s : %s " % (label, name) )
+            return True
         elif ighead:
             log.debug("ighead only %s : %s " % (label, name) )
+            return True
         else:
-            base = getattr(cf, label)
-            path = "%s/%s" % ( base, name )
-            log.debug("only %s : %s " % (label, path) )
-            self.collect(label, (path,))
+            return False 
+
+    def visit_only( self, label, cf, name):
+        if self.skip(name, label):
+            log.debug("skip %s " % name)
+            return
+        only = getattr(cf, label)
+        top = getattr(self.top, label)
+        _only = only[len(top)+1:]
+        if len(_only) > 0:
+            path = "%s/%s" % (_only, name) 
+        else:
+            path = name
+
+        if self.ignore_relpath(path):
+            log.debug("ignore_relpath %s " % path )
+            return
+
+        apath = "%s/%s" % ( top, path )
+        log.debug("only : label %s top %s _only %s path %s " % (label, top, _only, apath) )
+        self.collect(label, (apath,))
 
     def visit_diff(self, cf):
         for name in cf.diff_files:
+            if self.skip(name, "diff"):
+                continue
             assert cf.left.startswith(self.top.left)
             assert cf.right.startswith(self.top.right)
             _left  = cf.left[len(self.top.left)+1:]
             _right = cf.right[len(self.top.right)+1:]
             assert _left == _right , ( name, _left, _right ) 
             path = "%s/%s" % ( _left, name ) 
+
+            if self.ignore_relpath(path):
+                log.debug("ignore_relpath %s " % path )
+                continue
+
             lpath = "%s/%s" % ( cf.left, name )
             rpath = "%s/%s" % ( cf.right, name )
             pass
@@ -165,6 +191,11 @@ class Diff(dict):
     def ignore_head(self, name):
         for ighead in self.ignore.heads:
             if name.startswith(ighead):return True
+        return False
+
+    def ignore_relpath(self, path):
+        for igrelpath in self.ignore.relpath:
+            if path.startswith(igrelpath):return True
         return False
 
     def visit(self, cf):
@@ -212,11 +243,17 @@ class qt(object):
     heads=["moc_","ui_","qrc_","Makefile."]
     types=[".o",".so",".dylib",".app"]
     names=["macx","Makefile",".DS_Store"]
+    relpath=[]
 
 class cmt(object):
     heads=["Makefile."]
-    types=[".o",".so",".dylib",".app"]
+    types=[".o",".so",".dylib",".app",".pyo",".pyc",".d","map",]
     names=["setup.sh","setup.csh","cleanup.sh","cleanup.csh","Makefile",".DS_Store"]
+    relpath=[]
+
+
+class g4(cmt):
+    relpath=['include','tmp','lib','bin',]
 
 
 class QtDiff(Diff):
@@ -224,6 +261,12 @@ class QtDiff(Diff):
 
 class CMTDiff(Diff):
     ignore = cmt()
+
+class G4Diff(Diff):
+    ignore = g4()
+
+
+
 
 
 def patch( diff, opts ):
@@ -277,10 +320,10 @@ def patch( diff, opts ):
 
 def main():
     opts, args = parse_args(__doc__) 
-    if opts.ignoreflavor == "qt":
-        cls = QtDiff
-    elif opts.ignoreflavor == "cmt":
-        cls = CMTDiff 
+
+    clsmap = dict(qt=QtDiff, cmt=CMTDiff, g4=G4Diff)
+    if opts.ignoreflavor in clsmap:
+        cls = clsmap[opts.ignoreflavor]
     else:
         assert 0, "unhandled ignoretype %s " % opts.ignoretype
 

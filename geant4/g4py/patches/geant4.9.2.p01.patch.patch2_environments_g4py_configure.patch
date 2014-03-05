@@ -1,0 +1,12 @@
+diff -u -r geant4.9.2.p01.patch.patch2.orig/environments/g4py/configure geant4.9.2.p01.patch.patch2/environments/g4py/configure
+--- geant4.9.2.p01.patch.patch2.orig/environments/g4py/configure	2009-03-16 22:04:32.000000000 +0800
++++ geant4.9.2.p01.patch.patch2/environments/g4py/configure	2014-03-04 18:36:16.000000000 +0800
+@@ -272,7 +272,7 @@
+ set python python2.5 python2.4 python2.3 python2.2
+ for aincdir in $*
+ do
+-  if [ -d /usr/include/$aincdir ]; then
++  if [ -d /no/way/jose/usr/include/$aincdir ]; then
+     python_incdir=/usr/include/$aincdir
+     break
+   fi

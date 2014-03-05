@@ -80,6 +80,7 @@ nuwa-dybgaudi-dir(){ echo $DYB/NuWa-trunk/dybgaudi ; }
 nuwa-lcgcmt-dir(){ echo $DYB/NuWa-trunk/lcgcmt ; } 
 nuwa-lhcb-dir(){ echo $DYB/NuWa-trunk/lhcb ; } 
 nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
+nuwa-g4-bdir-old(){ echo $DYB/../dyb.old/external/build/LCG/geant4.9.2.p01 ; }
 nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 nuwa-g4-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/cmt ; }
 nuwa-pkg-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/$1/cmt ; }
