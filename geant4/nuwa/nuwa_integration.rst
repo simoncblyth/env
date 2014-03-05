@@ -1,17 +1,24 @@
 Integration of Export Functionality into NuWa
 ================================================
 
+Commits
+--------
+
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22635
+* http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22636
+
+
 Forking techniques
 ------------------ 
 
-#. CMTEXTRATAGS geant4_with_gdml geant4_with_g4dae from override file
+#. CMTEXTRATAGS geant4_with_gdml geant4_with_dae from override file
 #. dybinst command line option, analogous to "-O" "-g" dybinst option that sets force_optdbg 
 
 Given slave monopolization of the `~/.dybinstrc` override file and
 the fact that only the first existing override file is adhered to, it is 
 not convenient to configure a setting like the below in the override file::
 
-   global_extra=geant4_with_gdml,geant4_with_g4dae
+   global_extra=geant4_with_gdml,geant4_with_dae
 
 More convenient to do this with a dybinst command line option analogous
 to switching on optimized building, this would allow multiple installs 
@@ -51,14 +58,6 @@ Older Geant4 requires patches:
 #. VRML2 precision fix, in order provide useful geometry cross-check
 #. spilling the beans on material properties
 
-Patching Geant4 
-~~~~~~~~~~~~~~~~~
-
-See these from /data1/env/local/dyb.old/NuWa-trunk for how to add Geant4 patches::
-    
-   lcgcmt/LCG_Builders/geant4/patches/geant4.9.2.p01.patch3   
-   lcgcmt/LCG_Builders/geant4/scripts/geant4_config.sh
-
 
 Geant4 Additions
 -----------------
@@ -69,7 +68,6 @@ Geant4 Additions
 Hailing from before GDML was included with G4 ?
 
   * NuWa-trunk/lcgcmt/LCG_Interfaces/GDML/cmt/requirements
-
 
 
 G4DAE builder or extended patch ?
