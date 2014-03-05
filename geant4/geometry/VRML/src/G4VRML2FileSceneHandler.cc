@@ -207,7 +207,7 @@ void G4VRML2FileSceneHandler::closePort()
 	fDest.close();  fFlagDestOpen = false ;
 	G4cerr << "*** VRML 2.0 File  " << fVRMLFileName << "  is generated." << G4endl;
 
-
+	
 	// Invoke viewer 
 
 	if ( !strcmp(viewer, NO_VRML_VIEWER )) {
