@@ -1,9 +1,9 @@
-#ifndef GIGA_GIGARUNACTIONGDML_H 
-#define GIGA_GIGARUNACTIONGDML_H 1
+#ifndef GIGA_GIGARUNACTIONEXPORT_H 
+#define GIGA_GIGARUNACTIONEXPORT_H 1
 
 #include "GiGa/GiGaRunActionBase.h"
 
-/** @class GiGaRunActionGDML GiGaRunActionGDML.h
+/** @class GiGaRunActionExport GiGaRunActionExport.h
  *  
  *  A concrete Run Action. 
  *  It exports Geant4 geometry into a GDML file at the BeginOfRun
@@ -14,10 +14,10 @@
  *  @date   
  */
 
-class GiGaRunActionGDML: public virtual GiGaRunActionBase
+class GiGaRunActionExport: public virtual GiGaRunActionBase
 {
   /// friend factory for instantiation
-  //friend class GiGaFactory<GiGaRunActionGDML>;
+  //friend class GiGaFactory<GiGaRunActionExport>;
   
 public:
  
@@ -41,13 +41,13 @@ public:
    *  @param name name of the object
    *  @param parent  pointer to parent object
    */
-  GiGaRunActionGDML
+  GiGaRunActionExport
   ( const std::string& type   ,
     const std::string& name   ,
     const IInterface*  parent ) ;
   
   // destructor (virtual and protected)
-  virtual ~GiGaRunActionGDML( );
+  virtual ~GiGaRunActionExport( );
 
   void CleanSolidStore();
   void WriteVis(const char* driver);
@@ -65,11 +65,11 @@ public:
 private:
   
   ///no default constructor
-  GiGaRunActionGDML();
+  GiGaRunActionExport();
   /// no copy constructor 
-  GiGaRunActionGDML( const GiGaRunActionGDML& );  
+  GiGaRunActionExport( const GiGaRunActionExport& );  
   /// no assignement 
-  GiGaRunActionGDML& operator=( const GiGaRunActionGDML& );
+  GiGaRunActionExport& operator=( const GiGaRunActionExport& );
 
 
 
@@ -80,4 +80,4 @@ private:
 
  
 };
-#endif ///< GIGA_GIGARUNACTIONGDML_H
+#endif ///< GIGA_GIGARUNACTIONEXPORT_H

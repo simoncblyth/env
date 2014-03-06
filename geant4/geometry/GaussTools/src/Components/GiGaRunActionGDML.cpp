@@ -23,18 +23,18 @@
 #include <stdlib.h>  
 
 /// Local 
-#include "GiGaRunActionGDML.h"
+#include "GiGaRunActionExport.h"
 
 // ============================================================================
 /** @file 
  *
- *  Implementation file for class : GiGaRunActionGDML
+ *  Implementation file for class : GiGaRunActionExport
  *
  */
 // ============================================================================
 
 // Declaration of the Tool Factory
-DECLARE_TOOL_FACTORY( GiGaRunActionGDML );
+DECLARE_TOOL_FACTORY( GiGaRunActionExport );
 
 /** standard constructor 
  *  @see GiGaPhysListBase
@@ -47,7 +47,7 @@ DECLARE_TOOL_FACTORY( GiGaRunActionGDML );
  *  Implementation based on 
  *     external/build/LCG/geant4.9.2.p01/examples/extended/persistency/gdml/G02/src/DetectorConstruction.cc 
  */
-GiGaRunActionGDML::GiGaRunActionGDML
+GiGaRunActionExport::GiGaRunActionExport
 ( const std::string& type   ,
   const std::string& name   ,
   const IInterface*  parent ) 
@@ -55,31 +55,31 @@ GiGaRunActionGDML::GiGaRunActionGDML
 {  
 };
 
-GiGaRunActionGDML::~GiGaRunActionGDML()
+GiGaRunActionExport::~GiGaRunActionExport()
 {
 };
 
-void GiGaRunActionGDML::WriteGDML(G4VPhysicalVolume* wpv, const G4String& path )
+void GiGaRunActionExport::WriteGDML(G4VPhysicalVolume* wpv, const G4String& path )
 {
 #ifdef EXPORT_G4GDML
    if(path.length() == 0 || wpv == 0){
-       std::cout << "GiGaRunActionGDML::WriteGDML invalid path OR NULL PV  " << path << std::endl ;
+       std::cout << "GiGaRunActionExport::WriteGDML invalid path OR NULL PV  " << path << std::endl ;
        return ;  
    }
-   std::cout << "GiGaRunActionGDML::WriteGDML to " << path << std::endl ;
+   std::cout << "GiGaRunActionExport::WriteGDML to " << path << std::endl ;
    G4GDMLParser parser ;
    parser.Write(path, wpv);
 #endif
 }
 
-void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly  )
+void GiGaRunActionExport::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G4bool recreatePoly  )
 {
 #ifdef EXPORT_G4DAE
    if(path.length() == 0 || wpv == 0){
-       std::cout << "GiGaRunActionGDML::WriteDAE invalid path OR NULL PV  " << path << std::endl ;
+       std::cout << "GiGaRunActionExport::WriteDAE invalid path OR NULL PV  " << path << std::endl ;
        return ;  
    }
-   std::cout << "GiGaRunActionGDML::WriteDAE to " << path << " recreatePoly " << recreatePoly << std::endl ;
+   std::cout << "GiGaRunActionExport::WriteDAE to " << path << " recreatePoly " << recreatePoly << std::endl ;
    G4DAEParser parser ;
    G4bool refs = true ; 
    G4int nodeIndex = -1 ;   // so World is volume 0 
@@ -87,12 +87,12 @@ void GiGaRunActionGDML::WriteDAE(G4VPhysicalVolume* wpv, const G4String& path, G
 #endif
 }
 
-G4bool GiGaRunActionGDML::FileExists(const char *fileName){
+G4bool GiGaRunActionExport::FileExists(const char *fileName){
     std::ifstream infile(fileName);
     return infile.good();
 }
 
-G4String GiGaRunActionGDML::FilePath( const G4String& base , G4int index, const G4String& ext , G4bool wantfree )
+G4String GiGaRunActionExport::FilePath( const G4String& base , G4int index, const G4String& ext , G4bool wantfree )
 {
    /*
          base 
@@ -117,7 +117,7 @@ G4String GiGaRunActionGDML::FilePath( const G4String& base , G4int index, const 
    return G4String(path);
 }
 
-G4String GiGaRunActionGDML::FreeFilePath( const G4String& base, const G4String& ext )
+G4String GiGaRunActionExport::FreeFilePath( const G4String& base, const G4String& ext )
 {
     G4int imax(99);
     G4int i(0);
@@ -130,14 +130,14 @@ G4String GiGaRunActionGDML::FreeFilePath( const G4String& base, const G4String& 
     return path ; 
 }
 
-void GiGaRunActionGDML::CleanSolidStore()
+void GiGaRunActionExport::CleanSolidStore()
 {
-    std::cout << "GiGaRunActionGDML::CleanSolidStore deleting all solids from the store " <<  std::endl ;
+    std::cout << "GiGaRunActionExport::CleanSolidStore deleting all solids from the store " <<  std::endl ;
     G4SolidStore::Clean();
 }
 
 
-void GiGaRunActionGDML::InitVis(const char* /*driver*/)
+void GiGaRunActionExport::InitVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
@@ -149,7 +149,7 @@ void GiGaRunActionGDML::InitVis(const char* /*driver*/)
 #endif
 }
 
-void GiGaRunActionGDML::FlushVis(const char* /*driver*/)
+void GiGaRunActionExport::FlushVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
@@ -159,42 +159,42 @@ void GiGaRunActionGDML::FlushVis(const char* /*driver*/)
 }
 
 
-void GiGaRunActionGDML::WriteVis(const char* /*driver*/)
+void GiGaRunActionExport::WriteVis(const char* /*driver*/)
 {
 #ifdef EXPORT_G4WRL
    G4UImanager* ui = G4UImanager::GetUIpointer() ; 
-   G4cout << "GiGaRunActionGDML::WriteVis vis open " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis vis open " << G4endl ; 
    ui->ApplyCommand("/vis/open VRML2FILE");
-   G4cout << "GiGaRunActionGDML::WriteVis list geom " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis list geom " << G4endl ; 
    ui->ApplyCommand("/vis/geometry/list all");
-   G4cout << "GiGaRunActionGDML::WriteVis set culling 1  " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis set culling 1  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/set/culling global false");
-   G4cout << "GiGaRunActionGDML::WriteVis set culling 2  " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis set culling 2  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/set/culling coveredDaughters false");
    //ui->ApplyCommand("/vis/viewer/set/lineSegmentsPerCircle 100");    
-   G4cout << "GiGaRunActionGDML::WriteVis drawVolume  " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis drawVolume  " << G4endl ; 
    ui->ApplyCommand("/vis/drawVolume");
-   G4cout << "GiGaRunActionGDML::WriteVis flush  " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis flush  " << G4endl ; 
    ui->ApplyCommand("/vis/viewer/flush");
-   G4cout << "GiGaRunActionGDML::WriteVis done  " << G4endl ; 
+   G4cout << "GiGaRunActionExport::WriteVis done  " << G4endl ; 
 #endif
 }
 
-G4String GiGaRunActionGDML::GetEnv( const char* envvar , const char* def )
+G4String GiGaRunActionExport::GetEnv( const char* envvar , const char* def )
 {
    char const* tmp = getenv(envvar);   // no trailing slash 
    G4String val = ( tmp == NULL ) ? def : tmp ;  
    return val ; 
 }
 
-void GiGaRunActionGDML::AbruptExit()
+void GiGaRunActionExport::AbruptExit()
 {
-   std::cout << "GiGaRunActionGDML::AbruptExit due to G4DAE_EXPORT_EXIT: " << std::endl ;  
+   std::cout << "GiGaRunActionExport::AbruptExit due to G4DAE_EXPORT_EXIT: " << std::endl ;  
    exit(0);
 }
 
 
-void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
+void GiGaRunActionExport::BeginOfRunAction( const G4Run* run )
 {
 
   if( 0 == run ) 
@@ -219,7 +219,7 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
 
    for (int i = 0; i < strlen(seq); i++){
        char c = seq[i];
-       std::cout << "GiGaRunActionGDML::BeginOfRunAction i " << i << " c " << c << std::endl ;  
+       std::cout << "GiGaRunActionExport::BeginOfRunAction i " << i << " c " << c << std::endl ;  
        switch (c) 
        {
           case 'V':
@@ -252,7 +252,7 @@ void GiGaRunActionGDML::BeginOfRunAction( const G4Run* run )
   
 };
 
-void GiGaRunActionGDML::EndOfRunAction( const G4Run* run )
+void GiGaRunActionExport::EndOfRunAction( const G4Run* run )
 {
   if( 0 == run ) 
     { Warning("EndOfRunAction:: G4Run* points to NULL!") ; }

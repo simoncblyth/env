@@ -51,9 +51,12 @@ gausstools-make(){
    make
 }
 
+gausstools-diff(){ GAUSSTOOLS_MODE="diff" gausstools-deploy ; }
+gausstools-cp(){   GAUSSTOOLS_MODE="cp"   gausstools-deploy ; }
+
 gausstools-update(){
-   GAUSSTOOLS_MODE="diff" gausstools-deploy
-   GAUSSTOOLS_MODE="cp"   gausstools-deploy
+   gausstools-diff
+   gausstools-cp
    gausstools-make
 }
 

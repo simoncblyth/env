@@ -31,9 +31,18 @@ library           GaussTools              Components/*.cpp
 apply_pattern     component_library library=GaussTools
 apply_pattern     linker_library    library=GaussToolsLib
 
+
 # SCB : enable GDML,DAE,WRL export by GiGaRunActionGDML
-macro_append GaussTools_cppflags " -DEXPORT_G4GDML=1 -DEXPORT_G4DAE=1 -DEXPORT_G4WRL=1 "
-macro_append GaussTools_linkopts " -lG4DAE "
+
+macro_append GaussTools_cppflags "" \
+        geant4_with_dae  "-DEXPORT_G4DAE=1 -DEXPORT_G4WRL=1 -DEXPORT_G4GDML=1 " \
+        geant4_with_gdml                 " -DEXPORT_G4WRL=1 -DEXPORT_G4GDML=1 " \
+        dayabay ""
+
+macro_append GaussTools_linkopts "" \
+        geant4_with_dae  " -lG4DAE -lG4gdml " \
+        geant4_with_gdml " -lG4gdml " \
+        dayabay ""
 
 
 # special linking with minimal G4RunManager to build genConf (necessary due
