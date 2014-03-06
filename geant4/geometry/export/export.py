@@ -60,10 +60,10 @@ def configure(argv=None):
 
     # --- geometry export ---------------------------------
     #
-    from GaussTools.GaussToolsConf import GiGaRunActionGDML
-    grag = GiGaRunActionGDML("GiGa.GiGaRunActionGDML")
+    from GaussTools.GaussToolsConf import GiGaRunActionExport
+    export = GiGaRunActionExport("GiGa.GiGaRunActionExport")
     giga = GiGa()
-    giga.RunAction = grag    
+    giga.RunAction = export
     #giga.VisManager = "GiGaVisManager/GiGaVis"
     # ---------------------------------------------------------
      

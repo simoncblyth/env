@@ -4,6 +4,18 @@ nuwa-vi(){     vi $(nuwa-source) ; }
 nuwa-utils(){
   cat << EOX
 
+Usage example::
+
+    [blyth@belle7 ~]$ cd $(DYB=x nuwa-g4-cmtdir)
+    [blyth@belle7 cmt]$ pwd
+    /data1/env/local/dybx/NuWa-trunk/lcgcmt/LCG_Builders/geant4/cmt
+
+    [blyth@belle7 cmt]$ cd $(DYB=.old nuwa-g4-cmtdir)
+    [blyth@belle7 cmt]$ pwd
+    /data1/env/local/dyb.old/NuWa-trunk/lcgcmt/LCG_Builders/geant4/cmt
+
+
+
        nuwa-genpkgdir 
            generate the nuwa-pkgdir function based on the output of "cmt show packages"
 
@@ -103,6 +115,22 @@ nuwa-g4-wipe-marker(){
   rm $(nuwa-g4-bdir)/lib/Linux-g++/libname.map
   rm $(nuwa-g4-bdir)/include/G4Version.hh 
 }
+nuwa-g4-wipe-install(){
+  local msg="=== $FUNCNAME"
+  local idir=$(nuwa-g4-idir)
+  local ans
+  read -p "$msg wipe Geant4 installed lib and include beneath idir : $idir : enter YES to proceed "  ans
+  [ "$ans" != "YES" ] && echo $msg SKIPPING && return
+
+  echo $msg PROCEEDING
+  rm -rf $idir/lib
+  rm -rf $idir/include
+}
+
+nuwa-setup(){
+   source $(nuwa-dyb)/NuWa-trunk/setup.sh 
+}
+
 
 
 nuwa-clhep-ver(){  echo 2.0.4.2 ; }
