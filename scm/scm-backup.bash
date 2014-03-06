@@ -1638,6 +1638,7 @@ scm-backup-synctrac-11(){
                
      echo $msg resyncing the instance with the repository ... as repository_dir has changed ... avoiding the yellow banner
      TRAC_INSTANCE=$name trac-admin-- resync
+     TRAC_INSTANCE=$name trac-admin-- permission add jimmy TRAC_ADMIN
 
      echo $msg ensure everything in the envpath is accessible to apache ... resyncing sets ownership of trac.log to root 
      apache-
