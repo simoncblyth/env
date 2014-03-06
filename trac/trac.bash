@@ -846,7 +846,10 @@ trac-delete-triplets(){
  #  not there anymore ?
  # trac:default_handler:TagsWikiModule@DELETE
 
+  local users=$(svn-userspath)
+
   cat << EOT
+      account-manager:password_file:$users@DELETE
       components:tracrpc.*:enabled@DELETE
       components:trac.wiki.web_ui.wikimodule:disabled@DELETE
       mimeviewer:enscript_path:@DELETE
@@ -1000,7 +1003,7 @@ trac-triplets(){
       trac:authz_file:$authz
       trac:authz_module_name:$name
       trac:repository_dir:$repo
-      account-manager:password_file:$users
+      account-manager:htpasswd_file:$users
       account-manager:password_store:HtPasswdStore
       trac:base_url:$url
       header_logo:link:$url
