@@ -128,7 +128,12 @@ nuwa-g4-wipe-install(){
 }
 
 nuwa-setup(){
-   source $(nuwa-dyb)/NuWa-trunk/setup.sh 
+   local msg="=== $FUNCNAME :"
+   local iwd=$PWD
+   local dyb=$(nuwa-dyb)
+   source $dyb/NuWa-trunk/setup.sh 
+   [ "$SITEROOT" != "$dyb/NuWa-trunk" ] && echo $msg ENVIRONMENT INCONSITENCY SITEROOT $SITEROOT dyb $dyb && return 1 
+   cd $SITEROOT/dybgaudi/DybRelease/cmt ; cmt config ; . setup.sh 
 }
 
 
