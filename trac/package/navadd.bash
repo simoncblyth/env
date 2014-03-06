@@ -84,25 +84,28 @@ EOC
 navadd-tabnames(){
   case ${1:-$TRAC_INSTANCE} in 
     dybsvn) echo query daily ;;
-       env) echo query docs;;
+  aberdeen) echo query docs;;
          *) echo query ;;
   esac
 }
 navadd-tabtitle(){
   case $1 in 
     query) echo Query ;;
+     docs) echo Docs ;;
     daily) echo Daily ;;
   esac     
 }
 navadd-taburl(){
   case $1 in 
     query) echo /tracs/$TRAC_INSTANCE/query ;;
+     docs) echo /e ;;
     daily) echo /tracs/$TRAC_INSTANCE/daily/dybinst ;;
   esac     
 }
 navadd-tabperm(){
   case $1 in 
     query) echo REPORT_VIEW ;;
+     docs) echo REPORT_VIEW ;;
     daily) echo TIMELINE_VIEW ;;
   esac     
 }
