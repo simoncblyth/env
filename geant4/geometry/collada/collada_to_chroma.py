@@ -80,9 +80,14 @@ class SurfaceType(object):
 
 
 class ColladaToChroma(object):
-    def __init__(self, nodecls):
+    def __init__(self, nodecls, root_index=0):
+        """
+        :param nodecls: typically DAENode
+        :param root_index: tree index of the first node to convert
+        """ 
         self.geo = Geometry(detector_material=None)    # bialkali ?
         self.nodecls = nodecls
+        self.root_index = root_index
         self.vcount = 0
         self.surfaces = {}
         self.materials = {}
@@ -127,17 +132,20 @@ class ColladaToChroma(object):
             # guess at how to translate the Geant4 description into Chroma  
             finish = int(dsurf.finish)
             if finish == OpticalSurfaceFinish.polished:
-                surface.set('reflect_specular', REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
+                key = 'reflect_specular'
+            elif finish == OpticalSurfaceFinish.ground:
+                key = 'reflect_diffuse'
             else:
-                if finish == OpticalSurfaceFinish.ground:
-                    surface.set('reflect_diffuse', REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
-                else:
-                    assert 0, "unhandled surface finish [%s] " % finish
+                key = None 
+            pass
+            assert key is not None
+            log.info("setting prop %s for surface %s " % (key, surface.name))
+            surface.set(key, REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
             pass
             self.surfaces[surface.name] = surface
         pass 
         assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
-        log.info("convert_opticalsurfaces finds %s " % len(self.surfaces))
+        log.info("convert_opticalsurfaces creates %s from %s  " % (len(self.surfaces),len(self.nodecls.extra.opticalsurface))  )
 
 
     def convert_materials(self, debug=False):
@@ -212,6 +220,12 @@ class ColladaToChroma(object):
         keymat = {}
         for dmaterial in self.nodecls.orig.materials:
             material = Material(dmaterial.id)   
+
+            # vacuum like defaults ? is that appropriate ? what is the G4 equivalent ?
+            material.set('refractive_index', 1.0)  
+            material.set('absorption_length',1e6)
+            material.set('scattering_length',1e6)
+        
             if dmaterial.extra is not None:
                 for dkey,dval in dmaterial.extra.properties.items():
 
@@ -226,6 +240,7 @@ class ColladaToChroma(object):
                         log.debug("for material %s set Chroma prop %s from G4DAE prop %s vals %s " % ( material.name, key, dkey, len(dval))) 
                     else:
                         log.debug("for material %s skipping G4DAE prop %s vals %s " % ( material.name, dkey, len(dval)))  
+
             pass 
             self.materials[material.name] = material
         pass
@@ -272,16 +287,20 @@ class ColladaToChroma(object):
     def find_skinsurface(self, node):
         """
         :param node: G4DAE node
-        :return: Chroma Surface instance corresponding to G4LogicalSkinSurface if one is available for the LV of the current node
+        :return: G4DAE Surface instance corresponding to G4LogicalSkinSurface if one is available for the LV of the current node
         """
         lvid = node.lv.id
         skin = self.nodecls.extra.skinmap.get(lvid, None)
+        if skin is not None:
+            assert len(skin) == 1, "ambigous skin for lvid %s " % lvid 
+            skin = skin[0]
+
         return skin
            
     def find_bordersurface(self, node):
         """
         :param node: G4DAE node
-        :return: Chroma Surface instance corresponding to G4LogicalBorderSurface 
+        :return: G4DAE Surface instance corresponding to G4LogicalBorderSurface 
                  if one is available for the PVs of the current node and its parent
 
         Ambiguity bug makes this difficult
@@ -295,6 +314,9 @@ class ColladaToChroma(object):
 
     def find_surface(self, node):
         """
+        :param node: G4DAE node instance
+        :return Chroma Surface instance or None:
+
         G4DAE persists the below surface elements which 
         both reference "opticalsurface" containing the keyed properties
         
@@ -303,19 +325,19 @@ class ColladaToChroma(object):
           
         The boundary pairs are always parent/child nodes in dyb Near geometry, 
         they could in principal be siblings.
-
         """
         skin = self.find_skinsurface( node )
         border = self.find_bordersurface( node )
-        surf = filter(None,[skin, border])
-        assert len(surf)<2, "Not expecting both skin %s and border %s surface for the same node %s "  % (skin, border, node)
-        if len(surf) == 1:
-            assert len(surf[0]) == 1, "Surface lookup should only find a single skin or border surface %s " % surf[0] 
-            surface = surf[0][0]
-            log.debug("found surface %s for node %s " % (surface, node ))
+        dsurf = filter(None,[skin, border])
+        assert len(dsurf)<2, "Not expecting both skin %s and border %s surface for the same node %s "  % (skin, border, node)
+        if len(dsurf) == 1:
+            dsurface = dsurf[0]
+            log.debug("found dsurface %s for node %s " % (dsurface, node ))
+            surface = self.surfaces.get(dsurface.name, None)
+            assert surface is not None, "found dsurface %s without corresponding chroma surface for node %s " % ( dsurface, node.id) 
         else:
             surface = None  
-        pass
+        pass 
         return surface
 
 
@@ -323,6 +345,13 @@ class ColladaToChroma(object):
         """
         """
         self.vcount += 1
+        if self.vcount < 10:
+            log.info("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
+
+        if node.index < self.root_index:
+            log.info("not converting node.index %s as less than desired root_index %s" % ( node.index, self.root_index ))
+            return   
+
         bps = list(node.boundgeom.primitives())
         bpl = bps[0]
         assert len(bps) == 1 and bpl.__class__.__name__ == 'BoundPolylist'
@@ -356,11 +385,18 @@ class ColladaToChroma(object):
 
 
 
-def daeload(path):
+def daeload(path=None, root_index=None):
    """
    :param path:
    :return Chroma Geometry instance:
    """
+   if path is None:
+       path = os.environ['DAE_NAME']
+
+   if root_index is None:
+       root_index = int(os.environ.get('DAE_ROOT',0))
+
+   log.info("daeload path %s root_index %s " % (path, root_index))
    DAENode.parse(path)
 
    #DAENode.extra.dump_skinsurface()
@@ -369,7 +405,7 @@ def daeload(path):
    #DAENode.extra.dump_bordermap()
    #DAENode.dump_extra_material()
   
-   cc = ColladaToChroma(DAENode)
+   cc = ColladaToChroma(DAENode, root_index=root_index )   # skip the top.0 node, that universe is too big 
    cc.convert_geometry()
 
    return cc.geo

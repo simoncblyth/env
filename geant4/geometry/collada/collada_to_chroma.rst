@@ -121,3 +121,46 @@ After avoid None material
 
 
 
+Setting defaults
+~~~~~~~~~~~~~~~~~~
+
+Succeed to visualize via Chroma, but due to hugeness of world volume navigation is near impossible.
+
+::
+
+    (chroma_env)delta:~ blyth$ chroma-cam $ENV_HOME/geant4/geometry/materials/g4_00.dae
+    WARNING:env.geant4.geometry.collada.daenode:failed to find parent for   top.0             -  (failure expected only for root node)
+    WARNING:env.geant4.geometry.collada.collada_to_chroma:setting parent_material to __dd__Materials__Vacuum0xaf1d298 as parent is None for node top.0 
+    INFO:chroma:Flattening detector mesh...
+    INFO:chroma:  triangles: 2483650
+    INFO:chroma:  vertices:  1264049
+    INFO:chroma:Loading BVH "default" for geometry from cache.
+    INFO:chroma:loaded geometry <chroma.geometry.Geometry object at 0x11954f190> 
+    INFO:chroma:starting view [1024, 576] 
+    INFO:chroma:create Camera 
+    INFO:chroma:Camera.__init__
+    INFO:chroma:Camera.__init__ done
+    INFO:chroma:_run Camera 
+    INFO:chroma:Optimization: Sufficient memory to move triangles onto GPU
+    INFO:chroma:Optimization: Sufficient memory to move vertices onto GPU
+    INFO:chroma:device usage:
+    ----------
+    nodes             2.8M  44.7M
+    total                   44.7M
+    ----------
+    device total             2.1G
+    device used            243.2M
+    device free              1.9G
+
+    /usr/local/env/chroma_env/src/chroma/chroma/gpu/tools.py:32: UserWarning: The CUDA compiler succeeded, but said the following:
+    kernel.cu(198): warning: integer conversion resulted in a change of sign
+
+    kernel.cu(198): warning: integer conversion resulted in a change of sign
+
+
+      no_extern_c=True)
+
+
+
+
+

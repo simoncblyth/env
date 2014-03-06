@@ -23,7 +23,6 @@ def interp_material_property(wavelengths, property):
 def dump_chroma_materials( geometry, wavelengths=None):
    if not wavelengths:
        wavelengths = standard_wavelengths
-
    for i in range(len(geometry.unique_materials)):
        material = geometry.unique_materials[i]
        miss = []
@@ -35,15 +34,31 @@ def dump_chroma_materials( geometry, wavelengths=None):
            else:
                vals = interp_material_property(wavelengths, attr)
                #print attn, vals
-              
+           pass
+       pass              
        print "%-3s %-25s %s " % ( i, matshorten(material.name), ",".join(miss) )
 
-       #refractive_index = interp_material_property(wavelengths, material.refractive_index)
-       #absorption_length = interp_material_property(wavelengths, material.absorption_length)
-       #scattering_length = interp_material_property(wavelengths, material.scattering_length)
-       #reemission_prob = interp_material_property(wavelengths, material.reemission_prob)
-       #reemission_cdf = interp_material_property(wavelengths, material.reemission_cdf)
 
+def dump_chroma_surfaces( geometry, wavelengths=None ):
+   if not wavelengths:
+       wavelengths = standard_wavelengths
+
+   for i in range(len(geometry.unique_surfaces)):
+       surface = geometry.unique_surfaces[i]
+       if surface is None:
+           continue
+       miss = []
+       for attn in "detect absorb reemit reflect_diffuse reflect_specular eta k reemission_cdf".split():
+           if not hasattr(surface, attn):
+               miss.append(attn)
+           else:
+               attr = getattr(surface, attn)
+               assert attr is not None, "attribute %s exists but is None " % attn
+               vals = interp_material_property(wavelengths, attr)
+               #print attn, vals
+           pass
+       pass
+       print "%-3s %-80s [%s]%s " % ( i, surface.name, len(miss), ",".join(miss) )
 
 
 
@@ -53,7 +68,8 @@ if __name__ == '__main__':
    log.info("daeload %s " % path )
    geometry = daeload(path)
 
-   dump_chroma_materials(geometry)
+   #dump_chroma_materials(geometry)
+   dump_chroma_surfaces(geometry)
 
 
 
