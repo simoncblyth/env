@@ -7,7 +7,6 @@ Commits
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22635
 * http://dayabay.ihep.ac.cn/tracs/dybsvn/changeset/22636
 
-
 Forking techniques
 ------------------ 
 
@@ -23,7 +22,6 @@ not convenient to configure a setting like the below in the override file::
 More convenient to do this with a dybinst command line option analogous
 to switching on optimized building, this would allow multiple installs 
 on the same node with geometry export capability enabled in one of them
-
 
 CMT gymnastics
 ~~~~~~~~~~~~~~~~
@@ -212,6 +210,70 @@ should bring along the appropiate dependencies like XercesC.::
     +use $(geant4_optional_use)
     +
     +
+
+
+
+geant4 liblist 
+~~~~~~~~~~~~~~~~
+
+Maybe adding library to geant4 means need some liblist action ?
+
+
+docs
+^^^^^^
+
+* http://geant4.web.cern.ch/geant4/UserDocumentation/UsersGuides/InstallationGuide/BackupVersions/V9.4/html/ch02s03.html
+
+At this point, you may choose one of two ways to compile and install the kernel
+libraries, depending on your needs and system resources. From
+$G4INSTALL/source::
+
+   make
+
+This will make one library for each "leaf" category (maximum library
+granularity) and automatically produce a map of library use and dependencies.::
+
+    make global
+
+This will make global libraries, one for each major category.
+
+The main advantage of the first approach is the speed of building the libraries
+and of the application, which in some cases can be improved by a factor of two
+or three compared to the "global library" approach.
+
+Using the "granular library" approach a fairly large number (roughly 90) of
+"leaf" libraries is produced. However, the dependencies and linking list are
+evaluated and generated automatically on the fly. The top-level GNUmakefile in
+$G4INSTALL/source parses the dependency files of Geant4 and produces a file
+libname.map in $G4LIB. libname.map is produced by the tool liblist, whose
+source code is in $G4INSTALL/config.
+
+When building a binary application the script binmake.gmk in $G4INSTALL/config
+will parse the user's dependency files and use libname.map to determine through
+liblist the required libraries to add to the linking list. Only the required
+libraries will be loaded in the link command.
+
+The command make libmap issued from $G4INSTALL/source, allows manual rebuilding
+of the dependency map. The command is issued by default in the normal build
+process for granular libraries.
+
+It is possible to install both "granular" and "compound" libraries, by typing
+"make" and "make global" in sequence. In this case, to choose usage of granular
+libraries at link time one should set the flag G4LIB_USE_GRANULAR in the
+environment; otherwise compound libraries will be adopted by default.
+
+libname.map
+^^^^^^^^^^^^
+
+Looks appropriate::
+
+     27 G4DAE: G4volumes G4globman G4geometrymng G4geomdivision G4csg G4specsolids G4graphics_reps G4geomBoolean G4hepnumerics G4materials
+     28 source/persistency/dae/GNUmakefile
+     29 G4gdml: G4geometrymng G4globman G4geomdivision G4volumes G4csg G4specsolids G4graphics_reps G4geomBoolean G4hepnumerics G4materials
+     30 source/persistency/gdml/GNUmakefile
+
+
+
 
 
 dybgaudi
