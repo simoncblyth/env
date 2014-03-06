@@ -82,6 +82,7 @@ Contents:
    javascript/index
    nuwa/index
    ccgpu/index
+   pygame/index
 
 
 
