@@ -75,14 +75,14 @@ class SurfaceType(object):
 
 
 class ColladaToChroma(object):
-    def __init__(self, cls):
+    def __init__(self, nodecls):
         self.geo = Geometry(detector_material=None)    # bialkali ?
-        self.cls = cls
+        self.nodecls = nodecls
         self.vcount = 0
         self.surfaces = {}
         self.materials = {}
 
-    def convert_opticalsurfaces(self):
+    def convert_opticalsurfaces(self, debug=False):
         """
         Chroma surface 
 
@@ -112,12 +112,14 @@ class ColladaToChroma(object):
         * BACKSCATTERCONSTANT,SPECULARSPIKECONSTANT (often present, always zero)
 
         """
-        for dsurf in self.cls.extra.opticalsurface:
-            print "%-75s %s " % (dsurf.name, dsurf )
+        for dsurf in self.nodecls.extra.opticalsurface:
+            if debug:
+                print "%-75s %s " % (dsurf.name, dsurf )
             surface = Surface(dsurf.name)
             assert 'REFLECTIVITY' in dsurf.properties
             REFLECTIVITY = dsurf.properties['REFLECTIVITY'] 
 
+            # guess at how to translate the Geant4 description into Chroma  
             finish = int(dsurf.finish)
             if finish == OpticalSurfaceFinish.polished:
                 surface.set('reflect_specular', REFLECTIVITY[:,1], wavelengths=REFLECTIVITY[:,0])
@@ -128,9 +130,12 @@ class ColladaToChroma(object):
                     assert 0, "unhandled surface finish [%s] " % finish
             pass
             self.surfaces[surface.name] = surface
+        pass 
+        assert len(self.surfaces) == len(self.nodecls.extra.opticalsurface), "opticalsurface with duplicate names ? "
+        log.info("convert_opticalsurfaces finds %s " % len(self.surfaces))
 
 
-    def convert_materials(self):
+    def convert_materials(self, debug=False):
         """
         Chroma materials default to None, 3 settings:
 
@@ -200,7 +205,7 @@ class ColladaToChroma(object):
 
 
         keymat = {}
-        for dmaterial in self.cls.orig.materials:
+        for dmaterial in self.nodecls.orig.materials:
             material = Material(dmaterial.id)   
             if dmaterial.extra is not None:
                 for dkey,dval in dmaterial.extra.properties.items():
@@ -219,11 +224,21 @@ class ColladaToChroma(object):
             pass 
             self.materials[material.name] = material
         pass
-        log.info("G4DAE keys encountered : %s " % len(keymat))
-        for dkey in sorted(keymat,key=lambda _:len(keymat[_])): 
-            mats = keymat[dkey]
-            print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
+        log.info("convert_materials G4DAE keys encountered : %s " % len(keymat))
+        if debug: 
+            for dkey in sorted(keymat,key=lambda _:len(keymat[_])): 
+                mats = keymat[dkey]
+                print " %-30s [%-2s] %s " % ( dkey, len(mats), ",".join(map(matshorten,mats)) )
     
+
+
+    def convert_geometry(self):
+        self.convert_materials() 
+        self.convert_opticalsurfaces() 
+        self.nodecls.vwalk(self.visit)
+        log.info("flattening %s " % len(self.geo.solids))
+        self.geo.flatten()
+
 
     def find_outer_inner_materials(self, node ):
         """
@@ -254,7 +269,7 @@ class ColladaToChroma(object):
         :return: Chroma Surface instance corresponding to G4LogicalSkinSurface if one is available for the LV of the current node
         """
         lvid = node.lv.id
-        skin = self.cls.extra.skinmap.get(lvid, None)
+        skin = self.nodecls.extra.skinmap.get(lvid, None)
         return skin
            
     def find_bordersurface(self, node):
@@ -268,7 +283,7 @@ class ColladaToChroma(object):
         pass
         #pvid = node.pv.id
         #ppvid = node.parent.pv.id
-        #border = self.cls.extra.bordermap.get(pvid, None)
+        #border = self.nodecls.extra.bordermap.get(pvid, None)
         return None
 
 
@@ -291,7 +306,7 @@ class ColladaToChroma(object):
         if len(surf) == 1:
             assert len(surf[0]) == 1, "Surface lookup should only find a single skin or border surface %s " % surf[0] 
             surface = surf[0][0]
-            log.info("found surface %s for node %s " % (surface, node ))
+            log.debug("found surface %s for node %s " % (surface, node ))
         else:
             surface = None  
         pass
@@ -350,21 +365,14 @@ if __name__ == '__main__':
 
    DAENode.parse(path)
 
-   DAENode.extra.dump_skinsurface()
+   #DAENode.extra.dump_skinsurface()
    #DAENode.extra.dump_skinmap()
    #DAENode.extra.dump_bordersurface()
    #DAENode.extra.dump_bordermap()
    #DAENode.dump_extra_material()
   
    cc = ColladaToChroma(DAENode)
-   cc.convert_materials() 
-   cc.convert_opticalsurfaces() 
-   DAENode.vwalk(cc.visit)
-
-   log.info("flattening %s " % len(cc.geo.solids))
-   cc.geo.flatten()
-
-
+   cc.convert_geometry()
 
 
 
