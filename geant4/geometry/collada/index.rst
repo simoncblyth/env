@@ -13,4 +13,7 @@ Geant4 Geometry in Collada
    vertex_coordinate_debug
    dae_cf_wrl
    dae_cf_wrl_code
+   collada_to_chroma
+
+
 
