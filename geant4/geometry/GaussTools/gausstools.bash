@@ -7,6 +7,10 @@ gausstools-usage(){ cat << EOU
 GAUSSTOOLS
 =============
 
+Usage example::
+
+   DYB=x gausstools-diff
+   DYB=.old gausstools-diff 
 
 
 EOU
@@ -24,8 +28,8 @@ gausstools-target(){ echo $(nuwa-lhcb-dir)/Sim/GaussTools ; }
 gausstools-mode(){   echo ${GAUSSTOOLS_MODE:-diff} ; }
 gausstools-paths-(){ cat << EOP
 cmt/requirements
-src/Components/GiGaRunActionGDML.cpp
-src/Components/GiGaRunActionGDML.h
+src/Components/GiGaRunActionExport.cpp
+src/Components/GiGaRunActionExport.h
 EOP
 }
 

@@ -122,6 +122,42 @@ See :doc:`geant4/nuwa/dirty_patch`
 Modifications
 --------------
 
+::
+
+   ./dybinst -X geant4_with_dae trunk projects relax gaudi    # untouched ? 
+
+   ./dybinst -X geant4_with_dae trunk projects lhcb           # needs CMT attention
+   ./dybinst -X geant4_with_dae trunk projects dybgaudi
+
+
+relax
+~~~~~~~~
+
+Not used ?::
+
+    [blyth@belle7 relax]$ find . -name requirements -exec grep -H eant4 {} \;
+    ./Dictionaries/GeantFourRflx/v8r0p01/cmt/requirements:macro Geant4_native_version "8.0.p01"
+    ./Dictionaries/GeantFourRflx/v8r0p01/cmt/requirements:macro Geant4__8_0_p01__Rflx_use_linkopts " -L$(Geant4_home)/lib                              \
+    ./Dictionaries/GeantFourRflx/v8r0p01/cmt/requirements:apply_pattern relax_dictionary dictionary=Geant4__8_0_p01__             \
+    ./Dictionaries/GeantFourRflx/v8r0p01/cmt/requirements:                               headerfiles=$(GEANTFOURRFLXROOT)/dict/Geant4Dict.h      \
+    ./Dictionaries/GeantFourRflx/v9r0p01/cmt/requirements:macro Geant4_native_version "9.0.p01"
+    ./Dictionaries/GeantFourRflx/v9r0p01/cmt/requirements:macro Geant4__9_0_p01__Rflx_use_linkopts " -L$(Geant4_home)/lib                              \
+    ./Dictionaries/GeantFourRflx/v9r0p01/cmt/requirements:apply_pattern relax_dictionary dictionary=Geant4__9_0_p01__             \
+    ./Dictionaries/GeantFourRflx/v9r0p01/cmt/requirements:                               headerfiles=$(V9R0P01ROOT)/dict/Geant4Dict.h      \
+    ./Dictionaries/GeantFourRflx/v7r1p01a/cmt/requirements:macro Geant4_native_version "7.1.p01a"
+    ./Dictionaries/GeantFourRflx/v7r1p01a/cmt/requirements:macro Geant4__7_1_p01a__Rflx_use_linkopts " -L$(Geant4_home)/lib                              \
+    ./Dictionaries/GeantFourRflx/v7r1p01a/cmt/requirements:apply_pattern relax_dictionary dictionary=Geant4__7_1_p01a__             \
+    ./Dictionaries/GeantFourRflx/v7r1p01a/cmt/requirements:                               headerfiles=$(GEANTFOURRFLXROOT)/dict/Geant4Dict.h      \
+    ./LCG_Interfaces/GeantFour/cmt/requirements:package Geant4
+    ./LCG_Interfaces/GeantFour/cmt/requirements:macro Geant4_native_version __SPECIFY_MACRO__>>Geant4_native_version<<
+    ./LCG_Interfaces/GeantFour/cmt/requirements:macro Geant4_home "$(LCG_external)/geant4/$(Geant4_native_version)/$(LCG_system)"
+    ./LCG_Interfaces/GeantFour/cmt/requirements:include_dirs $(Geant4_home)/share/include
+    ./LCG_Interfaces/GeantFour/cmt/requirements:macro Geant4_linkopts "-L$(Geant4_home)/lib "        \
+    ./LCG_Interfaces/GeantFour/cmt/requirements:      WIN32           "/LIBPATH:$(Geant4_home)/lib "
+    [blyth@belle7 relax]$ 
+
+
+
 lhcb
 ~~~~~~
 

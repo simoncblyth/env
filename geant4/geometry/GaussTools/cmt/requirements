@@ -32,7 +32,7 @@ apply_pattern     component_library library=GaussTools
 apply_pattern     linker_library    library=GaussToolsLib
 
 
-# SCB : enable GDML,DAE,WRL export by GiGaRunActionGDML
+# SCB : enable GDML,DAE,WRL export by GiGaRunActionExport
 
 macro_append GaussTools_cppflags "" \
         geant4_with_dae  "-DEXPORT_G4DAE=1 -DEXPORT_G4WRL=1 -DEXPORT_G4GDML=1 " \

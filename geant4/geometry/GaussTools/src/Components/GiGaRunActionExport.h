@@ -6,7 +6,7 @@
 /** @class GiGaRunActionExport GiGaRunActionExport.h
  *  
  *  A concrete Run Action. 
- *  It exports Geant4 geometry into a GDML file at the BeginOfRun
+ *  Exports Geant4 geometry into DAE,GDML,WRL files at the BeginOfRun
  *
  *  Updated from http://svn.cern.ch/guest/lhcb/packages/trunk/Sim/GDMLG4Writer/src/GDMLRunAction.h 
  *

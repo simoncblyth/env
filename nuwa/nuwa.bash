@@ -76,12 +76,19 @@ nuwa-plat(){
   esac
 }
 
-nuwa-dybgaudi-dir(){ echo $DYB/NuWa-trunk/dybgaudi ; } 
-nuwa-lcgcmt-dir(){ echo $DYB/NuWa-trunk/lcgcmt ; } 
-nuwa-lhcb-dir(){ echo $DYB/NuWa-trunk/lhcb ; } 
-nuwa-g4-bdir(){ echo $DYB/external/build/LCG/geant4.9.2.p01 ; }
-nuwa-g4-bdir-old(){ echo $DYB/../dyb.old/external/build/LCG/geant4.9.2.p01 ; }
-nuwa-g4-idir(){ echo $DYB/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
+nuwa-dyb(){ 
+   case ${DYB:0:1} in
+     /) echo $DYB ;;                   ## absolute DYB just provide asis
+     *) echo ${LOCAL_BASE}/dyb$DYB ;;  ## relative, prefix with LOCAL_BASE/dyb
+   esac
+}
+
+nuwa-dybgaudi-dir(){ echo $(nuwa-dyb)/NuWa-trunk/dybgaudi ; } 
+nuwa-lcgcmt-dir(){ echo $(nuwa-dyb)/NuWa-trunk/lcgcmt ; } 
+nuwa-lhcb-dir(){ echo $(nuwa-dyb)/NuWa-trunk/lhcb ; } 
+nuwa-g4-bdir(){ echo $(nuwa-dyb)/external/build/LCG/geant4.9.2.p01 ; }
+nuwa-g4-bdir-old(){ echo $(nuwa-dyb)/../dyb.old/external/build/LCG/geant4.9.2.p01 ; }
+nuwa-g4-idir(){ echo $(nuwa-dyb)/external/geant4/4.9.2.p01/$(nuwa-plat) ; }
 nuwa-g4-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/cmt ; }
 nuwa-g4-pdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/geant4/patches ; }
 nuwa-pkg-cmtdir(){ echo $(nuwa-lcgcmt-dir)/LCG_Builders/$1/cmt ; }
@@ -91,20 +98,27 @@ nuwa-g4-sdir(){ echo $(nuwa-g4-bdir)/source ; }
 nuwa-g4-incdir(){ echo $(nuwa-g4-idir)/include ; }
 nuwa-g4-libdir(){ echo $(nuwa-g4-idir)/lib ; }
 
+nuwa-g4-wipe-marker(){
+  rm $(nuwa-g4-bdir)/lib/Linux-g++/libG4run.so
+  rm $(nuwa-g4-bdir)/lib/Linux-g++/libname.map
+  rm $(nuwa-g4-bdir)/include/G4Version.hh 
+}
+
+
 nuwa-clhep-ver(){  echo 2.0.4.2 ; }
-nuwa-clhep-bdir(){ echo $DYB/external/build/LCG/clhep/$(nuwa-clhep-ver) ; }
-nuwa-clhep-idir(){ echo $DYB/external/clhep/$(nuwa-clhep-ver)/$(nuwa-plat) ; } 
+nuwa-clhep-bdir(){ echo $(nuwa-dyb)/external/build/LCG/clhep/$(nuwa-clhep-ver) ; }
+nuwa-clhep-idir(){ echo $(nuwa-dyb)/external/clhep/$(nuwa-clhep-ver)/$(nuwa-plat) ; } 
 nuwa-clhep-lib(){ echo CLHEP-$(nuwa-clhep-ver) ; } 
 nuwa-clhep-incdir(){ echo $(nuwa-clhep-idir)/include ; } 
 nuwa-clhep-libdir(){ echo $(nuwa-clhep-idir)/lib ; } 
 
 
-nuwa-xercesc-bdir(){ echo $DYB/external/build/LCG/xerces-c-src_2_8_0 ; }
-nuwa-xercesc-idir(){ echo $DYB/external/XercesC/2.8.0/$(nuwa-plat) ; }
+nuwa-xercesc-bdir(){ echo $(nuwa-dyb)/external/build/LCG/xerces-c-src_2_8_0 ; }
+nuwa-xercesc-idir(){ echo $(nuwa-dyb)/external/XercesC/2.8.0/$(nuwa-plat) ; }
 nuwa-xercesc-incdir(){ echo $(nuwa-xercesc-idir)/include ; }
 nuwa-xercesc-libdir(){ echo $(nuwa-xercesc-idir)/lib ; }
 
-nuwa-python-idir(){ echo $DYB/external/Python/2.7/$(nuwa-plat) ; }
+nuwa-python-idir(){ echo $(nuwa-dyb)/external/Python/2.7/$(nuwa-plat) ; }
 nuwa-python-incdir(){ echo $(nuwa-python-idir)/include/python2.7 ; }
 nuwa-python-libdir(){ echo $(nuwa-python-idir)/lib ; }
 
@@ -433,7 +447,7 @@ nuwa-version(){       local rel=$(nuwa-release $*) ; echo ${rel/NuWa-/} ; }
 nuwa-scripts(){       echo installation/$(nuwa-version $*)/dybtest/scripts ; }
 
 nuwa-base(){          echo $(dirname $(nuwa-home $*)) ; } 
-nuwa-dyb(){           echo $(nuwa-base $*) ; } 
+nuwa-dyb-deprecated(){           echo $(nuwa-base $*) ; } 
 nuwa-external(){      echo $(nuwa-base $*)/external ; } 
 nuwa-ddi(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybinst/scripts ; }
 nuwa-ddt(){           echo $(nuwa-base $*)/installation/$(nuwa-version $*)/dybtest ; }
