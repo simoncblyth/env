@@ -84,6 +84,7 @@ EOC
 navadd-tabnames(){
   case ${1:-$TRAC_INSTANCE} in 
     dybsvn) echo query daily ;;
+       env) echo query docs;;
          *) echo query ;;
   esac
 }
