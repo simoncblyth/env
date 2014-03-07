@@ -6,4 +6,7 @@ chroma_camera
 
    chroma_camera_usage
    chroma_camera_dae_debug
+   chroma_camera_enhancements
+
+
 
