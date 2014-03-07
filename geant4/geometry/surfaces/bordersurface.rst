@@ -558,3 +558,277 @@ Interleaving the bordersurface with the debug bsurf from the meta element. Obser
 
 
 
+GiGa Creation
+--------------
+
+::
+
+    [blyth@belle7 lhcb]$ find . -name '*.cpp' -exec grep -H G4LogicalBorderSurface {} \;
+    ./Sim/GiGaCnv/src/component/GiGaSurfaceCnv.cpp:#include  "G4LogicalBorderSurface.hh"
+    ./Sim/GiGaCnv/src/component/GiGaSurfaceCnv.cpp:  G4LogicalBorderSurface* surf = 
+    ./Sim/GiGaCnv/src/component/GiGaSurfaceCnv.cpp:    G4LogicalBorderSurface::GetSurface( pv1 , pv2 );
+    ./Sim/GiGaCnv/src/component/GiGaSurfaceCnv.cpp:    { logsurf = new G4LogicalBorderSurface( surface->registry()->identifier() , 
+    [blyth@belle7 lhcb]$ 
+
+
+
+Ambiguity By Design ? Detdesc XML would suggest so
+-----------------------------------------------------
+
+* see geant4/geometry/materials/dd.py for detdesc parsing
+
+::
+
+    [blyth@belle7 DDDB]$ pwd
+    /data1/env/local/dybx/NuWa-trunk/dybgaudi/Detector/XmlDetDesc/DDDB
+
+    [blyth@belle7 DDDB]$ find . -name surfaces.xml
+    ./AdDetails/surfaces.xml
+    ./Parameters/surfaces.xml
+    ./AdDetails_213/surfaces.xml
+    ./PoolDetails/surfaces.xml
+
+
+Only one surface definition for all such reflectors in all ADs ?
+
+AdDetails/surfaces.xml::
+
+     43 
+     44   <!-- Reflector top and bottom -->
+     45 
+     46   <surface name="ESRAirSurfaceTop"
+     47        model="unified"
+     48        finish="polished"
+     49        type="dielectric_metal"
+     50        value="0.0"
+     51        volfirst="/dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap"
+     52        volsecond="/dd/Geometry/AdDetails/lvTopRefGap#pvTopESR">
+     53     <tabprops address="/dd/Geometry/AdDetails/AdTabProperties/ESRAirReflectivity"/>
+     54   </surface>
+     55   <surface name="ESRAirSurfaceBot"
+     56        model="unified"
+     57        finish="polished"
+     58        type="dielectric_metal"
+     59        value="0.0"
+     60        volfirst="/dd/Geometry/AdDetails/lvBotReflector#pvBotRefGap"
+     61        volsecond="/dd/Geometry/AdDetails/lvBotRefGap#pvBotESR">
+     62     <tabprops address="/dd/Geometry/AdDetails/AdTabProperties/ESRAirReflectivity"/>
+     63   </surface>
+
+
+Parameters/surfaces.xml::
+
+     09 <!-- Geant4's G4OpticalSurface enums -->
+     10 <parameter name="polished" value="0"/>
+     11 <parameter name="polishedfrontpainted" value="1" />
+     12 <parameter name="polishedbackpainted" value="2" />
+     13 <parameter name="ground" value="3" />
+     14 <parameter name="groundfrontpainted" value="4" />
+     15 <parameter name="groundbackpainted" value="5" />
+     16 
+     17 <parameter name="dielectric_metal" value="0" />
+     18 <parameter name="dielectric_dielectric" value="1" />
+     19 
+     20 <parameter name="glisur" value="0" />
+     21 <parameter name="unified" value="1" />
+
+
+::
+
+    [blyth@belle7 DDDB]$ diff AdDetails/surfaces.xml AdDetails_213/surfaces.xml
+    6a7,8
+    > <!-- Modified for 2-1-3 configuration -->
+    > 
+    18c20
+    <     <surfaceref href="#SSTWaterSurfaceNear2"/>
+    ---
+    >     <!-- REMOVED surfaceref href="#SSTWaterSurfaceNear2"/ Unneeded for 2-1-3 config -->
+    24c26
+    <     <surfaceref href="#SSTWaterSurfaceFar4"/>
+    ---
+    >     <!-- REMOVED surfaceref href="#SSTWaterSurfaceFar4"/  Unneeded for 2-1-3 config -->
+    28,37c30,39
+    <     <tabpropertyref href="properties.xml#RSOilReflectivity"/> <!--Radial Shield-->
+    <     <tabpropertyref href="properties.xml#RSOilSpecularLobe"/> <!--Radial Shield-->
+    <     <tabpropertyref href="properties.xml#RSOilSpecularSpike"/> <!--Radial Shield-->
+    <     <tabpropertyref href="properties.xml#RSOilBackScattering"/> <!--Radial Shield-->
+    <     <tabpropertyref href="properties.xml#ESRAirReflectivity"/>
+    <     <tabpropertyref href="properties.xml#ESRAirSpecularLobe"/>
+    <     <tabpropertyref href="properties.xml#ESRAirSpecularSpike"/>
+    <     <tabpropertyref href="properties.xml#ESRAirBackScattering"/>
+    <     <tabpropertyref href="properties.xml#SSTOilReflectivity"/>
+    <     <tabpropertyref href="properties.xml#SSTWaterReflectivity"/>
+    ---
+    >     <tabpropertyref href="../AdDetails/properties.xml#RSOilReflectivity"/> <!--Radial Shield-->
+    >     <tabpropertyref href="../AdDetails/properties.xml#RSOilSpecularLobe"/> <!--Radial Shield-->
+    >     <tabpropertyref href="../AdDetails/properties.xml#RSOilSpecularSpike"/> <!--Radial Shield-->
+    >     <tabpropertyref href="../AdDetails/properties.xml#RSOilBackScattering"/> <!--Radial Shield-->
+    >     <tabpropertyref href="../AdDetails/properties.xml#ESRAirReflectivity"/>
+    >     <tabpropertyref href="../AdDetails/properties.xml#ESRAirSpecularLobe"/>
+    >     <tabpropertyref href="../AdDetails/properties.xml#ESRAirSpecularSpike"/>
+    >     <tabpropertyref href="../AdDetails/properties.xml#ESRAirBackScattering"/>
+    >     <tabpropertyref href="../AdDetails/properties.xml#SSTOilReflectivity"/>
+    >     <tabpropertyref href="../AdDetails/properties.xml#SSTWaterReflectivity"/>
+    88,96c90,92
+    <   <surface name="SSTWaterSurfaceNear2"
+    <          model="unified"
+    <          finish="ground"
+    <          type="dielectric_metal"
+    <          value="1.0"
+    <          volfirst="/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE2"
+    <          volsecond="/dd/Geometry/AD/lvADE#pvSST">
+    <     <tabprops address="/dd/Geometry/AdDetails/AdTabProperties/SSTWaterReflectivity"/>
+    <   </surface>
+    ---
+    > 
+    >   <!-- Removed pvNearADE2 for 2-1-3 configuration -->
+    > 
+    128,136c124,125
+    <   <surface name="SSTWaterSurfaceFar4"
+    <          model="unified"
+    <          finish="ground"
+    <          type="dielectric_metal"
+    <          value="1.0"
+    <          volfirst="/dd/Geometry/Pool/lvFarPoolIWS#pvFarADE4"
+    <          volsecond="/dd/Geometry/AD/lvADE#pvSST">
+    <     <tabprops address="/dd/Geometry/AdDetails/AdTabProperties/SSTWaterReflectivity"/>
+    <   </surface>
+    ---
+    > 
+    >   <!-- Removed pvFarADE4 for 2-1-3 configuration --> 
+    [blyth@belle7 DDDB]$ 
+
+
+
+
+
+BorderSurface Debug during traverse
+--------------------------------------
+
+* PV2 matches on the volume before (the mother ?)
+
+
+::
+
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvRadialShield:27[27]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvRadialShield:28[28]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvRadialShield:29[29]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvRadialShield:30[30]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvRadialShield:31[31]
+
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvTopRefGap#pvTopESR[1000]
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap
+             PV2 [copyNo]name [1000]/dd/Geometry/AdDetails/lvTopRefGap#pvTopESR
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/AdDetails/lvTopReflector#pvTopRefGap
+             PV2 [copyNo]name [1000]/dd/Geometry/AdDetails/lvTopRefGap#pvTopESR
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvTopReflector[1429]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvBotRefGap#pvBotESR[1000]
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/AdDetails/lvBotReflector#pvBotRefGap
+             PV2 [copyNo]name [1000]/dd/Geometry/AdDetails/lvBotRefGap#pvBotESR
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvBotReflector#pvBotRefGap[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/AdDetails/lvBotReflector#pvBotRefGap
+             PV2 [copyNo]name [1000]/dd/Geometry/AdDetails/lvBotRefGap#pvBotESR
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvBotReflector[1430]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvSstBotRadiusRibs#SstBotRibs#SstBotRibRot[1431]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvSstBotRadiusRibs#SstBotRibs:1#SstBotRibRot[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvSstBotRadiusRibs#SstBotRibs:2#SstBotRibRot[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvSstBotRadiusRibs#SstBotRibs:3#SstBotRibRot[3]
+    
+
+
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvWallUpperLedSourceAssy[1517]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvWallMidLedSourceAssy[1518]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvOIL#pvWallBotLedSourceAssy[1519]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvSST#pvOIL[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/AD/lvSST#pvOIL
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvSST#lvCenterCalibHoleSST[1001]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvSST#pvOffCenterCalibHoleSST[1002]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvSST#pvGCatCalibHoleSST[1003]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvADE#pvSST[1000]
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/AD/lvSST#pvOIL
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE1
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1001]/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE2
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface ... /dd/Geometry/CalibrationBox/lvCenterCalibE#pvCenterBottomPlate[1000]
+    G4DAE::GetBorderSurface ... /dd/Geometry/CalibrationBox/lvDomeInterior#pvShieldingPuck[1000]
+    G4DAE::GetBorderSurface ... /dd/Geometry/CalibrationBox/lvDomeInterior#pvBearingRing[1001]
+    G4DAE::GetBorderSurface ... /dd/Geometry/CalibrationBox/lvDomeInterior#pvTurntableLowerPlate[1002]
+
+
+
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvMOOverflowTankE#pvMOFTTopFlangeInterior[1004]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AdDetails/lvMOOverflowTankE#pvMOFTTopCover[1005]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE1[1009]
+    G4DAE::GetBorderSurface ... /dd/Geometry/AD/lvADE#pvlvMOOverflowTankE2[1010]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolIWS#pvNearADE1[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE1
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolIWS#pvNearADE2[1001]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1001]/dd/Geometry/Pool/lvNearPoolIWS#pvNearADE2
+             PV2 [copyNo]name [1000]/dd/Geometry/AD/lvADE#pvSST
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolIWS#pvVetoPmtNearInn#pvNearInnWall1#pvNearInnWall1:1#pvVetoPmtUnit#pvPmtHemi[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolIWS#pvVetoPmtNearInn#pvNearInnWall1#pvNearInnWall1:1#pvVetoPmtUnit#pvPmtMount#pvPmtTopRing[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolIWS#pvVetoPmtNearInn#pvNearInnWall1#pvNearInnWall1:1#pvVetoPmtUnit#pvPmtMount#pvPmtBaseRing[1]
+
+
+
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolOWS#pvNearMuonCableTray#pvMuonCableTrayNear:2#MuonHalfCableTrayNear:7[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolOWS#pvOutWaterPipeNear#OutWaterPipeNear:1[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolOWS#pvOutWaterPipeNear#OutWaterPipeNear:2[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearPoolOWS[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolLiner#pvNearPoolOWS
+             PV2 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner
+    G4DAE::GetBorderSurface surf other PV1 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolLiner#pvNearPoolOWS
+             PV2 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolOWS#pvNearPoolCurtain
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE1LinerLegs#pvLegInLiner:1#pvLegInLinerUnit[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE1LinerLegs#pvLegInLiner:2#pvLegInLinerUnit[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE1LinerLegs#pvLegInLiner:3#pvLegInLinerUnit[3]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE1LinerLegs#pvLegInLiner:4#pvLegInLinerUnit[4]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE2LinerLegs#pvLegInLiner:1#pvLegInLinerUnit[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE2LinerLegs#pvLegInLiner:2#pvLegInLinerUnit[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE2LinerLegs#pvLegInLiner:3#pvLegInLinerUnit[3]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolLiner#pvNearADE2LinerLegs#pvLegInLiner:4#pvLegInLinerUnit[4]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner[1000]
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolLiner#pvNearPoolOWS
+             PV2 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner
+    G4DAE::GetBorderSurface surf PV2 match 
+             PV1 [copyNo]name [1000]/dd/Geometry/Sites/lvNearHallBot#pvNearPoolDead
+             PV2 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE1DeadLegs#pvLegInDead:1#pvLegInDeadUnit[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE1DeadLegs#pvLegInDead:2#pvLegInDeadUnit[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE1DeadLegs#pvLegInDead:3#pvLegInDeadUnit[3]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE1DeadLegs#pvLegInDead:4#pvLegInDeadUnit[4]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE2DeadLegs#pvLegInDead:1#pvLegInDeadUnit[1]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE2DeadLegs#pvLegInDead:2#pvLegInDeadUnit[2]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE2DeadLegs#pvLegInDead:3#pvLegInDeadUnit[3]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Pool/lvNearPoolDead#pvNearADE2DeadLegs#pvLegInDead:4#pvLegInDeadUnit[4]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearPoolDead[1000]
+    G4DAE::GetBorderSurface surf_first_pv1 
+             PV1 [copyNo]name [1000]/dd/Geometry/Sites/lvNearHallBot#pvNearPoolDead
+             PV2 [copyNo]name [1000]/dd/Geometry/Pool/lvNearPoolDead#pvNearPoolLiner
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab1[1001]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab2[1002]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab3[1003]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab4[1004]
+    G4DAE::GetBorderSurface ... /dd/Geometry/Sites/lvNearHallBot#pvNearHallRadSlabs#pvNearHallRadSlab5[1005]
+
+
+
+

@@ -87,6 +87,40 @@ Geant4 Surface
 `processes/optical/src/G4OpBoundaryProcess.cc`
 
 
+DAE/GDML persisted
+--------------------
+
+* glisur value **Polish**
+* non-glisur value  **SigmaAlpha**
+
+::
+
+    242 /*
+    243  * Create opticalsurface element with attributes from G4OpticalSurface*
+    244  * append to first argument element
+    245  * 
+    246  * from G4GDMLWriteSolids::OpticalSurfaceWrite
+    247  */
+    248 void G4DAEWriteStructure::
+    249 OpticalSurfaceWrite(xercesc::DOMElement* targetElement,
+    250                     const G4OpticalSurface* const surf)
+    251 {
+    252    xercesc::DOMElement* optElement = NewElement("opticalsurface");
+    253    G4OpticalSurfaceModel smodel = surf->GetModel();
+    254    G4double sval = (smodel==glisur) ? surf->GetPolish() : surf->GetSigmaAlpha();
+    255 
+    256    optElement->setAttributeNode(NewNCNameAttribute("name", surf->GetName()));
+    257    optElement->setAttributeNode(NewAttribute("model", smodel));
+    258    optElement->setAttributeNode(NewAttribute("finish", surf->GetFinish()));
+    259    optElement->setAttributeNode(NewAttribute("type", surf->GetType()));
+    260    optElement->setAttributeNode(NewAttribute("value", sval));
+    261 
+    262    G4MaterialPropertiesTable* ptable = surf->GetMaterialPropertiesTable();
+    263    PropertyWrite( optElement, ptable );
+    264 
+    265    targetElement->appendChild(optElement);
+    266 }
+
 
 
 Chroma Surface
