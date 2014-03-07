@@ -196,8 +196,10 @@ cuda-samples-bin-run(){
     eval $cmd
 }
 
-cuda-samples-bin-deviceQuery(){   cuda-samples-bin-run deviceQuery $* ; }
-cuda-samples-bin-bandwidthTest(){ cuda-samples-bin-run bandwidthTest $* ; }
+cuda-samples-bin-deviceQuery(){    cuda-samples-bin-run deviceQuery $* ; }
+cuda-samples-bin-bandwidthTest(){  cuda-samples-bin-run bandwidthTest $* ; }
+cuda-samples-bin-smokeParticles(){ cuda-samples-bin-run smokeParticles $* ; }
+cuda-samples-bin-fluidsGL(){       cuda-samples-bin-run fluidsGL $* ; }
 
 
 

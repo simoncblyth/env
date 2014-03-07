@@ -349,8 +349,8 @@ chroma-env(){
 chroma-cd(){  cd $(chroma-dir); }
 chroma-mate(){ mate $(chroma-dir) ; }
 chroma-get(){
+   [ "$NODE_TAG" == "D" ] && echo $msg NOT USED ON NODE $NODE_TAG SEE chroma-build && return 1
    local dir=$(dirname $(chroma-dir)) &&  mkdir -p $dir && cd $dir
-
    hg clone https://bitbucket.org/chroma/chroma
 }
 

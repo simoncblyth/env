@@ -348,9 +348,10 @@ class ColladaToChroma(object):
         if self.vcount < 10:
             log.info("visit : vcount %s node.index %s node.id %s " % ( self.vcount, node.index, node.id ))
 
-        if node.index < self.root_index:
-            log.info("not converting node.index %s as less than desired root_index %s" % ( node.index, self.root_index ))
-            return   
+        # this was the cause of the black window issue, somehow cannot skip overly large Universe/top.0 node like this ??
+        #if node.index < self.root_index:
+        #    log.info("not converting node.index %s as less than desired root_index %s" % ( node.index, self.root_index ))
+        #    return   
 
         bps = list(node.boundgeom.primitives())
         bpl = bps[0]

@@ -129,8 +129,8 @@ svn-revert-(){ svn --recursive revert . ; }
 
 svn-log5(){ svn log --limit 5 -v ; }
 svn-addx(){ $FUNCNAME- $* ; }
-svn-addx-(){ cat << EOC
-svn add $1 && svn ps svn:executable yes $1
+svn-addx-(){ local name=$1 ; cat << EOC
+svn add $name ; svn ps svn:executable yes $name
 EOC
 }
 

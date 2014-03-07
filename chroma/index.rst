@@ -22,7 +22,7 @@ chroma
    chroma_detector
    chroma_server
    chroma_zeromq
-   chroma_keys
+   chroma_camera/index
 
    geant4_background
    cuda_background

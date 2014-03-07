@@ -5,37 +5,49 @@ hg-vi(){       vi $(hg-source) ; }
 hg-env(){      elocal- ; }
 hg-usage(){
   cat << EOU
-     hg-src : $(hg-src)
-     hg-dir : $(hg-dir)
+Mercurial
+===========
 
+Tips
+----
 
-     hg-repos <dir:PWD> :
-         list absolute paths of repos beneath dir, defaulting to PWD
+*hg -v help log*
+     gives much more detailed help with the *-v*
 
-     hg-vals default
-        list .hg/hgrc metadata 
+*hg log -v -l5*
+     *-v* option lists changed files
 
-     hg-pull 
-         pull into all repos found beneath PWD
-
-
-      hg-backup
-         effect the backup of remote repos by pulling into local backup
-         to add another repo to the backup initiate manual clone
-         into the backup dir, eg 
-
-             cd /var/hg/backup
-             hg clone http://belle7.nuu.edu.tw/hg/AuthKitPy24
+*hg log -vGl 5*
+     combine options, G shows DAG, l to limit revisions 
 
 
 
-      hg-forest-get
+FUNCTIONS
+---------
 
-          openjdk- requires forrest extenstion to mercurial
-          macports gets dependencies py2.7.2 and mercurial 2.1
+hg-repos <dir:PWD> :
+     list absolute paths of repos beneath dir, defaulting to PWD
 
-          initially "hg help" shows no sign of forrect, need to 
-	  configure extension in ~/.hgrc with::
+hg-vals default
+     list .hg/hgrc metadata 
+
+hg-pull 
+     pull into all repos found beneath PWD
+
+hg-backup
+     effect the backup of remote repos by pulling into local backup
+     to add another repo to the backup initiate manual clone
+     into the backup dir, eg::
+
+         cd /var/hg/backup
+         hg clone http://belle7.nuu.edu.tw/hg/AuthKitPy24
+
+hg-forest-get
+     openjdk- requires forrest extenstion to mercurial
+     macports gets dependencies py2.7.2 and mercurial 2.1
+
+     initially "hg help" shows no sign of forrect, need to 
+	 configure extension in ~/.hgrc with::
 
 		  [extensions]
 		  hgext.forest=

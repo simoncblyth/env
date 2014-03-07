@@ -4,6 +4,76 @@ ipython-vi(){      vi $(ipython-source) ; }
 
 ipython-usage(){ cat << EOU
 
+
+IPYTHON
+========
+
+
+installs
+----------
+
+D
+~~
+
+Uninstall macports ipython and pip install inside chroma virtualenv, as misbehaves there otherwise::
+
+    delta:~ blyth$ sudo port uninstall py27-ipython
+    Password:
+    Warning: port definitions are more than two weeks old, consider updating them by running 'port selfupdate'.
+    --->  Deactivating py27-ipython @1.1.0_1+scientific
+    --->  Cleaning py27-ipython
+    --->  Uninstalling py27-ipython @1.1.0_1+scientific
+    --->  Cleaning py27-ipython
+    delta:~ blyth$ 
+    delta:~ blyth$ which ipython
+    delta:~ blyth$ chroma-
+    (chroma_env)delta:~ blyth$ which pip
+    /usr/local/env/chroma_env/bin/pip
+    (chroma_env)delta:~ blyth$ pip install ipython
+    Downloading/unpacking ipython
+      Downloading ipython-1.2.1.tar.gz (8.7MB): 8.7MB downloaded
+      Running setup.py egg_info for package ipython
+        
+    Installing collected packages: ipython
+      Running setup.py install for ipython
+        
+        Installing ipcontroller script to /usr/local/env/chroma_env/bin
+        Installing iptest script to /usr/local/env/chroma_env/bin
+        Installing ipcluster script to /usr/local/env/chroma_env/bin
+        Installing ipython script to /usr/local/env/chroma_env/bin
+        Installing pycolor script to /usr/local/env/chroma_env/bin
+        Installing iplogger script to /usr/local/env/chroma_env/bin
+        Installing irunner script to /usr/local/env/chroma_env/bin
+        Installing ipengine script to /usr/local/env/chroma_env/bin
+    Successfully installed ipython
+    Cleaning up...
+    (chroma_env)delta:~ blyth$ 
+
+
+ipython libedit issue, at ipython startup message::
+
+    It is highly recommended that you install readline, which is easy_installable:
+         easy_install readline
+    Note that `pip install readline` generally DOES NOT WORK, because
+    it installs to site-packages, which come *after* lib-dynload in sys.path,
+    where readline is located.  It must be `easy_install readline`, or to a custom
+    location on your PYTHONPATH (even --user comes after lib-dyload).
+
+do so::
+
+    (chroma_env)delta:~ blyth$ easy_install readline
+    ...
+    Running readline-6.2.4.1/setup.py -q bdist_egg --dist-dir /var/folders/qm/1p5gh0x94l3b0xqc8dpr9yn40000gn/T/easy_install-t49Iq7/readline-6.2.4.1/egg-dist-tmp-DcEEyu
+    ld: warning: ignoring file /opt/local/lib/libncurses.dylib, file was built for x86_64 which is not the architecture being linked (i386): /opt/local/lib/libncurses.dylib
+    Adding readline 6.2.4.1 to easy-install.pth file
+
+    Installed /usr/local/env/chroma_env/lib/python2.7/site-packages/readline-6.2.4.1-py2.7-macosx-10.9-x86_64.egg
+
+
+refs
+-------
+
+
   Good intro to pylab/numpy/ipython etc...
      http://conference.scipy.org/scipy2010/tutorials.html
 
