@@ -135,7 +135,9 @@ nuwa-setup(){
    [ "$SITEROOT" != "$dyb/NuWa-trunk" ] && echo $msg ENVIRONMENT INCONSITENCY SITEROOT $SITEROOT dyb $dyb && return 1 
    cd $SITEROOT/dybgaudi/DybRelease/cmt ; cmt config ; . setup.sh 
 }
-
+nuwa-setup-x(){
+   DYB=x nuwa-setup  
+}
 
 
 nuwa-clhep-ver(){  echo 2.0.4.2 ; }

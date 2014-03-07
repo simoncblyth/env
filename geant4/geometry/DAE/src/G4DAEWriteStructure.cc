@@ -357,7 +357,10 @@ G4DAEWriteStructure::GetSkinSurface(const G4LogicalVolume* const lvol)
 const G4LogicalBorderSurface*
 G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
 {
-  G4LogicalBorderSurface* surf = 0;
+
+  // hmm should the parent be checked ? 
+
+  G4LogicalBorderSurface* surf_first_pv1 = 0;
   G4int nsurf = G4LogicalBorderSurface::GetNumberOfBorderSurfaces();
   if (nsurf)
   {
@@ -367,23 +370,52 @@ G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
     std::vector<G4LogicalBorderSurface*>::const_iterator pos;
     for (pos = btable->begin(); pos != btable->end(); pos++)
     {
-      if (pvol == (*pos)->GetVolume1())  // just the first in the couple 
-      {                                  // is enough
-        surf = *pos; break;
-      }
-    }
-  }
-  return surf;
+      const G4VPhysicalVolume* pv1 = (*pos)->GetVolume1() ;
+      const G4VPhysicalVolume* pv2 = (*pos)->GetVolume2() ;
+ 
+      if (pvol == pv1)  
+      {                                  
+           if( surf_first_pv1 == 0)
+           {
+                surf_first_pv1 = *pos ;
+                G4cout << "G4DAE::GetBorderSurface surf_first_pv1 "<< G4endl ;
+                G4cout << "         PV1 [copyNo]name [" << pv1->GetCopyNo() << "]" << pv1->GetName() << G4endl;
+                G4cout << "         PV2 [copyNo]name [" << pv2->GetCopyNo() << "]" << pv2->GetName() << G4endl;
+           }
+           else
+           {
+                G4cout << "G4DAE::GetBorderSurface surf other PV1 match "<< G4endl ;
+                G4cout << "         PV1 [copyNo]name [" << pv1->GetCopyNo() << "]" << pv1->GetName() << G4endl;
+                G4cout << "         PV2 [copyNo]name [" << pv2->GetCopyNo() << "]" << pv2->GetName() << G4endl;
+           }
+
+           //surf = *pos; break;
+
+      }  // pv1 match
+
+
+      if (pvol == pv2)
+      {
+            G4cout << "G4DAE::GetBorderSurface surf PV2 match "<< G4endl ;
+            G4cout << "         PV1 [copyNo]name [" << pv1->GetCopyNo() << "]" << pv1->GetName() << G4endl;
+            G4cout << "         PV2 [copyNo]name [" << pv2->GetCopyNo() << "]" << pv2->GetName() << G4endl;
+ 
+      }  // pv2 match 
+
+    }   // over surfaces
+  }   // non zero border surfaces
+
+  return surf_first_pv1 ;  // keep same function as GDML for now
 }
 
 
-xercesc::DOMElement* G4DAEWriteStructure::GetPVElement(const G4VPhysicalVolume* const pvol)
+xercesc::DOMElement* G4DAEWriteStructure::GetPVElement(const G4VPhysicalVolume* const pv)
 {
     xercesc::DOMElement* pvElement = NewElement("pv");
     const G4String volumeref = GenerateName(pv->GetName(),pv);
-    pv->setAttributeNode(NewNCNameAttribute("ref",volumeref));
-    pv->setAttributeNode(NewNCNameAttribute("name",pv->GetName()));
-    pv->setAttributeNode(NewAttribute("copyNo",pv->GetCopyNo()));
+    pvElement->setAttributeNode(NewNCNameAttribute("ref",volumeref));
+    pvElement->setAttributeNode(NewNCNameAttribute("name",pv->GetName()));
+    pvElement->setAttributeNode(NewAttribute("copyNo",pv->GetCopyNo()));
     return pvElement ;  
 }
 
@@ -391,7 +423,8 @@ xercesc::DOMElement* G4DAEWriteStructure::GetPVElement(const G4VPhysicalVolume* 
 xercesc::DOMElement* G4DAEWriteStructure::GetBorderSurfacesMetaElement()
 {
     xercesc::DOMElement* metaElement = NewElement("meta");
-    G4VPhysicalVolume* pv1, pv2 ; 
+    const G4VPhysicalVolume* pv1 ;
+    const G4VPhysicalVolume* pv2 ;
     const G4SurfaceProperty* psurf ; 
     const G4LogicalBorderSurfaceTable* btable = G4LogicalBorderSurface::GetSurfaceTable();
     std::vector<G4LogicalBorderSurface*>::const_iterator bsurf;
@@ -399,6 +432,7 @@ xercesc::DOMElement* G4DAEWriteStructure::GetBorderSurfacesMetaElement()
     {
         pv1 = (*bsurf)->GetVolume1() ;
         pv2 = (*bsurf)->GetVolume2() ;
+
         psurf = (*bsurf)->GetSurfaceProperty();
 
         xercesc::DOMElement* bsurfElement = NewElement("bsurf");

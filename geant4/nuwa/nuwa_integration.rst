@@ -672,3 +672,64 @@ Need to understand GiGa details to make progress with this.
     [blyth@belle7 DybPython]$ 
 
 
+
+
+dae updating
+-------------
+
+::
+
+    [blyth@belle7 ~]$ nuwa-
+    [blyth@belle7 ~]$ DYB=x nuwa-setup
+    [blyth@belle7 cmt]$ cmt show tags | grep geant4_with_dae
+    geant4_with_dae (from CMTEXTRATAGS)
+    [blyth@belle7 cmt]$ 
+    [blyth@belle7 cmt]$ pwd
+    /data1/env/local/dybx/NuWa-trunk/dybgaudi/DybRelease/cmt
+
+    [blyth@belle7 cmt]$ cd $(DYB=x nuwa-g4-cmtdir); pwd
+    /data1/env/local/dybx/NuWa-trunk/lcgcmt/LCG_Builders/geant4/cmt
+
+
+::
+
+    cd ~/e/geant4/geometry/DAE
+    [blyth@belle7 DAE]$ ./make.sh 
+    NB NON-STANDARD DYB x
+    Making dependency for file src/G4DAEWriteStructure.cc ...
+    ...
+
+
+After recreating libG4DAE.so it becomes unusable via GaudiPython::
+
+    EventClockSvc.FakeEventTime           INFO Event times generated from 0 with steps of 0
+    Generator                             INFO Added gen tool GtTransformTool/onemuonTransformer
+    AlgorithmManager                     ERROR Algorithm of type GiGaInputStream is unknown (No factory available).
+    AlgorithmManager                     ERROR /data1/env/local/dybx/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4DAE.so: undefined symbol: _ZN15G4DAEWriteAsset10AssetWriteEPN11xercesc_2_810DOMElementE
+    AlgorithmManager                     ERROR More information may be available by setting the global jobOpt "ReflexPluginDebugLevel" to 1
+    GaudiSequencer                     WARNING Unable to find or create GiGaInputStream
+    AlgorithmManager                     ERROR Algorithm of type DsPushKine is unknown (No factory available).
+    AlgorithmManager                     ERROR /data1/env/local/dybx/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4DAE.so: undefined symbol: _ZN15G4DAEWriteAsset10AssetWriteEPN11xercesc_2_810DOMElementE
+    AlgorithmManager                     ERROR More information may be available by setting the global jobOpt "ReflexPluginDebugLevel" to 1
+    GaudiSequencer                     WARNING Unable to find or create DsPushKine
+    AlgorithmManager                     ERROR Algorithm of type DsPullEvent is unknown (No factory available).
+    AlgorithmManager                     ERROR /data1/env/local/dybx/NuWa-trunk/../external/geant4/4.9.2.p01/i686-slc5-gcc41-dbg/lib/libG4DAE.so: undefined symbol: _ZN15G4DAEWriteAsset10AssetWriteEPN11xercesc_2_810DOMElementE
+    AlgorithmManager                     ERROR More information may be available by setting the global jobOpt "ReflexPluginDebugLevel" to 1
+    GaudiSequencer                     WARNING Unable to find or create DsPullEvent
+    GaudiSequencer                        INFO Member list: 
+    EventLoopMgr                         ERROR Unable to initialize Algorithm: GaudiSequencer
+    EventLoopMgr                       WARNING Error Initializing base class MinimalEventLoopMgr.
+    ServiceManager                       ERROR Unable to initialize Service: EventLoopMgr
+    ApplicationMgr                        INFO Application Manager Terminated successfully
+
+
+BUT Somewhat surprisingly (because the ROOT/Reflex/GaudiPython/.. dict/conf morass is not updated) just doing a clean succeeds::
+
+    cd ~/e/geant4/geometry/DAE
+    [blyth@belle7 DAE]$ ./make.sh clean
+    NB NON-STANDARD DYB x
+    Making dependency for file src/G4DAEWriteStructure.cc ...
+    ...
+
+
+

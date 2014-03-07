@@ -11,6 +11,8 @@ main(){
   fi
 }
 
+export DYB=x
+echo NB NON-STANDARD DYB $DYB
 main $*
 
 

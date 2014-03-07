@@ -56,6 +56,105 @@ Refs
 
 
 
+Geant4 Usage of  G4LogicalBorderSurface 
+-------------------------------------------
+
+::
+
+    [blyth@belle7 source]$ find . -name '*.cc' -exec grep -l G4LogicalBorderSurface {} \;
+    ./persistency/gdml/src/G4GDMLReadStructure.cc
+    ./processes/optical/src/G4OpBoundaryProcess.cc
+    ./geometry/volumes/src/G4LogicalBorderSurface.cc
+    [blyth@belle7 source]$ 
+
+
+`processes/optical/src/G4OpBoundaryProcess.cc`::
+
+    132 G4VParticleChange*
+    133 G4OpBoundaryProcess::PostStepDoIt(const G4Track& aTrack, const G4Step& aStep)
+    134 {
+
+    218         theModel = glisur;
+    219         theFinish = polished;
+    220 
+    221         G4SurfaceType type = dielectric_dielectric;
+    222 
+    223         Rindex = NULL;
+    224         OpticalSurface = NULL;
+    225 
+    226         G4LogicalSurface* Surface = NULL;
+    227 
+    228         Surface = G4LogicalBorderSurface::GetSurface
+    229               (pPreStepPoint ->GetPhysicalVolume(),
+    230                pPostStepPoint->GetPhysicalVolume());
+
+               // THIS IS ONLY CHANCE TO SNAG A BORDERSURFACE
+    231 
+    232         if (Surface == NULL){
+    233       G4bool enteredDaughter=(pPostStepPoint->GetPhysicalVolume()
+    234                   ->GetMotherLogical() ==
+    235                   pPreStepPoint->GetPhysicalVolume()
+    236                   ->GetLogicalVolume());
+
+              //  poststep.PV.motherLV == prestep.PV.LV
+              //  poststep mother logical is prestep logical ... so poststep must be daughter of prestep  
+
+    237       if(enteredDaughter){             
+    238         Surface = G4LogicalSkinSurface::GetSurface
+    239           (pPostStepPoint->GetPhysicalVolume()->
+    240            GetLogicalVolume());
+
+    241         if(Surface == NULL)
+    242           Surface = G4LogicalSkinSurface::GetSurface
+    243           (pPreStepPoint->GetPhysicalVolume()->
+    244            GetLogicalVolume());
+    245       }
+    246       else {
+
+             // does this imply poststep must be mother of prestep ?   
+             // what about stepping between siblings ?
+
+    247         Surface = G4LogicalSkinSurface::GetSurface
+    248           (pPreStepPoint->GetPhysicalVolume()->
+    249            GetLogicalVolume());
+    250         if(Surface == NULL)
+    251           Surface = G4LogicalSkinSurface::GetSurface
+    252           (pPostStepPoint->GetPhysicalVolume()->
+    253            GetLogicalVolume());
+    254       }
+    255     }
+
+     Translating that into something digestable, 
+
+             //   Surface = G4LogicalBorderSurface::GetSurface(pPreStepPoint ->GetPhysicalVolume(),pPostStepPoint->GetPhysicalVolume());
+             //      *  border surface takes priority 
+             //
+             //   if(Surface == NULL){ 
+             //   ...   
+             //   if(enteredDaughter){    // first try post and then pre : daughter has first dibs
+             //        Surface = G4LogicalSkinSurface::GetSurface(pPostStepPoint->GetPhysicalVolume()->GetLogicalVolume());
+             //        if(Surface == NULL){
+             //           Surface = G4LogicalSkinSurface::GetSurface(pPreStepPoint->GetPhysicalVolume()->GetLogicalVolume());
+             //         }
+             //   }
+             //   else
+             //   {                // first pre then post : 
+             //
+             //   
+
+
+
+
+    256 
+    257     if (Surface) OpticalSurface =
+    258            dynamic_cast <G4OpticalSurface*> (Surface->GetSurfaceProperty());
+    259 
+
+
+
+
+
+
 PV Ambiguity Issue
 --------------------
 
@@ -344,6 +443,118 @@ CopyNo is non trivial to persist into DAE, as DAE retains the tree structure unl
 The copyNo kinda emerges from the traverse. Despite this it is included in DAE metadata elements, but difficult
 to interpret.
 
+
+
+DAE Debug
+------------
+
+Interleaving the bordersurface with the debug bsurf from the meta element. Observations:
+
+* one extra bsurf, 
+* copyNo not helping... presumably because of when it is requested, need to do this during the traverse somehow as the copyNo is being incremented
+
+::
+
+    157610       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop">
+    157611         <physvolref ref="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xc05e0f0"/>
+    157612         <physvolref ref="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xc208d58"/>
+    157613       </bordersurface>
+    157614       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceBot" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceBot">
+    157615         <physvolref ref="__dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xbd9e0e0"/>
+    157616         <physvolref ref="__dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xbd93990"/>
+    157617       </bordersurface>
+    157618       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface">
+    157619         <physvolref ref="__dd__Geometry__AD__lvSST--pvOIL0xc039198"/>
+    157620         <physvolref ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157621       </bordersurface>
+
+    157642       <meta>
+    157643         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceTop">
+    157644           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap" ref="__dd__Geometry__AdDetails__lvTopReflector--pvTopRefGap0xc05e0f0"/>
+    157645           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR" ref="__dd__Geometry__AdDetails__lvTopRefGap--pvTopESR0xc208d58"/>
+    157646         </bsurf>
+    157647         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceBot" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__ESRAirSurfaceBot">
+    157648           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap" ref="__dd__Geometry__AdDetails__lvBotReflector--pvBotRefGap0xbd9e0e0"/>
+    157649           <pv copyNo="1000" name="__dd__Geometry__AdDetails__lvBotRefGap--pvBotESR" ref="__dd__Geometry__AdDetails__lvBotRefGap--pvBotESR0xbd93990"/>
+    157650         </bsurf>
+    157651         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesAll__SSTOilSurface">
+    157652           <pv copyNo="1000" name="__dd__Geometry__AD__lvSST--pvOIL" ref="__dd__Geometry__AD__lvSST--pvOIL0xc039198"/>
+    157653           <pv copyNo="1000" name="__dd__Geometry__AD__lvADE--pvSST" ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157654         </bsurf>
+
+
+
+
+    157622       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1">
+    157623         <physvolref ref="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE10xc0c71b0"/>
+    157624         <physvolref ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157625       </bordersurface>
+    157626       <bordersurface name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2">
+    157627         <physvolref ref="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE20xbe3f650"/>
+    157628         <physvolref ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157629       </bordersurface>
+
+    157655         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear1">
+    157656           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE1" ref="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE10xc0c71b0"/>
+    157657           <pv copyNo="1000" name="__dd__Geometry__AD__lvADE--pvSST" ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157658         </bsurf>
+    157659         <bsurf name="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2" surfaceproperty="__dd__Geometry__AdDetails__AdSurfacesNear__SSTWaterSurfaceNear2">
+    157660           <pv copyNo="1001" name="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE2" ref="__dd__Geometry__Pool__lvNearPoolIWS--pvNearADE20xbe3f650"/>
+    157661           <pv copyNo="1000" name="__dd__Geometry__AD__lvADE--pvSST" ref="__dd__Geometry__AD__lvADE--pvSST0xbf20a18"/>
+    157662         </bsurf>
+
+
+
+
+    157630       <bordersurface name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface">
+    157631         <physvolref ref="__dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS0xbf52120"/>
+    157632         <physvolref ref="__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xc3bdb90"/>
+    157633       </bordersurface>
+
+    157675         <bsurf name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearIWSCurtainSurface">
+    157676           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS" ref="__dd__Geometry__Pool__lvNearPoolCurtain--pvNearPoolIWS0xbf52120"/>
+    157677           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain" ref="__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xc3bdb90"/>
+    157678         </bsurf>
+
+
+
+    157634       <bordersurface name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSLinerSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSLinerSurface">
+    157635         <physvolref ref="__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xbd579a8"/>
+    157636         <physvolref ref="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xbd42ef8"/>
+    157637       </bordersurface>
+
+    157663         <bsurf name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSLinerSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSLinerSurface">
+    157664           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS" ref="__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xbd579a8"/>
+    157665           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner" ref="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xbd42ef8"/>
+    157666         </bsurf>
+
+       ########### HUH THIS ONE WITH SAME PV1 AS PRIOR IS MISSING IN THE ABOVE
+       ########### THE GDML EXTRACTED CODE THAT JUST CHECKS THE FIRST OF THE PAIR IS WRONG
+          
+    157671         <bsurf name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSCurtainSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearOWSCurtainSurface">
+    157672           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS" ref="__dd__Geometry__Pool__lvNearPoolLiner--pvNearPoolOWS0xbd579a8"/>
+    157673           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain" ref="__dd__Geometry__Pool__lvNearPoolOWS--pvNearPoolCurtain0xc3bdb90"/>
+    157674         </bsurf>
+
+
+
+
+    157638       <bordersurface name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearDeadLinerSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearDeadLinerSurface">
+    157639         <physvolref ref="__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xbf33ca0"/>
+    157640         <physvolref ref="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xbd42ef8"/>
+    157641       </bordersurface>
+
+    157667         <bsurf name="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearDeadLinerSurface" surfaceproperty="__dd__Geometry__PoolDetails__NearPoolSurfaces__NearDeadLinerSurface">
+    157668           <pv copyNo="1000" name="__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead" ref="__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xbf33ca0"/>
+    157669           <pv copyNo="1000" name="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner" ref="__dd__Geometry__Pool__lvNearPoolDead--pvNearPoolLiner0xbd42ef8"/>
+    157670         </bsurf>
+
+
+
+
+    157679       </meta>
+    157680     </extra>
+    157681   </library_nodes>
 
 
 
