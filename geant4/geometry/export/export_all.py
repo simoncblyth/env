@@ -5,6 +5,9 @@ Usage::
    cd ~/e/geant4/geometry/export
    nuwa.py -G $XMLDETDESCROOT/DDDB/dayabay.xml -n1 -m export 
 
+   ## actually that -G option is not needed as that path is the default 
+   ## as observed from DybPython.Control.configure_geometry/XmlDetDesc.Configure
+
    OR
 
    ~/e/geant4/geometry/export/export.sh
