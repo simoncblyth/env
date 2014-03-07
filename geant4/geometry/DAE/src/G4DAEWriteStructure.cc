@@ -376,6 +376,44 @@ G4DAEWriteStructure::GetBorderSurface(const G4VPhysicalVolume* const pvol)
   return surf;
 }
 
+
+xercesc::DOMElement* G4DAEWriteStructure::GetPVElement(const G4VPhysicalVolume* const pvol)
+{
+    xercesc::DOMElement* pvElement = NewElement("pv");
+    const G4String volumeref = GenerateName(pv->GetName(),pv);
+    pv->setAttributeNode(NewNCNameAttribute("ref",volumeref));
+    pv->setAttributeNode(NewNCNameAttribute("name",pv->GetName()));
+    pv->setAttributeNode(NewAttribute("copyNo",pv->GetCopyNo()));
+    return pvElement ;  
+}
+
+
+xercesc::DOMElement* G4DAEWriteStructure::GetBorderSurfacesMetaElement()
+{
+    xercesc::DOMElement* metaElement = NewElement("meta");
+    G4VPhysicalVolume* pv1, pv2 ; 
+    const G4SurfaceProperty* psurf ; 
+    const G4LogicalBorderSurfaceTable* btable = G4LogicalBorderSurface::GetSurfaceTable();
+    std::vector<G4LogicalBorderSurface*>::const_iterator bsurf;
+    for (bsurf = btable->begin(); bsurf != btable->end(); bsurf++)
+    {
+        pv1 = (*bsurf)->GetVolume1() ;
+        pv2 = (*bsurf)->GetVolume2() ;
+        psurf = (*bsurf)->GetSurfaceProperty();
+
+        xercesc::DOMElement* bsurfElement = NewElement("bsurf");
+        bsurfElement->setAttributeNode(NewNCNameAttribute("name", (*bsurf)->GetName()));
+        bsurfElement->setAttributeNode(NewNCNameAttribute("surfaceproperty", psurf->GetName()));
+
+        xercesc::DOMElement* pv1Elem = GetPVElement( pv1 ); 
+        xercesc::DOMElement* pv2Elem = GetPVElement( pv2 ); 
+        bsurfElement->appendChild(pv1Elem);
+        bsurfElement->appendChild(pv2Elem);
+        metaElement->appendChild(bsurfElement);
+    }
+    return metaElement ; 
+}
+
 void G4DAEWriteStructure::SurfacesWrite()
 {
    G4cout << "G4DAE: Writing surfaces..." << G4endl;
@@ -389,6 +427,10 @@ void G4DAEWriteStructure::SurfacesWrite()
    {
      extrasurfElement->appendChild(*pos);
    }
+
+   // debugging ambiguous PV issue
+   xercesc::DOMElement* metaElement = GetBorderSurfacesMetaElement();
+   extrasurfElement->appendChild(metaElement);
 
    //
    // place here after Traverse as COLLADA spec 

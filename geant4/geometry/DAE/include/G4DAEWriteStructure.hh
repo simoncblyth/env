@@ -49,6 +49,10 @@ class G4DAEWriteStructure : public G4DAEWriteParamvol
    // over from g4.10 G4GDMLWriteSolids
    void OpticalSurfaceWrite(xercesc::DOMElement*, const G4OpticalSurface* const);
 
+   // debug ambiguous PV1, PV2 
+   xercesc::DOMElement* GetBorderSurfacesMetaElement();
+   xercesc::DOMElement* GetPVElement(const G4VPhysicalVolume* const pvol);
+
 
  private:
 
