@@ -23,6 +23,7 @@ chroma
    chroma_server
    chroma_zeromq
    chroma_camera/index
+   chroma_cuda_freeze
 
    geant4_background
    cuda_background
