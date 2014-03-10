@@ -83,6 +83,7 @@ Contents:
    nuwa/index
    ccgpu/index
    pygame/index
+   zeromq/index
 
 
 

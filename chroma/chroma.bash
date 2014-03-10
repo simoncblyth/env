@@ -11,6 +11,9 @@ CHROMA
 * http://chroma.bitbucket.org/install/macosx.html
 * http://chroma.bitbucket.org/install/overview.html#common-install
 
+
+* https://bitbucket.org/chroma/chroma.bitbucket.org/src
+
 Chroma Dependencies
 --------------------
 

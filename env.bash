@@ -1360,3 +1360,4 @@ pip-(){      . $(env-home)/python/pip.bash && pip-env $* ; }
 pygame-(){      . $(env-home)/pygame/pygame.bash && pygame-env $* ; }
 dybinst-(){      . $(env-home)/nuwa/dybinst.bash && dybinst-env $* ; }
 g4ten-(){      . $(env-home)/geant4/g4ten.bash && g4ten-env $* ; }
+zeromq-(){      . $(env-home)/zeromq/zeromq.bash && zeromq-env $* ; }
