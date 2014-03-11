@@ -1,6 +1,13 @@
 Chroma Camera Usage
 ====================
 
+
+docs
+----
+
+* http://chroma.bitbucket.org/render.html
+
+
 keys using pygame
 --------------------
 

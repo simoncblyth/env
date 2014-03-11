@@ -25,6 +25,11 @@ Quaternion Trackball Control
 
 * https://www.opengl.org/wiki/GluLookAt_code
 * http://www.fastgraph.com/makegames/3drotation/
+
+
+transformations
+~~~~~~~~~~~~~~~
+
 * http://www.lfd.uci.edu/~gohlke/code/transformations.py.html
 
 

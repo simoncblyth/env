@@ -10,6 +10,7 @@ Graphics
     mesh/index
     vrml/index
     opengl/index
+    transformations/index
 
 
 

@@ -624,7 +624,7 @@ class DAENode(object):
         to a lot of id recycling.
         """
         log.info("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
-        assert len(cls.registry) == len(boundgeom)
+        assert len(cls.registry) == len(boundgeom), ( len(cls.registry), len(boundgeom))
         for vn,bg in zip(cls.registry,boundgeom):
             vn.boundgeom = bg
             vn.matdict = vn.get_matdict()
