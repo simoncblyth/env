@@ -83,7 +83,7 @@ def fromstring( xyz, n=3 ):
 
 class SimpleCamera(object):
     "The camera class is used to render a Geometry object."
-    def __init__(self, geometry, size="800,600", device_id=None, solid=None, eye="0,1,0", lookat="0,0,0", up="-1,0,0", alpha_max=3, focal_length=55 ):
+    def __init__(self, geometry, size="800,600", device_id=None, solid=None, eye="0,1,0", lookat="0,0,0", up="-1,0,0", alpha_max=3, focal_length=55, radius=0.5 ):
         super(SimpleCamera, self).__init__()
         logger.info("Camera.__init__")
         self.geometry = geometry
@@ -102,6 +102,7 @@ class SimpleCamera(object):
         self.alpha_depth = self.max_alpha_depth
         self.film_width = 35.0 # mm
         self.focal_length = focal_length # mm
+        self.radius = radius
 
     def parameter_summary(self):
          # hmm, duplication between here and argparser 
@@ -113,6 +114,7 @@ class SimpleCamera(object):
              ["-r/--size", self.size],
              ["-d/--alpha-max", self.max_alpha_depth],
              ["-f/--focal-length", self.focal_length],
+             ["-r/--radius", self.radius],
                  ]
          return "\n".join(["%-20s : %s " % (k,v) for k,v in items]) 
 
@@ -141,9 +143,9 @@ class SimpleCamera(object):
         left   = np.cross( world_up, forward ) 
         cam_up = np.cross( forward, left )
        
-        print "cam_up  %s " % cam_up
-        print "left    %s " % left 
-        print "forward %s " % forward 
+        print "cam_up (axis2)   %s " % cam_up
+        print "left   (axis1)   %s " % left 
+        print "forward          %s " % forward 
 
         # world dimensions, coordinates
         self.diagonal = extent
@@ -153,9 +155,8 @@ class SimpleCamera(object):
         # axis1 along height of film, axis2 along width of film (or vv)
         self.axis2 = cam_up
         self.axis1 = left
+        self.ball = MyArcball.make( self.size, self.axis1, self.axis2, constrain=True, radius=self.radius )
 
-
-        self.ball = MyArcball.make( self.size, self.axis1, self.axis2, constrain=True)
 
 
     def init_gpu(self):
@@ -347,9 +348,10 @@ def parse_args():
     parser.add_argument("-e","--eye",   default="0,-1,0", help="Eye position",type=str)
     parser.add_argument("-u","--up",   default="-1,0,0", help="Eye position",type=str)
     parser.add_argument("-s","--solid", default=None,     help="Solid",type=str)
-    parser.add_argument("-r","--size", default="640,480", help="Resolution", type=str)
+    parser.add_argument("-z","--size", default="640,480", help="Pixel size", type=str)
     parser.add_argument("-d","--alpha-max", default=2, help="AlphaMax", type=int)
     parser.add_argument("-f","--focal-length", default=50, help="FocalLength in mm for 35mm film.", type=int)
+    parser.add_argument("-r","--radius", default=0.5, help="Arcball radius factir.", type=float)
 
     parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
     parser.add_argument("-n","--dryrun", action="store_true", help="Argparse checking.")
@@ -364,7 +366,7 @@ def main():
         return
 
     geometry = load_geometry_from_string(args.path)
-    kwargs = dict(lookat=args.lookat, eye=args.eye, up=args.up, solid=args.solid, size=args.size, alpha_max=args.alpha_max, focal_length=args.focal_length)
+    kwargs = dict(lookat=args.lookat, eye=args.eye, up=args.up, solid=args.solid, size=args.size, alpha_max=args.alpha_max, focal_length=args.focal_length, radius=args.radius )
     camera = SimpleCamera(geometry, **kwargs)
     print camera.parameter_summary()
     camera._run(interactive=args.interactive)

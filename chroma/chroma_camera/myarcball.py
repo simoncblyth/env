@@ -26,7 +26,7 @@ def angle_axis_from_quaternion( quaternion ):
 
 class MyArcball(Arcball):
     @classmethod 
-    def make(cls, size, axis1, axis2, constrain=True):
+    def make(cls, size, axis1, axis2, constrain=True, radius=0.5):
         """
         :param size: window size in pixels
         :param axis1: coordinate axes
@@ -34,9 +34,17 @@ class MyArcball(Arcball):
         :return ball:  Arcball instance with virtual ball centered on the screen 
         """
         ball = cls()
-        center = np.array(size)/2.
-        radius = np.linalg.norm(center)/2 
-        ball.place( center, radius ) 
+        ball_center = np.array(size)/2.
+        ball_radius = np.linalg.norm(ball_center)*radius
+        ball.place( ball_center, ball_radius ) 
+
+        items = [ 
+                   ["radius", radius],
+                   ["ball_center", ball_center],
+                   ["ball_radius", ball_radius],
+                 ]
+        print "\n".join(["%-20s : %s " % (k,v) for k,v in items])
+
         ball.setaxes( axis1, axis2 )
         ball.constrain = constrain
         return ball
