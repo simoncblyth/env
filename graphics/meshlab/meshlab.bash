@@ -11,11 +11,10 @@ Note there are two areas with meshlab sources and builds:
 
 #. Standard meshlab in $(meshlab-dir) 
 #. Optimized meshlab collada plugin, and meshlabserver inside the working copy $(env-home)/graphics/meshlab 
+#. $(meshlab-fold)/meshlab contains my github customized Meshlab clone 
 
-
-
-
-Installation steps. 
+Installation
+--------------
 
 #. build externals::
 

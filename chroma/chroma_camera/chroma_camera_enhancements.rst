@@ -20,6 +20,22 @@ the pygame event queue.
 Maybe can do the IPC at a higher level with zeromq ?
 
 
+Quaternion Trackball Control
+-----------------------------
+
+* https://www.opengl.org/wiki/GluLookAt_code
+* http://www.fastgraph.com/makegames/3drotation/
+* http://www.lfd.uci.edu/~gohlke/code/transformations.py.html
+
+
+
+
+  
+
+
+
+
+
 
 
 
