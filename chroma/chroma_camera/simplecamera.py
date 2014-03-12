@@ -61,6 +61,7 @@ from chroma.tools import from_film
 from chroma import gpu
 from chroma.loader import load_geometry_from_string
 
+
 import pygame
 from pygame.locals import *
 
@@ -83,7 +84,7 @@ def fromstring( xyz, n=3 ):
 
 class SimpleCamera(object):
     "The camera class is used to render a Geometry object."
-    def __init__(self, geometry, size="800,600", device_id=None, solid=None, eye="0,1,0", lookat="0,0,0", up="-1,0,0", alpha_max=3, focal_length=55, radius=0.5 ):
+    def __init__(self, geometry, size="800,600", device_id=None, solid=None, eye="0,1,0", lookat="0,0,0", up="-1,0,0", alpha_max=3, focal_length=55, radius=0.5, headless=False, savepath=None ):
         super(SimpleCamera, self).__init__()
         logger.info("Camera.__init__")
         self.geometry = geometry
@@ -103,6 +104,12 @@ class SimpleCamera(object):
         self.film_width = 35.0 # mm
         self.focal_length = focal_length # mm
         self.radius = radius
+        self.headless = headless
+        self.savepath = savepath
+
+        if headless:
+            os.environ['SDL_VIDEODRIVER'] = 'dummy'
+
 
     def parameter_summary(self):
          # hmm, duplication between here and argparser 
@@ -115,6 +122,8 @@ class SimpleCamera(object):
              ["-d/--alpha-max", self.max_alpha_depth],
              ["-f/--focal-length", self.focal_length],
              ["-r/--radius", self.radius],
+             ["-G/--headless", self.headless],
+             ["-o/--savepath", self.savepath],
                  ]
          return "\n".join(["%-20s : %s " % (k,v) for k,v in items]) 
 
@@ -198,12 +207,21 @@ class SimpleCamera(object):
     axis3 = property(lambda self:np.cross(self.axis1,self.axis2))
 
     def update(self):
+        """
+        http://www.pygame.org/docs/ref/surfarray.html#pygame.surfarray.blit_array
+        https://www.pygame.org/docs/ref/display.html#pygame.display.flip
+        """
         self.rays.render(self.gpu_geometry, self.pixels_gpu, self.alpha_depth, keep_last_render=False)
         pixels = self.pixels_gpu.get()
         pygame.surfarray.blit_array(self.screen, pixels.reshape(self.size))
-        self.window.fill(0)
-        self.window.blit(self.screen, (0,0))
-        pygame.display.flip()
+
+        if self.headless:
+            logger.info("saving screen to %s " % self.savepath )
+            pygame.image.save(self.screen, self.savepath)
+        else:
+            self.window.fill(0)
+            self.window.blit(self.screen, (0,0))
+            pygame.display.flip()
 
     def process_event_minimal(self, event):
         if event.type == KEYDOWN:
@@ -241,12 +259,12 @@ class SimpleCamera(object):
             angle, axis = self.ball.angle_axis()
             logger.info( "ball angle: %s axis: %s " % (angle, axis) )
 
-            if pygame.key.get_mods() & KMOD_LCTRL:
-                logger.info("ctrl modifier : rotating around point")
-                self.rotate_around_point(angle, axis, self.point)
-            else:
-                logger.info("no modifier : rotating")
-                self.rotate(angle, axis)
+            #if pygame.key.get_mods() & KMOD_LCTRL:
+            #    logger.info("ctrl modifier : rotating around point")
+            self.rotate_around_point(angle, axis, self.point)
+            #else:
+            #    logger.info("no modifier : rotating")
+            #    self.rotate(angle, axis)
 
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
@@ -315,17 +333,37 @@ class SimpleCamera(object):
         """
         Split off the run implementation to allow testing without
         forking/multiprocessing 
+
+
+        http://www.pygame.org/docs/ref/surface.html
+
+        Headless mode giving::
+
+           ValueError: no standard masks exist for given bitdepth with alpha
+
+
+        * :google:`pygame SRCALPHA headless` 
+        * http://stackoverflow.com/questions/14948711/in-pygame-how-can-i-save-a-transparent-image-headlessly-to-a-file
+        * https://www.pygame.org/docs/ref/display.html#pygame.display.set_mode
+
         """
         pygame.init()
-        self.window = pygame.display.set_mode(self.size)
-        self.screen = pygame.Surface(self.size, pygame.SRCALPHA)
+        flags = 0
+        depth = 32 # need to specify depth for headless mode when using pygame.SRCALPHA pixel format
+        self.window = pygame.display.set_mode(self.size, flags, depth)  # need to specify depth for headless mode
+        self.screen = pygame.Surface(self.size, pygame.SRCALPHA)  # SRCALPHA, the pixel format will include a per-pixel alpha
         pygame.display.set_caption('')
 
         self.init_camera()
         self.init_gpu()
         self.update()
 
-        self.done = False
+        if self.headless:
+            done = True
+        else:
+            done = False
+
+        self.done = done
         self.clicked = False
         event_handler = self.process_event if interactive else self.process_event_minimal
 
@@ -343,7 +381,6 @@ class SimpleCamera(object):
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument("-p","--path", default=os.environ['DAE_NAME'], help="Path of geometry file.",type=str)
     parser.add_argument("-a","--lookat", default="0,0,0",   help="Lookat position",type=str)
     parser.add_argument("-e","--eye",   default="0,-1,0", help="Eye position",type=str)
     parser.add_argument("-u","--up",   default="-1,0,0", help="Eye position",type=str)
@@ -352,9 +389,13 @@ def parse_args():
     parser.add_argument("-d","--alpha-max", default=2, help="AlphaMax", type=int)
     parser.add_argument("-f","--focal-length", default=50, help="FocalLength in mm for 35mm film.", type=int)
     parser.add_argument("-r","--radius", default=0.5, help="Arcball radius factir.", type=float)
+    parser.add_argument("-G","--headless", action="store_true", help="Headless pygame for debugging.")
+    parser.add_argument("-o","--savepath", default="screen.png", help="Path for image saves")
 
+    parser.add_argument("-p","--path", default=os.environ['DAE_NAME'], help="Path of geometry file.",type=str)
     parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
     parser.add_argument("-n","--dryrun", action="store_true", help="Argparse checking.")
+    
     args = parser.parse_args()
     return args, parser
 
@@ -366,8 +407,20 @@ def main():
         return
 
     geometry = load_geometry_from_string(args.path)
-    kwargs = dict(lookat=args.lookat, eye=args.eye, up=args.up, solid=args.solid, size=args.size, alpha_max=args.alpha_max, focal_length=args.focal_length, radius=args.radius )
-    camera = SimpleCamera(geometry, **kwargs)
+
+    kwa = {}
+    kwa['lookat']=args.lookat
+    kwa['eye']=args.eye
+    kwa['up']=args.up
+    kwa['solid']=args.solid
+    kwa['size']=args.size
+    kwa['alpha_max']=args.alpha_max
+    kwa['focal_length']=args.focal_length
+    kwa['radius']=args.radius 
+    kwa['headless']=args.headless
+    kwa['savepath']=args.savepath
+
+    camera = SimpleCamera(geometry, **kwa)
     print camera.parameter_summary()
     camera._run(interactive=args.interactive)
 

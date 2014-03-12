@@ -19,4 +19,50 @@ To::
     GPU Driver Version: 8.24.9 310.40.25f01
 
 
+5.5.47
+~~~~~~~
+
+* :google:`cuda mac driver 5.5.47`
+
+* http://www.nvidia.com/object/macosx-cuda-5.5.47-driver.html
+
+* https://developer.nvidia.com/sites/default/files/akamai/cuda/files/CUDADownloads/CUDA_Toolkit_Release_Notes_55RC.pdf
+
+
+Hardware
+---------
+
+MacBook Pro, Retina, Late 2013, NVIDIA GeForce GT 750M 2048 MB
+
+PyCUDA Debugging
+------------------
+
+* http://wiki.tiker.net/PyCuda/FrequentlyAskedQuestions#Is_it_possible_to_use_cuda-gdb_with_PyCUDA.3F
+* hmm, no gdb does that still work on OSX 10.9.2
+* also does it work with virtual python ?
+
+::
+
+    cuda-gdb --args python -m pycuda.debug
+
+
+::
+
+    cuda-gdb --args python -m pycuda.debug simplecamera.py -s3199 -d3 -f10 --eye=0,1,0 --lookat=10,0,10  -i
+
+
+
+
+
+
+
+System Preferences
+-------------------
+
+`System Preferences > Energy Saver` deselect **Automatic graphics switching** when on Power Adapter
+
+  * this means the discrete GPU is always used rather than the integrated one
+  * perhaps the switch contributes to problems 
+
+
 

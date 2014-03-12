@@ -4,5 +4,6 @@ pycuda
 
 .. toctree::
 
-   refs
+   pycuda_refs
+   pycuda_debugging
 
