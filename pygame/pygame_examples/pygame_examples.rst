@@ -59,6 +59,10 @@ The cube example distributed with pygame needs pyopengl.
 ::
 
     curl -L http://goo.gl/5GaKx -o rotating_cube.zip
+    unzip rotating_cube.zip
+    cp rotating_cube.zip q_rotating_cube.py 
+    perl -pi -e 's,\r,,g' q_rotating_cube.py       # fix DOS line endings
+
 
 
 
