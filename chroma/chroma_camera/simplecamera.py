@@ -395,6 +395,7 @@ def parse_args():
     parser.add_argument("-p","--path", default=os.environ['DAE_NAME'], help="Path of geometry file.",type=str)
     parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
     parser.add_argument("-n","--dryrun", action="store_true", help="Argparse checking.")
+    parser.add_argument("-k","--cudaprofile", action="store_true", help="CUDA profiling.")
     
     args = parser.parse_args()
     return args, parser
@@ -405,6 +406,9 @@ def main():
     print args
     if args.dryrun:
         return
+
+    if args.cudaprofile:
+       os.environ['CUDA_PROFILE']="1" 
 
     geometry = load_geometry_from_string(args.path)
 
