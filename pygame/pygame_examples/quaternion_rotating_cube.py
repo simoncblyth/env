@@ -12,6 +12,26 @@ Changes:
 import numpy as np
 import sys, math, pygame
 from operator import itemgetter
+import socket
+
+
+class UDPToPygame():
+    """
+    http://stackoverflow.com/questions/11361973/post-event-pygame
+    """
+    def __init__(self, port=15006, ip="127.0.0.1"):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setblocking(0)
+        self.sock.bind((ip,port))
+
+    def update(self):
+        try:
+            data, addr = self.sock.recvfrom(1024)
+            ev = pygame.event.Event(pygame.USEREVENT, {'data': data, 'addr': addr})
+            pygame.event.post(ev)
+        except socket.error:
+            pass   
+
 
 class Quaternion(object):
     """
@@ -243,12 +263,18 @@ class Simulation:
         self.angle = 0
         
     def run(self):
+        dispatcher = UDPToPygame()
         while 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
+                elif event.type == pygame.USEREVENT:
+                    print "received userevent %s " % event.data
+                else:
+                    pass
 
+            dispatcher.update()
             self.clock.tick(50)
             background_color = (150,150,150) # grey
             self.screen.fill(background_color)
@@ -270,8 +296,7 @@ class Simulation:
                 else:
                     assert 0
 
-               
-            #self.angle += math.pi/180.
+            self.angle += math.pi/180.
             pygame.display.flip()
 
 
