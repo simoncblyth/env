@@ -14,5 +14,6 @@ cuda
     pycuda/index
     rcuda
     cuda_cloud
+    cuda_osx_driver
 
 
