@@ -1,6 +1,40 @@
 Geant4 Patch
 ============
 
+Need for patching
+------------------
+
+To get newer GDML with material and surface properties to work 
+with old geant4 requires
+
+* expose G4MaterialPropertiesTable maps
+
+* API adjustments to bring new geant4 API for G4MaterialPropertyVector (which typedefs G4PhysicsOrderedFreeVector)
+  to older geant4 G4MaterialPropertyVector
+
+Notes
+^^^^^^^
+
+Compared new geant4 GDML with the version used with NuWa 
+
+* /usr/local/env/geant4/geant4.10.00.b01/source/persistency/gdml/include
+
+::
+
+    src/G4DAEWriteMaterials.cc:144: error: cannot convert 
+    'const std::map<G4String, G4MaterialPropertyVector*, std::less<G4String>, std::allocator<std::pair<const G4String, G4MaterialPropertyVector*> > >*' to 
+    'const std::map<G4String, G4PhysicsOrderedFreeVector*, std::less<G4String>, std::allocator<std::pair<const G4String, G4PhysicsOrderedFreeVector*> > >*' in initialization
+
+Future geant4 gets rid of the deficient G4MaterialPropertyVector typedefing from G4PhysicsOrderedFreeVector.
+/usr/local/env/geant4/geant4.10.00.b01/source/materials/include/G4MaterialPropertyVector.hh::
+
+     56 #include "G4PhysicsOrderedFreeVector.hh"
+     ..
+     62 typedef G4PhysicsOrderedFreeVector G4MaterialPropertyVector;
+
+
+
+
 LCG Geant4 patch machinery within NuWa
 ----------------------------------------
 
