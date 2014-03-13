@@ -1289,7 +1289,7 @@ blender-(){      . $(env-home)/graphics/blender/blender.bash && blender-env $* ;
 pyopencl-(){      . $(env-home)/opencl/pyopencl.bash && pyopencl-env $* ; }
 meshpy-(){      . $(env-home)/graphics/mesh/meshpy.bash && meshpy-env $* ; }
 vtk-(){      . $(env-home)/graphics/vtk/vtk.bash && vtk-env $* ; }
-pycuda-(){      . $(env-home)/cuda/pycuda/pycuda.bash && pycuda-env $* ; }
+pycuda-(){      . $(env-home)/pycuda/pycuda.bash && pycuda-env $* ; }
 google-translate-cli-(){      . $(env-home)/tools/google-translate-cli.bash && google-translate-cli-env $* ; }
 pyrtf-(){      . $(env-home)/tools/pyrtf.bash && pyrtf-env $* ; }
 mysql_numpy-(){      . $(env-home)/npy/mysql_numpy.bash && mysql_numpy-env $* ; }

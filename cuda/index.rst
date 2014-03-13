@@ -11,11 +11,15 @@ cuda
     cuda_capability
     emulation
     cudatoolkit
-    pycuda/index
     rcuda
     cuda_cloud
     cuda_osx_driver
     cuda_gdb
+    cuda_profiling
+    cuda_testing
+
+
+
 
 
 

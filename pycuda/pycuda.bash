@@ -9,6 +9,24 @@ PYCUDA
 =======
 
 * http://documen.tician.de/pycuda/
+* http://mathema.tician.de/software/pycuda/
+
+Sources
+--------
+
+* http://git.tiker.net/pycuda.git
+
+::
+
+    simon:env blyth$ pycuda-get
+    Cloning into 'pycuda'...
+    Submodule 'bpl-subset' (https://github.com/inducer/bpl-subset) registered for path 'bpl-subset'
+    Submodule 'pycuda/compyte' (https://github.com/inducer/compyte) registered for path 'pycuda/compyte'
+    Cloning into 'bpl-subset'...
+    Submodule path 'bpl-subset': checked out 'e7c5f5131daca6298b5e8aa48d06e7ecffec2ffa'
+    Cloning into 'pycuda/compyte'...
+    Submodule path 'pycuda/compyte': checked out '6ccb955b0d38faffeb7dd5bf913e6bedf46ee226'
+
 
 Linux Install
 -------------
@@ -91,10 +109,13 @@ reimplements that part of CUBLAS.
 
 EOU
 }
-pycuda-dir(){ echo $(local-base)/env/cuda/pycuda/cuda/pycuda-pycuda ; }
+pycuda-dir(){ echo $(local-base)/env/pycuda ; }
 pycuda-cd(){  cd $(pycuda-dir); }
 pycuda-mate(){ mate $(pycuda-dir) ; }
 pycuda-get(){
    local dir=$(dirname $(pycuda-dir)) &&  mkdir -p $dir && cd $dir
+
+  [ ! -d "pycuda" ] &&  git clone --recursive http://git.tiker.net/trees/pycuda.git
+
 
 }

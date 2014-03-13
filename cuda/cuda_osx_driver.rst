@@ -53,9 +53,6 @@ PyCUDA Debugging
 
 
 
-
-
-
 System Preferences
 -------------------
 
@@ -64,5 +61,21 @@ System Preferences
   * this means the discrete GPU is always used rather than the integrated one
   * perhaps the switch contributes to problems 
 
+
+
+Simultaneous Integrated and Discrete GPU Operation ?
+------------------------------------------------------
+
+Is it possible to configure:
+
+* integrated Intel Iris GPU for OpenGL apps like pygame and OSX Desktop 
+* discrete NVIDIA GPU for CUDA compute only 
+
+Integrated
+~~~~~~~~~~~
+
+Technical Q&A QA1734: Allowing OpenGL applications to utilize the integrated GPU
+
+* https://developer.apple.com/library/mac/qa/qa1734/_index.html
 
 
