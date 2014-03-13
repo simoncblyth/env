@@ -2,11 +2,20 @@
 """
 Started from http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
 
+
+
+
 Changes:
 
 #. split off the model
 #. add axes
 #. move to quaternion controlled rotation
+
+Ideas:
+
+* https://threejsdoc.appspot.com/doc/three.js/src.source/extras/controls/TrackballControls.js.html
+
+
 
 """
 import numpy as np
@@ -182,6 +191,13 @@ class Model(object):
         self.projector = getattr(self, proj)
 
     def qrotate(self, q ):
+        """
+        Hmm currently rotating the vertices, 
+        thats kinda computationally crazy. 
+        
+        Should be rotating the axis and calculating 
+        the projection accordingly.
+        """  
         verts = []
         for i,v in enumerate(self.vertices):
             r = v.copy()

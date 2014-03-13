@@ -7,7 +7,6 @@ python side GPUPhotons
 #. transports numpy arrays of photons to/from the GPU
 #. compiles the `propagate.cu`
 #. interesting comment regards single stepping the propagation, to understand what its upto 
-#. 
 
 
 `chroma/gpu/photon.py` GPUPhotons::

@@ -115,7 +115,7 @@ Arghh existing patch touches MPV
 
 * /data1/env/local/dyb/NuWa-trunk/lcgcmt/LCG_Builders/geant4/patches/geant4.9.2.p01.patch
 
-See :doc:`geant4/nuwa/dirty_patch` 
+See :doc:`/geant4/nuwa/dirty_patch` 
 
 Modifications
 --------------

@@ -4,7 +4,7 @@ cuda
 
 .. toctree::
 
-    refs
+    cuda_refs
     cuda_toolkit
     curand
     atomic
@@ -17,6 +17,9 @@ cuda
     cuda_gdb
     cuda_profiling
     cuda_testing
+    cuda_timeouts
+    cuda_envvar
+    osx_gpu_panic
 
 
 

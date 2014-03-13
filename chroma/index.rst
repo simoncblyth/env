@@ -4,6 +4,7 @@ chroma
 
 .. toctree::
 
+   chroma_issues
    how_chroma_works
    development
    refs
@@ -24,6 +25,7 @@ chroma
    chroma_zeromq
    chroma_camera/index
    chroma_cuda_freeze
+   chroma_cuda
 
    geant4_background
    cuda_background

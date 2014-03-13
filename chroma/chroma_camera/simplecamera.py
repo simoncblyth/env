@@ -44,7 +44,23 @@ Options.
 
 Aligning with daeserver, so can line things up with 
 fast and reliable webgl daeserver before try to chroma ray trace
-        
+
+IDEAS
+-------
+
+* chase cuda compilation warnings
+* cuda envvar to halt on exceptions to avoid panic, but that will freeze GUI so have to use in headless+console mode anyhow
+* pycuda handling of cuda errors :doc:`/pycuda/pycuda_error_handling`
+* reduce kernel running time to avoid timeouts, image lines/slices/patches ?
+* pygame piecemeal image construction 
+
+  * pixel data pulled from GPU are numpy arrays, these can be 
+    combined before handing to pygame
+
+  * pygame image metadata, want to be able to reproduce a render
+    from metadata stored with an image either embedded or in sidecar .xml or .json
+    **seems no support for embedding, so have to be sidecar**
+
 
 """
 import numpy as np
@@ -55,6 +71,7 @@ from pycuda import gpuarray as ga
 
 from chroma.log import logger, logging
 logger.setLevel(logging.INFO)
+log = logger
 
 from chroma.transform import rotate
 from chroma.tools import from_film
@@ -389,13 +406,17 @@ def parse_args():
     parser.add_argument("-d","--alpha-max", default=2, help="AlphaMax", type=int)
     parser.add_argument("-f","--focal-length", default=50, help="FocalLength in mm for 35mm film.", type=int)
     parser.add_argument("-r","--radius", default=0.5, help="Arcball radius factir.", type=float)
-    parser.add_argument("-G","--headless", action="store_true", help="Headless pygame for debugging.")
     parser.add_argument("-o","--savepath", default="screen.png", help="Path for image saves")
 
     parser.add_argument("-p","--path", default=os.environ['DAE_NAME'], help="Path of geometry file.",type=str)
     parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
     parser.add_argument("-n","--dryrun", action="store_true", help="Argparse checking.")
-    parser.add_argument("-k","--cudaprofile", action="store_true", help="CUDA profiling.")
+
+    # need for fix chroma logging before can do this
+    #parser.add_argument("-l","--loglevel", default="INFO", help="INFO/DEBUG/WARN/..")  
+    parser.add_argument("-G","--headless", action="store_true", help="Headless pygame for debugging.")
+    parser.add_argument("-K","--cudaprofile", action="store_true", help="CUDA profiling.")
+    parser.add_argument("-W","--cudawait", action="store_true", help="Sets envvar CUDA_DEVICE_WAITS_ON_EXCEPTION.  **FREEZES GUI IF GPU IS PROVIDING IT : ONLY USE HEADLESS/CONSOLE MODE**")
     
     args = parser.parse_args()
     return args, parser
@@ -406,9 +427,13 @@ def main():
     print args
     if args.dryrun:
         return
-
     if args.cudaprofile:
        os.environ['CUDA_PROFILE']="1" 
+    if args.cudawait:
+       if args.headless:
+           os.environ['CUDA_DEVICE_WAITS_ON_EXCEPTION']="1"
+       else:
+           log.warn("ignoring -W/--cudawait option as not -G/--headless")
 
     geometry = load_geometry_from_string(args.path)
 

@@ -1126,7 +1126,7 @@ accessors to the maps.::
 Checking DAE Properties
 ------------------------
 
-After :doc:`/geant4/geant4_patch` to expose the properties and the adoption of GDML property 
+After :doc:`/geant4/nuwa/geant4_patch` to expose the properties and the adoption of GDML property 
 writer into G4DAE succeed to includ properties in the DAE. But need some veracity checking::
 
      70373     <material id="__dd__Materials__Acrylic0xa7b6b48">

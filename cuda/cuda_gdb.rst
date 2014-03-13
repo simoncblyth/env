@@ -5,7 +5,62 @@ Docs
 ----
 
 * http://docs.nvidia.com/cuda/cuda-gdb/
-* http://developer.download.nvidia.com/compute/cuda/2_1/cudagdb/CUDA_GDB_User_Manual.pdf
+* http://developer.download.nvidia.com/compute/cuda/2_1/cudagdb/CUDA_GDB_User_Manual.pdf  NEWER PDF? 
+* http://on-demand.gputechconf.com/gtc/2012/presentations/S0027B-GTC2012-Debugging-MEMCHECK.pdf
+
+
+(Manual) Configurations for GPU Debugging
+-------------------------------------------
+
+Debugging a CUDA GPU involves pausing that GPU. When the graphics desktop 
+manager is running on the same GPU, then debugging that GPU freezes the GUI and 
+makes the desktop unusable. To avoid this, use CUDA-GDB in the following system 
+configurations:
+
+Single GPU
+~~~~~~~~~~~~
+
+In a single GPU system, CUDA-GDB can be used to debug CUDA applications only if 
+no X11 server (on Linux) or no Aqua desktop manager (on Mac OS X) is running on that 
+system. On Linux you can stop the X11 server by stopping the gdm service. On Mac OS 
+X you can log in with >console as the user name in the desktop UI login screen. This 
+allows CUDA applications to be executed and debugged in a single GPU configuration. 
+
+Multi-GPU Debugging with the Desktop Manager Running
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+This can be achieved by running the desktop GUI on one GPU and CUDA on the other 
+GPU to avoid hanging the desktop GUI.
+
+On Linux 
+^^^^^^^^^^
+
+The CUDA driver automatically excludes the GPU used by X11 from being visible to 
+the application being debugged. This might alter the behavior of the application since, if 
+there are n GPUs in the system, then only n-1 GPUs will be visible to the application. 
+
+On Mac OS X 
+^^^^^^^^^^^^^
+
+The CUDA driver exposes every CUDA-capable GPU in the system, including the one 
+used by Aqua desktop manager. To determine which GPU should be used for CUDA, 
+run the deviceQuery app from the CUDA SDK sample. The output of deviceQuery 
+as shown in Figure 1  deviceQuery Output indicates all the GPUs in the system. 
+For example, if you have two GPUs you will see Device0: "GeForce xxxx" and 
+Device1: "GeForce xxxx". Choose the Device<index> that is not rendering the 
+desktop on your connected monitor. If Device0 is rendering the desktop, then choose 
+Device1 for running and debugging the CUDA application. This exclusion of the 
+desktop can be achieved by setting the CUDA_VISIBLE_DEVICES environment variable 
+to 1:: 
+
+   `export CUDA_VISIBLE_DEVICES=1`
+
+
+.. sidebar:: BUT need to force Desktop/OpenGL and pygame/SDL/OpenGL to use Integrated Graphics only ? 
+
+   See `gfxcardstatus-` which uses IOKit kSetMux calls
+
+
 
 Extras
 -------
@@ -20,6 +75,7 @@ Its more convenient to debug by
 #. put rMBP into console mode, by logging in as username ">console"
 #. ssh into rMPB from G4PB and run debug scripts like 3199.sh from there 
 #. its real slow debugging, consider using smaller image sizes
+
 
 
 Debug Example
@@ -609,52 +665,6 @@ pudb : Console based python debugger
 Referenced from PyCUDA FAQ
 
 * https://pypi.python.org/pypi/pudb
-
-
-PyCUDA FAQ Extracts
-----------------------
-
-
-* http://wiki.tiker.net/PyCuda/FrequentlyAskedQuestions
-
-Below Section of FAQ may be related to issue
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-Downgrading of former cleanup failures to warnings in 0.93 smells like
-it could be contributing to the GPU panics I see on OSX, which are 
-always preceeded by screen fulls of::
-
-
-My program terminates after a launch failure. Why?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* This should not be an issue any more with 0.93 and later, where cleanup failures have been downgraded to warnings.
-
-You're probably seeing something like this::
-
-    Traceback (most recent call last):
-      File "fail.py", line 32, in <module>
-        cuda.memcpy_dtoh(a_doubled, a_gpu)
-    RuntimeError: cuMemcpyDtoH failed: launch failed
-    terminate called after throwing an instance of 'std::runtime_error'
-      what():  cuMemFree failed: launch failed
-    zsh: abort      python fail.py
-
-What's going on here? First of all, recall that launch failures in CUDA are
-asynchronous. So the actual traceback does not point to the failed kernel
-launch, it points to the next CUDA request after the failed kernel.
-
-Next, as far as I can tell, a CUDA context becomes invalid after a launch
-failure, and all following CUDA calls in that context fail. Now, that includes
-cleanup (see the cuMemFree in the traceback?) that PyCUDA tries to perform
-automatically. Here, a bit of PyCUDA's C++ heritage shows through. While
-performing cleanup, we are processing an exception (the launch failure reported
-by cuMemcpyDtoH). If another exception occurs during exception processing, C++
-gives up and aborts the program with a message.
-
-In principle, this could be handled better. If you're willing to dedicate time
-to this, I'll likely take your patch.
 
 
 

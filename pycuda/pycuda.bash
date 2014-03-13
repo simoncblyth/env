@@ -28,6 +28,33 @@ Sources
     Submodule path 'pycuda/compyte': checked out '6ccb955b0d38faffeb7dd5bf913e6bedf46ee226'
 
 
+Tags
+~~~~~
+
+* http://git.tiker.net/?p=pycuda.git;a=summary
+
+::
+
+    tags
+    8 months ago    v2013.1.1    
+    8 months ago    v2013.1     
+    20 months ago   v2012.1    
+    2 years ago v2011.2.2     
+    2 years ago v2011.2.1    
+    2 years ago v2011.2     
+    3 years ago v0.94.2    
+    3 years ago v0.94.1   
+    3 years ago v0.94    
+    3 years ago v0.94rc   
+    4 years ago v0.93.1rc2  
+    4 years ago v0.93      
+    4 years ago v0.93rc4  
+    4 years ago v0.93rc3   
+    4 years ago v0.93rc2  
+    4 years ago v0.93rc1 
+    ...
+
+
 Linux Install
 -------------
 
