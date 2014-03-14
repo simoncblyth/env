@@ -1363,3 +1363,4 @@ g4ten-(){      . $(env-home)/geant4/g4ten.bash && g4ten-env $* ; }
 zeromq-(){      . $(env-home)/zeromq/zeromq.bash && zeromq-env $* ; }
 transformations-(){      . $(env-home)/graphics/transformations/transformations.bash && transformations-env $* ; }
 gfxcardstatus-(){      . $(env-home)/cuda/gfxcardstatus.bash && gfxcardstatus-env $* ; }
+pyrr-(){      . $(env-home)/graphics/transformations/pyrr.bash && pyrr-env $* ; }

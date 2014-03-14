@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-def canonical_to_screen( nx, ny, debug=True, flip=False ):
+def canonical_to_screen( nx, ny, flip, debug=False ):
     """
     Canonical::
 
@@ -41,8 +41,8 @@ def canonical_to_screen( nx, ny, debug=True, flip=False ):
     """
     # scale -1:1 onto 0:nx 0:ny 
     s = np.identity(4)
-    s[0,0] = nx/2.
-    s[1,1] = ny/2.
+    s[0,0] = float(nx)/2.
+    s[1,1] = float(ny)/2.
     s[2,2] = 1.
  
     # translate scaled center to put 0,0 at bottom left
@@ -68,7 +68,7 @@ def canonical_to_screen( nx, ny, debug=True, flip=False ):
 def test_canonical_to_screen():
     width, height, flip, debug = 640, 480, True, True
 
-    m = canonical_to_screen(width, height, debug=debug, flip=flip)
+    m = canonical_to_screen(width, height, flip, debug=debug)
 
     # canonical XY coords
     lt = [-1, 1,0]

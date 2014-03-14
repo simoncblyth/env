@@ -1,17 +1,5 @@
 #!/usr/bin/env python
 """
-
-PIPELINE
-========
-
-#. world frame
-#. camera frame
-#. 
-#. 
-
-
-
-
 """
 
 import numpy as np
@@ -19,7 +7,7 @@ import numpy as np
 def norm( v ):
     return v/np.linalg.norm(v)
 
-def world_to_camera( eye, look, up ):
+def world_to_camera( eye, look, up, debug=False ):
     """
     `up` vector, `eye` and `look` positions in world XYZ frame:: 
 
@@ -49,13 +37,13 @@ def world_to_camera( eye, look, up ):
     """
     look = np.array(look)
     eye = np.array(eye)
-
     gaze = look - eye 
 
-    print "eye  %s [%s] " % ( eye , np.linalg.norm(eye))
-    print "look %s [%s] " % ( look, np.linalg.norm(look))
-    print "gaze %s [%s] " % ( gaze, np.linalg.norm(gaze))
-    print "up   %s [%s] " % ( up  , np.linalg.norm(up))
+    if debug:
+        print "eye  %s [%s] " % ( eye , np.linalg.norm(eye))
+        print "look %s [%s] " % ( look, np.linalg.norm(look))
+        print "gaze %s [%s] " % ( gaze, np.linalg.norm(gaze))
+        print "up   %s [%s] " % ( up  , np.linalg.norm(up))
 
     # UVW basis vectors for the camera frame
 
@@ -63,30 +51,34 @@ def world_to_camera( eye, look, up ):
     V = norm(np.cross(gaze,U))     # top-bottom in camera frame
     W = -norm(gaze)                # camera frame convention, look down "-Z"
 
-    print "U ",U
-    print "V ",V
-    print "W ",W
+    if debug:
+        print "U ",U
+        print "V ",V
+        print "W ",W
 
     # construct rotation matrix using the normalized basis vectors 
     r = np.identity(4)
     r[:3,0] = U
     r[:3,1] = V
     r[:3,2] = W
-    print "r\n",r
-   
+  
     # homogenous 4x4 matrix to translate eye to origin
     t = np.identity(4)
     t[:3,3] = -eye
-    print "t\n", t
+
 
     # translate then rotate, transposed to get inverse
     m = np.dot(r.T,t)  
-    print "m\n", m
+    
+    if debug:
+        print "r\n",r
+        print "t\n", t
+        print "m\n", m
 
     return m
 
 
-def check_world_to_camera( eye, look, up , xeye, xlook, xup ):
+def check_world_to_camera( eye, look, up , xeye, xlook, xup, debug=False ):
 
     m = world_to_camera(eye, look, up )
 
@@ -94,9 +86,10 @@ def check_world_to_camera( eye, look, up , xeye, xlook, xup ):
     look_c = np.dot(m,np.append(look,1))
     up_c = np.dot(m,np.append(up,1))
 
-    print "eye_c", eye_c
-    print "look_c", look_c
-    print "up_c", up_c
+    if debug: 
+        print "eye_c", eye_c
+        print "look_c", look_c
+        print "up_c", up_c
 
     if not xeye is None: 
         assert np.allclose( xeye ,   eye_c ), (xeye, eye_c)
