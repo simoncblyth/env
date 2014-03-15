@@ -3,8 +3,6 @@
 Started from http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
 
 
-
-
 Changes:
 
 #. split off the model
@@ -16,15 +14,24 @@ Ideas:
 * https://threejsdoc.appspot.com/doc/three.js/src.source/extras/controls/TrackballControls.js.html
 
 
+* transformations eg rotations need to be applied to the transform not the models, 
+  ie not:: 
+
+      q = Quaternion.fromAxisAngle([0,1,0], self.angle, normalize=True)
+      for model in self.models:
+          model.qrotate(q)
+
 
 """
 import numpy as np
 import socket
-import sys, math, pygame
-from three import Point3, Matrix4, Quaternion
+import sys, pygame, time, math
+
+from env.graphics.pipeline.world_to_screen import PerspectiveTransform
+from env.graphics.transformations.transformations import quaternion_from_matrix, quaternion_matrix, quaternion_about_axis, quaternion_slerp, quaternion_multiply
+from env.graphics.transformations.transformations import Arcball
+
 from model import Model 
-
-
 
 class UDPToPygame():
     """
@@ -42,90 +49,130 @@ class UDPToPygame():
             pygame.event.post(ev)
         except socket.error:
             pass   
+
+
+class TransformController(object):
+    """ 
+    hmm duplication between matrix and arcball which contains the quaternion is not nice
+    some things are easier to set via one and some via the other  
+    try split arcball off into a controller
+    """
+    def __init__(self, transform):
+        self.transform = transform
+        self.arcball = Arcball(initial=transform.matrix)
+        self.clicked = False
+
+    def handle(self, event): 
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            print "MOUSEBUTTONDOWN"
+            if event.button == 1:
+                mouse_position = pygame.mouse.get_pos()  # pixel position: top left(0,0) bottom right: size 
+                print "mouse_position ", mouse_position
+                self.arcball.down( mouse_position )
+                self.clicked = True
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                print "MOUSEBUTTONUP"
+                self.clicked = False
+
+        elif event.type == pygame.MOUSEMOTION and self.clicked:
+            print "MOUSEMOTION"
+            mouse_position = pygame.mouse.get_pos()  
+            self.arcball.drag( mouse_position )
  
 
-class Simulation:
-    def __init__(self, models, size=(640,480), fov=256, viewer_distance=4, caption="Hello"):
+        elif event.type == pygame.USEREVENT:
+            print "received userevent %s " % event.data
+        else:
+            pass
+
+    def animate(self, frame):
+        """
+        """ 
+        pass
+        #dwiggle = np.array([0,0.1,0.1])*((frame % 10) - 5)
+        #self.transform.add( 'look', dwiggle )
+        #self.transform.add( 'eye', dwiggle )
+
+        # absolute is easier
+        #alook = np.array([0,0,0]) + np.array([0,0.1,0.1])*5*math.cos((frame*math.pi/10.)) 
+        #self.transform.set('look', alook )
+
+        #aeye = np.array([5,5,5]) + np.array([0,0.1,0.1])*10*math.cos((frame*math.pi/10.)) 
+        #self.transform.set('eye', aeye )
+
+        #lfov,hfov = 5.,90.
+        #fov = lfov + (hfov - lfov)/2.*math.cos(frame*math.pi/10.)
+        #self.transform.set('yfov', np.clip(fov,5,90))
+ 
+ 
+class Viewer(object):
+    def __init__(self, models, controller, caption="Hello", tick=50., background_color=(150,150,150)):
+        pass
         pygame.init()
-        self.screen = pygame.display.set_mode(size)
+        screen = pygame.display.set_mode((controller.transform.nx,controller.transform.ny))
         pygame.display.set_caption(caption)
-        self.width = self.screen.get_width()
-        self.height = self.screen.get_height() 
-        self.aspect = self.width / self.height
-
-        self.fov = fov
-        self.viewer_distance = viewer_distance
-
+        pass
         self.models = models 
-        self.clock = pygame.time.Clock()
-        self.angle = 0
-        
+        self.controller = controller
+        self.tick = tick 
+        self.background_color = background_color
+        self.screen = screen 
+
     def run(self):
-        left_right = 10.
-        bottom_top = left_right / self.aspect  
-        #matrix = Matrix4.fromSymmetricFrustum(left_right, bottom_top, near, far )
-
-        near, far = 1. , 50.
-        yfov = 30.    
-        matrix = Matrix4.fromPerspective(yfov, self.aspect, near, far )
-        fudge = 1.
-        screen_ = lambda xy:( (fudge*xy[0]*self.width/2./left_right) + self.width/2. , (fudge*xy[1]*self.height/2./bottom_top) + self.height/2. )
-
+        clock = pygame.time.Clock()
         dispatcher = UDPToPygame()
+        frame = 0
         while 1:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.USEREVENT:
-                    print "received userevent %s " % event.data
-                else:
-                    pass
-
+                self.controller.handle(event)
+            pass
             dispatcher.update()
-            self.clock.tick(50)
-            background_color = (150,150,150) # grey
-            self.screen.fill(background_color)
+            clock.tick(self.tick)
+            self.controller.animate(frame)
+            self.draw()
+            frame += 1
+        pass
 
-            axis = [0,1,0]
-            q = Quaternion.fromAxisAngle(axis, self.angle, normalize=True)
-            for model in self.models:
-                model.qrotate(q)
+    def draw(self):
+        self.screen.fill(self.background_color)
+        for model in self.models:
+            self.render(model)
+        pygame.display.flip()
 
-            #if 0:
-            for model in self.models:
-                for pointlist, color in model.project_unrotated(matrix):
-                    screenlist = map(screen_, pointlist)
-                    print screenlist, color
-                    if model.groupsize == 4:
-                        pygame.draw.polygon(self.screen,color,screenlist)
-                    elif model.groupsize == 2:
-                        closed, thickness = False, 1 
-                        pygame.draw.lines(self.screen,color,closed,screenlist,thickness)
-                    else:
-                        assert 0
-
-
-            #for model in self.models:
-            if 0:
-                if model.proj == 'project_quadfaces':
-                    for pointlist, color in model.projector(self.width, self.height, self.fov, self.viewer_distance):
-                        print pointlist
-                        pygame.draw.polygon(self.screen,color,pointlist)
-                elif model.proj == 'project_bilines':
-                    closed, thickness = False, 1 
-                    for pointlist, color in model.projector(self.width, self.height, self.fov, self.viewer_distance):
-                        pygame.draw.lines(self.screen,color,closed,pointlist,thickness)
-                else:
-                    assert 0
-
-            #self.angle += math.pi/180.
-            pygame.display.flip()
+    def render(self, model):
+        groupsize = model.groupsize
+        for avgz, color, points in model.primitives(self.controller.transform):
+            if groupsize == 4:
+                pygame.draw.polygon(self.screen,color,points)
+            elif groupsize == 2:
+                closed, thickness = False, 1 
+                pygame.draw.lines(self.screen,color,closed,points,thickness)
+            else:
+                assert 0
+        
 
 
 if __name__ == "__main__":
     models = []
-    #models.append(Model.cube())
+    models.append(Model.cube())
     models.append(Model.axes())
-    sim = Simulation(models)
-    sim.run()
+
+    eye, look, up, near, far = (5,5,5), (0,0,0), (0,0,1), 2, 10
+    yfov, nx, ny, flip  = 90, 640, 480, True
+      
+    transform = PerspectiveTransform()
+    transform.setViewpoint( eye, look, up, near, far )
+    transform.setCamera( yfov, nx, ny, flip )
+
+    controller = TransformController(transform)
+ 
+    viewer = Viewer(models, controller)
+    viewer.run()
+
+    #viewer.draw()
+    #time.sleep(2) 

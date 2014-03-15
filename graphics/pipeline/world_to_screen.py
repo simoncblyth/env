@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 """
+
+Seealso:
+
+* http://www.opengl.org/sdk/docs/man2/xhtml/glFrustum.xml
+* http://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
+* https://pyrr.readthedocs.org/en/latest/
+
+
 """
 
 import logging
@@ -7,10 +15,15 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 import math
+
 from world_to_camera import world_to_camera
 from camera_to_orthographic import camera_to_orthographic
 from orthographic_to_canonical import orthographic_to_canonical
 from canonical_to_screen import canonical_to_screen
+
+#from env.graphics.transformations.transformations import quaternion_from_matrix, quaternion_matrix, quaternion_about_axis, quaternion_slerp, quaternion_multiply
+#from env.graphics.transformations.transformations import Arcball
+
 
 
 def world_to_screen_symmetric( eye, look, up, near, far, yfov, nx, ny, flip ):
@@ -76,14 +89,17 @@ class PerspectiveTransform(object):
         :param ny:    bottom-top pixel dimensions
         :param flip:  when True makes top left correpond to pixel coordinate (0,0), instead of bottom left
         """
+
         self._matrix = None
+
+        self.dirty = True
         self.setViewpoint( eye, look, up, float(near), float(far) )
         self.setCamera( yfov, nx, ny, flip )
 
     def setViewpoint(self, eye, look, up, near, far):
-        self.set('eye',eye)
-        self.set('look',look)
-        self.set('up',up)
+        self.set('eye',np.array(eye))
+        self.set('look',np.array(look))
+        self.set('up',np.array(up))
         self.set('near',near)
         self.set('far',far)
 
@@ -94,35 +110,65 @@ class PerspectiveTransform(object):
         self.set('flip',flip)
 
     def _get_matrix(self):
-        if self._matrix is None:
-            #print "getting matrix"
+        if self.dirty or self._matrix is None:
             self._matrix = world_to_screen_symmetric( self.eye, self.look, self.up, self.near, self.far, self.yfov, self.nx, self.ny, self.flip)
         return self._matrix
 
+    matrix = property(_get_matrix)
+
     def set(self, name, value):
         """
-        Setter that invalidates the matrix whenever anything is set
+        Setter that invalidates the matrix and quaternion 
+        whenever anything is set
         """
-        self._matrix = None
+        self.dirty = True
         self.__dict__[name] = value
 
-    matrix = property(_get_matrix)
-        
-    def __call__(self,v):
-        """
-        Extended homogenous matrix multiplication yields 
-        (x,y,z,w) which corresponds to coordinate (x/w,y/w,z/w)  
-
-        How to divide by the last in the multiple vertices situation?::
-
-            In [111]: np.vstack([look,look,look,look,look,look,look,look]).T.shape
-            Out[111]: (4, 8)
-
-        """
-        p = np.dot( self.matrix , np.append(v,1))
+    def add(self, name, delta):
+        init = getattr(self, name)
+        if name in ('eye','look','up'):
+            self.set(name, init+np.array(delta))
+        else:
+            self.set(name, init+delta)
+       
+    def transform_vertex(self, vert ):
+        assert vert.shape == (3,)
+        vert = np.append(vert, 1.)
+        p = np.dot( self.matrix, vert )
         p /= p[3]
         return p 
  
+    def transform_vertices(self, verts ):
+        """
+        :param verts: numpy 2d array of vertices, for example with shape (1000,3)
+
+        Extended homogenous matrix multiplication yields (x,y,z,w) 
+        which corresponds to coordinate (x/w,y/w,z/w)  
+        This is a trick to allow to represent the "division by z"  needed 
+        for perspective transforms with matrices, which normally cannot 
+        represent divisions.
+ 
+        Steps:
+
+        #. add extra column of ones, eg shape (1000,4)
+        #. matrix pre-multiply the transpose of that 
+        #. divide by last column  (xw,yw,zw,w) -> (xw/w,yw/w,zw/w,1) = (x,y,z,1)  whilst still transposed
+        #. return the transposed back matrix 
+
+        To do the last column divide while not transposed could do::
+
+            (verts.T/verts[:,(-1)]).T
+
+        """
+        assert verts.shape[-1] == 3 and len(verts.shape) == 2, ("unexpected shape", verts.shape )
+        v = np.concatenate( (verts, np.ones((len(verts),1))),axis=1 )  # add 4th column of ones 
+        vt = np.dot( self.matrix, v.T )
+        vt /= vt[-1]   
+        return vt.T
+ 
+    def __call__(self,verts):
+        return self.transform_vertices(verts)
+
 
 
 def test_world_to_screen():
@@ -277,10 +323,10 @@ if __name__ == '__main__':
     pt.setCamera( yfov , nx, ny, flip )
 
     print pt.matrix
-    for point in np.vstack([look,look,look]):
-        print point, pt(point)
+    verts = np.vstack([look,look,look])
+    print verts
+    print pt(verts)
  
-
 
 
 
