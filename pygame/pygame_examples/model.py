@@ -2,11 +2,25 @@
 
 import numpy as np
 
+red = (255,0,0)
+cyan = (0,255,255)
+
+green = (0,255,0)
+magenta = (255,0,255)
+
+blue = (0,0,255)
+yellow = (255,255,0)
+
+white = (255,255,255)
+black = (0,0,0)
+grey = (127,127,127)
+
+
 class Model(object):
     """
     """
     @classmethod 
-    def cube(cls):
+    def cube(cls, halfextent=1. ):
         """ 
         Define the vertices that compose each of the 6 faces. These numbers are
         indices to the vertices list defined above.
@@ -21,11 +35,11 @@ class Model(object):
              +Y
               |
               |
-          0   |   1
+          4   |   5
               |
               +-------- +X
   
-          3       2
+          7       6
 
              
         -Z plane::
@@ -34,15 +48,16 @@ class Model(object):
              +Y
               |
               |
-          4   |   5
+          0   |   1
               |
               +-------- +X
   
-          7       6
+          3       2
 
 
+        Inconsistent normal directions in vertex order ?
         """
-        vertices = np.array([
+        vertices = halfextent*np.array([
             (-1, 1,-1),
             ( 1, 1,-1),
             ( 1,-1,-1),
@@ -52,27 +67,30 @@ class Model(object):
             ( 1,-1, 1),
             (-1,-1, 1)
            ])
+
+
+        #                      -z        +x        +z        -x         +y       -y          
         groups  = np.array([(0,1,2,3),(1,5,6,2),(5,4,7,6),(4,0,3,7),(0,4,5,1),(3,2,6,7)]) # groupings of vertices, ie quadfaces here
-        colors = np.array([(255,0,255),(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,255,0)])
-        # how to join up the vertices within each primitive
-        # gorder = (0,1,1,2,2,3,3,0)  # from original code, seems duplicitous
+        colors = np.array([yellow,red,blue,cyan,green,magenta])
+
         gorder = (0,1,2,3,0)   # repeat the first vertex within each primitive to close the quad  
         return cls(vertices, groups, colors, gorder )
 
 
     @classmethod 
-    def axes(cls):
-        vertices = np.array([
+    def axes(cls, extent):
+        vertices = extent*np.array([
             (0,0,0),
-            (3,0,0),
-            (-3,0,0),
-            (0,3,0),
-            (0,-3,0),
-            (0,0,3),
-            (0,0,-3),
+            (1,0,0),
+            (-1,0,0),
+            (0,1,0),
+            (0,-1,0),
+            (0,0,1),
+            (0,0,-1),
         ])
+        #                    +x     -x    +y   -y    +z     -z
         groups  = np.array([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)])
-        colors = np.array([(255,0,255),(255,0,0),(0,255,0),(0,0,255),(0,255,255),(255,255,0)])
+        colors = np.array([red,cyan,green,magenta,blue,yellow])   # +/- rgb/cmy complemetary pairings 
         gorder = (0,1)  # orderings of vertices within the group, allows vertex duplication to close a shape for example 
         return cls(vertices, groups, colors, gorder)
 
@@ -126,15 +144,15 @@ if __name__ == '__main__':
    pass
    from env.graphics.pipeline.world_to_screen import PerspectiveTransform
 
-   eye, look, up, near, far = (10,0,0), (0,0,0), (0,1,0), 2, 10
-   yfov, nx, ny, flip  = 90, 640, 480, True
+   eye, look, up, near, far = (10,10,10), (0,0,0), (0,1,0), 2, 10
+   yfov, nx, ny, flip  = 90, 640, 480, False
       
    transform = PerspectiveTransform()
    transform.setViewpoint( eye, look, up, near, far )
    transform.setCamera( yfov, nx, ny, flip )
  
    #model = Model.cube()
-   model = Model.axes()
+   model = Model.axes(3)
 
    model.dump_vertices(transform)
    model.dump_primitives(transform)

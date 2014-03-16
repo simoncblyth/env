@@ -6,7 +6,7 @@ Seealso:
 * http://www.opengl.org/sdk/docs/man2/xhtml/glFrustum.xml
 * http://www.opengl.org/sdk/docs/man2/xhtml/gluPerspective.xml
 * https://pyrr.readthedocs.org/en/latest/
-
+* https://github.com/mrdoob/three.js/blob/master/src/math/Quaternion.js
 
 """
 
@@ -21,10 +21,15 @@ from camera_to_orthographic import camera_to_orthographic
 from orthographic_to_canonical import orthographic_to_canonical
 from canonical_to_screen import canonical_to_screen
 
-#from env.graphics.transformations.transformations import quaternion_from_matrix, quaternion_matrix, quaternion_about_axis, quaternion_slerp, quaternion_multiply
-#from env.graphics.transformations.transformations import Arcball
+from env.graphics.transformations.transformations import \
+     translation_matrix, \
+     quaternion_from_matrix, \
+     quaternion_matrix, \
+     quaternion_about_axis, \
+     quaternion_slerp, \
+     quaternion_multiply
 
-
+norm_ = lambda _:_/np.linalg.norm(_)
 
 def world_to_screen_symmetric( eye, look, up, near, far, yfov, nx, ny, flip ):
     """
@@ -75,7 +80,129 @@ def world_to_screen( eye, look, up, near, far, left, right, bottom, top, nx, ny,
     return sw
     
 
-class PerspectiveTransform(object):
+class Transform(object):
+    def __init__(self): 
+        self._matrix = None
+        self.dirty = True
+
+    def _get_matrix(self):
+        if self.dirty or self._matrix is None:
+            self._matrix = self._calculate_matrix()
+        return self._matrix
+
+    matrix = property(_get_matrix)
+
+    def set(self, name, value):
+        """
+        Setter that invalidates the matrix and quaternion 
+        whenever anything is set
+        """
+        self.dirty = True
+        self.__dict__[name] = value
+
+
+
+def orient_around_matrix( center, quaternion ):
+    pre_orient = translation_matrix( -center )
+    orient = quaternion_matrix( quaternion )   
+    post_orient = translation_matrix( center )
+    return post_orient.dot(orient).dot(pre_orient) 
+
+
+class OrientationTransform(Transform):
+    """
+    Nomenclature:
+
+    #. an orientation is a state 
+    #. a rotation is an operation, usually changing the state
+
+    """
+    def __init__(self, angle=30, axis=(0,1,0),center=(0,0,0)):
+        """
+        :param angle:
+        :param axis"
+        :param center:  
+        """
+        Transform.__init__(self)         
+        self.setAttitude( angle, axis, center )
+        self._quaternion = None
+
+    def setAttitude( self, angle, axis, center ):
+        """
+        :param angle: in degrees
+        :param axis:
+        """
+        self.set('angle',angle)
+        self.set('axis', np.array(axis))
+        self.set('center',np.array(center)) 
+
+    def copy(self):
+        return OrientationTransform(self.angle, self.axis, self.center)
+
+    def _get_quaternion(self):
+        if self._quaternion is None or self.dirty:
+            self._quaternion = quaternion_about_axis( self.angle*math.pi/180., self.axis )        
+        return self._quaternion
+
+    quaternion = property(_get_quaternion)
+
+    def _calculate_matrix(self):
+        return orient_around_matrix( self.center, self.quaternion )
+
+    def add(self, name, delta):
+        init = getattr(self, name)
+        if name in ('center',):
+            self.set(name, init+np.array(delta))
+        else:
+            self.set(name, init+delta)
+
+
+class InterpolateTransform(Transform):
+    def __init__(self, start_orientation, start_position, end_orientation, end_position, fraction=0. , spin=0, shortestpath=True ): 
+        """
+        :param start_orientation: instance of OrientationTransform 
+        :param start_position:   
+        :param end_orientation: instance of OrientationTransform 
+        :param end_position:   
+        :param fraction: fraction of the way from start to end
+
+        For definiteness, only the fraction is allowed to change after instantiation
+        """
+        Transform.__init__(self) 
+
+        self.start_orientation = start_orientation
+        self.start_position = np.array(start_position)
+
+        self.end_orientation = end_orientation
+        self.end_position = np.array(end_position)
+
+        self.spin = spin
+        self.shortestpath = shortestpath
+
+        self.set('fraction', fraction)
+
+    def _calculate_matrix(self):
+
+        a_quaternion = self.start_orientation.quaternion
+        a_position = self.start_position
+
+        b_quaternion = self.end_orientation.quaternion
+        b_position = self.end_position
+
+        f = self.fraction
+
+        f_position = a_position*(1.-f) + f*a_position  
+        f_quaternion = quaternion_slerp(a_quaternion, b_quaternion, f, spin=self.spin, shortestpath=self.shortestpath )
+
+        return orient_around_matrix( f_position, f_quaternion )
+
+    def copy(self):
+        return InterpolateTransform(self.start_orientation, self.start_position, self.end_orientation, self.end_position , self.fraction )
+
+
+
+
+class PerspectiveTransform(Transform):
     def __init__(self, eye=(0,0,0), look=(1,0,0), up=(0,1,0), near=0.1, far=100, yfov=30, nx=640, ny=480, flip=True ):
         """
         :param eye:   (x,y,z) position of camera/eye in world frame
@@ -89,10 +216,7 @@ class PerspectiveTransform(object):
         :param ny:    bottom-top pixel dimensions
         :param flip:  when True makes top left correpond to pixel coordinate (0,0), instead of bottom left
         """
-
-        self._matrix = None
-
-        self.dirty = True
+        Transform.__init__(self)
         self.setViewpoint( eye, look, up, float(near), float(far) )
         self.setCamera( yfov, nx, ny, flip )
 
@@ -109,66 +233,27 @@ class PerspectiveTransform(object):
         self.set('ny',ny)
         self.set('flip',flip)
 
-    def _get_matrix(self):
-        if self.dirty or self._matrix is None:
-            self._matrix = world_to_screen_symmetric( self.eye, self.look, self.up, self.near, self.far, self.yfov, self.nx, self.ny, self.flip)
-        return self._matrix
+    def copy(self):
+        return PerspectiveTransform(self.eye,self.look,self.up,self.near,self.far, self.yfov, self.nx, self.ny, self.flip)
 
-    matrix = property(_get_matrix)
+    screensize = property(lambda self:(int(self.nx), int(self.ny)))
 
-    def set(self, name, value):
-        """
-        Setter that invalidates the matrix and quaternion 
-        whenever anything is set
-        """
-        self.dirty = True
-        self.__dict__[name] = value
+    gaze = property(lambda self:self.look - self.eye)
+
+    # unit vectors for the camera
+    forward = property(lambda self:norm_(self.gaze))
+    right   = property(lambda self:norm_(np.cross(self.forward, self.up)))   # perpendiular to gaze and up, left-right in camera frame
+    top     = property(lambda self:norm_(np.cross(self.right,self.forward)))
+
+    def _calculate_matrix(self):
+        return world_to_screen_symmetric( self.eye, self.look, self.up, self.near, self.far, self.yfov, self.nx, self.ny, self.flip)
 
     def add(self, name, delta):
         init = getattr(self, name)
-        if name in ('eye','look','up'):
+        if name in ('eye','look',):
             self.set(name, init+np.array(delta))
         else:
             self.set(name, init+delta)
-       
-    def transform_vertex(self, vert ):
-        assert vert.shape == (3,)
-        vert = np.append(vert, 1.)
-        p = np.dot( self.matrix, vert )
-        p /= p[3]
-        return p 
- 
-    def transform_vertices(self, verts ):
-        """
-        :param verts: numpy 2d array of vertices, for example with shape (1000,3)
-
-        Extended homogenous matrix multiplication yields (x,y,z,w) 
-        which corresponds to coordinate (x/w,y/w,z/w)  
-        This is a trick to allow to represent the "division by z"  needed 
-        for perspective transforms with matrices, which normally cannot 
-        represent divisions.
- 
-        Steps:
-
-        #. add extra column of ones, eg shape (1000,4)
-        #. matrix pre-multiply the transpose of that 
-        #. divide by last column  (xw,yw,zw,w) -> (xw/w,yw/w,zw/w,1) = (x,y,z,1)  whilst still transposed
-        #. return the transposed back matrix 
-
-        To do the last column divide while not transposed could do::
-
-            (verts.T/verts[:,(-1)]).T
-
-        """
-        assert verts.shape[-1] == 3 and len(verts.shape) == 2, ("unexpected shape", verts.shape )
-        v = np.concatenate( (verts, np.ones((len(verts),1))),axis=1 )  # add 4th column of ones 
-        vt = np.dot( self.matrix, v.T )
-        vt /= vt[-1]   
-        return vt.T
- 
-    def __call__(self,verts):
-        return self.transform_vertices(verts)
-
 
 
 def test_world_to_screen():
@@ -200,7 +285,6 @@ def test_world_to_screen():
     if debug:
         print "sw\n", sw
 
-    norm_ = lambda _:_/np.linalg.norm(_)
 
     gaze = np.array(look) - np.array(eye)
     leftright = norm_(np.cross(up, gaze))      

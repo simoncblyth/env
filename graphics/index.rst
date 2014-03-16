@@ -11,6 +11,7 @@ Graphics
     vrml/index
     opengl/index
     transformations/index
+    panda3d/index
 
 
 
