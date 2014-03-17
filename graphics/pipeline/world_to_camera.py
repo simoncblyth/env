@@ -7,7 +7,7 @@ import numpy as np
 def norm( v ):
     return v/np.linalg.norm(v)
 
-def world_to_camera( eye, look, up, debug=False ):
+def world_to_camera( eye, look, up, invert=False, debug=False ):
     """
     `up` vector, `eye` and `look` positions in world XYZ frame:: 
 
@@ -47,9 +47,16 @@ def world_to_camera( eye, look, up, debug=False ):
 
     # UVW basis vectors for the camera frame
 
-    U = norm(np.cross(up, gaze))   # perpendiular to gaze and up, left-right in camera frame
-    V = norm(np.cross(gaze,U))     # top-bottom in camera frame
+    # this had wrong signs for X and Y 
+    #U = norm(np.cross(up, gaze))   # perpendiular to gaze and up, left-right in camera frame
+    #V = norm(np.cross(gaze,U))     # top-bottom in camera frame
+    #W = -norm(gaze)                # camera frame convention, look down "-Z"
+
+    # this way is consistent with ViewTransform
+    U = norm(np.cross(gaze,up))   # perpendiular to gaze and up, left-right in camera frame
+    V = norm(np.cross(U,gaze))     # top-bottom in camera frame
     W = -norm(gaze)                # camera frame convention, look down "-Z"
+
 
     if debug:
         print "U ",U
@@ -64,11 +71,17 @@ def world_to_camera( eye, look, up, debug=False ):
   
     # homogenous 4x4 matrix to translate eye to origin
     t = np.identity(4)
-    t[:3,3] = -eye
 
+    if invert:
+        # here for debugging
+        t[:3,3] = eye
+        m = np.dot(t,r)  
+    else:
+        # translate then rotate, transposed to get inverse
+        t[:3,3] = -eye
+        m = np.dot(r.T,t)  
+   
 
-    # translate then rotate, transposed to get inverse
-    m = np.dot(r.T,t)  
     
     if debug:
         print "r\n",r
@@ -79,6 +92,14 @@ def world_to_camera( eye, look, up, debug=False ):
 
 
 def check_world_to_camera( eye, look, up , xeye, xlook, xup, debug=False ):
+
+
+    gaze = look - eye  
+    distance = np.linalg.norm(gaze)
+    right = np.cross( gaze, up )
+
+    
+
 
     m = world_to_camera(eye, look, up )
 
@@ -127,6 +148,17 @@ def test_world_to_camera_two():
     check_world_to_camera( eye, look, up, xeye, xlook, xup)
 
 
+def test_world_to_camera_random():
+
+    eye = (np.random.random(3) - 0.5)*100
+    look = (np.random.random(3) - 0.5)*100
+    up = (np.random.random(3) - 0.5)*100
+
+    xeye  = np.append([0,0,0],1)
+    xlook = np.append([0,0,-np.linalg.norm(eye-look)],1)
+    xup   = None
+   
+    check_world_to_camera( eye, look, up, xeye, xlook, xup)
 
 
 
@@ -134,8 +166,30 @@ def test_world_to_camera_two():
 
 if __name__ == '__main__':
 
-    #test_world_to_camera_simplest()
+    test_world_to_camera_simplest()
     test_world_to_camera_two()
+    for _ in range(100):
+        test_world_to_camera_random()
+
+
+    eye = np.array((0,0,0))
+    look = np.array((0,0,-10))
+    up = np.array((0,1,0))
+    gaze = look - eye  
+
+    distance = np.linalg.norm(gaze)
+    right = norm( np.cross( gaze, up ))
+
+    m = world_to_camera(eye, look, up )
+
+    # transform points in left-right line of target
+    for f in np.linspace(-1,1,9):
+        chk = look + right*f  
+        chk_c = np.dot(m,np.append(chk,1))
+        print f
+        print chk
+        print chk_c
+ 
 
 
 

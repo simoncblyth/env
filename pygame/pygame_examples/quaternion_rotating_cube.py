@@ -23,11 +23,17 @@ Ideas:
 
 
 """
+
+import logging
+log = logging.getLogger(__name__)
+
 import numpy as np
 import socket
-import sys, pygame, time, math
+import os, sys, pygame, time, math
 
-from env.graphics.pipeline.world_to_screen import PerspectiveTransform, OrientationTransform, InterpolateTransform
+from env.graphics.pipeline.view_transform import ViewTransform
+from env.graphics.pipeline.perspective_transform import PerspectiveTransform
+from env.graphics.pipeline.interpolate_transform import InterpolateTransform
 
 from model import Model 
 
@@ -53,29 +59,17 @@ class UDPToPygame():
 class TransformController(object):
     """ 
     """
-    def __init__(self, perspective, orientation ):
+    def __init__(self, transform ):
         """
-        :param perspective:  PerspectiveTransform instance
-        :param orientation:  OrientationTransform instance
+        :param transform:  Transform subclass instance
         """
-        self.perspective = perspective
-        self.orientation = orientation
-        self.original_perspective = perspective.copy()
-        self.original_orientation = orientation.copy()
+        self.transform = transform
+        self.original_transform = transform.copy()
         self._matrix = None
 
     def _get_matrix(self):
-        if self.dirty or self._matrix is None:
-            perspective_matrix = self.perspective.matrix
-            orientation_matrix = self.orientation.matrix
-            self._matrix = perspective_matrix.dot(orientation_matrix)
-        return self._matrix
+        return self.transform.matrix
     matrix = property(_get_matrix)
-
-    def _get_dirty(self):
-        return self.perspective.dirty or self.orientation.dirty
-    dirty = property(_get_dirty)
-
 
     def transform_vertex(self, vert ):
         assert vert.shape == (3,)
@@ -151,7 +145,7 @@ class TransformController(object):
         #self.perspective.set('near', near )
         #self.perspective.set('far', far )
 
-        self.orientation.set('fraction', oscillate( frame, 0., 1., 0.01 ))
+        self.transform.view( oscillate( frame, 0., 1., 0.01 ))
   
 
 class InputHandler(object):
@@ -192,10 +186,10 @@ class InputHandler(object):
 
 
 class Viewer(object):
-    def __init__(self, models, controller, handler, caption="-", tick=50., background_color=(150,150,150)):
+    def __init__(self, models, controller, handler, screensize=(640,480), caption="-", tick=50., background_color=(150,150,150)):
         pass
         pygame.init()
-        screen = pygame.display.set_mode(controller.perspective.screensize)
+        screen = pygame.display.set_mode(screensize)
         pygame.display.set_caption(caption)
         pass
         self.models = models 
@@ -232,47 +226,48 @@ class Viewer(object):
         for avgz, color, points in model.primitives(self.controller):
             if groupsize == 4:
                 pygame.draw.polygon(self.screen,color,points)
-            elif groupsize == 2:
+            elif groupsize == 2 or groupsize == 3:
                 closed, thickness = False, 1 
                 pygame.draw.lines(self.screen,color,closed,points,thickness)
             else:
-                assert 0
+                assert 0, (groupsize)
         
 
 
 if __name__ == "__main__":
+
+    logging.basicConfig(level=logging.INFO)
+
     models = []
     #models.append(Model.cube(50))  backing cube
     models.append(Model.cube(1.))
     models.append(Model.axes(3.))
+    m = Model.dae(3166)
+    models.append(m)
 
+
+
+
+
+if 0:
     X,Y,Z,O = np.array((1,0,0)),np.array((0,1,0)),np.array((0,0,1)),np.array((0,0,0))
 
-    eye, look, up, near, far = (5,5,5), (0,0,0), Y, 2, 10
-    yfov, nx, ny, flip  = 50, 640, 480, False
-      
-    perspective= PerspectiveTransform()
-    perspective.setViewpoint( eye, look, up, near, far )
-    perspective.setCamera( yfov, nx, ny, flip )
+    yfov, nx, ny, flip, near, far = 50, 640, 480, False, 2, 10
 
+    v0 = ViewTransform(eye=(10,10,10),  look=(0,0,0), up=Y)
+    v1 = ViewTransform(eye=(10,-10,-10), look=(0,0,0),  up=Y)
 
-    # this interpolates between orientations, but what i want is to 
-    # interpolate between viewpoints, ie between perspective transforms
-    # ... the positions are ignored
+    view = InterpolateTransform( v0, v1 , fraction=0 )
+    assert np.allclose( view.matrix, v0.matrix ) , (view.matrix, v0.matrix )
 
-    a_orientation = OrientationTransform(angle=45., axis=Y, center=look)
-    a_position = look    
-    b_orientation = OrientationTransform(angle=180.+45., axis=X, center=X*5.)
-    b_position = X*10.
+    perspective = PerspectiveTransform()
+    perspective.setView( view )
+    perspective.setCamera( near, far, yfov, nx, ny, flip )
 
-    orientation = InterpolateTransform( a_orientation, a_position, b_orientation, b_position ) 
-
-
-
-    controller = TransformController(perspective, orientation)
+    controller = TransformController(perspective)
     handler = InputHandler(controller)
  
-    viewer = Viewer(models, controller, handler)
+    viewer = Viewer(models, controller, handler, screensize=perspective.screensize)
     viewer.run()
 
     #viewer.draw()

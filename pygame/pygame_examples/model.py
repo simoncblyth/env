@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import numpy as np
 
 red = (255,0,0)
@@ -16,9 +17,24 @@ black = (0,0,0)
 grey = (127,127,127)
 
 
+
+
+
 class Model(object):
     """
     """
+    @classmethod
+    def dae(cls, index=3166):
+        from env.geant4.geometry.collada.daenode import DAENode 
+        DAENode.parse(os.environ['DAE_NAME'])
+        node = DAENode.indexget(3166)
+        bpl = list(node.boundgeom.primitives())[0]
+        tris = bpl.triangleset()
+        gorder = (0,1,2,1) 
+        colors = np.tile( grey, (len(tris),1) )
+        return cls( tris._vertex , tris._vertex_index, colors, gorder ) 
+
+
     @classmethod 
     def cube(cls, halfextent=1. ):
         """ 
