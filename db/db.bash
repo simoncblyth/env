@@ -421,7 +421,7 @@ db-logs(){
 
 
 db-status(){
-   echo status | offline_db1
-   echo status | offline_db2
+   echo status | $(my.py offline_db1)
+   echo status | $(my.py offline_db2)
 }
 
