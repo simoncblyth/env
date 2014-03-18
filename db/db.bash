@@ -418,3 +418,10 @@ db-logs(){
    echo $PWD $(date)
    ls -l 
 }
+
+
+db-status(){
+   echo status | offline_db1
+   echo status | offline_db2
+}
+
