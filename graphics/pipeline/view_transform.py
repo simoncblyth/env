@@ -7,8 +7,10 @@ log = logging.getLogger(__name__)
 import numpy as np
 import math
 from transform import Transform
+from unit_transform import UnitTransform
 
 norm_ = lambda _:_/np.linalg.norm(_)
+
 
 
 class ViewTransform(Transform):
@@ -47,19 +49,21 @@ class ViewTransform(Transform):
     it turns out that its always has X=0, ie somewhere in Y-Z 
 
     """ 
-    def __init__(self, eye=(0,0,0), look=(0,0,-1), up=(0,1,0) ):
+    def __init__(self, eye=(0,0,0), look=(0,0,-1), up=(0,1,0), unit=None):
         """
         :param eye:   (x,y,z) position of camera/eye in world frame
         :param look:  (x,y,z) position of target in world frame
         :param up:  
         """
         Transform.__init__(self)
+
         self.set('eye',np.array(eye))
         self.set('look',np.array(look))
         self.set('up',np.array(up))
+        self.set('unit',unit)
 
     def copy(self):
-        return ViewTransform(self.eye,self.look,self.up)
+        return ViewTransform(self.eye,self.look,self.up, self.unit)
 
     def dump(self):
         print "eye  %s [%s] " % ( self.eye , np.linalg.norm(self.eye))
@@ -90,16 +94,33 @@ class ViewTransform(Transform):
                    +Z
 
         """
+
+        # rotation portion doesnt care about the potential unit transform uniform scaling
         r = np.identity(4)
         r[:3,0] = self.right
         r[:3,1] = self.top
         r[:3,2] = -self.forward    # forward is -Z, so negate
   
+
+        # translation needs the right unit transform scale
         t = np.identity(4)
-        t[:3,3] = -self.eye[0:3]
+
+        if self.unit is None:
+            translate = self.eye[:3] 
+        else:
+            translate = self.unit(np.append(self.eye[:3],1))
+
+        t[:3,3] = -translate[:3]
 
         m = np.dot(r.T,t)   
+
+        # NB the unit transform is applicable to the 
+        # parameters used to construct this matrix, NOT 
+        # to the world coordinate "customers" of this transform
+
         return m 
+
+
 def test_viewtransform_canonical():
     """
     when the arbitrary eye and look positions in the world frame correspond 

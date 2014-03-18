@@ -61,6 +61,9 @@ class Transform(object):
         return self._matrix
     matrix = property(_get_matrix)
 
+
+
+
     def _get_quaternion(self):
         if self._quaternion is None or self.dirty:
             self._quaternion = quaternion_from_matrix( self.matrix )
@@ -83,7 +86,10 @@ class Transform(object):
         Apply the Transform or its inverse
         """
         if inverse:
-            m = invert_homogenous(self.matrix)
+            if hasattr(self, '_calculate_matrix_inverse'):
+                m = self._calculate_matrix_inverse()
+            else: 
+                m = invert_homogenous(self.matrix)  # this dont work for scaled homogenous
         else:
             m = self.matrix
         return m.dot(np.append(v[:3],w))
@@ -130,11 +136,59 @@ def check_invert_homogenous():
     assert np.allclose(np.dot(i,m), np.identity(4)) , (m,i)       
 
 
+def invert_scale( s ):
+    i = np.identity(4)
+    i[0,0] = 1./s[0,0]
+    i[1,1] = 1./s[1,1]
+    i[2,2] = 1./s[2,2]
+    return i   
+
+
+def scale_matrix( scale ):
+    s = np.identity(4)
+    s[0,0] = scale
+    s[1,1] = scale
+    s[2,2] = scale
+    return s
+ 
+def test_invert_scale():
+    s = scale_matrix(10)
+    i = invert_scale( s )
+    assert np.allclose(np.dot(s,i), np.identity(4)) , (s,i)       
+    assert np.allclose(np.dot(i,s), np.identity(4)) , (s,i)       
+    
+
+
+def check_invert_homogenous_scaled():
+    m = random_homogenous_matrix()
+    n = invert_homogenous(m)
+
+    s = scale_matrix(10)
+    i = invert_scale(s)
+
+    sm = np.dot(s, m)
+    print sm
+
+    ni = np.dot(n, i)
+    print ni
+
+    print n.dot(m)
+
+    assert np.allclose(i.dot(s), np.identity(4)) , (s,i)       
+    assert np.allclose(s.dot(i), np.identity(4)) , (s,i)       
+
+    assert np.allclose(n.dot(m), np.identity(4)) , (s,i)       
+    assert np.allclose(m.dot(n), np.identity(4)) , (s,i)       
+
+
+ 
 
 
 if __name__ == '__main__':
     pass
     test_invert_homogenous()
-
+    test_invert_scale()
+    
+    check_invert_homogenous_scaled()
 
 

@@ -32,10 +32,13 @@ import socket
 import os, sys, pygame, time, math
 
 from env.graphics.pipeline.view_transform import ViewTransform
+from env.graphics.pipeline.unit_transform import UnitTransform
 from env.graphics.pipeline.perspective_transform import PerspectiveTransform
 from env.graphics.pipeline.interpolate_transform import InterpolateTransform
 
 from model import Model 
+    
+X,Y,Z,O = np.array((1,0,0)),np.array((0,1,0)),np.array((0,0,1)),np.array((0,0,0))
 
 
 class UDPToPygame():
@@ -145,7 +148,8 @@ class TransformController(object):
         #self.perspective.set('near', near )
         #self.perspective.set('far', far )
 
-        self.transform.view( oscillate( frame, 0., 1., 0.01 ))
+        if self.transform.view.__class__.__name__ == 'InterpolateTransform':
+            self.transform.view( oscillate( frame, 0., 1., 0.01 ))
   
 
 class InputHandler(object):
@@ -238,32 +242,67 @@ if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)
 
-    models = []
-    #models.append(Model.cube(50))  backing cube
-    models.append(Model.cube(1.))
-    models.append(Model.axes(3.))
-    m = Model.dae(3166)
-    models.append(m)
+    """
+    #. output dependency on model position remains, 
+       maybe due to fixed near
+
+    #. quat interpolation between viewpoints for models 
+       close to origin work OK, for world coordinate models
+       the interpolation is crazy despite the end points being fine
+
+       * translate model vertices to see if numerical problems
+         are the explanation
+
+    #. cube still looks rectangulated, projection issue ? 
+
+       * try orthographic, it might be illuminating
+
+    """
+    axes = Model.axes(3.)
+    #dae = Model.dae(3158)
+    #cube = Model.cube(2., center=(10,0,0))     
+    #models = [cube]
+    #models = [dae]
+    models = [axes]
+
+    bounds = models[0].get_bounds()
+    unit = UnitTransform( bounds )
+    print unit
+
+    print "world frame model vertices converted into param frame  "
+    for v in models[0].vertices:
+        print v, unit(v, inverse=True)   # inverse unit transform from model frame into "parameter" frame
+     
+    print "param frame coordinates converted into world frame  "
+    for p in ((0,0,0),(1,1,1),(-1,-1,-1)):
+        print p, unit(p)
 
 
+    yfov, nx, ny, flip = 50, 640, 480, False
+    near, far = 0.1, 10 
 
+    # unit transform is needed to convert view transform input parameters into world frame 
+    v0 = ViewTransform(eye=(2,2,2),  look=(0,0,0), up=Y , unit=unit)
+    v1 = ViewTransform(eye=(2,-2,-2), look=(0,0,0), up=Y , unit=unit )
 
-
-if 0:
-    X,Y,Z,O = np.array((1,0,0)),np.array((0,1,0)),np.array((0,0,1)),np.array((0,0,0))
-
-    yfov, nx, ny, flip, near, far = 50, 640, 480, False, 2, 10
-
-    v0 = ViewTransform(eye=(10,10,10),  look=(0,0,0), up=Y)
-    v1 = ViewTransform(eye=(10,-10,-10), look=(0,0,0),  up=Y)
-
-    view = InterpolateTransform( v0, v1 , fraction=0 )
+    view = InterpolateTransform( v0, v1 )
+    view(0)
     assert np.allclose( view.matrix, v0.matrix ) , (view.matrix, v0.matrix )
+    view(1)
+    assert np.allclose( view.matrix, v1.matrix ) , (view.matrix, v1.matrix )
+
 
     perspective = PerspectiveTransform()
     perspective.setView( view )
+    #perspective.setView( v0 )
     perspective.setCamera( near, far, yfov, nx, ny, flip )
 
+
+    for v in models[0].vertices:
+        print v, perspective(v)
+        
+
+#if 0:
     controller = TransformController(perspective)
     handler = InputHandler(controller)
  

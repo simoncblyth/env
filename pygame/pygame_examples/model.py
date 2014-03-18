@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import logging
+log = logging.getLogger(__name__)
 import numpy as np
 
 red = (255,0,0)
@@ -17,7 +19,7 @@ black = (0,0,0)
 grey = (127,127,127)
 
 
-
+rainbow = np.array([red,green,blue,cyan,magenta,yellow,white,black,grey])
 
 
 class Model(object):
@@ -27,16 +29,17 @@ class Model(object):
     def dae(cls, index=3166):
         from env.geant4.geometry.collada.daenode import DAENode 
         DAENode.parse(os.environ['DAE_NAME'])
-        node = DAENode.indexget(3166)
+        node = DAENode.indexget(index)
         bpl = list(node.boundgeom.primitives())[0]
         tris = bpl.triangleset()
         gorder = (0,1,2,1) 
-        colors = np.tile( grey, (len(tris),1) )
+        #colors = np.tile( grey, (len(tris),1) )
+        colors = rainbow[np.random.randint(len(rainbow),size=len(tris))]
         return cls( tris._vertex , tris._vertex_index, colors, gorder ) 
 
 
     @classmethod 
-    def cube(cls, halfextent=1. ):
+    def cube(cls, halfextent=1., center=(0,0,0)):
         """ 
         Define the vertices that compose each of the 6 faces. These numbers are
         indices to the vertices list defined above.
@@ -73,6 +76,8 @@ class Model(object):
 
         Inconsistent normal directions in vertex order ?
         """
+
+        center = np.array(center)
         vertices = halfextent*np.array([
             (-1, 1,-1),
             ( 1, 1,-1),
@@ -90,7 +95,7 @@ class Model(object):
         colors = np.array([yellow,red,blue,cyan,green,magenta])
 
         gorder = (0,1,2,3,0)   # repeat the first vertex within each primitive to close the quad  
-        return cls(vertices, groups, colors, gorder )
+        return cls(vertices + center, groups, colors, gorder )
 
 
     @classmethod 
@@ -120,6 +125,10 @@ class Model(object):
         print "gsize %s " % (gsize)
         assert len(gsize) == 1, gsize  # expect consistent groupsize, ie number of vertices in each face
         self.groupsize = gsize[0]
+
+    def get_bounds(self):
+        "Return the lower and upper bounds for the mesh as a tuple."
+        return np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
 
     def primitives(self, transform):
         """
@@ -158,23 +167,24 @@ class Model(object):
 
 if __name__ == '__main__':
    pass
-   from env.graphics.pipeline.world_to_screen import PerspectiveTransform
+   logging.basicConfig(level=logging.INFO)
+   from env.graphics.pipeline.unit_transform import UnitTransform
 
-   eye, look, up, near, far = (10,10,10), (0,0,0), (0,1,0), 2, 10
-   yfov, nx, ny, flip  = 90, 640, 480, False
-      
-   transform = PerspectiveTransform()
-   transform.setViewpoint( eye, look, up, near, far )
-   transform.setCamera( yfov, nx, ny, flip )
- 
-   #model = Model.cube()
-   model = Model.axes(3)
+   model = Model.dae()
+   print model 
 
-   model.dump_vertices(transform)
-   model.dump_primitives(transform)
+   bounds = model.get_bounds()
+   UT = UnitTransform( bounds )
+   print UT
 
+   center = UT((0,0,0))
+   assert np.allclose( center[:3], UT.center )
 
-
+   for p in ((1,0,0),(0,1,0),(0,0,1)):
+       u = UT(p)
+       print p, u 
+       #assert np.alltrue( u[:3] >= UT.bounds[0] ), (u[:3], UT.bounds[0])
+       #assert np.alltrue( u[:3] <= UT.bounds[1] ), (u[:3], UT.bounds[1])
 
 
 
