@@ -1,5 +1,42 @@
 #!/usr/bin/env python
 """
+Perspective Transformation
+==========================
+
+Using the approach described by Wolfgang Hurst, especially 
+in "GRAPHICS PIPELINE I: PERSPECTIVE PROJECTION"  Lecture 7
+of the course. 
+
+* http://www.cs.uu.nl/docs/vakken/gr/2012-13/gr_lectures.html
+* http://www.cs.uu.nl/docs/vakken/gr/2012-13/Slides/INFOGR_2012-2013_lecture-07_projection_annotated.pdf
+
+Videos linked from the lectures page.
+
+Summary
+--------
+
+#. world_to_camera
+
+   * camera frame positions eye at origin and look along -Z with Y being camera up, and X to camera right 
+
+#. camera_to_orthographic
+
+   * orthographic frame is an axis aligned box with extremities (l,b,n) (t,r,f)   
+
+#. orthographic_to_canonical
+
+   * canonical frame is axis aligned box with extremities (-1,-1,-1) (1,1,1)
+
+#. canonical_to_screen
+
+   * screen frame is of pixel dimensions from (0,0,z) (width, height,z) where z gets ignored
+
+
+Other Refs
+-----------
+
+* http://en.wikipedia.org/wiki/Orthographic_projection_(geometry)
+
 
 """
 
@@ -23,7 +60,7 @@ from unit_transform import UnitTransform
 
 
 class PerspectiveTransform(Transform):
-    def __init__(self, view=None, near=0.1, far=100, yfov=30, nx=640, ny=480, flip=False ):
+    def __init__(self, view=None, near=0.1, far=100, yfov=30, nx=640, ny=480, flip=False, orthographic=0 ):
         """
         :param view:  ViewTransform instance
         :param near:  distance from eye to view frustrum near plane, in world frame dimensions 
@@ -39,36 +76,48 @@ class PerspectiveTransform(Transform):
         if view is None:
             view = ViewTransform()
         self.setView( view )
-        self.setCamera( near, far, yfov, nx, ny, flip )
+        self.setCamera( near, far, yfov, nx, ny, flip, orthographic )
 
     def setView(self, view):
         self.set('view',view)
 
-    def setCamera(self, near, far, yfov, nx, ny, flip ):
+    def setCamera(self, near, far, yfov, nx, ny, flip, orthographic ):
         self.set('near',near)
         self.set('far',far)
         self.set('yfov',yfov)
         self.set('nx',nx)
         self.set('ny',ny)
         self.set('flip',flip)
+        self.set('orthographic',orthographic )
 
     def copy(self):
-        return PerspectiveTransform(self.view, self.near,self.far, self.yfov, self.nx, self.ny, self.flip)
+        return PerspectiveTransform(self.view, self.near,self.far, self.yfov, self.nx, self.ny, self.flip, self.orthographic )
 
     screensize = property(lambda self:(int(self.nx), int(self.ny)))
-    aspect = property(lambda self:float(self.ny)/float(self.nx)) 
+
+    # aspect is the ratio of the width to the height of an image 
+    aspect = property(lambda self:float(self.nx)/float(self.ny)) 
     top = property(lambda self:self.near * math.tan( self.yfov * 0.5 * math.pi / 180. ))
     right = property(lambda self:self.top*self.aspect) 
 
     def _calculate_matrix(self):
-
+        """
+        """
         cw = self.view.matrix
 
-        oc = camera_to_orthographic( self.near, self.far )
+        if self.orthographic > 0:
+            oc = np.identity(4)
+            oc[0,0] = self.orthographic
+            oc[1,1] = self.orthographic
+            oc[2,2] = 0 
+        else:
+            oc = camera_to_orthographic( self.near, self.far )   # perspective divide happens here
 
-        left = -self.right 
-        bottom = -self.top
-        co = orthographic_to_canonical( left, bottom, self.near,  self.right, self.top, self.far )
+
+        left, bottom, near = -self.right, -self.top, self.near
+        right,top,far  = self.right, self.top, self.far
+
+        co = orthographic_to_canonical( left, bottom, near, right, top, far, debug=False )
 
         sc = canonical_to_screen( float(self.nx), float(self.ny), self.flip  )
 

@@ -12,6 +12,7 @@ Graphics
     opengl/index
     transformations/index
     panda3d/index
+    pipeline/index
 
 
 

@@ -9,8 +9,6 @@ from env.graphics.transformations.transformations import \
      quaternion_matrix
 
 
-
-
 class InterpolateTransform(Transform):
     """
     Screen space that the perspective transform ends up in 
@@ -36,17 +34,17 @@ class InterpolateTransform(Transform):
         self.start_position = start_transform.matrix[:3,3]
         self.end_position = end_transform.matrix[:3,3]
  
-        self(fraction)
-
+        self.setFraction(fraction)
+     
         self.spin = spin
         self.shortestpath = shortestpath
 
-    def __call__(self, fraction):
-         self.set('fraction', fraction )
-         return self
+    def setFraction(self, fraction):
+        self.set('fraction', fraction)
+        return self
 
     def __repr__(self):
-         return "\n".join(["Interpolate fraction %s " % self.fraction, str(Transform.__repr__(self))]) 
+         return "\n".join(["Interpolate fraction %s " % self.fraction, str(self.start_transform), str(self.end_transform), str(Transform.__repr__(self))]) 
 
     def copy(self):
         return InterpolateTransform(self.start_transform, self.end_transform , self.fraction, self.spin, self.shortestpath )
@@ -62,18 +60,33 @@ class InterpolateTransform(Transform):
         a_quaternion = self.start_transform.quaternion
         b_quaternion = self.end_transform.quaternion
         f_quaternion = quaternion_slerp(a_quaternion, b_quaternion, f, spin=self.spin, shortestpath=self.shortestpath )
-        f_matrix = quaternion_matrix( f_quaternion )   
 
-        # separately interpolate the translation and shove it into the matrix ???
+        f_matrix = quaternion_matrix( f_quaternion )   
         f_position = self.start_position*(1.-f) + f*self.end_position
+        
+        # separately interpolate the translation and shove it into the matrix ???
         f_matrix[:3,3] = f_position
- 
+
+        #t = np.identity(4)
+        #t[:3,3] = f_position  
+        #f_matrix = np.dot(t, f_matrix ) 
+
         return f_matrix
 
+    def check_endpoints(self):
+        f = self.fraction
+
+        self.setFraction(0)
+        assert np.allclose( self.matrix, self.start_transform.matrix ) , (self.matrix, self.start_transform.matrix )
+        self.setFraction(1)
+        assert np.allclose( self.matrix, self.end_transform.matrix ) , (self.matrix, self.end_transform.matrix )
+
+        self.setFraction(f)
 
 
-if __name__ == '__main__':
-    pass
+
+def test_interpolate_transform():
+
     from view_transform import ViewTransform
  
     X = np.array((1,0,0))
@@ -86,18 +99,18 @@ if __name__ == '__main__':
 
     vx = ViewTransform( eye, 10*X, up )
     vz = ViewTransform( eye, 10*Z, up )
-
-    print "vx", vx 
-    print "vz", vz 
-
     it = InterpolateTransform(vx, vz )
-    assert np.allclose( it(0).matrix , vx.matrix )
-    assert np.allclose( it(1).matrix , vz.matrix )
+
+    assert np.allclose( it.setFraction(0).matrix , vx.matrix )
+    assert np.allclose( it.setFraction(1).matrix , vz.matrix )
+
+    #for f in np.linspace(0,1,5):
+    #    print it.setFraction(f)
 
 
-    for f in np.linspace(0,1,5):
-        print it(f)
-     
 
 
+if __name__ == '__main__':
+    pass
+    test_interpolate_transform()
 

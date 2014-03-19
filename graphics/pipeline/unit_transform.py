@@ -152,11 +152,10 @@ def test_inverse():
     ut = UnitTransform( (lower,upper), diagonal=False )
 
     m = ut.matrix
-    i = ut._calculate_matrix_inverse()
+    i = ut.inverse
 
     assert np.allclose( np.identity(4), np.dot(m,i) )
     assert np.allclose( np.identity(4), np.dot(i,m) )
-
 
 
 if __name__ == '__main__':
@@ -165,7 +164,6 @@ if __name__ == '__main__':
     test_3()
     test_inverse()
 
-    #from env.pygame.pygame_examples.model import Model
 
 
 

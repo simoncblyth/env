@@ -22,20 +22,33 @@ grey = (127,127,127)
 rainbow = np.array([red,green,blue,cyan,magenta,yellow,white,black,grey])
 
 
+def daeload(index):
+    from env.geant4.geometry.collada.daenode import DAENode 
+    DAENode.parse(os.environ['DAE_NAME'])
+    node = DAENode.indexget(index)
+    return node
+
+
 class Model(object):
     """
     """
     @classmethod
-    def dae(cls, index=3166):
-        from env.geant4.geometry.collada.daenode import DAENode 
-        DAENode.parse(os.environ['DAE_NAME'])
-        node = DAENode.indexget(index)
-        bpl = list(node.boundgeom.primitives())[0]
-        tris = bpl.triangleset()
+    def dae(cls, index=3166, bound=True):
+        """
+        :param index:
+        :param bound: when True provides world frame coordinates, otherwise unplaced local geometry coordinates
+        """
+        node = daeload(index)
+        if bound:
+            pl = list(node.boundgeom.primitives())[0]
+        else:
+            pl = node.geo.geometry.primitives[0]
+
+        tris = pl.triangleset()
         gorder = (0,1,2,1) 
         #colors = np.tile( grey, (len(tris),1) )
         colors = rainbow[np.random.randint(len(rainbow),size=len(tris))]
-        return cls( tris._vertex , tris._vertex_index, colors, gorder ) 
+        return cls( tris._vertex , tris._vertex_index, colors, gorder, name="dae solid %s" % index ) 
 
 
     @classmethod 
@@ -95,7 +108,7 @@ class Model(object):
         colors = np.array([yellow,red,blue,cyan,green,magenta])
 
         gorder = (0,1,2,3,0)   # repeat the first vertex within each primitive to close the quad  
-        return cls(vertices + center, groups, colors, gorder )
+        return cls(vertices + center, groups, colors, gorder, name="cube")
 
 
     @classmethod 
@@ -113,18 +126,20 @@ class Model(object):
         groups  = np.array([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)])
         colors = np.array([red,cyan,green,magenta,blue,yellow])   # +/- rgb/cmy complemetary pairings 
         gorder = (0,1)  # orderings of vertices within the group, allows vertex duplication to close a shape for example 
-        return cls(vertices, groups, colors, gorder)
+        return cls(vertices, groups, colors, gorder, name="axes")
 
-    def __init__(self, vertices, groups, colors, gorder ):
+    def __init__(self, vertices, groups, colors, gorder, name="" ):
         self.vertices = vertices 
         self.groups = groups 
         self.colors = colors 
         self.gorder = gorder
-        print "vertices.shape %s groups.shape %s colors.shape %s " % ( vertices.shape, groups.shape, colors.shape )
+        self.name = name
         gsize = list(set(map(len,groups)))
-        print "gsize %s " % (gsize)
         assert len(gsize) == 1, gsize  # expect consistent groupsize, ie number of vertices in each face
         self.groupsize = gsize[0]
+
+    def __repr__(self):
+        return "%s %s " % ( self.__class__.__name__, self.name )
 
     def get_bounds(self):
         "Return the lower and upper bounds for the mesh as a tuple."
@@ -165,26 +180,58 @@ class Model(object):
             print points
 
 
+def check_model_bounds(model):
+    """
+    The single extent comes from the maximum difference along a world frame axis, 
+    so calculating bounds back in parameter space will give at least one
+    dimension at extemities -1, 1
+    """
+    from env.graphics.pipeline.unit_transform import UnitTransform
+    bounds = model.get_bounds()
+    UT = UnitTransform( bounds )
+    #print "unit transform for %s\n%s " % (model, UT ) 
+
+    center = UT((0,0,0))
+    assert np.allclose( center[:3], UT.center ), "input parameter frame origin expected to correspond to center of solid in world frame"
+
+    # inverse transform on model vertices gets them into parameter frame
+    p_vert = UT(model.vertices, inverse=True)
+    #print p_vert
+
+    # all are expected to be inside the cube with extremities -1,-1,-1  1,1,1
+    p_lower, p_upper = np.min(p_vert, axis=0), np.max(p_vert, axis=0)
+    assert np.allclose(np.min(p_lower), -1 )
+    assert np.allclose(np.max(p_upper),  1 )
+
+
+def check_model_coordinates( model ):
+    from env.graphics.pipeline.unit_transform import UnitTransform
+
+    bounds = model.get_bounds()
+    UT = UnitTransform( bounds )
+
+    pv = UT(model.vertices, inverse=True)    # world to param
+    wv = UT(pv[:,:3])                        # param to world
+    assert np.allclose( wv[:,:3], model.vertices ) 
+
+    pbb = ((0,0,0),(1,1,1),(-1,-1,-1))
+    wbb = UT(pbb)                          # param to world
+    ibb = UT(wbb[:,:3], inverse=True)      # world to param
+    assert np.allclose( ibb[:,:3], np.array(pbb) ) 
+
+
+def test_model_coordinates():
+    model = Model.dae()
+    check_model_coordinates(model)
+    check_model_bounds(model)
+
+def tests():
+    test_model_coordinates() 
+
+
 if __name__ == '__main__':
-   pass
-   logging.basicConfig(level=logging.INFO)
-   from env.graphics.pipeline.unit_transform import UnitTransform
-
-   model = Model.dae()
-   print model 
-
-   bounds = model.get_bounds()
-   UT = UnitTransform( bounds )
-   print UT
-
-   center = UT((0,0,0))
-   assert np.allclose( center[:3], UT.center )
-
-   for p in ((1,0,0),(0,1,0),(0,0,1)):
-       u = UT(p)
-       print p, u 
-       #assert np.alltrue( u[:3] >= UT.bounds[0] ), (u[:3], UT.bounds[0])
-       #assert np.alltrue( u[:3] <= UT.bounds[1] ), (u[:3], UT.bounds[1])
-
+    pass
+    logging.basicConfig(level=logging.INFO)
+    tests()
 
 

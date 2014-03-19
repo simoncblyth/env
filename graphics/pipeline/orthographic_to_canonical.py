@@ -1,23 +1,28 @@
 #!/usr/bin/env python
 """
+Orthographic to canonical
+===========================
+
+* Orthographic, axis aligned (l,b,n) (r,t,f)
+* Canonical 2x2 box with extremities (-1,-1,1) (1,1,-1)   
+
+* translation to get centered on (l+r,b+t,n+f)/2
+* scaling 
 
 
-#. world_to_camera
 
-   * camera frame positions eye at origin and look along -Z with Y being camera up, and X to camera right 
+::
 
-#. camera_to_orthographic
-
-   * orthographic frame is an axis aligned box with extremities (l,b,n) (t,r,f)   
-
-#. orthographic_to_canonical
-
-   * canonical frame is axis aligned box with extremities (-1,-1,-1) (1,1,1)
-
-#. canonical_to_screen
-
-   * screen frame is of pixel dimensions from (0,0,z) (width, height,z) where z gets ignored
-
+               (1,1,-1)
+               (r,t,f)      Y  -Z 
+         +-----+            |  . 
+        /|    /|            | .
+       +-----+ |            |.
+       | +   | +            +---- X
+       |/    |/            /       
+       +-----+            /
+   (l,b,n)              +Z
+   (-1,-1,1)
 
 """
 
@@ -44,7 +49,7 @@ def orthographic_to_canonical( left, bottom, near, right, top, far, debug=False)
     s = np.identity(4)
     s[0,0] = 2./(right-left)
     s[1,1] = 2./(top-bottom)
-    s[2,2] = 2./(far-near)
+    s[2,2] = 2./(near-far)      # oops, this was sign flipped, but no impact as Z is about to be canned anyhow ?
 
     if debug:
         print "s\n", s
@@ -75,8 +80,8 @@ def check_orthographic_to_canonical( lbn, rtf ):
     print "rtf_o ", rtf_o
     print "cen_o ", cen_o
  
-    xlbn=(-1,-1,-1)
-    xrtf=(1,1,1)
+    xlbn=(-1,-1,1)
+    xrtf=(1,1,-1)
     xcen=(0,0,0)
 
     assert np.allclose( np.append(xlbn,1),lbn_o ),(xlbn, lbn_o)
@@ -104,15 +109,18 @@ def test_orthographic_to_canonical_diagonal():
     lbn = np.array([left,bottom,near])
     rtf = np.array([right,top,far])
 
+    print "lbn", lbn
+    print "rtf", rtf
+
     diag_ = lambda f:lbn*(1.-f) + rtf*f
 
     for f in (0,0.25,0.5,0.75,1.):
         dia = diag_(f)
         dia_o = np.dot(m,np.append(dia,1))
         xf = 2*f-1
-        print "diag      : %s    f %s " % (dia, f)
+        #print "diag      : %s    f %s " % (dia, f)
         print "diag_o    : %s    xf %s " % (dia_o, xf )
-        xdia = np.ones(3)*xf 
+        xdia = np.array([xf,xf,-xf]) 
         assert np.allclose( np.append(xdia,1), dia_o ), (xdia, dia_o ) 
 
 

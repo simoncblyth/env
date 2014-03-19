@@ -12,12 +12,20 @@ from unit_transform import UnitTransform
 norm_ = lambda _:_/np.linalg.norm(_)
 
 
-
 class ViewTransform(Transform):
     """
-    Camera frame conventions,
+    A rotation and translation to orient:
 
-    #. camera at origin, looking down -Z
+    #. eye/camera at origin
+    #. looking down -Z
+
+    Definition of up, 
+
+       a vector in the plane bisecting the viewers head 
+       into left and right halves and "pointing to the sky"
+
+    (often +Y)
+
 
     +Y out of page, right handed system::
 
@@ -33,7 +41,6 @@ class ViewTransform(Transform):
                        |          -near            -far
                        |
                       +X
-
 
     ViewTransform transforms from world to camera frame
 
@@ -62,6 +69,9 @@ class ViewTransform(Transform):
         self.set('up',np.array(up))
         self.set('unit',unit)
 
+    def __repr__(self):
+        return "\n".join(["eye %s look %s up %s distance %s " % ( self.eye, self.look, self.up, self.distance ), Transform.__repr__(self)])
+
     def copy(self):
         return ViewTransform(self.eye,self.look,self.up, self.unit)
 
@@ -73,6 +83,7 @@ class ViewTransform(Transform):
 
     # unit vectors for the camera
     gaze = property(lambda self:self.look - self.eye)
+    distance = property(lambda self:np.linalg.norm(self.gaze))
     right   = property(lambda self:norm_(np.cross(self.forward, self.up)))   # +X 
     top     = property(lambda self:norm_(np.cross(self.right,self.forward))) # +Y 
     forward = property(lambda self:norm_(self.gaze))                         # -Z
@@ -94,21 +105,19 @@ class ViewTransform(Transform):
                    +Z
 
         """
-
         # rotation portion doesnt care about the potential unit transform uniform scaling
         r = np.identity(4)
         r[:3,0] = self.right
         r[:3,1] = self.top
-        r[:3,2] = -self.forward    # forward is -Z, so negate
+        r[:3,2] = -self.forward  # conventionally forward is -Z, so negate to use right-handed coordinate system
   
-
         # translation needs the right unit transform scale
         t = np.identity(4)
 
         if self.unit is None:
             translate = self.eye[:3] 
         else:
-            translate = self.unit(np.append(self.eye[:3],1))
+            translate = self.unit(self.eye[:3])
 
         t[:3,3] = -translate[:3]
 
@@ -124,11 +133,11 @@ class ViewTransform(Transform):
 def test_viewtransform_canonical():
     """
     when the arbitrary eye and look positions in the world frame correspond 
-    to those of the conventional camera frame, get identity
+    to those of the conventional camera frame, expect to 
+    get identity matrix for the transform
     """
     canonical = ViewTransform(eye=(0,0,0),look=(0,0,-1),up=(0,1,0))
     assert np.allclose( canonical.matrix, np.identity(4) ),   ( canonical )
-
 
 def test_viewtransform():
     for _ in range(100):
@@ -142,10 +151,8 @@ def check_viewtransform(eye, look, up):
     """
     Checks that the ViewTransform when applied to the 
     eye and look positions yields expectations in camera frame 
-
     """
     vt = ViewTransform(eye=eye,look=look,up=up)
-    #print vt
 
     # transform eye and look coordinates and up direction from world to camera frame
     eye_c = vt(eye)
@@ -160,32 +167,23 @@ def check_viewtransform(eye, look, up):
     assert np.allclose( look_c , xlook_c ),  (look_c, xlook_c)     
 
     # use inverse matrix to transform from camera frame back to world frame 
-    eye_w = vt(eye_c, inverse=True)
-    look_w = vt(look_c, inverse=True)
-    up_w = vt(up_c, w=0, inverse=True)   # using w=0 effectively ignores the translation portion
+    eye_w = vt(eye_c[:3], inverse=True)
+    look_w = vt(look_c[:3], inverse=True)
+    up_w = vt(up_c[:3], w=0, inverse=True)   # using w=0 effectively ignores the translation portion
 
+    # expect to get back to the inputs
     assert np.allclose( eye_w[:3] , eye)
     assert np.allclose( look_w[:3] , look)
     assert np.allclose( up_w[:3] , up )
 
-    #print "eye", eye
-    #print "eye_c", eye_c
-    #print "eye_w", eye_w 
-
-    #print "look", look
-    #print "look_c", look_c
-    #print "look_w", look_w 
-        
-    #print "up", up
-    #print "up_c", up_c
-    #print "up_w", up_w 
- 
 
 def check_world_to_camera_consistency(eye, look, up):
+    """
+    Checking the two implementations agree
+    """ 
     vt = ViewTransform(eye=eye,look=look,up=up)
     from world_to_camera import world_to_camera
     cw = world_to_camera( eye, look, up)
-    #print cw
     assert np.allclose( vt.matrix, cw )
 
 
@@ -197,10 +195,6 @@ def tests():
 if __name__ == '__main__':
 
     tests()
-
-    eye = np.array((1,0,1))
-    look = np.array((2,0,2))
-    up = np.array((0,1,0))
 
 
 

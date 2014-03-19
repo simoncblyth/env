@@ -21,6 +21,30 @@ Ideas:
       for model in self.models:
           model.qrotate(q)
 
+#. quat interpolation between viewpoints for models 
+   close to origin work OK, for world coordinate models
+   the interpolation is crazy despite the end points being fine
+
+   * translate model vertices to see if numerical problems
+     are the explanation
+
+#. certain viewpoints cause divisions by zero, how to avoid ?
+
+#. when eye point is in same direction as up, cannot calc the quat::
+
+           numpy.linalg.linalg.LinAlgError: Eigenvalues did not converge
+
+       * maybe just set up to be eye^look
+
+#. painting technique does not work from inside objects
+
+#. with cube half side of 2, and near of 1 and eye,look (0,0,2),(0,0,0) the
+   orthogonal projection precisely fills the screen  
+
+
+#. caution of optical illusion, you need to see as if you are looking 
+   through the volume : otherwise the projection looks wierd
+
 
 """
 
@@ -68,57 +92,13 @@ class TransformController(object):
         """
         self.transform = transform
         self.original_transform = transform.copy()
-        self._matrix = None
-
-    def _get_matrix(self):
-        return self.transform.matrix
-    matrix = property(_get_matrix)
-
-    def transform_vertex(self, vert ):
-        assert vert.shape == (3,)
-        vert = np.append(vert, 1.)
-        p = np.dot( self.matrix, vert )
-        p /= p[3]
-        return p 
- 
-    def transform_vertices(self, verts ):
-        """
-        :param verts: numpy 2d array of vertices, for example with shape (1000,3)
-
-        Extended homogenous matrix multiplication yields (x,y,z,w) 
-        which corresponds to coordinate (x/w,y/w,z/w)  
-        This is a trick to allow to represent the "division by z"  needed 
-        for perspective transforms with matrices, which normally cannot 
-        represent divisions.
- 
-        Steps:
-
-        #. add extra column of ones, eg shape (1000,4)
-        #. matrix pre-multiply the transpose of that 
-        #. divide by last column  (xw,yw,zw,w) -> (xw/w,yw/w,zw/w,1) = (x,y,z,1)  whilst still transposed
-        #. return the transposed back matrix 
-
-        To do the last column divide while not transposed could do::
-
-            (verts.T/verts[:,(-1)]).T
-
-        """
-        assert verts.shape[-1] == 3 and len(verts.shape) == 2, ("unexpected shape", verts.shape )
-        v = np.concatenate( (verts, np.ones((len(verts),1))),axis=1 )  # add 4th column of ones 
-        vt = np.dot( self.matrix, v.T )
-        vt /= vt[-1]   
-        return vt.T
- 
-    def __call__(self,verts):
-        return self.transform_vertices(verts)
-
 
     def animate(self, frame):
         """
         """ 
         pass
         def oscillate( frame, low, high, speed ):
-            return low + (high-low)*(math.cos(frame*math.pi*speed)+1.)/2.
+            return low + (high-low)*(math.sin(frame*math.pi*speed)+1.)/2.
 
 
         # have to base from originals, otherwise get incremental change and it wanders off
@@ -126,8 +106,6 @@ class TransformController(object):
         #self.perspective.set('look', alook )
 
         # this attemps to move viewpoint perpendicular to original gaze 
-        #ope = self.original_perspective.eye
-        #opr = self.original_perspective.right
         #aeye = oscillate( frame, ope - 5.*opr, ope + 5.*opr , 0.01) 
         #self.perspective.set('eye', aeye )
 
@@ -149,7 +127,8 @@ class TransformController(object):
         #self.perspective.set('far', far )
 
         if self.transform.view.__class__.__name__ == 'InterpolateTransform':
-            self.transform.view( oscillate( frame, 0., 1., 0.01 ))
+            self.transform.view.set('fraction', oscillate( frame, 0., 1., 0.01 ))
+
   
 
 class InputHandler(object):
@@ -158,12 +137,18 @@ class InputHandler(object):
         self.controller = controller
         self.clicked = False
 
+    def exit(self):
+        pygame.quit()
+        sys.exit()
+
     def handle(self, event): 
         print str(event)
 
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            self.exit() 
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.exit() 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             print "MOUSEBUTTONDOWN"
             if event.button == 1:
@@ -227,80 +212,67 @@ class Viewer(object):
 
     def render(self, model):
         groupsize = model.groupsize
-        for avgz, color, points in model.primitives(self.controller):
-            if groupsize == 4:
+        for avgz, color, points in model.primitives(self.controller.transform):
+            if groupsize == 4 or groupsize == 3:
                 pygame.draw.polygon(self.screen,color,points)
-            elif groupsize == 2 or groupsize == 3:
+            elif groupsize == 2:
                 closed, thickness = False, 1 
                 pygame.draw.lines(self.screen,color,closed,points,thickness)
             else:
                 assert 0, (groupsize)
         
+def bounds(vertices):
+    return np.min(vertices, axis=0), np.max(vertices, axis=0)
 
 
 if __name__ == "__main__":
-
     logging.basicConfig(level=logging.INFO)
 
-    """
-    #. output dependency on model position remains, 
-       maybe due to fixed near
 
-    #. quat interpolation between viewpoints for models 
-       close to origin work OK, for world coordinate models
-       the interpolation is crazy despite the end points being fine
+    index = 3158
+    index = 4998
 
-       * translate model vertices to see if numerical problems
-         are the explanation
+    target = Model.dae(index, bound=False)
 
-    #. cube still looks rectangulated, projection issue ? 
+    # offseting the vertices changes the interpolation, not the endpoint presentation
+    # need to hide it from the interpolation 
+    #target.vertices += np.array((0,0,3e3))
 
-       * try orthographic, it might be illuminating
+    unit = UnitTransform(target.get_bounds())
+    print "extent %s " % unit.extent
+    axes = Model.axes(2*unit.extent)
+    cube = Model.cube(unit.extent/2., center=(0,0,0)) 
 
-    """
-    axes = Model.axes(3.)
-    #dae = Model.dae(3158)
-    #cube = Model.cube(2., center=(10,0,0))     
-    #models = [cube]
-    #models = [dae]
-    models = [axes]
+    models = [axes,target]
 
-    bounds = models[0].get_bounds()
-    unit = UnitTransform( bounds )
-    print unit
+    yfov, flip = 50, True
+    nx, ny = 640, 480
 
-    print "world frame model vertices converted into param frame  "
-    for v in models[0].vertices:
-        print v, unit(v, inverse=True)   # inverse unit transform from model frame into "parameter" frame
-     
-    print "param frame coordinates converted into world frame  "
-    for p in ((0,0,0),(1,1,1),(-1,-1,-1)):
-        print p, unit(p)
+    orthographic = 0               # perspective when 0 
+    #orthographic = 1./unit.extent  # the xy scaling to use
 
+    up = (0,0,1)
 
-    yfov, nx, ny, flip = 50, 640, 480, False
-    near, far = 0.1, 10 
+    # unit transform converts input parameters into world frame 
+    v0 = ViewTransform(eye=(2,2,2),  look=(0,0,0), up=up , unit=unit )
+    v1 = ViewTransform(eye=(-4,-4,-4), look=(0,0,0), up=up , unit=unit )
+    vf = InterpolateTransform( v0, v1 )
+    vf.check_endpoints()
+    print vf
 
-    # unit transform is needed to convert view transform input parameters into world frame 
-    v0 = ViewTransform(eye=(2,2,2),  look=(0,0,0), up=Y , unit=unit)
-    v1 = ViewTransform(eye=(2,-2,-2), look=(0,0,0), up=Y , unit=unit )
+    view = vf
 
-    view = InterpolateTransform( v0, v1 )
-    view(0)
-    assert np.allclose( view.matrix, v0.matrix ) , (view.matrix, v0.matrix )
-    view(1)
-    assert np.allclose( view.matrix, v1.matrix ) , (view.matrix, v1.matrix )
-
+    near = v0.distance
+    far = v0.distance*100.
 
     perspective = PerspectiveTransform()
     perspective.setView( view )
-    #perspective.setView( v0 )
-    perspective.setCamera( near, far, yfov, nx, ny, flip )
+    perspective.setCamera( near, far, yfov, nx, ny, flip, orthographic )
 
 
-    for v in models[0].vertices:
-        print v, perspective(v)
-        
+    #points = perspective(target.vertices)  # apply all transfomations in one go 
+    #print bounds(points) 
+
 
 #if 0:
     controller = TransformController(perspective)
@@ -309,5 +281,3 @@ if __name__ == "__main__":
     viewer = Viewer(models, controller, handler, screensize=perspective.screensize)
     viewer.run()
 
-    #viewer.draw()
-    #time.sleep(2) 

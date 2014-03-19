@@ -116,4 +116,8 @@ def test_canonical_to_screen():
 if __name__ == '__main__':
     test_canonical_to_screen()
 
+    nx, ny = 640, 480
+
+    m = canonical_to_screen( nx, ny, False )
+    print m
 
