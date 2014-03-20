@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 """
+Usage::
+
+   daeview.py -n 4998,4815 -t 4815
+   daeview.py -n 4998,4815 -t 4815 -e 3,0,0 -p   
+   daeview.py -n 4998,4815:4900 -t 4905   -e 10,10,0
+
+   daeview.py -n 4998,4815 -t 4815 -j 4998  -e 4,0,0
+
+      # animated transition between two nodes
+
 
 Ideas:
 
@@ -330,9 +340,9 @@ def main_check_view_interpolation():
 
 
 
-def parse_args():
+def parse_args(doc):
     import argparse
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(doc)
     parser.add_argument("-n","--nodes", default="3152,3153",   help="DAENode.getall node(s) specifier",type=str)
     parser.add_argument("-a","--look",  default="0,0,0",   help="Lookat position",type=str)
     parser.add_argument("-e","--eye",   default="-2,0,0", help="Eye position",type=str)
@@ -376,20 +386,7 @@ def find_model( models, target ):
 
 
 def main():
-    """
-    ::
-
-        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815
-        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815 -e 3,0,0 -p   
-        ./quaternion_rotating_cube.py -n 4998,4815:4900 -t 4905   -e 10,10,0
-
-
-        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815 -j 4998  
-
-    """
-    args, parser = parse_args()
-
-
+    args, parser = parse_args(__doc__)
 
     models = Model.dae(args.nodes, bound=True, path=args.path)
     focus = models[0]
