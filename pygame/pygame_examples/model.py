@@ -22,33 +22,40 @@ grey = (127,127,127)
 rainbow = np.array([red,green,blue,cyan,magenta,yellow,white,black,grey])
 
 
-def daeload(index):
+def daeload(arg, path=None):
+    if path is None:
+        path = os.environ['DAE_NAME']
     from env.geant4.geometry.collada.daenode import DAENode 
-    DAENode.parse(os.environ['DAE_NAME'])
-    node = DAENode.indexget(index)
-    return node
+    if len(DAENode.registry) == 0:
+        DAENode.parse(path)
+    return DAENode.getall(arg)
 
 
 class Model(object):
     """
     """
     @classmethod
-    def dae(cls, index=3166, bound=True):
+    def dae(cls, arg="3166", bound=True, path=None):
         """
         :param index:
         :param bound: when True provides world frame coordinates, otherwise unplaced local geometry coordinates
         """
-        node = daeload(index)
+        nodes = daeload(arg, path)
+        return [cls.dae_one(node, bound=bound) for node in nodes]
+
+    @classmethod
+    def dae_one(cls, node, bound=True):
         if bound:
             pl = list(node.boundgeom.primitives())[0]
         else:
             pl = node.geo.geometry.primitives[0]
 
         tris = pl.triangleset()
-        gorder = (0,1,2,1) 
+        #gorder = (0,1,2,0) # filled tris
+        gorder = (0,1,2,1)  # this mistake is rendered as wireframe looking better than the filled tris
         #colors = np.tile( grey, (len(tris),1) )
         colors = rainbow[np.random.randint(len(rainbow),size=len(tris))]
-        return cls( tris._vertex , tris._vertex_index, colors, gorder, name="dae solid %s" % index ) 
+        return cls( tris._vertex , tris._vertex_index, colors, gorder, name="dae solid %s" % node.id, index=node.index ) 
 
 
     @classmethod 
@@ -90,7 +97,7 @@ class Model(object):
         Inconsistent normal directions in vertex order ?
         """
 
-        center = np.array(center)
+        center = np.array(center)[:3]
         vertices = halfextent*np.array([
             (-1, 1,-1),
             ( 1, 1,-1),
@@ -112,7 +119,7 @@ class Model(object):
 
 
     @classmethod 
-    def axes(cls, extent):
+    def axes(cls, extent, center=(0,0,0)):
         vertices = extent*np.array([
             (0,0,0),
             (1,0,0),
@@ -122,18 +129,20 @@ class Model(object):
             (0,0,1),
             (0,0,-1),
         ])
+        center = np.array(center)[:3]
         #                    +x     -x    +y   -y    +z     -z
         groups  = np.array([(0,1),(0,2),(0,3),(0,4),(0,5),(0,6)])
         colors = np.array([red,cyan,green,magenta,blue,yellow])   # +/- rgb/cmy complemetary pairings 
         gorder = (0,1)  # orderings of vertices within the group, allows vertex duplication to close a shape for example 
-        return cls(vertices, groups, colors, gorder, name="axes")
+        return cls(vertices + center, groups, colors, gorder, name="axes")
 
-    def __init__(self, vertices, groups, colors, gorder, name="" ):
+    def __init__(self, vertices, groups, colors, gorder, name="", index=-1):
         self.vertices = vertices 
         self.groups = groups 
         self.colors = colors 
         self.gorder = gorder
         self.name = name
+        self.index = index
         gsize = list(set(map(len,groups)))
         assert len(gsize) == 1, gsize  # expect consistent groupsize, ie number of vertices in each face
         self.groupsize = gsize[0]
@@ -144,6 +153,27 @@ class Model(object):
     def get_bounds(self):
         "Return the lower and upper bounds for the mesh as a tuple."
         return np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+
+    def get_center(self):
+        bounds = self.get_bounds()
+        return np.mean(bounds, axis=0) 
+
+    def debug_offset_vertices(self, offset=(0,0,0), center=False):
+        """
+        :param offset:
+        :param center:
+
+        For debugging frame dependence issues. 
+
+        This allows the model vertices to be offet, and for the 
+        model vertices to be centered placing the midpoint of the 
+        bounds at the origin.
+        """
+        offset = np.array(offset)
+        if center:
+            self.vertices += -self.get_center() 
+        self.vertices += offset
+
 
     def primitives(self, transform):
         """

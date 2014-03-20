@@ -336,14 +336,14 @@ class DAENode(object):
         path = os.path.expandvars(path)
         log.info("DAENode.parse pycollada parse %s " % path )
         dae = collada.Collada(path)
-        log.info("pycollada parse completed ")
+        log.debug("pycollada parse completed ")
         boundgeom = list(dae.scene.objects('geometry'))
         top = dae.scene.nodes[0]
-        log.info("pycollada binding completed, found %s  " % len(boundgeom))
-        log.info("create DAENode heirarchy ")
+        log.debug("pycollada binding completed, found %s  " % len(boundgeom))
+        log.debug("create DAENode heirarchy ")
         cls.orig = dae
         cls.recurse(top)
-        cls.summary()
+        #cls.summary()
         cls.indexlink( boundgeom )
         cls.parse_extra_surface( dae )
         cls.parse_extra_material( dae )
@@ -352,7 +352,7 @@ class DAENode(object):
     def parse_extra_surface( cls, dae ):
         """
         """
-        log.info("collecting opticalsurface/boundarysurface/skinsurface info from library_nodes/extra/")
+        log.debug("collecting opticalsurface/boundarysurface/skinsurface info from library_nodes/extra/")
         library_nodes = dae.xmlnode.find(".//"+tag("library_nodes"))
         extra = library_nodes.find(tag("extra"))
         assert extra is not None
@@ -360,7 +360,7 @@ class DAENode(object):
 
     @classmethod
     def parse_extra_material( cls, dae ):
-        log.info("collecting extra material properties from library_materials/material/extra ")
+        log.debug("collecting extra material properties from library_materials/material/extra ")
         nextra = 0 
         for material in dae.materials:
             extra = material.xmlnode.find(tag("extra"))
@@ -370,7 +370,7 @@ class DAENode(object):
                 nextra += 1
                 material.extra = MaterialProperties.load(collada, {}, extra)
             pass 
-        log.info("loaded %s extra elements with MaterialProperties " % nextra )             
+        log.debug("loaded %s extra elements with MaterialProperties " % nextra )             
 
     @classmethod
     def dump_extra_material( cls ):
@@ -447,6 +447,11 @@ class DAENode(object):
         node = cls.registry[index]
         log.info("arg %s => indices %s => node %s " % ( arg, indices, node ))
         return node
+
+    @classmethod
+    def getall(cls, arg ):
+        indices = cls.interpret_ids(arg)
+        return [cls.registry[index] for index in indices]
 
     @classmethod
     def interpret_arg(cls, arg):
@@ -552,12 +557,16 @@ class DAENode(object):
         parent = cls.lookup.get(node.parent_digest)
         node.parent = parent
         if parent is None:
-            log.warn("failed to find parent for %s (failure expected only for root node)" % node )
+            if node.id == "top.0":
+                pass
+            else:
+                log.fatal("failed to find parent for %s (failure expected only for root node)" % node )
+                assert 0
         else:
             parent.children.append(node)  
 
         if cls.created % 1000 == 0:
-            log.info("make %s : [%s] %s " % ( cls.created, id(node), node ))
+            log.debug("make %s : [%s] %s " % ( cls.created, id(node), node ))
         return node
 
     @classmethod
@@ -623,14 +632,14 @@ class DAENode(object):
         but it does not imply correctness of the cross referencing due
         to a lot of id recycling.
         """
-        log.info("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
+        log.debug("index linking DAENode with boundgeom %s volumes " % len(boundgeom)) 
         assert len(cls.registry) == len(boundgeom), ( len(cls.registry), len(boundgeom))
         for vn,bg in zip(cls.registry,boundgeom):
             vn.boundgeom = bg
             vn.matdict = vn.get_matdict()
             bg.daenode = vn
             assert vn.geo.geometry.id == bg.original.id   
-        log.info("index linking completed")    
+        log.debug("index linking completed")    
 
 
     @classmethod
@@ -1011,7 +1020,7 @@ class DAEExtra(DaeObject):
             surf = OpticalSurface.load(collada, localscope, elem)
             localscope['surfaceproperty'][surf.name] = surf
             opticalsurface.append(surf)
-        log.info("loaded %s opticalsurface " % len(opticalsurface))
+        log.debug("loaded %s opticalsurface " % len(opticalsurface))
 
         skinmap = {}
         skinsurface = []
@@ -1024,7 +1033,7 @@ class DAEExtra(DaeObject):
             pass
             skinmap[skin.volumeref].append(skin)
 
-        log.info("loaded %s skinsurface " % len(skinsurface))
+        log.debug("loaded %s skinsurface " % len(skinsurface))
 
         bordermap = {}
         bordersurface = []
@@ -1040,7 +1049,7 @@ class DAEExtra(DaeObject):
                 bordermap[bord.physvolref2] = []
             bordermap[bord.physvolref2].append(bord)
 
-        log.info("loaded %s bordersurface " % len(bordersurface))
+        log.debug("loaded %s bordersurface " % len(bordersurface))
 
         pass
         return DAEExtra(opticalsurface, skinsurface, bordersurface, skinmap, bordermap, xmlnode)

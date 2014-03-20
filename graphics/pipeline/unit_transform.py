@@ -6,28 +6,7 @@ log = logging.getLogger(__name__)
 
 import numpy as np
 import math
-from transform import Transform
-
-
-class ScaleTransform(Transform):
-    def __init__(self, scale ):
-        Transform.__init__(self)
-        self.set('scale',scale)
-    def _calculate_matrix(self):
-        s = np.identity(4)
-        s[0,0] = self.scale
-        s[1,1] = self.scale
-        s[2,2] = self.scale
-        return s
-
-class TranslateTransform(Transform):
-    def __init__(self, translate ):
-        Transform.__init__(self)
-        self.set('translate',translate)
-    def _calculate_matrix(self):
-        t = np.identity(4)
-        t[:3,3] = self.translate 
-        return t
+from transform import Transform, ScaleTransform, TranslateTransform
 
 
 class UnitTransform(Transform):
@@ -88,8 +67,9 @@ class UnitTransform(Transform):
     def __repr__(self):
         return "\n".join(
                ["UnitTransform",
-                "   bounds %s " % self.bounds,
+                "   upper  %s " % self.bounds[1],
                 "   center %s " % self.center,
+                "   lower  %s " % self.bounds[0],
                 "   extent %s " % self.extent, 
                 Transform.__repr__(self)])
 

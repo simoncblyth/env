@@ -73,8 +73,6 @@ class PerspectiveTransform(Transform):
         :param flip:  when True makes top left correpond to pixel coordinate (0,0), instead of bottom left
         """
         Transform.__init__(self)
-        if view is None:
-            view = ViewTransform()
         self.setView( view )
         self.setCamera( near, far, yfov, nx, ny, flip, orthographic )
 
@@ -103,17 +101,21 @@ class PerspectiveTransform(Transform):
     def _calculate_matrix(self):
         """
         """
-        cw = self.view.matrix
+        cw = self.view.matrix    # eye at origin looking along -Z
 
         if self.orthographic > 0:
+            # TODO base this scale somehow on near, rather than something extra injected in 
             oc = np.identity(4)
-            oc[0,0] = self.orthographic
-            oc[1,1] = self.orthographic
+            ortho_scale = self.orthographic
+            oc[0,0] = ortho_scale  
+            oc[1,1] = ortho_scale
             oc[2,2] = 0 
         else:
             oc = camera_to_orthographic( self.near, self.far )   # perspective divide happens here
 
 
+        # fov and aspect dependency comes in with the top, right, left, bottom 
+        # hmm, kinda funny that fov still effects orthographic ? 
         left, bottom, near = -self.right, -self.top, self.near
         right,top,far  = self.right, self.top, self.far
 
@@ -128,8 +130,6 @@ class PerspectiveTransform(Transform):
     def add(self, name, delta):
         init = getattr(self, name)
         self.set(name, init+delta)
-
-
 
 
 

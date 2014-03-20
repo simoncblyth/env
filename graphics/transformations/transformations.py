@@ -1244,18 +1244,43 @@ def quaternion_about_axis(angle, axis):
     return q
 
 
-def angle_axis_from_quaternion( quaternion ):
+def angle_axis_from_quaternion( q ):
+    """
+    SCB
+    """
+    angleaxis = angleaxis_from_quaternion( q )
+    angle = numpy.linalg.norm(angleaxis)
+    return angle, angleaxis/angle
+ 
+
+def angleaxis_from_quaternion( q ):
     """
     SCB addition 
-    
+   
+    For Unit quaternion 
+
+          q = ( cos(angle/2), axis_vec sin(angle/2) ) 
+
+ 
     * http://en.wikipedia.org/wiki/Axis–angle_representation
     * http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+
+    * http://math.stackexchange.com/questions/291110/numerically-stable-extraction-of-axis-angle-from-unit-quaternion
+
     """ 
-    qw = quaternion[0]
-    angle = 2.0*math.acos( qw )
-    den = numpy.sqrt( 1.0 - qw*qw )
-    axis = quaternion[1:]/den
-    return angle, axis 
+    qw = q[0]
+    sin_squared = numpy.dot(q[1:], q[1:]) 
+    if sin_squared > 0:
+        sin_theta = math.sqrt(sin_squared)
+        k = 2.0*math.atan2(sin_theta,q[0])/sin_theta
+    else: 
+        k = 2.0        
+
+    angleaxis = q[1:]*k
+    return angleaxis 
+
+
+
 
 
 def quaternion_matrix(quaternion):

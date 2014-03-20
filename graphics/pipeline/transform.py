@@ -32,8 +32,14 @@ from env.graphics.transformations.transformations import \
      quaternion_about_axis, \
      quaternion_slerp, \
      euler_matrix, \
+     angle_axis_from_quaternion, \
      quaternion_multiply
 
+
+
+def qrepr(q):
+    angle, axis = angle_axis_from_quaternion(q)
+    return  "%s norm %s angle %s axis %s" % ( q, q.dot(q), 180.*angle/math.pi, axis) 
 
 
 class Transform(object):
@@ -51,7 +57,7 @@ class Transform(object):
         self.dirty = True
 
     def __repr__(self):
-        return "%s %s\n%s\n" % ( self.__class__.__name__, self.quaternion, self.matrix ) 
+        return "%s %s\n%s\n" % ( self.__class__.__name__, qrepr(self.quaternion), self.matrix ) 
 
     def _calculate_matrix(self):
         raise Exception("subclasses of Transform need to implement _calculate_matrix ")
@@ -174,6 +180,38 @@ class Transform(object):
             assert 0, ("unexpected shape", v.shape)
 
 
+    def dump_vertices(self, vertices):
+        """
+        For debugging vertices that fail to appear  
+        """
+        points = self(vertices)            # apply all transfomations in one go 
+        bounds_ = lambda _:np.min(_, axis=0), np.max(_, axis=0)
+        print bounds_(points) 
+
+
+
+
+
+
+class ScaleTransform(Transform):
+    def __init__(self, scale ):
+        Transform.__init__(self)
+        self.set('scale',scale)
+    def _calculate_matrix(self):
+        s = np.identity(4)
+        s[0,0] = self.scale
+        s[1,1] = self.scale
+        s[2,2] = self.scale
+        return s
+
+class TranslateTransform(Transform):
+    def __init__(self, translate ):
+        Transform.__init__(self)
+        self.set('translate',translate)
+    def _calculate_matrix(self):
+        t = np.identity(4)
+        t[:3,3] = self.translate 
+        return t
 
 
 

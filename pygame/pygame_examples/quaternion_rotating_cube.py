@@ -1,64 +1,67 @@
 #!/usr/bin/env python
 """
-Started from http://codentronix.com/2011/05/12/rotating-3d-cube-using-python-and-pygame/
-
-
-Changes:
-
-#. split off the model
-#. add axes
-#. move to quaternion controlled rotation
 
 Ideas:
 
 * https://threejsdoc.appspot.com/doc/three.js/src.source/extras/controls/TrackballControls.js.html
 
+* certain viewpoints cause divisions by zero, how to avoid ?
 
-* transformations eg rotations need to be applied to the transform not the models, 
-  ie not:: 
-
-      q = Quaternion.fromAxisAngle([0,1,0], self.angle, normalize=True)
-      for model in self.models:
-          model.qrotate(q)
-
-#. quat interpolation between viewpoints for models 
-   close to origin work OK, for world coordinate models
-   the interpolation is crazy despite the end points being fine
-
-   * translate model vertices to see if numerical problems
-     are the explanation
-
-#. certain viewpoints cause divisions by zero, how to avoid ?
-
-#. when eye point is in same direction as up, cannot calc the quat::
+* when eye point is in same direction as up, cannot calc the quat::
 
            numpy.linalg.linalg.LinAlgError: Eigenvalues did not converge
 
        * maybe just set up to be eye^look
 
-#. painting technique does not work from inside objects
+* caution of optical illusion, you need to see as if you are looking 
+  through the volume : otherwise the projection can looks wierd, ones
+  preception sometimes flips between these impressions
 
-#. with cube half side of 2, and near of 1 and eye,look (0,0,2),(0,0,0) the
-   orthogonal projection precisely fills the screen  
+* filled painting technique does not work from inside objects
 
+* wireframe drawing bogs down when eye enters volumes, primitive painting ?
+  this tends to happen with small yfov 
+    
+* near is critical for controlling orthographic view, when 
+  interpolating between volumes of different scales need to 
+  interpolate near/yfov too ?  change lens on camera as you get close ?
 
-#. caution of optical illusion, you need to see as if you are looking 
-   through the volume : otherwise the projection looks wierd
-
+  the yfov dependence is kinda funny for orthographic, but its there
 
 """
 
-import logging
+import logging, sys
 log = logging.getLogger(__name__)
 
 import numpy as np
+import numpy.core.arrayprint as arrayprint
+import contextlib
+
+@contextlib.contextmanager
+def printoptions(strip_zeros=True, **kwargs):
+    """
+    http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
+    """
+    origcall = arrayprint.FloatFormat.__call__
+    def __call__(self, x, strip_zeros=strip_zeros):
+        return origcall.__call__(self, x, strip_zeros)
+    arrayprint.FloatFormat.__call__ = __call__
+    original = np.get_printoptions()
+    np.set_printoptions(**kwargs)
+    yield 
+    np.set_printoptions(**original)
+    arrayprint.FloatFormat.__call__ = origcall
+
+
+
 import socket
 import os, sys, pygame, time, math
 
+from env.graphics.pipeline.transform import qrepr
 from env.graphics.pipeline.view_transform import ViewTransform
 from env.graphics.pipeline.unit_transform import UnitTransform
 from env.graphics.pipeline.perspective_transform import PerspectiveTransform
-from env.graphics.pipeline.interpolate_transform import InterpolateTransform
+from env.graphics.pipeline.interpolate_transform import InterpolateTransform, InterpolateViewTransform
 
 from model import Model 
     
@@ -126,8 +129,17 @@ class TransformController(object):
         #self.perspective.set('near', near )
         #self.perspective.set('far', far )
 
-        if self.transform.view.__class__.__name__ == 'InterpolateTransform':
-            self.transform.view.set('fraction', oscillate( frame, 0., 1., 0.01 ))
+        if self.transform.view.__class__.__name__ in  ('InterpolateTransform','InterpolateViewTransform'):
+            v = self.transform.view
+            if v.animate:
+                self.transform.view.set('fraction', oscillate( frame, 0., 1., 0.01 ))
+                #print "%s %s " % (v.fraction, v.position)
+            else:
+                print "not animating"
+        else:
+            pass
+            #print "cannot animate this view"
+
 
   
 
@@ -142,7 +154,7 @@ class InputHandler(object):
         sys.exit()
 
     def handle(self, event): 
-        print str(event)
+        #print str(event)
 
         if event.type == pygame.QUIT:
             self.exit() 
@@ -221,63 +233,201 @@ class Viewer(object):
             else:
                 assert 0, (groupsize)
         
-def bounds(vertices):
-    return np.min(vertices, axis=0), np.max(vertices, axis=0)
 
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+def make_interpolate_transform( t0, t1 , center ):
+    """
+    Intractable coordinate offset dependence limits usefulness
+    of this approach, it works fine in the viscinity of the 
+    world origin, but elsewhere the interpolated rotation 
+    means that the model is only visible at start and endpoints.
 
+    Note that offsets in the direction of the axis of rotation 
+    cause no problem however and model stays visible all the time.
 
-    index = 3158
-    index = 4998
+    Attempts to "hide" the real coordinates by sandwiching between 
+    centering to/from translation matrixes somehow fails to help.
 
-    target = Model.dae(index, bound=False)
-
-    # offseting the vertices changes the interpolation, not the endpoint presentation
-    # need to hide it from the interpolation 
-    #target.vertices += np.array((0,0,3e3))
-
-    unit = UnitTransform(target.get_bounds())
-    print "extent %s " % unit.extent
-    axes = Model.axes(2*unit.extent)
-    cube = Model.cube(unit.extent/2., center=(0,0,0)) 
-
-    models = [axes,target]
-
-    yfov, flip = 50, True
-    nx, ny = 640, 480
-
-    orthographic = 0               # perspective when 0 
-    #orthographic = 1./unit.extent  # the xy scaling to use
-
-    up = (0,0,1)
-
-    # unit transform converts input parameters into world frame 
-    v0 = ViewTransform(eye=(2,2,2),  look=(0,0,0), up=up , unit=unit )
-    v1 = ViewTransform(eye=(-4,-4,-4), look=(0,0,0), up=up , unit=unit )
-    vf = InterpolateTransform( v0, v1 )
+    """
+    vf = InterpolateTransform( t0, t1 , center=center )
     vf.check_endpoints()
-    print vf
+    vf.animate = False
+    
+    qt, angle, axis = vf.transition_quaternion_angle_axis
 
-    view = vf
+    with printoptions(precision=3, suppress=True, strip_zeros=False):
+        print vf
+        print qrepr(qt)
 
-    near = v0.distance
-    far = v0.distance*100.
+    vf.setFraction(0.5) 
+    return vf
+
+
+class KeyView(object):
+    def __init__(self, eye, look, up, unit, name=""):
+        self.eye = eye
+        self.look = look
+        self.up = up
+        self.unit = unit 
+        self.name = name
+
+    _eye  = property(lambda self:self.unit(self.eye))
+    _look = property(lambda self:self.unit(self.look))
+    _up   = property(lambda self:self.unit(self.up,w=0))
+    _eye_look_up = property(lambda self:(self._eye, self._look, self._up)) 
+
+    def __repr__(self):
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+            return "\n".join([
+                    "%s %s " % (self.__class__.__name__, self.name),
+                    "p_eye  %s eye  %s " % (self.eye,  self._eye),
+                    "p_look %s look %s " % (self.look, self._look),
+                    "p_up   %s up   %s " % (self.up,   self._up),
+                      ])
+
+
+def main_check_view_interpolation():
+    """
+    Animates a change of focus between AD and PMT 
+    """
+    other_index = 4815   # cylindrical ancestor of the PMT
+    focus_index = 4998   # a PMT
+
+    other = Model.dae(other_index, bound=True)
+    focus = Model.dae(focus_index, bound=True)
+
+    UF = UnitTransform(focus.get_bounds())
+    UO = UnitTransform(other.get_bounds())
+
+    axes = Model.axes(2*UF.extent, center=UF((0,0,0)))
+    cube = Model.cube(UF.extent/10., center=UF((0,0,0))) 
+
+    models = [axes,cube,other,focus]
+
+    k0 = KeyView( (0,4,4), (0,0,0), (0,1,0), UF )
+    k1 = KeyView( (0,4,4), (0,0,0), (0,1,0), UO )
+
+    v0 = ViewTransform( *k0._eye_look_up )
+    v1 = ViewTransform( *k1._eye_look_up )
+
+    vf = InterpolateViewTransform( v0, v1 , 0.)
+
+    orthographic = 0   # 0 for perspective, >0 for orthographic, value also acts as scale for orthographic
+    yfov = 50     
+    near = v0.distance       
+    nx, ny, flip, far = 640, 480, True, near*100.
+
+    perspective = PerspectiveTransform()
+    perspective.setView( vf )
+    perspective.setCamera( near, far, yfov, nx, ny, flip, orthographic )
+
+
+    controller = TransformController(perspective)
+    handler = InputHandler(controller) 
+    viewer = Viewer(models, controller, handler, screensize=perspective.screensize)
+    viewer.run()
+
+
+
+
+def parse_args():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-n","--nodes", default="3152,3153",   help="DAENode.getall node(s) specifier",type=str)
+    parser.add_argument("-a","--look",  default="0,0,0",   help="Lookat position",type=str)
+    parser.add_argument("-e","--eye",   default="-2,0,0", help="Eye position",type=str)
+    parser.add_argument("-u","--up",   default="0,0,1", help="Eye position",type=str)
+    parser.add_argument("-t","--target", default=None,     help="Node index of solid on which to focus",type=str)
+    parser.add_argument("-z","--size", default="640,480", help="Pixel size", type=str)
+    parser.add_argument("-f","--fov",  default=50., help="Vertical field of view in degrees.", type=float)
+    parser.add_argument(     "--near",  default=1., help="Scale factor to apply to near distance, from eye to target node center.", type=float)
+    parser.add_argument("-F","--noflip",  dest="flip", action="store_false", default=True, help="Pixel y flip.")
+    parser.add_argument("-p","--parallel", action="store_true", help="Parallel projection, aka orthographic." )
+    parser.add_argument("-s","--pscale", default=1., help="Parallel projection, scale.", type=float  )
+    parser.add_argument(     "--path", default=os.environ['DAE_NAME'], help="Path of geometry file.",type=str)
+    parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
+    parser.add_argument("-l","--loglevel", default="INFO", help="INFO/DEBUG/WARN/..")  
+    parser.add_argument("-j","--jump", default=None, help="Animated transition to another node.")  
+    args = parser.parse_args()
+    logging.basicConfig(level=getattr(logging, args.loglevel))
+    
+    fvec_ = lambda _:map(float, _.split(","))
+    ivec_ = lambda _:map(int, _.split(","))
+
+    args.eye = fvec_(args.eye) 
+    args.look = fvec_(args.look) 
+    args.up = fvec_(args.up) 
+    args.size = ivec_(args.size) 
+
+    return args, parser
+
+
+
+
+def find_model( models, target ):
+    if target is None:return None
+    focus_models = filter(lambda _:str(_.index) == target, models)
+    if len(focus_models) == 1:
+        focus = focus_models[0]
+    else:
+        focus = None
+    return focus
+
+
+
+def main():
+    """
+    ::
+
+        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815
+        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815 -e 3,0,0 -p   
+        ./quaternion_rotating_cube.py -n 4998,4815:4900 -t 4905   -e 10,10,0
+
+
+        ./quaternion_rotating_cube.py -n 4998,4815 -t 4815 -j 4998  
+
+    """
+    args, parser = parse_args()
+
+
+
+    models = Model.dae(args.nodes, bound=True, path=args.path)
+    focus = models[0]
+    focus = find_model(models, args.target)
+    jump = find_model(models, args.jump)
+
+    unit = UnitTransform(focus.get_bounds())
+    key  = KeyView( args.eye, args.look, args.up, unit )
+
+    view = ViewTransform( *key._eye_look_up )
+
+    if not jump is None:
+        junit = UnitTransform(jump.get_bounds())
+        jkey  = KeyView( args.eye, args.look, args.up, junit )
+        jview = ViewTransform( *jkey._eye_look_up )
+        view = InterpolateViewTransform( view, jview , 0.)
+
+    if args.parallel:
+        orthographic = args.pscale   
+    else:
+        orthographic = 0  # perspective
+
+    yfov = args.fov
+    near = view.distance*args.near       
+    far = near*100.
+    nx, ny, flip = args.size[0], args.size[1], args.flip
 
     perspective = PerspectiveTransform()
     perspective.setView( view )
     perspective.setCamera( near, far, yfov, nx, ny, flip, orthographic )
 
-
-    #points = perspective(target.vertices)  # apply all transfomations in one go 
-    #print bounds(points) 
-
-
-#if 0:
     controller = TransformController(perspective)
-    handler = InputHandler(controller)
- 
+    handler = InputHandler(controller) 
     viewer = Viewer(models, controller, handler, screensize=perspective.screensize)
     viewer.run()
+
+
+if __name__ == "__main__":
+    #main_check_view_interpolation()
+    main()
 
