@@ -1,12 +1,107 @@
 # === func-gen- : muon_simulation/presentation/slides fgp muon_simulation/presentation/slides.bash fgn slides fgh muon_simulation/presentation
-slides-src(){      echo muon_simulation/presentation/slides.bash ; }
+slides-src(){      echo doc/slides.bash ; }
 slides-source(){   echo ${BASH_SOURCE:-$(env-home)/$(slides-src)} ; }
 slides-vi(){       vi $(slides-source) ; }
 slides-env(){      elocal- ; }
 slides-usage(){ cat << EOU
 
-S5 SLIDES PDF 
-================
+CONVERT SLIDES IN S5 RST TO HTML AND PDF 
+=========================================
+
+Checking configured settings
+-------------------------------
+
+*slides-info*
+           echos the paths/names in use
+
+
+Creating HTML slides from S5 Restructured Text Sources
+--------------------------------------------------------
+
+For simplicity arrange to have only one .txt file in the presentations folder, eg when 
+adapting an existing presentation::
+
+    simon:presentation blyth$ svn cp nov2013_gpu_nuwa.txt gpu_optical_photon_simulation.txt     
+    A         gpu_optical_photon_simulation.txt
+    simon:presentation blyth$ svn mv  nov2013_gpu_nuwa.txt  nov2013_gpu_nuwa.txt.old
+    A         nov2013_gpu_nuwa.txt.old
+    D         nov2013_gpu_nuwa.txt
+
+
+Check/update *slides-name*, *slides-branch*, *slides-host* settings using *slides-vi* *slides-info*, to 
+correspond to the name and location of the S5 sources. Normally 
+would just need to update *slides-name*, in above example *gpu_optical_photon_simulation*.
+
+Update S5 source, regenerate html and view local html in browser::
+
+    simon:presentation blyth$ vi gpu_optical_photon_simulation.txt 
+    simon:presentation blyth$ make
+    python ./rst2s5-2.6.py --theme-url ui/my-small-white --current-slide --visible-controls --language=en gpu_optical_photon_simulation.txt gpu_optical_photon_simulation.html
+    created gpu_optical_photon_simulation.html NAMES gpu_optical_photon_simulation
+
+    simon:presentation blyth$ open gpu_optical_photon_simulation.html
+
+To update a particular page use links like:
+
+* file:///Users/blyth/env/muon_simulation/presentation/gpu_optical_photon_simulation.html?p=18
+
+
+The above steps can also be done with *slides-make*.
+
+*slides-make*
+            Uses rst2s5.py to convert S5 .txt sources into .html.  
+
+
+Rsync derived files elsewhere and cleanup source tree
+-------------------------------------------------------
+
+Check the slides dir destination is as desired then *make rsync*::
+
+    simon:presentation blyth$ slides-dir
+    /usr/local/env/muon_simulation/presentation/nov2013_gpu_nuwa
+    simon:presentation blyth$ slides-
+    simon:presentation blyth$ slides-dir
+    /usr/local/env/muon_simulation/presentation/gpu_optical_photon_simulation
+
+
+The above steps can also be done with *slides-rsync*.
+
+
+*slides-rsync*
+              Copies derived html and pdf files out of working copy, then cleans them from working copy.
+
+
+Publish html to web server
+----------------------------
+
+#. make sure working copy is clean and commit changed files to subversion
+#. update env working copy on webserver 
+#. generate the html on the web server with *slides-make* or manually as shown above
+#. rsync to the webserver htdocs with *slides-publish* note that the destination
+   reuses the folders used by sphinx derived documentation
+
+Integrate URLs of presentation HTML with Sphinx
+--------------------------------------------------
+
+In the Sphinx index.rst in the presention folder add 
+raw html lists of links in order to allow navigation
+from Sphinx derived docs to the presentation html and pdf.
+
+Coexisting with Sphinx
+-----------------------
+
+Slide sources are named *.txt* rather than *.rst* 
+
+This avoid Sphinx attempting to build the S5 sources, which are 
+in plain docutils restructured text using S5 definitions rather
+than Sphinx RST.
+  
+The generated S5 html and pdf are placed within the Sphinx
+build directory at the appropriate place in the tree
+corresponding to the RST sources
+
+Convert .html pages to .pdf 
+------------------------------
 
 Creates PDF documents from a sequence of cropped browser 
 screen capture PNGs. 
@@ -24,24 +119,8 @@ prominent reference to the online html version of the slides.
 The advantage of having slides in html, generated from 
 plain text RST files outweighs the disadvantage.  
 
-MINIMAL SPHINX INTEGRATION
------------------------------
-
-Minimal integration with html docs created by Sphinx is 
-achieved by:
-
-#. plain docutils sources for rst2s5 (not sphinx) 
-   are named *.txt* rather than *.rst* 
-
-#. generated S5 html and pdf are placed within the Sphinx
-   build directory at the appropriate place in the tree
-   corresponding to the RST sources
-
-#. the Sphinx index.rst contains a raw html list of links
-   to the rst2s5 generated html and pdf 
-
-FUNCTIONS
-----------
+PDF CREATION FUNCTIONS
+------------------------
 
 *slides-get N M*
                 performs the below functions, does screencaptures to PNG, 
@@ -85,6 +164,23 @@ slides-sdir(){  echo $(env-home)/$(slides-branch) ; }
 slides-pdir(){  echo $(env-home)/_build/dirhtml/$(slides-fold) ; }
 slides-path(){  echo $(slides-dir)/$(slides-name).${1:-pdf} ; }
 slides-open(){  open $(slides-path $*) ; } 
+slides-info(){
+   cat << EOI
+
+   slides-fold : $(slides-fold)
+   slides-dir  : $(slides-dir)
+   slides-sdir : $(slides-sdir)             go here with slides-scd
+   slides-pdir : $(slides-pdir)
+   slides-path : $(slides-path)
+   
+   slides-name   : $(slides-name)          override via SLIDES_NAME $SLIDES_NAME
+   slides-branch : $(slides-branch)        override via SLIDES_BRANCH $SLIDES_BRANCH 
+   slides-host   : $(slides-host)          override via SLIDES_HOST $SLIDES_HOST
+   slides-url    : $(slides-url)           override via SLIDES_URL $SLIDES_URL
+   slides-ppath  : $(slides-ppath)
+
+EOI
+}
 
 slides-ls(){  ls -l $(slides-dir); }
 slides-cd(){  cd $(slides-dir); }
@@ -101,7 +197,7 @@ slides-get(){
 
 }
 
-slides-name(){      echo ${SLIDES_NAME:-nov2013_gpu_nuwa} ; }
+slides-name(){      echo ${SLIDES_NAME:-gpu_optical_photon_simulation} ; }
 slides-branch(){    echo ${SLIDES_BRANCH:-muon_simulation/presentation} ; }        # env relative path to where .txt sources reside
 slides-host(){      echo ${SLIDES_HOST:-dayabay.phys.ntu.edu.tw} ; }   
 slides-url(){       echo ${SLIDES_URL:-http://$(slides-host)/e/$(slides-fold)/$(slides-name).html} ; }
@@ -122,11 +218,22 @@ slides-make(){
 
    echo $msg creating S5 html slides from txt source
    make
+}
+
+slides-rsync(){
+   local msg="=== $FUNCNAME "
+   slides-scd
 
    local outdir=$(slides-dir)
+   local ans
+   read -p "$msg rsync derived outputs to $outdir and clean them from working copy  : Enter YES to proceed " ans
+   [ "$ans" != "YES" ] && echo $msg skipping && return 
+
    mkdir -p $outdir
    echo $msg rsync S5 html slides and sources to $outdir
    make rsync OUTDIR=$outdir
+
+   echo $msg removing any derived .html .pdf files 
    make clean
 }
 

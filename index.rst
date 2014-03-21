@@ -84,6 +84,7 @@ Contents:
    pygame/index
    zeromq/index
    pycuda/index
+   doc/index
 
 
 

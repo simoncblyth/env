@@ -13,7 +13,7 @@ with old geant4 requires
   to older geant4 G4MaterialPropertyVector
 
 Notes
-^^^^^^^
+~~~~~~~
 
 Compared new geant4 GDML with the version used with NuWa 
 

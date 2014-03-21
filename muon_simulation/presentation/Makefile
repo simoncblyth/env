@@ -8,7 +8,7 @@ PDFS=$(subst .txt,.pdf,$(SOURCES))
 RELDIR=$(subst $(ENV_HOME),,$(PWD))   # hmm relies on being at ~/env/wherever rather than symbolically linked ~/e/wherever
 
 PUBDIR=$(ENV_HOME)/_build/dirhtml/muon_simulation/presentation
-OUTDIR=$(LOCAL_BASE)/env/muon_simulation/presentation/name-of-presentation   # this is set exterally in slides-make
+OUTDIR=$(LOCAL_BASE)/env/muon_simulation/presentation/name-of-presentation   # this is set exterally in slides-make, used for rsync step only
 
 .PHONY: rsync clean slides touch info
 

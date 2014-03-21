@@ -127,7 +127,7 @@ EOU
 
 svn-revert-(){ svn --recursive revert . ; }
 
-svn-log5(){ svn log --limit 5 -v ; }
+svn-log5(){ svn log --limit ${1:-5} -v ; }
 svn-addx(){ $FUNCNAME- $* ; }
 svn-addx-(){ local name=$1 ; cat << EOC
 svn add $name ; svn ps svn:executable yes $name

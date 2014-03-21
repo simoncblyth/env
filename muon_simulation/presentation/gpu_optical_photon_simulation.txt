@@ -1,0 +1,420 @@
+.. include:: <s5defs.txt>
+
+======================================================================
+200x Faster Optical Photon Propagation with NuWa + Chroma ?
+======================================================================
+
+.. sidebar:: Objective 
+
+   Make GPU accelerated Optical Photon Propagation **routine**
+
+Introducing Chroma 
+
+* http://chroma.bitbucket.org
+
+Fivefold path:
+
+#. :green:`Geometry Conversion`
+#. :green:`Software Installation` 
+#. :red:`GPU Hardware access`
+#. :blue:`Geant4/Chroma Integration`
+#. :blue:`Validation`
+
+.. class:: small
+
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.txt
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.pdf
+    http://dayabay.phys.ntu.edu.tw/e/muon_simulation/presentation/nov2013_gpu_nuwa/nov2013_gpu_nuwa.html
+
+
+
+
+
+Chroma : Ultra-fast Photon MC
+------------------------------
+
+**Developed by Stan Seibert, University of Pennsylvania.**
+
+Chroma tracks photons through a :red:`triangle-mesh detector geometry`, 
+simulating processes like diffuse and specular reflections, 
+refraction, Rayleigh scattering and absorption. Using triangle meshes 
+eliminate geometry code as :red:`just one code path`.
+
+200x performance claim:
+
+   *With a CUDA GPU Chroma has propagated 2.5M photons per second 
+   in a detector with 29k photomultiplier tubes. This is
+   200x faster than GEANT4.*
+
+**BUT:** Chroma needs : :red:`triangles + inside/outside materials`
+
+.. class:: small
+
+   http://on-demand.gputechconf.com/gtc/2013/presentations/S3304-Particle-Physics-With-PyCUDA.pdf
+
+G4DAE : Exports G4 Geometry to DAE
+-----------------------------------
+
+Retains G4 materials and volume hierarchy into the DAE.
+
+.. class:: small
+
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/DAE
+
+.. sidebar:: General Exporter
+
+   Can be used to extract most G4 geometries 
+   (not parametric or reflection volumes as not used by Dayabay)
+
+Implementation based on:
+
+* Geant4 GDML exporter
+* ``G4Polyhedron* G4VSolid::GetPolyhedron()`` (like VRML2 exporter)
+
+.. image:: images/G4DAEWrite.png 
+   :width: 600px
+   :align: center
+
+
+COLLADA 3D Digital Asset Exchange (DAE) 
+------------------------------------------
+
+http://www.khronos.org/collada/
+
+    COLLADA defines an XML-based schema to make it easy to transport 3D assets between applications
+
+Supporting libraries for Python and Javascript:
+
+    * https://github.com/pycollada/pycollada 
+    * https://github.com/mrdoob/three.js/ Javascript 3D Library
+
+* OSX Snow Leopard 10.6+ : Preview, Quicklook, Xcode
+
+
+G4DAE Partial Tree "Branch" Access
+-----------------------------------------
+
+Full geometry file ``4.9M`` is too big for fast handling. 
+
+``daenode.py`` 
+
+   * recreates Geant4 volume tree from DAE
+   * extracts :red:`sub-tree` DAE files specified
+     by volume name/index and recursion depth
+
+::
+
+    daenode.py --maxdepth 0 3148 --geom > subgeom.dae
+    du -h subgeom.dae 
+    24K    subgeom.dae
+
+.. class:: small
+
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/graphics/collada/pycollada/daenode.py 
+
+
+G4DAE Server : web access to any volume
+-------------------------------------------
+
+``daeserver.py`` exposes ``daenode.py`` as a web service providing
+3D interactive access to any volume tree.
+
+Specify volume by name or index, 
+
+.. class:: small
+
+    * http://belle7.nuu.edu.tw/dae/tree/__dd__Geometry__Sites__lvNearHallBot--pvNearPoolDead0xaa8a0b0.0.html
+    * http://belle7.nuu.edu.tw/dae/tree/3148.html
+
+Recursion depth below target can be specified:
+
+*  ``<path>.html`` : no recursion, just the target volume
+*  ``<path>___0.html`` : same as above default
+*  ``<path>___3.html`` : target volume and levels below
+
+.. class:: small
+
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/daeserver/daeserver.py
+
+
+G4DAE Server : 3D web viewer using three.js
+------------------------------------------------
+
+.. class:: small
+
+   http://dayabay.phys.ntu.edu.tw/tracs/env/browser/trunk/geant4/geometry/daeserver/static/r62/daeload.js 
+
+.. class:: small
+ 
+   ``r/renderer=auto/webgl/svg/canvas``
+         default setting of auto used WebGLRenderer when available
+         otherwise fallback to CanvasRenderer
+   ``bb/bbunit=1``   
+         default unit is maximum absolute extent along any axis
+         of current root volume bounding box
+   ``n/near=0.1``   
+         camera near plane (the screen)
+   ``a/far=100``   
+         camera far plane 
+   ``c/cam=2,2,2``   
+         camera position 
+   ``l/look=0,0,0``   
+         camera target
+   ``f/fov=50``
+         field of view in degrees, set to zero for orthographic camera
+   ``o/orth=10,10,1``   
+         orthographic camera left-right and up-down multiples 
+
+.. class:: tiny
+
+   View control settings currently only via URL query parameters eg ``?fov=60``
+
+ 
+G4DAE Server Example 3155___1
+-------------------------------
+
+.. class:: small
+
+   http://belle7.nuu.edu.tw/dae/tree/3155___1.html (HEAVY FOR OLD BROWSERS)
+
+.. image:: images/3155___1.png
+   :width: 800px
+   :align: center
+
+G4DAE Server Example 3199
+---------------------------
+
+.. sidebar:: Recursion depth control
+   :class: tiny
+
+   allows even ancient machines
+   to view the geometry with reasonable interactivity.
+
+.. class:: small
+
+   http://belle7.nuu.edu.tw/dae/tree/3199.html
+
+.. image:: images/3199.png
+   :width: 800px
+   :align: center
+
+
+G4DAE : 3148___4 outside pool 
+------------------------------------------
+
+.. image:: images/3148___4_outside.png
+   :width: 800px
+   :align: center
+
+.. class:: tiny
+
+   Render by : Esko Studio Viewer iPad App
+
+
+G4DAE : 3148___4 inside pool 
+-----------------------------------------
+
+.. image:: images/3148___4_inside.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+   Recursion maxdepth of 4 means ADs are excluded
+
+
+G4DAE : 3155__1 outside AD
+--------------------------------
+
+.. image:: images/3155___1_outside.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+   Change root volume to see AD
+
+
+G4DAE : 3155__1 inside AD
+-----------------------------------------
+
+.. image:: images/3155___1_inside.png
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+   Maybe an issue with PMT pointing ?
+
+
+G4DAE Geometry Validation
+-------------------------------------
+
+A random comparison of a handful of volumes finds 
+some discrepant volumes:
+
+* differnt numbers of vertices, but many vertices matching 
+* suspect subtraction solid triangulation difference
+
+.. sidebar:: Comparison in progress
+
+   Developing more systematic comparison,
+   extending sqlite3 DB with the VRML2 data to add G4DAE.
+
+Comparing volumes/vertices/faces between VRML2 and G4DAE exports.
+
+==========  =========  ==========  =====================
+ Qty        ``VRML2``  ``G4DAE``
+==========  =========  ==========  =====================
+Volumes       12229      12229
+Triangles     -          2.5M              
+Faces         
+==========  =========  ==========  =====================
+
+.. class:: tiny
+
+   Initially all vertices were discrepant, due to an inverted rotation matrix.
+
+
+Chroma : Software requirements 
+--------------------------------
+
+.. sidebar:: Dependencies have dependencies
+   :class: small
+
+   Naturally this list is just the top of the dependency tree
+   http://chroma.bitbucket.org/install/details.html
+
+.. class:: small
+
+   #. RHEL SL6 (or other contemporary distros)
+   #. Python 2.6 or later
+   #. CUDA 4.1 Toolkit and NVIDIA driver (not Nouveau Linux driver)
+   #. Boost Python
+   #. Numpy 1.6 or later
+   #. Pygame
+   #. Matplotlib
+   #. uncertainties
+   #. PyCUDA 2011.2 or later
+   #. PyUblas
+   #. ZeroMQ
+   #. GEANT4.9.5 or later (Dayabay at geant4.9.2.p01)
+   #. Patched version of g4py
+   #. ROOT 5.32 or later (Dayabay currently at root_v5.26.00e) 
+
+
+Chroma : Hardware requirements 
+--------------------------------
+
+.. sidebar:: Suitable GPUs only ~250-350 USD
+
+   eg NVIDIA GeForce GTX 680 (1536 CUDA cores, 2048 MB, Compute Capability 3.0) ~ 330 USD
+
+* NVIDIA GPU with CUDA Compute Capability (CCC) 2.0 at least 
+* 1.5G of GPU memory (estimated minimum for Dayabay geometry)
+
+GPU Access Options
+--------------------
+
+``NTUCC``
+      current cluster (10 nodes, 20 GPUs) CCC 1.3, upgrade to 3.0
+      scheduled for next ~Feb
+``NUU``
+      Chung Hsiang may be able to purchase a GPU card
+``NCTU``
+      Node is CCC 1.3 
+``BNL``
+      available GPU nodes are too old
+``LBNL``
+      have made enquiry to Craig Tull
+
+
+NuWa + Chroma : Status along Fivefold path 
+-------------------------------------------
+
+.. class:: small
+
+    #. :blue:`Geometry Conversion` progress:
+
+       * G4DAE exports triangles into DAE files, validation ongoing
+       * Chroma glue code using pycollada to read the DAE needs to be developed
+
+    #. :blue:`Software Installation` plan:
+
+       * extend NuWA installer to cover Chroma and its dependency tree
+
+    #. :red:`GPU Hardware access : **uncertain**`
+
+    #. :blue:`Geant4/Chroma Integration` questions:
+
+       * where to take the photons from Geant4 
+       * whether to give back to Geant4 OR form hits on GPU
+
+       Need to gain Chroma usage/validation experience to determine the 
+       appropriate answers.
+
+    #. :blue:`Validation` plan:
+
+       * comparison against conventional simulation production runs
+
+
+
+G4DAE Dayabay Near Site 
+---------------------------------------------------
+
+.. image:: images/osx_preview/osx_preview_g4dae_dayabay.png 
+   :height: 700px
+   :align: center
+
+.. class:: small
+
+   OSX Preview.app render
+
+
+G4DAE Dayabay AD
+---------------------------------------------
+
+.. image:: images/osx_preview/osx_preview_g4dae_dayabay_ad.png 
+   :width: 800px
+   :align: center
+
+.. class:: small
+
+   OSX Preview.app render
+
+
+Chroma Ray Tracing Dayabay Geometry (1)
+--------------------------------------------
+
+.. image:: images/chroma/chroma_dayabay_pmt_peek.png
+   :width: 800px
+   :align: center
+
+Chroma Ray Tracing Dayabay Geometry (2)
+--------------------------------------------
+
+.. image:: images/chroma/chroma_dayabay_wall_pmts.png
+   :width: 800px
+   :align: center
+
+Chroma Ray Tracing Dayabay Geometry (3)
+--------------------------------------------
+
+.. image:: images/chroma/chroma_dayabay_pool_pmts.png
+   :width: 800px
+   :align: center
+
+Chroma Ray Tracing Dayabay Geometry (4)
+--------------------------------------------
+
+.. image:: images/chroma/chroma_dayabay_adlid.png
+   :width: 800px
+   :align: center
+
+
+
+
+
+
+
+
