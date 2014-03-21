@@ -3,6 +3,27 @@ CUDA Profiling
 
 * http://docs.nvidia.com/cuda/profiler-users-guide/
 
+cuda clock
+----------
+
+* http://stackoverflow.com/questions/11217117/equivalent-of-usleep-in-cuda-kernel
+
+
+gpu burn
+---------
+
+* http://wili.cc/blog/gpu-burn.html
+
+how many registers
+-------------------
+
+::
+
+    Also, how many registers is your kernel using?? (pass --ptxas-options=-v
+    argument to nvcc) If you can only launch 16 threads per block, the GPU will be
+    idle most of the time.
+
+
 cuda profile
 -------------
 

@@ -14,6 +14,14 @@ gfxCardStatus is an unobtrusive menu bar app for OS X that allows MacBook Pro
 users to see which apps are affecting their battery life by using the more
 power-hungry graphics.
 
+
+forcing use of integrated graphics ?
+---------------------------------------
+
+* https://devtalk.nvidia.com/default/topic/528725/forcing-retina-macbook-pro-to-use-intel-graphics-for-desktop-freeing-memory-on-cuda-device-/
+* http://gfx.io/switching.html#integrated-only-mode-limitations
+* https://devtalk.nvidia.com/default/topic/519429/dev-driver-5-0-for-mac/?offset=15#3691304
+
 how it works
 --------------
 

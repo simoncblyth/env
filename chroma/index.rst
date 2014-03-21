@@ -26,6 +26,7 @@ chroma
    chroma_camera/index
    chroma_cuda_freeze
    chroma_cuda
+   chroma_visualisation
 
    geant4_background
    cuda_background

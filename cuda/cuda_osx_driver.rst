@@ -1,6 +1,10 @@
 CUDA OSX Driver
 ===============
 
+
+* https://devtalk.nvidia.com/default/topic/528725/forcing-retina-macbook-pro-to-use-intel-graphics-for-desktop-freeing-memory-on-cuda-device-/
+
+
 March 12, 2014
 ---------------
 

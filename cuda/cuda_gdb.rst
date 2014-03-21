@@ -8,6 +8,14 @@ Docs
 * http://developer.download.nvidia.com/compute/cuda/2_1/cudagdb/CUDA_GDB_User_Manual.pdf  NEWER PDF? 
 * http://on-demand.gputechconf.com/gtc/2012/presentations/S0027B-GTC2012-Debugging-MEMCHECK.pdf
 
+Courses
+-------
+
+* http://istar.cse.cuhk.edu.hk/icuda/
+
+a hands-on seminar series on pragmatic CUDA programming. It emphasizes samples, libraries and tools
+
+
 
 (Manual) Configurations for GPU Debugging
 -------------------------------------------

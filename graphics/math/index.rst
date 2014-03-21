@@ -1,11 +1,11 @@
 
-opengl
+math
 =========================
 
 .. toctree::
 
-   opengl_releases
-   opengl_learning
+   math_for_graphics
+   quaternions
 
 
 

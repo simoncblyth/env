@@ -11,6 +11,10 @@ collada
    meshtool
    collada_materials
    collada_tools
+   fcollada/index
+
+
+
 
 
 

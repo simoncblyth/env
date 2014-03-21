@@ -8,6 +8,16 @@ colladadom-usage(){ cat << EOU
 COLLADA DOM
 =============
 
+Overview
+---------
+
+Investigated COLLADADOM due to its usage from the COLLADA 
+OpenSceneGraph Plugin.
+Considerable difficulties experienced trying to get it to work suggests
+it might not be wise to proceed with. Perhaps FCollada ?
+
+
+
 Refs
 -----
 

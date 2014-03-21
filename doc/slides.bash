@@ -77,8 +77,17 @@ Publish html to web server
 #. make sure working copy is clean and commit changed files to subversion
 #. update env working copy on webserver 
 #. generate the html on the web server with *slides-make* or manually as shown above
+#. use *slides-rsync* to propagate into the appropriate place for Sphinx derived html
 #. rsync to the webserver htdocs with *slides-publish* note that the destination
    reuses the folders used by sphinx derived documentation
+
+Hmm, also needed to::
+
+   cd ~/env
+   make rsync 
+
+* TODO: streamline this, to many steps that have to be done in the correct order, see **eup** func on C2R
+
 
 Integrate URLs of presentation HTML with Sphinx
 --------------------------------------------------

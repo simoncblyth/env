@@ -13,6 +13,9 @@ Graphics
     transformations/index
     panda3d/index
     pipeline/index
+    math/index
+
+
 
 
 

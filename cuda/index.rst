@@ -5,6 +5,7 @@ cuda
 .. toctree::
 
     cuda_refs
+    cuda_forums
     cuda_toolkit
     curand
     atomic

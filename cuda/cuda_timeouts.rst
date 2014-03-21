@@ -1,5 +1,14 @@
-CUDA Timeouts
-================
+CUDA Error Handling including timeouts
+========================================
+
+
+Handling / Reset ?
+-------------------
+
+* http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
+* http://stackoverflow.com/questions/19632401/how-to-work-around-gpu-watchdog-timer-limitation-on-cuda-code-in-os-x
+* http://stackoverflow.com/questions/9602312/gpu-card-resets-after-2-seconds
+
 
 Compute and Graphics
 ---------------------
