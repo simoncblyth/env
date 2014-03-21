@@ -1364,4 +1364,6 @@ zeromq-(){      . $(env-home)/zeromq/zeromq.bash && zeromq-env $* ; }
 transformations-(){      . $(env-home)/graphics/transformations/transformations.bash && transformations-env $* ; }
 gfxcardstatus-(){      . $(env-home)/cuda/gfxcardstatus.bash && gfxcardstatus-env $* ; }
 pyrr-(){      . $(env-home)/graphics/transformations/pyrr.bash && pyrr-env $* ; }
+pyopengl-(){      . $(env-home)/graphics/pyopengl/pyopengl.bash && pyopengl-env $* ; }
 fcollada-(){      . $(env-home)/graphics/collada/fcollada/fcollada.bash && fcollada-env $* ; }
+glumpy-(){      . $(env-home)/graphics/glumpy/glumpy.bash && glumpy-env $* ; }
