@@ -1,19 +1,60 @@
 #!/usr/bin/env python
 """
+DAEVIEWPURE
+============
+
 Usage::
 
-   daeview.py -n 4998,4815 -t 4815
-   daeview.py -n 4998,4815 -t 4815 -e 3,0,0 -p   
-   daeview.py -n 4998,4815:4900 -t 4905   -e 10,10,0
+   daeviewpure.py -n 4998,4815 -t 4815
 
-   daeview.py -n 4998,4815 -t 4815 -j 4998  -e 4,0,0
+      # two volumes, targetting the second (establishing viewpint relative to the volume) 
+      # allows to see a volume in the context of the other
 
-      # animated transition between two nodes
+   daeviewpure.py -n 4998,4815 -t 4815 -e 3,0,0 -p
 
+      # change eye point to be from 3X towards default look of 0,0,0       
+      # units based on the extent of the  targetted volume
+   
+   daeviewpure.py -n 4998,4815:4900,4905 -t 4905   -e 10,10,0
 
-Ideas:
+      # more distance view and picking a range of volumes to draw
 
-* https://threejsdoc.appspot.com/doc/three.js/src.source/extras/controls/TrackballControls.js.html
+   daeviewpure.py -n 4998,4815 -t 4815 -j 4998  -e 4,0,0
+
+      # animate a transition between the initially targeted and the jump node
+      # transition does linear interpolation of the eye/look/up 
+
+Motivation
+-----------
+
+The "pure" in the name of this script reflects that OpenGL is 
+not being used, at least not directly. Instead rendering 
+uses pygame.draw and manual z-ordering is used to very simply implement 
+the painter algorithm (most distant primitive drawn first).
+
+Operating with the handicap of no OpenGL is done for several reasons:
+
+#. to learn the details of the graphics pipeline transforms, down 
+   to the level of the individual matrices for every step of the
+   pipeline (world, camera, orthographic, canonical, screen)
+
+#. attempt to facilitate development of simultaneous viewpoint 
+   control of Chroma Ray Trace rendering and OpenGL projective
+   graphics.  In order to do this its beneficial to be able to feed 
+   matrices to each of them.  
+
+#. provide a simple graphics environment in which to test ideas 
+   without OpenGL complications, for example an Arcball controller
+   to turn mouse inputs into matrices controlling the viewpoint.
+
+Ideas
+------------
+
+#. controlling the jump to viewpoint, allowing multiple jumps
+#. external CLI, that injects pygame events via UDP, allowing commandline viewpoint control
+
+Issues
+-------
 
 * certain viewpoints cause divisions by zero, how to avoid ?
 
@@ -21,11 +62,10 @@ Ideas:
 
            numpy.linalg.linalg.LinAlgError: Eigenvalues did not converge
 
-       * maybe just set up to be eye^look
 
-* caution of optical illusion, you need to see as if you are looking 
+* caution of optical illusions, you need to see as if you are looking 
   through the volume : otherwise the projection can looks wierd, ones
-  preception sometimes flips between these impressions
+  perception sometimes flips between inside/outside impressions
 
 * filled painting technique does not work from inside objects
 
@@ -235,9 +275,9 @@ class Viewer(object):
     def render(self, model):
         groupsize = model.groupsize
         for avgz, color, points in model.primitives(self.controller.transform):
-            if groupsize == 4 or groupsize == 3:
+            if groupsize == 4:
                 pygame.draw.polygon(self.screen,color,points)
-            elif groupsize == 2:
+            elif groupsize == 2 or groupsize == 3:
                 closed, thickness = False, 1 
                 pygame.draw.lines(self.screen,color,closed,points,thickness)
             else:
@@ -257,6 +297,11 @@ def make_interpolate_transform( t0, t1 , center ):
 
     Attempts to "hide" the real coordinates by sandwiching between 
     centering to/from translation matrixes somehow fails to help.
+
+    In order to understand whats going on, need:
+
+    #. simultaneously display a second viewpoint (eg from down the axis of rotation)
+    #. include a representation of the view, a line from eye to look
 
     """
     vf = InterpolateTransform( t0, t1 , center=center )

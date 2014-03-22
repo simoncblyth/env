@@ -51,8 +51,8 @@ class Model(object):
             pl = node.geo.geometry.primitives[0]
 
         tris = pl.triangleset()
-        #gorder = (0,1,2,0) # filled tris
-        gorder = (0,1,2,1)  # this mistake is rendered as wireframe looking better than the filled tris
+        gorder = (0,1,2,0) # filled tris
+        #gorder = (0,1,2,1)  # this mistake is rendered as wireframe looking better than the filled tris
         #colors = np.tile( grey, (len(tris),1) )
         colors = rainbow[np.random.randint(len(rainbow),size=len(tris))]
         return cls( tris._vertex , tris._vertex_index, colors, gorder, name="dae solid %s" % node.id, index=node.index ) 
