@@ -42,6 +42,28 @@ class DAEMesh(object):
         self.triangles = triangles
         self.normals = normals
 
+    def _get_bounds(self):
+        "Return the lower and upper bounds for the mesh as a tuple."
+        return np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+    bounds = property(_get_bounds)
+
+    def _get_center(self):
+        bounds = self._get_bounds()
+        return np.mean(bounds, axis=0) 
+    center = property(_get_center)
+
+    def _get_extent(self):
+        dimensions = self._get_dimensions()
+        extent = np.max(dimensions)/2.
+        return extent 
+    extent = property(_get_extent)
+        
+    def _get_dimensions(self):
+        bounds = self._get_bounds()
+        return bounds[1]-bounds[0]
+    dimensions = property(_get_dimensions)
+
+
     def check(self, vertices, triangles):
         assert np.min(triangles) == 0
         assert np.max(triangles) == len(vertices)-1 , (np.max(triangles), len(vertices)-1 )

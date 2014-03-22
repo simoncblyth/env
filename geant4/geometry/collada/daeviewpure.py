@@ -83,25 +83,6 @@ Issues
 import logging, sys
 log = logging.getLogger(__name__)
 
-import numpy as np
-import numpy.core.arrayprint as arrayprint
-import contextlib
-
-@contextlib.contextmanager
-def printoptions(strip_zeros=True, **kwargs):
-    """
-    http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
-    """
-    origcall = arrayprint.FloatFormat.__call__
-    def __call__(self, x, strip_zeros=strip_zeros):
-        return origcall.__call__(self, x, strip_zeros)
-    arrayprint.FloatFormat.__call__ = __call__
-    original = np.get_printoptions()
-    np.set_printoptions(**kwargs)
-    yield 
-    np.set_printoptions(**original)
-    arrayprint.FloatFormat.__call__ = origcall
-
 
 
 import socket
@@ -112,6 +93,8 @@ from env.graphics.pipeline.view_transform import ViewTransform
 from env.graphics.pipeline.unit_transform import UnitTransform
 from env.graphics.pipeline.perspective_transform import PerspectiveTransform
 from env.graphics.pipeline.interpolate_transform import InterpolateTransform, InterpolateViewTransform
+
+from npcommon import printoptions
 
 from model import Model 
     

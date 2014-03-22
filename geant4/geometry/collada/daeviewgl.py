@@ -1,128 +1,150 @@
 #!/usr/bin/env python
 """
 
-
-
-To split off elsewhere::
-
-    DAESolid
-    DAEMesh
-    DAEGeometry
-
-
 """
 import os, logging
 log = logging.getLogger(__name__)
-import numpy as np
 
+import numpy as np
 import glumpy as gp  
 import OpenGL.GL as gl
 
+from glumpy.figure import Frame
 
-from env.geant4.geometry.collada.daenode import DAENode 
+from env.geant4.geometry.collada.daegeometry import DAEGeometry 
+from npcommon import printoptions, load_obj
 
-class DAESolid(object):
-    """
-    Without re-generating normals are getting more normals than 
-    vertices but less than triangles ? Maybe due to triangle 
-    from quad generation done by pycollada.
 
-    DAEMesh vertex 466  triangles 884  normals 584 
-    """
-    def __init__(self, node, bound=True, generateNormals=True):
-        if bound:
-            pl = list(node.boundgeom.primitives())[0] 
+class VBO(object):
+    @classmethod
+    def from_obj(cls, filename="/usr/local/env/graphics/glumpy/glumpy/demos/triceratops.obj"): 
+        vertices, normals, faces = load_obj(filename)
+        return cls(vertices, normals, faces)
+
+    @classmethod
+    def from_dae(cls, arg, scale=False):
+        dg = DAEGeometry(arg)
+        dg.flatten()
+
+        if scale:
+            vertices = (dg.mesh.vertices - dg.mesh.center)/dg.mesh.extent
         else:
-            pl = node.geo.geometry.primitives[0]
+            vertices = dg.mesh.vertices
 
-        tris = pl.triangleset()
-        if generateNormals:
-            tris.generateNormals()
-       
-        self.tris = tris
-        self.id = node.id
+        normals = dg.mesh.normals
+        faces = dg.mesh.triangles
+        return cls(vertices, normals, faces)
 
-    def __repr__(self):
-        return " ".join( [
-                           "%s %s " % (self.__class__.__name__, self.id),
-                           "vertex %s " % len(self.tris._vertex), 
-                           "triangles %s " % len(self.tris._vertex_index), 
-                           "normals %s " % len(self.tris._normal), 
-                           ])
+    def __init__(self, vertices, normals, faces):
 
-class DAEMesh(object):
-    def __init__(self, vertices, triangles, normals ):
-        self.check(vertices, triangles)
-        self.vertices = vertices
-        self.triangles = triangles
-        self.normals = normals
+        V = np.zeros(len(vertices), [('position', np.float32, 3), 
+                                     ('color', np.float32, 3), 
+                                     ('normal',   np.float32, 3)])
+        V['position'] = vertices
+        V['color'] = (vertices+1)/2.0
+        V['normal'] = normals
 
-    def check(self, vertices, triangles):
-        assert np.min(triangles) == 0
-        assert np.max(triangles) == len(vertices)-1 , (np.max(triangles), len(vertices)-1 )
+        self.V = V
+        self.faces = faces
+
+    def vbo(self):
+        return gp.graphics.VertexBuffer( self.V, self.faces )
 
     def __repr__(self):
-        return " ".join( [
-                           "%s" % self.__class__.__name__,
-                           "vertex %s " % len(self.vertices), 
-                           "triangles %s " % len(self.triangles), 
-                           "normals %s " % len(self.normals), 
-                           ])
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+            return "\n".join([
+                   "position",str(self.V['position']),
+                   "color",str(self.V['color']),
+                   "normal",str(self.V['normal']),
+                   "faces",str(self.faces),
+                   ])
 
-class DAEGeometry(object):
-    def __init__(self, arg, path=None, bound=True):
 
-        if path is None:
-            path = os.environ['DAE_NAME']
-        if len(DAENode.registry) == 0:
-            DAENode.parse(path)
 
-        self.solids = [DAESolid(node, bound) for node in DAENode.getall(arg)]
-        self.mesh = None
 
-    def flatten(self):
-        """  
-        Adapted from Chroma geometry flattening 
-        """
-        nv = np.cumsum([0] + [len(solid.tris._vertex) for solid in self.solids])
-        nt = np.cumsum([0] + [len(solid.tris._vertex_index) for solid in self.solids])
-        nn = np.cumsum([0] + [len(solid.tris._normal) for solid in self.solids])
 
-        vertices = np.empty((nv[-1],3), dtype=np.float32)
-        triangles = np.empty((nt[-1],3), dtype=np.uint32)
-        normals = np.empty((nn[-1],3), dtype=np.float32)
+class DAEFrame(Frame):
+    def __init__(self, *args, **kwa):
+        log.info("DAEFrame __init__")
+        Frame.__init__(self, *args, **kwa)
 
-        for i, solid in enumerate(self.solids):
-            vertices[nv[i]:nv[i+1]] = solid.tris._vertex
-            triangles[nt[i]:nt[i+1]] = solid.tris._vertex_index + nv[i]   # NB offseting vertex indices
-            normals[nn[i]:nn[i+1]] = solid.tris._normal
-            print solid
+    def on_draw(self):
+        log.info("DAEFrame on_draw")
+        self.lock()
+        self.draw()
+        self.trackball.push()
 
-        log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
-        mesh = DAEMesh(vertices, triangles, normals)
-        log.info(mesh)
+        gl.glEnable( gl.GL_POLYGON_OFFSET_FILL )
+        gl.glPolygonOffset (1, 1)
+        gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_FILL )
 
-        self.mesh = mesh 
-       
+        self.mesh.draw( gl.GL_TRIANGLES, "pnc" )
+
+        gl.glDisable( gl.GL_POLYGON_OFFSET_FILL )
+        gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE )
+        gl.glEnable( gl.GL_BLEND )
+        gl.glEnable( gl.GL_LINE_SMOOTH )
+        gl.glColor( 0.0, 0.0, 0.0, 0.5 )
+
+        self.mesh.draw( gl.GL_TRIANGLES, "p" )
+
+        gl.glDisable( gl.GL_BLEND )
+        gl.glDisable( gl.GL_LINE_SMOOTH )
+
+        self.trackball.pop()
+        self.unlock()
+
+
+#DAEFrame.register_event_type('on_draw')
+
+
+class DAEFigure(gp.Figure):
+    def __init__(self, *args, **kwa):
+        log.info("DAEFigure __init__")
+        gp.Figure.__init__(self, *args, **kwa)
+
+    def on_init(self):
+        log.info("DAEFigure on_init")
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,(2.0, 2.0, 2.0, 0.0))
+        gl.glEnable (gl.GL_LIGHTING)
+        gl.glEnable (gl.GL_LIGHT0)
+
+    def on_mouse_drag(self, x,y,dx,dy,button):
+        log.info("DAEFigure on_mouse_drag")
+        self.trackball.drag_to(x,y,dx,dy)
+        self.redraw()
+
+    def on_draw(self):
+        log.info("DAEFigure on_draw")
+        self.clear(0.85,0.85,0.85,1)
+
+    def add_frame(self, size = (0.9,0.9), spacing = 0.025, aspect=None):
+        log.info("DAEFigure add_frame")
+        return DAEFrame(self, size=size, spacing=spacing, aspect=aspect)
+
+
+def main():
+    import sys
+    logging.basicConfig(level=logging.INFO)
+    
+    vbo = VBO.from_dae("4998:6500", scale=True)
+
+    fig = DAEFigure((1024,768))
+    trackball = gp.Trackball( 65, 135, 1.0, 2.5 )
+    fig.trackball = trackball
+
+    frame = fig.add_frame(size=(1,1))
+    frame.mesh = vbo.vbo()
+    frame.trackball = trackball
+
+    frame.on_draw()
+
+    gp.show()
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    dg = DAEGeometry("3166:3180")
-    dg.flatten()
-
-    mesh = dg.mesh 
-    V = np.zeros(len(mesh.vertices), [('position', np.float32, 3), 
-                                      ('color',    np.float32, 3), 
-                                      ('normal',   np.float32, 3)])
-    V['position'] = mesh.vertices
-    V['color'] = (mesh.vertices+1)/2.0
-    V['normal'] = mesh.normals
-
-    gp_mesh = gp.graphics.VertexBuffer( V, mesh.triangles ) 
-
-
-
-
-
+    main()
 
