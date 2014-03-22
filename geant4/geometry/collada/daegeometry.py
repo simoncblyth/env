@@ -103,7 +103,6 @@ class DAEGeometry(object):
             vertices[nv[i]:nv[i+1]] = solid.tris._vertex
             triangles[nt[i]:nt[i+1]] = solid.tris._vertex_index + nv[i]   # NB offseting vertex indices
             normals[nn[i]:nn[i+1]] = solid.tris._normal
-            print solid
 
         log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
         mesh = DAEMesh(vertices, triangles, normals)

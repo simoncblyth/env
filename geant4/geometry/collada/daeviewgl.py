@@ -41,7 +41,8 @@ class VBO(object):
                                      ('color', np.float32, 3), 
                                      ('normal',   np.float32, 3)])
         V['position'] = vertices
-        V['color'] = (vertices+1)/2.0
+        #V['color'] = (vertices+1)/2.0
+        V['color'] = np.random.rand()
         V['normal'] = normals
 
         self.V = V
@@ -63,24 +64,29 @@ class VBO(object):
 
 
 
-class DAEFrame(Frame):
-    def __init__(self, *args, **kwa):
-        log.info("DAEFrame __init__")
-        Frame.__init__(self, *args, **kwa)
+class FrameHandler(object):
+    def __init__(self, frame, mesh, trackball ):
+        self.frame = frame
+        self.mesh = mesh
+        self.trackball = trackball
+        self.polygon_offset = True
+        frame.push(self)
 
     def on_draw(self):
-        log.info("DAEFrame on_draw")
-        self.lock()
-        self.draw()
+        log.debug("DAEFrame on_draw")
+        self.frame.lock()
+        self.frame.draw()
+
         self.trackball.push()
 
-        gl.glEnable( gl.GL_POLYGON_OFFSET_FILL )
-        gl.glPolygonOffset (1, 1)
-        gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_FILL )
+        if self.polygon_offset:
+            gl.glEnable( gl.GL_POLYGON_OFFSET_FILL )
+            gl.glPolygonOffset (1, 1)
+            gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_FILL )
+            self.mesh.draw( gl.GL_TRIANGLES, "pnc" )
+            gl.glDisable( gl.GL_POLYGON_OFFSET_FILL )
 
-        self.mesh.draw( gl.GL_TRIANGLES, "pnc" )
 
-        gl.glDisable( gl.GL_POLYGON_OFFSET_FILL )
         gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE )
         gl.glEnable( gl.GL_BLEND )
         gl.glEnable( gl.GL_LINE_SMOOTH )
@@ -92,55 +98,52 @@ class DAEFrame(Frame):
         gl.glDisable( gl.GL_LINE_SMOOTH )
 
         self.trackball.pop()
-        self.unlock()
+        self.frame.unlock()
 
 
-#DAEFrame.register_event_type('on_draw')
-
-
-class DAEFigure(gp.Figure):
-    def __init__(self, *args, **kwa):
-        log.info("DAEFigure __init__")
-        gp.Figure.__init__(self, *args, **kwa)
-
+class FigHandler(object):
+    def __init__(self, fig, trackball):
+        self.fig = fig
+        self.trackball = trackball
+        self.lighting = True
+        fig.push(self)
+ 
     def on_init(self):
-        log.info("DAEFigure on_init")
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,(2.0, 2.0, 2.0, 0.0))
-        gl.glEnable (gl.GL_LIGHTING)
-        gl.glEnable (gl.GL_LIGHT0)
+        log.debug("DAEFigure on_init")
+        if self.lighting:
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,(2.0, 2.0, 2.0, 0.0))
+            gl.glEnable (gl.GL_LIGHTING)
+            gl.glEnable (gl.GL_LIGHT0)
 
-    def on_mouse_drag(self, x,y,dx,dy,button):
-        log.info("DAEFigure on_mouse_drag")
+    def on_mouse_drag(self,x,y,dx,dy,button):
+        log.debug("DAEFigure on_mouse_drag")
         self.trackball.drag_to(x,y,dx,dy)
-        self.redraw()
+        self.fig.redraw()
 
     def on_draw(self):
-        log.info("DAEFigure on_draw")
-        self.clear(0.85,0.85,0.85,1)
+        log.debug("DAEFigure on_draw")
+        self.fig.clear(0.85,0.85,0.85,1)
 
-    def add_frame(self, size = (0.9,0.9), spacing = 0.025, aspect=None):
-        log.info("DAEFigure add_frame")
-        return DAEFrame(self, size=size, spacing=spacing, aspect=aspect)
+
 
 
 def main():
     import sys
     logging.basicConfig(level=logging.INFO)
-    
-    vbo = VBO.from_dae("4998:6500", scale=True)
+   
+    arg = "4998:6000" 
+    vbo = VBO.from_dae(arg, scale=True)
 
-    fig = DAEFigure((1024,768))
-    trackball = gp.Trackball( 65, 135, 1.0, 2.5 )
-    fig.trackball = trackball
-
+    fig = gp.figure((1024,768))
     frame = fig.add_frame(size=(1,1))
-    frame.mesh = vbo.vbo()
-    frame.trackball = trackball
+    mesh = vbo.vbo()
+    trackball = gp.Trackball( 65, 135, 1.0, 2.5 )
 
-    frame.on_draw()
+    FigHandler(fig, trackball)
+    FrameHandler(frame, mesh, trackball)
 
     gp.show()
 
