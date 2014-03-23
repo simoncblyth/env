@@ -17,14 +17,7 @@ want to draw nice figures for inclusion in a scientific article, you’d better
 use matplotlib. If you want to have a sense of what’s going on in your
 simulation while it is running, then maybe glumpy can help you.
 
-glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) and since
-glumpy is dedicated to numpy visualization, you obviously need numpy
-(http://numpy.scipy.org/). You will also need IPython
-(http://ipython.scipy.org/) for running interactive sessions where you can
-interact with glumpy.
-
-Some demos require matplotlib (http://matplotlib.sourceforge.net/) and scipy
-(http://www.scipy.org/) as well but this is optional.
+glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) 
 
 installations
 --------------

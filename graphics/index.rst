@@ -14,6 +14,7 @@ Graphics
     panda3d/index
     pipeline/index
     math/index
+    glumpy/index
 
 
 
