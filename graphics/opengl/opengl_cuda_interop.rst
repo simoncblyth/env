@@ -4,8 +4,16 @@ OpenGL CUDA Interop
 Objectives
 -----------
 
-#. Present OpenGL projected geometry (probably wireframes) on top of PyCUDA/Chroma ray-traced images.
+#. Present OpenGL projected geometry (probably wireframes) on top of PyCUDA/Chroma ray-traced images
 #. visualize Chroma/CUDA calculated photon propagations
+#. sharing to avoid duplication in GPU memory 
+
+What can be shared ?
+---------------------
+
+* vertex and face arrays
+* pixel array results from Chroma/CUDA ray tracing
+* photon propagation position histories 
 
 
 GLUT Overlay

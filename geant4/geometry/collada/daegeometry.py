@@ -3,6 +3,7 @@
 import os, logging
 log = logging.getLogger(__name__)
 import numpy as np
+from npcommon import printoptions
 
 from env.geant4.geometry.collada.daenode import DAENode 
 
@@ -25,11 +26,12 @@ class DAESolid(object):
             tris.generateNormals()
        
         self.tris = tris
+        self.index = node.index
         self.id = node.id
 
     def __repr__(self):
         return " ".join( [
-                           "%s %s " % (self.__class__.__name__, self.id),
+                           "%s %s %s  " % (self.__class__.__name__, self.index, self.id),
                            "vertex %s " % len(self.tris._vertex), 
                            "triangles %s " % len(self.tris._vertex_index), 
                            "normals %s " % len(self.tris._normal), 
@@ -87,6 +89,15 @@ class DAEGeometry(object):
         self.solids = [DAESolid(node, bound) for node in DAENode.getall(arg)]
         self.mesh = None
 
+    def find_solid(self, target ):
+        if target is None:return None
+        selection = filter(lambda _:str(_.index) == target, self.solids)
+        if len(selection) == 1:
+            focus = selection[0]
+        else:
+            focus = None
+        return focus
+
     def flatten(self):
         """  
         Adapted from Chroma geometry flattening 
@@ -94,6 +105,7 @@ class DAEGeometry(object):
         Converts from pycollada internal numpy storage into contiguous 
         arrays ready to be placed into an OpenGL VBO (Vertex Buffer Object).
         """
+
         nv = np.cumsum([0] + [len(solid.tris._vertex) for solid in self.solids])
         nt = np.cumsum([0] + [len(solid.tris._vertex_index) for solid in self.solids])
         nn = np.cumsum([0] + [len(solid.tris._normal) for solid in self.solids])
@@ -101,8 +113,10 @@ class DAEGeometry(object):
         vertices = np.empty((nv[-1],3), dtype=np.float32)
         triangles = np.empty((nt[-1],3), dtype=np.uint32)
         normals = np.empty((nn[-1],3), dtype=np.float32)
+        solidmap = {}
 
         for i, solid in enumerate(self.solids):
+            solidmap[solid.index] = i 
             vertices[nv[i]:nv[i+1]] = solid.tris._vertex
             triangles[nt[i]:nt[i+1]] = solid.tris._vertex_index + nv[i]   # NB offseting vertex indices
             normals[nn[i]:nn[i+1]] = solid.tris._normal
@@ -112,7 +126,54 @@ class DAEGeometry(object):
         log.info(mesh)
 
         self.mesh = mesh 
+
+        # these are to allow bound extraction by solid index
+        self.nv = nv  # vertex index ranges for each solid index
+        self.solidmap = solidmap
+
+    def get_vertices(self, solid_index):
+        i = self.solidmap[solid_index]
+        return self.mesh.vertices[self.nv[i]:self.nv[i+1]]
+
+    def get_bounds(self, solid_index):
+        vertices = self.get_vertices(solid_index)
+        return np.min(vertices, axis=0), np.max(vertices, axis=0)
+
+
+    def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):
+        if self.mesh is None:
+            self.flatten() 
+        if scale:
+            vertices = (self.mesh.vertices - self.mesh.center)/self.mesh.extent
+        else:
+            vertices = self.mesh.vertices
+        return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
        
+
+class DAEVertexBufferObject(object):
+    def __init__(self, vertices, normals, faces, rgba ):
+        nvert = len(vertices)
+        data = np.zeros(nvert, [('position', np.float32, 3), 
+                                ('color',    np.float32, 4), 
+                                ('normal',   np.float32, 3)])
+        data['position'] = vertices
+        data['color'] = np.tile( rgba, (nvert, 1))
+        data['normal'] = normals
+
+        self.data = data
+        self.faces = faces
+
+    def __repr__(self):
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+            return "\n".join([
+                   "position",str(self.data['position']),
+                   "color",str(self.data['color']),
+                   "normal",str(self.data['normal']),
+                   "faces",str(self.faces),
+                   ])
+
+
+
 
 
 if __name__ == '__main__':

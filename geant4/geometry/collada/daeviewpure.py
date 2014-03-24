@@ -90,7 +90,7 @@ import os, sys, pygame, time, math
 
 from env.graphics.pipeline.transform import qrepr
 from env.graphics.pipeline.view_transform import ViewTransform
-from env.graphics.pipeline.unit_transform import UnitTransform
+from env.graphics.pipeline.unit_transform import UnitTransform, KeyView
 from env.graphics.pipeline.perspective_transform import PerspectiveTransform
 from env.graphics.pipeline.interpolate_transform import InterpolateTransform, InterpolateViewTransform
 
@@ -301,29 +301,6 @@ def make_interpolate_transform( t0, t1 , center ):
     return vf
 
 
-class KeyView(object):
-    def __init__(self, eye, look, up, unit, name=""):
-        self.eye = eye
-        self.look = look
-        self.up = up
-        self.unit = unit 
-        self.name = name
-
-    _eye  = property(lambda self:self.unit(self.eye))
-    _look = property(lambda self:self.unit(self.look))
-    _up   = property(lambda self:self.unit(self.up,w=0))
-    _eye_look_up = property(lambda self:(self._eye, self._look, self._up)) 
-
-    def __repr__(self):
-        with printoptions(precision=3, suppress=True, strip_zeros=False):
-            return "\n".join([
-                    "%s %s " % (self.__class__.__name__, self.name),
-                    "p_eye  %s eye  %s " % (self.eye,  self._eye),
-                    "p_look %s look %s " % (self.look, self._look),
-                    "p_up   %s up   %s " % (self.up,   self._up),
-                      ])
-
-
 def main_check_view_interpolation():
     """
     Animates a change of focus between AD and PMT 
@@ -423,7 +400,6 @@ def main():
 
     unit = UnitTransform(focus.get_bounds())
     key  = KeyView( args.eye, args.look, args.up, unit )
-
     view = ViewTransform( *key._eye_look_up )
 
     if not jump is None:

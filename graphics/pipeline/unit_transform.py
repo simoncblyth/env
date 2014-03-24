@@ -9,6 +9,33 @@ import math
 from transform import Transform, ScaleTransform, TranslateTransform
 
 
+
+
+class KeyView(object):
+    def __init__(self, eye, look, up, unit, name=""):
+        self.eye = eye
+        self.look = look
+        self.up = up
+        self.unit = unit 
+        self.name = name
+
+    _eye  = property(lambda self:self.unit(self.eye))
+    _look = property(lambda self:self.unit(self.look))
+    _up   = property(lambda self:self.unit(self.up,w=0))
+    _eye_look_up = property(lambda self:(self._eye, self._look, self._up)) 
+
+    def __repr__(self):
+        #with printoptions(precision=3, suppress=True, strip_zeros=False):
+        return "\n".join([
+                    "%s %s " % (self.__class__.__name__, self.name),
+                    "p_eye  %s eye  %s " % (self.eye,  self._eye),
+                    "p_look %s look %s " % (self.look, self._look),
+                    "p_up   %s up   %s " % (self.up,   self._up),
+                      ])
+
+
+
+
 class UnitTransform(Transform):
     """
     Transforms between input parameter frame coordinates 
