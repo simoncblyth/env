@@ -34,19 +34,50 @@ DAEVIEWGL
 
        # primitive initial position control using trackball arguments, theta,phi,zoom,distance
 
+    daeviewgl.py -n 3153:6000
+
+       # inside the pool, 2 ADs : navigation is a challenge, its dark inside
+
+    daeviewgl.py -n 6070:6450
+  
+       # AD structure, shows partial radial shield
+
+    daeviewgl.py -n 6480:12230  --noline
+
+       # pool PMTs, AD support, scaffold?    when including lots of volumes switching off lines is a speedup
+
+    daeviewgl.py -n 12221:12230 
+ 
+       # rad slabs
+
+    daeviewgl.py -n 2:12230  --noline
+
+       # full geometry 
+
+
+
+
+Controls
+---------
+
+* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view)
+* TAB and mouse/trackpad to translate x,y (left-right,up-down)
+* **S** toggle fullscreen 
+* **F** toggle fill
+* **L** toggle line
+* **T** toggle transparent
 
 Issues
 --------
 
-#. zooming too far, flips the universe inside out 
-#. panning is too fast
+#. panning is too fast, needs to adapt to the scale of whats displayed
 
 TODO
 ----
 
 #. external positioning control, lookat/eye/up   
 #. placemarks
-#. fullscreen mode
+#. coloring by material
 
 
 """
@@ -114,6 +145,15 @@ class FrameHandler(object):
         self.transparent = transparent
         frame.push(self)
 
+    def toggle_fill(self):
+        self.fill = not self.fill
+    def toggle_line(self):
+        self.line = not self.line
+    def toggle_transparent(self):
+        self.transparent = not self.transparent
+
+         
+
     def on_draw(self):
         """
         Transparency added according to 
@@ -165,13 +205,21 @@ class FrameHandler(object):
 
 
 class FigHandler(object):
-    def __init__(self, fig, trackball, light=True):
+    def __init__(self, fig, frame_handler, trackball, light=True):
         self.fig = fig
+        self.frame_handler = frame_handler
         self.trackball = trackball
         self.light = light
         self.zoom_mode = False
         self.pan_mode = False
         fig.push(self)
+
+    def toggle_fullscreen(self):
+        if self.fig.window.get_fullscreen():
+            self.fig.window.set_fullscreen(0)
+        else:
+            self.fig.window.set_fullscreen(1)
+
  
     def on_init(self):
         """
@@ -191,42 +239,52 @@ class FigHandler(object):
             gl.glEnable (gl.GL_LIGHT1)  
             gl.glEnable (gl.GL_LIGHT2)   
 
-    def on_mouse_drag(self,x,y,dx,dy,button):
-        log.debug("DAEFigure on_mouse_drag")
-        if self.zoom_mode:
-            log.info("on_mouse_drag trackball.zoom_to")
-            self.trackball.zoom_to(x,y,dx,dy)
-        elif self.pan_mode:
-            log.info("on_mouse_drag trackball.pan_to")
-            self.trackball.pan_to(x,y,dx,dy)
-        else: 
-            log.info("on_mouse_drag trackball.drag_to")
-            self.trackball.drag_to(x,y,dx,dy)
-        self.fig.redraw()
-
     def on_draw(self):
         log.debug("DAEFigure on_draw")
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def on_key_press(self, symbol, modifiers):
-        print 'Key pressed (symbol=%s, modifiers=%s)'% (symbol,modifiers)
+        #print 'Key pressed (symbol=%s, modifiers=%s)'% (symbol,modifiers)
         if symbol == gp.window.key.ESCAPE:
             sys.exit();
         elif symbol == gp.window.key.SPACE:
-            print "pressed space"
             self.zoom_mode = True
         elif symbol == gp.window.key.TAB:
-            print "pressed tab"
             self.pan_mode = True
+        elif symbol == gp.window.key.S:
+            self.toggle_fullscreen()
+        elif symbol == gp.window.key.L:
+            self.frame_handler.toggle_line()
+        elif symbol == gp.window.key.F:
+            self.frame_handler.toggle_fill()
+        elif symbol == gp.window.key.T:
+            self.frame_handler.toggle_transparent()
+        else:
+            print "no action for on_key_press with symbol %s " % symbol
+        pass 
+        self.fig.redraw()
 
     def on_key_release(self,symbol, modifiers):
-        print 'Key released (symbol=%s, modifiers=%s)'% (symbol,modifiers)
+        #print 'Key released (symbol=%s, modifiers=%s)'% (symbol,modifiers)
         if symbol == gp.window.key.SPACE:
-            print "released space"
+            #print "released space"
             self.zoom_mode = False
         elif symbol == gp.window.key.TAB:
-            print "released tab"
+            #print "released tab"
             self.pan_mode = False
+
+    def on_mouse_drag(self,x,y,dx,dy,button):
+        #log.debug("DAEFigure on_mouse_drag")
+        if self.zoom_mode:
+            #log.info("on_mouse_drag trackball.zoom_to")
+            self.trackball.zoom_to(x,y,dx,dy)
+        elif self.pan_mode:
+            #log.info("on_mouse_drag trackball.pan_to")
+            self.trackball.pan_to(x,y,dx,dy)
+        else: 
+            #log.info("on_mouse_drag trackball.drag_to")
+            self.trackball.drag_to(x,y,dx,dy)
+        self.fig.redraw()
 
     def on_mouse_press(self, x, y, button):
         print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
@@ -235,10 +293,15 @@ class FigHandler(object):
         print 'Mouse button released (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
 
     def on_mouse_motion(self, x, y, dx, dy):
-        print 'Mouse motion (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)
+        pass
+        #print 'Mouse motion (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)
 
     def on_mouse_scroll(self, x, y, dx, dy):
         print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)
+
+    #def on_idle(self, dt):
+    #    print 'Idle event ', dt
+
 
 
 
@@ -319,10 +382,18 @@ class MyTrackball(gp.Trackball):
     zoom = property(_get_zoom, _set_zoom,
                      doc='''Zoom factor''')
 
+
+    def zoom_to (self, x, y, dx, dy):
+        ''' Zoom trackball by a factor dy '''
+        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
+        height = float(viewport[3])
+        #self.zoom = self.zoom-5*dy/height
+        self._distance = self._distance-5*dy/height
+
     def pan_to (self, x, y, dx, dy):
         ''' Pan trackball by a factor dx,dy '''
-        self._x += dx*0.1
-        self._y += dy*0.1
+        self._x += dx*0.05
+        self._y += dy*0.05
 
 
 
@@ -333,14 +404,17 @@ def main():
     args = parse_args(__doc__)
     vbo = VBO.from_dae(args.nodes, path=args.path, scale=True, rgba=args.rgba )
 
-    fig = gp.figure(args.size)
+
+    
+    fig = gp.Figure(size=args.size)
     frame = fig.add_frame(size=args.frame)
 
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
     trackball = MyTrackball( *args.ball )
 
-    FigHandler(fig, trackball, light=args.light)
-    FrameHandler(frame, mesh, trackball, fill=args.fill, line=args.line, transparent=args.transparent )
+    frame_handler = FrameHandler(frame, mesh, trackball, fill=args.fill, line=args.line, transparent=args.transparent )
+    fig_handler = FigHandler(fig, frame_handler, trackball, light=args.light)
+
 
     gp.show()
 
