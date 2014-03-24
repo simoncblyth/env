@@ -17,6 +17,13 @@ under an extremely liberal BSD-style Open-Source license.
 PyOpenGL 3.x supports OpenGL v1.1+
 
 
+References
+----------
+
+* http://cyrille.rossant.net/tag/pyopengl/
+
+
+
 PIP Package names
 ------------------
 

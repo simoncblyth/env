@@ -90,6 +90,9 @@ class DAEGeometry(object):
     def flatten(self):
         """  
         Adapted from Chroma geometry flattening 
+
+        Converts from pycollada internal numpy storage into contiguous 
+        arrays ready to be placed into an OpenGL VBO (Vertex Buffer Object).
         """
         nv = np.cumsum([0] + [len(solid.tris._vertex) for solid in self.solids])
         nt = np.cumsum([0] + [len(solid.tris._vertex_index) for solid in self.solids])

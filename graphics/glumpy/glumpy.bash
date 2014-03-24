@@ -13,11 +13,23 @@ GLUMPY
 
 glumpy is a small python library for the rapid vizualization of numpy arrays,
 (mainly two dimensional) that has been designed with efficiency in mind. If you
-want to draw nice figures for inclusion in a scientific article, you’d better
-use matplotlib. If you want to have a sense of what’s going on in your
+want to draw nice figures for inclusion in a scientific article, better
+use matplotlib. If you want to have a sense of whats going on in your
 simulation while it is running, then maybe glumpy can help you.
 
 glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) 
+
+
+alternatives
+--------------
+
+#. https://github.com/rossant/galry
+#. https://github.com/vispy/vispy
+#. http://vispy.org/
+#. https://code.google.com/p/visvis/
+#. http://www.pyqtgraph.org/
+
+
 
 installations
 --------------
