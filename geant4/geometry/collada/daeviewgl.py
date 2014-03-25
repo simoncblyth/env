@@ -71,26 +71,36 @@ and vary near.
 Controls
 ---------
 
-* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view)
+* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view), 
+  also a non-modal alternative is click+two-finger drag 
 * TAB and mouse/trackpad to translate x,y (left-right,up-down)
 * **S** toggle fullscreen 
 * **F** toggle fill
 * **L** toggle line
 * **T** toggle transparent
+* **P** toggle parallel projection (aka orthographic)
 * **N** toggle near mode, where mouse/trackpad changes near clipping plane 
 * **A** toggle far mode, where mouse/trackpad changes far clipping plane 
 * **Y** toggle yfov mode, where mouse/trackpad changes field of view 
+  also **UP** and **DOWN** arrow yets changes yfov in 5 degrees increments within
+  range of 5 to 175 degrees. Extreme wideangle is useful when using parallel projection. 
+
+
+Observations
+--------------
+
+#. toggling between parallel/perspective can be dis-orienting, change near/yfov to get the desired view  
 
 
 Issues
 --------
 
+#. somehow near can end up getting very small and causing problems that look like far clipping
 
 TODO
 ----
 
-#. orthographic
-#. make near/far somehow pinned to z ?  specify near from center of geometry rather than viewpoint 
+#. clipping plane controls, that are fixed in world coordinates
 
 #. external positioning control, lookat/eye/up   
 #. placemarks
@@ -102,8 +112,12 @@ import os, sys, math, logging
 log = logging.getLogger(__name__)
 
 import numpy as np
+from npcommon import printoptions
+
 import glumpy as gp  
+from glumpy.window import key
 import OpenGL.GL as gl
+import OpenGL.GLU as glu
 
 from env.graphics.pipeline.unit_transform import UnitTransform, KeyView
 from env.graphics.pipeline.view_transform import ViewTransform
@@ -127,16 +141,17 @@ class FrameHandler(object):
         self.line = not self.line
     def toggle_transparent(self):
         self.transparent = not self.transparent
-
+    def toggle_parallel(self):
+        self.trackball.parallel = not self.trackball.parallel
+ 
     def on_draw(self):
         self.frame.lock()
         self.frame.draw()
 
-        self.trackball.push()
+        self.trackball.push()  # sets up the matrices
 
         if self.fill:
             if self.transparent:
-                # http://www.opengl.org/archives/resources/faq/technical/transparency.htm
                 gl.glEnable (gl.GL_BLEND)
                 gl.glBlendFunc ( gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             pass
@@ -158,7 +173,7 @@ class FrameHandler(object):
             gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE )
             gl.glEnable( gl.GL_BLEND )
             gl.glEnable( gl.GL_LINE_SMOOTH )
-            gl.glColor( 0., 0., 0., 0.5 )      # difficult to see lines from some directions, unless black
+            gl.glColor( 0., 0., 0., 0.5 ) # difficult to see lines from some directions, unless black
 
             self.mesh.draw( gl.GL_TRIANGLES, "p" )  # position
 
@@ -213,7 +228,6 @@ class FigHandler(object):
         glumpy.Figure.on_init sets up the RGB lights before dispatch
         to all figures
         """
-        log.debug("DAEFigure on_init")
         if self.light:
             pass
             gl.glEnable (gl.GL_LIGHTING) # with just this line tis very dark, but no nasty red
@@ -224,69 +238,46 @@ class FigHandler(object):
         self.fig.window.set_title(self.title)
 
     def on_draw(self):
-        log.debug("DAEFigure on_draw")
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
     def on_key_press(self, symbol, modifiers):
-        #print 'Key pressed (symbol=%s, modifiers=%s)'% (symbol,modifiers)
-        if symbol == gp.window.key.ESCAPE:
-            sys.exit();
-        elif symbol == gp.window.key.SPACE:
-            self.zoom_mode = True
-        elif symbol == gp.window.key.TAB:
-            self.pan_mode = True
-        elif symbol == gp.window.key.N:
-            self.near_mode = True
-        elif symbol == gp.window.key.A:
-            self.far_mode = True
-        elif symbol == gp.window.key.Y:
-            self.yfov_mode = True
-        elif symbol == gp.window.key.UP:
-            self.trackball.yfov += 5.
-        elif symbol == gp.window.key.DOWN:
-            self.trackball.yfov += -5.
-        elif symbol == gp.window.key.S:
-            self.toggle_fullscreen()
-        elif symbol == gp.window.key.L:
-            self.frame_handler.toggle_line()
-        elif symbol == gp.window.key.F:
-            self.frame_handler.toggle_fill()
-        elif symbol == gp.window.key.T:
-            self.frame_handler.toggle_transparent()
+        if   symbol == key.ESCAPE: sys.exit();
+        elif symbol == key.SPACE: self.zoom_mode = True
+        elif symbol == key.TAB: self.pan_mode = True
+        elif symbol == key.N: self.near_mode = True
+        elif symbol == key.A: self.far_mode = True
+        elif symbol == key.Y: self.yfov_mode = True
+        elif symbol == key.UP: self.trackball.yfov += 5.
+        elif symbol == key.DOWN: self.trackball.yfov += -5.
+        elif symbol == key.S: self.toggle_fullscreen()
+        elif symbol == key.L: self.frame_handler.toggle_line()
+        elif symbol == key.F: self.frame_handler.toggle_fill()
+        elif symbol == key.T: self.frame_handler.toggle_transparent()
+        elif symbol == key.P: self.frame_handler.toggle_parallel()
         else:
             print "no action for on_key_press with symbol 0x%x " % symbol
         pass 
         self.redraw()
 
     def on_key_release(self,symbol, modifiers):
-        #print 'Key released (symbol=%s, modifiers=%s)'% (symbol,modifiers)
-        if symbol == gp.window.key.SPACE:
-            self.zoom_mode = False
-        elif symbol == gp.window.key.TAB:
-            self.pan_mode = False
-        elif symbol == gp.window.key.N:
-            self.near_mode = False
-        elif symbol == gp.window.key.A:
-            self.far_mode = False
-        elif symbol == gp.window.key.Y:
-            self.yfov_mode = False
+        if   symbol == key.SPACE: self.zoom_mode = False
+        elif symbol == key.TAB: self.pan_mode = False
+        elif symbol == key.N: self.near_mode = False
+        elif symbol == key.A: self.far_mode = False
+        elif symbol == key.Y: self.yfov_mode = False
         else:
             print "no action for on_key_release with symbol 0x%x " % symbol
         pass
         self.redraw()
 
     def on_mouse_drag(self,x,y,dx,dy,button):
-        #log.debug("DAEFigure on_mouse_drag")
-        if self.zoom_mode:
-            self.trackball.zoom_to(x,y,dx,dy)
-        elif self.pan_mode:
-            self.trackball.pan_to(x,y,dx,dy)
-        elif self.near_mode:
-            self.trackball.near_to(x,y,dx,dy)
-        elif self.far_mode:
-            self.trackball.far_to(x,y,dx,dy)
-        elif self.yfov_mode:
-            self.trackball.yfov_to(x,y,dx,dy)
+        #print "on_mouse_drag button %s " % button  # perhaps avoid modal interface 
+        two_finger_zoom = button == 8  # NB zoom is a misnomer, this is translating eye coordinate z
+        if   self.zoom_mode or two_finger_zoom: self.trackball.zoom_to(x,y,dx,dy)
+        elif self.pan_mode: self.trackball.pan_to(x,y,dx,dy)
+        elif self.near_mode: self.trackball.near_to(x,y,dx,dy)
+        elif self.far_mode: self.trackball.far_to(x,y,dx,dy)
+        elif self.yfov_mode: self.trackball.yfov_to(x,y,dx,dy)
         else: 
             self.trackball.drag_to(x,y,dx,dy)
         pass
@@ -300,10 +291,10 @@ class FigHandler(object):
 
     def on_mouse_motion(self, x, y, dx, dy):
         pass
-        #print 'Mouse motion (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)
+        #print 'Mouse motion (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)  # get lots of these
 
     def on_mouse_scroll(self, x, y, dx, dy):
-        print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)
+        print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)   # none of these
 
     #def on_idle(self, dt):
     #    print 'Idle event ', dt
@@ -311,8 +302,14 @@ class FigHandler(object):
 
 
 class MyTrackball(gp.Trackball):
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), yfov=50, near=0.01, far=10. , parallel=False, matrix=None):
+    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), extent=1., yfov=50, near=0.01, far=10. , parallel=False, matrix=None, scale=False, lookat=False, eye=None, look=None, up=None):
         ''' Build a new trackball with specified view '''
+
+        self.lookat = lookat 
+        self.eye = eye
+        self.look = look
+        self.up = up
+        self.extent_factor = 1./extent
 
         self._count = 0 
         self._matrix= matrix
@@ -334,7 +331,11 @@ class MyTrackball(gp.Trackball):
         self._near = near
         self._far = far
 
+        self.nearclip = 1e-4,1e6
+        self.farclip = 1e-4,1e6
+
         self.parallel = parallel
+        self.scale = scale
 
         # vestigial
         self.zoom = 0    
@@ -393,19 +394,19 @@ class MyTrackball(gp.Trackball):
     def _get_near(self):
         return self._near
     def _set_near(self, near):
-        self._near = np.clip(near, 0.01,1e6)
+        self._near = np.clip(near, self.nearclip[0], self.nearclip[1])
     near = property(_get_near, _set_near)
 
     def _get_far(self):
         return self._far
     def _set_far(self, far):
-        self._far = np.clip(far, 0.01,1e6)
+        self._far = np.clip(far, self.farclip[0],self.farclip[1])
     far = property(_get_far, _set_far)
 
     def _get_yfov(self):
         return self._yfov
     def _set_yfov(self, yfov):
-        self._yfov = np.clip(yfov,5.,120.)
+        self._yfov = np.clip(yfov,5.,175.)
     yfov = property(_get_yfov, _set_yfov)
 
 
@@ -421,10 +422,6 @@ class MyTrackball(gp.Trackball):
         self._rotation = [q[3],q[0],q[1],q[2]]  # different quaternion rep
 
     matrix = property(_get_matrix, _set_matrix)
-
-
-
-
 
     def _get_lrbtnf(self):
         """
@@ -449,21 +446,57 @@ class MyTrackball(gp.Trackball):
 
     lrbtnf = property(_get_lrbtnf)
 
-    def push(self):
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPushMatrix()
-        gl.glLoadIdentity ()
-        if self.parallel:
-            gl.glOrtho ( *self.lrbtnf )
-        else:
-            gl.glFrustum ( *self.lrbtnf )
-        pass
+    def gluLookAt(self):
+        """ 
+        * http://www.opengl.org/archives/resources/faq/technical/viewing.htm
 
+        gluLookAt() takes an eye position, a position to look at, and an up vector, 
+        all in object space coordinates and computes the inverse camera transform according to
+        its parameters and multiplies it onto the current matrix stack.
+
+        The GL_PROJECTION matrix should contain only the projection transformation
+        calls it needs to transform eye space coordinates into clip coordinates.
+
+        The GL_MODELVIEW matrix, as its name implies, should contain modeling and
+        viewing transformations, which transform object space coordinates into eye
+        space coordinates. Remember to place the camera transformations on the
+        GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
+
+        Think of the projection matrix as describing the attributes of your camera,
+        such as field of view, focal length, fish eye lens, etc. Think of the ModelView
+        matrix as where you stand with the camera and the direction you point it.
+
+        """
+        eye, look, up = self.eye, self.look, self.up
+        #print "gluLookAt eye %s look %s up %s " % (str(eye),str(look),str(up))
+        glu.gluLookAt(eye[0],eye[1],eye[2],look[0],look[1],look[2],up[0],up[1],up[2])
+
+
+    def push(self):
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
-        gl.glTranslate (self._x, self._y, -self._z )
-        gl.glMultMatrixf (self._matrix)
+
+        if self.lookat:
+            extent_factor = self.extent_factor
+            gl.glScalef(extent_factor, extent_factor, extent_factor)  
+            self.gluLookAt()
+        else:
+            gl.glTranslate (self._x, self._y, -self._z )
+            gl.glMultMatrixf (self._matrix)
+
+
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glLoadIdentity ()
+
+        lrbtnf = self.lrbtnf 
+        #print "lrbtnf %s " % str(lrbtnf) 
+        if self.parallel:
+            gl.glOrtho ( *lrbtnf )
+        else:
+            gl.glFrustum ( *lrbtnf )
+        pass
 
     def pop(void):
         gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -494,7 +527,13 @@ def compose_arg( arg, default, f_ ):
 
 def parse_args(doc):
     import argparse
-    defaults = dict(ball="65,135,1.,2.5",nodes="4900:4910",size="1440,852")
+    defaults = {}
+    #defaults['nodes']="3153:12230"
+    defaults['nodes']="5000:5100"   # some PMTs for quick testing
+
+    #defaults['size']="1440,852"
+    defaults['size']="640,480"
+
     parser = argparse.ArgumentParser(doc)
     parser.add_argument("-n","--nodes", default=defaults['nodes'],   help="DAENode.getall node(s) specifier %(default)s",type=str)
     parser.add_argument(     "--size", default=defaults['size'], help="Pixel size  %(default)s", type=str)
@@ -521,8 +560,8 @@ def parse_args(doc):
 
     # target based positioning mode switched on by presence of target 
     parser.add_argument("-t","--target", default=None,     help="Node index of solid on which to focus",type=str)
-    parser.add_argument("-a","--look",  default="0,0,0",   help="Lookat position",type=str)
     parser.add_argument("-e","--eye",   default="-2,0,0", help="Eye position",type=str)
+    parser.add_argument("-a","--look",  default="0,0,0",   help="Lookat position",type=str)
     parser.add_argument("-u","--up",   default="0,0,1", help="Eye position",type=str)
 
 
@@ -551,11 +590,9 @@ def parse_args(doc):
     return args
 
 
-def main():
-    args = parse_args(__doc__)
-    geometry = DAEGeometry(args.nodes, path=args.path)
-    geometry.flatten()
 
+
+def backburner(args, geometry):
     target = None
     if args.target:
         target = geometry.find_solid(args.target) 
@@ -575,14 +612,65 @@ def main():
         print view
         matrix = view.matrix
 
-    vbo = geometry.make_vbo(scale=scale, rgba=args.rgba )
+
+def create_trackball( args, geometry ):
+    """
+
+    #. scaling the VBO coordinates seems wrong, that is too early to scale as 
+       want to use world coordinates to locate viewpoints
+
+    #. presenting geometry in a coordinate frame with 0,0,0 at the center
+       of the presented vertices and extents from -1 to 1 is useful, as x,y,z
+       has some meaning as you move around 
+      
+    """
+    kwa = {}
+    kwa['thetaphi'] = args.thetaphi
+    kwa['xyz'] = args.xyz
+    kwa['yfov'] = args.yfov
+    kwa['near'] = args.near
+    kwa['far'] = args.far
+    kwa['parallel'] = args.parallel
+
+    if args.target is None:
+        kwa['matrix'] = None
+        kwa['scale'] = True
+        kwa['lookat'] = False
+    else:
+
+        lower, upper, extent = geometry.mesh.bounds_extent
+
+        kwa['scale'] = False
+        kwa['lookat'] = True
+        kwa['extent'] = extent
+
+        unit = UnitTransform([lower,upper])
+        key  = KeyView( args.eye, args.look, args.up, unit )
+        eye, look, up = key._eye_look_up
+
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+             print geometry.mesh.smry()
+             print key 
+
+        kwa['eye'] = eye
+        kwa['look'] = look
+        kwa['up'] = up
+
+    trackball = MyTrackball(**kwa)
+    return trackball
+
+
+def main():
+    args = parse_args(__doc__)
+    geometry = DAEGeometry(args.nodes, path=args.path)
+    geometry.flatten()
+
+    trackball = create_trackball( args, geometry )
 
     fig = gp.Figure(size=args.size)
     frame = fig.add_frame(size=args.frame)
+    vbo = geometry.make_vbo(scale=trackball.scale, rgba=args.rgba )
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
-
-    trackball = MyTrackball(thetaphi=args.thetaphi,xyz=args.xyz,yfov=args.yfov,near=args.near,far=args.far,parallel=args.parallel, matrix=matrix)
-
 
     frame_handler = FrameHandler( frame, mesh, trackball, fill=args.fill, line=args.line, transparent=args.transparent )
     fig_handler = FigHandler(fig, frame_handler, trackball, light=args.light, fullscreen=args.fullscreen )

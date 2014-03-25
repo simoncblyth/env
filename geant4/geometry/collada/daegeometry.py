@@ -65,10 +65,27 @@ class DAEMesh(object):
         return bounds[1]-bounds[0]
     dimensions = property(_get_dimensions)
 
+    def _get_bounds_extent(self):
+        lower, upper = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+        dimensions = upper - lower
+        extent = np.max(dimensions)/2.
+        return lower, upper, extent
+    bounds_extent = property(_get_bounds_extent)   
 
     def check(self, vertices, triangles):
         assert np.min(triangles) == 0
         assert np.max(triangles) == len(vertices)-1 , (np.max(triangles), len(vertices)-1 )
+
+    def smry(self):
+        lower, upper = self.bounds
+        dimensions = upper - lower
+        return "\n".join([
+                  "upper      %s " % upper,
+                  "center     %s " % np.mean([lower,upper], axis=0),
+                  "lower      %s " % lower,
+                  "dimensions %s " % dimensions,
+                  "extent     %s " % str(np.max(dimensions)/2.),
+                   ])
 
     def __repr__(self):
         return " ".join( [
