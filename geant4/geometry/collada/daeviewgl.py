@@ -252,8 +252,8 @@ class FrameHandler(object):
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
+        refextent = trackball.refextent
         if trackball.lookat:
-            refextent = trackball.refextent
             gl.glTranslate ( trackball._x*refextent, trackball._y*refextent, -trackball._z*refextent )
             gl.glMultMatrixf (trackball._matrix)
             self.gluLookAt(trackball)        # puts the camera at origin looking down Z
@@ -274,7 +274,8 @@ class FrameHandler(object):
             gl.glFrustum ( *lrbtnf )
         pass
         # refextent scale down to bring near to -1:1 range, in non-lookat mode refextent is 1.0 anyhow 
-        gl.glScalef(1./refextent, 1./refextent, 1./refextent)  
+        if trackball.lookat:
+            gl.glScalef(1./refextent, 1./refextent, 1./refextent)  
 
     def pop(self, trackball):
         gl.glMatrixMode(gl.GL_MODELVIEW)
