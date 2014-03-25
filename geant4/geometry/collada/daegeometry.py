@@ -7,42 +7,18 @@ from npcommon import printoptions
 
 from env.geant4.geometry.collada.daenode import DAENode 
 
-class DAESolid(object):
-    """
-    Without re-generating normals are getting more normals than 
-    vertices but less than triangles ? Maybe due to triangle 
-    from quad generation done by pycollada.
-
-    DAEMesh vertex 466  triangles 884  normals 584 
-    """
-    def __init__(self, node, bound=True, generateNormals=True):
-        if bound:
-            pl = list(node.boundgeom.primitives())[0] 
-        else:
-            pl = node.geo.geometry.primitives[0]
-
-        tris = pl.triangleset()
-        if generateNormals:
-            tris.generateNormals()
-       
-        self.tris = tris
-        self.index = node.index
-        self.id = node.id
-
-    def __repr__(self):
-        return " ".join( [
-                           "%s %s %s  " % (self.__class__.__name__, self.index, self.id),
-                           "vertex %s " % len(self.tris._vertex), 
-                           "triangles %s " % len(self.tris._vertex_index), 
-                           "normals %s " % len(self.tris._normal), 
-                           ])
-
 class DAEMesh(object):
-    def __init__(self, vertices, triangles, normals ):
-        self.check(vertices, triangles)
+    def __init__(self, vertices, triangles, normals=[] ):
         self.vertices = vertices
         self.triangles = triangles
         self.normals = normals
+
+    def check(self):
+        assert np.min(self.triangles) == 0
+        #assert np.max(self.triangles) == len(self.vertices)-1 , (np.max(self.triangles), len(self.vertices)-1 )
+        if np.max(self.triangles) != len(self.vertices)-1:
+            return False
+        return True
 
     def _get_bounds(self):
         "Return the lower and upper bounds for the mesh as a tuple."
@@ -72,10 +48,6 @@ class DAEMesh(object):
         return lower, upper, extent
     bounds_extent = property(_get_bounds_extent)   
 
-    def check(self, vertices, triangles):
-        assert np.min(triangles) == 0
-        assert np.max(triangles) == len(vertices)-1 , (np.max(triangles), len(vertices)-1 )
-
     def smry(self):
         lower, upper = self.bounds
         dimensions = upper - lower
@@ -94,6 +66,44 @@ class DAEMesh(object):
                            "triangles %s " % len(self.triangles), 
                            "normals %s " % len(self.normals), 
                            ])
+
+
+
+
+
+class DAESolid(DAEMesh):
+    """
+    Without re-generating normals are getting more normals than 
+    vertices but less than triangles ? Maybe due to triangle 
+    from quad generation done by pycollada.
+
+    DAEMesh vertex 466  triangles 884  normals 584 
+    """
+    def __init__(self, node, bound=True, generateNormals=True):
+        if bound:
+            pl = list(node.boundgeom.primitives())[0] 
+        else:
+            pl = node.geo.geometry.primitives[0]
+
+        tris = pl.triangleset()
+        if generateNormals:
+            tris.generateNormals()
+       
+        DAEMesh.__init__(self, tris._vertex, tris._vertex_index, tris._normal )
+
+        #self.tris = tris
+        self.index = node.index
+        self.id = node.id
+        if not self.check():
+            print "DAESolid Meshcheck failure %s " % self
+
+
+    def __repr__(self):
+        return " ".join([
+                           DAEMesh.__repr__(self),
+                           " : %s %s  " % (self.index, self.id), 
+                         ])
+
 
 class DAEGeometry(object):
     def __init__(self, arg, path=None, bound=True):
@@ -123,38 +133,37 @@ class DAEGeometry(object):
         arrays ready to be placed into an OpenGL VBO (Vertex Buffer Object).
         """
 
-        nv = np.cumsum([0] + [len(solid.tris._vertex) for solid in self.solids])
-        nt = np.cumsum([0] + [len(solid.tris._vertex_index) for solid in self.solids])
-        nn = np.cumsum([0] + [len(solid.tris._normal) for solid in self.solids])
+        nv = np.cumsum([0] + [len(solid.vertices) for solid in self.solids])
+        nt = np.cumsum([0] + [len(solid.triangles) for solid in self.solids])
+        nn = np.cumsum([0] + [len(solid.normals) for solid in self.solids])
 
         vertices = np.empty((nv[-1],3), dtype=np.float32)
         triangles = np.empty((nt[-1],3), dtype=np.uint32)
         normals = np.empty((nn[-1],3), dtype=np.float32)
-        solidmap = {}
+        #solidmap = {}
 
         for i, solid in enumerate(self.solids):
-            solidmap[solid.index] = i 
-            vertices[nv[i]:nv[i+1]] = solid.tris._vertex
-            triangles[nt[i]:nt[i+1]] = solid.tris._vertex_index + nv[i]   # NB offseting vertex indices
-            normals[nn[i]:nn[i+1]] = solid.tris._normal
+            #solidmap[solid.index] = i 
+            vertices[nv[i]:nv[i+1]] = solid.vertices
+            triangles[nt[i]:nt[i+1]] = solid.triangles + nv[i]   # NB offseting vertex indices
+            normals[nn[i]:nn[i+1]] = solid.normals
 
         log.info('Flattening %s DAESolid into one DAEMesh...' % len(self.solids))
         mesh = DAEMesh(vertices, triangles, normals)
         log.info(mesh)
-
         self.mesh = mesh 
 
         # these are to allow bound extraction by solid index
-        self.nv = nv  # vertex index ranges for each solid index
-        self.solidmap = solidmap
+        #self.nv = nv  # vertex index ranges for each solid index
+        #self.solidmap = solidmap
 
-    def get_vertices(self, solid_index):
-        i = self.solidmap[solid_index]
-        return self.mesh.vertices[self.nv[i]:self.nv[i+1]]
-
-    def get_bounds(self, solid_index):
-        vertices = self.get_vertices(solid_index)
-        return np.min(vertices, axis=0), np.max(vertices, axis=0)
+    #def get_vertices(self, solid_index):
+    #    i = self.solidmap[solid_index]
+    #    return self.mesh.vertices[self.nv[i]:self.nv[i+1]]
+    #
+    #def get_bounds(self, solid_index):
+    #    vertices = self.get_vertices(solid_index)
+    #    return np.min(vertices, axis=0), np.max(vertices, axis=0)
 
 
     def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):

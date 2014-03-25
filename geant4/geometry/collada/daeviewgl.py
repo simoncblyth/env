@@ -57,6 +57,14 @@ DAEVIEWGL
 
        # skipping universe, rock and RPC makes for easier inspection inside the pool
 
+    daeviewgl.py  -n 3153:12230 -t 5000 --eye="-2,-2,-2"
+
+       # target mode, presenting many volumes but targeting one and orienting viewpoint with 
+       # respect to the target using units based on the extent of the target and axis directions
+       # from the world frame
+       #
+       # long form --eye="..." is needed as the value starts with "-"
+
 
 Parallel/Orthographic projection
 ----------------------------------
@@ -119,22 +127,30 @@ from glumpy.window import key
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
+from daetrackball import DAETrackball
+
+
 from env.graphics.pipeline.unit_transform import UnitTransform, KeyView
 from env.graphics.pipeline.view_transform import ViewTransform
 from env.geant4.geometry.collada.daegeometry import DAEGeometry
 from env.graphics.transformations.transformations import quaternion_from_matrix
 
+
+
 class FrameHandler(object):
-    def __init__(self, frame, mesh, trackball, fill=True, line=True, transparent=True ):
+    def __init__(self, frame, mesh, trackball, fill=True, line=True, transparent=True, light=True):
         self.frame = frame
         self.mesh = mesh
         self.trackball = trackball
         self.fill = fill
         self.line = line
         self.transparent = transparent
+        self.light = light
         pass
         frame.push(self)     # event notification hookup
 
+
+    # toggles invoked by FigHandler
     def toggle_fill(self):
         self.fill = not self.fill
     def toggle_line(self):
@@ -143,18 +159,146 @@ class FrameHandler(object):
         self.transparent = not self.transparent
     def toggle_parallel(self):
         self.trackball.parallel = not self.trackball.parallel
- 
+
+
+    def on_init(self):
+        """
+        Enabling lights 0,1,2 gives acceptable lighting 
+        with a white background. Enabling them singly 
+        gives nasty red/green/blue lighting and background.
+
+        glumpy.Figure.on_init sets up the RGB lights before dispatch
+        to all figures
+
+        http://www.opengl.org/archives/resources/faq/technical/lights.htm
+
+        """
+        print "FrameHandler on_init"
+        if self.light:
+            refextent = self.trackball.refextent
+            print "FrameHandler enabling lights %s " % refextent
+            self.lights(refextent, w=1.0)
+        pass
+
+    def lights(self, d, w=0.):
+        """
+        With w=0. get at very colorful render,  that changes 
+        to different colors as rotate around.
+
+        * http://www.talisman.org/opengl-1.1/Reference/glLight.html
+
+        The position is transformed by the modelview matrix when glLight is called
+        (just as if it were a point), and it is stored in eye coordinates. If the w
+        component of the position is 0, the light is treated as a directional source.
+        Diffuse and specular lighting calculations take the light's direction, but not
+        its actual position, into account, and attenuation is disabled. Otherwise,
+        diffuse and specular lighting calculations are based on the actual location of
+        the light in eye coordinates, and attenuation is enabled. The initial position
+        is (0, 0, 1, 0); thus, the initial light source is directional, parallel to,
+        and in the direction of the -Z axis.
+
+        """
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 0.0, 0.0, 1.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 1.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,( -d,   d,   d,   w))
+
+        gl.glLightfv (gl.GL_LIGHT1, gl.GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
+        gl.glLightfv (gl.GL_LIGHT1, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT1, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(  d,   d,   d,   w))
+
+        gl.glLightfv (gl.GL_LIGHT2, gl.GL_DIFFUSE, (0.0, 0.0, 1.0, 1.0))
+        gl.glLightfv (gl.GL_LIGHT2, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT2, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
+        gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION,(0.0,  -d,   d,   w))
+
+        gl.glEnable (gl.GL_LIGHTING) # with just this line tis very dark, but no nasty red
+        gl.glEnable (gl.GL_LIGHT0)  
+        gl.glEnable (gl.GL_LIGHT1)  
+        gl.glEnable (gl.GL_LIGHT2)   
+
+    def light_position(self, d, w=0.):
+        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,( -d,   d,   d,   w))
+        gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(  d,   d,   d,   w))
+        gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION,(0.0,  -d,   d,   w))
+
+    def gluLookAt(self, trackball):
+        """ 
+        * http://www.opengl.org/archives/resources/faq/technical/viewing.htm
+
+        gluLookAt() takes an eye position, a position to look at, and an up vector, 
+        all in object space coordinates and computes the inverse camera transform according to
+        its parameters and multiplies it onto the current matrix stack.
+
+        The GL_PROJECTION matrix should contain only the projection transformation
+        calls it needs to transform eye space coordinates into clip coordinates.
+
+        The GL_MODELVIEW matrix, as its name implies, should contain modeling and
+        viewing transformations, which transform object space coordinates into eye
+        space coordinates. Remember to place the camera transformations on the
+        GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
+
+        Think of the projection matrix as describing the attributes of your camera,
+        such as field of view, focal length, fish eye lens, etc. Think of the ModelView
+        matrix as where you stand with the camera and the direction you point it.
+
+        """
+        eye, look, up = trackball.eye, trackball.look, trackball.up
+        glu.gluLookAt(eye[0],eye[1],eye[2],look[0],look[1],look[2],up[0],up[1],up[2])
+
+    def push(self, trackball):
+        gl.glMatrixMode (gl.GL_MODELVIEW)
+        gl.glPushMatrix()
+        gl.glLoadIdentity ()
+
+        if trackball.lookat:
+            refextent = trackball.refextent
+            gl.glTranslate ( trackball._x*refextent, trackball._y*refextent, -trackball._z*refextent )
+            gl.glMultMatrixf (trackball._matrix)
+            self.gluLookAt(trackball)        # puts the camera at origin looking down Z
+        else:
+            gl.glTranslate (trackball._x, trackball._y, -trackball._z )
+            gl.glMultMatrixf (trackball._matrix)
+        pass
+
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glLoadIdentity ()
+
+        lrbtnf = trackball.lrbtnf 
+        #print "lrbtnf", lrbtnf
+        if trackball.parallel:
+            gl.glOrtho ( *lrbtnf )
+        else:
+            gl.glFrustum ( *lrbtnf )
+        pass
+        # refextent scale down to bring near to -1:1 range, in non-lookat mode refextent is 1.0 anyhow 
+        gl.glScalef(1./refextent, 1./refextent, 1./refextent)  
+
+    def pop(self, trackball):
+        gl.glMatrixMode(gl.GL_MODELVIEW)
+        gl.glPopMatrix()
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPopMatrix()
+
+
     def on_draw(self):
         self.frame.lock()
         self.frame.draw()
 
-        self.trackball.push()  # sets up the matrices
+        self.push(self.trackball)  # sets up the matrices
+
+        #if self.light:
+        #    self.light_position( 0.9, 1.)   # reset positions following changes to MODELVIEW matrix ?
 
         if self.fill:
             if self.transparent:
                 gl.glEnable (gl.GL_BLEND)
                 gl.glBlendFunc ( gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             pass
+            gl.glEnable (gl.GL_COLOR_MATERIAL)
+            gl.glColorMaterial(gl.GL_FRONT_AND_BACK, gl.GL_AMBIENT_AND_DIFFUSE)
 
             gl.glEnable( gl.GL_POLYGON_OFFSET_FILL )
             gl.glPolygonOffset (1, 1)
@@ -180,7 +324,7 @@ class FrameHandler(object):
             gl.glDisable( gl.GL_BLEND )
             gl.glDisable( gl.GL_LINE_SMOOTH )
 
-        self.trackball.pop()
+        self.pop(self.trackball)
         self.frame.unlock()
 
 
@@ -188,11 +332,13 @@ class FrameHandler(object):
 
 
 class FigHandler(object):
-    def __init__(self, fig, frame_handler, trackball, light=True, fullscreen=False ):
+    """
+    Keep this for handling interactivity, **NOT** graphics    
+    """
+    def __init__(self, fig, frame_handler, trackball, fullscreen=False ):
         self.fig = fig
         self.frame_handler = frame_handler
         self.trackball = trackball
-        self.light = light
         # 
         self.zoom_mode = False
         self.pan_mode = False
@@ -220,21 +366,6 @@ class FigHandler(object):
             self.fig.window.set_fullscreen(1)
  
     def on_init(self):
-        """
-        Enabling lights 0,1,2 gives acceptable lighting 
-        with a white background. Enabling them singly 
-        gives nasty red/green/blue lighting and background.
-
-        glumpy.Figure.on_init sets up the RGB lights before dispatch
-        to all figures
-        """
-        if self.light:
-            pass
-            gl.glEnable (gl.GL_LIGHTING) # with just this line tis very dark, but no nasty red
-            gl.glEnable (gl.GL_LIGHT0)  
-            gl.glEnable (gl.GL_LIGHT1)  
-            gl.glEnable (gl.GL_LIGHT2)   
-        pass
         self.fig.window.set_title(self.title)
 
     def on_draw(self):
@@ -271,7 +402,6 @@ class FigHandler(object):
         self.redraw()
 
     def on_mouse_drag(self,x,y,dx,dy,button):
-        #print "on_mouse_drag button %s " % button  # perhaps avoid modal interface 
         two_finger_zoom = button == 8  # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.trackball.zoom_to(x,y,dx,dy)
         elif self.pan_mode: self.trackball.pan_to(x,y,dx,dy)
@@ -301,238 +431,19 @@ class FigHandler(object):
 
 
 
-class MyTrackball(gp.Trackball):
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), extent=1., yfov=50, near=0.01, far=10. , parallel=False, matrix=None, scale=False, lookat=False, eye=None, look=None, up=None):
-        ''' Build a new trackball with specified view '''
-
-        self.lookat = lookat 
-        self.eye = eye
-        self.look = look
-        self.up = up
-        self.extent_factor = 1./extent
-
-        self._count = 0 
-        self._matrix= matrix
-
-        if matrix is None: 
-            self._rotation = [0,0,0,1]
-            theta, phi = thetaphi
-            self._set_orientation(theta,phi)
-            self._x =  xyz[0]
-            self._y =  xyz[1]
-            self._z =  xyz[2]
-        else:
-            self.matrix = matrix # setter populates the rest  
-
-
-        self._RENORMCOUNT = 97
-        self._TRACKBALLSIZE = 0.8 
-        self._yfov = yfov
-        self._near = near
-        self._far = far
-
-        self.nearclip = 1e-4,1e6
-        self.farclip = 1e-4,1e6
-
-        self.parallel = parallel
-        self.scale = scale
-
-        # vestigial
-        self.zoom = 0    
-        self.distance = 0 
-
-
-    def __repr__(self):
-        return "yfov %3.1f near %4.1f far %4.1f x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
-            (self._yfov, self._near, self._far, self._x, self._y, self._z, self.theta, self.phi )
-
-
-    def _get_height(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[3])
-    height = property(_get_height)
-
-    def _get_width(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[2])
-    width = property(_get_width)
-
-    def _get_aspect(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[2])/float(viewport[3])
-    aspect = property(_get_aspect)
-
-
-    def zoom_to (self, x, y, dx, dy):
-        """
-        Zoom trackball by a factor dy 
-        Changed from glumpy original _zoom to _distance
-        so this is now a translation in z direction
-        """
-        self._z += -5*dy/self.height
-
-    def pan_to (self, x, y, dx, dy):
-        ''' Pan trackball by a factor dx,dy '''
-        self._x += 3*dx/self.width
-        self._y += 3*dy/self.height
 
 
 
-    def near_to (self, x, y, dx, dy):
-        ''' Change near clipping '''
-        self.near += 5*dy/self.height
-
-    def far_to (self, x, y, dx, dy):
-        ''' Change far clipping '''
-        self.far += 5*dy/self.height
-
-    def yfov_to (self, x, y, dx, dy):
-        ''' Change yfov '''
-        self.yfov += 50*dy/self.height
-
-
-    def _get_near(self):
-        return self._near
-    def _set_near(self, near):
-        self._near = np.clip(near, self.nearclip[0], self.nearclip[1])
-    near = property(_get_near, _set_near)
-
-    def _get_far(self):
-        return self._far
-    def _set_far(self, far):
-        self._far = np.clip(far, self.farclip[0],self.farclip[1])
-    far = property(_get_far, _set_far)
-
-    def _get_yfov(self):
-        return self._yfov
-    def _set_yfov(self, yfov):
-        self._yfov = np.clip(yfov,5.,175.)
-    yfov = property(_get_yfov, _set_yfov)
-
-
-    def _get_matrix(self):
-        return self._matrix
-    def _set_matrix(self, matrix):
-        self._matrix = matrix
-        xyz = matrix[:3,3]
-        self._x = xyz[0]
-        self._y = xyz[1]
-        self._z = -xyz[2]  # maybe need to negate
-        q = quaternion_from_matrix(matrix)   
-        self._rotation = [q[3],q[0],q[1],q[2]]  # different quaternion rep
-
-    matrix = property(_get_matrix, _set_matrix)
-
-    def _get_lrbtnf(self):
-        """
-        ::
-                   . | 
-                .    | top 
-              +------- 
-                near |
-                     |
-                   
-        """
-        aspect = self.aspect
-        near = self._near
-        far = self._far
-
-        top = near * math.tan(self._yfov*0.5*math.pi/180.0)  
-        bottom = -top
-        left = aspect * bottom
-        right = aspect * top 
-
-        return left,right,bottom,top,near,far 
-
-    lrbtnf = property(_get_lrbtnf)
-
-    def gluLookAt(self):
-        """ 
-        * http://www.opengl.org/archives/resources/faq/technical/viewing.htm
-
-        gluLookAt() takes an eye position, a position to look at, and an up vector, 
-        all in object space coordinates and computes the inverse camera transform according to
-        its parameters and multiplies it onto the current matrix stack.
-
-        The GL_PROJECTION matrix should contain only the projection transformation
-        calls it needs to transform eye space coordinates into clip coordinates.
-
-        The GL_MODELVIEW matrix, as its name implies, should contain modeling and
-        viewing transformations, which transform object space coordinates into eye
-        space coordinates. Remember to place the camera transformations on the
-        GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
-
-        Think of the projection matrix as describing the attributes of your camera,
-        such as field of view, focal length, fish eye lens, etc. Think of the ModelView
-        matrix as where you stand with the camera and the direction you point it.
-
-        """
-        eye, look, up = self.eye, self.look, self.up
-        #print "gluLookAt eye %s look %s up %s " % (str(eye),str(look),str(up))
-        glu.gluLookAt(eye[0],eye[1],eye[2],look[0],look[1],look[2],up[0],up[1],up[2])
-
-
-    def push(self):
-        gl.glMatrixMode (gl.GL_MODELVIEW)
-        gl.glPushMatrix()
-        gl.glLoadIdentity ()
-
-        if self.lookat:
-            extent_factor = self.extent_factor
-            gl.glScalef(extent_factor, extent_factor, extent_factor)  
-            self.gluLookAt()
-        else:
-            gl.glTranslate (self._x, self._y, -self._z )
-            gl.glMultMatrixf (self._matrix)
-
-
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPushMatrix()
-        gl.glLoadIdentity ()
-
-        lrbtnf = self.lrbtnf 
-        #print "lrbtnf %s " % str(lrbtnf) 
-        if self.parallel:
-            gl.glOrtho ( *lrbtnf )
-        else:
-            gl.glFrustum ( *lrbtnf )
-        pass
-
-    def pop(void):
-        gl.glMatrixMode(gl.GL_MODELVIEW)
-        gl.glPopMatrix()
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPopMatrix()
-
-
-
-
-
-
-
-def compose_arg( arg, default, f_ ):
-    """  
-    Allows partial arg specification for comma delimited string arguments, 
-    the rest coming from the defaults.
-    """
-    arg = f_(arg)
-    default = f_(default)
-    if len(arg) == len(default):
-        ret = arg
-    else:
-        ret = arg + default[len(arg):]
-    assert len(ret) == len(default), (ret, default)
-    return ret
 
 
 def parse_args(doc):
     import argparse
     defaults = {}
-    #defaults['nodes']="3153:12230"
-    defaults['nodes']="5000:5100"   # some PMTs for quick testing
+    defaults['nodes']="3153:12230"
+    #defaults['nodes']="5000:5100"   # some PMTs for quick testing
 
-    #defaults['size']="1440,852"
-    defaults['size']="640,480"
+    defaults['size']="1440,852"
+    #defaults['size']="640,480"
 
     parser = argparse.ArgumentParser(doc)
     parser.add_argument("-n","--nodes", default=defaults['nodes'],   help="DAENode.getall node(s) specifier %(default)s",type=str)
@@ -551,15 +462,15 @@ def parse_args(doc):
     parser.add_argument("-l","--loglevel", default="INFO", help="INFO/DEBUG/WARN/..   %(default)s")  
     
     parser.add_argument(     "--yfov",  default=50., help="Initial vertical field of view in degrees. %(default)s", type=float)
-    parser.add_argument(     "--near",  default=0.1, help="Initial near. %(default)s", type=float)
-    parser.add_argument(     "--far",  default=5., help="Initial far. %(default)s", type=float)
+    parser.add_argument(     "--near",  default=0.001, help="Initial near. %(default)s", type=float)
+    parser.add_argument(     "--far",  default=100., help="Initial far. %(default)s", type=float)
     parser.add_argument(     "--thetaphi",  default="0,0", help="Initial theta,phi. %(default)s", type=str)
     parser.add_argument(     "--xyz",  default="0,0,3", help="Initial viewpoint in canonical -1:1 cube coordinates %(default)s", type=str)
     parser.add_argument(     "--parallel", action="store_true", help="Parallel projection, aka orthographic." )
     parser.add_argument(     "--fullscreen", action="store_true", help="Start in fullscreen mode." )
 
     # target based positioning mode switched on by presence of target 
-    parser.add_argument("-t","--target", default=None,     help="Node index of solid on which to focus",type=str)
+    parser.add_argument("-t","--target", default=None,     help="Node specification of solid on which to focus or empty string for all",type=str)
     parser.add_argument("-e","--eye",   default="-2,0,0", help="Eye position",type=str)
     parser.add_argument("-a","--look",  default="0,0,0",   help="Lookat position",type=str)
     parser.add_argument("-u","--up",   default="0,0,1", help="Eye position",type=str)
@@ -587,93 +498,103 @@ def parse_args(doc):
     args.up = fvec_(args.up) 
     args.size = ivec_(args.size) 
 
+
+    if args.target is None:
+       if args.near < 1.:
+           args.near = 1. 
+           log.warn("amending near to %s for non-target mode" % args.near)
+
     return args
 
 
 
-
-def backburner(args, geometry):
-    target = None
-    if args.target:
-        target = geometry.find_solid(args.target) 
-        if target is None:
-           log.warn("failed to find target %s fallback to scale mode " % args.target )
-        else:
-           log.info("target : %s " % (target) )
-
-    if target is None:
-        scale, matrix = True, None
-    else:
-        scale = False
-        unit = UnitTransform(geometry.get_bounds(target.index))
-        print unit
-        key  = KeyView( args.eye, args.look, args.up, unit )
-        view = ViewTransform( *key._eye_look_up )
-        print view
-        matrix = view.matrix
-
-
-def create_trackball( args, geometry ):
+class Scene(object):
     """
-
     #. scaling the VBO coordinates seems wrong, that is too early to scale as 
        want to use world coordinates to locate viewpoints
 
     #. presenting geometry in a coordinate frame with 0,0,0 at the center
        of the presented vertices and extents from -1 to 1 is useful, as x,y,z
        has some meaning as you move around 
-      
-    """
-    kwa = {}
-    kwa['thetaphi'] = args.thetaphi
-    kwa['xyz'] = args.xyz
-    kwa['yfov'] = args.yfov
-    kwa['near'] = args.near
-    kwa['far'] = args.far
-    kwa['parallel'] = args.parallel
+    """  
+    def __init__(self, args, geometry ):
 
-    if args.target is None:
-        kwa['matrix'] = None
-        kwa['scale'] = True
-        kwa['lookat'] = False
-    else:
+        self.args = args
+        self.geometry = geometry  
+        self.mesh = geometry.mesh
+        self.view = None
 
-        lower, upper, extent = geometry.mesh.bounds_extent
+        self.kwa = {}
+        self.configure_target()
+        self.configure_base()
+        if not self.target is None:
+            self.configure_lookat() 
 
-        kwa['scale'] = False
-        kwa['lookat'] = True
-        kwa['extent'] = extent
+        self.trackball = DAETrackball(**self.kwa)
 
+    def configure_target(self):
+        if self.args.target is None:
+            target = None
+        else:
+            target = self.geometry.find_solid(self.args.target) 
+            assert target, "failed to find target for argument %s " % self.args.target
+        self.target = target 
+
+    def configure_base(self):
+        args = self.args
+        self.kwa['thetaphi'] = args.thetaphi
+        self.kwa['xyz'] = args.xyz
+        self.kwa['yfov'] = args.yfov
+        self.kwa['near'] = args.near
+        self.kwa['far'] = args.far
+        self.kwa['parallel'] = args.parallel
+
+    def configure_lookat(self):
+        """
+        Convert eye/look/up input parameters into world coordinates
+        """
+        lower, upper, extent = self.target.bounds_extent
         unit = UnitTransform([lower,upper])
-        key  = KeyView( args.eye, args.look, args.up, unit )
-        eye, look, up = key._eye_look_up
 
-        with printoptions(precision=3, suppress=True, strip_zeros=False):
-             print geometry.mesh.smry()
-             print key 
+        self.view  = KeyView( self.args.eye, self.args.look, self.args.up, unit )
+        eye, look, up = self.view._eye_look_up
 
-        kwa['eye'] = eye
-        kwa['look'] = look
-        kwa['up'] = up
+        self.kwa['lookat'] = True
+        self.kwa['extent'] = extent
+        self.kwa['eye'] = eye
+        self.kwa['look'] = look
+        self.kwa['up'] = up
 
-    trackball = MyTrackball(**kwa)
-    return trackball
+    def dump(self):
+        if self.view:
+            print "view\n", self.view
+        if self.mesh: 
+            print "full mesh\n",self.mesh.smry()
+        if self.target: 
+            print "target mesh\n",self.target.smry()
+
 
 
 def main():
+    np.set_printoptions(precision=4, suppress=True)
+
     args = parse_args(__doc__)
     geometry = DAEGeometry(args.nodes, path=args.path)
     geometry.flatten()
 
-    trackball = create_trackball( args, geometry )
+    scene = Scene(args, geometry)
+    scene.dump() 
+    trackball = scene.trackball
 
     fig = gp.Figure(size=args.size)
     frame = fig.add_frame(size=args.frame)
-    vbo = geometry.make_vbo(scale=trackball.scale, rgba=args.rgba )
+
+    vbo = geometry.make_vbo(scale=not scene.target, rgba=args.rgba )
+    print vbo
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
-    frame_handler = FrameHandler( frame, mesh, trackball, fill=args.fill, line=args.line, transparent=args.transparent )
-    fig_handler = FigHandler(fig, frame_handler, trackball, light=args.light, fullscreen=args.fullscreen )
+    frame_handler = FrameHandler( frame, mesh, trackball, fill=args.fill, line=args.line, transparent=args.transparent, light=args.light )
+    fig_handler = FigHandler(fig, frame_handler, trackball, fullscreen=args.fullscreen )
 
     gp.show()
 
