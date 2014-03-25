@@ -20,6 +20,13 @@ simulation while it is running, then maybe glumpy can help you.
 glumpy is made on top of PyOpenGL (http://pyopengl.sourceforge.net/) 
 
 
+
+forks
+-----
+
+#. https://github.com/davidcox/glumpy  key binding extension
+
+
 alternatives
 --------------
 

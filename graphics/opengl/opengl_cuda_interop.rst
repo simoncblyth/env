@@ -8,6 +8,15 @@ Objectives
 #. visualize Chroma/CUDA calculated photon propagations
 #. sharing to avoid duplication in GPU memory 
 
+Overview
+--------
+
+Two aspects:
+
+#. getting CUDA and OpenGL to work together 
+#. finding useful way of presenting CUDA and OpenGL pixels together 
+
+
 What can be shared ?
 ---------------------
 
@@ -15,20 +24,20 @@ What can be shared ?
 * pixel array results from Chroma/CUDA ray tracing
 * photon propagation position histories 
 
+* TODO: tot up memory usage from Chroma, how much from BVH nodes, vertices, faces (materials and surfaces expected to be negligible)
 
-GLUT Overlay
--------------
 
-* http://pyopengl.sourceforge.net/documentation/manual-3.0/glutEstablishOverlay.html
+PBO interop
+------------
 
-GLSL shader texture overlay
-----------------------------
+Pixel Buffer Objects, seem to be the way to handover CUDA derived pixels to OpenGL without 
+taking the slow route via the host. Pixels always stay on the GPU, unless need to write 
+an image file.
 
-* http://stackoverflow.com/questions/12218419/overlay-an-image-over-video-using-opengl-es-shaders
-* http://www.clockworkcoders.com/oglsl/tutorial8.htm
-* http://antongerdelan.net/opengl/overlays.html
+* http://www.drdobbs.com/architecture-and-design/cuda-supercomputing-for-the-masses-part/222600097
 
-VBO level interop
+
+VBO interop
 ---------------------
 
 * http://www.icp.uni-stuttgart.de/~icp/CUDA_examples
@@ -104,5 +113,27 @@ Adapt to visualize Chroma photons
 This looks to be a good way for visualizing simulated photons, but not ray traced pixels.
 
 
+
+
+Presenting CUDA derived pixels together with OpenGL ones 
+---------------------------------------------------------
+
+Texture pinned to the far plane ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://www.opengl.org/discussion_boards/showthread.php/174191-texture-as-a-background
+
+
+GLUT Overlay
+~~~~~~~~~~~~~~
+
+* http://pyopengl.sourceforge.net/documentation/manual-3.0/glutEstablishOverlay.html
+
+GLSL shader texture overlay
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* http://stackoverflow.com/questions/12218419/overlay-an-image-over-video-using-opengl-es-shaders
+* http://www.clockworkcoders.com/oglsl/tutorial8.htm
+* http://antongerdelan.net/opengl/overlays.html
 
 
