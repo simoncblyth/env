@@ -3,9 +3,25 @@
 import os, logging
 log = logging.getLogger(__name__)
 import numpy as np
-from npcommon import printoptions
-
+import numpy.core.arrayprint as arrayprint
+import contextlib
 from env.geant4.geometry.collada.daenode import DAENode 
+
+@contextlib.contextmanager
+def printoptions(strip_zeros=True, **kwargs):
+    """
+    http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
+    """
+    origcall = arrayprint.FloatFormat.__call__
+    def __call__(self, x, strip_zeros=strip_zeros):
+        return origcall.__call__(self, x, strip_zeros)
+    arrayprint.FloatFormat.__call__ = __call__
+    original = np.get_printoptions()
+    np.set_printoptions(**kwargs)
+    yield 
+    np.set_printoptions(**original)
+    arrayprint.FloatFormat.__call__ = origcall
+
 
 class DAEMesh(object):
     def __init__(self, vertices, triangles, normals=[] ):
@@ -117,7 +133,20 @@ class DAEGeometry(object):
         self.mesh = None
 
     def find_solid(self, target ):
+        """
+        Find by solid by relative indexing into the list of solids loaded 
+        where the target argument begins with "-" or "+". Otherwise
+        find by the absolute geometry index of the target.
+        """
         if target is None:return None
+        if target[0] == "+" or target[0] == "-": 
+            relative = int(target)
+            log.debug("relative target index %s " % relative )
+            return self.solids[relative] 
+        else:
+            return self.find_solid_by_index(target)
+            
+    def find_solid_by_index(self, index):
         selection = filter(lambda _:str(_.index) == target, self.solids)
         if len(selection) == 1:
             focus = selection[0]
