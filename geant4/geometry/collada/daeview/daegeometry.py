@@ -30,6 +30,11 @@ class DAEMesh(object):
         self.normals = normals
 
     def check(self):
+        """
+        Twelve solids fail this, all with same values::
+
+             DAESolid Meshcheck failure DAESolid vertex 267  triangles 528  normals 267   : 4522 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.0 
+        """
         assert np.min(self.triangles) == 0
         #assert np.max(self.triangles) == len(self.vertices)-1 , (np.max(self.triangles), len(self.vertices)-1 )
         if np.max(self.triangles) != len(self.vertices)-1:
@@ -64,6 +69,18 @@ class DAEMesh(object):
         return lower, upper, extent
     bounds_extent = property(_get_bounds_extent)   
 
+
+    def _get_center_extent(self):
+        bounds = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+        center = np.mean(bounds, axis=0)
+        dimensions = bounds[1] - bounds[0]
+        extent = np.max(dimensions)/2.
+        return center, extent
+    center_extent = property(_get_center_extent)   
+
+
+
+
     def smry(self):
         lower, upper = self.bounds
         dimensions = upper - lower
@@ -78,9 +95,9 @@ class DAEMesh(object):
     def __repr__(self):
         return " ".join( [
                            "%s" % self.__class__.__name__,
-                           "vertex %s " % len(self.vertices), 
-                           "triangles %s " % len(self.triangles), 
-                           "normals %s " % len(self.normals), 
+                           "v %s " % len(self.vertices), 
+                           "t %s " % len(self.triangles), 
+                           "n %s " % len(self.normals), 
                            ])
 
 
@@ -111,7 +128,7 @@ class DAESolid(DAEMesh):
         self.index = node.index
         self.id = node.id
         if not self.check():
-            print "DAESolid Meshcheck failure %s " % self
+            log.debug("DAESolid Meshcheck failure %s " % self)
 
 
     def __repr__(self):
@@ -138,7 +155,7 @@ class DAEGeometry(object):
         where the target argument begins with "-" or "+". Otherwise
         find by the absolute geometry index of the target.
         """
-        if target is None:return None
+        if target is None:return self.mesh
         if target[0] == "+" or target[0] == "-": 
             relative = int(target)
             log.debug("relative target index %s " % relative )
@@ -147,7 +164,7 @@ class DAEGeometry(object):
             return self.find_solid_by_index(target)
             
     def find_solid_by_index(self, index):
-        selection = filter(lambda _:str(_.index) == target, self.solids)
+        selection = filter(lambda _:str(_.index) == index, self.solids)
         if len(selection) == 1:
             focus = selection[0]
         else:
@@ -169,10 +186,8 @@ class DAEGeometry(object):
         vertices = np.empty((nv[-1],3), dtype=np.float32)
         triangles = np.empty((nt[-1],3), dtype=np.uint32)
         normals = np.empty((nn[-1],3), dtype=np.float32)
-        #solidmap = {}
 
         for i, solid in enumerate(self.solids):
-            #solidmap[solid.index] = i 
             vertices[nv[i]:nv[i+1]] = solid.vertices
             triangles[nt[i]:nt[i+1]] = solid.triangles + nv[i]   # NB offseting vertex indices
             normals[nn[i]:nn[i+1]] = solid.normals
@@ -181,19 +196,6 @@ class DAEGeometry(object):
         mesh = DAEMesh(vertices, triangles, normals)
         log.info(mesh)
         self.mesh = mesh 
-
-        # these are to allow bound extraction by solid index
-        #self.nv = nv  # vertex index ranges for each solid index
-        #self.solidmap = solidmap
-
-    #def get_vertices(self, solid_index):
-    #    i = self.solidmap[solid_index]
-    #    return self.mesh.vertices[self.nv[i]:self.nv[i+1]]
-    #
-    #def get_bounds(self, solid_index):
-    #    vertices = self.get_vertices(solid_index)
-    #    return np.min(vertices, axis=0), np.max(vertices, axis=0)
-
 
     def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):
         if self.mesh is None:
@@ -204,6 +206,104 @@ class DAEGeometry(object):
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
        
+
+    def make_view(self, target, eye, look, up):
+        """
+        :param target: when None corresponds to the full mesh 
+
+        The transform converts solid frame coordinates expressed in units of the extent
+        into world frame coordinates.
+        """
+        solid = self.find_solid(target) 
+        assert solid
+        center, extent = solid.center_extent
+        transform = BoundsTransform( extent, center )
+        return DAEView(eye, look, up, transform, target )       
+
+ 
+
+class BoundsTransform(object):
+    """
+    :param scale:
+    :param translate:
+
+    The translation is expected to be "scaled already" 
+
+    """ 
+    def __init__(self, extent, center ): 
+        self.extent = extent
+        self.center = center
+
+        matrix = np.identity(4)
+        matrix[0,0] = extent
+        matrix[1,1] = extent
+        matrix[2,2] = extent
+        matrix[:3,3] = center
+
+        self.matrix = matrix
+
+    def __call__(self, v, w=1.):
+        return np.dot( self.matrix, np.append(v,w) )
+
+
+
+
+class DAEView(object):
+    """
+    Changes to model frame _eye/_look/_up made 
+    after instantiation are immediately reflected in 
+    the results obtained from the output properties: eye, look, up, eye_look_up
+
+    The transform and its extent are however fixed.
+    """
+    def __init__(self, eye, look, up, transform, target ):
+        """
+        :param eye:
+        :param look:
+        :param up:
+        :param transform: that takes eye/look/up from model frame to world frame
+        """
+        self._eye = np.array(eye) 
+        self._look = np.array(look)  
+        self._up = np.array(up)     # a direction 
+        pass
+        self.transform = transform
+        self.extent = transform.extent
+        self.target = target
+        pass
+
+    eye  = property(lambda self:self.transform(self._eye))
+    look = property(lambda self:self.transform(self._look))
+    up   = property(lambda self:self.transform(self._up,w=0.))
+
+    def __call__(self, f):
+        log.warn("not an interpolatable view ")
+
+    def _get_eye_look_up(self):
+        t = self.transform
+        eye = t(self._eye)
+        look = t(self._look)
+        up = t(self._up,w=0)
+        return np.concatenate([eye[:3],look[:3],up[:3]])
+    eye_look_up = property(_get_eye_look_up)
+
+    def __repr__(self):
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+            return "target %s extent %10.2f eye %s look %s up %s" % (self.target, self.extent, self._eye, self._look, self._up )  
+    def smry(self):
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+            return "\n".join([
+                    "%s " % self.__class__.__name__,
+                    "p_eye  %s eye  %s " % (self.eye,  self._eye),
+                    "p_look %s look %s " % (self.look, self._look),
+                    "p_up   %s up   %s " % (self.up,   self._up),
+                      ])
+
+
+
+
+
+
 
 class DAEVertexBufferObject(object):
     def __init__(self, vertices, normals, faces, rgba ):
@@ -231,10 +331,29 @@ class DAEVertexBufferObject(object):
 
 
 
+def check_view(geometry):
+    target = "+0"
+    eye = (1,1,1)
+    look = (0,0,0)
+    up = (0,1,0)
+ 
+    view = geometry.make_view( target, eye, look, up)
+    print view 
+
+    view._eye = np.array([1.1,1,1])
+    print view 
+
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    dg = DAEGeometry("3166:3180")
+    dg = DAEGeometry("3153:12230")
     dg.flatten()
+    for i, solid in enumerate(dg.solids):
+        print "%-5s %s " % ( i, solid )
+
+   
+
 
 
 

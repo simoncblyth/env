@@ -17,6 +17,8 @@ TODO
 #. external positioning control, lookat/eye/up   
 #. placemarks
 #. coloring by material
+#. try running on a lesser machine
+
 
 Division of concerns
 ----------------------
@@ -58,13 +60,13 @@ def main():
     geometry = DAEGeometry(args.nodes, path=args.path)
     geometry.flatten()
 
-    scene = DAEScene(args, geometry)
+    scene = DAEScene(geometry, config)
     scene.dump() 
 
     figure = gp.Figure(size=args.size)
     frame = figure.add_frame(size=args.frame)
 
-    vbo = geometry.make_vbo(scale=not scene.target, rgba=args.rgba )
+    vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=args.rgba )
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
     frame_handler = DAEFrameHandler( frame, mesh, scene, config )

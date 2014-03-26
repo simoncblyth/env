@@ -77,41 +77,22 @@ class DAETrackball(gp.Trackball):
 
 
     """
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), extent=1., yfov=50, near=0.01, far=10. , parallel=False, scale=False, lookat=False, eye=None, look=None, up=None):
+    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), yfov=50, near=0.01, far=10. , nearclip=(1e-5,1e6), farclip=(1e-5,1e6)): 
         """
         :param thetaphi:
         :param xyz: 3-tuple position, only used in non-lookat mode 
-        :param extent:
         :param yfov:
 
-
-        Hmm, can i remove eye/look/up from trackball ? 
         Keep trackball for GL_PROJECTION relevant stuff, not GL_MODELVIEW ?
-
         """
-        self.lookat = lookat 
-        self.eye = eye
-        self.look = look
-        self.up = up
-
-        self.extent = extent
-
         self._rotation = [0,0,0,1]
         self._matrix = None
         theta, phi = thetaphi
         self._set_orientation(theta,phi)
 
-        if lookat:
-            self.refextent = extent
-            self._x = 0
-            self._y = 0
-            self._z = 0
-        else:
-            self.refextent = 1.0
-            self._x =  xyz[0]
-            self._y =  xyz[1]
-            self._z =  xyz[2]
-        pass
+        self._x =  xyz[0]
+        self._y =  xyz[1]
+        self._z =  xyz[2]
 
         self._count = 0 
         self._RENORMCOUNT = 97
@@ -121,12 +102,10 @@ class DAETrackball(gp.Trackball):
         self._near = near
         self._far = far
 
-        self.nearclip = 1e-4,1e6
-        self.farclip = 1e-4,1e6
         self.yfovclip = 1.,179.   # extreme angles are handy in parallel projection
+        self.nearclip = nearclip
+        self.farclip = farclip
 
-        self.parallel = parallel
-        self.scale = scale
 
         # vestigial
         self.zoom = 0    
@@ -134,8 +113,8 @@ class DAETrackball(gp.Trackball):
 
 
     def __repr__(self):
-        return "refextent %7.2f yfov %3.1f near %7.3f far %4.1f x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
-            (self.refextent, self._yfov, self._near, self._far, self._x, self._y, self._z, self.theta, self.phi )
+        return "yfov %3.1f near %10.5f far %4.1f x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
+            ( self._yfov, self._near, self._far, self._x, self._y, self._z, self.theta, self.phi )
     __str__ = __repr__
 
 
@@ -171,6 +150,10 @@ class DAETrackball(gp.Trackball):
         self._x += 3*dx/self.width
         self._y += 3*dy/self.height
 
+
+
+
+
     def near_to (self, x, y, dx, dy):
         ''' Change near clipping '''
         self.near += self.near*dy/self.height
@@ -205,18 +188,6 @@ class DAETrackball(gp.Trackball):
 
     def _get_matrix(self):
         return self._matrix
-    #def _set_matrix(self, matrix):
-    #    """ 
-    #    Untested
-    #    """
-    #    self._matrix = matrix
-    #    xyz = matrix[:3,3]
-    #    self._x = xyz[0]
-    #    self._y = xyz[1]
-    #    self._z = -xyz[2]  # maybe need to negate
-    #    q = quaternion_from_matrix(matrix)   
-    #    self._rotation = [q[3],q[0],q[1],q[2]]  # different quaternion rep
-    #matrix = property(_get_matrix, _set_matrix)
     matrix = property(_get_matrix)
 
     def _get_lrbtnf(self):
@@ -231,20 +202,18 @@ class DAETrackball(gp.Trackball):
                    
         """
         aspect = self.aspect
-        near = self._near*self.refextent
-        far = self._far*self.refextent
-
-        #print "aspect %s near %s far %s self._yfov %s " % (aspect, near, far, self._yfov  )
-
+        near = self._near  
+        far = self._far    
         top = near * math.tan(self._yfov*0.5*math.pi/180.0)  
         bottom = -top
         left = aspect * bottom
         right = aspect * top 
 
-        return left,right,bottom,top,near,far 
+        return np.array([left,right,bottom,top,near,far]) 
 
     lrbtnf = property(_get_lrbtnf)
 
 
 
-
+if __name__ == '__main__':
+    pass

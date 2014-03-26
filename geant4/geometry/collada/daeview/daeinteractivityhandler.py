@@ -33,6 +33,7 @@ class DAEInteractivityHandler(object):
         self.frame_handler = frame_handler
         self.scene = scene
         self.trackball = scene.trackball
+        self.view = scene.view
         # 
         self.zoom_mode = False
         self.pan_mode = False
@@ -46,7 +47,7 @@ class DAEInteractivityHandler(object):
         fig.push(self)   # event notification
 
     def _get_title(self):
-        return "%s" % repr(self.trackball)
+        return "%s %s %s" % (repr(self.frame_handler),repr(self.view),repr(self.trackball))
     title = property(_get_title)     
 
     def redraw(self):
@@ -72,13 +73,14 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
-        elif symbol == key.UP: self.trackball.yfov += 5.
-        elif symbol == key.DOWN: self.trackball.yfov += -5.
+        elif symbol == key.UP: self.frame_handler.tweak_scale(2.0)
+        elif symbol == key.DOWN: self.frame_handler.tweak_scale(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
         elif symbol == key.L: self.frame_handler.toggle_line()
         elif symbol == key.F: self.frame_handler.toggle_fill()
         elif symbol == key.T: self.frame_handler.toggle_transparent()
         elif symbol == key.P: self.frame_handler.toggle_parallel()
+        elif symbol == key.M: self.frame_handler.toggle_animate()
         else:
             print "no action for on_key_press with symbol 0x%x " % symbol
         pass 
@@ -120,8 +122,8 @@ class DAEInteractivityHandler(object):
     def on_mouse_scroll(self, x, y, dx, dy):
         print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)   # none of these
 
-    #def on_idle(self, dt):
-    #    print 'Idle event ', dt
+    def on_idle(self, dt):
+        self.frame_handler.tick(dt)
 
 
 

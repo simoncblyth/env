@@ -36,6 +36,53 @@ Identify target via relative to node list (starting with `+` or `-`) or absolute
       # when using a sensible default node list, this is convenient 
 
 
+
+Animation
+~~~~~~~~~~~
+
+::
+
+    (chroma_env)delta:daeview blyth$ ./daegeometry.py > solids.txt
+    INFO:env.geant4.geometry.collada.daenode:DAENode.parse pycollada parse /Users/blyth/env/geant4/geometry/materials/g4_00.dae 
+    INFO:__main__:Flattening 9077 DAESolid into one DAEMesh...
+    INFO:__main__:DAEMesh v 1234834  t 2438640  n 1234834 
+    (chroma_env)delta:daeview blyth$ vi solids.txt 
+    (chroma_env)delta:daeview blyth$ grep ball solids.txt
+    (chroma_env)delta:daeview blyth$ grep Ball solids.txt
+    1369  DAESolid v 267  t 528  n 267   : 4522 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.0   
+    1372  DAESolid v 267  t 528  n 267   : 4525 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.1   
+    1375  DAESolid v 267  t 528  n 267   : 4528 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.2   
+    1389  DAESolid v 267  t 528  n 267   : 4542 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.0   
+    1477  DAESolid v 267  t 528  n 267   : 4630 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.1   
+    1559  DAESolid v 267  t 528  n 267   : 4712 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.2   
+    3029  DAESolid v 267  t 528  n 267   : 6182 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.3   
+    3032  DAESolid v 267  t 528  n 267   : 6185 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.4   
+    3035  DAESolid v 267  t 528  n 267   : 6188 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.5   
+    3049  DAESolid v 267  t 528  n 267   : 6202 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.3   
+    3137  DAESolid v 267  t 528  n 267   : 6290 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.4   
+    3219  DAESolid v 267  t 528  n 267   : 6372 __dd__Geometry__CalibrationSources__lvLedSourceShell--pvDiffuserBall0xabe00c8.5   
+    (chroma_env)delta:daeview blyth$ 
+    (chroma_env)delta:daeview blyth$ daeviewgl.py -t +0 -j +1369,+1372,+1375,+1389,+1477,+1559,+3029,+3032,+3035,+3049,+3137,+3219 --near 1e-5
+
+
+
+Bizarre
+~~~~~~~~
+
+Issues when small extent ?
+
+::
+
+    daeviewgl.py -t +1369
+
+    daeviewgl.py -n 4522,4525,4528,4542,4630,4712
+
+    daeviewgl.py -n 4522:4712 -t 4522
+
+
+
+
+
 Presentation
 ~~~~~~~~~~~~~
 

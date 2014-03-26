@@ -2,11 +2,61 @@
 """
 
 
-"""
+Division of concerns
 
+`DAEFrameHandler`
+         visual presentation
+`DAETrackball`
+         rotation and projection
+`DAEView`
+         position
+
+
+lights
+------
+
+* http://www.opengl.org/archives/resources/faq/technical/lights.htm
+
+* http://www.talisman.org/opengl-1.1/Reference/glLight.html
+
+The position is transformed by the modelview matrix when glLight is called
+(just as if it were a point), and it is stored in eye coordinates. If the w
+component of the position is 0, the light is treated as a directional source.
+Diffuse and specular lighting calculations take the light's direction, but not
+its actual position, into account, and attenuation is disabled. Otherwise,
+diffuse and specular lighting calculations are based on the actual location of
+the light in eye coordinates, and attenuation is enabled. The initial position
+is (0, 0, 1, 0); thus, the initial light source is directional, parallel to,
+and in the direction of the -Z axis.
+
+
+gluLookAt
+-----------
+
+* http://www.opengl.org/archives/resources/faq/technical/viewing.htm
+
+gluLookAt() takes an eye position, a position to look at, and an up vector, 
+all in object space coordinates and computes the inverse camera transform according to
+its parameters and multiplies it onto the current matrix stack.
+
+The GL_PROJECTION matrix should contain only the projection transformation
+calls it needs to transform eye space coordinates into clip coordinates.
+
+The GL_MODELVIEW matrix, as its name implies, should contain modeling and
+viewing transformations, which transform object space coordinates into eye
+space coordinates. Remember to place the camera transformations on the
+GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
+
+Think of the projection matrix as describing the attributes of your camera,
+such as field of view, focal length, fish eye lens, etc. Think of the ModelView
+matrix as where you stand with the camera and the direction you point it.
+
+
+"""
+import math
+import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
-
 
 def gl_modelview_matrix():
     return gl.glGetDoublev( gl.GL_MODELVIEW_MATRIX )
@@ -14,21 +64,49 @@ def gl_modelview_matrix():
 def gl_projection_matrix():
     return gl.glGetDoublev( gl.GL_PROJECTION_MATRIX )
 
+def oscillate( count, low, high, speed ):
+    return low + (high-low)*(math.sin(count*math.pi*speed)+1.)/2.
+
+
+
+count = 0 
 
 class DAEFrameHandler(object):
+    """
+    Handles event notifications from the frame: `on_init` and `on_draw`
+    """
     def __init__(self, frame, mesh, scene, config ):
         self.frame = frame
         self.mesh = mesh
+        pass
         self.scene = scene
         self.trackball = scene.trackball
+        self.view = scene.view
+        
+        lookat = not scene.scaled_mode
+        if lookat:
+            scale = scene.extent
+        else:
+            scale = 1.
+
+        self.lookat = lookat 
+        self.scale = scale
+        self.tweak = 1.
+
         pass
         args = config.args
         self.fill = args.fill
         self.line = args.line
         self.transparent = args.transparent
         self.light = args.light
+        self.parallel = args.parallel
+        self.animate = False
+        self.speed = args.speed
         pass
-        frame.push(self) # declares this object to handle event notifications from the frame
+        frame.push(self) 
+
+    def __repr__(self):
+        return "scale %7.2f tweak %7.2f " %  (self.scale, self.tweak )
 
     # toggles invoked by Interactivity Handler
     def toggle_fill(self):
@@ -38,26 +116,30 @@ class DAEFrameHandler(object):
     def toggle_transparent(self):
         self.transparent = not self.transparent
     def toggle_parallel(self):
-        self.trackball.parallel = not self.trackball.parallel
+        self.parallel = not self.parallel
+    def toggle_animate(self):
+        self.animate = not self.animate
+    def tweak_scale(self, factor ):
+        self.tweak *= factor
 
+    def tick(self, dt):
+        """
+        invoked from Interactivity handlers on_idle as this is not getting those notifications
+
+        hmm better way to prevent this being called too often ?
+        """
+        if not self.animate:return
+        global count
+        count += 1  
+        self.view(count, self.speed)
+        self.frame.redraw() 
 
     def on_init(self):
         """
-        Enabling lights 0,1,2 gives acceptable lighting 
-        with a white background. Enabling them singly 
-        gives nasty red/green/blue lighting and background.
-
-        glumpy.Figure.on_init sets up the RGB lights before dispatch
-        to all figures
-
-        http://www.opengl.org/archives/resources/faq/technical/lights.htm
-
+        glumpy.Figure.on_init sets up the RGB lights before dispatch to all figures
         """
-        print "FrameHandler on_init"
         if self.light:
-            refextent = self.trackball.refextent
-            print "FrameHandler enabling lights %s " % refextent
-            self.lights(refextent, w=1.0)
+            self.lights(self.scale, w=1.0)
         pass
 
     def lights(self, d, w=0.):
@@ -65,18 +147,7 @@ class DAEFrameHandler(object):
         With w=0. get at very colorful render,  that changes 
         to different colors as rotate around.
 
-        * http://www.talisman.org/opengl-1.1/Reference/glLight.html
-
-        The position is transformed by the modelview matrix when glLight is called
-        (just as if it were a point), and it is stored in eye coordinates. If the w
-        component of the position is 0, the light is treated as a directional source.
-        Diffuse and specular lighting calculations take the light's direction, but not
-        its actual position, into account, and attenuation is disabled. Otherwise,
-        diffuse and specular lighting calculations are based on the actual location of
-        the light in eye coordinates, and attenuation is enabled. The initial position
-        is (0, 0, 1, 0); thus, the initial light source is directional, parallel to,
-        and in the direction of the -Z axis.
-
+        scale is not enough, need to transform the positions
         """
         gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 0.0, 0.0, 1.0))
         gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 1.0))
@@ -99,65 +170,51 @@ class DAEFrameHandler(object):
         gl.glEnable (gl.GL_LIGHT2)   
 
     def light_position(self, d, w=0.):
+        """
+        Hmm to place the lights in world frame, need to rustle up appropriate 
+        coordinates equivalent to the old scaled regime. Cannot just set d and
+        hope for the best that just corresponds to a scaling, there is offset too.
+        """
         gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,( -d,   d,   d,   w))
         gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(  d,   d,   d,   w))
         gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION,(0.0,  -d,   d,   w))
 
-    def gluLookAt(self, trackball):
-        """ 
-        * http://www.opengl.org/archives/resources/faq/technical/viewing.htm
+    def push(self):
 
-        gluLookAt() takes an eye position, a position to look at, and an up vector, 
-        all in object space coordinates and computes the inverse camera transform according to
-        its parameters and multiplies it onto the current matrix stack.
+        scene = self.scene
+        trackball = self.trackball
+        view = self.view
+        scale = self.scale
+        factor = scale*self.tweak
 
-        The GL_PROJECTION matrix should contain only the projection transformation
-        calls it needs to transform eye space coordinates into clip coordinates.
-
-        The GL_MODELVIEW matrix, as its name implies, should contain modeling and
-        viewing transformations, which transform object space coordinates into eye
-        space coordinates. Remember to place the camera transformations on the
-        GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
-
-        Think of the projection matrix as describing the attributes of your camera,
-        such as field of view, focal length, fish eye lens, etc. Think of the ModelView
-        matrix as where you stand with the camera and the direction you point it.
-
-        """
-        eye, look, up = trackball.eye, trackball.look, trackball.up
-        glu.gluLookAt(eye[0],eye[1],eye[2],look[0],look[1],look[2],up[0],up[1],up[2])
-
-    def push(self, trackball):
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        refextent = trackball.refextent
-        if trackball.lookat:
-            gl.glTranslate ( trackball._x*refextent, trackball._y*refextent, -trackball._z*refextent )
-            gl.glMultMatrixf (trackball._matrix)
-            self.gluLookAt(trackball)        # puts the camera at origin looking down Z
+        gl.glTranslate ( trackball._x*factor, trackball._y*factor, -trackball._z*factor )
+        gl.glMultMatrixf (trackball._matrix )   # rotation only 
+
+        if self.lookat:
+            glu.gluLookAt( *view.eye_look_up )
         else:
-            gl.glTranslate (trackball._x, trackball._y, -trackball._z )
-            gl.glMultMatrixf (trackball._matrix)
-        pass
+            pass   # positioned via vbo scaling and centering  
+
 
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        lrbtnf = trackball.lrbtnf 
-        #print "lrbtnf", lrbtnf
-        if trackball.parallel:
+        lrbtnf = trackball.lrbtnf * factor
+        if self.parallel:
             gl.glOrtho ( *lrbtnf )
         else:
             gl.glFrustum ( *lrbtnf )
         pass
-        # refextent scale down to bring near to -1:1 range, in non-lookat mode refextent is 1.0 anyhow 
-        if trackball.lookat:
-            gl.glScalef(1./refextent, 1./refextent, 1./refextent)  
 
-    def pop(self, trackball):
+        gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
+
+
+    def pop(self):
         gl.glMatrixMode(gl.GL_MODELVIEW)
         gl.glPopMatrix()
         gl.glMatrixMode(gl.GL_PROJECTION)
@@ -168,7 +225,7 @@ class DAEFrameHandler(object):
         self.frame.lock()
         self.frame.draw()
 
-        self.push(self.trackball)  # sets up the matrices
+        self.push() # matrices
 
         #if self.light:
         #    self.light_position( 0.9, 1.)   # reset positions following changes to MODELVIEW matrix ?
@@ -205,7 +262,7 @@ class DAEFrameHandler(object):
             gl.glDisable( gl.GL_BLEND )
             gl.glDisable( gl.GL_LINE_SMOOTH )
 
-        self.pop(self.trackball)
+        self.pop() # matrices
         self.frame.unlock()
 
 
