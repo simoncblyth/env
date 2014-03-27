@@ -18,10 +18,15 @@ Controls
   also **UP** and **DOWN** arrow yets changes yfov in 5 degrees increments within
   range of 5 to 175 degrees. Extreme wideangle is useful when using parallel projection. 
 
+* **H** trackball home, reset trackball translation and rotation offsets to zero
+* **M** start interpolation
 
 """
 import sys
 from glumpy.window import key
+
+from daedispatcher import DAEDispatcher
+
 
 
 class DAEInteractivityHandler(object):
@@ -44,7 +49,21 @@ class DAEInteractivityHandler(object):
         if config.args.fullscreen:
             self.toggle_fullscreen()
         pass
-        fig.push(self)   # event notification
+
+        fig.push(self)               # event notification from fig 
+        self.hookup_dispatcher()     # event notification from dispatcher
+
+    def hookup_dispatcher(self):
+        """
+        dispatchers collect messages over UDP, allowing remote control
+        """
+        dispatcher = DAEDispatcher()
+        
+        def _check_dispatcher(dt):
+            dispatcher.update()
+        timer = self.fig.timer(60.)  # fps
+        timer(_check_dispatcher) 
+        dispatcher.push_handlers(self)   # get event notification from dispatcher
 
     def _get_title(self):
         return "%s %s %s" % (repr(self.frame_handler),repr(self.view),repr(self.trackball))
@@ -63,6 +82,9 @@ class DAEInteractivityHandler(object):
     def on_init(self):
         self.fig.window.set_title(self.title)
 
+    def on_external_message(self, msg ):
+        self.scene.external_message(msg)
+
     def on_draw(self):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
 
@@ -75,14 +97,19 @@ class DAEInteractivityHandler(object):
         elif symbol == key.Y: self.yfov_mode = True
         elif symbol == key.UP: self.frame_handler.tweak_scale(2.0)
         elif symbol == key.DOWN: self.frame_handler.tweak_scale(0.5)
+        elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
+        elif symbol == key.LEFT: self.frame_handler.animation_speed(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
+        elif symbol == key.H: self.trackball.home()
+        elif symbol == key.B: self.scene.bookmark()
         elif symbol == key.L: self.frame_handler.toggle_line()
         elif symbol == key.F: self.frame_handler.toggle_fill()
         elif symbol == key.T: self.frame_handler.toggle_transparent()
         elif symbol == key.P: self.frame_handler.toggle_parallel()
         elif symbol == key.M: self.frame_handler.toggle_animate()
         else:
-            print "no action for on_key_press with symbol 0x%x " % symbol
+            pass
+            #print "no action for on_key_press with symbol 0x%x " % symbol
         pass 
         self.redraw()
 
@@ -93,7 +120,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
         else:
-            print "no action for on_key_release with symbol 0x%x " % symbol
+            pass
+            #print "no action for on_key_release with symbol 0x%x " % symbol
         pass
         self.redraw()
 
@@ -110,10 +138,12 @@ class DAEInteractivityHandler(object):
         self.redraw()
 
     def on_mouse_press(self, x, y, button):
-        print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
+        pass
+        if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
 
     def on_mouse_release(self, x, y, button):
-        print 'Mouse button released (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
+        pass
+        if button != 2:print 'Mouse button released (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
 
     def on_mouse_motion(self, x, y, dx, dy):
         pass

@@ -12,24 +12,6 @@ Division of concerns
          position
 
 
-lights
-------
-
-* http://www.opengl.org/archives/resources/faq/technical/lights.htm
-
-* http://www.talisman.org/opengl-1.1/Reference/glLight.html
-
-The position is transformed by the modelview matrix when glLight is called
-(just as if it were a point), and it is stored in eye coordinates. If the w
-component of the position is 0, the light is treated as a directional source.
-Diffuse and specular lighting calculations take the light's direction, but not
-its actual position, into account, and attenuation is disabled. Otherwise,
-diffuse and specular lighting calculations are based on the actual location of
-the light in eye coordinates, and attenuation is enabled. The initial position
-is (0, 0, 1, 0); thus, the initial light source is directional, parallel to,
-and in the direction of the -Z axis.
-
-
 gluLookAt
 -----------
 
@@ -53,10 +35,17 @@ matrix as where you stand with the camera and the direction you point it.
 
 
 """
+import logging
+log = logging.getLogger(__name__)
 import math
 import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
+
+
+from daegeometry import Transform
+from daelights import DAELights
+
 
 def gl_modelview_matrix():
     return gl.glGetDoublev( gl.GL_MODELVIEW_MATRIX )
@@ -81,13 +70,18 @@ class DAEFrameHandler(object):
         pass
         self.scene = scene
         self.trackball = scene.trackball
-        self.view = scene.view
+        #self.view = scene.view
         
         lookat = not scene.scaled_mode
         if lookat:
             scale = scene.extent
+            #transform = scene.view.current_view.model2world 
+            transform = scene.geometry.mesh.model2world 
+            #transform = Transform()
+            log.info("mesh\n%s" % scene.geometry.mesh.smry() )
         else:
             scale = 1.
+            transform = Transform()
 
         self.lookat = lookat 
         self.scale = scale
@@ -103,6 +97,9 @@ class DAEFrameHandler(object):
         self.animate = False
         self.speed = args.speed
         pass
+
+        self.lights = DAELights( transform, config )
+
         frame.push(self) 
 
     def __repr__(self):
@@ -121,6 +118,9 @@ class DAEFrameHandler(object):
         self.animate = not self.animate
     def tweak_scale(self, factor ):
         self.tweak *= factor
+    def animation_speed(self, factor ):   
+        self.speed *= factor
+
 
     def tick(self, dt):
         """
@@ -131,7 +131,7 @@ class DAEFrameHandler(object):
         if not self.animate:return
         global count
         count += 1  
-        self.view(count, self.speed)
+        self.scene.view(count, self.speed)
         self.frame.redraw() 
 
     def on_init(self):
@@ -139,53 +139,17 @@ class DAEFrameHandler(object):
         glumpy.Figure.on_init sets up the RGB lights before dispatch to all figures
         """
         if self.light:
-            self.lights(self.scale, w=1.0)
+            self.lights.setup()
+            log.info("on_init lights\n%s" % str(self.lights))
         pass
-
-    def lights(self, d, w=0.):
-        """
-        With w=0. get at very colorful render,  that changes 
-        to different colors as rotate around.
-
-        scale is not enough, need to transform the positions
-        """
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 0.0, 0.0, 1.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 1.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,( -d,   d,   d,   w))
-
-        gl.glLightfv (gl.GL_LIGHT1, gl.GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
-        gl.glLightfv (gl.GL_LIGHT1, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT1, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(  d,   d,   d,   w))
-
-        gl.glLightfv (gl.GL_LIGHT2, gl.GL_DIFFUSE, (0.0, 0.0, 1.0, 1.0))
-        gl.glLightfv (gl.GL_LIGHT2, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT2, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
-        gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION,(0.0,  -d,   d,   w))
-
-        gl.glEnable (gl.GL_LIGHTING) # with just this line tis very dark, but no nasty red
-        gl.glEnable (gl.GL_LIGHT0)  
-        gl.glEnable (gl.GL_LIGHT1)  
-        gl.glEnable (gl.GL_LIGHT2)   
-
-    def light_position(self, d, w=0.):
-        """
-        Hmm to place the lights in world frame, need to rustle up appropriate 
-        coordinates equivalent to the old scaled regime. Cannot just set d and
-        hope for the best that just corresponds to a scaling, there is offset too.
-        """
-        gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,( -d,   d,   d,   w))
-        gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(  d,   d,   d,   w))
-        gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION,(0.0,  -d,   d,   w))
 
     def push(self):
 
         scene = self.scene
         trackball = self.trackball
-        view = self.view
+        view = self.scene.view
         scale = self.scale
-        factor = scale*self.tweak
+        factor = scale*self.tweak  # enhance trackball action, without changing extent
 
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
@@ -196,15 +160,16 @@ class DAEFrameHandler(object):
 
         if self.lookat:
             glu.gluLookAt( *view.eye_look_up )
-        else:
-            pass   # positioned via vbo scaling and centering  
+
+        if self.light:
+            self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
 
 
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        lrbtnf = trackball.lrbtnf * factor
+        lrbtnf = trackball.lrbtnf * scale
         if self.parallel:
             gl.glOrtho ( *lrbtnf )
         else:
@@ -226,9 +191,6 @@ class DAEFrameHandler(object):
         self.frame.draw()
 
         self.push() # matrices
-
-        #if self.light:
-        #    self.light_position( 0.9, 1.)   # reset positions following changes to MODELVIEW matrix ?
 
         if self.fill:
             if self.transparent:

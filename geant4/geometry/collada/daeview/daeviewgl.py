@@ -41,7 +41,7 @@ Division of concerns
 
 
 """
-import os, logging
+import os, logging, socket
 log = logging.getLogger(__name__)
 
 import glumpy as gp  
@@ -52,10 +52,13 @@ from daescene import DAEScene
 from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
 
+
+
 def main():
 
     config = DAEConfig(__doc__)
     args = config.args
+    print config.commandline()
 
     geometry = DAEGeometry(args.nodes, path=args.path)
     geometry.flatten()

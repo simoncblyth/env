@@ -5,12 +5,40 @@ Coordination class
 Seek to split trackball into separate rotation
 and translation portions.
 
+
+Next
+-----
+
+#. CUDA/Chroma OpenGL interop, experiment with PBOs
+
+#. light positioning using appropriate top level mesh transforms
+
+#. placemarks, write the commandline to return to a viewpoint and camera configuration
+   in response to a key press, this will entail world2model transforms to get the 
+   parameters in model frame of the current target volume
+
+#. visual bounding boxes
+
+#. trackball home, to return to current target standard position 
+
+   * trackball translations and rotations apply on top of the view lookAt transformation 
+     so when animating between views this means can be offset from the view sequence.  
+
+#. animation speed control, speed dependant on distance 
+
+#. solid picking, click and see material/surface properties 
+
+   * gluUnProject gives world space coordinates from mouse position and the matrices
+   * find the deepest volume bbox that contains the clicked point 
+   * interactive target switching 
+
 """
 import logging
 log = logging.getLogger(__name__)
 import numpy as np
 from daetrackball import DAETrackball
 from daeinterpolateview import DAEInterpolateView
+
 
 
 class DAEScene(object):
@@ -25,21 +53,24 @@ class DAEScene(object):
         self.config = config
         self.geometry = geometry  
 
-        view = geometry.make_view( args.target, args.eye, args.look, args.up )
+        # perhaps coalesce target and jump targets, whereby animation then makes sense 
+        # when have multiple targets
+        # would avoid the disconnect of view being a different class when jump is enabled
+
+        #meshextent = geometry.mesh.extent # of all nodes loaded
+
+        view = self.change_view( args.target )
         self.extent = view.extent
+        self.view = view        
 
         if args.jump:
-            views  = [view]
-            views += [geometry.make_view( jump, args.eye, args.look, args.up ) for jump in args.jump.split(",")]
-            view = DAEInterpolateView(views)
-
-        self.view = view        
+            self.view = self.interpolate_view(args.jump)
 
         kwa = {}
         kwa['thetaphi'] = args.thetaphi
         kwa['yfov'] = args.yfov
-        kwa['near'] = args.near
-        kwa['far'] = args.far
+        kwa['near'] = args.near * self.extent
+        kwa['far'] = args.far * self.extent
         kwa['nearclip'] = args.nearclip
         kwa['farclip'] = args.farclip
 
@@ -52,12 +83,45 @@ class DAEScene(object):
     def __repr__(self):
         return ""
 
+    def bookmark(self):
+        log.info("bookmark") 
+        print self.view.current_view
+
+    def external_message(self, msg ):
+        pass
+        log.info("external_message [%s]" % msg) 
+        elems = msg.split(" ")
+        if len(elems)==2:
+            if elems[0] == "-j":
+                view = self.interpolate_view(elems[1]) 
+                self.view = view
+                log.info("external_message triggered interpolated_view, press M to run the movie" )
+            elif elems[0] == "-t":
+                view = self.change_view(elems[1]) 
+                log.info("external_message triggered change_view" )
+                self.view = view
+                #self.frame.redraw() 
+            else:
+                log.info("dont understand the message" )
+        else:
+            log.info("expecting two element msg, not [%s]" % msg )   
+
+
+    def change_view(self, tspec):
+        view = self.geometry.make_view( tspec, self.config.args )
+        log.info("change_view tspec[%s]" % tspec  )
+        return view
+     
+    def interpolate_view(self, jspec):
+        views  = [self.view.current_view]
+        views += [self.geometry.make_view( j, self.config.args ) for j in jspec.split(":")]
+        view = DAEInterpolateView(views)
+        log.info("interpolated_view movie sequence with %s views " % len(views))
+        return view
+
     def dump(self):
         print "view\n", self.view
         print "trackball\n", self.trackball
-
-
-
 
 
 if __name__ == '__main__':

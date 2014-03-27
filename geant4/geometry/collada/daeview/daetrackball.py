@@ -112,6 +112,12 @@ class DAETrackball(gp.Trackball):
         self.distance = 0 
 
 
+    def home(self):
+        self._x = 0.
+        self._y = 0.
+        self._z = 0.
+        self._set_orientation(0,0)
+
     def __repr__(self):
         return "yfov %3.1f near %10.5f far %4.1f x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
             ( self._yfov, self._near, self._far, self._x, self._y, self._z, self.theta, self.phi )

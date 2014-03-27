@@ -21,6 +21,16 @@ def sawtooth( frame, low, high, speed ):
 
 
 class DAEInterpolateView(object):
+    """
+    could swap `current_view` as f > 0.5, no too confusing 
+    keep current as the "A" view, 
+    only moving to the next view at the next cycle 
+    (when the original "B" view becomes the "A" view of the next cycle)
+
+    How to change animation speed without changing position 
+    in the interpolation ?
+
+    """
     def __init__(self, views):
         assert len(views) > 1
         self.views = views
@@ -29,6 +39,9 @@ class DAEInterpolateView(object):
         self.f = 0.
 
     nviews = property(lambda self:len(self.views))  # could add a view during operation ?
+
+    current_view = property(lambda self:self.views[self.i])   
+    next_view = property(lambda self:self.views[self.j])
 
     def define_pair(self, i , j ):
         self.i = i  
@@ -39,8 +52,8 @@ class DAEInterpolateView(object):
         self.cycle += 1
 
     def next_cycle(self):
-        i = (self.i + 1) % (self.nviews - 1)           
-        j = (self.j + 1) % (self.nviews - 1)           
+        i = (self.i + 1) % self.nviews           
+        j = (self.j + 1) % self.nviews            
         self.define_pair(i,j )
 
     def __call__(self, count, speed):
@@ -67,7 +80,7 @@ class DAEInterpolateView(object):
             
 
     def __repr__(self):
-        return "%s f %s A %s B %s nviews %s " % ( self.__class__.__name__, f, self.views[self.i], self.views[self.j], self.nviews) 
+        return "%s f %s A %s B %s nviews %s " % ( self.__class__.__name__, self.f, self.views[self.i], self.views[self.j], self.nviews) 
 
     def _get_eye_look_up(self):
         """Linear interpolation of two 9 element arrays """
@@ -80,10 +93,14 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    views = map(DummyView, np.arange(1,10))
+
+    nview = 2
+    views = map(DummyView, np.arange(0,nview))
+    print views
+
     view = DAEInterpolateView( views) 
 
-    for frame in range(1000):
+    for frame in range(100):
         view(frame, 0.1)        
         #print view
         

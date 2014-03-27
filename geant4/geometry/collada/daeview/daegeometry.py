@@ -78,9 +78,16 @@ class DAEMesh(object):
         return center, extent
     center_extent = property(_get_center_extent)   
 
+    def _get_model2world(self):
+        center, extent = self.center_extent
+        return ModelToWorldTransform(extent, center)
+    model2world = property(_get_model2world)
 
-
-
+    def _get_world2model(self):
+        center, extent = self.center_extent
+        return WorldToModelTransform(extent, center)
+    world2model = property(_get_world2model)
+ 
     def smry(self):
         lower, upper = self.bounds
         dimensions = upper - lower
@@ -155,7 +162,7 @@ class DAEGeometry(object):
         where the target argument begins with "-" or "+". Otherwise
         find by the absolute geometry index of the target.
         """
-        if target is None:return self.mesh
+        if target is None or target == "":return self.mesh
         if target[0] == "+" or target[0] == "-": 
             relative = int(target)
             log.debug("relative target index %s " % relative )
@@ -207,22 +214,66 @@ class DAEGeometry(object):
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
        
 
-    def make_view(self, target, eye, look, up):
+
+    def interpret_vspec( self, vspec, args ):
+        """
+        Interpret view specification strings like the below into
+        target, eye, look, up::
+
+           2000
+           +0
+           +1
+           -1
+           2000_0,1,1
+           2000_-1,-1,-1
+           2000_-1,-1,-1
+           2000_-1,-1,-1_0,0,1
+           2000_-1,-1,-1_0,0,1_0,0,1
+
+        """
+        target = None
+        eye = args.eye
+        look = args.look
+        up = args.up
+   
+        velem = vspec.split("_") if not vspec is None else [] 
+        fvec_ = lambda _:map(float, _.split(","))
+
+        nelem = len(velem)
+        if nelem > 0: 
+            target = velem[0]
+        if nelem > 1:
+            eye = fvec_(velem[1])
+        if nelem > 2:
+            look = fvec_(velem[2])
+        if nelem > 3:
+            up = fvec_(velem[3])
+
+        return target, eye, look, up
+
+
+    def make_view(self, vspec, args):
         """
         :param target: when None corresponds to the full mesh 
 
         The transform converts solid frame coordinates expressed in units of the extent
         into world frame coordinates.
         """
+        target, eye, look, up = self.interpret_vspec( vspec, args )
         solid = self.find_solid(target) 
         assert solid
-        center, extent = solid.center_extent
-        transform = BoundsTransform( extent, center )
-        return DAEView(eye, look, up, transform, target )       
-
+        model2world = solid.model2world
+        world2model = solid.world2model
+        return DAEView(eye, look, up, model2world, world2model, target )    # use solid ?    
  
 
-class BoundsTransform(object):
+class Transform(object):
+    def __init__(self):
+        self.matrix = np.identity(4)
+    def __call__(self, v, w=1.):
+        return np.dot( self.matrix, np.append(v,w) )
+
+class ModelToWorldTransform(Transform):
     """
     :param scale:
     :param translate:
@@ -230,22 +281,28 @@ class BoundsTransform(object):
     The translation is expected to be "scaled already" 
 
     """ 
+    invert = False
     def __init__(self, extent, center ): 
         self.extent = extent
         self.center = center
 
+        if self.invert:
+            scale = 1./extent
+            translate = -center
+        else: 
+            scale = extent
+            translate = center
+
         matrix = np.identity(4)
-        matrix[0,0] = extent
-        matrix[1,1] = extent
-        matrix[2,2] = extent
-        matrix[:3,3] = center
+        matrix[0,0] = scale
+        matrix[1,1] = scale
+        matrix[2,2] = scale
+        matrix[:3,3] = translate
 
         self.matrix = matrix
 
-    def __call__(self, v, w=1.):
-        return np.dot( self.matrix, np.append(v,w) )
-
-
+class WorldToModelTransform(ModelToWorldTransform):
+    invert = True
 
 
 class DAEView(object):
@@ -256,34 +313,44 @@ class DAEView(object):
 
     The transform and its extent are however fixed.
     """
-    def __init__(self, eye, look, up, transform, target ):
+    def __init__(self, eye, look, up, model2world, world2model, target ):
         """
-        :param eye:
-        :param look:
-        :param up:
-        :param transform: that takes eye/look/up from model frame to world frame
+        :param eye: model frame camera position, typically (1,1,0) or similar
+        :param look: model frame object that camera is pointed at, usually (0,0,0)
+        :param up: model frame up, often (0,0,1)
+        :param model2world: transform from model frame to world frame
+        :param world2model: opposite transfrom back from world frame back into model frame
+        :param target: string identifier for the corresponding solid
         """
         self._eye = np.array(eye) 
         self._look = np.array(look)  
         self._up = np.array(up)     # a direction 
         pass
-        self.transform = transform
-        self.extent = transform.extent
+        self.model2world = model2world
+        self.world2model = world2model
+        assert model2world.extent == world2model.extent
+        self.extent = model2world.extent  
         self.target = target
         pass
 
-    eye  = property(lambda self:self.transform(self._eye))
-    look = property(lambda self:self.transform(self._look))
-    up   = property(lambda self:self.transform(self._up,w=0.))
+    eye  = property(lambda self:self.model2world(self._eye))
+    look = property(lambda self:self.model2world(self._look))
+    up   = property(lambda self:self.model2world(self._up,w=0.))
 
     def __call__(self, f):
         log.warn("not an interpolatable view ")
 
+    current_view = property(lambda self:self)  # mimic DAEInterpolateView 
+    next_view = property(lambda self:None)      
+
     def _get_eye_look_up(self):
-        t = self.transform
-        eye = t(self._eye)
-        look = t(self._look)
-        up = t(self._up,w=0)
+        """
+        Provides eye,look,up in world frame coordinates
+        """
+        model2world = self.model2world
+        eye = model2world(self._eye)
+        look = model2world(self._look)
+        up = model2world(self._up,w=0)
         return np.concatenate([eye[:3],look[:3],up[:3]])
     eye_look_up = property(_get_eye_look_up)
 

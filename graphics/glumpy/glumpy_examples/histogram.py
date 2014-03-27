@@ -36,8 +36,65 @@
 '''
 import numpy as np
 import OpenGL.GL as gl
-from glumpy import figure, Trackball
+from glumpy import figure, Figure, Trackball
 from glumpy.graphics import VertexBuffer, Shader
+
+Figure.register_event_type('on_external_message')
+
+import socket
+
+
+
+from glumpy.window import event
+
+class Conduit(event.EventDispatcher):
+    """
+    # http://www.pyglet.org/doc/programming_guide/creating_your_own_event_dispatcher.html
+    """
+    def __init__(self, port=15006, ip="127.0.0.1"):
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setblocking(0)
+        self.sock.bind((ip,port))
+
+    def update(self):
+        try:
+            data, addr = self.sock.recvfrom(1024)
+            self.click(data)
+        except socket.error:
+            pass   
+
+    def clank(self):
+        self.dispatch_event('on_clank')
+
+    def click(self, clicks):
+        self.dispatch_event('on_clicked', clicks)
+
+    def on_clank(self):
+        print 'Default clank handler.'
+
+Conduit.register_event_type('on_clank')
+Conduit.register_event_type('on_clicked')
+
+conduit = Conduit()
+
+@conduit.event
+def on_clank():
+    pass
+    print "widget.event added clank"
+
+@conduit.event
+def on_clicked(clicks):
+    pass
+    print "clicked", clicks
+
+def override_on_clicked(clicks):
+    pass
+    print "clicked override", clicks
+
+#conduit.push_handlers(on_clicked=override_on_clicked, on_clank=on_clank)
+
+
+
 
 
 def cube(center=(0.0,0.0,0.0), size=(0.5,0.5,1.0), color = (1.0,1.0,1.0)):
@@ -124,7 +181,12 @@ def gaussian(shape=(25,25), width=0.15, center=0.0):
 if __name__ == '__main__':
 
 
+
+    #widget.clank()
+    #widget.click(10)
+
     fig = figure(size=(640,480))
+    #fig.dispatch_event('on_external_message', "hello")
     trackball = Trackball(65, 135, 1., 2.)
     Z = 0.25*gaussian((32,32), center = (.5,.0))
     fill, outline = bars(Z)
@@ -135,6 +197,10 @@ if __name__ == '__main__':
 
     def gl_projection_matrix():
         return gl.glGetDoublev( gl.GL_PROJECTION_MATRIX )
+
+    @fig.event
+    def on_external_message(message):
+        print "external %s " % message
 
     @fig.event
     def on_init():
@@ -160,7 +226,7 @@ if __name__ == '__main__':
         trackball.push()
 
         #print gl_modelview_matrix()
-        print gl_projection_matrix()
+        #print gl_projection_matrix()
 
         gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION,(-1.0,1.0, 1.0, 1.0))
         gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION,(1.0, 1.0, 1.0, 1.0))
@@ -194,6 +260,9 @@ if __name__ == '__main__':
         vertices['position'][:,[0,1,2,3,4,5,8,11,12,15,18,19],2] = T-T.min()+0.001
         fill.upload()
         outline.upload()
+        conduit.update()
+
+
         fig.redraw()
         
 
