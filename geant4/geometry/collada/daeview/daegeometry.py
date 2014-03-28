@@ -3,24 +3,10 @@
 import os, logging
 log = logging.getLogger(__name__)
 import numpy as np
-import numpy.core.arrayprint as arrayprint
-import contextlib
 from env.geant4.geometry.collada.daenode import DAENode 
 
-@contextlib.contextmanager
-def printoptions(strip_zeros=True, **kwargs):
-    """
-    http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
-    """
-    origcall = arrayprint.FloatFormat.__call__
-    def __call__(self, x, strip_zeros=strip_zeros):
-        return origcall.__call__(self, x, strip_zeros)
-    arrayprint.FloatFormat.__call__ = __call__
-    original = np.get_printoptions()
-    np.set_printoptions(**kwargs)
-    yield 
-    np.set_printoptions(**original)
-    arrayprint.FloatFormat.__call__ = origcall
+from daeutil import printoptions, ModelToWorldTransform, WorldToModelTransform
+from daeviewpoint import DAEViewpoint
 
 
 class DAEMesh(object):
@@ -36,7 +22,6 @@ class DAEMesh(object):
              DAESolid Meshcheck failure DAESolid vertex 267  triangles 528  normals 267   : 4522 __dd__Geometry__CalibrationSources__lvWallLedSourceAssy--pvWallLedDiffuserBall0xab71f78.0 
         """
         assert np.min(self.triangles) == 0
-        #assert np.max(self.triangles) == len(self.vertices)-1 , (np.max(self.triangles), len(self.vertices)-1 )
         if np.max(self.triangles) != len(self.vertices)-1:
             return False
         return True
@@ -262,115 +247,10 @@ class DAEGeometry(object):
         target, eye, look, up = self.interpret_vspec( vspec, args )
         solid = self.find_solid(target) 
         assert solid
-        model2world = solid.model2world
-        world2model = solid.world2model
-        return DAEView(eye, look, up, model2world, world2model, target )    # use solid ?    
+        return DAEViewpoint(eye, look, up, solid, target )    # use solid ?    
+
+
  
-
-class Transform(object):
-    def __init__(self):
-        self.matrix = np.identity(4)
-    def __call__(self, v, w=1.):
-        return np.dot( self.matrix, np.append(v,w) )
-
-class ModelToWorldTransform(Transform):
-    """
-    :param scale:
-    :param translate:
-
-    The translation is expected to be "scaled already" 
-
-    """ 
-    invert = False
-    def __init__(self, extent, center ): 
-        self.extent = extent
-        self.center = center
-
-        if self.invert:
-            scale = 1./extent
-            translate = -center
-        else: 
-            scale = extent
-            translate = center
-
-        matrix = np.identity(4)
-        matrix[0,0] = scale
-        matrix[1,1] = scale
-        matrix[2,2] = scale
-        matrix[:3,3] = translate
-
-        self.matrix = matrix
-
-class WorldToModelTransform(ModelToWorldTransform):
-    invert = True
-
-
-class DAEView(object):
-    """
-    Changes to model frame _eye/_look/_up made 
-    after instantiation are immediately reflected in 
-    the results obtained from the output properties: eye, look, up, eye_look_up
-
-    The transform and its extent are however fixed.
-    """
-    def __init__(self, eye, look, up, model2world, world2model, target ):
-        """
-        :param eye: model frame camera position, typically (1,1,0) or similar
-        :param look: model frame object that camera is pointed at, usually (0,0,0)
-        :param up: model frame up, often (0,0,1)
-        :param model2world: transform from model frame to world frame
-        :param world2model: opposite transfrom back from world frame back into model frame
-        :param target: string identifier for the corresponding solid
-        """
-        self._eye = np.array(eye) 
-        self._look = np.array(look)  
-        self._up = np.array(up)     # a direction 
-        pass
-        self.model2world = model2world
-        self.world2model = world2model
-        assert model2world.extent == world2model.extent
-        self.extent = model2world.extent  
-        self.target = target
-        pass
-
-    eye  = property(lambda self:self.model2world(self._eye))
-    look = property(lambda self:self.model2world(self._look))
-    up   = property(lambda self:self.model2world(self._up,w=0.))
-
-    def __call__(self, f):
-        log.warn("not an interpolatable view ")
-
-    current_view = property(lambda self:self)  # mimic DAEInterpolateView 
-    next_view = property(lambda self:None)      
-
-    def _get_eye_look_up(self):
-        """
-        Provides eye,look,up in world frame coordinates
-        """
-        model2world = self.model2world
-        eye = model2world(self._eye)
-        look = model2world(self._look)
-        up = model2world(self._up,w=0)
-        return np.concatenate([eye[:3],look[:3],up[:3]])
-    eye_look_up = property(_get_eye_look_up)
-
-    def __repr__(self):
-        with printoptions(precision=3, suppress=True, strip_zeros=False):
-            return "target %s extent %10.2f eye %s look %s up %s" % (self.target, self.extent, self._eye, self._look, self._up )  
-    def smry(self):
-        with printoptions(precision=3, suppress=True, strip_zeros=False):
-            return "\n".join([
-                    "%s " % self.__class__.__name__,
-                    "p_eye  %s eye  %s " % (self.eye,  self._eye),
-                    "p_look %s look %s " % (self.look, self._look),
-                    "p_up   %s up   %s " % (self.up,   self._up),
-                      ])
-
-
-
-
-
-
 
 class DAEVertexBufferObject(object):
     def __init__(self, vertices, normals, faces, rgba ):

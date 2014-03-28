@@ -112,9 +112,14 @@ class DAETrackball(gp.Trackball):
         self._set_orientation(0,0)
 
     def __repr__(self):
-        return "x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
+        return "T %4.1f/%4.1f/%4.1f %3.1f/%3.1f" % \
             ( self._x, self._y, self._z, self.theta, self.phi )
     __str__ = __repr__
+
+
+    def _get_xyz(self):
+        return np.array([self._x, self._y, -self._z])
+    xyz = property(_get_xyz)
 
 
     def drag_to (self, x, y, dx, dy):

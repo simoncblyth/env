@@ -221,9 +221,6 @@ def invert_homogenous( m ):
     """
     http://www.euclideanspace.com/maths/geometry/affine/matrix4x4/
 
-
-   
-
     This is not a general inversion, it makes 
     use of the special properties of rotation-translation matrices
 

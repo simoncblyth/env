@@ -7,7 +7,7 @@ import numpy as np
 
 
 class DAECamera(object):
-    def __init__(self, size=(640,480), yfov=50, near=0.01, far=10. , nearclip=(1e-5,1e6), farclip=(1e-5,1e6), yfovclip=(1.,179)): 
+    def __init__(self, size=(640,480), yfov=50., near=10., far=20000. , nearclip=(1e-6,1e6), farclip=(1e-6,1e6), yfovclip=(1.,179)): 
 
         self.size = size
         self._yfov = yfov
@@ -24,10 +24,7 @@ class DAECamera(object):
     aspect = property(lambda self:float(self.size[0])/float(self.size[1]))
 
     def __repr__(self):
-        #print "_yfov [%s]" % self._yfov
-        #print "_near [%s]" % self._near
-        #print "_far  [%s]" % self._far
-        return "yfov %3.1f near %10.5f far %4.1f " % ( self._yfov, self._near, self._far )
+        return "C %3.1f/%10.5f/%4.1f " % ( self._yfov, self._near, self._far )
     __str__ = __repr__
 
 

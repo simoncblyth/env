@@ -43,6 +43,26 @@ class DAEInterpolateView(object):
     current_view = property(lambda self:self.views[self.i])   
     next_view = property(lambda self:self.views[self.j])
 
+    # pass along non-interpolated attribute access to current view, ie the "A" view
+    solid = property(lambda self:self.current_view.solid)
+    extent = property(lambda self:self.current_view.extent)
+    target = property(lambda self:self.current_view.target)
+    index = property(lambda self:self.current_view.index)
+    model2world = property(lambda self:self.current_view.model2world)
+    world2model = property(lambda self:self.current_view.world2model)
+
+    def _get_eye_look_up(self):
+        """Linear interpolation of two 9 element arrays """
+        return (1.-self.f)*self.a + self.f*self.b
+    eye_look_up = property(_get_eye_look_up)     
+
+    def __repr__(self):
+        return " ".join([
+                         "IV(%d->%d[%s] %d)" % (self.i,self.j,self.f,self.nviews), 
+                         "A %s" % self.views[self.i],
+                         "B %s" % self.views[self.j],
+                        ])  
+
     def define_pair(self, i , j ):
         self.i = i  
         self.j = j
@@ -78,16 +98,6 @@ class DAEInterpolateView(object):
         self.f = f
         if bump:self.next_cycle()
             
-
-    def __repr__(self):
-        return "%s f %s A %s B %s nviews %s " % ( self.__class__.__name__, self.f, self.views[self.i], self.views[self.j], self.nviews) 
-
-    def _get_eye_look_up(self):
-        """Linear interpolation of two 9 element arrays """
-        return (1.-self.f)*self.a + self.f*self.b
-
-    eye_look_up = property(_get_eye_look_up)     
-
 
 if __name__ == '__main__':
 

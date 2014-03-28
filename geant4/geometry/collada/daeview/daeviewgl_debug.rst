@@ -17,6 +17,17 @@ Tricks to work out whats gone wrong
 Issue
 ------
 
+Near behaving like far
+-----------------------
+
+To see the lower parts of the geometry with::
+
+   daeviewgl.py -n 3153:12230 -t +5000 --eye=0,0,10 
+
+Have to increase near to 1.01 from initial 0.1.  Why is near doing that ?
+
+
+
 Targetting outer volumes draw blanks
 --------------------------------------
 
@@ -55,6 +66,63 @@ Need crazy small near in many situations, why? a scaling problem still::
 
     daeviewgl.py -n 3153:12230 -t "+0" --nearclip 1e-6,1e6
     daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6
+
+
+A reasonable near of 10mm gives a blank screen::
+
+    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 10
+
+What near is needed for geometry to show up::
+
+    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near .00029        # extent 8094.19   8 meters
+    daeviewgl.py -n 3153:12230 -t 5000 --nearclip 1e-6,1e6 --near 0.46       # extent  98.14  
+
+
+Removed some scaling, now a more reasonble near of 0.1mm can show large scale and small scale::
+
+    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.1
+
+
+Currently working::
+
+   daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 100
+
+
+Light control
+-------------
+
+Moving scaling into MODELVIEW enables light control::
+
+    daeviewgl.py -n 3153:12230 -t "" --nearclip 1e-6,1e6 --near 0.2 --flight 1e-6 --eye 2,2,0
+
+
+Unproject
+----------
+
+* http://www.songho.ca/opengl/gl_projectionmatrix.html
+
+After wrapping the unproject calls in matrix push/pop get some coordinates
+that look like world ones::
+
+    ouse button pressed (x=789.0, y=550.0, button=2)
+    INFO:env.geant4.geometry.collada.daeview.daeframehandler:unproject 789.0 550.0 
+    u0 (-16636.554198999842, -796072.4374958207, -1611.3298911357165) 
+    u1 (-184837.13407452128, -1098345.946201303, -2228586.9131478006) 
+    Mouse button pressed (x=1402.0, y=38.0, button=2)
+    INFO:env.geant4.geometry.collada.daeview.daeframehandler:unproject 1402.0 38.0 
+    u0 (-16644.035864074554, -796066.1885356996, -1611.3298911357165) 
+    u1 (-1679148.3181099917, 149757.3709506284, -2228586.9131478006) 
+    Mouse button pressed (x=41.0, y=61.0, button=2)
+    INFO:env.geant4.geometry.collada.daeview.daeframehandler:unproject 41.0 61.0 
+    u0 (-16627.424858908667, -796066.4692507051, -1611.3298911357165) 
+    u1 (1638563.7886964362, 93690.22974414061, -2228586.9131478006) 
+    Mouse button pressed (x=803.0, y=528.0, button=2)
+    INFO:env.geant4.geometry.collada.daeview.daeframehandler:unproject 803.0 528.0 
+    u0 (-16636.725069001546, -796072.1689858156, -1611.3298911357165) 
+    u1 (-218964.95883213126, -1044716.5067924673, -2228586.9131478006) 
+
+
+
 
 
 Trackball

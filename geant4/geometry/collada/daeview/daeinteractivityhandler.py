@@ -40,6 +40,8 @@ class DAEInteractivityHandler(object):
         self.fig = fig
         self.frame_handler = frame_handler
         #
+        self.dragfactor = config.args.dragfactor
+        #
         # state object
         self.scene = scene
         #
@@ -60,6 +62,10 @@ class DAEInteractivityHandler(object):
         fig.push(self)               # event notification from fig 
         self.hookup_dispatcher()     # event notification from dispatcher
 
+
+    def __repr__(self):
+        return "H %5.2f " % self.dragfactor
+
     def hookup_dispatcher(self):
         """
         dispatchers collect messages over UDP, allowing remote control
@@ -73,7 +79,13 @@ class DAEInteractivityHandler(object):
         dispatcher.push_handlers(self)   # get event notification from dispatcher
 
     def _get_title(self):
-        return "%s %s %s %s" % (repr(self.scene.camera),repr(self.frame_handler),repr(self.scene.view),repr(self.scene.trackball))
+        return " ".join(map(repr,[
+                     self.scene.view,
+                     self.scene.camera,
+                     self.frame_handler,
+                     self.scene.trackball,
+                     self,
+                     ]))
     title = property(_get_title)     
 
     def redraw(self):
@@ -107,8 +119,8 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
-        elif symbol == key.UP: self.frame_handler.tweak_scale(2.0)
-        elif symbol == key.DOWN: self.frame_handler.tweak_scale(0.5)
+        elif symbol == key.UP: self.dragfactor *= 2.
+        elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
         elif symbol == key.LEFT: self.frame_handler.animation_speed(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
@@ -119,6 +131,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.T: self.frame_handler.toggle_transparent()
         elif symbol == key.P: self.frame_handler.toggle_parallel()
         elif symbol == key.M: self.frame_handler.toggle_animate()
+        elif symbol == key.G: self.frame_handler.toggle_light()
         else:
             pass
             #print "no action for on_key_press with symbol 0x%x " % symbol
@@ -141,12 +154,13 @@ class DAEInteractivityHandler(object):
 
         width = float(self.viewport.width)
         height = float(self.viewport.height)
+        dragfactor = self.dragfactor 
 
-        x  = (_x*2.0 - width)/width
-        dx = (2.*_dx)/width
+        x  = dragfactor*(_x*2.0 - width)/width
+        dx = dragfactor*(2.*_dx)/width
 
-        y  = (_y*2.0 - height)/height
-        dy = (2.*_dy)/height
+        y  = dragfactor*(_y*2.0 - height)/height
+        dy = dragfactor*(2.*_dy)/height
 
         #log.info("on_mouse_drag x %s y %s dx %s dy %s " % (x,y,dx,dy))
 
@@ -163,7 +177,9 @@ class DAEInteractivityHandler(object):
 
     def on_mouse_press(self, x, y, button):
         pass
-        if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
+        #if button != 2:
+        print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
+        self.frame_handler.unproject(x,y)
 
     def on_mouse_release(self, x, y, button):
         pass

@@ -43,67 +43,56 @@ from daeinterpolateview import DAEInterpolateView
 
 class DAEScene(object):
     def __init__(self, geometry, config ):
-        """
-
-        near/far are in eye space, so they should 
-
-        """
-        args = config.args
-        self.config = config
         self.geometry = geometry  
+        self.config = config
+        args = config.args
+        #
+        self.scaled_mode = args.target is None  
+        xyz = args.xyz if self.scaled_mode else (0,0,0)
 
-        #meshextent = geometry.mesh.extent # of all nodes loaded
-
+        self.trackball = DAETrackball( thetaphi=args.thetaphi, xyz=xyz )
         self.view = self.change_view( args.target )
         if args.jump:
             self.view = self.interpolate_view(args.jump)
 
-        scaled_mode = args.target is None  
-        xyz = args.xyz if scaled_mode else (0,0,0)
-
-        self.scaled_mode = scaled_mode   
-
-        self.trackball = DAETrackball( thetaphi=args.thetaphi, xyz=xyz )
         self.camera = DAECamera( size=args.size, near=args.near, far=args.far, yfov=args.yfov, nearclip=args.nearclip, farclip=args.farclip, yfovclip=args.yfovclip )
 
+        print self.view.smry()
+
+
     def __repr__(self):
-        return ""
+        return "S" if self.scaled_mode else "T"
 
     def bookmark(self):
         log.info("bookmark") 
         print self.view.current_view
 
     def external_message(self, msg ):
-        pass
         log.info("external_message [%s]" % msg) 
         elems = msg.split(" ")
         if len(elems)==2:
             if elems[0] == "-j":
-                view = self.interpolate_view(elems[1]) 
-                self.view = view
-                log.info("external_message triggered interpolated_view, press M to run the movie" )
+                self.view = self.interpolate_view(elems[1]) 
+            elif elems[0] == "-a":
+                self.view = self.interpolate_view(elems[1], append=True) 
             elif elems[0] == "-t":
-                view = self.change_view(elems[1]) 
-                log.info("external_message triggered change_view" )
-                self.view = view
-                #self.frame.redraw() 
+                self.view = self.change_view(elems[1]) 
             else:
-                log.info("dont understand the message" )
+                log.info("dont understand the message [%s] " % msg )
         else:
             log.info("expecting two element msg, not [%s]" % msg )   
 
-
     def change_view(self, tspec):
-        view = self.geometry.make_view( tspec, self.config.args )
         log.info("change_view tspec[%s]" % tspec  )
-        return view
+        self.trackball.home()
+        return self.geometry.make_view( tspec, self.config.args )
      
-    def interpolate_view(self, jspec):
-        views  = [self.view.current_view]
+    def interpolate_view(self, jspec, append=False):
+        self.trackball.home()
+        views  = self.view.views if append else [self.view.current_view]
         views += [self.geometry.make_view( j, self.config.args ) for j in jspec.split(":")]
-        view = DAEInterpolateView(views)
-        log.info("interpolated_view movie sequence with %s views " % len(views))
-        return view
+        log.info("interpolated_view append %s movie sequence with %s views " % (append,len(views)))
+        return DAEInterpolateView(views)
 
     def dump(self):
         print "view\n", self.view

@@ -43,7 +43,7 @@ import OpenGL.GL as gl
 import OpenGL.GLU as glu
 
 
-from daegeometry import Transform
+from daeutil import Transform
 from daelights import DAELights
 
 
@@ -72,37 +72,33 @@ class DAEFrameHandler(object):
         lookat = not scene.scaled_mode
         if lookat:
             scale = scene.view.extent
-            #transform = scene.view.current_view.model2world 
-            transform = scene.geometry.mesh.model2world 
-            #transform = Transform()
+            light_transform = scene.geometry.mesh.model2world 
             log.info("mesh\n%s" % scene.geometry.mesh.smry() )
         else:
             scale = 1.
-            transform = Transform()
-
-        self.lookat = lookat 
-        self.scale = scale
-        self.tweak = 1.
-
+            light_transform = Transform()
         pass
-        args = config.args
+        self.scale = scale
+        self.lights = DAELights( light_transform, config )
+        self.lookat = lookat 
+        self.settings(config.args)
+        pass
+        frame.push(self)  # get frame to invoke on_init and on_draw handlers
+
+    def __repr__(self):
+        return "F %7.2f " %  (self.scale)
+
+    def settings(self, args):
+        self.light = args.light
         self.fill = args.fill
         self.line = args.line
         self.transparent = args.transparent
-        self.light = args.light
         self.parallel = args.parallel
         self.animate = False
         self.speed = args.speed
-        pass
 
-        self.lights = DAELights( transform, config )
-
-        frame.push(self) 
-
-    def __repr__(self):
-        return "scale %7.2f tweak %7.2f " %  (self.scale, self.tweak )
-
-    # toggles invoked by Interactivity Handler
+    def toggle_light(self):
+        self.light = not self.light
     def toggle_fill(self):
         self.fill = not self.fill
     def toggle_line(self):
@@ -113,8 +109,6 @@ class DAEFrameHandler(object):
         self.parallel = not self.parallel
     def toggle_animate(self):
         self.animate = not self.animate
-    def tweak_scale(self, factor ):
-        self.tweak *= factor
     def animation_speed(self, factor ):   
         self.speed *= factor
 
@@ -144,44 +138,68 @@ class DAEFrameHandler(object):
         """
         Need to read the sequence of transformations backwards
         """
-
         trackball = self.scene.trackball
         camera = self.scene.camera
         view = self.scene.view
 
         scale = self.scale
-        factor = scale*self.tweak  # enhance trackball action, without changing extent
 
 
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        lrbtnf = camera.lrbtnf * scale
+
+        lrbtnf = camera.lrbtnf 
         if self.parallel:
             gl.glOrtho ( *lrbtnf )
         else:
             gl.glFrustum ( *lrbtnf )
         pass
-
+        
         # scaling here can see inner volumes, but not outer ones
-        gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
-
+        #gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
 
 
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        gl.glTranslate ( trackball._x*factor, trackball._y*factor, -trackball._z*factor )
+        # scaling in MODELVIEW transform (first in code) 
+        # rather than first thing in PROJECTION transform (last in code)
+        # succeeds to get lights under control because light positions
+        # are stored in eye space, after the MODELVIEW transform is applied
+
+        gl.glTranslate ( *trackball.xyz )
+
+        gl.glScalef(1./scale, 1./scale, 1./scale)   
+
         gl.glMultMatrixf (trackball._matrix )   # rotation only 
 
         if self.lookat:
             glu.gluLookAt( *view.eye_look_up )
 
-
         if self.light:
             self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
+
+
+    def unproject(self, x, y):
+        self.push()
+        log.info("unproject %.1f %.1f " % (x, y )) 
+
+        w0 = glu.gluUnProject( x, y, 0. )   
+        w1 = glu.gluUnProject( x, y, 1. )
+        w2 = glu.gluUnProject( x, y, -1. )
+
+        print "using world2model matrix for solid %s %s  " % (self.scene.view.solid.index, self.scene.view.solid.id)
+        print "world2model\n",self.scene.view.world2model.matrix
+        transform = self.scene.view.world2model
+
+        print "winz=-1 %s => %s " % (str(w2), str(transform(w2)))
+        print "winz=0  %s => %s " % (str(w0), str(transform(w0)))
+        print "winz=1  %s => %s " % (str(w1), str(transform(w1)))
+
+        self.pop()
 
 
     def pop(self):

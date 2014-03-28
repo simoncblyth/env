@@ -2,7 +2,7 @@
 """
 
 """
-import os, logging, argparse
+import os, logging, argparse, math
 import numpy as np
 log = logging.getLogger(__name__)
 
@@ -22,8 +22,8 @@ def parse_args(doc):
     defaults['flight'] = 1.
     defaults['wlight'] = 1.
     defaults['lights'] = "rgb"
-    defaults['near'] = 0.0001
-    defaults['far'] = 100.
+    defaults['near'] =   0.1   #  0.1mm  this small value allows seeing objects from biggest to smallest 
+    defaults['far'] = 20000.   #  20m
     defaults['yfov'] = 50.
 
     defaults['target'] = None
@@ -48,12 +48,13 @@ def parse_args(doc):
     parser.add_argument("-l","--loglevel", default="INFO", help="INFO/DEBUG/WARN/..   %(default)s")  
     
     parser.add_argument(     "--yfov",  default=defaults['yfov'], help="Initial vertical field of view in degrees. %(default)s", type=float)
-    parser.add_argument(     "--near",  default=defaults['near'], help="Initial near in units of target extent. %(default)s", type=float)
-    parser.add_argument(     "--far",  default=defaults['far'], help="Initial far in units of target extent. %(default)s", type=float)
+    parser.add_argument(     "--near",  default=defaults['near'], help="Initial near in mm. %(default)s", type=float)
+    parser.add_argument(     "--far",  default=defaults['far'], help="Initial far in mm. %(default)s", type=float)
 
     parser.add_argument(     "--yfovclip",  default="1.,179.", help="Allowed range for yfov. %(default)s", type=str )
     parser.add_argument(     "--nearclip",  default="0.0001,1000", help="Allowed range for near. %(default)s", type=str )
     parser.add_argument(     "--farclip",  default="1,100000", help="Allowed range for far. %(default)s", type=str )
+
     parser.add_argument(     "--thetaphi",  default="0,0", help="Initial theta,phi. %(default)s", type=str)
     parser.add_argument(     "--xyz",  default="0,0,3", help="Initial viewpoint in canonical -1:1 cube coordinates %(default)s", type=str)
 
@@ -76,11 +77,7 @@ def parse_args(doc):
 
     parser.add_argument("-j","--jump", default=None, help="Animated transition to another node.")  
     parser.add_argument(     "--speed", default=1e-3, help="Animation interpolatiom speed, %(default)s", type=float)  
-
-    # not yet implemented
-    parser.add_argument("-F","--noflip",  dest="flip", action="store_false", default=True, help="Pixel y flip.")
-    parser.add_argument("-s","--pscale", default=1., help="Parallel projection, scale.", type=float  )
-    parser.add_argument("-i","--interactive", action="store_true", help="Interative Mode")
+    parser.add_argument(   "--dragfactor", default=1., help="Mouse/trackpad drag speed", type=float  )
 
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.loglevel))
@@ -88,11 +85,23 @@ def parse_args(doc):
     fvec_ = lambda _:map(float, _.split(","))
     ivec_ = lambda _:map(int, _.split(","))
 
+    def alias_vec(s):
+        alias = { 
+             "+z":"0,0.001,2",
+             "-z":"0,0.001,-2",
+             "+x":"2,0,0",
+             "-x":"-2,0,0",
+             "-y":"0,-2,0",
+             "+y":"0,2,0",
+             }
+        return alias.get(s,s)
+     
     args.thetaphi = fvec_(args.thetaphi) 
     args.xyz = fvec_(args.xyz) 
 
     args.nearclip = fvec_(args.nearclip) 
     args.farclip = fvec_(args.farclip) 
+    args.yfovclip = fvec_(args.yfovclip) 
 
     args.rlight = fvec_(args.rlight) 
     args.glight = fvec_(args.glight) 
@@ -100,12 +109,40 @@ def parse_args(doc):
 
     args.frame = fvec_(args.frame) 
     args.rgba = fvec_(args.rgba) 
-    args.eye = fvec_(args.eye) 
-    args.look = fvec_(args.look) 
-    args.up = fvec_(args.up) 
+    args.eye = fvec_(alias_vec(args.eye)) 
+    args.look = fvec_(alias_vec(args.look)) 
+    args.up = fvec_(alias_vec(args.up)) 
     args.size = ivec_(args.size) 
 
+    args.eye, args.look, args.up = ensure_not_collinear( args.eye, args.look, args.up)
     return args
+ 
+
+def rotate( th , axis="x"):
+    c = math.cos(th)
+    s = math.sin(th)
+    if axis=="x":
+        m = np.array([[1,0,0],[0,c,-s],[0,s,c]])
+    elif axis=="y":
+        m = np.array([[c,0,s],[0,1,0],[-s,0,c]])
+    elif axis=="z":
+        m = np.array([[c,-s,0],[s,c,0],[0,0,1]])
+    else:
+        assert 0
+    return m 
+
+def ensure_not_collinear( eye, look, up):
+    e = np.array(eye)
+    l = np.array(look)
+    g = l - e
+    u = np.array(up)     
+    if np.allclose(np.cross(g,u),(0,0,0)):
+        m = rotate( 2.*math.pi/180. , "x")
+        u = np.dot(m,u) 
+        log.info("tweaking up vector as collinear vectors")
+
+    return e,l,u
+
 
 
 
