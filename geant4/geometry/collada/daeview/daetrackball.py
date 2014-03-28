@@ -3,9 +3,11 @@
 import math
 import numpy as np
 import glumpy as gp  
-import OpenGL.GL as gl
+from glumpy.trackball import _q_add, _q_normalize, _q_rotmatrix, _v_cross, _v_sub, _v_length, _q_from_axis_angle
+from OpenGL.GL import GLfloat
 
 # **Keep this for maintaining attitude, avoid anymore OpenGL usage**
+
 
 
 class DAETrackball(gp.Trackball):
@@ -77,7 +79,7 @@ class DAETrackball(gp.Trackball):
 
 
     """
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), yfov=50, near=0.01, far=10. , nearclip=(1e-5,1e6), farclip=(1e-5,1e6)): 
+    def __init__(self, thetaphi=(0,0), xyz=(0,0,3)):
         """
         :param thetaphi:
         :param xyz: 3-tuple position, only used in non-lookat mode 
@@ -98,15 +100,6 @@ class DAETrackball(gp.Trackball):
         self._RENORMCOUNT = 97
         self._TRACKBALLSIZE = 0.8 
 
-        self._yfov = yfov
-        self._near = near
-        self._far = far
-
-        self.yfovclip = 1.,179.   # extreme angles are handy in parallel projection
-        self.nearclip = nearclip
-        self.farclip = farclip
-
-
         # vestigial
         self.zoom = 0    
         self.distance = 0 
@@ -119,26 +112,64 @@ class DAETrackball(gp.Trackball):
         self._set_orientation(0,0)
 
     def __repr__(self):
-        return "yfov %3.1f near %10.5f far %4.1f x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
-            ( self._yfov, self._near, self._far, self._x, self._y, self._z, self.theta, self.phi )
+        return "x %4.1f y %4.1f z%4.1f theta %3.1f phi %3.1f" % \
+            ( self._x, self._y, self._z, self.theta, self.phi )
     __str__ = __repr__
 
 
+    def drag_to (self, x, y, dx, dy):
+        ''' Move trackball view from x,y to x+dx,y+dy. '''
+        q = self._rotate(x,y,dx,dy)
+        self._rotation = _q_add(q,self._rotation)
+        self._count += 1
+        if self._count > self._RENORMCOUNT:
+            self._rotation = _q_normalize(self._rotation)
+            self._count = 0 
+        m = _q_rotmatrix(self._rotation)
+        self._matrix = (GLfloat*len(m))(*m)
 
-    def _get_height(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[3])
-    height = property(_get_height)
 
-    def _get_width(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[2])
-    width = property(_get_width)
+    def _project(self, r, x, y):
+        ''' Project an x,y pair onto a sphere of radius r OR a hyperbolic sheet
+            if we are away from the center of the sphere.
+        '''
 
-    def _get_aspect(self):
-        viewport = gl.glGetIntegerv(gl.GL_VIEWPORT)
-        return float(viewport[2])/float(viewport[3])
-    aspect = property(_get_aspect)
+        d = math.sqrt(x*x + y*y)
+        if (d < r * 0.70710678118654752440):    # Inside sphere
+            z = math.sqrt(r*r - d*d)
+        else:                                   # On hyperbola
+            t = r / 1.41421356237309504880
+            z = t*t / d
+        return z
+
+
+    def _rotate(self, x, y, dx, dy):
+        ''' Simulate a track-ball.
+
+            Project the points onto the virtual trackball, then figure out the
+            axis of rotation, which is the cross product of x,y and x+dx,y+dy.
+
+            Note: This is a deformed trackball-- this is a trackball in the
+            center, but is deformed into a hyperbolic sheet of rotation away
+            from the center.  This particular function was chosen after trying
+            out several variations.
+        '''
+
+        if not dx and not dy:
+            return [ 0.0, 0.0, 0.0, 1.0]
+        last = [x, y,       self._project(self._TRACKBALLSIZE, x, y)]
+        new  = [x+dx, y+dy, self._project(self._TRACKBALLSIZE, x+dx, y+dy)]
+        a = _v_cross(new, last)
+        d = _v_sub(last, new)
+        t = _v_length(d) / (2.0*self._TRACKBALLSIZE)
+        if (t > 1.0): t = 1.0
+        if (t < -1.0): t = -1.0
+        phi = 2.0 * math.asin(t)
+        return _q_from_axis_angle(a,phi)
+
+
+
+
 
 
 
@@ -149,76 +180,17 @@ class DAETrackball(gp.Trackball):
         Changed from glumpy original _zoom to _distance
         so this is now a translation in z direction
         """
-        self._z += -5*dy/self.height
+        self._z += -5*dy
 
     def pan_to (self, x, y, dx, dy):
         ''' Pan trackball by a factor dx,dy '''
-        self._x += 3*dx/self.width
-        self._y += 3*dy/self.height
-
-
-
-
-
-    def near_to (self, x, y, dx, dy):
-        ''' Change near clipping '''
-        self.near += self.near*dy/self.height
-
-    def far_to (self, x, y, dx, dy):
-        ''' Change far clipping '''
-        self.far += self.far*dy/self.height
-
-    def yfov_to (self, x, y, dx, dy):
-        ''' Change yfov '''
-        self.yfov += 50*dy/self.height
-
-
-    def _get_near(self):
-        return self._near
-    def _set_near(self, near):
-        self._near = np.clip(near, self.nearclip[0], self.nearclip[1])
-    near = property(_get_near, _set_near)
-
-    def _get_far(self):
-        return self._far
-    def _set_far(self, far):
-        self._far = np.clip(far, self.farclip[0],self.farclip[1])
-    far = property(_get_far, _set_far)
-
-    def _get_yfov(self):
-        return self._yfov
-    def _set_yfov(self, yfov):
-        self._yfov = np.clip(yfov,self.yfovclip[0],self.yfovclip[1])
-    yfov = property(_get_yfov, _set_yfov)
+        self._x += 3*dx
+        self._y += 3*dy
 
 
     def _get_matrix(self):
         return self._matrix
     matrix = property(_get_matrix)
-
-    def _get_lrbtnf(self):
-        """
-        ::
-
-                   . | 
-                .    | top 
-              +------- 
-                near |
-                     |
-                   
-        """
-        aspect = self.aspect
-        near = self._near  
-        far = self._far    
-        top = near * math.tan(self._yfov*0.5*math.pi/180.0)  
-        bottom = -top
-        left = aspect * bottom
-        right = aspect * top 
-
-        return np.array([left,right,bottom,top,near,far]) 
-
-    lrbtnf = property(_get_lrbtnf)
-
 
 
 if __name__ == '__main__':

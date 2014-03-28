@@ -249,7 +249,6 @@ class DAELights(object):
         if "b" in self.lights:
             gl.glEnable (gl.GL_LIGHT2)   
 
-        #gl.glPopMatrix()
 
     def position(self):
         """

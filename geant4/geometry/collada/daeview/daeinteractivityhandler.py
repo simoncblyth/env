@@ -22,11 +22,12 @@ Controls
 * **M** start interpolation
 
 """
-import sys
+import sys, logging
+log = logging.getLogger(__name__)
 from glumpy.window import key
 
 from daedispatcher import DAEDispatcher
-
+from daeviewport import DAEViewport
 
 
 class DAEInteractivityHandler(object):
@@ -34,18 +35,24 @@ class DAEInteractivityHandler(object):
     Keep this for handling interactivity, **NOT** graphics    
     """
     def __init__(self, fig, frame_handler, scene, config ):
+        #
+        # presentation objects
         self.fig = fig
         self.frame_handler = frame_handler
+        #
+        # state object
         self.scene = scene
-        self.trackball = scene.trackball
-        self.view = scene.view
-        # 
+        #
+        # input object   
+        self.viewport = DAEViewport(config.args.size)
+        #
+        # interactivity modes 
         self.zoom_mode = False
         self.pan_mode = False
         self.near_mode = False
         self.far_mode = False
         self.yfov_mode = False
-
+        #
         if config.args.fullscreen:
             self.toggle_fullscreen()
         pass
@@ -66,7 +73,7 @@ class DAEInteractivityHandler(object):
         dispatcher.push_handlers(self)   # get event notification from dispatcher
 
     def _get_title(self):
-        return "%s %s %s" % (repr(self.frame_handler),repr(self.view),repr(self.trackball))
+        return "%s %s %s %s" % (repr(self.scene.camera),repr(self.frame_handler),repr(self.scene.view),repr(self.scene.trackball))
     title = property(_get_title)     
 
     def redraw(self):
@@ -84,6 +91,11 @@ class DAEInteractivityHandler(object):
 
     def on_external_message(self, msg ):
         self.scene.external_message(msg)
+        self.redraw()
+
+    def on_resize(self, width, height, x=0, y=0):
+        self.viewport.resize((width, height))
+        self.scene.camera.resize((width, height))
 
     def on_draw(self):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
@@ -100,7 +112,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
         elif symbol == key.LEFT: self.frame_handler.animation_speed(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
-        elif symbol == key.H: self.trackball.home()
+        elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.B: self.scene.bookmark()
         elif symbol == key.L: self.frame_handler.toggle_line()
         elif symbol == key.F: self.frame_handler.toggle_fill()
@@ -125,15 +137,27 @@ class DAEInteractivityHandler(object):
         pass
         self.redraw()
 
-    def on_mouse_drag(self,x,y,dx,dy,button):
+    def on_mouse_drag(self,_x,_y,_dx,_dy,button):
+
+        width = float(self.viewport.width)
+        height = float(self.viewport.height)
+
+        x  = (_x*2.0 - width)/width
+        dx = (2.*_dx)/width
+
+        y  = (_y*2.0 - height)/height
+        dy = (2.*_dy)/height
+
+        #log.info("on_mouse_drag x %s y %s dx %s dy %s " % (x,y,dx,dy))
+
         two_finger_zoom = button == 8  # NB zoom is a misnomer, this is translating eye coordinate z
-        if   self.zoom_mode or two_finger_zoom: self.trackball.zoom_to(x,y,dx,dy)
-        elif self.pan_mode: self.trackball.pan_to(x,y,dx,dy)
-        elif self.near_mode: self.trackball.near_to(x,y,dx,dy)
-        elif self.far_mode: self.trackball.far_to(x,y,dx,dy)
-        elif self.yfov_mode: self.trackball.yfov_to(x,y,dx,dy)
+        if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
+        elif self.pan_mode: self.scene.trackball.pan_to(x,y,dx,dy)
+        elif self.near_mode: self.scene.camera.near_to(x,y,dx,dy)
+        elif self.far_mode: self.scene.camera.far_to(x,y,dx,dy)
+        elif self.yfov_mode: self.scene.camera.yfov_to(x,y,dx,dy)
         else: 
-            self.trackball.drag_to(x,y,dx,dy)
+            self.scene.trackball.drag_to(x,y,dx,dy)
         pass
         self.redraw()
 
@@ -147,7 +171,6 @@ class DAEInteractivityHandler(object):
 
     def on_mouse_motion(self, x, y, dx, dy):
         pass
-        #print 'Mouse motion (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)  # get lots of these
 
     def on_mouse_scroll(self, x, y, dx, dy):
         print 'Mouse scroll (x=%.1f, y=%.1f, dx=%.1f, dy=%.1f)' % (x,y,dx,dy)   # none of these

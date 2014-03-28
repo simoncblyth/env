@@ -19,7 +19,7 @@ Observations
 Up/down views are problematic
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When eye and up are in same direction see nothing::
+When `look-eye` and `up` are in same direction see nothing::
 
     daeviewgl.py -n 5000:6000 -t "" --eye="0,0,-2" --look="0,0,0" --up="0,0,1"        # nowt
     daeviewgl.py -n 5000:6000 -t "" --eye="0,0,2" --look="0,0,0" --up="0,0,1" 

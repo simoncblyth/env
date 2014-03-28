@@ -51,6 +51,7 @@ def parse_args(doc):
     parser.add_argument(     "--near",  default=defaults['near'], help="Initial near in units of target extent. %(default)s", type=float)
     parser.add_argument(     "--far",  default=defaults['far'], help="Initial far in units of target extent. %(default)s", type=float)
 
+    parser.add_argument(     "--yfovclip",  default="1.,179.", help="Allowed range for yfov. %(default)s", type=str )
     parser.add_argument(     "--nearclip",  default="0.0001,1000", help="Allowed range for near. %(default)s", type=str )
     parser.add_argument(     "--farclip",  default="1,100000", help="Allowed range for far. %(default)s", type=str )
     parser.add_argument(     "--thetaphi",  default="0,0", help="Initial theta,phi. %(default)s", type=str)

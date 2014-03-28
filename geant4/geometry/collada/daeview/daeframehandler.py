@@ -67,14 +67,11 @@ class DAEFrameHandler(object):
     def __init__(self, frame, mesh, scene, config ):
         self.frame = frame
         self.mesh = mesh
-        pass
         self.scene = scene
-        self.trackball = scene.trackball
-        #self.view = scene.view
         
         lookat = not scene.scaled_mode
         if lookat:
-            scale = scene.extent
+            scale = scene.view.extent
             #transform = scene.view.current_view.model2world 
             transform = scene.geometry.mesh.model2world 
             #transform = Transform()
@@ -144,12 +141,33 @@ class DAEFrameHandler(object):
         pass
 
     def push(self):
+        """
+        Need to read the sequence of transformations backwards
+        """
 
-        scene = self.scene
-        trackball = self.trackball
+        trackball = self.scene.trackball
+        camera = self.scene.camera
         view = self.scene.view
+
         scale = self.scale
         factor = scale*self.tweak  # enhance trackball action, without changing extent
+
+
+        gl.glMatrixMode(gl.GL_PROJECTION)
+        gl.glPushMatrix()
+        gl.glLoadIdentity ()
+
+        lrbtnf = camera.lrbtnf * scale
+        if self.parallel:
+            gl.glOrtho ( *lrbtnf )
+        else:
+            gl.glFrustum ( *lrbtnf )
+        pass
+
+        # scaling here can see inner volumes, but not outer ones
+        gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
+
+
 
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
@@ -161,22 +179,9 @@ class DAEFrameHandler(object):
         if self.lookat:
             glu.gluLookAt( *view.eye_look_up )
 
+
         if self.light:
             self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
-
-
-        gl.glMatrixMode(gl.GL_PROJECTION)
-        gl.glPushMatrix()
-        gl.glLoadIdentity ()
-
-        lrbtnf = trackball.lrbtnf * scale
-        if self.parallel:
-            gl.glOrtho ( *lrbtnf )
-        else:
-            gl.glFrustum ( *lrbtnf )
-        pass
-
-        gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
 
 
     def pop(self):

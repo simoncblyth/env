@@ -37,48 +37,34 @@ import logging
 log = logging.getLogger(__name__)
 import numpy as np
 from daetrackball import DAETrackball
+from daecamera import DAECamera
 from daeinterpolateview import DAEInterpolateView
-
 
 
 class DAEScene(object):
     def __init__(self, geometry, config ):
         """
-        Intend to move to lookat/target mode all the time, 
-        the scaled_mode flag is a crutch to allow use of the
-        old scaled VBO approach 
-        while target mode still not fully working. 
+
+        near/far are in eye space, so they should 
+
         """
         args = config.args
         self.config = config
         self.geometry = geometry  
 
-        # perhaps coalesce target and jump targets, whereby animation then makes sense 
-        # when have multiple targets
-        # would avoid the disconnect of view being a different class when jump is enabled
-
         #meshextent = geometry.mesh.extent # of all nodes loaded
 
-        view = self.change_view( args.target )
-        self.extent = view.extent
-        self.view = view        
-
+        self.view = self.change_view( args.target )
         if args.jump:
             self.view = self.interpolate_view(args.jump)
 
-        kwa = {}
-        kwa['thetaphi'] = args.thetaphi
-        kwa['yfov'] = args.yfov
-        kwa['near'] = args.near * self.extent
-        kwa['far'] = args.far * self.extent
-        kwa['nearclip'] = args.nearclip
-        kwa['farclip'] = args.farclip
-
         scaled_mode = args.target is None  
-        kwa['xyz'] = args.xyz if scaled_mode else (0,0,0)
+        xyz = args.xyz if scaled_mode else (0,0,0)
 
-        self.scaled_mode = scaled_mode   # a crutch to be removed
-        self.trackball = DAETrackball(**kwa)
+        self.scaled_mode = scaled_mode   
+
+        self.trackball = DAETrackball( thetaphi=args.thetaphi, xyz=xyz )
+        self.camera = DAECamera( size=args.size, near=args.near, far=args.far, yfov=args.yfov, nearclip=args.nearclip, farclip=args.farclip, yfovclip=args.yfovclip )
 
     def __repr__(self):
         return ""
