@@ -80,7 +80,7 @@ def parse_args(doc):
     parser.add_argument(   "--dragfactor", default=1., help="Mouse/trackpad drag speed", type=float  )
 
     args = parser.parse_args()
-    logging.basicConfig(level=getattr(logging, args.loglevel))
+    logging.basicConfig(level=getattr(logging, args.loglevel), format="%(asctime)-15s %(message)s")
     
     fvec_ = lambda _:map(float, _.split(","))
     ivec_ = lambda _:map(int, _.split(","))

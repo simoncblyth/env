@@ -184,20 +184,40 @@ class DAEFrameHandler(object):
 
 
     def unproject(self, x, y):
+        """
+        :param x: screen coordinates 
+        :param y:
+
+        #. gluUnProject needs window_z value,  z=0(near), z=1(far), z=depth(inbetween)
+        #. read z from depth buffer for the xy 
+
+        """
         self.push()
-        log.info("unproject %.1f %.1f " % (x, y )) 
 
-        w0 = glu.gluUnProject( x, y, 0. )   
-        w1 = glu.gluUnProject( x, y, 1. )
-        w2 = glu.gluUnProject( x, y, -1. )
+        pixels = gl.glReadPixelsf(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
 
-        print "using world2model matrix for solid %s %s  " % (self.scene.view.solid.index, self.scene.view.solid.id)
-        print "world2model\n",self.scene.view.world2model.matrix
-        transform = self.scene.view.world2model
+        z = pixels[0][0]
+        window_xyz = (x,y,z)
+        if not (0 <= z <= 1): log.warn("unexpectd z buffer read %s " %  str(window_xyz))
 
-        print "winz=-1 %s => %s " % (str(w2), str(transform(w2)))
-        print "winz=0  %s => %s " % (str(w0), str(transform(w0)))
-        print "winz=1  %s => %s " % (str(w1), str(transform(w1)))
+        click = glu.gluUnProject( *window_xyz ) 
+        # click point in world frame       
+
+        log.debug("unproject %s => %s " % (str(window_xyz),str(click))) 
+
+        geometry = self.scene.geometry
+        f = geometry.find_bbox_solid( click )
+        log.info("find_bbox_solid %s yields %s solids %s " % (str(click), len(f), str(f)))
+ 
+        view = self.scene.view
+        eye,look,up = np.split(view.eye_look_up, 3)  # all world frame
+
+        solids = [geometry.solids[_] for _ in f]
+        for solid in solids:
+            log.info(solid)
+            w2m = solid.world2model
+            log.info("click %s eye %s look %s " % (w2m(click),w2m(eye),w2m(look)) )
+        pass
 
         self.pop()
 

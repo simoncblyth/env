@@ -10,10 +10,22 @@ from daeviewpoint import DAEViewpoint
 
 
 class DAEMesh(object):
+    """
+    TODO: remove use of duplicating pair properties, 
+          now that caching in place these is no need for them
+    """
     def __init__(self, vertices, triangles, normals=[] ):
         self.vertices = vertices
         self.triangles = triangles
         self.normals = normals
+
+        self._bounds = None
+        self._lower_upper = None
+        self._center = None
+        self._extent = None
+        self._dimensions = None
+        self._bounds_extent = None
+        self._center_extent = None
 
     def check(self):
         """
@@ -28,39 +40,57 @@ class DAEMesh(object):
 
     def _get_bounds(self):
         "Return the lower and upper bounds for the mesh as a tuple."
-        return np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+        if self._bounds is None:
+            self._bounds = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+        return self._bounds
     bounds = property(_get_bounds)
 
+    def _get_lower_upper(self):
+        "Return the lower and upper bounds for the mesh as a tuple."
+        if self._lower_upper is None:
+            self._lower_upper = np.concatenate( (self.bounds ))
+        return self._lower_upper
+    lower_upper = property(_get_lower_upper)
+
+
     def _get_center(self):
-        bounds = self._get_bounds()
-        return np.mean(bounds, axis=0) 
+        if self._center is None:
+            bounds = self._get_bounds()
+            self._center = np.mean(bounds, axis=0) 
+        return self._center 
     center = property(_get_center)
 
     def _get_extent(self):
-        dimensions = self._get_dimensions()
-        extent = np.max(dimensions)/2.
-        return extent 
+        if self._extent is None:
+            dimensions = self._get_dimensions()
+            self._extent = np.max(dimensions)/2.
+        return self._extent 
     extent = property(_get_extent)
         
     def _get_dimensions(self):
-        bounds = self._get_bounds()
-        return bounds[1]-bounds[0]
+        if self._dimensions is None:
+            bounds = self._get_bounds()
+            self._dimensions = bounds[1]-bounds[0]
+        return self._dimensions
     dimensions = property(_get_dimensions)
 
     def _get_bounds_extent(self):
-        lower, upper = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
-        dimensions = upper - lower
-        extent = np.max(dimensions)/2.
-        return lower, upper, extent
+        if self._bounds_extent is None:
+            lower, upper = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+            dimensions = upper - lower
+            extent = np.max(dimensions)/2.
+            self._bounds_extent = lower, upper, extent
+        return self._bounds_extent
     bounds_extent = property(_get_bounds_extent)   
 
-
     def _get_center_extent(self):
-        bounds = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
-        center = np.mean(bounds, axis=0)
-        dimensions = bounds[1] - bounds[0]
-        extent = np.max(dimensions)/2.
-        return center, extent
+        if self._center_extent is None:
+            bounds = np.min(self.vertices, axis=0), np.max(self.vertices, axis=0)
+            center = np.mean(bounds, axis=0)
+            dimensions = bounds[1] - bounds[0]
+            extent = np.max(dimensions)/2.
+            self._center_extent = center, extent
+        return self._center_extent
     center_extent = property(_get_center_extent)   
 
     def _get_model2world(self):
@@ -131,6 +161,10 @@ class DAESolid(DAEMesh):
 
 
 class DAEGeometry(object):
+    """
+
+    """
+
     def __init__(self, arg, path=None, bound=True):
 
         if path is None:
@@ -140,6 +174,7 @@ class DAEGeometry(object):
 
         self.solids = [DAESolid(node, bound) for node in DAENode.getall(arg)]
         self.mesh = None
+        self.bbox_cache = None
 
     def find_solid(self, target ):
         """
@@ -189,6 +224,50 @@ class DAEGeometry(object):
         log.info(mesh)
         self.mesh = mesh 
 
+    def make_bbox_cache(self):
+        bbox_cache = np.empty((len(self.solids),6))    
+        for i, solid in enumerate(self.solids):
+            bbox_cache[i] = solid.lower_upper
+        pass
+        self.bbox_cache = bbox_cache
+
+    def find_bbox_solid(self, xyz):
+        """
+        :param xyz: world frame coordinate
+
+        Find indices of all solids that contain the world frame coordinate provided  
+        """
+        if self.bbox_cache is None:
+            self.make_bbox_cache() 
+        x,y,z = xyz 
+        b = self.bbox_cache
+        f = np.where(
+              np.logical_and(
+                np.logical_and( 
+                  np.logical_and(x > b[:,0], x < b[:,3]),
+                  np.logical_and(y > b[:,1], y < b[:,4]) 
+                              ),  
+                  np.logical_and(z > b[:,2], z < b[:,5])
+                            )   
+                    )[0]
+        return f
+
+    def find_bbox_solid_slowly(self, xyz):
+        x,y,z = xyz
+        f = [] 
+        def unprefix(s): 
+            prefix = "__dd__Geometry__"
+            return s[len(prefix):] if s[0:len(prefix)] == prefix else s 
+        for i, solid in enumerate(self.solids):
+            lower, upper = solid.bounds
+            with printoptions(precision=3, suppress=True, strip_zeros=False):
+                inside = lower[0] < x < upper[0] and lower[1] < y < upper[1] and lower[2] < z < upper[2]
+                marker = "*" if inside else "-"
+                if inside:
+                    f.append(i)
+                    print "%-5d %-5d [%s] %-50s %-40s %-40s (%7.3f) %-40s " % ( i, solid.index, marker, unprefix(solid.id), lower, upper, solid.extent, solid.dimensions )
+        return f 
+
     def make_vbo(self,scale=False, rgba=(0.7,0.7,0.7,0.5)):
         if self.mesh is None:
             self.flatten() 
@@ -198,8 +277,6 @@ class DAEGeometry(object):
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
        
-
-
     def interpret_vspec( self, vspec, args ):
         """
         Interpret view specification strings like the below into
@@ -292,14 +369,27 @@ def check_view(geometry):
 
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-    dg = DAEGeometry("3153:12230")
-    dg.flatten()
-    for i, solid in enumerate(dg.solids):
-        print "%-5s %s " % ( i, solid )
 
-   
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format="%(asctime)-15s %(message)s")
+
+    nodes = "3153:12230"
+    #nodes = "3153:3200"
+
+    dg = DAEGeometry(nodes)
+    dg.flatten()
+       
+    xyz = (-16632.046096412007, -796063.5921605631, -2716.5372465302394 ) 
+
+    f = dg.find_bbox_solid(xyz)
+    print "find_bbox_solid for world point %s yields solids %s " % ( str(xyz), f )
+
+    solids = [dg.solids[_] for _ in f]
+    print "\n".join([ "\n".join([repr(solid),solid.smry()]) for solid in solids])
+
+
+           
 
 
 
