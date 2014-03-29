@@ -19,6 +19,9 @@ class DAEMesh(object):
         self.triangles = triangles
         self.normals = normals
 
+        self.index = -1
+        self.id = "entiremesh"
+
         self._bounds = None
         self._lower_upper = None
         self._center = None
@@ -152,12 +155,8 @@ class DAESolid(DAEMesh):
         if not self.check():
             log.debug("DAESolid Meshcheck failure %s " % self)
 
-
     def __repr__(self):
-        return " ".join([
-                           DAEMesh.__repr__(self),
-                           " : %s %s  " % (self.index, self.id), 
-                         ])
+        return "{:6.1f} {:-5d}  {:s}".format(self.extent, self.index, self.id)
 
 
 class DAEGeometry(object):

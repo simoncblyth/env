@@ -45,10 +45,19 @@ class DAEViewpoint(object):
     next_view = property(lambda self:None)      
 
 
-    #eye  = property(lambda self:self.model2world(self._eye))
-    #look = property(lambda self:self.model2world(self._look))
-    #up   = property(lambda self:self.model2world(self._up,w=0.))
-    #
+    eye  = property(lambda self:self.model2world(self._eye))
+    look = property(lambda self:self.model2world(self._look))
+    up   = property(lambda self:self.model2world(self._up,w=0.))
+    
+
+    def _get_distance(self):
+        model2world = self.model2world
+        eye = model2world(self._eye)
+        look = model2world(self._look)
+        gaze = look - eye
+        return np.linalg.norm(gaze) 
+    distance = property(_get_distance)
+
     def _get_eye_look_up(self):
         """
         Provides eye,look,up in world frame coordinates
@@ -74,7 +83,7 @@ class DAEViewpoint(object):
         def brief_(v):
             return ",".join(map(nfmt,v[0:3]))
 
-        return "V %s/%s %.2f e %s l %s u %s" % (self.target, self.index, self.extent, brief_(self._eye), brief_(self._look), brief_(self._up) )  
+        return "V %s/%s %.2f e %s l %s d %.2f" % (self.target, self.index, self.extent, brief_(self._eye), brief_(self._look), self.distance  )  
 
 
 

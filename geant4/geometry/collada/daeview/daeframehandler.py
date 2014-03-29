@@ -12,28 +12,6 @@ Division of concerns
          position
 
 
-gluLookAt
------------
-
-* http://www.opengl.org/archives/resources/faq/technical/viewing.htm
-
-gluLookAt() takes an eye position, a position to look at, and an up vector, 
-all in object space coordinates and computes the inverse camera transform according to
-its parameters and multiplies it onto the current matrix stack.
-
-The GL_PROJECTION matrix should contain only the projection transformation
-calls it needs to transform eye space coordinates into clip coordinates.
-
-The GL_MODELVIEW matrix, as its name implies, should contain modeling and
-viewing transformations, which transform object space coordinates into eye
-space coordinates. Remember to place the camera transformations on the
-GL_MODELVIEW matrix and never on the GL_PROJECTION matrix.
-
-Think of the projection matrix as describing the attributes of your camera,
-such as field of view, focal length, fish eye lens, etc. Think of the ModelView
-matrix as where you stand with the camera and the direction you point it.
-
-
 """
 import logging
 log = logging.getLogger(__name__)
@@ -41,10 +19,48 @@ import math
 import numpy as np
 import OpenGL.GL as gl
 import OpenGL.GLU as glu
+import OpenGL.GLUT as glut
 
 
 from daeutil import Transform
 from daelights import DAELights
+
+
+
+class DAEText(object):
+    fonts = { 
+                   "8_BY_13":dict(code=glut.GLUT_BITMAP_8_BY_13,leading=50.), 
+                   "9_BY_15":dict(code=glut.GLUT_BITMAP_9_BY_15), 
+            "TIMES_ROMAN_10":dict(code=glut.GLUT_BITMAP_TIMES_ROMAN_10), 
+            "TIMES_ROMAN_24":dict(code=glut.GLUT_BITMAP_TIMES_ROMAN_24), 
+              "HELVETICA_10":dict(code=glut.GLUT_BITMAP_HELVETICA_10,leading=15.),
+              "HELVETICA_12":dict(code=glut.GLUT_BITMAP_HELVETICA_12),
+             }
+
+    def __init__(self, font="HELVETICA_10"):
+        font = self.fonts[font]
+        self.font = font['code']
+        self.leading = font.get('leading',20.)
+
+    def check(self):
+        self( self.fonts.keys() )
+
+    def __call__(self, lines ):
+        gl.glDisable( gl.GL_LIGHTING )
+        gl.glDisable( gl.GL_DEPTH_TEST )
+
+        gl.glColor3f( 0.1, 0.1, 0.1 )
+        for i, line in enumerate(lines):
+            ypos = self.leading * (i+1)
+            gl.glRasterPos3f( 2.*self.leading , ypos , 0 )
+            for c in line:
+                glut.glutBitmapCharacter( self.font, ord(c) )
+            pass
+
+        gl.glEnable( gl.GL_LIGHTING )
+        gl.glEnable( gl.GL_DEPTH_TEST )
+
+
 
 
 def gl_modelview_matrix():
@@ -82,6 +98,9 @@ class DAEFrameHandler(object):
         self.lights = DAELights( light_transform, config )
         self.lookat = lookat 
         self.settings(config.args)
+        pass
+        self.text = DAEText()
+        self.annotate = []
         pass
         frame.push(self)  # get frame to invoke on_init and on_draw handlers
 
@@ -143,6 +162,7 @@ class DAEFrameHandler(object):
         view = self.scene.view
 
         scale = self.scale
+        distance = view.distance
 
 
         gl.glMatrixMode(gl.GL_PROJECTION)
@@ -175,12 +195,34 @@ class DAEFrameHandler(object):
         gl.glScalef(1./scale, 1./scale, 1./scale)   
 
         gl.glMultMatrixf (trackball._matrix )   # rotation only 
+        
+        #gl.glTranslate ( 0, 0, -distance )
+        #glut.glutWireSphere( scale*trackball._TRACKBALLSIZE,10,10)
+        #gl.glTranslate ( 0, 0, +distance )
+
 
         if self.lookat:
-            glu.gluLookAt( *view.eye_look_up )
+            glu.gluLookAt( *view.eye_look_up )   
+            # eye/look/up in world frame define the camera transform, 
+            # translating eye to origin and rotating look to be along -z
+            # NB no scaling, still world distances 
 
         if self.light:
             self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
+
+
+        
+
+        gl.glPushMatrix()
+        gl.glTranslate ( *view.look[:3] )
+        glut.glutWireSphere( scale,10,10)
+        gl.glPopMatrix()
+
+
+        gl.glPushMatrix()
+        gl.glTranslate ( *view.eye[:3] )
+        glut.glutWireSphere( distance,10,10)
+        gl.glPopMatrix()
 
 
     def unproject(self, x, y):
@@ -200,26 +242,28 @@ class DAEFrameHandler(object):
         window_xyz = (x,y,z)
         if not (0 <= z <= 1): log.warn("unexpectd z buffer read %s " %  str(window_xyz))
 
-        click = glu.gluUnProject( *window_xyz ) 
-        # click point in world frame       
+        click = glu.gluUnProject( *window_xyz ) # click point in world frame       
 
-        log.debug("unproject %s => %s " % (str(window_xyz),str(click))) 
+        #log.debug("unproject %s => %s " % (str(window_xyz),str(click))) 
 
         geometry = self.scene.geometry
         f = geometry.find_bbox_solid( click )
-        log.info("find_bbox_solid %s yields %s solids %s " % (str(click), len(f), str(f)))
+        #log.info("find_bbox_solid %s yields %s solids %s " % (str(click), len(f), str(f)))
  
         view = self.scene.view
         eye,look,up = np.split(view.eye_look_up, 3)  # all world frame
 
-        solids = [geometry.solids[_] for _ in f]
+        solids = sorted([geometry.solids[_] for _ in f],key=lambda _:_.extent, reverse=False) # presented from bottom so dont reverse
+
+        self.annotate = [] 
         for solid in solids:
             log.info(solid)
             w2m = solid.world2model
-            log.info("click %s eye %s look %s " % (w2m(click),w2m(eye),w2m(look)) )
+            #log.info("click %s eye %s look %s " % (w2m(click),w2m(eye),w2m(look)) )
+            self.annotate.append(repr(solid))
         pass
-
         self.pop()
+        self.frame.redraw() 
 
 
     def pop(self):
@@ -267,9 +311,16 @@ class DAEFrameHandler(object):
             gl.glDisable( gl.GL_BLEND )
             gl.glDisable( gl.GL_LINE_SMOOTH )
 
+
         self.pop() # matrices
+
+        if len(self.annotate) > 0:
+            self.text(self.annotate)
+
         self.frame.unlock()
 
+
+    
 
 
 
