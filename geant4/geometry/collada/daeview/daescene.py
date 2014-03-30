@@ -50,7 +50,7 @@ class DAEScene(object):
         self.scaled_mode = args.target is None  
         xyz = args.xyz if self.scaled_mode else (0,0,0)
 
-        self.trackball = DAETrackball( thetaphi=args.thetaphi, xyz=xyz )
+        self.trackball = DAETrackball( thetaphi=args.thetaphi, xyz=xyz, radius=args.ballradius )
         self.view = self.change_view( args.target )
         if args.jump:
             self.view = self.interpolate_view(args.jump)

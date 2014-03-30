@@ -1,6 +1,17 @@
 OpenGL GLUT 
 =============
 
+Sources
+--------
+
+* http://freeglut.sourceforge.net/docs/api.php
+
+* http://sourceforge.net/projects/freeglut/  yuck SF
+* https://github.com/dcnieho/FreeGLUT
+
+
+
+
 
 OSX supporting two finger trackpad scroll
 ------------------------------------------

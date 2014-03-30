@@ -28,6 +28,37 @@ Have to increase near to 1.01 from initial 0.1.  Why is near doing that ?
 
 
 
+Removing the scale kludge
+---------------------------
+
+::
+
+     0994  daeviewgl.py -n 3153:12230 -t +0
+     0995  daeviewgl.py -n 3153:12230 -t +0
+     0996  daeviewgl.py -n 3153:12230 -t +0 --scale=8094.
+     0997  daeviewgl.py -n 3153:12230 -t +0 --scale=4094.
+     0998  daeviewgl.py -n 3153:12230 -t +0 --scale=1094.
+     0999  daeviewgl.py -n 3153:12230 -t +0 --scale=1094.
+     1000  daeviewgl.py -n 3153:12230 -t +0 --scale=1.
+     1001  daeviewgl.py -n 3153:12230 -t +0 --scale=100.
+     1002  daeviewgl.py -n 3153:12230 -t +0 --scale=1.
+     1003  daeviewgl.py -n 3153:12230 -t +0 --scale=10.
+     1004  daeviewgl.py -n 3153:12230 -t +0 --scale=10. --flight=10
+     1005  daeviewgl.py -n 3153:12230 -t +0 --scale=10. --flight=10 --near=10
+
+::
+
+     1043  daeviewgl.py -n 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
+     1044  daeviewgl.py -n 3153:12230 -t +5000 --scale=100. --near=30 --flight=20 
+     1045  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1046  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1047  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1048  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+     1049  daeviewgl.py -n 3153:12230 -t +5000 -j 9140_-2,2,2 --scale=100. --near=30 --flight=20 
+
+
+
+
 Targetting outer volumes draw blanks
 --------------------------------------
 

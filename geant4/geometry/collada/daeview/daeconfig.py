@@ -25,6 +25,7 @@ def parse_args(doc):
     defaults['near'] =   0.1   #  0.1mm  this small value allows seeing objects from biggest to smallest 
     defaults['far'] = 20000.   #  20m
     defaults['yfov'] = 50.
+    defaults['scale'] = 1.
 
     defaults['target'] = None
     defaults['eye'] = "-2,-2,0"
@@ -47,6 +48,7 @@ def parse_args(doc):
 
     parser.add_argument("-l","--loglevel", default="INFO", help="INFO/DEBUG/WARN/..   %(default)s")  
     
+    parser.add_argument(     "--scale",  default=defaults['scale'], help="Kludge scale. %(default)s", type=float)
     parser.add_argument(     "--yfov",  default=defaults['yfov'], help="Initial vertical field of view in degrees. %(default)s", type=float)
     parser.add_argument(     "--near",  default=defaults['near'], help="Initial near in mm. %(default)s", type=float)
     parser.add_argument(     "--far",  default=defaults['far'], help="Initial far in mm. %(default)s", type=float)
@@ -78,6 +80,7 @@ def parse_args(doc):
     parser.add_argument("-j","--jump", default=None, help="Animated transition to another node.")  
     parser.add_argument(     "--speed", default=1e-3, help="Animation interpolatiom speed, %(default)s", type=float)  
     parser.add_argument(   "--dragfactor", default=1., help="Mouse/trackpad drag speed", type=float  )
+    parser.add_argument(   "--ballradius", default=0.8, help="Trackball radius", type=float  )
 
     args = parser.parse_args()
     logging.basicConfig(level=getattr(logging, args.loglevel), format="%(asctime)-15s %(message)s")

@@ -31,6 +31,7 @@ class DAEInterpolateView(object):
     in the interpolation ?
 
     """
+    interpolate = True
     def __init__(self, views):
         assert len(views) > 1
         self.views = views
@@ -50,6 +51,15 @@ class DAEInterpolateView(object):
     index = property(lambda self:self.current_view.index)
     model2world = property(lambda self:self.current_view.model2world)
     world2model = property(lambda self:self.current_view.world2model)
+
+    def smry(self):
+        return "%s klop" % (self.__class__.__name__ )
+
+    def _get_distance(self):
+        eye,look,up = np.split(self.eye_look_up,3)
+        return np.linalg.norm( look-eye)
+    distance = property(_get_distance)
+
 
     def _get_eye_look_up(self):
         """Linear interpolation of two 9 element arrays """

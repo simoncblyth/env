@@ -5,7 +5,7 @@ log = logging.getLogger(__name__)
 import numpy as np
 from env.geant4.geometry.collada.daenode import DAENode 
 
-from daeutil import printoptions, ModelToWorldTransform, WorldToModelTransform
+from daeutil import printoptions, ModelToWorld, WorldToModel
 from daeviewpoint import DAEViewpoint
 
 
@@ -98,12 +98,12 @@ class DAEMesh(object):
 
     def _get_model2world(self):
         center, extent = self.center_extent
-        return ModelToWorldTransform(extent, center)
+        return ModelToWorld(extent, center)
     model2world = property(_get_model2world)
 
     def _get_world2model(self):
         center, extent = self.center_extent
-        return WorldToModelTransform(extent, center)
+        return WorldToModel(extent, center)
     world2model = property(_get_world2model)
  
     def smry(self):

@@ -1,9 +1,12 @@
 #!/usr/bin/env python
+
+import logging
+log = logging.getLogger(__name__)
 import numpy as np
 import numpy.core.arrayprint as arrayprint
 import contextlib
 
-
+normalize_ = lambda _:_/np.linalg.norm(_)
 
 
 
@@ -54,56 +57,9 @@ def scale_matrix(scale):
 
 def translate_matrix(translate):
     matrix = np.identity(4)
-    matrix[:3,3] = translate 
+    matrix[:3,3] = translate[:3]
     return matrix
-
-
-"""
-
-In [55]: scale_matrix(100)
-Out[55]: 
-array([[ 100.,    0.,    0.,    0.],
-       [   0.,  100.,    0.,    0.],
-       [   0.,    0.,  100.,    0.],
-       [   0.,    0.,    0.,    1.]])
-
-In [56]: translate_matrix((1,2,3))
-Out[56]: 
-array([[ 1.,  0.,  0.,  1.],
-       [ 0.,  1.,  0.,  2.],
-       [ 0.,  0.,  1.,  3.],
-       [ 0.,  0.,  0.,  1.]])
-
-In [57]: np.dot(scale_matrix(100),translate_matrix((1,2,3)))
-Out[57]: 
-array([[ 100.,    0.,    0.,  100.],
-       [   0.,  100.,    0.,  200.],
-       [   0.,    0.,  100.,  300.],
-       [   0.,    0.,    0.,    1.]])
-
-In [58]: np.dot(translate_matrix((1,2,3)),scale_matrix(100))
-Out[58]: 
-array([[ 100.,    0.,    0.,    1.],
-       [   0.,  100.,    0.,    2.],
-       [   0.,    0.,  100.,    3.],
-       [   0.,    0.,    0.,    1.]])
-
-In [59]: np.dot(scale_matrix(1./100),translate_matrix((-1,-2,-3)))
-Out[59]: 
-array([[ 0.01,  0.  ,  0.  , -0.01],
-       [ 0.  ,  0.01,  0.  , -0.02],
-       [ 0.  ,  0.  ,  0.01, -0.03],
-       [ 0.  ,  0.  ,  0.  ,  1.  ]])
-
-In [60]: np.dot(np.dot(translate_matrix((1,2,3)),scale_matrix(100)),np.dot(scale_matrix(1./100),translate_matrix((-1,-2,-3))))
-Out[60]: 
-array([[ 1.,  0.,  0.,  0.],
-       [ 0.,  1.,  0.,  0.],
-       [ 0.,  0.,  1.,  0.],
-       [ 0.,  0.,  0.,  1.]])
-
-
-"""
+    
 
 
 
@@ -112,8 +68,11 @@ class Transform(object):
         self.matrix = np.identity(4)
     def __call__(self, v, w=1.):
         return np.dot( self.matrix, np.append(v,w) )
+    def __repr__(self):
+        with printoptions(precision=3, suppress=True, strip_zeros=False):
+             return str(self.matrix)
 
-class ModelToWorldTransform(Transform):
+class ModelToWorld(Transform):
     """
     :param scale:
     :param translate:
@@ -121,12 +80,12 @@ class ModelToWorldTransform(Transform):
     The translation is expected to be "scaled already" 
 
     """ 
-    invert = False
+    inverse = False
     def __init__(self, extent, center ): 
         self.extent = extent
         self.center = center
 
-        if self.invert:
+        if self.inverse:
             scale = scale_matrix(1./extent)
             translate = translate_matrix(-center)
             matrix = np.dot( scale, translate )
@@ -137,8 +96,146 @@ class ModelToWorldTransform(Transform):
 
         self.matrix = matrix
 
-class WorldToModelTransform(ModelToWorldTransform):
-    invert = True
+class WorldToModel(ModelToWorld):
+    inverse = True
+
+class WorldToCamera(Transform):
+    def __init__(self, eye, look, up):
+         self.matrix = view_transform( eye, look, up, inverse=False )
+         
+class CameraToWorld(Transform):
+    def __init__(self, eye, look, up):
+         self.matrix = view_transform( eye, look, up, inverse=True )
+ 
+
+def view_transform( eye, look, up, inverse=False ):
+    """ 
+    NB actual view transform in use adopts gluLookAt, this
+    is here as a check and in order to obtain the inverse
+    of gluLookAt
+
+    OpenGL eye space convention with forward as -Z
+    means that have to negate the forward basis vector in order 
+    to create a right-handed coordinate system.
+
+    Construct matrix using the normalized basis vectors::    
+
+                             -Z
+                       +Y    .  
+                        |   .
+                  EY    |  .  -EZ forward 
+                  top   | .  
+                        |. 
+                        E-------- +X
+                       /  EX right
+                      /
+                     /
+                   +Z
+
+    """
+    eye = np.array(eye[:3])
+    look = np.array(look[:3])
+    up  = np.array(up[:3])
+
+    gaze = look - eye
+    distance = np.linalg.norm(gaze)
+
+    # orthonormal unit vectors for the camera
+    forward = normalize_(gaze)                     # -Z
+    right   = normalize_(np.cross(forward, up))    # +X 
+    top     = normalize_(np.cross(right,forward)) # +Y 
+ 
+    r = np.identity(4)
+    r[:3,0] = right
+    r[:3,1] = top
+    r[:3,2] = -forward  
+
+    if inverse:
+        m = np.dot(translate_matrix(eye),r)
+        #
+        # camera2world, un-rotate first (eye already at origin)
+        # then translate back to world 
+        # 
+    else:
+        m = np.dot(r.T,translate_matrix(-eye))   
+        #
+        # world2camera, must translate first putting the eye at the origin
+        # then rotate to point -Z forward
+        #
+    return m 
+
+
+
+
+
+def check_view_transform():
+    """ 
+    World frame::
+
+             Y
+             |
+             |       L
+             |     /   
+             |   E 
+             |
+             O----------- X
+
+
+    Camera Frame (O is behind the camera)::
+
+                   -X 
+                    |
+                    |
+            ---O----E-->--L--- -Z
+                    |
+                    |
+                   +X
+
+    """
+    eye = (10,10,0)
+    look = (20,20,0)
+    up = (0,0,1)
+
+    w2c = view_transform( eye, look, up)
+    c2w = view_transform( eye, look, up, inverse=True)
+
+    with printoptions(precision=3, suppress=True, strip_zeros=False):
+        print w2c
+        for p in ([eye,look]):
+            world = np.append(p,1)     # homogenize
+            camera = np.dot(w2c,world)
+            world2 = np.dot(c2w,camera)
+            assert np.allclose( world, world2 ) 
+            print "world ",world, "camera ", camera, "world2 ",world2
+
+
+def check_view_transform_2():
+
+    origin = (0,0,0)
+    eye = (10,10,0)
+    look = (20,20,0)
+
+    up = (0,0,1)
+
+    w2c = WorldToCamera( eye, look, up )
+    c2w = CameraToWorld( eye, look, up )
+    print "w2c\n", w2c
+    print "c2w\n", c2w
+
+    with printoptions(precision=3, suppress=True, strip_zeros=False):
+        for world in origin,eye,look:
+            camera = w2c(world)[:3]
+            world2 = c2w(camera)[:3]
+            assert np.allclose( world, world2 ) 
+            print "world ",world, "camera ", camera, "world2 ",world2
+
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    check_view_transform() 
+    check_view_transform_2() 
+    
 
 
 

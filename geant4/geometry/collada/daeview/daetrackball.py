@@ -79,7 +79,7 @@ class DAETrackball(gp.Trackball):
 
 
     """
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3)):
+    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), radius=0.8):
         """
         :param thetaphi:
         :param xyz: 3-tuple position, only used in non-lookat mode 
@@ -98,7 +98,7 @@ class DAETrackball(gp.Trackball):
 
         self._count = 0 
         self._RENORMCOUNT = 97
-        self._TRACKBALLSIZE = 0.8 
+        self._TRACKBALLSIZE = radius
 
         # vestigial
         self.zoom = 0    

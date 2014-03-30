@@ -160,6 +160,9 @@ refs
 
 import numpy as np
 import OpenGL.GL as gl
+import OpenGL.GLUT as glut
+
+
 
 
 class DAELights(object):
@@ -218,23 +221,30 @@ class DAELights(object):
         scale is not enough, need to transform the positions
         """
 
-        if "r" in self.lights:
-            gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 0.0, 0.0, 1.0))
+        #if "r" in self.lights:
+        if 1:
+            gl.glLightfv (gl.GL_LIGHT0, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
             gl.glLightfv (gl.GL_LIGHT0, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 1.0))
             gl.glLightfv (gl.GL_LIGHT0, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
             gl.glLightfv (gl.GL_LIGHT0, gl.GL_POSITION, self.light0 )
+            #gl.glLightf(  gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, .2)
 
-        if "g" in self.lights:
-            gl.glLightfv (gl.GL_LIGHT1, gl.GL_DIFFUSE, (0.0, 1.0, 0.0, 1.0))
+
+        #if "g" in self.lights:
+        if 1:
+            gl.glLightfv (gl.GL_LIGHT1, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
             gl.glLightfv (gl.GL_LIGHT1, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
             gl.glLightfv (gl.GL_LIGHT1, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
             gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION, self.light1 )
+            #gl.glLightf(  gl.GL_LIGHT1, gl.GL_CONSTANT_ATTENUATION, .2)
 
-        if "b" in self.lights:
-            gl.glLightfv (gl.GL_LIGHT2, gl.GL_DIFFUSE, (0.0, 0.0, 1.0, 1.0))
+        #if "b" in self.lights:
+        if 1:
+            gl.glLightfv (gl.GL_LIGHT2, gl.GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
             gl.glLightfv (gl.GL_LIGHT2, gl.GL_AMBIENT, (0.0, 0.0, 0.0, 0.0))
             gl.glLightfv (gl.GL_LIGHT2, gl.GL_SPECULAR,(0.0, 0.0, 0.0, 0.0))
             gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION, self.light2 )
+            #gl.glLightf(  gl.GL_LIGHT2, gl.GL_CONSTANT_ATTENUATION, .2)
 
 
         if len(self.lights) > 0:
@@ -262,6 +272,35 @@ class DAELights(object):
             gl.glLightfv (gl.GL_LIGHT1, gl.GL_POSITION, self.light1 )
         if "b" in self.lights:
             gl.glLightfv (gl.GL_LIGHT2, gl.GL_POSITION, self.light2 )
+
+
+    def draw(self, distance):
+
+        gl.glDisable( gl.GL_LIGHTING )
+        gl.glDisable( gl.GL_DEPTH_TEST )
+
+        gl.glColor3f( 1.,0.,0. )
+        gl.glPushMatrix()
+        gl.glTranslate ( *self.light0[:3] )
+        glut.glutSolidCube( distance/10. )
+        gl.glPopMatrix()
+
+        gl.glColor3f( 0.,1.,0. )
+        gl.glPushMatrix()
+        gl.glTranslate ( *self.light1[:3] )
+        glut.glutSolidCube( distance/10. )
+        gl.glPopMatrix()
+
+        gl.glColor3f( 0.,0.,1. )
+        gl.glPushMatrix()
+        gl.glTranslate ( *self.light2[:3] )
+        glut.glutSolidCube( distance/10. )
+        gl.glPopMatrix()
+
+        gl.glEnable( gl.GL_LIGHTING )
+        gl.glEnable( gl.GL_DEPTH_TEST )
+
+        
 
 
 if __name__ == '__main__':

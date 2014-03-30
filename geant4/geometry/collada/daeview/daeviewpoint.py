@@ -3,8 +3,7 @@
 import logging
 log = logging.getLogger(__name__)
 import numpy as np
-from daeutil import printoptions
-
+from daeutil import printoptions, WorldToCamera, CameraToWorld
 
 
 
@@ -16,6 +15,7 @@ class DAEViewpoint(object):
 
     The transform and its extent are however fixed.
     """
+    interpolate = False
     def __init__(self, eye, look, up, solid, target ):
         """
         :param eye: model frame camera position, typically (1,1,0) or similar
@@ -31,6 +31,8 @@ class DAEViewpoint(object):
         pass
         self.model2world = solid.model2world
         self.world2model = solid.world2model
+        self.world2camera = WorldToCamera( self.eye, self.look, self.up )
+        self.camera2world = CameraToWorld( self.eye, self.look, self.up )
         self.extent = solid.extent  
         self.target = target
         self.index = solid.index
@@ -102,10 +104,7 @@ class DAEViewpoint(object):
 
 
 
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-
+def check_solid():
     from daegeometry import DAEGeometry
     dg = DAEGeometry("3153:12230")
     dg.flatten()
@@ -123,9 +122,8 @@ if __name__ == '__main__':
 
 
 
- 
-
-
- 
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    check_solid()
 
 

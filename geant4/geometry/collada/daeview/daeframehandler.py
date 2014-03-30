@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 """
-
-
 Division of concerns
 
 `DAEFrameHandler`
@@ -24,43 +22,8 @@ import OpenGL.GLUT as glut
 
 from daeutil import Transform
 from daelights import DAELights
-
-
-
-class DAEText(object):
-    fonts = { 
-                   "8_BY_13":dict(code=glut.GLUT_BITMAP_8_BY_13,leading=50.), 
-                   "9_BY_15":dict(code=glut.GLUT_BITMAP_9_BY_15), 
-            "TIMES_ROMAN_10":dict(code=glut.GLUT_BITMAP_TIMES_ROMAN_10), 
-            "TIMES_ROMAN_24":dict(code=glut.GLUT_BITMAP_TIMES_ROMAN_24), 
-              "HELVETICA_10":dict(code=glut.GLUT_BITMAP_HELVETICA_10,leading=15.),
-              "HELVETICA_12":dict(code=glut.GLUT_BITMAP_HELVETICA_12),
-             }
-
-    def __init__(self, font="HELVETICA_10"):
-        font = self.fonts[font]
-        self.font = font['code']
-        self.leading = font.get('leading',20.)
-
-    def check(self):
-        self( self.fonts.keys() )
-
-    def __call__(self, lines ):
-        gl.glDisable( gl.GL_LIGHTING )
-        gl.glDisable( gl.GL_DEPTH_TEST )
-
-        gl.glColor3f( 0.1, 0.1, 0.1 )
-        for i, line in enumerate(lines):
-            ypos = self.leading * (i+1)
-            gl.glRasterPos3f( 2.*self.leading , ypos , 0 )
-            for c in line:
-                glut.glutBitmapCharacter( self.font, ord(c) )
-            pass
-
-        gl.glEnable( gl.GL_LIGHTING )
-        gl.glEnable( gl.GL_DEPTH_TEST )
-
-
+from daetext import DAEText
+from daefrustum import DAEFrustum
 
 
 def gl_modelview_matrix():
@@ -71,7 +34,6 @@ def gl_projection_matrix():
 
 def oscillate( count, low, high, speed ):
     return low + (high-low)*(math.sin(count*math.pi*speed)+1.)/2.
-
 
 
 count = 0 
@@ -87,7 +49,8 @@ class DAEFrameHandler(object):
         
         lookat = not scene.scaled_mode
         if lookat:
-            scale = scene.view.extent
+            #scale = scene.view.extent
+            scale = config.args.scale
             light_transform = scene.geometry.mesh.model2world 
             log.info("mesh\n%s" % scene.geometry.mesh.smry() )
         else:
@@ -100,6 +63,7 @@ class DAEFrameHandler(object):
         self.settings(config.args)
         pass
         self.text = DAEText()
+        self.frustum = DAEFrustum()
         self.annotate = []
         pass
         frame.push(self)  # get frame to invoke on_init and on_draw handlers
@@ -177,8 +141,6 @@ class DAEFrameHandler(object):
             gl.glFrustum ( *lrbtnf )
         pass
         
-        # scaling here can see inner volumes, but not outer ones
-        #gl.glScalef(1./scale, 1./scale, 1./scale)   # does nothing for scaled mode
 
 
         gl.glMatrixMode (gl.GL_MODELVIEW)
@@ -189,16 +151,23 @@ class DAEFrameHandler(object):
         # rather than first thing in PROJECTION transform (last in code)
         # succeeds to get lights under control because light positions
         # are stored in eye space, after the MODELVIEW transform is applied
-
-        gl.glTranslate ( *trackball.xyz )
+        
 
         gl.glScalef(1./scale, 1./scale, 1./scale)   
 
+        gl.glTranslate ( *trackball.xyz*1000. )  # adhoc 1000.
+
+
+        # translate/rotate/-translate in order to rotate around the look
+        # (use of camera frame) 
+
+        gl.glTranslate ( 0, 0, -distance )
+
         gl.glMultMatrixf (trackball._matrix )   # rotation only 
+
+        gl.glTranslate ( 0, 0, +distance )
         
-        #gl.glTranslate ( 0, 0, -distance )
         #glut.glutWireSphere( scale*trackball._TRACKBALLSIZE,10,10)
-        #gl.glTranslate ( 0, 0, +distance )
 
 
         if self.lookat:
@@ -210,19 +179,11 @@ class DAEFrameHandler(object):
         if self.light:
             self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
 
+        self.lights.draw(distance) 
 
-        
-
-        gl.glPushMatrix()
-        gl.glTranslate ( *view.look[:3] )
-        glut.glutWireSphere( scale,10,10)
-        gl.glPopMatrix()
-
-
-        gl.glPushMatrix()
-        gl.glTranslate ( *view.eye[:3] )
-        glut.glutWireSphere( distance,10,10)
-        gl.glPopMatrix()
+        if not view.interpolate:
+            self.annotate = ["scale %s lrbtnf(scaled) %s " % (scale, str(lrbtnf * scale))]
+            self.frustum( view, lrbtnf*scale )
 
 
     def unproject(self, x, y):
@@ -278,6 +239,7 @@ class DAEFrameHandler(object):
         self.frame.draw()
 
         self.push() # matrices
+
 
         if self.fill:
             if self.transparent:
