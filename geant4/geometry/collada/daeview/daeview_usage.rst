@@ -1,6 +1,8 @@
 daeviewgl.py
 =============
 
+.. contents:: :local:
+
 Parallel/Orthographic projection
 ----------------------------------
 
@@ -8,12 +10,14 @@ In parallel projection, there is effectively no z direction (its
 as if viewing from infinity) so varying z has no effect.  Instead
 to control view change near and yfov.  It can be difficult 
 to "enter" geometry while in parallel, to do so try very small yfov (5 degrees) 
-and vary near.
+and vary near in order to clip the volumes.
 
 Observations
 --------------
 
 #. toggling between parallel/perspective can be dis-orienting, change near/yfov to get the desired view  
+
+   * perhaps can automate the appropriate changes to maintain constant screen size for extent of current view ?
 
 
 Up/down views are problematic
@@ -32,8 +36,7 @@ Tweaking eye or up regain the geometry::
     # nodes 5000:6000 corresponds to several rings of PMTs, making for a good simple test geometry 
     # the view is of circles of PMTs from above/below
 
-
-* TODO: automate the tweaking
+* TODO: automate the tweaking, done at argument level, needs to be done deeper
 
 
 
@@ -123,7 +126,7 @@ Reflectors
     (chroma_env)delta:daeview blyth$ 
 
     ./udp.py "-t 4425_0,0.001,-2_-2,-2,0
-"   # looking up at top reflector
+    # looking up at top reflector
 
 
 Bizarre

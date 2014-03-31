@@ -9,6 +9,7 @@ opengl
    opengl_vertex_buffer_object
    opengl_cuda_interop
    opengl_glut
+   opengl_transformations
 
 
 

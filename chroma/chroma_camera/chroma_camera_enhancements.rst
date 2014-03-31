@@ -20,6 +20,27 @@ the pygame event queue.
 Maybe can do the IPC at a higher level with zeromq ?
 
 
+
+GPU resident pixels
+--------------------
+
+No point pulling CUDA ray traced pixels back to host only to send them
+back to GPU for display with OpenGL. Instead use shared PBOs.
+
+Calculate ray directions in CUDA code
+---------------------------------------
+
+Currently have number of pixel sized arrays: position and direction.
+Both unnecessary, can determine px,py from thread index and offset. Those
+together with `tan(yfov/2)` can yield ray directions.
+
+* http://www.igorsevo.com/File.ashx?type=res&resType=0&title=source+code%5cCUDAraytracer.cu
+
+
+  
+
+
+
 Quaternion Trackball Control
 -----------------------------
 
