@@ -59,19 +59,20 @@ class DAEInteractivityHandler(object):
             self.toggle_fullscreen()
         pass
 
-        fig.push(self)               # event notification from fig 
-        self.hookup_dispatcher()     # event notification from dispatcher
+        fig.push(self)                     # event notification from fig 
+        self.hookup_dispatcher(config)     # event notification from dispatcher
 
 
     def __repr__(self):
         return "H %5.2f " % self.dragfactor
 
-    def hookup_dispatcher(self):
+    def hookup_dispatcher(self, config):
         """
         dispatchers collect messages over UDP, allowing remote control
         """
-        dispatcher = DAEDispatcher()
-        
+        dispatcher = DAEDispatcher(port=config.args.port, host=config.args.host)
+        log.info(dispatcher)        
+
         def _check_dispatcher(dt):
             dispatcher.update()
         timer = self.fig.timer(60.)  # fps

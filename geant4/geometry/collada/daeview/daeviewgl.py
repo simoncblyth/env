@@ -14,11 +14,9 @@ TODO
 ----
 
 #. clipping plane controls, that are fixed in world coordinates
-#. external positioning control, lookat/eye/up   
 #. placemarks
 #. coloring by material
 #. try running on a lesser machine
-
 
 Division of concerns
 ----------------------

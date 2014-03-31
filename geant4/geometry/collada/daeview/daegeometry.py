@@ -302,7 +302,8 @@ class DAEGeometry(object):
 
         nelem = len(velem)
         if nelem > 0: 
-            target = velem[0]
+            target = "" if velem[0] == "." else velem[0]  
+            # special case "." to represent "" to avoid fiddling with empty quotes "" on commandline
         if nelem > 1:
             eye = fvec_(velem[1])
         if nelem > 2:
