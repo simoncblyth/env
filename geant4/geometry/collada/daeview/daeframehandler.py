@@ -20,8 +20,6 @@ import OpenGL.GLU as glu
 import OpenGL.GLUT as glut
 
 
-from daeutil import Transform
-from daelights import DAELights
 from daetext import DAEText
 from daefrustum import DAEFrustum
 
@@ -46,20 +44,8 @@ class DAEFrameHandler(object):
         self.frame = frame
         self.mesh = mesh
         self.scene = scene
-        
-        lookat = not scene.scaled_mode
-        if lookat:
-            #scale = scene.view.extent
-            scale = config.args.scale
-            light_transform = scene.geometry.mesh.model2world 
-            log.info("mesh\n%s" % scene.geometry.mesh.smry() )
-        else:
-            scale = 1.
-            light_transform = Transform()
-        pass
-        self.scale = scale
-        self.lights = DAELights( light_transform, config )
-        self.lookat = lookat 
+        self.selection = None
+
         self.settings(config.args)
         pass
         self.text = DAEText()
@@ -69,7 +55,7 @@ class DAEFrameHandler(object):
         frame.push(self)  # get frame to invoke on_init and on_draw handlers
 
     def __repr__(self):
-        return "F %7.2f " %  (self.scale)
+        return "FH "
 
     def settings(self, args):
         self.light = args.light
@@ -113,19 +99,35 @@ class DAEFrameHandler(object):
         glumpy.Figure.on_init sets up the RGB lights before dispatch to all figures
         """
         if self.light:
-            self.lights.setup()
-            log.info("on_init lights\n%s" % str(self.lights))
+            self.scene.lights.setup()
+            log.info("on_init lights\n%s" % str(self.scene.lights))
         pass
 
     def push(self):
         """
-        Need to read the sequence of transformations backwards
+        Transformations are applied in the reverse order
+        to how they appear in OpenGL code.
+
+        Light positions are set using world coordinates but OpenGL
+        stores them in eye coordinates by transforming using the MODELVIEW matrix
+        in force at the time of the light positioning call.
+
+        This means that for fixed light positions have to keep re-positioning 
+        the lights as the MODELVIEW matrix is changed by moving around.
+
+        Thus it matters whether scaling is done in MODELVIEW as 
+        opposed to PROJECTION 
+
+
+        eye/look/up in world frame define the camera transform, 
+        translating eye to origin and rotating look to be along -z
+
         """
+        scene = self.scene
         trackball = self.scene.trackball
         camera = self.scene.camera
         view = self.scene.view
-
-        scale = self.scale
+        kscale = self.scene.kscale
         distance = view.distance
 
 
@@ -133,98 +135,30 @@ class DAEFrameHandler(object):
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-
-        lrbtnf = camera.lrbtnf 
         if self.parallel:
-            gl.glOrtho ( *lrbtnf )
+            gl.glOrtho ( *camera.lrbtnf )
         else:
-            gl.glFrustum ( *lrbtnf )
+            gl.glFrustum ( *camera.lrbtnf )
         pass
-        
 
 
         gl.glMatrixMode (gl.GL_MODELVIEW)
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        # scaling in MODELVIEW transform (first in code) 
-        # rather than first thing in PROJECTION transform (last in code)
-        # succeeds to get lights under control because light positions
-        # are stored in eye space, after the MODELVIEW transform is applied
-        
+        gl.glScalef(1./kscale, 1./kscale, 1./kscale)   
 
-        gl.glScalef(1./scale, 1./scale, 1./scale)   
+        gl.glTranslate ( *trackball.xyz*1000. )  # adhoc 1000.  why? shift into trackball
 
-        gl.glTranslate ( *trackball.xyz*1000. )  # adhoc 1000.
+        # temporarily shunt origin to the look rather than the eye, for applying rotation and markers
+        gl.glTranslate ( 0, 0, -distance )      # camera frame
+        gl.glMultMatrixf (trackball._matrix )   # rotation around the look point
+        glut.glutWireSphere( kscale*trackball._TRACKBALLSIZE,10,10)  # what size trackball ?
+        gl.glTranslate ( 0, 0, +distance )      # look is at (0,0,-distance) in eye frame, 
 
+        if not scene.scaled_mode:
+            glu.gluLookAt( *view.eye_look_up )   # NB no scaling, still world distances, eye at origin and point -Z at look
 
-        # translate/rotate/-translate in order to rotate around the look
-        # (use of camera frame) 
-
-        gl.glTranslate ( 0, 0, -distance )
-
-        gl.glMultMatrixf (trackball._matrix )   # rotation only 
-
-        gl.glTranslate ( 0, 0, +distance )
-        
-        #glut.glutWireSphere( scale*trackball._TRACKBALLSIZE,10,10)
-
-
-        if self.lookat:
-            glu.gluLookAt( *view.eye_look_up )   
-            # eye/look/up in world frame define the camera transform, 
-            # translating eye to origin and rotating look to be along -z
-            # NB no scaling, still world distances 
-
-        if self.light:
-            self.lights.position()   # reset positions following changes to MODELVIEW matrix ?
-
-        self.lights.draw(distance) 
-
-        if not view.interpolate:
-            self.annotate = ["scale %s lrbtnf(scaled) %s " % (scale, str(lrbtnf * scale))]
-            self.frustum( view, lrbtnf*scale )
-
-
-    def unproject(self, x, y):
-        """
-        :param x: screen coordinates 
-        :param y:
-
-        #. gluUnProject needs window_z value,  z=0(near), z=1(far), z=depth(inbetween)
-        #. read z from depth buffer for the xy 
-
-        """
-        self.push()
-
-        pixels = gl.glReadPixelsf(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
-
-        z = pixels[0][0]
-        window_xyz = (x,y,z)
-        if not (0 <= z <= 1): log.warn("unexpectd z buffer read %s " %  str(window_xyz))
-
-        click = glu.gluUnProject( *window_xyz ) # click point in world frame       
-
-        #log.debug("unproject %s => %s " % (str(window_xyz),str(click))) 
-
-        geometry = self.scene.geometry
-        f = geometry.find_bbox_solid( click )
-        #log.info("find_bbox_solid %s yields %s solids %s " % (str(click), len(f), str(f)))
- 
-        view = self.scene.view
-        eye,look,up = np.split(view.eye_look_up, 3)  # all world frame
-
-        solids = sorted([geometry.solids[_] for _ in f],key=lambda _:_.extent, reverse=False) # presented from bottom so dont reverse
-
-        self.annotate = [] 
-        for solid in solids:
-            log.info(solid)
-            w2m = solid.world2model
-            #log.info("click %s eye %s look %s " % (w2m(click),w2m(eye),w2m(look)) )
-            self.annotate.append(repr(solid))
-        pass
-        self.pop()
-        self.frame.redraw() 
 
 
     def pop(self):
@@ -239,6 +173,32 @@ class DAEFrameHandler(object):
         self.frame.draw()
 
         self.push() # matrices
+
+        self.annotate = []
+
+        view = self.scene.view
+        lights = self.scene.lights
+        distance = self.scene.view.distance
+        lrbtnf = self.scene.camera.lrbtnf
+        kscale = self.scene.kscale
+
+        if not view.interpolate:
+            self.frustum( view, lrbtnf*kscale )
+
+        if self.light:
+            lights.position()   # reset positions following changes to MODELVIEW matrix ?
+            lights.draw(distance) 
+
+        if len(self.scene.solids)>0:
+            for solid in self.scene.solids:
+                self.annotate.insert(0, repr(solid))
+            pass
+            solid = self.scene.solids[0]
+            gl.glColor3f( 1.,0.,0. )
+            gl.glPushMatrix()
+            gl.glTranslate ( *solid.center )
+            glut.glutWireSphere( solid.extent*1.2 , 10, 10)
+            gl.glPopMatrix()
 
 
         if self.fill:
@@ -282,8 +242,28 @@ class DAEFrameHandler(object):
         self.frame.unlock()
 
 
-    
+    def unproject(self, x, y ):
+        """
+        Obtain world space 3D coordinate from a mouse/pad click  
 
+        :param x: screen coordinates 
+        :param y:
+
+        TODO: check bit depth 
+        """
+        self.push()
+
+        #ipixels = gl.glReadPixelsi(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
+        #ipixel = ipixels[0][0]
+        #smry = " ipixel 0x%x z %s " % ( ipixel,  z )
+        #self.annotate.insert(0,smry)
+
+        pixels = gl.glReadPixelsf(x, y, 1, 1, gl.GL_DEPTH_COMPONENT ) # width,height 1,1  
+        z = pixels[0][0]
+        click_xyz = glu.gluUnProject( x,y,z ) # click point in world frame       
+
+        self.pop()
+        return click_xyz
 
 
 if __name__ == '__main__':

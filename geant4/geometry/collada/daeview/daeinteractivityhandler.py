@@ -46,7 +46,7 @@ class DAEInteractivityHandler(object):
         self.scene = scene
         #
         # input object   
-        self.viewport = DAEViewport(config.args.size)
+        self.viewport = DAEViewport(map(int,config.args.size.split(",")))
         #
         # interactivity modes 
         self.zoom_mode = False
@@ -54,6 +54,7 @@ class DAEInteractivityHandler(object):
         self.near_mode = False
         self.far_mode = False
         self.yfov_mode = False
+        self.unproject_mode = False
         #
         if config.args.fullscreen:
             self.toggle_fullscreen()
@@ -120,6 +121,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
+        elif symbol == key.U: self.unproject_mode = True
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
@@ -145,6 +147,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = False
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
+        elif symbol == key.U: self.unproject_mode = False
         else:
             pass
             #print "no action for on_key_release with symbol 0x%x " % symbol
@@ -177,10 +180,11 @@ class DAEInteractivityHandler(object):
         self.redraw()
 
     def on_mouse_press(self, x, y, button):
-        pass
-        #if button != 2:
         print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
-        self.frame_handler.unproject(x,y)
+        if self.unproject_mode:
+            xyz = self.frame_handler.unproject(x,y)
+            self.scene.clicked_point( xyz )
+            self.redraw()
 
     def on_mouse_release(self, x, y, button):
         pass

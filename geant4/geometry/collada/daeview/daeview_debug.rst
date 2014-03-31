@@ -230,4 +230,26 @@ outside view
 
 
 
+Lighting
+----------
+
+
+In glumpy original scaled geometry mode the lighting is acceptable with false directional RGB and white background::
+
+    daeviewgl.py -n 5000:6000  
+    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,1" --glight="1,1,1" --blight="0,-1,1" --xyz=0,0,3   # the original defaults, giving same appearance
+
+    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,-5" --glight="1,1,-5" --blight="0,-1,-5" --xyz=0,0,-3  # white screen, due to position
+
+    daeviewgl.py -n 5000:6000 --lights="rgb" --rlight="-1,1,-1" --glight="1,1,-1" --blight="0,-1,-1"   # flipping z does not mess up just makes a bit dimmer
+
+
+Reproducing that lighting with world coordinate geometry is being problematic.
+
+* the light position is stored in eye coordinates
+* http://stackoverflow.com/questions/15588860/what-exactly-are-eye-space-coordinates
+
+
+
+
 

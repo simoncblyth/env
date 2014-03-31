@@ -478,13 +478,21 @@ class DAENode(object):
         """
         Interpret an arg like 0:10,400:410,300,40,top.0
         into a list of integer DAENode indices 
+
+
+
         """
         if "," in arg:
             args = arg.split(",")
         else:
             args = [arg]
+        pass
         ids = []
         for arg in args:
+            # an argument ending with : is interpreted to mean everything til the end of the registry 
+            if arg[-1] == ":":
+                arg = "%s:%s" % (arg[:-1], len(cls.registry)-1) 
+
             if ":" in arg:
                 iarg=range(*map(int,arg.split(":")))
                 ids.extend(iarg)

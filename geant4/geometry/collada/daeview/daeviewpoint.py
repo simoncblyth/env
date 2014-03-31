@@ -1,10 +1,47 @@
 #!/usr/bin/env python
 
-import logging
+import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
 from daeutil import printoptions, WorldToCamera, CameraToWorld
 
+
+def rotate( th , axis="x"):
+    c = math.cos(th)
+    s = math.sin(th)
+    if axis=="x":
+        m = np.array([[1,0,0],[0,c,-s],[0,s,c]])
+    elif axis=="y":
+        m = np.array([[c,0,s],[0,1,0],[-s,0,c]])
+    elif axis=="z":
+        m = np.array([[c,-s,0],[s,c,0],[0,0,1]])
+    else:
+        assert 0
+    return m 
+
+def ensure_not_collinear( eye, look, up):
+    e = np.array(eye)
+    l = np.array(look)
+    g = l - e
+    u = np.array(up)     
+    if np.allclose(np.cross(g,u),(0,0,0)):
+        m = rotate( 2.*math.pi/180. , "x")
+        u = np.dot(m,u) 
+        log.info("tweaking up vector as collinear vectors")
+
+    return e,l,u
+
+def pfvec_( svec, prior ):
+    """
+    Allow specification of a prior vec element value with "." thus::
+       
+    2000_.,.,10   # means take a look from 10 units above current position  
+
+    """
+    if svec is None:
+        return prior
+    float_or_prior_ = lambda _:sp[1] if sp[0] == "." else float(sp[0])
+    return [float_or_prior_(sp) for sp in zip(svec.split(","),prior)]
 
 
 class DAEViewpoint(object):
@@ -16,7 +53,12 @@ class DAEViewpoint(object):
     The transform and its extent are however fixed.
     """
     interpolate = False
-    def __init__(self, eye, look, up, solid, target ):
+
+    eye  = property(lambda self:self.model2world(self._eye))
+    look = property(lambda self:self.model2world(self._look))
+    up   = property(lambda self:self.model2world(self._up,w=0.))
+ 
+    def __init__(self, _eye, _look, _up, solid, target ):
         """
         :param eye: model frame camera position, typically (1,1,0) or similar
         :param look: model frame object that camera is pointed at, usually (0,0,0)
@@ -25,32 +67,111 @@ class DAEViewpoint(object):
         :param world2model: opposite transfrom back from world frame back into model frame
         :param target: string identifier for the corresponding solid
         """
-        self._eye = np.array(eye) 
-        self._look = np.array(look)  
-        self._up = np.array(up)     # a direction 
+        _eye, _look, _up = ensure_not_collinear( _eye, _look, _up )
+        pass  
+        # model frame input parameters
+        self._eye = _eye
+        self._look = _look  
+        self._up = _up   # a direction 
+
         pass
+        # the below are fixed for the view, cannot change the solid associated with a Viewpoint
         self.model2world = solid.model2world
         self.world2model = solid.world2model
-        self.world2camera = WorldToCamera( self.eye, self.look, self.up )
-        self.camera2world = CameraToWorld( self.eye, self.look, self.up )
+
         self.extent = solid.extent  
-        self.target = target
         self.index = solid.index
         self.solid = solid
+        self.target = target  # informational
         pass
 
-    def __call__(self, f):
+    # NB the input parameters to the transforms are world coordinates
+    world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
+    camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
+
+    def change_eye_look_up(self, eye=None, look=None, up=None):
+        """ 
+        """ 
+        eye = pfvec_(eye, self._eye )
+        look = pfvec_(look, self._look )
+        up = pfvec_(up, self._up )
+
+        _eye, _look, _up = ensure_not_collinear( eye, look, up )
+
+        self._eye = _eye
+        self._look = _look  
+        self._up = _up  # a direction 
+
+
+    @classmethod
+    def interpret_vspec( cls, vspec, args ):
+        """
+        Interpret view specification strings like the below into
+        target, eye, look, up::
+
+           2000
+           +0
+           +1
+           -1
+           2000_0,1,1
+           2000_-1,-1,-1
+           2000_-1,-1,-1
+           2000_-1,-1,-1_0,0,1
+           2000_-1,-1,-1_0,0,1_0,0,1
+
+
+        """
+        fvec_ = lambda _:map(float, _.split(","))
+
+        target = None
+        eye = fvec_(args.eye)
+        look = fvec_(args.look)
+        up = fvec_(args.up)
+   
+        velem = vspec.split("_") if not vspec is None else [] 
+
+        nelem = len(velem)
+        if nelem > 0: 
+            target = velem[0]  
+        if nelem > 1:
+            eye = pfvec_(velem[1], eye )
+        if nelem > 2:
+            look = pfvec_(velem[2], look )
+        if nelem > 3:
+            up = pfvec_(velem[3], up )
+
+        return target, eye, look, up
+
+    @classmethod
+    def make_view(cls, geometry, vspec, args, prior=None ):
+        """
+        :param target: when None corresponds to the full mesh 
+
+        The transform converts solid frame coordinates expressed in units of the extent
+        into world frame coordinates.
+        """
+        target, eye, look, up = cls.interpret_vspec( vspec, args )
+        if target == ".": 
+            if prior is None: 
+                target = ".."
+                log.info("target spec of . but no prior.index fallback to entire mesh ")
+            else:
+                target = str(prior.index) 
+                log.info("target spec of . interpreted as prior.index %s  " % target )
+            pass
+
+        solid = geometry.find_solid(target) 
+        assert solid
+        return cls(eye, look, up, solid, target )   
+
+
+    def __call__(self, f, g):
         log.warn("not an interpolatable view ")
 
     views = property(lambda self:[self])  # mimic DAEInterpolateView 
     current_view = property(lambda self:self)  
     next_view = property(lambda self:None)      
 
-
-    eye  = property(lambda self:self.model2world(self._eye))
-    look = property(lambda self:self.model2world(self._look))
-    up   = property(lambda self:self.model2world(self._up,w=0.))
-    
 
     def _get_distance(self):
         model2world = self.model2world
@@ -119,6 +240,20 @@ def check_solid():
     for p in [solid.center] + list(solid.bounds):
         print "world point          ", p
         print "model point from w2m ", solid.world2model(p)
+
+
+def check_view(geometry):
+    target = "+0"
+    eye = (1,1,1)
+    look = (0,0,0)
+    up = (0,1,0)
+ 
+    view = DAEViewpoint.make_view( geometry, target, eye, look, up)
+    print view 
+
+    view._eye = np.array([1.1,1,1])
+    print view 
+
 
 
 

@@ -55,19 +55,19 @@ from daeframehandler import DAEFrameHandler
 def main():
 
     config = DAEConfig(__doc__)
-    args = config.args
-    print config.commandline()
+    config.init_parse()
+    print config
 
-    geometry = DAEGeometry(args.nodes, path=args.path)
+    geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()
 
     scene = DAEScene(geometry, config)
     scene.dump() 
 
-    figure = gp.Figure(size=args.size)
-    frame = figure.add_frame(size=args.frame)
+    figure = gp.Figure(size=map(int,config.args.size.split(",")))
+    frame = figure.add_frame(size=map(float,config.args.frame.split(",")))
 
-    vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=args.rgba )
+    vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=map(float,config.args.rgba.split(",")) )
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
     frame_handler = DAEFrameHandler( frame, mesh, scene, config )

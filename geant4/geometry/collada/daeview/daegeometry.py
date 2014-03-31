@@ -160,10 +160,6 @@ class DAESolid(DAEMesh):
 
 
 class DAEGeometry(object):
-    """
-
-    """
-
     def __init__(self, arg, path=None, bound=True):
 
         if path is None:
@@ -181,7 +177,7 @@ class DAEGeometry(object):
         where the target argument begins with "-" or "+". Otherwise
         find by the absolute geometry index of the target.
         """
-        if target is None or target == "":return self.mesh
+        if target == "..":return self.mesh  # entire mesh
         if target[0] == "+" or target[0] == "-": 
             relative = int(target)
             log.debug("relative target index %s " % relative )
@@ -276,57 +272,6 @@ class DAEGeometry(object):
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
        
-    def interpret_vspec( self, vspec, args ):
-        """
-        Interpret view specification strings like the below into
-        target, eye, look, up::
-
-           2000
-           +0
-           +1
-           -1
-           2000_0,1,1
-           2000_-1,-1,-1
-           2000_-1,-1,-1
-           2000_-1,-1,-1_0,0,1
-           2000_-1,-1,-1_0,0,1_0,0,1
-
-        """
-        target = None
-        eye = args.eye
-        look = args.look
-        up = args.up
-   
-        velem = vspec.split("_") if not vspec is None else [] 
-        fvec_ = lambda _:map(float, _.split(","))
-
-        nelem = len(velem)
-        if nelem > 0: 
-            target = "" if velem[0] == "." else velem[0]  
-            # special case "." to represent "" to avoid fiddling with empty quotes "" on commandline
-        if nelem > 1:
-            eye = fvec_(velem[1])
-        if nelem > 2:
-            look = fvec_(velem[2])
-        if nelem > 3:
-            up = fvec_(velem[3])
-
-        return target, eye, look, up
-
-
-    def make_view(self, vspec, args):
-        """
-        :param target: when None corresponds to the full mesh 
-
-        The transform converts solid frame coordinates expressed in units of the extent
-        into world frame coordinates.
-        """
-        target, eye, look, up = self.interpret_vspec( vspec, args )
-        solid = self.find_solid(target) 
-        assert solid
-        return DAEViewpoint(eye, look, up, solid, target )    # use solid ?    
-
-
  
 
 class DAEVertexBufferObject(object):
@@ -351,21 +296,6 @@ class DAEVertexBufferObject(object):
                    "faces",str(self.faces),
                    ])
 
-
-
-
-
-def check_view(geometry):
-    target = "+0"
-    eye = (1,1,1)
-    look = (0,0,0)
-    up = (0,1,0)
- 
-    view = geometry.make_view( target, eye, look, up)
-    print view 
-
-    view._eye = np.array([1.1,1,1])
-    print view 
 
 
 
