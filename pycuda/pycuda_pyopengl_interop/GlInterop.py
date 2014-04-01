@@ -1,12 +1,77 @@
-
+#!/usr/bin/env python
+#
+# http://wiki.tiker.net/PyCuda/Examples
+#
 # GL interoperability example, by Peter Berrington.
 # Draws a rotating teapot, using cuda to invert the RGB value
 # each frame
+"""
 
+From /usr/local/env/chroma_env/build/build_pycuda/pycuda/examples/wiki-examples
+
+
+Recompile PyCUDA to fix this
+----------------------------
+
+* see :doc:`chroma/chroma` needs a `CUDA_ENABLE_GL = True` in ~/.aksetup-defaults.py
+
+::
+
+    (chroma_env)delta:pycuda_pyopengl_interop blyth$ python interop.py 
+    Traceback (most recent call last):
+      File "interop.py", line 12, in <module>
+        import pycuda.gl as cuda_gl
+      File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/gl/__init__.py", line 4, in <module>
+        raise ImportError("PyCUDA was compiled without GL extension support")
+    ImportError: PyCUDA was compiled without GL extension support
+
+
+Add import to fix
+-------------------------------
+
+::
+
+    (chroma_env)delta:pycuda_pyopengl_interop blyth$ python interop.py 
+    ...
+      File "interop.py", line 170, in process_image
+        glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, long(source_pbo))
+    NameError: global name 'GL_PIXEL_PACK_BUFFER_ARB' is not defined
+
+
+::
+
+    from OpenGL.GL.ARB.pixel_buffer_object import *
+
+
+Changing rawgl to GL_1_1 yields rotating teapot
+------------------------------------------------------
+
+::
+
+    chroma_env)delta:pycuda_pyopengl_interop blyth$ python interop.py 
+    ...
+      File "interop.py", line 189, in process_image
+        rawgl.glReadPixels(
+    AttributeError: 'module' object has no attribute 'glReadPixels'
+
+::
+
+    #import OpenGL.raw.GL as rawgl
+    import OpenGL.raw.GL.VERSION.GL_1_1 as rawgl   # only GL_1_1 has the glReadPixels symbol
+    #import OpenGL.raw.GL.VERSION.GL_4_3 as rawgl   
+    #print dir(rawgl)  
+
+    rawgl.glReadPixels(
+ 
+
+
+
+"""
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 from OpenGL.GL.ARB.vertex_buffer_object import *
+from OpenGL.GL.ARB.pixel_buffer_object import *
 import numpy, sys, time
 import pycuda.driver as cuda_driver
 import pycuda.gl as cuda_gl
@@ -170,7 +235,10 @@ def process_image():
     glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, long(source_pbo))
 
     # read data into pbo. note: use BGRA format for optimal performance
-    import OpenGL.raw.GL as rawgl
+    #import OpenGL.raw.GL as rawgl
+    import OpenGL.raw.GL.VERSION.GL_1_1 as rawgl   # only GL_1_1 has the glReadPixels symbol
+    #print dir(rawgl)  
+
 
     rawgl.glReadPixels(
              0,                  #start x
