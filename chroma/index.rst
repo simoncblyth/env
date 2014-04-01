@@ -5,6 +5,7 @@ chroma
 .. toctree::
 
    chroma_issues
+   chroma 
    how_chroma_works
    development
    refs

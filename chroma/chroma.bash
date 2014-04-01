@@ -324,6 +324,33 @@ TTF : header name clash between freetype and ftgl
 
 
 
+attempt to rebuild pycuda with opengl capability
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Trying to run PyCUDA OpenGL interop example
+
+* http://andreask.cs.illinois.edu/PyCuda/Examples/GlInterop
+
+Gives::
+
+     (chroma_env)delta:pycuda_pyopengl_interop blyth$ python interop.py 
+     ...
+     import pycuda.gl as cuda_gl
+     File "/usr/local/env/chroma_env/lib/python2.7/site-packages/pycuda/gl/__init__.py", line 4, in <module>
+     raise ImportError("PyCUDA was compiled without GL extension support")
+
+
+#. add flag to chroma-pycuda-aksetup- and regenerate::
+
+    (chroma_env)delta:pycuda_pyopengl_interop blyth$ chroma-pycuda-aksetup
+    writing /Users/blyth/.aksetup-defaults.py
+
+::
+
+   pip uninstall pycuda
+   chroma-deps-rebuild pycuda
+
+
 
 EOU
 }
@@ -408,6 +435,10 @@ CUDADRV_LIB_DIR = cuda_lib_dir
 CUDART_LIB_DIR = cuda_lib_dir
 CURAND_LIB_DIR = cuda_lib_dir
 
+# for pycuda OpenGL interop
+CUDA_ENABLE_GL = True
+
+
 EOS
 }
 
@@ -442,8 +473,11 @@ chroma-deps-rebuild(){
 
    chroma-deps-env
    cd $VIRTUAL_ENV  
-   pip install -b $builddir $args $name
+   local cmd="pip install -b $builddir $args $name"
+   echo $msg $cmd 
+   eval $cmd
 }
+
 
 
 chroma-kludge-root(){

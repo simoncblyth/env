@@ -11,6 +11,13 @@ PYCUDA
 * http://documen.tician.de/pycuda/
 * http://mathema.tician.de/software/pycuda/
 
+
+Installs
+---------
+
+Installed on D as dependency of chroma, see :doc:`/chroma/chroma`
+
+
 Sources
 --------
 
@@ -132,17 +139,46 @@ reimplements that part of CUBLAS.
 * http://documen.tician.de/pycuda/
 
 
+download examples from wiki
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    (chroma_env)delta:examples blyth$ pwd
+    /usr/local/env/chroma_env/build/build_pycuda/pycuda/examples
+    (chroma_env)delta:examples blyth$ python download-examples-from-wiki.py 
+    downloading  wiki examples from http://wiki.tiker.net/PyCuda/Examples to wiki-examples/...
+    fetching page list...
+    PyCuda/Examples/SobelFilter
+    ...
+    PyCuda/Examples/GlInterop
+    PyCuda/Examples/LightField_3D_viewer
+    ...
+    PyCuda/Examples/DemoMetaCodepy
+    Error when processing PyCuda/Examples/DemoMetaCodepy: 'NoneType' object has no attribute 'group'
+    Traceback (most recent call last):
+      File "download-examples-from-wiki.py", line 29, in <module>
+        code = match.group(1)
+    AttributeError: 'NoneType' object has no attribute 'group'
+    PyCuda/Examples/ArithmeticExample
+    PyCuda/Examples/Mandelbrot
+    ...
+
+
 
 
 EOU
 }
-pycuda-dir(){ echo $(local-base)/env/pycuda ; }
+#pycuda-dir(){ echo $VIRTUAL_ENV/lib/python2.7/site-packages/pycuda ; }
+pycuda-dir(){ echo $VIRTUAL_ENV/build/build_pycuda/pycuda ; }
 pycuda-cd(){  cd $(pycuda-dir); }
 pycuda-mate(){ mate $(pycuda-dir) ; }
 pycuda-get(){
    local dir=$(dirname $(pycuda-dir)) &&  mkdir -p $dir && cd $dir
 
   [ ! -d "pycuda" ] &&  git clone --recursive http://git.tiker.net/trees/pycuda.git
-
-
+  # not using the git version, used pip install via chroma functions
 }
+
+
+
