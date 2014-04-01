@@ -57,7 +57,7 @@ class DAEScene(object):
         self.scaled_mode = args.target is None  
         xyz = args.xyz if self.scaled_mode else (0,0,0)
 
-        self.trackball = DAETrackball( thetaphi=fvec_(args.thetaphi), xyz=xyz, radius=args.ballradius )
+        self.trackball = DAETrackball( thetaphi=fvec_(args.thetaphi), xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
 
         self.view = self.change_view( args.target , prior=None)
         if args.jump:
@@ -85,10 +85,15 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
         self.solids = []
 
+    def where(self):
+        """
+        """ 
+        model_xyz = self.view.offset_eye_position( self.trackball.xyz ) 
+        return model_xyz
 
     def __repr__(self):
-        pick = self.pick if self.pick else "-" 
-        return "Sc %s [%s]" % (self.kscale, pick)
+        w = self.where()
+        return "SC %5.1f %5.1f %5.1f " % (w[0],w[1],w[2])
 
     def clicked_point(self, click ):
         """
@@ -97,10 +102,10 @@ class DAEScene(object):
         Find solids that contain the click coordinates,  
         sorted by extent.
         """ 
-        log.info("clicked point %s " % repr(click) ) 
+        #log.info("clicked point %s " % repr(click) ) 
         indices = self.geometry.find_bbox_solid( click )
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
-        print "\n".join(map(repr, solids))
+        #print "\n".join(map(repr, solids))
         self.solids = solids
 
     def bookmark(self):
@@ -115,24 +120,33 @@ class DAEScene(object):
         pass
         log.info("external_message [%s] [%s]" % (msg,str(live_args))) 
 
+        newview = None
         elu = {}
         for k,v in vars(live_args).items():
             if k == "target":
-                self.view = self.change_view(v, prior=self.view ) 
+                newview = self.change_view(v, prior=self.view ) 
             elif k == "jump":
-                self.view = self.interpolate_view(v) 
+                newview = self.interpolate_view(v) 
             elif k == "ajump":
-                self.view = self.interpolate_view(v, append=True) 
+                newview = self.interpolate_view(v, append=True) 
             elif k in ("eye","look","up") :
                 elu[k] = v
             elif k == "kscale":
                 self.kscale = kscale
             elif k in ("near","far","yfov","nearclip","farclip","yfovclip"):
                 setattr(self.camera, k, v )
+            elif k in ("translatefactor","trackballradius"):
+                setattr(self.trackball, k, v )
             else:
                 log.info("handling of external message key [%s] value [%s] not yet implemented " % (k,v) )
             pass
         pass
+
+        if newview is None:
+            log.debug("view unchanged by external message")
+        else:
+            log.info("view changed by external message")
+            self.view = newview
 
         if len(elu) > 0:
             log.info("changing parameters of existing view %s " % repr(elu)) 
@@ -149,7 +163,14 @@ class DAEScene(object):
         views  = self.view.views if append else [self.view.current_view]
         views += [DAEViewpoint.make_view( self.geometry, j, self.config.args, prior=views[-1] ) for j in jspec.split(":")]
         log.info("interpolated_view append %s movie sequence with %s views " % (append,len(views)))
-        return DAEInterpolateView(views)
+
+        interpolateview = None
+        if len(filter(None, views)) != len(views):
+            log.warn("interpolate_view encountered None view : geometry nodes %s not loaded ? " % jspec ) 
+        else:
+            interpolateview = DAEInterpolateView(views)
+        pass
+        return interpolateview
 
     def dump(self):
         print "view\n", self.view

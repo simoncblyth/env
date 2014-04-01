@@ -8,6 +8,16 @@ Docs
 * http://developer.download.nvidia.com/compute/cuda/2_1/cudagdb/CUDA_GDB_User_Manual.pdf  NEWER PDF? 
 * http://on-demand.gputechconf.com/gtc/2012/presentations/S0027B-GTC2012-Debugging-MEMCHECK.pdf
 
+
+Dr Dobbs
+----------
+
+Debugging CUDA and using CUDA-GDB
+
+* http://www.drdobbs.com/parallel/cuda-supercomputing-for-the-masses-part/220601124
+
+
+
 Courses
 -------
 

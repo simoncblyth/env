@@ -4,8 +4,8 @@
 Controls
 ---------
 
-* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view), 
-  also a non-modal alternative is click+two-finger drag 
+* SPACE and mouse/trackpad up/down to translate z (in-out of direction of view)
+* click+two-finger draw, a non-modal alternative for z translation
 * TAB and mouse/trackpad to translate x,y (left-right,up-down)
 * **S** toggle fullscreen 
 * **F** toggle fill
@@ -15,11 +15,11 @@ Controls
 * **N** toggle near mode, where mouse/trackpad changes near clipping plane 
 * **A** toggle far mode, where mouse/trackpad changes far clipping plane 
 * **Y** toggle yfov mode, where mouse/trackpad changes field of view 
-  also **UP** and **DOWN** arrow yets changes yfov in 5 degrees increments within
-  range of 5 to 175 degrees. Extreme wideangle is useful when using parallel projection. 
-
+* **O** toggle clicked solid marker
+* **UP** and **DOWN** arrow changes trackball translation scale factor
 * **H** trackball home, reset trackball translation and rotation offsets to zero
 * **M** start interpolation
+
 
 """
 import sys, logging
@@ -36,25 +36,17 @@ class DAEInteractivityHandler(object):
     """
     def __init__(self, fig, frame_handler, scene, config ):
         #
-        # presentation objects
         self.fig = fig
         self.frame_handler = frame_handler
-        #
         self.dragfactor = config.args.dragfactor
-        #
-        # state object
         self.scene = scene
-        #
-        # input object   
         self.viewport = DAEViewport(map(int,config.args.size.split(",")))
         #
-        # interactivity modes 
         self.zoom_mode = False
         self.pan_mode = False
         self.near_mode = False
         self.far_mode = False
         self.yfov_mode = False
-        self.unproject_mode = False
         #
         if config.args.fullscreen:
             self.toggle_fullscreen()
@@ -69,19 +61,20 @@ class DAEInteractivityHandler(object):
 
     def hookup_dispatcher(self, config):
         """
-        dispatchers collect messages over UDP, allowing remote control
+        dispatcher collect messages over UDP, allowing remote control
         """
         dispatcher = DAEDispatcher(port=config.args.port, host=config.args.host)
         log.info(dispatcher)        
 
         def _check_dispatcher(dt):
             dispatcher.update()
-        timer = self.fig.timer(60.)  # fps
+        timer = self.fig.timer(30.)  # fps
         timer(_check_dispatcher) 
         dispatcher.push_handlers(self)   # get event notification from dispatcher
 
     def _get_title(self):
         return " ".join(map(repr,[
+                     self.scene,
                      self.scene.view,
                      self.scene.camera,
                      self.frame_handler,
@@ -121,13 +114,13 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = True
         elif symbol == key.A: self.far_mode = True
         elif symbol == key.Y: self.yfov_mode = True
-        elif symbol == key.U: self.unproject_mode = True
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
         elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
         elif symbol == key.LEFT: self.frame_handler.animation_speed(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
         elif symbol == key.H: self.scene.trackball.home()
+        elif symbol == key.W: self.scene.where()
         elif symbol == key.B: self.scene.bookmark()
         elif symbol == key.L: self.frame_handler.toggle_line()
         elif symbol == key.F: self.frame_handler.toggle_fill()
@@ -135,6 +128,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.P: self.frame_handler.toggle_parallel()
         elif symbol == key.M: self.frame_handler.toggle_animate()
         elif symbol == key.G: self.frame_handler.toggle_light()
+        elif symbol == key.O: self.frame_handler.toggle_drawsolid()
         else:
             pass
             #print "no action for on_key_press with symbol 0x%x " % symbol
@@ -147,7 +141,6 @@ class DAEInteractivityHandler(object):
         elif symbol == key.N: self.near_mode = False
         elif symbol == key.A: self.far_mode = False
         elif symbol == key.Y: self.yfov_mode = False
-        elif symbol == key.U: self.unproject_mode = False
         else:
             pass
             #print "no action for on_key_release with symbol 0x%x " % symbol
@@ -166,25 +159,24 @@ class DAEInteractivityHandler(object):
         y  = dragfactor*(_y*2.0 - height)/height
         dy = dragfactor*(2.*_dy)/height
 
-        #log.info("on_mouse_drag x %s y %s dx %s dy %s " % (x,y,dx,dy))
+        #log.info("on_mouse_drag x %s y %s dx %s dy %s dragfactor %s " % (x,y,dx,dy, dragfactor ))
 
-        two_finger_zoom = button == 8  # NB zoom is a misnomer, this is translating eye coordinate z
+        two_finger_zoom = button == 8    # NB zoom is a misnomer, this is translating eye coordinate z
         if   self.zoom_mode or two_finger_zoom: self.scene.trackball.zoom_to(x,y,dx,dy)
         elif self.pan_mode: self.scene.trackball.pan_to(x,y,dx,dy)
         elif self.near_mode: self.scene.camera.near_to(x,y,dx,dy)
         elif self.far_mode: self.scene.camera.far_to(x,y,dx,dy)
         elif self.yfov_mode: self.scene.camera.yfov_to(x,y,dx,dy)
         else: 
-            self.scene.trackball.drag_to(x,y,dx,dy)
+            self.scene.trackball.drag_to(x,y,dx,dy)  # default is to rotate
         pass
         self.redraw()
 
     def on_mouse_press(self, x, y, button):
-        print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
-        if self.unproject_mode:
-            xyz = self.frame_handler.unproject(x,y)
-            self.scene.clicked_point( xyz )
-            self.redraw()
+        if button != 2:print 'Mouse button pressed (x=%.1f, y=%.1f, button=%d)' % (x,y,button)
+        xyz = self.frame_handler.unproject(x,y)
+        self.scene.clicked_point( xyz )
+        self.redraw()
 
     def on_mouse_release(self, x, y, button):
         pass

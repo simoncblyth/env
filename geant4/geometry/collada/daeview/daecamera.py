@@ -59,6 +59,18 @@ class DAECamera(object):
     yfov = property(_get_yfov, _set_yfov)
 
 
+    def _get_nearsize(self):
+        height = 2. * self._near * math.tan(self._yfov*0.5*math.pi/180.0)  # symmetrical 
+        return (self.aspect*height, height )
+    nearsize = property(_get_nearsize, doc="width, height at near plane")     
+
+    def _get_farsize(self):
+        nearsize = self.nearsize
+        farnear = self._far/self._near 
+        return ( farnear*nearsize[0], farnear*nearsize[1] )
+    farsize = property(_get_farsize , doc="width, height at far plane ")     
+
+
     def _get_lrbtnf(self):
         """
         ::

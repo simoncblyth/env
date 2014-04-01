@@ -10,6 +10,19 @@ Division of concerns
          position
 
 
+Trackball xyz apply offsets to "eye" in eye space, with an
+adhoc scaling.
+ 
+* What is the world space coordinate of the offset "eye" ?
+* This is confusing due to the moving eye frame.
+* Need to use CameraToWorld ? 
+* Which matrix to use exactly  ? 
+
+  * original MODELVIEW of the target "view"
+  * continuously updating one as move around 
+    (eye is always at origin in eye frame of that one)
+
+
 """
 import logging
 log = logging.getLogger(__name__)
@@ -65,6 +78,7 @@ class DAEFrameHandler(object):
         self.parallel = args.parallel
         self.animate = False
         self.speed = args.speed
+        self.drawsolid = False
 
     def toggle_light(self):
         self.light = not self.light
@@ -76,6 +90,10 @@ class DAEFrameHandler(object):
         self.transparent = not self.transparent
     def toggle_parallel(self):
         self.parallel = not self.parallel
+    def toggle_drawsolid(self):
+        self.drawsolid = not self.drawsolid
+
+
     def toggle_animate(self):
         self.animate = not self.animate
     def animation_speed(self, factor ):   
@@ -148,13 +166,13 @@ class DAEFrameHandler(object):
 
         gl.glScalef(1./kscale, 1./kscale, 1./kscale)   
 
-        gl.glTranslate ( *trackball.xyz*1000. )  # adhoc 1000.  why? shift into trackball
+        gl.glTranslate ( *trackball.xyz )  # former adhoc 1000. now done internally in trackball.translatefactor
 
-        # temporarily shunt origin to the look rather than the eye, for applying rotation and markers
-        gl.glTranslate ( 0, 0, -distance )      # camera frame
-        gl.glMultMatrixf (trackball._matrix )   # rotation around the look point
-        glut.glutWireSphere( kscale*trackball._TRACKBALLSIZE,10,10)  # what size trackball ?
-        gl.glTranslate ( 0, 0, +distance )      # look is at (0,0,-distance) in eye frame, 
+        # temporarily shunt origin to the "look" rather than the "eye", for applying rotation and markers
+        gl.glTranslate ( 0, 0, -distance )                         
+        gl.glMultMatrixf (trackball._matrix )                        # rotation around "look" point
+        glut.glutWireSphere( kscale*trackball.trackballradius,10,10)  # what size trackball ?
+        gl.glTranslate ( 0, 0, +distance )                           # look is at (0,0,-distance) in eye frame, 
 
         if not scene.scaled_mode:
             glu.gluLookAt( *view.eye_look_up )   # NB no scaling, still world distances, eye at origin and point -Z at look
@@ -191,14 +209,17 @@ class DAEFrameHandler(object):
 
         if len(self.scene.solids)>0:
             for solid in self.scene.solids:
-                self.annotate.insert(0, repr(solid))
+                self.annotate.append(repr(solid))
             pass
-            solid = self.scene.solids[0]
-            gl.glColor3f( 1.,0.,0. )
-            gl.glPushMatrix()
-            gl.glTranslate ( *solid.center )
-            glut.glutWireSphere( solid.extent*1.2 , 10, 10)
-            gl.glPopMatrix()
+
+        if self.drawsolid:
+            if len(self.scene.solids) > 0:
+                solid = self.scene.solids[0]
+                gl.glColor3f( 1.,0.,0. )
+                gl.glPushMatrix()
+                gl.glTranslate ( *solid.center )
+                glut.glutWireSphere( solid.extent*1.2 , 10, 10)
+                gl.glPopMatrix()
 
 
         if self.fill:

@@ -95,20 +95,17 @@ class DAEConfig(object):
         return self._settings( self.args, self.live_defaults, all_ )
 
     def all_settings(self):
-        all_ = True
-        return "\n".join([
-                      "base_settings", 
-                      self.base_settings(all_) ,
-                      "live_settings", 
-                      self.live_settings(all_) 
-                         ])
+        return "\n".join(filter(None,[
+                      self.base_settings(True) ,
+                      "---", 
+                      self.live_settings(True) 
+                         ]))
     def changed_settings(self):
-        return "\n".join([
-                      "base_settings", 
+        return "\n".join(filter(None,[
                       self.base_settings(False) ,
-                      "live_settings", 
+                      "---", 
                       self.live_settings(False) 
-                         ])
+                         ]))
 
     def __repr__(self):
         return self.changed_settings() 
@@ -236,10 +233,12 @@ class DAEConfig(object):
        
      
         defaults['dragfactor'] = 1.
-        defaults['ballradius'] = 0.8
+        defaults['trackballradius'] = 0.8
+        defaults['translatefactor'] = 1000.
 
         parser.add_argument(   "--dragfactor", help="Mouse/trackpad drag speed", type=float  )
-        parser.add_argument(   "--ballradius", help="Trackball radius", type=float  )
+        parser.add_argument(   "--trackballradius", help="Trackball radius", type=float  )
+        parser.add_argument(   "--translatefactor", help="Scaling applied to trackball offset translations to conjure a trackball.xyz offset in camera frame.", type=float  )
 
         if with_defaults:
             parser.set_defaults(**defaults)
@@ -247,15 +246,20 @@ class DAEConfig(object):
         return parser, defaults
 
 
-if __name__ == '__main__':
-    cfg = DAEConfig(__doc__)
-    cfg.init_parse()
-    print cfg
+
+def check_live_parse( cfg ):
     cmdline = " ".join(sys.argv[1:])
     live_args = cfg(cmdline)
     print live_args
 
 
+
+if __name__ == '__main__':
+    cfg = DAEConfig(__doc__)
+    cfg.init_parse()
+
+    print "changed settings\n", cfg.changed_settings()
+    print "all settings\n",cfg.all_settings()
 
 
  

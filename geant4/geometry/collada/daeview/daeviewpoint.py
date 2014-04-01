@@ -63,9 +63,8 @@ class DAEViewpoint(object):
         :param eye: model frame camera position, typically (1,1,0) or similar
         :param look: model frame object that camera is pointed at, usually (0,0,0)
         :param up: model frame up, often (0,0,1)
-        :param model2world: transform from model frame to world frame
-        :param world2model: opposite transfrom back from world frame back into model frame
-        :param target: string identifier for the corresponding solid
+        :param solid: DAESolid(DAEMesh) instance, a set of fixed vertices (world frame)
+        :param target: string identifier for the solid
         """
         _eye, _look, _up = ensure_not_collinear( _eye, _look, _up )
         pass  
@@ -89,8 +88,33 @@ class DAEViewpoint(object):
     world2camera = property(lambda self:WorldToCamera( self.eye, self.look, self.up ))
     camera2world = property(lambda self:CameraToWorld( self.eye, self.look, self.up ))
 
+
+    def offset_eye_position(self, camera ):
+        """
+        :param camera: camera frame offset position, eg from trackball.xyz translation
+        :return: model frame coordinates of offset eye position
+
+        Original eye of the view is semi-fixed.
+        Trackball translations do not change the view instance eye.
+
+        TODO: debug this further, getting unexpected factor of two from somewhere 
+        """
+        world = self.camera2world( -camera )
+        offset = self.world2model( world[:3] )   # model frame
+        effective = self._eye + offset[:3]
+        log.info("whereami : camera %s world %s offset %s effective %s " % (camera, world, offset, effective  ) ) 
+        return effective
+ 
+
     def change_eye_look_up(self, eye=None, look=None, up=None):
         """ 
+        :param eye:  model frame "eye" position
+        :param look: model frame "look" position
+        :param up:   model frame "up" vector
+
+        Model frame changes are immediately reflected in the world frame output properties
+
+        TODO: check eye=look error handling
         """ 
         eye = pfvec_(eye, self._eye )
         look = pfvec_(look, self._look )
@@ -161,7 +185,9 @@ class DAEViewpoint(object):
             pass
 
         solid = geometry.find_solid(target) 
-        assert solid
+        if solid is None:
+            log.warn("make_view failed to find solid for target %s : that node not loaded ? " % target )
+            return None
         return cls(eye, look, up, solid, target )   
 
 
@@ -179,18 +205,15 @@ class DAEViewpoint(object):
         look = model2world(self._look)
         gaze = look - eye
         return np.linalg.norm(gaze) 
-    distance = property(_get_distance)
+    distance = property(_get_distance, doc="distance from eye to look" )
 
     def _get_eye_look_up(self):
-        """
-        Provides eye,look,up in world frame coordinates
-        """
         model2world = self.model2world
         eye = model2world(self._eye)
         look = model2world(self._look)
         up = model2world(self._up,w=0)
         return np.concatenate([eye[:3],look[:3],up[:3]])
-    eye_look_up = property(_get_eye_look_up)
+    eye_look_up = property(_get_eye_look_up, doc="9 element array containing eye, look, up in world frame coordinates" )
 
     def __repr__(self):
         """
@@ -207,8 +230,6 @@ class DAEViewpoint(object):
             return ",".join(map(nfmt,v[0:3]))
 
         return "V %s/%s %.2f e %s l %s d %.2f" % (self.target, self.index, self.extent, brief_(self._eye), brief_(self._look), self.distance  )  
-
-
 
     def smry(self):
         eye, look, up = np.split(self.eye_look_up,3)

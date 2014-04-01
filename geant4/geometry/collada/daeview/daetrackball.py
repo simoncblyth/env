@@ -79,7 +79,7 @@ class DAETrackball(gp.Trackball):
 
 
     """
-    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), radius=0.8):
+    def __init__(self, thetaphi=(0,0), xyz=(0,0,3), trackballradius=0.8, translatefactor=1000. ):
         """
         :param thetaphi:
         :param xyz: 3-tuple position, only used in non-lookat mode 
@@ -98,7 +98,10 @@ class DAETrackball(gp.Trackball):
 
         self._count = 0 
         self._RENORMCOUNT = 97
-        self._TRACKBALLSIZE = radius
+        #self._TRACKBALLSIZE = radius
+        self.trackballradius = trackballradius
+        self.translatefactor = translatefactor    
+
 
         # vestigial
         self.zoom = 0    
@@ -118,7 +121,7 @@ class DAETrackball(gp.Trackball):
 
 
     def _get_xyz(self):
-        return np.array([self._x, self._y, -self._z])
+        return np.array([self._x, self._y, self._z])    # remove z sign flip
     xyz = property(_get_xyz)
 
 
@@ -162,22 +165,15 @@ class DAETrackball(gp.Trackball):
 
         if not dx and not dy:
             return [ 0.0, 0.0, 0.0, 1.0]
-        last = [x, y,       self._project(self._TRACKBALLSIZE, x, y)]
-        new  = [x+dx, y+dy, self._project(self._TRACKBALLSIZE, x+dx, y+dy)]
+        last = [x, y,       self._project(self.trackballradius, x, y)]
+        new  = [x+dx, y+dy, self._project(self.trackballradius, x+dx, y+dy)]
         a = _v_cross(new, last)
         d = _v_sub(last, new)
-        t = _v_length(d) / (2.0*self._TRACKBALLSIZE)
+        t = _v_length(d) / (2.0*self.trackballradius)
         if (t > 1.0): t = 1.0
         if (t < -1.0): t = -1.0
         phi = 2.0 * math.asin(t)
         return _q_from_axis_angle(a,phi)
-
-
-
-
-
-
-
 
     def zoom_to (self, x, y, dx, dy):
         """
@@ -185,12 +181,13 @@ class DAETrackball(gp.Trackball):
         Changed from glumpy original _zoom to _distance
         so this is now a translation in z direction
         """
-        self._z += -5*dy
+        self._z += dy*self.translatefactor   # former adhoc * -5
 
     def pan_to (self, x, y, dx, dy):
         ''' Pan trackball by a factor dx,dy '''
-        self._x += 3*dx
-        self._y += 3*dy
+
+        self._x += dx*self.translatefactor    # former adhoc *3
+        self._y += dy*self.translatefactor
 
 
     def _get_matrix(self):
