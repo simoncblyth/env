@@ -51,15 +51,14 @@ count = 0
 
 class DAEFrameHandler(object):
     """
+    Keep this for handling graphics presentation, **NOT** interactivity, **NOT state**     
+
     Handles event notifications from the frame: `on_init` and `on_draw`
     """
-    def __init__(self, frame, mesh, scene, config ):
+    def __init__(self, frame, mesh, scene ):
         self.frame = frame
         self.mesh = mesh
         self.scene = scene
-        self.selection = None
-
-        self.settings(config.args)
         pass
         self.text = DAEText()
         self.frustum = DAEFrustum()
@@ -70,56 +69,27 @@ class DAEFrameHandler(object):
     def __repr__(self):
         return "FH "
 
-    def settings(self, args):
-        self.light = args.light
-        self.fill = args.fill
-        self.line = args.line
-        self.transparent = args.transparent
-        self.parallel = args.parallel
-        self.animate = False
-        self.speed = args.speed
-        self.drawsolid = False
-
-    def toggle_light(self):
-        self.light = not self.light
-    def toggle_fill(self):
-        self.fill = not self.fill
-    def toggle_line(self):
-        self.line = not self.line
-    def toggle_transparent(self):
-        self.transparent = not self.transparent
-    def toggle_parallel(self):
-        self.parallel = not self.parallel
-    def toggle_drawsolid(self):
-        self.drawsolid = not self.drawsolid
-
-
-    def toggle_animate(self):
-        self.animate = not self.animate
-    def animation_speed(self, factor ):   
-        self.speed *= factor
-
-
     def tick(self, dt):
         """
         invoked from Interactivity handlers on_idle as this is not getting those notifications
 
         hmm better way to prevent this being called too often ?
         """
-        if not self.animate:return
+        if not self.scene.animate:return
         global count
         count += 1  
-        self.scene.view(count, self.speed)
+        self.scene.view(count, self.scene.speed)
         self.frame.redraw() 
 
     def on_init(self):
         """
         glumpy.Figure.on_init sets up the RGB lights before dispatch to all figures
         """
-        if self.light:
+        if self.scene.light:
             self.scene.lights.setup()
             log.info("on_init lights\n%s" % str(self.scene.lights))
         pass
+
 
     def push(self):
         """
@@ -153,7 +123,7 @@ class DAEFrameHandler(object):
         gl.glPushMatrix()
         gl.glLoadIdentity ()
 
-        if self.parallel:
+        if self.scene.parallel:
             gl.glOrtho ( *camera.lrbtnf )
         else:
             gl.glFrustum ( *camera.lrbtnf )
@@ -203,7 +173,7 @@ class DAEFrameHandler(object):
         if not view.interpolate:
             self.frustum( view, lrbtnf*kscale )
 
-        if self.light:
+        if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?
             lights.draw(distance) 
 
@@ -212,7 +182,7 @@ class DAEFrameHandler(object):
                 self.annotate.append(repr(solid))
             pass
 
-        if self.drawsolid:
+        if self.scene.drawsolid:
             if len(self.scene.solids) > 0:
                 solid = self.scene.solids[0]
                 gl.glColor3f( 1.,0.,0. )
@@ -222,8 +192,8 @@ class DAEFrameHandler(object):
                 gl.glPopMatrix()
 
 
-        if self.fill:
-            if self.transparent:
+        if self.scene.fill:
+            if self.scene.transparent:
                 gl.glEnable (gl.GL_BLEND)
                 gl.glBlendFunc ( gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
             pass
@@ -238,12 +208,12 @@ class DAEFrameHandler(object):
 
             gl.glDisable( gl.GL_POLYGON_OFFSET_FILL )
 
-            if self.transparent:
+            if self.scene.transparent:
                 gl.glDisable( gl.GL_BLEND )
             pass
         pass
 
-        if self.line:
+        if self.scene.line:
             gl.glPolygonMode( gl.GL_FRONT_AND_BACK, gl.GL_LINE )
             gl.glEnable( gl.GL_BLEND )
             gl.glEnable( gl.GL_LINE_SMOOTH )
@@ -259,6 +229,11 @@ class DAEFrameHandler(object):
 
         if len(self.annotate) > 0:
             self.text(self.annotate)
+
+        if self.scene.cuda:
+            if self.scene.processor is not None:
+                self.scene.processor.process() 
+                self.scene.processor.display() 
 
         self.frame.unlock()
 

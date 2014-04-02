@@ -32,7 +32,7 @@ from daeviewport import DAEViewport
 
 class DAEInteractivityHandler(object):
     """
-    Keep this for handling interactivity, **NOT** graphics    
+    Keep this for handling interactivity, **NOT** graphics, **NOT state**     
     """
     def __init__(self, fig, frame_handler, scene, config ):
         #
@@ -116,19 +116,20 @@ class DAEInteractivityHandler(object):
         elif symbol == key.Y: self.yfov_mode = True
         elif symbol == key.UP: self.dragfactor *= 2.
         elif symbol == key.DOWN: self.dragfactor *= 0.5
-        elif symbol == key.RIGHT: self.frame_handler.animation_speed(2.0)
-        elif symbol == key.LEFT: self.frame_handler.animation_speed(0.5)
         elif symbol == key.S: self.toggle_fullscreen()
+        elif symbol == key.LEFT: self.scene.animation_speed(0.5)
+        elif symbol == key.RIGHT: self.scene.animation_speed(2.0)
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.B: self.scene.bookmark()
-        elif symbol == key.L: self.frame_handler.toggle_line()
-        elif symbol == key.F: self.frame_handler.toggle_fill()
-        elif symbol == key.T: self.frame_handler.toggle_transparent()
-        elif symbol == key.P: self.frame_handler.toggle_parallel()
-        elif symbol == key.M: self.frame_handler.toggle_animate()
-        elif symbol == key.G: self.frame_handler.toggle_light()
-        elif symbol == key.O: self.frame_handler.toggle_drawsolid()
+        elif symbol == key.L: self.scene.toggle_line()
+        elif symbol == key.F: self.scene.toggle_fill()
+        elif symbol == key.T: self.scene.toggle_transparent()
+        elif symbol == key.P: self.scene.toggle_parallel()
+        elif symbol == key.M: self.scene.toggle_animate()
+        elif symbol == key.G: self.scene.toggle_light()
+        elif symbol == key.O: self.scene.toggle_drawsolid()
+        elif symbol == key.C: self.scene.toggle_cuda()
         else:
             pass
             #print "no action for on_key_press with symbol 0x%x " % symbol

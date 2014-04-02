@@ -102,7 +102,7 @@ class DAEViewpoint(object):
         world = self.camera2world( -camera )
         offset = self.world2model( world[:3] )   # model frame
         effective = self._eye + offset[:3]
-        log.info("whereami : camera %s world %s offset %s effective %s " % (camera, world, offset, effective  ) ) 
+        #log.info("whereami : camera %s world %s offset %s effective %s " % (camera, world, offset, effective  ) ) 
         return effective
  
 

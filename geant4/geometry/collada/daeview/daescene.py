@@ -49,12 +49,19 @@ ivec_ = lambda _:map(int,_.split(","))
 fvec_ = lambda _:map(float,_.split(","))
 
 class DAEScene(object):
-    def __init__(self, geometry, config ):
+    """
+    Keep this for handling state, **NOT interactivity**, **NOT graphics**     
+    """
+    def __init__(self, geometry, config, processor ):
         self.geometry = geometry  
         self.config = config
+        self.processor = processor
+        pass
         args = config.args
-        #
+        self.set_toggles(args)
+        self.speed = args.speed
         self.scaled_mode = args.target is None  
+
         xyz = args.xyz if self.scaled_mode else (0,0,0)
 
         self.trackball = DAETrackball( thetaphi=fvec_(args.thetaphi), xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
@@ -85,9 +92,45 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
         self.solids = []
 
+        width, height = map(int,config.args.size.split(","))
+
+
+    def set_toggles(self, args):
+        self.light = args.light
+        self.fill = args.fill
+        self.line = args.line
+        self.transparent = args.transparent
+        self.parallel = args.parallel
+        self.drawsolid = False
+        self.cuda = args.cuda
+        self.animate = False
+        # 
+        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","cuda","animate")
+
+    def toggle_attr(self, name):
+        setattr( self, name , not getattr(self, name)) 
+
+    def toggle_light(self):
+        self.light = not self.light
+    def toggle_fill(self):
+        self.fill = not self.fill
+    def toggle_line(self):
+        self.line = not self.line
+    def toggle_transparent(self):
+        self.transparent = not self.transparent
+    def toggle_parallel(self):
+        self.parallel = not self.parallel
+    def toggle_drawsolid(self):
+        self.drawsolid = not self.drawsolid
+    def toggle_cuda(self):
+        self.cuda = not self.cuda
+    def toggle_animate(self):
+        self.animate = not self.animate
+
+    def animation_speed(self, factor ):   
+        self.speed *= factor
+
     def where(self):
-        """
-        """ 
         model_xyz = self.view.offset_eye_position( self.trackball.xyz ) 
         return model_xyz
 
@@ -102,10 +145,8 @@ class DAEScene(object):
         Find solids that contain the click coordinates,  
         sorted by extent.
         """ 
-        #log.info("clicked point %s " % repr(click) ) 
         indices = self.geometry.find_bbox_solid( click )
         solids = sorted([self.geometry.solids[_] for _ in indices],key=lambda _:_.extent) 
-        #print "\n".join(map(repr, solids))
         self.solids = solids
 
     def bookmark(self):
@@ -129,6 +170,8 @@ class DAEScene(object):
                 newview = self.interpolate_view(v) 
             elif k == "ajump":
                 newview = self.interpolate_view(v, append=True) 
+            elif k in self.toggles:
+                self.toggle_attr(k)
             elif k in ("eye","look","up") :
                 elu[k] = v
             elif k == "kscale":

@@ -51,6 +51,11 @@ from daeinteractivityhandler import DAEInteractivityHandler
 from daeframehandler import DAEFrameHandler
 
 
+# hmm depending on cuda restricts who can run this substantially 
+import pycuda.gl.autoinit
+from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
+
+
 
 def main():
 
@@ -58,20 +63,25 @@ def main():
     config.init_parse()
     print config
 
+
     geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()
 
-    scene = DAEScene(geometry, config)
-    scene.dump() 
+    width, height = map(int,config.args.size.split(","))
 
-    figure = gp.Figure(size=map(int,config.args.size.split(",")))
+    figure = gp.Figure(size=(width,height))
     frame = figure.add_frame(size=map(float,config.args.frame.split(",")))
+
+    processor = Invert(width, height)
+    scene = DAEScene(geometry, config, processor )
+    scene.dump() 
 
     vbo = geometry.make_vbo(scale=scene.scaled_mode, rgba=map(float,config.args.rgba.split(",")) )
     mesh = gp.graphics.VertexBuffer( vbo.data, vbo.faces )
 
-    frame_handler = DAEFrameHandler( frame, mesh, scene, config )
+    frame_handler = DAEFrameHandler( frame, mesh, scene )
     fig_handler = DAEInteractivityHandler(figure, frame_handler, scene, config  )
+
 
     gp.show()
 
