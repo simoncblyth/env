@@ -1,5 +1,21 @@
 #!/usr/bin/env python
 """
+
+History
+--------
+
+This started as a simple version of the chroma camera, just 
+handling the simple ray casting case.  
+
+But it got too complicated too quickly, mostly from the GUI handling,
+halting development here.
+
+Instead a fully functional OpenGL based pycollada/daenode 
+geometry viewer `daeviewgl.py` was developed to act as
+a stronger basis on which to add chroma ray casting.
+
+
+
 ::
 
    ./simplecamera.py -s1 --eye=-.5,-.5,0 -d3    
@@ -8,7 +24,7 @@
 
         # http://belle7.nuu.edu.tw/dae/tree/3155___1.html
         # complicated full AD geometry 
-        # sometimes causes kernel GPU panic
+    # sometimes causes kernel GPU panic
 
     ./simplecamera.py -s3155 -d3 -f10 --eye=0.01,0.01,0.01 --lookat=0,0,-1   # down
     ./simplecamera.py -s3155 -d3 -f10 --eye=0.01,0.01,0.01 --lookat=0,0,1    # up

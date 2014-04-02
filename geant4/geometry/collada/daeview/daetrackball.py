@@ -9,7 +9,6 @@ from OpenGL.GL import GLfloat
 # **Keep this for maintaining attitude, avoid anymore OpenGL usage**
 
 
-
 class DAETrackball(gp.Trackball):
     """
 

@@ -1,28 +1,5 @@
 #!/usr/bin/env python
 """
-Division of concerns
-
-`DAEFrameHandler`
-         visual presentation
-`DAETrackball`
-         rotation and projection
-`DAEView`
-         position
-
-
-Trackball xyz apply offsets to "eye" in eye space, with an
-adhoc scaling.
- 
-* What is the world space coordinate of the offset "eye" ?
-* This is confusing due to the moving eye frame.
-* Need to use CameraToWorld ? 
-* Which matrix to use exactly  ? 
-
-  * original MODELVIEW of the target "view"
-  * continuously updating one as move around 
-    (eye is always at origin in eye frame of that one)
-
-
 """
 import logging
 log = logging.getLogger(__name__)
@@ -170,11 +147,14 @@ class DAEFrameHandler(object):
         lrbtnf = self.scene.camera.lrbtnf
         kscale = self.scene.kscale
 
-        if not view.interpolate:
+        #if not view.interpolate:
+        if self.scene.markers:
             self.frustum( view, lrbtnf*kscale )
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?
+
+        if self.scene.markers:
             lights.draw(distance) 
 
         if len(self.scene.solids)>0:

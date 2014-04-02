@@ -122,14 +122,15 @@ class DAEInteractivityHandler(object):
         elif symbol == key.H: self.scene.trackball.home()
         elif symbol == key.W: self.scene.where()
         elif symbol == key.B: self.scene.bookmark()
-        elif symbol == key.L: self.scene.toggle_line()
-        elif symbol == key.F: self.scene.toggle_fill()
-        elif symbol == key.T: self.scene.toggle_transparent()
-        elif symbol == key.P: self.scene.toggle_parallel()
-        elif symbol == key.M: self.scene.toggle_animate()
-        elif symbol == key.G: self.scene.toggle_light()
-        elif symbol == key.O: self.scene.toggle_drawsolid()
-        elif symbol == key.C: self.scene.toggle_cuda()
+        elif symbol == key.L: self.scene.toggle_attr("line")
+        elif symbol == key.F: self.scene.toggle_attr("fill")
+        elif symbol == key.T: self.scene.toggle_attr("transparent")
+        elif symbol == key.P: self.scene.toggle_attr("parallel")
+        elif symbol == key.M: self.scene.toggle_attr("animate")
+        elif symbol == key.G: self.scene.toggle_attr("light")
+        elif symbol == key.O: self.scene.toggle_attr("drawsolid")
+        elif symbol == key.C: self.scene.toggle_attr("cuda")
+        elif symbol == key.K: self.scene.toggle_attr("markers")
         else:
             pass
             #print "no action for on_key_press with symbol 0x%x " % symbol

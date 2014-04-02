@@ -12,11 +12,6 @@ class DAEFrustum(object):
         pass 
 
     def __call__(self, view, lrbtnf ):
-        """ 
-        offset from bottom left issue, expecting mid line to poke in eye, 
-        but it heads down to bottom left 
- 
-        """
         if not hasattr(view, 'camera2world'):
             log.warn("skipping Frustum for interpolated views")
             return

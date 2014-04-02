@@ -1,37 +1,5 @@
 #!/usr/bin/env python
 """
-Coordination class
-
-Seek to split trackball into separate rotation
-and translation portions.
-
-
-Next
------
-
-#. CUDA/Chroma OpenGL interop, experiment with PBOs
-
-#. light positioning using appropriate top level mesh transforms
-
-#. placemarks, write the commandline to return to a viewpoint and camera configuration
-   in response to a key press, this will entail world2model transforms to get the 
-   parameters in model frame of the current target volume
-
-#. visual bounding boxes
-
-#. trackball home, to return to current target standard position 
-
-   * trackball translations and rotations apply on top of the view lookAt transformation 
-     so when animating between views this means can be offset from the view sequence.  
-
-#. animation speed control, speed dependant on distance 
-
-#. solid picking, click and see material/surface properties 
-
-   * gluUnProject gives world space coordinates from mouse position and the matrices
-   * find the deepest volume bbox that contains the clicked point 
-   * interactive target switching 
-
 """
 import logging
 log = logging.getLogger(__name__)
@@ -42,7 +10,7 @@ from daeinterpolateview import DAEInterpolateView
 from daeviewpoint import DAEViewpoint
 from daeutil import Transform
 from daelights import DAELights
-
+from daeraycaster import DAERaycaster
 
 
 ivec_ = lambda _:map(int,_.split(","))
@@ -62,22 +30,23 @@ class DAEScene(object):
         self.scaled_mode = args.target is None  
 
         self.processor = self.make_processor( config )
+        self.raycaster = self.make_raycaster( config )
 
         xyz = args.xyz if self.scaled_mode else (0,0,0)
 
-        self.trackball = DAETrackball( thetaphi=fvec_(args.thetaphi), xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
+        self.trackball = DAETrackball( thetaphi=config.thetaphi, xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
 
         self.view = self.change_view( args.target , prior=None)
         if args.jump:
             self.view = self.interpolate_view(args.jump)
 
-        camera = DAECamera( size=ivec_(args.size), 
+        camera = DAECamera( size=config.size, 
                             near=args.near, 
                             far=args.far, 
                             yfov=args.yfov, 
-                            nearclip=fvec_(args.nearclip), 
-                            farclip=fvec_(args.farclip), 
-                            yfovclip=fvec_(args.yfovclip) )
+                            nearclip=config.nearclip, 
+                            farclip=config.farclip, 
+                            yfovclip=config.yfovclip )
 
         self.camera = camera 
         print self.view.smry()
@@ -98,23 +67,26 @@ class DAEScene(object):
         if self.processor is not None:
             self.processor.resize(size)
 
+    def make_raycaster(self, config):
+        if not config.args.with_chroma:return None
+        size = config.size
+        raycaster = DAERaycaster(config)
+        return raycaster
+ 
     def make_processor( self, config ):
-        size = map(int,config.args.size.split(","))
-        processor = None
-        if config.args.havecuda:
-            procname = config.args.processor
-            log.info("creating CUDA processor : %s " % procname )
-            import pycuda.gl.autoinit
-            from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
-            if procname == "Invert":
-                processor = Invert(size)
-            elif procname == "Generate":
-                processor = Generate(size)
-            else:
-                log.warn("failed to create CUDA processor %s " % procname )
+        if not config.args.with_cuda:return None
+        size = config.size
+        procname = config.args.processor
+        log.info("creating CUDA processor : %s " % procname )
+        import pycuda.gl.autoinit
+        from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
+        if procname == "Invert":
+            processor = Invert(size)
+        elif procname == "Generate":
+            processor = Generate(size)
         else:
-            log.warn("NOT creating CUDA processor")
-        pass    
+            processor = None
+            log.warn("failed to create CUDA processor %s " % procname )
         return processor
  
     def set_toggles(self, args):
@@ -126,12 +98,14 @@ class DAEScene(object):
         self.drawsolid = False
         self.cuda = args.cuda
         self.animate = False
+        self.markers = args.markers
         # 
-        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","cuda","animate")
+        self.toggles = ("light","fill","line","transparent","parallel","drawsolid","cuda","animate","markers")
 
     def toggle_attr(self, name):
         setattr( self, name , not getattr(self, name)) 
 
+    """
     def toggle_light(self):
         self.light = not self.light
     def toggle_fill(self):
@@ -148,6 +122,7 @@ class DAEScene(object):
         self.cuda = not self.cuda
     def toggle_animate(self):
         self.animate = not self.animate
+    """
 
     def animation_speed(self, factor ):   
         self.speed *= factor

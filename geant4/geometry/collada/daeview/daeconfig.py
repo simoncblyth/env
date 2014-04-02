@@ -17,7 +17,9 @@ Options that can be acted upon live are marked with an "[I]"
 in the help.  Usage::
 
    udp.py -t +4000
-   udp.py 
+
+
+TODO: live parsing of negative toggles is non-intuitive, maybe add reverse ones too
 
 
 """
@@ -33,8 +35,21 @@ class ThrowingArgumentParser(argparse.ArgumentParser):
     def error(self, message):
         raise ArgumentParserError(message)
 
+ivec_ = lambda _:map(int,_.split(","))
+fvec_ = lambda _:map(float,_.split(","))
 
 class DAEConfig(object):
+
+    size = property(lambda self:ivec_(self.args.size))
+
+    frame = property(lambda self:fvec_(self.args.frame))
+    rgba = property(lambda self:fvec_(self.args.rgba))
+    nearclip = property(lambda self:fvec_(self.args.nearclip))
+    farclip = property(lambda self:fvec_(self.args.farclip))
+    yfovclip = property(lambda self:fvec_(self.args.yfovclip))
+    thetaphi = property(lambda self:fvec_(self.args.thetaphi))
+
+
     def __init__(self, doc):
       
         base_parser, base_defaults = self._make_base_parser(doc)
@@ -65,7 +80,7 @@ class DAEConfig(object):
         np.set_printoptions(precision=4, suppress=True)
         self.args = args
 
-    def live_parse(self, cmdline, post_process=False):
+    def live_parse(self, cmdline):
         live_args = None           
         try:
             live_args = self.live_parser.parse_args(cmdline.split(" "))
@@ -126,12 +141,18 @@ class DAEConfig(object):
         defaults['loglevel'] = "INFO"
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
-        defaults['havecuda'] = True
+        defaults['with_cuda'] = True
+        defaults['with_chroma'] = False
         defaults['processor'] = "Invert"
+        defaults['deviceid'] = None
+        defaults['alpha_max'] = 10
 
         parser.add_argument("-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
-        parser.add_argument( "-C","--nohavecuda", dest="havecuda", help="Inhibit use of cuda ", action="store_true"  )
+        parser.add_argument( "-C","--no-with-cuda", dest="with_cuda", help="Inhibit use of cuda ", action="store_true"  )
+        parser.add_argument(     "--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
         parser.add_argument(     "--processor", help="Name of the cuda processor to use.", type=str )
+        parser.add_argument(     "--device-id", help="CUDA device id.", type=str )
+        parser.add_argument(     "--alpha-max", help="Chroma Raycaster alpha_max", type=int )
 
         parser.add_argument(   "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument(   "--port", help="Port to bind to for UDP messages ", type=str  )
@@ -176,6 +197,7 @@ class DAEConfig(object):
         defaults['up'] = "0,0,1"
         defaults['fullscreen'] = False
         defaults['cuda'] = False
+        defaults['markers'] = False
 
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
@@ -188,6 +210,7 @@ class DAEConfig(object):
 
         parser.add_argument(     "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument(     "--cuda",      action="store_true", help="[I] Start in cuda mode." )
+        parser.add_argument(     "--markers",   action="store_true", help="[I] Frustum and light markers." )
 
 
         defaults['kscale'] = 100.
