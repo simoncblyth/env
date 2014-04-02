@@ -52,15 +52,16 @@ class DAEScene(object):
     """
     Keep this for handling state, **NOT interactivity**, **NOT graphics**     
     """
-    def __init__(self, geometry, config, processor ):
+    def __init__(self, geometry, config ):
         self.geometry = geometry  
         self.config = config
-        self.processor = processor
         pass
         args = config.args
         self.set_toggles(args)
         self.speed = args.speed
         self.scaled_mode = args.target is None  
+
+        self.processor = self.make_processor( config )
 
         xyz = args.xyz if self.scaled_mode else (0,0,0)
 
@@ -92,9 +93,30 @@ class DAEScene(object):
         self.lights = DAELights( light_transform, config )
         self.solids = []
 
-        width, height = map(int,config.args.size.split(","))
+    def resize(self, size):
+        self.camera.resize(size)
+        if self.processor is not None:
+            self.processor.resize(size)
 
-
+    def make_processor( self, config ):
+        size = map(int,config.args.size.split(","))
+        processor = None
+        if config.args.havecuda:
+            procname = config.args.processor
+            log.info("creating CUDA processor : %s " % procname )
+            import pycuda.gl.autoinit
+            from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
+            if procname == "Invert":
+                processor = Invert(size)
+            elif procname == "Generate":
+                processor = Generate(size)
+            else:
+                log.warn("failed to create CUDA processor %s " % procname )
+        else:
+            log.warn("NOT creating CUDA processor")
+        pass    
+        return processor
+ 
     def set_toggles(self, args):
         self.light = args.light
         self.fill = args.fill

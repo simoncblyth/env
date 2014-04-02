@@ -60,8 +60,10 @@ class GlInterop(object):
     def cleanup(self):
         self.processor.cleanup()
 
-    def resize(self, w,h):
-        print "resize not implemented"
+    def resize(self, size):
+        #print "resize not implemented"
+        pass
+        self.processor.resize(size)
 
 
 def init_gl():
@@ -84,7 +86,7 @@ def resize(Width, Height):
     global current_size
     current_size = Width, Height
 
-    glinterop.resize(*current_size)
+    glinterop.resize(current_size)
 
     glViewport(0, 0, Width, Height)        # Reset The Current Viewport And Perspective Transformation
     glMatrixMode(GL_PROJECTION)
@@ -174,9 +176,8 @@ def main():
     init_gl()
 
     global glinterop
-    w,h = initial_size
-    processor = Invert(w,h)
-    #processor = Generate(*initial_size)
+    processor = Invert(initial_size)
+    #processor = Generate(initial_size)
     glinterop = GlInterop(processor)
 
     glutMainLoop()

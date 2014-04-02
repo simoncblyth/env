@@ -18,7 +18,24 @@ class PixelBuffer(object):
     """
     * http://www.songho.ca/opengl/gl_pbo.html
     """
-    def __init__(self, w, h, texture=False ):
+    def __init__(self, size, texture=False ):
+        self.texture = texture
+        self.make_pbo(size)
+        self.tex = None
+        if self.texture:
+            self.tex = Texture(size)
+
+    size = property(lambda self:(self.image_width, self.image_height))
+
+    def resize(self, size): 
+        if self.size == size:return
+        self.cleanup()
+        self.make_pbo( size )
+        if self.texture:
+            self.tex.resize(size)
+
+    def make_pbo(self, size):
+        w, h = size
         self.image_width = w
         self.image_height = h
         self.data = np.zeros((w*h,4),np.uint8)   # hmm can i just use NULL ?
@@ -34,10 +51,6 @@ class PixelBuffer(object):
         gl.glBindBuffer( target, 0)
 
         self.cuda_pbo = cuda_gl.BufferObject(long(self.pbo))  # needs CUDA context
-
-        self.tex = None
-        if texture:
-            self.tex = Texture(w, h)
 
 
     def load_from_framebuffer(self, fx=0., fy=0., fw=1., fh=1.):
@@ -135,18 +148,31 @@ class PixelBuffer(object):
 
 
 class Texture(object):
-    def __init__(self, w, h ):
+    def __init__(self, size ):
+        self.tex = self.make_tex(size)
+
+    def make_tex(self, size):
+        w, h = size
         self.image_width = w
         self.image_height = h
 
-        self.tex = gl.glGenTextures(1)
+        tex = gl.glGenTextures(1)
 
-        gl.glBindTexture( gl.GL_TEXTURE_2D, self.tex)
+        gl.glBindTexture( gl.GL_TEXTURE_2D, tex)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+
+        return tex
+
+    size = property(lambda self:(self.image_width, self.image_height))
+
+    def resize(self, size): 
+        if self.size == size:return
+        self.cleanup()
+        self.tex = self.make_tex( size )
 
     def display(self, fx=0., fy=0., fw=1., fh=1.):
         """ 

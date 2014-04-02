@@ -126,8 +126,13 @@ class DAEConfig(object):
         defaults['loglevel'] = "INFO"
         defaults['host'] = os.environ.get("DAEVIEW_UDP_HOST","127.0.0.1")
         defaults['port'] = os.environ.get("DAEVIEW_UDP_PORT", "15006")
+        defaults['havecuda'] = True
+        defaults['processor'] = "Invert"
 
         parser.add_argument("-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument( "-C","--nohavecuda", dest="havecuda", help="Inhibit use of cuda ", action="store_true"  )
+        parser.add_argument(     "--processor", help="Name of the cuda processor to use.", type=str )
+
         parser.add_argument(   "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument(   "--port", help="Port to bind to for UDP messages ", type=str  )
 
@@ -182,7 +187,7 @@ class DAEConfig(object):
         parser.add_argument("-u","--up",      help="[I] Up direction ",type=str)
 
         parser.add_argument(     "--fullscreen", action="store_true", help="Start in fullscreen mode." )
-        parser.add_argument(     "--cuda",      action="store_true", help="Start in cuda mode." )
+        parser.add_argument(     "--cuda",      action="store_true", help="[I] Start in cuda mode." )
 
 
         defaults['kscale'] = 100.

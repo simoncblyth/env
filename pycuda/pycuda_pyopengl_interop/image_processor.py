@@ -11,13 +11,15 @@ from gpu.tools import get_cu_module, cuda_options, GPUFuncs, get_cu_source
 
 
 class ImageProcessor(object):
-    def __init__(self, w, h ):
-        self.resize(w, h)
-        self.dest   = PixelBuffer(w, h, texture=True) 
+    def __init__(self, size):
+        self.dest   = PixelBuffer(size, texture=True) 
         self.cuda_init()
 
-    def resize(self, w,h ):
-        self.image_width, self.image_height = w,h
+    size = property(lambda self:self.dest.size)
+
+    def resize(self, size ):
+        if self.size == size:return
+        self.dest.resize(size)        
 
     def cuda_init(self):
         raise Exception("sub classes expected to implement this")
@@ -33,12 +35,16 @@ class ImageProcessor(object):
 
 
 
-
 class ImageFilter(ImageProcessor):
-    def __init__(self, w,h  ):
-        ImageProcessor.__init__(self, w, h)
-        self.source = PixelBuffer(w, h) 
+    def __init__(self, size  ):
+        ImageProcessor.__init__(self, size)
+        self.source = PixelBuffer(size) 
 
+    def resize(self, size ):
+        if self.size == size:return
+        ImageProcessor.resize(self, size) 
+        self.source.resize(size)
+ 
     def process(self,*args,**kwa):
         self.source.load_from_framebuffer(*args,**kwa)
         self.cuda_process()
@@ -49,10 +55,9 @@ class ImageFilter(ImageProcessor):
 
 
 
-
 class ImageGenerator(ImageProcessor):
-    def __init__(self, w,h ):
-        ImageProcessor.__init__(self, w, h)
+    def __init__(self, size):
+        ImageProcessor.__init__(self, size)
  
     def process(self,*args,**kwa):
         self.cuda_process()
@@ -67,9 +72,10 @@ class Invert(ImageFilter):
         self.invert = invert
 
     def cuda_process(self):
+        width, height = self.size
 
         N = 16                # 32 also works at **same fps**, 32*32=1024 is the max threads per block on NVIDIA 750M
-        grid = (self.image_width//N,self.image_height//N)
+        grid = (width//N,height//N)
         block = (N, N, 1)        # threads per block 
 
         source_mapping = self.source.cuda_pbo.map()
@@ -91,9 +97,10 @@ class Generate(ImageGenerator):
         self.generate = generate
 
     def cuda_process(self):
+        width, height = self.size
 
         N = 16                # 32 also works at **same fps**, 32*32=1024 is the max threads per block on NVIDIA 750M
-        grid = (self.image_width//N,self.image_height//N)
+        grid = (width//N,height//N)
         block = (N, N, 1)        # threads per block 
 
         dest_mapping   = self.dest.cuda_pbo.map()

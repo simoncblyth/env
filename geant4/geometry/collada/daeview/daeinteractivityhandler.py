@@ -102,7 +102,7 @@ class DAEInteractivityHandler(object):
 
     def on_resize(self, width, height, x=0, y=0):
         self.viewport.resize((width, height))
-        self.scene.camera.resize((width, height))
+        self.scene.resize((width, height))
 
     def on_draw(self):
         self.fig.clear(0.85,0.85,0.85,1)  # seems to have no effect even when lighting disabled
