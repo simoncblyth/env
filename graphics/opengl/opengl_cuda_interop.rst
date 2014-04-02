@@ -128,6 +128,10 @@ GLUT Overlay
 ~~~~~~~~~~~~~~
 
 * http://pyopengl.sourceforge.net/documentation/manual-3.0/glutEstablishOverlay.html
+* http://www.davidwparker.com/2011/12/02/opengl-screencast-video-18-overlays/
+
+
+
 
 GLSL shader texture overlay
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
