@@ -7,6 +7,10 @@ http://wiki.tiker.net/PyCuda/Examples
 Based on GL interoperability example by Peter Berrington.
 From /usr/local/env/chroma_env/build/build_pycuda/pycuda/examples/wiki-examples
 
+NB due to use of PIXEL_UNPACK_BUFFER rather than ARRAY_BUFFER this is 10x faster 
+than the original example
+
+
 """
 
 import logging
@@ -22,7 +26,7 @@ from OpenGL.GLU import *
 
 import numpy, sys, time
 import pycuda.gl.autoinit
-from interop_pixel_buffer import Invert
+from env.pycuda.pycuda_pyopengl_interop import Invert, Generate
 
 
 initial_size = 512,512
@@ -49,10 +53,10 @@ class GlInterop(object):
     def toggle_enable_cuda(self):
         self.enable_cuda = not self.enable_cuda 
 
-    def process(self):
-        self.processor.process()
-    def display(self):
-        self.processor.display()
+    def process(self,*args,**kwa):
+        self.processor.process(*args,**kwa)
+    def display(self,*args,**kwa):
+        self.processor.display(*args,**kwa)
     def cleanup(self):
         self.processor.cleanup()
 
@@ -127,8 +131,10 @@ def display():
     try:
         render_scene()
         if glinterop.enable_cuda:
-            glinterop.process()
-            glinterop.display()
+            fx,fy,fw,fh = 0.,0.,1.,1.
+            #fx,fy,fw,fh = 0.25,0.25,0.5,0.5  # attempt to filter just mid portion not giving what expect get multiple teapots in the filter region
+            glinterop.process(fx=fx,fy=fy,fw=fw,fh=fh)
+            glinterop.display(fx=fx,fy=fy,fw=fw,fh=fh)
         glutSwapBuffers()
     except:
         from traceback import print_exc
@@ -168,7 +174,9 @@ def main():
     init_gl()
 
     global glinterop
-    processor = Invert(*initial_size)
+    w,h = initial_size
+    processor = Invert(w,h)
+    #processor = Generate(*initial_size)
     glinterop = GlInterop(processor)
 
     glutMainLoop()
