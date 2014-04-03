@@ -3,7 +3,7 @@
 import logging, math
 log = logging.getLogger(__name__)
 import numpy as np
-from daeutil import printoptions, WorldToCamera, CameraToWorld
+from daeutil import printoptions, WorldToCamera, CameraToWorld, Transform
 
 
 def rotate( th , axis="x"):
@@ -278,8 +278,37 @@ def check_view(geometry):
 
 
 
+
+class DummySolid(object):
+    model2world = Transform()
+    world2model = Transform()
+    extent = 100.
+    index = 1
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    check_solid()
+    #check_solid()
+
+    from daecamera import DAECamera  
+    camera = DAECamera()
+
+    solid = DummySolid()
+    view = DAEViewpoint( (0,2,0), (0,0,0), (0,0,1), solid, "")  
+    print view
+
+    pixel2camera = camera.pixel2camera
+    camera2world = view.camera2world.matrix
+    pixel2world = np.dot( camera2world, pixel2camera )
+
+    corners = np.array(camera.pixel_corners.values())
+
+    worlds  = np.dot( corners, pixel2world.T )
+    worlds2 = np.dot( pixel2world, corners.T ).T   
+    assert np.allclose( worlds, worlds2 )
 
 
+
+
+
+ 

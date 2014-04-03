@@ -150,6 +150,7 @@ class DAEFrameHandler(object):
         #if not view.interpolate:
         if self.scene.markers:
             self.frustum( view, lrbtnf*kscale )
+            self.scene.raycaster.draw(kscale) 
 
         if self.scene.light:
             lights.position()   # reset positions following changes to MODELVIEW matrix ?

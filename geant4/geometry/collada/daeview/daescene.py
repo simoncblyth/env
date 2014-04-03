@@ -29,48 +29,47 @@ class DAEScene(object):
         self.speed = args.speed
         self.scaled_mode = args.target is None  
 
+        # CUDA processor
         self.processor = self.make_processor( config )
-        self.raycaster = self.make_raycaster( config )
 
+        # trackball
         xyz = args.xyz if self.scaled_mode else (0,0,0)
-
-        self.trackball = DAETrackball( thetaphi=config.thetaphi, xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
-
+        trackball = DAETrackball( thetaphi=config.thetaphi, xyz=xyz, trackballradius=args.trackballradius, translatefactor=args.translatefactor )
+        self.trackball = trackball
+  
+        # view
         self.view = self.change_view( args.target , prior=None)
         if args.jump:
             self.view = self.interpolate_view(args.jump)
-
-        camera = DAECamera( size=config.size, 
-                            near=args.near, 
-                            far=args.far, 
-                            yfov=args.yfov, 
-                            nearclip=config.nearclip, 
-                            farclip=config.farclip, 
-                            yfovclip=config.yfovclip )
-
-        self.camera = camera 
         print self.view.smry()
-        
-        if not self.scaled_mode:
-            kscale = config.args.kscale
-            light_transform = geometry.mesh.model2world 
-        else:
-            kscale = 1.
-            light_transform = Transform()
 
-        self.kscale = kscale
+        # camera
+        camera = DAECamera( size=config.size, near=args.near, far=args.far, yfov=args.yfov, nearclip=config.nearclip, farclip=config.farclip, yfovclip=config.yfovclip )
+        self.camera = camera 
+
+        # lights
+        light_transform = Transform() if self.scaled_mode else geometry.mesh.model2world 
         self.lights = DAELights( light_transform, config )
+
+        # kludge scaling  
+        kscale = 1. if self.scaled_mode else config.args.kscale
+        self.kscale = kscale
+
+        # raycaster
+        self.raycaster = self.make_raycaster( config, self.camera, self.view, self.trackball )
+
+        # selected solids
         self.solids = []
+
 
     def resize(self, size):
         self.camera.resize(size)
         if self.processor is not None:
             self.processor.resize(size)
 
-    def make_raycaster(self, config):
-        if not config.args.with_chroma:return None
-        size = config.size
-        raycaster = DAERaycaster(config)
+    def make_raycaster(self, config, camera, view, trackball ):
+        #if not config.args.with_chroma:return None
+        raycaster = DAERaycaster(config, camera, view, trackball )
         return raycaster
  
     def make_processor( self, config ):
