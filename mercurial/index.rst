@@ -4,5 +4,5 @@ mercurial
 
 .. toctree::
 
-   introduction
+   mercurial_introduction
 

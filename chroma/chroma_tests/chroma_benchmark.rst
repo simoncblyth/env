@@ -1,5 +1,5 @@
-benchmark
-============
+chroma benchmark
+==================
 
 .. contents:: :local:
 

@@ -9,7 +9,7 @@ give the gory details.
 benchmark
 ----------
 
-* :doc:`benchmark`
+* :doc:`chroma_benchmark`
 
 #. default detector too big for 2GB video memory, switch to `demo.tiny`
 #. many uncertainties warnings, fixed by module provided refactor

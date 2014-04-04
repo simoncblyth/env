@@ -35,6 +35,6 @@ chroma
 
    hardware
 
-   install/index
-   tests/index
+   chroma_install/index
+   chroma_tests/index
 
