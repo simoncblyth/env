@@ -20,8 +20,6 @@ using macports py27-game 1.9.1_8::
 
 
 
-
-
 version
 --------
 

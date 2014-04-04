@@ -3,6 +3,107 @@ chroma benchmark
 
 .. contents:: :local:
 
+
+gzip issue
+-----------
+
+::
+
+    (chroma_env)delta:chroma blyth$ python benchmark.py 
+    Traceback (most recent call last):
+      File "benchmark.py", line 10, in <module>
+        from chroma import gpu
+      File "/usr/local/env/chroma_env/src/chroma/chroma/__init__.py", line 2, in <module>
+        from chroma.camera import Camera, EventViewer, view, build
+      File "/usr/local/env/chroma_env/src/chroma/chroma/camera.py", line 15, in <module>
+        from chroma.geometry import Mesh, Solid, Geometry, vacuum
+      File "/usr/local/env/chroma_env/src/chroma/chroma/geometry.py", line 6, in <module>
+        import gzip
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/gzip.py", line 36, in <module>
+        class GzipFile(io.BufferedIOBase):
+    AttributeError: 'module' object has no attribute 'BufferedIOBase'
+    (chroma_env)delta:chroma blyth$ 
+
+
+io module shadowing
+----------------------
+
+Module implemented `chroma/io/__init__.py`  is problematic for gzip import::
+
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ python -c "from chroma.geometry import Mesh, Solid, Geometry, vacuum"
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/usr/local/env/chroma_env/src/chroma/chroma/__init__.py", line 2, in <module>
+        from chroma.camera import Camera, EventViewer, view, build
+      File "/usr/local/env/chroma_env/src/chroma/chroma/camera.py", line 16, in <module>
+        from chroma.geometry import Mesh, Solid, Geometry, vacuum
+      File "/usr/local/env/chroma_env/src/chroma/chroma/geometry.py", line 6, in <module>
+        import gzip
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/gzip.py", line 36, in <module>
+        class GzipFile(io.BufferedIOBase):
+    AttributeError: 'module' object has no attribute 'BufferedIOBase'
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ pwd
+    /usr/local/env/chroma_env/src/chroma/chroma
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ 
+    (chroma_env)delta:chroma blyth$ cd /tmp
+    (chroma_env)delta:tmp blyth$ python -c "from chroma.geometry import Mesh, Solid, Geometry, vacuum"
+    (chroma_env)delta:tmp blyth$ 
+
+
+Rename to `io_` and change sole usage in `chroma/camera.py`::
+
+    670 class EventViewer(Camera):
+    671     # Constants for display_mode
+    672     CHARGE = 0
+    673     TIME = 1
+    674     HIT = 2
+    675 
+    676     def __init__(self, geometry, filename, **kwargs):
+    677         Camera.__init__(self, geometry, **kwargs)
+    678         # This is really slow, so we do it here in the constructor to 
+    679         # avoid slowing down the import of this module
+    680         from chroma.io_.root import RootReader
+    681         self.rr = RootReader(filename)
+    682         self.display_mode = EventViewer.CHARGE
+    683         self.sum_mode = False
+    684         self.photon_display_iter = itertools.cycle(['beg','end'])
+    685         self.photon_display_mode = self.photon_display_iter.next()
+    686 
+
+
+
+hg rename did not delete the io folder 
+---------------------------------------
+
+Due to the pesky pyc::
+
+    (chroma_env)delta:chroma blyth$ l io/
+    total 32
+    -rw-r--r--  1 blyth  staff  9073 Apr  4 13:13 root.pyc
+    -rw-r--r--  1 blyth  staff   145 Apr  4 13:13 __init__.pyc
+    (chroma_env)delta:chroma blyth$ 
+
+So still shadowing::
+
+    (chroma_env)delta:chroma blyth$ python -c "import gzip"
+    Traceback (most recent call last):
+      File "<string>", line 1, in <module>
+      File "/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/gzip.py", line 36, in <module>
+        class GzipFile(io.BufferedIOBase):
+    AttributeError: 'module' object has no attribute 'BufferedIOBase'
+    (chroma_env)delta:chroma blyth$ 
+
+Until manually remove::
+
+    (chroma_env)delta:chroma blyth$ rm -rf io
+    (chroma_env)delta:chroma blyth$ python -c "import gzip"
+    (chroma_env)delta:chroma blyth$ 
+
+
+
 cuMemAlloc failed with `demo.detector()`
 ----------------------------------------------
 

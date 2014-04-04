@@ -254,11 +254,11 @@ for the 500 or 250 time/charge hit distributions to fall within expected bounds.
 
 Need to check distribution to be sure. 
 
- 
-
 
 Again April 2014
 ------------------
+
+* commited fix for ROOT issue to bitbucket fork
 
 Testing again, from my bitbucket fork::
 
@@ -384,5 +384,7 @@ Testing again, from my bitbucket fork::
         facade = sys.modules[ __name__ ]
     KeyError: 'ROOT'
     (chroma_env)delta:chroma blyth$ 
+
+
 
 

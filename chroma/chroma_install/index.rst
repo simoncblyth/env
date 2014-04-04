@@ -4,9 +4,9 @@ install issues
 
 .. toctree::
 
-   root
-   python
-   pygame
+   chroma_root
+   chroma_python
+   chroma_pygame
 
 
 
