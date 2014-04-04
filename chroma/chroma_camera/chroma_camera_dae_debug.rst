@@ -375,3 +375,61 @@ skip the overly large top.0 node, which I though I had backed out of.::
 
 
 
+
+Simple Camera Profile
+-----------------------
+
+Potential causes of GPU panics:
+
+* getting pixels back to host 
+* render getting stuck on some bits of geometry 
+
+
+::
+
+    # CUDA_PROFILE_LOG_VERSION 2.0
+    # CUDA_DEVICE 0 GeForce GT 750M
+    # CUDA_CONTEXT 1
+    method,gputime,cputime,occupancy
+    method=[ write_size ] gputime=[ 2.528 ] cputime=[ 17.956 ] occupancy=[ 0.016 ] 
+    method=[ memcpyDtoH ] gputime=[ 2.496 ] cputime=[ 26.433 ] 
+    method=[ write_size ] gputime=[ 1.856 ] cputime=[ 9.821 ] occupancy=[ 0.016 ] 
+    method=[ memcpyDtoH ] gputime=[ 2.496 ] cputime=[ 20.545 ] 
+    method=[ write_size ] gputime=[ 1.824 ] cputime=[ 9.927 ] occupancy=[ 0.016 ] 
+    method=[ memcpyDtoH ] gputime=[ 2.496 ] cputime=[ 17.852 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.440 ] cputime=[ 4.299 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 3.469 ] 
+    ...
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 2.022 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 10.942 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 4.039 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.034 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 1.891 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 1.912 ] 
+    method=[ memcpyHtoD ] gputime=[ 1794.976 ] cputime=[ 1993.471 ] 
+    method=[ memcpyHtoD ] gputime=[ 1617.952 ] cputime=[ 1481.204 ] 
+    method=[ memcpyHtoD ] gputime=[ 1601.280 ] cputime=[ 1472.250 ] 
+    method=[ memcpyHtoD ] gputime=[ 7432.672 ] cputime=[ 7370.140 ] 
+    method=[ memcpyHtoD ] gputime=[ 4602.432 ] cputime=[ 4620.065 ] 
+    method=[ memcpyHtoD ] gputime=[ 2335.680 ] cputime=[ 2351.582 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.664 ] cputime=[ 5.372 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.315 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 2.037 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 1.973 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 2.185 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 2.113 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.008 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.010 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.372 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.312 ] cputime=[ 2.009 ] 
+    method=[ memcpyHtoD ] gputime=[ 1.280 ] cputime=[ 1.959 ] 
+    method=[ memcpyHtoD ] gputime=[ 612.832 ] cputime=[ 501.086 ] 
+    method=[ memcpyHtoD ] gputime=[ 590.560 ] cputime=[ 449.675 ] 
+    method=[ fill ] gputime=[ 24.544 ] cputime=[ 13.470 ] occupancy=[ 1.000 ] 
+    method=[ fill ] gputime=[ 25.504 ] cputime=[ 7.263 ] occupancy=[ 1.000 ] 
+    method=[ render ] gputime=[ 5259416.500 ] cputime=[ 234.175 ] occupancy=[ 0.500 ] 
+    method=[ memcpyDtoH ] gputime=[ 194.016 ] cputime=[ 5260492.000 ]        
+
+
+
+
