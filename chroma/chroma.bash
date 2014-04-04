@@ -404,7 +404,6 @@ Chroma Install Rerun from my bitbucket fork
     (chroma_env)delta:chroma blyth$ 
 
 
-
 Plow ahead with the `develop` ontop of existing install::
 
     (chroma_env)delta:chroma blyth$ python setup.py develop
@@ -413,171 +412,18 @@ Plow ahead with the `develop` ontop of existing install::
     creating Chroma.egg-info
     writing requirements to Chroma.egg-info/requires.txt
     writing Chroma.egg-info/PKG-INFO
-    writing top-level names to Chroma.egg-info/top_level.txt
-    writing dependency_links to Chroma.egg-info/dependency_links.txt
-    writing manifest file 'Chroma.egg-info/SOURCES.txt'
-    reading manifest file 'Chroma.egg-info/SOURCES.txt'
-    writing manifest file 'Chroma.egg-info/SOURCES.txt'
-    running build_ext
-    building 'chroma.generator._g4chroma' extension
-    C compiler: /usr/bin/clang -fno-strict-aliasing -fno-common -dynamic -pipe -Os -fwrapv -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
-
-    creating build
-    creating build/temp.macosx-10.9-x86_64-2.7
-    creating build/temp.macosx-10.9-x86_64-2.7/src
-    compile options: '-Isrc -I/usr/local/env/chroma_env/lib/python2.7/site-packages/pyublas/include -I/usr/local/env/chroma_env/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c'
-    extra options: '-DG4INTY_USE_XT -I/usr/X11R6/include -I/opt/local/include -DG4UI_USE_TCSH -DG4VIS_USE_RAYTRACERX -I/usr/local/env/chroma_env/bin/../include/Geant4'
-    clang: src/G4chroma.cc
-    In file included from src/G4chroma.cc:119:
-    In file included from /usr/local/env/chroma_env/lib/python2.7/site-packages/pyublas/include/pyublas/numpy.hpp:40:
-    In file included from /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include/numpy/arrayobject.h:4:
-    In file included from /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include/numpy/ndarrayobject.h:17:
-    In file included from /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include/numpy/ndarraytypes.h:1760:
-    /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:15:2: warning: "Using deprecated NumPy API, disable it by "          "#defining NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-W#warnings]
-#warning "Using deprecated NumPy API, disable it by " \
-     ^
-    1 warning generated.
-    creating build/lib.macosx-10.9-x86_64-2.7
-    creating build/lib.macosx-10.9-x86_64-2.7/chroma
-    creating build/lib.macosx-10.9-x86_64-2.7/chroma/generator
-    /usr/bin/clang++ -bundle -undefined dynamic_lookup -L/opt/local/lib -Wl,-headerpad_max_install_names -L/opt/local/lib/db46 build/temp.macosx-10.9-x86_64-2.7/src/G4chroma.o -lboost_python -o build/lib.macosx-10.9-x86_64-2.7/chroma/generator/_g4chroma.so -L/usr/local/env/chroma_env/bin/../lib -lG4Tree -lG4FR -lG4GMocren -lG4visHepRep -lG4RayTracer -lG4VRML -lG4vis_management -lG4modeling -lG4interfaces -lG4persistency -lG4analysis -lG4error_propagation -lG4readout -lG4physicslists -lG4run -lG4event -lG4tracking -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms -lG4global -lG4clhep
-    building 'chroma.generator.mute' extension
-    C compiler: /usr/bin/clang -fno-strict-aliasing -fno-common -dynamic -pipe -Os -fwrapv -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
-
-    compile options: '-Isrc -I/usr/local/env/chroma_env/lib/python2.7/site-packages/pyublas/include -I/usr/local/env/chroma_env/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7 -c'
-    extra options: '-DG4INTY_USE_XT -I/usr/X11R6/include -I/opt/local/include -DG4UI_USE_TCSH -DG4VIS_USE_RAYTRACERX -I/usr/local/env/chroma_env/bin/../include/Geant4'
-    clang: src/mute.cc
-    /usr/bin/clang++ -bundle -undefined dynamic_lookup -L/opt/local/lib -Wl,-headerpad_max_install_names -L/opt/local/lib/db46 build/temp.macosx-10.9-x86_64-2.7/src/mute.o -lboost_python -o build/lib.macosx-10.9-x86_64-2.7/chroma/generator/mute.so -L/usr/local/env/chroma_env/bin/../lib -lG4Tree -lG4FR -lG4GMocren -lG4visHepRep -lG4RayTracer -lG4VRML -lG4vis_management -lG4modeling -lG4interfaces -lG4persistency -lG4analysis -lG4error_propagation -lG4readout -lG4physicslists -lG4run -lG4event -lG4tracking -lG4parmodels -lG4processes -lG4digits_hits -lG4track -lG4particles -lG4geometry -lG4materials -lG4graphics_reps -lG4intercoms -lG4global -lG4clhep
-    copying build/lib.macosx-10.9-x86_64-2.7/chroma/generator/_g4chroma.so -> chroma/generator
-    copying build/lib.macosx-10.9-x86_64-2.7/chroma/generator/mute.so -> chroma/generator
-    Creating /usr/local/env/chroma_env/lib/python2.7/site-packages/Chroma.egg-link (link to .)
-    Chroma 0.5 is already the active version in easy-install.pth
-    Installing chroma-sim script to /usr/local/env/chroma_env/bin
-    Installing chroma-cam script to /usr/local/env/chroma_env/bin
-    Installing chroma-geo script to /usr/local/env/chroma_env/bin
-    Installing chroma-bvh script to /usr/local/env/chroma_env/bin
-    Installing chroma-server script to /usr/local/env/chroma_env/bin
-
-    Installed /usr/local/env/chroma_env/src/chroma
-    Processing dependencies for Chroma==0.5
-    Searching for unittest2==0.5.1
-    Best match: unittest2 0.5.1
-    Processing unittest2-0.5.1-py2.7.egg
-    unittest2 0.5.1 is already the active version in easy-install.pth
-    Installing unit2 script to /usr/local/env/chroma_env/bin
-    Installing unit2.py script to /usr/local/env/chroma_env/bin
-    Installing unit2 script to /usr/local/env/chroma_env/bin
-    Installing unit2-2.7 script to /usr/local/env/chroma_env/bin
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/unittest2-0.5.1-py2.7.egg
-    Searching for Sphinx==1.2
-    Best match: Sphinx 1.2
-    Processing Sphinx-1.2-py2.7.egg
-    Removing Sphinx 1.2 from easy-install.pth file
-    Sphinx 1.2 is already the active version in easy-install.pth
-    Installing sphinx-apidoc script to /usr/local/env/chroma_env/bin
-    Installing sphinx-build script to /usr/local/env/chroma_env/bin
-    Installing sphinx-quickstart script to /usr/local/env/chroma_env/bin
-    Installing sphinx-autogen script to /usr/local/env/chroma_env/bin
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/Sphinx-1.2-py2.7.egg
-    Searching for nose==1.3.0
-    Best match: nose 1.3.0
-    Adding nose 1.3.0 to easy-install.pth file
-    Installing nosetests script to /usr/local/env/chroma_env/bin
-    Installing nosetests-2.7 script to /usr/local/env/chroma_env/bin
-
-    Using /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-    Searching for pygame==1.9.1release
-    Best match: pygame 1.9.1release
-    pygame 1.9.1release is already the active version in easy-install.pth
-
-    Using /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-    Searching for numpy==1.8.0
-    Best match: numpy 1.8.0
-    numpy 1.8.0 is already the active version in easy-install.pth
-
-    Using /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-    Searching for pycuda==2013.1.1
-    Best match: pycuda 2013.1.1
-    Adding pycuda 2013.1.1 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for spnav==0.9
-    Best match: spnav 0.9
-    Processing spnav-0.9-py2.7.egg
-    spnav 0.9 is already the active version in easy-install.pth
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/spnav-0.9-py2.7.egg
-    Searching for pyzmq-static==2.2
-    Best match: pyzmq-static 2.2
-    Adding pyzmq-static 2.2 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for uncertainties==2.4.4
-    Best match: uncertainties 2.4.4
-    Processing uncertainties-2.4.4-py2.7.egg
-    uncertainties 2.4.4 is already the active version in easy-install.pth
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/uncertainties-2.4.4-py2.7.egg
-    Searching for Jinja2==2.7.2
-    Best match: Jinja2 2.7.2
-    Processing Jinja2-2.7.2-py2.7.egg
-    Removing Jinja2 2.7.2 from easy-install.pth file
-    Jinja2 2.7.2 is already the active version in easy-install.pth
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/Jinja2-2.7.2-py2.7.egg
-    Searching for docutils==0.11
-    Best match: docutils 0.11
-    Adding docutils 0.11 to easy-install.pth file
-
-    Using /opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages
-    Searching for Pygments==1.6
-    Best match: Pygments 1.6
-    Processing Pygments-1.6-py2.7.egg
-    Removing Pygments 1.6 from easy-install.pth file
-    Pygments 1.6 is already the active version in easy-install.pth
-    Installing pygmentize script to /usr/local/env/chroma_env/bin
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages/Pygments-1.6-py2.7.egg
-    Searching for decorator==3.4.0
-    Best match: decorator 3.4.0
-    Adding decorator 3.4.0 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for pytest==2.5.2
-    Best match: pytest 2.5.2
-    Adding pytest 2.5.2 to easy-install.pth file
-    Installing py.test script to /usr/local/env/chroma_env/bin
-    Installing py.test-2.7 script to /usr/local/env/chroma_env/bin
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for pytools==2014.1.2
-    Best match: pytools 2014.1.2
-    Adding pytools 2014.1.2 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for pyzmq==14.0.1
-    Best match: pyzmq 14.0.1
-    Adding pyzmq 14.0.1 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for MarkupSafe==0.18
-    Best match: MarkupSafe 0.18
-    Removing MarkupSafe 0.18 from easy-install.pth file
-    Adding MarkupSafe 0.18 to easy-install.pth file
-
-    Using /usr/local/env/chroma_env/lib/python2.7/site-packages
-    Searching for py==1.4.20
-    Best match: py 1.4.20
-    Adding py 1.4.20 to easy-install.pth file
-
+    ... 
     Using /usr/local/env/chroma_env/lib/python2.7/site-packages
     Finished processing dependencies for Chroma==0.5
 
 
+Moved retainable chroma mods into bitbucket fork
+-------------------------------------------------
 
-
+* only significant mods canned were to camera.py 
+  as the over complicated nature of that makes it 
+  not a good place for development without a major re-write
+   
 
 
 

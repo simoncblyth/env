@@ -74,7 +74,6 @@ Rename to `io_` and change sole usage in `chroma/camera.py`::
     686 
 
 
-
 hg rename did not delete the io folder 
 ---------------------------------------
 

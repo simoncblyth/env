@@ -1,6 +1,14 @@
 bin/chroma-cam
 ================
 
+solution to pygame segfault : dont fork
+----------------------------------------
+
+Added option for that::
+
+    chroma-cam -F @chroma.models.lionsolid
+
+
 pygame parachute segmentation fault
 -------------------------------------
 
@@ -62,6 +70,8 @@ Refering to models by path has the same behavior::
     INFO:chroma:join Camera 
     Fatal Python error: (pygame parachute) Segmentation Fault
     (chroma_env)delta:chroma blyth$ 
+
+
 
 
 Why use multiprocessing, there is only one camera ? One viewer ?

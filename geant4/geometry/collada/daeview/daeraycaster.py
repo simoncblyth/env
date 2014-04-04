@@ -47,8 +47,8 @@ import OpenGL.GLUT as glut
 
 from pycuda import gpuarray as ga
 
-#from chroma import gpu
-#from chroma.loader import load_geometry_from_string
+from chroma import gpu
+from chroma.loader import load_geometry_from_string
 
 #from chroma.log import logger, logging
 #logger.setLevel(logging.INFO)
