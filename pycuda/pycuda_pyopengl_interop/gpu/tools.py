@@ -24,10 +24,6 @@ have that in the cuda source.::
    }  // extern C
    
 
-
-
-
-
 """
 import numpy as np
 import pytools

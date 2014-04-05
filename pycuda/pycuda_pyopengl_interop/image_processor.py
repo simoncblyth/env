@@ -3,6 +3,7 @@ import ctypes
 import numpy as np
 import OpenGL.GL as gl
 import OpenGL.raw.GL.VERSION.GL_1_1 as rawgl   #initially OpenGL.raw.GL as rawgl but only GL_1_1 has the glReadPixels symbol
+
 import pycuda.gl as cuda_gl
 import pycuda.driver as cuda_driver
 

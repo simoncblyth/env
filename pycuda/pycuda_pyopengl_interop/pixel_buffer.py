@@ -26,6 +26,7 @@ class PixelBuffer(object):
             self.tex = Texture(size)
 
     size = property(lambda self:(self.image_width, self.image_height))
+    npixels = property(lambda self:self.image_width*self.image_height)
 
     def resize(self, size): 
         if self.size == size:return
