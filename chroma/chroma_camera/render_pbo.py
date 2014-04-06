@@ -8,6 +8,9 @@
 """
 import os, argparse, logging
 log = logging.getLogger(__name__)
+
+#os.environ['CUDA_PROFILE'] = "1"
+
 from collections import OrderedDict
 
 import numpy as np
@@ -18,8 +21,9 @@ import pycuda.driver as cuda
 import pycuda.gpuarray as ga
 import pycuda.gl.autoinit
 
-from chroma import gpu
-from chroma.gpu.tools import get_cu_module, cuda_options, GPUFuncs, chunk_iterator
+#from chroma import gpu   ## this brings in the kitchen sink including pygame which muddies stack traces
+from chroma.gpu.geometry import GPUGeometry
+from chroma.gpu.tools import get_cu_module, cuda_options, chunk_iterator
 from chroma.loader import load_geometry_from_string
 
 from env.pycuda.pycuda_pyopengl_interop.pixel_buffer import PixelBuffer
@@ -67,38 +71,35 @@ class LaunchSequence(object):
 
 
 class GPURenderer(object):
-    def __init__(self, pixels, geometry, config, origin=None , pixel2world=None ):
+    def __init__(self, pixels, geometry, config ):
         pass
+        self.config = config
+
         npixels = pixels.npixels
         size = pixels.size
-
-        self.config = config
         self.pixels = pixels
-        self.gpu_geometry = gpu.GPUGeometry( geometry )
         self.npixels = npixels
+
+        self.gpu_geometry = GPUGeometry( geometry )
+
         launch = LaunchSequence(npixels, threads_per_block=config.args.threads_per_block, max_blocks=config.args.max_blocks )
         self.launch = launch
-        #print launch 
 
-        if origin is None:
-            origin = np.array([200,150,150,1])
-        if pixel2world is None:
-            pixel2world = np.identity(4)
-
+        self.dxlen = ga.zeros(npixels, dtype=np.uint32)
         dx_size = config.args.max_alpha_depth*npixels
         self.dx    = ga.empty(dx_size, dtype=np.float32)
-        self.dxlen = ga.zeros(npixels, dtype=np.uint32)
-        self.color = ga.empty(npixels, dtype=ga.vec.float4)
+        self.color = ga.empty(dx_size, dtype=ga.vec.float4)
 
         self.compile_()
-        self.set_constants(size, origin, pixel2world)
+        self.set_constants(size, config.eye, config.pixel2world)
 
     def compile_(self):
         """
         #. compile kernel and extract __constant__ symbol addresses
         """
         module = get_cu_module('render_pbo.cu', options=cuda_options)
-        self.arg_format = "iiPPPPP"
+        #self.arg_format = "iiPPPPP"
+        self.arg_format = "iiPP"
 
         self.g_size   = module.get_global("g_size")[0]  
         self.g_origin = module.get_global("g_origin")[0]
@@ -110,6 +111,11 @@ class GPURenderer(object):
 
     def set_constants(self, size, origin, pixel2world ):
         """ copy constant values to GPU """
+
+        log.info("size %s " % repr(size))
+        log.info("origin %s " % repr(origin))
+        log.info("pixel2world %s " % repr(pixel2world))
+
         cuda.memcpy_htod(self.g_size,         ga.vec.make_int2(*size))
         cuda.memcpy_htod(self.g_origin,       ga.vec.make_float4(*origin))
         cuda.memcpy_htod(self.g_pixel2world,  np.float32(pixel2world))
@@ -138,10 +144,11 @@ class GPURenderer(object):
 
         args = [ np.uint32(alpha_depth), 
                  pbo_mapping.device_ptr(),
-                 self.gpu_geometry.gpudata, 
-                 self.dx.gpudata, 
-                 self.dxlen.gpudata, 
-                 self.color.gpudata ]
+                 self.gpu_geometry.gpudata ]
+        
+        #         self.dx.gpudata, 
+        #         self.dxlen.gpudata, 
+        #         self.color.gpudata ]
 
         if check_args:
             self.check_args( self.arg_format[1:], *args)  # skip offset arg
@@ -152,7 +159,15 @@ class GPURenderer(object):
         for offset, count, blocks_per_grid in self.launch.chunker:
             grid=(blocks_per_grid, 1)
             print "[%s] offset %s grid %s block %s " % (calls, offset, repr(grid),repr(block))
+
+
             self.kernel.prepared_call( grid, block, np.uint32(offset), *args )
+            if self.config.args.allsync:
+                try:
+                    cuda.Context.synchronize()  
+                except:
+                    print "sync exception" 
+            pass
             calls += 1
         pass
         cuda.Context.synchronize()  # OMITTING THIS SYNC CAUSES AN UNRECOVERABLE GUI FREEZE
@@ -206,6 +221,49 @@ class Scene(object):
 
 
 
+
+class View(object):
+    registry = {}
+    def __init__(self):
+        self.registry[self.__class__.__name__] = self 
+    @classmethod
+    def get(cls, name):
+        return cls.registry.get(name, None)
+
+
+class A(View):
+    eye = "-32708.375,-818298.375,-7350.,1."
+    pixel2world = """
+[[      2.322        0.         -70.7107  -32257.7605]
+ [     -2.322        0.         -70.7107 -814506.3488]
+ [      0.           3.2839       0.       -8747.281 ]
+ [      0.           0.           0.           1.    ]]
+        """
+a = A()
+
+class B(View):
+    eye = "-32708.375,-818298.375,-7350.,1."  
+    pixel2world = """
+[[      3.3769       0.         -70.7107  -33352.0169]
+ [     -3.3769       0.         -70.7107 -814082.7292]
+ [      0.           4.7756       0.       -9382.0125]
+ [      0.           0.           0.           1.    ]]
+        """
+b = B()
+
+class C(View):
+    """
+    daeview -t 7153 --eye=-2,-2,0 --look=0,0,0 --up=0,0,1 
+    """
+    eye = "-19898.3184,-804471.2402,-2612.2,1."    
+    pixel2world = """
+[[      2.322        0.         -70.7107  -19447.7039]
+ [     -2.322        0.         -70.7107 -800679.214 ]
+ [      0.           3.2839       0.       -4009.481 ]
+ [      0.           0.           0.           1.    ]]
+       """
+c = C()
+
 class Config(object):
     def __init__(self, doc):
         parser, defaults = self._make_parser(doc)
@@ -225,24 +283,42 @@ class Config(object):
         defaults = OrderedDict()
         defaults['loglevel'] = "INFO"
         defaults['threads_per_block'] = 64
-        defaults['max_blocks'] = 128
+        defaults['max_blocks'] = 1024     # larger max_blocks reduces the number of separate launches, and increasing launch time (BEWARE TIMEOUT)
         defaults['max_alpha_depth'] = 3
-        defaults['size'] = "200,200"
+        defaults['size'] = "1024,768"
         defaults['kernel'] = "render_pbo"
+        defaults['allsync'] = True
+        defaults['view'] = "A"
+        #defaults['profile'] = False
 
-        parser.add_argument("-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
+        parser.add_argument( "-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "-t","--threads-per-block", help="", type=int  )
         parser.add_argument( "-a","--max-alpha-depth", help="", type=int  )
         parser.add_argument( "-b","--max-blocks", help="", type=int  )
         parser.add_argument( "-s","--size", help="", type=str  )
         parser.add_argument( "-k","--kernel", help="", type=str  )
+        parser.add_argument( "-c","--allsync", help="Sync after every launch, to catch errors earlier.", action="store_true"  )
+        parser.add_argument(       "--view", help="", type=str  )
+        #parser.add_argument( "-p","--profile", help="Writes profile to file", action="store_true"  )
 
         parser.set_defaults(**defaults)
         return parser, defaults
 
     size=property(lambda self:map(int,self.args.size.split(",")))
 
-        
+    def _get_view(self):
+        return View.get(self.args.view)
+    view = property(_get_view)       
+
+    def _get_pixel2world(self):
+        s = self.view.pixel2world
+        s = s.lstrip().rstrip().replace("[["," ").replace("]]"," ").replace("]"," ").replace("["," ").replace("\n"," ")
+        a = np.fromstring(s, sep=" ")
+        assert len(a) == 16 , (len(a), a )
+        return a.reshape((4,4))
+    pixel2world = property(_get_pixel2world)       
+    eye = property(lambda self:np.fromstring(self.view.eye,sep=","))
+
     def _settings(self, args, defaults, all=False):
         if args is None:return "PARSE ERROR"
         if all:
@@ -277,6 +353,14 @@ def main():
 
     config = Config(__doc__)
     print config
+    #print config.pixel2world
+    #print config.eye
+
+
+    #if config.args.profile:
+    #    print "set CUDA_PROFILE"    
+    #    os.environ['CUDA_PROFILE']="1"  
+    # too late, can do from python after restructuring to import pycuda etc.. after Config rather than before 
 
     fig = gp.figure(config.size)
     frame = fig.add_frame()
@@ -299,4 +383,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 

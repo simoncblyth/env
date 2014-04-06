@@ -198,6 +198,7 @@ class DAEConfig(object):
         defaults['fullscreen'] = False
         defaults['cuda'] = False
         defaults['markers'] = False
+        defaults['raycast'] = False
 
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
@@ -211,6 +212,7 @@ class DAEConfig(object):
         parser.add_argument(     "--fullscreen", action="store_true", help="Start in fullscreen mode." )
         parser.add_argument(     "--cuda",      action="store_true", help="[I] Start in cuda mode." )
         parser.add_argument(     "--markers",   action="store_true", help="[I] Frustum and light markers." )
+        parser.add_argument(     "--raycast",   action="store_true", help="[I] Raycast" )
 
 
         defaults['kscale'] = 100.

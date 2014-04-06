@@ -110,7 +110,10 @@ def main():
 
     config = DAEConfig(__doc__)
     config.init_parse()
-    print config
+    print "changed settings\n", config.changed_settings()
+    print "all settings\n",config.all_settings()
+
+
 
     geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()

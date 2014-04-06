@@ -47,7 +47,7 @@ import OpenGL.GLUT as glut
 
 from pycuda import gpuarray as ga
 
-from chroma import gpu
+from chroma.gpu.geometry import GPUGeometry
 from chroma.loader import load_geometry_from_string
 
 #from chroma.log import logger, logging
@@ -59,12 +59,8 @@ log = logging.getLogger(__name__)
 
 
 class DAERaycaster(object):
-    def __init__(self, config, camera, view, trackball ):
+    def __init__(self, config ):
         self.config = config
-        self.camera = camera
-        self.view = view
-        self.trackball = trackball
-
         self.init_chroma(config)
 
     def init_chroma(self, config):
@@ -74,50 +70,31 @@ class DAERaycaster(object):
         self.device_id = config.args.device_id
         self.max_alpha_depth = config.args.alpha_max
         self.alpha_depth = self.max_alpha_depth
-        self.step = 1000
 
-    def init_gpu(self):
-        self.context = gpu.create_cuda_context(self.device_id)
-        self.gpu_geometry = gpu.GPUGeometry(self.chroma_geometry)
-        self.gpu_funcs = gpu.GPUFuncs(gpu.get_cu_module('mesh.h'))
+    def render(self, pixel2world, eye):
+        """
+        """
+        print "DAERaycaster"
+        print "eye\n", eye
+        print "pixel2world\n", pixel2world
 
-        #
-        #pos, dir = from_film(self.point, axis1=self.axis1, axis2=self.axis2,
-        #                     size=self.size, width=self.film_width, focal_length=self.focal_length)
-        #
-        #self.rays = gpu.GPURays(pos, dir, max_alpha_depth=self.max_alpha_depth)
-        #
- 
-    def run(self):
-        #self.rays.render(self.gpu_geometry, self.pixels_gpu, self.alpha_depth, keep_last_render=False)
-        self.context.pop()
+    def illustrate(self, pixel2world, eye, camera ):
+        """
+        :param pixel2world: matrix represented by 4x4 numpy array 
+        :param eye: world frame eye coordinates, typically from view.eye
+        :param camera: DAECamera instance, used to get pixel counts, corner pixel coordinates
+                       and to provide pixel coordinates for pixel indices 
+        """
+        corners = np.array(camera.pixel_corners.values())
+        wcorners = np.dot( corners, pixel2world.T )           # world frame corners
 
- 
-    def draw(self, kscale):
-        camera = self.camera
-        view = self.view
+        #wcorners2 = np.dot( pixel2world, corners.T ).T    pre/post matrix multiplication equivalent when transpose appropriately
+        #assert np.allclose( wcorners, wcorners2 )
 
-        scale = np.identity(4)   # it will be getting scaled down so have to scale it up, annoyingly 
-        scale[0,0] = kscale
-        scale[1,1] = kscale
-        scale[2,2] = kscale
+        indices = np.random.randint(0, camera.npixel,1000)    # random pixel indices 
+        pixels = np.array(map(camera.pixel_xyzw, indices ))   # find a numpy way to map, if want to deal with all pixels
+        wpoints = np.dot( pixels, pixel2world.T )             # world frame random pixels
 
-        pixel2camera_scaled = np.dot( scale, camera.pixel2camera ) # order matters, have to scale pixel2camera, not after camera2world
-        camera2world = view.camera2world.matrix
-        pixel2world = np.dot( camera2world, pixel2camera_scaled )   
-
-        pixel_corners = camera.pixel_corners
-        corners = np.array(pixel_corners.values())
-        wcorners  = np.dot( corners, pixel2world.T )
-        wcorners2 = np.dot( pixel2world, corners.T ).T   
-        assert np.allclose( wcorners, wcorners2 )
-
-        #indices = np.arange(0,camera.npixel,1024*16)            # cut down numbers of rays for visibility :w
-        indices = np.random.randint(0, camera.npixel,1000)
-        pixels = np.array(map(camera.pixel_xyzw, indices ))     # find a numpy way to map, if want to deal with all pixels
-        wpoints = np.dot( pixels, pixel2world.T )
-
-        eye = view.eye
 
         gl.glDisable( gl.GL_LIGHTING )
         gl.glDisable( gl.GL_DEPTH_TEST )
@@ -159,6 +136,5 @@ if __name__ == '__main__':
 
     raycaster = DAERaycaster(config)
     raycaster.init_gpu()
-    raycaster.run()
 
 

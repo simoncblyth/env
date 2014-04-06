@@ -131,6 +131,7 @@ class DAEInteractivityHandler(object):
         elif symbol == key.O: self.scene.toggle_attr("drawsolid")
         elif symbol == key.C: self.scene.toggle_attr("cuda")
         elif symbol == key.K: self.scene.toggle_attr("markers")
+        elif symbol == key.R: self.scene.toggle_attr("raycast")
         else:
             pass
             #print "no action for on_key_press with symbol 0x%x " % symbol
