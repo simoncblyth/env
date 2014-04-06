@@ -50,6 +50,11 @@ from pycuda import gpuarray as ga
 from chroma.gpu.geometry import GPUGeometry
 from chroma.loader import load_geometry_from_string
 
+
+from env.chroma.chroma_camera.render_pbo.pbo_renderer import PBORenderer
+
+
+
 #from chroma.log import logger, logging
 #logger.setLevel(logging.INFO)
 #log = logger
