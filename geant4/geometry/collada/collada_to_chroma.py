@@ -398,7 +398,11 @@ def daeload(path=None, root_index=None):
        root_index = int(os.environ.get('DAE_ROOT',0))
 
    log.info("daeload path %s root_index %s " % (path, root_index))
-   DAENode.parse(path)
+
+   if len(DAENode.registry) > 0:
+       log.info("skipping parse as already have %s nodes " % len(DAENode.registry))
+   else:
+       DAENode.parse(path)
 
    #DAENode.extra.dump_skinsurface()
    #DAENode.extra.dump_skinmap()
@@ -410,6 +414,8 @@ def daeload(path=None, root_index=None):
    cc.convert_geometry()
 
    return cc.geo
+
+
 
     
 

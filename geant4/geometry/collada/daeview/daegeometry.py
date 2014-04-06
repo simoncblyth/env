@@ -271,7 +271,16 @@ class DAEGeometry(object):
         else:
             vertices = self.mesh.vertices
         return DAEVertexBufferObject(vertices, self.mesh.normals, self.mesh.triangles, rgba )
-       
+      
+    def make_chroma_geometry(self, root_index=None):
+        if root_index is None:
+            root_index = int(os.environ.get('DAE_ROOT',0))
+
+        log.info("make_chroma_geometry root_index %s " % root_index )
+        from env.geant4.geometry.collada.collada_to_chroma  import ColladaToChroma 
+        cc = ColladaToChroma(DAENode, root_index=root_index )     # skip the top.0 node, that universe is too big 
+        cc.convert_geometry()
+        return cc.geo
  
 
 class DAEVertexBufferObject(object):

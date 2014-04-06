@@ -567,6 +567,8 @@ class DAENode(object):
         if parent is None:
             if node.id == "top.0":
                 pass
+            elif node.id == "top.1":
+                log.info("root node name %s indicates have parsed twice " % node.id )
             else:
                 log.fatal("failed to find parent for %s (failure expected only for root node)" % node )
                 assert 0

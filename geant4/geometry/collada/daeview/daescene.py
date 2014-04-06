@@ -56,7 +56,7 @@ class DAEScene(object):
         self.kscale = kscale
 
         # raycaster
-        self.raycaster = DAERaycaster( config )
+        self.raycaster = DAERaycaster( config, geometry )
 
         # selected solids
         self.solids = []

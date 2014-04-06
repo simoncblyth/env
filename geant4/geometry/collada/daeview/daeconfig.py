@@ -145,14 +145,14 @@ class DAEConfig(object):
         defaults['with_chroma'] = False
         defaults['processor'] = "Invert"
         defaults['deviceid'] = None
-        defaults['alpha_max'] = 10
+        defaults['max_alpha_depth'] = 10
 
         parser.add_argument("-l","--loglevel",help="INFO/DEBUG/WARN/..   %(default)s")  
         parser.add_argument( "-C","--no-with-cuda", dest="with_cuda", help="Inhibit use of cuda ", action="store_true"  )
         parser.add_argument(     "--with-chroma", dest="with_chroma", help="Indicate if Chroma is available.", action="store_true" )
         parser.add_argument(     "--processor", help="Name of the cuda processor to use.", type=str )
         parser.add_argument(     "--device-id", help="CUDA device id.", type=str )
-        parser.add_argument(     "--alpha-max", help="Chroma Raycaster alpha_max", type=int )
+        parser.add_argument(     "--max-alpha-depth", help="Chroma Raycaster alpha_max", type=int )
 
         parser.add_argument(   "--host", help="Hostname to bind to for UDP messages ", type=str  )
         parser.add_argument(   "--port", help="Port to bind to for UDP messages ", type=str  )
@@ -199,6 +199,10 @@ class DAEConfig(object):
         defaults['cuda'] = False
         defaults['markers'] = False
         defaults['raycast'] = False
+        defaults['threads_per_block'] = 64
+        defaults['max_blocks'] = 1024
+        defaults['kernel'] = "render_pbo"
+        defaults['allsync'] = True
 
         parser.add_argument("-t","--target",  help="[I] Node specification of solid on which to focus or empty string for all",type=str)
         parser.add_argument("-j","--jump",    help="[I] Animated transition to another node.")  
@@ -213,6 +217,10 @@ class DAEConfig(object):
         parser.add_argument(     "--cuda",      action="store_true", help="[I] Start in cuda mode." )
         parser.add_argument(     "--markers",   action="store_true", help="[I] Frustum and light markers." )
         parser.add_argument(     "--raycast",   action="store_true", help="[I] Raycast" )
+        parser.add_argument( "--threads-per-block", help="", type=int )
+        parser.add_argument( "--max-blocks", help="", type=int )
+        parser.add_argument( "--kernel", help="", type=str )
+        parser.add_argument( "--allsync",   action="store_true", help="" )
 
 
         defaults['kscale'] = 100.
