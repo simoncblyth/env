@@ -41,6 +41,7 @@ fvec_ = lambda _:map(float,_.split(","))
 class DAEConfig(object):
 
     size = property(lambda self:ivec_(self.args.size))
+    kernel_flags=property(lambda self:ivec_(self.args.kernel_flags))
 
     frame = property(lambda self:fvec_(self.args.frame))
     rgba = property(lambda self:fvec_(self.args.rgba))
@@ -223,6 +224,7 @@ class DAEConfig(object):
         defaults['threads_per_block'] = 64
         defaults['max_blocks'] = 1024
         defaults['kernel'] = "render_pbo"
+        defaults['kernel_flags'] = "0,0"
         defaults['allsync'] = True
 
         parser.add_argument( "--cuda",      action="store_true", help="[I] Start in cuda mode." )
@@ -230,6 +232,7 @@ class DAEConfig(object):
         parser.add_argument( "--threads-per-block", help="", type=int )
         parser.add_argument( "--max-blocks", help="", type=int )
         parser.add_argument( "--kernel", help="", type=str )
+        parser.add_argument( "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
         parser.add_argument( "--allsync",   action="store_true", help="" )
 
 

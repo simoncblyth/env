@@ -58,6 +58,7 @@ class DAEScene(object):
 
         # Chroma raycaster, None if not --with-chroma
         self.raycaster = self.make_raycaster( config, geometry ) 
+        self.raycast_flags = (0,0)
 
         # Image processor, None if not --with-cuda-image-processor
         self.processor = self.make_processor( config ) 
@@ -70,6 +71,8 @@ class DAEScene(object):
         self.camera.resize(size)
         if self.processor is not None:
             self.processor.resize(size)
+        if self.raycaster is not None:
+            self.raycaster.resize(size)
 
     def _get_pixel2world(self):
         """ 
@@ -150,6 +153,10 @@ class DAEScene(object):
 
     def animation_speed(self, factor ):   
         self.speed *= factor
+
+    def set_raycast_flags(self, flags):   
+        self.raycast_flags = flags
+
 
     def where(self):
         model_xyz = self.view.offset_eye_position( self.trackball.xyz ) 

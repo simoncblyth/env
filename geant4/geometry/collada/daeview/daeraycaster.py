@@ -54,14 +54,21 @@ class DAERaycaster(object):
         self.chroma_geometry = load_geometry_from_string(config.args.path)
         log.info("completed loading geometry from %s " % config.args.path)
 
-        self.pixels = PixelBuffer(config.size, texture=True)
+        self.size = config.size 
+
+        self.pixels = PixelBuffer( self.size, texture=True)
         log.info("created PixelBuffer %s  " % repr(config.size) )
 
-        self.renderer = PBORenderer(self.pixels, self.chroma_geometry, config )
+        self.renderer = PBORenderer( self.pixels, self.chroma_geometry, config )
         log.info("created PBORenderer " )
 
+    def resize(self, size ):
+        log.info("DAERaycaster resize %s " % repr(size))
+        if self.size == size:return
+        self.pixels.resize(size)           
+        self.renderer.resize(size)
 
-    def render(self, pixel2world, eye):
+    def render(self, pixel2world, eye, flags):
         """
         """
         print "DAERaycaster"
@@ -72,8 +79,15 @@ class DAERaycaster(object):
             log.warn("chroma raycast rendering requires launch option: --with-chroma ")
             return 
 
-        self.renderer.set_constants( self.pixels.size, eye, pixel2world )  # hmm changing size will cause problems
-        self.renderer.render()
+        renderer = self.renderer
+
+        renderer.origin = eye
+        renderer.pixel2world = pixel2world 
+        renderer.flags = flags
+
+        renderer.render()
+
+
         self.pixels.draw()
 
 

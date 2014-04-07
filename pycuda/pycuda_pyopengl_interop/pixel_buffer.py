@@ -190,6 +190,7 @@ class Texture(object):
 
         gl.glDisable(gl.GL_DEPTH_TEST)
         gl.glDisable(gl.GL_LIGHTING)
+
         gl.glEnable(gl.GL_TEXTURE_2D)
         gl.glTexEnvf(gl.GL_TEXTURE_ENV, gl.GL_TEXTURE_ENV_MODE, gl.GL_REPLACE)
         gl.glMatrixMode(gl.GL_PROJECTION)
@@ -212,6 +213,10 @@ class Texture(object):
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glPopMatrix()
         gl.glDisable(gl.GL_TEXTURE_2D)
+
+        # otherwise get grey silhouettes 
+        gl.glEnable(gl.GL_DEPTH_TEST)
+        gl.glEnable(gl.GL_LIGHTING)
 
 
     def cleanup(self):

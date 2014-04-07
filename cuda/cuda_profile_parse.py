@@ -90,7 +90,7 @@ class Parser(object):
             txt = line[:-1]
             d = self.parse(txt)
             if d is None:
-                log.warn("failed to parse : %s " % txt )
+                log.debug("failed to parse : %s " % txt )
             else:
                 yield d 
                 self.accumulate(d)

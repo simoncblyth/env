@@ -63,41 +63,78 @@ class CUDACheck(object):
             log.info("setting CUDA_PROFILE envvar, will write logs such as %s " % self.log )
             os.environ['CUDA_PROFILE'] = "1"
         self.config = config
+        self.kernel = config.args.kernel
         self.parser = Parser()
+        self.profile = []
 
-    def tail(self):
+    def parse_profile(self):
+        self.profile = []
         if self.config.args.cuda_profile:
-            #cmd = "ls -l %(log)s ; tail -20 %(log)s " % {'log':self.log}
-            #for line in os.popen(cmd).readlines():
             for d in self.parser(self.log):
-                print d
+                #print d
+                if d['method'].startswith(self.kernel):
+                    self.profile.append(d)
+    
+    def compare_with_launch_times(self, times, launch):
+        nprofile = len(self.profile)
+        nlaunch = len(times)
+        log.info("nprofile %s nlaunch %s" % (nprofile, nlaunch))
+        if nprofile > nlaunch:
+            profile = self.profile[-nlaunch:]
+        elif nprofile == nlaunch:
+            profile = self.profile
+        else:
+            log.info("times : %s " % repr(times))
+            log.warn("unexpected")
+            return  
+
+        assert len(profile) == nlaunch
+        anno = ["%15.5f" % t + " %(gputime)15.1f %(cputime)15.3fs %(occupancy)s " % d for d,t in zip(profile, times)]
+        print launch.present(anno)
 
 
 
 
 class Launch(object):
-    def __init__(self, worksize, max_blocks=1024, threads_per_block=64 ):
-        self.worksize = worksize
+    def __init__(self, size, max_blocks=1024, threads_per_block=64 ):
+        """
+        :param size: 1/2/3-dimensional tuple/array with work size eg (1024,768) 
+        """
+        self.size = size
         self.max_blocks = max_blocks
         self.threads_per_block = threads_per_block
         pass
 
-    chunker = property(lambda self:chunk_iterator(self.worksize, self.threads_per_block, self.max_blocks))
+    def resize(self, size):
+        self.size = size
+
+    total = property(lambda self:reduce(mul,self.size,1))
+    chunker = property(lambda self:chunk_iterator(self.total, self.threads_per_block, self.max_blocks))
     counts = property(lambda self:[_[1] for _ in self.chunker])
     block = property(lambda self:(self.threads_per_block,1,1))
 
-    def __str__(self):
+    def present(self, anno=[]):
         def present_launch((offset, count, blocks_per_grid)):
             grid=(blocks_per_grid, 1)
             block=(self.threads_per_block,1,1)
             return "offset %10s count %s grid %s block %s " % ( offset, count, repr(grid), repr(block) )
         pass
-        return "\n".join([self.smry]+map(present_launch, self.chunker))
 
+        launches = map(present_launch, self.chunker)
+        if len(anno) == 0: 
+            return "\n".join([self.smry]+ launches )
+        elif len(launches) == len(anno):
+            return "\n".join([self.smry] +["%s : %s" % (l,a) for l, a in  zip(launches, anno)])
+        else:
+            return "mismatch between anno length and launch length"
+       
+
+    def __str__(self):
+        return self.present()
     def _get_smry(self):
         counts = self.counts
-        assert sum(counts) == self.worksize
-        return "%s worksize %s max_blocks %s threads_per_block %s launches %s block %s " % (self.__class__.__name__, self.worksize, \
+        assert sum(counts) == self.total
+        return "%s size %s total %s max_blocks %s threads_per_block %s launches %s block %s " % (self.__class__.__name__, self.size, self.total, \
                      self.max_blocks, self.threads_per_block, len(counts), repr(self.block) )
     smry = property(_get_smry)
 
@@ -126,7 +163,6 @@ class Config(object):
         parser.set_defaults(**defaults)
         return parser, defaults
 
-    worksize = property(lambda self:reduce(mul,self.args.worksize,1))
 
     def _settings(self, args, defaults):
         wid = 20
@@ -139,8 +175,7 @@ class Config(object):
 
 def main():
     config = Config(__doc__)
-    print config.args.worksize, " => ", config.worksize
-    cl = Launch(config.worksize, max_blocks=config.args.max_blocks, threads_per_block=config.args.threads_per_block)
+    cl = Launch(config.args.worksize, max_blocks=config.args.max_blocks, threads_per_block=config.args.threads_per_block)
     print cl
 
 

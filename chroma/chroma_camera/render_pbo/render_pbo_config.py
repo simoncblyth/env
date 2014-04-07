@@ -74,6 +74,7 @@ class Config(object):
         defaults['alpha_depth'] = 3
         defaults['size'] = "1024,768"
         defaults['kernel'] = "render_pbo"
+        defaults['kernel_flags'] = "0,0"
         defaults['allsync'] = True
         defaults['cuda_profile'] = True
         defaults['view'] = "A"
@@ -86,6 +87,7 @@ class Config(object):
         parser.add_argument( "-b","--max-blocks", help="", type=int  )
         parser.add_argument( "-s","--size", help="", type=str  )
         parser.add_argument( "-k","--kernel", help="", type=str  )
+        parser.add_argument(      "--kernel-flags", help="g_flags constant provided to kernel, used for thread time presentation eg try 20,0  ", type=str  )
         parser.add_argument( "-c","--allsync", help="Sync after every launch, to catch errors earlier.", action="store_true"  )
         parser.add_argument(      "--cuda-profile", help="", action="store_true"  )
         parser.add_argument(       "--view", help="", type=str  )
@@ -94,6 +96,7 @@ class Config(object):
         return parser, defaults
 
     size=property(lambda self:map(int,self.args.size.split(",")))
+    kernel_flags=property(lambda self:map(int,self.args.kernel_flags.split(",")))
 
     def _get_view(self):
         return View.get(self.args.view)

@@ -114,8 +114,7 @@ def main():
     config = DAEConfig(__doc__)
     config.init_parse()
     config.report()
-
-    cudacheck = CUDACheck(config)
+    config.cudacheck = CUDACheck(config)  # MUST be done before CUDA init, for setting of CUDA_PROFILE envvar 
 
     geometry = DAEGeometry(config.args.nodes, path=config.args.path)
     geometry.flatten()
@@ -135,7 +134,6 @@ def main():
 
     gp.show()
 
-    cudacheck.tail()
 
 
 if __name__ == '__main__':

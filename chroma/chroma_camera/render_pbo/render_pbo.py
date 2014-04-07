@@ -4,6 +4,7 @@
 
     ./render_pbo.py -s 1024,768 -k render_pbo_debug
     ./render_pbo.py --cuda-profile --alpha-depth 10
+    ./render_pbo.py --cuda-profile --alpha-depth 10 --kernel render_pbo --size 1024,768 --view B --kernel-flags 18,0
 
 
 """
@@ -12,8 +13,8 @@ log = logging.getLogger(__name__)
 
 import glumpy as gp
 
-from render_pbo_config import Config
 from env.cuda.cuda_launch import CUDACheck
+from render_pbo_config import Config
 
 class FigHandler(object):
     """glumpy event handler"""
@@ -45,14 +46,12 @@ class FrameHandler(object):
 def main():
     config = Config(__doc__)
     print config
-    cudacheck = CUDACheck(config)
+    config.cudacheck = CUDACheck(config)  # MUST be done before CUDA init, for setting of CUDA_PROFILE envvar 
 
-    log.info("render_pbo main")
     from render_pbo_scene import Scene
 
-
     fig = gp.figure(config.size)  # glumpy glut setup
-    frame = fig.add_frame()
+    frame = fig.add_frame((1,1))
     trackball = gp.Trackball( 65, 135, 1.0, 2.5 )
 
     scene = Scene(config, trackball)       
@@ -62,7 +61,6 @@ def main():
 
     gp.show()
 
-    cudacheck.tail()
 
 
 if __name__ == '__main__':

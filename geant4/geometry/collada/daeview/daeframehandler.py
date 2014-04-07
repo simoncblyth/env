@@ -216,7 +216,7 @@ class DAEFrameHandler(object):
                 self.scene.processor.display() 
 
         if self.scene.raycast:
-            self.scene.raycaster.render(self.scene.pixel2world, view.eye) 
+            self.scene.raycaster.render(self.scene.pixel2world, view.eye, self.scene.raycast_flags) 
  
         self.frame.unlock()
 
